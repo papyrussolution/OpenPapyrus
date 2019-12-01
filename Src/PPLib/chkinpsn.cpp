@@ -40,6 +40,10 @@ int SLAPI PPCheckInPersonConfig::operator !() const
 	return BIN(Flags & fError);
 }
 
+SLAPI PPCheckInPersonItem::Total::Total() : RegCount(0), CiCount(0), CalceledCount(0)
+{
+}
+
 IMPL_INVARIANT_C(PPCheckInPersonItem)
 {
 	S_INVARIANT_PROLOG(pInvP);
@@ -874,15 +878,17 @@ int FASTCALL PPCheckInPersonMngr::StorageToItem(const ObjAssocTbl::Rec & rRec, P
 	return ok;
 }
 
-#define GRP_CHKINP_PERSON 1
-
 class CheckInPersonDialog : public TDialog {
+	DECL_DIALOG_DATA(PPCheckInPersonItem);
 public:
+	enum {
+		ctlgroupPerson = 1
+	};
 	CheckInPersonDialog(const PPCheckInPersonConfig * pCfg, SString & rMemoBuf) : TDialog(DLG_CHKINP), R_MemoBuf(rMemoBuf)
 	{
 		RVALUEPTR(Cfg, pCfg);
-		addGroup(GRP_CHKINP_PERSON, new PersonCtrlGroup(CTLSEL_CHKINP_PERSON, CTL_CHKINP_SCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
-		PersonCtrlGroup * p_grp = static_cast<PersonCtrlGroup *>(getGroup(GRP_CHKINP_PERSON));
+		addGroup(ctlgroupPerson, new PersonCtrlGroup(CTLSEL_CHKINP_PERSON, CTL_CHKINP_SCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
+		PersonCtrlGroup * p_grp = static_cast<PersonCtrlGroup *>(getGroup(ctlgroupPerson));
 		CALLPTRMEMB(p_grp, SetAnonymCtrlId(CTL_CHKINP_ANONYM));
 		SetupCalDate(CTLCAL_CHKINP_REGDT, CTL_CHKINP_REGDT);
 		SetupCalDate(CTLCAL_CHKINP_CIDT, CTL_CHKINP_CIDT);
@@ -893,18 +899,18 @@ public:
 		showButton(cmCCheck, Cfg.GoodsID);
 		enableCommand(cmCCheck, Cfg.GoodsID);
 	}
-	int    setDTS(const PPCheckInPersonItem * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		{
 			PersonCtrlGroup::Rec rec;
 			rec.PersonID = Data.GetPerson();
 			rec.PsnKindID = Cfg.PersonKindID;
 			rec.SCardID = Data.SCardID;
 			SETFLAG(rec.Flags, rec.fAnonym, Data.IsAnonym());
-			setGroupData(GRP_CHKINP_PERSON, &rec);
+			setGroupData(ctlgroupPerson, &rec);
 		}
 		SetupPerson();
 		long   status = Data.GetStatus();
@@ -940,13 +946,13 @@ public:
 		setCtrlString(CTL_CHKINP_MEMO, R_MemoBuf);
 		return ok;
 	}
-	int    getDTS(PPCheckInPersonItem * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		long   status = 1;
 		{
 			PersonCtrlGroup::Rec rec;
-			getGroupData(GRP_CHKINP_PERSON, &rec);
+			getGroupData(ctlgroupPerson, &rec);
 			if(rec.Flags & rec.fAnonym)
 				Data.SetAnonym();
 			else
@@ -1059,7 +1065,6 @@ private:
 		setStaticText(CTL_CHKINP_ST_PINCODE, pin_code);
 	}
 	PPCheckInPersonConfig Cfg;
-	PPCheckInPersonItem Data;
 	PPObjSCard ScObj;
 	SString & R_MemoBuf;
 };
@@ -1067,6 +1072,7 @@ private:
 int SLAPI EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData, SString & rMemo) { DIALOG_PROC_BODY_P2(CheckInPersonDialog, pCfg, rMemo, pData); }
 
 class CheckInPersonListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPCheckInPersonArray);
 public:
 	CheckInPersonListDialog(const PPCheckInPersonConfig * pCfg) : PPListDialog(DLG_CHKINPLIST, CTL_CHKINPLIST_LIST)
 	{
@@ -1075,14 +1081,14 @@ public:
 		showCtrl(CTL_CHKINPLIST_CNT, 0);
 		showCtrl(CTLSPN_CHKINPLIST_CNT, 0);
 	}
-	int    setDTS(const PPCheckInPersonArray * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init();
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(PPCheckInPersonArray * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -1098,13 +1104,7 @@ private:
 				showCtrl(CTL_CHKINPLIST_CNT, 1);
 				showCtrl(CTLSPN_CHKINPLIST_CNT, 1);
 				const  PPCheckInPersonItem & r_item = Data.Get(pos);
-				int    count = 0;
-				if(r_item.Flags & PPCheckInPersonItem::fCheckedIn) {
-					count = (int)r_item.CiCount;
-				}
-				else {
-					count = (int)r_item.RegCount;
-				}
+				int    count = static_cast<int>((r_item.Flags & PPCheckInPersonItem::fCheckedIn) ? r_item.CiCount : r_item.RegCount);
 				setCtrlData(CTL_CHKINPLIST_CNT, &count);
 			}
 			else {
@@ -1213,9 +1213,7 @@ private:
 		delete p_cm;
 		return ok;
 	}
-
 	PPCheckInPersonConfig Cfg;
-	PPCheckInPersonArray Data;
 };
 
 int CheckInPersonListDialog::setupList()
@@ -1278,7 +1276,7 @@ int CheckInPersonListDialog::addItem(long * pPos, long * pID)
 	SString added_msg;
 	PPCheckInPersonItem::Total rcount;
 	Data.Count(rcount);
-	if(Cfg.Capacity > 0 && rcount.RegCount >= (uint)Cfg.Capacity) {
+	if(Cfg.Capacity > 0 && Cfg.Capacity <= static_cast<int>(rcount.RegCount)) {
 		PPError(PPERR_CHKINP_CAPACITYEXCESS, added_msg.Cat(Cfg.Capacity));
 		ok = 0;
 	}

@@ -1301,6 +1301,7 @@
 #define PPTAG_GUA_GUID              88L // @v10.5.3 GUID глобальной учетной записи
 #define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
 #define PPTAG_LOT_LINKBILLROW       90L // @v10.5.7 Связанная строка документа
+#define PPTAG_GUA_CERTSUBJCN        91L // @v10.6.3 CN субъекта сертификата электронной подписи
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -6358,7 +6359,7 @@
 	#define CTL_HOLIDAY_DAYOFWEEK        (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_HOLIDAY_DAYOFWEEK     (5 + WINDOWS_ID_BIAS)
 	#define CTL_HOLIDAY_ST_LOC           (6 + WINDOWS_ID_BIAS)
-#define DLG_REPLCARD              636 // Пернос операций с одной карточки на другую //
+#define DLG_REPLCARD              636 // Перенос операций с одной карточки на другую //
 	#define CTL_REPLCARD_SRCCARD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_REPLCARD_DESTCARD        (2 + WINDOWS_ID_BIAS)
 #define DLG_CCHECKINFO            637 // Системная информация по чеку
@@ -8823,6 +8824,7 @@
 	#define CTLSEL_GLOBUSERACC_PSN        (8 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_SVC           (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GLOBUSERACC_SVC        (10 + WINDOWS_ID_BIAS)
+	#define CTL_GLOBUSERACC_FLAGS         (11 + WINDOWS_ID_BIAS)
 #define DLG_NEWACCT              1055 //
 	#define cmPassword                    110
 	#define CTL_NEWACCT_USER              (1 + WINDOWS_ID_BIAS)
@@ -10197,6 +10199,8 @@
 	#define CTL_ALCREPCFG_OP_INV       (41 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCREPCFG_OP_INV    (42 + WINDOWS_ID_BIAS)
 	#define CTL_ALCREPCFG_RSAT         (43 + WINDOWS_ID_BIAS) // RtlSaleAllwTime
+	#define CTL_ALCREPCFG_OP_MFG       (44 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ALCREPCFG_OP_MFG    (45 + WINDOWS_ID_BIAS)
 
 #define DLG_INPUTNUM              1271
 	#define CTL_INPUTNUM_NUM           (1 + WINDOWS_ID_BIAS)
@@ -10586,6 +10590,8 @@
 	#define CTLSEL_VETDOCFLT_TOP      (16 + WINDOWS_ID_BIAS)
 	#define CTL_VETDOCFLT_TOL         (17 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VETDOCFLT_TOL      (18 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_FTEXPIRY    (19 + WINDOWS_ID_BIAS)
+	#define CTL_VETDOCFLT_FTMATCH     (20 + WINDOWS_ID_BIAS)
 #define DLG_VETVDOC               1342
 	#define CTL_VETVDOC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETVDOC_UUID          (2 + WINDOWS_ID_BIAS)
@@ -10662,6 +10668,7 @@
 	#define CTL_TIMSER_TGTQUANT       (19 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_MANMARG        (20 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_TYPE           (21 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_FXSTAKE        (22 + WINDOWS_ID_BIAS)
 #define DLG_TSSA                  1353 //
 	#define cmTsList                  101
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
@@ -12030,7 +12037,7 @@
 	#define PPATOLCS_ADDINNERSCHEMES     6
 	#define PPATOLCS_DELETEALLDSCNTS     7
 	#define PPATOLCS_ADDSCARDDSCNTS      8
-#define PPTXT_WEEKDAYS_BRIEF              227 // Дни недели сокращенно
+// @v10.6.3 #define PPTXT_WEEKDAYS_BRIEF              227 // Дни недели сокращенно
 #define PPTXT_ATOLCARD_TBL_NAMES          228 // Наименования таблиц в ATOL-CARD
 	#define PPACTN_CARDS                 0
 	#define PPACTN_CATEGORIES            1
@@ -12145,9 +12152,6 @@
 	#define PPDL200_NAMEVAR_ACCOUNTANT  5
 	#define PPDL200_NAMEVAR_DBNAME      6
 	#define PPDL200_NAMEVAR_DBSYMB      7
-#define PPTXT_INPUTEMAIL                  569 // Введите почтовый адрес
-#define PPTXT_LOCTYPE                     577 // "1,Склад;2,Складская зона;3,Адрес;4,Подразделение;5,Группа складов;6,Складская колонна;7,Складская ячейка;100,Автоматическая генерация складских ячеек"
-#define PPTXT_DESKIMGDIR                  578 // Наименование папка для хранения обоев рабочего стола
 #define PPTXT_FILE_OR_PATH_SELECTION      579 // Выбор файла/пути
 	#define PPFOPS_FILE                 0
 	#define PPFOPS_PATH                 1
@@ -12213,7 +12217,6 @@
 	#define IMPEXPPARAM_BILH_SRCHCODE1   2
 	#define IMPEXPPARAM_BILH_SRCHCODE2   3
 	#define IMPEXPPARAM_BILH_PREDEFFMT   4 // @v9.7.8
-#define PPTXT_SUBSTBILLLIST                     634 // Список подстановок документа
 #define PPTXT_BALTIKA_DOCTYPES                  636
 	#define BALTIKA_DOCTYPES_EXPEND      0
 	#define BALTIKA_DOCTYPES_RECEIPT     1
@@ -12229,10 +12232,6 @@
 #define PPTXT_LOTPARAMS                     645 // Параметры импорта/экспорта лотов
 	#define PPLOTPAR_FLAGS               0
 	#define PPLOTPAR_UHTTGOODSCODEAR     1
-#define PPTXT_SCALE_NOTALLOWADDINFO			646 // Настройки весов не позволяют загружать дополнительное сообщение о товаре
-#define PPTXT_EDS_NOFILEORSIGNOWNER			647 // Не определен подписываемый документ или не указан владелец подписи
-#define PPTXT_EDS_FILESIGNED				648 // Файл '%s' подписан. Подпись сохранена/добавлена в файл '%s'
-#define PPTXT_SMS_PNONENUMCHNGD				649 // "Телефонный номер преобразован: %s"
 #define PPTXT_SMS_FIELDS					650	// Наименования полей для подставновки в смс-сообщение
 	#define SMS_FIELDS_PERSNAME			0	// Имя адресата
 	#define SMS_FIELDS_EXTPERSNAME      1   // Расширенное им
@@ -12271,6 +12270,14 @@
 	#define PPQUOTPAR_ARTICLE                 2
 	#define PPQUOTPAR_LOC                     3
 	#define PPQUOTPAR_FLAGS                   4
+// @v10.6.3 #define PPTXT_INPUTEMAIL                  569 // Введите почтовый адрес
+// @v10.6.3 #define PPTXT_LOCTYPE                     577 // "1,Склад;2,Складская зона;3,Адрес;4,Подразделение;5,Группа складов;6,Складская колонна;7,Складская ячейка;100,Автоматическая генерация складских ячеек"
+// @v10.6.3 #define PPTXT_DESKIMGDIR                  578 // Наименование папка для хранения обоев рабочего стола
+// @v10.6.3 #define PPTXT_SUBSTBILLLIST                     634 // Список подстановок документа
+// @v10.6.3 #define PPTXT_SCALE_NOTALLOWADDINFO			646 // Настройки весов не позволяют загружать дополнительное сообщение о товаре
+// @v10.6.3 #define PPTXT_EDS_NOFILEORSIGNOWNER			647 // Не определен подписываемый документ или не указан владелец подписи
+// @v10.6.3 #define PPTXT_EDS_FILESIGNED				648 // Файл '%s' подписан. Подпись сохранена/добавлена в файл '%s'
+// @v10.6.3 #define PPTXT_SMS_PNONENUMCHNGD				649 // "Телефонный номер преобразован: %s"
 // @v10.6.2 #define PPTXT_SELALTGOODSGRPS             620 // Заголовок диалога выбора альтернативных групп товаров для вставки нового товара
 // @v10.6.2 #define PPTXT_DUPLWORLDOBJNAMES           623 // Найдены дублирующиеся географические объекты
 // @v10.6.2 #define PPTXT_DUPLPERSONNAMES             624 // Найдены дублирующиеся персоналии

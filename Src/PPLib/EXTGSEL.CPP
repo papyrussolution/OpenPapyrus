@@ -93,7 +93,7 @@ SLAPI PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PIC
 
 IMPL_HANDLE_EVENT(PickLotBrowser)
 {
-	PickLotBrowser::Entry * p_entry = 0;
+	const PickLotBrowser::Entry * p_entry = 0;
 	BrowserWindow::handleEvent(event);
 	if(event.isCmd(cmaEdit)) {
 		if(IsInState(sfModal))
@@ -101,23 +101,23 @@ IMPL_HANDLE_EVENT(PickLotBrowser)
 	}
 	else if(event.isKeyDown(kbF3)) {
 		if(P_BObj->CheckRights(BILLRT_ACCSCOST)) {
-			p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
+			p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
 			if(p_entry && p_entry->LotID)
 				ViewOpersByLot(p_entry->LotID, 0);
 		}
 	}
 	else if(event.isKeyDown(kbF4)) {
-		p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
+		p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
 		if(p_entry && p_entry->LotID)
 			P_BObj->EditLotExtData(p_entry->LotID);
 	}
 	else if(event.isKeyDown(kbCtrlF6)) {
-		p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
+		p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
 		if(p_entry && p_entry->LotID)
 			EditObjTagValList(PPOBJ_LOT, p_entry->LotID, 0);
 	}
 	else if(event.isKeyDown(kbCtrlF3)) {
-		p_entry = static_cast<PickLotBrowser::Entry *>(view->getCurItem());
+		p_entry = static_cast<const PickLotBrowser::Entry *>(view->getCurItem());
 		if(p_entry)
 			P_BObj->EditLotSystemInfo(p_entry->LotID);
 	}

@@ -582,16 +582,21 @@ int PPDesktop::Init__(long desktopID)
 	SLS.InitGdiplus();
 	if(p_dict) {
 		SString db_symb;
-		PPCommandGroup desk_list;
+		PPCommandGroup desk_list, desk_list_from_xml;
 		p_dict->GetDbSymb(db_symb);
 		{
 			THROW(p_mgr = GetCommandMngr(1, 1, 0));
 			THROW(p_mgr->Load__(&desk_list));
+#ifndef _NDEBUG
+			if(p_mgr->Load__2(&desk_list_from_xml, PPCommandMngr::fRWByXml)) { //@erik v10.6.1
+				THROW(desk_list.IsEqual(&desk_list_from_xml));
+			}
+#endif
 			ZDELETE(p_mgr);
 		}
 		// загружаем рабочий стол
 		p_item = desk_list.SearchByID(desktopID, 0);
-		P_ActiveDesktop = (p_item && p_item->Kind == PPCommandItem::kGroup) ? (PPCommandGroup *)p_item->Dup() : 0;
+		P_ActiveDesktop = (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		THROW_PP(P_ActiveDesktop && P_ActiveDesktop->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
 		PrivateCp.ReadFromProp(desktopID);
 		CommonCp.ReadFromProp(0);
@@ -1233,6 +1238,7 @@ PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopL
 	THROW_INVARG(pDesktopList);
 	THROW(p_mgr = GetCommandMngr(readOnly, 1, 0));
 	THROW_PP(p_mgr->Load__(pDesktopList), PPERR_CANTLOADDESKTOPLIST);
+	//THROW_PP(p_mgr->Load__2(pDesktopList, PPCommandMngr::fRWByXml), PPERR_CANTLOADDESKTOPLIST); //@erik v10.6.1
 	CATCH
 		ZDELETE(p_mgr);
 	ENDCATCH
@@ -1298,6 +1304,9 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 				}
 				THROW(p_desk_list->Update(pos, P_ActiveDesktop));
 				THROW(p_mgr->Save__(p_desk_list));
+#ifndef _NDEGUG
+				THROW(p_mgr->Save__2(p_desk_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1
+#endif
 				ok = 1;
 			}
 		}
@@ -1417,94 +1426,88 @@ IMPL_HANDLE_EVENT(PPDesktop)
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmaInsert:
-				{
-					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
-						TPoint coord;
-						coord = *static_cast<const POINT *>(event.message.infoPtr);
-						PPCommand cmd;
-						if(EditCmdItem(P_ActiveDesktop, &cmd, 1) > 0) {
-							uint   pos = 0;
-							RECT   cr;
-							PPCommandGroup desk_list;
-							PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list);
-							if(p_mgr) {
-								desk_list.GetUniqueID(&cmd.ID);
-								GetClientRect(H(), &cr);
-								if(ArrangeIcon(&coord)) {
-									TRect ir;
-									if(P_ActiveDesktop->SearchByCoord(coord, *this, 0))
-										P_ActiveDesktop->SearchFreeCoord(cr, *this, &coord);
-									cmd.P = coord;
-									P_ActiveDesktop->Add(-1, &cmd);
-									P_ActiveDesktop->GetIconRect(cmd.ID, *this, &ir);
-									//IsChanged = 1;
-									State |= stChanged;
-									SaveDesktop(p_mgr, &desk_list);
-									Update(&ir, 0);
-								}
-								ZDELETE(p_mgr);
-							}
-							else {
-								PPErrorTooltip(-1, 0);
-							}
-						}
-					}
-					else
-						PPErrorTooltip(-1, 0);
-				}
-				break;
-			case cmaEdit: // Редактирование иконки
-				{
-					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					TPoint coord;
+					coord = *static_cast<const POINT *>(event.message.infoPtr);
+					PPCommand cmd;
+					if(EditCmdItem(P_ActiveDesktop, &cmd, 1) > 0) {
 						uint   pos = 0;
-						TPoint coord;
-						coord = *static_cast<const POINT *>(event.message.infoPtr);
-						const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-						PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
-						if(p_cmd && EditCmdItem(P_ActiveDesktop, p_cmd, 1) > 0) {
-							TRect ir;
-							P_ActiveDesktop->Update(pos, p_cmd);
-							P_ActiveDesktop->GetIconRect(p_cmd->ID, *this, &ir);
-							//IsChanged = 1;
-							State |= stChanged;
-							Update(&ir, 0);
-						}
-						ZDELETE(p_cmd);
-					}
-					else
-						PPErrorTooltip(-1, 0);
-				}
-				break;
-			case cmaDelete:
-				{
-					if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
-						uint   pos = 0;
-						TPoint coord;
-						coord = *static_cast<const POINT *>(event.message.infoPtr);
-						const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
-						PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
-						if(p_cmd && CONFIRM(PPCFM_DELICON)) {
-							TRect ir;
-							PPCommandGroup desk_list;
-							PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list);
-							if(p_mgr) {
-								P_ActiveDesktop->Remove(pos);
-								Selected = (Selected == p_cmd->ID) ? 0 : Selected;
-								CalcIconRect(p_cmd->P, ir);
+						RECT   cr;
+						PPCommandGroup desk_list;
+						PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list);
+						if(p_mgr) {
+							desk_list.GetUniqueID(&cmd.ID);
+							GetClientRect(H(), &cr);
+							if(ArrangeIcon(&coord)) {
+								TRect ir;
+								if(P_ActiveDesktop->SearchByCoord(coord, *this, 0))
+									P_ActiveDesktop->SearchFreeCoord(cr, *this, &coord);
+								cmd.P = coord;
+								P_ActiveDesktop->Add(-1, &cmd);
+								P_ActiveDesktop->GetIconRect(cmd.ID, *this, &ir);
 								//IsChanged = 1;
 								State |= stChanged;
 								SaveDesktop(p_mgr, &desk_list);
-								Update(&ir, 1);
-								ZDELETE(p_mgr);
+								Update(&ir, 0);
 							}
-							else
-								PPErrorTooltip(-1, 0);
+							ZDELETE(p_mgr);
 						}
-						ZDELETE(p_cmd);
+						else {
+							PPErrorTooltip(-1, 0);
+						}
 					}
-					else
-						PPErrorTooltip(-1, 0);
 				}
+				else
+					PPErrorTooltip(-1, 0);
+				break;
+			case cmaEdit: // Редактирование иконки
+				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					uint   pos = 0;
+					TPoint coord;
+					coord = *static_cast<const POINT *>(event.message.infoPtr);
+					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
+					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					if(p_cmd && EditCmdItem(P_ActiveDesktop, p_cmd, 1) > 0) {
+						TRect ir;
+						P_ActiveDesktop->Update(pos, p_cmd);
+						P_ActiveDesktop->GetIconRect(p_cmd->ID, *this, &ir);
+						//IsChanged = 1;
+						State |= stChanged;
+						Update(&ir, 0);
+					}
+					ZDELETE(p_cmd);
+				}
+				else
+					PPErrorTooltip(-1, 0);
+				break;
+			case cmaDelete:
+				if(is_master || r_orts.CheckDesktopID(P_ActiveDesktop->ID, PPR_MOD)) {
+					uint   pos = 0;
+					TPoint coord;
+					coord = *static_cast<const POINT *>(event.message.infoPtr);
+					const  PPCommandItem * p_item = P_ActiveDesktop->SearchByCoord(coord, *this, &pos);
+					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
+					if(p_cmd && CONFIRM(PPCFM_DELICON)) {
+						TRect ir;
+						PPCommandGroup desk_list;
+						PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list);
+						if(p_mgr) {
+							P_ActiveDesktop->Remove(pos);
+							Selected = (Selected == p_cmd->ID) ? 0 : Selected;
+							CalcIconRect(p_cmd->P, ir);
+							//IsChanged = 1;
+							State |= stChanged;
+							SaveDesktop(p_mgr, &desk_list);
+							Update(&ir, 1);
+							ZDELETE(p_mgr);
+						}
+						else
+							PPErrorTooltip(-1, 0);
+					}
+					ZDELETE(p_cmd);
+				}
+				else
+					PPErrorTooltip(-1, 0);
 				break;
 			case cmaRename:
 				{
@@ -2143,6 +2146,9 @@ int PPDesktop::CreateDefault(long * pID)
 			desk.SetUniqueID(&id);
 			desk_list.Add(-1, &desk);
 			THROW(p_mgr->Save__(&desk_list));
+#ifndef _NDEGUG
+			THROW(p_mgr->Save__2(&desk_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1
+#endif
 			desk_id = desk.ID;
 		}
 		ok = 1;

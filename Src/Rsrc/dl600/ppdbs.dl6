@@ -1587,7 +1587,8 @@ table VetisDocument {
     long   OrgDocEntityID;    // -->VetisDocument.EntityID Ссылка на документ, по которому товар появился у нас
     double AckVolume;         // @v10.5.8 @duetoreserve
     guid   AppReqId;          // @v10.5.9 Ид запроса, по которому еще не получен ответ
-	raw    Reserve2[12];      // @v10.5.8 [36]-->[28] // @v10.5.9 [28]-->[12]
+    long   DepDocEntityID;    // @v10.6.3 Идентификатор записи, которая зависит от данной записи (для документов производства, например).
+	raw    Reserve2[8];       // @v10.5.8 [36]-->[28] // @v10.5.9 [28]-->[12] // @v10.6.3 [12]-->[8]
 index:
 	EntityID (unique);                                 // #0
 	LinkBillID, LinkBillRow (dup mod allsegnull);      // #1

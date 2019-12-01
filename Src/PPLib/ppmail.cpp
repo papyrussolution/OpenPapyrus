@@ -83,10 +83,12 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 	return ok;
 }
 
-MailAccCtrlGroup::MailAccCtrlGroup(uint ctlSelInput, uint editCmd)
+MailAccCtrlGroup::Rec::Rec() : MailAccID(0), ExtraPtr(0)
 {
-	CtlSelInput = ctlSelInput;
-	EditCmd = editCmd;
+}
+
+MailAccCtrlGroup::MailAccCtrlGroup(uint ctlSelInput, uint editCmd) : CtlSelInput(ctlSelInput), EditCmd(editCmd)
+{
 }
 
 void MailAccCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)

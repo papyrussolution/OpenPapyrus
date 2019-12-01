@@ -5432,7 +5432,7 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 				const PPID bill_id = UpdateBillList.get(i);
 				UpdateTempTable(bill_id);
 			}
-			pBrw->refresh();
+			pBrw->Refresh();
 		}
 		else
 			pBrw->Update();

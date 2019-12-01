@@ -254,6 +254,7 @@ int SLAPI BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType,
 			p_final_data = p_src_data + c.Offs;
 		TYPEID typ = DpB.TypeID;
 		memcpy(pDataBuf, p_final_data, MIN(dataBufLen, stsize(typ)));
+		ASSIGN_PTR(pType, typ); // @v10.6.3 @fix
 		ok = 1;
 	}
 	return ok;
@@ -261,37 +262,7 @@ int SLAPI BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType,
 
 int SLAPI BrowserDef::GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
 {
-	return GetCellData(getRow(row), column, pType, pDataBuf, dataBufLen); // @v10.4.4
-	/* @v10.4.4 
-	int    ok = 0;
-	TYPEID typ = 0;
-	char * p_src_data = static_cast<char *>(getRow(row));
-	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
-		const  BroColumn & c = at(column);
-		int    r = 1;
-		char   dest_data[256];
-		DpB.ExtraPtr = ExtraPtr;
-		DpB.ColumnN   = c.Offs;
-		DpB.TypeID    = c.T;
-		DpB.P_SrcData = p_src_data;
-		DpB.Color     = 0;
-		DpB.P_DestData = dest_data;
-		if(c.Options & BCO_USERPROC) {
-			if(UserProc)
-				r = UserProc(&DpB);
-			else if(c.UserProc)
-				r = c.UserProc(&DpB);
-			else
-				r = 0;
-		}
-		else
-			DpB.P_DestData = p_src_data + c.Offs;
-		typ = DpB.TypeID;
-		memcpy(pDataBuf, DpB.P_DestData, MIN(dataBufLen, stsize(typ)));
-		ok = 1;
-	}
-	return ok;
-	*/
+	return GetCellData(getRow(row), column, pType, pDataBuf, dataBufLen);
 }
 
 char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
@@ -299,11 +270,12 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 	if(pBuf) {
 		*pBuf = 0;
 		if(column >= 0 && column < static_cast<int>(getCount())) {
-			char * p_src_data = static_cast<char *>(getRow(row));
+			const char * p_src_data = static_cast<const char *>(getRow(row));
 			if(p_src_data) {
 				const  BroColumn & c = at(column);
 				int    r = 1;
-				char   dest_data[256];
+				char   dest_data[1024]; // @v10.6.3 [256]-->[1024]
+				const  void * p_bin_data = 0;
 				DpB.ExtraPtr  = ExtraPtr;
 				DpB.ColumnN   = c.Offs;
 				DpB.TypeID    = c.T;
@@ -317,11 +289,14 @@ char * SLAPI BrowserDef::getText(long row, int column, char * pBuf)
 						r = c.UserProc(&DpB);
 					else
 						r = 0;
+					p_bin_data = dest_data;
 				}
-				else
-					DpB.P_DestData = p_src_data + c.Offs;
+				else {
+					//DpB.P_DestData = p_src_data + c.Offs;
+					p_bin_data = p_src_data + c.Offs;
+				}
 				if(r)
-					sttostr(c.T, DpB.P_DestData, c.format, pBuf);
+					sttostr(c.T, /*DpB.P_DestData*/p_bin_data, c.format, pBuf);
 			}
 		}
 	}
@@ -442,9 +417,10 @@ char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, ui
 	char   ptr[1024]; // @v9.0.5 [256]-->[1024]
 	char   buf[1024];
 	PTR32(buf)[0] = 0;
-	char * p_src_data = static_cast<char *>(getRow(row));
+	const  char * p_src_data = static_cast<const char *>(getRow(row));
 	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
 		const  BroColumn & c = at(column);
+		const void * p_bin_data = 0;
 		int    r = 1;
 		DpB.ExtraPtr  = ExtraPtr;
 		DpB.ColumnN   = c.Offs;
@@ -459,11 +435,14 @@ char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, ui
 				r = c.UserProc(&DpB);
 			else
 				r = 0;
+			p_bin_data = ptr;
 		}
-		else
-			DpB.P_DestData = p_src_data + c.Offs;
+		else {
+			//DpB.P_DestData = p_src_data + c.Offs;
+			p_bin_data = p_src_data + c.Offs;
+		}
 		if(r) {
-			sttostr(c.T, DpB.P_DestData, c.format, buf);
+			sttostr(c.T, /*DpB.P_DestData*/p_bin_data, c.format, buf);
 			if((heightMult > 1 || pCalcHeight) && c.Options & BCO_RESIZEABLE) {
 				uint   text_height = 0;
 				strip(buf);
@@ -490,7 +469,7 @@ char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, ui
 	return strnzcpy(pBuf, buf, 0);
 }
 
-int SLAPI BrowserDef::setText(long row, int column, const char * b)
+/* @v10.6.3 (unused) int SLAPI BrowserDef::setText(long row, int column, const char * b)
 {
 	int    ok = 1;
 	if(column >= 0 && column < static_cast<int>(getCount())) {
@@ -498,14 +477,14 @@ int SLAPI BrowserDef::setText(long row, int column, const char * b)
 		if(c.Options & BCO_USERPROC)
 			ok = 0;
 		else {
-			char * ptr = static_cast<char *>(getRow(row));
+			const char * ptr = static_cast<const char *>(getRow(row));
 			ok = ptr ? stfromstr(c.T, ptr + c.Offs, c.format, b) : 0;
 		}
 	}
 	else
 		ok = 0;
 	return ok;
-}
+}*/
 
 int FASTCALL BrowserDef::go(long row)
 {
@@ -561,7 +540,7 @@ int    FASTCALL BrowserDef::step(long delta) { return go(curItem + delta); }
 int    SLAPI BrowserDef::top() { return go(0); }
 int    SLAPI BrowserDef::bottom() { return go(getRecsCount() - 1); }
 long   SLAPI BrowserDef::getRecsCount() { return 0; }
-void * FASTCALL BrowserDef::getRow(long) { return 0; }
+const  void * FASTCALL BrowserDef::getRow(long) const { return 0; }
 int    SLAPI BrowserDef::refresh() { return 1; }
 int    FASTCALL BrowserDef::setData(void *) { return 1; }
 int    FASTCALL BrowserDef::getData(void *) { return 1; }
@@ -658,7 +637,7 @@ long SLAPI AryBrowserDef::getRecsCount()
 	return (long)SVectorBase::GetCount(P_Array);
 }
 
-void * FASTCALL AryBrowserDef::getRow(long row)
+const void * FASTCALL AryBrowserDef::getRow(long row) const
 {
 	return (P_Array && row >= 0 && row < (long)P_Array->getCount()) ? P_Array->at((uint)row) : 0;
 }

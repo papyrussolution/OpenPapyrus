@@ -392,8 +392,8 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 				lot_flt.ClosedTag = 1; // Opened only
 			}
 			else {
-				temp_loc_id = (item.Rest > 0.0) ? loc_id : 0;
-				if(P_Ct && loc_id == 0 || (!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation)))
+				temp_loc_id = (pHdr || item.Rest > 0.0) ? loc_id : 0;
+				if(P_Ct && (loc_id == 0 || (!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))))
 					temp_loc_id = 0;
 			}
 			lot_flt.LocID = temp_loc_id;

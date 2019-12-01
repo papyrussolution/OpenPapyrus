@@ -465,7 +465,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 			// базовому классу ссылку на него в ExtraPtr.
 			//
 			if(pObj) {
-				((PPObjTag*)pObj)->InitFilt(extraPtr, Filt);
+				static_cast<const PPObjTag *>(pObj)->InitFilt(extraPtr, Filt);
 				ExtraPtr = &Filt;
 			}
 			else
@@ -492,8 +492,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 					if(static_cast<PPObjTag *>(P_Obj)->Search(id, &tag_rec) > 0)
 						obj_type_id = tag_rec.ObjTypeID;
 				}
-				ObjTagFilt filt;
-				filt.ObjTypeID = obj_type_id;
+				ObjTagFilt filt(obj_type_id);
 				filt.Flags |= ObjTagFilt::fAnyObjects;
 				id = 0;
 				if(P_Obj->Edit(&id, &filt) == cmOK) {
@@ -546,8 +545,7 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 //
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
 
-TagEnumListDialog::TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) :
-	PPListDialog(dlgID, listCtlID)
+TagEnumListDialog::TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
 {
 }
 

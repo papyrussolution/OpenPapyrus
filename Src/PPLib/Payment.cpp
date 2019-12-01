@@ -2244,7 +2244,7 @@ IMPL_HANDLE_EVENT(PaymentBrowser)
 						long   count = 0;
 						double amount = 0.0;
 						for(long i = 0; i < p_def->getRecsCount(); i++) {
-							_PaymentEntry * p_entry = static_cast<_PaymentEntry *>(p_def->getRow(i));
+							const _PaymentEntry * p_entry = static_cast<const _PaymentEntry *>(p_def->getRow(i));
 							count++;
 							amount += p_entry->Payment;
 						}

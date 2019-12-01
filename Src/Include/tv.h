@@ -4384,7 +4384,7 @@ public:
 	virtual int   SLAPI top();
 	virtual int   SLAPI bottom();
 	virtual long  SLAPI getRecsCount();
-	virtual void * FASTCALL getRow(long);
+	virtual const void * FASTCALL getRow(long) const;
 	virtual int   FASTCALL getData(void *);
 	virtual int   FASTCALL setData(void *);
 	virtual int   SLAPI refresh();
@@ -4408,7 +4408,7 @@ public:
 	SString & SLAPI getFullText(long row, int column, SString & rBuf);
 	SString & SLAPI getFullText(const void * pRowData, int column, SString & rBuf);
 	char * SLAPI getMultiLinesText(long, int, char *, uint = 0, uint * = 0);
-	int    SLAPI setText(long, int, const char *);
+	// @v10.6.3 (unused) int    SLAPI setText(long, int, const char *);
 	long   SLAPI _topItem() const { return topItem; }
 	long   SLAPI _curItem() const { return curItem; }
 	int    FASTCALL isColInGroup(uint col, uint * idx) const;
@@ -4456,7 +4456,7 @@ public:
 	virtual int   SLAPI valid();
 	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
 	virtual long  SLAPI getRecsCount();
-	virtual void * FASTCALL getRow(long);
+	virtual const void * FASTCALL getRow(long) const;
 	virtual int   FASTCALL getData(void *);
 	virtual int   FASTCALL setData(void *);
 protected:
@@ -4485,7 +4485,7 @@ public:
 	virtual int   SLAPI top();
 	virtual int   SLAPI bottom();
 	virtual long  SLAPI getRecsCount();
-	virtual void * FASTCALL getRow(long);
+	virtual const void * FASTCALL getRow(long) const;
 	virtual int   FASTCALL getData(void *);
 	virtual int   FASTCALL setData(void *);
 	virtual int   SLAPI refresh();
@@ -4606,7 +4606,9 @@ protected:
 
 class BrowserWindow : public TBaseBrowserWindow {
 public:
-	struct CellStyle {
+	class CellStyle {
+		friend class BrowserWindow;
+	public:
 		enum {
 			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
@@ -4617,6 +4619,9 @@ public:
 		COLORREF Color2; // Цвет для нижнего левого угла
 		COLORREF RightFigColor; // Цвет фигуры в правой части ячейки
 		long   Flags;
+		SString Description; // @v10.6.3 
+	private:
+		CellStyle();
 	};
 
 	typedef int (* CellStyleFunc)(const void * pData, long col, int paintAction, CellStyle *, void * extraPtr);
@@ -4650,10 +4655,12 @@ public:
 	void   SetupColumnWidth(uint colNo);
 	int    SetColumnTitle(int conNo, const char * pText);
 	void   SetFreeze(uint);
-	LPRECT ItemRect(int hPos, int vPos, LPRECT, BOOL isFocus);
+	LPRECT ItemRect(int hPos, int vPos, LPRECT, BOOL isFocus) const;
 	LPRECT LineRect(int vPos, LPRECT, BOOL isFocus);
-	void   ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos);
-	void   ItemByMousePos(long * pHorzPos, long * pVertPos);
+	int    GetColumnByX(int x) const;
+	int    ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos) const;
+	int    HeaderByPoint(TPoint point, long * pVertPos) const;
+	int    ItemByMousePos(long * pHorzPos, long * pVertPos);
 	//
 	// ARG(action IN):
 	//   -1 - clear (alt + left button down)
@@ -4664,8 +4671,9 @@ public:
 	void   FocusItem(int hPos, int vPos);
 	int    IsResizePos(TPoint);
 	void   Resize(TPoint p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
-	int    refresh();
+	void   Refresh();
 	BrowserDef * getDef();
+	const BrowserDef * getDefC() const;
 	void   SetDefUserProc(SBrowserDataProc proc, void * extraPtr);
 	void   go(long p);
 	void   top();
@@ -4686,8 +4694,8 @@ public:
 	//
 	// For modeless
 	//
-	void * SLAPI getCurItem();
-	void * SLAPI getItemByPos(long pos);
+	const  void * SLAPI getCurItem();
+	const  void * SLAPI getItemByPos(long pos);
 	//
 	// Descr: Сохраняет в реестре параметры таблицы, установленные пользователем.
 	// ARG(ifChangedOnly IN): Если !0, то параметры будут сохранены только в случае, если
@@ -4707,13 +4715,16 @@ public:
 	enum {
 		paintFocused = 0,
 		paintNormal  = 1,
-		paintClear   = 2
+		paintClear   = 2,
+		paintQueryDescription = 3 // @v10.6.3 Специальная опция, передаваемая в callback-функцию CellStyleFunc
+			// для получения дополнительной информации о ячейке и ее окраске.
 	};
 protected:
 	DECL_HANDLE_EVENT;
 	int    WMHScroll(int sbType, int sbEvent, int thumbPos);
 	int    WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop);
 	int    LoadResource(uint, void *, int, uint uOptions = 0);
+	const  LongArray & GetSettledOrderList() const { return SettledOrder; }
 
 	uint   RezID;
 	TToolbar * P_Toolbar;
@@ -4776,6 +4787,8 @@ private:
 	SArray * P_RowsHeightAry;   // Высота строк видимой страницы (для многострочных броузеров)
 	UserInterfaceSettings UICfg;
 	LongArray SelectedColumns;  // Выбранные столбцы, для копирования в буфер обмена
+	LongArray SettledOrder;     // @v10.6.3 Индексы столбцов, по которым задана сортировка.  
+		// Если индекс <0, то сортировка в обратном направлении (какое направление прямое а какое обратное определяет конкретный класс-наследник).
 };
 //
 //

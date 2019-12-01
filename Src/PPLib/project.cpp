@@ -73,13 +73,14 @@ int SLAPI PPObjProject::EditConfig()
 			PPOpCounterPacket ToDtCntr;
 			PPProjectConfig   Cfg;
 		};
+		DECL_DIALOG_DATA(Rec);
 
 		ProjectCfgDialog() : TDialog(DLG_PRJCFG)
 		{
 		}
-		int setDTS(const Rec * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_PRJCFG_PRJTEMPL,      Data.PrjCntr.Head.CodeTemplate);
 			setCtrlLong(CTL_PRJCFG_PRJCNTR,       Data.PrjCntr.Head.Counter);
 			setCtrlData(CTL_PRJCFG_PHSTEMPL,      Data.PhsCntr.Head.CodeTemplate);
@@ -94,7 +95,7 @@ int SLAPI PPObjProject::EditConfig()
 			setCtrlData(CTL_PRJCFG_REFRESHTIME,  &Data.Cfg.RefreshTime);
 			AddClusterAssoc(CTL_PRJCFG_FLAGS, 0, PRJCFGF_NEWTASKNOTICEONLOGIN);
 			AddClusterAssoc(CTL_PRJCFG_FLAGS, 1, PRJCFGF_NEWTASKNOTICE);
-			AddClusterAssoc(CTL_PRJCFG_FLAGS, 2, PRJCFGF_INCOMPLETETASKREMIND); 
+			AddClusterAssoc(CTL_PRJCFG_FLAGS, 2, PRJCFGF_INCOMPLETETASKREMIND);
 			SetClusterData(CTL_PRJCFG_FLAGS,  Data.Cfg.Flags);
 			SetIntRangeInput(this, CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
 			{
@@ -108,7 +109,7 @@ int SLAPI PPObjProject::EditConfig()
 			SetupCtrls();
 			return 1;
 		}
-		int getDTS(Rec * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -162,7 +163,6 @@ int SLAPI PPObjProject::EditConfig()
 				SetIntRangeInput(this, CTL_PRJCFG_REMINDPRD, &Data.Cfg.RemindPrd);
 			}
 		}
-		Rec    Data;
 	};
 	int    ok = -1, valid_data = 0, ta = 0, is_new = 0;
 	ProjectCfgDialog * dlg = new ProjectCfgDialog;
@@ -371,6 +371,7 @@ int SLAPI PPObjProject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 //
 //
 class ProjectDialog : public TDialog {
+	DECL_DIALOG_DATA(ProjectTbl::Rec);
 public:
 	explicit ProjectDialog(uint dlgID) : TDialog(dlgID)
 	{
@@ -380,92 +381,86 @@ public:
 		SetupCalCtrl(CTLCAL_PRJ_FINISH, this, CTL_PRJ_FINISH, 4);
 		SetupInputLine(CTL_PRJ_DESCR, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
 	}
-	int    setDTS(const ProjectTbl::Rec *);
-	int    getDTS(ProjectTbl::Rec *);
-private:
-	ProjectTbl::Rec Data;
-};
-
-int ProjectDialog::setDTS(const ProjectTbl::Rec * pData)
-{
-	int    ok = 1;
-	ushort v = 0;
-	Data = *pData;
-	setCtrlData(CTL_PRJ_NAME,      Data.Name);
-	setCtrlData(CTL_PRJ_CODE,      Data.Code);
-	setCtrlData(CTL_PRJ_DT,        &Data.Dt);
-	setCtrlData(CTL_PRJ_START,     &Data.BeginDt);
-	setCtrlData(CTL_PRJ_ESTFINISH, &Data.EstFinishDt);
-	setCtrlData(CTL_PRJ_FINISH,    &Data.FinishDt);
-	SetupPersonCombo(this, CTLSEL_PRJ_CLIENT, Data.ClientID, OLW_CANINSERT, (PPID)PPPRK_CLIENT, 0);
-	SetupPersonCombo(this, CTLSEL_PRJ_MNGR,   Data.MngrID,   OLW_CANINSERT, (PPID)PPPRK_EMPL,   0);
-	if(oneof2(Data.Kind, PPPRJK_PROJECT, PPPRJK_PRJTEMPLATE)) {
-		switch(Data.Status) {
-			case PPPRJSTS_ACTIVE:    v = 0; break;
-			case PPPRJSTS_NONACTIVE: v = 1; break;
-			case PPPRJSTS_ARCHIVED:  v = 2; break;
-			default: v = 0; break;
-		}
-	}
-	else if(oneof2(Data.Kind, PPPRJK_PHASE, PPPRJK_PHSTEMPLATE)) {
-		switch(Data.Status) {
-			case PPPRJSTS_ACTIVE:    v = 0; break;
-			case PPPRJSTS_NONACTIVE: v = 1; break;
-			case PPPRJSTS_ARCHIVED:  v = 1; break; // Invalid for PHASE
-			default: v = 0; break;
-		}
-		if(Data.ParentID) {
-			PPObjProject prj_obj;
-			SString buf;
-			prj_obj.GetFullName(Data.ParentID, buf);
-			setStaticText(CTL_PRJ_PARENTNAME, buf);
-		}
-	}
-	setCtrlData(CTL_PRJ_STATUS, &v);
-	setCtrlData(CTL_PRJ_DESCR, Data.Descr);
+	DECL_DIALOG_SETDTS()
 	{
-		PPIDArray types;
-		types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
-			PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK,
-			PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
-		SetupOprKindCombo(this, CTLSEL_PRJ_BILLOP, Data.BillOpID, 0, &types, 0);
-	}
-	return ok;
-}
-
-int ProjectDialog::getDTS(ProjectTbl::Rec * pData)
-{
-	int    ok = 1;
-	ushort v;
-	getCtrlData(CTL_PRJ_NAME,      Data.Name);
-	getCtrlData(CTL_PRJ_CODE,      Data.Code);
-	getCtrlData(CTL_PRJ_DT,        &Data.Dt);
-	getCtrlData(CTL_PRJ_START,     &Data.BeginDt);
-	getCtrlData(CTL_PRJ_ESTFINISH, &Data.EstFinishDt);
-	getCtrlData(CTL_PRJ_FINISH,    &Data.FinishDt);
-	getCtrlData(CTLSEL_PRJ_CLIENT, &Data.ClientID);
-	getCtrlData(CTLSEL_PRJ_MNGR,   &Data.MngrID);
-	getCtrlData(CTL_PRJ_STATUS, &(v = 0));
-	if(oneof2(Data.Kind, PPPRJK_PROJECT, PPPRJK_PRJTEMPLATE)) {
-		switch(v) {
-			case 0: Data.Status = PPPRJSTS_ACTIVE; break;
-			case 1: Data.Status = PPPRJSTS_NONACTIVE; break;
-			case 2: Data.Status = PPPRJSTS_ARCHIVED; break;
-			default: Data.Status = PPPRJSTS_ACTIVE; break;
+		int    ok = 1;
+		ushort v = 0;
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_PRJ_NAME,      Data.Name);
+		setCtrlData(CTL_PRJ_CODE,      Data.Code);
+		setCtrlData(CTL_PRJ_DT,        &Data.Dt);
+		setCtrlData(CTL_PRJ_START,     &Data.BeginDt);
+		setCtrlData(CTL_PRJ_ESTFINISH, &Data.EstFinishDt);
+		setCtrlData(CTL_PRJ_FINISH,    &Data.FinishDt);
+		SetupPersonCombo(this, CTLSEL_PRJ_CLIENT, Data.ClientID, OLW_CANINSERT, (PPID)PPPRK_CLIENT, 0);
+		SetupPersonCombo(this, CTLSEL_PRJ_MNGR,   Data.MngrID,   OLW_CANINSERT, (PPID)PPPRK_EMPL,   0);
+		if(oneof2(Data.Kind, PPPRJK_PROJECT, PPPRJK_PRJTEMPLATE)) {
+			switch(Data.Status) {
+				case PPPRJSTS_ACTIVE:    v = 0; break;
+				case PPPRJSTS_NONACTIVE: v = 1; break;
+				case PPPRJSTS_ARCHIVED:  v = 2; break;
+				default: v = 0; break;
+			}
 		}
-	}
-	else if(oneof2(Data.Kind, PPPRJK_PHASE, PPPRJK_PHSTEMPLATE)) {
-		switch(v) {
-			case 0: Data.Status = PPPRJSTS_ACTIVE; break;
-			case 1: Data.Status = PPPRJSTS_NONACTIVE; break;
-			default: Data.Status = PPPRJSTS_ACTIVE; break;
+		else if(oneof2(Data.Kind, PPPRJK_PHASE, PPPRJK_PHSTEMPLATE)) {
+			switch(Data.Status) {
+				case PPPRJSTS_ACTIVE:    v = 0; break;
+				case PPPRJSTS_NONACTIVE: v = 1; break;
+				case PPPRJSTS_ARCHIVED:  v = 1; break; // Invalid for PHASE
+				default: v = 0; break;
+			}
+			if(Data.ParentID) {
+				PPObjProject prj_obj;
+				SString buf;
+				prj_obj.GetFullName(Data.ParentID, buf);
+				setStaticText(CTL_PRJ_PARENTNAME, buf);
+			}
 		}
+		setCtrlData(CTL_PRJ_STATUS, &v);
+		setCtrlData(CTL_PRJ_DESCR, Data.Descr);
+		{
+			PPIDArray types;
+			types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
+				PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK,
+				PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
+			SetupOprKindCombo(this, CTLSEL_PRJ_BILLOP, Data.BillOpID, 0, &types, 0);
+		}
+		return ok;
 	}
-	getCtrlData(CTL_PRJ_DESCR, Data.Descr);
-	getCtrlData(CTLSEL_PRJ_BILLOP, &Data.BillOpID);
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		ushort v;
+		getCtrlData(CTL_PRJ_NAME,      Data.Name);
+		getCtrlData(CTL_PRJ_CODE,      Data.Code);
+		getCtrlData(CTL_PRJ_DT,        &Data.Dt);
+		getCtrlData(CTL_PRJ_START,     &Data.BeginDt);
+		getCtrlData(CTL_PRJ_ESTFINISH, &Data.EstFinishDt);
+		getCtrlData(CTL_PRJ_FINISH,    &Data.FinishDt);
+		getCtrlData(CTLSEL_PRJ_CLIENT, &Data.ClientID);
+		getCtrlData(CTLSEL_PRJ_MNGR,   &Data.MngrID);
+		getCtrlData(CTL_PRJ_STATUS, &(v = 0));
+		if(oneof2(Data.Kind, PPPRJK_PROJECT, PPPRJK_PRJTEMPLATE)) {
+			switch(v) {
+				case 0: Data.Status = PPPRJSTS_ACTIVE; break;
+				case 1: Data.Status = PPPRJSTS_NONACTIVE; break;
+				case 2: Data.Status = PPPRJSTS_ARCHIVED; break;
+				default: Data.Status = PPPRJSTS_ACTIVE; break;
+			}
+		}
+		else if(oneof2(Data.Kind, PPPRJK_PHASE, PPPRJK_PHSTEMPLATE)) {
+			switch(v) {
+				case 0: Data.Status = PPPRJSTS_ACTIVE; break;
+				case 1: Data.Status = PPPRJSTS_NONACTIVE; break;
+				default: Data.Status = PPPRJSTS_ACTIVE; break;
+			}
+		}
+		getCtrlData(CTL_PRJ_DESCR, Data.Descr);
+		getCtrlData(CTLSEL_PRJ_BILLOP, &Data.BillOpID);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+};
 //
 // If(parentPrjID != 0 && *pID == 0) then - необходимо создать элемент типа Phase
 //
@@ -1152,8 +1147,7 @@ public:
 		SString FilePath;
 	};
 private:
-	typedef Param DlgDataType;
-	DlgDataType Data;
+	DECL_DIALOG_DATA(Param);
 	enum {
 		ctlgroupFileName = 1
 	};
@@ -1162,7 +1156,7 @@ public:
 	{
 		addGroup(ctlgroupFileName, new FileBrowseCtrlGroup(CTLBRW_VCALPAR_FILE, CTL_VCALPAR_FILE, 0, 0));
 	}
-	int setDTS(const DlgDataType * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		FileBrowseCtrlGroup * p_grp = static_cast<FileBrowseCtrlGroup *>(getGroup(ctlgroupFileName));
 		if(!RVALUEPTR(Data, pData))
@@ -1173,7 +1167,7 @@ public:
 		CALLPTRMEMB(p_grp, addPattern(PPTXT_FILPAT_VCALENDAR));
 		return 1;
 	}
-	int getDTS(DlgDataType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = -1;
 		uint   sel = 0;
@@ -2146,23 +2140,33 @@ struct LostPrjTPersonItem { // @flat
 typedef TSVector <LostPrjTPersonItem> LostPrjTPersonArray; // @v9.8.4 TSArray-->TSVector
 
 class RestoreLostPrjTPersonDlg : public PPListDialog {
+	DECL_DIALOG_DATA(LostPrjTPersonArray);
 public:
 	RestoreLostPrjTPersonDlg() : PPListDialog(DLG_RLOSTPSN, CTL_RLOSTPSN_LIST)
 	{
 		setSmartListBoxOption(CTL_VIEWTASKS_LIST, lbtSelNotify);
 		setSmartListBoxOption(CTL_VIEWTASKS_LIST, lbtFocNotify);
 	}
-	int    setDTS(const LostPrjTPersonArray *);
-	int    getDTS(LostPrjTPersonArray *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(pData)
+			Data.copy(*pData);
+		else
+			Data.freeAll();
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		CALLPTRMEMB(pData, copy(Data));
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
-
 	int    GetText(PPID id, const SString & rWord, SString & rBuf, int cat);
 	LostPrjTPersonItem * GetCurItem();
 	int ViewTasks(uint cm, const LostPrjTPersonItem * pItem);
-	LostPrjTPersonArray Data;
-
 };
 
 IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
@@ -2178,7 +2182,7 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 				const int creator  = BIN(TVCMD == cmResolveCreator);
 				const int employer = BIN(TVCMD == cmResolveEmployer);
 				const int client   = BIN(TVCMD == cmResolveClient);
-				if(ListBoxSelDialog(PPOBJ_PERSON, &psn_id, (void *)((creator || employer) ? PPPRK_EMPL : PPPRK_CLIENT)) > 0) {
+				if(ListBoxSelDialog(PPOBJ_PERSON, &psn_id, reinterpret_cast<void *>((creator || employer) ? PPPRK_EMPL : PPPRK_CLIENT)) > 0) {
 					if(creator)
 						p_item->ResolveCreatorID = psn_id;
 					else if(employer)
@@ -2246,8 +2250,10 @@ int RestoreLostPrjTPersonDlg::setupList()
 	int    ok = 1;
 	SString temp_buf;
 	SString creator_word, employer_word, client_word;
-	PPGetWord(PPWORD_CREATOR,  0, creator_word);
-	PPGetWord(PPWORD_EMPLOYER, 0, employer_word);
+	// @v10.6.3 PPGetWord(PPWORD_CREATOR,  0, creator_word);
+	// @v10.6.3 PPGetWord(PPWORD_EMPLOYER, 0, employer_word);
+	PPLoadString("creator", creator_word); // @v10.6.3
+	PPLoadString("executor", employer_word); // @v10.6.3
 	PPLoadString("client", client_word);
 	for(uint i = 0; i < Data.getCount(); i++) {
 		LostPrjTPersonItem * p_item = &Data.at(i);
@@ -2316,22 +2322,6 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 	BExtQuery::ZDelete(&p_q);
 	delete p_dlg;
 	return ok;
-}
-
-int RestoreLostPrjTPersonDlg::setDTS(const LostPrjTPersonArray * pData)
-{
-	if(pData)
-		Data.copy(*pData);
-	else
-		Data.freeAll();
-	updateList(-1);
-	return 1;
-}
-
-int RestoreLostPrjTPersonDlg::getDTS(LostPrjTPersonArray * pData)
-{
-	CALLPTRMEMB(pData, copy(Data));
-	return 1;
 }
 
 int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoPerson)

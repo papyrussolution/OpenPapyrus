@@ -31,6 +31,8 @@ int FASTCALL SLib2BtrType(int t)
 		return 25;
 	else if(t == S_UUID_)
 		return 27;
+	else if(t == S_INT64) // @v10.6.3
+		return 2;
 	else {
 		if(t == S_RAW) {
 			//

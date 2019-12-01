@@ -725,6 +725,7 @@ SString & SLAPI GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldNa
 			else
 				(type_text = "int_invalid_size_").Cat(sz);
 			break;
+		case S_INT64: type_text = "__int64"; break; // @v10.6.3
 		case S_UINT:
 			(type_text = "unsigned").Space();
 			if(sz == 1)
@@ -1014,9 +1015,9 @@ int SLAPI DlContext::Write_DialogReverse()
 				line_buf.Space().CatQStr(text_buf);
 			}
 			if(GetConstData(p_scope->GetConst(DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
-				_RectToLine(*(UiRelRect *)c_buf, line_buf.Space());
+				_RectToLine(*reinterpret_cast<const UiRelRect *>(c_buf), line_buf.Space());
 			if(GetConstData(p_scope->GetConst(DlScope::cuifFont), c_buf, sizeof(c_buf))) {
-				if(((const char *)c_buf)[0]) {
+				if(PTR8C(c_buf)[0]) {
 					(text_buf = 0).CatQStr((const char *)c_buf);
 					prop_list.Add(DlScope::cuifFont, text_buf);
 				}
@@ -1032,9 +1033,9 @@ int SLAPI DlContext::Write_DialogReverse()
 				prop_list.Z();
 				(line_buf = 0).CatChar('\t');
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlKind), c_buf, sizeof(c_buf)))
-					kind = *(uint32 *)c_buf;
+					kind = *reinterpret_cast<const uint32 *>(c_buf);
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
-					rect = *(UiRelRect *)c_buf;
+					rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 				//
 				// Находим строку текста элемента
 				//

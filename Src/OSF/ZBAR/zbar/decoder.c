@@ -59,7 +59,7 @@ zbar_decoder_t * zbar_decoder_create()
 	dcode->databar.config = ((1 << ZBAR_CFG_ENABLE) | (1 << ZBAR_CFG_EMIT_CHECK));
 	dcode->databar.config_exp = ((1 << ZBAR_CFG_ENABLE) | (1 << ZBAR_CFG_EMIT_CHECK));
 	dcode->databar.csegs = 4;
-	dcode->databar.segs = (databar_segment_t *)SAlloc::C(4, sizeof(*dcode->databar.segs));
+	dcode->databar.segs = static_cast<databar_segment_t *>(SAlloc::C(4, sizeof(*dcode->databar.segs)));
 #endif
 #ifdef ENABLE_CODABAR
 	dcode->codabar.config = 1 << ZBAR_CFG_ENABLE;
@@ -96,7 +96,8 @@ void zbar_decoder_destroy(zbar_decoder_t * dcode)
 
 void zbar_decoder_reset(zbar_decoder_t * dcode)
 {
-	memzero(dcode, (long)&dcode->buf_alloc - (long)dcode);
+	// @v10.6.3 memzero(dcode, (long)&dcode->buf_alloc - (long)dcode);
+	memzero(dcode, PTR8C(&dcode->buf_alloc) - PTR8C(dcode)); // @v10.6.3
 #ifdef ENABLE_EAN
 	ean_reset(&dcode->ean);
 #endif

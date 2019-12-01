@@ -3215,10 +3215,12 @@ struct DBConst : public DBItem {
 		dv   = BTS_DATE,
 		tv   = BTS_TIME,
 		dtv  = BTS_DATETIME,
-		ptrv = BTS_PTR // @v8.9.10
+		ptrv = BTS_PTR,
+		i64v = BTS_INT64_, // @v10.6.3
 	};
 	union {
 		long   lval;
+		int64  i64val; // @v10.6.3
 		double rval;
 		char * sptr;
 		const  void * ptrval;  // Экземпляр ни при каких обстоятельствах не владеет объектом по этому указателю
@@ -3255,13 +3257,15 @@ struct DBE : public DBItem {
 			sp = BTS_STRING,
 			dv = BTS_DATE,
 			tv = BTS_TIME,
-			ptrv = BTS_PTR, // @v8.9.10
+			ptrv = BTS_PTR,
+			i64v = BTS_INT64_, // @v10.6.3
 			fld = 101,
 			func = 102
 		} tag;
 		union {
 			DBFunc  function;
 			long    lval;
+			int64   i64val; // @v10.6.3
 			double  rval;
 			char *  sptr;
 			void *  ptrval;
@@ -3513,6 +3517,7 @@ public:
 	int    SLAPI setFrame(uint viewHight, uint = static_cast<uint>(_defaultBufSize), uint = static_cast<uint>(_defaultBufDelta));
 	void * SLAPI getBuffer();
 	void * FASTCALL getRecord(uint);
+	const void * FASTCALL getRecordC(uint r) const;
 	void * SLAPI getCurrent();
 	int    SLAPI fetch(long count, char * buf, int dir);
 	int    SLAPI fetch(long, char *, RECORDNUMBER *, int);

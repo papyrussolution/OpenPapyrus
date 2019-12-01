@@ -167,12 +167,10 @@ typedef struct pem_ctx_st {
 	#define DECLARE_PEM_write_fp_const(name, type) int PEM_write_ ## name(FILE *fp, const type *x);
 	#define DECLARE_PEM_write_cb_fp(name, type) int PEM_write_ ## name(FILE *fp, type *x, const EVP_CIPHER *enc, uchar *kstr, int klen, pem_password_cb *cb, void * u);
 #endif
-
 #define DECLARE_PEM_read_bio(name, type) type *PEM_read_bio_ ## name(BIO *bp, type **x, pem_password_cb *cb, void * u);
 #define DECLARE_PEM_write_bio(name, type) int PEM_write_bio_ ## name(BIO *bp, type *x);
 #define DECLARE_PEM_write_bio_const(name, type)	int PEM_write_bio_ ## name(BIO *bp, const type *x);
 #define DECLARE_PEM_write_cb_bio(name, type) int PEM_write_bio_ ## name(BIO *bp, type *x, const EVP_CIPHER *enc, uchar *kstr, int klen, pem_password_cb *cb, void * u);
-
 #define DECLARE_PEM_write(name, type) DECLARE_PEM_write_bio(name, type) DECLARE_PEM_write_fp(name, type)
 #define DECLARE_PEM_write_const(name, type) DECLARE_PEM_write_bio_const(name, type)	DECLARE_PEM_write_fp_const(name, type)
 #define DECLARE_PEM_write_cb(name, type) DECLARE_PEM_write_cb_bio(name, type) DECLARE_PEM_write_cb_fp(name, type)
@@ -189,7 +187,6 @@ int PEM_write_bio(BIO * bp, const char * name, const char * hdr, const uchar * d
 int PEM_bytes_read_bio(uchar ** pdata, long * plen, char ** pnm, const char * name, BIO * bp, pem_password_cb * cb, void * u);
 void * PEM_ASN1_read_bio(d2i_of_void * d2i, const char * name, BIO * bp, void ** x, pem_password_cb * cb, void * u);
 int PEM_ASN1_write_bio(i2d_of_void * i2d, const char * name, BIO * bp, void * x, const EVP_CIPHER * enc, uchar * kstr, int klen, pem_password_cb * cb, void * u);
-
 STACK_OF(X509_INFO) *PEM_X509_INFO_read_bio(BIO *bp, STACK_OF(X509_INFO) *sk, pem_password_cb *cb, void * u);
 int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc, uchar * kstr, int klen, pem_password_cb * cd, void * u);
 

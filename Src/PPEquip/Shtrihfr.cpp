@@ -375,6 +375,7 @@ private:
 		Summ14,                                 // @v10.6.1
 		Summ15,                                 // @v10.6.1
 		Summ16,                                 // @v10.6.1
+		CloseCheckEx,                           // @v10.6.3
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -404,7 +405,11 @@ private:
 	};
 	static FR_INTRF * P_DrvFRIntrf;
 	static int  RefToIntrf;
-	static uint PayTypeRegFlags;  // @v10.6.1 Флаги успешности получения интерфейсов для Summ1..Summ16
+	static uint PayTypeRegFlags;   // @v10.6.1 Флаги успешности получения интерфейсов для Summ1..Summ16
+	enum {
+		extmethfCloseCheckEx = 0x0001
+	};
+	static uint ExtMethodsFlags;   // @v10.6.3 Флаги успешности получения расширенных методов драйвера
 	long   CashierPassword;    // Пароль кассира
 	long   AdmPassword;        // Пароль сист.администратора
 	int    ResCode;            //
@@ -419,7 +424,8 @@ private:
 
 FR_INTRF * SCS_SHTRIHFRF::P_DrvFRIntrf = 0; // @global
 int  SCS_SHTRIHFRF::RefToIntrf = 0;         // @global
-uint SCS_SHTRIHFRF::PayTypeRegFlags = 0;   // @global
+uint SCS_SHTRIHFRF::PayTypeRegFlags = 0;    // @global
+uint SCS_SHTRIHFRF::ExtMethodsFlags = 0;    // @global
 
 class CM_SHTRIHFRF : public PPCashMachine {
 public:
@@ -900,7 +906,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double __amt_ccrd = amt_ccrd;
 			const double __amt_cash = sum - __amt_bnk - __amt_ccrd;
 			// @v10.6.2 {
-			const int ccrd_entry_n = inrangeordefault(static_cast<long>(SCardPaymEntryN), 1, 16, 2);
+			const int ccrd_entry_n = inrangeordefault(static_cast<long>(SCardPaymEntryN), 1, 16, (ExtMethodsFlags & extmethfCloseCheckEx) ? 14 : 2);
 			PPID  ccrd_entry_id = 0;
 			switch(ccrd_entry_n) {
 				case  1: ccrd_entry_id =  Summ1; break;
@@ -920,8 +926,9 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				case 15: ccrd_entry_id = Summ15; break;
 				case 16: ccrd_entry_id = Summ16; break;
 			}
-			if(PayTypeRegFlags & (1U << ccrd_entry_n) && !ccrd_entry_id)
+			if(PayTypeRegFlags & (1U << ccrd_entry_n) && !ccrd_entry_id) {
 				ccrd_entry_id = Summ2;
+			}
 			// } @v10.6.2 
 			{
 				msg_buf.Z().Cat("Payment").CatDiv(':', 2).Cat("PayTypeRegFlags-hex").CatChar('=').CatHex(static_cast<ulong>(PayTypeRegFlags));
@@ -943,7 +950,12 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		// } @v10.4.11 
 		if(_fiscal != 0.0) {
-			THROW(ExecFRPrintOper(CloseCheck));
+			if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
+				THROW(ExecFRPrintOper(CloseCheckEx));
+			}
+			else {
+				THROW(ExecFRPrintOper(CloseCheck));
+			}
 		}
 		else {
 			THROW(SetFR(ReceiptOutputType, 0));
@@ -1623,6 +1635,7 @@ FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 	if(ASSIGN_ID_BY_NAME(p_drv, Summ14)) PayTypeRegFlags |= (1U << 14); // @v10.6.1
 	if(ASSIGN_ID_BY_NAME(p_drv, Summ15)) PayTypeRegFlags |= (1U << 15); // @v10.6.1
 	if(ASSIGN_ID_BY_NAME(p_drv, Summ16)) PayTypeRegFlags |= (1U << 16); // @v10.6.1
+	if(ASSIGN_ID_BY_NAME(p_drv, CloseCheckEx)) ExtMethodsFlags |= extmethfCloseCheckEx; // @v10.6.3
 
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax1) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax2) > 0);

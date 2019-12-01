@@ -3208,7 +3208,7 @@ int SLAPI PPViewGoodsOpAnalyze::ChangeOrder(BrowserWindow * pW)
 					DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pW->view->getDef());
 					p_def->setQuery(*p_q);
 					pW->setSubTitle(sub_title);
-					pW->refresh();
+					pW->Refresh();
 					ok = 1;
 				}
 				else

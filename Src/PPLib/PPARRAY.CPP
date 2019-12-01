@@ -443,7 +443,7 @@ int FASTCALL ObjIdListFilt::CopyTo(PPIDArray * pList) const
 		if(P_List)
 			*pList = *P_List;
 		else
-			pList->freeAll();
+			pList->clear(); // @v10.6.3 freeAll()-->clear()
 	return 1;
 }
 
@@ -769,7 +769,7 @@ SurKeyArray::SurKeyArray() : SArray(sizeof(SurKey), aryDataOwner|aryEachItem), L
 //virtual
 void FASTCALL SurKeyArray::freeItem(void * pItem)
 {
-	SurKey * p_item = (SurKey *)pItem;
+	SurKey * p_item = static_cast<SurKey *>(pItem);
 	p_item->Val.Destroy();
 }
 

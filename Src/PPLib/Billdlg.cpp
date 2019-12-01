@@ -420,14 +420,8 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 		else if(asFilt == 2) {
 			PPAccessRestriction accsr;
 			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
-			{
-				v = (pData->Ft_STax > 0) ? 1 : ((pData->Ft_STax < 0) ? 2 : 0);
-				dlg->setCtrlData(CTL_BILLEXTFLT_STAXTGGL, &v);
-			}
-			{
-				v = (pData->Ft_Declined > 0) ? 1 : ((pData->Ft_Declined < 0) ? 2 : 0);
-				dlg->setCtrlData(CTL_BILLEXTFLT_DCLTGGL, &v);
-			}
+			dlg->setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (pData->Ft_STax > 0) ? 1 : ((pData->Ft_STax < 0) ? 2 : 0));
+			dlg->setCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL,  (pData->Ft_Declined > 0) ? 1 : ((pData->Ft_Declined < 0) ? 2 : 0));
 			// @v9.1.6 {
             {
                 dlg->AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);

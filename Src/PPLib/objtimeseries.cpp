@@ -53,19 +53,21 @@ int FASTCALL PPTimeSeries::IsEqual(const PPTimeSeries & rS) const
 	return eq;
 }
 
-SLAPI PPTimeSeriesPacket::Extension::Extension() : MarginManual(0.0)
+SLAPI PPTimeSeriesPacket::Extension::Extension() : MarginManual(0.0), FixedStakeVolume(0.0)
 {
 }
 
 int SLAPI PPTimeSeriesPacket::Extension::IsEmpty() const
 {
-	return (MarginManual == 0.0);
+	return (MarginManual == 0.0 && FixedStakeVolume == 0.0);
 }
 
 int FASTCALL PPTimeSeriesPacket::Extension::IsEqual(const PPTimeSeriesPacket::Extension & rS) const
 {
 	int    eq = 1;
 	if(MarginManual != rS.MarginManual)
+		eq = 0;
+	else if(FixedStakeVolume != rS.FixedStakeVolume) // @v10.6.3
 		eq = 0;
 	return eq;
 }
@@ -186,12 +188,13 @@ int SLAPI PPObjTimeSeries::Config::Serialize(int dir, SBuffer & rBuf, SSerialize
 }
 
 class TimSerCfgDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPObjTimeSeries::Config);
 public:
 	TimSerCfgDialog() : PPListDialog(DLG_TIMSERCFG, CTL_TIMSERCFG_LIST)
 	{
 		updateList(-1);
 	}
-	int    setDTS(const PPObjTimeSeries::Config * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -208,11 +211,12 @@ public:
 		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 2, PPObjTimeSeries::Config::fUseStakeMode3); // @v10.3.3
 		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 3, PPObjTimeSeries::Config::fAllowReverse); // @v10.4.2
 		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 4, PPObjTimeSeries::Config::fVerifMode); // @v10.4.7
+		AddClusterAssoc(CTL_TIMSERCFG_FLAGS, 5, PPObjTimeSeries::Config::fIgnoreStrangeStakes); // @v10.6.3
 		SetClusterData(CTL_TIMSERCFG_FLAGS, Data.Flags);
 		updateList(-1);
 		return ok;
 	}
-	int    getDTS(PPObjTimeSeries::Config * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTL_TIMSERCFG_MAXSTAKE, &Data.MaxStakeCount);
@@ -335,7 +339,6 @@ private:
 		return ok;
 	}
 	PPObjTimeSeries TsObj;
-	PPObjTimeSeries::Config Data;
 };
 
 //static
@@ -435,6 +438,7 @@ int SLAPI PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 			setCtrlReal(CTL_TIMSER_BUYMARG, Data.Rec.BuyMarg);
 			setCtrlReal(CTL_TIMSER_SELLMARG, Data.Rec.SellMarg);
 			setCtrlReal(CTL_TIMSER_MANMARG, Data.E.MarginManual); // @v10.5.5
+			setCtrlReal(CTL_TIMSER_FXSTAKE, Data.E.FixedStakeVolume); // @v10.6.3
 			setCtrlReal(CTL_TIMSER_QUANT, Data.Rec.SpikeQuant);
 			setCtrlReal(CTL_TIMSER_AVGSPRD, Data.Rec.AvgSpread);
 			setCtrlData(CTL_TIMSER_OPTMD, &Data.Rec.OptMaxDuck);
@@ -460,6 +464,7 @@ int SLAPI PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 			getCtrlData(CTL_TIMSER_TGTQUANT, &Data.Rec.TargetQuant); // @v10.4.2
 			getCtrlData(sel = CTL_TIMSER_MANMARG, &Data.E.MarginManual); // @v10.5.5
 			THROW_PP(Data.E.MarginManual >= 0.0 && Data.E.MarginManual <= 2.0, PPERR_USERINPUT); // @v10.5.5
+			getCtrlData(CTL_TIMSER_FXSTAKE, &Data.E.FixedStakeVolume); // @v10.6.3
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -588,14 +593,15 @@ int  SLAPI PPObjTimeSeries::RemoveObjV(PPID id, ObjCollection * pObjColl, uint o
 }
 
 struct TimeSeriesExtention {
-	PPID   Tag;            // Const=PPOBJ_TIMESERIES
-	PPID   ID;             // @id
-	PPID   Prop;           // Const=TIMSERPRP_EXTENSION
-	SVerT  Ver;            // Версия системы, создавшей запись
-	uint8  Reserve[52];    //
-	double MarginManual;   //
-	long   Reserve1;       //
-	long   Reserve2;       //
+	PPID   Tag;              // Const=PPOBJ_TIMESERIES
+	PPID   ID;               // @id
+	PPID   Prop;             // Const=TIMSERPRP_EXTENSION
+	SVerT  Ver;              // Версия системы, создавшей запись
+	uint8  Reserve[44];      // @v10.6.3 [52]-->[44]
+	double FixedStakeVolume; // @v10.6.3
+	double MarginManual;     //
+	long   Reserve1;         //
+	long   Reserve2;         //
 };
 
 int SLAPI PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_ta)
@@ -632,6 +638,7 @@ int SLAPI PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int
 				MEMSZERO(ext_blk);
 				ext_blk.Ver = DS.GetVersion();
 				ext_blk.MarginManual = pPack->E.MarginManual;
+				ext_blk.FixedStakeVolume = pPack->E.FixedStakeVolume; // @v10.6.3
 				p_ext = &ext_blk;
 			}
 			THROW(CheckRightsModByID(pID));
@@ -677,6 +684,7 @@ int SLAPI PPObjTimeSeries::GetPacket(PPID id, PPTimeSeriesPacket * pPack)
 			if(ext_blk.MarginManual > 0.0 && ext_blk.MarginManual <= 2.0) {
 				pPack->E.MarginManual = ext_blk.MarginManual;
 			}
+			pPack->E.FixedStakeVolume = ext_blk.FixedStakeVolume; // @v10.6.3
 		}
 		// } @v10.5.5
 	}
@@ -802,6 +810,50 @@ PPViewTimeSeries::BrwItem::BrwItem(const PPTimeSeriesPacket * pTs)
 		THISZERO();
 	}
 }
+
+#if 0 // @v10.6.3 @construction {
+int SLAPI PPViewTimeSeries::CmpSortIndexItems(const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2)
+{
+	int    sn = 0;
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+	if(p_def) {
+		for(uint i = 0; !sn && i < GetSettledOrderList().getCount(); i++) {
+			if(pItem1->Pos < 0 && pItem2->Pos >= 0) // TOTAL-item is always greater than non-TOTAL one
+				sn = +1;
+			else if(pItem2->Pos < 0 && pItem1->Pos >= 0) // TOTAL-item is always greater than non-TOTAL one
+				sn = -1;
+			else {
+				int    col = GetSettledOrderList().get(i);
+				TYPEID typ1 = 0;
+				TYPEID typ2 = 0;
+				uint8  dest_data1[512];
+				uint8  dest_data2[512];
+				if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+					assert(typ1 == typ2);
+					if(typ1 == typ2) {
+						sn = stcomp(typ1, dest_data1, dest_data2);
+						if(sn && col < 0)
+							sn = -sn;
+					}
+				}
+			}
+		}
+	}
+	return sn;
+}
+
+static IMPL_CMPFUNC(PPViewTimeSeriesBrwItem, i1, i2)
+{
+	PPViewTimeSeries * p_obj = static_cast<PPViewTimeSeries *>(pExtraData);
+	if(p_obj) {
+		const PPViewTimeSeries::BrwItem * p_item1 = static_cast<const PPViewTimeSeries::BrwItem *>(i1);
+		const PPViewTimeSeries::BrwItem * p_item2 = static_cast<const PPViewTimeSeries::BrwItem *>(i2);
+		return p_obj->CmpSortIndexItems(p_item1, p_item2);
+	}
+	else
+		return 0;
+}
+#endif // } 0 @v10.6.3 @construction
 
 int SLAPI PPViewTimeSeries::MakeList()
 {

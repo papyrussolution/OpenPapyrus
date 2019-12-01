@@ -496,7 +496,7 @@ int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int 
 				strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
 				PPLoadText(PPTXT_BUILD_SOLUTION, fmt_buf);
 				rLogger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
-				int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi); // @unicodeproblem
+				int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi);
 				if(!r) {
 					SLS.SetOsError(0);
 					CALLEXCEPT_PP(PPERR_SLIB);

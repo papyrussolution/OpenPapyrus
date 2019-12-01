@@ -413,6 +413,6 @@ static FUNCTION functions[] = {
 #ifndef OPENSSL_NO_RC5
     { FT_cipher, "rc5-ofb", enc_main, enc_options },
 #endif
-    { 0, NULL, NULL}
+    { static_cast<FUNC_TYPE>(0), NULL, NULL}
 };
 #endif

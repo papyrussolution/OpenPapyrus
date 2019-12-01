@@ -1,5 +1,6 @@
 // PALM.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -442,8 +443,7 @@ int SLAPI PPObjStyloPalm::EditConfig()
 	SetupOprKindCombo(dlg, CTLSEL_SPIICFG_CLIINVOP, cfg.CliInvOpID, 0, &op_list, OPKLF_OPLIST);
 	// @v9.2.11 {
 	{
-		ObjTagFilt ot_filt;
-		ot_filt.ObjTypeID = PPOBJ_BILL;
+		ObjTagFilt ot_filt(PPOBJ_BILL);
 		ot_filt.Flags |= ObjTagFilt::fOnlyTags;
 		SetupObjTagCombo(dlg, CTLSEL_SPIICFG_INHBTAG, cfg.InhBillTagID, 0, &ot_filt);
 	}
@@ -520,9 +520,9 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
 }
 
 //
-// @todo @v4.6.8 Если запись PPStyloPalmPacket имеет ненулевую группу, то в диалоге
-// необходимо запретить редактирование наследуемых параметров, а также предусмотреть
-// изменение наследуемых параметров при изменении принадлежности к группе.
+// @todo @v4.6.8 Р•СЃР»Рё Р·Р°РїРёСЃСЊ PPStyloPalmPacket РёРјРµРµС‚ РЅРµРЅСѓР»РµРІСѓСЋ РіСЂСѓРїРїСѓ, С‚Рѕ РІ РґРёР°Р»РѕРіРµ
+// РЅРµРѕР±С…РѕРґРёРјРѕ Р·Р°РїСЂРµС‚РёС‚СЊ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РЅР°СЃР»РµРґСѓРµРјС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ, Р° С‚Р°РєР¶Рµ РїСЂРµРґСѓСЃРјРѕС‚СЂРµС‚СЊ
+// РёР·РјРµРЅРµРЅРёРµ РЅР°СЃР»РµРґСѓРµРјС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРё РёР·РјРµРЅРµРЅРёРё РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё Рє РіСЂСѓРїРїРµ.
 //
 #define GRP_LOC      1
 #define GRP_QUOTKIND 2
@@ -874,8 +874,8 @@ int SLAPI PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, P
 			SETIFZ(pStack, &inner_stack);
 			if(pStack->addUnique(pPack->Rec.GroupID) < 0) {
 				//
-				// Не завершаем функцию, дабы не смотря на рекурсию она могла функционировать.
-				// В журнале pperror.log появится информация о проблеме.
+				// РќРµ Р·Р°РІРµСЂС€Р°РµРј С„СѓРЅРєС†РёСЋ, РґР°Р±С‹ РЅРµ СЃРјРѕС‚СЂСЏ РЅР° СЂРµРєСѓСЂСЃРёСЋ РѕРЅР° РјРѕРіР»Р° С„СѓРЅРєС†РёРѕРЅРёСЂРѕРІР°С‚СЊ.
+				// Р’ Р¶СѓСЂРЅР°Р»Рµ pperror.log РїРѕСЏРІРёС‚СЃСЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїСЂРѕР±Р»РµРјРµ.
 				//
 				PPSetError(PPERR_STYLOPALMCYCLE, pPack->Rec.Name);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1489,7 +1489,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 					THROW(p_bill_tbl->getRec(&rec));
 
 					p_pack->Hdr.PalmID = pRec->ID;
-					p_pack->Hdr.Op = 1; // Заказ
+					p_pack->Hdr.Op = 1; // Р—Р°РєР°Р·
 					p_pack->Hdr.AgentID = pRec->AgentID;
 					rec.get(fldn_id, p_pack->Hdr.ID);
 					p_pack->Hdr.ID += bill_id_bias;
@@ -1607,7 +1607,7 @@ int SLAPI PPObjStyloPalm::ReadInputInv(PPStyloPalm * pRec, const char * pPath, P
 					THROW(p_bill_tbl->getRec(&rec));
 
 					p_pack->Hdr.PalmID = pRec->ID;
-					p_pack->Hdr.Op = 2; // Инвентаризация //
+					p_pack->Hdr.Op = 2; // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
 					rec.get(fldn_id, p_pack->Hdr.ID);
 					rec.get(fldn_clientid, client_id);
 					rec.get(fldn_dlvraddrid, dlvr_addr_id);
@@ -1764,19 +1764,19 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		int    skip = 0;
 		PalmBillItem item;
 		ObjTagItem tag;
-		// Дата и время начала создания заказа
+		// Р”Р°С‚Р° Рё РІСЂРµРјСЏ РЅР°С‡Р°Р»Р° СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р°
 		if(pSrcPack->Hdr.CreateDtm != ZERODATETIME) {
 			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTM, temp_buf.Z().Cat(pSrcPack->Hdr.CreateDtm));
 		}
-		// Дата и время окончания создания заказа
+		// Р”Р°С‚Р° Рё РІСЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р°
 		if(pSrcPack->Hdr.CreateDtmEnd != ZERODATETIME) {
 			pack.BTagL.PutItemStr(PPTAG_BILL_CREATEDTMEND, temp_buf.Z().Cat(pSrcPack->Hdr.CreateDtmEnd));
 		}
-		// Координаты начала создания заказа
+		// РљРѕРѕСЂРґРёРЅР°С‚С‹ РЅР°С‡Р°Р»Р° СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р°
 		if(pSrcPack->Hdr.Latitude != 0.0 || pSrcPack->Hdr.Longitude != 0.0) {
 			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORD, temp_buf.Z().Cat(pSrcPack->Hdr.Latitude).CatChar(',').Cat(pSrcPack->Hdr.Longitude));
 		}
-		// Координаты окончания создания заказа
+		// РљРѕРѕСЂРґРёРЅР°С‚С‹ РѕРєРѕРЅС‡Р°РЅРёСЏ СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р°
 		if(pSrcPack->Hdr.LatitudeEnd != 0.0 || pSrcPack->Hdr.LongitudeEnd != 0.0) {
 			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORDEND, temp_buf.Z().Cat(pSrcPack->Hdr.LatitudeEnd).CatChar(',').Cat(pSrcPack->Hdr.LongitudeEnd));
 		}
@@ -1796,8 +1796,8 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 					ti.Quantity_ = fabs(item.Qtty);
 					ti.Price = fabs(item.Price);
 					//
-					// Устанавливаем емкость упаковки лота заказа равной
-					// емкости упаковки последнего прихода до даты этого заказа
+					// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РµРјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё Р»РѕС‚Р° Р·Р°РєР°Р·Р° СЂР°РІРЅРѕР№
+					// РµРјРєРѕСЃС‚Рё СѓРїР°РєРѕРІРєРё РїРѕСЃР»РµРґРЅРµРіРѕ РїСЂРёС…РѕРґР° РґРѕ РґР°С‚С‹ СЌС‚РѕРіРѕ Р·Р°РєР°Р·Р°
 					//
 					{
 						LDATE  dt = pack.Rec.Dt;
@@ -1840,13 +1840,13 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 			result_id = pack.Rec.ID;
 			ok = 1;
 			//accepted_ord_count++;
-			if(pLogger) { // Выведем подробную информацию о том, что заказ принят
+			if(pLogger) { // Р’С‹РІРµРґРµРј РїРѕРґСЂРѕР±РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РѕРј, С‡С‚Рѕ Р·Р°РєР°Р· РїСЂРёРЅСЏС‚
 				msg_buf.Z().Printf(PPLoadTextS(PPTXT_ORDACCEPTED, fmt_buf), pack.Rec.Code, temp_buf.Z().Cat(pack.Rec.Dt).cptr(), palm_rec.Name);
 				pLogger->Log(msg_buf);
 			}
 		}
 	}
-	else { // выведем подробную информацию о том, что такой документ уже существует
+	else { // РІС‹РІРµРґРµРј РїРѕРґСЂРѕР±РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РѕРј, С‡С‚Рѕ С‚Р°РєРѕР№ РґРѕРєСѓРјРµРЅС‚ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚
 		if(pLogger) {
 			PPLoadString("date", temp_buf);
 			PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, pack.Rec.Code, 1, msg_buf);
@@ -1942,7 +1942,7 @@ int SLAPI PPObjStyloPalm::ImportBill(PalmBillQueue * pQueue, PPID opID, PPID loc
 			else if(ior == -100)
 				ord_already_ex_count++;
 		}
-		else if(p_src_pack->Hdr.Op == 2) { // Инвентаризация //
+		else if(p_src_pack->Hdr.Op == 2) { // РРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёСЏ //
 			ImportInventory(p_src_pack, sp_cfg.CliInvOpID, 0, pLogger, 1);
 		}
 		ZDELETE(p_src_pack);
@@ -2437,8 +2437,8 @@ int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * 
 	}
 	THROW(r && ok);
 	//
-	// Очищаем семафор готовности данных только в том случае, если
-	// прием объектов завершился успешно.
+	// РћС‡РёС‰Р°РµРј СЃРµРјР°С„РѕСЂ РіРѕС‚РѕРІРЅРѕСЃС‚Рё РґР°РЅРЅС‹С… С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё
+	// РїСЂРёРµРј РѕР±СЉРµРєС‚РѕРІ Р·Р°РІРµСЂС€РёР»СЃСЏ СѓСЃРїРµС€РЅРѕ.
 	//
 	for(i = 0; i < palm_id_list.getCount(); i++) {
 		PPStyloPalmPacket palm_pack;
@@ -2550,7 +2550,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 				AddAttrib("StyloFlags",     pHdr->StyloFlags);
 				AddAttrib("TransfDaysAgo",  pHdr->TransfDaysAgo);
 			}
-			// @v10.2.0 Если аккаунта нет, то и пароль слать не надо (иначе может передаться мусор)
+			// @v10.2.0 Р•СЃР»Рё Р°РєРєР°СѓРЅС‚Р° РЅРµС‚, С‚Рѕ Рё РїР°СЂРѕР»СЊ СЃР»Р°С‚СЊ РЅРµ РЅР°РґРѕ (РёРЅР°С‡Рµ РјРѕР¶РµС‚ РїРµСЂРµРґР°С‚СЊСЃСЏ РјСѓСЃРѕСЂ)
 			if(uhtt_acc.NotEmpty()) {
 				cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
 				AddAttrib("UhttPassword", temp_buf.cptr());
@@ -3079,14 +3079,12 @@ public:
 		int    ok = -1;
 		if(pWriter) {
 			SString tbl_name;
-			for(uint i = 0; tbl_name.Len() <= 0 && i < sizeof(TblNames) / sizeof(TableNames); i++) {
+			for(uint i = 0; tbl_name.Empty() && i < SIZEOFARRAY(TblNames); i++) {
 				if(fileId == TblNames[i].FileId)
 					tbl_name = TblNames[i].P_TblName;
 			}
 			if(tbl_name.Len()) {
-				LDATETIME cr_dtm;
-				getcurdatetime(&cr_dtm);
-				pWriter->PutTableInfo(tbl_name, rowsCount, cr_dtm);
+				pWriter->PutTableInfo(tbl_name, rowsCount, getcurdatetime_());
 				ok = 1;
 			}
 		}
@@ -3442,7 +3440,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 							drec_goods.put(10, brand_rec.OwnerID);
 					}
 					//
-					// Минимальный заказ
+					// РњРёРЅРёРјР°Р»СЊРЅС‹Р№ Р·Р°РєР°Р·
 					//
 					{
 						GoodsStockExt stock;
@@ -3497,7 +3495,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 							drec_goods.put(10, brand_rec.OwnerID);
 					}
 					//
-					// Минимальный заказ
+					// РњРёРЅРёРјР°Р»СЊРЅС‹Р№ Р·Р°РєР°Р·
 					//
 					{
 						GoodsStockExt stock;
@@ -3803,7 +3801,7 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 		THROW(ar_view.Init_(&ar_filt));
 		for(ar_view.InitIteration(); ar_view.NextIteration(&ar_item) > 0;) {
 			PPWaitPercent(ar_view.GetCounter(), wait_msg);
-			if(ar_item.Closed == 0) { // Не будем выгружать пассивные статьи
+			if(ar_item.Closed == 0) { // РќРµ Р±СѓРґРµРј РІС‹РіСЂСѓР¶Р°С‚СЊ РїР°СЃСЃРёРІРЅС‹Рµ СЃС‚Р°С‚СЊРё
 				inn_buf.Z();
 				long   _flags = 0;
 				PPID   quot_kind_id = 0;
@@ -3842,7 +3840,7 @@ int SLAPI PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock 
 						if(p_bobj->Search(p_pb_item->ID, &bill_rec) > 0) {
 							double amt = BR2(bill_rec.Amount), paym = 0.0;
 							//
-							// Извлечение примечания к долговому документу
+							// РР·РІР»РµС‡РµРЅРёРµ РїСЂРёРјРµС‡Р°РЅРёСЏ Рє РґРѕР»РіРѕРІРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ
 							//
 							/*
 							{
@@ -3923,20 +3921,20 @@ int SLAPI PPObjStyloPalm::UpdateLicense()
 	};
 	SFile lic_file;
 	//
-	// Получаем файл лицензий и проставляем уже использованные
+	// РџРѕР»СѓС‡Р°РµРј С„Р°Р№Р» Р»РёС†РµРЅР·РёР№ Рё РїСЂРѕСЃС‚Р°РІР»СЏРµРј СѓР¶Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹Рµ
 	//
 
 	//
-	// Сбрасываем файл лицензии
+	// РЎР±СЂР°СЃС‹РІР°РµРј С„Р°Р№Р» Р»РёС†РµРЅР·РёРё
 	//
 
 	//
-	// Символ БД
+	// РЎРёРјРІРѕР» Р‘Р”
 	//
 	char bd_symb[32];
 	lic_file.Write(
 	//
-	// Информация о свободных лицензиях
+	// РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРІРѕР±РѕРґРЅС‹С… Р»РёС†РµРЅР·РёСЏС…
 	//
 	{
 
@@ -4001,7 +3999,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 	THROW(CreateGoodsGrpList(_blk));
 	{
 		//
-		// Создаем искусственные списки групп устройств, разделенных по признакам списков складов и товарных групп.
+		// РЎРѕР·РґР°РµРј РёСЃРєСѓСЃСЃС‚РІРµРЅРЅС‹Рµ СЃРїРёСЃРєРё РіСЂСѓРїРї СѓСЃС‚СЂРѕР№СЃС‚РІ, СЂР°Р·РґРµР»РµРЅРЅС‹С… РїРѕ РїСЂРёР·РЅР°РєР°Рј СЃРїРёСЃРєРѕРІ СЃРєР»Р°РґРѕРІ Рё С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї.
 		//
 		PPStyloPalmPacket palm_pack;
 		PPIDArray palm_list;
@@ -4011,7 +4009,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 			if(!isempty(palm_pack.P_Path)) {
 				const long dvc_flags = dont_prepare_debt_data ? (palm_pack.Rec.Flags & ~PLMF_EXPCLIDEBT) : palm_pack.Rec.Flags;
 				PalmCfgItem * p_cfg_item__ = new PalmCfgItem;
-				THROW(andr_devs.Add(&palm_pack)); // Инициализируем writer для андроид устройств
+				THROW(andr_devs.Add(&palm_pack)); // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј writer РґР»СЏ Р°РЅРґСЂРѕРёРґ СѓСЃС‚СЂРѕР№СЃС‚РІ
 				p_cfg_item__->ID = palm_pack.Rec.ID;
 				p_cfg_item__->PalmFlags = dvc_flags;
 				p_cfg_item__->C.MaxNotSentOrd = static_cast<uint16>(palm_pack.Rec.MaxUnsentOrders);
@@ -4026,8 +4024,8 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 						p_item->LocList = palm_pack.LocList.Get();
 					p_item->PalmList.addUnique(palm_pack.Rec.ID);
 					//
-					// Если в списке уже есть аналог нового элемента, то просто изменим в ней
-					// список устройсв и флаги, в противном случае добавим новый элемент в список.
+					// Р•СЃР»Рё РІ СЃРїРёСЃРєРµ СѓР¶Рµ РµСЃС‚СЊ Р°РЅР°Р»РѕРі РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р°, С‚Рѕ РїСЂРѕСЃС‚Рѕ РёР·РјРµРЅРёРј РІ РЅРµР№
+					// СЃРїРёСЃРѕРє СѓСЃС‚СЂРѕР№СЃРІ Рё С„Р»Р°РіРё, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РґРѕР±Р°РІРёРј РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РІ СЃРїРёСЃРѕРє.
 					//
 					for(j = 0; j < exp_list.getCount(); j++) {
 						PalmExpStruc * p_ex_item = exp_list.at(j);
@@ -4112,7 +4110,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 			}
 			{
 				//
-				// Экспорт продаж по клиентам
+				// Р­РєСЃРїРѕСЂС‚ РїСЂРѕРґР°Р¶ РїРѕ РєР»РёРµРЅС‚Р°Рј
 				//
 				PPViewTrfrAnlz ta_view;
 				TrfrAnlzFilt ta_filt;
@@ -4122,7 +4120,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 				if(palm_pack.Rec.Flags & PLMF_EXPSELL && sp_cfg.SellOpID && sp_cfg.SellAnlzTerm > 0) {
 					SString wait_msg;
 					//
-					// Расчет выполняем на cfg.SellAnlzTerm недель до последнего воскресенья включительно
+					// Р Р°СЃС‡РµС‚ РІС‹РїРѕР»РЅСЏРµРј РЅР° cfg.SellAnlzTerm РЅРµРґРµР»СЊ РґРѕ РїРѕСЃР»РµРґРЅРµРіРѕ РІРѕСЃРєСЂРµСЃРµРЅСЊСЏ РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ
 					//
 					ta_filt.Period.upp = LConfig.OperDate;
 					int dow = dayofweek(&ta_filt.Period.upp, 1);
@@ -4150,8 +4148,8 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 						THROW_PP(p_dbf_tbl->appendRec(&rec), PPERR_DBFWRFAULT);
 					}
 					//
-					// В конфигурацию записываем не текущее время, а конечную дату, на которую сформирован отчет.
-					// Это позволит сэкономить на том, что данные фактически готовятся на конец прошедшей недели.
+					// Р’ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ Р·Р°РїРёСЃС‹РІР°РµРј РЅРµ С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ, Р° РєРѕРЅРµС‡РЅСѓСЋ РґР°С‚Сѓ, РЅР° РєРѕС‚РѕСЂСѓСЋ СЃС„РѕСЂРјРёСЂРѕРІР°РЅ РѕС‚С‡РµС‚.
+					// Р­С‚Рѕ РїРѕР·РІРѕР»РёС‚ СЃСЌРєРѕРЅРѕРјРёС‚СЊ РЅР° С‚РѕРј, С‡С‚Рѕ РґР°РЅРЅС‹Рµ С„Р°РєС‚РёС‡РµСЃРєРё РіРѕС‚РѕРІСЏС‚СЃСЏ РЅР° РєРѕРЅРµС† РїСЂРѕС€РµРґС€РµР№ РЅРµРґРµР»Рё.
 					//
 					for(j = 0; j < p_item->PalmList.getCount(); j++) {
 						PalmCfgItem * p_cfg_item = GetPalmConfigItem(cfg_list, p_item->PalmList.get(j));
@@ -4165,8 +4163,8 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 				ZDELETE(p_dbf_tbl);
 			}
 			//
-			// Задачи формируем для каждого агента в отдельности.
-			// В этом же цикле разносим подготовленные файлы по каталогам назначения.
+			// Р—Р°РґР°С‡Рё С„РѕСЂРјРёСЂСѓРµРј РґР»СЏ РєР°Р¶РґРѕРіРѕ Р°РіРµРЅС‚Р° РІ РѕС‚РґРµР»СЊРЅРѕСЃС‚Рё.
+			// Р’ СЌС‚РѕРј Р¶Рµ С†РёРєР»Рµ СЂР°Р·РЅРѕСЃРёРј РїРѕРґРіРѕС‚РѕРІР»РµРЅРЅС‹Рµ С„Р°Р№Р»С‹ РїРѕ РєР°С‚Р°Р»РѕРіР°Рј РЅР°Р·РЅР°С‡РµРЅРёСЏ.
 			//
 			for(j = 0; j < p_item->PalmList.getCount(); j++) {
 				const PPID palm_id = p_item->PalmList.get(j);
@@ -4194,7 +4192,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 								rec.put(1, item.ID);
 								rec.put(2, item.Priority);
 								rec.put(3, BIN(item.Status == TODOSTTS_COMPLETED));
-								rec.put(4, item.StartDt); // Вариант: item.EstFinishDt
+								rec.put(4, item.StartDt); // Р’Р°СЂРёР°РЅС‚: item.EstFinishDt
 
 								strip(STRNSCPY(temp_buf, item.Descr));
 								SOemToChar(temp_buf);
@@ -4212,7 +4210,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 						p_cfg_item->C.TmToDo = getcurdatetime_();
 						if(p_cfg_item->Path.NotEmpty()) {
 							//
-							// Разноска файлов по каталогам назначения.
+							// Р Р°Р·РЅРѕСЃРєР° С„Р°Р№Р»РѕРІ РїРѕ РєР°С‚Р°Р»РѕРіР°Рј РЅР°Р·РЅР°С‡РµРЅРёСЏ.
 							//
 							long   palm_flags = child_pack.Rec.Flags;
 							THROW(MoveOutFile(PPFILNAM_PALM_GOODS,    p_cfg_item, &andr_devs));
@@ -4233,7 +4231,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 		}
 	}
 	//
-	// В завершении сбрасываем файлы конфигурации в каталоги каждого из устройств
+	// Р’ Р·Р°РІРµСЂС€РµРЅРёРё СЃР±СЂР°СЃС‹РІР°РµРј С„Р°Р№Р»С‹ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РІ РєР°С‚Р°Р»РѕРіРё РєР°Р¶РґРѕРіРѕ РёР· СѓСЃС‚СЂРѕР№СЃС‚РІ
 	//
 	for(j = 0; j < cfg_list.getCount(); j++) {
 		PalmCfgItem * p_cfg_item = cfg_list.at(j);
@@ -4248,75 +4246,65 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 }
 
 class PalmPaneDialog : public TDialog {
+	DECL_DIALOG_DATA(PalmPaneData);
 public:
 	PalmPaneDialog() : TDialog(DLG_PALMPANE)
 	{
 	}
-	int    setDTS(const PalmPaneData *);
-	int    getDTS(PalmPaneData *);
-private:
-	DECL_HANDLE_EVENT;
-	void   setupPalm();
-
-	PalmPaneData Data;
-};
-
-IMPL_HANDLE_EVENT(PalmPaneDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_PALMPANE_PALM)) {
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 0, PalmPaneData::fUpdateData);
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 1, PalmPaneData::fExportFTP);
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 2, PalmPaneData::fImportFTP);
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 3, PalmPaneData::fDelImpData);
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 4, PalmPaneData::fExclExpDebts); // @v9.0.0
+		AddClusterAssoc(CTL_PALMPANE_FLAGS, 5, PalmPaneData::fIgnoreMutex); // @v9.8.4
+		SetClusterData(CTL_PALMPANE_FLAGS, Data.Flags);
+		SetupPPObjCombo(this, CTLSEL_PALMPANE_PALM, PPOBJ_STYLOPALM, Data.PalmID, OLW_CANSELUPLEVEL, 0);
+		PPIDArray op_type_list;
+		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
+		SetupOprKindCombo(this, CTLSEL_PALMPANE_OP, Data.OpID, 0, &op_type_list, 0);
+		SetupPPObjCombo(this, CTLSEL_PALMPANE_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 		setupPalm();
-		clearEvent(event);
+		return 1;
 	}
-}
-
-void PalmPaneDialog::setupPalm()
-{
-	getCtrlData(CTLSEL_PALMPANE_PALM, &Data.PalmID);
-	if(Data.PalmID) {
-		PPStyloPalm palm_rec;
-		if(SearchObject(PPOBJ_STYLOPALM, Data.PalmID, &palm_rec) > 0) {
-			Data.OpID = palm_rec.OrderOpID;
-			setCtrlData(CTLSEL_PALMPANE_OP, &Data.OpID);
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_PALMPANE_FLAGS, &Data.Flags);
+		getCtrlData(sel = CTLSEL_PALMPANE_PALM, &Data.PalmID);
+		THROW_PP(Data.PalmID, PPERR_USERINPUT);
+		getCtrlData(sel = CTLSEL_PALMPANE_OP, &Data.OpID);
+		THROW_PP(Data.OpID, PPERR_OPRKINDNEEDED);
+		getCtrlData(sel = CTLSEL_PALMPANE_LOC, &Data.LocID);
+		THROW_PP(Data.LocID, PPERR_LOCNEEDED);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_PALMPANE_PALM)) {
+			setupPalm();
+			clearEvent(event);
 		}
 	}
-}
-
-int PalmPaneDialog::setDTS(const PalmPaneData * pData)
-{
-	Data = *pData;
-
-	AddClusterAssoc(CTL_PALMPANE_FLAGS, 0, PalmPaneData::fUpdateData);
-	AddClusterAssoc(CTL_PALMPANE_FLAGS, 1, PalmPaneData::fExportFTP);
-	AddClusterAssoc(CTL_PALMPANE_FLAGS, 2, PalmPaneData::fImportFTP);
-	AddClusterAssoc(CTL_PALMPANE_FLAGS, 3, PalmPaneData::fDelImpData);
-	AddClusterAssoc(CTL_PALMPANE_FLAGS, 4, PalmPaneData::fExclExpDebts); // @v9.0.0
-	AddClusterAssoc(CTL_PALMPANE_FLAGS, 5, PalmPaneData::fIgnoreMutex); // @v9.8.4
-	SetClusterData(CTL_PALMPANE_FLAGS, Data.Flags);
-	SetupPPObjCombo(this, CTLSEL_PALMPANE_PALM, PPOBJ_STYLOPALM, Data.PalmID, OLW_CANSELUPLEVEL, 0);
-	PPIDArray op_type_list;
-	op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
-	SetupOprKindCombo(this, CTLSEL_PALMPANE_OP, Data.OpID, 0, &op_type_list, 0);
-	SetupPPObjCombo(this, CTLSEL_PALMPANE_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-	setupPalm();
-	return 1;
-}
-
-int PalmPaneDialog::getDTS(PalmPaneData * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	GetClusterData(CTL_PALMPANE_FLAGS, &Data.Flags);
-	getCtrlData(sel = CTLSEL_PALMPANE_PALM, &Data.PalmID);
-	THROW_PP(Data.PalmID, PPERR_USERINPUT);
-	getCtrlData(sel = CTLSEL_PALMPANE_OP, &Data.OpID);
-	THROW_PP(Data.OpID, PPERR_OPRKINDNEEDED);
-	getCtrlData(sel = CTLSEL_PALMPANE_LOC, &Data.LocID);
-	THROW_PP(Data.LocID, PPERR_LOCNEEDED);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
+	void   setupPalm()
+	{
+		getCtrlData(CTLSEL_PALMPANE_PALM, &Data.PalmID);
+		if(Data.PalmID) {
+			PPStyloPalm palm_rec;
+			if(SearchObject(PPOBJ_STYLOPALM, Data.PalmID, &palm_rec) > 0) {
+				Data.OpID = palm_rec.OrderOpID;
+				setCtrlData(CTLSEL_PALMPANE_OP, &Data.OpID);
+			}
+		}
+	}
+};
 
 // static
 int SLAPI PPObjStyloPalm::EditImpExpData(PalmPaneData * pData)
@@ -4801,7 +4789,7 @@ int PPALDD_UhttStyloDevice::Set(long iterId, int commit)
 			}
 			else {
 				//
-				// Ограниченное изменение записи устройства (только под определенной учетной записью и только некоторые атрибуты)
+				// РћРіСЂР°РЅРёС‡РµРЅРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРё СѓСЃС‚СЂРѕР№СЃС‚РІР° (С‚РѕР»СЊРєРѕ РїРѕРґ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃСЊСЋ Рё С‚РѕР»СЊРєРѕ РЅРµРєРѕС‚РѕСЂС‹Рµ Р°С‚СЂРёР±СѓС‚С‹)
 				//
 				if(glob_acc_id) {
 					;

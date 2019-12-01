@@ -10,7 +10,7 @@
 //
 BizScValByTemplViewItem::BizScValByTemplViewItem() : Id(0), P_Vals(0)
 {
-	Name[0] = 0;
+	PTR32(Name)[0] = 0;
 }
 
 BizScValByTemplViewItem::~BizScValByTemplViewItem()
@@ -106,10 +106,9 @@ int SLAPI PPBizScTemplPacket::RemoveCol(uint pos)
 int SLAPI PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSArray <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
-	uint count = Cols.getCount();
+	uint   count = Cols.getCount();
 	TSArray <PPBizScTemplCol> cols;
 	PPBizScTemplRow row;
-
 	if(colId > 0) {
 		PPBizScTemplCol col;
 		count = 0;
@@ -146,13 +145,11 @@ int SLAPI PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSArray <PPBiz
 {
 	int    ok = -1;
 	uint count = Cells.getCount();
-	if(pCells)
-		pCells->freeAll();
+	CALLPTRMEMB(pCells, freeAll());
 	for(uint i = 0; i < count; i++) {
 		PPBizScTemplCell & r_cell = Cells.at(i);
 		if((!colId || r_cell.ColId == colId) && (!rowId || r_cell.RowId == rowId)) {
-			if(pCells)
-				pCells->insert(&r_cell);
+			CALLPTRMEMB(pCells, insert(&r_cell));
 			ok = 1;
 		}
 	}
@@ -415,11 +412,12 @@ static int SLAPI TestFormula(PPID bizScId, const char * pFormula, PPObjBizScore 
 }
 
 class BizScTemplRowDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBizScTemplRow);
 public:
 	BizScTemplRowDialog() : TDialog(DLG_BIZSCTR)
 	{
 	}
-	int    setDTS(const PPBizScTemplRow * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
@@ -432,7 +430,7 @@ public:
 		SetupCtrl(Data.BizScId);
 		return 1;
 	}
-	int    getDTS(PPBizScTemplRow * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTL_BIZSCTR_NAME,      Data.Name);
@@ -446,7 +444,7 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isCmd(cmCBSelected) && event.isCtlEvent(CTLSEL_BIZSCTR_BIZSC)) {
+		if(event.isCbSelected(CTLSEL_BIZSCTR_BIZSC)) {
 			PPID   bizsc = getCtrlLong(CTLSEL_BIZSCTR_BIZSC);
 			SetupCtrl(bizsc);
 			clearEvent(event);
@@ -460,21 +458,20 @@ private:
 			clearEvent(event);
 		}
 	}
-	int    SetupCtrl(PPID bizsc)
+	void   SetupCtrl(PPID bizsc)
 	{
 		disableCtrl(CTL_BIZSCTR_FORMULA, BIN(bizsc));
-		return 1;
 	}
-	PPBizScTemplRow Data;
 	PPObjBizScore   BscObj;
 };
 
 class BizScTemplCellDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBizScTemplCell);
 public:
 	BizScTemplCellDialog() : TDialog(DLG_BIZSCTC)
 	{
 	}
-	int    setDTS(const PPBizScTemplCell * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
@@ -487,7 +484,7 @@ public:
 		SetupCtrl(Data.BizScId);
 		return 1;
 	}
-	int    getDTS(PPBizScTemplCell * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTLSEL_BIZSCTC_BIZSC, &Data.BizScId);
@@ -501,7 +498,7 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isCmd(cmCBSelected) && event.isCtlEvent(CTLSEL_BIZSCTC_BIZSC)) {
+		if(event.isCbSelected(CTLSEL_BIZSCTC_BIZSC)) {
 			PPID   bizsc = getCtrlLong(CTLSEL_BIZSCTC_BIZSC);
 			SetupCtrl(bizsc);
 			clearEvent(event);
@@ -519,7 +516,6 @@ private:
 	{
 		disableCtrl(CTL_BIZSCTC_FORMULA, BIN(bizsc));
 	}
-	PPBizScTemplCell Data;
 	PPObjBizScore    BscObj;
 };
 
@@ -537,13 +533,11 @@ public:
 	int getDTS(PPBizScTemplPacket * pData);
 private:
 	DECL_HANDLE_EVENT;
-
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int moveItem(long pos, long id, int up);
-
 	TDialog * GetItemDialog(long itemPos, int edit);
 	int  GetItemDTS(TDialog * pDlg);
 	int  SetItemDTS(TDialog * pDlg);
@@ -1158,18 +1152,19 @@ SLAPI PPViewBizScValByTempl::~PPViewBizScValByTempl()
 }
 
 class BizScValByTemplFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(BizScValByTemplFilt);
 public:
 	BizScValByTemplFiltDialog() : TDialog(DLG_FLTBIZSCVT)
 	{
 	}
-	int BizScValByTemplFiltDialog::setDTS(const BizScValByTemplFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
 		SetupPPObjCombo(this, CTLSEL_FLTBIZSCVT_TEMPL, PPOBJ_BIZSCTEMPL, Data.TemplateID, 0, 0);
 		return 1;
 	}
-	int BizScValByTemplFiltDialog::getDTS(BizScValByTemplFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -1182,8 +1177,6 @@ public:
 		ENDCATCH
 		return ok;
 	}
-private:
-	BizScValByTemplFilt Data;
 };
 
 int SLAPI PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt)

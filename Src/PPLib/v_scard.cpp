@@ -1320,7 +1320,8 @@ struct SCardChrgCrdParam {
 	enum {
 		actionAdd = 0,
 		actionExtendTo,
-		actionUhttSync
+		actionUhttSync, // Импортировать остатки Universe-HTT в локальную базу данных
+		actionTransmitToUhtt // @v10.6.3 Передать локальный остаток на Universe-HTT
 	};
 	LDATE  Dt;
 	long   Action;
@@ -1339,7 +1340,9 @@ static int SLAPI EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * p
 		dlg->AddClusterAssocDef(CTL_SCCHRGCRD_WHAT, 0, SCardChrgCrdParam::actionAdd);
 		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 1, SCardChrgCrdParam::actionExtendTo);
 		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 2, SCardChrgCrdParam::actionUhttSync);
+		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 3, SCardChrgCrdParam::actionTransmitToUhtt); // @v10.6.3
 		dlg->DisableClusterItem(CTL_SCCHRGCRD_WHAT, 2, !enableUhttSync);
+		dlg->DisableClusterItem(CTL_SCCHRGCRD_WHAT, 3, !enableUhttSync); // @v10.6.3
 		dlg->SetClusterData(CTL_SCCHRGCRD_WHAT, pData->Action);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			pData->Action = dlg->GetClusterData(CTL_SCCHRGCRD_WHAT);
@@ -1425,6 +1428,33 @@ int SLAPI PPViewSCard::ChargeCredit()
 							}
 							else
 								logger.LogLastError();
+						}
+					}
+					else if(param.Action == SCardChrgCrdParam::actionTransmitToUhtt) { // @v10.6.3
+						if(uhtt_sync && p_uhtt_cli) {
+							int    uhtt_error = 0;
+							double uhtt_rest = 0.0;
+							THROW(SCObj.P_Tbl->GetRest(item.ID, ZERODATE, &rest));
+							if(p_uhtt_cli->GetSCardByNumber(item.Code, scp) && p_uhtt_cli->GetSCardRest(scp.Code, 0, uhtt_rest)) {
+								if(rest != uhtt_rest) {
+									amount = R2(rest - uhtt_rest);
+									if(amount > 0.0) {
+										if(!p_uhtt_cli->DepositSCardAmount(scp.Code, amount))
+											uhtt_error = 1;
+									}
+									else if(amount < 0.0) {
+										if(!p_uhtt_cli->WithdrawSCardAmount(scp.Code, fabs(amount))) {
+											uhtt_error = 1;
+										}
+									}
+								}
+							}
+							else
+								uhtt_error = 1;
+							if(uhtt_error)
+								logger.LogLastError();
+							else
+								ok = 1;
 						}
 					}
 					else if(param.Action == SCardChrgCrdParam::actionExtendTo) {

@@ -1834,8 +1834,7 @@ int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						BrowserDef * p_def = pBrw->getDef();
 						int    col = p_def ? (p_def->getCount() - 1) : -1;
 						long   h = 0;
-						pBrw->ItemByMousePos(&h, 0);
-						if(col > 0 && h == col) {
+						if(pBrw->ItemByMousePos(&h, 0) && col > 0 && h == col) {
 							PrjTaskTbl::Rec  pt_rec;
 							ok = -1;
 							if(id && TodoObj.Search(id, &pt_rec) > 0 && (sstrlen(pt_rec.Descr) > 0 || sstrlen(pt_rec.Memo) > 0)) {
@@ -1881,7 +1880,7 @@ int SLAPI PPViewPrjTask::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, 
 	}
 	if(ok > 0 && update && pBrw) {
 		if(UpdateTempTable(&UpdateTaskList, 1) > 0) {
-			pBrw->refresh();
+			pBrw->Refresh();
 			UpdateTimeBrowser(0);
 		}
 		UpdateTaskList.freeAll();

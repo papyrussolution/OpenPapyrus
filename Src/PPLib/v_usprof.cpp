@@ -228,7 +228,7 @@ int SLAPI PPViewUserProfile::HandleNotifyEvent(int kind, const PPNotifyEvent * p
 	update = BIN(id_list.getCount() > 0);
 	if(ok > 0 && update && pBrw) {
 		// THROW(UpdateTempTable(&id_list));
-		pBrw->refresh();
+		pBrw->Refresh();
 	}
 	CATCHZOK
 	if(lock)

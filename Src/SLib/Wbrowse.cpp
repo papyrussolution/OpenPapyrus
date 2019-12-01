@@ -458,6 +458,10 @@ static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 }
 #endif // } 0
 
+BrowserWindow::CellStyle::CellStyle() : Color(0), Color2(0), RightFigColor(0), Flags(0)
+{
+}
+
 int SLAPI LoadToolbar(TVRez * rez, uint tbType, uint tbID, ToolbarList * pList)
 {
 	return rez->findResource(tbID, tbType, 0, 0) ? ImpLoadToolbar(*rez, pList) : 0;
@@ -668,19 +672,19 @@ void BrowserWindow::go(long p)
 {
 	SETMAX(p, 0);
 	WMHScroll(SB_VERT, SB_THUMBPOSITION, p-P_Def->_curItem());
-	refresh();
+	Refresh();
 }
 
 void BrowserWindow::top()
 {
 	WMHScroll(SB_VERT, SB_TOP, 0);
-	refresh();
+	Refresh();
 }
 
 void BrowserWindow::bottom()
 {
 	WMHScroll(SB_VERT, SB_BOTTOM, 0);
-	refresh();
+	Refresh();
 }
 
 int BrowserWindow::search2(const void * pSrchData, CompFunc cmpFunc, int srchMode, size_t offs)
@@ -760,8 +764,8 @@ void BrowserWindow::SetCellStyleFunc(CellStyleFunc func, void * extraPtr)
 	CellStyleFuncExtraPtr = extraPtr;
 }
 
-void * BrowserWindow::getItemByPos(long pos) { return (P_Def) ? P_Def->getRow(/*P_Def->_topItem() + */pos) : 0; }
-void * BrowserWindow::getCurItem() { return P_Def ? P_Def->getRow(P_Def->_curItem()) : 0; }
+const  void * BrowserWindow::getItemByPos(long pos) { return (P_Def) ? P_Def->getRow(/*P_Def->_topItem() + */pos) : 0; }
+const  void * BrowserWindow::getCurItem() { return P_Def ? P_Def->getRow(P_Def->_curItem()) : 0; }
 const  UserInterfaceSettings * BrowserWindow::GetUIConfig() const { return &UICfg; }
 long   BrowserWindow::CalcHdrWidth(int plusToolbar) const { return (P_Header ? (P_Header->ViewSize.y * ChrSz.y) : 0) + (plusToolbar ? ToolBarWidth : 0); }
 int BrowserWindow::GetCurColumn() const
@@ -772,12 +776,14 @@ void BrowserWindow::setInitPos(long p)
 	{ InitPos = p; }
 BrowserDef * BrowserWindow::getDef()
 	{ return P_Def; }
+const BrowserDef * BrowserWindow::getDefC() const
+	{ return P_Def; }
 void BrowserWindow::SetDefUserProc(SBrowserDataProc proc, void * extraPtr)
 	{ CALLPTRMEMB(P_Def, SetUserProc(proc, extraPtr)); }
 int BrowserWindow::SetColumnTitle(int colNo, const char * pText)
 	{ return P_Def ? P_Def->setColumnTitle(colNo, pText) : 0; }
 int BrowserWindow::IsLastPage(uint viewHeight)
-	{ return P_Def && P_Def->IsEOQ() && (!(char *)P_Def->getRow(P_Def->_topItem() + viewHeight)) ? 1 : 0; }
+	{ return P_Def && P_Def->IsEOQ() && (!P_Def->getRow(P_Def->_topItem() + viewHeight)) ? 1 : 0; }
 int FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const
 	{ return (ChrSz.x*rC.width + rC.x); }
 int FASTCALL BrowserWindow::GetRowHeightMult(long row) const
@@ -1302,7 +1308,7 @@ void BrowserWindow::SetFreeze(uint numFreezeCols)
 	CalcRight();
 }
 
-LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT rect, BOOL isFocus)
+LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT rect, BOOL isFocus) const
 {
 	const BroColumn & c = P_Def->at(hPos);
 #if 1 // @v8.2.0 { GetRowHeightMult и GetRowTop элиминированы ради быстродействия //
@@ -1375,7 +1381,7 @@ void BrowserWindow::DrawCapBk(HDC hDC, const RECT * lpRect, BOOL isPressed)
 {
 	RECT   r = *lpRect;
 	if(!isPressed) {
-		HPEN   oldPen = static_cast<HPEN>(SelectObject(hDC, Pens.TitlePen));
+		const  HPEN  old_pen = static_cast<HPEN>(SelectObject(hDC, Pens.TitlePen));
 		POINT  points[6];
 		points[0].x = r.right;
 		points[0].y = r.top;
@@ -1390,8 +1396,8 @@ void BrowserWindow::DrawCapBk(HDC hDC, const RECT * lpRect, BOOL isPressed)
 		points[5].x = r.right - 1;
 		points[5].y = r.top + 1;
 		Polygon(hDC, points, SIZEOFARRAY(points));
-		SelectObject(hDC, oldPen);
-		SInflateRect(r, -1, -1);
+		SelectObject(hDC, old_pen);
+		// @v10.6.3 SInflateRect(r, -1, -1);
 	}
 	FillRect(hDC, &r, Brushes.TitleBrush);
 }
@@ -1410,7 +1416,7 @@ static int FASTCALL GetCapAlign(int option)
 	return fmt;
 }
 
-int BrowserWindow::refresh()
+void BrowserWindow::Refresh()
 {
 	if(P_Def) {
 		P_Def->refresh();
@@ -1419,7 +1425,6 @@ int BrowserWindow::refresh()
 		AdjustCursorsForHdr();
 	}
 	invalidateAll(1);
-	return 1;
 }
 
 int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, int fmt, int isLineCursor)
@@ -1470,7 +1475,7 @@ void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, i
 int BrowserWindow::GetCellColor(long row, long col, COLORREF * pColor)
 {
 	int    ok = -1;
-	void * p_row = P_Def->getRow(row);
+	const  void * p_row = P_Def->getRow(row);
 	if(p_row) {
 		CellStyle style;
 		if(F_CellStyle && F_CellStyle(p_row, col, BrowserWindow::paintNormal, &style, CellStyleFuncExtraPtr) > 0) {
@@ -1488,7 +1493,6 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 	if(p_row) {
 		ok = 1;
 		CellStyle style;
-		MEMSZERO(style);
 		if(F_CellStyle && F_CellStyle(p_row, col, paintAction, &style, CellStyleFuncExtraPtr) > 0) {
 			HPEN   pen = 0;
 			HPEN   oldpen = 0;
@@ -1626,7 +1630,7 @@ void BrowserWindow::Paint()
 			static_cast<const TStaticText *>(P_Header)->getText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			STRNSCPY(tbuf, SUcSwitch(temp_buf));
-			::DrawText(ps.hdc, tbuf, sstrleni(tbuf), &r, DT_LEFT); // @unicodeproblem
+			::DrawText(ps.hdc, tbuf, sstrleni(tbuf), &r, DT_LEFT);
 		}
 		r.top     = r.left = 0;
 		r.bottom  = ChrSz.y * CapOffs - 3;
@@ -1648,7 +1652,77 @@ void BrowserWindow::Paint()
 				r.top    += hdr_width;
 				r.bottom += hdr_width;
 				DrawCapBk(ps.hdc, &r, FALSE);
-				r.left += 3;
+				// @v10.6.3 {
+				int   sort_status = 0;
+				if(c.Options & BCO_SORTABLE) {
+					uint soidx = 0;
+					if(SettledOrder.lsearch(cn+1, &soidx))
+						sort_status = 1;
+					else if(SettledOrder.lsearch(-static_cast<int>(cn+1), &soidx))
+						sort_status = 2;
+					else
+						sort_status = -1;
+					if(sort_status) {
+						COLORREF color = GetColorRef(SClrMediumorchid);
+						HPEN sort_pen = CreatePen(PS_SOLID, 1, color);
+						HPEN oldpen = static_cast<HPEN>(SelectObject(ps.hdc, sort_pen));
+						HBRUSH sort_br = 0; //CreateSolidBrush(color);
+						HBRUSH oldbr = 0; //static_cast<HBRUSH>(SelectObject(ps.hdc, sort_br));
+
+						POINT  points[6];
+						const int middle_y = (r.top + r.bottom) / 2;
+						const int middle_x = (2 * r.left + 11) / 2;
+						if(sort_status == 1) {
+							sort_br = CreateSolidBrush(color);
+							oldbr = static_cast<HBRUSH>(SelectObject(ps.hdc, sort_br));
+							points[0].x = r.left;
+							points[0].y = middle_y;
+							points[1].x = middle_x;
+							points[1].y = r.bottom-3;
+							points[2].x = r.left+10;
+							points[2].y = middle_y;
+							points[3].x = r.left;
+							points[3].y = middle_y;
+							Polygon(ps.hdc, points, 4);
+						}
+						else if(sort_status == 2) {
+							sort_br = CreateSolidBrush(color);
+							oldbr = static_cast<HBRUSH>(SelectObject(ps.hdc, sort_br));
+							points[0].x = r.left;
+							points[0].y = middle_y;
+							points[1].x = middle_x;
+							points[1].y = r.top+3;
+							points[2].x = r.left+10;
+							points[2].y = middle_y;
+							points[3].x = r.left;
+							points[3].y = middle_y;
+							Polygon(ps.hdc, points, 4);
+						}
+						else {
+							sort_br = CreateSolidBrush(GetColorRef(SClrWheat));
+							oldbr = static_cast<HBRUSH>(SelectObject(ps.hdc, sort_br));
+							points[0].x = r.left;
+							points[0].y = middle_y;
+							points[1].x = middle_x;
+							points[1].y = r.top+3;
+							points[2].x = r.left+10;
+							points[2].y = middle_y;
+							points[3].x = middle_x;
+							points[3].y = r.bottom-3;
+							points[4].x = r.left;
+							points[4].y = middle_y;
+							Polygon(ps.hdc, points, 5);
+						}
+						SelectObject(ps.hdc, oldpen);
+						ZDeleteWinGdiObject(&sort_pen);
+						if(oldbr) {
+							SelectObject(ps.hdc, oldbr);
+							ZDeleteWinGdiObject(&sort_br);
+						}
+					}
+				}
+				// } @v10.6.3 
+				r.left += sort_status ? 12 : 3;
 				r.top++;
 				r.right -= 3;
 				r.bottom--;
@@ -1864,11 +1938,12 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 				uint pos = 0;
 				TPoint tp;
 				tp = *point;
-				ItemByPoint(tp, &col, 0);
-				if(SelectedColumns.bsearch(col, &pos) > 0)
-					SelectedColumns.atFree(pos);
-				else if(col >= 0 && col < static_cast<long>(P_Def->getCount()))
-					SelectedColumns.add(col);
+				if(ItemByPoint(tp, &col, 0)) {
+					if(SelectedColumns.bsearch(col, &pos) > 0)
+						SelectedColumns.atFree(pos);
+					else if(col >= 0 && col < static_cast<long>(P_Def->getCount()))
+						SelectedColumns.add(col);
+				}
 			}
 			SelectedColumns.sort();
 			ok = 1;
@@ -1877,9 +1952,57 @@ int BrowserWindow::SelColByPoint(const POINT * point, int action)
 	return ok;
 }
 
-void BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos)
+int BrowserWindow::GetColumnByX(int x) const
 {
+	int    found = 0;
+	int    i = 0;
+	if(Freeze) {
+		for(i = 0; i <= static_cast<int>(Right) && i < static_cast<int>(Freeze); i++) {
+			const BroColumn & c = P_Def->at(i);
+			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2)) {
+				found = 1;
+				break;
+			}
+		}
+	}
+	if(!found) {
+		for(i = static_cast<int>(Left); i <= static_cast<int>(Right); i++) {
+			const BroColumn & c = P_Def->at(i);
+			if(x >= static_cast<int>(c.x) - 2 && x <= (CellRight(c) + 2)) {
+				found = 1;
+				break;
+			}
+		}
+	}
+	return found ? i : -1;
+}
+
+int BrowserWindow::HeaderByPoint(TPoint point, long * pVertPos) const
+{
+	int    ok = 0;
+	long   vpos = 0;
 	const  long hdr_width = CalcHdrWidth(1);
+	int    cx = GetColumnByX(point.x);
+	if(cx >= 0) {
+		uint   gidx = 0;
+		int    bottom  = YCell * P_Def->GetCapHeight();
+		int    top     = P_Def->isColInGroup(cx, &gidx) ? (YCell * P_Def->GetGroup(gidx)->Height + 1) : 0;
+		top    += hdr_width;
+		bottom += hdr_width;
+		if(point.y < bottom && point.y > top) {
+			vpos = cx;
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pVertPos, vpos);
+	return ok;
+}
+
+int BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos) const
+{
+	int    ok = 1;
+	const  long hdr_width = CalcHdrWidth(1);
+	/* @v10.6.3
 	int    found = 0;
 	uint   i = 0;
 	if(Freeze) {
@@ -1897,29 +2020,34 @@ void BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos)
 			if(point.x >= static_cast<int>(c.x) - 2 && point.x <= (CellRight(c) + 2))
 				break;
 		}
-	}
-	ASSIGN_PTR(pHorzPos, static_cast<long>(i));
+	} */
+	int    i = GetColumnByX(point.x); // @v10.6.3
 	long   vpos = 0;
-	const  uint   r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
-	if(r_h_count) {
-		uint   y = point.y - hdr_width;
-		for(uint row = 0; row < r_h_count; row++) {
-			RECT rect;
-			ItemRect(HScrollPos, row, &rect, FALSE);
-			if(static_cast<LONG>(y) <= rect.bottom || row == r_h_count - 1) {
-				vpos = static_cast<long>(P_Def->_topItem() + row);
-				break;
+	if(i >= 0) {
+		ASSIGN_PTR(pHorzPos, static_cast<long>(i));
+		const  uint   r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
+		if(r_h_count) {
+			uint   y = point.y - hdr_width;
+			for(uint row = 0; row < r_h_count; row++) {
+				RECT rect;
+				ItemRect(HScrollPos, row, &rect, FALSE);
+				if(static_cast<LONG>(y) <= rect.bottom || row == r_h_count - 1) {
+					vpos = static_cast<long>(P_Def->_topItem() + row);
+					break;
+				}
 			}
 		}
+		else if(point.y > hdr_width + P_Def->GetCapHeight() * YCell)
+			vpos = (point.y - (hdr_width + CapOffs)) / YCell + P_Def->_topItem();
+		else
+			vpos = P_Def->_topItem();
+		ok = 1;
 	}
-	else if(point.y > hdr_width + P_Def->GetCapHeight() * YCell)
-		vpos = (point.y - (hdr_width + CapOffs)) / YCell + P_Def->_topItem();
-	else
-		vpos = P_Def->_topItem();
 	ASSIGN_PTR(pVertPos, vpos);
+	return ok;
 }
 
-void BrowserWindow::ItemByMousePos(long * pHorzPos, long * pVertPos)
+int BrowserWindow::ItemByMousePos(long * pHorzPos, long * pVertPos)
 {
 	TPoint tp;
 	POINT p;
@@ -1929,7 +2057,7 @@ void BrowserWindow::ItemByMousePos(long * pHorzPos, long * pVertPos)
 	p.x -= parent_rect.left;
 	p.y -= parent_rect.top;
 	tp = p;
-	ItemByPoint(tp, pHorzPos, pVertPos);
+	return ItemByPoint(tp, pHorzPos, pVertPos);
 }
 
 int BrowserWindow::IsResizePos(TPoint p)
@@ -2428,7 +2556,7 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			return 0;
 		case BRO_GETCURCOL:
 			if(p_view) {
-				*(UINT *)(void **)lParam = p_view->HScrollPos;
+				*reinterpret_cast<UINT *>(reinterpret_cast<void **>(lParam)) = p_view->HScrollPos;
 			}
 			return 0;
 		case BRO_DATACHG:
@@ -2493,6 +2621,22 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 			break;
 		case WM_MOUSEHOVER:
 			tp.setwparam(lParam);
+			/* @construction
+			{
+				long vpos = 0;
+				if(p_view->HeaderByPoint(tp, &vpos) && vpos >= 0 && vpos < p_view->P_Def->getCountI()) {
+					const BroColumn & c = p_view->P_Def->at(vpos);
+					SString temp_buf = c.text;
+					SMessageWindow * p_win = new SMessageWindow;
+					if(p_win) {
+						temp_buf.ReplaceChar('\003', ' ').Strip();
+						COLORREF color = GetColorRef(SClrLightyellow);
+						long   flags = SMessageWindow::fShowOnCursor|SMessageWindow::fSizeByText|SMessageWindow::fOpaque|SMessageWindow::fPreserveFocus;
+						p_win->Open(temp_buf, 0, 0, 0, 3000, color, flags, 0);
+					}
+				}
+			}
+			*/
 			TView::messageBroadcast(p_view, cmMouseHover, &tp);
 			break;
 		case WM_SETFOCUS:
@@ -2590,11 +2734,12 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 		case WM_RBUTTONUP:
 			if(p_view) {
 				tp.setwparam(lParam);
-				p_view->ItemByPoint(tp, &hPos, &vPos);
-				p_view->FocusItem(hPos, vPos);
-				e.what = TEvent::evKeyDown;
-				e.keyDown.keyCode = kbShiftF10;
-				p_view->handleEvent(e);
+				if(p_view->ItemByPoint(tp, &hPos, &vPos)) {
+					p_view->FocusItem(hPos, vPos);
+					e.what = TEvent::evKeyDown;
+					e.keyDown.keyCode = kbShiftF10;
+					p_view->handleEvent(e);
+				}
 			}
 			return 0;
 		case WM_LBUTTONDOWN:
@@ -2610,11 +2755,33 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 						DefMDIChildProc(hWnd, msg, wParam, lParam);
 						UpdateWindow(hWnd);
 					}
-					p_view->ItemByPoint(tp, &hPos, &vPos);
-					p_view->FocusItem(hPos, vPos);
-					if(p_view->SelColByPoint(&pnt, (wParam & MK_CONTROL) ? 1 : ((wParam & MK_SHIFT) ? -1 : 0)) > 0) {
-						InvalidateRect(hWnd, 0, TRUE);
-						UpdateWindow(hWnd);
+					if(p_view->HeaderByPoint(tp, &vPos)) { // @v10.6.3
+						if(vPos >= 0 && vPos < p_view->P_Def->getCountI()) {
+							const BroColumn & c = p_view->P_Def->at(vPos);
+							if(c.Options & BCO_SORTABLE) {
+								long   vp1 = vPos+1;
+								uint   sopos = 0;
+								if(p_view->SettledOrder.lsearch(vp1, &(sopos = 0)) || p_view->SettledOrder.lsearch(-vp1, &(sopos = 0))) {
+									long org_v = p_view->SettledOrder.get(sopos);
+									p_view->SettledOrder.clear();
+									p_view->SettledOrder.add(-org_v);
+								}
+								else {
+									p_view->SettledOrder.clear();
+									p_view->SettledOrder.add(vp1);
+								}
+								TView::messageCommand(p_view, cmSort, 0);
+								InvalidateRect(hWnd, 0, TRUE);
+								UpdateWindow(hWnd);
+							}
+						}
+					} 
+					else if(p_view->ItemByPoint(tp, &hPos, &vPos)) {
+						p_view->FocusItem(hPos, vPos);
+						if(p_view->SelColByPoint(&pnt, (wParam & MK_CONTROL) ? 1 : ((wParam & MK_SHIFT) ? -1 : 0)) > 0) {
+							InvalidateRect(hWnd, 0, TRUE);
+							UpdateWindow(hWnd);
+						}
 					}
 				}
 			}
@@ -2654,8 +2821,8 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 							DefMDIChildProc(hWnd, msg, wParam, lParam);
 							UpdateWindow(hWnd);
 						}
-						p_view->ItemByPoint(tp, &hPos, &vPos);
-						p_view->FocusItem(hPos, vPos);
+						if(p_view->ItemByPoint(tp, &hPos, &vPos))
+							p_view->FocusItem(hPos, vPos);
 					}
 				}
 			}

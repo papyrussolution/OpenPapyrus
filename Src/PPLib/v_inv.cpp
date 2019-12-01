@@ -1172,9 +1172,8 @@ IMPL_HANDLE_EVENT(InventoryItemDialog)
 			ViewLots(&filt, 0, 0);
 		}
 	}
-	else if(event.isCmd(cmCBSelected)) {
-		if(event.isCtlEvent(CTLSEL_INVITEM_GOODS))
-			replyGoodsSelection();
+	else if(event.isCbSelected(CTLSEL_INVITEM_GOODS)) {
+		replyGoodsSelection();
 	}
 	else if(event.isKeyDown(kbF2)) {
 		if(isCurrCtlID(CTL_INVITEM_PRICE))

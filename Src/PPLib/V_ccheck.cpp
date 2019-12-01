@@ -1995,7 +1995,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 								PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, _rec.ID, PPTRPROP_CC_LNEXT), text_buf);
 								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(text_buf, text_by_row_list);
-								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &text_by_row_list); // @v10.3.9 
+								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &text_by_row_list); // @v10.3.9
 							}
 							// } @v10.2.6
 							while(CcPack.EnumLines(&CurLine, &ln_rec)) {
@@ -2606,7 +2606,7 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn    (-1, "@seller",          pos++, 0, MKSFMT(24, 0), 0);
 				pBrw->InsColumnWord(-1, PPWORD_DINNERTABLE, pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
 				pBrw->InsColumn    (-1, "@guestcount",      pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
-				pBrw->InsColumnWord(-1, PPWORD_ADDPAYMENT,  pos++, 0, MKSFMTD(12, 2, NMBF_NOZERO), 0);
+				pBrw->InsColumn    (-1, "@addpayment",      pos++, 0, MKSFMTD(12, 2, NMBF_NOZERO), 0);
 				pBrw->InsColumn    (-1, "@memo",            pos++, 0, MKSFMT(40, 0), 0);
 				if(Filt.Flags & CCheckFilt::fDlvrOnly) {
 					pBrw->InsColumn(-1, "@duetime",  pos++, 0, MKSFMT(10, 0), 0);

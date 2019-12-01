@@ -9,15 +9,9 @@
 
 /* #define COMPILE_STANDALONE_TEST_DRIVER  */
 #include "apps.h"
-#include <string.h>
 #if !defined(OPENSSL_SYS_MSDOS)
-# include OPENSSL_UNISTD
+	#include OPENSSL_UNISTD
 #endif
-
-#include <stdlib.h>
-#include <errno.h>
-#include <ctype.h>
-#include <limits.h>
 #include <openssl/bio.h>
 #include <openssl/x509v3.h>
 
@@ -932,7 +926,7 @@ int main(int ac, char **av)
     bio_err = BIO_new_fp(stderr, BIO_NOCLOSE | BIO_FP_TEXT);
 
     prog = opt_init(ac, av, options);
-    while ((o = opt_next()) != OPT_EOF) {
+    while ((o = static_cast<OPTION_CHOICE>(opt_next())) != OPT_EOF) {
         switch (c) {
         case OPT_NOTUSED:
         case OPT_EOF:

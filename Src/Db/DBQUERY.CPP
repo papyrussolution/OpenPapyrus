@@ -775,6 +775,7 @@ long DBQuery::_defaultBufDelta =  4L;
 
 inline uint FASTCALL DBQuery::addr(uint p) const { return ((P_Frame->zero+p) % P_Frame->size); }
 void * FASTCALL DBQuery::getRecord(uint r) { return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0; }
+const void * FASTCALL DBQuery::getRecordC(uint r) const { return (r < P_Frame->count) ? (P_Frame->buf + recSize * addr(r)) : 0; }
 void * SLAPI DBQuery::getCurrent() { return getRecord(P_Frame->cur); }
 void * SLAPI DBQuery::getBuffer() { return P_Frame->buf; }
 

@@ -5221,7 +5221,7 @@ namespace NArchive {
 						rem++;
 					if(id == extraID) {
 						recordDataSize = (uint)rem;
-						return (int)offset;
+						return static_cast<int>(offset);
 					}
 					offset += rem;
 				}
@@ -5728,7 +5728,7 @@ namespace NArchive {
 			  if(id == extraID)
 			  {
 				recordDataSize = (uint)rem;
-				return (int)offset;
+				return static_cast<int>(offset);
 			  }
 
 			  offset += rem;

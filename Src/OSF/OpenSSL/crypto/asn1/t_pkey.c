@@ -9,10 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-/* Number of octets per line */
-#define ASN1_BUF_PRINT_WIDTH    15
-/* Maximum indent */
-#define ASN1_PRINT_MAX_INDENT 128
+#define ASN1_BUF_PRINT_WIDTH    15 /* Number of octets per line */
+#define ASN1_PRINT_MAX_INDENT 128 /* Maximum indent */
 
 int ASN1_buf_print(BIO * bp, const uchar * buf, size_t buflen, int indent)
 {

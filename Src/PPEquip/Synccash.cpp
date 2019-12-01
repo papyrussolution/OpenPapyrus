@@ -531,12 +531,14 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		ok = -1;
 	else {
 		SlipDocCommonParam sdc_param;
+		PPID   tax_sys_id = 0;
 		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
 		double real_fiscal = 0.0;
 		double real_nonfiscal = 0.0;
+		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
 		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
 		const CcAmountList & r_al = pPack->AL_Const();
@@ -573,6 +575,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					PROFILE_START_S("DVCCMD_OPENCHECK")
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
+					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 				}
@@ -582,6 +585,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					//THROW(ExecFRPrintOper(PrintDocumentTitle));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, SERVICEDOC));
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
+					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 					PROFILE_START_S("DVCCMD_PRINTTEXT")

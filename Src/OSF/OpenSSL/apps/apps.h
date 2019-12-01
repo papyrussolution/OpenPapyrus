@@ -8,25 +8,24 @@
  */
 
 #ifndef HEADER_APPS_H
-# define HEADER_APPS_H
+#define HEADER_APPS_H
 
-# include "e_os.h"
-# if defined(__unix) || defined(__unix__)
-#  include <sys/time.h> /* struct timeval for DTLS */
-# endif
-# include <assert.h>
-
-# include <openssl/e_os2.h>
-# include <openssl/ossl_typ.h>
-# include <openssl/bio.h>
-# include <openssl/x509.h>
-# include <openssl/lhash.h>
-# include <openssl/conf.h>
-# include <openssl/txt_db.h>
-# include <openssl/engine.h>
-# include <openssl/ocsp.h>
-# include <signal.h>
-
+#include <slib.h> // @sobolev
+#include "e_os.h"
+#if defined(__unix) || defined(__unix__)
+	#include <sys/time.h> /* struct timeval for DTLS */
+#endif
+#include <assert.h>
+#include <openssl/e_os2.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/bio.h>
+#include <openssl/x509.h>
+#include <openssl/lhash.h>
+#include <openssl/conf.h>
+#include <openssl/txt_db.h>
+#include <openssl/engine.h>
+#include <openssl/ocsp.h>
+#include <signal.h>
 # if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_WINCE)
 #  define openssl_fdset(a,b) FD_SET((unsigned int)a, b)
 # else
@@ -46,10 +45,7 @@ int app_RAND_write_file(const char *file);
  * When `file' is NULL, use defaults. `bio_e' is for error messages.
  */
 void app_RAND_allow_write_file(void);
-long app_RAND_load_files(char *file); /* `file' is a list of files to read,
-                                       * separated by LIST_SEPARATOR_CHAR
-                                       * (see e_os.h).  The string is
-                                       * destroyed! */
+long app_RAND_load_files(char *file); // `file' is a list of files to read, separated by LIST_SEPARATOR_CHAR (see e_os.h).  The string is destroyed! 
 
 extern char *default_config_file;
 extern BIO *bio_in;
@@ -58,7 +54,7 @@ extern BIO *bio_err;
 BIO *dup_bio_in(int format);
 BIO *dup_bio_out(int format);
 BIO *dup_bio_err(int format);
-BIO *bio_open_owner(const char *filename, int format, int private);
+BIO *bio_open_owner(const char *filename, int format, int _private);
 BIO *bio_open_default(const char *filename, char mode, int format);
 BIO *bio_open_default_quiet(const char *filename, char mode, int format);
 CONF *app_load_config(const char *filename);

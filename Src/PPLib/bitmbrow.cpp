@@ -11,6 +11,22 @@
 #include <pp.h>
 #pragma hdrstop
 
+class SBrowserSortIndex {
+public:
+	SBrowserSortIndex() : State(0)
+	{
+	}
+	long   FASTCALL GetOriginalPosition(long rawPos) const
+	{
+		return (State & stUsed) ? ((rawPos >= 0 && rawPos < PositionIndex.getCountI()) ? PositionIndex.at(rawPos) : 0) : rawPos;
+	}
+	enum {
+		stUsed = 0x0001
+	};
+	long   State;
+	LongArray PositionIndex;
+};
+
 class BillItemBrowser : public BrowserWindow {
 public:
 	friend int SLAPI ViewBillDetails(PPBillPacket *, long, PPObjBill *);
@@ -80,8 +96,10 @@ public:
 	double FASTCALL GetLinkQtty(const PPTransferItem & rTi) const;
 	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
 	int    SLAPI CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal);
+	int    SLAPI CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2);
 private:
 	static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
+	static int SortFunc(const LongArray * pSortColIdxList, void * extraPtr);
 	DECL_HANDLE_EVENT;
 	void   addItem(int fromOrder = 0, TIDlgInitData * = 0, int sign = 0);
 	//
@@ -98,6 +116,11 @@ private:
 	int    addModifItem(int * pSign, TIDlgInitData * pInitData);
 	void   editItem();
 	void   delItem();
+	enum { // Параметр функции update
+		pos_top = -1,
+		pos_cur = -2,
+		pos_bottom = -3
+	};
 	void   update(int);
 	int    _moveItem(int srcRowIdx);
 	int    _moveItem2(int srcRowIdx);
@@ -127,6 +150,7 @@ private:
 	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
 	int    SLAPI EditExtCodeList(int rowIdx);
 	int    SLAPI ValidateExtCodeList();
+	int    SLAPI Sort(const LongArray * pSortColIdxList);
 
 	enum {
 		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
@@ -164,12 +188,6 @@ private:
 };
 
 #define BROWSER_ID(nam) BROWSER_##nam##2
-
-enum { // Параметр функции BillItemBrowser::update
-	pos_top = -1,
-	pos_cur = -2,
-	pos_bottom = -3
-};
 
 struct BillGoodsBrwItem {
 	enum {
@@ -438,6 +456,16 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 }
 
 //static 
+int BillItemBrowser::SortFunc(const LongArray * pSortColIdxList, void * extraPtr)
+{
+	int    ok = -1;
+	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
+	if(p_brw) {
+	}
+	return ok;
+}
+
+//static 
 int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
@@ -445,171 +473,167 @@ int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAc
 	if(p_brw && pData && pStyle) {
 		BillItemBrowser::ColumnPosBlock posblk;
 		const  BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pData);
-		long   pos = p_item->Pos;
+		const  long pos = p_item->Pos;
 		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
-		if(p_brw->GetColPos(posblk) > 0) {
-			if(col == posblk.QttyPos && pos >= 0) {
-				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
-					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-					if(r_ti.Flags & PPTFR_LOTSYNC) {
-						pStyle->Color2 = GetColorRef(SClrIndigo);
-						pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-						ok = 1;
-					}
-					else if(r_ti.Quantity_ < 0.0 && oneof2(p_pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) {
-						pStyle->Color2 = GetColorRef(SClrRed);
-						pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-						ok = 1;
-					}
-				}
-			}
-			else if(col == posblk.OrdQttyPos && pos >= 0) {
-				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
-					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-					double ord_qtty = p_brw->GetOrderedQtty(r_ti);
-					if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
-						pStyle->Color = GetColorRef(SClrOrange);
-						ok = 1;
-					}
-				}
-			}
-			else if(col == posblk.ShippedQttyPos && pos >= 0) { // @v10.1.5
-				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
-					const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-					const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(p_brw->getDef());
-					const BillGoodsBrwItemArray * p_list = p_def ? static_cast<const BillGoodsBrwItemArray *>(p_def->getArray()) : 0;
-					double shp_qtty = 0.0;
-					p_brw->CalcShippedQtty(p_item, p_list, &shp_qtty);
-					if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
-						pStyle->Color = GetColorRef(SClrOrange);
-						ok = 1;
-					}
-				}
-			}
-			else if(col == posblk.VetisCertPos && pos >= 0) { // @v10.5.11
-				const PPBillPacket * p_pack = p_brw->GetPacket();
-				if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
-					long   expiry_val = 0;
-					if(p_brw->VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
-						LDATE expiry_dt;
-						expiry_dt.v = static_cast<ulong>(expiry_val);
-						if(checkdate(expiry_dt) && expiry_dt <= p_pack->Rec.Dt) {
-							pStyle->Color = GetColorRef(SClrCrimson);
-							ok = 1;
-						}
-					}
-				}
-			}
-			/* @construction
-			else if(col == link_qtty_pos && pos >= 0) {
-				if(p_brw->HasLinkPack()) {
-					const PPBillPacket * p_pack = p_brw->GetPacket();
-					if(p_pack && pos < (int)p_pack->GetTCount()) {
+		const PPBillPacket * p_pack = p_brw->GetPacket();
+		if(p_pack) {
+			if(p_brw->GetColPos(posblk) > 0) {
+				if(col == posblk.QttyPos && pos >= 0) {
+					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
 						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
-						double link_qtty = p_brw->GetLinkQtty(r_ti);
-						if(!feqeps(link_qtty, fabs(r_ti.Qtty()), 1E-3)) {
-							pStyle->Color = GetColorRef(SClrOrchid);
+						if(r_ti.Flags & PPTFR_LOTSYNC) {
+							pStyle->Color2 = GetColorRef(SClrIndigo);
+							pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+							ok = 1;
+						}
+						else if(r_ti.Quantity_ < 0.0 && oneof2(p_pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) {
+							pStyle->Color2 = GetColorRef(SClrRed);
+							pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 							ok = 1;
 						}
 					}
 				}
-			}
-			*/
-			else if(col == posblk.QuotInfoPos && pos >= 0) {
-				const PPBillPacket * p_pack = p_brw->GetPacket();
-				uint   qsip = 0;
-				if(p_pack->P_QuotSetupInfoList && p_pack->P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
-					const PPBillPacket::QuotSetupInfoItem & r_qsi = p_pack->P_QuotSetupInfoList->at(qsip);
-					if(r_qsi.Flags & r_qsi.fInvalidQuot)
-						pStyle->Color = GetColorRef(SClrRed);
-					else if(r_qsi.Flags & r_qsi.fMissingQuot)
-						pStyle->Color = GetColorRef(SClrOrange);
-					else
-						pStyle->Color = GetColorRef(SClrGreen);
+				else if(col == posblk.OrdQttyPos && pos >= 0) {
+					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+						double ord_qtty = p_brw->GetOrderedQtty(r_ti);
+						if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
+							pStyle->Color = GetColorRef(SClrOrange);
+							ok = 1;
+						}
+					}
 				}
-				else
-					pStyle->Color = GetColorRef(SClrYellow);
-				ok = 1;
-			}
-			if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {
-				long   price_flags = r_price_dev_list.at(pos);
-				if(price_flags && oneof3(col, posblk.QttyPos, posblk.CostPos, posblk.PricePos)) {
-					if(col == posblk.QttyPos && price_flags & LOTSF_FIRST) {
-						pStyle->Color = GetColorRef(SClrBlue);
+				else if(col == posblk.ShippedQttyPos && pos >= 0) { // @v10.1.5
+					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+						const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(p_brw->getDef());
+						const BillGoodsBrwItemArray * p_list = p_def ? static_cast<const BillGoodsBrwItemArray *>(p_def->getArray()) : 0;
+						double shp_qtty = 0.0;
+						p_brw->CalcShippedQtty(p_item, p_list, &shp_qtty);
+						if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
+							pStyle->Color = GetColorRef(SClrOrange);
+							ok = 1;
+						}
+					}
+				}
+				else if(col == posblk.VetisCertPos && pos >= 0) { // @v10.5.11
+					if(p_pack && pos < static_cast<int>(p_pack->GetTCount())) {
+						long   expiry_val = 0;
+						if(p_brw->VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
+							LDATE expiry_dt;
+							expiry_dt.v = static_cast<ulong>(expiry_val);
+							if(checkdate(expiry_dt) && expiry_dt <= p_pack->Rec.Dt) {
+								pStyle->Color = GetColorRef(SClrCrimson);
+								ok = 1;
+							}
+						}
+					}
+				}
+				/* @construction
+				else if(col == link_qtty_pos && pos >= 0) {
+					if(p_brw->HasLinkPack()) {
+						if(p_pack && pos < (int)p_pack->GetTCount()) {
+							const PPTransferItem & r_ti = p_pack->ConstTI(pos);
+							double link_qtty = p_brw->GetLinkQtty(r_ti);
+							if(!feqeps(link_qtty, fabs(r_ti.Qtty()), 1E-3)) {
+								pStyle->Color = GetColorRef(SClrOrchid);
+								ok = 1;
+							}
+						}
+					}
+				}
+				*/
+				else if(col == posblk.QuotInfoPos && pos >= 0) {
+					uint   qsip = 0;
+					if(p_pack->P_QuotSetupInfoList && p_pack->P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
+						const PPBillPacket::QuotSetupInfoItem & r_qsi = p_pack->P_QuotSetupInfoList->at(qsip);
+						if(r_qsi.Flags & r_qsi.fInvalidQuot)
+							pStyle->Color = GetColorRef(SClrRed);
+						else if(r_qsi.Flags & r_qsi.fMissingQuot)
+							pStyle->Color = GetColorRef(SClrOrange);
+						else
+							pStyle->Color = GetColorRef(SClrGreen);
+					}
+					else
+						pStyle->Color = GetColorRef(SClrYellow);
+					ok = 1;
+				}
+				if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {
+					long   price_flags = r_price_dev_list.at(pos);
+					if(price_flags && oneof3(col, posblk.QttyPos, posblk.CostPos, posblk.PricePos)) {
+						if(col == posblk.QttyPos && price_flags & LOTSF_FIRST) {
+							pStyle->Color = GetColorRef(SClrBlue);
+							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+							ok = 1;
+						}
+						else if(col == posblk.CostPos) {
+							if(price_flags & LOTSF_COSTUP) {
+								pStyle->Color = GetColorRef(SClrGreen);
+								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+								ok = 1;
+							}
+							else if(price_flags & LOTSF_COSTDOWN) {
+								pStyle->Color = GetColorRef(SClrRed);
+								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+								ok = 1;
+							}
+							if(price_flags & LOTSF_LINKCOSTUP) {
+								pStyle->Color2 = GetColorRef(SClrGreen);
+								pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
+								ok = 1;
+							}
+							else if(price_flags & LOTSF_LINKCOSTDN) {
+								pStyle->Color2 = GetColorRef(SClrRed);
+								pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
+								ok = 1;
+							}
+						}
+						else if(col == posblk.PricePos) {
+							if(price_flags & LOTSF_PRICEUP) {
+								pStyle->Color = GetColorRef(SClrGreen);
+								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+								ok = 1;
+							}
+							else if(price_flags & LOTSF_PRICEDOWN) {
+								pStyle->Color = GetColorRef(SClrRed);
+								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+								ok = 1;
+							}
+							if(price_flags & LOTSF_RESTRBOUNDS) {
+								pStyle->Color = GetColorRef(SClrGrey);
+								pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
+								ok = 1;
+							}
+						}
+					}
+				}
+				if(posblk.SerialPos >= 0 && col == posblk.SerialPos) {
+					if(p_item->Flags & BillGoodsBrwItem::fSerialBad) {
+						pStyle->Color = GetColorRef(SClrOrange);
 						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 						ok = 1;
 					}
-					else if(col == posblk.CostPos) {
-						if(price_flags & LOTSF_COSTUP) {
-							pStyle->Color = GetColorRef(SClrGreen);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						else if(price_flags & LOTSF_COSTDOWN) {
-							pStyle->Color = GetColorRef(SClrRed);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						if(price_flags & LOTSF_LINKCOSTUP) {
-							pStyle->Color2 = GetColorRef(SClrGreen);
-							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
-							ok = 1;
-						}
-						else if(price_flags & LOTSF_LINKCOSTDN) {
-							pStyle->Color2 = GetColorRef(SClrRed);
-							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
-							ok = 1;
-						}
-					}
-					else if(col == posblk.PricePos) {
-						if(price_flags & LOTSF_PRICEUP) {
-							pStyle->Color = GetColorRef(SClrGreen);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						else if(price_flags & LOTSF_PRICEDOWN) {
-							pStyle->Color = GetColorRef(SClrRed);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						if(price_flags & LOTSF_RESTRBOUNDS) {
-							pStyle->Color = GetColorRef(SClrGrey);
-							pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
-							ok = 1;
-						}
+				}
+				if(posblk.CodePos >= 0 && col == posblk.CodePos) {
+					if(p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
+						pStyle->Color = GetColorRef(SClrOrange);
+						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
+						ok = 1;
 					}
 				}
 			}
-			if(posblk.SerialPos >= 0 && col == posblk.SerialPos) {
-				if(p_item->Flags & BillGoodsBrwItem::fSerialBad) {
-					pStyle->Color = GetColorRef(SClrOrange);
+			if(col == 0) {
+				const StrAssocArray & r_problems_list = p_brw->GetProblemsList();
+				if(r_problems_list.Search(pos) > 0) {
+					pStyle->Color2 = GetColorRef(SClrRed);
+					pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+					ok = 1;
+				}
+				if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount()) && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
+					pStyle->Color = GetColorRef(SClrGrey);
 					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 					ok = 1;
 				}
-			}
-			if(posblk.CodePos >= 0 && col == posblk.CodePos) {
-				if(p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
-					pStyle->Color = GetColorRef(SClrOrange);
-					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-					ok = 1;
-				}
-			}
-		}
-		if(col == 0) {
-			const StrAssocArray & r_problems_list = p_brw->GetProblemsList();
-			if(r_problems_list.Search(pos) > 0) {
-				pStyle->Color2 = GetColorRef(SClrRed);
-				pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-				ok = 1;
-			}
-			const PPBillPacket * p_pack = p_brw->GetPacket();
-			if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount()) && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
-				pStyle->Color = GetColorRef(SClrGrey);
-				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-				ok = 1;
 			}
 		}
 	}
@@ -905,22 +929,29 @@ inline BillItemBrowser::~BillItemBrowser()
 
 int BillItemBrowser::getCurItemPos()
 {
-	int16  c = static_cast<int16>(view->getDef()->_curItem());
-	int16  rp = 0;
-	if(c >= 0) {
-		PPTransferItem * p_ti;
-		for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
-			if(P_Pckg) {
-				if(P_Pckg->SearchByIdx(i-1, 0) <= 0)
-					continue;
+	int    rp = 0; // @v10.6.3 int16-->int
+	const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(view->getDefC());
+	if(p_def) {
+		int    c_ = getDefC()->_curItem(); // @v10.6.3 int16-->int
+		const BillGoodsBrwItemArray * p_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
+		if(p_list && c_ >= 0 && c_ < p_list->getCountI()) {
+			int    cp = static_cast<const BillGoodsBrwItem *>(p_list->at(c_))->Pos;
+			if(cp >= 0) {
+				PPTransferItem * p_ti;
+				for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
+					if(P_Pckg) {
+						if(P_Pckg->SearchByIdx(i-1, 0) <= 0)
+							continue;
+					}
+					else {
+						if((AsSelector && p_ti->Flags & 0x80000000L) || (p_ti->Flags & PPTFR_PCKGGEN))
+							continue;
+					}
+					if(rp == cp)
+						return (i-1);
+					rp++;
+				}
 			}
-			else {
-				if((AsSelector && p_ti->Flags & 0x80000000L) || (p_ti->Flags & PPTFR_PCKGGEN))
-					continue;
-			}
-			if(rp == c)
-				return static_cast<int16>(i-1);
-			rp++;
 		}
 	}
 	return -1;
@@ -1174,7 +1205,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		if(is_total || (p_item->Pos >= 0 && p_item->Pos < (PPID)P_Pack->GetTCount())) {
 			ok = 1;
 			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
-			BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0;
+			BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0; // @badcast
 			const PPTransferItem * p_ti = 0;
 			if(is_total) {
 				CurLine = -1;
@@ -1502,6 +1533,48 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
+static IMPL_CMPFUNC(BillGoodsBrwItem, i1, i2)
+{
+	BillItemBrowser * p_obj = static_cast<BillItemBrowser *>(pExtraData);
+	if(p_obj) {
+		const BillGoodsBrwItem * p_item1 = static_cast<const BillGoodsBrwItem *>(i1);
+		const BillGoodsBrwItem * p_item2 = static_cast<const BillGoodsBrwItem *>(i2);
+		return p_obj->CmpSortIndexItems(p_item1, p_item2);
+	}
+	else
+		return 0;
+}
+
+int SLAPI BillItemBrowser::CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2)
+{
+	int    sn = 0;
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+	if(p_def) {
+		for(uint i = 0; !sn && i < GetSettledOrderList().getCount(); i++) {
+			if(pItem1->Pos < 0 && pItem2->Pos >= 0) // TOTAL-item is always greater than non-TOTAL one
+				sn = +1;
+			else if(pItem2->Pos < 0 && pItem1->Pos >= 0) // TOTAL-item is always greater than non-TOTAL one
+				sn = -1;
+			else {
+				int    col = GetSettledOrderList().get(i);
+				TYPEID typ1 = 0;
+				TYPEID typ2 = 0;
+				uint8  dest_data1[512];
+				uint8  dest_data2[512];
+				if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+					assert(typ1 == typ2);
+					if(typ1 == typ2) {
+						sn = stcomp(typ1, dest_data1, dest_data2);
+						if(sn && col < 0)
+							sn = -sn;
+					}
+				}
+			}
+		}
+	}
+	return sn;
+}
+
 double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
 {
 	double result = 0.0;
@@ -1527,15 +1600,33 @@ void BillItemBrowser::update(int pos)
 {
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 	if(p_def) {
-		int16  c = static_cast<int16>(p_def->_curItem());
+		long   org_current_pos = p_def->_curItem();
+		long   org_current_pos_in_bill = -1;
+		const  int is_sorting_needed = BIN(GetSettledOrderList().getCount());
+		if(is_sorting_needed && org_current_pos >= 0) {
+			const BillGoodsBrwItemArray * p_org_list = static_cast<const BillGoodsBrwItemArray *>(p_def->getArray());
+			if(SVectorBase::GetCount(p_org_list) && org_current_pos < p_org_list->getCountI()) {
+				const BillGoodsBrwItem * p_org_cur_item = static_cast<const BillGoodsBrwItem *>(p_org_list->at(org_current_pos));
+				org_current_pos_in_bill = p_org_cur_item->Pos;
+			}
+		}
 		p_def->setArray(0, 0, 1);
-		BillGoodsBrwItemArray * a = 0;
-		PROFILE(a = static_cast<BillGoodsBrwItemArray *>(MakeList()));
-		if(a) {
+		BillGoodsBrwItemArray * p_list = 0;
+		PROFILE(p_list = static_cast<BillGoodsBrwItemArray *>(MakeList()));
+		if(p_list) {
+			// @v10.6.3 {
+			if(is_sorting_needed) {
+				p_list->sort(PTR_CMPFUNC(BillGoodsBrwItem), this);
+				if(org_current_pos_in_bill >= 0) {
+					uint  lp = 0;
+					org_current_pos = p_list->lsearch(&org_current_pos_in_bill, &lp, CMPF_LONG) ? static_cast<long>(lp) : -1;
+				}
+			}
+			// } @v10.6.3 
 			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
 			// {
-            p_def->setArray(a, 0, 1);
-			view->setRange(a->getCount());
+            p_def->setArray(p_list, 0, 1);
+			view->setRange(p_list->getCount());
 			{
 				int    setup_quot_info_col = -1;
 				int    ext_cost_col = -1;
@@ -1571,7 +1662,7 @@ void BillItemBrowser::update(int pos)
 					*/
 				}
 				if(qtty_col >= 0) {
-					if(a->HasUpp && upp_col < 0)
+					if(p_list->HasUpp && upp_col < 0)
 						view->insertColumn(++qtty_col, "Package", 29, MKSTYPE(S_ZSTRING, 32), ALIGN_RIGHT, BCO_USERPROC|BCO_CAPRIGHT);
 					if(phqtty_col < 0 && Total.Flags & Total.fHasIndepPhQtty)
 						view->insertColumn(++qtty_col, "@phqtty", 7, T_DOUBLE, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
@@ -1607,11 +1698,18 @@ void BillItemBrowser::update(int pos)
 					view->insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				// } @v10.1.8
 			}
-			if(pos == pos_cur && c >= 0)
-				view->go(c);
+			// @v10.6.3 {
+			{
+				for(uint cidx = 0; cidx < view->getDef()->getCount(); cidx++) {
+					view->getDef()->at(cidx).Options |= BCO_SORTABLE;
+				}
+			}
+			// } @v10.6.3 
+			if(pos == pos_cur && org_current_pos >= 0)
+				view->go(org_current_pos);
 			else if(pos == pos_bottom)
-				view->go(a->getCount() - 2);
-			else if(pos >= 0 && pos < static_cast<int>(a->getCount()))
+				view->go(p_list->getCountI() - 2);
+			else if(pos >= 0 && pos < p_list->getCountI())
 				view->go(pos);
 			// }
 		}
@@ -2038,8 +2136,8 @@ int BillItemBrowser::ConvertBasketToBill()
 
 void BillItemBrowser::viewPckgItems(int activateNewRow)
 {
-	int16 c = getCurItemPos();
-	int16 sav_brw_pos = (int16)view->getDef()->_curItem();
+	int    c = getCurItemPos(); // @v10.6.3 int16-->int
+	const  int sav_brw_pos = view->getDef()->_curItem(); // @v10.6.3 int16-->int
 	if(c >= 0) {
 		const PPTransferItem & r_ti = P_Pack->ConstTI(c);
 		if(r_ti.Flags & PPTFR_PCKG && P_Pack->P_PckgList && P_Pack->P_PckgList->GetByIdx(c)) {
@@ -2077,13 +2175,13 @@ void BillItemBrowser::GetMinMaxQtty(uint itemPos, RealRange & rBounds) const
 
 void BillItemBrowser::editItem()
 {
-	int16  c = getCurItemPos();
+	int    c = getCurItemPos(); // @v10.6.3 int16-->int
 	uint   i;
 	double rest;
 	int    valid_data = 0;
 	PPTransferItem * p_ti;
 	if(c >= 0) {
-		p_ti = &P_Pack->TI((uint)c);
+		p_ti = &P_Pack->TI(static_cast<uint>(c));
 		if(p_ti->Flags & PPTFR_PCKG) {
 			if(p_ti->Flags & PPTFR_RECEIPT || IsIntrExpndOp(P_Pack->Rec.OpID)) {
 				LPackage * p_pckg = P_Pack->P_PckgList ? P_Pack->P_PckgList->GetByIdx(c) : 0;
@@ -2105,7 +2203,7 @@ void BillItemBrowser::editItem()
 				//
 				if(P_Pack->OpTypeID == PPOPT_GOODSRETURN && P_LinkPack) {
 					double expend = 0.0;
-					for(i = 0, p_ti = &P_Pack->TI((uint)c); P_LinkPack->SearchLot(p_ti->LotID, &i); i++)
+					for(i = 0, p_ti = &P_Pack->TI(static_cast<uint>(c)); P_LinkPack->SearchLot(p_ti->LotID, &i); i++)
 						if(State & stExpndOnReturn)
 							if(!P_Pack->BoundsByLot(p_ti->LotID, 0, -1, &rest, 0))
 								valid_data = PPErrorZ();
@@ -2165,13 +2263,13 @@ void BillItemBrowser::delItem()
 	uint   i;
 	double tmp;
 	if(!AsSelector) {
-		int16  c = getCurItemPos();
-		int16  cur_view_pos = (int16)view->getDef()->_curItem();
+		int    c = getCurItemPos(); // @v10.6.3 int16-->int
+		int    cur_view_pos = view->getDef()->_curItem(); // @v10.6.3 int16-->int
 		if(c >= 0 && (!(LConfig.Flags & CFGFLG_CONFGBROWRMV) || CONFIRM(PPCFM_DELETE))) {
 			//
 			// Проверяем, можно ли будет провести документ с заявленным удалением
 			//
-			PPTransferItem * p_ti = &P_Pack->TI((uint)c);
+			PPTransferItem * p_ti = &P_Pack->TI(static_cast<uint>(c));
 			double qtty = fabs(p_ti->Quantity_);
 			if(P_Pack->OpTypeID != PPOPT_GOODSRETURN && P_Pack->Rec.ID && p_ti->LotID) {
 				BillTbl::Rec bill_rec;
@@ -2212,7 +2310,7 @@ void BillItemBrowser::delItem()
 			// Если удаляемая строка имеет теневую строку, на которую не ссылается //
 			// больше ни одна строка, то теневую строку удаляем
 			//
-			p_ti = &P_Pack->TI((uint)c);
+			p_ti = &P_Pack->TI(static_cast<uint>(c));
 			id = (p_ti->Flags & PPTFR_ONORDER && P_Pack->P_ShLots) ? p_ti->OrdLotID : 0; // @ordlotid
 			if(p_ti->Flags & PPTFR_AUTOCOMPL)
 				P_Pack->RemoveAutoComplRow((uint)c);
@@ -3059,7 +3157,10 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 			// Далее управление передается базовому классу
 		}
 		BrowserWindow::handleEvent(event);
-		if(TVCOMMAND && EditMode < 2) {
+		if(event.isCmd(cmSort)) { // @v10.6.3
+			update(pos_cur);
+		}
+		else if(TVCOMMAND && EditMode < 2) {
 			switch(TVCMD) {
 				case cmaEdit:
 					if(!EventBarrier()) {
@@ -3087,11 +3188,11 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				long   v = 0;
 				SString buf;
 				TPoint point = *static_cast<TPoint *>(event.message.infoPtr);
-				ItemByPoint(point, 0, &v);
-				if(ProblemsList.GetText(v, buf) > 0)
-					PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-						SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|
-						SMessageWindow::fChildWindow);
+				if(ItemByPoint(point, 0, &v)) {
+					if(ProblemsList.GetText(v, buf) > 0)
+						PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+							SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				}
 			}
 		}
 		else if(TVKEYDOWN) {
@@ -3112,7 +3213,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					if(!EventBarrier()) {
 						c = getCurItemPos();
 						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
-							PPID   goods_id = labs(P_Pack->ConstTI((uint)c).GoodsID);
+							PPID   goods_id = labs(P_Pack->ConstTI(static_cast<uint>(c)).GoodsID);
 							if(goods_id && GObj.Edit(&goods_id, 0) == cmOK)
 								update(pos_cur);
 						}
@@ -3123,7 +3224,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					if(!EventBarrier()) {
 						c = getCurItemPos();
 						if(c >= 0 && c < (int)P_Pack->GetTCount()) {
-							const PPTransferItem & r_ti = P_Pack->ConstTI((uint)c);
+							const PPTransferItem & r_ti = P_Pack->ConstTI(static_cast<uint>(c));
 							if(oneof4(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_ACTCHARGEON, PPOPK_EDI_ACTCHARGEONSHOP, PPOPK_EDI_SHOPCHARGEON)) {
 								Reference * p_ref = PPRef;
 								uint   i;
@@ -3283,11 +3384,12 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					else if(TVCHR == kbCtrlA) {
 						if(!(State & stAltView) && P_Pack && IsSellingOp(P_Pack->Rec.OpID) >= 0 && P_Pack->OpTypeID != PPOPT_GOODSORDER) {
 							if(!EventBarrier()) {
-								int16  __c = 0;
+								int    __c = 0; // @v10.6.3 int16-->int
 								BillItemBrowser * p_brw = new BillItemBrowser(BROWSER_ID(GOODSITEM_ALTVIEW), P_BObj, P_Pack, 0, -1, 0, EditMode);
 								if(p_brw) {
-									if(getDef()) {
-										__c = (int16)getDef()->_curItem();
+									if(getDefC()) {
+										// @todo Здесь необходимо учесть сортировку 
+										__c = getDefC()->_curItem();
 										p_brw->go(__c);
 									}
 									ExecViewAndDestroy(p_brw);
@@ -3326,7 +3428,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(!EventBarrier()) {
 							c = getCurItemPos();
 							if(c >= 0 && c < (int)P_Pack->GetTCount()) {
-								const PPTransferItem & r_ti = P_Pack->ConstTI((uint)c);
+								const PPTransferItem & r_ti = P_Pack->ConstTI(static_cast<uint>(c));
 								Goods2Tbl::Rec goods_rec;
 								const PPID goods_id = labs(r_ti.GoodsID);
 								if(GObj.Fetch(goods_id, &goods_rec) > 0) {
@@ -3356,9 +3458,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(!EventBarrier()) {
 							State &= ~stCtrlX;
 							if(DS.CheckExtFlag(ECF_AVERAGE) && PPMaster) {
-								int16  c = getCurItemPos();
+								const int c = getCurItemPos(); // @v10.6.3 int16-->int
 								if(c >= 0) {
-									PPTransferItem * p_ti = &P_Pack->TI((uint)c);
+									PPTransferItem * p_ti = &P_Pack->TI(static_cast<uint>(c));
 									INVERSEFLAG(p_ti->TFlags, PPTransferItem::tfForceRemove);
 									update(c);
 								}
@@ -3370,9 +3472,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(!EventBarrier()) {
 							State &= ~stCtrlX;
 							if(CConfig.Flags & CCFLG_DEBUG && PPMaster) {
-								int16  c = getCurItemPos();
+								const int  c = getCurItemPos(); // @v10.6.3 int16-->int
 								if(c >= 0) {
-									PPTransferItem * p_ti = &P_Pack->TI((uint)c);
+									PPTransferItem * p_ti = &P_Pack->TI(static_cast<uint>(c));
 									SString temp_buf;
 									temp_buf.CatHex(p_ti->Flags);
 									PPInputStringDialogParam isd_param;
@@ -3661,13 +3763,14 @@ void BillItemBrowser::addItemExt(int mode)
 int BillItemBrowser::editPackageData(LPackage * pPckg)
 {
 	class PckgDialog : public TDialog {
+		DECL_DIALOG_DATA(LPackage);
 	public:
 		PckgDialog(PPBillPacket * pPack, PPObjBill * pBObj) : TDialog(DLG_PCKG), P_Pack(pPack), P_BObj(pBObj)
 		{
 		}
-		int    setDTS(const LPackage * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_PCKG_TYPE, PPOBJ_PCKGTYPE, Data.PckgTypeID, 0, 0);
 			setCtrlData(CTL_PCKG_CODE, Data.Code);
 			setCtrlData(CTL_PCKG_ID, &Data.ID);
@@ -3676,7 +3779,7 @@ int BillItemBrowser::editPackageData(LPackage * pPckg)
 			disableCtrls(1, CTL_PCKG_ID, CTL_PCKG_COST, CTL_PCKG_PRICE, 0);
 			return 1;
 		}
-		int    getDTS(LPackage * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			PPObjPckgType pt_obj;
@@ -3695,7 +3798,7 @@ int BillItemBrowser::editPackageData(LPackage * pPckg)
 							ok = 3;
 						else
 							ok = 2;
-				*pData = Data;
+				ASSIGN_PTR(pData, Data);
 			}
 			return ok;
 		}
@@ -3717,7 +3820,6 @@ int BillItemBrowser::editPackageData(LPackage * pPckg)
 			if(*strip(code))
 				setCtrlData(CTL_PCKG_CODE, code);
 		}
-		LPackage Data;
 		PPBillPacket * P_Pack;
 		PPObjBill * P_BObj;
 	};
@@ -3855,6 +3957,11 @@ private:
 	};
 	DECL_HANDLE_EVENT;
 	SArray * MakeList();
+	enum { // Параметр функции update
+		pos_top = -1,
+		pos_cur = -2,
+		pos_bottom = -3
+	};
 	void   update(int pos);
 	int    Print();
 	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
@@ -3894,7 +4001,7 @@ void CompleteBrowser::update(int pos)
 {
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(view->getDef());
 	if(p_def) {
-		int16  c = static_cast<int16>(p_def->_curItem());
+		const int c = p_def->_curItem(); // @v10.6.3 int16-->int
 		p_def->setArray(0, 0, 1);
 		CompleteArray compl_list;
 		Data.freeAll();
@@ -3919,13 +4026,13 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 	if(event.isCmd(cmaEdit)) {
 		if(AsSelector) {
 			if(IsInState(sfModal)) {
-				SelectedPos = view->getDef()->_curItem();
+				SelectedPos = view->getDefC()->_curItem();
 				endModal(cmOK);
 				return; // После endModal не следует обращаться к this
 			}
 		}
 		else {
-			long   pos = view->getDef()->_curItem();
+			long   pos = view->getDefC()->_curItem();
 			PPID   bill_id = Data.at(pos).BillID;
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {

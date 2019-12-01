@@ -1013,7 +1013,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 	uint8 bit_buffer;
 	switch(methodNumber) {
 		case AMQP_CONNECTION_START_METHOD: {
-		    amqp_connection_start_t * m = (amqp_connection_start_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_start_t));
+		    amqp_connection_start_t * m = static_cast<amqp_connection_start_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_start_t)));
 		    if(!m) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1039,14 +1039,14 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_START_OK_METHOD: {
-		    amqp_connection_start_ok_t * m = (amqp_connection_start_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_start_ok_t));
+		    amqp_connection_start_ok_t * m = static_cast<amqp_connection_start_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_start_ok_t)));
 		    if(!m) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
-			    int res =
-				amqp_decode_table(encoded, pool, &(m->client_properties), &offset);
-			    if(res < 0) return res;
+			    int res = amqp_decode_table(encoded, pool, &(m->client_properties), &offset);
+			    if(res < 0) 
+					return res;
 		    }
 		    {
 			    uint8 len;
@@ -1055,8 +1055,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    }
 		    {
 			    uint32 len;
-			    if(!amqp_decode_32(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->response, len))
+			    if(!amqp_decode_32(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->response, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    {
@@ -1068,35 +1067,33 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    return 0;
 	    }
 		case AMQP_CONNECTION_SECURE_METHOD: {
-		    amqp_connection_secure_t * m = (amqp_connection_secure_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_secure_t));
+		    amqp_connection_secure_t * m = static_cast<amqp_connection_secure_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_secure_t)));
 		    if(!m) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint32 len;
-			    if(!amqp_decode_32(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->challenge, len))
+			    if(!amqp_decode_32(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->challenge, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_CONNECTION_SECURE_OK_METHOD: {
-		    amqp_connection_secure_ok_t * m = (amqp_connection_secure_ok_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_secure_ok_t));
+		    amqp_connection_secure_ok_t * m = static_cast<amqp_connection_secure_ok_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_secure_ok_t)));
 		    if(!m) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
 		    {
 			    uint32 len;
-			    if(!amqp_decode_32(encoded, &offset, &len) ||
-				!amqp_decode_bytes(encoded, &offset, &m->response, len))
+			    if(!amqp_decode_32(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->response, len))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
 		    *decoded = m;
 		    return 0;
 	    }
 		case AMQP_CONNECTION_TUNE_METHOD: {
-		    amqp_connection_tune_t * m = (amqp_connection_tune_t*)amqp_pool_alloc(pool, sizeof(amqp_connection_tune_t));
+		    amqp_connection_tune_t * m = static_cast<amqp_connection_tune_t *>(amqp_pool_alloc(pool, sizeof(amqp_connection_tune_t)));
 		    if(!m) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1338,11 +1335,11 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->passive = (bit_buffer & (1 << 0)) ? 1 : 0;
-				m->durable = (bit_buffer & (1 << 1)) ? 1 : 0;
-				m->auto_delete = (bit_buffer & (1 << 2)) ? 1 : 0;
-				m->internal = (bit_buffer & (1 << 3)) ? 1 : 0;
-				m->nowait = (bit_buffer & (1 << 4)) ? 1 : 0;
+				m->passive = BIN(bit_buffer & (1 << 0));
+				m->durable = BIN(bit_buffer & (1 << 1));
+				m->auto_delete = BIN(bit_buffer & (1 << 2));
+				m->internal = BIN(bit_buffer & (1 << 3));
+				m->nowait = BIN(bit_buffer & (1 << 4));
 				{
 					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
 					if(res < 0) return res;
@@ -1433,7 +1430,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				return 0;
 			}
 		case AMQP_EXCHANGE_UNBIND_METHOD: {
-		    amqp_exchange_unbind_t * m = (amqp_exchange_unbind_t*)amqp_pool_alloc(pool, sizeof(amqp_exchange_unbind_t));
+		    amqp_exchange_unbind_t * m = static_cast<amqp_exchange_unbind_t *>(amqp_pool_alloc(pool, sizeof(amqp_exchange_unbind_t)));
 		    if(!m) {
 			    return AMQP_STATUS_NO_MEMORY;
 		    }
@@ -1489,11 +1486,11 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					}
 					if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 						return AMQP_STATUS_BAD_AMQP_DATA;
-					m->passive = (bit_buffer & (1 << 0)) ? 1 : 0;
-					m->durable = (bit_buffer & (1 << 1)) ? 1 : 0;
-					m->exclusive = (bit_buffer & (1 << 2)) ? 1 : 0;
-					m->auto_delete = (bit_buffer & (1 << 3)) ? 1 : 0;
-					m->nowait = (bit_buffer & (1 << 4)) ? 1 : 0;
+					m->passive = BIN(bit_buffer & (1 << 0));
+					m->durable = BIN(bit_buffer & (1 << 1));
+					m->exclusive = BIN(bit_buffer & (1 << 2));
+					m->auto_delete = BIN(bit_buffer & (1 << 3));
+					m->nowait = BIN(bit_buffer & (1 << 4));
 					{
 						int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
 						if(res < 0) return res;
@@ -1521,7 +1518,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 	    }
 		case AMQP_QUEUE_BIND_METHOD: 
 			{
-				amqp_queue_bind_t * m = (amqp_queue_bind_t*)amqp_pool_alloc(pool, sizeof(amqp_queue_bind_t));
+				amqp_queue_bind_t * m = static_cast<amqp_queue_bind_t *>(amqp_pool_alloc(pool, sizeof(amqp_queue_bind_t)));
 				if(!m) {
 					return AMQP_STATUS_NO_MEMORY;
 				}
@@ -1547,7 +1544,8 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
 				{
 					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
-					if(res < 0) return res;
+					if(res < 0) 
+						return res;
 				}
 				*decoded = m;
 				return 0;
@@ -2268,7 +2266,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(UINT32_MAX < m->locales.len || !amqp_encode_32(encoded, &offset, (uint32)m->locales.len) || !amqp_encode_bytes(encoded, &offset, m->locales))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_START_OK_METHOD: 
 			{
@@ -2283,21 +2281,21 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(UINT8_MAX < m->locale.len || !amqp_encode_8(encoded, &offset, (uint8)m->locale.len) || !amqp_encode_bytes(encoded, &offset, m->locale))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_SECURE_METHOD: 
 			{
 				const amqp_connection_secure_t * m = (const amqp_connection_secure_t*)decoded;
 				if(UINT32_MAX < m->challenge.len || !amqp_encode_32(encoded, &offset, (uint32)m->challenge.len) || !amqp_encode_bytes(encoded, &offset, m->challenge))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_SECURE_OK_METHOD: 
 			{
 				const amqp_connection_secure_ok_t * m = (const amqp_connection_secure_ok_t*)decoded;
 				if(UINT32_MAX < m->response.len || !amqp_encode_32(encoded, &offset, (uint32)m->response.len) || !amqp_encode_bytes(encoded, &offset, m->response))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_TUNE_METHOD: 
 			{
@@ -2308,7 +2306,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_encode_16(encoded, &offset, m->heartbeat))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_TUNE_OK_METHOD: 
 			{
@@ -2319,7 +2317,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_encode_16(encoded, &offset, m->heartbeat))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_OPEN_METHOD: 
 			{
@@ -2333,14 +2331,14 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_OPEN_OK_METHOD: 
 			{
 				const amqp_connection_open_ok_t * m = (const amqp_connection_open_ok_t*)decoded;
 				if(UINT8_MAX < m->known_hosts.len || !amqp_encode_8(encoded, &offset, (uint8)m->known_hosts.len) || !amqp_encode_bytes(encoded, &offset, m->known_hosts))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CONNECTION_CLOSE_METHOD: 
 			{
@@ -2353,32 +2351,30 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_encode_16(encoded, &offset, m->method_id))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_CONNECTION_CLOSE_OK_METHOD: return (int)offset;
+		case AMQP_CONNECTION_CLOSE_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_CONNECTION_BLOCKED_METHOD: 
 			{
 				const amqp_connection_blocked_t * m = (const amqp_connection_blocked_t*)decoded;
 				if(UINT8_MAX < m->reason.len || !amqp_encode_8(encoded, &offset, (uint8)m->reason.len) || !amqp_encode_bytes(encoded, &offset, m->reason))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_CONNECTION_UNBLOCKED_METHOD: return (int)offset;
+		case AMQP_CONNECTION_UNBLOCKED_METHOD: return static_cast<int>(offset);
 		case AMQP_CHANNEL_OPEN_METHOD: 
 			{
 				const amqp_channel_open_t * m = (const amqp_channel_open_t*)decoded;
 				if(UINT8_MAX < m->out_of_band.len || !amqp_encode_8(encoded, &offset, (uint8)m->out_of_band.len) || !amqp_encode_bytes(encoded, &offset, m->out_of_band))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CHANNEL_OPEN_OK_METHOD: 
 			{
 				const amqp_channel_open_ok_t * m = (const amqp_channel_open_ok_t*)decoded;
-				if(UINT32_MAX < m->channel_id.len ||
-				!amqp_encode_32(encoded, &offset, (uint32)m->channel_id.len) ||
-				!amqp_encode_bytes(encoded, &offset, m->channel_id))
+				if(UINT32_MAX < m->channel_id.len || !amqp_encode_32(encoded, &offset, (uint32)m->channel_id.len) || !amqp_encode_bytes(encoded, &offset, m->channel_id)) 
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CHANNEL_FLOW_METHOD: 
 			{
@@ -2387,7 +2383,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->active) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CHANNEL_FLOW_OK_METHOD: 
 			{
@@ -2396,7 +2392,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->active) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_CHANNEL_CLOSE_METHOD: 
 			{
@@ -2409,9 +2405,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_encode_16(encoded, &offset, m->method_id))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_CHANNEL_CLOSE_OK_METHOD: return (int)offset;
+		case AMQP_CHANNEL_CLOSE_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_ACCESS_REQUEST_METHOD: 
 			{
 				const amqp_access_request_t * m = (const amqp_access_request_t*)decoded;
@@ -2425,14 +2421,14 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->read) bit_buffer |= (1 << 4);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_ACCESS_REQUEST_OK_METHOD: 
 			{
 				const amqp_access_request_ok_t * m = (const amqp_access_request_ok_t*)decoded;
 				if(!amqp_encode_16(encoded, &offset, m->ticket))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_EXCHANGE_DECLARE_METHOD: 
 			{
@@ -2459,9 +2455,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 					if(res < 0) return res;
 				}
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_EXCHANGE_DECLARE_OK_METHOD: return (int)offset;
+		case AMQP_EXCHANGE_DECLARE_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_EXCHANGE_DELETE_METHOD: 
 			{
 				const amqp_exchange_delete_t * m = (const amqp_exchange_delete_t*)decoded;
@@ -2474,9 +2470,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->nowait) bit_buffer |= (1 << 1);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_EXCHANGE_DELETE_OK_METHOD: return (int)offset;
+		case AMQP_EXCHANGE_DELETE_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_EXCHANGE_BIND_METHOD: 
 			{
 				const amqp_exchange_bind_t * m = (const amqp_exchange_bind_t*)decoded;
@@ -2496,9 +2492,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 					if(res < 0) return res;
 				}
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_EXCHANGE_BIND_OK_METHOD: return (int)offset;
+		case AMQP_EXCHANGE_BIND_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_EXCHANGE_UNBIND_METHOD: 
 			{
 				const amqp_exchange_unbind_t * m = (const amqp_exchange_unbind_t*)decoded;
@@ -2520,9 +2516,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 					if(res < 0) return res;
 				}
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_EXCHANGE_UNBIND_OK_METHOD: return (int)offset;
+		case AMQP_EXCHANGE_UNBIND_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_QUEUE_DECLARE_METHOD: 
 			{
 				const amqp_queue_declare_t * m = (const amqp_queue_declare_t*)decoded;
@@ -2542,7 +2538,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 					if(res < 0) return res;
 				}
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_QUEUE_DECLARE_OK_METHOD: 
 			{
@@ -2553,7 +2549,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_encode_32(encoded, &offset, m->consumer_count))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_QUEUE_BIND_METHOD: 
 			{
@@ -2564,9 +2560,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(UINT8_MAX < m->exchange.len || !amqp_encode_8(encoded, &offset, (uint8)m->exchange.len) || !amqp_encode_bytes(encoded, &offset, m->exchange))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				if(UINT8_MAX < m->routing_key.len ||
-				!amqp_encode_8(encoded, &offset, (uint8)m->routing_key.len) ||
-				!amqp_encode_bytes(encoded, &offset, m->routing_key))
+				if(UINT8_MAX < m->routing_key.len || !amqp_encode_8(encoded, &offset, (uint8)m->routing_key.len) || !amqp_encode_bytes(encoded, &offset, m->routing_key))
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				bit_buffer = 0;
 				if(m->nowait) bit_buffer |= (1 << 0);
@@ -2576,9 +2570,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 					int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 					if(res < 0) return res;
 				}
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_QUEUE_BIND_OK_METHOD: return (int)offset;
+		case AMQP_QUEUE_BIND_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_QUEUE_PURGE_METHOD: 
 			{
 				const amqp_queue_purge_t * m = (const amqp_queue_purge_t*)decoded;
@@ -2590,14 +2584,14 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->nowait) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_QUEUE_PURGE_OK_METHOD: 
 			{
 				const amqp_queue_purge_ok_t * m = (const amqp_queue_purge_ok_t*)decoded;
 				if(!amqp_encode_32(encoded, &offset, m->message_count))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_QUEUE_DELETE_METHOD: 
 			{
@@ -2612,14 +2606,14 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->nowait) bit_buffer |= (1 << 2);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_QUEUE_DELETE_OK_METHOD: 
 			{
 				const amqp_queue_delete_ok_t * m = (const amqp_queue_delete_ok_t*)decoded;
 				if(!amqp_encode_32(encoded, &offset, m->message_count))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_QUEUE_UNBIND_METHOD: {
 		    amqp_queue_unbind_t * m = (amqp_queue_unbind_t*)decoded;
@@ -2635,9 +2629,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 			    int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 			    if(res < 0) return res;
 		    }
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
-		case AMQP_QUEUE_UNBIND_OK_METHOD: return (int)offset;
+		case AMQP_QUEUE_UNBIND_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_BASIC_QOS_METHOD: {
 		    amqp_basic_qos_t * m = (amqp_basic_qos_t*)decoded;
 		    if(!amqp_encode_32(encoded, &offset, m->prefetch_size))
@@ -2648,9 +2642,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 		    if(m->global) bit_buffer |= (1 << 0);
 		    if(!amqp_encode_8(encoded, &offset, bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
-		case AMQP_BASIC_QOS_OK_METHOD: return (int)offset;
+		case AMQP_BASIC_QOS_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_BASIC_CONSUME_METHOD: {
 		    amqp_basic_consume_t * m = (amqp_basic_consume_t*)decoded;
 		    if(!amqp_encode_16(encoded, &offset, m->ticket))
@@ -2674,7 +2668,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 			    int res = amqp_encode_table(encoded, &(m->arguments), &offset);
 			    if(res < 0) return res;
 		    }
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_CONSUME_OK_METHOD: {
 		    amqp_basic_consume_ok_t * m = (amqp_basic_consume_ok_t*)decoded;
@@ -2682,7 +2676,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 			!amqp_encode_8(encoded, &offset, (uint8)m->consumer_tag.len) ||
 			!amqp_encode_bytes(encoded, &offset, m->consumer_tag))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_CANCEL_METHOD: {
 		    amqp_basic_cancel_t * m = (amqp_basic_cancel_t*)decoded;
@@ -2694,14 +2688,14 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 		    if(m->nowait) bit_buffer |= (1 << 0);
 		    if(!amqp_encode_8(encoded, &offset, bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_CANCEL_OK_METHOD: 
 			{
 				amqp_basic_cancel_ok_t * m = (amqp_basic_cancel_ok_t*)decoded;
 				if(UINT8_MAX < m->consumer_tag.len || !amqp_encode_8(encoded, &offset, (uint8)m->consumer_tag.len) || !amqp_encode_bytes(encoded, &offset, m->consumer_tag))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_BASIC_PUBLISH_METHOD: {
 		    amqp_basic_publish_t * m = (amqp_basic_publish_t*)decoded;
@@ -2720,7 +2714,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 		    if(m->immediate) bit_buffer |= (1 << 1);
 		    if(!amqp_encode_8(encoded, &offset, bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_RETURN_METHOD: {
 		    amqp_basic_return_t * m = (amqp_basic_return_t*)decoded;
@@ -2738,7 +2732,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 			!amqp_encode_8(encoded, &offset, (uint8)m->routing_key.len) ||
 			!amqp_encode_bytes(encoded, &offset, m->routing_key))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_DELIVER_METHOD: {
 		    amqp_basic_deliver_t * m = (amqp_basic_deliver_t*)decoded;
@@ -2760,7 +2754,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 			!amqp_encode_8(encoded, &offset, (uint8)m->routing_key.len) ||
 			!amqp_encode_bytes(encoded, &offset, m->routing_key))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_GET_METHOD: {
 		    amqp_basic_get_t * m = (amqp_basic_get_t*)decoded;
@@ -2774,7 +2768,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 		    if(m->no_ack) bit_buffer |= (1 << 0);
 		    if(!amqp_encode_8(encoded, &offset, bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_GET_OK_METHOD: {
 		    amqp_basic_get_ok_t * m = (amqp_basic_get_ok_t*)decoded;
@@ -2794,14 +2788,14 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 			    return AMQP_STATUS_BAD_AMQP_DATA;
 		    if(!amqp_encode_32(encoded, &offset, m->message_count))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_BASIC_GET_EMPTY_METHOD: 
 			{
 				const amqp_basic_get_empty_t * m = (const amqp_basic_get_empty_t*)decoded;
 				if(UINT8_MAX < m->cluster_id.len || !amqp_encode_8(encoded, &offset, (uint8)m->cluster_id.len) || !amqp_encode_bytes(encoded, &offset, m->cluster_id))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_BASIC_ACK_METHOD: 
 			{
@@ -2812,7 +2806,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->multiple) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_BASIC_REJECT_METHOD: 
 			{
@@ -2823,7 +2817,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->requeue) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_BASIC_RECOVER_ASYNC_METHOD: 
 			{
@@ -2832,7 +2826,7 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->requeue) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
 		case AMQP_BASIC_RECOVER_METHOD: 
 			{
@@ -2841,9 +2835,9 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->requeue) bit_buffer |= (1 << 0);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_BASIC_RECOVER_OK_METHOD: return (int)offset;
+		case AMQP_BASIC_RECOVER_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_BASIC_NACK_METHOD: 
 			{
 				const amqp_basic_nack_t * m = (const amqp_basic_nack_t*)decoded;
@@ -2854,24 +2848,24 @@ int amqp_encode_method(amqp_method_number_t methodNumber, const void * decoded, 
 				if(m->requeue) bit_buffer |= (1 << 1);
 				if(!amqp_encode_8(encoded, &offset, bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				return (int)offset;
+				return static_cast<int>(offset);
 			}
-		case AMQP_TX_SELECT_METHOD: return (int)offset;
-		case AMQP_TX_SELECT_OK_METHOD: return (int)offset;
-		case AMQP_TX_COMMIT_METHOD: return (int)offset;
-		case AMQP_TX_COMMIT_OK_METHOD: return (int)offset;
-		case AMQP_TX_ROLLBACK_METHOD: return (int)offset;
-		case AMQP_TX_ROLLBACK_OK_METHOD: return (int)offset;
+		case AMQP_TX_SELECT_METHOD: return static_cast<int>(offset);
+		case AMQP_TX_SELECT_OK_METHOD: return static_cast<int>(offset);
+		case AMQP_TX_COMMIT_METHOD: return static_cast<int>(offset);
+		case AMQP_TX_COMMIT_OK_METHOD: return static_cast<int>(offset);
+		case AMQP_TX_ROLLBACK_METHOD: return static_cast<int>(offset);
+		case AMQP_TX_ROLLBACK_OK_METHOD: return static_cast<int>(offset);
 		case AMQP_CONFIRM_SELECT_METHOD: {
 		    amqp_confirm_select_t * m = (amqp_confirm_select_t*)decoded;
 		    bit_buffer = 0;
 		    if(m->nowait) bit_buffer |= (1 << 0);
 		    if(!amqp_encode_8(encoded, &offset, bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		case AMQP_CONFIRM_SELECT_OK_METHOD: {
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
 		default:
 		    return AMQP_STATUS_UNKNOWN_METHOD;
@@ -2898,11 +2892,11 @@ int amqp_encode_properties(uint16 class_id, void * decoded, amqp_bytes_t encoded
 		} while(remaining_flags != 0);
 	}
 	switch(class_id) {
-		case 10: return (int)offset;
-		case 20: return (int)offset;
-		case 30: return (int)offset;
-		case 40: return (int)offset;
-		case 50: return (int)offset;
+		case 10: return static_cast<int>(offset);
+		case 20: return static_cast<int>(offset);
+		case 30: return static_cast<int>(offset);
+		case 40: return static_cast<int>(offset);
+		case 50: return static_cast<int>(offset);
 		case 60: {
 		    amqp_basic_properties_t * p = (amqp_basic_properties_t*)decoded;
 		    if(flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
@@ -2968,10 +2962,10 @@ int amqp_encode_properties(uint16 class_id, void * decoded, amqp_bytes_t encoded
 			    if(UINT8_MAX < p->cluster_id.len || !amqp_encode_8(encoded, &offset, (uint8)p->cluster_id.len) || !amqp_encode_bytes(encoded, &offset, p->cluster_id))
 				    return AMQP_STATUS_BAD_AMQP_DATA;
 		    }
-		    return (int)offset;
+		    return static_cast<int>(offset);
 	    }
-		case 90: return (int)offset;
-		case 85: return (int)offset;
+		case 90: return static_cast<int>(offset);
+		case 85: return static_cast<int>(offset);
 		default: return AMQP_STATUS_UNKNOWN_CLASS;
 	}
 }
@@ -3786,69 +3780,62 @@ void FASTCALL empty_amqp_pool(amqp_pool_t * pPool)
 		empty_blocklist(&pPool->pages);
 	}
 }
-
-/* Returns 1 on success, 0 on failure */
+//
+// Returns 1 on success, 0 on failure 
+//
 static int record_pool_block(amqp_pool_blocklist_t * x, void * block) 
 {
-	size_t blocklistlength = sizeof(void *) * (x->num_blocks + 1);
+	int    ok = 1;
+	const  size_t blocklistlength = sizeof(void *) * (x->num_blocks + 1);
 	if(!x->blocklist) {
 		x->blocklist = static_cast<void **>(SAlloc::M(blocklistlength));
-		if(!x->blocklist)
-			return 0;
+		THROW(x->blocklist);
 	}
 	else {
 		void * newbl = SAlloc::R(x->blocklist, blocklistlength);
-		if(!newbl)
-			return 0;
-		else
-			x->blocklist = static_cast<void **>(newbl);
+		THROW(newbl)
+		x->blocklist = static_cast<void **>(newbl);
 	}
 	x->blocklist[x->num_blocks] = block;
 	x->num_blocks++;
-	return 1;
+	CATCHZOK
+	return ok;
 }
 
 void * FASTCALL amqp_pool_alloc(amqp_pool_t * pool, size_t amount) 
 {
-	if(amount == 0) {
-		return NULL;
-	}
-	amount = (amount + 7) & (~7); // round up to nearest 8-byte boundary 
-	if(amount > pool->pagesize) {
-		void * result = SAlloc::C(1, amount);
-		if(!result) {
-			return NULL;
+	void * p_result = 0;
+	if(amount) {
+		amount = (amount + 7) & (~7); // round up to nearest 8-byte boundary 
+		if(amount > pool->pagesize) {
+			THROW(p_result = SAlloc::C(1, amount));
+			THROW(record_pool_block(&pool->large_blocks, p_result));
 		}
-		else if(!record_pool_block(&pool->large_blocks, result)) {
-			SAlloc::F(result);
-			return NULL;
+		else {
+			assert(!pool->alloc_block || pool->alloc_used <= pool->pagesize);
+			if(pool->alloc_block && (pool->alloc_used + amount) <= pool->pagesize) {
+				p_result = pool->alloc_block + pool->alloc_used;
+				pool->alloc_used += amount;
+			}
+			else {
+				if(pool->next_page >= pool->pages.num_blocks) {
+					THROW(pool->alloc_block = static_cast<char *>(SAlloc::C(1, pool->pagesize)));
+					THROW(record_pool_block(&pool->pages, pool->alloc_block));
+					pool->next_page = pool->pages.num_blocks;
+				}
+				else {
+					pool->alloc_block = static_cast<char *>(pool->pages.blocklist[pool->next_page]);
+					pool->next_page++;
+				}
+				pool->alloc_used = amount;
+				p_result = pool->alloc_block;
+			}
 		}
-		else
-			return result;
 	}
-	if(pool->alloc_block) {
-		assert(pool->alloc_used <= pool->pagesize);
-		if((pool->alloc_used + amount) <= pool->pagesize) {
-			void * result = pool->alloc_block + pool->alloc_used;
-			pool->alloc_used += amount;
-			return result;
-		}
-	}
-	if(pool->next_page >= pool->pages.num_blocks) {
-		pool->alloc_block = static_cast<char *>(SAlloc::C(1, pool->pagesize));
-		if(!pool->alloc_block)
-			return NULL;
-		else if(!record_pool_block(&pool->pages, pool->alloc_block))
-			return NULL;
-		else
-			pool->next_page = pool->pages.num_blocks;
-	}
-	else {
-		pool->alloc_block = static_cast<char *>(pool->pages.blocklist[pool->next_page]);
-		pool->next_page++;
-	}
-	pool->alloc_used = amount;
-	return pool->alloc_block;
+	CATCH
+		ZFREE(p_result);
+	ENDCATCH
+	return p_result;
 }
 
 void FASTCALL amqp_pool_alloc_bytes(amqp_pool_t * pool, size_t amount, amqp_bytes_t * output) 
@@ -5517,18 +5504,17 @@ int amqp_merge_capabilities(const amqp_table_t * base, const amqp_table_t * add,
 		temp_result.num_entries++;
 	}
 	for(i = 0; i < add->num_entries; ++i) {
-		amqp_table_entry_t * e = amqp_table_get_entry_by_key(&temp_result, add->entries[i].key);
-		if(NULL != e) {
-			if(AMQP_FIELD_KIND_TABLE == add->entries[i].value.kind && AMQP_FIELD_KIND_TABLE == e->value.kind) {
+		amqp_table_entry_t * p_entry = amqp_table_get_entry_by_key(&temp_result, add->entries[i].key);
+		if(p_entry) {
+			if(AMQP_FIELD_KIND_TABLE == add->entries[i].value.kind && AMQP_FIELD_KIND_TABLE == p_entry->value.kind) {
 				amqp_table_entry_t * be = amqp_table_get_entry_by_key(base, add->entries[i].key);
-				res = amqp_merge_capabilities(&be->value.value.table, &add->entries[i].value.value.table, &e->value.value.table, &temp_pool);
+				res = amqp_merge_capabilities(&be->value.value.table, &add->entries[i].value.value.table, &p_entry->value.value.table, &temp_pool);
 				if(res != AMQP_STATUS_OK) {
 					goto error_out;
 				}
 			}
-			else {
-				e->value = add->entries[i].value;
-			}
+			else
+				p_entry->value = add->entries[i].value;
 		}
 		else {
 			temp_result.entries[temp_result.num_entries] = add->entries[i];
@@ -6319,7 +6305,6 @@ start_send:
 #endif
 
 #ifdef AMQP_USE_AMQP_BIO
-
 	static BIO_METHOD * amqp_bio_method;
 
 	static int amqp_openssl_bio_should_retry(int res) 
@@ -6776,8 +6761,7 @@ static int amqp_ssl_socket_close(void * base, amqp_socket_close_enum force)
 		return AMQP_STATUS_SOCKET_CLOSED;
 	}
 	if(AMQP_SC_NONE == force) {
-		// don't try too hard to shutdown the connection 
-		SSL_shutdown(self->ssl);
+		SSL_shutdown(self->ssl); // don't try too hard to shutdown the connection 
 	}
 	SSL_free(self->ssl);
 	self->ssl = NULL;

@@ -3698,8 +3698,8 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 					for(i = 0; list.enumItems(&i, (void **)&p_tdi);) {
 						const double qtty = p_tdi->Qtty;
 						const double ths  = p_tdi->Price;
-						const double prev = (i > 1) ? ((TiDisItem *)list.at(i-2))->Price : SMathConst::Max;
-						const double next = (i < list.getCount()) ? ((TiDisItem *)list.at(i))->Price : SMathConst::Max;
+						const double prev = (i > 1) ? static_cast<const TiDisItem *>(list.at(i-2))->Price : SMathConst::Max;
+						const double next = (i < list.getCount()) ? static_cast<const TiDisItem *>(list.at(i))->Price : SMathConst::Max;
 						if(qtty > 0 && (qtty < min_qtty || (qtty == min_qtty && ths > max_price)) && (ths != prev && ths != next)) {
 							last_index = p_tdi->Idx+1;
 							min_qtty   = qtty;

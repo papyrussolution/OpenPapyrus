@@ -2168,6 +2168,10 @@ int SLAPI PrcssrObjTextFilt::IsEmpty() const
 	return BIN(!ObjType && !ObjTextIdent && !Flags && RuleFileName.Empty() && !P_GoodsF && !P_BrandF && !P_PsnF);
 }
 
+PrcssrObjText::SignalProcBlock::SignalProcBlock() : State(0)
+{
+}
+
 SLAPI PrcssrObjText::PrcssrObjText() : P_Rpl(0)
 {
 }

@@ -459,9 +459,7 @@ err:
  * then the EVP_MD_CTX is setup and initialised. If it is NULL parameters are
  * passed to pkctx instead.
  */
-
-static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx,
-    X509_ALGOR * sigalg, EVP_PKEY * pkey)
+static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx, X509_ALGOR * sigalg, EVP_PKEY * pkey)
 {
 	int rv = -1;
 	int saltlen;
@@ -475,7 +473,6 @@ static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx,
 	}
 	/* Decode PSS parameters */
 	pss = rsa_pss_decode(sigalg, &maskHash);
-
 	if(pss == NULL) {
 		RSAerr(RSA_F_RSA_PSS_TO_CTX, RSA_R_INVALID_PSS_PARAMETERS);
 		goto err;
@@ -486,10 +483,8 @@ static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx,
 	md = rsa_algor_to_md(pss->hashAlgorithm);
 	if(!md)
 		goto err;
-
 	if(pss->saltLength) {
 		saltlen = ASN1_INTEGER_get(pss->saltLength);
-
 		/*
 		 * Could perform more salt length sanity checks but the main RSA
 		 * routines will trap other invalid values anyway.
@@ -501,7 +496,6 @@ static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx,
 	}
 	else
 		saltlen = 20;
-
 	/*
 	 * low-level routines support only trailer field 0xbc (value 1) and
 	 * PKCS#1 says we should reject any other value anyway.
@@ -510,9 +504,7 @@ static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx,
 		RSAerr(RSA_F_RSA_PSS_TO_CTX, RSA_R_INVALID_TRAILER);
 		goto err;
 	}
-
 	/* We have all parameters now set up context */
-
 	if(pkey) {
 		if(!EVP_DigestVerifyInit(ctx, &pkctx, md, NULL, pkey))
 			goto err;
@@ -526,13 +518,10 @@ static int rsa_pss_to_ctx(EVP_MD_CTX * ctx, EVP_PKEY_CTX * pkctx,
 			goto err;
 		}
 	}
-
 	if(EVP_PKEY_CTX_set_rsa_padding(pkctx, RSA_PKCS1_PSS_PADDING) <= 0)
 		goto err;
-
 	if(EVP_PKEY_CTX_set_rsa_pss_saltlen(pkctx, saltlen) <= 0)
 		goto err;
-
 	if(EVP_PKEY_CTX_set_rsa_mgf1_md(pkctx, mgf1md) <= 0)
 		goto err;
 	/* Carry on */

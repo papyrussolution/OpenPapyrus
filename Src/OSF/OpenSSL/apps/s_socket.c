@@ -7,12 +7,8 @@
  * https://www.openssl.org/source/license.html
  */
 
+#include "apps.h"
 /* socket-related functions used by s_client and s_server */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <signal.h>
 #include <openssl/opensslconf.h>
 
 /*
@@ -29,7 +25,6 @@ typedef unsigned int u_int;
 #ifndef OPENSSL_NO_SOCK
 
 # define USE_SOCKETS
-# include "apps.h"
 # undef USE_SOCKETS
 # include "s_apps.h"
 

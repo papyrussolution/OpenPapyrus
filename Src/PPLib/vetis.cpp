@@ -1981,7 +1981,7 @@ int SLAPI VetisEntityCore::DeleteEntity(PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, int use_ta)
+int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, PPID * pID, int use_ta)
 {
 	int    ok = 1;
 	int    is_new_entity = 0;
@@ -2059,6 +2059,7 @@ int SLAPI VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * 
 		}
 	}
 	CATCHZOK
+	ASSIGN_PTR(pID, rE.ID); // @v10.6.3
 	return ok;
 }
 
@@ -2419,8 +2420,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SetEntity(entity, pUreList, 0));
-		result_id = entity.ID; // @v10.5.8
+		THROW(SetEntity(entity, pUreList, &result_id, 0));
 		MEMSZERO(rec);
 		{
 			const VetisBatch & r_bat = rItem.Batch;
@@ -2468,32 +2468,12 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_G
 				if(GetEntityByGuid(rBusEntGuid, sub_entity) > 0 && sub_entity.Kind == kBusinessEntity)
 					rec.ToEntityID = sub_entity.ID;
 			}
-			{
-				Entity sub_entity(kProduct, r_bat.Product);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ProductID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kSubProduct, r_bat.SubProduct);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.SubProductID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kProductItem, r_bat.ProductItem);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ProductItemID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kCountry, r_bat.Origin.Country);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.OrgCountryID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kUOM, r_bat.Unit);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.UOMID = sub_entity.ID;
-			}
-			rec.ProductType = (int16)r_bat.ProductType;
+			THROW(SetEntity(Entity(kProduct, r_bat.Product), pUreList, &rec.ProductID, 0));
+			THROW(SetEntity(Entity(kSubProduct, r_bat.SubProduct), pUreList, &rec.SubProductID, 0));
+			THROW(SetEntity(Entity(kProductItem, r_bat.ProductItem), pUreList, &rec.ProductItemID, 0));
+			THROW(SetEntity(Entity(kCountry, r_bat.Origin.Country), pUreList, &rec.OrgCountryID, 0));
+			THROW(SetEntity(Entity(kUOM, r_bat.Unit), pUreList, &rec.UOMID, 0));
+			rec.ProductType = static_cast<int16>(r_bat.ProductType);
 			{
 				VetisDocumentTbl::Key0 k0;
 				k0.EntityID = entity.ID;
@@ -2586,8 +2566,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SetEntity(entity, pUreList, 0));
-		result_id = entity.ID;
+		THROW(SetEntity(entity, pUreList, &result_id, 0));
 		MEMSZERO(rec);
 		{
 			const VetisCertifiedConsignment & r_crtc = rItem.CertifiedConsignment;
@@ -2625,8 +2604,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 			}
 			{
 				Entity sub_entity(kEnterprise, r_crtc.Consignor.Enterprise);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.FromEnterpriseID = sub_entity.ID;
+				THROW(SetEntity(sub_entity, pUreList, &rec.FromEnterpriseID, 0));
 				if(sub_entity.ID && !!sub_entity.Guid) {
 					if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOCATION, PPTAG_LOC_VETIS_GUID, sub_entity.Guid, &id_list) > 0) {
 						assert(id_list.getCount());
@@ -2647,8 +2625,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 			}
 			{
 				Entity sub_entity(kBusinessEntity, r_crtc.Consignor.BusinessEntity);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.FromEntityID = sub_entity.ID;
+				THROW(SetEntity(sub_entity, pUreList, &rec.FromEntityID, 0));
 				if(!rec.LinkFromPsnID && !(rec.Flags & rItem.fFromMainOrg) && Get(sub_entity.ID, bent) > 0 && bent.Inn.NotEmpty()) {
 					by_inn_psn_list.clear();
 					PsnObj.GetListByRegNumber(PPREGT_TPID, 0, bent.Inn, id_list);
@@ -2663,8 +2640,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 			}
 			{
 				Entity sub_entity(kEnterprise, r_crtc.Consignee.Enterprise);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ToEnterpriseID = sub_entity.ID;
+				THROW(SetEntity(sub_entity, pUreList, &rec.ToEnterpriseID, 0));
 				if(sub_entity.ID && !!sub_entity.Guid) {
 					if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOCATION, PPTAG_LOC_VETIS_GUID, sub_entity.Guid, &id_list) > 0) {
 						assert(id_list.getCount());
@@ -2685,8 +2661,7 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 			}
 			{
 				Entity sub_entity(kBusinessEntity, r_crtc.Consignee.BusinessEntity);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ToEntityID = sub_entity.ID;
+				THROW(SetEntity(sub_entity, pUreList, &rec.ToEntityID, 0));
 				if(!rec.LinkToPsnID && !(rec.Flags & rItem.fToMainOrg) && Get(sub_entity.ID, bent) > 0 && bent.Inn.NotEmpty()) {
 					by_inn_psn_list.clear();
 					PsnObj.GetListByRegNumber(PPREGT_TPID, 0, bent.Inn, id_list);
@@ -2699,31 +2674,11 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long 
 						rec.LinkToPsnID = by_inn_psn_list.get(0);
 				}
 			}
-			{
-				Entity sub_entity(kProduct, r_bat.Product);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ProductID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kSubProduct, r_bat.SubProduct);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.SubProductID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kProductItem, r_bat.ProductItem);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ProductItemID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kCountry, r_bat.Origin.Country);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.OrgCountryID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kUOM, r_bat.Unit);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.UOMID = sub_entity.ID;
-			}
+			THROW(SetEntity(Entity(kProduct, r_bat.Product), pUreList, &rec.ProductID, 0));
+			THROW(SetEntity(Entity(kSubProduct, r_bat.SubProduct), pUreList, &rec.SubProductID, 0));
+			THROW(SetEntity(Entity(kProductItem, r_bat.ProductItem), pUreList, &rec.ProductItemID, 0));
+			THROW(SetEntity(Entity(kCountry, r_bat.Origin.Country), pUreList, &rec.OrgCountryID, 0));
+			THROW(SetEntity(Entity(kUOM, r_bat.Unit), pUreList, &rec.UOMID, 0));
 			rec.ProductType    = static_cast<int16>(r_bat.ProductType);
 			rec.TranspStrgType = static_cast<int16>(r_crtc.TransportStorageType);
 			rec.TranspType     = static_cast<int16>(r_crtc.TransportInfo.TransportType);
@@ -2858,26 +2813,17 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TS
 	SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
 	Entity entity(kBusinessEntity, rItem);
+	MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SetEntity(entity, pUreList, 0));
-		MEMSZERO(rec);
+		THROW(SetEntity(entity, pUreList, &rec.EntityID, 0));
 		{
-			rec.EntityID = entity.ID;
 			rec.EnterpriseType = rItem.Type;
 			STRNSCPY(rec.INN, rItem.Inn);
 			STRNSCPY(rec.KPP, rItem.Kpp);
-			{
-				Entity sub_entity(kCountry, rItem.JuridicalAddress.Country);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.CountryID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kRegion, rItem.JuridicalAddress.Region);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.RegionID = sub_entity.ID;
-			}
+			THROW(SetEntity(Entity(kCountry, rItem.JuridicalAddress.Country), pUreList, &rec.CountryID, 0));
+			THROW(SetEntity(Entity(kRegion, rItem.JuridicalAddress.Region), pUreList, &rec.RegionID, 0));
 			{
 				VetisPersonTbl::Key0 k0;
 				k0.EntityID = entity.ID;
@@ -2962,24 +2908,15 @@ int SLAPI VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVect
 	SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
 	Entity entity(kEnterprise, rItem);
+	MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SetEntity(entity, pUreList, 0));
-		MEMSZERO(rec);
+		THROW(SetEntity(entity, pUreList, &rec.EntityID, 0));
 		{
-			rec.EntityID = entity.ID;
 			rec.EnterpriseType = rItem.Type;
-			{
-				Entity sub_entity(kCountry, rItem.Address.Country);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.CountryID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kRegion, rItem.Address.Region);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.RegionID = sub_entity.ID;
-			}
+			THROW(SetEntity(Entity(kCountry, rItem.Address.Country), pUreList, &rec.CountryID, 0));
+			THROW(SetEntity(Entity(kRegion, rItem.Address.Region), pUreList, &rec.RegionID, 0));
 			{
 				VetisPersonTbl::Key0 k0;
 				k0.EntityID = entity.ID;
@@ -3061,14 +2998,13 @@ int SLAPI VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rI
 	SStringU temp_buf_u;
 	VetisProductTbl::Rec rec;
 	Entity entity(kind, rItem);
+	MEMSZERO(rec);
 	assert(oneof3(kind, kProductItem, kProduct, kSubProduct));
 	THROW_PP(oneof3(kind, kProductItem, kProduct, kSubProduct), PPERR_INVPARAM);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(SetEntity(entity, pUreList, 0));
-		MEMSZERO(rec);
-		rec.EntityID = entity.ID;
+		THROW(SetEntity(entity, pUreList, &rec.EntityID, 0));
 		if(kind == kProductItem) {
 			temp_buf = rItem.Gost;
 			if(temp_buf.NotEmptyS()) {
@@ -3083,16 +3019,8 @@ int SLAPI VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rI
 		rec.ProductType = rItem.ProductType;
 		if(kind == kProductItem) {
 			rec.LinkGoodsID = rItem.NativeGoodsID;
-			{
-				Entity sub_entity(kProduct, rItem);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.ProductID = sub_entity.ID;
-			}
-			{
-				Entity sub_entity(kSubProduct, rItem);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.SubProductID = sub_entity.ID;
-			}
+			THROW(SetEntity(Entity(kProduct, rItem), pUreList, &rec.ProductID, 0));
+			THROW(SetEntity(Entity(kSubProduct, rItem), pUreList, &rec.SubProductID, 0));
 			STRNSCPY(rec.GTIN, rItem.GlobalID);
 			{
 				VetisProductTbl::Key0 k0;
@@ -3437,7 +3365,8 @@ private:
 		S_GUID DlvrLocGuid;
 	};
 	enum {
-		pbrfDiscrepancy = 0x0001
+		pbrfDiscrepancy = 0x0001,
+		pbrfManuf       = 0x0002  // @v10.6.3
 	};
 	static int SLAPI MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList);
 	int    SLAPI PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta);
@@ -8166,7 +8095,7 @@ int SLAPI TestVetis()
 						f_out.WriteLine(temp_buf.CR());
 						{
 							VetisEntityCore::Entity sub_entity(VetisEntityCore::kUOM, *p_item);
-							THROW(ifc.PeC.SetEntity(sub_entity, /*pUreList*/0, 0));
+							THROW(ifc.PeC.SetEntity(sub_entity, /*pUreList*/0, 0, 0));
 							//rec.UOMID = sub_entity.ID;
 						}
 					}
@@ -8177,13 +8106,7 @@ int SLAPI TestVetis()
 				else
 					req_offs += reply.VetStockList.getCount();
 			}
-			/*
-			{
-				Entity sub_entity(kUOM, r_bat.Unit);
-				THROW(SetEntity(sub_entity, pUreList, 0));
-				rec.UOMID = sub_entity.ID;
-			}
-			*/
+			// THROW(SetEntity(Entity(kUOM, r_bat.Unit), pUreList, &rec.UOMID, 0));
 		}
 		/*{
 			THROW(ifc.PeC.CollectUnresolvedEntityList(ure_list));
@@ -8541,8 +8464,7 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 							VetisEntityCore::Entity entity;
 							entity.Uuid.Generate();
 							entity.Kind = VetisEntityCore::kVetDocument;
-							THROW(PeC.SetEntity(entity, 0, 0));
-							rec.EntityID = entity.ID;
+							THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
 							THROW_DB(PeC.DT.insertRecBuf(&rec));
 						}
 					}
@@ -8630,8 +8552,7 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 								VetisEntityCore::Entity entity;
 								entity.Uuid.Generate();
 								entity.Kind = VetisEntityCore::kVetDocument;
-								THROW(PeC.SetEntity(entity, 0, 0));
-								rec.EntityID = entity.ID;
+								THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
 								THROW_DB(PeC.DT.insertRecBuf(&rec));
 							}
 							ok = 1;
@@ -8748,8 +8669,7 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 							VetisEntityCore::Entity entity;
 							entity.Uuid.Generate();
 							entity.Kind = VetisEntityCore::kVetDocument;
-							THROW(PeC.SetEntity(entity, 0, 0));
-							rec.EntityID = entity.ID;
+							THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
 							THROW_DB(PeC.DT.insertRecBuf(&rec));
 						}
 						ok = 1;
@@ -8779,7 +8699,7 @@ int SLAPI PPVetisInterface::MakeOutgoingBillList(PPID locID, const DateRange & r
 				int    suited = 1;
 				if(!p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK))
 					suited = 0;
-				else if((flags & pbrfDiscrepancy) || bill_rec.Object) {
+				else if((flags & (pbrfDiscrepancy|pbrfManuf)) || bill_rec.Object) {
 					rBillList.add(bill_rec.ID);
 					ok = 1;
 				}
@@ -8823,13 +8743,39 @@ int SLAPI PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, co
 int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod)
 {
 	int    ok = -1;
-	ObjTagItem tag_item;
 	PPIDArray bill_id_list;
 	PPIDArray temp_bill_list; // Список идентификаторов документов продажи
 	PPIDArray op_list;
 	PrcssrAlcReport::Config alcr_cfg;
 	PrcssrAlcReport::ReadConfig(&alcr_cfg);
-	{
+	// @v10.6.3 {
+	struct SetupOutgoingEntries_ControlBlock {
+		long Flags;
+		PPID SrcOpList[6];
+	};
+	const SetupOutgoingEntries_ControlBlock control_block_list[] = {
+		{ pbrfDiscrepancy, { alcr_cfg.RcptEtcOpID, alcr_cfg.ExpndEtcOpID, 0, 0, 0, 0 } },
+		{ pbrfManuf,       { alcr_cfg.E.ManufOpID, 0, 0, 0, 0, 0 } },
+		{ 0,               { alcr_cfg.ExpndOpID, alcr_cfg.IntrExpndOpID, 0, 0, 0, 0 } }
+	};
+	for(uint cbidx = 0; cbidx < SIZEOFARRAY(control_block_list); cbidx++) {
+		PPIDArray base_op_list;
+		for(uint opidx = 0; opidx < SIZEOFARRAY(control_block_list[cbidx].SrcOpList); opidx++) {
+			const PPID op_id = control_block_list[cbidx].SrcOpList[opidx];
+			base_op_list.addnz(op_id);
+		}
+		if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
+			const long put_bill_row_flags = control_block_list[cbidx].Flags;
+			if(MakeOutgoingBillList(locID, rPeriod, op_list, put_bill_row_flags, temp_bill_list) > 0) {
+				const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
+				THROW(local_ok);
+				if(local_ok > 0)
+					ok = 1;
+			}
+		}
+	}
+	// } @v10.6.3 
+	/* @v10.6.3 {
 		PPIDArray base_op_list;
 		base_op_list.add(alcr_cfg.RcptEtcOpID);
 		base_op_list.add(alcr_cfg.ExpndEtcOpID); // @v10.5.11
@@ -8843,6 +8789,21 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 			}
 		}
 	}
+	// @v10.6.3 {
+	{
+		PPIDArray base_op_list;
+		base_op_list.add(alcr_cfg.E.ManufOpID);
+		if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
+			const long put_bill_row_flags = pbrfManuf;
+			if(MakeOutgoingBillList(locID, rPeriod, op_list, pbrfManuf, temp_bill_list) > 0) {
+				const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
+				THROW(local_ok);
+				if(local_ok > 0)
+					ok = 1;
+			}
+		}
+	}
+	// } @v10.6.3 
 	{
 		PPIDArray base_op_list;
 		base_op_list.add(alcr_cfg.ExpndOpID);
@@ -8856,7 +8817,7 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 					ok = 1;
 			}
 		}
-	}
+	}*/
 	CATCHZOK
 	return ok;
 }
@@ -9424,13 +9385,13 @@ int SLAPI VetisEntityCore::MakeRegionList(long countryIdent, StrAssocArray & rLi
 {
 	rList.Z();
 	int    ok = -1;
-	S_GUID country_guid;
-	if(countryIdent && rGuidList.Search(countryIdent, &country_guid, 0)) {
+	S_GUID _guid;
+	if(countryIdent && rGuidList.Search(countryIdent, &_guid, 0)) {
 		PPVetisInterface::Param param(0, 0, PPVetisInterface::Param::fSkipLocInitialization);
 		if(PPVetisInterface::SetupParam(param)) {
 			PPVetisInterface ifc(0/*&logger*/);
 			VetisApplicationBlock reply;
-			if(ifc.Init(param) && ifc.GetRegionList(country_guid, reply) > 0) {
+			if(ifc.Init(param) && ifc.GetRegionList(_guid, reply) > 0) {
 				long max_guid_key = Helper_InitMaxGuidKey(rGuidList);
 				for(uint i = 0; i < reply.RegionList.getCount(); i++) {
 					const VetisAddressObjectView * p_item = reply.RegionList.at(i);
@@ -9447,20 +9408,18 @@ int SLAPI VetisEntityCore::MakeLocalityList(long regionIdent, StrAssocArray & rL
 {
 	rList.Z();
 	int    ok = -1;
-	S_GUID region_guid;
-	if(regionIdent && rGuidList.Search(regionIdent, &region_guid, 0)) {
+	S_GUID _guid;
+	if(regionIdent && rGuidList.Search(regionIdent, &_guid, 0)) {
 		PPVetisInterface::Param param(0, 0, PPVetisInterface::Param::fSkipLocInitialization);
 		if(PPVetisInterface::SetupParam(param)) {
 			PPVetisInterface ifc(0/*&logger*/);
-			if(ifc.Init(param)) {
-				VetisApplicationBlock reply;
-				if(ifc.GetLocalityList(region_guid, reply) > 0) {
-					long max_guid_key = Helper_InitMaxGuidKey(rGuidList);
-					for(uint i = 0; i < reply.RegionList.getCount(); i++) {
-						const VetisAddressObjectView * p_item = reply.RegionList.at(i);
-						if(p_item)
-							rList.AddFast(Helper_SetGuidToList(p_item->Guid, &max_guid_key, rGuidList), p_item->View);
-					}
+			VetisApplicationBlock reply;
+			if(ifc.Init(param) && ifc.GetLocalityList(_guid, reply) > 0) {
+				long max_guid_key = Helper_InitMaxGuidKey(rGuidList);
+				for(uint i = 0; i < reply.RegionList.getCount(); i++) {
+					const VetisAddressObjectView * p_item = reply.RegionList.at(i);
+					if(p_item)
+						rList.AddFast(Helper_SetGuidToList(p_item->Guid, &max_guid_key, rGuidList), p_item->View);
 				}
 			}
 		}
@@ -9697,7 +9656,13 @@ int FASTCALL VetisDocumentFilt::GetStatusList(PPIDArray & rList) const
 {
 	rList.clear();
 	if(VDStatusFlags) {
-		if(VDStatusFlags & (1<<vetisdocstCREATED))
+		// @v10.6.3 {
+		static const VetisDocStatus statuses[] = {vetisdocstCREATED, vetisdocstCONFIRMED, vetisdocstWITHDRAWN, vetisdocstUTILIZED, vetisdocstFINALIZED, vetisdocstOUTGOING_PREPARING, vetisdocstSTOCK};
+		for(uint i = 0; i < SIZEOFARRAY(statuses); i++)
+			if(VDStatusFlags & (1<<statuses[i]))
+				rList.add(statuses[i]);
+		// } @v10.6.3 
+		/* @v10.6.3 if(VDStatusFlags & (1<<vetisdocstCREATED))
 			rList.add(vetisdocstCREATED);
 		if(VDStatusFlags & (1<<vetisdocstCONFIRMED))
 			rList.add(vetisdocstCONFIRMED);
@@ -9710,7 +9675,7 @@ int FASTCALL VetisDocumentFilt::GetStatusList(PPIDArray & rList) const
 		if(VDStatusFlags & (1<<vetisdocstOUTGOING_PREPARING))
 			rList.add(vetisdocstOUTGOING_PREPARING);
 		if(VDStatusFlags & (1<<vetisdocstSTOCK))
-			rList.add(vetisdocstSTOCK);
+			rList.add(vetisdocstSTOCK);*/
 		return 1;
 	}
 	else
@@ -9726,13 +9691,14 @@ SLAPI PPViewVetisDocument::~PPViewVetisDocument()
 }
 
 class VetisDocumentFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(VetisDocumentFilt);
 public:
 	VetisDocumentFiltDialog() : TDialog(DLG_VETDOCFLT)
 	{
 		SetupCalPeriod(CTLCAL_VETDOCFLT_PRD, CTL_VETDOCFLT_PRD);
 		SetupCalPeriod(CTLCAL_VETDOCFLT_WBPRD, CTL_VETDOCFLT_WBPRD);
 	}
-	int    setDTS(const VetisDocumentFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -9759,9 +9725,11 @@ public:
 				SetupPersonCombo(this, CTLSEL_VETDOCFLT_TOP, Data.ToPersonID, 0, acs_rec.ObjGroup, 1);
 			}
 		}
+		setCtrlUInt16(CTL_VETDOCFLT_FTEXPIRY, (Data.Ft_Expiry > 0)   ? 1 : ((Data.Ft_Expiry < 0)   ? 2 : 0)); // @v10.6.3
+		setCtrlUInt16(CTL_VETDOCFLT_FTMATCH,  (Data.Ft_LotMatch > 0) ? 1 : ((Data.Ft_LotMatch < 0) ? 2 : 0)); // @v10.6.3
 		return ok;
 	}
-	int    getDTS(VetisDocumentFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		GetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
@@ -9772,11 +9740,19 @@ public:
 		Data.FromLocID = 0;
 		getCtrlData(CTLSEL_VETDOCFLT_TOP, &Data.ToPersonID);
 		Data.ToLocID = 0;
+		// @v10.6.3 {
+		{
+			const uint16 v = getCtrlUInt16(CTL_VETDOCFLT_FTEXPIRY);
+			Data.Ft_Expiry = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
+		}
+		{
+			const uint16 v = getCtrlUInt16(CTL_VETDOCFLT_FTMATCH);
+			Data.Ft_LotMatch = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
+		}
+		// } @v10.6.3 
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-private:
-	VetisDocumentFilt Data;
 };
 
 //static
@@ -10189,6 +10165,20 @@ int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID,
 	return ok;
 }
 
+//static 
+int FASTCALL VetisEntityCore::CheckExpiryDate(int64 expiryFrom, int64 expiryTo)
+{
+	long   ok = 1;
+	if(expiryFrom || expiryTo) {
+		SUniTime ut;
+		LDATETIME dtm;
+		ut.FromInt64(NZOR(expiryTo, expiryFrom));
+		if(ut.Get(dtm) && dtm.d <= getcurdate_())
+			ok = 0;
+	}
+	return ok;
+}
+
 static IMPL_DBE_PROC(dbqf_vetis_productitemtextfld_iiiiip)
 {
 	/*
@@ -10263,6 +10253,11 @@ static IMPL_DBE_PROC(dbqf_vetis_vetdtype_i)
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_vetis_vet_checkexpiry_ii)
+{
+	result->init(static_cast<long>(VetisEntityCore::CheckExpiryDate(params[0].i64val, params[1].i64val)));
+}
+
 int PPViewVetisDocument::DynFuncBMembTextFld = 0;
 int PPViewVetisDocument::DynFuncEntityTextFld = 0;
 int PPViewVetisDocument::DynFuncProductItemTextFld = 0;
@@ -10271,6 +10266,8 @@ int PPViewVetisDocument::DynFuncVetDForm = 0;
 int PPViewVetisDocument::DynFuncVetDType = 0;
 int PPViewVetisDocument::DynFuncVetStockByDoc = 0;
 int PPViewVetisDocument::DynFuncVetUUID = 0;  //@erik v10.4.11
+int PPViewVetisDocument::DynFuncCheckExpiry = 0; // @v10.6.3
+
 
 DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
@@ -10282,6 +10279,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	DbqFuncTab::RegisterDyn(&DynFuncVetDType, BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
 	DbqFuncTab::RegisterDyn(&DynFuncVetStockByDoc, BTS_REAL, dbqf_vetis_vetstockbydoc_i, 2, BTS_INT, BTS_PTR);
 	DbqFuncTab::RegisterDyn(&DynFuncVetUUID, BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  //@erik v10.4.11
+	DbqFuncTab::RegisterDyn(&DynFuncCheckExpiry, BTS_INT, dbqf_vetis_vet_checkexpiry_ii, 2, BTS_INT64_, BTS_INT64_);  // @v10.6.3
 
 	uint   brw_id = BROWSER_VETISDOCUMENT;
 	DBQ * dbq = 0;
@@ -10296,6 +10294,7 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	DBE    dbe_to;
 	DBE    dbe_stock;
 	DBE    dbe_uuid; //@erik v10.4.11
+	DBE    dbe_checkexpiry; // @v10.6.3
 	THROW(CheckTblPtr(t = new VetisDocumentTbl(EC.DT.GetName())));
 	{
 		dbe_product_name.init();
@@ -10369,7 +10368,8 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 		}
 		dbe_stock.push(static_cast<DBFunc>(DynFuncVetStockByDoc));
 	}
-	{ //@erik v10.4.11{
+	//@erik v10.4.11{
+	{ 
 		dbe_uuid.init();
 		dbe_uuid.push(t->EntityID);
 		{
@@ -10378,7 +10378,8 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 			dbe_uuid.push(cp);
 		}
 		dbe_uuid.push(static_cast<DBFunc>(DynFuncVetUUID));
-	}// } @erik v10.4.11
+	}
+	// } @erik v10.4.11
 	dbq = ppcheckfiltid(dbq, t->OrgDocEntityID, Filt.LinkVDocID); // @v10.1.12
 	dbq = & (*dbq && daterange(t->IssueDate, &Filt.Period));
 	dbq = & (*dbq && daterange(t->WayBillDate, &Filt.WayBillPeriod));
@@ -10387,6 +10388,18 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	dbq = ppcheckfiltid(dbq, t->FromEntityID, FromEntityID);
 	// @v10.4.8 dbq = ppcheckfiltid(dbq, t->ToEntityID, ToEntityID);
 	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID); // @v10.4.8
+	// @v10.6.3 {
+	if(Filt.Ft_Expiry) {
+		dbe_checkexpiry.init();
+		dbe_checkexpiry.push(t->ExpiryFrom);
+		dbe_checkexpiry.push(t->ExpiryTo);
+		dbe_checkexpiry.push(static_cast<DBFunc>(DynFuncCheckExpiry));
+		if(Filt.Ft_Expiry > 0)
+			dbq = &(*dbq && dbe_checkexpiry == 0L);
+		else 
+			dbq = &(*dbq && dbe_checkexpiry > 0L);
+	}
+	// } @v10.6.3 
 	q = &select(
 		t->EntityID,          //  #0
 		t->Flags,             //  #1
@@ -10424,6 +10437,50 @@ DBQuery * SLAPI PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString *
 	return q;
 }
 
+int FASTCALL PPViewVetisDocument::CheckForFilt(const VetisDocumentViewItem * pItem)
+{
+	int    ok = 1;
+	if(!Filt.Period.CheckDate(pItem->IssueDate))
+		ok = 0;
+	else if(!Filt.WayBillPeriod.CheckDate(pItem->WayBillDate))
+		ok = 0;
+	else if(FromEntityID && pItem->FromEntityID != FromEntityID)
+		ok = 0;
+	else if(ToEntityID && pItem->ToEntityID != ToEntityID)
+		ok = 0;
+	else {
+		const long ff = Filt.VDStatusFlags;
+		const long rf = pItem->VetisDocStatus;
+		if(ff) {
+			int    r = 0;
+			if(ff & (1<<vetisdocstCREATED) && rf == vetisdocstCREATED)
+				r = 1;
+			else if(ff & (1<<vetisdocstCONFIRMED) && rf == vetisdocstCONFIRMED)
+				r = 1;
+			else if(ff & (1<<vetisdocstWITHDRAWN) && rf == vetisdocstWITHDRAWN)
+				r = 1;
+			else if(ff & (1<<vetisdocstUTILIZED) && rf == vetisdocstUTILIZED)
+				r = 1;
+			else if(ff & (1<<vetisdocstFINALIZED) && rf == vetisdocstFINALIZED)
+				r = 1;
+			else if(ff & (1<<vetisdocstOUTGOING_PREPARING) && rf == vetisdocstOUTGOING_PREPARING)
+				r = 1;
+			else if(ff & (1<<vetisdocstSTOCK) && rf == vetisdocstSTOCK)
+				r = 1;
+			if(!r)
+				ok = 0;
+		}
+		if(ok) {
+			if(Filt.Ft_Expiry) {
+				int r = VetisEntityCore::CheckExpiryDate(pItem->ExpiryFrom, pItem->ExpiryTo);
+				if((Filt.Ft_Expiry > 0 && r) || (Filt.Ft_Expiry < 0 && !r))
+					ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPViewVetisDocument::InitIteration()
 {
 	int    ok = 1;
@@ -10452,28 +10509,10 @@ int SLAPI PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
 	if(P_IterQuery) {
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
-			ok = 1;
-			const long ff = Filt.VDStatusFlags;
-			const long rf = EC.DT.data.VetisDocStatus;
-			if(ff) {
-				ok = -1;
-				if(ff & (1<<vetisdocstCREATED) && rf == vetisdocstCREATED)
-					ok = 1;
-				else if(ff & (1<<vetisdocstCONFIRMED) && rf == vetisdocstCONFIRMED)
-					ok = 1;
-				else if(ff & (1<<vetisdocstWITHDRAWN) && rf == vetisdocstWITHDRAWN)
-					ok = 1;
-				else if(ff & (1<<vetisdocstUTILIZED) && rf == vetisdocstUTILIZED)
-					ok = 1;
-				else if(ff & (1<<vetisdocstFINALIZED) && rf == vetisdocstFINALIZED)
-					ok = 1;
-				else if(ff & (1<<vetisdocstOUTGOING_PREPARING) && rf == vetisdocstOUTGOING_PREPARING)
-					ok = 1;
-				else if(ff & (1<<vetisdocstSTOCK) && rf == vetisdocstSTOCK)
-					ok = 1;
-			}
-			if(ok > 0)
+			if(CheckForFilt(&EC.DT.data)) {
 				EC.DT.copyBufTo(pItem);
+				ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -10495,7 +10534,7 @@ int SLAPI PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int 
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < (long)p_def->getCount()) {
+		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			const PPViewVetisDocument::BrwHdr * p_hdr = static_cast<const PPViewVetisDocument::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 22) { // issuenumber // @v10.5.11 20-->22
@@ -10506,14 +10545,9 @@ int SLAPI PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int 
 				}
 			}
 			else if(r_col.OrgOffs == 24) { // @v10.5.11 uuid // @v10.5.11 22-->24
-				if(p_hdr->ExpiryFrom || p_hdr->ExpiryTo) {
-					SUniTime ut;
-					LDATETIME dtm;
-					ut.FromInt64(NZOR(p_hdr->ExpiryTo, p_hdr->ExpiryFrom));
-					if(ut.Get(dtm) && dtm.d <= getcurdate_()) {
-						pStyle->Color = GetColorRef(SClrCrimson);
-						ok = 1;
-					}
+				if(!VetisEntityCore::CheckExpiryDate(p_hdr->ExpiryFrom, p_hdr->ExpiryTo)) {
+					pStyle->Color = GetColorRef(SClrCrimson);
+					ok = 1;
 				}
 			}
 			else if(r_col.OrgOffs == 17) { // waybillnumber // @v10.5.11 15-->17
@@ -11811,3 +11845,4 @@ int SLAPI PPViewVetisDocument::ViewTotal()
 		ok = 0;
 	return ok;
 }
+

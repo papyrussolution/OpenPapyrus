@@ -635,10 +635,9 @@ private:
 IMPL_HANDLE_EVENT(BudgetItemDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCmd(cmCBSelected) && event.isCtlEvent(CTLSEL_BUDGITEM_BUDGET)) {
-		PPID id = 0;
+	if(event.isCbSelected(CTLSEL_BUDGITEM_BUDGET)) {
 		PPBudget budg_rec;
-		getCtrlData(CTLSEL_BUDGITEM_BUDGET, &id);
+		PPID id = getCtrlLong(CTLSEL_BUDGITEM_BUDGET);
 		if(P_Obj && P_Obj->Search(id, &budg_rec) > 0 && budg_rec.Cycle > 1)
 			endModal(cmaMore);
 		clearEvent(event);
@@ -730,9 +729,8 @@ IMPL_HANDLE_EVENT(BudgetItemsDialog)
 			endModal(cmaMore);
 		clearEvent(event);
 	}
-	else if(event.isCmd(cmCBSelected) && event.isCtlEvent(CTLSEL_BUDGITEM_ACCT)) {
-		PPID acct_id = 0;
-		getCtrlData(CTLSEL_BUDGITEM_ACCT,   &acct_id);
+	else if(event.isCbSelected(CTLSEL_BUDGITEM_ACCT)) {
+		PPID acct_id = getCtrlLong(CTLSEL_BUDGITEM_ACCT);
 		if(acct_id != PrevAcctID)
 			endModal(cmaMore);
 		clearEvent(event);
@@ -1760,15 +1758,16 @@ int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 			case PPVCMD_MOUSEHOVER:
 				{
 					long h = 0;
-					pBrw->ItemByMousePos(&h, 0);
-					GetEditIds(pHdr, &hdr, h);
-					id = hdr.ID;
-					if(id && Filt.Kind == BudgetFilt::kBudgetItems) {
-						SString buf;
-						BudgetItemTbl::Rec rec;
-						if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && sstrlen(rec.Memo))
-							PPTooltipMessage(rec.Memo, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+					if(pBrw->ItemByMousePos(&h, 0)) {
+						GetEditIds(pHdr, &hdr, h);
+						id = hdr.ID;
+						if(id && Filt.Kind == BudgetFilt::kBudgetItems) {
+							SString buf;
+							BudgetItemTbl::Rec rec;
+							if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && sstrlen(rec.Memo))
+								PPTooltipMessage(rec.Memo, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+									SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+						}
 					}
 					ok = 1;
 				}

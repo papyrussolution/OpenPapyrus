@@ -138,7 +138,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 				SETFLAG(gct_flt.Flags, OPG_LABELONLY,    Filt.Flags & OpGroupingFilt::fLabelOnly);
 				SETFLAG(gct_flt.Flags, OPG_CALCBILLROWS, Filt.Flags & OpGroupingFilt::fCalcAvgLn);
 				SETFLAG(gct_flt.Flags, OPG_COSTBYPAYM,   Filt.Flags & OpGroupingFilt::fCostByPaym);
-				SETFLAG(gct_flt.Flags, OPG_INCLACCOPS,   Filt.Flags & OpGroupingFilt::fInclAccOps); // @v8.6.1
+				SETFLAG(gct_flt.Flags, OPG_INCLACCOPS,   Filt.Flags & OpGroupingFilt::fInclAccOps);
 				if(Filt.Flags & OpGroupingFilt::fCalcRest) {
 					if(cycle_no == 0)
 						gct_flt.Flags |= (OPG_CALCINREST | OPG_CALCOUTREST);
@@ -212,7 +212,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 			uint   i, j, k;
 			LAssocArray op_list;
 			TSCollection <OpGroupingStatEntry> stat_list[siNumItems];
-			TSVector <OpGroupingViewItem> item_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <OpGroupingViewItem> item_list;
 			THROW(CreateStatList(&op_list, &item_list, stat_list));
 			THROW(P_TempStatTbl = CreateTempFile());
 			{
@@ -388,7 +388,7 @@ int SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 	return 1;
 }
 
-int SLAPI PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
+void SLAPI PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
 {
 	memzero(pItem, sizeof(OpGroupingViewItem));
 	pItem->Dt       = GdsOpTotal.Dt;
@@ -403,7 +403,6 @@ int SLAPI PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
 	pItem->ExtCost  = GdsOpTotal.ExtCost;
 	pItem->ExtPrice = GdsOpTotal.ExtPrice;
 	pItem->Income   = GdsOpTotal.Income;
-	return 1;
 }
 
 int SLAPI PPViewOpGrouping::AddStatItem(PPID opID, int sign, double val, uint si, TSCollection <OpGroupingStatEntry> * pList)
@@ -548,6 +547,7 @@ int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGr
 #define GRP_LOC       3
 
 class OpGroupingFiltDialog : public WLDialog {
+	DECL_DIALOG_DATA(OpGroupingFilt);
 public:
 	OpGroupingFiltDialog() : WLDialog(DLG_OPGRPNGFLT, CTL_GTO_LABEL)
 	{
@@ -556,14 +556,68 @@ public:
 		SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
 	}
-	int    setDTS(const OpGroupingFilt *);
-	int    getDTS(OpGroupingFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		PPIDArray types;
+		CycleCtrlGroup::Rec cycle_cg_rec;
+		RVALUEPTR(Data, pData);
+		LocationCtrlGroup::Rec l_rec(&Data.LocList);
+		setGroupData(GRP_LOC, &l_rec);
+		SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
+		const PPID acs_id = GetSupplAccSheet();
+		SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);
+		types.add(PPOPT_GENERIC);
+		SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
+		ReplyOprKindSelection();
+		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
+		setGroupData(GRP_GOODSFILT, &gf_rec);
+		SetupPPObjCombo(this, CTLSEL_GTO_EXTGOODSTYPE, PPOBJ_GOODSTYPE, Data.ExtGoodsTypeID, 0, 0);
+		cycle_cg_rec.C = Data.Cycl;
+		setGroupData(GRP_CYCLE, &cycle_cg_rec);
+		SetupStringCombo(this, CTLSEL_GTO_CYCLESTAT, PPTXT_CYCLESTATLIST, Data.CycleStat);
+		setWL(BIN(Data.Flags & OpGroupingFilt::fLabelOnly));
+		AddClusterAssoc(CTL_GTO_FLAGS, 0, OpGroupingFilt::fCalcRest);
+		AddClusterAssoc(CTL_GTO_FLAGS, 1, OpGroupingFilt::fCalcAvgLn);
+		AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps);
+		SetClusterData(CTL_GTO_FLAGS, Data.Flags);
+		SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+		disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);
+		DisableClusterItem(CTL_GTO_FLAGS, 2, Data.GoodsGrpID || Data.GoodsID);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		GoodsFiltCtrlGroup::Rec gf_rec;
+		CycleCtrlGroup::Rec cycle_cg_rec;
+		LocationCtrlGroup::Rec l_rec;
+		getGroupData(GRP_LOC, &l_rec);
+		Data.LocList = l_rec.LocList;
+		THROW(GetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period));
+		THROW(AdjustPeriodToRights(Data.Period, 1));
+		getCtrlData(CTLSEL_GTO_SUPPL,  &Data.SupplID);
+		getCtrlData(CTLSEL_GTO_OPR,    &Data.OpID);
+		getCtrlData(CTLSEL_GTO_OBJECT, &Data.ArID);
+		MEMSZERO(gf_rec);
+		THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+		Data.GoodsGrpID = gf_rec.GoodsGrpID;
+		Data.GoodsID    = gf_rec.GoodsID;
+		getCtrlData(CTLSEL_GTO_EXTGOODSTYPE, &Data.ExtGoodsTypeID);
+		MEMSZERO(cycle_cg_rec);
+		THROW(getGroupData(GRP_CYCLE, &cycle_cg_rec));
+		Data.Cycl = cycle_cg_rec.C;
+		Data.CycleStat = getCtrlLong(CTLSEL_GTO_CYCLESTAT);
+		SETFLAG(Data.Flags, OpGroupingFilt::fLabelOnly, getWL());
+		GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
+		getCtrlData(CTLSEL_GTO_SUPPLAG, &Data.SupplAgentID); // AHTOXA
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   ReplyOprKindSelection();
 	int    EditAdvOptions();
-
-	OpGroupingFilt Data;
 };
 
 void OpGroupingFiltDialog::ReplyOprKindSelection()
@@ -613,66 +667,6 @@ IMPL_HANDLE_EVENT(OpGroupingFiltDialog)
 	else
 		return;
 	clearEvent(event);
-}
-
-int OpGroupingFiltDialog::setDTS(const OpGroupingFilt * pFilt)
-{
-	PPIDArray types;
-	CycleCtrlGroup::Rec cycle_cg_rec;
-	Data = *pFilt;
-	LocationCtrlGroup::Rec l_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &l_rec);
-	SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
-	const PPID acs_id = GetSupplAccSheet();
-	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);
-	types.add(PPOPT_GENERIC);
-	SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
-	ReplyOprKindSelection();
-	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
-	SetupPPObjCombo(this, CTLSEL_GTO_EXTGOODSTYPE, PPOBJ_GOODSTYPE, Data.ExtGoodsTypeID, 0, 0);
-	cycle_cg_rec.C = Data.Cycl;
-	setGroupData(GRP_CYCLE, &cycle_cg_rec);
-	SetupStringCombo(this, CTLSEL_GTO_CYCLESTAT, PPTXT_CYCLESTATLIST, Data.CycleStat);
-	setWL(BIN(Data.Flags & OpGroupingFilt::fLabelOnly));
-	AddClusterAssoc(CTL_GTO_FLAGS, 0, OpGroupingFilt::fCalcRest);
-	AddClusterAssoc(CTL_GTO_FLAGS, 1, OpGroupingFilt::fCalcAvgLn);
-	AddClusterAssoc(CTL_GTO_FLAGS, 2, OpGroupingFilt::fInclAccOps);
-	SetClusterData(CTL_GTO_FLAGS, Data.Flags);
-	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
-	disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);
-	DisableClusterItem(CTL_GTO_FLAGS, 2, Data.GoodsGrpID || Data.GoodsID);
-	return 1;
-}
-
-int OpGroupingFiltDialog::getDTS(OpGroupingFilt * pFilt)
-{
-	int    ok = 1;
-	GoodsFiltCtrlGroup::Rec gf_rec;
-	CycleCtrlGroup::Rec cycle_cg_rec;
-	LocationCtrlGroup::Rec l_rec;
-	getGroupData(GRP_LOC, &l_rec);
-	Data.LocList = l_rec.LocList;
-	THROW(GetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period));
-	THROW(AdjustPeriodToRights(Data.Period, 1));
-	getCtrlData(CTLSEL_GTO_SUPPL,  &Data.SupplID);
-	getCtrlData(CTLSEL_GTO_OPR,    &Data.OpID);
-	getCtrlData(CTLSEL_GTO_OBJECT, &Data.ArID);
-	MEMSZERO(gf_rec);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
-	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	Data.GoodsID    = gf_rec.GoodsID;
-	getCtrlData(CTLSEL_GTO_EXTGOODSTYPE, &Data.ExtGoodsTypeID);
-	MEMSZERO(cycle_cg_rec);
-	THROW(getGroupData(GRP_CYCLE, &cycle_cg_rec));
-	Data.Cycl = cycle_cg_rec.C;
-	Data.CycleStat = getCtrlLong(CTLSEL_GTO_CYCLESTAT);
-	SETFLAG(Data.Flags, OpGroupingFilt::fLabelOnly, getWL());
-	GetClusterData(CTL_GTO_FLAGS, &Data.Flags);
-	getCtrlData(CTLSEL_GTO_SUPPLAG, &Data.SupplAgentID); // AHTOXA
-	*pFilt = Data;
-	CATCHZOKPPERR
-	return ok;
 }
 
 int SLAPI PPViewOpGrouping::EditBaseFilt(PPBaseFilt * pFilt)

@@ -779,7 +779,7 @@ DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			dbe_rel_restrict.push(at->Acc);
 			dbe_rel_restrict.push(at->CorrAcc);
 			DBConst c_temp;
-			c_temp.init((long)&Filt);
+			c_temp.init((long)&Filt); // @x64crit
 			dbe_rel_restrict.push(c_temp);
 			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}

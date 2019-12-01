@@ -512,36 +512,36 @@ typedef struct amqp_socket_t_ amqp_socket_t; // Socket object
 // NOTE: When updating this enum, update the strings in librabbitmq/amqp_api.c
 // 
 typedef enum amqp_status_enum_ {
-	AMQP_STATUS_OK        = 0x0,     // Operation successful 
-	AMQP_STATUS_NO_MEMORY = -0x0001, // Memory allocation failed 
-	AMQP_STATUS_BAD_AMQP_DATA  = -0x0002, // Incorrect or corrupt data was received from the broker. This is a protocol error. 
-	AMQP_STATUS_UNKNOWN_CLASS  = -0x0003, // An unknown AMQP class was received. This is a protocol error. 
-	AMQP_STATUS_UNKNOWN_METHOD = -0x0004, // An unknown AMQP method was received. This is a protocol error. 
-	AMQP_STATUS_HOSTNAME_RESOLUTION_FAILED = -0x0005, // Unable to resolve the hostname 
-	AMQP_STATUS_INCOMPATIBLE_AMQP_VERSION  = -0x0006, // The broker advertised an incompaible AMQP version 
-	AMQP_STATUS_CONNECTION_CLOSED = -0x0007, // The connection to the broker has been closed
-	AMQP_STATUS_BAD_URL = -0x0008, // malformed AMQP URL 
-	AMQP_STATUS_SOCKET_ERROR = -0x0009, // A socket error occurred 
-	AMQP_STATUS_INVALID_PARAMETER = -0x000A, // An invalid parameter was passed into the function 
-	AMQP_STATUS_TABLE_TOO_BIG = -0x000B, // The amqp_table_t object cannot be serialized because the output buffer is too small 
-	AMQP_STATUS_WRONG_METHOD = -0x000C, // The wrong method was received 
-	AMQP_STATUS_TIMEOUT = -0x000D, // Operation timed out 
-	AMQP_STATUS_TIMER_FAILURE = -0x000E, // The underlying system timer facility failed 
-	AMQP_STATUS_HEARTBEAT_TIMEOUT = -0x000F, // Timed out waiting for heartbeat 
-	AMQP_STATUS_UNEXPECTED_STATE = -0x0010, // Unexpected protocol state 
-	AMQP_STATUS_SOCKET_CLOSED = -0x0011, // Underlying socket is closed 
-	AMQP_STATUS_SOCKET_INUSE = -0x0012, // Underlying socket is already open 
+	AMQP_STATUS_OK                             =  0x0000, // Operation successful 
+	AMQP_STATUS_NO_MEMORY                      = -0x0001, // Memory allocation failed 
+	AMQP_STATUS_BAD_AMQP_DATA                  = -0x0002, // Incorrect or corrupt data was received from the broker. This is a protocol error. 
+	AMQP_STATUS_UNKNOWN_CLASS                  = -0x0003, // An unknown AMQP class was received. This is a protocol error. 
+	AMQP_STATUS_UNKNOWN_METHOD                 = -0x0004, // An unknown AMQP method was received. This is a protocol error. 
+	AMQP_STATUS_HOSTNAME_RESOLUTION_FAILED     = -0x0005, // Unable to resolve the hostname 
+	AMQP_STATUS_INCOMPATIBLE_AMQP_VERSION      = -0x0006, // The broker advertised an incompaible AMQP version 
+	AMQP_STATUS_CONNECTION_CLOSED              = -0x0007, // The connection to the broker has been closed
+	AMQP_STATUS_BAD_URL                        = -0x0008, // malformed AMQP URL 
+	AMQP_STATUS_SOCKET_ERROR                   = -0x0009, // A socket error occurred 
+	AMQP_STATUS_INVALID_PARAMETER              = -0x000A, // An invalid parameter was passed into the function 
+	AMQP_STATUS_TABLE_TOO_BIG                  = -0x000B, // The amqp_table_t object cannot be serialized because the output buffer is too small 
+	AMQP_STATUS_WRONG_METHOD                   = -0x000C, // The wrong method was received 
+	AMQP_STATUS_TIMEOUT                        = -0x000D, // Operation timed out 
+	AMQP_STATUS_TIMER_FAILURE                  = -0x000E, // The underlying system timer facility failed 
+	AMQP_STATUS_HEARTBEAT_TIMEOUT              = -0x000F, // Timed out waiting for heartbeat 
+	AMQP_STATUS_UNEXPECTED_STATE               = -0x0010, // Unexpected protocol state 
+	AMQP_STATUS_SOCKET_CLOSED                  = -0x0011, // Underlying socket is closed 
+	AMQP_STATUS_SOCKET_INUSE                   = -0x0012, // Underlying socket is already open 
 	AMQP_STATUS_BROKER_UNSUPPORTED_SASL_METHOD = -0x0013, // Broker does not support the requested SASL mechanism 
-	AMQP_STATUS_UNSUPPORTED = -0x0014, // Parameter is unsupported in this version 
-	_AMQP_STATUS_NEXT_VALUE = -0x0015, // Internal value 
-	AMQP_STATUS_TCP_ERROR = -0x0100, // A generic TCP error occurred 
-	AMQP_STATUS_TCP_SOCKETLIB_INIT_ERROR = -0x0101, // An error occurred trying to initialize the socket library
-	_AMQP_STATUS_TCP_NEXT_VALUE = -0x0102, // Internal value 
-	AMQP_STATUS_SSL_ERROR = -0x0200, // A generic SSL error occurred. 
-	AMQP_STATUS_SSL_HOSTNAME_VERIFY_FAILED = -0x0201, // SSL validation of hostname against peer certificate failed 
-	AMQP_STATUS_SSL_PEER_VERIFY_FAILED = -0x0202, // SSL validation of peer certificate failed. 
-	AMQP_STATUS_SSL_CONNECTION_FAILED = -0x0203, // SSL handshake failed. 
-	_AMQP_STATUS_SSL_NEXT_VALUE = -0x0204 // Internal value 
+	AMQP_STATUS_UNSUPPORTED                    = -0x0014, // Parameter is unsupported in this version 
+	_AMQP_STATUS_NEXT_VALUE                    = -0x0015, // Internal value 
+	AMQP_STATUS_TCP_ERROR                      = -0x0100, // A generic TCP error occurred 
+	AMQP_STATUS_TCP_SOCKETLIB_INIT_ERROR       = -0x0101, // An error occurred trying to initialize the socket library
+	_AMQP_STATUS_TCP_NEXT_VALUE                = -0x0102, // Internal value 
+	AMQP_STATUS_SSL_ERROR                      = -0x0200, // A generic SSL error occurred. 
+	AMQP_STATUS_SSL_HOSTNAME_VERIFY_FAILED     = -0x0201, // SSL validation of hostname against peer certificate failed 
+	AMQP_STATUS_SSL_PEER_VERIFY_FAILED         = -0x0202, // SSL validation of peer certificate failed. 
+	AMQP_STATUS_SSL_CONNECTION_FAILED          = -0x0203, // SSL handshake failed. 
+	_AMQP_STATUS_SSL_NEXT_VALUE                = -0x0204  // Internal value 
 } amqp_status_enum;
 // 
 // Descr: AMQP delivery modes.

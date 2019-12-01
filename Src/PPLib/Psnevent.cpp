@@ -2242,7 +2242,7 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(TVCOMMAND && TVCMD == cmCBSelected && event.isCtlEvent(CTLSEL_FLTADDPSNEV_OP)) {
+		if(event.isCbSelected(CTLSEL_FLTADDPSNEV_OP)) {
 			PPID   op_id = getCtrlLong(CTLSEL_FLTADDPSNEV_OP);
 			SetupCtrls(op_id);
 			clearEvent(event);

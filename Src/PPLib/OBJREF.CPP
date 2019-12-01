@@ -2202,6 +2202,8 @@ public:
 		enableCommand(cmOK, GuaObj.CheckRights(PPR_MOD));
 		SetupPPObjCombo(this, CTLSEL_GLOBUSERACC_PSN, PPOBJ_PERSON, Data.Rec.PersonID, 0, reinterpret_cast<void *>(cfg.PersonKindID));
 		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent); // @v10.5.5
+		AddClusterAssoc(CTL_GLOBUSERACC_FLAGS, 0, PPGlobalUserAcc::fSandBox); // @v10.6.3
+		SetClusterData(CTL_GLOBUSERACC_FLAGS, Data.Rec.Flags); // @v10.6.3
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2220,6 +2222,7 @@ public:
 		THROW(GuaObj.CheckName(Data.Rec.ID, Data.Rec.Name, 1));
 		getCtrlData(CTLSEL_GLOBUSERACC_PSN, &Data.Rec.PersonID);
 		getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
+		GetClusterData(CTL_GLOBUSERACC_FLAGS, &Data.Rec.Flags); // @v10.6.3
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -3027,8 +3030,7 @@ private:
 			{
 				if(Data.Attr == PPUhttStoreSelDescr::attrTag) {
 					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, 0);
-					ObjTagFilt ot_filt;
-					ot_filt.ObjTypeID = PPOBJ_GOODS;
+					ObjTagFilt ot_filt(PPOBJ_GOODS);
 					ot_filt.Flags |= ObjTagFilt::fOnlyTags;
 					SetupObjTagCombo(this, CTLSEL_UHTTSTSELITEM_EXT, Data.TagID, 0, &ot_filt);
 				}

@@ -600,10 +600,11 @@ public:
 		SString Password;
 	};
 
-	static int FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
-	static int FASTCALL GetHeaderId(const char * pTitle);
-	static int FASTCALL SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
-	static int FASTCALL ParseAuth(const char * pAuthParam, Auth & rResult);
+	static int  FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
+	static int  FASTCALL GetHeaderId(const char * pTitle);
+	static int  FASTCALL SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
+	static uint FASTCALL PutHeaderFieldsIntoString(const StrStrAssocArray & rFldList, SString & rBuf);
+	static int  FASTCALL ParseAuth(const char * pAuthParam, Auth & rResult);
 };
 //
 //
@@ -856,7 +857,7 @@ public:
 	};
 	int    SetAuth(int auth, const char * pUser, const char * pPassword);
 	void   SetLogFileName(const char * pFileName);
-	int    SetupDefaultSslOptions(int sslVer /* SSystem::sslXXX */, const StringSet * pSsCipherList);
+	int    SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSystem::sslXXX */, const StringSet * pSsCipherList);
 
 	enum {
 		mfDontVerifySslPeer = 0x0001, // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE

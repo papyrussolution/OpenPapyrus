@@ -117,7 +117,8 @@ struct Config {
 };
 
 struct CheckStruct {
-	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0) //@erik v10.4.12 add "Stt(0),"
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), TaxSys(0), Tax(0), 
+		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0) //@erik v10.4.12 add "Stt(0),"
 	{
 	}
 	void Clear()
@@ -131,6 +132,7 @@ struct CheckStruct {
 		Stt = 0; // @erik v10.4.12
 		// @v9.9.4 if(Text.NotEmpty())
 		// @v9.9.4 	Text.Destroy();
+		TaxSys = 0; // @v10.6.3
 		Text.Z(); // @v9.9.4
 		Code.Z(); // @v9.9.4
 		PaymCash = 0.0;
@@ -143,6 +145,16 @@ struct CheckStruct {
 	double Quantity;
 	double Price;
 	int    Department;
+	// 
+	// Система налогообложения
+	// 0 	Основная
+	// 1 	Упрощенная Доход
+	// 2 	Упрощенная Доход минус Расход
+	// 3 	Единый налог на вмененный доход
+	// 4 	Единый сельскохозяйственный налог
+	// 5 	Патентная система налогообложения
+	// 
+	int    TaxSys; // @v10.6.3 Система налогообложения
 	int    Tax;
 	int    Ptt; // @v10.4.1 // CCheckPacket::PaymentTermTag
 	int    Stt; // @erik v10.4.12
@@ -720,7 +732,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("CHECKTYPE") == 0) {
+				if(s_param.IsEqiAscii("CHECKTYPE")) {
 					val = param_val.ToLong();
 					switch(val) {
 						// Это все если обычный режим формирования документа, а не пакетный
@@ -731,8 +743,26 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						case 4: Check.CheckType = 5; break;
 					}
 				}
-				else if(s_param.CmpNC("CHECKNUM") == 0)
+				else if(s_param.IsEqiAscii("CHECKNUM"))
 					Check.CheckNum = param_val.ToLong();
+				else if(s_param.IsEqiAscii("TAXSYSTEM")) {
+					int    pp_tax_sys_id = param_val.ToLong();
+					// Pirit values of tax system:
+					// 0 	Основная
+					// 1 	Упрощенная Доход
+					// 2 	Упрощенная Доход минус Расход
+					// 3 	Единый налог на вмененный доход
+					// 4 	Единый сельскохозяйственный налог
+					// 5 	Патентная система налогообложения
+					switch(pp_tax_sys_id) {
+						case /*TAXSYSK_GENERAL*/1: Check.TaxSys = 0; break;
+						case /*TAXSYSK_SIMPLIFIED*/2: Check.TaxSys = 1; break;
+						case /*TAXSYSK_PATENT*/3: Check.TaxSys = 5; break;
+						case /*TAXSYSK_IMPUTED*/4: Check.TaxSys = 3; break;
+						case /*TAXSYSK_SINGLEAGRICULT*/5: Check.TaxSys = 4; break;
+						default: Check.TaxSys = 0; break;
+					}
+				}
 			}
 			THROW(RunCheck(0));
 		}
@@ -1641,6 +1671,7 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(CshrName, in_data);
 			// @v9.9.12 CreateStr("", in_data);
 			CreateStr(Check.CheckNum, in_data); // @v9.9.12 
+			CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data); // @v10.6.3
 			THROW(ExecCmd("30", in_data, out_data, r_error));
 			break;
 		case 1: // Закрыть документ

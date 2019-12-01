@@ -12,12 +12,12 @@
 
 #include <openssl/opensslconf.h>
 
-# ifndef OPENSSL_NO_CMS
+#ifndef OPENSSL_NO_CMS
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
-# ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-# endif
+#endif
 
 typedef struct CMS_ContentInfo_st CMS_ContentInfo;
 typedef struct CMS_SignerInfo_st CMS_SignerInfo;
@@ -74,17 +74,14 @@ DECLARE_ASN1_PRINT_FUNCTION(CMS_ContentInfo)
 #define CMS_ASCIICRLF                   0x80000
 
 const ASN1_OBJECT *CMS_get0_type(const CMS_ContentInfo *cms);
-
-BIO *CMS_dataInit(CMS_ContentInfo *cms, BIO *icont);
+BIO * CMS_dataInit(CMS_ContentInfo *cms, BIO *icont);
 int CMS_dataFinal(CMS_ContentInfo *cms, BIO *bio);
-
 ASN1_OCTET_STRING **CMS_get0_content(CMS_ContentInfo *cms);
 int CMS_is_detached(CMS_ContentInfo *cms);
 int CMS_set_detached(CMS_ContentInfo *cms, int detached);
-
-# ifdef HEADER_PEM_H
-DECLARE_PEM_rw_const(CMS, CMS_ContentInfo)
-# endif
+#ifdef HEADER_PEM_H
+	DECLARE_PEM_rw_const(CMS, CMS_ContentInfo)
+#endif
 int CMS_stream(uchar ***boundary, CMS_ContentInfo *cms);
 CMS_ContentInfo *d2i_CMS_bio(BIO *bp, CMS_ContentInfo **cms);
 int i2d_CMS_bio(BIO *bp, CMS_ContentInfo *cms);

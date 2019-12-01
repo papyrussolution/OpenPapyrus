@@ -2251,8 +2251,7 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 			case PPVCMD_MOUSEHOVER:
 				{
 					long   h = 0;
-					pBrw->ItemByMousePos(&h, 0);
-					if(P_Ct == 0 && h == 0) {
+					if(pBrw->ItemByMousePos(&h, 0) && P_Ct == 0 && h == 0) {
 						int r = 0;
 						SString buf;
 						PPELinkArray phones_ary;
@@ -4146,13 +4145,14 @@ PPBaseFilt * SLAPI PPViewDebtorStat::CreateFilt(void * extraPtr) const
 }
 
 class DebtorStatFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(DebtorStatFilt);
 public:
 	DebtorStatFiltDialog() : TDialog(DLG_DEBTSTATFILT)
 	{
 	}
-	int    setDTS(const DebtorStatFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		SetupPPObjCombo(this, CTLSEL_DEBTSTATFILT_ACS, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
 		AddClusterAssoc(CTL_DEBTSTATFILT_ORDER, 0, DebtorStatFilt::ordByArName);
 		AddClusterAssoc(CTL_DEBTSTATFILT_ORDER, -1, DebtorStatFilt::ordByDefault);
@@ -4171,7 +4171,7 @@ public:
 		SetClusterData(CTL_DEBTSTATFILT_INCL, Data.Flags);
 		return 1;
 	}
-	int    getDTS(DebtorStatFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		getCtrlData(CTLSEL_DEBTSTATFILT_ACS, &Data.AccSheetID);
 		GetClusterData(CTL_DEBTSTATFILT_ORDER, &Data.Order);
@@ -4179,8 +4179,6 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-private:
-	DebtorStatFilt Data;
 };
 
 int SLAPI PPViewDebtorStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
@@ -4609,9 +4607,7 @@ DBQuery * SLAPI PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pS
 	else {
 		dbq = &(*dbq && tbl->Dt == LastDate && tbl->AccSheetID == Filt.AccSheetID);
 	}
-	if(pSubTitle) {
-		*pSubTitle = 0;
-	}
+	CALLPTRMEMB(pSubTitle, Z());
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar, PPDbqFuncPool::IdObjNameAr, tbl->ArID);
 	q = &select(
 		tbl->ArID,           // #0

@@ -389,7 +389,7 @@ int SLAPI PPViewPrcBusy::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, 
 				if(UpdatePrcList.getCount()) {
 					ok = Update(UpdatePrcList);
 					if(ok > 0) {
-						pBrw->refresh(); // ??? pBrw->Update()
+						pBrw->Refresh(); // ??? pBrw->Update()
 						UpdateTimeBrowser(0);
 					}
 					UpdatePrcList.clear();

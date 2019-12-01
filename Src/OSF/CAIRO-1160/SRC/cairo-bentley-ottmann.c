@@ -46,7 +46,10 @@ typedef cairo_point_t cairo_bo_point32_t;
 
 typedef struct _cairo_bo_intersect_ordinate {
 	int32_t ordinate;
-	enum { EXACT, INEXACT } exactness;
+	enum { 
+		EXACT, 
+		INEXACT 
+	} exactness;
 } cairo_bo_intersect_ordinate_t;
 
 typedef struct _cairo_bo_intersect_point {
@@ -1002,27 +1005,18 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 	cairo_bo_event_t * event;
 	cairo_bo_edge_t * left, * right;
 	cairo_bo_edge_t * e1, * e2;
-
 	/* convert the fill_rule into a winding mask */
 	if(fill_rule == CAIRO_FILL_RULE_WINDING)
 		fill_rule = static_cast<uint>(-1);
 	else
 		fill_rule = 1;
-
 #if DEBUG_EVENTS
 	{
-		int i;
-		for(i = 0; i < num_events; i++) {
+		for(int i = 0; i < num_events; i++) {
 			cairo_bo_start_event_t * event = ((cairo_bo_start_event_t**)start_events)[i];
 			event_log("edge: %lu (%d, %d) (%d, %d) (%d, %d) %d\n",
-			    (long)&events[i].edge,
-			    event->edge.edge.line.p1.x,
-			    event->edge.edge.line.p1.y,
-			    event->edge.edge.line.p2.x,
-			    event->edge.edge.line.p2.y,
-			    event->edge.top,
-			    event->edge.bottom,
-			    event->edge.edge.dir);
+			    (long)&events[i].edge, event->edge.edge.line.p1.x, event->edge.edge.line.p1.y,
+			    event->edge.edge.line.p2.x, event->edge.edge.line.p2.y, event->edge.top, event->edge.bottom, event->edge.edge.dir);
 		}
 	}
 #endif

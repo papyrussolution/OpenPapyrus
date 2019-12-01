@@ -15,42 +15,41 @@ enum {
 	op_bw_and
 };
 
-struct _2op_entry {
-	char op;
-	char typ1;
-	char typ2;
-	char func;
-} _2op_tab[] = {
-	{ op_plus, BTS_INT, BTS_INT, dbq_add_ii },
-	{ op_plus, BTS_INT, BTS_REAL, dbq_add_rr },
-	{ op_plus, BTS_REAL, BTS_REAL, dbq_add_rr },
-	{ op_plus, BTS_REAL, BTS_INT, dbq_add_rr },
-	{ op_plus, BTS_STRING,  BTS_STRING,  dbq_add_ss },
-	{ op_plus, BTS_DATE, BTS_INT, dbq_add_di },
-	{ op_plus, BTS_DATE, BTS_REAL, dbq_add_di },
-	{ op_minus, BTS_INT, BTS_INT, dbq_sub_ii },
-	{ op_minus, BTS_INT, BTS_REAL, dbq_sub_rr },
-	{ op_minus, BTS_REAL, BTS_REAL, dbq_sub_rr },
-	{ op_minus, BTS_REAL, BTS_INT, dbq_sub_rr },
-	{ op_minus, BTS_DATE, BTS_DATE, dbq_sub_dd },
-	{ op_minus, BTS_TIME, BTS_TIME, dbq_sub_tt },
-	{ op_mult,  BTS_INT, BTS_INT, dbq_mul_ii },
-	{ op_mult,  BTS_INT, BTS_REAL, dbq_mul_rr },
-	{ op_mult,  BTS_REAL, BTS_REAL, dbq_mul_rr },
-	{ op_mult,  BTS_REAL, BTS_INT, dbq_mul_rr },
-	{ op_div,  BTS_INT, BTS_INT, dbq_div_ii },
-	{ op_div,  BTS_INT, BTS_REAL, dbq_div_rr },
-	{ op_div,  BTS_REAL, BTS_REAL, dbq_div_rr },
-	{ op_div,  BTS_REAL, BTS_INT, dbq_div_rr },
-	{ op_rem,  BTS_INT, BTS_INT, dbq_rem_ii },
-	{ op_bw_and, BTS_INT, BTS_INT, dbq_and }
-};
-
-#define _2op_tab_siz (sizeof(_2op_tab) / sizeof(_2op_entry))
+//#define _2op_tab_siz (sizeof(_2op_tab) / sizeof(_2op_entry))
 
 static DBFunc FASTCALL get_2op(int op, int bt1, int bt2)
 {
-	for(_2op_entry * e = _2op_tab; e < _2op_tab + _2op_tab_siz; e++) {
+	static const struct _2op_entry {
+		char op;
+		char typ1;
+		char typ2;
+		char func;
+	} _2op_tab[] = {
+		{ op_plus,   BTS_INT, BTS_INT, dbq_add_ii },
+		{ op_plus,   BTS_INT, BTS_REAL, dbq_add_rr },
+		{ op_plus,   BTS_REAL, BTS_REAL, dbq_add_rr },
+		{ op_plus,   BTS_REAL, BTS_INT, dbq_add_rr },
+		{ op_plus,   BTS_STRING,  BTS_STRING,  dbq_add_ss },
+		{ op_plus,   BTS_DATE, BTS_INT, dbq_add_di },
+		{ op_plus,   BTS_DATE, BTS_REAL, dbq_add_di },
+		{ op_minus,  BTS_INT, BTS_INT, dbq_sub_ii },
+		{ op_minus,  BTS_INT, BTS_REAL, dbq_sub_rr },
+		{ op_minus,  BTS_REAL, BTS_REAL, dbq_sub_rr },
+		{ op_minus,  BTS_REAL, BTS_INT, dbq_sub_rr },
+		{ op_minus,  BTS_DATE, BTS_DATE, dbq_sub_dd },
+		{ op_minus,  BTS_TIME, BTS_TIME, dbq_sub_tt },
+		{ op_mult,   BTS_INT, BTS_INT, dbq_mul_ii },
+		{ op_mult,   BTS_INT, BTS_REAL, dbq_mul_rr },
+		{ op_mult,   BTS_REAL, BTS_REAL, dbq_mul_rr },
+		{ op_mult,   BTS_REAL, BTS_INT, dbq_mul_rr },
+		{ op_div,    BTS_INT, BTS_INT, dbq_div_ii },
+		{ op_div,    BTS_INT, BTS_REAL, dbq_div_rr },
+		{ op_div,    BTS_REAL, BTS_REAL, dbq_div_rr },
+		{ op_div,    BTS_REAL, BTS_INT, dbq_div_rr },
+		{ op_rem,    BTS_INT, BTS_INT, dbq_rem_ii },
+		{ op_bw_and, BTS_INT, BTS_INT, dbq_and }
+	};
+	for(const _2op_entry * e = _2op_tab; e < _2op_tab + SIZEOFARRAY(_2op_tab); e++) {
 		if(e->op == op && e->typ1 == bt1 && e->typ2 == bt2)
 			return static_cast<DBFunc>(e->func);
 	}
@@ -325,12 +324,9 @@ DBQ & __stdcall operator  < (DBItem & i, const char * s) { return _newdbq(i, _LT
 DBQ & __stdcall operator <= (DBItem & i, const char * s) { return _newdbq(i, _LE_, s); }
 DBQ & __stdcall operator  > (DBItem & i, const char * s) { return _newdbq(i, _GT_, s); }
 DBQ & __stdcall operator >= (DBItem & i, const char * s) { return _newdbq(i, _GE_, s); }
-DBQ &  __stdcall operator && (DBQ & left, DBQ & right)
-	{ return ((&left) == 0) ? right : (((&right) == 0) ? left : *new DBQ(_AND___, left, right)); }
-DBQ &  __stdcall operator || (DBQ & l, DBQ & r)
-	{ return (&l && &r) ? *new DBQ(_OR___,  l, r) : *reinterpret_cast<DBQ *>(0); }
-DBQ & __stdcall daterange(DBItem & i, const DateRange * pDR)
-	{ return pDR ? daterange(i, pDR->low, pDR->upp) : *reinterpret_cast<DBQ *>(0); }
+DBQ &  __stdcall operator && (DBQ & left, DBQ & right) { return ((&left) == 0) ? right : (((&right) == 0) ? left : *new DBQ(_AND___, left, right)); }
+DBQ &  __stdcall operator || (DBQ & l, DBQ & r) { return (&l && &r) ? *new DBQ(_OR___,  l, r) : *reinterpret_cast<DBQ *>(0); }
+DBQ & __stdcall daterange(DBItem & i, const DateRange * pDR) { return pDR ? daterange(i, pDR->low, pDR->upp) : *reinterpret_cast<DBQ *>(0); }
 
 DBQ & __stdcall daterange(DBItem & i, LDATE beg, LDATE end)
 {
@@ -829,12 +825,8 @@ int SLAPI DbqFuncTab::_RegisterFunc(int funcId, int isAggr, int retType, DBQProc
 
 DBFuncInfo * FASTCALL DbqFuncTab::GetFuncPtr(int funcId)
 {
-	if(P_Tab) {
-		uint   pos = 0;
-		if(P_Tab->bsearch(&funcId, &pos, CMPF_LONG))
-			return static_cast<DBFuncInfo *>(P_Tab->at(pos));
-	}
-	return 0;
+	uint   pos = 0;
+	return (P_Tab && P_Tab->bsearch(&funcId, &pos, CMPF_LONG)) ? static_cast<DBFuncInfo *>(P_Tab->at(pos)) : 0;
 }
 
 int SLAPI DbqFuncTab::SearchFunc(int funcId, DBFuncInfo * pInfo)

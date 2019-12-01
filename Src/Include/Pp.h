@@ -108,6 +108,7 @@
 // @funcdef       - Помечаются typedef-определения функций.
 // @default-only-switch - помечаются корректировки в сторонних модулях с целью избежать предупреждения компилятора
 //                  о том, что switch-statement содержит лишь default-компонент.
+// @x64crit       - Помечаются участки кода, требующие пересмотра для правильной работы в 64-разрядном варианте сборки
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -3215,9 +3216,7 @@ public:
 	int    FASTCALL operator == (const PPCheckInPersonItem & rS) const;
 
 	struct Total {
-		SLAPI  Total() : RegCount(0), CiCount(0), CalceledCount(0)
-		{
-		}
+		SLAPI  Total();
 		uint   RegCount;
 		uint   CiCount;
 		uint   CalceledCount;
@@ -3252,9 +3251,9 @@ public:
 	PPID   CCheckID;       // Кассовый чек, которым оплачено подтверждение регистрации
 	PPID   SCardID;        // Карта, с которой ассоциирована зерегистрированная персоналия //
 	uint   MemoPos;        // @internal
-	char   PlaceCode[8];   // @v8.6.5 Номер места (для регистрации, ассоциированной с посадочным местом)
-	PPID   BillID;         // @v8.7.8 ИД документа, который связан с данной регистрацией
-	uint8  Reserve[8];     // @v8.6.5 [20]-->[12]
+	char   PlaceCode[8];   // Номер места (для регистрации, ассоциированной с посадочным местом)
+	PPID   BillID;         // ИД документа, который связан с данной регистрацией
+	uint8  Reserve[8];     // 
 };
 //
 // Descr: Список членства персоналий в агрегации "Регистрация персоналий"
@@ -15098,6 +15097,9 @@ public:
 	virtual SLAPI ~PPCommandItem();
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
+	virtual int SLAPI Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
+	virtual int SLAPI Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
+	virtual int SLAPI IsEqual(const void * pCommand) const;             //@erik v10.6.1
 	virtual const PPCommandItem * SLAPI Next(uint * pPos) const;
 	virtual PPCommandItem * SLAPI Dup() const;
 	virtual void  SLAPI SetUniqueID(long * pID);
@@ -15116,6 +15118,9 @@ public:
 	SLAPI  PPCommand();
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
+	virtual int SLAPI Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
+	virtual int SLAPI Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
+	virtual int SLAPI IsEqual(const void * pCommand) const;             //@erik v10.6.1
 	virtual PPCommandItem * SLAPI Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
 
@@ -15138,6 +15143,9 @@ public:
 	SLAPI  PPCommandFolder();
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
+	virtual int SLAPI Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
+	virtual int SLAPI Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
+	virtual int SLAPI IsEqual(const void * pCommand) const;             //@erik v10.6.1
 	virtual const PPCommandItem * SLAPI Next(uint * pPos) const;
 	virtual PPCommandItem * SLAPI Dup() const;
 	int    FASTCALL Copy(const PPCommandFolder &);
@@ -15171,6 +15179,9 @@ public:
 	SLAPI  PPCommandGroup();
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
+	virtual int SLAPI Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
+	virtual int SLAPI Read2(void * pHandler, const long rwFlag);		 //@erik v10.6.1
+	virtual int SLAPI IsEqual(const void * pCommand) const;              //@erik v10.6.1
 	virtual PPCommandItem * SLAPI Dup() const;
 	int    FASTCALL SetDbSymb(const char * pDbSymb);
 	int    FASTCALL IsDbSymbEq(const char * pDbSymb) const;
@@ -15213,11 +15224,22 @@ extern "C" typedef PPCommandHandler * (*FN_CMD_FACTORY)(PPCommandDescr *);
 //
 class PPCommandMngr {
 public:
+	//@erik v10.6.1
+	// rwFlag - флаг типа документа, в котором должен хранится десктоп
+	//
+	enum {
+		fRWByXml = 1,
+		fRWByTxt
+	};
 	SLAPI  PPCommandMngr(const char * pFileName, int readOnly);
 	SLAPI ~PPCommandMngr();
 	int    SLAPI IsValid_() const;
 	int    SLAPI Save__(const PPCommandGroup *);
 	int    SLAPI Load__(PPCommandGroup *);
+	
+	int    SLAPI Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
+	int    SLAPI Load__2(PPCommandGroup *, const long rwFlag); // @erik v10.6.1
+
 private:
 	struct Hdr {
 		long   Signature;
@@ -15755,7 +15777,7 @@ struct ObjTagFilt {
 
 	static long    FASTCALL MakeObjTypeRootIdent(PPID objType);
 	static int     FASTCALL ObjTypeRootIdentToObjType(long rootIdent, PPID * pObjType);
-	SLAPI  ObjTagFilt(PPID objTypeID = 0, long flags = 0, PPID parentID = 0);
+	explicit SLAPI ObjTagFilt(PPID objTypeID = 0, long flags = 0, PPID parentID = 0);
 
 	PPID   ObjTypeID;  // Тип связанного объекта данных
 	PPID   ParentID;   // Группа тегов
@@ -16418,6 +16440,7 @@ public:
 		int    FASTCALL IsEqual(const Extension & rS) const;
 		double MarginManual; // Торговая маржина, используемая для расчетов и устанавливаемая в ручную.
 			// Требуется в случае, если необходимое для расчетов значение отличается от того, что возвращается торговым сервером.
+		double FixedStakeVolume; // @v10.6.3 Фиксированный размер ставки (не привязанный к доступному объему и коэффициенту запаса)
 	};
 	PPTimeSeries Rec;
 	Extension E;
@@ -16427,11 +16450,12 @@ class PPObjTimeSeries : public PPObjReference {
 public:
 	struct Config { // @persistent
 		enum {
-			fTestMode      = 0x0001,
-			fUseStakeMode2 = 0x0002, // @v10.3.3
-			fUseStakeMode3 = 0x0004, // @v10.3.3
-			fAllowReverse  = 0x0008, // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
-			fVerifMode     = 0x0010  // @v10.4.7 Режим верификации данных
+			fTestMode            = 0x0001,
+			fUseStakeMode2       = 0x0002, // @v10.3.3
+			fUseStakeMode3       = 0x0004, // @v10.3.3
+			fAllowReverse        = 0x0008, // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
+			fVerifMode           = 0x0010, // @v10.4.7 Режим верификации данных
+			fIgnoreStrangeStakes = 0x0020  // @v10.6.3 При расчете ставок игнорировать установленные ставки, сделанные не нами (то есть ручные или сделанные другим роботом)
 		};
 		enum {
 			efLong         = 0x0001,
@@ -16777,6 +16801,7 @@ public:
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(TimeSeriesViewItem *);
+	int    SLAPI CmpSortIndexItems(const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2);
 	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -18184,6 +18209,10 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_CHZN          5 // @v10.6.1 честный знак
 
 struct PPGlobalUserAcc {
+	enum {
+		fSandBox = 0x0001 // @v10.6.3 Запись используется для доступа к тестовому ресурсу. Введен из-за того,
+			// что тестовые ресурсы могут отличаться по спецификации обмена и адресу.
+	};
 	long   Tag;            // Const=PPOBJ_GLOBALUSERACC
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -19046,6 +19075,16 @@ public:
 	//     0 - ошибка
 	//
 	int    SLAPI IsVatFree(PPID id);
+	//
+	// Descr: Выясняет систему налогообложения, действующую на дату dt и соответствующую кассовому узлу cnID и присваивает
+	//   ее по указателю pTaxSysID.
+	//   Если значение dt инвалидно или ZERODATE, то трактует это как дату равнуют текущей системной дате.
+	// Returns:
+	//   >0 - система налогообложения идентифицирована
+	//   <0 - не удалось идентифицировать систему налогообложения. По указателю pTaxSysID присваивается значение TAXSYSK_GENERAL(1)
+	//    0 - ошибка
+	//
+	int    SLAPI GetTaxSystem(PPID cnID, LDATE dt, PPID * pTaxSysID);
 	int    SLAPI DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult);
 private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
@@ -28963,13 +29002,14 @@ public:
 			PPID   AlcGoodsClsID; // ИД класса алкогольной продукции
 			int16  ProofClsDim;   // PPGdsCls2::e... Размерность класса, определяющая крепость алкоголя в одной торговой единице (в объемных %)
 			uint16 Reserve2;
-			PPID   ImporterPersonKindID; // @v8.9.0 Вид персоналии, идентифицирующий импортера
-			long   Flags;         // @v9.0.10
-			long   WrOffShopWay;  // @v9.3.10
-			PPID   EgaisInvOpID;  // @v9.3.12 Вид операции инвентаризации - необходим для идентификации видов операций
+			PPID   ImporterPersonKindID; // Вид персоналии, идентифицирующий импортера
+			long   Flags;                // @v9.0.10
+			long   WrOffShopWay;         // @v9.3.10
+			PPID   EgaisInvOpID;         // @v9.3.12 Вид операции инвентаризации - необходим для идентификации видов операций
 				// списания излишков и недостач.
-            TimeRange RtlSaleAllwTime; // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
-			uint8  Reserve[28];        // @v10.2.4 [36]-->[28]
+            TimeRange RtlSaleAllwTime;   // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
+			PPID   ManufOpID;            // @v10.6.3 Вид операции производства (PPOPT_GOODSMODIF). Используется для обмена с ВЕТИС
+			uint8  Reserve[24];          // @v10.2.4 [36]-->[28] // @v10.6.3 [28]-->[24]
 		};
 		ExtBlock  E;                 // @anchor
 		PPIDArray StorageLocList;    // @anchor
@@ -36616,7 +36656,6 @@ public:
 		fShippedOnly       = 0x00400000, // Только отгруженные документы (BillTbl::Rec::Flags & BILLF_SHIPPED)
 		fDiscountOnly      = 0x00800000, // Только со скидкой на весь документ
 		fDescOrder         = 0x01000000, // Сортировка в обратном порядке
-
 		fAddZeroLoc        = 0x02000000, // При построении выборки добавлять нулевую локацию к списку
 			// складов, по которому фильтруется отчет.
 		fExportEDI         = 0x04000000, // @v8.0.5 Специальный флаг, используемый при экспорте
@@ -40454,7 +40493,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(OpGroupingViewItem *);
 	void   SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
-	int    SLAPI GetGdsOpTotal(OpGroupingViewItem *);
+	void   SLAPI GetGdsOpTotal(OpGroupingViewItem *);
 	int    SLAPI InitBillList(PPID opID);
 	int    SLAPI EnumBillList(uint * pos, OpGroupingViewItem * pItem);
 	int    SLAPI CalcStat(BillStatArray * pList);
@@ -41531,10 +41570,6 @@ struct TrfrAnlzViewItem_AlcRep {
 		fIsOptBuyer = 0x0008
 	};
 	long   Flags;
-	//int    IsImport;
-	//int    IsExport;
-	//int    IsManuf;
-	//int    IsOptBuyer;
 };
 
 class PPViewTrfrAnlz : public PPView {
@@ -46173,7 +46208,13 @@ public:
 	SLAPI  VetisEntityCore();
 	static int FASTCALL ValidateEntityKind(int kind);
 	static int SLAPI GetProductItemName(PPID entityID, PPID productItemID, PPID subProductID, PPID productID, SString & rBuf);
-	int    SLAPI SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, int use_ta);
+	//
+	// Descr: Проверяет пару значений expiryFrom и expiryTo (представленные как SUniTime) 
+	//   на предмет того, не истек ли на текущий день срок годности сертификата.
+	//   Функция утилитная, реализована для унификации так как эта процедура применяется в некскольких точках.
+	//
+	static int FASTCALL CheckExpiryDate(int64 expiryFrom, int64 expiryTo);
+	int    SLAPI SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreList, PPID * pID, int use_ta);
 	int    SLAPI DeleteEntity(PPID id, int use_ta);
 	int    SLAPI GetEntity(PPID id, Entity & rE);
 	int    SLAPI GetEntityByGuid(const S_GUID & rGuid, Entity & rE);
@@ -46235,7 +46276,7 @@ public:
 	SLAPI  VetisDocumentFilt();
 	int    FASTCALL GetStatusList(PPIDArray & rList) const;
 
-	uint8  ReserveStart[204]; // @anchor
+	uint8  ReserveStart[200]; // @anchor // @v10.6.3 [204]-->[200]
 	enum {
 		fkGeneral          = 0,
 		fkInterchangeParam = 1
@@ -46248,8 +46289,10 @@ public:
 	enum {
 		fAsSelector      = 0x0001
 	};
-	PPID   LinkVDocID; // @v10.1.12 Ид документа, привязки к которому необходимо отобразить
-	S_GUID SelLotUuid; // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
+	int16  Ft_Expiry;   // @v10.6.3 Селектор по признаку истечения срока годности. (0) ignored, (< 0) off, (> 0) on
+	int16  Ft_LotMatch; // @v10.6.3 Селектор по признаку сопоставления со строкой документа. (0) ignored, (< 0) off, (> 0) on
+	PPID   LinkVDocID;  // @v10.1.12 Ид документа, привязки к которому необходимо отобразить
+	S_GUID SelLotUuid;  // Если установлен флаг fAsSelector, то после закрытия окна таблицы в этом поле будет выбранный идентификатор
 		// При открытии окна текущая позиция будет установлена на записи с этим идентификатором.
 	long   FromPersonID;
 	long   FromLocID;
@@ -46310,6 +46353,7 @@ public:
 	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    SLAPI NextIteration(VetisDocumentViewItem * pItem);
+	int    FASTCALL CheckForFilt(const VetisDocumentViewItem * pItem);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 	int    SLAPI CalcTotal(VetisDocumentTotal * pTotal);
 
@@ -46323,6 +46367,7 @@ private:
 	static int DynFuncVetDType;
 	static int DynFuncVetStockByDoc;
 	static int DynFuncVetUUID;  //@erik v10.4.11
+	static int DynFuncCheckExpiry; // @v10.6.3
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -47517,7 +47562,6 @@ public:
 
 		const Replacer & R;
 		const Replacer::SrcItem * P_Item;
-		//
 		uint   IdxFirst; // Индекс позиции в PPTextAnalyzer с которой надо начать поиск
 		uint   IdxLast;  // Индекс позиции в PPTextAnalyzer на которой поиск заканчивается //
 		enum {
@@ -47666,9 +47710,7 @@ public:
 	int    SLAPI Run();
 private:
 	struct SignalProcBlock {
-		SignalProcBlock() : State(0)
-		{
-		}
+		SignalProcBlock();
 		enum {
 			stOuterTransaction = 0x0001
 		};
@@ -47755,7 +47797,6 @@ public:
 	int    ReInit();
 	int    Connect(PPInternetAccount * pAccount);
 	int    Disconnect();
-
 	int    CreateDir(const char * pDir);
 	int    Exists(const char * pPath);
 	int    GetFileList(const char * pDir, StrAssocArray * pFileList, const char * pMask = 0);
@@ -47769,7 +47810,6 @@ public:
 private:
 	int    TransferFile(const char * pLocalPath, const char * pFTPPath, int send, int checkDtTm, PercentFunc pf);
 	int    ReadResponse();
-
 	//int    Get(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
 	//int    Put(const char * pLocalPath, const char * pFTPPath, int checkDtTm = 0, PercentFunc pf = 0);
 	int    Delete(const char * pPath);
@@ -47777,7 +47817,8 @@ private:
 	int    CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPath);
 	int    CD(const char * pDir, int isFullPath = 1);
 
-	HINTERNET InetSession, Connection;
+	HINTERNET InetSession;
+	HINTERNET Connection;
 	PPInetConnConfig IConnCfg;
 	HANDLE    WinInetDLLHandle;
 	PPInternetAccount Account;
@@ -49043,7 +49084,7 @@ private:
 class QCertCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		SLAPI  Rec(PPID qCertID = 0);
+		explicit SLAPI  Rec(PPID qCertID = 0);
 		PPID   QCertID;
 	};
 	explicit QCertCtrlGroup(uint ctlInput, uint selCmd = cmSelQc);
@@ -49064,13 +49105,11 @@ private:
 class MailAccCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
-		Rec() : MailAccID(0), ExtraPtr(0)
-		{
-		}
+		Rec();
 		PPID   MailAccID;
 		void * ExtraPtr;
 	};
-	MailAccCtrlGroup(uint ctlSelInput, uint editCmd = cmEditMailAcc);
+	explicit MailAccCtrlGroup(uint ctlSelInput, uint editCmd = cmEditMailAcc);
 	virtual int setData(TDialog *, void *); // (MailAccCtrlGroup::Rec*)
 	virtual int getData(TDialog *, void *); // (MailAccCtrlGroup::Rec*)
 private:
@@ -49098,7 +49137,6 @@ public:
 	void   SetInfoCtl(uint ctlId);
 	virtual int setData(TDialog *, void *); // (LocationCtrlGroup::Rec*)
 	virtual int getData(TDialog *, void *); // (LocationCtrlGroup::Rec*)
-
 	int    SetWarehouseCellMode(TDialog * pDlg, int enable);
 	int    SetCellSelectionByGoods(TDialog * pDlg, PPID goodsID);
 private:

@@ -969,16 +969,12 @@ int ssl_get_client_min_max_version(const SSL * s, int * min_version,
 			hole = 0;
 		}
 	}
-
 	*max_version = version;
-
 	/* Fail if everything is disabled */
 	if(version == 0)
 		return SSL_R_NO_PROTOCOLS_AVAILABLE;
-
 	return 0;
 }
-
 /*
  * ssl_set_client_hello_version - Work out what version we should be using for
  * the initial ClientHello.
@@ -989,13 +985,10 @@ int ssl_get_client_min_max_version(const SSL * s, int * min_version,
  */
 int ssl_set_client_hello_version(SSL * s)
 {
-	int ver_min, ver_max, ret;
-
-	ret = ssl_get_client_min_max_version(s, &ver_min, &ver_max);
-
+	int ver_min, ver_max;
+	int ret = ssl_get_client_min_max_version(s, &ver_min, &ver_max);
 	if(ret != 0)
 		return ret;
-
 	s->client_version = s->version = ver_max;
 	return 0;
 }

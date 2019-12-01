@@ -2882,8 +2882,7 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				{
 					const  int has_images = HasImage(pHdr);
 					long   h = 0;
-					pBrw->ItemByMousePos(&h, 0);
-					if(oneof2(h, 0, 1)) {
+					if(pBrw->ItemByMousePos(&h, 0) && oneof2(h, 0, 1)) {
 						int r = 0;
 						SString buf;
 						PPELinkArray phones_ary;

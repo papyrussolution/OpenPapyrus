@@ -276,9 +276,6 @@
 #define cmSearchVirtButton   58 // evBroadcast
 #define cmInputUpdatedByBtn  59 // Изменился текст в строке ввода, посредством нажатия какой-либо клавиши
 #define cmInputDblClk        60 // На поле ввода пользователь дважды щелкнул левой кнопкой мыши
-//
-//
-//
 #define cmDrawItem           61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
 	// сообщение WM_DRAWITEM. С дополнительным параметром посылается указатель на структуру TDrawItemData
 #define cmWinKeyDown         62 // передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
@@ -294,8 +291,7 @@
 	// изменения размеров для управляющих элементов
 #define cmMouseHover         68 // evBroadcast Посылается окну, когда курсор мыши задерживается на определенное время.
 	// В infoPtr содержатся координаты курсора мыши (TPoint).
-#define cmTimeChange         69 // evCommand Посылается классу TProgram,
-	// когда какое-либо приложение изменило системное время //
+#define cmTimeChange         69 // evCommand Посылается классу TProgram, когда какое-либо приложение изменило системное время //
 //
 // ComboBox messages
 //
@@ -313,6 +309,7 @@
 //
 #define cmPrint             141 // evCommand
 #define cmDraw              142 // @v9.6.2 replacement for virtual TView::draw()
+#define cmSort              143 // @v10.6.3 Посылается объекту BrowserWindow базовым классом для реализации сортировки
 //
 //  TListViewer messages
 //
@@ -597,12 +594,13 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define BCO_CAPTOP       0x00000080
 #define BCO_CAPBOTTOM    0x00000100
 #define BCO_CAPVCENTER   0x00000200
+#define BCO_SORTABLE     0x00000400 // @v10.6.3 По содержимому колонки допускается сортировка таблицы 
 #define BCO_USERPROC     0x00001000
 //#define BCO_SKIP       0x00002000
 #define BCO_DEFOPT       (BCO_CAPBOTTOM | BCO_CAPCENTER)
 #define BCO_DONTSHOWDUPL 0x00004000
 #define BCO_RESIZEABLE   0x00008000
-#define BCO_SIZESET      0x00010000 // @v6.2.10 Размер колонки скорректирован функцией SutupColumnWidth
+#define BCO_SIZESET      0x00010000 // Размер колонки скорректирован функцией SutupColumnWidth
 //
 // Browse options
 //

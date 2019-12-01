@@ -1364,6 +1364,7 @@
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\p12_npas.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\p12_p8d.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\p12_p8e.c" />
+    <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\p12_sbag.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\p12_utl.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\pk12err.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs7\bio_pk7.c" />
@@ -1487,6 +1488,8 @@
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509v3\v3_utl.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\by_dir.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\by_file.c" />
+    <ClCompile Include="..\OSF\OpenSSL\crypto\x509\t_crl.c" />
+    <ClCompile Include="..\OSF\OpenSSL\crypto\x509\t_req.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\t_x509.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\x509cset.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\x509name.c" />

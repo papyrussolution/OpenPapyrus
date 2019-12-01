@@ -2956,7 +2956,9 @@ int SLAPI PPViewVatBook::Export()
 								}
 								else if(Filt.Kind == PPVTB_SELL) {
 									n_item.PutAttrib("ОКВ", temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
-									n_item.PutAttrib("СтоимПродСФВ", temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
+									if(!oneof2(base_cur_code, 0, 643)) { // @v10.6.3
+										n_item.PutAttrib("СтоимПродСФВ", temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
+									}
 									n_item.PutAttrib("СтоимПродСФ",  temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в рублях
 									for(i = 0; i < 3; i++) {
 										if(PPObjVATBook::GetVatRate(i) == 18.0) {

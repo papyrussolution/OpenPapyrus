@@ -421,7 +421,7 @@ column_def : T_CROSSTAB T_STR ',' type_def ',' column_flags_def ',' width_def
 	{
 		column.IsCrosstab = 1;
 		STRNSCPY(column.Name, $2);
-		column.Type = (TYPEID)$4;
+		column.Type = static_cast<TYPEID>($4);
 		column.Width = SFMTLEN($8);
 		column.Prec  = SFMTPRC($8);
 		*column.ReqNumber = 0;

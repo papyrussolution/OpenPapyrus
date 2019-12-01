@@ -46,7 +46,6 @@ STACK_OF(X509_INFO) *PEM_X509_INFO_read_bio(BIO *bp, STACK_OF(X509_INFO) *sk, pe
 	}
 	else
 		ret = sk;
-
 	if((xi = X509_INFO_new()) == NULL)
 		goto err;
 	for(;; ) {
@@ -106,10 +105,8 @@ start:
 					goto err;
 				goto start;
 			}
-
 			xi->enc_data = NULL;
 			xi->enc_len = 0;
-
 			xi->x_pkey = X509_PKEY_new();
 			if(xi->x_pkey == NULL)
 				goto err;
@@ -130,10 +127,8 @@ start:
 					goto err;
 				goto start;
 			}
-
 			xi->enc_data = NULL;
 			xi->enc_len = 0;
-
 			xi->x_pkey = X509_PKEY_new();
 			if(xi->x_pkey == NULL)
 				goto err;
@@ -154,10 +149,8 @@ start:
 					goto err;
 				goto start;
 			}
-
 			xi->enc_data = NULL;
 			xi->enc_len = 0;
-
 			xi->x_pkey = X509_PKEY_new();
 			if(xi->x_pkey == NULL)
 				goto err;
@@ -172,11 +165,9 @@ start:
 			d2i = NULL;
 			pp = NULL;
 		}
-
 		if(d2i != NULL) {
 			if(!raw) {
 				EVP_CIPHER_INFO cipher;
-
 				if(!PEM_get_EVP_CIPHER_INFO(header, &cipher))
 					goto err;
 				if(!PEM_do_header(&cipher, data, &len, cb, u))
@@ -211,7 +202,6 @@ start:
 		OPENSSL_free(data);
 		data = NULL;
 	}
-
 	/*
 	 * if the last one hasn't been pushed yet and there is anything in it
 	 * then add it to the stack ...

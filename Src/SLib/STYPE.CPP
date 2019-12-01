@@ -30,30 +30,18 @@ DataType & FASTCALL stype(TYPEID t, DataType * pT)
 	return *pT;
 }
 
-int FASTCALL btnumber(int bt)
-	{ return oneof2(bt, BTS_INT, BTS_REAL); }
-uint32 FASTCALL stsize(TYPEID t) // @v10.2.1 size_t-->uint32
-	{ DataType _t; return stype(t, &_t).size(); }
-int FASTCALL stcomp(TYPEID t, const void * i1, const void * i2)
-	{ DataType _t; return stype(t, &_t).comp(i1, i2); }
-char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b)
-	{ DataType _t; return stype(t, &_t).tostr(d, f, b); }
-int FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b)
-	{ DataType _t; return stype(t, &_t).fromstr(d, f, b); }
-int FASTCALL stbase(TYPEID t)
-	{ DataType _t; return stype(t, &_t).base(); }
-int FASTCALL sttobase(TYPEID t, const void * data, void * baseData)
-	{ DataType _t; return stype(t, &_t).tobase(data, baseData); }
-int FASTCALL stbaseto(TYPEID t, void * data, const void * baseData)
-	{ DataType _t; return stype(t, &_t).baseto(data, baseData); }
-void FASTCALL stdestroy(TYPEID t, void * d)
-	{ DataType _t; stype(t, &_t).destroy(d); }
-int FASTCALL stisnumber(TYPEID t)
-	{ DataType _t; return stype(t, &_t).isnumber(); }
-void FASTCALL stminval(TYPEID t, void * d)
-	{ DataType _t; stype(t, &_t).minval(d); }
-void FASTCALL stmaxval(TYPEID t, void * d)
-	{ DataType _t; stype(t, &_t).maxval(d); }
+int    FASTCALL btnumber(int bt) { return oneof3(bt, BTS_INT, BTS_REAL, BTS_INT64_); }
+uint32 FASTCALL stsize(TYPEID t) { DataType _t; return stype(t, &_t).size(); } // @v10.2.1 size_t-->uint32
+int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2) { DataType _t; return stype(t, &_t).comp(i1, i2); }
+char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b) { DataType _t; return stype(t, &_t).tostr(d, f, b); }
+int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b) { DataType _t; return stype(t, &_t).fromstr(d, f, b); }
+int    FASTCALL stbase(TYPEID t) { DataType _t; return stype(t, &_t).base(); }
+int    FASTCALL sttobase(TYPEID t, const void * data, void * baseData) { DataType _t; return stype(t, &_t).tobase(data, baseData); }
+int    FASTCALL stbaseto(TYPEID t, void * data, const void * baseData) { DataType _t; return stype(t, &_t).baseto(data, baseData); }
+void   FASTCALL stdestroy(TYPEID t, void * d) { DataType _t; stype(t, &_t).destroy(d); }
+int    FASTCALL stisnumber(TYPEID t) { DataType _t; return stype(t, &_t).isnumber(); }
+void   FASTCALL stminval(TYPEID t, void * d) { DataType _t; stype(t, &_t).minval(d); }
+void   FASTCALL stmaxval(TYPEID t, void * d) { DataType _t; stype(t, &_t).maxval(d); }
 //
 //
 //
@@ -327,6 +315,9 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 	static const TypeName TypeNameList[] = {
 		{0, "undefined,undef", "Не определенный"},
 		{MKSTYPE(S_ZSTRING, 0), "string,zstring,char,C",  "Строка"},
+		{MKSTYPE(S_INT64, 8),   "int64,integer,long long,__int64", "Целое"}, // @v10.6.3
+		{MKSTYPE(S_INT, 8),     "int64,integer,long long,__int64", "Целое"}, // @v10.6.3
+		{MKSTYPE(S_UINT, 8),    "uint64,unsigned long long", "Целое без знака"}, // @v10.6.3
 		{MKSTYPE(S_INT, 1),     "int8",                   "Целое"},
 		{MKSTYPE(S_INT, 2),     "int16,short",            "Целое"},
 		{MKSTYPE(S_INT, 4),     "int32,integer,long,int", "Целое"},
@@ -387,9 +378,8 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 			else
 				(type_text = "int_invalid_size_").Cat(sz);
 			break;
-		case S_LOGICAL:
-			type_text = "bool";
-			break;
+		case S_INT64: type_text = "int64"; break; // @v10.6.3
+		case S_LOGICAL: type_text = "bool"; break;
 		case S_UINT:
 			if(sz == 1)
 				type_text = "uint8";
@@ -472,21 +462,11 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 			type_text = "uint8";
 			dim = sz;
 			break;
-		case S_INTRANGE:
-			type_text = "IntRange";
-			break;
-		case S_REALRANGE:
-			type_text = "RealRange";
-			break;
-		case S_DATERANGE:
-			type_text = "DateRange";
-			break;
-		case S_VARIANT:
-			type_text = "VARIANT";
-			break;
-		case S_VOID:
-			type_text = "void";
-			break;
+		case S_INTRANGE: type_text = "IntRange"; break;
+		case S_REALRANGE: type_text = "RealRange"; break;
+		case S_DATERANGE: type_text = "DateRange"; break;
+		case S_VARIANT: type_text = "VARIANT"; break;
+		case S_VOID: type_text = "void"; break;
 		case S_BLOB:
 		case S_CLOB:
 			if(sz > 32)
@@ -529,6 +509,7 @@ SString & FASTCALL GetBaseTypeString(int baseTyp, long flags, SString & rBuf)
 	switch(baseTyp) {
 		case BTS_STRING: rBuf = (flags & BTSF_NATIVE) ? "Строка" : "string"; break;
 		case BTS_INT: rBuf = (flags & BTSF_NATIVE) ? "Целое число" : "integer"; break;
+		case BTS_INT64_: rBuf = (flags & BTSF_NATIVE) ? "Целое число" : "integer"; break; // @v10.6.3
 		case BTS_REAL: rBuf = (flags & BTSF_NATIVE) ? "Число" : "real"; break;
 		case BTS_DATE: rBuf = (flags & BTSF_NATIVE) ? "Дата" : "date"; break;
 		case BTS_TIME: rBuf = (flags & BTSF_NATIVE) ? "Время" : "time"; break;

@@ -2857,6 +2857,24 @@ int FASTCALL SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titl
 }
 
 //static 
+uint FASTCALL SHttpProtocol::PutHeaderFieldsIntoString(const StrStrAssocArray & rFldList, SString & rBuf)
+{
+	rBuf.Z();
+	uint   c = 0;
+	for(uint i = 0; i < rFldList.getCount(); i++) {
+		StrStrAssocArray::Item item = rFldList.at(i);
+		if(!isempty(item.Key)) {
+			rBuf.CatDivIfNotEmpty('\n', 0);
+			rBuf.Cat(item.Key);
+			if(!isempty(item.Val))
+				rBuf.CatDiv(':', 2).Cat(item.Val);
+			c++;
+		}
+	}
+	return c;
+}
+
+//static 
 int FASTCALL SHttpProtocol::ParseAuth(const char * pAuthParam, SHttpProtocol::Auth & rResult)
 {
 	int    ok = 0;
@@ -3550,14 +3568,25 @@ int ScURL::SetAuth(int auth, const char * pUser, const char * pPassword)
     return ok;
 }
 
-int ScURL::SetupDefaultSslOptions(int sslVer /* SSystem::sslXXX */, const StringSet * pSsCipherList)
+int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSystem::sslXXX */, const StringSet * pSsCipherList)
 {
 	int    ok = 1;
 	const SGlobalSecureConfig & r_cfg = SLS.GetGlobalSecureConfig();
 	SString ca_file;
 	SString ca_path;
-	SPathStruc::NormalizePath(r_cfg.CaFile, SPathStruc::npfSlash, ca_file);
-	SPathStruc::NormalizePath(r_cfg.CaPath, SPathStruc::npfSlash, ca_path);
+	if(isempty(pCertFilePath)) {
+		SPathStruc::NormalizePath(r_cfg.CaFile, SPathStruc::npfSlash, ca_file);
+		SPathStruc::NormalizePath(r_cfg.CaPath, SPathStruc::npfSlash, ca_path);
+	}
+	else {
+		SString temp_buf;
+		SPathStruc ps(pCertFilePath);
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		temp_buf.RmvLastSlash();
+		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, ca_path);
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, ca_file);
+	}
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAINFO, ca_file.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAPATH, ca_path.cptr())));
 	// @v10.6.2 {

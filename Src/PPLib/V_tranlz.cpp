@@ -4036,11 +4036,12 @@ int SLAPI PrcssrAlcReport::ValidateConfig(const Config & rCfg, long flags)
 }
 
 class AlcReportConfigDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrAlcReport::Config);
 public:
 	AlcReportConfigDialog() : TDialog(DLG_ALCREPCFG)
 	{
 	}
-	int    setDTS(const PrcssrAlcReport::Config * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -4079,17 +4080,21 @@ public:
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_INV, Data.E.EgaisInvOpID, 0, &op_list, 0);
 		}
 		// } @v9.3.12
+		// @v10.6.3 {
+		{
+			op_list.Z().addzlist(PPOPT_GOODSMODIF, 0);
+			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_MFG, Data.E.ManufOpID, 0, &op_list, 0);
+		}
+		// } @v10.6.3
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_ALCGRP,  PPOBJ_GOODSGROUP, Data.AlcGoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN, 0);
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_BEERGRP, PPOBJ_GOODSGROUP, Data.BeerGoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN, 0);
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_ALCCLS,  PPOBJ_GOODSCLASS, Data.E.AlcGoodsClsID, 0, 0);
 		{
-			ObjTagFilt ot_filt;
-			ot_filt.ObjTypeID = PPOBJ_LOT;
+			ObjTagFilt ot_filt(PPOBJ_LOT);
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_CATTAG, Data.CategoryTagID, 0, &ot_filt);
 		}
 		{
-			ObjTagFilt ot_filt;
-			ot_filt.ObjTypeID = PPOBJ_PERSON;
+			ObjTagFilt ot_filt(PPOBJ_PERSON);
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_MITAG, Data.ManufImpTagID, 0, &ot_filt);
 		}
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_IMPPSNK, PPOBJ_PRSNKIND, Data.E.ImporterPersonKindID, 0);
@@ -4098,8 +4103,7 @@ public:
 		}
 		else {
 			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, 0);
-			ObjTagFilt ot_filt;
-			ot_filt.ObjTypeID = PPOBJ_LOT;
+			ObjTagFilt ot_filt(PPOBJ_LOT);
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_MNFTAG, Data.LotManufTagList.getSingle(), 0, &ot_filt);
 		}
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_LICREG, PPOBJ_REGISTERTYPE, Data.AlcLicRegTypeID, 0, 0);
@@ -4126,7 +4130,7 @@ public:
 		enableCommand(cmCCheckFilt, Data.E.WrOffShopWay == PrcssrAlcReport::Config::woswByCChecks); // @v9.4.0
 		return ok;
 	}
-	int    getDTS(PrcssrAlcReport::Config * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTLSEL_ALCREPCFG_OP_RCP, &Data.RcptOpID);
@@ -4139,6 +4143,7 @@ public:
 
 		getCtrlData(CTLSEL_ALCREPCFG_OP_INT, &Data.IntrExpndOpID);
 		getCtrlData(CTLSEL_ALCREPCFG_OP_INV, &Data.E.EgaisInvOpID); // @v9.3.12
+		getCtrlData(CTLSEL_ALCREPCFG_OP_MFG, &Data.E.ManufOpID); // @v10.6.3
 
 		getCtrlData(CTLSEL_ALCREPCFG_ALCGRP, &Data.AlcGoodsGrpID);
 		getCtrlData(CTLSEL_ALCREPCFG_BEERGRP, &Data.BeerGoodsGrpID);
@@ -4190,7 +4195,6 @@ public:
 			return;
 		clearEvent(event);
 	}
-	PrcssrAlcReport::Config Data;
 };
 
 // static

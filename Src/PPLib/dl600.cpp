@@ -1512,7 +1512,7 @@ SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSY
 		AddType("short",    MKSTYPE(S_INT, 2),     MANGLE_BT_SHRT);
 		AddType("int32",    MKSTYPE(S_INT, 4),     MANGLE_BT_LONG);
 		AddType("autolong", MKSTYPE(S_AUTOINC, 4), MANGLE_BT_LONG);
-		AddType("int64",    MKSTYPE(S_INT, 8),     0);
+		AddType("int64",    MKSTYPE(S_INT64, 8),   0); // @v10.6.3 MKSTYPE(S_INT, 8)-->MKSTYPE(S_INT64, 8)
 		AddType("uint8",    MKSTYPE(S_UBINARY, 1), MANGLE_BT_UCHAR);
 		AddType("uint16",   MKSTYPE(S_UBINARY, 2), MANGLE_BT_USHRT);
 		AddType("uint32",   MKSTYPE(S_UBINARY, 4), MANGLE_BT_ULONG);
@@ -1961,8 +1961,8 @@ int SLAPI DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const 
 	if(srcTyp == destTyp) {
 		if(cvt) {
 			if(te_src.T.IsZStr(0)) {
-				SString * p_dest_str = *(SString **)pDestData;
-				SString * p_src_str = *(SString **)pSrcData;
+				SString * p_dest_str = *static_cast<SString **>(pDestData);
+				const SString * p_src_str = *static_cast<const SString * const *>(pSrcData);
 				*p_dest_str = *p_src_str;
 			}
 			else {
@@ -1992,7 +1992,7 @@ int SLAPI DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const 
 				}
 				if(ok > 0 && cvt) {
 					if(base_src == BTS_STRING) {
-						int32  b = (*(SString **)pSrcData)->Empty() ? 0 : 1;
+						int32  b = (*static_cast<const SString * const *>(pSrcData))->Empty() ? 0 : 1;
 						stcast(MKSTYPE(S_INT, 4), te_dest.T.Typ, &b, pDestData, 0);
 					}
 					else
@@ -2009,8 +2009,8 @@ int SLAPI DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const 
 						if(sz_dest < sz_src)
 							loss = 1;
 						if(cvt) {
-							SString * p_dest_str = *(SString **)pDestData;
-							SString * p_src_str = *(SString **)pSrcData;
+							SString * p_dest_str = *static_cast<SString **>(pDestData);
+							const SString * p_src_str = *static_cast<const SString * const *>(pSrcData);
 							*p_dest_str = *p_src_str;
 							cvt_done = 1;
 						}
@@ -2042,7 +2042,7 @@ int SLAPI DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const 
 		}
 		else if(te_src.T.Mod == STypEx::modLink) {
 			int    base_dest = stbase(te_dest.T.Typ);
-			if(base_dest == BTS_INT || base_dest == BTS_BOOL) { // @v8.3.0 (|| base_dest == BTS_BOOL)
+			if(oneof2(base_dest, BTS_INT, BTS_BOOL)) {
 				ok = tcrCast;
 			}
 			if(ok > 0 && cvt)

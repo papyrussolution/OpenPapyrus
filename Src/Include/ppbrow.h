@@ -402,7 +402,7 @@
 	#define HELP_BROWSER_STAFFCAL_OBJ                           180
 #define BROWSER_STAFFCAL_DTGRP                         181 // Штатные календари с группировкой по дате{%s}
 	#define HELP_BROWSER_STAFFCAL_DTGRP                         181
-#define BROWSER_CURRATE                                182 // Валютные курсы
+#define BROWSER_CURRATE                                182 // @{view_currate}
 	#define HELP_BROWSER_CURRATE                                182
 #define TOOLBAR_CSESS                         39
 #define BROWSER_CSESS                                  183 // @{csession_pl} {%s}
@@ -544,7 +544,7 @@
 	#define HELP_BROWSER_BBOARD                                 250
 #define BROWSER_SERVERSTAT                             251 // Статистика сервера %s
 	#define HELP_BROWSER_SERVERSTAT                             251
-#define BROWSER_AMOUNTTYPE                             252 // @view_amounttype
+#define BROWSER_AMOUNTTYPE                             252 // @{view_amounttype}
 	#define HELP_BROWSER_AMOUNTTYPE                             252
 #define BROWSER_REGISTERTYPE                           253 // Типы регистрационных документов
 	#define HELP_BROWSER_REGISTERTYPE                           253

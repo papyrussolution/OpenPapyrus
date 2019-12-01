@@ -3161,7 +3161,7 @@ void TrfrItemDialog::selectLot()
 int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 {
 	PPID     lotid = 0;
-	SelLotBrowser::Entry * p_sel;
+	const SelLotBrowser::Entry * p_sel;
 	int      r = -1;
 	DateIter diter;
 	SArray * p_ary = 0;
@@ -3251,7 +3251,7 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 		if(rParam.Title.NotEmpty())
 			p_brw->setTitle(rParam.Title);
 		if(ExecView(p_brw) == cmOK) {
-			p_sel = static_cast<SelLotBrowser::Entry *>(p_brw->view->getCurItem());
+			p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->view->getCurItem());
 			if(p_sel) {
 				lotid = p_sel->LotID;
 				GetSerialNumberByLot(lotid, serial = 0, 1);

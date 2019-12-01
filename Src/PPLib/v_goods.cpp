@@ -3342,8 +3342,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 			AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 0, UhttExpGoodsParam::coGoodsGrpName);
 			AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 1, UhttExpGoodsParam::coTag);
 			SetClusterData(CTL_UHTTEXPGOODS_CO, Data.CategoryObject);
-			ObjTagFilt tag_filt;
-			tag_filt.ObjTypeID = PPOBJ_GOODS;
+			ObjTagFilt tag_filt(PPOBJ_GOODS);
 			SetupObjTagCombo(this, CTLSEL_UHTTEXPGOODS_COT, Data.CategoryTagID, 0, &tag_filt);
 			disableCtrl(CTLSEL_UHTTEXPGOODS_COT, (Data.CategoryObject != UhttExpGoodsParam::coTag));
 			AddClusterAssoc(CTL_UHTTEXPGOODS_FLAGS, 0, UhttExpGoodsParam::fOnlyUnassocItems);

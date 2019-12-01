@@ -808,10 +808,10 @@ DBQuery * SLAPI PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSu
 					dbe_chkloc.init();
 					dbe_chkloc.push(t->LocID);
 					DBConst dbc_long;
-					dbc_long.init((long)&CellList);
+					dbc_long.init((long)&CellList); // @x64crit
 					dbe_chkloc.push(dbc_long);
 					dbe_chkloc.push(static_cast<DBFunc>(DynCheckCellParent));
-					dbq = & (*dbq && dbe_chkloc == (long)1);
+					dbq = & (*dbq && dbe_chkloc == 1L);
 				}
 			}
 		}

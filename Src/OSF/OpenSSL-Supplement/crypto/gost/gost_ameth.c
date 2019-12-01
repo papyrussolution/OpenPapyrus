@@ -14,10 +14,10 @@
 //#include <openssl/engine.h>
 //#include <openssl/evp.h>
 //#include <openssl/asn1.h>
-////#include <openssl/ec.h> // @sobolev
-#ifndef OPENSSL_NO_CMS
+//#include <openssl/ec.h> // @sobolev
+//#ifndef OPENSSL_NO_CMS
 	//#include <openssl/cms.h>
-#endif
+//#endif
 #include "gost_lcl.h"
 #include "e_gost_err.h"
 

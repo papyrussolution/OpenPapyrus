@@ -325,8 +325,7 @@ int SLAPI PPObjLocation::EditConfig()
 	SetupPPObjCombo(dlg, CTLSEL_LOCCFG_DEFPALTYPE, PPOBJ_PALLET, cfg.DefPalletID, 0, 0);
 	dlg->setCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl);
 	{
-		ObjTagFilt tag_filt;
-		tag_filt.ObjTypeID = PPOBJ_LOCATION;
+		ObjTagFilt tag_filt(PPOBJ_LOCATION);
 		SetupObjTagCombo(dlg, CTLSEL_LOCCFG_STRIDXTAG, cfg.StoreIdxTagID, OLW_CANINSERT, &tag_filt);
 	}
 	dlg->AddClusterAssoc(CTL_LOCCFG_FLAGS, 0, PPLocationConfig::fUseFias);

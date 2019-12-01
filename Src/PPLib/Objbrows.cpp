@@ -33,7 +33,7 @@ PPID PPObjBrowser::currID()
 
 void PPObjBrowser::updateView()
 {
-	CALLPTRMEMB(view, refresh());
+	CALLPTRMEMB(view, Refresh());
 }
 
 IMPL_HANDLE_EVENT(PPObjBrowser)

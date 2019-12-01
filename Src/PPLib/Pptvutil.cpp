@@ -4116,7 +4116,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			}
 		}
 	}
-	else if(TVCMD == cmCBSelected && event.isCtlEvent(Ctlsel)) {
+	else if(event.isCbSelected(Ctlsel)) {
 		if(Data.List.getSingle()) {
 			const PPID id = pDlg->getCtrlLong(Ctlsel);
 			Data.List.freeAll();
@@ -4124,7 +4124,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				Data.List.add(id);
 		}
 	}
-	else if(TVCMD == cmCBSelected && CtlselPsnKind && event.isCtlEvent(CtlselPsnKind)) {
+	else if(CtlselPsnKind && event.isCbSelected(CtlselPsnKind)) {
 		Setup(pDlg, pDlg->getCtrlLong(CtlselPsnKind));
 	}
 	else if(event.isKeyDown(kbF2)) {
@@ -4835,7 +4835,7 @@ void BrandCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			}
 			pDlg->clearEvent(event);
 		}
-		else if(TVCMD == cmCBSelected && event.isCtlEvent(Ctlsel)) {
+		else if(event.isCbSelected(Ctlsel)) {
 			if(Data.List.getSingle()) {
 				const PPID id = pDlg->getCtrlLong(Ctlsel);
 				Data.List.clear();

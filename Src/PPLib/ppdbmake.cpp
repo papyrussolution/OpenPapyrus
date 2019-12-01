@@ -482,7 +482,7 @@ int SLAPI MakeDatabase()
 				if(param.How == param.howBySample) {
 					if(CreateByExample(param.Path) > 0) {
 						param.DbName.Comma().Cat(param.Path.RmvLastSlash());
-						ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1);
+						THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
 						ok = 1;
 					}
 				}
@@ -519,7 +519,7 @@ int SLAPI MakeDatabase()
 					}
 					*/
 					param.DbName.Comma().Cat(param.Path.RmvLastSlash());
-					ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1);
+					THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
 					{
 						PPCreateDatabaseSession::Param sess_param;
 						sess_param.DbSymb = param.DbSymb;
@@ -585,7 +585,7 @@ int SLAPI MakeDatabase()
 					}
 					*/
 					param.DbName.Comma().Cat(param.Path.RmvLastSlash());
-					ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1);
+					THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
 					{
 						PPCreateDatabaseSession::Param sess_param;
 						sess_param.Action = sess_param.acnCreatePosNode;

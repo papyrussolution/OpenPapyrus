@@ -1882,58 +1882,40 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 	}
 #endif
 	if(ssl_cafile || ssl_capath) {
-		/* tell SSL where to find CA certificates that are used to verify
-		   the servers certificate. */
+		// tell SSL where to find CA certificates that are used to verify the servers certificate. 
 		if(!SSL_CTX_load_verify_locations(connssl->ctx, ssl_cafile, ssl_capath)) {
 			if(verifypeer) {
-				/* Fail if we insist on successfully verifying the server. */
-				failf(data, "error setting certificate verify locations:\n"
-				    "  CAfile: %s\n  CApath: %s",
-				    ssl_cafile ? ssl_cafile : "none",
-				    ssl_capath ? ssl_capath : "none");
+				// Fail if we insist on successfully verifying the server. 
+				failf(data, "error setting certificate verify locations:\n  CAfile: %s\n  CApath: %s", ssl_cafile ? ssl_cafile : "none", ssl_capath ? ssl_capath : "none");
 				return CURLE_SSL_CACERT_BADFILE;
 			}
-			/* Just continue with a warning if no strict  certificate verification
-			   is required. */
-			infof(data, "error setting certificate verify locations,"
-			    " continuing anyway:\n");
+			// Just continue with a warning if no strict  certificate verification is required. 
+			infof(data, "error setting certificate verify locations, continuing anyway:\n");
 		}
 		else {
-			/* Everything is fine. */
+			// Everything is fine. 
 			infof(data, "successfully set certificate verify locations:\n");
 		}
-		infof(data,
-		    "  CAfile: %s\n"
-		    "  CApath: %s\n",
-		    ssl_cafile ? ssl_cafile : "none",
-		    ssl_capath ? ssl_capath : "none");
+		infof(data, "  CAfile: %s\n  CApath: %s\n", ssl_cafile ? ssl_cafile : "none", ssl_capath ? ssl_capath : "none");
 	}
 #ifdef CURL_CA_FALLBACK
 	else if(verifypeer) {
-		/* verfying the peer without any CA certificates won't
-		   work so use openssl's built in default as fallback */
+		// verfying the peer without any CA certificates won't work so use openssl's built in default as fallback 
 		SSL_CTX_set_default_verify_paths(connssl->ctx);
 	}
 #endif
-
 	if(ssl_crlfile) {
-		/* tell SSL where to find CRL file that is used to check certificate
-		 * revocation */
-		lookup = X509_STORE_add_lookup(SSL_CTX_get_cert_store(connssl->ctx),
-		    X509_LOOKUP_file());
-		if(!lookup ||
-		    (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM)) ) {
+		// tell SSL where to find CRL file that is used to check certificate revocation 
+		lookup = X509_STORE_add_lookup(SSL_CTX_get_cert_store(connssl->ctx), X509_LOOKUP_file());
+		if(!lookup || (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM))) {
 			failf(data, "error loading CRL file: %s", ssl_crlfile);
 			return CURLE_SSL_CRL_BADFILE;
 		}
-		/* Everything is fine. */
+		// Everything is fine. 
 		infof(data, "successfully load CRL file:\n");
-		X509_STORE_set_flags(SSL_CTX_get_cert_store(connssl->ctx),
-		    X509_V_FLAG_CRL_CHECK|X509_V_FLAG_CRL_CHECK_ALL);
-
+		X509_STORE_set_flags(SSL_CTX_get_cert_store(connssl->ctx), X509_V_FLAG_CRL_CHECK|X509_V_FLAG_CRL_CHECK_ALL);
 		infof(data, "  CRLfile: %s\n", ssl_crlfile);
 	}
-
 	/* Try building a chain using issuers in the trusted store first to avoid
 	   problems with server-sent legacy intermediates.
 	   Newer versions of OpenSSL do alternate chain checking by default which

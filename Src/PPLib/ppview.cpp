@@ -1738,7 +1738,7 @@ int SLAPI PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 		for(uint i = 0; i < pW->getDef()->getCount(); i++) {
 			pW->SetupColumnWidth(i);
 		}
-		pW->refresh();
+		pW->Refresh();
 		APPL->NotifyFrame(0);
 		PPWait(0);
 	}
@@ -2038,7 +2038,7 @@ int PPViewBrowser::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void *
 }
 
 void PPViewBrowser::Update() { updateView(); }
-void PPViewBrowser::updateView() { CALLPTRMEMB(view, refresh()); }
+void PPViewBrowser::updateView() { CALLPTRMEMB(view, Refresh()); }
 
 int PPViewBrowser::SetRefreshPeriod(long period)
 {
@@ -2415,8 +2415,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 			if(view) {
 				long   h = 0, v = 0;
 				TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
-				view->ItemByPoint(point, &h, &v);
-				{
+				if(view->ItemByPoint(point, &h, &v)) {
 					const void * p_row = view->getItemByPos(v);
 					if(P_View->ProcessCommand(PPVCMD_MOUSEHOVER, p_row, this) > 0)
 						updateView();

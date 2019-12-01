@@ -2547,6 +2547,7 @@ typedef int32 TYPEID;
 #define BTS_POINT2       7    // 16 byte RPoint
 #define BTS_BOOL         8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но испольузется в локальных ситуациях.
 #define BTS_PTR          9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
+#define BTS_INT64_      10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
 //
 // Data types
 //
@@ -2564,8 +2565,7 @@ typedef int32 TYPEID;
 #define S_BFLOAT        10
 #define S_LSTRING       11
 #define S_ZSTRING       12
-#define S_NOTE          13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице),
-	// для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
+#define S_NOTE          13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
 #define S_LVAR          14
 #define S_UBINARY       15
 #define S_UINT          S_UBINARY
@@ -2589,6 +2589,8 @@ typedef int32 TYPEID;
 #define S_FPOINT2       32      // Вещественная двумерная точка (x, y)
 #define S_WZSTRING      33      // Unicode-zstring
 #define S_UUID_         34      // @v8.0.9 (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
+#define S_INT64         35      // @v10.6.3
+#define S_UINT64        36      // @v10.6.3 
 //
 #define S_FIRSTUSERTYPE 50
 //
@@ -2615,7 +2617,7 @@ typedef int32 TYPEID;
 #define T_UINT64           MKSTYPE(S_UBINARY,8)
 #define T_INT16            MKSTYPE(S_INT,2)
 #define T_INT32            MKSTYPE(S_INT,4)
-#define T_INT64            MKSTYPE(S_INT,8)
+#define T_INT64            MKSTYPE(S_INT64 ,8) // @v10.6.3 MKSTYPE(S_INT ,8)-->MKSTYPE(S_INT64 ,8)
 #define T_LONG             MKSTYPE(S_INT,4)
 #define T_ULONG            MKSTYPE(S_UBINARY,4)
 #define T_FLOAT            MKSTYPE(S_FLOAT,4)
@@ -6152,6 +6154,7 @@ public:
 
 	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
+	int    SLAPI getCountI() const { return static_cast<int>(count); }
 	int    SLAPI getEnd() const { return static_cast<int>(count-1); }
 	uint   SLAPI getItemSize() const { return isize; }
 	uint   SLAPI getFlags() const;

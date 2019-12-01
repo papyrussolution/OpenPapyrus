@@ -6,10 +6,10 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
+#include "apps.h"
 
-#if defined( __VMS) && !defined( OPENSSL_NO_DECC_INIT) && \
- defined( __DECC) && !defined( __VAX) && (__CRTL_VER >= 70301000)
-# define USE_DECC_INIT 1
+#if defined( __VMS) && !defined( OPENSSL_NO_DECC_INIT) && defined( __DECC) && !defined( __VAX) && (__CRTL_VER >= 70301000)
+	#define USE_DECC_INIT 1
 #endif
 
 #ifdef USE_DECC_INIT
@@ -20,12 +20,7 @@
  * of C RTL features without using the DECC$* logical name method.
  * ----------------------------------------------------------------------
  */
-
-# include <stdio.h>
-# include <stdlib.h>
-# include <unixlib.h>
-
-# include "apps.h"
+#include <unixlib.h>
 
 /* Global storage. */
 

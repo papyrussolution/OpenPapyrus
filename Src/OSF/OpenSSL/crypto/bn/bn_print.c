@@ -284,7 +284,7 @@ int BN_asc2bn(BIGNUM ** bn, const char * a)
 	return 1;
 }
 
-# ifndef OPENSSL_NO_STDIO
+#ifndef OPENSSL_NO_STDIO
 int BN_print_fp(FILE * fp, const BIGNUM * a)
 {
 	BIO * b;
@@ -296,14 +296,12 @@ int BN_print_fp(FILE * fp, const BIGNUM * a)
 	BIO_free(b);
 	return ret;
 }
-
-# endif
+#endif
 
 int BN_print(BIO * bp, const BIGNUM * a)
 {
 	int i, j, v, z = 0;
 	int ret = 0;
-
 	if((a->neg) && (BIO_write(bp, "-", 1) != 1))
 		goto end;
 	if(BN_is_zero(a) && (BIO_write(bp, "0", 1) != 1))

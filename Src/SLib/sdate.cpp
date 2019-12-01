@@ -2140,23 +2140,23 @@ long SLAPI DateRepeating::DtlToLong()
 int SLAPI DateRepeating::LongToDtl(long v)
 {
 	if(Prd == PRD_DAY)
-		Dtl.D = *(RepeatDay*)&v;
+		Dtl.D = *reinterpret_cast<const RepeatDay *>(&v);
 	else if(Prd == PRD_WEEK)
-		Dtl.W = *(RepeatWeek*)&v;
+		Dtl.W = *reinterpret_cast<const RepeatWeek *>(&v);
 	if(Prd == PRD_MONTH) {
 		if(RepeatKind == 1)
-			Dtl.ME = *(RepeatMonthDate*)&v;
+			Dtl.ME = *reinterpret_cast<const RepeatMonthDate *>(&v);
 		else
-			Dtl.MY = *(RepeatMonthDay*)&v;
+			Dtl.MY = *reinterpret_cast<const RepeatMonthDay *>(&v);
 	}
 	if(Prd == PRD_ANNUAL) {
 		if(RepeatKind == 1)
-			Dtl.AE = *(RepeatAnnDate*)&v;
+			Dtl.AE = *reinterpret_cast<const RepeatAnnDate *>(&v);
 		else
-			Dtl.AY = *(RepeatAnnDay*)&v;
+			Dtl.AY = *reinterpret_cast<const RepeatAnnDay *>(&v);
 	}
 	else if(Prd == PRD_REPEATAFTERPRD)
-		Dtl.RA = *(RepeatAfterPrd*)&v;
+		Dtl.RA = *reinterpret_cast<const RepeatAfterPrd *>(&v);
 	return 1;
 }
 
@@ -2307,11 +2307,9 @@ SString & SLAPI DateTimeRepeating::Format(int fmt, SString & rBuf) const
 //
 //
 //
-DateRepIterator::DateRepIterator(const DateRepeating & rDr, LDATE startDate, LDATE endDate, uint maxCount) : Dr(rDr), Count(0)
+DateRepIterator::DateRepIterator(const DateRepeating & rDr, LDATE startDate, LDATE endDate, uint maxCount) : Dr(rDr), Count(0),
+	Start(NZOR(startDate, getcurdate_())), End(endDate), MaxCount(maxCount)
 {
-	Start = NZOR(startDate, getcurdate_());
-	End = endDate;
-	MaxCount = maxCount;
 	Cur = Start;
 }
 
@@ -2398,8 +2396,7 @@ DateTimeRepIterator::DateTimeRepIterator(const DateTimeRepeating & rDr, LDATETIM
 {
 	Dr = rDr;
 	Start = startDtm;
-	if(!Start.d)
-		Start.d = getcurdate_();
+	SETIFZ(Start.d, getcurdate_());
 	Cur = Start;
 }
 

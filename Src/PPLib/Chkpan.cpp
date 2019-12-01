@@ -7773,15 +7773,18 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 					buf.CatParStr("UHTT").Space();
 				if(F(fRetCheck)) {
 					if(F(fRetByCredit) && CSt.AdditionalPayment) {
-						buf.Cat(PPGetWord(PPWORD_ADDPAYMENT, 0, temp_buf)).Space().Cat(CSt.AdditionalPayment, SFMT_MONEY);
+						PPLoadString("addpayment", temp_buf);
+						buf.Cat(temp_buf).Space().Cat(CSt.AdditionalPayment, SFMT_MONEY);
 					}
 				}
 				else {
 					buf.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp_buf)).Space();
 					buf.Cat(CSt.SettledDiscount, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 					if(Flags & (fBankingPayment|fSCardCredit|fSCardBonus)) { // @bank_or_scard
-						if(CSt.AdditionalPayment > 0.0 && !(Flags & fSCardBonus))
-							buf.Space().Cat(PPGetWord(PPWORD_ADDPAYMENT, 0, temp_buf)).Space().Cat(CSt.AdditionalPayment, SFMT_MONEY);
+						if(CSt.AdditionalPayment > 0.0 && !(Flags & fSCardBonus)) {
+							PPLoadString("addpayment", temp_buf);
+							buf.Space().Cat(temp_buf).Space().Cat(CSt.AdditionalPayment, SFMT_MONEY);
+						}
 						else {
 							PPLoadString((Flags & fSCardBonus) ? "bonus" : "rest", temp_buf);
 							buf.Space().Cat(temp_buf).Space().Cat(CSt.RestByCrdCard, SFMT_MONEY);
@@ -8320,7 +8323,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	rSerial.Z();
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
-	SelLotBrowser::Entry * p_sel = 0;
+	const  SelLotBrowser::Entry * p_sel = 0;
 	int    r, found = 0;
 	uint   s = 0;
 	const  LDATE curdt = LConfig.OperDate;
@@ -8365,10 +8368,10 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	THROW(r);
 	if(p_ary->getCount()) {
 		THROW_MEM(p_brw = new SelLotBrowser(p_bobj, p_ary, s, 0)); // @newok
-		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<SelLotBrowser::Entry *>(p_brw->view->getCurItem())) != 0) {
-			if(strip(p_sel->Serial)[0] != 0) {
+		if(ExecView(p_brw) == cmOK && (p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->view->getCurItem())) != 0) {
+			if((serial = p_sel->Serial).NotEmptyS()) {
 				ASSIGN_PTR(pPrice, p_sel->Price);
-				rSerial = p_sel->Serial;
+				rSerial = serial;
 				ok = 1;
 			}
 		}

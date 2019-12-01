@@ -2,7 +2,6 @@
 // Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // Codepage=UTF-8
 //
-
 //
 // Синтаксис:
 // [number] - начало зоны. Чаще всего зоны идентифицируются зарезервированными числовыми значениями.
@@ -47,6 +46,9 @@
 // @tsym1 "текст не должен переводиться на другие языки"
 // @tsym2 "и этот текст тоже"
 // #!}
+//
+// Замечания по грамматике:
+//   паллета - женский род (вопрос спорный, но мы останавливаемся на таком варианте).
 //
 
 //
@@ -2973,7 +2975,7 @@ PPERR_TXA_LEFTEMPTYTO "Empty expression to the left of the operator %"
 	//#org Слева от оператора %< не может стоять список, разделенный термом %|
 PPERR_TXA_LEFTFROMORLIST "To the left of the operator , the list, divided by the thermo % can not stand"
 	//#org Пустое выражение слева от оператора %<
-PPERR_TXA_LEFTEMPTYFROM "Empty expression to the left of the operator %"
+PPERR_TXA_LEFTEMPTYFROM "Empty expression to the left of the operator % <"
 	//#org Пустое выражение слева от оператора %|
 PPERR_TXA_LEFTEMPTYOR "Empty expression to the left of the operator %"
 	//#org Пустое выражение слева от оператора %&
@@ -4424,8 +4426,8 @@ PPINF_EGAISSHOPRETURNCR "Created a return document from the register 2 @{brand_e
 53 "Schedule"
 	//#org Штатное начисление
 56 "Staffing accrual"
-	//#org Тип паллета
-63 "Pallet type"
+	//#org Тип паллеты
+63 "Type of pallets"
 	//#org Событийная метка
 65 "Event tag"
 	//#org Учетная запись провайдера рассылки SMS
@@ -4503,7 +4505,6 @@ PPINF_EGAISSHOPRETURNCR "Created a return document from the register 2 @{brand_e
 
 
 // @v10.5.12 147 /!/ "AlbatrosOrder;AlbatrosOrderHeader;OrderDate;OrderCode;ClientID;ClientName;ClientINN;ClientCity;ClientAddr;ClientPhone;ClientMail;ClientBankAcc;OrderAmount;PctDis;AlbatrosOrderItem;GoodsID;GoodsName;GoodsCode;UnitsPerPack;Qtty;Price;Discount;Amount"
-
 // @v10.5.11 PPTXT_CLINFOTXTSTR "В принимаемом заказе, указан клиент, который уже ;существует в текущей базе данных. Кнопка OK - ;принять изменения и принять \
 // @v10.5.11 заказ, кнопка Отмена - не ;принимать изменения и не принимать заказ.;В текущей базе данных, уже существует клиент с таким же;ИНН, как и у клиента в принимаемом заказе. Кнопка ОК - "
 
@@ -4511,14 +4512,6 @@ PPINF_EGAISSHOPRETURNCR "Created a return document from the register 2 @{brand_e
 176 "No item transactions are set up;No inventory operations set up;No draft documents are set up"
 	//#org  ;@{phone}/адрес;@{checkingaccount};@{register}: ;@{tag}: ;Все адреса;Зависшие адреса;@{daddress_pl};Дублируемые адреса доставки;@{autonomousaddress_pl};Электронная почта
 177 " ;@{phone}/address;@{checkingaccount};@{register}: ;@{tag}: ;All addresses;Hanging addresses;@{daddress_pl};Double delivery addresses;@{autonomousaddress_pl};Email"
-
-	//#org Загрузка данных из интернета, файл: %s
-202 "Downloading data from the Internet, file: %s"
-	//#org Разбор файла %s
-203 "Reviewing the %s file"
-	//#org Ошибка акцепта корзины (%ld %s): %s
-204 "Error of the basket acceptance (%ld %s): %s"
-
 	//#org Итого:
 PPWORD_TOTAL "Total:"
 	//#org Остаток в ценах
@@ -4549,7 +4542,6 @@ PPWORD_AT_AUTO "@AUTO"
 PPWORD_TEMPALTGRP "Temporary group"
 	//#org Годен до
 PPWORD_BESTBEFORE "Goden up"
-// @v10.5.12 PPWORD_SUM                 "Сумма"
 	//#org Стол
 PPWORD_DINNERTABLE "Table"
 	//#org строк
@@ -4560,16 +4552,10 @@ PPWORD_AVGLINES "Average number of rows"
 PPWORD_DRAFTRCPT "Future earnings"
 	//#org Восстановлен
 PPWORD_RECOVERED "Restored"
-	//#org Создатель
-PPWORD_CREATOR "Creator"
-	//#org Исполнитель
-PPWORD_EMPLOYER "Executor"
 	//#org Среднедневные продажи
 PPWORD_AVGDAYLYSALES "Average daily sales"
 	//#org Артикул
 PPWORD_ARGOODSCODE "Article"
-	//#org Отсутствует
-PPWORD_ABSENCE "Missing"
 	//#org Недоступен
 PPWORD_NOTACCESSIBLE "Unavailable"
 	//#org Остальные
@@ -4592,15 +4578,10 @@ PPWORD_ACCESSIBLE "Available"
 PPWORD_MESSAGE "Message"
 	//#org Группа складов
 PPWORD_WAREHOUSEGROUP "Warehouse group"
-// @v10.5.12 @unused PPWORD_ACTUALDATE          "Актуальная дата"
 	//#org Продажи
 PPWORD_SALES "Sale"
 	//#org Расчетная дата
 PPWORD_CALCDATE "Estimated date"
-	//#org Доплата
-PPWORD_ADDPAYMENT "Supplement"
-	//#org Сайт
-PPWORD_SITE "Site"
 	//#org Не привязанный расход
 PPWORD_NOTLINKEXPEND "Unbound expense"
 	//#org Не привязанный приход
@@ -4611,8 +4592,6 @@ PPWORD_NOTLINKTRANSFER "Unbound transmission"
 PPWORD_MISCELLANEOUS "MISCELLANEOUS"
 	//#org Работа
 PPWORD_WORK "Work"
-	//#org Приватная корзина
-PPWORD_PRIVATEBASKET "Private basket"
 	//#org Лист
 PPWORD_SHEET "Sheet"
 	//#org Только открытые
@@ -4647,6 +4626,13 @@ PPWORD_LINESCOUNT "Rows"
 PPWORD_AVGLINESCOUNT "Strzok (Wed)"
 	//#org SKU (ср)
 PPWORD_AVGSKUCOUNT "SKU (Wed)"
+// @v10.6.3 PPWORD_CREATOR             "Создатель"
+// @v10.6.3 PPWORD_EMPLOYER            "Исполнитель"
+// @v10.6.3 PPWORD_ADDPAYMENT          "Доплата"
+// @v10.6.3 (unused) PPWORD_SITE                "Сайт"
+// @v10.6.3 PPWORD_PRIVATEBASKET       "Приватная корзина"
+// @v10.5.12 PPWORD_SUM                 "Сумма"
+// @v10.5.12 @unused PPWORD_ACTUALDATE          "Актуальная дата"
 // @v10.5.8 PPWORD_LINKQTTY            "Связанное количество"
 // @v10.5.8 PPWORD_DEFBASKET           "Корзина по умолчанию"
 // @v10.5.8 PPWORD_PCTADDEDVAL         "@{extracharge} (%)"
@@ -4677,240 +4663,51 @@ PPWORD_AVGSKUCOUNT "SKU (Wed)"
 // @v9.3.10 PPWORD_ALLLOCS             "Все склады"
 // @v10.0.0 PPWORD_INCOMPLETETASK      "Имеются невыполненные задачи"
 // @v10.2.7 PPWORD_SKUCOUNT            "SKU"
+// @v10.6.2 PPWORD_ABSENCE             "Отсутствует"
 
 	//#org Объект создан: [%s:%ld] %s;Объект изменен: [%s:%ld] %s
 220 "Object created: [%s:%ld] %s;Object changed: [%s:%ld]%s"
 	//#org 1,Схема по умолчанию;2,Схема1;3,Схема2
 221 "1,Default scheme;2,Scheme1;3,Scheme2"
-	//#org Итого по товарным операциям:
-222 "Total commodity transactions:"
-	//#org 1,Периоды доступа;2,@{rt_item_op_s};3,@{rt_item_warehouse_s};4,@{config};5,@{rt_item_account_s}
-223 "1,Access periods;2,@{rt_item_op_s};3,@{rt_item_warehouse_s};4,@{config};5,@{rt_item_account_s}"
-	//#org Сканирование выходных дней
-225 "Weekend scanning"
-	//#org пн;вт;ср;чт;пт;сб;вс
-227 "Mon;W;Wed;Thu;Fri;Sat;Sun"
-	//#org Импорт специальных серий
-231 "Imports of special series"
 	//#org 1,Меньше;2,Больше;3,@{nomatter}
 237 "1,Less;2,More;3,@{nomatter}"
 	//#org Добро пожаловать;Касса не работает;@{discount};Итого:;Наличными;Сдача;@{gift}
 277 "Welcome;The cash register is not working;@{discount};Total:;Cash;Change;@{gift}"
-
 	//#org 1,Кол-во невыполненных задач;2,Выполненные задачи/кол-во задач;3,Процент выписанных накладных;4,Количество задач
 336 "1,Number of backlogs;2,Completed tasks/number of tasks;3,Percentage of invoices written out;4,Number of tasks"
-	//#org Соединение было разорвано. Попытка восстановить
-410 "The connection was severed. Trying to recover"
-	//#org Соединение восстановлено
-411 "Connection restored"
-	//#org Файл '%s' на FTP сервере имеет более позднюю дату/время
-412 "File '%s' on FTP server has a later date/time"
-	//#org Введите количество дней
-413 "Enter the number of days"
-	//#org @{dbmaintain};Обслуживание базы данных закончено;Обслуживание системного журнала;	Обслуживание системного журнала закончено;Обслуживание истории документов;Обслуживание истории документов закончено;	Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;	Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;	Удаление временных альтернативных товарных групп;Удаление временных альтернативных товарных групп закончено
-414 "@{dbmaintain};Database maintenance is over;System log service;	System log service is over;Document history maintenance;Document history maintenance is over;	Maintaining hardware loading history;Maintenance of equipment loading history is over;	MrP table service;MRP table service is over;	Removal of temporary alternative product groups;Removal of temporary alternative product groups is over"
-
-	//#org Редактирование списка команд
-415 "Editing the list of commands"
-	//#org Редактирование рабочих столов
-416 "Editing desktops"
-	//#org Редактирование списка меню
-417 "Editing the menu list"
-	//#org @{return};Введите номер карты;Выбор товара по цене;Выбор группы;Продажа;Кассовая сессия закрыта;Заказ стола;Заказ стола (отменен)
-418 "@{return};Enter the card number;Choosing a product by price;Group selection;Sale;Cash session closed;Order a table;Table order (cancelled)"
-	//#org Сигнальная запись сессии: '%s'
-419 "Session signal recording: '%s'"
-	//#org Переключение процессора: '%s'
-420 "Switching processor: '%s'"
-	//#org Сессия по документу существует: '%s'
-421 "Session on the document exists: '%s'"
-	//#org Выбор технологии перенастройки '@prc': '@goods'-->'@goods'
-422 "Choosing the technology to reconfigure '@prc': ----'@goods'"
-	//#org       Выбрана технология перенастройки '@tech'
-423 "   The technology for reconfiguring '@tech' has been chosen"
-	//#org       Нет подходящей технологии перенастройки
-424 "   No suitable reconfiguration technology"
-	//#org       Формула перехода:
-425 "   Transition formula:"
-	//#org Ошибка акцепта операции по карте (%ld %s): %s
-426 "Acceptance error of the (%ld %s): %s card"
-	//#org тип создаваемого файла
-427 "The type of file you're building"
-	//#org Ошибка акцепта кассового чека (%ld %s): %s
-428 "Error accepting the cash cheque (%ld %s): %s"
-	//#org Ошибка акцепта регионального объекта
-430 "Regional object acceptance error"
-	//#org подстановки для товаров
-431 "substitutions for goods"
-	//#org Активная сессия
-434 "Active session"
-	//#org Склад '%s' восстановлен
-435 "Warehouse '%s' restored"
-	//#org @{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%
-438 "@{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%"
-	//#org Введите номер персональной карты
-439 "Enter your personal card number"
-// @v9.1.3 obsolete 440 "Товарные группы;Товары;Штрихкоды;Виды котировок;Котировки;Персональные карты;Кассовые сессии;Кассовые чеки;Строки чеков;Оплаты по картам"
-	//#org @{discard};Выбор товара по цене;Ввод;@{goodsgroup}...;@{groupdefault};Печать этикетки;Выбор товара по наименованию
-441 "@{discard};Choosing a product by price;Enter;@{goodsgroup}...;@{groupdefault};Print labels;Choosing a product by name"
-	//#org Последняя строка удалена
-444 "Last line removed"
-	//#org Не удалось удалить последнюю строку: строка не определена
-445 "The last line could not be removed: the line has not been defined"
-
-	//#org 1,Ошибки,pperror.log;2,Ошибки выводимые на экран,pperrmsg.log;3,Информация,ppinfo.log;4,Создание/восстановление резервной копии,backup.log;	5,Формирование таблицы продаж,psales.log;6,Загрузка на весы,scale.log;7,Получение почты,dbxrecv.log;	8,Корректировка балансов,balance.log;9,Корректировка лотов,loterr.log;10,Корректировка поставщиков лотов,lotsuppl.err;	11,Корректировка кассовых чеков,cchkerr.log;12,Ремонт базы данных,dbrepair.log;13,Ремонт проводок,accturn.log;	14,Восстановление отсутствующих лотов,abslots.log;15,Восстановление отсутствующих товаров,absgoods.log;	16,Загрузка асинхронного кассового узла,acs.log;17,Корректировка битых связей платежных документов,paymlink.log;	18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;	22,CBadReck,cbadreck.log;23,@{csession},ccheck.log
-446 "1,Errors,pperror.log;2,Errors displayed on the screen, pperrmsg.log;3,Information,ppinfo.log;4,Create/restore backup, backup.log;	5,Formation sales table,psales.log;6,Load on scales,scale.log;7,Receiving mail, dbxrecv.log;	8,Balance Adjustment, balance.log;9,Loterr.log;10,Adjustment of lot suppliers, lotsuppl.err;	11, Checking cash cheques, cchkerr.log;12,Database repair,dbrepair.log;13,Repairing transactions, accturn.log;	14, Recovering missing lots, abslots.log;15,Recovering missing goods,absgoods.log;	16,Download asynchronous cash node,acs.log;17,Correcting broken payment document links,paymlink.log;	18,Profiling,profile.log;19,Print on the stroke,shtrih.log;20,Version history,verhist.log;21,Defix,debug.log;	22,CBadReck,cbadreck.log;23,@{csession},ccheck.log"
-	//#org Банковский документ '%s' успешно проведен
-447 "The bank document '%s' successfully carried out"
-	//#org При списании сессии '%s' есть дефицит, но это игнорируется из-за конфигурации процессора
-448 "When you write off a session '%s' there is a deficit, but this is ignored due to the configuration of the processor"
-	//#org Почтовый акаунт '%s' успешно импортирован
-449 "Postal account '%s' successfully imported"
-	//#org Импортировано %ld из %ld записей
-450 "Imported %ld from %ld records"
-	//#org Экспортировано %ld записей
-451 "Exported %ld records"
-	//#org Выбор почтовых акаунтов
-452 "Choosing postal accounts"
-	//#org База данных заблокирована
-456 "Database blocked"
-	//#org База даных не заблокирована
-457 "The database is not blocked"
-	//#org Ошибка загрузки строки документа (%s):
-459 "The error in downloading the document line (%s):"
-	//#org Ошибка извлечения лота (LotID=@int): @zstr
-460 "The error of extracting the lot (LotID=@int): zstr"
-	//#org Ошибка в строке Transfer (док='@bill'; товар='@goods'; lot=@int): @zstr
-461 "Error in the Transfer line (doc'@bill'; '@goods' Goods; lot'@int): @zstr"
-	//#org Введите количество генерируемых документов
-467 "Enter the number of documents generated"
-	//#org Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
-469 "Writing off the line of the technical session: the product @goods series @zstr the @real @zstr"
-	//#org Включить в товарную матрицу
-470 "Include in the commodity matrix"
-	//#org Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
-471 "Error of writing in the table,%%ld, row of ld,%, field-%ld, value of '%s"
-	//#org Генерация товарных документов
-475 "Generating product documents"
-	//#org копеек;копейка;копейки
-477 "Kopeks;Kopek;Penny"
-	//#org Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
-478 "The last basket you used '%s' blocked (%s). Choose another one."
-	//#org Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
-479 "The default '%s' is blocked (%s). Choose another one."
-	//#org Найден аналог по имени для персоналии '%s'
-480 "Found an analogue by name for personalities '%s'"
-	//#org Найден аналог по регистру для персоналии '%s'
-481 "An analogue of the registry for personalities '%s' found"
-	//#org Заполнение таблицы продаж
-516 "Filling the sales table"
-	//#org В файле stdslip.fmt в описании формата '%s' превышен максимальный размер строки
-517 "In the stdslip.fmt file, the '%s' exceeds the maximum line size"
-	//#org Неверная запись @int в файле @sstr
-518 "Incorrect @int record in @sstr file"
-	//#org @{storageplace_pl} (%s)
-519 "@{storageplace_pl} (%s)"
-// @v9.2.5 (more unused) 520 "@{warehouse_pl}"
-	//#org Ошибка записи в SysJournal (%s)
-523 "SysJournal record error (%s)"
-	//#org Прием строк инвентаризации
-524 "Receiving inventory lines"
-	//#org @{mainorg}: %s Лицензия: %s @{user}: %s @{path_database}: %s @{path_report}: %s Структура данных: %s 
-534 "@{mainorg}: %s License: %s @{user}: %s @{path_database}: %s @{path_report}: %s Data structure: %s "
-	//#org Дата и время:
-535 "Date and time:"
-	//#org Объект {%s} уже зарегестрирован в таблице синхронизации как удаленный
-536 "The {%s} object has already been registered in the synchronization table as remote"
-	//#org Путь доступен
-544 "The path is available"
-	//#org Путь не доступен
-545 "The path is not available"
-	//#org Файл '%s' уже находится в очереди приема данных
-546 "File '%s' is already in the queue for data reception"
-	//#org Определенный пользователем
-548 "Identified by the user"
-	//#org Недопустимая конвертируемая запись пропущена (%s)
-549 "Unacceptable convertible record missed (%s)"
-	//#org Конфигурация импорта прайс-листа
-550 "Import list configuration"
-	//#org Конфигурация экспорта прайс-листа
-551 "Price list export configuration"
-	//#org Неизвестный товар @{id}=[%ld], @{name}=[%s], @{barcode}=[%s]
-552 "Unknown @{id},[%ld], @{name},[%s], @{barcode}-[%s]"
-	//#org Файлы прикрепляемых документов
-553 "Files of attached documents"
-	//#org Ошибка загрузки бухгалтерской проводки по документу '@bill': @zstr
-554 "Accounting transaction error on the document '@bill': zstr"
-	//#org Ошибка загрузки бухгалтерской проводки по документу '@bill': @zstr: попытка удаления строки
-555 "Accounting transaction error on the document '@bill': zstr: attempt to remove the line"
-	//#org prLastMonth,Последний месяц до периода начисления;prLastQuart,Последний квартал до периода начисления;prLastYear,Последний год до периода начисления;prThisMonth,С начала этого месяца;prThisQuart,С начала этого квартала;prThisYear,С начала этого года
-556 "prLastMonth,Last month before accrual period;prLast'art,Last quarter before accrual period;prLastYear,Last year before accrual period;prThisMonth,Since the beginning of this month;prThis'art,Since the beginning of this quarter;prThisYear,Since the beginning of this year"
+// @v10.6.1 409 /!/ " "
+	//#org @{dbmaintain};Обслуживание базы данных закончено;Обслуживание системного журнала;Обслуживание системного журнала закончено;Обслуживание истории документов;Обслуживание истории документов закончено;Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;Удаление временных альтернативных товарных групп;Удаление временных альтернативных товарных групп закончено
+414 "@{dbmaintain};Database maintenance is over;System log service;System log service is over;Document history maintenance;Document history maintenance is over;Maintaining hardware loading history;Maintenance of equipment loading history is over;MrP table service;MRP table service is over;Removal of temporary alternative product groups;Removal of temporary alternative product groups is over"
+	//#org @{return};Введите номер карты;Выбор товара по цене;Выбор группы;@{selling};Кассовая сессия закрыта;Заказ стола;Заказ стола (отменен)
+418 "@{return};Enter the card number;Choosing a product by price;Group selection;@{selling};Cash session closed;Order a table;Table order (cancelled)"
+	//#org 1,Ошибки,pperror.log;2,Ошибки выводимые на экран,pperrmsg.log;3,Информация,ppinfo.log;4,Создание/восстановление резервной копии,backup.log;5,Формирование таблицы продаж,psales.log;6,Загрузка на весы,scale.log;7,Получение почты,dbxrecv.log;8,Корректировка балансов,balance.log;9,Корректировка лотов,loterr.log;10,Корректировка поставщиков лотов,lotsuppl.err;11,Корректировка кассовых чеков,cchkerr.log;12,Ремонт базы данных,dbrepair.log;13,Ремонт проводок,accturn.log;14,Восстановление отсутствующих лотов,abslots.log;15,Восстановление отсутствующих товаров,absgoods.log;16,Загрузка асинхронного кассового узла,acs.log;17,Корректировка битых связей платежных документов,paymlink.log;18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;22,CBadReck,cbadreck.log;23,@{csession},ccheck.log
+446 "1,Errors,pperror.log;2,Errors displayed on the screen, pperrmsg.log;3,Information,ppinfo.log;4,Create/restore backup, backup.log;5,Forming a sales table,psales.log;6,Load on scales,scale.log;7,Receiving mail, dbxrecv.log;8,Balance adjustment,balance.log;9,Loterr.log;10,Adjustment of lot suppliers, lotsuppl.err;11,Adjusting cash cheques, cchkerr.log;12,Database repair,dbrepair.log;13,Repairing transactions, accturn.log;14,Recovering missing lots, abslots.log;15,Recovering missing goods,absgoods.log;16,Download asynchronous cash node,acs.log;17,Correcting broken payment document links,paymlink.log;18,Profiling,profile.log;19,Print on the stroke,shtrih.log;20,Version history,verhist.log;21,Defix,debug.log;22,CBadReck,cbadreck.log;23,@{csession},ccheck.log"
 // @v9.4.3 564 "@{objtype}"
-	//#org Введите почтовый адрес
-569 "Enter the mailing address"
 	//#org Выбор файла;Выбор пути
 579 "File selection;Choosing a path"
-	//#org Срок действия регистра '%s' истек
-580 "The '%s' register has expired"
-	//#org Тег '%s' отсутствует
-581 "There is no '%s' tag"
-	//#org Тег '%s' имеет недопустимое значение
-582 "The '%s' tag is unacceptable"
-	//#org Лог файл '%s' от организации '%s'
-583 "Log file '%s' from the organization '%s'"
-	//#org Выбор каталога для новой базы данных
-584 "Choosing a directory for a new database"
-	//#org Все разделы
-588 "All sections"
-	//#org Дата строки документа не соответствует дате документа (%s)
-589 "The document line date does not correspond to the document date (%s)"
-	//#org Расчет плохо продаваемых товаров
-599 "Calculating poorly-selling goods"
-	//#org Расчет убыточных товаров
-600 "Calculating loss-making goods"
-	//#org @{qtty};Остатки;@{stockamtcost};@{stockamtprice};Сумма в ценах поступления;Сумма в ценах реализации;Доход;Доход в % к ценам поступления;Доход в % к ценам реализации
-606 "@{qtty};Remains;@{stockamtcost};@{stockamtprice};Amount in revenue prices;Amount in sales prices;Income;Income as % to income prices;Revenue as % to sales prices"
-	//#org Выборка чеков за период
-608 "Sample checks for the period"
-	//#org Документ (@{number}=%s, @{date}=%s) не экспортирован, так как он не является платежным поручением.
-618 "The document (@{number}'s, @{date}'s) is not exported as it is not a payment order."
 	//#org @{object};@{extobject};@{oprkind};@{warehouse};Валюта;@{linkdocument}
 619 "@{object};@{extobject};@{oprkind};@{warehouse};Currency;@{linkdocument}"
-	//#org Выбор альтернативных групп для вставки нового товара
-620 "Choosing alternative groups to insert a new product"
-	//#org Найдены дублирующиеся географические объекты
-623 "Duplicate geographical objects found"
-	//#org Найдены дублирующиеся персоналии
-624 "Duplicate personalities found"
 	//#org Сегодня;Вчера;Последние 7 дней;Прошлая неделя (пнд-вскр);Прошлая рабочая неделя (пнд-птц);Текущий месяц;Прошедший месяц
 632 "Today;Yesterday;The last 7 days;Last week (pnd-vcr);Last working week (pnd-ptz);Current month;Last month"
-	//#org 1,@{oprkind};2,@{date};3,@{warehouse};4,@{article};5,@{addarticle};6,@{status};7,@{agent};8,@{payer};9,Долговая размерность;10,Место хранения (фрахт);11,@{daddress}
-634 "1,@{oprkind};2,@{date};3,@{warehouse};4,@{article};5,@{addarticle};6,@{status};7,@{agent};8,@{payer};9,Debt;10,Storage location (freight);11,@{daddress}"
-	//#org Установка соединения
-637 "Connecting"
-	//#org Отправка сообщений
-638 "Send messages"
-	//#org Отправка сообщений закончена
-639 "Messages are finished"
-	//#org Нет номера мобильного телефона
-640 "No mobile phone number"
-	//#org Соединение не установлено
-641 "No connection has been established"
-	//#org Номер должен состоять из 11 цифр
-643 "The number should consist of 11 digits"
-	//#org Настройки весов не позволяют загружать дополнительное сообщение о товаре
-646 "Weight settings don't allow you to download an additional message about a product"
-	//#org Не определен подписываемый документ или не указан владелец подписи
-647 "Undefined signed document or unspecified signature owner"
-	//#org Файл %s подписан. Подпись сохранена/добавлена в файл %s
-648 "File %s signed. Signature saved/added to %s file"
-	//#org Телефонный номер преобразован: %s
-649 "Phone number converted: %s"
 	//#org @{name};Расширенное имя;Название главной организации;Телефон главной организации;Адрес главной организации
 650 "@{name};Extended name;The name of the main organization;The main organization's phone;Address of the main organization"
 	//#org Метапеременная;@{documents};Оплаты по документам;@{poscheck_pl};Товарные остатки;@{personevent_pl};Долги;@{bizscore_pl}
 657 "Meta-change;@{documents};Payment by documents;@{poscheck_pl};Commodity balances;@{personevent_pl};Debts;@{bizscore_pl}"
 
+	//#org пн;вт;ср;чт;пт;сб;вс
+PPTXT_WEEKDAYS_BRIEF "Mon;W;Wed;Thu;Fri;Sat;Sun"
+	//#org Введите почтовый адрес
+PPTXT_INPUTEMAIL "Enter the mailing address"
+	//#org 1,@{oprkind};2,@{date};3,@{warehouse};4,@{article};5,@{addarticle};6,@{status};7,@{agent};8,@{payer};9,Долговая размерность;10,Место хранения (фрахт);11,@{daddress}
+PPTXT_SUBSTBILLLIST "1,@{oprkind};2,@{date};3,@{warehouse};4,@{article};5,@{addarticle};6,@{status};7,@{agent};8,@{payer};9,Debt;10,Storage location (freight);11,@{daddress}"
+	//#org Настройки весов не позволяют загружать дополнительное сообщение о товаре
+PPTXT_SCALE_NOTALLOWADDINFO "Weight settings don't allow you to download an additional message about a product"
+	//#org Не определен подписываемый документ или не указан владелец подписи
+PPTXT_EDS_NOFILEORSIGNOWNER "Undefined signed document or unspecified signature owner"
+	//#org Файл %s подписан. Подпись сохранена/добавлена в файл %s
+PPTXT_EDS_FILESIGNED "File %s signed. Signature saved/added to %s file"
+	//#org Телефонный номер преобразован: %s
+PPTXT_SMS_PNONENUMCHNGD "Phone number converted: %s"
 	//#org Межскладской приход
 PPTXT_INTRRECEIPT "Inter-Warehouse Parish"
 	//#org Начальный остаток
@@ -4995,8 +4792,8 @@ PPTXT_ACSCLS_IMPORT "Imports of cash cheques"
 PPTXT_ACSCLS_TOBILLS "Forming documents"
 	//#org Тестирование чеков
 PPTXT_ACSCLS_TESTCHECKS "Checking checks"
-	//#org 6,Эмулятор (синхронный);19,@{posnode_group};10,Кассовый сервер Кристалл Сет;11,Штрих-ФР;5,СуперМаг УКМ;14,Papyrus;16,Штрих-М-ФР-К;	17,Фронтол;18,Универсальный драйвер АТОЛ;21,@{posnode_distrib};22,Set Start;9,Кристалл УКМ;12,Атол;15,Атол без АТОЛ-CARD;2,Електроника-92-Аквариус-Ф;	1,ОКА-500.1;3,Unused;8,Unused;4,ЭКР-4110Ф;13,Unused;20,Unused;7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);501,Дрим Кас
-PPTXT_CMT "6,Emulator (synchronous);19,@{posnode_group};10,Crystal Seth Cash Server;11,Stry-FR;5,SuperMag UCM;14,Papyrus;16,Stry-M-FR-K;	17, Frontol;18,Universal driver ATOL;21,@{posnode_distrib};22,Set Start;9,UCM Crystal;12,Atol;15,Atol without ATOL-CARD;2,Elektronica-92-Aquarius-F;	1, OKA-500.1;3,Unused;8,Unused;4,ECR-4110F;13,Unused;20,Unused;7,Petrovich (Ladoga-F, Elektronica-92, ECR-3102F);501,Dream Kas"
+	//#org 6,Эмулятор (синхронный);19,@{posnode_group};10,Кассовый сервер Кристалл Сет;11,Штрих-ФР;5,СуперМаг УКМ;14,Papyrus;16,Штрих-М-ФР-К;17,Фронтол;18,Универсальный драйвер АТОЛ;21,@{posnode_distrib};22,Set Start;9,Кристалл УКМ;12,Атол;15,Атол без АТОЛ-CARD;2,Електроника-92-Аквариус-Ф;1,ОКА-500.1;3,Unused;8,Unused;4,ЭКР-4110Ф;13,Unused;20,Unused;7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);501,Дрим Кас
+PPTXT_CMT "6,Emulator (synchronous);19,@{posnode_group};10,Crystal Seth Cash Server;11,Stry-FR;5,SuperMag UCM;14,Papyrus;16,Stry-M-FR-K;17,Frontol;18,Universal driver ATOL;21,@{posnode_distrib};22,Set Start;9,UCM Crystal;12,Atol;15,Atol without ATOL-CARD;2,Elektronica-92-Aquarius-F;1,OKA-500.1;3,Unused;8,Unused;4,ECR-4110F;13,Unused;20,Unused;7,Petrovich (Ladoga-F, Elektronica-92, ECR-3102F);501,Dream Kas"
 // @v9.5.1 13,Кристалл-АЗС-->13,Unused
 // @v10.4.5 3,АМС-100Ф-->3,Unused
 // @v10.4.5 8,АМС-200Ф-->8,Unused
@@ -5006,8 +4803,6 @@ PPTXT_SCLT "1,CAS Electronics;2,Massa-K;3,Mettler Toledo;4,Crystal Cash Server;5
 PPTXT_VANTYPE "1,Frozen;2,Chilled;3,Cooled;4,Ventilated"
 	//#org 1,Оплаты по документу;2,Начисления ренты по документу;3,Зачеты по документу;4,Зачитывающие документы;6,Документы списания драфт-документа;7,Документы корректировки
 PPTXT_LINKBILLVIEWKINDS "1,Payment by document;2,Annuity accruals by document;3,Document credits;4,Reading documents;6,Draft document write-off documents;7,Adjustment documents"
-	//#org Ошибка акцепта статьи (%ld %s): %s
-PPTXT_ERRACCEPTARTICLE "Article acceptance error (%ld %s): %s"
 	//#org 1,Epson;2,PCL-принтер
 PPTXT_PRNTYPE "1,Epson;2,PCL printer"
 	//#org Конвертация товарных групп
@@ -5016,14 +4811,12 @@ PPTXT_IMPGOODSGRP "Conversion of commodity groups"
 PPTXT_IMPPERSON "Personalization"
 	//#org Строки товарного пакета %s
 PPTXT_PCKGLINESTITLE "Product pack lines %s"
-	//#org Ошибка акцепта персоналии (%ld %s): %s
-PPTXT_ERRACCEPTPERSON "Personality acceptance error (%ld %s): %s"
 	//#org Подготовка данных по товарам
 PPTXT_PREPAREBHTGOODS "Preparing product data"
 	//#org Подготовка прайс-листа к публикации
 PPTXT_PLISTTOALBATROS "Preparing the price list for publication"
-	//#org 1,Присвоить персоналии вид;2,Отозвать вид у персоналии;3,Установить тег персоналии;	4,Снять тег у персоналии;5,Присвоить персоналии должность;6,Отозвать должность у персоналии;	7,Присвоить персоналии регистр;8,Отозвать у персоналии регистр;9,Запись в календаре;	10,Заполнить календарь от парной операции;11,Увеличить тег;12,Уменьшить тег;13,Установить календарь в протяженное состояние;	14,Установить календарь в протяженное состояние пропуска;15,Отменить протяженное состояние календаря;	16,Запись пропуска в календаре;17,Заполнить календарь пропусками от парной операции;	18,Установить отношение со вторичной персоналией;19,Отозвать отношение со вторичной персоналией;	20,Начисление на персональную карту;21,Списание с персональной карты;22,Команда на устройство;	23,Информация на StyloDisplay;24,Звуковой сигнал;25,Проверка просроченности долга по документам
-PPTXT_POVERB "1,Assign personalities a look;2,Recall the view in personalities;3,Set the personality tag;	4,Remove the tag from the personalities;5,Assign personalities a post;6,Recall the position from the personalities;	7,Appropriate Personalities Register;8,Recall the registry from the personalities;9,Record in the calendar;	10,Fill the calendar from the pair operation;11,Increase the tag;12,Reduce the tag;13,Set the calendar in a long state;	14,Set the calendar in a long pass state;15,Cancel the long state of the calendar;	16,Record passes in the calendar;17,Fill the calendar with passes from the pair operation;	18,Establish a relationship with secondary personalities;19,Recall the relationship with secondary personalities;	20, Personal card accrual;21,Write-off from a personal card;22,Team on the device;	23,Information on StyloDisplay;24,Beep;25,Checking debt arrears on documents"
+	//#org 1,Присвоить персоналии вид;2,Отозвать вид у персоналии;3,Установить тег персоналии;4,Снять тег у персоналии;5,Присвоить персоналии должность;6,Отозвать должность у персоналии;7,Присвоить персоналии регистр;8,Отозвать у персоналии регистр;9,Запись в календаре;10,Заполнить календарь от парной операции;11,Увеличить тег;12,Уменьшить тег;13,Установить календарь в протяженное состояние;14,Установить календарь в протяженное состояние пропуска;15,Отменить протяженное состояние календаря;16,Запись пропуска в календаре;17,Заполнить календарь пропусками от парной операции;18,Установить отношение со вторичной персоналией;19,Отозвать отношение со вторичной персоналией;20,Начисление на персональную карту;21,Списание с персональной карты;22,Команда на устройство;23,Информация на StyloDisplay;24,Звуковой сигнал;25,Проверка просроченности долга по документам
+PPTXT_POVERB "1,Assign personalities a look;2,Recall the view in personalities;3,Set the personality tag;4,Remove the tag from the personalities;5,Assign personalities a post;6,Recall the position from the personalities;7,Assign personalities register;8,Recall the registry from the personalities;9,Record in the calendar;10,Fill the calendar from the pair operation;11,Increase the tag;12,Reduce the tag;13,Set the calendar in a long state;14,Set the calendar in a long pass state;15,Cancel the long state of the calendar;16,Record a pass in the calendar;17,Fill the calendar with passes from the pair operation;18,Establish a relationship with secondary personalities;19,Recall the relationship with secondary personalities;20,Accrual on a personal card;21,Write-off from a personal card;22,Team on the device;23,Information on StyloDisplay;24,Beep;25,Checking debt arrears on documents"
 // UserInterfaceSettings::wndVKXXX Варианты отображения элементов пользовательского интерфейса
 	//#org 1,Standard;2,Flat (не рекомендуется);3,Vector;4,Fancy
 PPTXT_WINDOWSVIEWKINDS "1,Standard;2,Flat (not recommended);3,Vector;4,Fancy"
@@ -5045,11 +4838,27 @@ PPTXT_SELECTOPRTYPE "Choose the type of operation"
 PPTXT_SELECTPSNOP "Choose a type of personal ized operation"
 	//#org Выберите тег
 PPTXT_SELECTOBJTAG "Choose a tag"
+	//#org Выберите файл
+PPTXT_SELFILE "Select file"
+	//#org Выберите кодировку
+PPTXT_SELCODEPAGE "Choose coding"
+	//#org Выбор товаров по наименованию
+PPTXT_SELGOODSBYNAME "Choosing goods by name"
+	//#org Выбор товара/лота по серийному номеру
+PPTXT_SELGOODSBYSERIAL "Select ingesdate"
+	//#org Выбор товаров по цене
+PPTXT_SELGOODSBYPRICE "Choosing goods by price"
+	//#org Отбор товаров по группе
+PPTXT_SELECTINGGOODSBYGROUP "Group selection"
+	//#org Отбор товаров по операциям
+PPTXT_SELECTINGGOODSBYTRFR "Selection of goods by operation"
+	//#org Выберите объект
+PPTXT_SELECTOBJECT "Select object"
 // Типы счетов
-	//#org @{account_accounting};@{account_balance};@{balancelessaccount};Агрегирующий счет;@{account_register};	Персональный счет;@{accountalias};@{budgetaccount}
-PPTXT_ACCTITLES "@{account_accounting};@{account_balance};@{balancelessaccount};Aggregation account;@{account_register};	Personal account;@{accountalias};@{budgetaccount}"
-	//#org один;одна;два;две;три;четыре;пять;шесть;семь;восемь;девять;десять;одиннадцать;двенадцать;тринадцать;четырнадцать;пятнадцать;шестнадцать;	семнадцать;восемнадцать;девятнадцать;двадцать;тридцать;сорок;пятьдесят;шестьдесят;семьдесят;восемьдесят;девяносто;сто;двести;триста;четыреста;	пятьсот;шестьсот;семьсот;восемьсот;девятьсот;миллиард;миллиарда;миллиардов;миллион;миллиона;миллионов;тысяча;тысячи;тысяч
-PPTXT_NUMBERWORDS "One;One;Two;Two;Three;Four;Five;Six;Seven;Eight;Nine;Ten;Eleven;Twelve;Thirteen;Fourteen;Fifteen;Sixteen;	Seventeen;Eighteen;Nineteen;Twenty;Thirty;Forty;Fifty;Sixty;Seventy;Eighty;Ninety;One hundred;Two hundred;Three hundred;Four hundred;	Five hundred;Six hundred;Seven hundred;Eight hundred;Nine hundred;Billion;Billion;Billion;Million;Million;Million;Thousand;Thousand;Thousand"
+	//#org @{account_accounting};@{account_balance};@{balancelessaccount};Агрегирующий счет;@{account_register};Персональный счет;@{accountalias};@{budgetaccount}
+PPTXT_ACCTITLES "@{account_accounting};@{account_balance};@{balancelessaccount};Aggregation account;@{account_register};Personal account;@{accountalias};@{budgetaccount}"
+	//#org один;одна;два;две;три;четыре;пять;шесть;семь;восемь;девять;десять;одиннадцать;двенадцать;тринадцать;четырнадцать;пятнадцать;шестнадцать;семнадцать;восемнадцать;девятнадцать;двадцать;тридцать;сорок;пятьдесят;шестьдесят;семьдесят;восемьдесят;девяносто;сто;двести;триста;четыреста;пятьсот;шестьсот;семьсот;восемьсот;девятьсот;миллиард;миллиарда;миллиардов;миллион;миллиона;миллионов;тысяча;тысячи;тысяч
+PPTXT_NUMBERWORDS "One;One;Two;Two;Three;Four;Five;Six;Seven;Eight;Nine;Ten;Eleven;Twelve;Thirteen;Fourteen;Fifteen;Sixteen;Seventeen;Eighteen;Nineteen;Twenty;Thirty;Forty;Fifty;Sixty;Seventy;Eighty;Ninety;One hundred;Two hundred;Three hundred;Four hundred;Five hundred;Six hundred;Seven hundred;Eight hundred;Nine hundred;Billion;Billion;Billion;Million;Million;Million;Thousand;Thousand;Thousand"
 	//#org руб;рубль;рубля;рублей;коп;копейка;копейки;копеек
 PPTXT_CURRENCYWORDS "rub;Ruble;Ruble;Rubles;Cop;Kopek;Penny;Kopeks"
 	//#org Принимается сообщение
@@ -5068,10 +4877,6 @@ PPTXT_WAITONDATAFROMCASH "Waiting for data from the cash register %s"
 PPTXT_FILLMODELS "Forming and recording models"
 	//#org Вычисление сезонных интервалов
 PPTXT_CALCSEASONS "Calculating seasonal intervals"
-	//#org Ошибка акцепта структуры товара (%ld %s): %s
-PPTXT_ERRACCEPTGOODSSTRUC "Error of the acceptance of the structure of the goods (%ld %s): %s"
-	//#org Ошибка акцепта счета (%ld %s): %s
-PPTXT_ERRACCEPTACCOUNT "Account acceptance error (%ld %s): %s"
 	//#org Сохранение кассовых чеков в базе данных %ld/%ld
 PPTXT_RESTORECSESS "Keeping cash checks in the %ld/%ld database"
 	//#org Выбор аналитических статей
@@ -5090,12 +4895,10 @@ PPTXT_FLASHTEMPCCLINES "Reset the check strings into the system"
 PPTXT_WTMAILCONNECTION "Waiting to connect to the %s mail server"
 	//#org Проверка содержимого почтового ящика
 PPTXT_CHECKINMAILFORPPY "Checking the contents of your inbox"
-	//#org 1,ТП-Платежи текущего года;2,ЗД-Добровольное погашение задолженности;3,ТР-Погашение задолженности по требованию;	4,РС-Погашение рассроченной задолженности;5,ОТ-Погашение отсроченной задолженности;6,РТ-Погашение реструктурируемой задолженности;	7,ВУ-Погашение отсроченной задолженности при внешнем управлении;8,ПР-Погашение задолженности, приостановленной к взысканию;	9,АП-Погашение задолженности по акту проверки;10,АР-Погашение задолженности по исполнительному документу
-PPTXT_TAXPAYMREASON "1,TP-Payments of the current year;2,DD-Voluntary Debt Repayment;3,TR-Repayment of debt on demand;	4,RS-Repayment of outstanding debt;5,OT-Repayment of Deferred Debt;6,RT-Repayment of Restructured Debt;	7,WU-Repayment of Deferred Debt with External Management;8,PR-Repayment of debt suspended for recovery;	9,AP-Repayment of Debt under The Act Check;10,AR-Debt Repayment under executive document"
-	//#org 3,ПЕ-уплата пени;4,ПЦ-уплата процентов;9,0-Остальные случаи;1,НС-уплата налога или сбора;2,АВ-уплата аванса или предоплата;	5,СА-налоговые санкции;6,АШ-административные штрафы;7,ИШ-иные штрафы;8,ВЗ-взнос
-PPTXT_TAXPAYMTYPE "3,PE-paying the penalty;4,Interest payment;9,0-Other cases;1,NS payment of tax or fee;2,AV payment of advance or prepayment;	5,SA-tax sanctions;6,ASH administrative fines;7,ISH-other fines;8,Fee"
-	//#org Ошибка акцепта карты (%ld %s): %s
-PPTXT_ERRACCEPTSCARD "(%ld %s): %s card acceptance error"
+	//#org 1,ТП-Платежи текущего года;2,ЗД-Добровольное погашение задолженности;3,ТР-Погашение задолженности по требованию;4,РС-Погашение рассроченной задолженности;5,ОТ-Погашение отсроченной задолженности;6,РТ-Погашение реструктурируемой задолженности;7,ВУ-Погашение отсроченной задолженности при внешнем управлении;8,ПР-Погашение задолженности, приостановленной к взысканию;9,АП-Погашение задолженности по акту проверки;10,АР-Погашение задолженности по исполнительному документу
+PPTXT_TAXPAYMREASON "1,TP-Payments of the current year;2,DD-Voluntary Debt Repayment;3,TR-Repayment of debt on demand;4,RS-Repayment of arrears;5,OT-Repayment of Deferred Debt;6,RT-Repayment of Restructured Debt;7,Wu-Repayment of Deferred Debt with External Management;8,PR-Repayment of debt suspended for recovery;9,AP-Repayment of Debt by Act Check;10,AR-Debt Repayment under executive document"
+	//#org 3,ПЕ-уплата пени;4,ПЦ-уплата процентов;9,0-Остальные случаи;1,НС-уплата налога или сбора;2,АВ-уплата аванса или предоплата;5,СА-налоговые санкции;6,АШ-административные штрафы;7,ИШ-иные штрафы;8,ВЗ-взнос
+PPTXT_TAXPAYMTYPE "3,PE-paying the penalty;4,Interest payment;9,0-Other cases;1,NS payment of tax or fee;2,AV payment of advance or prepayment;5,SA-tax sanctions;6,ASH administrative fines;7,ISH-other fines;8,Fee"
 	//#org <1>Условия хранения и срок годности<2>Стандарт<4>Состав<5>Энергетическая ценность<6>Способ использования (приготовления)
 PPTXT_GOODSEXTITLES "<1>Storage Conditions and Shelf Life<2>Standard Composition Energy Value Way of Use<4><5><6>(Cooking)</6> </5> </4> </2></1>"
 	//#org По умолчанию остаток нулевой;По умолчанию остаток равен учетному
@@ -5112,14 +4915,24 @@ PPTXT_DEFPLISTEXPORTSPEC "@{goodsname};barcode,@{barcode};unit,@{munit_s};pack,@
 PPTXT_OPRKIND_NEEDED "Manual choice of type of operation is required"
 	//#org Выбор конфигурации
 PPTXT_SELECT_CONFIGURATION "Choice"
-	//#org Дублирование данных на дату %s
-PPTXT_LOG_PSALES_DUPDAY "Duplication of data as of %s"
+	//#org тип создаваемого файла
+PPTXT_CREATEFILETYPE "The type of file you're building"
+	//#org подстановки для товаров
+PPTXT_NOTIMPORTEDGOODS "substitutions for goods"
+	//#org Активная сессия
+PPTXT_ACTIVESESSION "Active session"
+	//#org Склад '%s' восстановлен
+PPTXT_LOCRECRESTORED "Warehouse '%s' restored"
+	//#org @{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%
+PPTXT_SCARDINFO "@{card}: %s, @{owner}: %s, @{discount}: %0.2lf%%"
+	//#org Введите номер персональной карты
+PPTXT_INPSCARDNUMBER "Enter your personal card number"
+	//#org @{discard};Выбор товара по цене;Ввод;@{goodsgroup}...;@{groupdefault};Печать этикетки;Выбор товара по наименованию
+PPTXT_INFKIOSK_TOOLTIPS "@{discard};Choosing a product by price;Enter;@{goodsgroup}...;@{groupdefault};Print labels;Choosing a product by name"
 	//#org Импорт чеков из кассового модуля %s
 PPTXT_IMPORTCHECKS "Imports of cheques from the cash module %s"
 	//#org Ожидание файла '%s'
 PPTXT_WAITONFILE "Waiting for the '%s' file"
-	//#org Ошибка акцепта котировок (товар %ld %s): %s
-PPTXT_ERRACCEPTGOODSQUOTS "Acceptance error of quotations (goods %ld %s): %s"
 	//#org Из принимаемого товара удален дублируемый штрихкод: %ld %s
 PPTXT_RMVDUPBARCODE "A duplicate barcode has been removed from the item accepted: %ld%s"
 	//#org Ошибка конвертации документа (%ld [%s]): %s
@@ -5134,10 +4947,6 @@ PPTXT_WEEKNO "1,First;2,Second;3,Third;4,Fourth;5,Last"
 PPTXT_RCVPACKETREJVER "The data reception package is rejected because it requires a later version of the (%s)"
 	//#org Формирование таблицы продаж
 PPTXT_WAIT_PALMEXPSELL "Forming a sales table"
-	//#org Не определен склад: товар %s, документ %s
-PPTXT_LOG_PSALES_UNDEFLOC "Undefined stock: goods %s, %s document"
-	//#org Товарные остатки на неопределенном складе: товар %s, дата %s
-PPTXT_LOG_PSALES_UNDEFLOC_REST "Inventories in an uncertain stock: %s, %s date"
 	//#org @{view_processor} {%s};@{processorgroup_pl} {%s}
 PPTXT_PRCTITLES "@{view_processor} {%s};@{processorgroup_pl} {%s}"
 	//#org Компоненты товара %s;Товары, содержащие компонент %s;Товары, замещающие компонент '%s'
@@ -5178,6 +4987,180 @@ PPTXT_IMPSPOIL_DUP "A similar entry has been found in the (%s) table"
 PPTXT_IMPSPOIL_ACCEPT "A new record (%s) accepted"
 	//#org PAPYRUS - скидка %02.2f%%
 PPTXT_ATOL_SCARDCAT "PAPYRUS - discount %02.2f%%"
+	//#org Заполнение таблицы продаж
+PPTXT_PSALESPROCESS "Filling the sales table"
+	//#org В файле stdslip.fmt в описании формата '%s' превышен максимальный размер строки
+PPTXT_SLIPFMT_WIDTHOVER "In the stdslip.fmt file, the '%s' exceeds the maximum line size"
+	//#org Ошибка записи в SysJournal (%s)
+PPTXT_ERR_SYSJLOGGING "SysJournal record error (%s)"
+	//#org Прием строк инвентаризации
+PPTXT_IMP_INVENTORYLINES "Receiving inventory lines"
+	//#org @{mainorg}: %s Лицензия: %s @{user}: %s @{path_database}: %s @{path_report}: %s Структура данных: %s 
+PPTXT_RPTSUPPMAIL_HEADER "@{mainorg}: %s License: %s @{user}: %s @{path_database}: %s @{path_report}: %s Data structure: %s "
+	//#org Дата и время:
+PPTXT_RPTSUPPMAIL_TIMESTAMP "Date and time:"
+	//#org Объект {%s} уже зарегестрирован в таблице синхронизации как удаленный
+PPTXT_ERR_OBJSYNCALLREADYRMVD "The {%s} object has already been registered in the synchronization table as remote"
+	//#org Путь доступен
+PPTXT_PATHACCESS "The path is available"
+	//#org Путь не доступен
+PPTXT_PATHACCESSNO "The path is not available"
+	//#org Определенный пользователем
+PPTXT_USERDEF "Identified by the user"
+	//#org Конфигурация импорта прайс-листа
+PPTXT_PLISTIMPORTCFG "Import list configuration"
+	//#org Конфигурация экспорта прайс-листа
+PPTXT_PLISTEXPORTCFG "Price list export configuration"
+	//#org Неизвестный товар @{id}=[%ld], @{name}=[%s], @{barcode}=[%s]
+PPTXT_UNRESOLVEDGOODSITEM "Unknown @{id},[%ld], @{name},[%s], @{barcode}-[%s]"
+	//#org Файлы прикрепляемых документов
+PPTXT_OPENFILET_LINKBILLFILES "Files of attached documents"
+	//#org prLastMonth,Последний месяц до периода начисления;prLastQuart,Последний квартал до периода начисления;prLastYear,Последний год до периода начисления;prThisMonth,С начала этого месяца;prThisQuart,С начала этого квартала;prThisYear,С начала этого года
+PPTXT_SALFRM_PERIOD "prLastMonth,Last month before accrual period;prLast'art,Last quarter before accrual period;prLastYear,Last year before accrual period;prThisMonth,Since the beginning of this month;prThis'art,Since the beginning of this quarter;prThisYear,Since the beginning of this year"
+	//#org Ошибка загрузки строки документа (%s):
+PPTXT_TRFRLOADINGFAULT "The error in downloading the document line (%s):"
+	//#org Ошибка извлечения лота (LotID=@int): @zstr
+PPTXT_SEARCHLOTFAULT "The error of extracting the lot (LotID=@int): zstr"
+	//#org Ошибка в строке Transfer (док='@bill'; товар='@goods'; lot=@int): @zstr
+PPTXT_TRFRRECERROR "Error in the Transfer line (doc'@bill'; '@goods' Goods; lot'@int): @zstr"
+	//#org Введите количество генерируемых документов
+PPTXT_INP_BILL_COUNT "Enter the number of documents generated"
+	//#org Включить в товарную матрицу
+PPTXT_INCLUDEINGOODSMATRIX "Include in the commodity matrix"
+	//#org Генерация товарных документов
+PPTXT_GENERATEBILLS "Generating product documents"
+	//#org копеек;копейка;копейки
+PPTXT_WORDS_MONEY_CENT "Kopeks;Kopek;Penny"
+	//#org Последняя использованная вами корзина '%s' заблокирована (%s). Выберите другую.
+PPTXT_OWNBASKETISLOCKED "The last basket you used '%s' blocked (%s). Choose another one."
+	//#org Корзина по умолчанию '%s' заблокирована (%s). Выберите другую.
+PPTXT_DEFBASKETISLOCKED "The default '%s' is blocked (%s). Choose another one."
+	//#org Найден аналог по имени для персоналии '%s'
+PPTXT_ACCEPTANALOG_PSN_NAME "Found an analogue by name for personalities '%s'"
+	//#org Найден аналог по регистру для персоналии '%s'
+PPTXT_ACCEPTANALOG_PSN_CODE "An analogue of the registry for personalities '%s' found"
+	//#org Редактирование списка команд
+PPTXT_EDITCMDLIST "Editing the list of commands"
+	//#org Редактирование рабочих столов
+PPTXT_EDITDESKTOP "Editing desktops"
+	//#org Редактирование списка меню
+PPTXT_EDITMENU "Editing the menu list"
+	//#org Соединение было разорвано. Попытка восстановить
+PPTXT_FTPCONNECT "The connection was severed. Trying to recover"
+	//#org Соединение восстановлено
+PPTXT_FTPRECONNECTED "Connection restored"
+	//#org Файл '%s' на FTP сервере имеет более позднюю дату/время
+PPTXT_FTPSPIISRVDATAOBSOLETE "File '%s' on FTP server has a later date/time"
+	//#org Введите количество дней
+PPTXT_INPUTNUMDAYS "Enter the number of days"
+	//#org Импорт специальных серий
+PPTXT_IMPSPECSER "Imports of special series"
+	//#org Загрузка данных из интернета, файл: %s
+PPTXT_DWNLPPYDATA "Downloading data from the Internet, file: %s"
+	//#org Разбор файла %s
+PPTXT_PARSEXMLFILE "Reviewing the %s file"
+	//#org Итого по товарным операциям:
+PPTXT_GOODSOPRTOTAL "Total commodity transactions:"
+	//#org 1,Периоды доступа;2,@{rt_item_op_s};3,@{rt_item_warehouse_s};4,@{config};5,@{rt_item_account_s}
+PPTXT_EDITRIGHTSPARAMS "1,Access periods;2,@{rt_item_op_s};3,@{rt_item_warehouse_s};4,@{config};5,@{rt_item_account_s}"
+	//#org Сканирование выходных дней
+PPTXT_SCANHOLIDAYS "Weekend scanning"
+	//#org Банковский документ '%s' успешно проведен
+PPTXT_CLIBNK_BILLTURNED "The bank document '%s' successfully carried out"
+	//#org При списании сессии '%s' есть дефицит, но это игнорируется из-за конфигурации процессора
+PPTXT_TSESWROFFDEFICIT "When you write off a session '%s' there is a deficit, but this is ignored due to the configuration of the processor"
+	//#org Почтовый акаунт '%s' успешно импортирован
+PPTXT_MAILACCOUNTIMPOTED "Postal account '%s' successfully imported"
+	//#org Импортировано %ld из %ld записей
+PPTXT_IMPORTEDRECS "Imported %ld from %ld records"
+	//#org Экспортировано %ld записей
+PPTXT_EXPORTEDRECS "Exported %ld records"
+	//#org Выбор почтовых акаунтов
+PPTXT_SELMAILACCTS "Choosing postal accounts"
+	//#org Срок действия регистра '%s' истек
+PPTXT_PSNREGEXPIRED "The '%s' register has expired"
+	//#org Тег '%s' отсутствует
+PPTXT_TAGABSENT "There is no '%s' tag"
+	//#org Тег '%s' имеет недопустимое значение
+PPTXT_TAGWARNVAL "The '%s' tag is unacceptable"
+	//#org Лог файл '%s' от организации '%s'
+PPTXT_LOGFILEMAILSUBJ "Log file '%s' from the organization '%s'"
+	//#org Выбор каталога для новой базы данных
+PPTXT_SELNEWBASEDIR "Choosing a directory for a new database"
+	//#org Все разделы
+PPTXT_ALLDBDIV "All sections"
+	//#org Расчет плохо продаваемых товаров
+PPTXT_CALCBADSALESGOODS "Calculating poorly-selling goods"
+	//#org Расчет убыточных товаров
+PPTXT_CALCUNPROFITABLEGOODS "Calculating loss-making goods"
+	//#org @{qtty};Остатки;@{stockamtcost};@{stockamtprice};Сумма в ценах поступления;Сумма в ценах реализации;Доход;Доход в % к ценам поступления;Доход в % к ценам реализации
+PPTXT_GOODSOPRADDVALNAMES "@{qtty};Remains;@{stockamtcost};@{stockamtprice};Amount in revenue prices;Amount in sales prices;Income;Income as % to income prices;Revenue as % to sales prices"
+	//#org Выборка чеков за период
+PPTXT_CCHECKSELFORPERIOD "Sample checks for the period"
+	//#org Документ (@{number}=%s, @{date}=%s) не экспортирован, так как он не является платежным поручением.
+PPTXT_BILLNOTBANKING "The document (@{number}'s, @{date}'s) is not exported as it is not a payment order."
+	//#org Выбор альтернативных групп для вставки нового товара
+PPTXT_SELALTGOODSGRPS "Choosing alternative groups to insert a new product"
+	//#org Найдены дублирующиеся географические объекты
+PPTXT_DUPLWORLDOBJNAMES "Duplicate geographical objects found"
+	//#org Найдены дублирующиеся персоналии
+PPTXT_DUPLPERSONNAMES "Duplicate personalities found"
+	//#org Установка соединения
+PPTXT_SMS_CONNECTING "Connecting"
+	//#org Отправка сообщений
+PPTXT_SMS_SENDINGSMS "Send messages"
+	//#org Отправка сообщений закончена
+PPTXT_SMS_ENDSENDING "Messages are finished"
+	//#org Нет номера мобильного телефона
+PPTXT_SMS_NOPHONENUMBER "No mobile phone number"
+	//#org Соединение не установлено
+PPTXT_SMS_NOTCONNECTED "No connection has been established"
+	//#org Номер должен состоять из 11 цифр
+PPTXT_SMS_ELEVENNUMS "The number should consist of 11 digits"
+	//#org Дата строки документа не соответствует дате документа (%s)
+PPTXT_LOG_UNEQTRFRBILLDATE "The document line date does not correspond to the document date (%s)"
+	//#org Сигнальная запись сессии: '%s'
+PPTXT_LOG_BHTTSESS_SIGNAL "Session signal recording: '%s'"
+	//#org Переключение процессора: '%s'
+PPTXT_LOG_BHTTSESS_PRCSWITCH "Switching processor: '%s'"
+	//#org Сессия по документу существует: '%s'
+PPTXT_LOG_BHTTSESS_BILLSESSEXISTS "Session on the document exists: '%s'"
+	//#org Выбор технологии перенастройки '@prc': '@goods'-->'@goods'
+PPTXT_LOG_TOOLINGSEL_START "Choosing the technology to reconfigure '@prc': ----'@goods'"
+	//#org       Выбрана технология перенастройки '@tech'
+PPTXT_LOG_TOOLINGSEL_SEL "   The technology for reconfiguring '@tech' has been chosen"
+	//#org       Нет подходящей технологии перенастройки
+PPTXT_LOG_TOOLINGSEL_NOTHING "   No suitable reconfiguration technology"
+	//#org       Формула перехода:
+PPTXT_LOG_TOOLINGSEL_FORMULA "   Transition formula:"
+	//#org Последняя строка удалена
+PPTXT_LOG_BHTTSESS_LASTLNRMVD "Last line removed"
+	//#org Не удалось удалить последнюю строку: строка не определена
+PPTXT_LOG_BHTRSESS_CANTRMVLASTLN "The last line could not be removed: the line has not been defined"
+	//#org Дублирование данных на дату %s
+PPTXT_LOG_PSALES_DUPDAY "Duplication of data as of %s"
+	//#org Не определен склад: товар %s, документ %s
+PPTXT_LOG_PSALES_UNDEFLOC "Undefined stock: goods %s, %s document"
+	//#org Товарные остатки на неопределенном складе: товар %s, дата %s
+PPTXT_LOG_PSALES_UNDEFLOC_REST "Inventories in an uncertain stock: %s, %s date"
+	//#org Неверная запись @int в файле @sstr
+PPTXT_LOG_IMPEXP_INVREC "Incorrect @int record in @sstr file"
+	//#org Файл '%s' уже находится в очереди приема данных
+PPTXT_LOG_FILEALLREADYINQUEUE "File '%s' is already in the queue for data reception"
+	//#org Недопустимая конвертируемая запись пропущена (%s)
+PPTXT_LOG_INVCONVERTEDREC "Unacceptable convertible record missed (%s)"
+	//#org База данных заблокирована
+PPTXT_LOG_DBLOCKED "Database blocked"
+	//#org База даных не заблокирована
+PPTXT_LOG_DBUNLOCKED "The database is not blocked"
+	//#org Списание строки техн сессии: товар=@goods серия=@zstr колич=@real
+PPTXT_LOG_TSES_WROFF_LINE "Writing off the line of the technical session: the product @goods series @zstr the @real @zstr"
+	//#org Ошибка записи в таблицу=%ld, ряд=%ld, поле=%ld, значение=%s
+PPTXT_LOG_SHTRIH_WRITETBLERR "Error of writing in the table,%%ld, row of ld,%, field-%ld, value of '%s"
+	//#org Ошибка загрузки бухгалтерской проводки по документу '@bill': @zstr
+PPTXT_LOG_LOADACCTURNFAULT "Accounting transaction error on the document '@bill': zstr"
+	//#org Ошибка загрузки бухгалтерской проводки по документу '@bill': @zstr: попытка удаления строки
+PPTXT_LOG_LOADACCTURNFAULT_C "Accounting transaction error on the document '@bill': zstr: attempt to remove the line"
 	//#org STOP установить: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}
 PPTXT_LOG_DEBTRATE_SETSTOP "STOP set: @article: @{debt}-@real; Not credited @real; Maximum overdue @int @{days}"
 	//#org STOP снять: @article: @{debt}=@real; Не зачтенные оплаты=@real; Максимальная просроченность=@int @{days}
@@ -5382,6 +5365,286 @@ PPTXT_LOG_PRCSALUUSEDPSNEV "The type of personal operation is used: @zstr @real"
 PPTXT_LOG_SCALE_INVBARCODE "Wrong barcode: @goods goods, barcode @zstr"
 	//#org Неверный срок хранения: товар @goods, срок хранения до @date
 PPTXT_LOG_SCALE_INVEXPIRY "Incorrect shelf life: @goods goods, shelf life up to @date"
+	//#org Технологическая сессия '%s' создана
+PPTXT_LOG_BHTTSESS_CREATED "The technology session '%s' created"
+	//#org Использована технологическая сессия '%s'
+PPTXT_LOG_BHTTSESS_USED "Used a technology session '%s'"
+	//#org Технологическая сессия '%s' закрыта
+PPTXT_LOG_BHTTSESS_CLOSED "Technology session '%s' closed"
+	//#org Висячие строки чеков %s
+PPTXT_LOG_ZEROLINKCCLINE "Hanging rows of checks %s"
+	//#org У основного средства '%s' не указана группа списания
+PPTXT_LOG_ASSTWROF_NOWROFFGRP "The main tool '%s' does not specify a write-off group"
+	//#org Основное средство '%s:%s' не введено в эксплуатацию
+PPTXT_LOG_ASSTWROF_OUTOFEXPL "The main tool '%s:%s' not put into operation"
+	//#org Недопустимая замена в MRP-таблице ('%s' --> '%s')
+PPTXT_LOG_INVMRPSUBT "Unacceptable replacement in the MRP table ('%s' --- '%s')"
+	//#org Кассовый узел %s не готов к приему данных, но этот признак проигнорирован согласно конфигурации оборудования
+PPTXT_LOG_ACNEXP_NREADYTAGIGNORED "The %s cash node is not ready to receive data, but this sign is ignored according to the hardware configuration"
+	//#org Экспорт данных для кассового узла %s
+PPTXT_LOG_ACNEXP_START "Export of data for the cash node %s"
+	//#org Завершен экспорт данных для кассового узла %s
+PPTXT_LOG_ACNEXP_FINISH "Exports of data for the cash node %s have been completed"
+	//#org Экспортируется товар %s
+PPTXT_LOG_ACNEXP_GOODS "Exports %s"
+	//#org @{cmd}=%s; @{error}=%s; Режим=%s; Подрежим=%ld
+PPTXT_LOG_SHTRIH "@{cmd}'s; @{error}'s; The mode of the; Sub-mode-%%ld"
+	//#org Товар '%s' ссылается на альтернативную группу '%s'
+PPTXT_LOG_ALTGGRPHASGOODS "The product '%s' refers to an alternative group of '%s'"
+	//#org Товар '%s' ссылается на группу-папку '%s'
+PPTXT_LOG_FOLDERGGRPHASGOODS "The '%s' refers to the '%s' folder group"
+	//#org Товар '%s' перенесен в группу '%s'
+PPTXT_LOG_GGRPHASGOODS_CORR "The product '%s' moved to the '%s' group"
+	//#org Проверка товарных групп...
+PPTXT_LOG_CORRECTGGRP "Checking product groups..."
+	//#org На весы %s загружено %ld наименований товаров
+PPTXT_LOG_SCALELOADED "On the scales %s loaded %ld items"
+	//#org Изменена скидка по карте '%s': оборот=%.2lf, %.1lf%% --> %.1lf%%
+PPTXT_LOG_SCARDDISUPDATED "Changed the discount on the card '%s': оборот..2lf, %.1lf%%------------1lf%%%"
+	//#org Группа '%s' не содержит ни одного товара;Перенесена в папку '%s';Удалена;Не определан папка для переноса;Уже находится в папке для переноса
+PPTXT_LOG_EMPTYGGRP "The '%s' group does not contain any items;Moved to a '%s' folder;Removed;There is no transfer folder;Already in the transfer folder"
+	//#org Товар '@goods' размещен в ячейке '@loc' количество =@real
+PPTXT_LOG_BILLDISPOSITION "The product '@goods' placed in the cell '@loc' the amount of z@real"
+	//#org Ни одна из строк документа '@bill' не была размещена по ячейкам
+PPTXT_LOG_BILLDISPEMPTY "None of the lines of the document '@bill' was placed on the cells"
+	//#org В базе данных @{brand_uhtt} не найден товар, соответствующий '@goods': попытка создания
+PPTXT_LOG_UHTT_GOODSNFOUND "No product matching the creation '@goods': попытка has been found in the @{brand_uhtt} database"
+	//#org В базе данных @{brand_uhtt} найден товар, соответствующий '@goods' по приватному коду: попытка изменения
+PPTXT_LOG_UHTT_GOODSPRVCODEUPD "In the database @{brand_uhtt} found a product corresponding to the '@goods' by private code: an attempt to change"
+	//#org Товар '@goods' со штрихкодом @zstr создан
+PPTXT_LOG_UHTT_GOODSCR "The '@goods' with the barcode @zstr created"
+	//#org Ошибка создания товара '@goods' со штрихкодом @zstr: @zstr
+PPTXT_LOG_UHTT_GOODSCRFAULT "'@goods'-barcode-@zstr bug: @zstr"
+	//#org Для товара '@goods' экспортировано изображение
+PPTXT_LOG_UHTT_GOODSSETIMG "Image is '@goods' exported for the goods"
+	//#org Ошибка экспорта изображения для товара '@goods': @zstr
+PPTXT_LOG_UHTT_GOODSSETIMGFAULT "Image export error for '@goods': 'zstr goods"
+	//#org Для товара '@goods' нет изображения
+PPTXT_LOG_UHTT_GOODSNOIMG "There is no image for the '@goods' product"
+	//#org Серия '@zstr' экспортирована
+PPTXT_LOG_UHTT_SPECSERIESEXP "Series of '@zstr' exported"
+	//#org Ошибка экспорта серии '@zstr': @zstr
+PPTXT_LOG_UHTT_SPECSERIESEXPFAULT "Export error of the '@zstr': -zstr series"
+	//#org Импортирована серия @{number} '@zstr' от @zstr ('@zstr' : '@zstr')
+PPTXT_LOG_UHTT_SPECSERIESIMP "@{number} '@zstr' series from @zstr ('@zstr': '@zstr')"
+	//#org Ошибка импорта серии '@zstr': @zstr
+PPTXT_LOG_UHTT_SPECSERIESIMPFAULT "Import error of the '@zstr': zstr series"
+	//#org Для технологической сессии '@zstr' экспортировано изображение
+PPTXT_LOG_UHTT_TSESSSETIMG "For the technology session, the image '@zstr' exported"
+	//#org Ошибка экспорта изображения для технологической сессии '@zstr': @zstr
+PPTXT_LOG_UHTT_TSESSSETIMGFAULT "Image export error for the '@zstr': 'zstr technology session"
+	//#org Товар '%s' идентифицирован по идентификатору '%s'
+PPTXT_LOG_IMPINV_GOODSIDBYID "The product '%s' identified by the '%s' ID"
+	//#org Товар '%s' идентифицирован по штрихкоду '%s'
+PPTXT_LOG_IMPINV_GOODSIDBYBARCODE "The product '%s' identified by the '%s' barcode"
+	//#org Товар (весовой) '%s' идентифицирован по штрихкоду '%s'
+PPTXT_LOG_IMPINV_GOODSIDBYBARCODEW "The product (weight) '%s' identified by the barcode '%s'"
+	//#org Товар '%s' идентифицирован по серийному номеру '%s'
+PPTXT_LOG_IMPINV_GOODSIDBYSERIAL "The product '%s' identified by the serial number of the '%s'"
+	//#org Товар '%s' идентифицирован по серийному номеру '%s' (закрытый лот)
+PPTXT_LOG_IMPINV_GOODSIDBYSERIALCL "The product '%s' identified by the serial number of the '%s' (closed lot)"
+	//#org Товар '%s' идентифицирован по имени
+PPTXT_LOG_IMPINV_GOODSIDBYNAME "The '%s' item has been identified by name"
+	//#org Строка не проведена: не удалось идентифицировать товар '%s'
+PPTXT_LOG_IMPINV_GOODSNOTIDD "The line has not been drawn: it was not possible to identify the goods '%s'"
+	//#org Строка не проведена: для товара '%s' задано недопустимое значение количества '%s'
+PPTXT_LOG_IMPINV_INVQTTY "The line has not been drawn: the quantity of '%s' is set for the goods '%s'"
+	//#org Товар '%s' уже встречался в файле - количество суммировано
+PPTXT_LOG_IMPINV_DUPGOODS "The goods '%s' have already been seen in the file - the number is summed up"
+	//#org Строка '%s' проведена
+PPTXT_LOG_IMPINV_LINETURNED "The line '%s' held"
+	//#org Пересчет скидок по картам серии '%s' за период %s
+PPTXT_LOG_SCDISRECALC "Recalculation of discounts on '%s' series for the period %s"
+	//#org Начисление бонусов по картам серии '%s' за период %s
+PPTXT_LOG_SCBONUSCHARGE "Accruing bonuses on the '%s' series for the period %s"
+	//#org По карте '%s' уже было сделано начисление за период %s
+PPTXT_LOG_SCBONUSCHARGEDUP "The '%s' card has already been charged for the period %s"
+	//#org Объект {%s} не идентифицирован при приеме данных
+PPTXT_LOG_UNIDENTOBJ "The {%s} object is not identified when the data is taken"
+	//#org Конфликт общих идентификаторов синхронизации (старая запись удалена) [%s]
+PPTXT_LOG_OBJSYNC_MISM_COMM "Conflict of common synchronization identifiers (old record deleted) [%s]"
+	//#org Замещение синхронизации _DELETED_ объекта по общему идентификатору [%s]
+PPTXT_LOG_OBJSYNC_RPLC_COMM_DELD "Substitution of the image synchronization of the object by the common identifier [%s]"
+	//#org Замещение синхронизации _NOT_DELETED_ объекта по общему идентификатору [%s]
+PPTXT_LOG_OBJSYNC_RPLC_COMM_NDELD "Substitution of _NOT_DELETED_ of an object by common [%s] ID"
+	//#org Отмена статуса _DELETED_ записи синхронизации [%s]
+PPTXT_LOG_OBJSYNC_UNDEL "Undoing the status of the [%s]"
+	//#org Конфликт частных идентификаторов синхронизации (старая запись удалена) [%s]
+PPTXT_LOG_OBJSYNC_MISM_PRIV "Private synchronization identifiers conflict (old record deleted) [%s]"
+	//#org Нет синхронизации для объекта {%s}
+PPTXT_LOG_OBJSYNC_RCVNSYNC "No synchronization for the {%s}"
+	//#org Объект, соответствующий {%s} ранее был удален
+PPTXT_LOG_OBJSYNC_RCVRMVD "The object corresponding to the {%s} has previously been removed"
+	//#org Объект, соответствующий {%s} не найден
+PPTXT_LOG_OBJSYNC_RCVNFND "The object corresponding to the {%s} has not been found"
+	//#org Найден объект, соответствующий {%s} по объединению
+PPTXT_LOG_OBJSYNC_RCVUNI "An object that corresponds to the unification {%s} has been found"
+	//#org Найден объект, соответствующий {%s} по 'старому' объединению
+PPTXT_LOG_OBJSYNC_RCVUNIO "Found an object corresponding to the {%s} of the 'old' association"
+	//#org Объект, соответствующий {%s} был изменен позже - изменение не принимается
+PPTXT_LOG_OBJSYNC_RCVOLD "The object corresponding to the {%s} was changed later - the change is not accepted"
+	//#org Обнаружена рекурсивная ссылка на объект {%s}
+PPTXT_LOG_OBJSYNC_RCVRECUR "A recursing link to an object {%s}"
+	//#org Пакет передачи данных '%s' не содержит ни одного объекта
+PPTXT_LOG_OBJSYNC_PACKETISEMPTY "The '%s' data transfer package does not contain any objects"
+	//#org Цепочка объединения объекта {%s} зациклена
+PPTXT_LOG_OBJSYNC_RCVUNIRECUR "The chain of unification of the object is {%s} fixated"
+	//#org Имя файла передачи данных: '%s'
+PPTXT_LOG_OBJSYNC_TRANSMFILE "Data file name: '%s'"
+	//#org Проверка округления цен лотов (cost, price)
+PPTXT_LOG_LOTPRICEROUNDTEST_BEG "Check rounding the prices of lots (cost, price)"
+	//#org Завершение проверки округления цен лотов
+PPTXT_LOG_LOTPRICEROUNDTEST_END "Completion of the check rounding the prices of lots"
+	//#org Документ '@bill' уже принят в базу данных (идентифицирован по UUID)
+PPTXT_LOG_IMPBILLFOUND "The document '@bill' has already been accepted into the database (identified by UUID)"
+	//#org Идентифицирована подарочная ассоциация @int --> @int
+PPTXT_LOG_GOODSBELONGSGIFT "The gift association @int -- @int"
+	//#org Подарочная структура @int не обнаружена в списке SaGiftArray
+PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY "Gift structure @int not found on SaGiftArray list"
+	//#org Цена на товар '@goods' ограничена нижним пределом @real --> @real
+PPTXT_LOG_IMPBILLPRICEBOUNDLO "The price of '@goods' goods is limited to the lower limit of the @real -- @real"
+	//#org Цена на товар '@goods' ограничена верхним пределом @real --> @real
+PPTXT_LOG_IMPBILLPRICEBOUNDUP "The price of '@goods' goods is limited to the upper limit of the @real -- @real"
+	//#org @{export}: сформировано имя файла '@zstr' по шаблону '@zstr'
+PPTXT_LOG_EXPFILENAME_TMPL "@{export}: сформировано the name of the '@zstr' '@zstr' file"
+	//#org @{export}: @{filename} '@zstr'
+PPTXT_LOG_EXPFILENAME "@{export}: @{filename} '@zstr'"
+	//#org Job '@{exportbills}': считан фильтр
+PPTXT_LOG_JOBEXPBILL_READFILT "Job '@{exportbills}': Read the filter"
+	//#org Job '@{exportbills}': получены параметры экспорта '@zstr' - '@zstr'
+PPTXT_LOG_JOBEXPBILL_GETPARAM "Job '@{exportbills}': '@zstr' export options - '@zstr'"
+	//#org Job '@{exportbills}': экспорт завершен с кодом возврата @int
+PPTXT_LOG_JOBEXPBILL_DONE "Job '@{exportbills}': Export completed with @int return code"
+	//#org @{export}: экспортирован документ '@zstr'
+PPTXT_LOG_EXPBILL_ITEM "@{export}: экспортирован document '@zstr'"
+	//#org Ошибка вызова Dispatch-метода '@zstr': @zstr
+PPTXT_LOG_DISPINVOKEFAULT "Dispatch call error '@zstr': zstr"
+	//#org Кассовая сессия '%s' не передана поскольку является временной
+PPTXT_LOG_NTRANS_CSESTEMP "The cash session '%s' not been transferred because it is temporary"
+	//#org Кассовая сессия '%s' не передана поскольку не закрыта
+PPTXT_LOG_NTRANS_CSESNCL "The cash session '%s' not been transferred because it is not closed"
+	//#org Кассовая сессия '%s' не передана поскольку не найден узел, которому она принадлежит
+PPTXT_LOG_NTRANS_CSESNFN "The cash session '%s' not been transmitted because no node to which it belongs has been found"
+	//#org Документ '%s' не передан поскольку является зачитывающей оплатой
+PPTXT_LOG_NTRANS_BILLRECKON "The document '%s' not been submitted because it is a credit payment"
+	//#org Документ внутренней передачи '%s' не передан поскольку раздел-получатель не отвечает за склад-получатель
+PPTXT_LOG_NTRANS_BILLINTREX "The internal transfer document '%s' not transferred because the recipient section is not responsible for the receiver"
+	//#org Документ '%s' не передан поскольку раздел-получатель не отвечает за склад документа
+PPTXT_LOG_NTRANS_BILLLOC "The document '%s' not been transferred because the recipient section is not responsible for the document's warehouse"
+	//#org Документ межскладского прихода '%s' не передан поскольку раздел-получатель ОТВЕЧАЕТ за склад-получатель товара
+PPTXT_LOG_NTRANS_BILLINTRRC "The document of the inter-warehouse ward '%s' not transferred because the recipient section of the ANSWER for the warehouse-recipient of the goods"
+	//#org Документ '%s' списания инвентаризации не передан
+PPTXT_LOG_NTRANS_BILLINVWRO "The document '%s' the inventory write-off has not been submitted"
+	//#org Документ '%s' списания кассовой сессии не передан
+PPTXT_LOG_NTRANS_BILLCSWRO "The document '%s' the write-off of the cash session has not been submitted"
+	//#org Документ переоценки '%s' не передан поскольку не включена синхронизация лотов
+PPTXT_LOG_NTRANS_BILLRVLLS "The '%s' revaluation document has not been submitted because the lot synchronization is not enabled"
+	//#org Job 'Рассылка смс из технологических сессий': считан фильтр
+PPTXT_LOG_JOBTSESSAUTOSMS_READFILT "Job 'Sms from technology sessions': filter"
+	//#org Job 'Рассылка смс из технологических сессий': экспорт завершен с кодом возврата @int
+PPTXT_LOG_JOBTSESSAUTOSMS_DONE "Job 'Sms from Technology Sessions': Exports completed with return code @int"
+	//#org Изменение котировок по последней переоценке
+PPTXT_LOG_QUOTUPD_BYLASTREVAL "Change in quotes on the latest revaluation"
+	//#org Изменение котировок по образцу
+PPTXT_LOG_QUOTUPD_BYSAMPLE "Changing quotes on the model"
+	//#org Изменение котировок (общее)
+PPTXT_LOG_QUOTUPD_GENERIC "Change in quotes (general)"
+	//#org Идентификация списка товаров по событию '@zstr'
+PPTXT_LOG_QUOTUPD_GLISTBYEV "Identify the list of items by '@zstr' event"
+	//#org Товарная группа выборки '@goods'
+PPTXT_LOG_QUOTUPD_GOODSGRP "'@goods' Sample Group"
+	//#org Проигнорирован товар без скидки '@goods'
+PPTXT_LOG_QUOTUPD_IGNGNODIS "Ignored goods without discount '@goods'"
+	//#org Для товара '@goods' шаблонная котировка
+PPTXT_LOG_QUOTUPD_SAMPLEFOUND "A template quote '@goods' for the product"
+	//#org Для товара '@goods' создано новое значение котировки @zstr
+PPTXT_LOG_QUOTUPD_QINSERTED "A new value of the quote @zstr has been created for the '@goods' product"
+	//#org Для товара '@goods' изменено значение котировки @zstr-->@zstr
+PPTXT_LOG_QUOTUPD_QUPDATED "The value of the quote @zstr--@zstr has been changed for the product '@goods'"
+	//#org Не найденный товар #@int заменен на объединенный с ним '@goods'
+PPTXT_LOG_UNIFGOODSSUBST "The unfound product has been replaced by the '@goods' @int"
+	//#org Товар #@int не найден
+PPTXT_LOG_GOODSNFOUND "The product has not been found @int"
+	//#org Импорт товаров поставщика @zstr '@article'
+PPTXT_LOG_SUPPLIX_IMPGOODS_S "Imports of @zstr '@article' supplier's goods"
+	//#org Импортировано @int товаров поставщика @zstr '@article'
+PPTXT_LOG_SUPPLIX_IMPGOODS_E "Imported @int goods of @zstr '@article' supplier"
+	//#org Импорт DESADV от поставщика @zstr '@article'
+PPTXT_LOG_SUPPLIX_IMPRCPT_S "Imports of DESADV from @zstr '@article' supplier"
+	//#org Импортировано @int DESADV поставщика @zstr '@article'
+PPTXT_LOG_SUPPLIX_IMPRCPT_E "Imported @int the @zstr '@article' supplier's DESADV"
+	//#org Импорт заказов @zstr
+PPTXT_LOG_SUPPLIX_IMPORD_S "Imports of orders @zstr"
+	//#org Импортировано @int заказов @zstr
+PPTXT_LOG_SUPPLIX_IMPORD_E "Imported @int orders @zstr"
+	//#org Экспорт документов поставщику @zstr '@article'
+PPTXT_LOG_SUPPLIX_EXPBILL_S "Export inge-of-documents to '@article' @zstr supplier"
+	//#org Экспортировано @int документов поставщику @zstr '@article'. Количество документов с ошибками: @int
+PPTXT_LOG_SUPPLIX_EXPBILL_E "The @int documents to the @zstr '@article' supplier has been exported. Number of documents with errors: @int"
+	//#org Экспортированы остатки поставщику @zstr '@article'. Количество элементов с ошибками: @int
+PPTXT_LOG_SUPPLIX_EXPSTOCK_E "The residues are exported to the '@article' @zstr supplier. Number of items with errors: @int"
+	//#org Экспортирована дебиторская задолженность поставщику @zstr '@article'. Количество элементов с ошибками: @int
+PPTXT_LOG_SUPPLIX_EXPDEBT_E "The receivables to the supplier @zstr '@article' are exported. Number of items with errors: @int"
+	//#org Экспортированы цены поставщику @zstr '@article'. Количество элементов с ошибками: @int
+PPTXT_LOG_SUPPLIX_EXPPRICE_E "Prices are exported to the '@article' @zstr supplier. Number of items with errors: @int"
+	//#org Для товара '@goods' установлен код по статье '@article' =@zstr
+PPTXT_LOG_SUPPLIX_SETARCODE "There is '@goods' code for the product under the article '@article' @zstr"
+	//#org Не удалось идентифицировать контрагента документа '@zstr' по идентификатору @int
+PPTXT_LOG_SUPPLIX_CLINID "It was not possible to identify the contractor of the '@zstr' document on the @int ID"
+	//#org Не удалось идентифицировать контрагента документа '@zstr' по коду @zstr
+PPTXT_LOG_SUPPLIX_CLINCODE "It was not possible to identify the '@zstr''s #001 contractor by code @zstr"
+	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по идентификатору @int
+PPTXT_LOG_SUPPLIX_DLVRLOCNID "The delivery address of the '@zstr' @int ID document could not be identified"
+	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по коду @zstr
+PPTXT_LOG_SUPPLIX_DLVRLOCNCODE "The delivery address of the @zstr code '@zstr' the document could not be identified"
+	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по тегу @zstr
+PPTXT_LOG_SUPPLIX_DLVRLOCNTAG "The delivery address of the '@zstr' tag @zstr could not be identified"
+	//#org Не удалось идентифицировать склад документа '@zstr' по тегу @zstr
+PPTXT_LOG_SUPPLIX_WAREHOUSENTAG "The @zstr tag '@zstr' warehouse could not be identified"
+	//#org Не удалось идентифицировать товар для документа '@zstr' по идентификатору @int
+PPTXT_LOG_SUPPLIX_GOODSNID "The product could not be identified for the @int ID '@zstr' document"
+	//#org Не удалось идентифицировать товар для документа '@zstr' по коду @zstr
+PPTXT_LOG_SUPPLIX_GOODSNCODE "The product for the '@zstr' document @zstr code could not be identified"
+	//#org Не удалось идентифицировать агента документа '@zstr' по коду @zstr
+PPTXT_LOG_SUPPLIX_AGENTNCODE "The @zstr '@zstr' document agent could not be identified"
+	//#org Для документа '@zstr' не удалось получить коды клиента и адреса, сопоставленные с поставщиком. Не экспортируется
+PPTXT_LOG_SUPPLIX_NOCLLCCODES "For the document, '@zstr' failed to obtain customer codes and addresses matched to the vendor. Not exported"
+	//#org Не удалось сопоставить с покупателем адрес доставки с тегом '@zstr'
+PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG "The delivery address with the '@zstr'"
+	//#org Не удалось сопоставить с заказом агента '@zstr'
+PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD "Couldn't match the agent's order '@zstr'"
+	//#org Документ '@zstr' не имеет адреса доставки. Не передается.
+PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC "The document does '@zstr' have no delivery address. It's not transmitted."
+	//#org Документ '@zstr' не привязан к заказу. Не передается.
+PPTXT_LOG_SUPPLIX_EBILLHASNTORDER "The document '@zstr' not tied to the order. It's not transmitted."
+	//#org Акцептируемый счет @int.@int найден по номеру, но имеет иную таблицу статей - номер изменен на @int.@int
+PPTXT_LOG_ACCEPTACCSAMENO "The accepted account @int.@int found by number, but has a different table of articles - the number has been changed to @int.@int"
+	//#org Синхронизация рабочих книг: последнее найденное событие @datetime
+PPTXT_LOG_WBS_LASTEVENTFOUND "Synchronization of working books: the last event found @datetime"
+	//#org Получение списка рабочих книг с сервера...
+PPTXT_LOG_WBS_GETTINGFROMUHTT "Getting a list of work books from the server..."
+	//#org Получен список рабочих книг с сервера в количестве @int записей
+PPTXT_LOG_WBS_LISTVGOTFROMUHTT "Received a list of work books from the server in the number of @int records"
+	//#org Рабочая книга '@zstr' акцептирована в базе данных
+PPTXT_LOG_WBS_WBVACCEPTED "Work book '@zstr' accepted in database"
+	//#org Рабочая книга '@zstr' передана на сервер
+PPTXT_LOG_WBS_WBVSENTTOUHTT "The work book '@zstr' transferred to the server"
+	//#org Содержимое рабочей книги '@zstr' передано на сервер
+PPTXT_LOG_WBS_WBCVSENTTOUHTT "The contents of the work book '@zstr' transferred to the server"
+	//#org Ошибка акцепта рабочей книги '@zstr'
+PPTXT_LOG_WBS_WBVACCEPTERROR "The acceptance error of the working book '@zstr'"
+	//#org Изменилась привязка документа '%s' к документам заказа (%s)
+PPTXT_LOG_BILLCHGLINKTOORD "The binding of the document '%s' to the documents of the order has changed (%s)"
+	//#org Документ '%s' при изменении, имея связанные заказы, имеет пустой пакет теневых записей
+PPTXT_LOG_BILLHASLORDEMPTYSHL "Document '%s' when changed, having related orders, has an empty package of shadow records"
+	//#org Документ '%s' при загрузке, имея связанные заказы, имеет пустой пакет теневых записей
+PPTXT_LOG_BILLHASLORDEMPTYSHL2 "Document '%s' when downloaded, having associated orders, has an empty package of shadow records"
+	//#org Отменяется персональная регистрация тех сессии по тайм-ауту
+PPTXT_LOG_TSESCIPCANCEL_CTO "Personal registration of those time-out sessions is cancelled"
+	//#org Отменяется персональная регистрация тех сессии по наступлению блокировки
+PPTXT_LOG_TSESCIPCANCEL_LTO "The personal registration of those sessions on the onset of the lock is cancelled"
+	//#org SysMaintenance: получение конфигурации брокера сообщений
+PPTXT_LOG_SYSMNTNC_MQSCONFIG "SysMaintenance: Getting a message broker configuration"
 	//#org Импорт справочника КЛАДР (регионы и города)
 PPTXT_IMPKLADR_KLADR "Imports of the CLADR directory (regions and cities)"
 	//#org Импорт справочника КЛАДР (улицы)
@@ -5400,10 +5663,6 @@ PPTXT_DYNGENGSTRUC "The structure belongs to the generalization"
 PPTXT_PUTFILETOFTP "Download the '%s' file to the ftp server"
 	//#org Загрузка файла '%s' с ftp сервера
 PPTXT_GETFILEFROMFTP "Download the '%s' file from the ftp server"
-	//#org Ошибка акцепта проекта (%ld %s): %s
-PPTXT_ERRACCEPTPROJECT "Project acceptance error (%ld %s): %s"
-	//#org Ошибка акцепта задачи (%ld %s): %s
-PPTXT_ERRACCEPTPRJTASK "Task acceptance error (%ld %s): %s"
 	//#org Выбор процессора для новой сессии
 PPTXT_ADDSESSBYPRC "Choosing a processor for a new session"
 	//#org Поиск аналитической статьи
@@ -5412,30 +5671,16 @@ PPTXT_SEARCHARTICLE "Search for an analytical article"
 PPTXT_SEARCHPERSON "Search for personalities"
 	//#org Поиск оплат с висячими ссылками
 PPTXT_WAIT_SEARCHUNLINKEDPAYMS "Search for payments with hanging links"
-	//#org Технологическая сессия '%s' создана
-PPTXT_LOG_BHTTSESS_CREATED "The technology session '%s' created"
-	//#org Использована технологическая сессия '%s'
-PPTXT_LOG_BHTTSESS_USED "Used a technology session '%s'"
-	//#org Технологическая сессия '%s' закрыта
-PPTXT_LOG_BHTTSESS_CLOSED "Technology session '%s' closed"
 	//#org Списание сессий по процессору '%s' заблокировано
 PPTXT_PRCWROFFLOCKED "Write-off sessions on the '%s' is blocked"
 	//#org Все поддерживаемые файлы:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif,Текстовые (txt):*.txt,Microsoft Word:*.doc;*.rtf,Adobe Acrobat:*.pdf,Microsoft Excel:*.xls;*.xlsm;*.xlsx,Изображения:*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif
 PPTXT_LNKFILESEXTS "All supported files:'doc;Yu.rtf;*.txt;*.pdf;*.xls;yu.xlsm;Yu.xlsx;*.bmp;*.jpg;yu.jpeg;*.gif;*.png;Yu.tiff;q.tif,Text (txt):,Microsoft Word:.doc;q.rtf,Adobe Acrobat:z.pdf,Microsoft Excel:z.xls;yu.xlsm;z.xlsx,Images:z.bmp;*.jpg;yu.jpeg;*.gif;*.png;Yu.tiff;yu.tif"
-	//#org Висячие строки чеков %s
-PPTXT_LOG_ZEROLINKCCLINE "Hanging rows of checks %s"
 	//#org Введите описание файла
 PPTXT_INPUTDESCR "Enter the file description"
-	//#org У основного средства '%s' не указана группа списания
-PPTXT_LOG_ASSTWROF_NOWROFFGRP "The main tool '%s' does not specify a write-off group"
-	//#org Основное средство '%s:%s' не введено в эксплуатацию
-PPTXT_LOG_ASSTWROF_OUTOFEXPL "The main tool '%s:%s' not put into operation"
 	//#org Основной товар;@{linkdocument}
 PPTXT_LAB_PRCPAN_MAINGOODS "Basic goods;@{linkdocument}"
-	//#org Недопустимая замена в MRP-таблице ('%s' --> '%s')
-PPTXT_LOG_INVMRPSUBT "Unacceptable replacement in the MRP table ('%s' --- '%s')"
-	//#org @{qtty};Чек возврата;@{scard};Выбор товара по цене;Ввод;Отмена;Наличный расчет по чеку;Безналичный расчет по чеку;@{goodsgroup}...;	@{groupdefault};Отложенный чек;Печать заказа на изготовление;Печать счета клиенту;Выбор стола;Операции по кассе;Выбор отдела
-PPTXT_CHKPAN_TOOLTIPS "@{qtty};Check-back;@{scard};Choosing a product by price;Enter;Cancel;Cash on a check;Cashless check payment;@{goodsgroup}...;	@{groupdefault};Deferred check;Print the order for manufacturing;Print customer's account;Choosing a table;Cash transactions;Choosing a department"
+	//#org @{qtty};Чек возврата;@{scard};Выбор товара по цене;Ввод;Отмена;Наличный расчет по чеку;Безналичный расчет по чеку;@{goodsgroup}...;@{groupdefault};Отложенный чек;Печать заказа на изготовление;Печать счета клиенту;Выбор стола;Операции по кассе;Выбор отдела
+PPTXT_CHKPAN_TOOLTIPS "@{qtty};Check-back;@{scard};Choosing a product by price;Enter;Cancel;Cash on a check;Cashless check payment;@{goodsgroup}...;@{groupdefault};Deferred check;Print the order for manufacturing;Print customer's account;Choosing a table;Cash transactions;Choosing a department"
 	//#org Таблица %s восстановлена успешно
 PPTXT_SUCCRCVRTBL "Table %s restored successfully"
 	//#org 1,Полное меню (по умолчанию);4,Системное меню (по умолчанию);10,Меню кадров (по умолчанию);20,Меню Plan Flex (по умолчанию);101,Меню товароведа (по умолчанию);102,Меню кассы (по умолчанию)
@@ -5496,13 +5741,13 @@ PPTXT_IMPGOODS "Imports of goods"
 PPTXT_IMPSCARD "Imports of personal cards"
 	//#org Импорт товарных котировок
 PPTXT_IMPQUOT "Imports of commodity quotes"
-//PPTXT_WAIT_PALMIMPBILL          "Импорт документов"
 	//#org Импорт документов
 PPTXT_IMPBILL "Imports of documents"
+//PPTXT_WAIT_PALMIMPBILL          "Импорт документов"
 //PPTXT_WAIT_PALMIMPBLINE         "Импорт строк документов"
+//PPTXT_WAIT_PALMIMPGEOTRACK      "Импорт гео-треков"
 	//#org Импорт строк документов
 PPTXT_IMPBILLLINE "Import lines of documents"
-//PPTXT_WAIT_PALMIMPGEOTRACK      "Импорт гео-треков"
 	//#org Импорт гео-треков
 PPTXT_IMPGEOTRACK "Imports of geo-tracks"
 	//#org Импорт банков
@@ -5521,8 +5766,8 @@ PPTXT_BIZSCORE_NODATA "No business data"
 PPTXT_GLBUSERACCT_REGSUCCESS "A global user account has been successfully created: %s"
 	//#org Из принимаемого товара '@zstr' удален дублируемый артикул '@zstr' - '@article'
 PPTXT_RMVDUPARCODE "A duplicate '@zstr'-'@article' article has '@zstr' removed from the accepted product"
-	//#org 1,По часам;2,По дням;3,По дням недели;4,По дням недели и часам;5,По аппаратам;6,По карточкам;7,По процентам скидки;8,По сумме;	9,@{byqtty};10,По товарам;11,По товару/дате;12,По кассирам;13,По агентам;14,По количеству строк в чеке;15,По номеру отдела;16,По количеству гостей;	17,По номеру стола;18,По агентам и часам;19,По кассовому узлу;20,По агентам и товарам;21,По кассирам и товарам;22,По адресам доставки;	23,По товару и серии карт;24,По сумме и товару;25,По агенту, товару и серии карт;26,По товару/дате/серийному номеру;27,По товару и карте
-PPTXT_CCHECKGROUPING "1,By the hour;2,By day;3,By day of the week;4,By days of the week and hours;5,By apparatus;6,On the cards;7,Interest discounts;8,By the amount;	9,@{byqtty};10,By goods;11,By product/date;12,By cashiers;13,By agents;14,By the number of lines in the check;15,By department number;16,By number of guests;	17,By Table Number;18,By agents and hours;19,At the box office;20,Agents and goods;21,By cashiers and goods;22,At delivery addresses;	23,By merchandise and series of cards;24,By amount and goods;25,By agent, merchandise and series of cards;26,By product/date/serial number;27,By product and map"
+	//#org 1,По часам;2,По дням;3,По дням недели;4,По дням недели и часам;5,По аппаратам;6,По карточкам;7,По процентам скидки;8,По сумме;9,@{byqtty};10,По товарам;11,По товару/дате;12,По кассирам;13,По агентам;14,По количеству строк в чеке;15,По номеру отдела;16,По количеству гостей;17,По номеру стола;18,По агентам и часам;19,По кассовому узлу;20,По агентам и товарам;21,По кассирам и товарам;22,По адресам доставки;23,По товару и серии карт;24,По сумме и товару;25,По агенту, товару и серии карт;26,По товару/дате/серийному номеру;27,По товару и карте
+PPTXT_CCHECKGROUPING "1,By the hour;2,By day;3,By day of the week;4,By days of the week and hours;5,By apparatus;6,On the cards;7,Interest discounts;8,By the amount;9,@{byqtty};10,By goods;11,By product/date;12,By cashiers;13,By agents;14,By the number of lines in the check;15,By department number;16,By number of guests;17,By table number;18,By agents and hours;19,At the box office;20,Agents and goods;21,By cashiers and goods;22,At delivery addresses;23,By product and series of cards;24,By amount and goods;25,By agent, merchandise and series of cards;26,By product/date/serial number;27,By product and map"
 	//#org Новое название
 PPTXT_NEWLABEL "New name"
 	//#org Автовыход через %ld c
@@ -5541,6 +5786,8 @@ PPTXT_PLOT_DSTAT_RATING "Rating distribution of receivables;logarithmic indices;
 PPTXT_PLOT_DSTAT_AVGPAYMPERIOD "Average payment period"
 	//#org @{date};Проданное количество, %s;Сумма продаж, %s;торговые единицы
 PPTXT_PLOT_SALES "@{date};Amount sold, %s;Sales amount, %s;Retail units"
+	//#org @{storageplace_pl} (%s)
+PPTXT_TITLE_WAREPLACEVIEW "@{storageplace_pl} (%s)"
 	//#org Сохранение структур данных
 PPTXT_TITLE_DATASTRUCSAVING "Saving data structures"
 	//#org Выбор каталога резервного копирования
@@ -5571,6 +5818,8 @@ PPTXT_TITLE_QUOTIMPCFG "Choosing the configuration of the import of quotations"
 PPTXT_TITLE_CHKOPACTIONLIST "Check operations log events"
 	//#org Выбор файла экспорта таблицы данных
 PPTXT_TITLE_SELDBTXMLEXPPATH "Selecting a data table export file"
+	//#org Список новых версий
+PPTXT_TITLE_NEWVERLIST "List of new versions"
 	//#org Импортированный документ зачтен на указанный в записи (%s)
 PPTXT_CLIBNK_IMPRECKONED "The imported document is ascited to the (%s)"
 	//#org Запись содержит ссылку на оплачиваемый документ (%s), однако зачет не был осуществлен
@@ -5579,32 +5828,12 @@ PPTXT_CLIBNK_IMPNRECKONED "The record contains a link to the paid document (%s),
 PPTXT_CLIBNK_OPNRECKON "The record contains a reference to the paid document (%s), but the type of operation of the document does not provide a credit"
 	//#org Построение таблицы продаж находится в прерванном режиме
 PPTXT_PSALES_CONTINUEMODE "Building a sales table is in aborted mode"
-	//#org Экспорт данных для кассового узла %s
-PPTXT_LOG_ACNEXP_START "Export of data for the cash node %s"
-	//#org Завершен экспорт данных для кассового узла %s
-PPTXT_LOG_ACNEXP_FINISH "Exports of data for the cash node %s have been completed"
-	//#org Экспортируется товар %s
-PPTXT_LOG_ACNEXP_GOODS "Exports %s"
 	//#org Создание списка товаров (сессия %d/%d правило %d/%d)
 PPTXT_CRTGOODSLIST "Creating a list of goods (session %d/%d rule %d/%d)"
 	//#org Обработка товаров (сессия %d/%d  правило %d/%d)
 PPTXT_ADDGOODSTOPACK "Processing of goods (session %d/%d rule %d/%d)"
-	//#org Кассовый узел %s не готов к приему данных, но этот признак проигнорирован согласно конфигурации оборудования
-PPTXT_LOG_ACNEXP_NREADYTAGIGNORED "The %s cash node is not ready to receive data, but this sign is ignored according to the hardware configuration"
 	//#org Проведение документов
 PPTXT_TURNBILLPACKETS "Carrying documents"
-	//#org @{cmd}=%s; @{error}=%s; Режим=%s; Подрежим=%ld
-PPTXT_LOG_SHTRIH "@{cmd}'s; @{error}'s; The mode of the; Sub-mode-%%ld"
-	//#org Товар '%s' ссылается на альтернативную группу '%s'
-PPTXT_LOG_ALTGGRPHASGOODS "The product '%s' refers to an alternative group of '%s'"
-	//#org Товар '%s' ссылается на группу-папку '%s'
-PPTXT_LOG_FOLDERGGRPHASGOODS "The '%s' refers to the '%s' folder group"
-	//#org Товар '%s' перенесен в группу '%s'
-PPTXT_LOG_GGRPHASGOODS_CORR "The product '%s' moved to the '%s' group"
-	//#org Проверка товарных групп...
-PPTXT_LOG_CORRECTGGRP "Checking product groups..."
-	//#org На весы %s загружено %ld наименований товаров
-PPTXT_LOG_SCALELOADED "On the scales %s loaded %ld items"
 	//#org 0,;1,Да
 PPTXT_FLAG_YES "0,;1,Yes"
 	//#org Обязательно обратитесь в ЦТО!
@@ -5623,18 +5852,14 @@ PPTXT_TODOTEMPL_STATUS "1,Normal;2,@{canceled}"
 PPTXT_WAIT_CHNGTODOSTATUS "Changing task statuses"
 	//#org Создание задач по шаблонам
 PPTXT_WAIT_GENTEMPLTASK "Creating patterns by task"
-	//#org Изменена скидка по карте '%s': оборот=%.2lf, %.1lf%% --> %.1lf%%
-PPTXT_LOG_SCARDDISUPDATED "Changed the discount on the card '%s': оборот..2lf, %.1lf%%------------1lf%%%"
 	//#org ;@{salesledger};@{purchaseledger};Реестр исходящих счетов-фактур;Реестр входящих счетов-фактур;Книга доходов и расходов
 PPTXT_LEDGERKINDTITLES "@{salesledger};@{purchaseledger};Registry of outgoing invoices;Registry of incoming invoices;Book of Income and Expenses"
 	//#org Весы готовы к приему данных;Весы не готовы к приему данных;Проверка готовности весов...
 PPTXT_SCALEREADY "Libra ready to receive data;Libra is not ready to receive data;Check the readiness of the scales..."
 	//#org %ld,Права по объектам (%s)
 PPTXT_RIGHTSBYOBJ "%ld, property rights (%s)"
-	//#org Ошибка акцепта типа отношений персоналий (%ld %s): %s
-PPTXT_ERRACCEPTPSNRELTYPE "Acceptance of personal relationship type (%ld %s): %s"
-	//#org 1,Серийный номер не найден (строка документа);2,Товар не найден (штрихкод)(строка документа);3,Введенное кол-во > кол-ва из документа образца(строка документа);	4,Отклонение цены за пределы указанной границы (строка документа);17,Отсутствует один из серийных номеров документа;18,Отсутствует один из товаров(штрихкодов) документа;19,Введенное кол-во товара в документе < кол-ва товара из документа образца
-PPTXT_SBIIERRORS "1,Serial number not found (document line);2,The product has not been found (barcode) (document line);3,The number entered from the sample document (document line);	4,Deviation of price beyond the specified boundary (document line);17,Missing one of the document serial numbers;18,Missing one of the products (barcodes) document;19,The number of goods entered in the document is the number of goods from the sample document"
+	//#org 1,Серийный номер не найден (строка документа);2,Товар не найден (штрихкод)(строка документа);3,Введенное кол-во > кол-ва из документа образца(строка документа);4,Отклонение цены за пределы указанной границы (строка документа);17,Отсутствует один из серийных номеров документа;18,Отсутствует один из товаров(штрихкодов) документа;19,Введенное кол-во товара в документе < кол-ва товара из документа образца
+PPTXT_SBIIERRORS "1,Serial number not found (document line);2,The product has not been found (barcode) (document line);3,The number entered from the sample document (document line);4,Price deviation beyond specified boundary (document line);17,Missing one of the document serial numbers;18,Missing one of the products (barcodes) document;19,The number of goods entered in the document is the number of goods from the sample document"
 	//#org Расчет НДС по строкам чеков
 PPTXT_CALCVATBYCCHECKLIST "Calculating VAT on check lines"
 	//#org 1,Латинский символ;2,1 цифра;3,2 цифры;4,3 цифры;5,4 цифры;6,собственный код
@@ -5683,6 +5908,8 @@ PPTXT_SELQUOTKIND "Selecting a list of quotes"
 PPTXT_SELSCARDSERLIST "Select ingesis"
 	//#org Выбор списка временных серий
 PPTXT_SELTIMSERLIST "Select ingesserie"
+	//#org Выбор персоналии по персональной карте
+PPTXT_SELPERSONBYSCARD "Choosing personalities by personal card"
 	//#org Копирование файла %s заблокировано в настройках кпк
 PPTXT_PALM_BLOCKEDFILECOPY "Copying %s file is locked in the pda settings"
 	//#org Время использования: %s..%s
@@ -5697,8 +5924,6 @@ PPTXT_BINDLADINGTOORD_ORDNF "The order document for binding is not found (%s)"
 PPTXT_SCARD_EXPIRY "Valid until"
 	//#org время действия
 PPTXT_SCARD_TIMEPERIOD "Time to act"
-	//#org Выбор персоналии по персональной карте
-PPTXT_SELPERSONBYSCARD "Choosing personalities by personal card"
 	//#org Внесение объектов в очередь передачи
 PPTXT_DBDE_POSTOBJECTS "Putting objects in the transfer queue"
 	//#org Файлы изображений:*.jpg;*.jpeg;*.bmp;*.gif;*.png;*.svg,*.jpg:*.jpg;*.jpeg,*.bmp:*.bmp,*.gif:*.gif,*.png:*.png,*.svg:*.svg
@@ -5813,12 +6038,38 @@ PPTXT_ERRACCEPTGOODSVALRESTR "Acceptance error of the (%ld %s): %s"
 PPTXT_ERRACCEPTGOODSTAX "Tax group acceptance error (%ld %s): %s"
 	//#org Ошибка акцепта взвешивающего устройства (%ld %s): %s
 PPTXT_ERRACCEPTSCALE "Weighting device acceptance error (%ld %s): %s"
+	//#org Ошибка акцепта статьи (%ld %s): %s
+PPTXT_ERRACCEPTARTICLE "Article acceptance error (%ld %s): %s"
+	//#org Ошибка акцепта персоналии (%ld %s): %s
+PPTXT_ERRACCEPTPERSON "Personality acceptance error (%ld %s): %s"
+	//#org Ошибка акцепта структуры товара (%ld %s): %s
+PPTXT_ERRACCEPTGOODSSTRUC "Error of the acceptance of the structure of the goods (%ld %s): %s"
+	//#org Ошибка акцепта счета (%ld %s): %s
+PPTXT_ERRACCEPTACCOUNT "Account acceptance error (%ld %s): %s"
+	//#org Ошибка акцепта карты (%ld %s): %s
+PPTXT_ERRACCEPTSCARD "(%ld %s): %s card acceptance error"
+	//#org Ошибка акцепта операции по карте (%ld %s): %s
+PPTXT_ERRACCEPTSCARDOP "Acceptance error of the (%ld %s): %s card"
+	//#org Ошибка акцепта кассового чека (%ld %s): %s
+PPTXT_ERRACCEPTCCHECK "Error accepting the cash cheque (%ld %s): %s"
+	//#org Ошибка акцепта регионального объекта
+PPTXT_ERRACCEPTWORLD "Regional object acceptance error"
+	//#org Ошибка акцепта котировок (товар %ld %s): %s
+PPTXT_ERRACCEPTGOODSQUOTS "Acceptance error of quotations (goods %ld %s): %s"
+	//#org Ошибка акцепта корзины (%ld %s): %s
+PPTXT_ERRACCEPTBASKET "Error of the basket acceptance (%ld %s): %s"
+	//#org Ошибка акцепта проекта (%ld %s): %s
+PPTXT_ERRACCEPTPROJECT "Project acceptance error (%ld %s): %s"
+	//#org Ошибка акцепта задачи (%ld %s): %s
+PPTXT_ERRACCEPTPRJTASK "Task acceptance error (%ld %s): %s"
+	//#org Ошибка акцепта типа отношений персоналий (%ld %s): %s
+PPTXT_ERRACCEPTPSNRELTYPE "Acceptance of personal relationship type (%ld %s): %s"
 	//#org Объединение похожих географических объектов
 PPTXT_UNITELIKEWORLDS "Combining similar geographic features"
 	//#org Объединение похожих единиц измерения
 PPTXT_UNITELIKEUNITS "Combining similar units"
-	//#org Неизвестный;JobServer;NetServer;Задача;Сессия;Диспетчер;Сборщик событий;Диспетчер журналов;DLL сессия;	Сервер NGINX;Командная сессия;Рабочая сессия NGINX
-PPTXT_PPTHREADKINDTITLES "Unknown;JobServer;NetServer;Task;Session;Manager;Event Collector;Magazine Manager;DLL session;	NGINX Server;Team session;NGINX Working Session"
+	//#org Неизвестный;JobServer;NetServer;Задача;Сессия;Диспетчер;Сборщик событий;Диспетчер журналов;DLL сессия;Сервер NGINX;Командная сессия;Рабочая сессия NGINX
+PPTXT_PPTHREADKINDTITLES "Unknown;JobServer;NetServer;Task;Session;Manager;Event Collector;Magazine Manager;DLL session;NGINX Server;Team session;NGINX Working Session"
 	//#org Выберите директорию
 PPTXT_BROWSEDIR "Choose a directory"
 	//#org Поток был остановлен командой сервера (ThreadKind=@zstr; ThreadText=@zstr; ComputerName=@zstr; UserName=@zstr)
@@ -5931,8 +6182,8 @@ PPTXT_GRESTLOTEXTRACT "Extracting lots"
 PPTXT_GRESTOPENEDLOTEXTRACT "Extracting open lots"
 	//#org Расчет нулевых остатков
 PPTXT_GRESTNULLRESTPROCESS "Calculating zero balances"
-	//#org Чек отпечатан;Чек записан в БД;Чек восстановлен из БД;Чек удален из БД;Чек очищен;Чек отложен;	Строка удалена;Скидка на строку;Изменен текущий агент в чеке;Junk-чек удален
-PPTXT_CHKOPACTIONLIST "Check printed;The check is recorded in the database;Check restored from the database;Check removed from database;Check cleared;Check postponed;	Line removed;Line discount;Changed the current agent in the check;Junk check removed"
+	//#org Чек отпечатан;Чек записан в БД;Чек восстановлен из БД;Чек удален из БД;Чек очищен;Чек отложен;Строка удалена;Скидка на строку;Изменен текущий агент в чеке;Junk-чек удален
+PPTXT_CHKOPACTIONLIST "Check printed;The check is recorded in the database;Check restored from the database;Check removed from database;Check cleared;Check postponed;Line removed;Line discount;Changed the current agent in the check;Junk check removed"
 	//#org Списание по кассовым сессиям
 PPTXT_WROFFDRAFTBYCSESSLIST "Box office write-off"
 	//#org 1,Общий;2,Кафе;3,Магазин;4,@{delivery};5,Аптека
@@ -6021,43 +6272,11 @@ PPTXT_SUBSTACCANLZ "1,First-order score;2,Second-order score;3,Subconto;101,@{op
 PPTXT_NOUPDRIGHTS "There is no editing rights"
 	//#org Принимается объект Charry '%s'
 PPTXT_ACCEPTINGCHYOBJ "Charry '%s'"
-	//#org OK;	Пустой код;	Код содержит не цифровые символы;Неверная контрольная цифра EAN13;	Неверная контрольная цифра UPCA;	Неверная контрольная цифра EAN8;	Неверная контрольная цифра UPCE;	Лишняя цифра в конце EAN13;	Лишняя цифра в конце EAN8;	EAN14;	Не известный формат;	Код UPCA в формате EAN13;	Возможно, лишняя цифра в конце UPCA;	Возможно, UPCA без контрольной цифры;	Возможно, EAN13 без контрольной цифры;	Возможно, EAN8 без контрольной цифры;	UPCA без лидирующего нуля;	Возможно, UPCA без лидирующего нуля и без контрольной цифры;	Возможно, UPCE без лидирующего нуля;	Возможно, UPCE без контрольной цифры;	Возможно, UPCE без лидирующего нуля и без контрольной цифры;	Код EAN8 в формате EAN13;	Код EAN8 с лишним ведущим нулем;	Код EAN13 со свободным префиксом (2);	Код содержит один из допустимых префиксов, ассоциированных с текущей глобальной учетной записью
-PPTXT_BARCODEDIAGMSG "Ok;	Empty code;	The code contains non-digital symbols;Incorrect eAN13 benchmark;	Wrong UPCA benchmark;	Wrong EAN8 benchmark;	Wrong UPCE benchmark;	The extra figure at the end of EAN13;	The extra figure at the end of EAN8;	EAN14;	Unknown format;	EAN13 UPCA code;	Perhaps an extra figure at the end of the UPCA;	Perhaps UPCA without a reference number;	Perhaps EAN13 without a reference number;	Perhaps EAN8 without a reference number;	UPCA without a leading scratch;	Perhaps UPCA without a leading zero and no control number;	Perhaps UPCE without a leading scratch;	Perhaps UPCE without a reference number;	Perhaps UPCE without a leading zero and no control number;	EAN8 code in EAN13 format;	Code EAN8-plus leading zero;	EAN13 code with free prefix (2);	The code contains one of the valid prefixes associated with the current global account"
+	//#org OK;Пустой код;Код содержит не цифровые символы;Неверная контрольная цифра EAN13;Неверная контрольная цифра UPCA;Неверная контрольная цифра EAN8;Неверная контрольная цифра UPCE;Лишняя цифра в конце EAN13;Лишняя цифра в конце EAN8;EAN14;Не известный формат;Код UPCA в формате EAN13;Возможно, лишняя цифра в конце UPCA;Возможно, UPCA без контрольной цифры;Возможно, EAN13 без контрольной цифры;Возможно, EAN8 без контрольной цифры;UPCA без лидирующего нуля;Возможно, UPCA без лидирующего нуля и без контрольной цифры;Возможно, UPCE без лидирующего нуля;Возможно, UPCE без контрольной цифры;Возможно, UPCE без лидирующего нуля и без контрольной цифры;Код EAN8 в формате EAN13;Код EAN8 с лишним ведущим нулем;Код EAN13 со свободным префиксом (2);Код содержит один из допустимых префиксов, ассоциированных с текущей глобальной учетной записью
+PPTXT_BARCODEDIAGMSG "Ok;Empty code;The code contains non-digital symbols;Incorrect eAN13 benchmark;Wrong UPCA benchmark;Wrong EAN8 benchmark;Wrong UPCE benchmark;The extra figure at the end of EAN13;The extra figure at the end of EAN8;EAN14;Unknown format;EAN13 UPCA code;Perhaps an extra figure at the end of the UPCA;Perhaps UPCA without a reference number;Perhaps EAN13 without a reference number;Perhaps EAN8 without a reference number;UPCA without a leading scratch;Perhaps UPCA without a leading zero and no control number;Perhaps UPCE without a leading scratch;Perhaps UPCE without a reference number;Perhaps UPCE without a leading zero and no control number;EAN8 code in EAN13 format;Code EAN8-plus leading zero;EAN13 code with free prefix (2);The code contains one of the valid prefixes associated with the current global account"
 
-	//#org Группа '%s' не содержит ни одного товара;Перенесена в папку '%s';Удалена;Не определан папка для переноса;Уже находится в папке для переноса
-PPTXT_LOG_EMPTYGGRP "The '%s' group does not contain any items;Moved to a '%s' folder;Removed;There is no transfer folder;Already in the transfer folder"
-	//#org Товар '@goods' размещен в ячейке '@loc' количество =@real
-PPTXT_LOG_BILLDISPOSITION "The product '@goods' placed in the cell '@loc' the amount of z@real"
-	//#org Ни одна из строк документа '@bill' не была размещена по ячейкам
-PPTXT_LOG_BILLDISPEMPTY "None of the lines of the document '@bill' was placed on the cells"
 	//#org Серийный номер не уникален в пределах товара
 PPTXT_NONUNIQLOTSERIAL "The serial number is not unique within the product"
-	//#org В базе данных @{brand_uhtt} не найден товар, соответствующий '@goods': попытка создания
-PPTXT_LOG_UHTT_GOODSNFOUND "No product matching the creation '@goods': попытка has been found in the @{brand_uhtt} database"
-	//#org В базе данных @{brand_uhtt} найден товар, соответствующий '@goods' по приватному коду: попытка изменения
-PPTXT_LOG_UHTT_GOODSPRVCODEUPD "In the database @{brand_uhtt} found a product corresponding to the '@goods' by private code: an attempt to change"
-	//#org Товар '@goods' со штрихкодом @zstr создан
-PPTXT_LOG_UHTT_GOODSCR "The '@goods' with the barcode @zstr created"
-	//#org Ошибка создания товара '@goods' со штрихкодом @zstr: @zstr
-PPTXT_LOG_UHTT_GOODSCRFAULT "'@goods'-barcode-@zstr bug: @zstr"
-	//#org Для товара '@goods' экспортировано изображение
-PPTXT_LOG_UHTT_GOODSSETIMG "Image is '@goods' exported for the goods"
-	//#org Ошибка экспорта изображения для товара '@goods': @zstr
-PPTXT_LOG_UHTT_GOODSSETIMGFAULT "Image export error for '@goods': 'zstr goods"
-	//#org Для товара '@goods' нет изображения
-PPTXT_LOG_UHTT_GOODSNOIMG "There is no image for the '@goods' product"
-	//#org Серия '@zstr' экспортирована
-PPTXT_LOG_UHTT_SPECSERIESEXP "Series of '@zstr' exported"
-	//#org Ошибка экспорта серии '@zstr': @zstr
-PPTXT_LOG_UHTT_SPECSERIESEXPFAULT "Export error of the '@zstr': -zstr series"
-	//#org Импортирована серия @{number} '@zstr' от @zstr ('@zstr' : '@zstr')
-PPTXT_LOG_UHTT_SPECSERIESIMP "@{number} '@zstr' series from @zstr ('@zstr': '@zstr')"
-	//#org Ошибка импорта серии '@zstr': @zstr
-PPTXT_LOG_UHTT_SPECSERIESIMPFAULT "Import error of the '@zstr': zstr series"
-	//#org Для технологической сессии '@zstr' экспортировано изображение
-PPTXT_LOG_UHTT_TSESSSETIMG "For the technology session, the image '@zstr' exported"
-	//#org Ошибка экспорта изображения для технологической сессии '@zstr': @zstr
-PPTXT_LOG_UHTT_TSESSSETIMGFAULT "Image export error for the '@zstr': 'zstr technology session"
 	//#org Найден аналог для телефона: @zstr; @zstr; @zstr
 PPTXT_IMPPHONE_ANALOGFOUND "Found an analogue for the phone: @zstr; @zstr; @zstr"
 	//#org Создана запись автономного адреса: @zstr; @zstr; @zstr
@@ -6066,38 +6285,12 @@ PPTXT_IMPPHONE_CREATED "A standalone address entry has been created: @zstr; @zst
 PPTXT_IMPPHONE_INVPHONE "The minimum length of the phone should be 5 digits: @zstr; @zstr; @zstr"
 	//#org Оригинальный адрес был изменен
 PPTXT_DLVRADDRMODIFIED "The original address has been changed"
-	//#org Товар '%s' идентифицирован по идентификатору '%s'
-PPTXT_LOG_IMPINV_GOODSIDBYID "The product '%s' identified by the '%s' ID"
-	//#org Товар '%s' идентифицирован по штрихкоду '%s'
-PPTXT_LOG_IMPINV_GOODSIDBYBARCODE "The product '%s' identified by the '%s' barcode"
-	//#org Товар (весовой) '%s' идентифицирован по штрихкоду '%s'
-PPTXT_LOG_IMPINV_GOODSIDBYBARCODEW "The product (weight) '%s' identified by the barcode '%s'"
-	//#org Товар '%s' идентифицирован по серийному номеру '%s'
-PPTXT_LOG_IMPINV_GOODSIDBYSERIAL "The product '%s' identified by the serial number of the '%s'"
-	//#org Товар '%s' идентифицирован по серийному номеру '%s' (закрытый лот)
-PPTXT_LOG_IMPINV_GOODSIDBYSERIALCL "The product '%s' identified by the serial number of the '%s' (closed lot)"
-	//#org Товар '%s' идентифицирован по имени
-PPTXT_LOG_IMPINV_GOODSIDBYNAME "The '%s' item has been identified by name"
-	//#org Строка не проведена: не удалось идентифицировать товар '%s'
-PPTXT_LOG_IMPINV_GOODSNOTIDD "The line has not been drawn: it was not possible to identify the goods '%s'"
-	//#org Строка не проведена: для товара '%s' задано недопустимое значение количества '%s'
-PPTXT_LOG_IMPINV_INVQTTY "The line has not been drawn: the quantity of '%s' is set for the goods '%s'"
-	//#org Товар '%s' уже встречался в файле - количество суммировано
-PPTXT_LOG_IMPINV_DUPGOODS "The goods '%s' have already been seen in the file - the number is summed up"
-	//#org Строка '%s' проведена
-PPTXT_LOG_IMPINV_LINETURNED "The line '%s' held"
 	//#org Создана запись персоналии с именем='%s', @{inn}=%s.
 PPTXT_PERSON_CREATED "A personality record with the name '%s', @{inn}'s has been created."
 	//#org Данные о производителе/импортере %s успешно записаны в тег лота (товар=%s, номер документа=%s, дата документа=%s).
 PPTXT_QCERT_CONVERTED "The data on the manufacturer/importer %s is successfully recorded in the lot tag (goods%s, document number,"s, document date).S)."
 	//#org 1,@{sortby_name};2,По сокращению;3,По группе и наименованию;4,По группе и сокращению;5,По штрихкоду;6,По брэнду и наименованию;7,По штрихкоду и наименованию
 PPTXT_GOODSORDER "1,@{sortby_name};2,By reducing;3,By group and name;4,By group and reduction;5,By barcode;6,By brand and name;7,By barcode and name"
-	//#org Пересчет скидок по картам серии '%s' за период %s
-PPTXT_LOG_SCDISRECALC "Recalculation of discounts on '%s' series for the period %s"
-	//#org Начисление бонусов по картам серии '%s' за период %s
-PPTXT_LOG_SCBONUSCHARGE "Accruing bonuses on the '%s' series for the period %s"
-	//#org По карте '%s' уже было сделано начисление за период %s
-PPTXT_LOG_SCBONUSCHARGEDUP "The '%s' card has already been charged for the period %s"
 	//#org Доступный бонус
 PPTXT_BONUSAVAILABLE "Affordable bonus"
 	//#org Не определено имя импортируемого товара
@@ -6178,44 +6371,6 @@ PPTXT_BUILD_UHTTCOPY_FAIL "ERR: Error of copying the '%s' file to the server @{b
 PPTXT_BUILD_LOCALDL600 "Compiling the local DL600 file: %s"
 	//#org ERR: Ошибка компиляции файла '%s'
 PPTXT_BUILD_LOCALDL600_FAIL "ERR: '%s' file compilation error"
-	//#org Объект {%s} не идентифицирован при приеме данных
-PPTXT_LOG_UNIDENTOBJ "The {%s} object is not identified when the data is taken"
-	//#org Конфликт общих идентификаторов синхронизации (старая запись удалена) [%s]
-PPTXT_LOG_OBJSYNC_MISM_COMM "Conflict of common synchronization identifiers (old record deleted) [%s]"
-	//#org Замещение синхронизации _DELETED_ объекта по общему идентификатору [%s]
-PPTXT_LOG_OBJSYNC_RPLC_COMM_DELD "Substitution of the image synchronization of the object by the common identifier [%s]"
-	//#org Замещение синхронизации _NOT_DELETED_ объекта по общему идентификатору [%s]
-PPTXT_LOG_OBJSYNC_RPLC_COMM_NDELD "Substitution of _NOT_DELETED_ of an object by common [%s] ID"
-	//#org Отмена статуса _DELETED_ записи синхронизации [%s]
-PPTXT_LOG_OBJSYNC_UNDEL "Undoing the status of the [%s]"
-	//#org Конфликт частных идентификаторов синхронизации (старая запись удалена) [%s]
-PPTXT_LOG_OBJSYNC_MISM_PRIV "Private synchronization identifiers conflict (old record deleted) [%s]"
-	//#org Нет синхронизации для объекта {%s}
-PPTXT_LOG_OBJSYNC_RCVNSYNC "No synchronization for the {%s}"
-	//#org Объект, соответствующий {%s} ранее был удален
-PPTXT_LOG_OBJSYNC_RCVRMVD "The object corresponding to the {%s} has previously been removed"
-	//#org Объект, соответствующий {%s} не найден
-PPTXT_LOG_OBJSYNC_RCVNFND "The object corresponding to the {%s} has not been found"
-	//#org Найден объект, соответствующий {%s} по объединению
-PPTXT_LOG_OBJSYNC_RCVUNI "An object that corresponds to the unification {%s} has been found"
-	//#org Найден объект, соответствующий {%s} по 'старому' объединению
-PPTXT_LOG_OBJSYNC_RCVUNIO "Found an object corresponding to the {%s} of the 'old' association"
-	//#org Объект, соответствующий {%s} был изменен позже - изменение не принимается
-PPTXT_LOG_OBJSYNC_RCVOLD "The object corresponding to the {%s} was changed later - the change is not accepted"
-	//#org Обнаружена рекурсивная ссылка на объект {%s}
-PPTXT_LOG_OBJSYNC_RCVRECUR "A recursing link to an object {%s}"
-	//#org Пакет передачи данных '%s' не содержит ни одного объекта
-PPTXT_LOG_OBJSYNC_PACKETISEMPTY "The '%s' data transfer package does not contain any objects"
-	//#org Цепочка объединения объекта {%s} зациклена
-PPTXT_LOG_OBJSYNC_RCVUNIRECUR "The chain of unification of the object is {%s} fixated"
-	//#org Имя файла передачи данных: '%s'
-PPTXT_LOG_OBJSYNC_TRANSMFILE "Data file name: '%s'"
-	//#org Проверка округления цен лотов (cost, price)
-PPTXT_LOG_LOTPRICEROUNDTEST_BEG "Check rounding the prices of lots (cost, price)"
-	//#org Завершение проверки округления цен лотов
-PPTXT_LOG_LOTPRICEROUNDTEST_END "Completion of the check rounding the prices of lots"
-	//#org Документ '@bill' уже принят в базу данных (идентифицирован по UUID)
-PPTXT_LOG_IMPBILLFOUND "The document '@bill' has already been accepted into the database (identified by UUID)"
 	//#org Открытие и сканирование файла Excel '%s'
 PPTXT_SCANEXCELFILE "Discover and scan Excel '%s'"
 	//#org Отправка сообщения по адресу %s не удалась
@@ -6230,36 +6385,10 @@ PPTXT_LOTPACK_PROCESS "Packing lots"
 PPTXT_NORIGHTS_PERSON_UPD "No rights to change personalities"
 	//#org Карта принадлежит другому
 PPTXT_SCARDOTHEROWNER "The card belongs to another"
-	//#org Идентифицирована подарочная ассоциация @int --> @int
-PPTXT_LOG_GOODSBELONGSGIFT "The gift association @int -- @int"
-	//#org Подарочная структура @int не обнаружена в списке SaGiftArray
-PPTXT_LOG_GIFTSTRUCNFINSAGIFTARRAY "Gift structure @int not found on SaGiftArray list"
-	//#org Цена на товар '@goods' ограничена нижним пределом @real --> @real
-PPTXT_LOG_IMPBILLPRICEBOUNDLO "The price of '@goods' goods is limited to the lower limit of the @real -- @real"
-	//#org Цена на товар '@goods' ограничена верхним пределом @real --> @real
-PPTXT_LOG_IMPBILLPRICEBOUNDUP "The price of '@goods' goods is limited to the upper limit of the @real -- @real"
 	//#org Все поддерживаемые файлы:*.txt;*.ini
 PPTXT_TEXTBROWSER_FILETYPES "All supported files:z.txt;Yu.ini"
-	//#org Выберите файл
-PPTXT_SELFILE "Select file"
-	//#org Выберите кодировку
-PPTXT_SELCODEPAGE "Choose coding"
-	//#org @{export}: сформировано имя файла '@zstr' по шаблону '@zstr'
-PPTXT_LOG_EXPFILENAME_TMPL "@{export}: сформировано the name of the '@zstr' '@zstr' file"
-	//#org @{export}: @{filename} '@zstr'
-PPTXT_LOG_EXPFILENAME "@{export}: @{filename} '@zstr'"
-	//#org Job '@{exportbills}': считан фильтр
-PPTXT_LOG_JOBEXPBILL_READFILT "Job '@{exportbills}': Read the filter"
-	//#org Job '@{exportbills}': получены параметры экспорта '@zstr' - '@zstr'
-PPTXT_LOG_JOBEXPBILL_GETPARAM "Job '@{exportbills}': '@zstr' export options - '@zstr'"
-	//#org Job '@{exportbills}': экспорт завершен с кодом возврата @int
-PPTXT_LOG_JOBEXPBILL_DONE "Job '@{exportbills}': Export completed with @int return code"
-	//#org @{export}: экспортирован документ '@zstr'
-PPTXT_LOG_EXPBILL_ITEM "@{export}: экспортирован document '@zstr'"
-	//#org Ошибка вызова Dispatch-метода '@zstr': @zstr
-PPTXT_LOG_DISPINVOKEFAULT "Dispatch call error '@zstr': zstr"
-	//#org 1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};	6,@{goodsclass_fusedimz};7,@{kind};8,@{sort};9,@{classifier};10,@{kind}/@{sort};	11,@{supplier};12,@{brand};13,@{kind}/@{sort}/@{classifier};14,@{kind}/@{classifier}/@{sort};	15,@{supplagent};16,@{warehouse};17,Владелец торговой марки;18,@{vatrate};19,Ставка НДС в ценах поступления;20,Категория алкогольной продукции;	21,@{goodsclass_fusedimw};22,Место хранения, ассоциированное с товаром;23,@{goods_type}
-PPTXT_SUBSTGOODSLIST "1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};	6,@{goodsclass_fusedimz};7,@{kind};8,@{sort};9,@{classifier};10,@{kind}/@{sort};	11,@{supplier};12,@{brand};13,@{kind}/@{sort}/@{classifier};14,@{kind}/@{classifier}/@{sort};	15,@{supplagent};16,@{warehouse};17,Brand owner;18,@{vatrate};19,VAT rate in receipt prices;20,Category of alcoholic products;	21,@{goodsclass_fusedimw};22,Storage site associated with the product;23,@{goods_type}"
+	//#org 1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};6,@{goodsclass_fusedimz};7,@{kind};8,@{sort};9,@{classifier};10,@{kind}/@{sort};11,@{supplier};12,@{brand};13,@{kind}/@{sort}/@{classifier};14,@{kind}/@{classifier}/@{sort};15,@{supplagent};16,@{warehouse};17,Владелец торговой марки;18,@{vatrate};19,Ставка НДС в ценах поступления;20,Категория алкогольной продукции;21,@{goodsclass_fusedimw};22,Место хранения, ассоциированное с товаром;23,@{goods_type}
+PPTXT_SUBSTGOODSLIST "1,@{generalization};2,@{group};3,@{manufacturer};4,@{goodsclass_fusedimx};5,@{goodsclass_fusedimy};6,@{goodsclass_fusedimz};7,@{kind};8,@{sort};9,@{classifier};10,@{kind}/@{sort};11,@{supplier};12,@{brand};13,@{kind}/@{sort}/@{classifier};14,@{kind}/@{classifier}/@{sort};15,@{supplagent};16,@{warehouse};17,Brand owner;18,@{vatrate};19,VAT rate in receipt prices;20,Category of alcoholic products;21,@{goodsclass_fusedimw};22,Storage site associated with the product;23,@{goods_type}"
 	//#org 1,@{city};2,@{region};3,@{country};4,@{category};5,Агент по документу;6,@{freightagent};7,@{accsheet}
 PPTXT_SUBSTPERSONLIST "1,@{city};2,@{region};3,@{country};4,@{category};5,Document agent;6,@{freightagent};7,@{accsheet}"
 	//#org Карта '%s' будет активирована автоматически после проведения чека
@@ -6280,8 +6409,6 @@ PPTXT_DUPNEWCCHECKCODEZAMT "In the existing temporary cash session, a cheque-dou
 PPTXT_PALMACCEPTEDORDERS "Accepted orders %ld/%ld. Already exists in the database %ld"
 	//#org Заказ @{number}=%s, @{date}=%s, КПК=%s успешно принят в базу данных
 PPTXT_ORDACCEPTED "Order @{number}'s, @{date}'s, PDA's successfully accepted into the database"
-	//#org Список новых версий
-PPTXT_TITLE_NEWVERLIST "List of new versions"
 	//#org 1,Переключатель;2,@{scales};3,Кассовый аппарат;4,@{customerdisplay};5,@{bankingterminal};6,Считыватель
 PPTXT_ABSTRACTDEVICETYPENAMES "1,Switch;2,@{scales};3,Cash register;4,@{customerdisplay};5,@{bankingterminal};6,Reader"
 	//#org 1,Выбрать внешний файл;2,HTML;3,Текстовый;4,VM - Velocity макро-файл
@@ -6295,6 +6422,8 @@ PPTXT_CVT7708_SJRACTIONEXCSHRT "@{conversion} SjRsrv 7.7.8: Action (%d) exceeds 
 	//#org @{conversion} SjRsrv 7.7.8: значение ObjType (%d) превышает MAXSHORT
 PPTXT_CVT7708_SJROBJTYPEEXCSHRT "sjRsrv 7.7.8 @{conversion}: ObjType (%d) exceeds MAXSHORT"
 // @v10.5.5 (replaced with @cashmachinestat_warn) PPTXT_CSESSTOTAL_ZREP             "Убедитесь, что в закрываемой кассе никто не работает.\nЗакрыть кассовый день?"
+// @v9.2.4 PPTXT_GOODS                       "Товары"
+// @v10.2.4 PPTXT_BIRTHDAYINFO                "%s сегодня празднует день рождения!"
 	//#org Товар по коду          = @{code} + Enter
 PPTXT_CHKPAN_HINT01 "Code-by-code item - @{code}"
 	//#org Товар по наименованию  = F2
@@ -6325,10 +6454,8 @@ PPTXT_CHKPAN_HINT13 "Select Deferred Check - F8"
 PPTXT_CHKPAN_HINT14 "Sale at a price of @{price} and F4"
 	//#org 1,Продукты питания;2,Лекарственные препараты
 PPTXT_COMPGDS_TYPES "1,Food;2,Medicines"
-// @v9.2.4 PPTXT_GOODS                       "Товары"
 	//#org Компоненты/аналоги
 PPTXT_COMPONENTS "Components/similars"
-// @v10.2.4 PPTXT_BIRTHDAYINFO                "%s сегодня празднует день рождения!"
 	//#org Сегодня @zstr отмечает свой @int-й день рождения!
 PPTXT_CLIBIRTHDAY "Today @zstr celebrates its @int birthday!"
 	//#org Проведена операция '@psnopkind' по персоналии @person
@@ -6337,26 +6464,6 @@ PPTXT_PSNEVTURNINFO "Operation '@psnopkind' on personalities @person"
 PPTXT_MAKETRNSMFILENAME "Select the name of the '%s' file"
 	//#org Конфликт счетчика Bill::RByBill в функции Transfer::AddItem() (@bill; @int)
 PPTXT_TRFRRBYBILLCONFLICT "Bill counter conflict::RByBill in Transfer::AddItem 001 (@bill; @int)"
-	//#org Кассовая сессия '%s' не передана поскольку является временной
-PPTXT_LOG_NTRANS_CSESTEMP "The cash session '%s' not been transferred because it is temporary"
-	//#org Кассовая сессия '%s' не передана поскольку не закрыта
-PPTXT_LOG_NTRANS_CSESNCL "The cash session '%s' not been transferred because it is not closed"
-	//#org Кассовая сессия '%s' не передана поскольку не найден узел, которому она принадлежит
-PPTXT_LOG_NTRANS_CSESNFN "The cash session '%s' not been transmitted because no node to which it belongs has been found"
-	//#org Документ '%s' не передан поскольку является зачитывающей оплатой
-PPTXT_LOG_NTRANS_BILLRECKON "The document '%s' not been submitted because it is a credit payment"
-	//#org Документ внутренней передачи '%s' не передан поскольку раздел-получатель не отвечает за склад-получатель
-PPTXT_LOG_NTRANS_BILLINTREX "The internal transfer document '%s' not transferred because the recipient section is not responsible for the receiver"
-	//#org Документ '%s' не передан поскольку раздел-получатель не отвечает за склад документа
-PPTXT_LOG_NTRANS_BILLLOC "The document '%s' not been transferred because the recipient section is not responsible for the document's warehouse"
-	//#org Документ межскладского прихода '%s' не передан поскольку раздел-получатель ОТВЕЧАЕТ за склад-получатель товара
-PPTXT_LOG_NTRANS_BILLINTRRC "The document of the inter-warehouse ward '%s' not transferred because the recipient section of the ANSWER for the warehouse-recipient of the goods"
-	//#org Документ '%s' списания инвентаризации не передан
-PPTXT_LOG_NTRANS_BILLINVWRO "The document '%s' the inventory write-off has not been submitted"
-	//#org Документ '%s' списания кассовой сессии не передан
-PPTXT_LOG_NTRANS_BILLCSWRO "The document '%s' the write-off of the cash session has not been submitted"
-	//#org Документ переоценки '%s' не передан поскольку не включена синхронизация лотов
-PPTXT_LOG_NTRANS_BILLRVLLS "The '%s' revaluation document has not been submitted because the lot synchronization is not enabled"
 	//#org Измения документа '%s' не могут быть приняты полностью из-за отсутствия в документе признака FULLSYNC
 PPTXT_NACCEPTBILLMOD_NFS "Changes to the document '%s' cannot be taken completely due to the absence of the FULLSYNC feature in the document"
 	//#org Персоналии '@person' SMS не отправлен так как с момента последней отправки не прошло @int секунд
@@ -6371,10 +6478,6 @@ PPTXT_RECKON_NZ_INFO "A @int documents worth @real was formed in the event of a 
 PPTXT_RECKON_ZERO_INFO "No documents have been formed in the standings!"
 	//#org Загрузка данных профилирования из файла %s
 PPTXT_LOADUSERPROFILE "Download profiling data from %s file"
-	//#org Job 'Рассылка смс из технологических сессий': считан фильтр
-PPTXT_LOG_JOBTSESSAUTOSMS_READFILT "Job 'Sms from technology sessions': filter"
-	//#org Job 'Рассылка смс из технологических сессий': экспорт завершен с кодом возврата @int
-PPTXT_LOG_JOBTSESSAUTOSMS_DONE "Job 'Sms from Technology Sessions': Exports completed with return code @int"
 	//#org Сбор данных о котировках
 PPTXT_WAIT_QUOTVIEWBUILDING "Collecting quote data"
 	//#org Построение временной таблицы котировок
@@ -6466,12 +6569,6 @@ PPTXT_ALCREP_MANUFLOTTAGHLINK "Tag manufacturer/importer by lot '%s' refers to n
 PPTXT_ALCREP_MANUFLOTTAGZLINK "The manufacturer/importer tag on the lot '%s' has zero or other wrong value"
 	//#org Обнаружен висячий идентификатор лота '%s'
 PPTXT_ALCREP_HANGEDLOT "The hanging ID of the lot '%s' was found"
-	//#org Выбор товаров по наименованию
-PPTXT_SELGOODSBYNAME "Choosing goods by name"
-	//#org Выбор товара/лота по серийному номеру
-PPTXT_SELGOODSBYSERIAL "Select ingesdate"
-	//#org Выбор товаров по цене
-PPTXT_SELGOODSBYPRICE "Choosing goods by price"
 	//#org Введите цену
 PPTXT_INPUTPRICE "Enter the price"
 	//#org Версия Papyrus
@@ -6565,28 +6662,6 @@ PPTXT_SRCILTIPOSCHANGED "DEBUG: ! The comparison of string positions has changed
 PPTXT_ASYNCEVQUEUESJFAULT "AsyncAdviseEventQueue: an error in getting another batch of system events from the magazine. The request has been rebuilt."
 	//#org Срок действия карты истекает
 PPTXT_SCARDWILLEXPIRESOON "The card expires"
-	//#org Изменение котировок по последней переоценке
-PPTXT_LOG_QUOTUPD_BYLASTREVAL "Change in quotes on the latest revaluation"
-	//#org Изменение котировок по образцу
-PPTXT_LOG_QUOTUPD_BYSAMPLE "Changing quotes on the model"
-	//#org Изменение котировок (общее)
-PPTXT_LOG_QUOTUPD_GENERIC "Change in quotes (general)"
-	//#org Идентификация списка товаров по событию '@zstr'
-PPTXT_LOG_QUOTUPD_GLISTBYEV "Identify the list of items by '@zstr' event"
-	//#org Товарная группа выборки '@goods'
-PPTXT_LOG_QUOTUPD_GOODSGRP "'@goods' Sample Group"
-	//#org Проигнорирован товар без скидки '@goods'
-PPTXT_LOG_QUOTUPD_IGNGNODIS "Ignored goods without discount '@goods'"
-	//#org Для товара '@goods' шаблонная котировка
-PPTXT_LOG_QUOTUPD_SAMPLEFOUND "A template quote '@goods' for the product"
-	//#org Для товара '@goods' создано новое значение котировки @zstr
-PPTXT_LOG_QUOTUPD_QINSERTED "A new value of the quote @zstr has been created for the '@goods' product"
-	//#org Для товара '@goods' изменено значение котировки @zstr-->@zstr
-PPTXT_LOG_QUOTUPD_QUPDATED "The value of the quote @zstr--@zstr has been changed for the product '@goods'"
-	//#org Не найденный товар #@int заменен на объединенный с ним '@goods'
-PPTXT_LOG_UNIFGOODSSUBST "The unfound product has been replaced by the '@goods' @int"
-	//#org Товар #@int не найден
-PPTXT_LOG_GOODSNFOUND "The product has not been found @int"
 	//#org Ответ на запрос от сервера @{brand_egais} поступил
 PPTXT_EGAIS_REPLYARRIVED "The @{brand_egais} received a response to the request from the server"
 	//#org Ответ на запрос от сервера @{brand_egais} не поступил
@@ -6643,18 +6718,12 @@ PPTXT_EGAIS_WBRPLREQACCEPTED "A request has '%s' been received for the document 
 PPTXT_EGAIS_WBRPLREQMANYDOCS "The request to cancel the @{brand_egais} '%s' cannot be accepted because it corresponds to more than one document in the database"
 	//#org Запрос на отмену проведения @{brand_egais} '%s' не может быть акцептирован поскольку ему не соответствует ни одного документа в БД
 PPTXT_EGAIS_WBRPLREQNODOCS "The request to cancel the @{brand_egais} '%s' cannot be accepted because it does not correspond to any document in the database"
-	//#org Отменяется персональная регистрация тех сессии по тайм-ауту
-PPTXT_LOG_TSESCIPCANCEL_CTO "Personal registration of those time-out sessions is cancelled"
-	//#org Отменяется персональная регистрация тех сессии по наступлению блокировки
-PPTXT_LOG_TSESCIPCANCEL_LTO "The personal registration of those sessions on the onset of the lock is cancelled"
 	//#org Общая бухгалтерская проводка
 PPTXT_OPK_COMM_GENERICACCTURN "General accounting transaction"
 	//#org Приход товара от поставщика
 PPTXT_OPK_COMM_RECEIPT "Arrival of goods from a supplier"
 	//#org Продажа покупателю
 PPTXT_OPK_COMM_SALE "Selling to the buyer"
-	//#org Розничная продажа
-PPTXT_OPK_COMM_RETAIL "Retail"
 	//#org Внутренняя передача
 PPTXT_OPK_COMM_INTREXPEND "Internal transmission"
 	//#org Межскладской приход
@@ -6799,10 +6868,6 @@ PPTXT_EGAISMARKVALID "Introduced code - valid number of excise stamp"
 PPTXT_EGAIS_LASTSTOCKBILLFOUND "The last document of registration of warehouse balances in the @{brand_egais}: 002"
 	//#org Не найден документ регистрации складских остатков в @{brand_egais} за период '%s'
 PPTXT_EGAIS_STOCKBILLNFOUNT "No warehouse residue registration document found in @{brand_egais} during the '%s'"
-	//#org Отбор товаров по группе
-PPTXT_SELECTINGGOODSBYGROUP "Group selection"
-	//#org Отбор товаров по операциям
-PPTXT_SELECTINGGOODSBYTRFR "Selection of goods by operation"
 	//#org Препроцессинг списка наименований объектов
 PPTXT_GETTINGFULLTEXTLIST "Preprocessing the list of objects"
 	//#org Отправка чека '@zstr' серверу @{brand_egais} завершилась УСПЕШНО: @zstr
@@ -6823,76 +6888,8 @@ PPTXT_DISPIFASSGNFAULT "Error in getting a dispatch interface property"
 PPTXT_TESTGS_LOG_HEADER "Testing the calculation of the goods balance '@goods' for the '@article' (@locaddr) counterpart for the period of @period"
 	//#org Ошибка в расчета сальдо за @date: GetGoodsSaldo=@real, CalcGoodsSaldo=@real
 PPTXT_TESTGS_LOG_ERROR "Error in the calculation of the balance for @date: GetGoodsSaldo @real, CalcGoodsSaldo @real"
-	//#org Импорт товаров поставщика @zstr '@article'
-PPTXT_LOG_SUPPLIX_IMPGOODS_S "Imports of @zstr '@article' supplier's goods"
-	//#org Импортировано @int товаров поставщика @zstr '@article'
-PPTXT_LOG_SUPPLIX_IMPGOODS_E "Imported @int goods of @zstr '@article' supplier"
-	//#org Импорт DESADV от поставщика @zstr '@article'
-PPTXT_LOG_SUPPLIX_IMPRCPT_S "Imports of DESADV from @zstr '@article' supplier"
-	//#org Импортировано @int DESADV поставщика @zstr '@article'
-PPTXT_LOG_SUPPLIX_IMPRCPT_E "Imported @int the @zstr '@article' supplier's DESADV"
-	//#org Импорт заказов @zstr
-PPTXT_LOG_SUPPLIX_IMPORD_S "Imports of orders @zstr"
-	//#org Импортировано @int заказов @zstr
-PPTXT_LOG_SUPPLIX_IMPORD_E "Imported @int orders @zstr"
-	//#org Экспорт документов поставщику @zstr '@article'
-PPTXT_LOG_SUPPLIX_EXPBILL_S "Export inge-of-documents to '@article' @zstr supplier"
-	//#org Экспортировано @int документов поставщику @zstr '@article'. Количество документов с ошибками: @int
-PPTXT_LOG_SUPPLIX_EXPBILL_E "The @int documents to the @zstr '@article' supplier has been exported. Number of documents with errors: @int"
-	//#org Экспортированы остатки поставщику @zstr '@article'. Количество элементов с ошибками: @int
-PPTXT_LOG_SUPPLIX_EXPSTOCK_E "The residues are exported to the '@article' @zstr supplier. Number of items with errors: @int"
-	//#org Экспортирована дебиторская задолженность поставщику @zstr '@article'. Количество элементов с ошибками: @int
-PPTXT_LOG_SUPPLIX_EXPDEBT_E "The receivables to the supplier @zstr '@article' are exported. Number of items with errors: @int"
-	//#org Экспортированы цены поставщику @zstr '@article'. Количество элементов с ошибками: @int
-PPTXT_LOG_SUPPLIX_EXPPRICE_E "Prices are exported to the '@article' @zstr supplier. Number of items with errors: @int"
-	//#org Для товара '@goods' установлен код по статье '@article' =@zstr
-PPTXT_LOG_SUPPLIX_SETARCODE "There is '@goods' code for the product under the article '@article' @zstr"
-	//#org Не удалось идентифицировать контрагента документа '@zstr' по идентификатору @int
-PPTXT_LOG_SUPPLIX_CLINID "It was not possible to identify the contractor of the '@zstr' document on the @int ID"
-	//#org Не удалось идентифицировать контрагента документа '@zstr' по коду @zstr
-PPTXT_LOG_SUPPLIX_CLINCODE "It was not possible to identify the '@zstr''s #001 contractor by code @zstr"
-	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по идентификатору @int
-PPTXT_LOG_SUPPLIX_DLVRLOCNID "The delivery address of the '@zstr' @int ID document could not be identified"
-	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по коду @zstr
-PPTXT_LOG_SUPPLIX_DLVRLOCNCODE "The delivery address of the @zstr code '@zstr' the document could not be identified"
-	//#org Не удалось идентифицировать адрес доставки документа '@zstr' по тегу @zstr
-PPTXT_LOG_SUPPLIX_DLVRLOCNTAG "The delivery address of the '@zstr' tag @zstr could not be identified"
-	//#org Не удалось идентифицировать склад документа '@zstr' по тегу @zstr
-PPTXT_LOG_SUPPLIX_WAREHOUSENTAG "The @zstr tag '@zstr' warehouse could not be identified"
-	//#org Не удалось идентифицировать товар для документа '@zstr' по идентификатору @int
-PPTXT_LOG_SUPPLIX_GOODSNID "The product could not be identified for the @int ID '@zstr' document"
-	//#org Не удалось идентифицировать товар для документа '@zstr' по коду @zstr
-PPTXT_LOG_SUPPLIX_GOODSNCODE "The product for the '@zstr' document @zstr code could not be identified"
-	//#org Не удалось идентифицировать агента документа '@zstr' по коду @zstr
-PPTXT_LOG_SUPPLIX_AGENTNCODE "The @zstr '@zstr' document agent could not be identified"
-	//#org Для документа '@zstr' не удалось получить коды клиента и адреса, сопоставленные с поставщиком. Не экспортируется
-PPTXT_LOG_SUPPLIX_NOCLLCCODES "For the document, '@zstr' failed to obtain customer codes and addresses matched to the vendor. Not exported"
-	//#org Не удалось сопоставить с покупателем адрес доставки с тегом '@zstr'
-PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG "The delivery address with the '@zstr'"
-	//#org Не удалось сопоставить с заказом агента '@zstr'
-PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD "Couldn't match the agent's order '@zstr'"
-	//#org Документ '@zstr' не имеет адреса доставки. Не передается.
-PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC "The document does '@zstr' have no delivery address. It's not transmitted."
-	//#org Документ '@zstr' не привязан к заказу. Не передается.
-PPTXT_LOG_SUPPLIX_EBILLHASNTORDER "The document '@zstr' not tied to the order. It's not transmitted."
-	//#org Акцептируемый счет @int.@int найден по номеру, но имеет иную таблицу статей - номер изменен на @int.@int
-PPTXT_LOG_ACCEPTACCSAMENO "The accepted account @int.@int found by number, but has a different table of articles - the number has been changed to @int.@int"
 	//#org Построение нейронной сети
 PPTXT_NNBUILDING "Building a neural network"
-	//#org Синхронизация рабочих книг: последнее найденное событие @datetime
-PPTXT_LOG_WBS_LASTEVENTFOUND "Synchronization of working books: the last event found @datetime"
-	//#org Получение списка рабочих книг с сервера...
-PPTXT_LOG_WBS_GETTINGFROMUHTT "Getting a list of work books from the server..."
-	//#org Получен список рабочих книг с сервера в количестве @int записей
-PPTXT_LOG_WBS_LISTVGOTFROMUHTT "Received a list of work books from the server in the number of @int records"
-	//#org Рабочая книга '@zstr' акцептирована в базе данных
-PPTXT_LOG_WBS_WBVACCEPTED "Work book '@zstr' accepted in database"
-	//#org Рабочая книга '@zstr' передана на сервер
-PPTXT_LOG_WBS_WBVSENTTOUHTT "The work book '@zstr' transferred to the server"
-	//#org Содержимое рабочей книги '@zstr' передано на сервер
-PPTXT_LOG_WBS_WBCVSENTTOUHTT "The contents of the work book '@zstr' transferred to the server"
-	//#org Ошибка акцепта рабочей книги '@zstr'
-PPTXT_LOG_WBS_WBVACCEPTERROR "The acceptance error of the working book '@zstr'"
 	//#org Вас приветствует система
 PPTXT_GREETING "Welcome to the system"
 	//#org Неизвестный бухгалтерский счет
@@ -6911,12 +6908,6 @@ PPTXT_PREPTRANSMOBJ "Preparing for data transfer"
 PPTXT_PUTTINGOBJTOSTRM "Save data in the transfer package"
 	//#org Ошибка разрешения ссылки объекта {%s}
 PPTXT_RCVREFUNRESOLVED "Error to resolve the link of the object {%s}"
-	//#org Изменилась привязка документа '%s' к документам заказа (%s)
-PPTXT_LOG_BILLCHGLINKTOORD "The binding of the document '%s' to the documents of the order has changed (%s)"
-	//#org Документ '%s' при изменении, имея связанные заказы, имеет пустой пакет теневых записей
-PPTXT_LOG_BILLHASLORDEMPTYSHL "Document '%s' when changed, having related orders, has an empty package of shadow records"
-	//#org Документ '%s' при загрузке, имея связанные заказы, имеет пустой пакет теневых записей
-PPTXT_LOG_BILLHASLORDEMPTYSHL2 "Document '%s' when downloaded, having associated orders, has an empty package of shadow records"
 	//#org Доход полученный
 PPTXT_SMPLLEDGINC "Income earned"
 	//#org Доход для налогообложения
@@ -7033,8 +7024,6 @@ PPTXT_JOBPOOLLOADFAULT "Failed to download task pool: %s"
 PPTXT_PPYSERVERSTOPPED "TCP server stopped"
 	//#org Пакет приема данных отклонен, поскольку создан версией меньшей чем %s
 PPTXT_RCVPACKETREJSRCVER "The data reception package is rejected because it is created by a version of less than %s"
-	//#org Выберите объект
-PPTXT_SELECTOBJECT "Select object"
 	//#org Обслуживание таблицы %s
 PPTXT_DBMAINTAIN "%s table service"
 	//#org Несовместимый вид операции (ошибка синхронизации)
@@ -7065,24 +7054,24 @@ PPTXT_VETISLOCATIONPROSPERITYISOK "The area is good for contagious diseases of a
 PPTXT_VETISOUTGSENDING "Submit a request for an outbound certificate: %s"
 	//#org Идентифицированая запись складского журнала: %s
 PPTXT_VETISOUTGSTOCKENTRY "Identified stock log entry: %s"
-	//#org Невозможно сопоставить переданную ссылку на товар '%s'
-PPTXT_PPPP_UNBLRESOLVEGOODS "You can't match the link to the '%s'"
-	//#org Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)
-PPTXT_SMSDECLINEDDUETIMERANGE "Sending SMS notifications was rejected due to an unacceptable time of day (%s)"
-	//#org SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64
-PPTXT_SETTIMESERIESSTAT "SetTimeSeries @zstr: append_count-@int upd-count'@int field-count-@int profile'@int64"
 	//#org Наименования согласно номеклатуре производителя.
 PPTXT_VETIS_SPCMARK_SRCWARENAME "Names according to the manufacturer's noe-ecletoura."
-	//#org Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
-PPTXT_TOCREATEWARECFGOPTNEEDED "To automatically create items, the product configuration must include a group and a default unit"
-	//#org 1,Twitter;2,Facebook;3,VK;4,Vetis
-PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis"
 	//#org Отправка исходящих документов
 PPTXT_VETIS_OUTCERTSENDING "Sending outgoing documents"
 	//#org Получение ответов на отправку исходящих документов
 PPTXT_VETIS_OUTCERTREPLGETTING "Receiving responses to send outgoing documents"
 	//#org Аварийный выход из цикла получения ответов на отправку исходящих документов по достижению максимума холостых итераций
 PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers to send outgoing documents to reach the maximum of blank iterations"
+	//#org Невозможно сопоставить переданную ссылку на товар '%s'
+PPTXT_PPPP_UNBLRESOLVEGOODS "You can't match the link to the '%s'"
+	//#org Отсылка SMS-уведомлений отклонена из-за недопустимого времени суток (%s)
+PPTXT_SMSDECLINEDDUETIMERANGE "Sending SMS notifications was rejected due to an unacceptable time of day (%s)"
+	//#org SetTimeSeries @zstr: append_count=@int upd-count=@int field-count=@int profile=@int64
+PPTXT_SETTIMESERIESSTAT "SetTimeSeries @zstr: append_count-@int upd-count'@int field-count-@int profile'@int64"
+	//#org Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
+PPTXT_TOCREATEWARECFGOPTNEEDED "To automatically create items, the product configuration must include a group and a default unit"
+	//#org 1,Twitter;2,Facebook;3,VK;4,Vetis;5,честный знак
+PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 //
 // LastText
 
@@ -7187,7 +7176,7 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org Создан документ инвентаризации
 52 "An inventory document has been created"
 	//#org Восстановлен город во фрахте документа
-53 "error-autotranslation"
+53 "Restored the city in the charter document"
 	//#org Изменен фрахт документа
 54 "The charter of the document has been changed"
 	//#org Изменен контрагент по документу
@@ -8045,6 +8034,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org Неверный указатель
 2007 "Wrong pointer"
 
+	//#org The MicroKernel router detected an invalid session
+3006 "The MicroKernel router detected an invalid session"
 	//#org Локальный сервер Btrieve не доступен для маршрутизатора MicroKernel
 3012 "Btrieve local server is not available for MicroKernel router"
 	//#org The MicroKernel router cannot find an engine
@@ -8224,7 +8215,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org @{err_crpe}: Неизвестная ошибка
 999 "@{err_crpe}: Неизвестная mistake"
 
-
 [118]
 
 //@erik{ v10.4.12
@@ -8234,6 +8224,7 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 
 
 [PPSTR_NAMEDTEXT]
+// @v9.2.5 @lbt_dlvrextflds       "6,R,@id;32,L,@appellation;54,L,@value"
 	//#org 32,L,@user;9,R,Cеанc;3,L,S;17,L,MAC-адрес;30,L,Имя компьютера;20,L,Время входа;20,L,Продолжительность сеанса
 @lbt_auserlist "32,L,@user;9,R,Sian;3,L,S;17,L,MAC address;30,L,Computer name;20,L,Entry Time;20,L,Session duration"
 	//#org 3,R,#;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C,Q
@@ -8284,7 +8275,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @lbt_scardmovlist "20,L,@card;20,L,@series;10,R,@rest;10,R,Transfer amount"
 	//#org 38,L,@amounttype;8,L,@currency;20,R,@amount
 @lbt_billamounts "38,L,@amounttype;8,L,@currency;20,R,@amount"
-// @v9.2.5 @lbt_dlvrextflds       "6,R,@id;32,L,@appellation;54,L,@value"
 	//#org 10,L,@id;35,L,@appellation;55,L,@value
 @lbt_dlvrextflds "10,L,@id;35,L,@appellation;55,L,@value"
 	//#org 80,L,@ware;20,R,@qtty;20,R,@price;20,R,Цена в комплексе;20,R,@amount
@@ -8387,6 +8377,16 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @lbt_mobclmnlist "20,L,zone;20,L,Field Name;40,L,@text;15,L,@total"
 	//#org 40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc
 @lbt_draftwroff "40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc"
+	//#org 20,L,@accountalias;38,L,@account
+@lbt_articlealssubst "20,L,@accountalias;38,L,@account"
+	//#org 48,L,@bank;28,L,@account
+@lbt_bankacclist "48,L,@bank;28,L,@account"
+	//#org 13,L,@debit;13,L,@credit;45,L,@formula
+@lbt_aturntempllist "13,L,@debit;13,L,@credit;45,L,@formula"
+	//#org 56,L,@ware;10,R,@qtty;8,R,@price;10,R,@amount
+@lbt_gbasket "56,L,@ware;10,R,@qtty;8,R,@price;10,R,@amount"
+	//#org 17,L,@vatrate;22,R,@intermcost;22,R,@intermprice
+@lbt_billvataxlist "17,L,@vatrate;22,R,@intermcost;22,R,@intermprice"
 
 	//#org Система управления предприятием
 @entmanagementsys "Enterprise management system"
@@ -8398,7 +8398,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @pgmcopylic_liccount "Number of licenses"
 	//#org Доступно лицензий
 @pgmcopylic_licavl "Licensed available"
-
 	//#org Строка
 @typstring "String"
 	//#org Число
@@ -8413,7 +8412,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @typboolean "Logical"
 	//#org Изображение
 @typimage "Image"
-
 	//#org Элементы перечисления
 @enumitem_pl "Items"
 	//#org Поле
@@ -8496,6 +8494,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @piciconfile "Icon file"
 	//#org Имя содержит строку
 @srchpattern_substr "The name contains a line"
+	//#org Отсутствует
+@absence "Missing"
 	//#org Выход
 @exit "Output"
 	//#org Права
@@ -8548,6 +8548,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @association_pl "Association"
 	//#org Ассоциации товаров
 @goodsassociation_pl "Associations of Goods"
+	//#org Агрегации товара
+@goodsaggregation_pl "Commodity aggregation"
 	//#org Рабочий стол
 @desktop "Desktop"
 	//#org Уровень доступа
@@ -8660,6 +8662,18 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @minimum "Minimum"
 	//#org Среднее
 @average "Average"
+	//#org Налево
+@direction_left "Left"
+	//#org Направо
+@direction_right "Right"
+	//#org Вверх
+@direction_up "Top"
+	//#org Вниз
+@direction_down "Down"
+	//#org Вперед
+@direction_forward "Forward"
+	//#org Назад
+@direction_backward "Back"
 	//#org Ввод
 @enterinput "Enter"
 	//#org Ввод
@@ -8716,6 +8730,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @movedown "Move down"
 	//#org Группировать
 @dogroup "Group"
+	//#org Не группировать
+@dontgroup "Don't group"
 	//#org Рассчитать
 @calculate "Calculate"
 	//#org Исправлено
@@ -8832,6 +8848,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @absolutevalue "Absolute value"
 	//#org Значение по умолчанию
 @defaultvalue "Default"
+	//#org Использовать по умолчанию
+@usebydefault "Use by default"
 	//#org Разница
 @difference "Difference"
 	//#org Строка
@@ -9032,7 +9050,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @hour "Hour"
 	//#org Продолжительность
 @duration "Duration"
-
 	//#org Выходной день
 @dayoff "A day off"
 	//#org Выходные дни
@@ -9045,7 +9062,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @months "Months"
 	//#org лет
 @years "Years"
-
 	//#org Понедельник
 @monday "Monday"
 	//#org Вторник
@@ -9060,7 +9076,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @saturday "Saturday"
 	//#org Воскресенье
 @sunday "Sunday"
-
 	//#org Январь
 @month_jan "January"
 	//#org Февраль
@@ -9085,7 +9100,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @month_nov "November"
 	//#org Декабрь
 @month_dec "December"
-
 	//#org Янв
 @month_jan_s "Jan Jan."
 	//#org Фев
@@ -9110,7 +9124,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @month_nov_s "Noah"
 	//#org Дек
 @month_dec_s "Dec."
-
 	//#org ИД
 @id "Id"
 	//#org Код
@@ -9227,6 +9240,14 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @gmarkedware "Marked"
 	//#org Дополнительная информация о товаре
 @addwareinfo "More information about the product"
+	//#org Паллета
+@pallet "Pallet"
+	//#org Тип паллеты
+@pallettype "Type of pallets"
+	//#org Типы паллет
+@pallettype_pl "Types of pallet"
+	//#org Емкость паллеты
+@palletcapacity "Pallets"
 	//#org Контрагент
 @contractor "Counterparty"
 	//#org Контрагенты
@@ -9267,6 +9288,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @agent_pl "Agents"
 	//#org Агент поставщика
 @supplagent "Supplier agent"
+	//#org Создатель
+@creator "Creator"
 	//#org Исполнитель
 @executor "Executor"
 	//#org Транспорт
@@ -9390,6 +9413,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @haddress "Hanging address"
 	//#org Почтовый индекс
 @postzip "Zip code"
+	//#org Адресная книга
+@addressbook "Address book"
 	//#org ИНН
 @inn "Inn"
 	//#org КПП
@@ -9600,6 +9625,10 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @billamount_pl "Document amounts"
 	//#org Суммы штатного расписания
 @staffamount_pl "Staffing amounts"
+	//#org Входящая валютная сумма
+@curtransnominal_inp "Incoming currency amount"
+	//#org Исходящая валютная сумма
+@curtransnominal_out "Outgoing currency amount"
 	//#org Штатная сумма
 @staffamount_s "Staffing"
 	//#org Штатные суммы
@@ -9636,8 +9665,10 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @sumprice_s "Implementation amount"
 	//#org Номинальная сумма
 @nominalamount "Rating amount"
-	//#org Реализация
-@selling "Implementation"
+	//#org Продажа
+@selling "Sale"
+	//#org Розничная продажа
+@selling_retail "Retail"
 	//#org Оборот
 @turnover "Turnover"
 	//#org Обороты
@@ -9706,6 +9737,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @basecurrency "Basic currency"
 	//#org Курс валюты
 @currate "Currency exchange rate"
+	//#org Валютные курсы
+@currate_pl "Currency rates"
 	//#org Тип курса
 @curratetype "Course type"
 	//#org Грузовая таможенная декларация
@@ -9770,6 +9803,14 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @tax_pl "Taxes"
 	//#org Налоговая группа
 @taxgroup "Tax group"
+	//#org Вид системы налогообложения
+@taxsystemkind "The type of tax system"
+	//#org Виды систем налогообложения
+@taxsystemkind_pl "Types of tax systems"
+	//#org Схема налогообложения
+@taxscheme "Tax scheme"
+	//#org Налоговый период
+@taxableperiod "Tax period"
 	//#org Подразделение
 @division "Unit"
 	//#org Производительность
@@ -9794,6 +9835,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @device "Device"
 	//#org Тип устройства
 @devicetype "Device type"
+	//#org Группа устройств
+@devicegroup "Device group"
 	//#org Тестовый режим
 @testmode "Test mode"
 	//#org Диагностика
@@ -9996,6 +10039,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @project "Project"
 	//#org Проекты
 @project_pl "Projects"
+	//#org Фаза проекта
+@prjphase "Project phase"
 	//#org Задача
 @prjtask "Task"
 	//#org Задачи
@@ -10058,7 +10103,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @sortby_docno "By document number"
 	//#org По штрихкоду
 @sortby_barcode "By barcode"
-
 	//#org Поиск по штрихкоду
 @searchbybarcode "Finding a barcode"
 	//#org Поиск по наименованию
@@ -10067,7 +10111,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @searchby_barcode "By barcode"
 	//#org По наименованию
 @searchby_appellation "By name"
-
 	//#org Серийный номер
 @serial "Serial number"
 	//#org Предварительный просмотр
@@ -10154,6 +10197,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @paymentcc "Payby by check"
 	//#org Способ оплаты
 @paymenttype "How to pay"
+	//#org Доплата
+@addpayment "Supplement"
 	//#org Переоценка товара
 @goodsreval "Revaluation of goods"
 	//#org Переоценка цен поступления
@@ -10416,6 +10461,16 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @doeditop "Edit the operation"
 	//#org Редактировать примечания
 @doeditmemolist "Edit notes"
+	//#org Редактировать PLU
+@doeditplu "Edit PLU"
+	//#org Редактировать объект
+@doeditobject "Edit the object"
+	//#org Редактировать товар
+@doeditware "Edit goods"
+	//#org Редактировать котировки по товару
+@doeditquotbyware "Edit quotes by product"
+	//#org Редактировать котировки, выбрав товар
+@doeditquotselectingware "Edit quotes by selecting a product"
 	//#org Удалить строку
 @doremoverow "Delete the line"
 	//#org Отменить
@@ -10462,6 +10517,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @repsubst "Substitute"
 	//#org Подстановка товара
 @repsubstgoods "Substitution"
+	//#org Показать
+@doshow "Show"
 	//#org Показывать
 @toshow "Show"
 	//#org Показывать объекты
@@ -10490,8 +10547,10 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @donothing "Don't do anything"
 	//#org Привязать документ к другому документу
 @dolinkbilltoanother "Link the document to another document"
-//
-//
+	//#org Сравнение документов
+@docomparedocuments "Comparison of documents"
+	//#org Сравнение с документом истории
+@docomparedocumentwithprevver "Comparison with the document of history"
 //
 	//#org Статья аналитического учета
 @obj_article "Analysis article"
@@ -10654,16 +10713,14 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @but_freight "@{freight}... (F4)"
 	//#org Поменять
 @but_swap "Change"
-	//#org Вверх
-@but_up "Top"
-	//#org Вниз
-@but_down "Down"
 	//#org Layout
 @but_layout "Layout"
 	//#org Сервис
 @but_service "Service"
 	//#org Поля вывода
 @but_outfields "Inference fields"
+	//#org Выбрать курс...
+@but_selcurrate "Choose a course..."
 
 	//#org Закрыть
 @close "Close"
@@ -10696,9 +10753,7 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @gvrbar_extaronly "Only for the additional article selected"
 	//#org Запрет для выбранной дополнительной статьи
 @gvrbar_extardisable "Ban for selected additional article"
-//
-//
-//
+
 	//#org Квант времени временной диаграммы, сек
 @prc_tcbquant "Time chart quant, sec"
 	//#org Правило пересчета скидок
@@ -10715,6 +10770,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @msg_arhasntagreement "Analytical article '%s' has no agreement"
 	//#org Выберите действие и нажмите [OK] для подтверждения или [Отмена] для отказа
 @msg_selactandpressokorcancel "Select action and click [OK] to confirm or "Cancel" for failure"
+	//#org Истек срок действия следующих регистров
+@personregisterexpirylist "The following registers have expired"
 //
 //
 //
@@ -11149,6 +11206,60 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @rtag_guaaccesskey "Access to global service key"
 	//#org Связанная строка документа (lot)
 @rtag_lotlinkbillrow "Related document line (lot)"
+	//#org CN субъекта сертификата электронной подписи
+@rtag_guacertsubjcn "CN subject of electronic signature certificate"
+//
+// Зарезервированные типы регистрационных документов
+//
+	//#org Паспорт
+@rregt_passport "Passport"
+	//#org Свидетельство частного предпринимателя
+@rregt_regfree "Testimony of a private entrepreneur"
+	//#org ОКОНХ
+@rregt_okonh "OKONH"
+	//#org ОКПО
+@rregt_okpo "Okpo"
+	//#org Банковский код (БИК)
+@rregt_bic "Bank code (BIC)"
+	//#org Корреспондентский счет банка
+@rregt_bnkcorracc "Correspondent's account of the bank"
+	//#org Код персоналии
+@rregt_code "Personalcode"
+	//#org Заказчик @{brand_uhtt}
+@rregt_uhttclid "Customer @{brand_uhtt}"
+	//#org Код КПП
+@rregt_kpp "Cprc code"
+	//#org Код ОКАТО
+@rregt_okato "OCATO code"
+	//#org Код сертифицирующей организации
+@rregt_certorgcode "Certifying organization code"
+	//#org Код GLN
+@rregt_gln "GLN code"
+	//#org Символьный код страны
+@rregt_countryabbr "Country symbol code"
+	//#org Цифровой код страны
+@rregt_countrycode "The country's digital code"
+	//#org Ид оператора передачи данных
+@rregt_dto_id "Eid data carrier"
+	//#org Вид системы налогообложения
+@rregt_taxsystem "The type of tax system"
+// Зарезервированные счетчики операций
+//
+	//#org Счетик символов рабочей книги
+@ropcntr_workbook "The character score of the working book"
+//
+// Наименования зарезервированных видов налогообложения //
+//
+	//#org ОСН — общая система налогообложения
+@txsk_general "THE ONS is a common tax system"
+	//#org УСН — упрощенная система налогообложения
+@txsk_simplified "ONS - simplified tax system"
+	//#org ПАТЕНТ — патентная система налогообложения
+@txsk_patent "PATENT - Patent Tax system"
+	//#org ЕНВД — вмененная система налогообложения
+@taxsysk_imputed "ENVD - An implied tax system"
+	//#org ЕСХН — единый сельскохозяйственный налог
+@txsk_singleagricult "ECNS - single agricultural tax"
 //
 // Текстовые представления view и filter
 //
@@ -11188,8 +11299,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @view_goodsstruc "Commodity structures"
 	//#org Анализ технологических сессий
 @view_tsessanlz "Analysis of technology sessions"
-	//#org Валютные курсы
-@view_currate "Currency rates"
 	//#org Сравнение объектов
 @view_objlikeness "Comparison of objects"
 	//#org Ассоциация товар-объект
@@ -11670,8 +11779,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cmd_opentextfile "Open a text file"
 	//#org Типы операций
 @cmd_oprtype "Types of operations"
-	//#org Типы паллет
-@cmd_pallet "Types of pallet"
 	//#org Поиск оплат без связанного документа
 @cmd_paymwolinkbill "Finding payments without a related document"
 	//#org Категории персоналий
@@ -11833,8 +11940,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cmd_vatbook "Book of sales/purchases"
 	//#org Массовая верификация WIN32 отчетов
 @cmd_verifyallcrpt "Mass verification of WIN32 reports"
-	//#org Основные средства
-@cmd_viewasset "Basic funds"
 	//#org Информация о запущенных задачах Job сервера
 @cmd_viewbboard "Information about running server job tasks"
 	//#org Шаблоны бизнес-показателей
@@ -11843,8 +11948,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cmd_viewcheckopj "Check operations log"
 	//#org Дефицит по кассовым сессиям
 @cmd_viewcsessdeficit "Deficit on cash sessions"
-	//#org Валютные курсы
-@cmd_viewcurrates "Currency rates"
 	//#org Журнал загрузки оборудования
 @cmd_viewdlstat "Equipment download log"
 	//#org Гео-трекинг
@@ -11910,6 +12013,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cmd_exportview "Exports of the named filter report"
 	//#org Откат изменений котировок
 @cmd_rollbackquots "Rollback of quote changes"
+	//#org Унифицированный поиск объектов
+@cmd_unifindobj "Unified object search"
 
 	//#org Админ
 @cmdpu_admin "Admin"
@@ -12404,8 +12509,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @bill_nmborigsbsl "Number of original sin--buses"
 	//#org Статус плательщика
 @bill_payerstatus "Payer status"
-	//#org Дублирование суммы оплаты
-@bill_paymamount "Duplication of payment"
+	//#org Включенная суммы оплаты
+@bill_paymamount "Included payment amounts"
 	//#org Начало периода действия
 @bill_periodlow "Start the period"
 	//#org Конец периода действия
@@ -12523,6 +12628,13 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 
 	//#org Контрольные границы значения
 @bizscore_bounds "Value control limits"
+
+	//#org Фильтр по бизнес-показателям
+@bizscorefilt "Business indicators filter"
+	//#org Фильтр по значениям бизнес-показателей
+@bizscorevalfilt "Business metrics filter"
+
+
 	//#org Допуск иерархии
 @bnkacctype_fhierarchical "Hierarchy tolerance"
 	//#org Допуск иерархии
@@ -12812,6 +12924,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @timeseries_peakavgquant_s "Average short peak (in quants)"
 	//#org Ручной целевой TP (в квантах)
 @timeseries_targetquant "Manual target TP (in quants)"
+	//#org Фиксированная ставка
+@timeseries_fixedstakevolume "Fixed rate"
 	//#org Статистика
 @timeseries_statistics "Statistics"
 
@@ -12877,8 +12991,12 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cfgalbatros_mqcparams "Configuration of interface with message broker"
 	//#org Конфигурация MQC
 @cfgalbatros_mqcparams_s "Configuration of m'C"
+	//#org Виртуальный хост
+@cfgalbatros_mqcparams_virthost "Virtual host"
 	//#org Домен данных
 @cfgalbatros_mqcparams_datadomain "Data domain"
+	//#org Общая конфигурация
+@cfgalbatros_mqcparams_getcommonconfig "Total configuration"
 
 	//#org Товарный класс алкогольной продукции
 @cfgalcreport_alcgoodscls "Commodity class of alcoholic products"
@@ -12894,12 +13012,12 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cfgalcreport_categorytag "Alcohol product tag"
 	//#org Прочий расход
 @cfgalcreport_expndetcop "Other expense"
-	//#org Продажа
-@cfgalcreport_expndop "Sale"
 	//#org Вид персоналии импортера
 @cfgalcreport_importerpersonkind "Type of personality importer"
 	//#org Внутренняя передача товара
 @cfgalcreport_intrexpndop "Internal transfer"
+	//#org Производство
+@cfgalcreport_manufop "Production"
 	//#org КПП
 @cfgalcreport_kppdlvrext "Ppc"
 	//#org Тип регистра КПП
@@ -13232,8 +13350,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cfgcomm_receiptop "Coming from a supplier"
 	//#org Заказ поставщику
 @cfgcomm_draftrcptop "Order to the supplier"
-	//#org Розничная продажа
-@cfgcomm_retailop "Retail"
 	//#org Розничный возврат
 @cfgcomm_retailretop "Retail return"
 	//#org Межскладской приход
@@ -13517,7 +13633,7 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cfginetconn_urldir "Directory address with (URL) data"
 	//#org Шаблон кода адреса
 @cfglocation_addrcodetempl "Address code template"
-	//#org Тип паллета по умолчанию
+	//#org Тип паллеты по умолчанию
 @cfglocation_defpallet "Default pallet type"
 	//#org Использовать справочник ФИАС
 @cfglocation_fusefias "Use the FIAS handbook"
@@ -13917,6 +14033,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @cfgtimeseries_fallowreverse "Reverse betting allowed"
 	//#org Режим верификации данных
 @cfgtimeseries_fverifmode "Data verification mode"
+	//#org Игнорировать чужие ставки
+@cfgtimeseries_fignorestrangestakes "Ignore other people's bets"
 
 	//#org Максимальное количество ставок
 @cfgtimeseries_maxstakecount "Maximum bets"
@@ -14275,6 +14393,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @eventtoken_fhierarchical "Hierarchy tolerance"
 	//#org Класс устройства
 @genericdevice_deviceclass "Device class"
+	//#org Тестовый аккаунт
+@globaluseracc_fsandbox "Test account"
 	//#org GUID локальной базы данных
 @globaluseracc_localdbuuid "GUID local database"
 	//#org Локальный ИД пользователя
@@ -14329,9 +14449,7 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @goods_package "Delivery capacity, edus trading"
 	//#org Количество упаковок поставки в одном слое
 @goods_packsperlayer "Number of packages delivered in one layer"
-	//#org Тип паллета
-@goods_pallettype "Pallet type"
-	//#org Емкость слоя паллета
+	//#org Емкость слоя паллеты
 @goods_pallet_pckgperlayer "Pallet layer capacity"
 	//#org Количество слоев на паллете
 @goods_pallet_maxlayers "Number of layers on pallet"
@@ -14365,6 +14483,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 
 	//#org Искать в Universe-HTT
 @seekinuhtt "Search in Universe-HTT"
+	//#org Приватная корзина
+@privategoodsbasket "Private basket"
 	//#org Товарная корзина
 @goodsbasket "Commodity basket"
 	//#org Товарные корзины
@@ -15000,6 +15120,17 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @oprkind_opkf_prt_how "How to print"
 	//#org Ввод плательщика
 @oprkind_opkf_usepayer "Enter the payer"
+
+	//#org Печать цен в документе
+@oprkind_opkf_prt_amt "Print prices in the document"
+	//#org Явно не определено
+@oprkind_opkf_prt_implicit "Clearly undetermined"
+	//#org Цены поступления
+@oprkind_opkf_prt_amt_buying "Revenue prices"
+	//#org Цены реализации
+@oprkind_opkf_prt_amt_selling "Sales prices"
+	//#org Поступления и реализации
+@oprkind_opkf_prt_amt_both "Proceeds and sales"
 	//#org Печатать список штрихкодов
 @oprkind_opkf_prt_bcodelist "Print a list of barcodes"
 	//#org Кассовый ордер
@@ -15197,10 +15328,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @oprkind_bpoxf_unitepayments "Total payments"
 	//#org Номинал валютного транзита
 @oprkind_curtransnominal "Currency transit denomination"
-	//#org Входящая валютная сумма
-@oprkind_curtransnominal_inp "Incoming currency amount"
-	//#org Исходящая валютная сумма
-@oprkind_curtransnominal_out "Outgoing currency amount"
 
 	//#org Пиктограмма
 @oprtype_pict "Icon"
@@ -15295,8 +15422,29 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @personpost_finish "Withdrawal date"
 	//#org Персональная организация
 @personpost_psnevent "Personal organization"
+
+	//#org Тип отношения между персоналиями
+@personreltype "The type of personal relationship"
+	//#org Статус отношений
+@personreltype_statusrestriction "Relationship status"
+	//#org Человек-Человек
+@personreltype_ss_privatetoprivate "Man-Man"
+	//#org Человек-Организация
+@personreltype_ss_privatetolegal "Man-Organization"
+	//#org Организация-Человек
+@personreltype_ss_legaltoprivate "Organization-Man"
+	//#org Организация-Организация
+@personreltype_ss_legaltolegal "Organization-Organization"
 	//#org Отношение
 @personreltype_cardinality "Attitude"
+	//#org Одни-к-одному
+@personreltype_cardinality_onetoone "One-to-one"
+	//#org Один-ко-многим
+@personreltype_cardinality_onetomany "One-to-many"
+	//#org Многие-к-одному
+@personreltype_cardinality_manytoone "Many-to-one"
+	//#org Многие-ко-многим
+@personreltype_cardinality_manytomany "Many-co-many"
 	//#org Группирующее отношение
 @personreltype_fgrouping "Grouping attitude"
 	//#org Наследует адрес
@@ -15307,8 +15455,9 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @personreltype_finhmainorgagreement "Inherits the agreement of the main organization"
 	//#org Наследует фактический адрес
 @personreltype_finhraddr "Inherits the actual address"
-	//#org Статус отношений
-@personreltype_statusrestriction "Relationship status"
+	//#org Типы наследуемых регистров
+@personreltype_inhregtypelist "Types of inherited registers"
+
 
 	//#org Телефонный вызов
 @phonepane "Phone call"
@@ -16097,18 +16246,38 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 
 	//#org Допуск иерархии
 @woodbreed_fhierarchical "Hierarchy tolerance"
-	//#org Связанная таблица стилей CSS
-@workbook_css "Associated CSS Style Table"
-	//#org Количество ключевых слов
-@workbook_keywordcount "Number of keywords"
-	//#org Связанный элемент
-@workbook_link "Related"
+
+	//#org Сайт
+@workbook_type_site "Site"
+	//#org Таблица стилей CSS
+@workbook_type_css "CSS Style Table"
+	//#org Медиа
+@workbook_type_media "Media"
+	//#org Папка
+@workbook_type_folder "Folder"
 	//#org Родительский элемент
 @workbook_parent "Parent"
+	//#org Связанный элемент
+@workbook_link "Related"
+	//#org Связанная таблица стилей CSS
+@workbook_css "Associated CSS Style Table"
+	//#org Факторы bot-заглушки
+@workbook_botstubfactors "Bot-stub factors"
+	//#org Количество ключевых слов
+@workbook_keywordcount "Number of keywords"
+	//#org Параметр разжижения ключевых слов
+@workbook_keyworddilute "Keyword liquefaction option"
 	//#org Не показывать детей
 @workbook_ppwbf_dontshowchildren "Don't show children"
 	//#org Скрытый
 @workbook_ppwbf_hidden "Hidden"
+	//#org Не показывать основной контент
+@workbook_ppwbf_kwdontshowmainc "Don't show core content"
+	//#org Ключевые слова (через запятую)
+@workbook_keywords "Keywords (through comma)"
+	//#org Синонимы
+@workbook_kwsynonyms "Synonyms"
+
 	//#org ZIP-код географического объекта
 @world_zip "Geographical object's zip code"
 
@@ -16164,6 +16333,27 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @articlefilt_fshowaddedlimit "Show an extra credit limit"
 	//#org Показывать соглашения
 @articlefilt_fshowagreement "Show agreements"
+	//#org Снят
+@articlefilt_ft_closed_reset "Filmed"
+	//#org Установлен
+@articlefilt_ft_closed_set "Installed"
+	//#org Снят
+@articlefilt_ft_stop_reset "Filmed"
+	//#org Установлен
+@articlefilt_ft_stop_set "Installed"
+	//#org По наименованию аналитической статьи
+@articlefilt_ordbyname "By the name of the analytical article"
+	//#org По номеру аналитической статьи
+@articlefilt_ordbyarticle "By analysis number"
+	//#org По идентификатору аналитической статьи
+@articlefilt_ordbydefault "By analysis id"
+
+	//#org Фильтр по объектам основных средств
+@assetfilt "Filter by fixed assets"
+	//#org Период поступления
+@assetfilt_period "Earnings period"
+	//#org Операционный период
+@assetfilt_operperiod "Operating period"
 	//#org Показывать закрытые
 @assetfilt_fshowclosed "Show closed"
 	//#org Только не списанные
@@ -16172,10 +16362,13 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @assetfilt_fwritedoffonly "Only decommissioned"
 	//#org Списанные и не списанные
 @assetfilt_fwroandunwro "Written off and not written off"
-	//#org Операционный период
-@assetfilt_operperiod "Operating period"
-	//#org Период поступления
-@assetfilt_period "Earnings period"
+	//#org Независимо от ввода в эксплуатацию
+@assetfilt_ft_inexpl_any "Regardless of commissioning"
+	//#org Только введенные в эксплуатацию
+@assetfilt_ft_inexpl_commissioned "Only commissioned"
+	//#org Только не введенные в эксплуатацию
+@assetfilt_ft_inexpl_uncommissioned "Only not commissioned"
+
 	//#org Фильтр автозаполнения инвентарной ведомости
 @autofillinvfilt "Autocomplete inventory filter"
 	//#org Выставлять нулевое количество
@@ -16226,6 +16419,11 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @billfilt_ordbyobject "By counterparty"
 	//#org Фильтр по расширению документа
 @billfilt_ext "Document extension filter"
+	//#org Опции просмотра документов
+@billfilt_viewoptions "Document viewing options"
+
+	//#org Изменение флагов документов
+@billflagsupd "Changing the flags of documents"
 
 	//#org Привязка документа к другому
 @attachbill "Linking a document to another"
@@ -16803,8 +17001,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @goodsrestprn_sellsheet "Warehouse sales form"
 	//#org Остатки в упаковках
 @goodsrestprn_inpacks "Remains in packages"
-	//#org Не группировать
-@goodsrestprn_disablegrouping "Don't group"
 	//#org Печатать штрих-коды
 @goodsrestprn_printbarcode "Print barcodes"
 	//#org Специальный отчет
@@ -16945,6 +17141,16 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @mrplinefilt_mrpsrcv_indep "Only independent needs"
 	//#org Итоговые потребности
 @mrplinefilt_mrpsrcv_total "Total needs"
+
+	//#org Итоги по выборке строк MRP-таблицы
+@mrplinetotal "MrP table line selection results"
+	//#org Общее количество позиций
+@mrplinetotal_count "Total positions"
+	//#org Количество терминальных позиций
+@mrplinetotal_termcount "Number of terminal positions"
+	//#org Количество дефицитных позиций
+@mrplinetotal_dfctcount "Number of scarce positions"
+
 	//#org Не показывать дочерние таблицы
 @mrptabfilt_fskipchilds "Don't show child tables"
 	//#org Совпадение(%) [0..100]
@@ -16978,6 +17184,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org Использовать Ранг при сортировке
 @oprkindfilt_fuserank "Use Rank when sorting"
 
+	//#org Фильтр по персональным событиям
+@personeventfilt "Personal Event Filter"
 	//#org Парные события без пары
 @personeventfilt_fwithoutpair "Doubles without a pair"
 	//#org Подстановка даты
@@ -17025,6 +17233,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org Дополнительный объект
 @updpersonlist_extobj "Additional object"
 
+	//#org Фильтр по персональным отношениям
+@personrelfilt "Personal relationship filter"
 	//#org Селектор выбора персоналии
 @personrelfilt_flags "Personal selection selector"
 	//#org По имени персоналии
@@ -17779,6 +17989,19 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org Документы с содержанием
 @printbilllist_withcontent "Documents with contents"
 
+	//#org Печать товарного отчета по операции
+@printgoodsopanalyze "Print a product report on the operation"
+	//#org Печать ABC анализа
+@printgoodsopanalyze_abc "Print ABC analysis"
+	//#org Не печатать цены поступления
+@printgoodsopanalyze_dontprintcosts "Don't print revenue prices"
+	//#org Специальный отчет
+@printgoodsopanalyze_special "Special report"
+	//#org Только ABC группы
+@printgoodsopanalyze_abc_groupsonly "Only ABC Group"
+	//#org Товары с группировкой ABC
+@printgoodsopanalyze_abc_detail "ABC Products"
+
 	//#org Пересчет скидок и начислений по персональным картам
 @scardchargerule "Recalculating discounts and personal card charges"
 	//#org Вид периода для расчета
@@ -17971,6 +18194,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @selfbuildparam_compilerpath "The path to a project build tool"
 	//#org Конфигурация сборки
 @selfbuildparam_config "Build configuration"
+	//#org Конфигурация Windows XP-совместимой сборки
+@selfbuildparam_xpconfig "Windows XP-compatible build configuration"
 
 	//#org Выберите действие
 @billbysampleparam "Choose action"
@@ -18084,6 +18309,18 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @vetisdocfilt_icacnloadalldocs "Get all the documents (long-term surgery)"
 	//#org Получить текущие остатки
 @vetisdocfilt_icacnloadstock "Get current balances"
+	//#org По сроку годности
+@vetisdocfilt_ft_expiry "By expiration date"
+	//#org С истекшим сроком годности
+@vetisdocfilt_ft_expiry_expired "Expired"
+	//#org С не истекшим сроком годности
+@vetisdocfilt_ft_expiry_nonexpired "With no expiration date"
+	//#org Сопоставлен с документом
+@vetisdocfilt_ft_lotmatch "Matched with the document"
+	//#org Сопоставлен
+@vetisdocfilt_ft_lotmatch_matched "Mapped"
+	//#org Не сопоставлен
+@vetisdocfilt_ft_lotmatch_nonmatched "Not matched"
 
 	//#org Ветеринарный документ ВЕТИС
 @vetisvetdoc "VETIS Veterinary Document"
@@ -18530,14 +18767,6 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @tlayout_marginline "Fields (left, top, right, bottom)"
 	//#org Gravity
 @tlayout_gravity "Gravity"
-	//#org Налево
-@tlayout_graviti_left "Left"
-	//#org Направо
-@tlayout_graviti_right "Right"
-	//#org Вверх
-@tlayout_graviti_up "Top"
-	//#org Вниз
-@tlayout_graviti_down "Down"
 	//#org Заполнить по горизонтали
 @tlayout_graviti_fillhorz "Fill horizontally"
 	//#org Заполнить по вертикали
@@ -18573,6 +18802,8 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 
 	//#org Не формировать DTD для XML-файлов
 @namedfilt_fdontwritexmldtd "Don't form DTD for XML files"
+	//#org Сжимать XML-файлы
+@namedfilt_fcompressxml "Compress Ingrex XML files"
 	//#org Определения полей для отображения
 @namedfilt_viewdeflist "Definitions of fields to display"
 	//#org Определение поля для отображения
@@ -18610,8 +18841,10 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 @scardchrgcrdparam_actionadd "Add that amount to the balance"
 	//#org Дополнить остаток до указанной суммы
 @scardchrgcrdparam_actionextendto "Add the balance to the specified amount"
-	//#org Синхронизировать остаток с сервером Universe-HTT
-@scardchrgcrdparam_actionuhttsync "Synchronize the balance with the Universe-HTT server"
+	//#org Получить остатки с сервера Universe-HTT
+@scardchrgcrdparam_actionuhttsync "Get leftovers from Universe-HTT server"
+	//#org Передать локальные остатки на сервер Universe-HTT
+@scardchrgcrdparam_actiontransmtouhtt "Transfer local balances to Universe-HTT server"
 
 	//#org Период поступления товаров
 @goodstaxanalyzefilt_lotsperiod "Period of receipt of goods"
@@ -19039,6 +19272,135 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 	//#org Диагностика кассового узла
 @diagposnode "Cash Node Diagnosis"
 
+	//#org Запрос к кассовому узлу
+@posnquery "Request to the cash register"
+	//#org Последняя закрытая сессия
+@posnquery_qvlastsession "Last closed session"
+	//#org Текущая сессия
+@posnquery_qvcurrsession "Current session"
+	//#org Сессии за период
+@posnquery_qvsessbyperiod "Sessions over the period"
+	//#org Сессии по номерам
+@posnquery_qvsessbynumber "Sessions by No."
+	//#org Сессии по идентификаторам
+@posnquery_qvsessbyid "ID Sessions"
+	//#org Справочники
+@posnquery_qvrefs "References"
+	//#org Номера кассовых аппаратов
+@posnquery_dvcnumlist "Cash register numbers"
+	//#org Номера сессий
+@posnquery_sessnumlist "Sessions numbers"
+	//#org Период сессий
+@posnquery_sessperiod "Sessions period"
+
+	//#org Статистика асинхронной очереди системных событий
+@aeqstat "Asynchronous queue statistics of system events"
+	//#org Время жизни
+@aeqstat_livingtime "Lifetime"
+	//#org Количество запросов PUT
+@aeqstat_push_count "Number of PUT requests"
+	//#org Количество запросов GET
+@aeqstat_get_count "Number of GET requests"
+	//#org Количество отклоненных запросов GET
+@aeqstat_getdecline_count "Number of rejected GET requests"
+	//#org Максимальная длина очереди
+@aeqstat_maxlength "Maximum queue length"
+	//#org Количество обращений к системному журналу
+@aeqstat_sjprccount "Number of calls to the system log"
+	//#org Количество событий системного журнала
+@aeqstat_sjmsgcount "Number of system log events"
+	//#org Количество обращений к телефонному сервису
+@aeqstat_phnsvcprccount "Number of calls to phone service"
+	//#org Количество событий телефонного сервиса
+@aeqstat_phnsvcmsgcount "Number of phone service events"
+	//#org Количество обращений к брокеру сообщений
+@aeqstat_mqbprccount "Number of messages to the message broker"
+	//#org Количество событий брокера сообщений
+@aeqstat_mqbmsgcount "Number of message broker events"
+
+	//#org Регистрация/дерегистрация COM сервера
+@regcomsvrparam "Registration/deregistration of the COM server"
+	//#org Дерегистрация
+@regcomsvrparam_aderegister "Deregistration"
+	//#org Установить надстройку DL200
+@regcomsvrparam_fdl200install "Install dl200 add-on"
+	//#org Использовать Windows XP-совместимый модуль
+@regcomsvrparam_fwinxpcompat "Use Windows XP-compatible module"
+
+	//#org Обмен с честным знаком
+@chznprcssrparam "Sharing with an honest sign"
+
+	//#org Восстановление утерянных персоналий для задач
+@restorelostprjtperson "Restoring lost personalities for tasks"
+	//#org Восст. создателя
+@restorelostprjtperson_resolvecreator "Vost. Creator"
+	//#org Восст. исполнителя
+@restorelostprjtperson_resolveemployer "Vost. Artist"
+	//#org Восст. клиента
+@restorelostprjtperson_resolveclient "Vost. Client"
+	//#org Задачи с создателем
+@restorelostprjtperson_viewbycreator "Tasks with the creator"
+	//#org Задачи с исполнителем
+@restorelostprjtperson_viewbyemployer "Tasks with the performer"
+	//#org Задачи с клиентом
+@restorelostprjtperson_viewbyclient "Customer tasks"
+
+	//#org Перенос операций по персональной карте
+@replacecardinchecks "Transfer of personal card transactions"
+	//#org Карта, на которую чеки переносятся
+@replacecardinchecks_src "The card to which the checks are transferred"
+	//#org Карта, с которой снимаются чеки
+@replacecardinchecks_dest "The card from which checks are taken"
+	//#org @{attention} Эта операция переносит чеки с одной персональной карты на другую. Операция необратимая. Дважды подумайте, прежде чем нажмете [OK].
+@replacecardinchecks_warn "@{attention} This operation transfers checks from one personal card to another. The operation is irreversible. Think twice before you hit the [OK]."
+
+	//#org Фильтр по статистике дебиторов
+@debtorstatfilt "Debitor statistics filter"
+	//#org Включать итоговую строку по предприятию
+@debtorstatfilt_fincludetotal "Include the final line on the enterprise"
+	//#org Включать агрегации по отношению
+@debtorstatfilt_fincluderel "Include aggregation in relation to"
+	//#org Включать агрегации по агентам
+@debtorstatfilt_fincludeagent "Include agent aggregation"
+	//#org Включать терминальные статьи
+@debtorstatfilt_fincludeterm "Include terminal articles"
+	//#org По наименованию статьи
+@debtorstatfilt_ordbyarname "By title of the article"
+	//#org По средней задержке платежа
+@debtorstatfilt_ordbydelaymean "On average payment delay"
+	//#org По стандартному отклонению задержки платежа
+@debtorstatfilt_ordbydelaysd "Standard rejection of payment delay"
+	//#org По гамма-тесту
+@debtorstatfilt_ordbydelaygammatest "Gamma test"
+	//#org По периоду платежей
+@debtorstatfilt_ordbypaymperiod "By payment period"
+	//#org По плотности платежей
+@debtorstatfilt_ordbypaymdensity "By payment density"
+	//#org По рейтингу
+@debtorstatfilt_ordbyrating "Ranked"
+
+	//#org Смена счетчика операций
+@updateopcounter "Changing the counter of operations"
+	//#org Установите счетчик в значение, которым должен быть пронумерован следующий документ этого вида
+@updateopcounter_info "Set the counter to the value that the next document of this kind should be numbered"
+	//#org Не увеличивать счетчик при вводе документов
+@updateopcounter_flockincr "Don't increase the counter when you enter documents"
+
+	//#org Регистрация персоналий
+@checkinpersonlist "Registration of personalities"
+	//#org Регистрация персоналии
+@checkinperson "Registration of personalities"
+	//#org Зарегистрированное количество
+@checkinperson_regcount "Registered number"
+	//#org Подтвержденное количество
+@checkinperson_cicount "Confirmed number"
+	//#org Анонимный
+@checkinperson_fanonym "Anonymous"
+	//#org Время подтверждения
+@checkinperson_cidtm "Confirmation time"
+	//#org Место
+@checkinperson_placecode "Place"
+
 [121]
 	//#org Вход
 1 "Entrance"
@@ -19158,10 +19520,10 @@ PPTXT_VETIS_OUTCERTRGCYCLEEXIT "Emergency exit from the cycle of getting answers
 3 "@{err_curl}: недопустимый URL format"
 	//#org @{err_curl}: NOT BUILT IN
 4 "@{err_curl}: NOT BUILT IN"
-	//#org @{err_curl}: не возможно разрешить прокси-сервер
-5 "@{err_curl}: не possible to allow a proxy"
-	//#org @{err_curl}: не возможно разрешить имя хоста
-6 "@{err_curl}: не it is possible to allow the name of the host"
+	//#org @{err_curl}: невозможно разрешить прокси-сервер
+5 "@{err_curl}: невозможно allow a proxy"
+	//#org @{err_curl}: невозможно разрешить имя хоста
+6 "@{err_curl}: невозможно allow the name of the host"
 	//#org @{err_curl}: ошибка соединения
 7 "@{err_curl}: ошибка connections"
 	//#org @{err_curl}: FTP WEIRD SERVER REPLY

@@ -907,6 +907,32 @@ int SLAPI PPObjCashNode::ResolveList(const PPIDArray * pSrcList, PPIDArray & rDe
 	return ok;
 }
 
+int SLAPI PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
+{
+	int    ok = -1;
+	PPID   tax_sys_id = TAXSYSK_GENERAL;
+	const  LDATE actual_date = checkdate(dt) ? dt : getcurdate_();
+	PPObjPerson psn_obj;
+	RegisterTbl::Rec reg_rec;
+	if(id) {
+        PPCashNode cn_rec;
+		if(Fetch(id, &cn_rec) > 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, 0, &reg_rec) > 0 && reg_rec.ExtID > 0) {
+			tax_sys_id = reg_rec.ExtID;
+			ok = 1;
+		}
+	}
+	if(ok < 0) {
+        PPID   main_org_id = 0;
+        GetMainOrgID(&main_org_id);
+        if(main_org_id && psn_obj.GetRegister(main_org_id, PPREGT_TAXSYSTEM, actual_date, &reg_rec) > 0 && reg_rec.ExtID > 0) {
+			tax_sys_id = reg_rec.ExtID;
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pTaxSysID, tax_sys_id);
+	return ok;
+}
+
 int SLAPI PPObjCashNode::IsVatFree(PPID id)
 {
 	int    result = -1;

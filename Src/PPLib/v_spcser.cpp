@@ -247,13 +247,9 @@ SpecSerDlg::SpecSerDlg() : TDialog(DLG_SPCSER)
 IMPL_HANDLE_EVENT(SpecSerDlg)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND) {
-		if(TVCMD == cmCBSelected) {
-			if(event.isCtlEvent(CTLSEL_SPCSER_GOODS) || event.isCtlEvent(CTLSEL_SPCSER_MANUF)) {
-				SetupCtrls();
-				clearEvent(event);
-			}
-		}
+	if(event.isCbSelected(CTLSEL_SPCSER_GOODS) || event.isCbSelected(CTLSEL_SPCSER_MANUF)) {
+		SetupCtrls();
+		clearEvent(event);
 	}
 }
 

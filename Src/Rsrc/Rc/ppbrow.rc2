@@ -2107,7 +2107,7 @@ browser GOODSLOT north(43), 1, 0, "Приходы товара {%s}", OWNER|GRID, 0
 	"@date",             0, date, DATF_DMY, 8
 	"@supplier",         4, zstring(128), 0, 20
 	"@rest",           132, double, NMBF_NOTRAILZ, 7.3
-	"Ед изм",          140, zstring(48), 0, 6
+	"@munit",          140, zstring(48), 0, 6
 	"@serial",         188, zstring(32), 0, 20
 	"@termcost",       220, double, NMBF_NOZERO, 8.2
 	"@termprice",      228, double, NMBF_NOZERO, 8.2
@@ -2121,7 +2121,7 @@ browser GOODSLOT_SERIAL north(43), 1, 0, "Приходы товаров по серии '%s'", OWNER|
 	"@supplier",         4, zstring(128), 0, 20
 	"@ware",           248, zstring(128), 0, 40
 	"@rest",           132, double, NMBF_NOTRAILZ, 7.3
-	"Ед изм",          140, zstring(48), 0, 6
+	"@munit",          140, zstring(48), 0, 6
 	"@serial",         188, zstring(32), 0, 20
 	"@termcost",       220, double, NMBF_NOZERO, 8.2
 	"@termprice",      228, double, NMBF_NOZERO, 8.2
@@ -2416,12 +2416,12 @@ browser SHIPMANLZBYBILL north(100), 3, 1, "@view_shipmanalyze", OWNER|GRID, 0
 		"@amount",  9, notype, NMBF_NOZERO, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		EDITGOODS     : kbF2,      TBBM_GOODS,     "@{ware}\tF2"
-		EDITBILL      : kbF3,      PPDV_DOCUMENT_PL02,     "@{document}\tF3"
+		EDITGOODS     : kbF2,      TBBM_GOODS,          "@{ware}\tF2"
+		EDITBILL      : kbF3,      PPDV_DOCUMENT_PL02,  "@{document}\tF3"
 		separator
-		PRINT         : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
+		PRINT         : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
 		separator
-		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,    "@{filter}\tCtrl-V"
+		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
 
@@ -2719,12 +2719,12 @@ browser GOODSTURNOVER_BYLOC north(100), 3, 1, "Товарооборот", OWNER|GRID, 0
 		"Межсклад",   20, double, NMBF_NOZERO, 9.2
 	}
 	group "@return" {
-		"Розница",    28, double, NMBF_NOZERO, 9.2
+		"@selling_retail", 28, double, NMBF_NOZERO, 9.2
 		"@client",    36, double, NMBF_NOZERO, 9.2
 		"@supplier",  44, double, NMBF_NOZERO, 9.2
 	}
 	group "@expend" {
-		"Розница",    52, double, NMBF_NOZERO, 9.2
+		"@selling_retail", 52, double, NMBF_NOZERO, 9.2
 		"@client",    60, double, NMBF_NOZERO, 9.2
 		"Межсклад",   68, double, NMBF_NOZERO, 9.2
 	}
@@ -2741,13 +2741,13 @@ browser GOODSTURNOVER north(100), 3, 1, "Товарооборот", OWNER|GRID, 0
 	"@date",                    0, zstring(12), 0, 8
 	"Поступление\nот поставщ", 12, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 	group "@return" {
-		"Розница",    28, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-		"@client",    36, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-		"@supplier",  44, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@selling_retail", 28, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@client",         36, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@supplier",       44, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 	}
 	group "@expend" {
-		"Розница",    52, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
-		"@client",    60, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@selling_retail", 52, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
+		"@client",         60, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 	}
 	"@payment",       76, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
 	"@income",        84, double, NMBF_DELCOMMA | NMBF_NOZERO, 11.2
@@ -4156,7 +4156,7 @@ browser STAFFCAL_DTGRP north(100), 1, 1, "Штатные календари с группировкой по да
 	}
 }
 
-browser CURRATE north(100), 2, 1, "Валютные курсы", OWNER|GRID, 0
+browser CURRATE north(100), 2, 1, "@{view_currate}", OWNER|GRID, 0
 {
 	"@date",           3, notype, 0, 8
 	"@currate",        4, notype, 0, 10.4
@@ -5912,7 +5912,7 @@ browser SERVERSTAT north(100), 1, 1, "Статистика сервера %s", OWNER|GRID, 0
 	}
 }
 
-browser AMOUNTTYPE north(100), 1, 1, "@view_amounttype", OWNER|GRID, 0
+browser AMOUNTTYPE north(100), 1, 1, "@{view_amounttype}", OWNER|GRID, 0
 {
 	"@id",                    0, int32,        0, 6,  BCO_USERPROC
 	"@appellation",           1, zstring(48),  0, 30, BCO_USERPROC
@@ -6959,7 +6959,7 @@ record CliBnkData {
 	TaxClass         zstring(24)  "Код бюджетной классификации";
 	OKATO            zstring(16)  "Код по ОКАТО бюджетной организации";
 	TaxReason        zstring(8)   "Код причина бюджетного платежа";
-	TaxPeriod        zstring(16)  "Налоговый период";
+	TaxPeriod        zstring(16)  "@{taxableperiod}";
 	TaxDocNumber     zstring(16)  "Номер документа, согласно которому идет уплата";
 	TaxDocDate       zstring(16)  "Дата документа, согласно которому идет уплата";
 	TaxPaymType      zstring(8)   "Тип бюджетного платежа";
@@ -8405,7 +8405,7 @@ reportstub CSessExcAlt		{ dl600data=CSessExc,			"Товарные излишки, возникающие п
 reportstub CSessExc			{ dl600data=CSessExc,			"Товарные излишки, возникающие при закрытии кассовой сессии из-за отстутствия проданных через кассу товаров в базе данных."}
 reportstub CurRateBCT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: базовой валюте, валюте, типу курса)"}
 reportstub CurRateBT		{ dl600data=CurRateView,		"Валютные курсы (по заданным: базовой валюте, типу курса)"}
-reportstub CurRate			{ dl600data=CurRateView,		"Валютные курсы"}
+reportstub CurRate			{ dl600data=CurRateView,		"@{currate_pl}"}
 reportstub CCheckGdsCorr	{ dl600data=CCheckView,			"Корреляция товаров по кассовым чекам"}
 reportstub CCheckView_Q		{ dl600data=CCheckView,			"Кассовые чеки с колонкой количества"}
 reportstub CCheckView		{ dl600data=CCheckView,			"@{poscheck_pl}"}

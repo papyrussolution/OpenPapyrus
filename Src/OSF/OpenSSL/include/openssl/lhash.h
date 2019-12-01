@@ -36,12 +36,13 @@ typedef struct lhash_st OPENSSL_LHASH;
 
 /* First: "hash" functions */
 #define DECLARE_LHASH_HASH_FN(name, o_type)   ulong name##_LHASH_HASH(const void *);
-#define IMPLEMENT_LHASH_HASH_FN(name, o_type) ulong name##_LHASH_HASH(const void *arg) { const o_type *a = arg; return name##_hash(a); }
+#define IMPLEMENT_LHASH_HASH_FN(name, o_type) ulong name##_LHASH_HASH(const void *arg) { const o_type *a = static_cast<const o_type *>(arg); return name##_hash(a); }
 #define LHASH_HASH_FN(name) name##_LHASH_HASH
 
 /* Second: "compare" functions */
 #define DECLARE_LHASH_COMP_FN(name, o_type) int name##_LHASH_COMP(const void *, const void *);
-#define IMPLEMENT_LHASH_COMP_FN(name, o_type) int name##_LHASH_COMP(const void *arg1, const void *arg2) { const o_type *a = arg1; const o_type *b = arg2; return name##_cmp(a,b); }
+#define IMPLEMENT_LHASH_COMP_FN(name, o_type) int name##_LHASH_COMP(const void *arg1, const void *arg2) \
+	{ const o_type *a = static_cast<const o_type *>(arg1); const o_type *b = static_cast<const o_type *>(arg2); return name##_cmp(a,b); }
 #define LHASH_COMP_FN(name) name##_LHASH_COMP
 
 /* Fourth: "doall_arg" functions */

@@ -2182,12 +2182,9 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 	 * data
 	 */
 	ukm_hash = EVP_MD_CTX_new();
-	if(ukm_hash == NULL
-	    || EVP_DigestInit(ukm_hash, EVP_get_digestbynid(dgst_nid)) <= 0
-	    || EVP_DigestUpdate(ukm_hash, s->s3->client_random,
-		    SSL3_RANDOM_SIZE) <= 0
-	    || EVP_DigestUpdate(ukm_hash, s->s3->server_random,
-		    SSL3_RANDOM_SIZE) <= 0
+	if(ukm_hash == NULL || EVP_DigestInit(ukm_hash, EVP_get_digestbynid(dgst_nid)) <= 0
+	    || EVP_DigestUpdate(ukm_hash, s->s3->client_random, SSL3_RANDOM_SIZE) <= 0
+	    || EVP_DigestUpdate(ukm_hash, s->s3->server_random, SSL3_RANDOM_SIZE) <= 0
 	    || EVP_DigestFinal_ex(ukm_hash, shared_ukm, &md_len) <= 0) {
 		*al = SSL_AD_INTERNAL_ERROR;
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_GOST, ERR_R_INTERNAL_ERROR);
@@ -2195,8 +2192,7 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 	}
 	EVP_MD_CTX_free(ukm_hash);
 	ukm_hash = NULL;
-	if(EVP_PKEY_CTX_ctrl(pkey_ctx, -1, EVP_PKEY_OP_ENCRYPT,
-		    EVP_PKEY_CTRL_SET_IV, 8, shared_ukm) < 0) {
+	if(EVP_PKEY_CTX_ctrl(pkey_ctx, -1, EVP_PKEY_OP_ENCRYPT, EVP_PKEY_CTRL_SET_IV, 8, shared_ukm) < 0) {
 		*al = SSL_AD_INTERNAL_ERROR;
 		SSLerr(SSL_F_TLS_CONSTRUCT_CKE_GOST, SSL_R_LIBRARY_BUG);
 		goto err;
@@ -2222,11 +2218,9 @@ static int tls_construct_cke_gost(SSL * s, uchar ** p, int * len, int * al)
 		*len = msglen + 2;
 	}
 	memcpy(*p, tmp, msglen);
-
 	EVP_PKEY_CTX_free(pkey_ctx);
 	s->s3->tmp.pms = pms;
 	s->s3->tmp.pmslen = pmslen;
-
 	return 1;
 err:
 	EVP_PKEY_CTX_free(pkey_ctx);
@@ -2461,7 +2455,6 @@ WORK_STATE tls_prepare_client_certificate(SSL * s, WORK_STATE wst)
 	X509 * x509 = NULL;
 	EVP_PKEY * pkey = NULL;
 	int i;
-
 	if(wst == WORK_MORE_A) {
 		/* Let cert callback update client certificates if required */
 		if(s->cert->cert_cb) {
@@ -2479,11 +2472,9 @@ WORK_STATE tls_prepare_client_certificate(SSL * s, WORK_STATE wst)
 		}
 		if(ssl3_check_client_certificate(s))
 			return WORK_FINISHED_CONTINUE;
-
 		/* Fall through to WORK_MORE_B */
 		wst = WORK_MORE_B;
 	}
-
 	/* We need to get a client cert */
 	if(wst == WORK_MORE_B) {
 		/*
@@ -2502,10 +2493,8 @@ WORK_STATE tls_prepare_client_certificate(SSL * s, WORK_STATE wst)
 		}
 		else if(i == 1) {
 			i = 0;
-			SSLerr(SSL_F_TLS_PREPARE_CLIENT_CERTIFICATE,
-			    SSL_R_BAD_DATA_RETURNED_BY_CALLBACK);
+			SSLerr(SSL_F_TLS_PREPARE_CLIENT_CERTIFICATE, SSL_R_BAD_DATA_RETURNED_BY_CALLBACK);
 		}
-
 		X509_free(x509);
 		EVP_PKEY_free(pkey);
 		if(i && !ssl3_check_client_certificate(s))
@@ -2535,15 +2524,12 @@ WORK_STATE tls_prepare_client_certificate(SSL * s, WORK_STATE wst)
 
 int tls_construct_client_certificate(SSL * s)
 {
-	if(!ssl3_output_cert_chain(s,
-		    (s->s3->tmp.cert_req ==
-			    2) ? NULL : s->cert->key)) {
+	if(!ssl3_output_cert_chain(s, (s->s3->tmp.cert_req == 2) ? NULL : s->cert->key)) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_CLIENT_CERTIFICATE, ERR_R_INTERNAL_ERROR);
 		ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
 		ossl_statem_set_error(s);
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -2555,19 +2541,14 @@ int ssl3_check_cert_and_algorithm(SSL * s)
 #ifndef OPENSSL_NO_EC
 	int idx;
 #endif
-	long alg_k, alg_a;
 	EVP_PKEY * pkey = NULL;
 	int al = SSL_AD_HANDSHAKE_FAILURE;
-
-	alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
-	alg_a = s->s3->tmp.new_cipher->algorithm_auth;
-
+	long alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
+	long alg_a = s->s3->tmp.new_cipher->algorithm_auth;
 	/* we don't have a certificate */
 	if((alg_a & SSL_aNULL) || (alg_k & SSL_kPSK))
 		return 1;
-
 	/* This is the passed certificate */
-
 #ifndef OPENSSL_NO_EC
 	idx = s->session->peer_type;
 	if(idx == SSL_PKEY_ECC) {
@@ -2581,32 +2562,26 @@ int ssl3_check_cert_and_algorithm(SSL * s)
 		}
 	}
 	else if(alg_a & SSL_aECDSA) {
-		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM,
-		    SSL_R_MISSING_ECDSA_SIGNING_CERT);
+		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM, SSL_R_MISSING_ECDSA_SIGNING_CERT);
 		goto f_err;
 	}
 #endif
 	pkey = X509_get0_pubkey(s->session->peer);
 	i = X509_certificate_type(s->session->peer, pkey);
-
 	/* Check that we have a certificate if we require one */
 	if((alg_a & SSL_aRSA) && !has_bits(i, EVP_PK_RSA | EVP_PKT_SIGN)) {
-		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM,
-		    SSL_R_MISSING_RSA_SIGNING_CERT);
+		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM, SSL_R_MISSING_RSA_SIGNING_CERT);
 		goto f_err;
 	}
 #ifndef OPENSSL_NO_DSA
 	else if((alg_a & SSL_aDSS) && !has_bits(i, EVP_PK_DSA | EVP_PKT_SIGN)) {
-		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM,
-		    SSL_R_MISSING_DSA_SIGNING_CERT);
+		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM, SSL_R_MISSING_DSA_SIGNING_CERT);
 		goto f_err;
 	}
 #endif
 #ifndef OPENSSL_NO_RSA
-	if(alg_k & (SSL_kRSA | SSL_kRSAPSK) &&
-	    !has_bits(i, EVP_PK_RSA | EVP_PKT_ENC)) {
-		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM,
-		    SSL_R_MISSING_RSA_ENCRYPTING_CERT);
+	if(alg_k & (SSL_kRSA | SSL_kRSAPSK) && !has_bits(i, EVP_PK_RSA | EVP_PKT_ENC)) {
+		SSLerr(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM, SSL_R_MISSING_RSA_ENCRYPTING_CERT);
 		goto f_err;
 	}
 #endif
@@ -2617,7 +2592,6 @@ int ssl3_check_cert_and_algorithm(SSL * s)
 		goto f_err;
 	}
 #endif
-
 	return 1;
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
@@ -2625,24 +2599,21 @@ f_err:
 }
 
 #ifndef OPENSSL_NO_NEXTPROTONEG
-int tls_construct_next_proto(SSL * s)
-{
-	uint len, padding_len;
-	uchar * d;
-	len = s->next_proto_negotiated_len;
-	padding_len = 32 - ((len + 2) % 32);
-	d = (uchar *)s->init_buf->data;
-	d[4] = len;
-	memcpy(d + 5, s->next_proto_negotiated, len);
-	d[5 + len] = padding_len;
-	memzero(d + 6 + len, padding_len);
-	*(d++) = SSL3_MT_NEXT_PROTO;
-	l2n3(2 + len + padding_len, d);
-	s->init_num = 4 + 2 + len + padding_len;
-	s->init_off = 0;
-	return 1;
-}
-
+	int tls_construct_next_proto(SSL * s)
+	{
+		uint len = s->next_proto_negotiated_len;
+		uint padding_len = 32 - ((len + 2) % 32);
+		uchar * d = (uchar *)s->init_buf->data;
+		d[4] = len;
+		memcpy(d + 5, s->next_proto_negotiated, len);
+		d[5 + len] = padding_len;
+		memzero(d + 6 + len, padding_len);
+		*(d++) = SSL3_MT_NEXT_PROTO;
+		l2n3(2 + len + padding_len, d);
+		s->init_num = 4 + 2 + len + padding_len;
+		s->init_off = 0;
+		return 1;
+	}
 #endif
 
 int ssl_do_client_cert_cb(SSL * s, X509 ** px509, EVP_PKEY ** ppkey)
@@ -2650,9 +2621,7 @@ int ssl_do_client_cert_cb(SSL * s, X509 ** px509, EVP_PKEY ** ppkey)
 	int i = 0;
 #ifndef OPENSSL_NO_ENGINE
 	if(s->ctx->client_cert_engine) {
-		i = ENGINE_load_ssl_client_cert(s->ctx->client_cert_engine, s,
-		    SSL_get_client_CA_list(s),
-		    px509, ppkey, 0, 0, 0);
+		i = ENGINE_load_ssl_client_cert(s->ctx->client_cert_engine, s, SSL_get_client_CA_list(s), px509, ppkey, 0, 0, 0);
 		if(i != 0)
 			return i;
 	}
@@ -2670,11 +2639,9 @@ int ssl_cipher_list_to_bytes(SSL * s, STACK_OF(SSL_CIPHER) * sk, uchar * p)
 	int empty_reneg_info_scsv = !s->renegotiate;
 	/* Set disabled masks for this session */
 	ssl_set_client_disabled(s);
-
 	if(sk == NULL)
 		return 0;
 	q = p;
-
 	for(i = 0; i < sk_SSL_CIPHER_num(sk); i++) {
 		c = sk_SSL_CIPHER_value(sk, i);
 		/* Skip disabled ciphers */
@@ -2684,26 +2651,20 @@ int ssl_cipher_list_to_bytes(SSL * s, STACK_OF(SSL_CIPHER) * sk, uchar * p)
 		p += j;
 	}
 	/*
-	 * If p == q, no ciphers; caller indicates an error. Otherwise, add
-	 * applicable SCSVs.
+	 * If p == q, no ciphers; caller indicates an error. Otherwise, add applicable SCSVs.
 	 */
 	if(p != q) {
 		if(empty_reneg_info_scsv) {
-			static SSL_CIPHER scsv = {
-				0, NULL, SSL3_CK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			};
+			static SSL_CIPHER scsv = { 0, NULL, SSL3_CK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 			j = s->method->put_cipher_by_char(&scsv, p);
 			p += j;
 		}
 		if(s->mode & SSL_MODE_SEND_FALLBACK_SCSV) {
-			static SSL_CIPHER scsv = {
-				0, NULL, SSL3_CK_FALLBACK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			};
+			static SSL_CIPHER scsv = { 0, NULL, SSL3_CK_FALLBACK_SCSV, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 			j = s->method->put_cipher_by_char(&scsv, p);
 			p += j;
 		}
 	}
-
 	return (p - q);
 }
 
