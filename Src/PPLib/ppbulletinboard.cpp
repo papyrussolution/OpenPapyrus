@@ -486,7 +486,7 @@ TimeSeriesCache::TimeSeriesCache() : ObjCache(PPOBJ_TIMESERIES, sizeof(Data)), L
 	{
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
-		MEMSZERO(adv_blk);
+		// @v10.6.4 MEMSZERO(adv_blk);
 		adv_blk.Kind = PPAdviseBlock::evQuartz;
 		adv_blk.DbPathID = DBS.GetDbPathID();
 		adv_blk.ObjType = 0;
@@ -497,7 +497,7 @@ TimeSeriesCache::TimeSeriesCache() : ObjCache(PPOBJ_TIMESERIES, sizeof(Data)), L
 	{
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
-		MEMSZERO(adv_blk);
+		// @v10.6.4 MEMSZERO(adv_blk);
 		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
 		adv_blk.DbPathID = DBS.GetDbPathID();
 		adv_blk.ObjType = PPCFGOBJ_TIMESERIES;
@@ -509,7 +509,7 @@ TimeSeriesCache::TimeSeriesCache() : ObjCache(PPOBJ_TIMESERIES, sizeof(Data)), L
 	{
 		long   cookie = 0;
 		PPAdviseBlock adv_blk;
-		MEMSZERO(adv_blk);
+		// @v10.6.4 MEMSZERO(adv_blk);
 		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
 		adv_blk.DbPathID = DBS.GetDbPathID();
 		adv_blk.ObjType = PPCFGOBJ_TIMESERIES;

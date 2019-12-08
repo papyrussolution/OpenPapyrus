@@ -52,7 +52,7 @@ void SLAPI TGSArray::Destroy()
 //
 SLAPI PPTechPacket::PPTechPacket()
 {
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 }
 
 TLP_IMPL(PPObjTech, TechTbl, P_Tbl);
@@ -758,7 +758,7 @@ void TechDialog::SetupCtrls()
 
 	int    enable_recompl_flag = 0;
 	ProcessorTbl::Rec prc_rec;
-	MEMSZERO(prc_rec);
+	// @v10.6.4 MEMSZERO(prc_rec);
 	PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
 	disableCtrl(CTL_TECH_CIPMAX, !(prc_rec.Flags & PRCF_ALLOWCIP));
 	if(Data.Rec.Sign > 0) {
@@ -998,7 +998,7 @@ int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta
 	int    ok = 1;
 	SString temp_buf;
 	TechTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	THROW(GenerateCode(BIN(extraData & TECEXDF_TOOLING), temp_buf, use_ta));
 	temp_buf.CopyTo(rec.Code, sizeof(rec.Code));
 	if(extraData & TECEXDF_TOOLING) {

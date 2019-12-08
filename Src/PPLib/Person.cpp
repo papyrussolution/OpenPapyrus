@@ -11,7 +11,7 @@
 //
 SLAPI PPPerson::PPPerson()
 {
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 }
 
 PPPerson & FASTCALL PPPerson::operator = (const PPPerson & s)
@@ -817,7 +817,7 @@ int SLAPI PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int 
 	STRNSCPY(temp_buf, pNumber);
 	if(*strip(temp_buf)) {
 		int    reg_exists = 0;
-		MEMSZERO(reg_rec);
+		// @v10.6.4 MEMSZERO(reg_rec);
 		reg_rec.RegTypeID = regTypeID;
 		STRNSCPY(reg_rec.Num, temp_buf);
 		PPObjRegisterType obj_regt;

@@ -1441,21 +1441,15 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    result = setstropt(&data->set.str[STRING_CERT_TYPE_ORIG], va_arg(param, char *));
 		    break;
 		case CURLOPT_PROXY_SSLCERTTYPE:
-		    /*
-		 * String that holds file type of the SSL certificate to use for proxy
-		     */
+		    // String that holds file type of the SSL certificate to use for proxy
 		    result = setstropt(&data->set.str[STRING_CERT_TYPE_PROXY], va_arg(param, char *));
 		    break;
 		case CURLOPT_SSLKEY:
-		    /*
-		 * String that holds file name of the SSL key to use
-		     */
+		    // String that holds file name of the SSL key to use
 		    result = setstropt(&data->set.str[STRING_KEY_ORIG], va_arg(param, char *));
 		    break;
 		case CURLOPT_PROXY_SSLKEY:
-		    /*
-		 * String that holds file name of the SSL key to use for proxy
-		     */
+		    // String that holds file name of the SSL key to use for proxy
 		    result = setstropt(&data->set.str[STRING_KEY_PROXY], va_arg(param, char *));
 		    break;
 		case CURLOPT_SSLKEYTYPE:
@@ -1465,41 +1459,29 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    result = setstropt(&data->set.str[STRING_KEY_TYPE_ORIG], va_arg(param, char *));
 		    break;
 		case CURLOPT_PROXY_SSLKEYTYPE:
-		    /*
-		 * String that holds file type of the SSL key to use for proxy
-		     */
+		    // String that holds file type of the SSL key to use for proxy
 		    result = setstropt(&data->set.str[STRING_KEY_TYPE_PROXY], va_arg(param, char *));
 		    break;
 		case CURLOPT_KEYPASSWD:
-		    /*
-		 * String that holds the SSL or SSH private key password.
-		     */
+		    // String that holds the SSL or SSH private key password.
 		    result = setstropt(&data->set.str[STRING_KEY_PASSWD_ORIG], va_arg(param, char *));
 		    break;
 		case CURLOPT_PROXY_KEYPASSWD:
-		    /*
-		 * String that holds the SSL private key password for proxy.
-		     */
+		    // String that holds the SSL private key password for proxy.
 		    result = setstropt(&data->set.str[STRING_KEY_PASSWD_PROXY], va_arg(param, char *));
 		    break;
 		case CURLOPT_SSLENGINE:
-		    /*
-		 * String that holds the SSL crypto engine.
-		     */
+		    // String that holds the SSL crypto engine.
 		    argptr = va_arg(param, char *);
 		    if(argptr && argptr[0])
 			    result = Curl_ssl_set_engine(data, argptr);
 		    break;
 		case CURLOPT_SSLENGINE_DEFAULT:
-		    /*
-		 * flag to set engine as default.
-		     */
+		    // flag to set engine as default.
 		    result = Curl_ssl_set_engine_default(data);
 		    break;
 		case CURLOPT_CRLF:
-		    /*
-		 * Kludgy option to enable CRLF conversions. Subject for removal.
-		     */
+		    // Kludgy option to enable CRLF conversions. Subject for removal.
 		    data->set.crlf = (0 != va_arg(param, long)) ? TRUE : FALSE;
 		    break;
 		case CURLOPT_INTERFACE:

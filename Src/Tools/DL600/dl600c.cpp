@@ -1061,7 +1061,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifStaticEdge), c_buf, sizeof(c_buf)))
 					prop_list.Add(DlScope::cuifStaticEdge, "");
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifLabelRect), c_buf, sizeof(c_buf))) {
-					_RectToLine(*(UiRelRect *)c_buf, temp_buf = 0);
+					_RectToLine(*reinterpret_cast<const UiRelRect *>(c_buf), temp_buf = 0);
 					prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 				}
 				line_buf.Space().Cat(ctrl.Name).Space().CatQStr(text_buf);
@@ -1078,7 +1078,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				}
 				else if(oneof2(kind, DlScope::ckCheckCluster, DlScope::ckRadioCluster)) {
 					if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlScope), c_buf, sizeof(c_buf))) {
-						DLSYMBID inner_scope_id = *(uint32 *)c_buf;
+						DLSYMBID inner_scope_id = *reinterpret_cast<const uint32 *>(c_buf);
 						DlScope * p_inner_scope = GetScope(inner_scope_id);
 						if(p_inner_scope && p_inner_scope->GetCount()) {
 							skip_line_finish = 1;
@@ -1088,10 +1088,10 @@ int SLAPI DlContext::Write_DialogReverse()
 								(line_buf = 0).CatCharN('\t', 2);
 								rect.Reset();
 								if(GetConstData(p_inner_scope->GetFldConst(ctrl_item.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
-									rect = *(UiRelRect *)c_buf;
+									rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 								text_buf = 0;
 								if(GetConstData(p_inner_scope->GetFldConst(ctrl_item.ID, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
-									text_buf = (const char *)c_buf;
+									text_buf = reinterpret_cast<const char *>(c_buf);
 								line_buf.CatQStr(text_buf);
 								if(!rect.IsEmpty())
 									_RectToLine(rect, line_buf.Space());
@@ -2776,6 +2776,10 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			//
 			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, "Rec", 0);
 			gen.IndentInc();
+			// @v10.6.4 {
+			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, "Rec");
+			gen.Wr_EndDeclFunc(1, 1);
+			// } @v10.6.4
 			for(k = 0; p_ds->EnumFields(&k, &fld);) {
 				THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
 				if(fld.T.IsPure()) {
@@ -3453,7 +3457,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 			//
 			// Получаем самое первое поле для ссылки в конструкторе DBTable
 			//
-			fld_buf = 0;
+			fld_buf.Z();
 			for(k = 0; p_ds->EnumFields(&k, &fld);) {
 				fld_buf = fld.Name;
 				break;

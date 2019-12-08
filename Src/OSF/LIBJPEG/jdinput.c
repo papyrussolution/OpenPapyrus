@@ -478,13 +478,12 @@ METHODDEF(void) finish_input_pass(j_decompress_ptr cinfo)
  */
 METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 {
-	my_inputctl_ptr inputctl = (my_inputctl_ptr)cinfo->inputctl;
+	my_inputctl_ptr inputctl = reinterpret_cast<my_inputctl_ptr>(cinfo->inputctl);
 	int val;
 	if(inputctl->pub.eoi_reached) /* After hitting EOI, read no further */
 		return JPEG_REACHED_EOI;
 	for(;; ) {              /* Loop to pass pseudo SOS marker */
 		val = (*cinfo->marker->read_markers)(cinfo);
-
 		switch(val) {
 			case JPEG_REACHED_SOS: /* Found SOS */
 			    if(inputctl->inheaders) { /* 1st SOS */
@@ -515,9 +514,8 @@ METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 					    ERREXIT(cinfo, JERR_SOF_NO_SOS);
 			    }
 			    else {
-				    /* Prevent infinite loop in coef ctlr's decompress_data routine
-				 * if user set output_scan_number larger than number of scans.
-				     */
+				    // Prevent infinite loop in coef ctlr's decompress_data routine
+					// if user set output_scan_number larger than number of scans.
 				    if(cinfo->output_scan_number > cinfo->input_scan_number)
 					    cinfo->output_scan_number = cinfo->input_scan_number;
 			    }
@@ -536,8 +534,7 @@ METHODDEF(int) consume_markers(j_decompress_ptr cinfo)
 
 METHODDEF(void) reset_input_controller(j_decompress_ptr cinfo)
 {
-	my_inputctl_ptr inputctl = (my_inputctl_ptr)cinfo->inputctl;
-
+	my_inputctl_ptr inputctl = reinterpret_cast<my_inputctl_ptr>(cinfo->inputctl);
 	inputctl->pub.consume_input = consume_markers;
 	inputctl->pub.has_multiple_scans = FALSE; /* "unknown" would be better */
 	inputctl->pub.eoi_reached = FALSE;

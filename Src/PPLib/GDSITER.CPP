@@ -755,14 +755,10 @@ int SLAPI GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 						pExt->Price = r_ext.Price;
 						pExt->Rest = r_ext.Rest;
 						pExt->PriceDtm = r_ext.PriceDtm;
-						if(SfClsID) {
-							if(gc_obj.Fetch(SfClsID, &gc_pack) > 0)
-								GObj.P_Tbl->GetExt(goods_id, &goods_ext_rec);
-							else
-								MEMSZERO(goods_ext_rec);
+						if(SfClsID && gc_obj.Fetch(SfClsID, &gc_pack) > 0) {
+							GObj.P_Tbl->GetExt(goods_id, &goods_ext_rec);
 						}
-						else
-							MEMSZERO(goods_ext_rec);
+						// @v10.6.4 else { MEMSZERO(goods_ext_rec); }
 						for(uint i = 0; i < ExtSfTitleList.getCount(); i++) {
 							StrAssocArray::Item item = ExtSfTitleList.at_WithoutParent(i);
 							const uint sd_pos = (item.Id - 1);

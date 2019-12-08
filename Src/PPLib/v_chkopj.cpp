@@ -23,7 +23,7 @@ int SLAPI CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const 
 	{
 		PPTransaction tra(useTa);
 		THROW(tra);
-		MEMSZERO(log_rec);
+		// @v10.6.4 MEMSZERO(log_rec);
 		log_rec.UserID    = LConfig.User;
 		log_rec.Action    = action + 1;
 		getcurdatetime(&log_rec.Dt, &log_rec.Tm);
@@ -323,7 +323,7 @@ int SLAPI PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 			case PPVCMD_VIEWGOODS:
 				if(P_Tbl) {
 					CheckOpJrnlTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					if(P_Tbl->Search(hdr.Dt, hdr.Tm, &rec) > 0 && rec.GoodsID) {
 						GObj.Edit(&rec.GoodsID, 0);
 					}
@@ -332,7 +332,7 @@ int SLAPI PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPVi
 			case PPVCMD_VIEWCHECK:
 				if(P_Tbl) {
 					CheckOpJrnlTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					if(P_Tbl->Search(hdr.Dt, hdr.Tm, &rec) > 0 && rec.CheckID) {
 						PPID   cn_id = 0;
 						CC.GetNodeID(rec.CheckID, &cn_id);

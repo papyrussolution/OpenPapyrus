@@ -934,7 +934,7 @@ int PPEds::GetSignerNameByNumber(const char * pSignFileName, int signNumber, SSt
 //		}
 //	}
 //	if(ok) {
-		THROW_MEM(pb_signer_cert_info = (PCERT_INFO) SAlloc::M(cb_signer_cert_info));
+		THROW_MEM(pb_signer_cert_info = (PCERT_INFO)SAlloc::M(cb_signer_cert_info));
 		memzero(pb_signer_cert_info, cb_signer_cert_info);
 		// Получаем инфу о сертификате
 		THROW_PP(CryptMsgGetParam(h_msg, CMSG_SIGNER_CERT_INFO_PARAM, signNumber - 1, pb_signer_cert_info, &cb_signer_cert_info), PPERR_EDS_GETCERTINFOFAILED);

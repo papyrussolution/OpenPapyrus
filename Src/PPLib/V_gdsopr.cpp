@@ -1409,7 +1409,7 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 				}
 				if(P_Ct == 0 && Filt.CmpPeriod.IsZero() == 0) {
 					TempGoodsOprTbl::Rec rec2;
-					MEMSZERO(rec2);
+					// @v10.6.4 MEMSZERO(rec2);
 					P_CmpView->GetByID(rec.ID__, &rec2);
 					pItem->Qtty.SetCm(rec2.Quantity);
 					pItem->SumCost.SetCm(rec2.SumCost);
@@ -1711,7 +1711,7 @@ int ABCGroupingRecsStorage::EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pR
 	int    ok = -1;
 	if(pABCGrp && *pABCGrp <= (short)ABC_GRPSCOUNT && *pABCGrp > 0) {
 		TempGoodsOprTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		uint   pos = 0;
 		if(Filt.GrpFract[*pABCGrp-1] > 0)
 			if(ABCGrpRecs->lsearch(pABCGrp, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2) > 0)
@@ -1987,7 +1987,7 @@ int SLAPI PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double 
 		if(Filt.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt) {
 			DateIter di;
 			BillTbl::Rec link_rec;
-			MEMSZERO(link_rec);
+			// @v10.6.4 MEMSZERO(link_rec);
 			//
 			// Объединяем строки из всех документов списания в один пакет p_link_pack
 			//
@@ -2768,7 +2768,7 @@ int SLAPI PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCache
 	else {
 		SString temp_buf;
 		TempGoodsOprTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.InOutTag = pItem->Sign;
 		rec.GoodsID  = pItem->GoodsID;
 		rec.Object   = pItem->ArID;
@@ -3156,7 +3156,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** 
 				const double large_val = 1e12;
 				const char * p_fmt = "%04.0lf%030.8lf";
 				TempOrderTbl::Rec ord_rec;
-				MEMSZERO(ord_rec);
+				// @v10.6.4 MEMSZERO(ord_rec);
 				ord_rec.ID = p_t->data.ID__;
 				if(ord == OrdByQtty)
 					temp_buf.Printf(p_fmt, abc_idx, large_val-p_t->data.Quantity);
@@ -3906,7 +3906,7 @@ int SLAPI PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 					double qtty = 0.0;
 					ILTI   i_i;
 					ReceiptTbl::Rec lot_rec;
-					MEMSZERO(lot_rec);
+					// @v10.6.4 MEMSZERO(lot_rec);
 					THROW(::GetCurGoodsPrice(goods_id, item.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 					i_i.GoodsID     = goods_id;
 					i_i.UnitPerPack = item.UnitPerPack;

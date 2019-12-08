@@ -900,7 +900,7 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 						}
 						for(uint chk_pos = 0; check_pack.EnumLines(&chk_pos, &cchkl_rec) > 0;) {
 							TempCCheckLineTbl::Rec ccl_rec;
-							MEMSZERO(ccl_rec);
+							// @v10.6.4 MEMSZERO(ccl_rec);
 							ccl_rec.CheckID   = chk_id;
 							ccl_rec.CheckCode = chk_no;
 							ccl_rec.Dt        = P_TmpCcTbl->data.Dt;

@@ -245,9 +245,9 @@ int SLAPI PPViewObjLikeness::CreateLikenessTable()
 		GoodsIterator gi;
 
 		MEMSZERO(k0);
-		MEMSZERO(grec1);
-		MEMSZERO(grec2);
-		MEMSZERO(lkns_rec);
+		// @v10.6.4 MEMSZERO(grec1);
+		// @v10.6.4 MEMSZERO(grec2);
+		// @v10.6.4 MEMSZERO(lkns_rec);
 		lkns_rec.ObjType = obj_type;
 		PPWait(1);
 		PROFILE_START

@@ -162,7 +162,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 					if(!skip) {
 						int    sign = 0;
 						TempOpGrpngTbl::Rec rec;
-						MEMSZERO(rec);
+						// @v10.6.4 MEMSZERO(rec);
 						rec.Dt   = r_period.low;
 						rec.OpID = p_entry->OpID;
 						STRNSCPY(rec.OpName, p_entry->OpName);
@@ -226,7 +226,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 					const PPID op_id = op_list.at(i).Key;
 					const int sign = op_list.at(i).Val;
 					TempOpGrpngTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					OpGroupingViewItem item;
 					MEMSZERO(item);
 					rec.OpID = op_id;

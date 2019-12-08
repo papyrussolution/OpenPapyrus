@@ -1834,7 +1834,7 @@ int PrjTaskDialog::setDTS(const PrjTaskTbl::Rec * pData)
 	{
 		PPID accsheet = 0, billop = 0;
 		ProjectTbl::Rec prj_rec;
-		MEMSZERO(prj_rec);
+		// @v10.6.4 MEMSZERO(prj_rec);
 		for(billop = 0, prj_id = Data.ProjectID; !billop && PrjObj.Search(prj_id, &prj_rec) > 0; prj_id = prj_rec.ParentID)
 			billop = prj_rec.BillOpID;
 		if(!billop) {
@@ -1922,7 +1922,7 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 	PPID   prev_employer = 0, parent_prj = 0, client = 0;
 	PPID   employer = 0;
 	PrjTaskTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	THROW(CheckRightsModByID(pID));
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
@@ -1986,15 +1986,15 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		//
 		if(!task_finished && rec.TemplateID && rec.Status == TODOSTTS_COMPLETED && rec.FinishDt != ZERODATE) {
 			PrjTaskTbl::Rec templ_rec;
-			MEMSZERO(templ_rec);
+			// @v10.6.4 MEMSZERO(templ_rec);
 			if(Search(rec.TemplateID, &templ_rec) > 0 && templ_rec.DrPrd == PRD_REPEATAFTERPRD) {
 				PPTransaction tra(1);
 				if(!!tra) {
 					PPID   new_task_id = 0;
 					PrjTaskTbl::Rec new_task;
-					DateRepeating dr = *(DateRepeating*)&templ_rec.DrPrd;
+					DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&templ_rec.DrPrd);
 					LDATE  dt = (dr.Dtl.RA.AfterStart == 0) ? rec.FinishDt : ((rec.StartDt == ZERODATE) ? rec.Dt : rec.StartDt);
-					MEMSZERO(new_task);
+					// @v10.6.4 MEMSZERO(new_task);
 					plusperiod(&dt, dr.RepeatKind, dr.Dtl.RA.NumPrd, 0);
 					memzero(rec.Code, sizeof(rec.Code));
 					InitPacketByTemplate(&rec, dt, &new_task, 0);
@@ -2118,7 +2118,7 @@ int ViewTasksDialog::editItem(long pos, long id)
 	int    ok = -1;
 	if(id > 0) {
 		PrjTaskTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		if(ObjPrjT.GetPacket(id, &rec) > 0) {
 			ObjPrjT.EditDialog(&rec);
 			ok = 1;
@@ -2345,7 +2345,7 @@ int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int
 			todo_list.add(P_Tbl->data.ID);
 		for(uint i = 0; i < todo_list.getCount(); i++) {
 			PrjTaskTbl::Rec prjt_rec;
-			MEMSZERO(prjt_rec);
+			// @v10.6.4 MEMSZERO(prjt_rec);
 			THROW(GetPacket(todo_list.at(i), &prjt_rec) > 0);
 			if(todoPerson == TODOPSN_CREATOR)
 				prjt_rec.CreatorID  = newID;

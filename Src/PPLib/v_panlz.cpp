@@ -174,8 +174,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		SArray cost_ary(sizeof(_E));
 		SString ar_name;
 		const PPID suppl_deal_qk_id = DS.GetTLA().SupplDealQuotKindID;
-
-		MEMSZERO(goods_rec);
+		// @v10.6.4 MEMSZERO(goods_rec);
 		ZDELETE(P_TempTbl);
 		THROW(P_TempTbl = CreateTempFile());
 		{

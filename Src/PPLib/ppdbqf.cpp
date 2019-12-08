@@ -341,7 +341,7 @@ static IMPL_DBE_PROC(dbqf_trfrprice_irrr)
 	if(GetOpType(op_id) == PPOPT_GOODSREVAL) {
 		PPObjBill * p_bobj = BillObj;
 		ReceiptTbl::Rec lot_rec;
-		MEMSZERO(lot_rec);
+		// @v10.6.4 MEMSZERO(lot_rec);
 		lot_rec.ID = lot_id;
 		if(p_bobj->trfr->GetLotPrices(&lot_rec, dt, oprno) > 0)
 			r = lot_rec.Price;

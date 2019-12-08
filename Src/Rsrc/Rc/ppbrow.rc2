@@ -50,6 +50,7 @@ declare command MOUSEHOVER  // Курсор мыши задержался в одном месте на определен
 declare command REFRESHBYPERIOD  // При установленном в броузере периоде обновления, в PPView передается команда, когда этот период истекает.
 declare command SEARCHNEXT  // @v8.1.6
 declare command SETUPSARTREINDICATORS // @v10.2.0 @internal
+declare command USERSORT    // @v10.6.4 @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
 //
 // Список изображений для иконок тулбаров
 // (текст после TBBM_ должен с точностью до регистра совпадать с наименованием соответствующего файла в каталоге)
@@ -6973,7 +6974,7 @@ record CliBnkData {
 	AddedAssocTag    int16        format(4)    "Дополнительный признак ассоциации вида операции";
 	AgentName        zstring(48)  "Наименование агента по документу";
 	AgentINN         zstring(24)  "ИНН агента по документу";
-	LocSymb          zstring(12)  "Символ склада";
+	LocSymb          zstring(12)  "@{warehousesymb}";
 	DebtBillID       long         "ИД долгового документа (для зачета)";
 	DebtBillDate     date         "Дата долгового документа (для зачета)";
 	DebtBillCode     zstring(24)  "Номер долгового документа (для зачета)";
@@ -7216,7 +7217,7 @@ record SCard {
 	IssueDate    date         "Дата выпуска";
 	Expiry       date         "Дата окончания действия";
 	QuotKindID   long         format(10)   "@{quotkindid}";
-	QuotKindSymb zstring(20)  "Символ вида котировки";
+	QuotKindSymb zstring(20)  "@{quotkindsymb}";
 	PercentDis   double       "@{discountpctg}";
 	MaxCredit    double       "Максимальный кредит по карте";
 	//RestByCredit double       "Остаток по кредиту";
@@ -7558,7 +7559,7 @@ record BizScoreVal {
 }
 
 record PhoneList {
-	Phone   zstring(24)            "Номер телефона";
+	Phone   zstring(24)            "@{phone}";
 	Address zstring(252)           "@{address}";
 	Contact zstring(128)           "@{contact}";
 }
@@ -7582,8 +7583,8 @@ record SBIIOpRestr {
 	OpID     long                  "Ид операции";
 	AccSheet long                  "@{accsheet}";
 	ToBhtOp  long                  "Операция на Bht терминале";
-	BhtOkCA  long                  "Действия на ошибки (отмена или продолжить)";
-	BhtCfmA  long                  "Действия на ошибки (требовать подтверждения)";
+	BhtOkCA  long                  "Действия по ошибке (отмена или продолжить)";
+	BhtCfmA  long                  "Действия по ошибке (требовать подтверждения)";
 }
 
 record SBIISampleBill {
@@ -7601,8 +7602,8 @@ record SBIISampleBillRow {
 	Qtty    double format(10.4)  "@{qtty}";
 	Cost    double format(10.2)  "@{price}";
 	SuplDeal double format(10.2) "@{dealprice}";
-	SuplDLow long                "Отклонение от контрактной цены вниз";
-	SuplDUp  long                "Отклонение от контрактной цены вверх";
+	SuplDLow long                "@{qkspc_suppldealdown}";
+	SuplDUp  long                "@{qkspc_suppldealup}";
 }
 
 record SBIIBill {
@@ -7630,22 +7631,22 @@ record SBIIBillRow {
 }
 
 record QuotVal {
-    QuotKindID   long format(10)  "@{quotkindid}";
-    QuotKindSymb zstring(20)      "Символ вида котировки";
-	GoodsID      long  format(10) "@{goodsid}";
-	GoodsCode    zstring(32)      "@{goodscode}";
-	LocID        long  format(10) "@{warehouseid}";
-	LocCode      zstring(20)      "Символ склада";
-	CurrencyID   long  format(10) "ИД валюты";
-	CurrencySymb zstring(20)      "Символ валюты";
-	CurrencyCode long  format(10) "Цифровой код валюты";
-	ArID         long  format(10) "ИД статьи привязки";
-	ArCode       zstring(20)      "Код статьи привязки";
-	DateLow      date             "Дата начала периода действия";
-	DateUpp      date             "Дата окончания периода действия";
+    QuotKindID   long format(10)     "@{quotkindid}";
+    QuotKindSymb zstring(20)         "@{quotkindsymb}";
+	GoodsID      long  format(10)    "@{goodsid}";
+	GoodsCode    zstring(32)         "@{goodscode}";
+	LocID        long  format(10)    "@{warehouseid}";
+	LocCode      zstring(20)         "@{warehousesymb}";
+	CurrencyID   long  format(10)    "ИД валюты";
+	CurrencySymb zstring(20)         "@{currencysymb}";
+	CurrencyCode long  format(10)    "Цифровой код валюты";
+	ArID         long  format(10)    "ИД статьи привязки";
+	ArCode       zstring(20)         "Код статьи привязки";
+	DateLow      date                "Дата начала периода действия";
+	DateUpp      date                "Дата окончания периода действия";
 	Value        double format(15.5) "@{quot_valuegeneric}";
-	ValueFlags   long   format(10) "Флаги значения котировки";
-	ValueText    zstring(32)       "Текстовое представление значения котировки";
+	ValueFlags   long   format(10)   "Флаги значения котировки";
+	ValueText    zstring(32)         "Текстовое представление значения котировки";
 }
 
 record Goods2 {
@@ -7720,7 +7721,7 @@ record Goods2 {
 	PropAddName    zstring(48)         "@{classifier} Add";
 	PropAdd2Name   zstring(48)         "@{classifier} Add2";
 	WeightPrefix   zstring(12)         "Весовой префикс";
-	GoodsID          long              "Идентификатор товара";
+	GoodsID          long              "@{goodsid}";
 	ExpiryFromCurDt  long              "Срок годности в днях от текущей даты";
 	ForceReplace     zstring(12)       "Необходимо заменить товар в БД на импортируемый";
 	EgaisCode        zstring(24)       "@{egaiscode}";

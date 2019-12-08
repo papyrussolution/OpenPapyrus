@@ -1280,7 +1280,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 			for(i = 0; !break_process && i < c; i++) {
 				const PredictSalesStat * p_pss = &(p_stat_list[i]);
 				GoodsStatTbl::Rec new_rec;
-				MEMSZERO(new_rec);
+				// @v10.6.4 MEMSZERO(new_rec);
 				T.ShrinkLoc(p_pss->LocID, &new_rec.Loc);
 				T.ShrinkDate(p_pss->LastDate, &new_rec.LastDate);
 				new_rec.GoodsID   = p_pss->GoodsID;
@@ -1349,7 +1349,7 @@ int SLAPI PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, Pred
 			}
 			else {
 				GoodsStatTbl::Rec new_rec;
-				MEMSZERO(new_rec);
+				// @v10.6.4 MEMSZERO(new_rec);
 				new_rec.Loc = loc_idx;
 				T.ShrinkDate(p_pss->LastDate, &new_rec.LastDate);
 				new_rec.GoodsID   = p_pss->GoodsID;
@@ -1839,7 +1839,7 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		if(sell > 0.0 || rest > 0.0) {
 			if(!rHa.Is(loc_idx, last_date)) {
 				int16  dt_idx = 0;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				T.ShrinkDate(last_date, &dt_idx);
 				rec.RType = PSRECTYPE_DAY;
 				rec.GoodsID = goodsID;

@@ -924,7 +924,7 @@ int SLAPI GenerateGoodsBills()
 							GoodsRestParam rest_param;
 							Transfer trnsf;
 							double rest = 0;
-							MEMSZERO(rcpt_rec);
+							// @v10.6.4 MEMSZERO(rcpt_rec);
 							MEMSZERO(ilti);
 							//
 							// выбор ID товара с использованием генератора по экспон. з-ну

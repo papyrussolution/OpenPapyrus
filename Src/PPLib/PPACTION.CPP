@@ -700,7 +700,7 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 		CALLPTRMEMB(p_bobj, InitGtaBlock());
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.Op = rGta.Op;
 		rec.GlobalAccID = rGta.GlobalUserID;
 		rec.Dt = rGta.Dtm.d;
@@ -818,7 +818,7 @@ int SLAPI ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int us
 	int    ok = 1;
 	ObjVerTbl::Rec rec;
 	ObjVerTbl::Rec last_ver_rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
     rec.ObjType = oid.Obj;
     rec.ObjID = oid.Id;
 	rec.SysVer = DS.GetMinCompatVersion();

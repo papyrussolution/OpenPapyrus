@@ -1472,7 +1472,7 @@ int SLAPI ObjTagCore::CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, c
 					}
 				{
 					ObjTagTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					rec.ObjType = objType;
 					rec.ObjID = obj_id;
 					rec.TagID = tagID;

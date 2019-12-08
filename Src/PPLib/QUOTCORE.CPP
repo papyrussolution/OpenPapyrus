@@ -2841,7 +2841,7 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		PROFILE(THROW(GetRel(&rQ, &rel_id, 1, 0) > 0));
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.RelID = rel_id;
 		rec.GoodsID = rQ.GoodsID;
 		rec.Actual = 1;

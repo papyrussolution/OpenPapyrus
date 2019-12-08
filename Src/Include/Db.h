@@ -99,8 +99,7 @@ private:
 		void * H; // @v10.4.5 uint32-->void *
 		uint32 RdPos;
 		int32  Flags;     // SLob::hfXXX
-		uint32 PtrSize;   // Если Flags & hfPtr, то PtrSize - размер области памяти,
-			// распределнной под указатель (void *)H
+		uint32 PtrSize;   // Если Flags & hfPtr, то PtrSize - размер области памяти, распределнной под указатель (void *)H
 	};
 	union {
 		Hdr    H;
@@ -3112,11 +3111,16 @@ struct DBFuncInfo {
 class DbqFuncTab {
 public:
 	//
-	// Динамически регистрирует новую неагрегатную функцию.
-	// Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
-	// Если *pFuncId != 0, тогда считает, что функция уже зарегестрирована.
+	// Descr: Динамически регистрирует новую неагрегатную функцию.
+	//   Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
+	//   Если *pFuncId != 0, тогда считает, что функция уже зарегистрирована.
 	//
 	static int SLAPIV RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...); // @cs
+	//
+	// Descr: Тоже что и RegisterDyn(0, retType, pProc, paramCount,...) 
+	//   Но возвращает идентификатор функции, а не сигнал успеха/неудачи.
+	//
+	static int SLAPIV RegisterDynR(int retType, DBQProc pProc, int paramCount, ...); // @cs
 	//
 	// Динамически регистрирует новую агрегатную функцию.
 	// Если *pFuncId == 0, то выполняет регистрацию и присваивает по этому указателю ИД новой функции.
@@ -3134,7 +3138,6 @@ private:
 	DBFuncInfo * FASTCALL GetFuncPtr(int funcId);
 	int    SLAPI PreRegister();
 	SArray * P_Tab;
-	static DbqFuncTab Inst;
 };
 
 #define Invalid_DBItem   0

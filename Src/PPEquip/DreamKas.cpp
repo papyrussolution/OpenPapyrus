@@ -570,7 +570,7 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		}
 		{
 			LDATETIME dtm;
-			dtm.Set(((pPrd && pPrd->upp) ? pPrd->upp : getcurdate_()), encodetime(23, 59, 59, 99));
+			dtm.Set(((pPrd && pPrd->upp) ? pPrd->upp : getcurdate_()), MAXDAYTIME);
 			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).Cat(".000Z");
 			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf, 1));
 		}
@@ -859,8 +859,8 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 			/*if(!!Scb.PeriodToCheckQuery.Finish)
 				dtm = Scb.PeriodToCheckQuery.Finish;
 			else
-				dtm.Set(getcurdate_(), encodetime(23, 59, 59, 99));*/
-			dtm.Set(getcurdate_(), encodetime(23, 59, 59, 99));
+				dtm.Set(getcurdate_(), MAXDAYTIME);*/
+			dtm.Set(getcurdate_(), MAXDAYTIME);
 			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
 			/*if(LogNumList.getCount()) {
 				temp_buf.Z();

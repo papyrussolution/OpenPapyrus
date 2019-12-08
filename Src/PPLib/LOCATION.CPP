@@ -1052,7 +1052,7 @@ int SLAPI EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObj
 	int    ok = 1, r = 0;
 	{
 		EAddrTbl::Rec rec, prev_rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {

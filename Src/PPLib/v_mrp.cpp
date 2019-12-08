@@ -102,7 +102,7 @@ int SLAPI PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(P_TempOrd = CreateTempOrderFile());
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		TempOrderTbl::Rec temp_ord_rec;
-		MEMSZERO(temp_ord_rec);
+		// @v10.6.4 MEMSZERO(temp_ord_rec);
 		temp_ord_rec.ID = t->data.ID;
 		if(t->data.LinkObjType)
 			GetObjectName(t->data.LinkObjType, t->data.LinkObjID, temp_ord_rec.Name, sizeof(temp_ord_rec.Name));

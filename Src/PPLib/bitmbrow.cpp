@@ -1564,7 +1564,10 @@ int SLAPI BillItemBrowser::CmpSortIndexItems(const BillGoodsBrwItem * pItem1, co
 				if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
 					assert(typ1 == typ2);
 					if(typ1 == typ2) {
-						sn = stcomp(typ1, dest_data1, dest_data2);
+						if(GETSTYPE(typ1) == S_ZSTRING)
+							sn = stricmp866(reinterpret_cast<const char *>(dest_data1), reinterpret_cast<const char *>(dest_data2));
+						else 
+							sn = stcomp(typ1, dest_data1, dest_data2);
 						if(sn && col < 0)
 							sn = -sn;
 					}
@@ -2687,7 +2690,7 @@ private:
 		int    ok = -1;
 		PPLotExtCodeContainer::MarkSet set;
 		LotExtCodeTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.BillID = P_Pack->Rec.ID;
 		rec.RByBill = RowIdx;
 		while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
@@ -2760,7 +2763,7 @@ private:
 		StringSet ss;
 		PPLotExtCodeContainer::MarkSet set;
 		LotExtCodeTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.BillID = P_Pack->Rec.ID;
 		rec.RByBill = RowIdx;
 		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx - 1) : 0;
@@ -2933,7 +2936,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			int    ok = -1;
 			PPLotExtCodeContainer::MarkSet set;
 			LotExtCodeTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.BillID = P_Pack->Rec.ID;
 			rec.RByBill = RowIdx;
 			while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
@@ -3029,7 +3032,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			StringSet ss;
 			PPLotExtCodeContainer::MarkSet set;
 			LotExtCodeTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.BillID = P_Pack->Rec.ID;
 			rec.RByBill = RowIdx;
 			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx - 1) : 0;

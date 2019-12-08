@@ -2109,7 +2109,7 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 			}
 			STimeChunk * p_last = static_cast<STimeChunk *>(inverse_chunk_list.at(ic-1));
 			if(p_last->Finish.IsFar()) {
-				p_last->Finish.Set(dt, encodetime(23, 59, 59, 99));
+				p_last->Finish.Set(dt, MAXDAYTIME);
 			}
 		}
 		proj_chunk_list = inverse_chunk_list;

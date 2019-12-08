@@ -610,15 +610,15 @@ struct __GoodsFilt {
 char * SLAPI GoodsFilt::WriteObjIdListFilt(char * p, const ObjIdListFilt & rList) const
 {
 	if(!rList.IsEmpty()) {
-		*(uint32 *)p = rList.GetCount();
+		*reinterpret_cast<uint32 *>(p) = rList.GetCount();
 		p += sizeof(uint32);
-		PPID * p_id = (PPID *)p;
+		PPID * p_id = reinterpret_cast<PPID *>(p);
 		for(uint i = 0; i < rList.GetCount(); i++)
 			*p_id++ = rList.Get().get(i);
-		p = (char *)p_id;
+		p = reinterpret_cast<char *>(p_id);
 	}
 	else {
-		*(uint32 *)p = 0;
+		*reinterpret_cast<uint32 *>(p) = 0;
 		p += sizeof(uint32);
 	}
 	return p;
@@ -939,7 +939,7 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				p += sizeof(int32);
 				if(sjf_ver) {
 					P_SjF = new SysJournalFilt;
-#define CPY(f,t) P_SjF->f = *(t *)p; p += sizeof(t)
+#define CPY(f,t) P_SjF->f = *reinterpret_cast<const t *>(p); p += sizeof(t)
 					CPY(Period, DateRange);
 					CPY(BegTm, LTIME);
 					CPY(UserID, PPID);
@@ -993,9 +993,9 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 			TaxGrpID    = 0;
 			Flags       = p_old_data->Flags;
 			GrpIDList.Set(0);
-   	    	c = (uint)((PropertyTbl::Rec *)p_buf)->Val2;
+   	    	c = (uint)(reinterpret_cast<const PropertyTbl::Rec *>(p_buf)->Val2);
 			for(i = 0; i < c; i++)
-				GrpIDList.Add(*(PPID *)(((char *)p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
+				GrpIDList.Add(*reinterpret_cast<const PPID *>(PTR8C(p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
 		}
 	   	Setup();
 	}
@@ -1153,7 +1153,7 @@ void GoodsListDialog::searchBarcode()
 void GoodsListDialog::updateList()
 {
 	if(P_List) {
-		ListBoxDef * p_def = GObj.Selector((void *)getCtrlLong(CTLSEL_GDSLST_GGRP));
+		ListBoxDef * p_def = GObj.Selector(reinterpret_cast<void *>(getCtrlLong(CTLSEL_GDSLST_GGRP)));
 		if(p_def) {
 			if(p_def->GetCapability() & ListBoxDef::cFullInMem)
 				SetupWordSelector(CTL_GDSLST_LIST, 0, 0, /*MIN_WORDSEL_SYMB*/4, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
@@ -1266,29 +1266,18 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 		if(col >= 0 && col < (long)p_def->getCount()) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
-				if(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-					pCellStyle->Color = GetColorRef(SClrGreen);
-					ok = 1;
-				}
+				if(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES)
+					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
 			}
 			else if(col == 1) { // name
-				{
-					if(static_cast<const Goods_ *>(pData)->Flags & GF_GENERIC) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-						pCellStyle->RightFigColor = GetColorRef(SClrOrange);
-						ok = 1;
-					}
-				}
+				if(static_cast<const Goods_ *>(pData)->Flags & GF_GENERIC)
+					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
 				{
 					const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 					if(!r_tag_filt.IsEmpty()) {
 						SColor clr;
-						if(r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr) > 0) {
-							pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-							pCellStyle->Color2 = (COLORREF)clr;
-							ok = 1;
-						}
+						if(r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr) > 0)
+							ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 					}
 				}
 			}
@@ -1297,16 +1286,10 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 				SString barcode;
 				p_def->getFullText(pData, col, barcode);
 				if(barcode.NotEmptyS()) {
-					if(barcode.Len() == 3) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						pCellStyle->Color = GetColorRef(SClrOrange);
-						ok = 1;
-					}
-					else if(barcode.Len() == 19) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						pCellStyle->Color = GetColorRef(SClrLightblue);
-						ok = 1;
-					}
+					if(barcode.Len() == 3)
+						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+					else if(barcode.Len() == 19)
+						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrLightblue));
 					else {
 						int    diag = 0, std = 0;
 						int    r = PPObjGoods::DiagBarcode(barcode, &diag, &std, 0);
@@ -1315,16 +1298,10 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 							//pCellStyle->Color = GetColorRef(SClrGreen);
 							//ok = 1;
 						}
-						else if(r < 0) {
-							pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-							pCellStyle->Color = GetColorRef(SClrYellow);
-							ok = 1;
-						}
-						else {
-							pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-							pCellStyle->Color = GetColorRef(SClrRed);
-							ok = 1;
-						}
+						else if(r < 0)
+							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrYellow));
+						else
+							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 					}
 				}
 				PROFILE_END
@@ -1336,8 +1313,10 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 
 void SLAPI PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) // @v8.3.12 && !(Filt.Flags & GoodsFilt::fNegation)
-		pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
+	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) { // @v8.3.12 && !(Filt.Flags & GoodsFilt::fNegation)
+		// @v10.6.4 pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
+		pBrw->InsColumn(-1, "@plu", 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v10.6.4
+	}
 	/*
 	if(Filt.Flags & GoodsFilt::fShowStrucType && Filt.Flags & GoodsFilt::fShowBarcode)
 		// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_BARCODE, 6, 0, 0, 0);
@@ -3331,13 +3310,14 @@ struct UhttExpGoodsParam {
 int SLAPI PPViewGoods::ExportUhtt()
 {
 	class UhttExportGoodsDialog : public TDialog {
+		DECL_DIALOG_DATA(UhttExpGoodsParam);
 	public:
 		explicit UhttExportGoodsDialog(PPViewGoods * pView) : TDialog(DLG_UHTTEXPGOODS), P_View(pView)
 		{
 		}
-		int SLAPI setDTS(const UhttExpGoodsParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			int    ok = 1;
 			AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 0, UhttExpGoodsParam::coGoodsGrpName);
 			AddClusterAssoc(CTL_UHTTEXPGOODS_CO, 1, UhttExpGoodsParam::coTag);
@@ -3349,22 +3329,20 @@ int SLAPI PPViewGoods::ExportUhtt()
 			SetClusterData(CTL_UHTTEXPGOODS_FLAGS, Data.Flags);
 			return ok;
 		}
-		int SLAPI getDTS(UhttExpGoodsParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			uint   ctl_id = 0;
+			uint   sel = 0;
             GetClusterData(CTL_UHTTEXPGOODS_CO, &Data.CategoryObject);
             if(Data.CategoryObject == UhttExpGoodsParam::coTag) {
-            	getCtrlData(ctl_id = CTLSEL_UHTTEXPGOODS_COT, &Data.CategoryTagID);
+            	getCtrlData(sel = CTLSEL_UHTTEXPGOODS_COT, &Data.CategoryTagID);
             	THROW_PP(Data.CategoryTagID, PPERR_TAGNEEDED);
             }
             else
 				Data.CategoryTagID = 0;
 			GetClusterData(CTL_UHTTEXPGOODS_FLAGS, &Data.Flags);
 			ASSIGN_PTR(pData, Data);
-			CATCH
-				ok = PPErrorByDialog(this, ctl_id);
-			ENDCATCH
+			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
@@ -3429,7 +3407,6 @@ int SLAPI PPViewGoods::ExportUhtt()
 			PPWait(0);
 			return ok;
 		}
-		UhttExpGoodsParam Data;
 		PPViewGoods * P_View; // @notowned
 	};
 	int    ok = -1;
@@ -3769,7 +3746,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				break;
 			case PPVCMD_EDITITEM:
 				temp_id = (Filt.GrpID > 0 && !(Filt.Flags & GoodsFilt::fGenGoods)) ? Filt.GrpID : 0;
-				ok = (id && GObj.Edit(&id, (void *)temp_id) == cmOK) ? 1 : -1;
+				ok = (id && GObj.Edit(&id, reinterpret_cast<void *>(temp_id)) == cmOK) ? 1 : -1;
 				if(ok > 0)
 					UpdateTempTable(id, pBrw);
 				break;
@@ -3891,7 +3868,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 						PPID   grp_id = NZOR(Filt.GrpID, Filt.GrpIDList.GetSingle());
 						PPObjArticle ar_obj;
 						ArticleTbl::Rec ar_rec;
-						MEMSZERO(ar_rec);
+						// @v10.6.4 MEMSZERO(ar_rec);
 						const PPID acs_id = (ar_obj.Fetch(src_ar_id, &ar_rec) > 0) ? ar_rec.AccSheetID : GetSupplAccSheet();
 						if(acs_id) {
 							TDialog * dlg = new TDialog(DLG_MOVARCODE);
@@ -4065,7 +4042,7 @@ int PPALDD_GoodsBasket::InitData(PPFilt & rFilt, long rsrv)
 	//int uncertainty = 0;
 	PPViewGoodsBasket * p_v = 0;
 	if(rsrv) {
-		p_v = (PPViewGoodsBasket*)rFilt.Ptr;
+		p_v = static_cast<PPViewGoodsBasket *>(rFilt.Ptr);
 		Extra[1].Ptr = p_v;
 	}
 	else {
@@ -5173,7 +5150,7 @@ int PPALDD_UhttGoodsArCode::InitData(PPFilt & rFilt, long rsrv)
 	int    ok = -1;
 	MEMSZERO(H);
 	if(rFilt.Ptr) {
-		UhttGoodsArCodeIdent * p_ident = (UhttGoodsArCodeIdent *)rFilt.Ptr;
+		const UhttGoodsArCodeIdent * p_ident = static_cast<const UhttGoodsArCodeIdent *>(rFilt.Ptr);
 		PPObjGoods * p_goods_obj = 0;
 		Goods2Tbl::Rec goods_rec;
 		H.GoodsID = p_ident->GoodsID;
@@ -5595,7 +5572,7 @@ PPALDD_DESTRUCTOR(GoodsLabel) { Destroy(); }
 
 int PPALDD_GoodsLabel::InitData(PPFilt & rFilt, long rsrv)
 {
-	GoodsLabelAlddParam * p_param = (GoodsLabelAlddParam *)rFilt.Ptr;
+	const GoodsLabelAlddParam * p_param = static_cast<const GoodsLabelAlddParam *>(rFilt.Ptr);
 	MEMSZERO(H);
 	if(p_param) {
 		H.HdrGoodsID = p_param->GoodsID;

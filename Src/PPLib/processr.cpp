@@ -1132,7 +1132,7 @@ SLAPI PrcCtrlGroup::Rec::Rec(PPID prcID) : PrcID(prcID)
 
 PrcCtrlGroup::PrcCtrlGroup(uint ctlSelPrc) : CtrlGroup(), CtlSelPrc(ctlSelPrc)
 {
-	MEMSZERO(Data);
+	// @v10.6.4 MEMSZERO(Data);
 }
 
 int PrcCtrlGroup::setData(TDialog * pDlg, void * pData)

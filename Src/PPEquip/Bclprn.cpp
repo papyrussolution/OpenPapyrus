@@ -2030,10 +2030,10 @@ int SLAPI DatamaxLabelPrinter::EndLabel()
 
 int SLAPI ZebraLabelPrinter::PutCtrl(uint16 code)
 {
-	int    i = 0;
-	char   buf[32];
-	char * cc = (char *)&code;
+	const  char * cc = reinterpret_cast<const char *>(&code);
 	if(*cc) {
+		uint   i = 0;
+		char   buf[32];
 		buf[i++] = '^';
 		buf[i++] = *cc++;
 		if(*cc)
@@ -2359,7 +2359,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 // Implementation of PPALDD_BarcodeLabelList
 //
 struct DlBarcodeLabelListBlock {
-	DlBarcodeLabelListBlock(const void * ptr) : N(0), ExemplarN(0), P_RgiList((const TSCollection <RetailGoodsInfo> *)ptr)
+	DlBarcodeLabelListBlock(const void * ptr) : N(0), ExemplarN(0), P_RgiList(static_cast<const TSCollection <RetailGoodsInfo> *>(ptr))
 	{
 	}
 	uint   N; // Текущий номер позиции
@@ -2409,7 +2409,7 @@ int PPALDD_BarcodeLabelList::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	DlBarcodeLabelListBlock * p_blk = static_cast<DlBarcodeLabelListBlock *>(Extra[0].Ptr);
-	if(p_blk && p_blk->P_RgiList && p_blk->N < (int)p_blk->P_RgiList->getCount()) {
+	if(p_blk && p_blk->P_RgiList && p_blk->N < p_blk->P_RgiList->getCount()) {
 		const RetailGoodsInfo * p_rgi = p_blk->P_RgiList->at(p_blk->N);
         const uint num_copies = (p_rgi->LabelCount > 1 && p_rgi->LabelCount < 1000) ? p_rgi->LabelCount : 1;
 		I.GoodsID = p_rgi->ID;

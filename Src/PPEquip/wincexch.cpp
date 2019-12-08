@@ -440,8 +440,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 	Goods2Tbl::Rec goods_rec;
 	GoodsCodeSrchBlock srch_blk;
 	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
-
-	MEMSZERO(goods_rec);
+	// @v10.6.4 MEMSZERO(goods_rec);
 	if(pBarcode) {
 		STRNSCPY(srch_blk.Code, pBarcode);
 		srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
@@ -461,8 +460,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 		GoodsStockExt gse;
 		ReceiptTbl::Rec lot_rec;
 		SBIIGoodsRec sbii_grec;
-
-		MEMSZERO(lot_rec);
+		// @v10.6.4 MEMSZERO(lot_rec);
 		sbii_grec.ID = goods_id;
 		if(is_serial)
 			STRNSCPY(sbii_grec.Serial,  pBarcode);

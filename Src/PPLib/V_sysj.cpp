@@ -4,10 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-/*static*/int PPViewSysJournal::DynFuncObjNameFromList = 0;
-/*static*/int PPViewSysJournal::DynFuncEvVerTextFromList = 0;
-/*static*/int PPViewGtaJournal::DynFuncObjNameFromList = 0;
-
 static IMPL_CMPFUNC(PPViewSysJournal_EvVerEntry, i1, i2)
 {
 	int    si = memcmp(i1, i2, sizeof(PPObjID));
@@ -644,18 +640,12 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 			const BroColumn & r_col = p_def->at(col);
 			const PPViewSysJournal::BrwHdr * p_hdr = static_cast<const PPViewSysJournal::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 7) { // Action
-				if(oneof2(p_hdr->Action, PPACN_OBJRMV, PPACN_RMVBILL)) {
-					pStyle->Color = LightenColor(GetColorRef(SClrRed), 0.8f);
-					ok = 1;
-				}
-				else if(oneof2(p_hdr->Action, PPACN_OBJADD, PPACN_TURNBILL)) {
-					pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.8f);
-					ok = 1;
-				}
-				else if(oneof2(p_hdr->Action, PPACN_OBJUPD, PPACN_UPDBILL)) {
-					pStyle->Color = LightenColor(GetColorRef(SClrOrange), 0.8f);
-					ok = 1;
-				}
+				if(oneof2(p_hdr->Action, PPACN_OBJRMV, PPACN_RMVBILL))
+					ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrRed), 0.8f));
+				else if(oneof2(p_hdr->Action, PPACN_OBJADD, PPACN_TURNBILL))
+					ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrBlue), 0.8f));
+				else if(oneof2(p_hdr->Action, PPACN_OBJUPD, PPACN_UPDBILL))
+					ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrOrange), 0.8f));
 			}
 			else if(r_col.OrgOffs == 12) { // History column
 				if(Filt.Flags & Filt.fShowHistoryObj) {
@@ -665,16 +655,10 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 					key.Dtm = p_hdr->Dtm;
 					if(EvVerList.bsearch(&key, &p, PTR_CMPFUNC(PPViewSysJournal_EvVerEntry))) {
 						const EvVerEntry & r_entry = EvVerList.at(p);
-						if(r_entry.Flags & EvVerEntry::fAmtDn) {
-							pStyle->Color = GetColorRef(SClrRed);
-							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
-						else if(r_entry.Flags & EvVerEntry::fAmtUp) {
-							pStyle->Color = GetColorRef(SClrGreen);
-							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
+						if(r_entry.Flags & EvVerEntry::fAmtDn)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+						else if(r_entry.Flags & EvVerEntry::fAmtUp)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
 					}
 				}
 			}
@@ -700,11 +684,11 @@ void SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
+/*static*/int PPViewSysJournal::DynFuncObjNameFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_objnamefromlist_ppvsj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);;
+/*static*/int PPViewSysJournal::DynFuncEvVerTextFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_evvertextfromlist_ppvsj_iidtp, 5, BTS_INT, BTS_INT, BTS_DATE, BTS_TIME, BTS_PTR);
+
 DBQuery * SLAPI PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncObjNameFromList, BTS_STRING, dbqf_objnamefromlist_ppvsj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
-	DbqFuncTab::RegisterDyn(&DynFuncEvVerTextFromList, BTS_STRING, dbqf_evvertextfromlist_ppvsj_iidtp, 5, BTS_INT, BTS_INT, BTS_DATE, BTS_TIME, BTS_PTR);
-
 	int    add_dbe = 0;
 	uint   brw_id = BROWSER_SYSJ;
 	DBQuery * q = 0;
@@ -1595,10 +1579,10 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvgtaj_iip)
 	}
 }
 
+/*static*/int PPViewGtaJournal::DynFuncObjNameFromList = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_objnamefromlist_ppvgtaj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
+
 DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	DbqFuncTab::RegisterDyn(&DynFuncObjNameFromList, BTS_STRING, dbqf_objnamefromlist_ppvgtaj_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
-
 	int    add_dbe = 0;
 	uint   brw_id = (Filt.Flags & GtaJournalFilt::fShowObjects) ? BROWSER_GTAJ_OBJ : BROWSER_GTAJ;
 	DBQuery * q = 0;
@@ -1609,7 +1593,6 @@ DBQuery * SLAPI PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pS
 	DBQ  * dbq = 0;
 	GtaJournalTbl * t  = new GtaJournalTbl(P_TmpTbl ? P_TmpTbl->GetName().cptr() : static_cast<const char *>(0));
 	// @v9.9.0 TempDoubleIDTbl * nm  = 0;
-
 	THROW(CheckTblPtr(t));
 	PPDbqFuncPool::InitObjNameFunc(dbe_user,   PPDbqFuncPool::IdObjNameGlobalUser, t->GlobalAccID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_action, PPDbqFuncPool::IdGtaJActionName, t->Op);

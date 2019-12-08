@@ -4673,7 +4673,7 @@ int SLAPI PPDS_CrrOprKindEntry::TransferField(long fldID, Tfd dir, uint * pIter,
 		case DSF_CRROPRKINDENTRY_LINKOPSYMB:
 			{
 				PPOprKind linkop_rec;
-				MEMSZERO(linkop_rec);
+				// @v10.6.4 MEMSZERO(linkop_rec);
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.LinkOpID, &linkop_rec) > 0)
 						ok = TransferData(linkop_rec.Symb, sizeof(linkop_rec.Symb), dir, rBuf);
@@ -5674,7 +5674,7 @@ int SLAPI PPDS_CrrBillStatus::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPBillStatus *)dataPtr;
+			Data = *static_cast<const PPBillStatus *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -5810,7 +5810,7 @@ int SLAPI PPDS_CrrBillStatus::TransferField(long fldID, Tfd dir, uint * pIter, S
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOprKind opk_rec;
-					MEMSZERO(opk_rec);
+					// @v10.6.4 MEMSZERO(opk_rec);
 					if(OpKObj.Search(Data.RestrictOpID, &opk_rec) > 0)
 						buf.CopyFrom(opk_rec.Name);
 				}

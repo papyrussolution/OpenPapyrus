@@ -349,7 +349,7 @@ int SLAPI PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem,
 	ReceiptTbl::Rec lot_rec;
 	GoodsRestParam p;
 	InventoryTbl::Rec inv_rec, sg_rec;
-	MEMSZERO(inv_rec);
+	// @v10.6.4 MEMSZERO(inv_rec);
 	THROW(GetInventoryStockRest(rBlk, pItem, &p));
 	if(rBlk.Flags & InvBlock::fPriceByLastLot &&
 		trfr->Rcpt.GetGoodsPrice(pItem->GoodsID, rBlk.BillRec.LocID, rBlk.BillRec.Dt, GPRET_INDEF, 0, &lot_rec) > 0)

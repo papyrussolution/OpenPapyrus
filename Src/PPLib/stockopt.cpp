@@ -689,7 +689,7 @@ public:
 		int    ok = 1;
 		Data = *pData;
 		GoodsCtrlGroup::Rec grp_rec;
-		MEMSZERO(grp_rec);
+		// @v10.6.4 MEMSZERO(grp_rec);
 		grp_rec.GoodsID = Data.GoodsID;
 		grp_rec.Flags   = (GoodsCtrlGroup::enableSelUpLevel|GoodsCtrlGroup::disableEmptyGoods);
 		setGroupData(CTLGRP_GOODS, &grp_rec);

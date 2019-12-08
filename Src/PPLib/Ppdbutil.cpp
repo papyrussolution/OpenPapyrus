@@ -3285,7 +3285,7 @@ int SLAPI PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestTa01Tbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	getcurdatetime(&rec.Dt, &rec.Tm);
 	//
 	// Вероятность нулевого значения Ref1ID =0.05
@@ -3458,7 +3458,7 @@ int SLAPI PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestRef01Tbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.L = G.GetUniformInt(100000);
 	rec.I16 = (int16)G.GetUniformInt(32000);
 	rec.UI16 = (uint16)labs(G.GetUniformInt(64000));
@@ -3548,7 +3548,7 @@ int SLAPI PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestRef02Tbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.L = G.GetPoisson(100.0);
 	rec.I16 = (int16)G.GetPoisson(10.0);
 	rec.UI16 = (uint16)G.GetPoisson(10.0);

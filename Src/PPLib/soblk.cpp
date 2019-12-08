@@ -539,7 +539,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 	{
 		PPTransaction tra(1);
 		CCheckTbl::Rec cc_rec;
-		MEMSZERO(cc_rec);
+		// @v10.6.4 MEMSZERO(cc_rec);
 		cc_rec.CashID = rHdr.PosNodeID;
 		{
 			PPSecur sec_rec;

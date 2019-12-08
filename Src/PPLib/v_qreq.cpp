@@ -198,8 +198,7 @@ int SLAPI PPViewQuoteReqAnalyze::Init_(const PPBaseFilt * pBaseFilt)
 }
 
 class QuoteReqFiltDialog : public TDialog {
-	typedef QuoteReqAnalyzeFilt DlgDataType;
-	DlgDataType Data;
+	DECL_DIALOG_DATA(QuoteReqAnalyzeFilt);
 public:
 	enum {
 		ctlgroupAr = 1
@@ -209,7 +208,7 @@ public:
 		addGroup(ctlgroupAr,  new ArticleCtrlGroup(0, CTLSEL_QUOTEREQFLT_OP, CTLSEL_QUOTEREQFLT_AR,  0, 0, 0));
 		SetupCalPeriod(CTLCAL_QUOTEREQFLT_PERIOD, CTL_QUOTEREQFLT_PERIOD);
 	}
-	int    setDTS(const DlgDataType * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		PPIDArray op_type_list;
@@ -223,7 +222,7 @@ public:
 		}
 		return ok;
 	}
-	int    getDTS(DlgDataType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;

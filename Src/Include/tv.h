@@ -4609,6 +4609,29 @@ public:
 	class CellStyle {
 		friend class BrowserWindow;
 	public:
+		int    FASTCALL SetFullCellColor(COLORREF c)
+		{
+			Color = c;
+			return 1;
+		}
+		int    FASTCALL SetRightFigCircleColor(COLORREF c)
+		{
+			RightFigColor = c;
+			Flags |= fRightFigCircle;
+			return 1;
+		}
+		int    FASTCALL SetLeftBottomCornerColor(COLORREF c)
+		{
+			Color2 = c;
+			Flags |= fLeftBottomCorner;
+			return 1;
+		}
+		int    FASTCALL SetLeftTopCornerColor(COLORREF c)
+		{
+			Color = c;
+			Flags |= fCorner;
+			return 1;
+		}
 		enum {
 			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
@@ -4659,7 +4682,11 @@ public:
 	LPRECT LineRect(int vPos, LPRECT, BOOL isFocus);
 	int    GetColumnByX(int x) const;
 	int    ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos) const;
-	int    HeaderByPoint(TPoint point, long * pVertPos) const;
+	enum {
+		hdrzoneAny = 0,
+		hdrzoneSortPoint = 1,
+	};
+	int    HeaderByPoint(TPoint point, int hdrzone, long * pVertPos) const;
 	int    ItemByMousePos(long * pHorzPos, long * pVertPos);
 	//
 	// ARG(action IN):
@@ -4710,6 +4737,10 @@ public:
 	//
 	int    GetCellColor(long row, long col, COLORREF * pColor);
 	uint   GetRezID() const { return RezID; }
+	//
+	// Descr: Возвращает список номеров колонок, по котороым должны быть отсортированы данные
+	//
+	const  LongArray & GetSettledOrderList() const { return SettledOrder; }
 
 	BrowserWindow * view;
 	enum {
@@ -4724,15 +4755,13 @@ protected:
 	int    WMHScroll(int sbType, int sbEvent, int thumbPos);
 	int    WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop);
 	int    LoadResource(uint, void *, int, uint uOptions = 0);
-	const  LongArray & GetSettledOrderList() const { return SettledOrder; }
 
 	uint   RezID;
 	TToolbar * P_Toolbar;
 private:
 	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
-	void   init(BrowserDef * pDef);
-	void   initWin();
+	void   __Init(/*BrowserDef * pDef*/);
 	void   WMHCreate(LPCREATESTRUCT);
 	long   CalcHdrWidth(int plusToolbar) const;
 	int    IsLastPage(uint viewHeight); // AHTOXA

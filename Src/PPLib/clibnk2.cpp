@@ -652,7 +652,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 			for(i = 0; i < ar_list.getCount(); i++) {
 				const PPID ar_id = ar_list.get(i);
 				ArticleTbl::Rec ar_rec;
-				MEMSZERO(ar_rec);
+				// @v10.6.4 MEMSZERO(ar_rec);
 				if(ar_id)
 					THROW(ar_obj.Fetch(ar_id, &ar_rec) > 0);
 				//for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {
@@ -674,7 +674,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 				for(i = 0; i < ar_list.getCount(); i++) {
 					const PPID ar_id = ar_list.get(i);
 					ArticleTbl::Rec ar_rec;
-					MEMSZERO(ar_rec);
+					// @v10.6.4 MEMSZERO(ar_rec);
 					if(ar_id)
 						THROW(ar_obj.Fetch(ar_id, &ar_rec) > 0);
 					//for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {

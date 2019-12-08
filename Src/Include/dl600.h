@@ -1492,7 +1492,8 @@ int Use001(); // @v5.4.5, чтобы линковались модули с ко
 // Макроопределения, используемые для описания таблиц баз данных //
 //
 #define DBTABLE_CONSTRUCTOR(tbl, firstField) \
-	tbl##Tbl::tbl##Tbl(const char * pFileName/*, int openMode*/) : DBTable(#tbl, pFileName, &firstField, &data, /*openMode*/omNormal) {}
+	tbl##Tbl::tbl##Tbl(const char * pFileName/*, int openMode*/) : DBTable(#tbl, pFileName, &firstField, &data, /*openMode*/omNormal) {}\
+	tbl##Tbl::Rec::Rec() { THISZERO(); } // @v10.6.4
 
 #ifdef DL600C // {
 //

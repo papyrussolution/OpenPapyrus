@@ -870,7 +870,7 @@ int FASTCALL STimeChunkBrowser::IsQuantVisible(long q) const
 		if(P.ViewType == Param::vHourDay) {
 			const LDATE dt = plusdate(St.Bounds.Start.d, q);
 			LDATETIME dtm1, dtm2;
-			STimeChunk chunk(dtm1.Set(dt, ZEROTIME), dtm2.Set(dt, encodetime(23, 59, 59, 99)));
+			STimeChunk chunk(dtm1.Set(dt, ZEROTIME), dtm2.Set(dt, MAXDAYTIME));
 			STimeChunkArray isect_list;
 			if(p_collapse_list->Intersect(chunk, &isect_list)) {
 				for(uint i = 0; yes && i < isect_list.getCount(); i++) {
@@ -2140,7 +2140,7 @@ void STimeChunkBrowser::CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod
 		SETIFZ(limit_date, encodedate(31, 12, 2100));
 		for(LDATE dt = rPeriod.low; dt <= rPeriod.upp && dt <= limit_date; dt = plusdate(dt, 1)) {
 			LDATETIME dtm1, dtm2;
-			STimeChunk chunk(dtm1.Set(dt, ZEROTIME), dtm2.Set(dt, encodetime(23, 59, 59, 99)));
+			STimeChunk chunk(dtm1.Set(dt, ZEROTIME), dtm2.Set(dt, MAXDAYTIME));
 			intersect.clear();
 			int    skip_date = 0;
 			if(p_collapse_list->Intersect(chunk, &intersect)) {

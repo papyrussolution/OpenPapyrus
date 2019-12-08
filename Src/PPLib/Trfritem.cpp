@@ -379,7 +379,7 @@ int SLAPI PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, 
 	int    ok = 1;
 	ReceiptTbl::Rec lot_rec;
 	Transfer * p_trfr = BillObj->trfr;
-	MEMSZERO(lot_rec);
+	// @v10.6.4 MEMSZERO(lot_rec);
 	if(lotID == 0)
 		LotID = 0;
 	else {

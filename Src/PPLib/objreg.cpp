@@ -1106,7 +1106,7 @@ int SLAPI PPObjRegister::Fetch(PPID id, RegisterTbl::Rec * pRec)
 struct DlPersonRegisterBlock {
 	DlPersonRegisterBlock()
 	{
-		MEMSZERO(Rec);
+		// @v10.6.4 MEMSZERO(Rec);
 	}
 	PPObjRegister RegObj;
     RegisterTbl::Rec Rec;

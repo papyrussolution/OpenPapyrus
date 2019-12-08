@@ -572,7 +572,7 @@ int SLAPI PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 			PPTransaction tra(1);
 			THROW(tra);
 			THROW(temp_pack.CreateBlank(rabd.OpID, 0, rabd.LocID, 0));
-			MEMSZERO(bill_rec);
+			// @v10.6.4 MEMSZERO(bill_rec);
 			bill_rec.ID = rabd.BillID;
 			bill_rec.Dt = rabd.Dt;
 			bill_rec.LocID = NZOR(rabd.LocID, LConfig.Location);

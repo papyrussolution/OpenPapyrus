@@ -280,45 +280,6 @@ void FASTCALL json_free_value(json_t ** ppValue)
 	if(ppValue && *ppValue) {
 		delete *ppValue;
 		*ppValue = 0;
-		/*
-		json_t * p_cursor = *ppValue;
-		while(*ppValue) {
-			if(p_cursor->P_Child) {
-				p_cursor = p_cursor->P_Child;
-			}
-			else {
-				json_t * p_parent = p_cursor->P_Parent;
-				if(p_cursor == *ppValue)
-					*ppValue = NULL;
-				{
-					assert(p_cursor);
-					assert(p_cursor->P_Child == NULL);
-					// fixing sibling linked list connections
-					if(p_cursor->P_Previous && p_cursor->P_Next) {
-						p_cursor->P_Previous->P_Next = p_cursor->P_Next;
-						p_cursor->P_Next->P_Previous = p_cursor->P_Previous;
-					}
-					else {
-						if(p_cursor->P_Previous)
-							p_cursor->P_Previous->P_Next = 0;
-						if(p_cursor->P_Next)
-							p_cursor->P_Next->P_Previous = 0;
-					}
-					// fixing parent node connections
-					if(p_cursor->P_Parent) {
-						// fix the tree connection to the first node in the children's list
-						if(p_cursor->P_Parent->P_Child == p_cursor)
-							p_cursor->P_Parent->P_Child = p_cursor->P_Next; // the parent node always points to the first node in the children linked list
-						// fix the tree connection to the last node in the children's list
-						if(p_cursor->P_Parent->P_ChildEnd == p_cursor)
-							p_cursor->P_Parent->P_ChildEnd = p_cursor->P_Previous; // the parent node always points to the last node in the children linked list
-					}
-				}
-				delete p_cursor;
-				p_cursor = p_parent;
-			}
-		}
-		*/
 	}
 }
 

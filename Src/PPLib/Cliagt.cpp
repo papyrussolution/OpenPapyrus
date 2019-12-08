@@ -230,7 +230,7 @@ int SLAPI PPObjArticle::HasClientAgreement(PPID id)
 	if(id > 0) {
 		PropertyTbl::Rec prop_rec;
 		PPClientAgreement agt;
-		MEMSZERO(prop_rec);
+		// @v10.6.4 MEMSZERO(prop_rec);
 		if(PPRef->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)) > 0) {
 			agt.Init();
 			PropToClientAgt(&prop_rec, &agt, 0);
@@ -250,7 +250,7 @@ int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, in
 	PPClientAgreement def_agt;
 	PPPersonRelTypePacket rt_pack;
 	PPIDArray rel_list;
-	MEMSZERO(prop_rec);
+	// @v10.6.4 MEMSZERO(prop_rec);
 	THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
 	if(r < 0 && id) {
 		PPID   mainorg_id = 0, mainorg_arid = 0;
@@ -1615,7 +1615,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				PPIDArray op_list_rcptret;
 				PPIDArray op_list_movout;
 				PPIDArray op_list_movin;
-				MEMSZERO(op_kind);
+				// @v10.6.4 MEMSZERO(op_kind);
 				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;) {
 					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC)) { // Расход товара
 						op_list_exp.addUnique(op_id);
@@ -1784,7 +1784,7 @@ int SupplAgtDialog::EditExchangeCfg()
 				Data.Z();
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0); // @v9.5.5
-			MEMSZERO(op_kind);
+			// @v10.6.4 MEMSZERO(op_kind);
 			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
 				if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))
 					op_list.add(op_id);

@@ -3607,7 +3607,7 @@ int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSys
 	}
 	// } @v10.6.2 
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 1L)));
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYHOST, 2L)));
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYHOST, /*2L*/0L))); // @v10.6.4 2-->0 debug
 	if(pSsCipherList) {
 		/*SString temp_buf;
 		for(uint ssp = 0; pSsCipherList->get(&ssp, temp_buf);) {

@@ -793,7 +793,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 							int    r;
 							const  long tab_id = tab_list.get(j);
 							TempSellTrnovrTbl::Rec rec;
-							MEMSZERO(rec);
+							// @v10.6.4 MEMSZERO(rec);
 							rec.ID    = r_entry.ID;
 							rec.TabID = tab_id;
 							rec.NotStop = stop ? 0 : 1;
@@ -3221,7 +3221,7 @@ int SLAPI DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatA
 				THROW_DB(updateRecBuf(&rec));
 			}
 			else {
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				rec.AccSheetID = accSheetID;
 				rec.ArID = p_item->ArID;
 				rec.RelArID = p_item->RelArID;

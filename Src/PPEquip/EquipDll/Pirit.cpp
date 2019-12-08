@@ -132,7 +132,7 @@ struct CheckStruct {
 		Stt = 0; // @erik v10.4.12
 		// @v9.9.4 if(Text.NotEmpty())
 		// @v9.9.4 	Text.Destroy();
-		TaxSys = 0; // @v10.6.3
+		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
 		Text.Z(); // @v9.9.4
 		Code.Z(); // @v9.9.4
 		PaymCash = 0.0;
@@ -760,7 +760,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						case /*TAXSYSK_PATENT*/3: Check.TaxSys = 5; break;
 						case /*TAXSYSK_IMPUTED*/4: Check.TaxSys = 3; break;
 						case /*TAXSYSK_SINGLEAGRICULT*/5: Check.TaxSys = 4; break;
-						default: Check.TaxSys = 0; break;
+						default: Check.TaxSys = -1; break; // @v10.6.4 0-->-1
 					}
 				}
 			}
@@ -1671,7 +1671,8 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(CshrName, in_data);
 			// @v9.9.12 CreateStr("", in_data);
 			CreateStr(Check.CheckNum, in_data); // @v9.9.12 
-			CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data); // @v10.6.3
+			if(Check.TaxSys >= 0 && Check.TaxSys <= 5) // @v10.6.4
+				CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data); // @v10.6.3
 			THROW(ExecCmd("30", in_data, out_data, r_error));
 			break;
 		case 1: // Закрыть документ

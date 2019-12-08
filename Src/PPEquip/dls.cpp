@@ -98,7 +98,7 @@ int SLAPI DeviceLoadingStat::StartLoading(PPID * pStatID, int deviceType, PPID d
 	int    ok = 1;
 	PPID   id = 0;
 	DvcLoadingStatTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.DvcType = deviceType;
 	rec.DvcID   = deviceID;
 	getcurdatetime(&rec.Dt, &rec.Tm);
@@ -183,12 +183,11 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 		rec.Status = status;
 		THROW(UpdateByID(this, 0, statID, &rec, 0));
 		{
-			DlsObjTbl::Rec dlso_rec;
 			BExtInsert bei(&DlsoT);
 			if(GoodsList.getCount()) {
 				for(uint i = 0; i < GoodsList.getCount(); i++) {
 					const _GoodsInfo & gds_info = *static_cast<const _GoodsInfo *>(GoodsList.at(i));
-					MEMSZERO(dlso_rec);
+					DlsObjTbl::Rec dlso_rec;
 					dlso_rec.DlsID   = statID;
 					dlso_rec.ObjType = PPOBJ_GOODS;
 					dlso_rec.ObjID   = gds_info.ID;
@@ -199,7 +198,7 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 			}
 			if(SCardList.getCount()) {
 				for(uint i = 0; i < SCardList.getCount(); i++) {
-					MEMSZERO(dlso_rec);
+					DlsObjTbl::Rec dlso_rec;
 					dlso_rec.DlsID   = statID;
 					dlso_rec.ObjType = PPOBJ_SCARD;
 					dlso_rec.ObjID   = SCardList.at(i).Key;
@@ -211,14 +210,14 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 			if(UpdatedBillList.getCount()) {
 				UpdatedBillList.sortAndUndup();
 				for(uint i = 0; i < UpdatedBillList.getCount(); i++) {
-					MEMSZERO(dlso_rec);
+					DlsObjTbl::Rec dlso_rec;
 					dlso_rec.DlsID   = statID;
 					dlso_rec.ObjType = PPOBJ_BILL;
 					dlso_rec.ObjID   = UpdatedBillList.get(i);
 					THROW_DB(bei.insert(&dlso_rec));
 				}
 			}
-			// } @v10.2.11 
+			// } @v10.2.11
 			THROW_DB(bei.flash());
 		}
 		StatID = 0;
@@ -854,8 +853,10 @@ DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSu
 
 void SLAPI PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(pBrw && Filt.DvcType == dvctScales)
-		pBrw->InsColumnWord(1, PPWORD_PLU, 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0);
+	if(pBrw && Filt.DvcType == dvctScales) {
+		// @v10.6.4 pBrw->InsColumnWord(1, PPWORD_PLU, 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0);
+		pBrw->InsColumn(1, "@plu", 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0); // @v10.6.4
+	}
 }
 
 int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
@@ -947,10 +948,10 @@ int SLAPI ViewDLSDetail(const DLSDetailFilt & rFilt)
 		if(rFilt.BillList.getCount()) {
 			BillFilt filt;
 			filt.List.Set(&rFilt.BillList);
-			filt.Flags |= BillFilt::fBillListOnly; 
+			filt.Flags |= BillFilt::fBillListOnly;
 			PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
 		}
-	} // } @v10.2.11 
+	} // } @v10.2.11
 	else if(oneof2(rFilt.ObjType, PPOBJ_GOODS, PPOBJ_SCARD)) {
 		p_v = new PPViewDLSDetail;
 		PPWait(1);

@@ -2432,6 +2432,10 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 				if(P_View->OnExecBrowser(this) == cmCancel)
 					BbState |= bbsCancel; // @v10.3.3
 				break;
+			case cmSort: // @v10.6.4
+				if(P_View->ProcessCommand(PPVCMD_USERSORT, p_row, this) > 0)
+					updateView();
+				break;
 			case cmaInsert:
 				if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0)
 					updateView();

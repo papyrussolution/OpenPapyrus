@@ -184,7 +184,7 @@ int FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt)
 int SLAPI BarcodeArray::Add(const char * pCode, long codeType, double qtty)
 {
 	BarcodeTbl::Rec item;
-	MEMSZERO(item);
+	// @v10.6.4 MEMSZERO(item);
 	STRNSCPY(item.Code, pCode);
 	item.BarcodeType = codeType;
 	item.Qtty = qtty;
@@ -370,7 +370,7 @@ int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * p
 	int    ok = -1;
 	size_t len = sstrlen(pCodeLine);
 	BarcodeTbl::Rec bc_rec;
-	MEMSZERO(bc_rec);
+	// @v10.6.4 MEMSZERO(bc_rec);
 	if(len) {
 		SString mark_buf;
 		if(PrcssrAlcReport::IsEgaisMark(pCodeLine, &mark_buf)) {
@@ -523,7 +523,7 @@ int SLAPI GoodsCore::AddBarcode(PPID goodsID, const char * pBarcode, double qtty
 		THROW(tra);
 		if(Fetch(goodsID, &goods_rec) > 0) {
 			BarcodeTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.GoodsID = goodsID;
 			STRNSCPY(rec.Code, pBarcode);
 			rec.Qtty = (qtty > 0.0) ? qtty : 1.0;
@@ -585,7 +585,7 @@ int SLAPI GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int3
 		THROW_DB(deleteFrom(&ACodT, 0, ACodT.GoodsID == goods_id && ACodT.ArID == arID));
 		if(!isempty(pCode) && Search(goodsID) > 0) {
 			ArGoodsCodeTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.GoodsID = goods_id;
 			rec.ArID    = arID;
 			rec.Pack    = pack;
@@ -620,7 +620,7 @@ int SLAPI GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogg
 					if(SearchByArCode(destArID, r_rec.Code, &found_rec, 0) > 0) {
 						if(PPObjGoods::GenerateOwnArCode(code_buf, 0) > 0) {
 							ArGoodsCodeTbl::Rec new_rec;
-							MEMSZERO(new_rec);
+							// @v10.6.4 MEMSZERO(new_rec);
 							new_rec = r_rec;
 							new_rec.ArID = destArID;
 							code_buf.CopyTo(new_rec.Code, sizeof(new_rec.Code));
@@ -646,7 +646,6 @@ int SLAPI GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogg
 		PPIDArray goods_list;
 		ArGoodsCodeArray code_list;
 		GoodsIterator::GetListByGroup(grpID, &goods_list);
-
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(uint i = 0; i < goods_list.getCount(); i++) {
@@ -658,7 +657,7 @@ int SLAPI GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, PPLogg
 			}
 			else if(PPObjGoods::GenerateOwnArCode(code_buf, 0) > 0) {
 				ArGoodsCodeTbl::Rec new_rec;
-				MEMSZERO(new_rec);
+				// @v10.6.4 MEMSZERO(new_rec);
 				new_rec.GoodsID = goods_id;
 				new_rec.ArID = destArID;
 				code_buf.CopyTo(new_rec.Code, sizeof(new_rec.Code));

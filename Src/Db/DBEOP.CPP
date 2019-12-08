@@ -724,7 +724,18 @@ IMPL_DBE_PROC(_max_v)
 //
 
 //static
-DbqFuncTab DbqFuncTab::Inst; // @global @threadsafe
+//DbqFuncTab DbqFuncTab::__Inst; // @global @threadsafe
+
+static DbqFuncTab * __GetRegFuncTab()
+{
+	static DbqFuncTab * p__inst; // @global @threadsafe
+	if(!p__inst) {
+		ENTER_CRITICAL_SECTION
+		SETIFZ(p__inst, new DbqFuncTab);
+		LEAVE_CRITICAL_SECTION
+	}
+	return p__inst;
+}
 
 //static
 int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
@@ -732,10 +743,11 @@ int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, in
 	int    ok = 0, func_id = 0;
 	ENTER_CRITICAL_SECTION
 	if(*pFuncId == 0) {
-		if(Inst.GetDynFuncId(&func_id) > 0) {
+		DbqFuncTab * p_tab = __GetRegFuncTab();
+		if(p_tab && p_tab->GetDynFuncId(&func_id) > 0) {
 			va_list param_list;
 			va_start(param_list, paramCount);
-			if(Inst._RegisterFunc(func_id, 0, retType, pProc, paramCount, param_list))
+			if(p_tab->_RegisterFunc(func_id, 0, retType, pProc, paramCount, param_list))
 				ok = 1;
 			va_end(param_list);
 		}
@@ -745,6 +757,23 @@ int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, in
 		ok = 1;
 	LEAVE_CRITICAL_SECTION
 	return ok;
+}
+
+//static 
+int SLAPIV DbqFuncTab::RegisterDynR(int retType, DBQProc pProc, int paramCount, ...) // @cs
+{
+	int    func_id = 0;
+	ENTER_CRITICAL_SECTION
+	DbqFuncTab * p_tab = __GetRegFuncTab();
+	if(p_tab && p_tab->GetDynFuncId(&func_id) > 0) {
+		va_list param_list;
+		va_start(param_list, paramCount);
+		if(!p_tab->_RegisterFunc(func_id, 0, retType, pProc, paramCount, param_list))
+			func_id = 0;
+		va_end(param_list);
+	}
+	LEAVE_CRITICAL_SECTION
+	return func_id;
 }
 
 //static
@@ -752,18 +781,21 @@ int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc
 {
 	int    ok = 0, func_id = 0;
 	ENTER_CRITICAL_SECTION
-	if(*pFuncId == 0) {
-		if(Inst.GetDynFuncId(&func_id) > 0) {
-			va_list param_list;
-			va_start(param_list, paramCount);
-			if(Inst._RegisterFunc(func_id, 1, retType, pProc, paramCount, param_list))
-				ok = 1;
-			va_end(param_list);
+	DbqFuncTab * p_tab = __GetRegFuncTab();
+	if(p_tab) {
+		if(*pFuncId == 0) {
+			if(p_tab->GetDynFuncId(&func_id) > 0) {
+				va_list param_list;
+				va_start(param_list, paramCount);
+				if(p_tab->_RegisterFunc(func_id, 1, retType, pProc, paramCount, param_list))
+					ok = 1;
+				va_end(param_list);
+			}
+			ASSIGN_PTR(pFuncId, func_id);
 		}
-		ASSIGN_PTR(pFuncId, func_id);
+		else
+			ok = 1;
 	}
-	else
-		ok = 1;
 	LEAVE_CRITICAL_SECTION
 	return ok;
 }
@@ -771,7 +803,8 @@ int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc
 //static
 DBFuncInfo * FASTCALL DbqFuncTab::Get(int funcId)
 {
-	return Inst.GetFuncPtr(funcId);
+	DbqFuncTab * p_tab = __GetRegFuncTab();
+	return p_tab ? p_tab->GetFuncPtr(funcId) : 0;
 }
 
 SLAPI DbqFuncTab::DbqFuncTab() : P_Tab(0)

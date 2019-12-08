@@ -119,16 +119,16 @@ struct UhttSpecSeriesBlock {
 		stFetch = 0,
 		stSet
 	};
-	UhttSpecSeriesBlock()
+	UhttSpecSeriesBlock() : State(stFetch)
 	{
-		Clear();
+		// @v10.6.4 Clear();
 	}
 	void Clear()
 	{
 		MEMSZERO(Rec);
 		State = stFetch;
 	}
-	SpecSeriesCore      SsCore;
+	SpecSeriesCore SsCore;
 	SpecSeries2Tbl::Rec Rec;
 	int    State;
 };

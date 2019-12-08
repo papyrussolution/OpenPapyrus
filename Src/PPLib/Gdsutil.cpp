@@ -446,7 +446,7 @@ SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), 
 	PTR32(RetCode)[0] = 0;
 	PTR32(CzGtin)[0] = 0;
 	PTR32(CzSerial)[0] = 0;
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 }
 
 SLAPI GoodsCodeSrchBlock::~GoodsCodeSrchBlock()
@@ -2864,7 +2864,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	double quot = 0.0;
 	double base_price = 0.0;
 	ReceiptTbl::Rec lot_rec;
-	MEMSZERO(lot_rec);
+	// @v10.6.4 MEMSZERO(lot_rec);
 	PROFILE_START
 	THROW_INVARG(pItem);
 	pItem->QuotKindUsedForPrice = 0;

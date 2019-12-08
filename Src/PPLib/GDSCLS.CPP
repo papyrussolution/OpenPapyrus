@@ -677,13 +677,14 @@ int GoodsClassDialog::replyPropCmd(PPGdsClsProp * pData, int gcProp)
 int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
 {
 	class GoodsClassDimDialog : public TDialog {
+		DECL_DIALOG_DATA(PPGdsClsDim);
 	public:
 		GoodsClassDimDialog() : TDialog(DLG_GDSCLSDIM)
 		{
 		}
-		int    setDTS(const PPGdsClsDim * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			char   val_str[128];
 			setCtrlData(CTL_GDSCLSDIM_NAME, Data.Name);
 			setCtrlData(CTL_GDSCLSDIM_SCALE, &Data.Scale);
@@ -692,7 +693,7 @@ int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
 			setCtrlData(CTL_GDSCLSDIM_VALS, val_str);
 			return 1;
 		}
-		int    getDTS(PPGdsClsDim * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			SString val_str;
 			getCtrlData(CTL_GDSCLSDIM_NAME,  Data.Name);
@@ -702,8 +703,6 @@ int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
-	private:
-		PPGdsClsDim Data;
 	};
 	DIALOG_PROC_BODY(GoodsClassDimDialog, pData);
 }
@@ -1030,7 +1029,7 @@ int SLAPI PPGdsClsPacket::PutFormula(int * pIdx, const PPGdsClsFormula * pForm)
 	int    ok = 1;
 	int    idx = *pIdx;
 	SString buf;
-	if(idx && idx <= (int)FormulaList.getCount()) {
+	if(idx && idx <= FormulaList.getCountI()) {
 		if(pForm) {
 			FormulaList.atFree(idx-1);
 			pForm->PutToBuffer(buf);
@@ -1049,7 +1048,7 @@ int SLAPI PPGdsClsPacket::PutFormula(int * pIdx, const PPGdsClsFormula * pForm)
 
 int SLAPI PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 {
-	if(idx > 0 && idx <= (int)FormulaList.getCount()) {
+	if(idx > 0 && idx <= FormulaList.getCountI()) {
 		pForm->GetFromBuffer(FormulaList.at(idx-1));
 		return 1;
 	}
@@ -1061,7 +1060,7 @@ int SLAPI PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 
 int SLAPI PPGdsClsPacket::SetDefaultFormula(int idx)
 {
-	const int cnt = FormulaList.getCount();
+	const int cnt = FormulaList.getCountI();
 	if(idx > 0 && idx <= cnt) {
 		for(int i = cnt; i > 0; i--) {
 			PPGdsClsFormula form;
@@ -1124,7 +1123,6 @@ private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
-
 	PPGdsClsPacket * P_Data;
 };
 

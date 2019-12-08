@@ -1746,7 +1746,7 @@ int SLAPI PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, 
 		if(op_type == PPOPT_DRAFTEXPEND && pChkRec && pChkRec->ID) {
 			// @v10.4.2 CCheckCore cc_core;
 			CCheckLineTbl::Rec cc_line;
-			MEMSZERO(cc_line);
+			// @v10.6.4 MEMSZERO(cc_line);
 			pack.Rec.Dt = pChkRec->Dt;
 			for(int i = 0; sc_obj.P_CcTbl->EnumLines(pChkRec->ID, &i, &cc_line) > 0;) {
 				ReceiptTbl::Rec lot_rec;
@@ -9243,7 +9243,7 @@ SLTEST_R(PPBillFormula)
 							if(row.Get(3, temp_buf.Z())) {
 								PPID id = 0;
 								BillTbl::Rec bill_rec;
-								MEMSZERO(bill_rec);
+								// @v10.6.4 MEMSZERO(bill_rec);
 								temp_buf.CopyTo(bill_rec.Code, sizeof(bill_rec.Code));
 								bill_rec.OpID = op_id;
 								bill_rec.Dt   = bill_dt;

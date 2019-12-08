@@ -454,7 +454,7 @@ int SLAPI PredictSalesCore::WriteHolidays(int use_ta)
 		THROW_DB(deleteFrom(this, 0, this->RType == (long)PSRECTYPE_HOLIDAY));
 		for(uint i = 0; P_HldTab->enumItems(&i, (void **)&p_entry);) {
 			PredictSalesTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.RType = PSRECTYPE_HOLIDAY;
 			rec.Loc = p_entry->LocIdx;
 			rec.Dt = p_entry->Day;
@@ -533,7 +533,7 @@ int SLAPI PredictSalesCore::WriteLocTab(int use_ta)
 			for(uint i = 0; i < LocTab.getCount(); i++) {
 				const LocTabEntry & r_entry = LocTab.at(i);
 				PredictSalesTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				rec.RType = PSRECTYPE_LOCTAB;
 				rec.GoodsID = r_entry.LocID;
 				rec.Loc = r_entry.LocIdx;
@@ -1060,7 +1060,7 @@ int SLAPI PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocL
 {
 	int    ok = -1;
 	GoodsStatTbl::Rec rec, temp_rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.GoodsID = goodsID;
 	if(rLocList.GetSingle()) {
 		ok = SearchStat(goodsID, rLocList.GetSingle(), &rec);

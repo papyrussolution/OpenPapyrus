@@ -1709,7 +1709,7 @@ int Transfer::LcrBlock::FinishLot()
 				}
 				else if(r_item.Status == statusAddRec) {
 					LotCurRestTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					rec.LotID = LotID;
 					rec.D = WorkDate::ShrinkDate(r_item.Dt);
 					rec.LDRest = r_item.ValidRest;
@@ -1995,7 +1995,7 @@ int Transfer::LcrBlock2::FinishLot()
 				}
 				else if(r_item.Status == statusAddRec) {
 					LotCurRest2Tbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					rec.LotID = LotID;
 					rec.D = WorkDate::ShrinkDate(r_item.Dt);
 					rec.LDRestF = r_item.ValidRestF;
@@ -2660,7 +2660,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 				// не генерирует собственный лот, а вливается в существующий
 				//
 				ReceiptTbl::Rec tmp_lot_rec;
-				MEMSZERO(tmp_lot_rec);
+				// @v10.6.4 MEMSZERO(tmp_lot_rec);
 				tmp_lot_rec.ID = rec.LotID;
 				//
 				// Если цены изменились, то операция уже не может вливаться в

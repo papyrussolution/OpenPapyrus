@@ -352,7 +352,7 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 			OrderELinkArray(&Data, &KindList);
 			if(Data.getCount() < SlotCount) {
 				for(i = 0; i < KindList.getCount() && Data.getCount() <= SlotCount; i++) {
-					PPID k = ((PPELinkKind *)KindList.at(i))->ID;
+					PPID k = static_cast<const PPELinkKind *>(KindList.at(i))->ID;
 					if(!Data.lsearch(&k, 0, CMPF_LONG)) {
 						MEMSZERO(lnk);
 						lnk.KindID = k;

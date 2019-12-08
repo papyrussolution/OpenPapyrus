@@ -111,7 +111,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 					PRINTER_INFO_2 * p_prn_info = static_cast<PRINTER_INFO_2 *>(SAlloc::M(info_size));
 					if(p_prn_info) {
 						memzero(p_prn_info, info_size);
-						if(GetPrinter(printer, 2, (LPBYTE)p_prn_info, info_size, &info_size))
+						if(GetPrinter(printer, 2, PTR8(p_prn_info), info_size, &info_size))
 							GetPort(SUcSwitch(p_prn_info->pPortName), &port_no); // @unicodeproblem
 						SAlloc::F(p_prn_info);
 					}

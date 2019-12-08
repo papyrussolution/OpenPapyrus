@@ -638,7 +638,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 	ReceiptTbl::Rec lotr;
 	Goods2Tbl::Rec goods_rec;
 	PPGoodsTaxEntry gtx;
-	MEMSZERO(lotr);
+	// @v10.6.4 MEMSZERO(lotr);
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -2054,7 +2054,7 @@ void SLAPI BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID
 int SLAPI BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, PPID supplID, double qtty)
 {
 	TempDeficitTbl::Rec tdt_rec;
-	MEMSZERO(tdt_rec);
+	// @v10.6.4 MEMSZERO(tdt_rec);
 	tdt_rec.Location = pBillRec->LocID;
 	tdt_rec.GoodsID  = pIlti->GoodsID;
 	tdt_rec.SupplID  = supplID;
@@ -3101,7 +3101,7 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 	int    ok = -1, r;
 	uint   msg_id = 0;
 	BillTbl::Rec bill_rec, link_rec;
-	MEMSZERO(bill_rec);
+	// @v10.6.4 MEMSZERO(bill_rec);
 	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) { // @v10.1.1 bill_rec.OpID != PPOPK_EDI_STOCK
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
 			PPID   op_id = bill_rec.OpID;

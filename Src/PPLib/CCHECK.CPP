@@ -1135,7 +1135,7 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 int SLAPI CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
 {
 	CCheckLineTbl::Rec item;
-	MEMSZERO(item);
+	// @v10.6.4 MEMSZERO(item);
 	item.DivID = static_cast<short>(div);
 	if(isPrinted)
 		item.DivID += CHECK_LINE_IS_PRINTED_BIAS;
@@ -2325,7 +2325,7 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 				const PPID sc_id = r_entry.AddedID;
 				if(!(flags & tscpfCorrection) && r_entry.Type != CCAMTTYP_CSCCHARGE) {
 					CCheckPaymTbl::Rec cp_rec;
-					MEMSZERO(cp_rec);
+					// @v10.6.4 MEMSZERO(cp_rec);
 					cp_rec.CheckID = pPack->Rec.ID;
 					cp_rec.RByCheck = ++rbc;
 					cp_rec.PaymType = static_cast<int16>(r_entry.Type);
@@ -2340,7 +2340,7 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 					int    scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 					if(oneof2(scst, scstCredit, scstBonus)) {
 						SCardOpTbl::Rec scop_rec;
-						MEMSZERO(scop_rec);
+						// @v10.6.4 MEMSZERO(scop_rec);
 						scop_rec.SCardID = sc_id;
 						scop_rec.Dt      = pPack->Rec.Dt;
 						scop_rec.Tm      = pPack->Rec.Tm;
@@ -2491,7 +2491,7 @@ int SLAPI CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|
 						le.fQuotedByGift|le.fFixedPrice)) /*@v9.0.9 || (p_serial && p_serial->NotEmptyS())*/) { // @v10.1.7 le.fFixedPrice
 						CCheckLineExtTbl::Rec lx_rec;
-						MEMSZERO(lx_rec);
+						// @v10.6.4 MEMSZERO(lx_rec);
 						lx_rec.CheckID = ccl.CheckID;
 						lx_rec.RByCheck = ccl.RByCheck;
 						// @v9.0.9 p_serial->CopyTo((char *)lx_rec.Serial, sizeof(lx_rec.Serial));
@@ -2611,7 +2611,7 @@ int SLAPI CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|
 						le.fQuotedByGift|le.fFixedPrice)) /*@v9.0.9|| (p_serial && p_serial->NotEmptyS())*/) { // @v10.1.7 le.fFixedPrice
 						CCheckLineExtTbl::Rec lx_rec;
-						MEMSZERO(lx_rec);
+						// @v10.6.4 MEMSZERO(lx_rec);
 						lx_rec.CheckID = ccl.CheckID;
 						lx_rec.RByCheck = ccl.RByCheck;
 						// @v9.0.0 p_serial->CopyTo((char *)lx_rec.Serial, sizeof(lx_rec.Serial));
@@ -3717,7 +3717,7 @@ int SLAPI CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 					if(data.SCardID && Cards.Search(data.SCardID, &sc_rec) > 0 && credit_card_series.lsearch(sc_rec.SeriesID)) {
 						SCardOpTbl::Rec scop_rec;
-						MEMSZERO(scop_rec);
+						// @v10.6.4 MEMSZERO(scop_rec);
 						scop_rec.SCardID = data.SCardID;
 						scop_rec.Dt = data.Dt;
 						scop_rec.Tm = data.Tm;

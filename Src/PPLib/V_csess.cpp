@@ -321,7 +321,7 @@ int SLAPI PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 			for(InitIteration(ordByDefault); NextIteration(&item) > 0;) {
 				const double large_val = 1e12;
 				TempOrderTbl::Rec ord_rec;
-				MEMSZERO(ord_rec);
+				// @v10.6.4 MEMSZERO(ord_rec);
 				ord_rec.ID = item.ID;
 				if(id_list.addUnique(ord_rec.ID) < 0) {
 					temp_buf = "debug";
@@ -853,7 +853,7 @@ int SLAPI PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
 	TempCSessChecksTbl::Rec csch_rec;
-	MEMSZERO(csch_rec);
+	// @v10.6.4 MEMSZERO(csch_rec);
 	csch_rec.ID          = pRec->ID;
 	csch_rec.SuperSessID = pRec->SuperSessID;
 	csch_rec.CashNodeID  = pRec->CashNodeID;
@@ -1551,7 +1551,7 @@ int SLAPI PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMs
 					PPID   loc_id = p_e->LocID;
 					PPTransferItem ti;
 					ReceiptTbl::Rec lot_rec;
-					MEMSZERO(lot_rec);
+					// @v10.6.4 MEMSZERO(lot_rec);
 					THROW(ti.Init(&b_pack.Rec));
 					THROW(ti.SetupGoods(p_e->GoodsID) > 0);
 					ti.Quantity_ = p_e->Qtty;
@@ -2601,7 +2601,7 @@ void CSessExcAltGoodsDialog::SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
 	double cost = 0.0, price = 0.0;
 	if(goodsID) {
 		ReceiptTbl::Rec lot;
-		MEMSZERO(lot);
+		// @v10.6.4 MEMSZERO(lot);
 		BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, 0, GPRET_INDEF, &price, &lot);
 		cost = lot.Cost;
 		dt   = lot.Dt;
@@ -2728,7 +2728,7 @@ int SLAPI PPViewCSessExc::ConvertDeficitToBasket()
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			ReceiptTbl::Rec lot_rec;
-			MEMSZERO(lot_rec);
+			// @v10.6.4 MEMSZERO(lot_rec);
 			THROW(::GetCurGoodsPrice(item.GoodsID, CommonLocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 			i_i.GoodsID     = item.GoodsID;
 			i_i.UnitPerPack = lot_rec.UnitPerPack;

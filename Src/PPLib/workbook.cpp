@@ -2899,10 +2899,10 @@ int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;
+	WorkbookTbl::Rec inner_rec;
 	Sdr_Workbook sdr_rec;
 	THROW_INVARG(pPack);
 	MEMSZERO(sdr_rec);
-	WorkbookTbl::Rec inner_rec;
 	sdr_rec.ID = pPack->Rec.ID;
 	STRNSCPY(sdr_rec.Name, pPack->Rec.Name);
 	STRNSCPY(sdr_rec.Symb, pPack->Rec.Symb);

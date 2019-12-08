@@ -815,7 +815,7 @@ int SLAPI PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 		SalaryTbl::Rec rec;
 		PersonPostTbl::Rec post_rec;
 		if(ppvCmd == PPVCMD_ADDITEM) {
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			if(EditItemDialog(&rec) > 0)
 				ok = Tbl.Put(&(id = 0), &rec, 1) ? 1 : PPErrorZ();
 			else

@@ -731,7 +731,7 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 	public:
 		GrpArticleDialog::GrpArticleDialog() : TDialog(DLG_ARTICLEGROUP), Data(0L, (void *)0, 0)
 		{
-			MEMSZERO(Rec);
+			// @v10.6.4 MEMSZERO(Rec);
 		}
 		~GrpArticleDialog()
 		{
@@ -815,7 +815,7 @@ int SLAPI PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 	THROW_INVARG(pID);
 	THROW(CheckRightsModByID(pID));
 	if(*pID == 0) {
-		MEMSZERO(ar_rec);
+		// @v10.6.4 MEMSZERO(ar_rec);
 		THROW(GetFreeArticle(&ar_rec.Article, sheetID));
 		ar_rec.AccSheetID = sheetID;
 		ar_rec.ObjID = ar_rec.Article;
@@ -988,12 +988,6 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 	PPObject * ppobj = 0;
 	PPAccSheet acs_rec;
 	ArticleDlgData  pack;
-	union {
-		PersonTbl::Rec   psnrec;
-		LocationTbl::Rec locrec;
-		PPAccount  accnt;
-		PPGlobalUserAcc gua_rec; // @v9.1.3
-	} assoc_obj_rec;
 	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &acs_rec) > 0);
 	pack.Rec.AccSheetID = sheetID;
 	pack.Assoc = acs_rec.Assoc;
@@ -1006,13 +1000,13 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 			pack.Rec.ObjID = pack.Rec.Article;
 	}
 	else {
-		long   extra_data = 0;
+		void * extra_ptr = 0;
 		THROW(cm = AutoFill(&acs_rec));
 		if(pack.Assoc == PPOBJ_PERSON)
-			extra_data = acs_rec.ObjGroup;
-		THROW(ppobj = GetPPObject(pack.Assoc, (void *)extra_data));
+			extra_ptr = reinterpret_cast<void *>(acs_rec.ObjGroup);
+		THROW(ppobj = GetPPObject(pack.Assoc, extra_ptr));
 		obj_id = 0;
-		THROW(cm = ppobj->Edit(&obj_id, (void *)extra_data));
+		THROW(cm = ppobj->Edit(&obj_id, extra_ptr));
 		if(cm == cmOK) {
 			if(P_Tbl->SearchObjRef(sheetID, obj_id) > 0) {
 				ASSIGN_PTR(pID, P_Tbl->data.ID);
@@ -1020,13 +1014,29 @@ int SLAPI PPObjArticle::NewArticle(PPID * pID, long sheetID)
 				done = 1;
 			}
 			else {
-				THROW(ppobj->Search(obj_id, &assoc_obj_rec) > 0);
-				if(acs_rec.Assoc == PPOBJ_PERSON)
-					STRNSCPY(pack.Rec.Name, assoc_obj_rec.psnrec.Name);
-				else if(acs_rec.Assoc == PPOBJ_LOCATION)
-					STRNSCPY(pack.Rec.Name, assoc_obj_rec.locrec.Name);
-				else if(acs_rec.Assoc == PPOBJ_GLOBALUSERACC) // @v9.1.3
-					STRNSCPY(pack.Rec.Name, assoc_obj_rec.gua_rec.Name);
+				PersonTbl::Rec   psn_rec;
+				LocationTbl::Rec loc_rec;
+				PPAccount  acc_rec;
+				PPGlobalUserAcc gua_rec; // @v9.1.3
+				//THROW(ppobj->Search(obj_id, &assoc_obj_rec) > 0);
+				switch(acs_rec.Assoc) {
+					case PPOBJ_PERSON:
+						THROW(ppobj->Search(obj_id, &psn_rec) > 0);
+						STRNSCPY(pack.Rec.Name, psn_rec.Name);
+						break;
+					case PPOBJ_LOCATION:
+						THROW(ppobj->Search(obj_id, &loc_rec) > 0);
+						STRNSCPY(pack.Rec.Name, loc_rec.Name);
+						break;
+					case PPOBJ_GLOBALUSERACC: // @v9.1.3
+						THROW(ppobj->Search(obj_id, &gua_rec) > 0);
+						STRNSCPY(pack.Rec.Name, gua_rec.Name);
+						break;
+					case PPOBJ_ACCOUNT2: // @v10.6.4
+						THROW(ppobj->Search(obj_id, &acc_rec) > 0);
+						STRNSCPY(pack.Rec.Name, acc_rec.Name);
+						break;
+				}
 				pack.Rec.ObjID = obj_id;
 				if(acs_rec.Flags & ACSHF_AUTOCREATART)
 					cm = cmOK;
@@ -1564,7 +1574,7 @@ int SLAPI PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pNam
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1592,7 +1602,7 @@ int SLAPI PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, lo
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

@@ -131,7 +131,7 @@ int SLAPI PPViewCurRate::AddItem(CurRateIdent * pIdent)
 {
 	int    ok = -1;
 	CurrencyRateTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.Dt = LConfig.OperDate;
 	rec.CurID = Filt.CurID;
 	rec.RelCurID = Filt.BaseCurID;

@@ -1633,9 +1633,8 @@ int SLAPI PPChainDatabase(const char * pPassword)
 
 		PPObjBill * p_bobj = BillObj;
 		Reference * p_ref = PPRef;
-
 		// 2.
-		MEMSZERO(bill_rec);
+		// @v10.6.4 MEMSZERO(bill_rec);
 		id_max = 0;
 		r = p_bobj->P_Tbl->search(0, &id_max, spLast);
 		if(r == 0) {

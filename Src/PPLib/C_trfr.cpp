@@ -875,7 +875,7 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 		if(PPLoadString(PPMSG_ERROR, msg_id, b)) {
 			char   dtbuf[32];
 			ReceiptTbl::Rec lot_rec;
-			MEMSZERO(lot_rec);
+			// @v10.6.4 MEMSZERO(lot_rec);
 			lot_str.Cat(LotID).Space();
 			if(BillObj->trfr->Rcpt.Search(LotID, &lot_rec) > 0) {
 				lot_str.CatChar('[').Cat(lot_rec.Dt).CatDiv('-', 1);
@@ -1058,7 +1058,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 		SString serial_buf;
 		SString egais_code;
 		PPObjGoods goods_obj;
-		MEMSZERO(goods_rec);
+		// @v10.6.4 MEMSZERO(goods_rec);
 		if(!RVALUEPTR(rec, pRec)) {
 			THROW(Rcpt.Search(lotID, &rec) > 0);
 		}
@@ -2083,8 +2083,8 @@ int SLAPI PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID,
 		BillTbl::Rec bill_rec;
 		SString fmt_buf, bill_buf, log_buf;
 		PPLoadString(PPMSG_ERROR, PPERR_ABSGOODS, fmt_buf);
-		MEMSZERO(lot_rec);
-		MEMSZERO(bill_rec);
+		// @v10.6.4 MEMSZERO(lot_rec);
+		// @v10.6.4 MEMSZERO(bill_rec);
 		if(lotID && P_BObj->trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 			if(P_BObj->Search(lot_rec.BillID, &bill_rec) > 0)
 				PPObjBill::MakeCodeString(&bill_rec, 0, bill_buf);
@@ -2098,7 +2098,7 @@ int SLAPI PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID,
 			Goods2Tbl::Rec goods_rec;
 			if(P.DefGroupID == 0)
 				THROW(GgObj.AddSimple(&P.DefGroupID, gpkndOrdinaryGroup, 0, "Average", 0, P.DefUnitID, 0));
-			MEMSZERO(goods_rec);
+			// @v10.6.4 MEMSZERO(goods_rec);
 			goods_rec.ID = goodsID;
 			goods_rec.Kind = PPGDSK_GOODS;
 			(log_buf = "Goods Stub").Space().CatChar('#').CatLongZ(goodsID, 5).CopyTo(goods_rec.Name, sizeof(goods_rec.Name));

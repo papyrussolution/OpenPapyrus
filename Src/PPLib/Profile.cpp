@@ -1058,7 +1058,7 @@ int SLAPI PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine
 		else {
 			UserFuncPrfSessTbl::Key0 k0;
 			UserFuncPrfSessTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			temp_buf.CopyTo(rec.SessUUID_s, sizeof(rec.SessUUID_s));
 			rec.ThreadId = DB_REC;
 			UfpSessT.copyBufFrom(&rec);
@@ -1080,7 +1080,7 @@ int SLAPI PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine
 	else {
 		UserFuncPrfSessTbl::Key0 k0;
 		UserFuncPrfSessTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		temp_buf.CopyTo(rec.SessUUID_s, sizeof(rec.SessUUID_s));
 		rLine.DbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		temp_buf.CopyTo(rec.DbUUID_s, sizeof(rec.DbUUID_s));

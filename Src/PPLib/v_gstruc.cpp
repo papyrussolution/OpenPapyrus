@@ -440,11 +440,8 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 			const BroColumn & r_col = p_def->at(col);
 			const ItemEntry * p_item = static_cast<const ItemEntry *>(pData);
 			if(r_col.OrgOffs == 0) { // id
-				if(Problems.getCount() && Problems.bsearch(&p_item->GStrucID, 0, CMPF_LONG)) {
-					pStyle->Color = GetColorRef(SClrRed);
-					pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-					ok = 1;
-				}
+				if(Problems.getCount() && Problems.bsearch(&p_item->GStrucID, 0, CMPF_LONG))
+					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 			}
 			else if(r_col.OrgOffs == 4) { // type of struc
 				SColor clr;
@@ -456,9 +453,7 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 					case PPGoodsStruc::kComplex: clr = GetColorRef(SClrLightblue); break;
 					default: clr = SClrGrey; break;
 				}
-				pStyle->RightFigColor = clr;
-				pStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-				ok = 1;
+				ok = pStyle->SetRightFigCircleColor(clr);
 			}
 			// @v10.4.6 {
 			else if(r_col.OrgOffs == 6) { // common denomitator
@@ -466,11 +461,8 @@ int SLAPI PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int pai
 					if(p_item->GStrucID && p_item->StrucEntryP < StrucList.getCount()) {
 						const StrucEntry & r_struc_entry = StrucList.at(p_item->StrucEntryP);
 						if((r_struc_entry.Flags & GSF_DECOMPL) && !(r_struc_entry.Flags & GSF_COMPL)) {
-							if(r_struc_entry.CommDenom != 0.0 && r_struc_entry.CommDenom != 1.0) {
-								pStyle->RightFigColor = GetColorRef(SClrBrown);
-								pStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-								ok = 1;
-							}
+							if(r_struc_entry.CommDenom != 0.0 && r_struc_entry.CommDenom != 1.0)
+								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrBrown));
 						}
 					}
 				}

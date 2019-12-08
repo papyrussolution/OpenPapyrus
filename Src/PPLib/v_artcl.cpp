@@ -33,7 +33,7 @@ SLAPI PPViewArticle::~PPViewArticle()
 
 void * SLAPI PPViewArticle::GetEditExtraParam()
 {
-	return (void *)ArObj.GetCurrFilt();
+	return (void *)ArObj.GetCurrFilt(); // @badcast
 }
 
 PPBaseFilt * PPViewArticle::CreateFilt(void * extraPtr) const
@@ -48,7 +48,7 @@ int SLAPI PPViewArticle::UpdateTempTable(PPID arID)
 	int    ok = -1, r = -1;
 	if(P_TempTbl) {
 		TempArAgtTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		PPClientAgreement cli_agt;
 		PPSupplAgreement suppl_agt;
 		PPTransaction tra(ppDbDependTransaction, 1);

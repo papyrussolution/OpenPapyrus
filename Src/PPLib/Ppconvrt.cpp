@@ -5067,7 +5067,7 @@ public:
 		int    ok = -1;
 		if(pNewTbl) {
 			PropertyTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.ObjType = PPOBJ_DBCONVERT;
 			rec.ObjID = 0x060407;
 			rec.Prop = 1;
@@ -6369,7 +6369,7 @@ static int SLAPI ConvertStaffList9003()
 								// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
 								//
 								StaffList_Pre9003Tbl::Rec spec_rec;
-								MEMSZERO(spec_rec);
+								// @v10.6.4 MEMSZERO(spec_rec);
 								spec_rec.ID = STAFFLIST_EXCL_ID;
 								spec_rec.OrgID = STAFFLIST_EXCL_ID;
 								spec_rec.DivisionID = STAFFLIST_EXCL_ID;
@@ -6510,7 +6510,7 @@ static int SLAPI ConvertAccount9004()
 							// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
 							//
 							Account_Pre9004Tbl::Rec spec_rec;
-							MEMSZERO(spec_rec);
+							// @v10.6.4 MEMSZERO(spec_rec);
 							spec_rec.ID = ACCOUNT_EXCL2_ID;
 							spec_rec.AccSheetID = ACCOUNT_EXCL2_ID;
 							THROW_DB(p_tbl->insertRecBuf(&spec_rec));
@@ -6589,7 +6589,7 @@ static int SLAPI ConvertBankAccount9004()
 								// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
 								//
 								BankAccount_Pre9004Tbl::Rec spec_rec;
-								MEMSZERO(spec_rec);
+								// @v10.6.4 MEMSZERO(spec_rec);
 								spec_rec.ID = BANKACCOUNT_EXCL_ID;
 								spec_rec.AccType = BANKACCOUNT_EXCL_ID;
 								THROW_DB(p_tbl->insertRecBuf(&spec_rec));

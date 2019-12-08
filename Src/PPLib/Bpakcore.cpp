@@ -149,7 +149,7 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 				double total = 0.0;
 				for(i = 0; i < cycle_list.getCount(); i++) {
 					PayPlanTbl::Rec item;
-					MEMSZERO(item);
+					// @v10.6.4 MEMSZERO(item);
 					pPack->Rent.GetChargeDate(&cycle_list, i, &item.PayDate);
 					if(i == cycle_list.getCount()-1) {
 						//
@@ -171,7 +171,7 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 			int    paym_period = 0;
 			if(GetDefaultPaymPeriod(pPack, &paym_period) > 0) {
 				PayPlanTbl::Rec item;
-				MEMSZERO(item);
+				// @v10.6.4 MEMSZERO(item);
 				item.PayDate = plusdate(pPack->Rec.Dt, paym_period);
 				item.Amount  = pPack->Rec.Amount;
 				THROW(Update(&item, 0));
@@ -221,7 +221,7 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 				if(r > 0 && amount != 0) {
 					uint pos = 0;
 					PayPlanTbl::Rec item;
-					MEMSZERO(item);
+					// @v10.6.4 MEMSZERO(item);
 					SearchDate(charge_dt, 0, &item);
 					item.PayDate  = charge_dt;
 					item.Interest = BR2(amount);
@@ -395,7 +395,7 @@ int FASTCALL PPBill::Agreement::IsEqual(const Agreement & rS) const
 
 SLAPI PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion())
 {
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 	MEMSZERO(Rent);
 }
 
@@ -543,7 +543,7 @@ int SLAPI PPBill::AddPayDate(LDATE dt, double amount)
 	int    ok = 1;
 	if(checkdate(dt)) {
 		PayPlanTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.BillID  = Rec.ID;
 		rec.PayDate = dt;
 		rec.Amount  = BR2(amount);
@@ -2308,7 +2308,7 @@ static double FASTCALL setsign(double v, int minus)
 //
 PPBillPacket::TiItemExt::TiItemExt()
 {
-	MEMSZERO(LctRec);
+	// @v10.6.4 MEMSZERO(LctRec);
 }
 
 void PPBillPacket::TiItemExt::Clear()

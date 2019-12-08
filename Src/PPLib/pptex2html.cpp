@@ -2110,9 +2110,7 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 	if(parent_wb_id) {
 		THROW(rWbObj.Search(parent_wb_id, &parent_wb_rec) > 0);
 	}
-	else {
-		MEMSZERO(parent_wb_rec);
-	}
+	// @v10.6.4 else { MEMSZERO(parent_wb_rec); }
 	int r = rWbObj.SearchBySymb(wb_symb, &wb_id, &wb_rec);
 	if(r > 0) {
 		// wb_id известен

@@ -229,13 +229,13 @@ SLAPI Reference::~Reference()
 int SLAPI Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
 {
 	int    ok = 1, r;
-	ReferenceTbl::Rec rec;
 	PPID   id = *pDynObjType;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if((r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN)) > 0) {
-			MEMSZERO(rec);
+			ReferenceTbl::Rec rec;
+			// @v10.6.4 MEMSZERO(rec);
 			if(pName)
 				STRNSCPY(rec.ObjName, pName);
 			rec.Val1 = flags;
@@ -2068,7 +2068,7 @@ int SLAPI UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, in
 			THROW(tra);
 			{
 				UuidRefTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
                 memcpy(rec.UUID, &rUuid, sizeof(S_GUID));
                 r = insertRecBuf(&rec, 0, pID);
 				if(!r) {
@@ -2098,7 +2098,7 @@ int SLAPI UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount,
         	BExtInsert bei(this);
         	for(uint i = 0; i < cc; i++) {
 				UuidRefTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				memcpy(rec.UUID, &rChunk.at(i), sizeof(S_GUID));
 				THROW_DB(bei.insert(&rec));
         	}
@@ -2403,7 +2403,7 @@ int SLAPI TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, i
 		}
 		else {
 			TextRefTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.ObjType = static_cast<int16>(rI.O.Obj);
 			rec.ObjID = rI.O.Id;
 			rec.Prop = rI.P;

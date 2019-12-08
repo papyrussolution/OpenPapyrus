@@ -3829,7 +3829,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 						}
 						{
 							RegisterTbl::Rec new_kpp_reg;
-							MEMSZERO(new_kpp_reg);
+							// @v10.6.4 MEMSZERO(new_kpp_reg);
 							new_kpp_reg.RegTypeID = PPREGT_KPP;
 							STRNSCPY(new_kpp_reg.Num, kpp);
 							new_kpp_reg.ObjType = PPOBJ_LOCATION;
@@ -3846,7 +3846,7 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					}
 					else {
 						RegisterTbl::Rec new_kpp_reg;
-						MEMSZERO(new_kpp_reg);
+						// @v10.6.4 MEMSZERO(new_kpp_reg);
 						new_kpp_reg.RegTypeID = PPREGT_KPP;
 						STRNSCPY(new_kpp_reg.Num, kpp);
 						new_kpp_reg.ObjType = PPOBJ_PERSON;
@@ -3881,22 +3881,19 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 					temp_buf = full_name;
 				temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(pPack->Rec.Name, temp_buf);
-				{
+				if(inn.NotEmptyS()) {
 					RegisterTbl::Rec new_reg;
-					if(inn.NotEmptyS()) {
-						MEMSZERO(new_reg);
-						new_reg.RegTypeID = PPREGT_TPID;
-						STRNSCPY(new_reg.Num, inn);
-						new_reg.ObjType = PPOBJ_PERSON;
-						pPack->Regs.insert(&new_reg);
-					}
-					if(kpp.NotEmptyS()) {
-						MEMSZERO(new_reg);
-						new_reg.RegTypeID = PPREGT_KPP;
-						STRNSCPY(new_reg.Num, kpp);
-						new_reg.ObjType = PPOBJ_PERSON;
-						pPack->Regs.insert(&new_reg);
-					}
+					new_reg.RegTypeID = PPREGT_TPID;
+					STRNSCPY(new_reg.Num, inn);
+					new_reg.ObjType = PPOBJ_PERSON;
+					pPack->Regs.insert(&new_reg);
+				}
+				if(kpp.NotEmptyS()) {
+					RegisterTbl::Rec new_reg;
+					new_reg.RegTypeID = PPREGT_KPP;
+					STRNSCPY(new_reg.Num, kpp);
+					new_reg.ObjType = PPOBJ_PERSON;
+					pPack->Regs.insert(&new_reg);
 				}
 				{
 					pPack->Loc.destroy();
@@ -4147,7 +4144,7 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
     SString temp_buf;
     PPObjOprKind op_obj;
     BillTbl::Rec bhdr;
-    MEMSZERO(bhdr);
+    // @v10.6.4 MEMSZERO(bhdr);
     TSVector <WayBillActRecadvItem> items; // @v9.8.4 TSArray-->TSVector
     for(xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
@@ -4350,7 +4347,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     SString memo_note; // <note>
     SString temp_buf;
     BillTbl::Rec bhdr;
-    MEMSZERO(bhdr);
+    // @v10.6.4 MEMSZERO(bhdr);
 	TSVector <EgaisWayBillRowTags> row_tags; // @v9.8.4 TSArray-->TSVector
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	TSCollection <ExtCodeSetEntry> ext_code_set_list;
@@ -4661,7 +4658,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						}
 						if(pRefC) {
 							EgaisRefATbl::Rec refai;
-							MEMSZERO(refai);
+							// @v10.6.4 MEMSZERO(refai);
 							STRNSCPY(refai.RefACode, alc_ext.InformA);
 							if(product_refc_pos >= 0) {
 								const EgaisProductCore::Item * p_product = pRefC->ProductList.at(product_refc_pos);
@@ -5931,7 +5928,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 	PPGoodsPacket goods_pack;
 	GoodsItem alc_ext;
     BillTbl::Rec bhdr;
-    MEMSZERO(bhdr);
+    // @v10.6.4 MEMSZERO(bhdr);
     TSVector <EgaisRestItem> items; // @v9.8.4 TSArray-->TSVector
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
     for(xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
@@ -5966,7 +5963,7 @@ int SLAPI PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const D
 					}
 					if(pRefC) {
 						EgaisRefATbl::Rec refai;
-						MEMSZERO(refai);
+						// @v10.6.4 MEMSZERO(refai);
 						STRNSCPY(refai.RefACode, rest_item.InformAIdent);
 						if(product_refc_pos >= 0) {
 							const EgaisProductCore::Item * p_product = pRefC->ProductList.at(product_refc_pos);
@@ -7146,7 +7143,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 					const EgaisRefATbl::Rec * p_ref_a = static_cast<const EgaisRefATbl::Rec *>(p_pack->P_Data);
 					if(P_RefC) {
 						EgaisRefATbl::Rec refai;
-						MEMSZERO(refai);
+						// @v10.6.4 MEMSZERO(refai);
 						STRNSCPY(refai.RefACode, p_ref_a->RefACode);
 						STRNSCPY(refai.AlcCode,  p_ref_a->AlcCode);
 						STRNSCPY(refai.ManufRarIdent, p_ref_a->ManufRarIdent);
@@ -9087,7 +9084,7 @@ int SLAPI EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long *
 			}
 			else {
 				EgaisPersonTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				rec.ID = *pID;
 				STRNSCPY(rec.RarIdent, pItem->RarIdent);
 				STRNSCPY(rec.INN, pItem->INN);

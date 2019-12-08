@@ -252,7 +252,7 @@ int SLAPI PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArr
 				}
 				else {
 					temp_rec.TmStart = ZEROTIME;
-					temp_rec.TmEnd = encodetime(23, 59, 59, 99);
+					temp_rec.TmEnd = MAXDAYTIME;
 					temp_rec.TmVal = p_chunk->GetDuration();
 				}
 				ShrinkSubstDate(Filt.Sgd, p_chunk->Start.d, &temp_rec.Dt);

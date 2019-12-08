@@ -337,11 +337,11 @@ SArray * SLAPI PPViewOprKind::CreateBrowserArray(uint * pBrwId, SString * pSubTi
 	PPOprKind op_data;
 	SArray * p_array = 0;
 	OprKindBrwItem _e;
-	if(!P_OpList) {
+	if(P_OpList)
+		P_OpList->clear();
+	else {
 		THROW_MEM(P_OpList = new SArray(sizeof(OprKindBrwItem)));
 	}
-	else
-		P_OpList->freeAll();
 	THROW_MEM(p_array = new SArray(sizeof(OprKindBrwItem)));
 	while(EnumOperations(Filt.OpTypeID, &op_id, &op_data) > 0) {
 		int    accept_op = 0;

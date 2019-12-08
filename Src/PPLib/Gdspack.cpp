@@ -70,7 +70,7 @@ int SLAPI PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
 {
 	if(code && code[0]) {
 	   	BarcodeTbl::Rec bcrec;
-		MEMSZERO(bcrec);
+		// @v10.6.4 MEMSZERO(bcrec);
 		strip(STRNSCPY(bcrec.Code, code));
 		bcrec.Qtty = uPerP;
 		bcrec.BarcodeType = codeType;
@@ -793,7 +793,7 @@ int SLAPI PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID,
 		}
 		else if(forceCreate) {
 			ReferenceTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			STRNSCPY(rec.ObjName, pName);
 			THROW(p_ref->AddItem(obj_type, &(id = 0), &rec, use_ta));
 			ASSIGN_PTR(pID, id);

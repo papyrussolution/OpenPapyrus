@@ -843,7 +843,7 @@ int SLAPI LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer 
 						//Item & r_item = *(Item *)at(i);
 						//GetS(r_item.CodeP, code_buf);
 						LotExtCodeTbl::Rec rec;
-						MEMSZERO(rec);
+						// @v10.6.4 MEMSZERO(rec);
 						rec.BillID = billID;
 						rec.RByBill = citem.RowIdx;
 						// @v10.2.9 rec.Sign = r_item.Sign;

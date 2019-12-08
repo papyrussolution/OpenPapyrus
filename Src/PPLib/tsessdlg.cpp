@@ -817,7 +817,7 @@ void TSessionDialog::SetupSCard()
 				scard_no = 0;
 			}
 		else {
-			MEMSZERO(scard_rec);
+			// @v10.6.4 MEMSZERO(scard_rec);
 			if(TSesObj.SetSCardID(&Data.Rec, 0) == 2) {
 				setCtrlLong(CTLSEL_TSESS_OBJ,  Data.Rec.ArID);
 				setCtrlLong(CTLSEL_TSESS_OBJ2, Data.Rec.Ar2ID);
@@ -1654,13 +1654,11 @@ int TSessLineDialog::setDTS(const TSessLineTbl::Rec * pData)
 {
 	Data = *pData;
 	TSessLocID = 0;
-
 	int    ok = 1;
 	TSessionTbl::Rec tses_rec;
 	ProcessorTbl::Rec prc_rec;
 	SString sess_title;
-
-	MEMSZERO(prc_rec);
+	// @v10.6.4 MEMSZERO(prc_rec);
 	THROW(TSesObj.Search(Data.TSessID, &tses_rec) > 0);
 	if(!Data.OprNo && !(tses_rec.Flags & TSESF_PLAN) && !(TSesObj.GetConfig().Flags & PPTSessConfig::fAllowLinesInPendingSessions))
 		THROW_PP(oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED), PPERR_ADDTOINACTSESS);
@@ -1744,7 +1742,7 @@ int SLAPI PPObjTSession::EditDialog(TSessionPacket * pData)
 	int    ok = -1;
 	uint   dlg_id = 0;
 	ProcessorTbl::Rec prc_rec;
-	MEMSZERO(prc_rec);
+	// @v10.6.4 MEMSZERO(prc_rec);
 	if(pData->Rec.Flags & TSESF_SUPERSESS)
 		dlg_id = DLG_TSES_SUP;
 	else if(pData->Rec.Flags & TSESF_PLAN)

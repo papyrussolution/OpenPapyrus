@@ -758,7 +758,7 @@ int SLAPI PPViewTimeSeries::InitIteration()
 {
 	int    ok = 1;
 	if(!P_DsList) {
-		THROW(MakeList());
+		THROW(MakeList(0));
 	}
 	CALLPTRMEMB(P_DsList, setPointer(0));
 	CATCHZOK
@@ -811,30 +811,23 @@ PPViewTimeSeries::BrwItem::BrwItem(const PPTimeSeriesPacket * pTs)
 	}
 }
 
-#if 0 // @v10.6.3 @construction {
-int SLAPI PPViewTimeSeries::CmpSortIndexItems(const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2)
+int SLAPI PPViewTimeSeries::CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2)
 {
 	int    sn = 0;
-	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 	if(p_def) {
-		for(uint i = 0; !sn && i < GetSettledOrderList().getCount(); i++) {
-			if(pItem1->Pos < 0 && pItem2->Pos >= 0) // TOTAL-item is always greater than non-TOTAL one
-				sn = +1;
-			else if(pItem2->Pos < 0 && pItem1->Pos >= 0) // TOTAL-item is always greater than non-TOTAL one
-				sn = -1;
-			else {
-				int    col = GetSettledOrderList().get(i);
-				TYPEID typ1 = 0;
-				TYPEID typ2 = 0;
-				uint8  dest_data1[512];
-				uint8  dest_data2[512];
-				if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
-					assert(typ1 == typ2);
-					if(typ1 == typ2) {
-						sn = stcomp(typ1, dest_data1, dest_data2);
-						if(sn && col < 0)
-							sn = -sn;
-					}
+		for(uint i = 0; !sn && i < pBrw->GetSettledOrderList().getCount(); i++) {
+			int    col = pBrw->GetSettledOrderList().get(i);
+			TYPEID typ1 = 0;
+			TYPEID typ2 = 0;
+			uint8  dest_data1[512];
+			uint8  dest_data2[512];
+			if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+				assert(typ1 == typ2);
+				if(typ1 == typ2) {
+					sn = stcomp(typ1, dest_data1, dest_data2);
+					if(sn && col < 0)
+						sn = -sn;
 				}
 			}
 		}
@@ -844,21 +837,24 @@ int SLAPI PPViewTimeSeries::CmpSortIndexItems(const PPViewTimeSeries::BrwItem * 
 
 static IMPL_CMPFUNC(PPViewTimeSeriesBrwItem, i1, i2)
 {
-	PPViewTimeSeries * p_obj = static_cast<PPViewTimeSeries *>(pExtraData);
-	if(p_obj) {
-		const PPViewTimeSeries::BrwItem * p_item1 = static_cast<const PPViewTimeSeries::BrwItem *>(i1);
-		const PPViewTimeSeries::BrwItem * p_item2 = static_cast<const PPViewTimeSeries::BrwItem *>(i2);
-		return p_obj->CmpSortIndexItems(p_item1, p_item2);
+	int    si = 0;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(pExtraData);
+	if(p_brw) {
+		PPViewTimeSeries * p_view = static_cast<PPViewTimeSeries *>(p_brw->P_View);
+		if(p_view) {
+			const PPViewTimeSeries::BrwItem * p_item1 = static_cast<const PPViewTimeSeries::BrwItem *>(i1);
+			const PPViewTimeSeries::BrwItem * p_item2 = static_cast<const PPViewTimeSeries::BrwItem *>(i2);
+			si = p_view->CmpSortIndexItems(p_brw, p_item1, p_item2);
+		}
 	}
-	else
-		return 0;
+	return si;
 }
-#endif // } 0 @v10.6.3 @construction
 
-int SLAPI PPViewTimeSeries::MakeList()
+int SLAPI PPViewTimeSeries::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	PPTimeSeries item;
+	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.6.4
 	if(P_DsList)
 		P_DsList->clear();
 	else
@@ -873,6 +869,16 @@ int SLAPI PPViewTimeSeries::MakeList()
 			THROW_SL(P_DsList->insert(&new_item));
 		}
 	}
+	// @v10.6.4 {
+	if(pBrw) {
+		BrowserDef * p_def = pBrw->getDef();
+		for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
+			p_def->at(cidx).Options |= BCO_SORTABLE;
+		}
+		if(is_sorting_needed)
+			P_DsList->sort(PTR_CMPFUNC(PPViewTimeSeriesBrwItem), pBrw);
+	}
+	// } @v10.6.4 
 	CATCHZOK
 	return ok;
 }
@@ -915,44 +921,26 @@ int SLAPI PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int pai
 {
 	int    ok = -1;
 	if(pBrw && pData && pCellStyle && col >= 0) {
-		BrowserDef * p_def = pBrw->getDef();
+		const BrowserDef * p_def = pBrw->getDef();
 		if(col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
 				const long cfg_flags = static_cast<const BrwItem *>(pData)->CfgFlags;
-				if(cfg_flags & PPObjTimeSeries::Config::efDisableStake) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-					pCellStyle->Color = GetColorRef(SClrGrey);
-					ok = 1;
-				}
-				if(cfg_flags & PPObjTimeSeries::Config::efLong && cfg_flags & PPObjTimeSeries::Config::efShort) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-					pCellStyle->RightFigColor = GetColorRef(SClrOrange);
-					ok = 1;
-				}
-				else if(cfg_flags & PPObjTimeSeries::Config::efLong) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-					pCellStyle->RightFigColor = GetColorRef(SClrGreen);
-					ok = 1;
-				}
-				else if(cfg_flags & PPObjTimeSeries::Config::efShort) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-					pCellStyle->RightFigColor = GetColorRef(SClrRed);
-					ok = 1;
-				}
+				if(cfg_flags & PPObjTimeSeries::Config::efDisableStake)
+					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGrey));
+				if(cfg_flags & PPObjTimeSeries::Config::efLong && cfg_flags & PPObjTimeSeries::Config::efShort)
+					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+				else if(cfg_flags & PPObjTimeSeries::Config::efLong)
+					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrGreen));
+				else if(cfg_flags & PPObjTimeSeries::Config::efShort)
+					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 			}
 			else if(col == 2) { // name
 				const int16 type = static_cast<const BrwItem *>(pData)->Type;
-				if(type == PPTimeSeries::tForex) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-					pCellStyle->RightFigColor = GetColorRef(SClrPink);
-					ok = 1;
-				}
-				else if(type == PPTimeSeries::tStocks) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-					pCellStyle->RightFigColor = GetColorRef(SClrLightblue);
-					ok = 1;
-				}
+				if(type == PPTimeSeries::tForex)
+					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrPink));
+				else if(type == PPTimeSeries::tStocks)
+					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrLightblue));
 			}
 		}
 	}
@@ -964,6 +952,14 @@ void SLAPI PPViewTimeSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewTimeSeries::GetDataForBrowser, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		// @v10.6.4 {
+		BrowserDef * p_def = pBrw->getDef();
+		if(p_def) {
+			for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
+				p_def->at(cidx).Options |= BCO_SORTABLE;
+			}
+		}
+		// } @v10.6.4 
 	}
 }
 
@@ -972,7 +968,7 @@ SArray * SLAPI PPViewTimeSeries::CreateBrowserArray(uint * pBrwId, SString * pSu
 	uint   brw_id = BROWSER_TIMESERIES;
 	SArray * p_array = 0;
 	PPTimeSeries ds_item;
-	THROW(MakeList());
+	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
@@ -1007,17 +1003,13 @@ enum {
 static int CallRemoveTimeSeriesDialog(const char * pWarnTextSign, long * pData)
 {
 	class RemoveTimeSeriesDialog : public TDialog {
+		DECL_DIALOG_DATA(long);
 	public:
 		RemoveTimeSeriesDialog(const char * pWarnTextSign) : TDialog(DLG_RMVTIMSER), Data(0)
 		{
-			if(pWarnTextSign) {
-				SString text_buf;
-				if(PPLoadString(pWarnTextSign, text_buf)) {
-					setStaticText(CTL_RMVTIMSER_WARN, text_buf);
-				}
-			}
+			setStaticText(CTL_RMVTIMSER_WARN, PPLoadStringS(pWarnTextSign, SLS.AcquireRvlStr()));
 		}
-		int    setDTS(const long * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -1029,7 +1021,7 @@ static int CallRemoveTimeSeriesDialog(const char * pWarnTextSign, long * pData)
 			DisableClusterItem(CTL_RMVTIMSER_WHAT, 1, Data & removetimeseriesCompletely);
 			return ok;
 		}
-		int    getDTS(long * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetClusterData(CTL_RMVTIMSER_WHAT, &Data);
@@ -1053,7 +1045,6 @@ static int CallRemoveTimeSeriesDialog(const char * pWarnTextSign, long * pData)
 				clearEvent(event);
 			}
 		}
-		long   Data;
 	};
 	DIALOG_PROC_BODY_P1(RemoveTimeSeriesDialog, pWarnTextSign, pData);
 }
@@ -1128,6 +1119,9 @@ int SLAPI PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	}
 	if(ok == -2) {
 		switch(ppvCmd) {
+			case PPVCMD_USERSORT:
+				ok = 1; // The rest will be done below
+				break;
 			case PPVCMD_DELETEALL:
 				ok = DeleteAll();
 				break;
@@ -1153,9 +1147,9 @@ int SLAPI PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 		}
 	}
 	if(ok > 0) {
-		MakeList();
+		MakeList(pBrw);
 		if(pBrw) {
-			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
 				SArray * p_array = new SArray(*P_DsList);
 				p_def->setArray(p_array, 0, 1);
@@ -5158,7 +5152,7 @@ int SLAPI PPViewTimSerDetail::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewTimSerDetail::MakeList()
+int SLAPI PPViewTimSerDetail::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
 	if(P_DsList)
@@ -5270,9 +5264,9 @@ int SLAPI PPViewTimSerDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 		}
 	}
 	if(ok > 0) {
-		MakeList();
+		MakeList(pBrw);
 		if(pBrw) {
-			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 			if(p_def) {
 				SArray * p_array = new SArray(*P_DsList);
 				p_def->setArray(p_array, 0, 1);
@@ -5296,7 +5290,7 @@ SArray * SLAPI PPViewTimSerDetail::CreateBrowserArray(uint * pBrwId, SString * p
 {
 	uint   brw_id = BROWSER_TIMSERDETAIL;
 	SArray * p_array = 0;
-	THROW(MakeList());
+	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);

@@ -12,6 +12,7 @@ public:
 	Reference_Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjType;
 		int32  ObjID;
 		char   ObjName[48];
@@ -50,6 +51,7 @@ public:
 	Reference2Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjType;
 		int32  ObjID;
 		char   ObjName[48];
@@ -88,6 +90,7 @@ public:
 	PropertyTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjType;
 		int32  ObjID;
 		int32  Prop;
@@ -120,6 +123,7 @@ public:
 	UuidRefTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		uint8  UUID[16];   // raw
 	} data;
@@ -138,6 +142,7 @@ public:
 	TextRefTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjID;
 		int16  ObjType;
 		int16  Prop;
@@ -169,6 +174,7 @@ public:
 	UnxTextRefTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjID;
 		int16  ObjType;
 		int16  Prop;
@@ -195,6 +201,7 @@ public:
 	ObjLikenessTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjType;
 		int32  ID1;
 		int32  ID2;
@@ -225,6 +232,7 @@ public:
 	ObjSyncTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int16  DBID;
 		int16  ObjType;
 		int32  ObjID;
@@ -260,6 +268,7 @@ public:
 	ObjSyncBuTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int16  ObjType;
 		int32  ObjID;
 		int16  CommIdPfx;
@@ -291,6 +300,7 @@ public:
 	ObjSyncQueueTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int16  DBID;
 		int16  ObjType;
@@ -351,6 +361,7 @@ public:
 	ObjAssocTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  AsscType;
 		int32  PrmrObjID;
@@ -389,6 +400,7 @@ public:
 	ObjTagTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjType;
 		int32  ObjID;
 		int32  TagID;
@@ -429,6 +441,7 @@ public:
 	CountryTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[30];
 		char   Abbr[10];
@@ -460,6 +473,7 @@ public:
 	RegionTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Country;
 		char   Name[30];
@@ -493,6 +507,7 @@ public:
 	CityTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Country;
 		int32  Region;
@@ -534,6 +549,7 @@ public:
 	EAddrTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  LinkObjType;
 		int32  LinkObjID;
@@ -563,6 +579,7 @@ public:
 	WorldTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Kind;
 		int32  ParentID;
@@ -617,6 +634,7 @@ public:
 	TempKLADRTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  ParentID;
 		int32  StatusCode;
@@ -647,6 +665,7 @@ public:
 	FiasAddrObjTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  RecUuID;
 		int32  IdUuRef;
 		int32  ParentUuRef;
@@ -721,6 +740,7 @@ public:
 	FiasHouseObjTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  IdUuRef;
 		int32  ParentUuRef;
 		int32  IntStart;
@@ -784,6 +804,7 @@ public:
 	GeoTrackTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int16  ObjType;
 		int16  ExtObjType;
 		int32  ObjID;
@@ -828,6 +849,7 @@ public:
 	PersonTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[128];
 		int32  Status;
@@ -872,6 +894,7 @@ public:
 	BankAccount_Pre9004Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  PersonID;
 		int32  BankID;
@@ -906,6 +929,7 @@ public:
 	PersonKindTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  KindID;
 		int32  PersonID;
 		char   Name[128];
@@ -929,6 +953,7 @@ public:
 	RegisterTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ObjType;
 		int32  ObjID;
@@ -985,6 +1010,7 @@ public:
 	PersonEventTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		LDATE  Dt;
 		int32  OprNo;
@@ -1042,6 +1068,7 @@ public:
 	StaffList_Pre9003Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  OrgID;
 		int32  DivisionID;
@@ -1088,6 +1115,7 @@ public:
 	PersonPostTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Code[16];
 		int32  StaffID;
@@ -1136,6 +1164,7 @@ public:
 	StaffCalendarTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CalID;
 		int32  ObjID;
 		int16  Kind;
@@ -1177,6 +1206,7 @@ public:
 	TempStaffCalTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  CalID;
 		int32  LinkObjID;
@@ -1224,6 +1254,7 @@ public:
 	SalaryTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		LDATE  Beg;
 		LDATE  End;
@@ -1284,6 +1315,7 @@ public:
 	TempSalaryTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		LDATE  Beg;
 		LDATE  End;
@@ -1339,6 +1371,7 @@ public:
 	Goods2Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Kind;
 		char   Name[128];
@@ -1416,6 +1449,7 @@ public:
 	HistGoodsTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  GoodsID;
 		int32  Ver;
@@ -1441,6 +1475,7 @@ public:
 	BarcodeTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		double Qtty;
 		int32  BarcodeType;
@@ -1463,6 +1498,7 @@ public:
 	ArGoodsCodeTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		int32  ArID;
 		int32  Pack;
@@ -1491,6 +1527,7 @@ public:
 	GoodsExtTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		int32  GoodsClsID;
 		int32  KindID;
@@ -1540,6 +1577,7 @@ public:
 	PackageTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  PrevID;
 		int32  PckgTypeID;
@@ -1579,6 +1617,7 @@ public:
 	PackageLinkTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  PckgID;
 		int32  LotID;
 	} data;
@@ -1598,6 +1637,7 @@ public:
 	SpecSeriesTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		char   Serial[64];
 		char   Barcode[64];
 		char   GoodsName[128];
@@ -1656,6 +1696,7 @@ public:
 	SpecSeries2Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Serial[32];
 		char   Barcode[32];
@@ -1724,6 +1765,7 @@ public:
 	LocationTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Counter;
 		int32  ParentID;
@@ -1800,6 +1842,7 @@ public:
 	CurrencyRateTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		int32  CurID;
 		int32  RelCurID;
@@ -1830,6 +1873,7 @@ public:
 	BillTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Code[24];
 		LDATE  Dt;
@@ -1927,6 +1971,7 @@ public:
 	HistBillTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  InnerID;
 		int32  BillID;
@@ -1981,6 +2026,7 @@ public:
 	HistTrfrTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  HistBillID;
 		int32  OprNo;
 		int32  GoodsID;
@@ -2013,6 +2059,7 @@ public:
 	BillAmountTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		int32  AmtTypeID;
 		int32  CurID;
@@ -2034,6 +2081,7 @@ public:
 	PayPlanTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		LDATE  PayDate;
 		double Amount;
@@ -2054,6 +2102,7 @@ public:
 	ReceiptTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  BillID;
 		int32  LocID;
@@ -2148,6 +2197,7 @@ public:
 	CurRestTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LocID;
 		int32  GoodsID;
 		double Rest;
@@ -2170,6 +2220,7 @@ public:
 	LotCurRestTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		double LDRest;
 		int32  LotID;
 		int16  D;
@@ -2192,6 +2243,7 @@ public:
 	LotCurRest2Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LDRestF;
 		int32  LotID;
 		int16  D;
@@ -2214,6 +2266,7 @@ public:
 	LotExtCodeTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LotID;
 		int32  BillID;
 		int16  RByBill;
@@ -2251,6 +2304,7 @@ public:
 	EgaisProductTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   AlcCode[24];
 		char   ManufRarIdent[16];
@@ -2283,6 +2337,7 @@ public:
 	EgaisPersonTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   RarIdent[16];
 		char   INN[16];
@@ -2320,6 +2375,7 @@ public:
 	EgaisRefATbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   RefACode[20];
 		char   AlcCode[24];
@@ -2359,6 +2415,7 @@ public:
 	VetisEntityTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  GuidRef;
 		int32  UuidRef;
@@ -2397,6 +2454,7 @@ public:
 	VetisProductTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  EntityID;
 		int32  LinkGoodsID;
 		int32  ProductType;
@@ -2440,6 +2498,7 @@ public:
 	VetisPersonTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  EntityID;
 		int32  LinkPersonID;
 		int32  EnterpriseType;
@@ -2475,6 +2534,7 @@ public:
 	VetisDocumentTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  EntityID;
 		int32  LinkBillID;
 		int16  LinkBillRow;
@@ -2600,6 +2660,7 @@ public:
 	InventoryTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		int32  OprNo;
 		int32  GoodsID;
@@ -2654,6 +2715,7 @@ public:
 	TempInventorySubstTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		char   Name[128];
 		double Quantity;
@@ -2688,6 +2750,7 @@ public:
 	QuotationTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -2737,6 +2800,7 @@ public:
 	Quot2RelTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  QuotKindID;
 		int32  LocID;
@@ -2778,6 +2842,7 @@ public:
 	Quotation2Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  RelID;
 		int32  GoodsID;
 		LDATE  Dt;
@@ -2834,6 +2899,7 @@ public:
 	PriceListTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  SupplID;
 		int32  LocID;
@@ -2872,6 +2938,7 @@ public:
 	PriceLineTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ListID;
 		int32  GoodsID;
 		int16  LineNo;
@@ -2935,6 +3002,7 @@ public:
 	TransferTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LocID;
 		LDATE  Dt;
 		int32  OprNo;
@@ -3002,6 +3070,7 @@ public:
 	LocTransfTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LocID;
 		int32  RByLoc;
 		LDATE  Dt;
@@ -3078,6 +3147,7 @@ public:
 	TempLocTransfTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  LocID;
 		int32  RByLoc;
@@ -3133,6 +3203,7 @@ public:
 	GoodsDebtTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		int32  ArID;
 		int32  DlvrLocID;
@@ -3165,6 +3236,7 @@ public:
 	CpTransfTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		int16  RByBill;
 		int16  Reserve1;
@@ -3219,6 +3291,7 @@ public:
 	AdvBillItemTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		int16  RByBill;
 		int16  Reserve2;
@@ -3280,6 +3353,7 @@ public:
 	WorkbookTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[128];
 		char   Symb[20];
@@ -3345,6 +3419,7 @@ public:
 	ProjectTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Kind;
 		int32  ParentID;
@@ -3407,6 +3482,7 @@ public:
 	PrjTaskTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ProjectID;
 		int32  Kind;
@@ -3509,6 +3585,7 @@ public:
 	SCardTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Code[24];
 		int32  SeriesID;
@@ -3576,6 +3653,7 @@ public:
 	TempSCardTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Code[24];
 		int32  SeriesID;
@@ -3651,6 +3729,7 @@ public:
 	SCardOpTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  SCardID;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -3697,6 +3776,7 @@ public:
 	CSessionTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  SuperSessID;
 		int32  CashNodeID;
@@ -3766,6 +3846,7 @@ public:
 	TempCSessChecksTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  SuperSessID;
 		int32  CashNodeID;
@@ -3838,6 +3919,7 @@ public:
 	CCheckTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Code;
 		int32  CashID;
@@ -3893,6 +3975,7 @@ public:
 	CCheckExtTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CheckID;
 		int32  SalerID;
 		int32  TableNo;
@@ -3940,6 +4023,7 @@ public:
 	CCheckPaymTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CheckID;
 		int16  RByCheck;
 		int16  PaymType;
@@ -3970,6 +4054,7 @@ public:
 	TempCCheckQttyTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Code;
 		int32  CashID;
@@ -4037,6 +4122,7 @@ public:
 	TempCCheckGrpTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		char   Text[128];
 		char   Serial[32];
@@ -4119,6 +4205,7 @@ public:
 	TempCCheckGdsCorrTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  Goods1ID;
 		int32  Goods2ID;
@@ -4164,6 +4251,7 @@ public:
 	TempCCheckLineTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CheckID;
 		int32  CheckCode;
 		int16  DivID;
@@ -4202,6 +4290,7 @@ public:
 	CCheckLineTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CheckID;
 		int16  RByCheck;
 		int16  DivID;
@@ -4228,6 +4317,7 @@ public:
 	CCheckLineExtTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CheckID;
 		int16  RByCheck;
 		int8   Queue;
@@ -4250,6 +4340,7 @@ public:
 	CGoodsLineTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		int16  Sign;
 		int16  Flags;
@@ -4287,6 +4378,7 @@ public:
 	CCurPriceTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CashID;
 		int32  GoodsID;
 		char   Price[8];   // money[8.2]
@@ -4305,6 +4397,7 @@ public:
 	DvcLoadingStatTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int16  DvcType;
 		int32  DvcID;
@@ -4348,6 +4441,7 @@ public:
 	DlsObjTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  DlsID;
 		int16  ObjType;
 		int32  ObjID;
@@ -4376,6 +4470,7 @@ public:
 	QualityCertTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int16  Passive;
 		int16  Reserve1;
@@ -4433,6 +4528,7 @@ public:
 	ArticleTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  AccSheetID;
 		int32  Article;
@@ -4474,6 +4570,7 @@ public:
 	Account_Pre9004Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int16  Ac;
 		int16  Sb;
@@ -4528,6 +4625,7 @@ public:
 	AcctRelTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  AccID;
 		int32  ArticleID;
@@ -4582,6 +4680,7 @@ public:
 	AccTurnTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  Acc;
 		int32  Bal;
 		LDATE  Dt;
@@ -4629,6 +4728,7 @@ public:
 	BalanceTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		int32  AccID;
 		char   DbtRest[10]; // money[10.2]
@@ -4653,6 +4753,7 @@ public:
 	BudgetItemTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  BudgetID;
 		int32  Acc;
@@ -4688,6 +4789,7 @@ public:
 	VATBookTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Code[24];
 		int16  LineType_;
@@ -4791,6 +4893,7 @@ public:
 	MrpTabTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ParentID;
 		char   Name[48];
@@ -4838,6 +4941,7 @@ public:
 	MrpLineTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  TabID;
 		int32  DestID;
@@ -4881,6 +4985,7 @@ public:
 	SysJournalTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  UserID;
@@ -4913,6 +5018,7 @@ public:
 	SjRsrvTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  UserID;
@@ -4939,6 +5045,7 @@ public:
 	GtaJournalTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  GlobalAccID;
@@ -4988,6 +5095,7 @@ public:
 	ObjVerTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ObjType;
 		int32  ObjID;
@@ -5018,6 +5126,7 @@ public:
 	SysProfilerTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  StartDt;
 		LTIME  StartTm;
 		LDATE  FinDt;
@@ -5052,6 +5161,7 @@ public:
 	Cr_PosLoadTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		char   Cash_Code[21]; // lstring
 		int16  DataType;
 		int32  KeyLongint;
@@ -5162,6 +5272,7 @@ public:
 	Cr_CredoPayTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		char   BarCode[23]; // lstring
 		LDATE  PayDate;
 		LTIME  PayTime;
@@ -5211,6 +5322,7 @@ public:
 	Cr_ZReportTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  CashNumber;
 		int32  ZNumber;
 		double ZSale;
@@ -5257,6 +5369,7 @@ public:
 	Cr_SaleTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		double Quant;
 		char   Operation[2]; // lstring
 		LDATE  DateOperation;
@@ -5371,6 +5484,7 @@ public:
 	Cr_CashAuthTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int16  ShopIndex;
 		int16  CashNumber;
 		int16  ZNumber;
@@ -5414,6 +5528,7 @@ public:
 	Cr_CashDCrdTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int16  ShopIndex;
 		int16  CashNumber;
 		int16  ZNumber;
@@ -5461,6 +5576,7 @@ public:
 	PredictSalesTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		int16  Loc;
 		int16  Dt;
@@ -5489,6 +5605,7 @@ public:
 	GoodsStatTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int16  Loc;
 		int16  LastDate;
 		int32  GoodsID;
@@ -5523,6 +5640,7 @@ public:
 	ProcessorTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ParentID;
 		int32  Kind;
@@ -5585,6 +5703,7 @@ public:
 	TechTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Code[24];
 		int32  PrcID;
@@ -5660,6 +5779,7 @@ public:
 	TSessionTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ParentID;
 		int32  Num;
@@ -5758,6 +5878,7 @@ public:
 	TSessLineTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  TSessID;
 		int32  OprNo;
 		int32  GoodsID;
@@ -5818,6 +5939,7 @@ public:
 	BizScoreTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  ActualDate;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -5869,6 +5991,7 @@ public:
 	GlobalBizScoreTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  UpdCounter;
 		LDATE  ActualDate;
 		LDATE  Dt;
@@ -5917,6 +6040,7 @@ public:
 	DebtStatTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  AccSheetID;
 		int32  ArID;
 		LDATE  Dt;
@@ -5976,6 +6100,7 @@ public:
 	CheckOpJrnlTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  UserID;
@@ -6012,6 +6137,7 @@ public:
 	UserFuncPrfSessTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   DbUUID_s[40];
 		char   SessUUID_s[40];
@@ -6062,6 +6188,7 @@ public:
 	UserFuncPrfTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  SessID;
 		int64  SeqID;
 		int32  FuncID;
@@ -6119,6 +6246,7 @@ public:
 	TempTSessRepTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  DtVal;
 		int32  PrcID;
@@ -6189,6 +6317,7 @@ public:
 	TempPrcBusyTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  PrcID;
 		LDATE  StDt;
@@ -6231,6 +6360,7 @@ public:
 	TempPredictSalesTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		double Qtty;
 		double Amt;
@@ -6262,6 +6392,7 @@ public:
 	TempGoodsStatTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		LDATE  Dt;
 		char   GoodsName[128];
@@ -6310,6 +6441,7 @@ public:
 	TempGoodsRestTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  GoodsID;
 		int32  GoodsGrp;
@@ -6398,6 +6530,7 @@ public:
 	TempCSessExcTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  OrgGoodsID;
 		int32  GoodsID;
 		int32  UnitID;
@@ -6452,6 +6585,7 @@ public:
 	TempDeficitTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  Location;
 		int32  GoodsID;
 		int32  SupplID;
@@ -6492,6 +6626,7 @@ public:
 	TempShipmentAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		LDATE  Dt;
 		int32  GoodsID;
@@ -6535,6 +6670,7 @@ public:
 	TempGoodsOprTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  LocID;
 		int16  InOutTag;
@@ -6617,6 +6753,7 @@ public:
 	TempGoodsMovTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  Grp;
 		int32  GoodsID;
 		char   GoodsName[128];
@@ -6696,6 +6833,7 @@ public:
 	TempGoodsMov2Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  GoodsID;
 		int32  OpID;
@@ -6730,6 +6868,7 @@ public:
 	TempGoodsBillCmpTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		char   GoodsName[64];
 		char   Barcode[24];
@@ -6772,6 +6911,7 @@ public:
 	TempAccTrnovrTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		int32  AccRelID;
 		int16  Ac;
@@ -6821,6 +6961,7 @@ public:
 	TempSellTrnovrTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Ar;
 		int32  CurID;
@@ -6892,6 +7033,7 @@ public:
 	TempTrfrGrpngTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		LDATE  Dt;
 		int32  GoodsID;
@@ -6960,6 +7102,7 @@ public:
 	TempTrfrAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		LDATE  Dt;
 		int32  OprNo;
@@ -7031,6 +7174,7 @@ public:
 	TempOpGrpngTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		LDATE  Dt;
 		int32  ObjectID;
@@ -7100,6 +7244,7 @@ public:
 	TempPersonTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  TabID;
 		char   Name[128];
@@ -7147,6 +7292,7 @@ public:
 	TempOrderTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[252];
 	} data;
@@ -7165,6 +7311,7 @@ public:
 	TempDoubleIDTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  PrmrID;
 		int32  ScndID;
 		char   Name[128];
@@ -7190,6 +7337,7 @@ public:
 	TempAssocTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  PrmrID;
 		int32  ScndID;
 	} data;
@@ -7206,6 +7354,7 @@ public:
 	TempAccturnGrpngTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		int32  DbtAccID;
 		int16  DbtAc;
@@ -7276,6 +7425,7 @@ public:
 	TempAccAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		int32  OprNo;
 		int32  BillID;
@@ -7323,6 +7473,7 @@ public:
 	TempBillTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		LDATE  Dt;
 		int32  BillNo;
@@ -7368,6 +7519,7 @@ public:
 	TempFreightTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  BillID;
 		LDATE  BillDate;
 		int32  ObjectID;
@@ -7437,6 +7589,7 @@ public:
 	TempLotTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LotID;
 		LDATE  Dt;
 		LDATE  OrgDt;
@@ -7485,6 +7638,7 @@ public:
 	TempGoodsTaxAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		char   BillNo[24];
 		int32  LotID;
@@ -7558,6 +7712,7 @@ public:
 	TempPaymPlanTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		LDATE  PayPlanDt;
 		int32  BillID;
@@ -7593,6 +7748,7 @@ public:
 	TempSyncCmpTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ObjType;
 		int16  CommIdPfx;
 		int32  CommID;
@@ -7657,6 +7813,7 @@ public:
 	TempAssetTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  LotID;
 		int32  GoodsID;
 		int32  GrpID;
@@ -7713,6 +7870,7 @@ public:
 	TempQuotSerialTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		int32  QuotKindID;
 		int32  LocID;
@@ -7743,6 +7901,7 @@ public:
 	TempQuotTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  GoodsID;
 		int32  LocID;
@@ -7836,6 +7995,7 @@ public:
 	TempGoodsCargoTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  GoodsID;
 		int32  Brutto;
 		int32  Length;
@@ -7863,6 +8023,7 @@ public:
 	TempPrjTaskTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  TabID;
 		int32  EmployerID;
 		int32  ClientID;
@@ -7899,6 +8060,7 @@ public:
 	TempPriceAnlzTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  TabID;
 		int32  SupplID;
 		int32  GoodsID;
@@ -7928,6 +8090,7 @@ public:
 	TempPersonEventTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ID2;
 		LDATE  Dt;
@@ -7959,6 +8122,7 @@ public:
 	TempPersonRelTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  PrmrPersonID;
 		int32  ScndPersonID;
@@ -7985,6 +8149,7 @@ public:
 	TempArAgtTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ArID;
 		LDATE  Beg;
 		LDATE  Expiry;
@@ -8056,6 +8221,7 @@ public:
 	TempScaleTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[48];
 		char   Port[20];
@@ -8087,6 +8253,7 @@ public:
 	TempLogFileMonTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID__;
 		int32  LogFileId;
 		int32  SubFile;
@@ -8117,6 +8284,7 @@ public:
 	TempCashNodeTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ParentID;
 		char   Name[48];
@@ -8155,6 +8323,7 @@ public:
 	TempReportTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  StrucID;
 		int32  Type;
@@ -8195,6 +8364,7 @@ public:
 	TempPalmTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[48];
 		char   Symb[20];
@@ -8235,6 +8405,7 @@ public:
 	TempLongOrderTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[192];
 	} data;
@@ -8250,6 +8421,7 @@ public:
 	TempTransportTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[64];
 		int32  TrType;
@@ -8286,6 +8458,7 @@ public:
 	TempBudgetTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ParentID;
 		char   Code[20];
@@ -8309,6 +8482,7 @@ public:
 	TempBudgItemTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  BudgetID;
 		int32  Acc;
@@ -8348,6 +8522,7 @@ public:
 	TempBizScTemplTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[48];
 		char   Symb[20];
@@ -8367,6 +8542,7 @@ public:
 	TempCCheckTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  Code;
 		int32  CashID;
@@ -8428,6 +8604,7 @@ public:
 	TempSysJournalTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  ID2;
 		LDATE  Dt;
@@ -8461,6 +8638,7 @@ public:
 	TempGlobUserAccTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[48];
 		int32  PersonID;
@@ -8482,6 +8660,7 @@ public:
 	TempDBDivTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		char   Name[48];
 		char   Address[256];
@@ -8501,6 +8680,7 @@ public:
 	TempUserProfileTbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int64  SeqID;
 		char   DbID[40];
@@ -8578,6 +8758,7 @@ public:
 	TestRef01Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  L;
 		int16  I16;
@@ -8636,6 +8817,7 @@ public:
 	TestRef02Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		int32  ID;
 		int32  L;
 		int16  I16;
@@ -8696,6 +8878,7 @@ public:
 	TestTa01Tbl(const char * pFileName = 0);
 
 	struct Rec {
+		Rec();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  Ref1ID;

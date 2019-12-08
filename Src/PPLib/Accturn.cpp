@@ -368,7 +368,7 @@ int SLAPI AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct
 		if(accRelID)
 			r = useCache ? AccRel.Fetch(accRelID, &acr_rec) : AccRel.Search(accRelID, &acr_rec);
 		else {
-			MEMSZERO(acr_rec);
+			// @v10.6.4 MEMSZERO(acr_rec);
 			r = 1;
 		}
 		if(r > 0) {
@@ -539,7 +539,7 @@ int SLAPI AccTurnCore::RemoveEmptyAcctRels()
 		THROW(tra);
 		while(AccRel.search(0, &rel, spGt)) {
 			char msg_buf[64];
-			((const Acct *)&AccRel.data.Ac)->ToStr(ACCF_DEFAULT, msg_buf);
+			reinterpret_cast<const Acct *>(&AccRel.data.Ac)->ToStr(ACCF_DEFAULT, msg_buf);
 			PPWaitMsg(msg_buf);
 			AccTurnTbl::Key1 k;
 			MEMSZERO(k);

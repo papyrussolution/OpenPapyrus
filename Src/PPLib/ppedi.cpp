@@ -3291,7 +3291,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 	}
 	{
 		BillTbl::Rec order_bill_rec;
-		MEMSZERO(order_bill_rec);
+		// @v10.6.4 MEMSZERO(order_bill_rec);
 		SXml::WNode n_b(_doc, "despatchAdvice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
 		n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 		n_b.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
@@ -6931,8 +6931,8 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 	PPObjBill::MakeCodeString(&rRaPack.ABp.Rec, PPObjBill::mcsAddOpName, bill_text);
 	SXml::WDoc _doc(pX, cpUTF8);
 	SXml::WNode n_docs(_doc, "RECADV");
-	MEMSZERO(order_bill_rec);
-	MEMSZERO(wroff_bill_rec);
+	// @v10.6.4 MEMSZERO(order_bill_rec);
+	// @v10.6.4 MEMSZERO(wroff_bill_rec);
 	const PPID contractor_psn_id = ObjectToPerson(rRaPack.ABp.Rec.Object, 0);
 	THROW(PsnObj.Search(contractor_psn_id, &contractor_psn_rec) > 0);
 	THROW(GetMainOrgGLN(main_org_gln));

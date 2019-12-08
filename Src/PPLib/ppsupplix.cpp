@@ -700,7 +700,7 @@ int SLAPI PPSupplExchange_Baltika::ExportPrice()
 	{
 		Goods2Tbl::Rec grec;
 		GoodsIterator  giter(/*se_filt*/Ep.GoodsGrpID, 0);
-		MEMSZERO(grec);
+		// @v10.6.4 MEMSZERO(grec);
 		PPGetFilePath(PPPATH_OUT, "spprice.xml", path);
 		Ep.GetExtStrData(Ep.extssClientCode, client_code);
 		soap_e.SetClientCode(client_code);
@@ -750,7 +750,7 @@ void SLAPI PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferIte
 	LDATE  expiry = pTi ? pTi->Expiry : ZERODATE;
 	SString serial;
 	ReceiptTbl::Rec lot, org_lot;
-	MEMSZERO(lot);
+	// @v10.6.4 MEMSZERO(lot);
 	if(P_BObj->trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, &lot, &org_lot) > 0) {
 		ObjTagItem tag;
 		if(PPRef->Ot.GetTag(PPOBJ_LOT, org_lot.ID, PPTAG_LOT_MANUFTIME, &tag) > 0) {
@@ -1379,7 +1379,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, bill_text);
 		if(bpack.GetOrderList(ord_list) > 0) {
 			BillTbl::Rec bill_rec;
-			MEMSZERO(bill_rec);
+			// @v10.6.4 MEMSZERO(bill_rec);
 			if(P_BObj->Search(ord_list.at(0), &bill_rec) > 0) {
 				ord_num = bill_rec.Code;
 				ord_dt = bill_rec.Dt;
@@ -1415,7 +1415,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
             }
 		}
 		// } @v9.3.2
-		MEMSZERO(psn_rec);
+		// @v10.6.4 MEMSZERO(psn_rec);
 		if(!oneof2(item.OpID, Ep.MovOutOp, Ep.MovInOp)) {
 			client_id = ObjectToPerson(bpack.Rec.Object, 0);
 			if(bpack.P_Freight && bpack.P_Freight->DlvrAddrID)
@@ -1560,8 +1560,8 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								ObjTagItem tag;
 								WorldTbl::Rec wrec;
 								LocationTbl::Rec loc_rec;
-								MEMSZERO(loc_rec);
-								MEMSZERO(wrec);
+								// @v10.6.4 MEMSZERO(loc_rec);
+								// @v10.6.4 MEMSZERO(wrec);
 								if(dlvr_addr_id && LocObj.Search(dlvr_addr_id, &loc_rec) > 0) {
 									if(loc_rec.CityID && obj_world.Search(loc_rec.CityID, &wrec) > 0)
 										STRNSCPY(line_rec.AddressRegionType, wrec.Phone);
@@ -1741,7 +1741,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 			for(; i < dlvr_addr_list.getCount(); i++) {
 				PPID   dlvr_addr_id = dlvr_addr_list.at(i).Val;
 				LocationTbl::Rec loc_rec;
-				MEMSZERO(loc_rec);
+				// @v10.6.4 MEMSZERO(loc_rec);
 				if(LocObj.Search(dlvr_addr_id, &loc_rec) > 0) {
 					PPID   client_id = dlvr_addr_list.at(i).Key;
 					Sdr_SupplDlvrAddr addr_rec;
@@ -2153,7 +2153,7 @@ int SLAPI PPSupplExchange_Baltika::GetWeakAlcInfo(PPID * pLocID, PPID * pGGrpID,
 		SString loc_symb, ggrp_code;
 		BarcodeTbl::Rec bc_rec;
 		PPObjGoodsGroup obj_ggrp;
-		MEMSZERO(bc_rec);
+		// @v10.6.4 MEMSZERO(bc_rec);
 		ini_file.Get((uint)PPINISECT_CONFIG, inipar_locsymb,  loc_symb);
 		LocObj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, loc_symb, &loc_id);
 		ini_file.Get((uint)PPINISECT_CONFIG, inipar_ggrpcode, ggrp_code);
@@ -2195,7 +2195,7 @@ int SLAPI PPSupplExchange_Baltika::GetSpoilageLocList(PPIDArray * pList)
 	if(ini_file.IsValid()) {
 		SString loc_symb_list;
 		BarcodeTbl::Rec bc_rec;
-		MEMSZERO(bc_rec);
+		// @v10.6.4 MEMSZERO(bc_rec);
 		ini_file.Get((uint)PPINISECT_CONFIG, PPINIPARAM_BALTIKASPOILAGELOCSYMB, loc_symb_list);
 		{
 			SString loc_symb;
@@ -2246,7 +2246,7 @@ int SLAPI PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SSt
 	PPID   dlvr_addr_id = DEREFPTRORZ(pDlvrAddrID);
 	if(dlvr_addr_id) {
 		LocationTbl::Rec loc_rec;
-		MEMSZERO(loc_rec);
+		// @v10.6.4 MEMSZERO(loc_rec);
 		if(DlvrAddrExtFldID && LocObj.Search(dlvr_addr_id, &loc_rec) > 0 && LocationCore::GetExField(&loc_rec, DlvrAddrExtFldID, rCode) > 0 && rCode.Len()) {
 			dlvr_addr_id += HORECA_DLVRADDR_OFFS;
 			ok = 1;
@@ -2556,7 +2556,7 @@ int SLAPI PPSupplExchange_Baltika::Import(const char * pPath)
 				if(gitem.ResolvedGoodsID && sstrlen(gitem.Barcode) > 0) {
 					int r = 0;
 					Goods2Tbl::Rec grec;
-					MEMSZERO(grec);
+					// @v10.6.4 MEMSZERO(grec);
 					THROW(r = GObj.P_Tbl->SearchByArCode(P.SupplID, gitem.Barcode, 0));
 					if(r < 0) {
 						THROW(GObj.P_Tbl->SetArCode(gitem.ResolvedGoodsID, P.SupplID, gitem.Barcode, static_cast<int32>(gitem.Quantity), 1));

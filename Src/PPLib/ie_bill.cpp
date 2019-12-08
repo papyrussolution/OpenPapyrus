@@ -2374,7 +2374,7 @@ int SLAPI PPBillImporter::ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt,
 	ReceiptCore * p_rcpt = (P_BObj && P_BObj->trfr) ? &P_BObj->trfr->Rcpt : 0;
 	if(p_rcpt) {
 		ReceiptTbl::Rec lot_rec;
-		MEMSZERO(lot_rec);
+		// @v10.6.4 MEMSZERO(lot_rec);
 		if(p_rcpt->GetLastLot(goodsID, locID, dt, &lot_rec) > 0)
 			upp = lot_rec.UnitPerPack;
 		if(upp <= 0.0) {
@@ -2840,7 +2840,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 							if(qc_code.NotEmpty() && QcObj.SearchByCode(qc_code, &qcert_id, 0) <= 0) {
 								qcert_id = 0;
 								QualityCertTbl::Rec qc_rec;
-								MEMSZERO(qc_rec);
+								// @v10.6.4 MEMSZERO(qc_rec);
 								qc_code.CopyTo(qc_rec.Code, sizeof(qc_rec.Code));
 								STRNSCPY(qc_rec.BlankCode, (temp_buf = r_row.QcBc).Transf(CTRANSF_OUTER_TO_INNER));
 								STRNSCPY(qc_rec.SPrDate, (temp_buf = r_row.QcPrDate).Transf(CTRANSF_OUTER_TO_INNER));
@@ -4162,8 +4162,8 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							WorldTbl::Rec world_rec;
 							PPLocAddrStruc loc_addr_st;
 							SString address, city_name, region_name;
-							MEMSZERO(world_rec);
-							MEMSZERO(loc_rec);
+							// @v10.6.4 MEMSZERO(world_rec);
+							// @v10.6.4 MEMSZERO(loc_rec);
 							if(pers_rec.MainLoc)
 								r = LocObj.Fetch(pers_rec.MainLoc, &loc_rec);
 							else if(pers_rec.RLoc)

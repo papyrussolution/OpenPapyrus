@@ -55,7 +55,7 @@ int SLAPI PPObjAccount::ParseString(const char * pStr, int tok[])
 {
 	int    i = 0;
 	PPAccount rec;
-	char   temp_buf[64];
+	char   temp_buf[256];
 	char * p = strtok(STRNSCPY(temp_buf, pStr), ".,");
 	if(p) {
 		do {
@@ -1379,7 +1379,6 @@ int SLAPI PPObjAccount::BelongTo(PPID acctID, PPID parentID)
 {
 	int    ok = -1;
 	PPAccount rec;
-	MEMSZERO(rec);
 	rec.ID = acctID;
 	while(ok < 0 && rec.ID && Search(rec.ID, &rec) > 0 && rec.ParentID) {
 		if(rec.ParentID == parentID)

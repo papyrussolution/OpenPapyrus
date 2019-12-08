@@ -1797,7 +1797,7 @@ SLAPI PPBrandPacket::~PPBrandPacket()
 
 void SLAPI PPBrandPacket::Init()
 {
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 	LinkFiles.Clear();
 }
 
@@ -2645,13 +2645,12 @@ private:
 
 int SLAPI SuprWareListDialog::setupList()
 {
-	Goods2Tbl::Rec goods_rec;
 	PPObjGoods goods_o;
 	StringSet ss(SLBColumnDelim);
 	SString str;
 	PPUnit unit;
 	for(uint i = 0; i < P_SuprWarePack.Items.getCount(); i++) {
-		MEMSZERO(goods_rec);
+		Goods2Tbl::Rec goods_rec;
 		if(goods_o.Search(P_SuprWarePack.Items.at(i).CompID, &goods_rec) > 0) {
 			ss.clear();
 			ss.add(goods_rec.Name);

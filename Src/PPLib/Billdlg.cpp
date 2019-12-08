@@ -1944,7 +1944,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				if(P_Pack->Pays.getCount() <= 1) {
 					P_Pack->Pays.freeAll();
 					PayPlanTbl::Rec paym;
-					MEMSZERO(paym);
+					// @v10.6.4 MEMSZERO(paym);
 					paym.PayDate = dt;
 					paym.Amount  = getCtrlReal(CTL_BILL_AMOUNT);
 					P_Pack->Pays.Update(&paym, 0);
@@ -2814,7 +2814,7 @@ int BillDialog::getCurGroupData()
 {
 	CurAmtCtrlGroup::Rec ca_cg_rec;
 	if(Flags & fExtMainCurAmount) {
-		MEMSZERO(ca_cg_rec);
+		// @v10.6.4 MEMSZERO(ca_cg_rec);
 		getGroupData(GRP_CURAMT, &ca_cg_rec);
 		if(!(P_Pack->Rec.Flags & BILLF_FIXEDAMOUNTS)) {
 			P_Pack->Rec.CurID  = ca_cg_rec.CurID;
@@ -3566,7 +3566,7 @@ int PaymPlanDialog::addItem(long * pPos, long * pID)
 	int    ok = -1;
 	uint   pos = 0;
 	PayPlanTbl::Rec item;
-	MEMSZERO(item);
+	// @v10.6.4 MEMSZERO(item);
 	if(EditPaymPlanItem(P_Pack, &item) > 0)
 		if(Data.Update(&item, &pos)) {
 			ASSIGN_PTR(pID, (long)item.PayDate);
@@ -3734,7 +3734,7 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 						payplan.freeAll();
 						if(last_pay_date) {
 							PayPlanTbl::Rec rec;
-							MEMSZERO(rec);
+							// @v10.6.4 MEMSZERO(rec);
 							rec.BillID  = billID;
 							rec.PayDate = last_pay_date;
 							rec.Amount  = bill_rec.Amount;

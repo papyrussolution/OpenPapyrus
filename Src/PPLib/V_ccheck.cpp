@@ -854,7 +854,7 @@ int SLAPI PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert 
 	if(CheckForFilt(&_rec, &_ext_rec)) {
 		if(DoProcessLines()) {
 			TempCCheckQttyTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			CCheckRec_To_TempCCheckQttyRec(_rec, rec);
 			double qtty = 0.0, amt = 0.0, dscnt = 0.0, t_dscnt = 0.0, pcnt = 0.0;
 			BVATAccmArray temp_bva_ary;
@@ -917,7 +917,7 @@ int SLAPI PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert 
 		else {
 			if(pBei) {
 				TempCCheckQttyTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				CCheckRec_To_TempCCheckQttyRec(_rec, rec);
 				if(Filt.Flags & CCheckFilt::fCalcSkuStat) {
 					PPIDArray goods_id_list;
@@ -1022,7 +1022,7 @@ int SLAPI CCheckGrpCache::FlashItem(const CCheckGrpItem * pItem)
 {
 	int    ok = 1;
 	TempCCheckGrpTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.Dt       = pItem->Dt;
 	rec.Tm       = pItem->Tm;
 	rec.CashID   = pItem->CashID;
@@ -1259,6 +1259,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			THROW(temp_view.Init_(&temp_flt));
 			for(temp_view.InitIteration(0); temp_view.NextIteration(&item) > 0;) {
+				SCardTbl::Rec sc_rec;
 				CCheckGrpItem ccgitem;
 				MEMSZERO(ccgitem);
 				ccgitem.Count = 1;
@@ -1327,14 +1328,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								break;
 							case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
 								ccgitem.CashID = item.AgentID;
-								SCardTbl::Rec sc_rec;
 								ccgitem.SCardID = (item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0) ? sc_rec.SeriesID : 0;
 								break;
 							case CCheckFilt::gGoodsSCSer:
-								{
-									SCardTbl::Rec sc_rec;
-									ccgitem.CashID = (item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0) ? sc_rec.SeriesID : 0;
-								}
+								ccgitem.CashID = (item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0) ? sc_rec.SeriesID : 0;
 								break;
 							case CCheckFilt::gAmountNGoods:
 								if(Filt.AmountQuant > 0.0)
@@ -2666,7 +2663,7 @@ static int SLAPI PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, con
 	int    ok = 1;
 	TempCCheckGdsCorrTbl::Rec gc_rec;
 	THROW_INVARG(pBei);
-	MEMSZERO(gc_rec);
+	// @v10.6.4 MEMSZERO(gc_rec);
 	gc_rec.Goods1ID = goods1ID;
 	gc_rec.Goods2ID = goods2ID;
 	rG1Name.CopyTo(gc_rec.GoodsName1, sizeof(gc_rec.GoodsName1));
@@ -4070,7 +4067,7 @@ int SLAPI PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 			THROW(pack.CreateBlankByFilt(r_eq_cfg.OpOnTempSess, &b_filt, 1));
 			while(!all_selection || pV->NextIteration(&chk_rec) > 0) {
 				CCheckLineTbl::Rec cc_line;
-				MEMSZERO(cc_line);
+				// @v10.6.4 MEMSZERO(cc_line);
 				if(diffdate(chk_rec.Dt, pack.Rec.Dt) > 0)
 					pack.Rec.Dt = chk_rec.Dt;
 				for(int i = 0; pV->P_CC->EnumLines(chk_rec.ID, &i, &cc_line) > 0;) {
@@ -4198,7 +4195,7 @@ int PPALDD_CCheck::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		PPObjSCard scard_obj;
 		SCardTbl::Rec scard_rec;
-		MEMSZERO(scard_rec);
+		// @v10.6.4 MEMSZERO(scard_rec);
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		CCheckPacket pack;

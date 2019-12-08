@@ -16801,7 +16801,7 @@ public:
 	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(TimeSeriesViewItem *);
-	int    SLAPI CmpSortIndexItems(const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2);
+	int    SLAPI CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2);
 	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -16811,7 +16811,7 @@ private:
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    SLAPI MakeList();
+	int    SLAPI MakeList(PPViewBrowser * pBrw);
 	int    SLAPI DeleteItem(PPID id);
 	int    SLAPI DeleteAll();
 
@@ -16857,7 +16857,7 @@ private:
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    SLAPI MakeList();
+	int    SLAPI MakeList(PPViewBrowser * pBrw);
 
 	SArray * P_DsList;
 	TimSerDetailFilt Filt;
@@ -19458,6 +19458,7 @@ int FASTCALL GetAcoByGenFlags(long);
 // Descr: Структура бухгалтерского счета
 //
 struct PPAccount { // @persistent
+	SLAPI  PPAccount();
 	long   Tag;         // Const=PPOBJ_ACCOUNT2
 	long   ID;          // @id
 	char   Name[48];
@@ -19489,7 +19490,6 @@ struct PPAccountPacket {
 	void   SLAPI  Init();
 	PPAccountPacket & FASTCALL operator = (const PPAccountPacket &);
 
-	//PPAccount Rec;
 	PPAccount Rec;
 	PPIDArray CurList;
 	ObjRestrictArray GenList;   // Список группируемых счетов (для группирующего счета)
@@ -25233,7 +25233,6 @@ public:
 	int    SLAPI IsCountPoint(LDATETIME dtm) const;
 	int    SLAPI AddCountPointDate(LDATE, uint * pPos);
 	int    SLAPI RemoveCountPoint(uint pos);
-
 	int    SLAPI WhoIsDuty(LDATETIME & rDtm, PPID * pObjID) const;
 	//
 	// @sample
@@ -25244,7 +25243,6 @@ public:
 	//
 	int    SLAPI InitIteration(EnumParam * pEnum, const STimeChunk & rTmChunk) const;
 	int    FASTCALL NextIteration(EnumParam * pEnum) const;
-
 	int    SLAPI Test(const char * pOutFile) const;
 
 	PPDutySched Rec;

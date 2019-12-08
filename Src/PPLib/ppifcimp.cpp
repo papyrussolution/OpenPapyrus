@@ -2703,7 +2703,7 @@ int32 DL6ICLS_PPObjArticle::SearchByName(SString & text, int32 kind, int32 extra
 	if(p_obj) {
 		ArticleTbl::Rec art_rec;
 		SPpyO_Article * p_rec = static_cast<SPpyO_Article *>(rec);
-		MEMSZERO(art_rec);
+		// @v10.6.4 MEMSZERO(art_rec);
 		if((ok = p_obj->P_Tbl->SearchName(extraParam, text, &art_rec)) > 0) {
 			PPArticlePacket pack;
 			if((ok = p_obj->GetPacket(art_rec.ID, &pack)) != 0) {
@@ -2918,7 +2918,7 @@ int32 DL6ICLS_PPObjQuotKind::Search(int32 id, PPYOBJREC rec)
 	PPObjQuotKind * p_obj = static_cast<PPObjQuotKind *>(ExtraPtr);
 	if(p_obj) {
 		PPQuotKind qk_rec;
-		MEMSZERO(qk_rec);
+		// @v10.6.4 MEMSZERO(qk_rec);
 		ok = p_obj->Search(id, &qk_rec);
 		FillQuotKindRec(&qk_rec, static_cast<SPpyO_QuotKind *>(rec));
 	}
@@ -2933,7 +2933,7 @@ int32 DL6ICLS_PPObjQuotKind::SearchByName(SString & text, int32 kind, int32 extr
 	if(p_obj) {
 		PPQuotKind qk_rec;
 		PPID   id = 0;
-		MEMSZERO(qk_rec);
+		// @v10.6.4 MEMSZERO(qk_rec);
 		// @v9.0.8 ok = p_obj->SearchByName(text, &id, &qk_rec);
 		// @v9.0.8 {
 		if(kind == 1) {
@@ -3667,7 +3667,7 @@ int32 DL6ICLS_PPObjGoods::SearchByName(SString & text, int32 kind, int32 extraPa
 		Goods2Tbl::Rec grec;
 		PPGoodsPacket pack;
 		PPID   id = 0;
-		MEMSZERO(grec);
+		// @v10.6.4 MEMSZERO(grec);
 		if((ok = p_obj->SearchByName(text, &id, &grec)) > 0) {
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
 			FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
@@ -3784,7 +3784,7 @@ int32 DL6ICLS_PPObjGoods::SearchByBarcode(SString & rBCode, SPpyO_Goods * pGRec,
 	if(p_obj) {
 		BarcodeTbl::Rec code_rec;
 		Goods2Tbl::Rec grec;
-		MEMSZERO(grec);
+		// @v10.6.4 MEMSZERO(grec);
 		if((ok = p_obj->SearchByBarcode(rBCode, &code_rec, &grec, adoptSearching)) > 0) {
 			PPGoodsPacket pack;
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
@@ -3804,7 +3804,7 @@ int32 DL6ICLS_PPObjGoods::SearchByArCode(long arID, SString & rBCode, SPpyO_Good
 	if(p_obj) {
 		ArGoodsCodeTbl::Rec code_rec;
 		Goods2Tbl::Rec grec;
-		MEMSZERO(grec);
+		// @v10.6.4 MEMSZERO(grec);
 		if((ok = p_obj->P_Tbl->SearchByArCode(arID, rBCode, &code_rec, &grec)) > 0) {
 			PPGoodsPacket pack;
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
@@ -3921,7 +3921,7 @@ int32 DL6ICLS_PPObjGoods::SearchQttyByBarcode(SString & rBCode, SPpyO_Goods * pG
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	if(p_obj) {
 		Goods2Tbl::Rec grec;
-		MEMSZERO(grec);
+		// @v10.6.4 MEMSZERO(grec);
 		if((ok = p_obj->SearchByBarcode(rBCode, 0, &grec, adoptSearching)) > 0) {
 			PPGoodsPacket pack;
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
@@ -4058,7 +4058,7 @@ int32 DL6ICLS_PPObjGoodsGroup::SearchByName(SString & text, int32 kind, int32 ex
 		Goods2Tbl::Rec grec;
 		PPGoodsPacket pack;
 		PPID   id = 0;
-		MEMSZERO(grec);
+		// @v10.6.4 MEMSZERO(grec);
 		if((ok = p_obj->SearchByName(text, &id, &grec)) > 0) {
 			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
 			FillGoodsRec(&pack, static_cast<SPpyO_Goods *>(rec));
@@ -4127,7 +4127,7 @@ int32 DL6ICLS_PPObjGoodsGroup::SearchCode(SString & rCode)
 	int32 ggrp_id = 0;
 	BarcodeTbl::Rec bc_rec;
 	PPObjGoodsGroup * p_obj = static_cast<PPObjGoodsGroup *>(ExtraPtr);
-	MEMSZERO(bc_rec);
+	// @v10.6.4 MEMSZERO(bc_rec);
 	if(p_obj && rCode.Len() && p_obj->SearchCode(rCode, &bc_rec) > 0)
 		ggrp_id = bc_rec.GoodsID;
 	return ggrp_id;
@@ -4269,7 +4269,7 @@ int32 DL6ICLS_PPObjLocation::Search(int32 id, PPYOBJREC rec)
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	if(p_obj) {
 		LocationTbl::Rec loc_rec;
-		MEMSZERO(loc_rec);
+		// @v10.6.4 MEMSZERO(loc_rec);
 		ok = p_obj->LocObj.Search(id, &loc_rec);
 		if(ok > 0 && !loc_rec.OwnerID)
 			p_obj->AdjustLocationOwner(loc_rec);
@@ -4286,7 +4286,7 @@ int32 DL6ICLS_PPObjLocation::SearchByName(SString & text, int32 kind, int32 extr
 	if(p_obj) {
 		LocationTbl::Rec loc_rec;
 		PPID   id = 0;
-		MEMSZERO(loc_rec);
+		// @v10.6.4 MEMSZERO(loc_rec);
 		if(kind == 0) {
 			ok = p_obj->LocObj.SearchName(LOCTYP_WAREHOUSE, 0, text, &id);
 			if(ok > 0)
@@ -4351,7 +4351,7 @@ int32 DL6ICLS_PPObjLocation::SearchByCode(SString & rCode, PpyOLocationType locT
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	if(p_obj) {
 		LocationTbl::Rec loc_rec;
-		MEMSZERO(loc_rec);
+		// @v10.6.4 MEMSZERO(loc_rec);
 		if((ok = p_obj->LocObj.P_Tbl->SearchCode((int)locType, rCode, 0, &loc_rec)) > 0) {
 			if(!loc_rec.OwnerID)
 				p_obj->AdjustLocationOwner(loc_rec);
@@ -4366,7 +4366,7 @@ SString & DL6ICLS_PPObjLocation::GetDlvrAddrExtFld(int32 locID, int32 extFldID)
 	LocationTbl::Rec loc_rec;
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	RetStrBuf.Z();
-	MEMSZERO(loc_rec);
+	// @v10.6.4 MEMSZERO(loc_rec);
 	if(p_obj->LocObj.Search(locID, &loc_rec) > 0) {
 		if(LocationCore::GetExField(&loc_rec, extFldID, RetStrBuf) == 0)
 			AppError = 1;
@@ -4381,7 +4381,7 @@ int32 DL6ICLS_PPObjLocation::SetDlvrAddrExtFld(int32 locID, int32 extFldID, SStr
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
-	MEMSZERO(loc_rec);
+	// @v10.6.4 MEMSZERO(loc_rec);
 	if(p_obj->LocObj.Search(locID, &loc_rec) > 0)
 		if((ok = LocationCore::SetExField(&loc_rec, extFldID, rValue)) > 0)
 			ok = p_obj->LocObj.PutRecord(&loc_rec.ID, &loc_rec, 1);
@@ -4423,7 +4423,7 @@ int32 DL6ICLS_PPObjLocation::GetRegisterD(int32 locID, int32 regType, LDATE actu
 {
 	int    ok = 0;
 	RegisterTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	ok = p_obj->LocObj.GetRegister(locID, regType, actualDate, inheritFromPerson, &rec);
 	FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
@@ -4964,7 +4964,7 @@ int32 DL6ICLS_PPObjPerson::GetRegister(int32 psnID, int32 regType, SPpyO_Registe
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		RegisterTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		if(p_e->P_Obj->GetRegister(psnID, regType, &rec) > 0) {
 			FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
 			ok = 1;
@@ -4979,7 +4979,7 @@ int32 DL6ICLS_PPObjPerson::GetRegisterD(int32 psnID, int32 regType, LDATE actual
 	InnerExtraObjPerson * p_e = static_cast<InnerExtraObjPerson *>(ExtraPtr);
 	if(p_e && p_e->P_Obj) {
 		RegisterTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		if(p_e->P_Obj->GetRegister(psnID, regType, actualDate, &rec) > 0) {
 			FillRegisterRec(&rec, static_cast<SPpyO_Register *>(pRec), 0);
 			ok = 1;
@@ -5700,7 +5700,7 @@ int32 DL6ICLS_PPLotList::SearchById(int32 id, SPpyO_Lot * pLot, int32 bSearch)
 	if(p_data) {
 		uint pos = 0;
 		ReceiptTbl::Rec lot;
-		MEMSZERO(lot);
+		// @v10.6.4 MEMSZERO(lot);
 		ok = bSearch ? p_data->bsearch(&id, &pos, CMPF_LONG) : p_data->lsearch(&id, &pos, CMPF_LONG);
 		if(ok)
 			FillLotRec(static_cast<const ReceiptTbl::Rec *>(p_data->at(static_cast<uint>(pos))), pLot);
@@ -5934,7 +5934,7 @@ int32 DL6ICLS_PPObjBill::SearchByGuid(SString & rGuidStr, SPpyO_Bill * pRec)
 		if(uuid.FromStr(rGuidStr) > 0) {
 			BillTbl::Rec bill_rec;
 			PPBillPacket bpack;
-			MEMSZERO(bill_rec);
+			// @v10.6.4 MEMSZERO(bill_rec);
 			if(p_e->P_BObj->SearchByGuid(uuid, &bill_rec) > 0 && p_e->P_BObj->ExtractPacket(bill_rec.ID, &bpack) > 0) {
 				FillBillRec(&bpack, pRec);
 				ok = 1;
@@ -5952,7 +5952,7 @@ int32 DL6ICLS_PPObjBill::PutGuid(long billID, SString & rGuidStr)
 		S_GUID  uuid;
 		if(uuid.FromStr(rGuidStr) > 0) {
 			BillTbl::Rec bill_rec;
-			MEMSZERO(bill_rec);
+			// @v10.6.4 MEMSZERO(bill_rec);
 			if((ok = p_e->P_BObj->SearchByGuid(uuid, &bill_rec)) <= 0) {
 				if(ok < 0)
 					ok = p_e->P_BObj->PutGuid(billID, &uuid, 0);
@@ -6049,8 +6049,8 @@ int32 DL6ICLS_PPObjBill::GetOriginalLot(int32 lotID, int32 * pOrgLotID, SPpyO_Lo
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
 		ReceiptTbl::Rec lot, org_lot;
-		MEMSZERO(lot);
-		MEMSZERO(org_lot);
+		// @v10.6.4 MEMSZERO(lot);
+		// @v10.6.4 MEMSZERO(org_lot);
 		if(p_e->P_BObj->trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, &lot, &org_lot) > 0) {
 			if(pLot)
 				FillLotRec(&lot, pLot);
@@ -6556,7 +6556,7 @@ int32 DL6ICLS_PPObjWorld::Search(int32 id, PPYOBJREC rec)
 	PPObjWorld * p_obj = static_cast<PPObjWorld *>(ExtraPtr);
 	if(p_obj) {
 		WorldTbl::Rec wrec;
-		MEMSZERO(wrec);
+		// @v10.6.4 MEMSZERO(wrec);
 		ok = p_obj->Search(id, &wrec);
 		FillWorldRec(&wrec, static_cast<SPpyO_World *>(rec));
 	}
@@ -6571,7 +6571,7 @@ int32 DL6ICLS_PPObjWorld::SearchByName(SString & text, int32 kind, int32 extraPa
 	if(p_obj) {
 		WorldTbl::Rec wrec;
 		PPID   id = 0;
-		MEMSZERO(wrec);
+		// @v10.6.4 MEMSZERO(wrec);
 		ok = p_obj->SearchByName(kind, text, &wrec);
 		FillWorldRec(&wrec, static_cast<SPpyO_World *>(rec));
 	}
@@ -6617,7 +6617,7 @@ int32 DL6ICLS_PPObjRegister::Search(int32 id, PPYOBJREC rec)
 	PPObjRegister * p_obj = static_cast<PPObjRegister *>(ExtraPtr);
 	if(p_obj) {
 		RegisterTbl::Rec reg_rec;
-		MEMSZERO(reg_rec);
+		// @v10.6.4 MEMSZERO(reg_rec);
 		ok = p_obj->Search(id, &reg_rec);
 		FillRegisterRec(&reg_rec, static_cast<SPpyO_Register *>(rec), 0);
 	}
@@ -6659,7 +6659,7 @@ int32 DL6ICLS_PPObjRegister::SearchByNumber(long regTypeID, SString & rSn, SStri
 	PPObjRegister * p_obj = static_cast<PPObjRegister *>(ExtraPtr);
 	if(p_obj) {
 		RegisterTbl::Rec reg_rec;
-		MEMSZERO(reg_rec);
+		// @v10.6.4 MEMSZERO(reg_rec);
 		ok = p_obj->SearchByNumber(0, regTypeID, rSn, rNmbr, &reg_rec);
 		FillRegisterRec(&reg_rec, pRegister, 0);
 	}
@@ -6673,7 +6673,7 @@ int32 DL6ICLS_PPObjRegister::Fetch(int32 id, SPpyO_Register * pRegister)
 	PPObjRegister * p_obj = static_cast<PPObjRegister *>(ExtraPtr);
 	if(p_obj) {
 		RegisterTbl::Rec reg_rec;
-		MEMSZERO(reg_rec);
+		// @v10.6.4 MEMSZERO(reg_rec);
 		ok = p_obj->Fetch(id, &reg_rec);
 		FillRegisterRec(&reg_rec, (SPpyO_Register *)pRegister, 0);
 	}
@@ -6965,7 +6965,7 @@ int32 DL6ICLS_PPObjPrjTask::Search(int32 id, PPYOBJREC pRec)
 	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
 	if(p_obj) {
 		PrjTaskTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
 		FillPrjTaskRec(&rec, static_cast<SPpyO_PrjTask *>(pRec));
 	}
@@ -7094,7 +7094,7 @@ int32 DL6ICLS_PPObjProject::Search(int32 id, PPYOBJREC pRec)
 	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
 	if(p_obj) {
 		ProjectTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
 		FillProjectRec(&rec, static_cast<SPpyO_Project *>(pRec));
 	}
@@ -7286,7 +7286,7 @@ int32 DL6ICLS_PPObjQCert::Search(int32 id, PPYOBJREC pRec)
 	PPObjQCert * p_obj = static_cast<PPObjQCert *>(ExtraPtr);
 	if(p_obj) {
 		QualityCertTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		ok = p_obj->Search(id, &rec);
 		FillQCert(&rec, static_cast<SPpyO_QCert *>(pRec));
 	}
@@ -10299,7 +10299,7 @@ int32 DL6ICLS_PPFias::SearchAddr(int32 id, SPpyO_FiasAddr* pRec)
 	PPFiasReference * p = static_cast<PPFiasReference *>(ExtraPtr);
 	if(p) {
 		FiasAddrObjTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		ok = p->SearchObjByID(id, &rec, 1 /*use_cache*/);
 		if(ok > 0) {
             if(pRec) {
@@ -10346,7 +10346,7 @@ int32 DL6ICLS_PPFias::SearchHouse(int32 id, SPpyO_FiasHouse* pRec)
 	PPFiasReference * p = static_cast<PPFiasReference *>(ExtraPtr);
 	if(p) {
 		FiasHouseObjTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		ok = p->SearchHouseByID(id, &rec);
 		if(ok > 0) {
             if(pRec) {
@@ -10390,7 +10390,7 @@ int32 DL6ICLS_PPFias::SearchAddrByGuid(SString & pGuidStr, SPpyO_FiasAddr* pRec)
 	PPFiasReference * p = static_cast<PPFiasReference *>(ExtraPtr);
 	if(p) {
 		FiasAddrObjTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		S_GUID uuid;
 		if(uuid.FromStr(pGuidStr)) {
             ok = p->SearchObjByUUID(uuid, &rec);
@@ -10440,7 +10440,7 @@ int32 DL6ICLS_PPFias::SearchHouseByGuid(SString & pGuidStr, SPpyO_FiasHouse* pRe
 	PPFiasReference * p = static_cast<PPFiasReference *>(ExtraPtr);
 	if(p) {
 		FiasHouseObjTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		S_GUID uuid;
 		if(uuid.FromStr(pGuidStr)) {
 			ok = p->SearchHouseByUUID(uuid, &rec);
@@ -10826,7 +10826,7 @@ int32 DL6ICLS_PPObjSCard::Search(int32 id, PPYOBJREC pOuterRec)
 	PPObjSCard * p_obj = static_cast<PPObjSCard *>(ExtraPtr);
 	if(p_obj) {
 		SCardTbl::Rec inner_rec;
-		MEMSZERO(inner_rec);
+		// @v10.6.4 MEMSZERO(inner_rec);
 		ok = p_obj->Search(id, &inner_rec);
 		FillSCardRec(&inner_rec, static_cast<SPpyO_SCard *>(pOuterRec));
 	}
@@ -10840,7 +10840,7 @@ int32 DL6ICLS_PPObjSCard::SearchByName(SString & text, int32 kind, int32 extraPa
 	PPObjSCard * p_obj = static_cast<PPObjSCard *>(ExtraPtr);
 	if(p_obj) {
 		SCardTbl::Rec inner_rec;
-		MEMSZERO(inner_rec);
+		// @v10.6.4 MEMSZERO(inner_rec);
 		ok = p_obj->P_Tbl->SearchCode(extraParam, text, &inner_rec);
 		FillSCardRec(&inner_rec, static_cast<SPpyO_SCard *>(pOuterRec));
 	}

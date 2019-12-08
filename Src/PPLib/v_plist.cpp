@@ -113,7 +113,7 @@ int SLAPI PriceListCore::AddLine(PPID id, void * b, PriceLineIdent * pIdent, int
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	PriceLineIdent ident;
-	PriceLineTbl::Rec * p_rec = (PriceLineTbl::Rec*)b;
+	PriceLineTbl::Rec * p_rec = static_cast<PriceLineTbl::Rec *>(b);
 	if(!useSubst)
 		THROW(goods_obj.Fetch(p_rec->GoodsID, &goods_rec) > 0);
 	{
@@ -154,7 +154,6 @@ int SLAPI PriceListCore::UpdateLine(const PriceLineIdent * pIdent, PriceLineTbl:
 			pRec->GoodsGrpID = goods_rec.ParentID;
 			pRec->ManufID    = goods_rec.ManufID;
 			pRec->UnitID     = goods_rec.UnitID;
-			// @v7.9.6 STRNSCPY(pRec->Name, goods_rec.Name);
 		}
 		THROW_DB(Lines.updateRecBuf(pRec));
 		THROW(tra.Commit());
@@ -279,7 +278,6 @@ int SLAPI PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quo
 	SString memo;
 	PriceLineTbl::Rec pline_rec;
 	PriceLineIdent ident;
-
 	memzero(name, sizeof(name));
 	THROW(SubstGoods(pRPB->GoodsID, &subst_id, name, sizeof(name)));
 	ident.PListID = Filt.PListID;
@@ -466,12 +464,7 @@ int PPPriceListImporter::Init(PPViewPriceList * pView, const PPPriceListImpExpPa
 {
 	int    ok = -1;
 	THROW(Init(pView));
-	if(pParam) {
-		Param = *pParam;
-		ok = 1;
-	}
-	else
-		ok = SelectPriceListImportCfg(&Param, 0);
+	ok = RVALUEPTR(Param, pParam) ? 1 : SelectPriceListImportCfg(&Param, 0);
 	CATCHZOK
 	return ok;
 }
@@ -485,13 +478,12 @@ int SLAPI PPPriceListImporter::Run()
 	Sdr_PriceList pl_rec;
 	ResolveGoodsItemList unres_goods_list;
 	PPLogger logger;
-	const PriceListFilt * p_filt = P_View ? (const PriceListFilt *)P_View->GetBaseFilt() : 0;
+	const PriceListFilt * p_filt = P_View ? static_cast<const PriceListFilt *>(P_View->GetBaseFilt()) : 0;
 	ArticleCore  art_tbl;
 	PPID   ar_id = (p_filt) ? p_filt->ArticleID : 0;
 	PPImpExp ie(&Param, 0);
 	PPObjGoods gobj;
 	const  int use_ar_goodscode = BIN(CConfig.Flags & CCFLG_USEARGOODSCODE);
-
 	PPWait(1);
 	THROW(ie.OpenFileForReading(0));
 	ie.GetNumRecs(&count);
@@ -1641,7 +1633,7 @@ int PListFiltDialog::getDTS(PriceListFilt * pFilt)
 	PPID   prev_ar    = Data.ArticleID;
 	PPID   prev_loc   = Data.LocID;
 	PPID   prev_quot  = Data.QuotKindID;
-	getCtrlData(CTL_PLIST_DATE, &Data.Dt); // @v7.3.0
+	getCtrlData(CTL_PLIST_DATE, &Data.Dt);
 	getCtrlData(CTLSEL_PLIST_LOC, &Data.LocID);
 	getCtrlData(CTLSEL_PLIST_QUOTK, &Data.QuotKindID);
 	getCtrlData(CTL_PLIST_KIND, &(v = 0));
@@ -1724,6 +1716,7 @@ int SLAPI PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 // PLineDialog
 //
 class PLineDialog : public TDialog {
+	DECL_DIALOG_DATA(PriceLineTbl::Rec);
 public:
 	enum {
 		ctlgroupGoods = 1
@@ -1732,67 +1725,61 @@ public:
 	{
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PLINE_GGRP, CTLSEL_PLINE_GOODS));
 	}
-	int    setDTS(const PriceLineTbl::Rec *);
-	int    getDTS(PriceLineTbl::Rec *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		GoodsCtrlGroup::Rec gcgr(0, Data.GoodsID);
+		setGroupData(ctlgroupGoods, &gcgr);
+		if(Data.QuotKindID >= 0)
+			SetupPPObjCombo(this, CTLSEL_PLINE_QUOTKIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
+		else
+			disableCtrl(CTLSEL_PLINE_QUOTKIND, 1);
+		setCtrlData(CTL_PLINE_UPP, &Data.UnitPerPack);
+		setCtrlData(CTL_PLINE_PRICE, &Data.Price);
+		setCtrlData(CTL_PLINE_AP1, &Data.AddPrice1);
+		setCtrlData(CTL_PLINE_AP2, &Data.AddPrice2);
+		setCtrlData(CTL_PLINE_AP3, &Data.AddPrice3);
+		setCtrlData(CTL_PLINE_MEMO, Data.Memo);
+		setCtrlData(CTL_PLINE_GOODSCODE, &Data.GoodsCode);
+		setCtrlData(CTL_PLINE_PLABELGNAME, Data.Name);
+		if(Data.LineNo == 0 && Data.GoodsID)
+			replyGoodsSelection(1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		GoodsCtrlGroup::Rec gcgr;
+		getGroupData(ctlgroupGoods, &gcgr);
+		Data.GoodsID = gcgr.GoodsID;
+		if(Data.GoodsID == 0)
+			ok = (PPError(PPERR_GOODSNEEDED, 0), 0);
+		else {
+			if(Data.QuotKindID >= 0)
+				getCtrlData(CTLSEL_PLINE_QUOTKIND, &Data.QuotKindID);
+			getCtrlData(CTL_PLINE_UPP, &Data.UnitPerPack);
+			getCtrlData(CTL_PLINE_PRICE, &Data.Price);
+			getCtrlData(CTL_PLINE_AP1, &Data.AddPrice1);
+			getCtrlData(CTL_PLINE_AP2, &Data.AddPrice2);
+			getCtrlData(CTL_PLINE_AP3, &Data.AddPrice3);
+			getCtrlData(CTL_PLINE_MEMO, Data.Memo);
+			getCtrlData(CTL_PLINE_PLABELGNAME, Data.Name);
+			ASSIGN_PTR(pData, Data);
+		}
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    replyGoodsSelection(int enforce);
 	PPViewPriceList * P_PLV;
-	PriceLineTbl::Rec Data;
 };
-
-int PLineDialog::setDTS(const PriceLineTbl::Rec * pData)
-{
-	Data = *pData;
-
-	GoodsCtrlGroup::Rec gcgr(0, Data.GoodsID);
-	setGroupData(ctlgroupGoods, &gcgr);
-	if(Data.QuotKindID >= 0)
-		SetupPPObjCombo(this, CTLSEL_PLINE_QUOTKIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
-	else
-		disableCtrl(CTLSEL_PLINE_QUOTKIND, 1);
-	setCtrlData(CTL_PLINE_UPP, &Data.UnitPerPack);
-	setCtrlData(CTL_PLINE_PRICE, &Data.Price);
-	setCtrlData(CTL_PLINE_AP1, &Data.AddPrice1);
-	setCtrlData(CTL_PLINE_AP2, &Data.AddPrice2);
-	setCtrlData(CTL_PLINE_AP3, &Data.AddPrice3);
-	setCtrlData(CTL_PLINE_MEMO, Data.Memo);
-	setCtrlData(CTL_PLINE_GOODSCODE, &Data.GoodsCode);
-	setCtrlData(CTL_PLINE_PLABELGNAME, Data.Name);
-	if(Data.LineNo == 0 && Data.GoodsID)
-		replyGoodsSelection(1);
-	return 1;
-}
-
-int PLineDialog::getDTS(PriceLineTbl::Rec * pData)
-{
-	int    ok = 1;
-	GoodsCtrlGroup::Rec gcgr;
-	getGroupData(ctlgroupGoods, &gcgr);
-	Data.GoodsID = gcgr.GoodsID;
-	if(Data.GoodsID == 0)
-		ok = (PPError(PPERR_GOODSNEEDED, 0), 0);
-	else {
-		if(Data.QuotKindID >= 0)
-			getCtrlData(CTLSEL_PLINE_QUOTKIND, &Data.QuotKindID);
-		getCtrlData(CTL_PLINE_UPP, &Data.UnitPerPack);
-		getCtrlData(CTL_PLINE_PRICE, &Data.Price);
-		getCtrlData(CTL_PLINE_AP1, &Data.AddPrice1);
-		getCtrlData(CTL_PLINE_AP2, &Data.AddPrice2);
-		getCtrlData(CTL_PLINE_AP3, &Data.AddPrice3);
-		getCtrlData(CTL_PLINE_MEMO, Data.Memo);
-		getCtrlData(CTL_PLINE_PLABELGNAME, Data.Name);
-		ASSIGN_PTR(pData, Data);
-	}
-	return ok;
-}
 
 int PLineDialog::replyGoodsSelection(int enforce)
 {
 	PPID   goods_id = 0;
 	getCtrlData(CTLSEL_PLINE_GOODS, &goods_id);
 	if(enforce || goods_id != Data.GoodsID) {
-		const  PPID loc_id = ((PriceListFilt *)P_PLV->GetBaseFilt())->LocID;
+		const  PPID loc_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->LocID;
 		double price = 0.0;
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
@@ -1806,7 +1793,7 @@ int PLineDialog::replyGoodsSelection(int enforce)
 			P_PLV->InitRPB(&rpb, &goods_rec, BIN(lot_rec.Flags & LOTF_PRICEWOTAXES), R5(lot_rec.Cost), price, lot_rec.Expiry);
 			if(r > 0)
 				uppack = lot_rec.UnitPerPack;
-			const PPID qk_id = ((PriceListFilt *)P_PLV->GetBaseFilt())->QuotKindID;
+			const PPID qk_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->QuotKindID;
 			if(qk_id >= 0) {
 				price = rpb.BasePrice;
 				if(P_PLV->GetPriceByQuot(&rpb, qk_id, &price) > 0)
@@ -1830,7 +1817,7 @@ IMPL_HANDLE_EVENT(PLineDialog)
 	//ReceiptTbl::Rec rec;
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmLot)) {
-		loc_id = ((PriceListFilt *)P_PLV->GetBaseFilt())->LocID;
+		loc_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->LocID;
 		goods_id = getCtrlLong(CTLSEL_PLINE_GOODS);
 		PPObjBill::SelectLotParam slp(goods_id, loc_id, 0, PPObjBill::SelectLotParam::fFillLotRec);
 		//if(SelectLot(loc_id, goods_id, 0, &lot, &rec) > 0) {
@@ -1843,7 +1830,7 @@ IMPL_HANDLE_EVENT(PLineDialog)
 		goods_id = getCtrlLong(CTLSEL_PLINE_GOODS);
 		if(goods_id > 0) {
 			PPObjGoods gobj;
-			loc_id = ((PriceListFilt *)P_PLV->GetBaseFilt())->LocID;
+			loc_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->LocID;
 			gobj.EditQuotations(goods_id, loc_id, -1L /* @curID */, 0, PPQuot::clsGeneral);
 		}
 	}
@@ -1968,10 +1955,10 @@ int SLAPI PPPriceListExporter::Export(const PriceListViewItem * pItem)
 {
 	int    ok = 1;
 	SString temp_buf;
+	Goods2Tbl::Rec goods_rec;
 	Sdr_PriceList sdr;
 	MEMSZERO(sdr);
 	THROW_INVARG(pItem && P_IE);
-	Goods2Tbl::Rec goods_rec;
 	sdr.GoodsID = pItem->GoodsID;
 	sdr.AltGrpPLU = pItem->GoodsCode;
 	sdr.Price = pItem->Price;

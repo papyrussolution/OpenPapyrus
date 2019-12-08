@@ -956,7 +956,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		GoodsRestFilt   gr_flt;
 		PPViewGoodsRest gr_view;
 		PPOprKind       r_op_rec;
-		MEMSZERO(r_op_rec);
+		// @v10.6.4 MEMSZERO(r_op_rec);
 		if(pFilt->Flags & OPG_CALCINREST) {
 			r_op_rec.ID = -1;
 			entry.SetOp(&r_op_rec);

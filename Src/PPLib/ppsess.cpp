@@ -879,7 +879,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 					if(p_sj) {
 						LAssocArray id_list;
 						SysJournalTbl::Rec sysj_rec;
-						MEMSZERO(sysj_rec);
+						// @v10.6.4 MEMSZERO(sysj_rec);
 						LDATETIME prev_dtm = rPrevRunTime;
 						if(p_sj->GetLastEvent(PPACN_BIZSCOREUPDATED, &prev_dtm, 2) > 0)
 							do_notify = 1;

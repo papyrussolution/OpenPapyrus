@@ -281,11 +281,12 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
 		RECT   parent, r;
 		long   tree_width = 0;
-		if(IsIconic(APPL->H_MainWnd))
-			ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
+		HWND   h_main_wnd = APPL->H_MainWnd;
+		if(IsIconic(h_main_wnd))
+			ShowWindow(h_main_wnd, SW_MAXIMIZE);
 		APPL->GetStatusBarRect(&r);
 		long   status_height = r.bottom - r.top;
-		GetWindowRect(APPL->H_MainWnd, &parent);
+		GetWindowRect(h_main_wnd, &parent);
 		if(APPL->IsTreeVisible()) {
 			APPL->GetTreeRect(r);
 			tree_width = r.right - r.left;
@@ -305,9 +306,9 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			r.top  += border_y + cap_y + menu_y + parent.top;
 		}
 		const DWORD  style = WS_POPUP|WS_CAPTION|WS_HSCROLL|WS_VSCROLL|WS_SYSMENU|WS_THICKFRAME|WS_VISIBLE|WS_CLIPSIBLINGS;
-		if(!H() && APPL->H_MainWnd) {
+		if(!H() && h_main_wnd) {
 			const TCHAR * p_title = SUcSwitch(buf);
-			if(IsMDIClientWindow(APPL->H_MainWnd)) {
+			if(IsMDIClientWindow(h_main_wnd)) {
 				MDICREATESTRUCT child;
 				child.szClass = BrowserWindow::WndClsName;
 				child.szTitle = p_title; // @unicodeproblem
@@ -318,7 +319,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				child.cy = CW_USEDEFAULT;	// rect->bottom;
 				child.style  = style;
 				child.lParam = reinterpret_cast<LPARAM>(static_cast<BrowserWindow *>(this));
-				HW = reinterpret_cast<HWND>(LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
+				HW = reinterpret_cast<HWND>(LOWORD(SendMessage(h_main_wnd, WM_MDICREATE, 0, reinterpret_cast<LPARAM>(&child)))); // @unicodeproblem
 			}
 			else {
 				HW = CreateWindow(SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
@@ -539,7 +540,6 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 	int   ok = 1;
 	THROW(P_SlRez);
 	{
-		char   buf[512];
 		SString temp_buf;
 		BroGroup grp;
 		int    is_group = 0;
@@ -593,10 +593,14 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						columns_count++;
 						break;
 					case TV_BROGROUP:
-						grp.P_Text  = newStr(rez.getString(buf, 2));
-						grp.Height = rez.getUINT();
-						grp.First = columns_count;
-						is_group = 1;
+						{
+							rez.getString(temp_buf, 2);
+							SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_INNER); // @v10.6.4 @fix
+							grp.P_Text  = newStr(temp_buf);
+							grp.Height = rez.getUINT();
+							grp.First = columns_count;
+							is_group = 1;
+						}
 						break;
 					case TV_TOOLBAR:
 						{
@@ -711,22 +715,7 @@ void BrowserWindow::setRange(ushort)
 {
 }
 
-void BrowserWindow::initWin()
-{
-	HW = 0;
-	MainCursor = LoadCursor(NULL, IDC_ARROW);
-	ResizeCursor = LoadCursor(NULL, IDC_SIZEWE);
-	Font = 0;
-	Pens.Destroy();
-	Pens.DefPen = 0;
-	P_Header = 0;
-	Brushes.Destroy();
-	Brushes.DefBrush = 0;
-	DefFont = 0;
-	ToolBarWidth = 0;
-}
-
-void BrowserWindow::init(BrowserDef * pDef)
+void BrowserWindow::__Init(/*BrowserDef * pDef*/)
 {
 	SrchFunc = PTR_CMPFUNC(_PcharNoCase);
 	F_CellStyle = 0;
@@ -746,14 +735,14 @@ void BrowserWindow::init(BrowserDef * pDef)
 	LastResizeColumnPos = -1;
 	EndModalCmd = 0;
 	view = this;
-	if(pDef) {
+	/* @v10.6.4 if(pDef) {
 		P_Def = pDef;
 		P_Def->VerifyCapHeight();
 		P_Def->setViewHight((CliSz.y - CapOffs) / YCell - 1);
 		P_Def->top();
 		CalcRight();
 		setRange((uint16)P_Def->getRecsCount());
-	}
+	}*/
 	if(H())
 		invalidateAll(1);
 }
@@ -809,22 +798,22 @@ void BrowserWindow::Insert_(TView *p)
 }
 
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :
-	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0)
+	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0), Font(0), DefFont(0), ToolBarWidth(0),
+	RezID(_rezID), MainCursor(LoadCursor(NULL, IDC_ARROW)), ResizeCursor(LoadCursor(NULL, IDC_SIZEWE))
 {
-	init(0);
-	initWin();
-	RezID = ResourceID = _rezID;
+	__Init();
+	ResourceID = _rezID;
 	LoadResource(_rezID, pQuery, 2, broDefOptions);
 	ViewOptions |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa
 }
 
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0*/) :
-	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0)
+	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0), Font(0), DefFont(0), ToolBarWidth(0),
+	RezID(_rezID), MainCursor(LoadCursor(NULL, IDC_ARROW)), ResizeCursor(LoadCursor(NULL, IDC_SIZEWE))
 {
-	init(0);
-	initWin();
-	RezID = ResourceID = _rezID;
+	__Init();
+	ResourceID = _rezID;
 	LoadResource(_rezID, pAry, 1, broDefOptions);
 	ViewOptions |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa
@@ -849,7 +838,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 		ZDELETE(P_Toolbar);
 		setupToolbar(0);
 		SearchPattern = 0;
-		init(0);
+		__Init();
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pQuery, 2);
@@ -858,7 +847,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 		ok = 2;
 	}
 	else
-		((DBQBrowserDef *)getDef())->setQuery(*pQuery);
+		static_cast<DBQBrowserDef *>(getDef())->setQuery(*pQuery);
 	APPL->redraw();
 	return ok;
 }
@@ -873,7 +862,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 		ZDELETE(P_Toolbar);
 		setupToolbar(0);
 		SearchPattern = 0;
-		init(0);
+		__Init();
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pAry, 1);
@@ -948,7 +937,7 @@ int BrowserWindow::CopyToClipboard()
 		}
 		for(j = 0; j < cn_count; j++) {
 			long cn = SelectedColumns.at(j);
-			if(cn >= 0 && cn < (long)P_Def->getCount())
+			if(cn >= 0 && cn < P_Def->getCountI())
 				col_types.add((long)GETSTYPE(P_Def->at(cn).T));
 		}
 		sw.PutFont('F', p_fontface_tnr, 10, slkfsBold);
@@ -988,7 +977,7 @@ int BrowserWindow::CopyToClipboard()
 		do {
 			for(j = 0; j < cn_count; j++) {
 				long cn  = SelectedColumns.at(j);
-				if(cn >= 0 && cn < (long)P_Def->getCount()) {
+				if(cn >= 0 && cn < P_Def->getCountI()) {
 					long  len = 0;
 					uint  stype = col_types.at(j);
 					P_Def->getFullText(P_Def->_curItem(), cn, val_buf);
@@ -1977,7 +1966,7 @@ int BrowserWindow::GetColumnByX(int x) const
 	return found ? i : -1;
 }
 
-int BrowserWindow::HeaderByPoint(TPoint point, long * pVertPos) const
+int BrowserWindow::HeaderByPoint(TPoint point, int hdrzone, long * pVertPos) const
 {
 	int    ok = 0;
 	long   vpos = 0;
@@ -1989,7 +1978,17 @@ int BrowserWindow::HeaderByPoint(TPoint point, long * pVertPos) const
 		int    top     = P_Def->isColInGroup(cx, &gidx) ? (YCell * P_Def->GetGroup(gidx)->Height + 1) : 0;
 		top    += hdr_width;
 		bottom += hdr_width;
-		if(point.y < bottom && point.y > top) {
+		if(hdrzone == hdrzoneSortPoint) {
+			const BroColumn & r_col = P_Def->at(cx);
+			int _left = r_col.x;
+			const int middle_y = (top + bottom) / 2;
+			const int middle_x = (2 * _left + 11) / 2;
+			if(point.x >= (middle_x-5) && point.x <= (middle_x+5) && point.y >= (middle_y-5) && point.y <= (middle_y+5)) {
+				vpos = cx;
+				ok = 1;
+			}
+		}
+		else if(point.y < bottom && point.y > top) {
 			vpos = cx;
 			ok = 1;
 		}
@@ -2755,28 +2754,28 @@ LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wPara
 						DefMDIChildProc(hWnd, msg, wParam, lParam);
 						UpdateWindow(hWnd);
 					}
-					if(p_view->HeaderByPoint(tp, &vPos)) { // @v10.6.3
-						if(vPos >= 0 && vPos < p_view->P_Def->getCountI()) {
-							const BroColumn & c = p_view->P_Def->at(vPos);
-							if(c.Options & BCO_SORTABLE) {
-								long   vp1 = vPos+1;
-								uint   sopos = 0;
-								if(p_view->SettledOrder.lsearch(vp1, &(sopos = 0)) || p_view->SettledOrder.lsearch(-vp1, &(sopos = 0))) {
-									long org_v = p_view->SettledOrder.get(sopos);
-									p_view->SettledOrder.clear();
-									p_view->SettledOrder.add(-org_v);
-								}
-								else {
-									p_view->SettledOrder.clear();
-									p_view->SettledOrder.add(vp1);
-								}
-								TView::messageCommand(p_view, cmSort, 0);
-								InvalidateRect(hWnd, 0, TRUE);
-								UpdateWindow(hWnd);
+					int done = 0;
+					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && vPos >= 0 && vPos < p_view->P_Def->getCountI()) { // @v10.6.3
+						const BroColumn & c = p_view->P_Def->at(vPos);
+						if(c.Options & BCO_SORTABLE) {
+							long   vp1 = vPos+1;
+							uint   sopos = 0;
+							if(p_view->SettledOrder.lsearch(vp1, &(sopos = 0)) || p_view->SettledOrder.lsearch(-vp1, &(sopos = 0))) {
+								long org_v = p_view->SettledOrder.get(sopos);
+								p_view->SettledOrder.clear();
+								p_view->SettledOrder.add(-org_v);
 							}
+							else {
+								p_view->SettledOrder.clear();
+								p_view->SettledOrder.add(vp1);
+							}
+							TView::messageCommand(p_view, cmSort, 0);
+							InvalidateRect(hWnd, 0, TRUE);
+							UpdateWindow(hWnd);
+							done = 1;
 						}
 					} 
-					else if(p_view->ItemByPoint(tp, &hPos, &vPos)) {
+					if(!done && p_view->ItemByPoint(tp, &hPos, &vPos)) {
 						p_view->FocusItem(hPos, vPos);
 						if(p_view->SelColByPoint(&pnt, (wParam & MK_CONTROL) ? 1 : ((wParam & MK_SHIFT) ? -1 : 0)) > 0) {
 							InvalidateRect(hWnd, 0, TRUE);

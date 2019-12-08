@@ -192,7 +192,7 @@ public:
 		ArticleTbl::Rec ar_rec;
 		int    is_ar_grouping = 0;
 		PPID   rel = 0;
-		MEMSZERO(ar_rec);
+		// @v10.6.4 MEMSZERO(ar_rec);
 		THROW(GetPeriodInput(this, CTL_ACCANLZ_PERIOD, &Filt.Period));
 		getCtrlData(CTL_ACCANLZ_LEAF, &Filt.LeafNo);
 		v = getCtrlUInt16(CTL_ACCANLZ_ACCGRP);
@@ -868,7 +868,7 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	IterProcParam_CrtTmpTbl & p = *static_cast<IterProcParam_CrtTmpTbl *>(extraPtr);
 	TempAccAnlzTbl::Rec trec;
 	AcctRelTbl::Rec arel_rec;
-	MEMSZERO(trec);
+	// @v10.6.4 MEMSZERO(trec);
 	trec.Dt      = pRec->Dt;
 	trec.OprNo   = pRec->OprNo;
 	trec.BillID  = pRec->Bill;
@@ -939,7 +939,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	BillTbl::Rec bill_rec;
 	TempAccTrnovrTbl::Rec  trec;
 	TempAccTrnovrTbl::Key0 k;
-	MEMSZERO(trec);
+	// @v10.6.4 MEMSZERO(trec);
 	if(!p.Filt->Cycl)
 		trec.Dt = p.Filt->Period.low;
 	else if(p.CycleList->searchDate(pRec->Dt, &(cycle_pos = 0)))
@@ -1324,7 +1324,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 				Total.DbtTrnovr.Add(&total.DbtTrnovr);
 				Total.CrdTrnovr.Add(&total.CrdTrnovr);
 				Total.Count += total.Count;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				cur_list.clear();
 				total.GetCurList(&cur_list);
 				for(uint i = 0; i < cur_list.getCount(); i++) {

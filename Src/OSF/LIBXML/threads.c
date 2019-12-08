@@ -653,7 +653,6 @@ int xmlGetThreadId()
 #ifdef HAVE_PTHREAD_H
 	pthread_t id;
 	int ret;
-
 	if(libxml_is_threaded == 0)
 		return 0;
 	id = pthread_self();
@@ -668,7 +667,6 @@ int xmlGetThreadId()
 	return ((int)0);
 #endif
 }
-
 /**
  * xmlIsMainThread:
  *

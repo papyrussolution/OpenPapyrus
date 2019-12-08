@@ -713,7 +713,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 						#undef FLD
 					}
 					else {
-						*((LocTransfTbl::Rec *)pItem) = Tbl.data;
+						*static_cast<LocTransfTbl::Rec *>(pItem) = Tbl.data;
 					}
 				}
 			}
@@ -725,7 +725,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 static IMPL_DBE_PROC(dbqf_checkcellparent_ii)
 {
 	long   r = 0;
-	const PPIDArray * p_cell_list = (const PPIDArray *)params[1].lval;
+	const PPIDArray * p_cell_list = reinterpret_cast<const PPIDArray *>(params[1].lval); // @x64crit
 	if(!p_cell_list || p_cell_list->bsearch(params[0].lval))
 		r = 1;
 	result->init(r);
@@ -856,7 +856,7 @@ int SLAPI PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	int    ok = -1;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
 		LocTransfTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		ok = EditLocTransf(0, &rec);
 		if(ok > 0) {
@@ -878,7 +878,7 @@ int SLAPI PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 		PPViewBill bill_view;
 		if(bill_view.Init_(&bill_filt)) {
 			while(ok < 0 && bill_view.Browse(0) > 0) {
-				PPID bill_id = ((BillFilt*)bill_view.GetBaseFilt())->Sel;
+				PPID bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 				if(DispBillList.addUnique(bill_id) > 0) {
 					if(ProcessDispBill(bill_id, 0, 1))
 						ok = 1;
@@ -890,7 +890,7 @@ int SLAPI PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	}
 	else if(Filt.Mode == LocTransfFilt::modeCurrent) {
 		LocTransfTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		rec.Op = LOCTRFROP_GET;
 		if(curLocID && curRByLoc) {
@@ -911,7 +911,7 @@ int SLAPI PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	}
 	else if(Filt.Mode == LocTransfFilt::modeEmpty) {
 		LocTransfTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		rec.Op = LOCTRFROP_PUT;
 		ok = EditLocTransf(0, &rec);

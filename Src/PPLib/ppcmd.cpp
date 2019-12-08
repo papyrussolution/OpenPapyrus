@@ -1836,7 +1836,7 @@ public:
 		PrjTaskTbl::Rec rec;
 		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		if(pParam->GetAvailableSize() == 0)
 			TodoObj.InitPacket(&rec, TODOKIND_TASK, 0, 0, 0, 0);
 		else
@@ -1866,7 +1866,7 @@ public:
 			param = *pParam;
 			if(EditParam(&param, cmdID, extraPtr) > 0) {
 				PrjTaskTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				THROW(ReadPrjTaskRec(&rec, param, 0));
 				THROW(ok = TodoObj.PutPacket(&id, &rec, 1));
 			}
@@ -1964,12 +1964,10 @@ void SelectPersonByCodeDialog::SetupCtrls()
 	PPID   psn_id = getCtrlLong(CTLSEL_SELPERSONC_PRSN);
 	if(psn_id) {
 		RegisterTbl::Rec reg_rec;
-		MEMSZERO(reg_rec);
+		// @v10.6.4 MEMSZERO(reg_rec);
 		PsnObj.GetRegister(psn_id, PsnKindRec.CodeRegTypeID, &reg_rec);
 		code = reg_rec.Num;
-
 		showCtrl(CTLSEL_SELPERSONC_SCARD, 1); // @v9.1.3
-
 		PPObjSCard::Filt sc_filt;
 		sc_filt.OwnerID = psn_id;
 		SetupPPObjCombo(this, CTLSEL_SELPERSONC_SCARD, PPOBJ_SCARD, Data.SCardID, 0, &sc_filt);
@@ -2011,8 +2009,8 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 				Data.PrmrPsnID = psn_list.getCount() ? psn_list.at(0) : 0;
 			else {
 				PersonTbl::Rec psn_rec;
-				MEMSZERO(psn_rec);
-				MEMSZERO(sc_rec);
+				// @v10.6.4 MEMSZERO(psn_rec);
+				// @v10.6.4 MEMSZERO(sc_rec);
 				if(ScObj.P_Tbl->SearchCode(0, code, &sc_rec) > 0 && PsnObj.P_Tbl->IsBelongToKind(sc_rec.PersonID, PsnKindRec.ID) > 0) {
 					Data.PrmrPsnID = sc_rec.PersonID;
 					Data.Sc = sc_rec;
@@ -2087,7 +2085,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					SString info, warn, buf, reg_buf;
 					RegisterTbl::Rec reg_rec;
 					PPPersonPacket psn_pack;
-					MEMSZERO(reg_rec);
+					// @v10.6.4 MEMSZERO(reg_rec);
 					THROW(psn_obj.GetPacket(prmr_psn_id, &psn_pack, 0));
 					info.Cat(psn_pack.Rec.Name);
 					// @v9.1.5 PPGetWord(PPWORD_ISVALIDBEFORE, 0, buf);
@@ -2326,7 +2324,7 @@ IMPL_HANDLE_EVENT(CashNodeFiltDialog)
 int CashNodeFiltDialog::SetupCommands(PPID cashNodeID, long commandID)
 {
 	if(!PrevCashNodeID || PrevCashNodeID != cashNodeID) {
-		PPCashNode    cnrec, prev_cnrec;
+		PPCashNode cnrec, prev_cnrec;
 		MEMSZERO(cnrec);
 		MEMSZERO(prev_cnrec);
 		if(cashNodeID && CashNObj.Search(cashNodeID, &cnrec) > 0) {

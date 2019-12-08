@@ -603,7 +603,7 @@ int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
 	}
 	if(pInfo->Rec.Flags & BILLF_BANKING) {
 		PPBankingOrder paym_order;
-		MEMSZERO(paym_order);
+		// @v10.6.4 MEMSZERO(paym_order);
 		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
 			THROW_MEM(pInfo->P_PaymOrder = new PPBankingOrder);
 			memcpy(pInfo->P_PaymOrder, &paym_order, sizeof(paym_order));
@@ -737,7 +737,6 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 	const  int is_new = BIN(*pID == 0);
 	uint   i;
 	AmtEntry * p_ae;
-	PropertyTbl::Rec prp_rec;
 	{
 		Reference * p_ref = PPRef;
 		PPTransaction tra(use_ta);
@@ -749,7 +748,8 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		THROW(EditRec(pID, &pInfo->Rec, 0));
 		THROW(PutExtraData(*pID, ((pInfo->Rec.Flags & BILLF_EXTRA) ? &pInfo->Ext : 0), 0));
 		if(pInfo->Rec.Flags & BILLF_RENT) {
-			MEMSZERO(prp_rec);
+			PropertyTbl::Rec prp_rec;
+			// @v10.6.4 MEMSZERO(prp_rec);
 			memcpy(&prp_rec.Text, &pInfo->Rent, sizeof(pInfo->Rent));
 			THROW(p_ref->PutProp(PPOBJ_BILL, *pID, BILLPRP_RENT, &prp_rec));
 			pInfo->Amounts.Put(PPAMT_RENTPRD, pInfo->Rec.CurID, pInfo->Rent.PartAmount, 1, 1);
@@ -776,7 +776,7 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 				BExtInsert bei(&AmtT);
 				for(i = 0; pInfo->Amounts.enumItems(&i, (void **)&p_ae);) {
 					BillAmountTbl::Rec amt_rec;
-					MEMSZERO(amt_rec);
+					// @v10.6.4 MEMSZERO(amt_rec);
 					amt_rec.BillID    = *pID;
 					amt_rec.AmtTypeID = p_ae->AmtTypeID;
 					amt_rec.CurID     = p_ae->CurID;

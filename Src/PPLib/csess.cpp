@@ -264,7 +264,7 @@ int SLAPI CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME 
 int SLAPI CSessionCore::CreateSess(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATETIME dtm, int temporary)
 {
 	CSessionTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.CashNodeID = cashNodeID;
 	rec.CashNumber = cashN;
 	rec.SessNumber = sessN;
@@ -325,7 +325,7 @@ int SLAPI CSessionCore::CreateSuperSess(PPID * pID, PPID cashNodeID, const PPIDA
 			CSessionTbl::Rec super_rec;
 			long   last_number = 0;
 			GetLastNumber(cashNodeID, 0, &last_number);
-			MEMSZERO(super_rec);
+			// @v10.6.4 MEMSZERO(super_rec);
 			super_rec.CashNodeID = cashNodeID;
 			super_rec.CashNumber = 0;
 			super_rec.Incomplete = CSESSINCMPL_CHECKS;

@@ -283,7 +283,7 @@ int SLAPI PPViewAccturn::CreateGrouping()
 		Acct   dbt_acct, crd_acct;
 		PPID   cur_id = item.CurID, temp_cur_id = 0;
 		TempAccturnGrpngTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		if(Filt.Cycl.Cycle)
 			if(CycleList.searchDate(item.Date, &cycle_pos))
 				rec.Dt = CycleList.at(cycle_pos).low;

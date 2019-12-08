@@ -887,7 +887,7 @@ int SLAPI PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillLi
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 					ObjAssocTbl::Rec assc_rec;
-					MEMSZERO(assc_rec);
+					// @v10.6.4 MEMSZERO(assc_rec);
 					assc_rec.ScndObjID = bill_id;
 					THROW_SL(pool_list.insert(&assc_rec));
 					if(bill_rec.Dt > pool_pack.Rec.Dt)

@@ -123,7 +123,7 @@ int SLAPI PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 	lot_rec = org_lot_rec;
 	start_cost = R5(lot_rec.Cost) * qtty;
 	THROW(GObj.Search(labs(lot_rec.GoodsID), &goods_rec) > 0);
-	MEMSZERO(asset_rec);
+	// @v10.6.4 MEMSZERO(asset_rec);
 	asset_rec.GoodsID = goods_rec.ID;
 	asset_rec.LotID   = lot_rec.ID;
 	asset_rec.GrpID   = goods_rec.ParentID;

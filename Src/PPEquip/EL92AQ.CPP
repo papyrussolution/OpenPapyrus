@@ -164,7 +164,7 @@ int SLAPI ACS_EL92AQ::ConvertWareList(int num)
 					THROW_DB(p_bc_tbl->search(0, &bck, spEq) || BTRNFOUND);
 					THROW_PP(!BTRNFOUND, PPERR_BARCODENFOUND);
 					p_bc_tbl->copyBufTo(&bc_rec);
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					rec.CheckID   = P_TmpCcTbl->data.ID;
 					rec.CheckCode = P_TmpCcTbl->data.Code;
 					rec.Dt        = P_TmpCcTbl->data.Dt;
@@ -221,7 +221,7 @@ int SLAPI ACS_EL92AQ::ExportData(int)
 	THROW_MEM(p_iter = new AsyncCashGoodsIterator(NodeID, 0, SinceDlsID, 0));
 	while(p_iter->Next(&info) > 0) {
 		char   intg = 'F';
-		double price = (double)(info.Price * info.UnitPerPack);
+		double price = (info.Price * info.UnitPerPack);
 		//if(Amounts100 == 0)
 			price *= 100L;
 		DbfRecord dbfr(p_out_tbl);
@@ -230,7 +230,7 @@ int SLAPI ACS_EL92AQ::ExportData(int)
 		dbfr.put(2, price);
 		dbfr.put(3, 1000.0);
 		dbfr.put(4, atof(info.BarCode));
-		dbfr.put(5, (int)1); // Номер отдела
+		dbfr.put(5, 1L); // Номер отдела
 		dbfr.put(6, &intg);  // Штучный товар
 		dbfr.put(7, info.ID);
 		dbfr.put(8, info.UnitPerPack);

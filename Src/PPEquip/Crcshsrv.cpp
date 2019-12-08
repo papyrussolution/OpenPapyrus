@@ -108,7 +108,7 @@ public:
 			P_IEParam[i] = 0;
 		{
 			PPAsyncCashNode acn;
-			MEMSZERO(acn);
+			// @v10.6.4 MEMSZERO(acn);
 			GetNodeData(&acn);
 			// @v9.2.5 SETFLAG(Options, BIN(acn.DrvVerMajor == 10), oV10);
 			ModuleVer = acn.DrvVerMajor; // @v9.2.5
@@ -160,7 +160,7 @@ private:
 	PPBillImpExpParam * SLAPI CreateImpExpParam(uint sdRecID);
 	void   SLAPI Backup(const char * pPrefix, const char * pPath);
 	int    SLAPI Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
-		AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo);
+		AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName);
 
 	class DeferredRemovingFileList : public SStrGroup {
 	public:
@@ -572,9 +572,10 @@ struct _MaxDisEntry { // @flat
 };
 
 int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
-	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo)
+	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName)
 {
 	assert(oneof3(mode, 0, 1, 2));
+	rResultFileName.Z();
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	XmlWriter * p_writer = 0;
@@ -632,6 +633,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 			ps.Merge(temp_buf);
 		}
 		THROW_MEM(p_writer = new XmlWriter(temp_buf, 1));
+		rResultFileName = temp_buf;
 	}
 	p_writer->StartElement("goods-catalog");
 	int    last_goods_export = 0, iter_end = 0;
@@ -742,7 +744,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 					p_writer->StartElement("group", "id", grp_code);
 					GetObjectName(PPOBJ_GOODSGROUP, prev_gds_info.ParentID, temp_buf);
 					p_writer->PutElement("name", temp_buf);
-					MEMSZERO(ggrec);
+					// @v10.6.4 MEMSZERO(ggrec);
 					{
 						PPID   parent_id = prev_gds_info.ParentID;
 						long   parents_count = 0;
@@ -877,7 +879,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 		}
 		if(rGoodsInfo.BarCode[0]) {
 			BarcodeTbl::Rec bc;
-			MEMSZERO(bc);
+			// @v10.6.4 MEMSZERO(bc);
 			bc.GoodsID = rGoodsInfo.ID;
 			STRNSCPY(bc.Code, rGoodsInfo.BarCode);
 			bc.Qtty = rGoodsInfo.UnitPerPack;
@@ -940,49 +942,28 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	//int    check_dig = 0;
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
 	int    diff_goods_export = 0;
 	uint   i = 0;
-	//long   plu_num = 1;
-	//PPID   prev_goods_id = 0;
-	//PPID   alc_cls_id = 0;
-	//PPID   tobacco_cls_id = 0;
-	//PPID   giftcard_cls_id = 0;
-	//PPID   sr_prodtagb_tag = 0;
 	SString temp_buf;
 	SString path;
 	SString path_goods;
 	SString path_cashiers;
 	SString path_cards;
 	SString iter_msg;
-	//SString alc_proof;
-	//SString alc_vol;
 	SString store_index; // Индекс магазина (извлекается из тега склада по конфигурационному параметру PPLocationConfig::StoreIdxTag)
-	//SString grp_code;
-	//BarcodeArray barcodes;
-	//PPUnit    unit_rec;
-	//PPObjUnit unit_obj;
+	StringSet ss_path_goods;
 	PPObjTag  tag_obj;
-	//PPGdsClsPacket gc_pack;
 	PPObjQuotKind  qk_obj;
-	//PPObjGoodsClass obj_gdscls;
-	//PPGoodsConfig gds_cfg;
-	//PPObjGoods gobj;
 	XmlWriter * p_writer = 0;
 	PPAsyncCashNode cn_data;
 	AsyncCashGoodsInfo gds_info;
-	//AsyncCashGoodsInfo prev_gds_info;
 	AsyncCashGoodsGroupInfo grp_info;
-	//AsyncCashGoodsIterator * p_gds_iter = 0;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
-	//PrcssrAlcReport::GoodsItem agi;
 	SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v10.6.3 SArray-->SVector
 	//SVector max_dis_list(sizeof(_MaxDisEntry)); // @v10.6.3 SArray-->SVector
 	PPObjGoodsGroup ggobj;
-	//RetailPriceExtractor rpe;
-	//PPObjGoods::ReadConfig(&gds_cfg);
 	//
 	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
 	//
@@ -1072,16 +1053,19 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		if(diff_goods_export) {
 			{
 				AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
-				THROW(Helper_ExportGoods_V10(1/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info));
+				THROW(Helper_ExportGoods_V10(1/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
+				ss_path_goods.add(temp_buf);
 			}
 			{
 				AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
-				THROW(Helper_ExportGoods_V10(2/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info));
+				THROW(Helper_ExportGoods_V10(2/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
+				ss_path_goods.add(temp_buf);
 			}
 		}
 		else {
 			AsyncCashGoodsIterator giter(NodeID, acgif, SinceDlsID, P_Dls);
-			THROW(Helper_ExportGoods_V10(0/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info));
+			THROW(Helper_ExportGoods_V10(0/*mode*/, path_goods, cn_data, store_index, &giter, sales_grp_list, gds_info, temp_buf));
+			ss_path_goods.add(temp_buf);
 		}
 	}
 	//
@@ -1270,10 +1254,16 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	}
 	PPWait(0);
 	PPWait(1);
-
 	THROW(DistributeFile(path,  0, SUBDIR_PRODUCTS));
-	SDelay(2000);
-	THROW(DistributeFile(path_goods, 0, SUBDIR_PRODUCTS));
+	{
+		//ps.Nam.CatChar('-').Cat((mode == 1) ? "attr" : "prices");
+		for(uint ssp = 0; ss_path_goods.get(&ssp, temp_buf);) {
+			if(fileExists(temp_buf)) {
+				SDelay(2000);
+				THROW(DistributeFile(/*path_goods*/temp_buf, 0, SUBDIR_PRODUCTS));
+			}
+		}
+	}
 	SDelay(2000);
 	THROW(DistributeFile(path_cards, 0, SUBDIR_CARDS));
 	// SDelay(2000);
@@ -1541,7 +1531,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_ary.freeAll();
-		MEMSZERO(ser_rec);
+		// @v10.6.4 MEMSZERO(ser_rec);
 		PPLoadText(PPTXT_EXPSCARD, fmt_buf);
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
@@ -2114,7 +2104,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			PPObjSCardSeries scs_obj;
 			AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 			scard_quot_ary.freeAll();
-			MEMSZERO(ser_rec);
+			// @v10.6.4 MEMSZERO(ser_rec);
 			for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 				if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 					AsyncCashSCardInfo info;
@@ -4498,7 +4488,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				THROW(tra);
 				for(uint i = 0; i < zrep_list.getCount(); i++) {
 					PPID   sess_id = 0;
-					ZRep * p_hdr = (ZRep *)zrep_list.at(i);
+					const ZRep * p_hdr = static_cast<const ZRep *>(zrep_list.at(i));
 					if(p_hdr && CS.SearchByNumber(&sess_id, NodeID, p_hdr->CashCode, p_hdr->ZRepCode, p_hdr->Start.d) > 0 && sess_id && CS.data.Temporary) {
 						THROW(CS.ResetTempSessTag(sess_id, 0));
 						SessAry.addUnique(sess_id);

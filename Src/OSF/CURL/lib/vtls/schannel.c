@@ -389,16 +389,12 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 		return CURLE_SSL_CONNECT_ERROR;
 	}
 
-	infof(data, "schannel: sent initial handshake data: "
-	    "sent %zd bytes\n", written);
-
+	infof(data, "schannel: sent initial handshake data: sent %zd bytes\n", written);
 	connssl->recv_unrecoverable_err = CURLE_OK;
 	connssl->recv_sspi_close_notify = false;
 	connssl->recv_connection_closed = false;
-
 	/* continue to second handshake step */
 	connssl->connecting_state = ssl_connect_2;
-
 	return CURLE_OK;
 }
 
@@ -473,44 +469,32 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 	for(;; ) {
 		if(doread) {
 			/* read encrypted handshake data from socket */
-			result = Curl_read_plain(conn->sock[sockindex],
-			    (char *)(connssl->encdata_buffer +
-				    connssl->encdata_offset),
-			    connssl->encdata_length -
-			    connssl->encdata_offset,
-			    &nread);
+			result = Curl_read_plain(conn->sock[sockindex], (char *)(connssl->encdata_buffer + connssl->encdata_offset),
+			    connssl->encdata_length - connssl->encdata_offset, &nread);
 			if(result == CURLE_AGAIN) {
 				if(connssl->connecting_state != ssl_connect_2_writing)
 					connssl->connecting_state = ssl_connect_2_reading;
-				infof(data, "schannel: failed to receive handshake, "
-				    "need more data\n");
+				infof(data, "schannel: failed to receive handshake, need more data\n");
 				return CURLE_OK;
 			}
 			else if((result != CURLE_OK) || (nread == 0)) {
-				failf(data, "schannel: failed to receive handshake, "
-				    "SSL/TLS connection failed");
+				failf(data, "schannel: failed to receive handshake, SSL/TLS connection failed");
 				return CURLE_SSL_CONNECT_ERROR;
 			}
 
 			/* increase encrypted data buffer offset */
 			connssl->encdata_offset += nread;
 		}
-
-		infof(data, "schannel: encrypted data buffer: offset %zu length %zu\n",
-		    connssl->encdata_offset, connssl->encdata_length);
-
+		infof(data, "schannel: encrypted data buffer: offset %zu length %zu\n", connssl->encdata_offset, connssl->encdata_length);
 		/* setup input buffers */
-		InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN, SAlloc::M(connssl->encdata_offset),
-		    curlx_uztoul(connssl->encdata_offset));
+		InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN, SAlloc::M(connssl->encdata_offset), curlx_uztoul(connssl->encdata_offset));
 		InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
 		InitSecBufferDesc(&inbuf_desc, inbuf, 2);
-
 		/* setup output buffers */
 		InitSecBuffer(&outbuf[0], SECBUFFER_TOKEN, NULL, 0);
 		InitSecBuffer(&outbuf[1], SECBUFFER_ALERT, NULL, 0);
 		InitSecBuffer(&outbuf[2], SECBUFFER_EMPTY, NULL, 0);
 		InitSecBufferDesc(&outbuf_desc, outbuf, 3);
-
 		if(inbuf[0].pvBuffer == NULL) {
 			failf(data, "schannel: unable to allocate memory");
 			return CURLE_OUT_OF_MEMORY;
@@ -556,8 +540,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 			for(i = 0; i < 3; i++) {
 				/* search for handshake tokens that need to be send */
 				if(outbuf[i].BufferType == SECBUFFER_TOKEN && outbuf[i].cbBuffer > 0) {
-					infof(data, "schannel: sending next handshake data: "
-					    "sending %lu bytes...\n", outbuf[i].cbBuffer);
+					infof(data, "schannel: sending next handshake data: sending %lu bytes...\n", outbuf[i].cbBuffer);
 
 					/* send handshake token to server */
 					result = Curl_write_plain(conn, conn->sock[sockindex],
@@ -565,12 +548,10 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 					    &written);
 					if((result != CURLE_OK) ||
 					    (outbuf[i].cbBuffer != (size_t)written)) {
-						failf(data, "schannel: failed to send next handshake data: "
-						    "sent %zd of %lu bytes", written, outbuf[i].cbBuffer);
+						failf(data, "schannel: failed to send next handshake data: sent %zd of %lu bytes", written, outbuf[i].cbBuffer);
 						return CURLE_SSL_CONNECT_ERROR;
 					}
 				}
-
 				/* free obsolete buffer */
 				if(outbuf[i].pvBuffer != NULL) {
 					s_pSecFn->FreeContextBuffer(outbuf[i].pvBuffer);
@@ -579,14 +560,11 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		}
 		else {
 			if(sspi_status == SEC_E_WRONG_PRINCIPAL)
-				failf(data, "schannel: SNI or certificate check failed: %s",
-				    Curl_sspi_strerror(conn, sspi_status));
+				failf(data, "schannel: SNI or certificate check failed: %s", Curl_sspi_strerror(conn, sspi_status));
 			else
-				failf(data, "schannel: next InitializeSecurityContext failed: %s",
-				    Curl_sspi_strerror(conn, sspi_status));
+				failf(data, "schannel: next InitializeSecurityContext failed: %s", Curl_sspi_strerror(conn, sspi_status));
 			return CURLE_SSL_CONNECT_ERROR;
 		}
-
 		/* check if there was additional remaining encrypted data */
 		if(inbuf[1].BufferType == SECBUFFER_EXTRA && inbuf[1].cbBuffer > 0) {
 			infof(data, "schannel: encrypted data length: %lu\n", inbuf[1].cbBuffer);
@@ -649,18 +627,13 @@ static CURLcode schannel_connect_step3(struct connectdata * conn, int sockindex)
 	SECURITY_STATUS sspi_status = SEC_E_OK;
 	CERT_CONTEXT * ccert_context = NULL;
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
-	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
-	    conn->host.name;
+	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
 #endif
 #ifdef HAS_ALPN
 	SecPkgContext_ApplicationProtocol alpn_result;
 #endif
-
 	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
-
-	infof(data, "schannel: SSL/TLS connection with %s port %hu (step 3/3)\n",
-	    hostname, conn->remote_port);
-
+	infof(data, "schannel: SSL/TLS connection with %s port %hu (step 3/3)\n", hostname, conn->remote_port);
 	if(!connssl->cred)
 		return CURLE_SSL_CONNECT_ERROR;
 
@@ -1510,16 +1483,12 @@ size_t Curl_schannel_version(char * buffer, size_t size)
 CURLcode Curl_schannel_random(uchar * entropy, size_t length)
 {
 	HCRYPTPROV hCryptProv = 0;
-
-	if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL,
-		    CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+	if(!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
 		return CURLE_FAILED_INIT;
-
 	if(!CryptGenRandom(hCryptProv, (DWORD)length, entropy)) {
 		CryptReleaseContext(hCryptProv, 0UL);
 		return CURLE_FAILED_INIT;
 	}
-
 	CryptReleaseContext(hCryptProv, 0UL);
 	return CURLE_OK;
 }
@@ -1533,20 +1502,12 @@ static CURLcode verify_certificate(struct connectdata * conn, int sockindex)
 	CURLcode result = CURLE_OK;
 	CERT_CONTEXT * pCertContextServer = NULL;
 	const CERT_CHAIN_CONTEXT * pChainContext = NULL;
-	const char * const conn_hostname = SSL_IS_PROXY() ?
-	    conn->http_proxy.host.name :
-	    conn->host.name;
-
-	status = s_pSecFn->QueryContextAttributes(&connssl->ctxt->ctxt_handle,
-	    SECPKG_ATTR_REMOTE_CERT_CONTEXT,
-	    &pCertContextServer);
-
+	const char * const conn_hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
+	status = s_pSecFn->QueryContextAttributes(&connssl->ctxt->ctxt_handle, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &pCertContextServer);
 	if((status != SEC_E_OK) || (pCertContextServer == NULL)) {
-		failf(data, "schannel: Failed to read remote certificate context: %s",
-		    Curl_sspi_strerror(conn, status));
+		failf(data, "schannel: Failed to read remote certificate context: %s", Curl_sspi_strerror(conn, status));
 		result = CURLE_PEER_FAILED_VERIFICATION;
 	}
-
 	if(result == CURLE_OK) {
 		CERT_CHAIN_PARA ChainPara;
 		memzero(&ChainPara, sizeof(ChainPara));
@@ -1590,61 +1551,39 @@ static CURLcode verify_certificate(struct connectdata * conn, int sockindex)
 			   curl: (51) schannel: CertGetNameString() certificate hostname
 			   (.google.com) did not match connection (google.com)
 			 */
-			len = CertGetNameString(pCertContextServer,
-			    CERT_NAME_DNS_TYPE,
-			    CERT_NAME_DISABLE_IE4_UTF8_FLAG,
-			    NULL,
-			    cert_hostname_buff,
-			    256);
+			len = CertGetNameString(pCertContextServer, CERT_NAME_DNS_TYPE, CERT_NAME_DISABLE_IE4_UTF8_FLAG, NULL, cert_hostname_buff, 256);
 			if(len > 0) {
-				const char * cert_hostname;
-
 				/* Comparing the cert name and the connection hostname encoded as UTF-8
 				 * is acceptable since both values are assumed to use ASCII
 				 * (or some equivalent) encoding
 				 */
-				cert_hostname = Curl_convert_tchar_to_UTF8(cert_hostname_buff);
+				const char * cert_hostname = Curl_convert_tchar_to_UTF8(cert_hostname_buff);
 				if(!cert_hostname) {
 					result = CURLE_OUT_OF_MEMORY;
 				}
 				else {
-					int match_result;
-
-					match_result = Curl_cert_hostcheck(cert_hostname, conn->host.name);
+					int match_result = Curl_cert_hostcheck(cert_hostname, conn->host.name);
 					if(match_result == CURL_HOST_MATCH) {
-						infof(data,
-						    "schannel: connection hostname (%s) validated "
-						    "against certificate name (%s)\n",
-						    conn->host.name,
-						    cert_hostname);
+						infof(data, "schannel: connection hostname (%s) validated against certificate name (%s)\n", conn->host.name, cert_hostname);
 						result = CURLE_OK;
 					}
 					else {
-						failf(data,
-						    "schannel: connection hostname (%s) "
-						    "does not match certificate name (%s)",
-						    conn->host.name,
-						    cert_hostname);
+						failf(data, "schannel: connection hostname (%s) does not match certificate name (%s)", conn->host.name, cert_hostname);
 						result = CURLE_PEER_FAILED_VERIFICATION;
 					}
 					Curl_unicodefree(cert_hostname);
 				}
 			}
 			else {
-				failf(data,
-				    "schannel: CertGetNameString did not provide any "
-				    "certificate name information");
+				failf(data, "schannel: CertGetNameString did not provide any certificate name information");
 				result = CURLE_PEER_FAILED_VERIFICATION;
 			}
 		}
 	}
-
 	if(pChainContext)
 		CertFreeCertificateChain(pChainContext);
-
 	if(pCertContextServer)
 		CertFreeCertificateContext(pCertContextServer);
-
 	return result;
 }
 

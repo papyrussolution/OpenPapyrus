@@ -341,6 +341,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 				Goods2Tbl::Rec goods_rec;
 				ArticleTbl::Rec ar_rec;
 				LocationTbl::Rec loc_rec;
+				BarcodeTbl::Rec bc_rec;
 				long   numrecs = 0;
 				P_IE->GetNumRecs(&numrecs);
 				cntr.SetTotal(numrecs);
@@ -376,7 +377,6 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 							}
 						}
 						if(!goods_id && sdr_rec.GoodsCode[0]) {
-							BarcodeTbl::Rec bc_rec;
 							if(sdr_rec.GoodsCode[0] && GObj.SearchByBarcode(sdr_rec.GoodsCode, &bc_rec, &goods_rec, 1) > 0) {
 								if(goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC))
 									goods_id = bc_rec.GoodsID;
@@ -978,7 +978,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		{
 			PPObjBill * p_bobj = BillObj;
 			ReceiptTbl::Rec rcpt_rec;
-			MEMSZERO(rcpt_rec);
+			// @v10.6.4 MEMSZERO(rcpt_rec);
 			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, 0, MAXDATE, &rcpt_rec) > 0) {
 				QualityCertTbl::Rec qcert_rec;
 				sdr_goods.Price = rcpt_rec.Price;
@@ -990,7 +990,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				temp_buf.CopyTo(sdr_goods.Serial, sizeof(sdr_goods.Serial));
 				sdr_goods.UnitsPerPack = rcpt_rec.UnitPerPack;
 				sdr_goods.Expiry = rcpt_rec.Expiry;
-				MEMSZERO(qcert_rec);
+				// @v10.6.4 MEMSZERO(qcert_rec);
 				if(rcpt_rec.QCertID && P_QcObj->Search(rcpt_rec.QCertID, &qcert_rec) > 0) {
 					STRNSCPY(sdr_goods.QCNumber, qcert_rec.Code);
 					STRNSCPY(sdr_goods.QCBlank,  qcert_rec.BlankCode);
@@ -1633,7 +1633,7 @@ int SLAPI PPGoodsImporter::PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID)
 	PPID   qcert_id = 0;
 	if(pRec && *strip(pRec->QCNumber) && QcObj.SearchByCode(pRec->QCNumber, &qcert_id, 0) <= 0) {
 		QualityCertTbl::Rec qc_rec;
-		MEMSZERO(qc_rec);
+		// @v10.6.4 MEMSZERO(qc_rec);
 		STRNSCPY(qc_rec.Code,      strip(pRec->QCNumber));
 		STRNSCPY(qc_rec.BlankCode, strip(pRec->QCBlank));
 		if(checkdate(pRec->QCDate, 1))
@@ -2567,7 +2567,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										do_update = 1;
 									if(ar_code.NotEmpty()) {
 										ArGoodsCodeTbl::Rec ar_code_rec;
-										MEMSZERO(ar_code_rec);
+										// @v10.6.4 MEMSZERO(ar_code_rec);
 										ar_code_rec.GoodsID = pack.Rec.ID;
 										ar_code_rec.ArID = Param.SupplID;
 										ar_code_rec.Pack = 1000; // 1.0
@@ -2714,7 +2714,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 											ArGoodsCodeArray arcode_list;
 											ArGoodsCodeTbl::Rec ar_code_rec;
 											arcode_list = pack.ArCodes;
-											MEMSZERO(ar_code_rec);
+											// @v10.6.4 MEMSZERO(ar_code_rec);
 											ar_code_rec.GoodsID = goods_id;
 											ar_code_rec.ArID = suppl_id; //
 											ar_code_rec.Pack = 1000; // 1.0

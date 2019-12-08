@@ -1740,9 +1740,8 @@ int SLAPI PrcssrBizScore::Param::Write(SBuffer & rBuf, long)
 	return ok;
 }
 
-SLAPI PrcssrBizScore::PrcssrBizScore()
+SLAPI PrcssrBizScore::PrcssrBizScore() : P_Resolver(0)
 {
-	P_Resolver = 0;
 	MEMSZERO(P);
 }
 

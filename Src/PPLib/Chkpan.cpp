@@ -431,7 +431,7 @@ SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Qtty((qtty != 0.0) ? qtty
 //
 CPosProcessor::AcceptCheckProcessBlock::AcceptCheckProcessBlock() : R(1), SyncPrnErr(0), RExt(1), ExtSyncPrnErr(0), Flags(0)
 {
-	MEMSZERO(LastChkRec);
+	// @v10.6.4 MEMSZERO(LastChkRec);
 }
 //
 //
@@ -2697,7 +2697,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 			if(mode == accmRegular && pPack && !(pPack->Rec.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 				int    scst = scstUnkn;
 				SCardTbl::Rec sc_rec;
-				MEMSZERO(sc_rec);
+				// @v10.6.4 MEMSZERO(sc_rec);
 				if(CSt.GetID()) {
 					THROW(ScObj.Search(CSt.GetID(), &sc_rec) > 0);
 					scst = ScObj.GetSeriesType(sc_rec.SeriesID);
@@ -4318,6 +4318,7 @@ int FASTCALL CheckPaneDialog::Barrier(int rmv)
 }
 
 class ComplexDinnerDialog : public PPListDialog {
+	DECL_DIALOG_DATA(SaComplex);
 public:
 	ComplexDinnerDialog(PPID locID) : PPListDialog(DLG_COMPLDIN, CTL_COMPLDIN_ELEMENTS), LocID(locID)
 	{
@@ -4345,7 +4346,7 @@ public:
 			Ptb.SetFont(fontList, ::CreateFontIndirect(&log_font));
 		}
 	}
-	int    setDTS(const SaComplex * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		Data.RecalcFinalPrice();
@@ -4353,7 +4354,7 @@ public:
 		enableCommand(cmOK, Data.IsComplete());
 		return 1;
 	}
-	int    getDTS(SaComplex * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = -1;
 		if(Data.IsComplete()) {
@@ -4381,7 +4382,6 @@ private:
 	long   ListEntryGap;
 	PPID   LocID;
 	SPaintToolBox Ptb;
-	SaComplex Data;
 	PPObjGoods GObj;
 };
 
@@ -4842,8 +4842,7 @@ int SelCheckListDialog::setupList()
 				SString scard_psn, scard_no;
 				STimeChunk tm_chunk;
 				CCheckExtTbl::Rec ext_chk_rec;
-
-				MEMSZERO(ext_chk_rec);
+				// @v10.6.4 MEMSZERO(ext_chk_rec);
 				P_Srv->GetCc().GetExt(r_chk_rec.ID, &ext_chk_rec);
 				{
 					temp_buf.Z();
@@ -5158,7 +5157,7 @@ int SelCheckListDialog::SplitCheck()
 							pack.ClearLines();
 							for(uint pos = 0; left_list.enumItems(&pos, (void **)&p_item) > 0;) {
 								CCheckLineTbl::Rec chk_item;
-								MEMSZERO(chk_item);
+								// @v10.6.4 MEMSZERO(chk_item);
 								chk_item.GoodsID  = p_item->GoodsID;
 								chk_item.DivID    = static_cast<int16>(p_item->DivID);
 								chk_item.Price    = dbltointmny(p_item->Price);
@@ -5168,7 +5167,7 @@ int SelCheckListDialog::SplitCheck()
 							}
 							for(uint pos = 0; right_list.enumItems(&pos, (void **)&p_item) > 0;) {
 								CCheckLineTbl::Rec chk_item;
-								MEMSZERO(chk_item);
+								// @v10.6.4 MEMSZERO(chk_item);
 								chk_item.GoodsID  = p_item->GoodsID;
 								chk_item.DivID    = static_cast<int16>(p_item->DivID);
 								chk_item.Price    = dbltointmny(p_item->Price);
@@ -5399,19 +5398,20 @@ struct AddrByPhoneItem { // @flat
 };
 
 class CheckDlvrDialog : public TDialog {
+	DECL_DIALOG_DATA(CheckPaneDialog::ExtCcData);
 public:
 	CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), ScsRsrvPoolID(0), Channel(pChannel),
 		LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
 	{
 		addGroup(GRP_SCARD, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
-		MEMSZERO(OrgLocRec);
+		// @v10.6.4 MEMSZERO(OrgLocRec);
 		Data.SCardID_ = scardID;
 		SetupCalDate(CTLCAL_CCHKDLVR_DT, CTL_CCHKDLVR_DT);
 		SetupTimePicker(this, CTL_CCHKDLVR_TM, CTLTM_CCHKDLVR_TM);
 		setStaticText(CTL_CCHKDLVR_ST_SIP, Channel);
 		GetMainCityID(&DefCityID);
 	}
-	int    setDTS(const CheckPaneDialog::ExtCcData * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		{
@@ -5450,7 +5450,7 @@ public:
 		// } @v9.4.11
 		return ok;
 	}
-	int    getDTS(CheckPaneDialog::ExtCcData * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -5970,7 +5970,6 @@ private:
 	}
 
 	PPID   ScsRsrvPoolID; // Персональная карта была акцептирована из резервного пула ScsRsrvPoolID.
-	CheckPaneDialog::ExtCcData Data;
 	LocationTbl::Rec OrgLocRec;
 	PPID   DefCityID;
 	PPID   PersonID;
@@ -9070,7 +9069,7 @@ int CheckPaneDialog::AcceptRowDiscount()
 					SetupRowData(1);
 					{
 						CCheckLineTbl::Rec row;
-						MEMSZERO(row);
+						// @v10.6.4 MEMSZERO(row);
 						row.CheckID  = SelPack.Rec.ID;
 						row.GoodsID  = P.GetCur().GoodsID;
 						row.Quantity = P.GetCur().Quantity;
@@ -9690,7 +9689,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 				return; // После endModal не следует обращаться к this
 			}
 			else {
-				MEMSZERO(sc_rec);
+				// @v10.6.4 MEMSZERO(sc_rec);
 				if(PPObjSCard::PreprocessSCardCode(code) > 0 && ScObj.SearchCode(0, code, &sc_rec) > 0) {
 				}
 				else {
@@ -11259,7 +11258,7 @@ int CheckPaneDialog::GetLastCheckPacket(PPID nodeID, PPID sessID, CCheckPacket *
 {
 	int    ok = -1;
 	CCheckTbl::Rec chk_rec;
-	MEMSZERO(chk_rec);
+	// @v10.6.4 MEMSZERO(chk_rec);
 	if(pPack && GetCc().GetLastCheck(sessID, nodeID, &chk_rec) > 0 && GetCc().LoadPacket(chk_rec.ID, 0, pPack) > 0) {
 		if(CnFlags & CASHF_UNIFYGDSATCHECK)
 			pPack->MergeLines(0);
@@ -12546,7 +12545,7 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 					char sub[64];
 					QualityCertTbl::Rec qc_rec;
 					StringSet ss(SLBColumnDelim);
-					MEMSZERO(qc_rec);
+					// @v10.6.4 MEMSZERO(qc_rec);
 					ss.add(datefmt(&lot.Dt, DATF_DMY, sub));
 					ss.add(datefmt(&lot.Expiry, DATF_DMY, sub));
 					QCObj.Search(lot.QCertID, &qc_rec);

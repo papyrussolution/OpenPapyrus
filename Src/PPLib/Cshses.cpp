@@ -261,7 +261,7 @@ int SLAPI PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long fla
 		const int is_temp_check_exists = BIN(SearchTempCheckByTime(cashID, &rDT) > 0);
 		if(!is_temp_check_exists) {
 			TempCCheckTbl::Rec new_rec;
-			MEMSZERO(new_rec);
+			// @v10.6.4 MEMSZERO(new_rec);
 			new_rec.SessID = sessNumber;
 			new_rec.CashID = cashID;
 			new_rec.Code   = code;
@@ -339,7 +339,7 @@ int SLAPI PPAsyncCashSession::AddTempCheckPaym(long checkID, int paymType, doubl
 		k0.RByCheck = MAXSHORT;
 		int16  rbc = (P_TmpCpTbl->search(0, &k0, spLe) && P_TmpCpTbl->data.CheckID == checkID) ? P_TmpCpTbl->data.RByCheck : 0;
 		CCheckPaymTbl::Rec cp_rec;
-		MEMSZERO(cp_rec);
+		// @v10.6.4 MEMSZERO(cp_rec);
 		cp_rec.CheckID = checkID;
 		cp_rec.RByCheck = ++rbc;
 		cp_rec.PaymType = paymType;
@@ -603,7 +603,7 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 			const TempCCheckLineTbl::Rec & r_rec = t->data;
 			PPID   temp_chk_id = r_rec.CheckID;
 			CCheckLineExtTbl::Rec ext_rec;
-			MEMSZERO(ext_rec);
+			// @v10.6.4 MEMSZERO(ext_rec);
 			if(last_temp_chk_id && temp_chk_id == last_temp_chk_id)
 				p = last_chk_pos;
 			else if(pList->bsearch(&temp_chk_id, &p, CMPF_LONG)) {
@@ -734,7 +734,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 				PPID   sess_id = 0;
 				TotalLogCSessEntry * p_tl_entry = 0;
 				CCheckExtTbl::Rec ext_rec;
-				MEMSZERO(ext_rec);
+				// @v10.6.4 MEMSZERO(ext_rec);
 				memcpy(&chk_rec, &temp_chk_rec, sizeof(chk_rec));
 				dtm.Set(chk_rec.Dt, chk_rec.Tm);
 				THROW(GetCashSessID(dtm, chk_rec.CashID, chk_rec.SessID, forwardSess, BIN(chk_rec.Flags & CCHKF_TEMPSESS), &sess_id));
@@ -789,7 +789,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 							const CcAmountEntry & r_entry = cp_list.at(i);
 							SCardTbl::Rec sc_rec;
 							CCheckPaymTbl::Rec cp_rec;
-							MEMSZERO(cp_rec);
+							// @v10.6.4 MEMSZERO(cp_rec);
 							cp_rec.CheckID = check_id;
 							cp_rec.RByCheck = ++rbc;
 							cp_rec.PaymType = (int16)r_entry.Type;
@@ -802,7 +802,7 @@ int SLAPI PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rS
 								const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 								if(oneof2(scst, scstCredit, scstBonus)) {
 									SCardOpTbl::Rec scop_rec;
-									MEMSZERO(scop_rec);
+									// @v10.6.4 MEMSZERO(scop_rec);
 									scop_rec.SCardID = sc_rec.ID;
 									scop_rec.Dt      = chk_rec.Dt;
 									scop_rec.Tm      = chk_rec.Tm;
@@ -1870,7 +1870,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							int r2 = GObj.GenerateScaleBarcode(grec.ID, BcPrefixList.at(i).Key, temp_buf);
 							if(r2 > 0) {
 								BarcodeTbl::Rec bc_rec;
-								MEMSZERO(bc_rec);
+								// @v10.6.4 MEMSZERO(bc_rec);
 								bc_rec.GoodsID = grec.ID;
 								bc_rec.Qtty = 1.0;
 								temp_buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
@@ -2035,7 +2035,7 @@ int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 //
 SLAPI AsyncCashSCardInfo::AsyncCashSCardInfo() : IsClosed(0), Rest(0.0)
 {
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 }
 
 AsyncCashSCardInfo & SLAPI AsyncCashSCardInfo::Z()
@@ -2051,7 +2051,7 @@ AsyncCashSCardInfo & SLAPI AsyncCashSCardInfo::Z()
 SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
 	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID), Since(ZERODATETIME)
 {
-	MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Rec);
 	DefSCardPersonID = SCObj.GetConfig().DefPersonID;
 	PersonTbl::Rec psn_rec;
 	if(PsnObj.Search(DefSCardPersonID, &psn_rec) > 0)

@@ -306,7 +306,7 @@ int SLAPI PPObjSCard::Import(int use_ta)
 					SCardTbl::Rec sc_rec;
 					DbfRecord rec(&in_tbl);
 					THROW(in_tbl.getRec(&rec));
-					MEMSZERO(sc_rec);
+					// @v10.6.4 MEMSZERO(sc_rec);
 					sc_rec.SeriesID = scser_id;
 					rec.get(fldn_codenum, codenum);
 					if(codenum) {
@@ -360,7 +360,7 @@ int SLAPI PPObjSCard::Import(int use_ta)
 						if(scard_id && turnover > 0) {
 							PPID cc_id = 0;
 							CCheckTbl::Rec cc_rec;
-							MEMSZERO(cc_rec);
+							// @v10.6.4 MEMSZERO(cc_rec);
 							cc_rec.Code = ++cc_code;
 							encodedate(1, 1, 2001, &cc_rec.Dt);
 							cc_time.v++;
@@ -1167,7 +1167,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 									do_update = 1;
 								if(ar_code.NotEmpty()) {
 									ArGoodsCodeTbl::Rec ar_code_rec;
-									MEMSZERO(ar_code_rec);
+									// @v10.6.4 MEMSZERO(ar_code_rec);
 									ar_code_rec.GoodsID = pack.Rec.ID;
 									ar_code_rec.ArID = 0; // ?
 									ar_code_rec.Pack = 1000; // 1.0
@@ -1307,7 +1307,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 									ArGoodsCodeArray arcode_list;
 									ArGoodsCodeTbl::Rec ar_code_rec;
 									arcode_list = pack.ArCodes;
-									MEMSZERO(ar_code_rec);
+									// @v10.6.4 MEMSZERO(ar_code_rec);
 									ar_code_rec.GoodsID = goods_id;
 									ar_code_rec.ArID = 0; // ?
 									ar_code_rec.Pack = 1000; // 1.0
@@ -1342,7 +1342,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 						rec.get(fldn_qc_number, temp_buf);
 						if(*strip(temp_buf) && qc_obj.SearchByCode(temp_buf, &qcert_id, 0) <= 0) {
 							QualityCertTbl::Rec qc_rec;
-							MEMSZERO(qc_rec);
+							// @v10.6.4 MEMSZERO(qc_rec);
 							STRNSCPY(qc_rec.Code, temp_buf);
 							rec.get(fldn_qc_blank, temp_buf);
 							STRNSCPY(qc_rec.BlankCode, strip(temp_buf));
@@ -1797,7 +1797,7 @@ int SLAPI ImportSpecSeries()
 				while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 					int    dup = 0;
 					SpecSeries2Tbl::Rec ss_rec;
-					MEMSZERO(ss_rec);
+					// @v10.6.4 MEMSZERO(ss_rec);
 					ss_rec.InfoKind = SPCSERIK_SPOILAGE;
 					STRNSCPY(ss_rec.Serial, src_rec.Serial);
 					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_GOODSNAME, (temp_buf = src_rec.GoodsName).Transf(CTRANSF_OUTER_TO_INNER));
@@ -2156,7 +2156,7 @@ int SLAPI PrcssrPhoneListImport::Run()
 						if(!found) {
 							PPID   loc_id = 0;
 							LocationTbl::Rec loc_rec;
-							MEMSZERO(loc_rec);
+							// @v10.6.4 MEMSZERO(loc_rec);
 							LocationCore::SetExField(&loc_rec, LOCEXSTR_PHONE, phone);
 							if(address.NotEmpty())
 								LocationCore::SetExField(&loc_rec, LOCEXSTR_SHORTADDR, address);
@@ -2663,7 +2663,7 @@ int SLAPI PrcssrImportKLADR::PreImport()
 			while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 				char status_text[64];
 				TempKLADRTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(rec.Name, temp_buf);
 				(temp_buf = src_rec.StatusAbbr).Transf(CTRANSF_OUTER_TO_INNER);
@@ -2697,7 +2697,7 @@ int SLAPI PrcssrImportKLADR::PreImport()
 			while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 				char status_text[64];
 				TempKLADRTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(rec.Name, temp_buf);
 				(temp_buf = src_rec.StatusAbbr).Transf(CTRANSF_OUTER_TO_INNER);

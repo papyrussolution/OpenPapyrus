@@ -142,7 +142,7 @@ int SLAPI ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char 
 				}
 			}
 			else {
-				MEMSZERO(crp_rec);
+				// @v10.6.4 MEMSZERO(crp_rec);
 				ZStrToLStr(crp_rec.BarCode, pCardCode, sizeof(crp_rec.BarCode));
 				crp_rec.PayDate = scop_rec.Dt;
 				crp_rec.PayTime = scop_rec.Tm;
@@ -172,7 +172,7 @@ int SLAPI ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCr
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		MEMSZERO(ser_rec);
+		// @v10.6.4 MEMSZERO(ser_rec);
 		for(ser_id = 0; SCrdSObj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			PPSCardSerPacket scs_pack;
 			THROW(SCrdSObj.GetPacket(ser_id, &scs_pack) > 0);
@@ -186,7 +186,7 @@ int SLAPI ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCr
 					char   cardname[128], * p;
 					PPID   log_num = pLogNumList->at(i);
 					Cr_PosLoadTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 					rec.DataType   = 11;
 					// 0 - discount card, -1 - credit card

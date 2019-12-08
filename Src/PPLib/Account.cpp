@@ -56,19 +56,23 @@ int SLAPI AccIDToAcct(PPID id, int ord, Acct * pAcct)
 	ENDCATCH
 	return ok;
 }
+
+SLAPI PPAccount::PPAccount()
+{
+	THISZERO();
+}
 //
 // PPAccountPacket
 //
 SLAPI PPAccountPacket::PPAccountPacket()
 {
-	Init();
 }
 
 void SLAPI PPAccountPacket::Init()
 {
 	MEMSZERO(Rec);
-	CurList.freeAll();
-	GenList.freeAll();
+	CurList.Z();
+	GenList.clear();
 }
 
 PPAccountPacket & FASTCALL PPAccountPacket::operator = (const PPAccountPacket & src)

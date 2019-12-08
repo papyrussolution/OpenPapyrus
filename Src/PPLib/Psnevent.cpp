@@ -151,8 +151,8 @@ PPPsnEventPacket::OnTurnBlock & PPPsnEventPacket::OnTurnBlock::Z()
 //
 SLAPI PPPsnEventPacket::PPPsnEventPacket()
 {
-	MEMSZERO(Rec);
-	MEMSZERO(Reg);
+	// @v10.6.4 MEMSZERO(Rec);
+	// @v10.6.4 MEMSZERO(Reg);
 	Otb.Z();
 }
 

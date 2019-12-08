@@ -836,6 +836,9 @@ IMPLEMENT_JOB_HDL_FACTORY(SCARDDISCRECALC);
 extern int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags); // @v5.0.0
 
 struct ScalePrepParam {
+	SLAPI  ScalePrepParam() : ScaleID(0), Flags(0)
+	{
+	}
 	PPID   ScaleID;
 	long   Flags;
 };
@@ -849,7 +852,7 @@ public:
 	{
 		int    ok = -1, r = 0;
 		ScalePrepParam param;
-		MEMSZERO(param);
+		// @v10.6.4 MEMSZERO(param);
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = ScalePrepDialog(DLG_SCALETRAN, &param.ScaleID, &param.Flags);
@@ -2777,8 +2780,7 @@ int RFIDDevPrcssr::Run()
 						double price = 0;
 						SString msg;
 						SCardTbl::Rec sc_rec;
-
-						MEMSZERO(sc_rec);
+						// @v10.6.4 MEMSZERO(sc_rec);
 						cmd = DVCCMD_TOGGLE;
 						if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0) {
 							if(p_dvc->GetSessionPrice(&GObj, &price) > 0) {
@@ -3570,9 +3572,8 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 	const uint grp_prctech = 2;
 	RVALUEPTR(Data, pData);
 	PrcTechCtrlGroup::Rec ptcg_rec;
-	MEMSZERO(ptcg_rec);
+	// @v10.6.4 MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = Data.PrcID;
-
 	if(Data.Flags & TSessionFilt::fManufPlan) {
  		addGroup(grp_prctech, new PrcTechCtrlGroup(CTLSEL_JTSASMSFILT_PRC, 0, 0, 0, 0, 0));
 		if(Data.PrcID == 0)

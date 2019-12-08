@@ -357,7 +357,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 						if(rest_part != 0.0 || expend2 != 0.0 || c) {
 							TempGoodsTaxAnlzTbl::Rec rec;
 							Goods2Tbl::Rec goods_rec;
-							MEMSZERO(rec);
+							// @v10.6.4 MEMSZERO(rec);
 							rec.LotID = lot_item.ID;
 							rec.GoodsID = lot_item.GoodsID;
 							if(GObj.Fetch(lot_item.GoodsID, &goods_rec) > 0) {

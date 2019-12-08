@@ -1834,7 +1834,7 @@ int SLAPI PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.AsscType = PPASS_ADDRESSBOOK;
 			rec.PrmrObjID = usr_id;
 			rec.ScndObjID = personID;

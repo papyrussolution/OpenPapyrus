@@ -11535,7 +11535,6 @@ struct SColor : public SColorBase { // @persistent
 	SColor(SColourCollection c);
 	SColor(COLORREF c);
 	SColor & FASTCALL operator = (const SColorBase & rS);
-
 	SColor FASTCALL Lighten(float factor) const;
 	SColor FASTCALL Darken(float factor) const;
 };

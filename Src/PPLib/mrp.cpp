@@ -87,7 +87,7 @@ int SLAPI MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(r = SearchByLink(pRec->LinkObjType, pRec->LinkObjID, pRec->LocID, pRec->Dt, 0));
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		STRNSCPY(rec.Name, pRec->Name);
 		rec.ParentID = pRec->ParentID;
 		rec.LinkObjType = pRec->LinkObjType;
@@ -210,7 +210,7 @@ int SLAPI MrpTabCore::AddCTab(const CMrpTab * pTab, int use_ta)
 		THROW(tra);
 		for(uint i = 0; pTab->enumItems(&i, (void **)&p_row);) {
 			MrpLineTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.TabID = p_row->TabID;
 			rec.DestID = p_row->DestID;
 			rec.SrcID = p_row->SrcID;
@@ -1587,7 +1587,7 @@ int SLAPI PPObjMrpTab::GetDeficitList(const MrpTabPacket * pPack, PPID srcID, in
 int SLAPI PPObjMrpTab::CreateByGoods(PPID * pID, const char * pName, PPID goodsID, PPID locID, LDATE dt, int use_ta)
 {
 	MrpTabTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	STRNSCPY(rec.Name, pName);
 	rec.LinkObjType = PPOBJ_GOODS;
 	rec.LinkObjID = goodsID;
@@ -1603,7 +1603,7 @@ int SLAPI PPObjMrpTab::CreateByBill(PPID * pID, const char * pName, PPID billID,
 	BillTbl::Rec bill_rec;
 	MrpTabTbl::Rec rec;
 	THROW(BillObj->Search(billID, &bill_rec) > 0);
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	STRNSCPY(rec.Name, NZOR(pName, bill_rec.Code));
 	rec.LinkObjType = PPOBJ_BILL;
 	rec.LinkObjID   = billID;
@@ -1624,7 +1624,7 @@ int SLAPI PPObjMrpTab::CreateByDraftWrOff(PPID * pID, const char * pName, PPID d
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		STRNSCPY(rec.Name, NZOR(pName, dwo_rec.Name));
 		rec.LinkObjType = PPOBJ_DRAFTWROFF;
 		rec.LinkObjID   = dwoID;

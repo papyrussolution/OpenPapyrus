@@ -3004,7 +3004,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 					{
 						LocTransfTbl::Rec loct_rec;
 						uint   j;
-						MEMSZERO(loct_rec);
+						// @v10.6.4 MEMSZERO(loct_rec);
 						qtty = sdr_brow.Qtty;
 						loct_tbl.GetTransByBill(billID, ti.RByBill, &cell_list);
 						for(j = 0; j < cell_list.getCount(); j++)
@@ -3714,7 +3714,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 				double price = 0.0;
 				ReceiptTbl::Rec lot_rec;
-				MEMSZERO(lot_rec);
+				// @v10.6.4 MEMSZERO(lot_rec);
 				if(goods_rec.Flags & GF_UNLIM) {
 					const QuotIdent qi(QIDATE(getcurdate_()), loc_id, PPQUOTK_BASE, 0L /* @curID */);
 					goods_obj.GetQuot(goods_id, qi, 0L, 0L, &price);
@@ -4533,9 +4533,8 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 			BillTbl::Rec bill_rec;
 			PPBillPacket pack, link_pack;
 			Sdr_SBIIBill sdr_bill;
-
 			MEMSZERO(sdr_bill);
-			MEMSZERO(bill_rec);
+			// @v10.6.4 MEMSZERO(bill_rec);
 			THROW(p_ie_bill->ReadRecord(&sdr_bill, sizeof(sdr_bill)));
 			uuid.FromStr(sdr_bill.Guid);
 			(bill_code = sdr_bill.Code).Strip();
@@ -4559,7 +4558,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 				accept_doc = (r > 0) ? 0 : 1;
 				if(accept_doc) {
 					BillTbl::Rec sample_bill_rec;
-					MEMSZERO(sample_bill_rec);
+					// @v10.6.4 MEMSZERO(sample_bill_rec);
 					if(sdr_bill.SampleID) {
 						if(p_bobj->Search(sdr_bill.SampleID, &sample_bill_rec) > 0)
 							op_id = pPack->P_SBIICfg->GetOpID(sample_bill_rec.OpID);
@@ -4710,7 +4709,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 									ilti.Cost = sdr_brow.Cost;
 								if(ilti.Cost == 0.0) {
 									ReceiptTbl::Rec lot_rec;
-									MEMSZERO(lot_rec);
+									// @v10.6.4 MEMSZERO(lot_rec);
 									::GetCurGoodsPrice(sdr_brow.GoodsID, loc_id, GPRET_INDEF, 0, &lot_rec);
 									ilti.Cost = lot_rec.Cost;
 								}
@@ -4826,19 +4825,19 @@ int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcod
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	double rest = 0.0;
-	Goods2Tbl::Rec g_rec;
 	PPObjGoods g_obj;
-	ReceiptTbl::Rec lot_rec;
 	PUGL   deficit_list;
 	PPObjTSession tses_obj;
 	long   hdl_tses_iter = -1;
 	SString msg_buf, fmt_buf;
 	if(pPack && pBarcode) {
-		MEMSZERO(g_rec);
-		MEMSZERO(lot_rec);
-		if(g_obj.SearchByBarcode(pBarcode, 0, &g_rec) > 0) {
+		Goods2Tbl::Rec goods_rec;
+		ReceiptTbl::Rec lot_rec;
+		// @v10.6.4 MEMSZERO(goods_rec);
+		// @v10.6.4 MEMSZERO(lot_rec);
+		if(g_obj.SearchByBarcode(pBarcode, 0, &goods_rec) > 0) {
 			ILTI ilti;
-			ilti.GoodsID  = g_rec.ID;
+			ilti.GoodsID  = goods_rec.ID;
 			ilti.SetQtty(-qtty);
 			ilti.Price    = price;
 			THROW(p_bobj->ConvertILTI(&ilti, pPack, 0, CILTIF_DEFAULT, 0));
@@ -5088,7 +5087,7 @@ int SLAPI IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID,
 			PPObjBill * p_bobj = BillObj;
 			PPIDArray lot_list;
 			Goods2Tbl::Rec goods_rec;
-			MEMSZERO(goods_rec);
+			// @v10.6.4 MEMSZERO(goods_rec);
 			rBarcode.ShiftLeft();
 			rBarcode.Trim(13);
 			if(p_bobj->SearchLotsBySerial(rBarcode, &lot_list) > 0 && lot_list.getCount()) {
@@ -5329,7 +5328,7 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 				br_line.GetDbl(2, &qtty);
 				if(stricmp(bid, lbid) == 0) {
 					Goods2Tbl::Rec goods_rec;
-					MEMSZERO(goods_rec);
+					// @v10.6.4 MEMSZERO(goods_rec);
 					barcode = bcode;
 					IdentifyGoods(&g_obj, barcode, &goods_id, &goods_rec);
 					if(goods_id && qtty != 0.0) {

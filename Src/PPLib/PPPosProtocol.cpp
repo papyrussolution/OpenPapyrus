@@ -1734,7 +1734,7 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 		// } @v10.5.7 
 		// @v10.6.3 {
 		if(rInfo.Phone.NotEmpty()) {
-			w_s.PutInner("phone", rInfo.Phone);
+			w_s.PutInner("phone", (temp_buf = rInfo.Phone).Transf(CTRANSF_INNER_TO_UTF8));
 		}
 		// } @v10.6.3 
 		//if(rInfo.P_QuotByQttyList)
@@ -3298,7 +3298,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 			}
 			if(!goods_by_ar_id) {
 				ArGoodsCodeTbl::Rec new_ar_code;
-				MEMSZERO(new_ar_code);
+				// @v10.6.4 MEMSZERO(new_ar_code);
 				new_ar_code.ArID = rP.SrcArID;
 				new_ar_code.Pack = 1000; // =1
 				STRNSCPY(new_ar_code.Code, temp_buf);
@@ -3524,7 +3524,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					const LotBlock & r_blk = RdB.LotBlkList.at(k);
 					if(r_blk.GoodsBlkP == refPos) {
 						ReceiptTbl::Rec lot_rec;
-						MEMSZERO(lot_rec);
+						// @v10.6.4 MEMSZERO(lot_rec);
 						lot_rec.GoodsID = native_id;
 						lot_rec.Dt = r_blk.Dt;
 						lot_rec.Expiry = r_blk.Expiry;
@@ -3546,7 +3546,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				}
 				if(lot_list.getCount() == 0 && rBlk.Rest > 0.0) {
 					ReceiptTbl::Rec lot_rec;
-					MEMSZERO(lot_rec);
+					// @v10.6.4 MEMSZERO(lot_rec);
 					lot_rec.GoodsID = native_id;
 					lot_rec.Dt = getcurdate_();
 					lot_rec.Quantity = rBlk.Rest;
@@ -4353,7 +4353,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 									else {
 										if(reg_type_id && code_buf.NotEmptyS()) {
 											RegisterTbl::Rec reg_rec;
-											MEMSZERO(reg_rec);
+											// @v10.6.4 MEMSZERO(reg_rec);
 											reg_rec.RegTypeID = reg_type_id;
 											STRNSCPY(reg_rec.Num, code_buf);
 										}

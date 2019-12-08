@@ -18,7 +18,7 @@ int SLAPI GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, 
 	int    ok = -1;
 	LDATE  dt = ZERODATE;
 	GoodsDebtTbl::Rec gd_rec;
-	MEMSZERO(gd_rec);
+	// @v10.6.4 MEMSZERO(gd_rec);
 	if(goodsID) {
 		const LDATE base_date = (pDt == 0 || *pDt == ZERODATE) ? MAXDATE : *pDt;
 		GoodsDebtTbl::Key0 k0;
@@ -253,7 +253,7 @@ int GoodsSaldoParamDlg::setDTS(const PrcssrGoodsSaldo::Param * pPar)
 	GoodsCtrlGroup::Rec rec;
 	if(!RVALUEPTR(GSParam, pPar))
 		MEMSZERO(GSParam);
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	rec.GrpID   = GSParam.GoodsGrpID;
 	rec.GoodsID = GSParam.GoodsID;
 	rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
@@ -506,7 +506,7 @@ int SLAPI PrcssrGoodsSaldo::Run()
 				const GArSEntry & r_entry = list.at(i);
 				if(r_entry.Dt) {
 					GoodsDebtTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					rec.GoodsID = r_entry.GoodsID;
 					rec.ArID = r_entry.ArID;
 					rec.DlvrLocID = r_entry.DlvrLocID;

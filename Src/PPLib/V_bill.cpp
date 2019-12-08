@@ -2110,11 +2110,8 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 			if(p_hdr->ID) {
 				if(r_col.OrgOffs == 0) { // ID
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
-						if(bill_rec.Flags2 & BILLF2_FULLSYNC && PPMaster) {
-							pStyle->Color2 = GetColorRef(SClrDodgerblue);
-							pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-							ok = 1;
-						}
+						if(bill_rec.Flags2 & BILLF2_FULLSYNC && PPMaster)
+							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrDodgerblue));
 					}
 				}
 				else if(r_col.OrgOffs == 2) { // BillNo
@@ -2122,65 +2119,42 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						const TagFilt & r_tag_filt = P_BObj->GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0) {
-								pStyle->Color2 = static_cast<COLORREF>(clr);
-								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
+							if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0)
+								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 						}
 						if(P_BObj->GetConfig().Flags & BCF_PAINTSHIPPEDBILLS) {
-							if(bill_rec.Flags & BILLF_SHIPPED) {
-								pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7f);
-								ok = 1;
-							}
+							if(bill_rec.Flags & BILLF_SHIPPED)
+								ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrBlue), 0.7f));
 						}
-						if(bill_rec.Flags2 & BILLF2_BHT) {
-							pStyle->Color = GetColorRef(SClrLime);
-							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
+						if(bill_rec.Flags2 & BILLF2_BHT)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrLime));
 					}
 				}
 				else if(r_col.OrgOffs == 4) { // Memo
 					SString & r_memos = SLS.AcquireRvlStr(); // @v10.0.01
-					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0) {
-						pStyle->Color = GetColorRef(SClrDarkgreen);
-						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-						ok = 1;
-					}
+					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0)
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrDarkgreen));
 				}
 				else if(r_col.OrgOffs == 6) { // Contragent
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Object) {
 						ArticleTbl::Rec ar_rec;
-						if(ArObj.Fetch(bill_rec.Object, &ar_rec) > 0 && ar_rec.Flags & ARTRF_STOPBILL) {
-							pStyle->Color = GetColorRef(SClrCoral);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
+						if(ArObj.Fetch(bill_rec.Object, &ar_rec) > 0 && ar_rec.Flags & ARTRF_STOPBILL)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrCoral));
 					}
 				}
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
 						const PPID op_type_id = GetOpType(bill_rec.OpID);
 						if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
-							if(bill_rec.Flags2 & BILLF2_DECLINED) {
-								pStyle->Color2 = GetColorRef(SClrGrey);
-								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
-							else if(bill_rec.Flags & BILLF_WRITEDOFF) {
-								pStyle->Color2 = GetColorRef(SClrOrange);
-								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
+							if(bill_rec.Flags2 & BILLF2_DECLINED)
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
+							else if(bill_rec.Flags & BILLF_WRITEDOFF)
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
 						}
 						// @v10.0.01 {
 						else if(op_type_id == PPOPT_GOODSORDER) {
-							if(bill_rec.Flags & BILLF_CLOSEDORDER) {
-								pStyle->Color2 = GetColorRef(SClrOrange);
-								pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
+							if(bill_rec.Flags & BILLF_CLOSEDORDER)
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
 						}
 						// } @v10.0.01
 						{
@@ -2205,19 +2179,15 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 									case BEDIUS_DESADV_IN_RECADV_REJ: edi_color = GetColorRef(SClrBrown); break;
 									default: edi_color = GetColorRef(SClrPink); break;
 								}
-								pStyle->RightFigColor = edi_color;
-								pStyle->Flags |= BrowserWindow::CellStyle::fRightFigCircle;
-								ok = 1;
+								ok = pStyle->SetRightFigCircleColor(edi_color);
 							}
 						}
 						// @v10.2.4 {
 						if(bill_rec.StatusID) {
 							PPBillStatus bs_rec;
 							PPObjBillStatus bs_obj;
-							if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0 && !bs_rec.IndColor.IsEmpty()) {
-								pStyle->Color = bs_rec.IndColor;
-								ok = 1;
-							}
+							if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0 && !bs_rec.IndColor.IsEmpty())
+								ok = pStyle->SetFullCellColor(bs_rec.IndColor);
 						}
 						// } @v10.2.4
 					}
@@ -4924,7 +4894,7 @@ static int SLAPI SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, 
 	TDialog * p_dlg = new TDialog(isDraft ? DLG_SCARDCHK : DLG_SCARDNUM);
 	// @v10.4.2 CCheckCore cc_core;
 	LDATE  dt = ZERODATE;
-	MEMSZERO(cc_rec);
+	// @v10.6.4 MEMSZERO(cc_rec);
 	THROW(CheckDialogPtr(&p_dlg));
 	if(isDraft) {
 		SetupCalCtrl(CTLCAL_SCARDNUM_CHKDT, p_dlg, CTL_SCARDNUM_CHKDT, 4);
@@ -4960,7 +4930,7 @@ static int SLAPI SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, 
 							LDATETIME dttm;
 							PPIDArray chk_ary;
 							CCheckTbl::Rec tmp_cc_rec;
-							MEMSZERO(tmp_cc_rec);
+							// @v10.6.4 MEMSZERO(tmp_cc_rec);
 							dttm.Set(dt, ZEROTIME);
 							if(sc_obj.P_CcTbl->GetListByCard(sc_rec_.ID, &dttm, &chk_ary) > 0) {
 								for(uint i = 0; i < chk_ary.getCount(); i++) {
@@ -5091,7 +5061,7 @@ int SLAPI PPViewBill::AddBySCard(PPID * pID)
 	PPObjSCard sc_obj;
 	PPSCardPacket sc_pack;
 	CCheckTbl::Rec cc_rec;
-	MEMSZERO(cc_rec);
+	// @v10.6.4 MEMSZERO(cc_rec);
 	THROW((sc_num_ret = SCardNumDlg(sc_pack, &cc_rec, is_draft)));
 	if(sc_num_ret > 0) {
 		int    without_psn = BIN(!sc_pack.Rec.PersonID && CONFIRM(PPCFM_SCARDWITHOUTPSN));
@@ -5374,7 +5344,7 @@ int SLAPI PPViewBill::UpdateTempTable(PPID id)
 		if(id) {
 			if(id_found) {
 				TempOrderTbl::Rec ord_rec;
-				MEMSZERO(ord_rec);
+				// @v10.6.4 MEMSZERO(ord_rec);
 				InitOrderRec(TempOrder, &rec, &ord_rec);
 				if(SearchByID(P_TempOrd, 0, id, 0) > 0)
 					UpdateByID(P_TempOrd, 0, id, &ord_rec, 0);
@@ -6833,7 +6803,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 struct DL600_BillExt {
 	DL600_BillExt(BillCore * pT) : P_Bill(pT), CrEventSurID(0)
 	{
-		MEMSZERO(Rec);
+		// @v10.6.4 MEMSZERO(Rec);
 	}
 	BillCore * P_Bill;
 	long   CrEventSurID;

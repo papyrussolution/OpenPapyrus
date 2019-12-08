@@ -329,7 +329,7 @@ int SLAPI PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 			if(P_TempOrd) {
 				TempDoubleIDTbl::Rec ord_rec;
 				TempDoubleIDTbl::Key0 ko0;
-				MEMSZERO(ord_rec);
+				// @v10.6.4 MEMSZERO(ord_rec);
 				MEMSZERO(ko0);
 				MakeTempOrdRec(&rec, &ord_rec);
 				ko0.PrmrID = ord_rec.PrmrID;
@@ -372,7 +372,7 @@ int SLAPI PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDo
 {
 	SString temp_buf;
 	TempDoubleIDTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.4 MEMSZERO(rec);
 	if(pRec) {
 		rec.PrmrID = pRec->BillID;
 		rec.ScndID = pRec->OprNo;
@@ -484,7 +484,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 							THROW_SL(ExtraList.insert(&new_entry));
 							{
 								TempInventorySubstTbl::Rec temp_rec;
-								MEMSZERO(temp_rec);
+								// @v10.6.4 MEMSZERO(temp_rec);
 								temp_rec.GoodsID = final_goods_id;
 								temp_rec.Quantity = r_inv_rec.Quantity;
 								temp_rec.StockRest = r_inv_rec.StockRest;
@@ -649,7 +649,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 											THROW_SL(ExtraList.insert(&new_entry));
 											{
 												TempInventorySubstTbl::Rec temp_rec;
-												MEMSZERO(temp_rec);
+												// @v10.6.4 MEMSZERO(temp_rec);
 												temp_rec.GoodsID = final_goods_id;
 												temp_rec.Quantity = inv_rec.Quantity;
 												temp_rec.StockRest = inv_rec.StockRest;
@@ -771,7 +771,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 	Goods2Tbl::Rec goods_rec;
 	InventoryTbl::Rec inv_rec;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
-	MEMSZERO(inv_rec);
+	// @v10.6.4 MEMSZERO(inv_rec);
 	if(P_GIter) {
 		while(ok <= 0 && P_GIter->Next(&goods_rec) > 0) {
 			Counter.Increment();

@@ -409,6 +409,7 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 #define GRP_GOODSFILT  2
 
 class GoodsRestFiltDlg : public WLDialog {
+	DECL_DIALOG_DATA(GoodsRestFilt);
 public:
 	GoodsRestFiltDlg() : WLDialog(DLG_GOODSREST, CTL_GOODSREST_WL)
 	{
@@ -424,7 +425,6 @@ private:
 	int    editAdvOptions();
 	void   SetupCtrls();
 	int    SetupCrosstab();
-	GoodsRestFilt Data;
 };
 
 int GoodsRestFiltDlg::SetupCrosstab()
@@ -1033,7 +1033,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 			SString temp_buf;
 			Goods2Tbl::Rec goods_rec;
 			TempGoodsRestTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.GoodsID = goods_id;
 			rec.LotID   = rItem.LotID;
 			rec.LocID   = rItem.LocID;
@@ -1902,7 +1902,7 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 			ok = -1;
 	}
 	if(ok > 0 && Filt.BrandID) {
-		Goods2Tbl::Rec goods_rec;
+		// @v10.6.4 Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(labs(goods_id), &goods_rec) <= 0 || goods_rec.BrandID != Filt.BrandID)
 			ok = -1;
 	}
@@ -2642,7 +2642,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 					double ph_u_per_u = 0.0;
 					GoodsRestVal grv;
 					ReceiptTbl::Rec lot_rec;
-					MEMSZERO(lot_rec);
+					// @v10.6.4 MEMSZERO(lot_rec);
 					GObj.GetPhUPerU(goods_id, 0, &ph_u_per_u);
 					::GetCurGoodsPrice(goods_id, LocList.GetSingle(), GPRET_MOSTRECENT | GPRET_OTHERLOC, &grv.Price, &lot_rec);
 					grv.Rest    = 0.0;
@@ -3192,7 +3192,7 @@ int SLAPI PPViewGoodsRest::ConvertLinesToBasket()
 					if(!fill_to_min_stock || qtty > 0.0) {
 						ILTI   i_i;
 						ReceiptTbl::Rec lot_rec;
-						MEMSZERO(lot_rec);
+						// @v10.6.4 MEMSZERO(lot_rec);
 						THROW(::GetCurGoodsPrice(item.GoodsID, item.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 						i_i.GoodsID     = item.GoodsID;
 						i_i.UnitPerPack = item.UnitPerPack;
@@ -3283,24 +3283,15 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 			}
 			if(accept) {
 				if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs) {
-					if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						pCellStyle->Color = GetColorRef(SClrGreen);
-						ok = 1;
-					}
-					else {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						pCellStyle->Color = GetColorRef(SClrRed);
-						ok = 1;
-					}
+					if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0)
+						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+					else
+						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 				}
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
-					if(r_tag_filt.SelectIndicator(goods_id, clr) > 0) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-						pCellStyle->Color2 = (COLORREF)clr;
-						ok = 1;
-					}
+					if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
+						ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 				}
 			}
 		}

@@ -584,7 +584,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pP
 			if(r < 0) {
 				PPID   id = 0;
 				SCardTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.6.4 MEMSZERO(rec);
 				rec.SeriesID = rScsPack.Rec.ID;
 				code.CopyTo(rec.Code, sizeof(rec.Code));
 				rec.PDis      = rScsPack.Rec.PDis;
@@ -693,7 +693,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPatte
 					if(r < 0) {
 						PPID   id = 0;
 						SCardTbl::Rec rec;
-						MEMSZERO(rec);
+						// @v10.6.4 MEMSZERO(rec);
 						rec.SeriesID = pSerRec->ID;
 						STRNSCPY(rec.Code, pttrn);
 						rec.PDis      = pSerRec->PDis;
@@ -886,7 +886,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 			}
 		}
 		else {
-			MEMSZERO(rec);
+			// @v10.6.4 MEMSZERO(rec);
 			rec.LinkObjType = PPOBJ_BILL;
 			rec.LinkObjID = billID;
 			rec.Dt = dt;
@@ -921,7 +921,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEn
 	*/
 	if(!(rBlk.Flags & rBlk.fEdit)) {
 		SCardOpTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.SCardID = rBlk.SCardID;
 		rec.Dt = rBlk.Dtm.d;
 		rec.Tm = rBlk.Dtm.t;
@@ -959,7 +959,7 @@ int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEn
 	}
 	else {
 		SCardOpTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.4 MEMSZERO(rec);
 		rec.SCardID = rBlk.SCardID;
 		rec.Dt = rBlk.Dtm.d;
 		rec.Tm = rBlk.Dtm.t;

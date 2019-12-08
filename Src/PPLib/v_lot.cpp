@@ -1931,7 +1931,7 @@ int SLAPI PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem
 		}
 		if(Filt.Flags & (LotFilt::fInitOrgLot|LotFilt::fCheckOriginLotDate)) {
 			ReceiptTbl::Rec org_rec;
-			MEMSZERO(org_rec);
+			// @v10.6.4 MEMSZERO(org_rec);
 			if(item.PrevLotID)
 				P_Tbl->SearchOrigin(item.ID, 0, 0, &org_rec);
 			else {
@@ -3284,7 +3284,7 @@ int SLAPI PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 			case PPVCMD_ADDITEM:
 				if(Filt.LotID) {
 					LotExtCodeTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.6.4 MEMSZERO(rec);
 					rec.LotID = Filt.LotID;
                 	if(EditLotExtCode(rec, 0) > 0) {
 						THROW(CheckDupCode(rec));
@@ -3304,7 +3304,7 @@ int SLAPI PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					const char uc = toupper(c);
 					if(isdec(c) || (uc >= 'A' && uc <= 'Z')) {
 						LotExtCodeTbl::Rec rec;
-						MEMSZERO(rec);
+						// @v10.6.4 MEMSZERO(rec);
 						rec.LotID = Filt.LotID;
                 		if(EditLotExtCode(rec, c) > 0) {
 							THROW(CheckDupCode(rec));
