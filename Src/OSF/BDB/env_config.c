@@ -21,7 +21,7 @@ int __env_read_db_config(ENV * env)
 	// Parse the config file. 
 	char * p = NULL;
 	int    ret = __db_appname(env, DB_APP_NONE, "DB_CONFIG", NULL, &p);
-	if(ret == 0) {
+	if(!ret) {
 		FILE * fp = 0;
 		if(p) {
 			fp = fopen(p, "r");

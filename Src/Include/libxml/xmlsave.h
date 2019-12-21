@@ -33,18 +33,18 @@ enum xmlSaveOption {
 };
 
 struct xmlSaveCtxt;
-typedef xmlSaveCtxt * xmlSaveCtxtPtr;
+//typedef xmlSaveCtxt * xmlSaveCtxtPtr;
 
-XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToFd(int fd, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToFilename(const char * filename, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToBuffer(xmlBuffer * buffer, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, const char * encoding, int options);
-XMLPUBFUN long XMLCALL xmlSaveDoc(xmlSaveCtxtPtr ctxt, xmlDoc * doc);
-XMLPUBFUN long XMLCALL xmlSaveTree(xmlSaveCtxtPtr ctxt, xmlNode * pNode);
-XMLPUBFUN int XMLCALL xmlSaveFlush(xmlSaveCtxtPtr ctxt);
-XMLPUBFUN int XMLCALL xmlSaveClose(xmlSaveCtxtPtr ctxt);
-XMLPUBFUN int XMLCALL xmlSaveSetEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape);
-XMLPUBFUN int XMLCALL xmlSaveSetAttrEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape);
+XMLPUBFUN xmlSaveCtxt * XMLCALL xmlSaveToFd(int fd, const char * encoding, int options);
+XMLPUBFUN xmlSaveCtxt * XMLCALL xmlSaveToFilename(const char * filename, const char * encoding, int options);
+XMLPUBFUN xmlSaveCtxt * XMLCALL xmlSaveToBuffer(xmlBuffer * buffer, const char * encoding, int options);
+XMLPUBFUN xmlSaveCtxt * XMLCALL xmlSaveToIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, const char * encoding, int options);
+XMLPUBFUN long XMLCALL xmlSaveDoc(xmlSaveCtxt * ctxt, xmlDoc * doc);
+XMLPUBFUN long XMLCALL xmlSaveTree(xmlSaveCtxt * ctxt, xmlNode * pNode);
+XMLPUBFUN int XMLCALL xmlSaveFlush(xmlSaveCtxt * ctxt);
+XMLPUBFUN int XMLCALL xmlSaveClose(xmlSaveCtxt * ctxt);
+XMLPUBFUN int XMLCALL xmlSaveSetEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
+XMLPUBFUN int XMLCALL xmlSaveSetAttrEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
 #ifdef __cplusplus
 }
 #endif

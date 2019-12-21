@@ -58,11 +58,12 @@ int plessey(struct ZintSymbol * symbol, const uchar source[], int length)
 	else {
 		error_number = is_sane(SSET, source, length);
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			sstrcpy(symbol->errtxt, "Invalid characters in data (C71)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C71)");
+			ZintMakeErrText_InvCharInData("C71", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		}
 		else {
 			int    i;
-			uchar * checkptr = (uchar *)SAlloc::C(1, length * 4 + 8);
+			uchar * checkptr = static_cast<uchar *>(SAlloc::C(1, length * 4 + 8));
 			// Start character 
 			sstrcpy(dest, "31311331");
 			// Data area 

@@ -20,7 +20,7 @@ int SLAPI EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData);
 
 AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_BObj(pBObj), P_Pack(0)
 {
-	MEMSZERO(Data);
+	// @v10.6.5 @ctr MEMSZERO(Data);
 	setCtrlOption(CTL_ATURN_DTEXT, ofFramed, 1);
 	setCtrlOption(CTL_ATURN_CTEXT, ofFramed, 1);
 	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC, CTL_ATURN_DART, CTLSEL_ATURN_DACCNAME, CTLSEL_ATURN_DARTNAME);
@@ -4037,11 +4037,11 @@ IMPL_HANDLE_EVENT(LotInfoDialog)
 int SLAPI PPObjBill::EditLotSystemInfo(PPID lotID)
 {
 	int    ok = -1;
-	ReceiptTbl::Rec rec;
+	ReceiptTbl::Rec lot_rec;
 	LotInfoDialog * dlg = 0;
-	if(lotID && trfr->Rcpt.Search(lotID, &rec) > 0) {
+	if(lotID && trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 		const int can_edit = PPMaster ? 1 : 0;
-		if(CheckDialogPtrErr(&(dlg = new LotInfoDialog(&rec, can_edit)))) {
+		if(CheckDialogPtrErr(&(dlg = new LotInfoDialog(&lot_rec, can_edit)))) {
 			if(ExecView(dlg) == cmOK && can_edit) {
 				//THROW(P_Tbl->Update(lot_id, &rec, 1));
 				//ok = 1;

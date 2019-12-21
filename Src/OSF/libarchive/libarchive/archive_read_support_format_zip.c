@@ -854,9 +854,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	if(zip_entry->zip_flags & ZIP_UTF8_NAME) {
 		/* The filename is stored to be UTF-8. */
 		if(zip->sconv_utf8 == NULL) {
-			zip->sconv_utf8 =
-			    archive_string_conversion_from_charset(
-				&a->archive, "UTF-8", 1);
+			zip->sconv_utf8 = archive_string_conversion_from_charset(&a->archive, "UTF-8", 1);
 			if(zip->sconv_utf8 == NULL)
 				return ARCHIVE_FATAL;
 		}
@@ -1133,22 +1131,17 @@ static int check_authentication_code(struct archive_read * a, const void * _p)
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * zip->end_of_entry if it consumes all of the data.
  */
-static int zip_read_data_none(struct archive_read * a, const void ** _buff,
-    size_t * size, int64_t * offset)
+static int zip_read_data_none(struct archive_read * a, const void ** _buff, size_t * size, int64_t * offset)
 {
 	struct zip * zip;
 	const char * buff;
 	ssize_t bytes_avail;
 	int r;
-
 	(void)offset; /* UNUSED */
-
 	zip = static_cast<struct zip *>(a->format->data);
-
 	if(zip->entry->zip_flags & ZIP_LENGTH_AT_END) {
 		const char * p;
 		ssize_t grabbing_bytes = 24;
-
 		if(zip->hctx_valid)
 			grabbing_bytes += AUTH_CODE_SIZE;
 		/* Grab at least 24 bytes. */
@@ -2439,11 +2432,8 @@ static int archive_read_format_zip_read_data(struct archive_read * a,
 
 static int archive_read_format_zip_cleanup(struct archive_read * a)
 {
-	struct zip * zip;
 	struct zip_entry * zip_entry, * next_zip_entry;
-
-	zip = static_cast<struct zip *>(a->format->data);
-
+	struct zip * zip = static_cast<struct zip *>(a->format->data);
 #ifdef HAVE_ZLIB_H
 	if(zip->stream_valid)
 		inflateEnd(&zip->stream);
@@ -2501,13 +2491,10 @@ static int archive_read_format_zip_has_encrypted_entries(struct archive_read * _
 	return ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
 }
 
-static int archive_read_format_zip_options(struct archive_read * a,
-    const char * key, const char * val)
+static int archive_read_format_zip_options(struct archive_read * a, const char * key, const char * val)
 {
-	struct zip * zip;
 	int ret = ARCHIVE_FAILED;
-
-	zip = static_cast<struct zip *>(a->format->data);
+	struct zip * zip = static_cast<struct zip *>(a->format->data);
 	if(strcmp(key, "compat-2x")  == 0) {
 		/* Handle filenames as libarchive 2.x */
 		zip->init_default_conversion = (val != NULL) ? 1 : 0;
@@ -2517,8 +2504,7 @@ static int archive_read_format_zip_options(struct archive_read * a,
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "zip: hdrcharset option needs a character-set name");
 		else {
-			zip->sconv = archive_string_conversion_from_charset(
-				&a->archive, val, 0);
+			zip->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
 			if(zip->sconv != NULL) {
 				if(strcmp(val, "UTF-8") == 0)
 					zip->sconv_utf8 = zip->sconv;
@@ -2577,12 +2563,9 @@ static int archive_read_support_format_zip_capabilities_streamable(struct archiv
 static int archive_read_format_zip_streamable_bid(struct archive_read * a, int best_bid)
 {
 	const char * p;
-
 	(void)best_bid; /* UNUSED */
-
 	if((p = (const char *)__archive_read_ahead(a, 4, NULL)) == NULL)
 		return -1;
-
 	/*
 	 * Bid of 29 here comes from:
 	 *  + 16 bits for "PK",
@@ -2592,34 +2575,24 @@ static int archive_read_format_zip_streamable_bid(struct archive_read * a, int b
 	 * So we've effectively verified ~29 total bits of check data.
 	 */
 	if(p[0] == 'P' && p[1] == 'K') {
-		if((p[2] == '\001' && p[3] == '\002')
-		    || (p[2] == '\003' && p[3] == '\004')
-		    || (p[2] == '\005' && p[3] == '\006')
-		    || (p[2] == '\006' && p[3] == '\006')
-		    || (p[2] == '\007' && p[3] == '\010')
-		    || (p[2] == '0' && p[3] == '0'))
+		if((p[2] == '\001' && p[3] == '\002') || (p[2] == '\003' && p[3] == '\004') || (p[2] == '\005' && p[3] == '\006')
+		    || (p[2] == '\006' && p[3] == '\006') || (p[2] == '\007' && p[3] == '\010') || (p[2] == '0' && p[3] == '0'))
 			return (29);
 	}
-
 	/* TODO: It's worth looking ahead a little bit for a valid
 	 * PK signature.  In particular, that would make it possible
 	 * to read some UUEncoded SFX files or SFX files coming from
 	 * a network socket. */
-
 	return 0;
 }
 
-static int archive_read_format_zip_streamable_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_zip_streamable_read_header(struct archive_read * a, struct archive_entry * entry)
 {
 	struct zip * zip;
-
 	a->archive.archive_format = ARCHIVE_FORMAT_ZIP;
 	if(a->archive.archive_format_name == NULL)
 		a->archive.archive_format_name = "ZIP";
-
 	zip = static_cast<struct zip *>(a->format->data);
-
 	/*
 	 * It should be sufficient to call archive_read_next_header() for
 	 * a reader to determine if an entry is encrypted or not. If the
@@ -2627,10 +2600,8 @@ static int archive_read_format_zip_streamable_read_header(struct archive_read * 
 	 * archive_read_data(), so be it. We'll do the same check there
 	 * as well.
 	 */
-	if(zip->has_encrypted_entries ==
-	    ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW)
+	if(zip->has_encrypted_entries == ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW)
 		zip->has_encrypted_entries = 0;
-
 	/* Make sure we have a zip_entry structure to use. */
 	if(zip->zip_entries == NULL) {
 		zip->zip_entries = (zip_entry *)SAlloc::M(sizeof(struct zip_entry));
@@ -2702,11 +2673,8 @@ static int archive_read_format_zip_streamable_read_header(struct archive_read * 
 
 static int archive_read_format_zip_read_data_skip_streamable(struct archive_read * a)
 {
-	struct zip * zip;
-	int64_t bytes_skipped;
-
-	zip = static_cast<struct zip *>(a->format->data);
-	bytes_skipped = __archive_read_consume(a, zip->unconsumed);
+	struct zip * zip = static_cast<struct zip *>(a->format->data);
+	int64_t bytes_skipped = __archive_read_consume(a, zip->unconsumed);
 	zip->unconsumed = 0;
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
@@ -2936,8 +2904,7 @@ static int archive_read_format_zip_seekable_bid(struct archive_read * a, int bes
 		switch(p[i]) {
 			case 'P':
 			    if(memcmp(p + i, "PK\005\006", 4) == 0) {
-				    int ret = read_eocd(zip, p + i,
-					    current_offset + i);
+				    int ret = read_eocd(zip, p + i, current_offset + i);
 				    /* Zip64 EOCD locator precedes
 				 * regular EOCD if present. */
 				    if(i >= 20 && memcmp(p + i - 20, "PK\006\007", 4) == 0) {
@@ -2998,8 +2965,8 @@ static const struct archive_rb_tree_ops rb_rsrc_ops = { &rsrc_cmp_node, &rsrc_cm
 
 static const char * rsrc_basename(const char * name, size_t name_length)
 {
-	const char * s, * r;
-	r = s = name;
+	const char * s = name;
+	const char * r = name;
 	for(;;) {
 		s = (const char *)memchr(s, '/', name_length - (s - name));
 		if(s == NULL)
@@ -3014,7 +2981,6 @@ static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_
 	struct archive_string str;
 	struct zip_entry * dir;
 	char * s;
-
 	archive_string_init(&str);
 	archive_strncpy(&str, name, name_length);
 	for(;;) {
@@ -3024,8 +2990,7 @@ static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_
 		*s = '\0';
 		/* Transfer the parent directory from zip->tree_rsrc RB
 		 * tree to zip->tree RB tree to expose. */
-		dir = (struct zip_entry *)
-		    __archive_rb_tree_find_node(&zip->tree_rsrc, str.s);
+		dir = (struct zip_entry *)__archive_rb_tree_find_node(&zip->tree_rsrc, str.s);
 		if(dir == NULL)
 			break;
 		__archive_rb_tree_remove_node(&zip->tree_rsrc, &dir->node);
@@ -3042,7 +3007,6 @@ static int slurp_central_directory(struct archive_read * a, struct zip * zip)
 	int64_t correction;
 	ssize_t bytes_avail;
 	const char * p;
-
 	/*
 	 * Find the start of the central directory.  The end-of-CD
 	 * record has our starting point, but there are lots of
@@ -3111,7 +3075,6 @@ static int slurp_central_directory(struct archive_read * a, struct zip * zip)
 		}
 		if((p = (const char *)__archive_read_ahead(a, 46, NULL)) == NULL)
 			return ARCHIVE_FATAL;
-
 		zip_entry = (struct zip_entry *)SAlloc::C(1, sizeof(struct zip_entry));
 		if(zip_entry == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate zip entry");
@@ -3145,9 +3108,7 @@ static int slurp_central_directory(struct archive_read * a, struct zip * zip)
 		/* disk_start = archive_le16dec(p + 34); */ /* Better be zero. */
 		/* internal_attributes = archive_le16dec(p + 36); */ /* text bit */
 		external_attributes = archive_le32dec(p + 38);
-		zip_entry->local_header_offset =
-		    archive_le32dec(p + 42) + correction;
-
+		zip_entry->local_header_offset = archive_le32dec(p + 42) + correction;
 		/* If we can't guess the mode, leave it zero here;
 		   when we read the local file header we might get
 		   more information. */
@@ -3180,7 +3141,6 @@ static int slurp_central_directory(struct archive_read * a, struct zip * zip)
 		if(ARCHIVE_OK != process_extra(a, p + filename_length, extra_length, zip_entry)) {
 			return ARCHIVE_FATAL;
 		}
-
 		/*
 		 * Mac resource fork files are stored under the
 		 * "__MACOSX/" directory, so we should check if
@@ -3188,8 +3148,7 @@ static int slurp_central_directory(struct archive_read * a, struct zip * zip)
 		 */
 		if(!zip->process_mac_extensions) {
 			/* Treat every entry as a regular entry. */
-			__archive_rb_tree_insert_node(&zip->tree,
-			    &zip_entry->node);
+			__archive_rb_tree_insert_node(&zip->tree, &zip_entry->node);
 		}
 		else {
 			name = p;

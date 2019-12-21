@@ -1143,10 +1143,10 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 			SString wildcard;
 			SDirEntry entry;
 			SDirec direc;
+			SString path;
 			(wildcard = bizsc_path).Cat("*@*.acc");
 			for(direc.Init(wildcard); direc.Next(&entry) > 0;) {
 				if(!entry.IsFolder()) {
-					SString path;
 					SFile file;
 					(path = bizsc_path).Cat(entry.FileName);
 					if(file.Open(path, SFile::mRead) && file.IsValid()) {
@@ -1156,7 +1156,6 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 						StringSet ss("\n");
 						SString user_info, user_name, pwd;
 						S_GUID s_guid;
-
 						file.CalcCRC(sizeof(long), &crc);
 						file.Read(&check_crc, sizeof(check_crc));
 						if(crc == check_crc) {
@@ -2301,9 +2300,9 @@ struct GlobalUserAccBlock {
 		stFetch = 0,
 		stSet
 	};
-	GlobalUserAccBlock()
+	GlobalUserAccBlock() : State(stFetch)
 	{
-		Clear();
+		// @v10.6.5 Clear();
 	}
 	void Clear()
 	{
@@ -2311,7 +2310,7 @@ struct GlobalUserAccBlock {
 		State = stFetch;
 	}
 	PPObjGlobalUserAcc GuaObj;
-	PPGlobalUserAcc    Rec;
+	PPGlobalUserAcc Rec;
 	int    State;
 };
 

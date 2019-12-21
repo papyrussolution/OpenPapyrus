@@ -512,11 +512,10 @@ static int64 _win32_read_file(void * state, void * data, uint64 len, zip_source_
 static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 {
 	uint32 value;
-	/*
-	   Windows has GetTempFileName(), but it closes the file after
-	   creation, leaving it open to a horrible race condition. So
-	   we reinvent the wheel.
-	 */
+	//
+	// Windows has GetTempFileName(), but it closes the file after
+	// creation, leaving it open to a horrible race condition. So we reinvent the wheel.
+	//
 	int i;
 	HANDLE th = INVALID_HANDLE_VALUE;
 	void * temp = NULL;

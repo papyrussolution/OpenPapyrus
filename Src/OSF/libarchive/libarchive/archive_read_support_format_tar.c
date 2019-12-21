@@ -186,12 +186,12 @@ static int      pax_attribute(struct archive_read *, struct tar *, struct archiv
 static int      pax_attribute_acl(struct archive_read *, struct tar *, struct archive_entry *, const char *, int);
 static int      pax_attribute_xattr(struct archive_entry *, const char *, const char *);
 static int      pax_header(struct archive_read *, struct tar *, struct archive_entry *, struct archive_string *);
-static void     pax_time(const char *, int64_t * sec, long * nanos);
+static void     FASTCALL pax_time(const char *, int64_t * sec, long * nanos);
 static ssize_t  readline(struct archive_read *, struct tar *, const char **, ssize_t limit, size_t *);
 static int      read_body_to_string(struct archive_read *, struct tar *, struct archive_string *, const void * h, size_t *);
 static int      solaris_sparse_parse(struct archive_read *, struct tar *, struct archive_entry *, const char *);
-static int64_t  tar_atol(const char *, size_t);
-static int64_t  tar_atol10(const char *, size_t);
+static int64_t  FASTCALL tar_atol(const char *, size_t);
+static int64_t  FASTCALL tar_atol10(const char *, size_t);
 static int64_t  tar_atol256(const char *, size_t);
 static int64_t  tar_atol8(const char *, size_t);
 static int      tar_read_header(struct archive_read *, struct tar *, struct archive_entry *, size_t *);
@@ -305,16 +305,12 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	int bid;
 	const char * h;
 	const struct archive_entry_header_ustar * header;
-
 	(void)best_bid; /* UNUSED */
-
 	bid = 0;
-
 	/* Now let's look at the actual header and see if it matches. */
 	h = (const char *)__archive_read_ahead(a, 512, NULL);
 	if(h == NULL)
 		return -1;
-
 	/* If it's an end-of-archive mark, we can handle it. */
 	if(h[0] == 0 && archive_block_is_null(h)) {
 		/*
@@ -767,18 +763,15 @@ static int checksum(struct archive_read * a, const void * h)
 	const struct archive_entry_header_ustar * header;
 	int check, sum;
 	size_t i;
-
 	(void)a; /* UNUSED */
 	bytes = (const uchar *)h;
 	header = (const struct archive_entry_header_ustar *)h;
-
 	/* Checksum field must hold an octal number */
 	for(i = 0; i < sizeof(header->checksum); ++i) {
 		char c = header->checksum[i];
 		if(c != ' ' && c != '\0' && (c < '0' || c > '7'))
 			return 0;
 	}
-
 	/*
 	 * Test the checksum.  Note that POSIX specifies _unsigned_
 	 * bytes for this calculation.
@@ -793,7 +786,6 @@ static int checksum(struct archive_read * a, const void * h)
 		check += (uchar)bytes[i];
 	if(sum == check)
 		return (1);
-
 	/*
 	 * Repeat test with _signed_ bytes, just in case this archive
 	 * was created by an old BSD, Solaris, or HP-UX tar with a
@@ -811,32 +803,26 @@ static int checksum(struct archive_read * a, const void * h)
 
 	return 0;
 }
-
 /*
  * Return true if this block contains only nulls.
  */
 static int archive_block_is_null(const char * p)
 {
-	unsigned i;
-
-	for(i = 0; i < 512; i++)
+	for(uint i = 0; i < 512; i++)
 		if(*p++)
 			return 0;
 	return (1);
 }
-
 /*
  * Interpret 'A' Solaris ACL header
  */
-static int header_Solaris_ACL(struct archive_read * a, struct tar * tar,
-    struct archive_entry * entry, const void * h, size_t * unconsumed)
+static int header_Solaris_ACL(struct archive_read * a, struct tar * tar, struct archive_entry * entry, const void * h, size_t * unconsumed)
 {
 	const struct archive_entry_header_ustar * header;
 	size_t size;
 	int err, acl_type;
 	int64_t type;
 	char * acl, * p;
-
 	/*
 	 * read_body_to_string adds a NUL terminator, but we need a little
 	 * more to make sure that we don't overrun acl_text later.
@@ -931,7 +917,7 @@ static int header_longlink(struct archive_read * a, struct tar * tar, struct arc
 	return ARCHIVE_OK;
 }
 
-static int set_conversion_failed_error(struct archive_read * a, struct archive_string_conv * sconv, const char * name)
+static int FASTCALL set_conversion_failed_error(struct archive_read * a, struct archive_string_conv * sconv, const char * name)
 {
 	if(errno == ENOMEM) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for %s", name);
@@ -1052,8 +1038,7 @@ static int header_common(struct archive_read * a, struct tar * tar,
 		case '1': /* Hard link */
 		    if(archive_entry_copy_hardlink_l(entry, tar->entry_linkpath.s,
 			archive_strlen(&(tar->entry_linkpath)), tar->sconv) != 0) {
-			    err = set_conversion_failed_error(a, tar->sconv,
-				    "Linkname");
+			    err = set_conversion_failed_error(a, tar->sconv, "Linkname");
 			    if(err == ARCHIVE_FATAL)
 				    return (err);
 		    }
@@ -1122,8 +1107,7 @@ static int header_common(struct archive_read * a, struct tar * tar,
 		    tar->entry_bytes_remaining = 0;
 		    if(archive_entry_copy_symlink_l(entry, tar->entry_linkpath.s,
 			archive_strlen(&(tar->entry_linkpath)), tar->sconv) != 0) {
-			    err = set_conversion_failed_error(a, tar->sconv,
-				    "Linkname");
+			    err = set_conversion_failed_error(a, tar->sconv, "Linkname");
 			    if(err == ARCHIVE_FATAL)
 				    return (err);
 		    }
@@ -1194,18 +1178,14 @@ static int header_common(struct archive_read * a, struct tar * tar,
 	}
 	return (err);
 }
-
 /*
  * Parse out header elements for "old-style" tar archives.
  */
-static int header_old_tar(struct archive_read * a, struct tar * tar,
-    struct archive_entry * entry, const void * h)
+static int header_old_tar(struct archive_read * a, struct tar * tar, struct archive_entry * entry, const void * h)
 {
-	const struct archive_entry_header_ustar * header;
 	int err = ARCHIVE_OK, err2;
-
 	/* Copy filename over (to ensure null termination). */
-	header = (const struct archive_entry_header_ustar *)h;
+	const struct archive_entry_header_ustar * header = (const struct archive_entry_header_ustar *)h;
 	if(archive_entry_copy_pathname_l(entry,
 	    header->name, sizeof(header->name), tar->sconv) != 0) {
 		err = set_conversion_failed_error(a, tar->sconv, "Pathname");
@@ -1217,23 +1197,19 @@ static int header_old_tar(struct archive_read * a, struct tar * tar,
 	err2 = header_common(a, tar, entry, h);
 	if(err > err2)
 		err = err2;
-
 	tar->entry_padding = 0x1ff & (-tar->entry_bytes_remaining);
 	return (err);
 }
-
 /*
  * Read a Mac AppleDouble-encoded blob of file metadata,
  * if there is one.
  */
-static int read_mac_metadata_blob(struct archive_read * a, struct tar * tar,
-    struct archive_entry * entry, const void * h, size_t * unconsumed)
+static int read_mac_metadata_blob(struct archive_read * a, struct tar * tar, struct archive_entry * entry, const void * h, size_t * unconsumed)
 {
 	int64_t size;
 	const void * data;
 	const char * p, * name;
 	const wchar_t * wp, * wname;
-
 	(void)h; /* UNUSED */
 
 	wname = wp = archive_entry_pathname_w(entry);
@@ -1368,7 +1344,6 @@ static int header_ustar(struct archive_read * a, struct tar * tar,
 		if(err == ARCHIVE_FATAL)
 			return (err);
 	}
-
 	/* Handle rest of common fields. */
 	r = header_common(a, tar, entry, h);
 	if(r == ARCHIVE_FATAL)
@@ -1503,18 +1478,15 @@ static int pax_header(struct archive_read * a, struct tar * tar,
 	if(tar->pax_hdrcharset_binary)
 		sconv = tar->opt_sconv;
 	else {
-		sconv = archive_string_conversion_from_charset(
-			&(a->archive), "UTF-8", 1);
+		sconv = archive_string_conversion_from_charset(&(a->archive), "UTF-8", 1);
 		if(sconv == NULL)
 			return ARCHIVE_FATAL;
 		if(tar->compat_2x)
-			archive_string_conversion_set_opt(sconv,
-			    SCONV_SET_OPT_UTF8_LIBARCHIVE2X);
+			archive_string_conversion_set_opt(sconv, SCONV_SET_OPT_UTF8_LIBARCHIVE2X);
 	}
 
 	if(archive_strlen(&(tar->entry_gname)) > 0) {
-		if(archive_entry_copy_gname_l(entry, tar->entry_gname.s,
-		    archive_strlen(&(tar->entry_gname)), sconv) != 0) {
+		if(archive_entry_copy_gname_l(entry, tar->entry_gname.s, archive_strlen(&(tar->entry_gname)), sconv) != 0) {
 			err = set_conversion_failed_error(a, sconv, "Gname");
 			if(err == ARCHIVE_FATAL)
 				return (err);
@@ -1601,16 +1573,12 @@ static int pax_attribute_xattr(struct archive_entry * entry,
 	return 0;
 }
 
-static int pax_attribute_schily_xattr(struct archive_entry * entry,
-    const char * name, const char * value, size_t value_length)
+static int pax_attribute_schily_xattr(struct archive_entry * entry, const char * name, const char * value, size_t value_length)
 {
 	if(strlen(name) < 14 || (memcmp(name, "SCHILY.xattr.", 13)) != 0)
 		return 1;
-
 	name += 13;
-
 	archive_entry_xattr_add_entry(entry, name, value, value_length);
-
 	return 0;
 }
 
@@ -1890,8 +1858,7 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    break;
 		case 'u':
 		    if(strcmp(key, "uid") == 0) {
-			    archive_entry_set_uid(entry,
-				tar_atol10(value, strlen(value)));
+			    archive_entry_set_uid(entry, tar_atol10(value, strlen(value)));
 		    }
 		    else if(strcmp(key, "uname") == 0) {
 			    archive_strcpy(&(tar->entry_uname), value);
@@ -1900,23 +1867,17 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 	}
 	return (err);
 }
-
 /*
  * parse a decimal time value, which may include a fractional portion
  */
-static void pax_time(const char * p, int64_t * ps, long * pn)
+static void FASTCALL pax_time(const char * p, int64_t * ps, long * pn)
 {
 	char digit;
-	int64_t s;
-	unsigned long l;
-	int sign;
-	int64_t limit, last_digit_limit;
-
-	limit = INT64_MAX / 10;
-	last_digit_limit = INT64_MAX % 10;
-
-	s = 0;
-	sign = 1;
+	ulong l;
+	int64_t limit = INT64_MAX / 10;
+	int64_t last_digit_limit = INT64_MAX % 10;
+	int64_t s = 0;
+	int sign = 1;
 	if(*p == '-') {
 		sign = -1;
 		p++;
@@ -1931,15 +1892,11 @@ static void pax_time(const char * p, int64_t * ps, long * pn)
 		s = (s * 10) + digit;
 		++p;
 	}
-
 	*ps = s * sign;
-
 	/* Calculate nanoseconds. */
 	*pn = 0;
-
 	if(*p != '.')
 		return;
-
 	l = 100000000UL;
 	do {
 		++p;
@@ -2356,7 +2313,7 @@ static int solaris_sparse_parse(struct archive_read * a, struct tar * tar,
  *
  * On read, this implementation supports both extensions.
  */
-static int64_t tar_atol(const char * p, size_t char_cnt)
+static int64_t FASTCALL tar_atol(const char * p, size_t char_cnt)
 {
 	/*
 	 * Technically, GNU tar considers a field to be in base-256
@@ -2420,11 +2377,10 @@ static int64_t tar_atol8(const char * p, size_t char_cnt)
 	return tar_atol_base_n(p, char_cnt, 8);
 }
 
-static int64_t tar_atol10(const char * p, size_t char_cnt)
+static int64_t FASTCALL tar_atol10(const char * p, size_t char_cnt)
 {
 	return tar_atol_base_n(p, char_cnt, 10);
 }
-
 /*
  * Parse a base-256 integer.  This is just a variable-length
  * twos-complement signed binary value in big-endian order, except

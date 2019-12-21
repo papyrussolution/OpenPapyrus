@@ -152,6 +152,7 @@
     <ClCompile Include="..\SLib\sxmlad.cpp" />
     <ClCompile Include="..\SLib\samqp.cpp" />
     <ClCompile Include="..\SLib\xxhash.c" />
+    <ClCompile Include="..\SLib\ineturl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

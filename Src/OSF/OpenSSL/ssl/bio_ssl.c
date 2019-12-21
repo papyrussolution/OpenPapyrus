@@ -284,7 +284,7 @@ static long ssl_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_CTRL_WPENDING: ret = BIO_ctrl(ssl->wbio, cmd, num, ptr); break;
 		case BIO_CTRL_PENDING:
 		    ret = SSL_pending(ssl);
-		    if(ret == 0)
+		    if(!ret)
 			    ret = BIO_pending(ssl->rbio);
 		    break;
 		case BIO_CTRL_FLUSH:

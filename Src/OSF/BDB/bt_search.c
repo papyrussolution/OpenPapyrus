@@ -812,7 +812,7 @@ int __bam_stkgrow(ENV * env, BTREE_CURSOR * cp)
 	EPG * p;
 	size_t entries = cp->esp-cp->sp;
 	int ret = __os_calloc(env, entries*2, sizeof(EPG), &p);
-	if(ret == 0) {
+	if(!ret) {
 		memcpy(p, cp->sp, entries*sizeof(EPG));
 		if(cp->sp != cp->stack)
 			__os_free(env, cp->sp);

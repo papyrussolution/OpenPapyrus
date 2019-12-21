@@ -114,7 +114,7 @@ int __db_retcopy(ENV * env, DBT * dbt, void * data, uint32 len, void ** memp, ui
 			if(len && (*memsize == 0 || *memsize < len)) {
 				*memsize = ((ret = __os_realloc(env, len, memp)) == 0) ? len : 0;
 			}
-			if(ret == 0)
+			if(!ret)
 				dbt->data = *memp;
 		}
 		if(ret == 0 && len != 0)

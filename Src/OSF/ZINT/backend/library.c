@@ -36,7 +36,7 @@
 
 struct ZintSymbol * ZBarcode_Create()
 {
-	struct ZintSymbol * symbol = (struct ZintSymbol*)SAlloc::M(sizeof(*symbol));
+	struct ZintSymbol * symbol = static_cast<struct ZintSymbol *>(SAlloc::M(sizeof(*symbol)));
 	if(symbol) {
 		memzero(symbol, sizeof(*symbol));
 		symbol->Std = BARCODE_CODE128;
@@ -189,7 +189,6 @@ extern int grid_matrix(struct ZintSymbol * symbol, const uchar source[], int len
 extern int han_xin(struct ZintSymbol * symbol, const uchar source[], int length); /* Han Xin */
 extern int dotcode(struct ZintSymbol * symbol, const uchar source[], int length); /* DotCode */
 extern int codablock(struct ZintSymbol * symbol, uchar source[], int length); /* Codablock */
-
 extern int plot_raster(struct ZintSymbol * symbol, int rotate_angle, int file_type); /* Plot to PNG/BMP/PCX */
 extern int render_plot(struct ZintSymbol * symbol, float width, float height); /* Plot to gLabels */
 extern int ps_plot(struct ZintSymbol * symbol); /* Plot to EPS */
@@ -208,6 +207,22 @@ void error_tag(char error_string[], int error_number)
 		}
 		strcat(error_string, error_buffer);
 	}
+}
+
+void FASTCALL ZintMakeErrText_InvCharInData(const char * pAddSymb, char * pBuf, size_t bufLen)
+{
+	SString temp_buf = "Invalid characters in data";
+	if(pAddSymb)
+		temp_buf.Space().CatParStr(pAddSymb);
+	strnzcpy(pBuf, temp_buf, bufLen);
+}
+
+void FASTCALL ZintMakeErrText_InvCheckDigit(const char * pAddSymb, char * pBuf, size_t bufLen)
+{
+	SString temp_buf = "Invalid check digit";
+	if(pAddSymb)
+		temp_buf.Space().CatParStr(pAddSymb);
+	strnzcpy(pBuf, temp_buf, bufLen);
 }
 //
 // Output a hexadecimal representation of the rendered symbol
@@ -275,7 +290,8 @@ static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 	to_upper(source);
 	error_number = is_sane(TECHNETIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (B03)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (B03)");
+		ZintMakeErrText_InvCharInData("B03", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	sstrcpy(to_process, "+");

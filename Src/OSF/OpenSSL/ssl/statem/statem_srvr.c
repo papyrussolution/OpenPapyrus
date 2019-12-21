@@ -2900,7 +2900,7 @@ int tls_construct_new_session_ticket(SSL * s)
 		int ret = tctx->tlsext_ticket_key_cb(s, key_name, iv, ctx,
 		    hctx, 1);
 
-		if(ret == 0) {
+		if(!ret) {
 			l2n(0, p); /* timeout */
 			s2n(0, p); /* length */
 			if(!ssl_set_handshake_header

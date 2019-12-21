@@ -546,6 +546,10 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 	return 1;
 }
 
+SLAPI GoodsGrpngArray::AddEntryBlock::AddEntryBlock() : Part(0.0), Flags(0)
+{
+}
+
 int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
 {
 	int    ok = 1, r;

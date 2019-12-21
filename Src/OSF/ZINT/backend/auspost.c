@@ -128,7 +128,8 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 			    return ZINT_ERROR_TOO_LONG;
 		}
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			sstrcpy(symbol->errtxt, "Invalid characters in data (D02)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D02)");
+			ZintMakeErrText_InvCharInData("C02", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 			return error_number;
 		}
 	}
@@ -151,7 +152,8 @@ int australia_post(struct ZintSymbol * symbol, uchar source[], int length)
 	h = strlen(localstr);
 	error_number = is_sane(GDSET, (uchar *)localstr, h);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D04)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D04)");
+		ZintMakeErrText_InvCharInData("C04", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* Verifiy that the first 8 characters are numbers */

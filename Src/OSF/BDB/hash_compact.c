@@ -124,7 +124,7 @@ err:
 		if(ret == 0 && atomic_read(&dbp->mpf->mfp->multiversion) == 0 && (pgs_done == 0 || dbc->txn == NULL))
 			ret = __LPUT(dbc, hcp->lock);
 		else if(LF_ISSET(DB_AUTO_COMMIT)) {
-			if(ret == 0)
+			if(!ret)
 				hcp->bucket++;
 			break;
 		}

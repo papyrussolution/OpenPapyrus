@@ -525,7 +525,7 @@ static int __db_vrfy_walkpages(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (
 			}
 			if(t_ret == DB_PAGE_NOTFOUND) {
 				EPRINT((env, DB_STR_A("0530", "Page %lu: beyond the end of the file, metadata page has last page as %lu", "%lu %lu"), (ulong)i, (ulong)vdp->last_pgno));
-				if(ret == 0)
+				if(!ret)
 					return t_ret;
 			}
 err1:

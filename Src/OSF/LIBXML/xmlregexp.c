@@ -2179,7 +2179,7 @@ static int xmlFACompareAtoms(xmlRegAtom * atom1, xmlRegAtom * atom2, int deep)
 	if(atom1->type != atom2->type) {
 		ret = xmlFACompareAtomTypes(atom1->type, atom2->type);
 		/* if they can't intersect at the type level break now */
-		if(ret == 0)
+		if(!ret)
 			return 0;
 	}
 	switch(atom1->type) {
@@ -2227,7 +2227,7 @@ done:
 	if(atom1->neg != atom2->neg) {
 		ret = !ret;
 	}
-	if(ret == 0)
+	if(!ret)
 		return 0;
 not_determinist:
 	return 1;
@@ -2396,7 +2396,7 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt)
 						if (ret == 0)
 							return 0;
 						*/
-						if(ret == 0) {
+						if(!ret) {
 							t1->nd = 1;
 							/* t2->nd = 1; */
 							last = t1;
@@ -2404,7 +2404,7 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt)
 					}
 				}
 				// don't shortcut the computation so all non deterministic transition get marked down
-				// if(ret == 0) break;
+				// if(!ret) break;
 			}
 
 			/*
@@ -2416,7 +2416,7 @@ static int xmlFAComputesDeterminism(xmlRegParserCtxt * ctxt)
 				last->nd = 2;
 			}
 			// don't shortcut the computation so all non deterministic transition get marked down
-			//if(ret == 0) break;
+			//if(!ret) break;
 		}
 	}
 	ctxt->determinist = ret;
@@ -2532,7 +2532,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 			    }
 			    else if(range->neg) {
 				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
-				    if(ret == 0)
+				    if(!ret)
 					    accept = 1;
 				    else
 					    return 0;
@@ -2874,7 +2874,7 @@ static int xmlFARegExec(xmlRegexp * comp, const xmlChar * content)
 					 */
 					if(ret < 0)
 						ret = 0;
-					if(ret == 0) {
+					if(!ret) {
 						goto rollback;
 					}
 					if(trans->counter >= 0) {
@@ -3460,7 +3460,7 @@ static int xmlRegExecPushStringInternal(xmlRegExecCtxtPtr exec, const xmlChar * 
 					 */
 					if(ret < 0)
 						ret = 0;
-					if(ret == 0) {
+					if(!ret) {
 						goto rollback;
 					}
 				}
@@ -3960,7 +3960,7 @@ static int xmlRegExecPushChar(xmlRegExecCtxtPtr exec, int UCS) {
 					 */
 					if(ret < 0)
 						ret = 0;
-					if(ret == 0) {
+					if(!ret) {
 						goto rollback;
 					}
 				}
@@ -4778,7 +4778,7 @@ static int xmlFAParsePiece(xmlRegParserCtxt * ctxt)
 	int ret;
 	ctxt->atom = NULL;
 	ret = xmlFAParseAtom(ctxt);
-	if(ret == 0)
+	if(!ret)
 		return 0;
 	if(ctxt->atom == NULL) {
 		ERROR("internal: no atom generated");

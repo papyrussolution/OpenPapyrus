@@ -14,3 +14,16 @@ int SXml::WNode::PutAttrib_Ns(const char * pNs, const char * pDomain, const char
 	assert(!isempty(pNs) && !isempty(pDomain) && !isempty(pPath));
 	return PutAttrib(SXml::nst("xmlns", pNs), InetUrl::MkHttp(pDomain, pPath));
 }
+
+int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
+{
+	int    ok = 1;
+	if(Lx && State & stStarted) {
+		xmlTextWriterStartAttribute(Lx, reinterpret_cast<const xmlChar *>(pName));
+		xmlTextWriterWriteString(Lx, reinterpret_cast<const xmlChar *>(pValue));
+		xmlTextWriterEndAttribute(Lx);
+	}
+	else
+		ok = 0;
+	return ok;
+}

@@ -1129,7 +1129,7 @@ static int capi_list_providers(CAPI_CTX * ctx, BIO * out)
 		ret = capi_get_provname(ctx, &provname, &ptype, idx);
 		if(ret == 2)
 			break;
-		if(ret == 0)
+		if(!ret)
 			break;
 		BIO_printf(out, "%lu. %s, type %lu\n", idx, provname, ptype);
 		OPENSSL_free(provname);

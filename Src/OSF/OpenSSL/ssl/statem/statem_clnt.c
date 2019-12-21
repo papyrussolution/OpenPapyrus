@@ -1863,7 +1863,7 @@ MSG_PROCESS_RETURN tls_process_server_done(SSL * s, PACKET * pkt)
 	 */
 	if(s->tlsext_status_type != -1 && s->ctx->tlsext_status_cb != NULL) {
 		int ret = s->ctx->tlsext_status_cb(s, s->ctx->tlsext_status_arg);
-		if(ret == 0) {
+		if(!ret) {
 			ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_BAD_CERTIFICATE_STATUS_RESPONSE);
 			SSLerr(SSL_F_TLS_PROCESS_SERVER_DONE, SSL_R_INVALID_STATUS_RESPONSE);
 			return MSG_PROCESS_ERROR;

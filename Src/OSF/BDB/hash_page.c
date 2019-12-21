@@ -2298,7 +2298,7 @@ int __ham_get_cpage(DBC * dbc, db_lockmode_t mode)
 			/* Cases 1, 3, and 4. */
 			if((ret = __ham_lock_bucket(dbc, mode)) != 0)
 				return ret;
-		if(ret == 0) {
+		if(!ret) {
 			hcp->lock_mode = mode;
 			hcp->lbucket = hcp->bucket;
 			/* Case 3: release the original lock. */

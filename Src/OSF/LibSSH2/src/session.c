@@ -127,7 +127,7 @@ static int banner_receive(LIBSSH2_SESSION * session)
 			return LIBSSH2_ERROR_SOCKET_RECV;
 		}
 
-		if(ret == 0) {
+		if(!ret) {
 			session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
 			return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 		}

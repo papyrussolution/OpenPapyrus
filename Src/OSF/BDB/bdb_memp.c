@@ -818,7 +818,7 @@ int __memp_pgread(DB_MPOOLFILE * dbmfp, BH * bhp, int can_create)
 	//
 	// If no errors occurred, the data is now valid, clear the BH_TRASH flag.
 	//
-	if(ret == 0)
+	if(!ret)
 		F_CLR(bhp, BH_TRASH);
 err:
 	return ret;
@@ -4880,7 +4880,7 @@ err:
 		}
 		MUTEX_UNLOCK(env, new_hp->mtx_hash);
 	}
-	if(ret == 0)
+	if(!ret)
 		mp->nbuckets = new_nbuckets;
 	MUTEX_UNLOCK(env, old_hp->mtx_hash);
 	return ret;
@@ -4976,7 +4976,7 @@ static int FASTCALL __memp_remove_region(DB_MPOOL * dbmp)
 				return ret;
 	}
 	ret = __env_region_detach(env, infop, 1);
-	if(ret == 0) {
+	if(!ret) {
 		mp->nreg--;
 		cache_size -= reg_size;
 		mp->gbytes = (uint32)(cache_size/GIGABYTE);
@@ -7021,7 +7021,7 @@ int __memp_ftruncate(DB_MPOOLFILE * dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db
 	 * the file.  It's not a problem because we should have the page
 	 * locked at a higher level of the system.
 	 */
-	if(ret == 0) {
+	if(!ret) {
 		mfp->last_pgno = pgno-1;
 		SETMIN(mfp->last_flushed_pgno, mfp->last_pgno);
 	}

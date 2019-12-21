@@ -1005,7 +1005,7 @@ done:
 	// Discard memory allocated to hold the data items. 
 	__os_ufree(env, data.data);
 	__os_free(env, pad);
-	if(ret == 0)
+	if(!ret)
 		t->re_modified = 0;
 	return ret;
 }

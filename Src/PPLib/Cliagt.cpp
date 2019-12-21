@@ -600,8 +600,8 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 		int  setDTS(const PPClientAgreement * pAgt)
 		{
 			SString ar_name;
-			double added_limit_val = 0.0; // @v8.2.4
-			int    added_limit_term = 0;  // @v8.2.4
+			double added_limit_val = 0.0;
+			int    added_limit_term = 0;
 			data = *pAgt;
 			ArID = data.ClientID;
 			GetArticleName(data.ClientID, ar_name);
@@ -624,7 +624,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			setCtrlData(CTL_CLIAGT_MAXDSCNT,  &data.MaxDscnt);
 			setCtrlData(CTL_CLIAGT_DSCNT,     &data.Dscnt);
 			setCtrlData(CTL_CLIAGT_PAYPERIOD, &data.DefPayPeriod);
-			SetupPaymDateBaseCombo(this, CTLSEL_CLIAGT_PAYMDTBASE, data.PaymDateBase); // @v8.4.2
+			SetupPaymDateBaseCombo(this, CTLSEL_CLIAGT_PAYMDTBASE, data.PaymDateBase);
 			SetupArCombo(this, CTLSEL_CLIAGT_AGENT, data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
 			SetupPPObjCombo(this, CTLSEL_CLIAGT_QUOTKIND, PPOBJ_QUOTKIND, data.DefQuotKindID, 0, 0);
 			if(data.ClientID) {
@@ -682,7 +682,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			getCtrlData(sel = CTL_CLIAGT_DSCNT,     &data.Dscnt);
 			THROW_PP(data.Dscnt >= -100 && data.Dscnt <= 100 /*&&data.Dscnt <= data.MaxDscnt*/, PPERR_INVCLIAGTDIS);
 			getCtrlData(CTL_CLIAGT_PAYPERIOD, &data.DefPayPeriod);
-			getCtrlData(CTL_CLIAGT_PAYMDTBASE, &data.PaymDateBase); // @v8.4.2
+			getCtrlData(CTL_CLIAGT_PAYMDTBASE, &data.PaymDateBase);
 			getCtrlData(CTLSEL_CLIAGT_AGENT,  &data.DefAgentID);
 			getCtrlData(CTLSEL_CLIAGT_QUOTKIND, &data.DefQuotKindID);
 			getCtrlData(CTLSEL_CLIAGT_EXTOBJECT, &data.ExtObjectID);
@@ -714,14 +714,15 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 		int  editRoundingParam()
 		{
 			class CliAgtRndDialog : public TDialog {
+				DECL_DIALOG_DATA(PPClientAgreement);
 			public:
 				CliAgtRndDialog() : TDialog(DLG_CLIAGTRND)
 				{
 				}
-				int setDTS(const PPClientAgreement * pData)
+				DECL_DIALOG_SETDTS()
 				{
 					int    ok = 1;
-					Data = *pData;
+					RVALUEPTR(Data, pData);
 					AddClusterAssoc(CTL_CLIAGTRND_FLAGS, 0, AGTF_PRICEROUNDING);
 					SetClusterData(CTL_CLIAGTRND_FLAGS, Data.Flags);
 					setCtrlData(CTL_CLIAGTRND_PREC, &Data.PriceRoundPrec); // ! float
@@ -734,7 +735,7 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 					SetupCtrls();
 					return ok;
 				}
-				int getDTS(PPClientAgreement * pData)
+				DECL_DIALOG_GETDTS()
 				{
 					int    ok = 1;
 					GetClusterData(CTL_CLIAGTRND_FLAGS, &Data.Flags);
@@ -759,7 +760,6 @@ int SLAPI PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 					disableCtrls(!BIN(Data.Flags & AGTF_PRICEROUNDING),
 						CTL_CLIAGTRND_PREC, CTL_CLIAGTRND_ROUND, CTL_CLIAGTRND_ROUNDVAT, 0);
 				}
-				PPClientAgreement Data;
 			};
 			DIALOG_PROC_BODY(CliAgtRndDialog, &data);
 		}
@@ -1525,11 +1525,12 @@ private:
 int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEntry * pEntry, int pos)
 {
     class SOrdParamEntryDialog : public TDialog {
+		DECL_DIALOG_DATA(PPSupplAgreement::OrderParamEntry);
 	public:
 		SOrdParamEntryDialog(PPID arID) : TDialog(DLG_SORDPE), ArID(arID)
 		{
 		}
-		int  setDTS(const PPSupplAgreement::OrderParamEntry * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			if(ArID) {
@@ -1545,7 +1546,7 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
             setCtrlData(CTL_SORDPE_DUEPRD, &Data.Fb.DuePrdDays);
             return 1;
 		}
-		int  getDTS(PPSupplAgreement::OrderParamEntry * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
             getCtrlData(CTLSEL_SORDPE_GOODSGRP, &Data.GoodsGrpID);
@@ -1566,8 +1567,7 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
 				return;
 			clearEvent(event);
 		}
-		PPSupplAgreement::OrderParamEntry Data;
-		PPID   ArID;
+		const PPID   ArID;
     };
     DIALOG_PROC_BODY_P1(SOrdParamEntryDialog, arID, pEntry);
 }
@@ -1590,7 +1590,7 @@ int SupplAgtDialog::SetupCtrls(long flags)
 static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 {
 	class SupplExpOpListDialog : public PPListDialog {
-	private:
+		DECL_DIALOG_DATA(PPSupplAgreement::ExchangeParam);
 		ObjTagFilt PsnTagFlt;
 		ObjTagFilt LocTagFlt;
 		ObjTagFilt BillTagFlt;
@@ -1603,7 +1603,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		{
 			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SUPPLEOPS_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.9.5
 		}
-		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData))
 				Data.Z();
@@ -1693,7 +1693,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			updateList(-1);
 			return 1;
 		}
-		int    getDTS(PPSupplAgreement::ExchangeParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -1761,7 +1761,6 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		{
 			return id ? Data.DebtDimList.Remove(id, 0) : -1;
 		}
-		PPSupplAgreement::ExchangeParam Data;
 		PPObjDebtDim DdObj;
 	};
 	DIALOG_PROC_BODYERR(SupplExpOpListDialog, pData);
@@ -1770,12 +1769,13 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 int SupplAgtDialog::EditExchangeCfg()
 {
 	class SupplExchangeCfgDialog : public TDialog {
+		DECL_DIALOG_DATA(PPSupplAgreement::ExchangeParam);
 	public:
 		SupplExchangeCfgDialog() : TDialog(DLG_SUPLEXCHCFG)
 		{
 			SetupCalDate(CTLCAL_SUPLEXCHCFG_LASTDT, CTL_SUPLEXCHCFG_LASTDT);
 		}
-		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			SString temp_buf;
 			PPOprKind op_kind;
@@ -1833,7 +1833,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			// } @v9.2.0
 			return 1;
 		}
-		int    getDTS(PPSupplAgreement::ExchangeParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -1899,8 +1899,6 @@ int SupplAgtDialog::EditExchangeCfg()
 				clearEvent(event);
 			}
 		}
-		//int    EditOps();
-		PPSupplAgreement::ExchangeParam Data;
 	};
 	int    ok = -1, valid_data = 0;
 	//PPSupplAgreement::ExchangeParam ep;
@@ -1979,8 +1977,6 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 	}
 	else {
 		GetClusterData(CTL_SUPPLAGT_FLAGS, &Data.Flags);
-		// @v8.5.2 Data.OrdPrdDays = (int16)getCtrlLong(CTL_SUPPLAGT_ORDPRD);
-		// @v8.5.2 THROW_PP(!(Data.Flags & AGTF_AUTOORDER) || Data.OrdPrdDays > 0, PPERR_INVPERIODINPUT);
 	}
 	ASSIGN_PTR(pAgt, Data);
 	CATCHZOKPPERRBYDLG

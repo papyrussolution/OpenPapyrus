@@ -9,7 +9,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include "save.h"
+// @v10.6.5 #include "save.h"
 /*
  * The XML predefined entities.
  */

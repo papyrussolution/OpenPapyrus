@@ -424,7 +424,7 @@ int __db_put(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 			if(bulk_kptr == NULL || bulk_ptr == NULL)
 				break;
 			ret = __dbc_put(dbc, &tkey, &tdata, LF_ISSET(DB_OPFLAGS_MASK));
-			if(ret == 0)
+			if(!ret)
 				++key->doff;
 		}
 	}
@@ -445,7 +445,7 @@ int __db_put(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * key, DBT * data,
 			if(bulk_ptr == NULL)
 				break;
 			ret = __dbc_put(dbc, &tkey, &tdata, LF_ISSET(DB_OPFLAGS_MASK));
-			if(ret == 0)
+			if(!ret)
 				++key->doff;
 		}
 	}

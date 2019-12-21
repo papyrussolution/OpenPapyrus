@@ -162,7 +162,7 @@ static int ctlog_store_load_log(const char * log_name, int log_name_len, void * 
 		/* Propagate any internal error */
 		return ret;
 	}
-	if(ret == 0) {
+	if(!ret) {
 		/* If we can't load this log, record that fact and skip it */
 		++load_ctx->invalid_log_entries;
 		return 1;

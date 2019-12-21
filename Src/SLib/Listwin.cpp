@@ -545,8 +545,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 	else {
 		if(TVCOMMAND) {
 			if(TVCMD == cmDrawItem) {
-				//DrawListItem((TDrawItemData*)TVINFOPTR);
-				DrawListItem2((TDrawItemData*)TVINFOPTR);
+				DrawListItem2(static_cast<TDrawItemData *>(TVINFOPTR));
 				clearEvent(event);
 			}
 			else if(TVCMD == cmRightClick)

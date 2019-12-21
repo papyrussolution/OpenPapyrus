@@ -465,7 +465,7 @@ static BIGNUM * asn1_string_to_bn(const ASN1_INTEGER * ai, BIGNUM * bn, int ityp
 		return NULL;
 	}
 	ret = BN_bin2bn(ai->data, ai->length, bn);
-	if(ret == 0) {
+	if(!ret) {
 		ASN1err(ASN1_F_ASN1_STRING_TO_BN, ASN1_R_BN_LIB);
 		return NULL;
 	}

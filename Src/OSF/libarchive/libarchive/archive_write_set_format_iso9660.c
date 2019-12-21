@@ -1717,28 +1717,22 @@ static int iso9660_close(struct archive_write * a)
 		 * if there is no file entry, converters are still
 		 * uninitialized. */
 		if(iso9660->sconv_to_utf16be == NULL) {
-			iso9660->sconv_to_utf16be =
-			    archive_string_conversion_to_charset(
-				&(a->archive), "UTF-16BE", 1);
+			iso9660->sconv_to_utf16be = archive_string_conversion_to_charset(&(a->archive), "UTF-16BE", 1);
 			if(iso9660->sconv_to_utf16be == NULL)
 				/* Couldn't allocate memory */
 				return ARCHIVE_FATAL;
-			iso9660->sconv_from_utf16be =
-			    archive_string_conversion_from_charset(
-				&(a->archive), "UTF-16BE", 1);
+			iso9660->sconv_from_utf16be = archive_string_conversion_from_charset(&(a->archive), "UTF-16BE", 1);
 			if(iso9660->sconv_from_utf16be == NULL)
 				/* Couldn't allocate memory */
 				return ARCHIVE_FATAL;
 		}
 	}
-
 	/*
 	 * Make Path Tables.
 	 */
 	ret = isoent_make_path_table(a);
 	if(ret < 0)
 		return ret;
-
 	/*
 	 * Calculate a total volume size and setup all locations of
 	 * contents of an iso9660 image.
@@ -4408,30 +4402,23 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 	archive_string_empty(&(file->basename));
 	archive_string_empty(&(file->basename_utf16));
 	archive_string_empty(&(file->symlink));
-
 	pathname =  archive_entry_pathname(file->entry);
 	if(pathname == NULL || pathname[0] == '\0') { /* virtual root */
 		file->dircnt = 0;
 		return ret;
 	}
-
 	/*
 	 * Make a UTF-16BE basename if Joliet extension enabled.
 	 */
 	if(iso9660->opt.joliet) {
 		const char * u16, * ulast;
 		size_t u16len, ulen_last;
-
 		if(iso9660->sconv_to_utf16be == NULL) {
-			iso9660->sconv_to_utf16be =
-			    archive_string_conversion_to_charset(
-				&(a->archive), "UTF-16BE", 1);
+			iso9660->sconv_to_utf16be = archive_string_conversion_to_charset(&(a->archive), "UTF-16BE", 1);
 			if(iso9660->sconv_to_utf16be == NULL)
 				/* Couldn't allocate memory */
 				return ARCHIVE_FATAL;
-			iso9660->sconv_from_utf16be =
-			    archive_string_conversion_from_charset(
-				&(a->archive), "UTF-16BE", 1);
+			iso9660->sconv_from_utf16be = archive_string_conversion_from_charset(&(a->archive), "UTF-16BE", 1);
 			if(iso9660->sconv_from_utf16be == NULL)
 				/* Couldn't allocate memory */
 				return ARCHIVE_FATAL;

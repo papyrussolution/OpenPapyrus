@@ -626,27 +626,9 @@ int TInputLine::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int TInputLine::Implement_GetText()
 {
 	int    ok = 1;
-	/* @v9.1.5
-	char   st_buf[1024];
-	char * ptr = 0;
-	STempBuffer t_buf(0);
-	size_t buflen = (maxLen > 0) ? (maxLen+1) : 4096;
-	if(buflen < sizeof(st_buf))
-		ptr = st_buf;
-	else {
-		t_buf.Alloc(buflen);
-		ptr = t_buf;
-	}
-	if(ptr) {
-		// @v9.1.5 SendDlgItemMessage(Parent, Id, WM_GETTEXT, buflen, (long)ptr);
-		(Data = ptr).Transf(CTRANSF_OUTER_TO_INNER);
-	}
-	else
-		ok = 0;
-	*/
-	TView::SGetWindowText(GetDlgItem(Parent, Id), Data); // @v9.1.5
-	Data.Transf(CTRANSF_OUTER_TO_INNER); // @v9.1.5
-	Data.Trim((maxLen > 0) ? maxLen : (4096-1)); // @v9.1.5
+	TView::SGetWindowText(GetDlgItem(Parent, Id), Data);
+	Data.Transf(CTRANSF_OUTER_TO_INNER);
+	Data.Trim((maxLen > 0) ? maxLen : (4096-1));
 	return ok;
 }
 
@@ -1368,9 +1350,6 @@ int TCluster::setText(int pos, const char * pText)
 {
 	int    ok = 0;
 	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {
-		// @v9.1.5 char   temp_buf[512];
-		// @v9.1.5 OemToChar(buf, temp_buf);
-		// @v9.1.5 SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id, pos+1), WM_SETTEXT, 0, (long)temp_buf);
 		SString temp_buf = pText;
 		TView::SSetWindowText(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, pos+1)), temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 		deleteItem(pos);
@@ -1737,19 +1716,15 @@ int ComboBox::setDataByUndefID()
 int ComboBox::getInputLineText(char * pBuf, size_t bufLen)
 {
 	ASSIGN_PTR(pBuf, 0);
-	// @v9.1.5 char   temp_buf[256];
-	// @v9.1.5 SendDlgItemMessage(Parent, P_ILink->GetId(), WM_GETTEXT, sizeof(temp_buf)-1, (long)temp_buf);
-	// @v9.1.5 (Text = temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, bufLen);
-	TView::SGetWindowText(GetDlgItem(Parent, P_ILink->GetId()), Text); // @v9.1.5
-	Text.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, bufLen); // @v9.1.5
+	TView::SGetWindowText(GetDlgItem(Parent, P_ILink->GetId()), Text);
+	Text.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, bufLen);
 	return Text.NotEmpty() ? 1 : -1;
 }
 
 void ComboBox::setInputLineText(const char * pBuf)
 {
 	(Text = pBuf).Transf(CTRANSF_INNER_TO_OUTER);
-	// @v9.1.5 SendDlgItemMessage(Parent, P_ILink->GetId(), WM_SETTEXT, 0, (long)(const char *)Text);
-	TView::SSetWindowText(GetDlgItem(Parent, P_ILink->GetId()), Text); // @v9.1.5
+	TView::SSetWindowText(GetDlgItem(Parent, P_ILink->GetId()), Text);
 }
 
 int ComboBox::TransmitData(int dir, void * pData)

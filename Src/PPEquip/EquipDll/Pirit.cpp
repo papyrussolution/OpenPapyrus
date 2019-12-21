@@ -760,6 +760,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						case /*TAXSYSK_PATENT*/3: Check.TaxSys = 5; break;
 						case /*TAXSYSK_IMPUTED*/4: Check.TaxSys = 3; break;
 						case /*TAXSYSK_SINGLEAGRICULT*/5: Check.TaxSys = 4; break;
+						case /*TAXSYSK_SIMPLIFIED_PROFIT*/6: Check.TaxSys = 2; break; // @v10.6.4
 						default: Check.TaxSys = -1; break; // @v10.6.4 0-->-1
 					}
 				}

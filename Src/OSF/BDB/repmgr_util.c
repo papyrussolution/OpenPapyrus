@@ -216,7 +216,7 @@ int __repmgr_create_mutex(ENV * env, mgr_mutex_t ** mtxp)
 	if((ret = __os_malloc(env, sizeof(mgr_mutex_t), &mtx)) == 0 && (ret = __repmgr_create_mutex_pf(mtx)) != 0) {
 		__os_free(env, mtx);
 	}
-	if(ret == 0)
+	if(!ret)
 		*mtxp = mtx;
 	return ret;
 }
@@ -561,7 +561,7 @@ int __repmgr_each_connection(ENV * env, CONNECTION_ACTION callback, void * info,
 	uint eid;
 	int ret, t_ret;
 
-#define HANDLE_ERROR do { if(err_quit) return (t_ret); if(ret == 0) ret = t_ret; } while(0)
+#define HANDLE_ERROR do { if(err_quit) return (t_ret); if(!ret) ret = t_ret; } while(0)
 
 	db_rep = env->rep_handle;
 	ret = 0;
@@ -1131,7 +1131,7 @@ err:
 		ret = t_ret;
 	if(txn && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret == 0) {
+	if(!ret) {
 		*bufp = buf;
 		*lenp = len;
 	}
@@ -1390,7 +1390,7 @@ int __repmgr_find_site(ENV * env, const char * host, uint port, int * eidp)
 			return ret;
 		eid = EID_FROM_SITE(site);
 	}
-	if(ret == 0)
+	if(!ret)
 		*eidp = eid;
 	return ret;
 }
@@ -1431,7 +1431,7 @@ static int get_eid(ENV * env, const char * host, uint port, int * eidp)
 	}
 	else
 		eid = EID_FROM_SITE(site);
-	if(ret == 0)
+	if(!ret)
 		*eidp = eid;
 	return ret;
 }

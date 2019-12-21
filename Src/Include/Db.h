@@ -1993,7 +1993,7 @@ private:
 	void   SLAPI makeIdxListQuery(BTBLID tblID, int numRecs);
 	int    SLAPI getFieldList(BTBLID tblID, BNFieldList * fields);
 	int    SLAPI getIndexList(BTBLID tblID, BNKeyList * pKeyList);
-	SString & SLAPI GetTempFileName(SString & rFileName, long * pCounter, int forceInDataPath = 0);
+	SString & SLAPI GetTemporaryFileName(SString & rFileName, long * pCounter, int forceInDataPath = 0);
 	int    SLAPI ExtractStat(const XFile & rRec, DbTableStat * pStat) const;
 
 	DBTable xfile;
@@ -2124,7 +2124,7 @@ public:
 	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf) = 0;
 	virtual int SLAPI IsFileExists_(const char * pFileName) = 0;
-	virtual SString & SLAPI GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath) = 0;
+	virtual SString & SLAPI GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath) = 0;
 	//
 	// Descr: Создает файл данных с именем pFileName по спецификации pTbl.
 	//
@@ -2283,7 +2283,7 @@ public:
 	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int SLAPI IsFileExists_(const char * pFileName);
-	virtual SString & SLAPI GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual SString & SLAPI GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
 	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int SLAPI DropFile(const char * pFileName);
 	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
@@ -2586,7 +2586,7 @@ public:
 	virtual ~SOraDbProvider();
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int SLAPI IsFileExists_(const char * pFileName);
-	virtual SString & SLAPI GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual SString & SLAPI GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
 	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int SLAPI DropFile(const char * pFileName);
 	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);

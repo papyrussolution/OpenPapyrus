@@ -499,16 +499,12 @@ int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /
 
 void SLAPI XmlWriter::EndElement()
 {
-	if(P_Writer)
-		xmlTextWriterEndElement(P_Writer);
+	xmlTextWriterEndElement(P_Writer);
 }
 
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, bool attribValue)
-	{ return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue ? "true" : "false")); }
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, long attribValue)
-	{ return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue)); }
-int SLAPI XmlWriter::AddAttrib(const char * pAttribName, double attribValue)
-	{ return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ))); }
+int SLAPI XmlWriter::AddAttrib(const char * pAttribName, bool attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(STextConst::GetBool(attribValue))); }
+int SLAPI XmlWriter::AddAttrib(const char * pAttribName, long attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue)); }
+int SLAPI XmlWriter::AddAttrib(const char * pAttribName, double attribValue) { return AddAttrib(pAttribName, TempBuf.Z().Cat(attribValue, MKSFMTD(0, 2, NMBF_NOTRAILZ))); }
 
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 {
@@ -526,22 +522,14 @@ int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribVal
 	return ok;
 }
 
-int SLAPI XmlWriter::AddAttrib(const char * pName, LDATETIME val)
-	{ return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
-int SLAPI XmlWriter::AddAttrib(const char * pName, LDATE val)
-	{ return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
-int SLAPI XmlWriter::PutElement(const char * pName, long val)
-	{ return PutElement(pName, TempBuf.Z().Cat(val)); }
-int SLAPI XmlWriter::PutElement(const char * pName, double val)
-	{ return PutElement(pName, TempBuf.Z().Cat(val)); }
-int SLAPI XmlWriter::PutElement(const char * pName, bool val)
-	{ return PutElement(pName, TempBuf.Z().Cat(val ? "true" : "false")); }
-int SLAPI XmlWriter::PutElement(const char * pName, LDATETIME val)
-	{ return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
-int SLAPI XmlWriter::PutElement(const char * pName, LDATE val)
-	{ return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
-int SLAPI XmlWriter::PutElement(const char * pName, LTIME val)
-	{ return PutElement(pName, TempBuf.Z().Cat(val, TIMF_HMS|TIMF_MSEC)); }
+int SLAPI XmlWriter::AddAttrib(const char * pName, LDATETIME val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
+int SLAPI XmlWriter::AddAttrib(const char * pName, LDATE val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
+int SLAPI XmlWriter::PutElement(const char * pName, long val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
+int SLAPI XmlWriter::PutElement(const char * pName, double val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
+int SLAPI XmlWriter::PutElement(const char * pName, bool val) { return PutElement(pName, TempBuf.Z().Cat(STextConst::GetBool(val))); }
+int SLAPI XmlWriter::PutElement(const char * pName, LDATETIME val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
+int SLAPI XmlWriter::PutElement(const char * pName, LDATE val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
+int SLAPI XmlWriter::PutElement(const char * pName, LTIME val) { return PutElement(pName, TempBuf.Z().Cat(val, TIMF_HMS|TIMF_MSEC)); }
 
 int SLAPI XmlWriter::PutElement(const char * pName, const char * pValue)
 {
@@ -569,6 +557,13 @@ struct _MaxDisEntry { // @flat
 	char   Barcode[24];
 	int16  Deleted;
 	int16  NoDis;
+};
+
+struct _MinPriceEntry { // @flat
+	char   Barcode[24];
+	double MinPrice;
+	int16  Deleted;
+	int16  Reserve; // @alignment
 };
 
 int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
@@ -599,6 +594,8 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 	PPID   sr_prodtagb_tag = 0;
 	PPID   prev_goods_id = 0;
 	SVector max_dis_list(sizeof(_MaxDisEntry));
+	SVector min_price_list(sizeof(_MinPriceEntry)); // @v10.6.4
+
 	LDATETIME beg_dtm;
 	LDATETIME end_dtm;
 	getcurdate(&beg_dtm.d);
@@ -747,7 +744,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 					// @v10.6.4 MEMSZERO(ggrec);
 					{
 						PPID   parent_id = prev_gds_info.ParentID;
-						long   parents_count = 0;
+						uint   parents_count = 0;
 						while(gobj.GetParentID(parent_id, &parent_id) > 0 && parent_id != 0) {
 							if(gobj.FetchSingleBarcode(parent_id, grp_code) > 0 && grp_code.Len())
 								grp_code.ShiftLeftChr('@');
@@ -759,7 +756,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 							p_writer->PutElement("name", temp_buf);
 							parents_count++;
 						}
-						for(uint i = 0; i < (uint)parents_count; i++)
+						for(uint i = 0; i < parents_count; i++)
 							p_writer->EndElement(); // </parent-group>
 					}
 					p_writer->EndElement(); // </group>
@@ -814,11 +811,9 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 				}
 				else {
 					SString ingred, storage, energy;
-					/*
-						1. composition (состав)
-						2. storage-conditions (услови€ хранени€)
-						3. food-value (пищева€ ценность)
-					*/
+					// 1. composition (состав)
+					// 2. storage-conditions (услови€ хранени€)
+					// 3. food-value (пищева€ ценность)
 					{
 						uint   ss_pos = 0;
 						prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
@@ -875,6 +870,16 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 				dis_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
 				max_dis_list.insert(&dis_entry);
 			}
+			// @v10.6.4 {
+			if(prev_gds_info.AllowedPriceR.low > 0.0) {
+				_MinPriceEntry mp_entry;
+				STRNSCPY(mp_entry.Barcode, prev_gds_info.PrefBarCode);
+				mp_entry.MinPrice = prev_gds_info.AllowedPriceR.low;
+				mp_entry.Deleted = BIN(prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted);
+				mp_entry.Reserve = 0;
+				min_price_list.insert(&mp_entry);
+			}
+			// } @v10.6.4 
 			barcodes.clear();
 		}
 		if(rGoodsInfo.BarCode[0]) {
@@ -899,16 +904,15 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 		PPWaitPercent(pGoodsIter->GetIterCounter());
 	}
 	if(oneof2(mode, 0, 2)) {
+		const char * p_subj_type = "GOOD";
+		SString restr_id;
 		//
 		// ¬ыгрузка максимальных скидок на товар
 		//
-		const uint max_dis_count = max_dis_list.getCount();
 		PPLoadText(PPTXT_MAXDISEXPORT, iter_msg);
 		{
-			for(uint i = 0; i < max_dis_count; i++) {
-				const char * p_subj_type = "GOOD";
+			for(uint i = 0; i < max_dis_list.getCount(); i++) {
 				const char * p_type = "MAX_DISCOUNT_PERCENT";
-				SString restr_id;
 				const _MaxDisEntry * p_entry = static_cast<const _MaxDisEntry *>(max_dis_list.at(i));
 				(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
 				p_writer->StartElement("max-discount-restriction");
@@ -928,9 +932,37 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 					p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
 				// } @v10.4.6 
 				p_writer->EndElement(); // </max-discount-restriction>
-				PPWaitPercent(i + 1, max_dis_count, iter_msg);
+				PPWaitPercent(i + 1, max_dis_list.getCount(), iter_msg);
 			}
 		}
+		//
+		// @v10.6.4 {
+		// ¬ыгрузка минимальных допустимых цен
+		//
+		{
+			for(uint i = 0; i < min_price_list.getCount(); i++) {
+				const char * p_type = "MIN_PRICE";
+				const _MinPriceEntry * p_entry = static_cast<const _MinPriceEntry *>(min_price_list.at(i));
+				(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
+				p_writer->StartElement("min-price-restriction");
+	 			p_writer->AddAttrib("id", restr_id.cptr());
+				p_writer->AddAttrib("subject-type", p_subj_type);
+				p_writer->AddAttrib("subject-code", p_entry->Barcode);
+				p_writer->AddAttrib("type", p_type);
+				p_writer->AddAttrib("value", p_entry->MinPrice);
+				p_writer->PutElement("since-date", beg_dtm);
+				p_writer->PutElement("till-date", end_dtm);
+				p_writer->PutElement("since-time", beg_dtm.t);
+				p_writer->PutElement("till-time", end_dtm.t);
+				p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
+				p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
+				if(rStoreIndex.NotEmpty())
+					p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
+				p_writer->EndElement(); // </max-discount-restriction>
+				PPWaitPercent(i + 1, min_price_list.getCount(), iter_msg);
+			}
+		}
+		// } @v10.6.4
 	}
 	p_writer->EndElement(); // </goods-catalog>
 	CATCHZOK

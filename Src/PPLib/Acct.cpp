@@ -42,22 +42,22 @@ char * SLAPI STAcct::tostr(const void * a, long fmt, char * b) const
 	}
 	if(S > sizeof(Acct)) {
 		if(!(fmt & ACCF_NAMEONLY)) {
-			((const Acct *)a)->ToStr(fmt, b);
+			static_cast<const Acct *>(a)->ToStr(fmt, b);
 			ofs = accflen;
 		}
 		else
 			ofs = 0;
 		size_t sz = sizeof(int16) * 2;
-		strnzcpy(b+ofs, ((char *)a)+sz, S-sz);
+		strnzcpy(b+ofs, static_cast<const char *>(a)+sz, S-sz);
 	}
 	else
-		((const Acct *)a)->ToStr(fmt, b);
+		static_cast<const Acct *>(a)->ToStr(fmt, b);
 	return b;
 }
 
 int SLAPI STAcct::fromstr(void * a, long fmt, const char * b) const
 {
-	return ((Acct *)a)->FromStr(fmt, b);
+	return static_cast<Acct *>(a)->FromStr(fmt, b);
 }
 
 void SLAPI RegisterSTAcct()
@@ -67,11 +67,12 @@ void SLAPI RegisterSTAcct()
 //
 // Utils
 //
-void SLAPI Acct::Clear()
+Acct & SLAPI Acct::Z()
 {
 	ac = 0;
 	sb = 0;
 	ar = 0;
+	return *this;
 }
 
 static int SLAPI delim(long format)

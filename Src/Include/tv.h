@@ -162,6 +162,7 @@ struct SizeEvent {
 // Descr: Структура, передаваемая с сообщением cmPaint.
 //
 struct PaintEvent {
+	SLAPI  PaintEvent();
 	enum {
 		tPaint = 1,
 		tNcPaint,
@@ -1873,12 +1874,10 @@ public:
 
 	SRectLayout();
 	~SRectLayout();
-
 	int    Add(long id, const Item &);
 	int    InsertWindow(long itemId, TView * pView, int minWidth, int minHeight);
 	int    RemoveWindow(long winId);
 	int    GetWindowBounds(long winId, TRect & rBounds);
-
 	int    SetContainerBounds(const TRect &);
 	int    Arrange();
 	int    GetItemBounds(long id, TRect & rBounds);
@@ -2661,7 +2660,6 @@ private:
 	int    CurObjPos; // Позиция активного объекта. -1 - активного объекта нет.
 	LongArray * P_MultObjPosList; // Позиции объектов, к которым применен множественный выбор.
 	TWindow * P_Wnd; // @notowned @transient
-
 	int    TidPenObjBorder;
 	int    TidPenObjBorderSel;
 	int    TidPenObjBorderCur;
@@ -4612,25 +4610,25 @@ public:
 		int    FASTCALL SetFullCellColor(COLORREF c)
 		{
 			Color = c;
-			return 1;
+			return 1; // @necessarily
 		}
 		int    FASTCALL SetRightFigCircleColor(COLORREF c)
 		{
 			RightFigColor = c;
 			Flags |= fRightFigCircle;
-			return 1;
+			return 1; // @necessarily
 		}
 		int    FASTCALL SetLeftBottomCornerColor(COLORREF c)
 		{
 			Color2 = c;
 			Flags |= fLeftBottomCorner;
-			return 1;
+			return 1; // @necessarily
 		}
 		int    FASTCALL SetLeftTopCornerColor(COLORREF c)
 		{
 			Color = c;
 			Flags |= fCorner;
-			return 1;
+			return 1; // @necessarily
 		}
 		enum {
 			fCorner           = 0x0001,

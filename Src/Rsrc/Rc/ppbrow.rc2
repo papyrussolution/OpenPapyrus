@@ -3154,7 +3154,7 @@ browser GOODSOPER_PLAN north(100), 3, 1, "Выполнение торгового плана {%s}", OWNE
 
 browser INOUTANLZ north(100), 3, 1, "Анализ вход/выход {%s}", OWNER|GRID, 0
 {
-	"Знак",  8, notype, 0, 4
+	"@valuesign_s",  8, notype, 0, 4
 	"@ware", 2, notype, 0, 30
 	group "@qtty" {
 		"@munit_tr_sfx_s", 14, notype, ALIGN_RIGHT, 10.3
@@ -4259,12 +4259,12 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 //
 browser CSESSEXC north(100), 3, 1, "Дефицит по кассовым сессиям", OWNER|GRID, 0
 {
-	"Знак",     1, notype, 0,  4
-	"@ware",    2, notype, 0, 40
-	"Продано",  3, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
-	"@deficit", 4, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
-	"@price",   5, notype, NMBF_NOZERO, 8.2
-	"@amount",  6, notype, NMBF_NOZERO, 10.2
+	"@valuesign_s", 1, notype, 0,  4
+	"@ware",        2, notype, 0, 40
+	"Продано",      3, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
+	"@deficit",     4, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
+	"@price",       5, notype, NMBF_NOZERO, 8.2
+	"@amount",      6, notype, NMBF_NOZERO, 10.2
 	group "Альтернативный товар" {
 		"@appellation", 7, notype, 0, 40
 		"Списано",      8, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 8.3
@@ -5180,7 +5180,7 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 	"@processor",                2, notype, 0, 20
 	"@ware",                     3, notype, 0, 30
 	"@structure",                4, notype, 0, 10
-	"Знак",                      5, notype, 0,  6
+	"@valuesign_s",              5, notype, 0,  6
 	"@productivity",             6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	"Количество по\nумолчанию",  9, notype, NMBF_NOZERO, 8.1
 	toolbar TB_FIRST_TOOLBAR {
@@ -5377,7 +5377,7 @@ browser TSESS_MANUFPLAN north(100), 3, 1, "Производственные планы {%s}", OWNER|G
 //
 browser TSESSLINE north(100), 3, 1, "Строки технологической сессии {%s}", OWNER|GRID, 0
 {
-	"Знак",              2, notype, ALIGN_CENTER, 4
+	"@valuesign_s",      2, notype, ALIGN_CENTER, 4
 	"@feature",         11, notype, ALIGN_CENTER,  3
 	"@ware",             3, notype, 0,  20
 	"@qtty",             4, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 8.6
@@ -5405,7 +5405,7 @@ browser TSESSLINE north(100), 3, 1, "Строки технологической сессии {%s}", OWNER|
 
 browser TSESSLINEGOODS north(100), 3, 1, "Строки технологических сессий по товару {%s}", OWNER|GRID, 0
 {
-	"Знак",                  2, notype, ALIGN_CENTER,  4
+	"@valuesign_s",          2, notype, ALIGN_CENTER,  4
 	"@feature",             11, notype, ALIGN_CENTER,  3
 	"@qtty",                 4, notype, NMBF_NOTRAILZ|NMBF_NOZERO, 8.6
 	"@munit_ph_sfx_s",      10, notype, NMBF_NOZERO, 8.3
@@ -6205,6 +6205,7 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		DETAIL         : kbF3,     PPDV_LINS01,        "@{detail}\tF3"
 		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
 		TRYSTRATEGIES  : kbCtrlT,  PPDV_EXPORT01,      "Try Strategies\tCtrl-T"
+		EVALOPTMAXDUCK : kbCtrlY,  PPDV_NOICON,        "Evaluate optimal max duck\tCtrl-Y" // @v10.6.5
 		REFRESH        : kbCtrlV,  PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
 	}
 }
@@ -6734,6 +6735,7 @@ cmd ExportView            { "@{cmd_exportview}"                            none 
 cmd TestMqc               { "@{cmd_testmqc}"                               ICON_TEST              none cmTestMqc } // @v10.5.7
 cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze } // @v10.5.7
 cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj } // @v10.6.1
+cmd QueryCHZN             { "@{cmd_querychzn}"                             none                   none cmQueryCHZN }
 //
 // -------------- Описания серверных задач
 //

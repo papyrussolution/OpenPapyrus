@@ -1972,10 +1972,10 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	size_t pos = 0;
 	if(buf.GetWrOffs() != 0) {
 		SString substr;
-		substr.CopyFromN((const char *)buf.GetBuf(), buf.GetSize());
+		substr.CopyFromN(buf.GetBufC(), buf.GetSize());
 		substr.Search("\r\n\r\n", 0, 1, &pos); // Между заголовком http-ответа и нужной инфой - пустая строка
 		file.Open("answer.tsr", SFile::mWrite|SFile::mBinary);
-		THROW_PP(ParseTSAResponse((char *)buf.GetBuf() + pos + 4, rResponse), PPERR_EDS_TSPRESPPARSEFAILED);
+		THROW_PP(ParseTSAResponse(buf.GetBufC() + pos + 4, rResponse), PPERR_EDS_TSPRESPPARSEFAILED);
 		THROW_PP((rResponse.PKIStatus == 0) || (rResponse.PKIStatus == 1), PPERR_EDS_TSPFAILED);
         THROW_PP(req_struct.HashAlgorytm.CmpNC(rResponse.HashAlg) == 0, PPERR_EDS_TSPFAILED);
 		THROW_PP(req_struct.Hash.CmpNC(rResponse.Hash) == 0, PPERR_EDS_TSPFAILED);
@@ -2002,7 +2002,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		THROW_PP(diff_time < five_minutes, PPERR_EDS_TSPFAILED);
 
 		buf.SetRdOffs(0);
-		file.Write((const char *)buf.GetBuf() + pos + 4, buf.GetSize() - pos - 4);
+		file.Write(buf.GetBufU8() + pos + 4, buf.GetSize() - pos - 4);
 		file.Close();
 	}
 
@@ -2013,7 +2013,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	// штамп времени.
 	THROW_MEM(pb_stamp_data = new BYTE[cb_stamp_data]);
 	memzero(pb_stamp_data, cb_stamp_data);
-	memcpy(pb_stamp_data, (char *)buf.GetBuf() + pos + 4 + 9, cb_stamp_data);
+	memcpy(pb_stamp_data, buf.GetBufU8() + pos + 4 + 9, cb_stamp_data);
 	THROW_PP(stamp_msg = CryptMsgOpenToDecode(MY_ENCODING_TYPE, 0, 0, 0, NULL, NULL), PPERR_EDS_MSGOPENFAILED);
     // Добавим в h_msg инфу о подписях
 	THROW_PP(CryptMsgUpdate(stamp_msg, pb_stamp_data, cb_stamp_data, TRUE), PPERR_EDS_MSGUPDATEFAILED);

@@ -472,7 +472,7 @@ static int __bamc_start_decompress(DBC * dbc)
 	/* Unmarshal the first data */
 	cp->compcursor += __db_decompress_int32(cp->compcursor, &datasize);
 	ret = __bam_compress_set_dbt(dbc->dbp, cp->currentData, cp->compcursor, datasize);
-	if(ret == 0)
+	if(!ret)
 		cp->compcursor += datasize;
 	return ret;
 }
@@ -509,7 +509,7 @@ static int __bamc_next_decompress(DBC * dbc)
 		if(CMP_RESIZE_DBT(ret, dbc->env, cp->currentData) != 0)
 			break;
 	}
-	if(ret == 0)
+	if(!ret)
 		cp->compcursor += compressed.size;
 	return ret;
 }
@@ -538,12 +538,12 @@ static int __bamc_compress_store(DBC * dbc, DBT * key, DBT * data, DBT ** prevKe
 		dest.size = 0;
 		dest.app_data = NULL;
 		ret = static_cast<BTREE *>(dbc->dbp->bt_internal)->bt_compress(dbc->dbp, *prevKey, *prevData, key, data, &dest);
-		if(ret == 0)
+		if(!ret)
 			destbuf->size += dest.size;
 	}
 	else
 		ret = DB_BUFFER_SMALL;
-	if(ret == 0) {
+	if(!ret) {
 		*prevKey = key;
 		*prevData = data;
 	}
@@ -740,7 +740,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 		moreCompressed = 1;
 		/* Seek the ikey/idata position */
 		ret = __bamc_compress_seek(dbc, ikey, idata, 0);
-		if(ret == 0) {
+		if(!ret) {
 			/*
 			 * Delete the key - we might overwrite it below
 			 * but it's safer to just always delete it, and it
@@ -751,7 +751,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 				ret = 0;
 				nextExists = 0;
 			}
-			else if(ret == 0) {
+			else if(!ret) {
 				CMP_UNMARSHAL_DATA(&nextc, &nextd);
 			}
 			else
@@ -766,7 +766,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 				ret = 0;
 				nextExists = 0;
 			}
-			else if(ret == 0) {
+			else if(!ret) {
 				CMP_UNMARSHAL_DATA(&nextc, &nextd);
 			}
 		}
@@ -935,7 +935,7 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 			ret = 0;
 			nextExists = 0;
 		}
-		else if(ret == 0) {
+		else if(!ret) {
 			CMP_UNMARSHAL_DATA(&nextc, &nextd);
 		}
 		else
@@ -1480,7 +1480,7 @@ static int __bamc_compress_get_bothc(DBC * dbc, DBT * data, uint32 flags)
 	/* Perform a linear search for the data in the current chunk */
 	while((ret = __bamc_next_decompress(dbc)) == 0 && (cmp = __db_compare_both(dbp, cp->currentKey, cp->currentData, cp->prevKey, data)) < 0)
 		continue;
-	if(ret == 0)
+	if(!ret)
 		return (cmp == 0) ? 0 : DB_NOTFOUND;
 	if(ret != DB_NOTFOUND)
 		return ret;
@@ -1737,7 +1737,7 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 				}
 				__bam_cs_create_single(&stream, key, data);
 				ret = __bamc_compress_merge_insert(dbc, &stream, NULL, flags);
-				if(ret == 0)
+				if(!ret)
 					ret = __bamc_compress_get_set(dbc, key, data, DB_GET_BOTH_RANGE, 0); // Position the cursor on the entry written 
 				break;
 		    case DB_MULTIPLE:
@@ -2212,7 +2212,7 @@ err:
 		ret = 0;
 	if((t_ret = __dbc_close(dbc_n)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret == 0) {
+	if(!ret) {
 		ASSIGN_PTR(nkeysp, nkeys);
 		ASSIGN_PTR(ndatap, ndata);
 	}

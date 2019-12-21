@@ -974,17 +974,65 @@ int SLAPI PPObjBill::GatherPayableBills(ReckonOpArItem * pItem, PPID curID, PPID
 }
 
 class CfmReckoningDialog : public TDialog {
+	DECL_DIALOG_DATA(CfmReckoningParam);
 public:
 	CfmReckoningDialog(uint dlgID, PPObjBill * pBObj) : TDialog(dlgID), P_BObj(pBObj)
 	{
-		MEMSZERO(Data);
+		// @v10.6.5 @ctr MEMSZERO(Data);
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_CFM_RECKONING_LIST));
 		if(!SetupStrListBox(P_List))
 			PPError();
 		SetupCalDate(CTLCAL_CFM_RECKONING_DT, CTL_CFM_RECKONING_DT);
 	}
-	int    setDTS(const CfmReckoningParam * pData);
-	int    getDTS(CfmReckoningParam *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString obj_name;
+		SString info_buf;
+		SString fmt_buf;
+		SString debt_buf, amt_buf;
+		SString temp_buf;
+		GetArticleName(Data.ArticleID, obj_name);
+		debt_buf.Z().Cat(Data.TotalDebt, MKSFMTD(0, 2, 0));
+		amt_buf.Z().Cat(Data.PaymAmount, MKSFMTD(0, 2, 0));
+		GetCurSymbText(Data.CurID, temp_buf);
+		if(Data.DebtOrPaym) {
+			//@cfmrcknparam_info_reverse "ѕо контрагенту '@zstr' существуют документы на сумму @zstr, позвол€ющие зачесть заданный документ, долг по которому составл€ет @zstr"
+			PPLoadString("cfmrcknparam_info_reverse", fmt_buf);
+			PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
+		}
+		else {
+			//@cfmrcknparam_info_direct "ѕо контрагенту '@zstr' существуют неоплаченные документы на сумму @zstr. «аданный документ позвол€ет зачесть сумму @zstr"
+			PPLoadString("cfmrcknparam_info_direct", fmt_buf);
+			PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
+		}
+		setStaticText(CTL_CFM_RECKONING_INFO, info_buf);
+		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, temp_buf);
+		SetCtrlFont(CTL_CFM_RECKONING_INFO, temp_buf, 16);
+		//setCtrlString(CTL_CFM_RECKONING_OBJ, obj_name);
+		//setCtrlData(CTL_CFM_RECKONING_DEBT, &pCRP->TotalDebt);
+		//setCtrlData(CTL_CFM_RECKONING_AMT,  &pCRP->PaymAmount);
+		//setStaticText(CTL_CFM_RECKONING_CURSYM, GetCurSymbText(pCRP->CurID, obj_name));
+		//disableCtrls(1, CTL_CFM_RECKONING_OBJ, CTL_CFM_RECKONING_DEBT, CTL_CFM_RECKONING_AMT, 0);
+		setupDate();
+		updateList();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		if(getDateSettings()) {
+			Data.SelectedBillID = 0;
+			if(P_List && P_List->def && Data.P_BillList) {
+				long i = 0;
+				P_List->getCurID(&i);
+				Data.SelectedBillID = (i > 0 && i <= Data.P_BillList->getCountI()) ? Data.P_BillList->at(i-1) : 0;
+			}
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+		else
+			return PPErrorZ();
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    updateList();
@@ -992,7 +1040,6 @@ private:
 	int    getDateSettings();
 
 	PPObjBill * P_BObj;
-	CfmReckoningParam Data;
 	SmartListBox * P_List;
 };
 
@@ -1093,43 +1140,6 @@ void CfmReckoningDialog::setupDate()
 	disableCtrls(v != 3, CTL_CFM_RECKONING_DT, CTLCAL_CFM_RECKONING_DT, 0);
 }
 
-int CfmReckoningDialog::setDTS(const CfmReckoningParam * pData)
-{
-	Data = *pData;
-	SString obj_name;
-	SString info_buf;
-	SString fmt_buf;
-	SString debt_buf, amt_buf;
-	SString temp_buf;
-	GetArticleName(Data.ArticleID, obj_name);
-	debt_buf.Z().Cat(Data.TotalDebt, MKSFMTD(0, 2, 0));
-	amt_buf.Z().Cat(Data.PaymAmount, MKSFMTD(0, 2, 0));
-	GetCurSymbText(Data.CurID, temp_buf);
-	if(Data.DebtOrPaym) {
-		//@cfmrcknparam_info_reverse                "ѕо контрагенту '@zstr' существуют документы на сумму @zstr, позвол€ющие зачесть заданный документ, долг по которому составл€ет @zstr"
-		PPLoadString("cfmrcknparam_info_reverse", fmt_buf);
-		PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
-	}
-	else {
-		//@cfmrcknparam_info_direct                 "ѕо контрагенту '@zstr' существуют неоплаченные документы на сумму @zstr. «аданный документ позвол€ет зачесть сумму @zstr"
-		PPLoadString("cfmrcknparam_info_direct", fmt_buf);
-		PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
-	}
-	setStaticText(CTL_CFM_RECKONING_INFO, info_buf);
-
-	PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, temp_buf);
-	SetCtrlFont(CTL_CFM_RECKONING_INFO, temp_buf, 16);
-
-	//setCtrlString(CTL_CFM_RECKONING_OBJ, obj_name);
-	//setCtrlData(CTL_CFM_RECKONING_DEBT, &pCRP->TotalDebt);
-	//setCtrlData(CTL_CFM_RECKONING_AMT,  &pCRP->PaymAmount);
-	//setStaticText(CTL_CFM_RECKONING_CURSYM, GetCurSymbText(pCRP->CurID, obj_name));
-	//disableCtrls(1, CTL_CFM_RECKONING_OBJ, CTL_CFM_RECKONING_DEBT, CTL_CFM_RECKONING_AMT, 0);
-	setupDate();
-	updateList();
-	return 1;
-}
-
 int CfmReckoningDialog::getDateSettings()
 {
 	int    ok = 1;
@@ -1158,22 +1168,6 @@ int CfmReckoningDialog::getDateSettings()
 	if(ok && !checkdate(Data.Dt, 1))
 		ok = PPSetErrorSLib();
 	return ok;
-}
-
-int CfmReckoningDialog::getDTS(CfmReckoningParam * pCRP)
-{
-	if(getDateSettings()) {
-		Data.SelectedBillID = 0;
-		if(P_List && P_List->def && Data.P_BillList) {
-			long i = 0;
-			P_List->getCurID(&i);
-			Data.SelectedBillID = (i > 0 && i <= static_cast<long>(Data.P_BillList->getCount())) ? Data.P_BillList->at(i-1) : 0;
-		}
-		ASSIGN_PTR(pCRP, Data);
-		return 1;
-	}
-	else
-		return PPErrorZ();
 }
 
 static int SLAPI ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
@@ -1211,7 +1205,7 @@ static int SLAPI SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 			THROW_SL(temp_list.insert(&item));
 		}
 	}
-	pList->freeAll();
+	pList->clear(); // @v10.6.5 freeAll()->clear()
 	temp_list.sort(PTR_CMPFUNC(_2long));
 	for(i = 0; i < temp_list.getCount(); i++)
 		THROW_SL(pList->add(static_cast<const _i *>(temp_list.at(i))->id));

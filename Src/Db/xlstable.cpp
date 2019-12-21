@@ -134,7 +134,7 @@ int ExcelDbFile::Close()
 	if(P_WkBook) {
 		if(!ReadOnly) {
 			if(P_Sheet) {
-				for(long i = 0; i < (long)WidthList.getCount(); i++)
+				for(long i = 0; i < WidthList.getCountI(); i++)
 					THROW(P_Sheet->SetColumnWidth(1 + i + P.ColumnsCount, WidthList.at(i)) > 0);
 			}
 			P_WkBook->_SaveAs(FileName);
@@ -406,9 +406,8 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 {
 	int    ok = 1;
 	uint   i = 0;
-	int is_vert = BIN(P.Flags & fVerticalRec);
-	long cur_rec = (CurRec >= 0) ? CurRec : 0;
-	long row = 0, col = 0;
+	const  int is_vert = BIN(P.Flags & fVerticalRec);
+	long   cur_rec = (CurRec >= 0) ? CurRec : 0;
 	SdbField fld;
 	SString  field_buf;
 	THROW(CheckParam(rRec));
@@ -431,11 +430,11 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				if(!field_buf.NotEmptyS())
 					field_buf.Cat(fld.ID);
 				_commfmt(fld.OuterFormat, field_buf);
-				row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec - 1;
-				col = (is_vert) ? cur_rec - 1 : 1 + i + P.ColumnsCount;
+				const long row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec - 1;
+				const long col = (is_vert) ? cur_rec - 1 : 1 + i + P.ColumnsCount;
 				THROW(P_Sheet->SetValue(row, col, field_buf.Transf(CTRANSF_INNER_TO_OUTER).Strip().cptr()) > 0);
 				THROW(P_Sheet->SetBold(row, col, 1));
-				if(WidthList.getCount() < (uint)(col - P.ColumnsCount))
+				if(WidthList.getCountI() < (col - P.ColumnsCount))
 					WidthList.add(field_buf.Len());
 				if(WidthList.at(col - 1 - P.ColumnsCount) < (long)field_buf.Len())
 		 			WidthList.at(col - 1 - P.ColumnsCount) = (long)field_buf.Len();
@@ -444,8 +443,8 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	}
 	for(i = 0; i < rRec.GetCount(); i++) {
 		THROW(rRec.GetFieldByPos(i, &fld));
-		row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec;
-		col = (is_vert) ? cur_rec : 1 + i + P.ColumnsCount;
+		const long row = (is_vert) ? 1 + i + P.HdrLinesCount : cur_rec;
+		const long col = (is_vert) ? cur_rec : 1 + i + P.ColumnsCount;
 		{
 			const  TYPEID st = fld.T.GetDbFieldType();
 			int    base_type = stbase(st);

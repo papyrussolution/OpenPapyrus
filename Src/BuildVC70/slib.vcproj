@@ -648,6 +648,9 @@
 				RelativePath="..\SLib\Idea.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\ineturl.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\json.cpp">
 			</File>
 			<File

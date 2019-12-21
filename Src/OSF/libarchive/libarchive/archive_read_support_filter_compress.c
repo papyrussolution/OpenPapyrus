@@ -370,7 +370,7 @@ static int getbits(struct archive_read_filter * self, int n)
 				state->consume_unnotified = 0;
 			}
 			state->next_in = (const uchar *)__archive_read_filter_ahead(self->upstream, 1, &ret);
-			if(ret == 0)
+			if(!ret)
 				return -1;
 			if(ret < 0 || state->next_in == NULL)
 				return ARCHIVE_FATAL;

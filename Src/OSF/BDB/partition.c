@@ -480,7 +480,7 @@ again:
 			data.ulen = data.size;
 			goto again;
 		}
-		if(ret == 0) {
+		if(!ret) {
 			/*
 			 * They passed in keys, they must match.
 			 */

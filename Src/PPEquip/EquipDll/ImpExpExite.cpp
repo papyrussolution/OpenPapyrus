@@ -1686,7 +1686,7 @@ int ImportCls::ReceiveDoc()
 				//	else
 				//		Scan.Incr();
 					file_buf.ReplaceCR().ReplaceStr("\n", "", 0);
-					buf.Write((const char *)file_buf, file_buf.Len());
+					buf.Write(file_buf.cptr(), file_buf.Len());
 				}
 			}
 			file.Close();

@@ -2855,7 +2855,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define TIMF_NOZERO    TIMF_BLANK // Не отображать нулевое значение
 #define TIMF_TIMEZONE  0x0020  // +0300
 #define TIMF_NODIV     0x0040  // @v9.4.3
-#define TIMF_DOTDIV    0x0080  // @v9.8.3 Разделители часов, минут и серкунд - точки. Например: 23.20.59
+#define TIMF_DOTDIV    0x0080  // @v9.8.3 Разделители часов, минут и секунд - точки. Например: 23.20.59
 //
 // String format flags
 //
@@ -3383,6 +3383,10 @@ public:
 	//   -1 если текст не найден.
 	//
 	static int FASTCALL GetIdx(int c, const char * pText);
+	//
+	// Descr: Возвращает "true" если b != 0, и "false" в противном случае.
+	//
+	static const char * FASTCALL GetBool(int b);
 };
 
 #ifndef _WIN32_WCE // {
@@ -4724,6 +4728,22 @@ char * SLAPI timefmt(LTIME, long fmt, char *);
 char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
 char * FASTCALL periodfmt(const DateRange *, char *);
 int    SLAPI periodfmtex(const DateRange *, char *, size_t bufLen);
+//
+// Descr: Флаги функции TimeZoneFmt
+//
+enum {
+	tzfmtCurrent = 0x0001, // Использовать системное значение временной зоны 
+	tzfmtColon   = 0x0002, // "+00:00" else "+0000"
+	tzfmtSpace   = 0x0004, // " -0000"
+	tzfmtConcat  = 0x0008  // Не очищать буфер результата в начале функции
+};
+//
+// Descr: Форматирует часовую зону.
+// Note: Буфер rBuf предварительно очищается функцией если не установлен флаг tzfmtConcat.
+// Returns:
+//    rBuf
+//
+SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
 
 char * SLAPI strfmt(const char * str, long fmt, char * buf);
 //char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
@@ -5350,6 +5370,9 @@ public:
 	size_t SLAPI GetRdOffs() const { return RdOffs; }
 	size_t SLAPI GetWrOffs() const { return WrOffs; }
 	const  void * FASTCALL GetBuf(size_t offs = 0) const;
+	const  char * FASTCALL GetBufC(size_t offs = 0) const;
+	const  int8 * FASTCALL GetBufI8(size_t offs = 0) const;
+	const  uint8 * FASTCALL GetBufU8(size_t offs = 0) const;
 	void   FASTCALL SetRdOffs(size_t offs);
 	void   FASTCALL SetWrOffs(size_t offs);
 	//
@@ -5368,6 +5391,7 @@ public:
 	// Descr: Возвращает количество доступных для считывания байт буфера.
 	//
 	size_t SLAPI GetAvailableSize() const;
+	int    SLAPI GetAvailableSizeI() const { return static_cast<int>(GetAvailableSize()); }
 	//
 	// Descr: Считывает в буфер pBuf, начиная со смещения RdOffs, доступное количество
 	//   байт данных, но не более чем bufLen.
@@ -9904,6 +9928,7 @@ private:
 //
 //
 struct ApproxStrSrchParam {
+	SLAPI  ApproxStrSrchParam();
 	double umin;     // Мин количество очков, при котором поиск считается успешным
 	double weight;   // Вес каждого последующего символа при сравнении
 	int    method;   // 0 - default, 1 - Papyrus
@@ -9955,37 +9980,40 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 //   @persistent
 //   Символьные обозначения токенов находятся в строке PPTXT_NATURALTOKENID
 //
-#define SNTOK_UNKN           0
-#define SNTOK_NATURALWORD    1
-#define SNTOK_DIGITCODE      2
-#define SNTOK_EAN13          3
-#define SNTOK_EAN8           4
-#define SNTOK_UPCA           5
-#define SNTOK_UPCE           6
-#define SNTOK_RU_INN         7
-#define SNTOK_EGAISWARECODE  8 // Код алкогольной продукции ЕГАИС
-#define SNTOK_EGAISMARKCODE  9 // Код акцизной марки алкогольной продукции ЕГАИС
-#define SNTOK_LUHN          10 // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
-#define SNTOK_DIGLAT        11 // Алфавитно-цифровая последовательность (содержащая только цифры и латинские символы)
-#define SNTOK_GUID          12 // Общепринятое текстовое представление GUID
-#define SNTOK_EMAIL         13 // Адрес электронной почты
-#define SNTOK_PHONE         14 // Номер телефона
-#define SNTOK_IMEI          15 // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
-#define SNTOK_IP4           16 // ip4-address xx.xx.xx.xx
-#define SNTOK_IP6           17 // @todo ip6-address
-#define SNTOK_MACADDR48     18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
-#define SNTOK_DATE          19 // date
-#define SNTOK_TIME          20 // time
-#define SNTOK_SOFTWAREVER   21 // 9.9.9
-#define SNTOK_COLORHEX      22 // #hhhhhh
-#define SNTOK_REALNUMBER    23 // 9.9 || .9 || 9. || 9,9
-#define SNTOK_INTNUMBER     24 // 9 || -9
-#define SNTOK_PECENTAGE     25 //
-#define SNTOK_NUMERIC_DOT   26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
+#define SNTOK_UNKN              0
+#define SNTOK_NATURALWORD       1
+#define SNTOK_DIGITCODE         2
+#define SNTOK_EAN13             3
+#define SNTOK_EAN8              4
+#define SNTOK_UPCA              5
+#define SNTOK_UPCE              6
+#define SNTOK_RU_INN            7
+#define SNTOK_EGAISWARECODE     8 // Код алкогольной продукции ЕГАИС
+#define SNTOK_EGAISMARKCODE     9 // Код акцизной марки алкогольной продукции ЕГАИС
+#define SNTOK_LUHN             10 // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
+#define SNTOK_DIGLAT           11 // Алфавитно-цифровая последовательность (содержащая только цифры и латинские символы)
+#define SNTOK_GUID             12 // Общепринятое текстовое представление GUID
+#define SNTOK_EMAIL            13 // Адрес электронной почты
+#define SNTOK_PHONE            14 // Номер телефона
+#define SNTOK_IMEI             15 // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
+#define SNTOK_IP4              16 // ip4-address xx.xx.xx.xx
+#define SNTOK_IP6              17 // @todo ip6-address
+#define SNTOK_MACADDR48        18 // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
+#define SNTOK_DATE             19 // date
+#define SNTOK_TIME             20 // time
+#define SNTOK_SOFTWAREVER      21 // 9.9.9
+#define SNTOK_COLORHEX         22 // #hhhhhh
+#define SNTOK_REALNUMBER       23 // 9.9 || .9 || 9. || 9,9
+#define SNTOK_INTNUMBER        24 // 9 || -9
+#define SNTOK_PECENTAGE        25 //
+#define SNTOK_NUMERIC_DOT      26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
 	// Допускается лидирующий + или -. Экпоненциальная запись не допускается.
-#define SNTOK_NUMERIC_COM   27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
+#define SNTOK_NUMERIC_COM      27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
 	// Допускается лидирующий + или -. Экпоненциальная запись не допускается.
 	// Если число не имеет дробной части, то применяется SNTOK_NUMERIC_DOT
+#define SNTOK_CHZN_GS1_GTIN    28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
+#define SNTOK_CHZN_SIGN_SGTIN  29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
+#define SNTOK_CHZN_SSCC        30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -11198,6 +11226,7 @@ public:
 	TRect & FASTCALL setmarginy(int v);
 	int    width() const;
 	int    height() const;
+	TRect & Z();
 	TRect & set(int x1, int y1, int x2, int y2);
 	TRect & set(const FRect & rR);
 	TRect & FASTCALL setwidth(const TRect & rR);

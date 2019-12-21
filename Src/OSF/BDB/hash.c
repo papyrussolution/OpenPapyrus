@@ -848,7 +848,7 @@ get_space:
 		}
 		if((t_ret = __ham_release_meta(dbc)) != 0)
 			return t_ret;
-		if(ret == 0)
+		if(!ret)
 			goto next_pg;
 		if(ret != DB_NOTFOUND)
 			return ret;

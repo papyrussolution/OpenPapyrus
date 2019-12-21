@@ -245,7 +245,7 @@ int __dbreg_register_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 		}
 	}
 done:
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 out:
 	__os_free(env, argp);

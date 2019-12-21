@@ -101,7 +101,7 @@ int __repmgr_start(DB_ENV * dbenv, int nthreads, uint32 flags)
 	else {
 		ret = __repmgr_reload_gmdb(env);
 		me = SITE_FROM_EID(db_rep->self_eid);
-		if(ret == 0) {
+		if(!ret) {
 			if(me->membership != SITE_PRESENT)
 				/*
 				 * We have a database but the local site is not
@@ -1350,7 +1350,7 @@ int __repmgr_send_request(DB_CHANNEL*db_channel, DBT * request, uint32 nrequest,
 		response_complete, &ctx, timeout, &conn->response_waiters);
 
 	resp = &conn->responses[i];
-	if(ret == 0) {
+	if(!ret) {
 		DB_ASSERT(env, F_ISSET(resp, RESP_COMPLETE));
 		*response = resp->dbt;
 		if((ret = resp->ret) == 0 && LF_ISSET(DB_MULTIPLE))
@@ -2059,7 +2059,7 @@ err:
 		__os_free(env, conn->input.repmgr_msg.rec.data);
 	}
 	__repmgr_reset_for_reading(conn);
-	if(ret == 0)
+	if(!ret)
 		*connp = conn;
 	else {
 		__repmgr_close_connection(env, conn);
@@ -2333,7 +2333,7 @@ static int set_local_site(DB_SITE*dbsite, uint32 value)
 			ret = EINVAL;
 		}
 	}
-	if(ret == 0) {
+	if(!ret) {
 		db_rep->self_eid = dbsite->eid;
 		if(locked) {
 			rep->self_eid = dbsite->eid;

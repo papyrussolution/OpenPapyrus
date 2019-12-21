@@ -97,7 +97,7 @@ static int _cairo_hull_vertex_compare(const void * av, const void * bv)
 	 * In the case of two vertices with identical slope from the
 	 * extremal point discard the nearer point.
 	 */
-	if(ret == 0) {
+	if(!ret) {
 		int cmp;
 
 		cmp = _cairo_int64_cmp(_slope_length(&a->slope),

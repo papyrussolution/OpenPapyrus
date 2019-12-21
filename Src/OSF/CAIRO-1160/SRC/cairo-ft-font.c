@@ -2144,7 +2144,7 @@ static void cairo_ft_apply_variations(FT_Face face,
 	uint instance_id = scaled_font->unscaled->id >> 16;
 
 	ret = FT_Get_MM_Var(face, &ft_mm_var);
-	if(ret == 0) {
+	if(!ret) {
 		FT_Fixed * current_coords;
 		uint i;
 		const char * p;
@@ -2198,7 +2198,7 @@ skip:
 		current_coords = SAlloc::M(sizeof(FT_Fixed) * ft_mm_var->num_axis);
 #ifdef HAVE_FT_GET_VAR_DESIGN_COORDINATES
 		ret = FT_Get_Var_Design_Coordinates(face, ft_mm_var->num_axis, current_coords);
-		if(ret == 0) {
+		if(!ret) {
 			for(i = 0; i < ft_mm_var->num_axis; i++) {
 				if(coords[i] != current_coords[i])
 					break;

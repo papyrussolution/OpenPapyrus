@@ -127,7 +127,7 @@ int SLAPI PPQuotKind2::GetRestrText(SString & rBuf) const
 //
 SLAPI PPQuotKindPacket::PPQuotKindPacket()
 {
-	Init();
+	// @v10.6.5 Init();
 }
 
 void SLAPI PPQuotKindPacket::Init()

@@ -1065,7 +1065,7 @@ int __repmgr_close_connection(ENV*env, REPMGR_CONNECTION * conn)
 	if(conn->event_object != WSA_INVALID_EVENT && !WSACloseEvent(conn->event_object)) {
 		t_ret = net_errno;
 		__db_err(env, t_ret, DB_STR("3583", "releasing WSA event object"));
-		if(ret == 0)
+		if(!ret)
 			ret = t_ret;
 	}
 	conn->event_object = WSA_INVALID_EVENT;

@@ -97,7 +97,7 @@ int __db_zero_extend(ENV * env, DB_FH * fhp, db_pgno_t pgno, db_pgno_t last_pgno
 	memzero(buf, pgsize);
 	for(; pgno <= last_pgno; pgno++)
 		if((ret = __os_io(env, DB_IO_WRITE, fhp, pgno, pgsize, 0, pgsize, buf, &nwrote)) != 0) {
-			if(ret == 0) {
+			if(!ret) {
 				ret = EIO;
 				goto err;
 			}

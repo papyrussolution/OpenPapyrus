@@ -243,7 +243,7 @@ int __ham_dup_convert(DBC * dbc)
 		dbt.data = &bo;
 		ret = __db_pitem(dbc, dp, 0, dbt.size, &dbt, 0);
 finish:
-		if(ret == 0) {
+		if(!ret) {
 			/* Update any other cursors. */
 			if(hcs && DBC_LOGGING(dbc) && IS_SUBTRANSACTION(dbc->txn)) {
 				if((ret = __ham_chgpg_log(dbp, dbc->txn, &lsn, 0, DB_HAM_DUP, PGNO(hcp->page), PGNO(dp), hcp->indx, 0)) != 0)
@@ -297,7 +297,7 @@ finish:
 err:
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, dp, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret == 0)
+	if(!ret)
 		hcp->dup_tlen = hcp->dup_off = hcp->dup_len = 0;
 	__os_free(env, hcs);
 	return ret;

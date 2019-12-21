@@ -1872,7 +1872,7 @@ static int xmlShellRNGValidate(xmlShellCtxtPtr sctxt, char * schemas, xmlNode * 
 	vctxt = xmlRelaxNGNewValidCtxt(relaxngschemas);
 	xmlRelaxNGSetValidErrors(vctxt, (xmlRelaxNGValidityErrorFunc)fprintf, (xmlRelaxNGValidityWarningFunc)fprintf, stderr);
 	ret = xmlRelaxNGValidateDoc(vctxt, sctxt->doc);
-	if(ret == 0) {
+	if(!ret) {
 		fprintf(stderr, "%s validates\n", sctxt->filename);
 	}
 	else if(ret > 0) {

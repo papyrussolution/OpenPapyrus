@@ -201,7 +201,7 @@ static int _compare_point_fixed_by_y(const void * av, const void * bv)
 	const cairo_point_t * a = static_cast<const cairo_point_t *>(av);
 	const cairo_point_t * b = static_cast<const cairo_point_t *>(bv);
 	int ret = a->y - b->y;
-	if(ret == 0)
+	if(!ret)
 		ret = a->x - b->x;
 	return ret;
 }

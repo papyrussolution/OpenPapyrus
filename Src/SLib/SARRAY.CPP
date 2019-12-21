@@ -3533,7 +3533,7 @@ uint SLAPI STimeChunkArray::GetIntersectionOrder(LAssocArray * pOrderList, long 
 	uint   order = 0;
 	STimeChunk sect;
 	LongArray level;
-	CALLPTRMEMB(pOrderList, freeAll());
+	CALLPTRMEMB(pOrderList, clear()); // @v10.6.5 freeAll()-->clear()
 	for(i = 0; i < getCount(); i++)
 		level.add(static_cast<long>(i));
 	for(uint c = level.getCount(); c != 0; c = level.getCount()) {

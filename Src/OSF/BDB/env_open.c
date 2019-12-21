@@ -932,7 +932,7 @@ int __env_attach_regions(DB_ENV * dbenv, uint32 flags, uint32 orig_flags, int re
 	if(LF_ISSET(DB_INIT_MPOOL))
 		__memp_set_config(dbenv, DB_MEMP_SUPPRESS_WRITE, 0);
 err:
-	if(ret == 0)
+	if(!ret)
 		ENV_LEAVE(env, ip);
 	else {
 		//

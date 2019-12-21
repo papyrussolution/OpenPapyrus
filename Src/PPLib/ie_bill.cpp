@@ -541,6 +541,7 @@ PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Z()
 	OpID = 0;
 	LocID = 0;
 	PosNodeID = 0;
+	GuaID = 0; // @v10.6.5
 	Period.Z();
 	Tp.Reset();
 	return *this;
@@ -568,10 +569,11 @@ int SLAPI PPBillImpExpBaseProcessBlock::SerializeParam(int dir, SBuffer & rBuf, 
 		ser_ver.Get(&mj, &mn, &rz);
 		if((mj >= 8 && mj <= 20) && (mn >= 0 && mn <= 12) && (rz >= 0 && rz <= 16)) {
 			is_ver_ok = 1;
+			if(ser_ver.IsGt(10, 6, 4))
+				is_ver_ok = 2;
 		}
-		else {
+		else
             rBuf.SetRdOffs(preserve_offs);
-		}
 	}
 	THROW_SL(pCtx->Serialize(dir, CfgNameBill, rBuf));
 	THROW_SL(pCtx->Serialize(dir, CfgNameBRow, rBuf));
@@ -584,6 +586,10 @@ int SLAPI PPBillImpExpBaseProcessBlock::SerializeParam(int dir, SBuffer & rBuf, 
         THROW_SL(pCtx->Serialize(dir, Tp.InetAccID, rBuf));
         THROW_SL(pCtx->Serialize(dir, Tp.AddrList, rBuf));
         THROW_SL(pCtx->Serialize(dir, Tp.Subject, rBuf));
+		// @v10.6.5 {
+		if(dir > 0 || is_ver_ok >= 2) 
+			THROW_SL(pCtx->Serialize(dir, GuaID, rBuf));
+		// } @v10.6.5 
 	}
 	CATCHZOK
 	return ok;
@@ -612,7 +618,6 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			P_Data = pData;
 			HdrList.Z();
 			LineList.Z();
-
 			int    ok = 1;
 			uint   id = 0;
 			uint   p = 0;
@@ -639,14 +644,21 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				// @v9.2.10 SetTech();
 				SetupControlsForEdi();
 				SetPeriodInput(this, CTL_IEBILLSEL_PERIOD, &P_Data->Period);
-				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0);
-				disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
+				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
+					PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0);
+				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_OP, 0L);
+				disableCtrls(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp), CTLSEL_IEBILLSEL_GUA, 0L); // @v10.6.5
 				//
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fTestMode);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fDontRemoveTags);
-				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3); // @v9.9.9
+				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 2, PPBillImpExpBaseProcessBlock::fEgaisVer3);
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
-				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
+				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
+				// @v10.6.5 {
+				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
+					SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
+				}
+				// } @v10.6.5 
 			}
 			else {
 				disableCtrls(1, CTLSEL_IEBILLSEL_OP, CTLSEL_IEBILLSEL_LOC, CTL_IEBILLSEL_PERIOD, 0L);
@@ -681,7 +693,11 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				P_Data->OpID = getCtrlLong(CTLSEL_IEBILLSEL_OP);
 				P_Data->LocID = getCtrlLong(CTLSEL_IEBILLSEL_LOC);
 				SETIFZ(P_Data->LocID, LConfig.Location);
-				if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) && !is_full_edi_process) {
+				// @v10.6.5 {
+				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp)
+					P_Data->GuaID = getCtrlLong(CTLSEL_IEBILLSEL_GUA); 
+				// } @v10.6.5
+				if(!(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)) && !is_full_edi_process) {
 					THROW_PP(P_Data->OpID, PPERR_INVOPRKIND);
 				}
 				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags);
@@ -707,7 +723,8 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				cb_param.ProcessName(1, sect);
 				P_Data->CfgNameBill = sect;
 			}
-			else if(!Import || (!is_full_edi_process && !(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp)))) {
+			else if(!Import || (!is_full_edi_process && !(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
+				PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)))) {
 				P_Data->BillParam.Init(Import);
 				P_Data->BRowParam.Init(Import);
 				THROW(LoadSdRecord(PPREC_BILL, &P_Data->BillParam.InrRec));
@@ -785,7 +802,9 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					PPBillImpExpParam param;
 					GetTech();
 					disableCtrls(0, CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0L);
-					disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0L);
+					disableCtrls(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp), CTLSEL_IEBILLSEL_GUA, 0L); // @v10.6.5
+					disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
+						PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0L);
 					if(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fPaymOrdersExp))
 						disableCtrl(CTLSEL_IEBILLSEL_BROW, 1);
 					disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
@@ -794,7 +813,6 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					}
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
 					}
-					// @v9.2.10 {
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
 						HdrList.Z();
 						PPCliBnkImpExpParam cb_param;
@@ -806,7 +824,11 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						}
 						SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, id, 0);
 					}
-					// } @v9.2.10
+					// @v10.6.5 {
+					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
+						SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
+					}
+					// } @v10.6.5 
 					else {
 						HdrList.Z();
 						if(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, Import ? 2 : 1) > 0) {
@@ -860,6 +882,8 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						v = 2;
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)
 						v = 3;
+					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp)
+						v = 4;
 					else
 						v = 0;
 				}
@@ -887,19 +911,24 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 		{
 			if(P_Data) {
 				ushort v = getCtrlUInt16(CTL_IEBILLSEL_TECH);
+				long   _f = P_Data->Flags;
 				if(Import) {
-					P_Data->Flags &= ~(PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fEgaisImpExp|
-						PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fPaymOrdersExp);
-					SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fUhttImport,   v == 1);
-					SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fEdiImpExp,    v == 2);
-					SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fEgaisImpExp,  v == 3);
+					_f &= ~(PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fEgaisImpExp|
+						PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fPaymOrdersExp|
+						PPBillImpExpBaseProcessBlock::fChZnImpExp);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fUhttImport,   v == 1);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fEdiImpExp,    v == 2);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fEgaisImpExp,  v == 3);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fChZnImpExp,   v == 4);
 				}
 				else {
-					P_Data->Flags &= ~(PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fPaymOrdersExp);
-					SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fEdiImpExp, v == 1);
-					SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fEgaisImpExp, v == 2);
-					SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fPaymOrdersExp, v == 3);
+					_f &= ~(PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fEgaisImpExp|
+						PPBillImpExpBaseProcessBlock::fPaymOrdersExp|PPBillImpExpBaseProcessBlock::fChZnImpExp);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fEdiImpExp, v == 1);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fEgaisImpExp, v == 2);
+					SETFLAG(_f, PPBillImpExpBaseProcessBlock::fPaymOrdersExp, v == 3);
 				}
+				P_Data->Flags = _f;
 			}
 		}
 		PPIniFile * P_IniFile;
@@ -1086,6 +1115,7 @@ int SLAPI PPBillImporter::LoadConfig(int import)
 int SLAPI PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 {
 	int    ok = 1;
+	PPOprKind op_rec;
 	Init();
 	OpID = opID;
 	LocID = NZOR(locID, LConfig.Location);
@@ -1098,38 +1128,28 @@ int SLAPI PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 	THROW(OpID && LocID);
 	THROW(LoadSdRecord(PPREC_BILL, &BillParam.InrRec));
 	THROW(LoadSdRecord(PPREC_BROW, &BRowParam.InrRec));
-	{
-		PPOprKind op_rec;
-		if(GetOpData(OpID, &op_rec) > 0)
-			AccSheetID = op_rec.AccSheetID;
-	}
+	if(GetOpData(OpID, &op_rec) > 0)
+		AccSheetID = op_rec.AccSheetID;
 	CATCHZOK
 	return ok;
 }
 
 int SLAPI PPBillImporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
 {
-	//int    ok = -1;
-	int    ok = 1; //@vmiller
+	int    ok = 1;
+	PPOprKind op_rec;
 	Init();
 	OpID = opID;
 	LocID = NZOR(locID, LConfig.Location);
 	RVALUEPTR(BillParam, pBillParam);
 	RVALUEPTR(BRowParam, pBRowParam);
 	if(!pBillParam || !pBRowParam || !OpID) {
-		if(!pBillParam)
-			THROW(LoadSdRecord(PPREC_BILL, &BillParam.InrRec));
-		if(!pBRowParam)
-			THROW(LoadSdRecord(PPREC_BROW, &BRowParam.InrRec));
+		THROW(pBillParam || LoadSdRecord(PPREC_BILL, &BillParam.InrRec));
+		THROW(pBRowParam || LoadSdRecord(PPREC_BROW, &BRowParam.InrRec));
 		THROW(ok = Select(1));
-		if(ok > 0) {
-			PPOprKind op_rec;
-			if(GetOpData(OpID, &op_rec) > 0)
-				AccSheetID = op_rec.AccSheetID;
-		}
+		if(ok > 0 && GetOpData(OpID, &op_rec) > 0)
+			AccSheetID = op_rec.AccSheetID;
 	}
-	// BillParam.FileName.Transf(CTRANSF_INNER_TO_OUTER); @Данная операция производится в PPImpExp::OpenFile
-	// BRowParam.FileName.Transf(CTRANSF_INNER_TO_OUTER); @Данная операция производится в PPImpExp::OpenFile
 	CATCHZOK
 	return ok;
 }
@@ -1382,7 +1402,6 @@ int SLAPI PPBillImporter::RunUhttImport()
 							cc_pack.SetupAmount(0, 0);
 							THROW(P_Cc->TurnCheck(&cc_pack, 0));
 							ok += 100;
-							//BillTbl::Rec CCheckExtTbl::Rec
 						}
 					}
 					THROW(tra.Commit());
@@ -1411,7 +1430,7 @@ const Sdr_Bill * SLAPI PPBillImporter::SearchBillForRow(const SString & rBillIde
 
 int SLAPI PPBillImporter::SearchNextRowForBill(const Sdr_Bill & rBill, uint * pPos) const
 {
-    uint p = *pPos;
+    uint p = DEREFPTRORZ(pPos);
 	while(BillsRows.lsearch(rBill.ID, &p, PTR_CMPFUNC(Pchar))) {
 		const Sdr_BRow * p_row = &BillsRows.at(p);
 		if((!p_row->BillDate || p_row->BillDate == rBill.Date) && (!p_row->INN[0] || strcmp(p_row->INN, rBill.INN) == 0)) {
@@ -3761,6 +3780,14 @@ int SLAPI PPBillImporter::Run()
 			}
 			PPWait(0);
 		}
+	}
+	else if(Flags & PPBillImporter::fChZnImpExp) { // @v10.6.4
+		PPChZnPrcssr prcssr(&Logger);
+		PPChZnPrcssr::Param param;
+		param.GuaID = GuaID;
+		param.LocID = LocID;
+		param.Period = Period;
+		prcssr.SendBills(param);
 	}
 	else {
 		THROW(ReadData());

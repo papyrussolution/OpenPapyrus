@@ -215,10 +215,10 @@ static int __rep_find_dbs(ENV*env, FILE_LIST_CTX * context)
 	 * If the application does not have a separate data directory,
 	 * then the walk_dir will return all the user databases as well.
 	 */
-	if(ret == 0)
+	if(!ret)
 		ret = __rep_walk_dir(env, env->db_home, context);
 	/* Now, collect any in-memory named databases. */
-	if(ret == 0)
+	if(!ret)
 		ret = __rep_walk_dir(env, NULL, context);
 	__os_free(env, real_dir);
 	return ret;
@@ -1710,7 +1710,7 @@ int __rep_init_cleanup(ENV*env, REP * rep, int force)
 		t_ret = F_ISSET(rep, REP_F_ABBREVIATED) ? __rep_walk_filelist(env, rep->infoversion,
 			(uint8 *)R_ADDR(infop, rep->originfo_off), rep->originfolen,
 			rep->nfiles, __rep_cleanup_nimdbs, NULL) : __rep_clean_interrupted(env);
-		if(ret == 0)
+		if(!ret)
 			ret = t_ret;
 		if(rep->originfo_off != INVALID_ROFF) {
 			MUTEX_LOCK(env, renv->mtx_regenv);
@@ -1799,7 +1799,7 @@ static int __rep_clean_interrupted(ENV*env)
 	 * init file's raison d'etre is to show that some files remain to be
 	 * cleaned up.
 	 */
-	if(ret == 0)
+	if(!ret)
 		ret = __rep_remove_init_file(env);
 	return ret;
 }
@@ -2376,7 +2376,7 @@ out:
 	db_rep->queue_dbc = NULL;
 	if(queue_dbp != NULL && (t_ret = __db_close(queue_dbp, NULL, DB_NOSYNC)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret == 0)
+	if(!ret)
 		ret = DB_REP_PAGEDONE;
 	return ret;
 #endif

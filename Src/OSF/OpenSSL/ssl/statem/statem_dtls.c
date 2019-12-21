@@ -874,7 +874,7 @@ WORK_STATE dtls_wait_for_dry(SSL * s)
 	int ret = BIO_dgram_sctp_wait_for_dry(SSL_get_wbio(s));
 	if(ret < 0)
 		return WORK_ERROR;
-	if(ret == 0) {
+	if(!ret) {
 		s->s3->in_read_app_data = 2;
 		s->rwstate = SSL_READING;
 		BIO_clear_retry_flags(SSL_get_rbio(s));

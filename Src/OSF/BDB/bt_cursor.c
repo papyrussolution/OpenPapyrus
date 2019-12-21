@@ -1229,7 +1229,7 @@ get_space:
 	if(ret == 0 && next_key && indx >= NUM_ENT(pg)) {
 		cp->indx = indx;
 		ret = __bamc_next(dbc, 0, 1);
-		if(ret == 0)
+		if(!ret)
 			goto next_pg;
 		if(ret != DB_NOTFOUND)
 			return ret;
@@ -2438,7 +2438,7 @@ static int FASTCALL __bamc_physdel(DBC * dbc)
 	 * If everything worked, delete the stack, otherwise, release the
 	 * stack and page locks without further damage.
 	 */
-	if(ret == 0)
+	if(!ret)
 		ret = __bam_dpages(dbc, 1, BTD_RELINK);
 	else
 		__bam_stkrel(dbc, 0);
@@ -2504,7 +2504,7 @@ int __bam_opd_exists(DBC * dbc, db_pgno_t pgno)
 {
 	PAGE * h;
 	int ret = __memp_fget(dbc->dbp->mpf, &pgno, dbc->thread_info, dbc->txn, 0, &h);
-	if(ret == 0) {
+	if(!ret) {
 		/*
 		 * We always collapse OPD trees so we only need to check
 		 * the number of entries on the root.  If there is a non-empty

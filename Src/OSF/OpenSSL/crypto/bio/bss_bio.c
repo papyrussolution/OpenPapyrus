@@ -607,7 +607,7 @@ int BIO_new_bio_pair(BIO ** bio1_p, size_t writebuf1, BIO ** bio2_p, size_t writ
 		goto err;
 	ret = 1;
 err:
-	if(ret == 0) {
+	if(!ret) {
 		BIO_free(bio1);
 		bio1 = NULL;
 		BIO_free(bio2);

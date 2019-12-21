@@ -193,7 +193,7 @@ static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode *
  *
  * Deallocate the memory used by an id definition
  */
-static void xmlFreeID(xmlIDPtr id) 
+static void xmlFreeID(xmlID * id) 
 {
 	if(id) {
 		xmlDict * dict = id->doc ? id->doc->dict : 0;
@@ -213,19 +213,17 @@ static void xmlFreeID(xmlIDPtr id)
 static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttr * attr)
 {
 	xmlIDTablePtr table;
-	xmlIDPtr id;
+	xmlID * id;
 	xmlChar * ID;
-	if(!doc) 
+	if(!doc || !attr)
 		return -1;
-	if(!attr) 
-		return -1;
-	table = (xmlIDTable *)doc->ids;
-	if(table == NULL)
+	table = static_cast<xmlIDTable *>(doc->ids);
+	if(!table)
 		return -1;
 	ID = xmlNodeListGetString(doc, attr->children, 1);
-	if(ID == NULL)
+	if(!ID)
 		return -1;
-	id = (xmlIDPtr)xmlHashLookup(table, ID);
+	id = static_cast<xmlID *>(xmlHashLookup(table, ID));
 	SAlloc::F(ID);
 	if(id == NULL || id->attr != attr) {
 		return -1;
@@ -378,11 +376,9 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
 		reader->ctxt->freeElems = cur;
 		reader->ctxt->freeElemsNr++;
 	}
-	else {
+	else
 		SAlloc::F(cur);
-	}
 }
-
 /**
  * xmlTextReaderFreeIDTable:
  * @table:  An id table
@@ -412,7 +408,7 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 		 */
 		xmlTextReaderFreeIDTable((xmlIDTable *)cur->ids);
 		cur->ids = NULL;
-		xmlFreeRefTable((xmlRefTablePtr)cur->refs);
+		xmlFreeRefTable((xmlRefTable *)cur->refs);
 		cur->refs = NULL;
 		extSubset = cur->extSubset;
 		intSubset = cur->intSubset;
@@ -797,7 +793,7 @@ static void FASTCALL xmlTextReaderValidatePush(xmlTextReader * reader ATTRIBUTE_
 		if(reader->rngFullNode)
 			return;
 		ret = xmlRelaxNGValidatePushElement(reader->rngValidCtxt, reader->ctxt->myDoc, P_Node);
-		if(ret == 0) {
+		if(!ret) {
 			/*
 			 * this element requires a full tree
 			 */
@@ -3412,9 +3408,9 @@ static void XMLCDECL xmlTextReaderValidityWarningRelay(void * ctx, const char * 
 	va_end(ap);
 }
 
-static void xmlTextReaderStructuredError(void * ctxt, xmlErrorPtr error);
+static void xmlTextReaderStructuredError(void * ctxt, xmlError * error);
 
-static void xmlTextReaderValidityStructuredRelay(void * userData, xmlErrorPtr error)
+static void xmlTextReaderValidityStructuredRelay(void * userData, xmlError * error)
 {
 	xmlTextReader * reader = static_cast<xmlTextReader *>(userData);
 	if(reader->sErrorFunc)
@@ -3998,12 +3994,12 @@ static void xmlTextReaderGenericError(void * ctxt, xmlParserSeverities severity,
 	}
 }
 
-static void xmlTextReaderStructuredError(void * ctxt, xmlErrorPtr error)
+static void xmlTextReaderStructuredError(void * ctxt, xmlError * error)
 {
 	xmlParserCtxt * ctx = (xmlParserCtxt *)ctxt;
 	xmlTextReader * reader = (xmlTextReader *)ctx->_private;
 	if(error && reader->sErrorFunc) {
-		reader->sErrorFunc(reader->errorFuncArg, (xmlErrorPtr)error);
+		reader->sErrorFunc(reader->errorFuncArg, (xmlError *)error);
 	}
 }
 

@@ -364,7 +364,7 @@ begin:  for(; i <= stop; i++) {
 			 * we're salvaging.
 			 */
 			if(LF_ISSET(DB_SALVAGE)) {
-				if(ret == 0)
+				if(!ret)
 					ret = t_ret;
 				continue;
 			}
@@ -380,7 +380,7 @@ begin:  for(; i <= stop; i++) {
 			 */
 			if((t_ret = __db_salvage_pg(dbp,
 				    vdp, i, h, handle, callback, flags)) != 0) {
-				if(ret == 0)
+				if(!ret)
 					ret = t_ret;
 				isbad = 1;
 			}
@@ -422,7 +422,7 @@ put:
 		/* Again, keep going iff we're salvaging. */
 		if((t_ret = __qam_fput(dbc, i, h, dbp->priority)) != 0) {
 			if(LF_ISSET(DB_SALVAGE)) {
-				if(ret == 0)
+				if(!ret)
 					ret = t_ret;
 				continue;
 			}

@@ -1397,6 +1397,11 @@ int TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEve
 	return 1;
 }
 
+SLAPI PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
+{
+	Rect.Z();
+}
+
 //static
 LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1515,7 +1520,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 			if(p_view) {
 				PAINTSTRUCT ps;
 				PaintEvent pe;
-				MEMSZERO(pe);
+				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tPaint;
 				BeginPaint(hWnd, &ps);
 
@@ -1552,7 +1557,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_NCPAINT:
 			{
 				PaintEvent pe;
-				MEMSZERO(pe);
+				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tNcPaint;
 				HDC hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
 				pe.H_DeviceContext = hdc;
@@ -1565,7 +1570,7 @@ LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		case WM_ERASEBKGND:
 			if(p_view) {
 				PaintEvent pe;
-				MEMSZERO(pe);
+				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tEraseBackground;
 				pe.H_DeviceContext = reinterpret_cast<void *>(wParam);
 				pe.Rect = p_view->getClientRect();

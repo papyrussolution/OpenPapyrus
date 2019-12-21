@@ -18,7 +18,7 @@ SLAPI PPObjBill::SelectLotParam::SelectLotParam(PPID goodsID, PPID locID, PPID e
 {
 	GoodsList.addnz(goodsID);
 	Period.Z();
-	MEMSZERO(RetLotRec);
+	// @v10.6.4 MEMSZERO(RetLotRec);
 }
 
 SLAPI PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm) : Flags(0), ForceBillID(0), ForceBillDate(ZERODATE)

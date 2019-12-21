@@ -1241,8 +1241,6 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 				int    y  = is_browser ? parent.top : (parent.top - ht);
 				MoveWindow(hwndDlg, x, y, wd, ht, 0);
 				SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, EM_SETLIMITTEXT, UISEARCHTEXTBLOCK_MAXLEN, 0);
-				// @v9.1.5 SString buf = p_slb->P_Text;
-				// @v9.1.5 SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_SETTEXT, 0, (LPARAM)(const char *)buf.Transf(CTRANSF_INNER_TO_OUTER));
 				TView::SSetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), (temp_buf = p_slb->Text).Transf(CTRANSF_INNER_TO_OUTER));
 				p_slb->IsBnClicked = 0;
 				if(p_slb->P_WordSelBlk) {
@@ -1258,8 +1256,6 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 			if(wParam == 1) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb && p_slb->P_WordSel) {
-					// @v9.1.5 SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_GETTEXT, UISEARCHTEXTBLOCK_MAXLEN, (long)p_slb->P_Text);
-					// @v9.1.5 SCharToOem(p_slb->P_Text);
 					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text);
 					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER);
 					p_slb->P_WordSel->Refresh(p_slb->Text);
@@ -1276,9 +1272,7 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 			if(HIWORD(wParam) == BN_CLICKED) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb) {
-					// @v9.1.5 SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_GETTEXT, UISEARCHTEXTBLOCK_MAXLEN, (long)p_slb->P_Text);
-					// @v9.1.5 SCharToOem(p_slb->P_Text);
-					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text); // @v9.1.5
+					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text);
 					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER); // @v9.1.5
 					p_slb->IsBnClicked = 1;
 					if(p_slb->P_WordSel)
@@ -1337,10 +1331,8 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 				if(p_slb->P_WordSel) {
 					long   id = 0;
 					SString result_text;
-					// @v9.1.5 SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_GETTEXT, UISEARCHTEXTBLOCK_MAXLEN, (long)p_slb->P_Text);
-					// @v9.1.5 SCharToOem(p_slb->P_Text);
-					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text); // @v9.1.5
-					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER); // @v9.1.5
+					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text);
+					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER);
 					if(p_slb->P_WordSelBlk && p_slb->Text.Len() >= p_slb->P_WordSelBlk->MinSymbCount && p_slb->P_WordSelBlk->SearchText(p_slb->Text, &id, result_text) > 0) {
 						p_slb->P_WordSelBlk->SetData(id, result_text);
 						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), CTL_LBX_LIST);

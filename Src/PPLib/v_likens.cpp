@@ -281,7 +281,7 @@ int SLAPI PPViewObjLikeness::CreateLikenessTable()
 #else
 		list.SortByLength(1 /* descend */);
 		ApproxStrSrchParam asc_param;
-		MEMSZERO(asc_param);
+		// @v10.6.5 @ctr MEMSZERO(asc_param);
 		asc_param.method = 1;
 		asc_param.weight = 1.0;
 		asc_param.no_case = 1;

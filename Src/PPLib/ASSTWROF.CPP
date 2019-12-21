@@ -160,6 +160,9 @@ double SLAPI CalcAssetDeprec(LDATE start, LDATE dt, long term)
 class PrcssrAssetDeprec {
 public:
 	struct Param {
+		SLAPI  Param() : Dt(ZERODATE), GoodsTypeID(0), GoodsGrpID(0), RevalOpID(0), LocID(0)
+		{
+		}
 		LDATE  Dt;
 		PPID   GoodsTypeID;
 		PPID   GoodsGrpID;
@@ -168,7 +171,7 @@ public:
 	};
 	SLAPI  PrcssrAssetDeprec() : P_BObj(BillObj)
 	{
-		MEMSZERO(P);
+		// @v10.6.5 @ctr MEMSZERO(P);
 	}
 	int    SLAPI InitParam(Param * pParam)
 	{
@@ -181,7 +184,7 @@ public:
 	}
 	int    SLAPI Init(const Param * pParam)
 	{
-		P = *pParam;
+		RVALUEPTR(P, pParam);
 		return P.RevalOpID ? 1 : PPSetError(PPERR_OPRKINDNEEDED);
 	}
 	int    SLAPI EditParam(Param *);

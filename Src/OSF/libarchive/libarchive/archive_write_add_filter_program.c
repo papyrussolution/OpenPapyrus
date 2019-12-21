@@ -230,7 +230,7 @@ static ssize_t child_write(struct archive_write_filter * f, struct archive_write
 		} while(ret == -1 && errno == EINTR);
 		if(ret > 0)
 			return ret;
-		if(ret == 0) {
+		if(!ret) {
 			close(data->child_stdin);
 			data->child_stdin = -1;
 			fcntl(data->child_stdout, F_SETFL, 0);

@@ -52,7 +52,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		if(op_pack.Rec.AccSheet2ID) {
 			PPClientAgreement ca_rec;
 			SETFLAG(Flags, fSetupObj2ByCliAgt, ar_obj.GetClientAgreement(0, &ca_rec) > 0 && ca_rec.ExtObjectID == op_pack.Rec.AccSheet2ID);
-			SetupArCombo(this, CTLSEL_BILL_OBJ2, P_Data->Rec.Object2, /*OLW_LOADDEFONOPEN|*/OLW_CANINSERT, op_pack.Rec.AccSheet2ID);
+			SetupArCombo(this, CTLSEL_BILL_OBJ2, P_Data->Rec.Object2, /*OLW_LOADDEFONOPEN|*/OLW_CANINSERT, op_pack.Rec.AccSheet2ID, 0);
 			op_pack.GetExtStrData(OPKEXSTR_OBJ2NAME, temp_buf);
 			setStaticText(CTL_BILL_OBJ2NAME, temp_buf);
 		}
@@ -1115,8 +1115,9 @@ int SLAPI InventoryConversion::Run(PPID billID)
 			const uint c = goods_id_list.getCount();
 			for(uint i = 0; i < c; i++) {
 				const PPID goods_id = goods_id_list.get(i);
-
-				int    r, is_inv_exists = 0, is_asset = 0;
+				int    r;
+				int    is_inv_exists = 0;
+				int    is_asset = 0;
 				InventoryTbl::Rec ir;
 				GoodsRestParam p;
 				THROW(r = R_Tbl.SearchByGoods(invID, goods_id, &inv_list));
@@ -1131,14 +1132,13 @@ int SLAPI InventoryConversion::Run(PPID billID)
 					uint j;
 					excl_serial.clear();
 					for(j = 0; j < inv_list.getCount(); j++) {
-						if(inv_list.at(j).Serial[0] != 0) {
+						if(inv_list.at(j).Serial[0] != 0)
 							excl_serial.add(inv_list.at(j).Serial);
-						}
 					}
 					for(j = 0; j < inv_list.getCount(); j++) {
 						double wroff_price = 0.0;
 						ir = inv_list.at(j);
-						if((!(ir.Flags & INVENTF_WRITEDOFF) || ir.UnwritedDiff != 0.0)) {
+						if(!(ir.Flags & INVENTF_WRITEDOFF) || ir.UnwritedDiff != 0.0) {
 							ILTI   ilti;
 							long   oprno;
 							double diff;
@@ -1253,7 +1253,6 @@ int SLAPI InventoryConversion::Run(PPID billID)
 								if(ir.UnwritedDiff) {
 									PPLoadText(PPTXT_WROFFGOODS, temp_buf);
 									GetGoodsName(ir.GoodsID, goods_name);
-									temp_buf.Z();
 									msg.Printf(temp_buf, goods_name.cptr(), inv_rest - fabs(ir.UnwritedDiff), inv_rest);
 									logger.Log(msg);
 								}
@@ -1261,7 +1260,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 							else if(is_inv_exists) {
 								ir.StockRest  = stock_rest;
 								ir.StockPrice = stock_price;
-								ir.Flags     &= ~INVENTF_WRITEDOFF;
+								ir.Flags &= ~INVENTF_WRITEDOFF;
 								oprno = ir.OprNo;
 								ir.WrOffPrice = ir.StockPrice;
 								THROW(R_Tbl.Set(invID, &oprno, &ir, 0));

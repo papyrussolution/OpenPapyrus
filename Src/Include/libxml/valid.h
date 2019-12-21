@@ -100,13 +100,13 @@ typedef xmlNotationTable * xmlNotationTablePtr;
  * There is one table per DTD.
  */
 typedef xmlHashTable xmlElementTable;
-typedef xmlElementTable * xmlElementTablePtr;
+//typedef xmlElementTable * xmlElementTablePtr;
 /*
  * ALL attribute declarations are stored in a table.
  * There is one table per DTD.
  */
 typedef xmlHashTable xmlAttributeTable;
-typedef xmlAttributeTable * xmlAttributeTablePtr;
+//typedef xmlAttributeTable * xmlAttributeTablePtr;
 /*
  * ALL IDs attributes are stored in a table.
  * There is one table per document.
@@ -118,7 +118,7 @@ typedef xmlIDTable * xmlIDTablePtr;
  * There is one table per document.
  */
 typedef xmlHashTable xmlRefTable;
-typedef xmlRefTable * xmlRefTablePtr;
+//typedef xmlRefTable * xmlRefTablePtr;
 
 /* Notation */
 XMLPUBFUN xmlNotation * XMLCALL xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * name, const xmlChar * PublicID, const xmlChar * SystemID);
@@ -150,11 +150,11 @@ XMLPUBFUN void XMLCALL xmlSnprintfElementContent(char * buf, int size, xmlElemen
 /* Element */
 XMLPUBFUN xmlElement * XMLCALL xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content);
 #ifdef LIBXML_TREE_ENABLED
-	XMLPUBFUN xmlElementTablePtr XMLCALL xmlCopyElementTable(xmlElementTablePtr table);
+	XMLPUBFUN xmlElementTable * XMLCALL xmlCopyElementTable(xmlElementTable * table);
 #endif /* LIBXML_TREE_ENABLED */
-XMLPUBFUN void XMLCALL xmlFreeElementTable(xmlElementTablePtr table);
+XMLPUBFUN void XMLCALL xmlFreeElementTable(xmlElementTable * table);
 #ifdef LIBXML_OUTPUT_ENABLED
-	XMLPUBFUN void XMLCALL xmlDumpElementTable(xmlBuffer * buf, xmlElementTablePtr table);
+	XMLPUBFUN void XMLCALL xmlDumpElementTable(xmlBuffer * buf, xmlElementTable * table);
 	XMLPUBFUN void XMLCALL xmlDumpElementDecl(xmlBuffer * buf, xmlElement * elem);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
@@ -169,16 +169,16 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeEnumeration(xmlEnumeration * cur);
 XMLPUBFUN xmlAttribute * XMLCALL xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar * elem,
     const xmlChar * name, const xmlChar * ns, xmlAttributeType type, xmlAttributeDefault def, const xmlChar * defaultValue, xmlEnumeration * tree);
 #ifdef LIBXML_TREE_ENABLED
-	XMLPUBFUN xmlAttributeTablePtr XMLCALL xmlCopyAttributeTable(xmlAttributeTablePtr table);
+	XMLPUBFUN xmlAttributeTable * XMLCALL xmlCopyAttributeTable(xmlAttributeTable * table);
 #endif /* LIBXML_TREE_ENABLED */
-XMLPUBFUN void XMLCALL xmlFreeAttributeTable(xmlAttributeTablePtr table);
+XMLPUBFUN void XMLCALL xmlFreeAttributeTable(xmlAttributeTable * table);
 #ifdef LIBXML_OUTPUT_ENABLED
-	XMLPUBFUN void XMLCALL xmlDumpAttributeTable(xmlBuffer * buf, xmlAttributeTablePtr table);
+	XMLPUBFUN void XMLCALL xmlDumpAttributeTable(xmlBuffer * buf, xmlAttributeTable * table);
 	XMLPUBFUN void XMLCALL xmlDumpAttributeDecl(xmlBuffer * buf, xmlAttribute * attr);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /* IDs */
-XMLPUBFUN xmlIDPtr XMLCALL xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr);
+XMLPUBFUN xmlID * XMLCALL xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr);
 XMLPUBFUN void XMLCALL xmlFreeIDTable(xmlIDTablePtr table);
 XMLPUBFUN xmlAttr * XMLCALL xmlGetID(xmlDoc * doc, const xmlChar * ID);
 XMLPUBFUN int XMLCALL xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr);

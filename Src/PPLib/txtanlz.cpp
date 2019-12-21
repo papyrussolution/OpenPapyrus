@@ -3810,7 +3810,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 			result_str.CopyFromN(static_cast<const char *>(p_result_buf->GetBuf(p_result_buf->GetRdOffs())), avl_size);
 			{
 				THROW(SETIFZ(P_XpCtx, xmlNewParserCtxt()));
-				THROW((p_doc = xmlCtxtReadMemory(P_XpCtx, static_cast<const char *>(p_result_buf->GetBuf()), static_cast<int>(avl_size), 0, 0, XML_PARSE_NOENT)));
+				THROW((p_doc = xmlCtxtReadMemory(P_XpCtx, p_result_buf->GetBufC(), static_cast<int>(avl_size), 0, 0, XML_PARSE_NOENT)));
 				THROW(p_root = xmlDocGetRootElement(p_doc));
 				if(SXml::GetContentByName(p_root, "string", temp_buf)) {
 					rResult = temp_buf;

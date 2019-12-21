@@ -1955,9 +1955,14 @@ int PPObjDynamicObjs::ReplaceObjs(PPID srcID /*=0*//*)
 //
 // @ModuleDecl(PPObjGlobalUserAcc)
 //
+SLAPI PPGlobalUserAcc::PPGlobalUserAcc()
+{
+	THISZERO();
+}
+
 SLAPI PPGlobalUserAccPacket::PPGlobalUserAccPacket()
 {
-	MEMSZERO(Rec);
+	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
 int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) const

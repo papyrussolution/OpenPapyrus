@@ -280,7 +280,7 @@ static int __lv_fidpgno_cmp(DB * db, const DBT * dbt1, const DBT * dbt2)
 	COMPQUIET(db, 0);
 	len = DB_FILE_ID_LEN;
 	ret = memcmp(dbt1->data, dbt2->data, len);
-	if(ret == 0) {
+	if(!ret) {
 		memcpy(&pgno1, (uint8 *)dbt1->data+len, sizeof(pgno1));
 		memcpy(&pgno2, (uint8 *)dbt2->data+len, sizeof(pgno2));
 		ret = NUMCMP(pgno1, pgno2);

@@ -2994,7 +2994,7 @@ int SLAPI Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int us
 			copyBufTo(&param.TrRec);
 			dt = param.TrRec.Dt;
 			oprno = param.TrRec.OprNo;
-			long f = param.TrRec.Flags;
+			const long f = param.TrRec.Flags;
 			if(f & (PPTFR_REVAL|PPTFR_RECEIPT)) {
 				if(flags & TMLOF_RMVSRCLOT || (f & PPTFR_REVAL && flags & TMLOF_RMVREVAL)) {
 					const PPID bill_id = param.TrRec.BillID;

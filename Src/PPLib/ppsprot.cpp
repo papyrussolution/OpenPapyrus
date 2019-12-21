@@ -165,7 +165,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 	}
 	else {
 		size_t avl_sz = MIN(GetWrOffs(), 255);
-		rBuf.Z().CatN(static_cast<const char *>(GetBuf()), avl_sz);
+		rBuf.Z().CatN(GetBufC(), avl_sz);
 		rBuf.Chomp();
 	}
 	return rBuf;

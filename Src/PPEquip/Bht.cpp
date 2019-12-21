@@ -997,7 +997,6 @@ void BhtDialog::DisableCtrls()
 int BhtDialog::setDTS(const PPBhtTerminalPacket * pData)
 {
 	Data = *pData;
-
 	ushort v = 0;
 	setCtrlData(CTL_BHT_NAME, Data.Rec.Name);
 	setCtrlData(CTL_BHT_ID, &Data.Rec.ID);
@@ -2526,7 +2525,6 @@ int SLAPI CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord *
 	char   fname[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	FILE * stream = 0;
 	BhtRecord * p_rec = 0;
-
 	THROW_PP_S(stream = fopen(pFileName, "r"), PPERR_CANTOPENFILE, pFileName);
 	THROW_MEM(p_rec = new BhtRecord(*pStruc));
 	while(fgets(line_buf, sizeof(line_buf), stream))
@@ -2762,8 +2760,7 @@ int SLAPI PPObjBHT::TransmitProgram()
 		else
 			PPError();
 	}
-	delete dlg;
-	dlg = 0;
+	ZDELETE(dlg);
 	if(valid_data) {
 		BhtProtocol bp;
 		THROW(bht_obj.InitProtocol(bht_id, &bp));
@@ -2786,13 +2783,10 @@ int SLAPI PPObjBHT::InitProtocol(PPID id, BhtProtocol * pProt)
 	PPBhtTerminal rec;
 	CommPortParams cpp;
 	CommPortTimeouts cpt;
-
 	THROW(Search(id, &rec) > 0);
-
 	pProt->GetParams(&cpp);
 	cpp.Cbr = rec.Cbr;
 	pProt->SetParams(&cpp);
-
 	pProt->GetTimeouts(&cpt);
 	cpt.W_Get_Delay = (rec.ComGet_Delay > 0 && rec.ComGet_Delay <= 1000) ? rec.ComGet_Delay : 75;
 	pProt->SetTimeouts(&cpt);
@@ -2830,13 +2824,10 @@ int SLAPI PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 	PPBhtTerminal rec;
 	CommPortParams cpp;
 	CommPortTimeouts cpt;
-
 	THROW(Search(id, &rec) > 0);
-
 	pProt->GetParams(&cpp);
 	cpp.Cbr = rec.Cbr;
 	pProt->SetParams(&cpp);
-
 	pProt->GetTimeouts(&cpt);
 	if(rec.ComGet_Delay == 0 || rec.ComGet_Delay > 1000)
 		cpt.W_Get_Delay = 200; /* default 150 */
@@ -3872,7 +3863,6 @@ int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitGoodsBhtRec(p_bht_rec);
 			THROW(pBP->SendDataFile(path, p_bht_rec));
-
 			ZDELETE(p_bht_rec);
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitGoodsBhtRec(p_bht_rec);

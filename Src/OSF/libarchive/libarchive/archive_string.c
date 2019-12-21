@@ -1554,7 +1554,6 @@ static const char * get_current_charset(struct archive * a)
 	}
 	return (cur_charset);
 }
-
 /*
  * Make and Return a string conversion object.
  * Return NULL if the platform does not support the specified conversion

@@ -72,7 +72,7 @@ int asn1_do_lock(ASN1_VALUE ** pval, int op, const ASN1_ITEM * it)
 	fprintf(stderr, "%p:%4d:%s\n", it, *lck, it->sname);
 #endif
 	REF_ASSERT_ISNT(ret < 0);
-	if(ret == 0) {
+	if(!ret) {
 		CRYPTO_THREAD_lock_free(*lock);
 		*lock = NULL;
 	}

@@ -98,7 +98,7 @@ void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, i
 	}
 	if(sheetChanged) {
 		if(AccSheetID)
-			SetupArCombo(dlg, ctlsel_artname, AcctId.ar, OLW_LOADDEFONOPEN|OLW_CANINSERT, AccSheetID);
+			SetupArCombo(dlg, ctlsel_artname, AcctId.ar, OLW_LOADDEFONOPEN|OLW_CANINSERT, AccSheetID, 0);
 		else {
 			p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlsel_artname));
 			if(p_combo) {
@@ -119,13 +119,13 @@ int AcctCtrlGroup::processAccInput(TDialog * dlg)
 	dlg->getCtrlData(ctl_acc, b);
 	if(*strip(b) == 0) {
 		AcctId.Clear();
-		acct.Clear();
+		acct.Z();
 		AccSheetID = 0;
 	}
 	else {
 		if(!ppobj->ConvertStr(b, CurID, &acct, &AcctId, &AccSheetID)) {
 			PPError();
-			b[0] = 0;
+			PTR32(b)[0] = 0;
 			dlg->setCtrlData(ctl_acc, b);
 			dlg->selectCtrl(ctl_acc);
 			return 0;
@@ -152,7 +152,7 @@ void AcctCtrlGroup::processAccCombo(TDialog * dlg)
 		}
 		else {
 			AccSheetID = 0;
-			acct.Clear();
+			acct.Z();
 			PPError();
 		}
 		AcctId.ac = bal;
@@ -168,7 +168,7 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 	if(ctlsel_artname) {
 		dlg->getCtrlData(ctlsel_artname, &ar);
 		if(ar != AcctId.ar) {
-			b[0] = 0;
+			PTR32(b)[0] = 0;
 			if(ppobj->P_Tbl->Art.Search(ar) <= 0)
 				PPError();
 			else if(ar)
@@ -185,7 +185,7 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 	int    r;
 	long   ar, prev_ar = AcctId.ar;
 	char   b[32];
-	b[0] = 0;
+	PTR32(b)[0] = 0;
 	dlg->getCtrlData(ctl_art, b);
 	if((ar = AccSheetID ? atol(b) : 0) != 0)
 		if((r = ppobj->P_Tbl->Art.SearchNum(AccSheetID, ar)) <= 0) {

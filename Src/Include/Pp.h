@@ -1748,6 +1748,31 @@ private:
 	PPMsgLog * P_Log;
 };
 //
+// Descr: Специализированный класс, используемый как базовый для управления внешним или собственным логгером.
+//
+class PPEmbeddedLogger {
+protected:
+	enum {
+		ctrfDirectLogging = 0x0001
+	};
+
+	SLAPI  PPEmbeddedLogger(long ctrflags, PPLogger * pOuterLogger, uint fileNameId, uint defLogOptions);
+	SLAPI ~PPEmbeddedLogger();
+	void   FASTCALL Log(const SString & rMsg);
+	void   SLAPI LogTextWithAddendum(int msgCode, const SString & rAddendum);
+	void   SLAPI LogLastError();
+	int    SLAPI Save(uint fileNameId, long options);
+private:
+	enum {
+		elstOuterLogger   = 0x0001,
+		elstDirectLogging = 0x0002
+	};
+	long    ElState;
+	uint    LogFileNameId;
+	long    DefLogOptions;
+	PPLogger * P_Logger;
+};
+//
 // Descr: Опции функция вывода в журнал
 //
 #define LOGMSGF_TIME        0x0001L // Выводить текущее время //
@@ -4909,7 +4934,6 @@ public:
 	int    SLAPI BelongToMatrix(PPID goodsID, PPID locID);
 	int    SLAPI DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * pMtxLocList);
 	int    SLAPI CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta);
-	//
 	GoodsExtTbl & SLAPI GetExtTbl_() { return GeT; }       // really private
 	BarcodeTbl  & SLAPI GetBcTbl_() { return BCTbl; }      // really private
 	ArGoodsCodeTbl & SLAPI GetACodTbl_() { return ACodT; } // really private
@@ -4952,7 +4976,7 @@ private:
 // Бух. счет в формате внешнего представления (Nature format)
 //
 struct Acct {
-	void   SLAPI Clear();
+	Acct & SLAPI Z();
 	Acct & FASTCALL operator = (const AcctRelTbl::Rec &);
 	Acct & FASTCALL operator = (const PPAccount &);
 	char * SLAPI ToStr(long format, char * pBuf) const; // ACCBIN_NATURE
@@ -9414,8 +9438,7 @@ private:
 #define TIAMT_COST               1 // Cost * Quantity
 #define TIAMT_PRICE              2 // NetPrice() * Quantity
 #define TIAMT_AMOUNT             3 // CalcAmount()
-#define TIAMT_ASSETEXPL          4 // Ввод основных средств в эксплуатацию
-	// (используется в функции PPTransferItem::CalcTI)
+#define TIAMT_ASSETEXPL          4 // Ввод основных средств в эксплуатацию (используется в функции PPTransferItem::CalcTI)
 //
 // Флаги функции PPTransferItem::SetupLot
 //
@@ -11128,7 +11151,6 @@ public:
 		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
 	*/
 	PPLotTagContainer * P_MirrorLTagL; // Список тегов зеркальных лотов (созданных при межскладском перемещении)
-	//
 	PPID   PaymBillID;         // @*PPObjBill::ExtractPacket Платежный документ (зачеты).
 	PPID   CSessID;            // Кассовая или технологическая сессия, которую списывает документ
 	PPID   SampleBillID;       // Документ, по образцу которого создается this документ
@@ -11191,8 +11213,7 @@ public:
 private:
 	void   SLAPI Helper_Init();
 	int    SLAPI _CreateBlank(PPID oprKind, PPID linkBill, PPID locID, int dontInitCode, int use_ta);
-	int    SLAPI AdjustLotQtty(PPID lot, const PPTransferItem *, int, double *) const;
-		// @>>BillObj->trfr->SubtractBillQtty()
+	int    SLAPI AdjustLotQtty(PPID lot, const PPTransferItem *, int, double *) const; // @>>BillObj->trfr->SubtractBillQtty()
 	int    SLAPI MergeTI(PPTransferItem * pItem, int idx, long flags, LongArray & rTotalMergeList, LongArray * pMergePosList);
 	int    SLAPI Helper_DistributeExtCost(double extCostSum, int alg);
 	int    SLAPI DistributeExtCost();
@@ -15196,7 +15217,8 @@ public:
 	int    SLAPI StoreLogo();
 private:
 	SString DbSymb;
-	SString Logo_;
+	SString Logo_;	
+	S_GUID DeskGuid; //@erik v10.6.4
 };
 //
 // Descr: Интерфейс, реализующий функции команд
@@ -16712,6 +16734,7 @@ public:
 	static SString & SLAPI StrategyOutput(const PPObjTimeSeries::StrategyResultEntry * pSre, SString & rBuf);
 	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::BestStrategyBlock * pBestResult, SString & rBuf);
 	static int SLAPI TryStrategies(PPID id);
+	static int SLAPI EvaluateOptimalMaxDuck(PPID id);
 
 	explicit SLAPI  PPObjTimeSeries(void * extraPtr = 0);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -16749,9 +16772,12 @@ public:
 		uint   PeakAvg;
 		double Result;
 	};
+	//
 	// ARG(what IN): 0 - maxduck, 1 - peak
+	// ARG(entireRange IN): !0 - прогонять расчет для каждого шага не зависимо от результата, в проитвном случае - остановиться когда обнаружен перегиб, указывающий на экстремум. 
+	//
 	int    SLAPI FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, int what,
-		const IntRange & rMdRange, int mdStep, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
+		const IntRange & rMdRange, int mdStep, int entireRange, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, uint stride);
 	static int SLAPI MatchStrategy(const PPObjTimeSeries::TrendEntry * pTrendEntry, const PPObjTimeSeries::TrendEntry * pMainTrendEntry,
@@ -16929,6 +16955,15 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 	int    SLAPI TryStrategyContainer(PPID tsID);
+	//
+	// Descr: Флаги функции FindOptimalMaxDuck
+	//
+	enum {
+		fomdfShort       = 0x0001, // Продажа. Если не установлен - покупка.
+		fomdfStoreResult = 0x0002, // При успешном завершении сохранить результат в базе данных (PPTimeSeriesPacket::Rec.OptMaxDuck_S или PPTimeSeriesPacket::Rec.OptMaxDuck)
+		fomdfEntireRange = 0x0004  // Рассчитывать результаты для всего диапазона значений (медленно, но покажет все результаты)
+	};
+	int    SLAPI FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack, const DateTimeArray & rTsTmList, const RealArray & rTsValList, uint flags, uint * pResult);
 private:
 	int    SLAPI ReadModelParam(ModelParam & rMp);
 	int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & tTs);
@@ -18209,6 +18244,7 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_CHZN          5 // @v10.6.1 честный знак
 
 struct PPGlobalUserAcc {
+	SLAPI  PPGlobalUserAcc();
 	enum {
 		fSandBox = 0x0001 // @v10.6.3 Запись используется для доступа к тестовому ресурсу. Введен из-за того,
 			// что тестовые ресурсы могут отличаться по спецификации обмена и адресу.
@@ -21181,8 +21217,6 @@ public:
 	int    SLAPI SmsInit_(PPID accID, const char * pFrom);
 	int    SLAPI SendingSms_(PPID personId, const char * pPhone, const char * pText);
 	int    SLAPI SmsRelease_();
-	//
-	// @v8.5.4 void   SetRecvTimeout(int timeout) { RecvTimeout = timeout; }
 private:
 	struct StSubmitSMParam { // Структура параметров запроса submit_sm
 		StSubmitSMParam();
@@ -21258,14 +21292,8 @@ private:
 	StConfig Config;
 	StSMResults SMResults;
 	StSubmitSMParam SMParams;
-	//
-	// Массив с информацией об ошибочных запросах посылки смс. Сруктура записи: номер_получателя;описание_ошибки
-	//
-	StrAssocArray ErrorSubmitArr;
-	//
-	// Массив структур состояний сообщений, в том числе и ошибочных. Сруктура записи: номер_получателя;состояние_сообщения
-	//
-	StrAssocArray StatusCodesArr;
+	StrAssocArray ErrorSubmitArr; // Массив с информацией об ошибочных запросах посылки смс. Структура записи: номер_получателя;описание_ошибки
+	StrAssocArray StatusCodesArr; // Массив структур состояний сообщений, в том числе и ошибочных. Структура записи: номер_получателя;состояние_сообщения
 	int    ConnectionState;
 	uint   ResendErrLenMsg; // Счетчик попыток переотправить сообщение при неверной его длине
 	uint   ReSendQueueMsgTryNums; // Счетчик попыток переотправить смс, которые не были отправлены из-за переполнения очереди
@@ -21274,7 +21302,6 @@ private:
 	uint   AddStatusCodeNum; // Счетчик элементов массива StatusCodesArr
 	uint   AddErrorSubmitNum; // Счетчик эелементов массива ErrorSubmitArr
 	uint   UndeliverableMessages; // Счетчик недоставляемых сообщений
-	// @v8.5.4 int    RecvTimeout;  // Таймаут получение данных
 	PPLogger * P_Logger;
 };
 //
@@ -22554,7 +22581,7 @@ private:
 #define GTAXVF_NOMINAL     0x08000000L // Специальный флаг, применяемый для того,
 	// чтобы рассчитать суммы налогов исходя из номинальных налоговых групп по товарам
 	// (опиская признаки освобождения от НДС и входящие налоговые группы по лотам).
-	// Может быть использован только в аргументе exclFlags функции GTaxVect::CalcTi().
+	// Может быть использован только в аргументе exclFlags функции GTaxVect::CalcTI().
 
 class GTaxVect {
 public:
@@ -26989,22 +27016,23 @@ struct RetailExtrItem { // @transient
 
 	enum {
 		fDisabledQuot    = 0x0001, // Заблокированная котировка. Этот флаг означает, что продажа товара запрещена
-		fDisabledExtQuot = 0x0002, // @v7.8.1 Заблокированная дополнительная котировка. Этот флаг означает, что продажа товара запрещена
+		fDisabledExtQuot = 0x0002, // Заблокированная дополнительная котировка. Этот флаг означает, что продажа товара запрещена
 	};
 	double Cost;                 // Цена поступления (по последнему лоту) Если товар нелимитируемый, то 0.
 	double Price;                // Цена реализации (возможно, по котировке, обусловленной датой или временем)
-	double BasePrice;            // @v7.1.0 Цена реализации без учета розничных котировок.
+	double BasePrice;            // Цена реализации без учета розничных котировок.
 	double ExtPrice;             // Цена по котировки RetailPriceExtractor::ExtQuotKindID
 	LDATE  CurLotDate;           //
 	LDATE  Expiry;
-	LDATETIME ManufDtm;          // @v7.5.1  Дата/время производства товара (извлекается из лота по зарезервированному т'гу PPTAG_LOT_MANUFTIME)
-	PPID   QuotKindUsedForPrice; // @v7.0.10 Вид котировки, использованный для формирования значения Price.
+	LDATETIME ManufDtm;          // Дата/время производства товара (извлекается из лота по зарезервированному т'гу PPTAG_LOT_MANUFTIME)
+	PPID   QuotKindUsedForPrice; // Вид котировки, использованный для формирования значения Price.
 		// Если цена сформирована по последнему лоту, либо вообще не определена, то 0.
-	PPID   QuotKindUsedForExtPrice; // @v7.4.0 Вид котировки из блока RetailPriceExtractor::ExtQuotBlock,
+	PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock,
 		// примененный для формиования ExtPrice.
 	long   Flags;
-	double OuterPrice;    // IN @v8.0.12 Цена, заданная вызывающей функцией. Имеет силу если RetailPriceExtractor::GetPrice
+	double OuterPrice;    // IN Цена, заданная вызывающей функцией. Имеет силу если RetailPriceExtractor::GetPrice
 		// вызывается с флагом RTLPF_USEOUTERPRICE
+	RealRange AllowedPriceR; // @v10.6.4 OUT Допустимый диапазон цен, рассчитанный на основании ограничений товарных величин.
 	RAssocArray QuotList; // IN Список дополнительных котировок.
 		// Вызывающая функция заполняет поля Key идентификаторами видов котировок.
 		// AsyncCashGoodsIterator инициализирует поля Val массива соответствующими
@@ -29874,6 +29902,7 @@ struct AsyncCashGoodsInfo { // @transient
 	PPID   AsscPosNodeID;    // Ассоциированный с товаром кассовый аппарат
 	char   AsscPosNodeSymb[20]; // Символ ассоциированного с товаров кассового аппарата
 	double VatRate;          // Ставка НДС
+	RealRange AllowedPriceR; // @v10.6.4 Допустимый диапазон цен, рассчитанный на основании ограничений товарных величин.
 	S_GUID Uuid;             // @v10.0.04 UUID товара, извлеченный из тега PPTAG_GOODS_UUID
 	RAssocArray QuotList;    // Список дополнительных котировок.
 		// Вызывающая функция заполняет поля Key идентификаторами видов котировок.
@@ -29891,10 +29920,9 @@ struct AsyncCashGoodsInfo { // @transient
 	// для определения базовой цены, виды с определенным периодом временем.
 #define ACGIF_INITLOCPRN        0x0008 // Инициализировать идентификатор и символ локального принтера,
 	// ассоциированного со складом, с которым, в свою очередь, ассоциирован товар.
-#define ACGIF_UNCONDBASEPRICE   0x0010 // Базовая цена - без учета розничных котировок
+#define ACGIF_UNCONDBASEPRICE   0x0010 // Базовая цена - без учета розничных котировок.
 	// Инициализируется самим классом AsyncCashGoodsIterator как проекция флага PPEquipConfig::fUncondAsyncBasePrice
-#define ACGIF_EXCLALTFOLD       0x0020 // @internal Товарная группа, заданная в кассовом узле является группой-папкой
-	// эксклюзивных альтернат групп.
+#define ACGIF_EXCLALTFOLD       0x0020 // @internal Товарная группа, заданная в кассовом узле является группой-папкой эксклюзивных альтернат групп.
 #define ACGIF_ALLCODESPERITER   0x0040 // @v9.0.6 Все коды товара передавать в одной итерации
 #define ACGIF_REDOSINCEDLS      0x0080 // @v9.0.11 Повторная выгрузка данных, которые были начиная с заданного DLSID
 #define ACGIF_ENSUREUUID        0x0100 // @v10.0.04 Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией.
@@ -30427,7 +30455,6 @@ private:
 	static int SLAPI AcceptExpendBillsPalm(const char * pHName, const char * pLName, const PPBhtTerminal *, PPLogger *);
 	static int SLAPI AcceptTechSessPalm(const char * pLName, PPLogger *);
 	static int SLAPI AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID destIntrLocID, const char * pHName, const char * pLName, PPLogger *);
-
 	int    SLAPI PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPath2, PPID bhtTypeID, const PPIDArray * pAddendumGoodsIdList);
 	int    SLAPI PrepareSupplData(const char * pPath, PPBhtTerminalPacket * pPack = 0);
 	int    SLAPI PrepareLocData(const char * pPath, PPID bhtTypeID);
@@ -30444,9 +30471,8 @@ private:
 //
 class StyloBhtIIExchanger {
 public:
-	SLAPI  StyloBhtIIExchanger(/*TcpSocket * pSo*/);
+	SLAPI  StyloBhtIIExchanger();
 	SLAPI ~StyloBhtIIExchanger();
-	//int    SLAPI Run();
 	int    FASTCALL ProcessSocketInput(TcpSocket & rSo);
 private:
 	int    SLAPI GetTable(TcpSocket & rSo, int16 Cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long nextRecNo);
@@ -30464,7 +30490,6 @@ private:
 	int    SLAPI Log_(uint errCode, uint msgCode, const char * pAddInfo, long count, long total);
 
 	SString DeviceDir;
-	//TcpSocket * P_So;
 	StyloBhtIIConfig Cfg;
 	PPBhtTerminalPacket BhtPack;
 	PPObjGoods GObj;
@@ -31013,7 +31038,7 @@ public:
 //   на товары, имеющиеся на остатках. Используется при списании кассовых сессий,
 //   драфт-документов и технологических сессий, а также при формировании MRP-таблиц.
 //
-class GRI : public SArray {
+class GRI : public SVector { // @v10.6.4 SArray-->SVector
 public:
 	explicit SLAPI GRI(PPID destID);
 	int    SLAPI Add(PPID srcID, double qtty, double ratio);
@@ -31104,11 +31129,6 @@ struct PPBillIterchangeFilt {
 
 class PPBillImpExpBaseProcessBlock {
 public:
-	PPBillImpExpBaseProcessBlock();
-	PPBillImpExpBaseProcessBlock & Z();
-	int    SLAPI Select(int import);
-	int    SLAPI SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-
 	enum {
 		fUhttImport     = 0x0001,  // Импорт документов из Universe-HTT
 		fSignExport     = 0x0002,  // Подписывать исходящие файлы электронной подписью
@@ -31120,19 +31140,9 @@ public:
 		fDontRemoveTags = 0x0080,  // @v8.9.9 Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
 		fPaymOrdersExp  = 0x0100,  // @v9.2.10 Экспорт платежных поручений
 		fEgaisVer3      = 0x0200,  // @v9.9.9 Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
-		fFullEdiProcess = 0x0400   // @v9.9.11 Полный цикл EDI-обмена данными с контрагентами
+		fFullEdiProcess = 0x0400,  // @v9.9.11 Полный цикл EDI-обмена данными с контрагентами
+		fChZnImpExp     = 0x0800   // @v10.6.4 Обмен данными с честным знаком 
 	};
-	long   Flags;
-	long   DisabledOptions; // @v9.2.10 @transient
-	PPID   OpID;
-	PPID   LocID;
-	PPID   PosNodeID;
-	DateRange Period;    // Период за который следует импортировать документы
-	PPBillImpExpParam BillParam;
-	PPBillImpExpParam BRowParam;
-	SString CfgNameBill;
-	SString CfgNameBRow;
-
 	struct TransmitParam {
 		TransmitParam();
 		void   Reset();
@@ -31141,9 +31151,6 @@ public:
 		StrAssocArray AddrList;
 		SString Subject;
 	};
-
-	TransmitParam Tp;
-
 	struct SearchBlock {
 		SearchBlock();
 
@@ -31152,8 +31159,24 @@ public:
 		SString Code;
 		SString DlvrLocCode;
 	};
+	PPBillImpExpBaseProcessBlock();
+	PPBillImpExpBaseProcessBlock & Z();
+	int    SLAPI Select(int import);
+	int    SLAPI SerializeParam(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI SearchEdiOrder(const SearchBlock & rBlk, BillTbl::Rec * pOrderRec);
 
+	long   Flags;
+	long   DisabledOptions; // @v9.2.10 @transient
+	PPID   OpID;
+	PPID   LocID;
+	PPID   PosNodeID;
+	PPID   GuaID;        // @v10.6.5 Глобальная учетная запись
+	DateRange Period;    // Период за который следует импортировать документы
+	PPBillImpExpParam BillParam;
+	PPBillImpExpParam BRowParam;
+	SString CfgNameBill;
+	SString CfgNameBRow;
+	TransmitParam Tp;
 	PPObjBill * P_BObj;
 	PPObjLocation LocObj;
 	PPObjPerson PsnObj;
@@ -32026,6 +32049,7 @@ public:
 	int    SLAPI CalcGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRange * pPeriod, long endOprNo, double * pSaldoQtty, double * pSaldoAmt);
 	int    SLAPI GetGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, long oprNo, double * pSaldoQtty, double * pSaldoAmt);
 	int    SLAPI GetPriceRestrictions(PPBillPacket & rPack, const PPTransferItem & rTi, int itemPos, RealRange * pRange);
+	int    SLAPI GetPriceRestrictions(PPID goodsID, PPID lotID, double cost, double price, RealRange * pRange);
 	//
 	// Inventory
 	//
@@ -32397,6 +32421,7 @@ private:
 	int    SLAPI Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, const PUGI * pItem, const PUGL::SupplSubstItem * pSupplSubstItem, PPID & rComplArID);
 		// @<<PPObjBill::ProcessDeficit
 	int    SLAPI Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList);
+	int    SLAPI Helper_GetPriceRestrictions_ByFormula(SString & rFormula, PPBillPacket * pPack, const PPTransferItem & rTi, int itemPos, double & rBound);
 
 	struct GtaBlock {
 		//
@@ -32951,6 +32976,7 @@ public:
 	int    SLAPI WasErrDetected() const;
 protected:
 	struct AddEntryBlock {
+		SLAPI  AddEntryBlock();
 		TransferTbl::Rec TrfrRec;
 		ReceiptTbl::Rec LotRec;
 		PPOprKind OpRec;
@@ -33389,7 +33415,7 @@ public:
 	struct FlatBlock {
 		uint8  Reserve[52];    // @reserve
 		uint32 Internal[2];    // @internal
-		long   Flags;          // @v7.3.9
+		long   Flags;          // @flags
 	} Fb;
 	int32  TrnovrPeriod;   // SCARDSER_AUTODIS_XXX
 };
@@ -35920,7 +35946,7 @@ struct ObjTransmContext {
 	// Note: Для освобождения ссылки на внешний логгер и создания собственного экземпляра следует
 	//   использовать метод ResetOuterLogger()
 	//
-	SLAPI  ObjTransmContext(PPLogger * pLogger = 0);
+	explicit SLAPI ObjTransmContext(PPLogger * pLogger = 0);
 	SLAPI ~ObjTransmContext();
 	int    SLAPI ResetOuterLogger();
 	int    SLAPI Output(const char * pText);
@@ -45693,7 +45719,7 @@ private:
 //
 //
 //
-class PPEgaisProcessor : public PrcssrAlcReport {
+class PPEgaisProcessor : public PrcssrAlcReport, private PPEmbeddedLogger {
 public:
 	struct Packet {
 		explicit Packet(int docType);
@@ -45935,11 +45961,9 @@ public:
 		wbtRetToMe         // Возврат от контрагента ко мне
 	};
 
-    // @v10.0.05 static const char * FASTCALL GetDocTypeTag(int docType);
-	static int FASTCALL GetDocTypeTag(int docType, SString & rTag); // @v10.0.05
+	static int FASTCALL GetDocTypeTag(int docType, SString & rTag);
     static int FASTCALL RecognizeDocTypeTag(const char * pTag);
-	// @v10.0.05 static const char * FASTCALL GetWayBillTypeText(int wbType);
-	static int FASTCALL GetWayBillTypeText(int wbType, SString & rBuf); // @v10.0.05
+	static int FASTCALL GetWayBillTypeText(int wbType, SString & rBuf);
 	static int FASTCALL RecognizeWayBillTypeText(const char * pText);
 	static int SLAPI EditInformAReg(InformAReg & rData);
 	//
@@ -46013,8 +46037,10 @@ public:
 	int    SLAPI GetAcceptedBillList(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
 	int    SLAPI GetBillListForTransmission(const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
 	int    SLAPI GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const PPBillIterchangeFilt & rP, long flags, PPIDArray & rList);
-	int    SLAPI GetTempFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
-
+	int    SLAPI GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
+	//
+	// Descr: Флаги функции ReadInput()
+	//
 	enum {
 		rifOffline             = 0x0001,
 		rifRepairInventoryMark = 0x0002
@@ -46023,8 +46049,6 @@ public:
 	int    SLAPI ReadInput(PPID locID, const DateRange * pPeriod, long flags);
 	int    SLAPI DebugReadInput(PPID locID);
 	int    SLAPI RemoveOutputMessages(PPID locID, int debugMode);
-	//int    SLAPI SendBillActs(PPID locID, const DateRange * pPeriod);
-	//int    SLAPI SendBills(PPID locID, const DateRange * pPeriod);
 	int    SLAPI SendBillActs(const PPBillIterchangeFilt & rP);
 	int    SLAPI SendBillRepeals(const PPBillIterchangeFilt & rP);
 	int    SLAPI SendBills(const PPBillIterchangeFilt & rP);
@@ -46100,27 +46124,24 @@ private:
 	int    SLAPI Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
 	// @v10.2.9 (moved to LotExtCodeCore) int    SLAPI Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount);
 	int    SLAPI Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs);
-	void   FASTCALL Log(const SString & rMsg);
-	void   SLAPI LogTextWithAddendum(int msgCode, const SString & rAddendum);
-	void   SLAPI LogLastError();
+	// @v10.6.5 void   FASTCALL Log(const SString & rMsg);
+	// @v10.6.5 void   SLAPI LogTextWithAddendum(int msgCode, const SString & rAddendum);
+	// @v10.6.5 void   SLAPI LogLastError();
 	void   SLAPI LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec);
 	//
 	// Descr: Выводит в журнал сообщение об отправке пакета rPack
 	//
 	int    SLAPI LogSended(const Packet & rPack);
 	int    SLAPI CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
-	//int    SLAPI ExpandBaseOpList(const PPIDArray & rBaseOpList, PPIDArray & rResultList);
-	//int    SLAPI IsAcsLinkedToMainOrg(PPID acsID);
 
 	enum {
 		stError             = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
-		stOuterLogger       = 0x0002, // Экземпляр PPLogger был передан из-вне (не следует разрушать P_Logger)
+		// @v10.6.5 stOuterLogger       = 0x0002, // Экземпляр PPLogger был передан из-вне (не следует разрушать P_Logger)
 		stValidLic          = 0x0004, // Присутствует лицензия на использование интерфейса с ЕГАИС
-		stTestSendingMode   = 0x0008, // @v8.9.0 Тестовый режим отправки сообщений. Фактически, сообщения в виде
-			// файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
-		stDontRemoveTags    = 0x0010, // @v8.9.9 Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
-		stDirectFileLogging = 0x0020, // @v9.0.11 Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
-		stUseEgaisVer3      = 0x0040  // @v9.9.9 Документы отправлять в 3-й версии формата
+		stTestSendingMode   = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
+		stDontRemoveTags    = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
+		// @v10.6.5 stDirectFileLogging = 0x0020, // Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
+		stUseEgaisVer3      = 0x0040  // Документы отправлять в 3-й версии формата
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned
@@ -46130,7 +46151,44 @@ private:
 	PPLocAddrStruc * P_Las;
 	LotExtCodeCore * P_LecT; // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 	PPTextAnalyzerWrapper * P_Taw;
-	PPLogger * P_Logger;
+	// @v10.6.5 PPLogger * P_Logger;
+};
+//
+// Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
+//
+class PPChZnPrcssr : private PPEmbeddedLogger {
+public:
+	struct Param {
+		SLAPI  Param();
+		PPID   GuaID;
+		PPID   LocID;
+		DateRange Period;
+	};
+	struct QueryParam {
+		SLAPI  QueryParam();
+
+		enum {
+			_afQueryTicket       = 0x0001,
+			_afQueryKizInfo      = 0x0002,
+		};
+		long   DocType;
+		long   Flags; 
+		PPID   GuaID;
+		PPID   LocID;
+		PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
+		SString ParamString;
+		SString InfoText; // @transient
+	};
+	static int FASTCALL IsChZnCode(const char * pCode);
+	explicit SLAPI PPChZnPrcssr(PPLogger * pOuterLogger);
+	SLAPI ~PPChZnPrcssr();
+	int    SLAPI EditParam(Param * pParam);
+	int    SLAPI EditQueryParam(PPChZnPrcssr::QueryParam * pData);
+	int    SLAPI InteractiveQuery();
+	int    SLAPI SendBills(const Param & rP);
+	static int SLAPI Test();
+private:
+	void * P_Ib; // Блок инициализации
 };
 //
 //
@@ -51994,7 +52052,7 @@ enum {
 	sacfNonGeneric           = 0x0004  // @v9.5.9 Исключить выбор группирующих статей
 };
 
-int    FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf = 0);
+int    FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf /*= 0*/);
 	// @>>SetupPPObjCombo
 int    SLAPI SetupAmtTypeCombo(TDialog *, uint ctl, PPID id, uint flags, long options, PPIDArray * pInclList);
 int    SLAPI SetupCurrencyCombo(TDialog *, uint ctl, PPID id, uint /*flags*/, int asSymb, PPIDArray * pInclList);

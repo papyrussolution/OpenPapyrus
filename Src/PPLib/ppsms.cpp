@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 //
 #include <slib.h>
 #include <pp.h>
@@ -370,7 +370,7 @@ SLAPI PPSmsAccPacket::PPSmsAccPacket()
 void SLAPI PPSmsAccPacket::Init()
 {
 	ExtStr.Z();
-	MEMSZERO(Rec);
+	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
 int FASTCALL PPSmsAccPacket::IsEqual(const PPSmsAccPacket & rS) const
@@ -488,7 +488,7 @@ int PPAutoSmsConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 		THROW_SL(pCtx->Serialize(dir, AllowedEndTm, rBuf));
 	}
 	else if(dir < 0) {
-		TddoPath.CopyFrom((const char *)rBuf.GetBuf());
+		TddoPath.CopyFromN(rBuf.GetBufC(), rBuf.GetAvailableSize());
 		rBuf.SetRdOffs((size_t)(TddoPath.Len() + 1));
 		THROW_SL(pCtx->Serialize(dir, AllowedWeekDays, rBuf));
 		THROW_SL(pCtx->Serialize(dir, AllowedStartTm, rBuf));
@@ -778,7 +778,7 @@ int SendSmsDialog::GetAutoSmsText(PPID psnID, PPID objID, SString & rText)
 					PPFilt _pf(psnID);
 					ep.P_F = &_pf;
 					THROW(t.Process("Person", temp_buf, /*prsn_id, 0*/ep, &param_list, text));
-					(rText = 0).CopyFromN((const char *)text.GetBuf(), text.GetAvailableSize()).ToOem();
+					(rText = 0).CopyFromN(text.GetBufC(), text.GetAvailableSize()).ToOem();
 				}
 			}
 			break;
@@ -1368,10 +1368,10 @@ void SmsClient::StSubmitSMParam::Clear()
 {
 	SourceAddressTon = TON_UNKNOWN;
 	SourceAddressNpi = NPI_UNKNOWN;
-	SourceAddress = "";
+	SourceAddress.Z();
 	DestinationAddressTon = TON_UNKNOWN;
 	DestinationAddressNpi = NPI_UNKNOWN;
-	DestinationAddress = "";
+	DestinationAddress.Z();
 	EsmClass = 3; // Store and Forward
 	ProtocolId = 0;
 	PriorityFlag = BULK;
@@ -1386,7 +1386,6 @@ SmsClient::SmsClient(PPLogger * pLogger) : P_UhttCli(0), P_Logger(pLogger), Clie
 	ResendErrLenMsg(0), SequenceNumber(0), ReSendQueueMsgTryNums(0), MessageCount(0), AddStatusCodeNum(0), AddErrorSubmitNum(0),
 	UndeliverableMessages(0), StartTime(getcurdatetime_())
 {
-	// @v8.5.4 RecvTimeout = WAIT_PACKET_RESPONSE;
 }
 
 SmsClient::~SmsClient()

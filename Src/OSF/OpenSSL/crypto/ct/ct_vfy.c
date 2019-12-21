@@ -127,7 +127,7 @@ int SCT_CTX_verify(const SCT_CTX * sctx, const SCT * sct)
 	/* Verify signature */
 	ret = EVP_DigestVerifyFinal(ctx, sct->sig, sct->sig_len);
 	/* If ret < 0 some other error: fall through without setting error */
-	if(ret == 0)
+	if(!ret)
 		CTerr(CT_F_SCT_CTX_VERIFY, CT_R_SCT_INVALID_SIGNATURE);
 
 end:

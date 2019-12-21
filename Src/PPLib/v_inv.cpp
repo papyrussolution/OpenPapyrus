@@ -56,12 +56,13 @@ int  SLAPI PPViewInventory::GetZeroByDefaultStatus() const { return BIN(Flags & 
 int  SLAPI PPViewInventory::GetUpdateStatus() const { return BIN(Flags & fWasUpdated); }
 
 class InventoryFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(InventoryFilt);
 public:
 	InventoryFiltDialog() : TDialog(DLG_INVDIFFLT)
 	{
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_INVDIFFLT_GRP, CTLSEL_INVDIFFLT_GOODS));
 	}
-	int    setDTS(const InventoryFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		ushort v;
@@ -96,7 +97,7 @@ public:
 		SetupSubst();
 		return ok;
 	}
-	int    getDTS(InventoryFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ushort v = 0;
@@ -133,19 +134,17 @@ public:
 		else
 			f = 0;
 		Data.Flags = SetXORFlags(Data.Flags, InventoryFilt::fUnwrOff, InventoryFilt::fWrOff, f);
-		Data.SortOrder = (int16)GetClusterData(CTL_INVDIFFLT_ORD);
-		//
-		Data.Sgb.S = (SubstGrpBill::_S)getCtrlLong(CTLSEL_INVDIFFLT_SUBST);
-		if(!Data.Sgb) {
-			Data.Sgg = (SubstGrpGoods)getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG);
-		}
+		Data.SortOrder = static_cast<int16>(GetClusterData(CTL_INVDIFFLT_ORD));
+		Data.Sgb.S = static_cast<SubstGrpBill::_S>(getCtrlLong(CTLSEL_INVDIFFLT_SUBST));
+		if(!Data.Sgb)
+			Data.Sgg = static_cast<SubstGrpGoods>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
 		else {
 			if(Data.Sgb.S == SubstGrpBill::sgbDate) {
-				Data.Sgb.S2.Sgd = (SubstGrpDate)getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG);
+				Data.Sgb.S2.Sgd = static_cast<SubstGrpDate>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
 			}
 			else if(oneof4(Data.Sgb.S, SubstGrpBill::sgbObject,  SubstGrpBill::sgbObject2,
 				SubstGrpBill::sgbAgent, SubstGrpBill::sgbPayer)) {
-				Data.Sgb.S2.Sgp = (SubstGrpPerson)getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG);
+				Data.Sgb.S2.Sgp = static_cast<SubstGrpPerson>(getCtrlLong(CTLSEL_INVDIFFLT_SUBSTG));
 			}
 			else
 				Data.Sgb.S2.Sgp = sgpNone;
@@ -205,7 +204,6 @@ private:
 		disableCtrl(CTLSEL_INVDIFFLT_SUBST, dsbl_bill_subst);
 		disableCtrl(CTLSEL_INVDIFFLT_SUBSTG, dsbl_sec_subst);
 	}
-	InventoryFilt Data;
 };
 
 int SLAPI PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
@@ -406,7 +404,6 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 	const uint bill_count = Filt.BillList.GetCount();
 	ExtraList.clear();
 	TextPool.Z();
-
 	Bsp.Init(Filt.Sgb);
 	if(!!Filt.Sgb) {
 		Filt.Sgg = sggNone;
@@ -431,7 +428,6 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 			for(uint i = 0; i < P_OuterPack->InvList.getCount(); i++) {
 				InventoryTbl::Rec & r_inv_rec = P_OuterPack->InvList.at(i);
 				const PPID org_goods_id = r_inv_rec.GoodsID;
-				//
 				int    do_skip = 0;
 				if(Filt.GoodsList.IsExists()) {
 					if(!Filt.GoodsList.CheckID(org_goods_id))
@@ -1007,15 +1003,12 @@ int QuantityCtrlGroup::getData(TDialog * pDlg, void * pData)
 }
 
 class InventoryItemDialog : public TDialog {
+	DECL_DIALOG_DATA(InventoryTbl::Rec);
 public:
-	InventoryItemDialog(PPObjBill * pBObj, const PPBillPacket * pPack,
-		const PPInventoryOpEx * pInvOpEx, int existsGoodsOnly) : TDialog(DLG_INVITEM)
+	InventoryItemDialog(PPObjBill * pBObj, const PPBillPacket * pPack, const PPInventoryOpEx * pInvOpEx, int existsGoodsOnly) : 
+		TDialog(DLG_INVITEM), P_BObj(pBObj), P_Pack(pPack), StockRest(0.0), StockPrice(0.0), St(0), Packs(0.0), Price(0.0)
 	{
-		P_BObj  = pBObj;
 		InvOpEx = *pInvOpEx;
-		StockRest = StockPrice = 0.0;
-		P_Pack  = pPack;
-		St = 0;
 		SETFLAG(St, stExistsGoodsOnly, existsGoodsOnly);
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_INVITEM_GOODSGRP, CTLSEL_INVITEM_GOODS));
 		addGroup(GRP_QTTY,  new QuantityCtrlGroup(CTL_INVITEM_UNITPERPACK, CTL_INVITEM_PACKS, CTL_INVITEM_QUANTITY));
@@ -1030,9 +1023,9 @@ public:
 			setLabelText(CTL_INVITEM_PRICE, temp_buf);
 		}
 	}
-	int    setDTS(const InventoryTbl::Rec * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		Serial = (St & stUseSerial) ? Data.Serial : 0;
 		int    ok = 1;
 		disableCtrl(CTL_INVITEM_SERIAL, !(St & stUseSerial));
@@ -1053,7 +1046,7 @@ public:
 		disableCtrl(CTL_INVITEM_WROFFPRICE, 1);
 		return ok;
 	}
-	int    getDTS(InventoryTbl::Rec * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		GoodsCtrlGroup::Rec gcg_rec;
@@ -1096,7 +1089,6 @@ private:
 	PPObjGoods GObj;
 	CGoodsLine GL;
 	const  PPBillPacket * P_Pack;
-	InventoryTbl::Rec Data;
 	PPInventoryOpEx  InvOpEx;
 	enum {
 		stExistsGoodsOnly = 0x0001,
@@ -1635,13 +1627,14 @@ int SLAPI PPViewInventory::ConvertBasketToBill()
 static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 {
 	class AutoFillInventryFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(AutoFillInvFilt);
 	public:
 		AutoFillInventryFiltDialog() : TDialog(DLG_FLTAFINV)
 		{
 		}
-		int    setDTS(const AutoFillInvFilt * pFilt)
+		DECL_DIALOG_SETDTS()
 		{
-			RVALUEPTR(Data, pFilt);
+			RVALUEPTR(Data, pData);
 			if(Data.BillID) {
 				SString info_buf;
 				BillTbl::Rec bill_rec;
@@ -1666,16 +1659,14 @@ static int SLAPI AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 			}
 			return 1;
 		}
-		int    getDTS(AutoFillInvFilt * pFilt)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTLSEL_FLTAFINV_GGRP, &Data.GoodsGrpID);
 			GetClusterData(CTL_FLTAFINV_METHOD, &Data.Method);
 			GetClusterData(CTL_FLTAFINV_FLAGS,  &Data.Flags);
-			ASSIGN_PTR(pFilt, Data);
+			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
-	private:
-		AutoFillInvFilt Data;
 	};
 	DIALOG_PROC_BODY(AutoFillInventryFiltDialog, pFilt);
 }

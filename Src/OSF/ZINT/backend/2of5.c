@@ -63,7 +63,8 @@ int matrix_two_of_five(struct ZintSymbol * symbol, const uchar source[], int len
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C02)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C02)");
+		ZintMakeErrText_InvCharInData("C02", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* start character */
@@ -115,7 +116,8 @@ int iata_two_of_five(struct ZintSymbol * symbol, const uchar source[], int lengt
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C06)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C06)");
+		ZintMakeErrText_InvCharInData("C06", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* start */
@@ -141,7 +143,8 @@ int logic_two_of_five(struct ZintSymbol * symbol, const uchar source[], int leng
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C08)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C08)");
+		ZintMakeErrText_InvCharInData("C08", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* start character */
@@ -172,7 +175,8 @@ int interleaved_two_of_five(struct ZintSymbol * symbol, const uchar source[], si
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C0A)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C0A)");
+		ZintMakeErrText_InvCharInData("C0A", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	sstrcpy(temp, (uchar *)"");
@@ -259,7 +263,8 @@ int dpleit(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C0D)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C0D)");
+		ZintMakeErrText_InvCharInData("C0D", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	zeroes = 13 - length;
@@ -292,7 +297,8 @@ int dpident(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C0F)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C0F)");
+		ZintMakeErrText_InvCharInData("C0F", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	zeroes = 11 - length;

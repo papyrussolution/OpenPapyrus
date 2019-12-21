@@ -248,7 +248,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_CTRL_WPENDING:
 		    ret = (long)ctx->obuf_len;
-		    if(ret == 0) {
+		    if(!ret) {
 			    if(!b->next_bio)
 				    return 0;
 			    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
@@ -256,7 +256,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_CTRL_PENDING:
 		    ret = (long)ctx->ibuf_len;
-		    if(ret == 0) {
+		    if(!ret) {
 			    if(!b->next_bio)
 				    return 0;
 			    ret = BIO_ctrl(b->next_bio, cmd, num, ptr);

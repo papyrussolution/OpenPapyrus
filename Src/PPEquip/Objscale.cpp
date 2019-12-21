@@ -4594,7 +4594,7 @@ int SLAPI PPObjScale::PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	int    do_dirty = 0;
-	PPID   id = pID ? *pID : 0;
+	PPID   id = DEREFPTRORZ(pID);
 	PPID   hid = 0; // ¬ерсионный идентификатор дл€ сохранени€ в системном журнале (пока не используетс€)
 	SString temp_buf;
 	PPID   log_action_id = 0;

@@ -26,7 +26,6 @@ typedef enum {
     XML_ERR_ERROR = 2,		/* A recoverable error */
     XML_ERR_FATAL = 3		/* A fatal error */
 } xmlErrorLevel;
-
 /**
  * xmlErrorDomain:
  *
@@ -71,7 +70,7 @@ typedef enum {
  *
  * An XML Error instance.
  */
-struct _xmlError {
+struct xmlError {
     int    domain;  // What part of the library raised this error
     int    code;    // The error code, e.g. an xmlParserError
     char * message; // human-readable informative error message
@@ -84,11 +83,11 @@ struct _xmlError {
     int    int1;    // extra number information
     int    int2;    // error column # or 0 if N/A (todo: rename field when we would brk ABI)
     void * ctxt;    // the parser context if available
-    void * P_Node;    // the node in the tree
+    const void * P_Node;  // the node in the tree // @v10.6.5 (void *)-->(const void *)
 };
 
-typedef struct _xmlError xmlError;
-typedef xmlError *xmlErrorPtr;
+//typedef struct _xmlError xmlError;
+//typedef xmlError * xmlErrorPtr;
 /**
  * xmlParserError:
  *
@@ -849,7 +848,7 @@ typedef void (XMLCDECL *xmlGenericErrorFunc)(void * ctx, const char *msg, ...) L
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-typedef void (XMLCALL *xmlStructuredErrorFunc)(void * userData, xmlErrorPtr error);
+typedef void (XMLCALL *xmlStructuredErrorFunc)(void * userData, xmlError * error);
 /*
  * Use the following function to reset the two global variables
  * xmlGenericError and xmlGenericErrorContext.
@@ -870,12 +869,12 @@ XMLPUBFUN void XMLCALL xmlParserPrintFileContext(xmlParserInput * input);
 /*
  * Extended error information routines
  */
-XMLPUBFUN xmlErrorPtr XMLCALL xmlGetLastError();
+XMLPUBFUN xmlError * XMLCALL xmlGetLastError();
 XMLPUBFUN void XMLCALL xmlResetLastError();
-XMLPUBFUN xmlErrorPtr XMLCALL xmlCtxtGetLastError(void *ctx);
+XMLPUBFUN xmlError * XMLCALL xmlCtxtGetLastError(void *ctx);
 XMLPUBFUN void XMLCALL xmlCtxtResetLastError(void *ctx);
-XMLPUBFUN void XMLCALL xmlResetError(xmlErrorPtr err);
-XMLPUBFUN int XMLCALL xmlCopyError(xmlErrorPtr from, xmlErrorPtr to);
+XMLPUBFUN void XMLCALL xmlResetError(xmlError * err);
+XMLPUBFUN int XMLCALL xmlCopyError(xmlError * from, xmlError * to);
 
 #ifdef IN_LIBXML
 /*

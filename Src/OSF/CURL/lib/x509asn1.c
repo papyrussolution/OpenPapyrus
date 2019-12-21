@@ -166,14 +166,11 @@ const char * Curl_getASN1Element(curl_asn1Element * elem, const char * beg, cons
 static const curl_OID * searchOID(const char * oid)
 {
 	const curl_OID * op;
-
 	/* Search the null terminated OID or OID identifier in local table.
 	   Return the table entry pointer or NULL if not found. */
-
 	for(op = OIDtable; op->numoid; op++)
 		if(!strcmp(op->numoid, oid) || strcasecompare(op->textoid, oid))
 			return op;
-
 	return (const curl_OID*)NULL;
 }
 
@@ -239,13 +236,11 @@ static ssize_t utf8asn1str(char ** to, int type, const char * from, const char *
 	int charsize;
 	uint wc;
 	char * buf;
-
 	/* Perform a lazy conversion from an ASN.1 typed string to UTF8. Allocate the
 	   destination buffer dynamically. The allocation size will normally be too
 	   large: this is to avoid buffer overflows.
 	   Terminate the string with a nul byte and return the converted
 	   string length. */
-
 	*to = (char *)NULL;
 	switch(type) {
 		case CURL_ASN1_BMP_STRING:
@@ -394,10 +389,8 @@ static const char * OID2str(const char * beg, const char * end, bool symbolic)
 	char * buf = (char *)NULL;
 	const curl_OID * op;
 	int n;
-
 	/* Convert an ASN.1 OID into its dotted or symbolic string representation.
 	   Return the dynamically allocated string, or NULL if an error occurs. */
-
 	if(beg < end) {
 		n = encodeOID((char *)NULL, -1, beg, end);
 		if(n >= 0) {
@@ -405,7 +398,6 @@ static const char * OID2str(const char * beg, const char * end, bool symbolic)
 			if(buf) {
 				encodeOID(buf, n, beg, end);
 				buf[n] = '\0';
-
 				if(symbolic) {
 					op = searchOID(buf);
 					if(op) {

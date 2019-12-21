@@ -92,12 +92,12 @@ void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 //
 //
 struct _LotCmp { // @flat
-	_LotCmp & init(uint p, const ReceiptTbl::Rec * lotr, double cost, double price)
+	_LotCmp & init(uint p, const ReceiptTbl::Rec * pLotRec, double cost, double price)
 	{
 		pos = p;
-		lot = lotr->ID;
-		cost_diff  = (cost  != 0.0) ? fabs(cost  - R5(lotr->Cost))  : 0.0;
-		price_diff = (price != 0.0) ? fabs(price - R5(lotr->Price)) : 0.0;
+		lot = pLotRec->ID;
+		cost_diff  = (cost  != 0.0) ? fabs(cost  - R5(pLotRec->Cost))  : 0.0;
+		price_diff = (price != 0.0) ? fabs(price - R5(pLotRec->Price)) : 0.0;
 		return *this;
 	}
 	uint   pos;
@@ -112,27 +112,27 @@ int SLAPI PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PP
 {
 	int    ok = 1;
 	uint   i;
-	ReceiptTbl::Rec   lotr;
+	ReceiptTbl::Rec lot_rec;
 	TSVector <_LotCmp> _lots; // @v9.8.4 TSArray-->TSVector
 	for(i = 0; qtty < 0.0 && i < pLots->getCount(); i++) {
-		PPID   lot_id = pLots->at(i);
+		const  PPID  lot_id = pLots->at(i);
 		double rest = 0.0, ratio;
 		THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 		if(rest > 0.0) {
 			_LotCmp lc;
-			THROW(trfr->Rcpt.Search(lot_id, &lotr) > 0);
+			THROW(trfr->Rcpt.Search(lot_id, &lot_rec) > 0);
 			if(genGoodsID)
-				if(GObj.IsGoodsCompatibleByUnit(lotr.GoodsID, genGoodsID, &ratio) > 0)
+				if(GObj.IsGoodsCompatibleByUnit(lot_rec.GoodsID, genGoodsID, &ratio) > 0)
 					rest /= ratio;
 				else
 					continue;
-			THROW(trfr->GetLotPrices(&lotr, pPack->Rec.Dt));
-			THROW_SL(_lots.ordInsert(&lc.init(i, &lotr, cost, price), 0, PTR_CMPFUNC(_LotCmp)));
+			THROW(trfr->GetLotPrices(&lot_rec, pPack->Rec.Dt));
+			THROW_SL(_lots.ordInsert(&lc.init(i, &lot_rec, cost, price), 0, PTR_CMPFUNC(_LotCmp)));
 			if(lc.cost_diff == 0 && lc.price_diff == 0)
 				qtty += rest;
 		}
    	}
-	pLots->freeAll();
+	pLots->clear(); // @v10.6.4 freeAll()-->clear()
 	for(i = 0; i < _lots.getCount(); i++)
 		THROW_SL(pLots->add(_lots.at(i).lot));
 	CATCHZOK
@@ -635,7 +635,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 	double qtty = R6(ilti->Rest);
 	double vatrate = 0.0;
 	PPIDArray  lots;
-	ReceiptTbl::Rec lotr;
+	ReceiptTbl::Rec lot_rec;
 	Goods2Tbl::Rec goods_rec;
 	PPGoodsTaxEntry gtx;
 	// @v10.6.4 MEMSZERO(lotr);
@@ -694,7 +694,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 		if(oneof4(pPack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
 			MEMSZERO(ti);
 			double lot_price = 0.0;
-			THROW(trfr->Rcpt.GetCurrentGoodsPrice(labs(ilti->GoodsID), pPack->Rec.LocID, GPRET_MOSTRECENT, &lot_price, &lotr));
+			THROW(trfr->Rcpt.GetCurrentGoodsPrice(labs(ilti->GoodsID), pPack->Rec.LocID, GPRET_MOSTRECENT, &lot_price, &lot_rec));
 			THROW(ti.Init(&pPack->Rec, 1, -1));
 			THROW(ti.SetupGoods(ilti->GoodsID, TISG_SETPWOTF));
 			ti.Price = ilti->Price;
@@ -702,7 +702,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				ti.Cost = ilti->Cost;
 			else {
 				const long tisl = (flags & CILTIF_ZERODSCNT && ti.Price > 0.0) ? (TISL_ADJPRICE|TISL_IGNPRICE) : TISL_ADJPRICE;
-				THROW(ti.SetupLot(lotr.ID, &lotr, tisl));
+				THROW(ti.SetupLot(lot_rec.ID, &lot_rec, tisl));
 			}
 			ti.LotID = 0;
 			ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? fabs(qtty) : qtty;
@@ -736,10 +736,10 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 		}
 		else if(pPack->OpTypeID == PPOPT_GOODSREVAL) {
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
-			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
+			THROW(trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
 			THROW(ti.SetupGoods(ilti->GoodsID, 0));
-			THROW(ti.SetupLot(sync_lot_id, &lotr, 0));
+			THROW(ti.SetupLot(sync_lot_id, &lot_rec, 0));
 			ti.Cost = ilti->Cost;
 			ti.Price = ilti->Price;
 			THROW(pPack->InsertRow(&ti, &rows));
@@ -750,11 +750,11 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 		else if(pPack->OpTypeID == PPOPT_CORRECTION) {
 			const int is_corr_exp = BIN(ilti->Flags & PPTFR_CORRECTION && !(ilti->Flags & PPTFR_REVAL));
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name); // @v9.5.0 goods_rec.Name
-			THROW(trfr->Rcpt.Search(sync_lot_id, &lotr) > 0);
+			THROW(trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
 			ti.RByBill = ilti->RByBill; // @v10.3.5
 			THROW(ti.SetupGoods(ilti->GoodsID, 0));
-			THROW(ti.SetupLot(sync_lot_id, &lotr, 0));
+			THROW(ti.SetupLot(sync_lot_id, &lot_rec, 0));
 			ti.Cost = ilti->Cost;
 			ti.Price = ilti->Price;
 			ti.Quantity_ = ilti->Quantity;
@@ -1032,20 +1032,20 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				// то перебираем все последние лоты и заносим в них столько товара, чтобы остаток не превысил первоначальное количество.
 				//
 				const long f1 = (ilti->Flags & PPTFR_PRICEWOTAXES);
-				if(sync_lot_id && trfr->Rcpt.Search(sync_lot_id, &lotr) > 0) {
+				if(sync_lot_id && trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0) {
 					//
 					// Синхронизированный лот пытаемся использовать в первую очередь
 					//
-					const long f2 = (lotr.Flags & LOTF_PRICEWOTAXES);
+					const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 					if((f1 && f2) || (!f1 && !f2)) {
-						THROW(pPack->BoundsByLot(lotr.ID, 0, -1, &rest, &q));
+						THROW(pPack->BoundsByLot(lot_rec.ID, 0, -1, &rest, &q));
 						SETMIN(q, qtty);
 						if(q > 0.0) {
 							MEMSZERO(ti);
 							THROW(ti.Init(&pPack->Rec, 1, 1));
 							THROW(ti.SetupGoods(ilti->GoodsID, 0));
 							ti.Price = fabs(ilti->Price);
-							THROW(ti.SetupLot(lotr.ID, &lotr, 0));
+							THROW(ti.SetupLot(lot_rec.ID, &lot_rec, 0));
 							ti.Quantity_ = q;
 							THROW(pPack->InsertRow(&ti, &rows));
 							qtty -= q;
@@ -1061,18 +1061,18 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				}
 				LDATE  dt    = pPack->Rec.Dt;
 				long   oprno = MAXLONG;
-				while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pPack->Rec.LocID, &dt, &oprno, &lotr) > 0) {
-					if(!by_serial || CmpSnrWithLotSnr(lotr.ID, serial)) {
-						const long f2 = (lotr.Flags & LOTF_PRICEWOTAXES);
+				while(qtty > 0.0 && trfr->Rcpt.EnumLastLots(ilti->GoodsID, pPack->Rec.LocID, &dt, &oprno, &lot_rec) > 0) {
+					if(!by_serial || CmpSnrWithLotSnr(lot_rec.ID, serial)) {
+						const long f2 = (lot_rec.Flags & LOTF_PRICEWOTAXES);
 						if((f1 && f2) || (!f1 && !f2)) {
-							THROW(pPack->BoundsByLot(lotr.ID, 0, -1, &rest, &q));
+							THROW(pPack->BoundsByLot(lot_rec.ID, 0, -1, &rest, &q));
 							SETMIN(q, qtty);
 							if(q > 0.0) {
 								MEMSZERO(ti);
 								THROW(ti.Init(&pPack->Rec, 1, 1));
 								THROW(ti.SetupGoods(ilti->GoodsID, 0));
 								ti.Price = fabs(ilti->Price);
-								THROW(ti.SetupLot(lotr.ID, &lotr, 0));
+								THROW(ti.SetupLot(lot_rec.ID, &lot_rec, 0));
 								ti.Quantity_ = q;
 								THROW(pPack->InsertRow(&ti, &rows));
 								qtty -= q;
@@ -1102,13 +1102,13 @@ SLAPI ComplItem::ComplItem()
 //
 //
 //
-struct GRII {
+struct GRII { // @flat
 	PPID   SrcID;
 	double Qtty;   // Количество товара SrcID, которое может быть израсходовано для компенсации
 	double Ratio;  // Отношение, в котором следует использовать товар SrcID для компенсации
 };
 
-SLAPI GRI::GRI(PPID destID) : SArray(sizeof(GRII)), DestID(destID)
+SLAPI GRI::GRI(PPID destID) : SVector(sizeof(GRII)), DestID(destID) // @v10.6.4 SArray-->SVector
 {
 }
 

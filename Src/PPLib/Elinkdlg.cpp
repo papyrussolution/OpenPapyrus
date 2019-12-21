@@ -9,8 +9,7 @@
 int SLAPI EditELink(PPELink * pLink)
 {
 	class ELinkDialog : public TDialog {
-		typedef PPELink DlgDataType;
-		DlgDataType Data;
+		DECL_DIALOG_DATA(PPELink);
 		PPObjELinkKind ElkObj;
 
 		DECL_HANDLE_EVENT
@@ -52,14 +51,14 @@ int SLAPI EditELink(PPELink * pLink)
 		ELinkDialog() : TDialog(DLG_ELINK)
 		{
 		}
-		int    setDTS(const DlgDataType * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_ELINK_KIND, PPOBJ_ELINKKIND, Data.KindID, OLW_CANINSERT, 0);
 			setCtrlData(CTL_ELINK_ADDR, Data.Addr);
 			return 1;
 		}
-		int    getDTS(DlgDataType * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTLSEL_ELINK_KIND, &Data.KindID);
@@ -106,8 +105,7 @@ int SLAPI EditELink(PPELink * pLink)
 }
 
 class ELinkListDialog : public PPListDialog {
-	typedef PPELinkArray DlgDataType;
-	DlgDataType Data;
+	DECL_DIALOG_DATA(PPELinkArray);
 	PPObjELinkKind elkobj;
 public:
 	ELinkListDialog::ELinkListDialog(DlgDataType * pArray) : PPListDialog(DLG_ELNKLST, CTL_ELNKLST_LIST)
@@ -115,7 +113,7 @@ public:
 		Data.copy(*pArray);
 		updateList(-1);
 	}
-	int    getDTS(DlgDataType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		CALLPTRMEMB(pData, copy(Data));
 		return 1;
@@ -166,7 +164,7 @@ int ELinkListDialog::addItem(long * pPos, long * pID)
 
 int ELinkListDialog::editItem(long, long id)
 {
-	if(id > 0 && id <= (long)Data.getCount()) {
+	if(id > 0 && id <= Data.getCountI()) {
 		PPELink link = Data.at((uint)id-1);
 		if(EditELink(&link) == cmOK) {
 			Data.at((uint)id-1) = link;
@@ -178,7 +176,7 @@ int ELinkListDialog::editItem(long, long id)
 
 int ELinkListDialog::delItem(long, long id)
 {
-	if(id > 0 && id <= (long)Data.getCount()) {
+	if(id > 0 && id <= Data.getCountI()) {
 		Data.atFree((uint)id-1);
 		return 1;
 	}

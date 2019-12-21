@@ -2964,7 +2964,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				PPID   new_id = 0;
 				PPObjGlobalUserAcc gua_obj;
 				PPGlobalUserAcc gua_rec;
-				MEMSZERO(gua_rec);
+				// @v10.6.5 @ctr MEMSZERO(gua_rec);
 				THROW_PP(P_SetBlk, PPERR_EMPTYPPOBJECT);
 				gua_rec.Tag  = ObjType;
 				STRNSCPY(gua_rec.Name, P_SetBlk->U.GA.Name);

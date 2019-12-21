@@ -1999,7 +1999,7 @@ int X509_STORE_CTX_init(X509_STORE_CTX * ctx, X509_STORE * store, X509 * x509, S
 		ctx->param->inh_flags |= X509_VP_FLAG_DEFAULT | X509_VP_FLAG_ONCE;
 	if(ret)
 		ret = X509_VERIFY_PARAM_inherit(ctx->param, X509_VERIFY_PARAM_lookup("default"));
-	if(ret == 0) {
+	if(!ret) {
 		X509err(X509_F_X509_STORE_CTX_INIT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

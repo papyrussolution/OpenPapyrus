@@ -3399,8 +3399,7 @@ namespace NArchive {
 						uint32 v;
 						if(StringToUInt32(temp, v)) {
 							const char * s2 = NULL;
-							switch(params[0])
-							{
+							switch(params[0]) {
 								case k_ExecFlags_AutoClose:
 								case k_ExecFlags_RebootFlag:
 								if(v < 2) s2 = (v == 0) ? "false" : "true"; break;

@@ -83,7 +83,7 @@ static int __logc_close_pp(DB_LOGC * logc, uint32 flags)
 	DB_THREAD_INFO * ip;
 	ENV * env = logc->env;
 	int ret = __db_fchk(env, "DB_LOGC->close", flags, 0);
-	if(ret == 0) {
+	if(!ret) {
 		ENV_ENTER(env, ip);
 		REPLICATION_WRAP(env, (__logc_close(logc)), 0, ret);
 		ENV_LEAVE(env, ip);
@@ -161,7 +161,7 @@ int __logc_version(DB_LOGC * logc, uint32 * versionp)
 			ret = t_ret;
 	}
 	/* Return the version. */
-	if(ret == 0)
+	if(!ret)
 		*versionp = logc->p_version;
 	return ret;
 }

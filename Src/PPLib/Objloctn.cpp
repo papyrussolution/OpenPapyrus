@@ -5618,9 +5618,8 @@ struct UhttLocationBlock {
 		stFetch = 0,
 		stSet
 	};
-	UhttLocationBlock()
+	UhttLocationBlock() : State(stFetch)
 	{
-		Clear();
 	}
 	void Clear()
 	{

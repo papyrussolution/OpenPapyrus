@@ -476,7 +476,7 @@ static SUB_STATE_RETURN read_state_machine(SSL * s)
 			    else {
 				    ret = tls_get_message_header(s, &mt);
 			    }
-			    if(ret == 0) {
+			    if(!ret) {
 				    return SUB_STATE_ERROR; // Could be non-blocking IO 
 			    }
 			    if(cb) {
@@ -510,7 +510,7 @@ static SUB_STATE_RETURN read_state_machine(SSL * s)
 			    if(!SSL_IS_DTLS(s)) {
 				    /* We already got this above for DTLS */
 				    ret = tls_get_message_body(s, &len);
-				    if(ret == 0) {
+				    if(!ret) {
 					    /* Could be non-blocking IO */
 					    return SUB_STATE_ERROR;
 				    }

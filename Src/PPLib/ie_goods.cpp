@@ -1161,9 +1161,9 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		// @v10.3.4 {
 		// дыруш
 		//
-		STRNSCPY(sdr_goods.FlgPassive, (pPack->Rec.Flags & GF_PASSIV) ? "true" : "false");
-		STRNSCPY(sdr_goods.FlgNoDiscount, (pPack->Rec.Flags & GF_NODISCOUNT) ? "true" : "false");
-		STRNSCPY(sdr_goods.FlgWantVetisCert, (pPack->Rec.Flags & GF_WANTVETISCERT) ? "true" : "false");
+		STRNSCPY(sdr_goods.FlgPassive, STextConst::GetBool(pPack->Rec.Flags & GF_PASSIV));
+		STRNSCPY(sdr_goods.FlgNoDiscount, STextConst::GetBool(pPack->Rec.Flags & GF_NODISCOUNT));
+		STRNSCPY(sdr_goods.FlgWantVetisCert, STextConst::GetBool(pPack->Rec.Flags & GF_WANTVETISCERT));
 		// } @v10.3.4 
 		P_IEGoods->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
 		{

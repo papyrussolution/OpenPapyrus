@@ -214,7 +214,7 @@ static int xz_load(xz_statep state, uchar * buf, uint len, uint * have)
 		xz_error(state, -1, strerror(errno));
 		return -1;
 	}
-	if(ret == 0)
+	if(!ret)
 		state->eof = 1;
 	return 0;
 }

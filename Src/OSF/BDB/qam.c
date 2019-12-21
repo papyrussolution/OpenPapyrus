@@ -1323,7 +1323,7 @@ int __qam_truncate(DBC * dbc, uint32 * countp)
 	}
 	else
 		LSN_NOT_LOGGED(meta->dbmeta.Lsn);
-	if(ret == 0)
+	if(!ret)
 		meta->first_recno = meta->cur_recno = 1;
 err:
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)

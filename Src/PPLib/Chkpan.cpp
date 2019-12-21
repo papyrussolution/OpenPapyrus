@@ -715,7 +715,6 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 	xmlBuffer * p_xml_buf = 0;
 	TSVector <CCheckViewItem> cc_list;
 	THROW(Backend_GetCCheckList(ctblId, cc_list));
-	//
 	THROW(p_xml_buf = xmlBufferCreate());
 	THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 	{
@@ -754,7 +753,7 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 			}
 		}
 		xmlTextWriterFlush(p_writer);
-		rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use);
+		rBuf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use);
 		rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	}
 	CATCHZOK
@@ -4182,13 +4181,12 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						case cpmBank:
 							if(ConfirmPosPaymBank(paym_blk2.AmtToPaym)) {
 								if(P_BNKTERM) {
-									SString slip_rep;
-									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, slip_rep) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, slip_rep);
+									int    r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, temp_buf) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, temp_buf);
 									if(r) {
 										AcceptCheck(&paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
-										if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
+										if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
 											PPSyncCashSession * p_ifc = P_CM->SyncInterface();
-											CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
+											CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
 										}
 									}
 									else
@@ -4219,22 +4217,15 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										_again = 0;
 										// @vmiller {
 										if(P_BNKTERM) { // «десь не провер€ю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет сто€ть cpmCash
-											SString slip_rep;
 											for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
 												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
-													slip_rep.Z();
-													if(bank_amt > 0.0) {
-														bnk_paym_result = P_BNKTERM->Pay(bank_amt, slip_rep);
-													}
-													else {
-														bnk_paym_result = P_BNKTERM->Refund(-bank_amt, slip_rep); // @v9.8.4 (+)-->(-)
-													}
+													bnk_paym_result = (bank_amt > 0.0) ? P_BNKTERM->Pay(bank_amt, temp_buf) : P_BNKTERM->Refund(-bank_amt, temp_buf);
 													if(!bnk_paym_result)
 														PPError();
-													else if(slip_rep.NotEmpty() && InitCashMachine() && P_CM) {
+													else if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
 														PPSyncCashSession * p_ifc = P_CM->SyncInterface();
-														CALLPTRMEMB(p_ifc, PrintBnkTermReport(slip_rep));
+														CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
 													}
 													break;
 												}
@@ -4270,13 +4261,12 @@ int CheckPaneDialog::Sleep()
 	if(!(Flags & fSleepMode)) {
 		Flags |= fSleepMode;
 		TDialog * dlg = new TDialog(DLG_CHKPANSLEEP); // @newok
-		SString code;
-		if(CheckDialogPtrErr(&dlg))
-			while(1)
+		if(CheckDialogPtrErr(&dlg)) {
+			SString code;
+			while(1) {
 				if(ExecView(dlg) == cmOK) {
 					dlg->getCtrlString(CTL_CHKPANSLEEP_CODE, code);
 					int    r = SetupSalByCode(code);
-					// @v9.0.5 {
 					if(r != 1 && CsObj.GetEqCfg().Flags & PPEquipConfig::fRecognizeCode) {
 						PPID   ar_id = 0, reg_type_id = 0;
 						PPID   acs_id = GetAgentAccSheet();
@@ -4288,13 +4278,14 @@ int CheckPaneDialog::Sleep()
 							r = 1;
 						}
 					}
-					// } @v9.0.5
 					if(r == 1 || code.Cmp("99990", 0) == 0) {
 						Flags &= ~fSleepMode;
 						IdleClock = clock();
 						break;
 					}
 				}
+			}
+		}
 		delete dlg;
 		ok = 1;
 	}
@@ -4389,7 +4380,7 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmDrawItem))
-		DrawListItem((TDrawItemData *)TVINFOPTR);
+		DrawListItem(static_cast<TDrawItemData *>(TVINFOPTR));
 	else if(event.isCmd(cmSetupResizeParams)) {
 		PPID   sb_id_altlist  = MAKE_BUTTON_ID(CTL_COMPLDIN_ALTLIST, 1);
 		PPID   sb_id_elements = MAKE_BUTTON_ID(CTL_COMPLDIN_ELEMENTS, 1);
@@ -6353,7 +6344,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 				break;
 			case cmDrawItem:
-				DrawListItem((TDrawItemData *)TVINFOPTR);
+				DrawListItem(static_cast<TDrawItemData *>(TVINFOPTR));
 				break;
 			case cmInputDblClk:
 				if(!Barrier()) {
@@ -9181,6 +9172,10 @@ private:
 		stAutoActivation = 0x0020  // јвтоактиваци€ карты //
 	};
 	struct SpcListItem { // @flat
+		SLAPI  SpcListItem()
+		{
+			THISZERO();
+		}
 		PPID   PersonID;
 		PPID   SCardID;
 		PPID   SCardSerID;
@@ -9205,7 +9200,7 @@ private:
 			int    ok = 1;
 			SString temp_buf;
 			SpcListItem item;
-			MEMSZERO(item);
+			// @ctr MEMSZERO(item);
 			item.SCardID = cardID;
 			item.SCardSerID = cardSerID;
 			item.Rest = rest;
@@ -9239,7 +9234,7 @@ private:
 			int    ok = 1;
 			SString temp_buf;
 			SpcListItem item;
-			MEMSZERO(item);
+			// @ctr MEMSZERO(item);
 			item.PersonID = personID;
 			item.SCardID = cardID;
 			item.SCardSerID = cardSerID;
@@ -9268,9 +9263,8 @@ private:
 				GetS(r_item.SCardCodePos, rCardCode);
 				if(r_item.SCardSerID) {
 					PPSCardSeries scs_rec;
-					if(ScsObj.Fetch(r_item.SCardSerID, &scs_rec) > 0) {
+					if(ScsObj.Fetch(r_item.SCardSerID, &scs_rec) > 0)
 						rCardSerName = scs_rec.Name;
-					}
 				}
 				return r_item.SCardID;
 			}
@@ -9315,7 +9309,9 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	SString temp_buf, card, info_buf, psn_name;
 	SString sc_phone;
 	SString psn_phone;
+	SString series_name;
 	ImageBrowseCtrlGroup::Rec ibg_rec;
+	PPObjSCardSeries scs_obj; // @erik v10.6.4
 	PPSCardPacket sc_pack;
 	SCardID = scardID;
 	OwnerID = 0;
@@ -9327,11 +9323,21 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		const SCardTbl::Rec & r_sc_rec = sc_pack.Rec;
 		SETFLAG(LocalState, stCreditCard, ScObj.IsCreditSeries(r_sc_rec.SeriesID));
 		card = r_sc_rec.Code;
+		// @erik v10.6.4 {
+		PPSCardSeries scs_rec;
+		if(scs_obj.Fetch(r_sc_rec.SeriesID, &scs_rec) > 0)
+			series_name = scs_rec.Name;
+		// } v10.6.4
 		{
 			LDATETIME cur_dtm = getcurdatetime_();
 			info_buf.Z();
 			// @v10.1.4 {
 			sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone);
+			// @erik v10.6.4 {
+			if(series_name.NotEmptyS()) {
+				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("series", temp_buf)).CatDiv(':', 2).Cat(series_name);
+			}
+			// } v10.6.4
 			if(sc_phone.NotEmptyS()) {
 				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("phone", temp_buf)).CatDiv(':', 2).Cat(sc_phone);
 			}
@@ -9469,7 +9475,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	// } @v9.8.9
 	setCtrlReal(CTL_SCARDVIEW_SALDO,   sc_pack.Rec.Rest);
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
-	setCtrlString(CTL_SCARDVIEW_CARD,  card);
+	setCtrlString(CTL_SCARDVIEW_CARD, card);
 	enableCommand(cmCheckOpSwitch, (LocalState & stCreditCard) && ScObj.CheckRights(SCRDRT_VIEWOPS));
 	enableCommand(cmSCardMovCrd,   (LocalState & stCreditCard) && ScObj.CheckRights(SCRDRT_ADDOPS));
 	SetupMode((LocalState & stCreditCard) ? modeOpView : modeCheckView, 0);

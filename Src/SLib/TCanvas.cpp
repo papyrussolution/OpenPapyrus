@@ -3037,17 +3037,15 @@ HGDIOBJ DupWinGdiObject(HGDIOBJ src)
 			case OBJ_FONT:
 				{
 					LOGFONT f;
-					if(::GetObject(src, sizeof(f), &f)) {
+					if(::GetObject(src, sizeof(f), &f))
 						dest = ::CreateFontIndirect(&f);
-					}
 				}
 				break;
 			case OBJ_BITMAP:
 				{
 					BITMAP bmp;
-					if(::GetObject(src, sizeof(bmp), &bmp)) {
+					if(::GetObject(src, sizeof(bmp), &bmp))
 						dest = ::CreateBitmapIndirect(&bmp);
-					}
 				}
 				break;
 			case OBJ_COLORSPACE:

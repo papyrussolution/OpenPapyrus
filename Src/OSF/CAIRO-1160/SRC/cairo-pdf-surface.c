@@ -2265,8 +2265,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t * su
 			"   /Interpolate %s\n"
 			"   /BitsPerComponent 1\n"
 			"   /Decode [1 0]\n",
-			image->width, image->height,
-			interpolate ? "true" : "false");
+			image->width, image->height, STextConst::GetBool(interpolate));
 	}
 	else {
 		status = _cairo_pdf_surface_open_stream(surface,
@@ -2279,9 +2278,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t * su
 			"   /ColorSpace /DeviceGray\n"
 			"   /Interpolate %s\n"
 			"   /BitsPerComponent %d\n",
-			image->width, image->height,
-			interpolate ? "true" : "false",
-			transparency == CAIRO_IMAGE_HAS_ALPHA ? 8 : 1);
+			image->width, image->height, STextConst::GetBool(interpolate), (transparency == CAIRO_IMAGE_HAS_ALPHA ? 8 : 1));
 	}
 	if(unlikely(status))
 		goto CLEANUP_ALPHA;
@@ -2445,15 +2442,11 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 			}
 		}
 	}
-
 	if(need_smask)
 		snprintf(smask_buf, sizeof(smask_buf), "   /SMask %d 0 R\n", smask.id);
 	else
 		smask_buf[0] = 0;
-
-	status = _cairo_pdf_surface_open_stream(surface,
-		&surface_entry->surface_res,
-		TRUE,
+	status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, TRUE,
 		"   /Type /XObject\n"
 		"   /Subtype /Image\n"
 		"   /Width %d\n"
@@ -2462,26 +2455,19 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 		"   /Interpolate %s\n"
 		"   /BitsPerComponent %d\n"
 		"%s",
-		image->width,
-		image->height,
+		image->width, image->height,
 		color == CAIRO_IMAGE_IS_COLOR ? "/DeviceRGB" : "/DeviceGray",
-		surface_entry->interpolate ? "true" : "false",
-		color == CAIRO_IMAGE_IS_MONOCHROME ? 1 : 8,
-		smask_buf);
+		STextConst::GetBool(surface_entry->interpolate), ((color == CAIRO_IMAGE_IS_MONOCHROME) ? 1 : 8), smask_buf);
 	if(unlikely(status))
 		goto CLEANUP_RGB;
-
 #undef IMAGE_DICTIONARY
-
 	_cairo_output_stream_write(surface->output, data, data_size);
 	status = _cairo_pdf_surface_close_stream(surface);
-
 CLEANUP_RGB:
 	SAlloc::F(data);
 CLEANUP:
 	if(image != image_surf)
 		cairo_surface_destroy(&image->base);
-
 	return status;
 }
 
@@ -2489,9 +2475,9 @@ static cairo_int_status_t _cairo_pdf_surface_lookup_jbig2_global(cairo_pdf_surfa
     const uchar * global_id, ulong global_id_length, cairo_pdf_jbig2_global_t ** entry)
 {
 	cairo_pdf_jbig2_global_t global;
-	int size, i;
+	int i;
 	cairo_int_status_t status;
-	size = _cairo_array_num_elements(&surface->jbig2_global);
+	int size = _cairo_array_num_elements(&surface->jbig2_global);
 	for(i = 0; i < size; i++) {
 		*entry = (cairo_pdf_jbig2_global_t*)_cairo_array_index(&surface->jbig2_global, i);
 		if((*entry)->id && global_id && (*entry)->id_length == global_id_length
@@ -2588,9 +2574,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jbig2_image(cairo_pdf_surface_
 		smask_buf[0] = 0;
 
 	if(surface_entry->stencil_mask) {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /ImageMask true\n"
@@ -2601,15 +2585,10 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jbig2_image(cairo_pdf_surface_
 			"   /Decode [1 0]\n"
 			"   /Filter /JPXDecode\n"
 			"%s",
-			info.width,
-			info.height,
-			surface_entry->interpolate ? "true" : "false",
-			decode_parms_buf);
+			info.width, info.height, STextConst::GetBool(surface_entry->interpolate), decode_parms_buf);
 	}
 	else {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /Width %d\n"
@@ -2620,40 +2599,28 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jbig2_image(cairo_pdf_surface_
 			"%s"
 			"   /Filter /JBIG2Decode\n"
 			"%s",
-			info.width,
-			info.height,
-			surface_entry->interpolate ? "true" : "false",
-			smask_buf,
-			decode_parms_buf);
+			info.width, info.height, STextConst::GetBool(surface_entry->interpolate), smask_buf, decode_parms_buf);
 	}
 	if(unlikely(status))
 		return status;
-
 	_cairo_output_stream_write(surface->output, mime_data, mime_data_length);
 	status = _cairo_pdf_surface_close_stream(surface);
-
 	return status;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t * surface,
-    cairo_surface_t * source,
-    cairo_pdf_source_surface_entry_t * surface_entry,
-    boolint test)
+static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t * surface, cairo_surface_t * source,
+    cairo_pdf_source_surface_entry_t * surface_entry, boolint test)
 {
 	cairo_int_status_t status;
 	const uchar * mime_data;
 	ulong mime_data_length;
 	cairo_image_info_t info;
 	char smask_buf[30];
-
 	if(surface->pdf_version < CAIRO_PDF_VERSION_1_5)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
-	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_JP2,
-	    &mime_data, &mime_data_length);
+	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_JP2, &mime_data, &mime_data_length);
 	if(mime_data == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	status = _cairo_image_info_get_jpx_info(&info, mime_data, mime_data_length);
 	if(status)
 		return status;
@@ -2672,11 +2639,8 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t 
 	/* At this point we know emitting jpx will succeed. */
 	if(test)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(surface_entry->stencil_mask) {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /ImageMask true\n"
@@ -2686,14 +2650,10 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t 
 			"   /BitsPerComponent 1\n"
 			"   /Decode [1 0]\n"
 			"   /Filter /JPXDecode\n",
-			info.width,
-			info.height,
-			surface_entry->interpolate ? "true" : "false");
+			info.width, info.height, STextConst::GetBool(surface_entry->interpolate));
 	}
 	else {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /Width %d\n"
@@ -2701,24 +2661,17 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpx_image(cairo_pdf_surface_t 
 			"   /Interpolate %s\n"
 			"%s"
 			"   /Filter /JPXDecode\n",
-			info.width,
-			info.height,
-			surface_entry->interpolate ? "true" : "false",
-			smask_buf);
+			info.width, info.height, STextConst::GetBool(surface_entry->interpolate), smask_buf);
 	}
 	if(status)
 		return status;
-
 	_cairo_output_stream_write(surface->output, mime_data, mime_data_length);
 	status = _cairo_pdf_surface_close_stream(surface);
-
 	return status;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t * surface,
-    cairo_surface_t * source,
-    cairo_pdf_source_surface_entry_t * surface_entry,
-    boolint test)
+static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t * surface, cairo_surface_t * source,
+    cairo_pdf_source_surface_entry_t * surface_entry, boolint test)
 {
 	cairo_int_status_t status;
 	const uchar * mime_data;
@@ -2726,9 +2679,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
 	cairo_image_info_t info;
 	const char * colorspace;
 	char smask_buf[30];
-
-	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_JPEG,
-	    &mime_data, &mime_data_length);
+	cairo_surface_get_mime_data(source, CAIRO_MIME_TYPE_JPEG, &mime_data, &mime_data_length);
 	if(unlikely(source->status))
 		return source->status;
 	if(mime_data == NULL)
@@ -2768,9 +2719,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
 		smask_buf[0] = 0;
 
 	if(surface_entry->stencil_mask) {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /ImageMask true\n"
@@ -2780,14 +2729,10 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
 			"   /BitsPerComponent 1\n"
 			"   /Decode [1 0]\n"
 			"   /Filter /DCTDecode\n",
-			info.width,
-			info.height,
-			surface_entry->interpolate ? "true" : "false");
+			info.width, info.height, STextConst::GetBool(surface_entry->interpolate));
 	}
 	else {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /Width %d\n"
@@ -2797,19 +2742,12 @@ static cairo_int_status_t _cairo_pdf_surface_emit_jpeg_image(cairo_pdf_surface_t
 			"   /BitsPerComponent %d\n"
 			"%s"
 			"   /Filter /DCTDecode\n",
-			info.width,
-			info.height,
-			colorspace,
-			surface_entry->interpolate ? "true" : "false",
-			info.bits_per_component,
-			smask_buf);
+			info.width, info.height, colorspace, STextConst::GetBool(surface_entry->interpolate), info.bits_per_component, smask_buf);
 	}
 	if(unlikely(status))
 		return status;
-
 	_cairo_output_stream_write(surface->output, mime_data, mime_data_length);
 	status = _cairo_pdf_surface_close_stream(surface);
-
 	return status;
 }
 
@@ -2872,15 +2810,10 @@ static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_
 			"   /Decode [1 0]\n"
 			"   /Filter /CCITTFaxDecode\n"
 			"   /DecodeParms << %s >> ",
-			ccitt_params.columns,
-			ccitt_params.rows,
-			surface_entry->interpolate ? "true" : "false",
-			buf);
+			ccitt_params.columns, ccitt_params.rows, STextConst::GetBool(surface_entry->interpolate), buf);
 	}
 	else {
-		status = _cairo_pdf_surface_open_stream(surface,
-			&surface_entry->surface_res,
-			FALSE,
+		status = _cairo_pdf_surface_open_stream(surface, &surface_entry->surface_res, FALSE,
 			"   /Type /XObject\n"
 			"   /Subtype /Image\n"
 			"   /Width %d\n"
@@ -2890,10 +2823,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_ccitt_image(cairo_pdf_surface_
 			"   /Interpolate %s\n"
 			"   /Filter /CCITTFaxDecode\n"
 			"   /DecodeParms << %s >> ",
-			ccitt_params.columns,
-			ccitt_params.rows,
-			surface_entry->interpolate ? "true" : "false",
-			buf);
+			ccitt_params.columns, ccitt_params.rows, STextConst::GetBool(surface_entry->interpolate), buf);
 	}
 	if(unlikely(status))
 		return status;

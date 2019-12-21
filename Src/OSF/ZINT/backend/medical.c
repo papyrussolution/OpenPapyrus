@@ -66,7 +66,8 @@ int pharma_one(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C51)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C51)");
+		ZintMakeErrText_InvCharInData("C51", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	tester = atoi(reinterpret_cast<const char *>(source));
@@ -155,7 +156,8 @@ int pharma_two(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C55)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C55)");
+		ZintMakeErrText_InvCharInData("C55", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	error_number = pharma_two_calc(symbol, source, height_pattern);
@@ -192,18 +194,19 @@ int codabar(struct ZintSymbol * symbol, uchar source[], int length)
 	to_upper(source);
 	error_number = is_sane(CALCIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C57)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C57)");
+		ZintMakeErrText_InvCharInData("C57", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* Codabar must begin and end with the characters A, B, C or D */
-	if((source[0] != 'A') && (source[0] != 'B') && (source[0] != 'C')
-	    && (source[0] != 'D')) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C58)");
+	if((source[0] != 'A') && (source[0] != 'B') && (source[0] != 'C') && (source[0] != 'D')) {
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C58)");
+		ZintMakeErrText_InvCharInData("C58", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return ZINT_ERROR_INVALID_DATA;
 	}
-	if((source[length - 1] != 'A') && (source[length - 1] != 'B') &&
-	    (source[length - 1] != 'C') && (source[length - 1] != 'D')) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C59)");
+	if((source[length - 1] != 'A') && (source[length - 1] != 'B') && (source[length - 1] != 'C') && (source[length - 1] != 'D')) {
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C59)");
+		ZintMakeErrText_InvCharInData("C59", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return ZINT_ERROR_INVALID_DATA;
 	}
 	for(i = 0; i < length; i++) {
@@ -229,7 +232,8 @@ int code32(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C5B)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C5B)");
+		ZintMakeErrText_InvCharInData("C5B", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* Add leading zeros as required */

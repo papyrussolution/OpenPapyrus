@@ -4,6 +4,111 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+// 
+// gsl_stats_correlation()
+// Calculate Pearson correlation = cov(X, Y) / (sigma_X * sigma_Y)
+// This routine efficiently computes the correlation in one pass of the
+// data and makes use of the algorithm described in:
+// 
+// B. P. Welford, "Note on a Method for Calculating Corrected Sums of
+// Squares and Products", Technometrics, Vol 4, No 3, 1962.
+// 
+// This paper derives a numerically stable recurrence to compute a sum of products
+// 
+// S = sum_{i=1..N} [ (x_i - mu_x) * (y_i - mu_y) ]
+// 
+// with the relation
+// 
+// S_n = S_{n-1} + ((n-1)/n) * (x_n - mu_x_{n-1}) * (y_n - mu_y_{n-1})
+// 
+double gsl_stats_correlation(const double data1[], const size_t stride1, const double data2[], const size_t stride2, const size_t n)
+{
+	double sum_xsq = 0.0;
+	double sum_ysq = 0.0;
+	double sum_cross = 0.0;
+	// 
+	// Compute:
+	// sum_xsq = Sum [ (x_i - mu_x)^2 ],
+	// sum_ysq = Sum [ (y_i - mu_y)^2 ] and
+	// sum_cross = Sum [ (x_i - mu_x) * (y_i - mu_y) ]
+	// using the above relation from Welford's paper
+	// 
+	double mean_x = data1[0 * stride1];
+	double mean_y = data2[0 * stride2];
+	for(size_t i = 1; i < n; ++i) {
+		const double ratio = i / (i + 1.0);
+		const double delta_x = data1[i * stride1] - mean_x;
+		const double delta_y = data2[i * stride2] - mean_y;
+		sum_xsq += delta_x * delta_x * ratio;
+		sum_ysq += delta_y * delta_y * ratio;
+		sum_cross += delta_x * delta_y * ratio;
+		mean_x += delta_x / (i + 1.0);
+		mean_y += delta_y / (i + 1.0);
+	}
+	double r = sum_cross / (sqrt(sum_xsq) * sqrt(sum_ysq));
+	return r;
+}
+
+struct gsl_block {
+	size_t size;
+	double * data;
+};
+
+struct gsl_vector {
+	size_t size;
+	size_t stride;
+	double * data;
+	gsl_block * block;
+	int owner;
+};
+
+struct gsl_vector_view {
+	gsl_vector vector;
+};
+
+void gsl_vector_set(gsl_vector * v, const size_t i, double x)
+{
+#if GSL_RANGE_CHECK
+	if(GSL_RANGE_COND(i >= v->size)) {
+		GSL_ERROR_VOID ("index out of range", GSL_EINVAL);
+	}
+#endif
+	v->data[i * v->stride] = x;
+}
+
+/*
+gsl_stats_spearman()
+  Compute Spearman rank correlation coefficient
+
+Inputs: data1   - data1 vector
+        stride1 - stride of data1
+        data2   - data2 vector
+        stride2 - stride of data2
+        n       - number of elements in data1 and data2
+        work    - additional workspace of size 2*n
+
+Return: Spearman rank correlation coefficient
+*/
+/*double gsl_stats_spearman(const double data1[], const size_t stride1, const double data2[], const size_t stride2, const size_t n, double work[])
+{
+	size_t i;
+	gsl_vector_view ranks1 = gsl_vector_view_array(&work[0], n);
+	gsl_vector_view ranks2 = gsl_vector_view_array(&work[n], n);
+	double r;
+	for(i = 0; i < n; ++i) {
+		gsl_vector_set(&ranks1.vector, i, data1[i * stride1]);
+		gsl_vector_set(&ranks2.vector, i, data2[i * stride2]);
+	}
+	// sort data1 and update data2 at same time; compute rank of data1 
+	gsl_sort_vector2(&ranks1.vector, &ranks2.vector);
+	compute_rank(&ranks1.vector);
+	// now sort data2, updating ranks1 appropriately; compute rank of data2 
+	gsl_sort_vector2(&ranks2.vector, &ranks1.vector);
+	compute_rank(&ranks2.vector);
+	// compute correlation of rank vectors in double precision 
+	r = gsl_stats_correlation(ranks1.vector.data, ranks1.vector.stride, ranks2.vector.data, ranks2.vector.stride, n);
+	return r;
+}*/
 
 SLAPI StatBase::StatBase(long flags)
 {
@@ -92,7 +197,7 @@ double SLAPI StatBase::GetStdDev() const
 int SLAPI StatBase::GetValue(long idx, double * pVal) const
 {
 	int    ok = -1;
-	if(idx < (long)Series.getCount()) {
+	if(idx < Series.getCountI()) {
 		ASSIGN_PTR(pVal, Series.at(idx));
 		ok = 1;
 	}
@@ -351,7 +456,7 @@ int SLAPI TimSerStat::SetNumLags(long numLags)
 	ZDELETE(P_AC_Add);
 	ZDELETE(P_AC_Mul);
 	if(NumLags > 0) {
-		size_t n = (size_t)NumLags;
+		size_t n = static_cast<size_t>(NumLags);
 		THROW(P_Queue = new DblQueue(n));
 		THROW(P_AC_Add = new double[n]);
 		THROW(P_AC_Mul = new double[n]);
@@ -366,12 +471,12 @@ int SLAPI TimSerStat::Step(double val, int /*whiteSpace*/)
 {
 	StatBase::Step(val);
 	if(NumLags > 0) {
-		uint c = P_Queue->getNumItems();
+		const uint c = P_Queue->getNumItems();
 		for(uint i = 0; i < c; i++) {
-			uint   lag = c - i;
-			double v_i = P_Queue->get(i);
-   	        P_AC_Add[lag-1] += (val + v_i);
-	   	    P_AC_Mul[lag-1] += (val * v_i);
+			const  uint   lag_1 = c - i - 1;
+			const  double v_i = P_Queue->get(i);
+   	        P_AC_Add[lag_1] += (val + v_i);
+	   	    P_AC_Mul[lag_1] += (val * v_i);
 		}
 		P_Queue->push(val);
 	}
@@ -382,8 +487,8 @@ int SLAPI TimSerStat::Finish()
 {
 	StatBase::Finish();
 	if(NumLags > 0) {
-		double n_var = Count * Var;
-		double qexp = Exp * Exp;
+		const double n_var = Count * Var;
+		const double qexp = Exp * Exp;
 		for(uint i = 0; i < P_Queue->getNumItems(); i++)
 			P_AC_Add[i] = (qexp * (Count-i-1) + P_AC_Mul[i] - Exp * P_AC_Add[i]) / n_var;
 		return 1;

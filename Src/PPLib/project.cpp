@@ -2225,7 +2225,7 @@ LostPrjTPersonItem * RestoreLostPrjTPersonDlg::GetCurItem()
 	long   pos = 0;
 	LostPrjTPersonItem * p_item = 0;
 	getSelection(&pos);
-	if(pos >= 0 && pos < (long)Data.getCount())
+	if(pos >= 0 && pos < Data.getCountI())
 		p_item = &Data.at(static_cast<uint>(pos));
 	return p_item;
 }

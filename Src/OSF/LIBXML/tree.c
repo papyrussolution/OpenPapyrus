@@ -12,7 +12,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include "save.h"
+// @v10.6.5 #include "save.h"
 
 int __xmlRegisterCallbacks = 0;
 // 
@@ -1013,7 +1013,7 @@ void FASTCALL xmlFreeDoc(xmlDoc * pDoc)
 		// 
 		xmlFreeIDTable((xmlIDTable *)pDoc->ids);
 		pDoc->ids = NULL;
-		xmlFreeRefTable((xmlRefTablePtr)pDoc->refs);
+		xmlFreeRefTable((xmlRefTable *)pDoc->refs);
 		pDoc->refs = NULL;
 		extSubset = pDoc->extSubset;
 		intSubset = pDoc->intSubset;
@@ -6111,8 +6111,7 @@ xmlBuffer * xmlBufferCreate()
 		ret->content = static_cast<xmlChar *>(SAlloc::M(ret->size * sizeof(xmlChar)));
 		if(ret->content == NULL) {
 			xmlTreeErrMemory("creating buffer");
-			SAlloc::F(ret);
-			ret = 0;
+			ZFREE(ret);
 		}
 		else {
 			ret->content[0] = 0;

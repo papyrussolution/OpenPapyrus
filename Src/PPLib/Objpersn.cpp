@@ -2819,7 +2819,7 @@ int SLAPI PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	//
 	int    is_in_db_mism_owner_loc = 0;
 	uint   i;
-	PPID   id = pID ? *pID : 0;
+	PPID   id = DEREFPTRORZ(pID);
 	const  int is_new = BIN(pPack && !id);
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	PPID   action = 0;
@@ -5767,7 +5767,7 @@ int SLAPI PPObjPerson::EditRelation(PPID * pPrmrID, PPID * pScndID, PPID * pRelT
 	pl_item.PrmrPersonID = DEREFPTRORZ(pPrmrID);
 	if(pScndID)
 		pl_item.ScndPersonList.add(*pScndID);
-	pl_item.LinkTypeID   = (pRelTypeID) ? *pRelTypeID : 0;
+	pl_item.LinkTypeID   = DEREFPTRORZ(pRelTypeID);
 	SETFLAG(pl_item.Flags, PersonLink::fLockPrmr, pl_item.PrmrPersonID);
 	pl_item.Flags |= PersonLink::fLockScndList;
 	if(pl_item.PrmrPersonID && pl_item.ScndPersonList.getSingle()) {

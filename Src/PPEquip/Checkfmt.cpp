@@ -414,7 +414,7 @@ int PPSlipFormat::GetCurCheckPaymItem(const Iter * pIter, CcAmountEntry * pPaymE
 		const int zone_kind = pIter->GetOuterZoneKind();
 		if(zone_kind == PPSlipFormat::Zone::kPaymDetail) {
 			const CcAmountList & r_al = P_CcPack->AL_Const();
-			if(pIter->SrcItemNo < (long)r_al.getCount()) {
+			if(pIter->SrcItemNo < r_al.getCountI()) {
 				ASSIGN_PTR(pPaymEntry, r_al.at(pIter->SrcItemNo));
 				ok = 1;
 			}
@@ -514,7 +514,9 @@ enum {
 	symbManufSerial,       // MANUFSERIAL
 	symbDirector,          // DIRECTOR   @v9.7.6 Директор
 	symbAccountant,        // ACCOUNTANT @v9.7.6 Главный бухгалтер
-	symbClientExtName      // CLIENTEXTNAME @erik v10.4.11
+	symbClientExtName,     // CLIENTEXTNAME @erik v10.4.11
+	symbAmountBonus,       // @v10.6.5 AMOUNTBONUS
+	symbAmountWoBonus      // @v10.6.5 AMOUNTWOBONUS 
 };
 
 PPID PPSlipFormat::GetSCardID(const Iter * pIter, double * pAdjSum) const
@@ -610,7 +612,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				//@erik v10.4.11 {
 				case symbClientExtName:
 					if(Src == srcGoodsBill) {
-						PPID person_id = ObjectToPerson(p_bp->Rec.Object);
+						const PPID person_id = ObjectToPerson(p_bp->Rec.Object);
 						if(person_id && P_Od->PsnObj.GetExtName(person_id, temp_buf) > 0) {
 							rResult.Cat(temp_buf);
 						}
@@ -679,6 +681,19 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.Amount, SFMT_MONEY);
+					break;
+				case symbAmountBonus: // @v10.6.5 AMOUNTBONUS
+					if(Src == srcCCheck) {
+						const double b = p_ccp->AL_Const().GetBonusAmount(&P_Od->ScObj);
+						rResult.Cat(b, SFMT_MONEY);
+					}
+					break;
+				case symbAmountWoBonus: // @v10.6.5 AMOUNTWOBONUS 
+					if(Src == srcCCheck) {
+						const double a = MONEYTOLDBL(p_ccp->Rec.Amount);
+						const double b = p_ccp->AL_Const().GetBonusAmount(&P_Od->ScObj);
+						rResult.Cat(fabs(a)-b, SFMT_MONEY);
+					}
 					break;
 				case symbDiscount:
 					if(Src == srcCCheck)

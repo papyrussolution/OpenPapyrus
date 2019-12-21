@@ -2667,7 +2667,7 @@ protected:
 	{
 		TWindowBase::handleEvent(event);
 		if(event.isCmd(cmPaint)) {
-			PaintEvent * p_pe = (PaintEvent *)TVINFOPTR;
+			const PaintEvent * p_pe = static_cast<const PaintEvent *>(TVINFOPTR);
 			if(p_pe->PaintType == PaintEvent::tPaint) {
 				TCanvas2 canv(Tb, (HDC)p_pe->H_DeviceContext);
 				TRect rect_cli = getClientRect();
@@ -2749,7 +2749,6 @@ int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCp
 void SLAPI TestCRC();
 int  SLAPI TestUhttClient();
 int  SLAPI TestReadXmlMem_EgaisAck();
-int  SLAPI TestChZn();
 
 /*static int SLAPI TestWorkspacePath()
 {
@@ -2762,7 +2761,7 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestChZn();
+	PPChZnPrcssr::Test();
 	//TestWorkspacePath();
 	//TestReadXmlMem_EgaisAck();
 	//TestMqc();

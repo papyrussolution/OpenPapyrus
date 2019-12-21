@@ -561,79 +561,43 @@ int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAc
 				if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {
 					long   price_flags = r_price_dev_list.at(pos);
 					if(price_flags && oneof3(col, posblk.QttyPos, posblk.CostPos, posblk.PricePos)) {
-						if(col == posblk.QttyPos && price_flags & LOTSF_FIRST) {
-							pStyle->Color = GetColorRef(SClrBlue);
-							pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-							ok = 1;
-						}
+						if(col == posblk.QttyPos && price_flags & LOTSF_FIRST)
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrBlue));
 						else if(col == posblk.CostPos) {
-							if(price_flags & LOTSF_COSTUP) {
-								pStyle->Color = GetColorRef(SClrGreen);
-								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-								ok = 1;
-							}
-							else if(price_flags & LOTSF_COSTDOWN) {
-								pStyle->Color = GetColorRef(SClrRed);
-								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-								ok = 1;
-							}
-							if(price_flags & LOTSF_LINKCOSTUP) {
-								pStyle->Color2 = GetColorRef(SClrGreen);
-								pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
-							else if(price_flags & LOTSF_LINKCOSTDN) {
-								pStyle->Color2 = GetColorRef(SClrRed);
-								pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
+							if(price_flags & LOTSF_COSTUP)
+								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+							else if(price_flags & LOTSF_COSTDOWN)
+								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+							if(price_flags & LOTSF_LINKCOSTUP)
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGreen));
+							else if(price_flags & LOTSF_LINKCOSTDN)
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
 						}
 						else if(col == posblk.PricePos) {
-							if(price_flags & LOTSF_PRICEUP) {
-								pStyle->Color = GetColorRef(SClrGreen);
-								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-								ok = 1;
-							}
-							else if(price_flags & LOTSF_PRICEDOWN) {
-								pStyle->Color = GetColorRef(SClrRed);
-								pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-								ok = 1;
-							}
-							if(price_flags & LOTSF_RESTRBOUNDS) {
-								pStyle->Color = GetColorRef(SClrGrey);
-								pStyle->Flags = BrowserWindow::CellStyle::fLeftBottomCorner;
-								ok = 1;
-							}
+							if(price_flags & LOTSF_PRICEUP)
+								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+							else if(price_flags & LOTSF_PRICEDOWN)
+								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+							if(price_flags & LOTSF_RESTRBOUNDS)
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
 						}
 					}
 				}
 				if(posblk.SerialPos >= 0 && col == posblk.SerialPos) {
-					if(p_item->Flags & BillGoodsBrwItem::fSerialBad) {
-						pStyle->Color = GetColorRef(SClrOrange);
-						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-						ok = 1;
-					}
+					if(p_item->Flags & BillGoodsBrwItem::fSerialBad)
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
 				}
 				if(posblk.CodePos >= 0 && col == posblk.CodePos) {
-					if(p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
-						pStyle->Color = GetColorRef(SClrOrange);
-						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-						ok = 1;
-					}
+					if(p_item->Flags & BillGoodsBrwItem::fCodeWarn)
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
 				}
 			}
 			if(col == 0) {
 				const StrAssocArray & r_problems_list = p_brw->GetProblemsList();
-				if(r_problems_list.Search(pos) > 0) {
-					pStyle->Color2 = GetColorRef(SClrRed);
-					pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-					ok = 1;
-				}
-				if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount()) && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove) {
-					pStyle->Color = GetColorRef(SClrGrey);
-					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-					ok = 1;
-				}
+				if(r_problems_list.Search(pos) > 0)
+					ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
+				if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount()) && p_pack->TI(pos).TFlags & PPTransferItem::tfForceRemove)
+					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGrey));
 			}
 		}
 	}
@@ -929,7 +893,6 @@ inline BillItemBrowser::~BillItemBrowser()
 
 int BillItemBrowser::getCurItemPos()
 {
-	int    rp = 0; // @v10.6.3 int16-->int
 	const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(view->getDefC());
 	if(p_def) {
 		int    c_ = getDefC()->_curItem(); // @v10.6.3 int16-->int
@@ -937,20 +900,24 @@ int BillItemBrowser::getCurItemPos()
 		if(p_list && c_ >= 0 && c_ < p_list->getCountI()) {
 			int    cp = static_cast<const BillGoodsBrwItem *>(p_list->at(c_))->Pos;
 			if(cp >= 0) {
-				PPTransferItem * p_ti;
-				for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
+				return cp; // @v10.6.4
+				/* @v10.6.4
+				int    rp = 0; // @v10.6.3 int16-->int
+				for(uint i = 0; i < P_Pack->GetTCount(); i++) {
+					const PPTransferItem & r_ti = P_Pack->ConstTI(i);
 					if(P_Pckg) {
-						if(P_Pckg->SearchByIdx(i-1, 0) <= 0)
+						if(P_Pckg->SearchByIdx(i, 0) <= 0)
 							continue;
 					}
 					else {
-						if((AsSelector && p_ti->Flags & 0x80000000L) || (p_ti->Flags & PPTFR_PCKGGEN))
+						if((AsSelector && r_ti.Flags & 0x80000000L) || (r_ti.Flags & PPTFR_PCKGGEN))
 							continue;
 					}
 					if(rp == cp)
-						return (i-1);
+						return i;
 					rp++;
 				}
+				*/
 			}
 		}
 	}
@@ -1724,7 +1691,7 @@ int BillItemBrowser::_moveItem(int srcRowIdx)
 	int    ok = 1;
 	uint   i = 0;
 	int    s = 0;
-	ReceiptTbl::Rec rr;
+	ReceiptTbl::Rec lot_rec;
 	PPTransferItem newitem;
 	PPTransferItem * p_ti = &P_LinkPack->TI(srcRowIdx);
 	if(p_ti->LotID)
@@ -1755,10 +1722,10 @@ int BillItemBrowser::_moveItem(int srcRowIdx)
 			}
 		newitem = *p_ti;
 		THROW(newitem.Init(&P_Pack->Rec));
-		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &rr) > 0 && P_T->GetLotPrices(&rr, P_Pack->Rec.Dt)) {
-			newitem.Cost = R5(rr.Cost);
-			newitem.Discount = R5(rr.Price) - ((price != 0.0) ? price : newitem.NetPrice());
-			newitem.Price = R5(rr.Price);
+		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &lot_rec) > 0 && P_T->GetLotPrices(&lot_rec, P_Pack->Rec.Dt)) {
+			newitem.Cost = R5(lot_rec.Cost);
+			newitem.Discount = R5(lot_rec.Price) - ((price != 0.0) ? price : newitem.NetPrice());
+			newitem.Price = R5(lot_rec.Price);
 		}
 		newitem.Quantity_ = (qtty != 0.0) ? qtty : fabs(newitem.Quantity_);
 		newitem.Flags   &= ~PPTFR_RECEIPT;
@@ -1778,7 +1745,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 	const  int is_exp_correction = BIN(P_Pack->OpTypeID == PPOPT_CORRECTION && P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 	uint   i = 0;
 	int    s = 0;
-	ReceiptTbl::Rec rr;
+	ReceiptTbl::Rec lot_rec;
 	PPTransferItem new_ti;
 	PPTransferItem & r_ti = P_LinkPack->TI(srcRowIdx);
 	if(is_exp_correction) {
@@ -1835,10 +1802,10 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 		}
 		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // Так как в вызове PPTransferItem::Init парам zeroRByBill == 0, данный флаг должен быть безусловно
 		// } @v9.4.3
-		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &rr) > 0 && P_T->GetLotPrices(&rr, P_Pack->Rec.Dt)) {
-			new_ti.Cost = R5(rr.Cost);
-			new_ti.Discount = R5(rr.Price) - ((price != 0.0) ? price : new_ti.NetPrice());
-			new_ti.Price = R5(rr.Price);
+		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &lot_rec) > 0 && P_T->GetLotPrices(&lot_rec, P_Pack->Rec.Dt)) {
+			new_ti.Cost = R5(lot_rec.Cost);
+			new_ti.Discount = R5(lot_rec.Price) - ((price != 0.0) ? price : new_ti.NetPrice());
+			new_ti.Price = R5(lot_rec.Price);
 		}
 		new_ti.Quantity_ = (qtty != 0.0) ? qtty : fabs(new_ti.Quantity_);
 		new_ti.Flags   &= ~PPTFR_RECEIPT;
@@ -2986,8 +2953,9 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					PPErrorByDialog(dlg, sel);
 				}
 				else {
+					// 080026600250673670340153552
 					SString mark_buf = temp_buf;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
+					const int iemr = (PrcssrAlcReport::IsEgaisMark(mark_buf, 0) || PPChZnPrcssr::IsChZnCode(mark_buf)); // @v10.6.5 PPChZnPrcssr::IsChZnCode(mark_buf)
 					if(!iemr) {
 						if(P_LotXcT) {
 							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)

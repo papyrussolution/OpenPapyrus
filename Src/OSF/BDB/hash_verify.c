@@ -637,7 +637,7 @@ int __ham_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void * 
 			/* Not a reportable error, but don't salvage item. */
 			ret = 0;
 		}
-		else if(ret == 0) {
+		else if(!ret) {
 			/* Set len to total entry length. */
 			len = LEN_HITEM(dbp, h, dbp->pgsize, i);
 			hk = P_ENTRY(dbp, h, i);

@@ -89,7 +89,8 @@ static int postnet(struct ZintSymbol * symbol, const uchar source[], char dest[]
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D81)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D81)");
+		ZintMakeErrText_InvCharInData("D81", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	sum = 0;
@@ -146,7 +147,8 @@ static int planet(struct ZintSymbol * symbol, const uchar source[], char dest[],
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D83)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D83)");
+		ZintMakeErrText_InvCharInData("D83", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	sum = 0;
@@ -205,7 +207,8 @@ int korea_post(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D85)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D85)");
+		ZintMakeErrText_InvCharInData("D85", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	zeroes = 6 - length;
@@ -243,23 +246,16 @@ int fim(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	switch((char)source[0]) {
 		case 'a':
-		case 'A':
-		    sstrcpy(dest, "111515111");
-		    break;
+		case 'A': sstrcpy(dest, "111515111"); break;
 		case 'b':
-		case 'B':
-		    sstrcpy(dest, "13111311131");
-		    break;
+		case 'B': sstrcpy(dest, "13111311131"); break;
 		case 'c':
-		case 'C':
-		    sstrcpy(dest, "11131313111");
-		    break;
+		case 'C': sstrcpy(dest, "11131313111"); break;
 		case 'd':
-		case 'D':
-		    sstrcpy(dest, "1111131311111");
-		    break;
+		case 'D': sstrcpy(dest, "1111131311111"); break;
 		default:
-		    sstrcpy(symbol->errtxt, "Invalid characters in data (D87)");
+		    // @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D87)");
+			ZintMakeErrText_InvCharInData("D87", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		    return ZINT_ERROR_INVALID_DATA;
 		    break;
 	}
@@ -306,11 +302,8 @@ int royal_plot(struct ZintSymbol * symbol, uchar source[], int length)
 	char height_pattern[210];
 	uint loopey, h;
 	int writer;
-	int error_number;
+	int error_number = 0;
 	sstrcpy(height_pattern, "");
-
-	error_number = 0;
-
 	if(length > 50) {
 		sstrcpy(symbol->errtxt, "Input too long (D88)");
 		return ZINT_ERROR_TOO_LONG;
@@ -318,7 +311,8 @@ int royal_plot(struct ZintSymbol * symbol, uchar source[], int length)
 	to_upper(source);
 	error_number = is_sane(KRSET, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D89)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D89)");
+		ZintMakeErrText_InvCharInData("D89", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/*check = */ rm4scc((char *)source, (uchar *)height_pattern, length);
@@ -361,7 +355,8 @@ int kix_code(struct ZintSymbol * symbol, uchar source[], int length)
 	to_upper(source);
 	error_number = is_sane(KRSET, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D8B)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D8B)");
+		ZintMakeErrText_InvCharInData("D8B", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	sstrcpy(localstr, (char *)source);
@@ -396,22 +391,20 @@ int daft_code(struct ZintSymbol * symbol, uchar source[], int length)
 {
 	char height_pattern[100];
 	uint loopey, h;
-	int writer, i, error_number;
+	int writer, i;
+	int error_number = 0;
 	sstrcpy(height_pattern, "");
-
-	error_number = 0;
 	if(length > 50) {
 		sstrcpy(symbol->errtxt, "Input too long (D8C)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	to_upper((uchar *)source);
 	error_number = is_sane(DAFTSET, (uchar *)source, length);
-
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D8D)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D8D)");
+		ZintMakeErrText_InvCharInData("D8D", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
-
 	for(i = 0; i < length; i++) {
 		if(source[i] == 'D') {
 			strcat(height_pattern, "2");
@@ -426,7 +419,6 @@ int daft_code(struct ZintSymbol * symbol, uchar source[], int length)
 			strcat(height_pattern, "3");
 		}
 	}
-
 	writer = 0;
 	h = strlen(height_pattern);
 	for(loopey = 0; loopey < h; loopey++) {
@@ -452,25 +444,23 @@ int daft_code(struct ZintSymbol * symbol, uchar source[], int length)
 /* Flattermarken - Not really a barcode symbology! */
 int flattermarken(struct ZintSymbol * symbol, uchar source[], int length)
 {
-	int loop, error_number;
+	int loop;
 	char dest[512]; /* 90 * 4 + 1 ~ */
-
-	error_number = 0;
-
+	int error_number = 0;
 	if(length > 90) {
 		sstrcpy(symbol->errtxt, "Input too long (D8E)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D8F)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D8F)");
+		ZintMakeErrText_InvCharInData("D8F", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	*dest = '\0';
 	for(loop = 0; loop < length; loop++) {
 		lookup(NEON, FlatTable, source[loop], dest);
 	}
-
 	expand(symbol, dest);
 	return error_number;
 }
@@ -489,7 +479,6 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 #else
 	char* local_source = (char *)_alloca(length + 1);
 #endif
-
 	if(length > 20) {
 		sstrcpy(symbol->errtxt, "Input too long (D8G)");
 		return ZINT_ERROR_TOO_LONG;
@@ -503,12 +492,12 @@ int japan_post(struct ZintSymbol * symbol, uchar source[], int length)
 	to_upper((uchar *)local_source);
 	error_number = is_sane(SHKASUTSET, (uchar *)local_source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D8H)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D8H)");
+		ZintMakeErrText_InvCharInData("D8H", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	memset(inter, 'd', 20); /* Pad character CC4 */
 	inter[20] = '\0';
-
 	i = 0;
 	inter_posn = 0;
 	do {

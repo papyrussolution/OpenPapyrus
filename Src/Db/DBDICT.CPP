@@ -250,7 +250,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 		char   temp_buf[512];
 		file_name.CopyTo(temp_buf, sizeof(temp_buf));
 		int    ret = BTRV(B_OPEN, fpb, 0 /*pPassword*/, &bl, temp_buf, 0, omReadOnly);
-		if(ret == 0) {
+		if(!ret) {
 			int    cret = BTRV(B_CLOSE, fpb, 0, 0, 0, 0, 0);
 			yes = 1;
 		}
@@ -351,7 +351,7 @@ SLAPI BDictionary::~BDictionary()
 //
 // Процедура создания временной таблицы
 //
-/*virtual*/ SString & SLAPI BDictionary::GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+/*virtual*/ SString & SLAPI BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
 {
 	const char * p_path = (TempPath && !forceInDataPath) ? TempPath : DataPath;
 	return MakeTempFileName(p_path, "TMP", "BTR", pStart, rFileNameBuf);
@@ -414,7 +414,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					}
 				}
 				else {
-					GetTempFileName(dest, 0, 0);
+					GetTemporaryFileName(dest, 0, 0);
 					replace_src = 1;
 				}
 				THROW(LoadTableSpec(&newtbl, tbl_name, dest, 0));

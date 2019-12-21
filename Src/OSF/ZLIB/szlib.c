@@ -2385,7 +2385,7 @@ static int FASTCALL gz_load(gz_state * state, uchar * buf, uint len, uint * have
 		return -1;
 	}
 	else {
-		if(ret == 0)
+		if(!ret)
 			state->eof = 1;
 		return 0;
 	}

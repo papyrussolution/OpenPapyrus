@@ -320,7 +320,7 @@ kill_all:       /*
 			// Detach from environment and deregister thread
 			if((t_ret = __env_refresh(dbenv, orig_flags, 0)) != 0 && ret == 0)
 				ret = t_ret;
-			if(ret == 0) {
+			if(!ret) {
 				if((ret = __os_seek(env, dbenv->registry, 0, 0, (uint32)dead)) != 0 || (ret = __os_write(env, dbenv->registry, PID_EMPTY, PID_LEN, &nw)) != 0)
 					return ret;
 				need_recovery = 0;

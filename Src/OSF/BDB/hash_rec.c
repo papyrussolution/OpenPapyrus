@@ -1069,7 +1069,7 @@ int __ham_groupalloc_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op,
 		mmeta->last_pgno = pgno;
 	}
 done:
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 	ret = 0;
 
@@ -1566,7 +1566,7 @@ int __ham_groupalloc_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops 
 		mmeta->last_pgno = pgno;
 	}
 done:
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 	ret = 0;
 out:

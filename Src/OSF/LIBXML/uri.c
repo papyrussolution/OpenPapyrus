@@ -501,7 +501,7 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURI * uri, const char ** str)
 		return 1;
 	cur++;
 	ret = xmlParse3986Segment(&cur, 0, 0);
-	if(ret == 0) {
+	if(!ret) {
 		while(*cur == '/') {
 			cur++;
 			ret = xmlParse3986Segment(&cur, 0, 1);

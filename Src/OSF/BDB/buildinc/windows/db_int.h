@@ -496,7 +496,7 @@ typedef enum {
 #define	ENV_ENTER_RET(env, ip, ret) do {				\
 	ret = 0; \
 	PANIC_CHECK_RET(env, ret);					\
- 	if(ret == 0) {							\
+ 	if(!ret) {							\
 		if((env)->thr_hashtab == NULL)				\
 			ip = NULL;					\
 		else 							\

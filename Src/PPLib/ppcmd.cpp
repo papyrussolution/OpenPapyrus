@@ -1241,6 +1241,10 @@ int SLAPI PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 		if(p_xml_writer) {
 			SXml::WNode command_group_node(p_xml_writer, "CommandGroup");
 			command_group_node.PutInner("DbSymb", temp_buf.Z().Cat(DbSymb).Transf(CTRANSF_OUTER_TO_UTF8));
+			if(DeskGuid.ToStr(S_GUID::fmtIDL, temp_buf))
+				command_group_node.PutInner("DeskGuid", temp_buf);
+			else
+				command_group_node.PutInner("DeskGuid", temp_buf.Z());
 			THROW(PPCommandFolder::Write2(p_xml_writer, rwFlag));			
 			if(Flags & (fBkgndImage|fBkgndImageLoaded)) {
 				SString buf, dir;
@@ -1278,10 +1282,22 @@ int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 					else
 						DbSymb.Z();
 				}
+				if(SXml::GetContentByName(p_node, "DeskGuid", temp_buf)!=0) {
+					if(temp_buf){
+						DeskGuid.FromStr(temp_buf);
+					}
+					else {
+						if(!DeskGuid) {
+							DeskGuid.Generate();
+						}
+					}
+				}
 				if(SXml::IsName(p_node, "CommandFolder")) {
 					THROW(PPCommandFolder::Read2(p_node, rwFlag));
 					state = 1; // если данные считаны корректно, то можем работать дальше
 				}
+
+				
 			}
 		}	
 	}

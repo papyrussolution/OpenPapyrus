@@ -1660,38 +1660,20 @@ int SLAPI PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAct
 		const PPID sc_id = *static_cast<const PPID *>(pData);
 		SCardTbl::Rec sc_rec;
 		if(col == 0) { // card number
-			if(SCObj.Fetch(sc_id, &sc_rec) > 0) {
-				if(sc_rec.Flags & SCRDF_CLOSED) {
-					if(sc_rec.Flags & SCRDF_NEEDACTIVATION) {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						pCellStyle->Color = GetColorRef(SClrOrange);
-						ok = 1;
-					}
-					else {
-						pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-						pCellStyle->Color = GetColorRef(SClrRed);
-						ok = 1;
-					}
-				}
+			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_CLOSED) {
+				if(sc_rec.Flags & SCRDF_NEEDACTIVATION)
+					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+				else
+					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 			}
 		}
 		else if(col == 1) { // series
-			if(SCObj.Fetch(sc_id, &sc_rec) > 0) {
-				if(sc_rec.Flags & SCRDF_INHERITED) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-					pCellStyle->Color = GetColorRef(SClrAqua);
-					ok = 1;
-				}
-			}
+			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_INHERITED)
+				ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrAqua));
 		}
 		else if(col == 3) { // expiry
-			if(SCObj.Fetch(sc_id, &sc_rec) > 0) {
-				if(sc_rec.Expiry && sc_rec.Expiry <= getcurdate_()) {
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-					pCellStyle->Color = GetColorRef(SClrRed);
-					ok = 1;
-				}
-			}
+			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Expiry && sc_rec.Expiry <= getcurdate_())
+				ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 		}
 	}
 	return ok;
@@ -1967,7 +1949,7 @@ int SLAPI PPViewSCard::ChangeFlags()
 			PPTransaction tra(1);
 			THROW(tra);
 			for(InitIteration(); NextIteration(&item) > 0;) {
-				long sav = item.Flags;
+				const long sav = item.Flags;
 				for(uint p = 0; p < 32; p++) {
 					ulong t = (1UL << p);
 					if(set & t)
@@ -2045,21 +2027,16 @@ int SCardSelPrcssrDialog::getDTS(SCardSelPrcssrParam * pData)
 {
  	ushort sel = 0;
  	int    ok = -1;
-
 	GetClusterData(CTL_FLTSCARDCHNG_FS, &Data.FlagsSet);
 	GetClusterData(CTL_FLTSCARDCHNG_FR, &Data.FlagsReset);
-
  	getCtrlData(sel = CTL_FLTSCARDCHNG_DTEND, &Data.DtEnd);
  	THROW_SL(checkdate(Data.DtEnd, 1));
 	GetClusterData(CTL_FLTSCARDCHNG_ZEXPIRY, &Data.Flags); // @v9.6.2
-
  	sel = CTL_FLTSCARDCHNG_FLAGS;
  	getCtrlData(CTLSEL_FLTSCARDCHNG_SER, &Data.NewSerID);
 	getCtrlData(CTLSEL_FLTSCARDCHNG_AG, &Data.AutoGoodsID);
-
-	Data.PeriodTerm = (int16)getCtrlLong(CTLSEL_FLTSCARDCHNG_PRD);
-	Data.PeriodCount = (int16)getCtrlUInt16(CTL_FLTSCARDCHNG_PRDC);
-
+	Data.PeriodTerm  = static_cast<int16>(getCtrlLong(CTLSEL_FLTSCARDCHNG_PRD));
+	Data.PeriodCount = static_cast<int16>(getCtrlUInt16(CTL_FLTSCARDCHNG_PRDC));
 	Data.Discount = getCtrlReal(CTL_FLTSCARDCHNG_DSCNT);
 	GetClusterData(CTL_FLTSCARDCHNG_ZDSCNT, &Data.Flags);
 	if(Data.Flags & SCardSelPrcssrParam::fZeroDiscount)
@@ -2571,15 +2548,16 @@ PPBaseFilt * SLAPI PPViewSCardOp::CreateFilt(void * extraPtr) const
 int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class SCardOpFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(SCardOpFilt);
 	public:
 		SCardOpFiltDialog() : TDialog(DLG_SCOPFLT)
 		{
 			SetupCalPeriod(CTLCAL_SCOPFLT_PERIOD, CTL_SCOPFLT_PERIOD);
 		}
-		int    setDTS(const SCardOpFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			PPObjSCard::Filt sc_filt;
 			sc_filt.SeriesID = Data.SCardSerID;
 			SetPeriodInput(this, CTL_SCOPFLT_PERIOD, &Data.Period);
@@ -2593,7 +2571,7 @@ int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetClusterData(CTL_SCOPFLT_ORD, Data.Order);
 			return ok;
 		}
-		int    getDTS(SCardOpFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			THROW(GetPeriodInput(this, CTL_SCOPFLT_PERIOD, &Data.Period));
@@ -2618,7 +2596,6 @@ int SLAPI PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				clearEvent(event);
 			}
 		}
-		SCardOpFilt Data;
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -2644,16 +2621,9 @@ int SLAPI PPViewSCardOp::CalcTotal(SCardOpTotal * pTotal)
 	if(pTotal) {
 		memzero(pTotal, sizeof(*pTotal));
 		SCardOpViewItem item;
-		// @v8.6.11 SCardOpTbl::Rec scop_rec;
 		if(Filt.Period.low) {
-			/* @v8.6.11
-			if(SCObj.P_Tbl->GetLastOpByCard(Filt.SCardID, Filt.Period.low, &scop_rec) > 0)
-				pTotal->InRest = scop_rec.Rest;
-			*/
-			// @v8.6.11 {
-			LDATE lo_date = plusdate(Filt.Period.low, -1);
+			const LDATE lo_date = plusdate(Filt.Period.low, -1);
 			SCObj.P_Tbl->GetRest(Filt.SCardID, lo_date, &pTotal->InRest);
-			// } @v8.6.11
 		}
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			pTotal->Count++;
@@ -2672,6 +2642,7 @@ int SLAPI PPViewSCardOp::CalcTotal(SCardOpTotal * pTotal)
 static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 {
 	class SCardOpDialog : public TDialog {
+		DECL_DIALOG_DATA(SCardCore::OpBlock);
 	public:
 		explicit SCardOpDialog(int freezing) : TDialog(freezing ? DLG_SCARDOPFRZ : DLG_SCARDOP), Freezing(freezing), OrgExpiry(ZERODATE), SrcRest(0.0), DestRest(0.0)
 		{
@@ -2680,81 +2651,80 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 			SetupCalPeriod(CTLCAL_SCARDOP_FRZPERIOD, CTL_SCARDOP_FRZPERIOD);
 			SetupTimePicker(this, CTL_SCARDOP_TM, CTLTM_SCARDOP_TM);
 		}
-		int    setDTS(const SCardCore::OpBlock * pData)
+		DECL_DIALOG_SETDTS()
 		{
+			RVALUEPTR(Data, pData);
 			SrcRest = 0.0;
 			DestRest = 0.0;
-
 			double rest = 0.0;
 			SString temp_buf;
 			SCardTbl::Rec sc_rec;
-			disableCtrls(BIN((pData->LinkOi.Obj == PPOBJ_CCHECK && pData->LinkOi.Id) || pData->Flags & D.fEdit),
+			disableCtrls(BIN((Data.LinkOi.Obj == PPOBJ_CCHECK && Data.LinkOi.Id) || Data.Flags & Data.fEdit),
 				CTL_SCARDOP_DT, CTL_SCARDOP_TM, CTL_SCARDOP_DESTCARDNO, 0);
-			disableCtrl(CTL_SCARDOP_AMOUNT, (pData->LinkOi.Obj == PPOBJ_CCHECK && pData->LinkOi.Id));
-			D = *pData;
-			if(D.Flags & D.fEdit) {
-				SrcRest = D.PrevRest;
-				DestRest = D.PrevRest;
+			disableCtrl(CTL_SCARDOP_AMOUNT, (Data.LinkOi.Obj == PPOBJ_CCHECK && Data.LinkOi.Id));
+			if(Data.Flags & Data.fEdit) {
+				SrcRest  = Data.PrevRest;
+				DestRest = Data.PrevRest;
 				if(Freezing)
-					OrgFreezingPeriod = D.FreezingPeriod;
+					OrgFreezingPeriod = Data.FreezingPeriod;
 			}
-			if(ScObj.Search(D.SCardID, &sc_rec) > 0) {
+			if(ScObj.Search(Data.SCardID, &sc_rec) > 0) {
 				OrgExpiry = sc_rec.Expiry;
 				setCtrlData(CTL_SCARDOP_CARDNO, sc_rec.Code);
 				if(sc_rec.PersonID) {
 					GetPersonName(sc_rec.PersonID, temp_buf);
 					setCtrlString(CTL_SCARDOP_OWNER, temp_buf);
 				}
-				if(!(D.Flags & D.fEdit))
-					ScObj.P_Tbl->GetRest(D.SCardID, MAXDATE, &SrcRest);
-				temp_buf.Z().Cat(SrcRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
+				if(!(Data.Flags & Data.fEdit))
+					ScObj.P_Tbl->GetRest(Data.SCardID, MAXDATE, &SrcRest);
+				temp_buf.Z().Cat(SrcRest - Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 				setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
 			}
 			if(Freezing) {
-				SetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, &D.FreezingPeriod);
+				SetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, &Data.FreezingPeriod);
 				setCtrlDate(CTL_SCARDOP_EXPIRY, OrgExpiry);
 			}
-			else if(D.DestSCardID && ScObj.Search(D.DestSCardID, &sc_rec) > 0) {
+			else if(Data.DestSCardID && ScObj.Search(Data.DestSCardID, &sc_rec) > 0) {
 				setCtrlData(CTL_SCARDOP_DESTCARDNO, sc_rec.Code);
 				if(sc_rec.PersonID) {
 					GetPersonName(sc_rec.PersonID, temp_buf);
 					setCtrlString(CTL_SCARDOP_DESTOWNER, temp_buf);
 				}
-				if(!(D.Flags & D.fEdit))
-					ScObj.P_Tbl->GetRest(D.DestSCardID, MAXDATE, &DestRest);
-				temp_buf.Z().Cat(DestRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
+				if(!(Data.Flags & Data.fEdit))
+					ScObj.P_Tbl->GetRest(Data.DestSCardID, MAXDATE, &DestRest);
+				temp_buf.Z().Cat(DestRest + Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 				setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 			}
-			enableCommand(cmSCardOpCheck, BIN(D.LinkOi.Obj == PPOBJ_CCHECK && D.LinkOi.Id));
-			setCtrlDatetime(CTL_SCARDOP_DT, CTL_SCARDOP_TM, D.Dtm);
-			setCtrlReal(CTL_SCARDOP_AMOUNT, D.Amount);
+			enableCommand(cmSCardOpCheck, BIN(Data.LinkOi.Obj == PPOBJ_CCHECK && Data.LinkOi.Id));
+			setCtrlDatetime(CTL_SCARDOP_DT, CTL_SCARDOP_TM, Data.Dtm);
+			setCtrlReal(CTL_SCARDOP_AMOUNT, Data.Amount);
 			selectCtrl(Freezing ? CTL_SCARDOP_FRZPERIOD : CTL_SCARDOP_AMOUNT);
 			return 1;
 		}
-		int    getDTS(SCardCore::OpBlock * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
 			SString temp_buf;
-			getCtrlDatetime(sel = CTL_SCARDOP_DT, CTL_SCARDOP_TM, D.Dtm);
-			THROW_SL(checkdate(D.Dtm.d, 1));
+			getCtrlDatetime(sel = CTL_SCARDOP_DT, CTL_SCARDOP_TM, Data.Dtm);
+			THROW_SL(checkdate(Data.Dtm.d, 1));
 			if(Freezing) {
-				THROW(GetPeriodInput(this, sel = CTL_SCARDOP_FRZPERIOD, &D.FreezingPeriod));
-				THROW(D.CheckFreezingPeriod(OrgExpiry));
+				THROW(GetPeriodInput(this, sel = CTL_SCARDOP_FRZPERIOD, &Data.FreezingPeriod));
+				THROW(Data.CheckFreezingPeriod(OrgExpiry));
 			}
 			else {
-				getCtrlData(sel = CTL_SCARDOP_AMOUNT, &D.Amount);
-				THROW_PP(D.Amount != 0.0, PPERR_INVAMOUNT);
+				getCtrlData(sel = CTL_SCARDOP_AMOUNT, &Data.Amount);
+				THROW_PP(Data.Amount != 0.0, PPERR_INVAMOUNT);
 				getCtrlString(sel = CTL_SCARDOP_DESTCARDNO, temp_buf.Z());
 				if(temp_buf.NotEmptyS()) {
 					SCardTbl::Rec sc_rec;
 					THROW(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0);
 					THROW_PP_S(ScObj.IsCreditCard(sc_rec.ID), PPERR_SCARDISNTCREDIT, sc_rec.Code);
 					sel = CTL_SCARDOP_AMOUNT;
-					THROW_PP(D.Amount > 0.0, PPERR_SCTRANSFAMT);
+					THROW_PP(Data.Amount > 0.0, PPERR_SCTRANSFAMT);
 				}
 			}
-			ASSIGN_PTR(pData, D);
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
@@ -2765,8 +2735,8 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmSCardOpCheck)) {
 				CCheckCore & r_cc = *ScObj.P_CcTbl;
-				if((D.LinkOi.Obj == PPOBJ_CCHECK && D.LinkOi.Id) && r_cc.Search(D.LinkOi.Id) > 0)
-					CCheckPane(0, D.LinkOi.Id);
+				if((Data.LinkOi.Obj == PPOBJ_CCHECK && Data.LinkOi.Id) && r_cc.Search(Data.LinkOi.Id) > 0)
+					CCheckPane(0, Data.LinkOi.Id);
 			}
 			else if(event.isCmd(cmInputUpdated)) {
 				if(event.isCtlEvent(CTL_SCARDOP_DESTCARDNO)) {
@@ -2774,41 +2744,40 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 					if(dest_card_no.NotEmptyS()) {
 						SCardTbl::Rec sc_rec;
 						if(ScObj.SearchCode(0, dest_card_no, &sc_rec) > 0 && ScObj.IsCreditSeries(sc_rec.SeriesID)) {
-							D.DestSCardID = sc_rec.ID;
+							Data.DestSCardID = sc_rec.ID;
 							if(sc_rec.PersonID) {
 								GetPersonName(sc_rec.PersonID, temp_buf);
 								setCtrlString(CTL_SCARDOP_DESTOWNER, temp_buf);
 							}
-							if(!(D.Flags & D.fEdit))
-								ScObj.P_Tbl->GetRest(D.DestSCardID, MAXDATE, &DestRest);
-							temp_buf.Z().Cat(DestRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
+							if(!(Data.Flags & Data.fEdit))
+								ScObj.P_Tbl->GetRest(Data.DestSCardID, MAXDATE, &DestRest);
+							temp_buf.Z().Cat(DestRest + Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO));
 							setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 						}
 						else {
-							D.DestSCardID = 0;
+							Data.DestSCardID = 0;
 							DestRest = 0.0;
 							setCtrlString(CTL_SCARDOP_DESTOWNER, temp_buf.Z());
 						}
 					}
 				}
 				else if(event.isCtlEvent(CTL_SCARDOP_AMOUNT)) {
-					D.Amount = getCtrlReal(CTL_SCARDOP_AMOUNT);
-					temp_buf.Z().Cat(SrcRest + D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (-D.Amount)-->(+D.Amount)
+					Data.Amount = getCtrlReal(CTL_SCARDOP_AMOUNT);
+					temp_buf.Z().Cat(SrcRest + Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (-D.Amount)-->(+D.Amount)
 					setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
 					temp_buf.Z();
-					if(D.DestSCardID) {
-						temp_buf.Z().Cat(DestRest - D.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (+D.Amount)-->(-D.Amount)
-					}
+					if(Data.DestSCardID)
+						temp_buf.Z().Cat(DestRest - Data.Amount, MKSFMTD(0, 2, NMBF_NOZERO)); // @v9.0.4 @fix (+D.Amount)-->(-D.Amount)
 					setStaticText(CTL_SCARDOP_ST_DESTREST, temp_buf);
 				}
 				else if(event.isCtlEvent(CTL_SCARDOP_FRZPERIOD)) {
 					if(checkdate(OrgExpiry)) {
 						long org_delta = 0;
-						if(D.Flags & D.fEdit && SCardCore::OpBlock::CheckFreezingPeriod(OrgFreezingPeriod, ZERODATE)) {
+						if(Data.Flags & Data.fEdit && SCardCore::OpBlock::CheckFreezingPeriod(OrgFreezingPeriod, ZERODATE)) {
 							org_delta = OrgFreezingPeriod.GetLength() + 1;
 						}
-						if(GetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, &D.FreezingPeriod) && D.CheckFreezingPeriod(OrgExpiry)) {
-							LDATE new_expiry = plusdate(OrgExpiry, D.FreezingPeriod.GetLength() + 1 - org_delta);
+						if(GetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, &Data.FreezingPeriod) && Data.CheckFreezingPeriod(OrgExpiry)) {
+							const LDATE new_expiry = plusdate(OrgExpiry, Data.FreezingPeriod.GetLength() + 1 - org_delta);
 							setCtrlDate(CTL_SCARDOP_EXPIRY, new_expiry);
 						}
 						else
@@ -2822,7 +2791,6 @@ static int SLAPI EditSCardOp(SCardCore::OpBlock & rBlk)
 				return;
 			clearEvent(event);
 		}
-		SCardCore::OpBlock D;
 		PPObjSCard ScObj;
 		int    Freezing;
 		LDATE  OrgExpiry;

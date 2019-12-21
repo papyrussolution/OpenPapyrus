@@ -1178,14 +1178,12 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 						charset = "UTF-8";
 						break;
 					    default:
-						archive_string_sprintf(&cp, "CP%d",
-						    (int)archive_le32dec(extdheader));
+						archive_string_sprintf(&cp, "CP%d", (int)archive_le32dec(extdheader));
 						charset = cp.s;
 						break;
 				    }
 				    lha->sconv =
-					archive_string_conversion_from_charset(
-					    &(a->archive), charset, 1);
+					archive_string_conversion_from_charset(&(a->archive), charset, 1);
 				    archive_string_free(&cp);
 				    if(lha->sconv == NULL)
 					    return ARCHIVE_FATAL;

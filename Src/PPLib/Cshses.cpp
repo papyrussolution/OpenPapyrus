@@ -14,8 +14,8 @@
 SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) :
 	State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
-	Name[0] = 0;
-	Port[0] = 0;
+	PTR32(Name)[0] = 0;
+	PTR32(Port)[0] = 0;
 	if(CnObj.GetSync(NodeID, &SCn) > 0) 
 		P_SlipFmt = new PPSlipFormatter(SCn.SlipFmtPath);
 	else
@@ -39,7 +39,7 @@ int SLAPI PPSyncCashSession::Init(const char * pName, const char * pPort)
 	if(pPort) {
 		STRNSCPY(Port, pPort);
 		int    c = 0;
-		int    comdvcs = IsComDvcSymb(pPort, &c);
+		const  int comdvcs = IsComDvcSymb(pPort, &c);
 		if(comdvcs == comdvcsCom && (c >= 1 && c <= 32)) {
 			PortType = 2;
 			Handle = c;
@@ -197,7 +197,6 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 			// PPTXT_DUPNEWCCHECKCODEZAMT        "В существующей временной кассовой сессии обнаружен чек-дублер принимаемого чека с нулевой суммой (%s)"
 			msg_buf.Printf(PPLoadTextS(PPTXT_DUPNEWCCHECKCODEZAMT, fmt_buf), cc_text_buf.cptr());
 			PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-
 			temp_replace_id = CC.data.ID;
 			ok = 100;
 		}
@@ -219,7 +218,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 		if(CC.search(2, &k2, spLt) && CC.data.CashID == cashID && CC.data.Code == code) {
 			LDATETIME ccdtm;
 			ccdtm.Set(CC.data.Dt, CC.data.Tm);
-			long   diffsec = diffdatetimesec(*pDT, ccdtm);
+			const long diffsec = diffdatetimesec(*pDT, ccdtm);
 			if(diffsec > 0 && diffsec <= (10*60)) {
 				SString msg_buf, fmt_buf, cc_text_buf, time_buf;
 				CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
@@ -227,7 +226,6 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 				// PPTXT_DUPNEWCCHECKCODE            "В существующей кассовой сессии обнаружен чек-дублер '%s' принимаемого, время нового чека = '%s'"
 				msg_buf.Printf(PPLoadTextS(PPTXT_DUPNEWCCHECKCODE, fmt_buf), cc_text_buf.cptr(), time_buf.cptr());
 				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-
 				temp_replace_id = CC.data.ID;
 				ok = 100;
 			}
@@ -303,8 +301,8 @@ int SLAPI PPAsyncCashSession::AddTempCheckAmounts(PPID checkID, double amt, doub
 	k0.ID = checkID;
 	if(P_TmpCcTbl->searchForUpdate(0, &k0, spEq)) {
 		TempCCheckTbl::Rec & r_rec = P_TmpCcTbl->data;
-		double a = MONEYTOLDBL(r_rec.Amount) + amt;
-		double d = MONEYTOLDBL(r_rec.Discount) + dis;
+		const double a = MONEYTOLDBL(r_rec.Amount) + amt;
+		const double d = MONEYTOLDBL(r_rec.Discount) + dis;
 		LDBLTOMONEY(a, r_rec.Amount);
 		LDBLTOMONEY(d, r_rec.Discount);
 		ok = P_TmpCcTbl->updateRec() ? 1 : PPSetErrorDB(); // @sfu
@@ -1751,6 +1749,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				rtl_ext_item.QuotList = pInfo->QuotList;
 				const int c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item);
 				THROW(c);
+				Rec.AllowedPriceR = rtl_ext_item.AllowedPriceR; // @v10.6.4
 				Rec.QuotList = rtl_ext_item.QuotList;
 				const double price_ = (Flags & ACGIF_UNCONDBASEPRICE) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
 				if(Flags & ACGIF_INITLOCPRN && P_G2OAssoc) {
@@ -1772,17 +1771,15 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					if(UserOnlyGoodsGrpID && !GObj.BelongToGroup(grec.ID, UserOnlyGoodsGrpID))
 						updated = 0;
 					else if(!UpdGoods.bsearch(grec.ID)) {
-						if(P_Dls) {
-							if(P_Dls->GetLastObjInfo(PPOBJ_GOODS, grec.ID, CurDate, &dlso_rec) > 0) {
-								old_price = dlso_rec.Val;
-								if(dbl_cmp(old_price, price_) == 0)
-									updated = 0;
-							}
-						}
-						else {
+						if(!P_Dls) {
 							old_price = price_;
 							THROW(r = SearchCPrice(grec.ID, &old_price));
 							if(r == 2)
+								updated = 0;
+						}
+						else if(P_Dls->GetLastObjInfo(PPOBJ_GOODS, grec.ID, CurDate, &dlso_rec) > 0) {
+							old_price = dlso_rec.Val;
+							if(dbl_cmp(old_price, price_) == 0)
 								updated = 0;
 						}
 					}
@@ -1827,6 +1824,9 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						if(GObj.FetchGoodsType(Rec.GoodsTypeID, &gt_rec) > 0) {
 							if(gt_rec.Flags & GTF_GMARKED)
 								Rec.Flags_ |= AsyncCashGoodsInfo::fGMarkedType;
+							if(gt_rec.PriceRestrID) { // @v10.6.4
+								//BillObj->GetPriceRestrictions(grec.ID, 0, )
+							}
 						}
 					}
 					Rec.ExtQuot = rtl_ext_item.ExtPrice;
@@ -1995,6 +1995,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	VatRate = 0.0;
 	LocPrnID = 0;
 	AsscPosNodeID = 0;
+	AllowedPriceR.Z(); // @v10.6.4
 	Uuid.Z(); // @v10.0.04
 	AddedMsgList.clear();
 	LabelName.Z();

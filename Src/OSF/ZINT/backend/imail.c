@@ -275,15 +275,13 @@ int imail(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	error_number = is_sane(SODIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (D51)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (D51)");
+		ZintMakeErrText_InvCharInData("D51", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
-
 	sstrcpy(zip, "");
 	sstrcpy(tracker, "");
-
 	/* separate the tracking code from the routing code */
-
 	read = 0;
 	j = 0;
 	for(i = 0; i < length; i++) {

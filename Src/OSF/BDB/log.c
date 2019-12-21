@@ -515,7 +515,7 @@ int __log_valid(DB_LOG * dblp, uint32 number, int set_persist, DB_FH ** fhpp, ui
 	 * written, so we need to check whether the header is zero-filled.
 	 */
 	if((ret = __os_read(env, fhp, tmp, recsize+hdrsize, &nr)) != 0 || nr != recsize+hdrsize || (!hdr->len && !persist->magic && !persist->log_size)) {
-		if(ret == 0)
+		if(!ret)
 			status = DB_LV_INCOMPLETE;
 		else // The error was a fatal read error, not just an incompletely initialized log file.
 			__db_err(env, ret, DB_STR_A("2528", "ignoring log file: %s", "%s"), fname);

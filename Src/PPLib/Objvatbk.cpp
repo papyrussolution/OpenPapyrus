@@ -470,7 +470,7 @@ int VATBookDialog::setDTS(const VATBookTbl::Rec * pData)
 	setCtrlData(CTL_VATBOOK_SVAT3,  Data.SVAT3);
 	setCtrlData(CTL_VATBOOK_VAT0,   Data.VAT0);
 	setCtrlData(CTL_VATBOOK_EXP,    Data.Export);
-	SetupArCombo(this, CTLSEL_VATBOOK_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, sheet);
+	SetupArCombo(this, CTLSEL_VATBOOK_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, sheet, 0);
 	SetupPPObjCombo(this, CTLSEL_VATBOOK_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 	if(Data.Excluded)
 		Data.Flags |= VATBF_EXCLUDED;
@@ -566,7 +566,7 @@ int SimpleLedgerDialog::setDTS(const VATBookTbl::Rec * pRec)
 	}
 	if(sheet == 0 && ppobj->IsValidKind(Data.LineType_))
 		sheet = ppobj->GetConfig(Data.LineType_).AccSheetID;
-	SetupArCombo(this, CTLSEL_SMPLLEDG_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, sheet);
+	SetupArCombo(this, CTLSEL_SMPLLEDG_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, sheet, 0);
 	enableCommand(cmVATBookLink, (int)Data.Link);
 	setCtrlData(CTL_SMPLLEDG_DT,     &Data.Dt);
 	setCtrlData(CTL_SMPLLEDG_CODE,   Data.Code);

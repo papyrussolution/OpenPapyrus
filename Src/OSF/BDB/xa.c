@@ -203,7 +203,7 @@ static int __xa_thread_enter(ENV * env, DB_THREAD_INFO ** ipp)
 	DB_THREAD_INFO * ip;
 	COMPQUIET(ip, 0);
 	ENV_ENTER_RET(env, ip, ret);
-	if(ret == 0)
+	if(!ret)
 		ip->dbth_xa_status = TXN_XA_THREAD_UNASSOCIATED;
 	*ipp = ip;
 	return ret;

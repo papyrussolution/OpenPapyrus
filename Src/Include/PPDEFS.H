@@ -1002,10 +1002,11 @@
 #define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
 #define PPOBJ_TAXSYSTEMKIND      80L // @v10.6.0 Вид системы налогообложения //
 	#define TAXSYSK_GENERAL            1L // RU: ОСН — общая система налогообложения
-	#define TAXSYSK_SIMPLIFIED         2L // RU: УСН — упрощенная система налогообложения
+	#define TAXSYSK_SIMPLIFIED         2L // RU: УСН — упрощенная система налогообложения (доход)
 	#define TAXSYSK_PATENT             3L // RU: ПАТЕНТ — патентная система налогообложения
 	#define TAXSYSK_IMPUTED            4L // RU: ЕНВД — вмененная система налогообложения или единый налог на вмененный доход
 	#define TAXSYSK_SINGLEAGRICULT     5L // RU: ЕСХН — единый сельскохозяйственный налог
+	#define TAXSYSK_SIMPLIFIED_PROFIT  6L // RU: УСН — упрощенная система налогообложения (доход-расход)
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1242,8 +1243,7 @@
 #define PPTAG_BILL_EDIACK           44L // По каналу EDI отправлено подтверждение на импортированный документ, либо получено
 	// подтверждение на экспортированный. Если в записи установлен флаг BILLF2_ACKPENDING, то это означает, что было
 	// отправлено уведомление о получении импортированного документа, но ответ по каналу EDI еще был не получен.
-#define PPTAG_BILL_EDIIDENT         45L // Идентификатор документа у провайдера EDI (обычно отличается и от собственных
-	// номеров/идентификаторов и от оных у контрагента).
+#define PPTAG_BILL_EDIIDENT         45L // Идентификатор документа у провайдера EDI (обычно отличается и от собственных номеров/идентификаторов и от оных у контрагента).
 #define PPTAG_LOC_EGAISSRVURL       46L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
 #define PPTAG_LOT_EGIASINFAREG      47L // Подробная информация о справке А (сжатая в одну строку)
 #define PPTAG_PERSON_EGAISSRVURL    48L // URL сервера ЕГАИС (это значение переопределяет URL заданный в PPAlbatrossConfig)
@@ -1302,6 +1302,8 @@
 #define PPTAG_GUA_ACCESSKEY         89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
 #define PPTAG_LOT_LINKBILLROW       90L // @v10.5.7 Связанная строка документа
 #define PPTAG_GUA_CERTSUBJCN        91L // @v10.6.3 CN субъекта сертификата электронной подписи
+#define PPTAG_PERSON_CHZNCODE       92L // @v10.6.4 Код контрагента в честном знаке
+#define PPTAG_LOC_CHZNCODE          93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -8117,6 +8119,8 @@
 	#define CTLSEL_IEBILLSEL_MAILACC   (15 + WINDOWS_ID_BIAS)
 	#define CTL_IEBILLSEL_MAILADR      (16 + WINDOWS_ID_BIAS)
 	#define CTL_IEBILLSEL_MAILSUBJ     (17 + WINDOWS_ID_BIAS)
+	#define CTL_IEBILLSEL_GUA          (18 + WINDOWS_ID_BIAS)
+	#define CTLSEL_IEBILLSEL_GUA       (19 + WINDOWS_ID_BIAS)
 #define DLG_GMQUOT                 936
 //
 // CTL_GQUOT_...
@@ -10811,6 +10815,11 @@
 #define DLG_CHZNIX                1376
 	#define CTL_CHZNIX_GUA            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CHZNIX_GUA         (2 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNIX_WHAT           (3 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNIX_PARAM          (4 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNIX_HINT           (5 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNIX_SUPPL          (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CHZNIX_SUPPL       (7 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

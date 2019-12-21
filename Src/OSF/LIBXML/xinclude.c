@@ -1832,7 +1832,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 			if((children->type == XML_ELEMENT_NODE) && children->ns &&
 			    (sstreq(children->name, XINCLUDE_FALLBACK)) && ((sstreq(children->ns->href, XINCLUDE_NS)) || (sstreq(children->ns->href, XINCLUDE_OLD_NS)))) {
 				ret = xmlXIncludeLoadFallback(ctxt, children, nr);
-				if(ret == 0)
+				if(!ret)
 					break;
 			}
 			children = children->next;

@@ -516,7 +516,7 @@ static int skip_sfx(struct archive_read * a, ssize_t bytes_avail)
 		while(p + 32 < q) {
 			int step = check_7zip_header_in_sfx(p);
 			if(step == 0) {
-				struct _7zip * zip = (struct _7zip *)a->format->data;
+				struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 				skip = p - (const char *)h;
 				__archive_read_consume(a, skip);
 				zip->seek_base = SFX_MIN_ADDR + offset + skip;
@@ -537,7 +537,7 @@ fatal:
 
 static int archive_read_format_7zip_read_header(struct archive_read * a, struct archive_entry * entry)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	struct _7zip_entry * zip_entry;
 	int r, ret = ARCHIVE_OK;
 	struct _7z_folder * folder = 0;
@@ -582,8 +582,7 @@ static int archive_read_format_7zip_read_header(struct archive_read * a, struct 
 
 	/* Setup a string conversion for a filename. */
 	if(zip->sconv == NULL) {
-		zip->sconv = archive_string_conversion_from_charset(
-			&a->archive, "UTF-16LE", 1);
+		zip->sconv = archive_string_conversion_from_charset(&a->archive, "UTF-16LE", 1);
 		if(zip->sconv == NULL)
 			return ARCHIVE_FATAL;
 	}
@@ -787,7 +786,7 @@ static int archive_read_format_7zip_cleanup(struct archive_read * a)
 
 static void read_consume(struct archive_read * a)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 
 	if(zip->pack_stream_bytes_unconsumed) {
 		__archive_read_consume(a, zip->pack_stream_bytes_unconsumed);
@@ -1612,7 +1611,7 @@ static void free_Folder(struct _7z_folder * f)
 
 static int read_Folder(struct archive_read * a, struct _7z_folder * f)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
 	uint64_t numInStreamsTotal = 0;
 	uint64_t numOutStreamsTotal = 0;
@@ -2001,7 +2000,7 @@ static void free_StreamsInfo(struct _7z_stream_info * si)
 
 static int read_StreamsInfo(struct archive_read * a, struct _7z_stream_info * si)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
 	unsigned i;
 	memzero(si, sizeof(*si));
@@ -2077,7 +2076,7 @@ static void free_Header(struct _7z_header_info * h)
 static int read_Header(struct archive_read * a, struct _7z_header_info * h,
     int check_header_id)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
 	struct _7z_folder * folders;
 	struct _7z_stream_info * si = &(zip->si);
@@ -2415,7 +2414,7 @@ static void fileTimeToUtc(uint64_t fileTime, time_t * timep, long * ns)
 
 static int read_Times(struct archive_read * a, struct _7z_header_info * h, int type)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
 	struct _7zip_entry * entries = zip->entries;
 	uchar * timeBools;
@@ -2480,7 +2479,7 @@ failed:
 
 static int decode_encoded_header_info(struct archive_read * a, struct _7z_stream_info * si)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	errno = 0;
 	if(read_StreamsInfo(a, si) < 0) {
 		if(errno == ENOMEM)
@@ -2502,7 +2501,7 @@ static int decode_encoded_header_info(struct archive_read * a, struct _7z_stream
 
 static const uchar * header_bytes(struct archive_read * a, size_t rbytes)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
 
 	if(zip->header_bytes_remaining < rbytes)
@@ -2670,15 +2669,12 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 	return ARCHIVE_OK;
 }
 
-static ssize_t get_uncompressed_data(struct archive_read * a, const void ** buff, size_t size,
-    size_t minimum)
+static ssize_t get_uncompressed_data(struct archive_read * a, const void ** buff, size_t size, size_t minimum)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	ssize_t bytes_avail;
-
 	if(zip->codec == _7Z_COPY && zip->codec2 == (ulong)-1) {
 		/* Copy mode. */
-
 		*buff = __archive_read_ahead(a, minimum, &bytes_avail);
 		if(bytes_avail <= 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated 7-Zip file data");
@@ -2686,11 +2682,9 @@ static ssize_t get_uncompressed_data(struct archive_read * a, const void ** buff
 		}
 		if((size_t)bytes_avail >
 		    zip->uncompressed_buffer_bytes_remaining)
-			bytes_avail = (ssize_t)
-			    zip->uncompressed_buffer_bytes_remaining;
+			bytes_avail = (ssize_t)zip->uncompressed_buffer_bytes_remaining;
 		if((size_t)bytes_avail > size)
 			bytes_avail = (ssize_t)size;
-
 		zip->pack_stream_bytes_unconsumed = bytes_avail;
 	}
 	else if(zip->uncompressed_buffer_pointer == NULL) {
@@ -2710,8 +2704,7 @@ static ssize_t get_uncompressed_data(struct archive_read * a, const void ** buff
 				return ARCHIVE_FATAL;
 		}
 		if(size > zip->uncompressed_buffer_bytes_remaining)
-			bytes_avail = (ssize_t)
-			    zip->uncompressed_buffer_bytes_remaining;
+			bytes_avail = (ssize_t)zip->uncompressed_buffer_bytes_remaining;
 		else
 			bytes_avail = (ssize_t)size;
 		*buff = zip->uncompressed_buffer_pointer;
@@ -2723,7 +2716,7 @@ static ssize_t get_uncompressed_data(struct archive_read * a, const void ** buff
 
 static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	ssize_t bytes_avail;
 	int r;
 	if(zip->codec == _7Z_COPY && zip->codec2 == (ulong)-1) {
@@ -2742,7 +2735,6 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 		zip->uncompressed_buffer_bytes_remaining = bytes_avail;
 		return ARCHIVE_OK;
 	}
-
 	/* If the buffer hasn't been allocated, allocate it now. */
 	if(zip->uncompressed_buffer == NULL) {
 		zip->uncompressed_buffer_size = UBUFF_SIZE;
@@ -2766,8 +2758,7 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 		 */
 		size_t used;
 		if(zip->uncompressed_buffer_pointer != 0)
-			used = zip->uncompressed_buffer_pointer -
-			    zip->uncompressed_buffer;
+			used = zip->uncompressed_buffer_pointer - zip->uncompressed_buffer;
 		else
 			used = 0;
 		if(zip->uncompressed_buffer_size < minimum) {
@@ -2789,9 +2780,7 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 		 * Move unconsumed bytes to the head.
 		 */
 		if(used) {
-			memmove(zip->uncompressed_buffer,
-			    zip->uncompressed_buffer + used,
-			    zip->uncompressed_buffer_bytes_remaining);
+			memmove(zip->uncompressed_buffer, zip->uncompressed_buffer + used, zip->uncompressed_buffer_bytes_remaining);
 		}
 	}
 	else
@@ -2799,17 +2788,15 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 	zip->uncompressed_buffer_pointer = NULL;
 	for(;;) {
 		size_t bytes_in, bytes_out;
-		const void * buff_in;
 		uchar * buff_out;
 		int end_of_data;
-
 		/*
 		 * Note: '1' here is a performance optimization.
 		 * Recall that the decompression layer returns a count of
 		 * available bytes; asking for more than that forces the
 		 * decompressor to combine reads by copying data.
 		 */
-		buff_in = __archive_read_ahead(a, 1, &bytes_avail);
+		const void * buff_in = __archive_read_ahead(a, 1, &bytes_avail);
 		if(bytes_avail <= 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated 7-Zip file body");
 			return ARCHIVE_FATAL;
@@ -2820,17 +2807,11 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 		if(bytes_in > zip->pack_stream_inbytes_remaining)
 			bytes_in = (size_t)zip->pack_stream_inbytes_remaining;
 		/* Drive decompression. */
-		r = decompress(a, zip, buff_out, &bytes_out,
-			buff_in, &bytes_in);
+		r = decompress(a, zip, buff_out, &bytes_out, buff_in, &bytes_in);
 		switch(r) {
-			case ARCHIVE_OK:
-			    end_of_data = 0;
-			    break;
-			case ARCHIVE_EOF:
-			    end_of_data = 1;
-			    break;
-			default:
-			    return ARCHIVE_FATAL;
+			case ARCHIVE_OK: end_of_data = 0; break;
+			case ARCHIVE_EOF: end_of_data = 1; break;
+			default: return ARCHIVE_FATAL;
 		}
 		zip->pack_stream_inbytes_remaining -= bytes_in;
 		if(bytes_out > zip->folder_outbytes_remaining)
@@ -2838,19 +2819,14 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 		zip->folder_outbytes_remaining -= bytes_out;
 		zip->uncompressed_buffer_bytes_remaining += bytes_out;
 		zip->pack_stream_bytes_unconsumed = bytes_in;
-
 		/*
 		 * Continue decompression until uncompressed_buffer is full.
 		 */
-		if(zip->uncompressed_buffer_bytes_remaining ==
-		    zip->uncompressed_buffer_size)
+		if(zip->uncompressed_buffer_bytes_remaining == zip->uncompressed_buffer_size)
 			break;
-		if(zip->codec2 == _7Z_X86 && zip->odd_bcj_size &&
-		    zip->uncompressed_buffer_bytes_remaining + 5 >
-		    zip->uncompressed_buffer_size)
+		if(zip->codec2 == _7Z_X86 && zip->odd_bcj_size && zip->uncompressed_buffer_bytes_remaining + 5 > zip->uncompressed_buffer_size)
 			break;
-		if(zip->pack_stream_inbytes_remaining == 0 &&
-		    zip->folder_outbytes_remaining == 0)
+		if(zip->pack_stream_inbytes_remaining == 0 && zip->folder_outbytes_remaining == 0)
 			break;
 		if(end_of_data || (bytes_in == 0 && bytes_out == 0)) {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Damaged 7-Zip archive");
@@ -2868,7 +2844,7 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 
 static int seek_pack(struct archive_read * a)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	int64_t pack_offset;
 	if(zip->pack_stream_remaining <= 0) {
 		archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Damaged 7-Zip archive");
@@ -2886,13 +2862,11 @@ static int seek_pack(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static ssize_t read_stream(struct archive_read * a, const void ** buff, size_t size,
-    size_t minimum)
+static ssize_t read_stream(struct archive_read * a, const void ** buff, size_t size, size_t minimum)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	uint64_t skip_bytes = 0;
 	ssize_t r;
-
 	if(zip->uncompressed_buffer_bytes_remaining == 0) {
 		if(zip->pack_stream_inbytes_remaining > 0) {
 			r = extract_pack_stream(a, 0);
@@ -2990,7 +2964,7 @@ static ssize_t read_stream(struct archive_read * a, const void ** buff, size_t s
 
 static int setup_decode_folder(struct archive_read * a, struct _7z_folder * folder, int header)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const struct _7z_folder::_7z_coder * coder1, * coder2;
 	const char * cname = (header) ? "archive header" : "file content";
 	unsigned i;
@@ -3220,7 +3194,7 @@ static int setup_decode_folder(struct archive_read * a, struct _7z_folder * fold
 
 static int64_t skip_stream(struct archive_read * a, size_t skip_bytes)
 {
-	struct _7zip * zip = (struct _7zip *)a->format->data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const void * p;
 	int64_t skipped_bytes;
 	size_t bytes = skip_bytes;

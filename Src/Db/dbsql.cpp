@@ -1575,7 +1575,7 @@ int SLAPI SOraDbProvider::IsFileExists_(const char * pFileName)
 	return BIN(GetFileStat(pFileName, 0, 0) > 0);
 }
 
-SString & SLAPI SOraDbProvider::GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+SString & SLAPI SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
 {
 	if(pStart == 0) {
 		SString temp_buf;

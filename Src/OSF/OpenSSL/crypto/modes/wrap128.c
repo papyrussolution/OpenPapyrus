@@ -137,7 +137,7 @@ size_t CRYPTO_128_unwrap(void * key, const uchar * iv, uchar * out, const uchar 
 {
 	uchar got_iv[8];
 	size_t ret = crypto_128_unwrap_raw(key, got_iv, out, in, inlen, block);
-	if(ret == 0)
+	if(!ret)
 		return 0;
 	if(!iv)
 		iv = default_iv;

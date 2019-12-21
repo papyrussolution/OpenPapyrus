@@ -82,7 +82,7 @@ retry:
 		ret = 0;
 #ifdef HAVE_QUEUE
 	// Queue exents cannot be read directly, use the internal interface. 
-	if(ret == 0) {
+	if(!ret) {
 		if((ret = dbp->get_type(dbp, &type) != 0))
 			goto err;
 		if(type == DB_QUEUE && (ret = dbp->get_q_extentsize(dbp, &extentsize)) == 0 && extentsize != 0)
@@ -175,7 +175,7 @@ again:
 		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd)
 			ret = __db_encrypt_and_checksum_pg(env, dbp, (PAGE *)pagep);
 		if(ret == 0 && ((ret = __os_write(env, fp, pagep, dbp->pgsize, &nw)) != 0 || nw != dbp->pgsize)) {
-			if(ret == 0)
+			if(!ret)
 				ret = EIO;
 			dbenv->err(dbenv, ret,  DB_STR_A("0707", "Failed to write page %lu output to %s", "%s"), (ulong)pgno, path);
 		}

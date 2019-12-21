@@ -17,6 +17,7 @@
 	#endif
 #endif
 #include <slib.h> // @sobolev
+#include <snet.h> // @v10.6.5
 //
 // Descr: Macro to cast a string to an xmlChar * when one know its safe.
 //
@@ -2612,6 +2613,22 @@ int xmlNop(void);
 	#ifdef __cplusplus
 	}
 	#endif
+	// save.h {
+	#ifdef __cplusplus
+	extern "C" {
+	#endif
+	#ifdef LIBXML_OUTPUT_ENABLED
+		void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDoc * doc, xmlAttr * attr, const xmlChar * string);
+		void xmlBufDumpNotationTable(xmlBufPtr buf, xmlNotationTablePtr table);
+		void xmlBufDumpElementDecl(xmlBufPtr buf, xmlElement * elem);
+		void xmlBufDumpAttributeDecl(xmlBufPtr buf, xmlAttribute * attr);
+		void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntity * ent);
+		xmlChar *xmlEncodeAttributeEntities(xmlDoc * doc, const xmlChar *input);
+	#endif
+	#ifdef __cplusplus
+	}
+	#endif
+	// } save.h
 	// } @sobolev
 	#ifdef __GNUC__
 		#ifdef PIC

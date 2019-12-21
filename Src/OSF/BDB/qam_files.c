@@ -224,13 +224,13 @@ alloc:
 		__memp_set_flags(mpf, DB_MPOOL_UNLINK, 0);
 err:
 	MUTEX_UNLOCK(env, dbp->mutex);
-	if(ret == 0) {
+	if(!ret) {
 		pgno--;
 		pgno %= qp->page_ext;
 		switch(mode) {
 		    case QAM_PROBE_GET:
 				ret = __memp_fget(mpf, &pgno, dbc->thread_info, dbc->txn, flags, addrp);
-				if(ret == 0)
+				if(!ret)
 					return 0;
 				break;
 		    case QAM_PROBE_PUT:

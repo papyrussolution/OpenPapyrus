@@ -63,39 +63,12 @@ void TY_(FreeConfig) (TidyDocImpl* doc)
 
 /* Arrange so index can be cast to enum
  */
-static const ctmbstr boolPicks[] =
-{
-	"false",
-	"true",
-	NULL
-};
+static const ctmbstr boolPicks[] = { "false", "true", NULL };
+static const ctmbstr autoBoolPicks[] = { "false", "true", "auto", NULL };
+static const ctmbstr repeatAttrPicks[] = { "keep-first", "keep-last", NULL };
+static const ctmbstr accessPicks[] = { "0 (Tidy Classic)", "1 (Priority 1 Checks)", "2 (Priority 2 Checks)", "3 (Priority 3 Checks)", NULL };
 
-static const ctmbstr autoBoolPicks[] =
-{
-	"false",
-	"true",
-	"auto",
-	NULL
-};
-
-static const ctmbstr repeatAttrPicks[] =
-{
-	"keep-first",
-	"keep-last",
-	NULL
-};
-
-static const ctmbstr accessPicks[] =
-{
-	"0 (Tidy Classic)",
-	"1 (Priority 1 Checks)",
-	"2 (Priority 2 Checks)",
-	"3 (Priority 3 Checks)",
-	NULL
-};
-
-static const ctmbstr charEncPicks[] =
-{
+static const ctmbstr charEncPicks[] = {
 	"raw",
 	"ascii",
 	"latin0",
@@ -107,7 +80,6 @@ static const ctmbstr charEncPicks[] =
 	"mac",
 	"win1252",
 	"ibm858",
-
 #if SUPPORT_UTF16_ENCODINGS
 	"utf16le",
 	"utf16be",
@@ -1516,7 +1488,7 @@ static int  WriteOptionInt(const TidyOptionImpl* option, uint ival, StreamOut* o
 
 static int  WriteOptionBool(const TidyOptionImpl* option, bool bval, StreamOut* out)
 {
-	ctmbstr sval = bval ? "true" : "false";
+	ctmbstr sval = STextConst::GetBool(bval);
 	return WriteOptionString(option, sval, out);
 }
 

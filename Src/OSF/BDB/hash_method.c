@@ -21,7 +21,7 @@ static int __ham_get_h_compare(DB*, int (* *)(DB*, const DBT*, const DBT *));
 int __ham_db_create(DB * dbp)
 {
 	int ret = __os_malloc(dbp->env, sizeof(HASH), &dbp->h_internal);
-	if(ret == 0) {
+	if(!ret) {
 		HASH * hashp = static_cast<HASH *>(dbp->h_internal);
 		hashp->h_nelem = 0;                     /* Defaults. */
 		hashp->h_ffactor = 0;

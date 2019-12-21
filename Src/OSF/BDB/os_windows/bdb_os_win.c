@@ -520,7 +520,7 @@ next:
 err:
 	if(!FindClose(dirhandle) && ret == 0)
 		ret = __os_posix_err(__os_get_syserr());
-	if(ret == 0) {
+	if(!ret) {
 		*namesp = names;
 		*cntp = cnt;
 	}
@@ -1118,7 +1118,7 @@ int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 	 * zero.  If the specified environment variable was not found in the
 	 * environment block, GetLastError returns ERROR_ENVVAR_NOT_FOUND.
 	 */
-	if(ret == 0) {
+	if(!ret) {
 		if((ret = __os_get_syserr()) == ERROR_ENVVAR_NOT_FOUND) {
 			*bpp = NULL;
 			return 0;
@@ -1214,7 +1214,7 @@ int __os_openhandle(ENV * env, const char * name, int flags, int mode, DB_FH ** 
 			goto err;
 		}
 	}
-	if(ret == 0) {
+	if(!ret) {
 		F_SET(fhp, DB_FH_OPENED);
 		*fhpp = fhp;
 		return 0;
@@ -1760,7 +1760,7 @@ int __os_seek(ENV * env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, off_t relat
 		__db_msg(env, DB_STR_A("0038", "fileops: seek %s to %lu", "%s %lu"), fhp->name, (ulong)offset);
 	offbytes.bigint = offset;
 	ret = (SetFilePointer(fhp->handle, offbytes.low, &offbytes.high, FILE_BEGIN) == (DWORD)-1) ? __os_get_syserr() : 0;
-	if(ret == 0) {
+	if(!ret) {
 		fhp->pgsize = pgsize;
 		fhp->pgno = pgno;
 		fhp->offset = relative;
@@ -1909,7 +1909,7 @@ int __os_exists(ENV * env, const char * path, int * isdirp)
 	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0033", "fileops: stat %s", "%s"), path);
 	RETRY_CHK(((attrs = GetFileAttributes(tpath)) == (DWORD)-1 ? 1 : 0), ret);
-	if(ret == 0) {
+	if(!ret) {
 		ASSIGN_PTR(isdirp, (attrs&FILE_ATTRIBUTE_DIRECTORY));
 	}
 	else

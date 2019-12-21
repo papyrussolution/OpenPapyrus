@@ -3539,10 +3539,9 @@ int SLAPI PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, co
 	LogMessage("query", rPack);
 	THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, rPack, &wr_stream));
 	{
-		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 		if(p_ack_buf) {
-			const int avl_size = (int)p_ack_buf->GetAvailableSize();
-			rReply.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+			rReply.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			LogMessage("reply", rReply);
 		}
 	}
@@ -5076,8 +5075,8 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyProducerStockListOperation) { // @v10.5.2
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib_Ns("soapenv", "schemas.xmlsoap.org", "soap/envelope/");
-			n_env.PutAttrib_Ns("xs",      "www.w3.org", "2001/XMLSchema");
-			n_env.PutAttrib_Ns("xsi",     "www.w3.org", "2001/XMLSchema-instance");
+			n_env.PutAttrib("xs",     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
+			n_env.PutAttrib("xsi",    InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 			n_env.PutAttrib_Ns("dt",     "api.vetrf.ru", "schema/cdm/dictionary/v2");
 			n_env.PutAttrib_Ns("bs",     "api.vetrf.ru", "schema/cdm/base");
 			n_env.PutAttrib_Ns("merc",   "api.vetrf.ru", "schema/cdm/mercury/g2b/applications/v2");
@@ -5268,6 +5267,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 												{
 													SXml::WNode n_p(srb, SXml::nst("vd", "productItem"));
 													PutNonZeroGuid(n_p, "bs", p_req->Pi.Guid);
+													PutNonEmptyText(n_p, "dt", "name", temp_buf.Z().Cat(p_req->Pi.Name));
 												}
 												{
 													double volume = smax(p_req->StockEntryRest - p_req->VdRec.Volume, 0.0);
@@ -5294,7 +5294,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 														n_bat.PutInner(SXml::nst("vd", "batchID"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 													}
 												}
-												n_bat.PutInner(SXml::nst("vd", "perishable"), temp_buf.Z().Cat((r_bat.Flags & VetisBatch::fPerishable) ? "true" : "false"));
+												n_bat.PutInner(SXml::nst("vd", "perishable"), temp_buf.Z().Cat(STextConst::GetBool(r_bat.Flags & VetisBatch::fPerishable)));
 												//
 												if(r_bat.PackageList.getCount()) {
 													SXml::WNode n_pl(srb, SXml::nst("vd", "packageList"));
@@ -5746,7 +5746,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 										//<vd:batchID>BN1529656417</vd:batchID>
 										n_c.PutInner(SXml::nst("vd", "batchID"), (temp_buf = r_bat.BatchID).Transf(CTRANSF_INNER_TO_UTF8));
 									} */
-									n_c.PutInner(SXml::nst("vd", "perishable"), temp_buf.Z().Cat((r_bat.Flags & VetisBatch::fPerishable) ? "true" : "false"));
+									n_c.PutInner(SXml::nst("vd", "perishable"), temp_buf.Z().Cat(STextConst::GetBool(r_bat.Flags & VetisBatch::fPerishable)));
 									{
 										SXml::WNode n_org(srb, SXml::nst("vd", "origin"));
 										{
@@ -5771,7 +5771,7 @@ int SLAPI PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, Vetis
 									{
 
 									}
-									n_c.PutInner(SXml::nst("vd", "lowGradeCargo"), temp_buf.Z().Cat((r_bat.Flags & VetisBatch::fLowGradeCargo) ? "true" : "false"));
+									n_c.PutInner(SXml::nst("vd", "lowGradeCargo"), temp_buf.Z().Cat(STextConst::GetBool(r_bat.Flags & VetisBatch::fLowGradeCargo)));
 									if(r_bat.PackageList.getCount()) {
 										SXml::WNode n_pl(srb, SXml::nst("vd", "packageList"));
 										for(uint plidx = 0; plidx < r_bat.PackageList.getCount(); plidx++) {
@@ -7242,8 +7242,11 @@ int SLAPI PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <Vetis
 				app_data.Pi.Product = r_bat.Product;
 				app_data.Pi.SubProduct = r_bat.SubProduct;
 			}
+			if(app_data.Pi.Name.Empty())
+				app_data.Pi.Name = r_bat.ProductItem.Name;
 			app_data.VdRec.Flags |= VetisVetDocument::fDiscrepancyLack;
 			app_data.VdRec.AckVolume = 0.0;
+			app_data.VdRec.Volume = app_data.StockEntryRest;
 			app_data.VdRec.WayBillDate = getcurdate_();
 		}
 	}
@@ -9206,7 +9209,7 @@ long SLAPI VetisEntityCore::Helper_SetGuidToList(const S_GUID & rGuid, long * pM
 {
 	uint   gpos = 0;
 	long   gkey = 0;
-	long   max_guid_key = pMaxGuidKey ? *pMaxGuidKey : 0;
+	long   max_guid_key = DEREFPTRORZ(pMaxGuidKey);
 	if(!rGuidList.SearchVal(rGuid, &gkey, &gpos)) {
 		gkey = ++max_guid_key;
 		rGuidList.Add(gkey, rGuid, &gpos);
@@ -10754,8 +10757,9 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 							int r = Helper_ProcessIncoming(item.Uuid, &param, ifc, &ure_list);
-							THROW(r);
-							if(r > 0)
+							if(r == 0)
+								logger.LogLastError();
+							else if(r > 0)
 								do_update = 1;
 						}
 					}
@@ -10779,7 +10783,8 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 							int r = Helper_ProcessIncoming(item.Uuid, &param, ifc, &ure_list);
-							THROW(r);
+							if(r == 0)
+								logger.LogLastError();
 							if(r > 0)
 								do_update = 1;
 						}
@@ -10807,6 +10812,35 @@ int SLAPI PPViewVetisDocument::ProcessIncoming(PPID entityID)
 							do_update = 1;
 						logger.Save(PPFILNAM_VETISINFO_LOG, 0);
 					}
+				}
+			}
+		}
+		else if(v == 4) { // @v10.6.4 Списать всю выборку документов
+			if(CONFIRMCRIT(PPCFG_WROFFALLVETISCERTS)) {
+				PPVetisInterface::Param param(0, Filt.LocID, 0);
+				THROW(PPVetisInterface::SetupParam(param));
+				{
+					PPLogger logger;
+					VetisDocumentViewItem vi;
+					VetisApplicationBlock reply;
+					PPVetisInterface ifc(&logger);
+					THROW(ifc.Init(param));
+					PPWait(1);
+					for(InitIteration(); NextIteration(&vi) > 0;) {
+						if(vi.VetisDocStatus == vetisdocstUTILIZED && vi.Flags & VetisVetDocument::fToMainOrg) {
+							VetisVetDocument item;
+							if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
+								int r = ifc.WriteOffIncomeCert(vi.EntityID, &ure_list, reply); 
+								if(r == 0)
+									logger.LogLastError();
+								else if(r > 0)
+									do_update = 1;
+							}
+						}
+						PPWaitPercent(Counter);
+					}
+					logger.Save(PPFILNAM_VETISINFO_LOG, 0);
+					PPWait(0);
 				}
 			}
 		}

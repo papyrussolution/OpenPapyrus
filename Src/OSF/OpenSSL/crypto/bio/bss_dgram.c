@@ -1196,7 +1196,7 @@ static int dgram_sctp_write(BIO * b, const char * in, int inl)
 		if(ret < 0) {
 			return -1;
 		}
-		if(ret == 0) {
+		if(!ret) {
 			char * tmp;
 			data->saved_message.bio = b;
 			if((tmp = OPENSSL_malloc(inl)) == NULL) {

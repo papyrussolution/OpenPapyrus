@@ -197,7 +197,7 @@ int __fop_write_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 			(argp->dirname.size == 0) ? NULL : (const char *)argp->dirname.data,
 			(APPNAME)argp->appname == DB_APP_DATA ? DB_APP_RECOVER : (APPNAME)argp->appname,
 			NULL, argp->pgsize, argp->pageno, argp->offset, argp->page.data, argp->page.size, argp->flag, 0);
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 	REC_NOOP_CLOSE;
 }
@@ -221,7 +221,7 @@ int __fop_write_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	else if(DB_REDO(op))
 		ret = __fop_write(env, argp->txnp, (const char *)argp->name.data, NULL, (APPNAME)argp->appname,
 			NULL, argp->pgsize, argp->pageno, argp->offset, argp->page.data, argp->page.size, argp->flag, 0);
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 	REC_NOOP_CLOSE;
 }

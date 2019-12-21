@@ -170,7 +170,7 @@ int FASTCALL ObjTagItem::GetStr(SString & rBuf) const
 	int    ok = 1;
 	rBuf.Z();
 	switch(TagDataType) {
-		case OTTYP_BOOL: rBuf = Val.IntVal ? "True" : "False"; break;
+	case OTTYP_BOOL: rBuf = STextConst::GetBool(Val.IntVal); break;
 		case OTTYP_STRING:
 		case OTTYP_GUID:
 		case OTTYP_IMAGE: rBuf = Val.PStr; break;

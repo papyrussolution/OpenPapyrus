@@ -5181,7 +5181,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
 				const int avl_size = static_cast<int>(p_ack_buf->GetAvailableSize());
-				temp_buf.Z().CatN(static_cast<const char *>(p_ack_buf->GetBuf()), avl_size);
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5289,7 +5289,7 @@ int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
 		if(p_ack_buf) {
 			const int avl_size = (int)p_ack_buf->GetAvailableSize();
-			temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+			temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5359,7 +5359,7 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDoc
 		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
 		if(p_ack_buf) {
 			const int avl_size = (int)p_ack_buf->GetAvailableSize();
-			temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+			temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5658,7 +5658,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	p_ack_buf = static_cast<SBuffer *>(wr_stream);
 	if(p_ack_buf) {
 		const int avl_size = (int)p_ack_buf->GetAvailableSize();
-		temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+		temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 			const  int edi_op = pIdent->EdiOp;

@@ -468,7 +468,7 @@ int SLAPI DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameB
 	DBTable crtbl;
 	long   _start = SLS.GetTLA().Rg.GetUniformInt(100000);
 	do {
-		GetTempFileName(rFileNameBuf, &_start, forceInDataPath);
+		GetTemporaryFileName(rFileNameBuf, &_start, forceInDataPath);
 	} while(IsFileExists_(rFileNameBuf) > 0);
 	if(LoadTableSpec(&crtbl, pTblName, rFileNameBuf, 0)) {
 		char   acs[265];

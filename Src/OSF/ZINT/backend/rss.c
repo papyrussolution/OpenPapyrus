@@ -394,7 +394,8 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C81)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C81)");
+		ZintMakeErrText_InvCharInData("C81", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* make some room for a separator row for composite symbols */
@@ -940,7 +941,8 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C83)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C83)");
+		ZintMakeErrText_InvCharInData("C83", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	if(src_len == 13) {

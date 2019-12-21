@@ -108,7 +108,7 @@ IMPL_HANDLE_EVENT(PPApp)
 {
 	if(TVCOMMAND) {
 		if(TVCMD == cmQuit) {
-			if(!TVINFOPTR || *(long *)TVINFOPTR == -1 || CONFIRM(PPCFM_QUIT)) {
+			if(!TVINFOPTR || *static_cast<const long *>(TVINFOPTR) == -1 || CONFIRM(PPCFM_QUIT)) {
 				UserInterfaceSettings ui_cfg;
 				ui_cfg.Restore();
 				SETFLAG(ui_cfg.Flags, ui_cfg.fShowLeftTree, IsTreeVisible());
@@ -486,8 +486,8 @@ int PPApp::processCommand(uint cmd)
 		case cmEventToken:           ShowObjects(PPOBJ_EVENTTOKEN, 0);        break;
 		case cmPhoneService:         ShowObjects(PPOBJ_PHONESERVICE, 0);      break;
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
-		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break; // @v8.4.1
-		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break; // @v8.5.5
+		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break;
+		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break;
 		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3 @experimental
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
@@ -497,10 +497,10 @@ int PPApp::processCommand(uint cmd)
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;
 		case cmGoodsTag:             ShowTags_(PPOBJ_GOODS);                  break;
-		case cmLocationTag:          ShowTags_(PPOBJ_LOCATION);               break; // @v8.3.6
+		case cmLocationTag:          ShowTags_(PPOBJ_LOCATION);               break;
 		case cmGlobalUserAccTag:     ShowTags_(PPOBJ_GLOBALUSERACC);          break;
 		case cmUhttStoreTag:         ShowTags_(PPOBJ_UHTTSTORE);              break;
-		case cmObjTagAllObj:         ShowTags_(0);                            break; // @v8.5.3
+		case cmObjTagAllObj:         ShowTags_(0);                            break;
 		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break; // @v9.6.1
 		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, 0); break; // @v9.6.1
 		case cmPersonRel:            PPView::Execute(PPVIEW_PERSONREL,       0, PPView::exefModeless, 0); break;
@@ -669,7 +669,7 @@ int PPApp::processCommand(uint cmd)
 		case cmReplaceLikeWorld:     PPObjWorld::UniteMaxLike();        break;
 		case cmReplaceDynamicObj:    PPObject::ReplaceObjInteractive(PPOBJ_DYNAMICOBJS, 0);   break;
 		case cmReplaceBrand:         PPObject::ReplaceObjInteractive(PPOBJ_BRAND, 0); break;
-		case cmUniFindObj:           UniFindObj();                      break; // @v10.6.1 @construction 
+		case cmUniFindObj:           UniFindObj();                      break; // @v10.6.1 @construction
 		case cmPrinterCfg:           EditDefaultPrinterCfg();           break;
 		case cmGoodsCfg:             PPObjGoods::EditConfig();          break;
 		case cmPersonCfg:            PPObjPerson::EditConfig();         break;
@@ -735,12 +735,7 @@ int PPApp::processCommand(uint cmd)
 		case cmImportQuot:            Import(PPOBJ_QUOT, 1);             break;
 		case cmImportQuot2:           Import(PPOBJ_QUOT);                break;
 		case cmImportPerson:          Import(PPOBJ_PERSON, 0);           break;
-		case cmImportPerson2:
-			{
-				PPObjPerson psn_obj;
-				psn_obj.Import();
-			}
-			break;
+		case cmImportPerson2:         PPObjPerson().Import();            break;
 		case cmImportSuppl:           Import(PPOBJ_PERSON, PPPRK_SUPPL); break;
 		case cmImportCountry:         Import(PPOBJ_COUNTRY);             break;
 		case cmImportSCard:           Import(PPOBJ_SCARD);               break;
@@ -756,12 +751,7 @@ int PPApp::processCommand(uint cmd)
 		case cmImportPhoneList:       ImportPhoneList();                 break;
 		case cmImportWorkbook:        ImportWorkbook();                  break;
 		//case cmImportFias:            ImportFias();                      break;
-		case cmImportTSessUHTT:
-			{
-				PPObjTSession tsess_obj;
-				tsess_obj.ImportUHTT();
-			}
-			break;
+		case cmImportTSessUHTT:       PPObjTSession().ImportUHTT();      break;
 		case cmImportPosRefs:
 			{
 				PPPosProtocol pp;
@@ -854,18 +844,9 @@ int PPApp::processCommand(uint cmd)
 				GoodsBasketDialog(bc, 1);
 			}
 			break;
-		case cmSetupPreferredBarcodeTags:
-			{
-				PPObjGoods goods_obj;
-				goods_obj.SetupPreferredBarcodeTags();
-			}
-			break;
-		case cmQueryEGAIS:
-			{
-				PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
-				ep.InteractiveQuery();
-			}
-			break;
+		case cmSetupPreferredBarcodeTags: PPObjGoods().SetupPreferredBarcodeTags(); break;
+		case cmQueryEGAIS: PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, 0, 0).InteractiveQuery(); break;
+		case cmQueryCHZN: PPChZnPrcssr(0).InteractiveQuery(); break;
 		case cmFiltPool: ViewFiltPool(); break; // @paul pentaho
 		case cmIndexPhones: PPObject::IndexPhones(); break;
 		case cmIndexTextObjects:
@@ -875,22 +856,12 @@ int PPApp::processCommand(uint cmd)
 				taz.Test();
 			}
 			break;
-		case cmWorkbookInterchange: // @v9.3.10
-			{
-				PPObjWorkbook wb_obj;
-				wb_obj.InterchangeUhtt();
-			}
-			break;
+		case cmWorkbookInterchange: PPObjWorkbook().InterchangeUhtt(); break; // @v9.3.10
 		case cmProcessObjText:     DoProcessObjText(0); break;
 		case cmGenerateKeywordSeq: Test_KeywordListGenerator(); break;
 		case cmLotPacking:         ReceiptPacking();        break;
 		case cmCvtQCert:           ConvertLandQCertToLotTag(); break;
-		case cmCorrectCCheckLine01:
-			{
-				CCheckCore cc;
-				cc.CorrectCCLineProblem01();
-			}
-			break;
+		case cmCorrectCCheckLine01:     CCheckCore().CorrectCCLineProblem01(); break;
 		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
@@ -2004,7 +1975,7 @@ int PPApp::RegisterComServer()
 			};
 			enum {
 				fDl200Install = 0x0001,
-				fXpCompat     = 0x0002 
+				fXpCompat     = 0x0002
 			};
 			long   Action;
 			long   Flags;
@@ -2014,7 +1985,7 @@ int PPApp::RegisterComServer()
 		};
 
 		DECL_DIALOG_DATA(Param);
-	
+
 		RegComSvrDialog() : TDialog(DLG_REGCOMSVR)
 		{
 			SString reg_path;

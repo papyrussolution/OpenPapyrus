@@ -799,7 +799,7 @@ retry:
 			}
 			ret = __dbc_close(cp_n->opd);
 			cp_n->opd = NULL;
-			if(ret == 0)
+			if(!ret)
 				goto retry;
 		}
 		if(ret != 0)
@@ -1303,7 +1303,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 				memzero(&oldpkey, sizeof(DBT));
 				F_SET(&oldpkey, DB_DBT_MALLOC);
 				ret = __dbc_get(sdbc, tskeyp, &oldpkey, rmw|DB_SET);
-				if(ret == 0) {
+				if(!ret) {
 					cmp = __bam_defcmp(sdbp, &oldpkey, pkey);
 					__os_ufree(env, oldpkey.data);
 					//
@@ -1480,7 +1480,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		olddata.dlen = 0;
 		olddata.flags = DB_DBT_PARTIAL|DB_DBT_USERMEM;
 		ret = __dbc_get(dbc, key, &olddata, DB_SET);
-		if(ret == 0) {
+		if(!ret) {
 			ret = DB_KEYEXIST;
 			goto done;
 		}

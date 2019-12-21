@@ -761,7 +761,7 @@ int BudgetItemsDialog::setupList()
 int BudgetItemsDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < Data.getCountI()) {
 		Data.at(pos).Amount = 0;
 		memzero(Data.at(pos).Memo, sizeof(Data.at(pos).Memo));
 		ok = 1;
@@ -773,7 +773,7 @@ int BudgetItemsDialog::delItem(long pos, long id)
 int BudgetItemsDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < Data.getCountI()) {
 		TDialog * p_dlg = new TDialog(DLG_BUDGICYCLEPAR);
 		if(CheckDialogPtrErr(&p_dlg) > 0) {
 			double amount = Data.at(pos).Amount;

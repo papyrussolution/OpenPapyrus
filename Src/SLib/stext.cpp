@@ -34,6 +34,9 @@ const char * FASTCALL STextConst::Get(int c, uint idx)
 	}
 }
 
+//static 
+const char * FASTCALL STextConst::GetBool(int b) { return b ? "true" : "false"; }
+
 //static
 int FASTCALL STextConst::GetIdx(int c, const char * pText)
 {
@@ -2701,6 +2704,10 @@ private:
 	int    S2;
 };
 
+SLAPI ApproxStrSrchParam::ApproxStrSrchParam() : umin(0.0), weight(0.0), method(0), no_case(0), maxscore(0.0), maxpos(0)
+{
+}
+
 inline double ApproxStrComparator::Distance() { return MIN(Del1 + Del2 + Swaps + Subs, MaxSize); }
 inline double ApproxStrComparator::Score() { return (MaxSize - Distance()) / MaxSize; }
 
@@ -2827,9 +2834,9 @@ double FASTCALL ApproxStrComparator::Next(const char * b2)
 int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore)
 {
 	ApproxStrSrchParam param;
-	MEMSZERO(param);
+	// @v10.6.5 @ctr MEMSZERO(param);
 	param.method = 1;
-	param.weight = 1;
+	param.weight = 1.0;
 	ApproxStrComparator srch(pStr1, &param);
 	double s = srch.Next(pStr2);
 	ASSIGN_PTR(pScore, s);

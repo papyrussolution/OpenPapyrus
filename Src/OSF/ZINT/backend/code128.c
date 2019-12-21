@@ -985,7 +985,8 @@ int nve_18(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C46)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C46)");
+		ZintMakeErrText_InvCharInData("C46", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	zeroes = 17 - sourcelen;

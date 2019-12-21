@@ -769,12 +769,10 @@ int SLAPI PPObjGoodsValRestr::GetPacket(PPID id, PPGoodsValRestrPacket * pPack)
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		ok = Search(id, &pack.Rec);
 		if(ok > 0) {
-			{
-				SString text;
-				if(ref->GetPropVlrString(Obj, id, GVRPROP_TEXT, text) > 0) {
-					PPGetExtStrData(1, text, pack.LowBoundFormula);
-					PPGetExtStrData(2, text, pack.UppBoundFormula);
-				}
+			SString text;
+			if(ref->GetPropVlrString(Obj, id, GVRPROP_TEXT, text) > 0) {
+				PPGetExtStrData(1, text, pack.LowBoundFormula);
+				PPGetExtStrData(2, text, pack.UppBoundFormula);
 			}
 			Helper_ReadBarList(id, pack);
 		}

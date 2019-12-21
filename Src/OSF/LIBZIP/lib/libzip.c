@@ -905,7 +905,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 					    _zip_error_set_from_source(&ctx->error, src);
 					    return -1;
 				    }
-				    if(ret == 0)
+				    if(!ret)
 					    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 			    }
 		    }
@@ -925,7 +925,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 		    if((ret = zip_source_read(src, data, len)) < 0)
 			    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 		    ctx->offset += (uint64)ret;
-		    if(ret == 0) {
+		    if(!ret) {
 			    if(ctx->offset < ctx->end)
 				    return zip_error_set(&ctx->error, SLERR_ZIP_EOF, 0);
 		    }

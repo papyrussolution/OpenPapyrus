@@ -442,7 +442,7 @@ out:
 	 * If we finish processing successfully, set our return values
 	 * based on what we saw.
 	 */
-	if(ret == 0) {
+	if(!ret) {
 		ret = save_ret;
 		*ret_lsnp = save_lsn;
 	}

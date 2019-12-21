@@ -33,6 +33,8 @@
    A commercial use license is available from Genivia, Inc., contact@genivia.com
    --------------------------------------------------------------------------------
  */
+#ifndef __SOAPCPP2_H
+#define __SOAPCPP2_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -81,38 +83,38 @@
 #endif
 
 #ifdef WIN32
- #define SOAP_PATHCAT "\\"
- #define SOAP_PATHSEP ";"
- #define LONG64 __int64
+	#define SOAP_PATHCAT "\\"
+	#define SOAP_PATHSEP ";"
+	#define LONG64 __int64
 #else
- #define SOAP_PATHCAT "/"
- #define SOAP_PATHSEP ":"
- #define LONG64 long long
+	#define SOAP_PATHCAT "/"
+	#define SOAP_PATHSEP ":"
+	#define LONG64 long long
 #endif
-
 #if defined(WIN32)
- #define SOAP_LONG_FORMAT "%I64d"
- #define SOAP_ULONG_FORMAT "%I64u"
- #define SOAP_XLONG_FORMAT "%I64x"
+	#define SOAP_LONG_FORMAT "%I64d"
+	#define SOAP_ULONG_FORMAT "%I64u"
+	#define SOAP_XLONG_FORMAT "%I64x"
 #elif defined(TRU64)
- #define SOAP_LONG_FORMAT "%ld"
- #define SOAP_ULONG_FORMAT "%lu"
- #define SOAP_XLONG_FORMAT "%lx"
+	#define SOAP_LONG_FORMAT "%ld"
+	#define SOAP_ULONG_FORMAT "%lu"
+	#define SOAP_XLONG_FORMAT "%lx"
 #endif
-
 #ifndef SOAP_LONG_FORMAT
- #define SOAP_LONG_FORMAT "%lld"        /* printf format for 64 bit ints */
+	#define SOAP_LONG_FORMAT "%lld"        /* printf format for 64 bit ints */
 #endif
 #ifndef SOAP_ULONG_FORMAT
- #define SOAP_ULONG_FORMAT "%llu"       /* printf format for unsigned 64 bit ints */
+	#define SOAP_ULONG_FORMAT "%llu"       /* printf format for unsigned 64 bit ints */
 #endif
 #ifndef SOAP_XLONG_FORMAT
- #define SOAP_XLONG_FORMAT "%llx"       /* printf format for unsigned 64 bit hex ints */
+	#define SOAP_XLONG_FORMAT "%llx"       /* printf format for unsigned 64 bit hex ints */
 #endif
 
 extern int yylineno;
-
-typedef enum Bool {False, True} Bool;
+typedef enum Bool { 
+	False, 
+	True 
+} Bool;
 
 typedef int Token;
 
@@ -353,7 +355,7 @@ void compile(Table *);
 void freetable(Table *);
 Entry * unlinklast(Table *);
 
-int is_transient(Tnode *);
+int is_transient(const Tnode *);
 int is_response(Tnode *);
 extern Table * typetable;
 extern Table * enumtable;
@@ -404,3 +406,5 @@ extern char * encURI;
 extern char * rpcURI;
 extern char * xsiURI;
 extern char * xsdURI;
+
+#endif // __SOAPCPP2_H

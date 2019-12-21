@@ -259,7 +259,7 @@ retry:
 	}
 	else
 		ret = __os_exists(env, real_name, 0);
-	if(ret == 0) {
+	if(!ret) {
 		/*
 		 * If the file exists, there are 5 possible cases:
 		 * 1. DB_EXCL was specified so this is an error, unless
@@ -982,7 +982,7 @@ int __fop_dbrename(DB * dbp, const char * old, const char * pNewName)
 	 */
 	GET_ENVLOCK(env, dbp->locker, &elock);
 	ret = F_ISSET(dbp, DB_AM_INMEM) ? ENOENT : __os_exists(env, real_new, 0);
-	if(ret == 0) {
+	if(!ret) {
 		ret = EEXIST;
 		__db_errx(env, DB_STR_A("0005", "rename: file %s exists", "%s"), real_new);
 		goto err;

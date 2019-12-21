@@ -259,7 +259,7 @@ static CURLcode polarssl_connect_step1(struct connectdata * conn, int sockindex)
 		    SSL_SET_OPTION(key_passwd));
 		if(ret == 0 && !pk_can_do(&pk, POLARSSL_PK_RSA))
 			ret = POLARSSL_ERR_PK_TYPE_MISMATCH;
-		if(ret == 0)
+		if(!ret)
 			rsa_copy(&connssl->rsa, pk_rsa(pk));
 		else
 			rsa_free(&connssl->rsa);

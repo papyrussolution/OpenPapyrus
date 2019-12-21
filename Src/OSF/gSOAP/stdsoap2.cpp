@@ -8222,7 +8222,7 @@ static void soap_utilize_ns(struct soap * soap, const char * tag)
 #endif // !WITH_LEAN
 
 #ifndef PALM_2
-SOAP_FMAC1 int SOAP_FMAC2 soap_element(struct soap * soap, const char * tag, int id, const char * type)
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element(struct soap * soap, const char * tag, int id, const char * type)
 {
 #ifndef WITH_LEAN
 	const char * s;
@@ -8244,7 +8244,6 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_element(struct soap * soap, const char * tag, int
 			soap->evlev = 0;
 		if(soap->event == SOAP_SEC_BEGIN && !soap->evlev) {
 			struct soap_nlist * np;
-
 			/* non-nested wsu:Id found: clear xmlns, re-emit them for exc-c14n */
 			for(np = soap->nlist; np; np = np->next) {
 				if(np->index == 2) {

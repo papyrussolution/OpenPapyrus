@@ -2779,6 +2779,7 @@ int SLAPI PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGood
 SLAPI RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0),
 	Flags(0), QuotKindUsedForPrice(0), QuotKindUsedForExtPrice(0), CurLotDate(ZERODATE), Expiry(ZERODATE)
 {
+	AllowedPriceR.Z(); // @v10.6.4
 }
 
 RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(PPID quotKindID)
@@ -2882,7 +2883,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 			used_quot_list.addUnique(PPQUOTK_BASE);
 			SETFLAG(pItem->Flags, pItem->fDisabledQuot, r == 2);
 		}
-		MEMSZERO(lot_rec);
+		// @v10.6.4 MEMSZERO(lot_rec);
 		ok = GPRET_PRESENT;
 	}
 	else {
@@ -2927,34 +2928,31 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	}
 	PROFILE_END
 	PROFILE_START
-	{
-		const uint eqc = EqBlk.QkList.getCount();
-		if(eqc) {
-			uint   eq_pos = 0;
-			int    eq_disabled = 0;
-			for(uint i = 0; i < eqc; i++) {
-				const PPID ext_qk_id = EqBlk.QkList.get(i);
-				const QuotIdent qi(curdt, LocID, ext_qk_id, 0, ArID);
-				THROW(r = P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &quot, use_quot_cache));
-				if(r > 0) {
-					if(Flags & RTLPF_USEMINEXTQVAL) {
-						if(!eq_pos || quot < ext_price) {
-							ext_price = quot;
-							eq_pos = i+1;
-						}
-					}
-					else {
+	if(EqBlk.QkList.getCount()) {
+		uint   eq_pos = 0;
+		int    eq_disabled = 0;
+		for(uint i = 0; i < EqBlk.QkList.getCount(); i++) {
+			const PPID ext_qk_id = EqBlk.QkList.get(i);
+			const QuotIdent qi(curdt, LocID, ext_qk_id, 0, ArID);
+			THROW(r = P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &quot, use_quot_cache));
+			if(r > 0) {
+				if(Flags & RTLPF_USEMINEXTQVAL) {
+					if(!eq_pos || quot < ext_price) {
 						ext_price = quot;
-						eq_disabled = BIN(r == 2);
 						eq_pos = i+1;
-						break;
 					}
 				}
+				else {
+					ext_price = quot;
+					eq_disabled = BIN(r == 2);
+					eq_pos = i+1;
+					break;
+				}
 			}
-			if(eq_pos) {
-				pItem->QuotKindUsedForExtPrice = EqBlk.QkList.get(eq_pos-1);
-				SETFLAG(pItem->Flags, pItem->fDisabledExtQuot, eq_disabled);
-			}
+		}
+		if(eq_pos) {
+			pItem->QuotKindUsedForExtPrice = EqBlk.QkList.get(eq_pos-1);
+			SETFLAG(pItem->Flags, pItem->fDisabledExtQuot, eq_disabled);
 		}
 	}
 	for(i = 0; i < pItem->QuotList.getCount(); i++) {
@@ -2987,6 +2985,7 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 	pItem->BasePrice  = R5(base_price);
 	pItem->ExtPrice   = R5(ext_price);
 	pItem->CurLotDate = lot_rec.Dt;
+	p_bobj->GetPriceRestrictions(goodsID, lot_rec.ID, lot_rec.Cost, pItem->Price, &pItem->AllowedPriceR); // @v10.6.4
 	PROFILE_END
 	PROFILE_START
 	if(lot_rec.Expiry)

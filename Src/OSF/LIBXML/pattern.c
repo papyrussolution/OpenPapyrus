@@ -2344,7 +2344,7 @@ int xmlPatternMinDepth(xmlPattern * comp)
 			return -1;
 		if(comp->stream->nbStep < ret)
 			ret = comp->stream->nbStep;
-		if(ret == 0)
+		if(!ret)
 			return 0;
 		comp = comp->next;
 	}

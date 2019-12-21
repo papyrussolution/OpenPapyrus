@@ -160,9 +160,8 @@ int SLAPI ACS_DREAMKAS::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 		for(uint tagidx = 0; tagidx < Acn.TagL.GetCount(); tagidx++) {
 			const ObjTagItem * p_tag_item = Acn.TagL.GetItemByPos(tagidx);
 			if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_GLOBALUSERACC) {
-				PPID gua_id = p_tag_item->Val.IntVal;
+				PPID   gua_id = p_tag_item->Val.IntVal;
 				PPObjGlobalUserAcc gua_obj;
-
 				PPGlobalUserAcc gua_rec;
 				if(gua_obj.Search(gua_id, &gua_rec) > 0) { // Fetch использовать нельзя - пароль не извлечется!
 					SString pwd;
@@ -221,8 +220,8 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				const int avl_size = p_ack_buf->GetAvailableSizeI();
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					long   seq_id = 0;
@@ -282,8 +281,8 @@ int SLAPI ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, i
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
-					const int avl_size = (int)p_ack_buf->GetAvailableSize();
-					temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+					const int avl_size = p_ack_buf->GetAvailableSizeI();
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 					f_out_test.WriteLine(temp_buf.CR().CR());
 				}
 			}
@@ -594,8 +593,8 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				const int avl_size = p_ack_buf->GetAvailableSizeI();
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					json_t * p_next = 0;
@@ -878,8 +877,8 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 			//
 			p_ack_buf = (SBuffer *)wr_stream;
 			if(p_ack_buf) {
-				const int avl_size = (int)p_ack_buf->GetAvailableSize();
-				temp_buf.Z().CatN((const char *)p_ack_buf->GetBuf(), avl_size);
+				const int avl_size = p_ack_buf->GetAvailableSizeI();
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 				{

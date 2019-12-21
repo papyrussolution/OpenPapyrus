@@ -92,10 +92,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	if(NULL == (sp = (__ptw32_thread_t *)pthread_self().p)) {
 		goto FAIL0;
 	}
-	if(attr)
-		a = *attr;
-	else
-		a = NULL;
+	a = attr ? *attr : 0;
 	thread = __ptw32_new();
 	if(thread.p == NULL) {
 		goto FAIL0;
@@ -117,24 +114,21 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 #if defined(HAVE_CPU_AFFINITY)
 	tp->cpuset = sp->cpuset;
 #endif
-
-	if(a != NULL) {
+	if(a) {
 #if defined(HAVE_CPU_AFFINITY)
 		cpu_set_t none;
 		cpu_set_t attr_cpuset;
-		((_sched_cpu_set_vector_*)&attr_cpuset)->_cpuset = a->cpuset;
-
+		reinterpret_cast<_sched_cpu_set_vector_ *>(&attr_cpuset)->_cpuset = a->cpuset;
 		CPU_ZERO(&none);
 		if(!CPU_EQUAL(&attr_cpuset, &none)) {
 			tp->cpuset = a->cpuset;
 		}
 #endif
-		stackSize = (unsigned int)a->stacksize;
+		stackSize = static_cast<uint>(a->stacksize);
 		tp->detachState = a->detachstate;
 		priority = a->param.sched_priority;
-		if(a->thrname != NULL)
+		if(a->thrname)
 			tp->name = _strdup(a->thrname);
-
 #if (THREAD_PRIORITY_LOWEST > THREAD_PRIORITY_NORMAL)
 		/* WinCE */
 #else

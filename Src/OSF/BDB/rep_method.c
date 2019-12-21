@@ -523,7 +523,7 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 			//
 			// If we found a perm LSN use it.  Otherwise, if no perm LSN exists, initialize.
 			//
-			if(ret == 0)
+			if(!ret)
 				lp->max_perm_lsn = perm_lsn;
 			else if(ret == DB_NOTFOUND)
 				INIT_LSN(lp->max_perm_lsn);
@@ -793,7 +793,7 @@ errunlock:
 		REP_SYSTEM_UNLOCK(env);
 	}
 out:
-	if(ret == 0) {
+	if(!ret) {
 		REP_SYSTEM_LOCK(env);
 		F_SET(rep, REP_F_START_CALLED);
 		REP_SYSTEM_UNLOCK(env);

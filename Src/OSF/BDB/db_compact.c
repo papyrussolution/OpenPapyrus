@@ -103,7 +103,7 @@ int __db_compact_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBT * start, D
 		if(ret == EBUSY)
 			ret = 0;
 	}
-	if(ret == 0)
+	if(!ret)
 		have_freelist = 1;
 	/* Commit the txn and release the meta page lock. */
 terr:
@@ -230,7 +230,7 @@ done:
 			if((t_ret = __memp_fput(dbp->mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 				ret = t_ret;
 		}
-		else if(ret == 0)
+		else if(!ret)
 			ret = t_ret;
 		if(have_freelist && (t_ret = __db_free_freelist(dbp, ip, txn_orig)) != 0 && ret == 0)
 			t_ret = ret;

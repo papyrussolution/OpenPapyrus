@@ -75,18 +75,16 @@ int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double needed
 	int    ok = -1;
 	if(neededeQtty > 0.0 && rList.getCount()) {
 		RAssocArray abs_list;
-		uint i;
-		for(i = 0; i < rList.getCount(); i++) {
-			const SupplSubstItem & r_item = rList.at(i);
-			double val = 0.0;
-			if(r_item.Unit == r_item.uAbs) {
-				val = r_item.Qtty;
-			}
-			else if(r_item.Unit == r_item.uPct) {
-				val = r_item.Qtty * neededeQtty / 100.0;
-			}
-			if(val > 0.0) {
-				abs_list.Add(i+1, val, 0, 0);
+		{
+			for(uint i = 0; i < rList.getCount(); i++) {
+				const SupplSubstItem & r_item = rList.at(i);
+				double val = 0.0;
+				if(r_item.Unit == r_item.uAbs)
+					val = r_item.Qtty;
+				else if(r_item.Unit == r_item.uPct)
+					val = r_item.Qtty * neededeQtty / 100.0;
+				if(val > 0.0)
+					abs_list.Add(i+1, val, 0, 0);
 			}
 		}
 		double sum = abs_list.GetTotal();
@@ -94,10 +92,10 @@ int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double needed
 		if((fabs(delta) / neededeQtty) <= 0.01) {
 			uint max_pos = 0;
 			double max_val = 0.0;
-			for(i = 0; i < rList.getCount(); i++) {
+			for(uint i = 0; i < rList.getCount(); i++) {
 				SupplSubstItem & r_item = rList.at(i);
 				for(uint j = 0; j < abs_list.getCount(); j++) {
-					RAssoc & r_abs_item = abs_list.at(j);
+					const RAssoc & r_abs_item = abs_list.at(j);
 					if(r_abs_item.Key == (i+1)) {
 						r_item.Qtty = r_abs_item.Val;
 						break;
@@ -284,22 +282,22 @@ void SLAPI PUGL::ClearActions()
 //
 //
 class PuglSupplAssocDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PUGL);
 public:
 	PuglSupplAssocDialog(PPID accSheetID, uint puglPos) : PPListDialog(DLG_PUGLSPLL, CTL_PUGLSPLL_LIST), AcsID(accSheetID), PuglPos(puglPos)
 	{
 	}
-	int    setDTS(const PUGL * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
-		if(PuglPos <= Data.getCount()) {
+		if(PuglPos <= Data.getCount())
 			updateList(-1);
-		}
 		else
 			ok = 0;
 		return ok;
 	}
-	int    getDTS(PUGL * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ASSIGN_PTR(pData, Data);
@@ -419,10 +417,10 @@ private:
 	}
 	const  uint PuglPos;
 	const  PPID AcsID;
-	PUGL   Data;
 };
 
 class PuglDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PUGL);
 public:
 	PuglDialog(uint dlgID) : PPListDialog(dlgID, CTL_MSGNCMPL_LIST)
 	{
@@ -431,8 +429,46 @@ public:
 			PPError();
 		updateList(-1);
 	}
-	int    setDTS(const PUGL *);
-	int    getDTS(PUGL *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		ushort v = 0;
+		for(uint i = 0; i < Data.ActionsCount; i++)
+			if(Data.OPcug == Data.Actions[i]) {
+				v = i;
+				break;
+			}
+		setCtrlUInt16(CTL_MSGNCMPL_ACTION, v);
+		disableCtrl(CTL_MSGNCMPL_ACTION, !Data.ActionsCount);
+		setCtrlUInt16(CTL_MSGNCMPL_COSTALG, BIN(Data.CostByCalc));
+		setCtrlData(CTL_MSGNCMPL_CPCTVAL, &Data.CalcCostPct);
+		SetupCtrls();
+		updateList(-1);
+		{
+			long   sel_id = 0;
+			enableCommand(cmPuglSupplAssoc, (Data.SupplAccSheetForSubstID && getSelection(&sel_id) && sel_id > 0 && sel_id <= Data.getCountI()));
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		ushort v = 999;
+		Data.OPcug = (getCtrlData(CTL_MSGNCMPL_ACTION, &v) && v < Data.ActionsCount) ? Data.Actions[v] : PCUG_CANCEL;
+		v = 0;
+		if(Data.OPcug == PCUG_BALANCE)
+			getCtrlData(CTL_MSGNCMPL_COSTALG, &v);
+		Data.CostByCalc = v;
+		if(Data.CostByCalc)
+			getCtrlData(CTL_MSGNCMPL_CPCTVAL, &Data.CalcCostPct);
+		else
+			Data.CalcCostPct = 0.0;
+		if(Data.CalcCostPct < 0.0 || Data.CalcCostPct > 100.0)
+			ok = PPErrorByDialog(this, CTL_MSGNCMPL_CPCTVAL, PPERR_PERCENTINPUT);
+		else
+			ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -441,7 +477,7 @@ private:
 	{
 		int    ok = -1;
 		PuglSupplAssocDialog * dlg = 0;
-		if(Data.SupplAccSheetForSubstID && selId > 0 && selId <= (long)Data.getCount()) {
+		if(Data.SupplAccSheetForSubstID && selId > 0 && selId <= Data.getCountI()) {
 			dlg = new PuglSupplAssocDialog(Data.SupplAccSheetForSubstID, selId);
 			if(CheckDialogPtrErr(&dlg)) {
 				if(dlg->setDTS(&Data)) {
@@ -455,7 +491,6 @@ private:
 		delete dlg;
 		return ok;
 	}
-	PUGL   Data;
 };
 
 IMPL_HANDLE_EVENT(PuglDialog)
@@ -493,48 +528,6 @@ void PuglDialog::SetupCtrls()
 		getCtrlData(CTL_MSGNCMPL_COSTALG, &v2);
 	disableCtrl(CTL_MSGNCMPL_COSTALG, v1);
 	disableCtrl(CTL_MSGNCMPL_CPCTVAL, !v2);
-}
-
-int PuglDialog::setDTS(const PUGL * pData)
-{
-	RVALUEPTR(Data, pData);
-	ushort v = 0;
-	for(uint i = 0; i < Data.ActionsCount; i++)
-		if(Data.OPcug == Data.Actions[i]) {
-			v = i;
-			break;
-		}
-	setCtrlUInt16(CTL_MSGNCMPL_ACTION, v);
-	disableCtrl(CTL_MSGNCMPL_ACTION, !Data.ActionsCount);
-	setCtrlUInt16(CTL_MSGNCMPL_COSTALG, BIN(Data.CostByCalc));
-	setCtrlData(CTL_MSGNCMPL_CPCTVAL, &Data.CalcCostPct);
-	SetupCtrls();
-	updateList(-1);
-	{
-		long   sel_id = 0;
-		enableCommand(cmPuglSupplAssoc, (Data.SupplAccSheetForSubstID && getSelection(&sel_id) && sel_id > 0 && sel_id <= (long)Data.getCount()));
-	}
-	return 1;
-}
-
-int PuglDialog::getDTS(PUGL * pData)
-{
-	int    ok = 1;
-	ushort v = 999;
-	Data.OPcug = (getCtrlData(CTL_MSGNCMPL_ACTION, &v) && v < Data.ActionsCount) ? Data.Actions[v] : PCUG_CANCEL;
-	v = 0;
-	if(Data.OPcug == PCUG_BALANCE)
-		getCtrlData(CTL_MSGNCMPL_COSTALG, &v);
-	Data.CostByCalc = v;
-	if(Data.CostByCalc)
-		getCtrlData(CTL_MSGNCMPL_CPCTVAL, &Data.CalcCostPct);
-	else
-		Data.CalcCostPct = 0.0;
-	if(Data.CalcCostPct < 0.0 || Data.CalcCostPct > 100.0)
-		ok = PPErrorByDialog(this, CTL_MSGNCMPL_CPCTVAL, PPERR_PERCENTINPUT);
-	else
-		ASSIGN_PTR(pData, Data);
-	return ok;
 }
 
 int PuglDialog::setupList()
@@ -1206,15 +1199,17 @@ int PPALDD_PUGL::NextIteration(PPIterID iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	PUGL * p_list = static_cast<PUGL *>(Extra[0].Ptr);
-	PUGI * p_item = 0;
-	uint   nn = static_cast<uint>(I.nn);
-	if(p_list->enumItems(&nn, (void **)&p_item)) {
-		I.nn       = nn;
-		I.GoodsID  = p_item->GoodsID;
-		I.LocID    = p_item->LocID;
-		I.NeedQtty = p_item->NeededQty;
-		I.Deficit  = p_item->DeficitQty;
-		ok = DlRtm::NextIteration(iterId);
+	if(p_list) {
+		PUGI * p_item = 0;
+		uint   nn = static_cast<uint>(I.nn);
+		if(p_list->enumItems(&nn, (void **)&p_item)) {
+			I.nn       = nn;
+			I.GoodsID  = p_item->GoodsID;
+			I.LocID    = p_item->LocID;
+			I.NeedQtty = p_item->NeededQty;
+			I.Deficit  = p_item->DeficitQty;
+			ok = DlRtm::NextIteration(iterId);
+		}
 	}
 	return ok;
 }

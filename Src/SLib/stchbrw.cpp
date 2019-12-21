@@ -229,7 +229,7 @@ int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
 	wc.cbSize        = sizeof(wc);
-	wc.lpszClassName = SUcSwitch(STimeChunkBrowser::WndClsName); // @unicodeproblem
+	wc.lpszClassName = SUcSwitch(STimeChunkBrowser::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = STimeChunkBrowser::WndProc;
 	wc.style         = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
@@ -237,7 +237,7 @@ int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 	wc.hbrBackground = ::CreateSolidBrush(RGB(0xEE, 0xEE, 0xEE));
 	wc.cbClsExtra    = BRWCLASS_CEXTRA;
 	wc.cbWndExtra    = BRWCLASS_WEXTRA;
-	return ::RegisterClassEx(&wc); // @unicodeproblem
+	return ::RegisterClassEx(&wc);
 }
 
 void STimeChunkBrowser::RegisterMouseTracking()
@@ -618,7 +618,7 @@ int STimeChunkBrowser::SaveParameters()
 		}
 		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat("STimeChunkBrowser");
 		WinRegKey reg_key(HKEY_CURRENT_USER, sub_key, 0);
-		ok = reg_key.PutString(P.RegSaveParam, temp_buf) ? 1 : 0;
+		ok = BIN(reg_key.PutString(P.RegSaveParam, temp_buf));
 	}
 	else
 		ok = -1;
@@ -629,7 +629,6 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 {
 	int    ok = -1;
 	if(rParam.RegSaveParam.NotEmpty()) {
-		//char   val[512];
 		SString val_buf;
 		StrAssocArray param_list;
 		SString temp_buf, sub_key, left, right;
@@ -811,9 +810,9 @@ int STimeChunkBrowser::SetParam(const Param * pParam)
 void STimeChunkBrowser::OnUpdateData()
 {
 	RowStateList.freeAll();
+	LAssocArray order_list;
 	for(uint i = 0; i < P_Data->getCount(); i++) {
 		const STimeChunkAssocArray * p_row = P_Data->at(i);
-		LAssocArray order_list;
 		RowState * p_s = RowStateList.CreateNewItem();
 		p_s->Id = p_row->Id;
 		p_s->Order = p_row->GetIntersectionOrder(&order_list, 1000);
@@ -837,11 +836,11 @@ void STimeChunkBrowser::OnUpdateData()
 	St.Bounds.Start.t = ZEROTIME;
 	//
 	if(P.ViewType == Param::vHourDay) {
-		long   dur = St.Bounds.GetDurationDays();
+		const long dur = St.Bounds.GetDurationDays();
 		St.QBounds = (dur > 0) ? dur : 365;
 	}
 	else {
-		long   dur = St.Bounds.GetDuration();
+		const long dur = St.Bounds.GetDuration();
 		St.QBounds = (dur > 0) ? (dur / P.Quant) : 1000;
 	}
 	ChunkTextCache.Z();
@@ -1687,16 +1686,16 @@ int FASTCALL STimeChunkBrowser::GetArea(Area & rArea) const
 			rArea.Right = rArea.Full;
 			rArea.Right.a.x += half_separator_width * 2;
 			rArea.Right.setmarginx(margin);
-			MEMSZERO(rArea.Left);
-			MEMSZERO(rArea.LeftHeader);
+			rArea.Left.Z();
+			rArea.LeftHeader.Z();
 			ok = 2;
 		}
 		else { // right only
 			rArea.Right = rArea.Full;
 			rArea.Right.setmarginx(margin);
-			MEMSZERO(rArea.Left);
-			MEMSZERO(rArea.LeftHeader);
-			MEMSZERO(rArea.Separator);
+			rArea.Left.Z();
+			rArea.LeftHeader.Z();
+			rArea.Separator.Z();
 			ok = 3;
 		}
 		rArea.RightHeader = rArea.Right;
@@ -1939,7 +1938,6 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 								if(p_chunk->Chunk.Intersect(day_chunk, &day_sect) > 0) {
 									assert(day_sect.Start.d == dt);
 									assert(day_sect.Finish.d == dt);
-
 									srect.a.y = upp_edge + (int)(vpix_per_sec * ::DiffTime(day_sect.Start.t, start_tm, 3));
 									srect.b.y = upp_edge + (int)(vpix_per_sec * ::DiffTime(day_sect.Finish.t, start_tm, 3));
 									srect.a.x = left_edge + pArea->PixQuant * day_n + x_gap;
@@ -2018,23 +2016,19 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 		//
 		// ToolTips
 		//
-		if(H()) {
-			if(!P_Tt)
-				P_Tt = new TToolTip(H(), 400);
-			if(P_Tt) {
-				SString msg_buf;
-				P_Tt->RemoveAllTools();
-				for(uint i = 0; i < rRectList.getCount(); i++) {
-					const SRect & r_sr = rRectList.at(i);
-					if(P_Data->GetText(STimeChunkGrid::iChunkBallon, r_sr.C.Id, msg_buf) > 0) {
-						TToolTip::ToolItem tt_item;
-						tt_item.H = H();
-						tt_item.R = r_sr;
-						tt_item.Param = r_sr.C.Id;
-						msg_buf.ReplaceChar('\003', ' ').Strip().Transf(CTRANSF_INNER_TO_OUTER);
-						tt_item.Text = msg_buf;
-						P_Tt->AddTool(tt_item);
-					}
+		if(H() && SETIFZ(P_Tt, new TToolTip(H(), 400))) {
+			SString msg_buf;
+			P_Tt->RemoveAllTools();
+			for(uint i = 0; i < rRectList.getCount(); i++) {
+				const SRect & r_sr = rRectList.at(i);
+				if(P_Data->GetText(STimeChunkGrid::iChunkBallon, r_sr.C.Id, msg_buf) > 0) {
+					TToolTip::ToolItem tt_item;
+					tt_item.H = H();
+					tt_item.R = r_sr;
+					tt_item.Param = r_sr.C.Id;
+					msg_buf.ReplaceChar('\003', ' ').Strip().Transf(CTRANSF_INNER_TO_OUTER);
+					tt_item.Text = msg_buf;
+					P_Tt->AddTool(tt_item);
 				}
 			}
 		}

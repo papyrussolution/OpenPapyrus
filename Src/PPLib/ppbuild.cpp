@@ -457,13 +457,19 @@ int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int 
 		const char * P_Sln;
 		const char * P_Config;
 		const char * P_Result;
+		const char * P_XpCompatResult;
 		long   Flag;
 	};
 	SolutionEntry sln_list[] = {
 		// P_Name          P_Sln                P_Config         P_Result           Flag
-		{ "client",        "papyrus.sln",       "Release",       "ppw.exe;ppdrv-pirit.dll;ppdrv-ie-korus.dll;ppdrv-ie-kontur.dll", Param::fBuildClient|Param::fSupplementalBuild },
-		{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll",       Param::fBuildMtdll|Param::fSupplementalBuild },
-		{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe",        Param::fBuildServer },
+		{ "client",        "papyrus.sln",       "Release",       
+			"ppw.exe;ppdrv-pirit.dll;ppdrv-cd-vikivision.dll;ppdrv-cd-vfd-epson.dll;ppdrv-cd-shtrih-dpd201.dll;ppdrv-cd-posiflex.dll;ppdrv-cd-flytechvfd-epson.dll;ppdrv-ie-korus.dll;"
+			"ppdrv-ie-edisoft.dll;ppdrv-ie-kontur.dll;ppdrv-ie-leradata.dll;ppdrv-ie-alcodeclbill.dll;ppdrv-ctrl-reversk2.dll;ppdrv-crdr-emmarine.dll;ppdrv-bnkt-sberbank.dll;"
+			"ppdrv-bnkt-emul.dll;ppdrv-bnkt-inpas.dll",
+			"ppw.exe;ppdrv-pirit.dll;ppdrv-bnkt-sberbank.dll;ppdrv-bnkt-inpas.dll",
+			Param::fBuildClient|Param::fSupplementalBuild },
+		{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll", "ppwmt.dll", Param::fBuildMtdll|Param::fSupplementalBuild },
+		{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe", 0, Param::fBuildServer },
 		// @v9.6.9 { "equipsolution", "EquipSolution.sln", "Release",       "ppdrv-pirit.dll", Param::fBuildDrv },
 		// @v8.3.2 { "ppsoapmodules", "PPSoapModules.sln", "Release",       "PPSoapUhtt.dll",  Param::fBuildSoap }
 	};
@@ -505,28 +511,34 @@ int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int 
 				{
 					GetExitCodeProcess(pi.hProcess, &exit_code);
 					if(exit_code == 0) {
-                        result_file_list.setBuf(r_sln_entry.P_Result, sstrlen(r_sln_entry.P_Result)+1);
                         int    result_files_are_ok = 1;
 						int    result_file_no = 0;
-						for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
-							result_file_no++;
-							if(name_buf.NotEmptyS()) {
-								(temp_buf = pCfgEntry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
-								if(!fileExists(temp_buf)) {
-									result_files_are_ok = 0;
-									msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
-									rLogger.Log(msg_buf);
+						{
+							result_file_list.setBuf(r_sln_entry.P_Result, sstrlen(r_sln_entry.P_Result)+1);
+							for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
+								result_file_no++;
+								if(name_buf.NotEmptyS()) {
+									(temp_buf = pCfgEntry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
+									if(!fileExists(temp_buf)) {
+										result_files_are_ok = 0;
+										msg_buf.Printf(PPLoadTextS(PPTXT_BUILD_SLN_TARGETNFOUND, fmt_buf), r_sln_entry.P_Name, temp_buf.cptr());
+										rLogger.Log(msg_buf);
+									}
 								}
-								else {
-									if(supplementalConfig && result_file_no == 1) {
-										SString supplement_file_name;
-										SPathStruc ps(temp_buf);
-										ps.Nam.Cat("-xp");
-										ps.Merge(supplement_file_name);
-										if(!SCopyFile(temp_buf, supplement_file_name, 0, FILE_SHARE_READ, 0)) {
-											PPSetError(PPERR_SLIB);
-											rLogger.LogLastError();
-										}
+							}
+						}
+						if(supplementalConfig && !isempty(r_sln_entry.P_XpCompatResult)) {
+							result_file_list.setBuf(r_sln_entry.P_XpCompatResult, sstrlen(r_sln_entry.P_XpCompatResult)+1);
+							SString supplement_file_name;
+							for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
+								(temp_buf = pCfgEntry->TargetRootPath).SetLastSlash().Cat("BIN").SetLastSlash().Cat(name_buf);
+								if(fileExists(temp_buf)) {
+									SPathStruc ps(temp_buf);
+									ps.Nam.Cat("-xp");
+									ps.Merge(supplement_file_name);
+									if(!SCopyFile(temp_buf, supplement_file_name, 0, FILE_SHARE_READ, 0)) {
+										PPSetError(PPERR_SLIB);
+										rLogger.LogLastError();
 									}
 								}
 							}

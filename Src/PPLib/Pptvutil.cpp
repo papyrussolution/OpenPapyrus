@@ -2769,18 +2769,85 @@ int FASTCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * 
 // BrwColorsSchemas defined in app.h
 
 class UICfgDialog : public TDialog {
+	DECL_DIALOG_DATA(UserInterfaceSettings); // UICfg;
 public:
 	UICfgDialog() : TDialog(DLG_UICFG)
 	{
 		SetupStringCombo(this, CTLSEL_UICFG_SELBCLRSHM, PPTXT_BRWCOLORSSCHEMASNAMES, 1);
 		SetupStringCombo(this, CTLSEL_UICFG_WNDVIEWKIND, PPTXT_WINDOWSVIEWKINDS, 1);
 	}
-	int    setDTS(const UserInterfaceSettings * pUICfg);
-	int    getDTS(UserInterfaceSettings * pUICfg);
+	DECL_DIALOG_SETDTS()
+	{
+		long   cmbb_pos = 1;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		cmbb_pos = (Data.TableViewStyle >= 0 && Data.TableViewStyle < NUMBRWCOLORSCHEMA) ? (Data.TableViewStyle + 1) : 1;
+		static_cast<ComboBox *>(getCtrlView(CTLSEL_UICFG_SELBCLRSHM))->TransmitData(+1, &cmbb_pos);
+		cmbb_pos = (Data.WindowViewStyle >= 0) ? (Data.WindowViewStyle + 1) : 1;
+		static_cast<ComboBox *>(getCtrlView(CTLSEL_UICFG_WNDVIEWKIND))->TransmitData(+1, &cmbb_pos);
+		setCtrlData(CTL_UICFG_LISTELEMCOUNT, &Data.ListElemCount);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  0, UserInterfaceSettings::fDontExitBrowserByEsc);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  1, UserInterfaceSettings::fShowShortcuts);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  2, UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  3, UserInterfaceSettings::fShowBizScoreOnDesktop);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  4, UserInterfaceSettings::fDisableNotFoundWindow);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  5, UserInterfaceSettings::fUpdateReminder);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  6, UserInterfaceSettings::fTcbInterlaced);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg);
+		AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection);
+		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
+		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fPollVoipService); // @v9.8.11
+		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
+		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
+		// @v10.3.0 {
+		{
+			const  long t = CHKXORFLAGS(Data.Flags, UserInterfaceSettings::fEnalbeBillMultiPrint, UserInterfaceSettings::fDisableBillMultiPrint);
+			AddClusterAssocDef(CTL_UICFG_MULTBILLPRINT, 0, 0);
+			AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 1, UserInterfaceSettings::fEnalbeBillMultiPrint);
+			AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 2, UserInterfaceSettings::fDisableBillMultiPrint);
+			SetClusterData(CTL_UICFG_MULTBILLPRINT, t);
+		}
+		// } @v10.3.0
+		{
+			Data.TableFont.ToStr(temp_buf.Z(), 0);
+			setStaticText(CTL_UICFG_ST_TABLEFONT, temp_buf);
+		}
+		{
+			Data.ListFont.ToStr(temp_buf.Z(), 0);
+			setStaticText(CTL_UICFG_ST_LISTFONT, temp_buf);
+		}
+		setCtrlString(CTL_UICFG_SPCINPDRV, Data.SpecialInputDeviceSymb);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		long   id = 0;
+		getCtrlData(CTLSEL_UICFG_SELBCLRSHM, &id);
+		id--;
+		Data.TableViewStyle = (id >= 0 && id < NUMBRWCOLORSCHEMA) ? id : 0;
+		getCtrlData(CTLSEL_UICFG_WNDVIEWKIND, &(id = 0));
+		Data.WindowViewStyle = (id > 0) ? (id - 1) : 0;
+		getCtrlData(CTL_UICFG_LISTELEMCOUNT, &Data.ListElemCount);
+		GetClusterData(CTL_UICFG_FLAGS, &Data.Flags);
+		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
+		// @v10.3.0 {
+		{
+			const long t = GetClusterData(CTL_UICFG_MULTBILLPRINT);
+			Data.Flags &= ~(UserInterfaceSettings::fEnalbeBillMultiPrint | UserInterfaceSettings::fDisableBillMultiPrint);
+			if(t & UserInterfaceSettings::fEnalbeBillMultiPrint)
+				Data.Flags |= UserInterfaceSettings::fEnalbeBillMultiPrint;
+			else if(t & UserInterfaceSettings::fDisableBillMultiPrint)
+				Data.Flags |= UserInterfaceSettings::fDisableBillMultiPrint;
+		}
+		// } @v10.3.0
+		getCtrlString(CTL_UICFG_SPCINPDRV, Data.SpecialInputDeviceSymb);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SelectFont(SFontDescr & rFd, uint indCtlId);
-	UserInterfaceSettings UICfg;
 };
 
 void UICfgDialog::SelectFont(SFontDescr & rFd, uint indCtlId)
@@ -2809,86 +2876,13 @@ void UICfgDialog::SelectFont(SFontDescr & rFd, uint indCtlId)
 IMPL_HANDLE_EVENT(UICfgDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCmd(cmSelBrowserFont)) {
-		SelectFont(UICfg.TableFont, CTL_UICFG_ST_TABLEFONT);
-	}
-	else if(event.isCmd(cmSelListFont)) {
-		SelectFont(UICfg.ListFont, CTL_UICFG_ST_LISTFONT);
-	}
+	if(event.isCmd(cmSelBrowserFont))
+		SelectFont(Data.TableFont, CTL_UICFG_ST_TABLEFONT);
+	else if(event.isCmd(cmSelListFont))
+		SelectFont(Data.ListFont, CTL_UICFG_ST_LISTFONT);
 	else
 		return;
 	clearEvent(event);
-}
-
-int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
-{
-	long   cmbb_pos = 1;
-	SString temp_buf;
-	UICfg = *pUICfg;
-	cmbb_pos = (UICfg.TableViewStyle >= 0 && UICfg.TableViewStyle < NUMBRWCOLORSCHEMA) ? (UICfg.TableViewStyle + 1) : 1;
-	static_cast<ComboBox *>(getCtrlView(CTLSEL_UICFG_SELBCLRSHM))->TransmitData(+1, &cmbb_pos);
-	cmbb_pos = (UICfg.WindowViewStyle >= 0) ? (UICfg.WindowViewStyle + 1) : 1;
-	static_cast<ComboBox *>(getCtrlView(CTLSEL_UICFG_WNDVIEWKIND))->TransmitData(+1, &cmbb_pos);
-	setCtrlData(CTL_UICFG_LISTELEMCOUNT, &UICfg.ListElemCount);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  0, UserInterfaceSettings::fDontExitBrowserByEsc);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  1, UserInterfaceSettings::fShowShortcuts);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  2, UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  3, UserInterfaceSettings::fShowBizScoreOnDesktop);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  4, UserInterfaceSettings::fDisableNotFoundWindow);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  5, UserInterfaceSettings::fUpdateReminder);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  6, UserInterfaceSettings::fTcbInterlaced);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg);
-	AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
-	AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fPollVoipService); // @v9.8.11
-	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
-	SetClusterData(CTL_UICFG_FLAGS, UICfg.Flags);
-	// @v10.3.0 {
-	{
-		const  long t = CHKXORFLAGS(UICfg.Flags, UserInterfaceSettings::fEnalbeBillMultiPrint, UserInterfaceSettings::fDisableBillMultiPrint);
-		AddClusterAssocDef(CTL_UICFG_MULTBILLPRINT, 0, 0);
-		AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 1, UserInterfaceSettings::fEnalbeBillMultiPrint);
-		AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 2, UserInterfaceSettings::fDisableBillMultiPrint);
-		SetClusterData(CTL_UICFG_MULTBILLPRINT, t);
-	}
-	// } @v10.3.0
-	{
-		UICfg.TableFont.ToStr(temp_buf.Z(), 0);
-		setStaticText(CTL_UICFG_ST_TABLEFONT, temp_buf);
-	}
-	{
-		UICfg.ListFont.ToStr(temp_buf.Z(), 0);
-		setStaticText(CTL_UICFG_ST_LISTFONT, temp_buf);
-	}
-	setCtrlString(CTL_UICFG_SPCINPDRV, UICfg.SpecialInputDeviceSymb); // @v8.1.11
-	return 1;
-}
-
-int UICfgDialog::getDTS(UserInterfaceSettings * pUICfg)
-{
-	long   id = 0;
-	getCtrlData(CTLSEL_UICFG_SELBCLRSHM, &id);
-	id--;
-	UICfg.TableViewStyle = (id >= 0 && id < NUMBRWCOLORSCHEMA) ? id : 0;
-	getCtrlData(CTLSEL_UICFG_WNDVIEWKIND, &(id = 0));
-	UICfg.WindowViewStyle = (id > 0) ? (id - 1) : 0;
-	getCtrlData(CTL_UICFG_LISTELEMCOUNT, &UICfg.ListElemCount);
-	GetClusterData(CTL_UICFG_FLAGS, &UICfg.Flags);
-	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
-	// @v10.3.0 {
-	{
-		const long t = GetClusterData(CTL_UICFG_MULTBILLPRINT);
-		UICfg.Flags &= ~(UserInterfaceSettings::fEnalbeBillMultiPrint | UserInterfaceSettings::fDisableBillMultiPrint);
-		if(t & UserInterfaceSettings::fEnalbeBillMultiPrint)
-			UICfg.Flags |= UserInterfaceSettings::fEnalbeBillMultiPrint;
-		else if(t & UserInterfaceSettings::fDisableBillMultiPrint)
-			UICfg.Flags |= UserInterfaceSettings::fDisableBillMultiPrint;
-	}
-	// } @v10.3.0
-	getCtrlString(CTL_UICFG_SPCINPDRV, UICfg.SpecialInputDeviceSymb);
-	ASSIGN_PTR(pUICfg, UICfg);
-	return 1;
 }
 
 int SLAPI UISettingsDialog()
@@ -5625,15 +5619,15 @@ TimePickerDialog::TimePickerDialog() : TDialog(DLG_TMPICKR)
 		MEMSZERO(log_font);
 		log_font.lfCharSet = DEFAULT_CHARSET;
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_TIMESNEWROMAN, temp_buf);
-		STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
+		STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf));
 		log_font.lfHeight = def_font_size;
-		Ptb.SetFont(fontHours, ::CreateFontIndirect(&log_font)); // @unicodeproblem
+		Ptb.SetFont(fontHours, ::CreateFontIndirect(&log_font));
 		log_font.lfWeight = FW_BOLD;
-		Ptb.SetFont(fontWorkHours, ::CreateFontIndirect(&log_font)); // @unicodeproblem
-		Ptb.SetFont(fontMin, ::CreateFontIndirect(&log_font)); // @unicodeproblem
+		Ptb.SetFont(fontWorkHours, ::CreateFontIndirect(&log_font));
+		Ptb.SetFont(fontMin, ::CreateFontIndirect(&log_font));
 		log_font.lfHeight = 16;
 		log_font.lfItalic = 1;
-		Ptb.SetFont(fontTexts, ::CreateFontIndirect(&log_font)); // @unicodeproblem
+		Ptb.SetFont(fontTexts, ::CreateFontIndirect(&log_font));
 	}
 	TmRects.Init(3, 2, H());
 }
@@ -5645,10 +5639,7 @@ TimePickerDialog::~TimePickerDialog()
 IMPL_HANDLE_EVENT(TimePickerDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCmd(cmPaint)) {
-		Implement_Draw();
-	}
-	else if(event.isCmd(cmDraw)) {
+	if(event.isCmd(cmPaint) || event.isCmd(cmDraw)) {
 		Implement_Draw();
 	}
 	else if(event.isCmd(cmCurTime)) {
@@ -5670,7 +5661,8 @@ IMPL_HANDLE_EVENT(TimePickerDialog)
 
 void TimePickerDialog::Select(long x, long y)
 {
-	long   h = Data.hour(), m = Data.minut();
+	long   h = Data.hour();
+	long   m = Data.minut();
 	TmRects.GetTimeByCoord(x, y, &h, &m);
 	Data = encodetime(h, m, 0, 0);
 	invalidateRect(getClientRect(), 1);
@@ -5680,7 +5672,7 @@ void TimePickerDialog::Select(long x, long y)
 void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
 {
 	TRect m_rect;
-	MEMSZERO(m_rect);
+	// @v10.6.5 @ctr MEMSZERO(m_rect);
 	if(TmRects.Minuts.getCount()) {
 		m_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
 		TRect draw_rect(pRect->left + 3, 3, pRect->right - 3, m_rect.b.y + 8);
@@ -6076,25 +6068,31 @@ int EmailCtrlGroup::SetLine(TDialog * pDlg)
 }
 
 class EmailListDlg : public PPListDialog {
+	DECL_DIALOG_DATA(StrAssocArray);
 public:
-	EmailListDlg();
-	int    setDTS(const StrAssocArray * pData);
-	int    getDTS(StrAssocArray * pData);
+	EmailListDlg() : PPListDialog(DLG_EMAILADDRS, CTL_EMAILADDRS_LIST)
+	{
+		showCtrl(CTL_LBXSEL_UPBTN,   0);
+		showCtrl(CTL_LBXSEL_DOWNBTN, 0);
+		updateList(-1);
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 protected:
 	virtual int setupList();
 	virtual int addItem(long * pPos,  long * pID);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos,  long id);
-
-	StrAssocArray Data;
 };
-
-EmailListDlg::EmailListDlg() : PPListDialog(DLG_EMAILADDRS, CTL_EMAILADDRS_LIST)
-{
-	showCtrl(CTL_LBXSEL_UPBTN,   0);
-	showCtrl(CTL_LBXSEL_DOWNBTN, 0);
-	updateList(-1);
-}
 
 // AHTOXA {
 int EmailListDlg::setupList()
@@ -6135,7 +6133,7 @@ int EmailListDlg::addItem(long * pPos, long * pID)
 int EmailListDlg::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < static_cast<long>(Data.getCount())) {
 		SString title;
 		SString addr = Data.Get(pos).Txt;
 		PPLoadString("email", title);
@@ -6150,24 +6148,11 @@ int EmailListDlg::editItem(long pos, long id)
 int EmailListDlg::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < static_cast<long>(Data.getCount())) {
 		Data.Remove(id);
 		ok = 1;
 	}
 	return ok;
-}
-
-int EmailListDlg::getDTS(StrAssocArray * pData)
-{
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
-int EmailListDlg::setDTS(const StrAssocArray * pData)
-{
-	RVALUEPTR(Data, pData);
-	updateList(-1);
-	return 1;
 }
 
 int EmailCtrlGroup::Edit(TDialog * pDlg)
@@ -6538,7 +6523,7 @@ int SLAPI ExportDialogs(const char * pFileName)
 			if(GetWindowInfo(dlg->H(), &wi))
 				_RectToLine(wi.rcWindow, line_buf.Space());
 			{
-				HFONT h_f = (HFONT)::SendMessage(dlg->H(), WM_GETFONT, 0, 0);
+				HFONT h_f = reinterpret_cast<HFONT>(::SendMessage(dlg->H(), WM_GETFONT, 0, 0));
 				if(h_f) {
 					temp_buf.Z();
 					LOGFONT f;

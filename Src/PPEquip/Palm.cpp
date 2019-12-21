@@ -2691,7 +2691,7 @@ int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, const S_GUID & rUuid)
 int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, bool attribValue)
 {
 	SString attr_val;
-	return AddAttrib(pAttribName, attr_val.Cat((attribValue) ? "true" : "false"));
+	return AddAttrib(pAttribName, attr_val.Cat(STextConst::GetBool(attribValue)));
 }
 
 int SLAPI AndroidXmlWriter::AddAttrib(const char * pAttribName, long attribValue)

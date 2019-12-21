@@ -137,6 +137,9 @@ SBuffer & SLAPI SBuffer::Z()
 
 void * FASTCALL SBuffer::Ptr(size_t offs) const { return (static_cast<int8 *>(P_Buf)+offs); }
 const  void * FASTCALL SBuffer::GetBuf(size_t offs) const { return static_cast<const void *>(Ptr(offs)); }
+const  char * FASTCALL SBuffer::GetBufC(size_t offs) const { return static_cast<const char *>(Ptr(offs)); }
+const  int8 * FASTCALL SBuffer::GetBufI8(size_t offs) const { return static_cast<const int8 *>(Ptr(offs)); }
+const  uint8 * FASTCALL SBuffer::GetBufU8(size_t offs) const { return static_cast<const uint8 *>(Ptr(offs)); }
 void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = MIN(offs, WrOffs); }
 void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = MAX(MIN(offs, Size), RdOffs); }
 size_t SLAPI SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }

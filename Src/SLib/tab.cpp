@@ -546,12 +546,12 @@ SLTEST_R(STab)
 			THROW(SLTEST_CHECK_NZ(tab.Find(1, "Coral", &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.Find(1, "Darkslateblue", &(pos = 0))));
 			//
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, (long)0x009932cc, &(pos = 0))));
+			THROW(SLTEST_CHECK_NZ(tab.Find(0, 0x009932ccL, &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
 			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, temp_buf)));
 			THROW(SLTEST_CHECK_Z(temp_buf.CmpNC("Darkorchid")));
 			//
-			THROW(SLTEST_CHECK_NZ(tab.Find(0, (long)0x009acd32, &(pos = 0))));
+			THROW(SLTEST_CHECK_NZ(tab.Find(0, 0x009acd32L, &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
 			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, temp_buf)));
 			THROW(SLTEST_CHECK_Z(temp_buf.CmpNC("Yellowgreen")));

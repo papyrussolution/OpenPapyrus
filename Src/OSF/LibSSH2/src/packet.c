@@ -935,7 +935,7 @@ int _libssh2_packet_require(LIBSSH2_SESSION * session, uchar packet_type,
 			state->start = 0;
 			return ret;
 		}
-		else if(ret == 0) {
+		else if(!ret) {
 			/* nothing available, wait until data arrives or we time out */
 			long left = LIBSSH2_READ_TIMEOUT - (long)(time(NULL) -
 			    state->start);
@@ -988,7 +988,7 @@ int _libssh2_packet_burn(LIBSSH2_SESSION * session, libssh2_nonblocking_states *
 			*state = libssh2_NB_state_idle;
 			return ret;
 		}
-		else if(ret == 0) {
+		else if(!ret) {
 			/* FIXME: this might busyloop */
 			continue;
 		}

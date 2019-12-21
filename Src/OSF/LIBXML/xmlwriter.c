@@ -12,7 +12,7 @@
 
 #ifdef LIBXML_WRITER_ENABLED
 #include <libxml/xmlwriter.h>
-#include "save.h"
+// @v10.6.5 #include "save.h"
 
 #define B64LINELEN 72
 #define B64CRLF "\r\n"
@@ -378,14 +378,13 @@ void FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter)
 		xmlListDelete(pWriter->nodes);
 		xmlListDelete(pWriter->nsstack);
 		if(pWriter->ctxt) {
-			if(pWriter->ctxt->myDoc && (pWriter->no_doc_free == 0)) {
+			if(pWriter->ctxt->myDoc && !pWriter->no_doc_free) {
 				xmlFreeDoc(pWriter->ctxt->myDoc);
 				pWriter->ctxt->myDoc = NULL;
 			}
 			xmlFreeParserCtxt(pWriter->ctxt);
 		}
-		if(pWriter->doc)
-			xmlFreeDoc(pWriter->doc);
+		xmlFreeDoc(pWriter->doc);
 		SAlloc::F(pWriter->ichar);
 		SAlloc::F(pWriter);
 	}

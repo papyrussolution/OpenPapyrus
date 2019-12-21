@@ -2230,6 +2230,7 @@ PPCFM_POSDATNEQCURRENT     "Выбранная дата отличается о�
 PPCFM_GENRCGOODSTOALTGRP   "Выбранный товар является обобщенным. Хотите ли вы вставить в группу компоненты обобщения или сам товар? [@{yes}] - компоненты, [@{no}] - сам товар"
 PPCFG_VETISRMVPREPENTRY    "Подтвердите удаление записи подготовки транспортного сертификата"
 PPCFG_VETISWITHDRAWDOC     "Подтвердите аннулирование транспортного сертификата"
+PPCFG_WROFFALLVETISCERTS   "Вы собираетесь выполнить опасную операцию по списанию всех выбранных сертификатов. Вы уверены в том, что делаете?"
 
 [103]
 
@@ -2865,6 +2866,7 @@ PPFILNAM_BALTIKA_LOG           "baltika.log"
 PPFILNAM_QUOTUPD_LOG           "quotupd.log"
 PPFILNAM_PAYMLINK_LOG          "paymlink.log"
 PPFILNAM_EGAIS_LOG             "egais.log"
+PPFILNAM_CHZN_LOG              "chzn.log" // @v10.6.5
 PPFILNAM_ABSACCOUNTS_LOG       "absacct.log"
 PPFILNAM_IE_CASH_LOG           "ie_cash.log"
 PPFILNAM_CURRESTERR_LOG        "curresterr.log"
@@ -3048,6 +3050,7 @@ PPFILNAM_TSSTAKEPOTENTIAL_LOG  "tsstake-potential.log"
 PPFILNAM_TSTA_LOG              "tsta.log"
 PPFILNAM_DEBUG_AEQ_LOG         "debug-aeq.log"
 PPFILNAM_TEST_LOG              "test.log"
+PPFILNAM_CHZNTALK_LOG          "chzn-talk.log"
 
 #!} // dont_translate
 
@@ -4097,7 +4100,8 @@ PPTXT_SLIPFMT_METAVAR        /!/ "CURDATE;CURTIME;MAINORG;DATE;TIME;BILLNO;CLIEN
 	PCTDIS;WROFFAMOUNT;DEFICIT;GOODSGRP;GOODS;QTTY;PRICEWODIS;PRICE;ITEMDISAMT;ITEMDISPCT;ITEMDIS;ITEMAMTWODIS;ITEMAMT;MEMO;POSNODE;POS;ISRET;\
 	RETURN;RETCASHAMOUNT;RETBANKAMOUNT;CASHAMOUNT;BANKAMOUNT;CHECKCOUNT;CHECKCASHCOUNT;CHECKBANKCOUNT;RETCHECKCOUNT;RETCASHCOUNT;RETBANKCOUNT;DIVISION;CHECKSAMOUNTWODIS;\
 	CHECKSAMOUNT;CHECKSDISCOUNT;ITEMNO;BRINGAMOUNT;DELIVERYAMOUNT;FISCALAMOUNT;NONFISCALAMOUNT;ISORDER;ORDERDATE;ORDERTIMESTART;ORDERTIMEEND;ORDERDURATION;LINKORDERNO;LINKORDERDATE;\
-	DLVRCITY;DLVRADDR;DLVRPHONE;INITTIME;ISGIFTQUOT;UHTTSCHASH;PHQTTY;PHUNIT;PAYMTYPE;PAYMAMT;TABLN;ISEGAIS;EGAISURL;EGAISSIGN;MANUFSERIAL;DIRECTOR;ACCOUNTANT;CLIENTEXTNAME;"
+	DLVRCITY;DLVRADDR;DLVRPHONE;INITTIME;ISGIFTQUOT;UHTTSCHASH;PHQTTY;PHUNIT;PAYMTYPE;PAYMAMT;TABLN;ISEGAIS;EGAISURL;EGAISSIGN;MANUFSERIAL;DIRECTOR;ACCOUNTANT;CLIENTEXTNAME;\
+	AMOUNTBONUS;AMOUNTWOBONUS;"
 PPTXT_SCARDSERSPCTREATMENT         "1,Скидки AstraZeneca"
 #!{
 PPTXT_COMBAUDRATE                  "1,110;2,300;3,600;4,1200;5,2400;6,4800;7,9600;8,14400;9,19200;10,38400;12,57600;13,115200;15,256000"
@@ -5707,6 +5711,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @addendum                            "Дополнение"
 @value                               "Значение"
 @value_pl                            "Значения"
+@valuesign_s                         "Знак" // Имеется в виду +/-
 @absolutevalue                       "Абсолютное значение"
 @defaultvalue                        "Значение по умолчанию"
 @usebydefault                        "Использовать по умолчанию"
@@ -6988,6 +6993,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_guaaccesskey                        "Ключ доступа к глобальному сервису"
 @rtag_lotlinkbillrow                      "Связанная строка документа (lot)"
 @rtag_guacertsubjcn                       "CN субъекта сертификата электронной подписи"
+@rtag_person_chzncode                     "ЧЕСТНЫЙ ЗНАК код персоналии"
+@rtag_loc_chzncode                        "ЧЕСТНЫЙ ЗНАК код локации"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -7017,10 +7024,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 // Наименования зарезервированных видов налогообложения //
 //
 @txsk_general                             "ОСН — общая система налогообложения"
-@txsk_simplified                          "УСН — упрощенная система налогообложения"
+@txsk_simplified                          "УСН — упрощенная система (доход)"
 @txsk_patent                              "ПАТЕНТ — патентная система налогообложения"
 @taxsysk_imputed                          "ЕНВД — вмененная система налогообложения"
 @txsk_singleagricult                      "ЕСХН — единый сельскохозяйственный налог"
+@txsk_simplified_profit                   "УСН — упрощенная система (доход-расход)"
 //
 // Текстовые представления view и filter
 //
@@ -7543,6 +7551,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_importposrefs                        "Импорт POS-справочников"
 @cmd_buildlocaldl600                      "Компиляция локальных структур DL600"
 @cmd_queryegais                           "Запрос к @{brand_egais} (интерактивный)"
+@cmd_querychzn                            "Запрос к @{brand_chzn} (интерактивный)"
 @cmd_workbookinterchange                  "Синхронизация рабочих книг (@{brand_uhtt})"
 @cmd_testlogwindow                        "Тестирование окна вывода сообщений"
 @cmd_importsartre                         "Импорт данных проекта Sartre (construction)"
@@ -7676,6 +7685,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @brand_uhtt       /!/                     "Universe-HTT"
 @brand_styloagent /!/                     "Stylo Agent"
 @brand_egais                              "ЕГАИС"
+@brand_chzn                               "честный знак"
 @brand_openstreetmap /!/                  "OpenStreetMap"
 
 @stypex                                   "Тип данных"
@@ -8121,6 +8131,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billrunie_fsignexport                    "Подписать документ"
 @billrunie_fediimpexp                     "EDI"
 @billrunie_fegaisimpexp                   "@{brand_egais}"
+@billrunie_fchznimpexp                    "честный знак"
 @billrunie_fcreatecc                      ""
 @billrunie_fdisablelogger                 ""
 @billrunie_ftestmode                      "@{testmode}"
@@ -8139,6 +8150,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billrunie_transmit_inetacc               "@{emailacc}"
 @billrunie_transmit_addrlist              "@{email}"
 @billrunie_transmit_subj                  "@{emailsubj}"
+@billrunie_gua                            "@{globaluseracc}"
 
 @bizscore_bounds                          "Контрольные границы значения"
 @bizscore_descr                           "@{description}"
@@ -10761,6 +10773,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardseries_rsrvpooldestser              "Серия назначения для резерва"
 @scardseries_fixedbonus                   "Фиксированный бонус"
 
+@scardserrule                             "Правило расчета скидок и бонусов по картам"
+@scardserrule_trnovrperiod                "Период расчета оборотов"
+@scardserrule_trnovrrngdislist            "Диапазоны оборотов"
+
 @trnovrrngdis                             "Правило для диапазона оборотов карты"
 @trnovrrngdisbonus                        "Правило начисления бонуса"
 @trnovrrngdis_range                       "Диапазон оборотов"
@@ -10771,6 +10787,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trnovrrngdis_fbonusabsolutevalue         "Абсолютное значение скидки"
 @trnovrrngdis_fdiscountaddvalue           "Прибавить к скидке указанное значение"
 @trnovrrngdis_fdiscountmultvalue          "Умножить скидку на указанное значение"
+@trnovrrngdis_bcm_pctpart                 "Доля оборота, начисляемая в виде бонуса, %"
+@trnovrrngdis_bcm_absvalue                "Количество единиц, начисляемых в виде бонуса"
 
 @secur_crc                                "@{checksum}"
 @secur_id                                 "@{id}"
@@ -11983,7 +12001,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcpan_mainware                          "Основной товар"
 @prcpan_ware                              "@{ware}"
 @prcpan_serial                            "@{serial}"
-@prcpan_sign                              "Знак"
+@prcpan_sign                              "@{valuesign_s}"
 @prcpan_unitperpack                       "@{unitperpack}"
 @prcpan_qtty                              "@{qtty}"
 @prcpan_qttypack                          "@{packqtty_s}"
@@ -12567,6 +12585,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selectquot_cost                          "Установить цены поступления"
 @selectquot_costbycontract                "Установить цены поступления по контрактным ценам поставщика"
 @selectquot_useforwholebill               "Использовать для всего документа"
+
+@selectaltreckonar                        "Альтернативная статья для зачета"
+@selectaltreckonar_hint                   "Выберите контрагента, чьи долговые документы должны быть зачтены"
+@selectaltreckonar_accsheet               "@{accsheet}"
+@selectaltreckonar_article                "@{contractor}"
 
 @selectcsess                              "Выбор кассовой сессии"
 @selectcsess_no                           "@{sessionno}"
@@ -13618,8 +13641,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @regcomsvrparam_fdl200install             "Установить надстройку DL200"
 @regcomsvrparam_fwinxpcompat              "Использовать Windows XP-совместимый модуль"
 
-@chznprcssrparam                          "Обмен с честным знаком"
+@chznprcssrparam                          "Обмен с честным знаком" //
 @chznprcssrparam_gua                      "@{globaluseracc}"
+@chznprcssrparam_what                     "Запрос"
+@chznprcssrparam_param                    "Параметр запроса"
+@chznprcssrparam_ar                       "@{supplier}"
+@chznprcssrparam_afqueryticket            "Запрос тикета по документу"
+@chznprcssrparam_afquerykizinfo           "Запрос информации о марке"
 
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"
 @restorelostprjtperson_resolvecreator     "Восст. создателя"

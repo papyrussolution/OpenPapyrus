@@ -236,7 +236,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 		state->stream.next_in = (char *)(uintptr_t)read_buf;
 		state->stream.avail_in = ret;
 		/* There is no more data, return whatever we have. */
-		if(ret == 0) {
+		if(!ret) {
 			state->eof = 1;
 			*p = state->out_block;
 			decompressed = state->stream.next_out - state->out_block;

@@ -346,7 +346,7 @@ static int __lock_get_api(ENV * env, uint32 locker, uint32 flags, const DBT * ob
 	ret = __lock_getlocker_int(env->lk_handle, locker, 0, &sh_locker);
 	UNLOCK_LOCKERS(env, region);
 	LOCK_SYSTEM_LOCK(env->lk_handle, region);
-	if(ret == 0)
+	if(!ret)
 		ret = __lock_get_internal(env->lk_handle, sh_locker, flags, obj, lock_mode, 0, lock);
 	LOCK_SYSTEM_UNLOCK(env->lk_handle, region);
 	return ret;

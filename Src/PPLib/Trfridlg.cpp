@@ -61,8 +61,8 @@ private:
 	int    IsSourceSerialUsed();
 	int    GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray & rList);
 	int    readQttyFld(uint master, uint ctl, double * val);
-	int    checkQuantityForIntVal();
-	int    checkQuantityVal(double * pExtraQtty);
+	int    CheckQuantityForIntVal();
+	int    CheckQuantityVal(double * pExtraQtty);
 	int    isDiscountInSum() const;
 	int    isAllowZeroPrice();
 	int    setupAllQuantity(int byLot);
@@ -1299,7 +1299,7 @@ int TrfrItemDialog::isAllowZeroPrice()
 	return yes;
 }
 
-int TrfrItemDialog::checkQuantityForIntVal()
+int TrfrItemDialog::CheckQuantityForIntVal()
 {
 	const TView * v = getCtrlView(CTL_LOT_QUANTITY);
 	if(v && !v->IsInState(sfDisabled) && GObj.CheckFlag(Item.GoodsID, GF_INTVAL) && ffrac(R6(Item.Quantity_)) != 0.0)
@@ -1345,7 +1345,6 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	ReceiptTbl::Rec lot_rec;
 	LotArray lot_list;
 	uint   lot_idx = 0;
-
 	InheritedLotTagList.Destroy();
 	Rest = 0.0;
 	Item.Flags &= ~PPTFR_AUTOCOMPL;
@@ -1405,7 +1404,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		if(Item.Flags & PPTFR_MINUS && GObj.CheckFlag(Item.GoodsID, GF_AUTOCOMPL))
 			Item.Flags |= PPTFR_AUTOCOMPL;
 		{
-			double dis = P_Pack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
+			const double dis = P_Pack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
 			if(dis != 0.0)
 				Item.Discount = fdiv100r(dis * quot);
 		}
@@ -1635,7 +1634,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 
 int TrfrItemDialog::readQttyFld(uint master, uint ctl, double * val)
 {
-	double tmp = R6(getCtrlReal(ctl));
+	const double tmp = R6(getCtrlReal(ctl));
 	return (tmp == *val && master == ctl) ? 0 : ((*val = tmp), 1);
 }
 
@@ -1777,7 +1776,7 @@ void TrfrItemDialog::setupBaseQuot()
 		if(Item.GoodsID) {
 			double price = getCtrlReal(CTL_LOT_PRICE);
 			getCtrlCost();
-			QuotIdent qi(GetQuotLocID(), PPQUOTK_BASE, Item.CurID, 0);
+			const QuotIdent qi(GetQuotLocID(), PPQUOTK_BASE, Item.CurID, 0);
 			GObj.GetQuotExt(Item.GoodsID, qi, Item.Cost, price, &q, 1);
 		}
 		setCtrlReal(CTL_LOT_BASEQUOT, q);
@@ -1826,7 +1825,6 @@ int TrfrItemDialog::getManuf()
 			getCtrlData(CTLSEL_LOT_MANUF, &manuf_id);
             ObjTagItem mnf_tag;
             mnf_tag.SetInt(mnf_lot_tag_id, manuf_id);
-
 			ObjTagList tag_list;
 			ObjTagList * p_list = P_Pack->LTagL.Get(ItemNo);
 			RVALUEPTR(tag_list, p_list);
@@ -2010,7 +2008,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 //
 // Helper function (called from TrfrItemDialog::getDTS())
 //
-int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
+int TrfrItemDialog::CheckQuantityVal(double * pExtraQtty)
 {
 	int    ok = 1;
 	double _rest = 0;
@@ -2042,7 +2040,7 @@ int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
 		if(Item.BillID && Item.RByBill) {
 			TransferTbl::Rec trfr_rec;
 			if(P_Trfr->SearchByBill(Item.BillID, 0, Item.RByBill, &trfr_rec) > 0) {
-				double org_qtty = fabs(trfr_rec.Quantity);
+				const double org_qtty = fabs(trfr_rec.Quantity);
 				if(fabs(Item.Quantity_) < org_qtty)
 					skip_rsrv_test = 1;
 			}
@@ -2073,48 +2071,65 @@ int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
 	return ok;
 }
 
+int SLAPI PPObjBill::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, PPBillPacket * pPack, const PPTransferItem & rTi, int itemPos, double & rBound)
+{
+	int    ok = -1;
+	rBound = 0.0;
+	if(rFormula.NotEmptyS()) {
+		double bound = 0.0;
+		CALLPTRMEMB(pPack, SetTPointer(itemPos));
+		GdsClsCalcExprContext ctx(&rTi, pPack);
+		if(PPCalcExpression(rFormula, &bound, &ctx) && bound > 0.0) {
+			rBound = bound;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPObjBill::GetPriceRestrictions(PPBillPacket & rPack, const PPTransferItem & rTi, int itemPos, RealRange * pRange)
 {
 	int    ok = -1;
 	RealRange range;
 	range.SetVal(0.0);
-	PPObjGoodsType gt_obj;
 	PPGoodsType gt_rec;
 	Goods2Tbl::Rec goods_rec;
-	if(GObj.Fetch(rTi.GoodsID, &goods_rec) > 0 && gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0) {
-		if(gt_rec.PriceRestrID) {
-			PPObjGoodsValRestr gvr_obj;
-			PPGoodsValRestrPacket gvr_pack;
-			if(gvr_obj.Fetch(gt_rec.PriceRestrID, &gvr_pack) > 0) {
-				if(gvr_pack.LowBoundFormula.NotEmptyS()) {
-					double bound = 0.0;
-					rPack.SetTPointer(itemPos);
-					GdsClsCalcExprContext ctx(&rTi, &rPack);
-					if(PPCalcExpression(gvr_pack.LowBoundFormula, &bound, &ctx) && bound > 0.0) {
-						range.low = bound;
-						ok = 1;
-					}
-				}
-				if(gvr_pack.UppBoundFormula.NotEmptyS()) {
-					double bound = 0.0;
-					//
-					// При редактировании строки приходного документа LotID
-					// "затирается". Поэтому создаем временный PPTransferItem и
-					// устанавливаем в нем LotID равный тому, что в пакете.
-					//
-					rPack.SetTPointer(itemPos);
-					GdsClsCalcExprContext ctx(&rTi, &rPack);
-					if(PPCalcExpression(gvr_pack.UppBoundFormula, &bound, &ctx) && bound > 0.0) {
-						range.upp = bound;
-						ok = 1;
-					}
-				}
-			}
+	if(GObj.Fetch(rTi.GoodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
+		PPObjGoodsValRestr gvr_obj;
+		PPGoodsValRestrPacket gvr_pack;
+		if(gvr_obj.Fetch(gt_rec.PriceRestrID, &gvr_pack) > 0) {
+			if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, &rPack, rTi, itemPos, range.low) > 0)
+				ok = 1;
+			if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, &rPack, rTi, itemPos, range.upp) > 0)
+				ok = 1;
 		}
 	}
-	/*
-	CATCHZOK
-	*/
+	ASSIGN_PTR(pRange, range);
+	return ok;
+}
+
+int SLAPI PPObjBill::GetPriceRestrictions(PPID goodsID, PPID lotID, double cost, double price, RealRange * pRange)
+{
+	int    ok = -1;
+	RealRange range;
+	range.SetVal(0.0);
+	PPGoodsType gt_rec;
+	Goods2Tbl::Rec goods_rec;
+	if(GObj.Fetch(goodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
+		PPObjGoodsValRestr gvr_obj;
+		PPGoodsValRestrPacket gvr_pack;
+		if(gvr_obj.Fetch(gt_rec.PriceRestrID, &gvr_pack) > 0) {
+			PPTransferItem temp_ti;
+			temp_ti.GoodsID = goodsID;
+			temp_ti.LotID = lotID;
+			temp_ti.Cost = cost;
+			temp_ti.Price = price;
+			if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, 0, temp_ti, -1, range.low) > 0)
+				ok = 1;
+			if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, 0, temp_ti, -1, range.upp) > 0)
+				ok = 1;
+		}
+	}
 	ASSIGN_PTR(pRange, range);
 	return ok;
 }
@@ -2190,10 +2205,10 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	THROW(Item.SetupGoods(Item.GoodsID, TISG_SETPWOTF) > 0);
 	sel = CTL_LOT_QUANTITY;
 	setupQuantity(0/*sel*/, 1);
-	THROW(checkQuantityForIntVal());
+	THROW(CheckQuantityForIntVal());
 	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() || oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ||
 		Item.Quantity_ > 0.0, PPERR_INVQTTY); // @v9.3.1 P_Pack->Rec.OpID == PPOPK_EDI_STOCK // @v9.4.3 Item.IsCorrectionExp()
-	THROW(r = checkQuantityVal(&extra_qtty));
+	THROW(r = CheckQuantityVal(&extra_qtty));
 	ASSIGN_PTR(pExtraQtty, extra_qtty);
 	if(r < 0) {
 		no_err_msg = 1;
@@ -2265,11 +2280,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		if(OpTypeID == PPOPT_GOODSORDER) {
 			// @v9.2.9 ds = 0.0;
 		}
-		else {
-			if(!isModifPlus()) {
-				sel = CTL_LOT_COST;
-				THROW_PP(Item.GetOrgCost() >= 0.0, PPERR_INVCOST);
-			}
+		else if(!isModifPlus()) {
+			sel = CTL_LOT_COST;
+			THROW_PP(Item.GetOrgCost() >= 0.0, PPERR_INVCOST);
 		}
 	}
 	if(Item.Flags & PPTFR_REVAL) {
@@ -2782,7 +2795,7 @@ SArray * SLAPI SelLotBrowser::CreateArray()
 int FASTCALL SelLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial)
 {
 	int    ok = 1;
-	if(!pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
+	if(pRec && !pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
 		PPObjBill * p_bobj = BillObj;
 		int    sr = 0;
 		SString temp_buf;
@@ -3355,9 +3368,8 @@ int SLAPI PPTransferItem::FreightPackage::Edit(PPTransferItem::FreightPackage * 
 				PPErrorByDialog(dlg, CTLSEL_FPACKAGE_FPT);
 			else {
 				data.Qtty = dlg->getCtrlReal(CTL_FPACKAGE_QTTY);
-				if(data.Qtty <= 0.0 || data.Qtty > 1000000.0) {
+				if(data.Qtty <= 0.0 || data.Qtty > 1000000.0)
 					PPErrorByDialog(dlg, CTL_FPACKAGE_QTTY);
-				}
 				else {
 					ASSIGN_PTR(pData, data);
 					ok = 1;

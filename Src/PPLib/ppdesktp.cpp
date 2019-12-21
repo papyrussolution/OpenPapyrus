@@ -1209,10 +1209,10 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 			MEMSZERO(log_font);
 			log_font.lfCharSet = DEFAULT_CHARSET;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIAL, temp_buf);
-			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
+			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf));
 			log_font.lfHeight = 14;
 			log_font.lfQuality = CLEARTYPE_QUALITY;
-			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font)); // @unicodeproblem
+			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font));
 		}
 		Ptb.SetBrush(brushTextRect,    SPaintObj::bsSolid, SColor(RGB(0x80, 0x80, 0xC0)), 0);
 		Ptb.SetBrush(brushSelTextRect, SPaintObj::bsSolid, SColor(RGB(0x40, 0x00, 0x80)), 0);

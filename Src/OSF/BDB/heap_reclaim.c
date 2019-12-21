@@ -86,7 +86,7 @@ int __heap_truncate(DBC * dbc, uint32 * countp)
 	}
 	if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret == 0) {
+	if(!ret) {
 		ASSIGN_PTR(countp, count);
 	}
 	if(DBC_LOGGING(dbc)) {

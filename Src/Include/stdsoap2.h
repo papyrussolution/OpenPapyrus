@@ -2245,7 +2245,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_open_logfile(struct soap *, int);
 SOAP_FMAC1 const char * /*SOAP_FMAC2*/FASTCALL soap_value(struct soap *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_match_tag(struct soap *, const char *, const char *);
 SOAP_FMAC1 int SOAP_FMAC2 soap_match_array(struct soap *, const char *);
-SOAP_FMAC1 int SOAP_FMAC2 soap_element(struct soap *, const char *, int, const char *);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element(struct soap *, const char *, int, const char *);
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_begin_out(struct soap *, const char * tag, int id, const char * type);
 SOAP_FMAC1 int SOAP_FMAC2 soap_array_begin_out(struct soap *, const char * tag, int id, const char * type, const char * offset);
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_ref(struct soap *, const char * tag, int id, int href);

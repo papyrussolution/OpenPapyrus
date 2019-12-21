@@ -109,7 +109,7 @@ int OBJ_NAME_new_index(ulong (* hash_func)(const char *), int (* cmp_func)(const
 static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 {
 	int ret = a->type - b->type;
-	if(ret == 0) {
+	if(!ret) {
 		if(name_funcs_stack && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
 			ret = sk_NAME_FUNCS_value(name_funcs_stack, a->type)->cmp_func(a->name, b->name);
 		}

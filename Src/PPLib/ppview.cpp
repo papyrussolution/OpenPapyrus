@@ -2347,146 +2347,146 @@ int PPViewBrowser::SetupToolbarStringCombo(uint strId, PPID id)
 
 IMPL_HANDLE_EVENT(PPViewBrowser)
 {
-	if(!this || !this->IsConsistent()) // @v10.3.9
-		return;
-	int    c, r;
-	int    skip_inherited_processing = 0;
-	if(TVKEYDOWN) {
-		int    is_rus = 0;
-		char   b[4];
-		b[0] = TVCHR;
-		b[1] = 0;
-		SCharToOem(b);
-		is_rus = IsLetter866(b[0]);
-		SOemToChar(b);
-		if(isalnum(c = TVCHR) || is_rus || c == '*') {
-			if((VbState & vbsKbF10) && (b[0] == 'x' || b[0] == 'X' || (is_rus && (b[0] == 'ч' || b[0] == 'Ч')))) {
-				Export();
-				clearEvent(event);
-			}
-			else if(P_View && !is_rus) {
-				char   temp_buf[32];
-				temp_buf[0] = c;
-				temp_buf[1] = 0;
-				r = P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this);
-				if(r != -2) {
-					if(r > 0)
-						updateView();
+	if(this && this->IsConsistent()) { // @v10.3.9
+		int    c, r;
+		int    skip_inherited_processing = 0;
+		if(TVKEYDOWN) {
+			int    is_rus = 0;
+			char   b[4];
+			b[0] = TVCHR;
+			b[1] = 0;
+			SCharToOem(b);
+			is_rus = IsLetter866(b[0]);
+			SOemToChar(b);
+			if(isalnum(c = TVCHR) || is_rus || c == '*') {
+				if((VbState & vbsKbF10) && (b[0] == 'x' || b[0] == 'X' || (is_rus && (b[0] == 'ч' || b[0] == 'Ч')))) {
+					Export();
 					clearEvent(event);
 				}
+				else if(P_View && !is_rus) {
+					char   temp_buf[32];
+					temp_buf[0] = c;
+					temp_buf[1] = 0;
+					r = P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this);
+					if(r != -2) {
+						if(r > 0)
+							updateView();
+						clearEvent(event);
+					}
+				}
+				VbState &= ~vbsKbF10;
 			}
-			VbState &= ~vbsKbF10;
+			else if(oneof3(TVKEY, kbEnter, kbIns, kbDel))
+				skip_inherited_processing = 1;
+			else if(TVKEY == kbF10)
+				VbState |= vbsKbF10;
 		}
-		else if(oneof3(TVKEY, kbEnter, kbIns, kbDel))
-			skip_inherited_processing = 1;
-		else if(TVKEY == kbF10)
-			VbState |= vbsKbF10;
-	}
-	if(!skip_inherited_processing) {
-		/* @v10.3.1
-		if(event.isCmd(cmExecute)) {
-			const int  r = P_View ? P_View->OnExecBrowser(this) : -1;
-			if(r >= 0) {
-                clearEvent(event);
-                event.message.infoLong = r;
-                return;
+		if(!skip_inherited_processing) {
+			/* @v10.3.1
+			if(event.isCmd(cmExecute)) {
+				const int  r = P_View ? P_View->OnExecBrowser(this) : -1;
+				if(r >= 0) {
+					clearEvent(event);
+					event.message.infoLong = r;
+					return;
+				}
+				else {
+					; // Управление передается базовому классу
+				}
+			}
+			*/
+			BrowserWindow::handleEvent(event);
+		}
+		if(!P_View || !P_View->IsConsistent() || (!this || !this->IsConsistent()))
+			return;
+		if(TVBROADCAST) {
+			if(TVCMD == cmIdle) {
+				if(RefreshTimer.Check(0)) {
+					const int r = P_View->ProcessCommand(PPVCMD_REFRESHBYPERIOD, 0, this);
+					if(r == -2 || r > 0)
+						Update();
+				}
+				return; // @v10.5.9 в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
+			}
+			else if(TVCMD == cmReceivedFocus)
+				P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);
+			else if(TVCMD == cmMouseHover) {
+				if(view) {
+					long   h = 0, v = 0;
+					TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
+					if(view->ItemByPoint(point, &h, &v)) {
+						const void * p_row = view->getItemByPos(v);
+						if(P_View->ProcessCommand(PPVCMD_MOUSEHOVER, p_row, this) > 0)
+							updateView();
+					}
+				}
+			}
+			else
+				return;
+		}
+		else if(TVCOMMAND) {
+			const void * p_row = view ? view->getCurItem() : 0;
+			switch(TVCMD) {
+				case cmModalPostCreate: // @v10.3.1
+					if(P_View->OnExecBrowser(this) == cmCancel)
+						BbState |= bbsCancel; // @v10.3.3
+					break;
+				case cmSort: // @v10.6.4
+					if(P_View->ProcessCommand(PPVCMD_USERSORT, p_row, this) > 0)
+						updateView();
+					break;
+				case cmaInsert:
+					if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0)
+						updateView();
+					break;
+				case cmaDelete:
+					if(P_View->ProcessCommand(PPVCMD_DELETEITEM, p_row, this) > 0)
+						updateView();
+					break;
+				case cmaEdit:
+					r = P_View->ProcessCommand(PPVCMD_EDITITEM, p_row, this);
+					if(r > 0)
+						updateView();
+					else if(r == -2) {
+						if(P_View->ProcessCommand(PPVCMD_DETAIL, p_row, this) > 0)
+							updateView();
+					}
+					break;
+				case cmCBSelected:
+					r = P_View->ProcessCommand(PPVCMD_TB_CBX_SELECTED, p_row, this);
+					break;
+				case cmResize:
+					if(P_InputLine && P_ComboBox) {
+						RECT rect;
+						if(GetToolbarComboRect(&rect) > 0) {
+							SetWindowPos(P_InputLine->getHandle(), 0, rect.left, rect.top, rect.right, rect.bottom, 0);
+							SetWindowPos(P_ComboBox->getHandle(), 0, rect.left + rect.right - 1, rect.top, rect.bottom, rect.bottom, 0);
+						}
+					}
+					break;
+				default:
+					return;
+			}
+		}
+		else if(TVKEYDOWN) {
+			uint   cmd = 0;
+			if(translateKeyCode(TVKEY, &cmd) > 0) {
+				const void * p_row = view ? view->getCurItem() : 0;
+				if(P_View->ProcessCommand(cmd, p_row, this) > 0)
+					updateView();
 			}
 			else {
-				; // Управление передается базовому классу
-			}
-		}
-		*/
-		BrowserWindow::handleEvent(event);
-	}
-	if(!P_View || !P_View->IsConsistent() || (!this || !this->IsConsistent()))
-		return;
-	if(TVBROADCAST) {
-		if(TVCMD == cmIdle) {
-			if(RefreshTimer.Check(0)) {
-				const int r = P_View->ProcessCommand(PPVCMD_REFRESHBYPERIOD, 0, this);
-				if(r == -2 || r > 0)
-					Update();
-			}
-			return; // @v10.5.9 в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
-		}
-		else if(TVCMD == cmReceivedFocus)
-			P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);
-		else if(TVCMD == cmMouseHover) {
-			if(view) {
-				long   h = 0, v = 0;
-				TPoint point = *static_cast<const TPoint *>(event.message.infoPtr);
-				if(view->ItemByPoint(point, &h, &v)) {
-					const void * p_row = view->getItemByPos(v);
-					if(P_View->ProcessCommand(PPVCMD_MOUSEHOVER, p_row, this) > 0)
-						updateView();
-				}
+				char   temp_buf[32];
+				temp_buf[0] = static_cast<char>(TVKEY);
+				temp_buf[1] = 0;
+				if(P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0)
+					updateView();
 			}
 		}
 		else
 			return;
+		clearEvent(event);
 	}
-	else if(TVCOMMAND) {
-		const void * p_row = view ? view->getCurItem() : 0;
-		switch(TVCMD) {
-			case cmModalPostCreate: // @v10.3.1
-				if(P_View->OnExecBrowser(this) == cmCancel)
-					BbState |= bbsCancel; // @v10.3.3
-				break;
-			case cmSort: // @v10.6.4
-				if(P_View->ProcessCommand(PPVCMD_USERSORT, p_row, this) > 0)
-					updateView();
-				break;
-			case cmaInsert:
-				if(P_View->ProcessCommand(PPVCMD_ADDITEM, p_row, this) > 0)
-					updateView();
-				break;
-			case cmaDelete:
-				if(P_View->ProcessCommand(PPVCMD_DELETEITEM, p_row, this) > 0)
-					updateView();
-				break;
-			case cmaEdit:
-				r = P_View->ProcessCommand(PPVCMD_EDITITEM, p_row, this);
-				if(r > 0)
-					updateView();
-				else if(r == -2) {
-					if(P_View->ProcessCommand(PPVCMD_DETAIL, p_row, this) > 0)
-						updateView();
-				}
-				break;
-			case cmCBSelected:
-				r = P_View->ProcessCommand(PPVCMD_TB_CBX_SELECTED, p_row, this);
-				break;
-			case cmResize:
-				if(P_InputLine && P_ComboBox) {
-					RECT rect;
-					if(GetToolbarComboRect(&rect) > 0) {
-						SetWindowPos(P_InputLine->getHandle(), 0, rect.left, rect.top, rect.right, rect.bottom, 0);
-						SetWindowPos(P_ComboBox->getHandle(), 0, rect.left + rect.right - 1, rect.top, rect.bottom, rect.bottom, 0);
-					}
-				}
-				break;
-			default:
-				return;
-		}
-	}
-	else if(TVKEYDOWN) {
-		uint   cmd = 0;
-		if(translateKeyCode(TVKEY, &cmd) > 0) {
-			const void * p_row = view ? view->getCurItem() : 0;
-			if(P_View->ProcessCommand(cmd, p_row, this) > 0)
-				updateView();
-		}
-		else {
-			char   temp_buf[32];
-			temp_buf[0] = static_cast<char>(TVKEY);
-			temp_buf[1] = 0;
-			if(P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0)
-				updateView();
-		}
-	}
-	else
-		return;
-	clearEvent(event);
 }
 //
 //

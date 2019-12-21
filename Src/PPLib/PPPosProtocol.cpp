@@ -542,8 +542,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 								if(unit_id == def_unit_id) {
 									w_s.PutInner("default", "true");
 								}
-								w_s.PutInner("physical", (unit_rec.Flags & PPUnit::Physical) ? "true" : "false");
-								w_s.PutInner("integer", (unit_rec.Flags & PPUnit::IntVal) ? "true" : "false"); // @v10.2.7
+								w_s.PutInner("physical", STextConst::GetBool(unit_rec.Flags & PPUnit::Physical));
+								w_s.PutInner("integer",  STextConst::GetBool(unit_rec.Flags & PPUnit::IntVal)); // @v10.2.7
 								if(unit_rec.Rounding > 0.0) {
 									temp_buf.Z().Cat(unit_rec.Rounding, MKSFMTD(0, 8, NMBF_NOTRAILZ|NMBF_OMITEPS));
 									w_s.PutInner("rounding", temp_buf);

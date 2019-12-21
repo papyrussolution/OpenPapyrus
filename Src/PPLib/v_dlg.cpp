@@ -241,11 +241,11 @@ int WhatmanObjectUiCtrl::Set(DlContext * pCtx, DlScope * pScope, DlScope * pInne
 				Rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 		}
 		{
-			TRect bounds; // UiRelRect
-			bounds.a.x = Rect.L.X.Val;
-			bounds.a.y = Rect.L.Y.Val;
-			bounds.b.x = Rect.R.X.Val;
-			bounds.b.y = Rect.R.Y.Val;
+			TRect bounds(Rect.L.X.Val, Rect.L.Y.Val, Rect.R.X.Val, Rect.R.Y.Val); // UiRelRect
+			//bounds.a.x = Rect.L.X.Val;
+			//bounds.a.y = Rect.L.Y.Val;
+			//bounds.b.x = Rect.R.X.Val;
+			//bounds.b.y = Rect.R.Y.Val;
 			SetBounds(bounds);
 		}
 	}

@@ -370,7 +370,7 @@ int SLAPI StdListBoxDef::getIdList(LongArray & rList)
 
 void * FASTCALL StdListBoxDef::getRow_(long r)
 {
-	return (!P_Data || r >= (long)P_Data->getCount()) ? 0 : P_Data->at((uint)r);
+	return (!P_Data || r >= P_Data->getCountI()) ? 0 : P_Data->at((uint)r);
 }
 
 int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
@@ -473,7 +473,7 @@ int SLAPI StrAssocListBoxDef::getIdList(LongArray & rList)
 void * FASTCALL StrAssocListBoxDef::getRow_(long r)
 {
 	void * p_row = 0;
-	if(P_Data && r < (long)P_Data->getCount()) {
+	if(P_Data && r < static_cast<long>(P_Data->getCount())) {
 		StrAssocArray::Item item = P_Data->at_WithoutParent(r); // at-->at_WithoutParent
 		size_t sz = sizeof(item.Id) + sstrlen(item.Txt) + 1;
 		sz = MAX(sz, 512);
@@ -754,7 +754,7 @@ int SLAPI StringListBoxDef::addItem(long id, const char * s, long * pPos)
 		char   str[256];
 	} entry;
 	if(P_Data) {
-		uint   p = (pPos && *pPos >= 0 && *pPos < (long)P_Data->getCount()) ? (uint)*pPos : P_Data->getCount();
+		uint   p = (pPos && *pPos >= 0 && *pPos < P_Data->getCountI()) ? static_cast<uint>(*pPos) : P_Data->getCount();
 		entry.id = id;
 		STRNSCPY(entry.str, s);
 		if(P_Data->atInsert(p, &entry)) {

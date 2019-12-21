@@ -483,7 +483,7 @@ static int do_dirname(GENERAL_NAME * gen, const char * value, X509V3_CTX * ctx)
 	gen->d.dirn = nm;
 
 err:
-	if(ret == 0)
+	if(!ret)
 		X509_NAME_free(nm);
 	X509V3_section_free(ctx, sk);
 	return ret;

@@ -578,12 +578,12 @@ int __txn_commit(DB_TXN*txn, uint32 flags)
 			}
 			if(ret == 0 && !IS_ZERO_LSN(td->last_lsn)) {
 				ret = __txn_flush_fe_files(txn);
-				if(ret == 0)
+				if(!ret)
 					ret = __txn_regop_log(env, txn, &td->visible_lsn, LOG_FLAGS(txn), TXN_COMMIT, (int32)time(NULL), id, request.obj);
-				if(ret == 0)
+				if(!ret)
 					token_lsn = td->last_lsn = td->visible_lsn;
 #ifdef DIAGNOSTIC
-				if(ret == 0) {
+				if(!ret) {
 					DB_LSN s_lsn;
 					DB_ASSERT(env, __log_current_lsn_int(env, &s_lsn, NULL, NULL) == 0);
 					DB_ASSERT(env, LOG_COMPARE(&td->visible_lsn, &s_lsn) <= 0);
@@ -1988,7 +1988,7 @@ int __txn_regop_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		else if(ret != 0 || (status != TXN_IGNORE && status != TXN_OK))
 			goto err;
 	}
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 	if(0) {
 err:
@@ -2086,7 +2086,7 @@ txn_err:
 	}
 	else
 		ret = 0;
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 err:
 	__os_free(env, argp);
@@ -2200,7 +2200,7 @@ int __txn_child_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void *
 		if((ret = __db_txnlist_remove(env, static_cast<DB_TXNHEAD *>(info), argp->child)) != 0)
 			__db_errx(env, DB_STR_A("4516", "Transaction not in list %x", "%x"), argp->child);
 	}
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 out:
 	__os_free(env, argp);
@@ -2332,7 +2332,7 @@ int __txn_regop_42_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 		else if(ret != 0 || (status != TXN_IGNORE && status != TXN_OK))
 			goto err;
 	}
-	if(ret == 0)
+	if(!ret)
 		*lsnp = argp->prev_lsn;
 	if(0) {
 err:

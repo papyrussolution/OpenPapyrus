@@ -349,8 +349,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		}
 		else {
-			zip->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			zip->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(zip->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -1272,9 +1271,8 @@ static int archive_write_zip_close(struct archive_write * a)
 
 static int archive_write_zip_free(struct archive_write * a)
 {
-	struct zip * zip;
 	struct cd_segment * segment;
-	zip = (struct zip *)a->format_data;
+	struct zip * zip = (struct zip *)a->format_data;
 	while(zip->central_directory != NULL) {
 		segment = zip->central_directory;
 		zip->central_directory = segment->next;

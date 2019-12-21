@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-typedef enum {
+enum xmlSchemaValType {
     XML_SCHEMAS_UNKNOWN = 0,
     XML_SCHEMAS_STRING,
     XML_SCHEMAS_NORMSTRING,
@@ -66,12 +66,11 @@ typedef enum {
     XML_SCHEMAS_BASE64BINARY,
     XML_SCHEMAS_ANYTYPE,
     XML_SCHEMAS_ANYSIMPLETYPE
-} xmlSchemaValType;
-
+};
 /*
  * XML Schemas defines multiple type of types.
  */
-typedef enum {
+enum xmlSchemaTypeType {
     XML_SCHEMA_TYPE_BASIC = 1, /* A built-in datatype */
     XML_SCHEMA_TYPE_ANY,
     XML_SCHEMA_TYPE_FACET,
@@ -112,9 +111,9 @@ typedef enum {
     XML_SCHEMA_FACET_MINLENGTH,
     XML_SCHEMA_EXTRA_QNAMEREF = 2000,
     XML_SCHEMA_EXTRA_ATTR_USE_PROHIB
-} xmlSchemaTypeType;
+};
 
-typedef enum {
+enum xmlSchemaContentType {
     XML_SCHEMA_CONTENT_UNKNOWN = 0,
     XML_SCHEMA_CONTENT_EMPTY = 1,
     XML_SCHEMA_CONTENT_ELEMENTS,
@@ -123,14 +122,14 @@ typedef enum {
     XML_SCHEMA_CONTENT_MIXED_OR_ELEMENTS, /* Obsolete */
     XML_SCHEMA_CONTENT_BASIC,
     XML_SCHEMA_CONTENT_ANY
-} xmlSchemaContentType;
+};
 
 struct xmlSchemaVal;
-typedef xmlSchemaVal * xmlSchemaValPtr;
 typedef struct _xmlSchemaType xmlSchemaType;
-typedef xmlSchemaType * xmlSchemaTypePtr;
 typedef struct _xmlSchemaFacet xmlSchemaFacet;
-typedef xmlSchemaFacet *xmlSchemaFacetPtr;
+//typedef xmlSchemaFacet * xmlSchemaFacetPtr;
+//typedef xmlSchemaVal * xmlSchemaValPtr;
+//typedef xmlSchemaType * xmlSchemaTypePtr;
 /**
  * Annotation
  */
@@ -245,15 +244,15 @@ struct _xmlSchemaAttribute {
     const xmlChar *typeNs; /* the ns URI of the type definition */
     xmlSchemaAnnotPtr annot;
 
-    xmlSchemaTypePtr base; /* Deprecated; not used */
+    xmlSchemaType * base; /* Deprecated; not used */
     int occurs; /* Deprecated; not used */
     const xmlChar *defValue; /* The initial value of the value constraint */
-    xmlSchemaTypePtr subtypes; /* the type definition */
+    xmlSchemaType * subtypes; /* the type definition */
     xmlNode * P_Node;
     const xmlChar *targetNamespace;
     int flags;
     const xmlChar *refPrefix; /* Deprecated; not used */
-    xmlSchemaValPtr defVal; /* The compiled value constraint */
+    xmlSchemaVal * defVal; /* The compiled value constraint */
     xmlSchemaAttributePtr refDecl; /* Deprecated; not used */
 };
 
@@ -385,10 +384,9 @@ struct _xmlSchemaTypeLink {
 typedef struct _xmlSchemaFacetLink xmlSchemaFacetLink;
 typedef xmlSchemaFacetLink *xmlSchemaFacetLinkPtr;
 struct _xmlSchemaFacetLink {
-    struct _xmlSchemaFacetLink *next;/* the next facet link ... */
-    xmlSchemaFacetPtr facet;/* the linked facet */
+    struct _xmlSchemaFacetLink * next;/* the next facet link ... */
+    xmlSchemaFacet * facet;/* the linked facet */
 };
-
 /**
  * XML_SCHEMAS_TYPE_MIXED:
  *
@@ -596,7 +594,7 @@ struct _xmlSchemaType {
     const xmlChar *ref; /* Deprecated; not used */
     const xmlChar *refNs; /* Deprecated; not used */
     xmlSchemaAnnotPtr annot;
-    xmlSchemaTypePtr subtypes;
+    xmlSchemaType * subtypes;
     xmlSchemaAttributePtr attributes; /* Deprecated; not used */
     xmlNode * P_Node;
     int minOccurs; /* Deprecated; not used */
@@ -606,8 +604,8 @@ struct _xmlSchemaType {
     xmlSchemaContentType contentType;
     const xmlChar *base; /* Base type's local name */
     const xmlChar *baseNs; /* Base type's target namespace */
-    xmlSchemaTypePtr baseType; /* The base type component */
-    xmlSchemaFacetPtr facets; /* Local facets */
+    xmlSchemaType * baseType; /* The base type component */
+    xmlSchemaFacet * facets; /* Local facets */
     struct _xmlSchemaType *redef; /* Deprecated; not used */
     int recurse; /* Obsolete */
     xmlSchemaAttributeLinkPtr *attributeUses; /* Deprecated; not used */
@@ -616,7 +614,7 @@ struct _xmlSchemaType {
     xmlSchemaTypeLinkPtr memberTypes; /* member-types if a union type. */
     xmlSchemaFacetLinkPtr facetSet; /* All facets (incl. inherited) */
     const xmlChar *refPrefix; /* Deprecated; not used */
-    xmlSchemaTypePtr contentTypeDef; // Used for the simple content of complex types. Could we use @subtypes for this? 
+    xmlSchemaType * contentTypeDef; // Used for the simple content of complex types. Could we use @subtypes for this? 
     xmlRegexp * contModel; /* Holds the automaton of the content model */
     const xmlChar *targetNamespace;
     void * attrUses;
@@ -814,10 +812,9 @@ struct _xmlSchemaFacet {
     xmlNode * P_Node;
     int fixed; /* XML_SCHEMAS_FACET_PRESERVE, etc. */
     int whitespace;
-    xmlSchemaValPtr val; /* The compiled value */
+    xmlSchemaVal * val; /* The compiled value */
     xmlRegexp * regexp; /* The regex for patterns */
 };
-
 /**
  * A notation definition.
  */

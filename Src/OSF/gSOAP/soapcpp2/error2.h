@@ -32,21 +32,23 @@ compiling, linking, and/or using OpenSSL is allowed.
 A commercial use license is available from Genivia, Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 */
+#ifndef __ERROR_H
+	#define __ERROR_H
+	extern char errbuf[];
 
-extern char errbuf[];
+	#ifdef WIN32_WITHOUT_SOLARIS_FLEX
+		extern void soapcpp2error(char *);
+	#else
+		extern void yyerror(char *);
+	#endif
 
-#ifdef WIN32_WITHOUT_SOLARIS_FLEX
-extern void soapcpp2error(char *);
-#else
-extern void yyerror(char *);
-#endif
-
-extern void lexerror(const char*);
-extern void synerror(const char *);
-extern void semerror(const char *);
-extern void semwarn(const char *);
-extern void compliancewarn(const char *);
-extern void typerror(const char*);
-extern void execerror(const char*);
-extern void progerror(const char*, const char*, int);
-extern int errstat(void);
+	extern void lexerror(const char*);
+	extern void synerror(const char *);
+	extern void semerror(const char *);
+	extern void semwarn(const char *);
+	extern void compliancewarn(const char *);
+	extern void typerror(const char*);
+	extern void execerror(const char*);
+	extern void progerror(const char*, const char*, int);
+	extern int errstat(void);
+#endif // __ERROR_H

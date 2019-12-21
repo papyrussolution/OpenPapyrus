@@ -586,23 +586,25 @@ int SLAPI PPSCardSerPacket::GetDisByRule(double trnovr, TrnovrRngDis & rEntry) c
 }
 
 class SCardRuleDlg : public PPListDialog {
+	DECL_DIALOG_DATA(PPSCardSerRule);
 public:
 	SCardRuleDlg(int ruleType) : PPListDialog(DLG_SCARDRULE, CTL_SCARDRULE_TRNOVRRNG), RuleType(ruleType)
 	{
-		//IsCCheckRule = isCCheckRule;
 		SmartListBox * p_lb = static_cast<SmartListBox *>(getCtrlView(CTL_SCARDRULE_TRNOVRRNG));
 		const char * p_title_symb = 0;
-		if(RuleType == PPSCardSerRule::rultDisc) {
-			p_title_symb = "scardrule_dis";
-			CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_dis"));
-		}
-		else if(RuleType == PPSCardSerRule::rultCcAmountDisc) {
-			p_title_symb = "scardrule_ccdis";
-			CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_ccdis"));
-		}
-		else if(RuleType == PPSCardSerRule::rultBonus) {
-			p_title_symb = "scardrule_bonus";
-			CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_bonus"));
+		switch(RuleType) {
+			case PPSCardSerRule::rultDisc:
+				p_title_symb = "scardrule_dis";
+				CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_dis"));
+				break;
+			case PPSCardSerRule::rultCcAmountDisc:
+				p_title_symb = "scardrule_ccdis";
+				CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_ccdis"));
+				break;
+			case PPSCardSerRule::rultBonus:
+				p_title_symb = "scardrule_bonus";
+				CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_bonus"));
+				break;
 		}
 		if(p_title_symb) {
 			SString title_buf;
@@ -612,8 +614,20 @@ public:
 		showCtrl(CTLSEL_SCARDRULE_PRD, (RuleType != PPSCardSerRule::rultCcAmountDisc));
 		updateList(-1);
 	}
-	int    setDTS(const PPSCardSerRule *);
-	int    getDTS(PPSCardSerRule *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		SetupStringCombo(this, CTLSEL_SCARDRULE_PRD, PPTXT_CYCLELIST, Data.TrnovrPeriod);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTLSEL_SCARDRULE_PRD, &Data.TrnovrPeriod);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int  setupList();
 	virtual int  addItem(long * pos, long * id);
@@ -621,8 +635,7 @@ private:
 	virtual int  editItem(long pos, long id);
 	int    EditTrnovrRng(long pos);
 
-	int    RuleType;
-	PPSCardSerRule Data;
+	const  int  RuleType;
 };
 
 int SCardRuleDlg::EditTrnovrRng(long pos)
@@ -631,7 +644,7 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 	TrnovrRngDis range;
 	TDialog * p_dlg = new TDialog((RuleType == PPSCardSerRule::rultBonus) ? DLG_SCBONUSRULE : DLG_TRNVRRNG);
 	THROW(CheckDialogPtr(&p_dlg));
-	if(pos >= 0 && (uint)pos < Data.getCount())
+	if(pos >= 0 && pos < Data.getCountI())
 		range = Data.at(static_cast<uint>(pos));
 	else
 		MEMSZERO(range);
@@ -640,17 +653,13 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 	SetupPPObjCombo(p_dlg, CTLSEL_TRNVRRNG_SERIES, PPOBJ_SCARDSERIES, ((RuleType == PPSCardSerRule::rultDisc) ? range.SeriesID : 0), 0, 0);
 	p_dlg->showCtrl(CTLSEL_TRNVRRNG_SERIES, (RuleType == PPSCardSerRule::rultDisc));
 	if(RuleType == PPSCardSerRule::rultBonus) {
-		long   method = (range.Flags & range.fBonusAbsoluteValue) ? 2 : 1;
+		const long   method = (range.Flags & range.fBonusAbsoluteValue) ? 2 : 1;
 		p_dlg->AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
 		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
 		p_dlg->SetClusterData(CTL_TRNVRRNG_METHOD, method);
 	}
 	else {
-		long   method = 1;
-		if(range.Flags & range.fDiscountAddValue)
-			method = 2;
-		else if(range.Flags & range.fDiscountMultValue)
-			method = 3;
+		const long  method = (range.Flags & range.fDiscountAddValue) ? 2 : ((range.Flags & range.fDiscountMultValue) ? 3 : 1);
 		p_dlg->AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
 		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
 		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 2, 3);
@@ -660,12 +669,12 @@ int SCardRuleDlg::EditTrnovrRng(long pos)
 		p_dlg->getCtrlData(CTL_TRNVRRNG_DIS, &range.Value);
 		p_dlg->getCtrlData(CTLSEL_TRNVRRNG_SERIES, &range.SeriesID);
 		if(RuleType == PPSCardSerRule::rultBonus) {
-			long   method = p_dlg->GetClusterData(CTL_TRNVRRNG_METHOD);
+			const long method = p_dlg->GetClusterData(CTL_TRNVRRNG_METHOD);
 			range.Flags &= ~(range.fBonusAbsoluteValue|range.fDiscountAddValue|range.fDiscountMultValue);
 			SETFLAG(range.Flags, range.fBonusAbsoluteValue, method == 2);
 		}
 		else {
-			long   method = p_dlg->GetClusterData(CTL_TRNVRRNG_METHOD);
+			const long method = p_dlg->GetClusterData(CTL_TRNVRRNG_METHOD);
 			range.Flags &= ~(range.fBonusAbsoluteValue|range.fDiscountAddValue|range.fDiscountMultValue);
 			if(method == 2)
 				range.Flags |= range.fDiscountAddValue;
@@ -704,7 +713,7 @@ int SCardRuleDlg::editItem(long pos, long id)
 int SCardRuleDlg::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && (uint)pos <= Data.getCount() && Data.getCount() > 0 && CONFIRM(PPCFM_DELETE))
+	if(pos >= 0 && pos <= Data.getCountI() && Data.getCountI() > 0 && CONFIRM(PPCFM_DELETE))
 		ok = Data.atFree(pos);
 	return ok;
 }
@@ -718,7 +727,7 @@ int SCardRuleDlg::setupList()
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_item) > 0;) {
 		ss.clear();
 		buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
-			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("руб").ToOem();
+			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("RUB");
 		ss.add(buf);
 		if(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)
 			buf.Z().CatChar('$').Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ));
@@ -737,22 +746,6 @@ int SCardRuleDlg::setupList()
 			ok = 0;
 	}
 	return ok;
-}
-
-int SCardRuleDlg::setDTS(const PPSCardSerRule * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	SetupStringCombo(this, CTLSEL_SCARDRULE_PRD, PPTXT_CYCLELIST, Data.TrnovrPeriod);
-	updateList(-1);
-	return 1;
-}
-
-int SCardRuleDlg::getDTS(PPSCardSerRule * pData)
-{
-	getCtrlData(CTLSEL_SCARDRULE_PRD, &Data.TrnovrPeriod);
-	ASSIGN_PTR(pData, Data);
-	return 1;
 }
 
 SLAPI SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0)
@@ -3661,7 +3654,7 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 	PPID   hid = 0; // @v10.5.3 Версионный идентификатор для сохранения в системном журнале
 	SBuffer hist_buf; // @v10.5.3
 	int    do_dirty = 0;
-	PPID   id = pID ? *pID : 0;
+	PPID   id = DEREFPTRORZ(pID);
 	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	PPID   log_action_id = 0;

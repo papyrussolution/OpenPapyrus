@@ -845,6 +845,70 @@ void SLAPI TVMsgLog::RefreshList()
 //
 //
 //
+SLAPI PPEmbeddedLogger::PPEmbeddedLogger(long ctrflags, PPLogger * pOuterLogger, uint fileNameId, uint defLogOptions) : 
+	ElState(0), LogFileNameId(fileNameId), DefLogOptions(defLogOptions), P_Logger(0)
+{
+	if(pOuterLogger) {
+		P_Logger = pOuterLogger;
+		ElState |= elstOuterLogger;
+	}
+	else if(ctrflags & ctrfDirectLogging) {
+		ElState |= elstDirectLogging;
+	}
+	else {
+		P_Logger = new PPLogger();
+	}
+}
+
+SLAPI PPEmbeddedLogger::~PPEmbeddedLogger()
+{
+	if(!(ElState & elstOuterLogger)) {
+		ZDELETE(P_Logger);
+	}
+}
+
+void FASTCALL PPEmbeddedLogger::Log(const SString & rMsg)
+{
+	if(P_Logger)
+		P_Logger->Log(rMsg);
+	else if(ElState & elstDirectLogging) {
+		if(LogFileNameId) {
+			PPLogMessage(LogFileNameId, rMsg, DefLogOptions);
+		}
+	}
+}
+
+void SLAPI PPEmbeddedLogger::LogTextWithAddendum(int msgCode, const SString & rAddendum)
+{
+	if(msgCode) {
+		SString fmt_buf, msg_buf;
+		Log(msg_buf.Printf(PPLoadTextS(msgCode, fmt_buf), rAddendum.cptr()));
+	}
+}
+
+void SLAPI PPEmbeddedLogger::LogLastError()
+{
+	if(P_Logger)
+		P_Logger->LogLastError();
+	else if(ElState & elstDirectLogging) {
+		if(LogFileNameId)
+			PPLogMessage(LogFileNameId, 0, LOGMSGF_LASTERR|DefLogOptions);
+	}
+}
+
+int SLAPI PPEmbeddedLogger::Save(uint fileNameId, long options)
+{
+	int    ok = -1;
+	if(P_Logger) {
+		SETIFZ(fileNameId, LogFileNameId);
+		if(fileNameId)
+			ok = P_Logger->Save(fileNameId, options);
+	}
+	return ok;
+}
+//
+//
+//
 SLAPI PPLogger::PPLogger() : Flags(0), P_Log(0)
 {
 }

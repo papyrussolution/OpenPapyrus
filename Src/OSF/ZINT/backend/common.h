@@ -56,6 +56,9 @@
 
 //#define ustrcpy_Removed(target,source) strcpy((char *)target,(const char *)source)
 
+extern void FASTCALL ZintMakeErrText_InvCharInData(const char * pAddSymb, char * pBuf, size_t bufLen); // @v10.6.5
+extern void FASTCALL ZintMakeErrText_InvCheckDigit(const char * pAddSymb, char * pBuf, size_t bufLen); // @v10.6.5
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

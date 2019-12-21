@@ -295,7 +295,7 @@ int __db_poff(DBC * dbc, const DBT * dbt, db_pgno_t * pgnop)
 	}
 err:
 	if(lastp) {
-		if(ret == 0) {
+		if(!ret) {
 			dbc->internal->stream_curr_pgno = PGNO(lastp);
 			dbc->internal->stream_off = dbt->size-OV_LEN(lastp);
 		}

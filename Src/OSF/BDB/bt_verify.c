@@ -1888,7 +1888,7 @@ int __bam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PA
 						if(!LF_ISSET(DB_AGGRESSIVE))
 							goto err;
 					}
-					else if(ret == 0) {
+					else if(!ret) {
 						ret = t_ret;
 						goto err;
 					}
@@ -1982,7 +1982,7 @@ int __bam_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, uint32 pgtype, PA
 						if(!LF_ISSET(DB_AGGRESSIVE))
 							goto err;
 					}
-					else if(ret == 0) {
+					else if(!ret) {
 						ret = t_ret;
 						goto err;
 					}

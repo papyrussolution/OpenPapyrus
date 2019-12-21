@@ -180,19 +180,6 @@ SXml::WNode::~WNode()
 		xmlTextWriterEndElement(Lx);
 }
 
-int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
-{
-	int    ok = 1;
-	if(Lx && State & stStarted) {
-		xmlTextWriterStartAttribute(Lx, reinterpret_cast<const xmlChar *>(pName));
-		xmlTextWriterWriteString(Lx, reinterpret_cast<const xmlChar *>(pValue));
-		xmlTextWriterEndAttribute(Lx);
-	}
-	else
-		ok = 0;
-	return ok;
-}
-
 int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 {
 	int    ok = 1;
@@ -434,7 +421,7 @@ int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, S
 		else 
 			xmlSchemaSetValidErrors(p_sv_ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
 		ret = xmlSchemaValidateDoc(p_sv_ctxt, doc);
-		if(ret == 0) {
+		if(!ret) {
 			SXmlValidationMessageList::SchemaValidityWarning(pMsgList, "%s validates\n", pXmlFileName);
 			ok = 1;
 		}

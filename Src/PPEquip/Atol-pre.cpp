@@ -469,7 +469,7 @@ int SLAPI ACS_ATOL::ExportSCard(FILE *, int)
 		cat_code_ary.freeAll();
 		THROW(ac_intrf.ACGetIDsAry(cat_tbl_name, 2, &cat_code_ary));
 		THROW(ac_intrf.ACOpenTable(card_tbl_name));
-		MEMSZERO(ser_rec);
+		// @v10.6.5 @ctr MEMSZERO(ser_rec);
 		for(ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 				PPSCardSerPacket scs_pack;
@@ -925,7 +925,6 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 			double qtty, price, dscnt_price, dscnt;
 			ss.get(&pos, buf);
 			goods_id = buf.ToLong(); // 8. Код товара
-			// @v5.9.9 VADIM {
 			if(UseAltImport) {
 				BarcodeTbl::Rec  bc_rec;
 				if(goods_obj.SearchByArticle(goods_id, &bc_rec) > 0)
@@ -954,7 +953,6 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 					THROW(goods_obj.PutPacket(&(goods_id = 0), &gds_pack, 0));
 				}
 			}
-			// } @v5.9.9 VADIM
 			ss.get(&pos, buf);       // 9. Поле 9 - пропускаем
 			ss.get(&pos, buf);
 			price = buf.ToReal();    // 10. Цена
@@ -1064,7 +1062,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 						buf.Strip().ToOem().CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 						STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
 						gds_pack.Codes.insert(&bc_rec); // Добавляем артикул в список штрихкодов, т.к. GetPacket его пропускает
-						for(pos = 0; ss_comma.get(&pos, buf);)
+						for(pos = 0; ss_comma.get(&pos, buf);) {
 							if(buf.NotEmptyS()) {
 								MEMSZERO(bc_rec);
 								bc_rec.GoodsID = goods_id;
@@ -1072,6 +1070,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 								bc_rec.Qtty = 1.0;
 								gds_pack.Codes.insert(&bc_rec);
 							}
+						}
 						THROW(goods_obj.PutPacket(&goods_id, &gds_pack, 0));
 					}
 				}

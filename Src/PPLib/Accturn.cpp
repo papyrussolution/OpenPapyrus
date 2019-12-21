@@ -120,7 +120,7 @@ int SLAPI AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcc
 int SLAPI AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID, int useCache)
 {
 	int    ok = 1;
-	pAcct->Clear();
+	pAcct->Z();
 	PPAccount acc_rec;
 	if(useCache) {
 		PPObjAccount acc_obj;
@@ -158,7 +158,7 @@ int SLAPI AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, A
 	int    ok = 1, r, tok[3], hasbranch = 0;
 	PPID   acc_id = 0, sheet_id = 0, ar_id  = 0;
 	PPAccount acc_rec;
-	pAcct->Clear();
+	pAcct->Z();
 	AccObj.ParseString(pStr, tok);
 	THROW_PP(tok[0], PPERR_ACCNFOUND);
 	THROW(r = AccObj.FetchNum(tok[0], 0, curID, &acc_rec));
@@ -1847,8 +1847,8 @@ SLAPI CurRevalParam::CurRevalParam()
 void SLAPI CurRevalParam::Init()
 {
 	Dt = ZERODATE;
-	MEMSZERO(CorrAcc);
-	MEMSZERO(NegCorrAcc);
+	CorrAcc.Z();
+	NegCorrAcc.Z();
 	LocID = LConfig.Location;
 	Flags = 0;
 }
@@ -1937,7 +1937,7 @@ int SLAPI AccTurnCore::RevalCurRests(const CurRevalParam * pParam)
 				sub_list.clear();
 				if(sb == 0)
 					sb = -1;
-				prev_acct.Clear();
+				prev_acct.Z();
 				MEMSZERO(k);
 				k.Ac = ac;
 				k.Sb = sb ? sb : 0;

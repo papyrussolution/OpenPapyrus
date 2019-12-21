@@ -742,7 +742,8 @@ LUALIB_API lua_Integer luaL_len(lua_State * L, int idx) {
 	return l;
 }
 
-LUALIB_API const char * luaL_tolstring(lua_State * L, int idx, size_t * len) {
+LUALIB_API const char * luaL_tolstring(lua_State * L, int idx, size_t * len) 
+{
 	if(luaL_callmeta(L, idx, "__tostring")) { /* metafield? */
 		if(!lua_isstring(L, -1))
 			luaL_error(L, "'__tostring' must return a string");
@@ -760,7 +761,7 @@ LUALIB_API const char * luaL_tolstring(lua_State * L, int idx, size_t * len) {
 			    lua_pushvalue(L, idx);
 			    break;
 			case LUA_TBOOLEAN:
-			    lua_pushstring(L, (lua_toboolean(L, idx) ? "true" : "false"));
+			    lua_pushstring(L, STextConst::GetBool(lua_toboolean(L, idx)));
 			    break;
 			case LUA_TNIL:
 			    lua_pushliteral(L, "nil");

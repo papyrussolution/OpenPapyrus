@@ -109,7 +109,7 @@ extern "C" {
 			ret = pthread_mutex_trylock(&mutexp->u.m.mutex);
 		if(ret == EBUSY)
 			ret = DB_LOCK_NOTGRANTED;
-		else if(ret == 0) {
+		else if(!ret) {
 			F_SET(mutexp, DB_MUTEX_LOCKED);
 			env->dbenv->thread_id(env->dbenv, &mutexp->pid, &mutexp->tid);
 			STAT_INC(env,
@@ -134,7 +134,7 @@ extern "C" {
 			if(ret == EBUSY)
 				ret = DB_LOCK_NOTGRANTED;
 		#ifdef HAVE_STATISTICS
-			if(ret == 0)
+			if(!ret)
 				STAT_INC(env, mutex, set_rd_nowait, mutexp->mutex_set_nowait, mutex);
 		#endif
 			return ret;

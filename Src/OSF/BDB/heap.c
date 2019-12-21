@@ -660,7 +660,7 @@ last:
 
 	}
 err:
-	if(ret == 0) {
+	if(!ret) {
 		if(key) {
 			rid.pgno = cp->pgno;
 			rid.indx = cp->indx;

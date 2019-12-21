@@ -774,8 +774,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
  */
 int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 {
-	uint needSize;
-	if((str == NULL) || (buf == NULL) || (buf->error))
+	if(!str || !buf || buf->error)
 		return -1;
 	CHECK_COMPAT(buf)
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE)
@@ -786,25 +785,19 @@ int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 #endif
 		return -1;
 	}
-	if(len == 0)
-		return 0;
 	if(len < 0)
-		len = sstrlen(str);
-	if(len < 0)
-		return -1;
-	if(len == 0)
-		return 0;
-	needSize = buf->use + len + 2;
-	if(needSize > buf->size) {
-		if(!xmlBufResize(buf, needSize)) {
+		len = static_cast<int>(sstrlen(str));
+	if(len > 0) {
+		const uint need_size = buf->use + len + 2;
+		if((need_size > buf->size) && !xmlBufResize(buf, need_size)) {
 			xmlBufMemoryError(buf, "growing buffer");
 			return XML_ERR_NO_MEMORY;
 		}
+		memmove(&buf->content[buf->use], str, len*sizeof(xmlChar));
+		buf->use += len;
+		buf->content[buf->use] = 0;
+		UPDATE_COMPAT(buf)
 	}
-	memmove(&buf->content[buf->use], str, len*sizeof(xmlChar));
-	buf->use += len;
-	buf->content[buf->use] = 0;
-	UPDATE_COMPAT(buf)
 	return 0;
 }
 /**
@@ -916,8 +909,8 @@ int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
 		return -1;
 	}
 	for(cur = str; *cur != 0; cur++) {
-		if(buf->use  + 10 >= buf->size) {
-			if(!xmlBufResize(buf, buf->use+10)) {
+		if((buf->use + 10) >= buf->size) {
+			if(!xmlBufResize(buf, (buf->use+10))) {
 				xmlBufMemoryError(buf, "growing buffer");
 				return XML_ERR_NO_MEMORY;
 			}
@@ -928,7 +921,6 @@ int FASTCALL xmlBufCCat(xmlBuf * buf, const char * str)
 	UPDATE_COMPAT(buf)
 	return 0;
 }
-
 /**
  * xmlBufWriteCHAR:
  * @buf:  the XML buffer
@@ -1037,7 +1029,7 @@ xmlBuf * FASTCALL xmlBufFromBuffer(xmlBuffer * buffer)
 {
 	xmlBuf * ret = 0;
 	if(buffer) {
-		ret = (xmlBuf *)SAlloc::M(sizeof(xmlBuf));
+		ret = static_cast<xmlBuf *>(SAlloc::M(sizeof(xmlBuf)));
 		if(!ret) {
 			xmlBufMemoryError(NULL, "creating buffer");
 		}

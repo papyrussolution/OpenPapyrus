@@ -90,7 +90,7 @@ static int __repmgr_print_stats(ENV*env, uint32 flags)
 {
 	DB_REPMGR_STAT * sp;
 	int ret = __repmgr_stat(env, &sp, flags);
-	if(ret == 0) {
+	if(!ret) {
 		__db_dl(env, "Number of PERM messages not acknowledged", (ulong)sp->st_perm_failed);
 		__db_dl(env, "Number of messages queued due to network delay", (ulong)sp->st_msgs_queued);
 		__db_dl(env, "Number of messages discarded due to queue length", (ulong)sp->st_msgs_dropped);

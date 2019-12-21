@@ -109,24 +109,22 @@ int code_11(struct ZintSymbol * symbol, const uchar source[], int length)   /* C
 	int weight[128], error_number;
 	char dest[1024]; /* 6 +  121 * 6 + 2 * 6 + 5 + 1 ~ 1024*/
 	char checkstr[3];
-
 	if(length > 121) {
 		sstrcpy(symbol->errtxt, "Input too long (C20)");
 		return ZINT_ERROR_TOO_LONG;
 	}
 	error_number = is_sane(SODIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C21)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C21)");
+		ZintMakeErrText_InvCharInData("C21", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	c_weight = 1;
 	c_count = 0;
 	k_weight = 1;
 	k_count = 0;
-
 	/* start character */
 	sstrcpy(dest, "112211");
-
 	/* Draw main body of barcode */
 	for(i = 0; i < (uint)length; i++) {
 		lookup(SODIUM, C11Table, source[i], dest);
@@ -135,7 +133,6 @@ int code_11(struct ZintSymbol * symbol, const uchar source[], int length)   /* C
 		else
 			weight[i] = hex(source[i]);
 	}
-
 	/* Calculate C checksum */
 	for(h = length - 1; h >= 0; h--) {
 		c_count += (c_weight * weight[h]);
@@ -205,7 +202,8 @@ int c39(struct ZintSymbol * symbol, uchar source[], const size_t length)
 	to_upper(source);
 	error_number = is_sane(SILVER, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C24)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C24)");
+		ZintMakeErrText_InvCharInData("C24", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	/* Start character */
@@ -282,7 +280,8 @@ int pharmazentral(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C26)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C26)");
+		ZintMakeErrText_InvCharInData("C26", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	localstr[0] = '-';
@@ -489,7 +488,8 @@ int channel_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		sstrcpy(symbol->errtxt, "Invalid characters in data (C2E)");
+		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C2E)");
+		ZintMakeErrText_InvCharInData("C2E", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 		return error_number;
 	}
 	if((symbol->option_2 < 3) || (symbol->option_2 > 8)) {

@@ -49,7 +49,6 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 */
 
 %{
-
 #include "soapcpp2.h"
 
 #ifdef WIN32
@@ -68,7 +67,8 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 	extern int yylex(void);
 #endif
 
-extern int is_XML(Tnode*);
+// @sobolev extern int is_XML(Tnode*);
+int is_XML(const Tnode * p); // @sobolev
 
 #define MAXNEST 16	/* max. nesting depth of scopes */
 
@@ -107,17 +107,22 @@ static int	integer(Tnode*), real(Tnode*), numeric(Tnode*);
 static void	add_soap(void), add_XML(void), add_qname(void), add_header(Table*), add_fault(Table*), add_response(Entry*, Entry*), add_result(Tnode*);
 
 char * c_storage(/*Storage*/int);
-char * c_type(Tnode*);
-char * c_ident(Tnode*);
-int    is_primitive_or_string(Tnode*);
-int    is_stdstr(Tnode*);
-int    is_binary(Tnode*);
-int    is_external(Tnode*);
+// @sobolev char * c_type(Tnode*);
+const  char * c_type(const Tnode * typ); // @sobolev
+const  char * c_ident(const Tnode *);
+int    is_primitive_or_string(const Tnode*);
+// @sobolev int    is_stdstr(Tnode*);
+int is_stdstr(const Tnode * typ);
+// @sobolev int    is_binary(Tnode*);
+int is_binary(const Tnode * typ); // @sobolev
+// @sobolev int    is_external(Tnode*);
+int    is_external(const Tnode * typ); // @sobolev
 int    is_mutable(Tnode*);
 
 /* Temporaries used in semantic rules */
 int	i;
-char	*s, *s1, *s2;
+char	*s, *s1;
+const char * s2;
 Symbol	*sym;
 Entry	*p, *q;
 Tnode	*t;
@@ -548,9 +553,9 @@ func	: fname '(' s6 fargso ')' constobj abstract
 					{	sp->entry->info.sto = (Storage)((int)sp->entry->info.sto | (int)Sreturn);
 						$1->info.typ = mkfun(sp->entry);
 						$1->info.typ->id = $1->sym;
-						if (!is_transient(sp->entry->info.typ))
-						{	if (!is_response(sp->entry->info.typ))
-							{	if (!is_XML(sp->entry->info.typ))
+						if (!is_transient(sp->entry->info.typ)) {
+							if (!is_response(sp->entry->info.typ)) {
+								if (!is_XML(sp->entry->info.typ))
 									add_response($1, sp->entry);
 							}
 							else

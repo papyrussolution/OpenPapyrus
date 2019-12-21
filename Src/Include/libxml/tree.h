@@ -380,7 +380,7 @@ struct xmlID {
 	xmlDoc * doc; /* The document holding the ID */
 };
 
-typedef xmlID * xmlIDPtr;
+//typedef xmlID * xmlIDPtr;
 // 
 // Descr: An XML IDREF instance.
 // 

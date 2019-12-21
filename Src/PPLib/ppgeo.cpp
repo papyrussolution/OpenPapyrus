@@ -1709,7 +1709,7 @@ int SLAPI PPViewGeoTracking::Export()
 						out_buf.Space().Cat(ver.ToStr(temp_buf));
 					}
 					n_gpx.PutAttrib("creator", out_buf);
-					n_gpx.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+					n_gpx.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 					(temp_buf = schema_loc).Space().Cat(p_schema_url).Cat(gpx_ver_major).CatChar('/').Cat(gpx_ver_minor).CatChar('/').Cat("gpx.xsd");
 					n_gpx.PutAttrib("xsi:schemaLocation", temp_buf);
 				GeoTrackingViewItem item;

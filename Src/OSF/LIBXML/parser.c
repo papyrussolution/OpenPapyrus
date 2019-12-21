@@ -2413,7 +2413,7 @@ static int FASTCALL areBlanks(xmlParserCtxt * ctxt, const xmlChar * str, int len
 		else {
 			if(ctxt->myDoc) {
 				int ret = xmlIsMixedElement(ctxt->myDoc, ctxt->P_Node->name);
-				if(ret == 0) 
+				if(!ret) 
 					return 1;
 				else if(ret == 1) 
 					return 0;

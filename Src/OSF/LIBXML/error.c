@@ -196,7 +196,7 @@ void xmlParserPrintFileContext(xmlParserInput * input)
  * Report an erro with its context, replace the 4 old error/warning
  * routines.
  */
-static void xmlReportError(xmlErrorPtr err, xmlParserCtxt * ctxt, const char * str, xmlGenericErrorFunc channel, void * data)
+static void xmlReportError(xmlError * err, xmlParserCtxt * ctxt, const char * str, xmlGenericErrorFunc channel, void * data)
 {
 	char * file = NULL;
 	int line = 0;
@@ -357,7 +357,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	xmlNode * baseptr = NULL;
 	if(code == XML_ERR_OK)
 		return;
-	if((xmlGetWarningsDefaultValue == 0) && level == XML_ERR_WARNING)
+	if(!xmlGetWarningsDefaultValue && level == XML_ERR_WARNING)
 		return;
 	if(oneof6(domain, XML_FROM_PARSER, XML_FROM_HTML, XML_FROM_DTD, XML_FROM_NAMESPACE, XML_FROM_IO, XML_FROM_VALID)) {
 		ctxt = static_cast<xmlParserCtxt *>(ctx);
@@ -371,26 +371,23 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	 */
 	if(schannel == NULL) {
 		schannel = xmlStructuredError;
-		/*
-		 * if user has defined handler, change data ptr to user's choice
-		 */
+		// if user has defined handler, change data ptr to user's choice
 		if(schannel)
 			data = xmlStructuredErrorContext;
 	}
-	/*
-	 * Formatting the message
-	 */
-	if(msg == NULL) {
+	// 
+	// Formatting the message
+	// 
+	if(!msg)
 		str = sstrdup("No error message provided");
-	}
 	else {
 		XML_GET_VAR_STR(msg, str);
 	}
-	/*
-	 * specific processing if a parser context is provided
-	 */
+	// 
+	// specific processing if a parser context is provided
+	// 
 	if(ctxt) {
-		if(file == NULL) {
+		if(!file) {
 			input = ctxt->input;
 			if(input && !input->filename && (ctxt->inputNr > 1)) {
 				input = ctxt->inputTab[ctxt->inputNr - 2];
@@ -407,7 +404,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		int i;
 		if(p_node->doc && p_node->doc->URL) {
 			baseptr = p_node;
-/*	    file = (const char *) node->doc->URL; */
+			/* file = (const char *) node->doc->URL; */
 		}
 		for(i = 0; ((i < 10) && p_node && (p_node->type != XML_ELEMENT_NODE)); i++)
 			p_node = p_node->P_ParentNode;
@@ -418,9 +415,9 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		if(!line || line == 65535)
 			line = xmlGetLineNo(p_node);
 	}
-	/*
-	 * Save the information about the error
-	 */
+	// 
+	// Save the information about the error
+	// 
 	xmlResetError(to);
 	to->domain = domain;
 	to->code = code;
@@ -510,16 +507,16 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
  *
  * Handle an out of memory condition
  */
-void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * P_Node, const char * msg, const char * extra)
+void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * pNode, const char * msg, const char * extra)
 {
 	if(code == XML_ERR_NO_MEMORY) {
 		if(extra)
-			__xmlRaiseError(0, 0, 0, 0, P_Node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
+			__xmlRaiseError(0, 0, 0, 0, pNode, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, 0, 0, 0, 0, "Memory allocation failed : %s\n", extra);
 		else
-			__xmlRaiseError(0, 0, 0, 0, P_Node, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
+			__xmlRaiseError(0, 0, 0, 0, pNode, domain, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 	}
 	else {
-		__xmlRaiseError(0, 0, 0, 0, P_Node, domain, code, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, msg, extra);
+		__xmlRaiseError(0, 0, 0, 0, pNode, domain, code, XML_ERR_ERROR, NULL, 0, extra, 0, 0, 0, 0, msg, extra);
 	}
 }
 /**
@@ -558,7 +555,6 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 		}
 	}
 }
-
 /**
  * xmlParserWarning:
  * @ctx:  an XML parser context
@@ -595,13 +591,9 @@ void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 		}
 	}
 }
-
-/************************************************************************
-*									*
-*			Handling of validation errors			*
-*									*
-************************************************************************/
-
+//
+// Handling of validation errors
+//
 /**
  * xmlParserValidityError:
  * @ctx:  an XML parser context
@@ -618,13 +610,11 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 	char * str;
 	int len = sstrlen((const xmlChar *)msg);
 	static int had_info = 0;
-
 	if((len > 1) && (msg[len - 2] != ':')) {
 		if(ctxt) {
 			input = ctxt->input;
 			if((input->filename == NULL) && (ctxt->inputNr > 1))
 				input = ctxt->inputTab[ctxt->inputNr - 2];
-
 			if(had_info == 0) {
 				xmlParserPrintFileInfo(input);
 			}
@@ -642,7 +632,6 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 		xmlParserPrintFileContext(input);
 	}
 }
-
 /**
  * xmlParserValidityWarning:
  * @ctx:  an XML parser context
@@ -668,17 +657,12 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	XML_GET_VAR_STR(msg, str);
 	xmlGenericError(0, "%s", str);
 	SAlloc::F(str);
-	if(ctxt) {
+	if(ctxt)
 		xmlParserPrintFileContext(input);
-	}
 }
-
-/************************************************************************
-*									*
-*			Extended Error Handling				*
-*									*
-************************************************************************/
-
+//
+// Extended Error Handling
+//
 /**
  * xmlGetLastError:
  *
@@ -687,34 +671,30 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
  *
  * Returns NULL if no error occured or a pointer to the error
  */
-xmlErrorPtr xmlGetLastError()
+xmlError * xmlGetLastError()
 {
 	if(xmlLastError.code == XML_ERR_OK)
 		return 0;
 	return (&xmlLastError);
 }
-
 /**
  * xmlResetError:
  * @err: pointer to the error.
  *
  * Cleanup the error.
  */
-void xmlResetError(xmlErrorPtr err)
+void xmlResetError(xmlError * err)
 {
-	if(err == NULL)
-		return;
-	if(err->code == XML_ERR_OK)
-		return;
-	SAlloc::F(err->message);
-	SAlloc::F(err->file);
-	SAlloc::F(err->str1);
-	SAlloc::F(err->str2);
-	SAlloc::F(err->str3);
-	memzero(err, sizeof(xmlError));
-	err->code = XML_ERR_OK;
+	if(err && err->code != XML_ERR_OK) {
+		SAlloc::F(err->message);
+		SAlloc::F(err->file);
+		SAlloc::F(err->str1);
+		SAlloc::F(err->str2);
+		SAlloc::F(err->str3);
+		memzero(err, sizeof(xmlError));
+		err->code = XML_ERR_OK;
+	}
 }
-
 /**
  * xmlResetLastError:
  *
@@ -727,7 +707,6 @@ void xmlResetLastError()
 		return;
 	xmlResetError(&xmlLastError);
 }
-
 /**
  * xmlCtxtGetLastError:
  * @ctx:  an XML parser context
@@ -736,17 +715,15 @@ void xmlResetLastError()
  *
  * Returns NULL if no error occured or a pointer to the error
  */
-xmlErrorPtr xmlCtxtGetLastError(void * ctx)
+xmlError * xmlCtxtGetLastError(void * ctx)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-
 	if(!ctxt)
 		return 0;
 	if(ctxt->lastError.code == XML_ERR_OK)
 		return 0;
 	return (&ctxt->lastError);
 }
-
 /**
  * xmlCtxtResetLastError:
  * @ctx:  an XML parser context
@@ -757,7 +734,6 @@ xmlErrorPtr xmlCtxtGetLastError(void * ctx)
 void xmlCtxtResetLastError(void * ctx)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-
 	if(!ctxt)
 		return;
 	ctxt->errNo = XML_ERR_OK;
@@ -765,7 +741,6 @@ void xmlCtxtResetLastError(void * ctx)
 		return;
 	xmlResetError(&ctxt->lastError);
 }
-
 /**
  * xmlCopyError:
  * @from:  a source error
@@ -775,7 +750,7 @@ void xmlCtxtResetLastError(void * ctx)
  *
  * Returns 0 in case of success and -1 in case of error.
  */
-int xmlCopyError(xmlErrorPtr from, xmlErrorPtr to) 
+int xmlCopyError(xmlError * from, xmlError * to) 
 {
 	if(!from || !to)
 		return -1;

@@ -147,7 +147,7 @@ master:         LOG_SYSTEM_LOCK(env);
 		__rep_send_message(env, DB_EID_BROADCAST, REP_NEWMASTER, &lsn, NULL, 0, 0);
 		if(IS_USING_LEASES(env))
 			ret = __rep_lease_refresh(env);
-		if(ret == 0)
+		if(!ret)
 			ret = DB_REP_IGNORE;
 		goto envleave;
 	}

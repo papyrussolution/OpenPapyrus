@@ -507,7 +507,7 @@ int SLAPI PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 						AmpqBytesToSString(r_te.key, temp_buf);
 						val_buf.Z();
 						switch(r_te.value.kind) {
-							case AMQP_FIELD_KIND_BOOLEAN: val_buf.Cat(r_te.value.value.boolean ? "true" : "false"); break;
+							case AMQP_FIELD_KIND_BOOLEAN: val_buf.Cat(STextConst::GetBool(r_te.value.value.boolean)); break;
 							case AMQP_FIELD_KIND_I8:  val_buf.Cat(r_te.value.value.i8); break;
 							case AMQP_FIELD_KIND_U8:  val_buf.Cat(r_te.value.value.u8); break;
 							case AMQP_FIELD_KIND_I16: val_buf.Cat(r_te.value.value.i16); break;

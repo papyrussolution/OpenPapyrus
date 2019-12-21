@@ -160,16 +160,14 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 			 * Especially libarchive_test needs this trick for
 			 * its test.
 			 */
-			pax->sconv_utf8 = archive_string_conversion_to_charset(
-				&(a->archive), "UTF-8", 0);
+			pax->sconv_utf8 = archive_string_conversion_to_charset(&(a->archive), "UTF-8", 0);
 			if(pax->sconv_utf8 == NULL)
 				ret = ARCHIVE_FATAL;
 			else
 				ret = ARCHIVE_OK;
 		}
 		else
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "pax: invalid charset name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: invalid charset name");
 		return ret;
 	}
 
@@ -529,8 +527,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		if(pax->sconv_utf8 == NULL) {
 			/* Initialize the string conversion object
 			 * we must need */
-			pax->sconv_utf8 = archive_string_conversion_to_charset(
-				&(a->archive), "UTF-8", 1);
+			pax->sconv_utf8 = archive_string_conversion_to_charset(&(a->archive), "UTF-8", 1);
 			if(pax->sconv_utf8 == NULL)
 				/* Couldn't allocate memory */
 				return ARCHIVE_FAILED;

@@ -759,7 +759,7 @@ static int xmlC14NAttrsCompare(xmlAttr * attr1, xmlAttr * attr2)
 	if(attr2->ns->prefix == NULL)
 		return 1;
 	ret = xmlStrcmp(attr1->ns->href, attr2->ns->href);
-	if(ret == 0)
+	if(!ret)
 		ret = xmlStrcmp(attr1->name, attr2->name);
 	return ret;
 }

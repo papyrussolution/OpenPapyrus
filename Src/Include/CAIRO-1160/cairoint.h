@@ -48,7 +48,8 @@
 	#include "config.h"
 #endif
 #ifdef _MSC_VER
-	#define cairo_public __declspec(dllexport)
+	// @v10.6.5 #define cairo_public __declspec(dllexport)
+	#define cairo_public // @v10.6.5 
 #endif
 #include <slib.h> // @sobolev
 #include <setjmp.h>

@@ -2704,6 +2704,11 @@ ulong SLAPI SString::ToULong() const
 		return 0;
 }
 
+const char * sitoa(int val, char * pBuf, size_t bufLen) // @construction
+{
+	return 0;
+}
+
 uint32 FASTCALL _texttodec32(const char * pT, uint len)
 {
 	uint32 result;

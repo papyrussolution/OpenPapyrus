@@ -57,7 +57,7 @@ char * FASTCALL _commfmt(long fmt, char * pBuf)
 			pBuf[len] = '\0';
 		}
 		else if(src_len < len) {
-			const uint _fadj = (uint)SFMTALIGN(fmt);
+			const uint _fadj = static_cast<uint>(SFMTALIGN(fmt));
 			int    _adj = ADJ_RIGHT;
 			if(_fadj == ALIGN_LEFT)
 				_adj = ADJ_LEFT;
@@ -82,7 +82,7 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf)
 			rBuf.Trim(len);
 		}
 		else if(src_len < len) {
-			const uint _fadj = (uint)SFMTALIGN(fmt);
+			const uint _fadj = static_cast<uint>(SFMTALIGN(fmt));
 			int    _adj = ADJ_RIGHT;
 			if(_fadj == ALIGN_LEFT)
 				_adj = ADJ_LEFT;
@@ -395,6 +395,36 @@ int SLAPI periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 	}
 	strnzcpy(pBuf, period, bufLen);
 	return r;
+}
+//
+//
+//
+SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf)
+{
+	if(!(flags & tzfmtConcat))
+		rBuf.Z();
+	if(flags & tzfmtCurrent)
+		tz = gettimezone(); 
+	if(tz >= -(11*60) && tz <= (14*60)) {
+		if(flags & tzfmtSpace)
+			rBuf.Space();
+		if(tz == 0) {
+			rBuf.Cat("UTC");
+		}
+		else {
+			if(tz < 0) {
+				rBuf.CatChar('+');
+				tz = -tz;
+			}
+			else
+				rBuf.CatChar('-');
+			rBuf.CatLongZ(tz / 60, 2);
+			if(flags & tzfmtColon)
+				rBuf.CatChar(':');
+			rBuf.CatLongZ(tz % 60, 2);
+		}
+	}
+	return rBuf;
 }
 //
 // Time formatting

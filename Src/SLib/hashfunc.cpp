@@ -2487,7 +2487,7 @@ private:
 			MEMSZERO(O);
 			MEMSZERO(S);
 		}
-		void   Reset();
+		State_ & Z();
 
         const void * P_Tab;
 		void * P_Ctx; // EVP_CIPHER_CTX
@@ -2508,19 +2508,20 @@ private:
 	};
 };
 
-void SBdtFunct::State_::Reset()
+SBdtFunct::State_ & SBdtFunct::State_::Z()
 {
 	P_Tab = 0;
 	P_Ext = 0;
 	P_Ctx = 0;
 	MEMSZERO(O);
 	MEMSZERO(S);
+	return *this;
 }
 
 SBdtFunct::SBdtFunct(int alg) : A(alg)
 {
 	Key.Init();
-	Ste.Reset();
+	// @v10.6.4 @ctr Ste.Z();
 }
 
 SBdtFunct::~SBdtFunct()
@@ -2586,9 +2587,8 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 	static uint _Tab_Crc32_Idx = 0; // SlSession SClassWrapper
 
 	int    ok = 1;
-	if(rBlk.Phase == phaseInit) {
-		Ste.Reset();
-	}
+	if(rBlk.Phase == phaseInit)
+		Ste.Z();
     switch(A) {
 		case SBdtFunct::Crc32:
 			switch(rBlk.Phase) {

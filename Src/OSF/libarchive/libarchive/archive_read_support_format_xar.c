@@ -398,7 +398,6 @@ static int      xml_parse_file_ext2(struct xar *, const char *);
 		int state;
 		struct archive_read * archive;
 	};
-
 	static int      expat_xmlattr_setup(struct archive_read *, struct xmlattr_list *, const XML_Char **);
 	static void     expat_start_cb(void *, const XML_Char *, const XML_Char **);
 	static void     expat_end_cb(void *, const XML_Char *);
@@ -582,29 +581,22 @@ static int read_toc(struct archive_read * a)
 
 static int xar_read_header(struct archive_read * a, struct archive_entry * entry)
 {
-	struct xar * xar;
 	struct xar_file * file;
 	struct xattr * xattr;
-	int r;
-
-	xar = static_cast<struct xar *>(a->format->data);
-	r = ARCHIVE_OK;
-
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
+	int r = ARCHIVE_OK;
 	if(xar->offset == 0) {
 		/* Create a character conversion object. */
 		if(xar->sconv == NULL) {
-			xar->sconv = archive_string_conversion_from_charset(
-				&(a->archive), "UTF-8", 1);
+			xar->sconv = archive_string_conversion_from_charset(&(a->archive), "UTF-8", 1);
 			if(xar->sconv == NULL)
 				return ARCHIVE_FATAL;
 		}
-
 		/* Read TOC. */
 		r = read_toc(a);
 		if(r != ARCHIVE_OK)
 			return r;
 	}
-
 	for(;;) {
 		file = xar->file = heap_get_entry(&(xar->file_queue));
 		if(file == NULL) {
@@ -747,60 +739,47 @@ static int xar_read_header(struct archive_read * a, struct archive_entry * entry
 	return r;
 }
 
-static int xar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
+static int xar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
 {
-	struct xar * xar;
 	size_t used;
 	int r;
-
-	xar = static_cast<struct xar *>(a->format->data);
-
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
 	if(xar->entry_unconsumed) {
 		__archive_read_consume(a, xar->entry_unconsumed);
 		xar->entry_unconsumed = 0;
 	}
-
 	if(xar->end_of_file || xar->entry_remaining <= 0) {
 		r = ARCHIVE_EOF;
 		goto abort_read_data;
 	}
-
 	if(xar->entry_init) {
-		r = rd_contents_init(a, xar->entry_encoding,
-			xar->entry_a_sum.alg, xar->entry_e_sum.alg);
+		r = rd_contents_init(a, xar->entry_encoding, xar->entry_a_sum.alg, xar->entry_e_sum.alg);
 		if(r != ARCHIVE_OK) {
 			xar->entry_remaining = 0;
 			return r;
 		}
 		xar->entry_init = 0;
 	}
-
 	*buff = NULL;
 	r = rd_contents(a, buff, size, &used, xar->entry_remaining);
 	if(r != ARCHIVE_OK)
 		goto abort_read_data;
-
 	*offset = xar->entry_total;
 	xar->entry_total += *size;
 	xar->total += *size;
 	xar->offset += used;
 	xar->entry_remaining -= used;
 	xar->entry_unconsumed = used;
-
 	if(xar->entry_remaining == 0) {
 		if(xar->entry_total != xar->entry_size) {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Decompressed size error");
 			r = ARCHIVE_FATAL;
 			goto abort_read_data;
 		}
-		r = checksum_final(a,
-			xar->entry_a_sum.val, xar->entry_a_sum.len,
-			xar->entry_e_sum.val, xar->entry_e_sum.len);
+		r = checksum_final(a, xar->entry_a_sum.val, xar->entry_a_sum.len, xar->entry_e_sum.val, xar->entry_e_sum.len);
 		if(r != ARCHIVE_OK)
 			goto abort_read_data;
 	}
-
 	return ARCHIVE_OK;
 abort_read_data:
 	*buff = NULL;
@@ -811,10 +790,8 @@ abort_read_data:
 
 static int xar_read_data_skip(struct archive_read * a)
 {
-	struct xar * xar;
 	int64_t bytes_skipped;
-
-	xar = static_cast<struct xar *>(a->format->data);
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
 	if(xar->end_of_file)
 		return (ARCHIVE_EOF);
 	bytes_skipped = __archive_read_consume(a, xar->entry_remaining +
@@ -828,18 +805,15 @@ static int xar_read_data_skip(struct archive_read * a)
 
 static int xar_cleanup(struct archive_read * a)
 {
-	struct xar * xar;
 	struct hdlink * hdlink;
 	int i;
 	int r;
-
-	xar = static_cast<struct xar *>(a->format->data);
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
 	checksum_cleanup(a);
 	r = decompression_cleanup(a);
 	hdlink = xar->hdlink_list;
 	while(hdlink != NULL) {
 		struct hdlink * next = hdlink->next;
-
 		SAlloc::F(hdlink);
 		hdlink = next;
 	}
@@ -1363,15 +1337,12 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 	return ARCHIVE_OK;
 }
 
-static int decompress(struct archive_read * a, const void ** buff, size_t * outbytes,
-    const void * b, size_t * used)
+static int decompress(struct archive_read * a, const void ** buff, size_t * outbytes, const void * b, size_t * used)
 {
-	struct xar * xar;
 	void * outbuff;
 	size_t avail_in, avail_out;
 	int r;
-
-	xar = static_cast<struct xar *>(a->format->data);
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
 	avail_in = *used;
 	outbuff = (void*)(uintptr_t)*buff;
 	if(outbuff == NULL) {
@@ -1485,11 +1456,8 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 
 static int decompression_cleanup(struct archive_read * a)
 {
-	struct xar * xar;
-	int r;
-
-	xar = static_cast<struct xar *>(a->format->data);
-	r = ARCHIVE_OK;
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
+	int r = ARCHIVE_OK;
 	if(xar->stream_valid) {
 		if(inflateEnd(&(xar->stream)) != Z_OK) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up zlib decompressor");
@@ -1518,11 +1486,9 @@ static int decompression_cleanup(struct archive_read * a)
 	return r;
 }
 
-static void checksum_cleanup(struct archive_read * a) {
-	struct xar * xar;
-
-	xar = static_cast<struct xar *>(a->format->data);
-
+static void checksum_cleanup(struct archive_read * a) 
+{
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
 	_checksum_final(&(xar->a_sumwrk), NULL, 0);
 	_checksum_final(&(xar->e_sumwrk), NULL, 0);
 }
@@ -1530,7 +1496,6 @@ static void checksum_cleanup(struct archive_read * a) {
 static void xmlattr_cleanup(struct xmlattr_list * list)
 {
 	struct xmlattr * attr, * next;
-
 	attr = list->first;
 	while(attr != NULL) {
 		next = attr->next;
@@ -1707,16 +1672,12 @@ static void unknowntag_end(struct xar * xar, const char * name)
 
 static int xml_start(struct archive_read * a, const char * name, struct xmlattr_list * list)
 {
-	struct xar * xar;
 	struct xmlattr * attr;
-
-	xar = static_cast<struct xar *>(a->format->data);
-
+	struct xar * xar = static_cast<struct xar *>(a->format->data);
 #if DEBUG
 	fprintf(stderr, "xml_sta:[%s]\n", name);
 	for(attr = list->first; attr != NULL; attr = attr->next)
-		fprintf(stderr, "    attr:\"%s\"=\"%s\"\n",
-		    attr->name, attr->value);
+		fprintf(stderr, "    attr:\"%s\"=\"%s\"\n", attr->name, attr->value);
 #endif
 	xar->base64text = 0;
 	switch(xar->xmlsts) {

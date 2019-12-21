@@ -1872,7 +1872,7 @@ int __db_secondary_close_pp(DB * dbp, uint32 flags)
 	handle_check = IS_ENV_REPLICATED(env);
 	if(handle_check && (t_ret = __db_rep_enter(dbp, 0, 0, 0)) != 0) {
 		handle_check = 0;
-		if(ret == 0)
+		if(!ret)
 			ret = t_ret;
 	}
 	if((t_ret = __db_secondary_close(dbp, flags)) != 0 && ret == 0)
@@ -2177,7 +2177,7 @@ int __db_txn_auto_init(ENV * env, DB_THREAD_INFO * ip, DB_TXN ** txnidp)
 int __db_txn_auto_resolve(ENV * env, DB_TXN * txn, int nosync, int ret)
 {
 	int t_ret;
-	if(ret == 0)
+	if(!ret)
 		return __txn_commit(txn, nosync ? DB_TXN_NOSYNC : 0);
 	if((t_ret = __txn_abort(txn)) != 0)
 		return __env_panic(env, t_ret);

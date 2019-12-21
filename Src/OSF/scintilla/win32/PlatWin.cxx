@@ -365,7 +365,7 @@ FontID FontCached::FindOrCreate(const FontParameters &fp)
 			ret = cur->fid;
 		}
 	}
-	if(ret == 0) {
+	if(!ret) {
 		FontCached * fc = new FontCached(fp);
 		fc->next = first;
 		first = fc;

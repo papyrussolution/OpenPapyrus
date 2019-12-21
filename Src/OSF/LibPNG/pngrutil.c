@@ -2454,7 +2454,7 @@ void /* PRIVATE */ png_handle_unknown(png_structrp png_ptr, png_inforp info_ptr,
 			if(ret < 0)
 				png_chunk_error(png_ptr, "error in user chunk");
 
-			else if(ret == 0) {
+			else if(!ret) {
 				/* If the keep value is 'default' or 'never' override it, but
 				 * still error out on critical chunks unless the keep value is
 				 * 'always'  While this is weird it is the behavior in 1.4.12.

@@ -759,6 +759,13 @@ float TRect::CenterY() const { return (b.y + a.y) / 2.0f; }
 int   TRect::width() const { return (b.x - a.x); }
 int   TRect::height() const { return (b.y - a.y); }
 
+TRect & TRect::Z()
+{
+	a.Z();
+	b.Z();
+	return *this;
+}
+
 TRect & TRect::set(int x1, int y1, int x2, int y2)
 {
 	a.Set(x1, y1);

@@ -455,7 +455,6 @@ static inline int32_t blend_screen(int32_t d, int32_t ad, int32_t s, int32_t as)
 }
 
 PDF_SEPARABLE_BLEND_MODE(screen)
-
 /*
  * Overlay
  *

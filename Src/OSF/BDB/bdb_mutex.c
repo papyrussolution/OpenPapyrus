@@ -216,7 +216,7 @@ int __mutex_refresh(ENV * env, db_mutex_t mutex)
 	DB_MUTEX * mutexp = MUTEXP_SET(env, mutex);
 	uint32 flags = mutexp->flags;
 	int ret = __mutex_destroy(env, mutex);
-	if(ret == 0) {
+	if(!ret) {
 		memzero(mutexp, sizeof(*mutexp));
 		F_SET(mutexp, DB_MUTEX_ALLOCATED|LF_ISSET(DB_MUTEX_LOGICAL_LOCK|DB_MUTEX_PROCESS_ONLY|DB_MUTEX_SHARED));
 		LF_CLR(DB_MUTEX_LOCKED);

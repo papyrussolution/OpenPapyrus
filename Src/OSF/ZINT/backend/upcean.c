@@ -114,7 +114,8 @@ int upca(struct ZintSymbol * symbol, uchar source[], char dest[])
 	else {
 		gtin[length - 1] = '\0';
 		if(source[length - 1] != upc_check(gtin)) {
-			sstrcpy(symbol->errtxt, "Invalid check digit (C60)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid check digit (C60)");
+			ZintMakeErrText_InvCheckDigit("C60", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		gtin[length - 1] = upc_check(gtin);
@@ -263,7 +264,8 @@ int upce(struct ZintSymbol * symbol, uchar source[], char dest[])
 	}
 	else {
 		if(hrt[7] != check_digit) {
-			sstrcpy(symbol->errtxt, "Invalid check digit (C64)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid check digit (C64)");
+			ZintMakeErrText_InvCheckDigit("C64", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 			return ZINT_ERROR_INVALID_DATA;
 		}
 	}
@@ -355,18 +357,16 @@ int ean13(struct ZintSymbol * symbol, uchar source[], char dest[])
 	else {
 		gtin[length - 1] = '\0';
 		if(source[length - 1] != ean_check(gtin)) {
-			sstrcpy(symbol->errtxt, "Invalid check digit (C65)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid check digit (C65)");
+			ZintMakeErrText_InvCheckDigit("C65", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		gtin[length - 1] = ean_check(gtin);
 	}
-
 	/* Get parity for first half of the symbol */
 	lookup(SODIUM, EAN13Parity, gtin[0], parity);
-
 	/* Now get on with the cipher */
 	half_way = 7;
-
 	/* start character */
 	strcat(dest, "111");
 	length = strlen(gtin);
@@ -404,7 +404,8 @@ int ean8(struct ZintSymbol * symbol, uchar source[], char dest[])
 	else {
 		gtin[length - 1] = '\0';
 		if(source[length - 1] != upc_check(gtin)) {
-			sstrcpy(symbol->errtxt, "Invalid check digit (C66)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid check digit (C66)");
+			ZintMakeErrText_InvCheckDigit("C66", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 			return ZINT_ERROR_INVALID_DATA;
 		}
 		gtin[length - 1] = upc_check(gtin);
@@ -669,7 +670,8 @@ int eanx(struct ZintSymbol * symbol, const uchar source[], int src_len)
 		// ISBN has it's own checking routine 
 		error_number = is_sane("0123456789+", source, src_len);
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			sstrcpy(symbol->errtxt, "Invalid characters in data (C6E)");
+			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C6E)");
+			ZintMakeErrText_InvCharInData("C6E", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
 			return error_number;
 		}
 	}
@@ -713,7 +715,7 @@ int eanx(struct ZintSymbol * symbol, const uchar source[], int src_len)
 		} while(reader <= sstrlen(local_source));
 	}
 	else {
-		sstrcpy((char *)first_part, (char *)local_source);
+		sstrcpy(first_part, local_source);
 	}
 	switch(symbol->Std) {
 		case BARCODE_EANX:

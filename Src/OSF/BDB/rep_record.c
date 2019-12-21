@@ -1112,7 +1112,7 @@ gap_check:
 		key_dbt.data = rp;
 		key_dbt.size = sizeof(*rp);
 		ret = __db_put(dbp, ip, NULL, &key_dbt, rec, DB_NOOVERWRITE);
-		if(ret == 0) {
+		if(!ret) {
 			STAT(rep->stat.st_log_queued++);
 			__os_gettime(env, &lp->last_ts, 1);
 #ifdef HAVE_STATISTICS
@@ -1416,7 +1416,7 @@ err1:
 	if(F_ISSET(&data_dbt, DB_DBT_REALLOC) && data_dbt.data != NULL)
 		__os_ufree(env, data_dbt.data);
 #ifdef HAVE_STATISTICS
-	if(ret == 0)
+	if(!ret)
 		/*
 		 * We don't hold the rep mutex, and could miscount if we race.
 		 */
@@ -1545,7 +1545,7 @@ static int __rep_newfile(ENV * env, __rep_control_args * rp, DBT * rec)
 		REP_SYSTEM_LOCK(env);
 		F_CLR(rep, REP_F_NEWFILE);
 		REP_SYSTEM_UNLOCK(env);
-		if(ret == 0)
+		if(!ret)
 			lp->ready_lsn = tmplsn;
 		return ret;
 	}
@@ -1591,7 +1591,7 @@ static int __rep_do_ckp(ENV*env, DBT * rec, __rep_control_args * rp)
 	MUTEX_UNLOCK(env, rep->mtx_ckp);
 	__memp_set_config(dbenv, DB_MEMP_SUPPRESS_WRITE, 0);
 	/* Update the last_ckp in the txn region. */
-	if(ret == 0)
+	if(!ret)
 		ret = __txn_updateckp(env, &rp->lsn);
 	else {
 		__db_errx(env, DB_STR_A("3525", "Error syncing ckp [%lu][%lu]", "%lu %lu"), (ulong)ckp_lsn.file, (ulong)ckp_lsn.Offset_);
@@ -1835,7 +1835,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		//
 		// If we're successful putting the log record in the log, flush it for a checkpoint.
 		//
-		if(ret == 0) {
+		if(!ret) {
 			*ret_lsnp = rp->lsn;
 			ret = __log_flush(env, 0);
 			if(ret == 0 && lp->db_log_autoremove)

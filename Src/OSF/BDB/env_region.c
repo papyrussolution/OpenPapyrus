@@ -490,7 +490,7 @@ retry:  /* Close any open file handle. */
 	__os_free(env, infop->name);
 	__os_free(env, infop);
 	/* If we had a temporary error, wait awhile and try again. */
-	if(ret == 0) {
+	if(!ret) {
 		if(!retry_ok || ++retry_cnt > 3) {
 			__db_errx(env, DB_STR("1546", "unable to join the environment"));
 			ret = EAGAIN;
