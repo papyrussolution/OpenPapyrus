@@ -171,124 +171,10 @@ public:
 	};
 	class Document {
 	public:
-		SLAPI  Document()
-		{
-		}
-		int    SLAPI Parse()
-		{
-			int    ok = 0;
-			return ok;
-		}
-		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode)
-		{
-			int    ok = -1;
-			Reference * p_ref = PPRef;
-			rCode.Z();
-			if(locID && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_CHZNCODE, rCode) > 0)
-				ok = 1;
-			else if(psnID && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psnID, PPTAG_PERSON_CHZNCODE, rCode) > 0)
-				ok = 1;
-			return ok;
-		}
-		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, int docType, const ChZnInterface::Packet * pPack)
-		{
-			int    ok = 1;
-			SString temp_buf;
-			SString subj_ident;
-			SString shipper_ident;
-			{
-				SXml::WNode wdocs(rX, "documents");
-				wdocs.PutAttrib("session_ui", rIb.Token);
-				wdocs.PutAttrib("version", "1.34");
-				wdocs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-				{
-					SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), docType, temp_buf);
-					SXml::WNode wd(rX, temp_buf);
-					wd.PutAttrib("action_id", temp_buf.Z().Cat(docType));
-					//
-					if(docType == doctypReceiveOrder) {
-						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-						if(p_bp) {
-							PPID   dlvr_ar_id = p_bp->Rec.Object;
-							PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-							PPID   dlvr_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
-							PPID   subj_psn_id = 0;
-							PPID   subj_loc_id = p_bp->Rec.LocID;
-							GetMainOrgID(&subj_psn_id);
-							GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-							GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-							wd.PutInner("subject_id", subj_ident);
-							wd.PutInner("shipper_id", shipper_ident);
-							temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
-							TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
-							wd.PutInner("operation_date", temp_buf);
-							temp_buf = p_bp->Rec.Code;
-							BillCore::GetCode(temp_buf);
-							temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-							wd.PutInner("doc_num", temp_buf);
-							wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
-							wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
-							wd.PutInner("source", temp_buf.Z().Cat(1L));
-							wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-							{
-								SXml::WNode dtl(rX, "order_details");
-								PPLotExtCodeContainer::MarkSet lotxcode_set;
-								PPLotExtCodeContainer::MarkSet::Entry msentry;
-								for(uint i = 0; i < p_bp->GetTCount(); i++) {
-									const PPTransferItem & r_ti = p_bp->ConstTI(i);
-									double cost = r_ti.Cost;
-									double vat_in_cost = 0.0;
-									{
-										GTaxVect vect;
-										vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
-										vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-									}
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									for(uint j = 0; j < lotxcode_set.GetCount(); j++) {
-										if(lotxcode_set.GetByIdx(j, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
-											SXml::WNode un(rX, "union");
-											un.PutInner("sgtin", msentry.Num);
-											un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
-											un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
-										}
-									}
-								}
-							}
-						}
-					}
-					else if(docType == doctypQueryKizInfo) {
-						const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
-						if(p_bp) {
-							subj_ident = p_bp->SubjectIdent;
-							if(subj_ident.Empty()) {
-								PPID   dlvr_psn_id = ObjectToPerson(p_bp->ArID, 0);
-								PPID   subj_psn_id = 0;
-								GetMainOrgID(&subj_psn_id);
-								GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
-							}
-							wd.PutInnerSkipEmpty("subject_id", subj_ident);
-							int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
-							SETIFZ(codetype, p_bp->CodeType);
-							if(codetype == SNTOK_CHZN_GS1_GTIN) {
-								wd.PutInner("sgtin", p_bp->Code);
-							}
-							else if(codetype == SNTOK_CHZN_SIGN_SGTIN) {
-								wd.PutInner("sgtin", p_bp->Code);
-							}
-							else if(codetype == SNTOK_CHZN_SSCC) {
-								if(p_bp->Modifier == 1) // down
-									wd.PutInner("sscc_down", p_bp->Code);
-								else if(p_bp->Modifier == 2) // up
-									wd.PutInner("sscc_up", p_bp->Code);
-								else // default - down
-									wd.PutInner("sscc_down", p_bp->Code);
-							}
-						}
-					}
-				}
-			}
-			return ok;
-		}
+		SLAPI  Document();
+		int    SLAPI Parse();
+		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
+		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, int docType, const ChZnInterface::Packet * pPack);
 	};
 	int    SLAPI SetupInitBlock(PPID guaID, InitBlock & rBlk);
 	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf) const;
@@ -314,7 +200,131 @@ public:
 	int    SLAPI GetToken2(const char * pAuthCode, InitBlock & rIb);
 private:
 	int    SLAPI LogTalking(const char * pPrefix, const SString & rMsg);
+	int    SLAPI GetDebugPath(PPID locID, SString & rPath);
+	int    SLAPI GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
 };
+
+SLAPI ChZnInterface::Document::Document()
+{
+}
+
+int SLAPI ChZnInterface::Document::Parse()
+{
+	int    ok = 0;
+	return ok;
+}
+
+int SLAPI ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	rCode.Z();
+	if(locID && p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_CHZNCODE, rCode) > 0)
+		ok = 1;
+	else if(psnID && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psnID, PPTAG_PERSON_CHZNCODE, rCode) > 0)
+		ok = 1;
+	return ok;
+}
+
+int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, int docType, const ChZnInterface::Packet * pPack)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString subj_ident;
+	SString shipper_ident;
+	{
+		SXml::WNode wdocs(rX, "documents");
+		wdocs.PutAttrib("session_ui", rIb.Token);
+		wdocs.PutAttrib("version", "1.34");
+		wdocs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+		{
+			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), docType, temp_buf);
+			SXml::WNode wd(rX, temp_buf);
+			wd.PutAttrib("action_id", temp_buf.Z().Cat(docType));
+			//
+			if(docType == doctypReceiveOrder) {
+				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+				if(p_bp) {
+					PPID   dlvr_ar_id = p_bp->Rec.Object;
+					PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
+					PPID   dlvr_loc_id = p_bp->P_Freight ? p_bp->P_Freight->DlvrAddrID : 0;
+					PPID   subj_psn_id = 0;
+					PPID   subj_loc_id = p_bp->Rec.LocID;
+					GetMainOrgID(&subj_psn_id);
+					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
+					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
+					wd.PutInner("subject_id", subj_ident);
+					wd.PutInner("shipper_id", shipper_ident);
+					temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
+					TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, temp_buf);
+					wd.PutInner("operation_date", temp_buf);
+					temp_buf = p_bp->Rec.Code;
+					BillCore::GetCode(temp_buf);
+					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+					wd.PutInner("doc_num", temp_buf);
+					wd.PutInner("doc_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
+					wd.PutInner("source", temp_buf.Z().Cat(1L));
+					wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
+					{
+						SXml::WNode dtl(rX, "order_details");
+						PPLotExtCodeContainer::MarkSet lotxcode_set;
+						PPLotExtCodeContainer::MarkSet::Entry msentry;
+						for(uint i = 0; i < p_bp->GetTCount(); i++) {
+							const PPTransferItem & r_ti = p_bp->ConstTI(i);
+							double cost = r_ti.Cost;
+							double vat_in_cost = 0.0;
+							{
+								GTaxVect vect;
+								vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+								vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+							}
+							p_bp->XcL.Get(i+1, 0, lotxcode_set);
+							for(uint j = 0; j < lotxcode_set.GetCount(); j++) {
+								if(lotxcode_set.GetByIdx(j, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+									SXml::WNode un(rX, "union");
+									un.PutInner("sgtin", msentry.Num);
+									un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
+									un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(docType == doctypQueryKizInfo) {
+				const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
+				if(p_bp) {
+					subj_ident = p_bp->SubjectIdent;
+					if(subj_ident.Empty()) {
+						PPID   dlvr_psn_id = ObjectToPerson(p_bp->ArID, 0);
+						PPID   subj_psn_id = 0;
+						GetMainOrgID(&subj_psn_id);
+						GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
+					}
+					wd.PutInnerSkipEmpty("subject_id", subj_ident);
+					int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
+					SETIFZ(codetype, p_bp->CodeType);
+					if(codetype == SNTOK_CHZN_GS1_GTIN) {
+						wd.PutInner("sgtin", p_bp->Code);
+					}
+					else if(codetype == SNTOK_CHZN_SIGN_SGTIN) {
+						wd.PutInner("sgtin", p_bp->Code);
+					}
+					else if(codetype == SNTOK_CHZN_SSCC) {
+						if(p_bp->Modifier == 1) // down
+							wd.PutInner("sscc_down", p_bp->Code);
+						else if(p_bp->Modifier == 2) // up
+							wd.PutInner("sscc_up", p_bp->Code);
+						else // default - down
+							wd.PutInner("sscc_down", p_bp->Code);
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, InitBlock & rBlk)
 {
@@ -407,14 +417,10 @@ SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, 
 {
 	//rResult = "http://api.sb.mdlp.crpt.ru";
 	//(rResult = (oneof2(query, qAuth, qToken) ? "http" : "https")).Cat("://");
-	(rResult = (oneof2(query, qAuth, qToken) ? "http" : "http")).Cat("://");
-	if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox) {
-		rResult.Cat("api.sb.mdlp.crpt.ru");
-	}
-	else {
-		rResult.Cat("api.mdlp.crpt.ru");
-	}
-	rResult.SetLastDSlash().Cat("api/v1").SetLastDSlash();
+	(rResult = (oneof2(query, qAuth, qToken) ? "http" : "http")).Cat("://").Cat("api").Dot();
+	if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+		rResult.Cat("sb").Dot();
+	rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1").SetLastDSlash();
 	switch(query) {
 		case qAuth:  rResult.Cat("auth"); break;
 		case qToken: rResult.Cat("token"); break;
@@ -590,6 +596,45 @@ int SLAPI ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * p
 			}
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI ChZnInterface::GetDebugPath(PPID guaID, SString & rPath)
+{
+	rPath.Z();
+    int    ok = 1;
+    SString temp_buf;
+    SString temp_path;
+	//THROW(GetFSRARID(locID, temp_buf, 0));
+    PPGetPath(PPPATH_TEMP, temp_path);
+    temp_path.SetLastSlash().Cat("CHZN").CatChar('-').Cat(temp_buf);
+    THROW_SL(::createDir(temp_path));
+	rPath = temp_path;
+    CATCHZOK
+    return ok;
+}
+
+int SLAPI ChZnInterface::GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn)
+{
+	int    ok = 1;
+	const  int is_cc = sstreqi_ascii(pSubPath, "cc");
+	rFn.Z();
+	SString temp_path;
+	if(!isempty(pPath)) {
+		(temp_path = pPath).SetLastSlash();
+		if(is_cc)
+			temp_path.Cat("xml");
+		else
+			temp_path.Cat("opt").SetLastSlash().Cat("temp-query");
+	}
+	else
+		PPGetPath(PPPATH_TEMP, temp_path);
+	if(!is_cc && !isempty(pSubPath))
+		temp_path.SetLastSlash().Cat(pSubPath);
+	temp_path.RmvLastSlash();
+	THROW_SL(::createDir(temp_path));
+	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "XML", 0, rFn);
 	CATCHZOK
 	return ok;
 }
@@ -1003,8 +1048,6 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 			{
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				//PPGetFilePath(PPPATH_BIN, "cacerts-mcs.pem", temp_buf);
-				//THROW_SL(c.SetupDefaultSslOptions(temp_buf, SSystem::sslTLS_v10, 0)); //CURLOPT_SSLVERSION значением CURL_SSLVERSION_TLSv1_0
 				LogTalking("req", req_buf);
 				THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 				{
@@ -1029,8 +1072,6 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 			{
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				//PPGetFilePath(PPPATH_BIN, "cacerts-mcs.pem", temp_buf);
-				//THROW_SL(c.SetupDefaultSslOptions(temp_buf, SSystem::sslTLS_v10, 0)); //CURLOPT_SSLVERSION значением CURL_SSLVERSION_TLSv1_0
 				LogTalking("req", req_buf);
 				THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
 				{
@@ -1138,7 +1179,6 @@ int SLAPI PPChZnPrcssr::InteractiveQuery()
 	QueryParam _param;
 	_param.LocID = LConfig.Location;
 	while(EditQueryParam(&_param) > 0) {
-		//THROW(ImplementQuery(_param));
 		if(oneof2(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo)) {
 			ChZnInterface ifc;
 			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);

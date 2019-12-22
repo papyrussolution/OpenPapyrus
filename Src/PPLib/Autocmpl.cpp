@@ -90,7 +90,7 @@ int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double needed
 		double sum = abs_list.GetTotal();
 		double delta = neededeQtty - sum;
 		if((fabs(delta) / neededeQtty) <= 0.01) {
-			uint max_pos = 0;
+			uint   max_pos = 0;
 			double max_val = 0.0;
 			for(uint i = 0; i < rList.getCount(); i++) {
 				SupplSubstItem & r_item = rList.at(i);
@@ -351,7 +351,7 @@ private:
 	virtual int editItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)Data.SupplSubstList.getCount()) {
+		if(id > 0 && id <= Data.SupplSubstList.getCountI()) {
 			int    _pos = id-1;
 			if(EditItem(&_pos) > 0)
 				ok = 1;
@@ -361,7 +361,7 @@ private:
 	virtual int delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)Data.SupplSubstList.getCount()) {
+		if(id > 0 && id <= Data.SupplSubstList.getCountI()) {
 			Data.SupplSubstList.atFree(id-1);
 			ok = 1;
 		}
@@ -375,7 +375,7 @@ private:
 		TDialog * dlg = 0;
 		PUGL::SupplSubstItem item(PuglPos);
         if(*pSupplSubstPos >= 0) {
-			THROW(*pSupplSubstPos < (int)Data.SupplSubstList.getCount());
+			THROW(*pSupplSubstPos < Data.SupplSubstList.getCountI());
 			item = Data.SupplSubstList.at(*pSupplSubstPos);
 			assert(item.Position == PuglPos);
         }

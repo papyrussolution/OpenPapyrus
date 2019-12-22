@@ -3680,7 +3680,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				}
 				THROW(curl.HttpPost(url_dest, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream));
 				{
-					SBuffer * p_ret_buf = (SBuffer *)wr_stream;
+					SBuffer * p_ret_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ret_buf) {
 						size_t ret_size = p_ret_buf->GetAvailableSize();
 						if(ret_size) {

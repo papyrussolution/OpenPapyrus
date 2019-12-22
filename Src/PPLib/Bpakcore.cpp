@@ -1694,8 +1694,8 @@ int SLAPI PPBillPacket::SetGuid(const S_GUID & rGuid)
 	else {
 		ObjTagItem tag;
 		PPObjTag tagobj;
-		PPObjectTag tagrec;
-		THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tagrec) > 0, PPERR_BILLTAGUUIDABS);
+		PPObjectTag tag_rec;
+		THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
 		THROW(tag.SetGuid(PPTAG_BILL_UUID, &rGuid));
 		THROW(BTagL.PutItem(PPTAG_BILL_UUID, &tag));
 	}

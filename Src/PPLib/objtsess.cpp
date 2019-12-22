@@ -118,10 +118,7 @@ IMPL_INVARIANT_C(PPTSessConfig)
 
 // @vmiller
 struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
-	size_t GetSize() const
-	{
-		return (sizeof(*this) + ExtStrSize);
-	}
+	size_t GetSize() const { return (sizeof(*this) + ExtStrSize); }
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
 	PPID   Prop;            // Const=PPPRP_TSESSCFG
@@ -214,12 +211,12 @@ int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 	size_t sz = 0;
 	Storage_PPTSessionConfig * p_cfg = 0;
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, prop_cfg_id, &sz) > 0) {
-		p_cfg = (Storage_PPTSessionConfig *)SAlloc::M(sz);
+		p_cfg = static_cast<Storage_PPTSessionConfig *>(SAlloc::M(sz));
 		THROW_MEM(p_cfg);
 		THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		if(r > 0 && p_cfg->GetSize() > sz) {
 			sz = p_cfg->GetSize();
-			p_cfg = (Storage_PPTSessionConfig *)SAlloc::R(p_cfg, sz);
+			p_cfg = static_cast<Storage_PPTSessionConfig *>(SAlloc::R(p_cfg, sz));
 			THROW_MEM(p_cfg);
 			THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		}
@@ -382,11 +379,12 @@ int TSessAutoSmsParamsDialog::getDTS(PPTSessConfig * pData)
 // } @vmiller
 
 class TSessCfgDialog : public TDialog {
+	DECL_DIALOG_DATA(PPTSessConfig);
 public:
 	TSessCfgDialog() : TDialog(DLG_TSESSCFG)
 	{
 	}
-	int setDTS(const PPTSessConfig * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 0, PPTSessConfig::fUpdateTimeOnStatus);
@@ -407,7 +405,7 @@ public:
 		setCtrlData(CTL_TSESSCFG_TCBQUANT,    &Data.TimeChunkBrowserQuant);
 		return 1;
 	}
-	int getDTS(PPTSessConfig * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		SInvariantParam invp;
@@ -436,7 +434,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	PPTSessConfig Data;
 };
 //
 //
@@ -3876,8 +3873,8 @@ void SLAPI TSessWrOffOrder::ShortSort(SArray * pPrcList) const
 		for(uint lo = 0, hi = pPrcList->getCount()-1; hi > lo; hi--) {
 			_max = lo;
 			for(uint p = lo+1; p <= hi; p++) {
-				ArrngItem * p_item1 = (ArrngItem *)pPrcList->at(p);
-				ArrngItem * p_item2 = (ArrngItem *)pPrcList->at(_max);
+				const ArrngItem * p_item1 = static_cast<const ArrngItem *>(pPrcList->at(p));
+				const ArrngItem * p_item2 = static_cast<const ArrngItem *>(pPrcList->at(_max));
 				if(p_item1->Dt > p_item2->Dt || CompareProcessors(&prc_obj, p_item1->PrcID, p_item2->PrcID) > 0)
 					_max = p;
 			}
@@ -3907,7 +3904,7 @@ int SLAPI TSessWrOffOrder::ArrangeTSessList(const PPIDArray * pSrcList, PPIDArra
 			}
 		ShortSort(&prc_list);
 		for(i = 0; i < prc_list.getCount(); i++)
-			THROW(pDestList->add(((ArrngItem *)prc_list.at(i))->SessID));
+			THROW(pDestList->add(static_cast<const ArrngItem *>(prc_list.at(i))->SessID));
 		ok = pDestList->IsEqual(pSrcList) ? -1 : 1;
 	}
 	CATCHZOK
@@ -3920,19 +3917,19 @@ int SLAPI TSessWrOffOrder::ArrangeTSessList(const PPIDArray * pSrcList, PPIDArra
 int SLAPI PPObjTSession::EditWrOffOrder()
 {
 	class TSessWrOffOrderDialog : public ObjRestrictListDialog {
+		DECL_DIALOG_DATA(TSessWrOffOrder);
 	public:
 		TSessWrOffOrderDialog() : ObjRestrictListDialog(DLG_TSESSWROFFORD, CTL_TSESSWROFFORD_LIST)
 		{
 		}
-		int    setDTS(const TSessWrOffOrder * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			setParams(PPOBJ_PROCESSOR, &Data);
 			updateList(-1);
-			return ok;
+			return 1;
 		}
-		int    getDTS(TSessWrOffOrder * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			ASSIGN_PTR(pData, Data);
 			return 1;
@@ -3966,7 +3963,6 @@ int SLAPI PPObjTSession::EditWrOffOrder()
 			delete dlg;
 			return ok;
 		}
-		TSessWrOffOrder Data;
 	};
 	int    ok = -1;
 	TSessWrOffOrderDialog * dlg = new TSessWrOffOrderDialog;
@@ -4627,12 +4623,11 @@ int SLAPI PPObjTSession::NormalizePacket(TSessionPacket * pPack, long options)
 {
 	int    ok = 1;
 	if(pPack) {
-		uint   i = 0;
 		if(options & npoDBX) {
 			pPack->Rec.OrderLotID = 0;
 		}
 		pPack->CiList.Normalize(PPCheckInPersonItem::kTSession, pPack->Rec.ID);
-		for(i = 0; i < pPack->Lines.getCount(); i++) {
+		for(uint i = 0; i < pPack->Lines.getCount(); i++) {
 			TSessLineTbl::Rec & r_line = pPack->Lines.at(i);
 			r_line.TSessID = pPack->Rec.ID;
 			if(options & npoDBX) {
@@ -4778,12 +4773,13 @@ int SLAPI PrcssrTSessMaintenance::InitParam(PrcssrTSessMaintenance::Param * pP)
 int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 {
 	class TSessMaintDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrTSessMaintenance::Param);
 	public:
 		TSessMaintDialog() : TDialog(DLG_TSESMNT)
 		{
 			SetupCalPeriod(CTLCAL_TSESMNT_PERIOD, CTL_TSESMNT_PERIOD);
 		}
-		int    setDTS(const PrcssrTSessMaintenance::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -4792,7 +4788,7 @@ int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 			SetClusterData(CTL_TSESMNT_ACTION, Data.Flags);
 			return ok;
 		}
-		int    getDTS(PrcssrTSessMaintenance::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -4802,8 +4798,6 @@ int SLAPI PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		PrcssrTSessMaintenance::Param Data;
 	};
 	DIALOG_PROC_BODY(TSessMaintDialog, pP);
 }

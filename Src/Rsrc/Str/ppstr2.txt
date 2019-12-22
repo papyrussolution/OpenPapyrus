@@ -6995,6 +6995,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_guacertsubjcn                       "CN субъекта сертификата электронной подписи"
 @rtag_person_chzncode                     "ЧЕСТНЫЙ ЗНАК код персоналии"
 @rtag_loc_chzncode                        "ЧЕСТНЫЙ ЗНАК код локации"
+@rtag_gua_chzncode                        "ЧЕСТНЫЙ ЗНАК код глобальной учетной записи"
 //
 // Зарезервированные типы регистрационных документов
 //

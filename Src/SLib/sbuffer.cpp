@@ -132,6 +132,7 @@ void SBuffer::Destroy()
 SBuffer & SLAPI SBuffer::Z()
 {
 	WrOffs = RdOffs = 0;
+	Flags &= ~fError;
 	return *this;
 }
 

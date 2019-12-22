@@ -4722,7 +4722,7 @@ int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_
 		SStrScan scan(pLine);
 		while(scan.Skip()[0] != 0) {
 			PPID   tag_id = 0;
-			attr = 0;
+			attr.Z();
 			THROW_PP_S(scan.GetIdent(temp_buf), PPERR_ATTRBYTEXT_SYNTAX, pLine);
 			scan.Skip();
 			if(temp_buf.IsEqiAscii("tag")) {

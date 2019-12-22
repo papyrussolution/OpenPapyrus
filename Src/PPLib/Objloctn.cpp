@@ -5810,9 +5810,9 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag rec;
-				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
-					STRNSCPY(I_TagList.TagSymb, rec.Symb);
+				PPObjectTag tag_rec;
+				if(r_blk.TagObj.Fetch(p_item->TagID, &tag_rec) > 0)
+					STRNSCPY(I_TagList.TagSymb, tag_rec.Symb);
 			}
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
@@ -5854,9 +5854,9 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 		else if(iterId == GetIterID("iter@TagList")) {
 			PPID   id = 0;
 			ObjTagItem item;
-			PPObjectTag rec;
-			if(r_blk.TagObj.SearchBySymb(I_TagList.TagSymb, &id, &rec) > 0) {
-				item.TagID = rec.ID;
+			PPObjectTag tag_rec;
+			if(r_blk.TagObj.SearchBySymb(I_TagList.TagSymb, &id, &tag_rec) > 0) {
+				item.TagID = tag_rec.ID;
 				switch(I_TagList.TagTypeID) {
 					case OTTYP_STRING:
 					case OTTYP_GUID: THROW(item.SetStr(I_TagList.TagTypeID, I_TagList.StrVal)); break;
@@ -5864,7 +5864,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 					case OTTYP_INT: THROW(item.SetInt(I_TagList.TagTypeID, I_TagList.IntVal)); break;
 					case OTTYP_DATE: THROW(item.SetDate(I_TagList.TagTypeID, I_TagList.DateVal)); break;
 				}
-				THROW(r_blk.Pack.TagL.PutItem(rec.ID, &item));
+				THROW(r_blk.Pack.TagL.PutItem(tag_rec.ID, &item));
 			}
 		}
 	}

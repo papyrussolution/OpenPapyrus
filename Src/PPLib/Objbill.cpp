@@ -232,8 +232,8 @@ int SLAPI PPObjBill::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	ObjTagItem tag;
 	BillTbl::Rec bill_rec;
 	PPObjTag tagobj;
-	PPObjectTag tagrec;
-	THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tagrec) > 0, PPERR_BILLTAGUUIDABS);
+	PPObjectTag tag_rec;
+	THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
 	if(pUuid && !pUuid->IsZero()) {
 		THROW(Search(id, &bill_rec) > 0);
 	}
@@ -9114,9 +9114,9 @@ int SLAPI PPObjBill::SubstMemo(PPBillPacket * pPack)
 int PPObjBill::ConvertUuid7601()
 {
 	int    ok = 1;
-	PPObjTag tagobj;
-	PPObjectTag tagrec;
-	THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tagrec) > 0, PPERR_BILLTAGUUIDABS);
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
+	THROW_PP(tag_obj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
 	{
 		Reference * p_ref = PPRef;
 		PropertyTbl::Key1 pk1;
@@ -9126,7 +9126,7 @@ int PPObjBill::ConvertUuid7601()
 		pk1.ObjType = PPOBJ_BILL;
 		pk1.Prop = BILLPRP_GUID;
 		for(int sp = spGe; p_ref->Prop.searchForUpdate(1, &pk1, sp) && p_ref->Prop.data.ObjType == PPOBJ_BILL && p_ref->Prop.data.Prop == BILLPRP_GUID; sp = spNext) {
-			const S_GUID uuid = *(S_GUID *)p_ref->Prop.data.Text;
+			const S_GUID uuid = *reinterpret_cast<const S_GUID *>(p_ref->Prop.data.Text);
 			const PPID bill_id = p_ref->Prop.data.ObjID;
 			BillTbl::Rec bill_rec;
 			if(Search(bill_id, &bill_rec) > 0) {

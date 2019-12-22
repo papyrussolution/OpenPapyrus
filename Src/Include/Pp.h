@@ -3395,6 +3395,10 @@ private:
 #define OTF_HIERENUM         0x0040 // Иерерхическое перечисление
 
 struct PPObjectTag2 {   // @persistent @store(Reference2Tbl+)
+	PPObjectTag2() 
+	{ 
+		THISZERO(); 
+	}
 	PPID   Tag;         // Const=PPOBJ_TAG
 	PPID   ID;          // @id
 	char   Name[48];    // @name @!refname

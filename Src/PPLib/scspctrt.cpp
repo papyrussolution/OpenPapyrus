@@ -158,10 +158,9 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBl
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 			{
-				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
-					const int avl_size = (int)p_ack_buf->GetAvailableSize();
-					temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 						for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -208,10 +207,9 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBl
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 			{
-				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
-					const int avl_size = (int)p_ack_buf->GetAvailableSize();
-					temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					json_free_value(&p_reply);
 					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
@@ -309,13 +307,12 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBl
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 			{
-				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					SString item_any_data;
 					SString item_ta;
 					SString item_msg;
-					const int avl_size = (int)p_ack_buf->GetAvailableSize();
-					temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -473,13 +470,12 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 			{
-				SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					SString item_any_data;
 					SString item_ta;
 					SString item_msg;
-					const int avl_size = (int)p_ack_buf->GetAvailableSize();
-					temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {

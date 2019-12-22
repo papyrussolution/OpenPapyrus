@@ -3255,10 +3255,10 @@ int SLAPI PPDS_CrrObjTag::TransferField(long fldID, Tfd dir, uint * pIter, SStri
 			{
 				SString buf;
 				if(dir ==  tfdDataToBuf) {
-					PPObjectTag tag;
-					MEMSZERO(tag);
-					if(Data.Rec.TagGroupID && Obj.Search(Data.Rec.TagGroupID, &tag) > 0)
-						buf.CopyFrom(tag.Name);
+					PPObjectTag tag_rec;
+					// @v10.6.5 @ctr MEMSZERO(tag);
+					if(Data.Rec.TagGroupID && Obj.Search(Data.Rec.TagGroupID, &tag_rec) > 0)
+						buf = tag_rec.Name;
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)

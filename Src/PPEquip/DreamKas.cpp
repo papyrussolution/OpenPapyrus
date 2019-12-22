@@ -220,8 +220,7 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = p_ack_buf->GetAvailableSizeI();
-				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					long   seq_id = 0;
@@ -281,8 +280,7 @@ int SLAPI ACS_DREAMKAS::SendGoods(json_t ** ppJson, uint & rCount, int update, i
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
-					const int avl_size = p_ack_buf->GetAvailableSizeI();
-					temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine(temp_buf.CR().CR());
 				}
 			}
@@ -593,8 +591,7 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = p_ack_buf->GetAvailableSizeI();
-				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
 					json_t * p_next = 0;
@@ -875,10 +872,9 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(qbuf).CR());
 			THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 			//
-			p_ack_buf = (SBuffer *)wr_stream;
+			p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = p_ack_buf->GetAvailableSizeI();
-				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSizeI());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
 				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
 				{

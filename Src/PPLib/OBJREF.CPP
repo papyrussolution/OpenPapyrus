@@ -3478,9 +3478,8 @@ int SLAPI PPUhttStoreSelDescr::GetDefaultEntryTitle(uint pos, SString & rBuf) co
 				if(r_item.ExtID) {
 					PPObjTag tag_obj;
 					PPObjectTag tag_rec;
-					if(tag_obj.Fetch(r_item.ExtID, &tag_rec) > 0) {
+					if(tag_obj.Fetch(r_item.ExtID, &tag_rec) > 0)
 						rBuf = tag_rec.Name;
-					}
 				}
 				if(!rBuf) {
 					PPLoadString("tag", rBuf);

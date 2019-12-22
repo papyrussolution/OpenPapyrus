@@ -1033,15 +1033,13 @@ int SLAPI PPObjPsnOpKind::SerializePacket(int dir, PPPsnOpKindPacket * pPack, SB
 	THROW_SL(pCtx->Serialize(dir, pPack->PCPrmr.Reserve1, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCPrmr.DefaultID, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCPrmr.RestrictTagID, rBuf));
-	THROW_SL(pCtx->Serialize(dir, &pPack->PCPrmr.RestrictScSerList, rBuf)); // @v8.2.3
-
+	THROW_SL(pCtx->Serialize(dir, &pPack->PCPrmr.RestrictScSerList, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCScnd.PersonKindID, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCScnd.StatusType, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCScnd.Reserve1, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCScnd.DefaultID, rBuf));
 	THROW_SL(pCtx->Serialize(dir, pPack->PCScnd.RestrictTagID, rBuf));
-	THROW_SL(pCtx->Serialize(dir, &pPack->PCScnd.RestrictScSerList, rBuf)); // @v8.2.3
-
+	THROW_SL(pCtx->Serialize(dir, &pPack->PCScnd.RestrictScSerList, rBuf));
 	THROW_SL(pPack->ClauseList.Serialize(dir, rBuf, pCtx));
 	THROW(pPack->AllowedTags.Serialize(dir, rBuf, pCtx));
 	CATCHZOK
@@ -1069,11 +1067,9 @@ int SLAPI PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 		ProcessObjRefInArray(PPOBJ_PRSNKIND,      &p_pack->PCScnd.PersonKindID,  ary, replace);
 		ProcessObjRefInArray(PPOBJ_PERSON,        &p_pack->PCScnd.DefaultID,     ary, replace);
 		ProcessObjRefInArray(PPOBJ_TAG,           &p_pack->PCScnd.RestrictTagID, ary, replace);
-		// @v8.2.3 {
 		for(i = 0; i < p_pack->PCScnd.RestrictScSerList.getCount(); i++) {
 			ProcessObjRefInArray(PPOBJ_SCARDSERIES, &p_pack->PCScnd.RestrictScSerList.at(i), ary, replace);
 		}
-		// } @v8.2.3
 		//
 		if(p_pack->AllowedTags.IsExists()) {
 			PPIDArray temp_list = p_pack->AllowedTags.Get();
@@ -1103,33 +1099,31 @@ IMPL_DESTROY_OBJ_PACK(PPObjPsnOpKind, PPPsnOpKindPacket);
 //
 //
 class PsnOpExVDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPPsnOpKindPacket);
 public:
 	PsnOpExVDialog() : PPListDialog(DLG_POKEXV, CTL_POKEXV_ALLOWEDTAGS)
 	{
-		Data.destroy();
+		// @v10.6.5 @ctr Data.destroy();
 	}
-	int    setDTS(const PPPsnOpKindPacket * pPack)
+	DECL_DIALOG_SETDTS()
 	{
-		if(!RVALUEPTR(Data, pPack))
+		if(!RVALUEPTR(Data, pData))
 			Data.destroy();
-		ushort v = Data.Rec.ExValGrp;
-		setCtrlData(CTL_POKEXV_GRP, &v);
+		setCtrlUInt16(CTL_POKEXV_GRP, Data.Rec.ExValGrp);
 		disableTagsList(Data.Rec.ExValGrp != POKEVG_TAG);
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(PPPsnOpKindPacket * pPack)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		ushort v;
-		getCtrlData(CTL_POKEXV_GRP, &v);
-		Data.Rec.ExValGrp = v;
+		Data.Rec.ExValGrp = getCtrlUInt16(CTL_POKEXV_GRP);
 		if(Data.Rec.ExValGrp != POKEVG_TAG)
 			Data.AllowedTags.FreeAll();
 		if(!Data.CheckExVal())
 			ok = 0;
 		else
-			ASSIGN_PTR(pPack, Data);
+			ASSIGN_PTR(pData, Data);
 		return ok;
 	}
 private:
@@ -1145,8 +1139,6 @@ private:
 	virtual int addItem(long * pPos, long * pID);
 	virtual int delItem(long pos, long id);
 	void   disableTagsList(int disable);
-
-	PPPsnOpKindPacket Data;
 };
 
 int PsnOpExVDialog::setupList()
@@ -1358,9 +1350,8 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				PPObjSCardSeries scs_obj;
 				PPSCardSeries scs_rec;
 				for(uint i = 0; i < data.RestrictScSerList.getCount(); i++) {
-					if(scs_obj.Fetch(data.RestrictScSerList.get(i), &scs_rec) > 0) {
+					if(scs_obj.Fetch(data.RestrictScSerList.get(i), &scs_rec) > 0)
 						p_list->Add(scs_rec.ID, scs_rec.Name);
-					}
 				}
 				p_def = new StrAssocListBoxDef(p_list, lbtDisposeData);
 			}
@@ -1429,12 +1420,13 @@ long PoVerbListDialog::getIncNum()
 int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 {
 	class PoClauseDialog : public TDialog {
+		DECL_DIALOG_DATA(PoClause_);
 	public:
 		explicit PoClauseDialog(PPPsnOpKindPacket * pokPack) : TDialog(DLG_POVERB), PokPack(pokPack)
 		{
 			disableCtrl(CTLSEL_POVERB_LINK, 1);
 		}
-		int    setDTS(const PoClause_ * pClause)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			ushort v;
@@ -1442,13 +1434,13 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 			PPIDArray allowed_tags;
 			PPObjTag tag_obj;
 			PPObjectTag tag_rec;
-			data = *pClause;
-			SetupStringCombo(this, CTLSEL_POVERB_VERB, PPTXT_POVERB, data.VerbID);
-			if(data.Subj == POCOBJ_PRIMARY)
+			RVALUEPTR(Data, pData);
+			SetupStringCombo(this, CTLSEL_POVERB_VERB, PPTXT_POVERB, Data.VerbID);
+			if(Data.Subj == POCOBJ_PRIMARY)
 				v = 0;
-			else if(data.Subj == POCOBJ_SECONDARY)
+			else if(Data.Subj == POCOBJ_SECONDARY)
 				v = 1;
-			else if(data.Num == 0)
+			else if(Data.Num == 0)
 				v = 0;
 			else
 				ok = PPSetError(PPERR_INVPOCLAUSESUBJ);
@@ -1463,35 +1455,35 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 					ideqvalstr(tag_id, tag_name = 0);
 				TagList.Add(tag_id, tag_name);
 			}
-			setCtrlString(CTL_POVERB_CMDTXT, data.CmdText);
+			setCtrlString(CTL_POVERB_CMDTXT, Data.CmdText);
 			AddClusterAssoc(CTL_POVERB_FLAGS, 0, PoClause_::fPassive);
 			AddClusterAssoc(CTL_POVERB_FLAGS, 1, PoClause_::fOnRedo);
-			SetClusterData(CTL_POVERB_FLAGS, data.Flags);
+			SetClusterData(CTL_POVERB_FLAGS, Data.Flags);
 			replyVerbSelected(1);
-			disableCtrl(CTLSEL_POVERB_VERB, BIN(data.Num));
+			disableCtrl(CTLSEL_POVERB_VERB, BIN(Data.Num));
 			return ok;
 		}
-		int    getDTS(PoClause_ * pClause)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
 			ushort v = 0;
 			getCtrlData(CTL_POVERB_SUBJ, &v);
 			if(v == 0)
-				data.Subj = POCOBJ_PRIMARY;
+				Data.Subj = POCOBJ_PRIMARY;
 			else
-				data.Subj = POCOBJ_SECONDARY;
-			getCtrlData(CTLSEL_POVERB_VERB, &data.VerbID);
-			getCtrlData(CTLSEL_POVERB_LINK, &data.DirObj);
+				Data.Subj = POCOBJ_SECONDARY;
+			getCtrlData(CTLSEL_POVERB_VERB, &Data.VerbID);
+			getCtrlData(CTLSEL_POVERB_LINK, &Data.DirObj);
 			sel = CTL_POVERB_LINK;
-			switch(data.VerbID) {
+			switch(Data.VerbID) {
 				case POVERB_ASSIGNKIND:
 				case POVERB_REVOKEKIND:
-					THROW_PP(data.DirObj, PPERR_PSNKINDNEEDED);
+					THROW_PP(Data.DirObj, PPERR_PSNKINDNEEDED);
 					break;
 				case POVERB_REMOVETAG:
 				case POVERB_SETTAG:
-					THROW_PP(data.DirObj, PPERR_PSNTAGNEEDED);
+					THROW_PP(Data.DirObj, PPERR_PSNTAGNEEDED);
 					break;
 				case POVERB_SETCALENDAR:
 				case POVERB_SETCALENDAR_SKIP:
@@ -1502,21 +1494,21 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_RESETCALCONT:
 				case POVERB_ADDRELATION:
 				case POVERB_REVOKERELATION:
-					THROW_PP(data.DirObj, PPERR_STAFFCALNEEDED);
+					THROW_PP(Data.DirObj, PPERR_STAFFCALNEEDED);
 					break;
 				case POVERB_INCSCARDOP:
 				case POVERB_DECSCARDOP:
 					break;
 				case POVERB_DEVICECMD:
-					THROW_PP(data.DirObj, PPERR_GENDVCNEEDED);
+					THROW_PP(Data.DirObj, PPERR_GENDVCNEEDED);
 					break;
 				case POVERB_STYLODISPLAY:
-					THROW_PP(data.DirObj, PPERR_STYLOPALMNEEDED);
+					THROW_PP(Data.DirObj, PPERR_STYLOPALMNEEDED);
 					break;
 			}
-			getCtrlString(CTL_POVERB_CMDTXT, data.CmdText);
-			GetClusterData(CTL_POVERB_FLAGS, &data.Flags);
-			ASSIGN_PTR(pClause, data);
+			getCtrlString(CTL_POVERB_CMDTXT, Data.CmdText);
+			GetClusterData(CTL_POVERB_FLAGS, &Data.Flags);
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
@@ -1532,30 +1524,30 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 		int    replyVerbSelected(int init)
 		{
 			int    ok = 1;
-			const  PPID verb_id = init ? data.VerbID : getCtrlLong(CTLSEL_POVERB_VERB);
+			const  PPID verb_id = init ? Data.VerbID : getCtrlLong(CTLSEL_POVERB_VERB);
 			switch(verb_id) {
 				case POVERB_ASSIGNKIND:
 				case POVERB_REVOKEKIND:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PRSNKIND, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PRSNKIND, Data.DirObj, 0, 0);
 					break;
 				case POVERB_SETTAG:
 					if(PokPack->Rec.ExValGrp != POKEVG_TAG)
 						ok = PPSetError(PPERR_INADMISSPOVERB);
 					else {
 						disableCtrl(CTLSEL_POVERB_LINK, 0);
-						SetupStrAssocCombo(this, CTLSEL_POVERB_LINK, &TagList, data.DirObj, 0);
+						SetupStrAssocCombo(this, CTLSEL_POVERB_LINK, &TagList, Data.DirObj, 0);
 					}
 					break;
 				case POVERB_REMOVETAG:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_TAG, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_TAG, Data.DirObj, 0, 0);
 					//SetupObjTagCombo(this, CTLSEL_POVERB_LINK, data.DirObj, 0, 0);
 					break;
 				case POVERB_INCTAG:
 				case POVERB_DECTAG:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_TAG, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_TAG, Data.DirObj, 0, 0);
 					break;
 				case POVERB_ASSIGNPOST:
 					disableCtrl(CTLSEL_POVERB_LINK, 1);
@@ -1565,7 +1557,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_ADDRELATION:
 				case POVERB_REVOKERELATION:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PERSONRELTYPE, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PERSONRELTYPE, Data.DirObj, 0, 0);
 					break;
 				case POVERB_REVOKEPOST:
 				case POVERB_ASSIGNREG:
@@ -1573,7 +1565,7 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 					break;
 				case POVERB_REVOKEREG:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_REGISTERTYPE, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_REGISTERTYPE, Data.DirObj, 0, 0);
 					break;
 				case POVERB_SETCALENDAR:
 				case POVERB_SETCALENDAR_SKIP:
@@ -1581,13 +1573,13 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_SETCALCONT_SKIP:
 				case POVERB_RESETCALCONT:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, Data.DirObj, 0, 0);
 					break;
 				case POVERB_COMPLETECAL:
 				case POVERB_COMPLETECAL_SKIP:
 					if(oneof2(PokPack->Rec.PairType, POKPT_CLOSE, POKPT_NULLCLOSE)) {
 						disableCtrl(CTLSEL_POVERB_LINK, 0);
-						SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, data.DirObj, 0, 0);
+						SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, Data.DirObj, 0, 0);
 					}
 					else
 						ok = PPSetError(PPERR_INADMISSPOVERB);
@@ -1595,34 +1587,33 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_INCSCARDOP:
 				case POVERB_DECSCARDOP:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_GOODS, data.DirObj, OLW_LOADDEFONOPEN, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_GOODS, Data.DirObj, OLW_LOADDEFONOPEN, 0);
 					break;
 				case POVERB_DEVICECMD:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_GENERICDEVICE, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_GENERICDEVICE, Data.DirObj, 0, 0);
 					break;
 				case POVERB_STYLODISPLAY:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
-					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STYLOPALM, data.DirObj, 0, 0);
+					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STYLOPALM, Data.DirObj, 0, 0);
 					break;
 				case POVERB_BEEP:
 					disableCtrl(CTLSEL_POVERB_LINK, 0);
 					break;
 			}
 			if(ok) {
-				data.VerbID = verb_id;
-				disableCtrl(CTL_POVERB_CMDTXT, BIN(!(data.GetDirFlags() & VerbObjAssoc::fAllowCmdText)));
+				Data.VerbID = verb_id;
+				disableCtrl(CTL_POVERB_CMDTXT, BIN(!(Data.GetDirFlags() & VerbObjAssoc::fAllowCmdText)));
 			}
 			else {
 				PPError();
-				setCtrlData(CTLSEL_POVERB_VERB, &(data.VerbID = 0));
+				setCtrlData(CTLSEL_POVERB_VERB, &(Data.VerbID = 0));
 				messageToCtrl(CTLSEL_POVERB_VERB, cmCBActivate, 0);
 			}
 			return ok;
 		}
 		StrAssocArray TagList;
 		PPPsnOpKindPacket * PokPack;
-		PoClause_ data;
 	};
 	DIALOG_PROC_BODY_P1(PoClauseDialog, pPokPack, pClause);
 }
@@ -1647,20 +1638,19 @@ int PoVerbListDialog::addItem(long * pPos, long * pID)
 int PoVerbListDialog::editItem(long pos, long)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.GetCount()) {
+	if(pos >= 0 && pos < static_cast<long>(Data.GetCount())) {
 		PoClause_ clause;
 		Data.Get(pos, clause);
 		ok = EditPoClause(pack, &clause);
-		if(ok > 0) {
+		if(ok > 0)
 			Data.Set(pos, &clause);
-		}
 	}
 	return ok;
 }
 
 int PoVerbListDialog::delItem(long pos, long)
 {
-	if(pos >= 0 && pos < (long)Data.GetCount()) {
+	if(pos >= 0 && pos < static_cast<long>(Data.GetCount())) {
  		if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 			Data.Set((uint)pos, 0);
 			return 1;

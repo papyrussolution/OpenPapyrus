@@ -2264,7 +2264,7 @@ static void FASTCALL FillObjTagRec(const PPObjectTag * pInner, SPpyO_Tag * pOute
 	FLD(ObjTypeID);
 	FLD(TagGroupID);
 	#undef FLD
-	pOuter->TagDataType = (PpyOTagType)pInner->TagDataType;
+	pOuter->TagDataType = static_cast<PpyOTagType>(pInner->TagDataType);
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Symb).CopyToOleStr(&pOuter->Symb);
 }
@@ -2279,7 +2279,7 @@ int32 DL6ICLS_PPObjTag::Search(int32 id, PPYOBJREC rec)
 	PPObjTag * p_obj = static_cast<PPObjTag *>(ExtraPtr);
 	if(p_obj) {
 		PPObjectTag tag_rec;
-		MEMSZERO(tag_rec);
+		// @v10.6.5 @ctr MEMSZERO(tag_rec);
 		ok = p_obj->Search(id, &tag_rec);
 		FillObjTagRec(&tag_rec, static_cast<SPpyO_Tag *>(rec));
 	}
@@ -2294,7 +2294,7 @@ int32 DL6ICLS_PPObjTag::SearchByName(SString & text, int32 kind, int32 extraPara
 	if(p_obj) {
 		PPObjectTag tag_rec;
 		PPID   id = 0;
-		MEMSZERO(tag_rec);
+		// @v10.6.5 @ctr MEMSZERO(tag_rec);
 		if(kind == 1) {
 			ok = p_obj->SearchBySymb(text, &id);
 			if(ok > 0 && p_obj->Search(id, &tag_rec) > 0) {

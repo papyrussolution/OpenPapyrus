@@ -778,7 +778,7 @@ int SendSmsDialog::GetAutoSmsText(PPID psnID, PPID objID, SString & rText)
 					PPFilt _pf(psnID);
 					ep.P_F = &_pf;
 					THROW(t.Process("Person", temp_buf, /*prsn_id, 0*/ep, &param_list, text));
-					(rText = 0).CopyFromN(text.GetBufC(), text.GetAvailableSize()).ToOem();
+					rText.Z().CopyFromN(text.GetBufC(), text.GetAvailableSize()).ToOem();
 				}
 			}
 			break;

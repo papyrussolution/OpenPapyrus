@@ -314,7 +314,7 @@ int FASTCALL TagFilt::Check(const ObjTagList * pList) const
 //
 SLAPI PPObjTagPacket::PPObjTagPacket()
 {
-	MEMSZERO(Rec);
+	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
 void SLAPI PPObjTagPacket::Init()
@@ -323,10 +323,11 @@ void SLAPI PPObjTagPacket::Init()
 	Rule.Z();
 }
 
-PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & src)
+PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & rS)
 {
-	memcpy(&Rec, &src.Rec, sizeof(Rec));
-	Rule = src.Rule;
+	// @v10.6.5 memcpy(&Rec, &rS.Rec, sizeof(Rec));
+	Rec = rS.Rec; // @v10.6.5 
+	Rule = rS.Rule;
 	return *this;
 }
 //
@@ -613,6 +614,7 @@ int TagEnumListDialog::delItem(long, long id)
 static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 {
 	class SelectObjTagTypeDialog : public TDialog {
+		DECL_DIALOG_DATA(PPObjectTag);
 	public:
 		explicit SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP), P_ObjTypeList(0)
 		{
@@ -620,9 +622,9 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
 				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, PPOBJ_CASHNODE, 0);
 		}
-		int    setDTS(const PPObjectTag * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			if(Data.ObjTypeID)
 				TagObjTypeList.addUnique(Data.ObjTypeID);
 			SetupObjListCombo(this, CTLSEL_OBJTAG_TAGOBJTYP, Data.ObjTypeID, &TagObjTypeList);
@@ -642,7 +644,7 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 			SetupTagObjType();
 			return 1;
 		}
-		int    getDTS(PPObjectTag * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			if(!Data.ObjTypeID || (Filt.Flags & ObjTagFilt::fAnyObjects)) {
@@ -729,8 +731,6 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 				setCtrlLong(CTLSEL_OBJTAG_OBJGRP, 0);
 			disableCtrl(CTLSEL_OBJTAG_OBJGRP, dsbl);
 		}
-
-		PPObjectTag Data;
 		ObjTagFilt Filt;
 		PPIDArray TagObjTypeList;
 		PPIDArray LinkObjTypeList;
@@ -1100,10 +1100,10 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 			PPObjTag obj_tag;
 			do {
 				if(grp_id != 0) {
-					PPObjectTag rec;
+					PPObjectTag tag_rec;
 					THROW_PP(id != grp_id, PPERR_RECURSIONFOUND);
-					THROW(obj_tag.Fetch(grp_id, &rec));
-					grp_id = rec.TagGroupID;
+					THROW(obj_tag.Fetch(grp_id, &tag_rec));
+					grp_id = tag_rec.TagGroupID;
 				}
 			} while(grp_id != 0);
 			CATCHZOK
@@ -1178,7 +1178,7 @@ SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 	ReferenceTbl::Key1 k;
 	struct {
 		PPID   id;
-		char   text[sizeof(((PPObjectTag*)0)->Name) + 3];
+		char   text[sizeof(static_cast<const PPObjectTag *>(0)->Name) + 3];
 	} item;
 	PPObjectTag tag;
 	long   lplus = 0x202b20L, lminus = 0x202d20L;
@@ -1385,11 +1385,11 @@ int SLAPI PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pRe
 	PPIDArray warn_tag_list;
 	if(GetListByFlag(OTF_WARNZERO, warn_tag_list) > 0) {
 		SString fmt_buf, msg_buf;
-		PPObjectTag tag_rec;
 		for(uint i = 0; i < warn_tag_list.getCount(); i++) {
 			int    invalid = 0;
 			const  PPID tag_id = warn_tag_list.get(i);
-			MEMSZERO(tag_rec);
+			PPObjectTag tag_rec;
+			// @v10.6.5 @ctr MEMSZERO(tag_rec);
 			Fetch(tag_id, &tag_rec);
 			if(pTagList == 0) {
 				msg_buf.Printf(PPLoadTextS(PPTXT_TAGABSENT, fmt_buf), tag_rec.Name);
@@ -1908,7 +1908,7 @@ private:
 	{
 		if(tagID) {
 			PPObjectTag tag;
-			TStaticText * p_text = (TStaticText *)getCtrlView(CTL_SELTAG_TAGTYPE);
+			TStaticText * p_text = static_cast<TStaticText *>(getCtrlView(CTL_SELTAG_TAGTYPE));
 			GetTagRec(tagID, &tag);
 			if(p_text) {
 				SString type_str, msg;

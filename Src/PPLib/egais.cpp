@@ -423,12 +423,10 @@ int SLAPI PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char 
 		else
 			temp_path.Cat("opt").SetLastSlash().Cat(P_TempOutputDirName);
 	}
-	else {
+	else
 		PPGetPath(PPPATH_TEMP, temp_path);
-	}
-	if(!is_cc && !isempty(pSubPath)) {
+	if(!is_cc && !isempty(pSubPath))
 		temp_path.SetLastSlash().Cat(pSubPath);
-	}
 	temp_path.RmvLastSlash();
 	THROW_SL(::createDir(temp_path));
 	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "XML", 0, rFn);
@@ -6418,8 +6416,8 @@ int SLAPI PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
     int    ok = 1;
     SString temp_buf;
     SString temp_path;
-	SString url;
-	THROW(GetURL(locID, url));
+	// @v10.6.5 SString url;
+	// @v10.6.5 THROW(GetURL(locID, url));
 	THROW(GetFSRARID(locID, temp_buf, 0));
     PPGetPath(PPPATH_TEMP, temp_path);
     temp_path.SetLastSlash().Cat("EGAIS").CatChar('-').Cat(temp_buf);
@@ -6777,7 +6775,7 @@ int SLAPI PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollec
 	SDirEntry de;
 	for(SDirec direc(temp_buf); direc.Next(&de) > 0;) {
 		if(de.IsFolder()) {
-			if(!de.IsSelf() && !de.IsUpFolder() && stricmp(de.FileName, P_TempOutputDirName) != 0) {
+			if(!de.IsSelf() && !de.IsUpFolder() && !sstreqi_ascii(de.FileName, P_TempOutputDirName)) {
 				(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
 				THROW(Helper_ReadFilesOffline(temp_buf, rList)); // @recursion
 			}

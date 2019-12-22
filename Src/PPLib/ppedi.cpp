@@ -5180,8 +5180,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 		{
 			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 			if(p_ack_buf) {
-				const int avl_size = static_cast<int>(p_ack_buf->GetAvailableSize());
-				temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 					for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5286,10 +5285,9 @@ int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 	THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
 	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 	{
-		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 		if(p_ack_buf) {
-			const int avl_size = (int)p_ack_buf->GetAvailableSize();
-			temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+			temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5356,10 +5354,9 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDoc
 	THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
 	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 	{
-		SBuffer * p_ack_buf = (SBuffer *)wr_stream;
+		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 		if(p_ack_buf) {
-			const int avl_size = (int)p_ack_buf->GetAvailableSize();
-			temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+			temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 				for(json_t * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
@@ -5657,8 +5654,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
 	p_ack_buf = static_cast<SBuffer *>(wr_stream);
 	if(p_ack_buf) {
-		const int avl_size = (int)p_ack_buf->GetAvailableSize();
-		temp_buf.Z().CatN(p_ack_buf->GetBufC(), avl_size);
+		temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
 			const  int edi_op = pIdent->EdiOp;
