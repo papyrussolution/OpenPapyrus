@@ -1871,7 +1871,7 @@ void SLAPI PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, cha
 	if(sgpe == sgpeOp) {
 		PPObjPsnOpKind pop_obj;
 		PPPsnOpKind rec;
-		MEMSZERO(rec);
+		// @v10.6.6 @ctr MEMSZERO(rec);
 		if(pop_obj.Fetch(id, &rec) > 0)
 			temp_buf = rec.Name;
 		else

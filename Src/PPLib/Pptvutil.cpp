@@ -87,9 +87,8 @@ void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, const 
 	p_brw = new STextBrowser(pFileName, pLexerSymb, toolbarId);
 	{
 		SString title_buf;
-		if(!isempty(pTitle)) {
+		if(!isempty(pTitle))
 			title_buf = pTitle;
-		}
 		else {
 			SPathStruc ps(pFileName);
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, title_buf);
@@ -196,7 +195,7 @@ void FASTCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 {
 	if(dlg) {
 		char   b[64];
-		b[0] = 0;
+		PTR32(b)[0] = 0;
 		periodfmt(rng, b);
 		dlg->setCtrlData(fldID, b);
 	}
@@ -309,7 +308,8 @@ int FASTCALL SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, in
 int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUpp)
 {
 	char   buf[256];
-	double low = 0, upp = 0;
+	double low = 0.0;
+	double upp = 0.0;
 	if(dlg->getCtrlData(ctl, memzero(buf, sizeof(buf)))) {
 		strtorrng(buf, &low, &upp);
 		ASSIGN_PTR(pLow, low);
@@ -655,11 +655,12 @@ int SLAPI DateAddDialogParam::Recalc()
 int SLAPI DateAddDialog(DateAddDialogParam * pData)
 {
 	class __DateAddDialog : public TDialog {
+		DECL_DIALOG_DATA(DateAddDialogParam);
 	public:
 		__DateAddDialog() : TDialog(DLG_DATEADD)
 		{
 		}
-		int    setDTS(const DateAddDialogParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -669,7 +670,7 @@ int SLAPI DateAddDialog(DateAddDialogParam * pData)
 			Update();
 			return ok;
 		}
-		int    getDTS(DateAddDialogParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			Data.Period = getCtrlLong(CTLSEL_DATEADD_PRD);
@@ -701,7 +702,6 @@ int SLAPI DateAddDialog(DateAddDialogParam * pData)
 			setCtrlDate(CTL_DATEADD_SRC, Data.BaseDate);
 			setCtrlDate(CTL_DATEADD_RESULT, Data.ResultDate);
 		}
-		DateAddDialogParam Data;
 	};
 	DIALOG_PROC_BODY(__DateAddDialog, pData);
 }
@@ -751,9 +751,9 @@ int SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double 
 int FASTCALL CheckDialogPtr(void * ppDlg/*, int genErrMsg*/)
 {
 	int    ok = 1;
-	TDialog ** dlg = (TDialog**)ppDlg;
+	TDialog ** dlg = static_cast<TDialog **>(ppDlg);
 	if(ValidView(*dlg) == 0) {
-		*(void **)ppDlg = 0;
+		*static_cast<void **>(ppDlg) = 0;
 		ok = PPSetError(PPERR_DLGLOADFAULT);
 		/*
 		if(genErrMsg)
@@ -5017,6 +5017,7 @@ ResolveGoodsItemList & FASTCALL ResolveGoodsItemList::operator = (const PPIDArra
 }
 
 class ResolveGoodsDialog : public PPListDialog {
+	DECL_DIALOG_DATA(ResolveGoodsItemList);
 public:
 	explicit ResolveGoodsDialog(int flags) :
 		PPListDialog((flags & (RESOLVEGF_SHOWRESOLVED|RESOLVEGF_SHOWEXTDLG)) ? DLG_SUBSTGL : DLG_LBXSEL, CTL_LBXSEL_LIST), Flags(flags), GoodsGrpID(0)
@@ -5031,14 +5032,14 @@ public:
 		GObj.ReadConfig(&GoodsCfg);
 		updateList(-1);
 	}
-	int    setDTS(const ResolveGoodsItemList * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
 		updateList(-1);
 		return ok;
 	}
-	int    getDTS(ResolveGoodsItemList * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		if(Flags & RESOLVEGF_RESOLVEALLGOODS) {
@@ -5058,7 +5059,6 @@ private:
 	int    ResolveGoods(PPID resolveGoodsID, uint firstGoodsPos);
 	int    Flags;
 	PPID   GoodsGrpID;
-	ResolveGoodsItemList Data;
 	PPGoodsConfig GoodsCfg;
 	PPObjGoods GObj;
 };
@@ -5353,7 +5353,7 @@ public:
 		SString title;
 		setTitle(PPLoadTextS(PPTXT_EDITMEMOS, title));
 	}
-	int    setDTS(const char * pMemos);
+	int    setDTS(const SString & rMemos);
 	int    getDTS(SString & rMemos);
 private:
 	virtual int setupList();
@@ -5364,14 +5364,12 @@ private:
 	StrAssocArray Memos;
 };
 
-int EditMemosDialog::setDTS(const char * pMemos)
+int EditMemosDialog::setDTS(const SString & rMemos)
 {
 	SString buf;
-	StringSet ss(MemosDelim);
+	StringSet ss(_PPConst.P_ObjMemoDelim);
 	Memos.Z();
-	const size_t mlen = sstrlen(pMemos);
-	if(mlen)
-		ss.setBuf(pMemos, mlen + 1);
+	ss.setBuf(rMemos);
 	for(uint i = 0, j = 1; ss.get(&i, buf) > 0; j++)
 		Memos.Add((long)j, 0, buf, 0);
 	updateList(-1);
@@ -5384,9 +5382,9 @@ int EditMemosDialog::getDTS(SString & rMemos)
 	rMemos.Z();
 	for(uint i = 0; i < Memos.getCount(); i++) {
 		buf = Memos.Get(i).Txt;
-		buf.ReplaceStr(MemosDelim, "", 0);
+		buf.ReplaceStr(_PPConst.P_ObjMemoDelim, "", 0);
 		if(i != 0)
-			rMemos.Cat(MemosDelim);
+			rMemos.Cat(_PPConst.P_ObjMemoDelim);
 		rMemos.Cat(buf);
 	}
 	return 1;
@@ -5462,7 +5460,7 @@ int SLAPI EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 	EditMemosDialog * p_dlg = 0;
 	PPRef->GetPropVlrString(objTypeID, objID, prop, memos);
 	if(!memos.Len() && InputStringDialog(0, 0, 0, 1, memos) > 0) {
-		memos.ReplaceStr(MemosDelim, "", 0);
+		memos.ReplaceStr(_PPConst.P_ObjMemoDelim, "", 0);
 		ok = 1;
 	}
 	if(ok == -1 && memos.Len()) {
@@ -7166,7 +7164,6 @@ int SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 //
 //
 #if 0 // @construction {
-
 class ProxiAuthDialog : public TDialog {
 public:
 	ProxiAuthDialog() : TDialog(DLG_NETPROXI)
@@ -7193,5 +7190,4 @@ private:
 	}
 	SProxiAuthParam Data;
 };
-
 #endif // } 0 @construction

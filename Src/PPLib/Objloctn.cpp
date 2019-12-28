@@ -629,7 +629,7 @@ int SLAPI PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
 	ASSIGN_PTR(pCityID, 0);
 	if(pName) {
 		SETIFZ(P_WObj, new PPObjWorld);
-		SArray w_list(sizeof(WorldTbl::Rec));
+		SVector w_list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 		P_WObj->GetListByName(WORLDOBJ_CITY, pName, &w_list);
 		if(w_list.getCount() == 1) {
 			ASSIGN_PTR(pCityID, static_cast<const WorldTbl::Rec *>(w_list.at(0))->ID);

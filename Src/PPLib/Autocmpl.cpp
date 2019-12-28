@@ -506,7 +506,7 @@ IMPL_HANDLE_EVENT(PuglDialog)
 	}
 	else if(event.isCmd(cmPuglSupplAssoc)) {
 		long   sel_id = 0;
-		if(getSelection(&sel_id) && sel_id > 0 && sel_id <= (long)Data.getCount()) {
+		if(getSelection(&sel_id) && sel_id > 0 && sel_id <= Data.getCountI()) {
 			EditSupplAssoc(sel_id);
 		}
 	}
@@ -742,8 +742,7 @@ int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplB
 int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfctList, int processUnsuffisientQtty, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
-	int    user_cancel = 0; // Признак того, что ошибка возникла по причине отказа пользователя.
-		// В этом случае функция возвращает -1
+	int    user_cancel = 0; // Признак того, что ошибка возникла по причине отказа пользователя. В этом случае функция возвращает -1
 	uint   i;
 	PPObjGoods goods_obj;
 	LongArray positions;

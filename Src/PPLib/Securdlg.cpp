@@ -310,7 +310,7 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 				}
 				if(parent_obj && spack.Secur.ParentID) {
 					THROW(DS.FetchConfig(parent_obj, spack.Secur.ParentID, &spack.Config));
-					THROW(spack.Rights.Get(parent_obj, spack.Secur.ParentID));
+					THROW(spack.Rights.Get(parent_obj, spack.Secur.ParentID, 0/*ignoreCheckSum*/));
 					spack.Config.Tag = obj;
 					spack.Config.ObjID = 0;
 				}

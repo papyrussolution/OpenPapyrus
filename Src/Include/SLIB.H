@@ -12963,6 +12963,16 @@ public:
 	QueryPathFunc F_QueryPath;
 };
 //
+// Descr: Утилитный класс предназначенный для установки контекста исполнения 
+//   в текущей области видимости функции.
+//   Деструктор автоматически очищает текущий контекст исполнения.
+//
+class SlExecutionContext {
+public:
+	explicit SLAPI SlExecutionContext(const char * pInfo);
+	SLAPI ~SlExecutionContext();
+};
+//
 // Descr: Флаги пользовательского интерфейса (SlThreadLocalArea::UiFlags)
 //
 enum {
@@ -12971,9 +12981,24 @@ enum {
 
 class SlThreadLocalArea {
 public:
+	class ExecutionContext_ { // @transient
+	public:
+		ExecutionContext_()
+		{
+		}
+		ExecutionContext_ & Z()
+		{
+			Info.Z();
+			return *this;
+		}
+
+		SString Info;
+	};
 	SLAPI  SlThreadLocalArea();
 	SLAPI ~SlThreadLocalArea();
 	void   SLAPI Destroy();
+	void   FASTCALL SetExecutionContext(const char * pInfo);
+	ExecutionContext_ SLAPI GetExecutionContext() const;
 	int    SLAPI RegisterTempFileName(const char *);
 	void   SLAPI RemoveTempFiles();
 	//
@@ -12997,8 +13022,7 @@ public:
 
 	long   Id;
 	int    LastErr;
-	int    LastOsErr;       // Код ошибка операционной системы (сохраняет значение в момент
-		// инициирования LastErr = SLERR_WINDOWS)
+	int    LastOsErr;       // Код ошибка операционной системы (сохраняет значение в момент инициирования LastErr = SLERR_WINDOWS)
 	int    LastSockErr;     // Код последней ошибки WinSock
 	int    LastCurlErr;     // Код последней ошибки библиотеки LibCURL
 	int    BinDateFmt_;
@@ -13027,13 +13051,13 @@ private:
 		// (Window-функции, оперирующие со шрифтами требуют HDC с установленным в нем текущим шрифтом).
 	TPoint NextDialogLuPos;  // Позиция, в которую необходимо установить верхний левый угол диалога.
 		// Функция вызова диалога сразу после получения позиции сбрасывает ее в {-1, -1}
+	ExecutionContext_ ECtx;  // @v10.6.7 Контекст исполнения. Введен ради отслеживания подробного контекста ошибок. В дальнейшем планируется использование расширять.
 };
 
 class SlSession {
 public:
 	SLAPI  SlSession();
 	SLAPI ~SlSession();
-	//
 	void   SLAPI Init(const char * pAppName, HINSTANCE hInst = NULL);
 	//
 	// Descr: Устанавливает наименование приложения, ассоциированное с данным сеансом.
@@ -13071,7 +13095,6 @@ public:
 	//   <0 - класс уже находился в режиме останова
 	//
 	int    SLAPI Stop();
-	//
     HINSTANCE SLAPI GetHInst() const { return H_Inst; }
 	//
 	// Descr: Отменяет режим останова для процесса
@@ -13081,6 +13104,7 @@ public:
 	// Descr: Проверяет, находится ли класс в режиме останова процесса
 	//
 	int    SLAPI CheckStopFlag() const;
+	void   FASTCALL SetExecutionContext(const char * pInfo);
 	void   FASTCALL SetAddedMsgString(const char *);
 	//
 	// Returns: 0
@@ -13177,9 +13201,7 @@ public:
 	};
 	int    SLAPI SetupDragndropObj(int ddoType, void * pObj);
 	int    SLAPI IsThereDragndropObj(void ** ppObj);
-	//
 	const  SGlobalSecureConfig & SLAPI GetGlobalSecureConfig();
-
 	void   SLAPI SetLogPath(const char *);
 	SString & SLAPI GetLogPath(SString & rPath) const;
 	void   SLAPI GetExtraProcBlock(SlExtraProcBlock * pBlk) const;
@@ -13205,7 +13227,6 @@ private:
 	int    UiLanguageId;
 	// @v9.9.5 const SSystem SSys;
 	SlExtraProcBlock ExtraProcBlk; // @v9.1.2
-
 	SString ExePath;
 	SString AppName;
 	HINSTANCE H_Inst;

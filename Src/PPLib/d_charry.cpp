@@ -1955,7 +1955,7 @@ int SLAPI PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 				Data.ID = id;
 				if(UpdateProtocol == updForce) {
 					PPPersonKind rec;
-					MEMSZERO(rec);
+					// @v10.6.6 @ctr MEMSZERO(rec);
 					THROW(Obj.Search(id, &rec) > 0);
 					for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 						switch(AcceptedFields.get(i)) {
@@ -2452,7 +2452,7 @@ int SLAPI PPDS_CrrRegisterType::TransferField(long fldID, Tfd dir, uint * pIter,
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPPersonKind psnk_rec;
-					MEMSZERO(psnk_rec);
+					// @v10.6.6 @ctr MEMSZERO(psnk_rec);
 					if(PsnKObj.Search((is_psnkid) ? Data.PersonKindID : Data.RegOrgKind, &psnk_rec) > 0)
 						buf.CopyFrom(psnk_rec.Name);
 				}

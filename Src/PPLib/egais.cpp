@@ -527,14 +527,12 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 					rAck.Message = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				}
 				else if(SXml::GetContentByName(p_c, "url", temp_buf)) {
+					size_t id_pos = 0;
 					rAck.Url = temp_buf; // @v9.1.8
 					if(rAck.Id.FromStr(temp_buf))
 						rAck.Status &= ~Ack::stError;
-					else {
-						size_t id_pos = 0;
-						if(temp_buf.Search("id=", 0, 1, &id_pos) && rAck.Id.FromStr(temp_buf+id_pos+3))
-							rAck.Status &= ~PPEgaisProcessor::Ack::stError;
-					}
+					else if(temp_buf.Search("id=", 0, 1, &id_pos) && rAck.Id.FromStr(temp_buf+id_pos+3))
+						rAck.Status &= ~PPEgaisProcessor::Ack::stError;
 				}
 				else if(SXml::GetContentByName(p_c, "sign", temp_buf)) {
 					strnzcpy(reinterpret_cast<char *>(rAck.Sign), temp_buf, sizeof(rAck.Sign));
@@ -685,7 +683,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 							n_item.PutAttrib("barcode", EncText(mark_buf));
 							{
 								GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
-								result_barcode = 0;
+								result_barcode.Z();
 								int    dbr = 0; // Результат диагностики штрихкода
 								if(temp_buf.NotEmptyS()) {
 									int    diag = 0, std = 0;
@@ -994,9 +992,8 @@ int SLAPI PPEgaisProcessor::QueryProducts(PPID locID, int queryby, const char * 
 				code_txt_id = PPTXT_EGAIS_QP_KOD; // "КОД"
 			else
 				assert(0);
-			if(PPLoadText(code_txt_id, code_buf)) {
+			if(PPLoadText(code_txt_id, code_buf))
 				static_cast<StrStrAssocArray *>(qp.P_Data)->Add(code_buf, pQ);
-			}
 		}
 		THROW(PutQuery(qp, locID, "QueryAP", ack));
 	}
@@ -1022,9 +1019,8 @@ int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
 	int    ok = -1;
 	Ack    ack;
     Packet qp(PPEDIOP_EGAIS_QUERYFORMB);
-	if(qp.P_Data) {
+	if(qp.P_Data)
 		*static_cast<SString *>(qp.P_Data) = pInfB;
-	}
 	THROW(PutQuery(qp, locID, "QueryFormB", ack));
 	CATCHZOK
     return ok;
@@ -6589,40 +6585,39 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 			//
 			// @v9.6.7
 			//
-			const char * p_utm_rej_pfx = "UTM Rej";
-			const char * p_egais_rej_pfx = "EGAIS Rej";
+			// @v10.6.6 @replacedwith(_PPConst.P_ObjMemo_UtmRejPfx) const char * p_utm_rej_pfx = "UTM Rej";
+			// @v10.6.6 @replacedwith(_PPConst.P_ObjMemo_EgaisRejPfx) const char * p_egais_rej_pfx = "EGAIS Rej";
 			SString memo_msg;
 			SString prefix_buf;
 			StringSet ss_prefix;
 			if(conclusion == 0) {
-				ss_prefix.add((temp_buf = p_utm_rej_pfx).CatChar(':'));
-				ss_prefix.add((temp_buf = p_egais_rej_pfx).CatChar(':'));
+				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_UtmRejPfx).CatChar(':'));
+				ss_prefix.add((temp_buf = _PPConst.P_ObjMemo_EgaisRejPfx).CatChar(':'));
 				if(ticketType == 1 && pT->R.Comment.NotEmpty()) {
-					temp_buf.Z().Cat(p_utm_rej_pfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
+					temp_buf.Z().Cat(_PPConst.P_ObjMemo_UtmRejPfx).Space().Cat(pT->R.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
 					ss_prefix.add(temp_buf);
 					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->R.Comment);
 				}
 				else if(ticketType == 2 && pT->OpR.Comment.NotEmpty()) {
-					temp_buf.Z().Cat(p_egais_rej_pfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
+					temp_buf.Z().Cat(_PPConst.P_ObjMemo_EgaisRejPfx).Space().Cat(pT->OpR.Time, DATF_ISO8601, TIMF_HMS).CatChar(':');
 					ss_prefix.add(temp_buf);
 					memo_msg.Space().Cat(temp_buf).Space().Cat(pT->OpR.Comment);
 				}
 			}
 			else {
-				ss_prefix.add(p_utm_rej_pfx);
-				ss_prefix.add(p_egais_rej_pfx);
+				ss_prefix.add(_PPConst.P_ObjMemo_UtmRejPfx);
+				ss_prefix.add(_PPConst.P_ObjMemo_EgaisRejPfx);
 			}
 			{
 				int   do_update_memos = 0;
 				SString memos;
-				StringSet ss_memo(MemosDelim);
-				StringSet ss_memo_new(MemosDelim);
+				StringSet ss_memo(_PPConst.P_ObjMemoDelim);
+				StringSet ss_memo_new(_PPConst.P_ObjMemoDelim);
 				p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
 				ss_memo.setBuf(memos);
 				for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {
-					if(!temp_buf.NotEmptyS()) {
+					if(!temp_buf.NotEmptyS())
 						do_update_memos = 1;
-					}
 					else {
 						for(uint pssp = 0; ss_prefix.get(&pssp, prefix_buf);) {
 							if(temp_buf.Search(prefix_buf, 0, 1, 0)) {

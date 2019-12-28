@@ -2846,7 +2846,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		virtual int setupList()
 		{
 			int    ok = 1;
-			uint   mark_count = 0	;
+			uint   mark_count = 0;
 			uint   box_count = 0;
 			SString temp_buf;
 			SString box_num;
@@ -2906,8 +2906,9 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 			// @v10.6.4 MEMSZERO(rec);
 			rec.BillID = P_Pack->Rec.ID;
 			rec.RByBill = RowIdx;
+			Data.Get(RowIdx, 0, set); // @v10.6.6
 			while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
-				if(Data.Add(RowIdx, set)) {
+				if(Data.Set_2(RowIdx, &set)) {
 					ok = 1;
 				}
 				else
@@ -2955,8 +2956,9 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 				else {
 					// 080026600250673670340153552
 					SString mark_buf = temp_buf;
-					const int iemr = (PrcssrAlcReport::IsEgaisMark(mark_buf, 0) || PPChZnPrcssr::IsChZnCode(mark_buf)); // @v10.6.5 PPChZnPrcssr::IsChZnCode(mark_buf)
-					if(!iemr) {
+					const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
+					const int iczc = PPChZnPrcssr::IsChZnCode(mark_buf); // @v10.6.5 PPChZnPrcssr::IsChZnCode(mark_buf)
+					if(!iemr && !iczc) {
 						if(P_LotXcT) {
 							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
 								ok = 1;
@@ -2977,7 +2979,14 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 							PPErrorByDialog(dlg, sel);
 					}
 					else {
-						rSet.AddNum(0, mark_buf, 1);
+						if(iczc == SNTOK_CHZN_SSCC)
+							rSet.AddBox(0, mark_buf, 1);
+						else if(iczc == SNTOK_CHZN_SIGN_SGTIN) {
+							long last_box_id = rSet.SearchLastBox(-1);
+							rSet.AddNum(last_box_id, mark_buf, 1);
+						}
+						else
+							rSet.AddNum(0, mark_buf, 1);
 						STRNSCPY(rRec.Code, mark_buf);
 						ok = 1;
 					}

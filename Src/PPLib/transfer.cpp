@@ -642,7 +642,8 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 	const  int byquot_cost  = BIN(QuotKindID > 0 && Flags_ & GoodsRestParam::fCostByQuot);
 	const  int retail_price = BIN(Flags_ & fRetailPrice); // @v10.3.2
 	const  int setcostwovat = BIN(Flags_ & fCWoVat);
-	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| retail_price || setcostwovat) {
+	const  int setpricewovat = BIN(Flags_ & fPWoVat); // @v10.6.6
+	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| retail_price || setcostwovat || setpricewovat) { // @v10.6.6 setpricewovat
 		double tax_factor = 1.0;
 		PPObjGoods gobj;
 		// @v10.3.2 {
@@ -668,7 +669,7 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 					add.Price = q_price;
 			}
 		}
-		if(costwovat || pricewotaxes || setcostwovat) {
+		if(costwovat || pricewotaxes || setcostwovat || setpricewovat) { // @v10.6.6 setpricewovat
 			const  int is_asset = BIN(gobj.IsAsset(labs(pLotRec->GoodsID)) > 0);
 			int    vat_free = -1;
 			gobj.MultTaxFactor(pLotRec->GoodsID, &tax_factor);
@@ -684,29 +685,33 @@ int SLAPI GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotR
 			}
 			if(pricewotaxes)
 				gobj.AdjPriceToTaxes(GoodsTaxGrpID, tax_factor, &add.Price, 1);
-			if(setcostwovat) {
-				PPID   in_tax_grp_id = NZOR(pLotRec->InTaxGrpID, GoodsTaxGrpID);
-				if(vat_free < 0)
-					vat_free = IsLotVATFree(*pLotRec);
-				long   amt_fl = 0;
-				GTaxVect vect;
+			if(setcostwovat || setpricewovat) {
 				PPGoodsTaxEntry gt;
+				GTaxVect vect;
+				int    price_wo_vat_reckoned = 0;
 				if(!orgLotDate)
 					pTrfr->Rcpt.GetOriginDate(pLotRec, &orgLotDate);
-				if(gobj.GTxObj.Fetch(in_tax_grp_id, orgLotDate, 0L, &gt) > 0) {
-					amt_fl = ~GTAXVF_SALESTAX;
-					long excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
-					vect.Calc_(&gt, add.Cost, tax_factor, amt_fl, excl_fl);
-					add.Cost -= vect.GetValue(GTAXVF_VAT);
-					if(is_asset) {
-						vect.Calc_(&gt, add.Price, tax_factor, amt_fl, excl_fl);
-						add.Price -= vect.GetValue(GTAXVF_VAT);
+				if(setcostwovat) {
+					const PPID in_tax_grp_id = NZOR(pLotRec->InTaxGrpID, GoodsTaxGrpID);
+					if(vat_free < 0)
+						vat_free = IsLotVATFree(*pLotRec);
+					if(gobj.GTxObj.Fetch(in_tax_grp_id, orgLotDate, 0L, &gt) > 0) {
+						const long amt_fl = ~GTAXVF_SALESTAX;
+						const long excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
+						vect.Calc_(&gt, add.Cost, tax_factor, amt_fl, excl_fl);
+						add.Cost -= vect.GetValue(GTAXVF_VAT);
+						if(is_asset) {
+							vect.Calc_(&gt, add.Price, tax_factor, amt_fl, excl_fl);
+							add.Price -= vect.GetValue(GTAXVF_VAT);
+							price_wo_vat_reckoned = 1;
+						}
 					}
 				}
-				if(!is_asset && gobj.GTxObj.FetchByID(GoodsTaxGrpID, &gt) > 0) {
-					amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
+				if(!price_wo_vat_reckoned && gobj.GTxObj.FetchByID(GoodsTaxGrpID, &gt) > 0) {
+					const long   amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
 					vect.Calc_(&gt, add.Price, tax_factor, amt_fl, 0);
 					add.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+					price_wo_vat_reckoned = 1;
 				}
 			}
 		}
@@ -1047,32 +1052,34 @@ int SLAPI Transfer::GetRest(PPID lotID, LDATE dt, double * pRest, double * pPhRe
 	return GetRest(lotID, dt, MAXLONG, pRest, pPhRest);
 }
 
-int SLAPI Transfer::GetBounds(PPID lot, LDATE date, long oprno, double * pMinusDelta, double * pPlusDelta)
+int SLAPI Transfer::GetBounds(PPID lotID, LDATE date, long oprno, double * pMinusDelta, double * pPlusDelta)
 {
-	int    ok = 1, r;
-	double down, up;
-	double qtty, rest;
+	int    ok = 1;
+	double down = 0.0;
+	double up = 0.0;
+	double qtty = 0.0;
 	if(oprno < 0)
 		oprno = MAXLONG;
 	if(pPlusDelta) {
-		THROW(Rcpt.Search(lot) > 0);
+		THROW(Rcpt.Search(lotID) > 0);
 		qtty = Rcpt.data.Quantity;
 	}
-	if((r = Search(lot, date, oprno, spLt)) > 0) {
-		down = data.Rest;
-		if(pPlusDelta)
-			up = qtty - down;
-		while((r = EnumByLot(lot, &date, &oprno)) > 0) {
-			rest = data.Rest;
-			if(rest < down)
-				down = rest;
-			if(pPlusDelta && (qtty - rest) < up)
-				up = (qtty - rest);
+	{
+		int r = Search(lotID, date, oprno, spLt);
+		if(r > 0) {
+			down = data.Rest;
+			if(pPlusDelta)
+				up = qtty - down;
+			while((r = EnumByLot(lotID, &date, &oprno)) > 0) {
+				const double rest = data.Rest;
+				if(rest < down)
+					down = rest;
+				if(pPlusDelta && (qtty - rest) < up)
+					up = (qtty - rest);
+			}
 		}
+		THROW(r);
 	}
-	else
-		down = up = 0.0;
-	THROW(r);
 	CATCH
 		ok = 0;
 		down = up = 0.0;

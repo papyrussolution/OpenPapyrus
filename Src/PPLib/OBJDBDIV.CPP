@@ -376,19 +376,15 @@ int DBDivDialog::getDTS(DBDivPack * p)
 	getCtrlData(CTL_DBDIV_CNT, &data.Rec.OutCounter);
 	getCtrlData(sel = CTL_DBDIV_NAME, data.Rec.Name);
 	THROW_PP(*strip(data.Rec.Name), PPERR_NAMENEEDED);
-	//
 	{
 		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf);
 		StringSet ss(';', temp_buf);
 		const uint c = ss.getCount();
-		if(c > 1 || (c == 1 && temp_buf.Len() >= sizeof(data.Rec.Addr))) {
+		if(c > 1 || (c == 1 && temp_buf.Len() >= sizeof(data.Rec.Addr)))
 			data.Rec.Addr[0] = 0;
-		}
-		else {
+		else
 			getCtrlData(CTL_DBDIV_ADDR, data.Rec.Addr);
-		}
 	}
-	//
 	getCtrlData(sel = CTLSEL_DBDIV_INTRRCPT, &data.Rec.IntrRcptOpr);
 	THROW_PP(IsIntrOp(data.Rec.IntrRcptOpr) == INTRRCPT, PPERR_NOTINTRRCPTOP);
 	getCtrlString(CTL_DBDIV_ACCLIST, temp_buf);

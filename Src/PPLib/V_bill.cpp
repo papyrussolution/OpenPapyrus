@@ -5765,7 +5765,7 @@ int SLAPI PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								memos.ReplaceChar('\n', ' ');
 								memos.ReplaceChar('\r', ' ');
-								memos.ReplaceStr(MemosDelim, "\n", 0);
+								memos.ReplaceStr(_PPConst.P_ObjMemoDelim, "\n", 0);
 								PPTooltipMessage(memos, 0, pBrw->H(), 10000, 0, flags);
 							}
 						}

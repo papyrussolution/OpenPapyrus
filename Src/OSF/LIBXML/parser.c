@@ -10824,7 +10824,6 @@ void xmlStopParser(xmlParserCtxt * ctxt)
 		}
 	}
 }
-
 /**
  * xmlCreateIOParserCtxt:
  * @sax:  a SAX handler
@@ -11999,7 +11998,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 						ret = -1;
 					}
 					else {
-						xmlAddChild((xmlNode *)newDoc, newRoot);
+						xmlAddChild(reinterpret_cast<xmlNode *>(newDoc), newRoot);
 						nodePush(ctxt, newRoot);
 						if(!doc) {
 							ctxt->myDoc = newDoc;
@@ -12008,7 +12007,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 							ctxt->myDoc = newDoc;
 							newDoc->children->doc = doc;
 							// Ensure that doc has XML spec namespace 
-							xmlSearchNsByHref(doc, (xmlNode *)doc, XML_XML_NAMESPACE);
+							xmlSearchNsByHref(doc, reinterpret_cast<xmlNode *>(doc), XML_XML_NAMESPACE);
 							newDoc->oldNs = doc->oldNs;
 						}
 						ctxt->instate = XML_PARSER_CONTENT;
@@ -12044,10 +12043,9 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 							//
 							xmlNode * cur = newDoc->children->children;
 							*lst = cur;
-							while(cur) {
+							for(; cur; cur = cur->next) {
 								xmlSetTreeDoc(cur, doc);
 								cur->P_ParentNode = NULL;
-								cur = cur->next;
 							}
 							newDoc->children->children = NULL;
 						}
@@ -12175,7 +12173,6 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
 	}
 	return ctxt;
 }
-
 /**
  * xmlCreateEntityParserCtxt:
  * @URL:  the entity URL
@@ -12192,13 +12189,9 @@ xmlParserCtxt * xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * I
 {
 	return xmlCreateEntityParserCtxtInternal(URL, ID, base, 0);
 }
-
-/************************************************************************
-*									*
-*		Front ends when parsing from a file			*
-*									*
-************************************************************************/
-
+// 
+// Front ends when parsing from a file
+// 
 /**
  * xmlCreateURLParserCtxt:
  * @filename:  the filename or URL
@@ -12237,7 +12230,6 @@ xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options)
 	}
 	return ctxt;
 }
-
 /**
  * xmlCreateFileParserCtxt:
  * @filename:  the filename
@@ -12272,7 +12264,6 @@ xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename)
  *
  * Returns the resulting document tree
  */
-
 xmlDoc * xmlSAXParseFileWithData(xmlSAXHandler * sax, const char * filename, int recovery, void * data)
 {
 	xmlDoc * ret = 0;
@@ -12310,7 +12301,6 @@ xmlDoc * xmlSAXParseFileWithData(xmlSAXHandler * sax, const char * filename, int
 	}
 	return ret;
 }
-
 /**
  * xmlSAXParseFile:
  * @sax:  the SAX handler block
@@ -12439,13 +12429,9 @@ int xmlSAXUserParseFile(xmlSAXHandler * sax, void * user_data, const char * file
 }
 
 #endif /* LIBXML_SAX1_ENABLED */
-
-/************************************************************************
-*									*
-*		Front ends when parsing from memory			*
-*									*
-************************************************************************/
-
+// 
+// Front ends when parsing from memory
+// 
 /**
  * xmlCreateMemoryParserCtxt:
  * @buffer:  a pointer to a char array
@@ -12505,7 +12491,6 @@ xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size)
  *
  * Returns the resulting document tree
  */
-
 xmlDoc * xmlSAXParseMemoryWithData(xmlSAXHandler * sax, const char * buffer, int size, int recovery, void * data)
 {
 	xmlDoc * ret = 0;
@@ -12534,7 +12519,6 @@ xmlDoc * xmlSAXParseMemoryWithData(xmlSAXHandler * sax, const char * buffer, int
 	}
 	return ret;
 }
-
 /**
  * xmlSAXParseMemory:
  * @sax:  the SAX handler block
@@ -12696,13 +12680,9 @@ xmlDoc * xmlParseDoc(const xmlChar * cur)
 #endif /* LIBXML_SAX1_ENABLED */
 
 #ifdef LIBXML_LEGACY_ENABLED
-/************************************************************************
-*									*
-*	Specific function to keep track of entities references		*
-*	and used by the XSLT debugger					*
-*									*
-************************************************************************/
-
+// 
+// Specific function to keep track of entities references and used by the XSLT debugger
+// 
 static xmlEntityReferenceFunc xmlEntityRefFunc = NULL;
 /**
  * xmlAddEntityReference:
@@ -12823,13 +12803,9 @@ void xmlCleanupParser()
 		xmlParserInitialized = 0;
 	}
 }
-
-/************************************************************************
-*									*
-*	New set (2.6.0) of simpler and more flexible APIs		*
-*									*
-************************************************************************/
-
+// 
+// New set (2.6.0) of simpler and more flexible APIs
+// 
 /**
  * @str:  a string
  *
@@ -13216,7 +13192,6 @@ xmlDoc * xmlReadFile(const char * filename, const char * encoding, int options)
 	xmlParserCtxt * ctxt = xmlCreateURLParserCtxt(filename, options);
 	return xmlDoRead(ctxt, NULL, encoding, options, 0);
 }
-
 /**
  * xmlReadMemory:
  * @buffer:  a pointer to a char array
@@ -13235,7 +13210,6 @@ xmlDoc * xmlReadMemory(const char * buffer, int size, const char * URL, const ch
 	xmlParserCtxt * ctxt = xmlCreateMemoryParserCtxt(buffer, size);
 	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
-
 /**
  * xmlReadFd:
  * @fd:  an open file descriptor
@@ -13275,7 +13249,6 @@ xmlDoc * xmlReadFd(int fd, const char * URL, const char * encoding, int options)
 	inputPush(ctxt, stream);
 	return xmlDoRead(ctxt, URL, encoding, options, 0);
 }
-
 /**
  * xmlReadIO:
  * @ioread:  an I/O read function
@@ -13390,25 +13363,22 @@ xmlDoc * xmlCtxtReadFile(xmlParserCtxt * ctxt, const char * filename, const char
  */
 xmlDoc * xmlCtxtReadMemory(xmlParserCtxt * ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options)
 {
-	xmlParserInputBuffer * input;
-	xmlParserInput * stream;
-	if(!ctxt)
-		return 0;
-	if(!buffer)
-		return 0;
-	xmlInitParser();
-	xmlCtxtReset(ctxt);
-	input = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
-	if(!input) {
-		return 0;
+	xmlDoc * p_result = 0;
+	if(ctxt && buffer) {
+		xmlInitParser();
+		xmlCtxtReset(ctxt);
+		xmlParserInputBuffer * p_input = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
+		if(p_input) {
+			xmlParserInput * p_stream = xmlNewIOInputStream(ctxt, p_input, XML_CHAR_ENCODING_NONE);
+			if(!p_stream)
+				xmlFreeParserInputBuffer(p_input);
+			else {
+				inputPush(ctxt, p_stream);
+				p_result = xmlDoRead(ctxt, URL, encoding, options, 1);
+			}
+		}
 	}
-	stream = xmlNewIOInputStream(ctxt, input, XML_CHAR_ENCODING_NONE);
-	if(stream == NULL) {
-		xmlFreeParserInputBuffer(input);
-		return 0;
-	}
-	inputPush(ctxt, stream);
-	return xmlDoRead(ctxt, URL, encoding, options, 1);
+	return p_result;
 }
 /**
  * xmlCtxtReadFd:
@@ -13460,8 +13430,7 @@ xmlDoc * xmlCtxtReadFd(xmlParserCtxt * ctxt, int fd, const char * URL, const cha
  *
  * Returns the resulting document tree
  */
-xmlDoc * xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread,
-    xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options)
+xmlDoc * xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options)
 {
 	xmlParserInputBuffer * input;
 	xmlParserInput * stream;

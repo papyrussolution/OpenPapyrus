@@ -682,8 +682,7 @@ int PredictionParamDialog::setDTS(const PrcssrPrediction::Param * pData)
 	SetClusterData(CTL_FILLSALESTBL_FLAGS, Data.Flags);
 	if(PrevContinueMode) {
 		SString msg_buf;
-		PPLoadText(PPTXT_PSALES_CONTINUEMODE, msg_buf);
-		setStaticText(CTL_FILLSALESTBL_ST_CONT, msg_buf);
+		setStaticText(CTL_FILLSALESTBL_ST_CONT, PPLoadTextS(PPTXT_PSALES_CONTINUEMODE, msg_buf));
 	}
 	disableCtrls(1, CTL_FILLSALESTBL_BEGDT, CTL_FILLSALESTBL_LASTDT, CTL_FILLSALESTBL_OPNAME, 0);
 	SETIFZ(Data.Replace, PrcssrPrediction::Param::rsUpdateOnly);
@@ -723,7 +722,6 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	THROW_SL(checkdate(period.upp, 1));
 	norm_period.upp = period.upp.getactual(ZERODATE);
 	THROW_SL(checkdate(norm_period.upp, 1));
-
 	THROW_SL(norm_period.InvariantC(0));
 	THROW_PP(norm_period.upp > norm_period.low, PPERR_PSBUILDDATELTLAST);
 	SETFLAG(Data.Flags, PrcssrPrediction::Param::fRecalcByPeriod, period.low);
@@ -1208,7 +1206,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 				}
 				if(p_stat_entry) {
 					PredictSalesItem item;
-					MEMSZERO(item);
+					// @v10.6.6 @ctr MEMSZERO(item);
 					T.ExpandDate(T.data.Dt, &item.Dt);
 					item.Qtty = T.data.Quantity;
 					item.Amount = T.data.Amount;
@@ -1284,11 +1282,11 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 				T.ShrinkLoc(p_pss->LocID, &new_rec.Loc);
 				T.ShrinkDate(p_pss->LastDate, &new_rec.LastDate);
 				new_rec.GoodsID   = p_pss->GoodsID;
-				new_rec.Count     = (short)p_pss->Count;
-				new_rec.QttySum   = (float)p_pss->QttySum;
-				new_rec.QttySqSum = (float)p_pss->QttySqSum;
-				new_rec.AmtSum    = (float)p_pss->AmtSum;
-				new_rec.AmtSqSum  = (float)p_pss->AmtSqSum;
+				new_rec.Count     = static_cast<short>(p_pss->Count);
+				new_rec.QttySum   = static_cast<float>(p_pss->QttySum);
+				new_rec.QttySqSum = static_cast<float>(p_pss->QttySqSum);
+				new_rec.AmtSum    = static_cast<float>(p_pss->AmtSum);
+				new_rec.AmtSqSum  = static_cast<float>(p_pss->AmtSqSum);
 				if(pErr) {
 					SETMAX(pErr->Count,     labs((long)new_rec.Count      - p_pss->Count));
 					SETMAX(pErr->QttySum,   fabs((double)new_rec.QttySum  - p_pss->QttySum));
@@ -1431,7 +1429,7 @@ int SLAPI PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::S
 				}
 				{
 					PredictSalesItem item;
-					MEMSZERO(item);
+					// @v10.6.6 @ctr MEMSZERO(item);
 					item.Dt = item_dt;
 					item.Qtty = item_qtty;
 					item.Amount = item_amt;

@@ -1256,8 +1256,7 @@
 	// Ручная установка этого тега крайне не желательна.
 #define PPTAG_BILL_EDIREPEALACK     54L // @v9.2.8 По каналу EDI Papyrus'ом отправлен запрос на отмену проведения документа.
 	// Этот тег содержит подтверждение о получении сервером EDI такого запроса.
-#define PPTAG_BILL_EDIPROBLEMTRFR   55L // @v9.3.1 Текстовый тег, перечисляющий проблемные номера товарных строк
-	// в формате: number[:descr][;number[:descr]]*
+#define PPTAG_BILL_EDIPROBLEMTRFR   55L // @v9.3.1 Текстовый тег, перечисляющий проблемные номера товарных строк в формате: number[:descr][;number[:descr]]*
 #define PPTAG_LOT_SOURCESERIAL      56L // @v9.3.5 Серийный номер исходного лота для данной строки. Применяется в документах модификации.
 #define PPTAG_PERSON_UUID           57L // @v9.3.10 UUID персоналии
 #define PPTAG_LOC_UUID              58L // @v9.3.10 UUID локации
@@ -9718,6 +9717,7 @@
 	#define CTLSEL_GUACFG_SCARDSER      (2 + IMPEXP_CTL_BIAS)
 	#define CTL_GUACFG_OWNERKIND        (3 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_GUACFG_OWNERKIND     (4 + IMPEXP_CTL_BIAS)
+	#define CTL_GUACFG_FLAGS            (5 + IMPEXP_CTL_BIAS)
 #define DLG_SCOPFLT               1202
 	#define CTL_SCOPFLT_PERIOD          (1 + IMPEXP_CTL_BIAS)
 	#define CTLCAL_SCOPFLT_PERIOD       (2 + IMPEXP_CTL_BIAS)
@@ -10751,7 +10751,10 @@
 #define DLG_MOBCLMNN              1365
 	#define CTL_MOBCLMNN_LIST         (1 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLMNN_OBJ          (2 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLMNN_STRUC        (3 + WINDOWS_ID_BIAS)
 #define DLG_MOBCLEDT              1366
+	#define cmSelectDlZone            101
+	#define cmSelectDlField           102
 	#define CTL_MOBCLEDT_Z            (1 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_FN           (2 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_TXT          (3 + WINDOWS_ID_BIAS)

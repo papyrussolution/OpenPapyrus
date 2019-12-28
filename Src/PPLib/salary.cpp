@@ -108,7 +108,7 @@ int SLAPI SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 	return ok;
 }
 
-int SLAPI SalaryCore::Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
+/* @v10.6.7 (unused) int SLAPI SalaryCore::Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
 {
 	SalaryTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -116,7 +116,7 @@ int SLAPI SalaryCore::Get__(PPID postID, PPID salChargeID, const DateRange & rPe
 	k1.SalChargeID = salChargeID;
 	k1.Beg = rPeriod.low;
 	return SearchByKey(this, 1, &k1, pRec);
-}
+}*/
 
 int SLAPI SalaryCore::Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount)
 {

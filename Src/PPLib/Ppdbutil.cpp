@@ -1754,6 +1754,7 @@ int SLAPI UseCopyContinouos(PPDbEntrySet2 * pDbes)
 				SString lcn; // local machine name
 				if(SGetComputerName(lcn) && disk.CmpNC(lcn) == 0)
 					r = 1;
+				// @todo Определять локальность диска через IP
 			}
 			else {
 				(disk = ps.Drv).CatChar(':').CatChar('\\');
@@ -1932,7 +1933,7 @@ static int SLAPI _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopy
 		int    bss_factor = 0;
 		drv_map.Load(&ini_file);
 		ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
-		copy_data.BssFactor = (long)bss_factor;
+		copy_data.BssFactor = bss_factor;
 		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_BACKUPTEMP, copy_data.TempPath);
 		if(!copy_data.TempPath.NotEmptyS()) {
 			char * p_path = getenv("TMP");

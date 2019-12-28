@@ -55,7 +55,7 @@ PPObjSecur::Exclusion::Exclusion(int exclrt) : State(0)
 			if(uer_obj.Fetch(secur.UerID, &uer) > 0 && (uer.UerFlags & exclrt)) {
 				PPRights uer_rights;
 				PPAccessRestriction accsr;
-				if(uer_rights.Get(PPOBJ_USREXCLRIGHTS, uer.ID)) {
+				if(uer_rights.Get(PPOBJ_USREXCLRIGHTS, uer.ID, 0/*ignoreCheckSum*/)) {
 					uer_rights.ExtentOpRights();
                     Preserve = r_tla.Rights;
                     r_tla.Rights.Merge(uer_rights, 0);

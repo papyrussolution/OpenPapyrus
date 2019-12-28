@@ -981,7 +981,7 @@ int SLAPI PPViewLot::Init_(const PPBaseFilt * pFilt)
 			}
 			{
 				PPObjWorld w_obj;
-				SArray list(sizeof(WorldTbl::Rec));
+				SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 				w_obj.GetListByName(WORLDOBJ_COUNTRY, native_country_name, &list);
 				for(uint i = 0; i < list.getCount(); i++)
 					Itd.NativeCntryList.add(static_cast<const WorldTbl::Rec *>(list.at(i))->ID);

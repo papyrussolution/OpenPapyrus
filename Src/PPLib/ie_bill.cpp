@@ -3787,7 +3787,7 @@ int SLAPI PPBillImporter::Run()
 		param.GuaID = GuaID;
 		param.LocID = LocID;
 		param.Period = Period;
-		prcssr.SendBills(param);
+		prcssr.Run(param);
 	}
 	else {
 		THROW(ReadData());

@@ -59,7 +59,9 @@ int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
 }
 
 static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
+	{ 200, "result" },
 	{ 210, "query_kiz_info" },
+	{ 211, "kiz_info" },
 	{ 416, "receive_order" },
 	{ 602, "receive_order_notification" },
 	{ 701, "accept" },
@@ -135,12 +137,29 @@ public:
 	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
 	//
 	enum {
+		doctypResult                   = 200,
 		doctypQueryKizInfo             = 210,
+		doctypKizInfo                  = 211,
 		doctypReceiveOrder             = 416,
 		doctypReceiveOrderNotification = 602,
 		doctypAccept                   = 701,
 	};
 	struct Packet {
+		struct ErrorItem {
+			int    Code;
+			SString Descr;
+			SString Ident;
+		};
+		struct OperationResult {
+			OperationResult() : Op(0), Status(0)
+			{
+			}
+			int    Op; // doctypXXX Ид операции в ответ на которую пришел тикет
+			int    Status; // -1 - rejected, 1 - accepted
+			SString OpIdent; 
+			SString OpComment;
+			TSCollection <ErrorItem> Errors;
+		};
 		struct QueryKizInfo {
 			QueryKizInfo() : CodeType(0), Modifier(0), ArID(0)
 			{
@@ -154,6 +173,7 @@ public:
 		explicit Packet(int docType) : DocType(docType), Flags(0), P_Data(0)
 		{
 			switch(DocType) {
+				case doctypResult: P_Data = new OperationResult(); break;
 				case doctypQueryKizInfo: P_Data = new QueryKizInfo(); break;
 				case doctypReceiveOrder: P_Data = new PPBillPacket(); break;
 			}
@@ -161,11 +181,12 @@ public:
 		~Packet()
 		{
 			switch(DocType) {
+				case doctypResult: delete static_cast<OperationResult *>(P_Data); break;
 				case doctypQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
 				case doctypReceiveOrder: delete static_cast<PPBillPacket *>(P_Data); break;
 			}
 		}
-		int    DocType;
+		const  int DocType;
 		long   Flags;
 		void * P_Data;
 	};
@@ -174,7 +195,7 @@ public:
 		SLAPI  Document();
 		int    SLAPI Parse();
 		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
-		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, int docType, const ChZnInterface::Packet * pPack);
+		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
 	};
 	int    SLAPI SetupInitBlock(PPID guaID, InitBlock & rBlk);
 	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf) const;
@@ -192,16 +213,20 @@ public:
 	int    SLAPI GetUserInfo2(InitBlock & rIb);
 	int    SLAPI GetIncomeDocList2(InitBlock & rIb);
 	int    SLAPI ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
-	int    SLAPI TransmitDocument(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rDocIdent);
+	int    SLAPI TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
 	int    SLAPI GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
 	int    SLAPI GetIncomeDocList_(InitBlock & rIb);
 	int    SLAPI Connect(InitBlock & rIb);
 	int    SLAPI Connect2(InitBlock & rIb);
 	int    SLAPI GetToken2(const char * pAuthCode, InitBlock & rIb);
+	int    SLAPI GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
+	int    SLAPI CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
+	int    SLAPI ParseTicket(const char * pTicket, Packet ** ppP);
+	int    SLAPI GetDebugPath(const InitBlock & rIb, SString & rPath);
 private:
 	int    SLAPI LogTalking(const char * pPrefix, const SString & rMsg);
-	int    SLAPI GetDebugPath(PPID locID, SString & rPath);
 	int    SLAPI GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
+	int    SLAPI CreatePendingFile(const char * pPath, const char * pIdent);
 };
 
 SLAPI ChZnInterface::Document::Document()
@@ -226,7 +251,7 @@ int SLAPI ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locI
 	return ok;
 }
 
-int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, int docType, const ChZnInterface::Packet * pPack)
+int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -238,11 +263,11 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 		wdocs.PutAttrib("version", "1.34");
 		wdocs.PutAttrib(SXml::nst("xmlns", "xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 		{
-			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), docType, temp_buf);
+			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
 			SXml::WNode wd(rX, temp_buf);
-			wd.PutAttrib("action_id", temp_buf.Z().Cat(docType));
+			wd.PutAttrib("action_id", temp_buf.Z().Cat(pPack->DocType));
 			//
-			if(docType == doctypReceiveOrder) {
+			if(pPack->DocType == doctypReceiveOrder) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					PPID   dlvr_ar_id = p_bp->Rec.Object;
@@ -270,6 +295,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 						SXml::WNode dtl(rX, "order_details");
 						PPLotExtCodeContainer::MarkSet lotxcode_set;
 						PPLotExtCodeContainer::MarkSet::Entry msentry;
+						StringSet ss;
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
 							const PPTransferItem & r_ti = p_bp->ConstTI(i);
 							double cost = r_ti.Cost;
@@ -280,19 +306,53 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 								vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 							}
 							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							for(uint j = 0; j < lotxcode_set.GetCount(); j++) {
-								if(lotxcode_set.GetByIdx(j, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+
+							for(uint boxidx = 0; boxidx < lotxcode_set.GetCount(); boxidx++) {
+								if(lotxcode_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+									//SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
+									//w_box.PutInner(SXml::nst("ce", "boxnumber"), EncText(msentry.Num));
+									uint box_inner_count = 0;
 									SXml::WNode un(rX, "union");
-									un.PutInner("sgtin", msentry.Num);
+									{
+										SXml::WNode sdn(rX, "sscc_detail");
+										//<sscc>147600887000000010</sscc>
+										sdn.PutInner("sscc", msentry.Num);
+										//SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
+										lotxcode_set.GetByBoxID(msentry.BoxID, ss);
+										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+											box_inner_count++;
+											if(PPChZnPrcssr::IsChZnCode(msentry.Num) == SNTOK_CHZN_GS1_GTIN) {
+												;
+											}
+											//w_amclist.PutInner(SXml::nst("ce", "amc"), EncText(temp_buf));
+										}
+									}
+									SETIFZ(box_inner_count, 1);
 									un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
 									un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+								}
+							}
+							{
+								//
+								// В конце вставляем марки, не привязанные к боксам
+								//
+								lotxcode_set.GetByBoxID(0, ss);
+								if(ss.getCount()) {
+									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+										if(PPChZnPrcssr::IsChZnCode(temp_buf) == SNTOK_CHZN_SIGN_SGTIN) {
+											SXml::WNode un(rX, "union");
+											un.PutInner("sgtin", temp_buf);
+											un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
+											un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+										}
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-			else if(docType == doctypQueryKizInfo) {
+			else if(pPack->DocType == doctypQueryKizInfo) {
 				const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
 				if(p_bp) {
 					subj_ident = p_bp->SubjectIdent;
@@ -600,15 +660,32 @@ int SLAPI ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * p
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetDebugPath(PPID guaID, SString & rPath)
+int SLAPI ChZnInterface::GetPendingIdentList(const InitBlock & rIb, StringSet & rResult)
+{
+	int    ok = -1;
+	SString path;
+	THROW(GetDebugPath(rIb, path));
+	path.SetLastSlash().Cat("pending").SetLastSlash().Cat("*");
+	{
+		SDirEntry de;
+		for(SDirec sd(path, 0); sd.Next(&de) > 0;) {
+			if(de.IsFile()) {
+				rResult.add(de.FileName);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI ChZnInterface::GetDebugPath(const InitBlock & rIb, SString & rPath)
 {
 	rPath.Z();
     int    ok = 1;
-    SString temp_buf;
     SString temp_path;
-	//THROW(GetFSRARID(locID, temp_buf, 0));
     PPGetPath(PPPATH_TEMP, temp_path);
-    temp_path.SetLastSlash().Cat("CHZN").CatChar('-').Cat(temp_buf);
+    temp_path.SetLastSlash().Cat("CHZN").CatChar('-').Cat(rIb.CliIdent);
     THROW_SL(::createDir(temp_path));
 	rPath = temp_path;
     CATCHZOK
@@ -618,19 +695,13 @@ int SLAPI ChZnInterface::GetDebugPath(PPID guaID, SString & rPath)
 int SLAPI ChZnInterface::GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn)
 {
 	int    ok = 1;
-	const  int is_cc = sstreqi_ascii(pSubPath, "cc");
 	rFn.Z();
 	SString temp_path;
-	if(!isempty(pPath)) {
-		(temp_path = pPath).SetLastSlash();
-		if(is_cc)
-			temp_path.Cat("xml");
-		else
-			temp_path.Cat("opt").SetLastSlash().Cat("temp-query");
-	}
+	if(!isempty(pPath))
+		temp_path = pPath;
 	else
 		PPGetPath(PPPATH_TEMP, temp_path);
-	if(!is_cc && !isempty(pSubPath))
+	if(!isempty(pSubPath))
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
 	THROW_SL(::createDir(temp_path));
@@ -639,43 +710,242 @@ int SLAPI ChZnInterface::GetTemporaryFileName(const char * pPath, const char * p
 	return ok;
 }
 
-int SLAPI ChZnInterface::TransmitDocument(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rReply)
+int SLAPI ChZnInterface::CreatePendingFile(const char * pPath, const char * pIdent)
 {
-	rReply.Z();
+	int    ok = 1;
+	SString temp_path;
+	if(!isempty(pPath))
+		temp_path = pPath;
+	else
+		PPGetPath(PPPATH_TEMP, temp_path);
+	temp_path.SetLastSlash().Cat("pending");
+	THROW_SL(::createDir(temp_path));
+	{
+		temp_path.SetLastSlash().Cat(pIdent);
+		SFile f(temp_path, SFile::mWrite|SFile::mBinary);
+		THROW_SL(f.IsValid());
+	}
+	//MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "XML", 0, rFn);
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
+{
+	ASSIGN_PTR(ppP, 0);
 	int    ok = -1;
 	SString temp_buf;
-	SString url_buf;
-	SString req_buf;
-	SString sign;
-	SString data_base64_buf;
-	S_GUID req_id;
-	InetUrl url(MakeTargetUrl(qDocumentSend, 0, rIb, url_buf));
-	{
-		temp_buf.Z().CatN(static_cast<const char *>(pData), dataLen);
-		LogTalking("req-rawdoc", temp_buf);
-	}
-	THROW(MakeDocumentRequest(rIb, pData, dataLen, req_id, req_buf));
-	{
-		ScURL c;
-		StrStrAssocArray hdr_flds;
-		MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
-		{
-			SBuffer ack_buf;
-			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			LogTalking("req", req_buf);
-			THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
-			{
-				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-				if(p_ack_buf) {
-					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-					LogTalking("rep", temp_buf);
-					if(ReadJsonReplyForSingleItem(temp_buf, "document_id", rReply) > 0)
-						ok = 1;
+	Packet * p_pack = 0;
+    xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	if(!isempty(pTicket)) {
+		xmlNode * p_root = 0;
+		THROW(p_ctx = xmlNewParserCtxt());
+		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pTicket, sstrlen(pTicket), 0, 0, XML_PARSE_NOENT), p_ctx);
+		THROW(p_root = xmlDocGetRootElement(p_doc));
+		if(SXml::IsName(p_root, "documents")) {
+			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+				if(SXml::IsName(p_c, "result")) {
+					THROW(p_pack = new Packet(doctypResult));
+					ok = 1;
+					Packet::OperationResult * p_opr = static_cast<Packet::OperationResult *>(p_pack->P_Data);
+					for(const xmlNode * p_c2 = p_c->children; p_c2; p_c2 = p_c2->next) {
+						if(SXml::GetContentByName(p_c2, "operation", temp_buf)) {
+							p_opr->Op = temp_buf.ToLong();
+						}
+						else if(SXml::GetContentByName(p_c2, "operation_id", temp_buf)) {
+							p_opr->OpIdent = temp_buf;
+						}
+						else if(SXml::GetContentByName(p_c2, "operation_result", temp_buf)) {
+							if(temp_buf.IsEqiAscii("Rejected"))
+								p_opr->Status = -1;
+							else if(temp_buf.IsEqiAscii("Accepted"))
+								p_opr->Status = 1;
+						}
+						else if(SXml::GetContentByName(p_c2, "operation_comment", temp_buf)) {
+							p_opr->OpComment = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						}
+						else if(SXml::IsName(p_c2, "errors")) {
+							Packet::ErrorItem * p_err_item = p_opr->Errors.CreateNewItem();
+							THROW_SL(p_err_item);
+							for(const xmlNode * p_c3 = p_c2->children; p_c3; p_c3 = p_c3->next) {
+								if(SXml::GetContentByName(p_c3, "error_code", temp_buf))
+									p_err_item->Code = temp_buf.ToLong();
+								else if(SXml::GetContentByName(p_c3, "error_desc", temp_buf))
+									p_err_item->Descr = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								else if(SXml::GetContentByName(p_c3, "object_id", temp_buf))
+									p_err_item->Ident = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 	CATCHZOK
+	ASSIGN_PTR(ppP, p_pack);
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+int SLAPI ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const char * pTicket)
+{
+	//const char * p_utm_rej_pfx = "UTM Rej";
+	//const char * p_egais_rej_pfx = "EGAIS Rej";
+	//const  char * p_chzn_rej_pfx = "ChZn Rej";
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	SString temp_path;
+	SString pending_path;
+	SString ticket_path;
+	Packet * p_result_pack = 0;
+	if(ParseTicket(pTicket, &p_result_pack) > 0) {
+		const Packet::OperationResult * p_opr = static_cast<Packet::OperationResult *>(p_result_pack->P_Data);
+		if(p_opr) {
+			PPIDArray bill_id_list;
+			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, pIdent, &bill_id_list);
+			for(uint i = 0; i < bill_id_list.getCount(); i++) {
+				const PPID bill_id = bill_id_list.get(i);
+				if(p_opr->Status < 0) {
+					int   do_update_memos = 0;
+					SString memo_msg;
+					SString memos;
+					StringSet ss_memo(_PPConst.P_ObjMemoDelim);
+					StringSet ss_memo_new(_PPConst.P_ObjMemoDelim);
+					p_ref->GetPropVlrString(PPOBJ_BILL, bill_id, PPPRP_BILLMEMO, memos);
+					ss_memo.setBuf(memos);
+					for(uint ssp = 0; ss_memo.get(&ssp, temp_buf);) {
+						if(!temp_buf.NotEmptyS())
+							do_update_memos = 1;
+						else {
+							if(temp_buf.Search(_PPConst.P_ObjMemo_ChznRejPfx, 0, 1, 0)) {
+								temp_buf.Z();
+								do_update_memos = 1;
+								break;
+							}
+							if(temp_buf.NotEmptyS())
+								ss_memo_new.add(temp_buf);
+						}
+					}
+					{
+						if(p_opr->OpComment.NotEmpty()) {
+							memo_msg.Z().Space().Cat(_PPConst.P_ObjMemo_ChznRejPfx).CatDiv(':', 2).Cat(p_opr->OpComment);
+							ss_memo_new.add(memo_msg);
+							do_update_memos = 1;
+						}
+						if(p_opr->Errors.getCount()) {
+							for(uint eridx = 0; eridx < p_opr->Errors.getCount(); eridx++) {
+								const ChZnInterface::Packet::ErrorItem * p_er = p_opr->Errors.at(eridx);
+								if(p_er) {
+									memo_msg.Z().Space().Cat(_PPConst.P_ObjMemo_ChznRejPfx).CatDiv(':', 2).Cat(p_er->Code).Space().Cat(p_er->Ident).Space().Cat(p_er->Descr);
+									ss_memo_new.add(memo_msg);
+									do_update_memos = 1;
+								}
+							}
+						}
+					}
+					{
+						PPTransaction tra(1);
+						THROW(tra);
+						if(do_update_memos) {
+							memos = ss_memo_new.getBuf();
+							PutObjMemos(PPOBJ_BILL, PPPRP_BILLMEMO, bill_id, memos, 0);
+						}
+						THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, 0/*ta*/));
+						THROW(tra.Commit());
+					}
+				}
+			}
+		}
+	}
+	if(!isempty(pPath))
+		temp_path = pPath;
+	else
+		PPGetPath(PPPATH_TEMP, temp_path);
+	(pending_path = temp_path).SetLastSlash().Cat("pending");
+	(ticket_path = temp_path).SetLastSlash().Cat("ticket");
+	THROW_SL(::createDir(pending_path));
+	THROW_SL(::createDir(ticket_path));
+	{
+		ticket_path.SetLastSlash().Cat(pIdent);
+		SFile f(ticket_path, SFile::mWrite);
+		THROW_SL(f.IsValid());
+		THROW_SL(f.Write(pTicket, sstrlen(pTicket)));
+	}
+	{
+		pending_path.SetLastSlash().Cat(pIdent);
+		SFile::Remove(pending_path);
+	}
+	CATCHZOK
+	delete p_result_pack;
+	return ok;
+}
+
+int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply)
+{
+	rReply.Z();
+	int    ok = -1;
+	SString data_buf;
+	xmlTextWriter * p_writer = 0;
+	ChZnInterface::Document czd;
+	xmlBuffer * p_xml_buf = xmlBufferCreate();
+	if(p_xml_buf) {
+		p_writer = xmlNewTextWriterMemory(p_xml_buf, 0);
+		if(p_writer) {
+			SXml::WDoc _doc(p_writer, cpUTF8);
+			if(czd.Make(_doc, rIb, &rPack)) {
+				xmlTextWriterFlush(p_writer);
+				data_buf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use);
+				data_buf.ReplaceStr("\n", "", 0).ReplaceStr("\xD\xA", "", 0);
+				{
+					SString temp_buf;
+					SString url_buf;
+					SString req_buf;
+					SString sign;
+					SString data_base64_buf;
+					S_GUID req_id;
+					InetUrl url(MakeTargetUrl(qDocumentSend, 0, rIb, url_buf));
+					{
+						//temp_buf.Z().CatN(static_cast<const char *>(pData), dataLen);
+						LogTalking("req-rawdoc", data_buf);
+					}
+					THROW(MakeDocumentRequest(rIb, data_buf.cptr(), data_buf.Len(), req_id, req_buf));
+					{
+						ScURL c;
+						StrStrAssocArray hdr_flds;
+						MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
+						{
+							SBuffer ack_buf;
+							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+							LogTalking("req", req_buf);
+							THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+							{
+								SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+								if(p_ack_buf) {
+									temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+									LogTalking("rep", temp_buf);
+									if(ReadJsonReplyForSingleItem(temp_buf, "document_id", rReply) > 0) {
+										SString temp_path;
+										GetDebugPath(rIb, temp_path);
+										THROW(CreatePendingFile(temp_path, rReply))
+										ok = 1;
+									}
+								}
+							}
+						}
+					}
+				}
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeTextWriter(p_writer);
+	p_writer = 0;
+	xmlBufferFree(p_xml_buf);
+	p_xml_buf = 0;
 	return ok;
 }
 
@@ -891,15 +1161,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
 	{
 		req_buf.Z();
 		{
-			/*
-				{
-					"filter": {
-						"doc_status": "PROCESSED_DOCUMENT"
-					},
-					"start_from": 0,
-					"count": 100
-				}
-			*/
+			// { "filter": { "doc_status": "PROCESSED_DOCUMENT" }, "start_from": 0, "count": 100 }
 			p_json_req = new json_t(json_t::tOBJECT);
 			{
 				json_t * p_json_filt = new json_t(json_t::tOBJECT);
@@ -1172,8 +1434,6 @@ int SLAPI PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 int SLAPI PPChZnPrcssr::InteractiveQuery()
 {
 	int    ok = -1;
-	xmlTextWriter * p_writer = 0;
-	xmlBuffer * p_xml_buf = 0;
 	SString temp_buf;
 	SString result_buf;
 	QueryParam _param;
@@ -1195,55 +1455,37 @@ int SLAPI PPChZnPrcssr::InteractiveQuery()
 					ChZnInterface::Packet::QueryKizInfo * p_cq = static_cast<ChZnInterface::Packet::QueryKizInfo *>(pack.P_Data);
 					p_cq->Code = _param.ParamString;
 					p_cq->ArID = _param.ArID;
-					ChZnInterface::Document czd;
-					p_xml_buf = xmlBufferCreate();
-					if(p_xml_buf) {
-						p_writer = xmlNewTextWriterMemory(p_xml_buf, 0);
-						if(p_writer) {
-							SXml::WDoc _doc(p_writer, cpUTF8);
-							if(czd.Make(_doc, *p_ib, ChZnInterface::doctypQueryKizInfo, &pack)) {
-								xmlTextWriterFlush(p_writer);
-								temp_buf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use);
-								temp_buf.ReplaceStr("\n", "", 0).ReplaceStr("\xD\xA", "", 0);
-								if(ifc.TransmitDocument(*p_ib, temp_buf.cptr(), temp_buf.Len(), result_buf)) {
-								}
-								else {
-									LogLastError();
-								}
-							}
-						}
-					}
-					xmlFreeTextWriter(p_writer);
-					p_writer = 0;
-					xmlBufferFree(p_xml_buf);
-					p_xml_buf = 0;
+					if(!ifc.TransmitDocument2(*p_ib, pack, result_buf))
+						LogLastError();
 				}
 			}
 		}
 		ok = 1;
 	}
 	CATCHZOKPPERR
-	xmlFreeTextWriter(p_writer);
-	xmlBufferFree(p_xml_buf);
 	return ok;
 }
 
-int SLAPI PPChZnPrcssr::SendBills(const Param & rP)
+int SLAPI PPChZnPrcssr::Run(const Param & rP)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	Reference * p_ref = PPRef;
 	ChZnInterface::Packet * p_pack = 0;
-	xmlTextWriter * p_writer = 0;
-	xmlBuffer * p_xml_buf = 0;
 	SString temp_buf;
 	SString result_doc_ident;
+	SString edi_ident;
 	PPIDArray base_op_list;
 	PPIDArray op_list;
+	StringSet pending_list;
 	PrcssrAlcReport::Config alcr_cfg;
 	PrcssrAlcReport::ReadConfig(&alcr_cfg);
 	base_op_list.add(alcr_cfg.RcptOpID);
 	TSCollection <ChZnInterface::Packet> pack_list;
+	ChZnInterface ifc;
+	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
+	THROW(ifc.SetupInitBlock(rP.GuaID, *p_ib));
+	THROW(ifc.GetPendingIdentList(*p_ib, pending_list));
 	if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
@@ -1257,6 +1499,8 @@ int SLAPI PPChZnPrcssr::SendBills(const Param & rP)
 					int    suited = 1;
 					if(!p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK))
 						suited = 0;
+					else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, edi_ident) > 0)
+						suited = 0;
 					else if(bill_rec.Object) {
 						const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
 						if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
@@ -1267,7 +1511,7 @@ int SLAPI PPChZnPrcssr::SendBills(const Param & rP)
 									const PPTransferItem & r_ti = static_cast<PPBillPacket *>(p_pack->P_Data)->ConstTI(tidx);
 									static_cast<PPBillPacket *>(p_pack->P_Data)->XcL.Get(tidx+1, 0, lotxcode_set);
 									for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
-										if(lotxcode_set.GetByIdx(j, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
+										if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
 											if(PPChZnPrcssr::IsChZnCode(msentry.Num))
 												suited = 1;
 										}
@@ -1286,48 +1530,40 @@ int SLAPI PPChZnPrcssr::SendBills(const Param & rP)
 				}
 			}
 		}
-		if(pack_list.getCount()) {
-			ChZnInterface ifc;
-			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
-			THROW(ifc.SetupInitBlock(rP.GuaID, *p_ib));
-			if(ifc.Connect(*p_ib) > 0) {
-				for(uint bpidx = 0; bpidx < pack_list.getCount(); bpidx++) {
-					ChZnInterface::Packet * p_inner_pack = pack_list.at(bpidx);
-					ChZnInterface::Document czd;
-					THROW(p_xml_buf = xmlBufferCreate());
-					THROW(p_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
-					{
-						SXml::WDoc _doc(p_writer, cpUTF8);
-						if(czd.Make(_doc, *p_ib, ChZnInterface::doctypReceiveOrder, p_inner_pack)) {
-							xmlTextWriterFlush(p_writer);
-							temp_buf.CopyFromN(reinterpret_cast<const char *>(p_xml_buf->content), p_xml_buf->use);
-							temp_buf.ReplaceStr("\n", "", 0).ReplaceStr("\xD\xA", "", 0);
-							if(ifc.TransmitDocument(*p_ib, temp_buf.cptr(), temp_buf.Len(), result_doc_ident)) {
-								if(result_doc_ident.NotEmpty()) {
-									ObjTagItem tag_item;
-									if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, result_doc_ident)) {
-										if(!p_ref->Ot.PutTag(PPOBJ_BILL, static_cast<PPBillPacket *>(p_inner_pack->P_Data)->Rec.ID, &tag_item, 1))
-											LogLastError();
-									}
-								}
-							}
-							else {
+	}
+	if(pending_list.getCount() || pack_list.getCount()) {
+		if(ifc.Connect(*p_ib) > 0) {
+			{
+				SString pending_ident;
+				SString ticket_buf;
+				SString path;
+				ifc.GetDebugPath(*p_ib, path);
+				for(uint ssp = 0; pending_list.get(&ssp, pending_ident);) {
+					if(ifc.GetDocumentTicket(*p_ib, pending_ident, ticket_buf) > 0) {
+						if(!ifc.CommitTicket(path, pending_ident, ticket_buf))
+							LogLastError();
+					}
+				}
+			}
+			for(uint bpidx = 0; bpidx < pack_list.getCount(); bpidx++) {
+				ChZnInterface::Packet * p_inner_pack = pack_list.at(bpidx);
+				int tdr = ifc.TransmitDocument2(*p_ib, *p_inner_pack, result_doc_ident);
+				if(tdr > 0) {
+					if(result_doc_ident.NotEmpty()) {
+						ObjTagItem tag_item;
+						if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, result_doc_ident)) {
+							if(!p_ref->Ot.PutTag(PPOBJ_BILL, static_cast<PPBillPacket *>(p_inner_pack->P_Data)->Rec.ID, &tag_item, 1))
 								LogLastError();
-							}
 						}
 					}
-					xmlFreeTextWriter(p_writer);
-					p_writer = 0;
-					xmlBufferFree(p_xml_buf);
-					p_xml_buf = 0;
 				}
+				else if(tdr == 0)
+					LogLastError();
 			}
 		}
 	}
 	CATCHZOK
 	ZDELETE(p_pack);
-	xmlFreeTextWriter(p_writer);
-	xmlBufferFree(p_xml_buf);
 	return ok;
 }
 

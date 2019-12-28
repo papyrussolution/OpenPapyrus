@@ -564,6 +564,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 	StringSet ss(';', MetavarList);
 	rResult.Z();
 	SString temp_buf;
+	SString ident_buf;
 	SStrScan scan(pExpr);
 	const long cc_flags = p_ccp ? p_ccp->Rec.Flags : 0;
 	while(*scan) {
@@ -571,10 +572,20 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 			int  var_idx = 0;
 			PPID temp_id = 0;
 			scan.Incr();
-			for(uint i = 0, j = 0; !var_idx && ss.get(&i, temp_buf); j++) {
-				if(strnicmp(temp_buf, scan, temp_buf.Len()) == 0) {
-					var_idx = j+1;
-					scan.Incr(temp_buf.Len());
+			{
+				size_t max_var_len = 0;
+				uint   max_var_idx = 0;
+				for(uint i = 0, j = 0; ss.get(&i, temp_buf); j++) {
+					if(strnicmp(temp_buf, scan, temp_buf.Len()) == 0) {
+						if(max_var_len < temp_buf.Len()) {
+							max_var_len = temp_buf.Len();
+							max_var_idx = j+1;
+						}
+					}
+				}
+				if(max_var_idx) {
+					var_idx = max_var_idx;
+					scan.Incr(max_var_len);
 				}
 			}
 			switch(var_idx) {

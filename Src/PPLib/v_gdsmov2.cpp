@@ -77,7 +77,6 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	GCTFilt temp_filt;
 	AdjGdsGrpng agg;
 	GoodsGrpngEntry * p_entry;
-	TempGoodsMov2Tbl::Rec rec;
 	TempGoodsMov2Tbl * p_tbl = 0;
 	PPOprKind op_rec;
 	GoodsFilt gf;
@@ -88,7 +87,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	THROW(p_tbl = CreateTempFile());
 	Total.Init();
-	Filt.Period.Actualize(ZERODATE); // @v8.6.8
+	Filt.Period.Actualize(ZERODATE);
 	temp_filt.Period       = Filt.Period;
 	temp_filt.LocList      = Filt.LocList;
 	temp_filt.SupplID      = Filt.SupplID;
@@ -96,9 +95,13 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	temp_filt.SupplAgentID = Filt.SupplAgentID; // AHTOXA
 	temp_filt.OpID         = Filt.OpID;
 	SETFLAG(temp_filt.Flags, OPG_LABELONLY, Filt.Flags & GoodsMovFilt::fLabelOnly);
-	temp_filt.Flags |= (uint)(OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES | OPG_PROCESSGENOP);
+	temp_filt.Flags |= (OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES | OPG_PROCESSGENOP);
 	if(Filt.Flags & GoodsMovFilt::fCostWoVat)
 		temp_filt.Flags |= OPG_SETCOSTWOTAXES;
+	// @v10.6.6 {
+	if(Filt.Flags & GoodsMovFilt::fPriceWoVat)
+		temp_filt.Flags |= OPG_SETPRICEWOTAXES;
+	// } @v10.6.6 
 	{
 		ObjRestrictArray op_list;
 		BExtInsert bei(p_tbl);
@@ -114,7 +117,8 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 		for(iter.Init(&gf, 0); iter.Next(&gr) > 0;) {
 			THROW(PPCheckUserBreak());
 			if(!(gr.Flags & GF_GENERIC)) {
-				MEMSZERO(rec);
+				TempGoodsMov2Tbl::Rec rec;
+				// @v10.6.6 @ctr MEMSZERO(rec);
 				temp_filt.GoodsID = gr.ID;
 				gds_op_list.clear();
 				ary.clear();
@@ -180,7 +184,6 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 				SString title;
 				const DBField * p_price_fld = 0;
 				DBFieldList total_list;
-
 				THROW_MEM(P_Ct = new GoodsMovCrosstab(this)); // Crosstab
 				P_Ct->SetTable(p_tbl, p_tbl->OpID);
 				P_Ct->AddIdxField(p_tbl->GoodsID);

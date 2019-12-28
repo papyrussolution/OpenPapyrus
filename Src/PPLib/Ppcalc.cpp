@@ -521,11 +521,7 @@ public:
 	CalcDiffDialog() : TDialog(DLG_CALCDIFF_L /* @v7.0.6 IsLargeDlg() ? DLG_CALCDIFF_L : DLG_CALCDIFF*/)
 	{
 	}
-	//
-	// setupDiff возвращает !0 если цена в поле изменилась и 0
-	// в противном случае.
-	//
-	int  setupDiff();
+	int  setupDiff(); // Returns: !0 если цена в поле изменилась и 0 в противном случае.
 private:
 	DECL_HANDLE_EVENT;
 };
@@ -707,25 +703,57 @@ struct CalcTaxPriceParam {
 };
 
 class CalcTaxPriceDialog : public TDialog {
+	DECL_DIALOG_DATA(CalcTaxPriceParam);
 public:
 	CalcTaxPriceDialog() : TDialog(DLG_CALCTAXPRICE)
 	{
 		SetupCalDate(CTLCAL_CALCTAXPRICE_DT, CTL_CALCTAXPRICE_DT);
 	}
-	int    setDTS(const CalcTaxPriceParam *);
-	int    getDTS(CalcTaxPriceParam *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString temp_buf;
+		ushort v = 0;
+		Goods2Tbl::Rec goods_rec;
+		if(GObj.Fetch(Data.GoodsID, &goods_rec) > 0) {
+			setStaticText(CTL_CALCTAXPRICE_GOODS, GetGoodsName(Data.GoodsID, temp_buf));
+			GetObjectName(PPOBJ_GOODSTAX, goods_rec.TaxGrpID, temp_buf);
+			setStaticText(CTL_CALCTAXPRICE_TG, temp_buf);
+		}
+		else {
+			setStaticText(CTL_CALCTAXPRICE_GOODS, temp_buf);
+			setStaticText(CTL_CALCTAXPRICE_TG,    temp_buf);
+		}
+		setCtrlData(CTL_CALCTAXPRICE_DT, &Data.Dt);
+		SetupPPObjCombo(this, CTLSEL_CALCTAXPRICE_OP, PPOBJ_OPRKIND, Data.OpID, 0, 0);
+		setCtrlData(CTL_CALCTAXPRICE_WOTAX,   &Data.PriceWoTaxes);
+		setCtrlData(CTL_CALCTAXPRICE_WTAX,    &Data.Price);
+		setCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG, BIN(Data.CalcWotaxByWtax));
+		disableCtrl(CTL_CALCTAXPRICE_WOTAX,    Data.CalcWotaxByWtax);
+		disableCtrl(CTL_CALCTAXPRICE_WTAX,    !Data.CalcWotaxByWtax);
+		calc();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTL_CALCTAXPRICE_DT,      &Data.Dt);
+		getCtrlData(CTLSEL_CALCTAXPRICE_OP,   &Data.OpID);
+		getCtrlData(CTL_CALCTAXPRICE_WOTAX,   &Data.PriceWoTaxes);
+		getCtrlData(CTL_CALCTAXPRICE_WTAX,    &Data.Price);
+		Data.CalcWotaxByWtax = BIN(getCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG));
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   calc();
 
 	PPObjGoods GObj;
-	CalcTaxPriceParam Data;
 };
 
 void CalcTaxPriceDialog::calc()
 {
 	getDTS(0);
-
 	PPGoodsTaxEntry gtx;
 	if(GObj.FetchTax(Data.GoodsID, Data.Dt, Data.OpID, &gtx) > 0) {
 		double tax_factor = 1.0;
@@ -743,44 +771,6 @@ void CalcTaxPriceDialog::calc()
 		setCtrlData(CTL_CALCTAXPRICE_WOTAX, &Data.PriceWoTaxes);
 		setCtrlData(CTL_CALCTAXPRICE_WTAX,  &Data.Price);
 	}
-}
-
-int CalcTaxPriceDialog::setDTS(const CalcTaxPriceParam * pData)
-{
-	Data = *pData;
-
-	SString temp_buf;
-	ushort v = 0;
-	Goods2Tbl::Rec goods_rec;
-	if(GObj.Fetch(Data.GoodsID, &goods_rec) > 0) {
-		setStaticText(CTL_CALCTAXPRICE_GOODS, GetGoodsName(Data.GoodsID, temp_buf));
-		GetObjectName(PPOBJ_GOODSTAX, goods_rec.TaxGrpID, temp_buf);
-		setStaticText(CTL_CALCTAXPRICE_TG, temp_buf);
-	}
-	else {
-		setStaticText(CTL_CALCTAXPRICE_GOODS, temp_buf);
-		setStaticText(CTL_CALCTAXPRICE_TG,    temp_buf);
-	}
-	setCtrlData(CTL_CALCTAXPRICE_DT, &Data.Dt);
-	SetupPPObjCombo(this, CTLSEL_CALCTAXPRICE_OP, PPOBJ_OPRKIND, Data.OpID, 0, 0);
-	setCtrlData(CTL_CALCTAXPRICE_WOTAX,   &Data.PriceWoTaxes);
-	setCtrlData(CTL_CALCTAXPRICE_WTAX,    &Data.Price);
-	setCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG, BIN(Data.CalcWotaxByWtax));
-	disableCtrl(CTL_CALCTAXPRICE_WOTAX,    Data.CalcWotaxByWtax);
-	disableCtrl(CTL_CALCTAXPRICE_WTAX,    !Data.CalcWotaxByWtax);
-	calc();
-	return 1;
-}
-
-int CalcTaxPriceDialog::getDTS(CalcTaxPriceParam * pData)
-{
-	getCtrlData(CTL_CALCTAXPRICE_DT,      &Data.Dt);
-	getCtrlData(CTLSEL_CALCTAXPRICE_OP,   &Data.OpID);
-	getCtrlData(CTL_CALCTAXPRICE_WOTAX,   &Data.PriceWoTaxes);
-	getCtrlData(CTL_CALCTAXPRICE_WTAX,    &Data.Price);
-	Data.CalcWotaxByWtax = BIN(getCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG));
-	ASSIGN_PTR(pData, Data);
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(CalcTaxPriceDialog)
@@ -892,6 +882,7 @@ double PosPaymentBlock::GetUsableBonus() const { return UsableBonus; }
 int PosPaymentBlock::EditDialog2()
 {
 	class PosPaymentDialog2 : public PPListDialog {
+		DECL_DIALOG_DATA(PosPaymentBlock);
 	public:
 		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0), Lock__(0), EnableBonus(1)
 		{
@@ -903,7 +894,7 @@ int PosPaymentBlock::EditDialog2()
 			SetCtrlFont(CTL_CPPAYM_CSHAMT, font_face, 26);
 			SetCtrlFont(CTL_CPPAYM_BNKAMT, font_face, 26);
 		}
-		int    setDTS(const PosPaymentBlock * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			Data = *pData;
 			TotalConst = Data.CcPl.GetTotal();
@@ -940,7 +931,7 @@ int PosPaymentBlock::EditDialog2()
 			updateList(-1);
 			return 1;
 		}
-		int    getDTS(PosPaymentBlock * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			double val = 0.0;
@@ -1222,13 +1213,10 @@ int PosPaymentBlock::EditDialog2()
 						if(ScObj.FetchUhttEntry(sc_rec.Code, &uhtt_sc) > 0)
 							rest = uhtt_sc.Rest;
 					}
-					else {
+					else
 						ScObj.P_Tbl->GetRest(sc_rec.ID, MAXDATE, &rest);
-					}
-					// @v8.0.2 {
 					if(rest < 0.0)
 						rest = 0.0;
-					// } @v8.0.2
 				}
 				ScRestList.Remove(sc_rec.ID, 0);
 				ScRestList.Add(sc_rec.ID, rest);
@@ -1293,7 +1281,6 @@ int PosPaymentBlock::EditDialog2()
 				//setCtrlReadOnly(CTL_CPPAYM_CRDCARD, 1);
 				//setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
 				//setCtrlReadOnly(CTL_CPPAYM_CSHAMT, 1);
-
 				double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
 				Data.CcPl.Set(CCAMTTYP_CASH, val);
 				Data.CcPl.Set(CCAMTTYP_BANK, 0.0);
@@ -1306,7 +1293,6 @@ int PosPaymentBlock::EditDialog2()
 				//setCtrlReadOnly(CTL_CPPAYM_BNKAMT, 0);
 				//setCtrlReadOnly(CTL_CPPAYM_CRDCARD, 1);
 				//setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
-
 				double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
 				Data.CcPl.Set(CCAMTTYP_CASH, 0.0);
 				Data.CcPl.Set(CCAMTTYP_BANK, val);
@@ -1316,12 +1302,10 @@ int PosPaymentBlock::EditDialog2()
 				//setCtrlReadOnly(CTL_CPPAYM_BNKAMT, 1);
 				//setCtrlReadOnly(CTL_CPPAYM_CRDCARD, 0);
 				//setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
-				// @v8.0.2 {
 				SString crd_code;
 				getCtrlString(CTL_CPPAYM_CRDCARDAMT, crd_code);
 				if(!crd_code.NotEmptyS())
 					selectCtrl(CTL_CPPAYM_CRDCARDAMT);
-				// } @v8.0.2
 				SetupCrdCard();
 			}
 		}
@@ -1347,7 +1331,6 @@ int PosPaymentBlock::EditDialog2()
 				Lock__ = 0;
 			}
 		}
-		PosPaymentBlock Data;
 		PPObjSCard ScObj;
 		RAssocArray ScRestList;
 		int    Lock__;

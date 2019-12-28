@@ -587,7 +587,7 @@ int PPDesktop::Init__(long desktopID)
 		{
 			THROW(p_mgr = GetCommandMngr(1, 1, 0));
 			THROW(p_mgr->Load__(&desk_list));
-#ifndef _NDEBUG
+#ifndef NDEBUG
 			if(p_mgr->Load__2(&desk_list_from_xml, PPCommandMngr::fRWByXml)) { //@erik v10.6.1
 				THROW(desk_list.IsEqual(&desk_list_from_xml));
 			}

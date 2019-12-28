@@ -743,7 +743,7 @@ public:
 		char   MangleC; // Символ для идентификации типа параметра в функциях
 		int8   Pad2;    // @alignment
 	};
-	SLAPI  DlContext(int toCompile = 0);
+	explicit SLAPI DlContext(int toCompile = 0);
 	SLAPI ~DlContext();
 	int    FASTCALL Init(const char * pInFileName);
 	enum {
@@ -879,10 +879,8 @@ public:
 	int    SLAPI AddConst(int16 data, CtmExprConst * pResult);
 	int    SLAPI AddConst(float data, CtmExprConst * pResult);
 	int    SLAPI AddConst(double data, CtmExprConst * pResult);
-
 	int    SLAPI AddConst(LDATE data, CtmExprConst * pResult);
 	int    SLAPI AddConst(LTIME data, CtmExprConst * pResult);
-
 	int    SLAPI AddStrucDeclare(const char * pDecl);
 	int    SLAPI AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgList, int propDirParam = 0);
 	int    SLAPI AddPropDeclare(CtmDclr & rSymb, int propDirParam);
@@ -945,7 +943,6 @@ public:
 	int    SLAPI RegisterTypeLib(const DlScope * pCls, int unreg); // @v5.4.5 AHTOXA
 	int    SLAPI CreateDlIClsInstance(const DlScope *, SCoClass ** ppInstance) const;
 	int    SLAPI CreateDlIClsInstance(const S_GUID & rClsUuid, SCoClass ** ppInstance) const;
-	//
 	int    SLAPI CreateDlRtmInstance(DlScope *, DlRtm ** ppInstance);
 	int    SLAPI CreateDlRtmInstance(const char * pName, DlRtm ** ppInstance);
 	//
@@ -973,9 +970,6 @@ public:
 	int    SLAPI DropDbTableSpec(const char * pName);
 	int    SLAPI GetDbTableSpecList(StrAssocArray * pList) const;
 	int    SLAPI Test_ReWr_Code(const DlContext & rPattern);
-	//
-	//
-	//
 	int    SLAPI GetDialogList(StrAssocArray * pList) const;
 #ifdef DL600C // {
 	UUIDAssocArray TempUuidList; // @transient Временный список GUID'ов используемый при компиляции

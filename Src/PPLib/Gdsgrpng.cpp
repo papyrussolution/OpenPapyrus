@@ -474,7 +474,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 			GObj.AdjCostToVat(lot_tax_grp_id, goods_tax_grp_id, pEntry->LotDate, pEntry->TaxFactor, &pEntry->Cost, 0, BIN(flags & GGEF_VATFREE));
 		if(flags & GGEF_PRICEWOTAXES) {
 			int    excl_stax = 0;
-			int    re = (flags & GGEF_TOGGLESTAX) ? 1 : 0;
+			int    re = BIN(flags & GGEF_TOGGLESTAX);
 			if(pEntry->OpID != -1L && pEntry->OpID != 10000L) {
 				pEntry->Price -= pEntry->Discount;
 				pEntry->Discount = 0.0;
@@ -483,6 +483,23 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 				excl_stax = 1;
 			GObj.AdjPriceToTaxes(goods_tax_grp_id, pEntry->TaxFactor, &pEntry->Price, excl_stax);
 		}
+		// @v10.6.6 {
+		if(flags & GGEF_SETPRICEWOTAXES_) {
+			//
+			// Расчет цены реализации без НДС
+			//
+			const long amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES; // ! не уверен в этой строке в контексте блока if(flags & GGEF_PRICEWOTAXES) {}
+			GTaxVect vect;
+			PPGoodsTaxEntry gtx;
+			if(GObj.GTxObj.FetchByID(goods_tax_grp_id, &gtx) > 0) {
+				const int discount_sign = fsign(pEntry->Discount);
+				vect.Calc_(&gtx, fabs(pEntry->Price), pEntry->TaxFactor, amt_fl, 0);
+				pEntry->Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+				vect.Calc_(&gtx, fabs(pEntry->Discount), pEntry->TaxFactor, amt_fl, 0);
+				pEntry->Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE) * discount_sign;
+			}
+		}
+		// } @v10.6.6 
 	}
 	if(Search(pEntry, &pos)) {
 		GoodsGrpngEntry & e = at(pos);
@@ -497,7 +514,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 		e.ExtDis   += pEntry->ExtDis;
 		if(oneof2(pEntry->OpID, -1L, 10000L)) {
 			e.Discount = 0.0;
-			e.Count += (long)pEntry->Discount;
+			e.Count += static_cast<long>(pEntry->Discount);
 		}
 		else {
 			e.Discount += pEntry->Discount;
@@ -532,7 +549,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 		entry.ExtDis   = pEntry->ExtDis;
 		if(entry.OpID == -1L || entry.OpID == 10000L) {
 			entry.Discount = 0.0;
-			entry.Count = (long)pEntry->Discount;
+			entry.Count = static_cast<long>(pEntry->Discount);
 		}
 		else {
 			entry.Discount = pEntry->Discount;
@@ -559,6 +576,10 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 	blk.TrfrRec = *pTrfrRec;
 	if(pFilt->Flags & OPG_SETCOSTWOTAXES)
 		blk.Flags |= GGEF_SETCOSTWOTAXES;
+	// @v10.6.6 {
+	if(pFilt->Flags & OPG_SETPRICEWOTAXES)
+		blk.Flags |= GGEF_SETPRICEWOTAXES_;
+	// } @v10.6.6 
 	if(pFilt->Flags & OPG_DIFFBYTAX)
 		blk.Flags |= GGEF_DIFFBYTAX;
 	if(pFilt->Flags & OPG_PROCESSBYLOTS)
@@ -643,8 +664,8 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 								GetOpData(bill_rec.OpID, &blk.OpRec);
 								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
 								// Искусственно устанавливаем связанную операцию, указывающую на зачетную операцию (отгрузка)
-								PPID   save_link_op = blk.OpRec.LinkOpID;
-								long   save_blk_fl = blk.Flags;
+								const PPID save_link_op = blk.OpRec.LinkOpID;
+								const long save_blk_fl = blk.Flags;
 								blk.OpRec.LinkOpID = link_op;
 								blk.Flags |= GGEF_RECKONING;
 								THROW_SL(blk_list.insert(&blk));
@@ -675,6 +696,10 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 						entry.Flags |= GGEF_DIFFBYTAX;
 					if(r_blk.Flags & GGEF_SETCOSTWOTAXES)
 						entry.Flags |= GGEF_SETCOSTWOTAXES;
+					// @v10.6.6 {
+					if(r_blk.Flags & GGEF_SETPRICEWOTAXES_)
+						entry.Flags |= GGEF_SETPRICEWOTAXES_;
+					// } @v10.6.6 
 					if(r_blk.Flags & GGEF_RECKONING)
 						entry.Flags |= GGEF_RECKONING;
 					if(r_blk.Flags & GGEF_INTRREVERSE)
@@ -1109,6 +1134,10 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 						gp.P_SupplAgentBillList = &pAgg->SupplAgentBillList;
 					if(filt.Flags & OPG_SETCOSTWOTAXES)
 						gp.Flags_ |= GoodsRestParam::fCWoVat;
+					// @v10.6.6 {
+					if(filt.Flags & OPG_SETPRICEWOTAXES)
+						gp.Flags_ |= GoodsRestParam::fPWoVat;
+					// } @v10.6.6 
 					if(filt.Flags & OPG_CALCINREST) {
 						gp.Date = plusdate(filt.Period.low, -1);
 						op_rec.ID  = -1;

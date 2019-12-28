@@ -2019,10 +2019,15 @@ int SLAPI PPObjGlobalUserAcc::EditConfig()
 	THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_OWNERKIND, PPOBJ_PRSNKIND, cfg.PersonKindID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_SCARDSER,  PPOBJ_SCARDSERIES, cfg.SCardSerID, OLW_CANINSERT, 0);
+	// @v10.6.6 {
+	dlg->AddClusterAssoc(CTL_GUACFG_FLAGS, 0, PPGlobalUserAccConfig::fAutoCreateGUID);
+	dlg->SetClusterData(CTL_GUACFG_FLAGS, cfg.Flags);
+	// } @v10.6.6 
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_GLOBALUSERACC, PPR_MOD, 0));
 		dlg->getCtrlData(CTLSEL_GUACFG_OWNERKIND, &cfg.PersonKindID);
 		dlg->getCtrlData(CTLSEL_GUACFG_SCARDSER,  &cfg.SCardSerID);
+		dlg->GetClusterData(CTL_GUACFG_FLAGS, &cfg.Flags);
 		{
 			PPTransaction tra(1);
 			THROW(tra);
@@ -2083,6 +2088,21 @@ int SLAPI PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPac
 		}
 		else {
 			THROW(CheckRightsModByID(pID));
+			// @v10.6.6 {
+			{
+				const ObjTagItem * p_guid_tag = pPack->TagL.GetItem(PPTAG_GUA_GUID);
+				if(!p_guid_tag) {
+					PPGlobalUserAccConfig cfg;
+					if(PPObjGlobalUserAcc::ReadConfig(&cfg) > 0 && cfg.Flags & PPGlobalUserAccConfig::fAutoCreateGUID) {
+						ObjTagItem guid_tag;
+						S_GUID guid;
+						guid.Generate();
+						if(guid_tag.SetGuid(PPTAG_GUA_GUID, &guid))
+							pPack->TagL.PutItem(PPTAG_GUA_GUID, &guid_tag);
+					}
+				}
+			}
+			// } @v10.6.6 
 			if(_id) {
 				if(pPack->IsEqual(org_pack))
 					ok = -1;
@@ -2091,7 +2111,7 @@ int SLAPI PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPac
 					if(strcmp(pPack->Rec.Name, org_pack.Rec.Name) != 0)
 						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, _id, pPack->Rec.Name, 0));
 					// } @v9.1.3
-					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
+					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0)); // @v10.6.6 @fix logAction 1-->0
 					THROW(ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}

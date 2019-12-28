@@ -55,12 +55,12 @@ int FASTCALL ObjTagItem::Init(PPID tagID)
 {
 	Destroy();
 	if(tagID) {
-		PPObjTag tagobj;
-		PPObjectTag tagrec;
-		if(tagobj.Fetch(tagID, &tagrec) > 0) {
+		PPObjTag tag_obj;
+		PPObjectTag tag_rec;
+		if(tag_obj.Fetch(tagID, &tag_rec) > 0) {
 			TagID       = tagID;
-			TagDataType = tagrec.TagDataType;
-			TagEnumID   = tagrec.TagEnumID;
+			TagDataType = tag_rec.TagDataType;
+			TagEnumID   = tag_rec.TagEnumID;
 		}
 		else
 			return PPSetError(PPERR_INVTAGID);
@@ -1177,25 +1177,25 @@ int SLAPI ObjTagCore::PutTag(PPID objType, PPID objID, const ObjTagItem * pItem,
 	long   tbo, c = 0;
 	ObjTagItem  temp;
 	PPObjectTag tag;
-	PPObjTag tagobj;
+	PPObjTag tag_obj;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(tagobj.Fetch(pItem->TagID, &tag) > 0);
+		THROW(tag_obj.Fetch(pItem->TagID, &tag) > 0);
 		THROW_PP(tag.TagDataType > 0 && tag.TagDataType <= OTTYP_LAST, PPERR_INVTAGDATATYPE);
 		{
 			const int zero = BIN(tag.Flags & OTF_NOZERO && pItem->IsZeroVal());
 			for(tbo = 0, c = 0; (r = EnumTags(objType, objID, tag.ID, &tbo, &temp)) > 0; c++) {
 				if(c == 0 && !zero) {
 					if(*pItem != temp) {
-						THROW_DB(rereadForUpdate(0, 0)); // @v8.2.0
+						THROW_DB(rereadForUpdate(0, 0));
 						THROW(PutTagToRec(objType, objID, tbo, pItem));
 						THROW_DB(updateRec()); // @sfu
 						DS.LogAction(PPACN_OBJTAGUPD, objType, objID, pItem->TagID, 0);
 					}
 				}
 				else {
-					THROW_DB(rereadForUpdate(0, 0)); // @v8.2.0
+					THROW_DB(rereadForUpdate(0, 0));
 					THROW_DB(deleteRec()); // @sfu
 					DS.LogAction(PPACN_OBJTAGRMV, objType, objID, pItem->TagID, 0);
 				}

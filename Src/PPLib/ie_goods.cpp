@@ -271,7 +271,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 			//
 			// ¬ режиме автоматического тестировани€ конфигураци€ выбираетс€ автоматически по имени pParam->Name
 			//
-			for(int i = 1; ok < 0 && i < (int)list.getCount(); i++) {
+			for(int i = 1; ok < 0 && i < list.getCountI(); i++) {
 				list.GetText(i, sect);
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);

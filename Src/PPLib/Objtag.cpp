@@ -1097,12 +1097,12 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 		{
 			int    ok = 1;
 			PPID   grp_id = grpID;
-			PPObjTag obj_tag;
+			PPObjTag tag_obj;
 			do {
 				if(grp_id != 0) {
 					PPObjectTag tag_rec;
 					THROW_PP(id != grp_id, PPERR_RECURSIONFOUND);
-					THROW(obj_tag.Fetch(grp_id, &tag_rec));
+					THROW(tag_obj.Fetch(grp_id, &tag_rec));
 					grp_id = tag_rec.TagGroupID;
 				}
 			} while(grp_id != 0);
@@ -2111,7 +2111,7 @@ int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 	int    ok = 1;
 	long   typ;
 	TagDlgVal val;
-	PPObjTag  tagobj;
+	PPObjTag  tag_obj;
 	PPObjectTag tag;
 	SString temp_buf;
 	if(ObjType && ObjNameCtl) {
@@ -2121,7 +2121,7 @@ int SLAPI TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 			GetObjectTitle(ObjType, temp_buf);
 		dlg->setCtrlString(ObjNameCtl, temp_buf);
 	}
-	THROW(tagobj.Fetch(pItem->TagID, &tag) > 0);
+	THROW(tag_obj.Fetch(pItem->TagID, &tag) > 0);
 	temp_buf = tag.Name;
 	if(TagNameCtl)
 		dlg->setCtrlString(TagNameCtl, temp_buf);

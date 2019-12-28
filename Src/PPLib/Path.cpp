@@ -414,10 +414,8 @@ int SLAPI PPPaths::Put(PPID securType, PPID securID)
 	return ok;
 }
 
-int SLAPI PPPaths::Remove(PPID securType, PPID securID)
-	{ return PPRef->RemoveProperty(securType, securID, PPPRP_PATHS, 0); }
-int FASTCALL PPGetPath(PPID pathID, SString & rBuf)
-	{ return DS.GetPath(pathID, rBuf); }
+int SLAPI PPPaths::Remove(PPID securType, PPID securID) { return PPRef->RemoveProperty(securType, securID, PPPRP_PATHS, 0); }
+int FASTCALL PPGetPath(PPID pathID, SString & rBuf) { return DS.GetPath(pathID, rBuf); }
 
 void SLAPI PPPaths::DumpToStr(SString & rBuf) const
 {

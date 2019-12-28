@@ -1800,7 +1800,7 @@ int SLAPI GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeA
 	for(q.initIteration(0, &k, sp); q.nextIteration() > 0;) {
 		if(strstr(ACodT.data.Code, substr)) {
 			BarcodeTbl::Rec bc_rec;
-			MEMSZERO(bc_rec);
+			// @v10.6.6 @ctr MEMSZERO(bc_rec);
 			bc_rec.GoodsID = ACodT.data.GoodsID;
 			bc_rec.Qtty = ACodT.data.Pack;
 			bc_rec.BarcodeType = NZOR(ACodT.data.ArID, -1);
@@ -1822,7 +1822,7 @@ int SLAPI GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCod
 	SString msg_buf;
 	ArGoodsCodeTbl::Key0 k0;
 	ArGoodsCodeTbl::Rec arcode_rec;
-	MEMSZERO(arcode_rec);
+	// @v10.6.6 @ctr MEMSZERO(arcode_rec);
 	k0.ArID = arID;
 	STRNSCPY(k0.Code, pBarcode);
 	ok = ACodT.search(0, &k0, spEq);

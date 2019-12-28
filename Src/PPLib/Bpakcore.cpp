@@ -910,7 +910,7 @@ void SLAPI PPLotExtCodeContainer::MarkSet::Clear()
 long SLAPI PPLotExtCodeContainer::MarkSet::AddBox(long id, const char * pNum, int doVerify)
 {
 	int    real_id = 0;
-	long max_id = 0;
+	long   max_id = 0;
 	THROW(!isempty(pNum));
 	for(uint i = 0; i < L.getCount(); i++) {
 		const InnerEntry & r_entry = L.at(i);
@@ -958,7 +958,7 @@ int SLAPI PPLotExtCodeContainer::MarkSet::AddNum(long boxId, const char * pNum, 
 	THROW(!isempty(pNum));
 	THROW(!boxId || GetBoxNum(boxId, temp_buf));
 	if(doVerify) {
-		for(uint i = 0; !ok && i < L.getCount(); i++) {
+		for(uint i = 0; i < L.getCount(); i++) {
 			const InnerEntry & r_entry = L.at(i);
 			if(!(r_entry.Flags & fBox)) {
 				GetS(r_entry.NumP, temp_buf);
@@ -1027,6 +1027,22 @@ int SLAPI PPLotExtCodeContainer::MarkSet::SearchCode(const char * pNum, uint * p
 	}
 	ASSIGN_PTR(pIdx, idx);
 	return ok;
+}
+
+long SLAPI PPLotExtCodeContainer::MarkSet::SearchLastBox(int currentPos) const
+{
+	long    result_box_id = 0;
+	if(L.getCount()) {
+		uint    cur_pos = (currentPos < 0 || currentPos >= L.getCountI()) ? L.getCount() : static_cast<uint>(currentPos+1);
+		do {
+			const InnerEntry & r_entry = L.at(--cur_pos);
+			if(r_entry.Flags & fBox) {
+				result_box_id = r_entry.BoxID;
+				break;
+			}
+		} while(cur_pos);
+	}
+	return result_box_id;
 }
 //
 //
@@ -1252,10 +1268,10 @@ int SLAPI PPLotExtCodeContainer::Set_2(int rowIdx, const MarkSet * pS)
 					while(Search(temp_buf, 0, 0)) {
 						(temp_buf = entry.Num).CatChar('-').Cat(++suffix_code);
 					}
-					THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, temp_buf, 0));
+					THROW(Add(rowIdx, entry.BoxID, static_cast<int16>(entry.Flags), temp_buf, 0));
 				}
 				else {
-					THROW(Add(rowIdx, entry.BoxID, (int16)entry.Flags, entry.Num, 0));
+					THROW(Add(rowIdx, entry.BoxID, static_cast<int16>(entry.Flags), entry.Num, 0));
 				}
 				ok = 1;
 			}
@@ -1271,16 +1287,30 @@ int SLAPI PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet &
 	CALLPTRMEMB(pIdxList, clear());
 	rS.Clear();
 	SString temp_buf;
+	SString box_num;
+	LongArray seen_idx_list;
 	for(uint i = 0; i < getCount(); i++) {
         const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
-        if(r_item.RowIdx == rowIdx && GetS(r_item.CodeP, temp_buf)) {
+        if(r_item.RowIdx == rowIdx && !seen_idx_list.lsearch(static_cast<long>(i)) && GetS(r_item.CodeP, temp_buf)) {
 			if(r_item.Flags & fBox) {
 				THROW(rS.AddBox(r_item.BoxId, temp_buf, 0));
 			}
 			else {
+				// @v10.6.6 {
+				if(r_item.BoxId && !rS.GetBoxNum(r_item.BoxId, box_num)) {
+					for(uint j = i+1; j < getCount(); j++) {
+						const InnerItem & r_item2 = *static_cast<const InnerItem *>(at(j));
+						if(r_item2.RowIdx == rowIdx && !seen_idx_list.lsearch(static_cast<long>(j)) && r_item2.Flags & fBox && GetS(r_item2.CodeP, box_num)) {
+							THROW(rS.AddBox(r_item2.BoxId, box_num, 0));
+							seen_idx_list.add(j);
+							break;
+						}
+					}
+				}
+				// } @v10.6.6 
 				THROW(rS.AddNum(r_item.BoxId, temp_buf, 0));
 			}
-			CALLPTRMEMB(pIdxList, add((long)i));
+			CALLPTRMEMB(pIdxList, add(static_cast<long>(i)));
 			ok = 1;
         }
 	}

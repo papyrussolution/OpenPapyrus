@@ -349,7 +349,7 @@ int DraftWrOffDialog::addItem(long * pPos, long * pID)
 
 int DraftWrOffDialog::editItem(long pos, long /*id*/)
 {
-	if(Data.P_List && pos >= 0 && pos < (long)Data.P_List->getCount() &&
+	if(Data.P_List && pos >= 0 && pos < Data.P_List->getCountI() &&
 		EditDraftWrOffItem(static_cast<PPDraftWrOffEntry *>(Data.P_List->at(static_cast<uint>(pos)))) > 0)
 		return 1;
 	return -1;

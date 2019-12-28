@@ -1266,12 +1266,12 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 		}
 		else {
 			OperRightsFlags = OrgOperRights;
-			DS.GetTLA().AddedMsgStrNoRights = 0;
+			DS.GetTLA().AddedMsgStrNoRights.Z();
 		}
 	}
 	else {
 		OperRightsFlags = OrgOperRights;
-		DS.GetTLA().AddedMsgStrNoRights = 0;
+		DS.GetTLA().AddedMsgStrNoRights.Z();
 	}
 	P.AgentID__ = agentID;
 	if(asAuthAgent)
@@ -3353,7 +3353,7 @@ CheckPaneDialog::~CheckPaneDialog()
 {
 	// @v9.1.1 DS.SetLCfgFlags(DS.GetTLA().Lc.Flags & ~CCFLG_USELARGEDIALOG);
 	SLS.SetUiFlag(sluifUseLargeDialogs, 0); // @v9.1.1
-	DS.GetTLA().AddedMsgStrNoRights = 0;
+	DS.GetTLA().AddedMsgStrNoRights.Z();
 	for(int i = 0; i < 32; i++)
 		MEMSZERO(OwnerDrawCtrls[i]);
 	delete P_EGSDlg;
@@ -9306,10 +9306,14 @@ int SCardInfoDialog::editItem(long pos, long id)
 
 int SCardInfoDialog::SetupCard(PPID scardID)
 {
+	const  LDATETIME cur_dtm = getcurdatetime_();
 	SString temp_buf, card, info_buf, psn_name;
 	SString sc_phone;
 	SString psn_phone;
 	SString series_name;
+	int    uhtt_error = -1;
+	double uhtt_saldo = 0.0;
+	double local_saldo = 0.0;
 	ImageBrowseCtrlGroup::Rec ibg_rec;
 	PPObjSCardSeries scs_obj; // @erik v10.6.4
 	PPSCardPacket sc_pack;
@@ -9322,14 +9326,31 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	if(ScObj.GetPacket(SCardID, &sc_pack) > 0) { // @v10.1.4
 		const SCardTbl::Rec & r_sc_rec = sc_pack.Rec;
 		SETFLAG(LocalState, stCreditCard, ScObj.IsCreditSeries(r_sc_rec.SeriesID));
+		local_saldo = sc_pack.Rec.Rest;
 		card = r_sc_rec.Code;
 		// @erik v10.6.4 {
 		PPSCardSeries scs_rec;
-		if(scs_obj.Fetch(r_sc_rec.SeriesID, &scs_rec) > 0)
+		if(scs_obj.Fetch(r_sc_rec.SeriesID, &scs_rec) > 0) {
 			series_name = scs_rec.Name;
+			if(scs_rec.Flags & SCRDSF_UHTTSYNC) {
+				PPUhttClient uhtt_cli;
+				if(uhtt_cli.Auth()) {
+					UhttSCardPacket scp;
+					double uhtt_rest = 0.0;
+					if(uhtt_cli.GetSCardByNumber(sc_pack.Rec.Code, scp))
+						if(uhtt_cli.GetSCardRest(scp.Code, 0, uhtt_rest)) {
+							uhtt_saldo = R2(uhtt_rest);
+							uhtt_error = 0;
+						}
+						else
+							uhtt_error = 1;
+				}
+				else
+					uhtt_error = 1;
+			}
+		}
 		// } v10.6.4
 		{
-			LDATETIME cur_dtm = getcurdatetime_();
 			info_buf.Z();
 			// @v10.1.4 {
 			sc_pack.GetExtStrData(PPSCardPacket::extssPhone, sc_phone);
@@ -9360,9 +9381,8 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 								info_pos = i+1;
 								break;
 							}
-							else if(!info_pos && r_ob.FreezingPeriod.low > cur_dtm.d) {
+							else if(!info_pos && r_ob.FreezingPeriod.low > cur_dtm.d)
 								info_pos = i+1;
-							}
 						}
 					}
 					if(info_pos) {
@@ -9400,25 +9420,25 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 			setStaticText(CTL_SCARDVIEW_SCINFO, info_buf);
 		}
 		info_buf.Z();
-		PPPersonPacket pack;
-		if(PsnObj.GetPacket(r_sc_rec.PersonID, &pack, 0) > 0) {
+		PPPersonPacket psn_pack;
+		if(PsnObj.GetPacket(r_sc_rec.PersonID, &psn_pack, 0) > 0) {
 			OwnerID = r_sc_rec.PersonID;
-			psn_name = pack.Rec.Name;
-			pack.LinkFiles.Init(PPOBJ_PERSON);
-			if(pack.Rec.Flags & PSNF_HASIMAGES) {
-				pack.LinkFiles.Load(pack.Rec.ID, 0L);
-				pack.LinkFiles.At(0, ibg_rec.Path);
+			psn_name = psn_pack.Rec.Name;
+			psn_pack.LinkFiles.Init(PPOBJ_PERSON);
+			if(psn_pack.Rec.Flags & PSNF_HASIMAGES) {
+				psn_pack.LinkFiles.Load(psn_pack.Rec.ID, 0L);
+				psn_pack.LinkFiles.At(0, ibg_rec.Path);
 			}
 			{
 				PPObjPersonStatus ps_obj;
 				PPPersonStatus ps_rec;
-				if(ps_obj.Fetch(pack.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE) {
-					const ObjTagItem * p_dob_tag = pack.TagL.GetItem(PPTAG_PERSON_DOB);
+				if(ps_obj.Fetch(psn_pack.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE) {
+					const ObjTagItem * p_dob_tag = psn_pack.TagL.GetItem(PPTAG_PERSON_DOB);
 					if(p_dob_tag) {
 						LDATE  dob = ZERODATE;
 						p_dob_tag->GetDate(&dob);
 						if(checkdate(dob)) {
-							LDATE curdt = getcurdate_();
+							LDATE curdt = cur_dtm.d;
 							int years = curdt.year() - dob.year();
 							curdt.setyear(dob.year());
 							if(curdt < dob)
@@ -9429,7 +9449,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 					}
 				}
 			}
-			if(pack.ELA.GetSinglePhone(psn_phone, 0) > 0) {
+			if(psn_pack.ELA.GetSinglePhone(psn_phone, 0) > 0) {
 				PPLoadString("phone", temp_buf);
 				info_buf.Space().Space().Cat(temp_buf).CatDiv(':', 2).Cat(psn_phone);
 			}
@@ -9473,7 +9493,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		showButton(cmCharge, charge_goods_id);
 	}
 	// } @v9.8.9
-	setCtrlReal(CTL_SCARDVIEW_SALDO,   sc_pack.Rec.Rest);
+	setCtrlReal(CTL_SCARDVIEW_SALDO, (uhtt_error == 0) ? uhtt_saldo : local_saldo); // @v10.6.6  (sc_pack.Rec.Rest)-->((uhtt_error == 0) ? uhtt_saldo : local_saldo)
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
 	setCtrlString(CTL_SCARDVIEW_CARD, card);
 	enableCommand(cmCheckOpSwitch, (LocalState & stCreditCard) && ScObj.CheckRights(SCRDRT_VIEWOPS));

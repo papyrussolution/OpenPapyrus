@@ -826,7 +826,7 @@ int NewPersMarksDialog::setupList()
 		ss.add(temp_buf);
 		if(item.Obj == PPOBJ_PERSONOPKIND) {
 			PPPsnOpKind pok_rec;
-			MEMSZERO(pok_rec);
+			// @v10.6.6 @ctr MEMSZERO(pok_rec);
 			pok_obj.Fetch(item.Id, &pok_rec);
 			ss.add(pok_rec.Name);
 		}
@@ -4753,7 +4753,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					}
 					if(color_ident) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = (HBRUSH)Ptb.Get(color_ident);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(color_ident));
 					}
 					else
 						return;
@@ -6137,8 +6137,7 @@ int SLAPI PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &psnk) > 0);
 	}
-	else
-		MEMSZERO(psnk);
+	// @v10.6.6 @ctr else MEMSZERO(psnk); 
 	dlg->setCtrlLong(CTL_PSNKIND_ID, psnk.ID);
 	dlg->setCtrlData(CTL_PSNKIND_NAME, psnk.Name);
 	dlg->setCtrlData(CTL_PSNKIND_SYMB, psnk.Symb);

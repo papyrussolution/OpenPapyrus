@@ -135,10 +135,10 @@ int SLAPI ReceiptCore::SearchLoop(PPID * pLotID, PPID locID)
 	return ((*pLotID = 0), -1);
 }
 
-int SLAPI ReceiptCore::SearchOrigin(PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
+int SLAPI ReceiptCore::Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
 {
 	int    ok = 1;
-	PPID   org_lot_id = 0;
+	PPID   org_lot_id = pInitLotRec ? pInitLotRec->ID : 0;
 	PPIDArray looked;
 	SString msg_buf;
 	ReceiptTbl::Rec lot_rec;
@@ -160,12 +160,25 @@ int SLAPI ReceiptCore::SearchOrigin(PPID lotID, PPID * pOrgLotID, ReceiptTbl::Re
 			looked.add(id);
 			org_lot_id = id;
 		}
-		else
-			ok = 0;
+		else {
+			const ReceiptTbl::Rec * p_init_lot_rec = (id == lotID) ? pInitLotRec : &lot_rec;
+			msg_buf.Z();
+			if(p_init_lot_rec)
+				msg_buf.CatEq("goods_id", p_init_lot_rec->GoodsID).Space().CatEq("lot_id", p_init_lot_rec->ID);
+			else
+				msg_buf.Cat("???");
+			msg_buf.Space().Cat("-->").Space().Cat(id);
+			ok = PPSetError(PPERR_ORGLOTNFOUND, msg_buf);
+		}
 	}
 	ASSIGN_PTR(pOrgRec, lot_rec);
 	ASSIGN_PTR(pOrgLotID, org_lot_id);
 	return ok;
+}
+
+int SLAPI ReceiptCore::SearchOrigin(PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec)
+{
+	return Helper_SearchOrigin(0, lotID, pOrgLotID, pThisRec, pOrgRec);
 }
 
 int SLAPI ReceiptCore::GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pDate, PPID * pBillID)
@@ -175,7 +188,7 @@ int SLAPI ReceiptCore::GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pD
 	LDATE  lot_date = ZERODATE;
 	if(pLotRec->PrevLotID) {
 		ReceiptTbl::Rec org_lot_rec;
-		if(SearchOrigin(pLotRec->PrevLotID, 0, 0, &org_lot_rec)) {
+		if(Helper_SearchOrigin(pLotRec, pLotRec->PrevLotID, 0, 0, &org_lot_rec)) {
 			lot_date = org_lot_rec.Dt;
 			bill_id = org_lot_rec.BillID;
 		}
@@ -868,13 +881,13 @@ int SLAPI LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 	int    ok = -1;
 	rC.Release();
 	SString code_buf;
+	LotExtCodeTbl::Rec rec;
 	LotExtCodeTbl::Key2 k2;
 	MEMSZERO(k2);
 	k2.BillID = billID;
 	BExtQuery q(this, 2);
 	q.selectAll().where(this->BillID == billID);
 	for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-		LotExtCodeTbl::Rec rec;
 		copyBufTo(&rec);
 		code_buf = rec.Code;
 		if(rec.BillID == billID && code_buf.NotEmptyS()) {
@@ -893,7 +906,7 @@ int SLAPI LotExtCodeCore::GetMarkListByLot(PPID lotID, const StringSet * pExclud
 	int    ok = -1;
 	uint   ext_code_count = 0;
 	if(lotID) {
-		LotExtCodeTbl::Key0 k0;
+		LotExtCodeTbl::Key0 k0; 
 		MEMSZERO(k0);
 		k0.LotID = lotID;
 		if(search(0, &k0, spGe) && data.LotID == lotID && data.BillID == 0) {

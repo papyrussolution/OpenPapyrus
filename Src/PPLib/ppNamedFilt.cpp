@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-static const long Current_PPNamedFilt_Ver = 2;
+static const long Current_PPNamedFilt_Ver = 3; // @v10.6.7 2-->3
 
 SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
 {
@@ -43,7 +43,13 @@ int SLAPI PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 	THROW_SL(rBuf.Write(Symb));
 	THROW_SL(rBuf.Write(ViewSymb));
 	THROW_SL(rBuf.Write(Param));
-	THROW_SL(VD.Serialize(+1, rBuf, &sctx));
+	{
+		//THROW_SL(VD.Serialize(+1, rBuf, &sctx));
+		//int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+		THROW_SL(sctx.Serialize(+1, &VD.L, rBuf));
+		THROW_SL(VD.SStrGroup::SerializeS(+1, rBuf, &sctx));
+		THROW_SL(sctx.Serialize(+1, VD.StrucSymb, rBuf)); // @v10.6.7
+	}
 	THROW(DestGuaList.Serialize(+1, rBuf, &sctx)); // @v10.5.3
 	CATCHZOK
 	return ok;
@@ -64,7 +70,14 @@ int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 	THROW_SL(rBuf.Read(Param));
 	if(Ver > 0) {
 		SSerializeContext sctx;
-		THROW(VD.Serialize(-1, rBuf, &sctx));
+		//THROW(VD.Serialize(-1, rBuf, &sctx));
+		THROW_SL(sctx.Serialize(-1, &VD.L, rBuf));
+		THROW_SL(VD.SStrGroup::SerializeS(-1, rBuf, &sctx));
+		// @v10.6.7 {
+		if(Ver >= 3) {
+			THROW_SL(sctx.Serialize(-1, VD.StrucSymb, rBuf)); 
+		}
+		// } @v10.6.7 
 		// @v10.5.3 {
 		if(Ver > 1) {
 			THROW(DestGuaList.Serialize(-1, rBuf, &sctx));
@@ -538,7 +551,6 @@ int FiltPoolDialog::addItem(long * pPos, long * pID)
 	CATCHZOKPPERR
 		return ok;
 }
-
 //
 // Descr: Обрабатывает редактирование именованного фильтра
 //
@@ -560,7 +572,6 @@ int FiltPoolDialog::editItem(long pos, long id)
 		ok = PPError();
 	return ok;
 }
-
 //
 // Descr: Обрабатывает удаление именованного фильтра из списка
 //
@@ -592,6 +603,17 @@ uint PPNamedFilt::ViewDefinition::GetCount() const
 	return L.getCount();
 }
 
+const SString & PPNamedFilt::ViewDefinition::GetStrucSymb() const
+{
+	return StrucSymb;
+}
+
+int PPNamedFilt::ViewDefinition::SetStrucSymb(const char * pSymb)
+{
+	(StrucSymb = pSymb).Strip();
+	return 1;
+}
+
 int PPNamedFilt::ViewDefinition::Swap(uint p1, uint p2)
 {
 	return L.swap(p1, p2);
@@ -618,8 +640,8 @@ int PPNamedFilt::ViewDefinition::SearchEntry(const char * pZone, const char *pFi
 
 int PPNamedFilt::ViewDefinition::SetEntry(const Entry & rE)
 {
-	int ok = 0;
-	uint pos = 0;
+	int    ok = 0;
+	uint   pos = 0;
 	InnerEntry new_entry;
 	if(SearchEntry(rE.Zone, rE.FieldName, &pos, 0)) {
 		AddS(rE.Zone, &new_entry.ZoneP);
@@ -669,27 +691,40 @@ int PPNamedFilt::ViewDefinition::XmlWriter(void * param)
 	return ok;
 }
 
-int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+/* @v10.6.7 int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, &L, rBuf));
 	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pCtx));
 	CATCHZOK
 	return ok;
-}
+}*/
 
 class MobileClmnValListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPNamedFilt::ViewDefinition);
+	enum {
+		dummyFirst = 1,
+		brushValidStrucSymb,
+		brushInvalidStrucSymb
+	};
 public:
-	MobileClmnValListDialog() : PPListDialog(DLG_MOBCLMNN, CTL_MOBCLMNN_LIST)
+	MobileClmnValListDialog() : PPListDialog(DLG_MOBCLMNN, CTL_MOBCLMNN_LIST), P_Dl600Scope(0)
 	{
+		Dl600Ctx.InitSpecial(DlContext::ispcExpData);
+		Ptb.SetBrush(brushValidStrucSymb,   SPaintObj::bsSolid, LightenColor(GetColorRef(SClrGreen), 0.8f), 0);
+		Ptb.SetBrush(brushInvalidStrucSymb, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
 		updateList(-1);
 	}
-	int setDTS(const PPNamedFilt::ViewDefinition * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;	
+		RVALUEPTR(Data, pData);
 		PPNamedFilt::ViewDefinition::Entry mobTypeClmn;
 		StringSet ss(SLBColumnDelim);
+		setCtrlString(CTL_MOBCLMNN_STRUC, Data.GetStrucSymb()); // @v10.6.7 
+		if(Data.GetStrucSymb().NotEmpty()) {
+			P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, Data.GetStrucSymb());
+		}
 		for(uint i = 0; ok && i < Data.GetCount(); i++) {
 			const PPID id = static_cast<PPID>(i + 1);
 			Data.GetEntry(i, mobTypeClmn);
@@ -701,13 +736,55 @@ public:
 		updateList(1, 1);
 		return ok;
 	}
-	int getDTS(PPNamedFilt::ViewDefinition * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
+		// @v10.6.7 {
+		SString temp_buf;
+		getCtrlString(CTL_MOBCLMNN_STRUC, temp_buf);
+		Data.SetStrucSymb(temp_buf);
+		// } @v10.6.7
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
 private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCmd(cmInputUpdated)) {
+			if(event.isCtlEvent(CTL_MOBCLMNN_STRUC)) {
+				SString temp_buf;
+				getCtrlString(CTL_MOBCLMNN_STRUC, temp_buf);
+				P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, temp_buf.Strip());
+				clearEvent(event);
+			}
+		}
+		else if(event.isCmd(cmCtlColor)) {
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+			if(p_dc) {
+				if(p_dc->H_Ctl == getCtrlHandle(CTL_MOBCLMNN_STRUC)) {
+					TCanvas canv(p_dc->H_DC);
+					::SetBkMode(p_dc->H_DC, TRANSPARENT);
+					if(P_Dl600Scope) {
+						//canv.SetTextColor(GetColorRef(SClrWhite));
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidStrucSymb));
+						clearEvent(event);
+					}
+					else {
+						SString temp_buf;
+						getCtrlString(CTL_MOBCLMNN_STRUC, temp_buf);
+						if(temp_buf.NotEmpty()) {
+							//canv.SetTextColor(GetColorRef(SClrWhite));
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidStrucSymb));
+							clearEvent(event);
+						}
+					}
+				}
+			}
+		}
+		else
+			return;
+	}
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
@@ -723,76 +800,184 @@ private:
 			ok = -1;
 		return ok;
 	}
-
-	PPNamedFilt::ViewDefinition Data;
+	DlContext Dl600Ctx;
+	const DlScope * P_Dl600Scope;
+	SPaintToolBox Ptb;
 };
-
 //
-// Descr: Создает и отображает диалог "Список "
+// Descr: Создает и отображает диалог "Список"
 //
 int FiltItemDialog::ViewMobColumnList()
 {
 	DIALOG_PROC_BODY(MobileClmnValListDialog, &Data.VD);
 }
-
 //
 // Descr: Класс, отвечающий за диалог "добавить элемент"
 //
 class MobileClmnValItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPNamedFilt::ViewDefinition::Entry);
+	const DlScope * P_Dl600Scope;
 public:
-	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef) : TDialog(DLG_MOBCLEDT)/*, P_Data(pViewDef)*/
+	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef, const DlScope * pScope) : TDialog(DLG_MOBCLEDT), P_Dl600Scope(pScope)/*, P_Data(pViewDef)*/
 	{
 	}
-	int    setDTS(const PPNamedFilt::ViewDefinition::Entry * pData);
-	int    getDTS(PPNamedFilt::ViewDefinition::Entry * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		//PPNamedFilt::ViewDefinition::Entry entry = *pEntry;
+		setCtrlString(CTL_MOBCLEDT_Z, Data.Zone); // Поле "Zone"
+		setCtrlString(CTL_MOBCLEDT_FN, Data.FieldName); // Поле "FieldName"
+		setCtrlString(CTL_MOBCLEDT_TXT, Data.Text); // Поле "Text"
+		SetupStringCombo(this, CTLSEL_MOBCLEDT_AGGR, PPTXT_AGGRFUNCNAMELIST, Data.TotalFunc);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
+		//PPNamedFilt::ViewDefinition::Entry entry;
+		getCtrlString(sel = CTL_MOBCLEDT_Z, Data.Zone);
+		THROW_PP(Data.Zone.NotEmptyS(), PPERR_USERINPUT);
+		getCtrlString(sel = CTL_MOBCLEDT_FN, Data.FieldName);
+		THROW_PP(Data.FieldName.NotEmptyS(), PPERR_USERINPUT);
+		getCtrlString(sel = CTL_MOBCLEDT_TXT, Data.Text);
+		THROW_PP(Data.Text.NotEmptyS(), PPERR_USERINPUT);
+		getCtrlData(CTLSEL_MOBCLEDT_AGGR, &Data.TotalFunc);
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			PPErrorByDialog(this, sel);
+		ENDCATCH
+		return ok;
+	}
 private:
-	PPNamedFilt::ViewDefinition::Entry Data;
-	// Собственно, редактируемый элемент
-	//PPNamedFilt::ViewDefinition * P_Data;  // @notowned
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isKeyDown(kbF2)) {
+			if(GetCurrId() == CTL_MOBCLEDT_Z)
+				SelectZone();
+			else if(GetCurrId() == CTL_MOBCLEDT_FN)
+				SelectField();
+			else
+				return;
+		}
+		else if(event.isCmd(cmSelectDlZone)) {
+			SelectZone();
+		}
+		else if(event.isCmd(cmSelectDlField)) {
+			SelectField();
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	SString & TranslateDlZoneNameToXmlName(SString & rBuf) const
+	{
+		if(rBuf.IsEqiAscii("iter@def"))
+			rBuf = "Iter";
+		else if(rBuf.IsEqiAscii("hdr"))
+			rBuf = "Head";
+		return rBuf;
+	}
+	void SelectZone()
+	{
+		if(P_Dl600Scope) {
+			SString temp_buf;
+			SString cur_text;
+			const uint ctl_id = CTL_MOBCLEDT_Z;
+			const DlScopeList & r_cl = P_Dl600Scope->GetChildList();
+			if(r_cl.getCount()) {
+				StrAssocArray * p_list = new StrAssocArray;
+				if(p_list) {
+					long id = 0;
+					getCtrlString(ctl_id, cur_text);
+					{
+						for(uint i = 0; i < r_cl.getCount(); i++) {
+							const DlScope * p_scope = r_cl.at(i);
+							if(p_scope) {
+								TranslateDlZoneNameToXmlName(temp_buf = p_scope->GetName());
+								if(temp_buf.IsEqiAscii(cur_text))
+									id = static_cast<long>(p_scope->GetId());
+								p_list->Add(p_scope->GetId(), temp_buf);
+							}
+						}
+					}
+					p_list->SortByText();
+					if(ListBoxSelDialog(p_list, "@ttl_seldl600zone", &id, 0) > 0 && id > 0) {
+						for(uint i = 0; i < r_cl.getCount(); i++) {
+							const DlScope * p_scope = r_cl.at(i);
+							if(p_scope->GetId() == static_cast<DLSYMBID>(id)) {
+								TranslateDlZoneNameToXmlName(temp_buf = p_scope->GetName());
+								setCtrlString(ctl_id, temp_buf);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	void SelectField()
+	{
+		if(P_Dl600Scope) {
+			SString temp_buf;
+			SString cur_text;
+			SString zone_text;
+			const uint ctl_id = CTL_MOBCLEDT_FN;
+			const DlScopeList & r_cl = P_Dl600Scope->GetChildList();
+			getCtrlString(CTL_MOBCLEDT_Z, zone_text);
+			if(r_cl.getCount() && zone_text.NotEmpty()) {
+				getCtrlString(CTL_MOBCLEDT_FN, cur_text);
+				DLSYMBID zone_id = 0;
+				const DlScope * p_zone_scope = 0;
+				{
+					for(uint i = 0; !zone_id && i < r_cl.getCount(); i++) {
+						const DlScope * p_scope = r_cl.at(i);
+						if(p_scope) {
+							TranslateDlZoneNameToXmlName(temp_buf = p_scope->GetName());
+							if(temp_buf.IsEqiAscii(zone_text)) {
+								p_zone_scope = p_scope;
+								zone_id = static_cast<long>(p_scope->GetId());
+							}
+						}
+					}
+				}
+				if(p_zone_scope) {
+					StrAssocArray * p_list = new StrAssocArray;
+					if(p_list) {
+						long   id = 0;
+						SdbField fld;
+						{
+							for(uint i = 0; i < p_zone_scope->GetCount(); i++) {
+								if(p_zone_scope->GetFieldByPos(i, &fld)) {
+									p_list->Add(fld.ID, fld.Name);
+									if(fld.Name.IsEqiAscii(cur_text))
+										id = fld.ID;
+								}
+							}
+						}
+						p_list->SortByText();
+						if(ListBoxSelDialog(p_list, "@ttl_seldl600field", &id, 0) > 0 && id > 0) {
+							if(p_zone_scope->GetFieldByID(id, 0, &fld)) {
+								setCtrlString(CTL_MOBCLEDT_FN, fld.Name);
+								getCtrlString(CTL_MOBCLEDT_TXT, temp_buf);
+								if(temp_buf.Empty())
+									setCtrlString(CTL_MOBCLEDT_TXT, fld.Name);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 };
-
-//
-// Descr: Заполняет интерфейс данными из pData
-//
-int MobileClmnValItemDialog::setDTS(const PPNamedFilt::ViewDefinition::Entry * pData)
-{
-	int    ok = 1;
-	RVALUEPTR(Data, pData);
-	//PPNamedFilt::ViewDefinition::Entry entry = *pEntry;
-	setCtrlString(CTL_MOBCLEDT_Z, Data.Zone); // Поле "Zone"
-	setCtrlString(CTL_MOBCLEDT_FN, Data.FieldName); // Поле "FieldName"
-	setCtrlString(CTL_MOBCLEDT_TXT, Data.Text); // Поле "Text"
-	SetupStringCombo(this, CTLSEL_MOBCLEDT_AGGR, PPTXT_AGGRFUNCNAMELIST, Data.TotalFunc);
-	return ok;
-}
-//
-// Descr: Заполняет pData данными из интерфейса
-//
-int MobileClmnValItemDialog::getDTS(PPNamedFilt::ViewDefinition::Entry * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
-	//PPNamedFilt::ViewDefinition::Entry entry;
-	getCtrlString(sel = CTL_MOBCLEDT_Z, Data.Zone);
-	THROW_PP(Data.Zone.NotEmptyS(), PPERR_USERINPUT);
-	getCtrlString(sel = CTL_MOBCLEDT_FN, Data.FieldName);
-	THROW_PP(Data.FieldName.NotEmptyS(), PPERR_USERINPUT);
-	getCtrlString(sel = CTL_MOBCLEDT_TXT, Data.Text);
-	THROW_PP(Data.Text.NotEmptyS(), PPERR_USERINPUT);
-	getCtrlData(CTLSEL_MOBCLEDT_AGGR, &Data.TotalFunc);
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		PPErrorByDialog(this, sel);
-	ENDCATCH
-	return ok;
-}
-
 //
 // Descr: Отображает диалог редактирования 
 //
-int SLAPI EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, PPNamedFilt::ViewDefinition::Entry * pEntry)
+static int SLAPI EditMobTypeClmn(PPNamedFilt::ViewDefinition * pViewDef, const DlScope * pScope, PPNamedFilt::ViewDefinition::Entry * pEntry)
 {
-	DIALOG_PROC_BODY_P1(MobileClmnValItemDialog, pViewDef, pEntry);
+	DIALOG_PROC_BODY_P2(MobileClmnValItemDialog, pViewDef, pScope, pEntry);
 }
 //
 // Descr: загрузка и перезагрузка списка всех отображаемых полей
@@ -830,13 +1015,13 @@ int MobileClmnValListDialog::setupList()
 	return ok;
 }
 //
-//Descr: Обрабатывает нажатие кнопки "Добавить.."
+// Descr: Обрабатывает нажатие кнопки "Добавить.."
 //
 int MobileClmnValListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = 0;
 	PPNamedFilt::ViewDefinition::Entry entry;
-	if(EditMobTypeClmn(&Data, &entry) > 0) {
+	if(EditMobTypeClmn(&Data, P_Dl600Scope, &entry) > 0) {
 		Data.SetEntry(entry);
 		ok = 1;
 	}
@@ -851,7 +1036,7 @@ int MobileClmnValListDialog::editItem(long pos, long id)
 	PPNamedFilt::ViewDefinition::Entry entry;
 	if(Data.GetEntry(pos, entry)) {
 		// Вызываем диалог редактировани
-		if(EditMobTypeClmn(&Data, &entry) > 0) {
+		if(EditMobTypeClmn(&Data, P_Dl600Scope, &entry) > 0) {
 			// OK - сохраняем данные
 			ok = Data.SetEntry(entry);
 		}

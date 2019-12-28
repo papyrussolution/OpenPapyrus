@@ -262,6 +262,11 @@ SLAPI PsnOpKindFilt::PsnOpKindFilt(PPID show, PPID parentID, int cantSelParent) 
 {
 }
 
+SLAPI PPPsnOpKind2::PPPsnOpKind2()
+{
+	THISZERO();
+}
+
 int FASTCALL PPPsnOpKind2::IsEqual(const PPPsnOpKind2 & rS) const
 {
 #define TEST_FLD(fld) if(fld != rS.fld) return 0
@@ -323,7 +328,7 @@ PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Z()
 
 SLAPI PPPsnOpKindPacket::PPPsnOpKindPacket()
 {
-	MEMSZERO(Rec);
+	// @v10.6.6 @ctr MEMSZERO(Rec);
 }
 
 void SLAPI PPPsnOpKindPacket::destroy()
@@ -355,17 +360,17 @@ int SLAPI PPPsnOpKindPacket::CheckExVal()
 		uint tags_count = tags_list.getCount();
 		THROW_PP(tags_count, PPERR_UNDEFPOKEVTAG);
 		{
-			PPObjTag tagobj;
-			PPObjectTag tag;
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
 			for(uint i = 0; i < tags_count; i++) {
-				THROW_PP(tagobj.Fetch(tags_list.at(i), &tag) > 0, PPERR_UNDEFPOKEVTAG);
+				THROW_PP(tag_obj.Fetch(tags_list.at(i), &tag_rec) > 0, PPERR_UNDEFPOKEVTAG);
 			}
 		}
 	}
 	else {
 		Rec.ExValSrc = 0;
 		AllowedTags.FreeAll();
-		THROW_PP(Rec.ExValGrp == POKEVG_POST || Rec.ExValGrp == POKEVG_NONE, PPERR_INVPOKEVG);
+		THROW_PP(oneof2(Rec.ExValGrp, POKEVG_POST, POKEVG_NONE), PPERR_INVPOKEVG);
 	}
 	CATCHZOK
 	return ok;
@@ -1143,15 +1148,15 @@ private:
 
 int PsnOpExVDialog::setupList()
 {
-	PPObjTag    objtag;
-	PPObjectTag tag;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
 	if(Data.AllowedTags.IsExists()) {
 		SString buf;
 		const PPIDArray & r_ary = Data.AllowedTags.Get();
 		for(uint i = 0; i < r_ary.getCount(); i++) {
 			PPID   tag_id = r_ary.at(i);
-			if(objtag.Fetch(tag_id, &tag) > 0)
-				buf = tag.Name;
+			if(tag_obj.Fetch(tag_id, &tag_rec) > 0)
+				buf = tag_rec.Name;
 			else
 				buf.Z().Cat(tag_id);
 			if(!addStringToList(tag_id, buf))
@@ -1743,7 +1748,7 @@ int SLAPI PsnOpKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjPsnOpKind pok_obj;
-	PPPsnOpKind2 rec;
+	PPPsnOpKind rec;
 	if(pok_obj.Search(id, &rec) > 0) {
 #define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
 		CPY_FLD(RegTypeID);

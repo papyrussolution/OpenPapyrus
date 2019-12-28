@@ -5,7 +5,7 @@
 // Спасибо за проделанную работу:
 //   Насонову Вадиму (VADIM), Стародубу Антону (AHTOXA), Казакову Михаилу (Muxa), Миллер Владиславе (vmiller),
 //   Осолоткину Алексею [rip], Антонову Валерию, Симанову Александру [rip], Курилову Андрею (Andrew), Кретову Алексею,
-//   Ванаг Светлане, Соболеву Эрику.
+//   Ванаг Светлане, Соболеву Эрику, Егорову Геннадию Николаевич [rip].
 //
 //  Соглашение об обозначениях:
 //
@@ -406,6 +406,7 @@ typedef LongArray PPIDArray;
 //   и не могут меняться в течении жизни процесса.
 //   Мотивацией для ввода этого блока является большое число всевозможных константных флагов и значений
 //   разбросанных по всему проекту - их надо собрать в одном месте.
+// Attention! Ни в коем случае нельзя менять значения этих констант: последствия могут быть сколь угодно тяжелыми.
 //
 class PPConstParam {
 public:
@@ -420,7 +421,11 @@ public:
 		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
-		P_SubjectCharry("$PpyCharryTransmission$")
+		P_SubjectCharry("$PpyCharryTransmission$"),
+		P_ObjMemoDelim("=^%"),
+		P_ObjMemo_UtmRejPfx("UTM Rej"),
+		P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
+		P_ObjMemo_ChznRejPfx("ChZn Rej")
 	{
 	}
 	enum {
@@ -439,6 +444,10 @@ public:
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
+	const char * P_ObjMemoDelim;        // MemosDelim разделитель примечаний объектов
+	const char * P_ObjMemo_UtmRejPfx;   // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС УТМ
+	const char * P_ObjMemo_EgaisRejPfx; // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС 
+	const char * P_ObjMemo_ChznRejPfx;  // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от честного знака
 };
 
 extern const PPConstParam _PPConst;
@@ -1959,7 +1968,7 @@ public:
 	int    SLAPI IsInherited() const;
 	int    SLAPI Merge(const PPRights & rS, long flags);
 	int    SLAPI Put(PPID securType, PPID securID);
-	int    SLAPI Get(PPID securType, PPID securID, int ignoreCheckSum = 0);
+	int    SLAPI Get(PPID securType, PPID securID, int ignoreCheckSum/*= 0*/);
 	int    SLAPI Remove(PPID securType, PPID securID);
 	//
 	// Descr: Возвращает указатель на дескриптор прав доступа по объекту objType.
@@ -3730,6 +3739,10 @@ public:
 	static int SLAPI VerifySecur(PPSecur2 * pSecur, int set);
 	static int SLAPI GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf);
 	static int SLAPI SetExField(PPConfigPrivate * pRec, int fldId, const char * pBuf);
+	static int SLAPI Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen);
+	static int SLAPI Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText);
+	static int SLAPI Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult);
+	static int SLAPI Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult);
 
 	SLAPI  Reference();
 	SLAPI ~Reference();
@@ -3759,10 +3772,8 @@ public:
 	int    SLAPI InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle);
 	int    SLAPI NextEnum(long enumHandle, void * pRec);
 	int    SLAPI DestroyIter(long enumHandle);
-	//
 	SEnumImp * SLAPI Enum(PPID objType, int options);
 	SEnumImp * SLAPI EnumByIdxVal(PPID objType, int valN, long val);
-	//
 	int    SLAPI EnumItems(PPID obj, PPID * pID, void * = 0);
 	//
 	// Descr: Загружает в массив pList все элементы справочника типа objType.
@@ -3819,12 +3830,6 @@ public:
 	int    SLAPI GetPropArrayFromRecBuf(SVectorBase * pAry);
 	int    SLAPI GetPropArray(PPID obj, PPID id, PPID prop, SVectorBase * pAry);
 	int    SLAPI PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBase * pAry, int use_ta);
-
-	static int SLAPI Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen);
-	static int SLAPI Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText);
-	//
-	static int SLAPI Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult);
-	static int SLAPI Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult);
 protected:
 	int    SLAPI _GetFreeID(PPID obj, PPID * id, PPID firstID);
 	int    SLAPI _Search(PPID obj, PPID id, int spMode, void *);
@@ -6371,12 +6376,11 @@ public:
 	};
 	int    State;                // @Muxa @v7.3.8 Флаги
 	SysJournal * P_SysJ;
-	ObjSyncCore * P_ObjSync;     // Откроем таблицу при входе в сеанс что бы не приходилось
-		// ее открывать при каждом удалении объекта (в транзакции)
+	ObjSyncCore * P_ObjSync;     // Откроем таблицу при входе в сеанс что бы не приходилось ее открывать при каждом удалении объекта (в транзакции)
 	GtaJournalCore * P_GtaJ;     //
 	Reference  * P_Ref;
 	PPObjBill  * P_BObj;
-	// @v8.3.6 Следущие два экземпляру инициализируются нулями и используются только в специальных случаях
+	// Следущие два экземпляру инициализируются нулями и используются только в специальных случаях
 	// (на текущий момент - для генерации последовательностей) {
 	PPObjWorld * P_WObj;
 	PPObjWorkbook * P_WbObj;
@@ -6427,7 +6431,7 @@ private:
 
 	class IdleCommand : public SCycleTimer {
 	public:
-		IdleCommand(long repeatEachSeconds);
+		explicit IdleCommand(long repeatEachSeconds);
 		virtual ~IdleCommand();
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime);
 	};
@@ -10191,6 +10195,14 @@ public:
 		int    SLAPI GetBoxNum(long boxId, SString & rNum) const;
 		int    SLAPI GetByBoxID(long boxId, StringSet & rSs) const;
 		int    SLAPI SearchCode(const char * pNum, uint * pIdx) const;
+		//
+		// Descr: Ищет предыдущий бокс начиная с позиции currentPos вверх.
+		//   Если (currentPos < 0 || currentPos >= GetCount()) то ищет начания с последней позиции вверх.
+		// Returns:
+		//   >0 - идентификатор найденного бокса если таковой найден
+		//    0 - бокс не найден
+		//
+		long   SLAPI SearchLastBox(int currentPos) const;
 	private:
 		struct InnerEntry { // @flat
 			long   BoxID;
@@ -11827,6 +11839,7 @@ private:
 	int    SLAPI Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec);
 	int    SLAPI Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec);
 	int    SLAPI Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList);
+	int    SLAPI Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec);
 
 	int    IgnoreGpretMostRecentFlags; // В функции GetCurrentGoodsPrice игнорировать флаг
 		// GPRET_MOSTRECENT. Проекция флага (PPGoodsConfig::Flags | GCF_RETAILPRICEBYMOSTRECENTLOT)
@@ -11897,6 +11910,7 @@ public:
 		fCostByQuot   = 0x00000100, // @v9.5.8 Цены поступления по котировке
 		fRetailPrice  = 0x00000200, // @v10.3.2 Цены реализации рассчины по правилам, применяемым для определения розничных цен
 		fCWoVat		  = 0x00004000, // Цены поступления без НДС
+		fPWoVat		  = 0x00008000, // @v10.6.6 Цены реализации без НДС
 		fZeroAgent    = 0x00010000, // Только с нулевым агентом поставщика
 	};
 	enum {
@@ -13334,6 +13348,7 @@ private:
 //    Для обратного преобразования - ExpandDate
 //
 struct PredictSalesItem {
+	SLAPI  PredictSalesItem();
 	LDATE  Dt;
 	double Qtty;
 	double Amount;
@@ -15448,6 +15463,7 @@ public:
 	// @v10.5.0 @construction {
 	class ViewDefinition : public SStrGroup {
 	public:
+		friend class PPNamedFilt;
 		struct Entry { // @transient
 			Entry();
 			Entry & Z();
@@ -15459,10 +15475,12 @@ public:
 		};
 		ViewDefinition();
 		uint   GetCount() const;
+		const  SString & GetStrucSymb() const;
+		int    SetStrucSymb(const char * pSymb);
 		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
 		int    RemoveEntryByPos(uint pos);
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+		// @v10.6.7 int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    XmlWriter(void * param);
 		int    Swap(uint p1, uint p2);
 	private:
@@ -15475,6 +15493,7 @@ public:
 		};
 		int    SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
 		TSVector <InnerEntry> L;
+		SString StrucSymb; // @v10.6.7 Наименование структуры DL600 для формирования данных
 	};
 	// } @v10.5.0
 	SLAPI  PPNamedFilt();
@@ -15483,11 +15502,11 @@ public:
 	//
 	// Descr: Записать данные класса в буфер
 	//
-	int    SLAPI Write(SBuffer &, long);// @erik v10.5.0 const -> notConst
+	int    SLAPI Write(SBuffer & rBuf, long);// @erik v10.5.0 const -> notConst
 	//
 	// Descr: Прочитать из буфера данные и спроецировать на класс
 	//
-	int    SLAPI Read(SBuffer &, long);
+	int    SLAPI Read(SBuffer & rBuf, long);
 	enum {
 		fDontWriteXmlDTD = 0x0001, // В исходящий XML-файле на писать DTD
 		fCompressXml     = 0x0002  // @v10.6.0 Сжимать создаваемый xml-файл
@@ -15502,7 +15521,7 @@ public:
 	SString Symb;       // Уникальная (непустая) строка символа именованного фильтра
 	SString ViewSymb;   // Строка символа обьекта PPView, по которому строится фильтр
 	SBuffer Param;      // Хранит данные о настройках фильтра PPBaseFilt
-	ViewDefinition VD;  // @v10.5.0 @construction
+	ViewDefinition VD;  // @v10.5.0 
 	ObjIdListFilt DestGuaList; // @v10.5.3 Список идентификаторов глобальных учетных записей, которым следует отправлять отчеты
 };
 
@@ -16007,6 +16026,10 @@ public:
 // Descr: Вид персоналии //
 //
 struct PPPersonKind2 {     // @persistent @store(Reference2Tbl+)
+	SLAPI  PPPersonKind2()
+	{
+		THISZERO();
+	}
 	//
 	// Descr: флаги вида персоналии
 	//
@@ -18225,7 +18248,8 @@ public:
 //
 struct PPGlobalUserAccConfig {
 	enum {
-		fValid = 0x0001 // @transient Структура извлечена из базы данных
+		fValid          = 0x0001, // @transient Структура извлечена из базы данных
+		fAutoCreateGUID = 0x0002  // @v10.6.6 Автоматически создавать тег собственного GUID'а для новых записей
 	};
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
@@ -22964,6 +22988,7 @@ private:
 #define POKEVG_POST         2  // Должность
 
 struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
+	SLAPI  PPPsnOpKind2();
 	//
 	// Descr: Сравнивает объект this с экземпляром rS. Если они равны (за исключением
 	//   полей Tag и ID, то возвращает !0, в противном случае - 0.
@@ -23260,12 +23285,12 @@ public:
 	//   Поля инициализируемые в записи pRec: {ID, Kind, ParentID, CountryID, Name, Status, Flags}
 	//
 	int    SLAPI Fetch(PPID id, WorldTbl::Rec * pRec);
-	int    SLAPI GetListByName(int kind, const char * pName, SArray * pList);
 	int    SLAPI SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec);
 		// @>>PPObjWorld::GetListByName
-	int    SLAPI GetListByCode(int kind, const char * pCode, SArray * pList);
 	int    SLAPI SearchByCode(const char * pCode, WorldTbl::Rec * pRec);
-	int    SLAPI GetListByFilt(const SelFilt & rFilt, SArray * pList);
+	int    SLAPI GetListByName(int kind, const char * pName, SVector * pList); // @v10.6.7 SArray-->SVector
+	int    SLAPI GetListByCode(int kind, const char * pCode, SVector * pList); // @v10.6.7 SArray-->SVector
+	int    SLAPI GetListByFilt(const SelFilt & rFilt, SVector * pList); // @v10.6.7 SArray-->SVector
 	//
 	// Descr: Ищет государство (Kind == WORLDOBJ_COUNTRY) по следующему алгоритму:
 	//   - Если !isempty(pName), тогда точное соответствие по наименованию.
@@ -25370,7 +25395,6 @@ typedef TSVector <StaffCalendarTbl::Rec> PPStaffCalendarArray; // @v9.8.4 TSArra
 class PPStaffCalPacket {
 public:
 	friend class PPObjStaffCal;
-
 	//
 	// Descr: Проверяет, и если требуется, исправляет некоторые поля элемента календаря pEntry.
 	//   В основном эти проверки касаются полей TmVal, TmStart, TmEnd.
@@ -25380,16 +25404,12 @@ public:
 	//
 	static int SLAPI SetupEntry(StaffCalendarTbl::Rec * pEntry);
 	static int SLAPI InvariantEntry(const StaffCalendarTbl::Rec * pRec);
-
 	SLAPI  PPStaffCalPacket();
 	void   SLAPI Init(const StaffCalFilt *);
 	PPStaffCalPacket & FASTCALL operator = (const PPStaffCalPacket &);
 	int    SLAPI Get(LDATE dt, double * pHours, uint * pPos = 0) const;
 	int    SLAPI GetTimeChunkList(const DateRange & rPeriod, STimeChunkArray * pList) const;
-	const  PPStaffCalendarArray & GetList() const
-	{
-		return Items;
-	}
+	const  PPStaffCalendarArray & GetList() const { return Items; }
 	int    SLAPI AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos);
 	int    SLAPI RemoveItem(uint pos);
 
@@ -25428,10 +25448,8 @@ struct ScObjAssoc {
 class PPObjStaffCal : public PPObjReference {
 public:
 	static int FASTCALL HasValidTimeRange(const StaffCalendarTbl::Rec & rRec);
-
 	explicit SLAPI PPObjStaffCal(void * extraPtr = 0);
 	SLAPI ~PPObjStaffCal();
-
 	int    SLAPI CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal * pRec) const;
 	int    FASTCALL Fetch(PPID id, PPStaffCal *); // @macrow
 	//
@@ -25610,7 +25628,7 @@ public:
 	int    SLAPI Validate(const SalaryTbl::Rec * pRec);
 	int    SLAPI Search(PPID id, SalaryTbl::Rec * pRec);
 	int    SLAPI Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta);
-	int    SLAPI Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec);
+	// @v10.6.7 (unused) int    SLAPI Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec);
 	//
 	// Descr: Рассчитывает сумму начисления вида salChargeID по назначению postID за период rPeriod.
 	//   Если параметр avg != 0, то рассчитывает среднее начисление за этот период (простое среднее по
@@ -32789,32 +32807,22 @@ private:
 //
 // Флаги GCTFilt::Flags
 //
-#define OPG_BYZERODLVRADDR    0x00000010L // @v7.1.5 Перебирать только документы с пустым адресом доставки
+#define OPG_BYZERODLVRADDR    0x00000010L // Перебирать только документы с пустым адресом доставки
 #define OPG_IGNOREZERO        0x00000020L // Игнорировать нулевые записи
-//
-// Два следующих флага используются со структурой GoodsGrpngEntry
-//
-#define OPG_CALCINREST        0x00000080L // Считать входящий остаток
-#define OPG_CALCOUTREST       0x00000100L // Считать исходящий остаток
-//
-// Descr: Следующий флаг передается процедуре GCTFilterDialog, заставляя //
-//   проверять обязательный ввод товара
-//
-#define OPG_FORCEGOODS        0x00000200L //
+#define OPG_CALCINREST        0x00000080L // Считать входящий остаток (используется со структурой GoodsGrpngEntry)
+#define OPG_CALCOUTREST       0x00000100L // Считать исходящий остаток (используется со структурой GoodsGrpngEntry)
+#define OPG_FORCEGOODS        0x00000200L // Передается процедуре GCTFilterDialog, заставляя проверять обязательный ввод товара
 #define OPG_ADJPAYM           0x00000400L // For internal use
-#define OPG_STOREDAILYRESTS   0x00000800L // @v9.1.3 При переборе строк Transfer GCTIterator сохраняет
-	// информацию о ежедневных остатках товаров с детализацией по складам.
+#define OPG_STOREDAILYRESTS   0x00000800L // При переборе строк Transfer GCTIterator сохраняет информацию о ежедневных остатках товаров с детализацией по складам.
+#define OPG_SETPRICEWOTAXES   0x00001000L // @v10.6.6 Устанавливать цены реализации без налогов 
 #define OPG_LABELONLY         0x00002000L //
 #define OPG_NOZEROEXCISE      0x00004000L // Перебирать только подакцизные товары
 #define OPG_COMPAREWROFF      0x00008000L // @v9.4.10 Если перебор ведется по драфт-документам, то сравнивать с документами списания //
 #define OPG_GRPBYGENGOODS     0x00010000L // Группировать по обобщенным товарам (анализ товарных операций)
 //
-// Descr: Флаг OPG_SETTAXES предписывает процедуре
-//   ProcessGoodsGrpng заносить в массив GoodsGrpngArray записи
-//   с установленными значениями ставок НДС и (или) акциза
-//   соответственно. При этом в массиве для одной операции может
-//   присутствовать более одной записи (одна запись на каждую комбинацию
-//   { вид операции; ставка НДС; ставка акциза; }).
+// Descr: Флаг OPG_SETTAXES предписывает процедуре ProcessGoodsGrpng заносить в массив GoodsGrpngArray записи
+//   с установленными значениями ставок НДС и (или) акциза соответственно. При этом в массиве для одной операции может
+//   присутствовать более одной записи (одна запись на каждую комбинацию { вид операции; ставка НДС; ставка акциза; }).
 //
 #define OPG_SETTAXES          0x00020000L
 #define OPG_DIFFBYTAX         0x00040000L // Разбивать группировку по налогам
@@ -32828,17 +32836,14 @@ private:
 //   операции, которые имеют признак "Отрицательная операция"
 //
 #define OPG_PROCESSGENOP      0x00400000L //
-// Флаг используются со структурой GoodsGrpngEntry
-#define OPG_PROCESSBYLOTS     0x00800000L //
+#define OPG_PROCESSBYLOTS     0x00800000L // (используются со структурой GoodsGrpngEntry)
 #define OPG_CALCBILLROWS      0x01000000L // Обрабатывать статистику по строкам каждого документа
-#define OPG_BYZEROAGENT       0x02000000L // Ограничивать документами, в которых не указан агент
-	// Ограничение по этому флагу имеет приоритет перед полем GCTFilt::AgentID
+#define OPG_BYZEROAGENT       0x02000000L // Ограничивать документами, в которых не указан агент. Ограничение по этому флагу имеет приоритет перед полем GCTFilt::AgentID
 #define OPG_FORCEBILLCACHE    0x04000000L // Использовать классом GCTIterator кэш документов
 #define OPG_OPTIMIZEFORPSALES 0x08000000L // Оптимизировать выборку для построения таблицы продаж
-#define OPG_COSTBYPAYM        0x10000000L // Себестоимость элементов рассчитывать пропорционально
-	// оплаченной части документа оригинального лота (см. GGEF_COSTBYPAYM)
-#define OPG_INCLACCOPS        0x20000000L // @v8.6.1 Включать в отчет бухгалтерские документы
-#define OPG_SKIPNOUPDLOTREST  0x40000000L // @v8.9.0 Пропускать операции, не изменяющие товарные остатки (OPKF_NOUPDLOTREST)
+#define OPG_COSTBYPAYM        0x10000000L // Себестоимость элементов рассчитывать пропорционально оплаченной части документа оригинального лота (см. GGEF_COSTBYPAYM)
+#define OPG_INCLACCOPS        0x20000000L // Включать в отчет бухгалтерские документы
+#define OPG_SKIPNOUPDLOTREST  0x40000000L // Пропускать операции, не изменяющие товарные остатки (OPKF_NOUPDLOTREST)
 #define OPG_OPENEDDRAFTONLY   0x80000000L // @v10.1.10 Если по драфт-документам, то только по открытым (не списанным)
 //
 // Descr: Фильтр для построения перекрестной отчетности
@@ -32883,33 +32888,34 @@ struct GCTFilt : public PPBaseFilt {
 	ObjIdListFilt BillList;       // @anchor
 	ObjIdListFilt LocList;        //
 	ObjIdListFilt GoodsList;      // Список товаров (если GoodsList.getCount(), то поля GoodsID и GoodsGrpID не используются //
-	ObjIdListFilt ArList;         // @v7.9.11
-	ObjIdListFilt AgentList;      // @v7.9.11
+	ObjIdListFilt ArList;         // 
+	ObjIdListFilt AgentList;      // 
 };
 
-#define GGEF_VATFREE         0x0001L
-#define GGEF_TOGGLESTAX      0x0002L
-#define GGEF_CALCBYPRICE     0x0004L // for internal use
-#define GGEF_COSTWOVAT       0x0008L // for internal use
-#define GGEF_DIFFBYTAX       0x0010L //
-#define GGEF_SETCOSTWOTAXES  0x0020L // for internal use
-#define GGEF_PRICEWOTAXES    0x0040L // for internal use
-#define GGEF_COSTWSTAX       0x0080L //
-#define GGEF_RECKONING       0x0100L // Зачитывающая оплата.
+#define GGEF_VATFREE           0x0001L
+#define GGEF_TOGGLESTAX        0x0002L
+#define GGEF_CALCBYPRICE       0x0004L // for internal use
+#define GGEF_COSTWOVAT         0x0008L // for internal use
+#define GGEF_DIFFBYTAX         0x0010L //
+#define GGEF_SETCOSTWOTAXES    0x0020L // for internal use
+#define GGEF_PRICEWOTAXES      0x0040L // for internal use
+#define GGEF_COSTWSTAX         0x0080L //
+#define GGEF_RECKONING         0x0100L // Зачитывающая оплата.
 	// GoodsGrpngEntry::Link указывает на вид операции зачетного (не оплачиваемого) документа.
-#define GGEF_LOCVATFREE      0x0200L // Склад освобожден от НДС
-#define GGEF_INTERNAL        (GGEF_CALCBYPRICE|GGEF_COSTWOVAT|GGEF_SETCOSTWOTAXES)
-#define GGEF_BYLOT           0x0400L // Обработка по лотам
-#define GGEF_COSTBYPAYM      0x0800L // Себестоимость элемента умножать на оплаченную долю документа
+#define GGEF_LOCVATFREE        0x0200L // Склад освобожден от НДС
+#define GGEF_INTERNAL          (GGEF_CALCBYPRICE|GGEF_COSTWOVAT|GGEF_SETCOSTWOTAXES)
+#define GGEF_BYLOT             0x0400L // Обработка по лотам
+#define GGEF_COSTBYPAYM        0x0800L // Себестоимость элемента умножать на оплаченную долю документа
 	// оригинального лота. Оплата учитывается за период, открытый слева и ограниченный справа верхней датой
 	// расчетного периода.
-#define GGEF_PAYMBYPAYOUTLOT 0x1000L // Оплата по полностью оплаченному лоту
+#define GGEF_PAYMBYPAYOUTLOT   0x1000L // Оплата по полностью оплаченному лоту
 	// Этот флаг устанавливается для элемента GoodsGrpngEntry если фильтр имеет флаг
 	// OPG_COSTBYPAYM и элемент сформирован по оплате приходного документа при условии,
 	// что весь товар этого документа израсходован и оплачен покупателями.
-#define GGEF_INTRREVERSE     0x2000L // Зеркальная по отношению к внутренней
+#define GGEF_INTRREVERSE       0x2000L // Зеркальная по отношению к внутренней
 	// передаче запись (межскладской приход)
-#define GGEF_SUPPRDISCOUNT   0x4000L // @internal
+#define GGEF_SUPPRDISCOUNT     0x4000L // @internal
+#define GGEF_SETPRICEWOTAXES_  0x8000L // @internal
 
 struct GoodsGrpngEntry { // @flat
 	SLAPI  GoodsGrpngEntry();
@@ -40560,10 +40566,11 @@ private:
 class GoodsMovFilt : public PPBaseFilt {
 public:
 	enum {
-		fCostWoVat      = 0x0001,
-		fLabelOnly      = 0x0002,
-		fUseOldAlg      = 0x0004,
-		fInited         = 0x0008 // for inthernal use
+		fCostWoVat      = 0x0001, // Цены поступления без НДС
+		fLabelOnly      = 0x0002, //
+		fUseOldAlg      = 0x0004, //
+		fInited         = 0x0008, // for inthernal use
+		fPriceWoVat     = 0x0010  // @v10.6.6 Цены реализации без НДС
 	};
 	enum {
 		prkBasePrice = 0,
@@ -46189,7 +46196,7 @@ public:
 	int    SLAPI EditParam(Param * pParam);
 	int    SLAPI EditQueryParam(PPChZnPrcssr::QueryParam * pData);
 	int    SLAPI InteractiveQuery();
-	int    SLAPI SendBills(const Param & rP);
+	int    SLAPI Run(const Param & rP);
 	static int SLAPI Test();
 private:
 	void * P_Ib; // Блок инициализации
@@ -52475,8 +52482,6 @@ int    FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID, int err);
 int    FASTCALL PPErrorByDialog(TDialog * dlg, uint ctlID);
 uint   SLAPI GetComboBoxLinkID(TDialog *, uint comboBoxCtlID);
 int    FASTCALL SetComboBoxLinkText(TDialog *, uint comboBoxCtlID, const char * pText);
-
-static const char * MemosDelim = "=^%"; // разделитель примечаний объектов
 //
 // Descr: Блок параметров функции InputStringDialog()
 //

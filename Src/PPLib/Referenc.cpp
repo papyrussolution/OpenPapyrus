@@ -31,7 +31,6 @@ int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw,
 int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
 	rResult.Z();
-
 	int    ok = 1;
 	const  size_t buf_quant = 256;
 	assert(buf_quant >= pwBufSize);
@@ -122,15 +121,10 @@ int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const
 
 //static
 int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
-{
-	return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen);
-}
-
+	{ return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen); }
 //static
 int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
-{
-	return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText);
-}
+	{ return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText); }
 
 //static
 int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen)
@@ -912,16 +906,18 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBas
 
 int SLAPI Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 {
+	Reference2Tbl::Rec rec;
 	int    r = GetProperty(obj, id, cfgID, b, s);
-	if(r < 0 && oneof2(obj, PPOBJ_USRGRP, PPOBJ_USR))
-		if(GetItem(obj, id) > 0) {
+	if(r < 0 && oneof2(obj, PPOBJ_USRGRP, PPOBJ_USR)) {
+		if(GetItem(obj, id, &rec) > 0) {
 			const PPID prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-			r = GetConfig(prev_level_id, reinterpret_cast<const PPSecur *>(&data)->ParentID, cfgID, b, s); // @recursion
+			r = GetConfig(prev_level_id, reinterpret_cast<const PPSecur *>(&rec)->ParentID, cfgID, b, s); // @recursion
 		}
 		else {
 			PPSetAddedMsgObjName(obj, id);
 			r = PPSetError(PPERR_CFGOBJRDFAULT);
 		}
+	}
 	return r;
 }
 
@@ -936,7 +932,7 @@ int SLAPI Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * sp)
 	THROW(GetItem(obj, id, &sp->Secur) > 0);
 	THROW(Reference::VerifySecur(&sp->Secur, 0));
 	THROW(DS.FetchConfig(obj, id, &sp->Config));
-	THROW(sp->Rights.Get(obj, id));
+	THROW(sp->Rights.Get(obj, id, 0/*ignoreCheckSum*/));
 	THROW(sp->Paths.Get(obj, id));
 	CATCHZOK
 	return ok;
@@ -1155,7 +1151,7 @@ int SLAPI PPRights::Merge(const PPRights & rS, long flags)
 			if(!(p_so->OprFlags & PPORF_INHERITED)) {
 				int   _found = 0;
 				for(uint t = 0; !_found && t < P_Rt->ORTailSize;) {
-					ObjRights * p_o = (ObjRights*)(PTR8(P_Rt + 1) + t);
+					ObjRights * p_o = reinterpret_cast<ObjRights *>(PTR8(P_Rt + 1) + t);
 					if(p_o->ObjType == p_so->ObjType) {
 						p_o->Flags |= p_so->Flags;
 						p_o->OprFlags |= p_so->OprFlags;
@@ -1226,7 +1222,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 			int    do_convert = 0;
 			uint   s = 0;
 			while(!do_convert && s < P_Rt->ORTailSize) {
-				const ObjRights * o = (const ObjRights *)(PTR8(P_Rt + 1) + s);
+				const ObjRights * o = reinterpret_cast<const ObjRights *>(PTR8(P_Rt + 1) + s);
 				if(o->Size == sizeof(ObjRights_Pre855))
 					do_convert = 1;
 				s += o->Size;
@@ -1238,10 +1234,10 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 				memcpy(p_temp_r, P_Rt, Size());
 				THROW(Resize(sizeof(_PPRights)));
 				for(s = 0; s < p_temp_r->ORTailSize;) {
-					const ObjRights * o = (const ObjRights*)(PTR8(p_temp_r + 1) + s);
-					ObjRights * p_temp = (ObjRights *)temp_buffer;
+					const ObjRights * o = reinterpret_cast<const ObjRights *>(PTR8(p_temp_r + 1) + s);
+					ObjRights * p_temp = reinterpret_cast<ObjRights *>(temp_buffer);
 					if(o->Size == sizeof(ObjRights_Pre855)) {
-						const ObjRights_Pre855 * p_temp_pre855 = (const ObjRights_Pre855 *)o;
+						const ObjRights_Pre855 * p_temp_pre855 = reinterpret_cast<const ObjRights_Pre855 *>(o);
 						p_temp->ObjType = p_temp_pre855->ObjType;
 						p_temp->Size = sizeof(ObjRights);
 						p_temp->Flags = p_temp_pre855->Flags;
@@ -1266,10 +1262,10 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = 1, r;
+	Reference * p_ref = PPRef;
 	// @v10.3.0 (never used) size_t sz = 1024;
 	ulong  chksum = 0;
 	ObjRestrictArray temp_orlist;
-
 	THROW(r = ReadRights(securType, securID, ignoreCheckSum));
 	if(r > 0) {
 		if(P_Rt->SecurObj < securType)
@@ -1277,19 +1273,22 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 		if(oneof2(P_Rt->SecurObj, PPOBJ_USRGRP, PPOBJ_USR)) {
 			//
 			// Необходимо унаследовать от более высоких уровней иерархии
-			// права по объектам, которые не определены на заданном уровне
-			// (Рекурсия)
+			// права по объектам, которые не определены на заданном уровне (Рекурсия)
 			//
-			PPRights temp;
-			PPID   prevType = (P_Rt->SecurObj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-			PPID   prevID   = ((PPSecur*)&PPRef->data)->ParentID;
-			uint   s = 0;
-			THROW(temp.Get(prevType, prevID, ignoreCheckSum)); // @recursion
-			while(s < temp.P_Rt->ORTailSize) {
-				const ObjRights * o = (const ObjRights*)(PTR8(temp.P_Rt + 1) + s);
-				if(!(o->OprFlags & PPORF_DEFAULT))
-					THROW(SetObjRights(o->ObjType, o, 0));
-				s += o->Size;
+			Reference2Tbl::Rec this_secur_rec;
+			if(p_ref->GetItem(securType, securID, &this_secur_rec) > 0) { // @v10.6.7
+				PPRights temp;
+				PPID   prev_type = (P_Rt->SecurObj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
+				// @v10.6.7 PPID   prev_id   = reinterpret_cast<const PPSecur *>(&p_ref->data)->ParentID;
+				PPID   prev_id = reinterpret_cast<const PPSecur *>(&this_secur_rec)->ParentID; // @v10.6.7 
+				THROW(temp.Get(prev_type, prev_id, ignoreCheckSum)); // @recursion
+				for(uint s = 0; s < temp.P_Rt->ORTailSize;) {
+					const ObjRights * o = reinterpret_cast<const ObjRights *>(PTR8(temp.P_Rt + 1) + s);
+					if(!(o->OprFlags & PPORF_DEFAULT)) {
+						THROW(SetObjRights(o->ObjType, o, 0));
+					}
+					s += o->Size;
+				}
 			}
 		}
 		THROW(Resize(Size()));
@@ -1305,7 +1304,7 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 					ObjRestrictArray temp_orlist;
 					THROW(PPRef->GetPropArray(ObjType, ObjID, propID, &temp_orlist));
 					if(!IgnoreCheckSum && pCheckSum && *pCheckSum) {
-						ulong  chksum = _checksum__((char *)temp_orlist.dataPtr(), temp_orlist.getCount() * temp_orlist.getItemSize());
+						ulong  chksum = _checksum__(static_cast<const char *>(temp_orlist.dataPtr()), temp_orlist.getCount() * temp_orlist.getItemSize());
 						THROW_PP(chksum == *pCheckSum, PPERR_INVRTCHKSUM);
 					}
 					if(temp_orlist.getCount()) {

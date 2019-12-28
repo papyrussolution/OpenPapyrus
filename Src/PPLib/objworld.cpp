@@ -794,12 +794,12 @@ int SLAPI PPObjWorld::SearchCountry(const char * pName, const char * pCode, cons
 	PPID   id = 0;
 	if(!isempty(pName)) {
 		SearchByName(WORLDOBJ_COUNTRY, pName, pRec);
-		SArray list(sizeof(WorldTbl::Rec));
+		SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 		if(GetListByName(WORLDOBJ_COUNTRY, pName, &list) > 0) {
 			uint pos = 0;
 			if(list.getCount() > 1) {
 				for(uint i = 0; i < list.getCount(); i++) {
-					const WorldTbl::Rec * p_rec = (WorldTbl::Rec *)list.at(i);
+					const WorldTbl::Rec * p_rec = static_cast<const WorldTbl::Rec *>(list.at(i));
 					if(!isempty(pCode) && stricmp(p_rec->Code, pCode) == 0) {
 						pos = i;
 						break;
@@ -811,7 +811,7 @@ int SLAPI PPObjWorld::SearchCountry(const char * pName, const char * pCode, cons
 				}
 			}
 			if(pos < list.getCount()) {
-				const WorldTbl::Rec * p_rec = (WorldTbl::Rec *)list.at(pos);
+				const WorldTbl::Rec * p_rec = static_cast<const WorldTbl::Rec *>(list.at(pos));
 				id = p_rec->ID;
 				ASSIGN_PTR(pRec, *p_rec);
 				ok = 1;
@@ -842,11 +842,11 @@ int SLAPI PPObjWorld::SearchCountry(const char * pName, const char * pCode, cons
 
 int SLAPI PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec)
 {
-	SArray list(sizeof(WorldTbl::Rec));
+	SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 	int    ok = GetListByName(kind, pName, &list);
 	if(ok > 0) {
 		if(list.getCount()) {
-			ASSIGN_PTR(pRec, *(WorldTbl::Rec *)list.at(0));
+			ASSIGN_PTR(pRec, *static_cast<const WorldTbl::Rec *>(list.at(0)));
 		}
 		else
 			ok = -1;
@@ -854,7 +854,7 @@ int SLAPI PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec *
 	return ok;
 }
 
-int SLAPI PPObjWorld::GetListByName(int kind, const char * pName, SArray * pList)
+int SLAPI PPObjWorld::GetListByName(int kind, const char * pName, SVector * pList) // @v10.6.7 SArray-->SVector
 {
 	int    ok = -1;
 	WorldTbl::Key3 k3;
@@ -869,8 +869,9 @@ int SLAPI PPObjWorld::GetListByName(int kind, const char * pName, SArray * pList
 	CATCHZOK
 	return ok;
 }
+
 // @Muxa {
-int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SArray * pList)
+int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @v10.6.7 SArray-->SVector
 {
 	int    ok = -1;
 	WorldTbl::Rec * p_rec;
@@ -879,7 +880,7 @@ int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SArray * pList)
 	k3.Kind = rFilt.KindFlags;
 	if(P_Tbl->search(3, &k3, spGe)) {
 		do {
-			p_rec = (WorldTbl::Rec *)&P_Tbl->data;
+			p_rec = &P_Tbl->data;
 			if(rFilt.ParentID == 0 || rFilt.ParentID == p_rec->ParentID) {
 				if(rFilt.CountryID == 0 || rFilt.CountryID == p_rec->CountryID) {
 					if(rFilt.SubName.Empty() || ExtStrSrch(p_rec->Name, rFilt.SubName.cptr(), 0) > 0)
@@ -893,20 +894,20 @@ int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SArray * pList)
 	return ok;
 }
 // } @Muxa
-int SLAPI PPObjWorld::GetListByCode(int kind, const char * pCode, SArray * pList)
+
+int SLAPI PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pList) // @v10.6.7 SArray-->SVector
 {
 	int    ok = -1;
 	size_t len = sstrlen(pCode);
 	if(len > 0 && len < sizeof(P_Tbl->data.Code)) {
-		const WorldTbl::Rec & rec = P_Tbl->data;
+		const WorldTbl::Rec & r_rec = P_Tbl->data;
 		WorldTbl::Key4 k4;
-
 		STRNSCPY(k4.Code, pCode);
 		if(P_Tbl->search(4, &k4, spEq))
 			do {
-				if(!kind || kind == rec.Kind)
+				if(!kind || kind == r_rec.Kind)
 					THROW_SL(pList->insert(&P_Tbl->data));
-			} while(P_Tbl->search(4, &k4, spNext) && (!kind || rec.Kind == kind) && len == sstrlen(k4.Code) && stricmp866(k4.Code, pCode) == 0);
+			} while(P_Tbl->search(4, &k4, spNext) && (!kind || r_rec.Kind == kind) && len == sstrlen(k4.Code) && stricmp866(k4.Code, pCode) == 0);
 	}
 	ok = (pList->getCount()) ? 1 : -1;
 	CATCHZOK
@@ -1027,7 +1028,7 @@ int SLAPI PPObjWorld::AddSimple(PPID * pID, int kind, const char * pName, const 
 	int    ok = 1;
 	PPID   id = 0, country_id = 0;
 	SString country_name;
-	SArray list(sizeof(WorldTbl::Rec));
+	SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 	THROW(GetListByName(kind, pName, &list));
 	if(pCountry) {
 		country_name = pCountry;
@@ -1053,7 +1054,7 @@ int SLAPI PPObjWorld::AddSimple(PPID * pID, int kind, const char * pName, const 
 				}
 			}
 			else
-				id = ((WorldTbl::Rec *)list.at(0))->ID;
+				id = static_cast<const WorldTbl::Rec *>(list.at(0))->ID;
 		}
 		if(id == 0) {
 			PPWorldPacket pack;
@@ -1095,7 +1096,7 @@ int SLAPI PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * 
 		MEMSZERO(k1);
 		k1.ParentID = id;
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
-			pChildList->add(P_Tbl->data.ID); // @v8.1.0 addUnique-->add
+			pChildList->add(P_Tbl->data.ID);
 			ok = 1;
 		}
 	}
@@ -1106,11 +1107,11 @@ int SLAPI PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * 
 		MEMSZERO(k2);
 		k2.CountryID = id;
 		for(q.initIteration(0, &k2, spGe); q.nextIteration() > 0;) {
-			pChildList->add(P_Tbl->data.ID); // @v8.1.0 addUnique-->add
+			pChildList->add(P_Tbl->data.ID);
 			ok = 1;
 		}
 	}
-	pChildList->sortAndUndup(); // @v8.1.0
+	pChildList->sortAndUndup();
 	SETIFZ(pStack, &inner_stack);
 	if(pStack->lsearch(id)) {
 		SString added_buf;
@@ -1130,7 +1131,7 @@ int SLAPI PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * 
 			THROW(GetChildList(pChildList->get(i), &child_list, pStack)); // @recursion
 		}
 		THROW_SL(pChildList->add(&child_list));
-		pChildList->sortAndUndup(); // @v8.1.0
+		pChildList->sortAndUndup();
 	}
 	CATCHZOK
 	return ok;
@@ -1292,7 +1293,7 @@ int SLAPI PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPI
 	SETIFZ(flags, smlCode|smlName|smlCheckCountry);
 	excl_list.add(pPack->Rec.ID);
 	if(flags & smlCode) {
-		SArray list(sizeof(WorldTbl::Rec));
+		SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 		if(GetListByCode(pPack->Rec.Kind, pPack->Rec.Code, &list) > 0) {
 			uint count = list.getCount();
 			for(uint i = 0; ok < 0 && i < count; i++) {
@@ -1303,7 +1304,7 @@ int SLAPI PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPI
 		}
 	}
 	if(ok < 0 && flags & smlName) {
-		SArray list(sizeof(WorldTbl::Rec));
+		SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 		if(GetListByName(pPack->Rec.Kind, pPack->Rec.Name, &list) > 0) {
 			uint count = list.getCount();
 			for(uint i = 0; ok < 0 && i < count; i++) {

@@ -1,5 +1,6 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -31,7 +32,7 @@ SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype
 }
 
 SLAPI DlScope::DlScope(const DlScope & s) :
-	SdRecord(), // Это - не copy-constructor так как функция копирования сделает работу, которую должен был выполнить copy-constructor базового класса
+	SdRecord(), // Р­С‚Рѕ - РЅРµ copy-constructor С‚Р°Рє РєР°Рє С„СѓРЅРєС†РёСЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ СЃРґРµР»Р°РµС‚ СЂР°Р±РѕС‚Сѓ, РєРѕС‚РѕСЂСѓСЋ РґРѕР»Р¶РµРЅ Р±С‹Р» РІС‹РїРѕР»РЅРёС‚СЊ copy-constructor Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР°
 	P_Parent(0), P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
 {
 	FixDataBuf.Init();
@@ -190,7 +191,7 @@ int FASTCALL DlScope::Read(SBuffer & rBuf)
 
 void SLAPI DlScope::SetFixDataBuf(void * pBuf, size_t size, int clear)
 {
-	FixDataBuf.P_Buf = (char *)pBuf;
+	FixDataBuf.P_Buf = static_cast<char *>(pBuf);
 	FixDataBuf.Size = size;
 	if(clear)
 		FixDataBuf.Zero();
@@ -226,50 +227,15 @@ int SLAPI DlScope::Remove(DLSYMBID scopeID)
 	return ok;
 }
 
-DLSYMBID SLAPI DlScope::GetId() const
-{
-	return (DLSYMBID)ID;
-}
-
-DLSYMBID SLAPI DlScope::GetBaseId() const
-{
-	return BaseId;
-}
-
-const SString & SLAPI DlScope::GetName() const
-{
-	return Name;
-}
-
-uint SLAPI SLAPI DlScope::GetKind() const
-{
-	return Kind;
-}
-
-uint32 SLAPI DlScope::GetVersion() const
-{
-	return Version;
-}
-
-int SLAPI DlScope::CheckDvFlag(long f) const
-{
-	return BIN(DvFlags & f);
-}
-
-int FASTCALL DlScope::IsKind(const uint kind) const
-{
-	return BIN(Kind == kind);
-}
-
-const DlScope * SLAPI DlScope::GetOwner() const
-{
-	return P_Parent;
-}
-
-const DlScopeList & SLAPI DlScope::GetChildList() const
-{
-	return ChildList;
-}
+DLSYMBID SLAPI DlScope::GetId() const { return static_cast<DLSYMBID>(ID); }
+DLSYMBID SLAPI DlScope::GetBaseId() const { return BaseId; }
+const  SString & SLAPI DlScope::GetName() const { return Name; }
+uint   SLAPI SLAPI DlScope::GetKind() const { return Kind; }
+uint32 SLAPI DlScope::GetVersion() const { return Version; }
+int    SLAPI DlScope::CheckDvFlag(long f) const { return BIN(DvFlags & f); }
+int    FASTCALL DlScope::IsKind(const uint kind) const { return BIN(Kind == kind); }
+const DlScope * SLAPI DlScope::GetOwner() const { return P_Parent; }
+const DlScopeList & SLAPI DlScope::GetChildList() const { return ChildList; }
 
 const DlScope * SLAPI DlScope::GetFirstChildByKind(int kind, int recursive) const
 {
@@ -459,7 +425,7 @@ const DlScope * SLAPI DlScope::SearchByName_Const(uint kind, const char * pName,
 
 DlScope * SLAPI DlScope::SearchByName(uint kind, const char * pName, DLSYMBID * pParentID)
 {
-	return (DlScope *)SearchByName_Const(kind, pName, pParentID);
+	return const_cast<DlScope *>(SearchByName_Const(kind, pName, pParentID)); // @badcast
 }
 
 DlScope * SLAPI DlScope::SearchByID(DLSYMBID id, DLSYMBID * pParentID)
@@ -769,12 +735,12 @@ int SLAPI DlScope::GetFldConst(uint fldID, COption id, CtmExprConst * pConst) co
 	return ok;
 }
 
-struct DlScopePropIdAssoc {
+/* @v10.6.7 struct DlScopePropIdAssoc {
 	int    Id;
 	const char * P_Text;
-};
+};*/
 
-static DlScopePropIdAssoc DlScopePropIdAssocList[] = {
+static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] = {
 	{ DlScope::cuifLabelRect,  "labelrect" },
 	{ DlScope::cuifReadOnly,   "readonly" },
 	{ DlScope::cuifDisabled,   "disabled" },
@@ -782,25 +748,31 @@ static DlScopePropIdAssoc DlScopePropIdAssocList[] = {
 	{ DlScope::cuifHidden,     "hidden" },
 	{ DlScope::cuifFont,       "font" },
 	{ DlScope::cuifStaticEdge, "staticedge" }
-
 };
 
 //static
 int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
 {
-	int    ok = 0;
+	return SIntToSymbTab_GetSymb(DlScopePropIdAssocList, SIZEOFARRAY(DlScopePropIdAssocList), propId, rSymb); // @v10.6.7
+	/* @v10.6.7 int    ok = 0;
 	rSymb.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(DlScopePropIdAssocList); i++)
 		if(DlScopePropIdAssocList[i].Id == propId) {
 			rSymb = DlScopePropIdAssocList[i].P_Text;
 			ok = 1;
 		}
-	return ok;
+	return ok;*/
 }
 
 //static
 int FASTCALL DlScope::ResolvePropName(const char * pName)
 {
+	// @v10.6.7 {
+	int    id = SIntToSymbTab_GetId(DlScopePropIdAssocList, SIZEOFARRAY(DlScopePropIdAssocList), pName);
+	if(!id)
+		PPSetError(PPERR_DL6_INVPROPSYMB);
+	// } @v10.6.7 
+	/* @v10.6.7 
 	int    id = 0;
 	for(uint i = 0; !id && i < SIZEOFARRAY(DlScopePropIdAssocList); i++)
 		if(strcmp(DlScopePropIdAssocList[i].P_Text, pName) == 0)
@@ -810,7 +782,7 @@ int FASTCALL DlScope::ResolvePropName(const char * pName)
 	THROW_PP(id, PPERR_DL6_INVPROPSYMB);
 	CATCH
 		id = 0;
-	ENDCATCH
+	ENDCATCH*/
 	return id;
 }
 
@@ -862,8 +834,8 @@ int SLAPI DlScope::AcceptTempFldConstList(uint fldID)
 {
 	if(fldID == 0) {
 		//
-		// Специальный случай: свойства диалога. Временные константы "свалены" в родительскую
-		// область. Нам надо их от туда забрать и обработать как свои (см. описание синтаксиса в DL600C.Y).
+		// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: СЃРІРѕР№СЃС‚РІР° РґРёР°Р»РѕРіР°. Р’СЂРµРјРµРЅРЅС‹Рµ РєРѕРЅСЃС‚Р°РЅС‚С‹ "СЃРІР°Р»РµРЅС‹" РІ СЂРѕРґРёС‚РµР»СЊСЃРєСѓСЋ
+		// РѕР±Р»Р°СЃС‚СЊ. РќР°Рј РЅР°РґРѕ РёС… РѕС‚ С‚СѓРґР° Р·Р°Р±СЂР°С‚СЊ Рё РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РєР°Рє СЃРІРѕРё (СЃРј. РѕРїРёСЃР°РЅРёРµ СЃРёРЅС‚Р°РєСЃРёСЃР° РІ DL600C.Y).
 		//
 		if(P_Parent) {
 			TempCfList = P_Parent->TempCfList;
@@ -907,4 +879,3 @@ long SLAPI DlScope::GetDbIndexSegOptions(uint pos) const
 {
 	return (P_DbIdxSegFlags && pos < P_DbIdxSegFlags->getCount()) ? P_DbIdxSegFlags->get(pos) : 0;
 }
-

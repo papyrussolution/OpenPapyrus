@@ -654,9 +654,8 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 			PPObjBill::MakeCodeString(&src_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 			temp_buf.Space().CatChar('#').Cat(ilti->RByBill).Space();
 		}
-		else {
+		else
 			temp_buf.CatChar('#').Cat(ilti->RByBill).Space();
-		}
 		temp_buf.CatEq("id", labs(ilti->GoodsID));
 		CALLEXCEPT_PP_S(PPERR_NEXISTGOODSINBILL, temp_buf);
 	}

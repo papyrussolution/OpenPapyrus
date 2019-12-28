@@ -107,6 +107,7 @@ int GoodsMovFiltDialog::setDTS(const GoodsMovFilt * pData)
 	setGroupData(GRP_GOODSFILT, &gf_rec);
 	setWL((Data.Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0);
 	AddClusterAssoc(CTL_GTO_FLAGS, 0, GoodsMovFilt::fCostWoVat);
+	AddClusterAssoc(CTL_GTO_FLAGS, 1, GoodsMovFilt::fPriceWoVat); // @v10.6.6
 	SetClusterData(CTL_GTO_FLAGS, Data.Flags);
 	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupPPObjCombo(this, CTLSEL_GTO_BRAND,   PPOBJ_BRAND,   Data.BrandID, OLW_LOADDEFONOPEN, 0);
@@ -174,7 +175,6 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	GCTFilt temp_filt;
 	AdjGdsGrpng agg;
 	GoodsGrpngEntry * p_entry;
-	TempGoodsMovTbl::Rec rec;
 	PPOprKind op_rec;
 	GoodsFilt gf;
 	GoodsIterator  iter(static_cast<GoodsFilt *>(0), 0);
@@ -192,9 +192,13 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	temp_filt.GoodsGrpID = Filt.GoodsGrpID;
 	temp_filt.SupplAgentID = Filt.SupplAgentID; // AHTOXA
 	SETFLAG(temp_filt.Flags, OPG_LABELONLY, Filt.Flags & GoodsMovFilt::fLabelOnly);
-	temp_filt.Flags |= (uint)(OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES);
+	temp_filt.Flags |= (OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES);
 	if(Filt.Flags & GoodsMovFilt::fCostWoVat)
 		temp_filt.Flags |= OPG_SETCOSTWOTAXES;
+	// @v10.6.6 {
+	if(Filt.Flags & GoodsMovFilt::fPriceWoVat)
+		temp_filt.Flags |= OPG_SETPRICEWOTAXES;
+	// } @v10.6.6 
 	{
 		BExtInsert bei(p_tbl);
 		GoodsGrpngArray ary;
@@ -207,7 +211,8 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 		for(iter.Init(&gf, 0); iter.Next(&gr) > 0;) {
 			THROW(PPCheckUserBreak());
 			if(!(gr.Flags & GF_GENERIC)) {
-				MEMSZERO(rec);
+				TempGoodsMovTbl::Rec rec;
+				// @v10.6.6 @ctr MEMSZERO(rec);
 				temp_filt.GoodsID = gr.ID;
 				ary.clear();
 				THROW(ary.ProcessGoodsGrouping(&temp_filt, &agg));
@@ -579,9 +584,9 @@ int SLAPI PPViewGoodsMov::Print(const void *)
 	if(ExecView(p_dlg) == cmOK) {
 		p_dlg->getCtrlData(CTL_PRNGOODSMOV_WHAT, &what);
 		p_dlg->getCtrlData(CTL_PRNGOODSMOV_AVPRICE, &v);
-		avprice          = (v & 0x01) ? 1 : 0;
-		disable_grouping = (v & 0x02) ? 1 : 0;
-		PrintWoPacks = (v & 0x04) ? 1 : 0;
+		avprice          = BIN(v & 0x01);
+		disable_grouping = BIN(v & 0x02);
+		PrintWoPacks     = BIN(v & 0x04);
 		if(what == 0)
 			rpt_id = avprice ? REPORT_GOODSMOVP : REPORT_GOODSMOV;
 		else {
@@ -623,7 +628,6 @@ DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	DBQuery * p_q = 0;
 	SString loc_names, subtitle;
 	uint   brw_id = BROWSER_GOODSMOV;
-
 	TempGoodsMovTbl * p_t = new TempGoodsMovTbl(P_TempTbl->GetName());
 	p_q = & select(
 		p_t->GoodsID,      // #00
@@ -728,16 +732,16 @@ int PPALDD_GoodsMov::InitData(PPFilt & rFilt, long rsrv)
 {
 	PPViewGoodsMov * p_v = 0;
 	if(rsrv) {
-		p_v = (PPViewGoodsMov*)rFilt.Ptr;
+		p_v = static_cast<PPViewGoodsMov *>(rFilt.Ptr);
 		Extra[1].Ptr = p_v;
 	}
 	else {
 		p_v = new PPViewGoodsMov;
 		Extra[0].Ptr = p_v;
-		p_v->Init_((GoodsMovFilt*)rFilt.Ptr);
+		p_v->Init_(static_cast<const GoodsMovFilt *>(rFilt.Ptr));
 	}
 	SString temp_buf;
-	const GoodsMovFilt * p_flt  = (const GoodsMovFilt*)(p_v->GetBaseFilt());
+	const GoodsMovFilt * p_flt  = static_cast<const GoodsMovFilt *>(p_v->GetBaseFilt());
 	H.FltBeg  = p_flt->Period.low;
 	H.FltEnd  = p_flt->Period.upp;
 	H.fLabelOnly    = BIN(p_flt->Flags & GoodsMovFilt::fLabelOnly);

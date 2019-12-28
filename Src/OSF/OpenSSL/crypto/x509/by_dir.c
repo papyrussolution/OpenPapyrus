@@ -59,7 +59,7 @@ static int dir_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl, ch
 {
 	int ret = 0;
 	char * dir = NULL;
-	BY_DIR * ld = (BY_DIR*)ctx->method_data;
+	BY_DIR * ld = reinterpret_cast<BY_DIR *>(ctx->method_data);
 	switch(cmd) {
 		case X509_L_ADD_DIR:
 		    if(argl == X509_FILETYPE_DEFAULT) {
@@ -67,8 +67,7 @@ static int dir_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl, ch
 			    if(dir)
 				    ret = add_cert_dir(ld, dir, X509_FILETYPE_PEM);
 			    else
-				    ret = add_cert_dir(ld, X509_get_default_cert_dir(),
-				    X509_FILETYPE_PEM);
+				    ret = add_cert_dir(ld, X509_get_default_cert_dir(), X509_FILETYPE_PEM);
 			    if(!ret) {
 				    X509err(X509_F_DIR_CTRL, X509_R_LOADING_CERT_DIR);
 			    }
@@ -82,8 +81,8 @@ static int dir_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl, ch
 
 static int new_dir(X509_LOOKUP * lu)
 {
-	BY_DIR * a;
-	if((a = (BY_DIR*)OPENSSL_malloc(sizeof(*a))) == NULL)
+	BY_DIR * a = static_cast<BY_DIR *>(OPENSSL_malloc(sizeof(*a)));
+	if(a == NULL)
 		return 0;
 	if((a->buffer = BUF_MEM_new()) == NULL) {
 		OPENSSL_free(a);

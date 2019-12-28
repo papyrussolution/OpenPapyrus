@@ -652,22 +652,18 @@ int SLAPI PredictSalesCore::Remove(const PredictSalesTbl::Rec * pRec)
 		this->GoodsID == (long)pRec->GoodsID && this->Dt == (long)pRec->Dt) ? 1 : PPSetErrorDB();
 }
 
-int SLAPI PredictSalesCore::AddItem(long typ, PPID locID, PPID goodsID,
-	LDATE dt, double qtty, double amount, long f)
+int SLAPI PredictSalesCore::AddItem(long typ, PPID locID, PPID goodsID, LDATE dt, double qtty, double amount, long f)
 {
 	int    ok = 1;
 	int16  loc_idx = 0;
 	int16  dt_idx = 0;
 	PredictSalesTbl::Key0 k0;
-
 	AddLocEntry(locID, &loc_idx);
 	ShrinkDate(dt, &dt_idx);
-
 	k0.RType = (int16)typ;
 	k0.Loc = loc_idx;
 	k0.GoodsID = goodsID;
 	k0.Dt = dt_idx;
-
 	if(searchForUpdate(0, &k0, spEq)) {
 		data.Quantity = (float)qtty;
 		data.Amount = (float)amount;
@@ -874,7 +870,7 @@ int SLAPI PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const Dat
 	long c = 0;
 	for(q.initIteration(dir, &k, dir ? spLe : spGe); q.nextIteration() > 0;) {
 		PredictSalesItem item;
-		MEMSZERO(item);
+		// @v10.6.6 @ctr MEMSZERO(item);
 		ExpandDate(data.Dt, &item.Dt);
 		item.Qtty = data.Quantity;
 		item.Amount = data.Amount;
@@ -945,6 +941,10 @@ int SLAPI PredictSalesCore::CalcStat(PPID goodsID, const ObjIdListFilt & rLocLis
 //
 //
 //
+SLAPI PredictSalesItem::PredictSalesItem() : Dt(ZERODATE), Qtty(0.0), Amount(0.0)
+{
+}
+
 SLAPI PsiArray::PsiArray() : TSVector <PredictSalesItem>() // @v9.8.4 TSArray-->TSVector
 {
 }

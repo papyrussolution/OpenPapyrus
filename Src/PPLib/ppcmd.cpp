@@ -2067,9 +2067,9 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 		PPObjSCard sc_obj;
 		SelectPersonByCodeDialog::Rec psn_data;
 		static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
-		MEMSZERO(pop_rec);
-		MEMSZERO(pk_rec);
-		MEMSZERO(scnd_pk_rec);
+		// @v10.6.6 @ctr MEMSZERO(pop_rec);
+		// @v10.6.6 @ctr MEMSZERO(pk_rec);
+		// @v10.6.6 @ctr MEMSZERO(scnd_pk_rec);
 		CALLPTRMEMB(pParam, Read(symb));
 		THROW(pop_obj.SearchBySymb(symb, 0, &pop_rec) > 0);
 		THROW(pop_obj.GetPacket(pop_rec.ID, &pop_pack) > 0);

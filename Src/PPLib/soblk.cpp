@@ -3222,7 +3222,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					SArray temp_list(sizeof(WorldTbl::Rec));
+					SVector temp_list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
 					if(!P_WrldF) {
 						P_WrldF = new PPObjWorld::SelFilt();
 						P_WrldF->KindFlags = (ObjTypeExt == WORLDOBJ_COUNTRY) ? WORLDOBJ_COUNTRY : WORLDOBJ_CITY;
@@ -3230,7 +3230,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW(w_obj.GetListByFilt(*P_WrldF, &temp_list));
 					uint n = temp_list.getCount();
 					for(uint i = 0; i < n; i++) {
-						const WorldTbl::Rec * p_rec = (const WorldTbl::Rec *)temp_list.at(i);
+						const WorldTbl::Rec * p_rec = static_cast<const WorldTbl::Rec *>(temp_list.at(i));
 						THROW_SL(ResultList.Add(p_rec->ID, p_rec->ParentID, p_rec->Name));
 					}
 				}

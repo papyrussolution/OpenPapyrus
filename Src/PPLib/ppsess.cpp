@@ -2956,7 +2956,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				r_lc.Menu = -1;
 			if(r_lc.User && r_lc.User != PPUSR_MASTER) {
 				PPAccessRestriction accsr;
-				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User));
+				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User, 0/*ignoreCheckSum*/));
 				r_tla.Rights.GetAccessRestriction(accsr);
 				r_tla.Rights.ExtentOpRights();
 				getcurdatetime(&cdt, &ctm);
@@ -3643,7 +3643,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 										use_mqb_for_dbx = 1;
 									else {
 										PPAccessRestriction accsr;
-										THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User));
+										THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User, 0/*ignoreCheckSum*/));
 										r_tla.Rights.GetAccessRestriction(accsr);
 										if(accsr.CFlags & accsr.cfAllowDbxReceive)
 											use_mqb_for_dbx = 1;

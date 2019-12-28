@@ -865,7 +865,7 @@ int PPALDD_PsnOpKindView::NextIteration(PPIterID iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	ALD_PsnOpKindBlock * p_blk = static_cast<ALD_PsnOpKindBlock *>(Extra[0].Ptr);
-	PPPsnOpKind  item;
+	PPPsnOpKind item;
 	if(p_blk && p_blk->P_En && p_blk->P_En->Next(&item) > 0) {
 		I.PsnOpKindID = item.ID;
 		I.Level       = p_blk->Obj.GetLevel(item.ID);
