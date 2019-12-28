@@ -42,7 +42,7 @@ public:
 	{
 		return *static_cast<CashierEntry *>(SVector::at(p)); // @v9.8.11 SArray-->SVector
 	}
-	int    FASTCALL Add(CashierEntry * pEntry)
+	int    FASTCALL Add(const CashierEntry * pEntry)
 	{
 		uint   p = 0;
 		return Search(pEntry->TabNum, pEntry->Expiry, &p) ? -1 : Insert(pEntry);
@@ -660,32 +660,32 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 			AddCheckDigToBarcode(prev_gds_info.PrefBarCode);
 			p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
 			if(oneof2(mode, 0, 2)) {
-				if(rStoreIndex.NotEmpty()) {
-					//<shop-indices>2</shop-indices>
+				if(rStoreIndex.NotEmpty())
 					p_writer->PutElement("shop-indices", rStoreIndex);
-				}
 			}
-			p_writer->PutElement("name", prev_gds_info.Name);
-			{
-				for(uint i = 0; i < barcodes.getCount(); i++) {
-					BarcodeTbl::Rec bc = barcodes.at(i);
-					if(sstrlen(bc.Code)) {
-						if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
-							is_weight = gds_cfg.IsWghtPrefix(bc.Code);
-						AddCheckDigToBarcode(bc.Code);
-						p_writer->StartElement("bar-code", "code", bc.Code);
-						// @v10.4.11 {
-						if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
-							p_writer->AddAttrib("marked", "true");
+			if(oneof2(mode, 0, 1)) { // @v10.6.7
+				p_writer->PutElement("name", prev_gds_info.Name);
+				{
+					for(uint i = 0; i < barcodes.getCount(); i++) {
+						BarcodeTbl::Rec bc = barcodes.at(i);
+						if(sstrlen(bc.Code)) {
+							if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
+								is_weight = gds_cfg.IsWghtPrefix(bc.Code);
+							AddCheckDigToBarcode(bc.Code);
+							p_writer->StartElement("bar-code", "code", bc.Code);
+							// @v10.4.11 {
+							if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
+								p_writer->AddAttrib("marked", "true");
+							}
+							// } @v10.4.11 
+							// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
+							// p_writer->PutElement("begin-date", beg_dtm);
+							// p_writer->PutElement("end-date", end_dtm);
+							// p_writer->EndElement();
+							p_writer->PutElement("count", bc.Qtty);
+							p_writer->PutElement("default-code", LOGIC(strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0));
+							p_writer->EndElement(); // </bar-code>
 						}
-						// } @v10.4.11 
-						// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
-						// p_writer->PutElement("begin-date", beg_dtm);
-						// p_writer->PutElement("end-date", end_dtm);
-						// p_writer->EndElement();
-						p_writer->PutElement("count", bc.Qtty);
-						p_writer->PutElement("default-code", LOGIC(strcmp(bc.Code, prev_gds_info.PrefBarCode) == 0));
-						p_writer->EndElement(); // </bar-code>
 					}
 				}
 			}
@@ -819,7 +819,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 						prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
 					}
 					if(checkdate(expiry)) {
-						long   hours = diffdate(expiry, beg_dtm.d) * 24;
+						const long hours = diffdate(expiry, beg_dtm.d) * 24;
 						p_writer->PutPlugin("good-for-hours", hours);
 						// p_writer->PutPlugin("best-before", expiry);
 					}
@@ -856,10 +856,8 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 			}
 			if(oneof2(mode, 0, 1)) {
 				// @v9.5.2 {
-				if(prev_gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0) { // @v10.2.3 @fix gds_info-->prev_gds_info
-					//<delete-from-cash>true</delete-from-cash>
+				if(prev_gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0) // @v10.2.3 @fix gds_info-->prev_gds_info
 					p_writer->PutElement("delete-from-cash", true);
-				}
 				// } @v9.5.2
 			}
 			p_writer->EndElement(); // </good>

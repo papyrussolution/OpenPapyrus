@@ -838,7 +838,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 				// а затем, если можно, без учета серийного номера
 				//
 				for(i = 0; qtty < (-_qtty_epsilon) && i < lots.getCount(); i++) { // @v9.3.9 (qtty < 0)-->(qtty < (-_qtty_epsilon))
-					PPID   lot_id = lots.get(i);
+					const PPID lot_id = lots.get(i);
 					if(!by_serial || CmpSnrWithLotSnr(lot_id, serial)) {
 						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 						// @v9.3.9 if(rest > 0.0) {
