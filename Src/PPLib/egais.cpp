@@ -1944,7 +1944,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	const  int doc_type = rPack.DocType;
 	SString doc_type_tag;
 	PPID   main_org_id = 0;
-	ReceiptTbl::Rec lot_rec;
 	SString fsrar_ident;
 	SString temp_buf;
 	SString bill_text;
@@ -2232,6 +2231,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									double qtty = fabs(r_ti.Qtty());
 									double price = 0.0;
 									long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
+									ReceiptTbl::Rec lot_rec;
 									if(wb_type == wbtRetFromMe)
 										price = (op_rec.Flags & OPKF_SELLING) ? fabs(r_ti.NetPrice()) : r_ti.Cost;
 									else
@@ -2242,7 +2242,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										price = (price / mult);
 										qtty_fmt = MKSFMTD(0, 3, 0); // @v9.7.10
 									}
-									MEMSZERO(lot_rec);
+									// @v10.6.7 @ctr MEMSZERO(lot_rec);
 									P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
 									P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
 									lot_text.Z().CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
@@ -3006,7 +3006,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										// } @v9.8.11
 									}
 									{
-										MEMSZERO(lot_rec);
+										ReceiptTbl::Rec lot_rec;
+										// @v10.6.7 @ctr MEMSZERO(lot_rec);
 										P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
 										P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
 										lot_text.Z().CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
@@ -8773,13 +8774,10 @@ int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, S
 			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_EGAISMARK_INPUT)) {
 				getCtrlString(CTL_EGAISMARK_INPUT, CodeBuf.Z());
 				SString msg_buf, mark_buf;
-				if(PrcssrAlcReport::IsEgaisMark(CodeBuf, &mark_buf) && PrcssrAlcReport::ParseEgaisMark(mark_buf, Mb) > 0) {
-					PPLoadText(PPTXT_EGAISMARKVALID, msg_buf);
-					msg_buf.CR().Cat(Mb.EgaisCode);
-				}
-				else {
+				if(PrcssrAlcReport::IsEgaisMark(CodeBuf, &mark_buf) && PrcssrAlcReport::ParseEgaisMark(mark_buf, Mb) > 0)
+					PPLoadTextS(PPTXT_EGAISMARKVALID, msg_buf).CR().Cat(Mb.EgaisCode);
+				else
 					PPLoadError(PPERR_TEXTISNTEGAISMARK, msg_buf, CodeBuf);
-				}
 				setStaticText(CTL_EGAISMARK_INFO, msg_buf);
 			}
 		}

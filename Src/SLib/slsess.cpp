@@ -51,18 +51,6 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 //
 //
-SLAPI SlExecutionContext::SlExecutionContext(const char * pInfo)
-{
-	SLS.SetExecutionContext(pInfo);
-}
-	
-SLAPI SlExecutionContext::~SlExecutionContext()
-{
-	SLS.SetExecutionContext(0);
-}
-//
-//
-//
 SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0),
 	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
 	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
@@ -88,19 +76,6 @@ void SLAPI SlThreadLocalArea::Destroy()
 	if(FontDc)
 		::DeleteDC(FontDc);
 	RemoveTempFiles();
-}
-
-void FASTCALL SlThreadLocalArea::SetExecutionContext(const char * pInfo)
-{
-	if(isempty(pInfo))
-		ECtx.Z();
-	else
-		ECtx.Info = pInfo;
-}
-
-SlThreadLocalArea::ExecutionContext_ SLAPI SlThreadLocalArea::GetExecutionContext() const
-{
-	return ECtx;
 }
 
 TVRez * SLAPI SlThreadLocalArea::GetRez()
@@ -566,7 +541,6 @@ const  SString & SlSession::GetAddedMsgString() const { return GetConstTLA().Add
 const  SString & SLAPI SlSession::GetExePath() const { return ExePath; }
 const  SString & SLAPI SlSession::GetAppName() const { return AppName; }
 void   FASTCALL SlSession::SetAddedMsgString(const char * pStr) { GetTLA().AddedMsgString = pStr; }
-void   FASTCALL SlSession::SetExecutionContext(const char * pInfo) { GetTLA().SetExecutionContext(pInfo); }
 
 void SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
 {

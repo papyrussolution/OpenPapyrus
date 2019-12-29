@@ -12963,16 +12963,6 @@ public:
 	QueryPathFunc F_QueryPath;
 };
 //
-// Descr: Утилитный класс предназначенный для установки контекста исполнения 
-//   в текущей области видимости функции.
-//   Деструктор автоматически очищает текущий контекст исполнения.
-//
-class SlExecutionContext {
-public:
-	explicit SLAPI SlExecutionContext(const char * pInfo);
-	SLAPI ~SlExecutionContext();
-};
-//
 // Descr: Флаги пользовательского интерфейса (SlThreadLocalArea::UiFlags)
 //
 enum {
@@ -12981,24 +12971,9 @@ enum {
 
 class SlThreadLocalArea {
 public:
-	class ExecutionContext_ { // @transient
-	public:
-		ExecutionContext_()
-		{
-		}
-		ExecutionContext_ & Z()
-		{
-			Info.Z();
-			return *this;
-		}
-
-		SString Info;
-	};
 	SLAPI  SlThreadLocalArea();
 	SLAPI ~SlThreadLocalArea();
 	void   SLAPI Destroy();
-	void   FASTCALL SetExecutionContext(const char * pInfo);
-	ExecutionContext_ SLAPI GetExecutionContext() const;
 	int    SLAPI RegisterTempFileName(const char *);
 	void   SLAPI RemoveTempFiles();
 	//
@@ -13051,7 +13026,6 @@ private:
 		// (Window-функции, оперирующие со шрифтами требуют HDC с установленным в нем текущим шрифтом).
 	TPoint NextDialogLuPos;  // Позиция, в которую необходимо установить верхний левый угол диалога.
 		// Функция вызова диалога сразу после получения позиции сбрасывает ее в {-1, -1}
-	ExecutionContext_ ECtx;  // @v10.6.7 Контекст исполнения. Введен ради отслеживания подробного контекста ошибок. В дальнейшем планируется использование расширять.
 };
 
 class SlSession {

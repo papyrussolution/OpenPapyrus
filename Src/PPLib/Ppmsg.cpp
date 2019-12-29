@@ -445,16 +445,6 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 			}
 		}
 		rBuf = msgcode ? temp_buf : pAddInfo;
-		// @v10.6.7 {
-		if((options & 0x00ff) == mfError) {
-			SlThreadLocalArea::ExecutionContext_ ectx = SLS.GetConstTLA().GetExecutionContext();
-			if(ectx.Info.NotEmpty()) {
-				if(rBuf.NotEmpty())
-					rBuf.CR();
-				rBuf.Cat(ectx.Info);
-			}
-		}
-		// } @v10.6.7 
 		if(rmvSpcChrs)
 			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ReplaceStr("  ", " ", 0); // @v10.6.7 .ReplaceStr("  ", " ", 0)
 	}
