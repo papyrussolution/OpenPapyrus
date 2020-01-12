@@ -266,11 +266,12 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 
 int SLAPI PPViewOpGrouping::InitIteration()
 {
-	char   k[MAXKEYLEN];
+	// @v10.6.8 char   k[MAXKEYLEN];
+	BtrDbKey k_; // @v10.6.8
 	P_IterQuery = new BExtQuery(P_TempTbl, 0, 16);
 	P_IterQuery->selectAll();
-	memzero(k, sizeof(k));
-	P_IterQuery->initIteration(0, k, spFirst);
+	// @v10.6.8 @ctr memzero(k, sizeof(k));
+	P_IterQuery->initIteration(0, k_, spFirst);
 	return 1;
 }
 
@@ -830,7 +831,8 @@ int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			if(oneof2(p_tbl->data.OpID, OPGRPNG_INREST, OPGRPNG_OUTREST)) {
 				if(Filt.GoodsID) {
 					LotFilt  lot_flt;
-					lot_flt.LocID      = Filt.LocList.GetSingle();
+					// @v10.6.8 lot_flt.LocID      = Filt.LocList.GetSingle();
+					lot_flt.LocList = Filt.LocList; // @v10.6.8
 					lot_flt.SupplID    = Filt.SupplID;
 					lot_flt.GoodsGrpID = Filt.GoodsGrpID;
 					lot_flt.GoodsID    = Filt.GoodsID;
@@ -872,7 +874,7 @@ int SLAPI PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				tra_flt.GoodsID    = Filt.GoodsID;
 				tra_flt.SupplAgentID = Filt.SupplAgentID;
 				if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
-					tra_flt.LocList.FreeAll();
+					tra_flt.LocList.Z();
 					tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()));
 					PPIDArray op_list;
 					for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;) {
@@ -901,7 +903,7 @@ int SLAPI PPViewOpGrouping::InitBillList(PPID opID)
 		tra_flt.GoodsGrpID = Filt.GoodsGrpID;
 		tra_flt.GoodsID = Filt.GoodsID;
 		if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
-			tra_flt.LocList.FreeAll();
+			tra_flt.LocList.Z();
 			tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()));
 			PPIDArray op_list;
 			for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;) {

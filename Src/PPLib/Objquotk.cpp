@@ -1,5 +1,5 @@
 // OBJQUOTK.CPP
-// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -44,7 +44,7 @@ int SLAPI PPQuotKind2::GetTimeRange(TimeRange & rRange) const
 			rRange.upp = encodetime(h, m, 0, 0);
 	}
 	if(rRange.upp == 0 && rRange.low)
-		rRange.upp = encodetime(23, 59, 59, 0);
+		rRange.upp = MAXDAYTIMESEC;
 	/* @v7.0.6
 	if(rRange.low > rRange.upp)
 		memswap(&rRange.low, &rRange.upp, sizeof(rRange.low));
@@ -263,8 +263,8 @@ int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 	PPObjGoods goods_obj;
 	const  int  intrexpnd = IsIntrExpndOp(opID);
 	const  PPID matrix_qk_id = goods_obj.GetConfig().MtxQkID;
-	SArray list(sizeof(PPQuotKind));
-	ref->LoadItems(Obj, &list);
+	SVector list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
+	ref->LoadItems(Obj, list);
 	for(uint qkidx = 0; qkidx < list.getCount(); qkidx++) {
 		const PPQuotKind * p_item = static_cast<const PPQuotKind *>(list.at(qkidx));
 		const PPID id = p_item->ID;
@@ -671,7 +671,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 	SString temp_buf;
 	PPIDArray id_list;
 	PPQuotKind qk_rec;
-	SArray rec_list(sizeof(PPQuotKind));
+	SVector rec_list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
 	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
 		/* @v9.8.3
@@ -708,7 +708,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 	}
 	else {
 		int    intrexpnd = pFilt->OpID ? IsIntrExpndOp(pFilt->OpID) : 0;
-		THROW(ref->LoadItems(Obj, &rec_list));
+		THROW(ref->LoadItems(Obj, rec_list));
 		if(pFilt->Flags & QuotKindFilt::fAddBase || intrexpnd) {
 			const PPID base_id = PPQUOTK_BASE;
 			if(!rec_list.lsearch(&base_id, 0, CMPF_LONG, offsetof(PPQuotKind, ID))) {
@@ -722,7 +722,7 @@ int SLAPI PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pL
 		}
 		rec_list.sort((pFilt->Flags & QuotKindFilt::fSortByRankName) ? PTR_CMPFUNC(PPQuotKind_RankName) : PTR_CMPFUNC(PPQuotKind));
 		for(i = rec_list.getCount()-1; i >= 0; i--) {
-			PPQuotKind * p_rec = (PPQuotKind *)rec_list.at(i);
+			const PPQuotKind * p_rec = static_cast<const PPQuotKind *>(rec_list.at(i));
 			if(!(pFilt->Flags & QuotKindFilt::fAll) && spc.IsSupplDealKind(p_rec->ID))
 				rec_list.atFree(i);
 			else if((p_rec->Flags & QUOTKF_NOTFORBILL) && (pFilt->Flags & QuotKindFilt::fExclNotForBill))
@@ -963,14 +963,11 @@ int QuotKindDialog::setDTS(const PPQuotKindPacket * pPack)
 int QuotKindDialog::getDTS(PPQuotKindPacket * pPack)
 {
 	int    ok = 1;
-	uint   ctl = 0;
-	getCtrlData(CTL_QUOTKIND_NAME, Data.Rec.Name);
-	ctl = CTL_QUOTKIND_NAME;
+	uint   sel = 0;
+	getCtrlData(sel = CTL_QUOTKIND_NAME, Data.Rec.Name);
 	THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
-	ctl = CTL_QUOTKIND_NAME;
 	THROW(P_Ref->CheckDupName(Data.Rec.ID, Data.Rec.Name));
-	ctl = CTL_QUOTKIND_SYMB;
-	getCtrlData(CTL_QUOTKIND_SYMB,  Data.Rec.Symb);
+	getCtrlData(sel = CTL_QUOTKIND_SYMB,  Data.Rec.Symb);
 	THROW(P_Ref->ref->CheckUniqueSymb(P_Ref->Obj, Data.Rec.ID, Data.Rec.Symb, offsetof(PPQuotKind, Symb)))
 	getCtrlData(CTL_QUOTKIND_ID,    &Data.Rec.ID);
 	getCtrlData(CTLSEL_QUOTKIND_OP, &Data.Rec.OpID);
@@ -981,7 +978,7 @@ int QuotKindDialog::getDTS(PPQuotKindPacket * pPack)
 	ASSIGN_PTR(pPack, Data);
 	CATCH
 		ok = 0;
-		selectCtrl(ctl);
+		selectCtrl(sel);
 	ENDCATCH
 	return ok;
 }
@@ -990,8 +987,8 @@ void QuotKindDialog::UpdateView()
 {
 	int   not_retailed = 0;
 	getDTS(0);
-	PPID  acs_id = Data.Rec.AccSheetID;
-	int   not_sell_accsheet = BIN(acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
+	const PPID  acs_id = Data.Rec.AccSheetID;
+	const int   not_sell_accsheet = BIN(acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
 	if(not_sell_accsheet) {
 		Data.Rec.Flags &= ~QUOTKF_RETAILED;
 		SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
@@ -1049,10 +1046,7 @@ int SLAPI PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjQuotKind::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRQUOTKIND, 0);
-}
+int SLAPI PPObjQuotKind::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRQUOTKIND, 0); }
 
 int SLAPI PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
@@ -1060,7 +1054,7 @@ int SLAPI PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_OPRKIND) {
 		int    r;
 		for(PPID id = 0; ok == DBRPL_OK && (r = ref->EnumItems(Obj, &id)) > 0;)
-			if(((PPQuotKind*)&ref->data)->OpID == _id)
+			if(reinterpret_cast<const PPQuotKind *>(&ref->data)->OpID == _id)
 				ok = RetRefsExistsErr(Obj, id);
 		if(ok == DBRPL_OK && r == 0)
 			ok = DBRPL_ERROR;
@@ -1239,17 +1233,13 @@ int FASTCALL QuotKindCache::Dirty(PPID id)
 	SymbList.Dirty(id);
 	// @v9.0.9 {
 	{
-		//RtlLock.ReadLock();
 		SRWLOCKER(RtlLock, SReadWriteLocker::Read);
 		if(RtlListInited) {
-			//RtlLock.Unlock();
-			//RtlLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			RtlQkList.clear();
 			RtlTmQkList.clear();
 			RtlListInited = 0;
 		}
-		//RtlLock.Unlock();
 	}
 	// } @v9.0.9
 	return ok;
@@ -1259,19 +1249,15 @@ int SLAPI QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 {
 	int    ok = 1;
 	{
-		//RtlLock.ReadLock();
 		SRWLOCKER(RtlLock, SReadWriteLocker::Read);
 		if(!RtlListInited) {
 			PPObjQuotKind qk_obj;
-			//RtlLock.Unlock();
-			//RtlLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			qk_obj.Helper_GetRtlList(ZERODATETIME, &RtlQkList, &RtlTmQkList, 0);
 			RtlListInited = 1;
 		}
 		rList = RtlQkList;
 		rTmList = RtlTmQkList;
-		//RtlLock.Unlock();
 	}
 	return ok;
 }

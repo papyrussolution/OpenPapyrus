@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -705,24 +705,6 @@ int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
 		return 0;
 	if(MONEYTOLDBL(Rec.Discount) != MONEYTOLDBL(rS.Rec.Discount))
 		return 0;
-	/*
-	struct Rec {
-		int32  CheckID;
-		int32  SalerID;
-		int32  TableNo;
-		int32  AddPaym;
-		int16  GuestCount;
-		uint8  Reserve[2]; // raw
-		int32  AddrID;
-		int32  AddCrdCardID;
-		int32  AddCrdCardPaym;
-		int32  LinkCheckID;
-		LDATETIME StartOrdDtm;
-		LDATETIME EndOrdDtm;
-		LDATETIME CreationDtm;
-		char   Memo[256];  // note
-	} data;
-	*/
 	#define CMP_FLD(f) if(Ext.f != rS.Ext.f) return 0
 	CMP_FLD(SalerID);
 	CMP_FLD(TableNo);
@@ -730,7 +712,8 @@ int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
 	CMP_FLD(GuestCount);
 	CMP_FLD(AddrID);
 	CMP_FLD(AddCrdCardID_unused); // @v9.0.4 _unused
-	CMP_FLD(AddCrdCardPaym_unused); // @v9.0.4 _unused
+	// @v10.6.8 CMP_FLD(AddCrdCardPaym_unused); // @v9.0.4 _unused
+	CMP_FLD(CreationUserID); // @v10.6.8
 	CMP_FLD(LinkCheckID);
 	CMP_FLD(StartOrdDtm);
 	CMP_FLD(EndOrdDtm);
@@ -743,8 +726,9 @@ int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
 
 int SLAPI CCheckPacket::HasExt() const
 {
+	// @v10.6.8 Ext.CreationUserID
 	return BIN(Ext.TableNo || Ext.SalerID || Ext.GuestCount || Ext.LinkCheckID ||
-		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.Memo[0] || Ext.AddrID/* @v9.0.4 || Ext.AddPaym || Ext.AddCrdCardID || Ext.AddCrdCardPaym*/);
+		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.CreationUserID || Ext.Memo[0] || Ext.AddrID/* @v9.0.4 || Ext.AddPaym || Ext.AddCrdCardID || Ext.AddCrdCardPaym*/);
 }
 
 uint  SLAPI CCheckPacket::GetCount() const { return Items_.getCount(); }
@@ -1079,7 +1063,7 @@ int SLAPI CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char
 {
 	int    ok = 1;
 	THROW_SL(Items_.insert(pItem));
-	const int idx = static_cast<int>(Items_.getCount());
+	const int idx = Items_.getCountI();
 	if(!isempty(pSerial)) {
 		THROW(SetLineTextExt(idx, CCheckPacket::lnextSerial, pSerial));
 	}
@@ -1604,7 +1588,7 @@ int SLAPI CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt &
 			if(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero()) {
 				//dbq = & (*dbq && daterange(p_ext->Dt, &rFilt.Period));
 			}
-			q.select(p_ext->CheckID, p_ext->CreationDtm, 0L).where(*dbq);
+			q.select(p_ext->CheckID, p_ext->CreationUserID, p_ext->CreationDtm, 0L).where(*dbq); // @v10.6.8 p_ext->CreationUserID
 			for(q.initIteration(0, &k, (idx == 2) ? spGe : spFirst); q.nextIteration() > 0;) {
 				if(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero()) {
 					if(!rFilt.Period.CheckDate(p_ext->data.CreationDtm.d))
@@ -1637,7 +1621,8 @@ int SLAPI CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SearchByID(P_Ext, 0, id, &ccext_rec) > 0);
-		if(ccext_rec.TableNo != pExt->TableNo || ccext_rec.StartOrdDtm != pExt->StartOrdDtm ||
+		// @v10.6.8 (ccext_rec.CreationUserID != pExt->CreationUserID)
+		if(ccext_rec.TableNo != pExt->TableNo || ccext_rec.CreationUserID != pExt->CreationUserID || ccext_rec.StartOrdDtm != pExt->StartOrdDtm ||
 			ccext_rec.EndOrdDtm != pExt->EndOrdDtm || ccext_rec.CreationDtm != pExt->CreationDtm || ccext_rec.GuestCount != pExt->GuestCount ||
 			ccext_rec.AddrID != pExt->AddrID || strcmp(ccext_rec.Memo, pExt->Memo) != 0) {
 			CCheckExtTbl::Key0 k0;
@@ -1650,6 +1635,7 @@ int SLAPI CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use
 			ccext_rec.CreationDtm = pExt->CreationDtm;
 			ccext_rec.GuestCount = pExt->GuestCount;
 			ccext_rec.AddrID = pExt->AddrID;
+			ccext_rec.CreationUserID = pExt->CreationUserID; // @v10.6.8
 			STRNSCPY(ccext_rec.Memo, pExt->Memo);
 			THROW_DB(P_Ext->updateRecBuf(&ccext_rec)); // @sfu
 			ok = 1;
@@ -1689,6 +1675,8 @@ int FASTCALL CCheckCore::IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckEx
 	else if(r1.EndOrdDtm != r2.EndOrdDtm)
 		eq = 0;
 	else if(r1.CreationDtm != r2.CreationDtm)
+		eq = 0;
+	else if(r1.CreationUserID != r2.CreationUserID) // @v10.6.8
 		eq = 0;
 	else if(strcmp(r1.Memo, r2.Memo) != 0)
 		eq = 0;

@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8 // @v10.4.5
 //
 #include <slib.h>
@@ -16,6 +16,7 @@ const LDATE MAXDATEVALID = {0x0bb80101}; // 01/01/3000
 const LTIME ZEROTIME = {0L};
 const LTIME MAXTIME  = {MAXLONG};
 const LTIME MAXDAYTIME = { 0x173B3B63U }; // 23:59:59.99
+const LTIME MAXDAYTIMESEC = { 0x173B3B00U }; // 23:59:59.00
 const LDATETIME ZERODATETIME = {{0}, {0}};
 const LDATETIME MAXDATETIME = {{MAXLONG}, {MAXLONG}};
 
@@ -454,7 +455,7 @@ static void _ltodate360(long nd, void * dt, int format)
 	ldiv_t xd = ldiv(nd, 360L);
 	int    y = (int)xd.quot + 1;
 	int    d = (int)xd.rem;
-	int    m = getMon(&d, !(y % 4));
+	int    m = getMon(&d, IsLeapYear(y));
 	_encodedate(d, m, y, dt, format);
 }
 
@@ -658,7 +659,7 @@ void SLAPI _plusperiod(void * dest, int prd, int numperiods, int format, int _36
 			else if(prd == PRD_ANNUAL)
 				y += numperiods;
 			if(d > daysPerMonth[m-1])
-				d = ((y % 4) == 0 && m == 2 && d >= 29) ? 29 : daysPerMonth[m-1];
+				d = (m == 2 && d >= 29 && IsLeapYear(y)) ? 29 : daysPerMonth[m-1];
 			_encodedate(d, m, y, dest, format);
 		}
 	}
@@ -1646,7 +1647,7 @@ LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 			result.setyear(y);
 			result.setmonth(m);
 			if(d != ANY_DAYITEM_VALUE && d > daysPerMonth[m-1])
-				d = ((y % 4) == 0 && m == 2 && d >= 29) ? 29 : daysPerMonth[m-1];
+				d = (m == 2 && d >= 29 && IsLeapYear(y)) ? 29 : daysPerMonth[m-1];
 			result.setday(d);
 			if(plus_y)
 				plusperiod(&result, PRD_ANNUAL, plus_y, 0);

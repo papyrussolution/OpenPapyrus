@@ -28,7 +28,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 /* Originally from NetBSD's mknod(8) source. */
 
 #include "archive_platform.h"
@@ -67,26 +66,25 @@ static const char tooManyFields[] = "too many fields for format";
 /* This is blatantly stolen from libarchive/archive_entry.c,
  * in an attempt to get this to play nice on MinGW... */
 #if !defined(HAVE_MAJOR) && !defined(major)
-/* Replacement for major/minor/makedev. */
-#define major(x) ((int)(0x00ff & ((x) >> 8)))
-#define minor(x) ((int)(0xffff00ff & (x)))
-#define makedev(maj, min) ((0xff00 & ((maj)<<8)) | (0xffff00ff & (min)))
+	/* Replacement for major/minor/makedev. */
+	#define major(x) ((int)(0x00ff & ((x) >> 8)))
+	#define minor(x) ((int)(0xffff00ff & (x)))
+	#define makedev(maj, min) ((0xff00 & ((maj)<<8)) | (0xffff00ff & (min)))
 #endif
-
 /* Play games to come up with a suitable makedev() definition. */
 #ifdef __QNXNTO__
-/* QNX.  <sigh> */
-#include <sys/netmgr.h>
-#define apd_makedev(maj, min) makedev(ND_LOCAL_NODE, (maj), (min))
+	/* QNX.  <sigh> */
+	#include <sys/netmgr.h>
+	#define apd_makedev(maj, min) makedev(ND_LOCAL_NODE, (maj), (min))
 #elif defined makedev
-/* There's a "makedev" macro. */
-#define apd_makedev(maj, min) makedev((maj), (min))
+	/* There's a "makedev" macro. */
+	#define apd_makedev(maj, min) makedev((maj), (min))
 #elif defined mkdev || ((defined _WIN32 || defined __WIN32__) && !defined(__CYGWIN__))
-/* Windows. <sigh> */
-#define apd_makedev(maj, min) mkdev((maj), (min))
+	/* Windows. <sigh> */
+	#define apd_makedev(maj, min) mkdev((maj), (min))
 #else
-/* There's a "makedev" function. */
-#define apd_makedev(maj, min) makedev((maj), (min))
+	/* There's a "makedev" function. */
+	#define apd_makedev(maj, min) makedev((maj), (min))
 #endif
 
 /* exported */

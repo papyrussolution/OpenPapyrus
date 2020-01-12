@@ -275,7 +275,10 @@ int SLAPI PPViewGoodsBillCmp::Init_(const PPBaseFilt * pBaseFilt)
 int SLAPI PPViewGoodsBillCmp::InitIteration()
 {
 	int    ok = 1;
-	char   k[MAXKEYLEN], k_[MAXKEYLEN];
+	// @v10.6.8 char   k[MAXKEYLEN];
+	// @v10.6.8 char   k_[MAXKEYLEN];
+	BtrDbKey k_;
+	BtrDbKey k__;
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	Counter.Init();
@@ -291,10 +294,10 @@ int SLAPI PPViewGoodsBillCmp::InitIteration()
 	P_IterQuery->selectAll();
 	if(Filt.Flags & GoodsBillCmpFilt::fDiffQttyOnly)
 		P_IterQuery->where(P_TempTbl->IsDiffQtty > 0.0);
-	memzero(k,  sizeof(k));
-	memzero(k_, sizeof(k_));
-	Counter.Init(P_IterQuery->countIterations(0, k_, spFirst));
-	P_IterQuery->initIteration(0, k, spFirst);
+	// @v10.6.8 @ctr memzero(k,  sizeof(k));
+	// @v10.6.8 @ctr memzero(k_, sizeof(k_));
+	Counter.Init(P_IterQuery->countIterations(0, k__, spFirst));
+	P_IterQuery->initIteration(0, k_, spFirst);
 	CATCHZOK
 	return ok;
 }

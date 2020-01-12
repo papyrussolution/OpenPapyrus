@@ -405,7 +405,8 @@ int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, InitBlock & rBlk)
 	rBlk.GuaID = guaID;
 	{
 		PPIniFile ini_file;
-		ini_file.Get(PPINISECT_PATH, PPINIPARAM_PATH_CRYPTOPRO, rBlk.CryptoProPath);
+		if(ini_file.Get(PPINISECT_PATH, PPINIPARAM_PATH_CRYPTOPRO, rBlk.CryptoProPath) <= 0)
+			ini_file.Get(PPINISECT_PATH, PPINIPARAM_PATH_CRYPTOPRO_BAD, rBlk.CryptoProPath);
 	}
 	CATCHZOK
 	return ok;

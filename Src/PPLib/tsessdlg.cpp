@@ -1393,7 +1393,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 		Data.Rec.StDt = period.low;
 		Data.Rec.StTm = ZEROTIME;
 		Data.Rec.FinDt = period.upp;
-		Data.Rec.FinTm = encodetime(23, 59, 59, 0);
+		Data.Rec.FinTm = MAXDAYTIMESEC;
 	}
 	else {
 		PrcTechCtrlGroup::Rec ptcg_rec;

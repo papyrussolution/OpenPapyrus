@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -2343,7 +2343,7 @@ static void FASTCALL FillUnitRec(const PPUnit * pInner, SPpyO_Unit * pOuter)
 	#define FLD(f) pOuter->f = pInner->f
 	FLD(ID);
 	FLD(BaseRatio);
-	pOuter->Flags = (PpyOUnitFlags)pInner->Flags;
+	pOuter->Flags = static_cast<PpyOUnitFlags>(pInner->Flags);
 	FLD(BaseUnitID);
 	#undef FLD
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
@@ -2352,10 +2352,10 @@ static void FASTCALL FillUnitRec(const PPUnit * pInner, SPpyO_Unit * pOuter)
 int32 DL6ICLS_PPObjUnit::Search(int32 id, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjUnit * p_obj = (PPObjUnit *)ExtraPtr;
+	PPObjUnit * p_obj = static_cast<PPObjUnit *>(ExtraPtr);
 	if(p_obj) {
 		PPUnit u_rec;
-		MEMSZERO(u_rec);
+		// @v10.6.8 @ctr MEMSZERO(u_rec);
 		ok = p_obj->Search(id, &u_rec);
 		FillUnitRec(&u_rec, static_cast<SPpyO_Unit *>(rec));
 	}
@@ -2366,11 +2366,11 @@ int32 DL6ICLS_PPObjUnit::Search(int32 id, PPYOBJREC rec)
 int32 DL6ICLS_PPObjUnit::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
 {
 	int    ok = 0;
-	PPObjUnit * p_obj = (PPObjUnit *)ExtraPtr;
+	PPObjUnit * p_obj = static_cast<PPObjUnit *>(ExtraPtr);
 	if(p_obj) {
 		PPUnit u_rec;
 		PPID   id = 0;
-		MEMSZERO(u_rec);
+		// @v10.6.8 @ctr MEMSZERO(u_rec);
 		ok = p_obj->SearchByName(text, &id, &u_rec);
 		FillUnitRec(&u_rec, static_cast<SPpyO_Unit *>(rec));
 	}
@@ -2381,7 +2381,7 @@ int32 DL6ICLS_PPObjUnit::SearchByName(SString & text, int32 kind, int32 extraPar
 SString & DL6ICLS_PPObjUnit::GetName(int32 id)
 {
 	char   name_buf[64];
-	PPObjUnit * p_obj = (PPObjUnit *)ExtraPtr;
+	PPObjUnit * p_obj = static_cast<PPObjUnit *>(ExtraPtr);
 	int    ok = p_obj->GetName(id, name_buf, sizeof(name_buf));
 	return (RetStrBuf = name_buf);
 }
@@ -6074,7 +6074,7 @@ static BExtQuery & FASTCALL MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTb
 struct LotQueryBlock {
 	LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
 	{
-		memzero(Key, sizeof(Key));
+		// @v10.6.8 @ctr memzero(Key, sizeof(Key));
 	}
 	~LotQueryBlock()
 	{
@@ -6084,7 +6084,8 @@ struct LotQueryBlock {
 	int   SpMode;
 	int   Reverse;
 	BExtQuery * P_Q;
-	uint8 Key[ALIGNSIZE(MAXKEYLEN, 2)];
+	// @v10.6.8 uint8 Key[ALIGNSIZE(MAXKEYLEN, 2)];
+	BtrDbKey Key_; // @v10.6.8
 };
 
 static int SLAPI MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulong lowId, ulong uppId, ObjIdListFilt & rLocList, LDATE dt)
@@ -6211,7 +6212,7 @@ static int SLAPI MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr
 	THROW_MEM(rBlk.P_Q = new BExtQuery(&rRcpt, rBlk.Idx, query_buf_capacity));
 	MakeLotSelectFldList(*rBlk.P_Q, rRcpt).where(*dbq);
 	CATCHZOK
-	memcpy(rBlk.Key, &kx, sizeof(kx));
+	memcpy(rBlk.Key_, &kx, sizeof(kx));
 	return ok;
 }
 
@@ -6229,7 +6230,7 @@ static int SLAPI SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, c
 	else {
 		LotQueryBlock q_blk;
 		THROW(MakeLotQuery(rRcpt, q_blk, 0, rIdList.get(0), rIdList.getLast(), rLocList, dt));
-		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
+		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key_, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
 			if(rLcrList.Has(rRcpt.data.ID))
 				THROW_SL(rList.insert(&rRcpt.data));
 		}
@@ -6292,7 +6293,7 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 			LotQueryBlock q_blk;
 			SString temp_buf;
 			THROW(MakeLotQuery(rt, q_blk, 1, 0, 0, loc_list, lowDt));
-			for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
+			for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key_, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
 				if(!lcr_lot_list.Has((ulong)rt.data.ID))
 					THROW_SL(lot_list.insert(&rt.data));
 			}
@@ -7462,12 +7463,12 @@ SDateRange DL6ICLS_PPFiltTrfrAnlz::get_LotsPeriod()
 void  DL6ICLS_PPFiltTrfrAnlz::AddLocationID(int32 value)
 	{ TrfrAnlzFilt * p_filt = static_cast<TrfrAnlzFilt *>(ExtraPtr); p_filt->LocList.Add(value); }
 void  DL6ICLS_PPFiltTrfrAnlz::ClearLocList()
-	{ TrfrAnlzFilt * p_filt = static_cast<TrfrAnlzFilt *>(ExtraPtr); p_filt->LocList.FreeAll(); }
+	{ TrfrAnlzFilt * p_filt = static_cast<TrfrAnlzFilt *>(ExtraPtr); p_filt->LocList.Z(); }
 
 int32 DL6ICLS_PPFiltTrfrAnlz::get_OpID()               { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, OpID); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_OpID(int32 value)    { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, OpID); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_LocID()              { return static_cast<const TrfrAnlzFilt *>(ExtraPtr)->LocList.GetSingle(); }
-void  DL6ICLS_PPFiltTrfrAnlz::put_LocID(int32 value)   { TrfrAnlzFilt * p_filt = static_cast<TrfrAnlzFilt *>(ExtraPtr); p_filt->LocList.FreeAll(); p_filt->LocList.Add(value); }
+void  DL6ICLS_PPFiltTrfrAnlz::put_LocID(int32 value)   { TrfrAnlzFilt * p_filt = static_cast<TrfrAnlzFilt *>(ExtraPtr); p_filt->LocList.Z().Add(value); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_SupplID()            { IMPL_PPIFC_GETPROP(TrfrAnlzFilt, SupplID); }
 void  DL6ICLS_PPFiltTrfrAnlz::put_SupplID(int32 value) { IMPL_PPIFC_PUTPROP(TrfrAnlzFilt, SupplID); }
 int32 DL6ICLS_PPFiltTrfrAnlz::get_ArID() { return static_cast<TrfrAnlzFilt *>(ExtraPtr)->ArList.GetSingle(); }
@@ -8892,7 +8893,7 @@ void DL6ICLS_PPFiltGoodsOpAnlz::FreeLocList()
 {
 	GoodsOpAnalyzeFilt * p_filt = static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr);
 	if(p_filt)
-		p_filt->LocList.FreeAll();
+		p_filt->LocList.Z();
 }
 
 void DL6ICLS_PPFiltGoodsOpAnlz::AddBillID(int32 id)
@@ -8906,7 +8907,7 @@ void DL6ICLS_PPFiltGoodsOpAnlz::FreeBillList()
 {
 	GoodsOpAnalyzeFilt * p_filt = static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr);
 	if(p_filt)
-		p_filt->BillList.FreeAll();
+		p_filt->BillList.Z();
 }
 
 SDateRange DL6ICLS_PPFiltGoodsOpAnlz::get_Period()
@@ -9737,7 +9738,7 @@ void DL6ICLS_PPFiltOpGrouping::FreeLocList()
 {
 	OpGroupingFilt * p_filt = static_cast<OpGroupingFilt *>(ExtraPtr);
 	if(p_filt)
-		p_filt->LocList.FreeAll();
+		p_filt->LocList.Z();
 }
 
 SDateRange DL6ICLS_PPFiltOpGrouping::get_Period() { return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->Period); }
@@ -10019,8 +10020,6 @@ SDateRange DL6ICLS_PPFiltLot::get_Period() { return DateRangeToOleDateRange(stat
 SDateRange DL6ICLS_PPFiltLot::get_OperationPeriod() { return DateRangeToOleDateRange(static_cast<LotFilt *>(ExtraPtr)->Operation); }
 SDateRange DL6ICLS_PPFiltLot::get_ExpiryPeriod() { return DateRangeToOleDateRange(static_cast<LotFilt *>(ExtraPtr)->ExpiryPrd); }
 SDateRange DL6ICLS_PPFiltLot::get_QcExpiryPeriod() { return DateRangeToOleDateRange(static_cast<LotFilt *>(ExtraPtr)->QcExpiryPrd); }
-int32  DL6ICLS_PPFiltLot::get_LocID()                 { IMPL_PPIFC_GETPROP(LotFilt, LocID); }
-void   DL6ICLS_PPFiltLot::put_LocID(int32 value)      { IMPL_PPIFC_PUTPROP(LotFilt, LocID); }
 int32  DL6ICLS_PPFiltLot::get_SupplID()               { IMPL_PPIFC_GETPROP(LotFilt, SupplID); }
 void   DL6ICLS_PPFiltLot::put_SupplID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, SupplID); }
 int32  DL6ICLS_PPFiltLot::get_GoodsGrpID()            { IMPL_PPIFC_GETPROP(LotFilt, GoodsGrpID); }
@@ -10043,6 +10042,18 @@ double DL6ICLS_PPFiltLot::get_PriceLow()             { return static_cast<LotFil
 void   DL6ICLS_PPFiltLot::put_PriceLow(double value) { static_cast<LotFilt *>(ExtraPtr)->PriceRange.low = value; }
 double DL6ICLS_PPFiltLot::get_PriceUpp()             { return static_cast<LotFilt *>(ExtraPtr)->PriceRange.upp; }
 void   DL6ICLS_PPFiltLot::put_PriceUpp(double value) { static_cast<LotFilt *>(ExtraPtr)->PriceRange.upp = value; }
+
+int32  DL6ICLS_PPFiltLot::get_LocID()                 
+{ 
+	// @v10.6.8 IMPL_PPIFC_GETPROP(LotFilt, LocID); 
+	return static_cast<const LotFilt *>(ExtraPtr)->LocList.GetSingle(); // @v10.6.8
+}
+
+void   DL6ICLS_PPFiltLot::put_LocID(int32 value)      
+{ 
+	// @v10.6.8 IMPL_PPIFC_PUTPROP(LotFilt, LocID); 
+	static_cast<LotFilt *>(ExtraPtr)->LocList.Z().Add(value); // @v10.6.8
+}
 
 SString & DL6ICLS_PPFiltLot::get_Serial()
 {

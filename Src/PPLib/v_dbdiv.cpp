@@ -41,18 +41,13 @@ int SLAPI PPViewDBDiv::CheckForFilt(const DBDivPack * pPack) const
 	return 1;
 }
 
-int SLAPI PPViewDBDiv::MakeTempEntry(const DBDivPack * pPack, TempDBDivTbl::Rec * pTempRec)
+TempDBDivTbl::Rec & SLAPI PPViewDBDiv::MakeTempEntry(const DBDivPack & rPack, TempDBDivTbl::Rec & rTempRec)
 {
-	int    ok = -1;
-	if(pPack && pTempRec) {
-		SString buf, buf1, buf2;
-		pTempRec->ID = pPack->Rec.ID;
-		STRNSCPY(pTempRec->Name, pPack->Rec.Name);
-		STRNSCPY(pTempRec->Address, pPack->Rec.Addr);
-		pTempRec->Flags = pPack->Rec.Flags;
-		ok = 1;
-	}
-	return ok;
+	rTempRec.ID = rPack.Rec.ID;
+	STRNSCPY(rTempRec.Name, rPack.Rec.Name);
+	STRNSCPY(rTempRec.Address, rPack.Rec.Addr);
+	rTempRec.Flags = rPack.Rec.Flags;
+	return rTempRec;
 }
 
 #define GRP_LOC 1
@@ -100,8 +95,7 @@ int SLAPI PPViewDBDiv::Init_(const PPBaseFilt * pFilt)
 			if(ObjDBDiv.Get(rec.ID, &pack) > 0) {
 				if(CheckForFilt(&pack) > 0) {
 					TempDBDivTbl::Rec temp_rec;
-					MakeTempEntry(&pack, &temp_rec);
-					THROW_DB(bei.insert(&temp_rec));
+					THROW_DB(bei.insert(&MakeTempEntry(pack, temp_rec)));
 				}
 			}
 		}
@@ -127,7 +121,7 @@ int SLAPI PPViewDBDiv::UpdateTempTable(const PPIDArray * pIdList)
 			TempDBDivTbl::Rec temp_rec;
 			if(ObjDBDiv.Get(id, &pack) > 0 && CheckForFilt(&pack)) {
 				ok = 1;
-				MakeTempEntry(&pack, &temp_rec);
+				MakeTempEntry(pack, temp_rec);
 				if(SearchByID_ForUpdate(P_TempTbl, 0,  id, 0) > 0) {
 					THROW_DB(P_TempTbl->updateRecBuf(&temp_rec)); // @sfu
 				}

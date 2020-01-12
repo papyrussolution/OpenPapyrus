@@ -1,5 +1,5 @@
 // PPMQC.CPP
-// Copyright (c) A.Sobolev 2019
+// Copyright (c) A.Sobolev 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -775,13 +775,13 @@ int SLAPI MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd)
 int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = 1;
+	SString temp_buf;
 	int compulsory_response_flag = 0;
 	if(kind == PPAdviseBlock::evMqbMessage) {
 		MqbEventResponder * p_self = static_cast<MqbEventResponder *>(procExtPtr);
 		PPMqbClient::Envelope * p_env = (p_self && pEv && pEv->P_MqbEnv) ? pEv->P_MqbEnv : 0;
 		if(p_env) {
 			if(pEv->Action == PPEVNT_MQB_MESSAGE) {
-				SString temp_buf;
 				{
 					temp_buf.Z().Cat("Message has been consumed").CatDiv(':', 2).
 						CatEq("Timestamp", p_env->Msg.Props.TimeStamp, DATF_ISO8601, 0).
@@ -793,28 +793,57 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 				p_env->RoutingKey;
 				int rt = p_env->IsReservedRoute(0);
 				if(rt) {
+					const SBuffer & r_body = p_env->Msg.Body;
 					if(rt == PPMqbClient::rtrsrvPapyrusDbx) {
+						ObjTransmMqProps otmp;
+						if(r_body.GetAvailableSize() && otmp.GetFromMqbMessage(p_env->Msg.Props) > 0) {
+							if(otmp.FileName.NotEmpty() && otmp.SrcDbDivID && otmp.DestDbDivID && otmp.DestDbDivID == LConfig.DBDiv) {
+								SString dest_path;
+								PPGetFilePath(PPPATH_IN, otmp.FileName, dest_path);
+								int   wr_success = 1;
+								{
+									SFile f_out(dest_path, SFile::mWrite|SFile::mBinary);
+									if(!f_out.IsValid())
+										wr_success = 0;
+									else if(!f_out.Write(r_body.constptr(), r_body.GetAvailableSize()))
+										wr_success = 0;
+								}
+								if(wr_success) {
+									ObjReceiveParam param;
+									param.Flags = (ObjReceiveParam::fNonInteractive|ObjReceiveParam::fCommitQueue|ObjReceiveParam::fDisableLogWindow);
+									param.SsOnlyFileNames.add(dest_path);
+									PPObjectTransmit::ReceivePackets(&param);
+								}
+							}
+						}
 					}
 					else if(rt == PPMqbClient::rtrsrvPapyrusPosProtocol) {
 					}
 					else if(rt == PPMqbClient::rtrsrvStyloView) {
 					}
 					else if(rt == PPMqbClient::rtrsrvRpc) {
-						const SBuffer & r_body = p_env->Msg.Body;
-						SString result_buf;
-						SString domain_buf;
+						SString result_buf;						
+						SString login;
 						int   result_ok = 0;
 						if(r_body.GetAvailableSize()) {
 							temp_buf.Z().CatN(static_cast<const char *>(r_body.GetBuf(r_body.GetRdOffs())), r_body.GetAvailableSize());
-							Command cmd;
+							Command cmd;						
 							if(p_self->ParseCommand(temp_buf, cmd)) {
 								if(cmd.Cmd == cmdGetGlobalAccountList) {
 									PPObjGlobalUserAcc gua_obj;
+									PPGlobalUserAccPacket gua_pack;
 									PPGlobalUserAcc gua_rec;
 									StrAssocArray obj_name_list;
 									for(SEnum en = gua_obj.Enum(0); en.Next(&gua_rec) > 0;) {
-										if(gua_rec.ServiceIdent == PPGLS_UNDEF) {
-											obj_name_list.Add(gua_rec.ID, (temp_buf = gua_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+										if(gua_rec.ServiceIdent==PPGLS_UNDEF) {
+											if(gua_obj.GetPacket(gua_rec.ID, &gua_pack)>0) {
+												if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login.Z())>0) {
+													obj_name_list.Add(gua_rec.ID, login.Transf(CTRANSF_INNER_TO_UTF8));
+												}
+												else{
+													obj_name_list.Add(gua_rec.ID, (login = gua_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+												}
+											}
 										}
 									}
 									PPExportDL600DataToBuffer("StrAssocArray", &obj_name_list, cpUTF8, result_buf);
@@ -826,18 +855,12 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 									PPObjGlobalUserAcc gua_obj;
 									PPGlobalUserAccPacket gua_pack;
 									StrAssocArray obj_gua_guid_list;
-									SString temp_buf;
-									SString login;
 									SString password;
 									if(gua_obj.GetPacket(cmd.IdVal, &gua_pack) > 0){
-										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_SECRET, password) > 0) {
-										}
-										else {
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_SECRET, password) <= 0) {
 											Reference::Decrypt(Reference::crymRef2, gua_pack.Rec.Password, sizeof(gua_pack.Rec.Password), password);
 										}
-										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login) > 0) {
-										}
-										else {
+										if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login)<=0) {
 											if(gua_pack.Rec.Name != "")
 												login = gua_pack.Rec.Name;
 										}
@@ -866,13 +889,13 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 							}
 						}
 						if(result_ok) {
-							ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
+							ResponseByAdviseCallback(result_buf, p_env, p_self, temp_buf.Z());
 						}
 						// @erik v10.6.0{
 						else {
 							if(compulsory_response_flag) {
 								result_buf = "Error";
-								ResponseByAdviseCallback(result_buf, p_env, p_self, domain_buf);
+								ResponseByAdviseCallback(result_buf, p_env, p_self, temp_buf.Z());
 							}
 						}
 						// } @erik v10.6.0 

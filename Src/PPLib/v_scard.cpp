@@ -3527,12 +3527,13 @@ int SLAPI PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			SCardOpTbl::Rec rec;
 			BExtQuery  iter_query(&tbl, 1);
 			DBQ   * dbq = 0;
-			char       k[MAXKEYLEN];
-			memzero(&k, sizeof(k));
+			// @v10.6.8 char       k[MAXKEYLEN];
+			BtrDbKey k_; // @v10.6.8
+			// @v10.6.8 @ctr memzero(&k, sizeof(k));
 			Filt.Period.Actualize(ZERODATE);
 			dbq = &daterange(tbl.Dt, &Filt.Period);
 			iter_query.selectAll().where(*dbq);
-			iter_query.initIteration(0, &k, spGe);
+			iter_query.initIteration(0, k_, spGe);
 			while(iter_query.nextIteration() > 0) {
 				tbl.copyBufTo(&rec);
 				SCardTbl::Rec sc_rec;

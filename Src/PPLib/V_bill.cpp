@@ -1641,7 +1641,8 @@ int SLAPI PPViewBill::CreateTempTable(IterOrder ord, int * pIsOrdTbl)
 int SLAPI PPViewBill::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
-	char   key[MAXKEYLEN];
+	// @v10.6.8 char   key[MAXKEYLEN];
+	BtrDbKey key_; // @v10.6.8
 	int    idx = 0, use_ord_tbl = 0;
 	_IterC = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1669,8 +1670,8 @@ int SLAPI PPViewBill::InitIteration(IterOrder ord)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	}
 	P_IterQuery->selectAll();
-	memzero(key, sizeof(key));
-	P_IterQuery->initIteration(0, key, spFirst);
+	// @v10.6.8 @ctr memzero(key, sizeof(key));
+	P_IterQuery->initIteration(0, key_, spFirst);
 	CATCH
 		BExtQuery::ZDelete(&P_IterQuery);
 		ok = 0;

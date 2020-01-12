@@ -3888,10 +3888,10 @@ int SLAPI ImportSR25()
 						const  PPComps & r_comp = nutr_arr.at(comp_pos);
 						unit_abbr = r_comp.UnitAbbr;
 						if(unit_abbr.NotEmptyS()) {
-							PPUnit2 unit_rec;
+							PPUnit unit_rec;
 							const char micro_prefix[] = {(char)181, 0};
 							uint pos = 0;
-							MEMSZERO(unit_rec);
+							// @v10.6.8 @ctr MEMSZERO(unit_rec);
 							unit_rec.Tag = PPOBJ_UNIT;
 							if((temp_buf = r_comp.UnitAbbr).HasChr(181) || temp_buf.HasChr(-75)) // ≈сли есть приставка "микро" (провер€ем по двум кодам)
 								temp_buf.ReplaceStr(micro_prefix, "mk", 1);
@@ -4037,10 +4037,10 @@ int SLAPI ImportCompGS()
 				}
 				unit_abbr = r_item.UnitAbbr;
 				if(unit_abbr.NotEmptyS()) {
-					PPUnit2 unit_rec;
+					PPUnit unit_rec;
 					char micro_prefix[] = {(char)181, 0};
 					uint pos = 0;
-					MEMSZERO(unit_rec);
+					// @v10.6.8 @ctr MEMSZERO(unit_rec);
 					unit_rec.Tag = PPOBJ_UNIT;
 					if((buf = r_item.UnitAbbr).HasChr(181) || buf.HasChr(-75)) // ≈сли есть приставка "микро" (провер€ем по двум кодам)
 						buf.ReplaceStr(micro_prefix, "mk", 1);

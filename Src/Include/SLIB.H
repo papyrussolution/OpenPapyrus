@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #ifndef __SLIB_H
@@ -1800,7 +1800,8 @@ extern const LDATE MAXDATE;
 extern const LDATE MAXDATEVALID; // 1/1/3000 Используется для хранения в базах данных, поскольку MAXDATE не проходит проверку на правильную дату.
 extern const LTIME ZEROTIME;
 extern const LTIME MAXTIME;
-extern const LTIME MAXDAYTIME;
+extern const LTIME MAXDAYTIME; // 23:59:59.99
+extern const LTIME MAXDAYTIMESEC; // 23:59:59.00
 extern const LDATETIME ZERODATETIME;
 extern const LDATETIME MAXDATETIME;
 //
@@ -3945,9 +3946,10 @@ public:
 	//
 	SString & FormatFileParsingMessage(const char * pFileName, int lineNo, const char * pAddedText);
 	SString & SLAPI Helper_MbToMb(uint srcCodepage, uint destCodepage); // @v9.8.3 private-->public
+
+	void   FASTCALL Cat_Unsafe(const uint8 * pChr, size_t numChr); // very-very dangerous function
 private:
 	int    FASTCALL Alloc(size_t);
-	void   FASTCALL Cat_(const uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
 	//
 	// Descr: Преобразует символ c в Quoted-Printable-формат.
@@ -4171,7 +4173,7 @@ protected:
 //
 struct SSearchReplaceParam {
 	SSearchReplaceParam();
-	SSearchReplaceParam & Reset();
+	SSearchReplaceParam & Z();
 
 	enum {
 		fNoCase     = 0x0001, // Поиск без учета регистра символов
@@ -4559,8 +4561,9 @@ int    FASTCALL _checkdate(int d, int m, int y);
 char * FASTCALL _datefmt(int d, int m, int y, int format, char *);
 void   FASTCALL encodedate(int, int, int, void *);
 void   FASTCALL decodedate(int *, int *, int *, const void *);
-void   SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
-void   SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
+void   SLAPI    decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
+void   SLAPI    encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
+int    FASTCALL IsLeapYear(uint y);
 int    FASTCALL checkdate(const void * pBinDate);
 //
 // Descr: Проверяет корректность даты dt. Если dt == ZERODATE и параметр zeroIsOk != 0,
@@ -5090,6 +5093,7 @@ struct SDirEntry {
 
 class SDirec {
 public:
+	static int SLAPI GetSingle(const char * pPath, SDirEntry * pEntry);
 	SLAPI  SDirec();
 	explicit SLAPI SDirec(const char * pathname, int enumDirs = 0);
 	SLAPI ~SDirec();
@@ -7474,6 +7478,13 @@ public:
 	//
 	int    SLAPI Scan(const char * pPath, const char * pWildcard, long flags);
 	int    SLAPI Add(const char * pPath, const SDirEntry & rDe);
+	//
+	// Descr: Вставляет в пул файл с полным путем pPath. 
+	// Returns:
+	//   >0 - функция завершилась успешно
+	//    0 - ошибка (в том числе если файл не найден)
+	//
+	int    SLAPI Add(const char * pPath);
 	int    SLAPI Add(SFileEntryPool::Entry & rDe);
     uint   SLAPI GetCount() const;
     int    SLAPI Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;

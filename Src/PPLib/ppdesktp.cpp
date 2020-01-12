@@ -582,20 +582,20 @@ int PPDesktop::Init__(long desktopID)
 	SLS.InitGdiplus();
 	if(p_dict) {
 		SString db_symb;
-		PPCommandGroup desk_list, desk_list_from_xml;
+		PPCommandGroup desktop_list_from_bin, desktop_list;
 		p_dict->GetDbSymb(db_symb);
 		{
+//@erik v10.6.6 {
 			THROW(p_mgr = GetCommandMngr(1, 1, 0));
-			THROW(p_mgr->Load__(&desk_list));
-#ifndef NDEBUG
-			if(p_mgr->Load__2(&desk_list_from_xml, PPCommandMngr::fRWByXml)) { //@erik v10.6.1
-				THROW(desk_list.IsEqual(&desk_list_from_xml));
-			}
-#endif
+			p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+			p_item = desktop_list.SearchByID(desktopID, 0);
+			if(!p_item) {
+				THROW(p_mgr->Load__(&desktop_list_from_bin));
+				p_item = desktop_list_from_bin.SearchByID(desktopID, 0);
+			}				
+// } @erik
 			ZDELETE(p_mgr);
 		}
-		// загружаем рабочий стол
-		p_item = desk_list.SearchByID(desktopID, 0);
 		P_ActiveDesktop = (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		THROW_PP(P_ActiveDesktop && P_ActiveDesktop->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
 		PrivateCp.ReadFromProp(desktopID);
@@ -1209,10 +1209,10 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 			MEMSZERO(log_font);
 			log_font.lfCharSet = DEFAULT_CHARSET;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIAL, temp_buf);
-			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf));
+			STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
 			log_font.lfHeight = 14;
 			log_font.lfQuality = CLEARTYPE_QUALITY;
-			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font));
+			Ptb.SetFont(fontText, ::CreateFontIndirect(&log_font)); // @unicodeproblem
 		}
 		Ptb.SetBrush(brushTextRect,    SPaintObj::bsSolid, SColor(RGB(0x80, 0x80, 0xC0)), 0);
 		Ptb.SetBrush(brushSelTextRect, SPaintObj::bsSolid, SColor(RGB(0x40, 0x00, 0x80)), 0);
@@ -1232,13 +1232,12 @@ void PPDesktop::WMHCreate(LPCREATESTRUCT)
 }
 
 // static
-PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopList)
+PPCommandMngr * PPDesktop::LoadDeskList(int readOnly, PPCommandGroup * pDesktopList) // will not used in future @erik
 {
 	PPCommandMngr * p_mgr = 0;
 	THROW_INVARG(pDesktopList);
 	THROW(p_mgr = GetCommandMngr(readOnly, 1, 0));
 	THROW_PP(p_mgr->Load__(pDesktopList), PPERR_CANTLOADDESKTOPLIST);
-	//THROW_PP(p_mgr->Load__2(pDesktopList, PPCommandMngr::fRWByXml), PPERR_CANTLOADDESKTOPLIST); //@erik v10.6.1
 	CATCH
 		ZDELETE(p_mgr);
 	ENDCATCH
@@ -1255,11 +1254,19 @@ int PPDesktop::GetDeskName(long deskId, SString & rDeskName)
 	rDeskName.Z();
 	if(deskId && p_dict) {
 		SString db_symb;
-		PPCommandGroup desk_list;
+		PPCommandGroup desktop_list, desktop_list_from_bin;
 		const PPCommandItem * p_item = 0;
-		p_mgr = PPDesktop::LoadDeskList(1, &desk_list);
+		//p_mgr = PPDesktop::LoadDeskList(1, &desk_list); // @erik v10.6.7
 		p_dict->GetDbSymb(db_symb);
-		p_item = desk_list.SearchByID(deskId, 0);
+// @erik v10.6.7 {
+		THROW(p_mgr = GetCommandMngr(1, 1, 0));
+		p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+		p_item = desktop_list.SearchByID(deskId, 0);
+		if(!p_item) {
+			THROW(p_mgr->Load__(&desktop_list_from_bin));
+			p_item = desktop_list_from_bin.SearchByID(deskId, 0);
+		}
+// } @erik
 		p_desk = (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		THROW_PP(p_desk && p_desk->IsDbSymbEq(db_symb), PPERR_DESKNOTFOUND);
 		rDeskName = p_desk->Name;
@@ -1274,19 +1281,24 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 {
 	int    ok = -1;
 	PPCommandMngr * p_mgr = 0;
-	PPCommandGroup * p_desk_list = 0;
+	PPCommandGroup * p_desktop_list = 0;
 	if(P_ActiveDesktop && /*IsChanged*/State & stChanged) {
 		if(!pMgr) {
-			THROW_MEM(p_desk_list = new PPCommandGroup);
+			THROW_MEM(p_desktop_list = new PPCommandGroup);
 			do {
-				ok = BIN(p_mgr = LoadDeskList(0, p_desk_list));
+				//ok = BIN(p_mgr = LoadDeskList(0, p_desk_list)); //@erik v10.6.7
+//@erik v10.6.7 {
+				const  PPCommandItem * p_item = 0;
+				ok = BIN(p_mgr = GetCommandMngr(0, 1, 0)); 
+				p_mgr->Load__2(p_desktop_list, PPCommandMngr::fRWByXml);
+// } @erik
 			} while(ok == 0 && CONFIRM(PPCFM_WAITDESKUNLOCK));
 		}
 		else {
 			p_mgr       = pMgr;
-			p_desk_list = pDeskList;
+			p_desktop_list = pDeskList;
 		}
-		THROW_INVARG(p_desk_list);
+		THROW_INVARG(p_desktop_list);
 		THROW(ok);
 		{
 			uint   pos = 0;
@@ -1294,7 +1306,14 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 			//
 			// Сохраняем только изменения в расположении, названии и кол-ве иконок на рабочем столе
 			//
-			if((p_item = p_desk_list->SearchByID(P_ActiveDesktop->ID, &pos)) && p_item->Kind == PPCommandItem::kGroup) {
+//@erik v10.6.7 {
+			p_item = p_desktop_list->SearchByID(P_ActiveDesktop->ID, 0);
+			if(!p_item) {
+				p_mgr->Load__(p_desktop_list);
+				p_item = p_desktop_list->SearchByID(P_ActiveDesktop->ID, 0);
+			}
+// } @erik
+			if((p_item) && p_item->Kind == PPCommandItem::kGroup) {
 				PPCommandGroup * p_prev = static_cast<PPCommandGroup *>(p_item->Dup());
 				if(p_prev) {
 					P_ActiveDesktop->Flags = p_prev->Flags;
@@ -1302,11 +1321,9 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 					P_ActiveDesktop->SetLogo(p_prev->GetLogo());
 					P_ActiveDesktop->Name  = p_prev->Name;
 				}
-				THROW(p_desk_list->Update(pos, P_ActiveDesktop));
-				THROW(p_mgr->Save__(p_desk_list));
-#ifndef _NDEGUG
-				THROW(p_mgr->Save__2(p_desk_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1
-#endif
+				//THROW(p_desktop_list->Update(pos, P_ActiveDesktop)); // @erik v10.6.7
+				//THROW(p_mgr->Save__(p_desk_list)); // @erik v10.6.6
+				THROW(p_mgr->Save__2(P_ActiveDesktop, PPCommandMngr::fRWByXml)); // @erik v10.6.1
 				ok = 1;
 			}
 		}
@@ -1314,7 +1331,7 @@ int PPDesktop::SaveDesktop(PPCommandMngr * pMgr, PPCommandGroup * pDeskList)
 	CATCHZOK
 	if(!pMgr) {
 		ZDELETE(p_mgr);
-		ZDELETE(p_desk_list);
+		ZDELETE(p_desktop_list);
 	}
 	//IsChanged = 0;
 	State &= ~stChanged;
@@ -1433,10 +1450,14 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					if(EditCmdItem(P_ActiveDesktop, &cmd, 1) > 0) {
 						uint   pos = 0;
 						RECT   cr;
-						PPCommandGroup desk_list;
-						PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list);
+						PPCommandGroup desktop_list;
+						// PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list); // @erik v10.6.7
+//@erik v10.6.7 {
+						PPCommandMngr * p_mgr = GetCommandMngr(0, 1, 0);
+						p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+// } @erik
 						if(p_mgr) {
-							desk_list.GetUniqueID(&cmd.ID);
+							desktop_list.GetUniqueID(&cmd.ID);
 							GetClientRect(H(), &cr);
 							if(ArrangeIcon(&coord)) {
 								TRect ir;
@@ -1447,7 +1468,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 								P_ActiveDesktop->GetIconRect(cmd.ID, *this, &ir);
 								//IsChanged = 1;
 								State |= stChanged;
-								SaveDesktop(p_mgr, &desk_list);
+								SaveDesktop(p_mgr, &desktop_list);
 								Update(&ir, 0);
 							}
 							ZDELETE(p_mgr);
@@ -1489,15 +1510,20 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
 					if(p_cmd && CONFIRM(PPCFM_DELICON)) {
 						TRect ir;
-						PPCommandGroup desk_list;
-						PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list);
+						PPCommandGroup desktop_list;
+
+						// PPCommandMngr * p_mgr = LoadDeskList(0, &desk_list); //@erik v10.6.7
+						//@erik v10.6.7 {
+						PPCommandMngr * p_mgr = GetCommandMngr(0, 1, 0);
+						p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+						// } @erik
 						if(p_mgr) {
 							P_ActiveDesktop->Remove(pos);
 							Selected = (Selected == p_cmd->ID) ? 0 : Selected;
 							CalcIconRect(p_cmd->P, ir);
 							//IsChanged = 1;
 							State |= stChanged;
-							SaveDesktop(p_mgr, &desk_list);
+							SaveDesktop(p_mgr, &desktop_list);
 							Update(&ir, 1);
 							ZDELETE(p_mgr);
 						}
@@ -2128,27 +2154,30 @@ int PPDesktop::CreateDefault(long * pID)
 	int    ok = -1;
 	long   desk_id = 0;
 	SString db_symb;
-	PPCommandGroup desk_list;
-	PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(0, &desk_list);
+	PPCommandGroup desktop_list;
+	//PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(0, &desktop_list);//@erik v10.6.7
+//@erik v10.6.7 {
+	PPCommandMngr * p_mgr = GetCommandMngr(0, 1, 0);
+	p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+// } @erik
 	THROW(p_mgr);
-	if(!(desk_list.Flags & PPCommandItem::fNotUseDefDesktop)) {
+	if(!(desktop_list.Flags & PPCommandItem::fNotUseDefDesktop)) {
 		const PPCommandItem * p_item = 0;
 		SString def_desk_name;
 		CurDict->GetDbSymb(db_symb);
 		(def_desk_name = "def").CatChar('-').Cat(DS.GetTLA().UserName).CatChar('-').Cat("desktop");
-		if((p_item = desk_list.SearchByName(def_desk_name, db_symb, 0)) && p_item->Kind == PPCommandItem::kGroup)
+		if((p_item = desktop_list.SearchByName(def_desk_name, db_symb, 0)) && p_item->Kind == PPCommandItem::kGroup)
 			desk_id = p_item->ID;
 		else {
 			long   id = 0;
 			PPCommandGroup desk;
 			desk.InitDefaultDesktop(def_desk_name);
-			desk_list.GetUniqueID(&id);
+			desktop_list.GetUniqueID(&id);
 			desk.SetUniqueID(&id);
-			desk_list.Add(-1, &desk);
-			THROW(p_mgr->Save__(&desk_list));
-#ifndef _NDEGUG
-			THROW(p_mgr->Save__2(&desk_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1
-#endif
+			desk.GenerateDeskGuid(); // @erik v10.6.6
+			desktop_list.Add(-1, &desk);
+			//THROW(p_mgr->Save__(&desk_list)); // @erik v10.6.6
+			THROW(p_mgr->Save__2(&desktop_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1
 			desk_id = desk.ID;
 		}
 		ok = 1;

@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -62,21 +62,15 @@ SLAPI PPViewObjSync::~PPViewObjSync()
 // ObjSyncFiltDialog
 //
 class ObjSyncFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(ObjSyncFilt);
 public:
 	ObjSyncFiltDialog() : TDialog(DLG_SYNCFILT)
 	{
 	}
-	int    setDTS(const ObjSyncFilt *);
-	int    getDTS(ObjSyncFilt *);
-private:
-	ObjSyncFilt Data;
-};
-
-int ObjSyncFiltDialog::setDTS(const ObjSyncFilt * pFilt)
-{
-	int    ok = -1;
-	if(pFilt) {
-		Data = *pFilt;
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
 		SetupObjListCombo(this, CTLSEL_SYNCFILT_OBJ, Data.ObjType);
 		SetupPPObjCombo(this, CTLSEL_SYNCFILT_DIV, PPOBJ_DBDIV, Data.DbDivID, 0, 0);
 		uint      pos;
@@ -91,55 +85,53 @@ int ObjSyncFiltDialog::setDTS(const ObjSyncFilt * pFilt)
 			ids_set.add(buf.Z().Cat(comm_id.Key).CatDiv('-', 0).Cat(comm_id.Val));
 		}
 		setCtrlString(CTL_SYNCFILT_COMMIDS, ids_set.getBuf());
-		ok = 1;
+		return ok;
 	}
-	return ok;
-}
-
-int ObjSyncFiltDialog::getDTS(ObjSyncFilt * pFilt)
-{
-	int    ok = 1;
-	uint   sel = 0, pos;
-	SString   buf;
-	StringSet ids_set(',', 0);
-	getCtrlData(CTLSEL_SYNCFILT_OBJ, &Data.ObjType);
-	getCtrlData(CTLSEL_SYNCFILT_DIV, &Data.DbDivID);
-	getCtrlString(sel = CTL_SYNCFILT_OBJIDS, buf);
-	if(buf.NotEmptyS()) {
-		PPID  id;
-		PPIDArray  objid_list;
-		ids_set.setBuf(buf.cptr(), buf.Len() + 1);
-		for(pos = 0; ids_set.get(&pos, buf);) {
-			THROW(buf.Strip().IsDigit() && (id = buf.ToLong()) > 0);
-			objid_list.addUnique(id);
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0, pos;
+		SString   buf;
+		StringSet ids_set(',', 0);
+		getCtrlData(CTLSEL_SYNCFILT_OBJ, &Data.ObjType);
+		getCtrlData(CTLSEL_SYNCFILT_DIV, &Data.DbDivID);
+		getCtrlString(sel = CTL_SYNCFILT_OBJIDS, buf);
+		if(buf.NotEmptyS()) {
+			PPID  id;
+			PPIDArray  objid_list;
+			ids_set.setBuf(buf.cptr(), buf.Len() + 1);
+			for(pos = 0; ids_set.get(&pos, buf);) {
+				THROW(buf.Strip().IsDigit() && (id = buf.ToLong()) > 0);
+				objid_list.addUnique(id);
+			}
+			objid_list.sort();
+			Data.ObjIDList = objid_list;
 		}
-		objid_list.sort();
-		Data.ObjIDList = objid_list;
-	}
-	else
-		Data.ObjIDList.freeAll();
-	getCtrlString(sel = CTL_SYNCFILT_COMMIDS, buf);
-	if(buf.NotEmptyS()) {
-		LAssoc  comm_id;
-		LAssocArray  commid_list;
-		SString left, right;
-		ids_set.setBuf(buf.cptr(), buf.Len() + 1);
-		for(pos = 0; ids_set.get(&pos, buf);) {
-			THROW(buf.Strip().Divide('-', left, right) > 0 && left.Strip().IsDigit() && (comm_id.Key = left.ToLong()) > 0 &&
-				right.Strip().IsDigit() && (comm_id.Val = right.ToLong()) > 0);
-			if(!commid_list.bsearch(&comm_id, 0, PTR_CMPFUNC(_2long)))
-				commid_list.ordInsert(&comm_id, 0, PTR_CMPFUNC(_2long));
+		else
+			Data.ObjIDList.freeAll();
+		getCtrlString(sel = CTL_SYNCFILT_COMMIDS, buf);
+		if(buf.NotEmptyS()) {
+			LAssoc  comm_id;
+			LAssocArray  commid_list;
+			SString left, right;
+			ids_set.setBuf(buf.cptr(), buf.Len() + 1);
+			for(pos = 0; ids_set.get(&pos, buf);) {
+				THROW(buf.Strip().Divide('-', left, right) > 0 && left.Strip().IsDigit() && (comm_id.Key = left.ToLong()) > 0 &&
+					right.Strip().IsDigit() && (comm_id.Val = right.ToLong()) > 0);
+				if(!commid_list.bsearch(&comm_id, 0, PTR_CMPFUNC(_2long)))
+					commid_list.ordInsert(&comm_id, 0, PTR_CMPFUNC(_2long));
+			}
+			Data.CommIDList = commid_list;
 		}
-		Data.CommIDList = commid_list;
+		else
+			Data.CommIDList.freeAll();
+		CATCH
+			ok = PPErrorByDialog(this, sel, PPERR_USERINPUT);
+		ENDCATCH
+		ASSIGN_PTR(pData, Data);
+		return ok;
 	}
-	else
-		Data.CommIDList.freeAll();
-	CATCH
-		ok = PPErrorByDialog(this, sel, PPERR_USERINPUT);
-	ENDCATCH
-	ASSIGN_PTR(pFilt, Data);
-	return ok;
-}
+};
 //
 //
 //
@@ -312,7 +304,7 @@ int SLAPI PPViewObjSync::AddItem()
 {
 	int    ok = -1;
 	ObjSyncTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.6.8 @ctr MEMSZERO(rec);
 	while(ok <= 0 && EditRecord(&rec) > 0) {
 		if(P_Tbl->AddRawRecord(&rec, 1))
 			ok = 1;
@@ -635,9 +627,8 @@ int SLAPI PPViewObjSyncCmp::ViewTotal()
 int SLAPI PPViewObjSyncCmp::RemoveAllSync()
 {
 	int    ok = -1;
-	if(!P_Ot)
-		P_Ot = new PPObjectTransmit(PPObjectTransmit::tmUndef, 1, 0);
-	if(P_Ot && CONFIRMCRIT(PPCFM_DELETE)) {
+	THROW_SL(SETIFZ(P_Ot, new PPObjectTransmit(PPObjectTransmit::tmUndef, PPObjectTransmit::ctrfSyncCmp/*1, 0*/)));
+	if(CONFIRMCRIT(PPCFM_DELETE)) {
 		ObjSyncCmpViewItem item;
 		PPWait(1);
 		PPTransaction tra(1);
@@ -737,7 +728,7 @@ int SLAPI PPViewObjSyncCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				ok = -1;
 				if(p_hdr && p_hdr->ObjType && !p_hdr->CommID.IsZero()) {
 					if(!P_Ot)
-						P_Ot = new PPObjectTransmit(PPObjectTransmit::tmUndef, 1, 0);
+						P_Ot = new PPObjectTransmit(PPObjectTransmit::tmUndef, PPObjectTransmit::ctrfSyncCmp/*1, 0*/);
 					if(P_Ot && CONFIRM(PPCFM_DELETE)) {
 						int r = P_Ot->SyncTbl.RemoveByCommID(p_hdr->ObjType, p_hdr->CommID, 0, 1);
 						if(r > 0) {
@@ -975,7 +966,7 @@ int SLAPI ViewObjSyncTab(PPObjID oid)
 		// ObjType, CommIdPfx, CommID, DBID (unique mod); // #0
 		ObjSyncTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.ObjType = (int16)oid.Obj;
+		k0.ObjType = static_cast<int16>(oid.Obj);
 		k0.CommIdPfx = hdr_rec.CommIdPfx;
 		k0.CommID = hdr_rec.CommID;
 		while(p_tbl->search(0, &k0, spGt) && p_tbl->data.ObjType == oid.Obj &&

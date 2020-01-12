@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Редактирование списка команд
 //
@@ -18,7 +18,7 @@ class CmdItemDialog : public TDialog {
 public:
 	CmdItemDialog(const PPCommandGroup * pGrp, int isDesktopCmd) : TDialog(DLG_CMDITEM), IsDesktopCmd(isDesktopCmd), P_Grp(pGrp)
 	{
-		CmdDescr.GetResourceList(1, &CmdSymbList);
+		CmdDescr.GetResourceList(1, CmdSymbList);
 		if(IsDesktopCmd)
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_CMDITEM_ICON, CTL_CMDITEM_ICON, GRP_FBG, PPTXT_SELCMDICON, PPTXT_FILPAT_ICONS, FileBrowseCtrlGroup::fbcgfFile);
 		disableCtrl(CTL_CMDITEM_ICON, 1);
@@ -33,7 +33,7 @@ public:
 		Data = *pData;
 		setCtrlString(CTL_CMDITEM_NAME, Data.Name);
 		setCtrlLong(CTL_CMDITEM_ID, Data.ID);
-		CmdDescr.GetResourceList(1, &cmd_txt_list);
+		CmdDescr.GetResourceList(1, cmd_txt_list);
 		uint   pos = 0;
 		cmd_txt_list.SortByText();
 		SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, &cmd_txt_list, Data.CmdID, 0);
@@ -457,8 +457,7 @@ IMPL_HANDLE_EVENT(DesktopAssocCommandDialog)
 
 void DesktopAssocCommandDialog::SetupCtrls()
 {
-	long   flags = 0;
-	GetClusterData(CTL_DESKCMDAI_FLAGS, &flags);
+	const long flags = GetClusterData(CTL_DESKCMDAI_FLAGS);
 	disableCtrl(CTL_DESKCMDAI_CODE, !(flags & PPDesktopAssocCmd::fSpecCode));
 	DisableClusterItem(CTL_DESKCMDAI_FLAGS, 1, !(flags & PPDesktopAssocCmd::fSpecCode));
 }
@@ -469,7 +468,7 @@ int DesktopAssocCommandDialog::setDTS(const PPDesktopAssocCmd * pData)
 	PPCommandDescr cmd_descr;
 	if(!RVALUEPTR(Data, pData))
 		MEMSZERO(Data);
-	cmd_descr.GetResourceList(1, &cmd_list);
+	cmd_descr.GetResourceList(1, cmd_list);
 	cmd_list.SortByText();
 	setCtrlString(CTL_DESKCMDAI_CODE, Data.Code);
 	setCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
@@ -512,7 +511,7 @@ public:
 	DesktopAssocCmdsDialog() : PPListDialog(DLG_DESKCMDA, CTL_DESKCMDA_LIST)
 	{
 		PPCommandDescr cmd_descr;
-		cmd_descr.GetResourceList(1, &CmdList);
+		cmd_descr.GetResourceList(1, CmdList);
 		disableCtrl(CTLSEL_DESKCMDA_DESKTOP, 1);
 	}
 	int setDTS(const PPDesktopAssocCmdPool *);
@@ -1217,7 +1216,7 @@ int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
 	MITH   mith;
 	long   length = 0, menuOfs = 0;
 	LAssocArray descrs;
-	THROW(PPCommandDescr::GetResourceList(&descrs));
+	THROW(PPCommandDescr::GetResourceList(descrs));
 	if(p_slrez->findResource(resMenuID, 0x04, &menuOfs, &length)) {
 		length += menuOfs;
 		mith.versionNumber = p_slrez->getUINT();

@@ -260,9 +260,7 @@ struct rar5 {
 	struct file_header file;
 	struct bit_reader bits;
 	struct multivolume vol;
-
-	/* The header of currently processed RARv5 block. Used in main
-	 * decompression logic loop. */
+	// The header of currently processed RARv5 block. Used in main decompression logic loop. 
 	struct compressed_block_header last_block_hdr;
 };
 
@@ -270,16 +268,19 @@ struct rar5 {
 
 static int verify_global_checksums(struct archive_read* a);
 static int rar5_read_data_skip(struct archive_read * a);
-static int push_data_ready(struct archive_read* a, struct rar5* rar,
-    const uint8_t* buf, size_t size, int64_t offset);
+static int push_data_ready(struct archive_read* a, struct rar5* rar, const uint8_t* buf, size_t size, int64_t offset);
 
 /* CDE_xxx = Circular Double Ended (Queue) return values. */
 enum CDE_RETURN_VALUES {
-	CDE_OK, CDE_ALLOC, CDE_PARAM, CDE_OUT_OF_BOUNDS,
+	CDE_OK, 
+	CDE_ALLOC, 
+	CDE_PARAM, 
+	CDE_OUT_OF_BOUNDS,
 };
 
 /* Clears the contents of this circular deque. */
-static void cdeque_clear(struct cdeque* d) {
+static void cdeque_clear(struct cdeque* d) 
+{
 	d->size = 0;
 	d->beg_pos = 0;
 	d->end_pos = 0;
@@ -317,7 +318,8 @@ static void cdeque_front_fast(struct cdeque* d, void** value)
 
 /* Returns the first element of current circular deque. This function
  * performs bounds checking. */
-static int cdeque_front(struct cdeque* d, void** value) {
+static int cdeque_front(struct cdeque* d, void** value) 
+{
 	if(d->size > 0) {
 		cdeque_front_fast(d, value);
 		return CDE_OK;
@@ -328,23 +330,22 @@ static int cdeque_front(struct cdeque* d, void** value) {
 
 /* Pushes a new element into the end of this circular deque object. If current
  * size will exceed capacity, the oldest element will be overwritten. */
-static int cdeque_push_back(struct cdeque* d, void* item) {
+static int cdeque_push_back(struct cdeque* d, void* item) 
+{
 	if(d == NULL)
 		return CDE_PARAM;
-
 	if(d->size == d->cap_mask + 1)
 		return CDE_OUT_OF_BOUNDS;
-
 	d->arr[d->end_pos] = (size_t)item;
 	d->end_pos = (d->end_pos + 1) & d->cap_mask;
 	d->size++;
-
 	return CDE_OK;
 }
 
 /* Pops a front element of this circular deque object and returns its value.
  * This function doesn't perform any bounds checking. */
-static void cdeque_pop_front_fast(struct cdeque* d, void** value) {
+static void cdeque_pop_front_fast(struct cdeque* d, void** value) 
+{
 	*value = (void*)d->arr[d->beg_pos];
 	d->beg_pos = (d->beg_pos + 1) & d->cap_mask;
 	d->size--;
@@ -367,21 +368,19 @@ static void** cdeque_filter_p(struct filter_info** f) { return (void**)(size_t)f
 
 /* Convenience function to cast filter_info* to void *. */
 static void* cdeque_filter(struct filter_info* f) { return (void**)(size_t)f; }
-
-/* Destroys this circular deque object. Deallocates the memory of the collection
- * buffer, but doesn't deallocate the memory of any pointer passed to this
- * deque as a value. */
+// 
+// Destroys this circular deque object. Deallocates the memory of the collection
+// buffer, but doesn't deallocate the memory of any pointer passed to this deque as a value. 
+// 
 static void cdeque_free(struct cdeque* d) 
 {
-	if(!d)
-		return;
-	if(!d->arr)
-		return;
-	SAlloc::F(d->arr);
-	d->arr = NULL;
-	d->beg_pos = -1;
-	d->end_pos = -1;
-	d->cap_mask = 0;
+	if(d && d->arr) {
+		SAlloc::F(d->arr);
+		d->arr = NULL;
+		d->beg_pos = -1;
+		d->end_pos = -1;
+		d->cap_mask = 0;
+	}
 }
 
 static inline uint8_t bf_bit_size(const struct compressed_block_header* hdr) { return hdr->block_flags_u8 & 7; }
@@ -417,19 +416,16 @@ static void circular_memcpy(uint8_t* dst, uint8_t* window, const int mask, int64
 /* Allocates a new filter descriptor and adds it to the filter array. */
 static struct filter_info* add_new_filter(struct rar5* rar) 
 {
-	struct filter_info* f = (struct filter_info *)SAlloc::C(1, sizeof(struct filter_info));
-	if(!f) {
-		return NULL;
-	}
-	cdeque_push_back(&rar->cstate.filters, cdeque_filter(f));
+	struct filter_info * f = static_cast<struct filter_info *>(SAlloc::C(1, sizeof(struct filter_info)));
+	if(f)
+		cdeque_push_back(&rar->cstate.filters, cdeque_filter(f));
 	return f;
 }
 
 static int run_delta_filter(struct rar5* rar, struct filter_info* flt)
 {
-	int i;
 	ssize_t dest_pos, src_pos = 0;
-	for(i = 0; i < flt->channels; i++) {
+	for(int i = 0; i < flt->channels; i++) {
 		uint8_t prev_byte = 0;
 		for(dest_pos = i; dest_pos < flt->block_length; dest_pos += flt->channels) {
 			uint8_t byte;
@@ -439,7 +435,6 @@ static int run_delta_filter(struct rar5* rar, struct filter_info* flt)
 			src_pos++;
 		}
 	}
-
 	return ARCHIVE_OK;
 }
 
@@ -447,11 +442,8 @@ static int run_e8e9_filter(struct rar5* rar, struct filter_info* flt, int extend
 {
 	const uint32_t file_size = 0x1000000;
 	ssize_t i;
-	circular_memcpy(rar->cstate.filtered_buf,
-	    rar->cstate.window_buf,
-	    rar->cstate.window_mask,
-	    rar->cstate.solid_offset + flt->block_start,
-	    rar->cstate.solid_offset + flt->block_start + flt->block_length);
+	circular_memcpy(rar->cstate.filtered_buf, rar->cstate.window_buf, rar->cstate.window_mask,
+	    rar->cstate.solid_offset + flt->block_start, rar->cstate.solid_offset + flt->block_start + flt->block_length);
 	for(i = 0; i < flt->block_length - 4;) {
 		uint8_t b = rar->cstate.window_buf[(rar->cstate.solid_offset + flt->block_start + i++) & rar->cstate.window_mask];
 		/* 0xE8 = x86's call <relative_addr_uint32> (function call)

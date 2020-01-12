@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -301,13 +301,14 @@ int SLAPI PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 class SalaryDialog : public TDialog {
 #define GRP_DIV 1
+	DECL_DIALOG_DATA(SalaryTbl::Rec);
 public:
 	SalaryDialog() : TDialog(DLG_SALARY), OrgID(0), DivID(0), StaffID(0)
 	{
 	}
-	int    setDTS(const SalaryTbl::Rec * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		PersonPostTbl::Rec post_rec;
 		PPStaffEntry sl_rec;
 		OrgID = DivID = StaffID = 0;
@@ -330,7 +331,7 @@ public:
 		setCtrlReal(CTL_SALARY_AMOUNT, Data.Amount);
 		return 1;
 	}
-	int    getDTS(SalaryTbl::Rec * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -367,7 +368,6 @@ private:
 		}
 	}
 	PPObjStaffList SlObj;
-	SalaryTbl::Rec Data;
 	PPID   OrgID;
 	PPID   DivID;
 	PPID   StaffID;
@@ -440,7 +440,6 @@ int SLAPI PPViewSalary::TempRecToViewItem(const TempSalaryTbl::Rec * pTempRec, S
 	return 1;
 }
 
-// @v5.6.14 AHTOXA {
 int SLAPI PPViewSalary::GetSalChargeGroupItems(PPID salChargeGrpID, PPIDArray * pItems) const
 {
 	int    ok = -1;
@@ -494,7 +493,6 @@ int SLAPI PPViewSalary::GetTabTitle(long tabID, SString & rBuf) const
 {
 	return GetObjectName(PPOBJ_SALCHARGE, tabID, (rBuf = 0));
 }
-// } @v5.4.1 AHTOXA
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSalary);
 
@@ -718,7 +716,7 @@ DBQuery * SLAPI PPViewSalary::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	uint   brw_id = 0;
 	DBQuery * q = 0;
 	if(P_Ct)
-		brw_id = BROWSER_SALARYCT; // @v5.6.14 AHTOXA
+		brw_id = BROWSER_SALARYCT;
 	else {
 		brw_id = BROWSER_SALARY;
 		SalaryTbl * p_slr = 0;
@@ -792,7 +790,6 @@ PPID SLAPI PPViewSalary::GetEditId(PPID id, const PPViewBrowser * pBrw)
 		PPID   tab_id = 0;
 		DBFieldList fld_list; // realy const, do not modify
 		int    r = (tab_idx > 2) ? P_Ct->GetTab(tab_idx - 3, &tab_id) : -1;
-
 		if(r > 0 && P_Ct->GetIdxFields(id, &fld_list) > 0) {
 			SalaryTbl::Key2 k2;
 			fld_list.GetValue(0, &k2.Beg,    0);

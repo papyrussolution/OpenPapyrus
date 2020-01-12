@@ -203,8 +203,10 @@ int SLAPI BExtQuery::initIteration(int reverse, const void * pInitKey, int initS
 	if(reverse)
 		State |= stReverse;
 	InitSpMode = initSpMode;
-	if(pInitKey)
-		memcpy(InitKey, pInitKey, MAXKEYLEN);
+	if(pInitKey) {
+		// @v10.6.8 memcpy(InitKey, pInitKey, MAXKEYLEN);
+		memcpy(InitKey_, pInitKey, MAXKEYLEN); // @v10.6.8 
+	}
 	else
 		State |= stUndefInitKey;
 	return ok;
@@ -225,7 +227,7 @@ int SLAPI BExtQuery::nextIteration()
 	if(State & stFirstFail)
 		ok = -1;
 	else if(State & stFirst) {
-		ok = fetchFirst((State & stUndefInitKey) ? 0 : InitKey, InitSpMode);
+		ok = fetchFirst((State & stUndefInitKey) ? static_cast<void *>(0) : InitKey_, InitSpMode);
 		State &= ~stFirst;
 		if(!ok)
 			State |= stFirstFail;
@@ -325,8 +327,8 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		}
 	}
 	else {
-		uint   fc = NZOR(fields_count, 1);
-		uint   tailLen = (fc + 1) * sizeof(BExtTailItem);
+		const  uint fc = NZOR(fields_count, 1);
+		const  uint tailLen = (fc + 1) * sizeof(BExtTailItem);
 		BExtTailItem * p_item = 0;
 		THROW_V(P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, sizeof(BExtHeader))), BE_NOMEM);
 		memzero(P_QHead, sizeof(BExtHeader));
@@ -356,12 +358,12 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		memcpy(P_QBuf + TailOfs, p_tail, tailLen);
 		P_QHead->bufLen += tailLen;
 		if(pInitKey) {
-			memcpy(_Key, pInitKey, MAXKEYLEN);
+			memcpy(_Key_, pInitKey, MAXKEYLEN);
 			sp = initSpMode;
 		}
 		else
 			sp = (initSpMode >= 0) ? spMode : UNDEF;
-		if(sp != (int)UNDEF && !P_Tbl->search(_Key, sp)) {
+		if(sp != (int)UNDEF && !P_Tbl->search(_Key_, sp)) {
 			if(BTRNFOUND)
 				State |= stEOF;
 			ok = -1;
@@ -418,7 +420,7 @@ __again:
 				}
 				else {
 					P_Tbl->setIndex(Index_);
-					r = P_Tbl->getExtended(_Key, spMode);
+					r = P_Tbl->getExtended(_Key_, spMode);
 				}
 				P_Tbl->setBuffer(saved_buf);
 				ActCount = *reinterpret_cast<const uint16 *>(Buf.cptr());

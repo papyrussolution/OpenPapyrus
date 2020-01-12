@@ -1,5 +1,5 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020
 // @codepage windows-1251
 // Интерфейс эмулятора синхронного кассового аппарата
 //
@@ -355,7 +355,7 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 					}
 					buf.Z().Dot();
-					sl_param.Init();
+					sl_param.Z();
 					{
 						PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 						THROW_SL(p_prn_ls);
@@ -427,21 +427,19 @@ int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * p
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
 				SString buf;
-				PrnLineStruc * p_prn_ls = 0;
 				PrnLinesArray prn_list;
 				TextOutput = sdc_param.TextOutput; // @vmiller
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-					p_prn_ls = new PrnLineStruc;
+					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 					p_prn_ls->PrnBuf = line_buf;
 					p_prn_ls->Param = sl_param;
-					prn_list.insert(p_prn_ls);
 				}
-				buf.Z().Dot();
-				sl_param.Init();
-				p_prn_ls = new PrnLineStruc;
-				p_prn_ls->PrnBuf = buf;
-				p_prn_ls->Param  = sl_param;
-				prn_list.insert(p_prn_ls);
+				{
+					buf.Z().Dot();
+					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+					p_prn_ls->PrnBuf = buf;
+					p_prn_ls->Param  = sl_param.Z();
+				}
 				SendToPrinter(&prn_list);
 			}
 		}
@@ -462,21 +460,19 @@ int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
 			SString buf;
-			PrnLineStruc * p_prn_ls = 0;
 			PrnLinesArray prn_list;
 			TextOutput = sdc_param.TextOutput; // @vmiller
 			for(P_SlipFmt->InitIteration(pSessInfo); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-				p_prn_ls = new PrnLineStruc;
+				PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 				p_prn_ls->PrnBuf = line_buf;
 				p_prn_ls->Param = sl_param;
-				prn_list.insert(p_prn_ls);
 			}
-			buf.Z().Dot();
-			sl_param.Init();
-			p_prn_ls = new PrnLineStruc;
-			p_prn_ls->PrnBuf = buf;
-			p_prn_ls->Param  = sl_param;
-			prn_list.insert(p_prn_ls);
+			{
+				buf.Z().Dot();
+				PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+				p_prn_ls->PrnBuf = buf;
+				p_prn_ls->Param  = sl_param.Z();
+			}
 			SendToPrinter(&prn_list);
 		}
 	}
@@ -498,21 +494,19 @@ int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
 				SString buf;
-				PrnLineStruc * p_prn_ls = 0;
 				PrnLinesArray prn_list;
 				TextOutput = sdc_param.TextOutput; // @vmiller
 				for(P_SlipFmt->InitIteration(pSessInfo); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-					p_prn_ls = new PrnLineStruc;
+					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 					p_prn_ls->PrnBuf = line_buf;
 					p_prn_ls->Param = sl_param;
-					prn_list.insert(p_prn_ls);
 				}
-				buf.Z().Dot();
-				sl_param.Init();
-				p_prn_ls = new PrnLineStruc;
-				p_prn_ls->PrnBuf = buf;
-				p_prn_ls->Param  = sl_param;
-				prn_list.insert(p_prn_ls);
+				{
+					buf.Z().Dot();
+					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+					p_prn_ls->PrnBuf = buf;
+					p_prn_ls->Param  = sl_param.Z();
+				}
 				SendToPrinter(&prn_list);
 			}
 		}

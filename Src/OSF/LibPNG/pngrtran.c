@@ -925,8 +925,7 @@ static int /* PRIVATE */ png_gamma_threshold(png_fixed_point screen_gamma, png_f
 	 * turn on processing anyway.
 	 */
 	png_fixed_point gtest;
-	return !png_muldiv(&gtest, screen_gamma, file_gamma, PNG_FP_1) ||
-	       png_gamma_significant(gtest);
+	return !png_muldiv(&gtest, screen_gamma, file_gamma, PNG_FP_1) || png_gamma_significant(gtest);
 }
 
 #endif

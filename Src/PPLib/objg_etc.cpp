@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -102,10 +102,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjGoodsType::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRGOODSTYPE, 0);
-}
+int SLAPI PPObjGoodsType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRGOODSTYPE, 0); }
 //
 //
 //
@@ -232,10 +229,7 @@ int SLAPI PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjBarCodeStruc::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRBARCODESTRUC, 0);
-}
+int SLAPI PPObjBarCodeStruc::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRBARCODESTRUC, 0); }
 //
 // @ModuleDef(PPObjGoodsValRestr)
 //

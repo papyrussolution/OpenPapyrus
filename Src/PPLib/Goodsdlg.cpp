@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Диалог редактирования товара
@@ -455,13 +455,14 @@ void GoodsFiltCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 {
 	class BarcodeItemDialog : public TDialog {
+		DECL_DIALOG_DATA(BarcodeTbl::Rec);
 	public:
 		explicit BarcodeItemDialog(PPID goodsGrpID) : TDialog(DLG_BARCODE), GoodsGrpID(goodsGrpID)
 		{
 		}
-		int    setDTS(const BarcodeTbl::Rec * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SString goods_name;
 			GetGoodsName(Data.GoodsID, goods_name);
 			setCtrlString(CTL_BARCODE_GOODS, goods_name);
@@ -486,7 +487,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			}
 			return 1;
 		}
-		int    getDTS(BarcodeTbl::Rec * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1, sel = 0;
 			SString barcode, mark_buf;
@@ -564,7 +565,6 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			clearEvent(event);
 		}
 		PPID   GoodsGrpID;
-		BarcodeTbl::Rec Data;
 		PPObjGoods GObj;
 	};
 	DIALOG_PROC_BODY_P1(BarcodeItemDialog, goodsGrpID, pRec);
@@ -782,6 +782,7 @@ int ArGoodsCodeDialog::getDTS(ArGoodsCodeTbl::Rec * pData)
 static int SLAPI _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode) { DIALOG_PROC_BODY_P1(ArGoodsCodeDialog, ownCode, pRec); }
 
 class ArGoodsCodeListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(ArGoodsCodeArray);
 public:
 	ArGoodsCodeListDialog(PPID goodsID, PPID defArID) : PPListDialog(DLG_ARGCODELIST, CTL_ARGCODELIST_LIST), GoodsID(goodsID), DefArID(defArID)
 	{
@@ -791,13 +792,13 @@ public:
 			setStaticText(CTL_ARGCODELIST_GOODS, goods_name);
 		}
 	}
-	int    setDTS(const ArGoodsCodeArray * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		updateList(0);
 		return 1;
 	}
-	int    getDTS(ArGoodsCodeArray * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ASSIGN_PTR(pData, Data);
@@ -812,7 +813,6 @@ private:
 
 	PPID   GoodsID;
 	PPID   DefArID;
-	ArGoodsCodeArray Data;
 };
 
 int ArGoodsCodeListDialog::setupList()
@@ -837,7 +837,7 @@ int ArGoodsCodeListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ArGoodsCodeTbl::Rec item;
-	MEMSZERO(item);
+	// @v10.6.8 @ctr MEMSZERO(item);
 	item.GoodsID = GoodsID;
 	item.ArID = DefArID;
 	item.Pack = 1000;
@@ -909,7 +909,7 @@ int SLAPI PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
 				code_rec = code_list.at(pos);
 			}
 			else {
-				MEMSZERO(code_rec);
+				// @v10.6.8 @ctr MEMSZERO(code_rec);
 				code_rec.GoodsID = goodsID;
 				code_rec.ArID = arID;
 				code_rec.Pack = 1000;
@@ -1009,18 +1009,14 @@ IMPL_HANDLE_EVENT(ClsdGoodsDialog)
 					setCtrlLong(CTLSEL_SG_CLS, GcPack.Rec.ID);
 			}
 		}
-		else if(event.isClusterClk(CTL_SG_ZEROX)) {
+		else if(event.isClusterClk(CTL_SG_ZEROX))
 			setupZeroDim(CTL_SG_ZEROX, CTL_SG_DIMX, cmSgDimX);
-		}
-		else if(event.isClusterClk(CTL_SG_ZEROY)) {
+		else if(event.isClusterClk(CTL_SG_ZEROY))
 			setupZeroDim(CTL_SG_ZEROY, CTL_SG_DIMY, cmSgDimY);
-		}
-		else if(event.isClusterClk(CTL_SG_ZEROZ)) {
+		else if(event.isClusterClk(CTL_SG_ZEROZ))
 			setupZeroDim(CTL_SG_ZEROZ, CTL_SG_DIMZ, cmSgDimZ);
-		}
-		else if(event.isClusterClk(CTL_SG_ZEROW)) {
+		else if(event.isClusterClk(CTL_SG_ZEROW))
 			setupZeroDim(CTL_SG_ZEROW, CTL_SG_DIMW, cmSgDimW);
-		}
 		else if(TVCMD == cmSgDimX)
 			selectDim(CTL_SG_DIMX, &GcPack.DimX);
 		else if(TVCMD == cmSgDimY)
@@ -1088,7 +1084,7 @@ int ClsdGoodsDialog::selectDim(uint ctlID, PPGdsClsDim * pDim)
 void ClsdGoodsDialog::setupZeroDim(uint zeroCtlId, uint inpId, uint selCmd)
 {
 	if(ModifyOnlyExtRec == 2) {
-		uint16 zero = getCtrlUInt16(zeroCtlId);
+		const uint16 zero = getCtrlUInt16(zeroCtlId);
 		disableCtrl(inpId, zero);
 		enableCommand(selCmd, !zero);
 	}
@@ -1096,14 +1092,14 @@ void ClsdGoodsDialog::setupZeroDim(uint zeroCtlId, uint inpId, uint selCmd)
 
 int ClsdGoodsDialog::setupGdsClsDim(uint inpID, uint selCmd, uint labelID, uint zeroID, uint flag, PPGdsClsDim * pDim, long val)
 {
-	int    x = BIN(GcPack.Rec.Flags & flag);
+	const int x = BIN(GcPack.Rec.Flags & flag);
 	disableCtrls(!x, inpID, labelID, zeroID, 0);
 	enableCommand(selCmd, x);
 	setStaticText(labelID, x ? pDim->Name : 0);
 	setCtrlReal(inpID, x ? (((double)val) / fpow10i((int)pDim->Scale)) : 0);
 	{
-		uint   boffs = PPGdsCls::UseFlagToE(flag);
-		uint16 zero = static_cast<uint16>((ModifyOnlyExtRec == 2 && zeroID && (boffs > 0)) ? (ZeroFlags & (1 < (boffs-1))) : 0);
+		const uint   boffs = PPGdsCls::UseFlagToE(flag);
+		const uint16 zero = static_cast<uint16>((ModifyOnlyExtRec == 2 && zeroID && (boffs > 0)) ? (ZeroFlags & (1 < (boffs-1))) : 0);
 		setCtrlUInt16(zeroID, zero);
 		setupZeroDim(zeroID, inpID, selCmd);
 	}
@@ -1112,7 +1108,7 @@ int ClsdGoodsDialog::setupGdsClsDim(uint inpID, uint selCmd, uint labelID, uint 
 
 int ClsdGoodsDialog::setupGdsClsProp(uint selID, uint labelID, uint flag, PPGdsClsProp * pProp, PPID dataID)
 {
-	int    x = BIN(GcPack.Rec.Flags & flag);
+	const int x = BIN(GcPack.Rec.Flags & flag);
 	disableCtrls(!x, selID, labelID, 0);
 	setStaticText(labelID, x ? pProp->Name : 0);
 	if(x && pProp->ItemsListID)
@@ -1270,7 +1266,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 {
 	int    ok = 1;
 	PPID   prev_grp_level = 0;
-	Data = *pPack;
+	RVALUEPTR(Data, pPack);
 	showButton(cmSearchUHTT, Data.Rec.ID == 0);
 	gpk  = Data.GetPacketKind();
 	if(gpk == gpkndGoods && GObj.ValidateGoodsParent(Data.Rec.ParentID) <= 0) {
@@ -1488,13 +1484,11 @@ void GoodsDialog::setupBarcode()
 	else {
 		const uint count = Data.Codes.getCount();
 		if(count == 0)
-			barcode = 0;
+			barcode.Z();
 		else if(count == 1)
 			barcode = Data.Codes.at(0).Code;
-		else {
-			// @v9.2.1 PPGetWord(PPWORD_LIST, 0, barcode, sizeof(barcode));
-			PPLoadString("list", barcode); // @v9.2.1
-		}
+		else
+			PPLoadString("list", barcode);
 		disableCtrl(CTL_GOODS_BARCODE, count > 1);
 	}
 	setCtrlString(CTL_GOODS_BARCODE, barcode);
@@ -1572,7 +1566,7 @@ void GoodsDialog::printLabel()
 			RetailGoodsInfo rgi;
 			int    count = Data.Codes.getCount();
 			if(count) {
-				rgi.BarCode[0] = 0;
+				// @v10.6.8 @ctr rgi.BarCode[0] = 0;
 				if(count == 1)
 					getCtrlData(CTL_GOODS_BARCODE, rgi.BarCode);
 				else
@@ -1927,8 +1921,7 @@ void GoodsVadDialog::getExtStrData(uint ctlID)
 
 int GoodsVadDialog::setDTS(const PPGoodsPacket * pData)
 {
-	Data = *pData;
-
+	RVALUEPTR(Data, pData);
 	SString ex_titles;
 	if(Data.Rec.Name[0]) {
 		SString title_buf = getTitle();
@@ -2145,7 +2138,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			setCtrlLong(CTLSEL_GOODS_CLS, 0);
 	}
 	else if(event.isCbSelected(CTLSEL_GOODS_BRAND)) {
-		PPID   prev_brand_id = Data.Rec.BrandID;
+		const PPID prev_brand_id = Data.Rec.BrandID;
 		Data.Rec.BrandID = getCtrlLong(CTLSEL_GOODS_BRAND);
 		if(Data.Rec.BrandID != prev_brand_id)
 			completeByClass();
@@ -2609,8 +2602,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 // Объединение товаров
 //
 class ReplGoodsDialog : public TDialog {
-	typedef PPObjGoods::ExtUniteBlock DlgDataType;
-	DlgDataType Data;
+	DECL_DIALOG_DATA(PPObjGoods::ExtUniteBlock);
 	enum {
 		ctlgroupGoods1 = 1,
 		ctlgroupGoods2 = 2,
@@ -2637,7 +2629,7 @@ public:
 		addGroup(ctlgroupGoods1, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP1, CTLSEL_REPLGOODS_GOODS1));
 		addGroup(ctlgroupGoods2, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP2, CTLSEL_REPLGOODS_GOODS2));
 	}
-	int     setDTS(const DlgDataType * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		GoodsCtrlGroup::Rec src_rec(0, Data.ResultID);
@@ -2672,7 +2664,7 @@ public:
 		}
 		return 1;
 	}
-	int    getDTS(DlgDataType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		PPID   dest_id;
@@ -2853,7 +2845,6 @@ int SLAPI PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEu
 				//
 				dlg->setCtrlLong(CTLSEL_REPLGOODS_GOODS2, 0L);
 				ok = 1;
-
 				rEub.DestList.clear();
 				rEub.ResultID = src_id;
 				if(rEub.Flags & PPObjGoods::ExtUniteBlock::fOnce || rEub.DestList.getCount() > 1) {
@@ -3272,7 +3263,7 @@ IMPL_HANDLE_EVENT(GoodsFiltDialog)
 			case cmClusterClk:
 				{
 					const uint ctl_id = event.getCtlID();
-					if(oneof3(ctl_id, CTL_GOODSFLT_NOKIND, CTL_GOODSFLT_FLAGS, CTL_GOODSFLT_WOTAXGRP))
+					if(oneof4(ctl_id, CTL_GOODSFLT_NOKIND, CTL_GOODSFLT_FLAGS, CTL_GOODSFLT_WOTAXGRP, CTL_GOODSFLT_NOBRAND)) // @v10.6.8 CTL_GOODSFLT_NOBRAND
 						SetupCtrls();
 					else
 						return;
@@ -3296,45 +3287,86 @@ IMPL_HANDLE_EVENT(GoodsFiltDialog)
 }
 
 class GoodsAdvOptDialog : public TDialog {
+	DECL_DIALOG_DATA(GoodsFilt);
 public:
 	GoodsAdvOptDialog() : TDialog(DLG_GDSFVOPT), AcsID(0)
 	{
 	}
-	int    setDTS(const GoodsFilt * pData);
-	int    getDTS(GoodsFilt * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Init(1, 0);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 0, GoodsFilt::fShowBarcode);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 1, GoodsFilt::fShowCargo);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 2, GoodsFilt::fShowStrucType);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 3, GoodsFilt::fShowGoodsWOStruc);
+		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 4, GoodsFilt::fShowArCode);
+		SetClusterData(CTL_GDSFVOPT_FLAGS, Data.Flags);
+		if(!(CConfig.Flags & CCFLG_USEARGOODSCODE)) {
+			DisableClusterItem(CTL_GDSFVOPT_FLAGS, 4, 1);
+			disableCtrls(1, CTL_GDSFVOPT_OWNCODES, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
+			Data.Flags &= ~GoodsFilt::fShowOwnArCode;
+		}
+		else {
+			ArticleTbl::Rec ar_rec;
+			if(Data.CodeArID && ArObj.Fetch(Data.CodeArID, &ar_rec) > 0) {
+				AcsID = ar_rec.AccSheetID;
+				disableCtrl(CTLSEL_GDSFVOPT_ACS, 1);
+			}
+			else
+				AcsID = GetSupplAccSheet();
+			SetupPPObjCombo(this, CTLSEL_GDSFVOPT_ACS, PPOBJ_ACCSHEET, AcsID, 0, 0);
+			SetupArCombo(this, CTLSEL_GDSFVOPT_AR, Data.CodeArID, OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet);
+			AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 0, GoodsFilt::fShowOwnArCode);
+			AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 1, GoodsFilt::fShowWoArCode);
+			SetClusterData(CTL_GDSFVOPT_OWNCODES, Data.Flags);
+		}
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		GetClusterData(CTL_GDSFVOPT_FLAGS, &Data.Flags);
+		if(Data.Flags & GoodsFilt::fShowArCode)
+			GetClusterData(CTL_GDSFVOPT_OWNCODES, &Data.Flags);
+		else
+			Data.Flags &= ~GoodsFilt::fShowOwnArCode;
+		Data.CodeArID = (Data.Flags & GoodsFilt::fShowArCode) ? getCtrlLong(CTLSEL_GDSFVOPT_AR) : 0;
+		if(Data.Flags & GoodsFilt::fShowOwnArCode)
+			Data.CodeArID = 0;
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_GDSFVOPT_FLAGS))
+			SetupCtrls();
+		else if(event.isClusterClk(CTL_GDSFVOPT_OWNCODES)) {
+			if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
+				setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
+				disableCtrls(1, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
+			}
+			else
+				disableCtrls(0, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
+		}
+		else if(event.isCbSelected(CTLSEL_GDSFVOPT_ACS)) {
+			if(!Data.CodeArID) {
+				AcsID = getCtrlLong(CTLSEL_GDSFVOPT_ACS);
+				SetupArCombo(this, CTLSEL_GDSFVOPT_AR, 0L, OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet);
+			}
+			else if(AcsID != getCtrlLong(CTLSEL_GDSFVOPT_ACS))
+				setCtrlLong(CTLSEL_GDSFVOPT_ACS, AcsID);
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	int    SetupCtrls();
 	PPID   AcsID;        // PPOBJ_ACCSHEET
 	PPObjArticle ArObj;
-	GoodsFilt Data;
 };
-
-IMPL_HANDLE_EVENT(GoodsAdvOptDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_GDSFVOPT_FLAGS))
-		SetupCtrls();
-	else if(event.isClusterClk(CTL_GDSFVOPT_OWNCODES)) {
-		if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
-			setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
-			disableCtrls(1, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
-		}
-		else
-			disableCtrls(0, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
-	}
-	else if(event.isCbSelected(CTLSEL_GDSFVOPT_ACS)) {
-		if(!Data.CodeArID) {
-			AcsID = getCtrlLong(CTLSEL_GDSFVOPT_ACS);
-			SetupArCombo(this, CTLSEL_GDSFVOPT_AR, 0L, OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet);
-		}
-		else if(AcsID != getCtrlLong(CTLSEL_GDSFVOPT_ACS))
-			setCtrlLong(CTLSEL_GDSFVOPT_ACS, AcsID);
-	}
-	else
-		return;
-	clearEvent(event);
-}
 
 int GoodsAdvOptDialog::SetupCtrls()
 {
@@ -3362,70 +3394,55 @@ int GoodsAdvOptDialog::SetupCtrls()
 	return 1;
 }
 
-int GoodsAdvOptDialog::setDTS(const GoodsFilt * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init(1, 0);
-	AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 0, GoodsFilt::fShowBarcode);
-	AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 1, GoodsFilt::fShowCargo);
-	AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 2, GoodsFilt::fShowStrucType);
-	AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 3, GoodsFilt::fShowGoodsWOStruc);
-	AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 4, GoodsFilt::fShowArCode);
-	SetClusterData(CTL_GDSFVOPT_FLAGS, Data.Flags);
-	if(!(CConfig.Flags & CCFLG_USEARGOODSCODE)) {
-		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 4, 1);
-		disableCtrls(1, CTL_GDSFVOPT_OWNCODES, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
-		Data.Flags &= ~GoodsFilt::fShowOwnArCode;
-	}
-	else {
-		ArticleTbl::Rec ar_rec;
-		if(Data.CodeArID && ArObj.Fetch(Data.CodeArID, &ar_rec) > 0) {
-			AcsID = ar_rec.AccSheetID;
-			disableCtrl(CTLSEL_GDSFVOPT_ACS, 1);
-		}
-		else
-			AcsID = GetSupplAccSheet();
-		SetupPPObjCombo(this, CTLSEL_GDSFVOPT_ACS, PPOBJ_ACCSHEET, AcsID, 0, 0);
-		SetupArCombo(this, CTLSEL_GDSFVOPT_AR, Data.CodeArID, OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet);
-		AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 0, GoodsFilt::fShowOwnArCode);
-		AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 1, GoodsFilt::fShowWoArCode);
-		SetClusterData(CTL_GDSFVOPT_OWNCODES, Data.Flags);
-	}
-	SetupCtrls();
-	return 1;
-}
-
-int GoodsAdvOptDialog::getDTS(GoodsFilt * pData)
-{
-	GetClusterData(CTL_GDSFVOPT_FLAGS, &Data.Flags);
-	if(Data.Flags & GoodsFilt::fShowArCode) {
-		GetClusterData(CTL_GDSFVOPT_OWNCODES, &Data.Flags);
-	}
-	else
-		Data.Flags &= ~GoodsFilt::fShowOwnArCode;
-	Data.CodeArID = (Data.Flags & GoodsFilt::fShowArCode) ? getCtrlLong(CTLSEL_GDSFVOPT_AR) : 0;
-	if(Data.Flags & GoodsFilt::fShowOwnArCode)
-		Data.CodeArID = 0;
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-
 int GoodsFiltDialog::editGoodsViewOptions() { DIALOG_PROC_BODY(GoodsAdvOptDialog, &Data); }
 
 class EditExtParamsDlg : public TDialog {
+	DECL_DIALOG_DATA(ClsdGoodsFilt);
 public:
 	EditExtParamsDlg() : TDialog(DLG_GFEXTOPT)
 	{
 	}
-	int    setDTS(const ClsdGoodsFilt * pData);
-	int    getDTS(ClsdGoodsFilt * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		GCObj.GetPacket(pData->GdsClsID, &GcPack);
+		setTitle(GcPack.Rec.Name);
+		setupGdsClsProp(CTLSEL_GFEXTOPT_KIND,     CTL_GFEXTOPT_L_KIND,     PPGdsCls::fUsePropKind,  &GcPack.PropKind,  Data.KindList);
+		setupGdsClsProp(CTLSEL_GFEXTOPT_ADDPROP,  CTL_GFEXTOPT_L_ADDPROP,  PPGdsCls::fUsePropAdd,   &GcPack.PropAdd,   Data.AddObjList);
+		setupGdsClsProp(CTLSEL_GFEXTOPT_GRADE,    CTL_GFEXTOPT_L_GRADE,    PPGdsCls::fUsePropGrade, &GcPack.PropGrade, Data.GradeList);
+		setupGdsClsProp(CTLSEL_GFEXTOPT_ADD2PROP, CTL_GFEXTOPT_L_ADD2PROP, PPGdsCls::fUsePropAdd2,  &GcPack.PropAdd2,  Data.AddObj2List);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMX, CTL_GFEXTOPT_L_DIMX, PPGdsCls::fUseDimX, GcPack.DimX, Data.DimX_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMY, CTL_GFEXTOPT_L_DIMY, PPGdsCls::fUseDimY, GcPack.DimY, Data.DimY_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMZ, CTL_GFEXTOPT_L_DIMZ, PPGdsCls::fUseDimZ, GcPack.DimZ, Data.DimZ_Rng);
+		setupGdsClsDim(CTL_GFEXTOPT_DIMW, CTL_GFEXTOPT_L_DIMW, PPGdsCls::fUseDimW, GcPack.DimW, Data.DimW_Rng);
+		SetupPPObjCombo(this, CTLSEL_GFEXTOPT_GDSCLS, PPOBJ_GOODSCLASS, Data.GdsClsID, 0, 0);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getRange(CTL_GFEXTOPT_DIMX, &Data.DimX_Rng, GcPack.DimX.Scale);
+		getRange(CTL_GFEXTOPT_DIMY, &Data.DimY_Rng, GcPack.DimY.Scale);
+		getRange(CTL_GFEXTOPT_DIMZ, &Data.DimZ_Rng, GcPack.DimZ.Scale);
+		getRange(CTL_GFEXTOPT_DIMW, &Data.DimW_Rng, GcPack.DimW.Scale);
+		if(GcPack.Rec.Flags & PPGdsCls::fUsePropKind)
+			Data.KindList = getCtrlLong(CTLSEL_GFEXTOPT_KIND);
+		if(GcPack.Rec.Flags & PPGdsCls::fUsePropAdd)
+			Data.AddObjList = getCtrlLong(CTLSEL_GFEXTOPT_ADDPROP);
+		if(GcPack.Rec.Flags & PPGdsCls::fUsePropGrade)
+			Data.GradeList = getCtrlLong(CTLSEL_GFEXTOPT_GRADE);
+		if(GcPack.Rec.Flags & PPGdsCls::fUsePropAdd2)
+			Data.AddObj2List = getCtrlLong(CTLSEL_GFEXTOPT_ADD2PROP);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupGdsClsProp(uint selID, uint labelID, uint flag, const PPGdsClsProp * pProp, const ObjIdListFilt & rList);
 	void   setupGdsClsDim(uint inpID, uint labelID, uint flag, const PPGdsClsDim & rDim, const RealRange & rV);
 	void   getRange(uint ctlID, RealRange * pRng, long scale);
 	PPGdsClsPacket GcPack;
-	ClsdGoodsFilt Data;
 	PPObjGoodsClass GCObj;
 };
 
@@ -3461,27 +3478,6 @@ void EditExtParamsDlg::setupGdsClsDim(uint inpID, uint labelID, uint flag, const
 		SetRealRangeInput(this, inpID, rV.low, rV.upp, static_cast<int>(rDim.Scale));
 }
 
-int EditExtParamsDlg::setDTS(const ClsdGoodsFilt * pData)
-{
-	int    ok = -1;
-	if(pData) {
-		Data = *pData;
-		GCObj.GetPacket(pData->GdsClsID, &GcPack);
-		setTitle(GcPack.Rec.Name);
-		setupGdsClsProp(CTLSEL_GFEXTOPT_KIND,     CTL_GFEXTOPT_L_KIND,     PPGdsCls::fUsePropKind,  &GcPack.PropKind,  Data.KindList);
-		setupGdsClsProp(CTLSEL_GFEXTOPT_ADDPROP,  CTL_GFEXTOPT_L_ADDPROP,  PPGdsCls::fUsePropAdd,   &GcPack.PropAdd,   Data.AddObjList);
-		setupGdsClsProp(CTLSEL_GFEXTOPT_GRADE,    CTL_GFEXTOPT_L_GRADE,    PPGdsCls::fUsePropGrade, &GcPack.PropGrade, Data.GradeList);
-		setupGdsClsProp(CTLSEL_GFEXTOPT_ADD2PROP, CTL_GFEXTOPT_L_ADD2PROP, PPGdsCls::fUsePropAdd2,  &GcPack.PropAdd2,  Data.AddObj2List);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMX, CTL_GFEXTOPT_L_DIMX, PPGdsCls::fUseDimX, GcPack.DimX, Data.DimX_Rng);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMY, CTL_GFEXTOPT_L_DIMY, PPGdsCls::fUseDimY, GcPack.DimY, Data.DimY_Rng);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMZ, CTL_GFEXTOPT_L_DIMZ, PPGdsCls::fUseDimZ, GcPack.DimZ, Data.DimZ_Rng);
-		setupGdsClsDim(CTL_GFEXTOPT_DIMW, CTL_GFEXTOPT_L_DIMW, PPGdsCls::fUseDimW, GcPack.DimW, Data.DimW_Rng);
-		SetupPPObjCombo(this, CTLSEL_GFEXTOPT_GDSCLS, PPOBJ_GOODSCLASS, Data.GdsClsID, 0, 0);
-		ok = 1;
-	}
-	return ok;
-}
-
 void EditExtParamsDlg::getRange(uint ctlID, RealRange * pRng, long scale)
 {
 	GetRealRangeInput(this, ctlID, pRng);
@@ -3491,28 +3487,6 @@ void EditExtParamsDlg::getRange(uint ctlID, RealRange * pRng, long scale)
 	}
 	else if(scale > 0)
 		pRng->Set(round(pRng->low, (int)scale), round(pRng->upp, (int)scale));
-}
-
-int EditExtParamsDlg::getDTS(ClsdGoodsFilt * pData)
-{
-	int    ok = -1;
-	if(pData) {
-		getRange(CTL_GFEXTOPT_DIMX, &Data.DimX_Rng, GcPack.DimX.Scale);
-		getRange(CTL_GFEXTOPT_DIMY, &Data.DimY_Rng, GcPack.DimY.Scale);
-		getRange(CTL_GFEXTOPT_DIMZ, &Data.DimZ_Rng, GcPack.DimZ.Scale);
-		getRange(CTL_GFEXTOPT_DIMW, &Data.DimW_Rng, GcPack.DimW.Scale);
-		if(GcPack.Rec.Flags & PPGdsCls::fUsePropKind)
-			Data.KindList = getCtrlLong(CTLSEL_GFEXTOPT_KIND);
-		if(GcPack.Rec.Flags & PPGdsCls::fUsePropAdd)
-			Data.AddObjList = getCtrlLong(CTLSEL_GFEXTOPT_ADDPROP);
-		if(GcPack.Rec.Flags & PPGdsCls::fUsePropGrade)
-			Data.GradeList = getCtrlLong(CTLSEL_GFEXTOPT_GRADE);
-		if(GcPack.Rec.Flags & PPGdsCls::fUsePropAdd2)
-			Data.AddObj2List = getCtrlLong(CTLSEL_GFEXTOPT_ADD2PROP);
-		ok = 1;
-		ASSIGN_PTR(pData, Data);
-	}
-	return ok;
 }
 
 int GoodsFiltDialog::EditExtParams() { DIALOG_PROC_BODY(EditExtParamsDlg, &Data.Ep); }
@@ -3595,15 +3569,22 @@ void GoodsFiltDialog::SetupCtrls()
 		Data.VatDate = ZERODATE;
 		Data.VatRate = 0;
 	}
+	// @v10.6.8 {
+	v = getCtrlUInt16(CTL_GOODSFLT_NOBRAND);
+	disableCtrls(BIN(v), CTLSEL_GOODSFLT_BRAND, CTLSEL_GOODSFLT_BROWNER, 0);
+	enableCommand(cmBrandList, !BIN(v));
+	enableCommand(cmBrandOwnerList, !BIN(v));
+	// } @v10.6.8 
 }
 
 int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 {
-	Data = *pFilt;
+	RVALUEPTR(Data, pFilt);
 	SString temp_buf;
 	BrandCtrlGroup::Rec brand_grp_rec(Data.BrandList.IsExists() ? &Data.BrandList.Get() : 0);
 	PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0);
 	setGroupData(ctlgroupBrand, &brand_grp_rec);
+	setCtrlUInt16(CTL_GOODSFLT_NOBRAND, BIN(Data.Flags & GoodsFilt::fWoBrand)); // @v10.6.8
 	setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
@@ -3675,6 +3656,7 @@ int GoodsFiltDialog::getDTS(GoodsFilt * pFilt)
 		BrandCtrlGroup::Rec brand_grp_rec;
 		getGroupData(ctlgroupBrand, &brand_grp_rec);
 		Data.BrandList.Set(&brand_grp_rec.List);
+		SETFLAG(Data.Flags, GoodsFilt::fWoBrand, getCtrlUInt16(CTL_GOODSFLT_NOBRAND)); // @v10.6.8
 	}
 	{
 		PersonListCtrlGroup::Rec brandowner_grp_rec;

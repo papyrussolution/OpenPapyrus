@@ -1,7 +1,8 @@
 // SS_BMHR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2014, 2016, 2018
-// Реализация алгоритма Boyer-Moore-Horspool-Raita
-// для поиска подстроки в строке
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2014, 2016, 2018, 2020
+// @codepage UTF-8
+// Р РµР°Р»РёР·Р°С†РёСЏ Р°Р»РіРѕСЂРёС‚РјР° Boyer-Moore-Horspool-Raita
+// РґР»СЏ РїРѕРёСЃРєР° РїРѕРґСЃС‚СЂРѕРєРё РІ СЃС‚СЂРѕРєРµ
 //
 #include <slib.h>
 #include <tv.h>
@@ -129,26 +130,26 @@ int SSrchPattern::Calc_L(const uint16 * pN, uint16 * pL, uint16 * pl)
 	size_t p;
 	const size_t len = Len;
 	//
-	// max_j - максимальный префикс pS, который одновременно
-	// является суффиксом pS.
-	// Необходим для вычисления вектора l'
+	// max_j - РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РїСЂРµС„РёРєСЃ pS, РєРѕС‚РѕСЂС‹Р№ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ
+	// СЏРІР»СЏРµС‚СЃСЏ СЃСѓС„С„РёРєСЃРѕРј pS.
+	// РќРµРѕР±С…РѕРґРёРј РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РІРµРєС‚РѕСЂР° l'
 	//
 	size_t max_j = 0;
 	for(p = 0; p < len; p++) {
 		//
-		// Вычисляем вектор L'
-		// Определение: Для каждого i L'(i) - наибольшая позиция //
-		// меньшая чем Len и такая, что pS[i..(Len-1)] совпадает с
-		// суффиксом pS[0..L'(i)], а символ, предшествующий этому
-		// суффиксу, не равен pS[i-1]. Если такой позиции нет, то
+		// Р’С‹С‡РёСЃР»СЏРµРј РІРµРєС‚РѕСЂ L'
+		// РћРїСЂРµРґРµР»РµРЅРёРµ: Р”Р»СЏ РєР°Р¶РґРѕРіРѕ i L'(i) - РЅР°РёР±РѕР»СЊС€Р°СЏ РїРѕР·РёС†РёСЏ //
+		// РјРµРЅСЊС€Р°СЏ С‡РµРј Len Рё С‚Р°РєР°СЏ, С‡С‚Рѕ pS[i..(Len-1)] СЃРѕРІРїР°РґР°РµС‚ СЃ
+		// СЃСѓС„С„РёРєСЃРѕРј pS[0..L'(i)], Р° СЃРёРјРІРѕР», РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёР№ СЌС‚РѕРјСѓ
+		// СЃСѓС„С„РёРєСЃСѓ, РЅРµ СЂР°РІРµРЅ pS[i-1]. Р•СЃР»Рё С‚Р°РєРѕР№ РїРѕР·РёС†РёРё РЅРµС‚, С‚Рѕ
 		// L'(i) = 0.
 		//
-		// Пример: если pS = "cabdabdab", то L'(4) = 5, L'(7) = 2.
+		// РџСЂРёРјРµСЂ: РµСЃР»Рё pS = "cabdabdab", С‚Рѕ L'(4) = 5, L'(7) = 2.
 		//
-		// Для вычисления вектора L' за линейное время используем
-		// вычисленный вектор N по правилу:
-		// L'(i) = наибольшему индексу p, меньшему Len-1 и такому,
-		// что N(p) = (Len-i))
+		// Р”Р»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РІРµРєС‚РѕСЂР° L' Р·Р° Р»РёРЅРµР№РЅРѕРµ РІСЂРµРјСЏ РёСЃРїРѕР»СЊР·СѓРµРј
+		// РІС‹С‡РёСЃР»РµРЅРЅС‹Р№ РІРµРєС‚РѕСЂ N РїРѕ РїСЂР°РІРёР»Сѓ:
+		// L'(i) = РЅР°РёР±РѕР»СЊС€РµРјСѓ РёРЅРґРµРєСЃСѓ p, РјРµРЅСЊС€РµРјСѓ Len-1 Рё С‚Р°РєРѕРјСѓ,
+		// С‡С‚Рѕ N(p) = (Len-i))
 		//
 		const size_t N = pN[p];
 		if(N) {
@@ -158,17 +159,17 @@ int SSrchPattern::Calc_L(const uint16 * pN, uint16 * pL, uint16 * pl)
 		}
 	}
 	//
-	// Вычисляем вектор l'
-	// Определение: l'(i) определяет длину наибольшего суффикса
-	// pS[i..Len-1], который является префиксом pS, если такой существует.
-	// Если не существует, то l'(i) = 0.
+	// Р’С‹С‡РёСЃР»СЏРµРј РІРµРєС‚РѕСЂ l'
+	// РћРїСЂРµРґРµР»РµРЅРёРµ: l'(i) РѕРїСЂРµРґРµР»СЏРµС‚ РґР»РёРЅСѓ РЅР°РёР±РѕР»СЊС€РµРіРѕ СЃСѓС„С„РёРєСЃР°
+	// pS[i..Len-1], РєРѕС‚РѕСЂС‹Р№ СЏРІР»СЏРµС‚СЃСЏ РїСЂРµС„РёРєСЃРѕРј pS, РµСЃР»Рё С‚Р°РєРѕР№ СЃСѓС‰РµСЃС‚РІСѓРµС‚.
+	// Р•СЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, С‚Рѕ l'(i) = 0.
 	//
 	//  abcde 00000
 	//  abcab 22220
 	//  aaaaa 54321
 	//
-	// Специальный случай: вся строка pS состоит из
-	// Len одинаковых символов.
+	// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РІСЃСЏ СЃС‚СЂРѕРєР° pS СЃРѕСЃС‚РѕРёС‚ РёР·
+	// Len РѕРґРёРЅР°РєРѕРІС‹С… СЃРёРјРІРѕР»РѕРІ.
 	//
 	if(max_j == len) {
 		for(p = 0; p < len; p++)
@@ -247,7 +248,7 @@ int SSrchPattern::Preprocess()
 		}
 		if(Alg == algBmBadChr || Alg == algBmGoodSfx) {
 			//
-			// Препроцессинг по правилу плохого символа
+			// РџСЂРµРїСЂРѕС†РµСЃСЃРёРЅРі РїРѕ РїСЂР°РІРёР»Сѓ РїР»РѕС…РѕРіРѕ СЃРёРјРІРѕР»Р°
 			//
 			uint32 * p_buf32 = reinterpret_cast<uint32 *>(P_PreprocBuf);
 			long   f = MakeLong(len, len);
@@ -260,7 +261,7 @@ int SSrchPattern::Preprocess()
 		}
 		if(Alg == algBmGoodSfx) {
 			//
-			// Препроцессинг по правилу хорошего суффикса
+			// РџСЂРµРїСЂРѕС†РµСЃСЃРёРЅРі РїРѕ РїСЂР°РІРёР»Сѓ С…РѕСЂРѕС€РµРіРѕ СЃСѓС„С„РёРєСЃР°
 			//
 			uint16 * p_N = P_PreprocBuf + 256;
 			uint16 * p_L = P_PreprocBuf + 256 + len;
@@ -268,7 +269,7 @@ int SSrchPattern::Preprocess()
 			Calc_N(p_N, 0);
 			Calc_L(p_N, p_L, p_l);
 			//
-			// Если элемент L-вектора равен нулю, то устанавливаем его равным соответствующему элементу l-вектора
+			// Р•СЃР»Рё СЌР»РµРјРµРЅС‚ L-РІРµРєС‚РѕСЂР° СЂР°РІРµРЅ РЅСѓР»СЋ, С‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РµРіРѕ СЂР°РІРЅС‹Рј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРјСѓ СЌР»РµРјРµРЅС‚Сѓ l-РІРµРєС‚РѕСЂР°
 			//
 			for(i = 0; i < len; i++) {
 				uint16 v = p_L[i];
@@ -432,15 +433,15 @@ int SSrchPattern::Search_GS(const char * pText, size_t start, size_t end, size_t
 
 int SSrchPattern::Search_BC(const char * pText, size_t start, size_t end, size_t * pPos) const
 {
-	const  uint8 * p_text = reinterpret_cast<const uint8 *>(pText);
-	int    minus_one = static_cast<int>(Len - 2);
-	size_t le = Len - 1;
-	uint8  last  = P_Pat[le];
-	uint8  first = P_Pat[0];
+	const uint8 * p_text = reinterpret_cast<const uint8 *>(pText);
+	const int    minus_one = static_cast<int>(Len - 2);
+	const size_t le = Len - 1;
+	const uint8  last  = P_Pat[le];
+	const uint8  first = P_Pat[0];
 	if(Flags & fNoCase) {
 		const uint8 * p_coll = reinterpret_cast<const uint8 *>(P_PreprocBuf) + 256 * sizeof(uint16);
 		for(size_t i = le + start; i < end;) {
-			uint8 cur = p_coll[p_text[i]];
+			const uint8 cur = p_coll[p_text[i]];
 			if(cur == last) {
 				int    k = i - 1;
 				int    j = minus_one;
@@ -458,7 +459,7 @@ int SSrchPattern::Search_BC(const char * pText, size_t start, size_t end, size_t
 	}
 	else {
 		for(size_t i = le + start; i < end;) {
-			uint8  cur = p_text[i];
+			const uint8 cur = p_text[i];
 			if(cur == last && memcmp(p_text+i-le, P_Pat, le) == 0) {
 				ASSIGN_PTR(pPos, i-le);
 				return 1;
@@ -475,7 +476,7 @@ SSearchReplaceParam::SSearchReplaceParam() : Flags(0)
 {
 }
 
-SSearchReplaceParam & SSearchReplaceParam::Reset()
+SSearchReplaceParam & SSearchReplaceParam::Z()
 {
 	Flags = 0;
 	Pattern.Z();

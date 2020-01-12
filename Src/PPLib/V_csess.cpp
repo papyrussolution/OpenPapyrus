@@ -1,5 +1,5 @@
 // V_CSESS.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -163,17 +163,18 @@ PPBaseFilt * SLAPI PPViewCSess::CreateFilt(void * extraPtr) const
 int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class CSessFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(CSessFilt);
 	public:
 		CSessFiltDialog() : TDialog(DLG_CSESSFILT)
 		{
 			addGroup(GRP_POSNODE, new PosNodeCtrlGroup(CTLSEL_CSESSFILT_NODE, cmPosNodeList));
 		}
-		int    setDTS(const CSessFilt * pFilt)
+		DECL_DIALOG_SETDTS()
 		{
-			RVALUEPTR(Filt, pFilt);
+			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_CSESSFILT_FLAGS, 0, CSessFilt::fExtBill);
 			AddClusterAssoc(CTL_CSESSFILT_FLAGS, 1, CSessFilt::fOnlySuperSess);
-			SetClusterData(CTL_CSESSFILT_FLAGS, Filt.Flags);
+			SetClusterData(CTL_CSESSFILT_FLAGS, Data.Flags);
 			AddClusterAssocDef(CTL_CSESSFILT_ORDER, 0, PPViewCSess::ordByDefault);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 1, PPViewCSess::ordByID);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 2, PPViewCSess::ordByDtm_CashNode);
@@ -183,39 +184,37 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 6, PPViewCSess::ordByCashNumber_Dtm);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 7, PPViewCSess::ordBySessNumber);
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 8, PPViewCSess::ordByAmount);
-			SetClusterData(CTL_CSESSFILT_ORDER, Filt.InitOrder);
+			SetClusterData(CTL_CSESSFILT_ORDER, Data.InitOrder);
 			SetupCalPeriod(CTLCAL_CSESSFILT_PERIOD, CTL_CSESSFILT_PERIOD);
-			SetPeriodInput(this, CTL_CSESSFILT_PERIOD, &Filt.Period);
-			if(Filt.NodeList_.GetCount() == 0) {
+			SetPeriodInput(this, CTL_CSESSFILT_PERIOD, &Data.Period);
+			if(Data.NodeList_.GetCount() == 0) {
 				PPObjCSession cs_obj;
 				if(cs_obj.GetEqCfg().DefCashNodeID)
-					Filt.NodeList_.Add(cs_obj.GetEqCfg().DefCashNodeID);
+					Data.NodeList_.Add(cs_obj.GetEqCfg().DefCashNodeID);
 			}
 			{
-				PosNodeCtrlGroup::Rec cn_rec(&Filt.NodeList_);
+				PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList_);
 				setGroupData(GRP_POSNODE, &cn_rec);
 			}
-			setCtrlData(CTL_CSESSFILT_CASHN, &Filt.CashNumber);
+			setCtrlData(CTL_CSESSFILT_CASHN, &Data.CashNumber);
 			return 1;
 		}
-		int    getDTS(CSessFilt * pFilt)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
-			GetClusterData(CTL_CSESSFILT_FLAGS, &Filt.Flags);
-			GetClusterData(CTL_CSESSFILT_ORDER, &Filt.InitOrder);
-			GetPeriodInput(this, sel = CTL_CSESSFILT_PERIOD, &Filt.Period);
+			GetClusterData(CTL_CSESSFILT_FLAGS, &Data.Flags);
+			GetClusterData(CTL_CSESSFILT_ORDER, &Data.InitOrder);
+			GetPeriodInput(this, sel = CTL_CSESSFILT_PERIOD, &Data.Period);
 			PosNodeCtrlGroup::Rec cn_rec;
-			THROW(ObjRts.AdjustCSessPeriod(Filt.Period, 1)); // @v9.2.11
+			THROW(ObjRts.AdjustCSessPeriod(Data.Period, 1)); // @v9.2.11
 			THROW(getGroupData(sel = GRP_POSNODE, &cn_rec));
-			Filt.NodeList_ = cn_rec.List;
-			getCtrlData(CTL_CSESSFILT_CASHN, &Filt.CashNumber);
-			ASSIGN_PTR(pFilt, Filt);
+			Data.NodeList_ = cn_rec.List;
+			getCtrlData(CTL_CSESSFILT_CASHN, &Data.CashNumber);
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		CSessFilt  Filt;
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -903,7 +902,7 @@ class DraftCreateRuleDialog : public TDialog {
 public:
 	DraftCreateRuleDialog() : TDialog(DLG_DFRULE)
 	{
-		Data.Init();
+		// @v10.6.8 @ctr Data.Z();
 	}
 	int    setDTS(const PPDfCreateRulePacket *);
 	int    getDTS(PPDfCreateRulePacket *);
@@ -986,7 +985,7 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 	PPIDArray types;
 	PPOprKind op_kind;
 	if(!RVALUEPTR(Data, pData))
-		Data.Init();
+		Data.Z();
 	setCtrlData(CTL_DFRULE_NAME, Data.Rec.Name);
 	if(!(Data.Rec.Flags & PPDraftCreateRule::fIsRulesGroup)) {
 		setCtrlData(CTL_DFRULE_CPCTVAL, &Data.Rec.CPctVal);
@@ -1055,7 +1054,7 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 	long   price_alg = 0, cost_alg = 0;
 	StringSet ss(",");
 	getCtrlData(CTL_DFRULE_NAME, Data.Rec.Name);
-	THROW_PP(Data.Rec.Name[0] != '\0', PPERR_NAMENEEDED);
+	THROW_PP(!isempty(Data.Rec.Name), PPERR_NAMENEEDED);
 	if(!(Data.Rec.Flags & PPDraftCreateRule::fIsRulesGroup)) {
 		long pay_type = 0;
 		getCtrlData(CTLSEL_DFRULE_RULEGRP, &Data.Rec.ParentID);
@@ -1113,16 +1112,21 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 //
 // PPObjDraftCreateRule
 //
-SLAPI PPDfCreateRulePacket::PPDfCreateRulePacket()
+SLAPI PPDraftCreateRule2::PPDraftCreateRule2()
 {
-	Init();
+	THISZERO();
 }
 
-int SLAPI PPDfCreateRulePacket::Init()
+SLAPI PPDfCreateRulePacket::PPDfCreateRulePacket()
+{
+	// @v10.6.8 Init();
+}
+
+PPDfCreateRulePacket & SLAPI PPDfCreateRulePacket::Z()
 {
 	MEMSZERO(Rec);
-	CashNN.freeAll();
-	return 1;
+	CashNN.clear();
+	return *this;
 }
 
 int SLAPI PPDfCreateRulePacket::CheckCash(PPID cash) const
@@ -1147,15 +1151,14 @@ void SLAPI PPDfCreateRulePacket::GetCashNN(PPIDArray * pAry) const
 	ASSIGN_PTR(pAry, CashNN);
 }
 
-int SLAPI PPDfCreateRulePacket::SetCashNN(const PPIDArray * pAry)
+void SLAPI PPDfCreateRulePacket::SetCashNN(const PPIDArray * pAry)
 {
 	if(pAry) {
 		CashNN = *pAry;
 		CashNN.sort();
 	}
 	else
-		CashNN.freeAll();
-	return 1;
+		CashNN.clear();
 }
 
 int SLAPI PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
@@ -1203,7 +1206,7 @@ void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 {
 	PPIDArray rules;
 	PPDraftCreateRule rule;
-	MEMSZERO(rule);
+	// @v10.6.8 @ctr MEMSZERO(rule);
 	for(PPID id = 0; EnumItems(&id, &rule) > 0;)
 		if(!ruleGrpID || rule.ParentID == ruleGrpID)
 			rules.add(id);
@@ -2459,13 +2462,14 @@ int SLAPI PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
 int SLAPI PPViewCSessExc::InitIteration()
 {
 	int    ok = 1;
-	char   k[MAXKEYLEN];
+	// @v10.6.8 char   k[MAXKEYLEN];
+	BtrDbKey k_; // @v10.6.8
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 0, 16));
 	P_IterQuery->selectAll();
-	memzero(k, sizeof(k));
-	P_IterQuery->initIteration(0, k, spFirst);
+	// @v10.6.8 @ctr memzero(k, sizeof(k));
+	P_IterQuery->initIteration(0, k_, spFirst);
 	CATCHZOK
 	return ok;
 }

@@ -935,7 +935,7 @@ int FASTCALL PPLogger::Log(const char * pMsg)
 		if(!P_Log) {
 			THROW_MEM(P_Log = new TVMsgLog);
 			P_Log->Init();
-			if(!CS_SERVER)
+			if(!(Flags & fDisableWindow) && !CS_SERVER) // @v10.6.8 !(Flags & fDisableWindow)
 				P_Log->ShowLogWnd();
 		}
 		P_Log->PutMessage(buf.Chomp(), LF_SHOW);

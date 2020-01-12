@@ -323,7 +323,7 @@ int SLAPI GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl
 		ok = -1;
 	else if(!Filt.LotsPeriod.IsZero() || Filt.SupplAgentID) {
 		ReceiptTbl::Rec lot_rec;
-		while(lot_id && Trfr->Rcpt.Search(lot_id, &lot_rec) > 0)
+		while(lot_id && Trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 			if(Trfr->Rcpt.data.PrevLotID)
 				lot_id = lot_rec.PrevLotID;
 			else if(Filt.LotsPeriod.CheckDate(lot_rec.Dt) && (!Filt.SupplAgentID || (P_Agg && P_Agg->SupplAgentBillList.bsearch(lot_rec.BillID))))
@@ -332,6 +332,7 @@ int SLAPI GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl
 				ok = -1;
 				lot_id = 0;
 			}
+		}
 		if(lot_id)
 			ok = -1;
 	}
@@ -571,7 +572,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 {
 	int    ok = 1, r;
 	AddEntryBlock blk;
-	MEMSZERO(blk);
+	// @v10.6.8 @ctr MEMSZERO(blk);
 	blk.Part = 1.0;
 	blk.TrfrRec = *pTrfrRec;
 	if(pFilt->Flags & OPG_SETCOSTWOTAXES)

@@ -4396,9 +4396,7 @@ int PosNodeCtrlGroup::getData(TDialog * pDlg, void * pData)
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
 		PPID   temp_id = pDlg->getCtrlLong(Ctlsel);
-		Data.List.FreeAll();
-        if(temp_id)
-			Data.List.Add(temp_id);
+		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;
@@ -4464,8 +4462,7 @@ int QuotKindCtrlGroup::getData(TDialog * pDlg, void * pData)
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
-		Data.List.FreeAll();
-		Data.List.Add(temp_id);
+		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;
@@ -4561,8 +4558,7 @@ int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
 		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
-		Data.List.FreeAll();
-		Data.List.Add(temp_id);
+		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;
@@ -4689,8 +4685,7 @@ int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 		pDlg->getCtrlData(CtlselPsn1, &Data.PrmrID);
 		pDlg->getCtrlData(CtlselPsn2, &Data.ScndID);
 		const PPID temp_id = pDlg->getCtrlLong(CtlselPsnOp);
-		Data.PsnOpList.FreeAll();
-		Data.PsnOpList.Add(temp_id);
+		Data.PsnOpList.Z().Add(temp_id);
 	}
 	*p_rec = Data;
 	return 1;

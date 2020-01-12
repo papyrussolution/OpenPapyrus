@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7,7 +7,7 @@
 //
 // PPObjCSession
 //
-static struct __RtToS {
+static const struct __RtToS {
 	long   R;
 	int    IsOpr;
 	const char * S;
@@ -104,8 +104,7 @@ const char * SLAPI PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->d
 //static
 SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
 {
-	rBuf.Z();
-	rBuf.Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);
+	rBuf.Z().Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);
 	GetObjectName(PPOBJ_CASHNODE, pRec->CashNodeID, rBuf, 1);
 	return rBuf;
 }
@@ -187,8 +186,7 @@ int SLAPI PPObjCSession::Edit(PPID * pID, void * extraPtr)
 			THROW(P_Cc->GetSessTotal(sess_id, 0, &total_blk, 0));
 		}
 	}
-	else
-		MEMSZERO(rec);
+	// @v10.6.8 @ctr else MEMSZERO(rec);
 	THROW(CheckDialogPtr(&(dlg = new CSessDialog(total_blk))));
 	dlg->setCtrlData(CTL_CSESS_ID, &rec.ID);
 	dlg->setCtrlData(CTL_CSESS_SUPERSESSID, &rec.SuperSessID);
@@ -801,7 +799,7 @@ int SLAPI CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 				THROW(SessObj.Recalc(Rec.SuperSessID, 0));
 			THROW(tra.Commit());
 		}
-		ufp.SetFactor(0, (double)ChecksCount);
+		ufp.SetFactor(0, static_cast<double>(ChecksCount));
 		ufp.Commit();
 		ASSIGN_PTR(pID, sess_id);
 		ok = 1;

@@ -242,11 +242,20 @@ int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 		if(desk_name.Len()) {
 			SString def_desk_name, db_symb;
 			const PPCommandItem * p_item = 0;
-			PPCommandGroup desk_list;
-			PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(1, &desk_list);
+			PPCommandGroup desktop_list, desktop_list_from_bin;
+			//PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(1, &desk_list); // @erik v10.6.7
+			PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);// @erik v10.6.7
 			if(p_mgr) {
 				CurDict->GetDbSymb(db_symb);
-				if((p_item = desk_list.SearchByName(desk_name, db_symb, 0)) && p_item->Kind == PPCommandItem::kGroup)
+// @erik v10.6.7 {
+				p_mgr->Load__2(&desktop_list, PPCommandMngr::fRWByXml);
+				p_item = desktop_list.SearchByName(desk_name, db_symb, 0);
+				if(!p_item) {
+					p_mgr->Load__(&desktop_list_from_bin);
+					p_item = desktop_list_from_bin.SearchByName(desk_name, db_symb, 0);
+				}
+// } @erik
+				if((p_item) && p_item->Kind == PPCommandItem::kGroup)
 					dt_id = p_item->ID;
 				ZDELETE(p_mgr);
 			}

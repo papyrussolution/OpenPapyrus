@@ -1,5 +1,5 @@
 // PPBulletinBoard.cpp
-// Copyright (c) A.Sobolev 2018, 2019
+// Copyright (c) A.Sobolev 2018, 2019, 2020
 // @codepage UTF-8
 // Концепт доски объявлений, реализующей функционал общедоступных системных задач
 //
@@ -370,7 +370,7 @@ private:
 			THROW(rTsObj.GetStrategies(tsID, PPObjTimeSeries::sstSelection, p_blk->Strategies));
 			p_blk->Strategies.CreateIndex1(p_blk->StratIndex);
 			p_blk->TrendList.freeAll();
-			THROW(EvaluateTrends(p_blk, 0));
+			THROW(EvaluateTrends(p_blk, 0, 0/*onActualTicks*/));
 			{
 				SString log_buf;
 				log_buf.Cat("Strategis for").Space().Cat(p_blk->PPTS.GetSymb()).Space().Cat("loaded");
@@ -384,7 +384,10 @@ private:
 	TimeSeriesBlock * SLAPI SearchBlockBySymb(const char * pSymb, uint * pIdx) const;
 	const TimeSeriesBlock * SLAPI SearchRateConvertionBlock(const char * pSymb, int * pRevese) const;
 	TimeSeriesBlock * SLAPI InitBlock(PPObjTimeSeries & rTsObj, const char * pSymb);
-	int    SLAPI EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs);
+	//
+	// ARG(onActualTicks IN): Расчет ведется на данных, полученных из последних актуальных тиков (вероятно, необходимо внесение поправки в результаты расчетов)
+	//
+	int    SLAPI EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs, int onActualTicks);
 	long   SLAPI GetFlashTimeout() const
 	{
 		const long cfg_tmr = Cfg.E.TsFlashTimer;
@@ -598,7 +601,7 @@ int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 				apst.UpdCountVecIdx = -1;
 			local_ok = p_fblk->T_.AddItems(rTs, &apst);
 			p_fblk->Make_T_Actual();
-			EvaluateTrends(p_fblk, 0);
+			EvaluateTrends(p_fblk, 0, 0/*onActualTicks*/);
 			THROW(local_ok);
 			p_fblk->SpreadSum += apst.SpreadSum;
 			p_fblk->SpreadCount += apst.SpreadCount;
@@ -724,15 +727,22 @@ int SLAPI TimeSeriesCache::SetCurrentStakeEnvironment(const TsStakeEnvironment *
 			if(p_fblk) {
 				const uint tsc = p_fblk->T_.GetCount();
 				if(tsc && p_fblk->T_.GetTime(tsc-1, &ut) && ut.Get(last_dtm) && cmp(last_dtm, r_tk.Dtm) < 0 && p_fblk->T_.GetValueVecIndex("close", &vec_idx)) {
-					if(!UseRegularValuesOnlyForStakes) {
-						p_fblk->Make_T_Regular();
-						assert(oneof2(p_fblk->TLE.Tag, 0, 2));
-						p_fblk->TLE.Sse.Tm.Set(r_tk.Dtm);
-						p_fblk->TLE.Sse.Values.clear();
-						p_fblk->TLE.Sse.Values.Add(vec_idx, r_tk.Last);
-						p_fblk->TLE.Tag = 2;
-						p_fblk->Make_T_Actual();
-						EvaluateTrends(p_fblk, 0);
+					// @v10.6.8 {
+					if(r_tk.Last == 0 && r_tk.Ask > 0 && r_tk.Bid > 0) {
+						r_tk.Last = (r_tk.Ask + r_tk.Bid) / 2.0;
+					}
+					// } @v10.6.8
+					if(r_tk.Last > 0.0) { // @v10.6.8
+						if(!UseRegularValuesOnlyForStakes) {
+							p_fblk->Make_T_Regular();
+							assert(oneof2(p_fblk->TLE.Tag, 0, 2));
+							p_fblk->TLE.Sse.Tm.Set(r_tk.Dtm);
+							p_fblk->TLE.Sse.Values.clear();
+							p_fblk->TLE.Sse.Values.Add(vec_idx, r_tk.Last);
+							p_fblk->TLE.Tag = 2;
+							p_fblk->Make_T_Actual();
+							EvaluateTrends(p_fblk, 0, /*1*/0/*onActualTicks*/);
+						}
 					}
 				}
 			}
@@ -1423,6 +1433,10 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	TSVector <PotentialStakeEntry> potential_stake_list;
 	const uint current_stake_count = StkEnv.SL.getCount();
 	const double evaluated_used_margin = EvaluateUsedMargin();
+
+	(temp_buf = "EvaluateStakes").Dot().Cat("log");
+	PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
+
 	for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 		const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 		const long max_diff_sec = UseRegularValuesOnlyForStakes ? 130 : 40;
@@ -1430,13 +1444,55 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 		LDATETIME tktime = r_tk.Dtm; // Время тика скорректированное на поправку из конфигурации
 		tktime.addsec(Cfg.E.TerminalTimeAdjustment);
 		const long cur_diff_sec = diffdatetimesec(now, tktime);
-		if(cur_diff_sec <= max_diff_sec) {
-			StkEnv.GetS(r_tk.SymbP, tk_symb);
-			uint  blk_idx = 0;
-			const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
-			if(p_blk) {
+		uint  blk_idx = 0;
+		StkEnv.GetS(r_tk.SymbP, tk_symb);
+		const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
+		if(p_blk) {
+			// @v10.6.8 {
+			if(Cfg.Flags & Cfg.fLogStakeEvaluation) {
+				log_msg.Z().Cat(tk_symb).Space().CatEq("org-tick-time", r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+					CatEq("current-diff-sec", cur_diff_sec).Space().
+					CatEq("last", r_tk.Last, MKSFMTD(0, 5, 0)).Space().
+					CatEq("bid", r_tk.Bid, MKSFMTD(0, 5, 0)).Space().
+					CatEq("ask", r_tk.Ask, MKSFMTD(0, 5, 0));
+				PPLogMessage(log_file_name, log_msg, 0);
+				log_msg.Z();
+				for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
+					const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
+					if(p_tre) {
+						const uint tre_tlc = p_tre->TL.getCount();
+						const uint tre_erc = p_tre->ErrL.getCount();
+						if(log_msg.NotEmpty())
+							log_msg.CR();
+						log_msg.Tab().Cat(p_tre->Stride).Space();
+						if(tre_tlc == 0) {
+							log_msg.Cat("zero-tl-count");
+						}
+						else {
+							if(tre_tlc != tre_erc)
+								log_msg.Cat("tl-count!=te-count").Space();
+							log_msg.Cat(p_tre->TL.at(tre_tlc-1) * 10E9, MKSFMTD(0, 5, 0)).Space();
+							if(tre_erc == 0)
+								log_msg.Cat("zero-te-count");
+							else {
+								const double last_err = p_tre->ErrL.at(tre_erc-1);
+								const double last_1_err = (tre_erc > 1) ? p_tre->ErrL.at(tre_erc-2) : 0.0;
+								const double avg_err = p_tre->ErrAvg;
+								log_msg.Cat(last_err * 10E9, MKSFMTD(0, 0, 0)).Space().Cat(avg_err * 10E9, MKSFMTD(0, 0, 0));
+								if(avg_err != 0.0) {
+									log_msg.Space().Cat(last_1_err / avg_err, MKSFMTD(0, 3, 0));
+									log_msg.Space().Cat(last_err / avg_err, MKSFMTD(0, 3, 0));
+								}
+							}
+						}
+					}
+				}
+				PPLogMessage(log_file_name, log_msg, 0);
+			}
+			// } @v10.6.8 
+			if(abs(cur_diff_sec) <= max_diff_sec) { // @v10.6.8 cur_diff_sec-->abs(cur_diff_sec)
 				// @v10.4.10 {
-				if(0) {
+				/* @v10.6.8 if(0) {
 					log_msg.Z().Cat(tktime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
 					for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
 						const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
@@ -1463,7 +1519,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					(temp_buf = "tst").CatChar('-').Cat(tk_symb).Dot().Cat("log");
 					PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
 					PPLogMessage(log_file_name, log_msg, 0);
-				}
+				}*/
 				// } @v10.4.10 
 				int   is_there_stake = 0;
 				PotentialStakeEntry pse(*p_blk);
@@ -1663,19 +1719,15 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchBlockBySymb(cons
 	return 0;
 }
 
-int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs)
+int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * pFullTs, int onActualTicks)
 {
 	int    ok = 1;
 	PROFILE_START
 	const uint full_tsc = pFullTs ? pFullTs->GetCount() : 0;
-	//RealArray test_trend_list; // @debug
 	const uint tsc = pBlk->T_.GetCount();
 	uint  max_opt_delta2_stride = 0;
 	LongArray ifs_list;
 	RealArray temp_err_list;
-	//uint   vec_idx = 0;
-	//STimeSeries::ValuVec * p_vec = pBlk->T_.GetVecBySymb("close", &vec_idx);
-	//THROW(p_vec);
 	if(tsc > 500 && pBlk->Strategies.GetInputFramSizeList(ifs_list, &max_opt_delta2_stride) > 0) {
 		const uint trend_nominal_count = max_opt_delta2_stride + 3; // @v10.4.11 (+1)-->(+3)
 		ifs_list.sortAndUndup(); // @paranoic
@@ -1690,20 +1742,45 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 				}
 				if(!p_entry) {
 					THROW_SL(p_entry = new PPObjTimeSeries::TrendEntry(ifs, trend_nominal_count));
+					// @v10.6.8 {
+					{
+						// Для вывода информации о расчете ставок нам понадобится средняя ошибка каждого тренда, учитываемая стратегиями.
+						double err_avg = 0.0;
+						uint   err_avg_count = 0;
+						for(uint sidx = 0; sidx < pBlk->Strategies.getCount(); sidx++) {
+							const PPObjTimeSeries::Strategy & r_sitem = pBlk->Strategies.at(sidx);
+							if(r_sitem.InputFrameSize == ifs && r_sitem.TrendErrAvg > 0.0) {
+								err_avg += r_sitem.TrendErrAvg;
+								err_avg_count++;
+							}
+						}
+						if(err_avg_count)
+							p_entry->ErrAvg = err_avg / static_cast<double>(err_avg_count);
+					}
+					// } @v10.6.8 
 					THROW_SL(pBlk->TrendList.insert(p_entry));
 				}
 				{
 					STimeSeries::AnalyzeFitParam afp(ifs, tsc-p_entry->NominalCount, p_entry->NominalCount);
-					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0, /*&p_entry->ErrL*/&temp_err_list, 0, 0)); // @v10.4.12 p_entry->ErrL-->temp_err_list
-					// @v10.4.12 {
-					for(uint eridx = 0; eridx < temp_err_list.getCount(); eridx++) {
-						const double err = temp_err_list.at(eridx);
-						assert(err >= 0.0);
-						if(err > 0.0)
-							temp_err_list.at(eridx) = sqrt(err);
+					THROW(pBlk->T_.AnalyzeFit("close", afp, &p_entry->TL, 0, &temp_err_list, 0, 0));
+					{
+						const uint err_list_count = temp_err_list.getCount();
+						for(uint eridx = 0; eridx < err_list_count; eridx++) {
+							const double err = temp_err_list.at(eridx);
+							assert(err >= 0.0);
+							if(err > 0.0)
+								temp_err_list.at(eridx) = sqrt(err);
+						}
+						// @v10.6.8 {
+						//
+						// В случае расчета трендов на основании актуальных тиков ошибку регрессии берем из предпоследнего 
+						// значения так как последнее значение сильно искажено.
+						//
+						if(onActualTicks && err_list_count > 1)
+							temp_err_list.at(err_list_count-1) = temp_err_list.at(err_list_count-2);
+						// } @v10.6.8 
+						p_entry->ErrL = temp_err_list;
 					}
-					p_entry->ErrL = temp_err_list;
-					// } @v10.4.12
 					// @v10.4.10 {
 					{
 						STimeSeries::Stat st(0);
@@ -1775,7 +1852,7 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 		}
 		rTsObj.GetStrategies(id, PPObjTimeSeries::sstSelection, p_fblk->Strategies);
 		p_fblk->Strategies.CreateIndex1(p_fblk->StratIndex);
-		THROW(EvaluateTrends(p_fblk, 0));
+		THROW(EvaluateTrends(p_fblk, 0, 0/*onActualTicks*/));
 	}
 	else {
 		uint   vecidx_close = 0;

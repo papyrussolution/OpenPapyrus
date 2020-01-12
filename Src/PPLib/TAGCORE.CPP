@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020
 // @codepage windows-1251
 // @Kernel
 // Теги объектов
@@ -319,19 +319,20 @@ int SLAPI ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 	else if(TagDataType == OTTYP_NUMBER)
 		Val.RealVal = pStrVal ? atof(pStrVal) : 0;
 	else if(TagDataType == OTTYP_ENUM) {
+		Reference * p_ref = PPRef;
 		PPID   _id = 0;
 		SString text = pStrVal;
 		if(text.NotEmptyS()) {
 			if(TagEnumID) {
 				ReferenceTbl::Rec rec;
-				int    r = PPRef->SearchName(TagEnumID, &_id, text, &rec);
+				int    r = p_ref->SearchName(TagEnumID, &_id, text, &rec);
 				THROW(r);
 				if(r < 0) {
 					MEMSZERO(rec);
 					text.CopyTo(rec.ObjName, sizeof(rec.ObjName));
 					PPTransaction tra(-1);
 					THROW(tra);
-					THROW(PPRef->AddItem(TagEnumID, &_id, &rec, 0));
+					THROW(p_ref->AddItem(TagEnumID, &_id, &rec, 0));
 					THROW(tra.Commit());
 				}
 			}

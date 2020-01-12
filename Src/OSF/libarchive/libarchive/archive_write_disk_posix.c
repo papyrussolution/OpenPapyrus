@@ -150,20 +150,19 @@ __FBSDID("$FreeBSD$");
 #include "archive_write_disk_private.h"
 
 #ifndef O_BINARY
-#define O_BINARY 0
+	#define O_BINARY 0
 #endif
 #ifndef O_CLOEXEC
-#define O_CLOEXEC 0
+	#define O_CLOEXEC 0
 #endif
 
 /* Ignore non-int O_NOFOLLOW constant. */
 /* gnulib's fcntl.h does this on AIX, but it seems practical everywhere */
 #if defined O_NOFOLLOW && !(INT_MIN <= O_NOFOLLOW && O_NOFOLLOW <= INT_MAX)
-#undef O_NOFOLLOW
+	#undef O_NOFOLLOW
 #endif
-
 #ifndef O_NOFOLLOW
-#define O_NOFOLLOW 0
+	#define O_NOFOLLOW 0
 #endif
 
 struct fixup_entry {
@@ -216,7 +215,6 @@ struct fixup_entry {
 
 struct archive_write_disk {
 	struct archive archive;
-
 	mode_t user_umask;
 	struct fixup_entry * fixup_list;
 	struct fixup_entry * current_fixup;
@@ -232,44 +230,27 @@ struct archive_write_disk {
 	int64_t (* lookup_uid)(void * private, const char * uname, int64_t uid);
 	void (* cleanup_uid)(void * private);
 	void * lookup_uid_data;
-
-	/*
-	 * Full path of last file to satisfy symlink checks.
-	 */
-	struct archive_string path_safe;
-
+	struct archive_string path_safe; // Full path of last file to satisfy symlink checks.
 	/*
 	 * Cached stat data from disk for the current entry.
-	 * If this is valid, pst points to st.  Otherwise,
-	 * pst is null.
+	 * If this is valid, pst points to st.  Otherwise, pst is null.
 	 */
 	struct stat st;
 	struct stat  * pst;
-
 	/* Information about the object being restored right now. */
 	struct archive_entry    * entry; /* Entry being extracted. */
 	char * name; /* Name of entry, possibly edited. */
 	struct archive_string _name_data;    /* backing store for 'name' */
-	/* Tasks remaining for this object. */
-	int todo;
-	/* Tasks deferred until end-of-archive. */
-	int deferred;
-	/* Options requested by the client. */
-	int flags;
-	/* Handle for the file we're restoring. */
-	int fd;
-	/* Current offset for writing data to the file. */
-	int64_t offset;
-	/* Last offset actually written to disk. */
-	int64_t fd_offset;
-	/* Total bytes actually written to files. */
-	int64_t total_bytes_written;
-	/* Maximum size of file, -1 if unknown. */
-	int64_t filesize;
-	/* Dir we were in before this restore; only for deep paths. */
-	int restore_pwd;
-	/* Mode we should use for this entry; affected by _PERM and umask. */
-	mode_t mode;
+	int todo; /* Tasks remaining for this object. */
+	int deferred; /* Tasks deferred until end-of-archive. */
+	int flags; /* Options requested by the client. */
+	int fd; /* Handle for the file we're restoring. */
+	int64_t offset; /* Current offset for writing data to the file. */
+	int64_t fd_offset; /* Last offset actually written to disk. */
+	int64_t total_bytes_written; /* Total bytes actually written to files. */
+	int64_t filesize; /* Maximum size of file, -1 if unknown. */
+	int restore_pwd; /* Dir we were in before this restore; only for deep paths. */
+	mode_t mode; /* Mode we should use for this entry; affected by _PERM and umask. */
 	/* UID/GID to use in restoring this entry. */
 	int64_t uid;
 	int64_t gid;
@@ -349,44 +330,34 @@ struct archive_write_disk {
 
 #define HFS_BLOCKS(s)   ((s) >> 12)
 
-static void     fsobj_error(int *, struct archive_string *, int, const char *,
-    const char *);
-static int      check_symlinks_fsobj(char *, int *, struct archive_string *,
-    int);
+static void     fsobj_error(int *, struct archive_string *, int, const char *, const char *);
+static int      check_symlinks_fsobj(char *, int *, struct archive_string *, int);
 static int      check_symlinks(struct archive_write_disk *);
 static int      create_filesystem_object(struct archive_write_disk *);
-static struct fixup_entry * current_fixup(struct archive_write_disk *,
-    const char * pathname);
+static struct fixup_entry * current_fixup(struct archive_write_disk *, const char * pathname);
 #if defined(HAVE_FCHDIR) && defined(PATH_MAX)
-static void     edit_deep_directories(struct archive_write_disk * ad);
+	static void     edit_deep_directories(struct archive_write_disk * ad);
 #endif
-static int      cleanup_pathname_fsobj(char *, int *, struct archive_string *,
-    int);
+static int      cleanup_pathname_fsobj(char *, int *, struct archive_string *, int);
 static int      cleanup_pathname(struct archive_write_disk *);
 static int      create_dir(struct archive_write_disk *, char *);
 static int      create_parent_dir(struct archive_write_disk *, char *);
-static ssize_t  hfs_write_data_block(struct archive_write_disk *,
-    const char *, size_t);
+static ssize_t  hfs_write_data_block(struct archive_write_disk *, const char *, size_t);
 static int      fixup_appledouble(struct archive_write_disk *, const char *);
 static int      older(struct stat *, struct archive_entry *);
 static int      restore_entry(struct archive_write_disk *);
-static int      set_mac_metadata(struct archive_write_disk *, const char *,
-    const void *, size_t);
+static int      set_mac_metadata(struct archive_write_disk *, const char *, const void *, size_t);
 static int      set_xattrs(struct archive_write_disk *);
 static int      clear_nochange_fflags(struct archive_write_disk *);
 static int      set_fflags(struct archive_write_disk *);
-static int      set_fflags_platform(struct archive_write_disk *, int fd,
-    const char * name, mode_t mode,
-    unsigned long fflags_set, unsigned long fflags_clear);
+static int      set_fflags_platform(struct archive_write_disk *, int fd, const char * name, mode_t mode, unsigned long fflags_set, unsigned long fflags_clear);
 static int      set_ownership(struct archive_write_disk *);
 static int      set_mode(struct archive_write_disk *, int mode);
 static int      set_time(int, int, const char *, time_t, long, time_t, long);
-static int      set_times(struct archive_write_disk *, int, int, const char *,
-    time_t, long, time_t, long, time_t, long, time_t, long);
+static int      set_times(struct archive_write_disk *, int, int, const char *, time_t, long, time_t, long, time_t, long, time_t, long);
 static int      set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
-static ssize_t  write_data_block(struct archive_write_disk *,
-    const char *, size_t);
+static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
 
 static struct archive_vtable * archive_write_disk_vtable(void);
 

@@ -1391,7 +1391,8 @@ int SLAPI PPViewDebtTrnovr::SerializeState(int dir, SBuffer & rBuf, SSerializeCo
 int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
-	char   k[MAXKEYLEN];
+	// @v10.6.8 char   k[MAXKEYLEN];
+	BtrDbKey k_; // @v10.6.8
 	switch(order) {
 		case OrdByArticleID: idx = 0; break;
 		case OrdByArticleName: idx = 1; break;
@@ -1407,8 +1408,8 @@ int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
 	PPInitIterCounter(Counter, P_TempTbl);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	P_IterQuery->selectAll();
-	memzero(k, sizeof(k));
-	THROW(P_IterQuery->initIteration(0, k, spFirst));
+	// @v10.6.8 @ctr memzero(k, sizeof(k));
+	THROW(P_IterQuery->initIteration(0, k_, spFirst));
 	CATCHZOK
 	return ok;
 }

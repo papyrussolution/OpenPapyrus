@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -2648,7 +2648,6 @@ int SLAPI SuprWareListDialog::setupList()
 	PPObjGoods goods_o;
 	StringSet ss(SLBColumnDelim);
 	SString str;
-	PPUnit unit;
 	for(uint i = 0; i < P_SuprWarePack.Items.getCount(); i++) {
 		Goods2Tbl::Rec goods_rec;
 		if(goods_o.Search(P_SuprWarePack.Items.at(i).CompID, &goods_rec) > 0) {
@@ -2657,9 +2656,10 @@ int SLAPI SuprWareListDialog::setupList()
 			if(P_SuprWarePack.Items.at(i).Qtty || P_SuprWarePack.Items.at(i).UnitID) {
 				str.Z().Cat(P_SuprWarePack.Items.at(i).Qtty);
 				ss.add(str);
-				MEMSZERO(unit);
-				if(goods_o.FetchUnit(P_SuprWarePack.Items.at(i).UnitID, &unit))
-					ss.add(unit.Name);
+				PPUnit unit_rec;
+				// @v10.6.8 @ctr MEMSZERO(unit);
+				if(goods_o.FetchUnit(P_SuprWarePack.Items.at(i).UnitID, &unit_rec))
+					ss.add(unit_rec.Name);
 			}
 			if(!addStringToList(i+1, ss.getBuf()))
 				return 0;

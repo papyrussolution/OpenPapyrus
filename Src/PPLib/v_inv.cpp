@@ -1158,7 +1158,7 @@ IMPL_HANDLE_EVENT(InventoryItemDialog)
 		if(Data.GoodsID) {
 			LotFilt filt;
 			filt.GoodsID = Data.GoodsID;
-			filt.LocID = (P_Pack ? P_Pack->Rec.LocID : 0);
+			filt.LocList.Add(P_Pack ? P_Pack->Rec.LocID : 0);
 			if(St & stUseSerial)
 				filt.Flags |= LotFilt::fShowSerialN;
 			ViewLots(&filt, 0, 0);

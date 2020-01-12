@@ -1258,9 +1258,10 @@ int SLAPI PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewGoodsOpAnalyze::InitIterQuery(PPID grpID)
 {
-	char   k_[MAXKEYLEN];
+	// @v10.6.8 char   k_[MAXKEYLEN];
+	BtrDbKey k__; // @v10.6.8
 	int    sp_mode = spFirst;
-	void * k = memzero(k_, sizeof(k_));
+	void * k = k__; //memzero(k_, sizeof(k_));
 	TempGoodsOprTbl::Key2 k2;
 	delete P_IterQuery;
 	P_IterQuery = new BExtQuery(P_TempTbl, IterIdx, 16);
@@ -3282,7 +3283,10 @@ int SLAPI PPViewGoodsOpAnalyze::ViewDetail(PPID locID, PPID goodsID, short abcGr
 			lot_flt.Flags |= LotFilt::fOrders;
 			lot_flt.ClosedTag = 1;
 		}
-		lot_flt.LocID   = locID;
+		if(locID)
+			lot_flt.LocList.Add(locID);
+		else
+			lot_flt.LocList = Filt.LocList;
 		if(!ViewLots(&lot_flt, 0, 1))
 			ok = 0;
 	}
@@ -4042,10 +4046,8 @@ int SLAPI PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, P
 						P_TrfrFilt->Period     = Filt.Period;
 						P_TrfrFilt->GoodsID    = goods_rec.ID;
 						P_TrfrFilt->GoodsGrpID = goods_rec.ParentID;
-						if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation) {
-							P_TrfrFilt->LocList.FreeAll();
-							P_TrfrFilt->LocList.Add(hdr.LocID);
-						}
+						if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation)
+							P_TrfrFilt->LocList.Z().Add(hdr.LocID);
 						else
 							P_TrfrFilt->LocList = Filt.LocList;
 						P_TrfrFilt->SupplID = Filt.SupplID;

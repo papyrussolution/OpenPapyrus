@@ -505,7 +505,10 @@ int SLAPI PPViewPriceAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 			case PPVCMD_VIEWLOTS:
 				{
                     LotFilt lot_filt;
-					lot_filt.LocID   = loc_id;
+					if(loc_id)
+						lot_filt.LocList.Add(loc_id);
+					else
+						lot_filt.LocList = Filt.LocList;
 					lot_filt.GoodsID = g_id;
 					lot_filt.Period  = Filt.Period;
 					lot_filt.SupplID = NZOR(Filt.SupplID, suppl_id);

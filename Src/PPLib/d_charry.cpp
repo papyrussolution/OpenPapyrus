@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -371,12 +371,10 @@ int SLAPI PPDS_CrrGoods::AcceptOuterData(int use_ta)
 {
 	int    ok = 1;
 	PPObjUnit u_obj;
-	PPUnit u_rec;
 	PPObjGoodsGroup gg_obj;
 	PPID   id = 0;
 	Goods2Tbl::Rec goods_rec;
 	PPGoodsConfig goods_cfg;
-
 	Data.Rec.Kind = PPGDSK_GOODS;
 	STRNSCPY(Data.Rec.Abbr, Data.Rec.Name);
 	{
@@ -388,7 +386,8 @@ int SLAPI PPDS_CrrGoods::AcceptOuterData(int use_ta)
 		else if(goods_cfg.DefUnitID)
 			Data.Rec.UnitID = goods_cfg.DefUnitID;
 		else {
-			MEMSZERO(u_rec);
+			PPUnit u_rec;
+			// @v10.6.8 @ctr MEMSZERO(u_rec);
 			STRNSCPY(u_rec.Name, UnitName);
 			u_rec.Flags |= PPUnit::Trade;
 			THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
@@ -400,7 +399,8 @@ int SLAPI PPDS_CrrGoods::AcceptOuterData(int use_ta)
 				if(u_obj.SearchByName(PhUnitName, &id) > 0)
 					Data.Rec.PhUnitID = id;
 				else {
-					MEMSZERO(u_rec);
+					PPUnit u_rec;
+					// @v10.6.8 @ctr MEMSZERO(u_rec);
 					STRNSCPY(u_rec.Name, PhUnitName);
 					u_rec.Flags |= PPUnit::Physical;
 					THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));

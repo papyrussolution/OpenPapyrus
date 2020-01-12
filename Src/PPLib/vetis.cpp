@@ -11320,7 +11320,7 @@ int SLAPI PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, i
 					if(ar_id) {
 						LotFilt lot_filt;
 						lot_filt.SupplID = ar_id;
-						lot_filt.LocID = Filt.LocID;
+						lot_filt.LocList.Add(Filt.LocID);
 						if(SetupSurveyPeriod(rRec, lot_filt.Period)) {
 							lot_filt.Flags |= (LotFilt::fCheckOriginLotDate|LotFilt::fNoTempTable|LotFilt::fInitOrgLot);
 							PPViewLot lot_view;
@@ -11689,7 +11689,7 @@ int SLAPI PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PP
 					VetisDocumentTbl::Rec rec;
 					uint   v = 0;
 					switch(ccol) {
-						case 7: obj_to_match = otmFrom; break; // to
+						case 7: obj_to_match = otmFrom; break; // from
 						case 8: obj_to_match = otmTo; break; // to
 						case 5:
 						case 6: obj_to_match = otmBill; break; // bill

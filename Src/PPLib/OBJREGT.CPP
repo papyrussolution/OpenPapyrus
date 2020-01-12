@@ -1,5 +1,5 @@
 // OBJREGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -279,14 +279,10 @@ int SLAPI PPObjRegisterType::HandleMsg(int msg, PPID _obj, PPID _id, void * extr
 	return ok;
 }
 
-int SLAPI PPObjRegisterType::Browse(void * extraPtr)
-	{ return RefObjView(this, PPDS_CRRREGISTERTYPE, 0); }
-int SLAPI PPObjRegisterType::GetFormat(PPID id, SString & rBuf)
-	{ return ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
-int SLAPI PPObjRegisterType::PutFormat(PPID id, const char * pBuf)
-	{ return ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
-int SLAPI PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb)
-	{ return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
+int SLAPI PPObjRegisterType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRREGISTERTYPE, 0); }
+int SLAPI PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return ref->GetPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, rBuf); }
+int SLAPI PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
+int SLAPI PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType, Symb)); }
 
 int SLAPI PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 {

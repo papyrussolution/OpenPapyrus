@@ -20,21 +20,77 @@ static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFi
 // ObjReceiveParamDialog
 //
 class ObjReceiveParamDialog : public TDialog {
+	DECL_DIALOG_DATA(ObjReceiveParam);
 public:
 	ObjReceiveParamDialog(int editOptions) : TDialog(DLG_DBTRANSM_IN), EditOptions(editOptions)
 	{
 		if(!SetupStrListBox(this, CTL_DBTRANSM_IN_LIST))
 			PPError();
 	}
-	int  setDTS(const ObjReceiveParam *);
-	int  getDTS(ObjReceiveParam *);
+	DECL_DIALOG_SETDTS()
+	{
+		ushort v = 0;
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		if(EditOptions) {
+			if(Data.Flags & ObjReceiveParam::fGetFromOutSrcr)
+				if(Data.Flags & ObjReceiveParam::fClearInpBefore)
+					v = 0;
+				else
+					v = 1;
+			else
+				v = 2;
+		}
+		else {
+			SString ss;
+			setStaticText(CTL_DBTRANSM_IN_INFO1, 0);
+			getStaticText(CTL_DBTRANSM_IN_INFO3, ss);
+			setStaticText(CTL_DBTRANSM_IN_INFO2, ss);
+			setStaticText(CTL_DBTRANSM_IN_INFO3, 0);
+			v = 3;
+		}
+		setCtrlData(CTL_DBTRANSM_IN_OPTIONS, &v);
+		disableCtrl(CTL_DBTRANSM_IN_OPTIONS, !EditOptions);
+		AddClusterAssoc(CTL_DBTRANSM_FLAGS, 0, ObjReceiveParam::fClearInpAfter);
+		AddClusterAssoc(CTL_DBTRANSM_FLAGS, 1, ObjReceiveParam::fCommitQueue);
+		AddClusterAssoc(CTL_DBTRANSM_FLAGS, 2, ObjReceiveParam::fForceDestroyQueue);
+		SetClusterData(CTL_DBTRANSM_FLAGS, Data.Flags);
+		updateList();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ushort v = 2;
+		GetClusterData(CTL_DBTRANSM_FLAGS, &Data.Flags);
+		if(EditOptions)
+			getCtrlData(CTL_DBTRANSM_IN_OPTIONS, &v);
+		if(v == 0)
+			Data.Flags |= (ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
+		else if(v == 1) {
+			Data.Flags |= ObjReceiveParam::fGetFromOutSrcr;
+			Data.Flags &= ~ObjReceiveParam::fClearInpBefore;
+		}
+		else
+			Data.Flags &= ~(ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmaInsert))
+			addItem();
+		else if(event.isCmd(cmaDelete))
+			delItem();
+		else
+			return;
+		clearEvent(event);
+	}
 	void   updateList();
 	void   addItem();
 	void   delItem();
 	const  int EditOptions;
-	ObjReceiveParam Data;
 };
 
 void ObjReceiveParamDialog::addItem()
@@ -83,68 +139,6 @@ void ObjReceiveParamDialog::updateList()
 	CATCH
 		PPError();
 	ENDCATCH
-}
-
-IMPL_HANDLE_EVENT(ObjReceiveParamDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmaInsert))
-		addItem();
-	else if(event.isCmd(cmaDelete))
-		delItem();
-	else
-		return;
-	clearEvent(event);
-}
-
-int ObjReceiveParamDialog::setDTS(const ObjReceiveParam * pParam)
-{
-	ushort v = 0;
-	if(!RVALUEPTR(Data, pParam))
-		Data.Init();
-	if(EditOptions) {
-		if(Data.Flags & ObjReceiveParam::fGetFromOutSrcr)
-			if(Data.Flags & ObjReceiveParam::fClearInpBefore)
-				v = 0;
-			else
-				v = 1;
-		else
-			v = 2;
-	}
-	else {
-		SString ss;
-		setStaticText(CTL_DBTRANSM_IN_INFO1, 0);
-		getStaticText(CTL_DBTRANSM_IN_INFO3, ss);
-		setStaticText(CTL_DBTRANSM_IN_INFO2, ss);
-		setStaticText(CTL_DBTRANSM_IN_INFO3, 0);
-		v = 3;
-	}
-	setCtrlData(CTL_DBTRANSM_IN_OPTIONS, &v);
-	disableCtrl(CTL_DBTRANSM_IN_OPTIONS, !EditOptions);
-	AddClusterAssoc(CTL_DBTRANSM_FLAGS, 0, ObjReceiveParam::fClearInpAfter);
-	AddClusterAssoc(CTL_DBTRANSM_FLAGS, 1, ObjReceiveParam::fCommitQueue);
-	AddClusterAssoc(CTL_DBTRANSM_FLAGS, 2, ObjReceiveParam::fForceDestroyQueue);
-	SetClusterData(CTL_DBTRANSM_FLAGS, Data.Flags);
-	updateList();
-	return 1;
-}
-
-int ObjReceiveParamDialog::getDTS(ObjReceiveParam * pParam)
-{
-	ushort v = 2;
-	GetClusterData(CTL_DBTRANSM_FLAGS, &Data.Flags);
-	if(EditOptions)
-		getCtrlData(CTL_DBTRANSM_IN_OPTIONS, &v);
-	if(v == 0)
-		Data.Flags |= (ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
-	else if(v == 1) {
-		Data.Flags |= ObjReceiveParam::fGetFromOutSrcr;
-		Data.Flags &= ~ObjReceiveParam::fClearInpBefore;
-	}
-	else
-		Data.Flags &= ~(ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
-	ASSIGN_PTR(pParam, Data);
-	return 1;
 }
 //
 //
@@ -632,70 +626,67 @@ static int SLAPI PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileLi
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+ObjTransmMqProps::ObjTransmMqProps() : SrcDbDivID(0), DestDbDivID(0)
+{
+}
+	
+ObjTransmMqProps & ObjTransmMqProps::Z()
+{
+	SrcDbDivID = 0;
+	DestDbDivID = 0;
+	SrcDbGUID.Z();
+	DestDbGUID.Z();
+	FileName.Z();
+	QueueName.Z();
+	return *this;
+}
+	
+int ObjTransmMqProps::PutToMqbMessage(PPMqbClient::MessageProperties & rProps) const
+{
+	int    ok = 1;
+	SString temp_buf;
+	rProps.Headers.Add("filename", (temp_buf = FileName).Transf(CTRANSF_OUTER_TO_UTF8));
+	rProps.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(SrcDbDivID));
+	if(!SrcDbGUID.IsZero())
+		rProps.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(SrcDbGUID, S_GUID::fmtIDL));
+	rProps.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(DestDbDivID));
+	if(!DestDbGUID.IsZero()) {
+		rProps.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(DestDbGUID, S_GUID::fmtIDL));
+	}
+	return ok;
+}
 
-struct ObjTransmMqProps {
-	ObjTransmMqProps() : SrcDbDivID(0), DestDbDivID(0)
-	{
-	}
-	ObjTransmMqProps & Z()
-	{
-		SrcDbDivID = 0;
-		DestDbDivID = 0;
-		SrcDbGUID.Z();
-		DestDbGUID.Z();
-		FileName.Z();
-		QueueName.Z();
-		return *this;
-	}
-	int    PutToMqbMessage(PPMqbClient::MessageProperties & rProps) const
-	{
-		int    ok = 1;
-		SString temp_buf;
-		rProps.Headers.Add("filename", (temp_buf = FileName).Transf(CTRANSF_OUTER_TO_UTF8));
-		rProps.Headers.Add("dbdiv-id-source", temp_buf.Z().Cat(SrcDbDivID));
-		if(!SrcDbGUID.IsZero())
-			rProps.Headers.Add("dbdiv-guid-source", temp_buf.Z().Cat(SrcDbGUID, S_GUID::fmtIDL));
-		rProps.Headers.Add("dbdiv-id-dest", temp_buf.Z().Cat(DestDbDivID));
-		if(!DestDbGUID.IsZero()) {
-			rProps.Headers.Add("dbdiv-guid-dest", temp_buf.Z().Cat(DestDbGUID, S_GUID::fmtIDL));
-		}
-		return ok;
-	}
-	int    GetFromMqbMessage(const PPMqbClient::MessageProperties & rProps)
-	{
-		int    ok = 1;
-		SString temp_buf;
-		if(rProps.ContentType == SFileFormat::PapyruDbDivXchg) {
-			for(uint propidx = 0; propidx < rProps.Headers.getCount(); propidx++) {
-				StrStrAssocArray::Item prop_item = rProps.Headers.at(propidx);
-				if(sstreqi_ascii(prop_item.Key, "filename")) {
-					(FileName = prop_item.Val).Strip().Transf(CTRANSF_UTF8_TO_OUTER);
-				}
-				else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-source")) {
-					SrcDbDivID = (temp_buf = prop_item.Val).ToLong();
-				}
-				else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-source")) {
-					SrcDbGUID.FromStr(prop_item.Val);
-				}
-				else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-dest")) {
-					DestDbDivID = (temp_buf = prop_item.Val).ToLong();
-				}
-				else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-dest")) {
-					DestDbGUID.FromStr(prop_item.Val);
-				}
+int ObjTransmMqProps::GetFromMqbMessage(const PPMqbClient::MessageProperties & rProps)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(rProps.ContentType == SFileFormat::PapyruDbDivXchg) {
+		for(uint propidx = 0; propidx < rProps.Headers.getCount(); propidx++) {
+			StrStrAssocArray::Item prop_item = rProps.Headers.at(propidx);
+			if(sstreqi_ascii(prop_item.Key, "filename")) {
+				(FileName = prop_item.Val).Strip().Transf(CTRANSF_UTF8_TO_OUTER);
+			}
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-source")) {
+				SrcDbDivID = (temp_buf = prop_item.Val).ToLong();
+			}
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-source")) {
+				SrcDbGUID.FromStr(prop_item.Val);
+			}
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-dest")) {
+				DestDbDivID = (temp_buf = prop_item.Val).ToLong();
+			}
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-dest")) {
+				DestDbGUID.FromStr(prop_item.Val);
 			}
 		}
-		else
-			ok = -1;
-		return ok;
 	}
-	PPID   SrcDbDivID;
-	PPID   DestDbDivID;
-	S_GUID SrcDbGUID;
-	S_GUID DestDbGUID;
-	SString FileName;
-	SString QueueName;
-};
+	else
+		ok = -1;
+	return ok;
+}
 
 int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 {
@@ -715,122 +706,130 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	PPID   db_div_id = 0;
 	PPGetPath(PPPATH_IN, dest);
 	THROW(obj_dbdiv.Get(r_cfg.DBDiv, &dbdiv_pack) > 0);
-	if(dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE)
-		check_mqb = 1;
-	while(!(check_email && check_ftp) && obj_dbdiv.EnumItems(&db_div_id, &db_div_rec) > 0) {
-		if(db_div_id != r_cfg.DBDiv)
-			check_email = BIN(check_email || IsEmailAddr(strip(db_div_rec.Addr)));
-		check_ftp   = BIN(check_ftp || IsFtpAddr(db_div_rec.Addr));
-	}
-	(src = dbdiv_pack.Rec.Addr).Strip();
-	if(pParam->Flags & ObjReceiveParam::fNonInteractive)
+	if(pParam->SsOnlyFileNames.getCount()) { // @v10.6.8
 		user_accept = 1;
-	else {
-		pParam->Flags |= (ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
-		THROW(user_accept = EditObjReceiveParam(pParam, src.NotEmpty() || check_email || check_ftp || check_mqb));
-	}
-	if(user_accept < 0)
-		ok = -1;
-	else if(pParam->Flags & ObjReceiveParam::fGetFromOutSrcr) {
-		int    use_src = 0, use_email = 0, use_ftp = 0;
-		if(pParam->Flags & ObjReceiveParam::fClearInpBefore) {
-			PPRemoveFilesByExt(dest, PPSEXT, 0, 0);
-		}
-		if(pParam->SenderDbDivList.getCount()) {
-			for(i = 0; !(use_src && use_email) && i < pParam->SenderDbDivList.getCount(); i++) {
-				THROW(obj_dbdiv.Get(pParam->SenderDbDivList.at(i), &dbdiv_pack) > 0);
-				if(IsEmailAddr(strip(dbdiv_pack.Rec.Addr)))
-					use_email = 1;
-				else
-					use_src = 1;
+		for(uint ssp = 0; pParam->SsOnlyFileNames.get(&ssp, file_path);) {
+			if(fileExists(file_path)) {
+				fep.Add(file_path);
 			}
 		}
-		else
-			use_src = use_email = use_ftp = 1;
-		// @v10.5.4 {
-		if(check_mqb) {
-			PPMqbClient mqc;
-			SString data_domain;
-			if(PPMqbClient::InitClient(mqc, &data_domain)) {
-				SString queue_name;
-				queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
-				if(mqc.QueueDeclare(queue_name, 0)) {
-					SString consumer_tag;
-					if(mqc.Consume(queue_name, &consumer_tag, 0)) {
-						PPMqbClient::Envelope env;
-						int cmr = 0;
-						while((cmr = mqc.ConsumeMessage(env, 500)) > 0) {
-							if(env.Msg.Body.GetAvailableSize()) {
-								ObjTransmMqProps otmp;
-								if(otmp.GetFromMqbMessage(env.Msg.Props) > 0) {
-									if(otmp.FileName.NotEmpty()) {
-										PPGetFilePath(PPPATH_IN, otmp.FileName, file_path);
-										SFile f_out(file_path, SFile::mWrite|SFile::mBinary);
-										if(f_out.IsValid()) {
-											if(f_out.Write(env.Msg.Body.GetBuf(env.Msg.Body.GetRdOffs()), env.Msg.Body.GetAvailableSize())) {
-												mqc.Ack(env.DeliveryTag, 0);
+	}
+	else {
+		if(pParam->Flags & ObjReceiveParam::fCheckMqb && dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE) // @v10.6.8 (pParam->Flags & ObjReceiveParam::fCheckMqb)
+			check_mqb = 1;
+		while(!(check_email && check_ftp) && obj_dbdiv.EnumItems(&db_div_id, &db_div_rec) > 0) {
+			if(db_div_id != r_cfg.DBDiv)
+				check_email = BIN(check_email || IsEmailAddr(strip(db_div_rec.Addr)));
+			check_ftp   = BIN(check_ftp || IsFtpAddr(db_div_rec.Addr));
+		}
+		(src = dbdiv_pack.Rec.Addr).Strip();
+		if(pParam->Flags & ObjReceiveParam::fNonInteractive)
+			user_accept = 1;
+		else {
+			pParam->Flags |= (ObjReceiveParam::fGetFromOutSrcr | ObjReceiveParam::fClearInpBefore);
+			THROW(user_accept = EditObjReceiveParam(pParam, src.NotEmpty() || check_email || check_ftp || check_mqb));
+		}
+
+		if(user_accept < 0)
+			ok = -1;
+		else if(pParam->Flags & ObjReceiveParam::fGetFromOutSrcr) {
+			int    use_src = 0, use_email = 0, use_ftp = 0;
+			if(pParam->Flags & ObjReceiveParam::fClearInpBefore) {
+				PPRemoveFilesByExt(dest, PPSEXT, 0, 0);
+			}
+			if(pParam->SenderDbDivList.getCount()) {
+				for(i = 0; !(use_src && use_email) && i < pParam->SenderDbDivList.getCount(); i++) {
+					THROW(obj_dbdiv.Get(pParam->SenderDbDivList.at(i), &dbdiv_pack) > 0);
+					if(IsEmailAddr(strip(dbdiv_pack.Rec.Addr)))
+						use_email = 1;
+					else
+						use_src = 1;
+				}
+			}
+			else
+				use_src = use_email = use_ftp = 1;
+			// @v10.5.4 {
+			if(check_mqb) {
+				PPMqbClient mqc;
+				SString data_domain;
+				if(PPMqbClient::InitClient(mqc, &data_domain)) {
+					SString queue_name;
+					queue_name.Z().Cat(_PPConst.P_SubjectDbDiv).Dot().Cat(data_domain).Dot().Cat(dbdiv_pack.Rec.ID);
+					if(mqc.QueueDeclare(queue_name, 0)) {
+						SString consumer_tag;
+						if(mqc.Consume(queue_name, &consumer_tag, 0)) {
+							PPMqbClient::Envelope env;
+							int cmr = 0;
+							while((cmr = mqc.ConsumeMessage(env, 500)) > 0) {
+								if(env.Msg.Body.GetAvailableSize()) {
+									ObjTransmMqProps otmp;
+									if(otmp.GetFromMqbMessage(env.Msg.Props) > 0) {
+										if(otmp.FileName.NotEmpty()) {
+											PPGetFilePath(PPPATH_IN, otmp.FileName, file_path);
+											SFile f_out(file_path, SFile::mWrite|SFile::mBinary);
+											if(f_out.IsValid()) {
+												if(f_out.Write(env.Msg.Body.GetBuf(env.Msg.Body.GetRdOffs()), env.Msg.Body.GetAvailableSize())) {
+													mqc.Ack(env.DeliveryTag, 0);
+												}
 											}
 										}
 									}
 								}
 							}
+							mqc.Cancel(consumer_tag, 0);
 						}
-						mqc.Cancel(consumer_tag, 0);
 					}
 				}
 			}
-		}
-		// } @v10.5.4 
-		if(use_src && src.NotEmpty() && !IsEmailAddr(src) && !IsFtpAddr(src)) {
-			int    removable_drive = 0;
-			char   drive = 'C';
-			char   ext[16];
-			fnsplit(src, &drive, 0, 0, ext);
-			PPSetAddedMsgString(src);
-			THROW_PP(driveValid(src), PPERR_NEXISTPATH);
-			removable_drive = IsRemovableDrive(toupper(drive));
-			if(removable_drive > 0) {
-				file_path.Z().CatChar(drive).CatChar(':').CatChar('\\');
-				PPSetAddedMsgString(msg_buf.Z().CatChar(toupper(drive)));
-				while(::access(file_path, 0) != 0)
-					THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
-			}
-			PPWait(1);
-			dest.RmvLastSlash();
-			if(removable_drive != 1)
-				src.RmvLastSlash();
-			THROW_PP_S(::access(src, 0) == 0, PPERR_NEXISTPATH, src);
-			if(::access(dest, 0) != 0) {
-				PPSetAddedMsgString(dest);
-				THROW_SL(createDir(dest));
-			}
-			//
-			// copy files to PPPATH_IN
-			//
-			THROW(fep.Scan(src, "*" PPSEXT, 0));
-			for(i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, &fe, &file_path)) {
-					PPWaitMsg(fe.Name);
-					SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
-					if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
-						THROW_SL(copyFileByName(file_path, dest_dir));
+			// } @v10.5.4 
+			if(use_src && src.NotEmpty() && !IsEmailAddr(src) && !IsFtpAddr(src)) {
+				int    removable_drive = 0;
+				char   drive = 'C';
+				char   ext[16];
+				fnsplit(src, &drive, 0, 0, ext);
+				PPSetAddedMsgString(src);
+				THROW_PP(driveValid(src), PPERR_NEXISTPATH);
+				removable_drive = IsRemovableDrive(toupper(drive));
+				if(removable_drive > 0) {
+					file_path.Z().CatChar(drive).CatChar(':').CatChar('\\');
+					PPSetAddedMsgString(msg_buf.Z().CatChar(toupper(drive)));
+					while(::access(file_path, 0) != 0)
+						THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
+				}
+				PPWait(1);
+				dest.RmvLastSlash();
+				if(removable_drive != 1)
+					src.RmvLastSlash();
+				THROW_PP_S(::access(src, 0) == 0, PPERR_NEXISTPATH, src);
+				if(::access(dest, 0) != 0) {
+					PPSetAddedMsgString(dest);
+					THROW_SL(createDir(dest));
+				}
+				//
+				// copy files to PPPATH_IN
+				//
+				THROW(fep.Scan(src, "*" PPSEXT, 0));
+				for(i = 0; i < fep.GetCount(); i++) {
+					if(fep.Get(i, &fe, &file_path)) {
+						PPWaitMsg(fe.Name);
+						SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
+						if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
+							THROW_SL(copyFileByName(file_path, dest_dir));
+						}
 					}
 				}
 			}
+			assert(MemHeapTracer::Check()); // @debug
+			if(use_email && check_email) {
+				THROW(GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
+			}
+			if(IsFtpAddr(src) && check_ftp) {  // else if -> if Так как в обратном случае, если хоть один раздел получает данные с эл. почты, то в эту ветку никогда не попадем.
+				THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
+			}
+			assert(MemHeapTracer::Check()); // @debug
 		}
-		assert(MemHeapTracer::Check()); // @debug
-		if(use_email && check_email) {
-			THROW(GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
-		}
-		if(IsFtpAddr(src) && check_ftp) {  // else if -> if Так как в обратном случае, если хоть один раздел получает данные с эл. почты, то в эту ветку никогда не попадем.
-			THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
-		}
-		assert(MemHeapTracer::Check()); // @debug
+		THROW(fep.Scan(dest, "*" PPSEXT, 0));
 	}
-	// AHTOXA {
-	// Распаковка принятых файлов
-	//THROW(fary.Scan(dest, "*" PPSEXT));
-	THROW(fep.Scan(dest, "*" PPSEXT, 0));
 	{
 		// Пропускаем файлы, заголовок которых не читается {
 		LongArray to_remove_pos_list;
@@ -838,6 +837,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			if(fep.Get(i, 0, &file_path)) {
 				PPObjectTransmit::Header hdr;
 				if(!PPObjectTransmit::GetHeader(file_path, &hdr)) {
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v10.6.8
 					to_remove_pos_list.add(/*i-1*/i);
 				}
 			}
@@ -848,10 +848,8 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 				fep.Remove(fa_pos);
 			}
 		}
-		// }
 	}
-	THROW(PackTransmitFiles(&fep, 0));
-	// } AHTOXA
+	THROW(PackTransmitFiles(&fep, 0)); // Распаковка принятых файлов
 	CATCHZOK
 	PPWait(0);
 	return ok;
@@ -926,7 +924,7 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 		SFileEntryPool fep;
 		THROW(fep.Scan(src, "*" PPSEXT, 0));
 		{
-			PPObjectTransmit ot(PPObjectTransmit::tmReading, 0, 0);
+			PPObjectTransmit ot(PPObjectTransmit::tmReading, 0/*ctrf*/);
 			uint i = fep.GetCount();
 			if(i) do {
 				if(fep.Get(--i, &fe, &file_name)) {
@@ -1000,7 +998,7 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 			else if(IsFtpAddr(dest)) {
 				THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
 			}
-			else {
+			else if(dest.NotEmpty()) { // @v10.6.8 if(dest.NotEmpty())
 				THROW(PutFilesToDiskPath(&fep, dest, trnsmFlags));
 			}
 		}

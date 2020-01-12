@@ -271,7 +271,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 			//
 			// ¬ режиме автоматического тестировани€ конфигураци€ выбираетс€ автоматически по имени pParam->Name
 			//
-			for(int i = 1; ok < 0 && i < list.getCountI(); i++) {
+			for(int i = 1; ok < 0 && i < static_cast<int>(list.getCount()); i++) {
 				list.GetText(i, sect);
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
@@ -1252,8 +1252,7 @@ int SLAPI PPLoadCommonUnits(TSVector <CommonUnit> * pList) // @v9.8.4 TSArray-->
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
-	if(pList)
-		pList->freeAll();
+	CALLPTRMEMB(pList, freeAll());
 	if(p_rez) {
 		uint   num_items = 0;
 		SString temp_buf;

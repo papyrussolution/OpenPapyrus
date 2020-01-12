@@ -1948,7 +1948,7 @@ SString & FASTCALL SString::SetCase(int ccas)
 
 SString & SString::NumberToLat(uint value)
 {
-	CopyFrom(0);
+	Z();
 	if(value) {
 		while(value) {
 			CatChar('A' + value % 26);
@@ -2262,13 +2262,36 @@ SString & FASTCALL SString::ShiftLeftChr(int chr)
 	return *this;
 }
 
+/*
+void SLAPI SVectorBase::reverse(uint pos, uint numItems)
+{
+	const  uint last_pos = pos+numItems-1;
+	uint   i = numItems/2;
+	if(i && pos < count && last_pos < count)
+		do {
+			--i;
+			memswap(at(pos+i), at(last_pos-i), isize);
+		} while(i);
+}
+*/
+
 SString & SLAPI SString::Reverse()
 {
-	size_t len = Len();
-	if(len > 1) {
+	const size_t len = Len();
+	size_t i = (len >> 1);
+	if(i) {
+		const size_t last_pos = len-1;
+		do {
+			--i;
+			const char s = P_Buf[last_pos-i];
+			P_Buf[last_pos-i] = P_Buf[i];
+			P_Buf[i] = s;
+		} while(i);
+	}
+	/*if(len > 1) {
 		size_t i = len/2;
 		memswap(P_Buf, P_Buf+(len-i), i);
-	}
+	}*/
 	return *this;
 }
 
@@ -2330,7 +2353,7 @@ SString & FASTCALL SString::Cat(const char * pS)
 	const size_t add_len = sstrlen(pS);
 	if(add_len) {
 		const size_t new_len = (L ? L : 1) + add_len;
-		if(new_len <= Size || Alloc(new_len)) { // @v8.1.11 (new_len <= Size ||)
+		if(new_len <= Size || Alloc(new_len)) {
 			memcpy(P_Buf+Len(), pS, add_len+1);
 			L = new_len;
 		}
@@ -2342,10 +2365,10 @@ SString & FASTCALL SString::CatN(const char * pS, size_t maxLen)
 {
 	if(pS && maxLen) {
 		const char * p_zero = static_cast<const char *>(memchr(pS, 0, maxLen));
-		size_t add_len = p_zero ? (p_zero - pS) : maxLen;
+		const size_t add_len = p_zero ? (p_zero - pS) : maxLen;
 		if(add_len) {
 			const size_t new_len = (L ? L : 1) + add_len;
-			if(new_len <= Size || Alloc(new_len)) { // @v8.1.11 (new_len <= Size ||)
+			if(new_len <= Size || Alloc(new_len)) {
 				memcpy(P_Buf+Len(), pS, add_len);
 				P_Buf[new_len-1] = 0;
 				L = new_len;
@@ -3283,7 +3306,7 @@ int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 					// concat code to rBuf
 					char  utf8_buf[16];
 					uint  utf8_len = SUnicode::Utf32ToUtf8(code, utf8_buf);
-					rBuf.Cat_(reinterpret_cast<const uint8 *>(utf8_buf), utf8_len);
+					rBuf.Cat_Unsafe(reinterpret_cast<const uint8 *>(utf8_buf), utf8_len);
 					cp = ofs+nd;
 				}
 				else {
@@ -4013,7 +4036,7 @@ int SString::IsLegalUtf8() const
 //
 //
 //
-void FASTCALL SString::Cat_(const uint8 * pChr, size_t numChr)
+void FASTCALL SString::Cat_Unsafe(const uint8 * pChr, size_t numChr)
 {
 	if(numChr) {
 		const size_t new_len = (L ? L : 1) + numChr;
@@ -4023,27 +4046,39 @@ void FASTCALL SString::Cat_(const uint8 * pChr, size_t numChr)
 					P_Buf[new_len-2] = pChr[0];
 					break;
 				case 2:
-					P_Buf[new_len-3] = pChr[0];
-					P_Buf[new_len-2] = pChr[1];
+					*PTR16(P_Buf+new_len-3) = *PTR16C(pChr);
 					break;
 				case 3:
-					P_Buf[new_len-4] = pChr[0];
-					P_Buf[new_len-3] = pChr[1];
+					*PTR16(P_Buf+new_len-4) = *PTR16C(pChr);
 					P_Buf[new_len-2] = pChr[2];
 					break;
 				case 4:
-					P_Buf[new_len-5] = pChr[0];
-					P_Buf[new_len-4] = pChr[1];
-					P_Buf[new_len-3] = pChr[2];
-					P_Buf[new_len-2] = pChr[3];
+					*PTR32(P_Buf+new_len-5) = *PTR32C(pChr);
+					break;
+				case 5:
+					*PTR32(P_Buf+new_len-6) = *PTR32C(pChr);
+					P_Buf[new_len-2] = pChr[4];
+					break;
+				case 6:
+					*PTR32(P_Buf+new_len-7) = *PTR32C(pChr);
+					*PTR16(P_Buf+new_len-3) = *PTR16C(pChr+4);
+					break;
+				case 7:
+					*PTR32(P_Buf+new_len-8) = *PTR32C(pChr);
+					*PTR16(P_Buf+new_len-4) = *PTR16C(pChr+4);
+					P_Buf[new_len-2] = pChr[6];
+					break;
+				case 8:
+					*PTR64(P_Buf+new_len-9) = *PTR64C(pChr);
 					break;
 				default:
 					{
 						char * p = &P_Buf[new_len-numChr-1];
-						for(size_t i = 0; i < numChr; i++) {
+						memcpy(p, pChr, numChr);
+						/*for(size_t i = 0; i < numChr; i++) {
 							//P_Buf[new_len-2] = chr;
 							p[i] = pChr[i];
-						}
+						}*/
 					}
 					break;
 			}
@@ -4093,27 +4128,27 @@ int SLAPI SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, i
 		else if(ch < static_cast<uint32>(0x800)) {
 			temp_mb[0] = static_cast<uint8>((ch >> 6) | SUtfConst::FirstByteMark[2]);
 			temp_mb[1] = static_cast<uint8>((ch | byteMark) & byteMask);
-			Cat_(temp_mb, 2);
+			Cat_Unsafe(temp_mb, 2);
 		}
 		else if(ch < static_cast<uint32>(0x10000)) {
 			temp_mb[0] = static_cast<uint8>((ch >> 12) | SUtfConst::FirstByteMark[3]);
 			temp_mb[1] = static_cast<uint8>(((ch >> 6) | byteMark) & byteMask);
 			temp_mb[2] = static_cast<uint8>((ch | byteMark) & byteMask);
-			Cat_(temp_mb, 3);
+			Cat_Unsafe(temp_mb, 3);
 		}
 		else if(ch < static_cast<uint32>(0x110000)) {
 			temp_mb[0] = static_cast<uint8>((ch >> 18) | SUtfConst::FirstByteMark[4]);
 			temp_mb[1] = static_cast<uint8>(((ch >> 12) | byteMark) & byteMask);
 			temp_mb[2] = static_cast<uint8>(((ch >> 6) | byteMark) & byteMask);
 			temp_mb[3] = static_cast<uint8>((ch | byteMark) & byteMask);
-			Cat_(temp_mb, 4);
+			Cat_Unsafe(temp_mb, 4);
 		}
 		else {
 			ch = UNI_REPLACEMENT_CHAR;
 			temp_mb[0] = static_cast<uint8>((ch >> 12) | SUtfConst::FirstByteMark[3]);
 			temp_mb[1] = static_cast<uint8>(((ch >> 6) | byteMark) & byteMask);
 			temp_mb[2] = static_cast<uint8>((ch | byteMark) & byteMask);
-			Cat_(temp_mb, 3);
+			Cat_Unsafe(temp_mb, 3);
 		}
 	}
 	CATCHZOK
@@ -7213,6 +7248,24 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ(strlen(buffer), str.Len());
 				SLTEST_CHECK_EQ((uint8)buffer[str.Len()], (uint8)0);
 				SLTEST_CHECK_Z(memcmp(buffer+str.Len()+1, preserve_buffer+str.Len()+1, sizeof(buffer)-str.Len()-1));
+			}
+		}
+		{
+			//
+			// Тестирование функции Reverse()
+			//
+			const char * p_pattern = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+			const size_t pattern_len = sstrlen(p_pattern);
+			SString rev_str;
+			for(size_t lenidx = 0; lenidx <= pattern_len; lenidx++) {
+				str.Z().Cat(p_pattern+lenidx);
+				const size_t org_len = str.Len();
+				(rev_str = str).Reverse();
+				SLTEST_CHECK_EQ(org_len, rev_str.Len());
+				SLTEST_CHECK_EQ(org_len, str.Len());
+				for(uint i = 0; i < org_len; i++) {
+					SLTEST_CHECK_EQ(static_cast<uint8>(str.C(i)), static_cast<uint8>(rev_str.C(org_len-i-1)));
+				}
 			}
 		}
 		{

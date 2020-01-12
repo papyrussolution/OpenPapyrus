@@ -933,7 +933,6 @@ static void active_list_init(struct active_list * active)
 {
 	active_list_reset(active);
 }
-
 /*
  * Merge two sorted edge lists.
  * Input:
@@ -952,12 +951,12 @@ static void active_list_init(struct active_list * active)
  * attaching to the output list the list which we will be iterating next) and
  * to attach the last non-empty list.
  */
-static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      {
-	struct edge * head, ** next, * prev;
+static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      
+{
+	struct edge * head;
 	int32_t x;
-
-	prev = head_a->prev;
-	next = &head;
+	struct edge * prev = head_a->prev;
+	struct edge ** next = &head;
 	if(head_a->cell <= head_b->cell) {
 		head = head_a;
 	}
@@ -966,7 +965,6 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 		head_b->prev = prev;
 		goto start_with_b;
 	}
-
 	do {
 		x = head_b->cell;
 		while(head_a != NULL && head_a->cell <= x) {
@@ -974,12 +972,10 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 			next = &head_a->next;
 			head_a = head_a->next;
 		}
-
 		head_b->prev = prev;
 		*next = head_b;
 		if(head_a == NULL)
 			return head;
-
 start_with_b:
 		x = head_a->cell;
 		while(head_b != NULL && head_b->cell <= x) {
@@ -987,14 +983,12 @@ start_with_b:
 			next = &head_b->next;
 			head_b = head_b->next;
 		}
-
 		head_a->prev = prev;
 		*next = head_a;
 		if(head_b == NULL)
 			return head;
 	} while(1);
 }
-
 /*
  * Sort (part of) a list.
  * Input:
@@ -1082,7 +1076,6 @@ inline static int can_do_full_row(struct active_list * active)
 	/* Check for intersections as no edges end during the next row. */
 	for(e = active->head.next; e != &active->tail; e = e->next) {
 		int cell;
-
 		if(e->dy) {
 			struct quorem x = e->x;
 			x.quo += e->dxdy_full.quo;
@@ -1099,33 +1092,25 @@ inline static int can_do_full_row(struct active_list * active)
 		}
 		else
 			cell = e->cell;
-
 		if(cell < prev_x)
 			return 0;
-
 		prev_x = cell;
 	}
-
 	return 1;
 }
-
-/* Merges edges on the given subpixel row from the polygon to the
- * active_list. */
-inline static void active_list_merge_edges_from_bucket(struct active_list * active,
-    struct edge * edges)
+//
+// Merges edges on the given subpixel row from the polygon to the active_list. 
+//
+inline static void active_list_merge_edges_from_bucket(struct active_list * active, struct edge * edges)
 {
 	active->head.next = merge_unsorted_edges(active->head.next, edges);
 }
 
-inline static int polygon_fill_buckets(struct active_list * active,
-    struct edge * edge,
-    int y,
-    struct edge ** buckets)
+inline static int polygon_fill_buckets(struct active_list * active, struct edge * edge, int y, struct edge ** buckets)
 {
 	grid_scaled_y_t min_height = active->min_height;
 	int is_vertical = active->is_vertical;
 	int max_suby = 0;
-
 	while(edge) {
 		struct edge * next = edge->next;
 		int suby = edge->ytop - y;
@@ -1141,10 +1126,8 @@ inline static int polygon_fill_buckets(struct active_list * active,
 		if(suby > max_suby)
 			max_suby = suby;
 	}
-
 	active->is_vertical = is_vertical;
 	active->min_height = min_height;
-
 	return max_suby;
 }
 
@@ -1152,7 +1135,6 @@ static void step(struct edge * edge)
 {
 	if(edge->dy == 0)
 		return;
-
 	edge->x.quo += edge->dxdy.quo;
 	edge->x.rem += edge->dxdy.rem;
 	if(edge->x.rem < 0) {
@@ -1163,27 +1145,20 @@ static void step(struct edge * edge)
 		++edge->x.quo;
 		edge->x.rem -= edge->dy;
 	}
-
 	edge->cell = edge->x.quo + (edge->x.rem >= edge->dy/2);
 }
 
-inline static void sub_row(struct active_list * active,
-    struct cell_list * coverages,
-    uint mask)
+inline static void sub_row(struct active_list * active, struct cell_list * coverages, uint mask)
 {
 	struct edge * edge = active->head.next;
 	int xstart = INT_MIN, prev_x = INT_MIN;
 	int winding = 0;
-
 	cell_list_rewind(coverages);
-
 	while(&active->tail != edge) {
 		struct edge * next = edge->next;
 		int xend = edge->cell;
-
 		if(--edge->height_left) {
 			step(edge);
-
 			if(edge->cell < prev_x) {
 				struct edge * pos = edge->prev;
 				pos->next = next;
@@ -1204,7 +1179,6 @@ inline static void sub_row(struct active_list * active,
 			edge->prev->next = next;
 			next->prev = edge->prev;
 		}
-
 		winding += edge->dir;
 		if((winding & mask) == 0) {
 			if(next->cell != xend) {
@@ -1214,7 +1188,6 @@ inline static void sub_row(struct active_list * active,
 		}
 		else if(xstart == INT_MIN)
 			xstart = xend;
-
 		edge = next;
 	}
 }
@@ -1229,18 +1202,13 @@ inline static void dec(struct active_list * a, struct edge * e, int h)
 	}
 }
 
-static void full_row(struct active_list * active,
-    struct cell_list * coverages,
-    uint mask)
+static void full_row(struct active_list * active, struct cell_list * coverages, uint mask)
 {
 	struct edge * left = active->head.next;
-
 	while(&active->tail != left) {
 		struct edge * right;
 		int winding;
-
 		dec(active, left, GRID_Y);
-
 		winding = left->dir;
 		right = left->next;
 		do {
@@ -1254,11 +1222,9 @@ static void full_row(struct active_list * active,
 
 			right = right->next;
 		} while(1);
-
 		cell_list_set_rewind(coverages);
 		cell_list_render_edge(coverages, left, +1);
 		cell_list_render_edge(coverages, right, -1);
-
 		left = right->next;
 	}
 }
@@ -1278,10 +1244,8 @@ static void _glitter_scan_converter_fini(glitter_scan_converter_t * self)
 {
 	if(self->spans != self->spans_embedded)
 		SAlloc::F(self->spans);
-
 	polygon_fini(self->polygon);
 	cell_list_fini(self->coverages);
-
 	self->xmin = 0;
 	self->ymin = 0;
 	self->xmax = 0;

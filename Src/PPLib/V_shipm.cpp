@@ -356,10 +356,11 @@ int SLAPI PPViewShipmAnalyze::InitIteration()
 	if(Tbl) {
 		P_IterQuery = new BExtQuery(Tbl, 1);
 		if(P_IterQuery) {
-			char   k[MAXKEYLEN];
-			memzero(k, sizeof(k));
+			// @v10.6.8 char   k[MAXKEYLEN];
+			BtrDbKey k_; // @v10.6.8 
+			// @v10.6.8 @ctr memzero(k, sizeof(k));
 			P_IterQuery->selectAll();
-			P_IterQuery->initIteration(0, k, spFirst);
+			P_IterQuery->initIteration(0, k_, spFirst);
 			return 1;
 		}
 		else

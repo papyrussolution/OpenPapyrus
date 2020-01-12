@@ -2302,7 +2302,7 @@ int SLAPI PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, 
 				CALLEXCEPT_PP_S(PPERR_SCARDCLOSED, pRec->Code);
 			}
 		}
-		THROW_PP_S(!pRec->Expiry || cmp(dtm, pRec->Expiry, encodetime(23, 59, 59, 0)) <= 0, PPERR_SCARDEXPIRED, pRec->Code); // @v8.3.8 ZEROTIME-->encodetime(23, 59, 59)
+		THROW_PP_S(!pRec->Expiry || cmp(dtm, pRec->Expiry, MAXDAYTIMESEC) <= 0, PPERR_SCARDEXPIRED, pRec->Code); // @v8.3.8 ZEROTIME-->encodetime(23, 59, 59)
 		if(!(flags & chkrfIgnoreUsageTime)) {
 			THROW_PP_S(!pRec->UsageTmStart || !dtm.t || dtm.t >= pRec->UsageTmStart, PPERR_SCARDTIME, pRec->Code);
 			THROW_PP_S(!pRec->UsageTmEnd   || !dtm.t || dtm.t <= pRec->UsageTmEnd,   PPERR_SCARDTIME, pRec->Code);

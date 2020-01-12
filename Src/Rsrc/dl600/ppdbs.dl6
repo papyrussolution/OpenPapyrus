@@ -2314,8 +2314,7 @@ file:
 table CCheck {             // size=52
 	autolong ID;           // ИД чека уникальный по этой таблице
 	long   Code;           // Код чека по внутреннему реестру ККМ, если Flags & CCHKF_ZCHECK, тогда Code - это номер Z-отчета
-	long   CashID;         // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then
-		// (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine)
+	long   CashID;         // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine)
 	long   UserID;         // Пользователь, создавший чек
 	long   SessID;         // ->CSession.ID
 	date   Dt;             // Дата чека
@@ -2349,7 +2348,8 @@ table CCheckExt {          // size=20
 	raw    Reserve[2];     // @reserve @v6.7.8 [2]-->[14]
 	long   AddrID;         // @v7.0.7 Ид адреса доставки
 	long   AddCrdCardID_unused;   // @v6.8.0 Дополнительная кредитная карта, с которой оплачивается покупка // @v9.0.4 @unused
-	long   AddCrdCardPaym_unused; // @v6.8.0 0.01 Сумма, оплаченная по дополнительной кредитной карте // @v9.0.4 @unused
+	// @v10.6.8 long   AddCrdCardPaym_unused; // @v6.8.0 0.01 Сумма, оплаченная по дополнительной кредитной карте // @v9.0.4 @unused
+	long   CreationUserID; // @v10.6.8 (insteed AddCrdCardPaym_unused) -->User.ID Пользователь, создавший чек 
 	long   LinkCheckID;    // @v6.7.8 -->CCheck.ID Ссылка на связанный чек
 	datetime StartOrdDtm;  // @v6.7.8 Для чека заказа: время начала обслуживания //
 	datetime EndOrdDtm;    // @v6.7.8 Для чека заказа: время завершения обслуживания //

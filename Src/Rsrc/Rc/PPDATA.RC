@@ -1115,7 +1115,15 @@ ROD_TAXSYSTEMKIND PP_RCDATA {
 	1, "@{txsk_general}\0",           "TXSK_GENERAL\0"
 	2, "@{txsk_simplified}\0",        "TXSK_SIMPLIFIED\0"
 	3, "@{txsk_patent}\0",            "TXSK_PATENT\0"
-	4, "@{taxsysk_imputed}\0",        "TXSK_IMPUTED\0"
+	4, "@{txsk_imputed}\0",           "TXSK_IMPUTED\0"
 	5, "@{txsk_singleagricult}\0",    "TXSK_SINGLEAGRICULT\0"
 	6, "@{txsk_simplified_profit}\0", "TXSK_SIMPLIFIEDPFT\0"
+}
+//
+// Зарезервированные записи объекта PPOBJ_GOODSBASKET
+//
+ROD_GOODSBASKET PP_RCDATA {
+	2,
+	11, "@{gbaskerrsrv_acnupd}\0", "GDSBSK_ACNUPD\0"
+	12, "@{gbaskerrsrv_acnrmv}\0", "GDSBSK_ACNRMV\0"
 }

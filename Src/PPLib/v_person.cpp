@@ -1403,11 +1403,12 @@ int SLAPI PPViewPerson::InitPersonAttribIteration()
 	if(!P_TempPsn)
 		ok = 0;
 	else if((P_IterQuery = new BExtQuery(P_TempPsn, 1, 8)) != 0) {
-		char   k[MAXKEYLEN];
+		// @v10.6.8 char   k[MAXKEYLEN];
+		BtrDbKey k_; // @v10.6.8 
 		PPInitIterCounter(Counter, P_TempPsn);
 		P_IterQuery->selectAll();
-		memzero(k, sizeof(k));
-		P_IterQuery->initIteration(0, k, spFirst);
+		// @v10.6.8 @ctr memzero(k, sizeof(k));
+		P_IterQuery->initIteration(0, k_, spFirst);
 	}
 	else
 		ok = PPSetErrorNoMem();
@@ -2520,11 +2521,12 @@ int SLAPI PPViewPerson::RemoveHangedAddr()
 		PPIDArray addr_list;
 		PPWait(1);
 		{
-			char    k[MAXKEYLEN];
-			memzero(k, sizeof(k));
+			// @v10.6.8 char    k[MAXKEYLEN];
+			// @v10.6.8 @ctr memzero(k, sizeof(k));
+			BtrDbKey k_; // @v10.6.8 
 			BExtQuery q(P_TempPsn, 0);
 			q.select(P_TempPsn->TabID, P_TempPsn->AddressP, 0);
-			for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(0, k_, spFirst); q.nextIteration() > 0;) {
 				addr_list.addUnique(P_TempPsn->data.TabID);
 			}
 		}

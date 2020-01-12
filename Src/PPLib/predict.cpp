@@ -1,5 +1,6 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8 // @v10.6.8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -48,7 +49,7 @@ int SLAPI LocValList::Setup(LDATE startDate, PPID goodsID, const TSVector <Prcss
 	if(pList->bsearch(&goodsID, &pos, CMPF_LONG)) {
 		uint   _p = pos;
 		//
-		// @paranoic: функция bsearch и так находит самую первую позицию {
+		// @paranoic: С„СѓРЅРєС†РёСЏ bsearch Рё С‚Р°Рє РЅР°С…РѕРґРёС‚ СЃР°РјСѓСЋ РїРµСЂРІСѓСЋ РїРѕР·РёС†РёСЋ {
 		//
 		while(_p) {
 			if(pList->at(_p-1).GoodsID == goodsID)
@@ -165,15 +166,15 @@ Predictor::EvalParam & Predictor::EvalParam::Set(const ObjIdListFilt * pLocList,
 	return *this;
 }
 //
-// Период pPeriod может состоять из трех типов отрезков:
-// 1. Отрезок, стоящий за верхней датой периода модели (predict_chunk)
-//    Данные по этому отрезку заполняются непосредственно прогнозированием.
-// 2. Отрезок, пересекающий период модели (model_chunk)
-//    Заполняется известными данными о продажах из таблицы PredictSales
-// 3. Отрезок, предшествующий периоду модели (proto_chunk)
-//    Заполняется значениями среднедневных продаж
+// РџРµСЂРёРѕРґ pPeriod РјРѕР¶РµС‚ СЃРѕСЃС‚РѕСЏС‚СЊ РёР· С‚СЂРµС… С‚РёРїРѕРІ РѕС‚СЂРµР·РєРѕРІ:
+// 1. РћС‚СЂРµР·РѕРє, СЃС‚РѕСЏС‰РёР№ Р·Р° РІРµСЂС…РЅРµР№ РґР°С‚РѕР№ РїРµСЂРёРѕРґР° РјРѕРґРµР»Рё (predict_chunk)
+//    Р”Р°РЅРЅС‹Рµ РїРѕ СЌС‚РѕРјСѓ РѕС‚СЂРµР·РєСѓ Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїСЂРѕРіРЅРѕР·РёСЂРѕРІР°РЅРёРµРј.
+// 2. РћС‚СЂРµР·РѕРє, РїРµСЂРµСЃРµРєР°СЋС‰РёР№ РїРµСЂРёРѕРґ РјРѕРґРµР»Рё (model_chunk)
+//    Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ РёР·РІРµСЃС‚РЅС‹РјРё РґР°РЅРЅС‹РјРё Рѕ РїСЂРѕРґР°Р¶Р°С… РёР· С‚Р°Р±Р»РёС†С‹ PredictSales
+// 3. РћС‚СЂРµР·РѕРє, РїСЂРµРґС€РµСЃС‚РІСѓСЋС‰РёР№ РїРµСЂРёРѕРґСѓ РјРѕРґРµР»Рё (proto_chunk)
+//    Р—Р°РїРѕР»РЅСЏРµС‚СЃСЏ Р·РЅР°С‡РµРЅРёСЏРјРё СЃСЂРµРґРЅРµРґРЅРµРІРЅС‹С… РїСЂРѕРґР°Р¶
 //
-// rParam.Period должен быть закрытым с обеих сторон (rParam.Period->low != 0 && rParam.Period->up != 0).
+// rParam.Period РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р·Р°РєСЂС‹С‚С‹Рј СЃ РѕР±РµРёС… СЃС‚РѕСЂРѕРЅ (rParam.Period->low != 0 && rParam.Period->up != 0).
 //
 int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSalesStat * pStat, int * pCanTrust)
 {
@@ -264,9 +265,9 @@ int SLAPI Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSa
 				}
 				else { // Simple average
 					//
-					// Если в конфигурации указано количество значений меньшее
-					// или равное 0, то средние продажи извлекаем из статистики.
-					// В противном случае вычисляем средние продажи по np последним точкам.
+					// Р•СЃР»Рё РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё СѓРєР°Р·Р°РЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°С‡РµРЅРёР№ РјРµРЅСЊС€РµРµ
+					// РёР»Рё СЂР°РІРЅРѕРµ 0, С‚Рѕ СЃСЂРµРґРЅРёРµ РїСЂРѕРґР°Р¶Рё РёР·РІР»РµРєР°РµРј РёР· СЃС‚Р°С‚РёСЃС‚РёРєРё.
+					// Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РІС‹С‡РёСЃР»СЏРµРј СЃСЂРµРґРЅРёРµ РїСЂРѕРґР°Р¶Рё РїРѕ np РїРѕСЃР»РµРґРЅРёРј С‚РѕС‡РєР°Рј.
 					//
 					if(np > 0)
 						T.CalcStat(goods_id, inner_loc_list, &load_period, -np, &stat);
@@ -441,7 +442,7 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 		dlg->setStaticText(CTL_PREDICTCFG_ST_CONT, msg_buf);
 	}
 	//
-	// Фиксирование артикулов по поставщику, для Рассчета заказа по поставщику
+	// Р¤РёРєСЃРёСЂРѕРІР°РЅРёРµ Р°СЂС‚РёРєСѓР»РѕРІ РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ, РґР»СЏ Р Р°СЃСЃС‡РµС‚Р° Р·Р°РєР°Р·Р° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ
 	//
 	{
 		dlg->AddClusterAssocDef(CTL_PREDICTCFG_FIXARCODE, 0, 0);
@@ -769,7 +770,7 @@ int FASTCALL PrcssrPrediction::Lock(int unlock)
 	if(!unlock) {
 		PPID   mutex_id = 0;
 		PPSyncItem sync_item;
-		int    r = DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item);
+		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item);
 		if(r < 0)
 			ok = PPSetError(PPERR_PSALESBUILDISLOCKED, sync_item.Name);
 		else if(r == 0)
@@ -787,7 +788,7 @@ int SLAPI PrcssrPrediction::IsLocked()
 	PPSync & r_sync = DS.GetSync();
 	PPID   mutex_id = 0;
 	PPSyncItem sync_item;
-	if((r = r_sync.CreateMutex(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item)) > 0) {
+	if((r = r_sync.CreateMutex_(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item)) > 0) {
 		r_sync.ReleaseMutex(PPOBJ_TSALESBUILD, 1L);
 		ok = 0;
 	}
@@ -824,7 +825,7 @@ int SLAPI PrcssrPrediction::Init(const Param * pParam)
 	P.GoodsQuant = goods_quant;
 	THROW_PP(Cfg.OpID > 0, PPERR_INVPREDICTOP);
 	//
-	// Определение списка видов операций продажи
+	// РћРїСЂРµРґРµР»РµРЅРёРµ СЃРїРёСЃРєР° РІРёРґРѕРІ РѕРїРµСЂР°С†РёР№ РїСЂРѕРґР°Р¶Рё
 	//
 	OpList.freeAll();
 	if(GetGenericOpList(Cfg.OpID, &OpList) <= 0)
@@ -869,7 +870,7 @@ int SLAPI PrcssrPrediction::Run()
 	int    break_process = 0;
 	int    do_update_common_last_date = 0;
 	long   goods_count = 0, goods_processed = 0;
-	long   last_goods_id = 0; // Товар, на котором было оборвано последнее построение
+	long   last_goods_id = 0; // РўРѕРІР°СЂ, РЅР° РєРѕС‚РѕСЂРѕРј Р±С‹Р»Рѕ РѕР±РѕСЂРІР°РЅРѕ РїРѕСЃР»РµРґРЅРµРµ РїРѕСЃС‚СЂРѕРµРЅРёРµ
 	MainIterCount = 0;
 	PPIDArray goods_list;
 	//TSArray <_GoodsLocRestItem> * p_rest_list = 0;
@@ -877,8 +878,8 @@ int SLAPI PrcssrPrediction::Run()
 	SString msg_buf, fmt_buf, rest_time_buf, process_fmt_buf, ta_msg_buf;
 	Goods2Tbl::Rec goods_rec;
 	//
-	// Создаем объект PPObjGoods для того, чтобы исключить дорогостоящие
-	// открытия таблицы goods2 в итерациях
+	// РЎРѕР·РґР°РµРј РѕР±СЉРµРєС‚ PPObjGoods РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РёСЃРєР»СЋС‡РёС‚СЊ РґРѕСЂРѕРіРѕСЃС‚РѕСЏС‰РёРµ
+	// РѕС‚РєСЂС‹С‚РёСЏ С‚Р°Р±Р»РёС†С‹ goods2 РІ РёС‚РµСЂР°С†РёСЏС…
 	//
 	PPObjGoods goods_obj;
 	MEMSZERO(Stat);
@@ -972,7 +973,7 @@ int SLAPI PrcssrPrediction::Run()
 			Stat.GoodsQuant = goods_chunk_size;
 			PPIDArray total_goods_list;
 			//
-			// Важно, чтобы товары перебирались в порядке следования идентификаторов
+			// Р’Р°Р¶РЅРѕ, С‡С‚РѕР±С‹ С‚РѕРІР°СЂС‹ РїРµСЂРµР±РёСЂР°Р»РёСЃСЊ РІ РїРѕСЂСЏРґРєРµ СЃР»РµРґРѕРІР°РЅРёСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
 			//
 			for(GoodsIterator giter(P.GoodsGrpID, 0); giter.Next(&goods_rec) > 0;) {
 				if(!(goods_rec.Flags & GF_GENERIC)) {
@@ -1067,7 +1068,7 @@ int SLAPI PrcssrPrediction::Run()
 				T.RestoreHolidays();
 				THROW(T.Finish(0, 0));
 				//
-				// Процесс успешно завершен - снимаем признак режима продолжения построения в конфигурации.
+				// РџСЂРѕС†РµСЃСЃ СѓСЃРїРµС€РЅРѕ Р·Р°РІРµСЂС€РµРЅ - СЃРЅРёРјР°РµРј РїСЂРёР·РЅР°Рє СЂРµР¶РёРјР° РїСЂРѕРґРѕР»Р¶РµРЅРёСЏ РїРѕСЃС‚СЂРѕРµРЅРёСЏ РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё.
 				//
 				THROW(SetContinueMode(1, 0, 0));
 			}
@@ -1129,8 +1130,8 @@ int SLAPI PrcssrPrediction::Run()
 int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE commonLastDate, PredictSalesCore::StatStoreErr * pErr, int use_ta)
 {
 	//
-	// Расчет и сохранение статистики по товарам разнесено для ускорения //
-	// за счет разделения операций чтения из одной таблицы и записи в другую
+	// Р Р°СЃС‡РµС‚ Рё СЃРѕС…СЂР°РЅРµРЅРёРµ СЃС‚Р°С‚РёСЃС‚РёРєРё РїРѕ С‚РѕРІР°СЂР°Рј СЂР°Р·РЅРµСЃРµРЅРѕ РґР»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ //
+	// Р·Р° СЃС‡РµС‚ СЂР°Р·РґРµР»РµРЅРёСЏ РѕРїРµСЂР°С†РёР№ С‡С‚РµРЅРёСЏ РёР· РѕРґРЅРѕР№ С‚Р°Р±Р»РёС†С‹ Рё Р·Р°РїРёСЃРё РІ РґСЂСѓРіСѓСЋ
 	//
 	int    ok = 1;
 	uint   i, j;
@@ -1138,7 +1139,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 	int    show_wait_msg = CS_SERVER ? 0 : 1;
 	PredictSalesStat * p_stat_list = 0;
 	//
-	// Рассчитываем статистику по товарам
+	// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј
 	//
 	PPIDArray loc_list;
 	PROFILE_START
@@ -1149,11 +1150,11 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 	THROW_MEM(p_stat_list = new PredictSalesStat[loc_count * goods_count]);
 #if 1 // {
 	//
-	// Не смотря на старания этот вариант расчета получился крайне медленным
-	// Видимо, тормозит выборка записей по условию (>= low_goods_id && <= upp_goods_id)
+	// РќРµ СЃРјРѕС‚СЂСЏ РЅР° СЃС‚Р°СЂР°РЅРёСЏ СЌС‚РѕС‚ РІР°СЂРёР°РЅС‚ СЂР°СЃС‡РµС‚Р° РїРѕР»СѓС‡РёР»СЃСЏ РєСЂР°Р№РЅРµ РјРµРґР»РµРЅРЅС‹Рј
+	// Р’РёРґРёРјРѕ, С‚РѕСЂРјРѕР·РёС‚ РІС‹Р±РѕСЂРєР° Р·Р°РїРёСЃРµР№ РїРѕ СѓСЃР»РѕРІРёСЋ (>= low_goods_id && <= upp_goods_id)
 	//
-	// @v8.1.8 Все таки, этот вариант оказался более производительным. Возможно, дело в том,
-	// что теперь мы его вывели из под действия транзакции.
+	// @v8.1.8 Р’СЃРµ С‚Р°РєРё, СЌС‚РѕС‚ РІР°СЂРёР°РЅС‚ РѕРєР°Р·Р°Р»СЃСЏ Р±РѕР»РµРµ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅС‹Рј. Р’РѕР·РјРѕР¶РЅРѕ, РґРµР»Рѕ РІ С‚РѕРј,
+	// С‡С‚Рѕ С‚РµРїРµСЂСЊ РјС‹ РµРіРѕ РІС‹РІРµР»Рё РёР· РїРѕРґ РґРµР№СЃС‚РІРёСЏ С‚СЂР°РЅР·Р°РєС†РёРё.
 	//
 	for(i = 0; i < loc_count; i++) {
 		const  PPID  loc_id  = loc_list.at(i);
@@ -1168,7 +1169,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 		T.SetKey(&k_init, PSRECTYPE_DAY, loc_id, low_goods_id, ZERODATE);
 		k_init.Dt = 0;
 		//
-		// Инициализируем статистику по товарам
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј
 		//
 		for(j = 0; j < goods_count; j++) {
 			PredictSalesStat * p_pss = &(p_stat_list[loc_idx_in_stat_list + j]);
@@ -1177,7 +1178,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 			p_pss->GoodsID = rGoodsList.get(j);
 		}
 		//
-		// Заполняем статистику по товарам
+		// Р—Р°РїРѕР»РЅСЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј
 		//
 		if(loc_id && goods_count) {
 			BExtQuery q(&T, 0, 1024);
@@ -1215,7 +1216,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 			}
 		}
 		//
-		// Финишируем статистику по товарам
+		// Р¤РёРЅРёС€РёСЂСѓРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј
 		//
 		for(j = 0; j < goods_count; j++) {
 			LDATE  last_dt = ZERODATE;
@@ -1250,9 +1251,9 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		//
-		// Массово удаляем всю статистику по списку товаров
-		// для того, чтобы потом можно было спокойно использовать
-		// массовую вставку.
+		// РњР°СЃСЃРѕРІРѕ СѓРґР°Р»СЏРµРј РІСЃСЋ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ СЃРїРёСЃРєСѓ С‚РѕРІР°СЂРѕРІ
+		// РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїРѕС‚РѕРј РјРѕР¶РЅРѕ Р±С‹Р»Рѕ СЃРїРѕРєРѕР№РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+		// РјР°СЃСЃРѕРІСѓСЋ РІСЃС‚Р°РІРєСѓ.
 		//
 		for(j = 0; !break_process && j < goods_count; j++) {
 			const PPID goods_id = rGoodsList.get(j);
@@ -1271,7 +1272,7 @@ int SLAPI PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, L
 		}
 		if(!break_process) {
 			//
-			// Теперь массово добавляем всю статистику по товарам в таблицу StT
+			// РўРµРїРµСЂСЊ РјР°СЃСЃРѕРІРѕ РґРѕР±Р°РІР»СЏРµРј РІСЃСЋ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј РІ С‚Р°Р±Р»РёС†Сѓ StT
 			//
 			const uint c = loc_count * goods_count;
 			BExtInsert bei(&T.StT);
@@ -1384,14 +1385,14 @@ int SLAPI PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::S
 	THROW_MEM(p_stat_list = new PredictSalesStat[max_stat_entries]);
 	{
 		//
-		// Инициализируем статистику по товарам
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј
 		//
 		for(uint j = 0; j < max_stat_entries; j++) {
 			PredictSalesStat * p_pss = p_stat_list+j;
 			p_pss->Init();
 		}
 		//
-		// Заполняем статистику по товарам
+		// Р—Р°РїРѕР»РЅСЏРµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРѕ С‚РѕРІР°СЂР°Рј
 		//
 		{
 			PredictSalesTbl::Key0 k_init, k;
@@ -1455,7 +1456,7 @@ int SLAPI PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::S
 
 struct __CI {
 	PPID   GoodsID;
-	LDATE  LastDate; // Дата, до которой была рассчитана статистика до текущего расчета
+	LDATE  LastDate; // Р”Р°С‚Р°, РґРѕ РєРѕС‚РѕСЂРѕР№ Р±С‹Р»Р° СЂР°СЃСЃС‡РёС‚Р°РЅР° СЃС‚Р°С‚РёСЃС‚РёРєР° РґРѕ С‚РµРєСѓС‰РµРіРѕ СЂР°СЃС‡РµС‚Р°
 	LocValList Lvl;
 };
 
@@ -1513,14 +1514,14 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	int    show_wait_msg = CS_SERVER ? 0 : 1;
 	PPLogger * p_logger = 0;
 	//
-	// В дальнейшем мы закладываемся на то, что список товаров отсортирован
+	// Р’ РґР°Р»СЊРЅРµР№С€РµРј РјС‹ Р·Р°РєР»Р°РґС‹РІР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ СЃРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ
 	//
 	rGoodsList.sortAndUndup();
 	PROFILE_START
 	const ObjIdListFilt empty_loc_list;
 	THROW_MEM(p_vect = new SArray(sizeof(PredictSalesTbl::Rec), /*1024,*/O_ARRAY));
 	//
-	// Формируем список lvl_list, содержащий структуры, необходимые для заполнения таблицы
+	// Р¤РѕСЂРјРёСЂСѓРµРј СЃРїРёСЃРѕРє lvl_list, СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‚СЂСѓРєС‚СѓСЂС‹, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ С‚Р°Р±Р»РёС†С‹
 	//
 	const uint c = rGoodsList.getCount();
 	ufp.SetFactor(0, (double)c);
@@ -1550,7 +1551,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 	{
 		PROFILE_START
 		//
-		// Рассчитываем начальные остатки
+		// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РЅР°С‡Р°Р»СЊРЅС‹Рµ РѕСЃС‚Р°С‚РєРё
 		//
 		LDATE rest_date = comm_period.low ? plusdate(comm_period.low, -1) : encodedate(1, 1, 1900);
 		const uint lvl_count = lvl_list.getCount();
@@ -1588,7 +1589,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 		uint   last_goods_pos = 0;
 		__HolidayArray ha(T, comm_period);
 		//
-		// Основной цикл
+		// РћСЃРЅРѕРІРЅРѕР№ С†РёРєР»
 		//
 		const long _num_days = diffdate(comm_period.upp, comm_period.low)+1;
 		ufp.SetFactor(1, (double)_num_days);
@@ -1597,7 +1598,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 		if(_gctr > 0) {
 			do {
 				PROFILE_START
-				if(!(trfr_rec.Flags & (PPTFR_UNLIM|PPTFR_ACK))) { // @v9.5.8 @fix не учитываемые в остатке операции надо пропускать
+				if(!(trfr_rec.Flags & (PPTFR_UNLIM|PPTFR_ACK))) { // @v9.5.8 @fix РЅРµ СѓС‡РёС‚С‹РІР°РµРјС‹Рµ РІ РѕСЃС‚Р°С‚РєРµ РѕРїРµСЂР°С†РёРё РЅР°РґРѕ РїСЂРѕРїСѓСЃРєР°С‚СЊ
 					const PPID loc_id   = trfr_rec.LocID;
 					const PPID goods_id = trfr_rec.GoodsID;
 					if(!loc_id) {
@@ -1627,7 +1628,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 							}
 							r_entry.LastOpDate = trfr_rec.Dt;
 							r_entry.Rest      += qtty;
-							r_entry.FirstIterTag = 1; // 0 - первая итерация, 1 - НЕ первая итерация //
+							r_entry.FirstIterTag = 1; // 0 - РїРµСЂРІР°СЏ РёС‚РµСЂР°С†РёСЏ, 1 - РќР• РїРµСЂРІР°СЏ РёС‚РµСЂР°С†РёСЏ //
 						}
 					}
 				}
@@ -1694,12 +1695,12 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 					err_flags |= errAbsence;
 				if(err_flags) {
 					//
-					// "Ошибка в таблице продаж [@goods; @loc; @date]: @zstr"
-					//PPTXT_PSALESTESTMSG             "Ошибка в таблице продаж [@goods; @loc; @date]: @zstr"
-					//PPTXT_PSALESTESTMSG_QTTY        "неверное количество @real/@real"
-					//PPTXT_PSALESTESTMSG_AMT         "неверная сумма @real/@real"
-					//PPTXT_PSALESTESTMSG_FLAGS       "неверные флаги @hex/@hex"
-					//PPTXT_PSALESTESTMSG_ABSENCE     "запись отсутствует"
+					// "РћС€РёР±РєР° РІ С‚Р°Р±Р»РёС†Рµ РїСЂРѕРґР°Р¶ [@goods; @loc; @date]: @zstr"
+					//PPTXT_PSALESTESTMSG             "РћС€РёР±РєР° РІ С‚Р°Р±Р»РёС†Рµ РїСЂРѕРґР°Р¶ [@goods; @loc; @date]: @zstr"
+					//PPTXT_PSALESTESTMSG_QTTY        "РЅРµРІРµСЂРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ @real/@real"
+					//PPTXT_PSALESTESTMSG_AMT         "РЅРµРІРµСЂРЅР°СЏ СЃСѓРјРјР° @real/@real"
+					//PPTXT_PSALESTESTMSG_FLAGS       "РЅРµРІРµСЂРЅС‹Рµ С„Р»Р°РіРё @hex/@hex"
+					//PPTXT_PSALESTESTMSG_ABSENCE     "Р·Р°РїРёСЃСЊ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚"
 					//
 					PPID   loc_id = 0;
 					LDATE  dt = ZERODATE;
@@ -1734,21 +1735,21 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 		}
 		else {
 			//
-			// Транзакцию начинаем только сейчас после того, как все необходимые данные были извлечены
-			// (дабы это извлечение не торомзило под действием транзакции).
+			// РўСЂР°РЅР·Р°РєС†РёСЋ РЅР°С‡РёРЅР°РµРј С‚РѕР»СЊРєРѕ СЃРµР№С‡Р°СЃ РїРѕСЃР»Рµ С‚РѕРіРѕ, РєР°Рє РІСЃРµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР°РЅРЅС‹Рµ Р±С‹Р»Рё РёР·РІР»РµС‡РµРЅС‹
+			// (РґР°Р±С‹ СЌС‚Рѕ РёР·РІР»РµС‡РµРЅРёРµ РЅРµ С‚РѕСЂРѕРјР·РёР»Рѕ РїРѕРґ РґРµР№СЃС‚РІРёРµРј С‚СЂР°РЅР·Р°РєС†РёРё).
 			//
 			PPTransaction tra(use_ta);
 			THROW(tra);
 			if(p_vect) {
 				PredictSalesTbl::Rec * p_rec = 0;
 				//
-				// Разносим операции поиска и удаления дубликатов с операцией
-				// массированной вставки записей: это должно обеспечить некоторое ускорение
-				// по сравнению с выполнением этих операций поочередно в одном цикле.
+				// Р Р°Р·РЅРѕСЃРёРј РѕРїРµСЂР°С†РёРё РїРѕРёСЃРєР° Рё СѓРґР°Р»РµРЅРёСЏ РґСѓР±Р»РёРєР°С‚РѕРІ СЃ РѕРїРµСЂР°С†РёРµР№
+				// РјР°СЃСЃРёСЂРѕРІР°РЅРЅРѕР№ РІСЃС‚Р°РІРєРё Р·Р°РїРёСЃРµР№: СЌС‚Рѕ РґРѕР»Р¶РЅРѕ РѕР±РµСЃРїРµС‡РёС‚СЊ РЅРµРєРѕС‚РѕСЂРѕРµ СѓСЃРєРѕСЂРµРЅРёРµ
+				// РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ СЃ РІС‹РїРѕР»РЅРµРЅРёРµРј СЌС‚РёС… РѕРїРµСЂР°С†РёР№ РїРѕРѕС‡РµСЂРµРґРЅРѕ РІ РѕРґРЅРѕРј С†РёРєР»Рµ.
 				//
 
 				//
-				// Удаляем данные в таблице, пересекающиеся с периодом заполнения //
+				// РЈРґР°Р»СЏРµРј РґР°РЅРЅС‹Рµ РІ С‚Р°Р±Р»РёС†Рµ, РїРµСЂРµСЃРµРєР°СЋС‰РёРµСЃСЏ СЃ РїРµСЂРёРѕРґРѕРј Р·Р°РїРѕР»РЅРµРЅРёСЏ //
 				//
 				__CI * p_ci = 0;
 				const uint lvl_count = lvl_list.getCount();
@@ -1779,15 +1780,15 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 			}
 			if(!break_process) {
 				//
-				// Сохраняем таблицу складов
+				// РЎРѕС…СЂР°РЅСЏРµРј С‚Р°Р±Р»РёС†Сѓ СЃРєР»Р°РґРѕРІ
 				//
 				THROW(T.Finish(1, 0));
 				THROW(tra.Commit());
 				{
 					if(calcStat) {
 						//
-						// Разрываем транзакцию чтобы сканирование таблицы продаж для подстчета статистики
-						// проходило вне транзации - так, вероятно, быстрее.
+						// Р Р°Р·СЂС‹РІР°РµРј С‚СЂР°РЅР·Р°РєС†РёСЋ С‡С‚РѕР±С‹ СЃРєР°РЅРёСЂРѕРІР°РЅРёРµ С‚Р°Р±Р»РёС†С‹ РїСЂРѕРґР°Р¶ РґР»СЏ РїРѕРґСЃС‚С‡РµС‚Р° СЃС‚Р°С‚РёСЃС‚РёРєРё
+						// РїСЂРѕС…РѕРґРёР»Рѕ РІРЅРµ С‚СЂР°РЅР·Р°С†РёРё - С‚Р°Рє, РІРµСЂРѕСЏС‚РЅРѕ, Р±С‹СЃС‚СЂРµРµ.
 						//
 						THROW(r = StoreStatByGoodsList(rGoodsList, P.GetNormPeriod().upp, &Stat.Sse, 1));
 					}
@@ -1795,9 +1796,9 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 						r = 1;
 					if(r > 0) {
 						//
-						// В конфигурации отмечаем факт завершения транзакции по очередному блоку товаров.
-						// Если при обработке следующего блока произойдет обрыв процесса, то
-						// при следующем запуска работа будет возобновлена, начиная с товара rGoodsList.getLast()+1
+						// Р’ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РѕС‚РјРµС‡Р°РµРј С„Р°РєС‚ Р·Р°РІРµСЂС€РµРЅРёСЏ С‚СЂР°РЅР·Р°РєС†РёРё РїРѕ РѕС‡РµСЂРµРґРЅРѕРјСѓ Р±Р»РѕРєСѓ С‚РѕРІР°СЂРѕРІ.
+						// Р•СЃР»Рё РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ СЃР»РµРґСѓСЋС‰РµРіРѕ Р±Р»РѕРєР° РїСЂРѕРёР·РѕР№РґРµС‚ РѕР±СЂС‹РІ РїСЂРѕС†РµСЃСЃР°, С‚Рѕ
+						// РїСЂРё СЃР»РµРґСѓСЋС‰РµРј Р·Р°РїСѓСЃРєР° СЂР°Р±РѕС‚Р° Р±СѓРґРµС‚ РІРѕР·РѕР±РЅРѕРІР»РµРЅР°, РЅР°С‡РёРЅР°СЏ СЃ С‚РѕРІР°СЂР° rGoodsList.getLast()+1
 						//
 						THROW(SetContinueMode(0, rGoodsList.getLast(), 1));
 						if(CheckInterruption())
@@ -1830,9 +1831,9 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		PredictSalesTbl::Rec rec;
 		T.AddLocEntry(loc_id, &loc_idx);
 		//
-		// Ограничение (sell > 0.0 || rest > 0.0) препятствует занесению нулевых
-		// продаж при отсутствии остатка. Это актуально при обработке первой
-		// итерации основного цикла в функции ProcessSales.
+		// РћРіСЂР°РЅРёС‡РµРЅРёРµ (sell > 0.0 || rest > 0.0) РїСЂРµРїСЏС‚СЃС‚РІСѓРµС‚ Р·Р°РЅРµСЃРµРЅРёСЋ РЅСѓР»РµРІС‹С…
+		// РїСЂРѕРґР°Р¶ РїСЂРё РѕС‚СЃСѓС‚СЃС‚РІРёРё РѕСЃС‚Р°С‚РєР°. Р­С‚Рѕ Р°РєС‚СѓР°Р»СЊРЅРѕ РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РїРµСЂРІРѕР№
+		// РёС‚РµСЂР°С†РёРё РѕСЃРЅРѕРІРЅРѕРіРѕ С†РёРєР»Р° РІ С„СѓРЅРєС†РёРё ProcessSales.
 		//
 		if(sell > 0.0 || rest > 0.0) {
 			if(!rHa.Is(loc_idx, last_date)) {
@@ -1850,8 +1851,8 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 			}
 		}
 		//
-		// Если в перерыве между продажами был остаток товара,
-		// то считаем продажи в эти дни нулевыми.
+		// Р•СЃР»Рё РІ РїРµСЂРµСЂС‹РІРµ РјРµР¶РґСѓ РїСЂРѕРґР°Р¶Р°РјРё Р±С‹Р» РѕСЃС‚Р°С‚РѕРє С‚РѕРІР°СЂР°,
+		// С‚Рѕ СЃС‡РёС‚Р°РµРј РїСЂРѕРґР°Р¶Рё РІ СЌС‚Рё РґРЅРё РЅСѓР»РµРІС‹РјРё.
 		//
 		if(rest > 0.0) {
 			for(LDATE dt = plusdate(last_date, 1); dt < date; dt = plusdate(dt, 1)) {
@@ -1932,4 +1933,3 @@ int SLAPI PrcssrPrediction::GetContinueMode(int checkOnly, PPID * pLastGoodsID)
 	}
 	return ok;
 }
-

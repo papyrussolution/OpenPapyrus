@@ -1011,7 +1011,7 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					if(Filt.Flags & TSessionFilt::fManufPlan)
 						flt.PlanSessID = id;
 					if(v_tsa.EditBaseFilt(&flt) > 0) {
-						flt.SessIdList.FreeAll();
+						flt.SessIdList.Z();
 						if(!flt.PlanSessID)
 							if(flt.Flags & TSessAnlzFilt::fAll) {
 								flt.SetOuterTSessFilt(&Filt);

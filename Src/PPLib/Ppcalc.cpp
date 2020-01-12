@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -196,11 +196,10 @@ int SLAPI PPCalcFuncList::ReadParams(uint16 funcID, const char * pStr, size_t * 
 int SLAPI PPCalcFuncList::CalcFunc(uint16 funcID, const StringSet * pParams, char * pRes, size_t resBufLen) const
 {
 	int    ok = -1;
-	uint   i;
 	//const PPCalcFuncEntry * p_entry = 0;
 	//THROW(p_entry = SearchFunc(funcID));
 	ASSIGN_PTR(pRes, 0);
-	for(i = 0; i < (sizeof(CFA) / sizeof(PPCalcFuncAssoc)); i++) {
+	for(uint i = 0; i < SIZEOFARRAY(CFA); i++) {
 		if(CFA[i].FuncID == funcID) {
 			THROW(CFA[i].Func(pParams, pRes, resBufLen));
 			ok = 1;

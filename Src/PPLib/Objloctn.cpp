@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -806,7 +806,6 @@ int SLAPI PPObjLocation::MakeListByType(PPID locType, PPID parentID, long zeroPa
 StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zeroParentId)
 {
 	StrAssocArray * p_list = new StrAssocArray;
-	LocationTbl::Rec loc_rec;
 	SString temp_buf;
 	int    f = 0;
 	const  LocationFilt * p_filt = 0; // NZOR(pLocFilt, &CurrFilt);
@@ -855,6 +854,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 			{
 				const uint elc = p_filt->ExtLocList.GetCount();
 				if(elc) {
+					LocationTbl::Rec loc_rec;
 					for(uint i = 0; i < elc; i++) {
 						const PPID ext_loc_id = p_filt->ExtLocList.Get(i);
 						if(Fetch(ext_loc_id, &loc_rec) > 0) {
@@ -883,7 +883,8 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 		}
 	}
 	if(zeroParentId) {
-		MEMSZERO(loc_rec);
+		LocationTbl::Rec loc_rec;
+		// @v10.6.8 @ctr MEMSZERO(loc_rec);
 		loc_rec.ID = zeroParentId;
 		PPLoadText(PPTXT_ALLWAREHOUSES, temp_buf.Z());
 		temp_buf.CopyTo(loc_rec.Name, sizeof(loc_rec.Name));
@@ -982,11 +983,11 @@ int SLAPI PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec
 			for(int layer = 1; layer <= column_rec.NumLayers; layer++) {
 				PPID   id = 0;
 				LocationTbl::Rec cell_rec;
-				MEMSZERO(cell_rec);
+				// @v10.6.8 @ctr MEMSZERO(cell_rec);
 				cell_rec.Type = LOCTYP_WHCELL;
 				cell_rec.ParentID = whColumnID;
-				cell_rec.NumRows = (int16)row;
-				cell_rec.NumLayers = (int16)layer;
+				cell_rec.NumRows = static_cast<int16>(row);
+				cell_rec.NumLayers = static_cast<int16>(layer);
 				cell_rec.Depth = c;
 				if(pSampleRec) {
 					cell_rec.MassCapacity = pSampleRec->MassCapacity;
@@ -1367,17 +1368,16 @@ int LocationView::Restore()
 	PPObjArticle ar_obj;
 	PPObjLocation loc_obj;
 	PPLogger logger;
-	MEMSZERO(rec);
+	// @v10.6.8 @ctr MEMSZERO(rec);
 	const  PPID loc_acs_id = LConfig.LocAccSheetID;
 	while(ar_obj.P_Tbl->EnumBySheet(loc_acs_id, &art_no, &rec) > 0) {
 		int    r = loc_obj.Search(rec.ObjID, 0);
 		if(r < 0) {
 			LocationTbl::Rec loc_rec;
-			MEMSZERO(loc_rec);
+			// @v10.6.8 @ctr MEMSZERO(loc_rec);
 			loc_rec.ID   = rec.ObjID;
 			loc_rec.Type = LOCTYP_WAREHOUSE;
 			STRNSCPY(loc_rec.Name, rec.Name);
-
 			r = 1;
 			PPID   temp_id = rec.ObjID;
 			if(loc_obj.P_Tbl->Add(&temp_id, &loc_rec, 0)) {
@@ -1459,6 +1459,7 @@ static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedS
 int LocationExtFieldsDialog::Edit(TaggedString * pData)
 {
 	class AddExtFldDialog : public TDialog {
+		DECL_DIALOG_DATA(TaggedString);
 	public:
 		explicit AddExtFldDialog(TaggedStringArray * pFieldNames) : TDialog(DLG_ADDEXTFLD)
 		{
@@ -1466,7 +1467,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 				FieldNames.copy(*pFieldNames);
 			disableCtrl(CTLSEL_ADDEXTFLD_FLD, 1);
 		}
-		int    setDTS(const TaggedString * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData))
 				MEMSZERO(Data);
@@ -1474,7 +1475,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 			setCtrlData(CTL_ADDEXTFLD_VAL, Data.Txt);
 			return 1;
 		}
-		int    getDTS(TaggedString * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTLSEL_ADDEXTFLD_FLD, &Data.Id);
@@ -1485,8 +1486,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 			return ok;
 		}
 	private:
-		TaggedStringArray  FieldNames;
-		TaggedString   Data;
+		TaggedStringArray FieldNames;
 	};
 	int    ok = -1;
 	SString prev_txt;
@@ -2254,10 +2254,10 @@ int SLAPI PPObjLocation::InitCode(LocationTbl::Rec * pRec)
 						parent_wh_id = 0;
 				}
 				for(long i = 1; ok < 0 && i < 10000; i++) {
-					code = 0;
+					code.Z();
 					switch(coding) {
 						case whzcAlpha:
-							code.NumberToLat((uint)i);
+							code.NumberToLat(static_cast<uint>(i));
 							break;
 						case whzcDigit1:
 							THROW(i <= 9);
@@ -2339,21 +2339,29 @@ int SLAPI PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate,
 	return ok;
 }
 
-struct CreateWhLocParam {
+SLAPI PPObjLocation::CreateWhLocParam::CreateWhLocParam() : Type(0)
+{
+}
+
+/*struct CreateWhLocParam {
+	SLAPI  CreateWhLocParam() : Type(0)
+	{
+	}
 	PPID   Type;
 	LocationTbl::Rec CellSample;
-};
+};*/
 
 int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 {
 	class CreateWhLocParamDialog : public TDialog {
+		DECL_DIALOG_DATA(CreateWhLocParam);
 	public:
 		CreateWhLocParamDialog() : TDialog(DLG_SELWZTYP)
 		{
 		}
-		int    setDTS(const CreateWhLocParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_SELWZTYP_WHAT, 0, LOCTYP_WHZONE);
 			AddClusterAssoc(CTL_SELWZTYP_WHAT, 1, LOCTYP_WHCOLUMN);
 			AddClusterAssoc(CTL_SELWZTYP_WHAT, 2, LOCTYP_WHCELL);
@@ -2362,7 +2370,7 @@ int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 			enableCommand(cmGenWhCellSample, Data.Type == LOCTYP_WHCELLAUTOGEN);
 			return 1;
 		}
-		int    getDTS(CreateWhLocParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			GetClusterData(CTL_SELWZTYP_WHAT, &Data.Type);
 			ASSIGN_PTR(pData, Data);
@@ -2386,7 +2394,6 @@ int SLAPI PPObjLocation::EditCreateWhLocParam(CreateWhLocParam * pParam)
 				return;
 			clearEvent(event);
 		}
-		CreateWhLocParam Data;
 		PPObjLocation LocObj;
 	};
 	DIALOG_PROC_BODY(CreateWhLocParamDialog, pParam);
@@ -2405,7 +2412,7 @@ int SLAPI PPObjLocation::Edit(PPID * pID, void * extraPtr)
 	else {
 		uint   t = 0;
 		LocationTbl::Rec cur_rec;
-		MEMSZERO(cur_rec);
+		// @v10.6.8 @ctr MEMSZERO(cur_rec);
 		if(extraPtr) {
 			LocationFilt flt = *static_cast<const LocationFilt *>(extraPtr);
 			loc_typ = NZOR(flt.LocType, LOCTYP_WAREHOUSE);
@@ -2429,7 +2436,7 @@ int SLAPI PPObjLocation::Edit(PPID * pID, void * extraPtr)
 		}
 		else if(loc_typ == LOCTYP_WHZONE) {
 			CreateWhLocParam cwlp;
-			MEMSZERO(cwlp);
+			// @v10.6.8 @ctr MEMSZERO(cwlp);
 			cwlp.CellSample.ParentID = cur_rec.ID;
 			if(cur_rec.ID && cur_rec.Type == LOCTYP_WHCELL) {
 				loc_typ = pack.Type = LOCTYP_WHCELL;
@@ -2666,33 +2673,30 @@ int SLAPI PPObjLocation::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 int SLAPI PPObjLocation::MakeReserved(long flags)
 {
 	int    ok = 1;
-	uint   num_recs, i;
-	LocationTbl::Rec rec;
+	LocationTbl::Key2 k2;
 	TVRez * p_rez = P_SlRez;
-	if(p_rez) {
-		LocationTbl::Key2 k2;
-		MEMSZERO(k2);
-		k2.Type = LOCTYP_WAREHOUSE;
-		if(!(P_Tbl->search(2, &k2, spGe) && P_Tbl->data.Type == LOCTYP_WAREHOUSE)) {
-			SString name;
-			THROW_DB(BTROKORNFOUND);
-			THROW_PP(p_rez->findResource(ROD_LOCATION, PP_RCDATA), PPERR_RESFAULT);
-			THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
-			for(i = 0; i < num_recs; i++) {
-				PPID   id = 0;
-				p_rez->getUINT();
-				p_rez->getString(name, 2);
-				PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.2.1
-				MEMSZERO(rec);
-				rec.ID = 0;
-				name.CopyTo(rec.Name, sizeof(rec.Name));
-				rec.Type = LOCTYP_WAREHOUSE;
-				THROW(P_Tbl->Add(&id, &rec, 1));
-			}
+	THROW_PP(p_rez, PPERR_RESFAULT);
+	MEMSZERO(k2);
+	k2.Type = LOCTYP_WAREHOUSE;
+	if(!(P_Tbl->search(2, &k2, spGe) && P_Tbl->data.Type == LOCTYP_WAREHOUSE)) {
+		SString name;
+		uint   num_recs;
+		THROW_DB(BTROKORNFOUND);
+		THROW_PP(p_rez->findResource(ROD_LOCATION, PP_RCDATA), PPERR_RESFAULT);
+		THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
+		for(uint i = 0; i < num_recs; i++) {
+			PPID   id = 0;
+			LocationTbl::Rec rec;
+			p_rez->getUINT();
+			p_rez->getString(name, 2);
+			PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.2.1
+			// @v10.6.8 @ctr MEMSZERO(rec);
+			// @v10.6.8 @ctr rec.ID = 0;
+			name.CopyTo(rec.Name, sizeof(rec.Name));
+			rec.Type = LOCTYP_WAREHOUSE;
+			THROW(P_Tbl->Add(&id, &rec, 1));
 		}
 	}
-	else
-		ok = 0;
 	CATCHZOK
 	return ok;
 }
@@ -2708,7 +2712,7 @@ DivisionCtrlGroup::DivisionCtrlGroup(uint _ctlsel_org, uint _ctlsel_div, uint _c
 	CtrlGroup(), DivF(LOCTYP_DIVISION), CtlselOrg(_ctlsel_org), CtlselDiv(_ctlsel_div), CtlselStaff(_ctlsel_staff),
 	CtlselPost(_ctlsel_post), flags(0)
 {
-	MEMSZERO(Data);
+	// @v10.6.8 @ctr MEMSZERO(Data);
 }
 
 int DivisionCtrlGroup::setData(TDialog * dlg, void * data)
@@ -3198,7 +3202,7 @@ PPID SLAPI LocationCache::GetSingleWarehouse()
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		//id = (WhObjList.getCount() == 1) ? ((WHObjEntry *)WhObjList.at(0))->LocID : 0;
 		for(uint i = 0; i < WhObjList.getCount(); i++) {
-			const WHObjEntry * p_entry = (const WHObjEntry *)WhObjList.at(i);
+			const WHObjEntry * p_entry = static_cast<const WHObjEntry *>(WhObjList.at(i));
 			if(!(p_entry->Flags & LOCF_INTERNAL_DISABLED)) {
 				if(!id)
 					id = p_entry->LocID;
@@ -4118,7 +4122,7 @@ PPLocAddrStruc::AddrTok::~AddrTok()
 	delete P_SplitL;
 }
 
-PPLocAddrStruc::AddrTok & PPLocAddrStruc::AddrTok::Reset()
+PPLocAddrStruc::AddrTok & PPLocAddrStruc::AddrTok::Z()
 {
 	T = 0;
 	P = 0;

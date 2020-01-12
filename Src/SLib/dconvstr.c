@@ -1,30 +1,26 @@
-/*
- *  Bijective, heapless and bignumless conversion of IEEE 754 double to string and vice versa
- *  http://www.gurucoding.com/en/dconvstr/
- *
- *  Copyright (c) 2014 Mikhail Kupchik <Mikhail.Kupchik@prime-expert.com>
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without modification, are permitted
- *  provided that the following conditions are met:
- *
- *  1. Redistributions of source code must retain the above copyright notice, this list of conditions
- *   and the following disclaimer.
- *
- *  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
- *   and the following disclaimer in the documentation and/or other materials provided with the
- *   distribution.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- *  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- *  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- *  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+// 
+// Bijective, heapless and bignumless conversion of IEEE 754 double to string and vice versa http://www.gurucoding.com/en/dconvstr/
+// 
+// Copyright (c) 2014 Mikhail Kupchik <Mikhail.Kupchik@prime-expert.com> All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are permitted
+// provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions
+// and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+// and the following disclaimer in the documentation and/or other materials provided with the distribution.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+// IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+// OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
@@ -1848,8 +1844,8 @@ static int FASTCALL pack_ieee754_double(int input_is_nan, int input_sign, uint64
 	}
 	// 8. Pack bits up
 	uint64 output_bits = (output_sign << 63) | ((output_exponent & 0x7FFULL) << 52) | (output_mantissa & ((1ULL << 52) - 1ULL));
-	*(uint64 *)output = output_bits;
-	return (!had_overflow_or_underflow_in_exponent );
+	*reinterpret_cast<uint64 *>(output) = output_bits;
+	return (!had_overflow_or_underflow_in_exponent);
 }
 // 
 // Descr: Decompress small integer in range 0..9999 to four-digit BCD representation
@@ -1952,7 +1948,7 @@ static int FASTCALL bcd_round(int new_ndigits, uint8 * decimal_mantissa, int32 *
 			else {
 				memmove(decimal_mantissa + 1, decimal_mantissa, 19);
 				decimal_mantissa[0] = 0;
-				++( *exponent );
+				++(*exponent);
 				// if there was an overflow, then make one more iteration
 			}
 		}
@@ -2251,40 +2247,40 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 }
 // 
 // Convert string to IEEE 754 floating-point double precision value
-// @param  input          Input buffer, C-style string. Filled by caller.
-// @param  input_end      Address of pointer to end of scanned value in input buffer.
-//   Filled by function if address is not NULL.
-// @param  output         Conversion result (IEEE 754 floating-point double precision).
+// @param  pInput        Input buffer, C-style string. Filled by caller.
+// @param  ppInputEnd    Address of pointer to end of scanned value in input buffer. Filled by function if address is not NULL.
+// @param  pOutput       Conversion result (IEEE 754 floating-point double precision).
 //   Set to 0.0 if string in input buffer has syntax errors.
-// @param  output_erange  Address of overflow/underflow flag variable, filled by function.
+// @param  pOutputERange Address of overflow/underflow flag variable, filled by function.
 //   0  if there is no overflow/underflow condition
 //   1  if there is overflow/underflow condition: strtod(3) would set errno = ERANGE
-// @returns  1  if there were no internal errors
+// @returns  
+//   1  if there were no internal errors 
 //   0  if there was internal error during conversion.
 // In general, interface of this function is similar to strtod(3), except for returning overflow
 // condition instead of setting errno. If you want just to convert C-style string to double with
 // error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
 // condition as an indication of successful conversion.
 // 
-int FASTCALL dconvstr_scan(const char * input, const char**  input_end, double * output, int * output_erange)
+int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
 {
 	// 1. Handle special cases
-	if(oneof2(input[0], 'n', 'N') && oneof2(input[1], 'a', 'A') && oneof2(input[2], 'n', 'N')) {
-		ASSIGN_PTR(input_end, input + 3);
-		pack_ieee754_double(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, output);
-		*output_erange = 0;
+	if(oneof2(pInput[0], 'n', 'N') && oneof2(pInput[1], 'a', 'A') && oneof2(pInput[2], 'n', 'N')) {
+		ASSIGN_PTR(ppInputEnd, pInput + 3);
+		pack_ieee754_double(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
+		*pOutputERange = 0;
 		return 1;
 	}
-	else if(oneof2(input[0], 'i', 'I') && oneof2(input[1], 'n', 'N') && oneof2(input[2], 'f', 'F')) {
-		ASSIGN_PTR(input_end, input + 3);
-		pack_ieee754_double( 0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
-		*output_erange = 0;
+	else if(oneof2(pInput[0], 'i', 'I') && oneof2(pInput[1], 'n', 'N') && oneof2(pInput[2], 'f', 'F')) {
+		ASSIGN_PTR(ppInputEnd, pInput + 3);
+		pack_ieee754_double( 0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+		*pOutputERange = 0;
 		return 1;
 	}
-	else if(input[0] == '-' && oneof2(input[1], 'i', 'I') && oneof2(input[2], 'n', 'N') && oneof2(input[3], 'f', 'F')) {
-		ASSIGN_PTR(input_end, input + 4);
-		pack_ieee754_double(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
-		*output_erange = 0;
+	else if(pInput[0] == '-' && oneof2(pInput[1], 'i', 'I') && oneof2(pInput[2], 'n', 'N') && oneof2(pInput[3], 'f', 'F')) {
+		ASSIGN_PTR(ppInputEnd, pInput + 4);
+		pack_ieee754_double(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+		*pOutputERange = 0;
 		return 1;
 	}
 	else {
@@ -2309,7 +2305,7 @@ int FASTCALL dconvstr_scan(const char * input, const char**  input_end, double *
 			S7  // S7: _+#.#e+#   #S7
 		};
 		enum parser_state state = S0;
-		const char * s = input;
+		const char * s = pInput;
 		while(!flag_syntax_error && *s) {
 			char ch = *s;
 			switch(state) {
@@ -2435,13 +2431,13 @@ int FASTCALL dconvstr_scan(const char * input, const char**  input_end, double *
 		}
 		if(!flag_syntax_error && oneof5(state, S0, S1, S3, S5, S6))
 			flag_syntax_error = 1;
-		if(input_end)
-			*input_end = flag_syntax_error ? input : s;
+		if(ppInputEnd)
+			*ppInputEnd = flag_syntax_error ? pInput : s;
 		// 3. Zero out the tail of mantissa.
 		//    Move decimal point to the right side of mantissa (adjust exponent offset).
 		//    Get rid of last mantissa digit, set first one to zero, and compress BCD representation of mantissa.
 		if(n_parsed_digits < (int)sizeof(parsed_digits)) {
-			int delta = sizeof(parsed_digits) - n_parsed_digits;
+			const int delta = sizeof(parsed_digits) - n_parsed_digits;
 			memzero(parsed_digits + n_parsed_digits, delta);
 			n_parsed_digits += delta;
 			exponent_offset -= delta;
@@ -2457,13 +2453,13 @@ int FASTCALL dconvstr_scan(const char * input, const char**  input_end, double *
 			exponent = ((exponent < 350) ? exponent_offset : 0) + (flag_negative_exponent ? -exponent : exponent);
 		// 5. Check exponent for overflow and underflow
 		if(exponent <= -350) {
-			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, output);
-			*output_erange = 1; // strtod(3) would set errno = ERANGE
+			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
+			*pOutputERange = 1; // strtod(3) would set errno = ERANGE
 			return 1;
 		}
 		else if(exponent >= 350) {
-			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, output);
-			*output_erange = 1; // strtod(3) would set errno = ERANGE
+			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
+			*pOutputERange = 1; // strtod(3) would set errno = ERANGE
 			return 1;
 		}
 		else {
@@ -2472,8 +2468,8 @@ int FASTCALL dconvstr_scan(const char * input, const char**  input_end, double *
 				if(!convert_extended_decimal_to_binary_and_round(mantissa, exponent, &mantissa, &exponent) )
 					return 0; // internal error
 			}
-			*output_erange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
-				exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, output));
+			*pOutputERange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
+				exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput));
 			return 1;
 		}
 	}

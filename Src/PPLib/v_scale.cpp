@@ -51,30 +51,26 @@ int SLAPI PPViewScale::CheckForFilt(const PPScalePacket * pPack) const
 	return 1;
 }
 
-int SLAPI PPViewScale::MakeTempEntry(const PPScalePacket * pPack, TempScaleTbl::Rec * pTempRec)
+TempScaleTbl::Rec & SLAPI PPViewScale::MakeTempEntry(const PPScalePacket & rPack, TempScaleTbl::Rec & rTempRec)
 {
-	int    ok = -1;
-	if(pPack && pTempRec) {
-		SString temp_buf;
-		pTempRec->ID = pPack->Rec.ID;
-		STRNSCPY(pTempRec->Name, pPack->Rec.Name);
-		pTempRec->QuotKindID = pPack->Rec.QuotKindID;
-		pTempRec->ScaleTypeID = pPack->Rec.ScaleTypeID;
-		pTempRec->ProtocolVer = pPack->Rec.ProtocolVer;
-		pTempRec->LogNum = pPack->Rec.LogNum;
-		pTempRec->LocID = pPack->Rec.Location;
-		pTempRec->AltGoodsGrp = pPack->Rec.AltGoodsGrp;
-		pPack->GetExtStrData(pPack->extssPort, temp_buf);
-		STRNSCPY(pTempRec->Port, temp_buf);
-		{
-			SString buf1, buf2;
-			PPGetSubStr(ScaleTypeNames, pTempRec->ScaleTypeID - 1, temp_buf);
-			temp_buf.Divide(',', buf1, buf2);
-			buf2.CopyTo(pTempRec->ScaleTypeName, sizeof(pTempRec->ScaleTypeName));
-		}
-		ok = 1;
+	SString temp_buf;
+	rTempRec.ID = rPack.Rec.ID;
+	STRNSCPY(rTempRec.Name, rPack.Rec.Name);
+	rTempRec.QuotKindID = rPack.Rec.QuotKindID;
+	rTempRec.ScaleTypeID = rPack.Rec.ScaleTypeID;
+	rTempRec.ProtocolVer = rPack.Rec.ProtocolVer;
+	rTempRec.LogNum = rPack.Rec.LogNum;
+	rTempRec.LocID = rPack.Rec.Location;
+	rTempRec.AltGoodsGrp = rPack.Rec.AltGoodsGrp;
+	rPack.GetExtStrData(rPack.extssPort, temp_buf);
+	STRNSCPY(rTempRec.Port, temp_buf);
+	{
+		SString buf1, buf2;
+		PPGetSubStr(ScaleTypeNames, rTempRec.ScaleTypeID - 1, temp_buf);
+		temp_buf.Divide(',', buf1, buf2);
+		buf2.CopyTo(rTempRec.ScaleTypeName, sizeof(rTempRec.ScaleTypeName));
 	}
-	return ok;
+	return rTempRec;
 }
 
 int SLAPI PPViewScale::EditBaseFilt(PPBaseFilt * pFilt)
@@ -129,8 +125,7 @@ int SLAPI PPViewScale::Init_(const PPBaseFilt * pFilt)
 			if(ObjScale.GetPacket(rec.ID, &pack) > 0) {
 				if(CheckForFilt(&pack) > 0) {
 					TempScaleTbl::Rec temp_rec;
-					MakeTempEntry(&pack, &temp_rec);
-					THROW_DB(bei.insert(&temp_rec));
+					THROW_DB(bei.insert(&MakeTempEntry(pack, temp_rec)));
 				}
 			}
 		}
@@ -155,7 +150,7 @@ int SLAPI PPViewScale::UpdateTempTable(const PPIDArray * pIdList)
 			PPScalePacket pack;
 			TempScaleTbl::Rec temp_rec;
 			if(ObjScale.GetPacket(id, &pack) > 0 && CheckForFilt(&pack)) {
-				MakeTempEntry(&pack, &temp_rec);
+				MakeTempEntry(pack, temp_rec);
 				if(SearchByID_ForUpdate(P_TempTbl, 0,  id, 0) > 0) {
 					THROW_DB(P_TempTbl->updateRecBuf(&temp_rec));
 				}

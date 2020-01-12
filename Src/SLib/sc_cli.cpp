@@ -1,5 +1,5 @@
 // SC_CLI.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2017, 2019, 2020
 // Part of StyloConduit project
 // Ёкспорт/»мпорт клиентов
 //
@@ -29,10 +29,8 @@ IMPL_CMPFUNC(CLIENTNAM, i1, i2)
 		return 0;
 }
 
-SCDBObjClient::SCDBObjClient(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjClient::SCDBObjClient(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_CliTbl(0), P_AdrTbl(0)
 {
-	P_CliTbl = 0;
-	P_AdrTbl = 0;
 }
 
 SCDBObjClient::~SCDBObjClient()
@@ -84,7 +82,7 @@ int SCDBObjClient::LoadAddrList()
 SCDBObjClient::PalmRec * SCDBObjClient::AllocPalmRec(uint addrCount, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec) + addrCount * sizeof(ClientAddr);
-	PalmRec * p_buf = (PalmRec *)SAlloc::C(1, buf_len);
+	PalmRec * p_buf = static_cast<PalmRec *>(SAlloc::C(1, buf_len));
 	if(p_buf)
 		p_buf->AddrCount = addrCount;
 	ASSIGN_PTR(pBufLen, buf_len);
@@ -94,7 +92,7 @@ SCDBObjClient::PalmRec * SCDBObjClient::AllocPalmRec(uint addrCount, size_t * pB
 SCDBObjClient::PalmRec700 * SCDBObjClient::AllocPalmRec700(uint addrCount, size_t * pBufLen)
 {
 	const size_t buf_len = sizeof(PalmRec700) + addrCount * sizeof(ClientAddr);
-	PalmRec700 * p_buf = (PalmRec700 *)SAlloc::C(1, buf_len);
+	PalmRec700 * p_buf = static_cast<PalmRec700 *>(SAlloc::C(1, buf_len));
 	if(p_buf)
 		p_buf->AddrCount = addrCount;
 	ASSIGN_PTR(pBufLen, buf_len);
@@ -184,7 +182,7 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				{
 					b.p_out_buf700->AddrCount = SyncHostToHHWord(addr_list.getCount());
 					for(i = 0; i < addr_list.getCount(); i++)
-						((ClientAddr *)(b.p_out_buf700+1))[i] = addr_list.at(i);
+						reinterpret_cast<ClientAddr *>(b.p_out_buf700+1)[i] = addr_list.at(i);
 				}
 				//
 				// «аносим запись клиента в базу на Palm'е
@@ -205,7 +203,7 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				{
 					b.p_out_buf->AddrCount = SyncHostToHHWord(addr_list.getCount());
 					for(i = 0; i < addr_list.getCount(); i++)
-						((ClientAddr *)(b.p_out_buf+1))[i] = addr_list.at(i);
+						reinterpret_cast<ClientAddr *>(b.p_out_buf+1)[i] = addr_list.at(i);
 				}
 				//
 				// «аносим запись клиента в базу на Palm'е
@@ -215,7 +213,7 @@ int SCDBObjClient::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			recno++;
 			THROW(stbl.Reopen(-1, recno));
 			IdxList.insert(&idx_rec); // @checkerr
-			WaitPercent(pFn, recno, numrecs, "Ёкспорт справочника клиентов");
+			WaitPercent(pFn, recno, numrecs, "Client reference exporting");
 			if(ver >= 700) {
 				ZDELETE(b.p_out_buf700);
 			}
@@ -380,9 +378,8 @@ int SCDBObjClientDebt::ReadData()
 
 SCDBObjClientDebt::PalmRec * SCDBObjClientDebt::AllocPalmRec(size_t * pBufLen)
 {
-	PalmRec * p_buf = 0;
 	size_t  buf_len = sizeof(PalmRec);
-	p_buf = (PalmRec *)SAlloc::C(1, buf_len);
+	PalmRec * p_buf = static_cast<PalmRec *>(SAlloc::C(1, buf_len));
 	ASSIGN_PTR(pBufLen, buf_len);
 	return p_buf;
 }
@@ -409,9 +406,7 @@ int SCDBObjClientDebt::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			size_t buf_len = 0;
 			IdxRec idx_rec;
 			MEMSZERO(idx_rec);
-
 			TempRec & r_rec = TempList.at(i);
-
 			p_out_buf = AllocPalmRec(&buf_len); // @checkerr
 			p_out_buf->ClientID = SyncHostToHHDWord(r_rec.ClientID);
 			idx_rec.CliID = r_rec.ClientID;
@@ -423,7 +418,7 @@ int SCDBObjClientDebt::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 			p_out_buf->Debt   = r_rec.Debt;
 			THROW(stbl.AddRec(&idx_rec.RecID, p_out_buf, buf_len));
 			THROW(stbl.Reopen(-1, i+1));
-			WaitPercent(pFn, i+1, TempList.getCount(), "Ёкспорт долговых документов");
+			WaitPercent(pFn, i+1, TempList.getCount(), "Debt documents exporting");
 			ZDELETE(p_out_buf);
 		}
 		if(P_Ctx->PalmCfg.CompressData())
@@ -651,7 +646,7 @@ int SCDBObjSell::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				THROW(stbl.Reopen(-1, num_out_recs));
 			}
 			recno += pool.getCount();
-			WaitPercent(pFn, recno, numrecs, "Ёкспорт статистики продаж");
+			WaitPercent(pFn, recno, numrecs, "Sales statistics exporing");
 			ZDELETE(p_out_buf);
 		}
 		if(P_Ctx->PalmCfg.CompressData())

@@ -438,7 +438,7 @@ void CCheckFiltDialog::SetupCtrls()
 	enableCommand(cmCrosstab, BIN(oneof2(grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)));
 	if(!oneof2(grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
 		Data.CtKind = CCheckFilt::ctNone;
-		Data.CtValList.FreeAll();
+		Data.CtValList.Z();
 	}
 }
 

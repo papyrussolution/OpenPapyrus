@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -411,15 +411,12 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	// Загрузка дополнительных цен/котировок
 	//
 	if(goods_list.getCount() > 0 && quot_list.getCount() > 0) {
-		LDATE cur_dt;
+		const LDATE cur_dt = getcurdate_();
 		uint quot_count = quot_list.getCount();
 		uint goods_count = goods_list.getCount();
-
-		getcurdate(&cur_dt);
 		for(uint i = 0; i < quot_count; i++) {
 			PPID quot_kind_id = quot_list.at(i);
 			SString quot_name;
-
 			GetObjectName(PPOBJ_QUOTKIND, quot_kind_id, quot_name);
 			quot_name.Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4);
 			for(uint j = 0; j < goods_count; j++) {
@@ -427,7 +424,6 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 				RetailPriceExtractor::ExtQuotBlock ext_block(quot_kind_id);
 				RetailPriceExtractor rtl_extr(0, &ext_block, 0, ZERODATETIME, 0);
 				RetailExtrItem price_item;
-
 				if(rtl_extr.GetPrice(goods_id, 0, 1, &price_item) > 0 && price_item.Price > 0.0) {
 					SString temp_buf;
 					temp_buf.Z().CatChar('?');

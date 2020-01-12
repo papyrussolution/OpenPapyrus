@@ -1,7 +1,7 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-//
-// Виды персональных операций
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
+// Р’РёРґС‹ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№
 //
 #include <pp.h>
 #pragma hdrstop
@@ -15,7 +15,7 @@ struct PoClause_Pre780 { // @persistent
 	long   Num;     // Counter
 	PPID   VerbID;  // POVERB_XXX
 	PPID   Subj;    // POCOBJ_PRIMARY | POCOBJ_SECONDARY
-	PPID   DirObj;  // Объект, связанный с действием. Тип объекта может быть определен с помощью функции PoClause::GetDirObjType()
+	PPID   DirObj;  // РћР±СЉРµРєС‚, СЃРІСЏР·Р°РЅРЅС‹Р№ СЃ РґРµР№СЃС‚РІРёРµРј. РўРёРї РѕР±СЉРµРєС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРїСЂРµРґРµР»РµРЅ СЃ РїРѕРјРѕС‰СЊСЋ С„СѓРЅРєС†РёРё PoClause::GetDirObjType()
 	long   Flags;
 };
 
@@ -249,7 +249,7 @@ long SLAPI PoClause_::GetDirFlags() const
 	if(VerbID)
 		for(uint i = 0; i < SIZEOFARRAY(__VerbObjAssocList); i++) {
 			if(__VerbObjAssocList[i].Verb == (int16)VerbID) {
-				flags = (long)__VerbObjAssocList[i].Flags;
+				flags = static_cast<long>(__VerbObjAssocList[i].Flags);
 				break;
 			}
 		}
@@ -275,8 +275,8 @@ int FASTCALL PPPsnOpKind2::IsEqual(const PPPsnOpKind2 & rS) const
 	if(stricmp(Symb, rS.Symb) != 0)
 		return 0;
 	TEST_FLD(ParentID);
-	TEST_FLD(RestrStaffCalID); // @v8.0.10
-	TEST_FLD(RscMaxTimes);     // @v8.0.10 Максимальное количество событий, которое может произойти в течении одного периода календаря RestrStaffCalID.
+	TEST_FLD(RestrStaffCalID); // 
+	TEST_FLD(RscMaxTimes);     // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕР±С‹С‚РёР№, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚ РїСЂРѕРёР·РѕР№С‚Рё РІ С‚РµС‡РµРЅРёРё РѕРґРЅРѕРіРѕ РїРµСЂРёРѕРґР° РєР°Р»РµРЅРґР°СЂСЏ RestrStaffCalID.
 	TEST_FLD(RegTypeID);
 	TEST_FLD(ExValGrp);
 	TEST_FLD(PairType);
@@ -297,12 +297,12 @@ int FASTCALL PPPsnOpKindPacket::IsEqual(const PPPsnOpKindPacket & rS) const
 	TEST_FLD(PCPrmr.StatusType);
 	TEST_FLD(PCPrmr.DefaultID);
 	TEST_FLD(PCPrmr.RestrictTagID);
-	TEST_FLD(PCPrmr.RestrictScSerList); // @v7.8.9
+	TEST_FLD(PCPrmr.RestrictScSerList);
 	TEST_FLD(PCScnd.PersonKindID);
 	TEST_FLD(PCScnd.StatusType);
 	TEST_FLD(PCScnd.DefaultID);
 	TEST_FLD(PCScnd.RestrictTagID);
-	TEST_FLD(PCScnd.RestrictScSerList); // @v7.8.9
+	TEST_FLD(PCScnd.RestrictScSerList);
 	if(!ClauseList.IsEqual(rS.ClauseList))
 		return 0;
 	if(!AllowedTags.IsEqual(rS.AllowedTags))
@@ -337,7 +337,7 @@ void SLAPI PPPsnOpKindPacket::destroy()
 	PCPrmr.Z();
 	PCScnd.Z();
 	ClauseList.Z();
-	AllowedTags.FreeAll();
+	AllowedTags.Z();
 }
 
 PPPsnOpKindPacket & FASTCALL PPPsnOpKindPacket::operator = (const PPPsnOpKindPacket & src)
@@ -369,7 +369,7 @@ int SLAPI PPPsnOpKindPacket::CheckExVal()
 	}
 	else {
 		Rec.ExValSrc = 0;
-		AllowedTags.FreeAll();
+		AllowedTags.Z();
 		THROW_PP(oneof2(Rec.ExValGrp, POKEVG_POST, POKEVG_NONE), PPERR_INVPOKEVG);
 	}
 	CATCHZOK
@@ -682,8 +682,8 @@ struct _POKExtra {         // @persistent @store(PropertyTbl)
 	PPID   ScndDefaultID;
 	PPID   PrmrRestrictTagID;  // @v6.2.0
 	PPID   ScndRestrictTagID;  // @v6.2.0
-	SVerT Ver;                // @v7.8.9 Версия системы, создавшей запись
-	uint32 Size;               // @v7.8.9 Полный размер структуры включая хвостовые компоненты
+	SVerT Ver;                // @v7.8.9 Р’РµСЂСЃРёСЏ СЃРёСЃС‚РµРјС‹, СЃРѕР·РґР°РІС€РµР№ Р·Р°РїРёСЃСЊ
+	uint32 Size;               // @v7.8.9 РџРѕР»РЅС‹Р№ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ РІРєР»СЋС‡Р°СЏ С…РІРѕСЃС‚РѕРІС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹
 	long   Reserve[10];
 	// AllowedTags[]
 	// PrmrRestrictScSerList[]
@@ -702,8 +702,8 @@ struct _POKClause {        // @persistent @store(PropertyTbl)
 	PPID   Subj;           //
 	PPID   DirObj;         //
 	long   Flags;          //
-	SVerT Ver;            // Версия системы, создавшей запись
-	uint32 Size;           // Полный размер структуры включая хвостовую строку
+	SVerT Ver;            // Р’РµСЂСЃРёСЏ СЃРёСЃС‚РµРјС‹, СЃРѕР·РґР°РІС€РµР№ Р·Р°РїРёСЃСЊ
+	uint32 Size;           // РџРѕР»РЅС‹Р№ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ РІРєР»СЋС‡Р°СЏ С…РІРѕСЃС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ
 	long   Reserve[11];    // @reserve
 	// .. ExtString
 };
@@ -1001,7 +1001,7 @@ int SLAPI PPObjPsnOpKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTra
 			}
 			if(*pID) {
 				if(GetPacket(*pID, &same_pack) > 0 && p_pack->IsEqual(same_pack)) {
-					ok = 1; // Пакет в БД не отличается от принятого пакета
+					ok = 1; // РџР°РєРµС‚ РІ Р‘Р” РЅРµ РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ РїСЂРёРЅСЏС‚РѕРіРѕ РїР°РєРµС‚Р°
 				}
 				else {
 					if(!PutPacket(pID, p_pack, 1)) {
@@ -1124,7 +1124,7 @@ public:
 		int    ok = 1;
 		Data.Rec.ExValGrp = getCtrlUInt16(CTL_POKEXV_GRP);
 		if(Data.Rec.ExValGrp != POKEVG_TAG)
-			Data.AllowedTags.FreeAll();
+			Data.AllowedTags.Z();
 		if(!Data.CheckExVal())
 			ok = 0;
 		else

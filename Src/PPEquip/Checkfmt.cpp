@@ -1,15 +1,15 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
 
 SLAPI SlipLineParam::SlipLineParam()
 {
-	Init();
+	Z();
 }
 
-void SLAPI SlipLineParam::Init()
+SlipLineParam & SLAPI SlipLineParam::Z()
 {
 	Font = 0;
 	Kind = 0;
@@ -29,6 +29,8 @@ void SLAPI SlipLineParam::Init()
 	BarcodeHt = 0;
 	Text.Z(); // @v9.5.7
 	Code.Z(); // @v9.5.7
+	ChZnCode.Z(); // @v10.6.8
+	return *this;
 }
 //
 //
@@ -144,6 +146,7 @@ public:
 		// @v9.5.7 char   PictPath[256];
 		char   Text[256];     // @v9.5.7
 		char   Code[32];      // @v9.5.7
+		char   ChZnCode[64];  // @v10.6.8
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;

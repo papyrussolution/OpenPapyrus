@@ -646,10 +646,8 @@ int SLAPI PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				StaffCalFilt filt;
 				filt = Filt;
 				filt.Sgd = sgdNone;
-				filt.CalList.FreeAll();
-				filt.CalList.Add(rec.CalID);
-				filt.LinkObjList.FreeAll();
-				filt.LinkObjList.Add(rec.LinkObjID);
+				filt.CalList.Z().Add(rec.CalID);
+				filt.LinkObjList.Z().Add(rec.LinkObjID);
 				ExpandSubstDate(Filt.Sgd, rec.Dt, &filt.Period);
 				ok = PPView::Execute(PPVIEW_STAFFCAL, &filt, 0, 0);
 			}

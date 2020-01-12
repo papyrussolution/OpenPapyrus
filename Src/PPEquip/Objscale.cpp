@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1958,12 +1958,10 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		long   wght_prefix = WghtPrefix;
 		long   expiry_minutes = 0;
 		LDATE  expiry = pScalePLU->Expiry;
-		LDATE  cur_dt;
+		const  LDATE  cur_dt = getcurdate_();
 		StringSet ss(SLBColumnDelim);
-
 		(goods_name = pScalePLU->GoodsName);
 		SETIFZ(wght_prefix, 20 + pScalePLU->Barcode / 100000);
-		getcurdate(&cur_dt);
 		expiry_minutes = (expiry > cur_dt) ? diffdate(expiry, cur_dt) : 0; // * 24 * 60;
 		ss.setBuf(pScalePLU->AddMsgBuf, sstrlen(pScalePLU->AddMsgBuf)+1); // @v9.6.0 @fix (+1)
 
@@ -4200,10 +4198,7 @@ SLAPI PPObjScale::PPObjScale(void * extraPtr) : PPObjReference(PPOBJ_SCALE, extr
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
-int SLAPI PPObjScale::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRSCALE, 0);
-}
+int SLAPI PPObjScale::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRSCALE, 0); }
 
 class ScaleDialog : public TDialog {
 public:
@@ -4222,7 +4217,6 @@ private:
 	void   ReplyScaleTypeSelection(PPID scaleTypeID);
 
 	PPScalePacket Data;
-	//SString ExpPaths;
 	SString DefSysBtnText;
 };
 
@@ -4736,8 +4730,8 @@ int SLAPI PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && oneof3(_obj, PPOBJ_GOODSGROUP, PPOBJ_QUOTKIND, PPOBJ_LOCATION)) {
-		SArray list(sizeof(PPScale));
-		int  r = ref->LoadItems(Obj, &list);
+		SVector list(sizeof(PPScale)); // @v10.6.8 SArray-->SVector
+		int  r = ref->LoadItems(Obj, list);
 		if(r > 0) {
 			PPScale * p_scale;
 			for(uint i = 0; ok && list.enumItems(&i, (void **)&p_scale);) {

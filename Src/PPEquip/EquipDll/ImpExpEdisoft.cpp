@@ -366,32 +366,24 @@ WebServcErrMessage WebServcErrMsg[] = {
 void LogMessage(const char * pMsg)
 {
 	SFile file(LogName, SFile::mAppend);
-	SString str;
-	int dd = 0, mm = 0, yy = 0, hh = 0, min = 0, ss = 0;
-	LDATE date;
-	LTIME time;
 	if(file.IsValid()) {
-		 getcurdate(&date);
-		 getcurtime(&time);
-		str.Z().Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
-			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
-        file.WriteLine(str);
+		SString str;
+		const LDATETIME curdtm = getcurdatetime_();
+		str.Z().Cat(curdtm.d.day()).Dot().Cat(curdtm.d.month()).Dot().Cat(curdtm.d.year()).Space().Cat(curdtm.t.hour()).
+			CatChar(':').Cat(curdtm.t.minut()).CatChar(':').Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
+		file.WriteLine(str);
 	}
 }
 
 void SysLogMessage(const char * pMsg)
 {
 	SFile file(SysLogName, SFile::mAppend);
-	SString str;
-	int dd = 0, mm = 0, yy = 0, hh = 0, min = 0, ss = 0;
-	LDATE date;
-	LTIME time;
 	if(file.IsValid()) {
-		 getcurdate(&date);
-		 getcurtime(&time);
-		str.Z().Cat(date.day()).Dot().Cat(date.month()).Dot().Cat(date.year()).Space().Cat(time.hour()).
-			CatChar(':').Cat(time.minut()).CatChar(':').Cat(time.sec()).Tab().Cat(pMsg).CR();
-        file.WriteLine(str);
+		SString str;
+		const LDATETIME curdtm = getcurdatetime_();
+		str.Z().Cat(curdtm.d.day()).Dot().Cat(curdtm.d.month()).Dot().Cat(curdtm.d.year()).Space().Cat(curdtm.t.hour()).
+			CatChar(':').Cat(curdtm.t.minut()).CatChar(':').Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
+		file.WriteLine(str);
 	}
 }
 

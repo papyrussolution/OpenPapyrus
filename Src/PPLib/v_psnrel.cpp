@@ -171,8 +171,7 @@ int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 				}
 				if(CheckForFilt(p_rec)) {
 					TempPersonRelTbl::Rec temp_rec;
-					MakeTempEntry(p_rec, &temp_rec);
-					THROW_DB(bei.insert(&temp_rec));
+					THROW_DB(bei.insert(&MakeTempEntry(*p_rec, temp_rec)));
 				}
 			}
 			THROW_DB(bei.flash());
@@ -191,22 +190,19 @@ int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord * pRec, TempPersonRelTbl::Rec * pTempRec)
+TempPersonRelTbl::Rec & SLAPI PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord & rRec, TempPersonRelTbl::Rec & rTempRec)
 {
-	int    ok = -1;
-	if(pRec && pTempRec) {
-		PPPersonRelType reltyp_rec;
-		MEMSZERO(reltyp_rec);
-		memzero(pTempRec, sizeof(TempPersonRelTbl::Rec));
-		pTempRec->PrmrPersonID   = pRec->PrmrObjID;
-		pTempRec->ScndPersonID   = pRec->ScndObjID & ~0xff000000;
-		pTempRec->RelTypeID = pRec->RelTypeID;
-		if(SearchObject(PPOBJ_PERSONRELTYPE, pTempRec->RelTypeID, &reltyp_rec) > 0)
-			STRNSCPY(pTempRec->RelName, reltyp_rec.Name);
-		else
-			ltoa(pTempRec->RelTypeID, pTempRec->RelName, 10);
-	}
-	return ok;
+	PPPersonRelType2 reltyp_rec;
+	MEMSZERO(reltyp_rec);
+	memzero(&rTempRec, sizeof(TempPersonRelTbl::Rec));
+	rTempRec.PrmrPersonID   = rRec.PrmrObjID;
+	rTempRec.ScndPersonID   = rRec.ScndObjID & ~0xff000000;
+	rTempRec.RelTypeID = rRec.RelTypeID;
+	if(SearchObject(PPOBJ_PERSONRELTYPE, rTempRec.RelTypeID, &reltyp_rec) > 0)
+		STRNSCPY(rTempRec.RelName, reltyp_rec.Name);
+	else
+		ltoa(rTempRec.RelTypeID, rTempRec.RelName, 10);
+	return rTempRec;
 }
 
 int SLAPI PPViewPersonRel::MakeTempOrdEntry(long ord, const TempPersonRelTbl::Rec * pTempRec, TempOrderTbl::Rec * pOrdRec)
@@ -259,9 +255,9 @@ int SLAPI PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndL
 			if(found && CheckForFilt(&rel_rec)) {
 				TempOrderTbl::Rec ord_rec;
 				TempPersonRelTbl::Rec temp_rec;
-				MEMSZERO(ord_rec);
-				MEMSZERO(temp_rec);
-				MakeTempEntry(&rel_rec, &temp_rec);
+				// @v10.6.8 @ctr MEMSZERO(ord_rec);
+				// @v10.6.8 @ctr MEMSZERO(temp_rec);
+				MakeTempEntry(rel_rec, temp_rec);
 				if(id && SearchByID(P_TempTbl, 0, id, 0) > 0) {
 					temp_rec.ID = id;
 					UpdateByID(P_TempTbl, 0, id, &temp_rec, 0);

@@ -75,38 +75,34 @@ int SLAPI PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 	return 1;
 }
 
-int SLAPI PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, TempPalmTbl::Rec * pTempRec)
+TempPalmTbl::Rec & SLAPI PPViewPalm::MakeTempEntry(const PPStyloPalmPacket & rPack, TempPalmTbl::Rec & rTempRec)
 {
 	int    ok = -1;
-	if(pTempRec) {
-		memzero(pTempRec, sizeof(TempPalmTbl::Rec));
-		pTempRec->ID = rPack.Rec.ID;
-		STRNSCPY(pTempRec->Name, rPack.Rec.Name);
-		STRNSCPY(pTempRec->Symb, rPack.Rec.Symb);
-		// @v8.6.8 pTempRec->LocID      = rPack.Rec.LocID;
-		pTempRec->GoodsGrpID = rPack.Rec.GoodsGrpID;
-		pTempRec->OrderOpID  = rPack.Rec.OrderOpID;
-		pTempRec->FTPAcctID  = rPack.Rec.FTPAcctID;
-		pTempRec->Flags      = rPack.Rec.Flags;
-		pTempRec->GroupID    = rPack.Rec.GroupID;
-		pTempRec->AgentID    = rPack.Rec.AgentID;
-		if(rPack.P_Path)
-			STRNSCPY(pTempRec->Path, rPack.P_Path);
-		if(rPack.P_FTPPath)
-			STRNSCPY(pTempRec->FtpPath, rPack.P_FTPPath);
-		if(rPack.LocList.GetCount() == 1) {
-			pTempRec->LocID = rPack.LocList.Get(0);
-		}
-		else if(rPack.LocList.GetCount() > 1)
-			pTempRec->LocID = -1;
-		{
-			PPStyloPalm parent_rec;
-			if(pTempRec->GroupID && ObjPalm.Search(pTempRec->GroupID, &parent_rec) > 0)
-				STRNSCPY(pTempRec->GroupName, parent_rec.Name);
-		}
-		ok = 1;
+	memzero(&rTempRec, sizeof(TempPalmTbl::Rec));
+	rTempRec.ID = rPack.Rec.ID;
+	STRNSCPY(rTempRec.Name, rPack.Rec.Name);
+	STRNSCPY(rTempRec.Symb, rPack.Rec.Symb);
+	rTempRec.GoodsGrpID = rPack.Rec.GoodsGrpID;
+	rTempRec.OrderOpID  = rPack.Rec.OrderOpID;
+	rTempRec.FTPAcctID  = rPack.Rec.FTPAcctID;
+	rTempRec.Flags      = rPack.Rec.Flags;
+	rTempRec.GroupID    = rPack.Rec.GroupID;
+	rTempRec.AgentID    = rPack.Rec.AgentID;
+	if(rPack.P_Path)
+		STRNSCPY(rTempRec.Path, rPack.P_Path);
+	if(rPack.P_FTPPath)
+		STRNSCPY(rTempRec.FtpPath, rPack.P_FTPPath);
+	if(rPack.LocList.GetCount() == 1) {
+		rTempRec.LocID = rPack.LocList.Get(0);
 	}
-	return ok;
+	else if(rPack.LocList.GetCount() > 1)
+		rTempRec.LocID = -1;
+	{
+		PPStyloPalm parent_rec;
+		if(rTempRec.GroupID && ObjPalm.Search(rTempRec.GroupID, &parent_rec) > 0)
+			STRNSCPY(rTempRec.GroupName, parent_rec.Name);
+	}
+	return rTempRec;
 }
 
 #define GRP_LOC 1
@@ -174,8 +170,7 @@ int SLAPI PPViewPalm::Init_(const PPBaseFilt * pFilt)
 		for(PPID id = 0; ObjPalm.EnumItems(&id, &rec) > 0;) {
 			if(CheckForFilt(&rec) > 0 && ObjPalm.GetPacket(rec.ID, &palm_pack) > 0) {
 				TempPalmTbl::Rec temp_rec;
-				MakeTempEntry(palm_pack, &temp_rec);
-				THROW_DB(bei.insert(&temp_rec));
+				THROW_DB(bei.insert(&MakeTempEntry(palm_pack, temp_rec)));
 			}
 		}
 		THROW_DB(bei.flash());
@@ -200,7 +195,7 @@ int SLAPI PPViewPalm::UpdateTempTable(const PPIDArray * pIdList)
 			PPStyloPalm rec;
 			TempPalmTbl::Rec temp_rec;
 			if(ObjPalm.Search(id, &rec) > 0 && CheckForFilt(&rec) > 0 && ObjPalm.GetPacket(rec.ID, &palm_pack) > 0) {
-				MakeTempEntry(palm_pack, &temp_rec);
+				MakeTempEntry(palm_pack, temp_rec);
 				if(SearchByID_ForUpdate(P_TempTbl, 0, id, 0) > 0) {
 					THROW(P_TempTbl->updateRecBuf(&temp_rec));
 				}

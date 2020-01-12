@@ -1,5 +1,5 @@
 // PPCONVRT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Конвертация файлов данных при изменениях версий
 //
@@ -5543,7 +5543,8 @@ private:
 
 			p_data->AddrID = p_old_rec_7601->AddrID;
 			p_data->AddCrdCardID_unused = p_old_rec_7601->AddCrdCardID; // @v9.0.4 _unused
-			p_data->AddCrdCardPaym_unused = p_old_rec_7601->AddCrdCardPaym; // @v9.0.4 _unused
+			// @v10.6.8 p_data->AddCrdCardPaym_unused = p_old_rec_7601->AddCrdCardPaym; // @v9.0.4 _unused
+			p_data->CreationUserID = 0; // @v10.6.8
 			p_data->LinkCheckID = p_old_rec_7601->LinkCheckID;
 			p_data->EndOrdDtm = p_old_rec_7601->EndOrdDtm;
 			if(!p_old_rec_7601->StartOrdDtm) {

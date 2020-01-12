@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -402,7 +402,7 @@ static int SLAPI _Lock(PPID id)
 	if(id) {
 		PPID   mutex_id = 0;
 		PPSyncItem sync_item;
-		if((r = DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_GOODS, id, &mutex_id, &sync_item)) < 0)
+		if((r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_GOODS, id, &mutex_id, &sync_item)) < 0)
 			return PPSetError(PPERR_GOODSISLOCKED, sync_item.Name);
 		else if(r == 0)
 			return PPSetError(PPERR_LOGICLOCKFAULT);
@@ -2612,7 +2612,11 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		CFF_RET;
 	if(pFilt->ManufID && pFilt->ManufID != rec.ManufID)
 		CFF_RET;
-	{
+	if(pFilt->Flags & GoodsFilt::fWoBrand) { // @v10.6.8
+		if(rec.BrandID)
+			CFF_RET;
+	}
+	else {
 		const ObjIdListFilt & result_brand_list = pFilt->GetResultBrandList();
 		if(result_brand_list.GetCount() && !result_brand_list.CheckID(rec.BrandID))
 			CFF_RET;
@@ -4793,7 +4797,7 @@ int SLAPI PPObjGoods::SetupAttrByTextDescr(PPID id, const char * pLine, int use_
 				}
 				else if(attr == "phunit") {
 					PPID   unit_id = 0;
-					PPUnit2 unit_rec;
+					PPUnit unit_rec;
 					THROW(u_obj.SearchBySymb(temp_buf.Strip(), &unit_id, 0) > 0);
 					THROW(u_obj.Fetch(unit_id, &unit_rec) > 0);
 					THROW_PP(unit_rec.Flags & PPUnit::Physical, PPERR_PHISICALUNITNEEDED);

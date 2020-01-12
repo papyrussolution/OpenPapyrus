@@ -285,14 +285,15 @@ int SLAPI PPViewPrcBusy::Init_(const PPBaseFilt * pFilt)
 int SLAPI PPViewPrcBusy::InitIteration()
 {
 	int    ok = 1;
-	char   k[MAXKEYLEN];
+	// @v10.6.8 char   k[MAXKEYLEN];
+	BtrDbKey k_; // @v10.6.8 
 	BExtQuery::ZDelete(&P_IterQuery);
 	if(P_TempTbl) {
 		PPInitIterCounter(Counter, P_TempTbl);
 		P_IterQuery = new BExtQuery(P_TempTbl, 1);
-		memzero(k, sizeof(k));
+		// @v10.6.8 @ctr memzero(k, sizeof(k));
 		P_IterQuery->selectAll();
-		P_IterQuery->initIteration(0, k, spFirst);
+		P_IterQuery->initIteration(0, k_, spFirst);
 	}
 	else
 		ok = PPSetError(PPERR_PPVIEWNOTINITED);

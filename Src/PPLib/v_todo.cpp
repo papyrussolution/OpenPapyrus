@@ -125,10 +125,10 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 			case prpEndDtm:
 			case prpDueDtm:
 				{
-					LDATETIME dtm = *(LDATETIME*)pVal;
+					LDATETIME dtm = *static_cast<const LDATETIME *>(pVal);
 					if(checkdate(dtm.d)) {
 						if(dtm.t == ZEROTIME)
-							dtm.t = encodetime(23, 59, 59, 0);
+							dtm.t = MAXDAYTIMESEC;
 						temp_buf.Cat(dtm.d, DATF_ISO8601|DATF_NODIV|DATF_CENTURY);
 						temp_buf.CatChar('T').Cat(dtm.t, TIMF_HMS|TIMF_NODIV);
 						//temp_buf.Cat(dtm.d, DATF_CENTURY|DATF_YMD).ReplaceStr(".", "", 0);
@@ -139,16 +139,16 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 				}
 				break;
 			case prpSequence:
-				temp_buf.Cat(*(int16 *)pVal);
+				temp_buf.Cat(*static_cast<const int16 *>(pVal));
 				break;
 			case prpStatus:
-				temp_buf.GetSubFrom(Status, ';', *(int16 *)pVal);
+				temp_buf.GetSubFrom(Status, ';', *static_cast<const int16 *>(pVal));
 				break;
 			case prpClassification:
-				temp_buf.GetSubFrom(Classification, ';', *(int16 *)pVal);
+				temp_buf.GetSubFrom(Classification, ';', *static_cast<const int16 *>(pVal));
 				break;
 			case prpPriority:
-				temp_buf.Cat(*(int16 *)pVal);
+				temp_buf.Cat(*static_cast<const int16 *>(pVal));
 				break;
 			case prpCategory:
 			case prpOwner:
@@ -157,7 +157,7 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 			case prpDescr:
 			case prpContact:
 			case prpAttendee:
-				temp_buf = *(const SString *)pVal;
+				temp_buf = *static_cast<const SString *>(pVal);
 				break;
 		}
 		if(temp_buf.Len()) {
@@ -473,7 +473,7 @@ int SLAPI PPViewPrjTask::UpdateTempTable(const PPIDArray * pIdList, int use_ta)
 			TempOrderTbl::Rec ord_rec;
 			if(TodoObj.Search(id, &rec) > 0 && CheckRecForFilt(&rec)) {
 				ok = 1;
-				MakeTempEntry(&rec, &ord_rec);
+				MakeTempEntry(rec, ord_rec);
 				if(SearchByID(P_TempOrd, 0, id, &ord_rec) > 0) {
 					UpdateByID(P_TempOrd, 0, id, &ord_rec, 0);
 				}
@@ -541,31 +541,31 @@ int SLAPI PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 	return 1;
 }
 
-int SLAPI PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec * pRec, TempOrderTbl::Rec * pTempRec)
+TempOrderTbl::Rec & SLAPI PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec & rRec, TempOrderTbl::Rec & rTempRec)
 {
 	SString ord_buf;
 	if(Filt.Order == PrjTaskFilt::ordByDt)
-		ord_buf.Cat(pRec->Dt, DATF_YMD|DATF_CENTURY);
+		ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY);
 	else if(Filt.Order == PrjTaskFilt::ordByStartDt)
-		ord_buf.Cat(pRec->StartDt, DATF_YMD|DATF_CENTURY);
+		ord_buf.Cat(rRec.StartDt, DATF_YMD|DATF_CENTURY);
 	else if(Filt.Order == PrjTaskFilt::ordByEstFinishDt)
-		ord_buf.Cat(pRec->EstFinishDt, DATF_YMD|DATF_CENTURY);
+		ord_buf.Cat(rRec.EstFinishDt, DATF_YMD|DATF_CENTURY);
 	else if(Filt.Order == PrjTaskFilt::ordByFinishDt)
-		ord_buf.Cat(pRec->FinishDt, DATF_YMD|DATF_CENTURY);
+		ord_buf.Cat(rRec.FinishDt, DATF_YMD|DATF_CENTURY);
 	else if(Filt.Order == PrjTaskFilt::ordByCreator)
-		GetPersonName(pRec->CreatorID, ord_buf);
+		GetPersonName(rRec.CreatorID, ord_buf);
 	else if(Filt.Order == PrjTaskFilt::ordByEmployer)
-		GetPersonName(pRec->EmployerID, ord_buf);
+		GetPersonName(rRec.EmployerID, ord_buf);
 	else if(Filt.Order == PrjTaskFilt::ordByClient)
-		GetPersonName(pRec->ClientID, ord_buf);
+		GetPersonName(rRec.ClientID, ord_buf);
 	else if(Filt.Order == PrjTaskFilt::ordByCode)
-		ord_buf.Cat(pRec->Code);
+		ord_buf.Cat(rRec.Code);
 	else // @default
-		ord_buf.Cat(pRec->Dt, DATF_YMD|DATF_CENTURY);
-	memzero(pTempRec, sizeof(*pTempRec));
-	pTempRec->ID = pRec->ID;
-	ord_buf.CopyTo(pTempRec->Name, sizeof(pTempRec->Name));
-	return 1;
+		ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY);
+	memzero(&rTempRec, sizeof(rTempRec));
+	rTempRec.ID = rRec.ID;
+	ord_buf.CopyTo(rTempRec.Name, sizeof(rTempRec.Name));
+	return rTempRec;
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempPrjTask);
@@ -792,17 +792,17 @@ int SLAPI CrosstabProcessor::SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskT
 	} k;
 	if(tab_type == PrjTaskFilt::crstDateHour) {
 		k.k0.TabID     = tabID;
-		k.k0.StartDt   = *(LDATE*)pAddInfo;
+		k.k0.StartDt   = *static_cast<const LDATE *>(pAddInfo);
 		idx = 0;
 	}
 	else if(oneof2(tab_type, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer)) {
 		k.k1.TabID     = tabID;
-		k.k1.ClientID  = *(PPID *)pAddInfo;
+		k.k1.ClientID  = *static_cast<const PPID *>(pAddInfo);
 		idx = 1;
 	}
 	else if(oneof2(tab_type, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour)) {
 		k.k2.TabID      = tabID;
-		k.k2.EmployerID = *(PPID *)pAddInfo;
+		k.k2.EmployerID = *static_cast<const PPID *>(pAddInfo);
 		idx = 2;
 	}
 	return SearchByKey(P_TempTbl, idx, &k, pRec);
@@ -950,8 +950,7 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 				}
 				else {
 					TempOrderTbl::Rec ord_rec;
-					MakeTempEntry(&rec, &ord_rec);
-					THROW_DB(p_bei->insert(&ord_rec));
+					THROW_DB(p_bei->insert(&MakeTempEntry(rec, ord_rec)));
 				}
 				THROW(AddItemToTimeGrid(&rec, 0));
 			}
@@ -1093,9 +1092,9 @@ int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
 	SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod);
 	SetPeriodInput(this, CTL_TODOFILT_FINISH,  &Data.FinishPeriod);
 	SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
-	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, (PPID)PPPRK_EMPL, 0);
-	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, (PPID)PPPRK_EMPL, 0);
-	SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, (PPID)PPPRK_CLIENT, 0);
+	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
+	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
+	SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
 	SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 	SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
 	SetupStringCombo(this, CTLSEL_TODOFILT_CROSSTAB, PPTXT_TODOCROSSTAB,  Data.TabType);

@@ -522,7 +522,7 @@ int SLAPI ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
 
 int SLAPI ObjIdListFilt::RemoveByIdx(uint idx)
 	{ return (P_List && idx < P_List->getCount()) ? P_List->atFree(idx) : 0; }
-void SLAPI ObjIdListFilt::FreeAll() { CALLPTRMEMB(P_List, freeAll()); }
+ObjIdListFilt & SLAPI ObjIdListFilt::Z() { CALLPTRMEMB(P_List, Z()); return *this; } // @v10.6.8 FreeAll-->Z freeAll()-->Z()
 int SLAPI ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
 uint SLAPI ObjIdListFilt::GetCount() const { return SVectorBase::GetCount(P_List); }
 int SLAPI ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const
@@ -532,7 +532,7 @@ int SLAPI ObjIdListFilt::Intersect(const ObjIdListFilt * pList, int binary /*=0*
 {
 	if(P_List) {
 		if(!pList)
-			FreeAll();
+			Z();
 		else {
 			PPIDArray list;
 			pList->CopyTo(&list);

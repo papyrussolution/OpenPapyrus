@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -71,7 +71,7 @@ int SLAPI PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 	BExtInsert * p_bei = 0;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	ZDELETE(P_TempTbl);
-	ErrAvg = 0;
+	ErrAvg = 0.0;
 	MEMSZERO(TP);
 	if(!Filt.GoodsIdList.IsExists())
 		Filt.GoodsIdList.Add(Filt.GoodsID);
@@ -95,7 +95,7 @@ int SLAPI PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 		THROW_MEM(p_bei = new BExtInsert(P_TempTbl));
 		for(i = 0; list.enumItems(&i, (void **)&p_item);) {
 			TempPredictSalesTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.8 @ctr MEMSZERO(rec);
 			const LDATE this_date = p_item->Dt;
 			rec.Dt = this_date;
 			rec.Qtty = p_item->Qtty;
@@ -211,8 +211,7 @@ int SLAPI PPViewPredictSales::RecalcGoods(const BrwHdr * pHdr)
 		}
 		param.SetPeriod(period);
 		param.Replace  = PrcssrPrediction::Param::rsUpdateOnly;
-		param.Process |= PrcssrPrediction::Param::prcsFillSales |
-			PrcssrPrediction::Param::prcsFillHoles | PrcssrPrediction::Param::prcsFillModel;
+		param.Process |= PrcssrPrediction::Param::prcsFillSales|PrcssrPrediction::Param::prcsFillHoles|PrcssrPrediction::Param::prcsFillModel;
 		if(prcssr.EditParam(&param) > 0) {
 			PPWait(1);
 			THROW(prcssr.Init(&param));
@@ -265,7 +264,7 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 		yticinc = Round(yticinc, 10.0, +1);
 	}
 	if(data_list.getCount()) {
-		LDATE low_date = ((PlotDataEntry *)data_list.at(0))->Dt;
+		LDATE low_date = static_cast<const PlotDataEntry *>(data_list.at(0))->Dt;
 		const int dow = dayofweek(&low_date, 1);
 		if(dow != 1)
 			low_date = plusdate(low_date, -(dow-1));
@@ -277,7 +276,6 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 		{
 			int axis = Generator_GnuPlot::axX;
 			plot.UnsetTics(axis);
-
 			Generator_GnuPlot::StyleTics tics;
 			tics.Rotate = 90;
 			tics.Font.Size = 8;
@@ -290,7 +288,6 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 		{
 			int axis = Generator_GnuPlot::axY;
 			plot.UnsetTics(axis);
-
 			Generator_GnuPlot::StyleTics tics;
 			tics.Rotate = 0;
 			tics.Font.Size = 8;
@@ -310,11 +307,9 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 					if(Filt.GoodsID) {
 						PPObjGoods goods_obj;
 						Goods2Tbl::Rec goods_rec;
-						if(goods_obj.Fetch(Filt.GoodsID, &goods_rec) > 0) {
-							PPUnit unit_rec;
-							if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
-								unit_buf = unit_rec.Name;
-						}
+						PPUnit unit_rec;
+						if(goods_obj.Fetch(Filt.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
+							unit_buf = unit_rec.Name;
 					}
 					if(unit_buf.Empty())
 						PPGetSubStr(PPTXT_PLOT_SALES, 3, unit_buf);
@@ -333,7 +328,7 @@ int SLAPI PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 		plot.Plot(&param);
 		plot.StartData(1);
 		for(uint i = 0; i < data_list.getCount(); i++) {
-			const PlotDataEntry * p_entry = (const PlotDataEntry *)data_list.at(i);
+			const PlotDataEntry * p_entry = static_cast<const PlotDataEntry *>(data_list.at(i));
 			plot.PutData(p_entry->Dt);
 			plot.PutData(p_entry->Qtty);
 			plot.PutData(p_entry->Amt);
@@ -501,7 +496,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 {
 	int    ok = -1;
 	if(pData && pStyle && paintAction == BrowserWindow::paintNormal) {
-		const long flags = *(long *)(PTR8C(pData)+sizeof(LDATE));
+		const long flags = *reinterpret_cast<const long *>(PTR8C(pData)+sizeof(LDATE));
 		if(flags & 0x0001) {
 			pStyle->Color = GetGrayColorRef(0.9f);
 			pStyle->Flags = 0;

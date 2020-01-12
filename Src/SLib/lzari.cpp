@@ -749,10 +749,9 @@ int LZAri::SetFileInfo()
 {
 	int    ok = -1;
 	if(P_Header) {
-		LDATETIME creation_time, last_access_time, last_modif_time;
-		creation_time    = P_Header->FileCreatDateTime;
-		last_access_time = P_Header->FileLAccDateTime;
-		last_modif_time  = P_Header->FileLModDateTime;
+		const LDATETIME creation_time    = P_Header->FileCreatDateTime;
+		const LDATETIME last_access_time = P_Header->FileLAccDateTime;
+		const LDATETIME last_modif_time  = P_Header->FileLModDateTime;
 	// Set output file info
 #ifndef __WIN32__
 		rewind(P_OutFile);

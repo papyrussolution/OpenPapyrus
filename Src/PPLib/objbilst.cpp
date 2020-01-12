@@ -1,5 +1,7 @@
 // OBJBILST.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020
+// @codepage UTF-8
+// PPObjBillStatus - Статусы документов
 //
 #include <pp.h>
 #pragma hdrstop
@@ -16,7 +18,9 @@ SLAPI PPObjBillStatus::PPObjBillStatus(void * extraPtr) : PPObjReference(PPOBJ_B
 
 int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	int    is_new = 0;
 	PPBillStatus rec;
 	TDialog * dlg = 0;
@@ -151,10 +155,7 @@ void * SLAPI PPObjBillStatus::CreateObjListWin(uint flags, void * extraPtr)
 	return new PPObjBillStatusListWindow(this, flags, extraPtr);
 }
 
-int SLAPI PPObjBillStatus::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRBILLSTATUS, 0);
-}
+int SLAPI PPObjBillStatus::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRBILLSTATUS, 0); }
 
 int SLAPI PPObjBillStatus::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {

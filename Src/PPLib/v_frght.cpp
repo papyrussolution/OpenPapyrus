@@ -445,7 +445,8 @@ int SLAPI PPViewFreight::UpdateTempTableRec(PPID billID)
 int SLAPI PPViewFreight::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
-	char   k[MAXKEYLEN];
+	// @v10.6.8 char   k[MAXKEYLEN];
+	BtrDbKey k_; // @v10.6.8 
 	PPInitIterCounter(Counter, P_TmpTbl);
 	switch(order) {
 		case OrdByDefault: idx = 0; break;
@@ -458,8 +459,8 @@ int SLAPI PPViewFreight::InitIteration(IterOrder order)
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TmpTbl, idx));
 	P_IterQuery->selectAll();
-	memzero(k, sizeof(k));
-	THROW(P_IterQuery->initIteration(0, k, spFirst));
+	// @v10.6.8 @ctr memzero(k, sizeof(k));
+	THROW(P_IterQuery->initIteration(0, k_, spFirst));
 	CATCHZOK
 	return ok;
 }

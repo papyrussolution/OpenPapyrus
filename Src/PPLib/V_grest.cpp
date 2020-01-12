@@ -396,7 +396,10 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 				if(P_Ct && (loc_id == 0 || (!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))))
 					temp_loc_id = 0;
 			}
-			lot_flt.LocID = temp_loc_id;
+			if(temp_loc_id)
+				lot_flt.LocList.Add(temp_loc_id);
+			else
+				lot_flt.LocList = Filt.LocList;
 			if(!(Filt.DiffLotTagID && Filt.DiffParam == GoodsRestParam::_diffLotTag)) // @v9.7.11
 				lot_flt.PutExtssData(LotFilt::extssSerialText, serial);
 			ok = ::ViewLots(&lot_flt, BIN(orderLots), 1);
@@ -2072,7 +2075,7 @@ IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2) { RET_CMPCASCADE2(static_cast<const Rec
 
 PPViewGoodsRest::LotQueryBlock::LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
 {
-	memzero(Key, sizeof(Key));
+	// @v10.6.8 @ctr memzero(Key, sizeof(Key));
 }
 
 PPViewGoodsRest::LotQueryBlock::~LotQueryBlock()
@@ -2201,7 +2204,7 @@ int SLAPI PPViewGoodsRest::MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowI
 	THROW_MEM(rBlk.P_Q = new BExtQuery(r_t, rBlk.Idx, query_buf_capacity));
 	MakeLotSelectFldList(*rBlk.P_Q, *r_t).where(*dbq);
 	CATCHZOK
-	memcpy(rBlk.Key, &kx, sizeof(kx));
+	memcpy(rBlk.Key_, &kx, sizeof(kx));
 	return ok;
 }
 
@@ -2228,7 +2231,7 @@ int SLAPI PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHa
 	else {
 		LotQueryBlock q_blk;
 		THROW(MakeLotQuery(q_blk, 0, rIdList.get(0), rIdList.getLast()));
-		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
+		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key_, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
 			if(rLcrList.Has(r_t.data.ID))
 				THROW_SL(rList.insert(&r_t.data));
 		}
@@ -2287,7 +2290,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 			SString temp_buf;
 			PPLoadText(PPTXT_GRESTOPENEDLOTEXTRACT, msg_buf);
 			THROW(MakeLotQuery(q_blk, 1, 0, 0));
-			for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
+			for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key_, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
 				if(!lcr_lot_list.Has(static_cast<ulong>(r_t->data.ID)))
 					THROW_SL(lot_list.insert(&r_t->data));
 				PPWaitMsg((temp_buf = msg_buf).Space().Cat(r_t->data.Dt));
@@ -2375,7 +2378,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 		ProcessLotBlock blk(0);
 		THROW(MakeLotQuery(q_blk, 0, 0, 0));
 		THROW(InitProcessLotBlock(blk, pGrpGoodsList));
-		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
+		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key_, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
 			ReceiptTbl::Rec lot_rec;
 			r_t->copyBufTo(&lot_rec);
 			THROW(Helper_ProcessLot(blk, lot_rec));
@@ -2788,11 +2791,12 @@ int SLAPI PPViewGoodsRest::InitIterQuery(PPID grpID)
 	BExtQuery::ZDelete(&P_IterQuery);
 	TempGoodsRestTbl * p_t = P_Tbl;
 	if(p_t) {
-		char   k_[MAXKEYLEN];
+		// @v10.6.8 char   k_[MAXKEYLEN];
+		BtrDbKey k__; // @v10.6.8
 		TempGoodsRestTbl::Key2 k2;
 		int    sp_mode = spFirst;
-   		memzero(k_, sizeof(k_));
-		void * k = k_;
+   		// @v10.6.8 @ctr memzero(k_, sizeof(k_));
+		void * k = k__;
 		DBQ * dbq = 0;
 		if(Filt.ExhaustTerm > 0) {
 			dbq = &(*dbq && p_t->RestInDays >= 0L && p_t->RestInDays <= (long)Filt.ExhaustTerm);

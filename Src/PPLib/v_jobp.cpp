@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Редактирование списка процессорных задач
@@ -13,7 +13,7 @@ class JobItemDialog : public TDialog {
 public:
 	JobItemDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBITEM), P_Mngr(pMngr), P_JobPool(pJobPool)
 	{
-		P_Mngr->GetResourceList(0, &CmdSymbList);
+		P_Mngr->GetResourceList(0, CmdSymbList);
 		if(P_JobPool) {
 			PPJob job;
 			for(PPID id = 0; P_JobPool->Enum(&id, &job) > 0;)
@@ -129,8 +129,8 @@ int JobItemDialog::setDTS(const PPJob * pData)
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 1, PPJob::fDisable);
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 2, PPJob::fOnStartUp);
 	AddClusterAssoc(CTL_JOBITEM_FLAGS, 3, PPJob::fPermanent);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 4, PPJob::fUnSheduled); // @v8.2.5
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 5, PPJob::fSkipEmptyNotification); // @v8.2.11
+	AddClusterAssoc(CTL_JOBITEM_FLAGS, 4, PPJob::fUnSheduled);
+	AddClusterAssoc(CTL_JOBITEM_FLAGS, 5, PPJob::fSkipEmptyNotification);
 	SetClusterData(CTL_JOBITEM_FLAGS, Data.Flags);
 	setCtrlTime(CTL_JOBITEM_SCHDLBEFORE, Data.ScheduleBeforeTime); // @v9.2.11
 	dbes.ReadFromProfile(&ini_file);
@@ -143,7 +143,7 @@ int JobItemDialog::setDTS(const PPJob * pData)
 	if(db_id == 0 && Data.DbSymb.NotEmpty())
 		setCtrlString(CTL_JOBITEM_DBSYMB, Data.DbSymb);
 	disableCtrl(CTLSEL_JOBITEM_DBSYMB, 1);
-	P_Mngr->GetResourceList(1, &cmd_txt_list);
+	P_Mngr->GetResourceList(1, cmd_txt_list);
 	cmd_txt_list.SortByText();
 	uint   pos = 0;
 	if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
@@ -157,7 +157,7 @@ int JobItemDialog::setDTS(const PPJob * pData)
 			enableCommand(cmJobParam, !(job_descr.Flags & PPJobDescr::fNoParam));
 		else
 			enableCommand(cmJobParam, 0);
-		enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled)); // @v8.2.5
+		enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled));
 		DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
 		disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
 	}
@@ -416,7 +416,7 @@ int SLAPI PPViewJob::LoadPool()
 	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
 	THROW(Mngr.LoadPool(db_symb, P_Pool, 0));
-	Mngr.GetResourceList(0, &CmdSymbList);
+	Mngr.GetResourceList(0, CmdSymbList);
 	CATCH
 		ZDELETE(P_Pool);
 		ok = PPErrorZ();
@@ -440,18 +440,19 @@ int SLAPI PPViewJob::SavePool()
 }
 
 class JobFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(JobFilt);
 public:
 	JobFiltDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBFILT), P_Mngr(pMngr), P_Pool(pJobPool)
 	{
-		P_Mngr->GetResourceList(0, &CmdSymbList);
+		P_Mngr->GetResourceList(0, CmdSymbList);
 	}
-	int setDTS(const JobFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
 		{
 			StrAssocArray cmd_txt_list;
-			P_Mngr->GetResourceList(1, &cmd_txt_list);
+			P_Mngr->GetResourceList(1, cmd_txt_list);
 			cmd_txt_list.SortByText();
 			SetupStrAssocCombo(this, CTLSEL_JOBFILT_CMD, &cmd_txt_list, Data.CmdId, 0);
 		}
@@ -459,7 +460,7 @@ public:
 		SetClusterData(CTL_JOBFILT_FLAGS, Data.Flags);
 		return 1;
 	}
-	int getDTS(JobFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint sel = 0;
@@ -475,7 +476,6 @@ public:
 		return ok;
 	}
 private:
-	JobFilt Data;
 	StrAssocArray CmdSymbList;
 	PPJobMngr * P_Mngr;
 	PPJobPool * P_Pool;

@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -12,7 +12,7 @@ DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds);
 
 int FASTCALL dbl_cmp(double v1, double v2)
 {
-	const double diff = round(v1 - v2, 6);
+	const double diff = R6(v1 - v2);
 	if(diff < 0)
 		return -1;
 	else if(diff > 0)
@@ -98,9 +98,9 @@ int FASTCALL PPGetSubStr(const char * pStr, int idx, SString & rDest)
 
 int FASTCALL PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 {
-	SString temp;
-	int    ok = temp.GetSubFrom(pStr, ';', idx);
-	temp.CopyTo(pBuf, bufLen);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.6.8
+	int    ok = r_temp_buf.GetSubFrom(pStr, ';', idx);
+	r_temp_buf.CopyTo(pBuf, bufLen);
 	return ok;
 }
 

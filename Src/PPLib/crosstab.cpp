@@ -253,14 +253,15 @@ int SLAPI Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STyp
 {
 	int    ok = 1;
 	STypArray * p_list = 0;
-	char   temp_key[MAXKEYLEN];
+	// @v10.6.8 char   temp_key[MAXKEYLEN];
+	BtrDbKey temp_key_; // @v10.6.8
 	const  size_t crss_fld_offs = crssFld.getField().Offs;
 	BExtQuery q(pTbl, 0);
 	DBFieldList flist;
 	flist.Add(crssFld);
 	q.select(flist);
 	THROW_MEM(p_list = new STypArray(crssFld.getField().T, O_ARRAY));
-	pTbl->search(0, temp_key, spFirst);
+	pTbl->search(0, temp_key_, spFirst);
 	for(q.initIteration(0, 0, -1); q.nextIteration() > 0;) {
 		const void * p_data_buf = PTR8C(pTbl->getDataBuf()) + crss_fld_offs;
 		if(!p_list->search(p_data_buf, 0))
@@ -485,7 +486,8 @@ int SLAPI Crosstab::Create(int use_ta)
 {
 	int    ok = 1;
 	uint   i;
-	char   temp_key[MAXKEYLEN];
+	// @v10.6.8 char   temp_key[MAXKEYLEN];
+	BtrDbKey temp_key_; // @v10.6.8
 	char   buf[512];
 	SString msg_buf;
 	IterCounter cntr;
@@ -502,7 +504,7 @@ int SLAPI Crosstab::Create(int use_ta)
 		flist.Add(AggrFldList);
 		flist.Add(CrssFld);
 		q.select(flist);
-		P_Tbl->search(0, temp_key, spFirst);
+		P_Tbl->search(0, temp_key_, spFirst);
 		const uint start_fld_pos = 1;
 		const uint idx_fld_count = IdxFldList.GetCount();
 		const long zero = 0;
@@ -544,20 +546,20 @@ int SLAPI Crosstab::Create(int use_ta)
 		{
 			PPWaitMsg(msg_buf);
 			if(SetupFixFields(1) > 0) {
-				if(P_RTbl->searchForUpdate(0, temp_key, spFirst))
+				if(P_RTbl->searchForUpdate(0, temp_key_, spFirst))
 					do {
 						int r;
 						THROW(r = SetupFixFields(0));
 						SetSummaryRows();
 						if(r > 0)
 							THROW_DB(P_RTbl->updateRec()); // @sfu
-					} while(P_RTbl->searchForUpdate(0, temp_key, spNext));
+					} while(P_RTbl->searchForUpdate(0, temp_key_, spNext));
 			}
 			else if(GetTotalRowsCount()) {
-				if(P_RTbl->search(0, temp_key, spFirst))
+				if(P_RTbl->search(0, temp_key_, spFirst))
 					do {
 						SetSummaryRows();
-					} while(P_RTbl->search(0, temp_key, spNext));
+					} while(P_RTbl->search(0, temp_key_, spNext));
 			}
 		}
 		{

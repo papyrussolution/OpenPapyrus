@@ -1121,7 +1121,8 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 	if(P.SpcOb == spcobNone) {
 		if(CurDict->GetTableInfo(tblID, &ts) && !(ts.Flags & XTF_DICT)) {
 			SBuffer lob_buf;
-			char   key[MAXKEYLEN];
+			// @v10.6.8 char   key[MAXKEYLEN];
+			BtrDbKey key_; // @v10.6.8
 			int64  local_count = 0; // Количество записей в отрезке
 			int64  chunk_count = 0; // Количество отрезков
 			int    has_lob = 0;
@@ -1133,9 +1134,9 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 				has_lob = 1;
 			}
 			PPInitIterCounter(cntr, &tbl);
-			MEMSZERO(key);
+			// @v10.6.8 @ctr MEMSZERO(key);
 			tbl.clearDataBuf();
-			if(tbl.search(0, &key, spFirst)) do {
+			if(tbl.search(0, key_, spFirst)) do {
 				if(has_lob) {
 					//
 					// Канонизируем буфер LOB-поля для того, чтобы функция Serialize могла
@@ -1163,7 +1164,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 				}
 				tbl.clearDataBuf();
 				PPWaitPercent(cntr.Increment(), tbl.GetTableName());
-			} while(tbl.search(0, &key, spNext));
+			} while(tbl.search(0, key_, spNext));
 			THROW_DB(BTROKORNFOUND);
 			if(local_count) {
 				THROW_SL(FDump.Write(&local_count, sizeof(local_count)));

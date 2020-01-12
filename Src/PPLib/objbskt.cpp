@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -195,7 +195,7 @@ int PPObjGoodsBasket::Locking::Lock(PPID id)
 		else {
 			if(L && id != ID)
 				Unlock();
-			if(DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_GOODSBASKET, id, &mutex_id, 0) > 0) {
+			if(DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_GOODSBASKET, id, &mutex_id, 0) > 0) {
 				ID = id;
 				L = 1;
 				ok = 1;
@@ -255,7 +255,7 @@ int SLAPI PPObjGoodsBasket::IsLocked(PPID id)
 {
 	int    ok = 0;
 	PPID   mutex_id = 0;
-	if(DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_GOODSBASKET, id, &mutex_id, 0) > 0) {
+	if(DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_GOODSBASKET, id, &mutex_id, 0) > 0) {
 		DS.GetSync().ReleaseMutex(PPOBJ_GOODSBASKET, id);
 		ok = 0;
 	}
@@ -532,13 +532,18 @@ int SLAPI PPObjGoodsBasket::Transfer(PPID id)
 			THROW(GetPacket(id, &gb_packet));
 			if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 				const PPIDArray & rary = param.DestDBDivList.Get();
-				const int sync_cmp = BIN(param.Flags & ObjTransmitParam::fSyncCmp);
-				const int recover_transmission = BIN(param.Flags & param.fRecoverTransmission);
+				//const int sync_cmp = BIN(param.Flags & ObjTransmitParam::fSyncCmp);
+				//const int recover_transmission = BIN(param.Flags & param.fRecoverTransmission);
+				uint ot_ctrf = 0;
+				if(param.Flags & ObjTransmitParam::fSyncCmp) 
+					ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;
+				if(param.Flags & param.fRecoverTransmission)
+					ot_ctrf |= PPObjectTransmit::ctrfRecoverTransmission;
 				for(uint i = 0; i < rary.getCount(); i++) {
 					PPWait(1);
-					THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, sync_cmp, recover_transmission));
+					THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, ot_ctrf/*sync_cmp, recover_transmission*/));
 					THROW(p_ot->SetDestDbDivID(rary.at(i)));
-					THROW(p_ot->PostObject(PPOBJ_GOODSBASKET, id, param.UpdProtocol, sync_cmp));
+					THROW(p_ot->PostObject(PPOBJ_GOODSBASKET, id, param.UpdProtocol, BIN(param.Flags & ObjTransmitParam::fSyncCmp)));
 					THROW(p_ot->CreateTransmitPacket());
 					ZDELETE(p_ot);
 					THROW(PutTransmitFiles(rary.at(i), param.TrnsmFlags));
@@ -662,6 +667,31 @@ int SLAPI PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 				THROW(GetPacket(rBasket.BasketID, &rBasket.Pack, gpoProcessPrivate));
 			ok = 1;
 		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+//virtual 
+int SLAPI PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
+{
+	int    ok = 1;
+	int    r;
+	SString name;
+	SString symb;
+	PPID   id = static_cast<PPID>(rRez.getUINT());
+	rRez.getString(name, 2);
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
+	rRez.getString(symb, 2);
+	THROW(r = Search(id));
+	if(r < 0) {
+		ReferenceTbl::Rec rec;
+		// @v10.6.8 @ctr MEMSZERO(rec);
+		rec.ObjType = Obj;
+		rec.ObjID   = id;
+		STRNSCPY(rec.ObjName, name);
+		STRNSCPY(rec.Symb, symb);
+		THROW(EditItem(Obj, 0, &rec, 1));
 	}
 	CATCHZOK
 	return ok;
@@ -1501,18 +1531,12 @@ int SLAPI GoodsBasketItemDialog(ILTI * pData, PPBasketCombine & rCart)
 //
 class GBDialog : public PPListDialog {
 public:
-	GBDialog(PPID * pID, PPBasketCombine & rData, int action) :
-		PPListDialog((action == 3) ? DLG_GBSTRUC_N : DLG_GBSTRUC, CTL_GBTRUC_LIST),
-		R_Data(rData)
+	GBDialog(PPID * pID, PPBasketCombine & rData, int action) : PPListDialog((action == 3) ? DLG_GBSTRUC_N : DLG_GBSTRUC, CTL_GBTRUC_LIST),
+		R_Data(rData), P_EGSDlg(0), P_ID(pID), Flags(0), LastInnerNum(0), InitBasketFlags(0)
 	{
-		P_EGSDlg = 0;
 		disableCtrl(CTL_GBTRUC_TOTAL, 1);
 		disableCtrls(BIN(action == 1), CTLSEL_GBTRUC_BASKET/*, CTLSEL_GBTRUC_SUPPL*/, 0);
 		enableCommand(cmAddFromBasket, BIN(action & 0x01));
-		P_ID  = pID;
-		Flags = 0;
-		LastInnerNum = 0;
-		InitBasketFlags = 0;
 		if(action == 2)
 			ToCascade();
 		else if(action == 3)
@@ -1529,7 +1553,7 @@ public:
 		if(Flags & gbdfEditNameNFlags) {
 			SString  buf = R_Data.Pack.Head.Name;
 			setCtrlString(CTL_GBTRUC_BASKET, buf);
-			buf = 0;
+			buf.Z();
 			if(R_Data.Pack.Head.ID)
 				buf.Cat(R_Data.Pack.Head.ID);
 			setStaticText(CTL_GBTRUC_ID, buf);
@@ -1537,6 +1561,8 @@ public:
 			AddClusterAssoc(CTL_GBTRUC_FLAGS, 1, GBASKF_SORTITEMS);
 			SetClusterData(CTL_GBTRUC_FLAGS, R_Data.Pack.Head.Flags);
 			setCtrlUInt16(CTL_GBTRUC_PRIVATE, BIN(R_Data.Pack.Head.Flags & GBASKF_PRIVATE));
+			DisableClusterItem(CTL_GBTRUC_FLAGS, 0, oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV)); // @v10.6.8
+			DisableClusterItem(CTL_GBTRUC_PRIVATE, 0, oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV)); // @v10.6.8
 		}
 		else
 			SetupPPObjCombo(this, CTLSEL_GBTRUC_BASKET, PPOBJ_GOODSBASKET, R_Data.Pack.Head.ID, OLW_LOADDEFONOPEN, 0);
@@ -1569,8 +1595,14 @@ public:
 			else
 				PPSetError(PPERR_BASKETNEEDED);
 		}
-		if(ok)
+		if(ok) {
 			R_Data.Pack.Head.SupplID = getCtrlLong(CTLSEL_GBTRUC_SUPPL);
+			// @v10.6.8 {
+			if(oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV)) {
+				R_Data.Pack.Head.Flags &= ~(GBASKF_DEFAULT|GBASKF_PRIVATE);
+			}
+			// } @v10.6.8 
+		}
 		return ok;
 	}
 	int    IsChanged();
@@ -1618,7 +1650,6 @@ private:
 
 	PPObjGoodsBasket GbObj;
 	PPBasketCombine & R_Data;
-
 	PPID * P_ID;
 	enum {
 		gbdfEditNameNFlags = 0x01,

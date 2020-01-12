@@ -817,6 +817,8 @@ PPERR_CANTMOVRCPTOP "It is impossible to transfer the resulting lot operation"
 PPERR_INCOMPATLOTS "Incompatible lots to move operations"
 	//#org Обнаружена циклическая зависимость между лотами (%s)
 PPERR_LOTLOOP "Cyclical dependence between lots (%s)"
+	//#org На найден лот-предшественник '%s'
+PPERR_ORGLOTNFOUND "The lot-precursor '%s' found"
 	//#org Неопределенный период ренты
 PPERR_UNDEFRENTPERIOD "Indefinite rent period"
 	//#org Недопустимая операция начисления
@@ -2253,7 +2255,7 @@ PPERR_PRICERESTRLOW "Violation of the lower price limit (%s) for the product typ
 	//#org Нарушение верхнего ценового ограничения (%s) для товарного типа
 PPERR_PRICERESTRUPP "Violation of the top price limit (%s) for the product type"
 	//#org Дублирование идентификатора картинки (%s) в описании SLIP-формы
-PPERR_SLIPFMT_DUPPICTID "Duplication of the image ID (%s) in the description of THE SLIP form"
+PPERR_SLIPFMT_DUPPICTID "Duplication of the image ID (%s) in the description of the SLIP form"
 	//#org Группа продаж должна быть папкой с не пересекающимися альтернативными группами
 PPERR_INVSALESGRP "The sales group should be a folder with non-intersecting alternative groups"
 	//#org Неизвестная функция '%s' в контексте товара
@@ -4236,6 +4238,8 @@ PPCFM_GENRCGOODSTOALTGRP "The chosen product is generalized. Do you want to inse
 PPCFG_VETISRMVPREPENTRY "Confirm the removal of the transport certificate preparation record"
 	//#org Подтвердите аннулирование транспортного сертификата
 PPCFG_VETISWITHDRAWDOC "Confirm the cancellation of the transport certificate"
+	//#org Вы собираетесь выполнить опасную операцию по списанию всех выбранных сертификатов. Вы уверены в том, что делаете?
+PPCFG_WROFFALLVETISCERTS "You are going to perform a dangerous operation to write off all selected certificates. Are you sure what you're doing?"
 
 [103]
 
@@ -4526,8 +4530,6 @@ PPWORD_POS "Positions"
 PPWORD_GROUP "Group"
 	//#org Остаток-дефицит
 PPWORD_RESTWITHDEFICIT "Deficit residue"
-	//#org PLU
-PPWORD_PLU "PLU"
 	//#org Количество товаров в подстановке
 PPWORD_SUBSTASSCCOUNT "Number of goods in the sub-station"
 	//#org Весь период
@@ -4626,6 +4628,7 @@ PPWORD_LINESCOUNT "Rows"
 PPWORD_AVGLINESCOUNT "Strzok (Wed)"
 	//#org SKU (ср)
 PPWORD_AVGSKUCOUNT "SKU (Wed)"
+// @v10.6.4 PPWORD_PLU                 "PLU"
 // @v10.6.3 PPWORD_CREATOR             "Создатель"
 // @v10.6.3 PPWORD_EMPLOYER            "Исполнитель"
 // @v10.6.3 PPWORD_ADDPAYMENT          "Доплата"
@@ -7070,8 +7073,8 @@ PPTXT_SMSDECLINEDDUETIMERANGE "Sending SMS notifications was rejected due to an 
 PPTXT_SETTIMESERIESSTAT "SetTimeSeries @zstr: append_count-@int upd-count'@int field-count-@int profile'@int64"
 	//#org Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
 PPTXT_TOCREATEWARECFGOPTNEEDED "To automatically create items, the product configuration must include a group and a default unit"
-	//#org 1,Twitter;2,Facebook;3,VK;4,Vetis;5,честный знак
-PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
+	//#org 1,Twitter;2,Facebook;3,VK;4,Vetis;5,@{brand_chzn}
+PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,@{brand_chzn}"
 //
 // LastText
 
@@ -7547,7 +7550,7 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 	//#org Дублирование символа '%s' элемента, добавляемого в SDrawGroup
 415 "Duplication of the '%s' symbol of the item added to SDrawGroup"
 	//#org Для элемента TWhatmanToolArray '%s' не заданы ни фигура, ни иконка
-416 "There is no '%s' set for the TWhatmanToolArray element"
+416 "There is no shape or icon for the TWhatmanToolArray element '%s'"
 	//#org Нарушена целостность WTA-файла '%s'
 417 "The integrity of the WTA '%s'"
 	//#org Файл '%s' не является BMP-файлом
@@ -8844,6 +8847,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @value "Value"
 	//#org Значения
 @value_pl "Values"
+	//#org Знак
+@valuesign_s "Sign"
 	//#org Абсолютное значение
 @absolutevalue "Absolute value"
 	//#org Значение по умолчанию
@@ -8948,6 +8953,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @warehouse_pl "Warehouses"
 	//#org Ид склада
 @warehouseid "Eid Warehouse"
+	//#org Символ склада
+@warehousesymb "Warehouse symbol"
 	//#org Все склады
 @allwarehouses "All warehouses"
 	//#org Место хранения
@@ -9509,6 +9516,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @qtty "Quantity"
 	//#org Кол
 @qtty_short "Kohl's"
+	//#org PLU
+@plu "PLU"
 	//#org Связанное количество
 @linkedqtty "Related number"
 	//#org По количеству
@@ -9731,6 +9740,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @codebyar_pl "Article codes"
 	//#org Валюта
 @currency "Currency"
+	//#org Символ валюты
+@currencysymb "Currency symbol"
 	//#org Все валюты
 @allcurrencies "All currencies"
 	//#org Базовая валюта
@@ -10149,6 +10160,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @quotkind "Kind of quotes"
 	//#org Ид вида котировки
 @quotkindid "Eid kind of quotes"
+	//#org Символ вида котировки
+@quotkindsymb "The symbol of the type of quote"
 	//#org Таблица
 @spreadsheet "Table"
 	//#org MRP-таблица
@@ -10814,6 +10827,10 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @ttl_seladdress "Choosing an address"
 	//#org Выберите вид товарной группы
 @ttl_selnewgoodsgroup "Choose a product group view"
+	//#org Выберите зону полей данных
+@ttl_seldl600zone "Select data field area"
+	//#org Выберите поле данных
+@ttl_seldl600field "Select data field"
 	//#org Итоги по выборке персоналий
 @ttl_persons "Personalities results"
 	//#org Итоги по выборке персональых событий
@@ -11208,6 +11225,12 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @rtag_lotlinkbillrow "Related document line (lot)"
 	//#org CN субъекта сертификата электронной подписи
 @rtag_guacertsubjcn "CN subject of electronic signature certificate"
+	//#org ЧЕСТНЫЙ ЗНАК код персоналии
+@rtag_person_chzncode "READ MORE Personality Code"
+	//#org ЧЕСТНЫЙ ЗНАК код локации
+@rtag_loc_chzncode "READ MORE Location code"
+	//#org ЧЕСТНЫЙ ЗНАК код глобальной учетной записи
+@rtag_gua_chzncode "READ MORE Global account code"
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -11252,14 +11275,16 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 //
 	//#org ОСН — общая система налогообложения
 @txsk_general "THE ONS is a common tax system"
-	//#org УСН — упрощенная система налогообложения
-@txsk_simplified "ONS - simplified tax system"
+	//#org УСН — упрощенная система (доход)
+@txsk_simplified "ONS - simplified system (income)"
 	//#org ПАТЕНТ — патентная система налогообложения
 @txsk_patent "PATENT - Patent Tax system"
 	//#org ЕНВД — вмененная система налогообложения
 @taxsysk_imputed "ENVD - An implied tax system"
 	//#org ЕСХН — единый сельскохозяйственный налог
 @txsk_singleagricult "ECNS - single agricultural tax"
+	//#org УСН — упрощенная система (доход-расход)
+@txsk_simplified_profit "ONS - simplified system (income-expense)"
 //
 // Текстовые представления view и filter
 //
@@ -11978,6 +12003,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @cmd_buildlocaldl600 "Compilation of local DL600 structures"
 	//#org Запрос к @{brand_egais} (интерактивный)
 @cmd_queryegais "Request for @{brand_egais} (interactive)"
+	//#org Запрос к @{brand_chzn} (интерактивный)
+@cmd_querychzn "Request for @{brand_chzn} (interactive)"
 	//#org Синхронизация рабочих книг (@{brand_uhtt})
 @cmd_workbookinterchange "Synchronization of working books (@{brand_uhtt})"
 	//#org Тестирование окна вывода сообщений
@@ -11992,8 +12019,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @cmd_testfias "Testing the FIAS directory"
 	//#org Тестирование интерфейса с cURL
 @cmd_testcurl "Testing the interface with cURL"
-	//#org Тестирование интерфейса с ЕГАИС
-@cmd_testegais "Testing the interface with EGAIS"
+	//#org Тестирование интерфейса с @{brand_egais}
+@cmd_testegais "Testing the interface with @{brand_egais}"
 	//#org Тестирование поиска email-адресов
 @cmd_testsearchemail "Testing email addresses"
 	//#org Тестирование технологии TDDO-II
@@ -12173,6 +12200,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 
 	//#org ЕГАИС
 @brand_egais "Usais"
+	//#org честный знак
+@brand_chzn "honest sign"
 
 	//#org Тип данных
 @stypex "Data type"
@@ -12611,8 +12640,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @billrunie_fediimpexp "Edi"
 	//#org Не снимать теги при получении отрицательных тикетов
 @billrunie_fdontremovetags "Don't remove tags when you receive negative tickets"
-	//#org ЕГАИС версия 3
-@billrunie_fegaisver3 "EGAIS Version 3"
+	//#org @{brand_egais} версия 3
+@billrunie_fegaisver3 "@{brand_egais} version 3"
 	//#org Клиент-банк
 @billrunie_fpaymorderexp "Customer Bank"
 	//#org Конфигурация импорта документов
@@ -12908,8 +12937,6 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @timeseries_marginmanual "Manual margin"
 	//#org Точность значений
 @timeseries_prec "Value accuracy"
-	//#org Символ валюты
-@timeseries_currencysymb "Currency symbol"
 	//#org Расчетный квант
 @timeseries_spikequant "Estimated quant"
 	//#org Средний спрэд
@@ -13042,10 +13069,10 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @cfgalcreport_fdetectalcbyclass "Identify alcohol by class"
 	//#org Передача склад-шоп только по дефициту
 @cfgalcreport_fwhtoreg2bylacks "Transfer warehouse-shop only on deficit"
-	//#org Использовать 2-ю версию протокола ЕГАИС
-@cfgalcreport_fegaisver2fmt "Use the 2nd version of the EGAIS protocol"
-	//#org Использовать 3-ю версию протокола ЕГАИС
-@cfgalcreport_fegaisver3fmt "Use the 3rd version of the EGAIS protocol"
+	//#org Использовать 2-ю версию протокола @{brand_egais}
+@cfgalcreport_fegaisver2fmt "Use the 2nd version of the protocol @{brand_egais}"
+	//#org Использовать 3-ю версию протокола @{brand_egais}
+@cfgalcreport_fegaisver3fmt "Use the 3rd version of the protocol @{brand_egais}"
 	//#org Способ списания с регистра 2
 @cfgalcreport_wroffshopway "How to write off Register 2"
 	//#org Не списывать
@@ -13546,6 +13573,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @cfgglobaluseracc_personkind "The type of personalities - account holders"
 	//#org Серия кредитных карт
 @cfgglobaluseracc_scardser "Credit card series"
+	//#org Автоматически создавать GUID для новых записей
+@cfgglobaluseracc_fautocreateguid "Automatically create GUID for new entries"
 	//#org Порог загрузки отсутствующих товаров на кассы, @{days}
 @cfggoods_acgi_threshold "Threshold for downloading missing items to cash registers, @{days}"
 	//#org Группа основных средств
@@ -14328,8 +14357,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 	//#org Код страны
 @egaisrefa_countrycode "Country code"
 
-	//#org Запрос к серверу ЕГАИС
-@egaisqueryparam "Request to the EGAIS server"
+	//#org Запрос к серверу @{brand_egais}
+@egaisqueryparam "Request to server @{brand_egais}"
 	//#org Все контрагенты, имеющие лицензию
 @egaisqueryparam_queryclients_1000 "All license-licensed contractors"
 	//#org Справка А
@@ -14366,6 +14395,13 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @egaisqueryparam_afclearinneregaisdb "Clear your internal database"
 	//#org Параметр запроса
 @egaisqueryparam_paramstring "Request option"
+
+	//#org Тест обмена с сервером @{brand_egais}
+@egaistestparam "Exchange test with server @{brand_egais}"
+	//#org Получить данные во временный каталог
+@egaistestparam_freceivedatatotempcatalog "Get the data in the temporary catalog"
+	//#org Принять объекты в базу данных из временного каталога
+@egaistestparam_facceptdatafromtempcatalog "Take objects to the database from the temporary directory"
 
 	//#org Вид электронного адреса
 @elinkkind "Kind of email address"
@@ -15914,6 +15950,13 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 	//#org Фиксированный бонус
 @scardseries_fixedbonus "Fixed bonus"
 
+	//#org Правило расчета скидок и бонусов по картам
+@scardserrule "Rule of calculating discounts and card bonuses"
+	//#org Период расчета оборотов
+@scardserrule_trnovrperiod "Turnover period"
+	//#org Диапазоны оборотов
+@scardserrule_trnovrrngdislist "Turnover ranges"
+
 	//#org Правило для диапазона оборотов карты
 @trnovrrngdis "Rule for card rev range"
 	//#org Правило начисления бонуса
@@ -15928,6 +15971,10 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @trnovrrngdis_fdiscountaddvalue "Add this value to the discount"
 	//#org Умножить скидку на указанное значение
 @trnovrrngdis_fdiscountmultvalue "Multiply the discount by the specified value"
+	//#org Доля оборота, начисляемая в виде бонуса, %
+@trnovrrngdis_bcm_pctpart "Percentage of turnover accrued as a bonus"
+	//#org Количество единиц, начисляемых в виде бонуса
+@trnovrrngdis_bcm_absvalue "Number of units accrued as a bonus"
 
 	//#org Разбивать длинные сообщения
 @smsprvaccount_smacfsplilongmsg "Break up long messages"
@@ -16374,7 +16421,7 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 	//#org Выставлять нулевое количество
 @autofillinvfilt_ffillwithzeroqtty "Expose zero"
 	//#org Отсутствующие товары ограничивать матрицей
-@autofillinvfilt_frestrictzerorestwithmtx "Missing goods to limit the matrix"
+@autofillinvfilt_frestrictzerorestwithmtx "Missing goods to limit matrix"
 	//#org Способ автозаполнения
 @autofillinvfilt_method "Autocomplete"
 	//#org Пользователь, создавший документ
@@ -16739,6 +16786,20 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 	//#org Классификаторы
 @goodsmoveparam_clssfr "Classifiers"
 
+	//#org Отображать в ценах
+@goodsmovfilt_pricekind "Display in prices"
+	//#org Номинальных
+@goodsmovfilt_prkbaseprice "Nominal"
+	//#org Цены поступления без налогов
+@goodsmovfilt_fcostwovat "Non-tax income prices"
+	//#org Старый алгоритм расчета
+@goodsmovfilt_fuseoldalg "Old calculation algorithm"
+	//#org Цены реализации без налогов
+@goodsmovfilt_fpricewovat "Sales prices without taxes"
+
+	//#org Итоги по движению товаров
+@goodsmovtotal "Results on the movement of goods"
+
 	//#org Фильтр товарного отчета по операции
 @goodsopanlzfilt "Transaction report filter"
 	//#org Сравнительный период
@@ -17096,8 +17157,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @lotfilt_closedtag_opened "Open"
 	//#org Вариант отображения
 @lotfilt_extviewattr "Display option"
-	//#org Теги ЕГАИС
-@lotfilt_exvaegaistags "EGAIS tags"
+	//#org Теги @{brand_egais}
+@lotfilt_exvaegaistags "@{brand_egais} tags"
 	//#org Теги ВЕТИС
 @lotfilt_exvavetistags "VETIS tags"
 
@@ -17262,8 +17323,6 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @prcpan_curtsess "Current session"
 	//#org Основной товар
 @prcpan_mainware "Basic goods"
-	//#org Знак
-@prcpan_sign "Sign"
 	//#org Всего
 @prcpan_total "Just"
 	//#org Единиц
@@ -17953,6 +18012,11 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @selectquot_costbycontract "Set the price of receipts at the supplier's contract prices"
 	//#org Использовать для всего документа
 @selectquot_useforwholebill "Use for the entire document"
+
+	//#org Альтернативная статья для зачета
+@selectaltreckonar "Alternative article for credit"
+	//#org Выберите контрагента, чьи долговые документы должны быть зачтены
+@selectaltreckonar_hint "Select a contractor whose debt documents must be credited"
 
 	//#org Выбор кассовой сессии
 @selectcsess "Choosing a box office session"
@@ -18806,6 +18870,8 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @namedfilt_fcompressxml "Compress Ingrex XML files"
 	//#org Определения полей для отображения
 @namedfilt_viewdeflist "Definitions of fields to display"
+	//#org Символ структуры DL600
+@namedfilt_viewdeflist_strucsymb "DL600 structure symbol"
 	//#org Определение поля для отображения
 @namedfilt_viewdef "Identify the field to display"
 	//#org Зона
@@ -19144,7 +19210,7 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 	//#org Печать чеков
 @cashierrights_printcheck "Print checks"
 	//#org Печать товарных чеков
-@cashierrights_printbill "Printing cheques"
+@cashierrights_printbill "Print cheques"
 	//#org X-отчет
 @cashierrights_printxrep "X-report"
 	//#org Z-отчет
@@ -19329,6 +19395,14 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 
 	//#org Обмен с честным знаком
 @chznprcssrparam "Sharing with an honest sign"
+	//#org Запрос
+@chznprcssrparam_what "Request"
+	//#org Параметр запроса
+@chznprcssrparam_param "Request option"
+	//#org Запрос тикета по документу
+@chznprcssrparam_afqueryticket "Ticket request for a document"
+	//#org Запрос информации о марке
+@chznprcssrparam_afquerykizinfo "Request ingesis"
 
 	//#org Восстановление утерянных персоналий для задач
 @restorelostprjtperson "Restoring lost personalities for tasks"
@@ -19400,6 +19474,19 @@ PPTXT_GLOBALSERVICELIST "1,Twitter;2,Facebook;3,Vk;4,Vetis;5,honest sign"
 @checkinperson_cidtm "Confirmation time"
 	//#org Место
 @checkinperson_placecode "Place"
+
+	//#org Гашение документов ВЕТИС
+@vetisprcssincoming "VETIS Documents"
+	//#org Погасить выбранный
+@vetisprcssincoming_redeemsingle "Repay the chosen one"
+	//#org Погасить все сопоставленные с документами
+@vetisprcssincoming_redeemmatched "Repay all matched documents"
+	//#org Безусловно погасить всю выборку
+@vetisprcssincoming_redeemall "Absolutely pay off the entire sample"
+	//#org Списать с остатка выбранный документ
+@vetisprcssincoming_wroffsingle "Write off the remainder of the selected document"
+	//#org Списать с остатка всю выборку
+@vetisprcssincoming_wroffall "Write off the entire sample"
 
 [121]
 	//#org Вход

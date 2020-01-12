@@ -1,5 +1,5 @@
 // TSSTAT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -179,20 +179,9 @@ int SLAPI StatBase::Step(double val)
 	return 1;
 }
 
-double SLAPI StatBase::GetSum() const
-{
-	return Sum[0];
-}
-
-double SLAPI StatBase::GetVariance() const
-{
-	return (Count > 1) ? (Var * ((double)Count) / ((double)(Count - 1))) : 0.0;
-}
-
-double SLAPI StatBase::GetStdDev() const
-{
-	return sqrt(GetVariance());
-}
+double SLAPI StatBase::GetSum() const { return Sum[0]; }
+double SLAPI StatBase::GetVariance() const { return (Count > 1) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0; }
+double SLAPI StatBase::GetStdDev() const { return sqrt(GetVariance()); }
 
 int SLAPI StatBase::GetValue(long idx, double * pVal) const
 {
@@ -351,7 +340,7 @@ static int locke_shuffle_init(const RealArray & rX, RealArray & rResult)
 
 IMPL_CMPCFUNC(lockes_test_rand, i1, i2)
 {
-	SRng * p_rng = (SRng *)pExtraData;
+	SRng * p_rng = static_cast<SRng *>(pExtraData);
 	ulong r = p_rng ? p_rng->GetUniformInt(8096) : 0;
 	return (r - 4097);
 }

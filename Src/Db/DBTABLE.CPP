@@ -683,6 +683,13 @@ int SLAPI DBTable::getTabFlags(int16 * pFlags)
 //
 //
 //
+BtrDbKey::BtrDbKey()
+{
+	memzero(K, sizeof(K));
+}
+//
+//
+//
 SLAPI ChunkHeader::ChunkHeader(long pos, long func, long aNum) : recPos(pos), subFunc(func), numChunks(aNum)
 {
 }

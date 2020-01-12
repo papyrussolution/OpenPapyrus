@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4356,7 +4356,7 @@ int SLAPI PPObjStyloPalm::ImpExp(const PalmPaneData * pData)
 	}
 	if(ok > 0) {
 		if(!(data.Flags & data.fIgnoreMutex)) { // @v9.8.4
-			if((r = DS.GetSync().CreateMutex(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
+			if((r = DS.GetSync().CreateMutex_(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
 				THROW_PP_S(0, PPERR_PALMEXPIMPBLOCKED, sync_item.Name);
 			}
 			else if(r == 0) {

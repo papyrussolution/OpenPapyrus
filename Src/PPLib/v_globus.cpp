@@ -28,22 +28,18 @@ SLAPI PPViewGlobalUserAcc::~PPViewGlobalUserAcc()
 	ZDELETE(P_TempTbl);
 }
 
-int SLAPI PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserAcc * pRec, TempGlobUserAccTbl::Rec * pTempRec)
+TempGlobUserAccTbl::Rec & SLAPI PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserAcc & rRec, TempGlobUserAccTbl::Rec & rTempRec)
 {
-	int    ok = -1;
-	if(pRec && pTempRec) {
-		pTempRec->ID = pRec->ID;
-		STRNSCPY(pTempRec->Name, pRec->Name);
-		pTempRec->PersonID = pRec->PersonID;
-		{
-			SString temp_buf;
-			pRec->LocalDbUuid.ToStr(0, temp_buf);
-			temp_buf.CopyTo(pTempRec->Guid, sizeof(pTempRec->Guid));
-		}
-		pTempRec->Flags    = pRec->Flags;
-		ok = 1;
+	rTempRec.ID = rRec.ID;
+	rTempRec.PersonID = rRec.PersonID;
+	rTempRec.Flags    = rRec.Flags;
+	STRNSCPY(rTempRec.Name, rRec.Name);
+	{
+		SString temp_buf;
+		rRec.LocalDbUuid.ToStr(0, temp_buf);
+		temp_buf.CopyTo(rTempRec.Guid, sizeof(rTempRec.Guid));
 	}
-	return ok;
+	return rTempRec;
 }
 
 // virtual
@@ -70,8 +66,7 @@ int SLAPI PPViewGlobalUserAcc::Init_(const PPBaseFilt * pFilt)
 		for(PPID id = 0; ObjGlobAcc.EnumItems(&id, &rec) > 0;) {
 			if(CheckForFilt(&rec) > 0) {
 				TempGlobUserAccTbl::Rec temp_rec;
-				MakeTempEntry(&rec, &temp_rec);
-				THROW_DB(bei.insert(&temp_rec));
+				THROW_DB(bei.insert(&MakeTempEntry(rec, temp_rec)));
 			}
 		}
 		THROW_DB(bei.flash());
@@ -96,7 +91,7 @@ int SLAPI PPViewGlobalUserAcc::UpdateTempTable(const PPIDArray * pIdList)
 			TempGlobUserAccTbl::Rec temp_rec;
 			if(ObjGlobAcc.Search(id, &rec) > 0 && CheckForFilt(&rec)) {
 				ok = 1;
-				MakeTempEntry(&rec, &temp_rec);
+				MakeTempEntry(rec, temp_rec);
 				if(SearchByID_ForUpdate(P_TempTbl, 0,  id, 0) > 0) {
 					THROW_DB(P_TempTbl->updateRecBuf(&temp_rec)); // @sfu
 				}

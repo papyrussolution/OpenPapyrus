@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -27,53 +27,66 @@ int SLAPI SDirEntry::IsUpFolder() const { return BIN(FileName[0] == '.' && FileN
 int SLAPI SDirEntry::IsSelf() const { return BIN(FileName[0] == '.' && FileName[1] == 0); }
 int SLAPI SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
 
+static LDATETIME _tm_to_ldatetime(const struct tm * pTm)
+{
+	LDATETIME dtm;
+	return dtm.Set(encodedate(pTm->tm_mday, pTm->tm_mon+1, pTm->tm_year+1900), encodetime(pTm->tm_hour, pTm->tm_min, pTm->tm_sec, 0));
+}
+
 SDirEntry & FASTCALL SDirEntry::operator = (const _finddatai64_t & rS)
 {
 	THISZERO();
-	struct tm * p_tb = 0, * p_modify_tb = 0, tb, modify_tb;
+	struct tm * p_modify_tb = 0;
+	struct tm tb;
 	STRNSCPY(FileName, rS.name);
 	Attr = rS.attrib;
 	Size = rS.size;
-	//
-	// Modify time
-	//
-	p_tb = p_modify_tb = localtime(&rS.time_write);
-	if(!p_tb) {
-		MEMSZERO(tb);
-		p_tb = &tb;
-	}
-	else {
-		modify_tb = *p_modify_tb;
-		p_modify_tb = &modify_tb;
-	}
-	WriteTime.d = encodedate(p_tb->tm_mday, p_tb->tm_mon+1, p_tb->tm_year+1900);
-	WriteTime.t = encodetime(p_tb->tm_hour, p_tb->tm_min, p_tb->tm_sec, 0);
-	//
-	// Create time
-	//
-	p_tb = localtime(&rS.time_create);
-	if(!p_tb)
-		if(p_modify_tb)
-			p_tb = p_modify_tb;
-		else {
+	{
+		//
+		// Modify time
+		//
+		struct tm modify_tb;
+		struct tm * p_tb = p_modify_tb = localtime(&rS.time_write);
+		if(!p_tb) {
 			MEMSZERO(tb);
 			p_tb = &tb;
 		}
-	CreateTime.d = encodedate(p_tb->tm_mday, p_tb->tm_mon+1, p_tb->tm_year+1900);
-	CreateTime.t = encodetime(p_tb->tm_hour, p_tb->tm_min, p_tb->tm_sec, 0);
-	//
-	// Access time
-	//
-	p_tb = localtime(&rS.time_access);
-	if(!p_tb)
-		if(p_modify_tb)
-			p_tb = p_modify_tb;
 		else {
-			MEMSZERO(tb);
-			p_tb = &tb;
+			modify_tb = *p_modify_tb;
+			p_modify_tb = &modify_tb;
 		}
-	AccessTime.d = encodedate(p_tb->tm_mday, p_tb->tm_mon+1, p_tb->tm_year+1900);
-	AccessTime.t = encodetime(p_tb->tm_hour, p_tb->tm_min, p_tb->tm_sec, 0);
+		WriteTime = _tm_to_ldatetime(p_tb);
+	}
+	{
+		//
+		// Create time
+		//
+		struct tm * p_tb = localtime(&rS.time_create);
+		if(!p_tb) {
+			if(p_modify_tb)
+				p_tb = p_modify_tb;
+			else {
+				MEMSZERO(tb);
+				p_tb = &tb;
+			}
+		}
+		CreateTime = _tm_to_ldatetime(p_tb);
+	}
+	{
+		//
+		// Access time
+		//
+		struct tm * p_tb = localtime(&rS.time_access);
+		if(!p_tb) {
+			if(p_modify_tb)
+				p_tb = p_modify_tb;
+			else {
+				MEMSZERO(tb);
+				p_tb = &tb;
+			}
+		}
+		AccessTime = _tm_to_ldatetime(p_tb);
+	}
 	return *this;
 }
 
@@ -109,13 +122,29 @@ SDirEntry & FASTCALL SDirEntry::operator = (const WIN32_FIND_DATAW & rS)
 
 int SLAPI SDirec::FindFirst()
 {
-	lPosData = _findfirsti64(InitPath, (FFIND_DATA*)vPosData);
+	lPosData = _findfirsti64(InitPath, static_cast<FFIND_DATA *>(vPosData));
 	return (lPosData >= 0) ? 1 : -1;
 }
 
 int SLAPI SDirec::FindNext()
 {
-	return (_findnexti64(lPosData, (FFIND_DATA*)vPosData) == 0) ? 1 : -1;
+	return (_findnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
+}
+
+//static 
+int SLAPI SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
+{
+	int    ok = 0;
+	if(!isempty(pPath)) {
+		FFIND_DATA ff;
+		intptr_t ffr = _findfirsti64(pPath, &ff);
+		if(ffr >= 0) {
+			ASSIGN_PTR(pEntry, ff);
+			_findclose(ffr);
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 int SLAPI SDirec::FindClose()
@@ -154,7 +183,7 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 		else
 			ok = 0;
 		if(ok > 0) {
-			CurEntry = *(FFIND_DATA*)vPosData;
+			CurEntry = *static_cast<const FFIND_DATA *>(vPosData);
 			InitFlag = -1;
 		}
 	} while(ok > 0 && (EnumDir && (CurEntry.Attr & 0x10L) == 0));
@@ -212,6 +241,19 @@ int FASTCALL SFileEntryPool::GetInitPath(SString & rPath) const
 {
 	GetS(InitPathP, rPath);
 	return rPath.NotEmpty() ? 1 : -1;
+}
+
+int SLAPI SFileEntryPool::Add(const char * pPath)
+{
+	int    ok = 0;
+	SDirEntry de;
+	if(SDirec::GetSingle(pPath, &de) > 0) {
+		SString temp_buf;
+		SPathStruc ps(pPath);
+		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
+		ok = Add(temp_buf, de);
+	}
+	return ok;
 }
 
 int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)

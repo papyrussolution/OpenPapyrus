@@ -878,10 +878,7 @@ static int png_colorspace_check_gamma(png_const_structrp png_ptr,
  */
 {
 	png_fixed_point gtest;
-
-	if((colorspace->flags & PNG_COLORSPACE_HAVE_GAMMA) != 0 &&
-	    (png_muldiv(&gtest, colorspace->gamma, PNG_FP_1, gAMA) == 0  ||
-		    png_gamma_significant(gtest) != 0)) {
+	if((colorspace->flags & PNG_COLORSPACE_HAVE_GAMMA) != 0 && (png_muldiv(&gtest, colorspace->gamma, PNG_FP_1, gAMA) == 0  || png_gamma_significant(gtest) != 0)) {
 		/* Either this is an sRGB image, in which case the calculated gamma
 		 * approximation should match, or this is an image with a profile and the
 		 * value libpng calculates for the gamma of the profile does not match the
@@ -889,19 +886,16 @@ static int png_colorspace_check_gamma(png_const_structrp png_ptr,
 		 * latter is just a warning.
 		 */
 		if((colorspace->flags & PNG_COLORSPACE_FROM_sRGB) != 0 || from == 2) {
-			png_chunk_report(png_ptr, "gamma value does not match sRGB",
-			    PNG_CHUNK_ERROR);
+			png_chunk_report(png_ptr, "gamma value does not match sRGB", PNG_CHUNK_ERROR);
 			/* Do not overwrite an sRGB value */
 			return from == 2;
 		}
 
 		else { /* sRGB tag not involved */
-			png_chunk_report(png_ptr, "gamma value does not match libpng estimate",
-			    PNG_CHUNK_WARNING);
+			png_chunk_report(png_ptr, "gamma value does not match libpng estimate", PNG_CHUNK_WARNING);
 			return from == 1;
 		}
 	}
-
 	return 1;
 }
 
@@ -919,30 +913,23 @@ void /* PRIVATE */ png_colorspace_set_gamma(png_const_structrp png_ptr, png_colo
 	 * handling code, which only required the value to be >0.
 	 */
 	const char * errmsg;
-
 	if(gAMA < 16 || gAMA > 625000000)
 		errmsg = "gamma value out of range";
-
 #  ifdef PNG_READ_gAMA_SUPPORTED
 	/* Allow the application to set the gamma value more than once */
-	else if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 &&
-	    (colorspace->flags & PNG_COLORSPACE_FROM_gAMA) != 0)
+	else if((png_ptr->mode & PNG_IS_READ_STRUCT) != 0 && (colorspace->flags & PNG_COLORSPACE_FROM_gAMA) != 0)
 		errmsg = "duplicate";
 #  endif
 
 	/* Do nothing if the colorspace is already invalid */
 	else if((colorspace->flags & PNG_COLORSPACE_INVALID) != 0)
 		return;
-
 	else {
-		if(png_colorspace_check_gamma(png_ptr, colorspace, gAMA,
-			    1 /*from gAMA*/) != 0) {
+		if(png_colorspace_check_gamma(png_ptr, colorspace, gAMA, 1 /*from gAMA*/) != 0) {
 			/* Store this gamma value. */
 			colorspace->gamma = gAMA;
-			colorspace->flags |=
-			    (PNG_COLORSPACE_HAVE_GAMMA | PNG_COLORSPACE_FROM_gAMA);
+			colorspace->flags |= (PNG_COLORSPACE_HAVE_GAMMA | PNG_COLORSPACE_FROM_gAMA);
 		}
-
 		/* At present if the check_gamma test fails the gamma of the colorspace is
 		 * not updated however the colorspace is not invalidated.  This
 		 * corresponds to the case where the existing gamma comes from an sRGB
@@ -950,7 +937,6 @@ void /* PRIVATE */ png_colorspace_set_gamma(png_const_structrp png_ptr, png_colo
 		 */
 		return;
 	}
-
 	/* Error exit - errmsg has been set. */
 	colorspace->flags |= PNG_COLORSPACE_INVALID;
 	png_chunk_report(png_ptr, errmsg, PNG_CHUNK_WRITE_ERROR);
@@ -960,39 +946,31 @@ void /* PRIVATE */ png_colorspace_sync_info(png_const_structrp png_ptr, png_info
 {
 	if((info_ptr->colorspace.flags & PNG_COLORSPACE_INVALID) != 0) {
 		/* Everything is invalid */
-		info_ptr->valid &= ~(PNG_INFO_gAMA|PNG_INFO_cHRM|PNG_INFO_sRGB|
-		    PNG_INFO_iCCP);
-
-#     ifdef PNG_COLORSPACE_SUPPORTED
+		info_ptr->valid &= ~(PNG_INFO_gAMA|PNG_INFO_cHRM|PNG_INFO_sRGB|PNG_INFO_iCCP);
+#ifdef PNG_COLORSPACE_SUPPORTED
 		/* Clean up the iCCP profile now if it won't be used. */
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, -1 /*not used*/);
-#     else
+#else
 		PNG_UNUSED(png_ptr)
-#     endif
+#endif
 	}
-
 	else {
-#     ifdef PNG_COLORSPACE_SUPPORTED
+#ifdef PNG_COLORSPACE_SUPPORTED
 		/* Leave the INFO_iCCP flag set if the pngset.c code has already set
 		 * it; this allows a PNG to contain a profile which matches sRGB and
 		 * yet still have that profile retrievable by the application.
 		 */
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_MATCHES_sRGB) != 0)
 			info_ptr->valid |= PNG_INFO_sRGB;
-
 		else
 			info_ptr->valid &= ~PNG_INFO_sRGB;
-
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_HAVE_ENDPOINTS) != 0)
 			info_ptr->valid |= PNG_INFO_cHRM;
-
 		else
 			info_ptr->valid &= ~PNG_INFO_cHRM;
-#     endif
-
+#endif
 		if((info_ptr->colorspace.flags & PNG_COLORSPACE_HAVE_GAMMA) != 0)
 			info_ptr->valid |= PNG_INFO_gAMA;
-
 		else
 			info_ptr->valid &= ~PNG_INFO_gAMA;
 	}
@@ -1018,9 +996,8 @@ void /* PRIVATE */ png_colorspace_sync(png_const_structrp png_ptr, png_inforp in
  */
 static int png_xy_from_XYZ(png_xy * xy, const png_XYZ * XYZ)
 {
-	png_int_32 d, dwhite, whiteX, whiteY;
-
-	d = XYZ->red_X + XYZ->red_Y + XYZ->red_Z;
+	png_int_32 dwhite, whiteX, whiteY;
+	png_int_32 d = XYZ->red_X + XYZ->red_Y + XYZ->red_Z;
 	if(png_muldiv(&xy->redx, XYZ->red_X, PNG_FP_1, d) == 0)
 		return 1;
 	if(png_muldiv(&xy->redy, XYZ->red_Y, PNG_FP_1, d) == 0)
@@ -1267,70 +1244,53 @@ static int png_XYZ_from_xy(png_XYZ * XYZ, const png_xy * xy)
 		return 2;
 	if(png_muldiv(&right, xy->greeny-xy->bluey, xy->whitex-xy->bluex, 7) == 0)
 		return 2;
-
 	/* Overflow is possible here and it indicates an extreme set of PNG cHRM
 	 * chunk values.  This calculation actually returns the reciprocal of the
 	 * scale value because this allows us to delay the multiplication of white-y
 	 * into the denominator, which tends to produce a small number.
 	 */
-	if(png_muldiv(&red_inverse, xy->whitey, denominator, left-right) == 0 ||
-	    red_inverse <= xy->whitey /* r+g+b scales = white scale */)
+	if(png_muldiv(&red_inverse, xy->whitey, denominator, left-right) == 0 || red_inverse <= xy->whitey /* r+g+b scales = white scale */)
 		return 1;
-
 	/* Similarly for green_inverse: */
 	if(png_muldiv(&left, xy->redy-xy->bluey, xy->whitex-xy->bluex, 7) == 0)
 		return 2;
 	if(png_muldiv(&right, xy->redx-xy->bluex, xy->whitey-xy->bluey, 7) == 0)
 		return 2;
-	if(png_muldiv(&green_inverse, xy->whitey, denominator, left-right) == 0 ||
-	    green_inverse <= xy->whitey)
+	if(png_muldiv(&green_inverse, xy->whitey, denominator, left-right) == 0 || green_inverse <= xy->whitey)
 		return 1;
-
 	/* And the blue scale, the checks above guarantee this can't overflow but it
 	 * can still produce 0 for extreme cHRM values.
 	 */
-	blue_scale = png_reciprocal(xy->whitey) - png_reciprocal(red_inverse) -
-	    png_reciprocal(green_inverse);
+	blue_scale = png_reciprocal(xy->whitey) - png_reciprocal(red_inverse) - png_reciprocal(green_inverse);
 	if(blue_scale <= 0)
 		return 1;
-
 	/* And fill in the png_XYZ: */
 	if(png_muldiv(&XYZ->red_X, xy->redx, PNG_FP_1, red_inverse) == 0)
 		return 1;
 	if(png_muldiv(&XYZ->red_Y, xy->redy, PNG_FP_1, red_inverse) == 0)
 		return 1;
-	if(png_muldiv(&XYZ->red_Z, PNG_FP_1 - xy->redx - xy->redy, PNG_FP_1,
-		    red_inverse) == 0)
+	if(png_muldiv(&XYZ->red_Z, PNG_FP_1 - xy->redx - xy->redy, PNG_FP_1, red_inverse) == 0)
 		return 1;
-
 	if(png_muldiv(&XYZ->green_X, xy->greenx, PNG_FP_1, green_inverse) == 0)
 		return 1;
 	if(png_muldiv(&XYZ->green_Y, xy->greeny, PNG_FP_1, green_inverse) == 0)
 		return 1;
-	if(png_muldiv(&XYZ->green_Z, PNG_FP_1 - xy->greenx - xy->greeny, PNG_FP_1,
-		    green_inverse) == 0)
+	if(png_muldiv(&XYZ->green_Z, PNG_FP_1 - xy->greenx - xy->greeny, PNG_FP_1, green_inverse) == 0)
 		return 1;
-
 	if(png_muldiv(&XYZ->blue_X, xy->bluex, blue_scale, PNG_FP_1) == 0)
 		return 1;
 	if(png_muldiv(&XYZ->blue_Y, xy->bluey, blue_scale, PNG_FP_1) == 0)
 		return 1;
-	if(png_muldiv(&XYZ->blue_Z, PNG_FP_1 - xy->bluex - xy->bluey, blue_scale,
-		    PNG_FP_1) == 0)
+	if(png_muldiv(&XYZ->blue_Z, PNG_FP_1 - xy->bluex - xy->bluey, blue_scale, PNG_FP_1) == 0)
 		return 1;
-
 	return 0; /*success*/
 }
 
 static int png_XYZ_normalize(png_XYZ * XYZ)
 {
 	png_int_32 Y;
-
-	if(XYZ->red_Y < 0 || XYZ->green_Y < 0 || XYZ->blue_Y < 0 ||
-	    XYZ->red_X < 0 || XYZ->green_X < 0 || XYZ->blue_X < 0 ||
-	    XYZ->red_Z < 0 || XYZ->green_Z < 0 || XYZ->blue_Z < 0)
+	if(XYZ->red_Y < 0 || XYZ->green_Y < 0 || XYZ->blue_Y < 0 || XYZ->red_X < 0 || XYZ->green_X < 0 || XYZ->blue_X < 0 || XYZ->red_Z < 0 || XYZ->green_Z < 0 || XYZ->blue_Z < 0)
 		return 1;
-
 	/* Normalize by scaling so the sum of the end-point Y values is PNG_FP_1.
 	 * IMPLEMENTATION NOTE: ANSI requires signed overflow not to occur, therefore
 	 * relying on addition of two positive values producing a negative one is not
@@ -1343,7 +1303,6 @@ static int png_XYZ_normalize(png_XYZ * XYZ)
 	if(0x7fffffff - Y < XYZ->blue_X)
 		return 1;
 	Y += XYZ->blue_Y;
-
 	if(Y != PNG_FP_1) {
 		if(png_muldiv(&XYZ->red_X, XYZ->red_X, PNG_FP_1, Y) == 0)
 			return 1;
@@ -1351,14 +1310,12 @@ static int png_XYZ_normalize(png_XYZ * XYZ)
 			return 1;
 		if(png_muldiv(&XYZ->red_Z, XYZ->red_Z, PNG_FP_1, Y) == 0)
 			return 1;
-
 		if(png_muldiv(&XYZ->green_X, XYZ->green_X, PNG_FP_1, Y) == 0)
 			return 1;
 		if(png_muldiv(&XYZ->green_Y, XYZ->green_Y, PNG_FP_1, Y) == 0)
 			return 1;
 		if(png_muldiv(&XYZ->green_Z, XYZ->green_Z, PNG_FP_1, Y) == 0)
 			return 1;
-
 		if(png_muldiv(&XYZ->blue_X, XYZ->blue_X, PNG_FP_1, Y) == 0)
 			return 1;
 		if(png_muldiv(&XYZ->blue_Y, XYZ->blue_Y, PNG_FP_1, Y) == 0)
@@ -1366,7 +1323,6 @@ static int png_XYZ_normalize(png_XYZ * XYZ)
 		if(png_muldiv(&XYZ->blue_Z, XYZ->blue_Z, PNG_FP_1, Y) == 0)
 			return 1;
 	}
-
 	return 0;
 }
 
@@ -1397,22 +1353,16 @@ static int png_colorspace_endpoints_match(const png_xy * xy1, const png_xy * xy2
  */
 static int png_colorspace_check_xy(png_XYZ * XYZ, const png_xy * xy)
 {
-	int result;
 	png_xy xy_test;
-
 	/* As a side-effect this routine also returns the XYZ endpoints. */
-	result = png_XYZ_from_xy(XYZ, xy);
+	int result = png_XYZ_from_xy(XYZ, xy);
 	if(result != 0)
 		return result;
-
 	result = png_xy_from_XYZ(&xy_test, XYZ);
 	if(result != 0)
 		return result;
-
-	if(png_colorspace_endpoints_match(xy, &xy_test,
-		    5 /*actually, the math is pretty accurate*/) != 0)
+	if(png_colorspace_endpoints_match(xy, &xy_test, 5 /*actually, the math is pretty accurate*/) != 0)
 		return 0;
-
 	/* Too much slip */
 	return 1;
 }
@@ -1422,17 +1372,13 @@ static int png_colorspace_check_xy(png_XYZ * XYZ, const png_xy * xy)
  */
 static int png_colorspace_check_XYZ(png_xy * xy, png_XYZ * XYZ)
 {
-	int result;
 	png_XYZ XYZtemp;
-
-	result = png_XYZ_normalize(XYZ);
+	int result = png_XYZ_normalize(XYZ);
 	if(result != 0)
 		return result;
-
 	result = png_xy_from_XYZ(xy, XYZ);
 	if(result != 0)
 		return result;
-
 	XYZtemp = *XYZ;
 	return png_colorspace_check_xy(&XYZtemp, xy);
 }
@@ -1447,9 +1393,7 @@ static const png_xy sRGB_xy = /* From ITU-R BT.709-3 */
 	/* white */ 31270, 32900
 };
 
-static int png_colorspace_set_xy_and_XYZ(png_const_structrp png_ptr,
-    png_colorspacerp colorspace, const png_xy * xy, const png_XYZ * XYZ,
-    int preferred)
+static int png_colorspace_set_xy_and_XYZ(png_const_structrp png_ptr, png_colorspacerp colorspace, const png_xy * xy, const png_XYZ * XYZ, int preferred)
 {
 	if((colorspace->flags & PNG_COLORSPACE_INVALID) != 0)
 		return 0;
@@ -1463,32 +1407,23 @@ static int png_colorspace_set_xy_and_XYZ(png_const_structrp png_ptr,
 		/* The end points must be reasonably close to any we already have.  The
 		 * following allows an error of up to +/-.001
 		 */
-		if(png_colorspace_endpoints_match(xy, &colorspace->end_points_xy,
-			    100) == 0) {
+		if(png_colorspace_endpoints_match(xy, &colorspace->end_points_xy, 100) == 0) {
 			colorspace->flags |= PNG_COLORSPACE_INVALID;
 			png_benign_error(png_ptr, "inconsistent chromaticities");
 			return 0; /* failed */
 		}
-
 		/* Only overwrite with preferred values */
 		if(preferred == 0)
 			return 1;  /* ok, but no change */
 	}
-
 	colorspace->end_points_xy = *xy;
 	colorspace->end_points_XYZ = *XYZ;
 	colorspace->flags |= PNG_COLORSPACE_HAVE_ENDPOINTS;
-
-	/* The end points are normally quoted to two decimal digits, so allow +/-0.01
-	 * on this test.
-	 */
+	// The end points are normally quoted to two decimal digits, so allow +/-0.01 on this test.
 	if(png_colorspace_endpoints_match(xy, &sRGB_xy, 1000) != 0)
 		colorspace->flags |= PNG_COLORSPACE_ENDPOINTS_MATCH_sRGB;
-
 	else
-		colorspace->flags &= PNG_COLORSPACE_CANCEL(
-		    PNG_COLORSPACE_ENDPOINTS_MATCH_sRGB);
-
+		colorspace->flags &= PNG_COLORSPACE_CANCEL(PNG_COLORSPACE_ENDPOINTS_MATCH_sRGB);
 	return 2; /* ok and changed */
 }
 
@@ -2840,26 +2775,22 @@ png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * te
 
 	if(r > 2147483647. || r < -2147483648.)
 		png_fixed_error(png_ptr, text);
-
-#  ifndef PNG_ERROR_TEXT_SUPPORTED
+#ifndef PNG_ERROR_TEXT_SUPPORTED
 	PNG_UNUSED(text)
-#  endif
-
+#endif
 	return (png_fixed_point)r;
 }
 
 #endif
 
-#if defined(PNG_GAMMA_SUPPORTED) || defined(PNG_COLORSPACE_SUPPORTED) || \
-	defined(PNG_INCH_CONVERSIONS_SUPPORTED) || defined(PNG_READ_pHYs_SUPPORTED)
+#if defined(PNG_GAMMA_SUPPORTED) || defined(PNG_COLORSPACE_SUPPORTED) || defined(PNG_INCH_CONVERSIONS_SUPPORTED) || defined(PNG_READ_pHYs_SUPPORTED)
 /* muldiv functions */
 /* This API takes signed arguments and rounds the result to the nearest
  * integer (or, for a fixed point number - the standard argument - to
  * the nearest .00001).  Overflow and divide by zero are signalled in
  * the result, a boolean - true on success, false on overflow.
  */
-int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times,
-    png_int_32 divisor)
+int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times, png_int_32 divisor)
 {
 	/* Return a * times / divisor, rounded. */
 	if(divisor != 0) {
@@ -2883,39 +2814,31 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times,
 			int negative = 0;
 			uint32 A, T, D;
 			uint32 s16, s32, s00;
-
 			if(a < 0)
 				negative = 1, A = -a;
 			else
 				A = a;
-
 			if(times < 0)
 				negative = !negative, T = -times;
 			else
 				T = times;
-
 			if(divisor < 0)
 				negative = !negative, D = -divisor;
 			else
 				D = divisor;
-
 			/* Following can't overflow because the arguments only
 			 * have 31 bits each, however the result may be 32 bits.
 			 */
-			s16 = (A >> 16) * (T & 0xffff) +
-			    (A & 0xffff) * (T >> 16);
+			s16 = (A >> 16) * (T & 0xffff) + (A & 0xffff) * (T >> 16);
 			/* Can't overflow because the a*times bit is only 30
 			 * bits at most.
 			 */
 			s32 = (A >> 16) * (T >> 16) + (s16 >> 16);
 			s00 = (A & 0xffff) * (T & 0xffff);
-
 			s16 = (s16 & 0xffff) << 16;
 			s00 += s16;
-
 			if(s00 < s16)
 				++s32;  /* carry */
-
 			if(s32 < D) { /* else overflow */
 				/* s32.s00 is now the 64-bit product, do a standard
 				 * division, we know that s32 < D, so the maximum
@@ -2923,35 +2846,26 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times,
 				 */
 				int bitshift = 32;
 				png_fixed_point result = 0; /* NOTE: signed */
-
 				while(--bitshift >= 0) {
 					uint32 d32, d00;
-
 					if(bitshift > 0)
 						d32 = D >> (32-bitshift), d00 = D << bitshift;
-
 					else
 						d32 = 0, d00 = D;
-
 					if(s32 > d32) {
 						if(s00 < d00) --s32;  /* carry */
 						s32 -= d32, s00 -= d00, result += 1<<bitshift;
 					}
-
 					else if(s32 == d32 && s00 >= d00)
 						s32 = 0, s00 -= d00, result += 1<<bitshift;
 				}
-
 				/* Handle the rounding. */
 				if(s00 >= (D >> 1))
 					++result;
-
 				if(negative != 0)
 					result = -result;
-
 				/* Check for overflow. */
-				if((negative != 0 && result <= 0) ||
-				    (negative == 0 && result >= 0)) {
+				if((negative != 0 && result <= 0) || (negative == 0 && result >= 0)) {
 					*res = result;
 					return 1;
 				}
@@ -2959,7 +2873,6 @@ int png_muldiv(png_fixed_point_p res, png_fixed_point a, png_int_32 times,
 #endif
 		}
 	}
-
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -38,7 +38,6 @@ public:
 	int    SelStarted2;
 	int    SelStarted3;
 	//int    RowCount;
-
 	int    c_i;
 	int    c_j;
 	int    c_minfirst;
@@ -50,7 +49,6 @@ public:
 	int    y_th;
 	int    y_t;
 	int    y_w;
-
 	_TCHAR C[7][7][12];
 	TDialog * P_Dlg;
 	uint   DateCtlID;
@@ -1533,10 +1531,9 @@ void TPeriodCalendar::SelectByFastPrd(HWND hWnd)
 	long   fastprd_sel = 0;
 	HWND   cbx_hwnd = GetDlgItem(hWnd, CTL_CALENDAR_FASTPRD);
 	if(P_Inner && cbx_hwnd && (fastprd_sel = SendMessage(cbx_hwnd, CB_GETCURSEL, 0, 0)) != CB_ERR) {
-		LDATE cur_dt = ZERODATE;
+		LDATE cur_dt = getcurdate_();
 		LDATE d1 = ZERODATE;
 		LDATE d2 = ZERODATE;
-		getcurdate(&cur_dt);
 		if(oneof2(fastprd_sel, PPFASTPRD_TODAY, PPFASTPRD_YESTERDAY)) {
 			if(fastprd_sel == PPFASTPRD_YESTERDAY)
 				plusdate(&cur_dt, -1, 0);

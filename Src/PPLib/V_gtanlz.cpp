@@ -296,7 +296,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 			LotViewItem lot_item;
 			const LDATE upp_date = NZOR(Filt.Period.upp, LConfig.OperDate);
 			lot_filt.Period.Set(ZERODATE, upp_date);
-			lot_filt.LocID = Filt.LocID;
+			lot_filt.LocList.Add(Filt.LocID);
 			lot_filt.GoodsGrpID = Filt.GoodsGrpID;
 			PPObjBill::PplBlock ppl_blk(lot_filt.Period, 0, 0);
 			ppl_blk.Flags |= PPObjBill::PplBlock::fGatherPaym;
@@ -669,10 +669,11 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewGoodsTaxAnalyze::InitIterQuery(PPID grpID)
 {
-	char   k_[MAXKEYLEN];
+	// @v10.6.8 char   k_[MAXKEYLEN];
+	BtrDbKey k__; // @v10.6.8
 	TempGoodsTaxAnlzTbl::Key2 k2;
 	int  sp_mode = spFirst;
-   	void * k = memzero(k_, sizeof(k_));
+   	void * k = k__; // memzero(k_, sizeof(k_));
 	delete P_IterQuery;
 	P_IterQuery = new BExtQuery(P_TempTbl, IterIdx, 14);
 	P_IterQuery->selectAll();

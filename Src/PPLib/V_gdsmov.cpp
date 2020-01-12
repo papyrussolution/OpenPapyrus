@@ -366,13 +366,14 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 
 int SLAPI PPViewGoodsMov::InitIterQuery(PPID grpID)
 {
-	char   k_[MAXKEYLEN];
+	// @v10.6.8 char   k_[MAXKEYLEN];
+	BtrDbKey k__; // @v10.6.8 
 	TempGoodsMovTbl::Key0 k0;
 	TempGoodsMovTbl::Key1 k1;
 	void * k;
 	int    sp_mode = spFirst;
-   	memzero(k_, sizeof(k_));
-	k = k_;
+   	// @v10.6.8 @ctr memzero(k_, sizeof(k_));
+	k = k__;
 	delete P_IterQuery;
 	P_IterQuery = new BExtQuery(P_TempTbl, IterIdx, 10);
 	P_IterQuery->selectAll();

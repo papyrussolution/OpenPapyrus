@@ -2423,7 +2423,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 	SString serial, sn_templt;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	ObjTransmContext ot_ctx(&Logger); // Контекст, необходимый для автоматического приходования дефицита классом BillTransmDeficit
+	ObjTransmContext ot_ctx(0, &Logger); // Контекст, необходимый для автоматического приходования дефицита классом BillTransmDeficit
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	ObjTagItem tag_item;

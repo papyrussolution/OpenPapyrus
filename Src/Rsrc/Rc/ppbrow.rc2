@@ -791,48 +791,49 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 }
 
 toolbar export GOODS TB_FIRST_TOOLBAR {
-	EDITITEM       : kbEnter,     PPDV_EDITFILE02,       "@{edit}\tEnter"
-	ADDITEM        : kbIns,       PPDV_ADDFILE02,        "@{add}\tInsert"
-	ADDBYSAMPLE    : kbAltF2,     PPDV_CREATEBYEXAMPLE01,     "@{doaddbysample}\tAlt-F2"
-	DELETEITEM     : kbDel,       PPDV_DELETEFILE02,     "@{delete}\tDelete"
-	DELETEALL      : kbCtrlF8,    PPDV_DELETEALL02,      "@{doupdateall}\tCtrl-F8"
-	UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,            "@{unite_goods}\tCtrl-U"
+	EDITITEM       : kbEnter,     PPDV_EDITFILE02,        "@{edit}\tEnter"
+	ADDITEM        : kbIns,       PPDV_ADDFILE02,         "@{add}\tInsert"
+	ADDBYSAMPLE    : kbAltF2,     PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+	DELETEITEM     : kbDel,       PPDV_DELETEFILE02,      "@{delete}\tDelete"
+	DELETEALL      : kbCtrlF8,    PPDV_DELETEALL02,       "@{doupdateall}\tCtrl-F8"
+	UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,           "@{unite_goods}\tCtrl-U"
 	separator
-	ADDTOBASKET    : kbCtrlF4,    PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
-	ADDFROMBASKET  : kbCtrlF5,    TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tCtrl-F5"
+	ADDTOBASKET    : kbCtrlF4,    PPDV_SHOPPINGCART01,    "@{doputtobasket}\tCtrl-F4"
+	ADDFROMBASKET  : kbCtrlF5,    TBBM_ADDTISFROMBASKET,  "@{dogetfrombasket}\tCtrl-F5"
 	separator
-	TAGS           : kbF2,        PPDV_TAGS01,           "@{tags}\tF2"
-	TAGSALL        : kbShiftF6,   TBBM_TAGSALL,          "@{doupdatetags}\tShift-F6"
-	VIEWLOTS       : kbF3,        TBBM_LOTS,             "@{dobrowselotsbycurware}\tF3"
-	GOODSSTRUCT    : kbF4,        TBBM_GOODSSTRCT,       "@{goods_struc}\tF4"
-	ADDEDFIELDS    : kbF5,        TBBM_EXTRAVIEW,        "Дополнительные поля товара\tF5"
-	VIEWQUOT       : kbCtrlQ,     TBBM_QUOTATION,        "@{quotes}\tCtrl-Q"
-	VIEWSUPPLQUOT  : kbCtrlW,     TBBM_SUPPLQUOTS,       "@{qkcls_suppldeal}\tCtrl-W"
-	VIEWGOODSMATRIX: kbCtrlM,     PPDV_MATRIX01,           "@{goodsmatrix}\tCtrl-M"
-	VIEWGOODSAGGR  : kbCtrlI,     TBBM_MEMBERSHIP,       "Членство в агрегациях\tCtrl-I"
-	DETAIL         : kbF11,       TBBM_GENGOODS,         "@{generalization}\tF11"
+	TAGS           : kbF2,        PPDV_TAGS01,            "@{tags}\tF2"
+	TAGSALL        : kbShiftF6,   TBBM_TAGSALL,           "@{doupdatetags}\tShift-F6"
+	VIEWLOTS       : kbF3,        TBBM_LOTS,              "@{dobrowselotsbycurware}\tF3"
+	GOODSSTRUCT    : kbF4,        TBBM_GOODSSTRCT,        "@{goods_struc}\tF4"
+	ADDEDFIELDS    : kbF5,        TBBM_EXTRAVIEW,         "Дополнительные поля товара\tF5"
+	VIEWQUOT       : kbCtrlQ,     TBBM_QUOTATION,         "@{quotes}\tCtrl-Q"
+	VIEWSUPPLQUOT  : kbCtrlW,     TBBM_SUPPLQUOTS,        "@{qkcls_suppldeal}\tCtrl-W"
+	VIEWGOODSMATRIX: kbCtrlM,     PPDV_MATRIX01,          "@{goodsmatrix}\tCtrl-M"
+	VIEWGOODSAGGR  : kbCtrlI,     TBBM_MEMBERSHIP,        "Членство в агрегациях\tCtrl-I"
+	DETAIL         : kbF11,       TBBM_GENGOODS,          "@{generalization}\tF11"
+	SIMILARITY     : kbCtrlY,     PPDV_NOICON,            "Подобие по текущей колонке\tCtrl-Y"
 	separator
-	EDITARCODES    : kbF6,        TBBM_ARCODE,           "@{codebyar_pl}\tF6"
-	MOVARCODES     : kbCtrlF6,    PPDV_NOICON,           "Перенести коды на другую статью\tCtrl-F6"
+	EDITARCODES    : kbF6,        TBBM_ARCODE,            "@{codebyar_pl}\tF6"
+	MOVARCODES     : kbCtrlF6,    PPDV_NOICON,            "Перенести коды на другую статью\tCtrl-F6"
 	separator
-	VIEWTECH       : kbCtrlT,     TBBM_TECH,             "@{view_tech}\tCtrl-T"
-	VIEWTSESS      : kbCtrlS,     TBBM_TSESS,            "Сессии процессора\tCtrl-S"
+	VIEWTECH       : kbCtrlT,     TBBM_TECH,              "@{view_tech}\tCtrl-T"
+	VIEWTSESS      : kbCtrlS,     TBBM_TSESS,             "Сессии процессора\tCtrl-S"
 	separator
-	SORT           : kbCtrlO,     TBBM_SORT,             "@{sorting}\tCtrl-O"
-	PRINT          : kbF7,        PPDV_PRINTER01,        "Печать списка\tF7"
-	POSPRINT       : kbCtrlF7,    TBBM_POSPRINT,         "Печать ценника\tCtrl-F7"
-	PRINTLABEL     : kbCtrlL,     TBBM_PRNLABELS,        "Печать этикеток\tCtrl-L"
-	EXPORT         : kbCtrlE,     PPDV_EXPORT01,         "@{export}\tCtrl-E"
-	EXPORTUHTT     : kbAltU,      TBBM_EXPORTUHTT,       "@{exporttouhtt}\tAlt-U"
+	SORT           : kbCtrlO,     TBBM_SORT,              "@{sorting}\tCtrl-O"
+	PRINT          : kbF7,        PPDV_PRINTER01,         "Печать списка\tF7"
+	POSPRINT       : kbCtrlF7,    TBBM_POSPRINT,          "Печать ценника\tCtrl-F7"
+	PRINTLABEL     : kbCtrlL,     TBBM_PRNLABELS,         "Печать этикеток\tCtrl-L"
+	EXPORT         : kbCtrlE,     PPDV_EXPORT01,          "@{export}\tCtrl-E"
+	EXPORTUHTT     : kbAltU,      TBBM_EXPORTUHTT,        "@{exporttouhtt}\tAlt-U"
 	separator
-	SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,       "@{view_sysjournal}\tCtrl-J"
-	TRANSMIT       : kbCtrlH,     PPDV_SYNC01,           "@{dotransmit}\tCtrl-H"
-	TOTAL          : kbF9,        PPDV_SIGMA02,          "@{totals}\tF9"
-	REPLACEMENT    : kbCtrlF9,    TBBM_REPLACE,          "Замена наименований/массовое изменение брэнда\tCtrl-F9"
-	CHNGFLAGS      : kbShiftF3,   TBBM_CHGFLAGS,         hidden, "@{doupdateflags}\tShift-F3"
-	DORECOVER      : kbCtrlR,     PPDV_REPAIR02,         hidden, "@{verificationandrecovery}\tCtrl-R"
+	SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,        "@{view_sysjournal}\tCtrl-J"
+	TRANSMIT       : kbCtrlH,     PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
+	TOTAL          : kbF9,        PPDV_SIGMA02,           "@{totals}\tF9"
+	REPLACEMENT    : kbCtrlF9,    TBBM_REPLACE,           "Замена наименований/массовое изменение брэнда\tCtrl-F9"
+	CHNGFLAGS      : kbShiftF3,   TBBM_CHGFLAGS,          hidden, "@{doupdateflags}\tShift-F3"
+	DORECOVER      : kbCtrlR,     PPDV_REPAIR02,          hidden, "@{verificationandrecovery}\tCtrl-R"
 	separator
-	CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,         "@{filter}\tCtrl-V"
+	CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,          "@{filter}\tCtrl-V"
 }
 
 toolbar export GOODSOPER TB_FIRST_TOOLBAR {
@@ -6204,7 +6205,8 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		separator
 		DETAIL         : kbF3,     PPDV_LINS01,        "@{detail}\tF3"
 		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
-		TRYSTRATEGIES  : kbCtrlT,  PPDV_EXPORT01,      "Try Strategies\tCtrl-T"
+		// @v10.6.8 TRYSTRATEGIES  : kbCtrlT,  PPDV_EXPORT01,      "Try Strategies\tCtrl-T"
+		TEST           : kbCtrlT,  TBBM_TEST,          "Test\tCtrl-T" // @v10.6.8
 		EVALOPTMAXDUCK : kbCtrlY,  PPDV_NOICON,        "Evaluate optimal max duck\tCtrl-Y" // @v10.6.5
 		REFRESH        : kbCtrlV,  PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
 	}

@@ -59,7 +59,7 @@ int SLAPI SupplExpFilt::Read(SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	long   count = 0;
-	LocList.FreeAll();
+	LocList.Z();
 	THROW(rBuf.GetAvailableSize());
 	THROW_SL(rBuf.Read(SupplID));
 	THROW_SL(rBuf.Read(GoodsGrpID));
@@ -819,8 +819,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	THROW(GetWeakAlcInfo(0, &tare_ggrpid, 2));
 	for(i = 0; i < loc_list.getCount(); i++) {
 		count = 0;
-		filt.LocList.FreeAll();
-		filt.LocList.Add(loc_list.at(i));
+		filt.LocList.Z().Add(loc_list.at(i));
 		THROW(gr_view.Init_(&filt));
 		file_name = path;
 		if(i > 0) {
@@ -990,8 +989,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 	THROW(GetWeakAlcInfo(0, &tare_ggrpid, 2));
 	for(i = 0; i < loc_list.getCount(); i++) {
 		count = 0;
-		filt.LocList.FreeAll();
-		filt.LocList.Add(loc_list.at(i));
+		filt.LocList.Z().Add(loc_list.at(i));
 		THROW(v.Init_(&filt));
 		file_name = path;
 		if(i > 0) {

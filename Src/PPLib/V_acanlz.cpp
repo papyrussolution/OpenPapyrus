@@ -1507,7 +1507,6 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 int SLAPI PPViewAccAnlz::InitIteration()
 {
 	int    ok = 1;
-	char   k[MAXKEYLEN];
 	BExtQuery::ZDelete(&P_IterQuery);
 	if(Filt.Flags & AccAnlzFilt::fTotalOnly)
 		ok = -1;
@@ -1542,6 +1541,8 @@ int SLAPI PPViewAccAnlz::InitIteration()
 			P_IterQuery->initIteration(0, p_key, spGe);
 		}
 		else {
+			// @v10.6.8 char   k[MAXKEYLEN];
+			BtrDbKey k_; // @v10.6.8 
 			if(Filt.Flags & (AccAnlzFilt::fGroupByCorAcc|AccAnlzFilt::fTrnovrBySheet) || Filt.Cycl.Cycle) {
 				THROW_MEM(P_IterQuery = new BExtQuery(P_TmpATTbl, 1));
 			}
@@ -1549,8 +1550,8 @@ int SLAPI PPViewAccAnlz::InitIteration()
 				THROW_MEM(P_IterQuery = new BExtQuery(P_TmpAATbl, 0));
 			}
 			P_IterQuery->selectAll();
-			memzero(k, sizeof(k));
-			P_IterQuery->initIteration(0, k, spFirst);
+			// @v10.6.8 memzero(k, sizeof(k));
+			P_IterQuery->initIteration(0, k_, spFirst);
 		}
 	}
 	CATCHZOK

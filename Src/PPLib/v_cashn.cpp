@@ -1,5 +1,5 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // @codepage UTF-8
 //
 // Кассовые узлы
@@ -63,43 +63,28 @@ int SLAPI PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
 	return 1;
 }
 
-int SLAPI PPViewCashNode::MakeTempEntry(const PPCashNode * pRec, TempCashNodeTbl::Rec * pTempRec)
+TempCashNodeTbl::Rec & SLAPI PPViewCashNode::MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec)
 {
-	int    ok = -1;
-	if(pRec && pTempRec) {
-		memzero(pTempRec, sizeof(*pTempRec)); // @fix @v8.2.11
-		pTempRec->ID = pRec->ID;
-		STRNSCPY(pTempRec->Name, pRec->Name);
-		STRNSCPY(pTempRec->Symb, pRec->Symb);
-		STRNSCPY(pTempRec->Port, pRec->Port);
-		{
-			pTempRec->ParentID = pRec->ParentID;
-			PPCashNode parent_cn_rec;
-			if(ObjCashN.Fetch(pRec->ParentID, &parent_cn_rec) > 0) {
-				STRNSCPY(pTempRec->ParentName, parent_cn_rec.Name);
-			}
-		}
-		pTempRec->LocID = pRec->LocID;
-		pTempRec->CashTypeID = pRec->CashType;
-		pTempRec->Flags = pRec->Flags;
-		/* @v9.7.11
-		{
-			SString buf, buf1, buf2;
-			PPGetSubStr(CashTypeNames, pTempRec->CashTypeID - 1, buf);
-			buf.Divide(',', buf1, buf2);
-			buf2.CopyTo(pTempRec->CashTypeName, sizeof(pTempRec->CashTypeName));
-		}	
-		*/
-		// @v9.7.11 {
-		{
-			SString temp_buf;
-			GetDeviceTypeName(DVCCLS_SYNCPOS, pTempRec->CashTypeID, temp_buf);
-			STRNSCPY(pTempRec->CashTypeName, temp_buf);
-		}
-		// } @v9.7.11 
-		ok = 1;
+	memzero(&rTempRec, sizeof(rTempRec));
+	rTempRec.ID = rRec.ID;
+	STRNSCPY(rTempRec.Name, rRec.Name);
+	STRNSCPY(rTempRec.Symb, rRec.Symb);
+	STRNSCPY(rTempRec.Port, rRec.Port);
+	rTempRec.LocID = rRec.LocID;
+	rTempRec.CashTypeID = rRec.CashType;
+	rTempRec.Flags = rRec.Flags;
+	rTempRec.ParentID = rRec.ParentID;
+	{
+		PPCashNode parent_cn_rec;
+		if(ObjCashN.Fetch(rRec.ParentID, &parent_cn_rec) > 0)
+			STRNSCPY(rTempRec.ParentName, parent_cn_rec.Name);
 	}
-	return ok;
+	{
+		SString temp_buf;
+		GetDeviceTypeName(DVCCLS_SYNCPOS, rTempRec.CashTypeID, temp_buf);
+		STRNSCPY(rTempRec.CashTypeName, temp_buf);
+	}
+	return rTempRec;
 }
 
 int SLAPI PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
@@ -150,8 +135,7 @@ int SLAPI PPViewCashNode::Init_(const PPBaseFilt * pFilt)
 		for(PPID id = 0; ObjCashN.EnumItems(&id, &rec) > 0;) {
 			if(CheckForFilt(&rec) > 0) {
 				TempCashNodeTbl::Rec temp_rec;
-				MakeTempEntry(&rec, &temp_rec);
-				THROW_DB(bei.insert(&temp_rec));
+				THROW_DB(bei.insert(&MakeTempEntry(rec, temp_rec)));
 			}
 		}
 		THROW_DB(bei.flash());
@@ -176,7 +160,7 @@ int SLAPI PPViewCashNode::UpdateTempTable(const PPIDArray * pIdList)
 			TempCashNodeTbl::Rec temp_rec;
 			if(ObjCashN.Search(id, &rec) > 0 && CheckForFilt(&rec)) {
 				ok = 1;
-				MakeTempEntry(&rec, &temp_rec);
+				MakeTempEntry(rec, temp_rec);
 				if(SearchByID_ForUpdate(P_TempTbl, 0,  id, 0) > 0) {
 					THROW_DB(P_TempTbl->updateRecBuf(&temp_rec)); // @sfu
 				}

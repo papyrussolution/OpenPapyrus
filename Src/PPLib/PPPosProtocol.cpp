@@ -3754,7 +3754,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				UnitBlock & r_blk = RdB.UnitBlkList.at(i);
 				if(!(r_blk.Flags_ & r_blk.fRefItem)) {
 					PPUnit unit_rec;
-					MEMSZERO(unit_rec);
+					// @v10.6.8 @ctr MEMSZERO(unit_rec);
 					RdB.GetS(r_blk.NameP, name_buf);
 					name_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					if(name_buf.NotEmptyS()) {

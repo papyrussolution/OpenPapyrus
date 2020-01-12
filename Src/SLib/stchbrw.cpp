@@ -824,7 +824,7 @@ void STimeChunkBrowser::OnUpdateData()
 	if(!(r & 0x01))
 		St.Bounds.Start.Set(NZOR(P.DefBounds.low, getcurdate_()), ZEROTIME);
 	if(!(r & 0x02))
-		St.Bounds.Finish.Set(NZOR(P.DefBounds.upp, getcurdate_()), encodetime(23, 59, 59, 0));
+		St.Bounds.Finish.Set(NZOR(P.DefBounds.upp, getcurdate_()), MAXDAYTIMESEC);
 	if(P.DefBounds.low && St.Bounds.Start.d > P.DefBounds.low)
 		St.Bounds.Start.d = P.DefBounds.low;
 	if(P.DefBounds.upp && St.Bounds.Finish.d < P.DefBounds.upp)

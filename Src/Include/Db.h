@@ -172,10 +172,8 @@ public:
 		uint   FormulaPos;
 	};
 	enum {
-		fAllowDupID   = 0x0001, // При добавлении полей класс не следит за тем, чтобы их
-			// идентификаторы были уникальными внутри записи.
-		fAllowDupName = 0x0002, // При добавлении полей класс не следит за тем, чтобы их
-			// наименования были уникальными внутри записи.
+		fAllowDupID   = 0x0001, // При добавлении полей класс не следит за тем, чтобы их идентификаторы были уникальными внутри записи.
+		fAllowDupName = 0x0002, // При добавлении полей класс не следит за тем, чтобы их наименования были уникальными внутри записи.
 		fNamesToUpper = 0x0004, // При добавлении полей их наименования переводятся в верхний регистр.
 			// Это гарантирует уникальность наименований полей не зависимо от регистра.
 		fEnum         = 0x0008, // Структура-перечисление. Общий размер составляет sizeof(uint32)
@@ -1043,6 +1041,17 @@ typedef uint16 BRECSZ;
 typedef char   BTABLENAME[MAXTABLENAME];
 typedef char   BFILENAME[MAXLOCATION];
 typedef char   BFIELDNAME[MAXFIELDNAME];
+//
+// Descr: Утилитный класс, предназначенный для представления обобщенного ключа индекса таблицы базы данных.
+//   Вместо char k[MAXKEYLEN]; memzero(k, sizeof(k); теперь будет BtrDbKey k_;
+//
+class BtrDbKey {
+public:
+	BtrDbKey();
+	operator void * () { return static_cast<void *>(K); }
+
+	uint8  K[ALIGNSIZE(MAXKEYLEN, 2)];
+};
 //
 //
 //
@@ -3862,8 +3871,10 @@ private:
 	long   State;
 	SSqlStmt * P_Stmt;
 	int    InitSpMode;
-	char   InitKey[ALIGNSIZE(MAXKEYLEN, 2)];
-	char   _Key[ALIGNSIZE(MAXKEYLEN, 2)];
+	BtrDbKey InitKey_; // @v10.6.8 
+	BtrDbKey _Key_;    // @v10.6.8 
+	// @v10.6.8 char   InitKey[ALIGNSIZE(MAXKEYLEN, 2)];
+	// @v10.6.8 char   _Key[ALIGNSIZE(MAXKEYLEN, 2)];
 };
 //
 //

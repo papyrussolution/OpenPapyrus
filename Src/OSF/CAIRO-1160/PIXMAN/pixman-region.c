@@ -2074,7 +2074,7 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_init_rects) (region_type_t *region, const bo
 	return validate(region);
 }
 
-#define READ(_ptr) (*(_ptr))
+#define READ_PTR(_ptr) (*(_ptr))
 
 static inline box_type_t * bitmap_addrect(region_type_t * reg, box_type_t * r, box_type_t ** first_rect,
     int rx1, int ry1, int rx2, int ry2)
@@ -2136,7 +2136,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 		pw_line += stride;
 		irect_line_start = rects - first_rect;
 		// If the Screen left most bit of the word is set, we're starting in a box 
-		if(READ(pw) & mask0) {
+		if(READ_PTR(pw) & mask0) {
 			in_box = TRUE;
 			rx1 = 0;
 		}
@@ -2146,7 +2146,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 		/* Process all words which are fully in the pixmap */
 		pw_line_end = pw + (width >> 5);
 		for(base = 0; pw < pw_line_end; base += 32) {
-			w = READ(pw++);
+			w = READ_PTR(pw++);
 			if(in_box) {
 				if(!~w)
 					continue;
@@ -2179,7 +2179,7 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 		}
 		if(width & 31) {
 			/* Process final partial word on line */
-			w = READ(pw++);
+			w = READ_PTR(pw++);
 			for(ib = 0; ib < (width & 31); ib++) {
 				/* If the Screen left most bit of the word is set, we're
 				 * starting a box */

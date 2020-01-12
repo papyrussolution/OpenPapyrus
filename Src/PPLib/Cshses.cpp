@@ -1422,6 +1422,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	}
 	PPLoadText(PPTXT_LOG_ACGIMISS, VerMissMsg);
 	UpdGoods.freeAll();
+	RmvGoods.freeAll(); // @v10.6.8
 	IterGoodsList.freeAll();
 	QuotByQttyList.freeAll();
 	NoDisToggleGoodsList.freeAll();
@@ -1568,6 +1569,31 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 				}
 			}
 		}
+		// @v10.6.8 {
+		{
+			PPObjGoodsBasket gb_obj;
+			PPBasketPacket gb_pack;
+			Goods2Tbl::Rec gb_goods_rec;
+			if(gb_obj.GetPacket(PPGDSBSK_ACNUPD, &gb_pack) > 0) {
+				for(uint gbidx = 0; gbidx < gb_pack.Lots.getCount(); gbidx++) {
+					const PPID gb_goods_id = labs(gb_pack.Lots.at(gbidx).GoodsID);
+					if(gb_goods_id && GObj.Fetch(gb_goods_id, &gb_goods_rec) > 0)
+						UpdGoods.add(gb_goods_id);
+				}
+			}
+			if(gb_obj.GetPacket(PPGDSBSK_ACNRMV, &gb_pack) > 0) {
+				for(uint gbidx = 0; gbidx < gb_pack.Lots.getCount(); gbidx++) {
+					const PPID gb_goods_id = labs(gb_pack.Lots.at(gbidx).GoodsID);
+					if(gb_goods_id && GObj.Fetch(gb_goods_id, &gb_goods_rec) > 0)
+						RmvGoods.add(gb_goods_id);
+				}
+			}
+		}
+		if(RmvGoods.getCount()) {
+			RmvGoods.sortAndUndup();
+			UpdGoods.add(&RmvGoods);
+		}
+		// } @v10.6.8 
 		UpdGoods.sortAndUndup();
 		if(oneof2(Algorithm, algUpdBillsVerify, algUpdBills)) {
 			IterGoodsList = UpdGoods;
@@ -1937,6 +1963,11 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						}
 					}
 					// } @v10.0.04 
+					// @v10.6.8 {
+					if(RmvGoods.lsearch(Rec.ID)) {
+						Rec.Flags_ |= AsyncCashGoodsInfo::fDeleted;
+					}
+					// } @v10.6.8 
 				}
 			}
 		}

@@ -74,6 +74,23 @@ int FASTCALL GCTFilt::AcceptIntr3(const BillTbl::Rec & rRec) const
 	return ok;
 }
 //
+//
+//
+SLAPI GCTIterator::CurrentBillBlock::CurrentBillBlock() : P_Pack(0), P_WrOffPack(0)
+{
+}
+
+SLAPI GCTIterator::CurrentBillBlock::~CurrentBillBlock()
+{
+    Clear();
+}
+
+void SLAPI GCTIterator::CurrentBillBlock::Clear()
+{
+    ZDELETE(P_Pack);
+    ZDELETE(P_WrOffPack);
+}
+//
 // GCT_BillCache
 //
 SLAPI GCTIterator::GCT_BillCache::GCT_BillCache() : P_BObj(BillObj)
@@ -554,7 +571,7 @@ int SLAPI GCTIterator::InitQuery(int cpMode)
 		Filt.GoodsGrpID = 0;
 		Filt.GoodsID = Filt.GoodsList.GetSingle();
 		if(Filt.GoodsID)
-			Filt.GoodsList.FreeAll();
+			Filt.GoodsList.Z();
 		else {
 			GoodsArray = Filt.GoodsList.Get();
 			State |= stUseGoodsList;

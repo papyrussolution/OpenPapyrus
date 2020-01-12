@@ -20,8 +20,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 
 //typedef unsigned char  uint8;
 
-int	ErrorCode = 0;
-char FS = 0x1C;
+int	   ErrorCode = 0;
+char   FS = 0x1C;
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
 // Для формирования пакета данных
@@ -1012,44 +1012,44 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 						Check.Ptt = 7;
 				}
 				//@erik v10.4.12{
-				else if (s_param == "SUBJTERMTAG") {
-					if (param_val.IsEqiAscii("STT_GOOD"))
+				else if(s_param == "SUBJTERMTAG") {
+					if(param_val.IsEqiAscii("STT_GOOD"))
 						Check.Stt = 1;
-					else if (param_val.IsEqiAscii("STT_EXCISABLEGOOD"))
+					else if(param_val.IsEqiAscii("STT_EXCISABLEGOOD"))
 						Check.Stt = 2;
-					else if (param_val.IsEqiAscii("STT_EXECUTABLEWORK"))
+					else if(param_val.IsEqiAscii("STT_EXECUTABLEWORK"))
 						Check.Stt = 3;
-					else if (param_val.IsEqiAscii("STT_SERVICE"))
+					else if(param_val.IsEqiAscii("STT_SERVICE"))
 						Check.Stt = 4;
-					else if (param_val.IsEqiAscii("STT_BETTING"))
+					else if(param_val.IsEqiAscii("STT_BETTING"))
 						Check.Stt = 5;
-					else if (param_val.IsEqiAscii("STT_PAYMENTGAMBLING"))
+					else if(param_val.IsEqiAscii("STT_PAYMENTGAMBLING"))
 						Check.Stt = 6;
-					else if (param_val.IsEqiAscii("STT_BETTINGLOTTERY"))
+					else if(param_val.IsEqiAscii("STT_BETTINGLOTTERY"))
 						Check.Stt = 7;
-					else if (param_val.IsEqiAscii("STT_PAYMENTLOTTERY"))
+					else if(param_val.IsEqiAscii("STT_PAYMENTLOTTERY"))
 						Check.Stt = 8;
-					else if (param_val.IsEqiAscii("STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY"))
+					else if(param_val.IsEqiAscii("STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY"))
 						Check.Stt = 9;
-					else if (param_val.IsEqiAscii("STT_ADVANCE"))
+					else if(param_val.IsEqiAscii("STT_ADVANCE"))
 						Check.Stt = 10;
-					else if (param_val.IsEqiAscii("STT_PAYMENTSPAYINGAGENT"))
+					else if(param_val.IsEqiAscii("STT_PAYMENTSPAYINGAGENT"))
 						Check.Stt = 11;
-					else if (param_val.IsEqiAscii("STT_SUBJTERM"))
+					else if(param_val.IsEqiAscii("STT_SUBJTERM"))
 						Check.Stt = 12;
-					else if (param_val.IsEqiAscii("STT_NOTSUBJTERM"))
+					else if(param_val.IsEqiAscii("STT_NOTSUBJTERM"))
 						Check.Stt = 13;
-					else if (param_val.IsEqiAscii("STT_TRANSFERPROPERTYRIGHTS"))
+					else if(param_val.IsEqiAscii("STT_TRANSFERPROPERTYRIGHTS"))
 						Check.Stt = 14;
-					else if (param_val.IsEqiAscii("STT_NONOPERATINGINCOME"))
+					else if(param_val.IsEqiAscii("STT_NONOPERATINGINCOME"))
 						Check.Stt = 15;
-					else if (param_val.IsEqiAscii("STT_EXPENSESREDUCETAX"))
+					else if(param_val.IsEqiAscii("STT_EXPENSESREDUCETAX"))
 						Check.Stt = 16;
-					else if (param_val.IsEqiAscii("STT_AMOUNTMERCHANTFEE"))
+					else if(param_val.IsEqiAscii("STT_AMOUNTMERCHANTFEE"))
 						Check.Stt = 17;
-					else if (param_val.IsEqiAscii("STT_RESORTAEE"))
+					else if(param_val.IsEqiAscii("STT_RESORTAEE"))
 						Check.Stt = 18;
-					else if (param_val.IsEqiAscii("STT_DEPOSIT"))
+					else if(param_val.IsEqiAscii("STT_DEPOSIT"))
 						Check.Stt = 19;
 				}
 				// } @erik v10.4.12
@@ -1765,6 +1765,62 @@ int PiritEquip::RunCheck(int opertype)
 				(Строка[3]) Код страны происхождения товара
 				(Строка[0...24]) Номер таможенной декларации
 				(Дробное число) Сумма акциза
+			*/
+			/*
+				Установить дополнительные реквизиты позиции (0x24)
+
+				Команда вызывается перед командой добавления товарной позиции и устанавливает дополнительные реквизиты. 
+				Действие команды распространяется на одну товарную позицию в открытом документе.
+
+				Каждый номер телефона должен начинаться с символа "+" и не должен превышать ограничение длины в 19 символов (включая "+").
+				Входные параметры
+
+					(Строка[1..32]) Код товарной номенклатуры
+					(Строка[1..64]) Дополнительный реквизит предмета расчёта
+					(Строка[1..16]) Единица измерения предмета расчёта
+					(Целое число) Признак агента по предмету расчёта
+					(Строка)[0..12] ИНН поставщика
+					(Строка)[0..19] Телефон поставщика
+					(Строка)[0..256] Наименование поставщика
+					(Строка)[0..256] Адрес оператора перевода (для банк.пл.агента/банк.пл.субагента, иначе пустой)
+					(Строка)[0..12] ИНН оператора перевода (для банк.пл.агента/банк.пл.субагента, иначе пустой)
+					(Строка)[0..64] Наименование оператора перевода (для банк.пл.агента/банк.пл.субагента, иначе пустой)
+					(Строка)[0..19] Телефон оператора перевода (для банк.пл.агента/банк.пл.субагента, иначе пустой)
+					(Строка)[0..24] Операция платежного агента (для банк.пл.агента/банк.пл.субагента, иначе пустой)
+					(Строка)[0..19] Телефон платежного агента (для пл.агента/пл.субагента, иначе пустой)
+					(Строка)[0..19] Телефон оператора по приему платежей (для пл.агента/пл.субагента, иначе пустой)
+
+				Ответные параметры: Нет
+				Дополнительная информация
+
+				Код товарной номенклатуры
+
+				В поле «Код товарной номенклатуры» могут быть переданы шестнадцатеричные данные, каждый такой байт имеет вид: 
+				$xy, где x и y – шестнадцатиричные цифры, например $C5 соответствует значению 0xC5. Количество предмет расчёта, 
+				для которого задан код товарной номенклатуры, должно равняться единице. Поле передается в ФН без изменений. Структура его определяется ФФД.
+
+				Начиная с версии 665.2.29, допустимы лишь кода, первые 2 байта которых соответствуют таблице:
+					Байт 1 	Байт 2
+					0x00 	0x05
+					0x15 	0x20
+					0x45 	0x08
+					0x45 	0x0D
+					0x49 	0x0E
+					0x44 	0x4D
+					0x52 	0x46
+					0x52 	0x47
+					0xC5 	0x14
+					0xC5 	0x1E
+
+				Признак агента по предмету расчета - битовая маска
+					Номер бита 	Пояснение
+					0 	Банковский платежный агент
+					1 	Банковский платежный субагент
+					2 	Платежный агент
+					3 	Платежный субагент
+					4 	Поверенный
+					5 	Комиссионер
+					6 	Агент
 			*/
 			in_data.Z();
 			THROW(GetCurFlags(3, flag));

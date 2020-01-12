@@ -1,5 +1,5 @@
 // PPDSP.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -9,6 +9,9 @@
 #include <ppds.h>
 
 SLAPI PPDeclStrucProcessor::PPDeclStrucProcessor() : P_NameTab(0), InStream(0), P_FileName(0)
+#ifndef PPDSC
+	, Ctx(0, 0)
+#endif
 {
 }
 

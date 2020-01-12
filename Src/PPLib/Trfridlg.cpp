@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2436,7 +2436,7 @@ static SString & minus_ord_reserved(double rest, double reserved, SString & rBuf
 
 void TrfrItemDialog::setupRest()
 {
-	long   f = MKSFMTD(0, 6, ALIGN_LEFT | NMBF_NOTRAILZ | NMBF_NOZERO);
+	const  long f = MKSFMTD(0, 6, ALIGN_LEFT | NMBF_NOTRAILZ | NMBF_NOZERO);
 	char   qtty_buf[64];
 	SString c, temp_buf;
 	if(getStaticText(CTL_LOT_STREST, c) > 0) {

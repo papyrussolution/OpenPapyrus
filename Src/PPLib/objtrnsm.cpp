@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -55,11 +55,12 @@ struct RestoreStackItem {
 int SLAPI PPObjectTransmit::EditConfig()
 {
 	class DbExchangeCfgDialog : public TDialog {
+		DECL_DIALOG_DATA(PPDBXchgConfig);
 	public:
 		DbExchangeCfgDialog() : TDialog(DLG_DBXCHGCFG)
 		{
 		}
-		int    setDTS(const PPDBXchgConfig * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData))
 				MEMSZERO(Data);
@@ -108,7 +109,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			SetupCtrls(Data.Flags);
 			return 1;
 		}
-		int    getDTS(PPDBXchgConfig * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = -1;
 			uint   sel = 0;
@@ -160,7 +161,6 @@ int SLAPI PPObjectTransmit::EditConfig()
 			}
 			DisableClusterItem(CTL_DBXCHGCFG_FLAGS, 5, BIN(Data.DfctRcptOpID && GetOpType(Data.DfctRcptOpID) != PPOPT_GOODSRECEIPT)); // @v9.9.6
 		}
-		PPDBXchgConfig Data;
 	};
 	int    ok = -1, is_new = 0;
 	PPDBXchgConfig cfg;
@@ -270,9 +270,9 @@ SLAPI ObjTransmitParam::ObjTransmitParam()
 
 void SLAPI ObjTransmitParam::Init()
 {
-	DestDBDivList.FreeAll();
+	DestDBDivList.Z();
 	DestDBDivList.InitEmpty();
-	ObjList.FreeAll();
+	ObjList.Z();
 	ObjList.InitEmpty();
 	Since_.Z();
 	UpdProtocol   = 0;
@@ -316,8 +316,9 @@ SLAPI ObjReceiveParam::ObjReceiveParam() : Flags(0), P_SyncCmpTbl(0)
 
 void SLAPI ObjReceiveParam::Init()
 {
-	SenderDbDivList.freeAll();
+	SenderDbDivList.Z();
 	Flags |= (fGetFromOutSrcr | fClearInpBefore);
+	SsOnlyFileNames.Z(); // @v10.6.8
 }
 
 int SLAPI ObjReceiveParam::CheckDbDivID(PPID id) const
@@ -338,7 +339,7 @@ int SLAPI ObjReceiveParam::Read(SBuffer & rBuf, long)
 //
 //
 //
-SLAPI ObjTransmContext::ObjTransmContext(PPLogger * pLogger) : State(0), P_Ot(0), P_Btd(0), P_ThisDbDivPack(0), P_SrcDbDivPack(0), P_DestDbDivPack(0),
+SLAPI ObjTransmContext::ObjTransmContext(uint ctrFlags, PPLogger * pLogger) : State(0), P_Ot(0), P_Btd(0), P_ThisDbDivPack(0), P_SrcDbDivPack(0), P_DestDbDivPack(0),
 	P_Rb(0), P_ForceRestoreObj(0), Flags(0), Extra(0), LastStreamId(-1), TransmitSince(ZERODATETIME), P_Gra(0)
 {
 	MEMSZERO(Cfg);
@@ -346,8 +347,9 @@ SLAPI ObjTransmContext::ObjTransmContext(PPLogger * pLogger) : State(0), P_Ot(0)
 		P_Logger = pLogger;
 		State |= stOuterLogger;
 	}
-	else
-		P_Logger = new PPLogger;
+	else {
+		P_Logger = new PPLogger((ctrFlags & ctrfDisableLogWindow) ? PPLogger::fDisableWindow : 0);
+	}
 }
 
 SLAPI ObjTransmContext::~ObjTransmContext()
@@ -474,9 +476,16 @@ int SLAPI ObjTransmContext::AcceptDependedNonObject(PPObjID foreignObjId, PPID p
 PP_CREATE_TEMP_FILE_PROC(CreateTempIndex, ObjSyncQueue);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSyncCmp, TempSyncCmp);
 
+/*
 SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int recoverTransmission) : CtrError(0), IamDispatcher(0),
 	P_TmpIdxTbl(0), P_Queue(0), P_ObjColl(0), P_InStream(0), P_OutStream(0), Mode(mode), DestDbDivID(0),
 	SyncCmpTransmit(BIN(syncCmp && mode == PPObjectTransmit::tmWriting)), RecoverTransmission(BIN(recoverTransmission))
+*/
+SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, uint ctrFlags) : CtrError(0), IamDispatcher(0),
+	P_TmpIdxTbl(0), P_Queue(0), P_ObjColl(0), P_InStream(0), P_OutStream(0), Mode(mode), DestDbDivID(0),
+	SyncCmpTransmit(BIN(ctrFlags & ctrfSyncCmp && mode == PPObjectTransmit::tmWriting)), 
+	RecoverTransmission(BIN(ctrFlags & ctrfRecoverTransmission)),
+	Ctx(((ctrFlags & ctrfDisableLogWindow) ? Ctx.ctrfDisableLogWindow : 0), 0)
 {
 	const PPConfig & r_cfg = LConfig;
 	Ctx.Flags = 0;
@@ -570,21 +579,21 @@ int SLAPI PPObjectTransmit::UpdateInHeader(FILE * stream, const PPObjectTransmit
 }
 
 // static
-int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header * pHdr, int checkVer)
+int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header & rHdr, int checkVer, const char * pFileName)
 {
 	int    ok = 1;
-	THROW_PP(pHdr->Magic == OT_MAGIC, PPERR_PPOSNOTPACKET);
-	THROW_PP(pHdr->DestDBID == LConfig.DBDiv, PPERR_PPOSMISS);
-	THROW_PP(oneof3(pHdr->PacketType, PPOT_OBJ, PPOT_ACK, PPOT_SYNCCMP), PPERR_PPOSINVTYPE);
-	if(checkVer && pHdr->MinDestVer.V) {
+	THROW_PP_S(rHdr.Magic == OT_MAGIC, PPERR_PPOSNOTPACKET, pFileName);
+	THROW_PP_S(rHdr.DestDBID == LConfig.DBDiv, PPERR_PPOSMISS, pFileName);
+	THROW_PP_S(oneof3(rHdr.PacketType, PPOT_OBJ, PPOT_ACK, PPOT_SYNCCMP), PPERR_PPOSINVTYPE, pFileName);
+	if(checkVer && rHdr.MinDestVer.V) {
 		SString temp_buf;
 		SVerT cur_ver = DS.GetVersion();
 		int    mj, mn, r;
-		pHdr->MinDestVer.Get(&mj, &mn, &r);
-		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
+		rHdr.MinDestVer.Get(&mj, &mn, &r);
+		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, temp_buf.Z().CatDotTriplet(mj, mn, r).Space().Cat(pFileName));
 		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
 		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11
-		THROW_PP_S(!pHdr->SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
+		THROW_PP_S(!rHdr.SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, temp_buf.Z().CatDotTriplet(mj, mn, r).Space().Cat(pFileName));
 	}
 	CATCHZOK
 	return ok;
@@ -601,7 +610,7 @@ int SLAPI PPObjectTransmit::OpenInPacket(const char * fName, PPObjectTransmit::H
 	PPSetAddedMsgString(fName);
 	THROW_PP((P_InStream = fopen(fName, "r+b")), PPERR_PPOSOPENFAULT);
 	THROW(Read(P_InStream, &h, sizeof(h)));
-	if(PPObjectTransmit::CheckInHeader(&h, 0)) {
+	if(PPObjectTransmit::CheckInHeader(h, 0, fName)) {
 		InHead = h;
 		ASSIGN_PTR(pHdr, h);
 		InFileName = fName;
@@ -698,7 +707,7 @@ int SLAPI PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 				LDATETIME modif;
 				ObjSyncQueueTbl::Rec rec;
 				PPID   dest_id = (!comm_id.IsZero() && SyncTbl.SearchCommon(objType, comm_id, DestDbDivID, &sync_rec) > 0) ? sync_rec.ObjID : 0;
-				MEMSZERO(rec);
+				// @v10.6.8 @ctr MEMSZERO(rec);
 				rec.DBID    = (short)LConfig.DBDiv;
 				rec.ObjType = (short)objType;
 				comm_id.Get(&rec);
@@ -807,7 +816,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		ushort transmit_flags = PPObjPack::fNoObj;
 		ObjSyncQueueTbl::Rec rec;
 		ObjSyncTbl::Rec s_rec;
-		MEMSZERO(rec);
+		// @v10.6.8 @ctr MEMSZERO(rec);
 		THROW(r = SyncTbl.SearchSync(objType, objID, DestDbDivID, 0, &s_rec));
 		if(this_obj_upd_protocol == PPOTUP_FORCE)
 			transmit_flags |= PPObjPack::fForceUpdate;
@@ -835,7 +844,6 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		LDATETIME modif;
 		PPObjPack   pack;
 		PPObjIDArray temp;
-		ObjSyncQueueTbl::Rec rec;
 		ObjSyncTbl::Rec s_rec;
 		THROW(SETIFZ(p_obj, _GetObjectPtr(objType)));
 		if(p_obj->GetLastModifEvent(objID, &modif, &cr_event) > 0) {
@@ -875,7 +883,8 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		// результат этого вызова. Таким образом, избегаем двойного обращения к записи
 		//
 		if(need_send && p_obj->GetName(objID, &obj_name) > 0) {
-			MEMSZERO(rec);
+			ObjSyncQueueTbl::Rec rec;
+			// @v10.6.8 @ctr MEMSZERO(rec);
 			rec.DBID     = static_cast<short>(r_cfg.DBDiv);
 			rec.ObjType  = static_cast<ushort>(objType);
 			rec.ObjID    = objID;
@@ -1419,7 +1428,7 @@ PPObjectTransmit::OtFilePoolItem * SLAPI PPObjectTransmit::RestoreObjBlock::Sear
 			PPObjectTransmit::Header hdr;
 			p_fpi->F.Seek(0L);
 			THROW(p_fpi->F.Read(&hdr, sizeof(hdr)));
-			THROW(CheckInHeader(&hdr, 1));
+			THROW(CheckInHeader(hdr, 1, fi.InnerFileName));
 			p_fpi->F.Seek(hdr.SCtxStOffs);
 			THROW_SL(p_fpi->SCtxState.ReadFromFile(p_fpi->F, 0));
 		}
@@ -2166,9 +2175,14 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 		PPViewSysJournal sj_view;
 		SysJournalViewItem sj_item;
 		SString wait_msg;
-		int    sync_cmp = BIN(param.Flags & ObjTransmitParam::fSyncCmp);
+		//int    sync_cmp = BIN(param.Flags & ObjTransmitParam::fSyncCmp);
+		uint   ot_ctrf = 0;
+		if(param.Flags & ObjTransmitParam::fSyncCmp)
+			ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;
+		if(param.Flags & ObjTransmitParam::fRecoverTransmission)
+			ot_ctrf |= PPObjectTransmit::ctrfRecoverTransmission;
 		PPWait(1);
-		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, sync_cmp, BIN(pParam->Flags & pParam->fRecoverTransmission)));
+		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, ot_ctrf));
 		THROW(p_ot->SetDestDbDivID(destDBDiv));
 		param.Since_.d = param.Since_.d.getactual(ZERODATE);
 		p_ot->Ctx.TransmitSince = param.Since_;
@@ -2193,7 +2207,7 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 			if(!sj_item.ObjType || param.ObjList.Search(sj_item.ObjType, 0) > 0) {
 				if(sj_item.ObjType != PPOBJ_GOODSBASKET) {
 					// Корзины в пакете модифицированных объектов передавать не следует
-					THROW(p_ot->PostObject(sj_item.ObjType, sj_item.ObjID, PPOTUP_BYTIME, sync_cmp));
+					THROW(p_ot->PostObject(sj_item.ObjType, sj_item.ObjID, PPOTUP_BYTIME, BIN(param.Flags & ObjTransmitParam::fSyncCmp)));
 				}
 			}
 			PPWaitPercent(sj_view.GetCounter(), wait_msg);
@@ -2441,7 +2455,7 @@ int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitPara
 	BillTransmitParam flt;
 	RVALUEPTR(flt, pFilt);
 	DateIter diter(&flt.Period);
-	THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, 0, 0));
+	THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, 0/*ctrFlags*/));
 	THROW(p_ot->SetDestDbDivID(destDBDiv));
 	PPWait(1);
 	if(flt.OpID) {
@@ -2531,8 +2545,13 @@ int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const
 	int    ok = 0;
 	PPObjectTransmit * p_ot = 0;
 	if(pObjAry && dbDivID && pParam) {
-		const int sync_cmp = BIN(pParam->Flags & ObjTransmitParam::fSyncCmp);
-		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, sync_cmp, BIN(pParam->Flags & pParam->fRecoverTransmission)));
+		//const int sync_cmp = BIN(pParam->Flags & ObjTransmitParam::fSyncCmp);
+		uint   ot_ctrf = 0;
+		if(pParam->Flags & ObjTransmitParam::fSyncCmp)
+			ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;
+		if(pParam->Flags & pParam->fRecoverTransmission)
+			ot_ctrf |= PPObjectTransmit::ctrfRecoverTransmission;
+		THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, ot_ctrf));
 		THROW(p_ot->SetDestDbDivID(dbDivID));
 		{
 			const uint c = pObjAry->getCount();
@@ -2540,7 +2559,7 @@ int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const
 			PPLoadText(PPTXT_DBDE_POSTOBJECTS, msg_buf);
 			for(uint i = 0; i < c; i++) {
 				const PPObjID & r_oid = pObjAry->at(i);
-				THROW(p_ot->PostObject(r_oid.Obj, r_oid.Id, pParam->UpdProtocol, sync_cmp));
+				THROW(p_ot->PostObject(r_oid.Obj, r_oid.Id, pParam->UpdProtocol, BIN(pParam->Flags & ObjTransmitParam::fSyncCmp)));
 				PPWaitPercent((i+1), c, msg_buf);
 			}
 		}
@@ -3063,15 +3082,31 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 	THROW(r = GetTransmitFiles(&param));
 	if(r > 0) {
 		char * p_fname = 0;
-		SString file_path, ack_file_path;
+		SString temp_buf;
+		SString file_path;
+		SString ack_file_path;
 		SStrCollection  flist;
 		SFileEntryPool fep;
 		SFileEntryPool::Entry fe;
 		PPObjDBDiv dbdiv_obj;
+		uint   ot_ctrf = 0;
+		if(param.Flags & ObjReceiveParam::fSyncCmp)
+			ot_ctrf |= PPObjectTransmit::ctrfSyncCmp;
+		if(param.Flags & ObjReceiveParam::fDisableLogWindow)
+			ot_ctrf |= PPObjectTransmit::ctrfDisableLogWindow;
 		PPWait(1);
-		PPObjectTransmit ot(PPObjectTransmit::tmReading, BIN(param.Flags & ObjReceiveParam::fSyncCmp), 0);
-		THROW(PPGetPath(PPPATH_IN, file_path));
-		THROW(fep.Scan(file_path.SetLastSlash(), "*" PPSEXT, 0));
+		PPObjectTransmit ot(PPObjectTransmit::tmReading, ot_ctrf);
+		if(param.SsOnlyFileNames.getCount()) {
+			for(uint ssp = 0; param.SsOnlyFileNames.get(&ssp, temp_buf);) {
+				if(fileExists(temp_buf)) {
+					fep.Add(temp_buf);
+				}
+			}
+		}
+		else {
+			THROW(PPGetPath(PPPATH_IN, file_path));
+			THROW(fep.Scan(file_path.SetLastSlash(), "*" PPSEXT, 0));
+		}
 		do {
 			next_pass = 0;
 			for(uint p = 0; p < fep.GetCount(); p++) {
@@ -3140,7 +3175,12 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 	}
 	else
 		ok = -1;
-	CATCHZOKPPERR
+	CATCH
+		if(param.Flags & param.fNonInteractive)
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);
+		else
+			PPError();
+	ENDCATCH
 	if(is_locked) {
 		DS.SetDbCacheDeferredState(db_path_id, 0);
 		LockReceiving(1);
@@ -3156,7 +3196,7 @@ int FASTCALL PPObjectTransmit::LockReceiving(int unlock)
 	if(!unlock) {
 		PPID   mutex_id = 0;
 		PPSyncItem sync_item;
-		int    r = DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_DBXCHG, 1L, &mutex_id, &sync_item);
+		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_DBXCHG, 1L, &mutex_id, &sync_item);
 		if(r < 0)
 			ok = PPSetError(PPERR_DBXCHGRCVISLOCKED, sync_item.Name);
 		else if(r == 0)

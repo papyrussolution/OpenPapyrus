@@ -1,5 +1,5 @@
 // OBJACSHT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -19,11 +19,12 @@ void SLAPI PPAccSheet2::Init()
 }
 
 class AccSheetDialog : public TDialog {
+	DECL_DIALOG_DATA(PPAccSheet);
 public:
 	AccSheetDialog() : TDialog(DLG_ACCSHEET)
 	{
 	}
-	int    setDTS(const PPAccSheet * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		setCtrlLong(CTL_ACCSHEET_ID, Data.ID);
@@ -34,7 +35,7 @@ public:
 		SetupPPObjCombo(this, CTLSEL_ACCSHEET_REGTYPE, PPOBJ_REGISTERTYPE, Data.CodeRegTypeID, 0, 0);
 		return 1;
 	}
-	int    getDTS(PPAccSheet * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTL_ACCSHEET_NAME, Data.Name);
@@ -73,7 +74,6 @@ private:
 	PPID   groupObjType() const { return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PRSNKIND : 0; }
 	void   getAssocData();
 	void   checkLink();
-	PPAccSheet Data;
 };
 
 IMPL_HANDLE_EVENT(AccSheetDialog)
@@ -392,8 +392,7 @@ class AccSheetCache : public ObjCache {
 public:
 	struct AccSheetData : public ObjCacheEntry {
 		PPID   BinArID;       // Статья для сброса остатков по закрываемым статьям
-		PPID   CodeRegTypeID; // ИД типа регистрационного документа, идентифицирующего
-			// персоналию, соответствующую статье.
+		PPID   CodeRegTypeID; // ИД типа регистрационного документа, идентифицирующего персоналию, соответствующую статье.
 		long   Flags;         // ACSHF_XXX
 		long   Assoc;         // @#{0L, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT} Ассоциированный объект
 		long   ObjGroup;      // Подгруппа ассоциированных объектов

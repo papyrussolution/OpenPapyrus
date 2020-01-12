@@ -115,31 +115,49 @@
 	#define	SSIZE_MAX ((ssize_t)(SIZE_MAX >> 1))
 #endif
 #if !HAVE_DECL_UINT32_MAX
-	#define	UINT32_MAX (~(uint32_t)0)
+	#ifndef UINT32_MAX // @v10.6.8 
+		#define UINT32_MAX (~(uint32_t)0)
+	#endif
 #endif
 #if !HAVE_DECL_INT32_MAX
-	#define	INT32_MAX ((int32_t)(UINT32_MAX >> 1))
+	#ifndef INT32_MAX // @v10.6.8
+		#define	INT32_MAX ((int32_t)(UINT32_MAX >> 1))
+	#endif
 #endif
 #if !HAVE_DECL_INT32_MIN
-	#define	INT32_MIN ((int32_t)(~INT32_MAX))
+	#ifndef INT32_MIN // @v10.6.8
+		#define	INT32_MIN ((int32_t)(~INT32_MAX))
+	#endif
 #endif
 #if !HAVE_DECL_UINT64_MAX
-	#define	UINT64_MAX (~(uint64_t)0)
+	#ifndef UINT64_MAX // @v10.6.8 
+		#define UINT64_MAX (~(uint64_t)0)
+	#endif
 #endif
 #if !HAVE_DECL_INT64_MAX
-	#define	INT64_MAX ((int64_t)(UINT64_MAX >> 1))
+	#ifndef INT64_MAX // @v10.6.8
+		#define	INT64_MAX ((int64_t)(UINT64_MAX >> 1))
+	#endif
 #endif
 #if !HAVE_DECL_INT64_MIN
-	#define	INT64_MIN ((int64_t)(~INT64_MAX))
+	#ifndef INT64_MIN // @v10.6.8 
+		#define	INT64_MIN ((int64_t)(~INT64_MAX))
+	#endif
 #endif
 #if !HAVE_DECL_UINTMAX_MAX
-	#define	UINTMAX_MAX (~(uintmax_t)0)
+	#ifndef UINTMAX_MAX // @v10.6.8 
+		#define UINTMAX_MAX (~(uintmax_t)0)
+	#endif
 #endif
 #if !HAVE_DECL_INTMAX_MAX
-	#define	INTMAX_MAX ((intmax_t)(UINTMAX_MAX >> 1))
+	#ifndef INTMAX_MAX // @v10.6.8
+		#define	INTMAX_MAX ((intmax_t)(UINTMAX_MAX >> 1))
+	#endif
 #endif
 #if !HAVE_DECL_INTMAX_MIN
-	#define	INTMAX_MIN ((intmax_t)(~INTMAX_MAX))
+	#ifndef INTMAX_MIN // @v10.6.8
+		#define	INTMAX_MIN ((intmax_t)(~INTMAX_MAX))
+	#endif
 #endif
 /*
  * If we can't restore metadata using a file descriptor, then

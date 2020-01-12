@@ -1,14 +1,14 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
 #include <process.h>
-#include <comdef.h>		// COM для WMI
-#include <wbemidl.h>	// WMI для удаленного запуска процессов
-// @v9.6.3 #include <idea.h>		// шифрование пароля доступа WMI
+#include <comdef.h>		// COM РґР»СЏ WMI
+#include <wbemidl.h>	// WMI РґР»СЏ СѓРґР°Р»РµРЅРЅРѕРіРѕ Р·Р°РїСѓСЃРєР° РїСЂРѕС†РµСЃСЃРѕРІ
+// @v9.6.3 #include <idea.h>		// С€РёС„СЂРѕРІР°РЅРёРµ РїР°СЂРѕР»СЏ РґРѕСЃС‚СѓРїР° WMI
 #include <charry.h>
 
 #define JOB_FACTORY_PRFX JFF_
@@ -116,16 +116,16 @@ int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 	return ok;
 }
 
-int SLAPI PPJobMngr::GetResourceList(int loadText, StrAssocArray * pList)
+int SLAPI PPJobMngr::GetResourceList(int loadText, StrAssocArray & rList)
 {
 	int    ok = 1;
-	pList->Z();
+	rList.Z();
 	if(P_Rez) {
 		ulong pos = 0;
 		for(uint   rsc_id = 0; P_Rez->enumResources(PP_RCDECLJOB, &rsc_id, &pos) > 0;) {
 			PPJobDescr job;
 			THROW(LoadResource(rsc_id, &job));
-			THROW_SL(pList->Add(job.CmdID, loadText ? job.Text : job.Symb));
+			THROW_SL(rList.Add(job.CmdID, loadText ? job.Text : job.Symb));
 		}
 	}
 	CATCHZOK
@@ -136,9 +136,9 @@ int SLAPI PPJobMngr::GetResourceList(int loadText, StrAssocArray * pList)
 
 struct JobStrgHeader {     // @persistent @size=64
 	long   Signature;      // const=JOBSTRGSIGN
-	uint32 Locking;        // @v7.7.9 Отрезок, блокируемый для предотвращения множественного доступа на изменение
-	SVerT  Ver;            // @anchor Версия сессии, создавшей файл
-	uint32 Count;          // Количество задач
+	uint32 Locking;        // @v7.7.9 РћС‚СЂРµР·РѕРє, Р±Р»РѕРєРёСЂСѓРµРјС‹Р№ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕРіРѕ РґРѕСЃС‚СѓРїР° РЅР° РёР·РјРµРЅРµРЅРёРµ
+	SVerT  Ver;            // @anchor Р’РµСЂСЃРёСЏ СЃРµСЃСЃРёРё, СЃРѕР·РґР°РІС€РµР№ С„Р°Р№Р»
+	uint32 Count;          // РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РґР°С‡
 	int32  LastId;         // @v7.7.9
 	char   Reserve2[44];
 };
@@ -153,8 +153,8 @@ int SLAPI PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 	THROW_SL(rF.Read(&p_hdr->Signature, sizeof(p_hdr->Signature)));
 	THROW_PP(p_hdr->Signature == JOBSTRGSIGN, PPERR_JOBSTRGCORRUPTED);
 	//
-	// 4 байта, отведенные под блокировку не читаем (они могут быть заблокированы), но перемещеам курсор
-	// на эти 4 байта вперед (SEEK_CUR)
+	// 4 Р±Р°Р№С‚Р°, РѕС‚РІРµРґРµРЅРЅС‹Рµ РїРѕРґ Р±Р»РѕРєРёСЂРѕРІРєСѓ РЅРµ С‡РёС‚Р°РµРј (РѕРЅРё РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅС‹), РЅРѕ РїРµСЂРµРјРµС‰РµР°Рј РєСѓСЂСЃРѕСЂ
+	// РЅР° СЌС‚Рё 4 Р±Р°Р№С‚Р° РІРїРµСЂРµРґ (SEEK_CUR)
 	//
 	THROW_SL(rF.Seek(sizeof(p_hdr->Locking), SEEK_CUR));
 	THROW_SL(rF.Read(&p_hdr->Ver, sizeof(*p_hdr)-offsetof(JobStrgHeader, Ver)));
@@ -172,8 +172,8 @@ int SLAPI PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 			p_hdr->Locking = 1;
 	}
 	//
-	// Блокировка могла переместить (и, скорее всего, так и сделала) текущую позицию файла:
-	// устанавливаем ее на следующий байт за заголовком.
+	// Р‘Р»РѕРєРёСЂРѕРІРєР° РјРѕРіР»Р° РїРµСЂРµРјРµСЃС‚РёС‚СЊ (Рё, СЃРєРѕСЂРµРµ РІСЃРµРіРѕ, С‚Р°Рє Рё СЃРґРµР»Р°Р»Р°) С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ С„Р°Р№Р»Р°:
+	// СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РµРµ РЅР° СЃР»РµРґСѓСЋС‰РёР№ Р±Р°Р№С‚ Р·Р° Р·Р°РіРѕР»РѕРІРєРѕРј.
 	//
 	THROW_SL(rF.Seek(sizeof(*p_hdr), SEEK_SET));
 	CATCHZOK
@@ -240,7 +240,7 @@ int SLAPI PPJobMngr::IsPoolChanged() const
 		SFileUtil::Stat fs;
 		if(!SFileUtil::GetStat(FilePath, &fs) || cmp(fs.ModTime, LastLoading) > 0) {
 			//
-			// Файл был удален, либо не появился, либо был модифирован.
+			// Р¤Р°Р№Р» Р±С‹Р» СѓРґР°Р»РµРЅ, Р»РёР±Рѕ РЅРµ РїРѕСЏРІРёР»СЃСЏ, Р»РёР±Рѕ Р±С‹Р» РјРѕРґРёС„РёСЂРѕРІР°РЅ.
 			//
 			ok = 1;
 		}
@@ -287,8 +287,8 @@ int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
 	hdr.Ver = DS.GetVersion();
 	{
 		//
-		// Снимаем блокировку непосредственно преред записью.
-		// Ненулевое значение LckH уже проверено выше.
+		// РЎРЅРёРјР°РµРј Р±Р»РѕРєРёСЂРѕРІРєСѓ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїСЂРµСЂРµРґ Р·Р°РїРёСЃСЊСЋ.
+		// РќРµРЅСѓР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ LckH СѓР¶Рµ РїСЂРѕРІРµСЂРµРЅРѕ РІС‹С€Рµ.
 		//
 		THROW_SL(P_F->Unlock(LckH));
 		LckH = 0;
@@ -302,7 +302,7 @@ int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
 		THROW_SL(P_F->Write(buf));
 	}
 	//
-	// Сразу после записи снова блокируем файл (быть может клиент захочет снова что-то поменять и сохранить)
+	// РЎСЂР°Р·Сѓ РїРѕСЃР»Рµ Р·Р°РїРёСЃРё СЃРЅРѕРІР° Р±Р»РѕРєРёСЂСѓРµРј С„Р°Р№Р» (Р±С‹С‚СЊ РјРѕР¶РµС‚ РєР»РёРµРЅС‚ Р·Р°С…РѕС‡РµС‚ СЃРЅРѕРІР° С‡С‚Рѕ-С‚Рѕ РїРѕРјРµРЅСЏС‚СЊ Рё СЃРѕС…СЂР°РЅРёС‚СЊ)
 	//
 	THROW(Helper_ReadHeader(*P_F, &hdr, 1));
 	CATCHZOK
@@ -395,7 +395,7 @@ int FASTCALL PPJob::Write(SBuffer & rBuf)
 	THROW(rBuf.Write(NextJobID));
 	THROW(rBuf.Write(Symb, sizeof(Symb)));
 	THROW(rBuf.Write(EmailAccID)); // @v9.2.3
-	THROW(rBuf.Write(ScheduleBeforeTime)); // @v9.2.11 (за счет резерва)
+	THROW(rBuf.Write(ScheduleBeforeTime)); // @v9.2.11 (Р·Р° СЃС‡РµС‚ СЂРµР·РµСЂРІР°)
 	THROW(rBuf.Write(Reserve, sizeof(Reserve)));
 	THROW(rBuf.Write(ExtString)); // @v9.2.3
 	THROW(rBuf.Write(Param));
@@ -421,7 +421,7 @@ int FASTCALL PPJob::Read(SBuffer & rBuf)
 		THROW(rBuf.Read(NextJobID));
 		THROW(rBuf.Read(Symb, sizeof(Symb)));
 		THROW(rBuf.Read(EmailAccID)); // @v9.2.3
-		THROW(rBuf.Read(ScheduleBeforeTime)); // @v9.2.11 (за счет резерва)
+		THROW(rBuf.Read(ScheduleBeforeTime)); // @v9.2.11 (Р·Р° СЃС‡РµС‚ СЂРµР·РµСЂРІР°)
 		THROW(rBuf.Read(Reserve, sizeof(Reserve)));
 	}
 	// @v9.2.3 {
@@ -517,7 +517,7 @@ int SLAPI PPJobPool::PutJob(PPID * pID, const PPJob * pJob)
 	THROW(!pJob || IsJobSuited(pJob));
 	if(!pJob && *pID) {
 		//
-		// Проверка на предмет запрета удаления задачи, на которую ссылаются другие задачи.
+		// РџСЂРѕРІРµСЂРєР° РЅР° РїСЂРµРґРјРµС‚ Р·Р°РїСЂРµС‚Р° СѓРґР°Р»РµРЅРёСЏ Р·Р°РґР°С‡Рё, РЅР° РєРѕС‚РѕСЂСѓСЋ СЃСЃС‹Р»Р°СЋС‚СЃСЏ РґСЂСѓРіРёРµ Р·Р°РґР°С‡Рё.
 		//
 		for(i = 0; i < getCount(); i++) {
 			const PPJob * p_job = at(i);
@@ -528,7 +528,7 @@ int SLAPI PPJobPool::PutJob(PPID * pID, const PPJob * pJob)
 	}
 	{
 		//
-		// Порядок перебора обратный потому, что в цикле может быть удален элемент массива
+		// РџРѕСЂСЏРґРѕРє РїРµСЂРµР±РѕСЂР° РѕР±СЂР°С‚РЅС‹Р№ РїРѕС‚РѕРјСѓ, С‡С‚Рѕ РІ С†РёРєР»Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓРґР°Р»РµРЅ СЌР»РµРјРµРЅС‚ РјР°СЃСЃРёРІР°
 		//
 		i = getCount();
 		if(i) do {
@@ -554,14 +554,14 @@ int SLAPI PPJobPool::PutJob(PPID * pID, const PPJob * pJob)
 		else {
 			assert(P_Mngr);
 			//
-			// Цикл, призванный гарантировать уникальность нового идентификатора
+			// Р¦РёРєР», РїСЂРёР·РІР°РЅРЅС‹Р№ РіР°СЂР°РЅС‚РёСЂРѕРІР°С‚СЊ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РЅРѕРІРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°
 			//
 			for(i = 0; i < getCount();) {
 				const PPJob * p_job = at(i);
 				if(potential_id == p_job->ID) {
 					//
-					// Авария: потенциальный идентификатор уже встречается в пуле.
-					// Увеличиваем значение potential_id и начинаем все снова (i = 0)
+					// РђРІР°СЂРёСЏ: РїРѕС‚РµРЅС†РёР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СѓР¶Рµ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ РІ РїСѓР»Рµ.
+					// РЈРІРµР»РёС‡РёРІР°РµРј Р·РЅР°С‡РµРЅРёРµ potential_id Рё РЅР°С‡РёРЅР°РµРј РІСЃРµ СЃРЅРѕРІР° (i = 0)
 					//
 					potential_id++;
 					i = 0;
@@ -873,7 +873,7 @@ public:
 		if(param.ScaleID == 0) {
 			while(sobj.EnumItems(&param.ScaleID) > 0) {
 				sobj.TransmitData(param.ScaleID, param.Flags | PPObjScale::fTrSkipListing, 0);
-				// @todo Выводить информацию об ошибках в журнал
+				// @todo Р’С‹РІРѕРґРёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± РѕС€РёР±РєР°С… РІ Р¶СѓСЂРЅР°Р»
 			}
 		}
 		else {
@@ -1023,7 +1023,7 @@ public:
 
 IMPLEMENT_JOB_HDL_FACTORY(DBMAINTAIN);
 //
-// Закрытие кассовых сессий
+// Р—Р°РєСЂС‹С‚РёРµ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
 //
 struct CashNodeParam {
 	SLAPI CashNodeParam()
@@ -1834,8 +1834,8 @@ public:
 			pBillParam->ProcessName(1, (sect = pBillParamName));
 			THROW_PP_S(pBillParam->ReadIni(&ini_file, sect, 0) > 0, PPERR_INVBILLEXPCFG, pBillParamName);
 			// @vmiller {
-			// Если имя pBillParamName соответствует одной из строк перечисления PPTXT_EDIEXPCMD, то экспорт
-			// происходит через dll, более того, это режим EDI
+			// Р•СЃР»Рё РёРјСЏ pBillParamName СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РѕРґРЅРѕР№ РёР· СЃС‚СЂРѕРє РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ PPTXT_EDIEXPCMD, С‚Рѕ СЌРєСЃРїРѕСЂС‚
+			// РїСЂРѕРёСЃС…РѕРґРёС‚ С‡РµСЂРµР· dll, Р±РѕР»РµРµ С‚РѕРіРѕ, СЌС‚Рѕ СЂРµР¶РёРј EDI
 			{
 				SString buf;
 				StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, buf));
@@ -1965,7 +1965,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 			disableCtrls((Data.Flags & ExpBillsFilt::fEdi), CTLSEL_IEBILLSEL_BROW, 0);
 			Data.BRowParam = 0;
 			if(Data.Flags & ExpBillsFilt::fEdi) {
-				// Заполняем списком типов документов
+				// Р—Р°РїРѕР»РЅСЏРµРј СЃРїРёСЃРєРѕРј С‚РёРїРѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
 				HdrList.Z();
 				SString buf;
 				StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, buf));
@@ -2025,7 +2025,7 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 		uint id = 0, p = 0;
 		PPBillImpExpParam bill_param, brow_param;
 		disableCtrls((Data.Flags & ExpBillsFilt::fEdi), CTLSEL_BILLEXPFILT_RCFG, 0L);
-		// Заполняем списком типов документов
+		// Р—Р°РїРѕР»РЅСЏРµРј СЃРїРёСЃРєРѕРј С‚РёРїРѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
 		HdrList.Z();
 		SString buf;
 		StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, buf));
@@ -2471,15 +2471,15 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 		THROW(p_dvc->RunCmd(DVCCMD_PING, in_params, out_params));
 		if(out_params.Get(DVCCMDPAR_CARD, temp_buf)) {
 			rRetBuf = temp_buf;
-			//in_params.Clear().Add(DVCCMDPAR_TEXT, "ОТЛИЧНО КАРТА СЧИТАНА!");
+			//in_params.Clear().Add(DVCCMDPAR_TEXT, "РћРўР›РР§РќРћ РљРђР РўРђ РЎР§РРўРђРќРђ!");
 			//THROW(p_dvc->RunCmd(DVCCMD_SETTEXT, in_params, out_params));
-			in_params.Clear().Add(DVCCMDPAR_TEXT, "ОТЛИЧНО ВКЛЮЧАЕМ!");
-			in_params.Add(DVCCMDPAR_COUNT, temp_buf.Z().Cat(3)); // 3 щелчка
+			in_params.Clear().Add(DVCCMDPAR_TEXT, (temp_buf = "РћРўР›РР§РќРћ Р’РљР›Р®Р§РђР•Рњ!").Transf(CTRANSF_UTF8_TO_INNER));
+			in_params.Add(DVCCMDPAR_COUNT, temp_buf.Z().Cat(3)); // 3 С‰РµР»С‡РєР°
 			THROW(p_dvc->RunCmd(DVCCMD_TOGGLE, in_params, out_params));
 		}
 		else {
 			rRetBuf = "OK";
-			in_params.Clear().Add(DVCCMDPAR_TEXT, "КАРТУ ДАВАЙ! ДА?");
+			in_params.Clear().Add(DVCCMDPAR_TEXT, (temp_buf = "РљРђР РўРЈ Р”РђР’РђР™! Р”Рђ?").Transf(CTRANSF_UTF8_TO_INNER));
 			THROW(p_dvc->RunCmd(DVCCMD_SETTEXT, in_params, out_params));
 		}
 		ok = 1;
@@ -2504,14 +2504,14 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 			port_no--;
 
 	P_AbstrDvc->PCpb.Cls = DVCCLS_READER;
-	P_AbstrDvc->GetDllName(DVCCLS_READER, /*rRec.ID*/1, P_AbstrDvc->PCpb.DllName); // @vmiller Пока напишем номер утсройства в списке - 1, в списке устройств, перечисленных в ppdrv.ini. Хотя ИД здесь и не подойдет, наверное...
+	P_AbstrDvc->GetDllName(DVCCLS_READER, /*rRec.ID*/1, P_AbstrDvc->PCpb.DllName); // @vmiller РџРѕРєР° РЅР°РїРёС€РµРј РЅРѕРјРµСЂ СѓС‚СЃСЂРѕР№СЃС‚РІР° РІ СЃРїРёСЃРєРµ - 1, РІ СЃРїРёСЃРєРµ СѓСЃС‚СЂРѕР№СЃС‚РІ, РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹С… РІ ppdrv.ini. РҐРѕС‚СЏ РР” Р·РґРµСЃСЊ Рё РЅРµ РїРѕРґРѕР№РґРµС‚, РЅР°РІРµСЂРЅРѕРµ...
 	P_AbstrDvc->IdentifyDevice(P_AbstrDvc->PCpb.DllName);
-	// инициализируем
+	// РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_INIT, in_params, out_params.Clear()));
-	// соединяемся
-	in_params.Add(DVCPARAM_PORT, temp_buf.Z().Cat(/*port_no*/7)); // @vmiller Пока напишем порт устройства - 7 (ибо все равно через эмулятор)
+	// СЃРѕРµРґРёРЅСЏРµРјСЃСЏ
+	in_params.Add(DVCPARAM_PORT, temp_buf.Z().Cat(/*port_no*/7)); // @vmiller РџРѕРєР° РЅР°РїРёС€РµРј РїРѕСЂС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР° - 7 (РёР±Рѕ РІСЃРµ СЂР°РІРЅРѕ С‡РµСЂРµР· СЌРјСѓР»СЏС‚РѕСЂ)
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_CONNECT, in_params, out_params.Clear()));
-	// читаем с устройства
+	// С‡РёС‚Р°РµРј СЃ СѓСЃС‚СЂРѕР№СЃС‚РІР°
 	THROW(ExecOper(P_AbstrDvc, DVCCMD_LISTEN, in_params.Clear(), out_params.Clear()));
 	out_params.Get(0, temp_buf);
 	PPOutputMessage(temp_buf, mfOK);
@@ -2625,10 +2625,7 @@ int SLAPI PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
 }
 
 // virtual
-int  SLAPI PPObjRFIDDevice::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRRFIDDEVICE, 0);
-}
+int  SLAPI PPObjRFIDDevice::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRRFIDDEVICE, 0); }
 
 #define DISPLAY_ROW_SIZE 16
 
@@ -3508,7 +3505,7 @@ public:
 			PPObjPersonEvent pe_obj;
 			AddPersonEventFilt filt;
 			THROW(filt.Read(*pParam, 0));
-			// (Функция интерактивная, из-за нее падает сервер) pe_obj.ProcessDeviceInput(filt);
+			// (Р¤СѓРЅРєС†РёСЏ РёРЅС‚РµСЂР°РєС‚РёРІРЅР°СЏ, РёР·-Р·Р° РЅРµРµ РїР°РґР°РµС‚ СЃРµСЂРІРµСЂ) pe_obj.ProcessDeviceInput(filt);
 		}
 		CATCHZOK
 		return ok;

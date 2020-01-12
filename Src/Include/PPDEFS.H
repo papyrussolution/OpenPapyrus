@@ -1,5 +1,5 @@
 // PPDEFS.H
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
@@ -116,6 +116,7 @@
 	#define ROD_TAG             18   // Типы тегов
 	#define ROD_OPCOUNTER       19   // Счетчики
 	#define ROD_TAXSYSTEMKIND   20   // Виды налогообложения //
+	#define ROD_GOODSBASKET     21   // @v10.6.8 Товарные корзины //
 #define PP_RCDECLSTRUC        502   // Тип ресурса для деклараций структур экспорта/импорта данных
 #define PP_RCDECLOBJ          503   // Тип ресурса для деклараций типов объектов PPObject
 	//
@@ -829,6 +830,8 @@
 	#define GDCPRP_DIMW          5L
 	#define GDCPRP_FORMLIST     10L
 #define PPOBJ_GOODSBASKET        40L // $ Корзина товаров
+	#define PPGDSBSK_ACNUPD     11L // Зарезервированная корзина для форсированного обновления товаров в асинхронном кассовом модуле
+	#define PPGDSBSK_ACNRMV     12L // Зарезервированная корзина для форсированного удаления товаров из асинхронного кассового модуля
 #define PPOBJ_BHT                41L // $ BHT-терминалы
 	//
 	// Extra record of PPOBJ_BHT
@@ -3508,6 +3511,7 @@
 	#define CTL_GOODSFLT_ORDER          (32 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSFLT_ORDER       (33 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_BARCODESTR     (34 + WINDOWS_ID_BIAS)
+	#define CTL_GOODSFLT_NOBRAND        (35 + WINDOWS_ID_BIAS)
 
 #define DLG_PSNFLT                251 // Фильтр по персоналиям
 #define DLG_PSNEXFLT              252 // Фильтр по кадрам           @obsolete
@@ -4010,6 +4014,7 @@
 	#define CTL_CHKPAN_SELGOODS          (76 + WINDOWS_ID_BIAS) // Кнопка выбора товара из списка
 	#define CTL_CHKPAN_BIGHINT           (77 + WINDOWS_ID_BIAS)
 	#define CTL_CHKPAN_BIGHINT_KB        (78 + WINDOWS_ID_BIAS)
+	#define CTL_CHKPAN_INITUSER          (79 + WINDOWS_ID_BIAS)
 #define DLG_CCHECKFLT             305 // Фильтр по чекам
 	#define cmCrosstab                   101
 	#define CTL_CCHECKFLT_PERIOD         (1 + WINDOWS_ID_BIAS)
@@ -10824,6 +10829,13 @@
 	#define CTL_CHZNIX_HINT           (5 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNIX_SUPPL          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CHZNIX_SUPPL       (7 + WINDOWS_ID_BIAS)
+#define DLG_TIMSERTEST            1377
+	#define CTL_TIMSERTEST_WHAT       (1 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERTEST_DIST       (2 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERTEST_TS         (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TIMSERTEST_TS      (4 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERTEST_PARAM      (5 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERTEST_INFO       (6 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1655,14 +1655,15 @@ int SLAPI PPViewTrfrAnlz::CreateOrderTable(IterOrder ord)
 	PPLoadString("sorting", msg_buf);
 	if(P_TrGrpngTbl) {
 		TempTrfrGrpngTbl * p_t = P_TrGrpngTbl;
-		char   gk[MAXKEYLEN];
-		memzero(gk, sizeof(gk));
+		// @v10.6.8 char   gk[MAXKEYLEN];
+		BtrDbKey gk_; // @v10.6.8
+		// @v10.6.8 @ctr memzero(gk, sizeof(gk));
 		BExtQuery q(p_t, 0);
 		q.select(p_t->ID__, p_t->GoodsText, p_t->PersonText, p_t->DtText, p_t->Dt, 0L);
 		THROW(p_ord_tbl = CreateTempOrderFile());
 		THROW_MEM(p_bei = new BExtInsert(p_ord_tbl));
 		PPInitIterCounter(cntr, p_t);
-		for(q.initIteration(0, gk, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
+		for(q.initIteration(0, gk_, spFirst); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 			p_ord_tbl->clearDataBuf();
 			p_ord_tbl->data.ID = P_TrGrpngTbl->data.ID__;
 			if(ord == PPViewTrfrAnlz::OrdByGoods)
@@ -1775,11 +1776,12 @@ int SLAPI PPViewTrfrAnlz::InitIteration(IterOrder ord)
 	else
 		Counter.Init(0UL);
 	if(P_OrderTbl && ord == Filt.InitOrd) {
-		char   k[MAXKEYLEN];
+		// @v10.6.8 char   k[MAXKEYLEN];
+		BtrDbKey k_; // @v10.6.8
 		P_IterOrderQuery = new BExtQuery(P_OrderTbl, 1);
 		P_IterOrderQuery->select(P_OrderTbl->ID, 0L);
-		memzero(k, sizeof(k));
-		P_IterOrderQuery->initIteration(0, k, spFirst);
+		// @v10.6.8 @ctr memzero(k, sizeof(k));
+		P_IterOrderQuery->initIteration(0, k_, spFirst);
 		if(P_IterOrderQuery->nextIteration() > 0) {
 			CurOuterID  = P_OrderTbl->data.ID;
 			PrevOuterID = CurOuterID - 1;
@@ -1816,11 +1818,12 @@ int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 		}
 		else { // @v10.5.1
 			if(!P_IterQuery) {
-				char   k0[MAXKEYLEN];
+				// @v10.6.8 char   k0[MAXKEYLEN];
+				BtrDbKey k0_; // @v10.6.8
 				P_IterQuery = new BExtQuery(P_TrAnlzTbl, 0);
 				P_IterQuery->selectAll();
-				memzero(k0, sizeof(k0));
-				P_IterQuery->initIteration(0, k0, spFirst);
+				// @v10.6.8 @ctr memzero(k0, sizeof(k0));
+				P_IterQuery->initIteration(0, k0_, spFirst);
 			}
 			r = P_IterQuery->nextIteration();
 			if(r > 0) {
@@ -1852,11 +1855,12 @@ int SLAPI PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 		   	return -1;
 		}
 		else if(P_IterQuery == 0) {
-			char k0[MAXKEYLEN];
+			// @v10.6.8 char k0[MAXKEYLEN];
+			BtrDbKey k0_; // @v10.6.8 
 			P_IterQuery = new BExtQuery(P_TrGrpngTbl, 1);
 			P_IterQuery->selectAll();
-			memzero(k0, sizeof(k0));
-			P_IterQuery->initIteration(0, k0, spFirst);
+			// @v10.6.8 @ctr memzero(k0, sizeof(k0));
+			P_IterQuery->initIteration(0, k0_, spFirst);
 		}
 		r = P_IterQuery->nextIteration();
 		if(r > 0)
@@ -3131,13 +3135,14 @@ private:
 #define SHOW_CTVAL 0x00000001L
 
 class TrfrAnlzCtDialog : public PPListDialog {
+	DECL_DIALOG_DATA(TrfrAnlzFilt);
 public:
 	TrfrAnlzCtDialog() : PPListDialog(DLG_TAC, CTL_TAC_VALLIST)
 	{
 		PPLoadText(PPTXT_TRFRANLZCTVALNAMES, CtValNames);
 		setSmartListBoxOption(CTL_TAC_VALLIST, lbtSelNotify);
 	}
-	int    setDTS(const TrfrAnlzFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
@@ -3160,7 +3165,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(TrfrAnlzFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		GetClusterData(CTL_TAC_KIND, &Data.CtKind);
@@ -3222,7 +3227,6 @@ private:
 		return ok;
 	}
 	SString CtValNames;
-	TrfrAnlzFilt Data;
 };
 
 void TrfrAnlzGrpngDialog::SetupCtrls()

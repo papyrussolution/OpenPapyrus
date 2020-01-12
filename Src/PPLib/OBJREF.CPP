@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -440,7 +440,7 @@ int SLAPI PPObjReference::Edit(PPID * pID, void * extraPtr)
 	int    is_new = 0;
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
-	MEMSZERO(rec);
+	// @v10.6.8 @ctr MEMSZERO(rec);
 	if(!is_new) {
 		THROW(ref->GetItem(Obj, *pID, &rec) > 0); // @v9.8.12 (!=0)-->(>0)
 	}
@@ -652,7 +652,7 @@ int SLAPI PPObjReference::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		ReferenceTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
@@ -667,7 +667,7 @@ int SLAPI PPObjReference::LoadReservedItems(uint rezID)
 	int    ok = 1;
 	uint   num_recs, i;
 	TVRez * p_rez = P_SlRez;
-	THROW(p_rez);
+	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(rezID, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
 	for(i = 0; i < num_recs; i++) {
@@ -696,6 +696,7 @@ int SLAPI PPObjReference::MakeReserved(long flags)
 		case PPOBJ_ELINKKIND:     rez_id = ROD_ELINKKIND;     break;
 		case PPOBJ_PERSONRELTYPE: rez_id = ROD_PERSONRELTYPE; break;
 		case PPOBJ_TAXSYSTEMKIND: rez_id = ROD_TAXSYSTEMKIND; break; // @v10.6.0
+		case PPOBJ_GOODSBASKET:   rez_id = ROD_GOODSBASKET;   break; // @v10.6.8
 	}
 	return rez_id ? LoadReservedItems(rez_id) : 1;
 }
@@ -706,6 +707,11 @@ static int SLAPI UnitListFilt(void * rec, void * extraPtr)
 {
 	const long extra_flags = reinterpret_cast<long>(extraPtr);
 	return extra_flags ? ((static_cast<const PPUnit *>(rec)->Flags & extra_flags) == extra_flags) : 1;
+}
+
+SLAPI PPUnit2::PPUnit2()
+{
+	THISZERO();
 }
 
 SLAPI PPObjUnit::PPObjUnit(void * extraPtr) : PPObjReference(PPOBJ_UNIT, extraPtr)
@@ -845,7 +851,7 @@ int SLAPI PPObjUnit::AddSimple(PPID * pID, const char * pName, long flags, int u
 			ok = 1;
 		else {
 			PPUnit unit_rec;
-			MEMSZERO(unit_rec);
+			// @v10.6.8 @ctr MEMSZERO(unit_rec);
 			STRNSCPY(unit_rec.Name, pName);
 			if(flags)
 				unit_rec.Flags = flags;
@@ -1003,7 +1009,7 @@ int SLAPI PPObjUnit::Edit(PPID * pID, void * extraPtr)
 		THROW(Search(*pID, &unit) > 0);
 	}
 	else {
-		MEMSZERO(unit);
+		// @v10.6.8 @ctr MEMSZERO(unit);
 		const long _extra = reinterpret_cast<long>(ExtraPtr);
 		unit.Flags |= (_extra ? (_extra & 0x0000ffffL) : PPUnit::Trade);
 	}
@@ -1056,7 +1062,7 @@ int SLAPI PPObjUnit::ProcessReservedItem(TVRez & rez)
 	SString name;
 	SString abbr;
 	SString flags;
-	PPID   id = (PPID)rez.getUINT();
+	PPID   id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
 	rez.getString(abbr, 2);
@@ -1064,7 +1070,7 @@ int SLAPI PPObjUnit::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		PPUnit rec;
-		MEMSZERO(rec);
+		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ID = id;
 		STRNSCPY(rec.Name, name);
 		STRNSCPY(rec.Abbr, abbr);
@@ -1542,7 +1548,7 @@ int SLAPI PPObjFormula::Put(PPID * pID, const char * pName, const char * pExpr, 
 	else {
 		PPID   tmpid = 0;
 		THROW_PP(SearchByName(pName, &tmpid) < 0, PPERR_DUPFORMSYMB);
-		MEMSZERO(rec);
+		// @v10.6.8 @ctr MEMSZERO(rec);
 	}
    	STRNSCPY(rec.ObjName, pName);
    	{
@@ -1577,10 +1583,7 @@ int SLAPI PPObjFormula::Get(PPID id, SString & rName, SString & rFormula)
 	return ok;
 }
 
-int SLAPI PPObjFormula::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRFORMULA, 0);
-}
+int SLAPI PPObjFormula::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRFORMULA, 0); }
 //
 // @ModuleDef(PPObjCurrency)
 //
@@ -1637,15 +1640,8 @@ int SLAPI PPObjCurrency::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjCurrency::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRCURRENCY, 0);
-}
-
-int SLAPI PPObjCurrency::AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta)
-{
-	return EditItem(PPOBJ_CURRENCY, *pID, pCurrency, use_ta);
-}
+int SLAPI PPObjCurrency::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRCURRENCY, 0); }
+int SLAPI PPObjCurrency::AddItem(PPID * pID, PPCurrency * pCurrency, int use_ta) { return EditItem(PPOBJ_CURRENCY, *pID, pCurrency, use_ta); }
 
 StrAssocArray * SLAPI PPObjCurrency::CreateSelectorList(int asSymb, const PPIDArray * pIncludeList, const PPIDArray * pExcludeList)
 {
@@ -1785,10 +1781,7 @@ SLAPI PPObjCurRateType::PPObjCurRateType(void * extraPtr) : PPObjReference(PPOBJ
 {
 }
 
-int SLAPI PPObjCurRateType::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRCURRATETYPE, 0);
-}
+int SLAPI PPObjCurRateType::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRCURRATETYPE, 0); }
 //
 // @ModuleDef(PPObjDynamicObjs)
 //
@@ -1821,8 +1814,7 @@ int SLAPI PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(ref->GetItem(Obj, *pID, &rec));
 	}
-	else
-		MEMSZERO(rec);
+	// @v10.6.8 @ctr else { MEMSZERO(rec); }
 	{
 		PPCommObjEntry param(Obj, rec.ObjID, rec.ObjName, rec.Symb, rec.Val1);
 		THROW(ok = PPObjReference::EditCommObjItem(&param));
@@ -2603,7 +2595,7 @@ int SLAPI PPObjSysAction::Search(PPID id, void * pRec)
 		NameBuf = temp_buf;
 		if(pRec) {
 			ReferenceTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.8 @ctr MEMSZERO(rec);
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
@@ -2663,7 +2655,7 @@ int SLAPI PPObjGtaAction::Search(PPID id, void * pRec)
 		NameBuf = temp_buf;
 		if(pRec) {
 			ReferenceTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.6.8 @ctr MEMSZERO(rec);
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
@@ -3974,7 +3966,7 @@ int SLAPI PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		ReferenceTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);

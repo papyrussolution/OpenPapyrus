@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @Kernel
 //
 #include <pp.h>
@@ -255,7 +255,10 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 								q.addField(p_t->Name);
 							dbq = & (p_t->ParentID == int_grp_id);
 							dbq = ppcheckfiltid(dbq, p_t->ManufID,  Filt.ManufID);
-							dbq = ppcheckfiltid(dbq, p_t->BrandID,  Filt.GetResultBrandList().GetSingle());
+							if(Filt.Flags & Filt.fWoBrand) // @v10.6.8
+								dbq = &(*dbq && p_t->BrandID == 0L);
+							else
+								dbq = ppcheckfiltid(dbq, p_t->BrandID,  Filt.GetResultBrandList().GetSingle());
 							dbq = ppcheckfiltid(dbq, p_t->GdsClsID, Filt.Ep.GdsClsID);
 							dbq = ppcheckfiltid(dbq, p_t->UnitID,   Filt.UnitID);
 							dbq = ppcheckfiltid(dbq, p_t->PhUnitID, Filt.PhUnitID);
@@ -273,7 +276,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
 										THROW(id_list.add(id));
 										if(CS_SERVER) {
-											long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
+											const long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 											if((_mc % 100) == 0) {
 												(msg_buf = fmt_buf).Space().Cat(_mc);
 												PPWaitMsg(msg_buf);
@@ -492,7 +495,7 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				THROW_SL(temp_list.add(t->data.ID));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
-		{
+		if(!(Filt.Flags & Filt.fWoBrand)) { // @v10.6.8 
 			const ObjIdListFilt & r_brand_list = Filt.GetResultBrandList();
 			if(r_brand_list.GetCount()) {
 				temp_list.clear();
@@ -587,6 +590,24 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			}
 		}
 	}
+	// @v10.6.8 {
+	if(Filt.Flags & Filt.fWoBrand) { 
+		// Индекс по бренду (#3) в таблице Goods2 не содержит нулевых значение, по-этому здесь не получится 
+		// использовать перебор по индексу.
+		if(P_List) {
+			uint lidx = P_List->getCount();
+			if(lidx) do {
+				PPID _id = P_List->get(--lidx);
+				if(GObj.Fetch(_id, &goods_rec) > 0) {
+					if(goods_rec.BrandID)
+						P_List->atFree(lidx);
+				}
+				else
+					P_List->atFree(lidx);
+			} while(lidx);
+		}
+	}
+	// } @v10.6.8 
 	if(Filt.Flags & GoodsFilt::fActualOnly) {
 		THROW_MEM(P_ActualHash = new UintHashTable);
 		UnlimTypeList.clear();
@@ -835,7 +856,10 @@ int SLAPI GoodsIterator::CreateIterQuery()
 	dbq = & (*dbq && p_t->Kind == PPGDSK_GOODS);
 	if(!(Filt.Flags & GoodsFilt::fNegation)) {
 		dbq = ppcheckfiltid(dbq, p_t->ManufID,  Filt.ManufID);
-		dbq = ppcheckfiltid(dbq, p_t->BrandID,  Filt.GetResultBrandList().GetSingle());
+		if(Filt.Flags & Filt.fWoBrand) // @v10.6.8
+			dbq = &(*dbq && p_t->BrandID == 0L);
+		else
+			dbq = ppcheckfiltid(dbq, p_t->BrandID,  Filt.GetResultBrandList().GetSingle());
 		dbq = ppcheckfiltid(dbq, p_t->GdsClsID, Filt.Ep.GdsClsID);
 		dbq = ppcheckfiltid(dbq, p_t->UnitID,   Filt.UnitID);
 		dbq = ppcheckfiltid(dbq, p_t->PhUnitID, Filt.PhUnitID);

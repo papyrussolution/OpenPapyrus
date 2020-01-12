@@ -215,10 +215,10 @@ void CPosProcessor::Packet::Clear()
 	OrgAgentID = 0;
 	OrderCheckID = 0;
 	OrgUserID = 0;
-	freeAll();
+	clear(); // @v10.6.8 freeAll()-->clear()
 	ClearCur();
 	IterIdx = 0;
-	Eccd.Clear();
+	Eccd.Z();
 	GiftAssoc.clear();
 }
 
@@ -226,7 +226,7 @@ void CPosProcessor::Packet::ClearCur()
 {
 	CurPos = -1;
 	MEMSZERO(Cur);
-	CurModifList.freeAll();
+	CurModifList.clear(); // @v10.6.8 freeAll()-->clear()
 	Rest = 0.0;
 }
 
@@ -283,6 +283,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) con
 		pPack->Ext.GuestCount = GuestCount;
 		pPack->Ext.LinkCheckID = (pPack->Rec.Flags & CCHKF_SKIP) ? 0 : OrderCheckID;
 		pPack->Ext.CreationDtm = Eccd.InitDtm;
+		pPack->Ext.CreationUserID = Eccd.InitUserID; // @v10.6.8
 		Eccd.Memo.CopyTo(pPack->Ext.Memo, sizeof(pPack->Ext.Memo));
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
@@ -436,26 +437,26 @@ CPosProcessor::AcceptCheckProcessBlock::AcceptCheckProcessBlock() : R(1), SyncPr
 //
 //
 //
-CPosProcessor::ExtCcData::ExtCcData()
+CPosProcessor::ExtCcData::ExtCcData() : Flags(0), SCardID_(0), InitUserID(0), DlvrDtm(ZERODATETIME), InitDtm(ZERODATETIME)
 {
-	Clear();
 }
 
-void CPosProcessor::ExtCcData::Clear()
+CPosProcessor::ExtCcData & CPosProcessor::ExtCcData::Z()
 {
 	Flags = 0;
 	SCardID_ = 0;
+	InitUserID = 0;
 	DlvrDtm.Z();
 	InitDtm.Z();
 	MEMSZERO(Addr_);
 	Memo.Z();
+	return *this;
 }
 //
 //
 //
-CPosProcessor::RetBlock::RetBlock()
+CPosProcessor::RetBlock::RetBlock() : SellCheckID(0), SellCheckAmount(0.0), SellCheckCredit(0.0)
 {
-	Z();
 }
 
 CPosProcessor::RetBlock & CPosProcessor::RetBlock::Z()
@@ -471,19 +472,21 @@ CPosProcessor::RetBlock & CPosProcessor::RetBlock::Z()
 //
 CPosProcessor::CardState::CardState() : P_DisByAmtRule(0), P_Eqb(0)
 {
-	Reset();
+	Z();
 }
 
 CPosProcessor::CardState::~CardState()
 {
-	Reset();
+	delete P_DisByAmtRule;
+	delete P_Eqb;
 }
 
-void CPosProcessor::CardState::Reset()
+CPosProcessor::CardState & CPosProcessor::CardState::Z()
 {
 	ZDELETE(P_DisByAmtRule);
 	ZDELETE(P_Eqb);
 	THISZERO();
+	return *this;
 }
 
 void CPosProcessor::CardState::SetID(PPID id, const char * pCode)
@@ -566,7 +569,7 @@ int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 {
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec, item_goods_rec;
-	rModif.freeAll();
+	rModif.clear(); // @v10.6.8 freeAll()-->clear()
 	if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 		int    r = 0;
 		PPGoodsStruc gs;
@@ -750,6 +753,7 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 				n_item.PutInner("Amount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Amount), MKSFMTD(0, 2, 0)));
 				n_item.PutInner("Discount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Discount), MKSFMTD(0, 2, 0)));
 				n_item.PutInner("CreationTime", temp_buf.Z().Cat(r_item.CreationDtm, DATF_ISO8601|DATF_CENTURY, 0));
+				n_item.PutInner("CreationUserID", temp_buf.Z().Cat(r_item.CreationUserID)); // @v10.6.8
 			}
 		}
 		xmlTextWriterFlush(p_writer);
@@ -1190,7 +1194,7 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 	P.TableCode = pPack ? pPack->Ext.TableNo : 0;
 	P.GuestCount = pPack ? pPack->Ext.GuestCount : 0;
 	P.OrderCheckID = pPack ? pPack->Ext.LinkCheckID : 0;
-	P.Eccd.Clear();
+	P.Eccd.Z();
 	if(pPack) {
 		P.Eccd.Memo = pPack->Ext.Memo;
 		SETFLAG(P.Eccd.Flags, P.Eccd.fDelivery,   pPack->Rec.Flags & CCHKF_DELIVERY);
@@ -1211,6 +1215,7 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 			}
 		}
 		P.Eccd.InitDtm = pPack->Ext.CreationDtm;
+		P.Eccd.InitUserID = pPack->Ext.CreationUserID; // @v10.6.8
 		if(P.Eccd.Flags & P.Eccd.fDelivery)
 			P.Eccd.DlvrDtm = pPack->Ext.StartOrdDtm;
 		P.AmL = pPack->AL_Const();
@@ -1916,7 +1921,7 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 
 void CPosProcessor::ResetSCard()
 {
-	CSt.Reset();
+	CSt.Z();
 	Flags &= ~(fSCardCredit|fSCardBonus|fSCardBonusReal|fPctDis); // @scard
 	SetupDiscount();
 }
@@ -1932,6 +1937,12 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 		P.GetAgentID(), actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 	SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
 	return r;
+}
+
+int CPosProcessor::LoadPartialStruc(PPID goodsID, PPGoodsStruc & rGs)
+{
+	const PPGoodsStruc::Ident gs_ident(goodsID, GSF_PARTITIAL, GSF_PRESENT|GSF_COMPLEX|GSF_SUBST, getcurdate_());
+	return (GObj.LoadGoodsStruc(&gs_ident, &rGs) > 0 && !rGs.IsEmpty()) ? 1 : -1;
 }
 
 int CPosProcessor::LoadComplex(PPID goodsID, SaComplex & rComplex)
@@ -2648,6 +2659,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 			SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, P.Eccd.Flags & P.Eccd.fFixedPrice);
 			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished); // @v9.7.7
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
+			pPack->Ext.CreationUserID = P.Eccd.InitUserID; // @v10.6.8
 			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt()); // @v9.4.5
 			SETIFZ(pPack->Rec.Dt, dtm.d);
 			SETIFZ(pPack->Rec.Tm, dtm.t);
@@ -3019,7 +3031,7 @@ int CheckPaneDialog::InitGroupList(const PPTouchScreenPacket & rTsPack)
 	Goods2Tbl::Rec goods_rec;
 	PPIDArray grp_id_list(rTsPack.GrpIDList);
 	PPID   grp_id = 0;
-	GroupList.freeAll();
+	GroupList.clear(); // @v10.6.8 freeAll()-->clear()
 	if(grp_id_list.getCount() == 0) {
 		for(GoodsGroupIterator gg_iter(0); gg_iter.Next(&grp_id, temp_buf) > 0;) {
 			while(grp_id && GObj.Fetch(grp_id, &goods_rec) > 0) {
@@ -4761,7 +4773,7 @@ int SelCheckListDialog::setupList()
 				for(i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
 					CCheckViewItem item;
 					MEMSZERO(item);
-					*(CCheckTbl::Rec *)&item = *p_rec;
+					*static_cast<CCheckTbl::Rec *>(&item) = *p_rec;
 					if(item.Flags & CCHKF_EXT) {
 						CCheckExtTbl::Rec ext_rec;
 						if(P_Srv->GetCc().GetExt(p_rec->ID, &ext_rec) > 0) {
@@ -4815,12 +4827,10 @@ int SelCheckListDialog::setupList()
 				ss.add(temp_buf.Z().Cat(MONEYTOLDBL(r_chk_rec.Amount), SFMT_MONEY));
 				{
 					temp_buf.Z();
-					if(r_chk_rec.TableCode) {
+					if(r_chk_rec.TableCode)
 						temp_buf.Cat(r_chk_rec.TableCode);
-					}
-					else if(r_chk_rec.Flags & CCHKF_IMPORTED) {
+					else if(r_chk_rec.Flags & CCHKF_IMPORTED)
 						temp_buf.Cat("UHTT");
-					}
 					ss.add(temp_buf);
 				}
 				GetArticleName(r_chk_rec.AgentID, temp_buf);
@@ -5446,9 +5456,11 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		const  PPID preserve_loc_id = CheckAddrModif(0) ? 0 : Data.Addr_.ID;
+		const  PPID preserve_init_user_id = Data.InitUserID; // @v10.6.8
 		const  LDATETIME preserve_init_dtm = Data.InitDtm;
-		Data.Clear();
+		Data.Z();
 		Data.Addr_.ID = preserve_loc_id;
+		Data.InitUserID = preserve_init_user_id; // @v10.6.8
 		Data.InitDtm = preserve_init_dtm;
 		getCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
 		GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
@@ -7713,9 +7725,9 @@ void CheckPaneDialog::setupRetCheck(int ret)
 			}
 			else if(!F(fRetCheck)) {
 				SelPack.ClearLines();
-				SelLines.freeAll();
+				SelLines.clear();
 				SetupState(sEMPTYLIST_EMPTYBUF);
-				CSt.Reset();
+				CSt.Z();
 			}
 			SetupInfo(0);
 			ClearInput(0);
@@ -8395,7 +8407,13 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 	}
 	if(ok) {
 		SaComplex complex;
-		if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
+		//PPGoodsStruc partial_struc;
+		/*if(LoadPartialStruc(goodsID, partial_struc) > 0) {
+			AcceptRow(0);
+			PPGoodsStrucItem gs_item;
+			for(uint i = 0; i < partial_struc.EnumItemsExt(&i, &gs_item, PPID parentGoodsID, double srcQtty, double * pQtty) const;
+		}
+		else*/if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
 			//
 			// @todo В этом блоке осуществляется агрегированная автоматическая вставка нескольких позиций из комплекса.
 			// Необходимо для каждой из этих позиций проверить валидность параметров (что-то вроде рекурсивного вызова PreprocessGoodsSelection()
@@ -10997,10 +11015,11 @@ int CPosProcessor::ProcessGift()
 
 int CPosProcessor::AcceptRow(PPID giftID)
 {
+	// GSIF_SUBPARTSTR
 	int    ok = 1;
 	CPosProcessor_MsgToDisp_Frame mdf(this);
 	Flags |= fSuspSleepTimeout;
-	if(P.CurPos == (int)P.getCount()) {
+	if(P.CurPos == P.getCountI()) {
 		RAssocArray sl_ary = SelLines;
 		if(Flags & fForceDivision && P.GetCur().Division == 0) {
 			ok = MessageError(PPERR_POSDIVISIONNEEDED, 0, eomBeep|eomStatusLine);
@@ -11008,9 +11027,10 @@ int CPosProcessor::AcceptRow(PPID giftID)
 		else if(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
 			double   qtty = fabs(P.GetCur().Quantity);
 			CCheckLineTbl::Rec line;
-			for(uint i = 0; qtty > 0.0 && SelPack.EnumLines(&i, &line);)
+			for(uint i = 0; qtty > 0.0 && SelPack.EnumLines(&i, &line);) {
 				if(line.GoodsID == P.GetCur().GoodsID) {
-					double  sel_qtty = 0.0, rest_qtty = line.Quantity;
+					double sel_qtty = 0.0;
+					double rest_qtty = line.Quantity;
 					if(sl_ary.Search(i, &sel_qtty, 0))
 						rest_qtty -= sel_qtty;
 					if(rest_qtty) {
@@ -11018,6 +11038,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 						qtty -= rest_qtty;
 					}
 				}
+			}
 			if(qtty > 0.0)
 				ok = (PPError(PPERR_TIMAXQTTY), 0);
 		}
@@ -11038,8 +11059,10 @@ int CPosProcessor::AcceptRow(PPID giftID)
 				temp_buf.CopyTo(item.GoodsName, sizeof(item.GoodsName));
 				P.insert(&item);
 			}
-			if(!SuspCheckID && !P.Eccd.InitDtm)
-				P.Eccd.InitDtm = getcurdatetime_();
+			if(!SuspCheckID) {
+				SETIFZ(P.Eccd.InitDtm, getcurdatetime_());
+				SETIFZ(P.Eccd.InitUserID, LConfig.User); // @v10.6.8
+			}
 			if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 				SetupDiscount();
 			CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел скидку при расчете суммы доплаты
@@ -11116,6 +11139,13 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
 				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.CashID));
 				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
+				// @v10.6.8 {
+				if(P_ChkPack->Ext.CreationUserID)
+					GetObjectName(PPOBJ_USR, P_ChkPack->Ext.CreationUserID, temp_buf);
+				else
+					temp_buf.Z();
+				setStaticText(CTL_CHKPAN_INITUSER, temp_buf);
+				// } @v10.6.8 
 				temp_buf.Z();
 				const long f = P_ChkPack->Rec.Flags;
 				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);

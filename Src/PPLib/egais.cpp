@@ -512,12 +512,12 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 		}
 		// } @debug
 	}
-	// } @v10.6.0 
+	// } @v10.6.0
 	if(pBuf) {
 		SString temp_buf;
 		xmlNode * p_root = 0;
 		THROW(p_ctx = xmlNewParserCtxt());
-		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pBuf->GetBufC(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx); // note @v10.6.0 Здесь 
+		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pBuf->GetBufC(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx); // note @v10.6.0 Здесь
 			// может произойти сбой сеанса по непонятным причинам (Win10)
 		THROW(p_root = xmlDocGetRootElement(p_doc));
 		if(SXml::IsName(p_root, "A")) {
@@ -773,7 +773,7 @@ int SLAPI PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PP
 				{
 					//
 					// @v10.6.0 Танец с бубном в стремлении решить непонятную проблему с аварийным завершением сеанса
-					// в функции ReadAck при чтении xml из буфера 
+					// в функции ReadAck при чтении xml из буфера
 					//
 					uint32 dummy_bytes = 0;
 					const size_t preserve_wr_offs = p_wr_buffer->GetWrOffs();
@@ -849,7 +849,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 			{
 				//
 				// @v10.6.0 Танец с бубном в стремлении решить непонятную проблему с аварийным завершением сеанса
-				// в функции ReadAck при чтении xml из буфера 
+				// в функции ReadAck при чтении xml из буфера
 				//
 				uint32 dummy_bytes = 0;
 				const size_t preserve_wr_offs = p_wr_buffer->GetWrOffs();
@@ -1026,8 +1026,8 @@ int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
     return ok;
 }
 
-SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve) : PrcssrAlcReport(), 
-	PPEmbeddedLogger((cflags & cfDirectFileLogging) ? PPEmbeddedLogger::ctrfDirectLogging : 0, pOuterLogger, PPFILNAM_EGAIS_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER), 
+SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve) : PrcssrAlcReport(),
+	PPEmbeddedLogger((cflags & cfDirectFileLogging) ? PPEmbeddedLogger::ctrfDirectLogging : 0, pOuterLogger, PPFILNAM_EGAIS_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER),
 	State(0), P_LecT(0), /* @v10.6.5 P_Logger(0),*/P_UtmEntry(0), P_Taw(0)
 {
 	{
@@ -2671,7 +2671,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 																	}
 																}
 															}
-															// } @v10.3.9 
+															// } @v10.3.9
 														}
 														// } @v10.3.6
 													}
@@ -4696,7 +4696,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							if(p_ecs_entry) {
 								p_ecs_entry->RByBill = ti.RByBill;
 							}
-							// } @v10.3.9 
+							// } @v10.3.9
 							{
 								EgaisWayBillRowTags rt;
 								MEMSZERO(rt);
@@ -4731,7 +4731,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					p_bp->XcL.Set_2(tipos+1, &p_ecs_entry->Set);
 			}
 		}
-		// } @v10.3.9 
+		// } @v10.3.9
 		{
 			//
 			// Проверка на наличие дубликатов в номерах строк документа
@@ -5116,7 +5116,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSC
 								bp.LTagL.SearchString(r_bitem.OrgRowIdent, PPTAG_LOT_ORGLINEIDENT, 0, potential_row_n_list);
 							if(potential_row_n_list.getCount() == 1) {
 								const long temp_row_idx = potential_row_n_list.get(0);
-								if(temp_row_idx >= 0 && temp_row_idx < static_cast<int>(bp.GetTCount())) 
+								if(temp_row_idx >= 0 && temp_row_idx < static_cast<int>(bp.GetTCount()))
 									row_idx = temp_row_idx;
 							}
 							if(row_idx < 0 && r_bitem.P && r_bitem.Ident[0]) {
@@ -5146,8 +5146,8 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSC
 									}
 								}
 							}
-							// } @v10.3.6 
-							/* @v10.3.6 
+							// } @v10.3.6
+							/* @v10.3.6
 							if(r_bitem.P && r_bitem.Ident[0]) {
 								for(uint t = 0; t < bp.GetTCount(); t++) {
 									PPTransferItem & r_ti = bp.TI(t);
@@ -5460,7 +5460,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 													BillTbl::Rec lec_bill_rec;
 													if(P_BObj->Fetch(r_lec_rec.BillID, &lec_bill_rec) > 0) {
 														if(lec_bill_rec.OpID == wos_op_id) {
-															// Уже есть документ со списанием этой марки
+															// Уже есть документ со списанием этой марки // @todo Выдать сообщение об этом
 															ex_mark_results |= emrfAlreadyWrittenOff;
 														}
 														else if(lec_bill_rec.OpID == draft_rcpt_op_id) {
@@ -5518,7 +5518,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 																THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
 																{
 																	PPLoadString(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf); // "Реализация"
-																	p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf); 
+																	p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf);
 																}
 															}
 															if(ex_row_list.getCount()) {
@@ -5587,7 +5587,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 															THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
 															{
 																PPLoadString(PPSTR_HASHTOKEN_C, PPHSC_RU_SELLING, temp_buf); // "Реализация"
-																p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf); 
+																p_wroff_bp->BTagL.PutItemStr(PPTAG_BILL_FORMALREASON, temp_buf);
 															}
 														}
 														if(ex_row_list.getCount()) {
@@ -5751,6 +5751,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &ref_b_lot_list);
 						for(uint llidx = 0; llidx < ref_b_lot_list.getCount(); llidx++) {
 							const PPID temp_lot_id = ref_b_lot_list.get(llidx);
+							// @todo Вероятно, надо искать лот по любому складу
 							if(P_BObj->trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id) {
 								if(IsAlcGoods(lot_rec.GoodsID)) { // @v9.4.7
 									// @v10.2.6 {
@@ -5776,7 +5777,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 												if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx) do {
 													if(P_LecT->data.Code[0])
 														is_lot_in_3format = 1;
-												} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) && 
+												} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) &&
 													P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx); // @v10.5.8 @fix spGe-->spNext
 												break;
 											}
@@ -6478,7 +6479,7 @@ int SLAPI PPEgaisProcessor::DebugReadInput(PPID locID)
 	ENDCATCH
 	xmlFreeParserCtxt(p_ctx);
 	// @v10.6.5 CALLPTRMEMB(P_Logger, Save(PPFILNAM_EGAIS_LOG, 0));
-	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0); // @v10.6.5 
+	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0); // @v10.6.5
     return ok;
 }
 
@@ -7277,7 +7278,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	ENDCATCH
 	xmlFreeParserCtxt(p_ctx);
 	// @v10.6.5 CALLPTRMEMB(P_Logger, Save(PPFILNAM_EGAIS_LOG, 0));
-	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0); // @v10.6.5 
+	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0); // @v10.6.5
 	return ok;
 }
 
@@ -7649,8 +7650,8 @@ int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFil
 			base_op_list.add(Cfg.SupplRetOpID);
 		if(flags & bilstfLosses) {
 			base_op_list.add(Cfg.ExpndEtcOpID);
-			if(flags & bilstfV3) 
-				base_op_list.add(PPOPK_EDI_WROFFWITHMARKS); 
+			if(flags & bilstfV3)
+				base_op_list.add(PPOPK_EDI_WROFFWITHMARKS);
 		}
 		if(flags & bilstfWbRepealConf) {
 			base_op_list.add(Cfg.ExpndOpID);

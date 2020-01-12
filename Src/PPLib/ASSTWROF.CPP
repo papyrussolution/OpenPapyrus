@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -128,10 +128,7 @@ int SLAPI PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int SLAPI PPObjAssetWrOffGrp::Browse(void * extraPtr)
-{
-	return RefObjView(this, PPDS_CRRASSETWROFFGRP, 0);
-}
+int SLAPI PPObjAssetWrOffGrp::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRASSETWROFFGRP, 0); }
 //
 //
 //

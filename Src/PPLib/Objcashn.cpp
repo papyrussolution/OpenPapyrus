@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -415,7 +415,7 @@ int SLAPI PPObjCashNode::IsLocked(PPID id)
 	PPID   parent_id = 0;
 	PPSyncItem sync_item;
 	PPSync & r_sync = DS.GetSync();
-	if(!IsExtCashNode(id, &parent_id) && r_sync.CreateMutex(LConfig.SessionID, PPOBJ_CASHNODE, id, 0, &sync_item) > 0) {
+	if(!IsExtCashNode(id, &parent_id) && r_sync.CreateMutex_(LConfig.SessionID, PPOBJ_CASHNODE, id, 0, &sync_item) > 0) {
 		r_sync.ReleaseMutex(PPOBJ_CASHNODE, id);
 		ok = 0;
 	}
@@ -434,7 +434,7 @@ int SLAPI PPObjCashNode::Lock(PPID id)
 	PPSyncItem sync_item;
 	ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_CASHNODE_NOLOCKING, &no_locking);
 	if(!no_locking)
-		ok = (DS.GetSync().CreateMutex(LConfig.SessionID, PPOBJ_CASHNODE, id, 0, &sync_item) > 0) ? 1 : PPSetError(PPERR_CASHNODE_LOCKED, sync_item.Name);
+		ok = (DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_CASHNODE, id, 0, &sync_item) > 0) ? 1 : PPSetError(PPERR_CASHNODE_LOCKED, sync_item.Name);
 	return ok;
 }
 
@@ -2736,14 +2736,15 @@ private:
 int EquipConfigDialog::EditExtParams()
 {
 	class ExtEquipConfigDialog : public TDialog {
+		DECL_DIALOG_DATA(PPEquipConfig);
 	public:
 		ExtEquipConfigDialog() : TDialog(DLG_EQCFGEXT)
 		{
 		}
-		int    setDTS(const PPEquipConfig * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, 
 				reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)/*INETACCT_ONLYFTP*/);
 			SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
@@ -2763,16 +2764,16 @@ int EquipConfigDialog::EditExtParams()
 			setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod);
 			return ok;
 		}
-		int    getDTS(PPEquipConfig * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
 			getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
 			getCtrlData(sel = CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
 			if(Data.SalesGoodsGrp) {
-				Goods2Tbl::Rec ggrec;
 				PPObjGoodsGroup ggobj;
-				MEMSZERO(ggrec);
+				Goods2Tbl::Rec ggrec;
+				// @v10.6.8 @ctr MEMSZERO(ggrec);
 				ggobj.Search(Data.SalesGoodsGrp, &ggrec);
 				//sel = CTL_EQCFG_SALESGRP;
 				THROW_PP(ggrec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);
@@ -2795,14 +2796,13 @@ int EquipConfigDialog::EditExtParams()
 					Data.DeficitSubstPriceDevRange = 0;
 			}
 			{
-				double rng_lim = 0;
+				double rng_lim = 0.0;
 				getCtrlData(sel = CTL_EQCFG_RNGLIMGOODSBHT, &rng_lim);
-				THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
-				Data.BHTRngLimWgtGoods = (long)(rng_lim * 100);
-
+				THROW_PP(rng_lim >= 0.0 && rng_lim <= 100.0, PPERR_PERCENTINPUT);
+				Data.BHTRngLimWgtGoods = (long)(rng_lim * 100.0);
 				getCtrlData(sel = CTL_EQCFG_RNGLIMPRICEBHT, &(rng_lim = 0));
 				THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
-				Data.BHTRngLimPrice = (long)(rng_lim * 100);
+				Data.BHTRngLimPrice = (long)(rng_lim * 100.0);
 			}
 			{
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
@@ -2814,8 +2814,6 @@ int EquipConfigDialog::EditExtParams()
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		PPEquipConfig Data;
 	};
 	DIALOG_PROC_BODY(ExtEquipConfigDialog, &Data);
 }
@@ -2955,10 +2953,8 @@ void EquipConfigDialog::SetupCtrls()
 	const PPID quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
 	DisableClusterItem(CTL_EQCFG_FLAGS, 6, quotk);
 	if(quotk) {
-		long   flags = 0;
-		GetClusterData(CTL_EQCFG_FLAGS, &flags);
-		flags &= ~PPEquipConfig::fIntrPriceByRetailRules;
-		SetClusterData(CTL_EQCFG_FLAGS, flags);
+		long flags = GetClusterData(CTL_EQCFG_FLAGS);
+		SetClusterData(CTL_EQCFG_FLAGS, (flags & ~PPEquipConfig::fIntrPriceByRetailRules));
 	}
 }
 

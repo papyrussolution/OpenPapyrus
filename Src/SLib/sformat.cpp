@@ -1,34 +1,9 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-
-/*
-struct i_tbl {
-	int  a;
-	int  b;
-};
-
-static int SLAPI _ITab(const void * tbl, int req, int def)
-{
-	const i_tbl * t = (const i_tbl *)tbl;
-	for(int i = 1; i <= t[0].a; i++)
-		if(t[i].a == req)
-			return t[i].b;
-	return def;
-}
-
-static int FASTCALL _AiTab(const void * tbl, int req)
-{
-	const i_tbl * t = (const i_tbl *)tbl;
-	for(int i = 1; i <= t[0].a; i++)
-		if(t[i].a & req)
-			return t[i].b;
-	return 0;
-}
-*/
 
 SLAPI SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)
 {
@@ -36,16 +11,6 @@ SLAPI SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS),
 //
 // Common formatting
 //
-/*static const struct {
-	int    a;
-	int    b;
-} adjTbl[4] = {
-	{ 3, 0 },
-	{ ALIGN_LEFT, ADJ_LEFT },
-	{ ALIGN_CENTER, ADJ_CENTER },
-	{ ALIGN_RIGHT, ADJ_RIGHT }
-};*/
-
 char * FASTCALL _commfmt(long fmt, char * pBuf)
 {
 	const size_t len = SFMTLEN(fmt);
@@ -602,20 +567,6 @@ int FASTCALL strtotime(const char * pBuf, long fmt, LTIME * v)
 //
 //
 //
-// @v9.4.3 #pragma option -Oi
-
-/* @v9.4.3
-static const struct _SFDelimEntry {
-	int    a;
-	int    b;
-} delimTbl[4] = {
-	{ 3, 0 },
-	{ NMBF_TRICOMMA, ' '}, // { NMBF_TRICOMMA, ','},
-	{ NMBF_TRIAPOSTR, '\'' },
-	{ NMBF_TRISPACE, ' ' }
-};
-*/
-
 static int FASTCALL is_zero(const char * c)
 {
 	while(*c)
@@ -642,7 +593,6 @@ static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, 
 		}
 		else if(flags & NMBF_FORCEPOS)
 			*b++ = '+';
-		//delim = (char)_AiTab(delimTbl, flags);
 		char   delim = 0;
 		if(flags & NMBF_TRIAPOSTR)
 			delim = '\'';
@@ -797,18 +747,13 @@ char * FASTCALL uint64fmt(uint64 val, long fmt, char * pBuf)
 	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
 }
 
-// @v9.4.3 #pragma warn -pia
-
 static char * FASTCALL clearDelimiters(char * b)
 {
-	//long   skipch = 0x00002720L; /* "' " */
 	char * c = b;
 	while(c = strpbrk(c, "\' "))
 		strcpy(c, c + 1);
 	return b;
 }
-
-// @v9.4.3 #pragma warn +pia
 
 int FASTCALL satof(const char * pBuf, double * pVal) // @construction
 {
@@ -934,3 +879,226 @@ int FASTCALL strtoulong(const char * pBuf, ulong * pVal)
 	ASSIGN_PTR(pVal, strtoul(clearDelimiters(STRNSCPY(temp, pBuf)), 0, 10));
 	return 1;
 }
+//
+// @construction fast int format
+//
+static const char fi_digits[] =
+	"0001020304050607080910111213141516171819"
+	"2021222324252627282930313233343536373839"
+	"4041424344454647484950515253545556575859"
+	"6061626364656667686970717273747576777879"
+	"8081828384858687888990919293949596979899";
+
+static char * FASTCALL format_decimal64(uint64 value, char * pBuf, size_t bufSize) 
+{
+	char * ptr = pBuf + (bufSize-1); // Parens to workaround MSVC bug.
+	while(value >= 100) {
+		// Integer division is slow so do it for a group of two digits instead
+		// of for every digit. The idea comes from the talk by Alexandrescu
+		// "Three Optimization Tips for C++". See speed-test for a comparison.
+		uint index = static_cast<uint>((value % 100) * 2);
+		value /= 100;
+		*--ptr = fi_digits[index+1];
+		*--ptr = fi_digits[index];
+	}
+	if(value < 10) {
+		*--ptr = static_cast<char>('0' + value);
+	}
+	else {
+		uint index = static_cast<uint>(value * 2);
+		*--ptr = fi_digits[index+1];
+		*--ptr = fi_digits[index];
+	}
+	return ptr;
+}
+
+static char * FASTCALL format_decimal32(uint32 value, char * pBuf, size_t bufSize) 
+{
+	char * ptr = pBuf + (bufSize-1); // Parens to workaround MSVC bug.
+	while(value >= 100) {
+		// Integer division is slow so do it for a group of two digits instead
+		// of for every digit. The idea comes from the talk by Alexandrescu
+		// "Three Optimization Tips for C++". See speed-test for a comparison.
+		uint index = static_cast<uint>((value % 100) * 2);
+		value /= 100;
+		*--ptr = fi_digits[index+1];
+		*--ptr = fi_digits[index];
+	}
+	if(value < 10) {
+		*--ptr = static_cast<char>('0' + value);
+	}
+	else {
+		uint index = static_cast<uint>(value * 2);
+		*--ptr = fi_digits[index+1];
+		*--ptr = fi_digits[index];
+	}
+	return ptr;
+}
+
+static char * FASTCALL format_signed64(int64 value, char * pBuf, size_t bufSize) 
+{
+	const int is_negative = value < 0;
+	char * p_result = format_decimal64(is_negative ? (0ULL - static_cast<uint64>(value)) : static_cast<uint64>(value), pBuf, bufSize);
+	if(is_negative) 
+		*--p_result = '-';
+	return p_result;
+}
+
+static char * FASTCALL format_signed32(int32 value, char * pBuf, size_t bufSize) 
+{
+	const int is_negative = value < 0;
+	char * p_result = format_decimal32(is_negative ? (0U - static_cast<uint32>(value)) : static_cast<uint32>(value), pBuf, bufSize);
+	if(is_negative) 
+		*--p_result = '-';
+	return p_result;
+}
+
+#ifndef NDEBUG
+	//#define FORMATINT_DO_TEST_SENTINEL
+#endif
+
+static FORCEINLINE SString & FormatInt_Finish(const char * pResultBuf, const char * pCBuf, size_t cbufSize, SString & rBuf)
+{
+	rBuf.Z().Cat_Unsafe(reinterpret_cast<const uint8 *>(pResultBuf), (pCBuf+cbufSize-1)-pResultBuf);
+	return rBuf;
+}
+
+SString & FASTCALL FormatInt(int value, SString & rBuf)
+{
+	char   cbuf[128];
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	char   sentinel_buf[32];
+	memzero(sentinel_buf, sizeof(sentinel_buf));
+#endif
+	const char * p = format_signed32(static_cast<int32>(value), cbuf, sizeof(cbuf));
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	assert(ismemzero(sentinel_buf, sizeof(sentinel_buf)));
+#endif
+	return FormatInt_Finish(p, cbuf, sizeof(cbuf), rBuf);
+}
+
+SString & FASTCALL FormatUInt(uint value, SString & rBuf)
+{
+	char   cbuf[128];
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	char   sentinel_buf[32];
+	memzero(sentinel_buf, sizeof(sentinel_buf));
+#endif
+	const char * p = format_decimal32(static_cast<uint32>(value), cbuf, sizeof(cbuf));
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	assert(ismemzero(sentinel_buf, sizeof(sentinel_buf)));
+#endif
+	return FormatInt_Finish(p, cbuf, sizeof(cbuf), rBuf);
+}
+
+SString & FASTCALL FormatInt64(int64 value, SString & rBuf)
+{
+	char   cbuf[128];
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	char   sentinel_buf[32];
+	memzero(sentinel_buf, sizeof(sentinel_buf));
+#endif
+	char * p = format_signed64(static_cast<int64>(value), cbuf, sizeof(cbuf));
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	assert(ismemzero(sentinel_buf, sizeof(sentinel_buf)));
+#endif
+	return FormatInt_Finish(p, cbuf, sizeof(cbuf), rBuf);
+}
+
+SString & FASTCALL FormatUInt64(uint64 value, SString & rBuf)
+{
+	char   cbuf[128];
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	char   sentinel_buf[32];
+	memzero(sentinel_buf, sizeof(sentinel_buf));
+#endif
+	char * p = format_decimal64(static_cast<uint64>(value), cbuf, sizeof(cbuf));
+#ifdef FORMATINT_DO_TEST_SENTINEL
+	assert(ismemzero(sentinel_buf, sizeof(sentinel_buf)));
+#endif
+	return FormatInt_Finish(p, cbuf, sizeof(cbuf), rBuf);
+}
+//
+#if SLTEST_RUNNING // {
+
+SLTEST_R(FormatInt)
+{
+	SString result_buf;
+	char  proof_buf[128];
+	{
+		for(int i = -10000000; i < 10000000; i++) {
+			FormatInt(i, result_buf);
+			itoa(i, proof_buf, 10);
+			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	{
+		for(uint i = 0; i < 20000000; i++) {
+			FormatUInt(i, result_buf);
+			ultoa(i, proof_buf, 10);
+			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	{
+		for(int64 i = -10000000; i < 10000000; i++) {
+			FormatInt64(i, result_buf);
+			_i64toa(i, proof_buf, 10);
+			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	{
+		for(uint64 i = 0; i < 20000000; i++) {
+			FormatUInt64(i, result_buf);
+			_ui64toa(i, proof_buf, 10);
+			SLTEST_CHECK_NZ(result_buf == proof_buf);
+			assert(result_buf == proof_buf);
+		}
+	}
+	//benchmark=formatint;itoa;formatuint;ultoa;formatint64;i64toa;formatuint64;ui64toa
+	if(sstreqi_ascii(pBenchmark, "formatint")) {
+		for(int i = -10000000; i < 10000000; i++) {
+			FormatInt(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "itoa")) {
+		for(int i = -10000000; i < 10000000; i++) {
+			itoa(i, proof_buf, 10);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "formatuint")) {
+		for(uint i = 0; i < 20000000; i++) {
+			FormatUInt(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "ultoa")) {
+		for(uint i = 0; i < 20000000; i++) {
+			ultoa(i, proof_buf, 10);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "formatint64")) {
+		for(int64 i = -10000000; i < 10000000; i++) {
+			FormatInt64(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "i64toa")) {
+		for(int64 i = -10000000; i < 10000000; i++) {
+			_i64toa(i, proof_buf, 10);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "formatuint64")) {
+		for(uint64 i = 0; i < 20000000; i++) {
+			FormatUInt64(i, result_buf);
+		}
+	}
+	else if(sstreqi_ascii(pBenchmark, "ui64toa")) {
+		for(uint64 i = 0; i < 20000000; i++) {
+			_ui64toa(i, proof_buf, 10);
+		}
+	}
+	return CurrentStatus;
+}
+
+#endif // }

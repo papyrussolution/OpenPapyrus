@@ -612,8 +612,7 @@ int SLAPI PPViewPersonEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		}
 		if(r) {
 			if(Filt.Sgpe == sgpeOp) {
-				filt.PsnOpList.FreeAll();
-				filt.PsnOpList.Add(id);
+				filt.PsnOpList.Z().Add(id);
 			}
 			else if(Filt.Sgpe == sgpePerson)
 				filt.PrmrID = id;

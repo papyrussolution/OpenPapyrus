@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -75,7 +75,7 @@ int SLAPI Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const
 		if(pText)
 			memcpy(pw_buf2, pText, pw_len+1);
 		else
-			pw_buf2[0] = 0;
+			PTR32(pw_buf2)[0] = 0;
 		IdeaRandMem(pw_buf, sizeof(pw_buf));
 		IdeaEncrypt(/*0*/pEncPw, pw_buf2, bin_pw_size);
 		temp_buf.EncodeMime64(pw_buf2, bin_pw_size).CopyTo(pBuf, bufLen);
@@ -99,9 +99,8 @@ int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const
 	char   pw_buf[128];
 	rText.Z();
 	if(cryptMethod == crymRef2) {
-		SString temp_buf;
 		size_t bin_pw_size = 0;
-		temp_buf = pBuf;
+		SString temp_buf = pBuf;
 		if(temp_buf.DecodeMime64(pw_buf, sizeof(pw_buf), &bin_pw_size) > 0) {
 			IdeaDecrypt(/*0*/pEncPw, pw_buf, bin_pw_size);
 			rText = pw_buf;
@@ -222,6 +221,7 @@ SLAPI Reference::~Reference()
 
 int SLAPI Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
 {
+	assert(pDynObjType != 0); // @v10.6.8
 	int    ok = 1, r;
 	PPID   id = *pDynObjType;
 	{
@@ -487,12 +487,12 @@ SEnumImp * SLAPI Reference::EnumByIdxVal(PPID objType, int valN, long val)
 	return InitEnumByIdxVal(objType, valN, val, &h) ? new PPTblEnum<Reference>(this, h) : 0;
 }
 
-int SLAPI Reference::LoadItems(PPID objType, SArray * pList)
+int SLAPI Reference::LoadItems(PPID objType, SVector & rList) // @v10.6.8 SArray-->SVector
 {
 	int    ok = -1;
 	ReferenceTbl::Rec rec;
-	for(SEnum en = Enum(objType, 0); en.Next(&rec);)
-		ok = (pList && !pList->insert(&rec)) ? PPSetError(PPERR_NOMEM) : 1;
+	for(SEnum en = Enum(objType, 0); ok && en.Next(&rec);)
+		ok = rList.insert(&rec) ? 1 : PPSetError(PPERR_SLIB);
 	return ok;
 }
 
@@ -1725,8 +1725,8 @@ int SLAPI PPRights::MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray
 		return 1;
 	}
 	else {
-		SArray op_rec_list(sizeof(PPOprKind));
-		if(PPRef->LoadItems(PPOBJ_OPRKIND, &op_rec_list)) {
+		SVector op_rec_list(sizeof(PPOprKind)); // @v10.6.8 SArray-->SVector
+		if(PPRef->LoadItems(PPOBJ_OPRKIND, op_rec_list)) {
 			PPOprKind * p_op_rec;
 			for(uint i = 0; op_rec_list.enumItems(&i, (void **)&p_op_rec);)
 				if(pOpTypeList->lsearch(p_op_rec->OpTypeID))

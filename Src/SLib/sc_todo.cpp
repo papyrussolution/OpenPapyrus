@@ -117,7 +117,7 @@ SCDBObjToDo::PalmRec * SCDBObjToDo::AllocPalmRec(HostRec * pRec, size_t * pBufLe
 	if((buf_len % 2) != 0)
 		buf_len++;
 	// } @test
-	p_buf = (PalmRec *)SAlloc::C(1, buf_len);
+	p_buf = static_cast<PalmRec *>(SAlloc::C(1, buf_len));
 	if(pRec->DueDate)
 		p_buf->DueDate = ((pRec->DueDate.year() - 1904) << 9) | (pRec->DueDate.month() << 5) | pRec->DueDate.day();
 	else
@@ -144,10 +144,10 @@ int SCDBObjToDo::RecPalmToHost(PalmRec * pPalmRec, HostRec * pHostRec)
 		pHostRec->DueDate = encodedate(d & 0x1f, (d & 0x1e0) >> 5, ((d & 0xfe00) >> 9) + 1904);
 	pHostRec->Priority = (pPalmRec->Priority & 0x7f);
 	pHostRec->Completed = (pPalmRec->Priority & 0x80) ? 1 : 0;
-	const char * p_palm_descr = (const char *)(pPalmRec+1);
+	const char * p_palm_descr = reinterpret_cast<const char *>(pPalmRec+1);
 	STRNSCPY(pHostRec->Descr, p_palm_descr);
 	size_t offs = sizeof(*pPalmRec) + strlen(p_palm_descr)+1;
-	STRNSCPY(pHostRec->Note, ((char *)pPalmRec)+offs);
+	STRNSCPY(pHostRec->Note, reinterpret_cast<const char *>(pPalmRec)+offs);
 	return 1;
 }
 
@@ -185,7 +185,7 @@ int SCDBObjToDo::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 					r = stbl.ReadRecByID(r_assc.Val, p_buf, &rec_size);
 				if(r) {
 					HostRec host_rec;
-					RecPalmToHost((PalmRec *)p_buf, &host_rec);
+					RecPalmToHost(reinterpret_cast<PalmRec *>(p_buf), &host_rec);
 					//
 					// Забираем с Palm'а только те записи, которые помечены признаком "Выполнено"
 					//

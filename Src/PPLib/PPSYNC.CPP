@@ -1,14 +1,10 @@
 // PPSYNC.CPP
-// (c) Alexander Simanov, 1999
+// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020
 // Database lock file implementation
-// Modified by Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <errno.h>
-//#include <fcntl.h>
 #include <share.h>
-//#include <sys\stat.h>
 #include <sys\locking.h>
 
 #define LOCK_MAGIC        0x18051974L
@@ -16,9 +12,8 @@
 #define HDR_SZ            (sizeof(PPSyncHeader) + LOCK_PRFX_SIZE)
 #define BLK_SZ            (sizeof(PPSyncItem) + LOCK_PRFX_SIZE)
 
-SLAPI PPSync::PPSync()
+SLAPI PPSync::PPSync() : Handle(-1), NoSHARE(0)
 {
-	Handle = -1;
 }
 
 SLAPI PPSync::~PPSync()
@@ -435,7 +430,7 @@ int SLAPI PPSync::SearchMutexByObj(long objType, long objID, PPSyncItem * pItem,
 	return -1;
 }
 
-int SLAPI PPSync::CreateMutex(long sessID, long objtype, long objid, long * pMutexID, PPSyncItem * pItem)
+int SLAPI PPSync::CreateMutex_(long sessID, long objtype, long objid, long * pMutexID, PPSyncItem * pItem)
 {
 	int    ok = 1;
 	PPSyncItem item;

@@ -1949,7 +1949,6 @@ static int read_SubStreamsInfo(struct archive_read * a, struct _7z_substream_inf
 		if(f[i].numUnpackStreams != 1 || !f[i].digest_defined)
 			numDigests += (uint32_t)f[i].numUnpackStreams;
 	}
-
 	if(type == kCRC) {
 		struct _7z_digests tmpDigests;
 		uchar * digestsDefined = ss->digestsDefined;
@@ -1966,14 +1965,9 @@ static int read_SubStreamsInfo(struct archive_read * a, struct _7z_substream_inf
 				*digests++ = f[i].digest;
 			}
 			else {
-				unsigned j;
-
-				for(j = 0; j < f[i].numUnpackStreams;
-				    j++, di++) {
-					*digestsDefined++ =
-					    tmpDigests.defineds[di];
-					*digests++ =
-					    tmpDigests.digests[di];
+				for(uint j = 0; j < f[i].numUnpackStreams; j++, di++) {
+					*digestsDefined++ = tmpDigests.defineds[di];
+					*digests++ = tmpDigests.digests[di];
 				}
 			}
 		}
@@ -2030,10 +2024,8 @@ static int read_StreamsInfo(struct archive_read * a, struct _7z_stream_info * si
 	if(*p == kUnPackInfo) {
 		uint32_t packIndex;
 		struct _7z_folder * f;
-
 		if(read_CodersInfo(a, &(si->ci)) < 0)
 			return -1;
-
 		/*
 		 * Calculate packed stream indexes.
 		 */
@@ -2073,8 +2065,7 @@ static void free_Header(struct _7z_header_info * h)
 	SAlloc::F(h->attrBools);
 }
 
-static int read_Header(struct archive_read * a, struct _7z_header_info * h,
-    int check_header_id)
+static int read_Header(struct archive_read * a, struct _7z_header_info * h, int check_header_id)
 {
 	struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
 	const uchar * p;
@@ -2084,7 +2075,6 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h,
 	uint32_t folderIndex, indexInFolder;
 	unsigned i;
 	int eindex, empty_streams, sindex;
-
 	if(check_header_id) {
 		/*
 		 * Read Header.
@@ -2094,7 +2084,6 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h,
 		if(*p != kHeader)
 			return -1;
 	}
-
 	/*
 	 * Read ArchiveProperties.
 	 */
@@ -2275,7 +2264,6 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h,
 			case kAttributes:
 		    {
 			    int allAreDefined;
-
 			    if((p = header_bytes(a, 2)) == NULL)
 				    return -1;
 			    allAreDefined = *p;
@@ -2665,7 +2653,6 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 	zip->uncompressed_buffer_bytes_remaining = 0;
 	zip->pack_stream_bytes_unconsumed = 0;
 	zip->header_is_being_read = 0;
-
 	return ARCHIVE_OK;
 }
 
@@ -2765,10 +2752,9 @@ static ssize_t extract_pack_stream(struct archive_read * a, size_t minimum)
 			/*
 			 * Expand the uncompressed buffer up to the minimum size.
 			 */
-			void * p;
 			size_t new_size = minimum + 1023;
 			new_size &= ~0x3ff;
-			p = SAlloc::R(zip->uncompressed_buffer, new_size);
+			void * p = SAlloc::R(zip->uncompressed_buffer, new_size);
 			if(p == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "No memory for 7-Zip decompression");
 				return ARCHIVE_FATAL;
@@ -2969,16 +2955,12 @@ static int setup_decode_folder(struct archive_read * a, struct _7z_folder * fold
 	const char * cname = (header) ? "archive header" : "file content";
 	unsigned i;
 	int r, found_bcj2 = 0;
-
 	/*
 	 * Release the memory which the previous folder used for BCJ2.
 	 */
 	for(i = 0; i < 3; i++) {
-		if(zip->sub_stream_buff[i] != NULL)
-			SAlloc::F(zip->sub_stream_buff[i]);
-		zip->sub_stream_buff[i] = NULL;
+		ZFREE(zip->sub_stream_buff[i]);
 	}
-
 	/*
 	 * Initialize a stream reader.
 	 */
