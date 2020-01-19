@@ -3266,7 +3266,7 @@ static IMPL_CMPFUNC(StrategyCritEntry, i1, i2)
 	return si;
 }
 
-int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest) const
+int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup) const
 {
 	rScDest.clear();
 	int    ok = 1;
@@ -3321,8 +3321,18 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset(long flags, uint max
 			for(uint j = 0; !do_skip && j < rScDest.getCount(); j++) {
 				const Strategy & r_j_item = rScDest.at(j);
 				if(r_j_item.StakeMode == r_item.StakeMode && r_j_item.InputFrameSize == r_item.InputFrameSize) {
-					if(feqeps(r_j_item.OptDeltaRange.low, r_item.OptDeltaRange.low, _eps) && feqeps(r_j_item.OptDeltaRange.upp, r_item.OptDeltaRange.upp, _eps))
-						do_skip = 1;
+					if(feqeps(r_j_item.OptDeltaRange.low, r_item.OptDeltaRange.low, _eps) && feqeps(r_j_item.OptDeltaRange.upp, r_item.OptDeltaRange.upp, _eps)) {
+						if(r_j_item.MainFrameSize == r_item.MainFrameSize) { // @v10.6.9
+							if(feqeps(r_j_item.OptDelta2Range.low, r_item.OptDelta2Range.low, _eps) && feqeps(r_j_item.OptDelta2Range.upp, r_item.OptDelta2Range.upp, _eps)) { // @v10.6.9
+								// @v10.6.9 {
+								if(pScSkipDueDup) {
+									THROW_SL(pScSkipDueDup->insert(&r_item));
+								}
+								// } @v10.6.9 
+								do_skip = 1;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -3946,7 +3956,7 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 		rMp.BestSubsetMaxPhonyIters = 7;
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_BESTSUBSETOPTCHUNK, temp_buf) > 0)
 		rMp.BestSubsetOptChunk = static_cast<uint>(temp_buf.ToLong());
-	if(!oneof2(rMp.BestSubsetOptChunk, 3, 7))
+	if(!oneof3(rMp.BestSubsetOptChunk, 3, 7, 15)) // @v10.6.9 (15)
 		rMp.BestSubsetOptChunk = 0;
 	// @v10.4.2 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_DEFTARGETQUANT, temp_buf) > 0)
@@ -4688,6 +4698,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 							double prev_result = 0.0;
 							PPObjTimeSeries::StrategyContainer sc_selection;
 							PPObjTimeSeries::StrategyContainer sc_process;
+							PPObjTimeSeries::StrategyContainer sc_skip_due_dup; // @v10.6.9 стратегии, вынесенные из рассмотрения, поскольку для них есть более удачливые дубликаты
 							long   ssflags = PPObjTimeSeries::StrategyContainer::gbsfLong|PPObjTimeSeries::StrategyContainer::gbsfShort|
 								PPObjTimeSeries::StrategyContainer::gbsfStakeMode3|
 								PPObjTimeSeries::StrategyContainer::gbsfStakeMode2|
@@ -4700,20 +4711,31 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 								ssflags |= scontainer.gbsfTrendFollowing;
 							// } @20190425
 							ssflags |= scontainer.gbsfCritProb; // @20190514
-							if(scontainer.GetBestSubset(ssflags, model_param.BestSubsetDimention, model_param.MinWinRate, sc_process) > 0) {
+							if(scontainer.GetBestSubset(ssflags, model_param.BestSubsetDimention, model_param.MinWinRate, sc_process, &sc_skip_due_dup) > 0) {
 								{
-									//
 									f_out.WriteLine(msg_buf.Z().CR());
 									f_out.WriteLine((msg_buf = "--- TsSimulateStrategyContainer").Space().Cat(ts_pack.GetSymb()).CR());
-									//
 									msg_buf.Z().Cat("Full Subset").CatDiv(':', 2).Cat(sc_process.getCount());
 									f_out.WriteLine(msg_buf.CR());
 									for(uint si = 0; si < sc_process.getCount(); si++) {
-										PPObjTimeSeries::StrategyToString(sc_process.at(si), 0, msg_buf.Z());
+										PPObjTimeSeries::StrategyToString(sc_process.at(si), 0, msg_buf);
 										f_out.WriteLine(msg_buf.CR());
 									}
 								}
-								if(oneof2(model_param.BestSubsetOptChunk, 3, 7)) {
+								// @v10.6.9 {
+								{
+									f_out.WriteLine(msg_buf.Z().CR());
+									f_out.WriteLine((msg_buf = "--- TsSkippedDueDupStrategyContainer").Space().Cat(ts_pack.GetSymb()).CR());
+									msg_buf.Z().Cat("Full Subset").CatDiv(':', 2).Cat(sc_skip_due_dup.getCount());
+									f_out.WriteLine(msg_buf.CR());
+									for(uint si = 0; si < sc_skip_due_dup.getCount(); si++) {
+										PPObjTimeSeries::StrategyToString(sc_skip_due_dup.at(si), 0, msg_buf);
+										f_out.WriteLine(msg_buf.CR());
+									}
+								}
+								sc_skip_due_dup.freeAll();
+								// } @v10.6.9 
+								if(oneof3(model_param.BestSubsetOptChunk, 3, 7, 15)) { // @v10.6.9 (15)
 									//
 									// Многопоточный подбор оптимальной комбинации стратегий
 									//
@@ -4729,7 +4751,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									//const uint opt_chunk = 3;       // Количество стратегий в одном наборе, над которым осуществляется полный перебор вариантов.
 										// Возможно только 2 значения: 3 и 7 (большие величины приведут к очень сильной задержке в вычислениях - комбинаторный взрыв).
 										// @v10.3.12 3-->7
-									assert(oneof2(model_param.BestSubsetOptChunk, 3, 7));
+									assert(oneof3(model_param.BestSubsetOptChunk, 3, 7, 15)); // @v10.6.9 (15)
 									class StrategySetSimulationTask : public SlThread {
 									public:
 										struct InitBlock {
@@ -4765,15 +4787,94 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									};
 									double best_result = 0.0;
 									uint   phony_iter_no = 0;
-									const  uint scp_inc = (model_param.BestSubsetOptChunk == 3) ? 2 : ((model_param.BestSubsetOptChunk == 7) ? 3 : 0);
+									const  uint scp_inc = (model_param.BestSubsetOptChunk == 3) ? 2 : ((model_param.BestSubsetOptChunk == 7) ? 3 : ((model_param.BestSubsetOptChunk == 15) ? 4 : 0));
 									for(uint scpidx = 0; scpidx < sc_process.getCount() && phony_iter_no < model_param.BestSubsetMaxPhonyIters; scpidx += scp_inc) {
-										PPObjTimeSeries::StrategyResultEntry sre[7];
-										PPObjTimeSeries::StrategyContainer sc[7]; // 7 - max of model_param.BestSubsetOptChunk
-										HANDLE objs_to_wait[16];
+										PPObjTimeSeries::StrategyResultEntry sre[15]; // @v10.6.9 [7]-->[15]
+										PPObjTimeSeries::StrategyContainer sc[15]; // 7 - max of model_param.BestSubsetOptChunk // @v10.6.9 [7]-->[15]
+										// @v10.6.9 @construction [15]
+										HANDLE objs_to_wait[32]; // @v10.6.9 [16]-->[32]
 										size_t objs_to_wait_count = 0;
 										MEMSZERO(objs_to_wait);
 										uint thr_idx;
-										if(model_param.BestSubsetOptChunk == 7) {
+										// @v10.6.9 @construction {
+										if(model_param.BestSubsetOptChunk == 15) {
+											assert(0); // @construction
+											for(thr_idx = 0; thr_idx < model_param.BestSubsetOptChunk; thr_idx++) {
+												sc[thr_idx] = sc_selection;
+												// 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111
+												if(thr_idx == 0) {
+													sc[thr_idx].insert(&sc_process.at(scpidx)); // 0001
+												}
+												else if(scpidx < (sc_process.getCount()-1)) {
+													if(thr_idx == 1) { // 0010
+														sc[thr_idx].insert(&sc_process.at(scpidx+1));
+													}
+													else if(thr_idx == 2) { // 0011
+														sc[thr_idx].insert(&sc_process.at(scpidx));
+														sc[thr_idx].insert(&sc_process.at(scpidx+1));
+													}
+													else if(scpidx < (sc_process.getCount()-2)) {
+														if(thr_idx == 3) { // 0100
+															sc[thr_idx].insert(&sc_process.at(scpidx+2));
+														}
+														else if(thr_idx == 4) { // 0101
+															sc[thr_idx].insert(&sc_process.at(scpidx));
+															sc[thr_idx].insert(&sc_process.at(scpidx+2));
+														}
+														else if(thr_idx == 5) { // 0110
+															sc[thr_idx].insert(&sc_process.at(scpidx+1));
+															sc[thr_idx].insert(&sc_process.at(scpidx+2));
+														}
+														else if(thr_idx == 6) { // 0111
+															sc[thr_idx].insert(&sc_process.at(scpidx));
+															sc[thr_idx].insert(&sc_process.at(scpidx+1));
+															sc[thr_idx].insert(&sc_process.at(scpidx+2));
+														}
+														else if(scpidx < (sc_process.getCount()-3)) {
+															if(thr_idx == 7) { // 1000
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+															else if(thr_idx == 8) { // 1001
+																sc[thr_idx].insert(&sc_process.at(scpidx));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+															else if(thr_idx == 9) { // 1010
+																sc[thr_idx].insert(&sc_process.at(scpidx+1));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+															else if(thr_idx == 10) { // 1011
+																sc[thr_idx].insert(&sc_process.at(scpidx));
+																sc[thr_idx].insert(&sc_process.at(scpidx+1));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+
+															else if(thr_idx == 11) { // 1100
+																sc[thr_idx].insert(&sc_process.at(scpidx+2));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+															else if(thr_idx == 12) { // 1101
+																sc[thr_idx].insert(&sc_process.at(scpidx));
+																sc[thr_idx].insert(&sc_process.at(scpidx+2));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+															else if(thr_idx == 13) { // 1110
+																sc[thr_idx].insert(&sc_process.at(scpidx+1));
+																sc[thr_idx].insert(&sc_process.at(scpidx+2));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+															else if(thr_idx == 14) { // 1111
+																sc[thr_idx].insert(&sc_process.at(scpidx));
+																sc[thr_idx].insert(&sc_process.at(scpidx+1));
+																sc[thr_idx].insert(&sc_process.at(scpidx+2));
+																sc[thr_idx].insert(&sc_process.at(scpidx+3));
+															}
+														}
+													}
+												}
+											}
+										}
+										// } @v10.6.9 @construction 
+										else if(model_param.BestSubsetOptChunk == 7) {
 											for(thr_idx = 0; thr_idx < model_param.BestSubsetOptChunk; thr_idx++) {
 												sc[thr_idx] = sc_selection;
 												// 001, 010, 011, 100, 101, 110, 111
@@ -4896,7 +4997,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									for(uint scidx = 0; scidx < sc_selection.getCount(); scidx++) {
 										const PPObjTimeSeries::Strategy & r_sc = sc_selection.at(scidx);
 										{
-											long   key = static_cast<long>(r_sc.InputFrameSize);
+											const  long key = static_cast<long>(r_sc.InputFrameSize);
 											uint   pos = 0;
 											long   c = 0;
 											if(ifs_count_list.Search(key, &c, &pos))
@@ -4905,7 +5006,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 												ifs_count_list.Add(key, 1);
 										}
 										{
-											long   key = static_cast<long>(r_sc.MaxDuckQuant);
+											const  long key = static_cast<long>(r_sc.MaxDuckQuant);
 											uint   pos = 0;
 											long   c = 0;
 											if(md_count_list.Search(key, &c, &pos))
@@ -4914,7 +5015,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 												md_count_list.Add(key, 1);
 										}
 										{
-											long   key = static_cast<long>(r_sc.TargetQuant);
+											const  long key = static_cast<long>(r_sc.TargetQuant);
 											uint   pos = 0;
 											long   c = 0;
 											if(target_count_list.Search(key, &c, &pos))

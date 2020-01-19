@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -3536,7 +3536,6 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 			XmlReader::Header hdr;
 			AcceptedCheck_ accept_chk;
 			SCardTbl::Rec scard_rec;
-
 			pack.GetHead(&hdr);
 			accept_chk.CashNum = hdr.CashNum;
 			accept_chk.Dt      = hdr.Dtm.d;

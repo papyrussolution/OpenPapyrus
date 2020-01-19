@@ -1,9 +1,448 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
+//
+//
+//
+SLAPI GtinStruc::GtinStruc() : StrAssocArray()
+{
+}
 
+struct GtinFixedLengthToken {
+	int    Id;
+	uint8  FxLen;
+};
+
+static const GtinFixedLengthToken GtinFixedLengthTokenList[] = {
+	{ GtinStruc::fldSscc18,                18 }, // num
+	{ GtinStruc::fldGTIN14,                14 }, // num
+	{ GtinStruc::fldContainerCt,           14 }, // num
+	//{ GtinStruc::fldPart,                  "10" }, // 1..20 alnum
+	{ GtinStruc::fldManufDate,             6 }, // num
+	{ GtinStruc::fldExpiryPeriod,          6 }, // num
+	{ GtinStruc::fldPackDate,              6 }, // num
+	{ GtinStruc::fldBestBeforeDate,        6 }, // num
+	{ GtinStruc::fldExpiryDate,            6 }, // num
+	{ GtinStruc::fldVariant,               2 }, // num
+	//{ GtinStruc::fldSerial,                "21" }, // 1..20 num
+	//{ GtinStruc::fldHIBCC,                 "22" }, // 1..29 alnum
+	//{ GtinStruc::fldQtty,                  "30" }, // 1..8 num  
+	//{ GtinStruc::fldCount,                 "37" }, // 1..8 num  
+	//{ GtinStruc::fldMutualCode,            "90" }, // 1..30 alnum
+	//{ GtinStruc::fldUSPS,                  "91" }, // 1..8 num   
+	//{ GtinStruc::fldInner1,                "92" }, // 1..30 alnum
+	//{ GtinStruc::fldInner2,                "93" }, // 1..30 alnum
+	//{ GtinStruc::fldInner3,                "94" }, // 1..30 alnum
+	//{ GtinStruc::fldInner4,                "95" }, // 1..30 alnum
+	//{ GtinStruc::fldInner5,                "96" }, // 1..30 alnum
+	//{ GtinStruc::fldInner6,                "97" }, // 1..30 alnum
+	//{ GtinStruc::fldInner7,                "98" }, // 1..30 alnum
+	//{ GtinStruc::fldInner8,                "99" }, // 1..30 alnum
+	//{ GtinStruc::fldLot,                   "23x" }, // 1..19 alnum
+	//{ GtinStruc::fldAddendumId,            "240" }, // 1..30 alnum
+	//{ GtinStruc::fldSerial2,               "250" }, // 1..30 alnum
+	//{ GtinStruc::fldCustomerOrderNo,       "400" }, // 1..29 alnum
+	{ GtinStruc::fldShipTo,                13 }, // 13 num 
+	{ GtinStruc::fldBillTo,                13 }, // 13 num 
+	{ GtinStruc::fldPurchaseFrom,          13 }, // 13 num 
+	//{ GtinStruc::fldShitToZip,             "420" }, // 1..9 alnum 
+	//{ GtinStruc::fldShitToZipInt,          "421" }, // 4..12 alnum
+	{ GtinStruc::fldCountry,               3 }, // 3 num            
+	{ GtinStruc::fldWtNettKg,              6 }, // 6 num            
+	{ GtinStruc::fldLenM,                  6 }, // 6 num            
+	{ GtinStruc::fldWidthM,                6 }, // 6 num            
+	{ GtinStruc::fldThknM,                 6 }, // 6 num    
+	{ GtinStruc::fldAreaM2,                6 }, // 6 num    
+	{ GtinStruc::fldVolumeL,               6 }, // 6 num   
+	{ GtinStruc::fldVolumeM3,              6 }, // 6 num
+	{ GtinStruc::fldWtNettLb,              6 }, // 6 num
+	{ GtinStruc::fldLenInch,               6 }, // 6 num
+	{ GtinStruc::fldLenFt,                 6 }, // 6 num
+	{ GtinStruc::fldLenYr,                 6 }, // 6 num
+	{ GtinStruc::fldDiamInch,              6 }, // 6 num
+	{ GtinStruc::fldDiamFt,                6 }, // 6 num
+	{ GtinStruc::fldDiamYr,                6 }, // 6 num
+	{ GtinStruc::fldThknInch,              6 }, // 6 num
+	{ GtinStruc::fldThknFt,                6 }, // 6 num
+	{ GtinStruc::fldThknYr,                6 }, // 6 num
+	{ GtinStruc::fldContainerWtBruttKg,    6 }, // 6 num
+	{ GtinStruc::fldContainerLenM,         6 }, // 6 num
+	{ GtinStruc::fldContainerDiamM,        6 }, // 6 num
+	{ GtinStruc::fldContainerThknM,        6 }, // 6 num
+	{ GtinStruc::fldContainerAreaM2,       6 }, // 6 num
+	{ GtinStruc::fldContainerVolumeL,      6 }, // 6 num
+	{ GtinStruc::fldContainerGVolumeM3,    6 }, // 6 num
+	{ GtinStruc::fldContainerMassLb,       6 }, // 6 num
+	{ GtinStruc::fldContainerLenInch,      6 }, // 6 num
+	{ GtinStruc::fldContainerLenFt,        6 }, // 6 num
+	{ GtinStruc::fldContainerLenYr,        6 }, // 6 num
+	{ GtinStruc::fldContainerDiamInch,     6 }, // 6 num
+	{ GtinStruc::fldContainerDiamFt,       6 }, // 6 num
+	{ GtinStruc::fldContainerDiamYr,       6 }, // 6 num
+	{ GtinStruc::fldContainerThknInch,     6 }, // 6 num
+	{ GtinStruc::fldContainerThknFt,       6 }, // 6 num
+	{ GtinStruc::fldContainerThknYr,       6 }, // 6 num
+	{ GtinStruc::fldProductAreaInch2,      6 }, // 6 num
+	{ GtinStruc::fldProductAreaFt2,        6 }, // 6 num
+	{ GtinStruc::fldProductAreaM2,         6 }, // 6 num
+	{ GtinStruc::fldContainerAreaInch2,    6 }, // 6 num
+	{ GtinStruc::fldContainerAreaFt2,      6 }, // 6 num
+	{ GtinStruc::fldContainerAreaYr2,      6 }, // 6 num
+	{ GtinStruc::fldWtNettTOz,             6 }, // 6 num
+	{ GtinStruc::fldVolumeL_2,             6 }, // 6 num
+	{ GtinStruc::fldVolumeL_3,             6 }, // 6 num
+	{ GtinStruc::fldContainerGVolumeQt,    6 }, // 6 num
+	{ GtinStruc::fldContainerGVolumeGal,   6 }, // 6 num
+	{ GtinStruc::fldVolumeInch3,           6 }, // 6 num
+	{ GtinStruc::fldVolumeFt3,             6 }, // 6 num
+	{ GtinStruc::fldVolumeM3_2,            6 }, // 6 num
+	{ GtinStruc::fldContainerGVolumeInch3, 6 }, // 6 num
+	{ GtinStruc::fldContainerGVolumeFt3,   6 }, // 6 num
+	{ GtinStruc::fldContainerGVolumeM3_2,  6 }, // 6 num
+	{ GtinStruc::fldRollDimentions,        14 }, // 14 num
+	//{ GtinStruc::fldESN,                   "8002" }, // 1..20 alnum
+	//{ GtinStruc::fldGRAI,                  "8003" }, // 14 num + 1..16 alnum
+	//{ GtinStruc::fldGIAI,                  "8004" }, // 1..30 alnum
+	{ GtinStruc::fldPrice,                 6 }, // 6 num
+	{ GtinStruc::fldCouponCode1,           6 }, // 6 num
+	{ GtinStruc::fldCouponCode2,           10 }, // 10 num
+	{ GtinStruc::fldCouponCode3,           2 }, // 2 num
+};
+
+int SLAPI GtinStruc::GetPrefixSpec(int prefixId, uint * pFixedLen) const
+{
+	int    ok = 0;
+	ASSIGN_PTR(pFixedLen, 0);
+	long   spc_fx_len = 0;
+	if(SpecialFixedTokens.Search(prefixId, &spc_fx_len, 0)) {
+		ASSIGN_PTR(pFixedLen, static_cast<uint>(spc_fx_len));
+		ok = 1;
+	}
+	else {
+		for(uint i = 0; !ok && i < SIZEOFARRAY(GtinFixedLengthTokenList); i++) {
+			const GtinFixedLengthToken & r_item = GtinFixedLengthTokenList[i];
+			if(r_item.Id == prefixId && r_item.FxLen > 0) {
+				ASSIGN_PTR(pFixedLen, r_item.FxLen);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+static const SIntToSymbTabEntry GtinPrefix[] = {
+	{ GtinStruc::fldSscc18,                "00" },
+	{ GtinStruc::fldGTIN14,                "01" },
+	{ GtinStruc::fldContainerCt,           "02" },
+	{ GtinStruc::fldPart,                  "10" },
+	{ GtinStruc::fldManufDate,             "11" },
+	{ GtinStruc::fldExpiryPeriod,          "12" },
+	{ GtinStruc::fldPackDate,              "13" },
+	{ GtinStruc::fldBestBeforeDate,        "15" },
+	{ GtinStruc::fldExpiryDate,            "17" },
+	{ GtinStruc::fldVariant,               "20" },
+	{ GtinStruc::fldSerial,                "21" },
+	{ GtinStruc::fldHIBCC,                 "22" },
+	{ GtinStruc::fldQtty,                  "30" },
+	{ GtinStruc::fldCount,                 "37" },
+	{ GtinStruc::fldMutualCode,            "90" },
+	{ GtinStruc::fldUSPS,                  "91" },
+	{ GtinStruc::fldInner1,                "92" },
+	{ GtinStruc::fldInner2,                "93" },
+	{ GtinStruc::fldInner3,                "94" },
+	{ GtinStruc::fldInner4,                "95" },
+	{ GtinStruc::fldInner5,                "96" },
+	{ GtinStruc::fldInner6,                "97" },
+	{ GtinStruc::fldInner7,                "98" },
+	{ GtinStruc::fldInner8,                "99" },
+	{ GtinStruc::fldLot,                   "23x" },
+	{ GtinStruc::fldAddendumId,            "240" },
+	{ GtinStruc::fldSerial2,               "250" },
+	{ GtinStruc::fldCustomerOrderNo,       "400" },
+	{ GtinStruc::fldShipTo,                "410" },
+	{ GtinStruc::fldBillTo,                "411" },
+	{ GtinStruc::fldPurchaseFrom,          "412" },
+	{ GtinStruc::fldShitToZip,             "420" },
+	{ GtinStruc::fldShitToZipInt,          "421" },
+	{ GtinStruc::fldCountry,               "422" },
+	{ GtinStruc::fldWtNettKg,              "310y" },
+	{ GtinStruc::fldLenM,                  "311y" },
+	{ GtinStruc::fldWidthM,                "312y" },
+	{ GtinStruc::fldThknM,                 "313y" },
+	{ GtinStruc::fldAreaM2,                "314y" },
+	{ GtinStruc::fldVolumeL,               "315y" },
+	{ GtinStruc::fldVolumeM3,              "316y" },
+	{ GtinStruc::fldWtNettLb,              "320y" },
+	{ GtinStruc::fldLenInch,               "321y" },
+	{ GtinStruc::fldLenFt,                 "322y" },
+	{ GtinStruc::fldLenYr,                 "323y" },
+	{ GtinStruc::fldDiamInch,              "324y" },
+	{ GtinStruc::fldDiamFt,                "325y" },
+	{ GtinStruc::fldDiamYr,                "326y" },
+	{ GtinStruc::fldThknInch,              "327y" },
+	{ GtinStruc::fldThknFt,                "328y" },
+	{ GtinStruc::fldThknYr,                "329y" },
+	{ GtinStruc::fldContainerWtBruttKg,    "330Y" },
+	{ GtinStruc::fldContainerLenM,         "331y" },
+	{ GtinStruc::fldContainerDiamM,        "332y" },
+	{ GtinStruc::fldContainerThknM,        "333y" },
+	{ GtinStruc::fldContainerAreaM2,       "334y" },
+	{ GtinStruc::fldContainerVolumeL,      "335y" },
+	{ GtinStruc::fldContainerGVolumeM3,    "336y" },
+	{ GtinStruc::fldContainerMassLb,       "340y" },
+	{ GtinStruc::fldContainerLenInch,      "341y" },
+	{ GtinStruc::fldContainerLenFt,        "342y" },
+	{ GtinStruc::fldContainerLenYr,        "343y" },
+	{ GtinStruc::fldContainerDiamInch,     "344y" },
+	{ GtinStruc::fldContainerDiamFt,       "345y" },
+	{ GtinStruc::fldContainerDiamYr,       "346y" },
+	{ GtinStruc::fldContainerThknInch,     "347y" },
+	{ GtinStruc::fldContainerThknFt,       "348y" },
+	{ GtinStruc::fldContainerThknYr,       "349y" },
+	{ GtinStruc::fldProductAreaInch2,      "350y" },
+	{ GtinStruc::fldProductAreaFt2,        "351y" },
+	{ GtinStruc::fldProductAreaM2,         "352y" },
+	{ GtinStruc::fldContainerAreaInch2,    "353y" },
+	{ GtinStruc::fldContainerAreaFt2,      "354y" },
+	{ GtinStruc::fldContainerAreaYr2,      "355y" },
+	{ GtinStruc::fldWtNettTOz,             "356y" },
+	{ GtinStruc::fldVolumeL_2,             "360y" },
+	{ GtinStruc::fldVolumeL_3,             "361y" },
+	{ GtinStruc::fldContainerGVolumeQt,    "362y" },
+	{ GtinStruc::fldContainerGVolumeGal,   "363y" },
+	{ GtinStruc::fldVolumeInch3,           "364y" },
+	{ GtinStruc::fldVolumeFt3,             "365y" },
+	{ GtinStruc::fldVolumeM3_2,            "366y" },
+	{ GtinStruc::fldContainerGVolumeInch3, "367y" },
+	{ GtinStruc::fldContainerGVolumeFt3,   "368y" },
+	{ GtinStruc::fldContainerGVolumeM3_2,  "369y" },
+	{ GtinStruc::fldRollDimentions,        "8001" },
+	{ GtinStruc::fldESN,                   "8002" },
+	{ GtinStruc::fldGRAI,                  "8003" },
+	{ GtinStruc::fldGIAI,                  "8004" },
+	{ GtinStruc::fldPrice,                 "8005" },
+	{ GtinStruc::fldCouponCode1,           "8100" },
+	{ GtinStruc::fldCouponCode2,           "8101" },
+	{ GtinStruc::fldCouponCode3,           "8102" },
+};
+
+int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, uint * pPrefixLen, SString & rPrefix) const
+{
+	int    prefix_id = -1;
+	const  size_t src_len = sstrlen(pSrc);
+	SString temp_buf;
+	if(src_len >= 4) {
+		temp_buf.Z().CatN(pSrc, 4);
+		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && !StrAssocArray::Search(_id)) {
+			ASSIGN_PTR(pPrefixLen, 4);
+			prefix_id = _id;
+		}
+	}
+	if(prefix_id <= 0 && src_len >= 3) {
+		temp_buf.Z().CatN(pSrc, 3);
+		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && !StrAssocArray::Search(_id)) {
+			ASSIGN_PTR(pPrefixLen, 3);
+			prefix_id = _id;
+		}
+	}
+	if(prefix_id <= 0 && src_len >= 2) {
+		temp_buf.Z().CatN(pSrc, 2);
+		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && !StrAssocArray::Search(_id)) {
+			if((flags & dpfBOL) || !oneof2(_id, fldSscc18, fldGTIN14)) {
+				ASSIGN_PTR(pPrefixLen, 2);
+				prefix_id = _id;
+			}
+		}
+	}
+	return prefix_id;
+}
+
+int SLAPI GtinStruc::AddOnlyToken(int token)
+{
+	int    ok = 1;
+	if(SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token))
+		OnlyTokenList.addUnique(token);
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI GtinStruc::AddSpecialFixedToken(int token, int fixedLen)
+{
+	int    ok = 1;
+	if(fixedLen > 0 && fixedLen <= 30 && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) {
+		SpecialFixedTokens.AddUnique(token, fixedLen, 0, 0);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+uint SLAPI GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId)
+{
+	uint   result_offs = 0;
+	SString temp_buf;
+	temp_buf.CatN(pSrc+prefixLen, fixLen);
+	THROW(temp_buf.Len() == fixLen);
+	if(fldId > 0) {
+		THROW(!StrAssocArray::Search(fldId));
+		StrAssocArray::Add(fldId, temp_buf);
+	}
+	result_offs = (prefixLen + fixLen);
+	CATCH
+		result_offs = 0;
+	ENDCATCH
+	return result_offs;
+}
+
+GtinStruc & SLAPI GtinStruc::Z()
+{
+	StrAssocArray::Z();
+	return *this;
+}
+
+int SLAPI GtinStruc::Debug_Output(SString & rBuf) const
+{
+	int    ok = 1;
+	rBuf.Z();
+	if(StrAssocArray::getCount()) {
+		SString temp_buf;
+		for(uint i = 0; i < StrAssocArray::getCount(); i++) {
+			StrAssocArray::Item item = StrAssocArray::Get(i);
+			SIntToSymbTab_GetSymb(GtinPrefix, SIZEOFARRAY(GtinPrefix), item.Id, temp_buf);
+			if(rBuf.NotEmpty())
+				rBuf.CR();
+			rBuf.Cat(item.Id).Space().CatChar('[').Cat(temp_buf).CatChar(']').Space().Cat(item.Txt);
+		}
+	}
+	else
+		rBuf.Cat("empty");
+	return ok;
+}
+
+/*
+РџР°С‡РєРё СЃРёРіР°СЂРµС‚ 29 СЃРёРјРІРѕР»РѕРІ
+_____________
+GTIN вЂ“ 14 Р·РЅР°РєРѕРІ
+РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ вЂ“ 7 Р·РЅР°РєРѕРІ
+РњР Р¦ вЂ“ 4 Р·РЅР°РєР°
+РљСЂРёРїС‚РѕС…РІРѕСЃС‚ вЂ“ 4 Р·РЅР°РєР°
+
+00000046209443j+Q'?P5ACZAC8bG
+00000046209443|j+Q'?P5|ACZA|C8bG
+00000046209443x-8xfgOACZAYGfv
+04606203098187o&zWeIyABr8l/nT
+
+
+*/
+
+int SLAPI GtinStruc::Parse(const char * pCode)
+{
+	int    ok = 1;
+	SString code_buf = pCode;
+	Z();
+	if(code_buf.NotEmptyS()) {
+		SString temp_buf;
+		SString prefix_;
+		SString next_prefix_;
+		StrAssocArray::Add(fldOriginalText, code_buf);
+
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		uint tokn = 0;
+		tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
+		if(nta.Has(SNTOK_CHZN_CIGITEM)) {
+			assert(code_buf.Len() == 29);
+			temp_buf.Z().CatN(code_buf, 14);
+			StrAssocArray::Add(fldGTIN14, temp_buf);
+			temp_buf.Z().CatN(code_buf+14, 7);
+			StrAssocArray::Add(fldSerial, temp_buf);
+			temp_buf.Z().CatN(code_buf+21, 4);
+			StrAssocArray::Add(fldPriceRuTobacco, temp_buf);
+			temp_buf.Z().CatN(code_buf+25, 4);
+			StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+		}
+		else {
+			const char * p = code_buf.cptr();
+			uint    dpf = dpfBOL;
+			while(*p) {
+				uint  prefix_len = 0;
+				int   prefix_id = DetectPrefix(p, dpf, &prefix_len, prefix_);
+				dpf = 0;
+				uint  fixed_len = 0;
+				if(prefix_id > 0) {
+					GetPrefixSpec(prefix_id, &fixed_len);
+					if(fixed_len) {
+						const uint ro = SetupFixedLenField(p, prefix_len, fixed_len, prefix_id);
+						THROW(ro);
+						p += ro;
+					}
+					else {
+						temp_buf.Z();
+						p += prefix_len;
+						int   next_prefix_id = -1;
+						uint  next_prefix_len = 0;
+						while(*p && (next_prefix_id = DetectPrefix(p, dpf, &next_prefix_len, next_prefix_)) <= 0) {
+							temp_buf.CatChar(*p++);
+						}
+						THROW(!StrAssocArray::Search(prefix_id));
+						StrAssocArray::Add(prefix_id, temp_buf);
+					}
+				}
+				else {
+					ok = 2; // unexpected 
+					break;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI TestGtinStruc()
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString out_buf;
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("chzn-marks.txt");
+	SFile f_in(temp_buf, SFile::mRead);
+	if(f_in.IsValid()) {
+		PPGetPath(PPPATH_TESTROOT, temp_buf);
+		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("chzn-marks-result.txt");
+		SFile f_out(temp_buf, SFile::mWrite);
+		if(f_out.IsValid()) {
+			while(f_in.ReadLine(temp_buf)) {
+				temp_buf.Chomp().Strip();
+				GtinStruc gts;
+				//gts.AddSpecialFixedToken(GtinStruc::fldSerial, 20);
+				//gts.AddSpecialFixedToken(GtinStruc::fldPart, 13);
+				gts.AddOnlyToken(GtinStruc::fldSerial);
+				gts.AddOnlyToken(GtinStruc::fldPart);
+				gts.AddOnlyToken(GtinStruc::fldSscc18);
+				gts.AddOnlyToken(GtinStruc::fldGTIN14);
+				gts.AddOnlyToken(GtinStruc::fldExpiryDate);
+				
+				int pr = gts.Parse(temp_buf);
+				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", static_cast<long>(pr));
+				gts.Debug_Output(temp_buf);
+				out_buf.CR().Cat(temp_buf);
+				f_out.WriteLine(out_buf);
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 class PPEanComDocument {
 public:
 	struct QValue {
@@ -12,8 +451,8 @@ public:
 		}
 		int    Q;    // Qualifier
 		int    Unit; // UNIT_XXX
-		int    Currency; // Валюта (для денежных величин)
-		double Value; // Значение
+		int    Currency; // Р’Р°Р»СЋС‚Р° (РґР»СЏ РґРµРЅРµР¶РЅС‹С… РІРµР»РёС‡РёРЅ)
+		double Value; // Р—РЅР°С‡РµРЅРёРµ
 	};
 	struct DtmValue {
 		DtmValue() : Q(0), Dtm(ZERODATETIME), DtmFinish(ZERODATETIME)
@@ -31,7 +470,7 @@ public:
 		SString Ref;
 	};
 	//
-	// Descr: Варианты "Item type identification code" для PiaValue
+	// Descr: Р’Р°СЂРёР°РЅС‚С‹ "Item type identification code" РґР»СЏ PiaValue
 	//
 	enum {
 		iticUndef = 0,
@@ -272,7 +711,7 @@ public:
 	int    SLAPI Write_MessageHeader(SXml::WDoc & rDoc, int msgType, const char * pMsgId);
 	int    SLAPI Read_MessageHeader(xmlNode * pFirstNode, SString & rMsgType, SString & rMsgId); // @notimplemented
 	//
-	// Descr: Коды функций сообщения
+	// Descr: РљРѕРґС‹ С„СѓРЅРєС†РёР№ СЃРѕРѕР±С‰РµРЅРёСЏ
 	// Message function code:
 	// 1 Cancellation. Message cancelling a previous transmission for a given transaction.
 	// 2 Addition. Message containing items to be added.
@@ -357,7 +796,7 @@ public:
 		fmsgcodeProvisional  = 46  // Provisional
 	};
 	//
-	// Коды документов в BeginningOfMessage
+	// РљРѕРґС‹ РґРѕРєСѓРјРµРЅС‚РѕРІ РІ BeginningOfMessage
 	// 220 = Order
 	// 221 = Blanket order
 	// 224 = Rush order
@@ -516,7 +955,7 @@ public:
 		amtqTaxableAmt            = 125, // Taxable amount
 		amtqTotalAmt              = 128, // Total amount (The amount specified is the total amount)
 		amtqTotalServiceCharge    = 140, // Total service charge
-		amtqUnitPrice             = 146, // Unit price (5110) Reporting monetary amount is a "per unit" amount. (цена без НДС)
+		amtqUnitPrice             = 146, // Unit price (5110) Reporting monetary amount is a "per unit" amount. (С†РµРЅР° Р±РµР· РќР”РЎ)
 		amtqMsgTotalDutyTaxFeeAmt = 176, // Message total duty/tax/fee amount
 		amtqExactAmt              = 178, // Exact amount
 		amtqLnItemAmt             = 203, // Line item amount
@@ -529,13 +968,13 @@ public:
 		amtqCalcBasisExclAllTaxes = 528, // Calculation basis excluding all taxes
 		amtqUnloadAndHandlCost    = 542, // Unloading and handling cost
 
-		amtqExtBias               = 10000, // Типы сумм, начинающиеся с этого номера представлены алфавитными кодами
-			// и тарктуются как специализированные (часто справочные) значения.
+		amtqExtBias               = 10000, // РўРёРїС‹ СЃСѓРјРј, РЅР°С‡РёРЅР°СЋС‰РёРµСЃСЏ СЃ СЌС‚РѕРіРѕ РЅРѕРјРµСЂР° РїСЂРµРґСЃС‚Р°РІР»РµРЅС‹ Р°Р»С„Р°РІРёС‚РЅС‹РјРё РєРѕРґР°РјРё
+			// Рё С‚Р°СЂРєС‚СѓСЋС‚СЃСЏ РєР°Рє СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Рµ (С‡Р°СЃС‚Рѕ СЃРїСЂР°РІРѕС‡РЅС‹Рµ) Р·РЅР°С‡РµРЅРёСЏ.
 		amtqExt_XB5               = 10001 // XB5 Information amount (SWIFT Code). A monetary amount provided for information purposes.
 	};
 	int    SLAPI Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount);
 	//
-	// Descr: Считывает суммовую величину и заносит ее в вектор rList.
+	// Descr: РЎС‡РёС‚С‹РІР°РµС‚ СЃСѓРјРјРѕРІСѓСЋ РІРµР»РёС‡РёРЅСѓ Рё Р·Р°РЅРѕСЃРёС‚ РµРµ РІ РІРµРєС‚РѕСЂ rList.
 	//
 	int    SLAPI Read_MOA(xmlNode * pFirstNode, TSVector <QValue> & rList);
 	enum {
@@ -584,8 +1023,8 @@ public:
 		taxtVAT      // VAT = Value added tax
 	};
 	//
-	// Descr: Записывает сегмент определения налога.
-	// Note: Пока функция заточена только на НДС.
+	// Descr: Р—Р°РїРёСЃС‹РІР°РµС‚ СЃРµРіРјРµРЅС‚ РѕРїСЂРµРґРµР»РµРЅРёСЏ РЅР°Р»РѕРіР°.
+	// Note: РџРѕРєР° С„СѓРЅРєС†РёСЏ Р·Р°С‚РѕС‡РµРЅР° С‚РѕР»СЊРєРѕ РЅР° РќР”РЎ.
 	//
 	int    SLAPI Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, double value);
 	int    SLAPI Read_TAX(SXml::WDoc & rDoc, int * pPriceQ, double * pAmt); // @notimplemented
@@ -611,8 +1050,8 @@ public:
 		BillGoodsItemsTotal() : Count(0), SegCount(0), Quantity(0.0), AmountWoTax(0.0), AmountWithTax(0.0)
 		{
 		}
-		uint   Count; // Количество строк
-		uint   SegCount; // Количество сегментов сообщения
+		uint   Count; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє
+		uint   SegCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРµРіРјРµРЅС‚РѕРІ СЃРѕРѕР±С‰РµРЅРёСЏ
 		double Quantity;
 		double AmountWoTax;
 		double AmountWithTax;
@@ -813,7 +1252,7 @@ int SLAPI PPEdiProcessor::ProviderImplementation::GetGoodsInfo(PPID goodsID, PPI
 	BarcodeArray bc_list;
 	THROW(GObj.Search(goodsID, &goods_rec) > 0);
 	GObj.P_Tbl->ReadBarcodes(goodsID, bc_list);
-	// @v10.3.6 Перемещаем предпочтительный код вверх списка дабы проверить его с приоритетом {
+	// @v10.3.6 РџРµСЂРµРјРµС‰Р°РµРј РїСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅС‹Р№ РєРѕРґ РІРІРµСЂС… СЃРїРёСЃРєР° РґР°Р±С‹ РїСЂРѕРІРµСЂРёС‚СЊ РµРіРѕ СЃ РїСЂРёРѕСЂРёС‚РµС‚РѕРј {
 	{
 		uint   pref_bc_pos = 0;
 		const BarcodeTbl::Rec * p_pref_bc_rec = bc_list.GetPreferredItem(&pref_bc_pos);
@@ -893,13 +1332,13 @@ int SLAPI PPEanComDocument::Write_MessageHeader(SXml::WDoc & rDoc, int msgType, 
 	int    ok = 1;
 	SString temp_buf;
 	SXml::WNode n_unh(rDoc, "UNH"); // Message header
-	n_unh.PutInner("E0062", temp_buf.Z().Cat(pMsgId)); // ИД сообщения
+	n_unh.PutInner("E0062", temp_buf.Z().Cat(pMsgId)); // РР” СЃРѕРѕР±С‰РµРЅРёСЏ
 	{
 		SXml::WNode n_i(rDoc, "S009");
 		THROW(GetMsgSymbByType(msgType, temp_buf));
-		n_i.PutInner("E0065", temp_buf); // Тип сообщения
-		n_i.PutInner("E0052", "D"); // Версия сообщения
-		n_i.PutInner("E0054", "01B"); // Версия выпуска
+		n_i.PutInner("E0065", temp_buf); // РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ
+		n_i.PutInner("E0052", "D"); // Р’РµСЂСЃРёСЏ СЃРѕРѕР±С‰РµРЅРёСЏ
+		n_i.PutInner("E0054", "01B"); // Р’РµСЂСЃРёСЏ РІС‹РїСѓСЃРєР°
 		{
 			const char * p_e0057_code = 0;
 			if(msgType == PPEDIOP_ORDER)
@@ -907,8 +1346,8 @@ int SLAPI PPEanComDocument::Write_MessageHeader(SXml::WDoc & rDoc, int msgType, 
 			else if(msgType == PPEDIOP_DESADV)
 				p_e0057_code = "EAN007";
 			if(p_e0057_code) {
-				n_i.PutInner("E0051", "UN"); // Код ведущей организации
-				n_i.PutInner("E0057", p_e0057_code); // Код, присвоенный ведущей организацией
+				n_i.PutInner("E0051", "UN"); // РљРѕРґ РІРµРґСѓС‰РµР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
+				n_i.PutInner("E0057", p_e0057_code); // РљРѕРґ, РїСЂРёСЃРІРѕРµРЅРЅС‹Р№ РІРµРґСѓС‰РµР№ РѕСЂРіР°РЅРёР·Р°С†РёРµР№
 			}
 		}
 	}
@@ -944,18 +1383,18 @@ int SLAPI PPEanComDocument::Write_BeginningOfMessage(SXml::WDoc & rDoc, const ch
 	SXml::WNode n_bgm(rDoc, "BGM"); // Beginning of message
 	{
 		{
-			SXml::WNode n_i(rDoc, "C002"); // Имя документа/сообщения
+			SXml::WNode n_i(rDoc, "C002"); // РРјСЏ РґРѕРєСѓРјРµРЅС‚Р°/СЃРѕРѕР±С‰РµРЅРёСЏ
 			(temp_buf = pDocCode).Transf(CTRANSF_INNER_TO_UTF8);
-			n_i.PutInner("E1001", temp_buf); // Код документа
+			n_i.PutInner("E1001", temp_buf); // РљРѕРґ РґРѕРєСѓРјРµРЅС‚Р°
 		}
 		{
-			SXml::WNode n_i(rDoc, "C106"); // Идентификация документа/сообщения
+			SXml::WNode n_i(rDoc, "C106"); // РРґРµРЅС‚РёС„РёРєР°С†РёСЏ РґРѕРєСѓРјРµРЅС‚Р°/СЃРѕРѕР±С‰РµРЅРёСЏ
 			temp_buf = pDocIdent;
 			THROW_PP_S(temp_buf.Len() > 0 && temp_buf.Len() <= 17, PPERR_EDI_DOCIDENTLEN, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-			n_i.PutInner("E1004", temp_buf); // Номер документа (Должно быть максимум 17 символов)
+			n_i.PutInner("E1004", temp_buf); // РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° (Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ РјР°РєСЃРёРјСѓРј 17 СЃРёРјРІРѕР»РѕРІ)
 		}
-		n_bgm.PutInner("E1225", temp_buf.Z().Cat(funcMsgCode)); // Код функции сообщения
+		n_bgm.PutInner("E1225", temp_buf.Z().Cat(funcMsgCode)); // РљРѕРґ С„СѓРЅРєС†РёРё СЃРѕРѕР±С‰РµРЅРёСЏ
 	}
 	CATCHZOK
 	return ok;
@@ -995,9 +1434,9 @@ int SLAPI PPEanComDocument::Write_UNT(SXml::WDoc & rDoc, const char * pDocCode, 
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_unt(rDoc, "UNT"); // Окончание сообщения
-	n_unt.PutInner("E0074", temp_buf.Z().Cat(segCount)); // Общее число сегментов в сообщении
-	n_unt.PutInner("E0062", pDocCode); // Номер электронного сообщения (совпадает с указанным в заголовке)
+	SXml::WNode n_unt(rDoc, "UNT"); // РћРєРѕРЅС‡Р°РЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ
+	n_unt.PutInner("E0074", temp_buf.Z().Cat(segCount)); // РћР±С‰РµРµ С‡РёСЃР»Рѕ СЃРµРіРјРµРЅС‚РѕРІ РІ СЃРѕРѕР±С‰РµРЅРёРё
+	n_unt.PutInner("E0062", pDocCode); // РќРѕРјРµСЂ СЌР»РµРєС‚СЂРѕРЅРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ (СЃРѕРІРїР°РґР°РµС‚ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РІ Р·Р°РіРѕР»РѕРІРєРµ)
 	return ok;
 }
 
@@ -1023,12 +1462,12 @@ int SLAPI PPEanComDocument::Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_dtm(rDoc, "DTM"); // Дата документа
+	SXml::WNode n_dtm(rDoc, "DTM"); // Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р°
 	THROW(oneof3(dtmFmt, dtmfmtCCYYMMDD, dtmfmtCCYYMMDDHHMM, dtmfmtCCYYMMDD_CCYYMMDD));
 	THROW(dtmFmt != dtmfmtCCYYMMDD_CCYYMMDD || pFinish);
 	{
 		SXml::WNode n_i(rDoc, "C507");
-		n_i.PutInner("E2005", temp_buf.Z().Cat(dtmKind)); // Квалификатор функции даты-времени (Дата/время документа/сообщения)
+		n_i.PutInner("E2005", temp_buf.Z().Cat(dtmKind)); // РљРІР°Р»РёС„РёРєР°С‚РѕСЂ С„СѓРЅРєС†РёРё РґР°С‚С‹-РІСЂРµРјРµРЅРё (Р”Р°С‚Р°/РІСЂРµРјСЏ РґРѕРєСѓРјРµРЅС‚Р°/СЃРѕРѕР±С‰РµРЅРёСЏ)
 		temp_buf.Z();
 		if(dtmFmt == dtmfmtCCYYMMDD) {
 			temp_buf.Cat(rDtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV);
@@ -1039,8 +1478,8 @@ int SLAPI PPEanComDocument::Write_DTM(SXml::WDoc & rDoc, int dtmKind, int dtmFmt
 		else if(dtmFmt == dtmfmtCCYYMMDD_CCYYMMDD) {
 			temp_buf.Cat(rDtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('-').Cat(pFinish->d, DATF_YMD|DATF_CENTURY|DATF_NODIV);
 		}
-		n_i.PutInner("E2380", temp_buf); // Дата или время, или период
-		n_i.PutInner("E2379", temp_buf.Z().Cat(dtmFmt)); // Формат даты/времени (CCYYMMDD)
+		n_i.PutInner("E2380", temp_buf); // Р”Р°С‚Р° РёР»Рё РІСЂРµРјСЏ, РёР»Рё РїРµСЂРёРѕРґ
+		n_i.PutInner("E2379", temp_buf.Z().Cat(dtmFmt)); // Р¤РѕСЂРјР°С‚ РґР°С‚С‹/РІСЂРµРјРµРЅРё (CCYYMMDD)
 	}
 	CATCHZOK
 	return ok;
@@ -1200,15 +1639,15 @@ int SLAPI PPEanComDocument::Write_NAD(SXml::WDoc & rDoc, int partyQ, const char 
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_nad(rDoc, "NAD"); // Наименование и адрес
+	SXml::WNode n_nad(rDoc, "NAD"); // РќР°РёРјРµРЅРѕРІР°РЅРёРµ Рё Р°РґСЂРµСЃ
 	THROW_PP(!isempty(pGLN), PPERR_EDI_GLNISEMPTY);
 	{
 		THROW_PP_S(GetPartyqSymb(partyQ, temp_buf), PPERR_EDI_INVPARTYQ, (long)partyQ);
 		n_nad.PutInner("E3035", temp_buf);
 		{
-			SXml::WNode n_i(rDoc, "C082"); // Детали стороны
-			n_i.PutInner("E3039", pGLN); // GLN стороны
-			n_i.PutInner("E3055", "9"); // Код ведущей организации - EAN (Международная ассоциация товарной нумерации)
+			SXml::WNode n_i(rDoc, "C082"); // Р”РµС‚Р°Р»Рё СЃС‚РѕСЂРѕРЅС‹
+			n_i.PutInner("E3039", pGLN); // GLN СЃС‚РѕСЂРѕРЅС‹
+			n_i.PutInner("E3055", "9"); // РљРѕРґ РІРµРґСѓС‰РµР№ РѕСЂРіР°РЅРёР·Р°С†РёРё - EAN (РњРµР¶РґСѓРЅР°СЂРѕРґРЅР°СЏ Р°СЃСЃРѕС†РёР°С†РёСЏ С‚РѕРІР°СЂРЅРѕР№ РЅСѓРјРµСЂР°С†РёРё)
 		}
 	}
 	CATCHZOK
@@ -1249,7 +1688,7 @@ int SLAPI PPEanComDocument::Read_NAD(xmlNode * pFirstNode, PartyValue & rV)
 		}
 		else if(SXml::IsName(p_n, "C059")) { // STREET
 			for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
-				// Текст адреса может быть разбит на несколько порций
+				// РўРµРєСЃС‚ Р°РґСЂРµСЃР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°Р·Р±РёС‚ РЅР° РЅРµСЃРєРѕР»СЊРєРѕ РїРѕСЂС†РёР№
 				if(SXml::GetContentByName(p_n2, "E3042", temp_buf)) {
 					rV.Addr.Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 				}
@@ -1301,8 +1740,8 @@ int SLAPI PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount
 	SXml::WNode n_moa(rDoc, "MOA");
 	{
 		SXml::WNode n_i(rDoc, "C516");
-		n_i.PutInner("E5025", temp_buf.Z().Cat(amtQ)); // Квалификатор суммы товарной позиции
-		n_i.PutInner("E5004", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0))); // Сумма (Число знаков после запятой - не больше 2)
+		n_i.PutInner("E5025", temp_buf.Z().Cat(amtQ)); // РљРІР°Р»РёС„РёРєР°С‚РѕСЂ СЃСѓРјРјС‹ С‚РѕРІР°СЂРЅРѕР№ РїРѕР·РёС†РёРё
+		n_i.PutInner("E5004", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0))); // РЎСѓРјРјР° (Р§РёСЃР»Рѕ Р·РЅР°РєРѕРІ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№ - РЅРµ Р±РѕР»СЊС€Рµ 2)
 	}
 	return ok;
 }
@@ -1347,7 +1786,7 @@ int SLAPI PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ,
 	SXml::WNode n_qty(rDoc, "QTY");
 	{
 		SXml::WNode n_i(rDoc, "C186");
-		n_i.PutInner("E6063", temp_buf.Z().Cat(qtyQ)); // Квалификатор количества
+		n_i.PutInner("E6063", temp_buf.Z().Cat(qtyQ)); // РљРІР°Р»РёС„РёРєР°С‚РѕСЂ РєРѕР»РёС‡РµСЃС‚РІР°
 		SString unit_buf = "PCE";
 		double unit_scale = 1.0;
 		Goods2Tbl::Rec goods_rec;
@@ -1451,7 +1890,7 @@ int SLAPI PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amou
 			default:
 				CALLEXCEPT_PP_S(PPERR_EDI_INVPRICEQ, (long)priceQ);
 		}
-		n_i.PutInner("E5125", temp_buf); // Квалификатор цены
+		n_i.PutInner("E5125", temp_buf); // РљРІР°Р»РёС„РёРєР°С‚РѕСЂ С†РµРЅС‹
 		n_i.PutInner("E5118", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0)));
 	}
 	CATCHZOK
@@ -1470,9 +1909,9 @@ int SLAPI PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, dou
 	SString temp_buf;
 	SXml::WNode n_tax(rDoc, "TAX");
 	THROW_PP_S(oneof2(taxQ, taxqCustomDuty, taxqTax), PPERR_EDI_INVTAXQ, (long)taxQ);
-	n_tax.PutInner("E5283", temp_buf.Z().Cat(taxQ)); // Квалификатор налога
+	n_tax.PutInner("E5283", temp_buf.Z().Cat(taxQ)); // РљРІР°Р»РёС„РёРєР°С‚РѕСЂ РЅР°Р»РѕРіР°
 	{
-		// Тип налога
+		// РўРёРї РЅР°Р»РѕРіР°
 		switch(taxT) {
 			case taxtGST: temp_buf = "GST"; break;
 			case taxtIMP: temp_buf = "IMP"; break;
@@ -1485,7 +1924,7 @@ int SLAPI PPEanComDocument::Write_TAX(SXml::WDoc & rDoc, int taxQ, int taxT, dou
 	}
 	{
 		SXml::WNode n_c243(rDoc, "C243");
-		n_c243.PutInner("E5278", temp_buf.Z().Cat(value)); // Ставка
+		n_c243.PutInner("E5278", temp_buf.Z().Cat(value)); // РЎС‚Р°РІРєР°
 	}
 	CATCHZOK
 	return ok;
@@ -1505,8 +1944,8 @@ int SLAPI PPEanComDocument::Write_LIN(SXml::WDoc & rDoc, int lineN, const char *
 	n_lin.PutInner("E1082", temp_buf.Z().Cat(lineN));
 	{
 		SXml::WNode n_c212(rDoc, "C212");
-		n_c212.PutInner("E7140", pGoodsCode); // Штрих-код товара
-		n_c212.PutInner("E7143", "SRV"); // Тип штрихкода EAN.UCC
+		n_c212.PutInner("E7140", pGoodsCode); // РЁС‚СЂРёС…-РєРѕРґ С‚РѕРІР°СЂР°
+		n_c212.PutInner("E7143", "SRV"); // РўРёРї С€С‚СЂРёС…РєРѕРґР° EAN.UCC
 	}
 	return ok;
 }
@@ -1544,14 +1983,14 @@ int SLAPI PPEanComDocument::Write_PIA(SXml::WDoc & rDoc, const PiaValue & rV)
 {
 	int    ok = 1;
 	SString temp_buf;
-	SXml::WNode n_pia(rDoc, "PIA"); // Дополнительный идентификатор товара
+	SXml::WNode n_pia(rDoc, "PIA"); // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РѕРІР°СЂР°
 	THROW(rV.Code[0]);
 	THROW(oneof4(rV.Q, piaqAdditionalIdent, piaqSubstitutedBy, piaqSubstitutedFor, piaqProductIdent));
-	n_pia.PutInner("E4347", temp_buf.Z().Cat(rV.Q)); // Дополнительный идентификатор
+	n_pia.PutInner("E4347", temp_buf.Z().Cat(rV.Q)); // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 	{
 		SXml::WNode n_c212(rDoc, "C212");
 		(temp_buf = rV.Code).Transf(CTRANSF_INNER_TO_UTF8);
-		n_c212.PutInner("E7140", temp_buf); // Артикул
+		n_c212.PutInner("E7140", temp_buf); // РђСЂС‚РёРєСѓР»
 		GetIticSymb(rV.Itic, temp_buf);
 		n_c212.PutInner("E7143", temp_buf);
 	}
@@ -1591,7 +2030,7 @@ int SLAPI PPEanComDocument::Write_IMD(SXml::WDoc & rDoc, int imdQ, const char * 
 	int    ok = 1;
 	if(!isempty(pDescription)) {
 		SString temp_buf;
-		SXml::WNode n_imd(rDoc, "IMD"); // Описание товара
+		SXml::WNode n_imd(rDoc, "IMD"); // РћРїРёСЃР°РЅРёРµ С‚РѕРІР°СЂР°
 		switch(imdQ) {
 			case imdqFreeFormLongDescr: temp_buf = "A"; break;
 			case imdqCode: temp_buf = "C"; break;
@@ -1602,9 +2041,9 @@ int SLAPI PPEanComDocument::Write_IMD(SXml::WDoc & rDoc, int imdQ, const char * 
 			default: temp_buf.Z(); break;
 		}
 		if(temp_buf.NotEmpty()) {
-			n_imd.PutInner("E7077", temp_buf); // Код формата описания (текст)
+			n_imd.PutInner("E7077", temp_buf); // РљРѕРґ С„РѕСЂРјР°С‚Р° РѕРїРёСЃР°РЅРёСЏ (С‚РµРєСЃС‚)
 			{
-				SXml::WNode n_c273(rDoc, "C273"); // Описание
+				SXml::WNode n_c273(rDoc, "C273"); // РћРїРёСЃР°РЅРёРµ
 				n_c273.PutInner("E7008", SXml::WNode::CDATA((temp_buf = pDescription).Transf(CTRANSF_INNER_TO_UTF8)));
 			}
 		}
@@ -1662,7 +2101,7 @@ int SLAPI PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, 
 	SString goods_code;
 	SString goods_ar_code;
 	Goods2Tbl::Rec goods_rec;
-	THROW(qtty > 0.0); // @todo error (бессмысленная строка с нулевым количеством, но пока не ясно, что с ней делать - возможно лучше просто пропустить с замечанием).
+	THROW(qtty > 0.0); // @todo error (Р±РµСЃСЃРјС‹СЃР»РµРЅРЅР°СЏ СЃС‚СЂРѕРєР° СЃ РЅСѓР»РµРІС‹Рј РєРѕР»РёС‡РµСЃС‚РІРѕРј, РЅРѕ РїРѕРєР° РЅРµ СЏСЃРЅРѕ, С‡С‚Рѕ СЃ РЅРµР№ РґРµР»Р°С‚СЊ - РІРѕР·РјРѕР¶РЅРѕ Р»СѓС‡С€Рµ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ СЃ Р·Р°РјРµС‡Р°РЅРёРµРј).
 	THROW(P_Pi->GetGoodsInfo(rTi.GoodsID, 0, &goods_rec, goods_code, goods_ar_code));
 	{
 		THROW(Write_LIN(rDoc, rTi.RByBill, goods_code));
@@ -1714,7 +2153,7 @@ int SLAPI PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, c
 	SString goods_ar_code;
 	Goods2Tbl::Rec goods_rec;
 	BarcodeArray bc_list;
-	THROW(qtty > 0.0); // @todo error (бессмысленная строка с нулевым количеством, но пока не ясно, что с ней делать - возможно лучше просто пропустить с замечанием).
+	THROW(qtty > 0.0); // @todo error (Р±РµСЃСЃРјС‹СЃР»РµРЅРЅР°СЏ СЃС‚СЂРѕРєР° СЃ РЅСѓР»РµРІС‹Рј РєРѕР»РёС‡РµСЃС‚РІРѕРј, РЅРѕ РїРѕРєР° РЅРµ СЏСЃРЅРѕ, С‡С‚Рѕ СЃ РЅРµР№ РґРµР»Р°С‚СЊ - РІРѕР·РјРѕР¶РЅРѕ Р»СѓС‡С€Рµ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ СЃ Р·Р°РјРµС‡Р°РЅРёРµРј).
 	THROW(P_Pi->GObj.Search(rTi.GoodsID, &goods_rec) > 0);
 	P_Pi->GObj.P_Tbl->ReadBarcodes(rTi.GoodsID, bc_list);
 	for(uint bcidx = 0; goods_code.Empty() && bcidx < bc_list.getCount(); bcidx++) {
@@ -1756,17 +2195,17 @@ int SLAPI PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, c
 			THROW(Write_MOA(rDoc, amtqLnItemAmt, amount_without_vat));
 			rTotal.SegCount++;
 			{
-				SXml::WNode n_sg32(rDoc, "SG32"); // Цена товара с НДС
+				SXml::WNode n_sg32(rDoc, "SG32"); // Р¦РµРЅР° С‚РѕРІР°СЂР° СЃ РќР”РЎ
 				THROW(Write_PRI(rDoc, priceqAAE, price_with_vat));
 				rTotal.SegCount++;
 			}
 			{
-				SXml::WNode n_sg32(rDoc, "SG32"); // Цена товара без НДС
+				SXml::WNode n_sg32(rDoc, "SG32"); // Р¦РµРЅР° С‚РѕРІР°СЂР° Р±РµР· РќР”РЎ
 				THROW(Write_PRI(rDoc, priceqAAA, price_without_vat));
 				rTotal.SegCount++;
 			}
 			{
-				SXml::WNode n_sg38(rDoc, "SG38"); // Ставка НДС
+				SXml::WNode n_sg38(rDoc, "SG38"); // РЎС‚Р°РІРєР° РќР”РЎ
 				THROW(Write_TAX(rDoc, taxqTax, taxtVAT, vat_rate));
 				rTotal.SegCount++;
 			}
@@ -1897,7 +2336,7 @@ int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const Docume
 							consignee_loc_id = loc_list.get(0);
 						}
 						break;
-					case EDIPARTYQ_DELIVERY: // Точка доставки
+					case EDIPARTYQ_DELIVERY: // РўРѕС‡РєР° РґРѕСЃС‚Р°РІРєРё
 						SetupPartyAddedMsg(p_val, addendum_msg_wh);
 						if(P_Pi->PsnObj.LocObj.ResolveGLN(LOCTYP_WAREHOUSE, p_val->Code, loc_list.Z()) > 0) {
 							assert(loc_list.getCount());
@@ -1921,8 +2360,8 @@ int SLAPI PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const Docume
 			THROW_PP_S(pResult->BillObjID, PPERR_EDI_UNBLRSLV_BILLOBJ, temp_buf);
 		}
 		else if(consignor_ar_id && consignor_ar_id != pResult->BillObjID) {
-			// @todo message (Контрагент не тот же, что и грузоотправитель. В общем случае это - нормально,
-			// но возможны и проблемы).
+			// @todo message (РљРѕРЅС‚СЂР°РіРµРЅС‚ РЅРµ С‚РѕС‚ Р¶Рµ, С‡С‚Рѕ Рё РіСЂСѓР·РѕРѕС‚РїСЂР°РІРёС‚РµР»СЊ. Р’ РѕР±С‰РµРј СЃР»СѓС‡Р°Рµ СЌС‚Рѕ - РЅРѕСЂРјР°Р»СЊРЅРѕ,
+			// РЅРѕ РІРѕР·РјРѕР¶РЅС‹ Рё РїСЂРѕР±Р»РµРјС‹).
 		}
 		if(!pResult->BillLocID) {
 			pResult->BillLocID = consignee_loc_id;
@@ -2202,7 +2641,7 @@ int SLAPI PPEanComDocument::Read_Document(void * pCtx, const char * pFileName, c
 		if(p_bpack)
 			p_bpack->BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pIdent);
 		rList.insert(p_pack);
-		p_pack = 0; // Перед выходом экземпляр разрушается
+		p_pack = 0; // РџРµСЂРµРґ РІС‹С…РѕРґРѕРј СЌРєР·РµРјРїР»СЏСЂ СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ
 	}
 	CATCHZOK
 	xmlFreeDoc(p_doc);
@@ -2308,7 +2747,7 @@ int SLAPI PPEanComDocument::Write_DESADV(xmlTextWriter * pX, const PPBillPacket 
 				SXml::WNode n_sg10(_doc, "SG10");
 				{
 					SXml::WNode n_cps(_doc, "CPS");
-					n_cps.PutInner("E7164", "1"); // Номер иерархии по умолчанию - 1
+					n_cps.PutInner("E7164", "1"); // РќРѕРјРµСЂ РёРµСЂР°СЂС…РёРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - 1
 				}
 				{
 					for(uint i = 0; i < rPack.GetTCount(); i++) {
@@ -2371,25 +2810,25 @@ int SLAPI PPEanComDocument::Write_ORDERS(xmlTextWriter * pX, const PPBillPacket 
 				seg_count++;
 			}
 			//SXml::WNode n_sg1(_doc, "SG1"); // RFF-DTM // minOccurs="0" maxOccurs="9999"
-			{ // Поставщик
+			{ // РџРѕСЃС‚Р°РІС‰РёРє
 				SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
 				THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf));
 				THROW(Write_NAD(_doc, EDIPARTYQ_SUPPLIER, temp_buf));
 				seg_count++;
 			}
-			{ // Грузоотправитель
+			{ // Р“СЂСѓР·РѕРѕС‚РїСЂР°РІРёС‚РµР»СЊ
 				THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf));
 				SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
 				THROW(Write_NAD(_doc, EDIPARTYQ_CONSIGNOR, temp_buf));
 				seg_count++;
 			}
-			{ // Покупатель
+			{ // РџРѕРєСѓРїР°С‚РµР»СЊ
 				THROW(P_Pi->GetMainOrgGLN(temp_buf));
 				SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
 				THROW(Write_NAD(_doc, EDIPARTYQ_BUYER, temp_buf));
 				seg_count++;
 			}
-			{ // Адрес доставки
+			{ // РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё
 				THROW(P_Pi->GetLocGLN(rPack.Rec.LocID, temp_buf));
 				SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
 				THROW(Write_NAD(_doc, EDIPARTYQ_DELIVERY, temp_buf));
@@ -2410,8 +2849,8 @@ int SLAPI PPEanComDocument::Write_ORDERS(xmlTextWriter * pX, const PPBillPacket 
 				seg_count += items_total.SegCount;
 			}
 			{
-				SXml::WNode n_uns(_doc, "UNS"); // Разделитель зон
-				n_uns.PutInner("E0081", "S"); // Идентификатор секции (Зона итоговой информации)
+				SXml::WNode n_uns(_doc, "UNS"); // Р Р°Р·РґРµР»РёС‚РµР»СЊ Р·РѕРЅ
+				n_uns.PutInner("E0081", "S"); // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРµРєС†РёРё (Р—РѕРЅР° РёС‚РѕРіРѕРІРѕР№ РёРЅС„РѕСЂРјР°С†РёРё)
 				seg_count++;
 			}
 			THROW(Write_MOA(_doc, amtqTotalAmt, items_total.AmountWithTax));
@@ -2662,8 +3101,8 @@ private:
 		SString AddressText; // foreign address
 		SString RegionIsoCode;
 		SString District;
-		SString City;       // Город
-		SString Settlement; // Населенный пункт
+		SString City;       // Р“РѕСЂРѕРґ
+		SString Settlement; // РќР°СЃРµР»РµРЅРЅС‹Р№ РїСѓРЅРєС‚
 		SString Street;
 		SString House;
 		SString Flat;
@@ -2725,8 +3164,8 @@ private:
 		SLAPI  AuthToken() : Tm(ZERODATETIME)
 		{
 		}
-		SString Token; // Токен авторизации
-		LDATETIME Tm;  // Время получения (необходимо для идентификации факта просроченности токена)
+		SString Token; // РўРѕРєРµРЅ Р°РІС‚РѕСЂРёР·Р°С†РёРё
+		LDATETIME Tm;  // Р’СЂРµРјСЏ РїРѕР»СѓС‡РµРЅРёСЏ (РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё С„Р°РєС‚Р° РїСЂРѕСЃСЂРѕС‡РµРЅРЅРѕСЃС‚Рё С‚РѕРєРµРЅР°)
 	};
 	AuthToken AT;
 };
@@ -3026,11 +3465,11 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter
 		{
 			SXml::WNode n_i(_doc, "proposalOrdersIdentificator"); // <proposalOrdersIdentificator number="001" date="2014-02-06"/>
 		}
-		n_b.PutInnerSkipEmpty("promotionDealNumber", ""); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("promotionDealNumber", ""); // <!--РЅРѕРјРµСЂ РїСЂРѕРјРѕР°РєС†РёРё-->
 		{
 			SXml::WNode n_i(_doc, "contractIdentificator"); // <contractIdentificator number="357951" date="2012-05-06"/>
 		}
-		n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
+		n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--РЅРѕРјРµСЂ СЃРµСЂРёРё Р·Р°РєР°Р·РѕРІ-->
 		{
 			SXml::WNode n_i(_doc, "seller");
 			THROW(WriteOwnFormatContractor(_doc, ObjectToPerson(rBp.Rec.Object), 0));
@@ -3082,7 +3521,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERS(xmlTextWriter
 					n_q.PutAttrib("unitOfMeasure", "PCE");
 					n_q.SetValue(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				}
-				n_item.PutInnerSkipEmpty("flowType", "Direct"); // Тип поставки, может принимать значения: Stock - сток до РЦ, Transit - транзит в магазин, Direct - прямая поставка, Fresh - свежие продукты
+				n_item.PutInnerSkipEmpty("flowType", "Direct"); // РўРёРї РїРѕСЃС‚Р°РІРєРё, РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ: Stock - СЃС‚РѕРє РґРѕ Р Р¦, Transit - С‚СЂР°РЅР·РёС‚ РІ РјР°РіР°Р·РёРЅ, Direct - РїСЂСЏРјР°СЏ РїРѕСЃС‚Р°РІРєР°, Fresh - СЃРІРµР¶РёРµ РїСЂРѕРґСѓРєС‚С‹
 				//n_item.PutInner("netPrice", "");
 				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(cost, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				//n_item.PutInner("netAmount", "");
@@ -3167,11 +3606,11 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWrit
 		{
 			//SXml::WNode n_i(_doc, "proposalOrdersIdentificator"); // <proposalOrdersIdentificator number="001" date="2014-02-06"/>
 		}
-		//n_b.PutInnerSkipEmpty("promotionDealNumber", ""); // <!--номер промоакции-->
+		//n_b.PutInnerSkipEmpty("promotionDealNumber", ""); // <!--РЅРѕРјРµСЂ РїСЂРѕРјРѕР°РєС†РёРё-->
 		{
 			//SXml::WNode n_i(_doc, "contractIdentificator"); // <contractIdentificator number="357951" date="2012-05-06"/>
 		}
-		n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
+		n_b.PutInnerSkipEmpty("blanketOrderIdentificator", ""); // <blanketOrderIdentificator number="11212500345"/> <!--РЅРѕРјРµСЂ СЃРµСЂРёРё Р·Р°РєР°Р·РѕРІ-->
 		{
 			SXml::WNode n_i(_doc, "seller");
 			THROW(WriteOwnFormatContractor(_doc, MainOrgID, 0));
@@ -3247,7 +3686,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ORDERRSP(xmlTextWrit
 					n_q.PutAttrib("unitOfMeasure", "PCE");
 					n_q.SetValue(temp_buf.Z().Cat(confirm_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				}
-				//n_item.PutInnerSkipEmpty("flowType", "Direct"); // Тип поставки, может принимать значения: Stock - сток до РЦ, Transit - транзит в магазин, Direct - прямая поставка, Fresh - свежие продукты
+				//n_item.PutInnerSkipEmpty("flowType", "Direct"); // РўРёРї РїРѕСЃС‚Р°РІРєРё, РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ: Stock - СЃС‚РѕРє РґРѕ Р Р¦, Transit - С‚СЂР°РЅР·РёС‚ РІ РјР°РіР°Р·РёРЅ, Direct - РїСЂСЏРјР°СЏ РїРѕСЃС‚Р°РІРєР°, Fresh - СЃРІРµР¶РёРµ РїСЂРѕРґСѓРєС‚С‹
 				//n_item.PutInner("netPrice", "");
 				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(confirm_price, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				//n_item.PutInner("netAmount", "");
@@ -3306,7 +3745,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 			//SXml::WNode n_i(_doc, "orderResponse"); // <orderResponse number="ORSP0012" date="2014-02-07"/>
 		}
 		{
-			//SXml::WNode n_i(_doc, "blanketOrderIdentificator"); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
+			//SXml::WNode n_i(_doc, "blanketOrderIdentificator"); // <blanketOrderIdentificator number="11212500345"/> <!--РЅРѕРјРµСЂ СЃРµСЂРёРё Р·Р°РєР°Р·РѕРІ-->
 		}
 		{
 			//SXml::WNode n_i(_doc, "egaisRegistrationIdentificator"); // <egaisRegistrationIdentificator number="123_TEST"/>
@@ -3315,7 +3754,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 			//SXml::WNode n_i(_doc, "egaisFixationIdentificator"); // <egaisFixationIdentificator number="12223" date="2016-05-04"/>
 		}
 		{
-			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> номер и дата ТОРГ-12
+			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> РЅРѕРјРµСЂ Рё РґР°С‚Р° РўРћР Р“-12
 		}
 		{
 			SXml::WNode n_i(_doc, "seller");
@@ -3346,7 +3785,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--РЅРѕРјРµСЂ РїСЂРѕРјРѕР°РєС†РёРё-->
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -3371,9 +3810,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 				THROW(GetGoodsInfo(r_ti.GoodsID, rBp.Rec.Object, &goods_rec, goods_code, goods_ar_code));
 				n_item.PutInner("gtin", goods_code);
 				n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
-				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
-				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
-				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
+				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--РєРѕРґ С‚РѕРІР°СЂР° РІ Р•Р“РђРРЎ-->
+				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--РЅРѕРјРµСЂ С‚РѕРІР°СЂР° РІ РўРўРќ Р•Р“РђРРЎ-->
+				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ С‚РѕРІР°СЂР°-->
 				// n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
 				{
@@ -3404,17 +3843,17 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 				}
 				if(checkdate(r_ti.Expiry, 0))
 					n_item.PutInner("expireDate", temp_buf.Z().Cat(r_ti.Expiry, DATF_ISO8601|DATF_CENTURY));
-				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции без НДС
-				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции с НДС
-				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции без НДС
-				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции с НДС
-				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // ставка НДС
+				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // С†РµРЅР° РїРѕ РїРѕР·РёС†РёРё Р±РµР· РќР”РЎ
+				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // С†РµРЅР° РїРѕ РїРѕР·РёС†РёРё СЃ РќР”РЎ
+				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃСѓРјРјР° РїРѕ РїРѕР·РёС†РёРё Р±РµР· РќР”РЎ
+				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃСѓРјРјР° РїРѕ РїРѕР·РёС†РёРё СЃ РќР”РЎ
+				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃС‚Р°РІРєР° РќР”РЎ
 				total_amount_with_vat += amount_with_vat;
 				total_amount_without_vat += amount_without_vat;
 			}
-			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма отгруженных товарных позиций без НДС
-			//n_dtl.PutInner("totalVATAmount", ""); //  Общая сумма НДС по всему документу
-			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма с НДС по документу
+			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // РћР±С‰Р°СЏ СЃСѓРјРјР° РѕС‚РіСЂСѓР¶РµРЅРЅС‹С… С‚РѕРІР°СЂРЅС‹С… РїРѕР·РёС†РёР№ Р±РµР· РќР”РЎ
+			//n_dtl.PutInner("totalVATAmount", ""); //  РћР±С‰Р°СЏ СЃСѓРјРјР° РќР”РЎ РїРѕ РІСЃРµРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ
+			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // РћР±С‰Р°СЏ СЃСѓРјРјР° СЃ РќР”РЎ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
 		}
 	}
 	CATCHZOK
@@ -3457,7 +3896,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWr
 			//SXml::WNode n_i(_doc, "orderResponse"); // <orderResponse number="ORSP0012" date="2014-02-07"/>
 		}
 		{
-			//SXml::WNode n_i(_doc, "blanketOrderIdentificator"); // <blanketOrderIdentificator number="11212500345"/> <!--номер серии заказов-->
+			//SXml::WNode n_i(_doc, "blanketOrderIdentificator"); // <blanketOrderIdentificator number="11212500345"/> <!--РЅРѕРјРµСЂ СЃРµСЂРёРё Р·Р°РєР°Р·РѕРІ-->
 		}
 		{
 			//SXml::WNode n_i(_doc, "egaisRegistrationIdentificator"); // <egaisRegistrationIdentificator number="123_TEST"/>
@@ -3466,7 +3905,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWr
 			//SXml::WNode n_i(_doc, "egaisFixationIdentificator"); // <egaisFixationIdentificator number="12223" date="2016-05-04"/>
 		}
 		{
-			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> номер и дата ТОРГ-12
+			//SXml::WNode n_i(_doc, "deliveryNoteIdentificator"); // <deliveryNoteIdentificator number="13245" date="2014-02-07"/> РЅРѕРјРµСЂ Рё РґР°С‚Р° РўРћР Р“-12
 		}
 		{
 			SXml::WNode n_i(_doc, "seller");
@@ -3496,7 +3935,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_ALCODESADV(xmlTextWr
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", temp_buf.Z().Cat(rBp.Rec.Memo).Transf(CTRANSF_INNER_TO_UTF8)); // <!--РЅРѕРјРµСЂ РїСЂРѕРјРѕР°РєС†РёРё-->
 		{
 			const int use_refc_data = Arp.UseOwnEgaisObjects();
 			SString goods_code;
@@ -3697,7 +4136,7 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 				THROW(WriteOwnFormatContractor(_doc, 0, rBp.P_Freight->DlvrAddrID));
 			}
 		}
-		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--номер промоакции-->
+		n_b.PutInnerSkipEmpty("comment", EncXmlText(rBp.Rec.Memo)); // <!--РЅРѕРјРµСЂ РїСЂРѕРјРѕР°РєС†РёРё-->
 		{
 			SString goods_code;
 			SString goods_ar_code;
@@ -3725,9 +4164,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 				n_item.PutInner("gtin", goods_code);
 				n_item.PutInner("internalSupplierCode", temp_buf.Z().Cat(goods_rec.ID));
 				n_item.PutInner("description", EncXmlText(goods_rec.Name));
-				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--код товара в ЕГАИС-->
-				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--номер товара в ТТН ЕГАИС-->
-				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--порядковый номер товара-->
+				//n_item.PutInnerSkipEmpty("codeOfEgais", ""); // <!--РєРѕРґ С‚РѕРІР°СЂР° РІ Р•Р“РђРРЎ-->
+				//n_item.PutInnerSkipEmpty("lotNumberEgais", ""); // <!--РЅРѕРјРµСЂ С‚РѕРІР°СЂР° РІ РўРўРќ Р•Р“РђРРЎ-->
+				//n_item.PutInnerSkipEmpty("orderLineNumber", ""); // <!--РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ С‚РѕРІР°СЂР°-->
 				// n_item.PutInner("lineNumber", temp_buf.Z().Cat(r_ti.RByBill));
 				//n_item.PutInnerSkipEmpty("comment", "");
 				{
@@ -3740,22 +4179,22 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 					n_q.PutAttrib("unitOfMeasure", "PCE");
 					n_q.SetValue(temp_buf.Z().Cat(fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				}
-				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции без НДС
-				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции с НДС
-				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции без НДС
-				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции с НДС
-				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // ставка НДС
-				n_item.PutInner("vATAmount", temp_buf.Z().Cat(vat_amount, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма НДС
+				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // С†РµРЅР° РїРѕ РїРѕР·РёС†РёРё Р±РµР· РќР”РЎ
+				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // С†РµРЅР° РїРѕ РїРѕР·РёС†РёРё СЃ РќР”РЎ
+				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃСѓРјРјР° РїРѕ РїРѕР·РёС†РёРё Р±РµР· РќР”РЎ
+				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃСѓРјРјР° РїРѕ РїРѕР·РёС†РёРё СЃ РќР”РЎ
+				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃС‚Р°РІРєР° РќР”РЎ
+				n_item.PutInner("vATAmount", temp_buf.Z().Cat(vat_amount, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // СЃСѓРјРјР° РќР”РЎ
 				total_amount_with_vat += amount_with_vat;
 				total_amount_without_vat += amount_without_vat;
 				total_vat_amount += vat_amount;
 				if(rBp.LTagL.GetTagStr(i, PPTAG_LOT_CLB, temp_buf) > 0 && temp_buf.NotEmpty()) {
-					n_item.PutInner("customsDeclarationNumber", temp_buf); // ГТД
+					n_item.PutInner("customsDeclarationNumber", temp_buf); // Р“РўР”
 				}
 			}
-			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма отгруженных товарных позиций без НДС
-			n_dtl.PutInner("totalVATAmount", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); //  Общая сумма НДС по всему документу
-			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_vat_amount, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма с НДС по документу
+			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // РћР±С‰Р°СЏ СЃСѓРјРјР° РѕС‚РіСЂСѓР¶РµРЅРЅС‹С… С‚РѕРІР°СЂРЅС‹С… РїРѕР·РёС†РёР№ Р±РµР· РќР”РЎ
+			n_dtl.PutInner("totalVATAmount", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); //  РћР±С‰Р°СЏ СЃСѓРјРјР° РќР”РЎ РїРѕ РІСЃРµРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ
+			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_vat_amount, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // РћР±С‰Р°СЏ СЃСѓРјРјР° СЃ РќР”РЎ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ
 		}
 	}
 	CATCHZOK
@@ -4067,8 +4506,8 @@ int SLAPI PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPID
 				if(P_BObj->ExtractPacket(bill_id, &p_recadv_pack->ABp) > 0) {
 					/*
 					int    cmp_result = 0; // 0 - accepted, -1 - rejected,
-						// & 0x01 - есть отличия в меньшую сторону по количеству
-						// & 0x02 - есть отличия в большую сторону по количеству
+						// & 0x01 - РµСЃС‚СЊ РѕС‚Р»РёС‡РёСЏ РІ РјРµРЅСЊС€СѓСЋ СЃС‚РѕСЂРѕРЅСѓ РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ
+						// & 0x02 - РµСЃС‚СЊ РѕС‚Р»РёС‡РёСЏ РІ Р±РѕР»СЊС€СѓСЋ СЃС‚РѕСЂРѕРЅСѓ РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ
 					int    is_uncond_accept = 0;
 					*/
 					int    is_status_suited = 0;
@@ -4204,7 +4643,7 @@ int SLAPI PPEdiProcessor::SendOrderRsp(const PPBillIterchangeFilt & rP, const PP
 			PPEdiProcessor::Packet pack(PPEDIOP_ORDERRSP);
 			if(P_BObj->ExtractPacket(bill_id, static_cast<PPBillPacket *>(pack.P_Data)) > 0) {
 				int gopr = P_BObj->GetOriginalPacket(bill_id, 0, static_cast<PPBillPacket *>(pack.P_ExtData));
-				if(gopr <= 0 || gopr == 1/*документ не менялся*/) {
+				if(gopr <= 0 || gopr == 1/*РґРѕРєСѓРјРµРЅС‚ РЅРµ РјРµРЅСЏР»СЃСЏ*/) {
 					delete static_cast<PPBillPacket *>(pack.P_ExtData);
 					pack.P_ExtData = 0;
 				}
@@ -4269,7 +4708,7 @@ int SLAPI PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP,
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0) {
 					}
 					else
-						do_skip = 1; // Если не получен RECADV, то INVOIC не отсылаем
+						do_skip = 1; // Р•СЃР»Рё РЅРµ РїРѕР»СѓС‡РµРЅ RECADV, С‚Рѕ INVOIC РЅРµ РѕС‚СЃС‹Р»Р°РµРј
 					break;
 			}
 			if(!do_skip && tag_id) {
@@ -4871,8 +5310,8 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 								PPTransferItem ti;
 								double price_wo_taxes = 0.0;
 								double full_price = 0.0;
-								double desadv_qtty = 0.0; // Отправленное количество
-								double recadv_qtty = 0.0; // Принятое количество
+								double desadv_qtty = 0.0; // РћС‚РїСЂР°РІР»РµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
+								double recadv_qtty = 0.0; // РџСЂРёРЅСЏС‚РѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
  								goods_id_by_gtin = 0;
 								goods_id_by_arcode = 0;
 								serial.Z();
@@ -4970,7 +5409,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, c
 		if(p_bpack)
 			p_bpack->BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pIdent);
 		rList.insert(p_pack);
-		p_pack = 0; // Перед выходом экземпляр разрушается
+		p_pack = 0; // РџРµСЂРµРґ РІС‹С…РѕРґРѕРј СЌРєР·РµРјРїР»СЏСЂ СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ
 	}
 	CATCHZOK
 	xmlFreeDoc(p_doc);
@@ -4996,7 +5435,7 @@ int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor
 			PPIDArray ex_bill_id_list;
 			PPRef->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, edi_ident_buf, &ex_bill_id_list);
 			if(ex_bill_id_list.getCount()) {
-				// Документ уже существует ?@todo message
+				// Р”РѕРєСѓРјРµРЅС‚ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ ?@todo message
 				skip = 1;
 			}
 		}
@@ -5159,12 +5598,12 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 				}
 			}
 		}
-		// unread : отметка о прочтении; 0 - не прочитан, 1 - прочитан
-		// doc_type : тип документа
-		// timefrom : "ГГГГ-ММ-ДД ЧЧ:ММ:СС" / "ГГГГ-ММ-ДД ЧЧ:ММ" / "ГГГГ-ММ-ДД" дата начала поиска
-		// timeto : "ГГГГ-ММ-ДД ЧЧ:ММ:СС" / "ГГГГ-ММ-ДД ЧЧ:ММ" / "ГГГГ-ММ-ДД" дата окончания поиска
-		// limit : лимит на отображение документов (=1000 по умолчанию)
-		// page : страница
+		// unread : РѕС‚РјРµС‚РєР° Рѕ РїСЂРѕС‡С‚РµРЅРёРё; 0 - РЅРµ РїСЂРѕС‡РёС‚Р°РЅ, 1 - РїСЂРѕС‡РёС‚Р°РЅ
+		// doc_type : С‚РёРї РґРѕРєСѓРјРµРЅС‚Р°
+		// timefrom : "Р“Р“Р“Р“-РњРњ-Р”Р” Р§Р§:РњРњ:РЎРЎ" / "Р“Р“Р“Р“-РњРњ-Р”Р” Р§Р§:РњРњ" / "Р“Р“Р“Р“-РњРњ-Р”Р”" РґР°С‚Р° РЅР°С‡Р°Р»Р° РїРѕРёСЃРєР°
+		// timeto : "Р“Р“Р“Р“-РњРњ-Р”Р” Р§Р§:РњРњ:РЎРЎ" / "Р“Р“Р“Р“-РњРњ-Р”Р” Р§Р§:РњРњ" / "Р“Р“Р“Р“-РњРњ-Р”Р”" РґР°С‚Р° РѕРєРѕРЅС‡Р°РЅРёСЏ РїРѕРёСЃРєР°
+		// limit : Р»РёРјРёС‚ РЅР° РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ (=1000 РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ)
+		// page : СЃС‚СЂР°РЅРёС†Р°
 
 		//THROW_SL(p_query->Insert("doc_type", json_new_string(pDocType)));
 		url.Composite(0, temp_buf);
@@ -5232,9 +5671,9 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 }
 
 /*
-1. Адрес сайта: https://e-vo.ru/
-2. Логин: testTStest
-3. Пароль: OVXmgv
+1. РђРґСЂРµСЃ СЃР°Р№С‚Р°: https://e-vo.ru/
+2. Р›РѕРіРёРЅ: testTStest
+3. РџР°СЂРѕР»СЊ: OVXmgv
 */
 
 int SLAPI EdiProviderImplementation_Exite::Auth()
@@ -5594,12 +6033,12 @@ struct Exite_PositionBlock {
 	SString ArGoodsCode;
 	SString GoodsName;
 	SString GTIN;
-	double OrdQtty;  // заказанное количество
-	double AccQtty;  // количество, принятое к исполнению
-	double DlvrQtty; // Доставленное количество (DESADV)
+	double OrdQtty;  // Р·Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
+	double AccQtty;  // РєРѕР»РёС‡РµСЃС‚РІРѕ, РїСЂРёРЅСЏС‚РѕРµ Рє РёСЃРїРѕР»РЅРµРЅРёСЋ
+	double DlvrQtty; // Р”РѕСЃС‚Р°РІР»РµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ (DESADV)
 	double PriceWithVat;
 	double PriceWithoutVat;
-	double Vat; // Ставка НДС в процентах
+	double Vat; // РЎС‚Р°РІРєР° РќР”РЎ РІ РїСЂРѕС†РµРЅС‚Р°С…
 	PPTransferItem Ti;
 };
 
@@ -5625,7 +6064,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	StrStrAssocArray hdr_flds;
 	PPObjOprKind op_obj;
 	//
-	// Следующие 2 вида операций являются зарезервированными и создаются автоматически (если отсутствуют) вызовами ниже {
+	// РЎР»РµРґСѓСЋС‰РёРµ 2 РІРёРґР° РѕРїРµСЂР°С†РёР№ СЏРІР»СЏСЋС‚СЃСЏ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹РјРё Рё СЃРѕР·РґР°СЋС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё (РµСЃР»Рё РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‚) РІС‹Р·РѕРІР°РјРё РЅРёР¶Рµ {
 	//
 	PPID   ordrsp_op_id = 0;
 	PPID   recadv_op_id = 0;
@@ -5832,7 +6271,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 																								}
 																								else if(p_pf->Text.IsEqiAscii("CUSTOMSTARIFFNUMBER")) {
 																								}
-																								else if(p_pf->Text.IsEqiAscii("PRICE")) { // без НДС
+																								else if(p_pf->Text.IsEqiAscii("PRICE")) { // Р±РµР· РќР”РЎ
 																									pos_blk.PriceWithoutVat = temp_buf.ToReal();
 																								}
 																								else if(p_pf->Text.IsEqiAscii("PRICEWITHVAT")) {
@@ -6217,11 +6656,11 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 									}
 									else if(p_bf->Text.IsEqiAscii("DOCTYPE")) {
 									}
-									else if(p_bf->Text.IsEqiAscii("SUPORDER")) { // Номер заказа поставщика
+									else if(p_bf->Text.IsEqiAscii("SUPORDER")) { // РќРѕРјРµСЂ Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєР°
 									}
-									else if(p_bf->Text.IsEqiAscii("KDKNUM")) { // Номер общего заказа КДК
+									else if(p_bf->Text.IsEqiAscii("KDKNUM")) { // РќРѕРјРµСЂ РѕР±С‰РµРіРѕ Р·Р°РєР°Р·Р° РљР”Рљ
 									}
-									else if(p_bf->Text.IsEqiAscii("ORDRTYPE")) { // Тип заказа: поле O - оригинал R - корректировка, D - отмена
+									else if(p_bf->Text.IsEqiAscii("ORDRTYPE")) { // РўРёРї Р·Р°РєР°Р·Р°: РїРѕР»Рµ O - РѕСЂРёРіРёРЅР°Р» R - РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР°, D - РѕС‚РјРµРЅР°
 									}
 									else if(p_bf->Text.IsEqiAscii("INFO")) {
 										temp_buf.Unescape().Transf(CTRANSF_UTF8_TO_INNER).CopyTo(p_bpack->Rec.Memo, sizeof(p_bpack->Rec.Memo));
@@ -6472,7 +6911,7 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 		if(p_bpack)
 			p_bpack->BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, pIdent->SId);
 		rList.insert(p_pack);
-		p_pack = 0; // Перед выходом экземпляр разрушается
+		p_pack = 0; // РџРµСЂРµРґ РІС‹С…РѕРґРѕРј СЌРєР·РµРјРїР»СЏСЂ СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ
 	}
 	CATCHZOK
 	delete p_pack;
@@ -6487,7 +6926,7 @@ int SLAPI EdiProviderImplementation_Exite::SendDocument(PPEdiProcessor::Document
 	xmlTextWriter * p_x = 0;
 	xmlBuffer * p_xml_buf = 0;
 	SString path;
-	SString ret_doc_ident; // Идент документа, возвращаемый провайдером
+	SString ret_doc_ident; // РРґРµРЅС‚ РґРѕРєСѓРјРµРЅС‚Р°, РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ РїСЂРѕРІР°Р№РґРµСЂРѕРј
 	if(rPack.P_Data && oneof6(rPack.DocType, PPEDIOP_ORDER, PPEDIOP_ORDERRSP, PPEDIOP_DESADV, PPEDIOP_RECADV, PPEDIOP_ALCODESADV, PPEDIOP_INVOIC)) {
 		S_GUID msg_uuid;
 		msg_uuid.Generate();
@@ -6569,14 +7008,14 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 	THROW(GetMainOrgGLN(main_org_gln));
 	THROW(GetArticleGLN(rBp.Rec.Object, contractor_gln));
 	{
-		n_docs.PutInner("DOCUMENTNAME", "220"); // 218 order // во всех документах 220
+		n_docs.PutInner("DOCUMENTNAME", "220"); // 218 order // РІРѕ РІСЃРµС… РґРѕРєСѓРјРµРЅС‚Р°С… 220
 		n_docs.PutInner("NUMBER", EncXmlText(BillCore::GetCode(temp_buf = rBp.Rec.Code)));
 		n_docs.PutInner("DATE", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		//n_docs.PutInner("PROMO", 0);
 		n_docs.PutInner("DELIVERYDATE", temp_buf.Z().Cat(NZOR(rBp.Rec.DueDate, rBp.Rec.Dt), DATF_ISO8601|DATF_CENTURY));
 		//n_docs.PutInner("DELIVERYTIME", 0);
 		//n_docs.PutInner("SHIPMENTDATE", 0);
-		//n_docs.PutInner("CAMPAIGNNUMBER", 0); // Номер договора на поставку
+		//n_docs.PutInner("CAMPAIGNNUMBER", 0); // РќРѕРјРµСЂ РґРѕРіРѕРІРѕСЂР° РЅР° РїРѕСЃС‚Р°РІРєСѓ
 		n_docs.PutInner("CURRENCY", "RUB");
 		//n_docs.PutInner("TRANSPORTQUANTITY", 0);
 		/*{
@@ -6593,17 +7032,17 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 		//n_docs.PutInner("TRANSPORTATIONTYPES", 0);
 		//n_docs.PutInner("TRANSPORTATIONMEANS", 0);
 		//n_docs.PutInner("TRANSPORTATIONPAYMENTTYPE", 0);
-		//n_docs.PutInner("TRANSPORTATIONROUTE", 0); // Маршрут доставки
-		//n_docs.PutInner("BLANKETORDERNUMBER", 0); // Номер бланкового заказа
+		//n_docs.PutInner("TRANSPORTATIONROUTE", 0); // РњР°СЂС€СЂСѓС‚ РґРѕСЃС‚Р°РІРєРё
+		//n_docs.PutInner("BLANKETORDERNUMBER", 0); // РќРѕРјРµСЂ Р±Р»Р°РЅРєРѕРІРѕРіРѕ Р·Р°РєР°Р·Р°
 		//n_docs.PutInner("INFOCODED", 0);
-		n_docs.PutInner("DOCTYPE", "O"); // Тип документа: O — оригинал, R — замена, D — удаление
+		n_docs.PutInner("DOCTYPE", "O"); // РўРёРї РґРѕРєСѓРјРµРЅС‚Р°: O вЂ” РѕСЂРёРіРёРЅР°Р», R вЂ” Р·Р°РјРµРЅР°, D вЂ” СѓРґР°Р»РµРЅРёРµ
 		//n_docs.PutInner("SUPORDER", 0);
 		//n_docs.PutInner("KDKNUM", 0);
-		//n_docs.PutInner("ORDRTYPE", "O"); // Тип заказа: поле O - оригинал R - корректировка, D - отмена
+		//n_docs.PutInner("ORDRTYPE", "O"); // РўРёРї Р·Р°РєР°Р·Р°: РїРѕР»Рµ O - РѕСЂРёРіРёРЅР°Р» R - РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР°, D - РѕС‚РјРµРЅР°
 		n_docs.PutInner("INFO", EncXmlText(rBp.Rec.Memo));
-		// n_docs.PutInner("TYPE", 0); // 1 - Оборудование, 2 - Расходные материалы, 3 - Оборудование и услуга.
+		// n_docs.PutInner("TYPE", 0); // 1 - РћР±РѕСЂСѓРґРѕРІР°РЅРёРµ, 2 - Р Р°СЃС…РѕРґРЅС‹Рµ РјР°С‚РµСЂРёР°Р»С‹, 3 - РћР±РѕСЂСѓРґРѕРІР°РЅРёРµ Рё СѓСЃР»СѓРіР°.
 		//n_docs.PutInner("EARLIESTDELIVERYDATE", 0);
-		//n_docs.PutInner("PRODUCTTYPE", 0); // 1 - Оборудование, 2 - Услуга
+		//n_docs.PutInner("PRODUCTTYPE", 0); // 1 - РћР±РѕСЂСѓРґРѕРІР°РЅРёРµ, 2 - РЈСЃР»СѓРіР°
 		//n_docs.PutInner("LATESTDELIVERYDATE", 0);
 		{
 			SXml::WNode n_inner(_doc, "HEAD");
@@ -6611,24 +7050,24 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 				SString goods_code;
 				SString goods_ar_code;
 				Goods2Tbl::Rec goods_rec;
-				n_inner.PutInner("SUPPLIER", contractor_gln); // GLN поставщика
-				n_inner.PutInner("BUYER", main_org_gln); // GLN покупателя
-				//n_inner.PutInner("BUYERCODE", 0); // Код покупателя
+				n_inner.PutInner("SUPPLIER", contractor_gln); // GLN РїРѕСЃС‚Р°РІС‰РёРєР°
+				n_inner.PutInner("BUYER", main_org_gln); // GLN РїРѕРєСѓРїР°С‚РµР»СЏ
+				//n_inner.PutInner("BUYERCODE", 0); // РљРѕРґ РїРѕРєСѓРїР°С‚РµР»СЏ
 				THROW(GetLocGLN(rBp.Rec.LocID, temp_buf));
-				n_inner.PutInner("DELIVERYPLACE", temp_buf); // GLN места доставки
-				//n_inner.PutInner("FINALRECIPIENT", 0); // GLN конечного консигнатора
-				//n_inner.PutInner("INVOICEPARTNER", 0); // GLN плательщика
-				n_inner.PutInner("SENDER", main_org_gln); // GLN отправителя сообщения
-				n_inner.PutInner("RECIPIENT", contractor_gln); // GLN получателя сообщения
-				//n_inner.PutInner("RECIPIENTCODE", 0); // Код получателя
+				n_inner.PutInner("DELIVERYPLACE", temp_buf); // GLN РјРµСЃС‚Р° РґРѕСЃС‚Р°РІРєРё
+				//n_inner.PutInner("FINALRECIPIENT", 0); // GLN РєРѕРЅРµС‡РЅРѕРіРѕ РєРѕРЅСЃРёРіРЅР°С‚РѕСЂР°
+				//n_inner.PutInner("INVOICEPARTNER", 0); // GLN РїР»Р°С‚РµР»СЊС‰РёРєР°
+				n_inner.PutInner("SENDER", main_org_gln); // GLN РѕС‚РїСЂР°РІРёС‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ
+				n_inner.PutInner("RECIPIENT", contractor_gln); // GLN РїРѕР»СѓС‡Р°С‚РµР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ
+				//n_inner.PutInner("RECIPIENTCODE", 0); // РљРѕРґ РїРѕР»СѓС‡Р°С‚РµР»СЏ
 				GetArticleName(rBp.Rec.Object, temp_buf);
 				if(temp_buf.NotEmptyS())
-					n_inner.PutInner("RECIPIENTNAME", EncXmlText(temp_buf)); // Имя получателя
-				//n_inner.PutInner("RECIPIENTCONTACTFACE", 0); // Контактное лицо
-				//n_inner.PutInner("RECIPIENTPHONE", 0); // Телефон получателя
-				//n_inner.PutInner("RECIPIENTCITY", 0); // Город получателя
-				//n_inner.PutInner("RECIPIENTADRESS", 0); // Адрес получателя
-				//n_inner.PutInner("EDIINTERCHANGEID", 0); // Номер транзакции
+					n_inner.PutInner("RECIPIENTNAME", EncXmlText(temp_buf)); // РРјСЏ РїРѕР»СѓС‡Р°С‚РµР»СЏ
+				//n_inner.PutInner("RECIPIENTCONTACTFACE", 0); // РљРѕРЅС‚Р°РєС‚РЅРѕРµ Р»РёС†Рѕ
+				//n_inner.PutInner("RECIPIENTPHONE", 0); // РўРµР»РµС„РѕРЅ РїРѕР»СѓС‡Р°С‚РµР»СЏ
+				//n_inner.PutInner("RECIPIENTCITY", 0); // Р“РѕСЂРѕРґ РїРѕР»СѓС‡Р°С‚РµР»СЏ
+				//n_inner.PutInner("RECIPIENTADRESS", 0); // РђРґСЂРµСЃ РїРѕР»СѓС‡Р°С‚РµР»СЏ
+				//n_inner.PutInner("EDIINTERCHANGEID", 0); // РќРѕРјРµСЂ С‚СЂР°РЅР·Р°РєС†РёРё
 				for(uint i = 0; i < rBp.GetTCount(); i++) {
 					const PPTransferItem & r_ti = rBp.ConstTI(i);
 					SXml::WNode n_inner2(_doc, "POSITION");
@@ -6651,26 +7090,26 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter 
 						n_inner2.PutInner("PRODUCT", goods_code);
 						if(goods_ar_code.NotEmpty())
 							n_inner2.PutInner("PRODUCTIDSUPPLIER", goods_ar_code);
-						n_inner2.PutInner("PRODUCTIDBUYER", temp_buf.Z().Cat(goods_rec.ID)); // Внутренний номер в БД покупателя
-						//n_inner2.PutInner("BUYERPARTNUMBER", 0); // Внутренний системный номер артикула в БД покупателя
+						n_inner2.PutInner("PRODUCTIDBUYER", temp_buf.Z().Cat(goods_rec.ID)); // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РЅРѕРјРµСЂ РІ Р‘Р” РїРѕРєСѓРїР°С‚РµР»СЏ
+						//n_inner2.PutInner("BUYERPARTNUMBER", 0); // Р’РЅСѓС‚СЂРµРЅРЅРёР№ СЃРёСЃС‚РµРјРЅС‹Р№ РЅРѕРјРµСЂ Р°СЂС‚РёРєСѓР»Р° РІ Р‘Р” РїРѕРєСѓРїР°С‚РµР»СЏ
 						n_inner2.PutInner("ORDEREDQUANTITY", temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
-						//n_inner2.PutInner("QUANTITYOFCUINTU", 0); // Количество в упаковке
-						n_inner2.PutInner("BOXESQUANTITY", 0); // Количество упаковок
-						n_inner2.PutInner("ORDERUNIT", "PCE"); // Единицы измерения
-						n_inner2.PutInner("ORDERPRICE", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Цена продукта без НДС
-						n_inner2.PutInner("PRICEWITHVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Цена продукта с НДС
+						//n_inner2.PutInner("QUANTITYOFCUINTU", 0); // РљРѕР»РёС‡РµСЃС‚РІРѕ РІ СѓРїР°РєРѕРІРєРµ
+						n_inner2.PutInner("BOXESQUANTITY", 0); // РљРѕР»РёС‡РµСЃС‚РІРѕ СѓРїР°РєРѕРІРѕРє
+						n_inner2.PutInner("ORDERUNIT", "PCE"); // Р•РґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ
+						n_inner2.PutInner("ORDERPRICE", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Р¦РµРЅР° РїСЂРѕРґСѓРєС‚Р° Р±РµР· РќР”РЎ
+						n_inner2.PutInner("PRICEWITHVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Р¦РµРЅР° РїСЂРѕРґСѓРєС‚Р° СЃ РќР”РЎ
 						n_inner2.PutInner("VAT", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
-						//n_inner2.PutInner("CLAIMEDDELIVERYDATE", 0); // Объявленная дата доставки
-						//n_inner2.PutInner("CLAIMEDDELIVERYTIME", 0); // Объявленное время доставки
-						//n_inner2.PutInner("INFOCODED", 0); // Инфокод
-						//n_inner2.PutInner("MINIMUMORDERQUANTITY", 0); // Минимальное заказанное количество
-						//n_inner2.PutInner("INFO", 0); // Свободный текст
-						//n_inner2.PutInner("COMPAIGNNUMBER", 0); // Номер поставщика
-						//n_inner2.PutInner("EARLIESTDELIVERYDATE", 0); // Поставка не раньше указанной даты
-						//n_inner2.PutInner("LATESTDELIVERYDATE", 0); // Поставка не позднее указанной даты
-						//n_inner2.PutInner("LATESTDELIVERYTIME", 0); // Поставка не позднее указанного времени
-						//n_inner2.PutInner("CONDITIONSTATUS", 0); // Статус кондиции
-						//n_inner2.PutInner("PACKAGEID", 0); // Идентификатор упаковки
+						//n_inner2.PutInner("CLAIMEDDELIVERYDATE", 0); // РћР±СЉСЏРІР»РµРЅРЅР°СЏ РґР°С‚Р° РґРѕСЃС‚Р°РІРєРё
+						//n_inner2.PutInner("CLAIMEDDELIVERYTIME", 0); // РћР±СЉСЏРІР»РµРЅРЅРѕРµ РІСЂРµРјСЏ РґРѕСЃС‚Р°РІРєРё
+						//n_inner2.PutInner("INFOCODED", 0); // РРЅС„РѕРєРѕРґ
+						//n_inner2.PutInner("MINIMUMORDERQUANTITY", 0); // РњРёРЅРёРјР°Р»СЊРЅРѕРµ Р·Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
+						//n_inner2.PutInner("INFO", 0); // РЎРІРѕР±РѕРґРЅС‹Р№ С‚РµРєСЃС‚
+						//n_inner2.PutInner("COMPAIGNNUMBER", 0); // РќРѕРјРµСЂ РїРѕСЃС‚Р°РІС‰РёРєР°
+						//n_inner2.PutInner("EARLIESTDELIVERYDATE", 0); // РџРѕСЃС‚Р°РІРєР° РЅРµ СЂР°РЅСЊС€Рµ СѓРєР°Р·Р°РЅРЅРѕР№ РґР°С‚С‹
+						//n_inner2.PutInner("LATESTDELIVERYDATE", 0); // РџРѕСЃС‚Р°РІРєР° РЅРµ РїРѕР·РґРЅРµРµ СѓРєР°Р·Р°РЅРЅРѕР№ РґР°С‚С‹
+						//n_inner2.PutInner("LATESTDELIVERYTIME", 0); // РџРѕСЃС‚Р°РІРєР° РЅРµ РїРѕР·РґРЅРµРµ СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІСЂРµРјРµРЅРё
+						//n_inner2.PutInner("CONDITIONSTATUS", 0); // РЎС‚Р°С‚СѓСЃ РєРѕРЅРґРёС†РёРё
+						//n_inner2.PutInner("PACKAGEID", 0); // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СѓРїР°РєРѕРІРєРё
 						{
 							SXml::WNode n_inner3(_doc, "CHARACTERISTIC");
 							n_inner3.PutInner("DESCRIPTION", EncXmlText(goods_rec.Name));
@@ -6880,10 +7319,10 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_DESADV(xmlTextWriter 
 							n_inner2.PutInner("SHELFLIFEDATE", 0);
 							n_inner2.PutInner("EXPIREDATE", 0);
 							n_inner2.PutInner("INVOICEUNIT", 0);
-							n_inner2.PutInner("AMOUNT", 0); // без ндс
+							n_inner2.PutInner("AMOUNT", 0); // Р±РµР· РЅРґСЃ
 							n_inner2.PutInner("COUNTRYORIGIN", 0);
-							n_inner2.PutInner("CUSTOMSTARIFFNUMBER", 0); // гтд
-							n_inner2.PutInner("PRICE", 0); // без ндс
+							n_inner2.PutInner("CUSTOMSTARIFFNUMBER", 0); // РіС‚Рґ
+							n_inner2.PutInner("PRICE", 0); // Р±РµР· РЅРґСЃ
 							n_inner2.PutInner("PRICEWITHVAT", 0);
 							n_inner2.PutInner("AMOUNTWITHVAT", 0);
 							n_inner2.PutInner("DISCOUNT", 0);
@@ -6953,20 +7392,20 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 			n_docs.PutInner("ORDERNUMBER", EncXmlText(temp_buf));
 			n_docs.PutInner("ORDERDATE", temp_buf.Z().Cat(order_bill_rec.Dt, DATF_ISO8601|DATF_CENTURY));
 		}
-		n_docs.PutInner("DESADVNUMBER", EncXmlText(desadv_code)); // Номер уведомления об отгрузке
-		n_docs.PutInner("DESADVDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY)); // Дата уведомления об отгрузке
+		n_docs.PutInner("DESADVNUMBER", EncXmlText(desadv_code)); // РќРѕРјРµСЂ СѓРІРµРґРѕРјР»РµРЅРёСЏ РѕР± РѕС‚РіСЂСѓР·РєРµ
+		n_docs.PutInner("DESADVDATE", temp_buf.Z().Cat(rRaPack.ABp.Rec.Dt, DATF_ISO8601|DATF_CENTURY)); // Р”Р°С‚Р° СѓРІРµРґРѕРјР»РµРЅРёСЏ РѕР± РѕС‚РіСЂСѓР·РєРµ
 		{
 			SString delivery_note_number;
 			if(rRaPack.ABp.BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, delivery_note_number) <= 0)
 				delivery_note_number = desadv_code;
-			n_docs.PutInner("DELIVERYNOTENUMBER", EncXmlText(delivery_note_number)); // Номер накладной
+			n_docs.PutInner("DELIVERYNOTENUMBER", EncXmlText(delivery_note_number)); // РќРѕРјРµСЂ РЅР°РєР»Р°РґРЅРѕР№
 		}
 		{
 			LDATE delivery_note_date = ZERODATE;
 			const ObjTagItem * p_tag_item = rRaPack.ABp.BTagL.GetItem(PPTAG_BILL_OUTERDATE);
 			if(!p_tag_item || p_tag_item->GetDate(&delivery_note_date) <= 0)
 				delivery_note_date = rRaPack.ABp.Rec.Dt;
-			n_docs.PutInner("DELIVERYNOTEDATE", temp_buf.Z().Cat(delivery_note_date, DATF_ISO8601|DATF_CENTURY)); // Дата накладной
+			n_docs.PutInner("DELIVERYNOTEDATE", temp_buf.Z().Cat(delivery_note_date, DATF_ISO8601|DATF_CENTURY)); // Р”Р°С‚Р° РЅР°РєР»Р°РґРЅРѕР№
 		}
 		//n_docs.PutInner("CAMPAIGNNUMBER", 0);
 		//n_docs.PutInner("SUPPLIERORDENUMBER", 0);
@@ -7002,7 +7441,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 				n_inner.PutInner("SUPPLIERNAME", EncXmlText(contractor_psn_rec.Name));
 				n_inner.PutInner("BUYER", main_org_gln);
 				THROW(GetLocGLN(NZOR(rRaPack.RBp.Rec.LocID, rRaPack.ABp.Rec.LocID), temp_buf));
-				n_inner.PutInner("DELIVERYPLACE", temp_buf); // GLN места доставки
+				n_inner.PutInner("DELIVERYPLACE", temp_buf); // GLN РјРµСЃС‚Р° РґРѕСЃС‚Р°РІРєРё
 				n_inner.PutInner("FINALRECIPIENT", 0);
 				n_inner.PutInner("SENDER", main_org_gln);
 				GetMainOrgName(temp_buf);
@@ -7047,7 +7486,7 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter 
 							n_inner2.PutInner("PRODUCT", goods_code);
 							if(goods_ar_code.NotEmpty())
 								n_inner2.PutInner("PRODUCTIDSUPPLIER", goods_ar_code);
-							n_inner2.PutInner("PRODUCTIDBUYER", temp_buf.Z().Cat(goods_rec.ID)); // Внутренний номер в БД покупателя
+							n_inner2.PutInner("PRODUCTIDBUYER", temp_buf.Z().Cat(goods_rec.ID)); // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РЅРѕРјРµСЂ РІ Р‘Р” РїРѕРєСѓРїР°С‚РµР»СЏ
 							//n_inner2.PutInner("BUYERPARTNUMBER", 0);
 							n_inner2.PutInner("ACCEPTEDQUANTITY", temp_buf.Z().Cat(acc_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 							n_inner2.PutInner("ACCEPTEDUNIT", "PCE");
@@ -7194,10 +7633,10 @@ int SLAPI EdiProviderImplementation_Exite::Write_OwnFormat_INVOIC(xmlTextWriter 
 							n_inner2.PutInner("SHELFLIFEDATE", 0);
 							n_inner2.PutInner("EXPIREDATE", 0);
 							n_inner2.PutInner("INVOICEUNIT", 0);
-							n_inner2.PutInner("AMOUNT", 0); // без ндс
+							n_inner2.PutInner("AMOUNT", 0); // Р±РµР· РЅРґСЃ
 							n_inner2.PutInner("COUNTRYORIGIN", 0);
-							n_inner2.PutInner("CUSTOMSTARIFFNUMBER", 0); // гтд
-							n_inner2.PutInner("PRICE", 0); // без ндс
+							n_inner2.PutInner("CUSTOMSTARIFFNUMBER", 0); // РіС‚Рґ
+							n_inner2.PutInner("PRICE", 0); // Р±РµР· РЅРґСЃ
 							n_inner2.PutInner("PRICEWITHVAT", 0);
 							n_inner2.PutInner("AMOUNTWITHVAT", 0);
 							n_inner2.PutInner("DISCOUNT", 0);

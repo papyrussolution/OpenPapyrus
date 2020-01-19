@@ -2055,6 +2055,8 @@ public:
 		indBlnYrAgo     = 0x99
 	};
 	SUniTime();
+	explicit SUniTime(LDATE d);
+	explicit SUniTime(const LDATETIME & rD);
 	int    operator !() const;
 	SUniTime & Z();
 	//
@@ -2591,7 +2593,7 @@ typedef int32 TYPEID;
 #define S_WZSTRING      33      // Unicode-zstring
 #define S_UUID_         34      // @v8.0.9 (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
 #define S_INT64         35      // @v10.6.3
-#define S_UINT64        36      // @v10.6.3 
+#define S_UINT64        36      // @v10.6.3
 //
 #define S_FIRSTUSERTYPE 50
 //
@@ -4735,7 +4737,7 @@ int    SLAPI periodfmtex(const DateRange *, char *, size_t bufLen);
 // Descr: Флаги функции TimeZoneFmt
 //
 enum {
-	tzfmtCurrent = 0x0001, // Использовать системное значение временной зоны 
+	tzfmtCurrent = 0x0001, // Использовать системное значение временной зоны
 	tzfmtColon   = 0x0002, // "+00:00" else "+0000"
 	tzfmtSpace   = 0x0004, // " -0000"
 	tzfmtConcat  = 0x0008  // Не очищать буфер результата в начале функции
@@ -5662,13 +5664,13 @@ class SlCrypto {
 public:
 	enum {
 		algUndef = 0,
-		algAes,       // mod: 
-		algDes,       // mod: 
-		algDes_Ede,   // mod: 
-		algDes_Ede3,  // mod: 
-		algDesx,      // mod:  
-		algIdea,      // mod:  
-		algCamellia,  // mod: 
+		algAes,       // mod:
+		algDes,       // mod:
+		algDes_Ede,   // mod:
+		algDes_Ede3,  // mod:
+		algDesx,      // mod:
+		algIdea,      // mod:
+		algCamellia,  // mod:
 		algBlowfish,  // mod: algmodEcb, algmodCbc, algmodOfb, (algmodCfb, algmodCfb64)
 		algChaCha20   // mod: nothing|algmodPoly1305
 	};
@@ -5682,7 +5684,7 @@ public:
 		algmodUndef = 0,
 		algmodCbc,       // cipher block chaining
 		algmodEcb,       // electronic code book
-		algmodOcb, 
+		algmodOcb,
 		algmodOfb,       // output feed back
 		algmodCcm,
 		algmodGcm,
@@ -7479,7 +7481,7 @@ public:
 	int    SLAPI Scan(const char * pPath, const char * pWildcard, long flags);
 	int    SLAPI Add(const char * pPath, const SDirEntry & rDe);
 	//
-	// Descr: Вставляет в пул файл с полным путем pPath. 
+	// Descr: Вставляет в пул файл с полным путем pPath.
 	// Returns:
 	//   >0 - функция завершилась успешно
 	//    0 - ошибка (в том числе если файл не найден)
@@ -10018,13 +10020,14 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_INTNUMBER        24 // 9 || -9
 #define SNTOK_PECENTAGE        25 //
 #define SNTOK_NUMERIC_DOT      26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
-	// Допускается лидирующий + или -. Экпоненциальная запись не допускается.
+	// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
 #define SNTOK_NUMERIC_COM      27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
-	// Допускается лидирующий + или -. Экпоненциальная запись не допускается.
+	// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
 	// Если число не имеет дробной части, то применяется SNTOK_NUMERIC_DOT
 #define SNTOK_CHZN_GS1_GTIN    28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
 #define SNTOK_CHZN_SIGN_SGTIN  29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
 #define SNTOK_CHZN_SSCC        30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
+#define SNTOK_CHZN_CIGITEM     31 // честный знак Маркировка пачки сигарет
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z

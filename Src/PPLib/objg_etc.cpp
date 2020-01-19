@@ -9,6 +9,11 @@
 //
 // @ModuleDef(PPObjGoodsType)
 //
+SLAPI PPGoodsType2::PPGoodsType2()
+{
+	THISZERO();
+}
+
 SLAPI PPObjGoodsType::PPObjGoodsType(void * extraPtr) : PPObjReference(PPOBJ_GOODSTYPE, extraPtr)
 {
 }

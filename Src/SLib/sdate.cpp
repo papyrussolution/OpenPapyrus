@@ -2826,7 +2826,7 @@ static inline void SUniTime_Encode(uint8 * pD, uint8 signature, uint64 value)
 int SLAPI SUniTime::Implement_Set(uint8 signature, const void * pData)
 {
 	int    ok = 1;
-	const SUniTime_Inner * p_inner = (const SUniTime_Inner *)pData;
+	const SUniTime_Inner * p_inner = static_cast<const SUniTime_Inner *>(pData);
 	uint64 value = 0;
 	switch(signature) {
 		case indMSec:
@@ -3180,6 +3180,16 @@ uint8  SLAPI SUniTime::Implement_Get(void * pData) const
 SUniTime::SUniTime()
 {
 	memzero(D, sizeof(D));
+}
+
+SUniTime::SUniTime(LDATE d)
+{
+	Set(d);
+}
+	
+SUniTime::SUniTime(const LDATETIME & rD)
+{
+	Set(rD);
 }
 
 int SUniTime::operator !() const

@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Поддержка форматов для обмена с системой EGAIS
 //
@@ -3062,6 +3062,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_c(_doc, SXml::nst("tts", "Content"));
 							SString infb_ident;
 							SString rar_product_ident;
+							SString qtty_buf;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 								if(r_ti.Quantity_ > 0.0 && IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
@@ -3079,13 +3080,16 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 											qtty_fmt = MKSFMTD(0, 3, NMBF_NOTRAILZ);
 										}
-										SXml::WNode w_p(_doc, SXml::nst("tts", "Position"));
-										w_p.PutInner(SXml::nst("tts", "Identity"),    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
-										w_p.PutInner(SXml::nst("tts", "ProductCode"), EncText(temp_buf = rar_product_ident));
-										w_p.PutInner(SXml::nst("tts", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
-										{
-											SXml::WNode w_refb(_doc, SXml::nst("tts", "InformF2"));
-											w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf = infb_ident));
+										qtty_buf.Z().Cat(qtty, qtty_fmt); // @v10.6.9
+										if(qtty_buf.NotEmptyS()) { // @v10.6.9
+											SXml::WNode w_p(_doc, SXml::nst("tts", "Position"));
+											w_p.PutInner(SXml::nst("tts", "Identity"),    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
+											w_p.PutInner(SXml::nst("tts", "ProductCode"), EncText(temp_buf = rar_product_ident));
+											w_p.PutInner(SXml::nst("tts", "Quantity"), EncText(qtty_buf)); // @v10.6.9 temp_buf.Z().Cat(qtty, qtty_fmt)-->qtty_buf
+											{
+												SXml::WNode w_refb(_doc, SXml::nst("tts", "InformF2"));
+												w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf = infb_ident));
+											}
 										}
 									}
 								}
@@ -8763,9 +8767,9 @@ int SLAPI PPEgaisProcessor::EditInformAReg(InformAReg & rData)
 // static
 int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, SString & rMark)
 {
-	class EgaisMakrDialog : public TDialog {
+	class EgaisMarkDialog : public TDialog {
 	public:
-		EgaisMakrDialog(const PrcssrAlcReport::GoodsItem * pAgi) : TDialog(DLG_EGAISMARK), P_Agi(pAgi)
+		EgaisMarkDialog(const PrcssrAlcReport::GoodsItem * pAgi) : TDialog(DLG_EGAISMARK), P_Agi(pAgi)
 		{
 		}
 	private:
@@ -8792,7 +8796,7 @@ int SLAPI PPEgaisProcessor::InputMark(const PrcssrAlcReport::GoodsItem * pAgi, S
     int    ok = -1;
 	SString temp_buf;
     PrcssrAlcReport::EgaisMarkBlock mb;
-    EgaisMakrDialog * dlg = new EgaisMakrDialog(pAgi);
+    EgaisMarkDialog * dlg = new EgaisMarkDialog(pAgi);
     THROW(CheckDialogPtr(&dlg));
 	if(pAgi) {
 		SString line_buf;

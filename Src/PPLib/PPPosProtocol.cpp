@@ -1,5 +1,6 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -102,7 +103,7 @@ private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
 	PPObjSCard  ScObj;
-	PPPosProtocol Pp; // Экземпляр PPPosProtocol создаваемый для импорта сессий
+	PPPosProtocol Pp; // Р­РєР·РµРјРїР»СЏСЂ PPPosProtocol СЃРѕР·РґР°РІР°РµРјС‹Р№ РґР»СЏ РёРјРїРѕСЂС‚Р° СЃРµСЃСЃРёР№
 	PPPosProtocol::ProcessInputBlock * P_Pib;
 };
 
@@ -160,7 +161,7 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
         						THROW(tra);
 								for(uint cc_refi = 0; cc_refi < rc; cc_refi++) {
 									const PPPosProtocol::ObjBlockRef & r_cc_ref = p_ib->RefList.at(cc_refi);
-									//const long pos_n = 1; // @stub // Целочисленный номер кассы
+									//const long pos_n = 1; // @stub // Р¦РµР»РѕС‡РёСЃР»РµРЅРЅС‹Р№ РЅРѕРјРµСЂ РєР°СЃСЃС‹
 									if(r_cc_ref.Type == PPPosProtocol::obCCheck) {
 										int    cc_type = 0;
 										const PPPosProtocol::CCheckBlock * p_ccb = static_cast<const PPPosProtocol::CCheckBlock *>(p_ib->GetItem(cc_refi, &cc_type));
@@ -169,7 +170,7 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 											int    ccr = 0;
 											PPID   cc_id = 0;
 											PPID   cashier_id = 0;
-											PPID   sc_id = 0; // ИД персональной карты, привязанной к чеку
+											PPID   sc_id = 0; // РР” РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚С‹, РїСЂРёРІСЏР·Р°РЅРЅРѕР№ Рє С‡РµРєСѓ
 											LDATETIME cc_dtm = p_ccb->Dtm;
 											double cc_amount = p_ccb->Amount;
 											double cc_discount = p_ccb->Discount;
@@ -428,9 +429,9 @@ int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlo
 int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsID)
 {
 	int    ok = 1;
-	PPIDArray qk_list; // Список идентификаторов видов котировок, которые должны выгружаться
-	PPIDArray unit_list; // Список единиц измерения, которые необходимо выгрузить
-	PPIDArray used_qk_list; // Список идентификаторов видов котировок, которые выгружались
+	PPIDArray qk_list; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ РґРѕР»Р¶РЅС‹ РІС‹РіСЂСѓР¶Р°С‚СЊСЃСЏ
+	PPIDArray unit_list; // РЎРїРёСЃРѕРє РµРґРёРЅРёС† РёР·РјРµСЂРµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹РіСЂСѓР·РёС‚СЊ
+	PPIDArray used_qk_list; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ РІС‹РіСЂСѓР¶Р°Р»РёСЃСЊ
 	SString out_file_name;
 	SString fmt_buf, msg_buf;
 	SString temp_buf;
@@ -500,14 +501,14 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 			SXml::WNode n_scope(wb.P_Xw, "refs");
 			{
 				long   acgi_flags = ACGIF_ALLCODESPERITER;
-				PPQuotArray qlist; // "Сырой" список котировок, полученных из БД
-				PPQuotArray qlist_result; // Список котировок, которые следует экспортировать
+				PPQuotArray qlist; // "РЎС‹СЂРѕР№" СЃРїРёСЃРѕРє РєРѕС‚РёСЂРѕРІРѕРє, РїРѕР»СѓС‡РµРЅРЅС‹С… РёР· Р‘Р”
+				PPQuotArray qlist_result; // РЎРїРёСЃРѕРє РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ СЃР»РµРґСѓРµС‚ СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ
 				if(updOnly)
 					acgi_flags |= ACGIF_UPDATEDONLY;
 				AsyncCashGoodsIterator acgi(nodeID, acgi_flags, sinceDlsID, &dls);
 				{
 					//
-					// Единицы измерения
+					// Р•РґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ
 					//
 					const PPIDArray * p_unit_list = acgi.GetRefList(PPOBJ_UNIT);
                     if(SVectorBase::GetCount(p_unit_list)) {
@@ -525,8 +526,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
                             }
 						} while(i);
 						//
-						// Форсированно добавляем зарезервированную единицу LITER в список экспорта
-						// Она нам понадобиться для передачи алкогольных товаров.
+						// Р¤РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕ РґРѕР±Р°РІР»СЏРµРј Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅСѓСЋ РµРґРёРЅРёС†Сѓ LITER РІ СЃРїРёСЃРѕРє СЌРєСЃРїРѕСЂС‚Р°
+						// РћРЅР° РЅР°Рј РїРѕРЅР°РґРѕР±РёС‚СЊСЃСЏ РґР»СЏ РїРµСЂРµРґР°С‡Рё Р°Р»РєРѕРіРѕР»СЊРЅС‹С… С‚РѕРІР°СЂРѕРІ.
 						//
 						if(!unit_list.lsearch(PPUNT_LITER) && goods_obj.FetchUnit(PPUNT_LITER, &unit_rec) > 0)
 							unit_list.add(PPUNT_LITER);
@@ -590,7 +591,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 					}
 				}
 				{
-					// Товары
+					// РўРѕРІР°СЂС‹
 					AsyncCashGoodsInfo acgi_item;
 					wb.P_Acgi = &acgi;
 					while(acgi.Next(&acgi_item) > 0) {
@@ -626,24 +627,24 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 			}
 			{
 				//
-				// Замечение по ссылке карт на серию:
-				// Допускается экспортировать карты с непосредственной ссылкой на серию:
+				// Р—Р°РјРµС‡РµРЅРёРµ РїРѕ СЃСЃС‹Р»РєРµ РєР°СЂС‚ РЅР° СЃРµСЂРёСЋ:
+				// Р”РѕРїСѓСЃРєР°РµС‚СЃСЏ СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ РєР°СЂС‚С‹ СЃ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕР№ СЃСЃС‹Р»РєРѕР№ РЅР° СЃРµСЂРёСЋ:
 				// <card><id>21</id><code>100001</code><series><id>1001</id></series></card>
-				// Либо в блоке каждой серии перечислить карты бех прямой ссылки на серию.
+				// Р›РёР±Рѕ РІ Р±Р»РѕРєРµ РєР°Р¶РґРѕР№ СЃРµСЂРёРё РїРµСЂРµС‡РёСЃР»РёС‚СЊ РєР°СЂС‚С‹ Р±РµС… РїСЂСЏРјРѕР№ СЃСЃС‹Р»РєРё РЅР° СЃРµСЂРёСЋ.
 				// <scardseries><id>1001</id><name>Some series</name>
 				//    <card><id>21</id><code>100001</code></card>
 				//    <card><id>22</id><code>100002</code></card>
 				// </scardseries>
-				// Очевидно, 2-й способ позволяет сэкономить на размере xml-файла. Именно по этому
-				// мы его и предпочтем.
-				// При разборе допустимы оба варианта!
+				// РћС‡РµРІРёРґРЅРѕ, 2-Р№ СЃРїРѕСЃРѕР± РїРѕР·РІРѕР»СЏРµС‚ СЃСЌРєРѕРЅРѕРјРёС‚СЊ РЅР° СЂР°Р·РјРµСЂРµ xml-С„Р°Р№Р»Р°. РРјРµРЅРЅРѕ РїРѕ СЌС‚РѕРјСѓ
+				// РјС‹ РµРіРѕ Рё РїСЂРµРґРїРѕС‡С‚РµРј.
+				// РџСЂРё СЂР°Р·Р±РѕСЂРµ РґРѕРїСѓСЃС‚РёРјС‹ РѕР±Р° РІР°СЂРёР°РЅС‚Р°!
 				//
 				PPObjSCardSeries scs_obj;
 				PPSCardSerPacket scs_pack;
 				PPSCardSeries scs_rec;
 				{
 					//
-					// Карты
+					// РљР°СЂС‚С‹
 					//
 					LAssocArray scard_quot_list;
 					AsyncCashSCardsIterator acci(nodeID, updOnly, &dls, sinceDlsID);
@@ -670,7 +671,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 			}
 			{
 				//
-				// Виды котировок
+				// Р’РёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє
 				//
 				if(used_qk_list.getCount()) {
 					PPQuotKind qk_rec;
@@ -1130,11 +1131,11 @@ const PPPosProtocol::QuotKindBlock * FASTCALL PPPosProtocol::ReadBlock::SearchAn
 	return p_ret;
 }
 //
-// Descr: Находит входящий аналог блока персоналии rBlk с идентифицированным
+// Descr: РќР°С…РѕРґРёС‚ РІС…РѕРґСЏС‰РёР№ Р°РЅР°Р»РѕРі Р±Р»РѕРєР° РїРµСЂСЃРѕРЅР°Р»РёРё rBlk СЃ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅРЅС‹Рј
 //   NativeID.
 // Returns:
-//   Указатель на найденный блок-аналог
-//   Если поиск оказался безуспешным, то возвращает 0
+//   РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°Р№РґРµРЅРЅС‹Р№ Р±Р»РѕРє-Р°РЅР°Р»РѕРі
+//   Р•СЃР»Рё РїРѕРёСЃРє РѕРєР°Р·Р°Р»СЃСЏ Р±РµР·СѓСЃРїРµС€РЅС‹Рј, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ 0
 //
 const PPPosProtocol::PersonBlock * FASTCALL PPPosProtocol::ReadBlock::SearchAnalog_Person(const PPPosProtocol::PersonBlock & rBlk) const
 {
@@ -1270,8 +1271,8 @@ int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag
 int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo)
 {
 	int    ok = 1;
-	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
-	long   glbs_flags = 0; // @v10.1.5 Флаги вызова функции CCheckCore::GetListBySess
+	PPID   src_ar_id = 0; // РЎС‚Р°С‚СЊСЏ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕРіРѕ СѓС‡РµС‚Р°, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ РёСЃС‚РѕС‡РЅРёРєСѓ РґР°РЅРЅС‹С…
+	long   glbs_flags = 0; // @v10.1.5 Р¤Р»Р°РіРё РІС‹Р·РѕРІР° С„СѓРЅРєС†РёРё CCheckCore::GetListBySess
 	LDATETIME dtm;
 	SString temp_buf;
 	{
@@ -1499,7 +1500,7 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 			w_u.PutInner("id", temp_buf.Z().Cat(rInfo.UnitID));
 			if(is_spirit && agi.Proof > 0.0 && agi.Volume > 0.0 && GObj.FetchUnit(PPUNT_LITER, &unit_rec) > 0) {
 				//
-				// Для алкоголя искусственно устанавливаем единицу измерения //
+				// Р”Р»СЏ Р°Р»РєРѕРіРѕР»СЏ РёСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РµРґРёРЅРёС†Сѓ РёР·РјРµСЂРµРЅРёСЏ //
 				//
 				SXml::WNode w_pu(rB.P_Xw, "phunit");
 				w_pu.PutInner("id", temp_buf.Z().Cat(PPUNT_LITER));
@@ -1532,7 +1533,7 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 				}
 			}
 		}
-		if(rInfo.NoDis > 0) { // Значение <0 имеет специальный смысл
+		if(rInfo.NoDis > 0) { // Р—РЅР°С‡РµРЅРёРµ <0 РёРјРµРµС‚ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СЃРјС‹СЃР»
 			w_s.PutInner("nodiscount", 0);
 		}
 		if(rInfo.Price > 0.0)
@@ -1541,11 +1542,11 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 			w_s.PutInner("rest", temp_buf.Z().Cat(rInfo.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
         {
         	//
-        	// Лоты
+        	// Р›РѕС‚С‹
         	//
 			ReceiptCore & r_rc = P_BObj->trfr->Rcpt;
 			LotArray lot_list;
-			LotArray lbp_lot_list; // Список лотов с отличными от rInfo.Price ценами
+			LotArray lbp_lot_list; // РЎРїРёСЃРѕРє Р»РѕС‚РѕРІ СЃ РѕС‚Р»РёС‡РЅС‹РјРё РѕС‚ rInfo.Price С†РµРЅР°РјРё
 			const long lbpp = CsObj.GetEqCfg().LookBackPricePeriod;
 			if(use_lookbackprices && lbpp) {
 				// @v9.9.0 (unused) const double base_price = rInfo.Price;
@@ -1929,12 +1930,12 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						{
 							LotBlock * p_item = static_cast<LotBlock *>(RdB.GetItemWithTest(ref_pos, obLot));
 							if(link_type == obGoods)
-								p_item->GoodsBlkP = link_ref_pos; // Лот ссылается на позицию товара, которому принадлежит
+								p_item->GoodsBlkP = link_ref_pos; // Р›РѕС‚ СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ С‚РѕРІР°СЂР°, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚
 						}
 					}
 					break;
 				case PPHS_SCARDSERIES:
-				case PPHS_SERIES: // Сокращение для scardseries. Допустимо использовать только для определение ссылки персональной карты на серию.
+				case PPHS_SERIES: // РЎРѕРєСЂР°С‰РµРЅРёРµ РґР»СЏ scardseries. Р”РѕРїСѓСЃС‚РёРјРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёРµ СЃСЃС‹Р»РєРё РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕР№ РєР°СЂС‚С‹ РЅР° СЃРµСЂРёСЋ.
 					{
 						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
 						THROW(RdB.CreateItem(obSCardSeries, &ref_pos));
@@ -1970,11 +1971,11 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						{
 							QuotBlock * p_item = static_cast<QuotBlock *>(RdB.GetItemWithTest(ref_pos, obQuot));
 							if(link_type == obGoods) {
-								p_item->GoodsBlkP = link_ref_pos; // Котировка ссылается на позицию товара, которому принадлежит
+								p_item->GoodsBlkP = link_ref_pos; // РљРѕС‚РёСЂРѕРІРєР° СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ С‚РѕРІР°СЂР°, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚
 							}
 							else if(link_type == obGoodsGroup) {
 								p_item->BlkFlags |= p_item->fGroup;
-								p_item->GoodsGroupBlkP = link_ref_pos; // Котировка ссылается на позицию товарной группы, которой принадлежит
+								p_item->GoodsGroupBlkP = link_ref_pos; // РљРѕС‚РёСЂРѕРІРєР° СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ С‚РѕРІР°СЂРЅРѕР№ РіСЂСѓРїРїС‹, РєРѕС‚РѕСЂРѕР№ РїСЂРёРЅР°РґР»РµР¶РёС‚
 							}
 						}
 					}
@@ -2018,7 +2019,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						assert(link_type == obCSession);
 						if(link_type == obCSession) {
 							CCheckBlock * p_item = static_cast<CCheckBlock *>(RdB.GetItemWithTest(ref_pos, obCCheck));
-							p_item->CSessionBlkP = link_ref_pos; // Чек ссылается на позицию сессии, которой принадлежит
+							p_item->CSessionBlkP = link_ref_pos; // Р§РµРє СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ СЃРµСЃСЃРёРё, РєРѕС‚РѕСЂРѕР№ РїСЂРёРЅР°РґР»РµР¶РёС‚
 							assert(p_item->CSessionBlkP);
 						}
 					}
@@ -2030,7 +2031,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obCCheck) {
 							CcLineBlock * p_item = static_cast<CcLineBlock *>(RdB.GetItemWithTest(ref_pos, obCcLine));
-							p_item->CCheckBlkP = link_ref_pos; // Строка ссылается на позицию чека, которому принадлежит
+							p_item->CCheckBlkP = link_ref_pos; // РЎС‚СЂРѕРєР° СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ С‡РµРєР°, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚
 						}
 					}
 					break;
@@ -2041,7 +2042,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						RdB.RefPosStack.push(ref_pos);
 						if(link_type == obCCheck) {
 							CcPaymentBlock * p_item = static_cast<CcPaymentBlock *>(RdB.GetItemWithTest(ref_pos, obPayment));
-							p_item->CCheckBlkP = link_ref_pos; // Оплата ссылается на позицию чека, которому принадлежит
+							p_item->CCheckBlkP = link_ref_pos; // РћРїР»Р°С‚Р° СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ С‡РµРєР°, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚
 						}
 					}
 					break;
@@ -2063,7 +2064,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							RdB.RefPosStack.push(goods_code_ref_pos);
 							{
 								GoodsCode * p_item = static_cast<GoodsCode *>(RdB.GetItemWithTest(goods_code_ref_pos, obGoodsCode));
-								p_item->GoodsBlkP = ref_pos; // Код ссылается на позицию товара, которому принадлежит
+								p_item->GoodsBlkP = ref_pos; // РљРѕРґ СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° РїРѕР·РёС†РёСЋ С‚РѕРІР°СЂР°, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚
 							}
 						}
 					}
@@ -2382,11 +2383,11 @@ int PPPosProtocol::EndElement(const char * pName)
 					void * p_this_item = RdB.GetItem(ref_pos, &this_type);
 					if(this_type == obQuotKind) {
 						//
-						// Пытаемся найти аналогичный вид котировки. Если успешно, то принятый блок удаляем
-						// и используем найденный аналог
+						// РџС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё Р°РЅР°Р»РѕРіРёС‡РЅС‹Р№ РІРёРґ РєРѕС‚РёСЂРѕРІРєРё. Р•СЃР»Рё СѓСЃРїРµС€РЅРѕ, С‚Рѕ РїСЂРёРЅСЏС‚С‹Р№ Р±Р»РѕРє СѓРґР°Р»СЏРµРј
+						// Рё РёСЃРїРѕР»СЊР·СѓРµРј РЅР°Р№РґРµРЅРЅС‹Р№ Р°РЅР°Р»РѕРі
 						//
 						if(ref_pos == (RdB.RefList.getCount()-1)) {
-							const ObjBlockRef obr = RdB.RefList.at(ref_pos); // note: для obr нельзя применять ссылку - элемент может быть удален ниже
+							const ObjBlockRef obr = RdB.RefList.at(ref_pos); // note: РґР»СЏ obr РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅСЏС‚СЊ СЃСЃС‹Р»РєСѓ - СЌР»РµРјРµРЅС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓРґР°Р»РµРЅ РЅРёР¶Рµ
 							assert(obr.Type == obQuotKind);
 							if(obr.P == (RdB.QkBlkList.getCount()-1)) {
 								uint   other_ref_pos = 0;
@@ -2416,10 +2417,10 @@ int PPPosProtocol::EndElement(const char * pName)
 					void * p_this_item = RdB.GetItem(ref_pos, &this_type);
 					if(this_type == obSCardSeries) {
 						//
-						// Пытаемся найти аналогичную серию. Если успешно, то принятый блок удаляем и используем найденный аналог
+						// РџС‹С‚Р°РµРјСЃСЏ РЅР°Р№С‚Рё Р°РЅР°Р»РѕРіРёС‡РЅСѓСЋ СЃРµСЂРёСЋ. Р•СЃР»Рё СѓСЃРїРµС€РЅРѕ, С‚Рѕ РїСЂРёРЅСЏС‚С‹Р№ Р±Р»РѕРє СѓРґР°Р»СЏРµРј Рё РёСЃРїРѕР»СЊР·СѓРµРј РЅР°Р№РґРµРЅРЅС‹Р№ Р°РЅР°Р»РѕРі
 						//
 						if(ref_pos == (RdB.RefList.getCount()-1)) {
-							const ObjBlockRef obr = RdB.RefList.at(ref_pos); // note: для obr нельзя применять ссылку - элемент может быть удален ниже
+							const ObjBlockRef obr = RdB.RefList.at(ref_pos); // note: РґР»СЏ obr РЅРµР»СЊР·СЏ РїСЂРёРјРµРЅСЏС‚СЊ СЃСЃС‹Р»РєСѓ - СЌР»РµРјРµРЅС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓРґР°Р»РµРЅ РЅРёР¶Рµ
 							assert(obr.Type == obSCardSeries);
 							if(obr.P == (RdB.ScsBlkList.getCount()-1)) {
 								uint   other_ref_pos = 0;
@@ -2938,8 +2939,8 @@ int PPPosProtocol::EndElement(const char * pName)
 int PPPosProtocol::Characters(const char * pS, size_t len)
 {
 	//
-	// Одна строка может быть передана несколькими вызовами. По этому StartElement обнуляет
-	// буфер RdB.TagValue, а здесь каждый вызов дополняет существующую строку входящими символами
+	// РћРґРЅР° СЃС‚СЂРѕРєР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРµСЂРµРґР°РЅР° РЅРµСЃРєРѕР»СЊРєРёРјРё РІС‹Р·РѕРІР°РјРё. РџРѕ СЌС‚РѕРјСѓ StartElement РѕР±РЅСѓР»СЏРµС‚
+	// Р±СѓС„РµСЂ RdB.TagValue, Р° Р·РґРµСЃСЊ РєР°Р¶РґС‹Р№ РІС‹Р·РѕРІ РґРѕРїРѕР»РЅСЏРµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ РІС…РѕРґСЏС‰РёРјРё СЃРёРјРІРѕР»Р°РјРё
 	//
 	RdB.TagValue.CatN(pS, len);
 	return 1;
@@ -3070,7 +3071,7 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint ref
 	// @v10.0.0 {
 	if(native_id && !(rBlk.Flags_ & rBlk.fRefItem)) {
 		//
-		// Акцепт котировок
+		// РђРєС†РµРїС‚ РєРѕС‚РёСЂРѕРІРѕРє
 		//
 		PPQuotArray quot_list;
 		quot_list.GoodsID = native_id;
@@ -3147,7 +3148,7 @@ void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol:
 		rPack.Rec.GdsClsID = AlcGdsClsID;
 		rPack.ExtRec.GoodsClsID = AlcGdsClsID;
 		GcPack.RealToExtDim(inttodbl2(rBlk.AlcoProof), AlcProofDim, rPack.ExtRec);
-		if(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU > 0.0 && AlcVolumeDim) { // Мы ожидаем здесь соотношение литры/единицу
+		if(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU > 0.0 && AlcVolumeDim) { // РњС‹ РѕР¶РёРґР°РµРј Р·РґРµСЃСЊ СЃРѕРѕС‚РЅРѕС€РµРЅРёРµ Р»РёС‚СЂС‹/РµРґРёРЅРёС†Сѓ
 			GcPack.RealToExtDim(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU, AlcVolumeDim, rPack.ExtRec);
 		}
 		if(rBlk.AlcoRuCatP && AlcRuCatDim) {
@@ -3172,7 +3173,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 	PPIDArray pretend_obj_list;
 	if(rBlk.Flags_ & ObjectBlock::fRefItem) {
 		//
-		// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
+		// Р”Р»СЏ РѕР±СЉРµРєС‚РѕРІ, РїРµСЂРµРґР°РЅРЅС‹С… РєР°Рє СЃСЃС‹Р»РєР° РјС‹ РґРѕР»Р¶РЅС‹ РЅР°Р№С‚Рё Р°РЅР°Р»РѕРіРё РІ РЅР°С€РµР№ Р‘Р”, РЅРѕ СЃРѕР·РґР°РІР°С‚СЊ РЅРµ Р±СѓРґРµРј
 		//
 		PPID   pretend_id = 0;
 		if(rBlk.ID > 0) {
@@ -3203,25 +3204,25 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 			pretend_obj_list.sortAndUndup();
 			if(pretend_id) {
 				if(pretend_obj_list.lsearch(pretend_id)) {
-					native_id = pretend_id; // Это - без сомнения наш идентификатор (соответствует и по id и по коду)
+					native_id = pretend_id; // Р­С‚Рѕ - Р±РµР· СЃРѕРјРЅРµРЅРёСЏ РЅР°С€ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ Рё РїРѕ id Рё РїРѕ РєРѕРґСѓ)
 				}
 				else {
-					// @todo Есть сомнения. Идентификатор найден, но не соответствует кодам, переданным нам вместе с ним
+					// @todo Р•СЃС‚СЊ СЃРѕРјРЅРµРЅРёСЏ. РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅР°Р№РґРµРЅ, РЅРѕ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РєРѕРґР°Рј, РїРµСЂРµРґР°РЅРЅС‹Рј РЅР°Рј РІРјРµСЃС‚Рµ СЃ РЅРёРј
 					if(pretend_obj_list.getCount() == 1) {
-						native_id = pretend_obj_list.get(0); // Предпочтем значение, найденное по коду. Не уверен, но
-							// так, по-моему, надежнее, чем по идентификатору.
+						native_id = pretend_obj_list.get(0); // РџСЂРµРґРїРѕС‡С‚РµРј Р·РЅР°С‡РµРЅРёРµ, РЅР°Р№РґРµРЅРЅРѕРµ РїРѕ РєРѕРґСѓ. РќРµ СѓРІРµСЂРµРЅ, РЅРѕ
+							// С‚Р°Рє, РїРѕ-РјРѕРµРјСѓ, РЅР°РґРµР¶РЅРµРµ, С‡РµРј РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
 					}
 					else {
-						native_id = pretend_id; // Если соответствий по кодам несколько, то идентификатор выглядит надежнее
+						native_id = pretend_id; // Р•СЃР»Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІРёР№ РїРѕ РєРѕРґР°Рј РЅРµСЃРєРѕР»СЊРєРѕ, С‚Рѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РІС‹РіР»СЏРґРёС‚ РЅР°РґРµР¶РЅРµРµ
 					}
 				}
 			}
 			else if(pretend_obj_list.getCount() == 1) {
-				native_id = pretend_obj_list.get(0); // Единственный код без идентификатора - вполне надежный критерий
+				native_id = pretend_obj_list.get(0); // Р•РґРёРЅСЃС‚РІРµРЅРЅС‹Р№ РєРѕРґ Р±РµР· РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° - РІРїРѕР»РЅРµ РЅР°РґРµР¶РЅС‹Р№ РєСЂРёС‚РµСЂРёР№
 			}
 			else {
-				// @todo Есть сомнения: переданы несколько кодов с разными соответствиями идентификаторам
-				native_id = pretend_obj_list.getLast(); // Пока используем последний - он скорее всего самый новый
+				// @todo Р•СЃС‚СЊ СЃРѕРјРЅРµРЅРёСЏ: РїРµСЂРµРґР°РЅС‹ РЅРµСЃРєРѕР»СЊРєРѕ РєРѕРґРѕРІ СЃ СЂР°Р·РЅС‹РјРё СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏРјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°Рј
+				native_id = pretend_obj_list.getLast(); // РџРѕРєР° РёСЃРїРѕР»СЊР·СѓРµРј РїРѕСЃР»РµРґРЅРёР№ - РѕРЅ СЃРєРѕСЂРµРµ РІСЃРµРіРѕ СЃР°РјС‹Р№ РЅРѕРІС‹Р№
 			}
 		}
 		else if(pretend_id)
@@ -3271,9 +3272,9 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 			temp_buf.Z().Cat(rBlk.ID);
 			if(GObj.P_Tbl->SearchByArCode(rP.SrcArID, temp_buf, 0, &ex_goods_rec) > 0) {
 				//
-				// @v10.2.4 Специальный случай: товар имеет более одного кода по статье rP.SrcArID в числе которых наш.
-				// В этом случае мы отбираем наш код у этого товара и создаем новую товарную позицию. В противном
-				// случае возможны негативные эффекты в виде невозможности правильно идентифицировать товар.
+				// @v10.2.4 РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: С‚РѕРІР°СЂ РёРјРµРµС‚ Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ РєРѕРґР° РїРѕ СЃС‚Р°С‚СЊРµ rP.SrcArID РІ С‡РёСЃР»Рµ РєРѕС‚РѕСЂС‹С… РЅР°С€.
+				// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РјС‹ РѕС‚Р±РёСЂР°РµРј РЅР°С€ РєРѕРґ Сѓ СЌС‚РѕРіРѕ С‚РѕРІР°СЂР° Рё СЃРѕР·РґР°РµРј РЅРѕРІСѓСЋ С‚РѕРІР°СЂРЅСѓСЋ РїРѕР·РёС†РёСЋ. Р’ РїСЂРѕС‚РёРІРЅРѕРј
+				// СЃР»СѓС‡Р°Рµ РІРѕР·РјРѕР¶РЅС‹ РЅРµРіР°С‚РёРІРЅС‹Рµ СЌС„С„РµРєС‚С‹ РІ РІРёРґРµ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РїСЂР°РІРёР»СЊРЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ С‚РѕРІР°СЂ.
 				//
 				int    is_there_another_arcode = 0;
 				uint   my_arcode_pos = 0;
@@ -3317,7 +3318,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO); // @v10.0.09
 				}
 			}
-			else if(!use_ar_code) { // Для товара с внешним идентификатором аналог по наименованию не принимаем в расчет
+			else if(!use_ar_code) { // Р”Р»СЏ С‚РѕРІР°СЂР° СЃ РІРЅРµС€РЅРёРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј Р°РЅР°Р»РѕРі РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЋ РЅРµ РїСЂРёРЅРёРјР°РµРј РІ СЂР°СЃС‡РµС‚
 				pretend_obj_list.add(ex_goods_rec.ID);
 			}
 		}
@@ -3395,11 +3396,11 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					ex_goods_pack.Rec.ParentID = goods_pack.Rec.ParentID;
 				ex_goods_pack.Codes = goods_pack.Codes;
 				//
-				// Соображения насчет кодов по статьям:
-				// если (use_ar_code && goods_by_ar_id), то нужный код уже находится в ex_goods_pack
-				// Кроме него там могут быть и иные коды по статьям, не входящие в компетенцию
-				// данного импортируемого пакета.
-				// Таким образом, никаких манипуляций со списком кодов по статьям здесь не производим.
+				// РЎРѕРѕР±СЂР°Р¶РµРЅРёСЏ РЅР°СЃС‡РµС‚ РєРѕРґРѕРІ РїРѕ СЃС‚Р°С‚СЊСЏРј:
+				// РµСЃР»Рё (use_ar_code && goods_by_ar_id), С‚Рѕ РЅСѓР¶РЅС‹Р№ РєРѕРґ СѓР¶Рµ РЅР°С…РѕРґРёС‚СЃСЏ РІ ex_goods_pack
+				// РљСЂРѕРјРµ РЅРµРіРѕ С‚Р°Рј РјРѕРіСѓС‚ Р±С‹С‚СЊ Рё РёРЅС‹Рµ РєРѕРґС‹ РїРѕ СЃС‚Р°С‚СЊСЏРј, РЅРµ РІС…РѕРґСЏС‰РёРµ РІ РєРѕРјРїРµС‚РµРЅС†РёСЋ
+				// РґР°РЅРЅРѕРіРѕ РёРјРїРѕСЂС‚РёСЂСѓРµРјРѕРіРѕ РїР°РєРµС‚Р°.
+				// РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РЅРёРєР°РєРёС… РјР°РЅРёРїСѓР»СЏС†РёР№ СЃРѕ СЃРїРёСЃРєРѕРј РєРѕРґРѕРІ РїРѕ СЃС‚Р°С‚СЊСЏРј Р·РґРµСЃСЊ РЅРµ РїСЂРѕРёР·РІРѕРґРёРј.
 				//
 				if(goods_pack.Rec.ParentID && GgObj.Search(goods_pack.Rec.ParentID, &parent_rec) > 0 &&
 					parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
@@ -3479,13 +3480,13 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				native_id = ex_goods_id;
 			}
 			else {
-				; // @error импортируемый товар может быть сопоставлен более чем одному товару в бд.
+				; // @error РёРјРїРѕСЂС‚РёСЂСѓРµРјС‹Р№ С‚РѕРІР°СЂ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅ Р±РѕР»РµРµ С‡РµРј РѕРґРЅРѕРјСѓ С‚РѕРІР°СЂСѓ РІ Р±Рґ.
 			}
 		}
 		if(native_id) {
 			{
 				//
-				// Акцепт котировок
+				// РђРєС†РµРїС‚ РєРѕС‚РёСЂРѕРІРѕРє
 				//
 				quot_list.GoodsID = native_id;
 				for(uint k = 0; k < RdB.QuotBlkList.getCount(); k++) {
@@ -3504,8 +3505,8 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					}
 				}
 				//
-				// Базовую цену загружаем в список quot_list последней на случай, если в переданном списке котировок
-				// была указана и базовая (дабы перебить неоднозначность в пользу Price).
+				// Р‘Р°Р·РѕРІСѓСЋ С†РµРЅСѓ Р·Р°РіСЂСѓР¶Р°РµРј РІ СЃРїРёСЃРѕРє quot_list РїРѕСЃР»РµРґРЅРµР№ РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё РІ РїРµСЂРµРґР°РЅРЅРѕРј СЃРїРёСЃРєРµ РєРѕС‚РёСЂРѕРІРѕРє
+				// Р±С‹Р»Р° СѓРєР°Р·Р°РЅР° Рё Р±Р°Р·РѕРІР°СЏ (РґР°Р±С‹ РїРµСЂРµР±РёС‚СЊ РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РІ РїРѕР»СЊР·Сѓ Price).
 				//
 				if(rBlk.Price > 0.0) {
 					const QuotIdent qi(0 /*locID*/, PPQUOTK_BASE, 0 /*curID*/, 0);
@@ -3515,7 +3516,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 			}
 			if(rP.LocID) {
 				//
-				// Акцепт лотов
+				// РђРєС†РµРїС‚ Р»РѕС‚РѕРІ
 				//
 				ReceiptCore & r_rcpt = P_BObj->trfr->Rcpt;
 				LotArray lot_list;
@@ -3563,7 +3564,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 					PPTransaction tra(1);
 					THROW(tra);
 					//
-					// Удаляем все существующие SURROGATE-лоты
+					// РЈРґР°Р»СЏРµРј РІСЃРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ SURROGATE-Р»РѕС‚С‹
 					//
 					{
 						PPIDArray lot_id_list_to_remove;
@@ -3581,7 +3582,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 						}
 					}
 					//
-					// Вставляем новые SURROGATE-лоты
+					// Р’СЃС‚Р°РІР»СЏРµРј РЅРѕРІС‹Рµ SURROGATE-Р»РѕС‚С‹
 					//
 					{
                         for(uint _lidx = 0; _lidx < lot_list.getCount(); _lidx++) {
@@ -3626,7 +3627,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	SString symb_buf;
 	SString wait_msg_buf;
 	PPIDArray temp_id_list;
-	PPIDArray pretend_obj_list; // Список ид объектов, которые соответствуют импортируемому
+	PPIDArray pretend_obj_list; // РЎРїРёСЃРѕРє РёРґ РѕР±СЉРµРєС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ РёРјРїРѕСЂС‚РёСЂСѓРµРјРѕРјСѓ
 	PPObjUnit u_obj;
 	PPObjSCardSeries scs_obj;
 	PPObjPersonKind pk_obj;
@@ -3643,12 +3644,12 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	{
 		//
-		// Прежде всего разберем данные об источнике и получателях данных
+		// РџСЂРµР¶РґРµ РІСЃРµРіРѕ СЂР°Р·Р±РµСЂРµРј РґР°РЅРЅС‹Рµ РѕР± РёСЃС‚РѕС‡РЅРёРєРµ Рё РїРѕР»СѓС‡Р°С‚РµР»СЏС… РґР°РЅРЅС‹С…
 		//
 		if(RdB.SrcBlkList.getCount() == 1) {
 			RouteObjectBlock & r_blk = RdB.SrcBlkList.at(0);
 			if(!r_blk.Uuid.IsZero()) {
-				// @todo Создать или найти глобальную учетную запись и сопоставленную ей аналитическую статью src_ar_id
+				// @todo РЎРѕР·РґР°С‚СЊ РёР»Рё РЅР°Р№С‚Рё РіР»РѕР±Р°Р»СЊРЅСѓСЋ СѓС‡РµС‚РЅСѓСЋ Р·Р°РїРёСЃСЊ Рё СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅСѓСЋ РµР№ Р°РЅР°Р»РёС‚РёС‡РµСЃРєСѓСЋ СЃС‚Р°С‚СЊСЋ src_ar_id
 			}
 		}
 		else {
@@ -3669,10 +3670,10 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	{
 		//
-		// Акцепт видов котировок.
-		// 2 фазы
-		//   1-я фаза - виды котировок без флага ObjectBlock::fRefItem
-		//   2-я фаза - виды котировок не зависимо от флага ObjectBlock::fRefItem (без NativeID)
+		// РђРєС†РµРїС‚ РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє.
+		// 2 С„Р°Р·С‹
+		//   1-СЏ С„Р°Р·Р° - РІРёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє Р±РµР· С„Р»Р°РіР° ObjectBlock::fRefItem
+		//   2-СЏ С„Р°Р·Р° - РІРёРґС‹ РєРѕС‚РёСЂРѕРІРѕРє РЅРµ Р·Р°РІРёСЃРёРјРѕ РѕС‚ С„Р»Р°РіР° ObjectBlock::fRefItem (Р±РµР· NativeID)
 		//
 		PPLoadText(PPTXT_IMPQUOTKIND, wait_msg_buf);
 		const uint __count = RdB.QkBlkList.getCount();
@@ -3744,7 +3745,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			}
 		}
 		//
-		// Акцепт единиц измерения
+		// РђРєС†РµРїС‚ РµРґРёРЅРёС† РёР·РјРµСЂРµРЅРёСЏ
 		//
 		{
 			PPTransaction tra(1);
@@ -3806,7 +3807,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			THROW(tra.Commit());
 		}
 		//
-		// Теперь, после акцепта всех единиц измерения, идентифицируем ссылки на единицы измерения
+		// РўРµРїРµСЂСЊ, РїРѕСЃР»Рµ Р°РєС†РµРїС‚Р° РІСЃРµС… РµРґРёРЅРёС† РёР·РјРµСЂРµРЅРёСЏ, РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµРј СЃСЃС‹Р»РєРё РЅР° РµРґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ
 		//
 		{
 			const uint __count = RdB.UnitBlkList.getCount();
@@ -3838,11 +3839,11 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	{
 		//
-		// Акцепт товарных групп
+		// РђРєС†РµРїС‚ С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
 		//
 		{
 			//
-			// Сначала прогоним цикл по группам с целью создать или идентифицировать все группы-папки
+			// РЎРЅР°С‡Р°Р»Р° РїСЂРѕРіРѕРЅРёРј С†РёРєР» РїРѕ РіСЂСѓРїРїР°Рј СЃ С†РµР»СЊСЋ СЃРѕР·РґР°С‚СЊ РёР»Рё РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РІСЃРµ РіСЂСѓРїРїС‹-РїР°РїРєРё
 			//
 			PPLoadText(PPTXT_IMPGOODSGRP, wait_msg_buf);
 			const uint __count = RdB.GoodsGroupBlkList.getCount();
@@ -3863,7 +3864,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		}
 		{
 			//
-			// Теперь создадим все группы нижнего уровня (папки уже идентифицированы на предыдущем проходе)
+			// РўРµРїРµСЂСЊ СЃРѕР·РґР°РґРёРј РІСЃРµ РіСЂСѓРїРїС‹ РЅРёР¶РЅРµРіРѕ СѓСЂРѕРІРЅСЏ (РїР°РїРєРё СѓР¶Рµ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅС‹ РЅР° РїСЂРµРґС‹РґСѓС‰РµРј РїСЂРѕС…РѕРґРµ)
 			//
 			PPLoadText(PPTXT_IMPGOODSGRP, wait_msg_buf);
 			const uint __count = RdB.GoodsGroupBlkList.getCount();
@@ -3880,7 +3881,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	{
 		//
-		// Акцепт товаров
+		// РђРєС†РµРїС‚ С‚РѕРІР°СЂРѕРІ
 		//
 		PPGoodsPacket goods_pack;
 		PPQuotArray quot_list;
@@ -3924,7 +3925,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		{
 			PPLoadText(PPTXT_IMPGOODS, wait_msg_buf);
 			const uint __count = RdB.GoodsBlkList.getCount();
-			int   is_there_alc = 0; // Если обнаружена ненулевая алкогольная крепость в каком-либо товаре, то !0
+			int   is_there_alc = 0; // Р•СЃР»Рё РѕР±РЅР°СЂСѓР¶РµРЅР° РЅРµРЅСѓР»РµРІР°СЏ Р°Р»РєРѕРіРѕР»СЊРЅР°СЏ РєСЂРµРїРѕСЃС‚СЊ РІ РєР°РєРѕРј-Р»РёР±Рѕ С‚РѕРІР°СЂРµ, С‚Рѕ !0
 			struct SurrGoodsTypeEntry {
 				explicit SurrGoodsTypeEntry(long flags) : NativeID(0), Flags(flags)
 				{
@@ -3940,13 +3941,13 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				long   VatRate;      // @fixedpoint2
 				long   SalesTaxRate; // @fixedpoint2
 			};
-			SVector gt_list(sizeof(SurrGoodsTypeEntry)); // Список обнаруженных комбинаций флагов, относящихся к типам товаров
+			SVector gt_list(sizeof(SurrGoodsTypeEntry)); // РЎРїРёСЃРѕРє РѕР±РЅР°СЂСѓР¶РµРЅРЅС‹С… РєРѕРјР±РёРЅР°С†РёР№ С„Р»Р°РіРѕРІ, РѕС‚РЅРѕСЃСЏС‰РёС…СЃСЏ Рє С‚РёРїР°Рј С‚РѕРІР°СЂРѕРІ
 			SVector tax_rate_list(sizeof(SurrTaxRateEntry));
 			{
 				//
-				// Предварительный промотр списка товаров с целью идентификации
-				// необходимых типов и классов товаров, а так же налоговых групп,
-				// которые придется найти или создать.
+				// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Р№ РїСЂРѕРјРѕС‚СЂ СЃРїРёСЃРєР° С‚РѕРІР°СЂРѕРІ СЃ С†РµР»СЊСЋ РёРґРµРЅС‚РёС„РёРєР°С†РёРё
+				// РЅРµРѕР±С…РѕРґРёРјС‹С… С‚РёРїРѕРІ Рё РєР»Р°СЃСЃРѕРІ С‚РѕРІР°СЂРѕРІ, Р° С‚Р°Рє Р¶Рµ РЅР°Р»РѕРіРѕРІС‹С… РіСЂСѓРїРї,
+				// РєРѕС‚РѕСЂС‹Рµ РїСЂРёРґРµС‚СЃСЏ РЅР°Р№С‚Рё РёР»Рё СЃРѕР·РґР°С‚СЊ.
 				//
 				for(uint i = 0; i < __count; i++) {
 					GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
@@ -4013,22 +4014,22 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			}
 			if(tax_rate_list.getCount()) {
 				for(uint j = 0; j < tax_rate_list.getCount(); j++) {
-					SurrTaxRateEntry * p_entry = (SurrTaxRateEntry *)tax_rate_list.at(j);
+					SurrTaxRateEntry * p_entry = static_cast<SurrTaxRateEntry *>(tax_rate_list.at(j));
 					PPID   gt_id = 0;
-					if(GObj.GTxObj.GetByScheme(&gt_id, inttodbl2(p_entry->VatRate), 0.0, inttodbl2(p_entry->SalesTaxRate), 0/*flags*/, 1/*use_ta*/)) {
+					if(GObj.GTxObj.GetByScheme(&gt_id, inttodbl2(p_entry->VatRate), 0.0, inttodbl2(p_entry->SalesTaxRate), 0/*flags*/, 1/*use_ta*/))
 						p_entry->NativeID = gt_id;
-					}
 				}
 			}
 			if(gt_list.getCount()) {
 				PPObjGoodsType gty_obj;
-				PPGoodsType gty_rec;
-				for(SEnum en = gty_obj.Enum(0); en.Next(&gty_rec) > 0;) {
-					for(uint j = 0; j < gt_list.getCount(); j++) {
-						SurrGoodsTypeEntry * p_entry = (SurrGoodsTypeEntry *)gt_list.at(j);
-						if(!p_entry->NativeID) {
-							if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED)) == (gty_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED))) {
-								p_entry->NativeID = gty_rec.ID;
+				{
+					PPGoodsType gty_rec;
+					for(SEnum en = gty_obj.Enum(0); en.Next(&gty_rec) > 0;) {
+						for(uint j = 0; j < gt_list.getCount(); j++) {
+							SurrGoodsTypeEntry * p_entry = static_cast<SurrGoodsTypeEntry *>(gt_list.at(j));
+							if(!p_entry->NativeID) {
+								if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED)) == (gty_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED)))
+									p_entry->NativeID = gty_rec.ID;
 							}
 						}
 					}
@@ -4037,7 +4038,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					const char * p_gty_name_prefix = "Surrogate Type";
 					const char * p_gty_code_prefix = "SURRTYP";
 					for(uint j = 0; j < gt_list.getCount(); j++) {
-						SurrGoodsTypeEntry * p_entry = (SurrGoodsTypeEntry *)gt_list.at(j);
+						SurrGoodsTypeEntry * p_entry = static_cast<SurrGoodsTypeEntry *>(gt_list.at(j));
 						if(!p_entry->NativeID) {
 							long   sfx_val = 0;
 							name_buf = p_gty_name_prefix;
@@ -4049,19 +4050,22 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							while(gty_obj.SearchBySymb(code_buf, 0, 0) > 0) {
 								(code_buf = p_gty_code_prefix).Space().CatChar('#').CatLongZ(++sfx_val, 2);
 							}
-							MEMSZERO(gty_rec);
-							STRNSCPY(gty_rec.Name, name_buf);
-							STRNSCPY(gty_rec.Symb, code_buf);
-							gty_rec.Flags |= p_entry->Flags;
-							THROW(PPRef->AddItem(PPOBJ_GOODSTYPE, &p_entry->NativeID, &gty_rec, 1));
+							{
+								PPGoodsType gty_rec;
+								// @v10.6.9 @ctr MEMSZERO(gty_rec);
+								STRNSCPY(gty_rec.Name, name_buf);
+								STRNSCPY(gty_rec.Symb, code_buf);
+								gty_rec.Flags |= p_entry->Flags;
+								THROW(PPRef->AddItem(PPOBJ_GOODSTYPE, &p_entry->NativeID, &gty_rec, 1));
+							}
 						}
 					}
 				}
 			}
 			{
 				//
-				// Здесь мы расставляем разрешенные реальные идентификаторы налоговых групп и типов товаров
-				// в соответствующие товарные ячейки.
+				// Р—РґРµСЃСЊ РјС‹ СЂР°СЃСЃС‚Р°РІР»СЏРµРј СЂР°Р·СЂРµС€РµРЅРЅС‹Рµ СЂРµР°Р»СЊРЅС‹Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РЅР°Р»РѕРіРѕРІС‹С… РіСЂСѓРїРї Рё С‚РёРїРѕРІ С‚РѕРІР°СЂРѕРІ
+				// РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ С‚РѕРІР°СЂРЅС‹Рµ СЏС‡РµР№РєРё.
 				//
 				for(uint i = 0; i < __count; i++) {
 					GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
@@ -4096,11 +4100,11 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		PPSCardSeries scs_rec;
 		PPSCardConfig sc_cfg;
 		ScObj.FetchConfig(&sc_cfg);
-		PPID   def_dcard_ser_id = sc_cfg.DefSerID; // Серия дисконтных карт по умолчанию
-		PPID   def_ccard_ser_id = sc_cfg.DefCreditSerID; // Серия кредитных карт по умолчанию
+		PPID   def_dcard_ser_id = sc_cfg.DefSerID; // РЎРµСЂРёСЏ РґРёСЃРєРѕРЅС‚РЅС‹С… РєР°СЂС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+		PPID   def_ccard_ser_id = sc_cfg.DefCreditSerID; // РЎРµСЂРёСЏ РєСЂРµРґРёС‚РЅС‹С… РєР°СЂС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 		{
 			//
-			// Акцепт серий персональных карт
+			// РђРєС†РµРїС‚ СЃРµСЂРёР№ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚
 			//
 			PPTransaction tra(1);
 			THROW(tra);
@@ -4154,7 +4158,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			THROW(tra.Commit());
 		}
 		//
-		// Теперь, после акцепта всех серий, идентифицируем ссылки на серии карт
+		// РўРµРїРµСЂСЊ, РїРѕСЃР»Рµ Р°РєС†РµРїС‚Р° РІСЃРµС… СЃРµСЂРёР№, РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµРј СЃСЃС‹Р»РєРё РЅР° СЃРµСЂРёРё РєР°СЂС‚
 		//
 		{
 			const uint __count = RdB.ScsBlkList.getCount();
@@ -4185,7 +4189,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		}
 		{
 			//
-			// Акцепт персональных карт
+			// РђРєС†РµРїС‚ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹С… РєР°СЂС‚
 			//
 			SString def_dcard_ser_name;
 			SString def_ccard_ser_name;
@@ -4250,14 +4254,14 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					// (very slow) THROW_PP(RdB.SearchRef(obSCard, i, &ref_pos), PPERR_PPPP_INNERREFNF_SC);
 					if(r_blk.Flags_ & ObjectBlock::fRefItem) {
 						//
-						// Для объектов, переданных как ссылка мы должны найти аналоги в нашей БД, но создавать не будем
+						// Р”Р»СЏ РѕР±СЉРµРєС‚РѕРІ, РїРµСЂРµРґР°РЅРЅС‹С… РєР°Рє СЃСЃС‹Р»РєР° РјС‹ РґРѕР»Р¶РЅС‹ РЅР°Р№С‚Рё Р°РЅР°Р»РѕРіРё РІ РЅР°С€РµР№ Р‘Р”, РЅРѕ СЃРѕР·РґР°РІР°С‚СЊ РЅРµ Р±СѓРґРµРј
 						//
 						RdB.GetS(r_blk.CodeP, temp_buf);
 						temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						if(ScObj.SearchCode(0, temp_buf, &_ex_sc_rec) > 0) {
 							//
-							// Здесь все просто - нашли по коду, значит наша карта
-							// Note: однако, мы абстрагируемся от вероятной сквозной неуникальности номеров карт.
+							// Р—РґРµСЃСЊ РІСЃРµ РїСЂРѕСЃС‚Рѕ - РЅР°С€Р»Рё РїРѕ РєРѕРґСѓ, Р·РЅР°С‡РёС‚ РЅР°С€Р° РєР°СЂС‚Р°
+							// Note: РѕРґРЅР°РєРѕ, РјС‹ Р°Р±СЃС‚СЂР°РіРёСЂСѓРµРјСЃСЏ РѕС‚ РІРµСЂРѕСЏС‚РЅРѕР№ СЃРєРІРѕР·РЅРѕР№ РЅРµСѓРЅРёРєР°Р»СЊРЅРѕСЃС‚Рё РЅРѕРјРµСЂРѕРІ РєР°СЂС‚.
 							//
 							r_blk.NativeID = _ex_sc_rec.ID;
 						}
@@ -4363,7 +4367,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 									p_psn_blk->NativeID = sc_pack.Rec.PersonID;
 								}
 								else {
-									; // @error Не удалось создать персоналию-владельца карты из-за не определенности вида
+									; // @error РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РїРµСЂСЃРѕРЅР°Р»РёСЋ-РІР»Р°РґРµР»СЊС†Р° РєР°СЂС‚С‹ РёР·-Р·Р° РЅРµ РѕРїСЂРµРґРµР»РµРЅРЅРѕСЃС‚Рё РІРёРґР°
 								}
 							}
 						}
@@ -4388,7 +4392,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							r_blk.NativeID = sc_id;
 						}
 						else {
-							; // @error импортируемая карта может быть сопоставлена более чем одной карте в бд.
+							; // @error РёРјРїРѕСЂС‚РёСЂСѓРµРјР°СЏ РєР°СЂС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅР° Р±РѕР»РµРµ С‡РµРј РѕРґРЅРѕР№ РєР°СЂС‚Рµ РІ Р±Рґ.
 						}
 					}
 					PPWaitPercent(i+1, __count, wait_msg_buf);
@@ -4398,7 +4402,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	}
 	{
 		//
-		// Акцепт кассовых сессий
+		// РђРєС†РµРїС‚ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
 		//
 		for(uint i = 0; i < RdB.CSessBlkList.getCount(); i++) {
 			// @v10.3.0 (never used) CSessionBlock & r_blk = RdB.CSessBlkList.at(i);
@@ -4448,7 +4452,7 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, in
 	PPWaitMsg(msg_buf);
 	xmlFreeParserCtxt(RdB.P_SaxCtx);
 	THROW(RdB.P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0));
-	if(RdB.P_SaxCtx->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
+	if(RdB.P_SaxCtx->sax != reinterpret_cast<const xmlSAXHandler *>(&xmlDefaultSAXHandler))
 		SAlloc::F(RdB.P_SaxCtx->sax);
 	RdB.P_SaxCtx->sax = &saxh;
 	xmlDetectSAX2(RdB.P_SaxCtx);
@@ -4459,7 +4463,7 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, in
 	THROW_LXML(RdB.P_SaxCtx->wellFormed, RdB.P_SaxCtx);
 	THROW(RdB.P_SaxCtx->errNo == 0);
 	THROW(!(RdB.State & RdB.stError));
-	// (Нельзя сортировать - позиции важны!) RdB.SortRefList(); // @v9.8.2
+	// (РќРµР»СЊР·СЏ СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ - РїРѕР·РёС†РёРё РІР°Р¶РЅС‹!) RdB.SortRefList(); // @v9.8.2
 	CATCHZOK
 	if(RdB.P_SaxCtx) {
 		RdB.P_SaxCtx->sax = 0;
@@ -4588,9 +4592,8 @@ int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 }
 
 struct PosProtocolFileProcessedEntry {
-	SLAPI  PosProtocolFileProcessedEntry()
+	SLAPI  PosProtocolFileProcessedEntry() : FileDtm(ZERODATETIME)
 	{
-		THISZERO();
 	}
 	S_GUID FileUUID;
 	LDATETIME FileDtm;
@@ -4775,8 +4778,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 							const RouteObjectBlock & r_dest = RdB.DestBlkList.at(didx);
 							RdB.GetRouteItem(r_dest, root_blk);
 							//
-							// Если отправитель указал не пустой UUID это означает, что мы может принять
-							// данные только в ту базу, которая соответствует этому UUID (сопоставление по символу невозможно).
+							// Р•СЃР»Рё РѕС‚РїСЂР°РІРёС‚РµР»СЊ СѓРєР°Р·Р°Р» РЅРµ РїСѓСЃС‚РѕР№ UUID СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РјС‹ РјРѕР¶РµС‚ РїСЂРёРЅСЏС‚СЊ
+							// РґР°РЅРЅС‹Рµ С‚РѕР»СЊРєРѕ РІ С‚Сѓ Р±Р°Р·Сѓ, РєРѕС‚РѕСЂР°СЏ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ СЌС‚РѕРјСѓ UUID (СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ РїРѕ СЃРёРјРІРѕР»Сѓ РЅРµРІРѕР·РјРѕР¶РЅРѕ).
 							//
 							if(!root_blk.Uuid.IsZero()) {
 								if(root_blk.Uuid == this_db_uuid)
@@ -4884,9 +4887,9 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								}
 								if(RdB.DestBlkList.getCount() > 1) {
 									//
-									// В случае, если получателей файла больше одного (то есть, он нужен еще кому-то)
-									// мы предпринимаем специальные меры для регистрации факта обработки файла нами.
-									// Это возможно только в том случае, если мы как получатель указаны в файле по GUID'у!
+									// Р’ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РїРѕР»СѓС‡Р°С‚РµР»РµР№ С„Р°Р№Р»Р° Р±РѕР»СЊС€Рµ РѕРґРЅРѕРіРѕ (С‚Рѕ РµСЃС‚СЊ, РѕРЅ РЅСѓР¶РµРЅ РµС‰Рµ РєРѕРјСѓ-С‚Рѕ)
+									// РјС‹ РїСЂРµРґРїСЂРёРЅРёРјР°РµРј СЃРїРµС†РёР°Р»СЊРЅС‹Рµ РјРµСЂС‹ РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё С„Р°РєС‚Р° РѕР±СЂР°Р±РѕС‚РєРё С„Р°Р№Р»Р° РЅР°РјРё.
+									// Р­С‚Рѕ РІРѕР·РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РјС‹ РєР°Рє РїРѕР»СѓС‡Р°С‚РµР»СЊ СѓРєР°Р·Р°РЅС‹ РІ С„Р°Р№Р»Рµ РїРѕ GUID'Сѓ!
 									//
 									if(!my_pos_node_uuid.IsZero() && !RdB.SrcFileUUID.IsZero()) {
 										TSVector <PosProtocolFileProcessedEntry> local_processed_file_list;
@@ -4906,9 +4909,9 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 											}
 										}
 									}
-									if(!i_ve_allready_processed_file && !err_on_accept_occured) { // Мы уже есть в списке тех, кто обработал файл - не надо ничего добавлять
-										// Файл нельзя удалять - он еще не всеми обработан.
-										// В этом случае мы должны добавить собственную метку, означающую, что нами файл обработан
+									if(!i_ve_allready_processed_file && !err_on_accept_occured) { // РњС‹ СѓР¶Рµ РµСЃС‚СЊ РІ СЃРїРёСЃРєРµ С‚РµС…, РєС‚Рѕ РѕР±СЂР°Р±РѕС‚Р°Р» С„Р°Р№Р» - РЅРµ РЅР°РґРѕ РЅРёС‡РµРіРѕ РґРѕР±Р°РІР»СЏС‚СЊ
+										// Р¤Р°Р№Р» РЅРµР»СЊР·СЏ СѓРґР°Р»СЏС‚СЊ - РѕРЅ РµС‰Рµ РЅРµ РІСЃРµРјРё РѕР±СЂР°Р±РѕС‚Р°РЅ.
+										// Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РјС‹ РґРѕР»Р¶РЅС‹ РґРѕР±Р°РІРёС‚СЊ СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РјРµС‚РєСѓ, РѕР·РЅР°С‡Р°СЋС‰СѓСЋ, С‡С‚Рѕ РЅР°РјРё С„Р°Р№Р» РѕР±СЂР°Р±РѕС‚Р°РЅ
 										PosProtocolFileProcessedEntry new_pfentry;
 										new_pfentry.DestRouteUUID = my_pos_node_uuid;
 										new_pfentry.FileUUID = RdB.SrcFileUUID;
@@ -4919,8 +4922,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								if(do_backup_file) {
 									if(!all_receipients_processed_file) {
 										//
-										// Если файл еще не всеми обработан, но при этом старше 3 суток, то все равно архивируем и удаляем его
-										// (вполне возможно, что остальные получатели ждут его в других каталогах).
+										// Р•СЃР»Рё С„Р°Р№Р» РµС‰Рµ РЅРµ РІСЃРµРјРё РѕР±СЂР°Р±РѕС‚Р°РЅ, РЅРѕ РїСЂРё СЌС‚РѕРј СЃС‚Р°СЂС€Рµ 3 СЃСѓС‚РѕРє, С‚Рѕ РІСЃРµ СЂР°РІРЅРѕ Р°СЂС…РёРІРёСЂСѓРµРј Рё СѓРґР°Р»СЏРµРј РµРіРѕ
+										// (РІРїРѕР»РЅРµ РІРѕР·РјРѕР¶РЅРѕ, С‡С‚Рѕ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїРѕР»СѓС‡Р°С‚РµР»Рё Р¶РґСѓС‚ РµРіРѕ РІ РґСЂСѓРіРёС… РєР°С‚Р°Р»РѕРіР°С…).
 										//
 										if(!!RdB.SrcFileDtm && diffdatetimesec(getcurdatetime_(), RdB.SrcFileDtm) > (3600*24*3))
 											all_receipients_processed_file = 1;
@@ -4958,9 +4961,9 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 						for(uint qidx = 0; qidx < p_qpb->QL.getCount(); qidx++) {
 							const QueryBlock & r_q = p_qpb->QL.at(qidx);
 							/*
-								qTest = 1, // Тестовый запрос для проверки обмена данными
-        						qCSession, // Запрос кассовых сессий
-        						qRefs,     // Запрос справочников
+								qTest = 1, // РўРµСЃС‚РѕРІС‹Р№ Р·Р°РїСЂРѕСЃ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё
+        						qCSession, // Р—Р°РїСЂРѕСЃ РєР°СЃСЃРѕРІС‹С… СЃРµСЃСЃРёР№
+        						qRefs,     // Р—Р°РїСЂРѕСЃ СЃРїСЂР°РІРѕС‡РЅРёРєРѕРІ
 							*/
 							if(r_q.Q == QueryBlock::qTest) {
 							}
@@ -4995,12 +4998,12 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										}
 									}
 									if(r_q.CSess) {
-										if(r_q.Flags & QueryBlock::fCSessN) { // сессия по номеру
+										if(r_q.Flags & QueryBlock::fCSessN) { // СЃРµСЃСЃРёСЏ РїРѕ РЅРѕРјРµСЂСѓ
 											PPID   cs_id = 0;
 											if(CsObj.P_Tbl->SearchByNumber(&cs_id, cn_id, cn_id, r_q.CSess, ZERODATE) > 0)
 												csess_list.add(cs_id);
 										}
-										else { // сессия по идентификатору
+										else { // СЃРµСЃСЃРёСЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ
 											if(CsObj.P_Tbl->Search(r_q.CSess, &cs_rec) > 0) {
 												if(cs_rec.CashNodeID == cn_id)
 													csess_list.add(cs_rec.ID);
@@ -5307,7 +5310,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 			SString UserName;
 			SString Password;
 			PPID   PosNodeID;
-			uint   ForcePeriodMs; // Период форсированной проверки входящего каталога (ms)
+			uint   ForcePeriodMs; // РџРµСЂРёРѕРґ С„РѕСЂСЃРёСЂРѕРІР°РЅРЅРѕР№ РїСЂРѕРІРµСЂРєРё РІС…РѕРґСЏС‰РµРіРѕ РєР°С‚Р°Р»РѕРіР° (ms)
 		};
 		explicit SLAPI PosInputProcessThread(const InitBlock & rB) : PPThread(PPThread::kPpppProcessor, 0, 0), IB(rB), ProcessedFileTab(1024, 0)
 		{
@@ -5356,7 +5359,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 				else {
 					uint   local_force_period_ms = 0;
 					PPPosProtocol pppp;
-					DoProcess(pppp); // Первоначальная обработка входящих данных
+					DoProcess(pppp); // РџРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РІС…РѕРґСЏС‰РёС… РґР°РЅРЅС‹С…
 					// DirChangeNotification * p_dcn = 0; // new DirChangeNotification(in_path, 0, FILE_NOTIFY_CHANGE_LAST_WRITE|FILE_NOTIFY_CHANGE_FILE_NAME);
 					//THROW(p_dcn);
 					for(int stop = 0; !stop;) {

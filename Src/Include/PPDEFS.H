@@ -10836,6 +10836,9 @@
 	#define CTLSEL_TIMSERTEST_TS      (4 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERTEST_PARAM      (5 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERTEST_INFO       (6 + WINDOWS_ID_BIAS)
+#define DLG_CHZNMARK              1378
+	#define CTL_CHZNMARK_INPUT        (1  + IMPEXP_CTL_BIAS)
+	#define CTL_CHZNMARK_INFO         (2  + IMPEXP_CTL_BIAS)
 //
 // Win32 Dialog Identifiers
 //

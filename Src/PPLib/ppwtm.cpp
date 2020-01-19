@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,65 +7,58 @@
 //
 //
 class BaseWtmToolDialog : public TDialog {
+	DECL_DIALOG_DATA(TWhatmanToolArray::Item);
 public:
-	explicit BaseWtmToolDialog(uint dlgID);
-	int    setDTS(const TWhatmanToolArray::Item * pData);
-	int    getDTS(TWhatmanToolArray::Item * pData);
-private:
-	TWhatmanToolArray::Item Data;
-};
-
-BaseWtmToolDialog::BaseWtmToolDialog(uint dlgID) : TDialog(dlgID/*DLG_WTMTOOL*/)
-{
-	FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_FIGPATH, CTL_WTMTOOL_FIGPATH, 1, 0, PPTXT_FILPAT_SPIC,
-		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
-	FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_PICPATH, CTL_WTMTOOL_PICPATH, 2, 0, PPTXT_FILPAT_SPIC,
-		FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
-}
-
-int BaseWtmToolDialog::setDTS(const TWhatmanToolArray::Item * pData)
-{
-	int    ok = 1;
-	StrAssocArray * p_wtmo_list = 0;
-	Data = *pData;
-	setCtrlString(CTL_WTMTOOL_NAME, Data.Text);
-	setCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
-	disableCtrl(CTL_WTMTOOL_SYMB, Data.Symb.NotEmpty());
-	setCtrlString(CTL_WTMTOOL_FIGPATH, Data.FigPath);
-	setCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
-	setCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
-	setCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
-	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 0, TWhatmanToolArray::Item::fDontEnlarge);
-	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
-	AddClusterAssoc(CTL_WTMTOOL_FLAGS, 2, TWhatmanToolArray::Item::fGrayscale); // @v9.5.4
-	SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
+	explicit BaseWtmToolDialog(uint dlgID) : TDialog(dlgID/*DLG_WTMTOOL*/)
 	{
-		ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
-		if(p_combo) {
-			p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
-				TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
-			disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, 1);
-		}
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_FIGPATH, CTL_WTMTOOL_FIGPATH, 1, 0, PPTXT_FILPAT_SPIC,
+			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_PICPATH, CTL_WTMTOOL_PICPATH, 2, 0, PPTXT_FILPAT_SPIC,
+			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 	}
-	return ok;
-}
-
-int BaseWtmToolDialog::getDTS(TWhatmanToolArray::Item * pData)
-{
-	int    ok = 1;
-	long   wtmo_id = getCtrlLong(CTLSEL_WTMTOOL_WTMOBJ);
-	if(wtmo_id)
-		TWhatmanObject::GetRegSymbById(wtmo_id, Data.WtmObjSymb);
-	getCtrlString(CTL_WTMTOOL_NAME, Data.Text);
-	getCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
-	getCtrlString(CTL_WTMTOOL_FIGPATH, Data.FigPath);
-	getCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
-	getCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
-	getCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
-	GetClusterData(CTL_WTMTOOL_FLAGS, &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		StrAssocArray * p_wtmo_list = 0;
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_WTMTOOL_NAME, Data.Text);
+		setCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
+		disableCtrl(CTL_WTMTOOL_SYMB, Data.Symb.NotEmpty());
+		setCtrlString(CTL_WTMTOOL_FIGPATH, Data.FigPath);
+		setCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
+		setCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
+		setCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
+		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 0, TWhatmanToolArray::Item::fDontEnlarge);
+		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 1, TWhatmanToolArray::Item::fDontKeepRatio);
+		AddClusterAssoc(CTL_WTMTOOL_FLAGS, 2, TWhatmanToolArray::Item::fGrayscale); // @v9.5.4
+		SetClusterData(CTL_WTMTOOL_FLAGS, Data.Flags);
+		{
+			ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_WTMOBJ));
+			if(p_combo) {
+				p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
+					TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
+				disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, 1);
+			}
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		long   wtmo_id = getCtrlLong(CTLSEL_WTMTOOL_WTMOBJ);
+		if(wtmo_id)
+			TWhatmanObject::GetRegSymbById(wtmo_id, Data.WtmObjSymb);
+		getCtrlString(CTL_WTMTOOL_NAME, Data.Text);
+		getCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
+		getCtrlString(CTL_WTMTOOL_FIGPATH, Data.FigPath);
+		getCtrlString(CTL_WTMTOOL_PICPATH, Data.PicPath);
+		getCtrlData(CTL_WTMTOOL_FIGSIZE, &Data.FigSize);
+		getCtrlData(CTL_WTMTOOL_PICSIZE, &Data.PicSize);
+		GetClusterData(CTL_WTMTOOL_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+};
 
 int SLAPI BaseEditWhatmanToolItem(TWhatmanToolArray::Item * pItem)
 {
@@ -98,13 +91,12 @@ struct LayoutEntryDialogBlock : public TLayout::EntryBlock {
 };
 
 class LayoutEntryDialog : public TDialog {
-	typedef LayoutEntryDialogBlock DlgDataType;
-	DlgDataType Data;
+	DECL_DIALOG_DATA(LayoutEntryDialogBlock);
 public:
 	LayoutEntryDialog(const TWhatman * pWtm) : TDialog(DLG_LAYOENTRY), P_Wtm(pWtm), Data(0)
 	{
 	}
-	int setDTS(const DlgDataType * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -136,7 +128,7 @@ public:
 		SetClusterData(CTL_LAYOENTRY_GRAVITY, bf);
 		return ok;
 	}
-	int getDTS(DlgDataType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -247,13 +239,12 @@ protected:
 			case cmdEdit:
 				{
 					class WoLayoutDialog : public WhatmanObjectBaseDialog {
-						typedef WhatmanObjectLayout DlgDataType;
-						DlgDataType Data;
+						DECL_DIALOG_DATA(WhatmanObjectLayout);
 					public:
 						WoLayoutDialog() : WhatmanObjectBaseDialog(DLG_WOLAYOUT)
 						{
 						}
-						int    setDTS(const DlgDataType * pData)
+						DECL_DIALOG_SETDTS()
 						{
 							int    ok = 1;
 							RVALUEPTR(Data, pData);
@@ -272,7 +263,7 @@ protected:
 							SetClusterData(CTL_WOLAYOUT_FLAGS, Data.GetLayoutBlock().ContainerFlags);
 							return ok;
 						}
-						int    getDTS(DlgDataType * pData)
+						DECL_DIALOG_GETDTS()
 						{
 							int    ok = 1;
 							uint   sel = 0;
@@ -507,16 +498,17 @@ int WhatmanObjectBackground::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 int WhatmanObjectBackground::EditTool(TWhatmanToolArray::Item * pItem)
 {
 	class BkgToolDialog : public TDialog {
+		DECL_DIALOG_DATA(TWhatmanToolArray::Item);
 	public:
 		BkgToolDialog() : TDialog(DLG_WTMTOOLBKG)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_WTMTOOL_FIGPATH, CTL_WTMTOOL_FIGPATH, 1, 0, PPTXT_FILPAT_SPIC,
 				FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		}
-		int setDTS(const TWhatmanToolArray::Item * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			long   bkg_options = *(long *)Data.ExtData;
 			setCtrlString(CTL_WTMTOOL_NAME, Data.Text);
 			setCtrlString(CTL_WTMTOOL_SYMB, Data.Symb);
@@ -529,7 +521,7 @@ int WhatmanObjectBackground::EditTool(TWhatmanToolArray::Item * pItem)
 			SetClusterData(CTL_WTMTOOL_BKGOPTIONS, bkg_options);
 			return ok;
 		}
-		int getDTS(TWhatmanToolArray::Item * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			long   bkg_options = 0;
@@ -543,10 +535,7 @@ int WhatmanObjectBackground::EditTool(TWhatmanToolArray::Item * pItem)
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
-	private:
-		TWhatmanToolArray::Item Data;
 	};
-
 	int    ok = -1;
 	BkgToolDialog * dlg = new BkgToolDialog();
 	if(CheckDialogPtrErr(&dlg)) {
@@ -2749,6 +2738,7 @@ int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCp
 void SLAPI TestCRC();
 int  SLAPI TestUhttClient();
 int  SLAPI TestReadXmlMem_EgaisAck();
+int  SLAPI TestGtinStruc();
 
 /*static int SLAPI TestWorkspacePath()
 {
@@ -2761,7 +2751,8 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	PPChZnPrcssr::Test();
+	TestGtinStruc();
+	//PPChZnPrcssr::Test();
 	//TestWorkspacePath();
 	//TestReadXmlMem_EgaisAck();
 	//TestMqc();

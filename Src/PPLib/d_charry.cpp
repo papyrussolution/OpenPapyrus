@@ -1709,7 +1709,7 @@ int SLAPI PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
 				PPGoodsType rec;
-				MEMSZERO(rec);
+				// @v10.6.9 @ctr MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {

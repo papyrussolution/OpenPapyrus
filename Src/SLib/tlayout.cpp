@@ -1,5 +1,5 @@
 // TLAYOUT.CPP
-// Copyright (c) A.Sobolev 2019
+// Copyright (c) A.Sobolev 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -867,7 +867,7 @@ void TLayout::Arrange(lay_id itemIdx, int dim)
 		    break;
 		case LAY_COLUMN:
 		case LAY_ROW:
-		    if((flags & 1) == (uint32)dim) {
+		    if((flags & 1) == static_cast<uint32>(dim)) {
 			    ArrangeStacked(itemIdx, dim, false);
 		    }
 		    else {

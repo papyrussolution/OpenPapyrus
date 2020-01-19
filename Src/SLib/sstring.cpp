@@ -6610,7 +6610,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 	uint32 h = 0;
 	SString temp_buf;
     SNaturalTokenStat stat;
-    stat.Len = (len >= 0) ? (uint32)len : sstrlen(pToken);
+    stat.Len = (len >= 0) ? static_cast<uint32>(len) : sstrlen(pToken);
     if(stat.Len) {
 		enum {
 			fUtf8   = 0x0001
@@ -7078,6 +7078,22 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					size_t _len = P_ReEMail->end() - P_ReEMail->start();
 					if(_offs == 0 && _len == stat.Len)
 						rResultList.Add(SNTOK_EMAIL, 1.0f);
+				}
+				//
+				// Проверка на маркировки сигаретных пачек (SNTOK_CHZN_CIGITEM)
+				//
+				if(stat.Len == 29) {
+					size_t _offs = 0;
+					if(pToken[_offs++] == '0') {
+						int    is_chzn_cigitem = 1;
+						while(_offs < 14) {
+							if(!isdec(pToken[_offs]))
+								is_chzn_cigitem = 0;
+							_offs++;
+						}
+						if(is_chzn_cigitem)
+							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
+					}
 				}
 			}
 		}
@@ -7717,6 +7733,17 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_COM));
 			tr.Run((const uchar *)"9", -1, nta.Z(), 0); 
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_NUMERIC_DOT));
+
+			tr.Run((const uchar *)"00000046209443j+Q\'?P5ACZAC8bG", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			tr.Run((const uchar *)"00000046209443x-8xfgOACZAYGfv", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			tr.Run((const uchar *)"04606203098187o&zWeIyABr8l/nT", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			tr.Run((const uchar *)"04606203098187o&zWe\x81yABr8l/nT", -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
+			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			tr.Run((const uchar *)"00000%46209443x-8xfgOACZAYGfv", -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
+			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
 		}
 	}
 	else {

@@ -4049,8 +4049,10 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					int    r = -1; // r == 1000 - операция невозможна из-за несоблюдения какого-то условия //
 					char   code[128];
 					int    is_serial = 0; // !0 если code является подходящим серийным номером
-					double qtty = 1.0, price = 0.0;
-					PPID   goods_id = 0, loc_id = 0;
+					double qtty = 1.0;
+					double price = 0.0;
+					PPID   goods_id = 0;
+					PPID   loc_id = 0;
 					GoodsCodeSrchBlock gcsb;
 					Input.CopyTo(gcsb.Code, sizeof(gcsb.Code));
 					Input.CopyTo(code, sizeof(code));
@@ -4101,9 +4103,9 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
 						// @v10.4.12 {
-						if(gcsb.Flags & gcsb.fCzCode) {
-							if(gcsb.CzSerial[0])
-								pgsb.CzSerial = gcsb.CzSerial;
+						if(gcsb.Flags & gcsb.fChZnCode) {
+							if(gcsb.ChZnSerial[0])
+								pgsb.ChZnSerial = gcsb.ChZnSerial;
 						}
 						// } @v10.4.12
 						if(PreprocessGoodsSelection(goods_id, loc_id, /*&qtty, serial, &price*/pgsb) > 0)
@@ -6247,14 +6249,15 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				TVCMD = cmOK;
 			if(TVCMD == cmOK) {
 				if(P_ChkPack) {
-					CCheckLineTbl::Rec * p_line = 0, chk_line;
+					const CCheckLineTbl::Rec * p_line = 0;
+					CCheckLineTbl::Rec chk_line;
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 					SString egais_mark;
 					SString serial;
 					if(p_list) {
-						long  cur = p_list->def ? p_list->def->_curItem() : -1;
-						if(cur >= 0 && cur < (long)P_ChkPack->GetCount()) {
-							chk_line = P_ChkPack->GetLine((uint)cur);
+						const long cur = p_list->def ? p_list->def->_curItem() : -1;
+						if(cur >= 0 && cur < static_cast<long>(P_ChkPack->GetCount())) {
+							chk_line = P_ChkPack->GetLine(static_cast<uint>(cur));
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
 							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextEgaisMark, egais_mark);
 							p_line   = &chk_line;
@@ -8391,95 +8394,72 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 //
 //
 //
-int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock & rBlk)
+int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, PgsBlock & rBlk)
 {
 	int    ok = -1;
 	SString temp_buf;
-	const  PPID sc_id = CSt.GetID();
-	if(goodsID == GetChargeGoodsID(sc_id)) {
-		// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
-		ok = (sc_id && ScObj.IsCreditCard(sc_id)) ? 1 : MessageError(PPERR_INVUSAGECHARGEGOODS, 0, eomStatusLine);
-	}
-	else if(sc_id && IsOnlyChargeGoodsInPacket(sc_id, 0)) {
-		SCardTbl::Rec sc_rec;
-		if(ScObj.Search(sc_id, &sc_rec) > 0 && !ScObj.CheckRestrictions(&sc_rec, 0, getcurdatetime_()))
-			ok = MessageError(PPERR_CHKPAN_SCINVONGOODS, sc_rec.Code, eomBeep | eomPopup/*eomStatusLine*/);
-	}
-	if(ok) {
-		SaComplex complex;
-		//PPGoodsStruc partial_struc;
-		/*if(LoadPartialStruc(goodsID, partial_struc) > 0) {
-			AcceptRow(0);
-			PPGoodsStrucItem gs_item;
-			for(uint i = 0; i < partial_struc.EnumItemsExt(&i, &gs_item, PPID parentGoodsID, double srcQtty, double * pQtty) const;
+	Goods2Tbl::Rec goods_rec;
+	PPObjGoodsType gt_obj;
+	PPGoodsType gt_rec;
+	if(GObj.Fetch(goodsID, &goods_rec) > 0) {
+		const  PPID sc_id = CSt.GetID();
+		if(goods_rec.GoodsTypeID)
+			gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec);
+		if(goodsID == GetChargeGoodsID(sc_id)) {
+			// @todo Здесь надо проверить что бы товар не был равен ChargeGoodsID из любой кредитной серии карт
+			ok = (sc_id && ScObj.IsCreditCard(sc_id)) ? 1 : MessageError(PPERR_INVUSAGECHARGEGOODS, 0, eomStatusLine);
 		}
-		else*/if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
-			//
-			// @todo В этом блоке осуществляется агрегированная автоматическая вставка нескольких позиций из комплекса.
-			// Необходимо для каждой из этих позиций проверить валидность параметров (что-то вроде рекурсивного вызова PreprocessGoodsSelection()
-			//
-			AcceptRow(0);
-			for(uint i = 0; i < complex.getCount(); i++) {
-				SaComplexEntry & r_entry = complex.at(i);
-				CCheckItem chk_item;
-				chk_item.GoodsID = NZOR(r_entry.FinalGoodsID, r_entry.GoodsID);
-				GetGoodsName(chk_item.GoodsID, temp_buf);
-				temp_buf.CopyTo(chk_item.GoodsName, sizeof(chk_item.GoodsName));
-				GObj.FetchSingleBarcode(chk_item.GoodsID, temp_buf);
-				temp_buf.CopyTo(chk_item.BarCode, sizeof(chk_item.BarCode));
-				chk_item.Quantity = r_entry.Qtty;
-				chk_item.Price = r_entry.FinalPrice;
-				chk_item.Flags |= cifPartOfComplex;
-				P.insert(&chk_item);
-				SetupState(sLIST_EMPTYBUF);
+		else if(sc_id && IsOnlyChargeGoodsInPacket(sc_id, 0)) {
+			SCardTbl::Rec sc_rec;
+			if(ScObj.Search(sc_id, &sc_rec) > 0 && !ScObj.CheckRestrictions(&sc_rec, 0, getcurdatetime_()))
+				ok = MessageError(PPERR_CHKPAN_SCINVONGOODS, sc_rec.Code, eomBeep | eomPopup/*eomStatusLine*/);
+		}
+		if(ok) {
+			SaComplex complex;
+			//PPGoodsStruc partial_struc;
+			/*if(LoadPartialStruc(goodsID, partial_struc) > 0) {
+				AcceptRow(0);
+				PPGoodsStrucItem gs_item;
+				for(uint i = 0; i < partial_struc.EnumItemsExt(&i, &gs_item, PPID parentGoodsID, double srcQtty, double * pQtty) const;
 			}
-			OnUpdateList(1);
-			ClearInput(0);
-			ok = -1;
-		}
-		else if(GObj.CheckFlag(goodsID, GF_GENERIC)) {
-			PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
-			ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
-		}
-		else {
-			ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1); // @v10.2.1
-			/* @v10.2.1
-			const  int is_unlim = BIN(GObj.CheckFlag(goodsID, GF_UNLIM));
-			if((!(CnFlags & CASHF_SELALLGOODS) || CnFlags & CASHF_ABOVEZEROSALE) && !is_unlim) {
-				const double rest = CalcCurrentRest(goodsID, 1);
-				if(rest < rBlk.Qtty) {
-					if(rBlk.Qtty == 1.0 && rest >= 0.001) {
-						rBlk.Qtty = round(rest, 0.001, -1);
-						ok = 1;
-					}
-					else if(CnFlags & CASHF_ABOVEZEROSALE) {
-						PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
-						ok = MessageError(PPERR_LOTRESTBOUND, 0, eomBeep|eomStatusLine);
+			else*/if(LoadComplex(goodsID, complex) > 0 && InputComplexDinner(complex) > 0 && complex.IsComplete() && complex.getCount()) {
+				//
+				// @todo В этом блоке осуществляется агрегированная автоматическая вставка нескольких позиций из комплекса.
+				// Необходимо для каждой из этих позиций проверить валидность параметров (что-то вроде рекурсивного вызова PreprocessGoodsSelection()
+				//
+				AcceptRow(0);
+				for(uint i = 0; i < complex.getCount(); i++) {
+					const SaComplexEntry & r_entry = complex.at(i);
+					CCheckItem chk_item;
+					chk_item.GoodsID = NZOR(r_entry.FinalGoodsID, r_entry.GoodsID);
+					GetGoodsName(chk_item.GoodsID, temp_buf);
+					temp_buf.CopyTo(chk_item.GoodsName, sizeof(chk_item.GoodsName));
+					GObj.FetchSingleBarcode(chk_item.GoodsID, temp_buf);
+					temp_buf.CopyTo(chk_item.BarCode, sizeof(chk_item.BarCode));
+					chk_item.Quantity = r_entry.Qtty;
+					chk_item.Price = r_entry.FinalPrice;
+					chk_item.Flags |= cifPartOfComplex;
+					P.insert(&chk_item);
+					SetupState(sLIST_EMPTYBUF);
+				}
+				OnUpdateList(1);
+				ClearInput(0);
+				ok = -1;
+			}
+			else if(GObj.CheckFlag(goodsID, GF_GENERIC)) {
+				PPObject::SetLastErrObj(PPOBJ_GOODS, labs(goodsID));
+				ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
+			}
+			else {
+				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1);
+				if(ok > 0) {
+					if(Flags & fSelSerial && rBlk.Serial.Empty()) {
+						const int r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
+						ok = (r > 0 || r == -2) ? 1 : -1;
 					}
 					else {
-						GetGoodsName(goodsID, temp_buf);
-						ok = ConfirmMessage(PPCFM_GOODSRESTNOTENOUGH, temp_buf, 1) ? 1 : -2;
-					}
-				}
-				else
-					ok = 1;
-			}
-			else
-				ok = 1;
-			*/
-			if(ok > 0) {
-				if(Flags & fSelSerial && rBlk.Serial.Empty()) {
-					int    r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
-					ok = (r > 0 || r == -2) ? 1 : -1;
-				}
-				else {
-					// @v9.8.5 {
-					const long lbpp = CsObj.GetEqCfg().LookBackPricePeriod;
-					Goods2Tbl::Rec goods_rec;
-					if(lbpp > 0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-						PPObjGoodsType gt_obj;
-						PPGoodsType gt_rec;
-						if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_LOOKBACKPRICES) {
+						const long lbpp = CsObj.GetEqCfg().LookBackPricePeriod;
+						if(lbpp > 0 && goods_rec.GoodsTypeID && gt_rec.Flags & GTF_LOOKBACKPRICES) {
 							RetailGoodsInfo rgi;
 							long   ext_rgi_flags = 0;
 							GetRgi(goodsID, rBlk.Qtty, ext_rgi_flags, rgi);
@@ -8503,9 +8483,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 										virtual int setupList()
 										{
 											SString temp_buf;
-											for(uint i = 0; i < R_List.getCount(); i++) {
+											for(uint i = 0; i < R_List.getCount(); i++)
 												addStringToList(i+1, temp_buf.Z().Cat(R_List.at(i), MKSFMTD(0, 2, 0)));
-											}
 											return 1;
 										}
 										const RealArray & R_List;
@@ -8526,108 +8505,103 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 							}
 						}
 					}
-					// } @v9.8.5
-				}
-				if(ok > 0) {
-                    if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
-						PrcssrAlcReport::GoodsItem agi;
-						if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
-							// @v10.2.4 {
-							const TimeRange & r_rsat = P_EgPrc->GetConfig().E.RtlSaleAllwTime;
-							if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
-								ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine);
-							}
-							else {
-								// } @v10.2.4
-								SString egais_mark;
-								rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
-								if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
-									int    dup_mark = 0;
-									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
-										const CCheckItem & r_item = P.at(i);
-										if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
+					if(ok > 0) {
+						int   is_mark_processed = 0;
+						if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
+							PrcssrAlcReport::GoodsItem agi;
+							if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
+								is_mark_processed = 1;
+								// @v10.2.4 {
+								const TimeRange & r_rsat = P_EgPrc->GetConfig().E.RtlSaleAllwTime;
+								if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
+									ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine);
+								}
+								else {
+									// } @v10.2.4
+									SString egais_mark;
+									rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+									if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
+										int    dup_mark = 0;
+										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
+											if(egais_mark.IsEqual(P.at(i).EgaisMark))
+												dup_mark = 1;
+										}
+										if(!dup_mark && egais_mark.IsEqual(P.GetCur().EgaisMark))
 											dup_mark = 1;
-									}
-									if(!dup_mark) {
-										const CCheckItem & r_item = P.GetCur();
-										if(egais_mark.IsEqual(r_item.EgaisMark)) // @v10.1.0 @fix
-											dup_mark = 1;
-									}
-									if(!dup_mark) {
-										// @v10.1.1 {
-										if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
-											PPIDArray cc_list;
-											BitArray sent_list;
-											CCheckCore & r_cc = GetCc();
-											int    cc_even = 0;
-											temp_buf.Z();
-											if(r_cc.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
-												for(uint j = 0; j < cc_list.getCount(); j++) {
-													const PPID cc_id = cc_list.get(j);
-													CCheckTbl::Rec cc_rec;
-													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
-														// @v10.4.5 {
-														int   take_in_attention = 0;
-														CSessionTbl::Rec cs_rec;
-														PPCashNode cn_rec;
-														if(sent_list.get(j)) {
-															take_in_attention = 1;
-														}
-														else if(cc_rec.SessID) {
-															//
-															// Специальный случай: рестораны - вскрытие тары. Формируют отложенные чеки с отсканированными
-															// марками с бутылок. Повтор однозначно блокируется невзирая на продажи-возвраты (cc_even = 1)
-															//
-															if(CsObj.Fetch(cc_rec.SessID, &cs_rec) > 0 && CnObj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.Speciality == cn_rec.spCafe) {
+										if(!dup_mark) {
+											if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
+												PPIDArray cc_list;
+												BitArray sent_list;
+												CCheckCore & r_cc = GetCc();
+												int    cc_even = 0;
+												temp_buf.Z();
+												if(r_cc.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
+													for(uint j = 0; j < cc_list.getCount(); j++) {
+														const PPID cc_id = cc_list.get(j);
+														CCheckTbl::Rec cc_rec;
+														if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
+															// @v10.4.5 {
+															int   take_in_attention = 0;
+															CSessionTbl::Rec cs_rec;
+															PPCashNode cn_rec;
+															if(sent_list.get(j))
 																take_in_attention = 1;
-																cc_even = 1;
-																break;
+															else if(cc_rec.SessID) {
+																//
+																// Специальный случай: рестораны - вскрытие тары. Формируют отложенные чеки с отсканированными
+																// марками с бутылок. Повтор однозначно блокируется невзирая на продажи-возвраты (cc_even = 1)
+																//
+																if(CsObj.Fetch(cc_rec.SessID, &cs_rec) > 0 && CnObj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.Speciality == cn_rec.spCafe) {
+																	take_in_attention = 1;
+																	cc_even = 1;
+																	break;
+																}
 															}
-														}
-														// } @v10.4.5
-														if(take_in_attention) {
-															CCheckCore::MakeCodeString(&cc_rec, temp_buf);
-															if(cc_rec.Flags & CCHKF_RETURN)
-																cc_even--;
-															else
-																cc_even++;
-														}
-														/* @v10.4.5
-														if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
-															// @v10.1.8 if(j == (cc_list.getCount()-1))
-															if(!(CnFlags & CASHF_SKIPUNPRINTEDCHECKS) || (cc_rec.Flags & CCHKF_PRINTED)) { // @v10.2.3
+															// } @v10.4.5
+															if(take_in_attention) {
 																CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 																if(cc_rec.Flags & CCHKF_RETURN)
 																	cc_even--;
 																else
 																	cc_even++;
 															}
-														}*/
+															/* @v10.4.5
+															if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
+																// @v10.1.8 if(j == (cc_list.getCount()-1))
+																if(!(CnFlags & CASHF_SKIPUNPRINTEDCHECKS) || (cc_rec.Flags & CCHKF_PRINTED)) { // @v10.2.3
+																	CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+																	if(cc_rec.Flags & CCHKF_RETURN)
+																		cc_even--;
+																	else
+																		cc_even++;
+																}
+															}*/
+														}
 													}
 												}
-											}
-											if(cc_even & 1 && !F(fRetCheck)) {
-												temp_buf.Space().Cat(egais_mark);
-												ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf, eomBeep|eomStatusLine); // @v10.1.0
-											}
-											else if(!(cc_even & 1) && F(fRetCheck)) {
-												temp_buf.Space().Cat(egais_mark);
-												ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf, eomBeep|eomStatusLine); // @v10.1.0
+												if(cc_even & 1 && !F(fRetCheck))
+													ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf.Space().Cat(egais_mark), eomBeep|eomStatusLine); // @v10.1.0
+												else if(!(cc_even & 1) && F(fRetCheck))
+													ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf.Space().Cat(egais_mark), eomBeep|eomStatusLine); // @v10.1.0
+												else
+													rBlk.EgaisMark = egais_mark;
 											}
 											else
 												rBlk.EgaisMark = egais_mark;
 										}
 										else
-											rBlk.EgaisMark = egais_mark;
-										// } @v10.1.1
+											ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine); // @v10.1.0
 									}
-									else {
-										// @v10.1.0 PPSetError(PPERR_DUPEGAISMARKINCC, egais_mark);
-										ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine); // @v10.1.0
-									}
+									else
+										ok = -1;
 								}
-								else
-									ok = -1;
+							}
+						}
+						if(!is_mark_processed) {
+							SString chzn_mark;
+							rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
+							if(PPChZnPrcssr::InputMark(chzn_mark) > 0) {
+								//int SLAPI CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
 							}
 						}
 					}
@@ -10315,34 +10289,31 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 						}
 						else {
 							//
-							// @v9.1.8 Автоактивируемая карта начиная с 9.1.8 на первом чеке ведет себя так же, как и обычная
+							// Автоактивируемая карта начиная с 9.1.8 на первом чеке ведет себя так же, как и обычная
 							//
 							{
 								Implement_AcceptSCard(sc_rec);
-								// @v9.8.9 {
-								if(auto_charge) {
-									PPID   charge_goods_id = GetChargeGoodsID(CSt.GetID());
-									if(charge_goods_id != UNDEF_CHARGEGOODSID) {
-										PgsBlock pgsb(1.0);
-										if(PreprocessGoodsSelection(charge_goods_id, 0, pgsb) > 0)
-											SetupNewRow(charge_goods_id, pgsb);
-									}
-								}
-								else
-								// } @v9.8.9
 								{
-									if(sc_rec.AutoGoodsID) {
+									PPID   auto_goods_id = 0;
+									if(auto_charge) {
+										const PPID charge_goods_id = GetChargeGoodsID(CSt.GetID());
+										if(charge_goods_id != UNDEF_CHARGEGOODSID)
+											auto_goods_id = charge_goods_id;
+									}
+									else if(sc_rec.AutoGoodsID) {
+										auto_goods_id = sc_rec.AutoGoodsID;
+									}
+									if(auto_goods_id) {
 										PgsBlock pgsb(1.0);
-										if(PreprocessGoodsSelection(sc_rec.AutoGoodsID, 0, pgsb) > 0)
-											SetupNewRow(sc_rec.AutoGoodsID, pgsb);
+										if(PreprocessGoodsSelection(auto_goods_id, 0, pgsb) > 0)
+											SetupNewRow(auto_goods_id, pgsb);
 									}
 								}
 								CSt.Discount = fdiv100i(sc_rec.PDis);
 								Flags |= fPctDis;
 								SetupDiscount(); // Вызов SetupDiscount перед CalcRestByCrdCard_ необходим для корректного расчета остатка по кредитной (бонусной) карте
-								if(CalcRestByCrdCard_(0)) {
+								if(CalcRestByCrdCard_(0))
 									AutosaveCheck();
-								}
 								else
 									ResetSCard();
 								OnUpdateList(0);
@@ -10499,7 +10470,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.GoodsID = rgi.ID;
 						STRNSCPY(r_item.GoodsName, rgi.Name);
 						STRNSCPY(r_item.BarCode,   rgi.BarCode);
-						STRNSCPY(r_item.CzSerial, rBlk.CzSerial); // @v10.4.12
+						STRNSCPY(r_item.ChZnSerial, rBlk.ChZnSerial); // @v10.4.12
 						r_item.Quantity = R6(F(fRetCheck) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
 						r_item.Price    = price;
 						r_item.Discount = 0.0;

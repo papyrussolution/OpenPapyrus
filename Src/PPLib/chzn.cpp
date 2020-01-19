@@ -1,11 +1,108 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019
+// Copyright (c) A.Sobolev 2019, 2020
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
 #include <pp.h>
 #pragma hdrstop
 //#include <wininet.h>
+
+/*
+С блока сигарет считали марку 0104600266011725212095134931209513424010067290
+Разбираем ее по правилам https://www.garant.ru/products/ipo/prime/doc/72089916/:
+01 ИД GTIN, далее 14 знаков GTIN: 04600266011725.
+21 ИД Serial, далее 7 знаков serial: 2095134.
+
+Data Matrix для табачной продукции и фармацевтики и обуви состоит из 4-х частей.
+Для табака:	01 - GTIN: код товара; 21 - индивидуальный серийный номер единицы товара; 8005 – МРЦ; 93 - код проверки.
+Для обуви: 01 - GTIN: код товара; 21 - индивидуальный серийный номер единицы товара; 91 - ключ проверки; 92 - код проверки.
+Для лекарств: 21 - серийный номер; 01 - GTIN; 91 - ключ проверки; 92 - код проверки. В код также могут быть включены (необязательно) 
+  следующие поля: дата истечения срока годности, номер серии, в установленных законодательством форматах 
+*/
+//
+// 46 bytes
+//
+SLAPI ChZnCodeStruc::ChZnCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
+{
+}
+	
+ChZnCodeStruc & SLAPI ChZnCodeStruc::Z()
+{
+	GtinPrefixP = 0;
+	GtinP = 0;
+	SerialPrefixP = 0;
+	SerialP = 0;
+	SkuP = 0;
+	TailP = 0;
+	ClearS();
+	return *this;
+}
+
+int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
+{
+	int    ok = 0;
+	Z();
+	const size_t raw_len = sstrlen(pRawCode);
+	if(raw_len >= 25) {
+		SString temp_buf;
+		SString raw_buf;
+		uint   forward_dig_count = 0;
+		{
+			int   non_dec = 0;
+			for(size_t i = 0; i < raw_len; i++) {
+				const char c = pRawCode[i];
+				if(isdec(c)) {
+					if(!non_dec)
+						forward_dig_count++;
+				}
+				else
+					non_dec = 1;
+				if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z') && !oneof4(c, '=', '/', '+', '-')) {
+					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
+					KeyDownCommand kd;
+					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
+					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
+						raw_buf.CatChar((char)tc);
+					else
+						raw_buf.CatChar(c);
+				}
+				else {
+					raw_buf.CatChar(c);
+				}
+			}
+		}
+		pRawCode = raw_buf.cptr();
+		size_t p = 0;
+		temp_buf.Z().CatN(pRawCode+p, 2);
+		p += 2;
+		AddS(temp_buf, &GtinPrefixP);
+		if(temp_buf == "01") {
+			temp_buf.Z().CatN(pRawCode+p, 14);
+			p += 14;
+			AddS(temp_buf, &GtinP);
+			while(temp_buf.C(0) == '0')
+				temp_buf.ShiftLeft();
+			//
+			temp_buf.Z().CatN(pRawCode+p, 2);
+			p += 2;
+			AddS(temp_buf, &SerialPrefixP);
+			if(temp_buf == "21") {
+				temp_buf.Z();
+				while(pRawCode[p] && strncmp(pRawCode+p, "240", 3) != 0) {
+					temp_buf.CatChar(pRawCode[p++]);
+				}
+				AddS(temp_buf, &SerialP);
+				/*if(strncmp(pRawCode, "240", 3) == 0) {
+
+				}*/
+				temp_buf.Z().Cat(pRawCode+p);
+				AddS(temp_buf, &TailP);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
 
 //static 
 int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
@@ -56,6 +153,68 @@ int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
 		}
 	}
 	return result;
+}
+
+//static 
+int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
+{
+	class ChZnMarkDialog : public TDialog {
+	public:
+		ChZnMarkDialog() : TDialog(DLG_CHZNMARK)
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CHZNMARK_INPUT)) {
+				getCtrlString(CTL_CHZNMARK_INPUT, CodeBuf.Z());
+				SString msg_buf;
+				if(PPChZnPrcssr::IsChZnCode(CodeBuf) > 0)
+					PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
+				else
+					PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
+				setStaticText(CTL_CHZNMARK_INFO, msg_buf);
+			}
+		}
+		SString CodeBuf;
+	};
+
+	rMark.Z();
+
+    int    ok = -1;
+	SString temp_buf;
+    PrcssrAlcReport::EgaisMarkBlock mb;
+    ChZnMarkDialog * dlg = new ChZnMarkDialog();
+    THROW(CheckDialogPtr(&dlg));
+	/*if(pAgi) {
+		SString line_buf;
+		GetGoodsName(pAgi->GoodsID, temp_buf);
+		line_buf = temp_buf;
+		if(pAgi->CategoryCode.NotEmpty())
+			line_buf.CR().Cat(pAgi->CategoryCode);
+		if(pAgi->CategoryName.NotEmpty()) {
+			(temp_buf = pAgi->CategoryName).Transf(CTRANSF_OUTER_TO_INNER);
+			line_buf.CR().Cat(temp_buf);
+		}
+		dlg->setStaticText(CTL_EGAISMARK_AGI, line_buf);
+	}*/
+    while(ok < 0 && ExecView(dlg) == cmOK) {
+		dlg->getCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
+		if(PPChZnPrcssr::IsChZnCode(temp_buf) > 0) {
+			ok = 1;
+		}
+		else {
+			PPSetError(PPERR_TEXTISNTCHZNMARK, temp_buf);
+			PPErrorByDialog(dlg, CTL_CHZNMARK_INPUT);
+			TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_CHZNMARK_INPUT));
+			CALLPTRMEMB(p_il, selectAll(1));
+			rMark.Z();
+		}
+    }
+    CATCHZOKPPERR
+    delete dlg;
+    return ok;
 }
 
 static const SIntToSymbTabEntry CzDocType_SymbTab[] = {

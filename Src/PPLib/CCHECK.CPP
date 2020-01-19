@@ -557,7 +557,7 @@ int CCheckItem::CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) c
 		!(rItem.Flags & cifModifier) && !(Flags & cifModifier) &&
 		(!(pPack->Rec.Flags & CCHKF_SUSPENDED) || (rItem.Flags & cifIsPrinted) == (Flags & cifIsPrinted)) &&
 		rItem.Division == Division && rItem.Queue == Queue && sstreq(rItem.Serial, Serial) && 
-		sstreq(rItem.EgaisMark, EgaisMark) && sstreq(rItem.RemoteProcessingTa, RemoteProcessingTa));
+		sstreq(rItem.EgaisMark, EgaisMark) && sstreq(rItem.RemoteProcessingTa, RemoteProcessingTa) && sstreq(rItem.ChZnMark, ChZnMark));
 }
 
 int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
@@ -766,10 +766,12 @@ int SLAPI CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 			serial.CopyTo(pItem->EgaisMark, sizeof(pItem->EgaisMark)); // @v9.2.9
 			GetLineTextExt(_pos, CCheckPacket::lnextRemoteProcessingTa, serial); // @v10.1.6
 			serial.CopyTo(pItem->RemoteProcessingTa, sizeof(pItem->RemoteProcessingTa)); // @v10.1.6
-			GetLineTextExt(_pos, CCheckPacket::lnextCzGtin, serial); // @v10.4.12
-			serial.CopyTo(pItem->CzGtin, sizeof(pItem->CzGtin)); // @v10.4.12
-			GetLineTextExt(_pos, CCheckPacket::lnextCzSerial, serial); // @v10.4.12
-			serial.CopyTo(pItem->CzSerial, sizeof(pItem->CzSerial)); // @v10.4.12
+			GetLineTextExt(_pos, CCheckPacket::lnextChZnGtin, serial); // @v10.4.12
+			serial.CopyTo(pItem->ChZnGtin, sizeof(pItem->ChZnGtin)); // @v10.4.12
+			GetLineTextExt(_pos, CCheckPacket::lnextChZnSerial, serial); // @v10.4.12
+			serial.CopyTo(pItem->ChZnSerial, sizeof(pItem->ChZnSerial)); // @v10.4.12
+			GetLineTextExt(_pos, CCheckPacket::lnextChZnMark, serial); // @v10.6.9
+			serial.CopyTo(pItem->ChZnMark, sizeof(pItem->ChZnMark)); // @v10.6.9
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
 				const LineExt & r_le = ExtList.at(ep);
 				pItem->Queue = r_le.Queue;
@@ -1094,13 +1096,18 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 		}
 		// } @v10.1.6
 		// @v10.4.12 {
-		if(rItem.CzGtin[0]) {
-			THROW(SetLineTextExt(idx, CCheckPacket::lnextCzGtin, rItem.CzGtin));
+		if(rItem.ChZnGtin[0]) {
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnGtin, rItem.ChZnGtin));
 		}
-		if(rItem.CzSerial[0]) {
-			THROW(SetLineTextExt(idx, CCheckPacket::lnextCzSerial, rItem.CzSerial));
+		if(rItem.ChZnSerial[0]) {
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnSerial, rItem.ChZnSerial));
 		}
 		// } @v10.4.12 
+		// @v10.6.9 {
+		if(rItem.ChZnMark[0]) {
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnMark, rItem.ChZnMark));
+		}
+		// } @v10.6.9 
 		{
 			LineExt le;
 			le.Queue = rItem.Queue;
@@ -3105,7 +3112,7 @@ int SLAPI CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, D
 	return ok;
 }
 
-int SLAPI CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
+int SLAPI CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList)
 {
 	int    ok = -1;
 	rCcList.clear();
@@ -3117,16 +3124,15 @@ int SLAPI CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList
 	StrAssocArray text_by_row_list;
 	PPExtStrContainer sc;
 	for(SEnum en = r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT); en.Next(&iter_item) > 0;) {
-		// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), text_by_row_list);
-		CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, &text_by_row_list); // @v10.3.9 
+		CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, &text_by_row_list);
 		uint   pos = 0;
 		for(uint i = 0; i < text_by_row_list.getCount(); i++) {
 			StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
-			if(PPGetExtStrData(CCheckPacket::lnextEgaisMark, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
+			if(PPGetExtStrData(markLnextTextId, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
 				rCcList.add(iter_item.O.Id);
-				if(pSentList) {
-					if(sc.GetExtStrData(CCheckPacket::extssEgaisUrl, temp_buf))
+				if(pSentList && sentLnextTextId) {
+					if(sc.GetExtStrData(sentLnextTextId, temp_buf))
 						pSentList->insert(1);
 					else
 						pSentList->insert(0);
@@ -3138,6 +3144,16 @@ int SLAPI CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList
 	}
 	assert(!pSentList || pSentList->getCount() == rCcList.getCount());
 	return ok;
+}
+
+int SLAPI CCheckCore::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList)
+{
+	return Helper_GetListByMark(pText, CCheckPacket::lnextEgaisMark, CCheckPacket::extssEgaisUrl, rCcList, pSentList);
+}
+
+int SLAPI CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
+{
+	return Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, 0, rCcList, 0);
 }
 
 int SLAPI CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * pSerial, double * pResult)

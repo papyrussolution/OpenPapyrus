@@ -4519,9 +4519,9 @@ void  FASTCALL SetInnerBarcodeType(int32 * pBarcodeType, int bt);
 void  FASTCALL ResetInnerBarcodeType(int32 * pBarcodeType, int bt);
 int   FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt);
 
-struct ChestnyZnakCodeStruc : public SStrGroup {
-	SLAPI  ChestnyZnakCodeStruc();
-	ChestnyZnakCodeStruc & SLAPI Z();
+struct ChZnCodeStruc : public SStrGroup {
+	SLAPI  ChZnCodeStruc();
+	ChZnCodeStruc & SLAPI Z();
 	int    SLAPI Parse(const char * pRawCode);
 
 	uint   GtinPrefixP;
@@ -14043,8 +14043,9 @@ struct CCheckItem { // @transient
 	char   BarCode[24];     // @v8.8.0 [16]-->[24]
 	char   GoodsName[128];  //
 	char   Serial[32];      // @v10.2.10 [24]-->[32]
-	char   CzGtin[16];      // @v10.4.12 Gtin код товара, считанный из марки Честный Знак
-	char   CzSerial[24];    // @v10.4.11 Серийный номер маркировки Честный Знак.
+	char   ChZnGtin[16];    // @v10.4.12 Gtin код товара, считанный из марки 'честный знак'
+	char   ChZnSerial[24];  // @v10.4.11 Серийный номер маркировки 'честный знак'.
+	char   ChZnMark[32];    // @v10.6.9 Марка 'честный знак' 
 	char   EgaisMark[156];  // @v9.0.9 Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
@@ -14205,8 +14206,9 @@ public:
 		lnextEgaisMark          = 2, // Марка ЕГАИС
 		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
 			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
-		lnextCzSerial           = 4, // @v10.4.12 Серийный номер Честный Знак
-		lnextCzGtin             = 5, // @v10.4.12 GTIN считанный из кода Честный Знак
+		lnextChZnSerial         = 4, // @v10.4.12 Серийный номер 'честный знак'
+		lnextChZnGtin           = 5, // @v10.4.12 GTIN считанный из кода 'честный знак'
+		lnextChZnMark           = 6, // @v10.6.9 Марка 'честный знак'
 	};
 	//
 	// Двум следующим классам необходим открытый доступ к полям Items_ и SerialList
@@ -14466,6 +14468,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI GetListByEgaisMark(const char * pText, PPIDArray & rCcList, BitArray * pSentList);
+	int    SLAPI GetListByChZnMark(const char * pText, PPIDArray & rCcList);
 	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
 	// Note: В подавляющем большинстве случаев список  будет либо пустым, либо будет содержать
@@ -14663,6 +14666,7 @@ private:
 	int    SLAPI PreprocessPacket(CCheckPacket * pPack);
 	int    SLAPI PreparePacketForWriting(PPID id, CCheckPacket * pPack, double & rUfpFactor);
 	int    SLAPI Update(PPID id, const CCheckTbl::Rec * pRec, int use_ta);
+	int    SLAPI Helper_GetListByMark(const char * pText, int markLnextTextId, int sentLnextTextId, PPIDArray & rCcList, BitArray * pSentList);
 
 	CCheckExtTbl * P_Ext;
 	CheckOpJrnl * P_ChkOpJrnl;
@@ -16697,7 +16701,7 @@ public:
 				// диапазонами и InputFrameSize (игнорируется то из двух, кто имеет наименьший целевой критерий)
 			gbsfTrendFollowing     = 0x0200  // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
 		};
-		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest) const;
+		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		struct IndexEntry1 {
 			struct Range : public RealRange {
@@ -16980,7 +16984,7 @@ public:
 		double InitTrendErrLimit;
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
-		uint   BestSubsetOptChunk; // 3 || 7
+		uint   BestSubsetOptChunk; // 3 || 7 || 15
 		uint   OptRangeStep; // @v10.4.7
 		uint   OptRangeStepMkPart; // @v10.4.7
 		uint   OptRangeMultiLimit; // @v10.4.7
@@ -18462,6 +18466,128 @@ public:
 //
 //
 //
+class GtinStruc : public StrAssocArray {
+public:
+	enum { // A.I. Описание Количество цифр и формат
+		fldOriginalText = 0,      // Оригинальный текст, поданый для разбора
+		fldSscc18,                // 00 Серийный код транспортной упаковки (SSCC-18): 18 цифр
+		fldGTIN14,                // 01 непосредственно сам Глобальный номер товара (GTIN): 14 цифр
+		fldContainerCt,           // 02 Количество контейнеров, содержащихся в другой упаковке (используется совместно с АI 37): 14 цифр
+		fldPart,                  // 10 Номер партии: 1‒20 буквенно-цифровой
+		fldManufDate,             // 11 Дата производства: 6 цифр в формате YYMMDD
+		fldExpiryPeriod,          // 12 Срок годности: 6 цифр в формате YYMMDD
+		fldPackDate,              // 13 Дата упаковки: 6 цифр в формате YYMMDD
+		fldBestBeforeDate,        // 15 Срок хранения … (Используется для контроля качества): 6 цифр в формате YYMMDD
+		fldExpiryDate,            // 17 Дата окончания срока действия (Безопасность товара): 6 цифр в формате YYMMDD
+		fldVariant,               // 20 Вариант продукта: 2 цифры
+		fldSerial,                // 21 Серийный номер: 1‒20 буквенно-цифровой
+		fldHIBCC,                 // 22 HIBCC в количестве, дате, в пакете и ссылка: От 1 до 29 буквенно-цифровой
+		fldLot,                   // 23x Номер лота: От 1 до 19 буквенно-цифровой
+		fldAddendumId,            // 240 Дополнительная идентификация продукта: 1‒30 буквенно-цифровой
+		fldSerial2,               // 250 Второй серийный номер: 1‒30 буквенно-цифровой
+		fldQtty,                  // 30 Количество каждого: 1‒8 цифр
+		fldWtNettKg,              // 310y Вес нетто (кг): 6 цифр
+		fldLenM,                  // 311y Длина изделия — первое измерение (в метрах): 6 цифр
+		fldWidthM,                // 312y Ширина или диаметр изделия — 2-ое измерение (в метрах): 6 цифр
+		fldThknM,                 // 313y Глубина или толщина изделия — 3-е измерение (в метрах): 6 цифр
+		fldAreaM2,                // 314y Площадь (в квадратных метрах): 6 цифр
+		fldVolumeL,               // 315y Объем продукта (в литрах): 6 цифр
+		fldVolumeM3,              // 316y Объем продукта (в кубических метрах): 6 цифр
+		fldWtNettLb,              // 320y Вес нетто (в фунтах): 6 цифр
+		fldLenInch,               // 321y Длина изделия — первое измерение (в дюймах): 6 цифр
+		fldLenFt,                 // 322y Длина изделия — первое измерение (в футах): 6 цифр
+		fldLenYr,                 // 323y Длина изделия — первое измерение (в ярдах): 6 цифр
+		fldDiamInch,              // 324y Ширина или диаметр изделия — второе измерение (в дюймах): 6 цифр
+		fldDiamFt,                // 325y Ширина или диаметр изделия — второе измерение (в футах): 6 цифр
+		fldDiamYr,                // 326y Ширина или диаметр изделия — второе измерение (в ярдах): 6 цифр
+		fldThknInch,              // 327y Глубина или толщина изделия — 3-е измерение (в дюймах): 6 цифр
+		fldThknFt,                // 328y Глубина или толщина изделия — 3-е измерение (в футах): 6 цифр
+		fldThknYr,                // 329y Глубина или толщина изделия — 3-е измерение (в ярдах): 6 цифр
+		fldContainerWtBruttKg,    // 330Y Вес контейнера брутто (кг): 6 цифр
+		fldContainerLenM,         // 331y Длина контейнера — первое измерение (в метрах): 6 цифр
+		fldContainerDiamM,        // 332y Ширина или диаметр контейнера — 2-е измерение (в метрах): 6 цифр
+		fldContainerThknM,        // 333y Глубина или толщина контейнера — 3-е измерение (в метрах): 6 цифр
+		fldContainerAreaM2,       // 334y Площадь контейнера (в квадратных метрах): 6 цифр
+		fldContainerVolumeL,      // 335y Объем контейнера (в литрах): 6 цифр
+		fldContainerGVolumeM3,    // 336y Валовой объем контейнера (в кубических метрах): 6 цифр
+		fldContainerMassLb,       // 340y Полная масса контейнера (в фунтах): 6 цифр
+		fldContainerLenInch,      // 341y Длина контейнера — первое измерение (в дюймах): 6 цифр
+		fldContainerLenFt,        // 342y Длина контейнера — первое измерение (в футах): 6 цифр
+		fldContainerLenYr,        // 343y Длина контейнера — первое измерение (в ярдах): 6 цифр
+		fldContainerDiamInch,     // 344y Ширина или диаметр контейнера — 2-ое измерение (в дюймах): 6 цифр
+		fldContainerDiamFt,       // 345y Ширина или диаметр контейнера — 2-ое измерение (в футах): 6 цифр
+		fldContainerDiamYr,       // 346y Ширина или диаметр контейнера — 2-ое измерение (в ярдах): 6 цифр
+		fldContainerThknInch,     // 347y Глубина или толщина контейнера — 3-е измерение (в дюймах): 6 цифр
+		fldContainerThknFt,       // 348y Глубина или толщина контейнера — 3-е измерение (в футах): 6 цифр
+		fldContainerThknYr,       // 349y Глубина или толщина контейнера — 3-е измерение (в ярдах): 6 цифр
+		fldProductAreaInch2,      // 350y Площадь продукта (квадратные дюймы): 6 цифр
+		fldProductAreaFt2,        // 351y Площадь продукта (квадратных футов): 6 цифр
+		fldProductAreaM2,         // 352y Площадь продукта (квадратных метров): 6 цифр
+		fldContainerAreaInch2,    // 353y Площадь контейнера (квадратный дюйм): 6 цифр
+		fldContainerAreaFt2,      // 354y Контейнер площади (квадратных футов): 6 цифр
+		fldContainerAreaYr2,      // 355y Размер контейнера (квадратных ярдов): 6 цифр
+		fldWtNettTOz,             // 356y Вес нетто (в тройских унциях ): 6 цифр
+		fldVolumeL_2,             // 360y Объем продукта ( литров ): 6 цифр
+		fldVolumeL_3,             // 361y Объем продукта ( литров ): 6 цифр
+		fldContainerGVolumeQt,    // 362y Валовой объем контейнера (в квартах): 6 цифр
+		fldContainerGVolumeGal,   // 363y Валовой объем контейнера (в галлонах): 6 цифр
+		fldVolumeInch3,           // 364y Объем продукции (в кубических дюймах): 6 цифр
+		fldVolumeFt3,             // 365y Объем продукции (в кубических футах): 6 цифр
+		fldVolumeM3_2,            // 366y Объем продукции (в кубических метрах): 6 цифр
+		fldContainerGVolumeInch3, // 367y Валовой объем контейнера (в кубических дюймах): 6 цифр
+		fldContainerGVolumeFt3,   // 368y Валовой объем контейнера (в кубических футах): 6 цифр
+		fldContainerGVolumeM3_2,  // 369y Валовой объем контейнера (в кубических метрах): 6 цифр
+		fldCount,                 // 37 Количество единиц, содержащихся (используется совместно с AI 02): 1‒8 цифр
+		fldCustomerOrderNo,       // 400 Номер заказа Клиента: От 1 до 29 буквенно-цифровой
+		fldShipTo,                // 410 Адресат/Грузополучатель (код EAN-13 или DUNS): 13 цифр
+		fldBillTo,                // 411 Доставка счета / код места, где будет произведена оплата за продукт (код EAN-13 или DUNS): 13 цифр
+		fldPurchaseFrom,          // 412 Приобретение / код места, где будет произведена покупка (код EAN-13 или DUNS): 13 цифр
+		fldShitToZip,             // 420 Доставка по почтовому индексу (внутренний почтовый индекс): 1‒9 алфавитно-цифровой
+		fldShitToZipInt,          // 421 Доставка по почтовому индексу (международный почтовый индекс): 4‒12 буквенно-цифровой
+		fldCountry,               // 422 Код страны в соответствии со стандартом ISO: 3 цифр
+		fldRollDimentions,        // 8001 Размер продукта для рулона (ширина, длина и диаметр): 14 цифр
+		fldESN,                   // 8002 Электронный серийный номер (ESN) исключительно для мобильных телефонов: 1‒20 буквенно-цифровой
+		fldGRAI,                  // 8003 Идентификатор возвращаемого актива — GRAI: 14 цифр UPC / EAN и 1‒16 серийный номер возвращаемых активов
+		fldGIAI,                  // 8004 Второй идентификатор возвращаемого актива — GIAI: 1‒30 буквенно-цифровой
+		fldPrice,                 // 8005 Цена за единицу измерения: 6 цифр
+		fldCouponCode1,           // 8100 Расширенный код купона: Системный номер и предложение: 6 цифр
+		fldCouponCode2,           // 8101 Расширенный код купона: Система счисления, предложения и завершения предложения: 10 цифр
+		fldCouponCode3,           // 8102 Расширенный код купона: количеству в системе счисления предшествовует 0: 2 цифры
+		fldMutualCode,            // 90 По взаимному согласию сторон: 1‒30 значный буквенно-цифровой
+		fldUSPS,                  // 91 USPS услуг: 2-значный код услуги, 9-значный код клиента, 8-значный ID плюс 1 контрольная цифра упаковки
+		fldInner1,                // 92 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner2,                // 93 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner3,                // 94 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner4,                // 95 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner5,                // 96 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner6,                // 97 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner7,                // 98 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldInner8,                // 99 Внутренние коды компании 1‒30 буквенно-цифровой
+		fldPriceRuTobacco,        // Собственный идентификатор - МРЦ сигарет (кодируется)
+		fldControlRuTobacco       // Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
+	};
+	SLAPI  GtinStruc();
+	int    SLAPI AddSpecialFixedToken(int token, int fixedLen);
+	int    SLAPI AddOnlyToken(int token);
+	GtinStruc & SLAPI Z();
+	int    SLAPI Parse(const char * pCode);
+	int    SLAPI Debug_Output(SString & rBuf) const;
+private:
+	uint   SLAPI SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId);
+	//
+	// Descr: Флаги функции DetectPrefix
+	//
+	enum {
+		dpfBOL = 0x0001 // Мы находимся в начале строки (нужен для отсеивания префиксов, которые могут встречаться только в начале строки)
+	};
+	int    SLAPI DetectPrefix(const char * pSrc, uint flags, uint * pPrefixLen, SString & rPrefix) const;
+	int    SLAPI GetPrefixSpec(int prefixId, uint * pFixedLen) const;
+	::LAssocArray SpecialFixedTokens;
+	LongArray OnlyTokenList;
+};
+//
+//
+//
 struct PPEdiProvider {
 	SLAPI  PPEdiProvider();
 	int    FASTCALL IsEqual(const PPEdiProvider & rS) const;
@@ -18473,7 +18599,6 @@ struct PPEdiProvider {
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       // Символьный код единицы измерения //
-
 	long   Flags;
 	long   SuppOpFlags;    // Флаги поддерживаемый операций (1 << PPEDIOP_XXX)
 	int32  AddrPort;       // IP-порт адреса
@@ -21964,6 +22089,7 @@ private:
 #define GTF_GMARKED        0x00008000L // @v10.4.11 Товары этого типа имеют государственную маркировку
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
+	SLAPI  PPGoodsType2();
 	long   Tag;            // Const=PPOBJ_GOODSTYPE
 	long   ID;             //
 	char   Name[48];       // @name
@@ -27428,12 +27554,13 @@ struct GoodsCodeSrchBlock {
 		fList        = 0x0020, // OUT Список штрихкодов по шаблону
 		fUse2dTempl  = 0x0040, // IN  Искать по шаблону 2-мерного штрихкода
 		fBc2d        = 0x0080, // OUT Товар найден по шаблону 2d-кода
-		fCzCode      = 0x0100  // OUT Товар найден по коду "Честный Знак"
+		fChZnCode    = 0x0100  // OUT Товар найден по коду "Честный Знак"
 	};
 	char   Code[128];      // IN CONST
 	char   RetCode[32];    // OUT
-	char   CzGtin[32];     // OUT @v10.4.12
-	char   CzSerial[32];   // OUT @v10.4.11
+	char   ChZnCode[32];   // OUT @v10.6.9
+	char   ChZnGtin[32];   // OUT @v10.4.12
+	char   ChZnSerial[32]; // OUT @v10.4.11
 	PPID   ArID;           // IN CONST
 	long   Flags;          // IN/OUT
 	PPID   GoodsID;        // OUT
@@ -46191,6 +46318,7 @@ public:
 		SString InfoText; // @transient
 	};
 	static int FASTCALL IsChZnCode(const char * pCode);
+	static int SLAPI InputMark(SString & rMark);
 	explicit SLAPI PPChZnPrcssr(PPLogger * pOuterLogger);
 	SLAPI ~PPChZnPrcssr();
 	int    SLAPI EditParam(Param * pParam);
@@ -46240,6 +46368,7 @@ public:
 		explicit SLAPI Entity(const VetisStockEntry & rS);
 		Entity & SLAPI Z();
 		void   FASTCALL Get(VetisNamedGenericVersioningEntity & rD) const;
+		void   SLAPI SetupVetDocument();
 
 		PPID   ID;
 		int    Kind;
@@ -50651,8 +50780,9 @@ public:
 		double AbstractPrice; // @v9.5.10 Цена, определенная оператором, без выбора товара.
 		SString Serial;
 		SString EgaisMark;
-		SString CzGtin;       // @v10.4.12 GTIN код товара, считанный из марки Честный Знак
-		SString CzSerial;     // @v10.4.12 Серийный номер марки Честный Знак
+		SString ChZnMark;     // @v10.6.9 Марка 'честный знак'
+		SString ChZnGtin;     // @v10.4.12 GTIN код товара, считанный из марки 'честный знак'
+		SString ChZnSerial;   // @v10.4.12 Серийный номер марки 'честный знак'
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
 	int    SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID = 0);

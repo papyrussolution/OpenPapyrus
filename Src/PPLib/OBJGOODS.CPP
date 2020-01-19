@@ -3069,7 +3069,7 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 		GetConfig().GetCodeLenList(&code_len_list, &allow_empty);
 		{
 			PPID   gt_id = NZOR(pPack->Rec.GoodsTypeID, PPGT_DEFAULT);
-			PPGoodsType2 gt_rec;
+			PPGoodsType gt_rec;
 			if(gt_id && GtObj.Fetch(gt_id, &gt_rec) > 0 && gt_rec.Flags & GTF_REQBARCODE)
 				allow_empty = 0;
 		}

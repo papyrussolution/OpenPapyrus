@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -613,9 +613,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 		LAssocArray pfx_assoc; // Список ассоциаций индекса приставки с идентификатором приставки в базе данных
 		SString line_buf, ancode, temp_buf;
 		SString item_buf, afx_buf, anc_buf, pfx_buf, word_buf;
-
 		int32  base_skeleton_wf_id = 0;
-
 		SFile  anc_file;
 		SFile  fm_file;
 		SFile  test_out_file;
@@ -991,7 +989,6 @@ public:
 		Operator * CreateNext();
 		Operator * CreateChild();
 		Operator * FindParent();
-
 		void   ResetAbbr()
 		{
 			Flags &= ~(fAbbr|fAbbrDot);
@@ -1027,7 +1024,6 @@ public:
 		int16  Flags;
 		Int64Array EqToList;
 		SrCPropDeclList Pdl;
-		//
 		Operator * P_Parent;
 		Operator * P_Child;
 		Operator * P_Next;
@@ -1087,9 +1083,6 @@ public:
 	//CONCEPTID FASTCALL RecognizeConcept(const char *);
 	int    PostprocessOpList(Operator * pRoot);
 	int    ApplyConceptPropList(const StrAssocArray & rTokList, CONCEPTID cid);
-
-	SrCPropList PropList;
-
 	int OpenInput(const char * pFileName)
 	{
 		CloseInput();
@@ -1104,7 +1097,7 @@ public:
 	{
 		F.Close();
 	}
-
+	SrCPropList PropList;
 	SFile  F;
 	SStrScan Scan;
 	SString LineBuf;

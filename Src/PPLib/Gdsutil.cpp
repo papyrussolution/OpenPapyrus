@@ -1,107 +1,16 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
 #include <pp.h>
 #pragma hdrstop
-
-/*
-С блока сигарет считали марку 0104600266011725212095134931209513424010067290
-Разбираем ее по правилам https://www.garant.ru/products/ipo/prime/doc/72089916/:
-01 ИД GTIN, далее 14 знаков GTIN: 04600266011725.
-21 ИД Serial, далее 7 знаков serial: 2095134.
-*/
-//
-// 46 bytes
-//
-SLAPI ChestnyZnakCodeStruc::ChestnyZnakCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
-{
-}
-	
-ChestnyZnakCodeStruc & SLAPI ChestnyZnakCodeStruc::Z()
-{
-	GtinPrefixP = 0;
-	GtinP = 0;
-	SerialPrefixP = 0;
-	SerialP = 0;
-	SkuP = 0;
-	TailP = 0;
-	ClearS();
-	return *this;
-}
-
-int SLAPI ChestnyZnakCodeStruc::Parse(const char * pRawCode)
-{
-	int    ok = 0;
-	Z();
-	const size_t raw_len = sstrlen(pRawCode);
-	if(raw_len >= 25) {
-		SString temp_buf;
-		SString raw_buf;
-		uint   forward_dig_count = 0;
-		{
-			int   non_dec = 0;
-			for(size_t i = 0; i < raw_len; i++) {
-				const char c = pRawCode[i];
-				if(isdec(c)) {
-					if(!non_dec)
-						forward_dig_count++;
-				}
-				else
-					non_dec = 1;
-				if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z') && !oneof4(c, '=', '/', '+', '-')) {
-					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
-					KeyDownCommand kd;
-					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
-					if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
-						raw_buf.CatChar((char)tc);
-					else
-						raw_buf.CatChar(c);
-				}
-				else {
-					raw_buf.CatChar(c);
-				}
-			}
-		}
-		pRawCode = raw_buf.cptr();
-		size_t p = 0;
-		temp_buf.Z().CatN(pRawCode+p, 2);
-		p += 2;
-		AddS(temp_buf, &GtinPrefixP);
-		if(temp_buf == "01") {
-			temp_buf.Z().CatN(pRawCode+p, 14);
-			p += 14;
-			AddS(temp_buf, &GtinP);
-			while(temp_buf.C(0) == '0')
-				temp_buf.ShiftLeft();
-			//
-			temp_buf.Z().CatN(pRawCode+p, 2);
-			p += 2;
-			AddS(temp_buf, &SerialPrefixP);
-			if(temp_buf == "21") {
-				temp_buf.Z();
-				while(pRawCode[p] && strncmp(pRawCode+p, "240", 3) != 0) {
-					temp_buf.CatChar(pRawCode[p++]);
-				}
-				AddS(temp_buf, &SerialP);
-				/*if(strncmp(pRawCode, "240", 3) == 0) {
-
-				}*/
-				temp_buf.Z().Cat(pRawCode+p);
-				AddS(temp_buf, &TailP);
-				ok = 1;
-			}
-		}
-	}
-	return ok;
-}
 //
 //
 //
 int FASTCALL CalcBarcodeCheckDigit(const char * pBarcode)
 {
-	size_t len = sstrlen(pBarcode);
+	const size_t len = sstrlen(pBarcode);
 	return SCalcBarcodeCheckDigitL(pBarcode, len);
 }
 
@@ -119,7 +28,7 @@ char * FASTCALL AddBarcodeCheckDigit(char * pBarcode)
 SString & FASTCALL AddBarcodeCheckDigit(SString & rBarcode)
 {
 	if(rBarcode.Len()) {
-		int    cdig = SCalcBarcodeCheckDigitL(rBarcode, rBarcode.Len());
+		const int cdig = SCalcBarcodeCheckDigitL(rBarcode, rBarcode.Len());
 		rBarcode.CatChar('0' + cdig);
 	}
 	return rBarcode;
@@ -444,8 +353,9 @@ SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), 
 {
 	PTR32(Code)[0] = 0;
 	PTR32(RetCode)[0] = 0;
-	PTR32(CzGtin)[0] = 0;
-	PTR32(CzSerial)[0] = 0;
+	PTR32(ChZnCode)[0] = 0; // @v10.6.9
+	PTR32(ChZnGtin)[0] = 0;
+	PTR32(ChZnSerial)[0] = 0;
 	// @v10.6.4 MEMSZERO(Rec);
 }
 
@@ -620,7 +530,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				ok = 0;
 		}
 		else {
-			ChestnyZnakCodeStruc czcs;
+			ChZnCodeStruc czcs;
 			if(czcs.Parse(pBlk->Code) > 0) {
 				SString temp_buf;
 				czcs.GetS(czcs.GtinP, temp_buf);
@@ -628,12 +538,13 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 					pBlk->GoodsID = goods_rec.ID;
 					pBlk->Qtty = bcr.Qtty;
 					pBlk->Rec = goods_rec;
-					pBlk->Flags |= GoodsCodeSrchBlock::fCzCode;
+					pBlk->Flags |= GoodsCodeSrchBlock::fChZnCode;
 					strnzcpy(pBlk->RetCode, bcr.Code, 16);
 					czcs.GetS(czcs.GtinP, temp_buf);
-					STRNSCPY(pBlk->CzGtin, temp_buf);
+					STRNSCPY(pBlk->ChZnGtin, temp_buf);
 					czcs.GetS(czcs.SerialP, temp_buf);
-					STRNSCPY(pBlk->CzSerial, temp_buf);
+					STRNSCPY(pBlk->ChZnSerial, temp_buf);
+					STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
 					ok = 1;
 				}
 			}
