@@ -4519,7 +4519,7 @@ void  FASTCALL SetInnerBarcodeType(int32 * pBarcodeType, int bt);
 void  FASTCALL ResetInnerBarcodeType(int32 * pBarcodeType, int bt);
 int   FASTCALL IsInnerBarcodeType(int32 barcodeType, int bt);
 
-struct ChZnCodeStruc : public SStrGroup {
+/* @v10.6.9 struct ChZnCodeStruc : public SStrGroup {
 	SLAPI  ChZnCodeStruc();
 	ChZnCodeStruc & SLAPI Z();
 	int    SLAPI Parse(const char * pRawCode);
@@ -4530,7 +4530,7 @@ struct ChZnCodeStruc : public SStrGroup {
 	uint   SerialP;
 	uint   SkuP;
 	uint   TailP;
-};
+};*/
 
 class BarcodeArray : public TSVector <BarcodeTbl::Rec> { // @v9.8.4 TSArray-->TSVector
 public:
@@ -14045,7 +14045,7 @@ struct CCheckItem { // @transient
 	char   Serial[32];      // @v10.2.10 [24]-->[32]
 	char   ChZnGtin[16];    // @v10.4.12 Gtin код товара, считанный из марки 'честный знак'
 	char   ChZnSerial[24];  // @v10.4.11 Серийный номер маркировки 'честный знак'.
-	char   ChZnMark[32];    // @v10.6.9 Марка 'честный знак' 
+	char   ChZnMark[96];    // @v10.6.9 Марка 'честный знак' 
 	char   EgaisMark[156];  // @v9.0.9 Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
@@ -18571,6 +18571,8 @@ public:
 	int    SLAPI AddOnlyToken(int token);
 	GtinStruc & SLAPI Z();
 	int    SLAPI Parse(const char * pCode);
+	int    SLAPI GetToken(int tokenId, SString * pToken) const;
+	int    SLAPI GetSpecialNaturalToken() const;
 	int    SLAPI Debug_Output(SString & rBuf) const;
 private:
 	uint   SLAPI SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId);
@@ -18580,10 +18582,11 @@ private:
 	enum {
 		dpfBOL = 0x0001 // Мы находимся в начале строки (нужен для отсеивания префиксов, которые могут встречаться только в начале строки)
 	};
-	int    SLAPI DetectPrefix(const char * pSrc, uint flags, uint * pPrefixLen, SString & rPrefix) const;
+	int    SLAPI DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const;
 	int    SLAPI GetPrefixSpec(int prefixId, uint * pFixedLen) const;
 	::LAssocArray SpecialFixedTokens;
 	LongArray OnlyTokenList;
+	int    SpecialNaturalToken; // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
 };
 //
 //
@@ -46318,6 +46321,7 @@ public:
 		SString InfoText; // @transient
 	};
 	static int FASTCALL IsChZnCode(const char * pCode);
+	static int SLAPI ParseChZnCode(const char * pCode, GtinStruc & rS);
 	static int SLAPI InputMark(SString & rMark);
 	explicit SLAPI PPChZnPrcssr(PPLogger * pOuterLogger);
 	SLAPI ~PPChZnPrcssr();

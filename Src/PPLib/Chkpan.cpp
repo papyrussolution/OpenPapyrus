@@ -6435,71 +6435,69 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					else if(ev_ctl_id == CTL_CHKPAN_LIST) {
 						if(!(Flags & fNoEdit)) {
 							SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-							if(p_list) {
-								long   cur = p_list->def ? p_list->def->_curItem() : -1;
-								if(cur >= 0 && cur < static_cast<long>(P.getCount())) {
-									enum {
-										rowopNone = 0,
-										rowopUp,
-										rowopDown,
-										rowopDoGroup,
-										rowopDelete
-									};
-									int    r = -1;
-									CCheckItem & r_cur_item = P.at(cur);
-									long   verb = rowopNone;
-									int8   queue = r_cur_item.Queue;
-									TDialog * dlg = new TDialog(DLG_CHKPANROWOP);
-									if(CheckDialogPtrErr(&dlg)) {
-										dlg->AddClusterAssocDef(CTL_CHKPANROWOP_VERB, 0, rowopNone);
-										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 1, rowopUp);
-										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 2, rowopDown);
-										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 3, rowopDoGroup);
-										dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 4, rowopDelete);
-										dlg->SetClusterData(CTL_CHKPANROWOP_VERB, verb);
-										dlg->SetupSpin(CTLSPIN_CHKPANROWOP_QUEUE, CTL_CHKPANROWOP_QUEUE, 0, 20, queue);
-										dlg->setCtrlData(CTL_CHKPANROWOP_QUEUE, &queue);
-										if(cur == 0) {
-											dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 1, 1);
-											dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 3, 1);
+							const long cur = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
+							if(cur >= 0 && cur < P.getCountI()) {
+								enum {
+									rowopNone = 0,
+									rowopUp,
+									rowopDown,
+									rowopDoGroup,
+									rowopDelete
+								};
+								int    r = -1;
+								CCheckItem & r_cur_item = P.at(cur);
+								long   verb = rowopNone;
+								int8   queue = r_cur_item.Queue;
+								TDialog * dlg = new TDialog(DLG_CHKPANROWOP);
+								if(CheckDialogPtrErr(&dlg)) {
+									dlg->AddClusterAssocDef(CTL_CHKPANROWOP_VERB, 0, rowopNone);
+									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 1, rowopUp);
+									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 2, rowopDown);
+									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 3, rowopDoGroup);
+									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 4, rowopDelete);
+									dlg->SetClusterData(CTL_CHKPANROWOP_VERB, verb);
+									dlg->SetupSpin(CTLSPIN_CHKPANROWOP_QUEUE, CTL_CHKPANROWOP_QUEUE, 0, 20, queue);
+									dlg->setCtrlData(CTL_CHKPANROWOP_QUEUE, &queue);
+									if(cur == 0) {
+										dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 1, 1);
+										dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 3, 1);
+									}
+									if((cur+1) >= static_cast<long>(P.getCount())) {
+										dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 2, 1);
+									}
+									if(!(OperRightsFlags & orfEscChkLine) || cur < 0 || cur >= static_cast<long>(P.getCount())) {
+										dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 4, 1);
+									}
+									while(r < 0 && ExecView(dlg) == cmOK) {
+										verb = dlg->GetClusterData(CTL_CHKPANROWOP_VERB);
+										dlg->getCtrlData(CTL_CHKPANROWOP_QUEUE, &queue);
+										r = 1;
+										if(queue != r_cur_item.Queue) {
+											if(P.SetQueue(cur, queue) > 0)
+												r = 2;
 										}
-										if((cur+1) >= static_cast<long>(P.getCount())) {
-											dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 2, 1);
-										}
-										if(!(OperRightsFlags & orfEscChkLine) || cur < 0 || cur >= static_cast<long>(P.getCount())) {
-											dlg->DisableClusterItem(CTL_CHKPANROWOP_VERB, 4, 1);
-										}
-										while(r < 0 && ExecView(dlg) == cmOK) {
-											verb = dlg->GetClusterData(CTL_CHKPANROWOP_VERB);
-											dlg->getCtrlData(CTL_CHKPANROWOP_QUEUE, &queue);
-											r = 1;
-											if(queue != r_cur_item.Queue) {
-												if(P.SetQueue(cur, queue) > 0)
+										switch(verb) {
+											case rowopUp:
+												if(P.MoveUp(cur) > 0)
 													r = 2;
-											}
-											switch(verb) {
-												case rowopUp:
-													if(P.MoveUp(cur) > 0)
-														r = 2;
-													break;
-												case rowopDown:
-													if(P.MoveDown(cur) > 0)
-														r = 2;
-													break;
-												case rowopDoGroup:
-													if(P.Grouping(cur) > 0)
-														r = 2;
-													break;
-												case rowopDelete:
-													RemoveRow();
-													break;
-											}
+												break;
+											case rowopDown:
+												if(P.MoveDown(cur) > 0)
+													r = 2;
+												break;
+											case rowopDoGroup:
+												if(P.Grouping(cur) > 0)
+													r = 2;
+												break;
+											case rowopDelete:
+												RemoveRow();
+												break;
 										}
 									}
-									if(r == 2)
-										OnUpdateList(0);
-									delete dlg;
 								}
+								if(r == 2)
+									OnUpdateList(0);
+								delete dlg;
 								/*
 								TMenuPopup menu;
 								if(cur > 0) {
@@ -6547,15 +6545,13 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 				if(event.isCtlEvent(CTL_CHKPAN_LIST)) {
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-					if(p_list && p_list->def) {
-						uint pos = p_list->def->_curItem();
-						if(pos < P.getCount()) {
-							ViewStoragePlaces(P.at(p_list->def->_curItem()).GoodsID);
-							// @v9.8.11 {
-							if(Flags & fNoEdit)
-								SetupInfo(0);
-							// } @v9.8.11
-						}
+					const long pos = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
+					if(pos < P.getCountI()) {
+						ViewStoragePlaces(P.at(pos).GoodsID);
+						// @v9.8.11 {
+						if(Flags & fNoEdit)
+							SetupInfo(0);
+						// } @v9.8.11
 					}
 				}
 				break;
@@ -7834,13 +7830,13 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 	// @v9.9.0 {
 	if(Flags & fNoEdit) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-		if(p_list) {
-			const long cur = p_list->def ? p_list->def->_curItem() : -1;
-			if(cur >= 0 && cur < static_cast<long>(P.getCount())) {
-				const CCheckItem & r_item = P.at(cur);
-				if(r_item.EgaisMark[0])
-					setCtrlString(CTL_CHKPAN_INFO, buf = r_item.EgaisMark);
-			}
+		const long cur = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
+		if(cur >= 0 && cur < P.getCountI()) {
+			const CCheckItem & r_item = P.at(cur);
+			if(r_item.EgaisMark[0])
+				setCtrlString(CTL_CHKPAN_INFO, buf = r_item.EgaisMark);
+			else if(r_item.ChZnMark[0])
+				setCtrlString(CTL_CHKPAN_INFO, buf = r_item.ChZnMark);
 		}
 	}
 	// } @v9.9.0
@@ -8598,10 +8594,49 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 							}
 						}
 						if(!is_mark_processed) {
-							SString chzn_mark;
-							rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
-							if(PPChZnPrcssr::InputMark(chzn_mark) > 0) {
-								//int SLAPI CCheckCore::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
+							if(gt_rec.Flags & GTF_GMARKED) {
+								SString chzn_mark;
+								rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
+								if(PPChZnPrcssr::InputMark(chzn_mark) > 0) {
+									int    dup_mark = 0;
+									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
+										if(chzn_mark.IsEqual(P.at(i).ChZnMark))
+											dup_mark = 1;
+									}
+									if(!dup_mark && chzn_mark.IsEqual(P.GetCur().ChZnMark))
+										dup_mark = 1;
+									if(!dup_mark) {
+										if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
+											PPIDArray cc_list;
+											CCheckCore & r_cc = GetCc();
+											int    cc_even = 0;
+											temp_buf.Z();
+											if(r_cc.GetListByChZnMark(chzn_mark, cc_list) > 0) {
+												for(uint j = 0; j < cc_list.getCount(); j++) {
+													const PPID cc_id = cc_list.get(j);
+													CCheckTbl::Rec cc_rec;
+													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) {
+														CCheckCore::MakeCodeString(&cc_rec, temp_buf);
+														if(cc_rec.Flags & CCHKF_RETURN)
+															cc_even--;
+														else
+															cc_even++;
+													}
+												}
+											}
+											if(cc_even & 1 && !F(fRetCheck))
+												ok = MessageError(PPERR_DUPCHZNMARKINOTHRCC, temp_buf.Space().Cat(chzn_mark), eomBeep|eomStatusLine);
+											else if(!(cc_even & 1) && F(fRetCheck))
+												ok = MessageError(PPERR_DUPCHZNMARKINOTHRCC, temp_buf.Space().Cat(chzn_mark), eomBeep|eomStatusLine);
+											else
+												rBlk.ChZnMark = chzn_mark;
+										}
+										else
+											rBlk.ChZnMark = chzn_mark;
+									}
+									else
+										ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
+								}
 							}
 						}
 					}
@@ -10470,17 +10505,16 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.GoodsID = rgi.ID;
 						STRNSCPY(r_item.GoodsName, rgi.Name);
 						STRNSCPY(r_item.BarCode,   rgi.BarCode);
-						STRNSCPY(r_item.ChZnSerial, rBlk.ChZnSerial); // @v10.4.12
 						r_item.Quantity = R6(F(fRetCheck) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
 						r_item.Price    = price;
 						r_item.Discount = 0.0;
-						// @v9.5.10 {
-						if(is_abstract || look_back_price) // @v9.8.5 look_back_price
+						if(is_abstract || look_back_price) 
 							r_item.Flags |= cifFixedPrice;
-						// } @v9.5.10
 						SETFLAG(r_item.Flags, cifPriceBySerial, serial_price_tag);
 						STRNSCPY(r_item.Serial, rBlk.Serial);
 						STRNSCPY(r_item.EgaisMark, rBlk.EgaisMark); // @v9.0.9
+						STRNSCPY(r_item.ChZnSerial, rBlk.ChZnSerial); // @v10.4.12
+						STRNSCPY(r_item.ChZnMark, rBlk.ChZnMark); // @v10.6.9
 						if(giftID) {
 							r_item.Flags |= cifGift;
 							r_item.GiftID = giftID;

@@ -22,6 +22,7 @@ Data Matrix для табачной продукции и фармацевтик
 //
 // 46 bytes
 //
+#if 0 // @v10.6.9 {
 SLAPI ChZnCodeStruc::ChZnCodeStruc() : SStrGroup(), GtinPrefixP(0), GtinP(0), SerialPrefixP(0), SerialP(0), SkuP(0), TailP(0)
 {
 }
@@ -103,6 +104,47 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 	}
 	return ok;
 }
+#endif // } 0 @v10.6.9
+
+//static 
+int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
+{
+	int    ok = 0;
+	SString raw_buf;
+	SString temp_buf;
+	rS.Z();
+	rS.AddOnlyToken(GtinStruc::fldSerial);
+	rS.AddOnlyToken(GtinStruc::fldPart);
+	rS.AddOnlyToken(GtinStruc::fldSscc18);
+	rS.AddOnlyToken(GtinStruc::fldGTIN14);
+	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+	{
+		temp_buf = pCode;
+		if(!temp_buf.IsAscii()) {
+			// Попытка транслировать латинский символ из локальной раскладки клавиатуры
+			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			for(size_t i = 0; i < temp_buf.Len(); i++) {
+				const uchar c = static_cast<uchar>(temp_buf.C(i));
+				KeyDownCommand kd;
+				uint   tc = kd.SetChar(c) ? kd.GetChar() : 0; 
+				raw_buf.CatChar(static_cast<char>(tc));
+			}
+			pCode = raw_buf.cptr();
+		}
+	}
+	int pr = rS.Parse(pCode);
+	if(pr == 1) {
+		if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+			if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
+				ok = SNTOK_CHZN_CIGITEM;
+			else if(temp_buf.Len() == 13)
+				ok = SNTOK_CHZN_SIGN_SGTIN;
+			else
+				ok = SNTOK_CHZN_GS1_GTIN;
+		}
+	}
+	return ok;
+}
 
 //static 
 int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
@@ -170,8 +212,22 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CHZNMARK_INPUT)) {
 				getCtrlString(CTL_CHZNMARK_INPUT, CodeBuf.Z());
 				SString msg_buf;
-				if(PPChZnPrcssr::IsChZnCode(CodeBuf) > 0)
-					PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
+				SString temp_buf;
+				GtinStruc gts;
+				const int pczcr = PPChZnPrcssr::ParseChZnCode(CodeBuf, gts);
+				if(pczcr) {
+					if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf))
+						msg_buf.Space().CatEq("GTIN14", temp_buf);
+					if(gts.GetToken(GtinStruc::fldSerial, &temp_buf))
+						msg_buf.Space().CatEq("SER", temp_buf);
+					if(gts.GetToken(GtinStruc::fldPart, &temp_buf))
+						msg_buf.Space().CatEq("PART", temp_buf);
+					if(gts.GetToken(GtinStruc::fldSscc18, &temp_buf))
+						msg_buf.Space().CatEq("SSCC18", temp_buf);
+					if(gts.GetToken(GtinStruc::fldPriceRuTobacco, &temp_buf))
+						msg_buf.Space().CatEq("PRICE", temp_buf);
+					//PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
+				}
 				else
 					PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
 				setStaticText(CTL_CHZNMARK_INFO, msg_buf);
@@ -201,7 +257,11 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 	}*/
     while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
-		if(PPChZnPrcssr::IsChZnCode(temp_buf) > 0) {
+		GtinStruc gts;
+		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+		//if(PPChZnPrcssr::IsChZnCode(temp_buf) > 0) {
+		if(pczcr) {
+			rMark = temp_buf;
 			ok = 1;
 		}
 		else {

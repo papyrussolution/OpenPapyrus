@@ -1884,6 +1884,8 @@ PPERR_DUPDEBTDIMINLIST              "Долговая размерность '%s
 PPERR_FILEISNTPPAPI                 "Файл '%s' имеет формат, отличный от Papyrus Async POS Interchange"
 PPERR_DUPEGAISMARKINCC              "Марка @{brand_egais} уже была просканирована в этом чеке (%s)"
 PPERR_DUPEGAISMARKINOTHRCC          "Марка @{brand_egais} была просканирована в другом чеке (%s)"
+PPERR_DUPCHZNMARKINCC               "Марка @{brand_chzn} уже была просканирована в этом чеке (%s)"
+PPERR_DUPCHZNMARKINOTHRCC           "Марка @{brand_chzn} была просканирована в другом чеке (%s)"
 PPERR_EGAISMARKISEXHAUSTED          "Акцизная марка (или бокс) уже израсходована '%s'"
 PPERR_EGAISMARKNOTFOUND             "Акцизная марка (или бокс) не может быть израсходована поскольку не идентифицирована '%s'"
 PPERR_EGAISMARKMISSGOODS            "Акцизная марка (или бокс) найдена, но не принадлежит заданному товару '%s'"

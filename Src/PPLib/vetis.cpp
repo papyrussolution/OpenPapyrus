@@ -8421,7 +8421,6 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 									if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 										rec.EntityID = ex_rec.EntityID;
 										THROW_DB(PeC.DT.updateRecBuf(&rec));
-										rPbrBlk.ManufIncomeDocEntityID = rec.EntityID;
 										break;
 									}
 									if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) {
@@ -8451,7 +8450,6 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 								entity.SetupVetDocument();
 								THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
 								THROW_DB(PeC.DT.insertRecBuf(&rec));
-								rPbrBlk.ManufIncomeDocEntityID = rec.EntityID;
 							}
 							ok = 1;
 						}
@@ -8469,137 +8467,145 @@ int SLAPI PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, lo
 				}
 				rec.Flags |= VetisVetDocument::fFromMainOrg;
 				if(flags & pbrfManufInc) {
-					rec.Flags |= VetisVetDocument::fManufIncome;
-					THROW(rPbrBlk.ManufIncomeDocEntityID == 0);
-					if(p_ref->Ot.GetTagStr(PPOBJ_GOODS, labs(r_ti.GoodsID), PPTAG_GOODS_VETISGUID, temp_buf) > 0 && goods_guid.FromStr(temp_buf)) {
-						VetisEntityCore::Entity entity_goods;
-						VetisProductItem product_item;
-						if(rPbrBlk.BillID != rBp.Rec.ID) {
-							rPbrBlk.BillID = rBp.Rec.ID;
-							rPbrBlk.PersonGuid.Z();
-							rPbrBlk.DlvrLocGuid.Z();
-						}
-						rec.LinkToPsnID = rPbrBlk.PersonID;
-						rec.LinkToDlvrLocID = rPbrBlk.DlvrLocID;
-						int    is_product_resolved = 0;
-						if(PeC.GetEntityByGuid(goods_guid, entity_goods) > 0 && PeC.Get(entity_goods.ID, product_item) > 0)
-							is_product_resolved = 1;
-						else {
-							VetisApplicationBlock goods_reply;
-							int rr = GetEntityQuery(qtProductItemByGuid, VGuidToStr(goods_guid, temp_buf), goods_reply);
-							if(rr > 0 && goods_reply.ProductItemList.getCount()) {
-								PPID   entity_id = 0;
-								THROW(PeC.Put(&entity_id, VetisEntityCore::kProductItem, *goods_reply.ProductItemList.at(0), 0, 0));
-								if(PeC.GetEntityByGuid(goods_guid, entity_goods) > 0 && PeC.Get(entity_goods.ID, product_item) > 0)
-									is_product_resolved = 1;
+					if(r_ti.Quantity_ > 0.0) {
+						rec.VetisDocType = vetisdoctypPRODUCTIVE;
+						rec.Flags |= VetisVetDocument::fManufIncome;
+						THROW(rPbrBlk.ManufIncomeDocEntityID == 0);
+						if(p_ref->Ot.GetTagStr(PPOBJ_GOODS, labs(r_ti.GoodsID), PPTAG_GOODS_VETISGUID, temp_buf) > 0 && goods_guid.FromStr(temp_buf)) {
+							VetisEntityCore::Entity entity_goods;
+							VetisProductItem product_item;
+							if(rPbrBlk.BillID != rBp.Rec.ID) {
+								rPbrBlk.BillID = rBp.Rec.ID;
+								rPbrBlk.PersonGuid.Z();
+								rPbrBlk.DlvrLocGuid.Z();
 							}
-						}
-						if(is_product_resolved) {
-							rec.ProductItemID = product_item.EntityID;
-							const ObjTagItem * p_manuf_tm_tag = rBp.LTagL.GetTag(rowIdx, PPTAG_LOT_MANUFTIME);
-							LDATETIME manuf_dtm = ZERODATETIME;
-							if(!p_manuf_tm_tag || !p_manuf_tm_tag->GetTimestamp(&manuf_dtm))
-								manuf_dtm.Set(rBp.Rec.Dt, ZEROTIME);
-							rec.ManufDateTo = rec.ManufDateFrom = SUniTime(manuf_dtm).ToInt64();
-							if(checkdate(r_ti.Expiry)) {
-								rec.ExpiryTo = rec.ExpiryFrom = SUniTime(r_ti.Expiry).ToInt64();
+							rec.LinkToPsnID = rPbrBlk.PersonID;
+							rec.LinkToDlvrLocID = rPbrBlk.DlvrLocID;
+							int    is_product_resolved = 0;
+							if(PeC.GetEntityByGuid(goods_guid, entity_goods) > 0 && PeC.Get(entity_goods.ID, product_item) > 0)
+								is_product_resolved = 1;
+							else {
+								VetisApplicationBlock goods_reply;
+								int rr = GetEntityQuery(qtProductItemByGuid, VGuidToStr(goods_guid, temp_buf), goods_reply);
+								if(rr > 0 && goods_reply.ProductItemList.getCount()) {
+									PPID   entity_id = 0;
+									THROW(PeC.Put(&entity_id, VetisEntityCore::kProductItem, *goods_reply.ProductItemList.at(0), 0, 0));
+									if(PeC.GetEntityByGuid(goods_guid, entity_goods) > 0 && PeC.Get(entity_goods.ID, product_item) > 0)
+										is_product_resolved = 1;
+								}
 							}
-							assert(__volume > 0.0); // Инициализирован выше 
-							rec.Volume = __volume;
-							{
-								MEMSZERO(k1);
-								k1.LinkBillID = rBp.Rec.ID;
-								k1.LinkBillRow = r_ti.RByBill;
-								if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
-									do {
-										VetisDocumentTbl::Rec ex_rec;
-										PeC.DT.copyBufTo(&ex_rec);
-										if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
-											rec.EntityID = ex_rec.EntityID;
-											THROW_DB(PeC.DT.updateRecBuf(&rec));
-											break;
-										}
-										if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
-											; // go to the next record
-										}
-										else {
-											if(P_Logger) {
-												// Строка документа уже имеет сертификат %s
-												/*
-												SString status_text;
-												PPLoadText(PPTXT_VETISBILLROWALLREADYHASCERT, fmt_buf);
-												if(!SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), src_rec.VetisDocStatus, status_text)) {
-													status_text.Z().Cat(src_rec.VetisDocStatus);
-												}
-												(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
-													Space().Cat(src_rec.IssueNumber).Space().Cat(status_text);
-												msg_buf.Printf(fmt_buf, temp_buf.cptr());
-												P_Logger->Log(msg_buf);
-												*/
+							if(is_product_resolved) {
+								rec.ProductItemID = product_item.EntityID;
+								const ObjTagItem * p_manuf_tm_tag = rBp.LTagL.GetTag(rowIdx, PPTAG_LOT_MANUFTIME);
+								LDATETIME manuf_dtm = ZERODATETIME;
+								if(!p_manuf_tm_tag || !p_manuf_tm_tag->GetTimestamp(&manuf_dtm))
+									manuf_dtm.Set(rBp.Rec.Dt, ZEROTIME);
+								rec.ManufDateTo = rec.ManufDateFrom = SUniTime(manuf_dtm).ToInt64();
+								if(checkdate(r_ti.Expiry)) {
+									rec.ExpiryTo = rec.ExpiryFrom = SUniTime(r_ti.Expiry).ToInt64();
+								}
+								assert(__volume > 0.0); // Инициализирован выше 
+								rec.Volume = __volume;
+								{
+									MEMSZERO(k1);
+									k1.LinkBillID = rBp.Rec.ID;
+									k1.LinkBillRow = r_ti.RByBill;
+									if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
+										do {
+											VetisDocumentTbl::Rec ex_rec;
+											PeC.DT.copyBufTo(&ex_rec);
+											if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
+												rec.EntityID = ex_rec.EntityID;
+												THROW_DB(PeC.DT.updateRecBuf(&rec));
+												rPbrBlk.ManufIncomeDocEntityID = rec.EntityID;
+												break;
 											}
-											break;
-										}
-									} while(PeC.DT.searchForUpdate(1, &k1, spNext) && PeC.DT.data.LinkBillID == rBp.Rec.ID && PeC.DT.data.LinkBillRow == r_ti.RByBill);
+											if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
+												; // go to the next record
+											}
+											else {
+												if(P_Logger) {
+													// Строка документа уже имеет сертификат %s
+													/*
+													SString status_text;
+													PPLoadText(PPTXT_VETISBILLROWALLREADYHASCERT, fmt_buf);
+													if(!SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), src_rec.VetisDocStatus, status_text)) {
+														status_text.Z().Cat(src_rec.VetisDocStatus);
+													}
+													(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
+														Space().Cat(src_rec.IssueNumber).Space().Cat(status_text);
+													msg_buf.Printf(fmt_buf, temp_buf.cptr());
+													P_Logger->Log(msg_buf);
+													*/
+												}
+												break;
+											}
+										} while(PeC.DT.searchForUpdate(1, &k1, spNext) && PeC.DT.data.LinkBillID == rBp.Rec.ID && PeC.DT.data.LinkBillRow == r_ti.RByBill);
+									}
+									else {
+										VetisEntityCore::Entity entity;
+										entity.SetupVetDocument();
+										THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
+										THROW_DB(PeC.DT.insertRecBuf(&rec));
+										rPbrBlk.ManufIncomeDocEntityID = rec.EntityID;
+									}
+									ok = 1;
 								}
-								else {
-									VetisEntityCore::Entity entity;
-									entity.SetupVetDocument();
-									THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
-									THROW_DB(PeC.DT.insertRecBuf(&rec));
-								}
-								ok = 1;
 							}
 						}
 					}
 				}
 				else {
-					assert(!lot_uuid.IsZero()); // Инициализирован выше 
-					rec.Flags |= VetisVetDocument::fManufExpense;
-					THROW(rPbrBlk.ManufIncomeDocEntityID != 0);
-					rec.DepDocEntityID = rPbrBlk.ManufIncomeDocEntityID;
-					assert(src_rec.EntityID != 0); // Инициализирован выше 
-					assert(__volume > 0.0); // Инициализирован выше 
-					rec.Volume = __volume; 
-					{
-						MEMSZERO(k1);
-						k1.LinkBillID = rBp.Rec.ID;
-						k1.LinkBillRow = r_ti.RByBill;
-						if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
-							do {
-								VetisDocumentTbl::Rec ex_rec;
-								PeC.DT.copyBufTo(&ex_rec);
-								if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
-									rec.EntityID = ex_rec.EntityID;
-									THROW_DB(PeC.DT.updateRecBuf(&rec));
-									break;
-								}
-								if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
-									; // go to the next record
-								}
-								else {
-									if(P_Logger) {
-										// Строка документа уже имеет сертификат %s
-										/*
-										SString status_text;
-										PPLoadText(PPTXT_VETISBILLROWALLREADYHASCERT, fmt_buf);
-										if(!SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), src_rec.VetisDocStatus, status_text)) {
-											status_text.Z().Cat(src_rec.VetisDocStatus);
-										}
-										(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
-											Space().Cat(src_rec.IssueNumber).Space().Cat(status_text);
-										msg_buf.Printf(fmt_buf, temp_buf.cptr());
-										P_Logger->Log(msg_buf);
-										*/
+					if(r_ti.Quantity_ < 0.0) {
+						assert(!lot_uuid.IsZero()); // Инициализирован выше 
+						rec.VetisDocType = vetisdoctypPRODUCTIVE;
+						rec.Flags |= VetisVetDocument::fManufExpense;
+						THROW(rPbrBlk.ManufIncomeDocEntityID != 0);
+						rec.DepDocEntityID = rPbrBlk.ManufIncomeDocEntityID;
+						assert(src_rec.EntityID != 0); // Инициализирован выше 
+						assert(__volume > 0.0); // Инициализирован выше 
+						rec.Volume = __volume; 
+						{
+							MEMSZERO(k1);
+							k1.LinkBillID = rBp.Rec.ID;
+							k1.LinkBillRow = r_ti.RByBill;
+							if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
+								do {
+									VetisDocumentTbl::Rec ex_rec;
+									PeC.DT.copyBufTo(&ex_rec);
+									if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
+										rec.EntityID = ex_rec.EntityID;
+										THROW_DB(PeC.DT.updateRecBuf(&rec));
+										break;
 									}
-									break;
-								}
-							} while(PeC.DT.searchForUpdate(1, &k1, spNext) && PeC.DT.data.LinkBillID == rBp.Rec.ID && PeC.DT.data.LinkBillRow == r_ti.RByBill);
-						}
-						else {
-							VetisEntityCore::Entity entity;
-							entity.SetupVetDocument();
-							THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
-							THROW_DB(PeC.DT.insertRecBuf(&rec));
+									if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
+										; // go to the next record
+									}
+									else {
+										if(P_Logger) {
+											// Строка документа уже имеет сертификат %s
+											/*
+											SString status_text;
+											PPLoadText(PPTXT_VETISBILLROWALLREADYHASCERT, fmt_buf);
+											if(!SIntToSymbTab_GetSymb(VetisVetDocStatus_SymbTab, SIZEOFARRAY(VetisVetDocStatus_SymbTab), src_rec.VetisDocStatus, status_text)) {
+												status_text.Z().Cat(src_rec.VetisDocStatus);
+											}
+											(temp_buf = bill_text).CatDiv(':', 2).Cat(src_rec.EntityID).Space().Cat(src_rec.IssueDate, DATF_DMY).
+												Space().Cat(src_rec.IssueNumber).Space().Cat(status_text);
+											msg_buf.Printf(fmt_buf, temp_buf.cptr());
+											P_Logger->Log(msg_buf);
+											*/
+										}
+										break;
+									}
+								} while(PeC.DT.searchForUpdate(1, &k1, spNext) && PeC.DT.data.LinkBillID == rBp.Rec.ID && PeC.DT.data.LinkBillRow == r_ti.RByBill);
+							}
+							else {
+								VetisEntityCore::Entity entity;
+								entity.SetupVetDocument();
+								THROW(PeC.SetEntity(entity, 0, &rec.EntityID, 0));
+								THROW_DB(PeC.DT.insertRecBuf(&rec));
+							}
 						}
 					}
 				}
@@ -8814,8 +8820,8 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 	PrcssrAlcReport::ReadConfig(&alcr_cfg);
 	// @v10.6.3 {
 	struct SetupOutgoingEntries_ControlBlock {
-		long Flags;
-		PPID SrcOpList[6];
+		long   Flags;
+		PPID   SrcOpList[6];
 	};
 	const SetupOutgoingEntries_ControlBlock control_block_list[] = {
 		{ pbrfDiscrepancy, { alcr_cfg.RcptEtcOpID, alcr_cfg.ExpndEtcOpID, 0, 0, 0, 0 } },
@@ -10643,6 +10649,8 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	// } @v10.5.9 
 	VetisDocumentViewItem vi;
 	PPIDArray entity_id_list;
+	PPIDArray manuf_id_list; // Список документов выхода из производства
+	LAssocArray manuf_assoc_list;
 	PPLogger logger;
 	SString fmt_buf, msg_buf;
 	SString addendum_msg_buf;
@@ -10651,7 +10659,17 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	PPWait(1);
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
-			entity_id_list.add(vi.EntityID);
+			if(vi.Flags & VetisVetDocument::fManufExpense) {
+				if(vi.DepDocEntityID) {
+					manuf_assoc_list.Add(vi.DepDocEntityID, vi.EntityID);
+				}
+			}
+			else {
+				entity_id_list.add(vi.EntityID);
+				if(vi.Flags & VetisVetDocument::fManufIncome) {
+					manuf_id_list.add(vi.EntityID);
+				}
+			}
 		}
 	}
 	if(entity_id_list.getCount()) {

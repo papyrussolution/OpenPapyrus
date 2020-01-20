@@ -7,7 +7,7 @@
 //
 //
 //
-SLAPI GtinStruc::GtinStruc() : StrAssocArray()
+SLAPI GtinStruc::GtinStruc() : StrAssocArray(), SpecialNaturalToken(0)
 {
 }
 
@@ -229,7 +229,7 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	{ GtinStruc::fldCouponCode3,           "8102" },
 };
 
-int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, uint * pPrefixLen, SString & rPrefix) const
+int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen, SString & rPrefix) const
 {
 	int    prefix_id = -1;
 	const  size_t src_len = sstrlen(pSrc);
@@ -237,7 +237,7 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, uint * pPrefixL
 	if(src_len >= 4) {
 		temp_buf.Z().CatN(pSrc, 4);
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
-		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && !StrAssocArray::Search(_id)) {
+		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			ASSIGN_PTR(pPrefixLen, 4);
 			prefix_id = _id;
 		}
@@ -245,7 +245,7 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, uint * pPrefixL
 	if(prefix_id <= 0 && src_len >= 3) {
 		temp_buf.Z().CatN(pSrc, 3);
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
-		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && !StrAssocArray::Search(_id)) {
+		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			ASSIGN_PTR(pPrefixLen, 3);
 			prefix_id = _id;
 		}
@@ -253,7 +253,7 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, uint * pPrefixL
 	if(prefix_id <= 0 && src_len >= 2) {
 		temp_buf.Z().CatN(pSrc, 2);
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
-		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && !StrAssocArray::Search(_id)) {
+		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			if((flags & dpfBOL) || !oneof2(_id, fldSscc18, fldGTIN14)) {
 				ASSIGN_PTR(pPrefixLen, 2);
 				prefix_id = _id;
@@ -304,6 +304,7 @@ uint SLAPI GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen
 GtinStruc & SLAPI GtinStruc::Z()
 {
 	StrAssocArray::Z();
+	SpecialNaturalToken = 0;
 	return *this;
 }
 
@@ -338,9 +339,26 @@ GTIN – 14 знаков
 00000046209443|j+Q'?P5|ACZA|C8bG
 00000046209443x-8xfgOACZAYGfv
 04606203098187o&zWeIyABr8l/nT
-
-
 */
+
+int SLAPI GtinStruc::GetToken(int tokenId, SString * pToken) const
+{
+	int    ok = 0;
+	uint   pos = 0;
+	if(StrAssocArray::Search(tokenId, &pos)) {
+		if(pToken) {
+			StrAssocArray::Item item = StrAssocArray::Get(pos);
+			*pToken = item.Txt;
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI GtinStruc::GetSpecialNaturalToken() const
+{
+	return SpecialNaturalToken;
+}
 
 int SLAPI GtinStruc::Parse(const char * pCode)
 {
@@ -367,13 +385,14 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 			StrAssocArray::Add(fldPriceRuTobacco, temp_buf);
 			temp_buf.Z().CatN(code_buf+25, 4);
 			StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+			SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
 		}
 		else {
 			const char * p = code_buf.cptr();
 			uint    dpf = dpfBOL;
 			while(*p) {
 				uint  prefix_len = 0;
-				int   prefix_id = DetectPrefix(p, dpf, &prefix_len, prefix_);
+				int   prefix_id = DetectPrefix(p, dpf, -1, &prefix_len, prefix_);
 				dpf = 0;
 				uint  fixed_len = 0;
 				if(prefix_id > 0) {
@@ -388,7 +407,7 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 						p += prefix_len;
 						int   next_prefix_id = -1;
 						uint  next_prefix_len = 0;
-						while(*p && (next_prefix_id = DetectPrefix(p, dpf, &next_prefix_len, next_prefix_)) <= 0) {
+						while(*p && (next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len, next_prefix_)) <= 0) {
 							temp_buf.CatChar(*p++);
 						}
 						THROW(!StrAssocArray::Search(prefix_id));

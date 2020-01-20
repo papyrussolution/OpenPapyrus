@@ -530,22 +530,38 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				ok = 0;
 		}
 		else {
-			ChZnCodeStruc czcs;
-			if(czcs.Parse(pBlk->Code) > 0) {
+			//ChZnCodeStruc czcs;
+			GtinStruc gts;
+			//if(czcs.Parse(pBlk->Code) > 0) {
+			if(PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts) > 0) {
 				SString temp_buf;
-				czcs.GetS(czcs.GtinP, temp_buf);
-				if(SearchByBarcode(temp_buf, &bcr, &goods_rec, BIN(pBlk->Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
-					pBlk->GoodsID = goods_rec.ID;
-					pBlk->Qtty = bcr.Qtty;
-					pBlk->Rec = goods_rec;
-					pBlk->Flags |= GoodsCodeSrchBlock::fChZnCode;
-					strnzcpy(pBlk->RetCode, bcr.Code, 16);
-					czcs.GetS(czcs.GtinP, temp_buf);
-					STRNSCPY(pBlk->ChZnGtin, temp_buf);
-					czcs.GetS(czcs.SerialP, temp_buf);
-					STRNSCPY(pBlk->ChZnSerial, temp_buf);
-					STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
-					ok = 1;
+				//czcs.GetS(czcs.GtinP, temp_buf);
+				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+					assert(temp_buf.Len() == 14);
+					if(temp_buf.C(0) == '0')
+						temp_buf.ShiftLeft(1);
+					else {
+						temp_buf.ShiftLeft(1);
+						temp_buf.TrimRight();
+						assert(temp_buf.Len() == 12);
+						int    cd = CalcBarcodeCheckDigit(temp_buf);
+						temp_buf.CatChar('0'+cd);
+					}
+					if(SearchByBarcode(temp_buf, &bcr, &goods_rec, BIN(pBlk->Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
+						pBlk->GoodsID = goods_rec.ID;
+						pBlk->Qtty = bcr.Qtty;
+						pBlk->Rec = goods_rec;
+						pBlk->Flags |= GoodsCodeSrchBlock::fChZnCode;
+						strnzcpy(pBlk->RetCode, bcr.Code, 16);
+						//czcs.GetS(czcs.GtinP, temp_buf);
+						gts.GetToken(GtinStruc::fldGTIN14, &temp_buf);
+						STRNSCPY(pBlk->ChZnGtin, temp_buf);
+						//czcs.GetS(czcs.SerialP, temp_buf);
+						gts.GetToken(GtinStruc::fldSerial, &temp_buf);
+						STRNSCPY(pBlk->ChZnSerial, temp_buf);
+						STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
+						ok = 1;
+					}
 				}
 			}
 			else if(pBlk->Flags & GoodsCodeSrchBlock::fUse2dTempl && SearchBy2dBarcode(pBlk->Code, &bcr, &goods_rec) > 0) {
