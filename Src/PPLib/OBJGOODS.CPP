@@ -1207,9 +1207,9 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			THROW(P_Tbl->Update(pID, &pPack->Rec, 0));
 			if(pPack->Rec.Kind == PPGDSK_GOODS && GetConfig().Flags & GCF_AUTOPREFBARCODE) {
 				uint   pref_item_pos = 0, single_item_pos = 0;
-				BarcodeTbl::Rec * p_pref_item = pPack->Codes.GetPreferredItem(&pref_item_pos);
+				const BarcodeTbl::Rec * p_pref_item = pPack->Codes.GetPreferredItem(&pref_item_pos);
 				if(!p_pref_item) {
-					BarcodeTbl::Rec * p_single_item = pPack->Codes.GetSingleItem(&single_item_pos);
+					const BarcodeTbl::Rec * p_single_item = pPack->Codes.GetSingleItem(&single_item_pos);
 					if(p_single_item) {
 						pPack->Codes.SetPreferredItem(single_item_pos);
 						pack_cmp_result_flags &= ~pefCodeEq;
@@ -3777,7 +3777,7 @@ int SLAPI PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmC
 		ok = AcceptQuot(pID, pPack, pCtx);
 	}
 	else {
-		int    is_new = BIN(!*pID);
+		const  int is_new = BIN(!*pID);
 		int    unchanged = 0;
 		RemoveDupBarcodes(pPack, pCtx);
 		RemoveDupArCodes(pPack, pCtx);

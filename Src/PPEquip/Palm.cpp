@@ -3528,7 +3528,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 								grparam.LocList = pPack->LocList.Get();
 								grparam.GoodsID = r_goods_entry.GoodsID;
 								grparam.DiffParam = GoodsRestParam::_diffLoc;
-								p_trfr->GetCurRest(&grparam);
+								p_trfr->GetCurRest(grparam);
 								temp_loc_list.clear();
 								if(grparam.Total.Rest > 0.0) {
 									for(uint grvidx = 0; grvidx < grparam.getCount(); grvidx++) {

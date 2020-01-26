@@ -1,6 +1,6 @@
 // WINCEXCH.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -91,9 +91,9 @@ int SLAPI StyloBHTExch(TcpSocket * pSo)
 						}
 						else if(r2 == -2) {
 							//
-							// Ëîò ñ ñåðèéíûì íîìåðîì íàéäåí, íî íàõîäèòñÿ íà äðóãîì ñêëàäå ëèáî
-							// çàêîí÷èëñÿ. Ñëåäîâàòåëüíî, äàåì ñîîáùåíèå â æóðíàë, è èíèöèàëèçèðóåì
-							// ÈÄ òîâàðà, êîëè÷åñòâî. Ñåðèéíûé íîìåð íå èñïîëüçóåì.
+							// Ð›Ð¾Ñ‚ Ñ ÑÐµÑ€Ð¸Ð¹Ð½Ñ‹Ð¼ Ð½Ð¾Ð¼ÐµÑ€Ð¾Ð¼ Ð½Ð°Ð¹Ð´ÐµÐ½, Ð½Ð¾ Ð½Ð°Ñ…Ð¾Ð´Ð¸Ñ‚ÑÑ Ð½Ð° Ð´Ñ€ÑƒÐ³Ð¾Ð¼ ÑÐºÐ»Ð°Ð´Ðµ Ð»Ð¸Ð±Ð¾
+							// Ð·Ð°ÐºÐ¾Ð½Ñ‡Ð¸Ð»ÑÑ. Ð¡Ð»ÐµÐ´Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾, Ð´Ð°ÐµÐ¼ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ Ð² Ð¶ÑƒÑ€Ð½Ð°Ð», Ð¸ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÐ¼
+							// Ð˜Ð” Ñ‚Ð¾Ð²Ð°Ñ€Ð°, ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾. Ð¡ÐµÑ€Ð¸Ð¹Ð½Ñ‹Ð¹ Ð½Ð¾Ð¼ÐµÑ€ Ð½Ðµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼.
 							//
 							rec.ID = ssp.GoodsID;
 							r = 1;
@@ -227,7 +227,7 @@ int SLAPI StyloBhtIIExchanger::GetConfig(StyloBhtIIConfig * pCfg)
 	PPGetFileName(PPFILNAM_BHT_CONFIG, fname);
  	SPathStruc::ReplaceExt(fname, "dat", 1);
 	(path = DeviceDir).Cat(fname);
-	/* Íå áóäåì òðîãàòü ôàéë êîíôèãóðàöèè èç ïàïêè îáìåíà
+	/* ÐÐµ Ð±ÑƒÐ´ÐµÐ¼ Ñ‚Ñ€Ð¾Ð³Ð°Ñ‚ÑŒ Ñ„Ð°Ð¹Ð» ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸ Ð¸Ð· Ð¿Ð°Ð¿ÐºÐ¸ Ð¾Ð±Ð¼ÐµÐ½Ð°
 	if(fileExists(path)) {
 		THROW_SL(file.Open(path, SFile::mRead|SFile::mBinary));
 		THROW_SL(file.Read(&cfg, sizeof(StyloBhtIIConfig)));
@@ -236,7 +236,7 @@ int SLAPI StyloBhtIIExchanger::GetConfig(StyloBhtIIConfig * pCfg)
 	}
 	else*/
 	//
-	// Áóäåì êàæäûé ðàç ãîòîâèòü ôàéë êîíôèãóðàöèè
+	// Ð‘ÑƒÐ´ÐµÐ¼ ÐºÐ°Ð¶Ð´Ñ‹Ð¹ Ñ€Ð°Ð· Ð³Ð¾Ñ‚Ð¾Ð²Ð¸Ñ‚ÑŒ Ñ„Ð°Ð¹Ð» ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸
 	//
 	if(BhtPack.Rec.BhtTypeID == PPObjBHT::btStyloBhtII) {
 		PPObjBHT bht_obj;
@@ -560,9 +560,8 @@ int SLAPI StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 	RetailGoodsInfo rgi;
 	GoodsCodeSrchBlock srch_blk;
 	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
-
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
-	MEMSZERO(lot_rec);
+	// @v10.6.10 @ctr MEMSZERO(lot_rec);
 	STRNSCPY(srch_blk.Code, pBarcode);
 	srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
 	if(GObj.SearchByCodeExt(&srch_blk) > 0)
@@ -827,7 +826,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 								gp.CalcMethod  = GoodsRestParam::pcmSum;
 								gp.Date        = ZERODATE;
 								gp.LocID       = loc_id;
-								BillObj->trfr->GetRest(&gp);
+								BillObj->trfr->GetRest(gp);
 								ret_blk.Rest = gp.Total.Rest;
 							}
 							THROW_SL(ret_buf.Write(&ret_blk, sizeof(ret_blk)));

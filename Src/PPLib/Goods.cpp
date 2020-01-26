@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -86,7 +86,7 @@ int SLAPI BarcodeArrangeConfig::Save()
 
 int SLAPI BarcodeArrangeConfig::IsLowPrior(const char * pBarcode) const
 {
-	size_t lpp_len = sstrlen(LowPriorPrefix);
+	const size_t lpp_len = sstrlen(LowPriorPrefix);
 	if(lpp_len) {
 		if(strnicmp(pBarcode, LowPriorPrefix, lpp_len) == 0)
 			if(!LowPriorLen || sstrlen(pBarcode) == LowPriorLen)
@@ -237,14 +237,14 @@ int FASTCALL BarcodeArray::GetSingle(SString & rBuf) const
 	return ok;
 }
 
-BarcodeTbl::Rec * FASTCALL BarcodeArray::GetSingleItem(uint * pPos) const
+const BarcodeTbl::Rec * FASTCALL BarcodeArray::GetSingleItem(uint * pPos) const
 {
-	BarcodeTbl::Rec * p_ret = 0;
+	const  BarcodeTbl::Rec * p_ret = 0;
 	const  uint c = getCount();
 	if(c) {
 		uint   i, p = 0;
 		if(c > 1) {
-			BarcodeTbl::Rec * p_pref_item = GetPreferredItem(&i);
+			const BarcodeTbl::Rec * p_pref_item = GetPreferredItem(&i);
 			if(p_pref_item)
 				p = i;
 			else {
@@ -283,7 +283,7 @@ int FASTCALL BarcodeArray::SetPreferredItem(uint pos)
 	return ok;
 }
 
-BarcodeTbl::Rec * FASTCALL BarcodeArray::GetPreferredItem(uint * pPos) const
+const BarcodeTbl::Rec * FASTCALL BarcodeArray::GetPreferredItem(uint * pPos) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		if(IsInnerBarcodeType(at(i).BarcodeType, BARCODE_TYPE_PREFERRED)) {
@@ -364,8 +364,7 @@ int SLAPI TwoDimBarcodeFormatArray::Init()
 	return ok;
 }
 
-int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLine,
-	BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const
+int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec) const
 {
 	int    ok = -1;
 	size_t len = sstrlen(pCodeLine);

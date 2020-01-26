@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -88,7 +88,7 @@ IMPL_CMPFUNC(GoaCacheItem_P, i1, i2)
 	int    si;
 	CMPCASCADE4(si, p1, p2, Sign, GoodsID, ArID, LocID);
 	if(si == 0) {
-		double p = R6(p1->Price-p2->Price);
+		const double p = R6(p1->Price-p2->Price);
 		if(p < 0)
 			si = -1;
 		else if(p > 0)
@@ -3930,7 +3930,7 @@ int SLAPI PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 							gr_param.Date    = ZERODATE; // Текущий остаток
 							gr_param.LocID   = item.LocID;
 							gr_param.GoodsID = goods_id;
-							THROW(P_BObj->trfr->GetCurRest(&gr_param));
+							THROW(P_BObj->trfr->GetCurRest(gr_param));
 							qtty = gr_param.Total.Rest;
 						}
 					}

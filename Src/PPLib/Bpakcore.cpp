@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -56,7 +56,7 @@ int PayPlanArray::GetLast(LDATE * pDt, double * pAmount, double * pInterest) con
 	if(getCount())
 		item = at(getCount()-1);
 	else {
-		MEMSZERO(item);
+		// @v10.6.10 @ctr MEMSZERO(item);
 		ok = -1;
 	}
 	ASSIGN_PTR(pDt, item.PayDate);
@@ -2662,7 +2662,7 @@ int SLAPI PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 			Rec.Amount = BR2(rec.Amount);
 			if(rec.Flags & BILLF_BANKING) {
 				PPBankingOrder paym_order;
-				MEMSZERO(paym_order);
+				// @v10.6.10 @ctr MEMSZERO(paym_order);
 				if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
 					THROW_MEM(P_PaymOrder = new PPBankingOrder);
 					*P_PaymOrder = paym_order;

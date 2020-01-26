@@ -424,7 +424,7 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 //
-SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0)
+SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0)
 {
 }
 //
@@ -4102,13 +4102,18 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						PgsBlock pgsb(qtty);
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
+						// @v10.6.10 {
+						if(gcsb.Flags & (gcsb.fMarkedCode | gcsb.fChZnCode))
+							pgsb.Flags |= PgsBlock::fMarkedBarcode;
+						// } @v10.6.10 
 						// @v10.4.12 {
 						if(gcsb.Flags & gcsb.fChZnCode) {
 							if(gcsb.ChZnSerial[0])
 								pgsb.ChZnSerial = gcsb.ChZnSerial;
+							pgsb.ChZnMark = gcsb.Code; // @v10.6.10
 						}
 						// } @v10.4.12
-						if(PreprocessGoodsSelection(goods_id, loc_id, /*&qtty, serial, &price*/pgsb) > 0)
+						if(PreprocessGoodsSelection(goods_id, loc_id, pgsb) > 0)
 							SetupNewRow(goods_id, pgsb);
 					}
 					else if(CsObj.GetEqCfg().Flags & PPEquipConfig::fRecognizeCode) {
@@ -8594,10 +8599,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 							}
 						}
 						if(!is_mark_processed) {
-							if(gt_rec.Flags & GTF_GMARKED) {
-								SString chzn_mark;
+							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
 								rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека
-								if(PPChZnPrcssr::InputMark(chzn_mark) > 0) {
+								SString chzn_mark = rBlk.ChZnMark;
+								if(chzn_mark.NotEmpty() || PPChZnPrcssr::InputMark(chzn_mark) > 0) {
 									int    dup_mark = 0;
 									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 										if(chzn_mark.IsEqual(P.at(i).ChZnMark))
@@ -10081,10 +10086,7 @@ int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 		THROW(Implement_AcceptSCard(*pScRec));
 		if(pScRec->AutoGoodsID) {
 			PgsBlock pgsb(1.0);
-			//
-			// CheckPaneDialog::PreprocessGoodsSelection() - интерактивная функция. Ее необходимо разбить на базовую и интерактивные части.
-			// if(PreprocessGoodsSelection(pScRec->AutoGoodsID, 0, &qtty, temp_buf = 0, &price) > 0)
-				SetupNewRow(pScRec->AutoGoodsID, /*qtty, price, temp_buf*/pgsb);
+			SetupNewRow(pScRec->AutoGoodsID, pgsb);
 		}
 		CSt.Discount = fdiv100i(pScRec->PDis);
 		Flags |= fPctDis;
@@ -10153,11 +10155,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, int ignoreRights)
 						THROW(Implement_AcceptSCard(sc_rec));
 						if(sc_rec.AutoGoodsID) {
 							PgsBlock pgsb(1.0);
-							//double qtty = 1.0;
-							//double price = 0.0;
-							//temp_buf.Z();
-							//if(PreprocessGoodsSelection(sc_rec.AutoGoodsID, 0, &qtty, temp_buf = 0, &price) > 0)
-								SetupNewRow(sc_rec.AutoGoodsID, /*qtty, price, temp_buf*/pgsb);
+							SetupNewRow(sc_rec.AutoGoodsID, /*qtty, price, temp_buf*/pgsb);
 						}
 						CSt.Discount = fdiv100i(sc_rec.PDis);
 						Flags |= fPctDis;

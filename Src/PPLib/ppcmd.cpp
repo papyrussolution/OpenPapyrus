@@ -1,5 +1,6 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -417,16 +418,16 @@ int SLAPI PPCommand::Write(SBuffer & rBuf, long extraParam) const
 	THROW(PPCommandItem::Write(rBuf, extraParam));
 	THROW_SL(rBuf.Write(CmdID));
 	//
-	// @v9.0.11 Поля X и Y заменены на TPoint
-	// TPoint содержит x и y в том же порядке но используются знаковые int16
-	// (ранее X и Y были беззнаковыми uint16).
-	// Вероятнее всего замена
+	// @v9.0.11 РџРѕР»СЏ X Рё Y Р·Р°РјРµРЅРµРЅС‹ РЅР° TPoint
+	// TPoint СЃРѕРґРµСЂР¶РёС‚ x Рё y РІ С‚РѕРј Р¶Рµ РїРѕСЂСЏРґРєРµ РЅРѕ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ Р·РЅР°РєРѕРІС‹Рµ int16
+	// (СЂР°РЅРµРµ X Рё Y Р±С‹Р»Рё Р±РµР·Р·РЅР°РєРѕРІС‹РјРё uint16).
+	// Р’РµСЂРѕСЏС‚РЅРµРµ РІСЃРµРіРѕ Р·Р°РјРµРЅР°
 	// {
 	// THROW(rBuf.Write(&X, sizeof(X)));
 	// THROW(rBuf.Write(&Y, sizeof(Y)));
 	// }
-	// на THROW(rBuf.Write(&P, sizeof(P)));
-	// не послечет каких-либо проблем
+	// РЅР° THROW(rBuf.Write(&P, sizeof(P)));
+	// РЅРµ РїРѕСЃР»РµС‡РµС‚ РєР°РєРёС…-Р»РёР±Рѕ РїСЂРѕР±Р»РµРј
 	//
 	THROW_SL(rBuf.Write(&P, sizeof(P)));
 	//
@@ -453,7 +454,7 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 	int ok = 1;
 	SString temp_buf;
 	_kf_block _kf(this);
-	if(rwFlag==PPCommandMngr::fRWByXml) {
+	if(rwFlag == PPCommandMngr::fRWByXml) {
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
 		if(p_xml_writer) {
 			SXml::WNode command_node(p_xml_writer, "Command");
@@ -466,7 +467,7 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 			command_node.PutInner("Param", temp_buf);
 		}
 	}
-	else if(rwFlag==PPCommandMngr::fRWByTxt) {
+	else if(rwFlag == PPCommandMngr::fRWByTxt) {
 
 	}
 	CATCHZOK
@@ -477,7 +478,7 @@ int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 	int    ok = 1;
 	SString temp_buf;
 	int16 x, y;
-	if(rwFlag==PPCommandMngr::fRWByXml) {
+	if(rwFlag == PPCommandMngr::fRWByXml) {
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "Command")) {
 			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
@@ -662,12 +663,12 @@ int SLAPI PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @
 	uint   i;
 	if(rwFlag==PPCommandMngr::fRWByXml) {
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
-		//зависимы от зоны видимости command_folder_node.
-		//  Поэтому происходит дублирование цикла for.
-		//  Если выйдем за пределы зоны видемости, будем писать в файл за пределами
-		//  тега CommandFolder
-		//Если  p_xml_writer определен, то пишем в него. Если нет, то мы еще в начале xml файла и 
-		//  p_ci является экземпляром PPCommandGroup, в нем мы и определим далее p_xml_writer
+		//Р·Р°РІРёСЃРёРјС‹ РѕС‚ Р·РѕРЅС‹ РІРёРґРёРјРѕСЃС‚Рё command_folder_node.
+		//  РџРѕСЌС‚РѕРјСѓ РїСЂРѕРёСЃС…РѕРґРёС‚ РґСѓР±Р»РёСЂРѕРІР°РЅРёРµ С†РёРєР»Р° for.
+		//  Р•СЃР»Рё РІС‹Р№РґРµРј Р·Р° РїСЂРµРґРµР»С‹ Р·РѕРЅС‹ РІРёРґРµРјРѕСЃС‚Рё, Р±СѓРґРµРј РїРёСЃР°С‚СЊ РІ С„Р°Р№Р» Р·Р° РїСЂРµРґРµР»Р°РјРё
+		//  С‚РµРіР° CommandFolder
+		//Р•СЃР»Рё  p_xml_writer РѕРїСЂРµРґРµР»РµРЅ, С‚Рѕ РїРёС€РµРј РІ РЅРµРіРѕ. Р•СЃР»Рё РЅРµС‚, С‚Рѕ РјС‹ РµС‰Рµ РІ РЅР°С‡Р°Р»Рµ xml С„Р°Р№Р»Р° Рё 
+		//  p_ci СЏРІР»СЏРµС‚СЃСЏ СЌРєР·РµРјРїР»СЏСЂРѕРј PPCommandGroup, РІ РЅРµРј РјС‹ Рё РѕРїСЂРµРґРµР»РёРј РґР°Р»РµРµ p_xml_writer
 		if(p_xml_writer) {
 			SXml::WNode command_folder_node(p_xml_writer, "CommandFolder");
 			if(!(Kind == PPCommandItem::kGroup && !Flags && !ID))
@@ -1283,7 +1284,7 @@ int SLAPI PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 			if(DeskGuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 				PPCommandMngr::GetDesksDir(path);
 				path.SetLastSlash().Cat(guid_str).Cat(".xml");
-				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
+				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // СЃРѕР·РґР°РЅРёРµ writerA
 				if(p_xml_writer) {
 					xmlTextWriterSetIndent(p_xml_writer, 1);
 					xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
@@ -1345,7 +1346,7 @@ int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 				}
 				if(SXml::IsName(p_node, "CommandFolder")) {
 					THROW(PPCommandFolder::Read2(p_node, rwFlag));
-					state = 1; // если данные считаны корректно, то можем работать дальше
+					state = 1; // РµСЃР»Рё РґР°РЅРЅС‹Рµ СЃС‡РёС‚Р°РЅС‹ РєРѕСЂСЂРµРєС‚РЅРѕ, С‚Рѕ РјРѕР¶РµРј СЂР°Р±РѕС‚Р°С‚СЊ РґР°Р»СЊС€Рµ
 				}
 			}
 			if(DeskGuid.IsZero())
@@ -1492,9 +1493,9 @@ SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly) : ReadO
 		mode = (SFile::mReadWrite | SFile::mDenyWrite | mDenyRead); // @v9.0.11 mDenyRead
 	mode |= (SFile::mBinary | SFile::mNoStd);
 	//
-	// Так как файл может быть заблокирован другим пользователем,
-	// предпримем несколько попыток его открытия.
-	// Исходим из предположения, что файл для записи открывается на малое время.
+	// РўР°Рє РєР°Рє С„Р°Р№Р» РјРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ РґСЂСѓРіРёРј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј,
+	// РїСЂРµРґРїСЂРёРјРµРј РЅРµСЃРєРѕР»СЊРєРѕ РїРѕРїС‹С‚РѕРє РµРіРѕ РѕС‚РєСЂС‹С‚РёСЏ.
+	// РСЃС…РѕРґРёРј РёР· РїСЂРµРґРїРѕР»РѕР¶РµРЅРёСЏ, С‡С‚Рѕ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё РѕС‚РєСЂС‹РІР°РµС‚СЃСЏ РЅР° РјР°Р»РѕРµ РІСЂРµРјСЏ.
 	//
 	for(uint i = 0; i < 10; i++) {
 		if(F.Open(pFileName, mode))
@@ -1600,6 +1601,12 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 						ok = 1;
 					}
 				}
+				// @erik v10.6.10 {
+				xmlFreeDoc(p_doc);
+				p_doc = 0;
+				xmlFreeParserCtxt(p_xml_parser); 
+				p_xml_parser = 0;
+				// } @erik v10.6.10 
 			}
 		}
 	}
@@ -1611,7 +1618,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 
 int PPCommandMngr::GetDesksDir(SString &rDesksPath)
 {
-	PPGetFilePath(PPPATH_WORKSPACE, "desktop", rDesksPath);  // получаем путь к workspace
+	PPGetFilePath(PPPATH_WORKSPACE, "desktop", rDesksPath);  // РїРѕР»СѓС‡Р°РµРј РїСѓС‚СЊ Рє workspace
 	::createDir(rDesksPath);
 	return 1;
 }
@@ -2162,13 +2169,13 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						// } @v9.1.3
 						if(psn_data.Sc.Expiry) {
 							//
-							// Текст сообщения о сроке годности карты
+							// РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ СЃСЂРѕРєРµ РіРѕРґРЅРѕСЃС‚Рё РєР°СЂС‚С‹
 							//
 							prompt.CatDiv(';', 2).Cat(PPLoadTextS(PPTXT_SCARD_EXPIRY, symb)).Space().Cat(psn_data.Sc.Expiry);
 						}
 						if(psn_data.Sc.UsageTmStart || psn_data.Sc.UsageTmEnd) {
 							//
-							// Текст сообщения о времени действия карты
+							// РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ РІСЂРµРјРµРЅРё РґРµР№СЃС‚РІРёСЏ РєР°СЂС‚С‹
 							//
 							prompt.CatDiv(';', 2).Cat(PPLoadTextS(PPTXT_SCARD_TIMEPERIOD, symb)).Space();
 							if(psn_data.Sc.UsageTmStart)
@@ -2189,7 +2196,7 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						info.CatDivIfNotEmpty(';', 2).Cat(reg_buf);
 						if(reg_rec.Expiry && reg_rec.Expiry < getcurdate_()) {
 							//
-							// Текст сообщения о том, что срок действия регистра истек
+							// РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ С‚РѕРј, С‡С‚Рѕ СЃСЂРѕРє РґРµР№СЃС‚РІРёСЏ СЂРµРіРёСЃС‚СЂР° РёСЃС‚РµРє
 							//
 							GetRegisterTypeName(reg_rec.RegTypeID, reg_buf);
 							warn.Printf(PPLoadTextS(PPTXT_PSNREGEXPIRED, buf), reg_buf.cptr());
@@ -2202,8 +2209,8 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					}
 					if(warn.Empty()) {
 						//
-						// Если все предыдущие проверки прошли успешно, то проверяем
-						// все регистры персоналии на предмет истечения срока действия.
+						// Р•СЃР»Рё РІСЃРµ РїСЂРµРґС‹РґСѓС‰РёРµ РїСЂРѕРІРµСЂРєРё РїСЂРѕС€Р»Рё СѓСЃРїРµС€РЅРѕ, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј
+						// РІСЃРµ СЂРµРіРёСЃС‚СЂС‹ РїРµСЂСЃРѕРЅР°Р»РёРё РЅР° РїСЂРµРґРјРµС‚ РёСЃС‚РµС‡РµРЅРёСЏ СЃСЂРѕРєР° РґРµР№СЃС‚РІРёСЏ.
 						//
 						for(uint i = 0; i < psn_pack.Regs.getCount(); i++) {
 							const RegisterTbl::Rec & r_rec = psn_pack.Regs.at(i);
@@ -3204,7 +3211,7 @@ public:
 				SString temp_buf;
 				(srch_str2 = srch_str).Transf(CTRANSF_INNER_TO_OUTER);
 				//
-				// Поиск дат
+				// РџРѕРёСЃРє РґР°С‚
 				//
 				const char * p_dt_pattern = "[0-3]?[0-9][/.-][0-1]?[0-9][/.-][0-9]?[0-9]?[0-9]?[0-9]";
 				CRegExp expr(p_dt_pattern);
@@ -3223,7 +3230,7 @@ public:
 					scan.Len  = 0;
 				}
 				//
-				// Поиск номеров документов
+				// РџРѕРёСЃРє РЅРѕРјРµСЂРѕРІ РґРѕРєСѓРјРµРЅС‚РѕРІ
 				//
 				const char * p_code_pattern = "[^ ,][^ ,]+";
 				expr.Compile(p_code_pattern);

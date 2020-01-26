@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1643,7 +1643,7 @@ int SLAPI PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod
 				period.low = ZERODATE;
 				period.upp = getcurdate_();
 			}
-			const DateRepeating rept = *(DateRepeating *)&templ_rec.DrPrd;
+			const DateRepeating rept = *reinterpret_cast<const DateRepeating *>(&templ_rec.DrPrd);
 			DateRepIterator dr_iter(rept, templ_rec.Dt, period.upp);
 			for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {
 				if(period.CheckDate(dt)) {
@@ -1697,13 +1697,13 @@ int PrjTaskDialog::editRepeating()
 {
 	int    ok = -1;
 	if(Data.Kind == TODOKIND_TEMPLATE) {
-		DateRepeating dr = *(DateRepeating *)&Data.DrPrd;
+		DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&Data.DrPrd);
 		RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditRepeatAfterItem);
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&dr);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 				if(dlg->getDTS(&dr)) {
-					*(DateRepeating *)&Data.DrPrd = dr;
+					*reinterpret_cast<DateRepeating *>(&Data.DrPrd) = dr;
 					ok = valid_data = 1;
 				}
 		}
@@ -2434,7 +2434,7 @@ PPALDD_CONSTRUCTOR(Project)
 PPALDD_DESTRUCTOR(Project)
 {
 	Destroy();
-	delete (PPObjProject *) Extra[0].Ptr;
+	delete static_cast<PPObjProject *>(Extra[0].Ptr);
 }
 
 int PPALDD_Project::InitData(PPFilt & rFilt, long rsrv)

@@ -1,5 +1,5 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Интерфейс с асинхронными кассовыми устройствами
@@ -1922,7 +1922,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						param.Date    = /*LConfig.OperDate*/_now.d;
 						param.LocID   = LocID;
 						param.GoodsID = Rec.ID;
-						THROW(BillObj->trfr->GetCurRest(&param));
+						THROW(BillObj->trfr->GetCurRest(param));
 						Rec.Rest = param.Total.Rest;
 					}
 					THROW(GObj.P_Tbl->FetchQuotList(Rec.ID, 0, LocID, quot_list));
@@ -2273,7 +2273,7 @@ int SLAPI AsyncCashiersIterator::Next(AsyncCashierInfo * pInfo)
 				PPPersonPacket  psn_pack;
 				if(PsnObj.GetPacket(PsnObj.P_Tbl->Kind.data.PersonID, &psn_pack, 0) > 0 && (psn_pack.CshrInfo.Flags & CIF_CASHIER)) {
 					if(TabNumRegID) {
-						RegisterTbl::Rec  reg_rec;
+						RegisterTbl::Rec reg_rec;
 						for(uint  pos = 0; psn_pack.Regs.GetRegister(TabNumRegID, &pos, &reg_rec) > 0;)
 							if(reg_rec.Expiry == ZERODATE || diffdate(Since.d, reg_rec.Expiry) <= 0) {
 								PPID  tab_num;

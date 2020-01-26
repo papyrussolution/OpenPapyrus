@@ -3910,7 +3910,7 @@ double DL6ICLS_PPObjGoods::GetRest(int32 goodsID, int32 locID, LDATE dt, long su
 	gp.Date        = dt;
 	gp.SupplID     = supplID;
 	gp.LocID       = locID;
-	BillObj->trfr->GetRest(&gp);
+	BillObj->trfr->GetRest(gp);
 	rest = gp.Total.Rest;
 	return rest;
 }
@@ -6382,7 +6382,7 @@ int32 DL6ICLS_PPObjBill::CalcGoodsRest(SPpyGoodsRestBlock* pBlk)
         else {
 			gp.Flags_ &= ~GoodsRestParam::fPriceByQuot;
         }
-        ok = p_e->P_BObj->trfr->GetRest(&gp);
+        ok = p_e->P_BObj->trfr->GetRest(gp);
 		pBlk->Count = gp.Total.Count;
 		pBlk->Rest = gp.Total.Rest;
 		pBlk->Cost = gp.Total.Cost;
@@ -6412,7 +6412,7 @@ double DL6ICLS_PPObjBill::GetRestByTag(LDATE dt, int32 goodsID, int32 tagID, SSt
 					gp.LocList.add(p_loc_list->Get(i).Id);
 			}
 		}
-		if(p_e->P_BObj->trfr->GetRest(&gp) > 0) {
+		if(p_e->P_BObj->trfr->GetRest(gp) > 0) {
 			uint count = gp.getCount();
 			for(uint i = 0; rest == 0.0 && i < count; i++) {
 				GoodsRestVal & r_grv = gp.at(i);

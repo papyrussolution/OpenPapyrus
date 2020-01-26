@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Инвентаризация //
@@ -324,10 +324,10 @@ void PPObjBill::InvItem::Init(PPID goodsID, const char * pSerial)
 	STRNSCPY(Serial, pSerial);
 }
 
-PPObjBill::InvBlock::InvBlock(long flags)
+PPObjBill::InvBlock::InvBlock(long flags) : State(0), Flags(flags)
 {
-	THISZERO();
-	Flags = flags;
+	// @v10.6.10 THISZERO();
+	// @v10.6.10 Flags = flags;
 }
 
 int SLAPI PPObjBill::InitInventoryBlock(PPID billID, InvBlock & rBlk)
@@ -475,12 +475,12 @@ int SLAPI PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pIte
 		pRestParam->OprNo   = _oprno;
 		pRestParam->LocID   = rBlk.BillRec.LocID;
 		pRestParam->DiffParam |= GoodsRestParam::_diffSerial;
-		THROW(trfr->GetRest(pRestParam));
+		THROW(trfr->GetRest(*pRestParam));
 		rest = pRestParam->Total.Rest;
 		if(rBlk.Ioe.Flags & INVOPF_USESERIAL) {
-			GoodsRestVal * p_val;
+			const GoodsRestVal * p_val;
 			InventoryTbl::Rec ident_rec;
-			for(pRestParam->setPointer(0); (p_val = (GoodsRestVal *)pRestParam->next()) != 0;) {
+			for(pRestParam->setPointer(0); (p_val = static_cast<const GoodsRestVal *>(pRestParam->next())) != 0;) {
 				if(p_val->Serial[0] && GetInvT().SearchIdentical(rBlk.BillRec.ID, pItem->GoodsID, p_val->Serial, &ident_rec) > 0)
 					rest -= p_val->Rest;
 			}
@@ -549,7 +549,7 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 	PPTransferItem  * p_ti;
 	PPBillPacket link_pack;
 	{
-		PPObjSecur::Exclusion ose(PPEXCLRT_INVWROFFROLLBACK); // @v8.6.1
+		PPObjSecur::Exclusion ose(PPEXCLRT_INVWROFFROLLBACK);
 		PPTransaction tra(1);
 		for(DateIter diter; (r = P_Tbl->EnumLinks(id, &diter, BLNK_ALL)) > 0;) {
 			const PPID link_id = P_Tbl->data.ID;
@@ -719,7 +719,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 							t_sum = fabs(((blk.Ioe.Flags & INVOPF_COSTNOMINAL) ? p_ti->Cost : p_ti->Price) * p_ti->Qtty());
 						}
 						if(wroff_price_list.lsearch(&rec.OprNo, &pos, CMPF_LONG)) {
-							WrOffPriceBlock * p_wopb = (WrOffPriceBlock *)wroff_price_list.at(pos);
+							WrOffPriceBlock * p_wopb = static_cast<WrOffPriceBlock *>(wroff_price_list.at(pos));
 							if(p_ti->Date < p_wopb->Dt) {
 								p_wopb->Dt = p_ti->Date;
 								p_wopb->OprNo = trfr_rec.OprNo;
@@ -797,12 +797,11 @@ int SLAPI PPObjBill::ViewInventoryTotal(const PPIDArray & rIdList, const Invento
 		InventoryCore & r_inv_core = GetInvT();
 		PPIDArray goods_list;
 		InventoryFilt filt;
-		if(pFilt)
-			filt = *pFilt;
+		RVALUEPTR(filt, pFilt);
 		filt.Flags |= InventoryFilt::fMultipleTotal;
 		filt.BillList.Set(&rIdList);
 		THROW(r_inv_core.CalcTotal(&filt, &total, &goods_list));
-		total.GoodsCount = static_cast<long>(goods_list.getCount());
+		total.GoodsCount = goods_list.getCountI();
 	}
 	{
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_INVLINETOTAL))));
@@ -1118,12 +1117,12 @@ int SLAPI InventoryConversion::Run(PPID billID)
 				int    r;
 				int    is_inv_exists = 0;
 				int    is_asset = 0;
-				InventoryTbl::Rec ir;
 				GoodsRestParam p;
 				THROW(r = R_Tbl.SearchByGoods(invID, goods_id, &inv_list));
 				is_inv_exists = BIN(r > 0);
 				if(!is_inv_exists) {
-					MEMSZERO(ir);
+					InventoryTbl::Rec ir;
+					// @v10.6.10 @ctr MEMSZERO(ir);
 					inv_list.insert(&ir);
 					if(GObj.IsAsset(goods_id))
 						is_asset = 1;
@@ -1137,21 +1136,21 @@ int SLAPI InventoryConversion::Run(PPID billID)
 					}
 					for(j = 0; j < inv_list.getCount(); j++) {
 						double wroff_price = 0.0;
-						ir = inv_list.at(j);
-						if(!(ir.Flags & INVENTF_WRITEDOFF) || ir.UnwritedDiff != 0.0) {
+						const InventoryTbl::Rec & r_ir = inv_list.at(j);
+						if(!(r_ir.Flags & INVENTF_WRITEDOFF) || r_ir.UnwritedDiff != 0.0) {
 							ILTI   ilti;
 							long   oprno;
 							double diff;
 							int    is_writed_off = 0;
 							ReceiptTbl::Rec lotr;
-							inv_item.Init(goods_id, ir.Serial);
+							inv_item.Init(goods_id, r_ir.Serial);
 							THROW(P_BObj->GetInventoryStockRest(blk, &inv_item, &p));
-							double inv_rest  = R6(ir.Quantity);
-							double inv_price = ir.Price;
+							double inv_rest  = R6(r_ir.Quantity);
+							double inv_price = r_ir.Price;
 							double stock_rest  = R6(inv_item.FinalRest);
 							double stock_price = R2(inv_item.StockPrice);
-							if(ir.Flags & INVENTF_WRITEDOFF)
-								diff = R6(ir.UnwritedDiff) * INVENT_DIFFSIGN(ir.Flags);
+							if(r_ir.Flags & INVENTF_WRITEDOFF)
+								diff = R6(r_ir.UnwritedDiff) * INVENT_DIFFSIGN(r_ir.Flags);
 							else
 								diff = R6(inv_rest - stock_rest);
 							if(diff < 0.0) {
@@ -1160,12 +1159,12 @@ int SLAPI InventoryConversion::Run(PPID billID)
 									uint  cvt_flags = CILTIF_DEFAULT;
 									if(invOpEx.Flags & INVOPF_WROFFWODSCNT)
 										cvt_flags |= CILTIF_ZERODSCNT;
-									if(ir.Serial[0] == 0 && excl_serial.getDataLen()) {
+									if(r_ir.Serial[0] == 0 && excl_serial.getDataLen()) {
 										p_cvt_serial = excl_serial.getBuf();
 										cvt_flags |= CILTIF_EXCLUDESERIAL;
 									}
 									else
-										p_cvt_serial = ir.Serial;
+										p_cvt_serial = r_ir.Serial;
 									ilti.GoodsID = goods_id;
 			   						ilti.Price   = 0.0;
 									ilti.SetQtty(diff);
@@ -1215,7 +1214,7 @@ int SLAPI InventoryConversion::Run(PPID billID)
 											ilti.Cost = ilti.Price;
 										ilti.SetQtty(diff);
 										rows.clear();
-										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, ir.Serial)); // @v8.4.4 CILTIF_INHLOTTAGS
+										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, r_ir.Serial)); // @v8.4.4 CILTIF_INHLOTTAGS
 										// @v9.8.11 THROW(wrUpPack.ClbL.AddNumber(&rows, clb));
 										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb)); // @v9.8.11
 										{
@@ -1231,39 +1230,44 @@ int SLAPI InventoryConversion::Run(PPID billID)
 									}
 								}
 							}
-							if(is_writed_off) {
-								if(!is_inv_exists) {
-									MEMSZERO(ir);
-									ir.BillID   = invID;
-									ir.GoodsID  = goods_id;
-									ir.Flags   |= INVENTF_GENWROFFLINE;
-									ir.Quantity = 0.0;
-									ir.Price    = stock_price;
-									oprno       = 0;
+							{
+								InventoryTbl::Rec ir;
+								if(is_inv_exists)
+									ir = r_ir;
+								if(is_writed_off) {
+									if(!is_inv_exists) {
+										// @v10.6.10 @ctr MEMSZERO(ir);
+										ir.BillID   = invID;
+										ir.GoodsID  = goods_id;
+										ir.Flags   |= INVENTF_GENWROFFLINE;
+										ir.Quantity = 0.0;
+										ir.Price    = stock_price;
+										oprno       = 0;
+									}
+									else
+										oprno = ir.OprNo;
+									ir.StockRest  = stock_rest;
+									ir.StockPrice = stock_price;
+									ir.Flags     |= INVENTF_WRITEDOFF;
+									ir.UnwritedDiff = fabs(ilti.Rest);
+									ir.WrOffPrice   = wroff_price;
+									THROW(R_Tbl.Set(invID, &oprno, &ir, 0));
+									THROW(TurnPackets(0, 1));
+									if(ir.UnwritedDiff) {
+										PPLoadText(PPTXT_WROFFGOODS, temp_buf);
+										GetGoodsName(ir.GoodsID, goods_name);
+										msg.Printf(temp_buf, goods_name.cptr(), inv_rest - fabs(ir.UnwritedDiff), inv_rest);
+										logger.Log(msg);
+									}
 								}
-								else
+								else if(is_inv_exists) {
+									ir.StockRest  = stock_rest;
+									ir.StockPrice = stock_price;
+									ir.Flags &= ~INVENTF_WRITEDOFF;
 									oprno = ir.OprNo;
-								ir.StockRest  = stock_rest;
-								ir.StockPrice = stock_price;
-								ir.Flags     |= INVENTF_WRITEDOFF;
-								ir.UnwritedDiff = fabs(ilti.Rest);
-								ir.WrOffPrice   = wroff_price;
-								THROW(R_Tbl.Set(invID, &oprno, &ir, 0));
-								THROW(TurnPackets(0, 1));
-								if(ir.UnwritedDiff) {
-									PPLoadText(PPTXT_WROFFGOODS, temp_buf);
-									GetGoodsName(ir.GoodsID, goods_name);
-									msg.Printf(temp_buf, goods_name.cptr(), inv_rest - fabs(ir.UnwritedDiff), inv_rest);
-									logger.Log(msg);
+									ir.WrOffPrice = ir.StockPrice;
+									THROW(R_Tbl.Set(invID, &oprno, &ir, 0));
 								}
-							}
-							else if(is_inv_exists) {
-								ir.StockRest  = stock_rest;
-								ir.StockPrice = stock_price;
-								ir.Flags &= ~INVENTF_WRITEDOFF;
-								oprno = ir.OprNo;
-								ir.WrOffPrice = ir.StockPrice;
-								THROW(R_Tbl.Set(invID, &oprno, &ir, 0));
 							}
 						}
 					}
@@ -1371,6 +1375,7 @@ int SLAPI PrcssrInvImport::InitParam(Param * pParam)
 int PrcssrInvImport::EditParam(Param * pParam)
 {
 	class InvImportDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrInvImport::Param);
 	public:
 		InvImportDialog() : TDialog(DLG_IEINV)
 		{
@@ -1378,9 +1383,9 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			SetupCalDate(CTLCAL_IEINV_DATE, CTL_IEINV_DATE);
 			GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_INVENTORYITEM, &param, &CfgList, 2 /* import */);
 		}
-		int    setDTS(const PrcssrInvImport::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			int    ok = 1;
 			long   cfg_id = 0;
 			StringSet ss;
@@ -1394,11 +1399,11 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			setCtrlDate(CTL_IEINV_DATE, Data.Dt);
 			return ok;
 		}
-		int    getDTS(PrcssrInvImport::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
-			long   cfg_id = getCtrlLong(sel = CTLSEL_IEINV_CFG);
+			const  long cfg_id = getCtrlLong(sel = CTLSEL_IEINV_CFG);
 			SString temp_buf;
 			THROW_PP(cfg_id, PPERR_CFGNEEDED);
 			THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
@@ -1414,7 +1419,6 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			return ok;
 		}
 	private:
-		PrcssrInvImport::Param Data;
 		StrAssocArray CfgList;
 	};
 	DIALOG_PROC_BODY(InvImportDialog, pParam);
@@ -1422,7 +1426,7 @@ int PrcssrInvImport::EditParam(Param * pParam)
 
 int PrcssrInvImport::Init(const Param * pParam)
 {
-	P = *pParam;
+	RVALUEPTR(P, pParam);
 	int    ok = 1;
 	SString ini_file_name;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
@@ -1440,17 +1444,17 @@ int PrcssrInvImport::Init(const Param * pParam)
 int SLAPI PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::InvItem * pInvItem, PPLogger & rLogger)
 {
 	int    ok = -1;
-	ReceiptTbl::Rec lot_rec;
-	Goods2Tbl::Rec goods_rec;
-	SString serial, fmt_buf, log_msg;
+	SString serial;
 	(serial = pSerial).Strip();
 	if(serial.NotEmpty()) {
-		// @v7.3.4 {
 		PPIDArray lot_list;
 		if(P_BObj->SearchLotsBySerialExactly(serial, &lot_list) > 0) { // @v9.1.1 SearchLotsBySerial-->SearchLotsBySerialExactly
+			ReceiptTbl::Rec lot_rec;
 			int r = P_BObj->SelectLotFromSerialList(&lot_list, P.LocID, 0, &lot_rec);
 			if(r > 0 || r == -3) { // -3 - закрытый лот
+				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {
+					SString fmt_buf, log_msg;
 					// @log Товар '%s' идентифицирован по серийному номеру '%s'
 					PPLoadText((r == -3) ? PPTXT_LOG_IMPINV_GOODSIDBYSERIALCL : PPTXT_LOG_IMPINV_GOODSIDBYSERIAL, fmt_buf);
 					rLogger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, pSerial));
@@ -1459,16 +1463,6 @@ int SLAPI PrcssrInvImport::IdentifyBySerial(const char * pSerial, PPObjBill::Inv
 				}
 			}
 		}
-		// } @v7.3.4
-		/* @v7.3.4
-		if(P_BObj->SelectLotBySerial(serial, 0, P.LocID, &lot_rec) > 0 && GObj.Fetch(labs(lot_rec.GoodsID), &goods_rec) > 0) {
-			// @log Товар '%s' идентифицирован по серийному номеру '%s'
-			PPLoadText(PPTXT_LOG_IMPINV_GOODSIDBYSERIAL, fmt_buf);
-			rLogger.Log(log_msg.Printf(fmt_buf, goods_rec.Name, pSerial));
-			pInvItem->GoodsID = goods_rec.ID;
-			ok = 1;
-		}
-		*/
 	}
 	return ok;
 }

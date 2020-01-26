@@ -3225,7 +3225,7 @@ int SLAPI CCheckCore::CalcGoodsRest(PPID goodsID, LDATE dt, PPID locID, double *
 	gp.Date    = dt;
 	gp.LocID   = locID;
 	gp.GoodsID = goodsID;
-	THROW(BillObj->trfr->GetCurRest(&gp));
+	THROW(BillObj->trfr->GetCurRest(gp));
 	rest = gp.Total.Rest;
 	THROW(CalcActiveExpendByGoods(goodsID, locID, 0, &exp));
 	rest -= exp;

@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1522,7 +1522,7 @@ int SLAPI PPViewGoodsRest::CalcOrder(PPID goodsID, GoodsRestParam * pOutData)
 	if(!LocList.IsEmpty())
 		p.LocList = LocList.Get();
 	p.SupplID = 0;
-	if(P_BObj->trfr->GetRest(&p)) {
+	if(P_BObj->trfr->GetRest(p)) {
 		*pOutData = p;
 	}
 	else
@@ -1593,7 +1593,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 		ord_p.LocID      = LocList.GetSingle();
 		if(!LocList.IsEmpty())
 			ord_p.LocList = LocList.Get();
-		THROW(P_BObj->trfr->GetRest(&ord_p));
+		THROW(P_BObj->trfr->GetRest(ord_p));
 		order = ord_p.Total.Rest;
 		if(order == 0.0 && (ff & GoodsRestFilt::fNoZeroOrderOnly))
 			return 1;
@@ -1608,7 +1608,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 	p.P_SupplAgentBillList = pAgentBillList;
 	if(Filt.Sgg == sggLocation)
 		p.DiffParam |= GoodsRestParam::_diffLoc;
-	THROW(P_BObj->trfr->GetRest(&p));
+	THROW(P_BObj->trfr->GetRest(p));
 	p.Total.Rest -= GetUncompleteSessQttyByLocList(p.GoodsID, &p.LocList, 0);
 	if(draft_rcpt && p.Total.Rest == 0.0)
 		p.Total.DraftRcpt = GetDraftRcptByLocList(goods_id, &p.LocList, 0);

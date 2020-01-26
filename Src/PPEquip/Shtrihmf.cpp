@@ -88,8 +88,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 	PPSCardSeries ser_rec;
 	PPObjSCard   s_crd_obj;
 	PPObjPerson  psn_obj;
-
-	MEMSZERO(ser_rec);
+	// @v10.6.10 @ctr MEMSZERO(ser_rec);
 	for(ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 		if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 			PPSCardSerPacket scs_pack;
@@ -331,7 +330,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 		SString  temp_buf, buf, psn_name;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, stat_id);
 		scard_quot_ary.freeAll();
-		MEMSZERO(ser_rec);
+		// @v10.6.10 @ctr MEMSZERO(ser_rec);
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 				PPSCardSerPacket scs_pack;

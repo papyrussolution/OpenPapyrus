@@ -1,5 +1,6 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -12,7 +13,7 @@
 
 //static const char WinInetDLLPath[] = "wininet.dll";
 
-// @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
+// @v8.6.1 Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРѕ СЂР°РґРё СѓРґРѕР±СЃС‚РІР° РЅР°РІРёРіР°С†РёРё РІ Code:Blocks #ifdef __WIN32__
 // @v8.6.1 #endif // __WIN32__
 //
 // PpyInetDataPrcssr
@@ -42,10 +43,8 @@ static void SLAPI SetInetError(HMODULE handle)
 	}
 }
 
-SLAPI PpyInetDataPrcssr::PpyInetDataPrcssr()
+SLAPI PpyInetDataPrcssr::PpyInetDataPrcssr() : WinInetDLLHandle(0), InetSession(0)
 {
-	WinInetDLLHandle = 0;
-	InetSession = 0;
 #ifdef __WIN32__
 	Uninit();
 #endif // __WIN32__
@@ -58,7 +57,7 @@ SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
 #endif // __WIN32__
 }
 
-// @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
+// @v8.6.1 Р·Р°РєРѕРјРјРµРЅС‚РёСЂРѕРІР°РЅРѕ СЂР°РґРё СѓРґРѕР±СЃС‚РІР° РЅР°РІРёРіР°С†РёРё РІ Code:Blocks #ifdef __WIN32__
 
 int SLAPI PpyInetDataPrcssr::Init()
 {
@@ -599,9 +598,15 @@ static int SLAPI FtpReInit(WinInetFTP * pFtp, PPLogger * pLog)
 
 static SString & GetFileName(const char * pPath, SString & rFile)
 {
+	// @v10.6.10 {
+	SPathStruc ps(pPath);
+	ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFile); 
+	// } @v10.6.10
+	/* @v10.6.10
 	char drv[MAXDRIVE], dir[MAXDIR], fname[MAXPATH], ext[MAXEXT];
 	fnsplit(pPath, drv, dir, fname, ext);
 	(rFile = fname).Cat(ext);
+	*/
 	return rFile;
 }
 

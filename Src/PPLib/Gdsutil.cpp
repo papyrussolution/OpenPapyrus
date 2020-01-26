@@ -552,6 +552,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						pBlk->Qtty = bcr.Qtty;
 						pBlk->Rec = goods_rec;
 						pBlk->Flags |= GoodsCodeSrchBlock::fChZnCode;
+						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED)); // @v10.6.10
 						strnzcpy(pBlk->RetCode, bcr.Code, 16);
 						//czcs.GetS(czcs.GtinP, temp_buf);
 						gts.GetToken(GtinStruc::fldGTIN14, &temp_buf);
@@ -601,6 +602,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						pBlk->GoodsID = goods_rec.ID;
 						pBlk->Qtty = bcr.Qtty;
 						pBlk->Rec = goods_rec;
+						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED)); // @v10.6.10
 						ok = 1;
 					}
 					else if(P_Tbl->SearchByArCode(pBlk->ArID, code, &arc_rec, &goods_rec) > 0) {
@@ -2944,9 +2946,9 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 			P_Tbl->ReadBarcodes(goods_rec.ID, bc_list);
 			if(bc_list.getCount()) {
 				uint   pref_item_pos = 0, single_item_pos = 0;
-				BarcodeTbl::Rec * p_pref_item = bc_list.GetPreferredItem(&pref_item_pos);
+				const  BarcodeTbl::Rec * p_pref_item = bc_list.GetPreferredItem(&pref_item_pos);
 				if(!p_pref_item) {
-					BarcodeTbl::Rec * p_single_item = bc_list.GetSingleItem(&single_item_pos);
+					const BarcodeTbl::Rec * p_single_item = bc_list.GetSingleItem(&single_item_pos);
 					if(p_single_item) {
 						if(bc_list.SetPreferredItem(single_item_pos) > 0) {
 							THROW(P_Tbl->UpdateBarcodes(goods_rec.ID, &bc_list, 0));

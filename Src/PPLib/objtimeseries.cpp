@@ -4170,7 +4170,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindOptimalMaxDuck(const PPTimeSeriesPacket &
 int SLAPI PrcssrTsStrategyAnalyze::Run()
 {
 	const int force_fixed_maxduck_values = 1;
-	const int fixed_target_quant = 1;
+	// @v10.6.10 (strictly 'yes') const int fixed_target_quant = 1;
 	int    ok = 1;
 	const  LDATETIME now = getcurdatetime_();
 	ModelParam model_param;
@@ -4473,6 +4473,8 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 												org_tnnp.OptDelta2Range.low = p_main_frame_range->R.low;
 												org_tnnp.OptDelta2Range.upp = p_main_frame_range->R.upp;
 											}
+											org_tnnp.TargetQuant = target_quant; // @v10.6.10 
+#if 0 // @v10.6.10 {
 											if(fixed_target_quant) {
 												org_tnnp.TargetQuant = target_quant;
 											}
@@ -4505,13 +4507,14 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 												if(local_target_quant > 0)
 													org_tnnp.TargetQuant = local_target_quant;
 											}
+#endif // } 0 @v10.6.10
 											const uint org_target_quant = org_tnnp.TargetQuant;
 											for(uint ifsidx = 0; ifsidx < model_param.InputFrameSizeList.getCount(); ifsidx++) {
 												const uint input_frame_size = static_cast<uint>(model_param.InputFrameSizeList.get(ifsidx));
 												const PPObjTimeSeries::TrendEntry * p_trend_entry = PPObjTimeSeries::SearchTrendEntry(trend_list_set, input_frame_size);
 												assert(p_trend_entry);
 												assert(p_trend_entry->Stride == input_frame_size); // @paranoic
-												const int process_stake_mode_2 = 0;
+												// @v10.6.10 const int process_stake_mode_2 = 0;
 												// opt_factor_side:
 												// 0 - оптимизировать только в положительной области
 												// 1 - оптимизировать только в отрицательной области
@@ -4528,7 +4531,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 													tnnp2.OptDelta2Range.upp = p_main_frame_range->R.upp;
 												}
 												// } @v10.4.9
-												if(fixed_target_quant) { // Фиксированный TargetQuant
+												/* @v10.6.10 if(fixed_target_quant)*/ { // Фиксированный TargetQuant (since v10.6.10 strictly yes)
 													LongArray target_quant_list;
 													if(model_param.TargetQuantList.getCount())
 														target_quant_list = model_param.TargetQuantList;
@@ -4584,8 +4587,18 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 																	THROW_SL(scontainer.insert(dynamic_cast <PPObjTimeSeries::Strategy *>(&sre_test)));
 																}
 																f_out.Flush();
+																// @v10.6.10 {
+																if(model_param.MinWinRate > 0.0 && sre_test.GetWinCountRate() <= model_param.MinWinRate) {
+																	//
+																	// Нет смысла тестировать последующие стратегии в этом наборе поскольку уровень нажедности 
+																	// для каждого следующего кандидата снижается.
+																	//
+																	break;
+																}
+																// } @v10.6.10 
 															}
 														}
+#if 0 // @v10.6.10 {
 														if(process_stake_mode_2) {
 															PPObjTimeSeries::StrategyResultEntry sre(tnnp2, 0);
 															int    tstso = tstsofroMode2;
@@ -4625,8 +4638,10 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 																f_out.Flush();
 															}
 														}
+#endif // } 0 @v10.6.10
 													}
 												}
+#if 0 // @v10.6.10 {
 												else {
 													uint prev_target = tnnp2.TargetQuant;
 													for(int do_repeat_on_target_factor = 1, tfiter_no = 0; do_repeat_on_target_factor; tfiter_no++) {
@@ -4686,6 +4701,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 														}
 													}
 												}
+#endif // } 0 @v10.6.10
 											}
 										}
 									}

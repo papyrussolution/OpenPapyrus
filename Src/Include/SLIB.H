@@ -13920,7 +13920,7 @@ public:
 	SLAPI  VCalendar(const char * pFileName = 0, int forExport = 1);
 	SLAPI ~VCalendar();
 	int    SLAPI Open(const char * pFileName, int forExport);
-	int    SLAPI Close();
+	void   SLAPI Close();
 	int    SLAPI PutEvent(VCalendar::Event *);
 	int    SLAPI PutTodo(const VCalendar::Todo *);
 	int    SLAPI GetTodo(VCalendar::Todo *);

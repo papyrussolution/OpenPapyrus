@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // Теги объектов
 //
@@ -545,6 +545,20 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 //
 //
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
+
+class TagEnumListDialog : public PPListDialog {
+public:
+	TagEnumListDialog(uint dlgID, uint listCtlID, size_t listBufLen);
+	int    setDTS(const PPTagEnumList *);
+	int    getDTS(PPTagEnumList *);
+private:
+	virtual int  setupList();
+	virtual int  addItem(long * pos, long * id);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
+
+	PPTagEnumList  Data;
+};
 
 TagEnumListDialog::TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
 {

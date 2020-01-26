@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // PPViewInventory: отображение строк инвентаризации
 //
@@ -806,7 +806,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 						p.LocID   = CommonLocID;
 						p.GoodsID = goods_rec.ID;
 						p.Date    = CommonDate;
-						if(P_BObj->trfr->GetRest(&p) > 0 && p.Total.Rest > 0.0) {
+						if(P_BObj->trfr->GetRest(p) > 0 && p.Total.Rest > 0.0) {
 							MEMSZERO(inv_rec);
 							inv_rec.BillID  = single_bill_id;
 							inv_rec.GoodsID = goods_rec.ID;

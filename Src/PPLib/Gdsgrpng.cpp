@@ -440,16 +440,16 @@ int SLAPI GCT_Iterator::Next(TransferTbl::Rec * pRec)
 //
 //
 //
-int SLAPI GoodsGrpngArray::CalcRest(GoodsRestParam * p, const PPOprKind * pOpRec, double phuperu)
+int SLAPI GoodsGrpngArray::CalcRest(GoodsRestParam & rP, const PPOprKind * pOpRec, double phuperu)
 {
-	if(P_BObj->trfr->GetRest(p)) {
+	if(P_BObj->trfr->GetRest(rP)) {
 		GoodsGrpngEntry entry;
 		entry.SetOp(pOpRec);
-		entry.Quantity = p->Total.Rest;
-		entry.Volume   = p->Total.Rest * phuperu;
-		entry.Cost     = p->Total.Cost;
-		entry.Price    = p->Total.Price;
-		entry.Discount = p->Total.Count;
+		entry.Quantity = rP.Total.Rest;
+		entry.Volume   = rP.Total.Rest * phuperu;
+		entry.Cost     = rP.Total.Cost;
+		entry.Price    = rP.Total.Price;
+		entry.Discount = rP.Total.Count;
 		entry.Amount   = 0;
 		entry.Sign     = 1;
 		return AddEntry(&entry);
@@ -1142,12 +1142,12 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 					if(filt.Flags & OPG_CALCINREST) {
 						gp.Date = plusdate(filt.Period.low, -1);
 						op_rec.ID  = -1;
-						THROW(CalcRest(&gp, &op_rec, phuperu));
+						THROW(CalcRest(gp, &op_rec, phuperu));
 					}
 					if(filt.Flags & OPG_CALCOUTREST) {
 						gp.Date = filt.Period.upp;
 						op_rec.ID  = 10000L;
-						THROW(CalcRest(&gp, &op_rec, phuperu));
+						THROW(CalcRest(gp, &op_rec, phuperu));
 					}
 				}
 				if(pAgg && pAgg->BillList.getCount()) {

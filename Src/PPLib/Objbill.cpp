@@ -7878,9 +7878,14 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 	int    ok = 1;
 	int    ta = 0;
 	int    frrl_tag = 0;
-	int    r, rbybill = 0, is_inventory = 0;
-	PPID   paym_link_id = 0, pull_member_id, op_type_id = 0;
+	int    r;
+	int    rbybill = 0;
+	int    is_inventory = 0;
+	PPID   paym_link_id = 0;
+	PPID   pull_member_id;
+	PPID   op_type_id = 0;
 	SString bill_code;
+	SString msg_buf;
 	DateIter diter;
 	BillTbl::Rec brec;
 	InventoryCore * p_inv_tbl = 0;
@@ -7920,8 +7925,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 			}
 			// } @v9.8.11
 		}
-		THROW_PP_S(!brec.StatusID || !CheckStatusFlag(brec.StatusID, BILSTF_DENY_DEL), PPERR_BILLST_DENY_DEL,
-			PPObjBill::MakeCodeString(&brec, 1, bill_code));
+		THROW_PP_S(!brec.StatusID || !CheckStatusFlag(brec.StatusID, BILSTF_DENY_DEL), PPERR_BILLST_DENY_DEL, PPObjBill::MakeCodeString(&brec, 1, bill_code));
 		THROW(CheckParentStatus(id));
 		op_type_id = GetOpType(brec.OpID);
 		if(op_type_id == PPOPT_INVENTORY) {
@@ -7931,13 +7935,15 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 		IsMemberOfPool(id, PPASS_PAYMBILLPOOL, &paym_link_id);
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW(LockFRR(brec.Dt, &frrl_tag, 0));
-		for(diter.Init(); (r = P_Tbl->EnumLinks(id, &diter, BLNK_ALL)) > 0;) {
-			THROW_PP(P_Tbl->data.OpID == 0, PPERR_BILLHASLINKS); // Теневые документы удаляем
-			THROW(RemovePacket(P_Tbl->data.ID, 0));
+		{
+			BillTbl::Rec link_bill_rec;
+			for(diter.Init(); (r = P_Tbl->EnumLinks(id, &diter, BLNK_ALL, &link_bill_rec)) > 0;) {
+				THROW_PP_S(link_bill_rec.OpID == 0, PPERR_BILLHASLINKS, PPObjBill::MakeCodeString(&link_bill_rec, 1, msg_buf)); // Теневые документы удаляем безусловно
+				THROW(RemovePacket(link_bill_rec.ID, 0));
+			}
 		}
 		pull_member_id = 0;
 		if(P_Tbl->EnumMembersOfPool(PPASS_PAYMBILLPOOL, id, &pull_member_id) > 0) {
-			SString msg_buf;
 			BillTbl::Rec pool_bill_rec;
 			if(Search(pull_member_id, &pool_bill_rec) > 0) {
 				CALLEXCEPT_PP_S(PPERR_BILLHASPAYMPOOL, MakeCodeString(&pool_bill_rec, 1, msg_buf));

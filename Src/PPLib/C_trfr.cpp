@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020
 // @codepage UTF-8
 // Процедуры корректировки товарных проводок
 //
@@ -438,7 +438,7 @@ int SLAPI Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPL
 		for(uint i = 0; i < 2; i++) {
 			CurRestTbl::Key0 k;
 			p.GoodsID = i ? -goodsID : goodsID;
-			THROW(GetRest(&p));
+			THROW(GetRest(p));
 			k.GoodsID = p.GoodsID;
 			k.LocID   = p.LocID;
 			const double rest = R6(p.Total.Rest);

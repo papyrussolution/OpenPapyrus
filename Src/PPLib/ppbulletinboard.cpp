@@ -152,7 +152,7 @@ PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::SearchStickerBySymb(const char
 //
 //
 //
-static const int UseRegularValuesOnlyForStakes = 0; // @v10.4.6
+static const int UseRegularValuesOnlyForStakes = 1; // @v10.4.6 // @20200124 0-->1
 
 class TimeSeriesCache : public ObjCache {
 public:
@@ -837,7 +837,7 @@ int SLAPI TimeSeriesCache::SetVolumeParams(const char * pSymb, double volumeMin,
 			p_blk->VolumeStep = volumeStep;
 		// @v10.5.6 {
 		if(p_blk->PPTS.Rec.Type == PPTimeSeries::tForex) {
-			if(p_blk->VolumeMax == 100.0 && p_blk->VolumeMin == 0.01) {
+			if((p_blk->VolumeMax == 100.0 || p_blk->VolumeMax == 100000.0) && p_blk->VolumeMin == 0.01) {
 				p_blk->Flags |= TimeSeriesBlock::fVolumeMult1000;
 				p_blk->VolumeMax *= 1000.0;
 				p_blk->VolumeMin *= 1000.0;
@@ -1364,7 +1364,13 @@ double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool se
 	double cost = 0.0;
 	double last_value = 0.0;
 	if(!isempty(rBlk.PPTS.Rec.CurrencySymb) && rBlk.GetLastValue(&last_value)) {
-		const SString symb = rBlk.T_.GetSymb();
+		const SString org_symb = rBlk.T_.GetSymb();
+		SString symb;
+		size_t dot_pos = 0;
+		if(org_symb.SearchChar('.', &dot_pos) && dot_pos > 0)
+			org_symb.Sub(0, dot_pos, symb);
+		else
+			symb = org_symb;
 		double temp_margin = rBlk.PPTS.GetMargin(sell);
 		// @v10.4.10 {
 		if(flags & ecfTrickChf && symb.Len() == 6 && (symb.CmpPrefix("CHF", 1) == 0 || symb.CmpSuffix("CHF", 1) == 0)) {
@@ -1450,11 +1456,16 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 		if(p_blk) {
 			// @v10.6.8 {
 			if(Cfg.Flags & Cfg.fLogStakeEvaluation) {
+				const double test_cost = EvaluateCost(*p_blk, 0, p_blk->VolumeMin, ecfTrickChf); // @v10.6.10
+				double last_regular = 0.0; // @v10.6.10
+				p_blk->GetLastValue(&last_regular); // @v10.6.10
 				log_msg.Z().Cat(tk_symb).Space().CatEq("org-tick-time", r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
 					CatEq("current-diff-sec", cur_diff_sec).Space().
 					CatEq("last", r_tk.Last, MKSFMTD(0, 5, 0)).Space().
 					CatEq("bid", r_tk.Bid, MKSFMTD(0, 5, 0)).Space().
-					CatEq("ask", r_tk.Ask, MKSFMTD(0, 5, 0));
+					CatEq("ask", r_tk.Ask, MKSFMTD(0, 5, 0)).Space().
+					CatEq("regular", last_regular, MKSFMTD(0, 5, 0)).Space().
+					CatEq("test-cost", test_cost, MKSFMTD(0, 5, 0));
 				PPLogMessage(log_file_name, log_msg, 0);
 				log_msg.Z();
 				for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
@@ -1681,17 +1692,25 @@ const TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::SearchRateConver
 	if(symb_len) {
 		const char * p_base_symb = "USD";
 		const size_t base_symb_len = sstrlen(p_base_symb);
-		SString & r_temp_buf = SLS.AcquireRvlStr();
+		SString & r_org_symb = SLS.AcquireRvlStr();
+		SString & r_symb = SLS.AcquireRvlStr(); // @v10.6.10
 		for(uint i = 0; !p_result && i < TsC.getCount(); i++) {
 			TimeSeriesBlock * p_blk = TsC.at(i);
 			if(p_blk) {
-				r_temp_buf = p_blk->T_.GetSymb();
-				if(r_temp_buf.Len() == (symb_len+base_symb_len)) {
-					if(r_temp_buf.CmpPrefix(pSymb, 1) == 0 && r_temp_buf.CmpSuffix(p_base_symb, 1) == 0) {
+				r_org_symb = p_blk->T_.GetSymb();
+				// @v10.6.10 {
+				size_t dot_pos = 0;
+				if(r_org_symb.SearchChar('.', &dot_pos) && dot_pos > 0)
+					r_org_symb.Sub(0, dot_pos, r_symb);
+				else
+					r_symb = r_org_symb;
+				// } @v10.6.10 
+				if(r_symb.Len() == (symb_len+base_symb_len)) {
+					if(r_symb.CmpPrefix(pSymb, 1) == 0 && r_symb.CmpSuffix(p_base_symb, 1) == 0) {
 						p_result = p_blk;
 						reverse = 0;
 					}
-					else if(r_temp_buf.CmpPrefix(p_base_symb, 1) == 0 && r_temp_buf.CmpSuffix(pSymb, 1) == 0) {
+					else if(r_symb.CmpPrefix(p_base_symb, 1) == 0 && r_symb.CmpSuffix(pSymb, 1) == 0) {
 						p_result = p_blk;
 						reverse = 1;
 					}

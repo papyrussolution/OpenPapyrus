@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -519,9 +519,9 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 				long   dscnt_code = 0;
 				PPQuotKind qk_rec;
 				SString card_code_low, card_code_upp;
-				if(!updOnly) {
+				/* @v106.10 if(!updOnly) {
 					fputs((f_str = "$$$DELETEALLAUTODISCCONDS").CR(), p_file);
-				}
+				}*/
 				int    is_first = 1;
 				for(uint scsidx = 0; scsidx < scard_series_list.getCount(); scsidx++) {
 					const PPID scs_id = scard_series_list.get(scsidx);

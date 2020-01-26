@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -66,7 +66,7 @@ int SLAPI VCalendar::Open(const char * pFileName, int forExport)
 	return ok;
 }
 
-int SLAPI VCalendar::Close()
+void SLAPI VCalendar::Close()
 {
   	if(P_Stream) {
 		SString temp_buf;
@@ -74,7 +74,6 @@ int SLAPI VCalendar::Close()
 		P_Stream->WriteLine(temp_buf.CR());
 		ZDELETE(P_Stream);
 	}
-	return 1;
 }
 
 int SLAPI VCalendar::PutEvent(VCalendar::Event * pData)
@@ -170,9 +169,12 @@ int SLAPI VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long 
 			if(prop == prpOwner) {
 				SString role_owner;
 				role_owner.GetSubFrom(PropAttrib, ';', prpatrRoleOwner);
-				buf.Semicol().Cat(role_owner);
+				// @v10.6.10 buf.Semicol().Cat(role_owner);
+				buf.CatChar(':').Cat(temp_buf).Semicol().Cat(role_owner).Transf(CTRANSF_INNER_TO_UTF8).CR(); // @v10.6.10
 			}
-			buf.CatChar(':').Cat(temp_buf).Transf(CTRANSF_INNER_TO_UTF8).CR();
+			else { // @v10.6.10 (else)
+				buf.CatChar(':').Cat(temp_buf).Transf(CTRANSF_INNER_TO_UTF8).CR();
+			}
 			P_Stream->WriteLine(buf);
 		}
 	}

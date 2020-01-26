@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -121,6 +121,7 @@ PPBaseFilt * SLAPI PPViewAccAnlz::CreateFilt(void * extraPtr) const
 #define GRP_LOC   3
 
 class AccAnlzFiltDialog : public WLDialog {
+	DECL_DIALOG_DATA(AccAnlzFilt);
 public:
 	AccAnlzFiltDialog(uint dlgID, PPObjAccTurn * _ppobj) : WLDialog(dlgID, CTL_ACCANLZ_LABEL), ATObj(_ppobj), RelComboInited(0)
 	{
@@ -130,60 +131,58 @@ public:
 		addGroup(GRP_CYCLE, p_cycle_grp);
 		SetupCalPeriod(CTLCAL_ACCANLZ_PERIOD, CTL_ACCANLZ_PERIOD);
 	}
-	int    setDTS(const AccAnlzFilt * pFilt)
+	DECL_DIALOG_SETDTS()
 	{
 		ushort v;
 		AcctCtrlGroup::Rec  acc_rec;
 		CycleCtrlGroup::Rec cycle_rec;
-		Filt.Init(1, 0);
-		if(pFilt) {
-			Filt = *pFilt;
-			if(Filt.Flags & AccAnlzFilt::fAsCashBook) {
-				if(Filt.Period.IsZero())
-					Filt.Period.SetDate(LConfig.OperDate);
-				disableCtrls(1, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, CTL_ACCANLZ_ACC,
-					CTLSEL_ACCANLZ_ACCNAME, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ARTNAME, 0);
-			}
-			else if(Filt.AcctId.ac) {
-				PPID   temp_acc_id = 0;
-				PPAccount acc_rec;
-				if(ATObj->P_Tbl->AccObj.SearchBase(Filt.AcctId.ac, &temp_acc_id, &acc_rec) > 0)
-					Filt.AcctId.ac = temp_acc_id;
-				else
-					PPError();
-			}
+		Data.Init(1, 0);
+		RVALUEPTR(Data, pData);
+		if(Data.Flags & AccAnlzFilt::fAsCashBook) {
+			if(Data.Period.IsZero())
+				Data.Period.SetDate(LConfig.OperDate);
+			disableCtrls(1, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, CTL_ACCANLZ_ACC,
+				CTLSEL_ACCANLZ_ACCNAME, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ARTNAME, 0);
 		}
-		SetPeriodInput(this, CTL_ACCANLZ_PERIOD, &Filt.Period);
-		setCtrlData(CTL_ACCANLZ_LEAF, &Filt.LeafNo);
-		setCtrlUInt16(CTL_ACCANLZ_ACCGRP, (Filt.Aco == ACO_1) ? 1 : ((Filt.Aco == ACO_2) ? 2 : 0));
+		else if(Data.AcctId.ac) {
+			PPID   temp_acc_id = 0;
+			PPAccount acc_rec;
+			if(ATObj->P_Tbl->AccObj.SearchBase(Data.AcctId.ac, &temp_acc_id, &acc_rec) > 0)
+				Data.AcctId.ac = temp_acc_id;
+			else
+				PPError();
+		}
+		SetPeriodInput(this, CTL_ACCANLZ_PERIOD, &Data.Period);
+		setCtrlData(CTL_ACCANLZ_LEAF, &Data.LeafNo);
+		setCtrlUInt16(CTL_ACCANLZ_ACCGRP, (Data.Aco == ACO_1) ? 1 : ((Data.Aco == ACO_2) ? 2 : 0));
 		SetupSubstCombo();
-		setWL(BIN(Filt.Flags & AccAnlzFilt::fLabelOnly));
-		acc_rec.AcctId      = Filt.AcctId;
-		if(Filt.Aco == ACO_2 && Filt.Flags & AccAnlzFilt::fTrnovrBySheet)
-			acc_rec.AcctId.ar = Filt.SingleArID;
-		acc_rec.AccSheetID  = Filt.AccSheetID;
+		setWL(BIN(Data.Flags & AccAnlzFilt::fLabelOnly));
+		acc_rec.AcctId      = Data.AcctId;
+		if(Data.Aco == ACO_2 && Data.Flags & AccAnlzFilt::fTrnovrBySheet)
+			acc_rec.AcctId.ar = Data.SingleArID;
+		acc_rec.AccSheetID  = Data.AccSheetID;
 		acc_rec.AccSelParam = -100;
 		setGroupData(GRP_ACC, &acc_rec);
 		SetupSubstRelCombo();
-		cycle_rec.C = Filt.Cycl;
+		cycle_rec.C = Data.Cycl;
 		setGroupData(GRP_CYCLE, &cycle_rec);
 
 		AddClusterAssoc(CTL_ACCANLZ_TRNOVR, 0, AccAnlzFilt::fTrnovrBySheet);
 		AddClusterAssoc(CTL_ACCANLZ_TRNOVR, 1, AccAnlzFilt::fSpprZTrnovr);
-		SetClusterData(CTL_ACCANLZ_TRNOVR, Filt.Flags);
+		SetClusterData(CTL_ACCANLZ_TRNOVR, Data.Flags);
 
 		AddClusterAssoc(CTL_ACCANLZ_EXCLINNRT, 0, AccAnlzFilt::fExclInnerTrnovr);
-		SetClusterData(CTL_ACCANLZ_EXCLINNRT, Filt.Flags);
-		v = BIN(Filt.Flags & AccAnlzFilt::fExclInnerTrnovr);
+		SetClusterData(CTL_ACCANLZ_EXCLINNRT, Data.Flags);
+		v = BIN(Data.Flags & AccAnlzFilt::fExclInnerTrnovr);
 		disableCtrls(v, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
 		disableCtrls(v, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
 		ReplyAccSelected();
 		AddClusterAssoc(CTL_ACCANLZ_ALLCUR, 0, AccAnlzFilt::fAllCurrencies);
-		SetClusterData(CTL_ACCANLZ_ALLCUR, Filt.Flags);
-		ReplyTrnovrSelected(Filt.Flags & AccAnlzFilt::fTrnovrBySheet);
+		SetClusterData(CTL_ACCANLZ_ALLCUR, Data.Flags);
+		ReplyTrnovrSelected(Data.Flags & AccAnlzFilt::fTrnovrBySheet);
 		return 1;
 	}
-	int    getDTS(AccAnlzFilt * pFilt)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1, r;
 		ushort v = 0;
@@ -193,17 +192,17 @@ public:
 		int    is_ar_grouping = 0;
 		PPID   rel = 0;
 		// @v10.6.4 MEMSZERO(ar_rec);
-		THROW(GetPeriodInput(this, CTL_ACCANLZ_PERIOD, &Filt.Period));
-		getCtrlData(CTL_ACCANLZ_LEAF, &Filt.LeafNo);
+		THROW(GetPeriodInput(this, CTL_ACCANLZ_PERIOD, &Data.Period));
+		getCtrlData(CTL_ACCANLZ_LEAF, &Data.LeafNo);
 		v = getCtrlUInt16(CTL_ACCANLZ_ACCGRP);
-		Filt.Aco = (v == 1) ? ACO_1 : ((v == 2) ? ACO_2 : ACO_3);
-		Filt.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
+		Data.Aco = (v == 1) ? ACO_1 : ((v == 2) ? ACO_2 : ACO_3);
+		Data.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
 		THROW(getGroupData(GRP_ACC, &acc_rec));
 		THROW_PP(acc_rec.AcctId.ac, PPERR_ACCNOTVALID);
 		if(acc_rec.AccType == ACY_AGGR) {
 			if(acc_rec.AcctId.ar) {
 				rel = acc_rec.AcctId.ac;
-				Filt.SingleArID = acc_rec.AcctId.ar;
+				Data.SingleArID = acc_rec.AcctId.ar;
 			}
 		}
 		// @v9.5.9 {
@@ -216,58 +215,58 @@ public:
 				ar_rec.ID = 0;
 		}
 		// } @v9.5.9
-		Filt.SubstRelTypeID = 0;
+		Data.SubstRelTypeID = 0;
 		if(acc_rec.AccSheetID) {
-			GetClusterData(CTL_ACCANLZ_TRNOVR, &Filt.Flags);
+			GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
 			PPObjAccSheet acs_obj;
 			PPAccSheet acs_rec;
 			if(acs_obj.Fetch(acc_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
-				GetClusterData(CTL_ACCANLZ_TRNOVR, &Filt.Flags);
-				if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet || acc_rec.AcctId.ar)
-					Filt.SubstRelTypeID = getCtrlLong(CTLSEL_ACCANLZ_RELSUBST);
+				GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
+				if(Data.Flags & AccAnlzFilt::fTrnovrBySheet || acc_rec.AcctId.ar)
+					Data.SubstRelTypeID = getCtrlLong(CTLSEL_ACCANLZ_RELSUBST);
 			}
 		}
 		else
-			Filt.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
-		GetClusterData(CTL_ACCANLZ_EXCLINNRT, &Filt.Flags);
-		if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
-			Filt.Flags &= ~AccAnlzFilt::fGroupByCorAcc;
-			Filt.Aco = ACO_2;
-			Filt.CorAco = 0;
+			Data.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
+		GetClusterData(CTL_ACCANLZ_EXCLINNRT, &Data.Flags);
+		if(Data.Flags & AccAnlzFilt::fTrnovrBySheet) {
+			Data.Flags &= ~AccAnlzFilt::fGroupByCorAcc;
+			Data.Aco = ACO_2;
+			Data.CorAco = 0;
 		}
-		if(Filt.Aco == ACO_3 && acc_rec.AccType != ACY_AGGR && !is_ar_grouping) { // @v9.5.9 (&& !is_ar_grouping)
+		if(Data.Aco == ACO_3 && acc_rec.AccType != ACY_AGGR && !is_ar_grouping) { // @v9.5.9 (&& !is_ar_grouping)
 			THROW(r = ATObj->P_Tbl->AcctIDToRel(&acc_rec.AcctId, &rel));
 			if(r < 0) {
 				rel = 0;
 				THROW_PP(acc_rec.AcctId.ar == 0, PPERR_ACCRELABSENCE);
-				Filt.Aco = ACO_2;
+				Data.Aco = ACO_2;
 			}
 		}
-		if(Filt.Aco == ACO_2) {
-			if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)
-				Filt.SingleArID = acc_rec.AcctId.ar;
+		if(Data.Aco == ACO_2) {
+			if(Data.Flags & AccAnlzFilt::fTrnovrBySheet)
+				Data.SingleArID = acc_rec.AcctId.ar;
 			else {
 				PPAccount acr;
 				THROW(ATObj->P_Tbl->AccObj.Search(acc_rec.AcctId.ac, &acr) > 0);
 				if(acr.Flags & ACF_HASBRANCH && rel == 0 && !acr.AccSheetID)
-					Filt.Aco = ACO_1;
+					Data.Aco = ACO_1;
 			}
 		}
-		if(Filt.Aco != ACO_3) {
+		if(Data.Aco != ACO_3) {
 			rel = acc_rec.AcctId.ac;
 			acc_rec.AcctId.ar = 0;
 		}
-		Filt.AccID      = rel;
-		Filt.AcctId     = acc_rec.AcctId;
-		Filt.AccSheetID = acc_rec.AccSheetID;
+		Data.AccID      = rel;
+		Data.AcctId     = acc_rec.AcctId;
+		Data.AccSheetID = acc_rec.AccSheetID;
 		getGroupData(GRP_CYCLE, &cycle_rec);
-		Filt.Cycl = cycle_rec.C;
-		getCtrlData(CTLSEL_ACCANLZ_CUR, &Filt.CurID);
-		GetClusterData(CTL_ACCANLZ_ALLCUR, &Filt.Flags);
-		SETFLAG(Filt.Flags, AccAnlzFilt::fLabelOnly, getWL());
-		if(Filt.Flags & AccAnlzFilt::fAllCurrencies)
-			Filt.CurID = -1;
-		ASSIGN_PTR(pFilt, Filt);
+		Data.Cycl = cycle_rec.C;
+		getCtrlData(CTLSEL_ACCANLZ_CUR, &Data.CurID);
+		GetClusterData(CTL_ACCANLZ_ALLCUR, &Data.Flags);
+		SETFLAG(Data.Flags, AccAnlzFilt::fLabelOnly, getWL());
+		if(Data.Flags & AccAnlzFilt::fAllCurrencies)
+			Data.CurID = -1;
+		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERR
 		return ok;
 	}
@@ -286,34 +285,34 @@ private:
 			ReplyTrnovrSelected(getCtrlUInt16(CTL_ACCANLZ_TRNOVR) & 1);
 		}
 		else if(event.isCbSelected(CTLSEL_ACCANLZ_SUBST)) {
-			Filt.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
-			if(Filt.CorAco)
+			Data.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
+			if(Data.CorAco)
 				setCtrlUInt16(CTL_ACCANLZ_ORDER, 0);
-			disableCtrl(CTL_ACCANLZ_ORDER, BIN(Filt.CorAco));
+			disableCtrl(CTL_ACCANLZ_ORDER, BIN(Data.CorAco));
 		}
 		else if(event.isCmd(cmaMore)) {
 			TDialog * dlg = new TDialog(DLG_ACCANLZ2);
 			if(CheckDialogPtrErr(&dlg)) {
 				getDTS(0); // @v10.5.0
-				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Filt.LocID, OLW_CANSELUPLEVEL, 0);
-				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Filt.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Data.LocID, OLW_CANSELUPLEVEL, 0);
+				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 				// @v10.5.0 {
 				PPID  psn_id = 0;
-				if(Filt.Aco == ACO_3 && Filt.AcctId.ar) {
-					psn_id = ObjectToPerson(Filt.AcctId.ar, 0);
+				if(Data.Aco == ACO_3 && Data.AcctId.ar) {
+					psn_id = ObjectToPerson(Data.AcctId.ar, 0);
 					// SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
-					PsnObj.SetupDlvrLocCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, psn_id, Filt.DlvrLocID);
+					PsnObj.SetupDlvrLocCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, psn_id, Data.DlvrLocID);
 				}
 				// } @v10.5.0
 				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  1, PPViewAccAnlz::OrdByBillCode_Date);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  2, PPViewAccAnlz::OrdByCorrAcc_Date);
-				dlg->SetClusterData(CTL_ACCANLZ_ORDER, Filt.InitOrder);
+				dlg->SetClusterData(CTL_ACCANLZ_ORDER, Data.InitOrder);
 				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-					dlg->getCtrlData(CTLSEL_ACCANLZ_LOC, &Filt.LocID);
-					dlg->getCtrlData(CTLSEL_ACCANLZ_AGENT, &Filt.AgentID);
-					dlg->GetClusterData(CTL_ACCANLZ_ORDER, &Filt.InitOrder);
-					Filt.DlvrLocID = psn_id ? dlg->getCtrlLong(CTLSEL_ACCANLZ_DLVRLOC) : 0;
+					dlg->getCtrlData(CTLSEL_ACCANLZ_LOC, &Data.LocID);
+					dlg->getCtrlData(CTLSEL_ACCANLZ_AGENT, &Data.AgentID);
+					dlg->GetClusterData(CTL_ACCANLZ_ORDER, &Data.InitOrder);
+					Data.DlvrLocID = psn_id ? dlg->getCtrlLong(CTLSEL_ACCANLZ_DLVRLOC) : 0;
 					valid_data = 1;
 				}
 			}
@@ -328,7 +327,7 @@ private:
 		PPIDArray cur_list;
 		AcctCtrlGroup::Rec acg_rec;
 		PPID   cur_id = getCtrlLong(CTLSEL_ACCANLZ_CUR);
-		SETIFZ(cur_id, Filt.CurID);
+		SETIFZ(cur_id, Data.CurID);
 		getGroupData(GRP_ACC, &acg_rec);
 		if(acg_rec.AccSheetID)
 			disableCtrls(0, CTL_ACCANLZ_ACCGRP, CTL_ACCANLZ_TRNOVR, 0);
@@ -373,8 +372,8 @@ private:
 		AcctCtrlGroup::Rec acg_rec;
 		getGroupData(GRP_ACC, &acg_rec);
 		if(acg_rec.AccSheetID && acs_obj.Fetch(acg_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
-			GetClusterData(CTL_ACCANLZ_TRNOVR, &Filt.Flags);
-			if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet || acg_rec.AcctId.ar) {
+			GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
+			if(Data.Flags & AccAnlzFilt::fTrnovrBySheet || acg_rec.AcctId.ar) {
 				if(!RelComboInited) {
 					PPObjPersonRelType rel_obj;
 					PPPersonRelType rel_item;
@@ -383,7 +382,7 @@ private:
 						if(rel_item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 							list.Add(rel_item.ID, rel_item.Name);
 						}
-					SetupStrAssocCombo(this, CTLSEL_ACCANLZ_RELSUBST, &list, Filt.SubstRelTypeID, 0);
+					SetupStrAssocCombo(this, CTLSEL_ACCANLZ_RELSUBST, &list, Data.SubstRelTypeID, 0);
 					RelComboInited = 1;
 				}
 				disableCtrl(CTLSEL_ACCANLZ_RELSUBST, 0);
@@ -414,12 +413,11 @@ private:
 					list.Add(rel_id + (long)AccAnlzFilt::aafgFirstRelation, buf);
 				}
 		}
-		return SetupStrAssocCombo(this, CTLSEL_ACCANLZ_SUBST, &list, Filt.CorAco, 0);
+		return SetupStrAssocCombo(this, CTLSEL_ACCANLZ_SUBST, &list, Data.CorAco, 0);
 	}
 
 	PPObjAccTurn * ATObj;
 	PPObjPerson PsnObj;
-	AccAnlzFilt   Filt;
 	int    RelComboInited;
 };
 
@@ -1259,7 +1257,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 						rel_person_id = ar_rec.ObjID;
 				}
 				else {
-					rec.Name[0] = (char)250;
+					rec.Name[0] = static_cast<char>(250);
 					ideqvalstr(r_acr_rec.ArticleID, rec.Name+1, sizeof(rec.Name)-1);
 				}
 				if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl) {
@@ -1268,7 +1266,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 					gp.Date        = Filt.Period.upp;
 					gp.SupplID     = ar_rec.ID;
 					gp.LocID       = Filt.LocID;
-					THROW(P_BObj->trfr->GetRest(&gp));
+					THROW(P_BObj->trfr->GetRest(gp));
 					rec.GoodsRest  = gp.Total.Cost;
 				}
 				cur_list.clear();

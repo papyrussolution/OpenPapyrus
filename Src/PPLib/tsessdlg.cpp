@@ -1,5 +1,5 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1283,7 +1283,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	setCtrlLong(CTL_TSESS_NUMBER, Data.Rec.Num);
 	setCtrlLong(CTL_TSESS_ID, Data.Rec.ID);
 	PrcTechCtrlGroup::Rec ptcg_rec;
-	MEMSZERO(ptcg_rec);
+	// @v10.6.10 @ctr MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = Data.Rec.PrcID;
 	if(Data.Rec.Flags & TSESF_PLAN) {
 		if(Data.Rec.PrcID == 0)

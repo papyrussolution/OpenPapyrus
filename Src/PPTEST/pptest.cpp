@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -939,7 +939,7 @@ int SLAPI GenerateGoodsBills()
 								rest_param.Date = LConfig.OperDate;
 								rest_param.LocID = LConfig.Location;
 								rest_param.GoodsID = goods_id;
-								trnsf.GetRest(&rest_param);
+								trnsf.GetRest(rest_param);
 								rest = rest_param.Total.Rest;
 							}
 							//

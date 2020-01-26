@@ -914,13 +914,12 @@ int BillDialog::getDiscount(double * pDiscount, int * pInPercent, int * pRmvExci
 int BillDialog::editPaymOrder(int forceUpdateRcvr)
 {
 	int    ok = -1;
-	PPBankingOrder order;
 	BankingOrderDialog * dlg = 0;
 	if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_BANKING)) {
+		PPBankingOrder order;
 		if(P_Pack->P_PaymOrder)
 			order = *P_Pack->P_PaymOrder;
-		else
-			MEMSZERO(order);
+		// @v10.6.10 @ctr else MEMSZERO(order);
 		SETIFZ(order.Dt, P_Pack->Rec.Dt);
 		{
 			SString temp_buf;

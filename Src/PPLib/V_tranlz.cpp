@@ -947,7 +947,7 @@ int SLAPI PPViewTrfrAnlz::CalcInRest(PPID goodsID, double * pRest)
 	gp.GoodsID    = goodsID;
 	gp.SupplID    = Filt.SupplID;
 	gp.Date       = checkdate(Filt.Period.low) ? plusdate(Filt.Period.low, -1) : encodedate(1, 1, 1996); // @v10.3.9 @fix
-	if(P_BObj->trfr->GetRest(&gp)) {
+	if(P_BObj->trfr->GetRest(gp)) {
 		ASSIGN_PTR(pRest, gp.Total.Rest);
 	}
 	else {

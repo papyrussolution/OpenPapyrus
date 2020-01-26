@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -5010,7 +5010,7 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 		SXml::WNode n_item(P_X, GetToken(PPHSC_RU_WAREINFO));
 		temp_buf.Z().Cat(r_ti.RByBill);
 		n_item.PutAttrib(GetToken(PPHSC_RU_LINENUMBER), temp_buf);
-		temp_buf.Z().Cat(qtty_local, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+		temp_buf.Z().Cat(qtty_local, MKSFMTD(0, 2, 0)); // @v10.6.10  MKSFMTD(0, 6, NMBF_NOTRAILZ)-->MKSFMTD(0, 2, 0)
 		n_item.PutAttrib(GetToken(PPHSC_RU_WAREQTTY), temp_buf);
 		{
 			Goods2Tbl::Rec goods_rec;
@@ -5056,16 +5056,16 @@ int Generator_DocNalogRu::WriteInvoiceItems(const HeaderInfo & rHi, const PPBill
 			}
 			//
 			double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
-			temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 11, NMBF_NOTRAILZ));
+			temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 2, 0)); // @v10.6.10 MKSFMTD(0, 11, NMBF_NOTRAILZ)-->MKSFMTD(0, 2, 0)
 			n_item.PutAttrib(GetToken(PPHSC_RU_WAREPRICE), temp_buf);
 			//
 			total_amt_wovat += amt_wo_tax;
-			temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+			temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 			n_item.PutAttrib(GetToken(PPHSC_RU_WAREAMTWOVAT), temp_buf);
 			//
 			double amt = vect.GetValue(GTAXVF_BEFORETAXES);
 			total_amt += amt;
-			temp_buf.Z().Cat(amt, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+			temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 			n_item.PutAttrib(GetToken(PPHSC_RU_WAREAMT), temp_buf);
 
 			vat_sum = vect.GetValue(GTAXVF_VAT);
@@ -5207,13 +5207,14 @@ int SLAPI Generator_DocNalogRu::Underwriter(PPID psnID)
 			if(is_free) {
 				SXml::WNode n_p(P_X, "ИП");
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNPHS), inn);
+				WriteFIO(psn_rec.Name);
 			}
 			else {
 				SXml::WNode n_p(P_X, "ЮЛ");
 				n_p.PutAttrib(GetToken(PPHSC_RU_INNJUR), inn);
 				n_p.PutAttrib("Должн", "Директор");
+				WriteFIO(psn_rec.Name);
 			}
-			WriteFIO(psn_rec.Name);
 		}
 	}
 	return ok;
@@ -5480,12 +5481,12 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 											//n_item.PutAttrib(GetToken(PPHSC_RU_WAREPRICE), temp_buf);
 											//
 											total_amt_wovat += amt_wo_tax;
-											temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+											temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 											n_471.PutAttribSkipEmpty("СтоимБезНДС", temp_buf); // @optional
 											//
 											double amt = vect.GetValue(GTAXVF_BEFORETAXES);
 											total_amt += amt;
-											temp_buf.Z().Cat(amt, MKSFMTD(0, 2, NMBF_NOTRAILZ));
+											temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 											//n_item.PutAttrib("СтТовУчНал", temp_buf);
 
 											vat_sum = vect.GetValue(GTAXVF_VAT);
@@ -5658,10 +5659,128 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 	return ok;
 }
 //
-// Универсальный передаточный документ КНД=1115125 scheme=ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+//           Универсальный передаточный документ КНД=1115125 scheme=ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+// @v10.6.10 Универсальный передаточный документ КНД=1115131 scheme=ON_NSCHFDOPR_1_995_01_05_01_02.xsd
 //
 int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 {
+	/*
+<?xml version="1.0" encoding="windows-1251"?>
+<Файл ИдФайл="ON_SCHFDOPPR__2BEf246d3a04afa11e3a1e8005056917125_20200124_A2ACC689-3BBC-48FF-92CE-9B62738F8DC3" ВерсПрог="Papyrus 10.6.9" ВерсФорм="5.01">
+	<СвУчДокОбор ИдОтпр="2BEf246d3a04afa11e3a1e8005056917125" ИдПол=""/>
+	<Документ КНД="1115125" НаимЭконСубСост="ООО &quot;Петроглиф&quot;" Функция="ДОП" ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)" НаимДокОпр="Оказание услуг (ЦТО)" ДатаИнфПр="24.01.2020" ВремИнфПр="11.33.21">
+		<СвСчФакт НомерСчФ="25" ДатаСчФ="24.01.2020" КодОКВ="643">
+			<СвПрод>
+				<ИдСв>
+					<СвЮЛУч НаимОрг="Общество с ограниченной ответственностью &quot;Петроглиф&quot;" ИННЮЛ="1001088480" КПП="100101001"/>
+				</ИдСв>
+				<Адрес>
+					<АдрРФ Индекс="185014" КодРегион="10" Город="Петрозаводск" Улица="Попова" Дом="12" Кварт="8"/>
+				</Адрес>
+			</СвПрод>
+			<СвПокуп>
+				<ИдСв>
+					<СвЮЛУч НаимОрг="ООО &quot;ТД &quot;Ярви&quot;" ИННЮЛ="1001220360" КПП="100101001"/>
+				</ИдСв>
+				<Адрес>
+					<АдрРФ Индекс="185014" КодРегион="10" Город="Петрозаводск" Улица="Сыктывкарская" Дом="27" Кварт="46"/>
+				</Адрес>
+			</СвПокуп>
+			<ДопСвФХЖ1 НаимОКВ="Российский рубль"/>
+			<ИнфПолФХЖ1>
+				<ТекстИнф Идентиф="Договор" Значен="СО/27"/>
+				<ТекстИнф Идентиф="ДатаДоговора" Значен="01.05.2017"/>
+			</ИнфПолФХЖ1>
+		</СвСчФакт>
+		<ТаблСчФакт>
+			<СведТов НомСтр="1" КолТов="1.1" НаимТов="Работы по настройке оборудования" ОКЕИ_Тов="356" НалСт="без НДС" ЦенаТов="1000" СтТовБезНДС="1100.00" СтТовУчНал="1100.00">
+				<Акциз>
+					<БезАкциз>без акциза</БезАкциз>
+				</Акциз>
+				<СумНал>
+					<БезНДС>без НДС</БезНДС>
+				</СумНал>
+			</СведТов>
+			<ВсегоОпл СтТовБезНДСВсего="1100.00" СтТовУчНалВсего="1100.00">
+				<СумНалВсего>
+					<БезНДС>без НДС</БезНДС>
+				</СумНалВсего>
+			</ВсегоОпл>
+		</ТаблСчФакт>
+		<СвПродПер>
+			<СвПер СодОпер="Товары переданы и услуги оказаны в полном объеме">
+				<ОснПер НаимОсн="Договор" НомОсн="СО/27" ДатаОсн="01.05.2017"/>
+			</СвПер>
+		</СвПродПер>
+		<Подписант ОблПолн="0" Статус="1" ОснПолн="Должностные обязанности">
+			<ЮЛ ИННЮЛ="1001088480" Должн="Директор"/>
+			<ФИО Фамилия="Соболев" Имя="Антон" Отчество="Иосифович"/>
+		</Подписант>
+	</Документ>
+</Файл>
+
+
+<?xml version="1.0" encoding="windows-1251" standalone="no"?>
+<Файл ИдФайл="ON_NSCHFDOPPR___20200124_003e9d3d-ec94-49c4-96c8-b692603b1e69" ВерсФорм="5.01" ВерсПрог="СБиС3">
+	<СвУчДокОбор ИдОтпр="" ИдПол="">
+		<СвОЭДОтпр НаимОрг="ООО &quot;Компания &quot;Тензор&quot;" ИННЮЛ="7605016030" ИдЭДО="2ВЕ"/>
+	</СвУчДокОбор>
+	<Документ КНД="1115131" Функция="СЧФДОП" ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)" НаимДокОпр="Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)" ДатаИнфПр="04.03.2014" ВремИнфПр="14.13.49" НаимЭконСубСост="ООО &quot;Поставщик&quot;">
+		<СвСчФакт НомерСчФ="2" ДатаСчФ="04.03.2014" КодОКВ="643">
+			<СвПрод>
+				<ИдСв>
+					<СвЮЛУч НаимОрг="ООО &quot;Поставщик&quot;" ИННЮЛ="6000000001" КПП="600101001"/>
+				</ИдСв>
+				<Адрес>
+					<АдрРФ Индекс="150000" КодРегион="76" Город="Ярославль" Улица="Свободы" Дом="12" Кварт="4"/>
+				</Адрес>
+				<Контакт Тлф="251115"/>
+			</СвПрод>
+			<СвПокуп>
+				<ИдСв>
+					<СвЮЛУч НаимОрг="ООО &quot;Покупатель&quot;" ИННЮЛ="6000000114" КПП="600101001"/>
+				</ИдСв>
+				<Адрес>
+					<АдрРФ Индекс="150000" КодРегион="50" Город="Видное" Улица="Клубный пер., д.7, стр.1, секция 4, пом. 2"/>
+				</Адрес>
+			</СвПокуп>
+			<ИнфПолФХЖ1>
+				<ТекстИнф Идентиф="ОснованиеДата" Значен="04.03.2014"/>
+				<ТекстИнф Идентиф="ОснованиеНомер" Значен="3"/>
+				<ТекстИнф Идентиф="ДоговорДата" Значен="25.06.2015"/>
+			</ИнфПолФХЖ1>
+		</СвСчФакт>
+		<ТаблСчФакт>
+			<СведТов НомСтр="1" НаимТов="Услуги по предоставлению разнорабочего" ОКЕИ_Тов="796" КолТов="3.000" ЦенаТов="1500.00" СтТовБезНДС="4500.00" НалСт="18%" СтТовУчНал="5310.00">
+				<Акциз>
+					<БезАкциз>без акциза</БезАкциз>
+				</Акциз>
+				<СумНал>
+					<СумНал>810.00</СумНал>
+				</СумНал>
+				<ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
+				<ИнфПолФХЖ2 Идентиф="ИД" Значен="00000000027"/>
+				<ИнфПолФХЖ2 Идентиф="Цена1С" Значен="1500.00"/>
+			</СведТов>
+			<ВсегоОпл СтТовБезНДСВсего="4500.00" СтТовУчНалВсего="5310.00">
+				<СумНалВсего>
+					<СумНал>810.00</СумНал>
+				</СумНалВсего>
+			</ВсегоОпл>
+		</ТаблСчФакт>
+		<СвПродПер>
+			<СвПер СодОпер="Реализация">
+				<ОснПер НаимОсн="Договор №15 от 15.06.19" ДатаОсн="25.06.2015"/>
+			</СвПер>
+		</СвПродПер>
+		<Подписант ОблПолн="5" Статус="1" ОснПолн="Должностные обязанности">
+			<ЮЛ ИННЮЛ="" НаимОрг="" Должн="">
+				<ФИО Фамилия="" Имя="" Отчество=""/>
+			</ЮЛ>
+		</Подписант>
+	</Документ>
+</Файл>
+	*/
 	int    ok = 1;
 	Generator_DocNalogRu g;
 	{
@@ -5679,7 +5798,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 		LDATE  agt_date = ZERODATE;
 		LDATE  agt_expiry = ZERODATE;
 		g.GetAgreementParams(rBp.Rec.Object, agt_code, agt_date, agt_expiry);
-		THROW(g.CreateHeaderInfo("ON_SCHFDOPPR", main_org_id, contragent_id, dto_id, rFileName, _hi));
+		THROW(g.CreateHeaderInfo("ON_NSCHFDOPR", main_org_id, contragent_id, dto_id, rFileName, _hi)); // @v10.6.10 ON_SCHFDOPPR-->ON_NSCHFDOPR
 		THROW(GetOpData(rBp.Rec.OpID, &op_rec) > 0);
 		if(op_rec.LinkOpID) {
 			THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
@@ -5688,7 +5807,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
         {
 			Generator_DocNalogRu::File f(g, _hi);
 			GetMainOrgName(temp_buf);
-			Generator_DocNalogRu::Document d(g, "1115125", temp_buf, 0);
+			Generator_DocNalogRu::Document d(g, "1115131", temp_buf, 0); // @v10.6.10 1115125-->1115131
 			// СЧФ - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость;
 			// СЧФДОП - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость, и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг);
 			// ДОП - документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг).

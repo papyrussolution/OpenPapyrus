@@ -14,7 +14,7 @@
 //   Кретову Алексею
 //   Ванаг Светлане
 //   Соболеву Эрику
-//   Егорову Геннадию Николаевич [rip]
+//   Егорову Геннадию Николаевичу [rip]
 //
 //  Соглашение об обозначениях:
 //
@@ -4551,8 +4551,8 @@ public:
 	//
 	int    FASTCALL GetSingle(SString & rBuf) const;
 	int    SLAPI SearchCode(const char * pCode, uint * pPos) const;
-	BarcodeTbl::Rec * FASTCALL GetSingleItem(uint * pPos) const;
-	BarcodeTbl::Rec * FASTCALL GetPreferredItem(uint * pPos) const;
+	const BarcodeTbl::Rec * FASTCALL GetSingleItem(uint * pPos) const;
+	const BarcodeTbl::Rec * FASTCALL GetPreferredItem(uint * pPos) const;
 	int    FASTCALL SetPreferredItem(uint pos);
 	int    SLAPI Replace(const char * pSearchCode, const char * pReplaceCode);
 };
@@ -12573,8 +12573,8 @@ public:
 	// параметром получает значения такие как если бы calcMethod был бы
 	// равен GoodsRestParam::pcmSum.
 	//
-	int    SLAPI GetRest(GoodsRestParam *);
-	int    SLAPI GetCurRest(GoodsRestParam *);
+	int    SLAPI GetRest(GoodsRestParam & rP);
+	int    SLAPI GetCurRest(GoodsRestParam & rP);
 	int    SLAPI GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList);
 	int    SLAPI CalcAssetDeprec(PPID lotID, const DateRange *, double * pDeprec);
 	//
@@ -27557,7 +27557,8 @@ struct GoodsCodeSrchBlock {
 		fList        = 0x0020, // OUT Список штрихкодов по шаблону
 		fUse2dTempl  = 0x0040, // IN  Искать по шаблону 2-мерного штрихкода
 		fBc2d        = 0x0080, // OUT Товар найден по шаблону 2d-кода
-		fChZnCode    = 0x0100  // OUT Товар найден по коду "Честный Знак"
+		fChZnCode    = 0x0100, // OUT Товар найден по коду "честный знак"
+		fMarkedCode  = 0x0200  // @v10.6.10 OUT Идентифицированный код имеет признак "маркируемый" (BARCODE_TYPE_MARKED)
 	};
 	char   Code[128];      // IN CONST
 	char   RetCode[32];    // OUT
@@ -33136,7 +33137,7 @@ protected:
 	};
 	int    FASTCALL AddEntry(GoodsGrpngEntry *);
 	int    SLAPI Calc(GCTFilt *, TransferTbl::Rec *, PPID, double, double);
-	int    SLAPI CalcRest(GoodsRestParam *, const PPOprKind *, double);
+	int    SLAPI CalcRest(GoodsRestParam & rP, const PPOprKind * pOp, double);
 	int    SLAPI _ProcessBillGrpng(GCTFilt *);
 	int    FASTCALL IsLockPaymStatus(PPID statusID) const;
 private:
@@ -50091,20 +50092,6 @@ private:
 	RegisterFilt BnkAccFilt;
 };
 
-class TagEnumListDialog : public PPListDialog {
-public:
-	TagEnumListDialog(uint dlgID, uint listCtlID, size_t listBufLen);
-	int    setDTS(const PPTagEnumList *);
-	int    getDTS(PPTagEnumList *);
-private:
-	virtual int  setupList();
-	virtual int  addItem(long * pos, long * id);
-	virtual int  editItem(long pos, long id);
-	virtual int  delItem(long pos, long id);
-
-	PPTagEnumList  Data;
-};
-
 struct GoodsGroupItem : Goods2Tbl::Rec {
 	long   Level;
 	char   Code[24];
@@ -50777,7 +50764,10 @@ public:
 	//
 	struct PgsBlock {
 		explicit SLAPI PgsBlock(double qtty);
-
+		enum {
+			fMarkedBarcode = 0x0001 // Товар был выбран по маркированному штрихкоду
+		};
+		long   Flags; // @v10.6.10
 		double Qtty;
 		double PriceBySerial; // Если PriceBySerial != 0 && Serial.Empty() это означает, что выбрана
 			// одна из look-back-price (фиксированные цены, меняющиеся со временем)

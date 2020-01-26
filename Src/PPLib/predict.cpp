@@ -1566,7 +1566,7 @@ int SLAPI PrcssrPrediction::ProcessGoodsList(PPIDArray & rGoodsList, const _Mass
 				gp.GoodsID    = goods_id;
 				gp.Date       = rest_date;
 				gp.DiffParam |= GoodsRestParam::_diffLoc;
-				THROW(P_BObj->trfr->GetRest(&gp));
+				THROW(P_BObj->trfr->GetRest(gp));
 				lvl_list.at(j)->Lvl.Setup(comm_period.low, &gp);
 			}
 			if(show_wait_msg)
