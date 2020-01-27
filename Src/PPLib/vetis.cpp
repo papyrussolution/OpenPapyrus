@@ -7517,6 +7517,8 @@ int SLAPI PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <Vetis
 int SLAPI PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rExpenseDocEntityList, TSVector <VetisEntityCore::UnresolvedEntity> * pUreList, VetisApplicationBlock & rReply)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	VetisRegisterProductionRequest app_data;
 	VetisApplicationBlock blk(2, &app_data);
@@ -7593,6 +7595,15 @@ int SLAPI PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray
 								p_item->NativeBillRow = app_data.VdRec.LinkBillRow;
 								p_item->CertifiedConsignment.Batch.NativeGoodsID = app_data.VdRec.LinkGoodsID;
 								THROW(PeC.Put(0, *p_item, 0, pUreList, 0));
+								{
+									TransferTbl::Rec trfr_rec;
+									if(p_bobj->trfr->SearchByBill(app_data.VdRec.LinkBillID, 0, app_data.VdRec.LinkBillRow, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT && trfr_rec.LotID) {
+										ObjTagItem tag_item;
+										if(tag_item.SetGuid(PPTAG_LOT_VETIS_UUID, &p_item->Uuid)) {
+											THROW(p_ref->Ot.PutTag(PPOBJ_LOT, trfr_rec.LotID, &tag_item, 0));
+										}
+									}
+								}
 							}
 						}
 					}
@@ -9157,7 +9168,7 @@ int SLAPI PPVetisInterface::Helper_PutOutgoingBillList(PPIDArray & rBillList, co
 								ok = 1;
 							}
 						}
-						{
+						if(bbrblk.ManufIncomeDocEntityID) {
 							// Теперь - расход
 							for(uint tidx = 0; tidx < pack.GetTCount(); tidx++) {
 								if(!PutBillRow(pack, tidx, putBillRowFlags, bbrblk, 0)) {

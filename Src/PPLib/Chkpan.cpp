@@ -7544,6 +7544,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 			dlg->setList(list);
 			if(ExecView(dlg) == cmOK) {
 				_SelCheck  sel_chk;
+				selectCtrl(CTL_CHKPAN_INPUT); // @v10.6.11
 				if(dlg->getDTS(&sel_chk) && sel_chk.CheckID) {
 					CCheckTbl::Rec cc_rec;
 					if(GetCc().Search(sel_chk.CheckID, &cc_rec) > 0) {
