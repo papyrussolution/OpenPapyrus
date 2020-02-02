@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1129,7 +1129,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 					}
 					GoodsIterator::GetListByFilt(&g_filt, &goods_list, 0);
                     PPLoadText(PPTXT_LOG_QUOTUPD_GOODSLIST, log_msg_buf);
-                    log_msg_buf.CatDiv(':', 2).CatEq("count", (long)goods_list.getCount()).Space();
+                    log_msg_buf.CatDiv(':', 2).CatEq("count", goods_list.getCount()).Space();
                     for(uint i = 0; i < goods_list.getCount(); i++) {
 						if(i)
 							log_msg_buf.CatDiv(',', 2);
@@ -1200,11 +1200,12 @@ int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialo
 //
 //
 class QuotRollbackDialog : public TDialog {
+	DECL_DIALOG_DATA(LDATETIME);
 public:
 	QuotRollbackDialog() : TDialog(DLG_QUOT_RB)/*, P_Data(pViewDef)*/, Data(ZERODATETIME)
 	{
 	}
-	int setDTS(const LDATETIME * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -1220,7 +1221,7 @@ public:
 	//
 	// Descr: Заполняет pData данными из интерфейса
 	//
-	int getDTS(LDATETIME * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;     // Идентификатор управляющего элемента, данные из которого анализировались в момент ошибки
@@ -1240,8 +1241,6 @@ public:
 		CATCHZOKPPERRBYDLG
 		return ok;
 	}
-private:
-	LDATETIME Data;
 };
 
 int SLAPI EditQuotRollbackDialog(LDATETIME *pDateTime) { DIALOG_PROC_BODY(QuotRollbackDialog, pDateTime); }

@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -4361,7 +4361,7 @@ PosNodeCtrlGroup::PosNodeCtrlGroup(uint ctlselLoc, uint cmEditList) : Ctlsel(ctl
 
 void PosNodeCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
-	if(TVCOMMAND && TVCMD == CmEditList) {
+	if(event.isCmd(CmEditList)) {
 		PPIDArray node_list;
 		if(Data.List.IsExists())
 			node_list = Data.List.Get();
@@ -4395,7 +4395,7 @@ int PosNodeCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	Rec * p_rec = static_cast<Rec *>(pData);
 	if(Data.List.GetCount() <= 1) {
-		PPID   temp_id = pDlg->getCtrlLong(Ctlsel);
+		const PPID temp_id = pDlg->getCtrlLong(Ctlsel);
 		Data.List.Z().Add(temp_id);
 	}
 	*p_rec = Data;
@@ -4415,7 +4415,7 @@ QuotKindCtrlGroup::QuotKindCtrlGroup(uint ctlsel, uint cmEditList) : Ctlsel(ctls
 
 void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
-	if(TVCOMMAND && TVCMD == CmEditList) {
+	if(event.isCmd(CmEditList)) {
 		//EditQuotKindList(pDlg, Ctlsel, &Data.List);
 		//static int SLAPI EditQuotKindList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
 		{
@@ -4444,7 +4444,7 @@ void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 
 int QuotKindCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
-	Data = *static_cast<Rec *>(pData);
+	Data = *static_cast<const Rec *>(pData);
 	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_QUOTKIND, Data.List.GetSingle(), 0, 0);
 	if(Data.List.GetCount() > 1) {
 		SetComboBoxListText(pDlg, Ctlsel);
@@ -4511,7 +4511,7 @@ static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pL
 
 void StaffCalCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
-	if(TVCOMMAND && TVCMD == CmEditList) {
+	if(event.isCmd(CmEditList)) {
 		//EditStaffCalList(pDlg, Ctlsel, &Data.List);
 		//static int SLAPI EditStaffCalList(TDialog * pDlg, uint ctlID, ObjIdListFilt * pList)
 		{

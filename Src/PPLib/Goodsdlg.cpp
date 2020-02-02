@@ -2107,7 +2107,7 @@ void GoodsDialog::completeByClass()
 
 IMPL_HANDLE_EVENT(GoodsDialog)
 {
-	if(TVCOMMAND && TVCMD == cmOK)
+	if(event.isCmd(cmOK))
 		getBarcode();
 	TDialog::handleEvent(event);
 	if((TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_GOODS_NAME)) ||

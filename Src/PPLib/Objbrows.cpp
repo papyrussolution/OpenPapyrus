@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -145,7 +145,7 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 IMPL_HANDLE_EVENT(PPObjListWindow)
 {
 	if(DefaultCmd) {
-		if(TVCOMMAND && TVCMD == cmLBDblClk)
+		if(event.isCmd(cmLBDblClk))
 			TVCMD = DefaultCmd;
 		else if(TVKEYDOWN && TVKEY == kbEnter) {
 			event.what = TEvent::evCommand;

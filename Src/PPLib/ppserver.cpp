@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1825,7 +1825,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 			case PPSCMD_POS_SELECTCCHECK:
 				{
 					THROW(P_Prcssr->GetAuthAgentID());
-					THROW(P_Prcssr->RestoreSuspendedCheck(CmdBlk.U.CheckId));
+					THROW(P_Prcssr->RestoreSuspendedCheck(CmdBlk.U.CheckId, 0/*unfinishedForReprinting*/));
 					THROW(P_Prcssr->SetupAgent(P_Prcssr->GetAuthAgentID(), 0));
 					(temp_buf = "Check selected. ID=[").Cat(CmdBlk.U.CheckId).Cat("]");
 					PPLogMessage(PPFILNAM_STYLOWAITER_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_THREADID);

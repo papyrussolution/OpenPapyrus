@@ -2932,7 +2932,7 @@ private:
 IMPL_HANDLE_EVENT(ObjTranDialogExt)
 {
 	ObjTranDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmEditFilt) {
+	if(event.isCmd(cmEditFilt)) {
 		if(P_Filt)
 			P_View->EditBaseFilt(P_Filt);
 		clearEvent(event);

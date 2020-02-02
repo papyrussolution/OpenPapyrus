@@ -1,5 +1,5 @@
 // REPTDLG.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -336,7 +336,7 @@ private:
 IMPL_HANDLE_EVENT(RepAnnDialog)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmClusterClk) {
+	if(event.isCmd(cmClusterClk)) {
 		long   kind = 0;
 		GetClusterData(CTL_REPEATING_KIND, &kind);
 		if(kind != PrevKind) {

@@ -457,7 +457,7 @@ void TSessionDialog::selectFreeEntry()
 	private:
 		DECL_HANDLE_EVENT
 		{
-			if(TVCOMMAND && TVCMD == cmLBDblClk) {
+			if(event.isCmd(cmLBDblClk)) {
 				if(IsInState(sfModal))
 					endModal(cmOK);
 				clearEvent(event);

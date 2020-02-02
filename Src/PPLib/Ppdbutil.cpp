@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2648,7 +2648,7 @@ private:
 IMPL_HANDLE_EVENT(DBMaintainDlg)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmClusterClk) {
+	if(event.isCmd(cmClusterClk)) {
 		long   tables = 0;
 		GetClusterData(CTL_DBMAINTAIN_TABLES, &tables);
 		SetCtrls(tables);

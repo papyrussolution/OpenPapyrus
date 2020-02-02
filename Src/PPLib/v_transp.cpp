@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -84,7 +84,7 @@ private:
 IMPL_HANDLE_EVENT(TransportFilterDlg)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmClusterClk && event.isCtlEvent(CTL_FLTTRANSP_TRTYPE)) {
+	if(event.isCmd(cmClusterClk) && event.isCtlEvent(CTL_FLTTRANSP_TRTYPE)) {
 		SetupCtrls();
 		clearEvent(event);
 	}

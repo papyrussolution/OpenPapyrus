@@ -1,5 +1,5 @@
 // GDSSALDO.CPP
-// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019
+// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020
 // @codepage windows-1251
 //
 // Расчет сальдо по товарам
@@ -241,7 +241,7 @@ void GoodsSaldoParamDlg::ReplySelection()
 IMPL_HANDLE_EVENT(GoodsSaldoParamDlg)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmCBSelected) {
+	if(event.isCmd(cmCBSelected)) {
 		ReplySelection();
 		clearEvent(event);
 	}

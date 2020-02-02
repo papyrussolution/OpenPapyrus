@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -93,7 +93,7 @@ MailAccCtrlGroup::MailAccCtrlGroup(uint ctlSelInput, uint editCmd) : CtlSelInput
 
 void MailAccCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 {
-	if(TVCOMMAND && TVCMD == cmEditMailAcc) {
+	if(event.isCmd(cmEditMailAcc)) {
 		PPObjInternetAccount mac_obj;
 		PPID   mac_id = 0;
 		dlg->getCtrlData(CtlSelInput, &mac_id);

@@ -1367,7 +1367,8 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
 	P_Dls = pDls;
-	Flags = (flags & ~ACGIF_EXCLALTFOLD); // ACGIF_EXCLALTFOLD - internal flag
+	Flags = (flags & ~(ACGIF_EXCLALTFOLD|ACGIF_IGNOREGWODISTAG)); // ACGIF_EXCLALTFOLD ACGIF_IGNOREGWODISTAG - internal flags
+	SETFLAG(Flags, ACGIF_IGNOREGWODISTAG, eq_cfg.Flags & eq_cfg.fIgnoreNoDisGoodsTag); // @v10.6.11
 	CashNodeID = cashNodeID;
 	LocID    = 0;
 	CodePos  = 0;
@@ -1839,7 +1840,9 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding > 0.0)
 						Rec.Precision = unit_rec.Rounding;
 					Rec.GoodsFlags = grec.Flags;
-					if(grec.Flags & GF_NODISCOUNT)
+					if(Flags & ACGIF_IGNOREGWODISTAG) // @v10.6.11
+						Rec.NoDis = 0;
+					else if(grec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;
 					else if(NoDisToggleGoodsList.bsearch(grec.ID))
 						Rec.NoDis = (SJ.GetLastObjEvent(PPOBJ_GOODS, grec.ID, &acn_goodsnodisrmvd, 0) > 0) ? -1 : 0;

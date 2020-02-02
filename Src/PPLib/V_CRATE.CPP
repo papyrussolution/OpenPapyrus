@@ -1,5 +1,5 @@
 // V_CRATE.CPP
-// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -317,10 +317,8 @@ private:
 	CurRateFilt    Filt;
 	PPViewCurRate  CRV;
 	SmartListBox * P_List;
-
 	int EnableCurID;
 	int EnableRateType;
-
 	CurRateIdent SelIdent;
 	double SelRate;
 };
@@ -355,7 +353,6 @@ int SelCRateDialog::getIdent(CurRateIdent * pIdent)
 	if(P_List && P_List->def) {
 		long i = 0;
 		P_List->getCurID(&i);
-
 		CurRateIdent ident;
 		ident.CurID = Filt.CurID;
 		ident.BaseCurID = Filt.BaseCurID;
@@ -402,7 +399,7 @@ int SelCRateDialog::getSelectedRate(CurRateIdent * pIdent, double * pRate)
 
 IMPL_HANDLE_EVENT(SelCRateDialog)
 {
-	if(TVCOMMAND && TVCMD == cmOK && IsInState(sfModal)) {
+	if(event.isCmd(cmOK) && IsInState(sfModal)) {
 		if(!getIdent(&SelIdent) || CRV.GetRate(&SelIdent, &SelRate) <= 0)
 			SelIdent.CurID = 0;
 		endModal(cmOK);

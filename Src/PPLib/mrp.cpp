@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1028,7 +1028,7 @@ private:
 IMPL_HANDLE_EVENT(MrpTabDialog)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmaMore) {
+	if(event.isCmd(cmaMore)) {
 		const PPID id = Data.LinkObjID;
 		if(Data.LinkObjType && id) {
 			if(EditPPObj(Data.LinkObjType, id) > 0) {
@@ -1088,7 +1088,7 @@ int SLAPI PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 		THROW(Search(*pID, &rec) > 0);
 	}
 	else {
-		MEMSZERO(rec);
+		// @v10.6.11 @ctr MEMSZERO(rec);
 		rec.Dt = r_cfg.OperDate;
 		rec.LocID = r_cfg.Location;
 	}

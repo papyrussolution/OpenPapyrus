@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -188,7 +188,7 @@ uint TStatusWin::GetCmdByCoord(POINT coord, TStatusWin::StItem * pItem /*=0*/)
 IMPL_HANDLE_EVENT(TStatusWin)
 {
 	TWindow::handleEvent(event);
-	if(TVCOMMAND && TVCMD == cmaEdit) {
+	if(event.isCmd(cmaEdit)) {
 		if(APPL->P_DeskTop) {
 			uint cmd = GetCmdByCoord(*static_cast<const POINT *>(event.message.infoPtr));
 			if(cmd)

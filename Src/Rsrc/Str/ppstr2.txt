@@ -944,6 +944,7 @@ PPERR_DL6_ICLSPARNOTIFACE          "DL600 База '%s' класса не явл
 PPERR_DL6_CLASSEXISTS              "DL600 Класс %s уже определен"
 PPERR_DL6_INVATTRLIB               "DL600 Недопустимый атрибут '%s' библиотеки типов"
 PPERR_CCHKNOMORESUSPENDED          "Чек '%s' открыт другим пользователем"
+PPERR_CCHKPRINTEDORSUSPENDED       "Чек '%s' отложенный или уже отпечатан - перерегистрация недопустима"
 PPERR_CHKPAN_SALERNEEDED           "Для выполнения операции необходимо выбрать агента"
 PPERR_DUPGOODS                     "Дублирование индекса в записи товара (%s)"
 PPERR_DL6_NOENUM                   "Попытка вставить элемент перечисления в структуру, не являющуюся перечислением"
@@ -9236,6 +9237,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @csession_tm                              "@{time}"
 
 @csessrt                                  "Права доступа к кассовым сессиям"
+@csessagentrt                             "Права доступа к кассовым операциям для персоналии" // Специальный тег персоналии, регулирующий права доступа агента
+@csessagentrt_hint                        "Используются для модификации прав агента, выбранного в кассовой панели"
 @csessrt_open                             "Открытие сессии"
 @csessrt_close                            "Закрытие сессии"
 @csessrt_zrep                             "Снятие Z-отчета" // generic (same as @csessrt_close)
@@ -9262,6 +9265,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @csessrt_chgccagent                       "Изменение агента в чеке"
 @csessrt_mergechk                         "Слияние чеков"
 @csessrt_escclinebord                     "Удаление строки чека до отправки заказа"
+@csessoprt_reprnunfcc                     "Повторная печать незавершенного чека"
 
 @csessdel                                 "Удаление кассовой сессии"
 @csessdel_incmpl_glines                   "Удалить результаты списания сессии"
@@ -9643,6 +9647,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selsuspcheck                             "Выбор отложенного чека"
 @selsuspcheck_split                       "Разделить"
 @selsuspcheck_merge                       "Объединить"
+@selsuspcheck_unfinished                  "Незавершенные"
 
 @goodsclass_defgoodstype                  "@{goods_type}"
 @goodsclass_defgrp                        "@{groupdefault}"

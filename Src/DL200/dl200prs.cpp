@@ -1,5 +1,5 @@
 // DL200PRS.CPP
-// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -36,7 +36,7 @@ public:
 	virtual int IsEqHdr(const DL2_Resolver::SPD * pS) const
 	{
 		if(pS && pS->Kind == Kind) {
-			DL2SPD_Bill * p_s = (DL2SPD_Bill *)pS;
+			const DL2SPD_Bill * p_s = static_cast<const DL2SPD_Bill *>(pS);
 			if(Period.IsEqual(p_s->Period) && OpID == p_s->OpID && LocList.IsEqual(p_s->LocList))
 				return 1;
 		}
@@ -127,9 +127,6 @@ public:
 	DateRange Period;
 	PPID   OpID;
 	ObjIdListFilt LocList;
-	//
-	//
-	//
 	BillTotal Total;
 protected:
 	DL2SPD_Bill(int kind, DL2_Resolver * pR) : DL2_Resolver::SPD(kind, pR)
@@ -152,7 +149,7 @@ public:
 	virtual int IsEqHdr(const DL2_Resolver::SPD * pS) const
 	{
 		if(pS && pS->Kind == Kind) {
-			DL2SPD_CCheck * p_s = (DL2SPD_CCheck *)pS;
+			const DL2SPD_CCheck * p_s = static_cast<const DL2SPD_CCheck *>(pS);
 			if(Period.IsEqual(p_s->Period) && LocList.IsEqual(p_s->LocList) && GgList.IsEqual(p_s->GgList))
 				return 1;
 		}
@@ -223,7 +220,7 @@ public:
 	virtual int IsEqHdr(const DL2_Resolver::SPD * pS) const
 	{
 		if(pS && pS->Kind == Kind) {
-			DL2SPD_GoodsRest * p_s = (DL2SPD_GoodsRest *)pS;
+			const DL2SPD_GoodsRest * p_s = static_cast<const DL2SPD_GoodsRest *>(pS);
 			if(Period.IsEqual(p_s->Period) && LocList.IsEqual(p_s->LocList) && GgList.IsEqual(p_s->GgList))
 				return 1;
 		}
@@ -289,9 +286,6 @@ public:
 	DateRange Period;
 	ObjIdListFilt LocList;
 	ObjIdListFilt GgList;
-	//
-	//
-	//
 	GoodsRestTotal Total;
 };
 
@@ -303,7 +297,7 @@ public:
 	virtual int IsEqHdr(const DL2_Resolver::SPD * pS) const
 	{
 		if(pS && pS->Kind == Kind) {
-			const DL2SPD_Debt * p_s = (const DL2SPD_Debt *)pS;
+			const DL2SPD_Debt * p_s = static_cast<const DL2SPD_Debt *>(pS);
 			if(Period.IsEqual(p_s->Period) && AccSheetID == p_s->AccSheetID)
 				return 1;
 		}
@@ -375,7 +369,7 @@ public:
 	virtual int IsEqHdr(const DL2_Resolver::SPD * pS) const
 	{
 		if(pS && pS->Kind == Kind) {
-			const DL2SPD_BizScore * p_s = (const DL2SPD_BizScore *)pS;
+			const DL2SPD_BizScore * p_s = static_cast<const DL2SPD_BizScore *>(pS);
 			if(Period.IsEqual(p_s->Period) && ScoreID == p_s->ScoreID)
 				return 1;
 		}
@@ -546,13 +540,13 @@ int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 			break;
 		case PPDL200_NAMEVAR_DIRECTOR:
 			{
-				DS.GetTLA().InitMainOrgData(0); // @v8.6.1
+				DS.GetTLA().InitMainOrgData(0);
 				GetPersonName(r_ccfg.MainOrgDirector_, rName);
 			}
 			break;
 		case PPDL200_NAMEVAR_ACCOUNTANT:
 			{
-				DS.GetTLA().InitMainOrgData(0); // @v8.6.1
+				DS.GetTLA().InitMainOrgData(0);
 				GetPersonName(r_ccfg.MainOrgAccountant_, rName);
 			}
 			break;
@@ -747,7 +741,7 @@ DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_C
 					if(dl2ac.Flags & DL2_Acc::fRest) {
 						val = al_out.Get(0, 0);
 						if(dl2ac.Flags & DL2_Acc::fCredit)
-							val = (val < 0) ? -val : 0;
+							val = (val < 0) ? -val : 0.0;
 						else if(dl2ac.Flags & DL2_Acc::fDebit) {
 							if(val < 0)
 								val = 0;
@@ -756,7 +750,7 @@ DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_C
 					else if(dl2ac.Flags & DL2_Acc::fInRest) {
 						val = al_in.Get(0, 0);
 						if(dl2ac.Flags & DL2_Acc::fCredit)
-							val = (val < 0) ? -val : 0;
+							val = (val < 0) ? -val : 0.0;
 						else if(dl2ac.Flags & DL2_Acc::fDebit) {
 							if(val < 0)
 								val = 0;
@@ -914,11 +908,8 @@ int SLAPI DL2_Resolver::ReverseFormula(const char * pFormula, SString & rResult)
 //
 //
 //
-SLAPI PrcssrDL200::PrcssrDL200()
+SLAPI PrcssrDL200::PrcssrDL200() : P_Dict(0), P_HdrTbl(0), P_IterTbl(0)
 {
-	P_Dict = 0;
-	P_HdrTbl = 0;
-	P_IterTbl = 0;
 	InitParam(&P);
 }
 
@@ -1084,15 +1075,10 @@ int	SLAPI PrcssrDL200::FillHeader()
 	psn_obj.GetPersonReq(main_org_id, &pr);
 	STRNSCPY(p_hdr_buf->Title, D.Name);
 	p_hdr_buf->MainOrgID = main_org_id;
-	//SOemToChar(STRNSCPY(p_hdr_buf->MainOrgName, pr.Name));
 	(temp_buf = pr.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(p_hdr_buf->MainOrgName, sizeof(p_hdr_buf->MainOrgName));
-	//SOemToChar(STRNSCPY(p_hdr_buf->MainOrgAddr, pr.Addr));
 	(temp_buf = pr.Addr).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(p_hdr_buf->MainOrgAddr, sizeof(p_hdr_buf->MainOrgAddr));
-	//SOemToChar(STRNSCPY(p_hdr_buf->MainOrgINN, pr.TPID));
 	(temp_buf = pr.TPID).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(p_hdr_buf->MainOrgINN, sizeof(p_hdr_buf->MainOrgINN));
-	//SOemToChar(STRNSCPY(p_hdr_buf->MainOrgOKPO, pr.OKPO));
 	(temp_buf = pr.OKPO).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(p_hdr_buf->MainOrgOKPO, sizeof(p_hdr_buf->MainOrgOKPO));
-	//SOemToChar(STRNSCPY(p_hdr_buf->MainOrgOKONH, pr.OKONF));
 	(temp_buf = pr.OKONF).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(p_hdr_buf->MainOrgOKONH, sizeof(p_hdr_buf->MainOrgOKONH));
 	p_hdr_buf->Period = P.Period;
 	p_hdr_buf->Cycle  = P.Cycl.Cycle;

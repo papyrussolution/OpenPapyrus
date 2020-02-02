@@ -1,5 +1,5 @@
 // PPDELTMP.CPP
-// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018, 2020
 // Удаление временных файлов
 //
 #include <pp.h>
@@ -223,7 +223,7 @@ int SLAPI DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(TVCOMMAND && TVCMD == cmClusterClk) {
+			if(event.isCmd(cmClusterClk)) {
 				disableCtrl(CTL_DELTMP_INDAYS,  !getCtrlUInt16(CTL_DELTMP_INCHECK));
 				disableCtrl(CTL_DELTMP_OUTDAYS, !getCtrlUInt16(CTL_DELTMP_OUTCHECK));
 				clearEvent(event);

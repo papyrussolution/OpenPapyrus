@@ -1,5 +1,5 @@
 // V_COMPGDS.CPP
-// Copyright (c) V.Miller 2013, 2016, 2017, 2019
+// Copyright (c) V.Miller 2013, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -81,7 +81,7 @@ int SLAPI PPViewSuprWare::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(TVCOMMAND && TVCMD == cmClusterClk) {
+			if(event.isCmd(cmClusterClk)) {
 				SetupCtrls();
 				clearEvent(event);
 			}

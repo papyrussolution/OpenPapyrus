@@ -393,7 +393,11 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 			}
 			else {
 				temp_loc_id = (pHdr || item.Rest > 0.0) ? loc_id : 0;
-				if(P_Ct && (loc_id == 0 || (!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))))
+				// @v10.6.11 {
+				if(!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))
+					temp_loc_id = 0;
+				// } @v10.6.11 
+				if(P_Ct && (!loc_id || (!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))))
 					temp_loc_id = 0;
 			}
 			if(temp_loc_id)

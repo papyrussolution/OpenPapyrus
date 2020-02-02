@@ -35,23 +35,22 @@ static const struct __RtToS {
 	{ CSESSOPRT_CHGPRINTEDCHK,    1, "G" },
 	{ CSESSOPRT_CHGCCAGENT,       1, "J" },
 	{ CSESSOPRT_MERGECHK,         1, "M" },
-	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" }
+	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" },
+	{ CSESSOPRT_REPRNUNFCC,       1, "3" } // @v10.6.11
 };
 
 //static
-int PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
+void SLAPI PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
 {
 	rBuf.Z();
 	for(uint i = 0; i < SIZEOFARRAY(RtToS); i++) {
-		if((rt & RtToS[i].R && !RtToS[i].IsOpr) || (opRt & RtToS[i].R && RtToS[i].IsOpr)) {
+		if((rt & RtToS[i].R && !RtToS[i].IsOpr) || (opRt & RtToS[i].R && RtToS[i].IsOpr))
 			rBuf.Cat(RtToS[i].S);
-		}
 	}
-	return 1;
 }
 
 //static
-int PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
+void SLAPI PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 {
 	long   rt = 0;
 	long   ort = 0;
@@ -70,7 +69,6 @@ int PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 	}
 	ASSIGN_PTR(pRt, rt);
 	ASSIGN_PTR(pOpRt, ort);
-	return 1;
 }
 
 TLP_IMPL(PPObjCSession, CSessionCore, P_Tbl);
@@ -584,6 +582,7 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 				SetClusterData(CTL_RTCSESS_SFLAGS2, pData->OprFlags);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  0, CSESSOPRT_CHGCCAGENT);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  1, CSESSOPRT_ESCCLINEBORD);
+				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  2, CSESSOPRT_REPRNUNFCC); // @v10.6.11
 				SetClusterData(CTL_RTCSESS_SFLAGS3, pData->OprFlags);
 			}
 			return 1;

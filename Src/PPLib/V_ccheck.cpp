@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -397,7 +397,7 @@ private:
 	}
 	int    EditCrosstab()
 	{
-		Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
+		Data.Grp = static_cast<CCheckFilt::Grouping>(getCtrlLong(CTLSEL_CCHECKFLT_GRP));
 		DIALOG_PROC_BODYERR(CCheckFiltCtDialog, &Data);
 	}
 	void   SetupCtrls();
@@ -408,7 +408,7 @@ private:
 
 void CCheckFiltDialog::SetupCtrls()
 {
-	CCheckFilt::Grouping  grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
+	CCheckFilt::Grouping  grp = static_cast<CCheckFilt::Grouping>(getCtrlLong(CTLSEL_CCHECKFLT_GRP));
 	if(!oneof3(grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
 		Data.AmountQuant = 0.0;
 		setCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);

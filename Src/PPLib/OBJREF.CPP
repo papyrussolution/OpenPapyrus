@@ -730,7 +730,7 @@ int SLAPI PPObjUnit::Browse(void * extraPtr)
 		DECL_HANDLE_EVENT
 		{
 			ObjViewDialog::handleEvent(event);
-			if(TVCOMMAND && TVCMD == cmUniteMaxLike && P_Obj) {
+			if(event.isCmd(cmUniteMaxLike) && P_Obj) {
 				if(static_cast<PPObjUnit *>(P_Obj)->UniteMaxLike() > 0)
 					updateList(-1);
 				clearEvent(event);

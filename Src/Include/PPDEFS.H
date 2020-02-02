@@ -1832,6 +1832,7 @@
 #define cmLayoutEntry            1171 // @v10.4.9
 #define cmPasteFromClipboardAll  1172 // @erik v10.5.2
 #define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики
+#define cmTsList                 1174 // Кнопка списка временных серий
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -7617,6 +7618,7 @@
 	#define cmSplitCheck              102
 	#define cmNewCheck                103
 	#define cmUniteChecks             104
+	#define cmUnfinishedChecks        105           
 	#define CTL_SELCHECK_CODE         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELCHECK_DATE         (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELCHECK_DATE      (3 + WINDOWS_ID_BIAS)
@@ -7627,6 +7629,7 @@
 	#define CTL_SELCHECK_FLTDATE      (8 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELCHECK_FLTDATE   (9 + WINDOWS_ID_BIAS)
 	#define CTL_SELCHECK_MEMO         (10 + WINDOWS_ID_BIAS)
+	#define CTL_SELCHECK_UNFC         (11 + WINDOWS_ID_BIAS) // check-box for selection unfinished checks
 #define DLG_SSAUTODIS            847
 	#define CTL_SSAUTODIS_SSER        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SSAUTODIS_SSER     (2 + WINDOWS_ID_BIAS)
@@ -10680,7 +10683,6 @@
 	#define CTL_TIMSER_TYPE           (21 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_FXSTAKE        (22 + WINDOWS_ID_BIAS)
 #define DLG_TSSA                  1353 //
-	#define cmTsList                  101
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSSA_TS            (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSSA_FLAGS            (3 + WINDOWS_ID_BIAS)

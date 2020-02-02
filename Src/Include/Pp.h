@@ -14364,6 +14364,8 @@ private:
 #define CCHKF_SPFINISHED   0x00001000L // @v9.7.5 Специальный признак окончательного финиширования чека. Применяется, например,
 	// для пометки факта доставки и(или) окончательной оплаты по чеку со стороны покупателя.
 	// @v9.7.8 @fix 0x00000800L-->0x00001000L
+#define CCHKF_TOREPRINT    0x00002000L // @v10.6.11 Флаг, устанавливаемый на чек, который не был правильно отпечатан и выбрна для перепечатки.
+	// При таком выборе чек получает флаги (CCHKF_SUSPENDED|CCHKF_TOREPRINT) после завершения перепечатки остается только флаг CCHKF_TOREPRINT.
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
 #define CCHKF_NOTUSED      0x00020000L // Чек не просуммирован в таблице CGoodsLine
 #define CCHKF_PRINTED      0x00040000L // Чек был отпечатан (пробит на ККМ)
@@ -14452,7 +14454,7 @@ public:
 	int    SLAPI Search(PPID, CCheckTbl::Rec * pRec = 0);
 	int    SLAPI Search(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    SLAPI SearchByTimeAndCard(PPID cardID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
-	int    SLAPI SearchByDateAndCode(long code, LDATE dt, SArray * pChkList);
+	int    SLAPI SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList); // @v10.6.11 SArray-->TSVector
 	int    SLAPI SearchForwardZCheck(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    SLAPI GetExt(PPID id, CCheckExtTbl::Rec * pExt);
 	int    SLAPI GetPaymList(PPID id, CcAmountList & rList);
@@ -16654,6 +16656,13 @@ public:
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
+		//
+		// Descr: Замещает каждое значение ErrL величиной sqrt(ErrL.at(i))
+		//   В общем случае, это - нормальное состояние вектора ErrL, но 
+		//   в некоторых случаях может пондобиться иметь оригинальный вектор ошибок.
+		//
+		void   SqrtErrList(StatBase * pS);
+
 		const  uint Stride;
 		const  uint NominalCount;
 		double ErrAvg;     // @v10.3.12 Средняя ошибка регрессии
@@ -16682,6 +16691,10 @@ public:
 		LDATETIME SLAPI GetLastValTm() const { return LastValTm; }
 		LDATETIME SLAPI GetStorageTm() const { return StorageTm; }
 		uint32 SLAPI GetVersion() const { return Ver; }
+		//
+		// Descr: Увеличивает внутренний счетчик идентификаторов и возвращает новое значение идентификатора для очередной стратегии.
+		//
+		uint32 SLAPI GetNewStrategyId();
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		const  Strategy * FASTCALL SearchByID(uint32 id) const;
 		//
@@ -16736,6 +16749,7 @@ public:
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
 		long   State; // @transient
+		uint32 LastStrategyId; // @transient
 	};
 	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
@@ -17001,6 +17015,7 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 	int    SLAPI TryStrategyContainer(PPID tsID);
+	int    SLAPI TryStrategyContainers(const PPIDArray & rTsList);
 	int    SLAPI AnalyzeRegression(PPID tsID, const LongArray & rStepList);
 	//
 	// Descr: Флаги функции FindOptimalMaxDuck
@@ -17014,6 +17029,12 @@ public:
 private:
 	int    SLAPI ReadModelParam(ModelParam & rMp);
 	int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & tTs);
+	int    SLAPI FindStrategies(const ModelParam & rModelParam, PPObjTimeSeries::TrainNnParam & rTnnp2, uint targetQuant, const DateTimeArray & rTsTmList, const RealArray & rTsValList, 
+		const PPObjTimeSeries::TrendEntry & rTe, const PPObjTimeSeries::TrendEntry * pMainTrendEntry, int optFactorSide, PPObjTimeSeries::StrategyContainer & rSContainer);
+	enum {
+		mavfDontSqrtErrList = 0x0001
+	};
+	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	PrcssrTsStrategyAnalyzeFilt P;
 	PPObjTimeSeries TsObj;
 };
@@ -18944,8 +18965,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 	// которой ограничен пользователь (PPAccessRestriction::OnlyGoodsGrpID)
 #define CASHFX_SUSPLISTWODLVR     0x00000400L // @unused @v7.3.5 (sync) В списке отложенных чеков не показывать чеки с доставкой
 #define CASHFX_RMVPASSIVEGOODS    0x00000800L // @v7.4.12 (async) Посылать модулю требование на удаление пассивных товаров
-#define CASHFX_KEEPORGCCUSER      0x00001000L // @v7.5.6  (sync)  При отложении-восстановлении чеков сохранять оригинального
-	// пользователя, создавшего чек.
+#define CASHFX_KEEPORGCCUSER      0x00001000L // @v7.5.6  (sync)  При отложении-восстановлении чеков сохранять оригинального пользователя, создавшего чек.
 #define CASHFX_CREATEOBJSONIMP    0x00002000L // @v7.6.8  (async) Создавать объекты при импорте чеков
 #define CASHFX_PASSIVE            0x00004000L // @v7.6.9  Пассивный узел (не отображается в списках)
 #define CASHFX_SEPARATERCPPRN     0x00010000L // @v7.9.7  (async) Загружать номера кассовых аппаратов
@@ -30092,6 +30112,8 @@ struct AsyncCashGoodsInfo { // @transient
 #define ACGIF_ALLCODESPERITER   0x0040 // @v9.0.6 Все коды товара передавать в одной итерации
 #define ACGIF_REDOSINCEDLS      0x0080 // @v9.0.11 Повторная выгрузка данных, которые были начиная с заданного DLSID
 #define ACGIF_ENSUREUUID        0x0100 // @v10.0.04 Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией.
+#define ACGIF_IGNOREGWODISTAG   0x0200 // @v10.6.11 Игнорировать признак товаров 'без скидки'. Флаг выставляется автоматически функцией Init по 
+	// флагу конфигурации оборудования PPEquipConfig::fIgnoreNoDisGoodsTag. Внешняя установка флага игнорируется.
 
 class AsyncCashGoodsIterator {
 public:
@@ -33377,12 +33399,13 @@ public:
 #define CSESSOPRT_ROWDISCOUNT      0x00000100 // I Право на установку скидки на строку чека
 #define CSESSOPRT_XREP             0x00000200 // X Право на снятие X-отчета
 #define CSESSOPRT_CTBLORD          0x00000400 // K Право на администрирование заказов столов (создание, изменение, отмена)
-#define CSESSOPRT_SPLITCHK         0x00000800 // F @v7.0.5  Право на разделение чека
-#define CSESSOPRT_CHGPRINTEDCHK    0x00001000 // G @v7.0.5  Право на изменение чека, по которому отпечат счет
-#define CSESSOPRT_RESTORESUSPWOA   0x00002000 // H @v7.5.11 Право на извлечение отложенного чека без указания агента
-#define CSESSOPRT_CHGCCAGENT       0x00004000 // J @v8.2.1  Право на смену агента в чеке
-#define CSESSOPRT_MERGECHK         0x00010000 // M @v8.5.4  Право на объединение чеков
-#define CSESSOPRT_ESCCLINEBORD     0x00020000 // Q @v8.7.3  Удаление строк в чеках до отправки заказа на изготовление
+#define CSESSOPRT_SPLITCHK         0x00000800 // F Право на разделение чека
+#define CSESSOPRT_CHGPRINTEDCHK    0x00001000 // G Право на изменение чека, по которому отпечат счет
+#define CSESSOPRT_RESTORESUSPWOA   0x00002000 // H Право на извлечение отложенного чека без указания агента
+#define CSESSOPRT_CHGCCAGENT       0x00004000 // J Право на смену агента в чеке
+#define CSESSOPRT_MERGECHK         0x00010000 // M Право на объединение чеков
+#define CSESSOPRT_ESCCLINEBORD     0x00020000 // Q Удаление строк в чеках до отправки заказа на изготовление
+#define CSESSOPRT_REPRNUNFCC       0x00040000 // 3 @v10.6.11 Право на повторную печать чека, по которому была ошибка печати на регистраторе
 
 int SLAPI GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry);
 int SLAPI EditDueToKeyboardRights();
@@ -33392,8 +33415,8 @@ int SLAPI EditDueToKeyboardRights();
 class PPObjCSession : public PPObject {
 public:
 	static SString & FASTCALL MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf);
-	static int RightsToString(long rt, long opRt, SString & rBuf);
-	static int StringToRights(const char * pBuf, long * pRt, long * pOpRt);
+	static void    SLAPI RightsToString(long rt, long opRt, SString & rBuf);
+	static void    SLAPI StringToRights(const char * pBuf, long * pRt, long * pOpRt);
 	explicit SLAPI PPObjCSession(void * extraPtr = 0);
 	SLAPI ~PPObjCSession();
 	virtual int  SLAPI Search(PPID id, void * b = 0);
@@ -41250,8 +41273,7 @@ struct CCheckTotal {
 	double MinCheckSum;
 	double AvrgCheckSum;
 	double MaxCheckSum;
-	//
-	long   GuestCount; // @v8.3.11
+	long   GuestCount; 
 };
 
 struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
@@ -50689,9 +50711,10 @@ public:
 		orfSplitCheck              = 0x00002000, // Разделение чека
 		orfChgPrintedCheck         = 0x00004000, // Изменение чека, по которому отпечатан счет
 		orfRestoreSuspWithoutAgent = 0x00008000, // CSESSOPRT_RESTORESUSPWOA
-		orfChgAgentInCheck         = 0x00010000, // @v8.2.1  CSESSOPRT_CHGCCAGENT
-		orfMergeChecks             = 0x00020000, // @v8.5.5  CSESSOPRT_MERGECHK
-		orfEscChkLineBeforeOrder   = 0x00040000  // @v8.7.3  CSESSOPRT_ESCCLINEBORD
+		orfChgAgentInCheck         = 0x00010000, // CSESSOPRT_CHGCCAGENT
+		orfMergeChecks             = 0x00020000, // CSESSOPRT_MERGECHK
+		orfEscChkLineBeforeOrder   = 0x00040000, // CSESSOPRT_ESCCLINEBORD
+		orfReprnUnfCc              = 0x00080000  // @v10.6.11 CSESSOPRT_REPRNUNFCC
 	};
 	struct ExtCcData {
 		enum {
@@ -50751,7 +50774,7 @@ public:
 		accmRegular         = 0, // Обычное проведение кассового чека
 		accmSuspended       = 1, // Сохранение отложенного чека
 		accmAveragePrinting = 2, // Аварийная печать уже проведенного чека (до этого печать завершилась с ошибкой)
-		accmJunk            = 3  // Сохранение временной копии чека (с флагами CCHKF_SUSPENDED|CCHKF_JUNK)
+		accmJunk            = 3, // Сохранение временной копии чека (с флагами CCHKF_SUSPENDED|CCHKF_JUNK)
 	};
 
 	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
@@ -50802,7 +50825,7 @@ public:
 	int    SetupAgent(PPID agentID, int asAuthAgent);
 	void   SetupSessUuid(const S_GUID_Base & rUuid);
 	int    OpenSession(LDATE * pDt, int ifClosed);
-	int    RestoreSuspendedCheck(PPID ccID); // private->public
+	int    RestoreSuspendedCheck(PPID ccID, int unfinishedForReprinting); // private->public
 	int    Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId);
 	//
 	// Descr: selPrnType ==  1 - предварительно вызывается диалог выбора принтера (локальные или по умолчанию)
@@ -51046,8 +51069,7 @@ protected:
 	};
 	enum {
 		fNoEdit             = 0x00000001, // Запрет на редактирование чеков
-		fError              = 0x00000002, // В строке статуса выводится сообщение об ошибке.
-			// Текст сообщения хранится в буфере ErrMsgBuf
+		fError              = 0x00000002, // В строке статуса выводится сообщение об ошибке. Текст сообщения хранится в буфере ErrMsgBuf
 		fRetCheck           = 0x00000004, // Признак ввода чека возврата
 		fPctDis             = 0x00000008, // Скидка указана в процентах
 		fBankingPayment     = 0x00000010, // Чек оплачивается банковской кредитной картой
@@ -51061,13 +51083,11 @@ protected:
 		fSleepMode          = 0x00001000, // Панель находится в спящем режиме
 		fSuspSleepTimeout   = 0x00002000, // Приостанавливает отсчет таймаута спящего режима
 		fPrintSlipDoc       = 0x00004000, // Печать подкладного документа (вместо печати на принтер)
-		fBarrier            = 0x00008000, // Флаг блокирует обработку команд. Необходим для избежания //
-			// возможность "реентранса" (особенно, при работе с сенсорным экраном).
+		fBarrier            = 0x00008000, // Флаг блокирует обработку команд. Необходим для избежания возможность "реентранса" (особенно, при работе с сенсорным экраном).
 		fOnlyReports        = 0x00010000, //
 		fPresent            = 0x00020000, // Ввод товара-подарка
 		fSCardBonus         = 0x00040000, // Карта, ассоциированная с чеком, является бонусной
-		fSelSerial          = 0x00080000, // Выбирать серийный номер после выбора товара
-			// Проекция флага CASHFX_SELSERIALBYGOODS кассового узла
+		fSelSerial          = 0x00080000, // Выбирать серийный номер после выбора товара. Проекция флага CASHFX_SELSERIALBYGOODS кассового узла
 		fDisableBeep        = 0x00100000, // Запрет на звуковой сигнал при сообщении об ошибке
 		fNotUseScale        = 0x00200000, // Не использовать прием с весов
 		fForceDivision      = 0x00400000, // Не разрешать проводить строку без номера отдела
@@ -51075,8 +51095,9 @@ protected:
 		fSCardCredit        = 0x01000000, // Чек оплачивается корпоративной кредитной картой
 		fUsedRighsByAgent   = 0x04000000, // Применены права доступа по агенту.
 		fPrinted            = 0x08000000, // По чеку распечатан счет (called CheckPaneDialog::Print(x, 0))
+		fReprinting         = 0x10000000, // @v10.6.11 В панель загружен незавершенный чек для перепечатки
 		fSelModifier        = 0x20000000, // Режим выбора модификатора
-		fSCardBonusReal     = 0x40000000, // @v8.0.6 Карта, ассоциированная с чеком, является бонусной. Практически
+		fSCardBonusReal     = 0x40000000, // Карта, ассоциированная с чеком, является бонусной. Практически
 			// дублирует флаг fSCardBonus с небольшим нюансом. Если остаток на карте нулевой, то fSCardBonus не выставляется,
 			// а fSCardBonusReal - устанавливается. Такое раздвоение необходимо что бы разным образом обрабатывать начисление
 			// бонуса и использование бонуса для оплаты.

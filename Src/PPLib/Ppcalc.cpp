@@ -592,7 +592,7 @@ int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 	private:
 		DECL_HANDLE_EVENT
 		{
-			if((TVCOMMAND && TVCMD == cmCancel) || (TVKEYDOWN && TVKEY == kbEsc)) {
+			if(event.isCmd(cmCancel) || (TVKEYDOWN && TVKEY == kbEsc)) {
 				DS.GetTLA().Lid.CalcMem = getCtrlReal(CTL_CALC_MEMVIEW);
 			}
 			TDialog::handleEvent(event);

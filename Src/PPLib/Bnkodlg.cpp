@@ -1,5 +1,5 @@
 // BNKODLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019, 2020
 // @codepage UTF-8
 // Диалог редактирования данных для банковских платежных документов
 //
@@ -266,7 +266,7 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 		setupBnkAcc(0, getCtrlLong(CTLSEL_BNKPAYM_PAYERACC));
 	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVRACC))
 		setupBnkAcc(1, getCtrlLong(CTLSEL_BNKPAYM_RCVRACC));
-	else if(TVCOMMAND && TVCMD == cmCtlColor) {
+	else if(event.isCmd(cmCtlColor)) {
 		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && oneof2(p_dc->H_Ctl, getCtrlHandle(CTL_BNKPAYM_PAYERACC), getCtrlHandle(CTL_BNKPAYM_RCVRACC))) {
 			int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;

@@ -153,7 +153,7 @@ double CcAmountList::ScaleTo(double targetAmount)
 int CcAmountList::InvertSign()
 {
 	int    ok = 0;
-	int    sign = GetSign();
+	const  int  sign = GetSign();
 	if(sign < 0) {
 		for(uint i = 0; i < getCount(); i++) {
 			CcAmountEntry & r_entry = at(i);
@@ -1526,19 +1526,20 @@ int SLAPI CCheckCore::SearchByTimeAndCard(PPID cardID, LDATE dt, LTIME tm, CChec
 	return SearchByKey(this, 4, &k, pRec);
 }
 
-int SLAPI CCheckCore::SearchByDateAndCode(long code, LDATE dt, SArray * pChkList)
+int SLAPI CCheckCore::SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList)
 {
 	int    ok = -1;
-	if(pChkList) {
-		pChkList->freeAll();
+	if(pRecList) {
+		pRecList->clear(); // @v10.6.11 freeAll()-->clear()
 		CCheckTbl::Key1  k1;
 		MEMSZERO(k1);
 		k1.Dt = dt;
-		while(search(1, &k1, spGt) && data.Dt == dt)
-			if(!code || data.Code == code) {
-				THROW_SL(pChkList->insert(&data));
+		while(search(1, &k1, spGt) && data.Dt == dt) {
+			if((!code || data.Code == code) && (!unprintedOnly || !(data.Flags & CCHKF_PRINTED))) {
+				THROW_SL(pRecList->insert(&data));
 				ok = 1;
 			}
+		}
 		THROW_DB(BTROKORNFOUND);
 	}
 	CATCHZOK
@@ -5415,15 +5416,14 @@ int CCheckCache::RefreshCTableStatusList(int force)
 	int    ok = 1;
 	{
 		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Write);
-		//CTableStatusRwl.WriteLock();
-		LDATETIME cdtm = getcurdatetime_();
+		const LDATETIME cdtm = getcurdatetime_();
 		if(force || CTableStatusTime.d == ZERODATE || diffdatetimesec(cdtm, CTableStatusTime) > CTableStatusRefreshTimeout) {
 			CTableStatusTime = cdtm;
 			CTStList.clear();
 			PPViewCCheck cc_view;
 			CCheckFilt cc_filt;
 			CCheckViewItem cc_item;
-			LDATE start = NZOR(FirstActualDate, plusdate(cdtm.d, -7)); // @v9.0.2 -30-->-7
+			const LDATE start = NZOR(FirstActualDate, plusdate(cdtm.d, -7)); // @v9.0.2 -30-->-7
 			cc_filt.Period.Set(start, ZERODATE);
 			cc_filt.Flags |= CCheckFilt::fCTableStatus;
 			cc_view.Init_(&cc_filt);
@@ -5444,7 +5444,6 @@ int CCheckCache::RefreshCTableStatusList(int force)
 		}
 		else
 			ok = -1;
-		//CTableStatusRwl.Unlock();
 	}
 	return ok;
 }

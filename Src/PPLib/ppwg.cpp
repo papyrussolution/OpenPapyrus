@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 // Графики рабочего времени
 //
@@ -15,18 +15,19 @@ SLAPI PPObjDateTimeRep::PPObjDateTimeRep(void * extraPtr) : PPObjReference(PPOBJ
 static int EditDtr(PPDateTimeRep * pData)
 {
 	class DtrDialog : public TDialog {
+		DECL_DIALOG_DATA(PPDateTimeRep);
 	public:
 		DtrDialog() : TDialog(DLG_DTR)
 		{
 		}
-		int    setDTS(const PPDateTimeRep * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_DTR_NAME, Data.Name);
 			setCtrlData(CTL_DTR_ID, &Data.ID);
 			return 1;
 		}
-		int     getDTS(PPDateTimeRep * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTL_DTR_NAME, Data.Name);
 			//getCtrlData(CTL_DTR_ID, &Data.ID);
@@ -44,21 +45,22 @@ static int EditDtr(PPDateTimeRep * pData)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(TVCOMMAND && TVCMD == cmDtrRepeating) {
+			if(event.isCmd(cmDtrRepeating)) {
 				RepeatingDialog * dlg = new RepeatingDialog(RepeatingDialog::fEditTime|RepeatingDialog::fEditDuration);
 				if(CheckDialogPtrErr(&dlg)) {
 					dlg->setDTS(&Data.Dtr);
 					dlg->setDuration(Data.Duration);
-					while(ExecView(dlg) == cmOK)
+					while(ExecView(dlg) == cmOK) {
 						if(dlg->getDTS(&Data.Dtr)) {
 							dlg->getDuration(&Data.Duration);
 							clearEvent(event);
-							return;
+							break; // @v10.6.11 return-->break
 						}
+					}
+					delete dlg; // @v10.6.11 @fix
 				}
 			}
 		}
-		PPDateTimeRep Data;
 	};
 	DIALOG_PROC_BODY(DtrDialog, pData);
 }
