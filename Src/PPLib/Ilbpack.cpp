@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -510,7 +510,7 @@ public:
 				assert(_step_mult != 0);
 				uint   vdp = 4 + _sl;
 				ulong  min_vat_div = GetMinVatDivisor(fdiv100r(VatRate), vdp);
-				RowPrecList.add((long)vdp);
+				RowPrecList.add(static_cast<long>(vdp));
 				min_vat_div_list.insert(&min_vat_div);
 				step_mult_list.insert(&_step_mult);
 			}
@@ -1450,7 +1450,7 @@ static SString & __Debug_TraceLotSync(const ILBillPacket & rIPack, const PPBillP
 	ILTI * p_ilti = 0;
 	LongArray pos_list;
 	rBuf.Z().CatChar('{').Cat(rIPack.Rec.ID).CatChar('/');
-	rBuf.Cat(pPack ? pPack->Rec.ID : (long)-1);
+	rBuf.Cat(pPack ? pPack->Rec.ID : -1L);
 	for(uint i = 0; rIPack.Lots.enumItems(&i, (void **)&p_ilti);) {
 		pos_list.clear();
 		if(pPack) {
@@ -1960,13 +1960,13 @@ int SLAPI BillTransmDeficit::CompleteGoodsRest()
 {
 	int    ok = 1;
 	double suppl_qtty = 0.0;
-	TempDeficitTbl::Rec rec, prev_rec, * p_rec;
+	TempDeficitTbl::Rec rec, * p_rec;
 	TempDeficitTbl::Key0 k;
 	SArray rec_list(sizeof(rec));
 	uint   start_pos = 0;
 	{
+		TempDeficitTbl::Rec prev_rec;
 		MEMSZERO(k);
-		MEMSZERO(prev_rec);
 		int    prev_rec_inited = 0;
 		BExtQuery q(Tbl, 0);
 		q.selectAll();
@@ -2230,7 +2230,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 			PPListDialog::handleEvent(event);
 			if(event.isCmd(cmLBItemFocused)) {
 				long   pos = 0, id = 0;
-				if(getCurItem(&pos, &id) > 0 && pos >= 0 && pos < (long)LocPeriodList.getCount()) {
+				if(getCurItem(&pos, &id) > 0 && pos >= 0 && pos < LocPeriodList.getCountI()) {
 					const BillTransmDeficit::LocPeriod & r_item = LocPeriodList.at(pos);
 					setCtrlDate(CTL_TDEFICIT_DATE, r_item.P.low);
 				}
@@ -2256,7 +2256,7 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 		virtual int editItem(long pos, long id)
 		{
 			int    ok = -1;
-			if(pos >= 0 && pos < (long)LocPeriodList.getCount()) {
+			if(pos >= 0 && pos < LocPeriodList.getCountI()) {
 				BillTransmDeficit::LocPeriod & r_item = LocPeriodList.at(pos);
 				const BillTransmDeficit::LocPeriod & r_org_item = OrgLocPeriodList.at(pos);
 				LDATE dt = getCtrlDate(CTL_TDEFICIT_DATE);

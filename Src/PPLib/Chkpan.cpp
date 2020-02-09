@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // ѕанель ввода кассовых чеков
 //
@@ -2259,9 +2259,10 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 {
 	int    ok = 1;
 	const  int turn_check_before_printing = 1;
+	const  int reprint_regular = BIN(mode == accmAveragePrinting && Flags & fReprinting); // @v10.6.12
 	int    was_turned_before_printing = 0;
 	SString before_printing_check_text, msg_buf, fmt_buf;
-	THROW_INVARG((mode != accmAveragePrinting) || P_ChkPack || (Flags & fReprinting)); // @v10.6.11 (|| (Flags & fReprinting))
+	THROW_INVARG((mode != accmAveragePrinting || reprint_regular) || P_ChkPack); // @v10.6.11 (|| reprint_regular)
 	if(CashNodeID) {
 		AcceptCheckProcessBlock epb;
 		if(!(Flags & fNoEdit)) {
@@ -2269,7 +2270,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			THROW_PP(!(CnExtFlags & CASHFX_DISABLEZEROSCARD) || CSt.GetID(), PPERR_CHKPAN_SCARDNEEDED);
 		}
 		THROW(InitCashMachine());
-		if(mode == accmAveragePrinting && !(Flags & fReprinting)) {
+		if(mode == accmAveragePrinting && !reprint_regular) {
 			THROW_PP(OperRightsFlags & orfPrintCheck, PPERR_NORIGHTS);
 			epb.Pack = *P_ChkPack;
 		}
@@ -2290,12 +2291,18 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 				}
 				// } @debug
 				epb.Pack.Rec.Code = epb.LastChkRec.Code;
-				//
-				// —ледующие 2 строки следует раскомментировать, если дата и врем€ отложенного чека должны
-				// соответствовать последнему изменению (в противном случае они будут соответствовать времени создани€ чека).
-				//
-				//pack.Rec.Dt = last_chk_rec.Dt;
-				//pack.Rec.Tm = last_chk_rec.Tm;
+				if(reprint_regular) {
+					epb.Pack.Rec.Dt = epb.LastChkRec.Dt;
+					epb.Pack.Rec.Tm = epb.LastChkRec.Tm;
+				}
+				else {
+					//
+					// —ледующие 2 строки следует раскомментировать, если дата и врем€ отложенного чека должны
+					// соответствовать последнему изменению (в противном случае они будут соответствовать времени создани€ чека).
+					//
+					//pack.Rec.Dt = last_chk_rec.Dt;
+					//pack.Rec.Tm = last_chk_rec.Tm;
+				}
 			}
 			else
 				GetNewCheckCode(CashNodeID, &epb.Pack.Rec.Code);
@@ -2321,8 +2328,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			SETFLAG(epb.Pack.Rec.Flags, CCHKF_JUNK, mode == accmJunk);
 			SETFLAG(epb.Pack.Rec.Flags, CCHKF_PREPRINT, Flags & fPrinted);
 			//
-			// ѕеред окончательным проведением чека необходимо распределить подарочную скидку (если она есть)
-			// по строкам чека.
+			// ѕеред окончательным проведением чека необходимо распределить подарочную скидку (если она есть) по строкам чека.
 			//
 			if(mode == accmRegular) {
 				CCheckItem * p_item;
@@ -2332,7 +2338,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 						break;
 					}
 			}
-			THROW(Helper_InitCcPacket(&epb.Pack, ((mode == accmRegular && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0)); // @v9.7.11 !altPosNodeID
+			THROW(Helper_InitCcPacket(&epb.Pack, (((mode == accmRegular || reprint_regular) && !altPosNodeID) ? &epb.ExtPack : 0), pPl, 0)); // @v9.7.11 !altPosNodeID
 			if(mode == accmRegular && P_CM_EXT) {
 				epb.Pack._Cash = MONEYTOLDBL(epb.Pack.Rec.Amount);
 				// @v9.6.11 epb.IsExtPack = BIN(epb.ExtPack.GetCount());
@@ -2397,7 +2403,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 						// присвоит чеку собственный номер. ѕри этом получитс€ так, что в Ѕƒ и
 						// фискальной пам€ти будут хранитс€ не те номера, которые были переданы в ≈√ј»—.
 						//
-						if(turn_check_before_printing && !was_turned_before_printing && mode != accmAveragePrinting) {
+						if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
 							THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 							CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
 							was_turned_before_printing = 1;
@@ -2437,7 +2443,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 				}
 			}
 			// } @v9.0.11
-			if(turn_check_before_printing && !was_turned_before_printing && mode != accmAveragePrinting) {
+			if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
 				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 				CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
 				was_turned_before_printing = 1;
@@ -2494,7 +2500,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 				// } @v10.3.9
 				THROW(tra.Commit());
 			}
-			else if(mode != accmAveragePrinting) {
+			else if(mode != accmAveragePrinting || reprint_regular) { // @v10.6.12 (|| reprint_regular)
 				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 			}
 			//
@@ -2505,7 +2511,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 				PPError();
 		}
 	}
-	if(!oneof2(mode, accmAveragePrinting, accmJunk))
+	if(mode != accmJunk && (mode != accmAveragePrinting || reprint_regular))
 		ClearCheck();
 	CATCH
 		ok = PPErrorZ();
@@ -7578,13 +7584,12 @@ int CheckPaneDialog::SelectSuspendedCheck()
 						// @v10.6.11 {
 						if(sel_chk.Flags & _SelCheck::fUnfinished) {
 							// ReprintCheck
-#if 0 // @construction {
+#if 1 // @construction {
 							Flags |= fReprinting;
 							int r1 = RestoreSuspendedCheck(sel_chk.CheckID, 1/*unfinishedForReprinting*/);
 							if(r1)
 								r1 = AcceptCheck(0, 0, 0.0, CPosProcessor::accmAveragePrinting);
 							Flags &= ~fReprinting;
-							ClearCheck();
 							THROW(r1);
 #endif // } 0 @construction
 						}
@@ -8538,7 +8543,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									if(CheckDialogPtrErr(&p_dlg) && ExecView(p_dlg) == cmOK) {
 										long   sel_pos = 0;
 										p_dlg->getSelection(&sel_pos);
-										if(sel_pos > 1 && sel_pos <= (long)lbpl.getCount()) {
+										if(sel_pos > 1 && sel_pos <= lbpl.getCountI()) {
 											rBlk.PriceBySerial = lbpl.at(sel_pos-1);
 											rBlk.Serial.Z();
 										}
@@ -8637,6 +8642,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									}
 									else
 										ok = -1;
+									selectCtrl(CTL_CHKPAN_INPUT); // @v10.6.12
 								}
 							}
 						}
@@ -8644,7 +8650,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
 								rBlk.Qtty = 1.0; // ћаркированна€ продукции€ - строго по одной штуке на строку чека
 								SString chzn_mark = rBlk.ChZnMark;
-								if(chzn_mark.NotEmpty() || PPChZnPrcssr::InputMark(chzn_mark) > 0) {
+								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
+								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark)) > 0) {
 									int    dup_mark = 0;
 									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 										if(chzn_mark.IsEqual(P.at(i).ChZnMark))
@@ -8684,6 +8691,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									else
 										ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
 								}
+								if(imr != -1000)
+									selectCtrl(CTL_CHKPAN_INPUT); // @v10.6.12
 							}
 						}
 					}
@@ -8770,7 +8779,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 						{
 							if(event.isCmd(cmLBDblClk)) {
 								long   idx = 0;
-								if(getSelection(&idx) && idx > 0 && idx <= (long)List.getCount())
+								if(getSelection(&idx) && idx > 0 && idx <= List.getCountI())
 									TVCMD = cmOK;
 							}
 							else if(event.isCmd(cmClear)) {
@@ -8814,7 +8823,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 						int    cmd = ExecView(dlg);
 						if(cmd == cmOK) {
 							long   idx = -1;
-							if(dlg->getSelection(&idx) && idx > 0 && idx <= (long)mlist.getCount()) {
+							if(dlg->getSelection(&idx) && idx > 0 && idx <= mlist.getCountI()) {
 								const SaModifEntry & r_entry = mlist.at(idx-1);
 								P.CurModifList.insert(&r_entry);
 								SetupRowData(1);

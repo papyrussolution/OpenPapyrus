@@ -2233,7 +2233,7 @@ private:
 int BadTrfrEntryListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(P_List && pos >= 0 && pos < (long)P_List->getCount()) {
+	if(P_List && pos >= 0 && pos < P_List->getCountI()) {
 		if(CONFIRM(PPCFM_DELETE)) {
 			const BadTrfrEntry * p_entry = static_cast<const BadTrfrEntry *>(P_List->at(pos));
 			Transfer * p_trfr = BillObj->trfr;

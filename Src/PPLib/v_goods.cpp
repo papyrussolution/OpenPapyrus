@@ -1251,7 +1251,7 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 	int    ok = -1;
 	if(pBrw && pData && pCellStyle && col >= 0) {
 		BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < (long)p_def->getCount()) {
+		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
 				if(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES)

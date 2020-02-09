@@ -186,7 +186,7 @@ public:
 		}
 		double SLAPI GetAverageSpread_WithAdjustment() const
 		{
-			return fdivui(SpreadSum, SpreadCount) * 2.0; // @20190703 2.0-->1.2 // @20190707 1.2-->1.5 // @20190708 1.5-->2.0
+			return fdivui(SpreadSum, SpreadCount) * 1.2; // @20190703 2.0-->1.2 // @20190707 1.2-->1.5 // @20190708 1.5-->2.0 // @20200207 2.0-->1.2
 		}
 		int FASTCALL GetLastValue(double * pValue) const
 		{
@@ -1345,11 +1345,12 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					CatEq("volume", __volume, MKSFMTD(0, 0, 0)).Space().
 					CatEq("adjusted-result-per-day", __adjusted_result_per_day, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Space().
 					CatEq("arrange-crit-value", __arrange_crit_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Space().
-					Cat(PPObjTimeSeries::StrategyToString(r_s, &_best_result, temp_buf));
+					Cat(PPObjTimeSeries::StrategyToString(r_s, &_best_result.TvForMaxResult, &_best_result.Tv2ForMaxResult, temp_buf));
 				PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 				if(_best_result_reverse.MaxResultIdx >= 0) {
 					const PPObjTimeSeries::Strategy & r_s_reverse = r_blk.Strategies.at(_best_result_reverse.MaxResultIdx);
-					log_msg.Z().Cat("Best-Reverse").CatDiv(':', 2).Cat(r_blk.PPTS.GetSymb()).Space().Cat(PPObjTimeSeries::StrategyToString(r_s_reverse, &_best_result_reverse, temp_buf));
+					log_msg.Z().Cat("Best-Reverse").CatDiv(':', 2).Cat(r_blk.PPTS.GetSymb()).Space().Cat(
+						PPObjTimeSeries::StrategyToString(r_s_reverse, &_best_result_reverse.TvForMaxResult, &_best_result.Tv2ForMaxResult, temp_buf));
 					PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
 			}
@@ -1439,10 +1440,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	TSVector <PotentialStakeEntry> potential_stake_list;
 	const uint current_stake_count = StkEnv.SL.getCount();
 	const double evaluated_used_margin = EvaluateUsedMargin();
-
-	(temp_buf = "EvaluateStakes").Dot().Cat("log");
-	PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
-
+	PPGetFilePath(PPPATH_LOG, (temp_buf = "EvaluateStakes").Dot().Cat("log"), log_file_name);
 	for(uint i = 0; i < StkEnv.TL.getCount(); i++) {
 		const TsStakeEnvironment::Tick & r_tk = StkEnv.TL.at(i);
 		const long max_diff_sec = UseRegularValuesOnlyForStakes ? 130 : 40;
@@ -1593,12 +1591,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar('/').
 							Cat(tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).CatChar('/').Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
-						{
-							PPObjTimeSeries::BestStrategyBlock fake_bsb;
-							fake_bsb.TvForMaxResult = r_pse.Tv;
-							fake_bsb.Tv2ForMaxResult = r_pse.Tv2;
-							log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(r_s, &fake_bsb, temp_buf));
-						}
+						log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(r_s, &r_pse.Tv, &r_pse.Tv2, temp_buf));
 						{
 							//temp_buf.Z().Cat("PPAT").Comma().Cat(r_s.MaxDuckQuant).Comma().Cat(r_s.TargetQuant).Comma().Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0));
 							StakeCommentBlock scb;

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147491612
+LastSignatureCode=2147491614
 LastAutoCodeList=1,11971;102,10171;103,10071;110,10000;111,11957;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10121;120,10005;1001,10000;121,10000;122,10000;123,10291;124,10097
 
 [SignatureList]
@@ -4766,6 +4766,8 @@ personreltype_finhagreements=2147488268
 personreltype_finhmainorgagreement=2147488269
 personreltype_finhraddr=2147488270
 personreltype_inhregtypelist=2147491287
+personselectanalog=2147491613
+personselectanalog_input=2147491614
 phoneservice_dvctype=2147488277
 phoneservice_flags=2147488278
 phoneservice_id=2147488279

@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -639,7 +639,7 @@ long SLAPI AryBrowserDef::getRecsCount()
 
 const void * FASTCALL AryBrowserDef::getRow(long row) const
 {
-	return (P_Array && row >= 0 && row < (long)P_Array->getCount()) ? P_Array->at((uint)row) : 0;
+	return (P_Array && row >= 0 && row < P_Array->getCountI()) ? P_Array->at((uint)row) : 0;
 }
 
 int FASTCALL AryBrowserDef::getData(void * pData)

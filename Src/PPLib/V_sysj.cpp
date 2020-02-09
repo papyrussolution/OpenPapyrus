@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -636,7 +636,7 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < (long)p_def->getCount()) {
+		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			const PPViewSysJournal::BrwHdr * p_hdr = static_cast<const PPViewSysJournal::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 7) { // Action

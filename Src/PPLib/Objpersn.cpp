@@ -47,8 +47,7 @@ int SLAPI __ReplacePersonNames()
 				}
 				STRNSCPY(psn_rec.Rec.Name, buf);
 				THROW(psn_obj.P_Tbl->Update(psn_rec.Rec.ID, &psn_rec, 0));
-				THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON,
-					psn_rec.Rec.ID, (long)psn_rec.Rec.Name) != DBRPL_ERROR);
+				THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, PPOBJ_PERSON, psn_rec.Rec.ID, (long)psn_rec.Rec.Name) != DBRPL_ERROR);
 				counter++;
 			}
 		}
@@ -196,7 +195,7 @@ int SLAPI VCard::Open(const char * pFileName, int forExport)
 {
 	int    ok = -1;
 	Close();
-	if(pFileName && sstrlen(pFileName)) {
+	if(!isempty(pFileName)) {
 		Export = forExport;
 		THROW_MEM(P_Stream = new SFile(pFileName, (Export) ? SFile::mWrite : SFile::mRead));
 		THROW_SL(P_Stream->IsValid());
@@ -4500,7 +4499,7 @@ PsnSelAnalogDialog::PsnSelAnalogDialog(PPObjPerson * pPsnObj) : TDialog(DLG_PSNS
 
 void PsnSelAnalogDialog::setSrchString(const char * pStr)
 {
-	setCtrlData(CTL_PSNSELANALOG_SRCH, (void *)pStr);
+	setCtrlData(CTL_PSNSELANALOG_SRCH, const_cast<char *>(pStr));
 	selectCtrl(CTL_PSNSELANALOG_SRCH);
 	if(pStr)
 		setupList();
@@ -4636,7 +4635,7 @@ static long AnalyzePersonName(const SString & rName, long * pGenderMusComponents
 								for(uint j = 0; j < p_result->MatchList.getCount(); j++) {
 									const SrSyntaxRuleSet::MatchEntry & r_me = p_result->MatchList.at(j);
 									if(r_me.P_Rule && r_me.StackP < r_me.P_Rule->ES.getCount()) {
-										const SrSyntaxRuleSet::ExprItem * p_ei = (const SrSyntaxRuleSet::ExprItem *)r_me.P_Rule->ES.at(r_me.StackP);
+										const SrSyntaxRuleSet::ExprItem * p_ei = static_cast<const SrSyntaxRuleSet::ExprItem *>(r_me.P_Rule->ES.at(r_me.StackP));
 										switch(p_ei ? p_ei->K : 0) {
 											case SrSyntaxRuleSet::kLiteral:
 											case SrSyntaxRuleSet::kConcept:
@@ -4788,14 +4787,9 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					loc_obj.EditDialog(LOCTYP_ADDRESS, p_loc_pack, 0);
 				}
 				break;
-			case cmPersonDlvrLocList:
-				EditDlvrLocList();
-				break;
-			case cmPersonRelList:
-				EditPersonRelList(&Data);
-				break;
-			case cmaMore:
-				break;
+			case cmPersonDlvrLocList: EditDlvrLocList(); break;
+			case cmPersonRelList: EditPersonRelList(&Data); break;
+			case cmaMore: break;
 			case cmaInsert:
 				{
 					PPIDArray kind_list;
@@ -4817,14 +4811,13 @@ IMPL_HANDLE_EVENT(PersonDialog)
 					SetupCtrls();
 				}
 				break;
-			case cmaDelete:
-				RemoveKind();
-				break;
+			case cmaDelete: RemoveKind(); break;
 			case cmCashierRights:
 				{
 					#define CRDF_PRNREPORTS   0x0800
 
 					class CashierRightsDialog : public TDialog {
+						DECL_DIALOG_DATA(CashierInfo);
 					public:
 						CashierRightsDialog() : TDialog(DLG_CSHRRTS), OnlyView(0)
 						{
@@ -4842,26 +4835,27 @@ IMPL_HANDLE_EVENT(PersonDialog)
 							enableCommand(cmCashierPassword, 1);
 							enableCommand(cmOK, 1);
 						}
-						void setDTS(const CashierInfo * pInfo)
+						DECL_DIALOG_SETDTS()
 						{
-							if(pInfo)
-								CshrInfo = *pInfo;
-							setCtrlData(CTL_CSHRRTS_RIGHTS, &CshrInfo.Rights);
-							setCtrlData(CTL_CSHRRTS_RPTRIGHTS, reinterpret_cast<ushort *>(&CshrInfo.Rights) + 1);
+							RVALUEPTR(Data, pData);
+							setCtrlData(CTL_CSHRRTS_RIGHTS, &Data.Rights);
+							setCtrlData(CTL_CSHRRTS_RPTRIGHTS, reinterpret_cast<ushort *>(&Data.Rights) + 1);
 							SetPrnRights();
+							return 1;
 						}
-						void getDTS(CashierInfo * pInfo)
+						DECL_DIALOG_GETDTS()
 						{
-							getCtrlData(CTL_CSHRRTS_RIGHTS, &CshrInfo.Rights);
-							getCtrlData(CTL_CSHRRTS_RPTRIGHTS, reinterpret_cast<ushort *>(&CshrInfo.Rights) + 1);
-							ASSIGN_PTR(pInfo, CshrInfo);
+							getCtrlData(CTL_CSHRRTS_RIGHTS, &Data.Rights);
+							getCtrlData(CTL_CSHRRTS_RPTRIGHTS, reinterpret_cast<ushort *>(&Data.Rights) + 1);
+							ASSIGN_PTR(pData, Data);
+							return 1;
 						}
 					private:
 						DECL_HANDLE_EVENT
 						{
 							TDialog::handleEvent(event);
 							if(event.isCmd(cmCashierPassword))
-								PasswordDialog(0, CshrInfo.Password, sizeof(CshrInfo.Password), 0, 1);
+								PasswordDialog(0, Data.Password, sizeof(Data.Password), 0, 1);
 							else if(event.isClusterClk(CTL_CSHRRTS_RIGHTS))
 								SetPrnRights();
 							else
@@ -4878,7 +4872,6 @@ IMPL_HANDLE_EVENT(PersonDialog)
 							}
 						}
 						int    OnlyView;
-						CashierInfo  CshrInfo;
 					};
 					CashierRightsDialog * dlg = new CashierRightsDialog();
 					if(CheckDialogPtrErr(&dlg)) {
@@ -4972,23 +4965,6 @@ int MainOrg2Dialog::setDTS()
 				PrefPos = pos;
 			}
 		}
-		/* @v9.0.4
-		for(i = P_Pack->BAA.getCount(); i > 0; i--) {
-			const PPID acc_type = P_Pack->BAA.at(i-1).AccType;
-			if(acc_type == PPBAC_CURRENT) {
-				memzero(buf, sizeof(buf));
-				bnk_id = P_Pack->BAA.at(i-1).BankID;
-				STRNSCPY(buf, P_Pack->BAA.at(i-1).Acct);
-				pos = i-1;
-				if(P_Pack->BAA.at(i-1).Flags & BACCTF_PREFERRED)
-					break;
-			}
-		}
-		if(bnk_id) {
-			P_Pack->BAA.at(pos).Flags |= BACCTF_PREFERRED;
-			PrefPos = pos;
-		}
-		*/
 	}
 	getPsnRegs(corr, bic, inn, bnk_id, sizeof(corr), sizeof(bic), sizeof(inn));
 	P_Pack->GetRegNumber(PPREGT_TPID, temp_buf);
@@ -5145,13 +5121,13 @@ int MainOrg2Dialog::getDTS()
 
 	// Get INN, CorrAcc and BicAcc
 	THROW(P_Obj->GetPacket(bnk_id, &bnk_pack, 0));
-	for(i = 0; i < (int)bnk_pack.Regs.getCount(); i++) {
+	for(i = 0; i < bnk_pack.Regs.getCountI(); i++) {
 		if(bnk_pack.Regs.at(i).RegTypeID == PPREGT_BNKCORRACC && c_pos<0)
 			c_pos = i;
 		else if(bnk_pack.Regs.at(i).RegTypeID == PPREGT_BIC && b_pos<0)
 			b_pos = i;
 	}
-	for(i = 0; i < (int)P_Pack->Regs.getCount(); i++)
+	for(i = 0; i < P_Pack->Regs.getCountI(); i++)
 		if(P_Pack->Regs.at(i).RegTypeID == PPREGT_TPID && i_pos < 0) {
 			i_pos = i;
 			break;
@@ -5167,8 +5143,7 @@ int MainOrg2Dialog::getDTS()
 	if(*strip(corr)) {
 		sel = CTL_MAINORG2_CORRACC;
 		if(c_pos >= 0) {
-			RegisterTbl::Rec reg_rec;
-			reg_rec = bnk_pack.Regs.at(c_pos);
+			RegisterTbl::Rec reg_rec = bnk_pack.Regs.at(c_pos);
 			STRNSCPY(reg_rec.Num, corr);
 			THROW(reg_obj.CheckUniqueNumber(&reg_rec, &bnk_pack.Regs, PPOBJ_PERSON, reg_rec.ObjID));
 			STRNSCPY(bnk_pack.Regs.at(c_pos).Num, corr);
@@ -5183,8 +5158,7 @@ int MainOrg2Dialog::getDTS()
 	if(*strip(bic)) {
 		sel = CTL_MAINORG2_BIC;
 		if(b_pos >= 0) {
-			RegisterTbl::Rec reg_rec;
-			reg_rec = bnk_pack.Regs.at(b_pos);
+			RegisterTbl::Rec reg_rec = bnk_pack.Regs.at(b_pos);
 			STRNSCPY(reg_rec.Num, bic);
 			THROW(reg_obj.CheckUniqueNumber(&reg_rec, &bnk_pack.Regs, PPOBJ_PERSON, reg_rec.ObjID));
 			STRNSCPY(bnk_pack.Regs.at(b_pos).Num, bic);
@@ -5199,8 +5173,7 @@ int MainOrg2Dialog::getDTS()
 	if(*strip(inn)) {
 		sel = CTL_MAINORG2_INN;
 		if(i_pos >= 0) {
-			RegisterTbl::Rec reg_rec;
-			reg_rec = P_Pack->Regs.at(i_pos);
+			RegisterTbl::Rec reg_rec = P_Pack->Regs.at(i_pos);
 			STRNSCPY(reg_rec.Num, inn);
 			THROW(reg_obj.CheckUniqueNumber(&reg_rec, &P_Pack->Regs, PPOBJ_PERSON, reg_rec.ObjID));
 			STRNSCPY(P_Pack->Regs.at(i_pos).Num, inn);
@@ -5264,7 +5237,6 @@ IMPL_HANDLE_EVENT(MainOrg2Dialog)
 			getCtrlData(CTLSEL_MAINORG2_BANK, &bnk_id);
 			getPsnRegs(corr, bic, inn, bnk_id, sizeof(corr), sizeof(bic), sizeof(inn));
 			{
-				// @v9.0.4 {
 				int   ba_done = 0;
 				i = P_Pack->Regs.getCount();
 				if(i) do {
@@ -5281,21 +5253,6 @@ IMPL_HANDLE_EVENT(MainOrg2Dialog)
 				if(pos >= 0) {
 					STRNSCPY(acct_buf, P_Pack->Regs.at(pos).Num);
 				}
-				// } @v9.0.4
-				/* @v9.0.4
-				for(i = P_Pack->BAA.getCount(); i > 0 ; i--) {
-					BankAccountTbl::Rec & r_ba_rec = P_Pack->BAA.at(i-1);
-					if(r_ba_rec.AccType == PPBAC_CURRENT && r_ba_rec.BankID == bnk_id) {
-						pos = i-1;
-						if(r_ba_rec.Flags & BACCTF_PREFERRED)
-							break;
-					}
-				}
-				if(pos >= 0) {
-					BankAccountTbl::Rec & r_ba_rec = P_Pack->BAA.at(pos);
-					STRNSCPY(acct_buf, r_ba_rec.Acct);
-				}
-				*/
 			}
 			setCtrlData(CTL_MAINORG2_ACC, acct_buf);
 			setCtrlData(CTL_MAINORG2_CORRACC, corr);
@@ -5378,18 +5335,19 @@ int SLAPI PPObjPerson::EditDlvrLocList(PPID personID)
 int SLAPI SelectPerson(SelPersonIdent * pData)
 {
 	class SelectPersonDialog : public TDialog {
+		DECL_DIALOG_DATA(SelPersonIdent);
 	public:
 		SelectPersonDialog() : TDialog(DLG_SELPERSON)
 		{
 		}
-		int    setDTS(const SelPersonIdent * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_SELPERSON_KIND, PPOBJ_PRSNKIND, Data.KindID, 0);
 			SetupPPObjCombo(this, CTLSEL_SELPERSON_PRSN, PPOBJ_PERSON, Data.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(Data.KindID));
 			return 1;
 		}
-		int    getDTS(SelPersonIdent * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			Data.KindID   = getCtrlLong(CTLSEL_SELPERSON_KIND);
 			Data.PersonID = getCtrlLong(CTLSEL_SELPERSON_PRSN);
@@ -5410,7 +5368,6 @@ int SLAPI SelectPerson(SelPersonIdent * pData)
 				clearEvent(event);
 			}
 		}
-		SelPersonIdent Data;
 	};
 	DIALOG_PROC_BODY(SelectPersonDialog, pData);
 }
@@ -5441,14 +5398,13 @@ struct PersonLink {
 		fLockScndList = 0x0008,
 		fSwapPerson   = 0x0010
 	};
-	PersonLink()
+	PersonLink() : PrmrPersonID(0), LinkTypeID(0), ScndPersonKind(0), Flags(0)
 	{
-		Init();
 	}
 	void Init()
 	{
 		PrmrPersonID = LinkTypeID = ScndPersonKind = Flags = 0;
-		ScndPersonList.freeAll();
+		ScndPersonList.clear(); // @v10.6.12 freeAll()-->clear()
 	}
 	PPID   PrmrPersonID;
 	PPID   LinkTypeID;
@@ -5462,13 +5418,14 @@ struct PersonLink {
 static int EditPersonRel(PersonLink * pData)
 {
 	class PersonRelDialog : public TDialog {
+		DECL_DIALOG_DATA(PersonLink);
 	public:
 		PersonRelDialog() : TDialog(DLG_PERSONLINK)
 		{
 		}
-		int setDTS(const PersonLink * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			// @v10.2.3 SetupPPObjCombo(this, CTLSEL_PERSONLINK_PRMR,  PPOBJ_PERSON, Data.PrmrPersonID, OLW_CANINSERT, 0);
 			SetupPersonCombo(this, CTLSEL_PERSONLINK_PRMR, Data.PrmrPersonID, OLW_CANINSERT, 0, 0); // @v10.2.3
 			SetupPPObjCombo(this, CTLSEL_PERSONLINK_LTYPE, PPOBJ_PERSONRELTYPE, Data.LinkTypeID, OLW_CANINSERT, 0);
@@ -5484,7 +5441,7 @@ static int EditPersonRel(PersonLink * pData)
 			SetupGroup();
 			return 1;
 		}
-		int getDTS(PersonLink * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -5551,7 +5508,6 @@ static int EditPersonRel(PersonLink * pData)
 			return 1;
 		}
 		PPObjPerson PsnObj;
-		PersonLink Data;
 	};
 	DIALOG_PROC_BODY(PersonRelDialog, pData);
 }
@@ -7205,7 +7161,7 @@ PPALDD_CONSTRUCTOR(Employee)
 PPALDD_DESTRUCTOR(Employee)
 {
 	Destroy();
-	delete (PPObjStaffList*) Extra[0].Ptr;
+	delete static_cast<PPObjStaffList *>(Extra[0].Ptr);
 }
 
 int PPALDD_Employee::InitData(PPFilt & rFilt, long rsrv)

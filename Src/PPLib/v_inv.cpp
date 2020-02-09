@@ -1939,7 +1939,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 		const  int is_subst = Filt.HasSubst();
 		if(!is_subst) {
 			const  BrowserDef * p_def = pBrw->getDef();
-			if(col >= 0 && col < (long)p_def->getCount()) {
+			if(col >= 0 && col < p_def->getCountI()) {
 				const BroColumn & r_col = p_def->at(col);
 				const PPViewInventory::BrwHdr * p_hdr = static_cast<const PPViewInventory::BrwHdr *>(pData);
 				if(r_col.OrgOffs == 1) { // ID

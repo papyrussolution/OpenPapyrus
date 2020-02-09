@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -181,7 +181,7 @@ int DBTable::Btr_ProcessLobOnReading()
 				THROW(temp_buf.Alloc(32*1024));
 				long   rec_offs = retBufLen;
 				const  size_t fixed_header_size = 24;
-				const  long chunk_size = (long)(temp_buf.GetSize() - fixed_header_size);
+				const  long chunk_size = static_cast<long>(temp_buf.GetSize() - fixed_header_size);
 				do {
 					char   k[MAXKEYLEN];
 					size_t temp_buf_offs = 0;

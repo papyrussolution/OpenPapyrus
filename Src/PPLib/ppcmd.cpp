@@ -1582,26 +1582,34 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 	PPCommandGroup * p_temp_command_group = 0;
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		GetDesksDir(path);
-		temp_buf.Z().Cat(path).SetLastSlash().Cat("*.xml");
+		temp_buf.Z().Cat(path).SetLastSlash().Cat("*.*");
 		SDirEntry de;
+
+		int index_count = 0;
 		for(SDirec direc(temp_buf, 0); direc.Next(&de)>0;) {
-			p_temp_command_group = 0;
-			p_temp_command_group = new PPCommandGroup();
+			index_count++;
 			if(de.IsFile()) {
+				p_temp_command_group = new PPCommandGroup();
 				temp_buf.Z().Cat(path).SetLastSlash().Cat(de.FileName);
 				THROW(p_xml_parser = xmlNewParserCtxt());
 				xmlNode * p_root = 0;
-				THROW_SL(fileExists(temp_buf));
-				THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)), p_xml_parser);
-				THROW(p_root = xmlDocGetRootElement(p_doc));
-				if(SXml::IsName(p_root, "CommandGroup")) {
-					THROW(p_temp_command_group->Read2(p_root, rwFlag));
-					if(p_temp_command_group) {
-						THROW(pCmdGrp->Add(-1, p_temp_command_group));
-						ok = 1;
+				//THROW_SL(fileExists(temp_buf));
+				//THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)), p_xml_parser);
+				//THROW(p_root = xmlDocGetRootElement(p_doc));
+				if(fileExists(temp_buf) > 0) {
+					if((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)) > 0) {
+						if((p_root = xmlDocGetRootElement(p_doc))) {
+							if(SXml::IsName(p_root, "CommandGroup")) {
+								THROW(p_temp_command_group->Read2(p_root, rwFlag));
+								if(pCmdGrp->Add(-1, p_temp_command_group)>0) {
+									p_temp_command_group = 0;
+									ok = 1;
+								}
+							}
+						}
 					}
 				}
-				// @erik v10.6.10 {
+				 //@erik v10.6.10 {
 				xmlFreeDoc(p_doc);
 				p_doc = 0;
 				xmlFreeParserCtxt(p_xml_parser); 
@@ -1610,7 +1618,10 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		ok = 0;
+	ENDCATCH
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_xml_parser);
 	return ok;

@@ -1173,8 +1173,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		getcurdatetime(&cur_dtm);
 		// @v9.0.9 name.Printf("%s_%02d-%02d-%04d_%02d-%02d-%02d", (const char *)sp.Nam, cur_dtm.d.day(), cur_dtm.d.month(), cur_dtm.d.year(), cur_dtm.t.hour(), cur_dtm.t.minut(), cur_dtm.t.sec());
 		// @v9.0.9 {
-		(name = sp.Nam).CatChar('_').CatLongZ((long)cur_dtm.d.day(), 2).CatChar('-').CatLongZ((long)cur_dtm.d.month(), 2).CatChar('-').CatLongZ((long)cur_dtm.d.year(), 4).
-			CatChar('_').CatLongZ((long)cur_dtm.t.hour(), 2).CatChar('-').CatLongZ((long)cur_dtm.t.minut(), 2).CatChar('-').CatLongZ((long)cur_dtm.t.sec(), 2);
+		(name = sp.Nam).CatChar('_').CatLongZ(cur_dtm.d.day(), 2).CatChar('-').CatLongZ(cur_dtm.d.month(), 2).CatChar('-').CatLongZ(cur_dtm.d.year(), 4).
+			CatChar('_').CatLongZ(cur_dtm.t.hour(), 2).CatChar('-').CatLongZ(cur_dtm.t.minut(), 2).CatChar('-').CatLongZ(cur_dtm.t.sec(), 2);
 		// } @v9.0.9
 		sp.Nam = name;
 		sp.Merge(path_cards);
@@ -3093,7 +3093,7 @@ public:
 		}
 		int SLAPI EnumItems(long * pPos, Item * pItem)
 		{
-			if(pPos && *pPos < (long)Items.getCount())  {
+			if(pPos && *pPos < Items.getCountI())  {
 				ASSIGN_PTR(pItem, Items.at((*pPos)++));
 				return 1;
 			}
@@ -4165,7 +4165,7 @@ int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE quer
 
 SString & SLAPI ACS_CRCSHSRV::MakeQueryBuf(LDATE dt, SString & rBuf) const
 {
-	return rBuf.Z().CatLongZ((long)dt.year(), 4).CatLongZ((long)dt.month(), 2).CatLongZ((long)dt.day(), 2);
+	return rBuf.Z().CatLongZ(dt.year(), 4).CatLongZ(dt.month(), 2).CatLongZ(dt.day(), 2);
 }
 
 SString & SLAPI ACS_CRCSHSRV::MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const

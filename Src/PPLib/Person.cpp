@@ -25,8 +25,8 @@ PPPerson & FASTCALL PPPerson::operator = (const PPPerson & s)
 void SLAPI PPPerson::destroy()
 {
 	MEMSZERO(Rec);
-	Kinds.freeAll();
-	RelList.freeAll();
+	Kinds.clear(); // @v10.6.12 freeAll()-->clear()
+	RelList.clear(); // @v10.6.12 freeAll()-->clear()
 }
 
 int SLAPI PPPerson::AddRelation(PPID personID, PPID relTypeID, uint * pPos)
@@ -111,15 +111,20 @@ const LAssocArray & SLAPI PPPerson::GetRelList() const
 //
 // @ModuleDef(PPObjPersonRelType)
 //
+SLAPI PPPersonRelType2::PPPersonRelType2()
+{
+	THISZERO();
+}
+
 SLAPI PPPersonRelTypePacket::PPPersonRelTypePacket()
 {
-	Init();
+	// @v10.6.12 Init();
 }
 
 void SLAPI PPPersonRelTypePacket::Init()
 {
 	MEMSZERO(Rec);
-	InhRegTypeList.freeAll();
+	InhRegTypeList.clear(); // @v10.6.12 freeAll()-->clear()
 }
 
 PPPersonRelTypePacket & FASTCALL PPPersonRelTypePacket::operator = (const PPPersonRelTypePacket & s)
@@ -227,7 +232,7 @@ int SLAPI PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		PPPersonRelType rec;
-		MEMSZERO(rec);
+		// @v10.6.12 @ctr MEMSZERO(rec);
 		rec.Tag = Obj;
 		rec.ID  = id;
 		STRNSCPY(rec.Name, name);
@@ -395,7 +400,7 @@ int PersonRelTypeDialog::addItem(long * pPos, long * pID)
 
 int PersonRelTypeDialog::delItem(long pos, long /*id*/)
 {
-	if(pos >= 0 && pos < (long)Data.InhRegTypeList.getCount())
+	if(pos >= 0 && pos < Data.InhRegTypeList.getCountI())
 		return (Data.InhRegTypeList.atFree(static_cast<uint>(pos)) > 0) ? 1 : -1;
 	return -1;
 }
@@ -477,6 +482,11 @@ int SLAPI PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 //
 // PPELinkArray
 //
+SLAPI PPELink::PPELink() : KindID(0)
+{
+	PTR32(Addr)[0] = 0;
+}
+
 //static 
 int SLAPI PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
 {
@@ -568,7 +578,7 @@ int SLAPI PPELinkArray::AddItem(PPID kindID, const char * pAddr)
 {
 	if(kindID && pAddr && pAddr[0]) {
 		PPELink item;
-		MEMSZERO(item);
+		// @v10.6.12 @ctr MEMSZERO(item);
 		item.KindID = kindID;
 		STRNSCPY(item.Addr, pAddr);
 		return insert(&item) ? 1 : PPSetErrorSLib();
@@ -1292,10 +1302,10 @@ int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec,
 	if(pRec && pList) {
 		for(size_t i = PROPRECFIXSIZE; i < recLen;) {
 			PPELink entry;
-			MEMSZERO(entry);
-			entry.KindID = *(const PPID *)((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
+			// @v10.6.12 @ctr MEMSZERO(entry);
+			entry.KindID = *reinterpret_cast<const PPID *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
 			i += sizeof(entry.KindID);
-			STRNSCPY(entry.Addr, (const char *)((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE));
+			STRNSCPY(entry.Addr, reinterpret_cast<const char *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE));
 			i += (sstrlen(entry.Addr) + 1);
 			THROW_SL(pList->insert(&entry));
 			ok = 1;
@@ -1326,7 +1336,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 	MEMSZERO(k1);
 	k1.ObjType = PPOBJ_PERSON;
 	k1.Prop = PSNPRP_ELINK;
-	THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::M(buf_sz));
+	THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::M(buf_sz)));
 	if(p_ref->Prop.search(1, &k1, spGe) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK) do {
 		const PPID psn_id = p_ref->Prop.data.ObjID;
 		if(!personKindID || list_by_kind.bsearch(psn_id)) {
@@ -1352,7 +1362,7 @@ int SLAPI PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray 
 	} while(p_ref->Prop.search(1, &k1, spNext) && p_ref->Prop.data.ObjType == PPOBJ_PERSON && p_ref->Prop.data.Prop == PSNPRP_ELINK);
 	if(additional_psn_list.getCount()) {
 		buf_sz = max_req_buf_size;
-		THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::R(p_buf, buf_sz));
+		THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::R(p_buf, buf_sz)));
 		for(uint i = 0; i < additional_psn_list.getCount(); i++) {
 			const PPID psn_id = additional_psn_list.get(i);
 			THROW(p_ref->GetProperty(PPOBJ_PERSON, psn_id, PSNPRP_ELINK, p_buf, buf_sz) > 0);
@@ -1378,16 +1388,16 @@ int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
-	size_t sz = SKILOBYTE(4); // @v8.8.1 2048-->4096
+	size_t sz = SKILOBYTE(4);
 	PropertyTbl::Rec * p_buf = 0;
 	ary->clear();
-	THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::M(sz));
+	THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::M(sz)));
 	THROW(r = p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz));
 	if(r > 0) {
 		size_t i = sz;
 		sz = (size_t)p_buf->Val2 + PROPRECFIXSIZE;
 		if(i < sz) {
-			THROW_MEM(p_buf = (PropertyTbl::Rec *)SAlloc::R(p_buf, sz));
+			THROW_MEM(p_buf = static_cast<PropertyTbl::Rec *>(SAlloc::R(p_buf, sz)));
 			THROW(p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, p_buf, sz) > 0);
 		}
 		THROW(Helper_GetELinksFromPropRec(p_buf, sz, ary));
@@ -1415,9 +1425,9 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 			for(i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && *strip(entry->Addr))
 					sz += (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
-			THROW_MEM(b = (PropertyTbl::Rec *)SAlloc::C(1, sz));
+			THROW_MEM(b = static_cast<PropertyTbl::Rec *>(SAlloc::C(1, sz)));
 			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
-			for(p = (char *)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void **)&entry);)
+			for(p = reinterpret_cast<char *>(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void **)&entry);)
 				if(entry->KindID && entry->Addr[0]) {
 					size_t s = (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 					memmove(p, entry, s);

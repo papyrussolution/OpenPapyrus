@@ -88,10 +88,8 @@ char   FS = 0x1C;
 #define CHECKCLOSED				0x10	// Чек закрыт
 
 struct Config {
-	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), ConnPass("PIRI")
+	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), ConnPass("PIRI"), ReadCycleCount(10), ReadCycleDelay(10)
 	{
-		ReadCycleCount = 10; // @v9.6.9 0-->10
-		ReadCycleDelay = 10; // @v9.6.9 0-->10
 	}
 	struct LogoStruct {
 		LogoStruct() : Height(0), Width(0), Size(0), Print(0)
@@ -135,6 +133,7 @@ struct CheckStruct {
 		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
 		Text.Z(); // @v9.9.4
 		Code.Z(); // @v9.9.4
+		ChZnCode.Z(); // @v10.6.12
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
@@ -160,6 +159,7 @@ struct CheckStruct {
 	int    Stt; // @erik v10.4.12
 	SString Text;
 	SString Code; // @v9.5.7
+	SString ChZnCode; // @v10.6.12
 	double PaymCash;
 	double PaymBank;
 	double PaymCCrdCard;
@@ -988,6 +988,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.Text = param_val;
 				else if(s_param == "CODE")
 					Check.Code = param_val;
+				else if(s_param == "CHZNCODE") // @v10.6.12
+					Check.ChZnCode = param_val;
 				else if(s_param == "VATRATE") { // @v9.7.1
 					_vat_rate = R2(param_val.ToReal());
 				}
@@ -1822,6 +1824,25 @@ int PiritEquip::RunCheck(int opertype)
 					5 	Комиссионер
 					6 	Агент
 			*/
+			// @v10.6.12 @construction {
+			if(Check.ChZnCode.NotEmpty()) {
+				in_data.Z();
+				(str = Check.ChZnCode).Trim(32); // [1..32]
+				CreateStr(str, in_data); // Код товарной номенклатуры
+				{
+					const int do_check_ret = 0;
+					OpLogBlock __oplb(LogFileName, "24", 0);
+					THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
+					if(do_check_ret) {
+						THROW(GetWhile(out_data, r_error));
+					}
+					else {
+						out_data.Z();
+						r_error = "00";
+					}
+				}
+			}
+			// } @v10.6.12 
 			in_data.Z();
 			THROW(GetCurFlags(3, flag));
 			(str = Check.Text).Trim(220); // [0..224]

@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1311,7 +1311,7 @@ int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
 			THROW_MEM(Data.P_OpList);
 			op_info.OpID = op_id;
 			THROW_SL(Data.P_OpList->insert(&op_info));
-			pos = (long)Data.P_OpList->getCount() - 1;
+			pos = Data.P_OpList->getCountI() - 1;
 			if(editItem(pos, op_id) > 0)
 				ok = 1;
 			else
@@ -1328,7 +1328,7 @@ int StyloBhtIICfgDialog::editItem(long pos, long id)
 {
 	int    ok = -1, valid_data = 0;
 	StyloBhtIIOpInfoDlg * dlg = 0;
-	if(Data.P_OpList && pos >= 0 && pos < (long)Data.P_OpList->getCount()) {
+	if(Data.P_OpList && pos >= 0 && pos < Data.P_OpList->getCountI()) {
 		if(CheckDialogPtrErr(&(dlg = new StyloBhtIIOpInfoDlg)) > 0) {
 			dlg->setDTS(&Data.P_OpList->at(pos));
 			while(!valid_data && ExecView(dlg) == cmOK) {
@@ -1347,7 +1347,7 @@ int StyloBhtIICfgDialog::editItem(long pos, long id)
 int StyloBhtIICfgDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(Data.P_OpList && pos < (long)Data.P_OpList->getCount() && Data.P_OpList->at(pos).OpID > 0 && CONFIRM(PPCFM_DELITEM)) {
+	if(Data.P_OpList && pos < Data.P_OpList->getCountI() && Data.P_OpList->at(pos).OpID > 0 && CONFIRM(PPCFM_DELITEM)) {
 		Data.P_OpList->atFree(pos);
 		ok = 1;
 	}
@@ -4646,7 +4646,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 				if(sdr_bill.OpID == StyloBhtIIConfig::oprkInventory) {
 					THROW(p_bobj->InitInventoryBlock(bill_rec.ID, inv_blk));
 				}
-				for(long j = 0; accept_doc && j < (long)bill_rows_list.getCount(); j++) {
+				for(long j = 0; accept_doc && j < bill_rows_list.getCountI(); j++) {
 					Sdr_SBIIBillRow sdr_brow;
 					sdr_brow = bill_rows_list.at(j);
 					if(sdr_bill.ID == sdr_brow.BillID) {

@@ -1,5 +1,6 @@
 // CHECKFMT.CPP
 // Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -52,16 +53,16 @@ public:
 			fAdjRight    = 0x0002,
 			fAdjLeft     = 0x0004,
 			fAdjCenter   = 0x0008,
-			fIfElse      = 0x0010, // Условный оператор. Условие определяется выражением {left(Text) Condition right(Text)}
-				// Здесь left(Text) и right(Text) - результаты разбиения текста на две части функцией SString::Divide(';')
-			fRegRibbon   = 0x0020, // Печать на регулярную ленту
-			fJRibbon     = 0x0040, // Печать на журнальную ленту
-			fFiscal      = 0x0080, // Фискальная строка отчета
-			fWrap        = 0x0100, // Признак разбиения строки (кол-во символов - в Condition)
-			fSignBarcode = 0x0200, // Элемент представляет отображение штрихкода подписи чека (BarcodeId != 0)
-			fItemBarcode = 0x0400, // Элемент представляет отображение штрихкода товара (BarcodeId != 0)
+			fIfElse      = 0x0010, // РЈСЃР»РѕРІРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ. РЈСЃР»РѕРІРёРµ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РІС‹СЂР°Р¶РµРЅРёРµРј {left(Text) Condition right(Text)}
+				// Р—РґРµСЃСЊ left(Text) Рё right(Text) - СЂРµР·СѓР»СЊС‚Р°С‚С‹ СЂР°Р·Р±РёРµРЅРёСЏ С‚РµРєСЃС‚Р° РЅР° РґРІРµ С‡Р°СЃС‚Рё С„СѓРЅРєС†РёРµР№ SString::Divide(';')
+			fRegRibbon   = 0x0020, // РџРµС‡Р°С‚СЊ РЅР° СЂРµРіСѓР»СЏСЂРЅСѓСЋ Р»РµРЅС‚Сѓ
+			fJRibbon     = 0x0040, // РџРµС‡Р°С‚СЊ РЅР° Р¶СѓСЂРЅР°Р»СЊРЅСѓСЋ Р»РµРЅС‚Сѓ
+			fFiscal      = 0x0080, // Р¤РёСЃРєР°Р»СЊРЅР°СЏ СЃС‚СЂРѕРєР° РѕС‚С‡РµС‚Р°
+			fWrap        = 0x0100, // РџСЂРёР·РЅР°Рє СЂР°Р·Р±РёРµРЅРёСЏ СЃС‚СЂРѕРєРё (РєРѕР»-РІРѕ СЃРёРјРІРѕР»РѕРІ - РІ Condition)
+			fSignBarcode = 0x0200, // Р­Р»РµРјРµРЅС‚ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ С€С‚СЂРёС…РєРѕРґР° РїРѕРґРїРёСЃРё С‡РµРєР° (BarcodeId != 0)
+			fItemBarcode = 0x0400, // Р­Р»РµРјРµРЅС‚ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ С€С‚СЂРёС…РєРѕРґР° С‚РѕРІР°СЂР° (BarcodeId != 0)
 				// @#{fSignBarcode^fItemBarcode}
-			fFakeCcQr    = 0x0800  // @v9.6.11 Элемент представляет фейковый QR-код ОФД по чеку
+			fFakeCcQr    = 0x0800  // @v9.6.11 Р­Р»РµРјРµРЅС‚ РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ С„РµР№РєРѕРІС‹Р№ QR-РєРѕРґ РћР¤Р” РїРѕ С‡РµРєСѓ
 		};
 		enum {
 			cEq = 1,
@@ -71,7 +72,7 @@ public:
 			cLt,
 			cLe,
 
-			cElse // Специальное условие для терминальной "else" зоны
+			cElse // РЎРїРµС†РёР°Р»СЊРЅРѕРµ СѓСЃР»РѕРІРёРµ РґР»СЏ С‚РµСЂРјРёРЅР°Р»СЊРЅРѕР№ "else" Р·РѕРЅС‹
 		};
 		long   Flags;
 		int    WrapLen;
@@ -84,7 +85,7 @@ public:
 	class Zone : public TSCollection <Entry> {
 	public:
 		enum {
-			kInner = 0, // Внутренняя зона (вложенные операторы)
+			kInner = 0, // Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ Р·РѕРЅР° (РІР»РѕР¶РµРЅРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹)
 			kHeader,
 			kFooter,
 			kDetail,
@@ -129,20 +130,20 @@ public:
 		long   SrcItemNo;
 		long   EntryNo;
 		long   SrcItemsCount;
-		long   PrintedLineNo; // Номер строки на листе
-		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
-		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
-		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
-		double Qtty;          // Для строки чека (документа) - абсолютное количество, в остальных случаях - 0
-		double Price;         // Для строки чека (документа) - чистая цена (с учетом скидки), в остальных случаях - 0
-		double Amount;        // Для строки чека (документа) - чистая сумма по строке, для "дна" чека (документа) -
-			// сумма к оплате, для кассовой сессии - общая сумма выручки (с учетом возвратов).
-		double VatRate;       // @v9.7.1 Для строки чека (документа) - ставка НДС (в процентах)
-		int16  DivID;         // Для строки чека (документа) - ИД отдела, в остальных случаях - 0
+		long   PrintedLineNo; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё РЅР° Р»РёСЃС‚Рµ
+		uint   PageWidth;     // ==PPSlipFormat::PageWidth  РЎРїСЂР°РІРѕС‡РЅРѕРµ РїРѕР»Рµ
+		uint   PageLength;    // ==PPSlipFormat::PageLength РЎРїСЂР°РІРѕС‡РЅРѕРµ РїРѕР»Рµ
+		uint   RegTo;         // ==PPSlipFormat::RegTo      РЎРїСЂР°РІРѕС‡РЅРѕРµ РїРѕР»Рµ
+		double Qtty;          // Р”Р»СЏ СЃС‚СЂРѕРєРё С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°) - Р°Р±СЃРѕР»СЋС‚РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ, РІ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС… - 0
+		double Price;         // Р”Р»СЏ СЃС‚СЂРѕРєРё С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°) - С‡РёСЃС‚Р°СЏ С†РµРЅР° (СЃ СѓС‡РµС‚РѕРј СЃРєРёРґРєРё), РІ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС… - 0
+		double Amount;        // Р”Р»СЏ СЃС‚СЂРѕРєРё С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°) - С‡РёСЃС‚Р°СЏ СЃСѓРјРјР° РїРѕ СЃС‚СЂРѕРєРµ, РґР»СЏ "РґРЅР°" С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°) -
+			// СЃСѓРјРјР° Рє РѕРїР»Р°С‚Рµ, РґР»СЏ РєР°СЃСЃРѕРІРѕР№ СЃРµСЃСЃРёРё - РѕР±С‰Р°СЏ СЃСѓРјРјР° РІС‹СЂСѓС‡РєРё (СЃ СѓС‡РµС‚РѕРј РІРѕР·РІСЂР°С‚РѕРІ).
+		double VatRate;       // @v9.7.1 Р”Р»СЏ СЃС‚СЂРѕРєРё С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°) - СЃС‚Р°РІРєР° РќР”РЎ (РІ РїСЂРѕС†РµРЅС‚Р°С…)
+		int16  DivID;         // Р”Р»СЏ СЃС‚СЂРѕРєРё С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°) - РР” РѕС‚РґРµР»Р°, РІ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС… - 0
 		uint16 Reserve;       // @alignment
 		long   GoodsID;       // @v9.5.7
-		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
-		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
+		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 РџСЂРёР·РЅР°Рє СЃРїРѕСЃРѕР±Р° СЂР°СЃС‡РµС‚Р° (РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ С‚РёРїРѕРј С‚РѕРІР°СЂР°)
+		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 РџСЂРёР·РЅР°Рє РїСЂРµРґРјРµС‚Р° СЂР°СЃС‡РµС‚Р°
 		// @v9.5.7 char   PictPath[256];
 		char   Text[256];     // @v9.5.7
 		char   Code[32];      // @v9.5.7
@@ -197,19 +198,19 @@ private:
 	int    WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos);
 
 	enum {
-		tokEOL = 1,         // Конец строки
-		tokEOF,             // Конец файла
-		tokComment,         // Комментарий (//)
-		tokIdent,           // Символьный идентификатор (abc, _xyz, q200 и т.д.)
-		tokString,          // Строковая константа ("...")
-		tokNumber,          // Числовая константа
-		tokZone,            // Начало зоны (.name)
+		tokEOL = 1,         // РљРѕРЅРµС† СЃС‚СЂРѕРєРё
+		tokEOF,             // РљРѕРЅРµС† С„Р°Р№Р»Р°
+		tokComment,         // РљРѕРјРјРµРЅС‚Р°СЂРёР№ (//)
+		tokIdent,           // РЎРёРјРІРѕР»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ (abc, _xyz, q200 Рё С‚.Рґ.)
+		tokString,          // РЎС‚СЂРѕРєРѕРІР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р° ("...")
+		tokNumber,          // Р§РёСЃР»РѕРІР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р°
+		tokZone,            // РќР°С‡Р°Р»Рѕ Р·РѕРЅС‹ (.name)
 		tokLBrace,          // {
 		tokRBrace,          // }
 		tokLPar,            // (
 		tokRPar,            // )
 		tokComma,           // ,
-		tokMetavar,         // Метапеременная (@var)
+		tokMetavar,         // РњРµС‚Р°РїРµСЂРµРјРµРЅРЅР°СЏ (@var)
 		tokEq,              // =
 		tokEq2,             // ==
 		tokNEq,             // !=,<>
@@ -253,7 +254,7 @@ private:
 		srcCSession      // CSessionTbl::Rec
 	};
 	enum {
-		fSkipPrintingZeroPrice = 0x0001 // @v10.0.12 Проекция флага PPEquipConfig::fSkipPrintingZeroPrice
+		fSkipPrintingZeroPrice = 0x0001 // @v10.0.12 РџСЂРѕРµРєС†РёСЏ С„Р»Р°РіР° PPEquipConfig::fSkipPrintingZeroPrice
 	};
 	union {
 		const CCheckPacket * P_CcPack;
@@ -311,9 +312,9 @@ private:
 	uint   CurZone;
 	int    IsWrap;
 	long   LastPictId;
-	int    Src;          // Источник данных
+	int    Src;          // РСЃС‚РѕС‡РЅРёРє РґР°РЅРЅС‹С…
 	long   Flags;        // @v10.0.12
-	double RunningTotal; // Специальная накопительная сумма, используемая для правильного округления строк чека
+	double RunningTotal; // РЎРїРµС†РёР°Р»СЊРЅР°СЏ РЅР°РєРѕРїРёС‚РµР»СЊРЅР°СЏ СЃСѓРјРјР°, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РѕРєСЂСѓРіР»РµРЅРёСЏ СЃС‚СЂРѕРє С‡РµРєР°
 	OnLoginData * P_Od;
 	Iter   CurIter;
 	SString VarString;
@@ -399,7 +400,7 @@ int PPSlipFormat::GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec,
 	if(pIter && pIter->P_Zone) {
 		const int zone_kind = pIter->GetOuterZoneKind();
 		if(zone_kind == PPSlipFormat::Zone::kDetail) {
-			if(pIter->SrcItemNo < (long)P_CcPack->GetCount()) {
+			if(pIter->SrcItemNo < static_cast<long>(P_CcPack->GetCount())) {
 				ASSIGN_PTR(pRec, P_CcPack->GetLine(pIter->SrcItemNo));
 				if(pExtItem)
 					P_CcPack->GetLineExt(pIter->SrcItemNo+1, *pExtItem);
@@ -450,11 +451,11 @@ enum {
 	symbAmountWoDis,       // AMOUNTWODIS
 	symbAmount,            // AMOUNT
 	symbDiscount,          // DISCOUNT
-	symbIsCreditSCard,     // ISCREDITSCARD 1 если карта является кредитной, 0 - в противном случае
-	symbSCardRest,         // SCARDREST     Остаток на кредитной карте
-	symbSCardOwner,        // SCARDOWNER    Наименование владельца карты
-	symbSCardType,         // SCARDTYPE     Тип карты: 0 - дисконтная, 1 - кредитная, 2 - бонусная //
-	symbSCard,             // SCARD         Номер карты
+	symbIsCreditSCard,     // ISCREDITSCARD 1 РµСЃР»Рё РєР°СЂС‚Р° СЏРІР»СЏРµС‚СЃСЏ РєСЂРµРґРёС‚РЅРѕР№, 0 - РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
+	symbSCardRest,         // SCARDREST     РћСЃС‚Р°С‚РѕРє РЅР° РєСЂРµРґРёС‚РЅРѕР№ РєР°СЂС‚Рµ
+	symbSCardOwner,        // SCARDOWNER    РќР°РёРјРµРЅРѕРІР°РЅРёРµ РІР»Р°РґРµР»СЊС†Р° РєР°СЂС‚С‹
+	symbSCardType,         // SCARDTYPE     РўРёРї РєР°СЂС‚С‹: 0 - РґРёСЃРєРѕРЅС‚РЅР°СЏ, 1 - РєСЂРµРґРёС‚РЅР°СЏ, 2 - Р±РѕРЅСѓСЃРЅР°СЏ //
+	symbSCard,             // SCARD         РќРѕРјРµСЂ РєР°СЂС‚С‹
 	symbPctDis,            // PCTDIS
 	symbWrOffAmount,       // WROFFAMOUNT
 	symbDeficit,           // DEFICIT
@@ -464,13 +465,13 @@ enum {
 	symbPriceWoDis,        // PRICEWODIS
 	symbPrice,             // PRICE
 	symbItemDisAmt,        // ITEMDISAMT
-	symbItemDisPct,        // ITEMDISPCT    Процент скидки по строке
+	symbItemDisPct,        // ITEMDISPCT    РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ СЃС‚СЂРѕРєРµ
 	symbItemDis,           // ITEMDIS
 	symbItemAmtWoDis,      // ITEMAMTWODIS
 	symbItemAmt,           // ITEMAMT
 	symbMemo,              // MEMO
-	symbPosNode,           // POSNODE Имя кассового узла
-	symbPos,               // POS     Имя кассового аппарата
+	symbPosNode,           // POSNODE РРјСЏ РєР°СЃСЃРѕРІРѕРіРѕ СѓР·Р»Р°
+	symbPos,               // POS     РРјСЏ РєР°СЃСЃРѕРІРѕРіРѕ Р°РїРїР°СЂР°С‚Р°
 	symbIsRet,             // ISRET
 	symbReturn,            // RETURN
 	symbRetCashAmount,     // RETCASHAMOUNT
@@ -497,26 +498,26 @@ enum {
 	symbOrderTimeStart,    // ORDERTIMESTART
 	symbOrderTimeEnd,      // ORDERTIMEEND
 	symbOrderDuration,     // ORDERDURATION
-	symbLinkOrderNo,       // LINKORDERNO          Номер чека заказа, к которому привязан данный чек
-	symbLinkOrderDate,     // LINKORDERDATE        Дата чека заказа, к которому привязан данный чек
-	symbDlvrCity,          // DLVRCITY             Город доставки
-	symbDlvrAddr,          // DLVRADDR             Адрес доставки
-	symbDlvrPhone,         // DLVRPHONE            Телефон доставки
-	symbInitTime,          // INITTIME             Дата/время создания чека
-	symbIsGiftQuot,        // ISGIFTQUOT           Цена на позицию установлена по подарочной котировке
-	symbUhttScHash,        // UHTTSCHASH           Код для просмотра информации о бонусной карте Universe-HTT
-	symbPhQtty,            // PHQTTY               Количество в физических единицах
-	symbPhUnit,            // PHUNIT               Наименование физической единицы
-	symbPaymType,          // PAYMTYPE             @v8.4.1 Тип оплаты (для итератора по оплатам)
-	symbPaymAmt,           // PAYMAMT              @v8.4.1 Сумма оплаты (для итератора по оплатам)
-	symbTableN,            // TABLN                @v8.4.1 Номер стола. В отличии от symbTable, значение которого может
-		// быть как номером, так и именем стола, symbTableN - всегда номер
+	symbLinkOrderNo,       // LINKORDERNO          РќРѕРјРµСЂ С‡РµРєР° Р·Р°РєР°Р·Р°, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅ РґР°РЅРЅС‹Р№ С‡РµРє
+	symbLinkOrderDate,     // LINKORDERDATE        Р”Р°С‚Р° С‡РµРєР° Р·Р°РєР°Р·Р°, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅ РґР°РЅРЅС‹Р№ С‡РµРє
+	symbDlvrCity,          // DLVRCITY             Р“РѕСЂРѕРґ РґРѕСЃС‚Р°РІРєРё
+	symbDlvrAddr,          // DLVRADDR             РђРґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё
+	symbDlvrPhone,         // DLVRPHONE            РўРµР»РµС„РѕРЅ РґРѕСЃС‚Р°РІРєРё
+	symbInitTime,          // INITTIME             Р”Р°С‚Р°/РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ С‡РµРєР°
+	symbIsGiftQuot,        // ISGIFTQUOT           Р¦РµРЅР° РЅР° РїРѕР·РёС†РёСЋ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РїРѕ РїРѕРґР°СЂРѕС‡РЅРѕР№ РєРѕС‚РёСЂРѕРІРєРµ
+	symbUhttScHash,        // UHTTSCHASH           РљРѕРґ РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР° РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р±РѕРЅСѓСЃРЅРѕР№ РєР°СЂС‚Рµ Universe-HTT
+	symbPhQtty,            // PHQTTY               РљРѕР»РёС‡РµСЃС‚РІРѕ РІ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС†Р°С…
+	symbPhUnit,            // PHUNIT               РќР°РёРјРµРЅРѕРІР°РЅРёРµ С„РёР·РёС‡РµСЃРєРѕР№ РµРґРёРЅРёС†С‹
+	symbPaymType,          // PAYMTYPE             @v8.4.1 РўРёРї РѕРїР»Р°С‚С‹ (РґР»СЏ РёС‚РµСЂР°С‚РѕСЂР° РїРѕ РѕРїР»Р°С‚Р°Рј)
+	symbPaymAmt,           // PAYMAMT              @v8.4.1 РЎСѓРјРјР° РѕРїР»Р°С‚С‹ (РґР»СЏ РёС‚РµСЂР°С‚РѕСЂР° РїРѕ РѕРїР»Р°С‚Р°Рј)
+	symbTableN,            // TABLN                @v8.4.1 РќРѕРјРµСЂ СЃС‚РѕР»Р°. Р’ РѕС‚Р»РёС‡РёРё РѕС‚ symbTable, Р·РЅР°С‡РµРЅРёРµ РєРѕС‚РѕСЂРѕРіРѕ РјРѕР¶РµС‚
+		// Р±С‹С‚СЊ РєР°Рє РЅРѕРјРµСЂРѕРј, С‚Р°Рє Рё РёРјРµРЅРµРј СЃС‚РѕР»Р°, symbTableN - РІСЃРµРіРґР° РЅРѕРјРµСЂ
 	symbIsEgais,           // ISEGAIS
 	symbEgaisUrl,          // EGAISURL
 	symbEgaisSign,         // EGAISSIGN
 	symbManufSerial,       // MANUFSERIAL
-	symbDirector,          // DIRECTOR   @v9.7.6 Директор
-	symbAccountant,        // ACCOUNTANT @v9.7.6 Главный бухгалтер
+	symbDirector,          // DIRECTOR   @v9.7.6 Р”РёСЂРµРєС‚РѕСЂ
+	symbAccountant,        // ACCOUNTANT @v9.7.6 Р“Р»Р°РІРЅС‹Р№ Р±СѓС…РіР°Р»С‚РµСЂ
 	symbClientExtName,     // CLIENTEXTNAME @erik v10.4.11
 	symbAmountBonus,       // @v10.6.5 AMOUNTBONUS
 	symbAmountWoBonus      // @v10.6.5 AMOUNTWOBONUS 
@@ -877,8 +878,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbSCardRest:
 					{
 						//
-						// Если чек (документ) не проведен (id==0) тогда остаток по карте
-						// корректируем на величину номинальной суммы чека (документа).
+						// Р•СЃР»Рё С‡РµРє (РґРѕРєСѓРјРµРЅС‚) РЅРµ РїСЂРѕРІРµРґРµРЅ (id==0) С‚РѕРіРґР° РѕСЃС‚Р°С‚РѕРє РїРѕ РєР°СЂС‚Рµ
+						// РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РЅР° РІРµР»РёС‡РёРЅСѓ РЅРѕРјРёРЅР°Р»СЊРЅРѕР№ СЃСѓРјРјС‹ С‡РµРєР° (РґРѕРєСѓРјРµРЅС‚Р°).
 						//
 						double adj_amt = 0.0;
 						temp_id = GetSCardID(pIter, &adj_amt);
@@ -1004,7 +1005,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbPaymType:
 					if(Src == srcCCheck) {
 						CcAmountEntry paym_entry;
-						if(Src == srcCCheck && GetCurCheckPaymItem(pIter, &paym_entry)) {
+						if(GetCurCheckPaymItem(pIter, &paym_entry)) {
 							paym_entry.GetTypeText(temp_buf);
 							rResult.Cat(temp_buf);
 						}
@@ -1013,7 +1014,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbPaymAmt:
 					if(Src == srcCCheck) {
 						CcAmountEntry paym_entry;
-						if(Src == srcCCheck && GetCurCheckPaymItem(pIter, &paym_entry)) {
+						if(GetCurCheckPaymItem(pIter, &paym_entry)) {
 							rResult.Cat(paym_entry.Amount, SFMT_MONEY);
 						}
 					}
@@ -1182,8 +1183,8 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbDivision:
 					if(Src == srcCCheck && GetCurCheckItem(pIter, &cc_item))
-						rResult.Cat((long)((cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS : cc_item.DivID));
-					break; // @v10.3.2 @fix (отсутствовал break)
+						rResult.Cat((long)((cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID));
+					break; // @v10.3.2 @fix (РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°Р» break)
 				case symbInitTime:          // INITTIME
 					if(Src == srcCCheck)
 						rResult.Cat(p_ccp->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO);
@@ -1212,14 +1213,14 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat(duration, TIMF_HM);
 					}
 					break;
-				case symbLinkOrderNo:       // LINKORDERNO          Номер чека заказа, к которому привязан данный чек
+				case symbLinkOrderNo:       // LINKORDERNO          РќРѕРјРµСЂ С‡РµРєР° Р·Р°РєР°Р·Р°, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅ РґР°РЅРЅС‹Р№ С‡РµРє
 					if(Src == srcCCheck && P_Od && p_ccp->Ext.LinkCheckID) {
 						CCheckTbl::Rec cc_rec;
 						if(P_Od->ScObj.P_CcTbl->Search(p_ccp->Ext.LinkCheckID, &cc_rec) > 0)
 							rResult.Cat(cc_rec.Code);
 					}
 					break;
-				case symbLinkOrderDate:     // LINKORDERDATE        Дата чека заказа, к которому привязан данный чек
+				case symbLinkOrderDate:     // LINKORDERDATE        Р”Р°С‚Р° С‡РµРєР° Р·Р°РєР°Р·Р°, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅ РґР°РЅРЅС‹Р№ С‡РµРє
 					if(Src == srcCCheck && P_Od && p_ccp->Ext.LinkCheckID) {
 						CCheckTbl::Rec cc_rec;
 						if(P_Od->ScObj.P_CcTbl->Search(p_ccp->Ext.LinkCheckID, &cc_rec) > 0)
@@ -1310,7 +1311,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				split_chr = rResult[split_pos+2];
 				rResult.Excise(split_pos+1, 2);
 			}
-			ASSIGN_PTR(pSplitPos, (int)split_pos);
+			ASSIGN_PTR(pSplitPos, static_cast<int>(split_pos));
 			ASSIGN_PTR(pSplitChr, split_chr);
 			ok = 2;
 		}
@@ -1481,7 +1482,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->DivID = 0;
 			pIter->Qtty = pIter->Price = 0.0;
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
-			if(pIter->EntryNo < static_cast<long>(p_zone->getCount())) {
+			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
 				PPGoodsTaxEntry tax_entry;
 				if(P_CcPack) {
@@ -1489,13 +1490,14 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					PPTransferItem ti;
 					PPGoodsType gt_rec;
 					if(Src == srcCCheck) {
+						CCheckPacket::LineExt cc_ext;
 						// @v10.1.0 {
 						if((Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormat::Zone::kDetail) {
 							while(GetCurCheckItem(pIter, &cc_item) && (intmnytodbl(cc_item.Price) - cc_item.Dscnt) == 0.0)
 								pIter->SrcItemNo++;
 						}
 						// } @v10.1.0 
-						if(GetCurCheckItem(pIter, &cc_item)) {
+						if(GetCurCheckItem(pIter, &cc_item, &cc_ext)) {
 							const double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
 							const double ds = cc_item.Dscnt * cc_item.Quantity;
 							const double prev_rt = RunningTotal;
@@ -1509,6 +1511,22 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->GoodsID = cc_item.GoodsID;
 							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
+							// @v10.6.12 {
+							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
+							if(temp_buf.NotEmptyS()) {
+								GtinStruc gts;
+								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts) > 0) {
+									SString result_chzn_code;
+									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+										result_chzn_code.Cat(temp_buf);
+										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+											result_chzn_code.Cat(temp_buf);
+											STRNSCPY(pIter->ChZnCode, result_chzn_code);
+										}
+									}
+								}
+							}
+							// } @v10.6.12 
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
@@ -1838,7 +1856,7 @@ int PPSlipFormat::ParseCondition(SFile & rFile, SString & rTokResult, /*PPSlipFo
 	int    condition = 0;
 	rText.Z();
 	{
-		// Разбираем конструкцию: "( left_part condition right_part )"
+		// Р Р°Р·Р±РёСЂР°РµРј РєРѕРЅСЃС‚СЂСѓРєС†РёСЋ: "( left_part condition right_part )"
 		THROW(token = NextToken(rFile, rTokResult));
 		THROW_PP_S(token == tokLPar, PPERR_TOKENEXPECTED, "(");
 		THROW(token = NextToken(rFile, rTokResult));
@@ -2156,7 +2174,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 
 		int    token = 0;
 		int    zone_kind = -1;
-		int    this_slip = 0; // Устанавливается в !0 когда обрабатывается требуемый формат (по имени pFormatName)
+		int    this_slip = 0; // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІ !0 РєРѕРіРґР° РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ С‚СЂРµР±СѓРµРјС‹Р№ С„РѕСЂРјР°С‚ (РїРѕ РёРјРµРЅРё pFormatName)
 		SFile  file;
 		SString tok_result;
 		THROW_SL(file.Open(pFileName, SFile::mRead));
@@ -2186,7 +2204,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				if(token == tokZone) {
 					do {
 						//
-						// В цикле забираем все подряд идущие зоны (ParseZone вернет нам идентификатор следующей лексемы)
+						// Р’ С†РёРєР»Рµ Р·Р°Р±РёСЂР°РµРј РІСЃРµ РїРѕРґСЂСЏРґ РёРґСѓС‰РёРµ Р·РѕРЅС‹ (ParseZone РІРµСЂРЅРµС‚ РЅР°Рј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃР»РµРґСѓСЋС‰РµР№ Р»РµРєСЃРµРјС‹)
 						//
 						if(tok_result.IsEqiAscii("header"))
 							zone_kind = PPSlipFormat::Zone::kHeader;
@@ -2259,7 +2277,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 							token = NextToken(file, tok_result);
 						}
 					} while(token == tokComma);
-					// Не очищаем token чтобы он использовался на следующей итерации цикла
+					// РќРµ РѕС‡РёС‰Р°РµРј token С‡С‚РѕР±С‹ РѕРЅ РёСЃРїРѕР»СЊР·РѕРІР°Р»СЃСЏ РЅР° СЃР»РµРґСѓСЋС‰РµР№ РёС‚РµСЂР°С†РёРё С†РёРєР»Р°
 					THROW_PP(!(RegTo & SlipLineParam::fRegSlip) ||
 						!(RegTo & (SlipLineParam::fRegRegular|SlipLineParam::fRegJournal)), PPERR_SLIPFMT_UNCOMPPAPER);
 				}
@@ -2412,6 +2430,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				sl_param.Kind = sl_param.lkSignBarcode;
 			sl_param.Text = CurIter.Text; // @v9.5.7
 			sl_param.Code = CurIter.Code; // @v9.5.7
+			sl_param.ChZnCode = CurIter.ChZnCode; // @v10.6.12
 			{
 				const  long font_id = sl_param.Font;
 				uint   font_pos = 0;
@@ -2565,8 +2584,8 @@ SLTEST_R(PPSlipFormatOutput)
 {
 	int    ok = 1;
 	long   c_max = 20;
-	long   c = 0;  // Количество выведенных чеков
-	long   cz = 0; // Количество выведенных чеков с нулевым количестом строк
+	long   c = 0;  // РљРѕР»РёС‡РµСЃС‚РІРѕ РІС‹РІРµРґРµРЅРЅС‹С… С‡РµРєРѕРІ
+	long   cz = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ РІС‹РІРµРґРµРЅРЅС‹С… С‡РµРєРѕРІ СЃ РЅСѓР»РµРІС‹Рј РєРѕР»РёС‡РµСЃС‚РѕРј СЃС‚СЂРѕРє
 	PPSlipFormat fmt;
 	CCheckFilt cc_filt;
 	CCheckViewItem cc_item;

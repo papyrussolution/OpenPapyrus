@@ -10387,6 +10387,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personreltype_finhraddr                  "Наследует фактический адрес"
 @personreltype_inhregtypelist             "Типы наследуемых регистров"
 
+@personselectanalog                       "Выбор персоналии по аналогу"
+@personselectanalog_input                 "Введите строку, соответствующую имени искомой персоналии"
+
 @phoneservice_dvctype                     "@{devicetype}"
 @phoneservice_flags                       "@{flags}"
 @phoneservice_id                          "@{id}"

@@ -614,6 +614,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						else {
 							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
 						}
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode)); // @v10.6.12
 						// @v10.4.1 {
 						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
 							uint   str_id = 0;
@@ -662,7 +663,6 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 						}
 						// } @erik v10.4.12 
-
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;

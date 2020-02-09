@@ -3435,7 +3435,7 @@ int SLAPI PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 			PPBarcodeStruc bcs_rec;
 			if(SearchObject(PPOBJ_BCODESTRUC, grp_rec.DefBCodeStrucID, &bcs_rec) > 0) {
 				BarcodeTbl::Rec bc_rec;
-				MEMSZERO(bc_rec);
+				// @v10.6.12 @ctr MEMSZERO(bc_rec);
 				if(GetBarcodeByTemplate(grp_rec.ID, bcs_rec.Templ, bc_rec.Code)) {
 					bc_rec.Qtty = 1;
 					ok = pPack->Codes.insert(&bc_rec) ? 1 : PPSetErrorSLib();
@@ -3615,19 +3615,19 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->GenericList.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & GCF_XCHG_SENDATTACHMENT &&
-		!pSCtx->CheckFlag(SSerializeContext::fDontProcessAttachment)) ? 0 : 1, rBuf, pSCtx)); // @v8.2.3
+		!pSCtx->CheckFlag(SSerializeContext::fDontProcessAttachment)) ? 0 : 1, rBuf, pSCtx));
 	{
 		PPQuotArray quot_list;
 		if(dir > 0) {
 			if(pPack->P_Quots) {
-				for(int32 i = 0; i < (int32)pPack->P_Quots->getCount(); i++) {
-					PPQuot & r_item = pPack->P_Quots->at(i);
+				for(int32 i = 0; i < pPack->P_Quots->getCountI(); i++) {
+					const PPQuot & r_item = pPack->P_Quots->at(i);
 					if(!pDestDbDiv || pDestDbDiv->ResponsibleForLoc(r_item.LocID, 1 /*for quot*/))
 						THROW_SL(quot_list.insert(&r_item));
 				}
 			}
 		}
-		int32  c = (int32)quot_list.getCount();
+		int32  c = quot_list.getCountI();
 		THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 		for(int32 i = 0; i < c; i++) {
 			PPQuot item;

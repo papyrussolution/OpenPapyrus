@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 // Модуль формирования данных для передачи в системы клиент-банк
@@ -1222,8 +1222,8 @@ int SetupCliBnkAssocDialog::editItem(long pos, long id)
 	BankStmntAssocItem * p_assoc_item;
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_MOD, 0));
 	THROW(ClientBankImportDef::ReadAssocList(&cfg));
-	if(pos < (long)cfg.getCount()) {
-		THROW(p_assoc_item = (BankStmntAssocItem *)cfg.at(id));
+	if(pos < cfg.getCountI()) {
+		THROW(p_assoc_item = static_cast<BankStmntAssocItem *>(cfg.at(id)));
 		if(CliBnkAssocItemDialog(p_assoc_item) > 0) {
 			THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
 			updateList(-1);
@@ -1241,7 +1241,7 @@ int SetupCliBnkAssocDialog::delItem(long pos, long id)
 	SVector cfg(sizeof(BankStmntAssocItem));
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_DEL, 0));
 	THROW(ClientBankImportDef::ReadAssocList(&cfg));
-	if(pos < (long)cfg.getCount()) {
+	if(pos < cfg.getCountI()) {
 		THROW_SL(cfg.atFree(id));
 		THROW(ClientBankImportDef::WriteAssocList(&cfg, 1));
 		updateList(-1);

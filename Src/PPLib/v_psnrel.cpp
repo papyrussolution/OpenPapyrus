@@ -1,5 +1,5 @@
 // V_PSNREL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019
+// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -192,8 +192,8 @@ int SLAPI PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 
 TempPersonRelTbl::Rec & SLAPI PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord & rRec, TempPersonRelTbl::Rec & rTempRec)
 {
-	PPPersonRelType2 reltyp_rec;
-	MEMSZERO(reltyp_rec);
+	PPPersonRelType reltyp_rec;
+	// @v10.6.12 @ctr MEMSZERO(reltyp_rec);
 	memzero(&rTempRec, sizeof(TempPersonRelTbl::Rec));
 	rTempRec.PrmrPersonID   = rRec.PrmrObjID;
 	rTempRec.ScndPersonID   = rRec.ScndObjID & ~0xff000000;

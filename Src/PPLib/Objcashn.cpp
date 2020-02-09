@@ -916,9 +916,25 @@ int SLAPI PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 	RegisterTbl::Rec reg_rec;
 	if(id) {
         PPCashNode cn_rec;
-		if(Fetch(id, &cn_rec) > 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, 0, &reg_rec) > 0 && reg_rec.ExtID > 0) {
-			tax_sys_id = reg_rec.ExtID;
-			ok = 1;
+		if(Fetch(id, &cn_rec) > 0) {
+			// @v10.6.12 {
+			ObjTagList tag_list;
+			ref->Ot.GetList(PPOBJ_CASHNODE, id, &tag_list);
+			for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
+				const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
+				if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_TAXSYSTEMKIND) {
+					PPID   temp_id = 0;
+					if(p_tag_item->GetInt(&temp_id) && temp_id && SearchObject(PPOBJ_TAXSYSTEMKIND, temp_id, 0) > 0) {
+						tax_sys_id = temp_id;
+						ok = 1;
+					}
+				}
+			}
+			// } @v10.6.12 
+			if(ok < 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, 0, &reg_rec) > 0 && reg_rec.ExtID > 0) {
+				tax_sys_id = reg_rec.ExtID;
+				ok = 1;
+			}
 		}
 	}
 	if(ok < 0) {

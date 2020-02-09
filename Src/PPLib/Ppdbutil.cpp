@@ -698,6 +698,9 @@ private:
 		uint8  Reserve[36];
 	};
 	struct TableEntry {
+		SLAPI  TableEntry() : Id(0), Offs(0), NumRecs(0), NumChunks(0)
+		{
+		}
 		long   Id;
 		int64  Offs;
 		int64  NumRecs;
@@ -1092,7 +1095,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 	else if(P.SpcOb == spcobQuot) {
 		THROW(TblEntryList.getCount() == 1);
 		THROW(DS.GetConstTLA().IsAuth());
-		const TableEntry & r_entry = *(TableEntry *)TblEntryList.at(pos);
+		const TableEntry & r_entry = *static_cast<const TableEntry *>(TblEntryList.at(pos));
 		THROW_SL(FDump.Seek64(r_entry.Offs));
 		{
 			Quotation2Core qc2;
@@ -1175,7 +1178,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 			}
 			if(recs_count) {
 				TableEntry entry;
-				MEMSZERO(entry);
+				// @v10.6.12 @ctr MEMSZERO(entry);
 				entry.Id = tblID;
 				entry.Offs = start_offs;
 				entry.NumRecs = recs_count;
@@ -1197,7 +1200,7 @@ int SLAPI PrcssrDbDump::Helper_Dump(long tblID)
 		THROW_SL(FDump.Write(buffer));
 		{
 			TableEntry entry;
-			MEMSZERO(entry);
+			// @v10.6.12 @ctr MEMSZERO(entry);
 			entry.Id = 0;
 			entry.Offs = start_offs;
 			entry.NumRecs = recs_count;
@@ -1730,13 +1733,12 @@ int SLAPI PPBackup::LockDatabase()
 	return ok;
 }
 
-int SLAPI PPBackup::UnlockDatabase()
+void SLAPI PPBackup::UnlockDatabase()
 {
 	if(State & stDbIsLocked) {
 		if(P_Sync->UnlockDB())
 			State &= ~stDbIsLocked;
 	}
-	return 1;
 }
 
 int SLAPI UseCopyContinouos(PPDbEntrySet2 * pDbes)
@@ -1973,9 +1975,9 @@ static int SLAPI _DoAutoBackup(PPDbEntrySet2 * pDbes, PPBackup * pBu, int noDefa
 {
 	int    ok = 1;
 	if(pBu == 0) {
-		for(long i = 1; i <= (long)pDbes->GetCount(); i++) {
+		for(uint i = 1; i <= pDbes->GetCount(); i++) {
 			int use_copy_continouos = 0;
-			pDbes->SetSelection(i);
+			pDbes->SetSelection(static_cast<long>(i));
 			use_copy_continouos = UseCopyContinouos(pDbes);
 			if((pBu = PPBackup::CreateInstance(pDbes)) != 0) {
 				_DoAutoBackup(pDbes, pBu, 1, use_copy_continouos); // @recursion
@@ -2198,7 +2200,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 	{
 		SArray bad_tbls_ary(sizeof(PPRecoverInfo));
 		PPRecoverInfo * p_rinfo = 0;
-		for(uint i = 0; r_info_array.enumItems(&i, (void **) &p_rinfo);) {
+		for(uint i = 0; r_info_array.enumItems(&i, (void **)&p_rinfo);) {
 			if(p_rinfo->OrgNumRecs != p_rinfo->ActNumRecs) {
 				bad_tbls_ary.insert(p_rinfo);
 				all_ok = 0;

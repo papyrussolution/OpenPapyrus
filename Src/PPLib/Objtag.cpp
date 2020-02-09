@@ -317,10 +317,11 @@ SLAPI PPObjTagPacket::PPObjTagPacket()
 	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
-void SLAPI PPObjTagPacket::Init()
+PPObjTagPacket & SLAPI PPObjTagPacket::Z()
 {
 	MEMSZERO(Rec);
 	Rule.Z();
+	return *this;
 }
 
 PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & rS)
@@ -547,37 +548,28 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
 
 class TagEnumListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPTagEnumList);
 public:
-	TagEnumListDialog(uint dlgID, uint listCtlID, size_t listBufLen);
-	int    setDTS(const PPTagEnumList *);
-	int    getDTS(PPTagEnumList *);
+	TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int  setupList();
 	virtual int  addItem(long * pos, long * id);
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
-
-	PPTagEnumList  Data;
 };
-
-TagEnumListDialog::TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
-{
-}
-
-int TagEnumListDialog::setDTS(const PPTagEnumList * pList)
-{
-	/* @v9.2.11 if(pList)
-		Data.Copy(*pList);*/
-	RVALUEPTR(Data, pList); // @v9.2.11
-	updateList(-1);
-	return 1;
-}
-
-int TagEnumListDialog::getDTS(PPTagEnumList * pList)
-{
-	ASSIGN_PTR(pList, Data);
-	return 1;
-}
 
 int TagEnumListDialog::setupList()
 {
@@ -704,18 +696,8 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 		}
 		void   SetupTagObjType()
 		{
-			/* v9.3.10
-			if(Data.ObjTypeID == PPOBJ_LOT) {
-				LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, 0);
-				P_ObjTypeList = &LinkObjTypeList;
-			}
-			else
-				P_ObjTypeList = 0;
-			*/
-			// @v9.3.10 {
-			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, PPOBJ_GLOBALUSERACC, 0); // @v9.5.5 PPOBJ_QUOTKIND // @v10.0.05 PPOBJ_GLOBALUSERACC
+			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, PPOBJ_GLOBALUSERACC, PPOBJ_TAXSYSTEMKIND, 0); // @v10.0.05 PPOBJ_GLOBALUSERACC // @v10.6.12 PPOBJ_TAXSYSTEMKIND
 			P_ObjTypeList = &LinkObjTypeList;
-			// } @v9.3.10
 			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));
 			SetupObjType();
 		}
@@ -968,7 +950,7 @@ int SLAPI PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
 {
 	int    ok = -1;
 	assert(pPack);
-	pPack->Init();
+	pPack->Z();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
 		ok = Search(id, &pPack->Rec);
 	}

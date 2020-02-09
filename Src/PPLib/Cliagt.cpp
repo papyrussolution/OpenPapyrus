@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -536,7 +536,7 @@ int DebtLimListDialog::addItem(long * pPos, long * pID)
 int DebtLimListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < Data.getCountI()) {
 		SString dim_name;
 		PPClientAgreement::DebtLimit debt_lim = Data.at(pos);
 		GetObjectName(PPOBJ_DEBTDIM, id, dim_name);
@@ -552,7 +552,7 @@ int DebtLimListDialog::editItem(long pos, long id)
 int DebtLimListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < Data.getCountI()) {
 		ok = Data.atFree(pos);
 		if(ok > 0) {
 			SString dim_name;
@@ -1491,7 +1491,7 @@ private:
 	virtual int editItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(pos >= 0 && pos < (long)Data.OrderParamList.getCount()) {
+		if(pos >= 0 && pos < Data.OrderParamList.getCountI()) {
 			PPSupplAgreement::OrderParamEntry & r_entry = Data.OrderParamList.at(pos);
 			while(ok < 0 && EditOrdParamEntry(ArID, &r_entry, pos) > 0) {
 				if(!Data.SetOrderParamEntry(pos, r_entry, 0))
@@ -1506,7 +1506,7 @@ private:
 	virtual int delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(pos >= 0 && pos < (long)Data.OrderParamList.getCount()) {
+		if(pos >= 0 && pos < Data.OrderParamList.getCountI()) {
 			Data.OrderParamList.atFree(pos);
 			ok = 1;
 		}

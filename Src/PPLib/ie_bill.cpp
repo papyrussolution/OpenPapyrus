@@ -2225,6 +2225,11 @@ int SLAPI PPBillImporter::ReadData()
 				THROW(ie_row.OpenFileForReading(filename));
 				THROW(ReadRows(&ie_row, 2, &fn_fld_list));
 				ie_row.CloseFile();
+				//@erik v10.6.11 {
+				if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
+					ToRemoveFiles.add(filename);
+				}
+				// } @erik
 				{
 					SString fn_for_hash;
 					ps.Split(filename);
@@ -5973,7 +5978,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 							n_11.PutAttrib("ДатаОсн", g.EncText(temp_buf));
 						}
 						else {
-							temp_buf = g.GetToken(PPHSC_RU_ABSENCE);
+							// @v10.6.12 temp_buf = g.GetToken(PPHSC_RU_ABSENCE);
+							temp_buf = "Без документа-основания"; // @v10.6.12
 							n_11.PutAttrib("НаимОсн", temp_buf);
 						}
 					}

@@ -1456,8 +1456,8 @@ private:
 		double Factors[8];
 	};
 	struct FunctionStartDtm {
-		uint      FuncId;
-		uint64    StartClock;
+		uint   FuncId;
+		uint64 StartClock;
 		LDATETIME StartDtm;
 	};
 
@@ -1651,7 +1651,7 @@ public:
 	//   отрицательно или прерывает ожидание, то возвращается (<0). В случае ошибки возвращается 0.
 	//
 	int    SLAPI LockDatabase();
-	int    SLAPI UnlockDatabase();
+	void   SLAPI UnlockDatabase();
 private:
 	int    SLAPI GetScenList(SArray *);
 	int    SLAPI GetDefaultScen(PPBackupScen *);
@@ -3459,7 +3459,7 @@ private:
 class PPObjTagPacket {
 public:
 	SLAPI  PPObjTagPacket();
-	void   SLAPI Init();
+	PPObjTagPacket & SLAPI Z();
 	PPObjTagPacket & FASTCALL operator = (const PPObjTagPacket &);
 
 	PPObjectTag Rec;
@@ -14250,10 +14250,8 @@ public:
 	int    SLAPI RemoveLine_(uint pos);
 	int    SLAPI CopyLines(const CCheckPacket & rS);
 	int    SLAPI SearchLine(int rByCheck, uint * pPos) const;
-	int    SLAPI SetLineTextExt(int pos /* 1.. */, int lnextId, const char *); // @v9.0.9
-	int    SLAPI GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const; // @v9.0.9
-	// @v9.0.9 int    SLAPI SetSerial(int pos /* 1.. */, const char *);
-	// @v9.0.9 int    SLAPI GetSerial(int pos /* 1.. */, SString & rBuf) const;
+	int    SLAPI SetLineTextExt(int pos /* 1.. */, int lnextId, const char *);
+	int    SLAPI GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const;
 	int    SLAPI SetLineExt(int pos /* 1.. */, const LineExt & pExt);
 	int    SLAPI GetLineExt(int pos /* 1.. */, LineExt & rExt) const;
 	//
@@ -16170,6 +16168,7 @@ private:
 };
 
 struct PPELink {
+	SLAPI  PPELink();
 	PPID   KindID;    // ->Ref(PPOBJ_ELINKKIND)
 	char   Addr[64];  //
 };
@@ -16588,7 +16587,7 @@ public:
 		uint64 TmCount;
 		uint64 TmSec;
 	};
-	struct StrategyResultValueEx : public StrategyResultValue {
+	struct StrategyResultValueEx : public StrategyResultValue { // @transient
 		SLAPI  StrategyResultValueEx();
 		StrategyResultValueEx & SLAPI Z();
 		double Peak;   // Максимальное значение, которого достигла котировка в течении сессии
@@ -16600,15 +16599,17 @@ public:
 		double OptFactor2;  // @v10.4.11
 		double TrendErr;    // @v10.4.11
 		double TrendErrRel; // @v10.4.11
+		double MainTrendErr;    // @v10.6.12
+		double MainTrendErrRel; // @v10.6.12
 	};
-	struct OptimalFactorRange : public RealRange {
+	struct OptimalFactorRange : public RealRange { // @persistent @flat
 		OptimalFactorRange();
 		OptimalFactorRange & Z();
 		uint32 Count; // Количество элементов исходного ряда, входящих в диапазон при тестировании
 		uint   Opt2Stride; // @v10.4.7
 		double Result;
 	};
-	struct Strategy { // @flat @persistent
+	struct Strategy { // @flat @persistent // @v10.6.12 модифицирована структура; для обратной совместимости используется Ts_Strategy_Before10612
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant, double averageSpreadForAdjustment);
 		static double SLAPI CalcTP_withExternalFactors(double stakeBase, bool isShort, int prec, uint targetQuant, double spikeQuant, double averageSpreadForAdjustment);
 		static double SLAPI CalcSlTpAdjustment(int prec, double averageSpreadForAdjustment);
@@ -16627,32 +16628,35 @@ public:
 			clsmodFullMaxDuck = 0, //
 			clsmodAdjustLoss  = 1  //
 		};
+		uint32 ID;
 		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
+		uint32 MainFrameSize;    // @v10.4.9 Длина периода магистрального тренда
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
 		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
 		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
 		uint16 OptDelta2Stride;  // Оптимальный шаг назад при расчете изменения тренда
 		int16  StakeMode;        // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда, 3 - по значению и изменению тренда
-		uint32 BaseFlags;        // @flags
-		double Margin;           // Маржа
-		double SpikeQuant;       // Минимальный квант относительного изменения котировки для дискретизации параметров
-		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
-		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
-		OptimalFactorRange OptDeltaRange;
-		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
-		uint32 StakeCount;       // Количество ставок при тестировании
-		uint32 WinCount;         // Количество выигрышей в результате тестирования
-		StrategyResultValue V;   // Результат тестирования
 		uint16 StakeCloseMode;   // clsmodXXX Режим закрытия
 		uint16 PeakAvgQuant;
 		uint16 BottomAvgQuant;
 		uint16 PeakMaxQuant;
-		uint32 ID;
+		uint16 Reserve;          // @v10.6.12 @alignment 
+		uint32 BaseFlags;        // @flags
+		uint32 StakeCount;       // Количество ставок при тестировании
+		uint32 WinCount;         // Количество выигрышей в результате тестирования
+		double Margin;           // Маржа
+		double SpikeQuant;       // Минимальный квант относительного изменения котировки для дискретизации параметров
+		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
+		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
 		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
 		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
 			// [0..]. 0 - не использовать ограничение, 1.0 - ограничение равно TrendErrAvg, 1.05 - (1.05 * TrendErrAvg)
-		uint32 MainFrameSize;    // @v10.4.9 Длина периода магистрального тренда
+		double MainTrendErrAvg;  // @v10.6.12 Среднее значение ошибки регрессии для магистрального тренда
+		OptimalFactorRange OptDeltaRange;
+		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
+		StrategyResultValue V;   // Результат тестирования
+		uint8  Reserve2[12];     // @v10.6.12 @reserve
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -16680,6 +16684,8 @@ public:
 		double Tv2ForMaxResult;
 		double TrendErr;    // @v10.4.11
 		double TrendErrRel; // @v10.4.11
+		double MainTrendErr;    // @v10.6.12
+		double MainTrendErrRel; // @v10.6.12
 	};
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
@@ -16748,6 +16754,11 @@ public:
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
+		struct FlatBlock { // @v10.6.12 @flat
+			SLAPI  FlatBlock();
+			double MainTrendErrAvg; // Среднее значение ошибки регрессии для магистрального тренда
+			uint8  Reserve[56];
+		} Fb;
 		long   State; // @transient
 		uint32 LastStrategyId; // @transient
 	};
@@ -16792,7 +16803,8 @@ public:
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
 	static int SLAPI ReadConfig(PPObjTimeSeries::Config * pCfg);
 	static SString & SLAPI StrategyOutput(const PPObjTimeSeries::StrategyResultEntry * pSre, SString & rBuf);
-	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::BestStrategyBlock * pBestResult, SString & rBuf);
+	//static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::BestStrategyBlock * pBestResult, SString & rBuf);
+	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const double * pOptFactor, const double * pOptFactor2, SString & rBuf);
 	static int SLAPI TryStrategies(PPID id);
 	static int SLAPI EvaluateOptimalMaxDuck(PPID id);
 
@@ -24346,6 +24358,8 @@ struct BnkAcctData {
 // Тип связи между персоналиями
 //
 struct PPPersonRelType2 {  // @persistent @store(Reference2Tbl+)
+	SLAPI  PPPersonRelType2();
+
 	enum {
 		cOneToOne = 1,
 		cOneToMany,

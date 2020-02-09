@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -463,7 +463,7 @@ int SLAPI PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int pa
 	int    ok = -1;
 	if(pBrw && pData && pStyle && !P_TempGrpTbl) {
 		const  BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < (long)p_def->getCount()) {
+		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			const PPViewPersonEvent::BrwHdr * p_hdr = static_cast<const PPViewPersonEvent::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 5) { // OprKind

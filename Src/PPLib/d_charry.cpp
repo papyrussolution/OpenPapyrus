@@ -8,7 +8,7 @@
 
 SLAPI PPDS_CrrAddress::PPDS_CrrAddress() : PPDeclStruc()
 {
-	MEMSZERO(Data);
+	// @v10.6.12 @ctr MEMSZERO(Data);
 }
 
 int SLAPI PPDS_CrrAddress::InitData(Ido op, void * dataPtr, long /*addedParam*/)
@@ -100,21 +100,11 @@ int SLAPI PPDS_CrrBnkAcct::TransferField(long fldID, Tfd dir, uint * pIter, SStr
 {
 	int    ok = -1;
 	switch(fldID) {
-		case DSF_CRRBNKACCT_ACC:
-			ok = TransferData(IntrData.Acct, sizeof(IntrData.Acct), dir, rBuf);
-			break;
-		case DSF_CRRBNKACCT_BNKNAME:
-			ok = TransferData(IntrData.Bnk.Name, sizeof(IntrData.Bnk.Name), dir, rBuf);
-			break;
-		case DSF_CRRBNKACCT_BNKFULLNAME:
-			ok = TransferData(IntrData.Bnk.ExtName, sizeof(IntrData.Bnk.ExtName), dir, rBuf);
-			break;
-		case DSF_CRRBNKACCT_BNKCODE:
-			ok = TransferData(IntrData.Bnk.BIC, sizeof(IntrData.Bnk.BIC), dir, rBuf);
-			break;
-		case DSF_CRRBNKACCT_BNKCORRACC:
-			ok = TransferData(IntrData.Bnk.CorrAcc, sizeof(IntrData.Bnk.CorrAcc), dir, rBuf);
-			break;
+		case DSF_CRRBNKACCT_ACC: ok = TransferData(IntrData.Acct, sizeof(IntrData.Acct), dir, rBuf); break;
+		case DSF_CRRBNKACCT_BNKNAME: ok = TransferData(IntrData.Bnk.Name, sizeof(IntrData.Bnk.Name), dir, rBuf); break;
+		case DSF_CRRBNKACCT_BNKFULLNAME: ok = TransferData(IntrData.Bnk.ExtName, sizeof(IntrData.Bnk.ExtName), dir, rBuf); break;
+		case DSF_CRRBNKACCT_BNKCODE: ok = TransferData(IntrData.Bnk.BIC, sizeof(IntrData.Bnk.BIC), dir, rBuf); break;
+		case DSF_CRRBNKACCT_BNKCORRACC: ok = TransferData(IntrData.Bnk.CorrAcc, sizeof(IntrData.Bnk.CorrAcc), dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;
@@ -357,8 +347,8 @@ int SLAPI PPDS_Barcode::TransferField(long fldID, Tfd dir, uint * pIter, SString
 int SLAPI PPDS_CrrGoods::ExtractOuterData()
 {
 	GetObjectName(PPOBJ_UNIT, Data.Rec.UnitID, UnitName, sizeof(UnitName));
-	GetObjectName(PPOBJ_UNIT, Data.Rec.PhUnitID, PhUnitName, sizeof(PhUnitName)); // @v6.9.3
-	PhUPerU = Data.Rec.PhUPerU;                                                   // @v6.9.3
+	GetObjectName(PPOBJ_UNIT, Data.Rec.PhUnitID, PhUnitName, sizeof(PhUnitName));
+	PhUPerU = Data.Rec.PhUPerU;
 	GetObjectName(PPOBJ_GOODSGROUP, Data.Rec.ParentID, GroupName, sizeof(GroupName));
 	GetObjectName(PPOBJ_PERSON, Data.Rec.ManufID, ManufName, sizeof(ManufName));
 	PPCountryBlock country_blk;
@@ -665,7 +655,7 @@ int SLAPI PPDS_CrrBillItem::AcceptListItem(long fldID, PPDeclStruc * pData, ObjT
 					goods_obj.RemoveDupBarcodes(p_data, pCtx);
 					if(ar_code.NotEmpty()) {
 						ArGoodsCodeTbl::Rec ar_code_rec;
-						MEMSZERO(ar_code_rec);
+						// @v10.6.12 @ctr MEMSZERO(ar_code_rec);
 						ar_code_rec.ArID = ar_id;
 						ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
 						p_data->ArCodes.insert(&ar_code_rec);
@@ -1122,24 +1112,15 @@ int SLAPI PPDS_CrrAmountType::TransferField(long fldID, Tfd dir, uint * pIter, S
 				}
 			}
 			break;
-		case DSF_CRRAMOUNTTYPE_FERRONDEFAULT:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fErrOnDefault, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FMANUAL:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fManual, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FTAX:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fTax, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FREPLACECOST:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fReplaceCost, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FREPLACEPRICE:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fReplacePrice, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FREPLACEDISCOUNT:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fReplaceDiscount, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FINAMOUNT:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fInAmount, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FOUTAMOUNT:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fOutAmount, dir, rBuf); break;
-		case DSF_CRRAMOUNTTYPE_FSTAFFAMOUNT:
-			ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fStaffAmount, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FERRONDEFAULT: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fErrOnDefault, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FMANUAL: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fManual, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FTAX: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fTax, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FREPLACECOST: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fReplaceCost, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FREPLACEPRICE: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fReplacePrice, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FREPLACEDISCOUNT: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fReplaceDiscount, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FINAMOUNT: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fInAmount, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FOUTAMOUNT: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fOutAmount, dir, rBuf); break;
+		case DSF_CRRAMOUNTTYPE_FSTAFFAMOUNT: ok = TransferDataFlag(&Pack.Rec.Flags, PPAmountType::fStaffAmount, dir, rBuf); break;
 	}
 	if(ok > 0)
 		(*pIter)++;
@@ -3144,7 +3125,7 @@ int SLAPI PPDS_CrrObjTag::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
 	if(op == idoAlloc)
-		Data.Init();
+		Data.Z();
 	else if(op == idoExtract) {
 		if(dataPtr)
 			Data = *static_cast<const PPObjTagPacket *>(dataPtr);

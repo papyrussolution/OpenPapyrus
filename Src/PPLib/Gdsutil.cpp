@@ -530,12 +530,9 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				ok = 0;
 		}
 		else {
-			//ChZnCodeStruc czcs;
 			GtinStruc gts;
-			//if(czcs.Parse(pBlk->Code) > 0) {
 			if(PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts) > 0) {
 				SString temp_buf;
-				//czcs.GetS(czcs.GtinP, temp_buf);
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);
 					if(temp_buf.C(0) == '0')
@@ -554,10 +551,8 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						pBlk->Flags |= GoodsCodeSrchBlock::fChZnCode;
 						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED)); // @v10.6.10
 						strnzcpy(pBlk->RetCode, bcr.Code, 16);
-						//czcs.GetS(czcs.GtinP, temp_buf);
 						gts.GetToken(GtinStruc::fldGTIN14, &temp_buf);
 						STRNSCPY(pBlk->ChZnGtin, temp_buf);
-						//czcs.GetS(czcs.SerialP, temp_buf);
 						gts.GetToken(GtinStruc::fldSerial, &temp_buf);
 						STRNSCPY(pBlk->ChZnSerial, temp_buf);
 						STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9

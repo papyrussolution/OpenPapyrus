@@ -1,5 +1,5 @@
 // AUTOCMPL.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Автоматическая комплектация //
 //
@@ -502,7 +502,7 @@ IMPL_HANDLE_EVENT(PuglDialog)
 	}
 	else if(event.isCmd(cmLBItemSelected)) {
 		long   sel_id = 0;
-		enableCommand(cmPuglSupplAssoc, (Data.SupplAccSheetForSubstID && getSelection(&sel_id) && sel_id > 0 && sel_id <= (long)Data.getCount()));
+		enableCommand(cmPuglSupplAssoc, (Data.SupplAccSheetForSubstID && getSelection(&sel_id) && sel_id > 0 && sel_id <= Data.getCountI()));
 	}
 	else if(event.isCmd(cmPuglSupplAssoc)) {
 		long   sel_id = 0;

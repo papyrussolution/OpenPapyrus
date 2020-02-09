@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // WIN32
 //
@@ -776,9 +776,9 @@ int BrowserWindow::IsLastPage(uint viewHeight)
 int FASTCALL BrowserWindow::CellRight(const BroColumn & rC) const
 	{ return (ChrSz.x*rC.width + rC.x); }
 int FASTCALL BrowserWindow::GetRowHeightMult(long row) const
-	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->HeightMult : 1; }
+	{ return (P_RowsHeightAry && row < P_RowsHeightAry->getCountI()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->HeightMult : 1; }
 int FASTCALL BrowserWindow::GetRowTop(long row) const
-	{ return (P_RowsHeightAry && row < (long)P_RowsHeightAry->getCount()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->Top : (YCell * row); }
+	{ return (P_RowsHeightAry && row < P_RowsHeightAry->getCountI()) ? static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(row))->Top : (YCell * row); }
 
 void BrowserWindow::AdjustCursorsForHdr()
 {

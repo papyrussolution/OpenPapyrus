@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1640,7 +1640,7 @@ int BillDialog::editItem(long pos, long id)
 int BillDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(P_Pack && pos >= 0 && (uint)pos < P_Pack->LnkFiles.getCount()) {
+	if(P_Pack && pos >= 0 && pos < P_Pack->LnkFiles.getCountI()) {
 		if(P_Pack->LnkFiles.at(pos)->Flags & PPLNKFILE_ISNEW)
 			P_Pack->LnkFiles.Remove(pos);
 		else
@@ -1655,7 +1655,7 @@ int BillDialog::sendItem(long pos, long id)
 {
 	int    ok = -1;
 	SendMailDialog * dlg = 0;
-	if(P_Pack && pos >= 0 && pos < (long)P_Pack->LnkFiles.getCount()) {
+	if(P_Pack && pos >= 0 && pos < P_Pack->LnkFiles.getCountI()) {
 		PPID   ar_id = 0;
 		SString path, addr;
 		PPLinkFile file_info;
@@ -3580,7 +3580,7 @@ int PaymPlanDialog::addItem(long * pPos, long * pID)
 int PaymPlanDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos < (long)Data.getCount()) {
+	if(pos < Data.getCountI()) {
 		PayPlanTbl::Rec item = Data.at(pos);
 		if(EditPaymPlanItem(P_Pack, &item) > 0) {
 			uint p = (uint)pos;

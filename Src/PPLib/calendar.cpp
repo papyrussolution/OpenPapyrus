@@ -92,7 +92,7 @@ public:
 		TView * p_ctl = P_Dlg ? P_Dlg->getCtrlView(DateCtlID) : 0;
 		if(!p_ctl || !p_ctl->IsInState(sfDisabled)) {
 			int r = APPL->DlgBoxParam(IsLarge ? DLGW_CALENDAR_L : DLGW_CALENDAR,
-				NZOR(hParent, parent_hWnd), TDateCalendar::CalendarDlgProc, (long)this);
+				NZOR(hParent, parent_hWnd), TDateCalendar::CalendarDlgProc, reinterpret_cast<LPARAM>(this));
 			if(r > 0 && P_Dlg)
 				TView::messageBroadcast(P_Dlg, cmCommitInput, P_Dlg->getCtrlView(DateCtlID));
 		}

@@ -676,7 +676,6 @@ int PPDesktop::Destroy(int dontAssignToDb)
 		ok = (PPErrorTooltip(-1, 0), 0);
 	ENDCATCH
 	ZDELETE(P_ActiveDesktop);
-	//IsChanged = 0;
 	State &= ~stChanged;
 	Unadvise();
 	return ok;
