@@ -9734,7 +9734,7 @@ int FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec);
 // документов.
 //
 struct ILTI { // @persistent(DBX) @size=80
-	SLAPI  ILTI(const PPTransferItem * = 0);
+	explicit SLAPI  ILTI(const PPTransferItem * = 0);
 	void   FASTCALL Init(const PPTransferItem * pTi);
 	void   SLAPI Setup(PPID goodsID, int sign, double qtty, double cost, double price);
 	//
@@ -9867,7 +9867,8 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	int16  IsShipped;          // @transient Признак отгруженного документа (проецируется на BillTbl::Rec.Flags как BILLF_SHIPPED)
 	int16  Ft_STax;            // @transient (0 - ignored, <0 - off, >0 - on)
 	int16  Ft_Declined;        // @transient (0 - ignored, <0 - off, >0 - on)
-	int16  Reserve;            // @alignment @transient
+	// @v10.7.0 int16  Reserve;            // @alignment @transient
+	int16  Ft_CheckPrintStatus; // @erik v10.7.0 статус печати чека( <0 - не печатанные чеки, >0 - печатанные чеки, 0 - все равно)
 	int16  EdiRecadvStatus;     // @v9.1.6 @transient Статус RECADV по каналу EDI
 	int16  EdiRecadvConfStatus; // @v9.1.6 @transient Статус подтверждения на RECADV по каналу EDI
 	PPID   CreatorID;          // @transient Критерий фильтрации по пользователю, создавшему документ
@@ -16656,7 +16657,8 @@ public:
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
-		uint8  Reserve2[12];     // @v10.6.12 @reserve
+		double MainTrendErrLim;  // @v10.7.0 Ограничение для ошибки регрессии магистрального тренда
+		uint8  Reserve2[4];      // @v10.6.12 @reserve // @10.7.0 [12]-->[4]
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -16976,7 +16978,8 @@ public:
 		fForce             = 0x0004,
 		fProcessLong       = 0x0008,
 		fProcessShort      = 0x0010,
-		fAutodetectTargets = 0x0020  // Автоматически идентифицировать серии, модели по которым следует пересчитать
+		fAutodetectTargets = 0x0020, // Автоматически идентифицировать серии, модели по которым следует пересчитать
+		fSimulateAfter     = 0x0040  // @v10.7.0 Провести имитационный тест после построения моделей 
 	};
 	uint8  ReserveStart[32]; // @anchor
 	long   Flags;            // @flags
@@ -17002,23 +17005,25 @@ public:
 			tcWinRatio = 2
 		};
 		long   Flags;
-		long   OptTargetCriterion; // @v10.4.6
-		LongArray InputFrameSizeList; // Список не включает период магистрального тренда
+		long   OptTargetCriterion;      // @v10.4.6
+		LongArray InputFrameSizeList;   // Список не включает период магистрального тренда
 		LongArray MaxDuckQuantList;
-		LongArray TargetQuantList; // @v10.4.3
-		LongArray MainFrameSizeList; // @v10.5.0
+		LongArray TargetQuantList;      // @v10.4.3
+		LongArray MainFrameSizeList;    // @v10.5.0
 		double InitTrendErrLimit;
+		double InitMainTrendErrLimit;   // @v10.7.0
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
-		uint   BestSubsetOptChunk; // 3 || 7 || 15
-		uint   OptRangeStep; // @v10.4.7
-		uint   OptRangeStepMkPart; // @v10.4.7
-		uint   OptRangeMultiLimit; // @v10.4.7
-		LDATE  UseDataSince;
+		uint   BestSubsetOptChunk;      // 3 || 7 || 15
+		uint   OptRangeStep;            // @v10.4.7
+		uint   OptRangeStepMkPart;      // @v10.4.7
+		uint   OptRangeMultiLimit;      // @v10.4.7
+		LDATE  UseDataSince;   // Модель строить по данным, начиная с указанной даты включительно (если checkdate(UseDataSince)) 
+		LDATE  UseDataTill;    // @v10.7.0 Модель строить по данным для указанной даты включительно (если checkdate(UseDataTill))
 		uint   DefTargetQuant; // @v10.4.2
-		//uint   MainFrameSize;  // @v10.4.9 Длительность магистрального тренда
 		uint   MainFrameRangeCount; // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
 		double MinWinRate; // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
+		double OverallWinRateLimit; // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
 	};
 	SLAPI  PrcssrTsStrategyAnalyze();
 	SLAPI ~PrcssrTsStrategyAnalyze();
@@ -18990,6 +18995,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_IGNCONDQUOTS       0x00800000L // @v10.0.03 (async) Не использовать при расчете цен для загрузки условные котировки.
 	// Транслируется в установку флага RTLPF_IGNCONDQUOTS при вызове RetailPriceExtractor::Init()
 #define CASHFX_CHECKEGAISMUNIQ    0x01000000L // @v10.1.1 (sync) Проверять уникальность сканируемых акцизных марок (медленная операция)
+#define CASHFX_IGNPENNYFROMBCARD  0x02000000L // @erik @v10.6.12 игнорировать копейки при списывании бонусов с бонусной карты
 //
 // Идентификаторы строковых свойств кассоых узлов.
 // Attention: Ни в коем случае не менять значения идентификаторов - @persistent
@@ -19084,6 +19090,7 @@ public:
 	struct RoundParam {
 		int    DisRoundDir;  // Направление округления скидки
 		int    AmtRoundDir;  // Направление округления результирующей суммы чека
+		long   IgnPennyFromBCardFlag; // @erik v10.6.13 Игнорирование копеек при оплате бонусной картой
 		double DisRoundPrec; // Точность округления скидки
 		double AmtRoundPrec; // Точность округления результирующей суммы чека
 	};
@@ -36869,7 +36876,8 @@ public:
 		fAddZeroLoc        = 0x02000000, // При построении выборки добавлять нулевую локацию к списку
 			// складов, по которому фильтруется отчет.
 		fExportEDI         = 0x04000000, // @v8.0.5 Специальный флаг, используемый при экспорте
-		fCcPrintedOnly     = 0x08000000  // @v9.7.12 Только документы, по которым отпечатан кассовый чек
+		// @v10.7.0 fCcPrintedOnly     = 0x08000000, // @v9.7.12 Только документы, по которым отпечатан кассовый чек
+		// @v10.7.0 fCcNotPrintedOnly  = 0x10000000  // @v10.6.13 Только документы, по которым не отпечатан кассовый чек
 	};
 	enum {
 		fDenyAdd    = 0x0001,
@@ -36901,7 +36909,7 @@ public:
 	DateRange DuePeriod;   // Период исполнения //
 	uint32 Count;          // Максимальное количество документов в выборке
 	int16  Ft_Declined;    // @v8.3.3 Признак BILLF2_DECLINED: (0) ignored, (< 0) off, (> 0) on
-	int16  Ft_Reserve;     // @v8.8.6 @reserved
+	int16  Ft_CheckPrintStatus; // @v10.7.0 reserve-->Ft_CheckPrintStatus
 	PPID   StorageLocID;   // @v8.8.6 Место хранение, ассоциированное с фрахтом документа
 	int16  EdiRecadvStatus;     // @v9.1.6 Статус RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  EdiRecadvConfStatus; // @v9.1.6 Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом

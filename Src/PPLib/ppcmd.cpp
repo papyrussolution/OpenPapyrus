@@ -1584,10 +1584,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 		GetDesksDir(path);
 		temp_buf.Z().Cat(path).SetLastSlash().Cat("*.*");
 		SDirEntry de;
-
-		int index_count = 0;
 		for(SDirec direc(temp_buf, 0); direc.Next(&de)>0;) {
-			index_count++;
 			if(de.IsFile()) {
 				p_temp_command_group = new PPCommandGroup();
 				temp_buf.Z().Cat(path).SetLastSlash().Cat(de.FileName);
@@ -1596,6 +1593,8 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 				//THROW_SL(fileExists(temp_buf));
 				//THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)), p_xml_parser);
 				//THROW(p_root = xmlDocGetRootElement(p_doc));
+
+				//=> УСЛОВИЯ {
 				if(fileExists(temp_buf) > 0) {
 					if((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)) > 0) {
 						if((p_root = xmlDocGetRootElement(p_doc))) {
@@ -1609,6 +1608,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 						}
 					}
 				}
+				// } УСЛОВИЯ
 				 //@erik v10.6.10 {
 				xmlFreeDoc(p_doc);
 				p_doc = 0;

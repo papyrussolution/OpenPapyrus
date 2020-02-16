@@ -2507,17 +2507,19 @@ browser TRFRGR_G north(100), 1, 1, "Группировка товарных операций по товару", OW
 	"@termcost_ss",    11, notype, NMBF_NOZERO, 10.2
 	"@termprice_ss",   12, notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL     : kbEnter, PPDV_LINS02,      "@{detail}\tEnter"
-		PRINT      : kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
-		EXPORT     : kbF8,    PPDV_EXPORT01,    "@{export}\tF8"
-		TOTAL      : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
-		GRAPH      : kbCtrlN, PPDV_PLOT01,    hidden, "@{plot}\tCtrl-N"
+		DETAIL         : kbEnter, PPDV_LINS02,      "@{detail}\tEnter"
+		PRINT          : kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
+		EXPORT         : kbF8,    PPDV_EXPORT01,    "@{export}\tF8"
+		TOTAL          : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
+		GRAPH          : kbCtrlN, PPDV_PLOT01,    hidden, "@{plot}\tCtrl-N"
 		separator
-		EDITGOODS  : kbF2,      TBBM_GOODS,     "@{ware}\tF2"
-		TAGS       : kbF6,      PPDV_TAGS01,    "@{tags}\tF6"
-		TAGSALL    : kbShiftF6, TBBM_TAGSALL,   "@{doupdatetags}\tShift-F6"
+		EDITGOODS      : kbF2,      TBBM_GOODS,     "@{ware}\tF2"
+		PUTTOBASKET    : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4" // @v10.7.0
+		PUTTOBASKETALL : kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4" // @v10.7.0
+		TAGS           : kbF6,      PPDV_TAGS01,    "@{tags}\tF6"
+		TAGSALL        : kbShiftF6, TBBM_TAGSALL,   "@{doupdatetags}\tShift-F6"
 		separator
-		CHANGEFILT : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
+		CHANGEFILT     : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
 }
 
@@ -2570,17 +2572,19 @@ browser TRFRGR_GS north(100), 3, 1, "Группировка товарных операций по товару", O
 		"@termprice_ss", 15, notype, 0,             8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL     : kbEnter, PPDV_LINS02,    "@{detail}\tEnter"
-		PRINT      : kbF7,    PPDV_PRINTER01, "@{print}\tF7"
-		EXPORT     : kbF8,    PPDV_EXPORT01,  "@{export}\tF8"
-		TOTAL      : kbF9,    PPDV_SIGMA02,   "@{totals}\tF9"
-		GRAPH      : kbCtrlN, PPDV_PLOT01,    hidden, "@{plot}\tCtrl-N"
+		DETAIL         : kbEnter, PPDV_LINS02,    "@{detail}\tEnter"
+		PRINT          : kbF7,    PPDV_PRINTER01, "@{print}\tF7"
+		EXPORT         : kbF8,    PPDV_EXPORT01,  "@{export}\tF8"
+		TOTAL          : kbF9,    PPDV_SIGMA02,   "@{totals}\tF9"
+		GRAPH          : kbCtrlN, PPDV_PLOT01,    hidden, "@{plot}\tCtrl-N"
 		separator
-		EDITGOODS  : kbF2,      TBBM_GOODS,   "@{ware}\tF2"
-		TAGS       : kbF6,      PPDV_TAGS01,  "@{tags}\tF6"
-		TAGSALL    : kbShiftF6, TBBM_TAGSALL, "@{doupdatetags}\tShift-F6"
+		EDITGOODS      : kbF2,      TBBM_GOODS,   "@{ware}\tF2"
+		PUTTOBASKET    : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4" // @v10.7.0
+		PUTTOBASKETALL : kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4" // @v10.7.0
+		TAGS           : kbF6,      PPDV_TAGS01,  "@{tags}\tF6"
+		TAGSALL        : kbShiftF6, TBBM_TAGSALL, "@{doupdatetags}\tShift-F6"
 		separator
-		CHANGEFILT : kbCtrlV, PPDV_FILTER01,  "@{filter}\tCtrl-V"
+		CHANGEFILT     : kbCtrlV, PPDV_FILTER01,  "@{filter}\tCtrl-V"
 	}
 }
 
@@ -6207,7 +6211,7 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
 		// @v10.6.8 TRYSTRATEGIES  : kbCtrlT,  PPDV_EXPORT01,      "Try Strategies\tCtrl-T"
 		TEST           : kbCtrlT,  TBBM_TEST,          "Test\tCtrl-T" // @v10.6.8
-		EVALOPTMAXDUCK : kbCtrlY,  PPDV_NOICON,        "Evaluate optimal max duck\tCtrl-Y" // @v10.6.5
+		// @v10.7.0 EVALOPTMAXDUCK : kbCtrlY,  PPDV_NOICON,        "Evaluate optimal max duck\tCtrl-Y" // @v10.6.5
 		REFRESH        : kbCtrlV,  PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
 	}
 }

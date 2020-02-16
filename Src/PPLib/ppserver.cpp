@@ -2334,11 +2334,11 @@ int SLAPI PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFile
 		}
 	}
 	else if(rBlk.TransmType == rBlk.ttWorkbookContent) {
-        if(rBlk.ObjType == PPOBJ_WORKBOOK) {
+        if(oneof2(rBlk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813)) { // @v10.7.0 PPOBJ_WORKBOOK_PRE813
             PPObjWorkbook wb_obj;
             WorkbookTbl::Rec wb_rec;
             THROW(wb_obj.Search(rBlk.ObjID, &wb_rec) > 0);
-            THROW(lf.SetupZeroPositionFile(rBlk.ObjType, rBlk.ObjID, rFilePath));
+            THROW(lf.SetupZeroPositionFile(PPOBJ_WORKBOOK, rBlk.ObjID, rFilePath));
         }
 	}
 	rReply.SetAck();
@@ -3207,12 +3207,12 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 		SFileFormat::GetExt(blk.Format, file_ext);
 		file_ext.SetIfEmpty(".");
 		if(blk.TransmType == blk.ttObjImage) {
-			THROW_PP_S(oneof5(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
+			THROW_PP_S(oneof6(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
 			PPMakeTempFileName("oimg", file_ext, 0, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
-			THROW_PP_S(blk.ObjType == PPOBJ_WORKBOOK, PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType)); // @v10.3.0 @fix (blk.ObjType = PPOBJ_WORKBOOK)-->(blk.ObjType == PPOBJ_WORKBOOK)
+			THROW_PP_S(oneof2(blk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType)); // @v10.3.0 @fix (blk.ObjType = PPOBJ_WORKBOOK)-->(blk.ObjType == PPOBJ_WORKBOOK)
 			m |= SFile::mBinary;
 			PPMakeTempFileName("wbc", file_ext, 0, file_path);
 		}

@@ -177,17 +177,18 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_list.freeAll();
 		MEMSZERO(ser_rec);
+		/* @v10.7.0 
 		if(!updOnly) {
 			fputs((f_str = "$$$DELETEALLCCARDDISCS").CR(), p_file);
 		}
-		fputs((f_str = "$$$ADDCCARDDISCS").CR(), p_file);
+		fputs((f_str = "$$$ADDCCARDDISCS").CR(), p_file); */
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(ser_rec.GetType() == scstDiscount || (ser_rec.GetType() == scstCredit && CrdCardAsDsc)) {
 				AsyncCashSCardInfo info;
 				scard_series_list.add(ser_id); // @v9.4.1
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 				THROW_SL(scard_quot_list.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
-				for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
+				/* @v10.7.0 for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 					f_str.Z();
 					f_str.Cat(info.Rec.ID).Semicol();   // Card ID
 					f_str.Cat(ser_rec.ID).Semicol();    // Series ID
@@ -202,7 +203,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 					f_str.CR();
 					fputs(f_str, p_file);
 					iter.SetStat();
-				}
+				}*/
 			}
 		}
 		scard_series_list.sortAndUndup();
@@ -540,7 +541,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 							f_str.Cat(default_scheme_id).Semicol();               // #1 - код схемы внутренней авт.скидки
 							f_str.Cat(scs_id).Semicol();                          // #2 - код скидки
 							f_str.Semicol();                                      // #3 - unused
-							(temp_buf = ser_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+							(temp_buf = ser_rec.Name); // .Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.0 @fix вся строка конвертируется в при выводе в файл
 							f_str.Cat(temp_buf).Semicol();                        // #4 - наименование скидки (код карты)
 							f_str.Cat(0L).Semicol();                              // #5 - тип скидки (0 - percent, 1 - absolute)
 							f_str.Cat(fdiv100i(scs_pack.Rec.PDis)).Semicol();     // #6 - значение скидки

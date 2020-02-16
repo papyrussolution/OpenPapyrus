@@ -1098,6 +1098,7 @@ int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
 	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
 	SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+	SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0); // @v10.7.0
 	SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
 	SetupStringCombo(this, CTLSEL_TODOFILT_CROSSTAB, PPTXT_TODOCROSSTAB,  Data.TabType);
 	SetupStringCombo(this, CTLSEL_TODOFILT_CTPAR,    PPTXT_TODOCTPARAMS,  Data.TabParam);
@@ -1140,6 +1141,7 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 	getCtrlData(CTLSEL_TODOFILT_EMPLOYER, &Data.EmployerID);
 	getCtrlData(CTLSEL_TODOFILT_CLIENT,   &Data.ClientID);
 	getCtrlData(CTLSEL_TODOFILT_CITY,     &Data.CliCityID);
+	getCtrlData(CTLSEL_TODOFILT_PRJ,      &Data.ProjectID); // @v10.7.0
 	getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
 	getCtrlData(CTLSEL_TODOFILT_CROSSTAB, &Data.TabType);
 	if(Data.StartPeriod.IsZero() && Data.TabType != PrjTaskFilt::crstNone) {

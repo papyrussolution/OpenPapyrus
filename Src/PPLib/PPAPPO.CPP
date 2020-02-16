@@ -1510,6 +1510,10 @@ int PPBackupSystemFiles_Arc()
 				path.SetLastSlash().Cat(fname);
 				(dest_path = dest_dir).SetLastSlash().Cat(fname);
 				arc.AddEntry(path, fname, 0);
+//@erik v10.6.13 {
+				PPGetPath(PPPATH_WORKSPACE, path);
+				arc.AddEntries(path, SArchive::aefRecursive);
+// } @erik 
 				arc.Close();
 				{
 					const uint max_arc = 5;

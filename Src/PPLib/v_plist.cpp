@@ -2146,7 +2146,7 @@ int SLAPI PPViewPriceList::ConvertLinesToBasket()
 		for(InitIteration(PPViewPriceList::OrdByGoodsName); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			ReceiptTbl::Rec lot_rec;
-			MEMSZERO(lot_rec);
+			// @v10.7.0 @ctr MEMSZERO(lot_rec);
 			THROW(::GetCurGoodsPrice(item.GoodsID, Filt.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 			i_i.GoodsID     = item.GoodsID;
 			i_i.UnitPerPack = item.UnitsPerPack;

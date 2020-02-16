@@ -422,6 +422,7 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (pData->Ft_STax > 0) ? 1 : ((pData->Ft_STax < 0) ? 2 : 0));
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL,  (pData->Ft_Declined > 0) ? 1 : ((pData->Ft_Declined < 0) ? 2 : 0));
+			dlg->setCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST, (pData->Ft_CheckPrintStatus>0) ? 1 : ((pData->Ft_CheckPrintStatus<0) ? 2 : 0)); //@erik v10.6.13
 			// @v9.1.6 {
             {
                 dlg->AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
@@ -488,9 +489,15 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 					v = dlg->getCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL);
 					pData->Ft_Declined = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
 				}
+// @erik v10.6.13 {
+				{
+					v = dlg->getCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST);
+					pData->Ft_CheckPrintStatus = (v==1) ? 1 : ((v==2) ? -1 : 0);
+				}
+// } @erik
 				// @v9.1.6 {
-				pData->EdiRecadvStatus = (int16)dlg->GetClusterData(CTL_BILLEXTFLT_RECADV);
-				pData->EdiRecadvConfStatus = (int16)dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM);
+				pData->EdiRecadvStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADV));
+				pData->EdiRecadvConfStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
 				// } @v9.1.6
 				dlg->getCtrlData(CTLSEL_BILLEXT_CREATOR, &pData->CreatorID);
 				if(!GetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod)) {

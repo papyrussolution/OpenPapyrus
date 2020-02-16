@@ -10660,7 +10660,7 @@ public:
 	// Descr: Извлекает подмножество временного ряда, состоящее из последних count элементов.
 	//
 	int    SLAPI GetChunkRecentCount(uint count, STimeSeries & rResult) const;
-	int    SLAPI GetChunkRecentSince(const SUniTime & rSince, STimeSeries & rResult) const;
+	int    SLAPI GetChunkRecentSince(const SUniTime & rSince, const SUniTime * pTill, STimeSeries & rResult) const;
 private:
 	static int FASTCALL VerifyValuVecType(TYPEID typ) { return oneof4(typ, T_FLOAT, T_DOUBLE, T_INT32, T_INT64); }
 	struct ValuVec : public SVector {

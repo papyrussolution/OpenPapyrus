@@ -87,6 +87,14 @@ int SLAPI PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 					ExtFlags |= CASHFX_ROUNDAMTDOWN;
 			}
 		}
+//@erik v10.6.13 {
+		if(pParam->IgnPennyFromBCardFlag){
+			ExtFlags |= CASHFX_IGNPENNYFROMBCARD;
+		}
+		else {
+			ExtFlags &= (~CASHFX_IGNPENNYFROMBCARD);
+		}
+// } @erik
 	}
 	return ok;
 }
@@ -104,6 +112,14 @@ int SLAPI PPGenCashNode::GetRoundParam(RoundParam * pParam) const
 			pParam->AmtRoundPrec = fdiv100i((long)AmtRoundPrec);
 			pParam->AmtRoundDir  = (ExtFlags & CASHFX_ROUNDAMTUP) ? +1 : ((ExtFlags & CASHFX_ROUNDAMTDOWN) ? -1 : 0);
 		}
+//@erik v10.6.13 {
+		if(ExtFlags & CASHFX_IGNPENNYFROMBCARD) {
+			pParam->IgnPennyFromBCardFlag = 1;
+		}		
+		else{
+			pParam->IgnPennyFromBCardFlag = 0;
+		}
+// } @erik
 		ok = 1;
 	}
 	return ok;
@@ -1615,6 +1631,9 @@ int SyncCashNodeCfgDialog::editRoundParam()
 		else
 			v = 0;
 		dlg->setCtrlUInt16(CTL_CNROUND_AMTDIR, v);
+//@erik v10.6.13 {
+		dlg->setCtrlData(CTL_IGNPANNYFROMBCARD, &param.IgnPennyFromBCardFlag);
+// } @erik
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			param.DisRoundPrec = dlg->getCtrlReal(CTL_CNROUND_DISPREC);
 			param.AmtRoundPrec = dlg->getCtrlReal(CTL_CNROUND_AMTPREC);
@@ -1632,6 +1651,8 @@ int SyncCashNodeCfgDialog::editRoundParam()
 				param.AmtRoundDir = -1;
 			else
 				param.AmtRoundDir = 0;
+			param.IgnPennyFromBCardFlag = dlg->getCtrlUInt16(CTL_IGNPANNYFROMBCARD); //@erik v10.6.13
+
 			if(Data.SetRoundParam(&param))
 				ok = 1;
 			else

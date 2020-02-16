@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -404,12 +404,13 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 		const PPID prev_op_id = Data.OpID;
 		getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
 		if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
-			PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
+			PPID   acc_sheet_id = 0;
+			PPID   acc_sheet2_id = 0;
 			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
 			setupAccSheet(acc_sheet_id, acc_sheet2_id);
 		}
 		if(Data.OpID != prev_op_id) {
-			PPID   op_type_id = GetOpType(Data.OpID, 0);
+			const PPID op_type_id = GetOpType(Data.OpID, 0);
 			if(op_type_id == PPOPT_DRAFTTRANSIT)
                 SetupLocationCombo();
 		}
@@ -468,6 +469,7 @@ void BillFiltDialog::extraFilt()
 		ext.AgentID = Data.AgentID;
 		ext.Ft_STax = Data.Ft_STax;
 		ext.Ft_Declined = Data.Ft_Declined;
+		ext.Ft_CheckPrintStatus = Data.Ft_CheckPrintStatus; // @v10.7.0
 		ext.EdiRecadvStatus = Data.EdiRecadvStatus; // @v9.1.6
 		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus; // @v9.1.6
 		ext.DuePeriod = Data.DuePeriod;
@@ -486,15 +488,42 @@ void BillFiltDialog::extraFilt()
 		else if(Data.CreatorID == cur_user_id)
 			Data.CreatorID = 0;
 		ext.CreatorID = Data.CreatorID;
+// @erik v10.6.13 {
+		/*if((Data.Flags & BillFilt::fCcPrintedOnly) && !(Data.Flags & BillFilt::fCcNotPrintedOnly)){
+			ext.Ft_CheckPrintStatus = 1;
+		}
+		else if((Data.Flags & BillFilt::fCcNotPrintedOnly) && !(Data.Flags & BillFilt::fCcPrintedOnly)){
+			ext.Ft_CheckPrintStatus = -1;
+		}
+		else {
+			ext.Ft_CheckPrintStatus = 0;
+		}*/
+// } @erik
 		if(BillExtraDialog(0, &ext, 0, 2) > 0) {
 			Data.PayerID = ext.PayerID;
 			Data.AgentID = ext.AgentID;
 			Data.Ft_STax = ext.Ft_STax;
 			Data.Ft_Declined = ext.Ft_Declined;
+			Data.Ft_CheckPrintStatus = ext.Ft_CheckPrintStatus; // @v10.7.0
 			Data.EdiRecadvStatus = ext.EdiRecadvStatus; // @v9.1.6
 			Data.EdiRecadvConfStatus = ext.EdiRecadvConfStatus; // @v9.1.6
 			Data.CreatorID = ext.CreatorID;
 			Data.DuePeriod = ext.DuePeriod;
+// @erik v10.6.13 {
+			/* @v10.7.0 if(ext.Ft_CheckPrintStatus > 0) {
+				//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v&0x10); // @v9.7.12
+				Data.Flags |= BillFilt::fCcPrintedOnly;
+				Data.Flags &= ~BillFilt::fCcNotPrintedOnly;
+			}
+			else if(ext.Ft_CheckPrintStatus < 0) {
+				Data.Flags |= BillFilt::fCcNotPrintedOnly;
+				Data.Flags &= ~BillFilt::fCcPrintedOnly;
+			}
+			else {
+				Data.Flags &= ~BillFilt::fCcNotPrintedOnly;
+				Data.Flags &= ~BillFilt::fCcPrintedOnly;
+			}*/
+// } @erik
 			if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
 				SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 			}
@@ -620,7 +649,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		SETFLAG(v, 0x02, Data.CreatorID == cur_user_id);
 		SETFLAG(v, 0x04, Data.Flags & BillFilt::fShowWoAgent);
 		SETFLAG(v, 0x08, Data.Flags & BillFilt::fDiscountOnly);
-		SETFLAG(v, 0x10, Data.Flags & BillFilt::fCcPrintedOnly); // @v9.7.12
+		//SETFLAG(v, 0x10, Data.Flags & BillFilt::fCcPrintedOnly); // @v9.7.12 @erikTMP
 		setCtrlData(CTL_BILLFLT_FLAGS, &v);
 		setWL(BIN(Data.Flags & BillFilt::fLabelOnly));
 		AddClusterAssoc(CTL_BILLFLT_ORDER, 0, BillFilt::ordByDate);
@@ -676,7 +705,7 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	SETFLAG(Data.Flags, BillFilt::fShowWoAgent, v & 0x04);
 	SETFLAG(Data.Flags, BillFilt::fLabelOnly, getWL());
 	SETFLAG(Data.Flags, BillFilt::fDiscountOnly, v & 0x08);
-	SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v & 0x10); // @v9.7.12
+	//SETFLAG(Data.Flags, BillFilt::fCcPrintedOnly, v & 0x10); // @v9.7.12 @erikTMP
 	sel = CTL_BILLFLT_PERIOD;
 	THROW((Data.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(temp_period, 1));
 	Data.Period = temp_period;
@@ -1069,7 +1098,8 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 	THROW(!(Filt.Flags & BillFilt::fUnshippedOnly) || !(f & BILLF_SHIPPED));
 	THROW(!(Filt.Flags & BillFilt::fShippedOnly)   || (f & BILLF_SHIPPED));
 	THROW(!(Filt.Flags & BillFilt::fDiscountOnly)  || (f & BILLF_TOTALDISCOUNT));
-	THROW(!(Filt.Flags & BillFilt::fCcPrintedOnly) || (f & BILLF_CHECK)); // @v9.7.12
+	// @v10.7.0 THROW(!(Filt.Flags & BillFilt::fCcNotPrintedOnly) || !(f & BILLF_CHECK)); // @erik v10.6.13
+	// @v10.7.0 THROW(!(Filt.Flags & BillFilt::fCcPrintedOnly) || (f & BILLF_CHECK)); // @v9.7.12
 	if(Filt.Ft_STax > 0)
 		{ THROW(f & BILLF_RMVEXCISE); }
 	else if(Filt.Ft_STax < 0)
@@ -1082,6 +1112,12 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 		{ THROW(f2 & BILLF2_DECLINED); }
 	else if(Filt.Ft_Declined < 0)
 		{ THROW(!(f2 & BILLF2_DECLINED)); }
+	// @v10.7.0 {
+	if(Filt.Ft_CheckPrintStatus > 0)
+		{ THROW(f & BILLF_CHECK); }
+	else if(Filt.Ft_CheckPrintStatus < 0)
+		{ THROW(!(f & BILLF_CHECK)); }
+	// } @v10.7.0 
 	// @v9.1.6 {
     if(Filt.EdiRecadvStatus) {
 		const int recadv_status = pRec ? BillCore::GetRecadvStatus(*pRec) : 0;
@@ -2553,6 +2589,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_RMVEXCISE, Filt.Ft_STax);
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CLOSEDORDER, Filt.Ft_ClosedOrder);
 			dbq = ppcheckflag(dbq, bll->Flags2, BILLF2_DECLINED, Filt.Ft_Declined);
+			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, Filt.Ft_CheckPrintStatus); // @v10.7.0
 			// @v9.1.6 {
 			{
 				DBE * p_dbe_1 = 0;
@@ -2609,7 +2646,7 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_NEEDPAYMENT,   BIN(Filt.Flags & BillFilt::fPaymNeeded));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_WHITELABEL,    BIN(Filt.Flags & BillFilt::fLabelOnly));
 				dbq = ppcheckflag(dbq, bll->Flags, BILLF_TOTALDISCOUNT, BIN(Filt.Flags & BillFilt::fDiscountOnly));
-				dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK,         BIN(Filt.Flags & BillFilt::fCcPrintedOnly)); // @v9.7.12
+				// @v10.7.0 dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, (Filt.Flags & BillFilt::fCcNotPrintedOnly) ? -1 : BIN(Filt.Flags & BillFilt::fCcPrintedOnly)); // @erik v10.6.13
 			}
 			q->where(*dbq);
 			//

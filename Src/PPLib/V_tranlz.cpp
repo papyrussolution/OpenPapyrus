@@ -2299,6 +2299,41 @@ int SLAPI PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				ok = -1;
 				ViewGraph();
 				break;
+			case PPVCMD_PUTTOBASKET: // @v10.7.0
+				if(!P_Ct && P_TrGrpngTbl) {
+					if(Filt.Grp == TrfrAnlzFilt::gGoods && !Filt.Sgg) {
+						TempTrfrGrpngTbl::Rec rec;
+						BrwHdr hdr;
+						if(GetBrwHdr(pHdr, &hdr) && SearchByID(P_TrGrpngTbl, 0, hdr.__ID, &rec) > 0) {
+							AddGoodsToBasket(labs(rec.GoodsID), 0/*locID*/, 1.0/*qtty*/, 0.0/*price*/);
+							ok = -1;
+						}
+					}
+				}
+				break;
+			case PPVCMD_PUTTOBASKETALL: // @v10.7.0
+				if(!P_Ct && P_TrGrpngTbl) {
+					if(Filt.Grp == TrfrAnlzFilt::gGoods && !Filt.Sgg) {
+						SelBasketParam param;
+						param.SelPrice = 3;
+						int    r = GetBasketByDialog(&param, GetSymb());
+						if(r > 0) {
+							TrfrAnlzViewItem item;
+							PPWait(1);
+							for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+								ILTI   i_i;
+								i_i.GoodsID  = labs(item.GoodsID);
+								i_i.Quantity = 1.0;
+								param.Pack.AddItem(&i_i, 0, param.SelReplace);
+							}
+							PPWait(0);
+							if(param.Pack.Lots.getCount()) {
+								GoodsBasketDialog(param, 1);
+							}
+						}
+					}
+				}
+				break;
 			case PPVCMD_EDITGOODS:
 			case PPVCMD_EDITPERSON:
 				if(!P_Ct && P_TrGrpngTbl) {

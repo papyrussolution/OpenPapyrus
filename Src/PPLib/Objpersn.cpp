@@ -2452,7 +2452,7 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 void ReplPrsnDialog::replyKindSelected(int i)
 {
 	SetupPPObjCombo(this, (i ? CTLSEL_REPLPRSN_PRSN2 : CTLSEL_REPLPRSN_PRSN1), PPOBJ_PERSON, 0, 0,
-		(void *)getCtrlLong(i ? CTLSEL_REPLPRSN_KIND2 : CTLSEL_REPLPRSN_KIND1));
+		reinterpret_cast<void *>(getCtrlLong(i ? CTLSEL_REPLPRSN_KIND2 : CTLSEL_REPLPRSN_KIND1)));
 	if(Addr)
 		PsnObj.SetupDlvrLocCombo(this, (i ? CTLSEL_REPLPRSN_ADDR2 : CTLSEL_REPLPRSN_ADDR1), 0, 0);
 }

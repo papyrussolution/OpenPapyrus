@@ -1481,6 +1481,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 		do {
 			pIter->DivID = 0;
 			pIter->Qtty = pIter->Price = 0.0;
+			PTR32(pIter->ChZnCode)[0]; // @v10.7.0
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);

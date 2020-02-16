@@ -4711,6 +4711,7 @@
 	#define CTL_BILLEXTFLT_RECADVCFM     (31 + WINDOWS_ID_BIAS)
 	#define CTL_BILLEXT_AGREEMENT        (32 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLEXT_AGREEMENT     (33 + WINDOWS_ID_BIAS)
+	#define CTL_BILLEXTFLT_CHECKPRST     (34 + WINDOWS_ID_BIAS)
 
 #define DLG_OPRPOP                408 // Параметры зачета для вида операции
 	#define CTL_OPRPOP_LIST              (1 + WINDOWS_ID_BIAS)
@@ -6563,6 +6564,8 @@
 	#define CTLSEL_TODOFILT_TEMPLATE     (30 + WINDOWS_ID_BIAS)
 	#define CTL_TODOFILT_SUBST           (31 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TODOFILT_SUBST        (32 + WINDOWS_ID_BIAS)
+	#define CTL_TODOFILT_PRJ             (33 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TODOFILT_PRJ          (34 + WINDOWS_ID_BIAS)
 //                                657 // Occupied (DLG_PALMGROUP)
 #define DLG_SELNEWPALM            658 // Выбор вида новой записи для StyloPalm (устройство или группа)
 	#define CTL_SELNEWPALM_WHAT          (1 + WINDOWS_ID_BIAS)
@@ -8755,6 +8758,7 @@
 	#define CTL_CNROUND_DISPREC           (2 + WINDOWS_ID_BIAS)
 	#define CTL_CNROUND_AMTDIR            (3 + WINDOWS_ID_BIAS)
 	#define CTL_CNROUND_AMTPREC           (4 + WINDOWS_ID_BIAS)
+	#define CTL_IGNPANNYFROMBCARD         (5 + WINDOWS_ID_BIAS)
 //                               1038 // Occupied by DLG_GBSTRUC_N
 #define DLG_LOGSMON              1039
 	#define CTL_LOGSMON_LIST              (1 + WINDOWS_ID_BIAS)

@@ -1746,7 +1746,7 @@ int SLAPI STimeSeries::GetChunkRecentCount(uint count, STimeSeries & rResult) co
 	return ok;
 }
 
-int SLAPI STimeSeries::GetChunkRecentSince(const SUniTime & rSince, STimeSeries & rResult) const
+int SLAPI STimeSeries::GetChunkRecentSince(const SUniTime & rSince, const SUniTime * pTill, STimeSeries & rResult) const
 {
 	int    ok = -1;
 	uint   first_idx = 0;
@@ -1754,7 +1754,18 @@ int SLAPI STimeSeries::GetChunkRecentSince(const SUniTime & rSince, STimeSeries 
 	if(SearchFirstEntrySince(rSince, &first_idx) > 0) {
 		const  uint tsc = GetCount();
 		for(uint i = first_idx; i < tsc; i++) {
-			THROW(rResult.AddItemFromSample(*this, i));
+			// @v10.7.0 {
+			if(pTill) {
+				const SUniTime & r_ut = T.at(i);
+				int    sq;
+				int    si = r_ut.Compare(*pTill, &sq);
+				if(si <= 0 && oneof2(sq, SUniTime::cqSure, SUniTime::cqUncertain)) {
+					THROW(rResult.AddItemFromSample(*this, i));
+				}
+			}
+			else { // } @v10.7.0 
+				THROW(rResult.AddItemFromSample(*this, i));
+			}
 		}
 		ok = 1;
 	}

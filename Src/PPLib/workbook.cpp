@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
