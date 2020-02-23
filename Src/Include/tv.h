@@ -109,6 +109,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 	//    0 - ошибка (внутреннее состояние не изменилось)
 	//
 	int    FASTCALL SetChar(uint chr);
+	int    FASTCALL SetCharU(wchar_t chr);
 	//
 	// Descr: Преобразуем код виртуальной клавиши this->Code в символ.
 	// Note: Функция "сырая" - преобразование только для латинских и специальных ASCII символов.
@@ -1584,10 +1585,8 @@ public:
 	void   remove(TView * p);
 	void   removeView(TView * p);
 	void   selectNext(/*Boolean forwards*/ /*false*/); // @v9.0.9 Все вызовы имеют парамет forward = False - убираем
-	// @v9.0.1 TView * firstThat(Boolean (*func)(TView *, void *), void *args);
 	void    forEach(void (*func)(TView *, void *), void *args);
 	void    insertBefore(TView *p, TView *Target);
-	// @v9.4.8 TView * FASTCALL at(short index) const;
 	TView * GetFirstView() const;
 	TView * GetCurrentView() const { return P_Current; }
 	TView * GetLastView() const { return P_Last; }
@@ -1599,7 +1598,6 @@ public:
 	int    FASTCALL isCurrCtlID(uint ctlID) const;
 	void   SetCurrentView(TView * p, selectMode mode);
 protected:
-	//
 	TView * P_Current;
 	TView * P_Last;
 	// @v9.0.1 phaseType Phase_;
@@ -2713,13 +2711,11 @@ struct UiItemKind { // @transient
 		kFrame,           // Рамка
 		kLabel,           // Текстовая этикетка, привязанная к другому элементу
 		kRadiobutton,     // Радиокнопка (применяется только как связанный с kRadioCluster элемент)
-
 		kCount            // @anchor Специальный элемент, равный количеству видов
 	};
 
 	static int  GetTextList(StrAssocArray & rList);
 	static int  GetIdBySymb(const char * pSymb);
-
 	explicit UiItemKind(int kind = kUnkn);
 	int    Init(int kind);
 

@@ -1,5 +1,6 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -71,12 +72,12 @@ int SLAPI PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use
 				THROW(r = ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
 				if(r < 0)
 					ok = -1;
-				// Событие PPACN_OBJUPD создано функцией ref->UpdateItem : action не инициалазируем
+				// РЎРѕР±С‹С‚РёРµ PPACN_OBJUPD СЃРѕР·РґР°РЅРѕ С„СѓРЅРєС†РёРµР№ ref->UpdateItem : action РЅРµ РёРЅРёС†РёР°Р»Р°Р·РёСЂСѓРµРј
 			}
 			else {
 				THROW(CheckRights(PPR_INS));
 				THROW(ref->AddItem(Obj, pID, &pPack->Rec, 0));
-				// Событие PPACN_OBJADD создано функцией ref->AddItem : action не инициалазируем
+				// РЎРѕР±С‹С‚РёРµ PPACN_OBJADD СЃРѕР·РґР°РЅРѕ С„СѓРЅРєС†РёРµР№ ref->AddItem : action РЅРµ РёРЅРёС†РёР°Р»Р°Р·РёСЂСѓРµРј
 			}
 			{
 				SString strg_buf, prev_strg_buf;
@@ -87,7 +88,7 @@ int SLAPI PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use
 					THROW(ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, strg_buf));
 					if(ok < 0) {
 						//
-						// Заголовочная запись не изменилась, но изменилась формула либо описание.
+						// Р—Р°РіРѕР»РѕРІРѕС‡РЅР°СЏ Р·Р°РїРёСЃСЊ РЅРµ РёР·РјРµРЅРёР»Р°СЃСЊ, РЅРѕ РёР·РјРµРЅРёР»Р°СЃСЊ С„РѕСЂРјСѓР»Р° Р»РёР±Рѕ РѕРїРёСЃР°РЅРёРµ.
 						//
 						ok = 1;
 						action = PPACN_OBJUPD;
@@ -171,7 +172,7 @@ public:
 
 		setCtrlString(CTL_BIZPRCRT_PRMTVNAME, BizScoreName);
 
-		// Выбор примитива
+		// Р’С‹Р±РѕСЂ РїСЂРёРјРёС‚РёРІР°
 		long id = 0;
 		uint pos = 0;
 		SString str;
@@ -195,11 +196,11 @@ public:
 		id = (Primitiv_List.SearchByText(Primitiv_List.Get(Data.Kind-1).Txt, 1, &(pos = 0)) > 0) ? (uint)Primitiv_List.Get(pos).Id : 0;
 		SetupStrAssocCombo(this, CTLSEL_BIZPRCRT_PRIMITIV, &Primitiv_List, (long)id, 0);
 
-		// В зависимости от выбранного примитива активируем/блокируем остальные параметры
+		// Р’ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїСЂРёРјРёС‚РёРІР° Р°РєС‚РёРІРёСЂСѓРµРј/Р±Р»РѕРєРёСЂСѓРµРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 		DisableControls(id);
 		//
 
-		// Выбор модификатора
+		// Р’С‹Р±РѕСЂ РјРѕРґРёС„РёРєР°С‚РѕСЂР°
 		ushort v = 0;
 		switch(Data.Sub) {
 			case DL2_Score::subAmount: v = 1; break;
@@ -217,7 +218,7 @@ public:
 		setCtrlData(CTL_BIZPRCRT_MODIF, &v);
 		//
 
-		// Аргументы
+		// РђСЂРіСѓРјРµРЅС‚С‹
 		PPID   loc_id = 0;
 		SetPeriodInput(this, CTL_BIZPRCRT_PERIOD, &Data.Period);
 		SetupPPObjCombo(this, CTLSEL_BIZPRCRT_LOC, PPOBJ_LOCATION, Data.LocListID, 0, 0);
@@ -225,7 +226,7 @@ public:
 		setCtrlData(CTL_BIZPRCRT_OPSYMB, Data.OpCode);
 		//
 
-		// Сравнение с периодом
+		// РЎСЂР°РІРЅРµРЅРёРµ СЃ РїРµСЂРёРѕРґРѕРј
 		switch(Data.Cmp) {
 			case DL2_Score::cmpDD: v = 1; break;
 			case DL2_Score::cmpMM: v = 2; break;
@@ -330,11 +331,11 @@ private:
 	{
 		switch(id + 1) {
 			case DL2_Score::kBill:
-				// Активируем
+				// РђРєС‚РёРІРёСЂСѓРµРј
 				disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTLSEL_BIZPRCRT_LOC, CTL_BIZPRCRT_OPSYMB, 0L);
-				// Блокируем
+				// Р‘Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(1, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
-				// Модифиакторы
+				// РњРѕРґРёС„РёР°РєС‚РѕСЂС‹
 				//disableCtrls(0, CTL_BIZPRCRT_MODIF, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
@@ -354,7 +355,7 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 1);
 				break;
 			case DL2_Score::kPaym:
-				// Все разблокируем
+				// Р’СЃРµ СЂР°Р·Р±Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(0, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 2, 0);
@@ -368,11 +369,11 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 0);
 				break;
 			case DL2_Score::kCCheck:
-				// Активируем
+				// РђРєС‚РёРІРёСЂСѓРµРј
 				disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
-				// Блокируем
+				// Р‘Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(1, CTL_BIZPRCRT_OPSYMB, 0L);
-				// Модифиакторы
+				// РњРѕРґРёС„РёР°РєС‚РѕСЂС‹
 				//disableCtrls(0, CTL_BIZPRCRT_MODIF, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
@@ -392,11 +393,11 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 1);
 				break;
 			case DL2_Score::kGoodsRest:
-				// Активируем
+				// РђРєС‚РёРІРёСЂСѓРµРј
 				disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
-				// Блокируем
+				// Р‘Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(1, CTL_BIZPRCRT_OPSYMB, 0L);
-				// Модифиакторы
+				// РњРѕРґРёС„РёР°РєС‚РѕСЂС‹
 				//disableCtrls(0, CTL_BIZPRCRT_MODIF, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
@@ -416,7 +417,7 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 1);
 				break;
 			case DL2_Score::kPersonEvent:
-				// Все разблокируем
+				// Р’СЃРµ СЂР°Р·Р±Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(0, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 2, 0);
@@ -430,12 +431,12 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 0);
 				break;
 			case DL2_Score::kDebt:
-				// Активируем
+				// РђРєС‚РёРІРёСЂСѓРµРј
 				disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, 0L);
-				// Блокируем
+				// Р‘Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(1, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
-				// Модифиакторы
-				// Здесь сначала блокируем все, а потом разблокируем нужные
+				// РњРѕРґРёС„РёР°РєС‚РѕСЂС‹
+				// Р—РґРµСЃСЊ СЃРЅР°С‡Р°Р»Р° Р±Р»РѕРєРёСЂСѓРµРј РІСЃРµ, Р° РїРѕС‚РѕРј СЂР°Р·Р±Р»РѕРєРёСЂСѓРµРј РЅСѓР¶РЅС‹Рµ
 				//disableCtrls(1, CTL_BIZPRCRT_MODIF, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
@@ -455,12 +456,12 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 10, 1);
 				break;
 			case DL2_Score::kBizScore:
-				// Активируем
+				// РђРєС‚РёРІРёСЂСѓРµРј
 				disableCtrls(0, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, 0L);
-				// Блокируем
+				// Р‘Р»РѕРєРёСЂСѓРµРј
 				disableCtrls(1, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, 0L);
-				// Модифиакторы
-				// Здесь сначала блокируем все, а потом разблокируем нужные
+				// РњРѕРґРёС„РёР°РєС‚РѕСЂС‹
+				// Р—РґРµСЃСЊ СЃРЅР°С‡Р°Р»Р° Р±Р»РѕРєРёСЂСѓРµРј РІСЃРµ, Р° РїРѕС‚РѕРј СЂР°Р·Р±Р»РѕРєРёСЂСѓРµРј РЅСѓР¶РЅС‹Рµ
 				//disableCtrls(1, CTL_BIZPRCRT_MODIF, 0L);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 0, 0);
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 1, 0);
@@ -480,7 +481,7 @@ private:
 				DisableClusterItem(CTL_BIZPRCRT_MODIF, 8, 1);
 				break;
 			default:
-				// Блокируем все
+				// Р‘Р»РѕРєРёСЂСѓРµРј РІСЃРµ
 				disableCtrls(1, CTLSEL_BIZPRCRT_LOC, CTLSEL_BIZPRCRT_GOODSGRP, CTL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_OPSYMB, CTL_BIZPRCRT_MODIF, 0L);
 		}
 	}
@@ -497,15 +498,16 @@ private:
 // } @vmiller
 
 class BizScoreDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBizScorePacket);
 public:
 	BizScoreDialog() : TDialog(DLG_BIZSCORE)
 	{
 		PPObjBizScore bsc_obj;
 		enableCommand(cmOK, bsc_obj.CheckRights(PPR_MOD));
 	}
-	int    setDTS(const PPBizScorePacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		setCtrlLong(CTL_BIZSCORE_ID, Data.Rec.ID);
 		setCtrlData(CTL_BIZSCORE_NAME, Data.Rec.Name);
 		setCtrlData(CTL_BIZSCORE_SYMB, Data.Rec.Symb);
@@ -515,7 +517,7 @@ public:
 		SetRealRangeInput(this, CTL_BIZSCORE_BOUNDS, &Data.Rec.Bounds);
 		return 1;
 	}
-	int    getDTS(PPBizScorePacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -570,7 +572,6 @@ private:
 			getCtrlString(CTL_BIZSCORE_FORMULA, Data.Formula);
 		}
 	}
-	PPBizScorePacket Data;
 	PPObjBizScore BscObj;
 };
 
@@ -1136,7 +1137,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 		PPGlobalUserAcc user_acc;
 		PPObjGlobalUserAcc glb_obj;
 		//
-		// Регистрация пользователей из найденных файлов
+		// Р РµРіРёСЃС‚СЂР°С†РёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёР· РЅР°Р№РґРµРЅРЅС‹С… С„Р°Р№Р»РѕРІ
 		//
 		bizsc_path.SetLastSlash();
 		{
@@ -1187,7 +1188,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 		}
 		THROW_PP(glb_obj.CheckPassword(pUserName, pPassword, &user_acc) > 0, PPERR_INVUSERORPASSW);
 		//
-		// Прием данных из xml файла, если он существует.
+		// РџСЂРёРµРј РґР°РЅРЅС‹С… РёР· xml С„Р°Р№Р»Р°, РµСЃР»Рё РѕРЅ СЃСѓС‰РµСЃС‚РІСѓРµС‚.
 		//
 		{
 			SString str_guid;
@@ -1245,7 +1246,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 			}
 		}
 		//
-		// Чтение данных из БД и их отправка
+		// Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РёР· Р‘Р” Рё РёС… РѕС‚РїСЂР°РІРєР°
 		//
 		bizsc_list.freeAll();
 		THROW(bizsc_tbl.GetLastList(user_acc.ID, &bizsc_list));
@@ -1895,9 +1896,9 @@ int SLAPI PrcssrBizScore::Run()
 			LDATETIME end = getcurdatetime_();
 			//if(cmp(start, end) == 0) {
 				//
-				// Если расчет произведен слишком быстро, то
-				// делаем искусственную задержку во избежании
-				// дублирования индекса {Dt, Tm, ScoreID} таблицы BizScore
+				// Р•СЃР»Рё СЂР°СЃС‡РµС‚ РїСЂРѕРёР·РІРµРґРµРЅ СЃР»РёС€РєРѕРј Р±С‹СЃС‚СЂРѕ, С‚Рѕ
+				// РґРµР»Р°РµРј РёСЃРєСѓСЃСЃС‚РІРµРЅРЅСѓСЋ Р·Р°РґРµСЂР¶РєСѓ РІРѕ РёР·Р±РµР¶Р°РЅРёРё
+				// РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃР° {Dt, Tm, ScoreID} С‚Р°Р±Р»РёС†С‹ BizScore
 				//
 				SDelay(20);
 			//}
@@ -1992,20 +1993,20 @@ int GlobalBizScoreArray::Add(const PPGlobalUserAcc & rGuaRec, const GlobalBizSco
 		do_add = 0;
 		if(p_val->ActualDate <= curdt) {
 			//
-			// Если расчетная дата нового элемента меньше или равна текущей,
-			// то существующий элемент удаляется в том случае, если его расчетная //
-			// дата меньше, чем у нового элемента (новый элемент "ближе" к текущему дню)
-			// или больше текущей даты (новый элемент "более актуальный", так не пытается //
-			// отражать будущее).
+			// Р•СЃР»Рё СЂР°СЃС‡РµС‚РЅР°СЏ РґР°С‚Р° РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РјРµРЅСЊС€Рµ РёР»Рё СЂР°РІРЅР° С‚РµРєСѓС‰РµР№,
+			// С‚Рѕ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚ СѓРґР°Р»СЏРµС‚СЃСЏ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РµРіРѕ СЂР°СЃС‡РµС‚РЅР°СЏ //
+			// РґР°С‚Р° РјРµРЅСЊС€Рµ, С‡РµРј Сѓ РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° (РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ "Р±Р»РёР¶Рµ" Рє С‚РµРєСѓС‰РµРјСѓ РґРЅСЋ)
+			// РёР»Рё Р±РѕР»СЊС€Рµ С‚РµРєСѓС‰РµР№ РґР°С‚С‹ (РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ "Р±РѕР»РµРµ Р°РєС‚СѓР°Р»СЊРЅС‹Р№", С‚Р°Рє РЅРµ РїС‹С‚Р°РµС‚СЃСЏ //
+			// РѕС‚СЂР°Р¶Р°С‚СЊ Р±СѓРґСѓС‰РµРµ).
 			//
 			if(diff > 0 || p_item->ActualDate > curdt)
 				do_add = 1;
 		}
 		else {
 			//
-			// Если расчетная дата нового элемента больше текущей,
-			// то существующий элемент удаляется в том случае, если его расчетная //
-			// дата больше, чем у нового элемента (новый элемент "ближе" к текущему дню)
+			// Р•СЃР»Рё СЂР°СЃС‡РµС‚РЅР°СЏ РґР°С‚Р° РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° Р±РѕР»СЊС€Рµ С‚РµРєСѓС‰РµР№,
+			// С‚Рѕ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚ СѓРґР°Р»СЏРµС‚СЃСЏ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РµРіРѕ СЂР°СЃС‡РµС‚РЅР°СЏ //
+			// РґР°С‚Р° Р±РѕР»СЊС€Рµ, С‡РµРј Сѓ РЅРѕРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° (РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ "Р±Р»РёР¶Рµ" Рє С‚РµРєСѓС‰РµРјСѓ РґРЅСЋ)
 			//
 			if(diff < 0)
 				do_add = 1;
@@ -2217,14 +2218,14 @@ int PPALDD_BizScore::Set(long iterId, int commit)
 				if(p_blk->Pack.Rec.Symb[0] == 0)
 					STRNSCPY(p_blk->Pack.Rec.Symb, p_blk->PreservePack.Rec.Symb);
 			}
-			// @todo Здесь проверить корректность полей
+			// @todo Р—РґРµСЃСЊ РїСЂРѕРІРµСЂРёС‚СЊ РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РїРѕР»РµР№
 		}
 		else {
-			// @todo Ошибка (в этой структуре нет итераторов)
+			// @todo РћС€РёР±РєР° (РІ СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ РЅРµС‚ РёС‚РµСЂР°С‚РѕСЂРѕРІ)
 		}
 	}
 	else {
-		// Здесь сохраняем пакет p_blk->Pack в БД
+		// Р—РґРµСЃСЊ СЃРѕС…СЂР°РЅСЏРµРј РїР°РєРµС‚ p_blk->Pack РІ Р‘Р”
 		PPID   id = p_blk->Pack.Rec.ID;
 		THROW(bs_obj.PutPacket(&id, &p_blk->Pack, 1));
 	}

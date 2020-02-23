@@ -3732,7 +3732,7 @@ int SLAPI PPObjBill::CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID go
 		if(cpc) {
 			cp_list.sort(PTR_CMPFUNC(_2long));
 			do {
-				CpEntry * p_entry = (CpEntry *)cp_list.at(--cpc);
+				const CpEntry * p_entry = static_cast<const CpEntry *>(cp_list.at(--cpc));
 				if(p_entry->OpID == orderOpID) {
 					rest -= fabs(p_entry->Qtty);
 				}

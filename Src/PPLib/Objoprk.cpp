@@ -2774,7 +2774,8 @@ int SLAPI PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 
 int SLAPI PPObjOprKind::AddBySample(PPID * pID, PPID sampleID)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	uint   i = 0;
 	SString temp_buf;
 	PPOprKindPacket pack;

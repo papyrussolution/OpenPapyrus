@@ -33,13 +33,9 @@ static ulong debugMaxMemSize = 0; // @global
 static xmlMutex * xmlMemMutex = NULL; // @global
 
 void xmlMallocBreakpoint();
-
-/************************************************************************
-*									*
-*		Macros, variables and associated types			*
-*									*
-************************************************************************/
-
+// 
+// Macros, variables and associated types
+// 
 #if !defined(LIBXML_THREAD_ENABLED) && !defined(LIBXML_THREAD_ALLOC_ENABLED)
 	#ifdef xmlMalloc
 		#undef xmlMalloc
@@ -248,11 +244,10 @@ void * xmlMemMalloc(size_t size)
  *
  * Returns a pointer to the allocated area or NULL in case of lack of memory.
  */
-
 void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 {
 	MEMHDR * p, * tmp;
-	unsigned long number;
+	ulong  number;
 #ifdef DEBUG_MEMORY
 	size_t oldsize;
 #endif
@@ -279,7 +274,7 @@ void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 	debugmem_list_delete(p);
 #endif
 	xmlMutexUnlock(xmlMemMutex);
-	tmp = (MEMHDR *)SAlloc::R(p, RESERVE_SIZE+size);
+	tmp = static_cast<MEMHDR *>(SAlloc::R(p, RESERVE_SIZE+size));
 	if(!tmp) {
 		SAlloc::F(p);
 		goto error;
@@ -339,7 +334,7 @@ void xmlMemFree(void * ptr)
 #endif
 	if(ptr == NULL)
 		return;
-	if(ptr == (void *)-1) {
+	if(ptr == reinterpret_cast<void *>(-1)) {
 		xmlGenericError(0, "trying to free pointer from freed area\n");
 		goto error;
 	}
@@ -348,7 +343,7 @@ void xmlMemFree(void * ptr)
 		xmlMallocBreakpoint();
 	}
 	TEST_POINT
-    target = (char *)ptr;
+    target = static_cast<char *>(ptr);
 	p = CLIENT_2_HDR(ptr);
 	if(p->mh_tag != MEMTAG) {
 		Mem_Tag_Err(p);

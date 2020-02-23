@@ -1,5 +1,5 @@
 // SRNG.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020
 //
 // Random Number Generators
 //
@@ -87,7 +87,11 @@ double SRng::GetUniformPos()
 
 class SRngMT : public SRng {
 public:
-	SRngMT(Algorithm alg, uint level);
+	SRngMT(Algorithm alg, uint level) : SRng(alg, level, 0, 0xffffffffUL)
+	{
+		assert(alg == algMT); // @v10.3.1 @fix (=)-->(==)
+		assert(oneof3(level, 0, 1999, 1998));
+	}
 	virtual void   Set(ulong seed);
 	virtual ulong  Get();
 	virtual double GetReal();
@@ -96,12 +100,6 @@ private:
 	int    Mti;
 	// @#{0, 1999, 1998}
 };
-
-SRngMT::SRngMT(Algorithm alg, uint level) : SRng(alg, level, 0, 0xffffffffUL)
-{
-	assert(alg == algMT); // @v10.3.1 @fix (=)-->(==)
-	assert(oneof3(level, 0, 1999, 1998));
-}
 
 void SRngMT::Set(ulong seed)
 {
@@ -186,7 +184,11 @@ double SRngMT::GetReal()
 //
 class SRngUnix : public SRng {
 public:
-	SRngUnix(Algorithm alg, uint bits);
+	SRngUnix(Algorithm alg, uint bits) : SRng(alg, bits, 0, 0x7fffffffUL), I(0), J(0)
+	{
+		assert(oneof3(alg, algBSD, algLibC5, algGLibC2));
+		assert(oneof5(bits, 8, 32, 64, 128, 256));
+	}
 	virtual void   Set(ulong seed);
 	virtual ulong  Get();
 	virtual double GetReal();
@@ -195,12 +197,6 @@ private:
 	int    J;
 	long   X[64];
 };
-
-SRngUnix::SRngUnix(Algorithm alg, uint bits) : SRng(alg, bits, 0, 0x7fffffffUL), I(0), J(0)
-{
-	assert(oneof3(alg, algBSD, algLibC5, algGLibC2));
-	assert(oneof5(bits, 8, 32, 64, 128, 256));
-}
 
 void SRngUnix::Set(ulong s)
 {
@@ -270,7 +266,24 @@ double SRngUnix::GetReal()
 //
 class SRngRANLUX : public SRng {
 public:
-	SRngRANLUX(Algorithm alg, uint rank /* 0, 1, 2 */);
+	SRngRANLUX(Algorithm alg, uint rank /* 0, 1, 2 */) : SRng(alg, rank, 0, ((alg == algRANLUX_S) ? 0x00ffffffUL: 0xffffffffUL))
+	{
+		assert(oneof2(alg, algRANLUX_S, algRANLUX_D));
+		if(alg == algRANLUX_S) {
+			assert(oneof3(rank, 0, 1, 2));
+			IMul = 16777216.0;
+		}
+		else {
+			assert(oneof2(rank, 1, 2));
+			IMul = 4294967296.0;
+		}
+		if(rank == 0)
+			Luxury = 109;
+		else if(rank == 1)
+			Luxury = 202;
+		else
+			Luxury = 397;
+	}
 	virtual void   Set(ulong seed);
 	virtual ulong  Get();
 	virtual double GetReal();
@@ -294,25 +307,6 @@ private:
 	double IMul;
 	uint   Luxury;
 };
-
-SRngRANLUX::SRngRANLUX(Algorithm alg, uint rank /* 0, 1, 2 */) : SRng(alg, rank, 0, ((alg == algRANLUX_S) ? 0x00ffffffUL: 0xffffffffUL))
-{
-	assert(oneof2(alg, algRANLUX_S, algRANLUX_D));
-	if(alg == algRANLUX_S) {
-		assert(oneof3(rank, 0, 1, 2));
-		IMul = 16777216.0;
-	}
-	else {
-		assert(oneof2(rank, 1, 2));
-		IMul = 4294967296.0;
-	}
-	if(rank == 0)
-		Luxury = 109;
-	else if(rank == 1)
-		Luxury = 202;
-	else
-		Luxury = 397;
-}
 
 #define NEXT_CYCLE_12(idx) ((idx)+1)%12
 #define NEXT_CYCLE_24(idx) ((idx)+1)%24
@@ -1123,7 +1117,7 @@ int SRandGenerator::GetProbabilityEvent(double prob)
 	assert(prob >= 0.0 && prob <= 1.0);
 	int    result = 0;
 	if(P_Inner) {
-		double rv = P_Inner->GetReal();		
+		const double rv = P_Inner->GetReal();		
 		if(rv <= prob)
 			result = 1;
 	}
@@ -1180,9 +1174,9 @@ static void TestRngMax(STestCase * pCase, SRng * pRng, ulong * kmax, ulong ran_m
 	}
 	*kmax = _max;
 	actual_uncovered = ran_max - _max;
-	expect_uncovered = (double)ran_max / (double)N2;
+	expect_uncovered = static_cast<double>(ran_max) / static_cast<double>(N2);
 	pCase->SLTEST_CHECK_LE(_max, ran_max);
-	pCase->SLTEST_CHECK_LE((double)actual_uncovered, 7 * expect_uncovered);
+	pCase->SLTEST_CHECK_LE(static_cast<double>(actual_uncovered), 7 * expect_uncovered);
 }
 
 static void TestRngMin(STestCase * pCase, SRng * pRng, ulong * kmin, ulong ran_min, ulong ran_max)
@@ -1443,6 +1437,28 @@ SLTEST_R(RandomNumberGenerator)
 				SLTEST_CHECK_EQ(test_buffer[e], fix_byte);
 			}
         }
+	}
+	{
+		//
+		// Тестирование функции SRandGenerator::GetProbabilityEvent
+		//
+		SRandGenerator rg;
+		const uint tc_list[]     = { /*1000, 10000,*/ 100000, 1000000 };
+		const double prob_list[] = { 0.01, 0.37, 0.701, 0.1223 };
+		for(uint tci = 0; tci < SIZEOFARRAY(tc_list); tci++) {
+			for(uint pi = 0; pi < SIZEOFARRAY(prob_list); pi++) {
+				double prob = prob_list[pi];
+				const uint tc = tc_list[tci];
+				uint true_result_count = 0;
+				for(uint i = 0; i < tc; i++) {
+					int ev = rg.GetProbabilityEvent(prob);
+					if(ev)
+						true_result_count++;
+				}
+				double result_prob = static_cast<double>(true_result_count) / static_cast<double>(tc);
+				SLTEST_CHECK_EQ_TOL(result_prob, prob, 0.001);
+			}
+		}
 	}
 	return CurrentStatus;
 }

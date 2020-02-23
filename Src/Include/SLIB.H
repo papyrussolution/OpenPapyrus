@@ -10385,10 +10385,12 @@ public:
 		fStoreVals    = 0x0008  // Сохранять значения в Series
 	};
 	explicit SLAPI  StatBase(long flags);
+	SLAPI  StatBase();
 	virtual SLAPI ~StatBase();
 	virtual int SLAPI Init(long flags);
 	virtual int SLAPI Finish();
-	int    SLAPI Step(double);
+	void   SLAPI Step(double);
+	void   SLAPI Step(const RealArray & rVl);
 	long   SLAPI GetCount() const { return Count; }
 	double SLAPI GetMin() const { return Min; }
 	double SLAPI GetMax() const { return Max; }
@@ -10400,7 +10402,7 @@ public:
 	double SLAPI GetVariance() const;
 	double SLAPI GetStdDev() const;
 	int    SLAPI GetValue(long idx, double * pVal) const;
-	int    SLAPI GetGammaParams(double * pAlpha, double * pBeta) const;
+	void   SLAPI GetGammaParams(double * pAlpha, double * pBeta) const;
 	const  RealArray & GetSeries() const { return Series; }
 protected:
 	long   Flags;
@@ -10415,8 +10417,7 @@ protected:
 	double Skew;     // if (Flags & fExt) (Sum3 / Count) / pow(SumQ / Count, 1.5)
 	double Test_Z;
 	double Test_ChSq;
-	RealArray Series; // Если (Flags & (fGammaTest|fGaussianTest|fStoreVals)), то все поступающие
-		// значения сохраняются в этом массиве
+	RealArray Series; // Если (Flags & (fGammaTest|fGaussianTest|fStoreVals)), то все поступающие значения сохраняются в этом массиве
 };
 
 struct TimSerEntry {
@@ -10611,7 +10612,10 @@ public:
 			stHasTmDup = 0x0002
 		};
 		long   State;
-		double DeltaAvg; // Среднее значение изменения относительно предыдущего значения в долях от единицы
+		int16  LocalDevPtCount; // @v10.7.1 Ширина отрезка для измерения средней величины локального отклонения
+		uint16 Reserve;         // @v10.7.1 @alignment 
+		double DeltaAvg;        // Среднее значение изменения относительно предыдущего значения в долях от единицы
+		double LocalDevAvg;     // @v10.7.1 Среднее стандартное отклонение по узким отрезкам длиной LocalDevPtCount
 	};
 
 	int    SLAPI Analyze(const char * pVecSymb, Stat & rS) const;

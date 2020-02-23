@@ -832,7 +832,7 @@ IMPL_HANDLE_EVENT(GoodsGroupView)
 
 int GoodsGroupView::GetGrpType()
 {
-	return (int)getCtrlUInt16(CTL_GGVIEW_GGRPTYPE);
+	return static_cast<int>(getCtrlUInt16(CTL_GGVIEW_GGRPTYPE));
 }
 
 int GoodsGroupView::InitIteration()

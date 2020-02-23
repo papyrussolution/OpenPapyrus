@@ -4691,6 +4691,10 @@ int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return 1;
 }
 
+SLAPI SpinCtrlGroup::Rec::Rec() : Value(0)
+{
+}
+
 SpinCtrlGroup::SpinCtrlGroup(uint ctlEdit, uint cmdUp, uint ctlUp, uint cmdDown, uint ctlDown, long minVal, long maxVal) :
 	CtlEdit(ctlEdit), CmdUp(cmdUp), CtlUp(ctlUp), CmdDown(cmdDown), CtlDown(ctlDown), MinVal(minVal), MaxVal(maxVal)
 {

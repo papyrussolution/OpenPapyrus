@@ -1,5 +1,5 @@
 // DREAMKAS.CPP
-// Copyright (c) A.Sobolev 2018, 2019
+// Copyright (c) A.Sobolev 2018, 2019, 2020
 // @codepage UTF-8
 // Интерфейс с кассовым порталом DreamKas
 //
@@ -379,8 +379,8 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 						json_t * p_array = new json_t(json_t::tARRAY);
 						THROW_SL(json_insert_child(p_array, json_new_string(temp_buf.Z().Cat(gds_info.ID))));
 						if(etc_bc_pos_list.getCount()) {
-							for(uint j = 0; j < normal_bc_pos_list.getCount(); j++) {
-								(temp_buf = gds_info.P_CodeList->at(normal_bc_pos_list.get(j)-1).Code).Escape().Transf(CTRANSF_INNER_TO_UTF8);
+							for(uint j = 0; j < etc_bc_pos_list.getCount(); j++) { // @v10.7.1 @fix normal_bc_pos_list-->etc_bc_pos_list
+								(temp_buf = gds_info.P_CodeList->at(etc_bc_pos_list.get(j)-1).Code).Escape().Transf(CTRANSF_INNER_TO_UTF8);
 								THROW_SL(json_insert_child(p_array, json_new_string(temp_buf)));
 							}
 						}

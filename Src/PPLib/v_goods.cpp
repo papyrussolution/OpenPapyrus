@@ -5584,7 +5584,7 @@ int PPALDD_GoodsGroupView::NextIteration(PPIterID iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	GoodsGroupView * p_v = static_cast<GoodsGroupView *>(Extra[1].Ptr);
-	GoodsGroupItem  item;
+	GoodsGroupItem item;
 	while(ok < 0 && p_v && p_v->NextIteration(&item) > 0) {
 		if(PPObjGoodsGroup::IsTempAlt(item.ID) <= 0) {
 			I.GrpID     = item.ID;

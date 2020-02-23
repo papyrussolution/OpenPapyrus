@@ -1114,16 +1114,39 @@ static _KeySymb KeySymbList[] = {
 	{ VK_LAUNCH_APP2,         "launchapp2"}
 };
 
-int FASTCALL KeyDownCommand::SetChar(uint chr)
+int FASTCALL KeyDownCommand::SetCharU(wchar_t chr)
 {
 	int    ok = 1;
-	short r = VkKeyScanA(chr); // @v10.4.6 VkKeyScan-->VkKeyScanA
+	short  r = VkKeyScanW(chr); 
 	if(r == -1) {
 		ok = 0;
 	}
 	else {
         State = 0;
-		uint8 _state = (r & 0xff00) >> 16;
+		uint8 _state = (r & 0xff00) >> 8;
+		uint8 _vk = (r & 0x00ff);
+		if(_state & 0x01)
+			State |= stateShift;
+		if(_state & 0x02)
+			State |= stateCtrl;
+		if(_state & 0x04)
+			State |= stateAlt;
+		Code = _vk;
+	}
+	return ok;
+}
+
+int FASTCALL KeyDownCommand::SetChar(uint chr)
+{
+	int    ok = 1;
+	short r = VkKeyScanA(static_cast<char>(chr)); // @v10.4.6 VkKeyScan-->VkKeyScanA
+	//short r2 = VkKeyScanW(static_cast<char>(chr)); // @test
+	if(r == -1) {
+		ok = 0;
+	}
+	else {
+        State = 0;
+		uint8 _state = (r & 0xff00) >> 8;
 		uint8 _vk = (r & 0x00ff);
 		if(_state & 0x01)
 			State |= stateShift;
@@ -1141,20 +1164,22 @@ uint SLAPI KeyDownCommand::GetChar() const
 	uint   c = 0;
 	switch(Code) {
 		case VK_OEM_PLUS:   c = '+'; break;
-		case VK_OEM_COMMA:  c = ','; break;
+		case VK_OEM_COMMA:  c = (State & stateShift) ? '<' : ','; break;
 		case VK_OEM_MINUS:  c = '-'; break;
-		case VK_OEM_PERIOD: c = '.'; break;
+		case VK_OEM_PERIOD: c = (State & stateShift) ? '>' : '.'; break;
 		case VK_MULTIPLY:   c = '*'; break;
 		case VK_ADD:        c = '+'; break;
 		case VK_SUBTRACT:   c = '-'; break;
 		case VK_DECIMAL:    c = '.'; break;
 		case VK_DIVIDE:     c = '/'; break;
 		case VK_RETURN:     c = '\x0D'; break;
+		case VK_OEM_1:      c = (State & stateShift) ? ':' : ';'; break;
 		default:
 			if(Code >= '0' && Code <= '9')
 				c = Code;
-			else if(Code >= 'A' && Code <= 'Z')
-				c = Code;
+			else if(Code >= 'A' && Code <= 'Z') {
+				c = (State & stateShift) ? Code : (Code + ('a'-'A'));
+			}
 			else if(Code >= VK_NUMPAD0 && Code <= VK_NUMPAD9)
 				c = (Code - VK_NUMPAD0) + '0';
 	}

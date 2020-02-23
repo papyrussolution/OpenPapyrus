@@ -1260,27 +1260,57 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 		*/
 		/* @v10.4.2 (если !there_is_enough_margin, то в блоке rPse будет установлен флаг rLackOfMargin) if(there_is_enough_margin)*/ 
 		{
-			LongArray matched_strategies_idx_list;
-			long sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
-			// @20190708 long sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous;
+			PPObjTimeSeries::StrategyContainer::SelectBlock scsb(r_blk.TrendList, &r_blk.StratIndex);
+			scsb.LastTrendIdx = -1;
+			scsb.ChaosFactor = 0;
+			scsb.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
+			scsb.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
+			scsb.P_Ts = &r_blk.T_; // @v10.7.1
+			scsb.Criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
 			if(!(r_blk.Flags & r_blk.fShort))
-				sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
+				scsb.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 			if(!(r_blk.Flags & r_blk.fLong))
-				sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
-			PPObjTimeSeries::BestStrategyBlock _best_result;
-			int last_trend_idx = -1; // @v10.4.11 -1 --> -2 // @v10.5.6 (-2)-->(-1)
-			if(r_blk.Strategies.Select(r_blk.TrendList, last_trend_idx, sel_criterion, &r_blk.StratIndex, _best_result, &matched_strategies_idx_list) > 0) {
+				scsb.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
+			if(r_blk.Strategies.SelectS2(scsb) > 0) {
+				/*LongArray matched_strategies_idx_list;
+				long sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+				// @20190708 long sel_criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous;
+				if(!(r_blk.Flags & r_blk.fShort))
+					sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
+				if(!(r_blk.Flags & r_blk.fLong))
+					sel_criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
+				PPObjTimeSeries::BestStrategyBlock _best_result;
+				int    last_trend_idx = -1; // @v10.4.11 -1 --> -2 // @v10.5.6 (-2)-->(-1)
+				long   chaos_factor = 0; // @v10.7.1
+				if(r_blk.Strategies.SelectS(r_blk.TrendList, last_trend_idx, sel_criterion, chaos_factor, &r_blk.StratIndex, _best_result, &matched_strategies_idx_list) > 0) {*/
 				// @20190515 assert(_best_result.MaxResult >= Cfg.MinPerDayPotential);
-				assert(_best_result.MaxResultIdx >= 0 && _best_result.MaxResultIdx < static_cast<int>(r_blk.Strategies.getCount()));
-				const PPObjTimeSeries::Strategy & r_s = r_blk.Strategies.at(_best_result.MaxResultIdx);
+				assert(scsb.MaxResultIdx >= 0 && scsb.MaxResultIdx < static_cast<int>(r_blk.Strategies.getCount()));
+				const PPObjTimeSeries::Strategy & r_s = r_blk.Strategies.at(scsb.MaxResultIdx);
 				const bool is_sell = LOGIC(r_s.BaseFlags & r_s.bfShort);
 				//
 				// Блок для анализа возможной "шизофрении" алгоритма, в результате которой будет выбран лучший результат
 				// при наличии реверсивного алгоритма, сходного по потенциальному результату.
 				// Пока только вывод в журнал.
 				//
-				PPObjTimeSeries::BestStrategyBlock _best_result_reverse; // Лучший результат для реверсивной ставки
-				long sel_criterion_reverse = sel_criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
+				PPObjTimeSeries::StrategyContainer::SelectBlock scsb_reverse(r_blk.TrendList, &r_blk.StratIndex);
+				scsb_reverse.Criterion = scsb.Criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
+				if(is_sell) {
+					scsb_reverse.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
+					scsb_reverse.Criterion &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
+				}
+				else {
+					scsb_reverse.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
+					scsb_reverse.Criterion &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
+				}
+				scsb_reverse.ChaosFactor = scsb.ChaosFactor;
+				scsb_reverse.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
+				scsb_reverse.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
+				scsb_reverse.P_Ts = &r_blk.T_; // @v10.7.1
+				scsb_reverse.LastTrendIdx = scsb.LastTrendIdx;
+				r_blk.Strategies.SelectS2(scsb_reverse);
+
+				/*PPObjTimeSeries::BestStrategyBlock _best_result_reverse; // Лучший результат для реверсивной ставки
+				long sel_criterion_reverse = scsb.Criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
 				if(is_sell) {
 					sel_criterion_reverse |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 					sel_criterion_reverse &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
@@ -1289,9 +1319,9 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					sel_criterion_reverse |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 					sel_criterion_reverse &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 				}
-				r_blk.Strategies.Select(r_blk.TrendList, last_trend_idx, sel_criterion_reverse, &r_blk.StratIndex, _best_result_reverse, 0);
+				r_blk.Strategies.SelectS(r_blk.TrendList, last_trend_idx, sel_criterion_reverse, chaos_factor, &r_blk.StratIndex, _best_result_reverse, 0);*/
 				//
-				rPse.StrategyPos = static_cast<uint>(_best_result.MaxResultIdx);
+				rPse.StrategyPos = static_cast<uint>(scsb.MaxResultIdx);
 				// @20190515 rPse.ResultPerDay = _best_result.MaxResult;
 				rPse.ResultPerDay = r_s.V.GetResultPerDay(); // @20190515
 				const double min_cost = EvaluateCost(r_blk, is_sell, r_blk.VolumeMin, ecfTrickChf); // @v10.4.10 ecfTrickChf
@@ -1314,8 +1344,8 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 							rPse.Volume = __volume;
 							rPse.AdjustedResultPerDay = __adjusted_result_per_day;
 							rPse.ArrangeCritValue = __arrange_crit_value; // !
-							rPse.Tv  = _best_result.TvForMaxResult;
-							rPse.Tv2 = _best_result.Tv2ForMaxResult;
+							rPse.Tv  = scsb.TvForMaxResult;
+							rPse.Tv2 = scsb.Tv2ForMaxResult;
 							if(there_is_enough_margin)
 								ok = 1;
 							else {
@@ -1329,8 +1359,8 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 				// CatCharN(' ', 8) для выравнивания с вероятным выводом reverse-результата
 				SString msl_buf;
 				msl_buf.CatChar('{');
-				for(uint mslidx = 0; mslidx < matched_strategies_idx_list.getCount(); mslidx++) {
-					const uint si = static_cast<uint>(matched_strategies_idx_list.get(mslidx));
+				for(uint mslidx = 0; mslidx < scsb.AllSuitedPosList.getCount(); mslidx++) {
+					const uint si = static_cast<uint>(scsb.AllSuitedPosList.get(mslidx));
 					if(si < r_blk.Strategies.getCount()) {
 						const PPObjTimeSeries::Strategy & r_ms = r_blk.Strategies.at(si);
 						if(r_ms.BaseFlags & r_ms.bfShort)
@@ -1343,14 +1373,22 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 				log_msg.Z().Cat("Best").CatCharN(' ', 8).Cat(msl_buf).CatDiv(':', 2).Cat(r_blk.PPTS.GetSymb()).Space().
 					CatEq("min-cost", min_cost, MKSFMTD(0, 5, 0)).Space().
 					CatEq("volume", __volume, MKSFMTD(0, 0, 0)).Space().
-					CatEq("adjusted-result-per-day", __adjusted_result_per_day, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Space().
-					CatEq("arrange-crit-value", __arrange_crit_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Space().
-					Cat(PPObjTimeSeries::StrategyToString(r_s, &_best_result.TvForMaxResult, &_best_result.Tv2ForMaxResult, temp_buf));
+					// @v10.7.1 CatEq("adjusted-result-per-day", __adjusted_result_per_day, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Space().
+					// @v10.7.1 CatEq("arrange-crit-value", __arrange_crit_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).Space().
+					// @v10.7.1 {
+					CatChar('[').
+						Cat(scsb.TrendErrRel, MKSFMTD(0, 4, 0)).Space().
+						Cat(scsb.MainTrendErrRel, MKSFMTD(0, 4, 0)).Space().
+						Cat(scsb.LocalDeviation, MKSFMTD(0, 4, 0)).Space().
+						Cat(scsb.LocalDeviation2, MKSFMTD(0, 4, 0)).
+					CatChar(']').Space().
+					// } @v10.7.1 
+					Cat(PPObjTimeSeries::StrategyToString(r_s, &scsb.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
 				PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
-				if(_best_result_reverse.MaxResultIdx >= 0) {
-					const PPObjTimeSeries::Strategy & r_s_reverse = r_blk.Strategies.at(_best_result_reverse.MaxResultIdx);
+				if(scsb_reverse.MaxResultIdx >= 0) {
+					const PPObjTimeSeries::Strategy & r_s_reverse = r_blk.Strategies.at(scsb_reverse.MaxResultIdx);
 					log_msg.Z().Cat("Best-Reverse").CatDiv(':', 2).Cat(r_blk.PPTS.GetSymb()).Space().Cat(
-						PPObjTimeSeries::StrategyToString(r_s_reverse, &_best_result_reverse.TvForMaxResult, &_best_result.Tv2ForMaxResult, temp_buf));
+						PPObjTimeSeries::StrategyToString(r_s_reverse, &scsb_reverse.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
 					PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
 			}

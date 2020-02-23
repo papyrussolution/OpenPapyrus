@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Список соответствий Товар(Группа товаров) - Объект
@@ -13,7 +13,7 @@
 SLAPI GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing) : AsscType(asscTyp), ObjType(objType), Flags(0)
 {
 	SETFLAG(Flags, fDup, dupAllowing);
-	MEMSZERO(NoaRec);
+	// @v10.7.1 @ctr MEMSZERO(NoaRec);
 	if(asscTyp > 1000) {
 		PPObjNamedObjAssoc noa_obj;
 		THROW(noa_obj.Search(asscTyp, &NoaRec) > 0);
@@ -519,17 +519,56 @@ int SLAPI ViewGoodsToObjAssoc(long extraParam) { return PPView::Execute(PPVIEW_G
 //
 //
 //
+SLAPI PPNamedObjAssoc2::PPNamedObjAssoc2()
+{
+	THISZERO();
+}
+
 SLAPI PPObjNamedObjAssoc::PPObjNamedObjAssoc(void * extraPtr) : PPObjReference(PPOBJ_NAMEDOBJASSOC, extraPtr)
 {
 }
 
 class NamedObjAssocDialog : public TDialog {
+	DECL_DIALOG_DATA(PPNamedObjAssoc);
 public:
 	NamedObjAssocDialog() : TDialog(DLG_NOBJASSC)
 	{
 	}
-	int    setDTS(const PPNamedObjAssoc * pData);
-	int    getDTS(PPNamedObjAssoc * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		PPIDArray obj_type_list;
+		obj_type_list.addzlist(PPOBJ_GOODS, 0L);
+		SetupObjListCombo(this, CTLSEL_NOBJASSC_PRMR, Data.PrmrObjType, &obj_type_list);
+		obj_type_list.clear();
+		obj_type_list.addzlist(PPOBJ_LOCATION, PPOBJ_ARTICLE, 0);
+		SetupObjListCombo(this, CTLSEL_NOBJASSC_SCND, Data.ScndObjType, &obj_type_list);
+		setCtrlData(CTL_NOBJASSC_NAME, Data.Name);
+		setCtrlData(CTL_NOBJASSC_SYMB, Data.Symb);
+		setCtrlLong(CTL_NOBJASSC_ID, Data.ID);
+		disableCtrl(CTL_NOBJASSC_ID, 1);
+		SetupScndObjGrp();
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		PPObjNamedObjAssoc noa_obj;
+		getCtrlData(sel = CTL_NOBJASSC_NAME, Data.Name);
+		THROW(noa_obj.CheckName(Data.ID, Data.Name, 1));
+		getCtrlData(sel = CTL_NOBJASSC_SYMB, Data.Symb);
+		THROW(PPRef->CheckUniqueSymb(PPOBJ_NAMEDOBJASSOC, Data.ID, Data.Symb, offsetof(PPNamedObjAssoc, Symb)));
+		getCtrlData(sel = CTLSEL_NOBJASSC_PRMR, &Data.PrmrObjType);
+		THROW_PP(Data.PrmrObjType, PPERR_OBJTYPENEEDED);
+		getCtrlData(sel = CTLSEL_NOBJASSC_SCND, &Data.ScndObjType);
+		THROW_PP(Data.ScndObjType, PPERR_OBJTYPENEEDED);
+		getCtrlData(CTLSEL_NOBJASSC_SCNDGRP, &Data.ScndObjGrp);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -545,7 +584,6 @@ private:
 		}
 	}
 	void   SetupScndObjGrp();
-	PPNamedObjAssoc Data;
 };
 
 void NamedObjAssocDialog::SetupScndObjGrp()
@@ -566,43 +604,6 @@ void NamedObjAssocDialog::SetupScndObjGrp()
 	disableCtrl(CTLSEL_NOBJASSC_SCNDGRP, dsbl_grp);
 }
 
-int NamedObjAssocDialog::setDTS(const PPNamedObjAssoc * pData)
-{
-	int    ok = 1;
-	Data = *pData;
-	PPIDArray obj_type_list;
-	obj_type_list.addzlist(PPOBJ_GOODS, 0L);
-	SetupObjListCombo(this, CTLSEL_NOBJASSC_PRMR, Data.PrmrObjType, &obj_type_list);
-	obj_type_list.clear();
-	obj_type_list.addzlist(PPOBJ_LOCATION, PPOBJ_ARTICLE, 0);
-	SetupObjListCombo(this, CTLSEL_NOBJASSC_SCND, Data.ScndObjType, &obj_type_list);
-	setCtrlData(CTL_NOBJASSC_NAME, Data.Name);
-	setCtrlData(CTL_NOBJASSC_SYMB, Data.Symb);
-	setCtrlLong(CTL_NOBJASSC_ID, Data.ID);
-	disableCtrl(CTL_NOBJASSC_ID, 1);
-	SetupScndObjGrp();
-	return ok;
-}
-
-int NamedObjAssocDialog::getDTS(PPNamedObjAssoc * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	PPObjNamedObjAssoc noa_obj;
-	getCtrlData(sel = CTL_NOBJASSC_NAME, Data.Name);
-	THROW(noa_obj.CheckName(Data.ID, Data.Name, 1));
-	getCtrlData(sel = CTL_NOBJASSC_SYMB, Data.Symb);
-	THROW(PPRef->CheckUniqueSymb(PPOBJ_NAMEDOBJASSOC, Data.ID, Data.Symb, offsetof(PPNamedObjAssoc, Symb)));
-	getCtrlData(sel = CTLSEL_NOBJASSC_PRMR, &Data.PrmrObjType);
-	THROW_PP(Data.PrmrObjType, PPERR_OBJTYPENEEDED);
-	getCtrlData(sel = CTLSEL_NOBJASSC_SCND, &Data.ScndObjType);
-	THROW_PP(Data.ScndObjType, PPERR_OBJTYPENEEDED);
-	getCtrlData(CTLSEL_NOBJASSC_SCNDGRP, &Data.ScndObjGrp);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 int SLAPI PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
@@ -612,8 +613,7 @@ int SLAPI PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
+	// @v10.7.1 @ctr else {  MEMSZERO(rec); }
 	dlg->setDTS(&rec);
 	while(ok == cmCancel && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&rec)) {

@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -3617,7 +3617,7 @@ int FASTCALL SStringU::IsEqual(const SStringU & rS) const
 					case 3: return BIN(P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
 					case 4: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
 					case 8: return BIN(PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0] && PTR64(P_Buf)[1] == PTR64(rS.P_Buf)[1]);
-					default: return BIN(memcmp(P_Buf, rS.P_Buf, len) == 0);
+					default: return BIN(memcmp(P_Buf, rS.P_Buf, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
 				}
 			}
 			else
@@ -3644,7 +3644,7 @@ int FASTCALL SStringU::IsEqual(const wchar_t * pS) const
 					case 3: return BIN(P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
 					case 4: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
 					case 8: return BIN(PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
-					default: return BIN(memcmp(P_Buf, pS, len) == 0);
+					default: return BIN(memcmp(P_Buf, pS, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
 				}
 			}
 			else

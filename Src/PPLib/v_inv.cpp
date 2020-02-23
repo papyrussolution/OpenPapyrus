@@ -2202,6 +2202,7 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 {
 	long   n = I.LineNo+1;
 	START_PPVIEW_ALDD_ITER(Inventory);
+	I.ItemBillID    = item.BillID; // @v10.7.1
 	I.LineNo        = item.OprNo;
 	I.WritedOff     = BIN(item.Flags & INVENTF_WRITEDOFF);
 	I.ItemID        = item.GoodsID;

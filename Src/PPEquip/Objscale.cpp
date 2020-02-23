@@ -5387,45 +5387,41 @@ struct ScalePrepData {
 };
 
 class ScalePrepDlg : public TDialog {
+	DECL_DIALOG_DATA(ScalePrepData);
 public:
 	ScalePrepDlg(uint rezID) : TDialog(rezID)
 	{
 	}
-	int    setDTS(const ScalePrepData *);
-	int    getDTS(ScalePrepData *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		if(Data.ScaleID == 0) {
+			PPID   temp_id = 0;
+			if(ScaleObj.EnumItems(&temp_id) > 0) {
+				Data.ScaleID = temp_id;
+				if(ScaleObj.EnumItems(&temp_id) > 0)
+					Data.ScaleID = 0;
+			}
+		}
+		SetupPPObjCombo(this, CTLSEL_SCALEPREP_SCALE, PPOBJ_SCALE, Data.ScaleID, OLW_CANSELUPLEVEL, 0);
+		AddClusterAssoc(CTL_SCALEPREP_FLAGS, 0, PPObjScale::fTrUpdateOnly);
+		SetClusterData(CTL_SCALEPREP_FLAGS, Data.Flags);
+		SetReadyStatus();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTLSEL_SCALEPREP_SCALE, &Data.ScaleID);
+		GetClusterData(CTL_SCALEPREP_FLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    SetReadyStatus();
 	PPObjScale ScaleObj;
-	ScalePrepData Data;
 };
-
-int ScalePrepDlg::setDTS(const ScalePrepData * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	if(Data.ScaleID == 0) {
-		PPID   temp_id = 0;
-		if(ScaleObj.EnumItems(&temp_id) > 0) {
-			Data.ScaleID = temp_id;
-			if(ScaleObj.EnumItems(&temp_id) > 0)
-				Data.ScaleID = 0;
-		}
-	}
-	SetupPPObjCombo(this, CTLSEL_SCALEPREP_SCALE, PPOBJ_SCALE, Data.ScaleID, OLW_CANSELUPLEVEL, 0);
-	AddClusterAssoc(CTL_SCALEPREP_FLAGS, 0, PPObjScale::fTrUpdateOnly);
-	SetClusterData(CTL_SCALEPREP_FLAGS, Data.Flags);
-	SetReadyStatus();
-	return 1;
-}
-
-int ScalePrepDlg::getDTS(ScalePrepData * pData)
-{
-	getCtrlData(CTLSEL_SCALEPREP_SCALE, &Data.ScaleID);
-	GetClusterData(CTL_SCALEPREP_FLAGS, &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
 
 int ScalePrepDlg::SetReadyStatus()
 {

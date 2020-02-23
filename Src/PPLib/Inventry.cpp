@@ -1821,7 +1821,7 @@ int SLAPI TestGenerateInventory()
 						SOemToChar(item.GoodsName);
 						goods_obj.GetSingleBarcode(goods_rec.ID, item.Barcode, sizeof(item.Barcode));
 						grp.GoodsID = goods_rec.ID;
-						BillObj->trfr->GetRest(&grp);
+						BillObj->trfr->GetRest(grp);
 						double diff = fabs(SLS.GetTLA().Rg.GetGaussian(sqrt(0.2)));
 						item.Quantity = grp.Total.Rest * diff;
 						//

@@ -115,6 +115,11 @@ SLAPI StatBase::StatBase(long flags)
 	Init(flags);
 }
 
+SLAPI StatBase::StatBase()
+{
+	Init(0);
+}
+
 SLAPI StatBase::~StatBase()
 {
 }
@@ -160,15 +165,22 @@ int SLAPI StatBase::Finish()
 	return 1;
 }
 
-int SLAPI StatBase::Step(double val)
+void SLAPI StatBase::Step(const RealArray & rVl)
+{
+	for(uint i = 0; i < rVl.getCount(); i++) {
+		Step(rVl.at(i));
+	}
+}
+
+void SLAPI StatBase::Step(double val)
 {
 	Count++;
 	IterCount++;
+	SETMAX(Max, val);
+	SETMIN(Min, val);
 	Sum[0] += val;
 	double sq = val * val;
 	Sum[1] += sq;
-	SETMAX(Max, val);
-	SETMIN(Min, val);
 	if(Flags & fExt) {
 		Sum[2] += sq * val;
 		Sum[3] += sq * sq;
@@ -176,12 +188,19 @@ int SLAPI StatBase::Step(double val)
 	if(Flags & (fGammaTest|fGaussianTest|fStoreVals)) {
 		Series.insert(&val);
 	}
-	return 1;
 }
 
 double SLAPI StatBase::GetSum() const { return Sum[0]; }
-double SLAPI StatBase::GetVariance() const { return (Count > 1) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0; }
-double SLAPI StatBase::GetStdDev() const { return sqrt(GetVariance()); }
+double SLAPI StatBase::GetVariance() const 
+{ 
+	// Если все значения, поданные на вход были равны, то без проверки (Min != Max) результат может быть NAN
+	return (Count > 1 && Min != Max) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0; // @v10.7.1 (&& Min != Max) 
+}
+
+double SLAPI StatBase::GetStdDev() const 
+{ 
+	return sqrt(GetVariance()); 
+}
 
 int SLAPI StatBase::GetValue(long idx, double * pVal) const
 {
@@ -193,13 +212,12 @@ int SLAPI StatBase::GetValue(long idx, double * pVal) const
 	return ok;
 }
 
-int SLAPI StatBase::GetGammaParams(double * pAlpha, double * pBeta) const
+void SLAPI StatBase::GetGammaParams(double * pAlpha, double * pBeta) const
 {
 	double beta = fdivnz(GetVariance(), GetExp());
 	double alpha = fdivnz(GetExp(), beta);
 	ASSIGN_PTR(pAlpha, alpha);
 	ASSIGN_PTR(pBeta, beta);
-	return 1;
 }
 //
 //
@@ -1449,7 +1467,7 @@ int SLAPI STimeSeries::GetRealArray(uint vecIdx, uint startItemIdx, uint idxCoun
 	return ok;
 }
 
-SLAPI STimeSeries::Stat::Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0)
+SLAPI STimeSeries::Stat::Stat(long flags) : StatBase(flags), State(0), DeltaAvg(0.0), LocalDevPtCount(0), Reserve(0), LocalDevAvg(0.0)
 {
 }
 
@@ -1458,15 +1476,19 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count,
 	int    ok = 1;
 	uint   vec_idx = 0;
 	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	TSQueue <double> * p_local_dev_queue = 0;
 	THROW(p_vec);
 	assert(firstIdx >= 0 && firstIdx < GetCount());
 	assert((firstIdx+count) <= GetCount());
 	THROW(firstIdx >= 0 && firstIdx < GetCount());
 	THROW((firstIdx+count) <= GetCount());
 	{
-		//const  uint _c = GetCount();
 		const uint _c = (firstIdx+count);
 		StatBase stat_delta(0);
+		StatBase stat_local_dev(0);
+		if(rS.LocalDevPtCount > 0) {
+			THROW(p_local_dev_queue = new TSQueue <double>(rS.LocalDevPtCount));
+		}
 		rS.State |= Stat::stSorted;
 		SUniTime prev_utm;
 		SUniTime utm;
@@ -1488,16 +1510,56 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count,
 				if(i > firstIdx) {
 					double delta = (value - prev_value) / prev_value;
 					stat_delta.Step(fabs(delta));
+					if(rS.LocalDevPtCount > 0) {
+						assert(p_local_dev_queue);
+						p_local_dev_queue->push(value);
+						const uint ldqc = p_local_dev_queue->getNumItems();
+						if(ldqc >= static_cast<uint>(rS.LocalDevPtCount)) {
+							assert(ldqc == static_cast<uint>(rS.LocalDevPtCount));
+							StatBase temp_stat_local_dev(0);
+#ifndef NDEBUG
+							double ldq_values[64];
+							memzero(ldq_values, sizeof(ldq_values));
+#endif // NDEBUG
+							for(uint k = 0; k < ldqc; k++) {
+								const double qv = p_local_dev_queue->get(k);
+#ifndef NDEBUG
+								{
+									ldq_values[k] = qv;
+									const void * p_temp_value_buf = p_vec->at(i-rS.LocalDevPtCount+1+k);
+									double temp_value = p_vec->ConvertInnerToDouble(p_temp_value_buf);
+									assert(temp_value == qv);
+								}
+#endif // NDEBUG
+								temp_stat_local_dev.Step(qv);
+							}
+							temp_stat_local_dev.Finish();
+							if(temp_stat_local_dev.GetMax() == temp_stat_local_dev.GetMin())
+								stat_local_dev.Step(0.0);
+							else {
+								const double tsld_stddev = temp_stat_local_dev.GetStdDev();
+								if(feqeps(tsld_stddev, 0.0, 1E-10))
+									stat_local_dev.Step(0.0);
+								else {
+									assert(tsld_stddev >= 0.0);
+									stat_local_dev.Step(tsld_stddev);
+								}
+							}
+						}
+					}
 				}
 				prev_value = value;
 			}
 			prev_utm = utm;
 		}
 		stat_delta.Finish();
+		stat_local_dev.Finish(); // @v10.7.1
 		rS.Finish();
 		rS.DeltaAvg = stat_delta.GetExp();
+		rS.LocalDevAvg = stat_local_dev.GetExp(); // @v10.7.1
 	}
 	CATCHZOK
+	delete p_local_dev_queue;
 	return ok;
 }
 

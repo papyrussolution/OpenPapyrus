@@ -1490,7 +1490,8 @@ void SmartListBox::Implement_Draw()
 					lvi.mask  = LVIF_TEXT;
 					lvi.iItem = i;
 					if(def) {
-						long id = 0, img_idx = 0;
+						long id = 0;
+						long img_idx = 0;
 						if(def->Options & lbtAutoID)
 							id = item;
 						else

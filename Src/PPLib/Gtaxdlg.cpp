@@ -1,5 +1,5 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -137,14 +137,29 @@ int GoodsTaxDialog::getDTS(PPGoodsTaxPacket * pData)
 }
 
 class GoodsTaxListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPGoodsTaxPacket);
 public:
 	GoodsTaxListDialog() : PPListDialog(DLG_GDSTAXLST, CTL_GDSTAXLST_LIST)
 	{
 		disableCtrl(CTL_GDSTAXLST_NAME, 1);
 		updateList(-1);
 	}
-	int    setDTS(const PPGoodsTaxPacket *);
-	int    getDTS(PPGoodsTaxPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_GDSTAXLST_NAME, Data.Rec.Name);
+		setCtrlData(CTL_GDSTAXLST_ID, &Data.Rec.ID);
+		disableCtrl(CTL_GDSTAXLST_ID, 1);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTL_GDSTAXLST_NAME, Data.Rec.Name);
+		*pData = Data;
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -153,8 +168,6 @@ private:
 	virtual int  delItem(long pos, long id);
 	int    editItemDialog(int, PPGoodsTaxEntry *);
 	void   addBySample();
-
-	PPGoodsTaxPacket Data;
 };
 
 IMPL_HANDLE_EVENT(GoodsTaxListDialog)
@@ -164,25 +177,6 @@ IMPL_HANDLE_EVENT(GoodsTaxListDialog)
 		addBySample();
 		clearEvent(event);
 	}
-}
-
-int GoodsTaxListDialog::setDTS(const PPGoodsTaxPacket * pData)
-{
-	Data = *pData;
-
-	setCtrlData(CTL_GDSTAXLST_NAME, Data.Rec.Name);
-	setCtrlData(CTL_GDSTAXLST_ID, &Data.Rec.ID);
-	disableCtrl(CTL_GDSTAXLST_ID, 1);
-	updateList(-1);
-	return 1;
-}
-
-int GoodsTaxListDialog::getDTS(PPGoodsTaxPacket * pData)
-{
-	int    ok = 1;
-	getCtrlData(CTL_GDSTAXLST_NAME, Data.Rec.Name);
-	*pData = Data;
-	return ok;
 }
 
 int GoodsTaxListDialog::setupList()
@@ -292,7 +286,6 @@ int SLAPI PPObjGoodsTax::AddBySample(PPID * pID, long sampleID)
 	PPGoodsTaxPacket pack;
 	GoodsTaxDialog * dlg = 0;
 	if(GetPacket(sampleID, &pack) > 0) {
-		//PPGoodsTaxEntry * p_entry;
 		pack.Rec.ID = 0;
 		for(uint i = 0; i < pack.GetCount(); i++) {
 			pack.Get(i).TaxGrpID = 0;

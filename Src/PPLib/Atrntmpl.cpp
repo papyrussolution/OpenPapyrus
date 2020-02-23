@@ -1284,9 +1284,9 @@ IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 				P_List->getCurID(&i);
 				long   id = (i & ~0xff000000L);
 				switch(i >> 24) {
-					case selSymbAmount:   upd = (AtObj.Edit(&id, 0) == cmOK)  ? 1 : 0; break;
-					case selSymbFormula:  upd = (FrmObj.Edit(&id, 0) == cmOK) ? 1 : 0; break;
-					case selSymbStaffCal: upd = (ScObj.Edit(&id, 0) == cmOK)  ? 1 : 0; break;
+					case selSymbAmount:   upd = BIN(AtObj.Edit(&id, 0) == cmOK); break;
+					case selSymbFormula:  upd = BIN(FrmObj.Edit(&id, 0) == cmOK); break;
+					case selSymbStaffCal: upd = BIN(ScObj.Edit(&id, 0) == cmOK); break;
 				}
 				if(upd)
 					updateList();

@@ -70,20 +70,22 @@ int SLAPI CSessCrDraftParam::Read(SBuffer & rBuf, long)
 //
 //
 //
-#define GRP_POSNODE 1
-
 class SelectRuleDialog : public TDialog {
+	enum {
+		ctlgroupPosNode = 1
+	};
+	DECL_DIALOG_DATA(CSessCrDraftParam);
 public:
 	SelectRuleDialog(uint dlgId) : TDialog(dlgId)
 	{
 		SetupCalPeriod(CTLCAL_DFRULESEL_PERIOD, CTL_DFRULESEL_PERIOD);
-		addGroup(GRP_POSNODE, new PosNodeCtrlGroup(CTLSEL_DFRULESEL_NODE, cmPosNodeList));
+		addGroup(ctlgroupPosNode, new PosNodeCtrlGroup(CTLSEL_DFRULESEL_NODE, cmPosNodeList));
 	}
-	int    setDTS(const CSessCrDraftParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
-		setGroupData(GRP_POSNODE, &cn_rec);
+		setGroupData(ctlgroupPosNode, &cn_rec);
 		SetPeriodInput(this, CTL_DFRULESEL_PERIOD, &Data.Period);
 		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULEGRP, PPOBJ_DFCREATERULE, Data.RuleGrpID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYGROUPS));
 		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, Data.RuleID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYRULES));
@@ -93,12 +95,12 @@ public:
 		SetClusterData(CTL_DFRULESEL_FLAGS2, Data.Flags);
 		return 1;
 	}
-	int    getDTS(CSessCrDraftParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = CTL_DFRULESEL_RULE;
 		PosNodeCtrlGroup::Rec cn_rec;
-		THROW(getGroupData(GRP_POSNODE, &cn_rec));
+		THROW(getGroupData(ctlgroupPosNode, &cn_rec));
 		Data.NodeList = cn_rec.List;
 		THROW(GetPeriodInput(this, sel = CTL_DFRULESEL_PERIOD, &Data.Period));
 		Data.RuleGrpID = getCtrlLong(CTLSEL_DFRULESEL_RULEGRP);
@@ -120,7 +122,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	CSessCrDraftParam Data;
 };
 
 static int SLAPI SelectRule(CSessCrDraftParam * pData) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_DFRULESEL, pData); }
@@ -164,10 +165,13 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class CSessFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(CSessFilt);
+		enum {
+			ctlgroupPosNode = 1
+		};
 	public:
 		CSessFiltDialog() : TDialog(DLG_CSESSFILT)
 		{
-			addGroup(GRP_POSNODE, new PosNodeCtrlGroup(CTLSEL_CSESSFILT_NODE, cmPosNodeList));
+			addGroup(ctlgroupPosNode, new PosNodeCtrlGroup(CTLSEL_CSESSFILT_NODE, cmPosNodeList));
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -194,7 +198,7 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			}
 			{
 				PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList_);
-				setGroupData(GRP_POSNODE, &cn_rec);
+				setGroupData(ctlgroupPosNode, &cn_rec);
 			}
 			setCtrlData(CTL_CSESSFILT_CASHN, &Data.CashNumber);
 			return 1;
@@ -208,7 +212,7 @@ int SLAPI PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			GetPeriodInput(this, sel = CTL_CSESSFILT_PERIOD, &Data.Period);
 			PosNodeCtrlGroup::Rec cn_rec;
 			THROW(ObjRts.AdjustCSessPeriod(Data.Period, 1)); // @v9.2.11
-			THROW(getGroupData(sel = GRP_POSNODE, &cn_rec));
+			THROW(getGroupData(sel = ctlgroupPosNode, &cn_rec));
 			Data.NodeList_ = cn_rec.List;
 			getCtrlData(CTL_CSESSFILT_CASHN, &Data.CashNumber);
 			ASSIGN_PTR(pData, Data);
@@ -1214,9 +1218,83 @@ void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 }
 
 // virtual
+int SLAPI PPObjDraftCreateRule::Browse(void * extraPtr)
+{
+	class DraftCreateRuleBrowseDialog : public ObjViewDialog {
+	public:
+		DraftCreateRuleBrowseDialog(PPObjDraftCreateRule * pObj, void * extraPtr) : ObjViewDialog(DLG_DFCRRULEVIEW, pObj, extraPtr)
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			ObjViewDialog::handleEvent(event);
+			if(event.isCmd(cmAddBySample) && P_Obj) {
+				PPID   sample_id = getCurrID();
+				if(sample_id) {
+					PPID   new_id = 0;
+					if(static_cast<PPObjDraftCreateRule *>(P_Obj)->AddBySample(&new_id, sample_id) == cmOK) {
+						updateList(new_id);
+					}
+				}
+				clearEvent(event);
+			}
+		}
+	};
+	int    ok = cmCancel;
+	THROW(CheckRights(PPR_READ));
+	{
+		DraftCreateRuleBrowseDialog * p_dlg = new DraftCreateRuleBrowseDialog(this, extraPtr);
+		THROW(CheckDialogPtr(&p_dlg));
+		ok = ExecViewAndDestroy(p_dlg);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
+{
+	int    ok = cmCancel;
+	SString temp_buf;
+	PPDfCreateRulePacket pack;
+	DraftCreateRuleDialog * dlg = 0;
+	THROW(CheckRights(PPR_INS));
+	if(GetPacket(sampleID, &pack) > 0) {
+		pack.Rec.ID = 0;
+		//
+		// Подстановка уникального имени
+		//
+		for(long i = 1; i < 999; i++) {
+			(temp_buf = pack.Rec.Name).Space().CatChar('#').CatLongZ(i, 3);
+			if(CheckDupName(0, temp_buf)) {
+				temp_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+				break;
+			}
+		}
+		if(CheckDialogPtrErr(&(dlg = new DraftCreateRuleDialog()))) {
+			dlg->setDTS(&pack);
+			for(int valid_data = 0; !valid_data && (ok = ExecView(dlg)) == cmOK;) {
+				if(dlg->getDTS(&pack) > 0) {
+					THROW(CheckRightsModByID(pID));
+					THROW(PutPacket(pID, &pack, 1));
+					valid_data = 1;
+				}
+				else
+					PPError();
+			}
+		}
+	}
+	CATCHZOK
+	delete dlg;
+	return ok;
+}
+
+// virtual
 int SLAPI PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, r = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	ushort v = 0;
 	int    is_new = (*pID == 0);
 	DraftCreateRuleDialog * p_dlg = 0;

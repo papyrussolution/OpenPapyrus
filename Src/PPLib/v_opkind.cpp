@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -386,40 +386,15 @@ SArray * SLAPI PPViewOprKind::CreateBrowserArray(uint * pBrwId, SString * pSubTi
 	return p_array;
 }
 
-/*int SLAPI PPViewOprKind::AddItem()
-{
-	int    ok = -1;
-	PPID   id = 0;
-	if(OpkObj.Edit(&id, Filt.OpTypeID, Filt.LinkOpID) == cmOK)
-		ok = 1;
-	return ok;
-}*/
-
-/*int SLAPI PPViewOprKind::EditItem(PPID id)
-{
-	int    ok = -1;
-	if(id) {
-		if(OpkObj.Edit(&id, 0, 0) == cmOK)
-			ok = 1;
-	}
-	return ok;
-}*/
-
 int SLAPI PPViewOprKind::AddBySample(PPID sampleID)
 {
 	PPID   id = 0;
 	return (OpkObj.AddBySample(&id, sampleID) == cmOK) ? 1 : -1;
 }
 
-/*int SLAPI PPViewOprKind::DeleteItem(PPID opID)
-{
-	return opID ? OpkObj.RemoveObjV(opID, 0, PPObject::rmv_default, 0) : -1;
-}*/
-
 int SLAPI PPViewOprKind::ViewLinkOps(PPID opID)
 {
 	OprKindFilt filt;
-	//filt.Init();
 	filt.LinkOpID = opID;
 	return PPView::Execute(PPVIEW_OPRKIND, &filt, 1, 0);
 }

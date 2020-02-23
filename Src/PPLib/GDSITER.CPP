@@ -130,7 +130,7 @@ const IterCounter & SLAPI GoodsIterator::GetIterCounter() const { return Counter
 int SLAPI GoodsIterator::Init(int aOrder)
 {
 	Filt.Init(1, 0);
-	return Init((GoodsFilt*)0, aOrder);
+	return Init(static_cast<const GoodsFilt *>(0), aOrder);
 }
 
 int SLAPI GoodsIterator::FilterList(PPIDArray * pSrcList, PPIDArray * pDestList, long implFlags)

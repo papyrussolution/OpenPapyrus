@@ -1303,15 +1303,15 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 		for(idx = 0; idx < hdr.IndexCount; idx++) {
 			THROW(Read(stream, &idx_item, sizeof(idx_item)));
 			MEMSZERO(idx_rec);
-			idx_rec.DBID     = (short)hdr.DBID;
-			idx_rec.ObjType  = (short)idx_item.ObjType;
+			idx_rec.DBID     = static_cast<short>(hdr.DBID);
+			idx_rec.ObjType  = static_cast<short>(idx_item.ObjType);
 			idx_rec.ObjID    = idx_item.ObjID;
 			idx_item.CommID.Get(&idx_rec);
 			idx_rec.FilePos  = idx_item.ObjOffs;
 			idx_rec.ModDt    = idx_item.Mod.d;
 			idx_rec.ModTm    = idx_item.Mod.t;
 			idx_rec.Priority = idx_item.Priority;
-			idx_rec.Flags    = (short)idx_item.Flags;
+			idx_rec.Flags    = static_cast<short>(idx_item.Flags);
 			name_list.getnz(idx_item.ObjNamePos, obj_name);
 			obj_name.CopyTo(idx_rec.ObjName, sizeof(idx_rec.ObjName));
 			THROW_DB(bei.insert(&idx_rec));
@@ -1330,7 +1330,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 				TempSyncCmpTbl::Key0 k0;
 				TempSyncCmpTbl::Key1 k1;
 				LDATETIME dtm;
-				MEMSZERO(sct_rec);
+				// @v10.7.1 @ctr MEMSZERO(sct_rec);
 				THROW(SetupSyncCmpRec(&idx_rec, &sct_rec));
 				dtm.Set(sct_rec.SrcModDt, sct_rec.SrcModTm);
 				MEMSZERO(k0);

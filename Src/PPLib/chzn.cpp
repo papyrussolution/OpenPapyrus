@@ -122,11 +122,13 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 		temp_buf = pCode;
 		if(!temp_buf.IsAscii()) {
 			// Попытка транслировать латинский символ из локальной раскладки клавиатуры
-			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			for(size_t i = 0; i < temp_buf.Len(); i++) {
-				const uchar c = static_cast<uchar>(temp_buf.C(i));
+			SStringU temp_buf_u;
+			//temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
+			for(size_t i = 0; i < temp_buf_u.Len(); i++) {
+				const wchar_t c = temp_buf_u.C(i);
 				KeyDownCommand kd;
-				uint   tc = kd.SetChar(c) ? kd.GetChar() : 0; 
+				uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
 				raw_buf.CatChar(static_cast<char>(tc));
 			}
 			pCode = raw_buf.cptr();
@@ -210,27 +212,38 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CHZNMARK_INPUT)) {
-				getCtrlString(CTL_CHZNMARK_INPUT, CodeBuf.Z());
-				SString msg_buf;
-				SString temp_buf;
-				GtinStruc gts;
-				const int pczcr = PPChZnPrcssr::ParseChZnCode(CodeBuf, gts);
-				if(pczcr) {
-					if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf))
-						msg_buf.Space().CatEq("GTIN14", temp_buf);
-					if(gts.GetToken(GtinStruc::fldSerial, &temp_buf))
-						msg_buf.Space().CatEq("SER", temp_buf);
-					if(gts.GetToken(GtinStruc::fldPart, &temp_buf))
-						msg_buf.Space().CatEq("PART", temp_buf);
-					if(gts.GetToken(GtinStruc::fldSscc18, &temp_buf))
-						msg_buf.Space().CatEq("SSCC18", temp_buf);
-					if(gts.GetToken(GtinStruc::fldPriceRuTobacco, &temp_buf))
-						msg_buf.Space().CatEq("PRICE", temp_buf);
-					//PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
+				static int __lock = 0;
+				if(!__lock) {
+					__lock = 1;
+					getCtrlString(CTL_CHZNMARK_INPUT, CodeBuf.Z());
+					SString msg_buf;
+					SString temp_buf;
+					GtinStruc gts;
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(CodeBuf, gts);
+					if(pczcr) {
+						if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf))
+							msg_buf.Space().CatEq("GTIN14", temp_buf);
+						if(gts.GetToken(GtinStruc::fldSerial, &temp_buf))
+							msg_buf.Space().CatEq("SER", temp_buf);
+						if(gts.GetToken(GtinStruc::fldPart, &temp_buf))
+							msg_buf.Space().CatEq("PART", temp_buf);
+						if(gts.GetToken(GtinStruc::fldSscc18, &temp_buf))
+							msg_buf.Space().CatEq("SSCC18", temp_buf);
+						if(gts.GetToken(GtinStruc::fldPriceRuTobacco, &temp_buf))
+							msg_buf.Space().CatEq("PRICE", temp_buf);
+						//PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
+						// @v10.7.1 {
+						if(gts.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
+							CodeBuf = temp_buf;
+							setCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
+						}
+						// } @v10.7.1 
+					}
+					else
+						PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
+					setStaticText(CTL_CHZNMARK_INFO, msg_buf);
+					__lock = 0;
 				}
-				else
-					PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
-				setStaticText(CTL_CHZNMARK_INFO, msg_buf);
 			}
 		}
 		SString CodeBuf;

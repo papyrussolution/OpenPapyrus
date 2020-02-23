@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -2781,7 +2781,7 @@ int SLAPI PPDebtorStat::Finish()
 	{
 		StatBase stat(StatBase::fGammaTest);
 		for(uint j = 0; j < DelayList.getCount(); j++) {
-			stat.Step((double)DelayList.get(j));
+			stat.Step(static_cast<double>(DelayList.get(j)));
 		}
 		stat.Finish();
 		DelayMean = stat.GetExp();
@@ -2792,7 +2792,7 @@ int SLAPI PPDebtorStat::Finish()
 	{
 		StatBase expiry_stat(0);
 		for(uint j = 0; j < ExpiryList.getCount(); j++) {
-			expiry_stat.Step((double)ExpiryList.get(j));
+			expiry_stat.Step(static_cast<double>(ExpiryList.get(j)));
 		}
 		expiry_stat.Finish();
 		ExpiryMean = expiry_stat.GetExp();

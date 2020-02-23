@@ -2440,7 +2440,7 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 			if(digit >= 0 && digit <= 255) {
 				len = prcsd_symbs;
 				char   srch_buf[8];
-				srch_buf[0] = (char)digit;
+				srch_buf[0] = static_cast<char>(digit);
 				srch_buf[1] = 0;
 				replacestr(pOutBuf, srch_buf, &pos, &len, outBufSize);
 			}
