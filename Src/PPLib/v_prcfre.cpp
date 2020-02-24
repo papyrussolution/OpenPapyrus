@@ -55,7 +55,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
 		setGroupData(ctlgroupPrc, &prc_grp_rec);
 		setCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);

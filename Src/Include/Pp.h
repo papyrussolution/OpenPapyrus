@@ -49824,7 +49824,7 @@ public:
 
 		PPID   PrcID;
 	};
-	PrcCtrlGroup(uint ctlSelPrc);
+	explicit PrcCtrlGroup(uint ctlSelPrc);
 	virtual int    setData(TDialog *, void *);
 	virtual int    getData(TDialog *, void *);
 private:

@@ -1,5 +1,6 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -439,20 +440,20 @@ int SLAPI PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 	return ok;
 }
 //
-// Íîðìàëèçîâàííîå ïðåäñòàâëåíèå ïðîèçâîäèòåëüíîñòè - ýòî êîëè÷åñòâî åäèíèö òîâàðà,
-// îáðàáîòàííîãî çà ñåêóíäó.
+// ÐÐ¾Ñ€Ð¼Ð°Ð»Ð¸Ð·Ð¾Ð²Ð°Ð½Ð½Ð¾Ðµ Ð¿Ñ€ÐµÐ´ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿Ñ€Ð¾Ð¸Ð·Ð²Ð¾Ð´Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚Ð¸ - ÑÑ‚Ð¾ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÐµÐ´Ð¸Ð½Ð¸Ñ† Ñ‚Ð¾Ð²Ð°Ñ€Ð°,
+// Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð·Ð° ÑÐµÐºÑƒÐ½Ð´Ñƒ.
 //
 struct CalcCapacity {
 	SLAPI  CalcCapacity() : Flags(0), Unit(UNIT_SECOND), Val(0.0)
 	{
 	}
 	DECL_INVARIANT_C();
-	// Descr: âîçâðàùàåò íîðìàëèçîâàííîå çíà÷åíèå ïðîèçâîäèòåëüíîñòè
+	// Descr: Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ Ð½Ð¾Ñ€Ð¼Ð°Ð»Ð¸Ð·Ð¾Ð²Ð°Ð½Ð½Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð¿Ñ€Ð¾Ð¸Ð·Ð²Ð¾Ð´Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚Ð¸
 	double SLAPI Normalyze() const;
 	//
-	// Descr: êîíâåðòèðóåò íîðìàëèçîâàííîå ïðåäñòàâëåíèå, çàäàííîå ïàðàìåòðîì val
-	//   â çíà÷åíèå CalcCapacity::Val â ñîîòâåòñòâèè ñ óñòàíîâëåííûìè ïàðàìåòðàìè
-	//   CalcCapacity::Unit è CalcCapacity::Flags
+	// Descr: ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð¸Ñ€ÑƒÐµÑ‚ Ð½Ð¾Ñ€Ð¼Ð°Ð»Ð¸Ð·Ð¾Ð²Ð°Ð½Ð½Ð¾Ðµ Ð¿Ñ€ÐµÐ´ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ, Ð·Ð°Ð´Ð°Ð½Ð½Ð¾Ðµ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð¼ val
+	//   Ð² Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ CalcCapacity::Val Ð² ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²Ð¸Ð¸ Ñ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½Ð½Ñ‹Ð¼Ð¸ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð°Ð¼Ð¸
+	//   CalcCapacity::Unit Ð¸ CalcCapacity::Flags
 	//
 	int    SLAPI SetNorma(double val);
 	SString & SLAPI ToText(SString & rBuf) const
@@ -494,8 +495,7 @@ int SLAPI CalcCapacity::FromText(const char * pBuf)
 		if(ss.get(&pos, temp_buf)) {
 			Unit = atol(temp_buf);
 			//
-			// Îáåñïå÷åíèå îáðàòíîé ñîâìåñòèìîñòè ñ èäåíòèôèêàòîðîìè
-			// åäèíèö èçìåðåíèÿ äî v7.5.8
+			// ÐžÐ±ÐµÑÐ¿ÐµÑ‡ÐµÐ½Ð¸Ðµ Ð¾Ð±Ñ€Ð°Ñ‚Ð½Ð¾Ð¹ ÑÐ¾Ð²Ð¼ÐµÑÑ‚Ð¸Ð¼Ð¾ÑÑ‚Ð¸ Ñ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ð¾Ð¼Ð¸ ÐµÐ´Ð¸Ð½Ð¸Ñ† Ð¸Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ñ Ð´Ð¾ v7.5.8
 			//
 			if(Unit == 0)
 				Unit = UNIT_SECOND;
@@ -581,13 +581,14 @@ int SLAPI CalcCapacity::Restore()
 int SLAPI EditCapacity(CalcCapacity * pData)
 {
 	class CalcCapacityDialog : public TDialog {
+		DECL_DIALOG_DATA(CalcCapacity);
 	public:
 		CalcCapacityDialog() : TDialog(DLG_CAPACITY)
 		{
 		}
-		int    setDTS(const CalcCapacity * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_CAPACITY_TIMEUNIT, 0, UNIT_SECOND);
 			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 1, UNIT_MINUTE);
 			AddClusterAssoc(CTL_CAPACITY_TIMEUNIT, 2, UNIT_HOUR);
@@ -607,7 +608,7 @@ int SLAPI EditCapacity(CalcCapacity * pData)
 			setCtrlReal(CTL_CAPACITY_VAL, Data.Val);
 			return 1;
 		}
-		int    getDTS(CalcCapacity * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			if(getPage()) {
 				Data.Save();
@@ -649,8 +650,6 @@ int SLAPI EditCapacity(CalcCapacity * pData)
 			getCtrlData(CTL_CAPACITY_VAL, &Data.Val);
 			return 1;
 		}
-
-		CalcCapacity Data;
 	};
 	DIALOG_PROC_BODY(CalcCapacityDialog, pData);
 }
@@ -1011,7 +1010,7 @@ int SLAPI PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta
 	}
 	else {
 		rec.Kind = 0;
-		rec.Sign = 1; // Ïî óìîë÷àíèþ - âûõîä
+		rec.Sign = 1; // ÐŸÐ¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ - Ð²Ñ‹Ñ…Ð¾Ð´
 	}
 	if(extraData & TECEXDF_GOODS)
 		rec.GoodsID = (extraData & TECEXDF_MASK);
@@ -1130,8 +1129,8 @@ int SLAPI PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PP
 		}
 		if(!pList->Search(techID)) {
 			//
-			// Âî èçáåæàíèå áåñêîíå÷íîé ðåêóðñèè åùå ðàç ïðîâåðÿåì, ÷òîáû äîáàâëÿåìîé çàïèñè íå áûëî â ñïèñêå
-			// (ïîñëå ïðåäûäóùåé ïðîâåðêè â ñïèñîê ìîã áûòü äîáàâëåí ýëåìåíò techID)
+			// Ð’Ð¾ Ð¸Ð·Ð±ÐµÐ¶Ð°Ð½Ð¸Ðµ Ð±ÐµÑÐºÐ¾Ð½ÐµÑ‡Ð½Ð¾Ð¹ Ñ€ÐµÐºÑƒÑ€ÑÐ¸Ð¸ ÐµÑ‰Ðµ Ñ€Ð°Ð· Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼Ð¾Ð¹ Ð·Ð°Ð¿Ð¸ÑÐ¸ Ð½Ðµ Ð±Ñ‹Ð»Ð¾ Ð² ÑÐ¿Ð¸ÑÐºÐµ
+			// (Ð¿Ð¾ÑÐ»Ðµ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰ÐµÐ¹ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ Ð² ÑÐ¿Ð¸ÑÐ¾Ðº Ð¼Ð¾Ð³ Ð±Ñ‹Ñ‚ÑŒ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ techID)
 			//
 			THROW_SL(pList->Add(techID, parentID, pCode));
 		}
@@ -1176,7 +1175,7 @@ int SLAPI PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, 
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 		if(!(prc_id && goodsID) || P_Tbl->data.GoodsID == labs(goodsID)) {
 			if(id_list.lsearch(P_Tbl->data.ID)) {
-				// Çàöèêëèâàíèå ðåêóðñèè. Ñëåäóåò îáîðâàòü ðåêóðñèþ.
+				// Ð—Ð°Ñ†Ð¸ÐºÐ»Ð¸Ð²Ð°Ð½Ð¸Ðµ Ñ€ÐµÐºÑƒÑ€ÑÐ¸Ð¸. Ð¡Ð»ÐµÐ´ÑƒÐµÑ‚ Ð¾Ð±Ð¾Ñ€Ð²Ð°Ñ‚ÑŒ Ñ€ÐµÐºÑƒÑ€ÑÐ¸ÑŽ.
 				prc_id = 0;
 				break;
 			}
@@ -1272,7 +1271,7 @@ int  SLAPI PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 				TechTbl::Rec rec_by_code;
 				if(SearchByCode(p_pack->Rec.Code, &rec_by_code) > 0 && rec_by_code.ID != same_id) {
 					//
-					// Ïðåäóïðåæäàåì êîíôëèêò ïî êîäó äëÿ çàïèñè, ñîïîñòàâëåííîé ïî {PrcID, GoodsID, GStrucID}
+					// ÐŸÑ€ÐµÐ´ÑƒÐ¿Ñ€ÐµÐ¶Ð´Ð°ÐµÐ¼ ÐºÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚ Ð¿Ð¾ ÐºÐ¾Ð´Ñƒ Ð´Ð»Ñ Ð·Ð°Ð¿Ð¸ÑÐ¸, ÑÐ¾Ð¿Ð¾ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð½Ð¾Ð¹ Ð¿Ð¾ {PrcID, GoodsID, GStrucID}
 					//
                     STRNSCPY(p_pack->Rec.Code, same_rec.Code);
 				}
@@ -1333,12 +1332,12 @@ private:
 		long   GoodsID;     // ->Goods.ID
 		long   GStrucID;    // ->Ref(PPOBJ_GOODSSTRUC)
 		long   Flags;       // TECF_XXX
-		int16  Sign;        // @#{-1,0,+1} -1 - ðàñõîä, +1 - ïðèõîä, 0 - îñòàòîê íå ìåíÿåòñÿ (èñïîëüçîâàíèå) //
+		int16  Sign;        // @#{-1,0,+1} -1 - Ñ€Ð°ÑÑ…Ð¾Ð´, +1 - Ð¿Ñ€Ð¸Ñ…Ð¾Ð´, 0 - Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ðº Ð½Ðµ Ð¼ÐµÐ½ÑÐµÑ‚ÑÑ (Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ðµ) //
 		int16  Kind;        //
 		long   Duration;    //
 		float  InitQtty;    //
-		double Cost;        // Ñóììàðíàÿ ñòîèìîñòü îïåðàöèè íà îäíó òîðãîâóþ åäèíèöó GoodsID
-		double Capacity;    // Ïðîèçâîäèòåëüíîñòü ïðîöåññîðà ProcID ïðè èñïîëüçîâàíèè ýòîé òåõíîëîãèè
+		double Cost;        // Ð¡ÑƒÐ¼Ð¼Ð°Ñ€Ð½Ð°Ñ ÑÑ‚Ð¾Ð¸Ð¼Ð¾ÑÑ‚ÑŒ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð½Ð° Ð¾Ð´Ð½Ñƒ Ñ‚Ð¾Ñ€Ð³Ð¾Ð²ÑƒÑŽ ÐµÐ´Ð¸Ð½Ð¸Ñ†Ñƒ GoodsID
+		double Capacity;    // ÐŸÑ€Ð¾Ð¸Ð·Ð²Ð¾Ð´Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð° ProcID Ð¿Ñ€Ð¸ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ð¸ ÑÑ‚Ð¾Ð¹ Ñ‚ÐµÑ…Ð½Ð¾Ð»Ð¾Ð³Ð¸Ð¸
 		double Rounding;
 	};
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
@@ -1446,56 +1445,51 @@ const TechFilt * SLAPI PPViewTech::GetFilt() const
 }
 
 class TechFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(TechFilt);
 public:
 	TechFiltDialog() : TDialog(DLG_TECHFILT)
 	{
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECHFILT_GGRP, CTLSEL_TECHFILT_GOODS));
 		addGroup(GRP_PRC,   new PrcCtrlGroup(CTLSEL_TECHFILT_PRC));
 	}
-	int    SLAPI setDTS(const TechFilt *);
-	int    SLAPI getDTS(TechFilt *);
-private:
-	TechFilt Data;
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
+		setGroupData(GRP_PRC, &prc_grp_rec);
+		SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_SETUPSINGLE, 0);
+		GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
+		setGroupData(GRP_GOODS, &rec);
+		AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);
+		AddClusterAssoc(CTL_TECHFILT_KIND, 1, 1);
+		AddClusterAssoc(CTL_TECHFILT_KIND, 2, 2);
+		SetClusterData(CTL_TECHFILT_KIND, Data.Kind);
+		AddClusterAssocDef(CTL_TECHFILT_SIGN,  0,  TechFilt::signAll);
+		AddClusterAssoc(CTL_TECHFILT_SIGN,  1,  TechFilt::signMinusOnly);
+		AddClusterAssoc(CTL_TECHFILT_SIGN,  2,  TechFilt::signPlusOnly);
+		AddClusterAssoc(CTL_TECHFILT_SIGN,  3,  TechFilt::signUsageOnly);
+		SetClusterData(CTL_TECHFILT_SIGN, Data.Sign);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		PrcCtrlGroup::Rec prc_grp_rec;
+		GoodsCtrlGroup::Rec rec;
+		getGroupData(GRP_PRC, &prc_grp_rec);
+		Data.PrcID = prc_grp_rec.PrcID;
+		getCtrlData(CTLSEL_TECHFILT_PARENT, &Data.ParentID);
+		sel = CTLSEL_TECHFILT_GOODS;
+		THROW(getGroupData(GRP_GOODS, &rec));
+		Data.GoodsID = rec.GoodsID;
+		GetClusterData(CTL_TECHFILT_KIND, &Data.Kind);
+		GetClusterData(CTL_TECHFILT_SIGN,  &Data.Sign);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 };
-
-int TechFiltDialog::setDTS(const TechFilt * pData)
-{
-	Data = *pData;
-	PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
-	setGroupData(GRP_PRC, &prc_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_TECHFILT_PARENT, PPOBJ_TECH, Data.ParentID, OLW_SETUPSINGLE, 0);
-	GoodsCtrlGroup::Rec rec(0, Data.GoodsID);
-	setGroupData(GRP_GOODS, &rec);
-	AddClusterAssocDef(CTL_TECHFILT_KIND, 0, 0);
-	AddClusterAssoc(CTL_TECHFILT_KIND, 1, 1);
-	AddClusterAssoc(CTL_TECHFILT_KIND, 2, 2);
-	SetClusterData(CTL_TECHFILT_KIND, Data.Kind);
-	AddClusterAssocDef(CTL_TECHFILT_SIGN,  0,  TechFilt::signAll);
-	AddClusterAssoc(CTL_TECHFILT_SIGN,  1,  TechFilt::signMinusOnly);
-	AddClusterAssoc(CTL_TECHFILT_SIGN,  2,  TechFilt::signPlusOnly);
-	AddClusterAssoc(CTL_TECHFILT_SIGN,  3,  TechFilt::signUsageOnly);
-	SetClusterData(CTL_TECHFILT_SIGN, Data.Sign);
-	return 1;
-}
-
-int TechFiltDialog::getDTS(TechFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	PrcCtrlGroup::Rec prc_grp_rec;
-	GoodsCtrlGroup::Rec rec;
-	getGroupData(GRP_PRC, &prc_grp_rec);
-	Data.PrcID = prc_grp_rec.PrcID;
-	getCtrlData(CTLSEL_TECHFILT_PARENT, &Data.ParentID);
-	sel = CTLSEL_TECHFILT_GOODS;
-	THROW(getGroupData(GRP_GOODS, &rec));
-	Data.GoodsID = rec.GoodsID;
-	GetClusterData(CTL_TECHFILT_KIND, &Data.Kind);
-	GetClusterData(CTL_TECHFILT_SIGN,  &Data.Sign);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 
 int SLAPI PPViewTech::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
@@ -1872,10 +1866,10 @@ public:
 		PPID   TransClsID;
 		long   TransMask;
 		int16  PrcKind;       // 1 - prc, 2 - prc group
-		int16  IsTranMask;    // 1 - çàäàíà ìàñêà ïåðåõîäà, 1000 - ìàñêà ïåðåõîäà íå çàäàíà
+		int16  IsTranMask;    // 1 - Ð·Ð°Ð´Ð°Ð½Ð° Ð¼Ð°ÑÐºÐ° Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´Ð°, 1000 - Ð¼Ð°ÑÐºÐ° Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´Ð° Ð½Ðµ Ð·Ð°Ð´Ð°Ð½Ð°
 		int16  GoodsKind;     // 1 - goods, 2 - gen goods, 3 - group, 4 - altgroup, 5 - folder, 1000 - zero
 		int16  PrevGoodsKind; // 1 - goods, 2 - gen goods, 3 - group, 4 - altgroup, 5 - folder, 1000 - zero
-		int16  IsFormula;     // 1 - çàäàíà ôîðìóëà ïåðåõîäà, 1000 - ôîðìóëà ïåðåõîäà íå çàäàíà
+		int16  IsFormula;     // 1 - Ð·Ð°Ð´Ð°Ð½Ð° Ñ„Ð¾Ñ€Ð¼ÑƒÐ»Ð° Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´Ð°, 1000 - Ñ„Ð¾Ñ€Ð¼ÑƒÐ»Ð° Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´Ð° Ð½Ðµ Ð·Ð°Ð´Ð°Ð½Ð°
 		int16  _Align;
 	};
 	ToolingSelector(PPID prcID, PPID goodsID, PPID prevGoodsID) : List(sizeof(Entry)), PrcID(prcID), GoodsID(goodsID), PrevGoodsID(prevGoodsID)
@@ -2057,8 +2051,9 @@ int SLAPI ToolingSelector::IsSuited(const Entry * pEntry)
 			if(TecObj.GetToolingCondition(pEntry->ID, formula) > 0) {
 				GdsClsCalcExprContext ctx(GoodsID, PrevGoodsID);
 				double result = 0.0;
+				const int is_cfg_debug = BIN(CConfig.Flags & CCFLG_DEBUG);
 				if(PPCalcExpression(formula, &result, &ctx)) {
-					if(CConfig.Flags & CCFLG_DEBUG) {
+					if(is_cfg_debug) {
 						SString msg_buf;
 						PPLoadText(PPTXT_LOG_TOOLINGSEL_FORMULA, msg_buf);
 						msg_buf.Space().Cat(formula).Eq().Cat(result, SFMT_QTTY);
@@ -2069,7 +2064,7 @@ int SLAPI ToolingSelector::IsSuited(const Entry * pEntry)
 				}
 				else {
 					is_suited = 0;
-					if(CConfig.Flags & CCFLG_DEBUG)
+					if(is_cfg_debug)
 						PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 				}
 			}

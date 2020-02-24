@@ -1,5 +1,6 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -45,7 +46,7 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 			sub.CatChar(temp_buf.C(p++));
 		}
 		THROW_PP_S(sub.ToLong() > 0 && sub.ToLong() <= 20, PPERR_PRCPLCCODE_INVLEN, pPattern);
-		seq.Len = (uint8)sub.ToLong();
+		seq.Len = static_cast<uint8>(sub.ToLong());
 		THROW_PP_S(temp_buf.C(p) == '[', PPERR_PRCPLCCODE_EXPLBRK, pPattern);
 		p++;
 		sub.Z();
@@ -87,7 +88,7 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 
 void ProcessorPlaceCodeTemplate::Helper_GenerateLevel(int s, const uint32 pCounters[], SString & rBuf) const
 {
-	assert(s >= 0 && s < (int)SeqList.getCount());
+	assert(s >= 0 && s < SeqList.getCountI());
 	const Seq & r_seq = SeqList.at(s);
 	const uint32 c = pCounters[s];
 	if(r_seq.Prefix[0]) {
@@ -103,7 +104,7 @@ void ProcessorPlaceCodeTemplate::Helper_GenerateLevel(int s, const uint32 pCount
 
 int ProcessorPlaceCodeTemplate::Helper_Generate(int s, int fullRow, uint32 pCounters[], SString & rBuf) const
 {
-	assert(s >= 0 && s < (int)SeqList.getCount());
+	assert(s >= 0 && s < SeqList.getCountI());
 	int   ret_pos = s;
 	const Seq & r_seq = SeqList.at(s);
 	if(pCounters[s] <= r_seq.End) {
@@ -113,7 +114,7 @@ int ProcessorPlaceCodeTemplate::Helper_Generate(int s, int fullRow, uint32 pCoun
 			}
 		}
 		Helper_GenerateLevel(s, pCounters, rBuf);
-		if((s+1) < (int)SeqList.getCount()) {
+		if((s+1) < SeqList.getCountI()) {
 			ret_pos = Helper_Generate(s+1, 0, pCounters, rBuf);
 		}
 		else {
@@ -191,12 +192,12 @@ int ProcessorPlaceCodeTemplate::HasCode(const char * pCode) const
 			code.Sub(0, r_seq.Len, sub);
 			THROW(sub.Len() == r_seq.Len);
 			if(r_seq.Type == 1) {
-				ulong v = (ulong)sub.ToLong();
+				ulong v = static_cast<ulong>(sub.ToLong());
 				THROW(v >= r_seq.Start && v <= r_seq.End);
 				code.ShiftLeft(sub.Len());
 			}
 			else if(r_seq.Type == 2) {
-				THROW(sub.Last() >= (char)r_seq.Start && sub.Last() <= (char)r_seq.End);
+				THROW(sub.Last() >= static_cast<char>(r_seq.Start) && sub.Last() <= static_cast<char>(r_seq.End));
 				code.ShiftLeft(sub.Len());
 			}
 		}
@@ -422,7 +423,7 @@ int PPProcessorPacket::ExtBlock::PutPlaceDescription(uint pos, const PPProcessor
 
 PPProcessorPacket::PPProcessorPacket()
 {
-	destroy();
+	// @v10.7.1 destroy();
 }
 
 PPProcessorPacket & PPProcessorPacket::destroy()
@@ -593,7 +594,7 @@ int SLAPI PPObjProcessor::GetParentsList(PPID prcID, PPIDArray * pList)
 		if(Search(id, &rec) > 0 && rec.ParentID) {
 			int    r = id_list.addUnique(rec.ParentID);
 			THROW_SL(r);
-			// Ïðîâåðêà íà öèêëè÷åñêèå ññûëêè {
+			// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ñ†Ð¸ÐºÐ»Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ ÑÑÑ‹Ð»ÐºÐ¸ {
 			THROW_PP_S(r > 0, PPERR_CYCLELINKPRC, rec.Name);
 			// }
 			id = rec.ParentID;
@@ -651,7 +652,7 @@ int SLAPI PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * 
 			if(!rec.LocID || !rec.TimeUnitID || !rec.LinkObjType || !rec.WrOffOpID ||
 				!rec.WrOffArID || !(rec.Flags & PRCF_LOCKWROFF) || !(rec.Flags & PRCF_TURNINCOMPLBILL)) {
 				THROW((useCache ? Fetch(parent_id, &parent_rec) : Search(parent_id, &parent_rec)) > 0);
-				// Ïðîâåðêà íà öèêëè÷åñêèå ññûëêè {
+				// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ñ†Ð¸ÐºÐ»Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ ÑÑÑ‹Ð»ÐºÐ¸ {
 				THROW_PP_S(id_list.lsearch(parent_rec.ParentID) == 0, PPERR_CYCLELINKPRC, parent_rec.Name);
 				id_list.add(parent_rec.ParentID); // @v8.1.6 addUnique-->add
 				// }
@@ -660,7 +661,7 @@ int SLAPI PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * 
 				SETIFZ(rec.LinkObjType, parent_rec.LinkObjType);
 				if(rec.Kind == PPPRCK_GROUP) {
 					//
-					// Äëÿ ãðóïï íàñëåäóåì ïîäãðóïïó ñâÿçàííîãî îáúåêòà
+					// Ð”Ð»Ñ Ð³Ñ€ÑƒÐ¿Ð¿ Ð½Ð°ÑÐ»ÐµÐ´ÑƒÐµÐ¼ Ð¿Ð¾Ð´Ð³Ñ€ÑƒÐ¿Ð¿Ñƒ ÑÐ²ÑÐ·Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð¾Ð±ÑŠÐµÐºÑ‚Ð°
 					//
 					SETIFZ(rec.LinkObjID, parent_rec.LinkObjID);
 				}
@@ -673,54 +674,47 @@ int SLAPI PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * 
 				}
 				SETIFZ(rec.WrOffArID, parent_rec.WrOffArID);
 				//
-				// Ëþáàÿ áëîêèðîâêà ñïèñàíèÿ ââåðõ ïî èåðàðõèè
-				// áëîêèðóåò ñïèñàíèå äëÿ âñåõ íèæåñòîÿùèõ ïðîöåññîðîâ
+				// Ð›ÑŽÐ±Ð°Ñ Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²ÐºÐ° ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð²Ð²ÐµÑ€Ñ… Ð¿Ð¾ Ð¸ÐµÑ€Ð°Ñ€Ñ…Ð¸Ð¸
+				// Ð±Ð»Ð¾ÐºÐ¸Ñ€ÑƒÐµÑ‚ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð´Ð»Ñ Ð²ÑÐµÑ… Ð½Ð¸Ð¶ÐµÑÑ‚Ð¾ÑÑ‰Ð¸Ñ… Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð¾Ð²
 				//
 				if(parent_rec.Flags & PRCF_LOCKWROFF)
 					rec.Flags |= PRCF_LOCKWROFF;
 				//
-				// Ëþáîå ðàçðåøåíèå ñïèñàíèÿ äåôèöèòíûõ äîêóìåíòîâ
-				// ðàçðåøàåò òàêîå ñïèñàíèå äëÿ âñåõ íèæåñòîÿùèõ ïðîöåññîðîâ
+				// Ð›ÑŽÐ±Ð¾Ðµ Ñ€Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð´ÐµÑ„Ð¸Ñ†Ð¸Ñ‚Ð½Ñ‹Ñ… Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð²
+				// Ñ€Ð°Ð·Ñ€ÐµÑˆÐ°ÐµÑ‚ Ñ‚Ð°ÐºÐ¾Ðµ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð´Ð»Ñ Ð²ÑÐµÑ… Ð½Ð¸Ð¶ÐµÑÑ‚Ð¾ÑÑ‰Ð¸Ñ… Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð¾Ð²
 				//
 				if(parent_rec.Flags & PRCF_TURNINCOMPLBILL)
 					rec.Flags |= PRCF_TURNINCOMPLBILL;
 				if(parent_rec.Flags & PRCF_ACCDUPSERIALINSESS)
 					rec.Flags |= PRCF_ACCDUPSERIALINSESS;
 				//
-				// @v7.7.2 {
-				// Ëþáîå ðàçðåøåíèå ðåãèñòðàöèè ïåðñîíàëèé ðàçðåøàåò òàêóþ ðåãèñòðàöèþ äëÿ âñåõ
-				// íèæåñòîÿùèõ ïðîöåññîðîâ.
+				// Ð›ÑŽÐ±Ð¾Ðµ Ñ€Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ð¸ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¹ Ñ€Ð°Ð·Ñ€ÐµÑˆÐ°ÐµÑ‚ Ñ‚Ð°ÐºÑƒÑŽ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸ÑŽ Ð´Ð»Ñ Ð²ÑÐµÑ…
+				// Ð½Ð¸Ð¶ÐµÑÑ‚Ð¾ÑÑ‰Ð¸Ñ… Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð¾Ð².
 				//
 				if(parent_rec.Flags & PRCF_ALLOWCIP)
 					rec.Flags |= PRCF_ALLOWCIP;
 				if(rec.Flags & PRCF_ALLOWCIP) {
 					//
-					// Âèä ïåðñîíàëèé äëÿ ðåãèñòðàöèè òàêæå íàñëåäóåòñÿ âíèç ïî èåðàðõèè
+					// Ð’Ð¸Ð´ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¹ Ð´Ð»Ñ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ð¸ Ñ‚Ð°ÐºÐ¶Ðµ Ð½Ð°ÑÐ»ÐµÐ´ÑƒÐµÑ‚ÑÑ Ð²Ð½Ð¸Ð· Ð¿Ð¾ Ð¸ÐµÑ€Ð°Ñ€Ñ…Ð¸Ð¸
 					//
 					SETIFZ(rec.CipPersonKindID, parent_rec.CipPersonKindID);
 				}
-				// } @v7.7.2
 				//
-				// @v7.9.3 {
-				// Ëþáîå ïðåäïèñàíèå èñïîëüçîâàíèÿ óïðîùåííîãî äèàëîãà ñåññèè íàñëåäóåòñÿ äëÿ âñåõ íèæåñòîÿùèõ ïðîöåññîðîâ.
+				// Ð›ÑŽÐ±Ð¾Ðµ Ð¿Ñ€ÐµÐ´Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ñ ÑƒÐ¿Ñ€Ð¾Ñ‰ÐµÐ½Ð½Ð¾Ð³Ð¾ Ð´Ð¸Ð°Ð»Ð¾Ð³Ð° ÑÐµÑÑÐ¸Ð¸ Ð½Ð°ÑÐ»ÐµÐ´ÑƒÐµÑ‚ÑÑ Ð´Ð»Ñ Ð²ÑÐµÑ… Ð½Ð¸Ð¶ÐµÑÑ‚Ð¾ÑÑ‰Ð¸Ñ… Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð¾Ð².
 				//
 				if(parent_rec.Flags & PRCF_USETSESSSIMPLEDLG)
 					rec.Flags |= PRCF_USETSESSSIMPLEDLG;
 				//
-				// @v8.2.9
-				// Ëþáîå ðàçðåøåíèå ïåðåõîäà ñòàòóñà ÇÀÊÐÛÒÀ->ÎÒÌÅÍÅÍÀ
-				// ðàçðåøàåò òàêîé ïåðåõîä äëÿ âñåõ íèæåñòîÿùèõ ïðîöåññîðîâ
+				// Ð›ÑŽÐ±Ð¾Ðµ Ñ€Ð°Ð·Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´Ð° ÑÑ‚Ð°Ñ‚ÑƒÑÐ° Ð—ÐÐšÐ Ð«Ð¢Ð->ÐžÐ¢ÐœÐ•ÐÐ•ÐÐ
+				// Ñ€Ð°Ð·Ñ€ÐµÑˆÐ°ÐµÑ‚ Ñ‚Ð°ÐºÐ¾Ð¹ Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´ Ð´Ð»Ñ Ð²ÑÐµÑ… Ð½Ð¸Ð¶ÐµÑÑ‚Ð¾ÑÑ‰Ð¸Ñ… Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ð¾Ð²
 				//
 				if(parent_rec.Flags & PRCF_ALLOWCANCELAFTERCLOSE)
 					rec.Flags |= PRCF_ALLOWCANCELAFTERCLOSE;
 				//
-				// Êâàíò âðåìåííîé äèàãðàììû íàñëåäóåòñÿ â ñëó÷àå, åñëè â íèæíåì ïî èåðàðõèè ïðîöåññîðå îí íå îïðåäåëåí.
+				// ÐšÐ²Ð°Ð½Ñ‚ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹ Ð´Ð¸Ð°Ð³Ñ€Ð°Ð¼Ð¼Ñ‹ Ð½Ð°ÑÐ»ÐµÐ´ÑƒÐµÑ‚ÑÑ Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ, ÐµÑÐ»Ð¸ Ð² Ð½Ð¸Ð¶Ð½ÐµÐ¼ Ð¿Ð¾ Ð¸ÐµÑ€Ð°Ñ€Ñ…Ð¸Ð¸ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€Ðµ Ð¾Ð½ Ð½Ðµ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½.
 				//
 				if(parent_rec.TcbQuant > 0 && rec.TcbQuant <= 0)
 					rec.TcbQuant = parent_rec.TcbQuant;
-				//
-				// } @v7.9.3
-				//
 				SETFLAGBYSAMPLE(rec.Flags, PRCF_ADDEDOBJASAGENT, parent_rec.Flags);
 			}
 			else
@@ -736,7 +730,7 @@ int SLAPI PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 {
 	int    ok = -1;
 	ProcessorTbl::Rec prc_rec, parent_rec;
-	CALLPTRMEMB(pSwitchPrcList, freeAll());
+	CALLPTRMEMB(pSwitchPrcList, clear()); // @v10.7.1 freeAll()-->clear()
 	if(Fetch(prcID, &prc_rec) > 0 && Fetch(prc_rec.ParentID, &parent_rec) > 0)
 		if(parent_rec.Flags & PRCF_CANSWITCHPAN) {
 			ok = 1;
@@ -825,14 +819,14 @@ int SLAPI PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int u
 			THROW(Search(*pID, &rec) > 0);
 			if(pPack == 0) {
 				//
-				// Óäàëåíèå ïàêåòà
+				// Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¿Ð°ÐºÐµÑ‚Ð°
 				//
 				THROW(RemoveObjV(*pID, 0, 0, 0));
 				THROW(PutExtention(*pID, 0, 0));
 			}
 			else {
 				//
-				// Èçìåíåíèå ïàêåòà
+				// Ð˜Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ Ð¿Ð°ÐºÐµÑ‚Ð°
 				//
 				SETFLAG(pPack->Rec.Flags, PRCF_HASEXT, has_ext);
 				if(rec.Kind == PPPRCK_GROUP) {
@@ -848,7 +842,7 @@ int SLAPI PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int u
 		}
 		else if(pPack) {
 			//
-			// Äîáàâëåíèå ïàêåòà
+			// Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿Ð°ÐºÐµÑ‚Ð°
 			//
 			SETFLAG(pPack->Rec.Flags, PRCF_HASEXT, has_ext);
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
@@ -864,18 +858,18 @@ int SLAPI PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int u
 }
 
 struct Strg_ProcessorExt { // @persistent
-	long    ObjType;      // const PPOBJ_PROCESSOR
-	long    ObjID;        // ->Processor.ID
-	long    Prop;         // const PRCPRP_EXT
+	long   ObjType;      // const PPOBJ_PROCESSOR
+	long   ObjID;        // ->Processor.ID
+	long   Prop;         // const PRCPRP_EXT
 	SVerT  Ver;
-	LTIME   CheckInTime;
-	LTIME   CheckOutTime;
-	long    TimeFlags;
-	uint32  ExtStrLen;
-	long    InitSessStatus; // @v8.2.9
-	uint8   Reserve[40];    // @v8.2.9 [44]-->[40]
-	long    ReserveVal1;
-	long    ReserveVal2;
+	LTIME  CheckInTime;
+	LTIME  CheckOutTime;
+	long   TimeFlags;
+	uint32 ExtStrLen;
+	long   InitSessStatus; // @v8.2.9
+	uint8  Reserve[40];    // @v8.2.9 [44]-->[40]
+	long   ReserveVal1;
+	long   ReserveVal2;
 	// ExtString
 };
 
@@ -939,7 +933,7 @@ int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 			SString stub_extsting;
 			p_strg = static_cast<Strg_ProcessorExt *>(SAlloc::M(sz));
 			ok = p_ref->GetProperty(Obj, id, PRCPRP_EXT, p_strg, sz);
-			assert(ok > 0); // Ðàç íàì óäàëîñü ñ÷èòàòü ðàçìåð áóôåðà, òî ïîñëåäóþùàÿ îøèáêà ÷òåíèÿ - êðèòè÷íà
+			assert(ok > 0); // Ð Ð°Ð· Ð½Ð°Ð¼ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð±ÑƒÑ„ÐµÑ€Ð°, Ñ‚Ð¾ Ð¿Ð¾ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð°Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ - ÐºÑ€Ð¸Ñ‚Ð¸Ñ‡Ð½Ð°
 			THROW(ok > 0);
 			pExt->destroy();
 			pExt->CheckInTime = p_strg->CheckInTime;
@@ -1238,15 +1232,16 @@ int SLAPI PPObjProcessor::EditPrcPlaceItem(PPProcessorPacket::PlaceDescription *
 int ProcessorDialog::EditExt()
 {
 	class PrcExtDialog : public PPListDialog {
+		DECL_DIALOG_DATA(PPProcessorPacket);
 	public:
 		PrcExtDialog() : PPListDialog(DLG_PRCEXT, CTL_PRCEXT_PLACELIST)
 		{
 			SetupTimePicker(this, CTL_PRCEXT_CHKINTIME, CTLTM_PRCEXT_CHKINTIME);
 			SetupTimePicker(this, CTL_PRCEXT_CHKOUTTIME, CTLTM_PRCEXT_CHKOUTTIME);
 		}
-		int    setDTS(const PPProcessorPacket * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			int    ok = 1;
 			// round direction: 1 - forward, 2 - backward
 			long   check_in_round  = (Data.Ext.TimeFlags & Data.Ext.tfCheckInRoundForward) ? 1 : 2;
@@ -1282,7 +1277,7 @@ int ProcessorDialog::EditExt()
 			updateList(-1);
 			return ok;
 		}
-		int    getDTS(PPProcessorPacket * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			Data.Ext.CheckInTime  = getCtrlTime(CTL_PRCEXT_CHKINTIME);
@@ -1348,8 +1343,8 @@ int ProcessorDialog::EditExt()
 		virtual int editItem(long pos, long id)
 		{
 			int    ok = -1;
-			const uint c = Data.Ext.GetPlaceDescriptionCount();
-			if(pos < (long)c) {
+			const  long c = static_cast<long>(Data.Ext.GetPlaceDescriptionCount());
+			if(pos < c) {
 				PPProcessorPacket::PlaceDescription item;
 				if(Data.Ext.GetPlaceDescription(pos, item)) {
 					if(PPObjProcessor::EditPrcPlaceItem(&item) > 0) {
@@ -1365,14 +1360,13 @@ int ProcessorDialog::EditExt()
 		virtual int delItem(long pos, long id)
 		{
 			int    ok = -1;
-			const uint c = Data.Ext.GetPlaceDescriptionCount();
-			if(pos < (long)c) {
+			const  long c = static_cast<long>(Data.Ext.GetPlaceDescriptionCount());
+			if(pos < c) {
 				Data.Ext.PutPlaceDescription(pos, 0);
 				ok = 1;
 			}
 			return ok;
 		}
-		PPProcessorPacket Data;
 	};
 	DIALOG_PROC_BODY(PrcExtDialog, &Data);
 }
@@ -1503,7 +1497,7 @@ void ProcessorDialog::setupLinkName(int force)
 
 int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 {
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	setCtrlLong(CTL_PRC_ID, Data.Rec.ID);
 	disableCtrl(CTL_PRC_ID, 1);
 	setCtrlData(CTL_PRC_NAME, Data.Rec.Name);
