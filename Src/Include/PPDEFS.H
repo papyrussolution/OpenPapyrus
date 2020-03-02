@@ -3709,6 +3709,8 @@
 	#define CTLSEL_GDSTYP_PRICERESTR     (16 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTYP_SYMB              (17 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTYP_STKTLR            (18 + WINDOWS_ID_BIAS)
+	#define CTL_GDSTYP_CHZNPT            (19 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GDSTYP_CHZNPT         (20 + WINDOWS_ID_BIAS)
 #define DLG_QUOT                  277 // Котировка
 #define DLG_QUOTNEW               291 // Новая котировка
 	#define CTL_QUOT_GGRP                (1 + WINDOWS_ID_BIAS)
@@ -7621,7 +7623,7 @@
 	#define cmSplitCheck              102
 	#define cmNewCheck                103
 	#define cmUniteChecks             104
-	#define cmUnfinishedChecks        105           
+	#define cmUnfinishedChecks        105
 	#define CTL_SELCHECK_CODE         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELCHECK_DATE         (2 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELCHECK_DATE      (3 + WINDOWS_ID_BIAS)
@@ -10686,11 +10688,15 @@
 	#define CTL_TIMSER_MANMARG        (20 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_TYPE           (21 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_FXSTAKE        (22 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSER_SBIDT          (23 + WINDOWS_ID_BIAS) // strategy build init date
+	#define CTLCAL_TIMSER_SBIDT       (24 + WINDOWS_ID_BIAS) // strategy build init date
 #define DLG_TSSA                  1353 //
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSSA_TS            (2 + WINDOWS_ID_BIAS)
 	#define CTL_TSSA_FLAGS            (3 + WINDOWS_ID_BIAS)
 	#define CTL_TSSA_CLOSEMODE        (4 + WINDOWS_ID_BIAS)
+	#define CTL_TSSA_SBTDT            (5 + WINDOWS_ID_BIAS) // strategy build till date
+	#define CTLCAL_TSSA_SBTDT         (6 + WINDOWS_ID_BIAS) // strategy build till date
 #define DLG_LOTXCCKLIST           1354
 	#define CTL_LOTXCCKLIST_LIST      (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCCKLIST_INFO      (2 + WINDOWS_ID_BIAS)
@@ -10708,6 +10714,7 @@
 	#define CTL_TIMSERCFG_TERMTMADJ   (10 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_LOCDEVPT    (11 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_LDMTFACTOR  (12 + WINDOWS_ID_BIAS)
+	#define CTL_TIMSERCFG_MTMAXERR    (13 + WINDOWS_ID_BIAS)
 #define DLG_TIMSERCFGITEM         1356
 	#define CTL_TIMSERCFGITEM_FLAGS   (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFGITEM_TS      (2 + WINDOWS_ID_BIAS)
@@ -10847,7 +10854,7 @@
 #define DLG_CHZNMARK              1378
 	#define CTL_CHZNMARK_INPUT        (1  + IMPEXP_CTL_BIAS)
 	#define CTL_CHZNMARK_INFO         (2  + IMPEXP_CTL_BIAS)
-#define DLG_DFCRRULEVIEW          1379 
+#define DLG_DFCRRULEVIEW          1379
 //
 // Win32 Dialog Identifiers
 //

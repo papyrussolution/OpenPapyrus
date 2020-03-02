@@ -1,19 +1,19 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Передача объектов между разделами БД
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
+// РџРµСЂРµРґР°С‡Р° РѕР±СЉРµРєС‚РѕРІ РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё Р‘Р”
 //
 #include <pp.h>
 #pragma hdrstop
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
-// Descr: Удаляет или добавляет (в зависимости от remove) заголовок из файла pFile
+// Descr: РЈРґР°Р»СЏРµС‚ РёР»Рё РґРѕР±Р°РІР»СЏРµС‚ (РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ remove) Р·Р°РіРѕР»РѕРІРѕРє РёР· С„Р°Р№Р»Р° pFile
 //
 int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove);
 //
-// Descr: Упаковывает или распаковывает файлы из pFileList в дириктории pDir
-//   pack == 1 - упаковать, pack == 0 - распаковать. Упакованные и распакованные файлы
-//   будут иметь одинаковые имена
+// Descr: РЈРїР°РєРѕРІС‹РІР°РµС‚ РёР»Рё СЂР°СЃРїР°РєРѕРІС‹РІР°РµС‚ С„Р°Р№Р»С‹ РёР· pFileList РІ РґРёСЂРёРєС‚РѕСЂРёРё pDir
+//   pack == 1 - СѓРїР°РєРѕРІР°С‚СЊ, pack == 0 - СЂР°СЃРїР°РєРѕРІР°С‚СЊ. РЈРїР°РєРѕРІР°РЅРЅС‹Рµ Рё СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹Рµ С„Р°Р№Р»С‹
+//   Р±СѓРґСѓС‚ РёРјРµС‚СЊ РѕРґРёРЅР°РєРѕРІС‹Рµ РёРјРµРЅР°
 //
 static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack);
 //
@@ -823,7 +823,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			if(use_email && check_email) {
 				THROW(GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
 			}
-			if(IsFtpAddr(src) && check_ftp) {  // else if -> if Так как в обратном случае, если хоть один раздел получает данные с эл. почты, то в эту ветку никогда не попадем.
+			if(IsFtpAddr(src) && check_ftp) {  // else if -> if РўР°Рє РєР°Рє РІ РѕР±СЂР°С‚РЅРѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё С…РѕС‚СЊ РѕРґРёРЅ СЂР°Р·РґРµР» РїРѕР»СѓС‡Р°РµС‚ РґР°РЅРЅС‹Рµ СЃ СЌР». РїРѕС‡С‚С‹, С‚Рѕ РІ СЌС‚Сѓ РІРµС‚РєСѓ РЅРёРєРѕРіРґР° РЅРµ РїРѕРїР°РґРµРј.
 				THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));
 			}
 			assert(MemHeapTracer::Check()); // @debug
@@ -831,7 +831,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		THROW(fep.Scan(dest, "*" PPSEXT, 0));
 	}
 	{
-		// Пропускаем файлы, заголовок которых не читается {
+		// РџСЂРѕРїСѓСЃРєР°РµРј С„Р°Р№Р»С‹, Р·Р°РіРѕР»РѕРІРѕРє РєРѕС‚РѕСЂС‹С… РЅРµ С‡РёС‚Р°РµС‚СЃСЏ {
 		LongArray to_remove_pos_list;
 		for(i = 0; i < fep.GetCount(); i++) {
 			if(fep.Get(i, 0, &file_path)) {
@@ -849,7 +849,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			}
 		}
 	}
-	THROW(PackTransmitFiles(&fep, 0)); // Распаковка принятых файлов
+	THROW(PackTransmitFiles(&fep, 0)); // Р Р°СЃРїР°РєРѕРІРєР° РїСЂРёРЅСЏС‚С‹С… С„Р°Р№Р»РѕРІ
 	CATCHZOK
 	PPWait(0);
 	return ok;
@@ -875,7 +875,7 @@ static int SLAPI PutFilesToDiskPath(const SFileEntryPool * pFileList, const char
 			THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
 	}
 	//
-	// Проверяем существование заданных каталогов
+	// РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ Р·Р°РґР°РЅРЅС‹С… РєР°С‚Р°Р»РѕРіРѕРІ
 	//
 	pFileList->GetInitPath(src_dir);
 	src_dir.RmvLastSlash();
@@ -931,9 +931,9 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 					PPObjectTransmit::Header hdr;
 					if(!ot.GetHeader(file_name, &hdr) || hdr.DestDBID != dbDivID) {
 						//
-						// Если заголовок файла не удалось считать, то полагаем, что файл
-						// либо инвалидный, либо не наш. То есть, его передавать не следует.
-						// Не следует так же передавать файлы, не предназначенные для раздела dbDivID.
+						// Р•СЃР»Рё Р·Р°РіРѕР»РѕРІРѕРє С„Р°Р№Р»Р° РЅРµ СѓРґР°Р»РѕСЃСЊ СЃС‡РёС‚Р°С‚СЊ, С‚Рѕ РїРѕР»Р°РіР°РµРј, С‡С‚Рѕ С„Р°Р№Р»
+						// Р»РёР±Рѕ РёРЅРІР°Р»РёРґРЅС‹Р№, Р»РёР±Рѕ РЅРµ РЅР°С€. РўРѕ РµСЃС‚СЊ, РµРіРѕ РїРµСЂРµРґР°РІР°С‚СЊ РЅРµ СЃР»РµРґСѓРµС‚.
+						// РќРµ СЃР»РµРґСѓРµС‚ С‚Р°Рє Р¶Рµ РїРµСЂРµРґР°РІР°С‚СЊ С„Р°Р№Р»С‹, РЅРµ РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РґР»СЏ СЂР°Р·РґРµР»Р° dbDivID.
 						//
 						fep.Remove(i);
 					}
@@ -942,7 +942,7 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 		}
 		if(fep.GetCount()) { // @v10.4.1
 			// AHTOXA {
-			// Упаковка файлов перед отправкой
+			// РЈРїР°РєРѕРІРєР° С„Р°Р№Р»РѕРІ РїРµСЂРµРґ РѕС‚РїСЂР°РІРєРѕР№
 			PPDBXchgConfig cfg;
 			THROW(PPObjectTransmit::ReadConfig(&cfg));
 			if(cfg.Flags & DBDXF_PACKFILES) {
@@ -1060,7 +1060,7 @@ int SLAPI PackTransmitFile(const char * pFileName, int pack, PercentFunc callbac
 	THROW(PPObjectTransmit::GetHeader(pFileName, &hdr));
 	if((pack && !(hdr.Flags & PPOTF_ARC)) || (!pack && hdr.Flags & PPOTF_ARC)) {
 		if(!pack) {
-			// @dbd_exchange @v5.6.12 При следующем изменении формата убрать коммент со следующей строки
+			// @dbd_exchange @v5.6.12 РџСЂРё СЃР»РµРґСѓСЋС‰РµРј РёР·РјРµРЅРµРЅРёРё С„РѕСЂРјР°С‚Р° СѓР±СЂР°С‚СЊ РєРѕРјРјРµРЅС‚ СЃРѕ СЃР»РµРґСѓСЋС‰РµР№ СЃС‚СЂРѕРєРё
 			// THROW_PP_S(hdr.CryptMethod == 0, PPERR_UNKNCRYPTMETHOD, pFileName);
 			THROW_PP_S(hdr.PackMethod  == 1, PPERR_UNKNPACKMETHOD,  pFileName);
 		}

@@ -10073,6 +10073,7 @@ public:
 
 class STokenRecognizer : public SRegExpSet {
 public:
+	static int SLAPI EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
 	SLAPI  STokenRecognizer();
 	SLAPI ~STokenRecognizer();
 	//

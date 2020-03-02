@@ -345,7 +345,9 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				break;
 			case cmaDelete:
 				if(getCurItem(&p, &i) && delItem(p, i) > 0)
+				{
 					updateList(-1);
+				}
 				break;
 			case cmaEdit:
 				if(getCurItem(&p, &i) && editItem(p, i) > 0) {

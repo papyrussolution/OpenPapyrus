@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018, 2019
+// Copyright (c) A.Sobolev 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -361,14 +361,14 @@ private:
 							break;
 						case ActionByPhoneDialog::Param::acnPrjTask:
 							if(param.PersonID) {
-								PrjTaskTbl::Rec rec;
+								PPPrjTaskPacket pack;
 								PPID   emplr_id = 0;
 								PPID   new_task_id = 0;
 								PPObjPerson::GetCurUserPerson(&emplr_id, 0);
-								if(TodoObj.InitPacket(&rec, 0, 0, param.PersonID, emplr_id, 1)) {
+								if(TodoObj.InitPacket(&pack, 0, 0, param.PersonID, emplr_id, 1)) {
 									S.Flags |= S.fLockAutoExit;
-									if(TodoObj.EditDialog(&rec) > 0) {
-										if(TodoObj.PutPacket(&new_task_id, &rec, 1)) {
+									if(TodoObj.EditDialog(&pack) > 0) {
+										if(TodoObj.PutPacket(&new_task_id, &pack, 1)) {
 										}
 										else
 											PPError();
@@ -890,7 +890,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							new_entry.ExecutorID = todo_rec.EmployerID;
 							new_entry.Amount = todo_rec.Amount;
 							new_list.AddS(todo_rec.Code, &new_entry.CodeP);
-							new_list.AddS(todo_rec.Descr, &new_entry.MemoP);
+							TodoObj.GetItemDescr(todo_rec.ID, temp_buf);
+							new_list.AddS(temp_buf, &new_entry.MemoP);
 							new_list.insert(&new_entry);
 						}
 					}
@@ -909,7 +910,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							new_entry.ExecutorID = todo_rec.EmployerID;
 							new_entry.Amount = todo_rec.Amount;
 							new_list.AddS(todo_rec.Code, &new_entry.CodeP);
-							new_list.AddS(todo_rec.Descr, &new_entry.MemoP);
+							TodoObj.GetItemDescr(todo_rec.ID, temp_buf);
+							new_list.AddS(temp_buf, &new_entry.MemoP);
 							new_list.insert(&new_entry);
 						}
 					}

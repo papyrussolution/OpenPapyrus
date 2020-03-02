@@ -6556,6 +6556,37 @@ int SLAPI SNaturalTokenArray::Add(uint32 tok, float prob)
 	return insert(&item);
 }
 
+//static 
+int SLAPI STokenRecognizer::EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
+{
+	int   ret = 0;
+	uint8  _buf[256];
+	size_t _bp = 0;
+	PTR8(_buf)[_bp++] = PTR8C(&productTypeBytes)[1];
+	PTR8(_buf)[_bp++] = PTR8C(&productTypeBytes)[0];
+	SString temp_buf = pGTIN;
+	if(temp_buf.Len() == 14 && temp_buf.IsDigit()) {
+		int64 n = temp_buf.ToInt64();
+		PTR8(_buf)[_bp++] = PTR8C(&n)[5];
+		PTR8(_buf)[_bp++] = PTR8C(&n)[4];
+		PTR8(_buf)[_bp++] = PTR8C(&n)[3];
+		PTR8(_buf)[_bp++] = PTR8C(&n)[2];
+		PTR8(_buf)[_bp++] = PTR8C(&n)[1];
+		PTR8(_buf)[_bp++] = PTR8C(&n)[0];
+		//
+		{
+			const size_t sl = sstrlen(pSerial);
+			for(uint si = 0; si < sl; si++) {
+				_buf[_bp++] = static_cast<uint8>(pSerial[si]);
+			}
+		}
+		if(resultBufSize >= _bp && pResultBuf)
+			memcpy(pResultBuf, _buf, _bp);
+		ret = static_cast<int>(_bp);
+	}
+	return ret;
+}
+
 SLAPI STokenRecognizer::STokenRecognizer() : SRegExpSet()
 {
 }

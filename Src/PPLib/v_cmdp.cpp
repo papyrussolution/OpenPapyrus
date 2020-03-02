@@ -896,6 +896,8 @@ int EditMenusDlg::delItem(long pos, long id)
 {
 	int    ok = -1;
 	uint   ipos = 0;
+	S_GUID guid;
+	SString str_guid;
 	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		if(p_item) {
@@ -904,8 +906,22 @@ int EditMenusDlg::delItem(long pos, long id)
 					ok = 0;
 					PPErrCode = IsDesktop ? PPERR_DESKTOPBLOCKED : PPERR_MENUBLOCKED;
 				}
-				else
-					ok = Data.Remove(ipos);
+				else{
+					//@erik v10.7.3 {
+					// 
+					const PPCommandGroup * p_cgroup = Data.GetDesktop(id);
+					if(p_cgroup > 0) {
+						guid = p_cgroup->GetDeskGuid();
+						if(guid.ToStr(S_GUID::fmtIDL, str_guid)>0) {
+							PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
+							if(p_mgr->DeleteDesktopByGUID(str_guid, PPCommandMngr::fRWByXml))
+								ok = Data.Remove(ipos);
+						}
+						
+						
+					}
+					// } @erik 
+				}
 			}
 		}
 	}
@@ -964,7 +980,8 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		desks = *pData;
 	else {
 		THROW(p_mgr = GetCommandMngr(0, isDesktop, 0));
-		THROW(p_mgr->Load__(&desks));
+		//THROW(p_mgr->Load__(&desks));
+		THROW(p_mgr->Load__2(&desks, PPCommandMngr::fRWByXml)); //@erik v10.7.2
 	}
 	p_dlg->setDTS(&desks);
 	if(ExecView(p_dlg) == cmOK) {
@@ -972,7 +989,7 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		if(pData)
 			*pData = desks;
 		else {
-			THROW(p_mgr->Save__(&desks));
+			THROW(p_mgr->Save__2(&desks, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
 		}
 		ok = 1;
 	}
@@ -1137,7 +1154,7 @@ HMENU SLAPI PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 	if(!fromRc && menuID) {
 		PPCommandMngr * p_mgr = GetCommandMngr(1, 0);
 		PPCommandGroup menus;
-		if(p_mgr && p_mgr->Load__(&menus) > 0) {
+		if(p_mgr && p_mgr->Load__(&menus)>0) {
 			const PPCommandItem * p_item = menus.SearchByID(menuID, 0);
 			m = CreateMenu();
 			p_menu = (p_item && p_item->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_item->Dup()) : 0;

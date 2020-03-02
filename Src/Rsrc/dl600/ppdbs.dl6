@@ -2049,8 +2049,8 @@ table Project {         // size=384+128=512
 	long   Flags;       // @flags
 	long   BillOpID;    // @v5.4.8 Операция разноски документов
 	raw    Reserve[44]; // @reserve
-	string Descr[256];  // Краткое описание проекта/фазы // @v6.2.2 [224]-->[256]
-	note   Memo[1024];  // @v6.2.2 [128]-->[1024]
+	// @v10.7.2 string Descr[256];  // Краткое описание проекта/фазы // @v6.2.2 [224]-->[256]
+	// @v10.7.2 note   Memo[1024];  // @v6.2.2 [128]-->[1024]
 index:
 	ID (unique);
 	ParentID, Name (unique mod);
@@ -2059,7 +2059,7 @@ index:
 	EstFinishDt (dup mod);
 file:
 	"project.btr";
-	vlr;
+	// @v10.7.2 vlr;
 }
 //
 // @todo Descr и Memo перенести в UnxTextRef
@@ -2096,11 +2096,10 @@ table PrjTask {         // size =
 	long   LinkTaskID;  // ->PrjTask.ID
 	double Amount;
 	int32  OpenCount;   // Количество просмотров (увеличивается, когда кто-либо открывает диалог с задачей)
-	long   BillArID;    // ->Article.ID @v5.4.6 Статья разноски закрытой задачи: при закрытии задачи
-		// формируется связанный документ со основной статьей =BillArID.
+	long   BillArID;    // ->Article.ID Статья разноски закрытой задачи: при закрытии задачи формируется связанный документ со основной статьей =BillArID.
 	raw    Reserve[16]; // @reserve
-	string Descr[256];  // Описание задания // @v6.2.2 Descr[224]-->Descr[256]
-	note   Memo[1024];  // @v6.2.2 Memo[128]-->Memo[1024]
+	// @v10.7.2 string Descr_[256];  // Описание задания // @v6.2.2 Descr[224]-->Descr[256]
+	// @v10.7.2 note   Memo_[1024];  // @v6.2.2 Memo[128]-->Memo[1024]
 index:
 	ID (unique);                      // #0
 	Dt, Tm (unique mod);              // #1
@@ -2111,7 +2110,7 @@ index:
 	LinkTaskID, Dt, Tm (unique mod);  // #6
 file:
 	"prjtask.btr";
-	vlr;
+	// @v10.7.2 vlr;
 }
 //
 // Descr: Персональные карты.
@@ -2349,7 +2348,7 @@ table CCheckExt {          // size=20
 	long   AddrID;         // @v7.0.7 Ид адреса доставки
 	long   AddCrdCardID_unused;   // @v6.8.0 Дополнительная кредитная карта, с которой оплачивается покупка // @v9.0.4 @unused
 	// @v10.6.8 long   AddCrdCardPaym_unused; // @v6.8.0 0.01 Сумма, оплаченная по дополнительной кредитной карте // @v9.0.4 @unused
-	long   CreationUserID; // @v10.6.8 (insteed AddCrdCardPaym_unused) -->User.ID Пользователь, создавший чек 
+	long   CreationUserID; // @v10.6.8 (insteed AddCrdCardPaym_unused) -->User.ID Пользователь, создавший чек
 	long   LinkCheckID;    // @v6.7.8 -->CCheck.ID Ссылка на связанный чек
 	datetime StartOrdDtm;  // @v6.7.8 Для чека заказа: время начала обслуживания //
 	datetime EndOrdDtm;    // @v6.7.8 Для чека заказа: время завершения обслуживания //

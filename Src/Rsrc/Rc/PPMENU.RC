@@ -26,6 +26,7 @@
 		MENUITEM "@cmd_convertquot720",								cmConvertQuot720
 		MENUITEM "@cmd_convertbilluuid7601",						cmConvertBillUUID7601
 		MENUITEM "@cmd_convertworkbook813",							cmConvertWorkbook813
+		MENUITEM "@cmd_convertdesktoptoxml10703",                   cmConvert10703
 	}
 	POPUP "&Правка" {
 		MENUITEM "@cmd_correctaccturnrest",							cmCorrectAccTurnRest

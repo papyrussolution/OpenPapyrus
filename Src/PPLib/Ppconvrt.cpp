@@ -162,7 +162,8 @@ int SLAPI PPTableConversion::Convert()
 	//
 	static SString _BakPath;
 	//
-	int    ok = 1, need_conversion = 0;
+	int    ok = 1;
+	int    need_conversion = 0;
 	int    db_locked = 0;
 	uint   i;
 	RECORDSIZE   rec_size;
@@ -211,8 +212,7 @@ int SLAPI PPTableConversion::Convert()
 			THROW_DB(tpl.Init(file_name, 0, 0));
 			if(tpl.GetConEntry(tpe_con)) {
 				//
-				// Если существует файл continuous-состояния (^^^) то дадим ему несколько секунд
-				// на исчезновение...
+				// Если существует файл continuous-состояния (^^^) то дадим ему несколько секунд на исчезновение...
 				//
 				SDelay(5000);
 				// ... и снова инициализируем tpl
@@ -241,7 +241,7 @@ int SLAPI PPTableConversion::Convert()
 			THROW_DB(p_cr_tbl->IsOpened());
 			ZDELETE(p_cr_tbl);
 			THROW_MEM(p_tbl = CreateTableInstance(0));
-			p_tbl->SetFlag(XTF_DISABLEOUTOFTAMSG); // @v8.9.10
+			p_tbl->SetFlag(XTF_DISABLEOUTOFTAMSG);
 			THROW_MEM(p_old_tbl = new DBTable(0, old_fname_to_convert, omNormal/*, p*/));
 			rec_size = 4096;
 			p_old_tbl->getNumRecs(&num_recs);
@@ -266,7 +266,7 @@ int SLAPI PPTableConversion::Convert()
 				} while(p_old_tbl->step(spNext));
 			}
 			THROW(Final(p_tbl));
-			p_tbl->ResetFlag(XTF_DISABLEOUTOFTAMSG); // @v8.9.10
+			p_tbl->ResetFlag(XTF_DISABLEOUTOFTAMSG);
 		}
 	}
 	else
@@ -4585,6 +4585,7 @@ public:
 	}
 };
 
+#if 0 // @v10.7.2 Moved to PPCvtPrjTask10702 {
 class PPCvtPrjTask6202 : public PPTableConversion {
 public:
 	struct PrjTask_Before6202 {
@@ -4735,6 +4736,8 @@ public:
 	}
 };
 
+#endif // } 0 @v10.7.2 Moved to PPCvtPrjTask10702
+
 class PPCvtObjSyncQueue6202 : public PPTableConversion {
 public:
 	struct ObjSyncQueue_Before6202 {
@@ -4837,12 +4840,12 @@ int SLAPI Convert6202()
 		THROW(cvt10.Convert());
 	}
 	{
-		PPCvtPrjTask6202 cvt11;
-		THROW(cvt11.Convert());
+		// @v10.7.2 PPCvtPrjTask6202 cvt11;
+		// @v10.7.2 THROW(cvt11.Convert());
 	}
 	{
-		PPCvtProject6202 cvt12;
-		THROW(cvt12.Convert());
+		// @v10.7.2 PPCvtProject6202 cvt12;
+		// @v10.7.2 THROW(cvt12.Convert());
 	}
 	{
 		PPCvtObjSyncQueue6202 cvt13;
@@ -5037,10 +5040,10 @@ public:
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
 	{
 		int    ok = 1;
-		PropertyTbl * p_tbl = (PropertyTbl *)pNewTbl;
+		PropertyTbl * p_tbl = static_cast<PropertyTbl *>(pNewTbl);
 		RECORDSIZE fix_rec_size = p_tbl->getRecSize();
-		PropertyTbl::Rec * p_rec = (PropertyTbl::Rec *)p_tbl->getDataBuf();
-		PropertyTbl::Rec * p_rec_old = (PropertyTbl::Rec *)pOldRec;
+		PropertyTbl::Rec * p_rec = static_cast<PropertyTbl::Rec *>(p_tbl->getDataBuf());
+		PropertyTbl::Rec * p_rec_old = static_cast<PropertyTbl::Rec *>(pOldRec);
 		PropertyTbl::Rec temp_rec = *p_rec_old;
 		if(p_rec_old->ObjType == PPOBJ_OPRKIND && p_rec_old->Prop > 0 && p_rec_old->Prop <= PP_MAXATURNTEMPLATES) {
 			PPAccTurnTempl::Convert_6407(&temp_rec);
@@ -6754,9 +6757,8 @@ CONVERT_PROC(Convert9214, PPCvtEgaisProduct9214);
 //
 class PPCvtSCard9400 : public PPTableConversion {
 public:
-	PPCvtSCard9400() : PPTableConversion()
+	PPCvtSCard9400() : PPTableConversion(), Stage(0)
 	{
-		Stage = 0;
 	}
 private:
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
@@ -6849,7 +6851,7 @@ private:
 		}
 		else {
 			assert(sizeof(SCard_Before9400)==128);
-			SCard_Before9400 * p_old_rec = (SCard_Before9400 *)pOldRec;
+			const SCard_Before9400 * p_old_rec = static_cast<const SCard_Before9400 *>(pOldRec);
 			p_data->ID = p_old_rec->ID;
 			p_data->SeriesID = p_old_rec->SeriesID;
 			p_data->PersonID = p_old_rec->PersonID;
@@ -7186,4 +7188,396 @@ int SLAPI Convert10507()
 		ZDELETE(PPRef);
 	return ok;
 }
+//
+//
+//
+class PPCvtPrjTask10702 : public PPTableConversion {
+	int   Before6202;
+	int   Before10702;
+	Reference * P_Ref;
+public:
+	struct PrjTask_Before6202 {
+		long   ID;
+		long   ProjectID;
+		long   Kind;
+		char   Code[16];
+		long   CreatorID;
+		long   GroupID;
+		long   EmployerID;
+		long   ClientID;
+		long   TemplateID;
+		LDATE  Dt;
+		LTIME  Tm;
+		LDATE  StartDt;
+		LTIME  StartTm;
+		LDATE  EstFinishDt;
+		LTIME  EstFinishTm;
+		LDATE  FinishDt;
+		LTIME  FinishTm;
+		int16  Priority;
+		int16  Status;
+		int16  DrPrd;
+		int16  DrKind;
+		int32  DrDetail;
+		long   Flags;
+		long   DlvrAddrID;
+		long   LinkTaskID;
+		double Amount;
+		int32  OpenCount;
+		long   BillArID;
+		uint8  Reserve[16];
+		char   Descr[224];
+		char   Memo[128];
+	};
+	struct PrjTask_Before10702 {
+		int32  ID;
+		int32  ProjectID;
+		int32  Kind;
+		char   Code[24];
+		int32  CreatorID;
+		int32  GroupID;
+		int32  EmployerID;
+		int32  ClientID;
+		int32  TemplateID;
+		LDATE  Dt;
+		LTIME  Tm;
+		LDATE  StartDt;
+		LTIME  StartTm;
+		LDATE  EstFinishDt;
+		LTIME  EstFinishTm;
+		LDATE  FinishDt;
+		LTIME  FinishTm;
+		int16  Priority;
+		int16  Status;
+		int16  DrPrd;
+		int16  DrKind;
+		int32  DrDetail;
+		int32  Flags;
+		int32  DlvrAddrID;
+		int32  LinkTaskID;
+		double Amount;
+		int32  OpenCount;
+		int32  BillArID;
+		uint8  Reserve[16]; // raw
+		char   Descr[256];
+		char   Memo[1024]; // note
+	};
+	PPCvtPrjTask10702() : PPTableConversion(), Before6202(0), Before10702(0), P_Ref(0)
+	{
+	}
+	~PPCvtPrjTask10702()
+	{
+		ZDELETE(P_Ref);
+	}
+	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new PrjTaskTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			DbTableStat stat;
+			p_tbl->GetFileStat(-1, &stat);
+			Before6202 = 0;
+			Before10702 = 0;
+			if(stat.FixRecSize != sizeof(PrjTaskTbl::Rec)) {
+				if(stat.FixRecSize == offsetof(PrjTask_Before10702, Memo))
+					Before10702 = 1;
+				else if(stat.FixRecSize < offsetof(PrjTask_Before10702, Memo)) {
+					Before6202 = 1;
+					Before10702 = 1;
+				}
+			}
+			*pNeedConversion = BIN(Before10702 || Before6202);
+			//*pNeedConversion = BIN(stat.FixRecSize < offsetof(PrjTaskTbl::Rec, Memo));
+		}
+		return p_tbl;
+	}
+	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	{
+		pNewTbl->clearDataBuf();
+		int    ok = 1;
+		PrjTaskTbl::Rec * p_data = static_cast<PrjTaskTbl::Rec *>(pNewTbl->getDataBuf());
+		SString code_buf;
+		SString descr_buf;
+		SString memo_buf;
+		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		Reference * p_ref = 0;
+		if(P_Ref) {
+			p_ref = P_Ref;
+		}
+		else if(PPRef)
+			p_ref = PPRef;
+		else {
+			P_Ref = new Reference;
+			if(P_Ref)
+				p_ref = P_Ref;
+		}
+		if(Before6202) {
+			PrjTask_Before6202 * p_old_rec = static_cast<PrjTask_Before6202 *>(pOldRec);
+	#define FLD_ASSIGN(f) p_data->f = p_old_rec->f
+			FLD_ASSIGN(ID);
+			FLD_ASSIGN(ProjectID);
+			FLD_ASSIGN(Kind);
+			FLD_ASSIGN(CreatorID);
+			FLD_ASSIGN(GroupID);
+			FLD_ASSIGN(EmployerID);
+			FLD_ASSIGN(ClientID);
+			FLD_ASSIGN(TemplateID);
+			FLD_ASSIGN(Dt);
+			FLD_ASSIGN(Tm);
+			FLD_ASSIGN(StartDt);
+			FLD_ASSIGN(StartTm);
+			FLD_ASSIGN(EstFinishDt);
+			FLD_ASSIGN(EstFinishTm);
+			FLD_ASSIGN(FinishDt);
+			FLD_ASSIGN(FinishTm);
+			FLD_ASSIGN(Priority);
+			FLD_ASSIGN(Status);
+			FLD_ASSIGN(DrPrd);
+			FLD_ASSIGN(DrKind);
+			FLD_ASSIGN(DrDetail);
+			FLD_ASSIGN(Flags);
+			FLD_ASSIGN(DlvrAddrID);
+			FLD_ASSIGN(LinkTaskID);
+			FLD_ASSIGN(Amount);
+			FLD_ASSIGN(OpenCount);
+			FLD_ASSIGN(BillArID);
+	#undef FLD_ASSIGN
+			code_buf = p_old_rec->Code;
+			descr_buf = p_old_rec->Descr;
+			memo_buf = p_old_rec->Memo;
+			STRNSCPY(p_data->Code, code_buf);
+			//STRNSCPY(p_data->Descr, p_old_rec->Descr);
+			//STRNSCPY(p_data->Memo, p_old_rec->Memo);
+		}
+		else if(Before10702) {
+			PrjTask_Before10702 * p_old_rec = static_cast<PrjTask_Before10702 *>(pOldRec);
+	#define FLD_ASSIGN(f) p_data->f = p_old_rec->f
+			FLD_ASSIGN(ID);
+			FLD_ASSIGN(ProjectID);
+			FLD_ASSIGN(Kind);
+			FLD_ASSIGN(CreatorID);
+			FLD_ASSIGN(GroupID);
+			FLD_ASSIGN(EmployerID);
+			FLD_ASSIGN(ClientID);
+			FLD_ASSIGN(TemplateID);
+			FLD_ASSIGN(Dt);
+			FLD_ASSIGN(Tm);
+			FLD_ASSIGN(StartDt);
+			FLD_ASSIGN(StartTm);
+			FLD_ASSIGN(EstFinishDt);
+			FLD_ASSIGN(EstFinishTm);
+			FLD_ASSIGN(FinishDt);
+			FLD_ASSIGN(FinishTm);
+			FLD_ASSIGN(Priority);
+			FLD_ASSIGN(Status);
+			FLD_ASSIGN(DrPrd);
+			FLD_ASSIGN(DrKind);
+			FLD_ASSIGN(DrDetail);
+			FLD_ASSIGN(Flags);
+			FLD_ASSIGN(DlvrAddrID);
+			FLD_ASSIGN(LinkTaskID);
+			FLD_ASSIGN(Amount);
+			FLD_ASSIGN(OpenCount);
+			FLD_ASSIGN(BillArID);
+	#undef FLD_ASSIGN
+			code_buf = p_old_rec->Code;
+			descr_buf = p_old_rec->Descr;
+			memo_buf = p_old_rec->Memo;
+			STRNSCPY(p_data->Code, code_buf);
+		}
+		{
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		}
+		CATCH
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_COMP|LOGMSGF_TIME);
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+};
 
+class PPCvtProject10702 : public PPTableConversion {
+	int   Before6202;
+	int   Before10702;
+	Reference * P_Ref;
+public:
+	struct Project_Before6202 {
+		long   ID;
+		long   Kind;
+		long   ParentID;
+		char   Name[48];
+		char   Code[16];
+		LDATE  Dt;
+		LDATE  BeginDt;
+		LDATE  EstFinishDt;
+		LDATE  FinishDt;
+		long   MngrID;
+		long   ClientID;
+		long   TemplateID;
+		long   Status;
+		long   Flags;
+		long   BillOpID;
+		uint8  Reserve[44];
+		char   Descr[224];
+		char   Memo[128];
+	};
+	struct Project_Before10702 {
+		int32  ID;
+		int32  Kind;
+		int32  ParentID;
+		char   Name[128];
+		char   Code[24];
+		LDATE  Dt;
+		LDATE  BeginDt;
+		LDATE  EstFinishDt;
+		LDATE  FinishDt;
+		int32  MngrID;
+		int32  ClientID;
+		int32  TemplateID;
+		int32  Status;
+		int32  Flags;
+		int32  BillOpID;
+		uint8  Reserve[44]; // raw
+		char   Descr[256];
+		char   Memo[1024]; // note
+	};
+	PPCvtProject10702() : Before6202(0), Before10702(0), P_Ref(0)
+	{
+	}
+	~PPCvtProject10702()
+	{
+		delete P_Ref;
+	}
+	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new ProjectTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			DbTableStat stat;
+			p_tbl->GetFileStat(-1, &stat);
+			Before6202 = 0;
+			Before10702 = 0;
+			if(stat.FixRecSize != sizeof(ProjectTbl::Rec)) {
+				if(stat.FixRecSize == offsetof(Project_Before10702, Memo))
+					Before10702 = 1;
+				else if(stat.FixRecSize < offsetof(Project_Before10702, Memo)) {
+					Before6202 = 1;
+					Before10702 = 1;
+				}
+			}
+			*pNeedConversion = BIN(Before10702 || Before6202);
+			//*pNeedConversion = BIN(stat.FixRecSize < offsetof(ProjectTbl::Rec, Memo));
+		}
+		return p_tbl;
+	}
+	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
+	{
+		pNewTbl->clearDataBuf();
+		ProjectTbl::Rec * p_data = static_cast<ProjectTbl::Rec *>(pNewTbl->getDataBuf());
+		int    ok = 1;
+		SString code_buf;
+		SString descr_buf;
+		SString memo_buf;
+		const PPID id = *static_cast<const long *>(pOldRec); // Идент записи в любом случае - самое первое поле 
+		Reference * p_ref = 0;
+		if(P_Ref) {
+			p_ref = P_Ref;
+		}
+		else if(PPRef)
+			p_ref = PPRef;
+		else {
+			P_Ref = new Reference;
+			if(P_Ref)
+				p_ref = P_Ref;
+		}
+		if(Before6202) {
+			const Project_Before6202 * p_old_rec = static_cast<const Project_Before6202 *>(pOldRec);
+	#define FLD_ASSIGN(f) p_data->f = p_old_rec->f
+			FLD_ASSIGN(ID);
+			FLD_ASSIGN(Kind);
+			FLD_ASSIGN(ParentID);
+			STRNSCPY(p_data->Name, p_old_rec->Name);
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+			FLD_ASSIGN(Dt);
+			FLD_ASSIGN(BeginDt);
+			FLD_ASSIGN(EstFinishDt);
+			FLD_ASSIGN(FinishDt);
+			FLD_ASSIGN(MngrID);
+			FLD_ASSIGN(ClientID);
+			FLD_ASSIGN(TemplateID);
+			FLD_ASSIGN(Status);
+			FLD_ASSIGN(Flags);
+			FLD_ASSIGN(BillOpID);
+	#undef FLD_ASSIGN
+			descr_buf = p_old_rec->Descr;
+			memo_buf = p_old_rec->Memo;
+		}
+		else if(Before10702) {
+			const Project_Before10702 * p_old_rec = static_cast<const Project_Before10702 *>(pOldRec);
+	#define FLD_ASSIGN(f) p_data->f = p_old_rec->f
+			FLD_ASSIGN(ID);
+			FLD_ASSIGN(Kind);
+			FLD_ASSIGN(ParentID);
+			STRNSCPY(p_data->Name, p_old_rec->Name);
+			STRNSCPY(p_data->Code, p_old_rec->Code);
+			FLD_ASSIGN(Dt);
+			FLD_ASSIGN(BeginDt);
+			FLD_ASSIGN(EstFinishDt);
+			FLD_ASSIGN(FinishDt);
+			FLD_ASSIGN(MngrID);
+			FLD_ASSIGN(ClientID);
+			FLD_ASSIGN(TemplateID);
+			FLD_ASSIGN(Status);
+			FLD_ASSIGN(Flags);
+			FLD_ASSIGN(BillOpID);
+	#undef FLD_ASSIGN
+			descr_buf = p_old_rec->Descr;
+			memo_buf = p_old_rec->Memo;
+		}
+		{
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_DESCR), descr_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
+		}
+		CATCH
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_COMP|LOGMSGF_TIME);
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+};
+
+int SLAPI Convert10702()
+{
+	int    ok = 1;
+	PPWait(1);
+	{
+		PPCvtPrjTask10702 cvt01;
+		THROW(cvt01.Convert());
+	}
+	{
+		PPCvtProject10702 cvt02;
+		THROW(cvt02.Convert());
+	}
+	PPWait(0);
+	CATCHZOK
+	return ok;
+}
+
+//@erik v10.7.3 {
+int SLAPI Convert10703()
+{
+	int    ok = 1;
+	PPWait(1);
+	PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
+	if(p_mgr && p_mgr->IsValid_() > 0) {
+		THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
+	}
+	PPWait(0);
+	CATCHZOK
+	ZDELETE(p_mgr);
+	return ok;
+}
+// } @erik

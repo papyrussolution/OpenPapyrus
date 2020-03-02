@@ -396,7 +396,7 @@ void BillHdrImpExpDialog::SetupCtrls(long direction)
 
 int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 {
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	ImpExpParamDialog::setDTS(&Data);
 	SetupStringCombo(this, CTLSEL_IMPEXPBILH_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat); // @v9.7.8
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 0, PPBillImpExpParam::fImpRowsFromSameFile);

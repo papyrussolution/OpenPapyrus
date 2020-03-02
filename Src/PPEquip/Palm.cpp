@@ -28,14 +28,17 @@ int SLAPI PalmBillQueue::Push(PalmBillPacket * pPack)
 	return insert(pPack) ? 1 : PPSetErrorSLib();
 }
 
-#define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)
+// @v10.7.2 #define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)
 
 IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 {
 	const PalmBillPacket * p_i1 = static_cast<const PalmBillPacket *>(i1);
 	const PalmBillPacket * p_i2 = static_cast<const PalmBillPacket *>(i2);
-	int    r = COMPARE(p_i1->Hdr.PalmID, p_i2->Hdr.PalmID);
-	return r ? r : COMPARE(p_i1->Hdr.ID, p_i2->Hdr.ID);
+	// @v10.7.2 int    r = COMPARE(p_i1->Hdr.PalmID, p_i2->Hdr.PalmID);
+	// @v10.7.2 return r ? r : COMPARE(p_i1->Hdr.ID, p_i2->Hdr.ID);
+	int    si = 0; // @v10.7.2 
+	CMPCASCADE2(si, p_i1, p_i2, Hdr.PalmID, Hdr.ID); // @v10.7.2 
+	return si; // @v10.7.2 
 }
 
 int SLAPI PalmBillQueue::PushUnique(PalmBillPacket * pPack)
@@ -3984,6 +3987,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 	int    ok = 1;
 	const  int dont_prepare_debt_data = BIN(rParam.Flags & PalmPaneData::fExclExpDebts); // @v9.0.0
 	uint   i, j;
+	SString temp_buf;
 	DbfTable * p_dbf_tbl = 0;
 	PPStyloPalmConfig sp_cfg;
 	SString out_path, palm_path;
@@ -3992,6 +3996,7 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 	TSCollection <PalmCfgItem> cfg_list;
 	AndroidDevs andr_devs;
 	PPViewPrjTask v_todo;
+	PPObjPrjTask todo_obj; // @v10.7.2
 	ExportBlock _blk;
 	THROW(ReadConfig(&sp_cfg));
 	PPGetPath(PPPATH_OUT, out_path);
@@ -4186,20 +4191,17 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 							todo_filt.IncludeStatus(TODOSTTS_ONHOLD);
 							THROW(v_todo.Init_(&todo_filt));
 							for(v_todo.InitIteration(); v_todo.NextIteration(&item) > 0;) {
-								char   temp_buf[256];
 								DbfRecord rec(p_dbf_tbl);
 								rec.empty();
 								rec.put(1, item.ID);
 								rec.put(2, item.Priority);
 								rec.put(3, BIN(item.Status == TODOSTTS_COMPLETED));
 								rec.put(4, item.StartDt); // Вариант: item.EstFinishDt
-
-								strip(STRNSCPY(temp_buf, item.Descr));
-								SOemToChar(temp_buf);
+								todo_obj.GetItemDescr(item.ID, temp_buf);
+								temp_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER);
 								rec.put(6, temp_buf);
-
-								strip(STRNSCPY(temp_buf, item.Memo));
-								SOemToChar(temp_buf);
+								todo_obj.GetItemMemo(item.ID, temp_buf);
+								temp_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER);
 								rec.put(7, temp_buf);
 								THROW_PP_S(p_dbf_tbl->appendRec(&rec), PPERR_DBFWRFAULT, p_dbf_tbl->getName());
 							}

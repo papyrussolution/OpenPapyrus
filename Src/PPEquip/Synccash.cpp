@@ -616,6 +616,9 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 						if(sl_param.ChZnCode.NotEmptyS()) { // @v10.7.0
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode)); // @v10.6.12
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN)); // @v10.7.2
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial)); // @v10.7.2
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType)); // @v10.7.2
 						}
 						// @v10.4.1 {
 						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
@@ -1219,7 +1222,7 @@ int SLAPI SCS_SYNCCASH::PrintSlipDoc(const CCheckPacket * pPack, const char * pF
 		int   r = 1;
 		SString line_buf;
 		const char * p_format_name = isempty(pFormatName) ? "SlipDocument" : pFormatName;
-		StringSet head_lines((const char *)&r);
+		StringSet head_lines(reinterpret_cast<const char *>(&r));
 		SlipDocCommonParam  sdc_param;
 		THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
 		if(r > 0) {

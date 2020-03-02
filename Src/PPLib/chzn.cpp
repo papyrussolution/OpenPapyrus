@@ -107,6 +107,21 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 #endif // } 0 @v10.6.9
 
 //static 
+int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
+{
+	uint16 product_type_bytes = 0;
+	if(productType == ptFur)
+		product_type_bytes = 0x0002;
+	else if(productType == ptTobacco)
+		product_type_bytes = 0x0005;
+	else if(productType == ptShoe)
+		product_type_bytes = 0x1520;
+	else if(productType == ptMedicine)
+		product_type_bytes = 0x0003;
+	return product_type_bytes ? STokenRecognizer::EncodeChZn1162(product_type_bytes, pGTIN, pSerial, pResultBuf, resultBufSize) : 0;
+}
+
+//static 
 int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 {
 	int    ok = 0;
@@ -118,6 +133,8 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 	rS.AddOnlyToken(GtinStruc::fldSscc18);
 	rS.AddOnlyToken(GtinStruc::fldGTIN14);
 	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+	rS.AddOnlyToken(GtinStruc::fldUSPS); // @v10.7.2
+	rS.AddOnlyToken(GtinStruc::fldInner1); // @v10.7.2
 	{
 		temp_buf = pCode;
 		if(!temp_buf.IsAscii()) {
@@ -215,33 +232,43 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 				static int __lock = 0;
 				if(!__lock) {
 					__lock = 1;
+					int   is_auto_input = 0;
 					getCtrlString(CTL_CHZNMARK_INPUT, CodeBuf.Z());
-					SString msg_buf;
-					SString temp_buf;
-					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(CodeBuf, gts);
-					if(pczcr) {
-						if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf))
-							msg_buf.Space().CatEq("GTIN14", temp_buf);
-						if(gts.GetToken(GtinStruc::fldSerial, &temp_buf))
-							msg_buf.Space().CatEq("SER", temp_buf);
-						if(gts.GetToken(GtinStruc::fldPart, &temp_buf))
-							msg_buf.Space().CatEq("PART", temp_buf);
-						if(gts.GetToken(GtinStruc::fldSscc18, &temp_buf))
-							msg_buf.Space().CatEq("SSCC18", temp_buf);
-						if(gts.GetToken(GtinStruc::fldPriceRuTobacco, &temp_buf))
-							msg_buf.Space().CatEq("PRICE", temp_buf);
-						//PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
-						// @v10.7.1 {
-						if(gts.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
-							CodeBuf = temp_buf;
-							setCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
-						}
-						// } @v10.7.1 
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHZNMARK_INPUT));
+					if(p_il) {
+						TInputLine::Statistics stat;
+						p_il->GetStatistics(&stat);
+						if(stat.Flags & stat.fSerialized && !(stat.Flags & stat.fPaste) && stat.SymbCount && stat.IntervalMean <= 50.0) // @v10.7.2 (<=5.0)-->(<=50.0)
+							is_auto_input = 1;
 					}
-					else
-						PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
-					setStaticText(CTL_CHZNMARK_INFO, msg_buf);
+					if(!is_auto_input) {
+						SString msg_buf;
+						SString temp_buf;
+						GtinStruc gts;
+						const int pczcr = PPChZnPrcssr::ParseChZnCode(CodeBuf, gts);
+						if(pczcr) {
+							if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf))
+								msg_buf.Space().CatEq("GTIN14", temp_buf);
+							if(gts.GetToken(GtinStruc::fldSerial, &temp_buf))
+								msg_buf.Space().CatEq("SER", temp_buf);
+							if(gts.GetToken(GtinStruc::fldPart, &temp_buf))
+								msg_buf.Space().CatEq("PART", temp_buf);
+							if(gts.GetToken(GtinStruc::fldSscc18, &temp_buf))
+								msg_buf.Space().CatEq("SSCC18", temp_buf);
+							if(gts.GetToken(GtinStruc::fldPriceRuTobacco, &temp_buf))
+								msg_buf.Space().CatEq("PRICE", temp_buf);
+							//PPLoadTextS(PPTXT_CHZNMARKVALID, msg_buf).CR().Cat(CodeBuf);
+							// @v10.7.1 {
+							if(gts.GetToken(GtinStruc::fldOriginalText, &temp_buf)) {
+								CodeBuf = temp_buf;
+								setCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
+							}
+							// } @v10.7.1 
+						}
+						else
+							PPLoadError(PPERR_TEXTISNTCHZNMARK, msg_buf, CodeBuf);
+						setStaticText(CTL_CHZNMARK_INFO, msg_buf);
+					}
 					__lock = 0;
 				}
 			}
@@ -274,7 +301,8 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
 		//if(PPChZnPrcssr::IsChZnCode(temp_buf) > 0) {
 		if(pczcr) {
-			rMark = temp_buf;
+			gts.GetToken(GtinStruc::fldOriginalText, &rMark); // @v10.7.2 
+			// @v10.7.2 rMark = temp_buf;
 			ok = 1;
 		}
 		else {

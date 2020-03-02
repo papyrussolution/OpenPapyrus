@@ -28,9 +28,12 @@ SlipLineParam & SLAPI SlipLineParam::Z()
 	BarcodeStd = 0;
 	BarcodeWd = 0;
 	BarcodeHt = 0;
+	ChZnProductType = 0; // @v10.7.2
 	Text.Z(); // @v9.5.7
 	Code.Z(); // @v9.5.7
 	ChZnCode.Z(); // @v10.6.8
+	ChZnGTIN.Z(); // @v10.7.2
+	ChZnSerial.Z(); // @v10.7.2
 	return *this;
 }
 //
@@ -131,6 +134,7 @@ public:
 		long   EntryNo;
 		long   SrcItemsCount;
 		long   PrintedLineNo; // Номер строки на листе
+		long   ChZnProductType; // @v10.7.2
 		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
 		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
 		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
@@ -148,6 +152,8 @@ public:
 		char   Text[256];     // @v9.5.7
 		char   Code[32];      // @v9.5.7
 		char   ChZnCode[64];  // @v10.6.8
+		char   ChZnGTIN[16];  // @v10.7.2
+		char   ChZnSerial[32];  // @v10.7.2
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -1481,7 +1487,9 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 		do {
 			pIter->DivID = 0;
 			pIter->Qtty = pIter->Price = 0.0;
-			PTR32(pIter->ChZnCode)[0]; // @v10.7.0
+			PTR32(pIter->ChZnCode)[0] = 0; // @v10.7.0
+			PTR32(pIter->ChZnGTIN)[0] = 0;  // @v10.7.2
+			PTR32(pIter->ChZnSerial)[0] = 0;  // @v10.7.2
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1499,6 +1507,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 						}
 						// } @v10.1.0 
 						if(GetCurCheckItem(pIter, &cc_item, &cc_ext)) {
+							int   chzn_product_type = 0;
 							const double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
 							const double ds = cc_item.Dscnt * cc_item.Quantity;
 							const double prev_rt = RunningTotal;
@@ -1512,22 +1521,6 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->GoodsID = cc_item.GoodsID;
 							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
-							// @v10.6.12 {
-							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
-							if(temp_buf.NotEmptyS()) {
-								GtinStruc gts;
-								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts) > 0) {
-									SString result_chzn_code;
-									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-										result_chzn_code.Cat(temp_buf);
-										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-											result_chzn_code.Cat(temp_buf);
-											STRNSCPY(pIter->ChZnCode, result_chzn_code);
-										}
-									}
-								}
-							}
-							// } @v10.6.12 
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, temp_buf);
@@ -1536,6 +1529,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									pIter->VatRate = tax_entry.GetVatRate();
 								// @v10.4.1 {
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+									chzn_product_type = gt_rec.ChZnProdType; // @v10.7.2
 									if(gt_rec.Flags & GTF_ADVANCECERT)
 										pIter->Ptt = CCheckPacket::pttAdvance;
 									//@erikL v10.4.12 {
@@ -1546,6 +1540,25 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								}
 								// } @v10.4.1 
 							}
+							pIter->ChZnProductType = chzn_product_type; // @v10.7.2
+							// @v10.6.12 {
+							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
+							if(temp_buf.NotEmptyS()) {
+								GtinStruc gts;
+								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts) > 0) {
+									SString result_chzn_code;
+									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+										STRNSCPY(pIter->ChZnGTIN, temp_buf); // @v10.7.2
+										result_chzn_code.Cat(temp_buf);
+										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+											result_chzn_code.Cat(temp_buf);
+											STRNSCPY(pIter->ChZnCode, result_chzn_code);
+											STRNSCPY(pIter->ChZnSerial, temp_buf); // @v10.7.2
+										}
+									}
+								}
+							}
+							// } @v10.6.12 
 							// } @v9.5.7
 						}
 					}
@@ -2432,6 +2445,9 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.Text = CurIter.Text; // @v9.5.7
 			sl_param.Code = CurIter.Code; // @v9.5.7
 			sl_param.ChZnCode = CurIter.ChZnCode; // @v10.6.12
+			sl_param.ChZnGTIN = CurIter.ChZnGTIN; // @v10.6.12
+			sl_param.ChZnSerial = CurIter.ChZnSerial; // @v10.6.12
+			sl_param.ChZnProductType = CurIter.ChZnProductType; // @v10.7.2
 			{
 				const  long font_id = sl_param.Font;
 				uint   font_pos = 0;

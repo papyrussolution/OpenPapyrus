@@ -1108,7 +1108,7 @@ SLAPI ObjCollection::~ObjCollection()
 //virtual
 void FASTCALL ObjCollection::freeItem(void * pItem)
 {
-	delete ((ObjCollectionEntry *)pItem)->ObjPtr;
+	delete static_cast<ObjCollectionEntry *>(pItem)->ObjPtr;
 	SArray::freeItem(pItem);
 }
 
@@ -1154,7 +1154,7 @@ static int FASTCALL Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID 
 		const PPID obj_type = obj_type_list.get(i);
 		if(!oneof5(obj_type, PPOBJ_ACCOUNT_PRE9004, PPOBJ_STAFFLIST_PRE9003, PPOBJ_COUNTRY, PPOBJ_CITY, PPOBJ_REGION)) {
 			if(obj_type == PPOBJ_BILL && BillObj) {
-				r = ((PPObject *)BillObj)->HandleMsg(msg, obj, id, msgExtraPtr);
+				r = static_cast<PPObject *>(BillObj)->HandleMsg(msg, obj, id, msgExtraPtr);
 			}
 			else if(obj_type == PPOBJ_LOT)
 				r = DBRPL_OK;

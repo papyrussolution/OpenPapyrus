@@ -1308,6 +1308,7 @@ public:
 	static int IdSCardExtString;    // @v9.6.1 (scardID, fldId)
 	static int IdStrByStrGroupPos;  // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
 	static int IdBillDate;          // @v10.0.03 (billID) Дата документа по его идентификатору
+	static int IdUnxText;           // @v10.7.2 (fldObjType, fldObjID, fldTxtProp)
 
 	static int SLAPI Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -3042,9 +3043,10 @@ private:
 #define PPTRPROP_COMBINE    5 // Комбинированная строка, содержащая набор текстовых свойств
 #define PPTRPROP_RAWADDR    6 // @v10.0.12 Простое текстовое представление адреса
 #define PPTRPROP_TIMESERIES 7 // @v10.2.3 Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
-	// Применяется только для таблицы UnxTextRefTbl (ное не TextRefTbl).
+	// Применяется только для таблицы UnxTextRefTbl (но не TextRefTbl).
 	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
 	// свойством как со строкой инициирует ошибку.
+#define PPTRPROP_DESCR      8 // @v10.7.2 Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
 
 #define PPTRPROP_USER    100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
 
@@ -14046,7 +14048,7 @@ struct CCheckItem { // @transient
 	char   Serial[32];      // @v10.2.10 [24]-->[32]
 	char   ChZnGtin[16];    // @v10.4.12 Gtin код товара, считанный из марки 'честный знак'
 	char   ChZnSerial[24];  // @v10.4.11 Серийный номер маркировки 'честный знак'.
-	char   ChZnMark[96];    // @v10.6.9 Марка 'честный знак' 
+	char   ChZnMark[156];   // @v10.6.9 Марка 'честный знак' 
 	char   EgaisMark[156];  // @v9.0.9 Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
@@ -15241,6 +15243,7 @@ public:
 	int    FASTCALL IsDbSymbEq(const PPCommandGroup & rGrp) const;
 	int    SLAPI SetLogo(const char * pPath);
 	int    FASTCALL GenerateDeskGuid(); // @erik v10.6.6
+	const  S_GUID FASTCALL GetDeskGuid() const;  // @erik v10.7.3
 	const  SString & GetLogo() const;
 	int    FASTCALL Copy(const PPCommandGroup &);
 	PPCommandGroup * FASTCALL GetDesktop(long id);
@@ -15297,6 +15300,9 @@ public:
 	int    SLAPI Load__(PPCommandGroup *);
 	int    SLAPI Save__2(const PPCommandGroup *, const long rwFlag); // @erik v10.6.1
 	int    SLAPI Load__2(PPCommandGroup *, const long rwFlag); // @erik v10.6.1
+	int    SLAPI SaveFromAllTo(const long rwFlag); // @erik v10.7.1
+	int    SLAPI ConvertDesktopTo(const long rwFlag); //@erik v10.7.4
+	int    SLAPI DeleteDesktopByGUID(const SString guid, const long rwFlag);
 	static int GetDesksDir(SString &rDesksPath); // @erik v10.6.7
 
 private:
@@ -15331,6 +15337,8 @@ struct PPJobDescr { // @persistent
 	SString & FASTCALL GetFactoryFuncName(SString &) const;
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
+	int    FASTCALL Write2(void * pHandler, const long rwFlag) const; //@erik v10.7.1
+	int    FASTCALL Read2(void * pHandler, const long rwFlag); //@erik v10.7.1
 
 	long   CmdID;
 	long   Flags;
@@ -15347,6 +15355,8 @@ public:
 	PPJob & FASTCALL operator = (const PPJob &);
 	int    FASTCALL Write(SBuffer & rBuf);
 	int    FASTCALL Read(SBuffer & rBuf);
+	int    FASTCALL Write2(void * pHandler, const long rwFlag) const; //@erik v10.7.1
+	int    FASTCALL Read2(void * pHandler, const long rwFlag); //@erik v10.7.1
 	enum {
 		fV579                  = 0x0001,
 		fNotifyByMail          = 0x0002, //
@@ -15444,6 +15454,14 @@ private:
 //
 class PPJobMngr {
 public:
+	//@erik v10.7.1
+	// rwFlag - флаг типа документа, в котором должен хранится десктоп
+	//
+	enum {
+		fRWByXml = 1,
+		fRWByTxt
+	};
+
 	SLAPI  PPJobMngr();
 	SLAPI ~PPJobMngr();
 	int    SLAPI LoadResource(PPID jobID, PPJobDescr * pJob);
@@ -15451,6 +15469,9 @@ public:
 	int    SLAPI GetResourceList(int loadText, StrAssocArray & rList);
 	int    SLAPI LoadPool(const char * pDbSymb, PPJobPool *, int readOnly);
 	int    SLAPI SavePool(const PPJobPool *);
+	int    SLAPI LoadPool2(const char * pDbSymb, PPJobPool *, int readOnly, const long rwFlag); //@erik v10.7.0
+	int    SLAPI SavePool2(const PPJobPool *, const long rwFlag); //@erik v10.7.0
+	int    SLAPI GetJobPoolDir(SString &rDesksPath);
 	int    SLAPI IsPoolChanged() const;
 	DirChangeNotification * SLAPI CreateDcn();
 	PPJobHandler * SLAPI CreateInstance(PPID jobID, const PPJobDescr * pDescr);
@@ -16514,6 +16535,7 @@ public:
 		double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение для всей выборки. Локальное отклонение
 			// считается по Config.E.LocalDevPtCount точкам как стандартное отклонение. Необходимо для идентификации
 			// аномальных смещений где недопустимо делать ставки.
+		LDATE  UseDataForStrategiesSince; // @v10.7.2 Дата, начиная с которой можно рассматривать данные для построения стратегий
 	};
 	PPTimeSeries Rec;
 	Extension E;
@@ -16566,7 +16588,8 @@ public:
 			int16  LDMT_Factor;             // @v10.7.1 Фактор ограничения девиации при выставлении ставки: макс произведение 
 				// локальной девиации на ошибку магистрального тренда в промилле.
 			int32  ChaosFactor; // @v10.7.1
-			uint8  Reserve[36]; // @v10.4.2 [56]-->[48] @v10.7.1 [40]-->[36]
+			float  MainTrendMaxErrRel; // @v10.7.2 Максимальная относительная ошибка магистрального тренда при выставлении ставки. 
+			uint8  Reserve[32]; // @v10.4.2 [56]-->[48] @v10.7.1 [40]-->[36] // @v10.7.2 [36]-->[32]
 		};
 		ExtBlock   E;
 		TSVector <Entry> List;
@@ -16765,7 +16788,7 @@ public:
 		};
 		struct SelectBlock : public BestStrategyBlock {
 			SLAPI  SelectBlock(const TSCollection <TrendEntry> & rTrendList, const  Index1 * pIndex) : R_TrendList(rTrendList), LastTrendIdx(0), Criterion(0), ChaosFactor(0),
-				P_Index(pIndex), P_Ts(0), P_VList(0), DevPtCount(0), LDMT_Factor(0)
+				P_Index(pIndex), P_Ts(0), P_VList(0), DevPtCount(0), LDMT_Factor(0), MainTrendMaxErrRel(0.0f)
 			{
 			}
 			SelectBlock & SLAPI Init(int lastTrendIdx)
@@ -16783,6 +16806,7 @@ public:
 			long   ChaosFactor;           // IN 
 			long   DevPtCount;            // IN Количество точек P_Ts, по которым отсчитывать разброс (для анализа неустойчивости ряда)
 			long   LDMT_Factor;           // IN
+			float  MainTrendMaxErrRel;    // @v10.7.2 IN Максимальная относительная ошибка магистрального тренда при выставлении ставки
 			const  Index1 * P_Index;      // IN
 			LongArray AllSuitedPosList;   // OUT
 		};
@@ -16827,6 +16851,7 @@ public:
 		void   FASTCALL SetOuter(const StrategyResultEntry & rS); // @cs
 		double SLAPI GetPeakAverage() const;
 		double SLAPI GetBottomAverage() const;
+		void   SLAPI ToString(long flags, int stakeSide, int optFactorSide, SString & rBuf);
 
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
@@ -17019,7 +17044,8 @@ public:
 	uint8  ReserveStart[32]; // @anchor
 	long   Flags;            // @flags
 	long   CloseMode;        // PPObjTimeSeries::Strategy::clsmodXXX
-	uint8  ReserveEnd[60];   // @reserve
+	LDATE  UseDataForStrategiesTill; // @v10.7.2
+	uint8  ReserveEnd[56];   // @reserve // @v10.7.2 [60]-->[56]
 	ObjIdListFilt TsList;    // @anchor
 };
 
@@ -17080,9 +17106,9 @@ public:
 	int    SLAPI FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack, const DateTimeArray & rTsTmList, const RealArray & rTsValList, uint flags, uint * pResult);
 private:
 	int    SLAPI ReadModelParam(ModelParam & rMp);
-	int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & tTs);
-	int    SLAPI FindStrategies(const ModelParam & rModelParam, PPObjTimeSeries::TrainNnParam & rTnnp2, uint targetQuant, const DateTimeArray & rTsTmList, const RealArray & rTsValList, 
-		const PPObjTimeSeries::TrendEntry & rTe, const PPObjTimeSeries::TrendEntry * pMainTrendEntry, int optFactorSide, PPObjTimeSeries::StrategyContainer & rSContainer);
+	// @v10.7.2 int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
+	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
+	int    SLAPI FindStrategies(void * pBlk);
 	enum {
 		mavfDontSqrtErrList = 0x0001
 	};
@@ -20194,12 +20220,15 @@ struct SlipLineParam {
 	int    BarcodeStd;    // BARCSTD_XXX Стандарт штрихкода
 	int    BarcodeWd;     // Ширина штрихкода (в точках)
 	int    BarcodeHt;     // Высота штрихкода (в точках)
+	int    ChZnProductType; // @v10.7.2
 	TRect  PictCoord;     // Координаты изображения
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
 	SString Text;         // @v9.5.7
 	SString Code;         // @v9.5.7
 	SString ChZnCode;     // @v10.6.8 Маркировка товара маркой честный знак
+	SString ChZnGTIN;     // @v10.7.2
+	SString ChZnSerial;   // @v10.7.2 
 };
 
 struct SlipDocCommonParam {
@@ -22165,13 +22194,20 @@ private:
 	// сигнализировать при учете, что оплата такого товара является авансом, но не собственно покупкой).
 #define GTF_GMARKED        0x00008000L // @v10.4.11 Товары этого типа имеют государственную маркировку
 
+#define GTCHZNPT_UNDEF     0
+#define GTCHZNPT_FUR       1
+#define GTCHZNPT_TOBACCO   2
+#define GTCHZNPT_SHOE      3
+#define GTCHZNPT_MEDICINE  4
+
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	SLAPI  PPGoodsType2();
 	long   Tag;            // Const=PPOBJ_GOODSTYPE
 	long   ID;             //
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	char   Reserve[32];    // @reserve
+	char   Reserve[28];    // @reserve // @v10.7.2 [32]-->[28]
+	long   ChZnProdType;   // @v10.7.2
 	double StockTolerance; // @v9.0.4 Величина толерантности к дефициту либо к излишку товара.
 		// Если доступный остаток меньше требуемого на величину, не превышающую StockTolerance
 		// то расходуется то, что есть.
@@ -43742,7 +43778,6 @@ private:
 //
 // @ModuleDecl(PPObjProject)
 //
-
 #define PRJCFGF_NEWTASKNOTICE        0x0001
 #define PRJCFGF_NEWTASKNOTICEONLOGIN 0x0002
 #define PRJCFGF_INCOMPLETETASKREMIND 0x0004
@@ -43796,6 +43831,15 @@ struct PPProjectConfig {   // @persistent @store(PropertyTbl) @size=90
 #define PPPRJSTS_NONACTIVE   2L // Проект/фаза завершен
 #define PPPRJSTS_ARCHIVED    3L // Архивированный проект (только для проектов)
 
+class PPProjectPacket { // @v10.7.2
+public:
+	SLAPI  PPProjectPacket();
+	PPProjectPacket & SLAPI Z();
+	ProjectTbl::Rec Rec;
+	SString SDescr;
+	SString SMemo;
+};
+
 class PPObjProject : public PPObject {
 public:
 	static int FASTCALL ReadConfig(PPProjectConfig *);
@@ -43814,8 +43858,12 @@ public:
 	//
 	virtual int    SLAPI Edit(PPID * pID, void * extraPtr/* parentPrjID */);
 	virtual int    SLAPI DeleteObj(PPID id);
-	int    SLAPI InitPacket(ProjectTbl::Rec *, int kind /* PPPRJK_XXX */, PPID parentID, int use_ta);
-	int    SLAPI PutPacket(PPID * pID, ProjectTbl::Rec *, int use_ta);
+	SString & SLAPI GetItemDescr(PPID id, SString & rBuf);
+	SString & SLAPI GetItemMemo(PPID id, SString & rBuf);
+	int    SLAPI PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPProjectPacket * pPack); // @v10.7.2
+	int    SLAPI SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx); // @v10.7.2
+	int    SLAPI InitPacket(PPProjectPacket * pPack, int kind /* PPPRJK_XXX */, PPID parentID, int use_ta); // @v10.7.2
 	int    SLAPI GetFullName(PPID id, SString & rBuf);
 private:
 	virtual const char * SLAPI GetNamePtr();
@@ -43868,6 +43916,8 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ProjectViewItem *);
 	int    SLAPI InitPrjTaskIterations(PPID prjID);
+	SString & SLAPI GetItemDescr(PPID id, SString & rBuf); // @>>PPObjProject::GetItemDescr
+	SString & SLAPI GetItemMemo(PPID id, SString & rBuf); // @>>PPObjProject::GetItemMemo
 private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -43897,6 +43947,16 @@ private:
 #define TODOPSN_EMPLOYER         2
 #define TODOPSN_CLIENT           3
 
+class PPPrjTaskPacket {
+public:
+	SLAPI  PPPrjTaskPacket();
+	PPPrjTaskPacket & SLAPI Z();
+
+	PrjTaskTbl::Rec Rec;
+	SString SDescr;
+	SString SMemo;
+};
+
 class PPObjPrjTask : public PPObject {
 public:
 	static SString & SLAPI GetStatusText(int statusId, SString &);
@@ -43923,11 +43983,14 @@ public:
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI DeleteObj(PPID id);
 	virtual int SLAPI EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
-	int    SLAPI InitPacket(PrjTaskTbl::Rec *, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
-	int    SLAPI InitPacketByTemplate(const PrjTaskTbl::Rec * pTemplRec, LDATE startDt, PrjTaskTbl::Rec * pRec, int use_ta);
+	int    SLAPI SerializePacket(int dir, PPPrjTaskPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI InitPacket(PPPrjTaskPacket * pPack, int kind /* TODOKIND_XXX */, PPID prjID, PPID clientID, PPID employerID, int use_ta);
+	int    SLAPI InitPacketByTemplate(const PPPrjTaskPacket * pTemplPack, LDATE startDt, PPPrjTaskPacket * pPack, int use_ta);
 	int    SLAPI AddBySample(PPID * pID, PPID sampleID);
-	int    SLAPI PutPacket(PPID * pID, PrjTaskTbl::Rec * pRec, int use_ta);
-	int    SLAPI GetPacket(PPID id, PrjTaskTbl::Rec * pRec);
+	SString & SLAPI GetItemDescr(PPID id, SString & rBuf);
+	SString & SLAPI GetItemMemo(PPID id, SString & rBuf);
+	int    SLAPI PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPPrjTaskPacket * pPack);
 	int    SLAPI CreateByTemplate(PPID templID, const DateRange * pPeriod, PPIDArray * pIdList, int use_ta);
 	//
 	// Descr: Осуществляет функции обслуживания базы данных задач:
@@ -43937,7 +44000,7 @@ public:
 	//
 	int    SLAPI Maintain(); // @nointeract @ta
 	int    SLAPI GetLinkTasks(PPID taskID, PPIDArray * pAry);
-	int    SLAPI EditDialog(PrjTaskTbl::Rec *);
+	int    SLAPI EditDialog(PPPrjTaskPacket * pPack); // @v10.7.2
 private:
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 	virtual const char * SLAPI GetNamePtr();
@@ -43945,7 +44008,7 @@ private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
-	int    SLAPI SubstDescr(PrjTaskTbl::Rec *);
+	int    SLAPI SubstDescr(PPPrjTaskPacket * pPack);
 	int    SLAPI DetermineNewStatus(const PPProjectConfig * pCfg, const PrjTaskTbl::Rec * pRec, int * pNewStatus);
 	int    SLAPI ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoPerson);
 public:
@@ -44046,6 +44109,8 @@ public:
 	int    SLAPI ChangeTasks(PPIDArray *);
 	int    SLAPI GetTimeGridItemText(PPID taskID, SString & rBuf);
 	int    SLAPI EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm);
+	SString & SLAPI GetItemDescr(PPID id, SString & rBuf); // @>>PPObjPrjTask::GetItemDescr
+	SString & SLAPI GetItemMemo(PPID id, SString & rBuf); // @>>PPObjPrjTask::GetItemMemo
 private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
@@ -46402,8 +46467,16 @@ public:
 		SString ParamString;
 		SString InfoText; // @transient
 	};
+	enum {
+		ptUnkn     = GTCHZNPT_UNDEF,
+		ptFur      = GTCHZNPT_FUR,     // 00 02
+		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
+		ptShoe     = GTCHZNPT_SHOE,    // 15 20 
+		ptMedicine = GTCHZNPT_MEDICINE //
+	};
 	static int FASTCALL IsChZnCode(const char * pCode);
 	static int SLAPI ParseChZnCode(const char * pCode, GtinStruc & rS);
+	static int SLAPI Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
 	static int SLAPI InputMark(SString & rMark);
 	explicit SLAPI PPChZnPrcssr(PPLogger * pOuterLogger);
 	SLAPI ~PPChZnPrcssr();
@@ -53138,6 +53211,8 @@ int SLAPI ConvertSCardSeries9809(); // @v9.8.9 (objscard.cpp)
 // @10.2.9 int SLAPI Convert10012(); // @v10.0.12
 int SLAPI Convert10209(); // @10.2.9
 int SLAPI Convert10507(); // @v10.5.7 Scale
+int SLAPI Convert10702(); // @v10.7.2 projects and todo
+int SLAPI Convert10703(); // @erik @v10.7.2 desktops
 int SLAPI DoChargeSalary();
 int SLAPI DoDebtRate();
 int SLAPI DoBizScore(PPID bzsID);

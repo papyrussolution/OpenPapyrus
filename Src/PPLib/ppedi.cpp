@@ -448,6 +448,8 @@ int SLAPI TestGtinStruc()
 				gts.AddOnlyToken(GtinStruc::fldSscc18);
 				gts.AddOnlyToken(GtinStruc::fldGTIN14);
 				gts.AddOnlyToken(GtinStruc::fldExpiryDate);
+				gts.AddOnlyToken(GtinStruc::fldUSPS); // @v10.7.2
+				gts.AddOnlyToken(GtinStruc::fldInner1); // @v10.7.2
 				
 				int pr = gts.Parse(temp_buf);
 				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", static_cast<long>(pr));

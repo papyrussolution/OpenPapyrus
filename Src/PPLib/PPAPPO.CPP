@@ -897,6 +897,7 @@ int PPApp::processCommand(uint cmd)
 		case cmConvertQuot720:       ConvertQuot720();                break;
 		case cmConvertBillUUID7601:  CALLPTRMEMB(p_bobj, ConvertUuid7601()); break;
 		case cmConvertWorkbook813:   ConvertWorkbook813();            break;
+		case cmConvert10703:         Convert10703();                  break;
 		case cmConvert1:
 #ifdef __CONVERT__
 #endif

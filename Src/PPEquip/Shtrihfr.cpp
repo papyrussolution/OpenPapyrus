@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -376,6 +376,13 @@ private:
 		Summ15,                                 // @v10.6.1
 		Summ16,                                 // @v10.6.1
 		CloseCheckEx,                           // @v10.6.3
+		FNOperation,                            // @v10.7.2
+		PaymentTypeSign,                        // @v10.7.2 Признак способа расчета
+		PaymentItemSign,                        // @v10.7.2 Признак предмета расчета 
+		FNSendItemCodeData,                     // @v10.7.2
+		MarkingType,                            // @v10.7.2
+		GTIN,                                   // @v10.7.2
+		SerialNumber                            // @v10.7.2
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -401,7 +408,8 @@ private:
 		sfOldShtrih     = 0x0008, // старая версия драйвера Штрих-ФР
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
-		sfUseWghtSensor = 0x0040  // использовать весовой датчик
+		sfUseWghtSensor = 0x0040, // использовать весовой датчик
+		sfUseFnMethods  = 0x0080  // @v10.7.2 Разрешение на использование fn-методов (параметр pp.ini [config] ShtrihFRUseFnMethods)
 	};
 	static FR_INTRF * P_DrvFRIntrf;
 	static int  RefToIntrf;
@@ -678,6 +686,7 @@ int SLAPI SCS_SHTRIHFRF::GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * 
 //
 int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
+	const   int use_fn_op = BIN(Flags & sfUseFnMethods); // @v10.7.2
 	int     ok = 1;
 	int     chk_no = 0;
 	int     is_format = 0;
@@ -754,7 +763,111 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						}
 						THROW(SetFR(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						THROW(SetFR(Tax1, 0L));
-						THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
+						if(use_fn_op) {
+							/*{
+								FNOperation
+								PaymentTypeSign
+								PaymentItemSign
+								FNSendItemCodeData
+								MarkingType
+								GTIN
+								SerialNumber
+							}*/
+							if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
+								int    paym_type_sign = 0;
+								//PaymentTypeSign
+								switch(sl_param.PaymTermTag) {
+									case CCheckPacket::pttFullPrepay: paym_type_sign = 1; break; // 1. Предоплата 100%
+									case CCheckPacket::pttPrepay: paym_type_sign = 2; break; // 2. Частичная предоплата
+									case CCheckPacket::pttAdvance: paym_type_sign = 3; break; // 3. Аванс
+									case CCheckPacket::pttFullPayment: paym_type_sign = 4; break; // 4. Полный расчет
+									case CCheckPacket::pttPartial: paym_type_sign = 5; break; // 5. Частичный расчет и кредит
+									case CCheckPacket::pttCreditHandOver: paym_type_sign = 6; break; // 6. Передача в кредит
+									case CCheckPacket::pttCredit: paym_type_sign = 7; break; // 7. Оплата кредита
+								}
+								if(paym_type_sign) {
+									THROW(SetFR(PaymentTypeSign, paym_type_sign));
+								}
+							}
+							if(sl_param.SbjTermTag != CCheckPacket::sttUndef) {
+								int    paym_subj_sign = 0;
+								/*
+									1. Товар
+									2. Подакцизный товар
+									3. Работа
+									4. Услуга
+									5. Ставка азартной игры
+									6. Выигрыш азартной игры
+									7. Лотерейный билет
+									8. Выигрыш лотереи
+									9. Предоставление РИД
+									10. Платеж
+									11. Агеннтское вознаграждение
+									12. Составной предмет расчета
+									13. Иной предмет расчета
+									14. Имущественное право
+									15. Внереализационный доход
+									16. Страховые взносы
+									17. Торговый сбор
+									18. Курортный сбор
+								*/
+								switch(sl_param.SbjTermTag) {
+									case CCheckPacket::sttGood: paym_subj_sign = 1; break; // 1. Товар
+									case CCheckPacket::sttExcisableGood: paym_subj_sign = 2; break; // 2. Подакцизный товар
+									case CCheckPacket::sttExecutableWork: paym_subj_sign = 3; break; // 3. Работа
+									case CCheckPacket::sttService: paym_subj_sign = 4; break; // 4. Услуга
+									case CCheckPacket::sttBetting: paym_subj_sign = 5; break; // 5. Ставка азартной игры
+									case CCheckPacket::sttPaymentGambling: paym_subj_sign = 6; break; // 6. Выигрыш азартной игры
+									case CCheckPacket::sttBettingLottery: paym_subj_sign = 7; break; // 7. Лотерейный билет
+									case CCheckPacket::sttPaymentLottery: paym_subj_sign = 8; break; // 8. Выигрыш лотереи
+									case CCheckPacket::sttGrantRightsUseIntellectualActivity: paym_subj_sign = 9; break; // 9. Предоставление РИД
+									case CCheckPacket::sttAdvance: paym_subj_sign = 10; break; // 10. Платеж
+									case CCheckPacket::sttPaymentsPayingAgent: paym_subj_sign = 11; break; // 11. Агентское вознаграждение
+									case CCheckPacket::sttSubjTerm: paym_subj_sign = 12; break; // 12. Составной предмет расчета
+									case CCheckPacket::sttNotSubjTerm: paym_subj_sign = 13; break; // 13. Иной предмет расчета
+									case CCheckPacket::sttTransferPropertyRights: paym_subj_sign = 14; break; // 14. Имущественное право
+									case CCheckPacket::sttNonOperatingIncome: paym_subj_sign = 15; break; // 15. Внереализационный доход
+									//case CCheckPacket::sttExpensesReduceTax: str_id = DVCPARAM_STT_EXPENSESREDUCETAX; break;
+									case CCheckPacket::sttAmountMerchantFee: paym_subj_sign = 17; break; // 17. Торговый сбор
+									case CCheckPacket::sttResortFee: paym_subj_sign = 18; break; // 18. Курортный сбор
+									//case CCheckPacket::sttDeposit: str_id = DVCPARAM_SUBJTERMTAG; break;
+								}
+								if(paym_subj_sign) {
+									THROW(SetFR(PaymentItemSign, paym_subj_sign));
+								}
+							}
+							if(flags & PRNCHK_RETURN) {
+								THROW(SetFR(CheckType, 2L));
+							}
+							else {
+								THROW(SetFR(CheckType, 1L));
+							}
+							THROW(ExecFRPrintOper(FNOperation));
+							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
+								int    marking_type = 0;
+								if(sl_param.ChZnProductType == GTCHZNPT_FUR) {
+									marking_type = 2;
+								}
+								else if(sl_param.ChZnProductType == GTCHZNPT_TOBACCO) {
+									marking_type = 5;
+								}
+								else if(sl_param.ChZnProductType == GTCHZNPT_SHOE) {
+									marking_type = 5408;
+								}
+								else if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+									marking_type = 3;
+								}
+								if(marking_type) {
+									THROW(SetFR(MarkingType, 1));
+									THROW(SetFR(GTIN, sl_param.ChZnGTIN));
+									THROW(SetFR(SerialNumber, sl_param.ChZnSerial));
+									THROW(ExecFRPrintOper(FNSendItemCodeData));
+								}
+							}
+						}
+						else {
+							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
+						}
 						Flags |= sfOpenCheck;
 						prn_total_sale = 0;
 					}
@@ -1724,6 +1837,14 @@ FR_INTRF * SLAPI SCS_SHTRIHFRF::InitDriver()
 	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeAlignment) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FirstLineNumber) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, LineNumber) > 0);
+
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNOperation) > 0);                            // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentTypeSign) > 0);                        // @v10.7.2 Признак способа расчета
+	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentItemSign) > 0);                        // @v10.7.2 Признак предмета расчета 
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendItemCodeData) > 0);                     // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType) > 0);                            // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, GTIN) > 0);                                   // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, SerialNumber) > 0);                            // @v10.7.2
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
@@ -1967,6 +2088,7 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		SString buf, buf1;
 		PPIniFile ini_file;
 		int    temp_int = 0;
+		Flags &= ~sfUseFnMethods; // @v10.7.2
 		SCardPaymEntryN = ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRSCARDPAYMENTRY, &temp_int) ? inrangeordefault(static_cast<long>(temp_int), 1, 16, 0) : 0; // @v10.6.2
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
 		buf.Divide(',', buf1, AdmName);
@@ -2019,6 +2141,13 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		SETFLAG(Flags, sfOldShtrih, (DeviceType == devtypeShtrih) && major_prot_ver < 2 && minor_prot_ver < 2);
 		THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
 		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
+		// @v10.7.2 {
+		{
+			int  use_fr_meths = 0;
+			THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRUSEFNMETHODS, &use_fr_meths));
+			SETFLAG(Flags, sfUseFnMethods, use_fr_meths == 1); 
+		}
+		// } @v10.7.2 
 		THROW(SetupTables());
 	}
 	CATCH

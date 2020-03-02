@@ -2925,7 +2925,7 @@ private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    SLAPI LoadWarehouseTab();
-	int    SLAPI AddWarehouseEntry(const LocationTbl::Rec * pRec);
+	int    SLAPI AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID);
 	//
 	// Descr: ѕолный список электронных адресов из хранилища EAddrCore
 	//   дл€ быстрого поиска по подстроке
@@ -3132,7 +3132,8 @@ int FASTCALL LocationCache::Dirty(PPID locID)
 			LocationTbl::Rec loc_rec;
 			uint pos = 0;
 			if(loc_obj.Search(locID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
-				AddWarehouseEntry(&loc_rec);
+				const PPID acs_id = LConfig.LocAccSheetID;
+				AddWarehouseEntry(&loc_rec, acs_id);
 			}
 			else if(WhObjList.lsearch(&locID, &pos, CMPF_LONG))
 				WhObjList.atFree(pos);
@@ -3142,7 +3143,7 @@ int FASTCALL LocationCache::Dirty(PPID locID)
 	return 1;
 }
 
-int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec)
+int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID)
 {
 	int    ok = -1;
 	WHObjEntry entry;
@@ -3160,8 +3161,10 @@ int SLAPI LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec)
 		// } @v10.0.05
 		// @v10.0.05 if(ObjRts.CheckLocID(entry.LocID, 0)) {
 			PPObjAccTurn * p_atobj = BillObj->atobj;
-			if(p_atobj->P_Tbl->Art.SearchObjRef(LConfig.LocAccSheetID, entry.LocID) > 0)
-				entry.ObjID = p_atobj->P_Tbl->Art.data.ID;
+			SETIFZ(accSheetID, LConfig.LocAccSheetID); 
+			ArticleTbl::Rec ar_rec;
+			if(p_atobj->P_Tbl->Art.SearchObjRef(accSheetID, entry.LocID, &ar_rec) > 0)
+				entry.ObjID = ar_rec.ID;
 			ok = WhObjList.insert(&entry) ? 1 : PPSetErrorSLib();
 		// @v10.0.05 }
 	}
@@ -3180,12 +3183,18 @@ int SLAPI LocationCache::LoadWarehouseTab()
 				long   c = 0;
 				LocationTbl::Rec loc_rec;
 				PPObjAccTurn * p_atobj = BillObj->atobj;
+				const PPID acs_id = LConfig.LocAccSheetID;
 				WhObjList.clear();
-				SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent);
+				// @v10.7.2 {
+				for(SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
+					AddWarehouseEntry(&loc_rec, acs_id);
+				}
+				// } @v10.7.2 
+				/* @v10.7.2 SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent);
 				while(ok && en.Next(&loc_rec) > 0) {
 					if(!AddWarehouseEntry(&loc_rec))
 						ok = 0;
-				}
+				}*/
 				if(ok)
 					IsWhObjTabInited = 1;
 			}
@@ -3378,7 +3387,7 @@ int SLAPI PPObjLocation::Helper_GetEaListBySubstring(const char * pSubstr, void 
 	if(flags & clsfStrList)
 		p_str_list = static_cast<StrAssocArray *>(pList);
 	else
-		p_list = (PPIDArray *)pList;
+		p_list = static_cast<PPIDArray *>(pList);
 	if(substr_len) {
 		const StrAssocArray * p_full_list = GetFullEaList();
 		if(p_full_list) {

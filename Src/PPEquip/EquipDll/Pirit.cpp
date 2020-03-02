@@ -116,7 +116,7 @@ struct Config {
 
 struct CheckStruct {
 	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), TaxSys(0), Tax(0), 
-		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0) //@erik v10.4.12 add "Stt(0),"
+		PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0) //@erik v10.4.12 add "Stt(0),"
 	{
 	}
 	void Clear()
@@ -134,9 +134,12 @@ struct CheckStruct {
 		Text.Z(); // @v9.9.4
 		Code.Z(); // @v9.9.4
 		ChZnCode.Z(); // @v10.6.12
+		ChZnGTIN.Z(); // @v10.7.2
+		ChZnSerial.Z(); // @v10.7.2
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
+		ChZnProdType = 0; // @v10.7.2
 	}
 	int    CheckType;
 	int    FontSize;
@@ -160,6 +163,9 @@ struct CheckStruct {
 	SString Text;
 	SString Code; // @v9.5.7
 	SString ChZnCode; // @v10.6.12
+	SString ChZnGTIN; // @v10.7.2
+	SString ChZnSerial; // @v10.7.2
+	int    ChZnProdType; // @v10.7.2
 	double PaymCash;
 	double PaymBank;
 	double PaymCCrdCard;
@@ -990,6 +996,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.Code = param_val;
 				else if(s_param == "CHZNCODE") // @v10.6.12
 					Check.ChZnCode = param_val;
+				else if(s_param == "CHZNGTIN") // @v10.7.2
+					Check.ChZnGTIN = param_val;
+				else if(s_param == "CHZNSERIAL") // @v10.7.2
+					Check.ChZnSerial = param_val;
+				else if(s_param == "CHZNPRODTYPE") // @v10.7.2
+					Check.ChZnProdType = param_val.ToLong();
 				else if(s_param == "VATRATE") { // @v9.7.1
 					_vat_rate = R2(param_val.ToReal());
 				}
@@ -1825,20 +1837,42 @@ int PiritEquip::RunCheck(int opertype)
 					6 	Агент
 			*/
 			// @v10.6.12 @construction {
-			if(Check.ChZnCode.NotEmpty()) {
+			if(Check.ChZnProdType && Check.ChZnGTIN.NotEmpty() && Check.ChZnSerial.NotEmpty()/*Check.ChZnCode.NotEmpty()*/) {
 				in_data.Z();
-				(str = Check.ChZnCode).Trim(32); // [1..32]
-				CreateStr(str, in_data); // Код товарной номенклатуры
-				{
-					const int do_check_ret = 0;
-					OpLogBlock __oplb(LogFileName, "24", 0);
-					THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
-					if(do_check_ret) {
-						THROW(GetWhile(out_data, r_error));
+				uint16 product_type_bytes = 0;
+				uint8  chzn_1162_bytes[128];
+				if(Check.ChZnProdType == 1) // GTCHZNPT_FUR
+					product_type_bytes = 0x0002;
+				else if(Check.ChZnProdType == 2) // GTCHZNPT_TOBACCO
+					product_type_bytes = 0x0005;
+				else if(Check.ChZnProdType == 3) // GTCHZNPT_SHOE
+					product_type_bytes = 0x1520;
+				else if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
+					product_type_bytes = 0x0003;
+				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, Check.ChZnSerial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
+				if(rl > 0) {
+					str.Z();
+					for(int si = 0; si < rl; si++) {
+						if(si < 8)
+							str.CatChar('$').CatHex(chzn_1162_bytes[si]);
+						else
+							str.CatChar(chzn_1162_bytes[si]);
+						//str.CatHex(chzn_1162_bytes[si]);
 					}
-					else {
-						out_data.Z();
-						r_error = "00";
+					//str.Trim(32);
+					//(str = Check.ChZnCode).Trim(32); // [1..32]
+					CreateStr(str, in_data); // Код товарной номенклатуры
+					{
+						const int do_check_ret = 1;
+						OpLogBlock __oplb(LogFileName, "24", 0);
+						THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
+						if(do_check_ret) {
+							THROW(GetWhile(out_data, r_error));
+						}
+						else {
+							out_data.Z();
+							r_error = "00";
+						}
 					}
 				}
 			}

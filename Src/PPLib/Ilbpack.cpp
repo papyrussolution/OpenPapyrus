@@ -3158,7 +3158,8 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 				if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0))
 					ok = 1;
 				else if(IsIntrExpndOp(op_id)) {
-					if(rDestDbDivPack.ResponsibleForLoc(PPObjLocation::ObjToWarehouse(bill_rec.Object), 0))
+					const PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
+					if(rDestDbDivPack.ResponsibleForLoc(dest_loc_id, 0))
 						ok = 1;
 					else
 						msg_id = PPTXT_LOG_NTRANS_BILLINTREX;
@@ -3174,7 +3175,8 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 					// переносит этот межсклад в такой раздел.
 					//
 					if(IsIntrOp(op_id) == INTRRCPT && CConfig.IntrReceiptOp == op_id) {
-						if(rDestDbDivPack.ResponsibleForLoc(PPObjLocation::ObjToWarehouse(bill_rec.Object), 0)) {
+						const PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
+						if(rDestDbDivPack.ResponsibleForLoc(dest_loc_id, 0)) {
 							msg_id = PPTXT_LOG_NTRANS_BILLINTRRC;
 							ok = -1;
 						}

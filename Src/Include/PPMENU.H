@@ -527,5 +527,6 @@
 #define cmTaxSystemKind                632 // @v10.6.0 Виды систем налогообложения //
 #define cmUniFindObj                   633 // @v10.6.1 @construction Унифицированный поиск объектов
 #define cmQueryCHZN                    634 // @v10.6.5 Интерактивный запрос к серверу чесный знак
+#define cmConvert10703                 635 // @10.7.3 Конвертация рабочих столов в xml @erik
 
 #endif /* __PPMENU_H */

@@ -227,6 +227,60 @@ int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readO
 	return ok;
 }
 
+//@erik v10.7.0
+int SLAPI PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly, const long rwFlag)
+{
+	int    ok = 0;
+	xmlParserCtxt * p_xml_parser = 0;
+	xmlDoc  * p_doc = 0;
+	SString temp_buf, path;
+	PPCommandGroup * p_temp_command_group = 0;
+
+
+	assert(!P_F||LckH);
+	CloseFile();
+	pPool->Flags &= ~PPJobPool::fReadOnly;
+	pPool->freeAll();
+	if(!fileExists(FilePath)) {
+		THROW(CreatePool());
+	}
+	{
+		SFile  f;
+		JobStrgHeader hdr;
+		SBuffer buf;
+		SFile * p_file = 0;
+		int    sfmode = SFile::mBinary|SFile::mNoStd;
+		if(readOnly) {
+			p_file = &f;
+			sfmode |= SFile::mRead;
+		}
+		else {
+			THROW_MEM(P_F = new SFile());
+			p_file = P_F;
+			sfmode |= SFile::mReadWrite;
+		}
+		THROW_SL(p_file->Open(FilePath, sfmode));
+		THROW(Helper_ReadHeader(*p_file, &hdr, readOnly ? 0 : 1));
+		LastId = hdr.LastId;
+		for(uint i = 0; i<hdr.Count; i++) {
+			PPID   id = 0;
+			PPJob  job;
+			THROW_SL(p_file->Read(buf.Z()));
+			THROW(job.Read(buf));
+			id = job.ID;
+			THROW(pPool->PutJob(&id, &job));
+		}
+	}
+	LastLoading = getcurdatetime_();
+	pPool->DbSymb = pDbSymb;
+	CATCH
+		CloseFile();
+	ok = 0;
+	ENDCATCH
+		SETFLAG(pPool->Flags, PPJobPool::fReadOnly, readOnly);
+	return ok;
+}
+
 DirChangeNotification * SLAPI PPJobMngr::CreateDcn()
 {
 	SString path;
@@ -275,7 +329,7 @@ int SLAPI PPJobMngr::CreatePool()
 
 int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
 {
-	int    ok = 1;
+	int ok = 1;
 	assert(!P_F || LckH);
 	JobStrgHeader hdr;
 	SBuffer buf;
@@ -307,6 +361,64 @@ int SLAPI PPJobMngr::SavePool(const PPJobPool * pPool)
 	THROW(Helper_ReadHeader(*P_F, &hdr, 1));
 	CATCHZOK
 	return ok;
+}
+
+//@erik v10.7.0
+int SLAPI PPJobMngr::SavePool2(const PPJobPool *pPool, const long rwFlag)
+{
+	int    ok = 1;
+	JobStrgHeader hdr;
+	SBuffer buf;
+	SString temp_buf;
+	MEMSZERO(hdr);
+	hdr.Signature = JOBSTRGSIGN;
+	hdr.Count = pPool->getCount();
+	hdr.LastId = LastId;
+	hdr.Ver = DS.GetVersion();
+	if(rwFlag == PPJobMngr::fRWByXml) {
+		xmlTextWriter * p_xml_writer = 0;
+		SString path;
+		GetJobPoolDir(path);
+		path.SetLastSlash().Cat("ppjobpool").Cat(".xml");
+		p_xml_writer = xmlNewTextWriterFilename(path, 0);
+		if(p_xml_writer) {
+			xmlTextWriterSetIndent(p_xml_writer, 1);
+			xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+			SXml::WDoc _doc(p_xml_writer, cpUTF8);
+			{
+				SXml::WNode xml_job_pool_hdr(p_xml_writer, "JobStrgHeader");
+				xml_job_pool_hdr.PutInner("Signature", temp_buf.Z().Cat(hdr.Signature));
+				xml_job_pool_hdr.PutInner("Count", temp_buf.Z().Cat(hdr.Count));
+				xml_job_pool_hdr.PutInner("LastID", temp_buf.Z().Cat(hdr.LastId));
+				hdr.Ver.ToStr(temp_buf.Z());
+				xml_job_pool_hdr.PutInner("PpyVersion", temp_buf);
+			}
+			//
+			//Тут будем писать hdr в xml файл
+			//
+			
+
+			for(uint i = 0; i<hdr.Count; i++) {
+				//перебирая весь пул задач, закидываем их в файл
+			}
+		}
+		
+	}
+	
+	
+	
+	//
+	// Сразу после записи снова блокируем файл (быть может клиент захочет снова что-то поменять и сохранить)
+	//
+	THROW(Helper_ReadHeader(*P_F, &hdr, 1));
+	CATCHZOK
+		return ok;
+}
+int SLAPI PPJobMngr::GetJobPoolDir(SString & rDesksPath)
+{
+	PPGetFilePath(PPPATH_WORKSPACE, "srvjobpool", rDesksPath);  // получаем путь к workspace
+	::createDir(rDesksPath);
+	return 1;
 }
 //
 //
@@ -347,6 +459,56 @@ int FASTCALL PPJobDescr::Read(SBuffer & rBuf)
 	else
 		return PPSetErrorSLib();
 }
+
+int FASTCALL PPJobDescr::Write2(void * pHandler, const long rwFlag) const //@erik v10.7.1
+{
+	int ok = 1;
+	SString temp_buf;
+	if(rwFlag==PPCommandMngr::fRWByXml) {
+		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
+		if(p_xml_writer) {
+			SXml::WNode pp_job_node(p_xml_writer, "PPJobDescr");
+			pp_job_node.PutInner("CmdID", temp_buf.Z().Cat(CmdID));
+			pp_job_node.PutInner("Flags", temp_buf.Z().Cat(Flags));
+			pp_job_node.PutInner("Symb", temp_buf.Z().Cat(Symb).Transf(CTRANSF_INNER_TO_UTF8));
+			pp_job_node.PutInner("Text", temp_buf.Z().Cat(Text).Transf(CTRANSF_INNER_TO_UTF8));
+		}
+	}
+	else {
+		ok = 0;
+	}
+	return ok;
+}
+
+int FASTCALL PPJobDescr::Read2(void * pHandler, const long rwFlag) //@erik v10.7.1
+{
+	int ok = 1;
+	SString temp_buf;
+	if(rwFlag==PPCommandMngr::fRWByXml) {
+		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
+		if(SXml::IsName(p_parent_node, "PPJobDescr")) {
+			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
+				if(SXml::GetContentByName(p_node, "CmdID", temp_buf)!=0) {
+					CmdID = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "Flags", temp_buf)!=0) {
+					Flags = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "Symb", temp_buf)!=0) {
+					Symb = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::GetContentByName(p_node, "Text", temp_buf)!=0) {
+					Text = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+			}
+		}
+	}
+	else if(rwFlag & PPCommandMngr::fRWByTxt) {
+
+	}
+	return ok;
+}
+
 //
 //
 //
@@ -433,6 +595,116 @@ int FASTCALL PPJob::Read(SBuffer & rBuf)
 	CATCH
 		ok = PPSetErrorSLib();
 	ENDCATCH
+	return ok;
+}
+
+int PPJob::Write2(void * pHandler, const long rwFlag) const //@erik v10.7.1
+{
+	int ok = 1;
+	SString temp_buf;
+	if(rwFlag==PPCommandMngr::fRWByXml) {
+		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
+		if(p_xml_writer) {
+			long   flags = (Flags|fV579);
+			//Ver = 1;
+			SXml::WNode pp_job_node(p_xml_writer, "PPJob");
+
+			Descr.Write2(p_xml_writer, rwFlag);
+			pp_job_node.PutInner("ID", temp_buf.Z().Cat(ID));
+			pp_job_node.PutInner("Name", temp_buf.Z().Cat(Name).Transf(CTRANSF_INNER_TO_UTF8));
+			pp_job_node.PutInner("DbSymb", temp_buf.Z().Cat(DbSymb).Transf(CTRANSF_INNER_TO_UTF8));
+			pp_job_node.PutInner("Symb", temp_buf.Z().Cat(Symb).Transf(CTRANSF_INNER_TO_UTF8));
+			pp_job_node.PutInner("ExtString", temp_buf.Z().Cat(ExtString).Transf(CTRANSF_INNER_TO_UTF8));
+			pp_job_node.PutInner("Flags", temp_buf.Z().Cat(flags));
+			pp_job_node.PutInner("EstimatedTime", temp_buf.Z().Cat(EstimatedTime));
+			pp_job_node.PutInner("LastRunningTime", temp_buf.Z().Cat(LastRunningTime));
+			pp_job_node.PutInner("Ver", temp_buf.Z().Cat(Ver));
+			pp_job_node.PutInner("NextJobID", temp_buf.Z().Cat(NextJobID));
+			pp_job_node.PutInner("EmailAccID", temp_buf.Z().Cat(EmailAccID));
+			pp_job_node.PutInner("ScheduleBeforeTime", temp_buf.Z().Cat(ScheduleBeforeTime));
+			temp_buf.Z().EncodeMime64(static_cast<const char *>(Param.GetBuf(Param.GetRdOffs())), Param.GetAvailableSize());
+			pp_job_node.PutInner("Param", temp_buf);
+			
+			//TODO: write Dtr
+		}
+	}
+	else if(rwFlag==PPCommandMngr::fRWByTxt) {
+
+	}
+	else {
+		ok = 0;
+	}
+	return ok;
+}
+
+int PPJob::Read2(void * pHandler, const long rwFlag) //@erik v10.7.1
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(rwFlag==PPCommandMngr::fRWByXml) {
+		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
+		if(SXml::IsName(p_parent_node, "PPJob")) {
+			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
+				if(SXml::GetContentByName(p_node, "ID", temp_buf)>0) {
+					ID = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "Name", temp_buf)>0) {
+					Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::GetContentByName(p_node, "DbSymb", temp_buf)>0) {
+					DbSymb = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::GetContentByName(p_node, "Symb", temp_buf)>0) {
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER).CopyTo(Symb, sizeof(Symb));
+				}
+				else if(SXml::GetContentByName(p_node, "Flags", temp_buf)>0) {
+					Flags = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "EstimatedTime", temp_buf)>0) {
+					EstimatedTime = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "Ver", temp_buf)>0) {
+					Ver = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "NextJobID", temp_buf)>0) {
+					NextJobID = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "EmailAccID", temp_buf)>0) {
+					EmailAccID = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_node, "LastRunningTime", temp_buf)>0) {
+					LastRunningTime.Set(temp_buf, DATF_DMY, TIMF_HMS);
+				}
+				else if(SXml::GetContentByName(p_node, "ScheduleBeforeTime", temp_buf)>0) {
+					long temp_ltime = temp_buf.ToLong();
+					ScheduleBeforeTime.settotalsec(temp_ltime);
+				}
+				else if(SXml::GetContentByName(p_node, "Param", temp_buf)>0) {
+					STempBuffer bin_buf(temp_buf.Len()*3);
+					size_t actual_len = 0;
+					temp_buf.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len);
+					Param.Write(bin_buf, actual_len);
+				}
+				else{
+					if(SXml::IsName(p_node, "Descr")) {
+						Descr.Read2(p_node, rwFlag);
+					}
+				}
+
+				//TODO read Dtr
+/*				else if(SXml::GetContentByName(p_node, "Dtr", temp_buf)>0) {
+					Dtr.Read(temp_buf);
+				}	*/
+			}
+		}
+	}
+	else if(rwFlag==PPCommandMngr::fRWByTxt) {
+
+	}
+	else {
+		ok = 0;
+	}
+	CATCHZOK
 	return ok;
 }
 //

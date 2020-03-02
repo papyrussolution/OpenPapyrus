@@ -1265,6 +1265,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 			scsb.ChaosFactor = 0;
 			scsb.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
 			scsb.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
+			scsb.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel; // @v10.7.2
 			scsb.P_Ts = &r_blk.T_; // @v10.7.1
 			scsb.Criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
 			if(!(r_blk.Flags & r_blk.fShort))
@@ -1305,6 +1306,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 				scsb_reverse.ChaosFactor = scsb.ChaosFactor;
 				scsb_reverse.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
 				scsb_reverse.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
+				scsb_reverse.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel; // @v10.7.2
 				scsb_reverse.P_Ts = &r_blk.T_; // @v10.7.1
 				scsb_reverse.LastTrendIdx = scsb.LastTrendIdx;
 				r_blk.Strategies.SelectS2(scsb_reverse);
@@ -1472,6 +1474,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	SString temp_buf;
 	SString log_msg;
 	SString log_file_name;
+	SString trend_err_buf;
 	SString tk_symb;
 	SString stk_symb;
 	SString stk_memo;
@@ -1504,36 +1507,37 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					CatEq("test-cost", test_cost, MKSFMTD(0, 5, 0));
 				PPLogMessage(log_file_name, log_msg, 0);
 				log_msg.Z();
+				trend_err_buf.Z();
 				for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
 					const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
 					if(p_tre) {
 						const uint tre_tlc = p_tre->TL.getCount();
 						const uint tre_erc = p_tre->ErrL.getCount();
-						if(log_msg.NotEmpty())
-							log_msg.CR();
-						log_msg.Tab().Cat(p_tre->Stride).Space();
+						if(trend_err_buf.NotEmpty())
+							trend_err_buf.Space();
+						trend_err_buf.CatChar('[');
+						trend_err_buf.Cat(p_tre->Stride).CatDiv(':', 0);
 						if(tre_tlc == 0) {
-							log_msg.Cat("zero-tl-count");
+							trend_err_buf.Cat("zero-tl-count");
 						}
 						else {
 							if(tre_tlc != tre_erc)
-								log_msg.Cat("tl-count!=te-count").Space();
-							log_msg.Cat(p_tre->TL.at(tre_tlc-1) * 10E9, MKSFMTD(0, 5, 0)).Space();
+								trend_err_buf.Cat("tl-count!=te-count").Space();
 							if(tre_erc == 0)
-								log_msg.Cat("zero-te-count");
+								trend_err_buf.Cat("zero-te-count").Space();
 							else {
 								const double last_err = p_tre->ErrL.at(tre_erc-1);
-								const double last_1_err = (tre_erc > 1) ? p_tre->ErrL.at(tre_erc-2) : 0.0;
+								//const double last_1_err = (tre_erc > 1) ? p_tre->ErrL.at(tre_erc-2) : 0.0;
 								const double avg_err = p_tre->ErrAvg;
-								log_msg.Cat(last_err * 10E9, MKSFMTD(0, 0, 0)).Space().Cat(avg_err * 10E9, MKSFMTD(0, 0, 0));
-								if(avg_err != 0.0) {
-									log_msg.Space().Cat(last_1_err / avg_err, MKSFMTD(0, 3, 0));
-									log_msg.Space().Cat(last_err / avg_err, MKSFMTD(0, 3, 0));
-								}
+								trend_err_buf.Cat(fdivnz(last_err, avg_err), MKSFMTD(0, 3, 0));
 							}
 						}
+						trend_err_buf.CatChar(']');
 					}
 				}
+				if(log_msg.NotEmpty())
+					log_msg.CR();
+				log_msg.Cat(trend_err_buf);
 				PPLogMessage(log_file_name, log_msg, 0);
 			}
 			// } @v10.6.8 
@@ -1803,6 +1807,12 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 								err_avg += r_sitem.TrendErrAvg;
 								err_avg_count++;
 							}
+							// @v10.7.3 {
+							else if(r_sitem.MainFrameSize == ifs && r_sitem.MainTrendErrAvg > 0.0) {
+								err_avg += r_sitem.TrendErrAvg;
+								err_avg_count++;
+							}
+							// } @v10.7.3 
 						}
 						if(err_avg_count)
 							p_entry->ErrAvg = err_avg / static_cast<double>(err_avg_count);

@@ -2627,6 +2627,7 @@ PPINIPARAM_SHTRIHFRPASSWORD            "ShtrihFRPassword"
 PPINIPARAM_SHTRIHFRNOUSECONTPRN        "ShtrihFRNoUseContPrn"
 PPINIPARAM_SHTRIHFRCONNECTPARAM        "ShtrihFRConnectParam"
 PPINIPARAM_SHTRIHFRSCARDPAYMENTRY      "ShtrihFRSCardPaymEntry" // @v10.6.2
+PPINIPARAM_SHTRIHFRUSEFNMETHODS        "ShtrihFRUseFnMethods"   // @v10.7.2
 PPINIPARAM_SHTRIH_USEGOODSLOCASSOC     "UseGoodsLocAssocToExtCashNode"
 PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR  "ShtrihFRNotUseWeightSensor"
 PPINIPARAM_SHTRIHMFRK_TIMEOUT          "Shtrih_MFRK_Timeout"
@@ -4654,6 +4655,7 @@ PPTXT_SETTIMESERIESSTAT             "SetTimeSeries @zstr: append_count=@int upd-
 PPTXT_TOCREATEWARECFGOPTNEEDED      "Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию"
 PPTXT_GLOBALSERVICELIST             "1,Twitter;2,Facebook;3,VK;4,Vetis;5,@{brand_chzn}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
+PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства"
 //
 // LastText
 
@@ -5357,20 +5359,23 @@ DVCPARAM_LABEL                 "LABEL"
 DVCPARAM_CODE                  "CODE"
 DVCPARAM_VATRATE               "VATRATE"
 DVCPARAM_VATFREE               "VATFREE"
-DVCPARAM_PREPAY	               "PREPAY" // @v10.0.0
-DVCPARAM_POSTPAY	           "POSTPAY" // @v10.0.0
-DVCPARAM_RECKONPAY	           "RECKONPAY" // @v10.0.0
-DVCPARAM_DATE	               "DATE" // @v10.0.0
-DVCPARAM_TAXSYSTEM             "TAXSYSTEM" // @v10.6.3
-DVCPARAM_VATAMOUNT18	       "VATAMOUNT18" // @v10.0.0
-DVCPARAM_VATAMOUNT10	       "VATAMOUNT10" // @v10.0.0
-DVCPARAM_VATAMOUNT00	       "VATAMOUNT00" // @v10.0.0
-DVCPARAM_VATAMOUNT20           "VATAMOUNT20" // @v10.4.8
-DVCPARAM_VATFREEAMOUNT	       "VATFREEAMOUNT" // @v10.0.0
-DVCPARAM_CHZNCODE              "CHZNCODE" // v10.6.8 Маркировка товара маркой честный знак
-DVCPARAM_PAYMCCRD              "PAYMCCRD" // @v10.4.1 Оплата корпоративной кредитной картой
+DVCPARAM_PREPAY	               "PREPAY"         // @v10.0.0
+DVCPARAM_POSTPAY	           "POSTPAY"        // @v10.0.0
+DVCPARAM_RECKONPAY	           "RECKONPAY"      // @v10.0.0
+DVCPARAM_DATE	               "DATE"           // @v10.0.0
+DVCPARAM_TAXSYSTEM             "TAXSYSTEM"      // @v10.6.3
+DVCPARAM_VATAMOUNT18	       "VATAMOUNT18"    // @v10.0.0
+DVCPARAM_VATAMOUNT10	       "VATAMOUNT10"    // @v10.0.0
+DVCPARAM_VATAMOUNT00	       "VATAMOUNT00"    // @v10.0.0
+DVCPARAM_VATAMOUNT20           "VATAMOUNT20"    // @v10.4.8
+DVCPARAM_VATFREEAMOUNT	       "VATFREEAMOUNT"  // @v10.0.0
+DVCPARAM_CHZNCODE              "CHZNCODE"       // @v10.6.8 Маркировка товара маркой честный знак
+DVCPARAM_CHZNGTIN              "CHZNGTIN"       // @v10.7.2 GTIN марки честный знак
+DVCPARAM_CHZNSERIAL            "CHZNSERIAL"     // @v10.7.2 Серия марки честный знак
+DVCPARAM_CHZNPRODTYPE          "CHZNPRODTYPE"   // @v10.7.2 Тип продукта честный знак
+DVCPARAM_PAYMCCRD              "PAYMCCRD"       // @v10.4.1 Оплата корпоративной кредитной картой
 DVCPARAM_PAYMENTTERMTAG        "PAYMENTTERMTAG" // @v10.4.1
-DVCPARAM_SUBJTERMTAG           "SUBJTERMTAG" // @erik v10.4.12
+DVCPARAM_SUBJTERMTAG           "SUBJTERMTAG"    // @erik v10.4.12
 DVCPARAM_PTT_UNDEF             "PTT_UNDEF"          //
 DVCPARAM_PTT_FULL_PREPAY       "PTT_FULL_PREPAY"    // Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
 DVCPARAM_PTT_PREPAY            "PTT_PREPAY"         // Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
@@ -6570,7 +6575,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cleardest                           "Очищать приемник"
 @sendemail                           "Отправить по электронной почте"
 @dochangebillstatus                  "Изменение статуса документа"
-@tsstrategyanalyze                   "Анализ стратегий на временных сериях"
+
 @doupdateflags                       "Изменить флаги"
 @timechart                           "Временная диаграмма"
 @bizscore                            "Бизнес-показатель"
@@ -7264,6 +7269,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_convertbilluuid7601                  "Конвертация UUID документов 7.6.1"
 @cmd_convertquot720                       "Конвертация котировок 7.2.0"
 @cmd_convertworkbook813                   "Конвертация рабочих книг 8.1.3"
+@cmd_convertdesktoptoxml10703             "Конвертация рабочих столов 10.7.3"
 @cmd_correctabsencegoods                  "Восстановление отсутствующих товаров"
 @cmd_correctabsencelots                   "Восстановление отсутствующих лотов"
 @cmd_correctaccrelarrefs  		          "Корректировка соответствий Article - AcctRel"
@@ -8433,6 +8439,22 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @timeseries_fixedstakevolume              "Фиксированная ставка"
 @timeseries_flags                         "@{flags}"
 @timeseries_statistics                    "Статистика"
+@timeseries_usedataforstrategiessince     "Начальная дата для построения стратегий"
+
+@tsstrategyanalyze                        "Анализ стратегий на временных сериях"
+@tsstrategyanalyze_flags                  "@{flags}"
+@tsstrategyanalyze_ffindoptmaxduck        "Искать оптимальную величину SL"
+@tsstrategyanalyze_ffindstrategies        ""
+@tsstrategyanalyze_fforce                 ""
+@tsstrategyanalyze_fprocesslong           ""
+@tsstrategyanalyze_fprocessshort          ""
+@tsstrategyanalyze_fautodetecttargets     "Автоматически идентифицировать инструменты для расчета"
+@tsstrategyanalyze_fsimulateafter         "Тестировать стратегии после расчета"
+@tsstrategyanalyze_closemode              "Режим закрытия ставок"
+@tsstrategyanalyze_closemode_fullmaxduck  ""
+@tsstrategyanalyze_closemode_adjustloss   ""
+@tsstrategyanalyze_sbtdt                  "Дата, до которой строить стратегии" // UseDataForStrategiesTill
+@tsstrategyanalyze_tslist                 "@{timeseries}"
 
 @timeseriestestparam                      "Тестирование временной серии"
 @timeseriestestparam_ts                   "@{timeseries}"
@@ -9173,6 +9195,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgtimeseries_flogstakeevaluation        "Выводить в журнал информацию о расчете ставок"
 @cfgtimeseries_localdevptcount            "Количество точек локальной девиации"
 @cfgtimeseries_ldmt_factor                "Фактор локальной девиации и магистрального тренда"
+@cfgtimeseries_maintrendmaxerrrel         "Максимальное относительное отклонение магистрального тренда"
 
 @cfgtimeseries_maxstakecount              "Максимальное количество ставок"
 @cfgtimeseries_availablelimitpart         "Доля доступного объема"
@@ -9875,6 +9898,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstype_tag                            "@{tag}"
 @goodstype_wroffgrp                       "@{goods_wroffgrp}"
 @goodstype_stocktolerance                 "Толерантность к остатку"
+@goodstype_chznprodtype                   "Тип продукта честный знак"
 
 @goodsvalrestr                            "Ограничения товарных величин"
 @goodsvalrestr_id                         "@{id}"

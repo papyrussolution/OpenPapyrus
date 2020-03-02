@@ -884,6 +884,10 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	CrosstabProcessor * p_ct_prcssr = 0;
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
+	Filt.Period.Actualize(ZERODATE); // @v10.7.2
+	Filt.StartPeriod.Actualize(ZERODATE); // @v10.7.2
+	Filt.EstFinishPeriod.Actualize(ZERODATE); // @v10.7.2
+	Filt.FinishPeriod.Actualize(ZERODATE); // @v10.7.2
 	TodoObj.LinkTaskID = Filt.LinkTaskID;
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
 		PPWait(1);
@@ -1388,39 +1392,42 @@ int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 	else if(kind == 2) {
 		SString path, ical_path;
 		VCalendar vcal;
-		PrjTaskViewItem item;
+		PrjTaskViewItem item_;
 		VCalendar::Todo vrec;
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_VCALTODO, path);
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_ICALTODO, ical_path);
 		THROW(vcal.Open(path, 1));
 		PPWait(1);
-		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
-			vrec.Init();
-			vrec.CreatedDtm.Set(item.Dt, item.Tm);
-			vrec.StartDtm.Set(item.StartDt, item.StartTm);
-			vrec.CompletedDtm.Set(item.FinishDt, item.FinishTm);
-			vrec.DueDtm.Set(item.EstFinishDt, item.EstFinishTm);
-			vrec.Sequence = (int16)item.OpenCount;
-			vrec.Priority = item.Priority;
-			switch(item.Status) {
-				case TODOSTTS_NEW: vrec.Status = VCalendar::stAccepted; break;
-				case TODOSTTS_REJECTED: vrec.Status = VCalendar::stDeclined; break;
-				case TODOSTTS_INPROGRESS: vrec.Status = VCalendar::stConfirmed; break;
-				case TODOSTTS_ONHOLD: vrec.Status = VCalendar::stNeedsAction; break;
-				case TODOSTTS_COMPLETED: vrec.Status = VCalendar::stCompleted; break;
+		for(InitIteration(); NextIteration(&item_) > 0; PPWaitPercent(GetCounter())) {
+			PPPrjTaskPacket pack;
+			if(TodoObj.GetPacket(item_.ID, &pack) > 0) {
+				vrec.Init();
+				vrec.CreatedDtm.Set(pack.Rec.Dt, pack.Rec.Tm);
+				vrec.StartDtm.Set(pack.Rec.StartDt, pack.Rec.StartTm);
+				vrec.CompletedDtm.Set(pack.Rec.FinishDt, pack.Rec.FinishTm);
+				vrec.DueDtm.Set(pack.Rec.EstFinishDt, pack.Rec.EstFinishTm);
+				vrec.Sequence = (int16)pack.Rec.OpenCount;
+				vrec.Priority = pack.Rec.Priority;
+				switch(pack.Rec.Status) {
+					case TODOSTTS_NEW: vrec.Status = VCalendar::stAccepted; break;
+					case TODOSTTS_REJECTED: vrec.Status = VCalendar::stDeclined; break;
+					case TODOSTTS_INPROGRESS: vrec.Status = VCalendar::stConfirmed; break;
+					case TODOSTTS_ONHOLD: vrec.Status = VCalendar::stNeedsAction; break;
+					case TODOSTTS_COMPLETED: vrec.Status = VCalendar::stCompleted; break;
+				}
+				PPGetWord(PPWORD_MISCELLANEOUS, 0, vrec.Category);
+				vrec.Classification = VCalendar::clPublic;
+				GetObjectName(PPOBJ_PERSON, pack.Rec.EmployerID, vrec.Owner);
+				// @v9.4.3 {
+				if(pack.Rec.ClientID) {
+					GetObjectName(PPOBJ_PERSON, pack.Rec.ClientID, vrec.Contact);
+				}
+				// } @v9.4.3
+				PPGetWord(PPWORD_WORK, 0, vrec.Location);
+				vrec.Summary = pack.SDescr;
+				vrec.Descr = pack.SDescr;
+				THROW(vcal.PutTodo(&vrec));
 			}
-			PPGetWord(PPWORD_MISCELLANEOUS, 0, vrec.Category);
-			vrec.Classification = VCalendar::clPublic;
-			GetObjectName(PPOBJ_PERSON, item.EmployerID, vrec.Owner);
-			// @v9.4.3 {
-			if(item.ClientID) {
-				GetObjectName(PPOBJ_PERSON, item.ClientID, vrec.Contact);
-			}
-			// } @v9.4.3
-			PPGetWord(PPWORD_WORK, 0, vrec.Location);
-			vrec.Summary = item.Descr;
-			vrec.Descr = item.Descr;
-			THROW(vcal.PutTodo(&vrec));
 			PPWaitPercent(GetCounter());
 		}
 		vcal.Close();
@@ -1594,12 +1601,21 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		DBQ  * dbq = 0;
 		DBE  * dbe_prior = 0;
 		DBE  * dbe_status = 0;
-		DBE    dbe_psn_cli, dbe_psn_emp;
+		DBE    dbe_psn_cli;
+		DBE    dbe_psn_emp;
+		DBE    dbe_descr;
 		brw_id = (Filt.Kind == TODOKIND_TEMPLATE) ? BROWSER_PRJTASKTEMPL : BROWSER_PRJTASK;
 		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->GetName())));
 		THROW(CheckTblPtr(t = new PrjTaskTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_cli, PPDbqFuncPool::IdObjNamePerson, t->ClientID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_emp, PPDbqFuncPool::IdObjNamePerson, t->EmployerID);
+		{
+			dbe_descr.init();
+			dbe_descr.push(dbconst(PPOBJ_PRJTASK));
+			dbe_descr.push(t->ID);
+			dbe_descr.push(dbconst(static_cast<long>(PPTRPROP_DESCR)));
+			dbe_descr.push(static_cast<DBFunc>(PPDbqFuncPool::IdUnxText));
+		}
 		dbe_prior  = & enumtoa(t->Priority, 5, prior_subst.Get(PPTXT_TODO_PRIOR));
 		dbe_status = & enumtoa(t->Status,   5, status_subst.Get(PPTXT_TODO_STATUS));
 		dbq = &(*dbq && t->ID == p_ord->ID);
@@ -1614,7 +1630,8 @@ DBQuery * SLAPI PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 			*dbe_status,    // #7
 			dbe_psn_cli,    // #8
 			dbe_psn_emp,    // #9
-			t->Descr,       // #10
+			// @v10.7.2 t->Descr,       // #10
+			dbe_descr, // #10 @v10.7.2
 			0L).from(p_ord, t, 0L).where(*dbq);
 		delete dbe_prior;
 		delete dbe_status;
@@ -1691,17 +1708,16 @@ int SLAPI PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 	}
 	if(ok > 0) {
 		PrjTaskViewItem item;
-		PrjTaskTbl::Rec rec;
 		PPTransaction tra(1);
 		THROW(tra);
 		PPWait(1);
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			list.add(item.ID);
 			if(flags == CHNGTASKS_STATUS) {
-				MEMSZERO(rec);
-				THROW(TodoObj.Search(item.ID, &rec) > 0);
-				rec.Status = TODOSTTS_COMPLETED;
-				THROW(TodoObj.PutPacket(&item.ID, &rec, 0));
+				PPPrjTaskPacket pack;
+				THROW(TodoObj.GetPacket(item.ID, &pack) > 0);
+				pack.Rec.Status = TODOSTTS_COMPLETED;
+				THROW(TodoObj.PutPacket(&item.ID, &pack, 0));
 			}
 			PPWaitPercent(Counter);
 		}
@@ -1838,18 +1854,18 @@ int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						int    col = p_def ? (p_def->getCount() - 1) : -1;
 						long   h = 0;
 						if(pBrw->ItemByMousePos(&h, 0) && col > 0 && h == col) {
-							PrjTaskTbl::Rec  pt_rec;
+							PPPrjTaskPacket pt_pack;
 							ok = -1;
-							if(id && TodoObj.Search(id, &pt_rec) > 0 && (sstrlen(pt_rec.Descr) > 0 || sstrlen(pt_rec.Memo) > 0)) {
+							if(id && TodoObj.GetPacket(id, &pt_pack) > 0 && (pt_pack.SDescr.Len() || pt_pack.SMemo.Len())) {
 								long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
 									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								SString buf;
-								(buf = pt_rec.Descr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
-								if(sstrlen(pt_rec.Memo) > 0) {
+								(buf = pt_pack.SDescr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
+								if(pt_pack.SMemo.Len()) {
 									SString word, memo;
 									PPLoadString("memo", word);
 									word.CatChar(':').CatChar('\n');
-									(memo = pt_rec.Memo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
+									(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 									buf.CatChar('\n').CatChar('\n').Cat(word).Cat(memo);
 								}
 								PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, flags);
@@ -1970,28 +1986,28 @@ int PPViewPrjTask::PrjTaskTimeChunkGrid::GetText(int item, long id, SString & rB
 int SLAPI PPViewPrjTask::GetTimeGridItemText(PPID taskID, SString & rBuf)
 {
 	int    ok = -1;
-	PrjTaskTbl::Rec rec;
-	if(TodoObj.Search(taskID, &rec) > 0) {
-		if(strip(rec.Descr)[0]) {
-			rBuf = rec.Descr;
+	PPPrjTaskPacket pack;
+	if(TodoObj.GetPacket(taskID, &pack) > 0) {
+		if(pack.SDescr.NotEmptyS()) {
+			rBuf = pack.SDescr;
 			ok = 1;
 		}
 		else {
 			if(Filt.Order == PrjTaskFilt::ordByClient) {
-				if(rec.EmployerID) {
-					GetPersonName(rec.EmployerID, rBuf);
+				if(pack.Rec.EmployerID) {
+					GetPersonName(pack.Rec.EmployerID, rBuf);
 					ok = 1;
 				}
 			}
 			else {
-				if(rec.ClientID) {
-					GetPersonName(rec.ClientID, rBuf);
+				if(pack.Rec.ClientID) {
+					GetPersonName(pack.Rec.ClientID, rBuf);
 					ok = 1;
 				}
 			}
 			if(ok < 0) {
-				if(strip(rec.Memo)[0]) {
-					rBuf = rec.Memo;
+				if(pack.SMemo.NotEmptyS()) {
+					rBuf = pack.SMemo;
 					ok = 1;
 				}
 			}
@@ -1999,6 +2015,9 @@ int SLAPI PPViewPrjTask::GetTimeGridItemText(PPID taskID, SString & rBuf)
 	}
 	return ok;
 }
+
+SString & SLAPI PPViewPrjTask::GetItemDescr(PPID id, SString & rBuf) { return TodoObj.GetItemDescr(id, rBuf); }
+SString & SLAPI PPViewPrjTask::GetItemMemo(PPID id, SString & rBuf) { return TodoObj.GetItemMemo(id, rBuf); }
 
 int SLAPI PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rDtm)
 {
@@ -2019,14 +2038,14 @@ int SLAPI PPViewPrjTask::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIM
 		//
 		// Создать элемент
 		//
-		PrjTaskTbl::Rec rec;
+		PPPrjTaskPacket pack;
 		PPID   cli_id = (Filt.Order == PrjTaskFilt::ordByClient) ? rowID : 0;
 		PPID   emp_id = (Filt.Order == PrjTaskFilt::ordByClient) ? 0 : rowID;
-		THROW(TodoObj.InitPacket(&rec, TODOKIND_TASK, Filt.ProjectID, cli_id, emp_id, 1));
-		rec.StartDt = rDtm.d;
-		rec.StartTm = rDtm.t;
-		while(ok < 0 && TodoObj.EditDialog(&rec) > 0)
-			if(TodoObj.PutPacket(pID, &rec, 1)) {
+		THROW(TodoObj.InitPacket(&pack, TODOKIND_TASK, Filt.ProjectID, cli_id, emp_id, 1));
+		pack.Rec.StartDt = rDtm.d;
+		pack.Rec.StartTm = rDtm.t;
+		while(ok < 0 && TodoObj.EditDialog(&pack) > 0)
+			if(TodoObj.PutPacket(pID, &pack, 1)) {
 				id_list.add(*pID);
 				UpdateTempTable(&id_list, 1);
 				ok = 1;
@@ -2104,42 +2123,42 @@ int PPALDD_PrjTask::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PrjTaskTbl::Rec rec;
-		if(rFilt.ID && static_cast<PPObjPrjTask *>(Extra[0].Ptr)->Search(rFilt.ID, &rec) > 0) {
-			H.ID          = rec.ID;
-			H.Kind        = rec.Kind;
-			H.ProjectID   = rec.ProjectID;
-			H.CreatorID   = rec.CreatorID;
-			H.GroupID     = rec.GroupID;
-			H.EmployerID  = rec.EmployerID;
-			H.ClientID    = rec.ClientID;
-			H.DlvrAddrID  = rec.DlvrAddrID;
-			H.BillArID    = rec.BillArID;
-			H.TemplateID  = rec.TemplateID;
-			H.LinkTaskID  = rec.LinkTaskID;
-			H.Dt          = rec.Dt;
-			H.Tm          = rec.Tm;
-			H.StartDt     = rec.StartDt;
-			H.StartTm     = rec.StartTm;
-			H.EstFinishDt = rec.EstFinishDt;
-			H.EstFinishTm = rec.EstFinishTm;
-			H.FinishDt    = rec.FinishDt;
-			H.FinishTm    = rec.FinishTm;
-			H.Priority    = rec.Priority;
-			H.Status      = rec.Status;
-			H.Amount      = rec.Amount;
-			H.DrPrd       = rec.DrPrd;
-			H.DrKind      = rec.DrKind;
-			H.DrDetail    = rec.DrDetail;
-			H.Flags       = rec.Flags;
+		PPPrjTaskPacket pack;
+		if(rFilt.ID && static_cast<PPObjPrjTask *>(Extra[0].Ptr)->GetPacket(rFilt.ID, &pack) > 0) {
+			H.ID          = pack.Rec.ID;
+			H.Kind        = pack.Rec.Kind;
+			H.ProjectID   = pack.Rec.ProjectID;
+			H.CreatorID   = pack.Rec.CreatorID;
+			H.GroupID     = pack.Rec.GroupID;
+			H.EmployerID  = pack.Rec.EmployerID;
+			H.ClientID    = pack.Rec.ClientID;
+			H.DlvrAddrID  = pack.Rec.DlvrAddrID;
+			H.BillArID    = pack.Rec.BillArID;
+			H.TemplateID  = pack.Rec.TemplateID;
+			H.LinkTaskID  = pack.Rec.LinkTaskID;
+			H.Dt          = pack.Rec.Dt;
+			H.Tm          = pack.Rec.Tm;
+			H.StartDt     = pack.Rec.StartDt;
+			H.StartTm     = pack.Rec.StartTm;
+			H.EstFinishDt = pack.Rec.EstFinishDt;
+			H.EstFinishTm = pack.Rec.EstFinishTm;
+			H.FinishDt    = pack.Rec.FinishDt;
+			H.FinishTm    = pack.Rec.FinishTm;
+			H.Priority    = pack.Rec.Priority;
+			H.Status      = pack.Rec.Status;
+			H.Amount      = pack.Rec.Amount;
+			H.DrPrd       = pack.Rec.DrPrd;
+			H.DrKind      = pack.Rec.DrKind;
+			H.DrDetail    = pack.Rec.DrDetail;
+			H.Flags       = pack.Rec.Flags;
 
 			SString temp_buf;
-			STRNSCPY(H.PriorText, PPObjPrjTask::GetPriorText(rec.Priority, temp_buf));
-			STRNSCPY(H.StatusText, PPObjPrjTask::GetStatusText(rec.Status, temp_buf));
+			STRNSCPY(H.PriorText, PPObjPrjTask::GetPriorText(pack.Rec.Priority, temp_buf));
+			STRNSCPY(H.StatusText, PPObjPrjTask::GetStatusText(pack.Rec.Status, temp_buf));
 
-			STRNSCPY(H.Code,  rec.Code);
-			STRNSCPY(H.Descr, rec.Descr);
-			STRNSCPY(H.Memo,  rec.Memo);
+			STRNSCPY(H.Code,  pack.Rec.Code);
+			STRNSCPY(H.Descr, pack.SDescr);
+			STRNSCPY(H.Memo,  pack.SMemo);
 			ok = 1;
 		}
 		if(!DlRtm::InitData(rFilt, rsrv))

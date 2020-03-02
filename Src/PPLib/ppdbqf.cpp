@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -79,6 +79,22 @@ static IMPL_DBE_PROC(dbqf_scardextstring_ii)
 			STRNSCPY(name_buf, r_temp_buf);
         }
 		result->init(name_buf);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_unxtext_iii)
+{
+	char   text_buf[2048];
+	if(!DbeInitSize(option, result, sizeof(text_buf))) {
+		PTR32(text_buf)[0] = 0;
+		PPID   obj_type  = params[0].lval;
+		PPID   obj_id    = params[1].lval;
+		PPID   text_prop = params[2].lval;
+        SString & r_temp_buf = SLS.AcquireRvlStr();
+		PPRef->UtrC.GetText(TextRefIdent(obj_type, obj_id, static_cast<int16>(text_prop)), r_temp_buf);
+		r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		STRNSCPY(text_buf, r_temp_buf);
+		result->init(text_buf);
 	}
 }
 
@@ -1187,6 +1203,7 @@ int PPDbqFuncPool::IdBillFrghtStrgLoc  = 0; // @v8.8.6
 int PPDbqFuncPool::IdSCardExtString    = 0; // @v9.6.1 (scardID, fldId)
 int PPDbqFuncPool::IdStrByStrGroupPos  = 0; // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
 int PPDbqFuncPool::IdBillDate          = 0; // @v10.0.03
+int PPDbqFuncPool::IdUnxText           = 0; // @v10.7.2  
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1471,6 +1488,7 @@ int SLAPI PPDbqFuncPool::Register()
 	THROW(DbqFuncTab::RegisterDyn(&IdOidText,             BTS_STRING, dbqf_oidtext_ii,         2, BTS_INT, BTS_INT)); // @v8.6.11
 	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,            BTS_DATE,   dbqf_datebase_id,        2, BTS_INT, BTS_DATE)); // @v8.6.11
 	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,      BTS_STRING, dbqf_scardextstring_ii,  2, BTS_INT, BTS_INT)); // @v9.6.1
+	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,        3, BTS_INT, BTS_INT, BTS_INT)); // @v10.7.2
 	CATCHZOK
 	return ok;
 }

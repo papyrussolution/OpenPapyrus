@@ -298,7 +298,6 @@ int SLAPI PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@er
 	_kf_block _kf(this);
 	if(rwFlag==PPCommandMngr::fRWByXml) {
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
-		SString suffix;
 		if(p_xml_writer) {
 			SXml::WNode command_item_node(p_xml_writer, "CommandItem");
 			command_item_node.PutInner("Kind", temp_buf.Z().Cat(_kf.Kind));
@@ -462,7 +461,6 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 			command_node.PutInner("CmdID", temp_buf.Z().Cat(CmdID));
 			command_node.PutInner("X", temp_buf.Z().Cat(P.x));
 			command_node.PutInner("Y", temp_buf.Z().Cat(P.y));
-			//command_node.PutInner("Reserve", temp_buf.Z().Cat(Reserve).Transf(CTRANSF_INNER_TO_UTF8));
 			temp_buf.Z().EncodeMime64(static_cast<const char *>(Param.GetBuf(Param.GetRdOffs())), Param.GetAvailableSize());
 			command_node.PutInner("Param", temp_buf);
 		}
@@ -513,7 +511,7 @@ int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 
 	}
 	CATCHZOK
-		return ok;
+	return ok;
 }
 
 int SLAPI PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
@@ -691,6 +689,9 @@ int SLAPI PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @
 			}
 		}
 	}
+	else{
+		ok = 0;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -726,6 +727,9 @@ int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 				}
 			}
 		}
+	}
+	else {
+		ok = 0;
 	}
 	CATCHZOK
 	delete p_command_item;
@@ -880,7 +884,7 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 		p_grp = pGrp;
 	else {
 		THROW(p_mgr = GetCommandMngr(1, isDesktop));
-		THROW(p_mgr->Load__(&grp));
+		THROW(p_mgr->Load__2(&grp, PPCommandMngr::fRWByXml)); // @erik v10.7.3
 		p_grp = &grp;
 		ZDELETE(p_mgr);
 	}
@@ -1203,6 +1207,11 @@ int FASTCALL PPCommandGroup::GenerateDeskGuid()
 	return 1;
 }
 
+const S_GUID FASTCALL PPCommandGroup::GetDeskGuid() const
+{
+	return DeskGuid;
+}
+
 int FASTCALL PPCommandGroup::Copy(const PPCommandGroup & s)
 {
 	DbSymb = s.DbSymb;
@@ -1248,11 +1257,11 @@ int SLAPI PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 	int    ok = 1;
 	THROW(PPCommandFolder::Read(rBuf, extraParam));
 	THROW_SL(rBuf.Read(DbSymb));
-	//@erik v10.6.6 {
+//@erik v10.6.6 {
 	if(DeskGuid.IsZero()) {
 		DeskGuid.Generate();
 	}
-	// } @erik
+// } @erik
 	if(Flags & fBkgndImage) {
 		PROFILE_START
 		SString buf, dir;
@@ -1486,6 +1495,7 @@ int SLAPI PPCommandMngr::Backup()
 
 SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly) : ReadOnly(readOnly)
 {
+	SString temp_buf;
 	long   mode = 0;
 	if(readOnly)
 		mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
@@ -1498,8 +1508,9 @@ SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly) : ReadO
 	// Исходим из предположения, что файл для записи открывается на малое время.
 	//
 	for(uint i = 0; i < 10; i++) {
-		if(F.Open(pFileName, mode))
+		if(F.Open(pFileName, mode)) {
 			break;
+		}
 		else
 			SDelay(100);
 	}
@@ -1562,7 +1573,6 @@ int SLAPI PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 int SLAPI PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 {
 	int    ok = 1;
-	THROW_PP(!ReadOnly, PPERR_CMDMNGREADONLY);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		THROW(pCmdGrp->Write2(0, rwFlag)); //@erik v10.6.6
 	}
@@ -1582,7 +1592,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 	PPCommandGroup * p_temp_command_group = 0;
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		GetDesksDir(path);
-		temp_buf.Z().Cat(path).SetLastSlash().Cat("*.*");
+		temp_buf.Z().Cat(path).SetLastSlash().Cat("*.xml");
 		SDirEntry de;
 		for(SDirec direc(temp_buf, 0); direc.Next(&de)>0;) {
 			if(de.IsFile()) {
@@ -1624,6 +1634,69 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 	ENDCATCH
 	xmlFreeDoc(p_doc);
 	xmlFreeParserCtxt(p_xml_parser);
+	return ok;
+}
+
+int SLAPI PPCommandMngr::SaveFromAllTo(const long rwFlag)
+{
+	int ok = 1;
+	PPCommandGroup cg_from_xml, cg_from_bin, cg_final;
+	const PPCommandItem * p_item = 0;
+	THROW(Load__(&cg_from_bin));
+	THROW(Load__2(&cg_from_xml, PPCommandMngr::fRWByXml));
+	for(uint i = 0; p_item = cg_from_xml.Next(&i);) {
+		if(cg_final.Add(-1, p_item)>0) {
+			p_item = 0;
+		}
+	}
+	for(uint i = 0; p_item = cg_from_bin.Next(&i);) {
+		if(cg_final.Add(-1, p_item)>0) {
+			p_item = 0;
+		}
+	}
+	THROW(Save__2(&cg_final, rwFlag));
+	CATCHZOK;
+	return ok;
+}
+
+int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
+{
+	int ok = 1;
+	SString temp_buf;
+	if(F.IsValid()>0) {
+		int64  fsz = 0;
+		if(F.CalcSize(&fsz)>0)
+		{
+			if(fsz>0) {
+				THROW(SaveFromAllTo(rwFlag));
+				THROW(F.Close());
+				THROW(PPGetPath(PPPATH_BIN, temp_buf));
+				{
+					SString old_name = temp_buf.SetLastSlash().Cat("ppdesk.bin");
+					LDATE cur_date;
+					getcurdate(&cur_date);
+					temp_buf.SetLastSlash().Cat("ppdesk").Cat(cur_date.year()).Cat(cur_date.month()).Cat(cur_date.day()).Cat(".bin");
+					THROW(F.Rename(old_name, temp_buf));
+				}
+			}
+		}
+	}
+	CATCHZOK;
+	return ok;
+}
+
+int SLAPI PPCommandMngr::DeleteDesktopByGUID(const SString guid, const long rwFlag)
+{
+	int ok;
+	SString path, temp_buf;
+	SFile file;
+	if(guid) {
+		PPCommandMngr::GetDesksDir(path);
+		temp_buf = path;
+		path.SetLastSlash().Cat(guid).Cat(".xml");
+		temp_buf.SetLastSlash().Cat(guid).Cat("_deleted.txt");
+		ok = file.Rename(path, temp_buf);
+	}
 	return ok;
 }
 
@@ -1800,8 +1873,7 @@ public:
 			}
 		}
 		CATCH
-			if(pParam)
-				pParam->SetRdOffs(sav_offs);
+			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
 			ok = 0;
 		ENDCATCH
 		static_cast<PPApp *>(APPL)->LastCmd = 0;
@@ -1813,84 +1885,85 @@ IMPLEMENT_CMD_HDL_FACTORY(ADDPERSON);
 //
 //
 //
-static int ReadPrjTaskRec(PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
+// @todo Заменить ReadPrjTaskPacket и WritePrjTaskPacket на PPObjPrjTask::SerializePacket (с соблюдением обратной совместимости)
+static int ReadPrjTaskPacket(PPPrjTaskPacket * pPack, SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	SString code, descr, memo;
-	THROW_INVARG(pRec);
-	THROW_SL(rBuf.Read(pRec->ID));
-	THROW_SL(rBuf.Read(pRec->ProjectID));
-	THROW_SL(rBuf.Read(pRec->Kind));
+	THROW_INVARG(pPack);
+	THROW_SL(rBuf.Read(pPack->Rec.ID));
+	THROW_SL(rBuf.Read(pPack->Rec.ProjectID));
+	THROW_SL(rBuf.Read(pPack->Rec.Kind));
 	THROW_SL(rBuf.Read(code));
-	THROW_SL(rBuf.Read(pRec->CreatorID));
-	THROW_SL(rBuf.Read(pRec->GroupID));
-	THROW_SL(rBuf.Read(pRec->EmployerID));
-	THROW_SL(rBuf.Read(pRec->ClientID));
-	THROW_SL(rBuf.Read(pRec->TemplateID));
-	THROW_SL(rBuf.Read(pRec->Dt));
-	THROW_SL(rBuf.Read(pRec->Tm));
-	THROW_SL(rBuf.Read(pRec->StartDt));
-	THROW_SL(rBuf.Read(pRec->StartTm));
-	THROW_SL(rBuf.Read(pRec->EstFinishDt));
-	THROW_SL(rBuf.Read(pRec->EstFinishTm));
-	THROW_SL(rBuf.Read(pRec->FinishDt));
-	THROW_SL(rBuf.Read(pRec->FinishTm));
-	THROW_SL(rBuf.Read(pRec->Priority));
-	THROW_SL(rBuf.Read(pRec->Status));
-	THROW_SL(rBuf.Read(pRec->DrPrd));
-	THROW_SL(rBuf.Read(pRec->DrKind));
-	THROW_SL(rBuf.Read(pRec->DrDetail));
-	THROW_SL(rBuf.Read(pRec->Flags));
-	THROW_SL(rBuf.Read(pRec->DlvrAddrID));
-	THROW_SL(rBuf.Read(pRec->LinkTaskID));
-	THROW_SL(rBuf.Read(pRec->Amount));
-	THROW_SL(rBuf.Read(pRec->OpenCount));
-	THROW_SL(rBuf.Read(pRec->BillArID));
+	THROW_SL(rBuf.Read(pPack->Rec.CreatorID));
+	THROW_SL(rBuf.Read(pPack->Rec.GroupID));
+	THROW_SL(rBuf.Read(pPack->Rec.EmployerID));
+	THROW_SL(rBuf.Read(pPack->Rec.ClientID));
+	THROW_SL(rBuf.Read(pPack->Rec.TemplateID));
+	THROW_SL(rBuf.Read(pPack->Rec.Dt));
+	THROW_SL(rBuf.Read(pPack->Rec.Tm));
+	THROW_SL(rBuf.Read(pPack->Rec.StartDt));
+	THROW_SL(rBuf.Read(pPack->Rec.StartTm));
+	THROW_SL(rBuf.Read(pPack->Rec.EstFinishDt));
+	THROW_SL(rBuf.Read(pPack->Rec.EstFinishTm));
+	THROW_SL(rBuf.Read(pPack->Rec.FinishDt));
+	THROW_SL(rBuf.Read(pPack->Rec.FinishTm));
+	THROW_SL(rBuf.Read(pPack->Rec.Priority));
+	THROW_SL(rBuf.Read(pPack->Rec.Status));
+	THROW_SL(rBuf.Read(pPack->Rec.DrPrd));
+	THROW_SL(rBuf.Read(pPack->Rec.DrKind));
+	THROW_SL(rBuf.Read(pPack->Rec.DrDetail));
+	THROW_SL(rBuf.Read(pPack->Rec.Flags));
+	THROW_SL(rBuf.Read(pPack->Rec.DlvrAddrID));
+	THROW_SL(rBuf.Read(pPack->Rec.LinkTaskID));
+	THROW_SL(rBuf.Read(pPack->Rec.Amount));
+	THROW_SL(rBuf.Read(pPack->Rec.OpenCount));
+	THROW_SL(rBuf.Read(pPack->Rec.BillArID));
 	THROW_SL(rBuf.Read(descr));
 	THROW_SL(rBuf.Read(memo));
-	code.CopyTo(pRec->Code, sizeof(pRec->Code));
-	descr.CopyTo(pRec->Descr, sizeof(pRec->Descr));
-	memo.CopyTo(pRec->Memo, sizeof(pRec->Memo));
+	code.CopyTo(pPack->Rec.Code, sizeof(pPack->Rec.Code));
+	pPack->SDescr = descr;
+	pPack->SMemo = memo;
 	CATCHZOK
 	return ok;
 }
 
-static int WritePrjTaskRec(const PrjTaskTbl::Rec * pRec, SBuffer & rBuf, long)
+static int WritePrjTaskPacket(const PPPrjTaskPacket * pPack, SBuffer & rBuf, long)
 {
 	int    ok = 1;
 	SString code, descr, memo;
-	THROW_INVARG(pRec);
-	code.CopyFrom(pRec->Code);
-	descr.CopyFrom(pRec->Descr);
-	memo.CopyFrom(pRec->Memo);
-	THROW_SL(rBuf.Write(pRec->ID));
-	THROW_SL(rBuf.Write(pRec->ProjectID));
-	THROW_SL(rBuf.Write(pRec->Kind));
+	THROW_INVARG(pPack);
+	code.CopyFrom(pPack->Rec.Code);
+	descr = pPack->SDescr;
+	memo = pPack->SMemo;
+	THROW_SL(rBuf.Write(pPack->Rec.ID));
+	THROW_SL(rBuf.Write(pPack->Rec.ProjectID));
+	THROW_SL(rBuf.Write(pPack->Rec.Kind));
 	THROW_SL(rBuf.Write(code));
-	THROW_SL(rBuf.Write(pRec->CreatorID));
-	THROW_SL(rBuf.Write(pRec->GroupID));
-	THROW_SL(rBuf.Write(pRec->EmployerID));
-	THROW_SL(rBuf.Write(pRec->ClientID));
-	THROW_SL(rBuf.Write(pRec->TemplateID));
-	THROW_SL(rBuf.Write(pRec->Dt));
-	THROW_SL(rBuf.Write(pRec->Tm));
-	THROW_SL(rBuf.Write(pRec->StartDt));
-	THROW_SL(rBuf.Write(pRec->StartTm));
-	THROW_SL(rBuf.Write(pRec->EstFinishDt));
-	THROW_SL(rBuf.Write(pRec->EstFinishTm));
-	THROW_SL(rBuf.Write(pRec->FinishDt));
-	THROW_SL(rBuf.Write(pRec->FinishTm));
-	THROW_SL(rBuf.Write(pRec->Priority));
-	THROW_SL(rBuf.Write(pRec->Status));
-	THROW_SL(rBuf.Write(pRec->DrPrd));
-	THROW_SL(rBuf.Write(pRec->DrKind));
-	THROW_SL(rBuf.Write(pRec->DrDetail));
-	THROW_SL(rBuf.Write(pRec->Flags));
-	THROW_SL(rBuf.Write(pRec->DlvrAddrID));
-	THROW_SL(rBuf.Write(pRec->LinkTaskID));
-	THROW_SL(rBuf.Write(pRec->Amount));
-	THROW_SL(rBuf.Write(pRec->OpenCount));
-	THROW_SL(rBuf.Write(pRec->BillArID));
+	THROW_SL(rBuf.Write(pPack->Rec.CreatorID));
+	THROW_SL(rBuf.Write(pPack->Rec.GroupID));
+	THROW_SL(rBuf.Write(pPack->Rec.EmployerID));
+	THROW_SL(rBuf.Write(pPack->Rec.ClientID));
+	THROW_SL(rBuf.Write(pPack->Rec.TemplateID));
+	THROW_SL(rBuf.Write(pPack->Rec.Dt));
+	THROW_SL(rBuf.Write(pPack->Rec.Tm));
+	THROW_SL(rBuf.Write(pPack->Rec.StartDt));
+	THROW_SL(rBuf.Write(pPack->Rec.StartTm));
+	THROW_SL(rBuf.Write(pPack->Rec.EstFinishDt));
+	THROW_SL(rBuf.Write(pPack->Rec.EstFinishTm));
+	THROW_SL(rBuf.Write(pPack->Rec.FinishDt));
+	THROW_SL(rBuf.Write(pPack->Rec.FinishTm));
+	THROW_SL(rBuf.Write(pPack->Rec.Priority));
+	THROW_SL(rBuf.Write(pPack->Rec.Status));
+	THROW_SL(rBuf.Write(pPack->Rec.DrPrd));
+	THROW_SL(rBuf.Write(pPack->Rec.DrKind));
+	THROW_SL(rBuf.Write(pPack->Rec.DrDetail));
+	THROW_SL(rBuf.Write(pPack->Rec.Flags));
+	THROW_SL(rBuf.Write(pPack->Rec.DlvrAddrID));
+	THROW_SL(rBuf.Write(pPack->Rec.LinkTaskID));
+	THROW_SL(rBuf.Write(pPack->Rec.Amount));
+	THROW_SL(rBuf.Write(pPack->Rec.OpenCount));
+	THROW_SL(rBuf.Write(pPack->Rec.BillArID));
 	THROW_SL(rBuf.Write(descr));
 	THROW_SL(rBuf.Write(memo));
 	CATCHZOK
@@ -1906,17 +1979,17 @@ public:
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
-		PrjTaskTbl::Rec rec;
+		PPPrjTaskPacket pack;
 		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		// @v10.6.4 MEMSZERO(rec);
 		if(pParam->GetAvailableSize() == 0)
-			TodoObj.InitPacket(&rec, TODOKIND_TASK, 0, 0, 0, 0);
+			TodoObj.InitPacket(&pack, TODOKIND_TASK, 0, 0, 0, 0);
 		else
-			THROW(ReadPrjTaskRec(&rec, *pParam, 0));
-		getcurdatetime(&rec.Dt, &rec.Tm);
-		if(TodoObj.EditDialog(&rec) > 0) {
-			THROW(WritePrjTaskRec(&rec, pParam->Z(), 0));
+			THROW(ReadPrjTaskPacket(&pack, *pParam, 0));
+		getcurdatetime(&pack.Rec.Dt, &pack.Rec.Tm);
+		if(TodoObj.EditDialog(&pack) > 0) {
+			THROW(WritePrjTaskPacket(&pack, pParam->Z(), 0));
 			ok = 1;
 		}
 		else
@@ -1938,10 +2011,9 @@ public:
 			static_cast<PPApp *>(APPL)->LastCmd = (cmdID) ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			param = *pParam;
 			if(EditParam(&param, cmdID, extraPtr) > 0) {
-				PrjTaskTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
-				THROW(ReadPrjTaskRec(&rec, param, 0));
-				THROW(ok = TodoObj.PutPacket(&id, &rec, 1));
+				PPPrjTaskPacket pack;
+				THROW(ReadPrjTaskPacket(&pack, param, 0));
+				THROW(ok = TodoObj.PutPacket(&id, &pack, 1));
 			}
 		}
 		CATCHZOK

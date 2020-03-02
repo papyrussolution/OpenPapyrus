@@ -6931,30 +6931,26 @@ void amqp_ssl_socket_set_verify(amqp_socket_t * base, boolint verify)
 
 void amqp_ssl_socket_set_verify_peer(amqp_socket_t * base, boolint verify) 
 {
-	amqp_ssl_socket_t * self;
-	if(base->klass != &amqp_ssl_socket_class) {
+	if(base->klass != &amqp_ssl_socket_class)
 		amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
-	}
-	self = reinterpret_cast<amqp_ssl_socket_t *>(base);
+	amqp_ssl_socket_t * self = reinterpret_cast<amqp_ssl_socket_t *>(base);
 	self->verify_peer = verify;
 }
 
 void amqp_ssl_socket_set_verify_hostname(amqp_socket_t * base, boolint verify) 
 {
-	amqp_ssl_socket_t * self;
 	if(base->klass != &amqp_ssl_socket_class)
 		amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
-	self = reinterpret_cast<amqp_ssl_socket_t *>(base);
+	amqp_ssl_socket_t * self = reinterpret_cast<amqp_ssl_socket_t *>(base);
 	self->verify_hostname = verify;
 }
 
 int amqp_ssl_socket_set_ssl_versions(amqp_socket_t * base, amqp_tls_version_t min, amqp_tls_version_t max) 
 {
-	amqp_ssl_socket_t * self;
 	if(base->klass != &amqp_ssl_socket_class) {
 		amqp_abort("<%p> is not of type amqp_ssl_socket_t", base);
 	}
-	self = reinterpret_cast<amqp_ssl_socket_t *>(base);
+	amqp_ssl_socket_t * self = reinterpret_cast<amqp_ssl_socket_t *>(base);
 	{
 		long clear_options;
 		long set_options = 0;

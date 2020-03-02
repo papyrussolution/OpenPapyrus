@@ -6830,7 +6830,7 @@ IStrAssocList * DL6ICLS_PPPersonRelTypePacket::GetInhRegTypeList()
 		for(uint i = 0; i < list.getCount(); i++)
 			 assoc_list.Add(list.at(i), 0, 0);
 	}
-	return (assoc_list.getCount()) ? (IStrAssocList *)GetIStrAssocList(this, &assoc_list, 0) : 0;
+	return assoc_list.getCount() ? reinterpret_cast<IStrAssocList *>(GetIStrAssocList(this, &assoc_list, 0)) : 0;
 }
 
 int32 DL6ICLS_PPPersonRelTypePacket::PutInhRegTypeList(IStrAssocList * pList)
@@ -6856,14 +6856,14 @@ IPapyrusPersonRelTypePacket * DL6ICLS_PPObjPersonRelType::CreatePacket()
 	CATCH
 		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
-	return (IPapyrusPersonRelTypePacket *)p_ifc;
+	return static_cast<IPapyrusPersonRelTypePacket *>(p_ifc);
 }
 
 int32 DL6ICLS_PPObjPersonRelType::PutPacket(long * pID, IPapyrusPersonRelTypePacket * pPack, int32 useTa)
 {
 	int    ok = -1;
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)SCoClass::GetExtraPtrByInterface(pPack);
-	PPObjPersonRelType    * p_obj  = (PPObjPersonRelType *)ExtraPtr;
+	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(SCoClass::GetExtraPtrByInterface(pPack));
+	PPObjPersonRelType    * p_obj  = static_cast<PPObjPersonRelType *>(ExtraPtr);
 	if(p_pack && p_obj)
 		ok = p_obj->PutPacket(pID, p_pack, 1);
 	return ok;
@@ -6872,8 +6872,8 @@ int32 DL6ICLS_PPObjPersonRelType::PutPacket(long * pID, IPapyrusPersonRelTypePac
 int32 DL6ICLS_PPObjPersonRelType::GetPacket(int32 id, IPapyrusPersonRelTypePacket * pPack)
 {
 	int    ok = -1;
-	PPPersonRelTypePacket * p_pack = (PPPersonRelTypePacket *)SCoClass::GetExtraPtrByInterface(pPack);
-	PPObjPersonRelType    * p_obj  = (PPObjPersonRelType *)ExtraPtr;
+	PPPersonRelTypePacket * p_pack = static_cast<PPPersonRelTypePacket *>(SCoClass::GetExtraPtrByInterface(pPack));
+	PPObjPersonRelType    * p_obj  = static_cast<PPObjPersonRelType *>(ExtraPtr);
 	if(p_pack && p_obj)
 		ok = p_obj->GetPacket(id, p_pack);
 	return ok;
@@ -6886,10 +6886,10 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjPrjTask, DL6ICLS_PPObjPrjTask_VTab, PPObjPrjTask)
 //
 // Interface IPapyrusObject implementation
 //
-static void FASTCALL FillPrjTaskRec(const PrjTaskTbl::Rec * pInner, SPpyO_PrjTask * pOuter)
+static void FASTCALL FillPrjTaskRec(const PPPrjTaskPacket * pInner, SPpyO_PrjTask * pOuter)
 {
 	SString temp_buf;
-	#define FLD(f) pOuter->f = pInner->f
+	#define FLD(f) pOuter->f = pInner->Rec.f
 		FLD(ID);
 		FLD(ProjectID);
 		FLD(CreatorID);
@@ -6906,27 +6906,27 @@ static void FASTCALL FillPrjTaskRec(const PrjTaskTbl::Rec * pInner, SPpyO_PrjTas
 		FLD(OpenCount);
 		FLD(BillArID);
 	#undef FLD
-	pOuter->Priority    = (PpyOPrjTaskPriority)pInner->Priority;
-	pOuter->Status      = (PpyOPrjTaskStatus)pInner->Status;
-	pOuter->Flags       = (PpyOPrjTaskFlags)pInner->Flags;
-	pOuter->Kind        = (PpyOPrjTaskKind)pInner->Kind;
-	pOuter->Dt          = pInner->Dt.GetOleDate();
-	pOuter->Tm          = (OleDate)pInner->Tm;
-	pOuter->StartDt     = pInner->StartDt.GetOleDate();
-	pOuter->StartTm     = (OleDate)pInner->StartTm;
-	pOuter->EstFinishDt = pInner->EstFinishDt.GetOleDate();
-	pOuter->EstFinishTm = (OleDate)pInner->EstFinishTm;
-	pOuter->FinishDt    = pInner->FinishDt.GetOleDate();
-	pOuter->FinishTm    = (OleDate)pInner->FinishTm;
-	(temp_buf = pInner->Code).CopyToOleStr(&pOuter->Code);
-	(temp_buf = pInner->Descr).CopyToOleStr(&pOuter->Descr);
-	(temp_buf = pInner->Memo).CopyToOleStr(&pOuter->Memo);
+	pOuter->Priority    = (PpyOPrjTaskPriority)pInner->Rec.Priority;
+	pOuter->Status      = (PpyOPrjTaskStatus)pInner->Rec.Status;
+	pOuter->Flags       = (PpyOPrjTaskFlags)pInner->Rec.Flags;
+	pOuter->Kind        = (PpyOPrjTaskKind)pInner->Rec.Kind;
+	pOuter->Dt          = pInner->Rec.Dt.GetOleDate();
+	pOuter->Tm          = (OleDate)pInner->Rec.Tm;
+	pOuter->StartDt     = pInner->Rec.StartDt.GetOleDate();
+	pOuter->StartTm     = (OleDate)pInner->Rec.StartTm;
+	pOuter->EstFinishDt = pInner->Rec.EstFinishDt.GetOleDate();
+	pOuter->EstFinishTm = (OleDate)pInner->Rec.EstFinishTm;
+	pOuter->FinishDt    = pInner->Rec.FinishDt.GetOleDate();
+	pOuter->FinishTm    = (OleDate)pInner->Rec.FinishTm;
+	(temp_buf = pInner->Rec.Code).CopyToOleStr(&pOuter->Code);
+	(temp_buf = pInner->SDescr).CopyToOleStr(&pOuter->Descr);
+	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo);
 }
 
-static void FASTCALL FillPrjTaskRec(const SPpyO_PrjTask * pInner, PrjTaskTbl::Rec * pOuter)
+static void FASTCALL FillPrjTaskRec(const SPpyO_PrjTask * pInner, PPPrjTaskPacket * pOuter)
 {
 	SString temp_buf;
-	#define FLD(f) pOuter->f = pInner->f
+	#define FLD(f) pOuter->Rec.f = pInner->f
 		FLD(ID);
 		FLD(ProjectID);
 		FLD(CreatorID);
@@ -6951,13 +6951,13 @@ static void FASTCALL FillPrjTaskRec(const SPpyO_PrjTask * pInner, PrjTaskTbl::Re
 		FLD(FinishDt);
 		FLD(FinishTm);
 	#undef FLD
-	pOuter->DrPrd  = (int16)pInner->DrPrd;
-	pOuter->DrKind = (int16)pInner->DrKind;
-	pOuter->Flags  = (long)pInner->Flags;
-	pOuter->Kind   = (long)pInner->Kind;
-	temp_buf.CopyFromOleStr(pInner->Code).CopyTo(pOuter->Code, sizeof(pOuter->Code));
-	temp_buf.CopyFromOleStr(pInner->Descr).CopyTo(pOuter->Descr, sizeof(pOuter->Descr));
-	temp_buf.CopyFromOleStr(pInner->Memo).CopyTo(pOuter->Memo, sizeof(pOuter->Memo));
+	pOuter->Rec.DrPrd  = (int16)pInner->DrPrd;
+	pOuter->Rec.DrKind = (int16)pInner->DrKind;
+	pOuter->Rec.Flags  = (long)pInner->Flags;
+	pOuter->Rec.Kind   = (long)pInner->Kind;
+	temp_buf.CopyFromOleStr(pInner->Code).CopyTo(pOuter->Rec.Code, sizeof(pOuter->Rec.Code));
+	pOuter->SDescr.CopyFromOleStr(pInner->Descr);
+	pOuter->SMemo.CopyFromOleStr(pInner->Memo);
 }
 
 int32 DL6ICLS_PPObjPrjTask::Search(int32 id, PPYOBJREC pRec)
@@ -6965,10 +6965,9 @@ int32 DL6ICLS_PPObjPrjTask::Search(int32 id, PPYOBJREC pRec)
 	int    ok = 0;
 	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
 	if(p_obj) {
-		PrjTaskTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
-		ok = p_obj->Search(id, &rec);
-		FillPrjTaskRec(&rec, static_cast<SPpyO_PrjTask *>(pRec));
+		PPPrjTaskPacket pack;
+		ok = p_obj->GetPacket(id, &pack);
+		FillPrjTaskRec(&pack, static_cast<SPpyO_PrjTask *>(pRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -6996,14 +6995,15 @@ int32 DL6ICLS_PPObjPrjTask::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	SPpyO_PrjTask * p_rec = static_cast<SPpyO_PrjTask *>(pRec);
 	THROW_PP_S(p_rec->RecTag == ppoPrjTask, PPERR_INVSTRUCTAG, "ppoPrjTask");
 	if(p_obj) {
-		PrjTaskTbl::Rec init_rec, rec;
+		PPPrjTaskPacket init_pack;
+		PPPrjTaskPacket pack;
 		PPTransaction tra((flags & 0x0001) ? 0 : 1);
 		THROW(tra);
-		FillPrjTaskRec(p_rec, &rec);
-		THROW(p_obj->InitPacket(&init_rec, rec.Kind, rec.ProjectID, rec.ClientID, rec.EmployerID, 0));
-		STRNSCPY(rec.Code, init_rec.Code);
-		rec.Kind = init_rec.Kind;
-		THROW(p_obj->PutPacket(pID, &rec, 0));
+		FillPrjTaskRec(p_rec, &pack);
+		THROW(p_obj->InitPacket(&init_pack, pack.Rec.Kind, pack.Rec.ProjectID, pack.Rec.ClientID, pack.Rec.EmployerID, 0));
+		STRNSCPY(pack.Rec.Code, init_pack.Rec.Code);
+		pack.Rec.Kind = init_pack.Rec.Kind;
+		THROW(p_obj->PutPacket(pID, &pack, 0));
 		THROW(tra.Commit());
 		ok = 1;
 	}
@@ -7017,14 +7017,14 @@ int32 DL6ICLS_PPObjPrjTask::Update(int32 id, int32 flags, PPYOBJREC pRec)
 	int    ok = 0;
 	PPObjPrjTask * p_obj = static_cast<PPObjPrjTask *>(ExtraPtr);
 	SPpyO_PrjTask * p_rec = static_cast<SPpyO_PrjTask *>(pRec);
-	PrjTaskTbl::Rec rec;
+	PPPrjTaskPacket pack;
 	THROW_PP_S(p_rec->RecTag == ppoPrjTask, PPERR_INVSTRUCTAG, "ppoPrjTask");
 	if(p_obj) {
 		PPTransaction tra((flags & 0x0001) ? 0 : 1);
 		THROW(tra);
-		FillPrjTaskRec(p_rec, &rec);
-		NZOR(rec.Kind, TODOKIND_TASK);
-		THROW(p_obj->PutPacket(&id, &rec, 0));
+		FillPrjTaskRec(p_rec, &pack);
+		NZOR(pack.Rec.Kind, TODOKIND_TASK);
+		THROW(p_obj->PutPacket(&id, &pack, 0));
 		THROW(tra.Commit());
 	}
 	ok = 1;
@@ -7041,10 +7041,10 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjProject, DL6ICLS_PPObjProject_VTab, PPObjProject)
 //
 // Interface IPapyrusObject implementation
 //
-static void FASTCALL FillProjectRec(const ProjectTbl::Rec * pInner, SPpyO_Project * pOuter)
+static void FASTCALL FillProjectRec(const PPProjectPacket * pInner, SPpyO_Project * pOuter)
 {
 	SString temp_buf;
-	#define FLD(f) pOuter->f = pInner->f
+	#define FLD(f) pOuter->f = pInner->Rec.f
 		FLD(ID);
 		FLD(ParentID);
 		FLD(MngrID);
@@ -7053,22 +7053,22 @@ static void FASTCALL FillProjectRec(const ProjectTbl::Rec * pInner, SPpyO_Projec
 		FLD(Flags);
 		FLD(BillOpID);
 	#undef FLD
-	pOuter->Status      = (PpyOProjectStatus)pInner->Status;
-	pOuter->Kind        = (PpyOProjectKind)pInner->Kind;
-	pOuter->Dt          = pInner->Dt.GetOleDate();
-	pOuter->BeginDt     = pInner->BeginDt.GetOleDate();
-	pOuter->EstFinishDt = pInner->EstFinishDt.GetOleDate();
-	pOuter->FinishDt    = pInner->FinishDt.GetOleDate();
-	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
-	(temp_buf = pInner->Code).CopyToOleStr(&pOuter->Code);
-	(temp_buf = pInner->Descr).CopyToOleStr(&pOuter->Descr);
-	(temp_buf = pInner->Memo).CopyToOleStr(&pOuter->Memo);
+	pOuter->Status      = (PpyOProjectStatus)pInner->Rec.Status;
+	pOuter->Kind        = (PpyOProjectKind)pInner->Rec.Kind;
+	pOuter->Dt          = pInner->Rec.Dt.GetOleDate();
+	pOuter->BeginDt     = pInner->Rec.BeginDt.GetOleDate();
+	pOuter->EstFinishDt = pInner->Rec.EstFinishDt.GetOleDate();
+	pOuter->FinishDt    = pInner->Rec.FinishDt.GetOleDate();
+	(temp_buf = pInner->Rec.Name).CopyToOleStr(&pOuter->Name);
+	(temp_buf = pInner->Rec.Code).CopyToOleStr(&pOuter->Code);
+	(temp_buf = pInner->SDescr).CopyToOleStr(&pOuter->Descr);
+	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo);
 }
 
-static void FASTCALL FillProjectRec(const SPpyO_Project * pInner, ProjectTbl::Rec * pOuter)
+static void FASTCALL FillProjectRec(const SPpyO_Project * pInner, PPProjectPacket * pOuter)
 {
 	SString temp_buf;
-	#define FLD(f) pOuter->f = pInner->f
+	#define FLD(f) pOuter->Rec.f = pInner->f
 		FLD(ID);
 		FLD(ParentID);
 		FLD(MngrID);
@@ -7081,12 +7081,12 @@ static void FASTCALL FillProjectRec(const SPpyO_Project * pInner, ProjectTbl::Re
 		FLD(EstFinishDt);
 		FLD(FinishDt);
 	#undef FLD
-	pOuter->Status      = (long)pInner->Status;
-	pOuter->Kind        = (long)pInner->Kind;
-	temp_buf.CopyFromOleStr(pInner->Name).CopyTo(pOuter->Name, sizeof(pOuter->Name));
-	temp_buf.CopyFromOleStr(pInner->Code).CopyTo(pOuter->Code, sizeof(pOuter->Code));
-	temp_buf.CopyFromOleStr(pInner->Descr).CopyTo(pOuter->Descr, sizeof(pOuter->Descr));
-	temp_buf.CopyFromOleStr(pInner->Memo).CopyTo(pOuter->Memo, sizeof(pOuter->Memo));
+	pOuter->Rec.Status      = (long)pInner->Status;
+	pOuter->Rec.Kind        = (long)pInner->Kind;
+	temp_buf.CopyFromOleStr(pInner->Name).CopyTo(pOuter->Rec.Name, sizeof(pOuter->Rec.Name));
+	temp_buf.CopyFromOleStr(pInner->Code).CopyTo(pOuter->Rec.Code, sizeof(pOuter->Rec.Code));
+	pOuter->SDescr.CopyFromOleStr(pInner->Descr);
+	pOuter->SMemo.CopyFromOleStr(pInner->Memo);
 }
 
 int32 DL6ICLS_PPObjProject::Search(int32 id, PPYOBJREC pRec)
@@ -7094,10 +7094,9 @@ int32 DL6ICLS_PPObjProject::Search(int32 id, PPYOBJREC pRec)
 	int    ok = 0;
 	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
 	if(p_obj) {
-		ProjectTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
-		ok = p_obj->Search(id, &rec);
-		FillProjectRec(&rec, static_cast<SPpyO_Project *>(pRec));
+		PPProjectPacket pack;
+		ok = p_obj->GetPacket(id, &pack);
+		FillProjectRec(&pack, static_cast<SPpyO_Project *>(pRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -7133,17 +7132,18 @@ int32 DL6ICLS_PPObjProject::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	SPpyO_Project * p_rec = static_cast<SPpyO_Project *>(pRec);
 	THROW_PP_S(p_rec->RecTag == ppoProject, PPERR_INVSTRUCTAG, "ppoProject");
 	if(p_obj) {
-		ProjectTbl::Rec init_rec, rec;
+		PPProjectPacket init_pack;
+		PPProjectPacket pack;
 		{
 			PPTransaction tra((flags & 0x0001) ? 0 : 1);
 			THROW(tra);
-			FillProjectRec(p_rec, &rec);
-			THROW(p_obj->InitPacket(&init_rec, rec.Kind, rec.ParentID, 0));
-			STRNSCPY(rec.Code, init_rec.Code);
-			rec.Kind = init_rec.Kind;
-			rec.Dt = (rec.Dt == ZERODATE) ? init_rec.Dt : rec.Dt;
-			NZOR(rec.Status, PPPRJSTS_ACTIVE);
-			THROW(p_obj->PutPacket(pID, &rec, 0));
+			FillProjectRec(p_rec, &pack);
+			THROW(p_obj->InitPacket(&init_pack, pack.Rec.Kind, pack.Rec.ParentID, 0));
+			STRNSCPY(pack.Rec.Code, init_pack.Rec.Code);
+			pack.Rec.Kind = init_pack.Rec.Kind;
+			pack.Rec.Dt = (pack.Rec.Dt == ZERODATE) ? init_pack.Rec.Dt : pack.Rec.Dt;
+			NZOR(pack.Rec.Status, PPPRJSTS_ACTIVE);
+			THROW(p_obj->PutPacket(pID, &pack, 0));
 			THROW(tra.Commit());
 		}
 		ok = 1;
@@ -7158,14 +7158,14 @@ int32 DL6ICLS_PPObjProject::Update(int32 id, int32 flags, PPYOBJREC pRec)
 	int    ok = 0;
 	PPObjProject * p_obj = static_cast<PPObjProject *>(ExtraPtr);
 	SPpyO_Project * p_rec = static_cast<SPpyO_Project *>(pRec);
-	ProjectTbl::Rec rec;
+	PPProjectPacket pack;
 	THROW_PP_S(p_rec->RecTag == ppoProject, PPERR_INVSTRUCTAG, "ppoProject");
 	if(p_obj) {
 		PPTransaction tra((flags & 0x0001) ? 0 : 1);
 		THROW(tra);
-		FillProjectRec(p_rec, &rec);
-		NZOR(rec.Kind, PPPRJK_PROJECT);
-		THROW(p_obj->PutPacket(&id, &rec, 0));
+		FillProjectRec(p_rec, &pack);
+		NZOR(pack.Rec.Kind, PPPRJK_PROJECT);
+		THROW(p_obj->PutPacket(&id, &pack, 0));
 		THROW(tra.Commit());
 	}
 	ok = 1;
@@ -9577,15 +9577,16 @@ int32 DL6ICLS_PPViewPrjTask::Init(IUnknown* pFilt)
 
 int32 DL6ICLS_PPViewPrjTask::InitIteration(int32 order)
 {
-	return ((PPViewPrjTask*)ExtraPtr)->InitIteration();
+	return static_cast<PPViewPrjTask *>(ExtraPtr)->InitIteration();
 }
 
 int32 DL6ICLS_PPViewPrjTask::NextIteration(PPYVIEWITEM item)
 {
 	int    ok = -1;
-	SPpyVI_PrjTask * p_item = (SPpyVI_PrjTask *)item;
+	SPpyVI_PrjTask * p_item = static_cast<SPpyVI_PrjTask *>(item);
 	PrjTaskViewItem inner_item;
-	if(((PPViewPrjTask *)ExtraPtr)->NextIteration(&inner_item) > 0) {
+	PPViewPrjTask * p_view = static_cast<PPViewPrjTask *>(ExtraPtr);
+	if(p_view && p_view->NextIteration(&inner_item) > 0) {
 		SString temp_buf;
 		#define FLD(f) p_item->f = inner_item.f
 			FLD(ID);
@@ -9617,9 +9618,12 @@ int32 DL6ICLS_PPViewPrjTask::NextIteration(PPYVIEWITEM item)
 		p_item->EstFinishTm = (OleDate)inner_item.EstFinishTm;
 		p_item->FinishDt    = inner_item.FinishDt.GetOleDate();
 		p_item->FinishTm    = (OleDate)inner_item.FinishTm;
+
 		(temp_buf = inner_item.Code).CopyToOleStr(&p_item->Code);
-		(temp_buf = inner_item.Descr).CopyToOleStr(&p_item->Descr);
-		(temp_buf = inner_item.Memo).CopyToOleStr(&p_item->Memo);
+		p_view->GetItemDescr(p_item->ID, temp_buf);
+		temp_buf.CopyToOleStr(&p_item->Descr);
+		p_view->GetItemMemo(p_item->ID, temp_buf);
+		temp_buf.CopyToOleStr(&p_item->Memo);
 		ok = 1;
 	}
 	return ok;
@@ -9683,7 +9687,8 @@ int32 DL6ICLS_PPViewProject::NextIteration(PPYVIEWITEM item)
 	int    ok = -1;
 	SPpyVI_Project * p_item = static_cast<SPpyVI_Project *>(item);
 	ProjectViewItem inner_item;
-	if(((PPViewProject *)ExtraPtr)->NextIteration(&inner_item) > 0) {
+	PPViewProject * p_view = static_cast<PPViewProject *>(ExtraPtr);
+	if(p_view->NextIteration(&inner_item) > 0) {
 		SString temp_buf;
 		#define FLD(f) p_item->f = inner_item.f
 			FLD(PrjTaskID);
@@ -9704,8 +9709,10 @@ int32 DL6ICLS_PPViewProject::NextIteration(PPYVIEWITEM item)
 		p_item->FinishDt    = inner_item.FinishDt.GetOleDate();
 		(temp_buf = inner_item.Name).CopyToOleStr(&p_item->Name);
 		(temp_buf = inner_item.Code).CopyToOleStr(&p_item->Code);
-		(temp_buf = inner_item.Descr).CopyToOleStr(&p_item->Descr);
-		(temp_buf = inner_item.Memo).CopyToOleStr(&p_item->Memo);
+		p_view->GetItemDescr(p_item->ID, temp_buf);
+		temp_buf.CopyToOleStr(&p_item->Descr);
+		p_view->GetItemMemo(p_item->ID, temp_buf);
+		temp_buf.CopyToOleStr(&p_item->Memo);
 		ok = 1;
 	}
 	return ok;

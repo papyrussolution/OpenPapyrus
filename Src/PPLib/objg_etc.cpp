@@ -56,6 +56,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_CVAT,     PPOBJ_AMOUNTTYPE, rec.AmtCVat,  OLW_CANINSERT, 0);
 	//SetupPPObjCombo(dlg, CTLSEL_GDSTYP_AWOG,     PPOBJ_ASSTWROFFGRP, rec.WrOffGrpID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_PRICERESTR, PPOBJ_GOODSVALRESTR, rec.PriceRestrID, OLW_CANINSERT, 0);
+	SetupStringCombo(dlg, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, rec.ChZnProdType); // @v10.7.2
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 0, GTF_UNLIMITED);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);
@@ -93,6 +94,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTLSEL_GDSTYP_CVAT,     &rec.AmtCVat);
 			//dlg->getCtrlData(CTLSEL_GDSTYP_AWOG,   &rec.WrOffGrpID);
 			dlg->getCtrlData(CTLSEL_GDSTYP_PRICERESTR, &rec.PriceRestrID);
+			dlg->getCtrlData(CTLSEL_GDSTYP_CHZNPT, &rec.ChZnProdType); // @v10.7.2
 			dlg->GetClusterData(CTL_GDSTYP_UNLIM, &rec.Flags);
 			dlg->GetClusterData(CTL_GDSTYP_FLAGS, &rec.Flags);
 			rec.StockTolerance = dlg->getCtrlReal(CTL_GDSTYP_STKTLR); // @v9.0.4
@@ -125,6 +127,7 @@ public:
 		PPID   AmtPrice;
 		PPID   AmtDscnt;
 		PPID   AmtCVat;
+		long   ChZnProdType; // @v10.7.2
 		long   Flags;
 	};
 };
@@ -143,6 +146,7 @@ int SLAPI GoodsTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		FLD(AmtPrice);
 		FLD(AmtDscnt);
 		FLD(AmtCVat);
+		FLD(ChZnProdType); // @v10.7.2
 		FLD(Flags);
 		#undef FLD
 		/* @v10.4.2 ok =*/PutName(rec.Name, p_cache_rec);
@@ -166,6 +170,7 @@ void SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	FLD(AmtPrice);
 	FLD(AmtDscnt);
 	FLD(AmtCVat);
+	FLD(ChZnProdType); // @v10.7.2
 	FLD(Flags);
 	#undef FLD
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));

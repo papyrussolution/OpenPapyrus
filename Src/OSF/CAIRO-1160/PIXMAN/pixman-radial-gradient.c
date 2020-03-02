@@ -35,16 +35,11 @@
 //#include <math.h>
 //#include "pixman-private.h"
 
-static inline pixman_fixed_32_32_t dot(pixman_fixed_48_16_t x1,
-    pixman_fixed_48_16_t y1,
-    pixman_fixed_48_16_t z1,
-    pixman_fixed_48_16_t x2,
-    pixman_fixed_48_16_t y2,
-    pixman_fixed_48_16_t z2)
+static inline pixman_fixed_32_32_t dot(pixman_fixed_48_16_t x1, pixman_fixed_48_16_t y1,
+    pixman_fixed_48_16_t z1, pixman_fixed_48_16_t x2, pixman_fixed_48_16_t y2, pixman_fixed_48_16_t z2)
 {
 	/*
-	 * Exact computation, assuming that the input values can
-	 * be represented as pixman_fixed_16_16_t
+	 * Exact computation, assuming that the input values can be represented as pixman_fixed_16_16_t
 	 */
 	return x1 * x2 + y1 * y2 + z1 * z2;
 }
@@ -54,10 +49,9 @@ static inline double fdot(double x1, double y1, double z1, double x2, double y2,
 	/*
 	 * Error can be unbound in some special cases.
 	 * Using clever dot product algorithms (for example compensated
-	 * dot product) would improve this but make the code much less
-	 * obvious
+	 * dot product) would improve this but make the code much less obvious
 	 */
-	return x1 * x2 + y1 * y2 + z1 * z2;
+	return (x1 * x2) + (y1 * y2) + (z1 * z2);
 }
 
 static uint32_t radial_compute_color(double a, double b, double c, double inva, double dr, double mindr, pixman_gradient_walker_t * walker, pixman_repeat_t repeat)
@@ -215,24 +209,19 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 	int y = iter->y;
 	int width = iter->width;
 	uint32_t * buffer = iter->buffer;
-
-	gradient_t * gradient = (gradient_t*)image;
-	radial_gradient_t * radial = (radial_gradient_t*)image;
+	gradient_t * gradient = reinterpret_cast<gradient_t *>(image);
+	radial_gradient_t * radial = reinterpret_cast<radial_gradient_t *>(image);
 	uint32_t * end = buffer + width;
 	pixman_gradient_walker_t walker;
 	pixman_vector_t v, unit;
-
 	/* reference point is the center of the pixel */
 	v.vector[0] = pixman_int_to_fixed(x) + pixman_fixed_1 / 2;
 	v.vector[1] = pixman_int_to_fixed(y) + pixman_fixed_1 / 2;
 	v.vector[2] = pixman_fixed_1;
-
 	_pixman_gradient_walker_init(&walker, gradient, image->common.repeat);
-
 	if(image->common.transform) {
 		if(!pixman_transform_point_3d(image->common.transform, &v))
 			return iter->buffer;
-
 		unit.vector[0] = image->common.transform->matrix[0][0];
 		unit.vector[1] = image->common.transform->matrix[1][0];
 		unit.vector[2] = image->common.transform->matrix[2][0];

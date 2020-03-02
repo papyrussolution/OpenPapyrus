@@ -10583,8 +10583,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						}
 					}
 					else {
-						GetGoodsName(goodsID, temp_buf);
-						PPSetError(PPERR_INVGOODSPRICE, temp_buf);
+						PPSetError(PPERR_INVGOODSPRICE, GetGoodsName(goodsID, temp_buf));
 						ok = MessageError(PPERR_INVGOODSPRICE, temp_buf, eomStatusLine|eomBeep);
 					}
 				}
@@ -10629,7 +10628,7 @@ int CheckPaneDialog::GetInput()
 		TInputLine::Statistics stat;
 		p_il->GetStatistics(&stat);
 		if(stat.Flags & stat.fSerialized && !(stat.Flags & stat.fPaste)) {
-			if(stat.SymbCount && stat.IntervalMean <= (double)AutoInputTolerance)
+			if(stat.SymbCount && stat.IntervalMean <= static_cast<double>(AutoInputTolerance))
 				UiFlags |= uifAutoInput;
 		}
 	}

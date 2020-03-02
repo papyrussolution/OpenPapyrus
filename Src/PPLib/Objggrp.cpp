@@ -1,6 +1,6 @@
 // OBJGGRP.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -64,7 +64,7 @@ int SLAPI PPObjGoodsGroup::GetLevel(PPID grpID, long * pLevel)
 	for(PPID id = grpID; id && (r = Fetch(id, &rec)) > 0; id = rec.ParentID) {
 		if(trace.addUnique(id) < 0) {
 			//
-			// Мы зациклились (замкнутый контур в дереве групп)
+			// РњС‹ Р·Р°С†РёРєР»РёР»РёСЃСЊ (Р·Р°РјРєРЅСѓС‚С‹Р№ РєРѕРЅС‚СѓСЂ РІ РґРµСЂРµРІРµ РіСЂСѓРїРї)
 			//
 			break;
 		}
@@ -158,8 +158,8 @@ int SLAPI PPObjGoodsGroup::DeleteObj(PPID id)
 	while(ok > 0 && (r = P_Tbl->SearchAnyRef(PPOBJ_GOODSGROUP, id, &branch_id)) > 0) {
 		if(Search(branch_id, &rec) > 0) {
 			//
-			// Рекурсивный вызов для подуровней. Вызываем
-			// метод PPObject::Remove без транзакции и предупреждения //
+			// Р РµРєСѓСЂСЃРёРІРЅС‹Р№ РІС‹Р·РѕРІ РґР»СЏ РїРѕРґСѓСЂРѕРІРЅРµР№. Р’С‹Р·С‹РІР°РµРј
+			// РјРµС‚РѕРґ PPObject::Remove Р±РµР· С‚СЂР°РЅР·Р°РєС†РёРё Рё РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ //
 			//
 			PPObject::SetLastErrObj(Obj, rec.ID);
 			THROW_PP(rec.Kind == PPGDSK_GROUP, PPERR_REFSEXISTS);
@@ -212,15 +212,16 @@ int SLAPI PPObjGoodsGroup::Transmit()
 static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 {
 	class RcvrGoodsGroupsDialog : public TDialog {
+		DECL_DIALOG_DATA(GoodsGroupRecoverParam);
 	public:
 		RcvrGoodsGroupsDialog() : TDialog(DLG_RCVRGGRP)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_RCVRGGRP_LOG, CTL_RCVRGGRP_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		}
-		int setDTS(const GoodsGroupRecoverParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_RCVRGGRP_LOG, Data.LogFileName);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 0, GoodsGroupRecoverParam::fCorrect);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 1, GoodsGroupRecoverParam::fDelTempAltGrp);
@@ -234,7 +235,7 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 			disableCtrl(CTLSEL_RCVRGGRP_EGAFOLD, Data.Ega != GoodsGroupRecoverParam::egaMoveToFolder);
 			return ok;
 		}
-		int getDTS(GoodsGroupRecoverParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -260,7 +261,6 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 				clearEvent(event);
 			}
 		}
-		GoodsGroupRecoverParam Data;
 		PPObjGoods GObj;
 	};
 	DIALOG_PROC_BODY(RcvrGoodsGroupsDialog, pData);
@@ -390,11 +390,11 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 					k.Kind = PPGDSK_GOODS;
 					k.ParentID = grp_rec.ID;
 					if(!P_Tbl->search(1, &k, spGt) || k.Kind != PPGDSK_GOODS || k.ParentID != grp_rec.ID) {
-						// Группа '%s' не содержит ни одного товара
-						// Перенесена в папку '%s'
-						// Удалена                         // GoodsGroupRecoverParam
-						// Не определан папка для переноса
-						// Уже находится в папке для переноса
+						// Р“СЂСѓРїРїР° '%s' РЅРµ СЃРѕРґРµСЂР¶РёС‚ РЅРё РѕРґРЅРѕРіРѕ С‚РѕРІР°СЂР°
+						// РџРµСЂРµРЅРµСЃРµРЅР° РІ РїР°РїРєСѓ '%s'
+						// РЈРґР°Р»РµРЅР°                         // GoodsGroupRecoverParam
+						// РќРµ РѕРїСЂРµРґРµР»Р°РЅ РїР°РїРєР° РґР»СЏ РїРµСЂРµРЅРѕСЃР°
+						// РЈР¶Рµ РЅР°С…РѕРґРёС‚СЃСЏ РІ РїР°РїРєРµ РґР»СЏ РїРµСЂРµРЅРѕСЃР°
 						THROW(BTROKORNFOUND);
 						PPGetSubStr(line_buf, 0, fmt_buf);
 						msg_buf.Printf(fmt_buf, grp_rec.Name);
@@ -600,7 +600,7 @@ StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
 		const int is_fold = BIN(P_Tbl->data.Flags & GF_FOLDER);
 #ifdef _DEBUG
 		//
-		// Под отладчиком нам нужна возможность видеть динамические альт группы
+		// РџРѕРґ РѕС‚Р»Р°РґС‡РёРєРѕРј РЅР°Рј РЅСѓР¶РЅР° РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РІРёРґРµС‚СЊ РґРёРЅР°РјРёС‡РµСЃРєРёРµ Р°Р»СЊС‚ РіСЂСѓРїРїС‹
 		//
 		const int is_tempalt = 0;
 #else
@@ -621,7 +621,7 @@ StrAssocArray * PPObjGoodsGroup::MakeStrAssocList(void * extraPtr)
 		}
 	}
 	p_list->SortByText(); // @v7.4.2
-	// @average (очень медленно работает, хоть и дает гарантию нерекурсивности)
+	// @average (РѕС‡РµРЅСЊ РјРµРґР»РµРЅРЅРѕ СЂР°Р±РѕС‚Р°РµС‚, С…РѕС‚СЊ Рё РґР°РµС‚ РіР°СЂР°РЅС‚РёСЋ РЅРµСЂРµРєСѓСЂСЃРёРІРЅРѕСЃС‚Рё)
 	// p_list->RemoveRecursion(0); // @v8.3.2
 	CATCH
 		ZDELETE(p_list);
@@ -1174,11 +1174,11 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 	PPID   ID;                // Const=PPCFG_MAIN
 	PPID   Prop;              // Const=PPPRP_TRANSPCFG
 	long   Flags;
-	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД
-		// равен sizeof(Storage_PPTranspConfig) + ExtStrSize
+	uint16 ExtStrSize;        // Р Р°Р·РјРµСЂ "С…РІРѕСЃС‚Р°" РїРѕРґ СЃС‚СЂРѕРєРё СЂР°СЃС€РёСЂРµРЅРёСЏ. РћР±С‰РёР№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё, С…СЂР°РЅРёРјРѕР№ РІ Р‘Р”
+		// СЂР°РІРµРЅ sizeof(Storage_PPTranspConfig) + ExtStrSize
 	uint16 StrPosNameTempl;   //
-	PPID   OwnerKindID;       // Вид персоналии - владельцы транспортных средств. По умолчанию - PPPRK_SHIPOWNER
-	PPID   CaptainKindID;     // Вид персоналии - капитаны (водители). По умолчанию - PPPRK_CAPTAIN
+	PPID   OwnerKindID;       // Р’РёРґ РїРµСЂСЃРѕРЅР°Р»РёРё - РІР»Р°РґРµР»СЊС†С‹ С‚СЂР°РЅСЃРїРѕСЂС‚РЅС‹С… СЃСЂРµРґСЃС‚РІ. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - PPPRK_SHIPOWNER
+	PPID   CaptainKindID;     // Р’РёРґ РїРµСЂСЃРѕРЅР°Р»РёРё - РєР°РїРёС‚Р°РЅС‹ (РІРѕРґРёС‚РµР»Рё). РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - PPPRK_CAPTAIN
 	char   Reserve[52];
 	long   Reserve1[2];
 	//char   ExtString[];
@@ -1240,7 +1240,7 @@ int FASTCALL PPObjTransport::WriteConfig(const PPTransportConfig * pCfg, int use
 			if(pCfg->NameTemplate.NotEmpty())
 				ext_size = pCfg->NameTemplate.Len()+1;
 			if(ext_size)
-				ext_size++; // Нулевая позиция - исключительная //
+				ext_size++; // РќСѓР»РµРІР°СЏ РїРѕР·РёС†РёСЏ - РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅР°СЏ //
 			sz += ext_size;
 			p_cfg = static_cast<Storage_PPTranspConfig *>(SAlloc::M(sz));
 			memzero(p_cfg, sz);
@@ -1445,7 +1445,7 @@ int SLAPI PPObjTransport::Put(PPID * pID, const PPTransport * pRec, int use_ta)
 			THROW(MakeStorage(0, pRec, &raw_rec, 0));
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
 			//
-			// Теперь знаем идентификатор и можно сохранить список кодов
+			// РўРµРїРµСЂСЊ Р·РЅР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Рё РјРѕР¶РЅРѕ СЃРѕС…СЂР°РЅРёС‚СЊ СЃРїРёСЃРѕРє РєРѕРґРѕРІ
 			//
 			THROW(MakeStorage(*pID, pRec, &raw_rec, &bc_list));
 			THROW(P_Tbl->UpdateBarcodes(*pID, &bc_list, 0));
@@ -2288,11 +2288,11 @@ int SLAPI PPObjGoodsGroup::RemoveDynamicAlt(PPID id, long owner, int forceDel /*
 struct _GCompItem {       // @persistent @store(ObjAssocTbl)
 	PPID   ID;            //
 	PPID   AsscType;      // Const=PPASS_GOODSCOMP
-	PPID   GoodsID;       // ИД товара
-	PPID   CompID;        // ИД компонента
-	long   InnerNum;      // Внутренний номер (не используется)
-	double Qtty;          // Количество компонента в товаре
-	PPID   UnitID;        // ИД единицы измерени
+	PPID   GoodsID;       // РР” С‚РѕРІР°СЂР°
+	PPID   CompID;        // РР” РєРѕРјРїРѕРЅРµРЅС‚Р°
+	long   InnerNum;      // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РЅРѕРјРµСЂ (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
+	double Qtty;          // РљРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° РІ С‚РѕРІР°СЂРµ
+	PPID   UnitID;        // РР” РµРґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРё
 	char   Reserve[52];   //
 };
 
@@ -2426,12 +2426,11 @@ int SLAPI PPObjSuprWare::MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl
 	pRawRec->ParentID = pRec->ParentID;
 	pRawRec->Flags = pRec->Flags;
 	if(pBcList) {
-		BarcodeTbl::Rec bc_rec;
-		SString temp_buf;
 		pBcList->freeAll();
-		temp_buf = pRec->Code;
+		SString temp_buf = pRec->Code;
 		if(temp_buf.NotEmptyS()) {
-			MEMSZERO(bc_rec);
+			BarcodeTbl::Rec bc_rec;
+			// @v10.7.2 @ctr MEMSZERO(bc_rec);
 			bc_rec.GoodsID = id;
 			bc_rec.Qtty = 1.0;
 			temp_buf.PadLeft(1, '~').CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
@@ -2493,7 +2492,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 			THROW(MakeStorage(0, &pPack->Rec, &raw_rec, 0));
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
 			//
-			// Теперь знаем идентификатор и можно сохранить список кодов
+			// РўРµРїРµСЂСЊ Р·РЅР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Рё РјРѕР¶РЅРѕ СЃРѕС…СЂР°РЅРёС‚СЊ СЃРїРёСЃРѕРє РєРѕРґРѕРІ
 			//
 			THROW(MakeStorage(*pID, &pPack->Rec, &raw_rec, &bc_list));
 			THROW(P_Tbl->UpdateBarcodes(*pID, &bc_list, 0));
@@ -2516,7 +2515,7 @@ int SLAPI PPObjSuprWare::Put(PPID * pID, const PPSuprWarePacket * pPack, int use
 				}
 				for(i = 0; i < prev_items.getCount(); i++) {
 					uint pos = 0;
-					gci = *(_GCompItem *)prev_items.at(i);
+					gci = *static_cast<const _GCompItem *>(prev_items.at(i));
 					if(items.lsearch(&gci.CompID, &pos, PTR_CMPFUNC(long), offsetof(_GCompItem, CompID))) {
 						_GCompItem * p_list_item = static_cast<_GCompItem *>(items.at(pos));
 						found_pos_list.add(static_cast<long>(pos));
@@ -2630,7 +2629,7 @@ int SLAPI PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 	return ok;
 }
 //
-// Диалог, показывающий список компонентов
+// Р”РёР°Р»РѕРі, РїРѕРєР°Р·С‹РІР°СЋС‰РёР№ СЃРїРёСЃРѕРє РєРѕРјРїРѕРЅРµРЅС‚РѕРІ
 //
 class SuprWareListDialog : public PPListDialog {
 public:
@@ -2668,7 +2667,7 @@ int SLAPI SuprWareListDialog::setupList()
 	return 1;
 }
 
-// Не редактирует запись. Просто показывает таблицу с содержанием товара
+// РќРµ СЂРµРґР°РєС‚РёСЂСѓРµС‚ Р·Р°РїРёСЃСЊ. РџСЂРѕСЃС‚Рѕ РїРѕРєР°Р·С‹РІР°РµС‚ С‚Р°Р±Р»РёС†Сѓ СЃ СЃРѕРґРµСЂР¶Р°РЅРёРµРј С‚РѕРІР°СЂР°
 int SLAPI PPObjSuprWare::EditList(PPID * pID)
 {
 	int    ok = -1;
@@ -2685,13 +2684,14 @@ int SLAPI PPObjSuprWare::EditList(PPID * pID)
 }
 
 class SuprWareDialog : public TDialog {
+	DECL_DIALOG_DATA(PPSuprWarePacket);
 public:
 	SuprWareDialog() : TDialog(DLG_SUPRWARE)
 	{
 	}
-	int    setDTS(const PPSuprWarePacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		setCtrlData(CTL_SUPRWARE_NAME, Data.Rec.Name);
 		setCtrlData(CTL_SUPRWARE_CODE, Data.Rec.Code);
@@ -2702,7 +2702,7 @@ public:
 		SetupStringCombo(this, CTLSEL_SUPRWARE_CAT, PPTXT_COMPGDS_TYPES, Data.Rec.SuprWareCat);
 		return 1;
 	}
-	int    getDTS(PPSuprWarePacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -2716,8 +2716,6 @@ public:
 		CATCHZOKPPERRBYDLG
 		return ok;
 	}
-private:
-	PPSuprWarePacket Data;
 };
 
 int SLAPI PPObjSuprWare::Edit(PPID * pID, void * extraPtr)
@@ -2783,6 +2781,7 @@ int SLAPI PPViewBrand::Init_(const PPBaseFilt * pBaseFilt)
 }
 
 class BrandFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(BrandFilt);
 public:
 	enum {
 		ctlgroupBrandOwner = 1
@@ -2791,7 +2790,7 @@ public:
 	{
 		addGroup(ctlgroupBrandOwner, new PersonListCtrlGroup(CTLSEL_BRANDFILT_OWNER, 0, cmBrandOwnerList, 0));
 	}
-	int    setDTS(const BrandFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -2802,7 +2801,7 @@ public:
 		setCtrlString(CTL_BRANDFILT_NAMESTR, Data.SrchStr);
 		return ok;
 	}
-	int    getDTS(BrandFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		GetClusterData(CTL_BRANDFILT_FLAGS, &Data.Flags);
@@ -2817,8 +2816,6 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-private:
-	BrandFilt Data;
 };
 
 int SLAPI PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)

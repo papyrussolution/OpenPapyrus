@@ -2829,6 +2829,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						// @v10.2.9 THROW(Convert10012()); // @v10.0.12
 						THROW(Convert10209()); // @v10.2.9
 						THROW(Convert10507()); // @v10.5.7
+						THROW(Convert10702()); // @v10.7.2
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
