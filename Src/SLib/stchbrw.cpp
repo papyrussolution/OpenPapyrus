@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -1124,7 +1124,7 @@ int STimeChunkBrowser::ProcessDblClk(TPoint p)
 				*/
 			}
 			long   row_id = 0;
-			if(P.ViewType == Param::vHourDay && P.SingleRowIdx >= 0 && P.SingleRowIdx <= (long)P_Data->getCount())
+			if(P.ViewType == Param::vHourDay && P.SingleRowIdx >= 0 && P.SingleRowIdx <= P_Data->getCountI())
 				row_id = P_Data->at(P.SingleRowIdx)->Id;
 			else
 				row_id = loc.RowId;
@@ -2153,8 +2153,8 @@ void STimeChunkBrowser::CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod
 					assert(r);
 					for(i = 0; i < intersect.getCount(); i++) {
 						const STimeChunk * p_ic = static_cast<const STimeChunk *>(intersect.at(i));
-						SETMIN(rMinHour, (uint)p_ic->Start.t.hour());
-						SETMAX(rMaxHour, (uint)p_ic->Finish.t.hour());
+						SETMIN(rMinHour, static_cast<uint>(p_ic->Start.t.hour()));
+						SETMAX(rMaxHour, static_cast<uint>(p_ic->Finish.t.hour()));
 					}
 				}
 			}
@@ -2903,7 +2903,7 @@ void STimeChunkBrowser::Paint()
 			HBITMAP    h_bmp = APPL->FetchBitmap(bmp_id);
 			if(h_bmp) {
 				POINT bmp_size;
-				RECT r_ = (RECT)a2.PicMode;
+				RECT r_ = static_cast<RECT>(a2.PicMode);
 				TProgram::DrawTransparentBitmap(h_dc, h_bmp, r_, 0, 0, 0, -1, 0, &bmp_size);
 			}
 		}

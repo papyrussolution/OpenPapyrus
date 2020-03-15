@@ -13,8 +13,7 @@ SLAPI PPObjBill::EditParam::EditParam() : Flags(0)
 {
 }
 
-SLAPI PPObjBill::SelectLotParam::SelectLotParam(PPID goodsID, PPID locID, PPID excludeLotID, long flags) :
-	LocID(locID), ExcludeLotID(excludeLotID), Flags(flags), RetLotID(0)
+SLAPI PPObjBill::SelectLotParam::SelectLotParam(PPID goodsID, PPID locID, PPID excludeLotID, long flags) : LocID(locID), ExcludeLotID(excludeLotID), Flags(flags), RetLotID(0)
 {
 	GoodsList.addnz(goodsID);
 	Period.Z();
@@ -4013,13 +4012,8 @@ int SLAPI PPObjBill::CreateMrpTab(const PPIDArray * pList, MrpTabPacket * pMrpPa
 //
 int SLAPI PPObjBill::IsAssetLot(PPID lotID)
 {
-	int    ok = -1;
 	ReceiptTbl::Rec lot_rec;
-	if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-		if(GObj.CheckFlag(lot_rec.GoodsID, GF_ASSETS) > 0)
-			ok = 1;
-	}
-	return ok;
+	return (trfr->Rcpt.Search(lotID, &lot_rec) > 0 && GObj.CheckFlag(lot_rec.GoodsID, GF_ASSETS) > 0) ? 1 : -1;
 }
 
 int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
@@ -8992,6 +8986,19 @@ int SLAPI PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplat
 								}
 							}
 							break;
+						// @v10.7.3 {
+						case PPSYM_OBJ2INN:     // @obj2inn ИНН персоналии, ассоциированной со дополнительной статьей документа
+						case PPSYM_OBJ2KPP:     // @obj2kpp КПП персоналии, ассоциированной со дополнительной статьей документа
+							if(pk->Rec.Object2) {
+								PPID   person_id = ObjectToPerson(pk->Rec.Object2);
+								if(person_id) {
+									PPObjPerson psn_obj;
+									const PPID reg_type_id = (sym == PPSYM_OBJ2INN) ? PPREGT_TPID : ((sym == PPSYM_OBJ2KPP) ? PPREGT_KPP : 0);
+									psn_obj.GetRegNumber(person_id, reg_type_id, pk->Rec.Dt, subst_buf);
+								}
+							}
+							break;
+						// } @v10.7.3
 						case PPSYM_BILLOBJ2: GetArticleName(pk->Rec.Object2, subst_buf); break;
 						case PPSYM_DLVRLOCCODE:
 							if(pk->P_Freight && pk->P_Freight->DlvrAddrID && LocObj.Fetch(pk->P_Freight->DlvrAddrID, &loc_rec) > 0)

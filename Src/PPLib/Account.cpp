@@ -1,5 +1,5 @@
 // ACCOUNT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // @Kernel
 //
 #include <pp.h>
@@ -546,8 +546,22 @@ int SLAPI ArticleCore::PersonToArticle(PPID personID, PPID accSheetID, PPID * pA
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
-	if(accSheetID && SearchObjRef(accSheetID, personID, 0) > 0) {
-		ar_id = data.ID;
+	ArticleTbl::Rec rec;
+	if(accSheetID && SearchObjRef(accSheetID, personID, &rec) > 0) {
+		ar_id = rec.ID;
+		ok = 1;
+	}
+	ASSIGN_PTR(pArID, ar_id);
+	return ok;
+}
+
+int SLAPI ArticleCore::LocationToArticle(PPID locID, PPID accSheetID, PPID * pArID)
+{
+	int    ok = -1;
+	PPID   ar_id = 0;
+	ArticleTbl::Rec rec;
+	if(accSheetID && SearchObjRef(accSheetID, locID, &rec) > 0) {
+		ar_id = rec.ID;
 		ok = 1;
 	}
 	ASSIGN_PTR(pArID, ar_id);

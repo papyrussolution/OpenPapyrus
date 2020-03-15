@@ -1271,6 +1271,7 @@ int CTableOrder::EditParam(Param * pParam)
 }
 
 class CTableOrderDialog : public TDialog {
+	DECL_DIALOG_DATA(CTableOrder::Packet);
 public:
 	CTableOrderDialog(CTableOrder * pTo) : TDialog(DLG_CTBLORD), P_To(pTo)
 	{
@@ -1280,10 +1281,10 @@ public:
 		SetupTimePicker(this, CTL_CTBLORD_FNTM, CTLTM_CTBLORD_FNTM);
 		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID);
 	}
-	int    setDTS(const CTableOrder::Packet * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		PPObjCashNode::SelFilt sf;
 		sf.SyncGroup = 1;
 		SetupPPObjCombo(this, CTLSEL_CTBLORD_POSNODE, PPOBJ_CASHNODE, Data.PosNodeID, 0, &sf);
@@ -1309,7 +1310,7 @@ public:
 			CTL_CTBLORD_PREPAY, 0);
 		return ok;
 	}
-	int    getDTS(CTableOrder::Packet * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -1487,7 +1488,6 @@ private:
 		disableCtrl(CTL_CTBLORD_PREPAY, !Data.SCardID);
 		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID);
 	}
-	CTableOrder::Packet Data;
 	PPObjSCard ScObj;
 	CTableOrder * P_To;
 };
@@ -1590,10 +1590,11 @@ int CTableOrder::Create(const Param * pParam)
 	PPCashMachine * p_cm = 0;
 	Packet ord;
 	LDATETIME dtm;
+	const LDATE now_date = getcurdate_();
 	THROW(HasRight(PPR_INS));
 	if(pParam) {
 		PPSyncCashNode acn_pack;
-		dtm.Set(NZOR(pParam->StartTime.d, getcurdate_()), pParam->StartTime.t);
+		dtm.Set(NZOR(pParam->StartTime.d, now_date), pParam->StartTime.t);
 		ord.Init(pParam->PosNodeID, dtm, pParam->InitDuration);
 		if(pParam->TableNo > 0)
 			ord.TableNo = static_cast<int16>(pParam->TableNo);
@@ -1608,7 +1609,7 @@ int CTableOrder::Create(const Param * pParam)
 		}
 	}
 	else {
-		dtm.Set(getcurdate_(), encodetime(15, 0, 0, 0));
+		dtm.Set(now_date, encodetime(15, 0, 0, 0));
 		ord.Init(pParam->PosNodeID, dtm, 60*60);
 	}
 	if(Edit(&ord) > 0) {

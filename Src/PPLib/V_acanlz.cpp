@@ -1250,7 +1250,7 @@ int SLAPI PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 				temp_view.GetTotal(&total);
 				Total.DbtTrnovr.Add(&total.DbtTrnovr);
 				Total.CrdTrnovr.Add(&total.CrdTrnovr);
-				MEMSZERO(rec);
+				// @v10.7.3 @ctr MEMSZERO(rec);
 				if(r_acr_rec.ArticleID && ArObj.Fetch(r_acr_rec.ArticleID, &ar_rec) > 0) {
 					STRNSCPY(rec.Name, ar_rec.Name);
 					if(is_person_rel)

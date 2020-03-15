@@ -3417,7 +3417,6 @@ int SLAPI PPObjTSession::GetWrOffAttrib(const TSessionTbl::Rec * pRec, WrOffAttr
 	PPObjArticle ar_obj;
 	ProcessorTbl::Rec prc_rec;
 	PPOprKind op_rec;
-
 	memzero(pAttr, sizeof(*pAttr));
 	pAttr->ArID = pRec->ArID;
 	THROW(PrcObj.GetRecWithInheritance(pRec->PrcID, &prc_rec, 1) > 0);

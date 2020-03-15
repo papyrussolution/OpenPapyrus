@@ -22,7 +22,7 @@ class  DBFieldList;
 class  BExtInsert;
 class  SOraDbProvider;
 class  Generator_SQL;
-struct DBConst;
+class  DBConst;
 struct DBTree;
 struct DBQ;
 class  KR;
@@ -2415,6 +2415,7 @@ private:
 	int    Helper_GetEntry(long andF, long notF, Entry & rEntry) const;
 
 	struct _InnerEntry { // @flat
+		SLAPI  _InnerEntry();
 		long   Id;
 		long   Flags;
 		uint   P;
@@ -3201,7 +3202,8 @@ private:
 	DBField * P_Flds;
 };
 
-struct DBConst : public DBItem {
+class DBConst : public DBItem {
+public:
 	void   FASTCALL init(long l);
 	void   FASTCALL init(size_t l);
 	void   FASTCALL init(double d);
@@ -3242,6 +3244,8 @@ struct DBConst : public DBItem {
 	};
 	int16  Flags;
 	int16  Tag;
+private:
+	void   SLAPI Helper_Init(int _id, int _flags, int _tag);
 };
 
 DBConst FASTCALL dbconst(long);

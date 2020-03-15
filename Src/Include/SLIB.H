@@ -2899,8 +2899,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 struct SFormatParam {
 	SLAPI  SFormatParam();
 	enum {
-		fFloatSize = 0x0001, // Выводимая строка может иметь произвольную длину (длина поля,
-			// содержащаяся в форматах игнорируется).
+		fFloatSize = 0x0001, // Выводимая строка может иметь произвольную длину (длина поля, содержащаяся в форматах игнорируется).
 		fQuotText  = 0x0002  // Текстовые поля должны обрамляться двойными кавычками.
 	};
 	long   Flags;
@@ -6268,6 +6267,16 @@ public:
 	//
 	void   SLAPI reverse(uint pos, uint numItems);
 	//
+	// Descr: Сжимает объем используемой вектором памяти до ALIGNSIZE(count, 4).
+	//   Если count == 0, то просто освобождает занимаемую динамическую память.
+	//   Если Limit <= (1.2 * count) то ничего не делает.
+	// Returns:
+	//   >0 - память была успешно освобождена либо сжата и данные перенесены.
+	//   <0 - ничего не было сделано по причине отсутствия значимого избытка занимаемой памяти
+	//    0 - ошибка (скорее всего не удалось выделить новый буфер для переноса данных).
+	//
+	int    SLAPI Shrink();
+	//
 	// Descr: Перемешивает элементы массива случайным образом
 	//
 	int    SLAPI shuffle();
@@ -6316,7 +6325,6 @@ protected:
 	//
 	int    FASTCALL CopyS(const SVectorBase & rS);
 	int    FASTCALL expand(uint numNewRecs);
-	void   SLAPI shrink();
 	int    SLAPI Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, void * pExtraData) const;
 	int    SLAPI isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const;
 
@@ -10235,13 +10243,11 @@ public:
 	int    SLAPI set(LMIDX, double);
 	void   SLAPI FillWithSequence(double startVal, double incr);
 	int    SLAPI zero(LMIDX = -1);
-
 	void   SLAPI mult(double val);           // this *= val
 	void   SLAPI div(double val);            // this /= val
 	int    SLAPI add(const LVect & s);       // this += s
 	double SLAPI dot(const LVect & s) const; // return this * s (scalar)
 	void   SLAPI saxpy(double a, const LVect & y); // this = this * a + y
-
 	friend LVect   * FASTCALL operator * (const LMatrix &, const LVect &);
 	friend LMatrix * FASTCALL operator * (const LMatrix &, const LMatrix &);
 	friend LVect   * FASTCALL operator * (const LVect &, const LMatrix &);
@@ -10738,10 +10744,13 @@ private:
 //
 // Approximation using Least Square Solution method
 //
-struct LssLin {
+class LssLin {
+public:
 	SLAPI  LssLin();
-	int    SLAPI Solve(const LVect & x, const LVect & y);
-	int    SLAPI Solve(uint count, const double * pX, const double * pY);
+	void   SLAPI Solve(const LVect & x, const LVect & y);
+	void   SLAPI Solve(uint count, const double * pX, const double * pY);
+	void   SLAPI Solve_Simple(uint count, const double * pX, const double * pY);
+	void   SLAPI Solve_SSE(uint count, const double * pX, const double * pY);
 	double SLAPI Estimation(double x, double * pYErr) const;
 
 	// y = A + x*B
@@ -10751,6 +10760,8 @@ struct LssLin {
 	double Cov01;
 	double Cov11;
 	double SumSq;
+private:
+
 };
 //
 // Random Number Generator
@@ -12813,7 +12824,7 @@ public:
 	//
 	// Descr: Initialize the data members without creating an execution thread
 	//
-	SLAPI  SlThread(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
+	explicit SLAPI  SlThread(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
 	virtual SLAPI ~SlThread();
 	int    SLAPI IsConsistent() const;
 	operator HANDLE() const { return Handle; }
@@ -12896,6 +12907,16 @@ private:
 	volatile ThreadID ID;
 	Evnt * P_Creation;
 	Evnt * P_StartupSignal;
+};
+//
+// Descr: Утилитарный класс, реализующий функционал инициации и запуска StartupSignal.
+//   Используется в простых потоках, предназначенных для распараллеливания тяжелых в вычислительном смысле задач.
+//
+class SlThread_WithStartupSignal : public SlThread {
+public:
+	explicit SLAPI SlThread_WithStartupSignal(void * pInitData = 0, long stopTimeout = SLTHREAD_DEFAULT_STOP_TIMEOUT);
+protected:
+	virtual void SLAPI Startup();
 };
 
 #endif // } _WIN32_WCE

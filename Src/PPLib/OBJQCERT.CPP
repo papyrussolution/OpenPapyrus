@@ -1,5 +1,5 @@
 // OBJQCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -149,7 +149,7 @@ int SLAPI EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 	int    r = 0, valid_data = 0;
 	ushort v;
 	QualityCertTbl::Rec rec = *aRec;
-	TDialog *dlg = 0;
+	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_QCERT))));
 	dlg->SetupCalDate(CTLCAL_QCERT_INITDATE, CTL_QCERT_INITDATE);
 	dlg->SetupCalDate(CTLCAL_QCERT_EXPIRY,   CTL_QCERT_EXPIRY);
@@ -226,7 +226,7 @@ int SLAPI PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
 	}
 	else {
 		SString temp_buf;
-		MEMSZERO(rec);
+		// @v10.7.3 @ctr MEMSZERO(rec);
 		PPLoadText(PPTXT_ONPACK, temp_buf);
 		STRNSCPY(rec.SPrDate, temp_buf);
 	}
@@ -493,7 +493,7 @@ SLAPI QCertCtrlGroup::Rec::Rec(PPID qCertID) : QCertID(qCertID)
 
 QCertCtrlGroup::QCertCtrlGroup(uint ctlInput, uint selCmd) : CtrlGroup(), CtlInput(ctlInput), SelCmd(selCmd)
 {
-	MEMSZERO(Data);
+	// @v10.7.3 @ctr MEMSZERO(Data);
 }
 
 QCertCtrlGroup::~QCertCtrlGroup()

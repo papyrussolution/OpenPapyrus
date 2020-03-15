@@ -226,9 +226,20 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 																}
 															}
 															SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
-															p_ib->GetS(p_clb->SerialP, temp_buf); // @v10.0.08
-															SetTempCcLineValues(0, qtty, price, dscnt, temp_buf/*serial*/); // @v10.0.08 0-->temp_buf
-															THROW_DB(P_TmpCclTbl->insertRec());
+															// @v10.7.3 SetTempCcLineValues(0, qtty, price, dscnt, 0/*pLnExtStrings*//*, temp_buf*//*serial*/); // @v10.0.08 0-->temp_buf
+															// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+															{
+																PPExtStrContainer ccl_ext_strings;
+																p_ib->GetS(p_clb->SerialP, temp_buf); // @v10.0.08
+																ccl_ext_strings.PutExtStrData(CCheckPacket::lnextSerial, temp_buf);
+																p_ib->GetS(p_clb->EgaisMarkP, temp_buf); 
+																ccl_ext_strings.PutExtStrData(CCheckPacket::lnextEgaisMark, temp_buf);
+																p_ib->GetS(p_clb->ChZnMarkP, temp_buf); 
+																ccl_ext_strings.PutExtStrData(CCheckPacket::lnextChZnMark, temp_buf);
+																p_ib->GetS(p_clb->RemoteProcessingTaP, temp_buf); 
+																ccl_ext_strings.PutExtStrData(CCheckPacket::lnextRemoteProcessingTa, temp_buf);
+																THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, dscnt, &ccl_ext_strings/*, temp_buf*//*serial*/)); // @v10.0.08 0-->temp_buf // @v10.7.3
+															}
 														}
 													}
 													else if(r_cl_ref.Type == PPPosProtocol::obPayment) {
@@ -792,7 +803,7 @@ SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0),
 SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() :
 	ObjectBlock(), ParentBlkP(0), InnerId(0),  GoodsFlags(0), SpecialFlags(0), UnitBlkP(0),
 	PhUnitBlkP(0),  PhUPerU(0.0), Price(0.0), Rest(0.0), AlcoProof(0), VatRate(0), SalesTaxRate(0),
-	TaxGrpID(0), GoodsTypeID(0), AlcoRuCatP(0)
+	TaxGrpID(0), GoodsTypeID(0), AlcoRuCatP(0), ChZnProdType(0)
 {
 }
 
@@ -812,7 +823,7 @@ SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlag
 	AddrBlkP(0), AgentBlkP(0), Amount(0.0), Discount(0.0), Dtm(ZERODATETIME), CreationDtm(ZERODATETIME), SCardBlkP(0), MemoP(0)
 	{}
 SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0),
-	Qtty(0.0), Price(0.0), Discount(0.0), SumDiscount(0.0), Amount(0.0), CCheckBlkP(0), SerialP(0), EgaisMarkP(0)
+	Qtty(0.0), Price(0.0), Discount(0.0), SumDiscount(0.0), Amount(0.0), CCheckBlkP(0), SerialP(0), EgaisMarkP(0), ChZnMarkP(0), RemoteProcessingTaP(0)
 	{}
 SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock() : CcID(0), PaymType(0), Amount(0.0), SCardBlkP(0)
 	{}
@@ -1364,6 +1375,14 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextSerial, temp_buf) > 0 && temp_buf.NotEmpty())
 								w_ccl.PutInner("serial", CorrectAndEncText(temp_buf));
 							// } @v10.0.08
+							// @v10.7.3 {
+							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextEgaisMark, temp_buf) > 0 && temp_buf.NotEmpty())
+								w_ccl.PutInner("egaismark", CorrectAndEncText(temp_buf));
+							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmpty())
+								w_ccl.PutInner("chznmark", CorrectAndEncText(temp_buf));
+							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextRemoteProcessingTa, temp_buf) > 0 && temp_buf.NotEmpty())
+								w_ccl.PutInner("remoteprocessingta", CorrectAndEncText(temp_buf));
+							// } @v10.7.3
                             w_ccl.PutInner("qtty", temp_buf.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
                             w_ccl.PutInner("price", temp_buf.Z().Cat(item_price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
                             if(item_discount != 0.0)
@@ -1531,6 +1550,23 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 					w_s.PutInner("lookbackprices", 0);
 					use_lookbackprices = 1;
 				}
+				// @v10.7.3 {
+				if(gt_rec.Flags & GTF_GMARKED) {
+					w_s.PutInner("marked", 0);
+				}
+				if(gt_rec.ChZnProdType == GTCHZNPT_FUR) {
+					w_s.PutInner("chznprodtype", "fur");
+				}
+				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) {
+					w_s.PutInner("chznprodtype", "tobacco");
+				}
+				else if(gt_rec.ChZnProdType == GTCHZNPT_SHOE) {
+					w_s.PutInner("chznprodtype", "shoe");
+				}
+				else if(gt_rec.ChZnProdType == GTCHZNPT_MEDICINE) {
+					w_s.PutInner("chznprodtype", "medicine");
+				}
+				// } @v10.7.3 
 			}
 		}
 		if(rInfo.NoDis > 0) { // Значение <0 имеет специальный смысл
@@ -2118,6 +2154,8 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_SALESTAXRATE:
 				case PPHS_UNLIMITED:
 				case PPHS_LOOKBACKPRICES:
+				case PPHS_MARKED: // @v10.7.3
+				case PPHS_CHZNPRODTYPE: // @v10.7.3
 				case PPHS_PHONE: // @v10.6.3
 					break;
 			}
@@ -2180,19 +2218,19 @@ int PPPosProtocol::EndElement(const char * pName)
 				p_item = PeekRefItem(&ref_pos, &type);
 				switch(type) {
 					case obSource:
-					case obDestination: Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->CodeP); break;
+					case obDestination: Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->CodeP); break;
 				}
 				break;
 			case PPHS_SYSTEM:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(oneof2(type, obSource, obDestination)) {
-					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->SystemP);
+					Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->SystemP);
 				}
 				break;
 			case PPHS_VERSION:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(oneof2(type, obSource, obDestination)) {
-					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
+					Helper_AddStringToPool(&static_cast<RouteObjectBlock *>(p_item)->VersionP);
 				}
 				break;
 			case PPHS_TIMESTAMP:
@@ -2219,7 +2257,7 @@ int PPPosProtocol::EndElement(const char * pName)
 							if(RdB.TagValue.NotEmptyS()) {
 								S_GUID uuid;
 								THROW_SL(uuid.FromStr(RdB.TagValue));
-								((RouteObjectBlock *)p_item)->Uuid = uuid;
+								static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
 							}
 						}
 					}
@@ -2260,7 +2298,7 @@ int PPPosProtocol::EndElement(const char * pName)
 							if(RdB.TagValue.NotEmptyS()) {
 								S_GUID uuid;
 								THROW_SL(uuid.FromStr(RdB.TagValue));
-								((RouteObjectBlock *)p_item)->Uuid = uuid;
+								static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
 							}
 						}
 					}
@@ -2272,7 +2310,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_OBJ:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obQuery) {
-					QueryBlock * p_blk = (QueryBlock *)p_item;
+					QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
 					if(p_blk->Q == QueryBlock::qRefs) {
 						if(RdB.TagValue.NotEmptyS()) {
 							long   obj_type_ext = 0;
@@ -2290,7 +2328,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_LAST:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obQuery) {
-					QueryBlock * p_blk = (QueryBlock *)p_item;
+					QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
 					if(p_blk->Q == QueryBlock::qCSession) {
 						if(p_blk->CSess || !p_blk->Period.IsZero()) {
 							THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
@@ -2302,7 +2340,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_CURRENT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obQuery) {
-					QueryBlock * p_blk = (QueryBlock *)p_item;
+					QueryBlock * p_blk = static_cast<QueryBlock *>(p_item);
 					if(p_blk->Q == QueryBlock::qCSession) {
 						if(p_blk->CSess || !p_blk->Period.IsZero()) {
 							THROW(p_blk = Helper_RenewQuery(ref_pos, QueryBlock::qCSession));
@@ -2317,7 +2355,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obCSession) {
-					((CSessionBlock *)p_item)->PosBlkP = ref_pos;
+					static_cast<CSessionBlock *>(p_item)->PosBlkP = ref_pos;
 				}
 				break;
 			case PPHS_WARE:
@@ -2326,7 +2364,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obCcLine) {
-					((CcLineBlock *)p_item)->GoodsBlkP = ref_pos;
+					static_cast<CcLineBlock *>(p_item)->GoodsBlkP = ref_pos;
 				}
 				break;
 			case PPHS_UNIT:
@@ -2335,7 +2373,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
 				if(type == obGoods) {
-					((GoodsBlock *)p_item)->UnitBlkP = ref_pos;
+					static_cast<GoodsBlock *>(p_item)->UnitBlkP = ref_pos;
 				}
 				break;
 			case PPHS_PHUNIT:
@@ -2661,6 +2699,13 @@ int PPPosProtocol::EndElement(const char * pName)
 						static_cast<GoodsBlock *>(p_item)->SpecialFlags |= GoodsBlock::spcfLookBackPrices;
 				}
 				break;
+			case PPHS_MARKED: // @v10.7.3
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					if(RdB.IsTagValueBoolTrue())
+						static_cast<GoodsBlock *>(p_item)->SpecialFlags |= GoodsBlock::spcfMarked;
+				}
+				break;
 			case PPHS_SERIAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obLot)
@@ -2668,6 +2713,23 @@ int PPPosProtocol::EndElement(const char * pName)
 				else if(type == obCcLine) // @v10.0.08
 					Helper_AddStringToPool(&static_cast<CcLineBlock *>(p_item)->SerialP);
 				break;
+			// @v10.7.3 {
+			case PPHS_EGAISMARK: 
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obCcLine)
+					Helper_AddStringToPool(&static_cast<CcLineBlock *>(p_item)->EgaisMarkP);
+				break;
+			case PPHS_CHZNMARK:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obCcLine)
+					Helper_AddStringToPool(&static_cast<CcLineBlock *>(p_item)->ChZnMarkP);
+				break;
+			case PPHS_REMOTEPROCESSINGTA:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obCcLine)
+					Helper_AddStringToPool(&static_cast<CcLineBlock *>(p_item)->RemoteProcessingTaP);
+				break;
+			// } @v10.7.3 
 			case PPHS_SYMB:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
@@ -2797,6 +2859,22 @@ int PPPosProtocol::EndElement(const char * pName)
 					static_cast<CcLineBlock *>(p_item)->Price = RdB.TagValue.ToReal();
 				else if(type == obLot)
 					static_cast<LotBlock *>(p_item)->Price = RdB.TagValue.ToReal();
+				break;
+			case PPHS_CHZNPRODTYPE: // @v10.7.3
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					long   chznprodtype = 0;
+					if(RdB.TagValue.IsEqiAscii("fur"))
+						chznprodtype = GTCHZNPT_FUR;
+					else if(RdB.TagValue.IsEqiAscii("tobacco"))
+						chznprodtype = GTCHZNPT_TOBACCO;
+					else if(RdB.TagValue.IsEqiAscii("shoe"))
+						chznprodtype = GTCHZNPT_SHOE;
+					else if(RdB.TagValue.IsEqiAscii("medicine"))
+						chznprodtype = GTCHZNPT_MEDICINE;
+					if(chznprodtype)
+						static_cast<GoodsBlock *>(p_item)->ChZnProdType = chznprodtype;
+				}
 				break;
 			case PPHS_DISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -3927,11 +4005,12 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			const uint __count = RdB.GoodsBlkList.getCount();
 			int   is_there_alc = 0; // Если обнаружена ненулевая алкогольная крепость в каком-либо товаре, то !0
 			struct SurrGoodsTypeEntry {
-				explicit SurrGoodsTypeEntry(long flags) : NativeID(0), Flags(flags)
+				explicit SurrGoodsTypeEntry(long flags) : NativeID(0), Flags(flags), ChZnProdType(0)
 				{
 				}
 				long  NativeID;
 				long  Flags;
+				long  ChZnProdType; // @v10.7.3
 			};
 			struct SurrTaxRateEntry {
 				SurrTaxRateEntry(long vatRate, long stRate) : NativeID(0), VatRate(vatRate), SalesTaxRate(stRate)
@@ -4028,7 +4107,8 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						for(uint j = 0; j < gt_list.getCount(); j++) {
 							SurrGoodsTypeEntry * p_entry = static_cast<SurrGoodsTypeEntry *>(gt_list.at(j));
 							if(!p_entry->NativeID) {
-								if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED)) == (gty_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED)))
+								if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) == (gty_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) &&
+									p_entry->ChZnProdType == gty_rec.ChZnProdType)
 									p_entry->NativeID = gty_rec.ID;
 							}
 						}
@@ -4056,6 +4136,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 								STRNSCPY(gty_rec.Name, name_buf);
 								STRNSCPY(gty_rec.Symb, code_buf);
 								gty_rec.Flags |= p_entry->Flags;
+								gty_rec.ChZnProdType = p_entry->ChZnProdType; // @v10.7.3
 								THROW(PPRef->AddItem(PPOBJ_GOODSTYPE, &p_entry->NativeID, &gty_rec, 1));
 							}
 						}
@@ -4072,12 +4153,12 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					const uint gty_idx = r_blk.GoodsTypeID;
 					if(gty_idx) {
 						assert(gty_idx > 0 && gty_idx <= gt_list.getCount());
-						r_blk.GoodsTypeID = ((const SurrGoodsTypeEntry *)gt_list.at(gty_idx-1))->NativeID;
+						r_blk.GoodsTypeID = static_cast<const SurrGoodsTypeEntry *>(gt_list.at(gty_idx-1))->NativeID;
 					}
 					const uint tax_idx = r_blk.TaxGrpID;
 					if(tax_idx) {
 						assert(tax_idx > 0 && tax_idx <= tax_rate_list.getCount());
-						r_blk.TaxGrpID = ((const SurrTaxRateEntry *)tax_rate_list.at(tax_idx-1))->NativeID;
+						r_blk.TaxGrpID = static_cast<const SurrTaxRateEntry *>(tax_rate_list.at(tax_idx-1))->NativeID;
 					}
 				}
 			}

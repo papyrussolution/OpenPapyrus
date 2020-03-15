@@ -1570,6 +1570,7 @@ int SLAPI CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt &
 	if(rFilt.HasExtFiltering()) {
 		CCheckExtTbl * p_ext = P_Ext;
 		if(p_ext) {
+			PPIDArray temp_list; // @v10.7.3
 			rList.InitEmpty();
 			int    idx = 0;
 			union {
@@ -1587,6 +1588,7 @@ int SLAPI CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt &
 				dbq = ppcheckfiltid(dbq, p_ext->TableNo, rFilt.TableCode);
 			dbq = ppcheckfiltid(dbq, p_ext->SalerID, rFilt.AgentID);
 			dbq = ppcheckfiltid(dbq, p_ext->GuestCount, rFilt.GuestCount);
+			dbq = ppcheckfiltid(dbq, p_ext->CreationUserID, rFilt.CreationUserID); // @v10.7.3
 			if(rFilt.Flags & CCheckFilt::fZeroDlvrAddr) {
 				dbq = &(*dbq && p_ext->AddrID == 0L);
 			}
@@ -1597,14 +1599,16 @@ int SLAPI CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt &
 				//dbq = & (*dbq && daterange(p_ext->Dt, &rFilt.Period));
 			}
 			q.select(p_ext->CheckID, p_ext->CreationUserID, p_ext->CreationDtm, 0L).where(*dbq); // @v10.6.8 p_ext->CreationUserID
+			const int is_start_ord_period = BIN(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero());
 			for(q.initIteration(0, &k, (idx == 2) ? spGe : spFirst); q.nextIteration() > 0;) {
-				if(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero()) {
-					if(!rFilt.Period.CheckDate(p_ext->data.CreationDtm.d))
-						continue;
-				}
-				rList.Add(p_ext->data.CheckID);
+				if(is_start_ord_period && !rFilt.Period.CheckDate(p_ext->data.CreationDtm.d))
+					continue;
+				// @v10.7.3 rList.Add(p_ext->data.CheckID);
+				temp_list.addnz(p_ext->data.CheckID); // @v10.7.3 
 			}
-			rList.Sort();
+			// @v10.7.3 rList.Sort();
+			temp_list.sortAndUndup(); // @v10.7.3
+			rList.Set(&temp_list); // @v10.7.3
 			ok = 1;
 		}
 	}

@@ -1,5 +1,5 @@
 // V_SHIPM.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Анализ отгрузки товаров
 //
@@ -242,6 +242,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
 	GbList.clear();
 	PPWait(1);
+	THROW(Tbl = CreateTempFile()); // @v10.7.3 
 	if(Filt.OpID) {
 		PPID   op_type = GetOpType(Filt.OpID);
 		if(oneof3(op_type, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_GOODSEXPEND)) {
@@ -256,7 +257,7 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 			Filt.TranslateToBillFilt(&flt);
 			THROW(bv.Init_(&flt));
 			THROW(bv.GetBillIDList(&bill_list));
-			THROW(Tbl = CreateTempFile());
+			// @v10.7.3 THROW(Tbl = CreateTempFile());
 			{
 				uint i;
 				PPTransaction tra(ppDbDependTransaction, 1);

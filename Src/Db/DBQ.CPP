@@ -1,5 +1,6 @@
 // DBQ.CPP
-// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019
+// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -139,43 +140,40 @@ DBConst FASTCALL dbconst(LTIME v)
 	return c;
 }
 
+void SLAPI DBConst::Helper_Init(int _id, int _flags, int _tag)
+{
+	Id = _id;
+	Flags = _flags;
+	Tag = _tag;
+}
+
 void FASTCALL DBConst::init(long l)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = lv;
+	Helper_Init(DBConst_ID, 0, lv);
 	lval = l;
 }
 
 void FASTCALL DBConst::init(size_t v)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = lv;
+	Helper_Init(DBConst_ID, 0, lv);
 	lval = static_cast<long>(v);
 }
 
 void FASTCALL DBConst::init(double d)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = rv;
+	Helper_Init(DBConst_ID, 0, rv);
 	rval = d;
 }
 
 void FASTCALL DBConst::init(const char * s)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = sp;
+	Helper_Init(DBConst_ID, 0, sp);
 	sptr = newStr(s);
 }
 
 void FASTCALL DBConst::InitForeignStr(const char * pS) // @v9.9.3
 {
-	Id = DBConst_ID;
-	Flags = fNotOwner;
-	Tag = sp;
+	Helper_Init(DBConst_ID, fNotOwner, sp);
 	//sptr
 	ptrval = pS;
 	assert(sptr == ptrval);
@@ -183,33 +181,25 @@ void FASTCALL DBConst::InitForeignStr(const char * pS) // @v9.9.3
 
 void FASTCALL DBConst::init(LDATE d)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = dv;
+	Helper_Init(DBConst_ID, 0, dv);
 	dval = d;
 }
 
 void FASTCALL DBConst::init(LTIME t)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = tv;
+	Helper_Init(DBConst_ID, 0, tv);
 	tval = t;
 }
 
 void FASTCALL DBConst::init(LDATETIME t)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = dtv;
+	Helper_Init(DBConst_ID, 0, dtv);
 	dtval = t;
 }
 
 void FASTCALL DBConst::init(const void * ptr)
 {
-	Id = DBConst_ID;
-	Flags = 0;
-	Tag = ptrv;
+	Helper_Init(DBConst_ID, 0, ptrv);
 	ptrval = ptr;
 }
 
@@ -329,9 +319,9 @@ int FASTCALL DBE::push(const DBE::T * t)
 	}
 }
 //
-// Замечание: в этой функции предполагается, что поле
-// rval имеет максимальный среди остальных полей размер
-// как в union из DBConst, так и в union из DBE::T
+// Р—Р°РјРµС‡Р°РЅРёРµ: РІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ, С‡С‚Рѕ РїРѕР»Рµ
+// rval РёРјРµРµС‚ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЃСЂРµРґРё РѕСЃС‚Р°Р»СЊРЅС‹С… РїРѕР»РµР№ СЂР°Р·РјРµСЂ
+// РєР°Рє РІ union РёР· DBConst, С‚Р°Рє Рё РІ union РёР· DBE::T
 //
 int FASTCALL DBE::push(DBItem & item)
 {
@@ -741,22 +731,22 @@ int SLAPI DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 	const int l = items[itm].left.GetId();
 	const int r = items[itm].right.GetId();
 	//
-	// Ключ можно составить только из ограничений типа (thisTable.fld cmp const) или (thisTable.fld cmp prevTable.fld)
-	// где cmp - знак сравнения (==, <, >, <=, >=)
+	// РљР»СЋС‡ РјРѕР¶РЅРѕ СЃРѕСЃС‚Р°РІРёС‚СЊ С‚РѕР»СЊРєРѕ РёР· РѕРіСЂР°РЅРёС‡РµРЅРёР№ С‚РёРїР° (thisTable.fld cmp const) РёР»Рё (thisTable.fld cmp prevTable.fld)
+	// РіРґРµ cmp - Р·РЅР°Рє СЃСЂР°РІРЅРµРЅРёСЏ (==, <, >, <=, >=)
 	//
 	*pIsDyn = 0;
 	if(l > 0 && r > 0)
-		// С обеих сторон ограничения стоят поля из текущей таблицы
+		// РЎ РѕР±РµРёС… СЃС‚РѕСЂРѕРЅ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ СЃС‚РѕСЏС‚ РїРѕР»СЏ РёР· С‚РµРєСѓС‰РµР№ С‚Р°Р±Р»РёС†С‹
 		if(l == r && l == tblID)
 			return 0;
 		else
-			// Ограничение не содержит ссылок на текущую таблицу
+			// РћРіСЂР°РЅРёС‡РµРЅРёРµ РЅРµ СЃРѕРґРµСЂР¶РёС‚ СЃСЃС‹Р»РѕРє РЅР° С‚РµРєСѓС‰СѓСЋ С‚Р°Р±Р»РёС†Сѓ
 			if(l != tblID && r != tblID)
 				return 0;
 			else
 				*pIsDyn = 1;
 	else {
-		// В ограничении присутствует выражение, содержащее поле (или поля) из текущей таблицы
+		// Р’ РѕРіСЂР°РЅРёС‡РµРЅРёРё РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ РІС‹СЂР°Р¶РµРЅРёРµ, СЃРѕРґРµСЂР¶Р°С‰РµРµ РїРѕР»Рµ (РёР»Рё РїРѕР»СЏ) РёР· С‚РµРєСѓС‰РµР№ С‚Р°Р±Р»РёС†С‹
 		if(l == DBE_ID) {
 			*pIsDyn = 1;
 			if(items[itm].left.containsTblRef(tblID))
@@ -768,7 +758,7 @@ int SLAPI DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 				return 0;
 		}
 	}
-	// Если сравнение типа _NE_, индекс не может быть использован
+	// Р•СЃР»Рё СЃСЂР°РІРЅРµРЅРёРµ С‚РёРїР° _NE_, РёРЅРґРµРєСЃ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅ
 	if(items[itm].cmp == _NE_)
 		return 0;
 	return 1;
@@ -938,10 +928,10 @@ int SLAPI DBTree::addTree(DBTree * pTree, int p, int * pPos)
 	return TRUE;
 }
 //
-// DBTree::chooseKey возвращает:
-// 0 - в случае ошибки
-// 1 - произошли изменения в dest
-// 2 - изменений в dest не произошло
+// DBTree::chooseKey РІРѕР·РІСЂР°С‰Р°РµС‚:
+// 0 - РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
+// 1 - РїСЂРѕРёР·РѕС€Р»Рё РёР·РјРµРЅРµРЅРёСЏ РІ dest
+// 2 - РёР·РјРµРЅРµРЅРёР№ РІ dest РЅРµ РїСЂРѕРёР·РѕС€Р»Рѕ
 //
 int SLAPI DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
 {
@@ -983,7 +973,7 @@ int SLAPI DBTree::chooseKey(int n, int tblID, int seg, KR * dest, uint * pTrace)
 				if((t = l.link(lnk, r)) == 0)
 					result = 0;
 				else {
-					// CHECK(t != -1);	// Противоречивые ограничения //
+					// CHECK(t != -1);	// РџСЂРѕС‚РёРІРѕСЂРµС‡РёРІС‹Рµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ //
 					if(seg == 0 || t == 1) {
 						if(pTrace) {
 							int    lc = p_ltrace[0];

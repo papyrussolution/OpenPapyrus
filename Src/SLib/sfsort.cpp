@@ -466,7 +466,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 			SFile f_src(src_file_name, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd);
 			THROW(f_src.IsValid());
 			{
-				class SfSortSplitThread : public SlThread {
+				class SfSortSplitThread : public SlThread_WithStartupSignal { // @v10.7.3 SlThread-->SlThread_WithStartupSignal
 				public:
 					struct InitBlock {
 						InitBlock(const char * pSrcFileName, SfSortStringPool * pPool, SFSortChunkInfo * pInfo, volatile int * pResult, ACount * pCntr) :
@@ -487,10 +487,10 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 						ACount * P_Counter;
 						SString SrcFileName;
 					};
-					SfSortSplitThread(InitBlock * pBlk) : SlThread(pBlk), B(*pBlk)
+					SfSortSplitThread(InitBlock * pBlk) : SlThread_WithStartupSignal(pBlk), B(*pBlk)
 					{
-						B = *pBlk;
-						InitStartupSignal();
+						// B = *pBlk;
+						// @v10.7.3 (SlThread_WithStartupSignal) InitStartupSignal();
 					}
 					virtual void Run()
 					{
@@ -508,11 +508,7 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
                         }
 					}
 				private:
-					virtual void SLAPI Startup()
-					{
-						SlThread::Startup();
-						SignalStartup();
-					}
+					// @v10.7.3 (SlThread_WithStartupSignal) virtual void SLAPI Startup() { SlThread::Startup(); SignalStartup(); }
 					InitBlock B;
 				};
 				if(max_thread > 1) {
@@ -636,8 +632,8 @@ int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, Com
 
 IMPL_CMPCFUNC(STRINT64_test, p1, p2)
 {
-	int64 v1 = _atoi64((const char *)p1);
-	int64 v2 = _atoi64((const char *)p2);
+	int64 v1 = _atoi64(static_cast<const char *>(p1));
+	int64 v2 = _atoi64(static_cast<const char *>(p2));
 	return CMPSIGN(v1, v2);
 }
 
@@ -656,7 +652,7 @@ SLTEST_R(FileSort)
 		line_buf.Z();
 		while(src_file_size < max_src_file_size) {
 			const uint rn = SLS.GetTLA().Rg.GetUniformInt(2000000000UL);
-			temp_test_list.add((long)rn);
+			temp_test_list.add(static_cast<long>(rn));
 			line_buf.Cat(rn).CR();
 			if(line_buf.Len() > (1024*1024)) {
 				THROW(SLTEST_CHECK_NZ(f_test.WriteLine(line_buf)));
@@ -694,7 +690,7 @@ SLTEST_R(FileSort)
             while(f_result.ReadLine(line_buf)) {
 				line_buf.Chomp();
 				const long value = line_buf.ToLong();
-				THROW(SLTEST_CHECK_LT((long)test_count, (long)test_list.getCount()));
+				THROW(SLTEST_CHECK_LT(static_cast<long>(test_count), test_list.getCountI()));
 				THROW(SLTEST_CHECK_EQ(value, test_list.get(test_count)));
 				test_count++;
             }

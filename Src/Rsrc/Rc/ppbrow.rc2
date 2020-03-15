@@ -402,6 +402,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
 	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
+	EDITBILLFREIGHT  :  kbCtrlF4,   PPDV_FREIGHT02,       "@{freight}\tCtrl-F4" // @v10.7.3
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
 	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "Редактировать документ подтверждения\tCtrl-K"
 	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,        "Удалить документ подтверждения\tCtrl-D"
@@ -912,15 +913,15 @@ toolbar export ACCANLZ2 TB_FIRST_TOOLBAR {
 }
 
 toolbar export LOGVIEW TB_FIRST_TOOLBAR {
-	SAVEAS      : kbCtrlS,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
+	SAVEAS      : kbCtrlS,   TBBM_SAVEAS,        "@{saveas}...\tCtlr-S"
 	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
 	PRINT       : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
 }
 
 toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
 	OPEN        : kbCtrlO,   TBBM_OPEN,          "Открыть...\tCtlr-O"
-	SAVE        : kbCtrlS,   TBBM_SAVE,          "Сохранить\tCtlr-S"
-	SAVEAS      : kbCtrlA,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
+	SAVE        : kbCtrlS,   TBBM_SAVE,          "@{save}\tCtlr-S"
+	SAVEAS      : kbCtrlA,   TBBM_SAVEAS,        "@{saveas}...\tCtlr-S"
 	SELCODEPAGE : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
 	CVTCODEPAGE : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
 	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
@@ -928,8 +929,8 @@ toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
 
 toolbar export TEXTBROWSER_WB_HTML TB_FIRST_TOOLBAR {
 	OPEN         : kbCtrlO,   TBBM_OPEN,          "Открыть...\tCtlr-O"
-	SAVE         : kbCtrlS,   TBBM_SAVE,          "Сохранить\tCtlr-S"
-	SAVEAS       : kbCtrlA,   TBBM_SAVEAS,        "Сохранить как...\tCtlr-S"
+	SAVE         : kbCtrlS,   TBBM_SAVE,          "@{save}\tCtlr-S"
+	SAVEAS       : kbCtrlA,   TBBM_SAVEAS,        "@{saveas}...\tCtlr-S"
 	SELCODEPAGE  : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
 	CVTCODEPAGE  : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
 	SEARCH       : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
@@ -6213,6 +6214,7 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		TEST           : kbCtrlT,  TBBM_TEST,          "Test\tCtrl-T" // @v10.6.8
 		// @v10.7.0 EVALOPTMAXDUCK : kbCtrlY,  PPDV_NOICON,        "Evaluate optimal max duck\tCtrl-Y" // @v10.6.5
 		REFRESH        : kbCtrlV,  PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
+		SYSJ           : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J" // @v10.7.3
 	}
 }
 
@@ -6288,7 +6290,7 @@ browser JOB north(100), 1, 0, "@{jobtask_pl}", OWNER|GRID, 0
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2" // @v10.4.3
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "Удалить задачу\tDelete"
 		PRINT            :  kbF7,       PPDV_PRINTER01,         "Печать списка задач\tF7"
-		SAVE             :  kbCtrlS,    TBBM_SAVE,              "Сохранить изменения\tCtrlS"
+		SAVE             :  kbCtrlS,    TBBM_SAVE,              "@{save}\tCtrlS"
 		CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	}
 }

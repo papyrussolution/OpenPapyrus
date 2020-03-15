@@ -6,9 +6,9 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPAccTurn::PPAccTurn()
+SLAPI PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RByBill(0), Reserve(0), CurID(0), CRate(0.0), Amount(0.0), Opr(0), Flags(0)
 {
-	THISZERO();
+	PTR32(BillCode)[0] = 0;
 }
 
 int FASTCALL PPAccTurn::IsEqual(const PPAccTurn & rS) const
@@ -67,7 +67,7 @@ void PPAccTurnTempl::ATSubstObjects::destroy()
 
 PPAccTurnTempl::ATSubstObjects::Item::Item() : AcsID(0)
 {
-	Aid.Clear();
+	// @v10.7.3 @ctr Aid.Z();
 }
 //
 //
@@ -428,7 +428,7 @@ int SLAPI PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjec
 			r_acctid.ar = 0;
 	}
 	CATCH
-		r_acctid.Clear();
+		r_acctid.Z();
 		ok = 0;
 	ENDCATCH
 	return ok;

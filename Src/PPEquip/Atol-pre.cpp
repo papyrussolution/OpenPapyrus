@@ -981,8 +981,9 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 				}
 				else {
 					SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, 0, goods_id);
-					SetTempCcLineValues(0, qtty, price, price - dscnt_price);
-					THROW_DB(P_TmpCclTbl->insertRec());
+					//@v10.7.3 SetTempCcLineValues(0, qtty, price, price - dscnt_price, 0/*pLnExtStrings*/);
+					//@v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, price - dscnt_price, 0/*pLnExtStrings*/)); //@v10.7.3 
 				}
 				line_amount = R2(qtty * dscnt_price);
 				dscnt       = R2(qtty * price - dscnt);

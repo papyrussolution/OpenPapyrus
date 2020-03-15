@@ -7572,12 +7572,12 @@ int SLAPI Convert10703()
 	int    ok = 1;
 	PPWait(1);
 	PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
-	if(p_mgr && p_mgr->IsValid_() > 0) {
+	if(p_mgr) {
 		THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
 	}
 	PPWait(0);
 	CATCHZOK
-	ZDELETE(p_mgr);
+	delete p_mgr;
 	return ok;
 }
 // } @erik

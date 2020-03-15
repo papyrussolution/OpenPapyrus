@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -138,7 +138,7 @@ int FASTCALL PPQuotItemArray::Add(const PPQuot & rQ)
 int SLAPI PPQuotItemArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	int32  c = (int32)getCount();
+	int32  c = getCountI();
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
 		PPQuotItem_ item;
@@ -498,13 +498,12 @@ int SLAPI PPQuotArray::RemoveHangedLocations()
 	return ok;
 }
 
-int SLAPI PPQuotArray::SetManagedLocList(const PPIDArray * pList)
+void SLAPI PPQuotArray::SetManagedLocList(const PPIDArray * pList)
 {
 	if(pList)
 		ManagedLocList = *pList;
 	else
-		ManagedLocList.freeAll();
-	return 1;
+		ManagedLocList.clear(); // @v10.7.3 freeAll()-->clear()
 }
 
 int FASTCALL PPQuotArray::CanUpdateQuot(const PPQuot & rQuot) const

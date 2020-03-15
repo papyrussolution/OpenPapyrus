@@ -2342,8 +2342,7 @@ void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(Filt.Flags & BillFilt::fAsSelector) {
 		PPGetWord(PPWORD_SELBILL, 0, sub_title);
 		if(Filt.Sel) {
-			PPID   temp_id = Filt.Sel;
-			pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0);
+			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
 		}
 	}
 	if(Filt.PoolBillID && Filt.AssocID)
@@ -2598,33 +2597,19 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 					p_dbe_1 = &(bll->Flags2 & BILLF2_RECADV_ACCP);
 					p_dbe_2 = &(bll->Flags2 & BILLF2_RECADV_DECL);
 					switch(Filt.EdiRecadvStatus) {
-						case PPEDI_RECADV_STATUS_ACCEPT:
-							dbq = &(*dbq && *p_dbe_1 == BILLF2_RECADV_ACCP && *p_dbe_2 == 0L);
-							break;
-						case PPEDI_RECADV_STATUS_PARTACCEPT:
-							dbq = &(*dbq && *p_dbe_1 == BILLF2_RECADV_ACCP && *p_dbe_2 == BILLF2_RECADV_DECL);
-							break;
-						case PPEDI_RECADV_STATUS_REJECT:
-							dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == BILLF2_RECADV_DECL);
-							break;
-						case -1:
-							dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == 0L);
-							break;
+						case PPEDI_RECADV_STATUS_ACCEPT:     dbq = &(*dbq && *p_dbe_1 == BILLF2_RECADV_ACCP && *p_dbe_2 == 0L); break;
+						case PPEDI_RECADV_STATUS_PARTACCEPT: dbq = &(*dbq && *p_dbe_1 == BILLF2_RECADV_ACCP && *p_dbe_2 == BILLF2_RECADV_DECL); break;
+						case PPEDI_RECADV_STATUS_REJECT:     dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == BILLF2_RECADV_DECL); break;
+						case -1:                             dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == 0L); break;
 					}
 				}
 				if(Filt.EdiRecadvConfStatus) {
 					p_dbe_1 = &(bll->Flags2 & BILLF2_EDIAR_AGR);
 					p_dbe_2 = &(bll->Flags2 & BILLF2_EDIAR_DISAGR);
 					switch(Filt.EdiRecadvConfStatus) {
-						case PPEDI_RECADVCONF_STATUS_ACCEPT:
-							dbq = &(*dbq && *p_dbe_1 == BILLF2_EDIAR_AGR && *p_dbe_2 == 0L);
-							break;
-						case PPEDI_RECADVCONF_STATUS_REJECT:
-							dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == BILLF2_EDIAR_DISAGR);
-							break;
-						case -1:
-							dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == 0L);
-							break;
+						case PPEDI_RECADVCONF_STATUS_ACCEPT: dbq = &(*dbq && *p_dbe_1 == BILLF2_EDIAR_AGR && *p_dbe_2 == 0L); break;
+						case PPEDI_RECADVCONF_STATUS_REJECT: dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == BILLF2_EDIAR_DISAGR); break;
+						case -1:                             dbq = &(*dbq && *p_dbe_1 == 0L && *p_dbe_2 == 0L); break;
 					}
 				}
 				delete p_dbe_1;
@@ -2802,13 +2787,14 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 	static const char * WrParam_StoreFlags = "SelectAddBillBySampleFlags";
 
 	class SelAddByOrdDialog : public TDialog {
+		DECL_DIALOG_DATA(SelAddBySampleParam);
 	public:
 		SelAddByOrdDialog(int allowBulkMode) : TDialog(DLG_SELOBSMPL), AllowBulkMode(allowBulkMode)
 		{
 		}
-		int    setDTS(const SelAddBySampleParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 0, SelAddBySampleParam::acnStd);
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, SelAddBySampleParam::acnShipmByOrder);
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 2, SelAddBySampleParam::acnDraftExpByOrder);
@@ -2828,7 +2814,7 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			restoreFlags();
 			return 1;
 		}
-		int    getDTS(SelAddBySampleParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
@@ -2925,7 +2911,6 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBu
 			}
 			SetupOprKindCombo(this, CTLSEL_SELBBSMPL_OP, op_list.getSingle(), 0, &op_list, OPKLF_OPLIST);
 		}
-		SelAddBySampleParam Data;
 		int    AllowBulkMode;
 	};
 	DIALOG_PROC_BODY_P1(SelAddByOrdDialog, allowBulkMode, pData);

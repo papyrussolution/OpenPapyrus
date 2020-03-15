@@ -901,6 +901,12 @@ gsoap_log=options
 ;
 vetis_outgoing_alg2=[0|1|100]
 ;
+; @v10.7.3
+; Параметр включает диагностику релевантности работы функций PPObjLocation::ObjToWarehouse, PPObjLocation::ObjToWarehouse_IgnoreRights, PPObjLocation::WarehouseToObj.
+; В случае ошибки в файл pperror.log будет выводится сообщение. Никакие активные действия (в том числе и по корректировки ошибки) не предпринимаются.
+;
+verifyartolocmethods=[0|1]
+;
 ; ------------------------------------------------------------------------------
 ; Параметры для формирования кассового узла Papyrus
 ;

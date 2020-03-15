@@ -1,24 +1,24 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
 #include <pp.h>
 #pragma hdrstop
 
-static int SLAPI LStrToZStr(char * pDest, const char * pSrc)
+static int FASTCALL LStrToZStr(char * pDest, const char * pSrc)
 {
-	size_t len = (size_t)((uchar *)pSrc)[0];
+	size_t len = static_cast<size_t>(PTR8C(pSrc)[0]);
 	memcpy(pDest, pSrc+1, len);
 	pDest[len] = 0;
 	return 1;
 }
 
-static int SLAPI ZStrToLStr(char * pDest, const char * pSrc, size_t lStrBufSize)
+static int FASTCALL ZStrToLStr(char * pDest, const char * pSrc, size_t lStrBufSize)
 {
 	size_t len = sstrlen(pSrc);
 	len = MIN(MIN(len, lStrBufSize-1), 255);
-	((uchar *)pDest)[0] = (uchar)len;
+	PTR8(pDest)[0] = static_cast<uchar>(len);
 	memcpy(pDest+1, pSrc, len);
 	return 1;
 }
@@ -96,11 +96,8 @@ SLAPI ACS_CRUKM::~ACS_CRUKM()
 
 class CM_CRUKM : public PPCashMachine {
 public:
-	SLAPI CM_CRUKM(PPID cashID) : PPCashMachine(cashID)
+	SLAPI CM_CRUKM(PPID cashID) : PPCashMachine(cashID), P_DsCrdTbl(0), P_CSess(0), P_ScObj(0)
 	{
-		P_DsCrdTbl = 0;
-		P_CSess = 0;
-		P_ScObj = 0;
 	}
 	virtual SLAPI ~CM_CRUKM()
 	{
@@ -498,24 +495,18 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 	ZDELETE(P_CrCrdTbl);
 	ZDELETE(PP_SalesFileName[0]);
 	ZDELETE(PP_SalesFileName[1]);
-
 	int    sess_count = 0, is_forward = 0;
 	int    num_forwards = 0;
 	PPID   sess_id = 0;
 	SString imp_path;
 	SString fname, file_name, srch_path;
-
 	SessEntry * p_sess_entry = 0;
 	SArray max_sess_list(sizeof(SessEntry));
 	PPAsyncCashNode cn_data;
-	//SDirEntry fb;
-	//PPFileNameArray fary;
 	SFileEntryPool fep;
 	SDirec sdirec;
-
 	Cr_ZReportTbl * p_zr_tbl = 0;
 	Cr_ZReportTbl::Key0 k0;
-
 	THROW(GetNodeData(&cn_data) > 0);
 	cn_data.GetLogNumList(log_num_list);
 	THROW_PP(cn_data.ImpFiles.NotEmpty(), PPERR_INVFILESET);
@@ -821,8 +812,7 @@ int SLAPI ACS_CRUKM::ImportSession(int sessIdx)
 	LDATE  last_date = ZERODATE;
 	SString msg_buf;
 	Cr_SaleTbl::Key8 k8;
-	const SessEntry * p_entry = (SessEntry*)P_TmpSessList->at(sessIdx);
-
+	const SessEntry * p_entry = static_cast<const SessEntry *>(P_TmpSessList->at(sessIdx));
 	for(i = 0; i < 2; i++) {
 		if(PP_SalesFileName[i] && fileExists(PP_SalesFileName[i])) {
 			Cr_SaleTbl in_tbl(PP_SalesFileName[i]);
@@ -879,8 +869,9 @@ int SLAPI ACS_CRUKM::ImportSession(int sessIdx)
 						discount = 0L; // in_rec.Ck_Disc
 					}
 					line_amount = R2(line_amount);
-					SetTempCcLineValues(0, qtty, price, discount);
-					THROW_DB(P_TmpCclTbl->insertRec());
+					// @v10.7.3 SetTempCcLineValues(0, qtty, price, discount, 0/*pLnExtStrings*/);
+					// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, discount, 0/*pLnExtStrings*/)); // @v10.7.3
 					THROW(AddTempCheckAmounts(chk_id, line_amount, in_rec.Ck_Disc + in_rec.Ck_Disg));
 				} while(in_tbl.search(8, &k8, spNext) && k8.Cash_Code == p_entry->CashNo && k8.NSmena == p_entry->SessNo);
 				ok = 1;

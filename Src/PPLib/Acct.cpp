@@ -1,5 +1,5 @@
 // ACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020
 // @Kernel
 //
 #include <pp.h>
@@ -241,10 +241,15 @@ int SLAPI IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
 //
 //
 //
-void SLAPI AcctID::Clear()
+SLAPI AcctID::AcctID() : ac(0), ar(0)
+{
+}
+
+AcctID & SLAPI AcctID::Z()
 {
 	ac = 0;
 	ar = 0;
+	return *this;
 }
 
 int FASTCALL AcctID::operator == (AcctID s) const

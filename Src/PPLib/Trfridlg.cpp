@@ -349,7 +349,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		// Устанавливаем текущим управляющим первый элемент, который не заблокирован и имеет статус остановки по TAB (WS_TABSTOP)
 		//
 		for(TView * p_cur = dlg->P_Current; p_cur;) {
-			long   wnd_style = TView::GetWindowStyle(p_cur->getHandle());
+			const long wnd_style = TView::GetWindowStyle(p_cur->getHandle());
 			if(wnd_style & WS_TABSTOP && !(wnd_style & WS_DISABLED))
 				p_cur = 0;
 			else {

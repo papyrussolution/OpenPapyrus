@@ -2457,10 +2457,8 @@ table TempCCheckGdsCorr {
 	long   Goods2ID;
 	//string GoodsName1[128]; // @v8.3.0 [48]-->[128]
 	//string GoodsName2[128]; // @v8.3.0 [48]-->[128]
-
 	string GoodsName1[64];
 	string GoodsName2[64];
-
 	long   Count;
 	long   ChecksCount;
 	double ChecksCountPct;
@@ -2487,16 +2485,19 @@ table TempCCheckLine {     // size=
 	date   Dt;             // Дата продажи == CCheck(CheckCode).Dt
 	long   GoodsID;        // ->Goods.ID
 	string BarCode[24];    // Штрихкод // @v8.8.0 [16]-->[24]
-	string Serial[24];     // Серийный номер
+	// @v10.7.3 string Serial[24];     // Серийный номер
 	double Quantity;       // Количество товара
 	long   Price;          //
 	double Dscnt;          // @v5.2.7 long(0.01)-->double
+	long   ExtTextSize;    // @v10.7.3 Длина текста, содержащегося в VT
+	blob   VT[2048];       // @v10.7.3
 index:
 	CheckCode (dup mod);
 	Dt, GoodsID (dup mod);
 	CheckID (dup mod);
 file:
 	"tmp_ccl.btr";
+	vlr; // @v10.7.3
 	temporary;
 	access=1;
 }

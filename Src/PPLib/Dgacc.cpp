@@ -1,16 +1,21 @@
 // DGACC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // Диалоговая группа ввода счета и аналитической статьи
 //
 #include <pp.h>
 #pragma hdrstop
 
+SLAPI AcctCtrlGroup::Rec::Rec() : AccSheetID(0), AccSelParam(0), AccType(0)
+{
+	// @v10.7.3 @ctr AcctId.Z();
+}
+
 AcctCtrlGroup::AcctCtrlGroup(uint _ctl_acc, uint _ctl_art, uint _ctlsel_accnam, uint _ctlsel_artnam) : CtrlGroup(),
 	ctl_acc(_ctl_acc), ctl_art(_ctl_art), ctlsel_accname(_ctlsel_accnam), ctlsel_artname(_ctlsel_artnam),
 	AccSheetID(0), CurID(0), AccSelParam(0)
 {
-	AcctId.Clear();
+	// @v10.7.3 @ctr AcctId.Z();
 	ppobj = new PPObjAccTurn(0);
 }
 
@@ -118,7 +123,7 @@ int AcctCtrlGroup::processAccInput(TDialog * dlg)
 	PPID   save_sheetid = AccSheetID;
 	dlg->getCtrlData(ctl_acc, b);
 	if(*strip(b) == 0) {
-		AcctId.Clear();
+		AcctId.Z();
 		acct.Z();
 		AccSheetID = 0;
 	}

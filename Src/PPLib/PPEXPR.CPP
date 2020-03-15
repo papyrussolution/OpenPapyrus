@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -1510,12 +1510,16 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 				if(ref.IsEqiAscii("cost")) {
 					if(P_Ti)
 						v = P_Ti->Cost;
+					else if(P.Flags & P.fCostSettled) // @v10.7.3
+						v = P.Cost;
 					else
 						r = 0; // cost может быть суммой документа
 				}
 				else if(ref.IsEqiAscii("price")) {
 					if(P_Ti)
 						v = P_Ti->Price;
+					else if(P.Flags & P.fPriceSettled) // @v10.7.3
+						v = P.Price;
 					else
 						r = 0; // price может быть суммой документа
 				}

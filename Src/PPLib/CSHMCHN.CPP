@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -244,14 +244,15 @@ int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 	int    ok = 0;
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_NEWDAY_L : DLG_NEWDAY);
 	if(CheckDialogPtr(&dlg)) {
+		const LDATE dt_now = getcurdate_();
 		if(*pDt == 0)
-			*pDt = getcurdate_(); // @v9.9.12 LConfig.OperDate-->getcurdate_()
+			*pDt = dt_now; // @v9.9.12 LConfig.OperDate-->getcurdate_()
 		dlg->SetupCalDate(CTLCAL_NEWDAY_DATE, CTL_NEWDAY_DATE);
 		dlg->setCtrlData(CTL_NEWDAY_DATE, pDt);
 		while(ok != cmOK && ExecView(dlg) == cmOK) {
 			LDATE   dt = dlg->getCtrlDate(CTL_NEWDAY_DATE);
 			if(checkdate(dt)) {
-				if(dt == getcurdate_() || CONFIRM(PPCFM_POSDATNEQCURRENT)) {
+				if(dt == dt_now || CONFIRM(PPCFM_POSDATNEQCURRENT)) {
 					ok = cmOK;
 					*pDt = dt;
 				}
@@ -402,11 +403,7 @@ int SLAPI CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm
 
 int SLAPI PPCashMachine::SyncDiagnose(StringSet * pSs)
 {
-	int    ok = -1;
-	THROW(GetSyncIntrf());
-	ok = P_SyncIntrf->Diagnose(pSs);
-	CATCHZOK
-	return ok;
+	return GetSyncIntrf() ? P_SyncIntrf->Diagnose(pSs) : 0;
 }
 
 int SLAPI PPCashMachine::SyncCloseSession()
@@ -958,12 +955,12 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					if(prn_total_sale) {
 						if(fiscal != 0.0) {
 							if(!pPack->GetCount()) {
-								double _q = 1.0;
+								// @v10.7.3 double _q = 1.0;
 								double _p = amt;
 								running_total += amt;
 							}
 							else /*if(fiscal != 0.0)*/ {
-								double _q = 1.0;
+								// @v10.7.3 double _q = 1.0;
 								double _p = fiscal;
 								running_total += fiscal;
 							}
@@ -1321,7 +1318,6 @@ int SLAPI PPCashMachine::AsyncCloseSession2(PPID posNodeID, DateRange * pPeriod)
 		cn_list.sortAndUndup();
 		for(uint i = 0; i < cn_list.getCount(); i++) {
 			const PPID cn_id = cn_list.get(i);
-			//ZDELETE(p_cm);
 			PPCashMachine * p_cm = 0;
 			THROW(p_cm = PPCashMachine::CreateInstance(cn_id));
 			cm_list.insert(p_cm);

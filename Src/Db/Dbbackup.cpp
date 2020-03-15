@@ -1,5 +1,6 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -8,9 +9,9 @@
 
 int CallbackCompress(long, long, const char *, int);
 /*
-	Формат файла backup.dat
-	Текстовый файл. Данные об одной копии записываются в одну строку.
-	Разделители полей - запятая (',').
+	Р¤РѕСЂРјР°С‚ С„Р°Р№Р»Р° backup.dat
+	РўРµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р». Р”Р°РЅРЅС‹Рµ РѕР± РѕРґРЅРѕР№ РєРѕРїРёРё Р·Р°РїРёСЃС‹РІР°СЋС‚СЃСЏ РІ РѕРґРЅСѓ СЃС‚СЂРѕРєСѓ.
+	Р Р°Р·РґРµР»РёС‚РµР»Рё РїРѕР»РµР№ - Р·Р°РїСЏС‚Р°СЏ (',').
 
 	copy_set,
 	copy_id,
@@ -642,7 +643,6 @@ int SLAPI DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath,
 		SString src_path, dest_path;
 		SDirec direc;
 		SDirEntry fb;
-
 		RemoveDir(dest_dir);
 		createDir(dest_dir);
 		src_dir.SetLastSlash();

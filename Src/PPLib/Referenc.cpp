@@ -2588,7 +2588,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 				{
 					assert(tl); // Ранее мы проверили длину текста на 0
 					THROW(writeLobData(VT, utf_buf.cptr(), tl));
-					data.Size = (long)tl;
+					data.Size = static_cast<long>(tl);
 				}
 				THROW_DB(updateRec()); // @sfu
 				destroyLobData(VT); // @v10.2.11 @fix
@@ -2606,7 +2606,7 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
 			{
 				assert(tl); // Ранее мы проверили длину текста на 0
 				THROW(writeLobData(VT, utf_buf.cptr(), tl));
-				data.Size = (long)tl;
+				data.Size = static_cast<long>(tl);
 			}
 			THROW_DB(insertRec());
 			destroyLobData(VT); // @v10.2.11 @fix

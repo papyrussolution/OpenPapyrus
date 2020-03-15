@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -19,7 +19,7 @@ int SLAPI RunNginxServer()
 		temp_buf.SetLastDSlash().Cat("nginx").SetLastDSlash();
 		SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, o.Prefix);
 	}
-	return (NgxStartUp(o) == 0) ? 1 : 0;
+	return BIN(NgxStartUp(o) == 0);
 }
 
 int SLAPI RunNginxWorker()
@@ -80,22 +80,20 @@ struct NgxModule_Papyrus {
 	static const char * SetHandler(ngx_conf_t * cf, const ngx_command_t * cmd, void * conf)
 	{
 		// Install the papyrus_test handler. 
-		NgxModule_Papyrus::Config * p_cfg = (NgxModule_Papyrus::Config *)conf;
+		NgxModule_Papyrus::Config * p_cfg = static_cast<NgxModule_Papyrus::Config *>(conf);
 		ngx_http_core_loc_conf_t * clcf = (ngx_http_core_loc_conf_t *)ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module); // pointer to core location configuration 
 		clcf->F_HttpHandler = HttpHandler;
 		if(p_cfg) {
-			if(p_cfg->State & p_cfg->stInited) {
+			if(p_cfg->State & p_cfg->stInited)
 				return "is duplicate";
-			}
-			else {
+			else
 				p_cfg->State |= p_cfg->stInited;
-			}
 		}
 		return NGX_CONF_OK;
 	}
 	static ngx_int_t HttpHandler(ngx_http_request_t * pReq)
 	{
-		Config * p_cfg = (Config *)ngx_http_get_module_loc_conf(pReq, ngx_http_papyrus_test_module);
+		Config * p_cfg = static_cast<Config *>(ngx_http_get_module_loc_conf(pReq, ngx_http_papyrus_test_module));
 		static u_char ngx_papyrus_test[] = "papyrus test module! Здравствуй, брат!";
 		// Set the Content-Type header. 
 		pReq->SetContentType(SFileFormat::Html, cpUTF8);
@@ -110,7 +108,7 @@ struct NgxModule_Papyrus {
 		}
 		if(0) {
 			// Allocate a new buffer for sending out the reply. 
-			ngx_buf_t * b = (ngx_buf_t *)ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t));
+			ngx_buf_t * b = static_cast<ngx_buf_t *>(ngx_pcalloc(pReq->pool, sizeof(ngx_buf_t)));
 			// Insertion in the buffer chain. 
 			ngx_chain_t out(b, 0/*just one buffer*/);
 			b->pos = ngx_papyrus_test; /* first position in memory of the data */
@@ -196,7 +194,7 @@ public:
 		NgxReqResult * p_res = 0;
 		int    ok = 0;
 		Lck.Lock();
-		p_res = (NgxReqResult *)SQueue::pop();
+		p_res = static_cast<NgxReqResult *>(SQueue::pop());
 		Lck.Unlock();
 		if(p_res) {
 			ASSIGN_PTR(pRes, *p_res);
@@ -245,7 +243,7 @@ public:
 	{
 		ngx_http_request_t * p_req = 0;
 		Lck.Lock();
-		p_req = (ngx_http_request_t *)SQueue::pop();
+		p_req = static_cast<ngx_http_request_t *>(SQueue::pop());
 		Lck.Unlock();
 		return p_req;
 	}
@@ -414,13 +412,11 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 	NgxReqResult result;
 	if(pReq) {
 		const NgxModule_Papyrus::Config * p_cfg = (const NgxModule_Papyrus::Config *)ngx_http_get_module_loc_conf(pReq, ngx_http_papyrus_test_module);
-
 		SString out_buf;
 		SString temp_buf;
 		SString cmd_buf;
 		char   sb[256];
 		int    do_preprocess_content = 0;
-
 		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 		if(r_tla.State & r_tla.stAuth) {
 			rReply.Z();
@@ -480,7 +476,6 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 				else {
 					out_buf = "Error!";
 					reply_size = out_buf.Len();
-						
 					b = ngx_create_temp_buf(pReq->pool, reply_size);
 					ngx_chain_t out(b, 0/*just one buffer*/);
 					rReply.Read(b->pos, reply_size);
@@ -547,10 +542,10 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 		SString temp_buf;
 		thread_count = ThreadList.GetCount(PPThread::kWorkerSession);
 		while(!p_thread) {
-			p_thread = (PPWorkingPipeSession *)ThreadList.SearchIdle(PPThread::kWorkerSession);
+			p_thread = static_cast<PPWorkingPipeSession *>(ThreadList.SearchIdle(PPThread::kWorkerSession));
 			if(!p_thread) {
 				if(thread_count < max_threads) {
-					const NgxModule_Papyrus::Config * p_cfg = (const NgxModule_Papyrus::Config *)pCfg;
+					const NgxModule_Papyrus::Config * p_cfg = static_cast<const NgxModule_Papyrus::Config *>(pCfg);
 					DbLoginBlock dblblk;
 					if(p_cfg) {
 						if(p_cfg->DbSymb.len) {
@@ -578,7 +573,7 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 				}
 			}
 		};
-		P_Queue->Push((ngx_http_request_t *)pReq);
+		P_Queue->Push(static_cast<ngx_http_request_t *>(pReq));
 		if(p_thread) {
 			p_thread->WakeUp();
 		}

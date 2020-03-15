@@ -2140,15 +2140,40 @@ SLTEST_R(SMathGamma)
 		const double expected_cov01 = -7.74327536339570e-05;  /* computed from octave */
 		const double expected_cov11 = pow(0.429796848199937E-03, 2.0);
 		const double expected_sumsq = 26.6173985294224;
-
-		LssLin lss;
-		lss.Solve(norris_n, norris_x, norris_y);
-		SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
-		SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
-		SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
-		SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
-		SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
-		SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+		{
+			LssLin lss;
+			lss.Solve_Simple(norris_n, norris_x, norris_y);
+			SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+		}
+		{
+			LssLin lss;
+			lss.Solve_SSE(norris_n, norris_x, norris_y);
+			SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+		}
+		{
+			LVect nv_x;
+			LVect nv_y;
+			nv_x.init(norris_n, norris_x);
+			nv_y.init(norris_n, norris_y);
+			LssLin lss;
+			lss.Solve(nv_x, nv_y);
+			SLTEST_CHECK_EQ_TOL(lss.A, expected_c0, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.B, expected_c1, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov00, expected_cov00, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov01, expected_cov01, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.Cov11, expected_cov11, 1e-10);
+			SLTEST_CHECK_EQ_TOL(lss.SumSq, expected_sumsq, 1e-10);
+		}
 	}
 	TEST_SF(flngamma, (-0.1, &r),       2.368961332728788655,  TEST_TOL0, GSL_SUCCESS);
 	TEST_SF(flngamma, (-1.0/256.0, &r), 5.547444766967471595,  TEST_TOL0, GSL_SUCCESS);

@@ -3597,8 +3597,13 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 						item.Amount = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -item.Amount : item.Amount;
 						item.Discount = (item.Qtty) ? (item.Price - item.Amount / item.Qtty) : 0;
 						SetupTempCcLineRec(0, chk_id, hdr.ChkNum, P_TmpCcTbl->data.Dt, item.Div, goods_id);
-						SetTempCcLineValues(0, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount, item.Serial);
-						THROW_DB(P_TmpCclTbl->insertRec());
+						// @v10.7.3 SetTempCcLineValues(0, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount/*, item.Serial*/, 0/*pLnExtStrings*/);
+						// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+						{
+							PPExtStrContainer ccl_ext_strings;
+							ccl_ext_strings.PutExtStrData(CCheckPacket::lnextSerial, item.Serial);
+							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount/*, item.Serial*/, &ccl_ext_strings)); // @v10.7.3
+						}
 						if(!P_TmpCcTbl->data.SCardID && scard_id)
 							THROW(AddTempCheckSCardID(chk_id, scard_id));
 						if(item.Discount) {
@@ -3819,8 +3824,9 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 					SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
 					if(!fldn_l_sum)
 						sum = price * qtty;
-					SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty);
-					THROW_DB(P_TmpCclTbl->insertRec());
+					// @v10.7.3 SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/);
+					// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/)); // @v10.7.3
 					if(banking) {
 						THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
 					}
@@ -3987,8 +3993,9 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 					qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
 					SetupTempCcLineRec(0, chk_id, cs_chkln.CheckNumber, P_TmpCcTbl->data.Dt, cs_chkln.Division, goods_id);
 					SETIFZ(sum, price * qtty);
-					SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty);
-					THROW_DB(P_TmpCclTbl->insertRec());
+					// @v10.7.3 SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/);
+					// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/)); // @v10.7.3
 					if(cs_chkln.IsBanking && !(P_TmpCcTbl->data.Flags & CCHKF_BANKING)) {
 						THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
 					}

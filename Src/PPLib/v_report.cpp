@@ -1,5 +1,6 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -36,7 +37,6 @@ int SLAPI PPInetAccountManager::GetMailAccounts(MailClientType mct, PPID * pActi
 {
 	int    ok = 1, all = (mct == mctAll) ? 1 : 0;
 	PPInetAccntArray accounts;
-
 	THROW_INVARG(pAccounts);
 	pAccounts->freeAll();
 	if(mct == mctDefault) {
@@ -331,7 +331,7 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 			for(uint i = 0; i < list.getCount(); i++) {
 				if(CheckForFilt(&list.at(i))) {
 					TempReportTbl::Rec temp_rec;
-					MEMSZERO(temp_rec);
+					// @v10.7.3 @ctr MEMSZERO(temp_rec);
 					MakeTempRec(&list.at(i), &temp_rec);
 					temp_rec.ID = 0;
 					THROW_DB(bei.insert(&temp_rec));
@@ -504,10 +504,12 @@ int SLAPI PPViewReport::SendMail(long id)
 			SString Struc;
 			LDATETIME Dtm;
 		};
+		DECL_DIALOG_DATA(ReportMailDialog::Rec);
+
 		ReportMailDialog() : TDialog(DLG_RPTMAIL)
 		{
 		}
-		int    setDTS(const ReportMailDialog::Rec * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData)) {
 				Data.AccountID = 0;
@@ -535,7 +537,7 @@ int SLAPI PPViewReport::SendMail(long id)
 			disableCtrls(1, CTL_RPTMAIL_ORG, CTL_RPTMAIL_LIC, CTL_RPTMAIL_USER, CTL_RPTMAIL_DB, CTL_RPTMAIL_RPT, CTL_RPTMAIL_DATASTRUC, CTL_RPTMAIL_DATE, CTL_RPTMAIL_TIME, 0L);
 			return 1;
 		}
-		int    getDTS(ReportMailDialog::Rec * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -549,8 +551,6 @@ int SLAPI PPViewReport::SendMail(long id)
 			ENDCATCH
 			return ok;
 		}
-	private:
-		Rec    Data;
 	};
 	int    ok = -1, valid_data = 0;
 	ReportMailDialog * p_dlg = 0;
@@ -566,7 +566,6 @@ int SLAPI PPViewReport::SendMail(long id)
 			PPLicData lic;
 			GetMainOrgName(data.MainOrg);
 			PPGetLicData(&lic);
-
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			data.AccountID = alb_cfg.Hdr.MailAccID;
 			data.Licence.CopyFrom(lic.RegName);
@@ -688,22 +687,22 @@ int SLAPI PPViewReport::CallCR(long id)
 			char   crr_path[MAXPATH];
 			DWORD  path_size = MAXPATH;
 			memzero(crr_path, sizeof(crr_path));
-			// Äëÿ CRR 7.0
+			// Ð”Ð»Ñ CRR 7.0
 			if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,	_T("SOFTWARE\\Seagate Software\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
 				RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &path_size) == ERROR_SUCCESS)
 				ok = 1;
-			// Èëè äëÿ  CRR 10
+			// Ð˜Ð»Ð¸ Ð´Ð»Ñ  CRR 10
 			else if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Crystal Decisions\\10.0\\Crystal Reports"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
 				RegQueryValueEx(crr_key, _T("Path"), NULL, NULL, (LPBYTE)crr_path, &(path_size = MAXPATH)) == ERROR_SUCCESS)
 				ok = 1;
-			// Åñëè íè÷åãî íå ïîìîãëî - îáùèé àëüòåðíàòèâíûé ñïîñîá
+			// Ð•ÑÐ»Ð¸ Ð½Ð¸Ñ‡ÐµÐ³Ð¾ Ð½Ðµ Ð¿Ð¾Ð¼Ð¾Ð³Ð»Ð¾ - Ð¾Ð±Ñ‰Ð¸Ð¹ Ð°Ð»ÑŒÑ‚ÐµÑ€Ð½Ð°Ñ‚Ð¸Ð²Ð½Ñ‹Ð¹ ÑÐ¿Ð¾ÑÐ¾Ð±
 			else {
 				ok = 0;
 				TCHAR   crr_name[64];
 				DWORD   crr_name_size = SIZEOFARRAY(crr_name);
 				PTR32(crr_name)[0] = 0;
 				if(RegOpenKeyEx(HKEY_CLASSES_ROOT,	_T(".rpt"), 0, KEY_QUERY_VALUE, &crr_key) == ERROR_SUCCESS &&
-					RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // èìÿ êðèñòàëà äëÿ *.btr
+					RegQueryValueEx(crr_key, NULL, NULL, NULL, (LPBYTE)crr_name, &(crr_name_size = sizeof(crr_name))) == ERROR_SUCCESS) { // Ð¸Ð¼Ñ ÐºÑ€Ð¸ÑÑ‚Ð°Ð»Ð° Ð´Ð»Ñ *.btr
 					strcat(crr_name, "\\shell\\Open\\command");
 					ok = 1;
 				}
@@ -785,7 +784,7 @@ int SLAPI PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 				data = 0;
 			if(data.NotEmptyS()) {
 				ReportViewItem item;
-				MEMSZERO(item);
+				// @v10.7.3 @ctr MEMSZERO(item);
 				p_file->GetParam(sect, ModifDtParam, dt);
 				p_file->GetParam(sect, DescrParam,   descr);
 				if(dt.C(0) == ';')
@@ -818,7 +817,7 @@ int SLAPI PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const 
 	uint   k = 0;
 	SString par, val;
 	StringSet ss("=");
-	MEMSZERO(item);
+	// @v10.7.3 @ctr MEMSZERO(item);
 	THROW_INVARG(pFile);
 	ss.setBuf(rBuf, rBuf.Len() + 1);
 	ss.get(&k, par);
@@ -873,7 +872,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	for(i = 0, id = 0; sections.get(&i, sect.Z()) > 0; id++) {
 		if(sect.CmpNC(SystemSect) == 0) {
 			p_file->GetIntParam(sect, CodepageParam, &codepage);
-			LocalRptCodepage = (LocalRptCodepage == 0) ? 866 : LocalRptCodepage;
+			SETIFZ(LocalRptCodepage, 866);
 		}
 		else {
 			ReportViewItem item;
@@ -1023,7 +1022,8 @@ int SLAPI PPViewReport::EditItem(long * pID)
 {
 	int    ok = -1, valid_data = 0;
 	long   id = DEREFPTRORZ(pID);
-	ReportViewItem item, prev_item;
+	ReportViewItem item;
+	ReportViewItem prev_item;
 	ReportDlg * p_dlg = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		item = *static_cast<const ReportViewItem *>(&P_TempTbl->data);
@@ -1031,7 +1031,7 @@ int SLAPI PPViewReport::EditItem(long * pID)
 	}
 	else {
 		id = 0;
-		MEMSZERO(item);
+		// @v10.7.3 @ctr MEMSZERO(item);
 		item.Type = ReportFilt::rpttLocal;
 	}
 	THROW(CheckDialogPtr(&(p_dlg = new ReportDlg(this))));
@@ -1045,7 +1045,7 @@ int SLAPI PPViewReport::EditItem(long * pID)
 	if(ok > 0 && item.Type == ReportFilt::rpttLocal && P_RptFile) {
 		SString val;
 		TempReportTbl::Rec temp_rec;
-		MEMSZERO(temp_rec);
+		// @v10.7.3 @ctr MEMSZERO(temp_rec);
 		(val = item.Descr).Semicol().Cat(item.StrucName);
 		if(LocalRptCodepage != 866)
 			val.Transf(CTRANSF_INNER_TO_OUTER);

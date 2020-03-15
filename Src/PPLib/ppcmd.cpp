@@ -1669,14 +1669,12 @@ int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 		{
 			if(fsz>0) {
 				THROW(SaveFromAllTo(rwFlag));
-				THROW(F.Close());
+				THROW_SL(F.Close());
 				THROW(PPGetPath(PPPATH_BIN, temp_buf));
 				{
 					SString old_name = temp_buf.SetLastSlash().Cat("ppdesk.bin");
-					LDATE cur_date;
-					getcurdate(&cur_date);
-					temp_buf.SetLastSlash().Cat("ppdesk").Cat(cur_date.year()).Cat(cur_date.month()).Cat(cur_date.day()).Cat(".bin");
-					THROW(F.Rename(old_name, temp_buf));
+					temp_buf.SetLastSlash().Cat("ppdesk").Cat(getcurdate_(), DATF_DMY).Cat(".bin");
+					THROW_SL(F.Rename(old_name, temp_buf));
 				}
 			}
 		}
@@ -1685,7 +1683,7 @@ int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 	return ok;
 }
 
-int SLAPI PPCommandMngr::DeleteDesktopByGUID(const SString guid, const long rwFlag)
+int SLAPI PPCommandMngr::DeleteDesktopByGUID(const SString &guid, const long rwFlag)
 {
 	int ok;
 	SString path, temp_buf;

@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -554,12 +554,48 @@ int SLAPI PPObjAccount::Browse(void * extraPtr /*accType*/)
 }
 
 class GenAccountDialog : public ObjRestrictListDialog {
+	DECL_DIALOG_DATA(PPAccountPacket);
 public:
 	GenAccountDialog() : ObjRestrictListDialog(DLG_ACCAGGR, CTL_ACCAGGR_LIST)
 	{
 	}
-	int    setDTS(const PPAccountPacket *);
-	int    getDTS(PPAccountPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setParams(PPOBJ_ACCOUNT2, &Data.GenList);
+		setCtrlData(CTL_ACCAGGR_CODE, Data.Rec.Code);
+		setCtrlData(CTL_ACCAGGR_NAME, Data.Rec.Name);
+		setCtrlData(CTL_ACCAGGR_NUMBER, &Data.Rec.A.Ac);
+		SetupPPObjCombo(this, CTLSEL_ACCAGGR_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, 0, 0);
+		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, Data.GenList.getCount());
+		AddClusterAssoc(CTL_ACCAGGR_FLAGS, 0, ACF_SYSNUMBER);
+		AddClusterAssoc(CTL_ACCAGGR_FLAGS, 1, ACF_EXCLINNERTRNOVR);
+		SetClusterData(CTL_ACCAGGR_FLAGS, Data.Rec.Flags);
+		disableCtrl(CTL_ACCAGGR_NUMBER, BIN(Data.Rec.Flags & ACF_EXCLINNERTRNOVR));
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok  = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_ACCAGGR_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(sel = CTL_ACCAGGR_CODE, Data.Rec.Code);
+		strip(Data.Rec.Code);
+		getCtrlData(CTL_ACCAGGR_NUMBER, &Data.Rec.A.Ac);
+		THROW_PP(*Data.Rec.Code || Data.Rec.A.Ac, PPERR_ACCNUMORCODENEEDED);
+		if(Data.Rec.A.Ac < MINGENACCNUMBER || Data.Rec.A.Ac > MAXGENACCNUMBER) {
+			sel = CTL_ACCAGGR_NUMBER;
+			THROW_PP(Data.Rec.ID == 0 && Data.Rec.A.Ac == 0, PPERR_INVGENACCNUMBER);
+		}
+		getCtrlData(CTLSEL_ACCAGGR_ACCSHEET, &Data.Rec.AccSheetID);
+		GetClusterData(CTL_ACCAGGR_FLAGS, &Data.Rec.Flags);
+		AtObj.P_Tbl->SortGenAccList(&Data.GenList);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  getObjName(PPID objID, long objFlags, SString &);
@@ -567,8 +603,7 @@ private:
 	virtual int  editItemDialog(ObjRestrictItem *);
 	virtual int  addItem(long * pPos, long * pID);
 	virtual int  delItem(long pos, long id);
-
-	PPAccountPacket Data;
+	
 	PPObjAccount    AccObj;
 	PPObjAccTurn    AtObj;
 };
@@ -670,16 +705,15 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 		AcctCtrlGroup * p_grp = new AcctCtrlGroup(CTL_ACCAGGRI_ACC, CTL_ACCAGGRI_ART,
 			CTLSEL_ACCAGGRI_ACCNAME, CTLSEL_ACCAGGRI_ARTNAME);
 		dlg->addGroup(ACCT_GROUP, p_grp);
-		MEMSZERO(ag_rec);
-		if(aco == ACO_1 || aco == ACO_2)
+		// @v10.7.3 @ctr MEMSZERO(ag_rec);
+		if(oneof2(aco, ACO_1, ACO_2))
 			ag_rec.AcctId.ac = pItem->ObjID;
 		else
 			AtObj.P_Tbl->AcctRelToID(pItem->ObjID, &ag_rec.AcctId, &ag_rec.AccSheetID);
 		ag_rec.AccSelParam = acc_sheet_id ? (acc_sheet_id + 1000L) : 0;
 		dlg->setGroupData(ACCT_GROUP, &ag_rec);
 		if(pItem->ObjID) {
-			dlg->disableCtrls(1, CTL_ACCAGGRI_ACC, CTLSEL_ACCAGGRI_ACCNAME,
-				CTL_ACCAGGRI_ART, CTLSEL_ACCAGGRI_ARTNAME, 0);
+			dlg->disableCtrls(1, CTL_ACCAGGRI_ACC, CTLSEL_ACCAGGRI_ACCNAME, CTL_ACCAGGRI_ART, CTLSEL_ACCAGGRI_ARTNAME, 0);
 			if(aco == ACO_3)
 				dlg->disableCtrl(CTL_ACCAGGRI_ACCGRP, 1);
 		}
@@ -725,45 +759,6 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 	return ok;
 
 #undef ACCT_GROUP
-}
-
-int GenAccountDialog::setDTS(const PPAccountPacket * pData)
-{
-	Data = *pData;
-	setParams(PPOBJ_ACCOUNT2, &Data.GenList);
-	setCtrlData(CTL_ACCAGGR_CODE, Data.Rec.Code);
-	setCtrlData(CTL_ACCAGGR_NAME, Data.Rec.Name);
-	setCtrlData(CTL_ACCAGGR_NUMBER, &Data.Rec.A.Ac);
-	SetupPPObjCombo(this, CTLSEL_ACCAGGR_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, 0, 0);
-	disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, Data.GenList.getCount());
-	AddClusterAssoc(CTL_ACCAGGR_FLAGS, 0, ACF_SYSNUMBER);
-	AddClusterAssoc(CTL_ACCAGGR_FLAGS, 1, ACF_EXCLINNERTRNOVR);
-	SetClusterData(CTL_ACCAGGR_FLAGS, Data.Rec.Flags);
-	disableCtrl(CTL_ACCAGGR_NUMBER, BIN(Data.Rec.Flags & ACF_EXCLINNERTRNOVR));
-	updateList(-1);
-	return 1;
-}
-
-int GenAccountDialog::getDTS(PPAccountPacket * pData)
-{
-	int    ok  = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_ACCAGGR_NAME, Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
-	getCtrlData(sel = CTL_ACCAGGR_CODE, Data.Rec.Code);
-	strip(Data.Rec.Code);
-	getCtrlData(CTL_ACCAGGR_NUMBER, &Data.Rec.A.Ac);
-	THROW_PP(*Data.Rec.Code || Data.Rec.A.Ac, PPERR_ACCNUMORCODENEEDED);
-	if(Data.Rec.A.Ac < MINGENACCNUMBER || Data.Rec.A.Ac > MAXGENACCNUMBER) {
-		sel = CTL_ACCAGGR_NUMBER;
-		THROW_PP(Data.Rec.ID == 0 && Data.Rec.A.Ac == 0, PPERR_INVGENACCNUMBER);
-	}
-	getCtrlData(CTLSEL_ACCAGGR_ACCSHEET, &Data.Rec.AccSheetID);
-	GetClusterData(CTL_ACCAGGR_FLAGS, &Data.Rec.Flags);
-	AtObj.P_Tbl->SortGenAccList(&Data.GenList);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 //
 //

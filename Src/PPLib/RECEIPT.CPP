@@ -983,6 +983,14 @@ int SLAPI LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, P
 									if(goodsID && trfr_rec.GoodsID == goodsID)
 										goods_detected = 1;
 								}
+								// @v10.7.3 {
+								else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_rec.BillID, 1, rbb_target, &trfr_rec) > 0) {
+									if(lotID && trfr_rec.LotID == lotID)
+										lot_detected = 1;
+									if(goodsID && trfr_rec.GoodsID == goodsID)
+										goods_detected = 1;
+								}
+								// } @v10.7.3 
 								if(trfr_rec.Quantity > 0.0) {
 									if(!first_bill_id) {
 										first_bill_id = r_rec.BillID;

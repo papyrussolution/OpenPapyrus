@@ -370,7 +370,6 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 		SString prefix_;
 		SString next_prefix_;
 		StrAssocArray::Add(fldOriginalText, code_buf);
-
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
 		uint tokn = 0;

@@ -213,11 +213,13 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 		int    ka_c = 0; // Количество допустимых индексов
 		int  * p_ka = 0;   // Массив допустимых индексов
 		uint   num_keys = t.tbl->GetIndices().getNumKeys();
-		if(tblN == 0)
-			if((p_ka = (int *)SAlloc::M(num_keys * sizeof(int))) != 0)
+		if(tblN == 0) {
+			p_ka = static_cast<int *>(SAlloc::M(num_keys * sizeof(int)));
+			if(p_ka)
 				ka_c = analyzeOrder(p_ka);
 			else
 				return 0;
+		}
 		uint   i;
 		uint   tc = (t.tree.Count+1) * sizeof(uint);
 		uint * p_trace      = static_cast<uint *>(SAlloc::M(tc));
@@ -235,10 +237,10 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 				p_trace[0] = 0;
 				KR k(t.tbl->GetHandle(), i);
 				seg = 0;
-				do
+				do {
 					if(!t.tree.chooseKey(t.tree.Root, t.tbl->GetHandle(), seg, &k, p_trace))
 						return (k.destroy(), 0);
-				while((k.P_h->pseg & ~DYN_KEY) == ++seg);
+				} while((k.P_h->pseg & ~DYN_KEY) == ++seg);
 				int    cm = compare(t.key, k);
 				if(cm < 0 || (cm == 0 && t.key.P_h == 0)) {
 					t.key.copy(k);

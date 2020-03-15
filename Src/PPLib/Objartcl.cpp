@@ -464,34 +464,40 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 	#define GRP_ACC 2
 
 	class SubstAliasDialog : public TDialog {
+		DECL_DIALOG_DATA(LAssoc);
 	public:
 		SubstAliasDialog(const PPArticlePacket * pPack) : TDialog(DLG_ALSSUBST), P_Pack(pPack)
 		{
 			addGroup(GRP_ALS, new AcctCtrlGroup(CTL_ALSSUBST_ALS, 0, CTLSEL_ALSSUBST_ALSNAME, 0));
 			addGroup(GRP_ACC, new AcctCtrlGroup(CTL_ALSSUBST_ACC, 0, CTLSEL_ALSSUBST_ACCNAME, 0));
 		}
-		int    setDTS(const LAssoc * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
-			AcctCtrlGroup::Rec acc_rec;
-			MEMSZERO(acc_rec);
-			acc_rec.AcctId.ac = Data.Key;
-			acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
-			acc_rec.AccSelParam = ACY_SEL_ALIAS;
-			setGroupData(GRP_ALS, &acc_rec);
-			MEMSZERO(acc_rec);
-			acc_rec.AcctId.ac = Data.Val;
-			acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
-			//
-			// Если необходимо, чтобы в качестве подставляемого счета можно было выбрать только
-			// счет, имеющий таблицу статей, совпадающую с той, которой принадлежит эта статья,
-			// то следует использовать конструкцию (1000+P_Pack->Rec.AccSheetID) вместо ACY_SEL_BALOBAL.
-			//
-			acc_rec.AccSelParam = ACY_SEL_BALOBAL;
-			setGroupData(GRP_ACC, &acc_rec);
+			RVALUEPTR(Data, pData);
+			{
+				AcctCtrlGroup::Rec acc_rec;
+				// @v10.7.3 @ctr MEMSZERO(acc_rec);
+				acc_rec.AcctId.ac = Data.Key;
+				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
+				acc_rec.AccSelParam = ACY_SEL_ALIAS;
+				setGroupData(GRP_ALS, &acc_rec);
+			}
+			{
+				AcctCtrlGroup::Rec acc_rec;
+				// @v10.7.3 @ctr MEMSZERO(acc_rec);
+				acc_rec.AcctId.ac = Data.Val;
+				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
+				//
+				// Если необходимо, чтобы в качестве подставляемого счета можно было выбрать только
+				// счет, имеющий таблицу статей, совпадающую с той, которой принадлежит эта статья,
+				// то следует использовать конструкцию (1000+P_Pack->Rec.AccSheetID) вместо ACY_SEL_BALOBAL.
+				//
+				acc_rec.AccSelParam = ACY_SEL_BALOBAL;
+				setGroupData(GRP_ACC, &acc_rec);
+			}
 			return 1;
 		}
-		int    getDTS(LAssoc * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -510,7 +516,6 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 		}
 	private:
 		const PPArticlePacket * P_Pack;
-		LAssoc Data;
 	};
 	DIALOG_PROC_BODY_P1(SubstAliasDialog, pPack, pData);
 }
@@ -529,8 +534,7 @@ public:
 			AcctCtrlGroup::Rec acc_rec;
 			AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ARTICLE_ACC, 0, CTLSEL_ARTICLE_ACCNAME, 0);
 			addGroup(GRP_ASSCACC, p_ac_grp);
-
-			MEMSZERO(acc_rec);
+			// @v10.7.3 @ctr MEMSZERO(acc_rec);
 			acc_rec.AcctId.ac   = P_Data->Rec.ObjID;
 			setGroupData(GRP_ASSCACC, &acc_rec);
 		}
@@ -592,7 +596,6 @@ private:
 	virtual int addItem(long * pos, long * id);
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
-
 	void   SLAPI editObject();
 	void   SLAPI editClientAgreement();
 	void   SLAPI SetEmptyAgreementInd();

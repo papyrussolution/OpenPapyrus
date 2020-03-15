@@ -1,5 +1,6 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -11,9 +12,8 @@
 //static
 DbDictionary * (*DbDictionary::CreateInstanceProc)(const char * pPath, long options) = 0;
 
-DbTableStat::DbTableStat()
+DbTableStat::DbTableStat() : ReqItems(0), RetItems(0), UnsupItem(0), ID(0), OwnerLevel(0), Flags(0), FixRecSize(0), NumRecs(0), FldCount(0), IdxCount(0), PageSize(0)
 {
-	Clear();
 }
 
 void DbTableStat::Clear()
@@ -163,7 +163,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 /*virtual*/ int SLAPI BDictionary::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
-	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable
+	DBFileSpec * p_h = new DBFileSpec; // СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ С„СѓРЅРєС†РёРµР№ Btrieve::CreateTable
 	memzero(p_h, sizeof(*p_h));
 	p_h->PageSize = pTbl->PageSize;
 	p_h->RecSize = pTbl->fields.getRecSize();
@@ -175,7 +175,7 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 			int16  offs = static_cast<int16>(f.Offs + 1);
 			if(GETSTYPE(f.T) == S_DATETIME) {
 				//
-				// Для типа S_DATETIME в btrieve-таблице придется создать два сегмента: S_DATE; S_TIME
+				// Р”Р»СЏ С‚РёРїР° S_DATETIME РІ btrieve-С‚Р°Р±Р»РёС†Рµ РїСЂРёРґРµС‚СЃСЏ СЃРѕР·РґР°С‚СЊ РґРІР° СЃРµРіРјРµРЅС‚Р°: S_DATE; S_TIME
 				//
 				{
 					DBIdxSpec & r_idx = *new DBIdxSpec;
@@ -219,16 +219,16 @@ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFil
 		ok = 0;
 	else {
 		//
-		// В Windows 7 от момента успешного создания файла, до фактического
-		// его появления может проийти некоторое время. По этому, формируем
-		// задержку для ожидания появления созданного файла.
+		// Р’ Windows 7 РѕС‚ РјРѕРјРµРЅС‚Р° СѓСЃРїРµС€РЅРѕРіРѕ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р°, РґРѕ С„Р°РєС‚РёС‡РµСЃРєРѕРіРѕ
+		// РµРіРѕ РїРѕСЏРІР»РµРЅРёСЏ РјРѕР¶РµС‚ РїСЂРѕРёР№С‚Рё РЅРµРєРѕС‚РѕСЂРѕРµ РІСЂРµРјСЏ. РџРѕ СЌС‚РѕРјСѓ, С„РѕСЂРјРёСЂСѓРµРј
+		// Р·Р°РґРµСЂР¶РєСѓ РґР»СЏ РѕР¶РёРґР°РЅРёСЏ РїРѕСЏРІР»РµРЅРёСЏ СЃРѕР·РґР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°.
 		//
 		while(!IsFileExists_(b)) { // @v7.9.9 fileExists-->BDictionary::IsFileExists
 			SDelay(10);
 		}
 		if(createMode < 0 && IS_CRM_TEMP(createMode)) {
 			//
-			// Регистрируем имя временного файла в драйвере БД для последующего удаления //
+			// Р РµРіРёСЃС‚СЂРёСЂСѓРµРј РёРјСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РІ РґСЂР°Р№РІРµСЂРµ Р‘Р” РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ СѓРґР°Р»РµРЅРёСЏ //
 			//
 			AddTempFileName(b);
 		}
@@ -349,7 +349,7 @@ SLAPI BDictionary::~BDictionary()
 	RemoveTempFiles();
 }
 //
-// Процедура создания временной таблицы
+// РџСЂРѕС†РµРґСѓСЂР° СЃРѕР·РґР°РЅРёСЏ РІСЂРµРјРµРЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹
 //
 /*virtual*/ SString & SLAPI BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
 {
@@ -402,7 +402,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					(dest = pParam->P_DestPath).Strip().SetLastSlash();
 					dest.Cat(ts.Location);
 					//
-					// Удаляется файл назначения (если таблица состоит из нескольких файлов, то удаляются все файлы)
+					// РЈРґР°Р»СЏРµС‚СЃСЏ С„Р°Р№Р» РЅР°Р·РЅР°С‡РµРЅРёСЏ (РµСЃР»Рё С‚Р°Р±Р»РёС†Р° СЃРѕСЃС‚РѕРёС‚ РёР· РЅРµСЃРєРѕР»СЊРєРёС… С„Р°Р№Р»РѕРІ, С‚Рѕ СѓРґР°Р»СЏСЋС‚СЃСЏ РІСЃРµ С„Р°Р№Р»С‹)
 					//
 					for(tpe.Init(dest); tpe.Next(spart) > 0;) {
 						if(fileExists(spart)) {
@@ -592,6 +592,10 @@ int SLAPI TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & r
 //
 //
 //
+SLAPI DBTablePartitionList::_InnerEntry::_InnerEntry() : Id(0), Flags(0), P(0)
+{
+}
+
 DBTablePartitionList::DBTablePartitionList()
 	{ Init(0, 0, 0); }
 DBTablePartitionList::DBTablePartitionList(const char * pPath, const char * pFileName, long options)
@@ -608,7 +612,7 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 	if(pPath) {
 		SString temp_buf;
 		SString path;
-		SString name; // Имя файла без расширения //
+		SString name; // РРјСЏ С„Р°Р№Р»Р° Р±РµР· СЂР°СЃС€РёСЂРµРЅРёСЏ //
 		SPathStruc sp_p(pPath);
 		SPathStruc sp_n(pFileName);
 		if(sp_n.Nam.NotEmpty())
@@ -631,7 +635,7 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 				if(!(fb.Attr & 0x10)) {
 					sp_n.Split((temp_buf = path).SetLastSlash().Cat(fb.FileName).Strip());
 					_InnerEntry entry;
-					MEMSZERO(entry);
+					// @v10.7.3 @ctr MEMSZERO(entry);
 					if(sp_n.Ext == "^^^") {
 						assert(GetConEntry(test_entry) == 0);
 						entry.Id = ++counter;
@@ -668,7 +672,7 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 					}
 					else {
 						//
-						// Неизвестный тип файла, хотя и имеет имя, совпадающее с основным именем файла
+						// РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї С„Р°Р№Р»Р°, С…РѕС‚СЏ Рё РёРјРµРµС‚ РёРјСЏ, СЃРѕРІРїР°РґР°СЋС‰РµРµ СЃ РѕСЃРЅРѕРІРЅС‹Рј РёРјРµРЅРµРј С„Р°Р№Р»Р°
 						//
 						entry.Id = ++counter;
 						entry.Flags = 0;

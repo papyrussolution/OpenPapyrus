@@ -3543,25 +3543,101 @@ int FASTCALL PPObjLocation::CheckWarehouseFlags(PPID locID, long f)
 	return p_cache ? p_cache->CheckWarehouseFlags(locID, f) : 0;
 }
 
+//static 
+PPID FASTCALL PPObjLocation::Implement_ObjToWarehouse_Direct(PPID arID, int ignoreRights, PPID * pAcsID)
+{
+	if(arID) { 
+		PPID   acs_id = 0;
+		PPID   lnk_obj_id = 0;
+		const  PPID loc_acs_id = LConfig.LocAccSheetID;
+		if(GetArticleSheetID(arID, &acs_id, &lnk_obj_id) > 0 && acs_id == loc_acs_id) {
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
+			if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_LOCATION) {
+				ASSIGN_PTR(pAcsID, acs_id);
+				const int is_enabled = ignoreRights ? 1 : ObjRts.CheckLocID(lnk_obj_id, 0);
+				return is_enabled ? lnk_obj_id : 0;
+			}
+		}
+	}
+	ASSIGN_PTR(pAcsID, 0);
+	return 0;
+}
+
+//static 
+PPID FASTCALL PPObjLocation::ObjToWarehouse_Direct(PPID arID, PPID * pAcsID) { return Implement_ObjToWarehouse_Direct(arID, 0, pAcsID); }
+//static 
+PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights_Direct(PPID arID, PPID * pAcsID) { return Implement_ObjToWarehouse_Direct(arID, 1, pAcsID); }
+
+//static 
+PPID FASTCALL PPObjLocation::WarehouseToObj_Direct(PPID locID)
+{
+	PPObjArticle ar_obj;
+	const  PPID loc_acs_id = LConfig.LocAccSheetID;
+	PPID   ar_id = 0;
+	return (ar_obj.P_Tbl->LocationToArticle(locID, loc_acs_id, &ar_id) > 0) ? ar_id : 0;
+}
+
 // static
 PPID FASTCALL PPObjLocation::ObjToWarehouse(PPID arID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
-	return p_cache ? p_cache->ObjToWarehouse(arID, 0) : 0;
+	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 0) : 0;
+	// @v10.7.3 {
+	PPID   verif_result = 0;
+	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
+		PPID   acs_id = 0;
+		verif_result = ObjToWarehouse_Direct(arID, &acs_id);
+		if(verif_result != result) {
+			SString msg_buf;
+			msg_buf.Cat("Result of the function").Space().Cat("ObjToWarehouse(PPID)").Space().Cat("isn't relevant");
+			msg_buf.Space().CatChar('[').Cat(arID).Cat("->").Cat(result).CatChar('/').Cat(verif_result).CatChar(']');
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		}
+	}
+	// } @v10.7.3 
+	return result;
 }
 
 // static
 PPID FASTCALL PPObjLocation::ObjToWarehouse_IgnoreRights(PPID arID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
-	return p_cache ? p_cache->ObjToWarehouse(arID, 1) : 0;
+	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 1) : 0;
+	// @v10.7.3 {
+	PPID   verif_result = 0;
+	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
+		PPID   acs_id = 0;
+		verif_result = ObjToWarehouse_IgnoreRights_Direct(arID, &acs_id);
+		if(verif_result != result) {
+			SString msg_buf;
+			msg_buf.Cat("Result of the function").Space().Cat("ObjToWarehouse_IgnoreRights(PPID)").Space().Cat("isn't relevant");
+			msg_buf.Space().CatChar('[').Cat(arID).Cat("->").Cat(result).CatChar('/').Cat(verif_result).CatChar(']');
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		}
+	}
+	// } @v10.7.3 
+	return result;
 }
 
 // static
 PPID FASTCALL PPObjLocation::WarehouseToObj(PPID locID)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
-	return p_cache ? p_cache->WarehouseToObj(locID, 0) : 0;
+	PPID   result = p_cache ? p_cache->WarehouseToObj(locID, 0) : 0;
+	// @v10.7.3 {
+	PPID   verif_result = 0;
+	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
+		verif_result = WarehouseToObj_Direct(locID);
+		if(verif_result != result) {
+			SString msg_buf;
+			msg_buf.Cat("Result of the function").Space().Cat("WarehouseToObj(PPID)").Space().Cat("isn't relevant");
+			msg_buf.Space().CatChar('[').Cat(locID).Cat("->").Cat(result).CatChar('/').Cat(verif_result).CatChar(']');
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+		}
+	}
+	// } @v10.7.3 
+	return result;
 }
 //
 // Implementation of PPALDD_Location

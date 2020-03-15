@@ -4288,7 +4288,7 @@ int SLAPI PPDS_CrrAcctEntry::InitData(Ido op, void * dataPtr, long /*addedParam*
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(AcctID*)dataPtr;
+			Data = *static_cast<const AcctID *>(dataPtr);
 	}
 	else if(op == idoAccept) {
 	}
@@ -4302,12 +4302,12 @@ int SLAPI PPDS_CrrAcctEntry::AcceptListItem(long fldID, PPDeclStruc * pData, Obj
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRACCTENTRY_AR) {
-			ArticleTbl::Rec rec = ((PPDS_CrrArticle *)pData)->Data;
+			ArticleTbl::Rec rec = static_cast<const PPDS_CrrArticle *>(pData)->Data;
 			Data.ar = rec.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRACCTENTRY_ACC) {
-			PPAccountPacket pack = ((PPDS_CrrAccount *)pData)->Data;
+			PPAccountPacket pack = static_cast<const PPDS_CrrAccount *>(pData)->Data;
 			Data.ac = pack.Rec.ID;
 			ok = 1;
 		}
@@ -4411,7 +4411,7 @@ int SLAPI PPDS_CrrAccturnTempl::AcceptListItem(long fldID, PPDeclStruc * pData, 
 	int    ok = -1;
 	if(pData) {
 		if(oneof2(fldID, DSF_CRRACCTURNTEMPL_DBT, DSF_CRRACCTURNTEMPL_CRD)) {
-			AcctID item = ((PPDS_CrrAcctEntry *)pData)->Data;
+			AcctID item = static_cast<const PPDS_CrrAcctEntry *>(pData)->Data;
 			if(fldID == DSF_CRRACCTURNTEMPL_DBT)
 				Data.DbtID = item;
 			else

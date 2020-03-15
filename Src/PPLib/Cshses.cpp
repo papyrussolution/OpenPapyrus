@@ -174,13 +174,47 @@ void SLAPI PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec,
 	pRec->GoodsID   = goodsID;
 }
 
-void SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const char * pSerial /*=0*/)
+//void SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, /*const char * pSerial*/ /*=0*/)
+/*void SLAPI PPAsyncCashSession::SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const PPExtStrContainer * pLnExtStrings)
 {
 	SETIFZ(pRec, &P_TmpCclTbl->data);
 	pRec->Quantity = qtty;
 	pRec->Price = dbltointmny(price);
 	pRec->Dscnt = discount;
 	STRNSCPY(pRec->Serial, pSerial);
+}*/
+
+int SLAPI PPAsyncCashSession::SetTempCcLineValuesAndInsert(TempCCheckLineTbl * pTbl, double qtty, double price, double discount, PPExtStrContainer * pLnExtStrings)
+{
+	int    ok = 1;
+	assert(pTbl);
+	if(pTbl) {
+		TempCCheckLineTbl::Rec * p_rec = &pTbl->data;
+		p_rec->Quantity = qtty;
+		p_rec->Price = dbltointmny(price);
+		p_rec->Dscnt = discount;
+		//STRNSCPY(p_rec->Serial, pSerial);
+		{
+			SBuffer sbuf;
+			size_t tl = 0;
+			if(pLnExtStrings) {
+				SSerializeContext sctx;
+				THROW(pLnExtStrings->SerializeB(+1, sbuf, &sctx));
+				tl = sbuf.GetAvailableSize();
+			}
+			p_rec->ExtTextSize = static_cast<long>(tl);
+			if(tl) {
+				assert(tl); // Ранее мы проверили длину текста на 0
+				THROW(pTbl->writeLobData(pTbl->VT, sbuf.GetBufC(), tl));
+			}
+		}
+		if(!pTbl->insertRec())
+			ok = PPSetErrorDB();
+		pTbl->destroyLobData(pTbl->VT);
+	}
+	CATCHZOK
+	return ok;
+
 }
 
 int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDATETIME * pDT, PPID * pTempReplaceID)
@@ -580,28 +614,43 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 	if(pList && pList->getCount()) {
 		const  int use_ext = BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT);
 		SString wait_msg;
+		SString temp_buf;
 		IterCounter cntr;
 		PPInitIterCounter(cntr, P_TmpCclTbl);
 		PPLoadText(PPTXT_FLASHTEMPCCLINES, wait_msg);
 
+		SBuffer sbuf; // @v10.7.3
+		PPExtStrContainer ext_strings; // @v10.7.3
 		BExtInsert bei(&CC.Lines);
 		TempCCheckLineTbl * t = P_TmpCclTbl;
 		BExtQuery q(t, 2, 64);
 		TempCCheckLineTbl::Key2 k2;
 		TSVector <CCheckLineExtTbl::Rec> ccext_items; // @v10.0.05 TSArray-->TSVector
-		//StrAssocArray ln_text_list;
 		TSCollection <CclExtTextItem> ccln_extt_list;
 
 		MEMSZERO(k2);
-		q.select(t->CheckID, t->DivID, t->GoodsID, t->Quantity, t->Price, t->Dscnt/*t->Discount*/, t->Serial, 0L);
+		// @v10.7.3 q.select(t->CheckID, t->DivID, t->GoodsID, t->Quantity, t->Price, t->Dscnt/*t->Discount*/, t->Serial, 0L);
+		q.selectAll(); // @v10.7.3
 		PPID   last_temp_chk_id = 0;
 		uint   last_chk_pos = 0;
 		for(q.initIteration(0, &k2, spFirst); q.nextIteration() > 0;) {
 			uint   p = 0;
-			const TempCCheckLineTbl::Rec & r_rec = t->data;
+			const  TempCCheckLineTbl::Rec & r_rec = t->data;
 			PPID   temp_chk_id = r_rec.CheckID;
 			CCheckLineExtTbl::Rec ext_rec;
 			// @v10.6.4 MEMSZERO(ext_rec);
+			ext_strings.Z();
+			if(r_rec.ExtTextSize > 0) { // @v10.7.3
+				t->readLobData(t->VT, sbuf);
+				t->destroyLobData(t->VT); 
+				const size_t actual_size = sbuf.GetAvailableSize();
+				if(actual_size == static_cast<size_t>(r_rec.ExtTextSize)) {
+					SSerializeContext sctx;
+					if(!ext_strings.SerializeB(-1, sbuf, &sctx)) {
+						ext_strings.Z();
+					}
+				}
+			}
 			if(last_temp_chk_id && temp_chk_id == last_temp_chk_id)
 				p = last_chk_pos;
 			else if(pList->bsearch(&temp_chk_id, &p, CMPF_LONG)) {
@@ -621,32 +670,28 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 			line_rec.Dscnt    = r_rec.Dscnt;
 			//line_rec.Discount = r_rec.Discount;
 			THROW_DB(bei.insert(&line_rec));
-			// @v10.0.08 {
-			if(sstrlen(r_rec.Serial)) {
-				uint   cclnextt_pos = 0;
+			{
 				CclExtTextItem * p_ccln_extt_item = 0;
-				if(ccln_extt_list.lsearch(&p_item->ChkID, &cclnextt_pos, CMPF_LONG))
-					p_ccln_extt_item = ccln_extt_list.at(cclnextt_pos);
-				else {
-					THROW_SL(p_ccln_extt_item = ccln_extt_list.CreateNewItem());
-					p_ccln_extt_item->CheckID = p_item->ChkID;
+				const int lnextf_list[] = { CCheckPacket::lnextSerial, CCheckPacket::lnextEgaisMark, CCheckPacket::lnextChZnMark, CCheckPacket::lnextRemoteProcessingTa };
+				for(uint lnefidx = 0; lnefidx < SIZEOFARRAY(lnextf_list); lnefidx++) {
+					ext_strings.GetExtStrData(lnextf_list[lnefidx], temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						if(!p_ccln_extt_item) {
+							uint   cclnextt_pos = 0;
+							if(ccln_extt_list.lsearch(&p_item->ChkID, &cclnextt_pos, CMPF_LONG))
+								p_ccln_extt_item = ccln_extt_list.at(cclnextt_pos);
+							else {
+								THROW_SL(p_ccln_extt_item = ccln_extt_list.CreateNewItem());
+								p_ccln_extt_item->CheckID = p_item->ChkID;
+							}
+						}
+						CCheckPacket::Helper_SetLineTextExt(line_rec.RByCheck, lnextf_list[lnefidx], p_ccln_extt_item->LnTextList, temp_buf); 
+					}
 				}
-				CCheckPacket::Helper_SetLineTextExt(line_rec.RByCheck, CCheckPacket::lnextSerial, p_ccln_extt_item->LnTextList, r_rec.Serial); 
 			}
-			// } @v10.0.08
-			/* @v10.0.08
-			if(use_ext && sstrlen(r_rec.Serial)) {
-				STRNSCPY(ext_rec.Serial, r_rec.Serial);
-				ext_rec.CheckID  = line_rec.CheckID;
-				ext_rec.RByCheck = line_rec.RByCheck;
-				THROW(ccext_items.insert(&ext_rec));
-				CALLPTRMEMB(pHasExLineList, AddUnique(ext_rec.CheckID, p_item->Flags|CCHKF_LINEEXT, 0));
-			}
-			*/
 			PPWaitPercent(cntr.Increment(), wait_msg);
 		}
 		THROW_DB(bei.flash());
-		// @v10.0.08 {
 		if(ccln_extt_list.getCount()) {
 			SString ln_exttext_buf;
 			SString line_buf;
@@ -673,7 +718,6 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 				}
 			}
 		}
-		// } @v10.0.08
 		if(ccext_items.getCount() > 0) {
 			uint ext_count = ccext_items.getCount();
 			BExtInsert bei_ext(CC.P_LnExt, 0);

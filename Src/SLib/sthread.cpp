@@ -1,5 +1,5 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -813,6 +813,21 @@ ThreadProcReturn THREADPROCCALL SlThread::_Exec(void * pThis)
 	p_this->Reset();
 	delete p_this;
 	return 0;
+}
+//
+//
+//
+SLAPI SlThread_WithStartupSignal::SlThread_WithStartupSignal(void * pInitData, long stopTimeout /*= SLTHREAD_DEFAULT_STOP_TIMEOUT*/) :
+	SlThread(pInitData, stopTimeout)
+{
+	InitStartupSignal();
+}
+
+//virtual 
+void SlThread_WithStartupSignal::SLAPI Startup()
+{
+	SlThread::Startup();
+	SignalStartup();
 }
 //
 //

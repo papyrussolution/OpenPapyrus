@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -138,7 +138,7 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 }
 */
 
-void SLAPI SVectorBase::shrink()
+int SLAPI SVectorBase::Shrink()
 {
 	// @v9.1.1 const  uint _delta = delta;
 	/* @v9.8.4
@@ -149,6 +149,30 @@ void SLAPI SVectorBase::shrink()
 		data  = (uint8 *)SAlloc::R(data, Limit * isize);
 	}
 	*/
+	// @v10.7.3 {
+	int    ok = -1;
+	if(count == 0) {
+		ZFREE(P_VData);
+		Limit = 0;
+		ok = 1;
+	}
+	else if(fdivui(Limit, count) >= 1.2) {
+		const uint newlimit = ALIGNSIZE(count, 4);
+		if(newlimit < Limit) {
+			void * p_new_ptr = SAlloc::M(newlimit * isize);
+			if(p_new_ptr) {
+				memcpy(p_new_ptr, P_VData, count * isize);
+				SAlloc::F(P_VData);
+				P_VData = static_cast<uint8 *>(p_new_ptr);
+				Limit = newlimit;
+				ok = 1;
+			}
+			else
+				ok = 0;
+		}
+	}
+	return ok;
+	// } @v10.7.3 
 }
 
 void SLAPI SVectorBase::atPut(uint idx, const void * pItem)
@@ -897,7 +921,7 @@ int FASTCALL SVector::atFree(uint idx)
 		count--;
 		if(idx < count)
 			memmove(item, PTR8(item) + isize, (count-idx) * isize);
-		shrink();
+		// @v10.7.3 shrink();
 		return 1;
 	}
 	else
@@ -941,7 +965,7 @@ int SLAPI SVector::freeChunk(uint lowPos, uint uppPos)
 			if(upp_pos < (org_count-1)) {
 				memmove(p_low_item, PTR8(p_low_item) + _fc * isize, (org_count-1-upp_pos) * isize);
 			}
-			shrink();
+			// @v10.7.3 shrink();
 		}
 		ok = 1;
 	}
@@ -1076,7 +1100,7 @@ int FASTCALL SArray::atFree(uint idx)
 		count--;
 		if(idx < count)
 			memmove(item, PTR8(item) + isize, (count-idx) * isize);
-		shrink();
+		// @v10.7.3 shrink();
 		return 1;
 	}
 	else
@@ -1106,7 +1130,7 @@ int SLAPI SArray::freeChunk(uint lowPos, uint uppPos)
 			if(upp_pos < (org_count-1)) {
 				memmove(p_low_item, PTR8(p_low_item) + _fc * isize, (org_count-1-upp_pos) * isize);
 			}
-			shrink();
+			// @v10.7.3 shrink();
 		}
 		ok = 1;
 	}

@@ -1667,24 +1667,24 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 			for(uint i = 0; i < distance; i++) {
 				THROW(lss_rv_x.add(static_cast<double>(i+1)));
 			}
-			THROW(lss_rv_y.dim(distance));
-			/*if(pTrendList) {
-				THROW(pTrendList->add(0.0));
-			}
-			if(pSumSqList) {
-				THROW(pSumSqList->add(0.0));
-			}*/
-			for(uint j = rP.FirstIdx/*+1*/; j < ic; j++) {
+
+			// THROW(lss_rv_y.dim(distance));
+			int gvr = GetRealArray(vec_idx, 0, ic, lss_rv_y);
+			assert(gvr > 0);
+			assert(lss_rv_y.getCount() == ic);
+
+			for(uint j = rP.FirstIdx; j < ic; j++) {
 				double trend;
 				double sumsq;
 				double cov00, cov01, cov11;
 				if(j >= distance) {
 					LssLin lss;
-					int gvr = GetRealArray(vec_idx, j-distance+1, distance, lss_rv_y); // @v10.2.12 @fix (j-distance)-->(j-distance+1)
-					assert(gvr > 0);
+					//int gvr = GetRealArray(vec_idx, j-distance+1, distance, lss_rv_y);
+					//assert(gvr > 0);
 					assert(lss_rv_x.getCount() == distance);
-					assert(lss_rv_y.getCount() == distance);
-					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
+					//assert(lss_rv_y.getCount() == distance);
+					//lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
+					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), &lss_rv_y.at(j-distance+1));
 					trend = lss.B;
 					sumsq = lss.SumSq;
 					cov00 = lss.Cov00;

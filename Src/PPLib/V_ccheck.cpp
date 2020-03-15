@@ -349,6 +349,7 @@ int CCheckFiltCtDialog::ToggleFlag(long itemId)
 }
 
 class CCheckFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(CCheckFilt);
 public:
 	enum {
 		ctlgroupGoodsFilt = 1,
@@ -361,92 +362,10 @@ public:
 		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_CCHECKFLT_GOODS, CTLSEL_GOODSREST_GGRP, cmGoodsFilt)); // @fix CTLSEL_GOODSREST_GGRP-->CTLSEL_CCHECKFLT_GGRP
 		addGroup(ctlgroupSCard,  new SCardCtrlGroup(CTLSEL_CCHECKFLT_SCSER, CTL_CCHECKFLT_SCARD, cmSCardSerList));
 	}
-	int    setDTS(const CCheckFilt *);
-	int    getDTS(CCheckFilt *);
-private:
-	DECL_HANDLE_EVENT
+	DECL_DIALOG_SETDTS()
 	{
-		TDialog::handleEvent(event);
-		if(event.isCbSelected(CTLSEL_CCHECKFLT_GRP)) {
-			SetupCtrls();
-			clearEvent(event);
-		}
-		else if(event.isClusterClk(CTL_CCHECKFLT_FLAGS)) {
-			long preserve_flags = Data.Flags;
-			GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
-			if(Data.Flags & CCheckFilt::fSuspendedOnly && !(preserve_flags & CCheckFilt::fSuspendedOnly))
-				Data.Flags |= CCheckFilt::fShowSuspended;
-			if(!(Data.Flags & CCheckFilt::fShowSuspended) && preserve_flags & CCheckFilt::fShowSuspended)
-				Data.Flags &= ~CCheckFilt::fSuspendedOnly;
-			if(Data.Flags & CCheckFilt::fOrderOnly && !(preserve_flags & CCheckFilt::fOrderOnly))
-				Data.Flags &= ~(CCheckFilt::fDlvrOnly | CCheckFilt::fDlvrOutstandOnly);
-			if(Data.Flags & CCheckFilt::fDlvrOnly && !(preserve_flags & CCheckFilt::fDlvrOnly))
-				Data.Flags &= ~CCheckFilt::fOrderOnly;
-			else if(!(Data.Flags & CCheckFilt::fDlvrOnly) && preserve_flags & CCheckFilt::fDlvrOnly)
-				Data.Flags &= ~CCheckFilt::fDlvrOutstandOnly;
-			if(Data.Flags & CCheckFilt::fDlvrOutstandOnly && !(preserve_flags & CCheckFilt::fDlvrOutstandOnly)) {
-				Data.Flags |= CCheckFilt::fDlvrOnly;
-				Data.Flags &= ~CCheckFilt::fOrderOnly;
-			}
-			if(Data.Flags != preserve_flags)
-				SetClusterData(CTL_CCHECKFLT_FLAGS, Data.Flags);
-			clearEvent(event);
-		}
-		else if(event.isCmd(cmCrosstab))
-			EditCrosstab();
-	}
-	int    EditCrosstab()
-	{
-		Data.Grp = static_cast<CCheckFilt::Grouping>(getCtrlLong(CTLSEL_CCHECKFLT_GRP));
-		DIALOG_PROC_BODYERR(CCheckFiltCtDialog, &Data);
-	}
-	void   SetupCtrls();
-
-	const int HasExt;
-	CCheckFilt Data;
-};
-
-void CCheckFiltDialog::SetupCtrls()
-{
-	CCheckFilt::Grouping  grp = static_cast<CCheckFilt::Grouping>(getCtrlLong(CTLSEL_CCHECKFLT_GRP));
-	if(!oneof3(grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
-		Data.AmountQuant = 0.0;
-		setCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);
-		disableCtrl(CTL_CCHECKFLT_AMTQUANT, 1);
-	}
-	else
-		disableCtrl(CTL_CCHECKFLT_AMTQUANT, 0);
-	disableCtrl(CTLSEL_CCHECKFLT_SUBST, !CCheckFilt::HasGoodsGrouping(grp));
-	if(grp == CCheckFilt::gNone) {
-		SetClusterData(CTL_CCHECKFLT_ORDER, Data.SortOrder = CCheckFilt::ordByDef);
-		disableCtrl(CTL_CCHECKFLT_ORDER, 1);
-	}
-	else {
-		disableCtrl(CTL_CCHECKFLT_ORDER, 0);
-		if(oneof2(grp, CCheckFilt::gQtty, CCheckFilt::gGoods)) {
-			DisableClusterItem(CTL_CCHECKFLT_ORDER, 2, 0);
-		}
-		else {
-			GetClusterData(CTL_CCHECKFLT_ORDER, &Data.SortOrder);
-			if(Data.SortOrder == CCheckFilt::ordByQtty)
-				SetClusterData(CTL_CCHECKFLT_ORDER, Data.SortOrder = CCheckFilt::ordByDef);
-			DisableClusterItem(CTL_CCHECKFLT_ORDER, 2, 1);
-		}
-	}
-	if(!CCheckFilt::HasGoodsGrouping(grp))
-		setCtrlData(CTLSEL_CCHECKFLT_SUBST, 0);
-	enableCommand(cmCrosstab, BIN(oneof2(grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)));
-	if(!oneof2(grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
-		Data.CtKind = CCheckFilt::ctNone;
-		Data.CtValList.Z();
-	}
-}
-
-int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
-{
-	int    ok = -1;
-	if(pFilt) {
-		Data = *pFilt;
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
 		PPEquipConfig eq_cfg;
 		ReadEquipConfig(&eq_cfg);
 		GoodsFiltCtrlGroup::Rec grp_rec(Data.GoodsGrpID, Data.GoodsID);
@@ -519,67 +438,140 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		// } @v10.0.02
 		SetupSubstGoodsCombo(this, CTLSEL_CCHECKFLT_SUBST, Data.Sgg);
 		SetupPersonCombo(this, CTLSEL_CCHECKFLT_CSHR, Data.CashierID, 0, eq_cfg.CshrsPsnKindID, 1); // @v10.1.8
+		SetupPPObjCombo(this, CTLSEL_CCHECKFLT_CRUSER, PPOBJ_USR, Data.CreationUserID, 0, 0); // @v10.7.3
 		SetupCtrls();
 		selectCtrl(CTL_CCHECKFLT_PERIOD);
-		ok = 1;
+		return ok;
 	}
-	return ok;
-}
-
-int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
-{
-	int    ok = 1;
-	GoodsFiltCtrlGroup::Rec grp_rec;
-	GetPeriodInput(this, CTL_CCHECKFLT_PERIOD, &Data.Period);
-	if(HasExt) {
-		SETFLAG(Data.Flags, CCheckFilt::fStartOrderPeriod, getCtrlUInt16(CTL_CCHECKFLT_STARTSRVCP));
-	}
-	else
-		Data.Flags &= ~CCheckFilt::fStartOrderPeriod;
+	DECL_DIALOG_GETDTS()
 	{
-		PosNodeCtrlGroup::Rec cn_rec;
-		getGroupData(ctlgroupPosNode, &cn_rec);
-		Data.NodeList = cn_rec.List;
+		int    ok = 1;
+		GoodsFiltCtrlGroup::Rec grp_rec;
+		GetPeriodInput(this, CTL_CCHECKFLT_PERIOD, &Data.Period);
+		if(HasExt) {
+			SETFLAG(Data.Flags, CCheckFilt::fStartOrderPeriod, getCtrlUInt16(CTL_CCHECKFLT_STARTSRVCP));
+		}
+		else
+			Data.Flags &= ~CCheckFilt::fStartOrderPeriod;
+		{
+			PosNodeCtrlGroup::Rec cn_rec;
+			getGroupData(ctlgroupPosNode, &cn_rec);
+			Data.NodeList = cn_rec.List;
+		}
+		getCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
+		Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
+		GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
+		GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
+		getGroupData(ctlgroupGoodsFilt, &grp_rec);
+		Data.GoodsGrpID = grp_rec.GoodsGrpID;
+		Data.GoodsID = grp_rec.GoodsID;
+		{
+			SCardCtrlGroup::Rec screc;
+			getGroupData(ctlgroupSCard, &screc);
+			Data.ScsList.Set(&screc.SCardSerList);
+			Data.SCardID = screc.SCardID;
+		}
+		getCtrlData(CTLSEL_CCHECKFLT_AGENT, &Data.AgentID);
+		getCtrlData(CTLSEL_CCHECKFLT_CSHR, &Data.CashierID); // @v10.1.8
+		getCtrlData(CTLSEL_CCHECKFLT_CRUSER, &Data.CreationUserID); // @v10.7.3
+		getCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
+		Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
+		if(oneof3(Data.Grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
+			const double min_amt_qtty = (Data.Grp == CCheckFilt::gQtty) ? 0.01 : 0.1;
+			getCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);
+			if(Data.AmountQuant < min_amt_qtty)
+				ok = PPErrorByDialog(this, CTL_CCHECKFLT_AMTQUANT, PPERR_USERINPUT);
+		}
+		else
+			Data.AmountQuant = (Data.Grp == CCheckFilt::gNone) ? 0.0 : -1.0;
+		GetClusterData(CTL_CCHECKFLT_ORDER, &Data.SortOrder);
+		long   temp_long = 0;
+		GetClusterData(CTL_CCHECKFLT_CASHORBANK, &temp_long);
+		Data.Flags &= ~(CCheckFilt::fCashOnly | CCheckFilt::fBankingOnly);
+		if(temp_long == 1)
+			Data.Flags |= CCheckFilt::fCashOnly;
+		else if(temp_long == 2)
+			Data.Flags |= CCheckFilt::fBankingOnly;
+		Data.AltRegF = (int8)GetClusterData(CTL_CCHECKFLT_ALTREG); // @v10.0.02
+		getCtrlData(CTLSEL_CCHECKFLT_SUBST, &Data.Sgg);
+		if(ok)
+			ASSIGN_PTR(pData, Data);
+		return ok;
 	}
-	getCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
-	Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
-	GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
-	GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
-	getGroupData(ctlgroupGoodsFilt, &grp_rec);
-	Data.GoodsGrpID = grp_rec.GoodsGrpID;
-	Data.GoodsID = grp_rec.GoodsID;
+private:
+	DECL_HANDLE_EVENT
 	{
-		SCardCtrlGroup::Rec screc;
-		getGroupData(ctlgroupSCard, &screc);
-		Data.ScsList.Set(&screc.SCardSerList);
-		Data.SCardID = screc.SCardID;
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_CCHECKFLT_GRP)) {
+			SetupCtrls();
+			clearEvent(event);
+		}
+		else if(event.isClusterClk(CTL_CCHECKFLT_FLAGS)) {
+			long preserve_flags = Data.Flags;
+			GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
+			if(Data.Flags & CCheckFilt::fSuspendedOnly && !(preserve_flags & CCheckFilt::fSuspendedOnly))
+				Data.Flags |= CCheckFilt::fShowSuspended;
+			if(!(Data.Flags & CCheckFilt::fShowSuspended) && preserve_flags & CCheckFilt::fShowSuspended)
+				Data.Flags &= ~CCheckFilt::fSuspendedOnly;
+			if(Data.Flags & CCheckFilt::fOrderOnly && !(preserve_flags & CCheckFilt::fOrderOnly))
+				Data.Flags &= ~(CCheckFilt::fDlvrOnly | CCheckFilt::fDlvrOutstandOnly);
+			if(Data.Flags & CCheckFilt::fDlvrOnly && !(preserve_flags & CCheckFilt::fDlvrOnly))
+				Data.Flags &= ~CCheckFilt::fOrderOnly;
+			else if(!(Data.Flags & CCheckFilt::fDlvrOnly) && preserve_flags & CCheckFilt::fDlvrOnly)
+				Data.Flags &= ~CCheckFilt::fDlvrOutstandOnly;
+			if(Data.Flags & CCheckFilt::fDlvrOutstandOnly && !(preserve_flags & CCheckFilt::fDlvrOutstandOnly)) {
+				Data.Flags |= CCheckFilt::fDlvrOnly;
+				Data.Flags &= ~CCheckFilt::fOrderOnly;
+			}
+			if(Data.Flags != preserve_flags)
+				SetClusterData(CTL_CCHECKFLT_FLAGS, Data.Flags);
+			clearEvent(event);
+		}
+		else if(event.isCmd(cmCrosstab))
+			EditCrosstab();
 	}
-	getCtrlData(CTLSEL_CCHECKFLT_AGENT, &Data.AgentID);
-	getCtrlData(CTLSEL_CCHECKFLT_CSHR, &Data.CashierID); // @v10.1.8
-	getCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
-	Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
-	if(oneof3(Data.Grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
-		const double min_amt_qtty = (Data.Grp == CCheckFilt::gQtty) ? 0.01 : 0.1;
-		getCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);
-		if(Data.AmountQuant < min_amt_qtty)
-			ok = PPErrorByDialog(this, CTL_CCHECKFLT_AMTQUANT, PPERR_USERINPUT);
+	int    EditCrosstab()
+	{
+		Data.Grp = static_cast<CCheckFilt::Grouping>(getCtrlLong(CTLSEL_CCHECKFLT_GRP));
+		DIALOG_PROC_BODYERR(CCheckFiltCtDialog, &Data);
 	}
-	else
-		Data.AmountQuant = (Data.Grp == CCheckFilt::gNone) ? 0.0 : -1.0;
-	GetClusterData(CTL_CCHECKFLT_ORDER, &Data.SortOrder);
-	long   temp_long = 0;
-	GetClusterData(CTL_CCHECKFLT_CASHORBANK, &temp_long);
-	Data.Flags &= ~(CCheckFilt::fCashOnly | CCheckFilt::fBankingOnly);
-	if(temp_long == 1)
-		Data.Flags |= CCheckFilt::fCashOnly;
-	else if(temp_long == 2)
-		Data.Flags |= CCheckFilt::fBankingOnly;
-	Data.AltRegF = (int8)GetClusterData(CTL_CCHECKFLT_ALTREG); // @v10.0.02
-	getCtrlData(CTLSEL_CCHECKFLT_SUBST, &Data.Sgg);
-	if(ok)
-		ASSIGN_PTR(pFilt, Data);
-	return ok;
-}
+	void   SetupCtrls()
+	{
+		CCheckFilt::Grouping  grp = static_cast<CCheckFilt::Grouping>(getCtrlLong(CTLSEL_CCHECKFLT_GRP));
+		if(!oneof3(grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
+			Data.AmountQuant = 0.0;
+			setCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);
+			disableCtrl(CTL_CCHECKFLT_AMTQUANT, 1);
+		}
+		else
+			disableCtrl(CTL_CCHECKFLT_AMTQUANT, 0);
+		disableCtrl(CTLSEL_CCHECKFLT_SUBST, !CCheckFilt::HasGoodsGrouping(grp));
+		if(grp == CCheckFilt::gNone) {
+			SetClusterData(CTL_CCHECKFLT_ORDER, Data.SortOrder = CCheckFilt::ordByDef);
+			disableCtrl(CTL_CCHECKFLT_ORDER, 1);
+		}
+		else {
+			disableCtrl(CTL_CCHECKFLT_ORDER, 0);
+			if(oneof2(grp, CCheckFilt::gQtty, CCheckFilt::gGoods)) {
+				DisableClusterItem(CTL_CCHECKFLT_ORDER, 2, 0);
+			}
+			else {
+				GetClusterData(CTL_CCHECKFLT_ORDER, &Data.SortOrder);
+				if(Data.SortOrder == CCheckFilt::ordByQtty)
+					SetClusterData(CTL_CCHECKFLT_ORDER, Data.SortOrder = CCheckFilt::ordByDef);
+				DisableClusterItem(CTL_CCHECKFLT_ORDER, 2, 1);
+			}
+		}
+		if(!CCheckFilt::HasGoodsGrouping(grp))
+			setCtrlData(CTLSEL_CCHECKFLT_SUBST, 0);
+		enableCommand(cmCrosstab, BIN(oneof2(grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)));
+		if(!oneof2(grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
+			Data.CtKind = CCheckFilt::ctNone;
+			Data.CtValList.Z();
+		}
+	}
+	const int HasExt;
+};
 //
 //
 //
@@ -714,6 +706,8 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 			else if(Filt.HasExtFiltering() || (ff_ & CCheckFilt::fCTableStatus)) {
 				if(pRec->Flags & CCHKF_EXT && pExtRec) {
 					if(Filt.AgentID && pExtRec->SalerID != Filt.AgentID)
+						return 0;
+					if(Filt.CreationUserID && pExtRec->CreationUserID != Filt.CreationUserID) // @v10.7.3
 						return 0;
 					else if(Filt.TableCode && pExtRec->TableNo != Filt.TableCode)
 						return 0;
@@ -2451,9 +2445,10 @@ DBQuery * SLAPI PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 					}
 				}
 				if(State & stHasExt) {
-					if(Filt.AgentID || Filt.TableCode || Filt.GuestCount > 0 || Filt.DlvrAddrID || (Filt.Flags & CCheckFilt::fZeroDlvrAddr)) {
+					if(Filt.AgentID || Filt.CreationUserID || Filt.TableCode || Filt.GuestCount > 0 || Filt.DlvrAddrID || (Filt.Flags & CCheckFilt::fZeroDlvrAddr)) {
 						dbq = &(*dbq && p_ext->CheckID == t->ID);
 						dbq = ppcheckfiltid(dbq, p_ext->SalerID, Filt.AgentID);
+						dbq = ppcheckfiltid(dbq, p_ext->CreationUserID, Filt.CreationUserID); // @v10.7.3
 						dbq = ppcheckfiltid(dbq, p_ext->TableNo, Filt.TableCode);
 						dbq = ppcheckfiltid(dbq, p_ext->GuestCount, Filt.GuestCount);
 						if(Filt.Flags & CCheckFilt::fZeroDlvrAddr) {
@@ -4426,9 +4421,9 @@ int PPALDD_CCheckViewDetail::NextIteration(long iterId)
     I.CcAmount = MONEYTOLDBL(item.Amount);
     I.CcDiscount = MONEYTOLDBL(item.Discount);
 
-	I.GoodsID = item.G_GoodsID;
-    I.RByCheck = (int16)item.RByCheck;
-    I.LineQueue = (int16)item.LineQueue;
+	I.GoodsID   = item.G_GoodsID;
+    I.RByCheck  = static_cast<int16>(item.RByCheck);
+    I.LineQueue = static_cast<int16>(item.LineQueue);
 	I.lfPrinted       = BIN(item.LineFlags & cifIsPrinted);
 	I.lfGift          = BIN(item.LineFlags & cifGift);
 	I.lfUsedByGift    = BIN(item.LineFlags & cifUsedByGift);

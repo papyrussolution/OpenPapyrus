@@ -3141,6 +3141,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				else
 					r_cc.Flags2 &= ~CCFLG2_DEVELOPMENT;
 				// } @v10.5.9
+				// @v10.7.3 {
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_VERIFYARTOLOCMETHODS, &(iv = 0)) > 0 && iv == 1)
+					r_cc.Flags2 |= CCFLG2_VERIFYARTOLOCMETHS;
+				else
+					r_cc.Flags2 &= ~CCFLG2_VERIFYARTOLOCMETHS;
+				// } @v10.7.3
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);

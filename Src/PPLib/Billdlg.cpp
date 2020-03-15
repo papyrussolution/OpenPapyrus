@@ -219,14 +219,15 @@ IMPL_HANDLE_EVENT(AccTurnDialog)
 int SLAPI EditRentCondition(PPRentCondition * pRc)
 {
 	class RentConditionDlg : public TDialog {
+		DECL_DIALOG_DATA(PPRentCondition);
 	public:
 		RentConditionDlg() : TDialog(DLG_RENT)
 		{
 			SetupCalPeriod(CTLCAL_RENT_FROMTO, CTL_RENT_FROMTO);
 		}
-		int setDTS(const PPRentCondition * pRentCond)
+		DECL_DIALOG_SETDTS()
 		{
-			RVALUEPTR(Data, pRentCond);
+			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_RENT_FROMTO, &Data.Period);
 			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle);
 			ushort v = BIN(Data.Flags & RENTF_PERCENT);
@@ -238,7 +239,7 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 			setCtrlData(CTL_RENT_ACMDATE, &Data.ChargeDayOffs);
 			return 1;
 		}
-		int getDTS(PPRentCondition * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -268,7 +269,6 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 				clearEvent(event);
 			}
 		}
-		PPRentCondition Data;
 	};
 	DIALOG_PROC_BODY(RentConditionDlg, pRc);
 }

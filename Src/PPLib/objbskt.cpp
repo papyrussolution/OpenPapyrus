@@ -168,7 +168,7 @@ int SLAPI PPBasketPacket::DelItem(long pos)
 
 int SLAPI PPBasketPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
 {
-	PPID   goods_id = labs(goodsID);
+	const PPID goods_id = labs(goodsID);
 	return Lots.lsearch(&goods_id, pPos, CMPF_LONG, offsetof(ILTI, GoodsID));
 }
 //
@@ -299,7 +299,7 @@ int SLAPI PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long opti
 				item.Price       = gbi.Price;
 				item.UnitPerPack = gbi.UnitPerPack;
 				item.Expiry      = gbi.Expiry;
-				item.BillID      = (PPID)gbi.Num;
+				item.BillID      = static_cast<PPID>(gbi.Num);
 				THROW_SL(pData->Lots.insert(&item));
 			}
 			PROFILE_END
@@ -307,7 +307,7 @@ int SLAPI PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long opti
 		else {
 			PROFILE_START
 			PPID   scnd_id = -MAXLONG;
-			while(ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, (ObjAssocTbl::Rec *)&gbi) > 0) {
+			while(ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi)) > 0) {
 				ILTI   item;
 				item.GoodsID     = gbi.ItemGoodsID;
 				item.Flags       = gbi.Flags;
@@ -316,7 +316,7 @@ int SLAPI PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long opti
 				item.Price       = gbi.Price;
 				item.UnitPerPack = gbi.UnitPerPack;
 				item.Expiry      = gbi.Expiry;
-				item.BillID      = (PPID)gbi.Num;
+				item.BillID      = static_cast<PPID>(gbi.Num);
 				THROW_SL(pData->Lots.insert(&item));
 			}
 			PROFILE_END
@@ -338,7 +338,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 	int    skip_items = 0;
 	long   action = 0;
 	uint   i;
-	SArray items(sizeof(ObjAssocTbl::Rec));
+	SVector items(sizeof(ObjAssocTbl::Rec)); // @v10.7.3 SArray-->SVector
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -408,7 +408,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 			else {
 				long   last_num = 0;
 				PPGoodsBasketItem gbi;
-				SArray prev_items(sizeof(ObjAssocTbl::Rec));
+				SVector prev_items(sizeof(ObjAssocTbl::Rec)); // @v10.7.3 SArray-->SVector
 				LongArray found_pos_list;
 				for(SEnum en = ref->Assc.Enum(PPASS_GOODSBASKET, *pID, 0); en.Next(&gbi) > 0;) {
 					THROW_SL(prev_items.insert(&gbi));
@@ -416,9 +416,9 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 				}
 				for(i = 0; i < prev_items.getCount(); i++) {
 					uint pos = 0;
-					gbi = *(PPGoodsBasketItem *)prev_items.at(i);
+					gbi = *static_cast<const PPGoodsBasketItem *>(prev_items.at(i));
 					if(items.lsearch(&gbi.ItemGoodsID, &pos, PTR_CMPFUNC(long), offsetof(PPGoodsBasketItem, ItemGoodsID))) {
-						PPGoodsBasketItem * p_list_item = (PPGoodsBasketItem *)items.at(pos);
+						const PPGoodsBasketItem * p_list_item = static_cast<const PPGoodsBasketItem *>(items.at(pos));
 						found_pos_list.add(static_cast<long>(pos));
 						if(p_list_item->Flags != gbi.Flags || p_list_item->Quantity != gbi.Quantity ||
 							p_list_item->Price != gbi.Price || p_list_item->UnitPerPack != gbi.UnitPerPack ||
@@ -428,7 +428,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 							gbi.Price = p_list_item->Price;
 							gbi.UnitPerPack = p_list_item->UnitPerPack;
 							gbi.Expiry = p_list_item->Expiry;
-							THROW(ref->Assc.Update(gbi.Id, (ObjAssocTbl::Rec *)&gbi, 0));
+							THROW(ref->Assc.Update(gbi.Id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi), 0));
 							ok = 1;
 						}
 					}
@@ -443,7 +443,7 @@ int SLAPI PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int us
 					BExtInsert bei(&ref->Assc);
 					for(i = 0; i < items.getCount(); i++) {
 						if(!found_pos_list.lsearch((long)i)) {
-							PPGoodsBasketItem * p_list_item = (PPGoodsBasketItem *)items.at(i);
+							PPGoodsBasketItem * p_list_item = static_cast<PPGoodsBasketItem *>(items.at(i));
 							p_list_item->Tag = PPASS_GOODSBASKET;
 							p_list_item->BasketID = *pID;
 							p_list_item->Num = ++last_num;
@@ -1265,7 +1265,7 @@ public:
 		TDialog(DLG_GBITEM), R_Cart(rCart), DefLocID(NZOR(defLocID, LConfig.Location)), Flags(flags)
 	{
 		//EnableChangeBasket = enableChgBasket;
-		MEMSZERO(Item);
+		// @v10.7.3 @ctr MEMSZERO(Item);
 		SetupCalDate(CTLCAL_GBITEM_EXPIRY, CTL_GBITEM_EXPIRY);
 	}
 	int    setDTS(const ILTI * pItem);

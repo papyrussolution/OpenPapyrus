@@ -17,13 +17,15 @@ public:
 	virtual int SLAPI ImportSession(int);
 	virtual int SLAPI FinishImportSession(PPIDArray *);
 	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
+	virtual int SLAPI InteractiveQuery();
 protected:
 	PPID   StatID;
 private:
 	struct CashierEntry {
-		CashierEntry()
+		CashierEntry() : TabNumber(0)
 		{
-			THISZERO();
+			PTR32(Name)[0] = 0;
+			PTR32(INN)[0] = 0;
 		}
 		long   TabNumber;
 		char   Name[128];
@@ -67,9 +69,7 @@ private:
 	int    SkipExportingDiscountSchemes;
 	int    ImpExpTimeout;
 	int    ImportDelay;
-	
 	PPObjGoods GObj;
-
 	StringSet ImpPaths;
 	StringSet ExpPaths;
 	PPAsyncCashNode Acn;
@@ -582,7 +582,7 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 			qbuf.CatChar('&').CatEq("devices", enc_buf.EncodeUrl(temp_buf, 1));
 		}
 		*/
-		qbuf.CatChar('&').CatEq("is_closed", "true");
+		//qbuf.CatChar('&').CatEq("is_closed", "true");
 		qbuf.CatChar('&').CatEq("limit", max_chunk_count).CatChar('&').CatEq("offset", query_offs);
 		url.SetComponent(InetUrl::cQuery, qbuf);
 		f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(qbuf).CR());
@@ -607,13 +607,15 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 									SessEntry sess_entry;
 									if(ParseSess(p_cur->P_Child, sess_entry)) {
 										Scb.SessList.insert(&sess_entry);
-										if(!!sess_entry.OpenedTime) {
-											if(!Scb.PeriodToCheckQuery.Start || cmp(Scb.PeriodToCheckQuery.Start, sess_entry.OpenedTime) > 0)
-												Scb.PeriodToCheckQuery.Start = sess_entry.OpenedTime;
+										LDATETIME open_dtm = sess_entry.ClosedTime; // @v10.7.3
+										LDATETIME close_dtm = sess_entry.OpenedTime; // @v10.7.3
+										if(!!open_dtm) {
+											if(!Scb.PeriodToCheckQuery.Start || cmp(Scb.PeriodToCheckQuery.Start, open_dtm) > 0)
+												Scb.PeriodToCheckQuery.Start = open_dtm;
 										}
-										if(!!sess_entry.ClosedTime) {
-											if(!Scb.PeriodToCheckQuery.Finish || cmp(Scb.PeriodToCheckQuery.Finish, sess_entry.ClosedTime) < 0)
-												Scb.PeriodToCheckQuery.Finish = sess_entry.ClosedTime;
+										if(!!close_dtm) {
+											if(!Scb.PeriodToCheckQuery.Finish || cmp(Scb.PeriodToCheckQuery.Finish, close_dtm) < 0)
+												Scb.PeriodToCheckQuery.Finish = close_dtm;
 										}
 										ok = 1;
 									}
@@ -718,6 +720,12 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	}
 	if(Scb.SessList.lsearch(&sess_n, 0, CMPF_LONG, offsetof(SessEntry, N))) {
 		int    ccr = 0;
+		// @v10.7.3 {
+		if(cc_flags & CCHKF_RETURN) {
+			cc_amount = -cc_amount;
+			cc_discount = -cc_discount;
+		}
+		// } @v10.7.3 
 		THROW(ccr = AddTempCheck(&cc_id, sess_n, cc_flags, device_id, cc_number, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
 		if(ccr > 0) {
 			assert(cc_id);
@@ -781,9 +789,11 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 							; // @todo message
 						}
 						//rCcPack.InsertItem(goods_id, qtty, price, discount, depart_no, 0);
+						qtty = (cc_flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty); // @v10.7.3
 						SetupTempCcLineRec(0, cc_id, cc_number, cc_dtm.d, 0/*div_n*/, goods_id);
-						SetTempCcLineValues(0, qtty, price, dscnt, 0);
-						THROW_DB(P_TmpCclTbl->insertRec());
+						// @v10.7.3 SetTempCcLineValues(0, qtty, price, dscnt, 0/*pLnExtStrings*/);
+						// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+						THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, dscnt, 0/*pLnExtStrings*/)); // @v10.7.3
 					}
 				}
 			}
@@ -808,6 +818,10 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 								}
 							}
 						}
+						// @v10.7.3 {
+						if(cc_flags & CCHKF_RETURN)
+							paym_amt = -paym_amt;
+						// } @v10.7.3 
 						THROW(AddTempCheckPaym(cc_id, paym_type, paym_amt, paym_sc_id));
 					}
 				}
@@ -816,6 +830,22 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+//virtual 
+int SLAPI ACS_DREAMKAS::InteractiveQuery()
+{
+	int    ok = -1;
+	/*
+	TSVector <PPPosProtocol::QueryBlock> qb_list;
+	if(PPPosProtocol::EditPosQuery(qb_list) > 0) {
+		for(uint i = 0; i < qb_list.getCount(); i++) {
+			THROW(Pp.SendQuery(NodeID, qb_list.at(i)));
+		}
+	}
+	CATCHZOKPPERR
+	*/
 	return ok;
 }
 
@@ -834,7 +864,7 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 	const  long max_chunk_count = 1000;
 	long   query_offs = 0;
 	long   ret_count = 0;
-	if(sessIdx < (int)Scb.SessList.getCount() && sessIdx == 0) {
+	if(sessIdx < Scb.SessList.getCountI() && sessIdx == 0) {
 		PPGetFilePath(PPPATH_LOG, P_Dk_DebugFileName, temp_buf);
 		SFile f_out_test(temp_buf, SFile::mAppend);
 		THROW(CreateTables());

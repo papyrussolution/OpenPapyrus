@@ -1,5 +1,5 @@
 // ECR930.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2015, 2016, 2019, 2020
 // @codepage windows-1251
 // Интерфейс (асинхронный) с ККМ ЭКР-4110
 //
@@ -75,9 +75,10 @@ int SLAPI ACS_ECR930::FlashCheck(CCheckTbl::Rec * chk, SArray * rows)
 		if(r > 0) {
 			for(i = 0; rows->enumItems(&i, (void **)&e);) {
 				SetupTempCcLineRec(0, id, chk->Code, dm.d, e->div, e->goods);
-				SetTempCcLineValues(0, e->qtty, e->price, e->dscnt);
+				// @v10.7.3 SetTempCcLineValues(0, e->qtty, e->price, e->dscnt, 0/*pLnExtStrings*/);
 				STRNSCPY(P_TmpCclTbl->data.BarCode, e->barcode);
-				THROW_DB(P_TmpCclTbl->insertRec());
+				// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+				THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, e->qtty, e->price, e->dscnt, 0/*pLnExtStrings*/)); // @v10.7.3
 			}
 		}
 	}

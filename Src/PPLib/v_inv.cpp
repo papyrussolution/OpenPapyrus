@@ -37,7 +37,7 @@ int SLAPI InventoryFilt::Setup(PPID billID)
 	return 1;
 }
 
-SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0), 
+SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0),
 	P_TempSubstTbl(0), P_GgIter(0), P_GIter(0), Flags(0), CommonLocID(0), CommonDate(ZERODATE), LastSurrID(0), P_OuterPack(0)
 {
 }
@@ -602,7 +602,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 										if(!(inv_rec.Flags & INVENTF_SURPLUS) && !(inv_rec.Flags & INVENTF_LACK))
 											do_skip = 1;
 									}
-								}								
+								}
 								// } @erik
 								if(!do_skip) {
 									ExtraEntry new_entry;
@@ -1005,7 +1005,7 @@ int QuantityCtrlGroup::getData(TDialog * pDlg, void * pData)
 class InventoryItemDialog : public TDialog {
 	DECL_DIALOG_DATA(InventoryTbl::Rec);
 public:
-	InventoryItemDialog(PPObjBill * pBObj, const PPBillPacket * pPack, const PPInventoryOpEx * pInvOpEx, int existsGoodsOnly) : 
+	InventoryItemDialog(PPObjBill * pBObj, const PPBillPacket * pPack, const PPInventoryOpEx * pInvOpEx, int existsGoodsOnly) :
 		TDialog(DLG_INVITEM), P_BObj(pBObj), P_Pack(pPack), StockRest(0.0), StockPrice(0.0), St(0), Packs(0.0), Price(0.0)
 	{
 		InvOpEx = *pInvOpEx;
@@ -1989,7 +1989,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 						ok = 1;
 					}
 				}
-				// } @v10.5.8 
+				// } @v10.5.8
 			}
 		}
 	}
@@ -2112,7 +2112,7 @@ DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSu
 				dbe_wroff.push(it->DiffQtty);
 				dbe_wroff.push(static_cast<DBFunc>(PPViewInventory::DynFuncInvLnWrOff));
 				dbq = &(*dbq && dbe_wroff == 1L);
-				// } @v10.5.9 
+				// } @v10.5.9
 			}
 			if(Filt.Flags & (InventoryFilt::fLack|InventoryFilt::fSurplus))
 				if(Filt.Flags & InventoryFilt::fLack && Filt.Flags & InventoryFilt::fSurplus)
@@ -2206,6 +2206,7 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 	I.LineNo        = item.OprNo;
 	I.WritedOff     = BIN(item.Flags & INVENTF_WRITEDOFF);
 	I.ItemID        = item.GoodsID;
+	I.ItemFlags     = item.Flags; // @v10.7.3
 	I.AutoLine      = (item.Flags & INVENTF_AUTOLINE) ? ((item.Flags & INVENTF_GENAUTOLINE) ? 1 : 2) : 0;
 	I.UnitPerPack   = item.UnitPerPack;
 	I.Quantity      = item.Quantity;

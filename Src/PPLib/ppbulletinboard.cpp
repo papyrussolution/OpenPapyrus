@@ -1260,14 +1260,15 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 		*/
 		/* @v10.4.2 (если !there_is_enough_margin, то в блоке rPse будет установлен флаг rLackOfMargin) if(there_is_enough_margin)*/ 
 		{
-			PPObjTimeSeries::StrategyContainer::SelectBlock scsb(r_blk.TrendList, &r_blk.StratIndex);
+			PPObjTimeSeries::StrategyContainer::SelectBlock scsb(r_blk.TrendList, r_blk.StratIndex);
 			scsb.LastTrendIdx = -1;
 			scsb.ChaosFactor = 0;
 			scsb.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
 			scsb.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
 			scsb.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel; // @v10.7.2
 			scsb.P_Ts = &r_blk.T_; // @v10.7.1
-			scsb.Criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+			// @v10.7.3 scsb.Criterion = PPObjTimeSeries::StrategyContainer::selcritWinRatio | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous;
+			scsb.Criterion = PPObjTimeSeries::StrategyContainer::selcritResult | PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous; // @v10.7.3
 			if(!(r_blk.Flags & r_blk.fShort))
 				scsb.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 			if(!(r_blk.Flags & r_blk.fLong))
@@ -1293,7 +1294,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 				// при наличии реверсивного алгоритма, сходного по потенциальному результату.
 				// Пока только вывод в журнал.
 				//
-				PPObjTimeSeries::StrategyContainer::SelectBlock scsb_reverse(r_blk.TrendList, &r_blk.StratIndex);
+				PPObjTimeSeries::StrategyContainer::SelectBlock scsb_reverse(r_blk.TrendList, r_blk.StratIndex);
 				scsb_reverse.Criterion = scsb.Criterion & ~(PPObjTimeSeries::StrategyContainer::selcritfSkipAmbiguous|PPObjTimeSeries::StrategyContainer::selcritfWeightAmbiguous);
 				if(is_sell) {
 					scsb_reverse.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
@@ -1535,10 +1536,9 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 						trend_err_buf.CatChar(']');
 					}
 				}
-				if(log_msg.NotEmpty())
-					log_msg.CR();
-				log_msg.Cat(trend_err_buf);
-				PPLogMessage(log_file_name, log_msg, 0);
+				if(trend_err_buf.NotEmpty()) {
+					PPLogMessage(log_file_name, trend_err_buf, 0);
+				}
 			}
 			// } @v10.6.8 
 			if(abs(cur_diff_sec) <= max_diff_sec) { // @v10.6.8 cur_diff_sec-->abs(cur_diff_sec)

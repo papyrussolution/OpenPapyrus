@@ -1,6 +1,6 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -33,7 +33,7 @@ int SLAPI AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccShee
 		ok = 1;
 	}
 	else {
-		CALLPTRMEMB(pAcctId, Clear());
+		CALLPTRMEMB(pAcctId, Z());
 	}
 	ASSIGN_PTR(pAccSheetID, acc_sheet_id);
 	return ok;
@@ -100,7 +100,7 @@ int SLAPI AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcc
 {
 	int    ok = 1;
 	PPID   sheet_id = 0;
-	pAcctId->Clear();
+	pAcctId->Z();
 	PPAccount acc_rec;
 	THROW(ok = AccObj.FetchNum(pAcct->ac, pAcct->sb, curID, &acc_rec));
 	if(ok > 0) {
@@ -220,7 +220,7 @@ int SLAPI AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * 
 	PPAccount acc_rec;
 	if(AccObj.Search(accID, &acc_rec) > 0) {
 		//
-		// Рекурсия по субсчетам
+		// Р РµРєСѓСЂСЃРёСЏ РїРѕ СЃСѓР±СЃС‡РµС‚Р°Рј
 		//
 		if(flags & BALRESTF_ACO1GROUPING) {
 			PPIDArray acc_list;
@@ -243,13 +243,13 @@ int SLAPI AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * 
 			}
 		}
 		//
-		// Неразвернутое сальдо
+		// РќРµСЂР°Р·РІРµСЂРЅСѓС‚РѕРµ СЃР°Р»СЊРґРѕ
 		//
 		else if(!(flags & BALRESTF_SPREAD)) {
 			ok = BalTurn.GetRest(accID, dt, &dbt, &crd);
 		}
 		//
-		// Развернутое сальдо
+		// Р Р°Р·РІРµСЂРЅСѓС‚РѕРµ СЃР°Р»СЊРґРѕ
 		//
 		else if(acc_rec.Kind == ACT_AP && acc_rec.AccSheetID) {
 			AcctRelTbl::Key1 k;
@@ -305,7 +305,7 @@ int SLAPI AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAtu
 		THROW(AccRel.Search(acc_id, &acr_rec) > 0);
 	}
 	cur_id = acr_rec.CurID;
-	(*(AcctID*)&pAturn->DbtID.ac) = (*(AcctID*)&acr_rec.AccID);
+	*reinterpret_cast<AcctID *>(&pAturn->DbtID.ac) = *reinterpret_cast<const AcctID *>(&acr_rec.AccID);
 	acc_id = reverse ? pRec->Acc : pRec->CorrAcc;
 	if(acc_id) {
 		if(useCache) {
@@ -314,7 +314,7 @@ int SLAPI AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAtu
 		else {
 			THROW(AccRel.Search(acc_id, &acr_rec) > 0);
 		}
-		(*(AcctID*)&pAturn->CrdID.ac) = (*(AcctID*)&acr_rec.AccID);
+		*reinterpret_cast<AcctID *>(&pAturn->CrdID.ac) = *reinterpret_cast<const AcctID *>(&acr_rec.AccID);
 	}
 	pAturn->Flags = 0;
 	if(useCache) {
@@ -393,13 +393,13 @@ int SLAPI AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct
 }
 //
 // @unused
-// Функция NormalyzeAcc приводит счет pAccID к нормальному виду.
-// То есть, заменяет *pAccID на счет в базовой валюте. Параметр
-// aco определяет о счете какого порядка идет речь. Если aco == ACO_3
-// то предполагается, что *pAccID -> AcctRel.ID, в противном случае
+// Р¤СѓРЅРєС†РёСЏ NormalyzeAcc РїСЂРёРІРѕРґРёС‚ СЃС‡РµС‚ pAccID Рє РЅРѕСЂРјР°Р»СЊРЅРѕРјСѓ РІРёРґСѓ.
+// РўРѕ РµСЃС‚СЊ, Р·Р°РјРµРЅСЏРµС‚ *pAccID РЅР° СЃС‡РµС‚ РІ Р±Р°Р·РѕРІРѕР№ РІР°Р»СЋС‚Рµ. РџР°СЂР°РјРµС‚СЂ
+// aco РѕРїСЂРµРґРµР»СЏРµС‚ Рѕ СЃС‡РµС‚Рµ РєР°РєРѕРіРѕ РїРѕСЂСЏРґРєР° РёРґРµС‚ СЂРµС‡СЊ. Р•СЃР»Рё aco == ACO_3
+// С‚Рѕ РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ, С‡С‚Рѕ *pAccID -> AcctRel.ID, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
 // *pAccID -> Account.ID.
-// По указателю pCurID присваивается ид валюты, к которой относилс
-// счет *pAccID до нормализации.
+// РџРѕ СѓРєР°Р·Р°С‚РµР»СЋ pCurID РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ РёРґ РІР°Р»СЋС‚С‹, Рє РєРѕС‚РѕСЂРѕР№ РѕС‚РЅРѕСЃРёР»СЃ
+// СЃС‡РµС‚ *pAccID РґРѕ РЅРѕСЂРјР°Р»РёР·Р°С†РёРё.
 //
 int SLAPI AccTurnCore::NormalyzeAcc(int aco, PPID * pAccID, PPID * pCurID)
 {
@@ -601,7 +601,7 @@ int SLAPI AccTurnCore::IsFRRLocked()
 	return BIN(Frrl && Frrl->Counter > 0);
 }
 //
-// @v6.2.3 Заменено чтение записей с блокировками на SearchByID_ForUpdate
+// @v6.2.3 Р—Р°РјРµРЅРµРЅРѕ С‡С‚РµРЅРёРµ Р·Р°РїРёСЃРµР№ СЃ Р±Р»РѕРєРёСЂРѕРІРєР°РјРё РЅР° SearchByID_ForUpdate
 //
 int SLAPI AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
 {
@@ -754,10 +754,10 @@ int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, const
 		k1.Dt    = date;
 		k1.OprNo = oprno;
 		//
-		// Ради ускорения проводок первую запись берем по условию 'больше',
-		// а все остальные - одну за другой. При этом изменяем записи без
-		// сохранения текущей позиции поскольку поле Rest не входит ни в один
-		// индекс.
+		// Р Р°РґРё СѓСЃРєРѕСЂРµРЅРёСЏ РїСЂРѕРІРѕРґРѕРє РїРµСЂРІСѓСЋ Р·Р°РїРёСЃСЊ Р±РµСЂРµРј РїРѕ СѓСЃР»РѕРІРёСЋ 'Р±РѕР»СЊС€Рµ',
+		// Р° РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ - РѕРґРЅСѓ Р·Р° РґСЂСѓРіРѕР№. РџСЂРё СЌС‚РѕРј РёР·РјРµРЅСЏРµРј Р·Р°РїРёСЃРё Р±РµР·
+		// СЃРѕС…СЂР°РЅРµРЅРёСЏ С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РїРѕСЃРєРѕР»СЊРєСѓ РїРѕР»Рµ Rest РЅРµ РІС…РѕРґРёС‚ РЅРё РІ РѕРґРёРЅ
+		// РёРЅРґРµРєСЃ.
 		//
 		while(search(1, &k1, sp) && k1.Acc == accRel) { 
 			DBRowId _dbpos;
@@ -777,10 +777,10 @@ int SLAPI AccTurnCore::_UpdateForward(LDATE date, long oprno, PPID accRel, const
 	return ok;
 }
 //
-// Дата проверена, accRel, corrAccRel - ид-ры существующих записей,
-// param содержит корректно установленные значени
+// Р”Р°С‚Р° РїСЂРѕРІРµСЂРµРЅР°, accRel, corrAccRel - РёРґ-СЂС‹ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… Р·Р°РїРёСЃРµР№,
+// param СЃРѕРґРµСЂР¶РёС‚ РєРѕСЂСЂРµРєС‚РЅРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рµ Р·РЅР°С‡РµРЅРё
 //
-// Заносит проводку в AccTurnCore и модифицирует AcctRel без транзакции
+// Р—Р°РЅРѕСЃРёС‚ РїСЂРѕРІРѕРґРєСѓ РІ AccTurnCore Рё РјРѕРґРёС„РёС†РёСЂСѓРµС‚ AcctRel Р±РµР· С‚СЂР°РЅР·Р°РєС†РёРё
 //
 int SLAPI AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, const AccTurnParam & rParam)
 {
@@ -895,14 +895,14 @@ int SLAPI AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec,
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		//
-		// Проверяем существование счета
+		// РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃС‡РµС‚Р°
 		//
 		THROW(AccObj.Search(accID, &acc_rec) > 0);
 		THROW(ValidateAccKind(kind = acc_rec.Kind));
 		acct.ac = acc_rec.A.Ac;
 		acct.sb = acc_rec.A.Sb;
 		//
-		// Проверяем существование статьи
+		// РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃС‚Р°С‚СЊРё
 		//
 		if(arID) {
 			THROW(Art.Search(arID, &ar_rec) > 0);
@@ -924,7 +924,7 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId
 	Acct   acct;
 	PPAccount acc_rec;
 	//
-	// Проверяем существование счета
+	// РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃС‡РµС‚Р°
 	//
 	THROW(AccObj.Search(rAcctId.ac, &acc_rec) > 0);
 	THROW_PP(acc_rec.CurID == curID, PPERR_INCOMPACCWITHCUR);
@@ -934,7 +934,7 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId
 	p->Low  = acc_rec.Overdraft;
 	p->Upp  = acc_rec.Limit;
 	//
-	// Проверяем существование статьи
+	// РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃС‚Р°С‚СЊРё
 	//
 	if(rAcctId.ar) {
 		THROW(Art.Search(rAcctId.ar) > 0);
@@ -944,8 +944,8 @@ int SLAPI AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId
 		acct.ar = 0;
 	SetupAccTurnParam(p, side, kind);
 	//
-	// Ищем ссылку на соответствие {счет, статья} в AcctRel
-	// и если ссылки нет, то открываем новую
+	// РС‰РµРј СЃСЃС‹Р»РєСѓ РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ {СЃС‡РµС‚, СЃС‚Р°С‚СЊСЏ} РІ AcctRel
+	// Рё РµСЃР»Рё СЃСЃС‹Р»РєРё РЅРµС‚, С‚Рѕ РѕС‚РєСЂС‹РІР°РµРј РЅРѕРІСѓСЋ
 	//
 	THROW(r = AcctIDToRel(&rAcctId, pAccRelID));
 	if(r > 0) {
@@ -970,15 +970,15 @@ int SLAPI AccTurnCore::SetupAccTurnParam(AccTurnParam * p, int side, int kind)
 {
 	double overdraft = p->Low, limit = p->Upp;
 	//
-	// Уточняем знак суммы и предельные остатки
+	// РЈС‚РѕС‡РЅСЏРµРј Р·РЅР°Рє СЃСѓРјРјС‹ Рё РїСЂРµРґРµР»СЊРЅС‹Рµ РѕСЃС‚Р°С‚РєРё
 	//
 	p->Side = side;
 	if(side == PPCREDIT)
 		p->Amt = -p->Amt;
 	//
-	// Теперь сумму p->amt можно смело прибавлять к оборотам
-	// и остаткам. Однако, номинальная сумма проводки должна быть
-	// приведена к своему изначальному виду такой же операцией :
+	// РўРµРїРµСЂСЊ СЃСѓРјРјСѓ p->amt РјРѕР¶РЅРѕ СЃРјРµР»Рѕ РїСЂРёР±Р°РІР»СЏС‚СЊ Рє РѕР±РѕСЂРѕС‚Р°Рј
+	// Рё РѕСЃС‚Р°С‚РєР°Рј. РћРґРЅР°РєРѕ, РЅРѕРјРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° РїСЂРѕРІРѕРґРєРё РґРѕР»Р¶РЅР° Р±С‹С‚СЊ
+	// РїСЂРёРІРµРґРµРЅР° Рє СЃРІРѕРµРјСѓ РёР·РЅР°С‡Р°Р»СЊРЅРѕРјСѓ РІРёРґСѓ С‚Р°РєРѕР№ Р¶Рµ РѕРїРµСЂР°С†РёРµР№ :
 	// { if(side == PPCREDIT) { p->amt = -p->amt; } }
 	//
 	if(kind == ACT_PASSIVE) {
@@ -1027,8 +1027,8 @@ int SLAPI AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, do
 	PPID   dbt_acc_id, crd_acc_id;
 	PPID   dbt_rel_id, crd_rel_id;
 	long   dbt_oprno,  crd_oprno;
-	double amt;  // Оригинальная сумма проводки
-	double _amt; // Сумма, на которую изменяются форвардные остатки и балансы
+	double amt;  // РћСЂРёРіРёРЅР°Р»СЊРЅР°СЏ СЃСѓРјРјР° РїСЂРѕРІРѕРґРєРё
+	double _amt; // РЎСѓРјРјР°, РЅР° РєРѕС‚РѕСЂСѓСЋ РёР·РјРµРЅСЏСЋС‚СЃСЏ С„РѕСЂРІР°СЂРґРЅС‹Рµ РѕСЃС‚Р°С‚РєРё Рё Р±Р°Р»Р°РЅСЃС‹
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1441,9 +1441,9 @@ int SLAPI AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int
 						MONEYTOMONEY(rec.Amount, mirror.Amount);
 						if(mirror.Dt != rec.Dt) {
 							//
-							// Индекс, содержащий поле Dt - не модифицируемый.
-							// В связи с этим, если дата не верная, придется удалить запись
-							// и вставить снова.
+							// РРЅРґРµРєСЃ, СЃРѕРґРµСЂР¶Р°С‰РёР№ РїРѕР»Рµ Dt - РЅРµ РјРѕРґРёС„РёС†РёСЂСѓРµРјС‹Р№.
+							// Р’ СЃРІСЏР·Рё СЃ СЌС‚РёРј, РµСЃР»Рё РґР°С‚Р° РЅРµ РІРµСЂРЅР°СЏ, РїСЂРёРґРµС‚СЃСЏ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ
+							// Рё РІСЃС‚Р°РІРёС‚СЊ СЃРЅРѕРІР°.
 							//
 							THROW_DB(getDirectForUpdate(-1, 0, pos));
 							THROW_DB(deleteRec()); // @sfu
@@ -1568,7 +1568,7 @@ int SLAPI AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
 int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta)
 {
 	int    ok = 1;
-	int    vadd = 0; // Признак того, что необходимо добавить искусственный счет 1-го порядка
+	int    vadd = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕР±Р°РІРёС‚СЊ РёСЃРєСѓСЃСЃС‚РІРµРЅРЅС‹Р№ СЃС‡РµС‚ 1-РіРѕ РїРѕСЂСЏРґРєР°
 	PPID   id;
 	int16  old_ac, old_sb;
 	PPAccountPacket acc_pack, add_acc_pack;
@@ -1580,8 +1580,8 @@ int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta
 		old_sb = acc_pack.Rec.A.Sb;
 		if(acc_pack.Rec.A.Sb == 0) {
 			//
-			// Если изменяемый счет был одновременно счетом первого порядка, то придется искусственно добавить
-			// вместо него новый счет первого порядка, дабы субсчета этого счета не подвисли.
+			// Р•СЃР»Рё РёР·РјРµРЅСЏРµРјС‹Р№ СЃС‡РµС‚ Р±С‹Р» РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ СЃС‡РµС‚РѕРј РїРµСЂРІРѕРіРѕ РїРѕСЂСЏРґРєР°, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РёСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ РґРѕР±Р°РІРёС‚СЊ
+			// РІРјРµСЃС‚Рѕ РЅРµРіРѕ РЅРѕРІС‹Р№ СЃС‡РµС‚ РїРµСЂРІРѕРіРѕ РїРѕСЂСЏРґРєР°, РґР°Р±С‹ СЃСѓР±СЃС‡РµС‚Р° СЌС‚РѕРіРѕ СЃС‡РµС‚Р° РЅРµ РїРѕРґРІРёСЃР»Рё.
 			//
 			add_acc_pack = acc_pack;
 			add_acc_pack.Rec.ID = 0L;
@@ -1593,11 +1593,11 @@ int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta
 		acc_pack.Rec.A.Ac = newAc;
 		acc_pack.Rec.A.Sb = newSb;
 		THROW(AccObj.PutPacket(&accID, &acc_pack, 0));
-		if(vadd && AccObj.SearchNum(add_acc_pack.Rec.A.Ac, add_acc_pack.Rec.A.Sb, 0, 0) < 0) { // @v9.2.11 Искусственно создаем счет только в случае, если не было других дубликатов
+		if(vadd && AccObj.SearchNum(add_acc_pack.Rec.A.Ac, add_acc_pack.Rec.A.Sb, 0, 0) < 0) { // @v9.2.11 РСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ СЃРѕР·РґР°РµРј СЃС‡РµС‚ С‚РѕР»СЊРєРѕ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РЅРµ Р±С‹Р»Рѕ РґСЂСѓРіРёС… РґСѓР±Р»РёРєР°С‚РѕРІ
 			THROW(AccObj.PutPacket(&(id = 0), &add_acc_pack, 0));
 		}
 		//
-		// Теперь необходимо изменить все ссылки AcctRel.Ac и AcctRel.Sb на этот счет.
+		// РўРµРїРµСЂСЊ РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РјРµРЅРёС‚СЊ РІСЃРµ СЃСЃС‹Р»РєРё AcctRel.Ac Рё AcctRel.Sb РЅР° СЌС‚РѕС‚ СЃС‡РµС‚.
 		//
 		THROW(AccRel.ReplaceAcct(old_ac, old_sb, newAc, newSb));
 		THROW(tra.Commit());
@@ -1732,8 +1732,8 @@ int SLAPI AccTurnCore::RecalcBalance(PPID accID, LDATE startDate, int use_ta)
 		if(prev)
 			THROW(_CheckBalance(accID, prev, dbt, crd, 0, 1, logger, 0));
 		//
-		// Проверка на отсутствие записей баланса за дни, в которые не было
-		// проводок по этому балансовому счету
+		// РџСЂРѕРІРµСЂРєР° РЅР° РѕС‚СЃСѓС‚СЃС‚РІРёРµ Р·Р°РїРёСЃРµР№ Р±Р°Р»Р°РЅСЃР° Р·Р° РґРЅРё, РІ РєРѕС‚РѕСЂС‹Рµ РЅРµ Р±С‹Р»Рѕ
+		// РїСЂРѕРІРѕРґРѕРє РїРѕ СЌС‚РѕРјСѓ Р±Р°Р»Р°РЅСЃРѕРІРѕРјСѓ СЃС‡РµС‚Сѓ
 		//
 		bk.AccID = accID;
 		bk.Dt  = startDate;
@@ -1804,8 +1804,8 @@ int SLAPI AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pP
 		}
 	}
 	//
-	// Проверка на отсутствие записей баланса за дни, в которые не было
-	// проводок по этому балансовому счету
+	// РџСЂРѕРІРµСЂРєР° РЅР° РѕС‚СЃСѓС‚СЃС‚РІРёРµ Р·Р°РїРёСЃРµР№ Р±Р°Р»Р°РЅСЃР° Р·Р° РґРЅРё, РІ РєРѕС‚РѕСЂС‹Рµ РЅРµ Р±С‹Р»Рѕ
+	// РїСЂРѕРІРѕРґРѕРє РїРѕ СЌС‚РѕРјСѓ Р±Р°Р»Р°РЅСЃРѕРІРѕРјСѓ СЃС‡РµС‚Сѓ
 	//
 	{
 		PPTransaction tra(1);
@@ -1837,11 +1837,12 @@ int SLAPI AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pP
 	return ok;
 }
 //
-// Поддержка функции валютной переоценки
+// РџРѕРґРґРµСЂР¶РєР° С„СѓРЅРєС†РёРё РІР°Р»СЋС‚РЅРѕР№ РїРµСЂРµРѕС†РµРЅРєРё
 //
-SLAPI CurRevalParam::CurRevalParam()
+SLAPI CurRevalParam::CurRevalParam() : Dt(ZERODATE), LocID(LConfig.Location), Flags(0)
 {
-	Init();
+	CorrAcc.Z();
+	NegCorrAcc.Z();
 }
 
 void SLAPI CurRevalParam::Init()
@@ -1860,8 +1861,8 @@ CurRevalParam & FASTCALL CurRevalParam::operator = (const CurRevalParam & src)
 	NegCorrAcc = src.NegCorrAcc;
 	LocID = src.LocID;
 	Flags = src.Flags;
-	AccList.copy(src.AccList);
-	CRateList.copy(src.CRateList);
+	AccList = src.AccList;
+	CRateList = src.CRateList;
 	return *this;
 }
 
@@ -1930,7 +1931,7 @@ int SLAPI AccTurnCore::RevalCurRests(const CurRevalParam * pParam)
 		for(uint i = 0; i < pParam->AccList.getCount(); i++) {
 			if(AccObj.Search(pParam->AccList.at(i), &acc_rec) > 0) {
 				AcctRelTbl::Key3 k;
-				Acct prev_acct;
+				Acct   prev_acct;
 				int    ac = acc_rec.A.Ac;
 				int    sb = acc_rec.A.Sb;
 				cur_list.clear();
@@ -1943,7 +1944,7 @@ int SLAPI AccTurnCore::RevalCurRests(const CurRevalParam * pParam)
 				k.Sb = sb ? sb : 0;
 				while(AccRel.search(3, &k, spGt) && k.Ac == ac && (!sb || k.Sb == sb)) {
 					if(AccRel.data.CurID && !AccRel.data.Closed && Art.Search(AccRel.data.ArticleID) > 0) {
-						Acct acct = *(Acct*)&k;
+						Acct acct = *reinterpret_cast<const Acct *>(&k);
 						if(acct.ac != prev_acct.ac || acct.sb != prev_acct.sb || acct.ar != prev_acct.ar) {
 							if(prev_acct.ac != 0)
 								THROW(RevalCurRest(*pParam, &prev_acct, &cur_list, 0));

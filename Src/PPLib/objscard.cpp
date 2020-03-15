@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Модуль, управляющий объектом PPObjSCard - персональные карты
 //
@@ -13,7 +13,7 @@
 
 SLAPI PPSCardPacket::PPSCardPacket() : PPExtStrContainer()
 {
-	Z();
+	// @v10.7.3 @ctr Z();
 }
 
 PPSCardPacket & SLAPI PPSCardPacket::Z()
@@ -112,21 +112,24 @@ int FASTCALL PPObjSCard::FetchConfig(PPSCardConfig * pCfg)
 
 int SLAPI PPObjSCard::EditConfig()
 {
-#define GRP_GOODS 1 // {
 	class SCardCfgDialog : public TDialog {
+		DECL_DIALOG_DATA(PPSCardConfig);
+		enum {
+			ctlgroupGoods = 1
+		};
 	public:
 		SCardCfgDialog() : TDialog(DLG_SCARDCFG)
 		{
 		}
-		int    setDTS(const PPSCardConfig * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_PSNKND, PPOBJ_PRSNKIND, Data.PersonKindID, 0, 0);
 			PPID   psn_kind_id = NZOR(Data.PersonKindID, PPPRK_CLIENT);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFPSN, PPOBJ_PERSON, Data.DefPersonID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(psn_kind_id));
 			GoodsCtrlGroup::Rec rec(0, Data.ChargeGoodsID, 0, 0);
-			addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_SCARDCFG_CHARGEGG, CTLSEL_SCARDCFG_CHARGEG));
-			setGroupData(GRP_GOODS, &rec);
+			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_SCARDCFG_CHARGEGG, CTLSEL_SCARDCFG_CHARGEG));
+			setGroupData(ctlgroupGoods, &rec);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_CHRGAMT, PPOBJ_AMOUNTTYPE, Data.ChargeAmtID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFSER, PPOBJ_SCARDSERIES, Data.DefSerID, OLW_CANINSERT);
 			SetupPPObjCombo(this, CTLSEL_SCARDCFG_DEFCSER, PPOBJ_SCARDSERIES, Data.DefCreditSerID, OLW_CANINSERT);
@@ -137,7 +140,7 @@ int SLAPI PPObjSCard::EditConfig()
 			SetClusterData(CTL_SCARDCFG_FLAGS, Data.Flags);
 			return 1;
 		}
-		int    getDTS(PPSCardConfig * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -159,7 +162,7 @@ int SLAPI PPObjSCard::EditConfig()
 			getCtrlData(sel = CTL_SCARDCFG_WARNEXPB, &Data.WarnExpiryBefore);
 			THROW_PP(Data.WarnExpiryBefore >= 0 && Data.WarnExpiryBefore <= 365, PPERR_USERINPUT);
 			GetClusterData(CTL_SCARDCFG_FLAGS, &Data.Flags);
-			getGroupData(GRP_GOODS, &rec);
+			getGroupData(ctlgroupGoods, &rec);
 			sel = CTL_SCARDCFG_CHARGEG;
 			THROW_PP(!rec.GoodsID || GObj.CheckFlag(rec.GoodsID, GF_UNLIM), PPERR_INVSCARDCHARGEGOODS);
 			Data.ChargeGoodsID = rec.GoodsID;
@@ -180,12 +183,11 @@ int SLAPI PPObjSCard::EditConfig()
 				clearEvent(event);
 			}
 		}
-		PPSCardConfig Data;
 		PPObjGoods GObj;
 		PPObjSCardSeries ScsObj;
 	};
-#undef GRP_GOODS // }
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	int    is_new = 0;
 	PPSCardConfig cfg;
 	SCardCfgDialog * dlg = 0;

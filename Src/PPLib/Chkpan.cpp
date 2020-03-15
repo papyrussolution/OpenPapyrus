@@ -2270,10 +2270,23 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			THROW_PP(!(CnExtFlags & CASHFX_DISABLEZEROSCARD) || CSt.GetID(), PPERR_CHKPAN_SCARDNEEDED);
 		}
 		THROW(InitCashMachine());
+		/* @v10.7.3
 		if(mode == accmAveragePrinting && !reprint_regular) {
 			THROW_PP(OperRightsFlags & orfPrintCheck, PPERR_NORIGHTS);
 			epb.Pack = *P_ChkPack;
 		}
+		*/
+		// @v10.7.3 {
+		if(mode == accmAveragePrinting) {
+			THROW_PP(OperRightsFlags & orfPrintCheck, PPERR_NORIGHTS);
+			if(reprint_regular) {
+				epb.Pack = SelPack;
+				//epb.Pack.Rec.Flags |= CCHKF_PRINTED;
+			}
+			else
+				epb.Pack = *P_ChkPack;
+		}
+		// } @v10.7.3 
 		else {
 			if(F(fRetCheck)) {
 				THROW_PP(OperRightsFlags & orfReturns, PPERR_NORIGHTS);
@@ -2285,7 +2298,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			}
 			if(SuspCheckID && GetCc().Search(SuspCheckID, &epb.LastChkRec) > 0) {
 				// @debug {
-				if((epb.LastChkRec.Flags & (CCHKF_JUNK|CCHKF_SUSPENDED)) != (CCHKF_JUNK|CCHKF_SUSPENDED)) {
+				if((epb.LastChkRec.Flags & (CCHKF_JUNK|CCHKF_SUSPENDED)) != (CCHKF_JUNK|CCHKF_SUSPENDED) && !reprint_regular) { // @v10.7.3 (!reprint_regular)
 					PPSetError(PPERR_CCHKMUSTBEJUNK, CCheckCore::MakeCodeString(&epb.LastChkRec, msg_buf));
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
 				}
@@ -7449,6 +7462,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, int unfinishedForReprinting)
 		if(unfinishedForReprinting) {
 			THROW_PP_S(!(_ccf & (CCHKF_SUSPENDED|CCHKF_PRINTED|CCHKF_JUNK)), PPERR_CCHKPRINTEDORSUSPENDED, msg_buf);
 			_ccf_to_update |= (CCHKF_TOREPRINT|CCHKF_JUNK);
+			SelPack = cc_pack; // @v10.7.3
 		}
 		else {
 			THROW_PP_S(_ccf & CCHKF_SUSPENDED && (!(_ccf & CCHKF_JUNK) || r_cc.IsLostJunkCheck(ccID, &SessUUID, 0)), PPERR_CCHKNOMORESUSPENDED, msg_buf);
@@ -7584,14 +7598,12 @@ int CheckPaneDialog::SelectSuspendedCheck()
 						// @v10.6.11 {
 						if(sel_chk.Flags & _SelCheck::fUnfinished) {
 							// ReprintCheck
-#if 1 // @construction {
 							Flags |= fReprinting;
 							int r1 = RestoreSuspendedCheck(sel_chk.CheckID, 1/*unfinishedForReprinting*/);
 							if(r1)
-								r1 = AcceptCheck(0, 0, 0.0, CPosProcessor::accmAveragePrinting);
+								r1 = AcceptCheck(&SelPack.AL_Const(), 0, 0.0, CPosProcessor::accmAveragePrinting); // @v10.7.3 0-->&SelPack.AL_Const()
 							Flags &= ~fReprinting;
 							THROW(r1);
-#endif // } 0 @construction
 						}
 						// } @v10.6.11 
 						else if(cc_rec.Flags & CCHKF_SUSPENDED && (!(cc_rec.Flags & CCHKF_JUNK) || GetCc().IsLostJunkCheck(sel_chk.CheckID, &SessUUID, 0))) {

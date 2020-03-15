@@ -2771,6 +2771,7 @@ PPINIPARAM_SARTREDB_MAXLOCKOBJS_RO     "sartredb_maxlockobjs_ro"
 PPINIPARAM_SARTREDB_LOGBUFSIZE         "sartredb_logbufsize"
 PPINIPARAM_TSSTAKE_INPUTFRAMESIZE      "input_frame_size"
 PPINIPARAM_TSSTAKE_MAXDUCKQUANT        "max_duck_quant"
+PPINIPARAM_TSSTAKE_STAKEBOUNDS         "stake_bounds" // @v10.7.3
 PPINIPARAM_TSSTAKE_INITTRENDERRLIMIT   "init_trend_err_limit"
 PPINIPARAM_TSSTAKE_INITMAINTRENDERRLIMIT "init_main_trend_err_limit"
 PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION  "best_subset_dimension"
@@ -2788,6 +2789,7 @@ PPINIPARAM_TSSTAKE_OPTRANGE_STEP       "opt_range_step"
 PPINIPARAM_TSSTAKE_OPTRANGE_STEPMKPART "opt_range_stepmkpart"
 PPINIPARAM_TSSTAKE_OPTRANGEMULTI       "opt_range_multi"
 PPINIPARAM_TSSTAKE_OPTRANGEMULTI_LIMIT "opt_range_multi_limit"
+PPINIPARAM_TSSTAKE_OPTRANGE_MAXEXTPROBE "opt_range_max_ext_probe" // @v10.7.3
 PPINIPARAM_TSSTAKE_MAINFRAMESIZE       "main_frame_size"
 PPINIPARAM_TSSTAKE_MAINFRAMERANGECOUNT "main_frame_range_count"
 PPINIPARAM_TSSTAKE_CHAOSFACTOR         "chaos_factor"
@@ -2796,6 +2798,7 @@ PPINIPARAM_VETIS_OUTGOINGALG2          "vetis_outgoing_alg2"
 PPINIPARAM_SYSMAINTPROB_MQSCONFIG      "SysMaintenanceProb_MqsConfig" // @v10.6.2 @construction
 PPINIPARAM_PATH_CRYPTOPRO_BAD          "ctyptopro" // @v10.6.3 [path] путь до каталога с исполняемыми файлами Крипто-Про
 PPINIPARAM_PATH_CRYPTOPRO              "cryptopro" // @v10.6.3 [path] путь до каталога с исполняемыми файлами Крипто-Про
+PPINIPARAM_VERIFYARTOLOCMETHODS        "verifyartolocmethods" // @v10.7.3 [config] Отладочный параметр для верификации функций преобразования статей в склады и наоборот
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
@@ -4032,7 +4035,7 @@ PPTXT_ERRACCEPTOBJECT                     "Ошибка акцепта объе�
 PPTXT_ERRACCEPTGOODS                      "Ошибка акцепта товара (%ld %s): %s"
 PPTXT_ERRACCEPTBILL                       "Ошибка акцепта документа (%ld [%s]): %s"
 PPTXT_ERRACCEPTQUOTKIND                   "Ошибка акцепта вида котировки (%ld %s): %s"
-PPTXT_ERRACCEPTQCERT                      "Ошибка акцепта сертификата качества"
+PPTXT_ERRACCEPTQCERT                      "Ошибка акцепта сертификата качества (%ld %s): %s"
 PPTXT_ERRACCEPTPSNEVENT                   "Ошибка акцепта персональной операции (%ld %s): %s"
 PPTXT_ERRACCEPTPSNOPKIND                  "Ошибка акцепта вида персональных операций (%ld %s): %s"
 PPTXT_ERRACCEPTDEBTDIM                    "Ошибка акцепта размерности расчета долгов"
@@ -4766,7 +4769,7 @@ PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табач
 #!{
 // Символы выражений
 PPSSYM_SYMB "LINK;BILLNO;DATE;PAYDATE;AMOUNT,AMT;LOCATION,LOC;OBJECT,OBJ;PAYER;\
-AGENT;REGNAME;REGSN;REGNO;REGORG;TRADELIC;BILLMEMO;BILLOBJ2,OBJ2,EXTOBJ;GCNAME;GCKIND;GCGRADE;GCADDPROP;GCDIMX;GCDIMY;GCDIMZ;ALACC;ALAR;ALAMT;RCKN;\
+AGENT;REGNAME;REGSN;REGNO;REGORG;TRADELIC;BILLMEMO;OBJ2INN;OBJ2KPP;BILLOBJ2,OBJ2,EXTOBJ;GCNAME;GCKIND;GCGRADE;GCADDPROP;GCDIMX;GCDIMY;GCDIMZ;ALACC;ALAR;ALAMT;RCKN;\
 CLIENTADDR;GRNAME;PHPU;BRAND;CLIENT;PARENT;GCADD2PROP;GCDIMW;TSESS;PRC;TECH;MEMO;EXPIRY;AGTCODE;AGTDATE;AGTEXPIRY;\
 MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE;DLVRLOCTAG;DUEDATE;FGDUEDATE;OBJINN;OBJKPP"
 // @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP
@@ -6404,6 +6407,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @guestcount                          "Количество гостей"  // Количество гостей, присутствующих за столом в кафе.
 @fileopen                            "Открыть файл"
 @filesave                            "Сохранить файл"
+@save                                "Сохранить"
+@saveas                              "Сохранить как"
 @busyuntil                           "Занят до"
 @freeuntil                           "Свободен до"
 @orders                              "@{booking_pl}"
@@ -11509,6 +11514,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheckfilt_altregf_onlytrue              "Только 'ДА'"
 @ccheckfilt_altregf_onlyfalse             "Только 'НЕТ'"
 @ccheckfilt_cashier                       "Кассир"
+@ccheckfilt_creationuser                  "Пользователь-инициатор"
 
 @csessfilt                                "Фильтр по кассовым сессиям"
 @csessfilt_cashnumber                     "@{posnodeno}"
@@ -12184,6 +12190,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @projectfilt_ordbyname                    "@{sortby_name}"
 @projectfilt_sortord                      "@{sortby}"
 @projectfilt_startperiod                  "Период начала работ"
+@qcertfilt                                "Фильтр по сертификатам качества"
 @qcertfilt_codestr                        "Номер содержит строку"
 @qcertfilt_expiryperiod                   "Срок действия"
 @qcertfilt_initperiod                     "Дата выдачи"
@@ -13867,6 +13874,27 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @vetisprcssincoming_wroffsingle           "Списать с остатка выбранный документ"
 @vetisprcssincoming_wroffall              "Списать с остатка всю выборку"
 
+@predictsalestotal                        "Итоги по статистике продаж"
+@predictsalestotal_byqtty                 "@{byqtty}" // generic
+@predictsalestotal_byamt                  "По сумме" // generic
+@predictsalestotal_count                  "@{valuecount}" // generic
+@predictsalestotal_sum                    "Сумма продаж" // generic
+@predictsalestotal_average                "Средние продажи" // generic
+@predictsalestotal_turnoverdays           "Оборачиваемость, дней" // generic
+@predictsalestotal_sigma                  "Дисперсия" // generic
+@predictsalestotal_stddev                 "Стандартное отклонение" // generic
+@predictsalestotal_variationcoeff         "Коэффициент вариации" // generic
+@predictsalestotal_predicterravg          "Средняя ошибка прогноза" // generic
+@predictsalestotal_predicterrrel          "Относительная ошибка прогноза" // generic
+@predictsalestotal_qttysum                ""
+@predictsalestotal_qttyaverage            ""
+@predictsalestotal_qttysigma              ""
+@predictsalestotal_qttystddev             ""
+@predictsalestotal_amtsum                 ""
+@predictsalestotal_amtaverage             ""
+@predictsalestotal_amtsigma               ""
+@predictsalestotal_amtstddev              ""
+
 [121]
 1   "Вход"
 2	"@{session}"
@@ -14287,6 +14315,15 @@ PPHS_VATRATE                   "vatrate"
 PPHS_SALESTAXRATE              "salestaxrate"
 PPHS_UNLIMITED                 "unlimited"
 PPHS_LOOKBACKPRICES            "lookbackprices"
+PPHS_MARKED                    "marked"       // @v10.7.3
+PPHS_CHZNPRODTYPE              "chznprodtype" // @v10.7.3
+PPHS_CHZNPRODTYPE_FUR          "fur"          // @v10.7.3
+PPHS_CHZNPRODTYPE_TOBACCO      "tobacco"      // @v10.7.3
+PPHS_CHZNPRODTYPE_SHOE         "shoe"         // @v10.7.3
+PPHS_CHZNPRODTYPE_MEDICINE     "medicine"     // @v10.7.3
+PPHS_EGAISMARK                 "egaismark"    // @v10.7.3
+PPHS_CHZNMARK                  "chznmark"     // @v10.7.3
+PPHS_REMOTEPROCESSINGTA        "remoteprocessingta" // @v10.7.3
 PPHS_FILE                      "file"
 PPHS_ORDERS                    "orders"
 PPHS_ORDRSP                    "ordrsp"

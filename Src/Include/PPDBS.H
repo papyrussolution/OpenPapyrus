@@ -4250,10 +4250,11 @@ public:
 		LDATE  Dt;
 		int32  GoodsID;
 		char   BarCode[24];
-		char   Serial[24];
 		double Quantity;
 		int32  Price;
 		double Dscnt;
+		int32  ExtTextSize;
+		TSLob <2048> VT;
 	} data;
 	struct Key0 {
 		int32  CheckCode;
@@ -4271,10 +4272,11 @@ public:
 	DBField Dt;
 	DBField GoodsID;
 	DBField BarCode;
-	DBField Serial;
 	DBField Quantity;
 	DBField Price;
 	DBField Dscnt;
+	DBField ExtTextSize;
+	DBField VT;
 };
 
 class CCheckLineTbl : public DBTable {

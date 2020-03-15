@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -1312,11 +1312,11 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 						}
 						else {
 							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
-							if(is_free_price)
-								SetTempCcLineValues(0, qtty, dscnt_price, 0.0);
-							else
-								SetTempCcLineValues(0, qtty, price, price - dscnt_price);
-							THROW_DB(P_TmpCclTbl->insertRec());
+							const double ln_price = is_free_price ? dscnt_price : price;
+							const double ln_discount = is_free_price ? 0.0 : (price - dscnt_price);
+							// @v10.7.3 SetTempCcLineValues(0, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/);
+							// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/)); // @v10.7.3
 						}
 						if(is_free_price) {
 							line_amount = R2(qtty * dscnt_price);

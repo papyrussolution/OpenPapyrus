@@ -1,5 +1,5 @@
 // SMUKM30.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2019, 2020
 // @codepage windows-1251
 //
 // Интерфейс (асинхронный) к драйверу ККМ "СуперМаг УКМ" (IPC)
@@ -64,9 +64,10 @@ int SLAPI ACS_SMUKM30::FlashCheck(CCheckTbl::Rec * pChkRec, SArray * pRows)
 		if(r > 0) {
 			for(i = 0; pRows->enumItems(&i, (void **)&p_entry);) {
 				SetupTempCcLineRec(0, id, pChkRec->Code, dm.d, p_entry->div, p_entry->goods);
-				SetTempCcLineValues(0, p_entry->qtty, p_entry->price, p_entry->dscnt);
+				// @v10.7.3 SetTempCcLineValues(0, p_entry->qtty, p_entry->price, p_entry->dscnt, 0/*pLnExtStrings*/);
 				STRNSCPY(P_TmpCclTbl->data.BarCode, p_entry->barcode);
-				THROW_DB(P_TmpCclTbl->insertRec());
+				// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
+				THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, p_entry->qtty, p_entry->price, p_entry->dscnt, 0/*pLnExtStrings*/)); // @v10.7.3
 			}
 		}
 	}

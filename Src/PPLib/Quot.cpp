@@ -54,6 +54,7 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 #define GRP_GOODSFILT 4
 
 class QuotUpdDialog : public TDialog {
+	DECL_DIALOG_DATA(QuotUpdFilt);
 public:
 	QuotUpdDialog() : TDialog(DLG_QUOTUPD), QuotCls(PPQuot::clsGeneral), QkSpc(QkSpc.ctrInitializeWithCache)
 	{
@@ -70,201 +71,181 @@ public:
 		}
 		addGroup(GRP_ARTICLE, new ArticleCtrlGroup(0, 0, CTLSEL_QUOTUPD_AR, cmArList, GetSellAccSheet()));
 	}
-	int    setDTS(const QuotUpdFilt * pFilt);
-	int    getDTS(QuotUpdFilt * pFilt);
+	DECL_DIALOG_SETDTS()
+	{
+		ushort v;
+		PPID   acc_sheet_id = 0;
+		long   qk_sel_extra = 1;
+		PPID   new_qk_id = 0;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		QkObj.Classify(Data.QuotKindID, &QuotCls);
+		GetQuotKindDefaults(QuotCls, Data.QuotKindID, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
+		SETIFZ(Data.QuotKindID, new_qk_id);
+		AddClusterAssocDef(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
+		AddClusterAssoc(CTL_QUOTUPD_WHAT, 1, PPQuot::clsSupplDeal);
+		AddClusterAssoc(CTL_QUOTUPD_WHAT, 2, PPQuot::clsMtx);
+		AddClusterAssoc(CTL_QUOTUPD_WHAT, 3, PPQuot::clsPredictCoeff);
+		SetClusterData(CTL_QUOTUPD_WHAT, QuotCls);
+		SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(qk_sel_extra));
+		{
+			LocationCtrlGroup::Rec grp_rec(&Data.LocList);
+			setGroupData(GRP_LOC, &grp_rec);
+		}
+		{
+			GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
+			setGroupData(GRP_GOODS, &ggrp_rec);
+			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
+			setGroupData(GRP_GOODSFILT, &gf_rec);
+		}
+		{
+			ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
+			ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
+			p_ar_grp->SetAccSheet(acc_sheet_id);
+			setGroupData(GRP_ARTICLE, &ar_grp_rec);
+		}
+		AddClusterAssocDef(CTL_QUOTUPD_HOW, 0, QuotUpdFilt::byLots);
+		AddClusterAssoc(CTL_QUOTUPD_HOW, 1, QuotUpdFilt::byLastReval);
+		AddClusterAssoc(CTL_QUOTUPD_HOW, 2, QuotUpdFilt::byPctVal);
+		AddClusterAssoc(CTL_QUOTUPD_HOW, 3, QuotUpdFilt::byAbsVal);
+		AddClusterAssoc(CTL_QUOTUPD_HOW, 4, QuotUpdFilt::byFormula);
+		AddClusterAssoc(CTL_QUOTUPD_HOW, 5, QuotUpdFilt::byAddedQuot);
+		AddClusterAssoc(CTL_QUOTUPD_HOW, 6, QuotUpdFilt::byDelete);
+		SetClusterData(CTL_QUOTUPD_HOW, Data.ByWhat);
+
+		disableCtrl(CTL_QUOTUPD_PCT, !oneof3(Data.ByWhat, QuotUpdFilt::byAbsVal, QuotUpdFilt::byPctVal, QuotUpdFilt::byFormula));
+		enableCommand(cmQuotUpdSetQuot, Data.ByWhat == QuotUpdFilt::byAbsVal);
+		v = 0;
+		if(Data.Flags & QuotUpdFilt::fExistOnly)
+			v = 0;
+		else if(Data.Flags & QuotUpdFilt::fSetupIfNotExists)
+			v = 1;
+		else if(Data.Flags & QuotUpdFilt::fNonExistOnly)
+			v = 2;
+		setCtrlData(CTL_QUOTUPD_NEXS, &v);
+		AddClusterAssoc(CTL_QUOTUPD_WARN, 0, QuotUpdFilt::fWarnExistsAbsQuot);
+		AddClusterAssoc(CTL_QUOTUPD_WARN, 1, QuotUpdFilt::fSkipNoDisGoods);
+		AddClusterAssoc(CTL_QUOTUPD_WARN, 2, QuotUpdFilt::fSkipDatedQuot);
+		AddClusterAssoc(CTL_QUOTUPD_WARN, 3, QuotUpdFilt::fTest); // @v10.5.9
+		DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2 & CCFLG2_DEVELOPMENT)); // @v10.5.9
+		SetClusterData(CTL_QUOTUPD_WARN, Data.Flags);
+		if(Data.ByWhat == QuotUpdFilt::byFormula) {
+			temp_buf = Data.Formula;
+		}
+		else {
+			PPQuot quot;
+			quot.Flags = Data.QuotFlags;
+			quot.Quot = Data.QuotVal;
+			quot.PutValToStr(temp_buf);
+		}
+		setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
+		temp_buf.Z().Cat(Data.QuotValPeriod, 1);
+		setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
+		/* @v10.5.9
+		// @erik v10.5.8 { 
+		AddClusterAssoc(CTL_QUOTUPD_TEST, 0, QuotUpdFilt::fTest);
+		SetClusterData(CTL_QUOTUPD_TEST, Data.Flags);
+		// } @erik 
+		*/
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		ushort v = 0;
+		SString temp_buf;
+		QuotCls = GetClusterData(CTL_QUOTUPD_WHAT);
+		// @v10.5.9 (перемещено в CTL_QUOTUPD_WARN) GetClusterData(CTL_QUOTUPD_TEST, &Data.Flags);  //@erik v10.5.8
+		getCtrlData(CTLSEL_QUOTUPD_KIND, &Data.QuotKindID);
+		{
+			LocationCtrlGroup::Rec grp_rec;
+			getGroupData(GRP_LOC, &grp_rec);
+			Data.LocList = grp_rec.LocList;
+			// getCtrlData(CTLSEL_QUOTUPD_LOC,  &Data.LocID);
+		}
+		{
+			GoodsFiltCtrlGroup::Rec gf_rec;
+			THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+			Data.GoodsGrpID = gf_rec.GoodsGrpID;
+			{
+				GoodsCtrlGroup::Rec ggrp_rec;
+				getGroupData(GRP_GOODS, &ggrp_rec);
+				SETIFZ(Data.GoodsGrpID, ggrp_rec.GrpID); // Если была выбрана динамическая группа выше, то не переопределяем ее.
+				Data.GoodsID    = ggrp_rec.GoodsID;
+			}
+		}
+		{
+			ArticleCtrlGroup::Rec ar_grp_rec;
+			getGroupData(GRP_ARTICLE, &ar_grp_rec);
+			Data.ArList = ar_grp_rec.ArList;
+			Data.ArticleID = Data.ArList.GetSingle();
+		}
+		Data.ByWhat = GetClusterData(CTL_QUOTUPD_HOW);
+		getCtrlData(CTL_QUOTUPD_NEXS, &(v = 0));
+		Data.Flags &= ~(QuotUpdFilt::fExistOnly | QuotUpdFilt::fSetupIfNotExists | QuotUpdFilt::fNonExistOnly);
+		if(v == 0)
+			Data.Flags |= QuotUpdFilt::fExistOnly;
+		else if(v == 1)
+			Data.Flags |= QuotUpdFilt::fSetupIfNotExists;
+		else if(v == 2)
+			Data.Flags |= QuotUpdFilt::fNonExistOnly;
+		else
+			Data.Flags |= QuotUpdFilt::fExistOnly;
+		GetClusterData(CTL_QUOTUPD_WARN, &Data.Flags);
+		// @v10.5.9 {
+		if(!(CConfig.Flags2 & CCFLG2_DEVELOPMENT))
+			Data.Flags &= ~QuotUpdFilt::fTest;
+		// } @v10.5.9 
+		getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf.Z());
+		if(Data.ByWhat == QuotUpdFilt::byFormula) {
+			Data.Formula = temp_buf;
+			{
+				//
+				// Тест формулы
+				//
+				double _val = 0.0;
+				GoodsContext::Param gcp;
+				gcp.GoodsID = 1;
+				gcp.LocID = 1;
+				gcp.ArID = 0;
+				gcp.Cost = 1.0; // @v10.7.3
+				gcp.Price = 1.5; // @v10.7.3
+				gcp.Flags |= (gcp.fCostSettled|gcp.fPriceSettled);
+				GoodsContext gctx(gcp);
+				THROW(PPExprParser::CalcExpression(temp_buf, &_val, 0, &gctx));
+			}
+		}
+		else {
+			PPQuot quot;
+			quot.GetValFromStr(temp_buf);
+			Data.QuotFlags = quot.Flags;
+			Data.QuotVal = quot.Quot;
+		}
+		if(Data.QuotKindID == 0 && !CONFIRM(PPCFM_UPDQUOT_NOQUOTKIND))
+			ok = 0;
+		if(Data.ByWhat == QuotUpdFilt::byDelete) {
+			Data.Flags &= ~QuotUpdFilt::fWarnExistsAbsQuot;
+			SETFLAG(Data.Flags, QuotUpdFilt::fExistOnly, 1);
+			SETFLAG(Data.Flags, QuotUpdFilt::fSetupIfNotExists, 0);
+			SETFLAG(Data.Flags, QuotUpdFilt::fNonExistOnly, 0);
+			Data.QuotVal = 0.0;
+		}	
+		if(ok)
+			ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    editAdvOptions();
 	void   setupQuot();
 	void   GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra);
-	QuotUpdFilt Data;
 	int    QuotCls; // PPQuot::clsXXX  (obsolete: 1 - котировки, 2 - контрактные цены, 3 - матрица)
 	const  PPObjQuotKind::Special QkSpc;
 	PPObjQuotKind QkObj;
 	PPObjGoods GObj;
 };
-
-int QuotUpdDialog::setDTS(const QuotUpdFilt * pFilt)
-{
-	ushort v;
-	PPID   acc_sheet_id = 0;
-	long   qk_sel_extra = 1;
-	PPID   new_qk_id = 0;
-	SString temp_buf;
-	RVALUEPTR(Data, pFilt);
-	QkObj.Classify(Data.QuotKindID, &QuotCls);
-	/* @v10.5.1 if(QuotCls == PPQuot::clsMtx) {
-		qk_sel_extra = QuotKindFilt::fGoodsMatrix;
-		new_qk_id = QkSpc.MtxID;
-	}
-	else if(QuotCls == PPQuot::clsSupplDeal) {
-		acc_sheet_id = GetSupplAccSheet();
-		qk_sel_extra = QuotKindFilt::fSupplDeal;
-		new_qk_id = QkSpc.SupplDealID;
-	}
-	else if(QuotCls == PPQuot::clsPredictCoeff) {
-		qk_sel_extra = QuotKindFilt::fPredictCoeff;
-		new_qk_id = QkSpc.PredictCoeffID;
-	}
-	else {
-		acc_sheet_id = GetSellAccSheet();
-		qk_sel_extra = 1;
-		new_qk_id = 0;
-	} */
-	GetQuotKindDefaults(QuotCls, Data.QuotKindID, &acc_sheet_id, &new_qk_id, &qk_sel_extra); // @v10.5.1
-	SETIFZ(Data.QuotKindID, new_qk_id);
-	AddClusterAssocDef(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
-	AddClusterAssoc(CTL_QUOTUPD_WHAT, 1, PPQuot::clsSupplDeal);
-	AddClusterAssoc(CTL_QUOTUPD_WHAT, 2, PPQuot::clsMtx);
-	AddClusterAssoc(CTL_QUOTUPD_WHAT, 3, PPQuot::clsPredictCoeff);
-	SetClusterData(CTL_QUOTUPD_WHAT, QuotCls);
-	SetupPPObjCombo(this, CTLSEL_QUOTUPD_KIND, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(qk_sel_extra));
-	{
-		LocationCtrlGroup::Rec grp_rec(&Data.LocList);
-		setGroupData(GRP_LOC, &grp_rec);
-	}
-	{
-		GoodsCtrlGroup::Rec ggrp_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODS, &ggrp_rec);
-		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODSFILT, &gf_rec);
-	}
-	{
-		ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
-		ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
-		p_ar_grp->SetAccSheet(acc_sheet_id);
-		setGroupData(GRP_ARTICLE, &ar_grp_rec);
-	}
-	AddClusterAssocDef(CTL_QUOTUPD_HOW, 0, QuotUpdFilt::byLots);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 1, QuotUpdFilt::byLastReval);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 2, QuotUpdFilt::byPctVal);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 3, QuotUpdFilt::byAbsVal);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 4, QuotUpdFilt::byFormula);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 5, QuotUpdFilt::byAddedQuot);
-	AddClusterAssoc(CTL_QUOTUPD_HOW, 6, QuotUpdFilt::byDelete);
-	SetClusterData(CTL_QUOTUPD_HOW, Data.ByWhat);
-
-	disableCtrl(CTL_QUOTUPD_PCT, !oneof3(Data.ByWhat, QuotUpdFilt::byAbsVal, QuotUpdFilt::byPctVal, QuotUpdFilt::byFormula));
-	enableCommand(cmQuotUpdSetQuot, Data.ByWhat == QuotUpdFilt::byAbsVal);
-	v = 0;
-	if(Data.Flags & QuotUpdFilt::fExistOnly)
-		v = 0;
-	else if(Data.Flags & QuotUpdFilt::fSetupIfNotExists)
-		v = 1;
-	else if(Data.Flags & QuotUpdFilt::fNonExistOnly)
-		v = 2;
-	setCtrlData(CTL_QUOTUPD_NEXS, &v);
-	AddClusterAssoc(CTL_QUOTUPD_WARN, 0, QuotUpdFilt::fWarnExistsAbsQuot);
-	AddClusterAssoc(CTL_QUOTUPD_WARN, 1, QuotUpdFilt::fSkipNoDisGoods);
-	AddClusterAssoc(CTL_QUOTUPD_WARN, 2, QuotUpdFilt::fSkipDatedQuot);
-	AddClusterAssoc(CTL_QUOTUPD_WARN, 3, QuotUpdFilt::fTest); // @v10.5.9
-	DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2 & CCFLG2_DEVELOPMENT)); // @v10.5.9
-	SetClusterData(CTL_QUOTUPD_WARN, Data.Flags);
-	if(Data.ByWhat == QuotUpdFilt::byFormula) {
-		temp_buf = Data.Formula;
-	}
-	else {
-		PPQuot quot;
-		quot.Flags = Data.QuotFlags;
-		quot.Quot = Data.QuotVal;
-		quot.PutValToStr(temp_buf);
-	}
-	setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
-	temp_buf.Z().Cat(Data.QuotValPeriod, 1);
-	setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
-	/* @v10.5.9
-	// @erik v10.5.8 { 
-	AddClusterAssoc(CTL_QUOTUPD_TEST, 0, QuotUpdFilt::fTest);
-	SetClusterData(CTL_QUOTUPD_TEST, Data.Flags);
-	// } @erik 
-	*/
-	return 1;
-}
-
-int QuotUpdDialog::getDTS(QuotUpdFilt * pFilt)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	ushort v = 0;
-	SString temp_buf;
-	QuotCls = GetClusterData(CTL_QUOTUPD_WHAT);
-	// @v10.5.9 (перемещено в CTL_QUOTUPD_WARN) GetClusterData(CTL_QUOTUPD_TEST, &Data.Flags);  //@erik v10.5.8
-	getCtrlData(CTLSEL_QUOTUPD_KIND, &Data.QuotKindID);
-	{
-		LocationCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_LOC, &grp_rec);
-		Data.LocList = grp_rec.LocList;
-		// getCtrlData(CTLSEL_QUOTUPD_LOC,  &Data.LocID);
-	}
-	{
-		GoodsFiltCtrlGroup::Rec gf_rec;
-		THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
-		Data.GoodsGrpID = gf_rec.GoodsGrpID;
-		{
-			GoodsCtrlGroup::Rec ggrp_rec;
-			getGroupData(GRP_GOODS, &ggrp_rec);
-			SETIFZ(Data.GoodsGrpID, ggrp_rec.GrpID); // Если была выбрана динамическая группа выше, то не переопределяем ее.
-			Data.GoodsID    = ggrp_rec.GoodsID;
-		}
-	}
-	{
-		ArticleCtrlGroup::Rec ar_grp_rec;
-		getGroupData(GRP_ARTICLE, &ar_grp_rec);
-		Data.ArList = ar_grp_rec.ArList;
-		Data.ArticleID = Data.ArList.GetSingle();
-	}
-	Data.ByWhat = GetClusterData(CTL_QUOTUPD_HOW);
-	getCtrlData(CTL_QUOTUPD_NEXS, &(v = 0));
-	Data.Flags &= ~(QuotUpdFilt::fExistOnly | QuotUpdFilt::fSetupIfNotExists | QuotUpdFilt::fNonExistOnly);
-	if(v == 0)
-		Data.Flags |= QuotUpdFilt::fExistOnly;
-	else if(v == 1)
-		Data.Flags |= QuotUpdFilt::fSetupIfNotExists;
-	else if(v == 2)
-		Data.Flags |= QuotUpdFilt::fNonExistOnly;
-	else
-		Data.Flags |= QuotUpdFilt::fExistOnly;
-	GetClusterData(CTL_QUOTUPD_WARN, &Data.Flags);
-	// @v10.5.9 {
-	if(!(CConfig.Flags2 & CCFLG2_DEVELOPMENT))
-		Data.Flags &= ~QuotUpdFilt::fTest;
-	// } @v10.5.9 
-	getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf.Z());
-	if(Data.ByWhat == QuotUpdFilt::byFormula) {
-		Data.Formula = temp_buf;
-		{
-			//
-			// Тест формулы
-			//
-			double _val = 0.0;
-			GoodsContext::Param gcp;
-			gcp.GoodsID = 1;
-			gcp.LocID = 1;
-			gcp.ArID = 0;
-			GoodsContext gctx(gcp);
-			THROW(PPExprParser::CalcExpression(temp_buf, &_val, 0, &gctx));
-		}
-	}
-	else {
-		PPQuot quot;
-		quot.GetValFromStr(temp_buf);
-		Data.QuotFlags = quot.Flags;
-		Data.QuotVal = quot.Quot;
-	}
-	if(Data.QuotKindID == 0 && !CONFIRM(PPCFM_UPDQUOT_NOQUOTKIND))
-		ok = 0;
-	if(Data.ByWhat == QuotUpdFilt::byDelete) {
-		Data.Flags &= ~QuotUpdFilt::fWarnExistsAbsQuot;
-		SETFLAG(Data.Flags, QuotUpdFilt::fExistOnly, 1);
-		SETFLAG(Data.Flags, QuotUpdFilt::fSetupIfNotExists, 0);
-		SETFLAG(Data.Flags, QuotUpdFilt::fNonExistOnly, 0);
-		Data.QuotVal = 0.0;
-	}	
-	if(ok)
-		ASSIGN_PTR(pFilt, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 
 void QuotUpdDialog::setupQuot()
 {
@@ -386,13 +367,14 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 int QuotUpdDialog::editAdvOptions()
 {
 	class QuotUpdAdvDialog : public TDialog {
+		DECL_DIALOG_DATA(QuotUpdFilt);
 	public:
 		QuotUpdAdvDialog() : TDialog(DLG_QUOTUPDA)
 		{
 		}
-		int setDTS(const QuotUpdFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_KIND, PPOBJ_QUOTKIND, Data.AdvOptQuotKindID, 0, reinterpret_cast<void *>(1));
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_LOC, PPOBJ_LOCATION, Data.AdvOptLocID, OLW_CANSELUPLEVEL);
 			{
@@ -417,7 +399,7 @@ int QuotUpdDialog::editAdvOptions()
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_TOKEN, PPOBJ_EVENTTOKEN, Data.EvTokID, OLW_CANINSERT);
 			return 1;
 		}
-		int getDTS(QuotUpdFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTL_QUOTUPDA_KIND, &Data.AdvOptQuotKindID);
@@ -462,7 +444,6 @@ int QuotUpdDialog::editAdvOptions()
 				clearEvent(event);
 			}
 		}
-		QuotUpdFilt Data;
 	};
 	DIALOG_PROC_BODY(QuotUpdAdvDialog, &Data);
 }
@@ -732,6 +713,17 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 						gcp.GoodsID = goodsID;
 						gcp.LocID = locID;
 						gcp.ArID = ar_id;
+						// @v10.7.3 {
+						{
+							ReceiptTbl::Rec lot_rec;
+							r = ::GetCurGoodsPrice(goodsID, locID, GPRET_MOSTRECENT, &price, &lot_rec);
+							if(oneof3(r, GPRET_PRESENT, GPRET_CLOSEDLOTS, GPRET_OTHERLOC)) {
+								gcp.Cost = lot_rec.Cost;
+								gcp.Price = lot_rec.Price;
+							}
+							gcp.Flags |= (gcp.fCostSettled|gcp.fPriceSettled);
+						}
+						// } @v10.7.3 
 						GoodsContext gctx(gcp);
 						THROW(PPExprParser::CalcExpression(rFilt.Formula, &qval, 0, &gctx));
 					}
@@ -906,7 +898,13 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 		flt.ByWhat = (flt.ByWhat == QuotUpdFilt::byDelete) ? QuotUpdFilt::byAbsVal : flt.ByWhat;
 		PPWait(1);
 		flt.LocList.CopyTo(&loc_list);
-		loc_list.sort();
+		// @v10.7.3 loc_list.sort();
+		// @v10.7.3 {
+		if(loc_list.getCount())
+			loc_list.sort();
+		else
+			loc_list.add(0L);
+		// } @v10.7.3 
 		if(flt.ByWhat == QuotUpdFilt::byLastReval) {
 			PPLogMessage(PPFILNAM_QUOTUPD_LOG, PPSTR_TEXT, PPTXT_LOG_QUOTUPD_BYLASTREVAL, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
 			PPID   kind = flt.QuotKindID;

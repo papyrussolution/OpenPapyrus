@@ -5567,6 +5567,15 @@ data Invent {
 		link   Bill ItemBillID; // @v10.7.1 Ссылка на ид документа. При отчете по нескольким документам может отличаться от Hdr.BillID
 		long   LineNo;          //
 		link   Goods ItemID;    // Товар
+		//
+		// @v10.7.3 Значения флагов ItemFlags
+		// INVENTF_GENAUTOLINE  0x00000001L // Автоматически сгенерированная строка (не подтвержденная)
+		// INVENTF_GENWROFFLINE 0x00000002L // Строка сгенерирована при списании (списан по умолчанию весь остаток)
+		// INVENTF_WRITEDOFF    0x00000004L // Строка списана
+		// INVENTF_SURPLUS      0x00000008L // Знак рассогласований 1
+		// INVENTF_LACK         0x00000010L // Знак рассогласований -1
+		//
+		long   ItemFlags;       // @v10.7.3 Флаги строки инвентаризации
 		int16  WritedOff;       // Строка списана
 		int16  AutoLine;
 		//
