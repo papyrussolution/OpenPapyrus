@@ -5166,11 +5166,12 @@ private:
 		TSVector <ATSubstObjects::Item> ForeignList; // @v9.8.4 TSArray-->TSVector
 	};
 	struct ATBillParam {
+		SLAPI  ATBillParam();
 		enum {
 			fIsRcknInited  = 0x0001,
 			fAr            = 0x0002  // Поле AdvItemIdx применяется как номер статьи для подставновки
 		};
-		PPBillPacket * P_Pack;
+		const PPBillPacket * P_Pack;
 		PPBillPacket * P_LinkPack;
 		PPBillPacket * P_RcknPack;
 		int    AdvItemIdx;
@@ -16495,6 +16496,76 @@ private:
 	long   Ver;
 };
 
+struct PPTssModel { // @persistent @store(Reference2Tbl)
+	SLAPI  PPTssModel();
+	int    FASTCALL IsEqual(const PPTssModel & rS) const;
+	PPID   Tag;            // Const=PPOBJ_TSSMODEL
+	PPID   ID;             // @id
+	char   Name[48];       // @name @!refname
+	char   Symb[20];       //
+	enum {
+		fBestSubsetTrendFollowing = 0x0001,
+		fOptRangeMulti            = 0x0004, // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
+	};
+	enum {
+		tcAmount = 0,
+		tcVelocity = 1,
+		tcWinRatio = 2
+	};
+	uint16 BestSubsetDimention;
+	uint16 BestSubsetMaxPhonyIters;
+	uint8  BestSubsetOptChunk;      // 3 || 7 || 15
+	uint8  MainFrameRangeCount;     // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
+	uint16 DefTargetQuant;          // @v10.4.2
+	uint16 OptRangeStep;            // @v10.4.7
+	uint16 OptRangeStepMkPart;      // @v10.4.7
+	uint16 OptRangeMultiLimit;      // @v10.4.7
+	uint16 OptRangeMaxExtProbe;     // @v10.7.3 @default=1 Максимальное количество попыток расширения оптимального интервала значений регрессии
+	int16  OptTargetCriterion;      // @v10.4.6 tcXXX
+	int16  ChaosFactor;             // @v10.7.1 Фактор случайности при выборе стратегии в промилле.
+	LDATE  UseDataSince;            // Модель строить по данным, начиная с указанной даты включительно (если checkdate(UseDataSince)) 
+	double InitTrendErrLimit;
+	double InitMainTrendErrLimit;   // @v10.7.0
+	double MinWinRate;              // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
+	double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
+	uint32 Reserve[2];
+	long   Flags;
+	long   Reserve1;
+	long   Reserve2;
+};
+
+class PPTssModelPacket {
+public:
+	SLAPI  PPTssModelPacket();
+	int    FASTCALL IsEqual(const PPTssModelPacket & rS) const;
+	int    SLAPI SerializeTail(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	PPTssModel Rec;
+	struct Extension {
+		SLAPI  Extension();
+		int    FASTCALL IsEqual(const Extension & rS) const;
+		SVerT  Ver;               // Версия системы, создавшей запись
+		uint8  Reserve[60];
+	};
+	Extension E;
+	LongArray MainFrameSizeList;    // Список дистанций магистрального тренда
+	LongArray InputFrameSizeList;   // Список дистанций рабочих трендов (не включает период магистрального тренда)
+	LongArray MaxDuckQuantList;     // Список допустимых величин MaxDuck в квантах 
+	LongArray TargetQuantList;      // Список допустимых величин Target в квантах
+	LAssocArray StakeBoundList;     // @v10.7.3 Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList. 
+		// То есть, если StakeBoundList не пустой, то MaxDuckQuantList, TargetQuantList не используются
+};
+
+class PPObjTssModel : public PPObjReference {
+public:
+	explicit SLAPI  PPObjTssModel(void * extraPtr = 0);
+	virtual int SLAPI Browse(void * extraPtr);
+	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
+	int    SLAPI PutPacket(PPID * pID, PPTssModelPacket * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPTssModelPacket * pPack);
+	int    SLAPI SerializePacket(int dir, PPTssModelPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+};
+
 struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	SLAPI  PPTimeSeries();
 	enum {
@@ -16661,6 +16732,10 @@ public:
 		double SLAPI CalcTP(double stakeBase, double averageSpreadForAdjustment) const;
 		double SLAPI CalcTP(double stakeBase, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI GetWinCountRate() const;
+		//
+		// Descr: Возвращает средний катет (OptDeltaRange*InputFrameSize) / SpikeQuant
+		//
+		double SLAPI GetOptDeltaRangeCQA() const;
 		enum {
 			bfShort      = 0x0001, // Стратегия для short-торговли
 			// @v10.4.5 bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
@@ -16688,7 +16763,8 @@ public:
 		double Margin;           // Маржа
 		double SpikeQuant;       // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
-		double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
+		// @v10.7.4 double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
+		double Reserve3;         // @v10.7.4
 		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
 		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
@@ -16713,6 +16789,7 @@ public:
 		const  uint NominalCount;
 		double ErrAvg;     // @v10.3.12 Средняя ошибка регрессии
 		double SpikeQuant; // @v10.4.10 Квант расчета для периода NominalCount
+		double ErrLimitByPel; // @v10.7.4 Локальный предел ошибки рассчитанный на основе частичного предела ошибки.
 		RealArray TL;
 		RealArray ErrL;   // @v10.3.12 Ошибки регрессии
 	};
@@ -16748,6 +16825,14 @@ public:
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		double SLAPI EvaluateScore() const;
 		const  Strategy * FASTCALL SearchByID(uint32 id) const;
+
+		struct CritEntry {
+			explicit SLAPI CritEntry(uint idx);
+			uint   Idx;
+			double Crit1;
+			double Crit2;
+			double Crit3;
+		};
 		//
 		// Descr: Флаги функции GetBestSubset
 		//
@@ -16764,9 +16849,12 @@ public:
 			gbsfEliminateDups      = 0x0100, // @v10.4.1 Не включать в список дубликаты по StakeMode1 с идентичными
 				// диапазонами и InputFrameSize (игнорируется то из двух, кто имеет наименьший целевой критерий)
 			gbsfTrendFollowing     = 0x0200, // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
-			gbsfCritTotalResult    = 0x0400  // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
+			gbsfCritTotalResult    = 0x0400, // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
+			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
+			gbsfEliminateCQADups   = 0x1000  // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
 		};
-		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup) const;
+		int    SLAPI MakeOrderIndex(long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
+		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, uint cqaMatchPromille, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup) const;
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		struct IndexEntry1 {
 			struct Range : public RealRange {
@@ -16811,6 +16899,7 @@ public:
 		};
 		int    SLAPI SelectS2(SelectBlock & rBlk) const;
 	private:
+		int    SLAPI AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
@@ -16836,10 +16925,11 @@ public:
 		};
 		const  SString Symb;     // Символ временной серии
 		long   ActionFlags;      // @flags
-		uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
-		uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
-		uint   EpochCount;       // Количество эпох обучения каждого паттерна
-		float  LearningRate;     // Фактор скорости обучения
+		// @v10.7.4 uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
+		// @v10.7.4 uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
+		// @v10.7.4 uint   EpochCount;       // Количество эпох обучения каждого паттерна
+		// @v10.7.4 float  LearningRate;     // Фактор скорости обучения
+		uint   Reserve4[4];      // @v10.7.4
 	};
 	struct StrategyResultEntry : public Strategy { // @flat
 		SLAPI  StrategyResultEntry();
@@ -17053,14 +17143,12 @@ public:
 		ModelParam & SLAPI Z();
 		enum {
 			fBestSubsetTrendFollowing = 0x0001,
-			//fOptRangeTarget_Velocity  = 0x0002, // Целевая функция при определении оптимального сектора - скорость (иначе - объем)
 			fOptRangeMulti            = 0x0004, // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
-			//fOptRangeTarget_WinRatio  = 0x0008, // Целевая функция при определении оптимального сектора - вероятность выигрыша (иначе - объем или скорость)
 		};
 		enum {
-			tcAmount = 0,
-			tcVelocity = 1,
-			tcWinRatio = 2
+			tcAmount = 0,   // Целевая функция при определении оптимального сектора - абсолютный объем выигрыша
+			tcVelocity = 1, // Целевая функция при определении оптимального сектора - скорость выигрыша
+			tcWinRatio = 2  // Целевая функция при определении оптимального сектора - вероятность выигрыша 
 		};
 		long   Flags;
 		long   OptTargetCriterion;      // @v10.4.6
@@ -17071,6 +17159,9 @@ public:
 			// То есть, если StakeBoundList не пустой, то MaxDuckQuantList, TargetQuantList не используются
 		LongArray MainFrameSizeList;    // @v10.5.0
 		double InitTrendErrLimit;
+		double PartitialTrendErrLimit;  // @v10.7.4 Ограничение ошибки тренда по максимальной части общей выборки ошибок тренда.
+			// Так значение 0.90 означает, что для стратегии будет применена максимальная ошибка не превышающая величину которой
+			// соответствует 90 процентов значений тренда, отсортированных по значению ошибки. 
 		double InitMainTrendErrLimit;   // @v10.7.0
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
@@ -17094,7 +17185,7 @@ public:
 	int    SLAPI Init(const PPBaseFilt * pBaseFilt);
 	int    SLAPI Run();
 	int    SLAPI TryStrategyContainers(const PPIDArray & rTsList);
-	int    SLAPI AnalyzeRegression(PPID tsID, const LongArray & rStepList);
+	int    SLAPI AnalyzeRegression(PPID tsID);
 	//
 	// Descr: Флаги функции FindOptimalMaxDuck
 	//
@@ -17113,10 +17204,11 @@ private:
 	// @v10.7.2 int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    SLAPI FindStrategies(void * pBlk);
+	int    SLAPI FindStrategiesLoop(void * pBlk);
 	enum {
 		mavfDontSqrtErrList = 0x0001
 	};
-	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
+	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	PrcssrTsStrategyAnalyzeFilt P;
 	PPObjTimeSeries TsObj;
 	uint32 LastStrategyId;
@@ -17150,6 +17242,7 @@ public:
 // Типы сумм документов
 //
 struct PPAmountType2 {     // @persistent @store(Reference2Tbl+)
+	SLAPI  PPAmountType2();
 	int    SLAPI IsTax(PPID taxID  /* GTAX_XXX */) const;
 	int    SLAPI IsComplementary() const;
 	enum {
@@ -26319,7 +26412,6 @@ public:
 	int    SLAPI EditParam(Param *);
 	int    SLAPI Init(const Param *);
 	int    SLAPI Run();
-	//
 	int    SLAPI CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, double * pHours);
 	int    SLAPI TestCalcPeriod(PPID postID);
 	int    SLAPI ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta);
@@ -30990,6 +31082,7 @@ public:
 #define CILTIF_MOD                 0x1000 // @v8.0.3  Функция ConvertILTI должна изменить (удалить,добавить) строку в существующем документе
 #define CILTIF_REPFULLSYNCPROBLEM  0x2000 // @v8.4.10 Выводить в журнал synclot.log информацию о проблемах подстановки синхронизированного лота
 #define CILTIF_CAREFULLYALIGNPRICE 0x4000 // @9.2.7   Выравнивать цену реализации результирующих строк по исходной сумме в ценах реализации
+#define CILTIF_CUTRESTTOZERO       0x8000 // @v10.7.4 Остатки по лотам срезать до нуля
 //
 // Опции выбора даты зачетной оплаты (PPObjBill::Reckon())
 //
@@ -37642,7 +37735,15 @@ public:
 	long   Reserve;
 };
 
-typedef TransferTbl::Rec LotOpViewItem;
+
+struct LotOpViewItem : public TransferTbl::Rec {
+	SLAPI  LotOpViewItem() : TransferTbl::Rec(), OldQtty(0.0), OldCost(0.0), OldPrice(0.0)
+	{
+	}
+	double OldQtty;
+	double OldCost;
+	double OldPrice;
+};
 
 class PPViewLotOp : public PPView {
 public:
@@ -43822,8 +43923,7 @@ struct PPProjectConfig {   // @persistent @store(PropertyTbl) @size=90
 		// Если RejTaskTerm == 0, то задача автоматически не переводится в статус TODOSTTS_REJECTED.
 		// Отсчет дней идет с текущей системной даты
 	int16  TemplGenTerm;   // Период (в днях) на который следует сгенерировать задачи по шаблонам
-		// при вызове функции обслуживания задач.
-		// Отсчет дней идет с текущей системной даты
+		// при вызове функции обслуживания задач. Отсчет дней идет с текущей системной даты
 	char   Text[38];       //
 	long   Flags;          // PRGCFGF_XXX
 	long   WorkHoursBeg;   //

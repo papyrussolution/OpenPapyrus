@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Диалоги редактирования пользователей, групп, прав доступа.
 //
@@ -30,17 +30,18 @@ int SLAPI UpdatePassword()
 }
 
 class SecurDialog : public TDialog {
+	DECL_DIALOG_DATA(PPSecurPacket);
 public:
 	SecurDialog(int dlgID, PPID objType, PPID objID) : TDialog(dlgID), ObjType(objType), ObjID(objID)
 	{
 		PTR32(Password)[0] = 0; // @v10.3.0
 	}
-	int    setDTS(const PPSecurPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Pack = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		ushort v  = 0;
-		PPSecur * p_secur = &Pack.Secur;
+		PPSecur * p_secur = &Data.Secur;
 		setCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		setCtrlData(CTL_USRGRP_ID, &ObjID);
 		disableCtrl(CTL_USRGRP_ID, (!PPMaster || ObjID));
@@ -74,11 +75,11 @@ public:
 		}
 		return ok;
 	}
-	int    getDTS(PPSecurPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ushort v;
-		PPSecur * p_secur = &Pack.Secur;
+		PPSecur * p_secur = &Data.Secur;
 		getCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		getCtrlData(CTL_USRGRP_ID,   &p_secur->ID);
 		ObjID = p_secur->ID;
@@ -101,7 +102,7 @@ public:
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
 			GetClusterData(CTL_USR_UERFLAGS, &p_secur->UerFlags);
 		}
-		*pData = Pack;
+		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
 	const  PPID   ObjType;
@@ -109,82 +110,65 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   getPassword();
-	int    getPaths();
-	int    setPathFld(TDialog *, long pathID, uint ctlID, uint labelID);
-	int    getPathFld(TDialog *, long pathID, uint ctlID);
-
-	PPSecurPacket Pack;
+	void   getPaths();
+	
 	char   Password[sizeof(reinterpret_cast<const PPSecur *>(0)->Password)];
 };
 
 void SecurDialog::getPassword()
 {
 	PPAccessRestriction accsr;
-	size_t minlen = Pack.Rights.IsEmpty() ?
-		ObjRts.GetAccessRestriction(accsr).PwMinLen : Pack.Rights.GetAccessRestriction(accsr).PwMinLen;
+	size_t minlen = Data.Rights.IsEmpty() ? ObjRts.GetAccessRestriction(accsr).PwMinLen : Data.Rights.GetAccessRestriction(accsr).PwMinLen;
 	PasswordDialog(0, Password, sizeof(Password), minlen);
 }
 
-int SecurDialog::setPathFld(TDialog * dlg, long pathID, uint fldID, uint labelID)
+void SecurDialog::getPaths()
 {
-	short  flags;
-	char   st[8];
-	SString temp_buf;
-	Pack.Paths.GetPath(pathID, &flags, temp_buf);
-	dlg->setCtrlString(fldID, temp_buf.Strip());
-	st[0] = ' ';
-	st[1] = (flags & PATHF_INHERITED) ? '.' : ' ';
-	st[2] = 0;
-	dlg->setStaticText(labelID, st);
-	return 1;
-}
-
-int SecurDialog::getPathFld(TDialog * dlg, long pathID, uint fldID)
-{
-	int    ok = 1;
-	short  flags;
-	SString pattern;
-	SString temp_buf;
-	Pack.Paths.GetPath(pathID, &flags, pattern);
-	dlg->getCtrlString(fldID, temp_buf);
-	temp_buf.Strip();
-	pattern.Strip();
-	if(temp_buf.CmpNC(pattern) != 0) {
-		if(!Pack.Paths.SetPath(pathID, temp_buf, 0, 1))
-			ok = 0;
-	}
-	return ok;
-}
-
-int SecurDialog::getPaths()
-{
-	int    ok = -1;
 	TDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PATH)))) {
-		setPathFld(dlg, PPPATH_DRIVE, CTL_PATH_DRV,  CTL_PATH_D_DRV);
-		setPathFld(dlg, PPPATH_ROOT,  CTL_PATH_ROOT, CTL_PATH_D_ROOT);
-		setPathFld(dlg, PPPATH_DAT,   CTL_PATH_DAT,  CTL_PATH_D_DAT);
-		setPathFld(dlg, PPPATH_ARC,   CTL_PATH_ARC,  CTL_PATH_D_ARC);
-		setPathFld(dlg, PPPATH_BIN,   CTL_PATH_BIN,  CTL_PATH_D_BIN);
-		setPathFld(dlg, PPPATH_IN,    CTL_PATH_IN,   CTL_PATH_D_IN);
-		setPathFld(dlg, PPPATH_OUT,   CTL_PATH_OUT,  CTL_PATH_D_OUT);
-		setPathFld(dlg, PPPATH_TEMP,  CTL_PATH_TMP,  CTL_PATH_D_TMP);
+		static const struct {
+			long   PathID;
+			uint   FldId;
+			uint   IndFldId;
+		} path_fld_list[] = {
+			{ PPPATH_DRIVE, CTL_PATH_DRV,  CTL_PATH_D_DRV },
+			{ PPPATH_ROOT,  CTL_PATH_ROOT, CTL_PATH_D_ROOT },
+			{ PPPATH_DAT,   CTL_PATH_DAT,  CTL_PATH_D_DAT },
+			{ PPPATH_ARC,   CTL_PATH_ARC,  CTL_PATH_D_ARC },
+			{ PPPATH_BIN,   CTL_PATH_BIN,  CTL_PATH_D_BIN },
+			{ PPPATH_IN,    CTL_PATH_IN,   CTL_PATH_D_IN },
+			{ PPPATH_OUT,   CTL_PATH_OUT,  CTL_PATH_D_OUT },
+			{ PPPATH_TEMP,  CTL_PATH_TMP,  CTL_PATH_D_TMP }
+		};
+		uint    i;
+		short  flags = 0;
+		SString temp_buf;
+		SString pattern;
+		for(i = 0; i < SIZEOFARRAY(path_fld_list); i++) {
+			//setPathFld(dlg, path_fld_list[i].PathID, path_fld_list[i].FldId, path_fld_list[i].IndFldId);
+			//void SecurDialog::setPathFld(TDialog * dlg, long pathID, uint fldID, uint labelID)
+			char   st[8];
+			Data.Paths.GetPath(path_fld_list[i].PathID, &flags, temp_buf);
+			dlg->setCtrlString(path_fld_list[i].FldId, temp_buf.Strip());
+			st[0] = ' ';
+			st[1] = (flags & PATHF_INHERITED) ? '.' : ' ';
+			st[2] = 0;
+			dlg->setStaticText(path_fld_list[i].IndFldId, st);
+		}
 		if(ExecView(dlg) == cmOK) {
-			getPathFld(dlg, PPPATH_DRIVE, CTL_PATH_DRV);
-			getPathFld(dlg, PPPATH_ROOT,  CTL_PATH_ROOT);
-			getPathFld(dlg, PPPATH_DAT,   CTL_PATH_DAT);
-			getPathFld(dlg, PPPATH_ARC,   CTL_PATH_ARC);
-			getPathFld(dlg, PPPATH_BIN,   CTL_PATH_BIN);
-			getPathFld(dlg, PPPATH_IN,    CTL_PATH_IN);
-			getPathFld(dlg, PPPATH_OUT,   CTL_PATH_OUT);
-			getPathFld(dlg, PPPATH_TEMP,  CTL_PATH_TMP);
-			ok = 1;
+			for(i = 0; i < SIZEOFARRAY(path_fld_list); i++) {
+				//getPathFld(dlg, path_fld_list[i].PathID, path_fld_list[i].FldId);
+				//void SecurDialog::getPathFld(TDialog * dlg, long pathID, uint fldID)
+				Data.Paths.GetPath(path_fld_list[i].PathID, &flags, pattern);
+				dlg->getCtrlString(path_fld_list[i].FldId, temp_buf);
+				temp_buf.Strip();
+				pattern.Strip();
+				if(temp_buf.CmpNC(pattern) != 0)
+					Data.Paths.SetPath(path_fld_list[i].PathID, temp_buf, 0, 1);
+			}
 		}
 	}
-	else
-		ok = 0;
 	delete dlg;
-	return ok;
 }
 
 IMPL_HANDLE_EVENT(SecurDialog)
@@ -194,8 +178,8 @@ IMPL_HANDLE_EVENT(SecurDialog)
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmCfgPath:     getPaths();    break;
-			case cmCfgConfig:   EditCfgOptionsDialog(&Pack.Config, 0); break;
-			case cmCfgRights:   EditRightsDialog(Pack.Rights);         break;
+			case cmCfgConfig:   EditCfgOptionsDialog(&Data.Config, 0); break;
+			case cmCfgRights:   EditRightsDialog(Data.Rights);         break;
 			case cmCfgPassword: getPassword(); break;
 			case cmClusterClk:
 				if(event.isCtlEvent(CTL_USR_FLAGS)) {
@@ -444,14 +428,11 @@ int CfgOptionsDialog::setDTS(const PPConfig * pCfg)
 		SetClusterData(CTL_CFGOPTIONS_RLZORD, Cfg.RealizeOrder);
 		AddClusterAssoc(CTL_CFGOPTIONS_FEFO, 0, CFGFLG_FEFO);
 		SetClusterData(CTL_CFGOPTIONS_FEFO, Cfg.Flags);
-		//_SetFlags(this, Cfg.Flags);
-		//static void SLAPI _SetFlags(TDialog * dlg, long flags)
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  0, CFGFLG_CHECKTURNREST);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  1, CFGFLG_DISCOUNTBYSUM);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  2, CFGFLG_USEPACKAGE);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  3, CFGFLG_SELGOODSBYPRICE);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  4, CFGFLG_FREEPRICE);
-		// @v8.6.6 AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  5, CFGFLG_NEJPBILL);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  5, CFGFLG_ALLOWOVERPAY);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  6, CFGFLG_ENABLEFIXDIS);
 		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  7, CFGFLG_AUTOQUOT);
@@ -594,10 +575,9 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 		long   sec = 0, dd = 0;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		if(p_sj) {
-			LDATETIME cur_dtm;
+			const LDATETIME cur_dtm = getcurdatetime_();
 			DateRange srch_prd;
 			srch_prd.Z();
-			getcurdatetime(&cur_dtm);
 			plusperiod(&(srch_prd.low = cur_dtm.d), PRD_DAY, -2, 0);
 			if((ok = p_sj->GetLastUserEvent(PPACN_LOGIN, userID, sessID, &srch_prd, &login_dtm)) > 0)
 				sec = diffdatetime(cur_dtm, login_dtm, 3, &dd);

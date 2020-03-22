@@ -167,8 +167,23 @@ int SLAPI StatBase::Finish()
 
 void SLAPI StatBase::Step(const RealArray & rVl)
 {
-	for(uint i = 0; i < rVl.getCount(); i++) {
-		Step(rVl.at(i));
+	const uint sc = rVl.getCount();
+	Count += sc;
+	IterCount += sc;
+	for(uint i = 0; i < sc; i++) {
+		const double val = rVl.at(i);
+		SETMAX(Max, val);
+		SETMIN(Min, val);
+		Sum[0] += val;
+		double sq = val * val;
+		Sum[1] += sq;
+		if(Flags & fExt) {
+			Sum[2] += sq * val;
+			Sum[3] += sq * sq;
+		}
+	}
+	if(Flags & (fGammaTest|fGaussianTest|fStoreVals)) {
+		Series.insertChunk(sc, &rVl);
 	}
 }
 
@@ -1638,8 +1653,9 @@ SLAPI STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx
 {
 }
 
-int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList,
-	RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const
+//static 
+int SLAPI STimeSeries::AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11)
 {
 	CALLPTRMEMB(pTrendList, clear());
 	CALLPTRMEMB(pSumSqList, clear());
@@ -1647,16 +1663,16 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 	CALLPTRMEMB(pCov01, clear());
 	CALLPTRMEMB(pCov11, clear());
 	int    ok = 1;
-	uint   vec_idx = 0;
-	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
-	THROW(p_vec);
+	//uint   vec_idx = 0;
+	//STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	//THROW(p_vec);
 	{
-		const  uint _c = GetCount();
+		const  uint _c = rData.getCount();
 		if(_c && rP.FirstIdx < _c) {
 			const  uint ic = (rP.IdxCount == 0) ? _c : MIN(rP.FirstIdx + rP.IdxCount, _c);
 			const  uint distance = rP.Distance;
 			RealArray lss_rv_x;
-			RealArray lss_rv_y;
+			//RealArray lss_rv_y;
 			const size_t chunk_size = 128;
 			double trend_chunk[chunk_size];
 			double sumsq_chunk[chunk_size];
@@ -1667,12 +1683,10 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 			for(uint i = 0; i < distance; i++) {
 				THROW(lss_rv_x.add(static_cast<double>(i+1)));
 			}
-
 			// THROW(lss_rv_y.dim(distance));
-			int gvr = GetRealArray(vec_idx, 0, ic, lss_rv_y);
-			assert(gvr > 0);
-			assert(lss_rv_y.getCount() == ic);
-
+			//int gvr = GetRealArray(vec_idx, 0, ic, lss_rv_y);
+			//assert(gvr > 0);
+			assert(_c == ic);
 			for(uint j = rP.FirstIdx; j < ic; j++) {
 				double trend;
 				double sumsq;
@@ -1684,7 +1698,7 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 					assert(lss_rv_x.getCount() == distance);
 					//assert(lss_rv_y.getCount() == distance);
 					//lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), static_cast<const double *>(lss_rv_y.dataPtr()));
-					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), &lss_rv_y.at(j-distance+1));
+					lss.Solve(distance, static_cast<const double *>(lss_rv_x.dataPtr()), &rData.at(j-distance+1));
 					trend = lss.B;
 					sumsq = lss.SumSq;
 					cov00 = lss.Cov00;
@@ -1720,6 +1734,31 @@ int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam &
 				if(pCov01) { THROW(pCov01->insertChunk(chunk_p, cov01_chunk)); }
 				if(pCov11) { THROW(pCov11->insertChunk(chunk_p, cov11_chunk)); }
 			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI STimeSeries::AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList, RealArray * pSumSqList,
+	RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const
+{
+	CALLPTRMEMB(pTrendList, clear());
+	CALLPTRMEMB(pSumSqList, clear());
+	CALLPTRMEMB(pCov00, clear());
+	CALLPTRMEMB(pCov01, clear());
+	CALLPTRMEMB(pCov11, clear());
+	int    ok = 1;
+	uint   vec_idx = 0;
+	STimeSeries::ValuVec * p_vec = GetVecBySymb(pVecSymb, &vec_idx);
+	THROW(p_vec);
+	{
+		const  uint _c = GetCount();
+		if(_c && rP.FirstIdx < _c) {
+			const  uint ic = (rP.IdxCount == 0) ? _c : MIN(rP.FirstIdx + rP.IdxCount, _c);
+			RealArray lss_rv_y;
+			int gvr = GetRealArray(vec_idx, 0, ic, lss_rv_y);
+			THROW(STimeSeries::AnalyzeFit(lss_rv_y, rP, pTrendList, pSumSqList, pCov00, pCov01, pCov11));
 		}
 	}
 	CATCHZOK

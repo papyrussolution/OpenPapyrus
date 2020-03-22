@@ -1467,6 +1467,7 @@
 #define PPCMD_QUOTEREQANALYZE                       1341
 #define PPCMD_UNIFINDOBJ                            1342
 #define PPCMD_QUERYCHZN                             1343
+#define PPCMD_TSSMODEL                              1344
 //
 // PPJOB definitions
 //

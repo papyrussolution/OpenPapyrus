@@ -2419,11 +2419,9 @@ int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 {
 	int    ok = 1, r;
 	SString data_path, temp_path, temp_buf;
-
 	PPVersionInfo ver_inf(0);
 	const SVerT this_ver   = ver_inf.GetVersion();
 	const SVerT this_db_min_ver = ver_inf.GetVersion(1);
-
 	pBlk->GetAttr(DbLoginBlock::attrDbPath, data_path);
 	PPVerHistory verh;
 	PPVerHistory::Info vh_info;

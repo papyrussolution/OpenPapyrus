@@ -115,9 +115,11 @@ static const ushort _Objects[] = {
 	PPOBJ_CAFETABLE,
 	PPOBJ_EDIPROVIDER,
 	PPOBJ_USREXCLRIGHTS,
-	PPOBJ_WORKBOOK,      // @v9.3.8
+	PPOBJ_WORKBOOK,           // @v9.3.8
 	PPOBJ_FREIGHTPACKAGETYPE, // @v10.4.1
-	PPOBJ_TAXSYSTEMKIND // @v10.6.0
+	PPOBJ_TAXSYSTEMKIND,      // @v10.6.0
+	PPOBJ_TIMESERIES,         // @v10.7.4
+	PPOBJ_TSSMODEL            // @v10.7.4
 };
 
 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -126,7 +128,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 {
 	int    is_undef_obj = 0;
 	PPObject * p = 0;
-	switch((uint)obj) {
+	switch(static_cast<uint>(obj)) {
 		case PPOBJ_CONFIG      :
 		case PPOBJ_USRGRP      :
 		case PPOBJ_USREXCLRIGHTS:
@@ -230,9 +232,10 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_GENERICDEVICE: p = new PPObjGenericDevice(extraPtr); break; // @v7.8.0
 		case PPOBJ_WORKBOOK    :  p = new PPObjWorkbook(extraPtr); break; // @Muxa
 		case PPOBJ_EDIPROVIDER :  p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
-		case PPOBJ_TIMESERIES  :  p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3 @experimental
+		case PPOBJ_TIMESERIES  :  p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3
 		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break; // @v10.4.1
 		case PPOBJ_TAXSYSTEMKIND: p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
+		case PPOBJ_TSSMODEL: p = new PPObjTssModel(extraPtr); break; // @v10.7.4
 		default                :
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);
@@ -691,13 +694,11 @@ int SLAPI PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 int SLAPI PPObject::Edit(PPID * pID, void * extraPtr) { return 0; }
 int SLAPI PPObject::Search(PPID id, void *) { return 0; }
 int SLAPI PPObject::DeleteObj(PPID id) { return 0; }
-int SLAPI PPObject::ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx)
-	{ return 1; }
+int SLAPI PPObject::ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx) { return 1; }
 const char * SLAPI PPObject::GetNamePtr() { return 0; }
 StrAssocArray * SLAPI PPObject::MakeStrAssocList(void * extraPtr) { return 0; }
 int SLAPI PPObject::MakeReserved(long flags) { return 1; }
-int SLAPI PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extraPtr)
-	{ return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK; }
+int SLAPI PPObject::HandleMsg(int msg, PPID /*_obj*/, PPID /*_id*/, void * extraPtr) { return (msg == DBMSG_SECURITY) ? DBRPL_CANCEL : DBRPL_OK; }
 int SLAPI PPObject::Read(PPObjPack *, PPID, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
 int SLAPI PPObject::Write(PPObjPack * /*pPack*/, PPID * /*pID*/, void * /*stream*/, ObjTransmContext * pCtx) { return 0; }
 

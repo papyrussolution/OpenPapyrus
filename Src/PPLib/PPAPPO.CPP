@@ -488,7 +488,8 @@ int PPApp::processCommand(uint cmd)
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break;
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break;
-		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3 @experimental
+		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3 
+		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break; // @v10.7.4
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
 		// @v9.6.1 case cmAccArticle:           ViewArticle(0);                          break;

@@ -69,6 +69,10 @@ PPAccTurnTempl::ATSubstObjects::Item::Item() : AcsID(0)
 {
 	// @v10.7.3 @ctr Aid.Z();
 }
+
+SLAPI PPAccTurnTempl::ATBillParam::ATBillParam() : P_Pack(0), P_LinkPack(0), P_RcknPack(0), AdvItemIdx(0), AccSheetID(0), Flags(0)
+{
+}
 //
 //
 //
@@ -146,7 +150,7 @@ int SLAPI PPAccTurnTempl::GetObjByVar(PPID var, ATBillParam * pParam, PPID * pOb
 	int    ok = 1;
 	int    use_parent = 0;
 	PPID   obj_id = 0;
-	PPBillPacket * p_pack = 0;
+	const  PPBillPacket * p_pack = 0;
 	if(pParam) {
 		if(var & LINKFLAG)
 			p_pack = pParam->P_LinkPack;
@@ -484,7 +488,6 @@ int SLAPI PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccT
 	double cur_rate = 1.0;
 	ATSubstObjects  atso;
 	PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
-	//AccountCore & r_acc_core = *r_acc_obj.P_Tbl;
 	PPAccount acc_rec;
 	AcctID dbt = DbtID;
 	AcctID crd = CrdID;
@@ -571,30 +574,24 @@ int SLAPI PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccT
 					}
 				}
 				else if(acc_atso.ForeignList.getCount() == 0 || acc_atso.ForeignList.at(0).Aid.ac == 0) {
-					if(acc_atso.PrimList.getCount()) {
+					if(acc_atso.PrimList.getCount())
 						dbt.ac = crd.ac = acc_atso.PrimList.at(0).Aid.ac;
-					}
 				}
 				else if(acc_atso.PrimList.getCount() == 0 || acc_atso.PrimList.at(0).Aid.ac == 0) {
-					if(acc_atso.ForeignList.getCount()) {
+					if(acc_atso.ForeignList.getCount())
 						dbt.ac = crd.ac = acc_atso.ForeignList.at(0).Aid.ac;
-					}
 				}
 				else if(Flags & ATTF_PRIMONCREDIT) {
-					if(acc_atso.ForeignList.getCount()) {
+					if(acc_atso.ForeignList.getCount())
 						dbt.ac = acc_atso.ForeignList.at(0).Aid.ac;
-					}
-					if(acc_atso.PrimList.getCount()) {
+					if(acc_atso.PrimList.getCount())
 						crd.ac = acc_atso.PrimList.at(0).Aid.ac;
-					}
 				}
 				else {
-					if(acc_atso.PrimList.getCount()) {
+					if(acc_atso.PrimList.getCount())
 						dbt.ac = acc_atso.PrimList.at(0).Aid.ac;
-					}
-					if(acc_atso.ForeignList.getCount()) {
+					if(acc_atso.ForeignList.getCount())
 						crd.ac = acc_atso.ForeignList.at(0).Aid.ac;
-					}
 				}
 			}
 			THROW(GetSubstObjects(&rParam, &atso, 0)); // Инициализация atso. Далее этот блок не меняется.
@@ -737,7 +734,7 @@ int SLAPI PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
 					at.Amount = R0(at.Amount);
 				{
 					ATBillParam param;
-					MEMSZERO(param);
+					// @v10.7.4 @ctr MEMSZERO(param);
 					param.P_Pack = pPack;
 					param.AdvItemIdx = elb.SubstAr;
 					if(r == 2) {
@@ -780,7 +777,7 @@ int SLAPI PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 					if(Flags & ATTF_EXPRESSION) {
 						THROW(PPCalcExpression(Expr, &at.Amount, pPack, cur_id, elb.SubstAr));
 					}
-					else if(pPack->Rec.CurID == cur_id)
+					else if(pPack->Rec.CurID == cur_id) {
 						if(r == 1) {
 							const PPAdvBillItemList::Item & r_abi = pPack->AdvList.Get(elb.Idx);
 							if(&r_abi)
@@ -788,11 +785,12 @@ int SLAPI PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 						}
 						else
 							at.Amount = BR2(pPack->Rec.Amount);
+					}
 					if(Flags & ATTF_INTROUNDING)
 						at.Amount = R0(at.Amount);
 					{
 						ATBillParam param;
-						MEMSZERO(param);
+						// @v10.7.4 @ctr MEMSZERO(param);
 						param.P_Pack = pPack;
 						param.AdvItemIdx = elb.SubstAr;
 						if(r == 2) {

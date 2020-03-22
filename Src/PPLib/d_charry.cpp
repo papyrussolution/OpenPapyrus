@@ -1752,7 +1752,7 @@ int SLAPI PPDS_CrrGoodsType::TransferAmtType(PPID * pAmttID, Tfd dir, SString & 
 	int    ok = -1;
 	SString buf;
 	PPAmountType amtt_rec;
-	MEMSZERO(amtt_rec);
+	// @v10.7.4 @ctr MEMSZERO(amtt_rec);
 	if(dir == tfdDataToBuf) {
 		if(AmtTypeObj.Search(*pAmttID, &amtt_rec) > 0)
 			buf.CopyFrom(amtt_rec.Symb);

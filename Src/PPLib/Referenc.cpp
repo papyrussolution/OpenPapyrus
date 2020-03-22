@@ -643,7 +643,6 @@ int SLAPI Reference::PutProp(PPID obj, PPID id, PPID prop, const void * b, size_
 			}
 		}
 		else {
-			// @v8.2.9 {
 			k.ObjType = obj;
 			k.ObjID   = id;
 			k.Prop    = prop;
@@ -653,8 +652,6 @@ int SLAPI Reference::PutProp(PPID obj, PPID id, PPID prop, const void * b, size_
 					THROW_DB(Prop.deleteRec());
 				} while(Prop.search(0, &k, spNext) && Prop.data.ObjType == obj && Prop.data.ObjID == id && Prop.data.Prop == prop);
 			}
-			// } @v8.2.9
-			// @v8.2.9 THROW_DB(deleteFrom(&Prop, 0, (Prop.ObjType == obj && Prop.ObjID == id && Prop.Prop == prop)));
 		}
 		THROW(tra.Commit());
 	}

@@ -654,7 +654,6 @@ int SLAPI PPViewProject::InitIteration()
 	ProjectTbl * t = PrjObj.P_Tbl;
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
-
 	THROW_MEM(P_IterQuery = new BExtQuery(t, idx, 256));
 	P_IterQuery->select(t->ID, 0L);
 	dbq = & (*dbq && daterange(t->BeginDt, &Filt.StartPeriod) &&
@@ -696,7 +695,7 @@ int FASTCALL PPViewProject::NextIteration(ProjectViewItem * pItem)
 					continue;
 				if(rec.Status == PPPRJSTS_ARCHIVED && !(Filt.Flags & ProjectFilt::fShowArchived))
 					continue;
-				*((ProjectTbl::Rec *)pItem) = rec;
+				*static_cast<ProjectTbl::Rec *>(pItem) = rec;
 				ok = (Filt.Flags & ProjectFilt::fPrintPrjTasks) ? InitPrjTaskIterations(id) : 1;
 			}
 		}

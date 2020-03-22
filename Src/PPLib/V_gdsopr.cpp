@@ -825,13 +825,14 @@ int GoodsOpAnlzFiltDialog::editCompareItems()
 }
 
 class GoodsOpAnlzExtFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(GoodsOpAnalyzeFilt);
 public:
 	GoodsOpAnlzExtFiltDialog() : TDialog(DLG_GOODSOPR2)
 	{
 		PPSetupCtrlMenu(this, CTL_BILLFLT_RESTDATE, CTLMNU_BILLFLT_RESTDATE, CTRLMENU_RESTDATE);
 		SetupCalCtrl(CTLCAL_BILLFLT_RESTDATE, this, CTL_BILLFLT_RESTDATE, 4);
 	}
-	int setDTS(const GoodsOpAnalyzeFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		PPID   suppl_sheet_id = GetSupplAccSheet();
 		PPID   agent_sheet_id = GetAgentAccSheet();
@@ -857,7 +858,7 @@ public:
 		SetupSubst();
 		return 1;
 	}
-	int getDTS(GoodsOpAnalyzeFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		PPID   suppl_sheet_id = GetSupplAccSheet();
@@ -960,8 +961,6 @@ private:
 		disableCtrl(CTLSEL_BILLFLT_SUBST, dsbl_bill_subst);
 		disableCtrl(CTLSEL_BILLFLT_SUBSTGDS, dsbl_sec_subst);
 	}
-
-	GoodsOpAnalyzeFilt Data;
 };
 
 IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
@@ -1082,15 +1081,16 @@ void GoodsOpAnlzFiltDialog::setupAccSheet(PPID accSheetID)
 int GoodsOpAnlzFiltDialog::editABCAnlzFilt(ABCAnlzFilt * pFilt)
 {
 	class ABCAnlzFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(ABCAnlzFilt);
 	public:
 		ABCAnlzFiltDialog() : TDialog(DLG_ABCANLZ)
 		{
 			disableCtrl(CTL_ABCANLZ_FRSUM, 1);
 		}
-		int   setDTS(const ABCAnlzFilt * pFilt)
+		DECL_DIALOG_SETDTS()
 		{
 			double fract_sum = 0.0;
-			Data = *pFilt;
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_ABCANLZ_GROUPBY, 0, ABCAnlzFilt::GroupByCostSum);
 			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, 1, ABCAnlzFilt::GroupByPriceSum);
 			AddClusterAssoc(CTL_ABCANLZ_GROUPBY, 2, ABCAnlzFilt::GroupByQtty);
@@ -1102,13 +1102,13 @@ int GoodsOpAnlzFiltDialog::editABCAnlzFilt(ABCAnlzFilt * pFilt)
 				setCtrlReal(grpFractCtl(i), Data.GrpFract[i]);
 			return 1;
 		}
-		int   getDTS(ABCAnlzFilt * pFilt)
+		DECL_DIALOG_GETDTS()
 		{
 			GetClusterData(CTL_ABCANLZ_GROUPBY, &Data.GroupBy);
 			int    ok = checkGrpsFract(0);
 			if(ok) {
 				Data.SortGrpFract();
-				ASSIGN_PTR(pFilt, Data);
+				ASSIGN_PTR(pData, Data);
 			}
 			else
 				PPError();
@@ -1137,7 +1137,6 @@ int GoodsOpAnlzFiltDialog::editABCAnlzFilt(ABCAnlzFilt * pFilt)
 				Data.GrpFract[i] = fabs(getCtrlReal(grpFractCtl(i)));
 			return Data.CheckFracts(pFractsSum);
 		}
-		ABCAnlzFilt Data;
 	};
 	DIALOG_PROC_BODY(ABCAnlzFiltDialog, pFilt);
 }
@@ -1586,7 +1585,7 @@ private:
 
 	double GetMaxFraction(short * pABCGrp);
 	double GetMinFraction(short * pABCGrp);
-	int    AccumulateVals(TempGoodsOprTbl::Rec *, const GoodsOpAnalyzeViewItem *);
+	void   AccumulateVals(TempGoodsOprTbl::Rec *, const GoodsOpAnalyzeViewItem *);
 	int    SaveValToMinABCGrp(double val, const GoodsOpAnalyzeViewItem * pItem);
 
 	SArray * ABCGrpRecs;
@@ -1728,7 +1727,7 @@ int ABCGroupingRecsStorage::EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pR
 	return ok;
 }
 
-int ABCGroupingRecsStorage::AccumulateVals(TempGoodsOprTbl::Rec * pRec, const GoodsOpAnalyzeViewItem * pItem)
+void ABCGroupingRecsStorage::AccumulateVals(TempGoodsOprTbl::Rec * pRec, const GoodsOpAnalyzeViewItem * pItem)
 {
 	if(pRec && pItem) {
 		pRec->SumCost  += pItem->SumCost;
@@ -1738,7 +1737,6 @@ int ABCGroupingRecsStorage::AccumulateVals(TempGoodsOprTbl::Rec * pRec, const Go
 		pRec->RestCostSum  += pItem->RestCostSum;
 		pRec->RestPriceSum += pItem->RestPriceSum;
 	}
-	return 1;
 }
 
 int ABCGroupingRecsStorage::SaveValToMinABCGrp(double val, const GoodsOpAnalyzeViewItem * pItem)
@@ -1766,6 +1764,9 @@ int ABCGroupingRecsStorage::SaveValToMinABCGrp(double val, const GoodsOpAnalyzeV
 class ABCGrpStorageList {
 public:
 	struct TotalItem {
+		SLAPI  TotalItem() : GoodsGrpID(0), RecsCount(0), TotalSum(0.0)
+		{
+		}
 		long   GoodsGrpID;
 		long   RecsCount;
 		double TotalSum;
@@ -1845,7 +1846,7 @@ int SLAPI ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 	if(p_ggrp_list && p_ggrp_list->getCount()) {
 		for(uint i = 0; i < p_ggrp_list->getCount(); i++) {
 		 	ABCGrpStorageList::TotalItem item;
-			MEMSZERO(item);
+			// @v10.7.4 @ctr MEMSZERO(item);
 			item.GoodsGrpID = p_ggrp_list->Get(i).Id;
 			P_TotalItems->insert(&item);
 			GoodsGroupList.add(item.GoodsGrpID);
@@ -1854,7 +1855,7 @@ int SLAPI ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 	}
 	else {
 		ABCGrpStorageList::TotalItem item;
-		MEMSZERO(item);
+		// @v10.7.4 @ctr MEMSZERO(item);
 		P_TotalItems->insert(&item);
 		GoodsGroupList.add(0L);
 	}
@@ -1885,7 +1886,7 @@ int ABCGrpStorageList::IncTotalItem(uint groupBy, const GoodsOpAnalyzeViewItem *
 		const long pos = GetGoodsGrpPos(pItem->GoodsID);
 		if(pos >= 0) {
 			double val = ABCGroupingRecsStorage::GetValueByGrouping(groupBy, pItem);
-			ABCGrpStorageList::TotalItem * p_item = (ABCGrpStorageList::TotalItem*)P_TotalItems->at(static_cast<uint>(pos));
+			ABCGrpStorageList::TotalItem * p_item = static_cast<ABCGrpStorageList::TotalItem *>(P_TotalItems->at(static_cast<uint>(pos)));
 			p_item->TotalSum += (val >= 0) ? val : 0;
 			p_item->RecsCount++;
 		}
@@ -3986,7 +3987,7 @@ int SLAPI PPViewGoodsOpAnalyze::ABCGrpToAltGrp(short abcGroup)
 				PPWaitPercent(GetCounter());
 			}
 			PPWait(0);
-			ok = GObj.Browse((void *)grp_id);
+			ok = GObj.Browse(reinterpret_cast<void *>(grp_id));
 		}
 	}
 	CATCHZOKPPERR
@@ -4291,10 +4292,9 @@ int PPALDD_GoodsOpAnlz::NextIteration(PPIterID iterId)
 	I.PhRest   = item.PhRest;
 	I.RestCost = item.RestCostSum;
 	I.RestPrice = item.RestPriceSum;
-	const GoodsOpAnalyzeFilt * p_filt = (const GoodsOpAnalyzeFilt *)p_v->GetBaseFilt();
+	const GoodsOpAnalyzeFilt * p_filt = static_cast<const GoodsOpAnalyzeFilt *>(p_v->GetBaseFilt());
 	I.LocID = (p_filt->Flags & GoodsOpAnalyzeFilt::fEachLocation) ? item.LocID : 0;
-	long   f = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_filt->Sgg &&
-		!(p_filt->Flags & GoodsOpAnalyzeFilt::fDisplayWoPacks)) ?
+	long   f = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_filt->Sgg && !(p_filt->Flags & GoodsOpAnalyzeFilt::fDisplayWoPacks)) ?
 		MKSFMTD(0, 6, QTTYF_COMPLPACK | NMBF_NOTRAILZ) : MKSFMTD(0, 6, NMBF_NOTRAILZ);
 	QttyToStr(item.Qtty, item.UnitPerPack, f, I.CQtty);
 	QttyToStr(item.Rest, item.UnitPerPack, f, I.CRest);
@@ -4384,11 +4384,9 @@ int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId)
 	I.CmpRest         = item.Rest.Cm;
 	I.CmpRestCostSum  = item.RestCostSum.Cm;
 	I.CmpRestPriceSum = item.RestPriceSum.Cm;
-	const GoodsOpAnalyzeFilt * p_filt = (const GoodsOpAnalyzeFilt *)p_v->GetBaseFilt();
+	const GoodsOpAnalyzeFilt * p_filt = static_cast<const GoodsOpAnalyzeFilt *>(p_v->GetBaseFilt());
 	I.LocID = (p_filt->Flags & GoodsOpAnalyzeFilt::fEachLocation) ? item.LocID : 0;
-	long   f = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_filt->Sgg &&
-		!(p_filt->Flags & GoodsOpAnalyzeFilt::fDisplayWoPacks)) ?
-		MKSFMTD(0, 6, QTTYF_COMPLPACK | NMBF_NOTRAILZ) : MKSFMTD(0, 6, NMBF_NOTRAILZ);
+	// @v10.7.4 long   f = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_filt->Sgg && !(p_filt->Flags & GoodsOpAnalyzeFilt::fDisplayWoPacks)) ? MKSFMTD(0, 6, QTTYF_COMPLPACK | NMBF_NOTRAILZ) : MKSFMTD(0, 6, NMBF_NOTRAILZ);
 	FINISH_PPVIEW_ALDD_ITER();
 }
 

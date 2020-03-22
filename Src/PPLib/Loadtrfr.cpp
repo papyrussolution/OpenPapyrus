@@ -112,7 +112,7 @@ int SLAPI Transfer::SetupItemByLot(PPTransferItem * pItem, ReceiptTbl::Rec * pLo
 	return 1;
 }
 
-int SLAPI Transfer::EnumItems(PPID billID, int *pRByBill, PPTransferItem * pTI)
+int SLAPI Transfer::EnumItems(PPID billID, int * pRByBill, PPTransferItem * pTI)
 {
 	int    ok = -1;
 	TransferTbl::Key0 k0;

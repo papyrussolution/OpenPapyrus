@@ -3045,6 +3045,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	// Descr: Устанавливает диапазон [middle-delta..middle+delta]
 	//
 	RealRange & SLAPI SetMiddle(double middle, double delta);
+	double SLAPI GetMiddle() const;
 
 	double low;
 	double upp;
@@ -10639,6 +10640,8 @@ public:
 		long   Flags;
 	};
 
+	static int SLAPI AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11);
 	int    SLAPI AnalyzeFit(const char * pVecSymb, const AnalyzeFitParam & rP, RealArray * pTrendList,
 		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11) const;
 	int    SLAPI Repair(const char * pCriticalVecSymb);

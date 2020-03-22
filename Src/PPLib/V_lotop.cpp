@@ -1,5 +1,5 @@
 // V_LOTOP.CPP
-// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -59,9 +59,49 @@ int FASTCALL PPViewLotOp::NextIteration(LotOpViewItem * pItem)
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
 			P_BObj->trfr->copyBufTo(pItem);
-			//*pItem = P_Trfr->data;
-			if(!(State & stAccsCost))
-				pItem->Cost = 0.0;
+			// @v10.7.4 {
+			pItem->OldQtty = 0.0;
+			pItem->OldCost = 0.0;
+			pItem->OldPrice = 0.0;
+			{
+				PPTransferItem ti;
+				ti.SetupByRec(pItem);
+				if(ti.LotID) {
+					ReceiptTbl::Rec lot_rec;
+					if(P_BObj->trfr->Rcpt.Search(ti.LotID, &lot_rec) > 0)
+						P_BObj->trfr->SetupItemByLot(&ti, &lot_rec, 1, pItem->OprNo);
+				}
+				double cost = 0.0;
+				double old_cost = 0.0;
+				double price = 0.0;
+				double old_price = 0.0;
+				double qtty  = 0.0;
+				double old_qtty = 0.0;
+				if(ti.Flags & PPTFR_REVAL) {
+					cost = (State & stAccsCost) ? ti.Cost : 0.0;
+					price = ti.Price;
+					old_cost = (State & stAccsCost) ? ti.RevalCost : 0.0;
+					old_price = ti.Discount;
+				}
+				else {
+					cost = old_cost = (State & stAccsCost) ? ti.Cost : 0.0;
+					price = old_price = ti.NetPrice();
+				}
+				if(ti.Flags & PPTFR_CORRECTION) {
+					qtty = fabs(ti.Quantity_);
+					old_qtty  = fabs(ti.QuotPrice);
+				}
+				else {
+					qtty = old_qtty = fabs(ti.Qtty());
+				}
+				pItem->Quantity = qtty;
+				pItem->Cost = cost;
+				pItem->Price = price;
+				pItem->OldQtty = old_qtty;
+				pItem->OldCost = old_cost;
+				pItem->OldPrice = old_price;
+			}
+			// } @v10.7.4 
 		}
 		return 1;
 	}
@@ -132,11 +172,9 @@ DBQuery * SLAPI PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		brw_id = BROWSER_ZEROLOTOPS;
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, trf->GoodsID);
 		if(State & stAccsCost)
-			q = &select(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity,
-				trf->Rest, trf->Cost, dbe_price, dbe_goods, 0L);
+			q = &select(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, trf->Cost, dbe_price, dbe_goods, 0L);
 		else
-			q = &select(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity,
-				trf->Rest, zero_cost, dbe_price, dbe_goods, 0L);
+			q = &select(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, zero_cost, dbe_price, dbe_goods, 0L);
 		q->from(trf, bll, 0L).where(trf->LotID == 0L && daterange(trf->Dt, &period) &&
 			(trf->Flags & PPTFR_RECEIPT) == PPTFR_RECEIPT && bll->ID == trf->BillID).
 			orderBy(trf->LotID, trf->Dt, trf->OprNo, 0L);
@@ -250,13 +288,14 @@ int SLAPI PPViewLotOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 }
 
 class RcvrTrfrDialog : public TDialog {
+	DECL_DIALOG_DATA(TransferTbl::Rec);
 public:
 	RcvrTrfrDialog() : TDialog(DLG_RCVRTRFR)
 	{
 	}
-	int setDTS(const TransferTbl::Rec * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_RCVRTRFR_WHAT, 0, 1);
 		AddClusterAssoc(CTL_RCVRTRFR_WHAT, 1, 2);
 		AddClusterAssoc(CTL_RCVRTRFR_WHAT, 2, 3);
@@ -267,7 +306,7 @@ public:
 		setCtrlString(CTL_RCVRTRFR_VAL, temp_buf);
 		return 1;
 	}
-	int getDTS(TransferTbl::Rec * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		long   v = 0;
 		SString temp_buf;
@@ -309,7 +348,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	TransferTbl::Rec Data;
 };
 
 int SLAPI PPViewLotOp::Recover(const BrwHdr * pHdr)
@@ -352,10 +390,8 @@ int SLAPI PPViewLotOp::MoveOp(const BrwHdr * pHdr)
 	TransferTbl::Rec rec;
 	if(SearchOp(pHdr, &rec) > 0) {
 		const  PPID src_id = rec.LotID;
-		//PPID   dest_id = 0;
 		if((Filt.Flags & LotOpFilt::fZeroLotOps) || (src_id && !(rec.Flags & (PPTFR_REVAL|PPTFR_RECEIPT)))) {
 			PPObjBill::SelectLotParam slp(rec.GoodsID, rec.LocID, src_id, 0);
-			//while(SelectLot(rec.LocID, rec.GoodsID, src_id, &dest_id, 0) > 0) {
 			while(P_BObj->SelectLot2(slp) > 0) {
 				if(slp.RetLotID) {
 					ok = P_BObj->trfr->MoveLotOp(src_id, pHdr->Dt, pHdr->OprNo, slp.RetLotID, 1) ? 1 : PPErrorZ();
@@ -455,6 +491,11 @@ int PPALDD_LotOps::NextIteration(PPIterID iterId)
 	I.Price    = TR5(item.Price);
 	I.Discount = TR5(item.Discount);
 	I.CurPrice = TR5(item.CurPrice);
+	// @v10.7.4 {
+	I.OldQtty = item.OldQtty;
+	I.OldCost = TR5(item.OldCost);
+	I.OldPrice = TR5(item.OldPrice);
+	// } @v10.7.4 
 	FINISH_PPVIEW_ALDD_ITER();
 }
 

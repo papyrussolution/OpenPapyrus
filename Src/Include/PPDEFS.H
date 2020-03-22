@@ -1010,6 +1010,8 @@
 	#define TAXSYSK_IMPUTED            4L // RU: ЕНВД — вмененная система налогообложения или единый налог на вмененный доход
 	#define TAXSYSK_SINGLEAGRICULT     5L // RU: ЕСХН — единый сельскохозяйственный налог
 	#define TAXSYSK_SIMPLIFIED_PROFIT  6L // RU: УСН — упрощенная система налогообложения (доход-расход)
+#define PPOBJ_TSSMODEL           81L // @v10.7.4 Параметры модели расчета стратегий на временных сериях
+	#define TSSMODELPRP_EXTENSION      1L
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1833,6 +1835,7 @@
 #define cmPasteFromClipboardAll  1172 // @erik v10.5.2
 #define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики
 #define cmTsList                 1174 // Кнопка списка временных серий
+#define cmPersonList             1175 // Кнопка списка персоналий
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -6411,7 +6414,6 @@
 	#define CTL_SYNCCMPTOTAL_N4COUNT     (5 + WINDOWS_ID_BIAS)
 	#define CTL_SYNCCMPTOTAL_COUNT       (6 + WINDOWS_ID_BIAS)
 #define DLG_PERSONLINK            640 // Отношение между персоналиями
-	#define cmPersonList                 110
 	#define CTL_PERSONLINK_PRMR          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PERSONLINK_PRMR       (2 + WINDOWS_ID_BIAS)
 	#define CTL_PERSONLINK_SCND          (3 + WINDOWS_ID_BIAS)
@@ -10859,6 +10861,32 @@
 	#define CTL_CHZNMARK_INPUT        (1  + IMPEXP_CTL_BIAS)
 	#define CTL_CHZNMARK_INFO         (2  + IMPEXP_CTL_BIAS)
 #define DLG_DFCRRULEVIEW          1379
+#define DLG_TSSMODEL              1380
+	#define CTL_TSSMODEL_ID           (1  + IMPEXP_CTL_BIAS)
+	#define CTL_TSSMODEL_NAME         (2  + IMPEXP_CTL_BIAS)
+	#define CTL_TSSMODEL_SYMB         (3  + IMPEXP_CTL_BIAS)
+	#define CTL_TSSMODEL_FLAGS        (4  + IMPEXP_CTL_BIAS)
+	#define CTL_TSSMODEL_OPTCRIT      (5  + IMPEXP_CTL_BIAS) // OptTargetCriterion
+	#define CTL_TSSMODEL_MFSL         (6  + IMPEXP_CTL_BIAS) // MainFrameSizeList
+	#define CTL_TSSMODEL_IFSL         (7  + IMPEXP_CTL_BIAS) // InputFrameSizeList
+	#define CTL_TSSMODEL_SBL          (8  + IMPEXP_CTL_BIAS) // StakeBoundList
+	#define CTL_TSSMODEL_MDQL         (9  + IMPEXP_CTL_BIAS) // MaxDuckQuantList
+	#define CTL_TSSMODEL_TQL          (10  + IMPEXP_CTL_BIAS) // TargetQuantList
+	#define CTL_TSSMODEL_DATASINCE    (11  + IMPEXP_CTL_BIAS) // UseDataSince
+	#define CTLCAL_TSSMODEL_DATASINCE (12  + IMPEXP_CTL_BIAS) // UseDataSince
+	#define CTL_TSSMODEL_BSUBSCHNK    (13  + IMPEXP_CTL_BIAS) // BestSubsetOptChunk
+	#define CTL_TSSMODEL_BSUBSDIM     (14  + IMPEXP_CTL_BIAS) // BestSubsetDimention
+	#define CTL_TSSMODEL_BSUBSPHIT    (15  + IMPEXP_CTL_BIAS) // BestSubsetMaxPhonyIters
+	#define CTL_TSSMODEL_MFRC         (16  + IMPEXP_CTL_BIAS) // MainFrameRangeCount
+	#define CTL_TSSMODEL_OPTRSTEP     (17  + IMPEXP_CTL_BIAS) // OptRangeStep
+	#define CTL_TSSMODEL_OPTRSTEPMP   (18  + IMPEXP_CTL_BIAS) // OptRangeStepMkPart
+	#define CTL_TSSMODEL_OPTRMLIM     (19  + IMPEXP_CTL_BIAS) // OptRangeMultiLimit
+	#define CTL_TSSMODEL_OPTRMEXTP    (20  + IMPEXP_CTL_BIAS) // OptRangeMaxExtProbe
+	#define CTL_TSSMODEL_CHAOSFACTOR  (21  + IMPEXP_CTL_BIAS) // ChaosFactor
+	#define CTL_TSSMODEL_MFERRLIM     (22  + IMPEXP_CTL_BIAS) // InitMainTrendErrLimit
+	#define CTL_TSSMODEL_IFERRLIM     (23  + IMPEXP_CTL_BIAS) // InitTrendErrLimit
+	#define CTL_TSSMODEL_MINWINRATE   (24  + IMPEXP_CTL_BIAS) // MinWinRate
+	#define CTL_TSSMODEL_OMINWINRATE  (25  + IMPEXP_CTL_BIAS) // OverallWinRateLimit
 //
 // Win32 Dialog Identifiers
 //

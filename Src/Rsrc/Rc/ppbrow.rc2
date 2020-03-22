@@ -6744,6 +6744,7 @@ cmd TestMqc               { "@{cmd_testmqc}"                               ICON_
 cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze } // @v10.5.7
 cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj } // @v10.6.1
 cmd QueryCHZN             { "@{cmd_querychzn}"                             none                   none cmQueryCHZN }
+cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  } // @v10.7.4
 //
 // -------------- Описания серверных задач
 //

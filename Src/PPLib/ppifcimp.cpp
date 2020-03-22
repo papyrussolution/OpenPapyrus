@@ -10199,7 +10199,7 @@ int32 DL6ICLS_PPViewLotOp::Init(IUnknown* pFilt)
 	THROW_INVARG(pFilt);
 	THROW(GetInnerUUID("IPpyFilt_LotOp", uuid));
 	THROW(SUCCEEDED(pFilt->QueryInterface(uuid, (void **)&p_ifc_filt)));
-	THROW(((PPViewLotOp *)ExtraPtr)->Init_((const LotOpFilt *)GetExtraPtrByInterface(p_ifc_filt)));
+	THROW(static_cast<PPViewLotOp *>(ExtraPtr)->Init_(static_cast<const LotOpFilt *>(GetExtraPtrByInterface(p_ifc_filt))));
 	CATCH
 		AppError = 1;
 	ENDCATCH
@@ -10217,7 +10217,7 @@ int32 DL6ICLS_PPViewLotOp::NextIteration(PPYVIEWITEM item)
 	int    ok = -1;
 	SPpyVI_LotOp * p_item = static_cast<SPpyVI_LotOp *>(item);
 	LotOpViewItem inner_item;
-	if(((PPViewLotOp *)ExtraPtr)->NextIteration(&inner_item) > 0) {
+	if(static_cast<PPViewLotOp *>(ExtraPtr)->NextIteration(&inner_item) > 0) {
 		p_item->RecTag = PPVIEWITEM_LOTOP;
 #define FLD(f) p_item->f = inner_item.f
 		FLD(LocID);

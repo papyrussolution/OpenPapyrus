@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,14 +7,19 @@
 //
 // @ModuleDef(PPObjAmountType)
 //
-int SLAPI PPAmountType::IsTax(PPID taxID  /* GTAX_XXX */) const
+SLAPI PPAmountType2::PPAmountType2()
+{
+	THISZERO();
+}
+
+int SLAPI PPAmountType2::IsTax(PPID taxID  /* GTAX_XXX */) const
 	{ return BIN(Flags & PPAmountType::fTax && Tax == taxID); }
-int SLAPI PPAmountType::IsComplementary() const
+int SLAPI PPAmountType2::IsComplementary() const
 	{ return BIN(Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)); }
 
 SLAPI PPAmountTypePacket::PPAmountTypePacket()
 {
-	MEMSZERO(Rec);
+	// @v10.7.4 @ctr MEMSZERO(Rec);
 }
 
 int FASTCALL PPAmountTypePacket::IsEqual(const PPAmountTypePacket & rS) const
@@ -453,7 +458,7 @@ int SLAPI PPObjAmountType::ProcessReservedItem(TVRez & rez)
 	int    ok = 1, r;
 	SString name;
 	SString symb;
-	PPID   id = (PPID)rez.getUINT();
+	const PPID id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
 	rez.getString(symb, 2);
@@ -461,7 +466,7 @@ int SLAPI PPObjAmountType::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		PPAmountType rec;
-		MEMSZERO(rec);
+		// @v10.7.4 @ctr MEMSZERO(rec);
 		rec.ID = id;
 		STRNSCPY(rec.Name, name);
 		STRNSCPY(rec.Symb, symb);

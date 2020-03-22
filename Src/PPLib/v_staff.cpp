@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -96,7 +96,7 @@ int FASTCALL PPViewStaffList::CheckForFilt(const PPStaffEntry & rItem) const
 IMPL_CMPCFUNC(PPViewStaffList_BrwEntry_Name, p1, p2)
 {
 	int   si = 0;
-	PPObjStaffList * p_obj = (PPObjStaffList *)pExtraData;
+	PPObjStaffList * p_obj = static_cast<PPObjStaffList *>(pExtraData);
 	if(p_obj) {
 		const PPViewStaffList::BrwEntry * i1 = static_cast<const PPViewStaffList::BrwEntry *>(p1);
 		const PPViewStaffList::BrwEntry * i2 = static_cast<const PPViewStaffList::BrwEntry *>(p2);

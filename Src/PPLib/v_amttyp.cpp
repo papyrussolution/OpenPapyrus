@@ -1,5 +1,5 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020
 // @codepage UTF-8
 //
 // Типы сумм документа
@@ -345,7 +345,7 @@ int FASTCALL PPViewAmountType::NextIteration(AmountTypeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && Counter < Data.getCount()) {
-		ASSIGN_PTR(pItem, *((AmountTypeViewItem*)Data.at(Counter)));
+		ASSIGN_PTR(pItem, *static_cast<const AmountTypeViewItem *>(Data.at(Counter)));
 		Counter.Increment();
 		ok = 1;
 	}
@@ -442,7 +442,7 @@ int SLAPI PPViewAmountType::FetchData(long id)
 			MEMSZERO(item);
 			MakeListEntry(&pack, &item);
 			if(found)
-				*((AmountTypeViewItem*)Data.at(pos)) = item;
+				*static_cast<AmountTypeViewItem *>(Data.at(pos)) = item;
 			else
 				THROW_SL(Data.insert(&item));
 		}

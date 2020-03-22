@@ -534,7 +534,6 @@ table Person {           // size=80+128
 	//
 	long   Division;    // Подразделение        ->Location.ID
 	long   Position;    // Должность            ->?
-	//
 	note   Memo[512];   // Примечание @v6.2.2 [128]-->[252] @v7.0.0 [252]-->[512]
 index:
 	ID (unique);

@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020
 // @codepage UTF-8
 // Налоговый анализ товарооборота
 //
@@ -40,147 +40,136 @@ const BVATAccmArray * PPViewGoodsTaxAnalyze::GetInOutVATList() const
 //
 //
 //
-#define GRP_GOODSFILT 1
-
-class GoodsTaxAnalyzeFiltDialog : public WLDialog {
-public:
-	GoodsTaxAnalyzeFiltDialog() : WLDialog(DLG_GDSGRPRLZ, CTL_GDSGRPRLZ_LABEL)
-	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_FLTLOT_GGRP, cmGoodsFilt));
-		SetupCalPeriod(CTLCAL_GDSGRPRLZ_PERIOD, CTL_GDSGRPRLZ_PERIOD);
-		SetupCalPeriod(CTLCAL_GDSGRPRLZ_LOTSPRD, CTL_GDSGRPRLZ_LOTSPRD);
-	}
-	int    setDTS(const GoodsTaxAnalyzeFilt *);
-	int    getDTS(GoodsTaxAnalyzeFilt *);
-private:
-	DECL_HANDLE_EVENT;
-	void   setupAccSheet(PPID accSheetID);
-
-	GoodsTaxAnalyzeFilt Data;
-};
-
-int GoodsTaxAnalyzeFiltDialog::setDTS(const GoodsTaxAnalyzeFilt * pData)
-{
-	Data = *pData;
-
-	PPID   acc_sheet_id = 0;
-	PPIDArray types;
-	ushort v = 0;
-	SetPeriodInput(this, CTL_GDSGRPRLZ_PERIOD,  &Data.Period);
-	SetPeriodInput(this, CTL_GDSGRPRLZ_LOTSPRD, &Data.LotsPeriod);
-	SetupPPObjCombo(this, CTLSEL_GDSGRPRLZ_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-	types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
-		PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_GENERIC, 0L);
-	SetupOprKindCombo(this, CTLSEL_GDSGRPRLZ_OP, Data.OpID, 0, &types, 0);
-	GetOpCommonAccSheet(Data.OpID, &(acc_sheet_id = 0), 0);
-	setupAccSheet(acc_sheet_id);
-	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
-	AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 0, GoodsTaxAnalyzeFilt::fNozeroExciseOnly);
-	AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 1, GoodsTaxAnalyzeFilt::fIgnoreVatFreeTag);
-	AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 2, GoodsTaxAnalyzeFilt::fByPayment);
-	AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 3, GoodsTaxAnalyzeFilt::fOldStyleLedger); // @v6.4.12
-	SetClusterData(CTL_GDSGRPRLZ_FLAGS, Data.Flags);
-	DisableClusterItem(CTL_GDSGRPRLZ_FLAGS, 3, !Data.HasCycleFlags());
-	setWL(BIN(Data.Flags & GoodsTaxAnalyzeFilt::fLabelOnly));
-	if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
-		v = 1;
-	else if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByInVAT) {
-		if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByOutVAT)
-			v = 4;
-		else
-			v = 2;
-	}
-	else if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByOutVAT)
-		v = 3;
-	else
-		v = 0;
-	setCtrlData(CTL_GDSGRPRLZ_DIFFTAX, &v);
-	if(Data.Flags & GoodsTaxAnalyzeFilt::fDayly)
-		v = 1;
-	else if(Data.Flags & GoodsTaxAnalyzeFilt::fMonthly)
-		v = 2;
-	else if(Data.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots)
-		v = 3;
-	else
-		v = 0;
-	setCtrlData(CTL_GDSGRPRLZ_CCL, &v);
-	SetupArCombo(this, CTLSEL_GDSGRPRLZ_SUPPL,   Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
-	SetupArCombo(this, CTLSEL_GDSGRPRLZ_SUPPLAG, Data.SupplAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
-	disableCtrls(Data.BillList.IsExists(), CTLSEL_GDSGRPRLZ_OP, CTLSEL_GDSGRPRLZ_LOC, 0);
-	SetupSubstGoodsCombo(this, CTLSEL_GDSGRPRLZ_GSUBST, Data.Sgg);
-	return 1;
-}
-
-int GoodsTaxAnalyzeFiltDialog::getDTS(GoodsTaxAnalyzeFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	ushort v = 0;
-	GoodsFiltCtrlGroup::Rec gf_rec;
-	THROW(GetPeriodInput(this, sel = CTL_GDSGRPRLZ_PERIOD, &Data.Period));
-	THROW(AdjustPeriodToRights(Data.Period, 1));
-	THROW(GetPeriodInput(this, sel = CTL_GDSGRPRLZ_LOTSPRD, &Data.LotsPeriod));
-	getCtrlData(CTLSEL_GDSGRPRLZ_LOC, &Data.LocID);
-	getCtrlData(CTLSEL_GDSGRPRLZ_OP,  &Data.OpID);
-	getCtrlData(CTLSEL_GDSGRPRLZ_OBJ, &Data.ObjectID);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
-	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	GetClusterData(CTL_GDSGRPRLZ_FLAGS, &Data.Flags);
-	SETFLAG(Data.Flags, GoodsTaxAnalyzeFilt::fLabelOnly, getWL());
-	getCtrlData(CTL_GDSGRPRLZ_DIFFTAX, &(v = 0));
-	Data.Flags &= ~(GoodsTaxAnalyzeFilt::fDiffAll|GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT);
-	switch(v) {
-		case 1: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffAll; break;
-		case 2: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByInVAT; break;
-		case 3: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByOutVAT; break;
-		case 4: Data.Flags |= (GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT); break;
-	}
-	getCtrlData(CTL_GDSGRPRLZ_CCL, &(v = 0));
-	Data.Flags &= ~(GoodsTaxAnalyzeFilt::fDayly|GoodsTaxAnalyzeFilt::fMonthly|GoodsTaxAnalyzeFilt::fLedgerByLots);
-	switch(v) {
-		case 1: Data.Flags |= GoodsTaxAnalyzeFilt::fDayly; break;
-		case 2: Data.Flags |= GoodsTaxAnalyzeFilt::fMonthly; break;
-		case 3: Data.Flags |= GoodsTaxAnalyzeFilt::fLedgerByLots; break;
-	}
-	getCtrlData(CTLSEL_GDSGRPRLZ_SUPPL,   &Data.SupplID);
-	getCtrlData(CTLSEL_GDSGRPRLZ_SUPPLAG, &Data.SupplAgentID);
-	getCtrlData(CTLSEL_GDSGRPRLZ_GSUBST, &Data.Sgg);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
-void GoodsTaxAnalyzeFiltDialog::setupAccSheet(PPID accSheetID)
-{
-	SETIFZ(accSheetID, GetSellAccSheet());
-	if(getCtrlView(CTLSEL_GDSGRPRLZ_OBJ)) {
-		SetupArCombo(this, CTLSEL_GDSGRPRLZ_OBJ, Data.ObjectID, OLW_LOADDEFONOPEN, accSheetID, sacfDisableIfZeroSheet);
-		if(!accSheetID && isCurrCtlID(CTL_GDSGRPRLZ_OBJ))
-			selectNext();
-	}
-}
-
-IMPL_HANDLE_EVENT(GoodsTaxAnalyzeFiltDialog)
-{
-	WLDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_GDSGRPRLZ_OP)) {
-		if(getCtrlView(CTLSEL_GDSGRPRLZ_OBJ)) {
-			PPID   acc_sheet_id = 0;
-			getCtrlData(CTLSEL_GDSGRPRLZ_OP, &Data.OpID);
-			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-			setupAccSheet(acc_sheet_id);
-		}
-	}
-	else if(event.isClusterClk(CTL_GDSGRPRLZ_CCL))
-		DisableClusterItem(CTL_GDSGRPRLZ_FLAGS, 3, getCtrlUInt16(CTL_GDSGRPRLZ_CCL) == 0);
-	else
-		return;
-	clearEvent(event);
-}
-
 int SLAPI PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
+	class GoodsTaxAnalyzeFiltDialog : public WLDialog {
+		DECL_DIALOG_DATA(GoodsTaxAnalyzeFilt);
+	public:
+		enum {
+			ctlgroupGoodsFilt = 1
+		};
+		GoodsTaxAnalyzeFiltDialog() : WLDialog(DLG_GDSGRPRLZ, CTL_GDSGRPRLZ_LABEL)
+		{
+			addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_FLTLOT_GGRP, cmGoodsFilt));
+			SetupCalPeriod(CTLCAL_GDSGRPRLZ_PERIOD, CTL_GDSGRPRLZ_PERIOD);
+			SetupCalPeriod(CTLCAL_GDSGRPRLZ_LOTSPRD, CTL_GDSGRPRLZ_LOTSPRD);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			PPID   acc_sheet_id = 0;
+			PPIDArray types;
+			ushort v = 0;
+			SetPeriodInput(this, CTL_GDSGRPRLZ_PERIOD,  &Data.Period);
+			SetPeriodInput(this, CTL_GDSGRPRLZ_LOTSPRD, &Data.LotsPeriod);
+			SetupPPObjCombo(this, CTLSEL_GDSGRPRLZ_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_GENERIC, 0L);
+			SetupOprKindCombo(this, CTLSEL_GDSGRPRLZ_OP, Data.OpID, 0, &types, 0);
+			GetOpCommonAccSheet(Data.OpID, &(acc_sheet_id = 0), 0);
+			setupAccSheet(acc_sheet_id);
+			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
+			setGroupData(ctlgroupGoodsFilt, &gf_rec);
+			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 0, GoodsTaxAnalyzeFilt::fNozeroExciseOnly);
+			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 1, GoodsTaxAnalyzeFilt::fIgnoreVatFreeTag);
+			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 2, GoodsTaxAnalyzeFilt::fByPayment);
+			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 3, GoodsTaxAnalyzeFilt::fOldStyleLedger); // @v6.4.12
+			SetClusterData(CTL_GDSGRPRLZ_FLAGS, Data.Flags);
+			DisableClusterItem(CTL_GDSGRPRLZ_FLAGS, 3, !Data.HasCycleFlags());
+			setWL(BIN(Data.Flags & GoodsTaxAnalyzeFilt::fLabelOnly));
+			if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
+				v = 1;
+			else if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByInVAT) {
+				if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByOutVAT)
+					v = 4;
+				else
+					v = 2;
+			}
+			else if(Data.Flags & GoodsTaxAnalyzeFilt::fDiffByOutVAT)
+				v = 3;
+			else
+				v = 0;
+			setCtrlData(CTL_GDSGRPRLZ_DIFFTAX, &v);
+			if(Data.Flags & GoodsTaxAnalyzeFilt::fDayly)
+				v = 1;
+			else if(Data.Flags & GoodsTaxAnalyzeFilt::fMonthly)
+				v = 2;
+			else if(Data.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots)
+				v = 3;
+			else
+				v = 0;
+			setCtrlData(CTL_GDSGRPRLZ_CCL, &v);
+			SetupArCombo(this, CTLSEL_GDSGRPRLZ_SUPPL,   Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_GDSGRPRLZ_SUPPLAG, Data.SupplAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+			disableCtrls(Data.BillList.IsExists(), CTLSEL_GDSGRPRLZ_OP, CTLSEL_GDSGRPRLZ_LOC, 0);
+			SetupSubstGoodsCombo(this, CTLSEL_GDSGRPRLZ_GSUBST, Data.Sgg);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			ushort v = 0;
+			GoodsFiltCtrlGroup::Rec gf_rec;
+			THROW(GetPeriodInput(this, sel = CTL_GDSGRPRLZ_PERIOD, &Data.Period));
+			THROW(AdjustPeriodToRights(Data.Period, 1));
+			THROW(GetPeriodInput(this, sel = CTL_GDSGRPRLZ_LOTSPRD, &Data.LotsPeriod));
+			getCtrlData(CTLSEL_GDSGRPRLZ_LOC, &Data.LocID);
+			getCtrlData(CTLSEL_GDSGRPRLZ_OP,  &Data.OpID);
+			getCtrlData(CTLSEL_GDSGRPRLZ_OBJ, &Data.ObjectID);
+			THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
+			Data.GoodsGrpID = gf_rec.GoodsGrpID;
+			GetClusterData(CTL_GDSGRPRLZ_FLAGS, &Data.Flags);
+			SETFLAG(Data.Flags, GoodsTaxAnalyzeFilt::fLabelOnly, getWL());
+			getCtrlData(CTL_GDSGRPRLZ_DIFFTAX, &(v = 0));
+			Data.Flags &= ~(GoodsTaxAnalyzeFilt::fDiffAll|GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT);
+			switch(v) {
+				case 1: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffAll; break;
+				case 2: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByInVAT; break;
+				case 3: Data.Flags |= GoodsTaxAnalyzeFilt::fDiffByOutVAT; break;
+				case 4: Data.Flags |= (GoodsTaxAnalyzeFilt::fDiffByInVAT|GoodsTaxAnalyzeFilt::fDiffByOutVAT); break;
+			}
+			getCtrlData(CTL_GDSGRPRLZ_CCL, &(v = 0));
+			Data.Flags &= ~(GoodsTaxAnalyzeFilt::fDayly|GoodsTaxAnalyzeFilt::fMonthly|GoodsTaxAnalyzeFilt::fLedgerByLots);
+			switch(v) {
+				case 1: Data.Flags |= GoodsTaxAnalyzeFilt::fDayly; break;
+				case 2: Data.Flags |= GoodsTaxAnalyzeFilt::fMonthly; break;
+				case 3: Data.Flags |= GoodsTaxAnalyzeFilt::fLedgerByLots; break;
+			}
+			getCtrlData(CTLSEL_GDSGRPRLZ_SUPPL,   &Data.SupplID);
+			getCtrlData(CTLSEL_GDSGRPRLZ_SUPPLAG, &Data.SupplAgentID);
+			getCtrlData(CTLSEL_GDSGRPRLZ_GSUBST, &Data.Sgg);
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			WLDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_GDSGRPRLZ_OP)) {
+				if(getCtrlView(CTLSEL_GDSGRPRLZ_OBJ)) {
+					PPID   acc_sheet_id = 0;
+					getCtrlData(CTLSEL_GDSGRPRLZ_OP, &Data.OpID);
+					GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
+					setupAccSheet(acc_sheet_id);
+				}
+			}
+			else if(event.isClusterClk(CTL_GDSGRPRLZ_CCL))
+				DisableClusterItem(CTL_GDSGRPRLZ_FLAGS, 3, getCtrlUInt16(CTL_GDSGRPRLZ_CCL) == 0);
+			else
+				return;
+			clearEvent(event);
+		}
+		void   setupAccSheet(PPID accSheetID)
+		{
+			SETIFZ(accSheetID, GetSellAccSheet());
+			if(getCtrlView(CTLSEL_GDSGRPRLZ_OBJ)) {
+				SetupArCombo(this, CTLSEL_GDSGRPRLZ_OBJ, Data.ObjectID, OLW_LOADDEFONOPEN, accSheetID, sacfDisableIfZeroSheet);
+				if(!accSheetID && isCurrCtlID(CTL_GDSGRPRLZ_OBJ))
+					selectNext();
+			}
+		}
+	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODY(GoodsTaxAnalyzeFiltDialog, static_cast<GoodsTaxAnalyzeFilt *>(pBaseFilt));

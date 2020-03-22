@@ -1157,6 +1157,10 @@ int SLAPI InventoryConversion::Run(PPID billID)
 								if(invOpEx.WrDnOp) {
 									const char * p_cvt_serial = 0;
 									uint  cvt_flags = CILTIF_DEFAULT;
+									// @v10.7.4 {
+									if(inv_rest == 0.0)
+										cvt_flags |= CILTIF_CUTRESTTOZERO;
+									// } @v10.7.4 
 									if(invOpEx.Flags & INVOPF_WROFFWODSCNT)
 										cvt_flags |= CILTIF_ZERODSCNT;
 									if(r_ir.Serial[0] == 0 && excl_serial.getDataLen()) {

@@ -256,6 +256,7 @@ RealRange & SLAPI RealRange::SetMiddle(double middle, double delta)
 	return *this;
 }
 
+double SLAPI RealRange::GetMiddle() const { return (low+upp) / 2.0; }
 double SLAPI RealRange::GetDistance() const { return (upp-low); }
 double SLAPI RealRange::GetActualLow() const { return MIN(low, upp); }
 double SLAPI RealRange::GetActualUpp() const { return MAX(low, upp); }

@@ -143,11 +143,14 @@ int SLAPI PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBl
 					memzero(pw_buf, sizeof(pw_buf));
 				}
 			}
-			else if(data_path.NotEmpty())
+			else if(data_path.NotEmpty()) {
+				left.Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.4
 				pBlk->SetAttr(DbLoginBlock::attrDictPath, left);
+			}
 			else
 				data_path = left;
 			if(data_path.NotEmptyS()) {
+				data_path.Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.4
 				DS.ConvertPathToUnc(data_path.Strip().RmvLastSlash());
 				pBlk->SetAttr(DbLoginBlock::attrDbPath, data_path);
 			}
@@ -159,8 +162,6 @@ int SLAPI PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBl
 
 int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 1*/, int dontLoadDefDict /*= 0*/)
 {
-	long   sSYS = 0x00535953L; // "SYS"
-	long   sDAT = 0x00544144L; // "DAT"
 	int    ok = 1;
 	SString entry_symb, entry_buf, def_dict, def_data, temp_buf;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
@@ -180,8 +181,10 @@ int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnl
 			if(r) {
 				blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
 				blk.GetAttr(DbLoginBlock::attrDbPath, temp_buf);
-				if(temp_buf.Empty() && !dontLoadDefDict)
-					blk.SetAttr(DbLoginBlock::attrDbPath, def_dict);
+				if(temp_buf.Empty()) {
+					if(!dontLoadDefDict)
+						blk.SetAttr(DbLoginBlock::attrDbPath, def_dict);
+				}
 				if(existsPathOnly) {
 					//
 					// @construction ps.Split(temp_buf);
@@ -199,9 +202,9 @@ int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnl
 		}
 	}
 	if(def_data.Empty())
-		GetAveragePath((char *)&sDAT, def_data);
+		GetAveragePath("dat", def_data);
 	if(def_dict.Empty())
-		GetAveragePath((char *)&sSYS, def_dict);
+		GetAveragePath("sys", def_dict);
 	{
 		DbLoginBlock blk;
 		blk.SetAttr(DbLoginBlock::attrDbSymb, P_DefaultSymb);

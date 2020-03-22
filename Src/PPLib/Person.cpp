@@ -707,7 +707,6 @@ void SLAPI PPPersonPacket::destroy()
 	PPPerson::destroy();
 	Regs.freeAll();
 	ELA.freeAll();
-	// @v9.0.4 BAA.freeAll();
 	Loc.destroy();
 	RLoc.destroy();
 	ExtString.Z();
@@ -716,7 +715,7 @@ void SLAPI PPPersonPacket::destroy()
 	LinkFiles.Clear();
 	TagL.Destroy();
 	UpdFlags = 0;
-	SelectedLocPos = 0; // @v8.8.0
+	SelectedLocPos = 0;
 }
 
 PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
@@ -725,7 +724,6 @@ PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
 	PPPerson::operator = (s);
 	Regs.copy(s.Regs);
 	ELA.copy(s.ELA);
-	// @v9.0.4 BAA.copy(s.BAA);
 	Loc = s.Loc;
 	RLoc = s.RLoc;
 	CshrInfo = s.CshrInfo;
@@ -736,7 +734,7 @@ PPPersonPacket & FASTCALL PPPersonPacket::operator = (const PPPersonPacket & s)
 	LinkFiles = s.LinkFiles;
 	TagL   = s.TagL;
 	UpdFlags  = s.UpdFlags;
-	SelectedLocPos = s.SelectedLocPos; // @v8.8.0
+	SelectedLocPos = s.SelectedLocPos;
 	return *this;
 }
 
@@ -775,18 +773,6 @@ int SLAPI PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) co
 	ASSIGN_PTR(pRegTypeID, reg_type_id);
 	return ok;
 }
-
-/*
-int SLAPI PPPersonPacket::GetCurrBnkAcct(BankAccountTbl::Rec * pRec) const
-{
-	for(uint i = 0; i < BAA.getCount(); i++)
-		if(BAA.at(i).AccType == PPBAC_CURRENT) {
-			ASSIGN_PTR(pRec, BAA.at(i));
-			return 1;
-		}
-	return -1;
-}
-*/
 
 int SLAPI PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
 {

@@ -842,7 +842,7 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 					if(!by_serial || CmpSnrWithLotSnr(lot_id, serial)) {
 						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 						// @v9.3.9 if(rest > 0.0) {
-						if(rest >= _qtty_epsilon) { // @v9.3.9
+						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) { // @v9.3.9 // @v10.7.4 (|| (flags & CILTIF_CUTRESTTOZERO))
 							q = (rest < -qtty) ? rest : -qtty;
 							THROW(SetupTI(&ti, pPack, ilti->GoodsID, lot_id));
 							ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? q : -q;

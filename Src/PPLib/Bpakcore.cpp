@@ -5298,8 +5298,7 @@ void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double s
 		P_Data->Amounts.Add(altAmtID, 0L /* @curID */, altAmount, 1);
 		if(in_out && ATObj.FetchCompl(altAmtID, &in_id, &out_id) > 0) {
 			if(in_out < 0 && in_id) {
-				// Для входящих позиций сумма имеет инвертированный знак
-				P_Data->Amounts.Add(in_id, 0L /* @curID */, -altAmount, 1);
+				P_Data->Amounts.Add(in_id, 0L /* @curID */, -altAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 			}
 			if(in_out > 0 && out_id)
 				P_Data->Amounts.Add(out_id, 0L /* @curID */, altAmount, 1);
@@ -5309,8 +5308,7 @@ void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double s
 		P_Data->Amounts.Add(stdAmtID, 0L /* @curID */, stdAmount, 1);
 		if(in_out && ATObj.FetchCompl(stdAmtID, &in_id, &out_id) > 0) {
 			if(in_out < 0 && in_id) {
-				// Для входящих позиций сумма имеет инвертированный знак
-				P_Data->Amounts.Add(in_id, 0L /* @curID */, -stdAmount, 1);
+				P_Data->Amounts.Add(in_id, 0L /* @curID */, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 			}
 			if(in_out > 0 && out_id)
 				P_Data->Amounts.Add(out_id, 0L /* @curID */, stdAmount, 1);
@@ -5324,8 +5322,7 @@ void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, double stdAmount, int i
 	P_Data->Amounts.Add(stdAmtID, 0L /* @curID */, stdAmount, 1);
 	if(in_out && ATObj.FetchCompl(stdAmtID, &in_id, &out_id) > 0) {
 		if(in_out < 0 && in_id) {
-			// Для входящих позиций сумма имеет инвертированный знак
-			P_Data->Amounts.Add(in_id, 0L /* @curID */, -stdAmount, 1);
+			P_Data->Amounts.Add(in_id, 0L /* @curID */, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 		}
 		if(in_out > 0 && out_id)
 			P_Data->Amounts.Add(out_id, 0L /* @curID */, stdAmount, 1);
