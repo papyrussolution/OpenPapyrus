@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -112,7 +112,6 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			if(oneof2(Filt.AttribType, PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
 				PersonTbl::Rec owner_rec;
-				PsnAttrViewItem vi;
 				PPIDArray dlvr_loc_list;
 				UintHashTable id_list;
 				if(Filt.AttribType == PPPSNATTR_HANGEDADDR) {
@@ -148,7 +147,8 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					for(uint i = 0; i < sj_id_list.getCount(); i++) {
 						const PPID loc_id = sj_id_list.get(i);
 						if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.Flags & LOCF_STANDALONE) {
-							MEMSZERO(vi);
+							PsnAttrViewItem vi;
+							// @v10.7.5 @ctr MEMSZERO(vi);
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, "standalone", &vi) > 0) {
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0)
 									STRNSCPY(vi.Name, owner_rec.Name);
@@ -172,7 +172,8 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 								do_insert = 2;
 						}
 						if(do_insert) {
-							MEMSZERO(vi);
+							PsnAttrViewItem vi;
+							// @v10.7.5 @ctr MEMSZERO(vi);
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, (loc_rec.Flags & LOCF_STANDALONE) ? "standalone" : "unknown", &vi) > 0) {
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) {
 									STRNSCPY(vi.Name, owner_rec.Name);
@@ -326,10 +327,10 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						PPWaitPercent(cntr.Increment());
 					}
 					if(p_used_loc_list) {
-						PsnAttrViewItem vi;
 						for(SEnum en = PsnObj.LocObj.P_Tbl->Enum(LOCTYP_ADDRESS, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
 							if(!p_used_loc_list->Has(static_cast<ulong>(loc_rec.ID))) {
-								MEMSZERO(vi);
+								PsnAttrViewItem vi;
+								// @v10.7.5 @ctr MEMSZERO(vi);
 								if(CreateAddrRec(loc_rec.ID, 0, "@haddress", &vi) > 0) {
 									THROW_DB(P_TempPsn->insertRecBuf(&vi));
 								}
@@ -400,7 +401,7 @@ int SLAPI PPViewPerson::UpdateHungedAddr(PPID addrID)
 	{
 		PsnAttrViewItem vi;
 		PersonTbl::Rec owner_rec;
-		MEMSZERO(vi);
+		// @v10.7.5 @ctr MEMSZERO(vi);
 		PPTransaction tra(1);
 		THROW(tra);
 		if(PsnObj.LocObj.Search(addrID, &loc_rec) > 0 && CreateAddrRec(loc_rec.ID, &loc_rec, (loc_rec.Flags & LOCF_STANDALONE) ? "standalone" : "unknown", &vi) > 0) {
@@ -548,7 +549,7 @@ int SLAPI PPViewPerson::EditDlvrAddrExtFlds(PPID id)
 {
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
-	MEMSZERO(loc_rec);
+	// @v10.7.5 @ctr MEMSZERO(loc_rec);
 	THROW(PsnObj.LocObj.CheckRightsModByID(&id));
 	if(PsnObj.LocObj.Search(id, &loc_rec) > 0 && EditDlvrAddrExtFields(&loc_rec))
 		THROW(PsnObj.LocObj.PutRecord(&id, &loc_rec, 1));
@@ -919,8 +920,7 @@ int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 				WorldTbl::Rec city_rec;
 				LocationTbl::Rec loc;
 				PPObjWorld obj_world;
-
-				MEMSZERO(city_rec);
+				// @v10.7.5 @ctr MEMSZERO(city_rec);
 				loc = pack.RLoc;
 				LocationCore::GetExField(&pack.RLoc, LOCEXSTR_FULLADDR, temp_buf.Z());
 				if(!temp_buf.Len())
@@ -1015,7 +1015,7 @@ int SLAPI PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLoc
 {
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
-	MEMSZERO(loc_rec);
+	// @v10.7.5 @ctr MEMSZERO(loc_rec);
 	if(addrID) {
 		SString temp_buf;
 		pItem->TabID = addrID;
@@ -1085,7 +1085,7 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	int    ok = 1;
 	SString temp_buf;
 	PsnAttrViewItem item;
-	MEMSZERO(item);
+	// @v10.7.5 @ctr MEMSZERO(item);
 	item.ID = pPsnRec->ID;
 	item.TabID = tabID;
 	STRNSCPY(item.Name, pPsnRec->Name);
@@ -1097,7 +1097,6 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, &elink_ary)) {
 			const int buf_len = 128; // @v9.8.4 sizeof(item.Phone);
 			SString phone_list, fax_list;
-
 			elink_ary.GetPhones(5, phone_list, ELNKRT_PHONE);
 			elink_ary.GetPhones(2, fax_list, ELNKRT_FAX);
 			if(fax_list.Len() && (phone_list.Len() + fax_list.Len() + 6) < buf_len)
@@ -1195,7 +1194,7 @@ int SLAPI PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnA
 	return ok;
 }
 
-int SLAPI PPViewPerson::Helper_InsertTempRec(TempPersonTbl::Rec & rRec)
+int SLAPI PPViewPerson::Helper_InsertTempRec(const TempPersonTbl::Rec & rRec)
 {
 	int    ok = 1;
 	TempPersonTbl::Key0 k0;
@@ -1219,7 +1218,6 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 		PersonTbl::Rec psn_rec;
 		PPIDArray dlvr_addr_list;
 		TempPersonTbl::Key0 k0;
-		PsnAttrViewItem vi; // TempPersonTbl
 		ObjTagList tags;
 		SString buf;
 		SString buf2;
@@ -1253,7 +1251,8 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 					if(psn_rec.MainLoc) {
 						CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.MainLoc));
 						long   tab_id = psn_rec.MainLoc;
-						MEMSZERO(vi);
+						PsnAttrViewItem vi;
+						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
 						if(CreateAddrRec(tab_id, 0, "@jaddress", &vi) > 0) {
@@ -1263,7 +1262,8 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 					if(psn_rec.RLoc) {
 						CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.RLoc));
 						long   tab_id = psn_rec.RLoc;
-						MEMSZERO(vi);
+						PsnAttrViewItem vi;
+						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
 						if(CreateAddrRec(tab_id, 0, "@paddress", &vi) > 0) {
@@ -1273,10 +1273,11 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				}
 				for(i = 0; i < dlvr_addr_list.getCount(); i++) {
 					long   tab_id = dlvr_addr_list.get(i);
+					PsnAttrViewItem vi;
 					if(tab_id && pUsedLocList) {
 						pUsedLocList->Add((ulong)tab_id);
 					}
-					MEMSZERO(vi);
+					// @v10.7.5 @ctr MEMSZERO(vi);
 					vi.ID = id;
 					STRNSCPY(vi.Name, psn_rec.Name);
 					if(CreateAddrRec(tab_id, 0, "@daddress", &vi) > 0) {
@@ -1306,7 +1307,8 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				}
 				if(rec_list.getCount() == 0) {
 					if(Filt.EmptyAttrib != EA_NOEMPTY && !Filt.CityID) {
-						MEMSZERO(vi);
+						PsnAttrViewItem vi;
+						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
 						THROW(ok = Helper_InsertTempRec(vi));
@@ -1314,7 +1316,7 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				}
 				else if(Filt.EmptyAttrib != EA_EMPTY) {
 					for(i = 0; i < rec_list.getCount(); i++) {
-						THROW(ok = Helper_InsertTempRec(*(PsnAttrViewItem *)rec_list.at(i)));
+						THROW(ok = Helper_InsertTempRec(*static_cast<const PsnAttrViewItem *>(rec_list.at(i))));
 					}
 				}
 			}
@@ -1325,7 +1327,8 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				PsnObj.RegObj.GetBankAccountList(id, &bac_ary);
 				if(bac_ary.getCount() == 0) {
 					if(Filt.EmptyAttrib != EA_NOEMPTY) {
-						MEMSZERO(vi);
+						PsnAttrViewItem vi;
+						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						vi.TabID = 0;
 						STRNSCPY(vi.Name, psn_rec.Name);
@@ -1339,7 +1342,8 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 						//for(uint pos = 0; bac_ary.enumItems(&pos, (void **)&p_bac_rec) > 0;) {
 						for(uint pos = 0; pos < bac_ary.getCount(); pos++) {
 							const PPBankAccount & r_ba = bac_ary.at(pos);
-							MEMSZERO(vi);
+							PsnAttrViewItem vi;
+							// @v10.7.5 @ctr MEMSZERO(vi);
 							vi.ID = id;
 							vi.TabID = r_ba.ID;
 							STRNSCPY(vi.Name, psn_rec.Name);
@@ -1462,7 +1466,7 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 {
 	int    ok = -1;
 	PersonViewItem item;
-	MEMSZERO(item);
+	// @v10.7.5 @ctr MEMSZERO(item);
 	if(P_IterQuery)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {// AHTOXA
 			if(P_TempPsn) {
@@ -2398,7 +2402,10 @@ int SLAPI PPViewPerson::Recover()
 {
 	int    ok = -1;
 	PPLogger logger;
-	SString fmt_buf, msg_buf, addr_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString addr_buf;
+	SString temp_buf;
 	PPIDArray psn_list;
 	PPIDArray conflict_owner_addr_list; // Список адресов доставки, принадлежащих нескольким владельцам
 	LAssocArray dlvr_addr_list; // Список ассоциаций {DlvrAddrID; PersonID}
@@ -2420,59 +2427,78 @@ int SLAPI PPViewPerson::Recover()
 		}
 	}
 	{
+		PPObjBill * p_bobj = BillObj;
 		dlvr_addr_list.Sort();
 		LAssocArray bill_dlvr_addr_list;
-		int    bill_dlvr_addr_list_inited = 0;
+		BillTbl::Rec bill_rec;
+		LocationTbl::Rec loc_rec;
 		PPIDArray bill_list;
 		PPIDArray ar_list;
+		PPIDArray hanged_addr_list;
 		const uint c = dlvr_addr_list.getCount();
+		p_bobj->P_Tbl->GetDlvrAddrList(&bill_dlvr_addr_list);
+		// @v10.5.7 {
+		for(uint bdaidx = 0; bdaidx < bill_dlvr_addr_list.getCount(); bdaidx++) {
+			const PPID bill_id = bill_dlvr_addr_list.at(bdaidx).Key;
+			const PPID addr_id = bill_dlvr_addr_list.at(bdaidx).Val;
+			if(addr_id && !hanged_addr_list.lsearch(addr_id)) {
+				if(PsnObj.LocObj.Search(addr_id, &loc_rec) < 0) {
+					if(p_bobj->Search(bill_id, &bill_rec) > 0) {
+						hanged_addr_list.add(addr_id);
+						//PPTXT_LOG_HANGEDDLVRADDRINBILL            "Документ '@zstr' ссылается на несуществующий адрес #@long как на адрес доставки"
+						PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName, temp_buf);
+						if(PPLoadText(PPTXT_LOG_HANGEDDLVRADDRINBILL, fmt_buf)) {
+							PPFormat(fmt_buf, &msg_buf, temp_buf.cptr(), addr_id);
+							bill_dlvr_addr_list.GetListByVal(addr_id, bill_list);
+							if(bill_list.getCount() > 1) {
+								bill_list.sortAndUndup();
+								msg_buf.Space().CatChar('(').Cat("there are").Space().Cat(bill_list.getCount()-1).Space().Cat("more documents").CatChar(')');
+							}
+							logger.Log(msg_buf);
+						}
+					}
+				}
+			}
+		}
+		// } @v10.5.7 
 		if(c) {
-			PPObjBill * p_bobj = BillObj;
 			uint i = c;
 			do {
 				LAssoc & r_assc = dlvr_addr_list.at(--i);
 				PPID   prev_addr_id = ((i+1) < c) ? dlvr_addr_list.at(i+1).Key : 0;
 				if(prev_addr_id && r_assc.Key == prev_addr_id) {
 					conflict_owner_addr_list.add(r_assc.Key);
-					if(!bill_dlvr_addr_list_inited) {
-						p_bobj->P_Tbl->GetDlvrAddrList(&bill_dlvr_addr_list);
-						bill_dlvr_addr_list_inited = 1;
+					bill_list.clear();
+					bill_dlvr_addr_list.GetListByVal(r_assc.Key, bill_list);
+					ar_list.clear();
+					for(uint j = 0; j < bill_list.getCount(); j++) {
+						const PPID bill_id = bill_list.get(j);
+						if(p_bobj->Search(bill_id, &bill_rec) > 0)
+							ar_list.add(bill_rec.Object);
 					}
-					{
-						bill_list.clear();
-						bill_dlvr_addr_list.GetListByVal(r_assc.Key, bill_list);
-						ar_list.clear();
-						for(uint j = 0; j < bill_list.getCount(); j++) {
-							const PPID bill_id = bill_list.get(j);
-							BillTbl::Rec bill_rec;
-							if(p_bobj->Search(bill_id, &bill_rec) > 0)
-								ar_list.add(bill_rec.Object);
-						}
-						if(PsnObj.LocObj.GetPacket(r_assc.Key, &loc_pack) > 0)
-							LocationCore::GetAddress(loc_pack, 0, addr_buf);
-						/*
-						PPTXT_LOG_MANYLINGADDR_ONEBILL  "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом все документы с этим адресом относятся к персоналии '@person'"
-						PPTXT_LOG_MANYLINGADDR_MANYBILL "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом документы с этим адресом относятся к разным персоналиям"
-						PPTXT_LOG_MANYLINGADDR_NOBILL   "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом нет документов с этим адресом"
-						*/
-						PPID   psn_id = 0;
-						uint   str_id = 0;
-						if(ar_list.getCount() == 1) {
-							psn_id = ObjectToPerson(ar_list.get(0), 0);
-							str_id = PPTXT_LOG_MANYLINGADDR_ONEBILL;
-						}
-						else if(ar_list.getCount() > 0) {
-							str_id = PPTXT_LOG_MANYLINGADDR_MANYBILL;
-						}
-						else {
-							str_id = PPTXT_LOG_MANYLINGADDR_NOBILL;
-						}
-						{
-							if(PPLoadText(str_id, fmt_buf)) {
-								PPFormat(fmt_buf, &msg_buf, addr_buf.cptr(), psn_id);
-								logger.Log(msg_buf);
-							}
-						}
+					if(PsnObj.LocObj.GetPacket(r_assc.Key, &loc_pack) > 0) {
+						LocationCore::GetAddress(loc_pack, 0, addr_buf);
+						temp_buf.Z().CatChar('#').Cat(loc_pack.ID).Space().Cat(addr_buf);
+						addr_buf = temp_buf;
+					}
+					/*
+					PPTXT_LOG_MANYLINGADDR_ONEBILL  "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом все документы с этим адресом относятся к персоналии '@person'"
+					PPTXT_LOG_MANYLINGADDR_MANYBILL "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом документы с этим адресом относятся к разным персоналиям"
+					PPTXT_LOG_MANYLINGADDR_NOBILL   "Адрес доставки '@zstr' принадлежит нескольким персоналиям при этом нет документов с этим адресом"
+					*/
+					PPID   psn_id = 0;
+					uint   str_id = 0;
+					if(ar_list.getCount() == 1) {
+						psn_id = ObjectToPerson(ar_list.get(0), 0);
+						str_id = PPTXT_LOG_MANYLINGADDR_ONEBILL;
+					}
+					else if(ar_list.getCount())
+						str_id = PPTXT_LOG_MANYLINGADDR_MANYBILL;
+					else
+						str_id = PPTXT_LOG_MANYLINGADDR_NOBILL;
+					if(PPLoadText(str_id, fmt_buf)) {
+						PPFormat(fmt_buf, &msg_buf, addr_buf.cptr(), psn_id);
+						logger.Log(msg_buf);
 					}
 				}
 			} while(i);
@@ -2485,7 +2511,11 @@ int SLAPI PPViewPerson::Recover()
 				PPID addr_id = invowner_addr_list.at(i).Key;
 				PPID valid_owner_id = invowner_addr_list.at(i).Val;
 				THROW(PsnObj.LocObj.GetPacket(addr_id, &loc_pack) > 0);
-				LocationCore::GetAddress(loc_pack, 0, addr_buf);
+				{
+					LocationCore::GetAddress(loc_pack, 0, addr_buf);
+					temp_buf.Z().CatChar('#').Cat(loc_pack.ID).Space().Cat(addr_buf);
+					addr_buf = temp_buf;
+				}
 				const PPID inv_owner_id = loc_pack.OwnerID;
 				if(!conflict_owner_addr_list.bsearch(addr_id)) {
 					if(inv_owner_id != valid_owner_id) {

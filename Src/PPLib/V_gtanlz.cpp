@@ -72,7 +72,7 @@ int SLAPI PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 0, GoodsTaxAnalyzeFilt::fNozeroExciseOnly);
 			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 1, GoodsTaxAnalyzeFilt::fIgnoreVatFreeTag);
 			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 2, GoodsTaxAnalyzeFilt::fByPayment);
-			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 3, GoodsTaxAnalyzeFilt::fOldStyleLedger); // @v6.4.12
+			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 3, GoodsTaxAnalyzeFilt::fOldStyleLedger);
 			SetClusterData(CTL_GDSGRPRLZ_FLAGS, Data.Flags);
 			DisableClusterItem(CTL_GDSGRPRLZ_FLAGS, 3, !Data.HasCycleFlags());
 			setWL(BIN(Data.Flags & GoodsTaxAnalyzeFilt::fLabelOnly));
@@ -257,9 +257,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	THROW(P_TempTbl = CreateTempFile());
 	{
 		uint   i;
-		int    monthly = 0; // Признак того, что отчет рассчитывается по месяцам (фактически
-			// расчет осуществляется по дням, но группируется в месяцы).
-		//PPObjGoodsTax gtx_obj;
+		int    monthly = 0; // Признак того, что отчет рассчитывается по месяцам (фактически расчет осуществляется по дням, но группируется в месяцы).
 		PPGoodsTaxEntry gtx;
 		GoodsGrpngArray gga;
 		PPIDArray goods_list, local_goods_list;
@@ -326,7 +324,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								op_period.Set(ZERODATE, Filt.Period.upp);
 								p_bobj->GetExpendedPartOfReceipt(lot_item.ID, &op_period, 0, epr);
 								const double _amt = epr.Amount;
-								if(fabs(_amt) > tolerance && fabs(epr.Payout) <= (fabs(_amt)+tolerance)) // @v8.2.0
+								if(fabs(_amt) > tolerance && fabs(epr.Payout) <= (fabs(_amt)+tolerance))
 									exp_part = fabs(fdivnz(epr.Payout, _amt));
 							}
 							//
@@ -334,7 +332,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								op_period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
 								p_bobj->GetExpendedPartOfReceipt(lot_item.ID, &op_period, 0, epr);
 								const double _amt = epr.Amount;
-								if(fabs(_amt) > tolerance && fabs(epr.Payout) <= (fabs(_amt)+tolerance)) // @v8.2.0
+								if(fabs(_amt) > tolerance && fabs(epr.Payout) <= (fabs(_amt)+tolerance))
 									exp_part_before = fabs(fdivnz(epr.Payout, _amt));
 							}
 						}
@@ -435,7 +433,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 				gctf.OpID   = Filt.OpID;
 				gctf.LotsPeriod = Filt.LotsPeriod;
 				gctf.LocList.Add(Filt.LocID);
-				gctf.Flags |= (OPG_SETTAXES | OPG_DIFFBYTAX | OPG_PROCESSRECKONING | OPG_PROCESSGENOP);
+				gctf.Flags |= (OPG_SETTAXES | OPG_DIFFBYTAX | OPG_PROCESSRECKONING | OPG_PROCESSGENOP | OPG_MERGECORRECTION); // @v10.7.5 OPG_MERGECORRECTION
 				gctf.SupplID      = Filt.SupplID;
 				gctf.SupplAgentID = Filt.SupplAgentID;
 				if(Filt.BillList.IsExists()) {
@@ -450,7 +448,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					gctf.Flags |= static_cast<uint>(OPG_LABELONLY);
 				if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent))
 					gctf.Flags |= OPG_PROCESSBYLOTS;
-				THROW(agg.BeginGoodsGroupingProcess(&gctf));
+				THROW(agg.BeginGoodsGroupingProcess(gctf));
 				goods_list.clear();
 				if(gctf.BillList.IsExists()) {
 					local_goods_list.clear();
@@ -478,10 +476,10 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 						gctf.GoodsID = goods_id;
 						gctf.GoodsGrpID = 0;
 						gga.Reset();
-						THROW(gga.ProcessGoodsGrouping(&gctf, &agg));
+						THROW(gga.ProcessGoodsGrouping(gctf, &agg));
 						for(i = 0; gga.enumItems(&i, (void **)&p_gge);) {
 							PPID   op_id = 0;
-							int    income_calc_method = (Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
+							const  int  income_calc_method = (Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
 							if(!Filt.OpID) {
 								op_id = p_gge->IsProfitable(BIN(income_calc_method == INCM_BYPAYMENT));
 								if(!op_id && p_gge->Flags & GGEF_PAYMBYPAYOUTLOT) {
@@ -499,17 +497,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								TempGoodsTaxAnlzTbl::Key0 k;
 								GTaxVect vect;
 								if(Filt.Sgg) {
-									sgg_blk.LotID = p_gge->LotID; // @v8.3.4
-									/* @v8.3.4
-									if(Filt.Sgg == sggSupplAgent)
-										sgg_blk.SupplID = p_bobj->GetSupplAgent(p_gge->LotID);
-									else if(Filt.Sgg == sggSuppl) {
-										ReceiptTbl::Rec lot_rec;
-										MEMSZERO(lot_rec);
-										if(p_bobj->trfr->Rcpt.Search(p_gge->LotID, &lot_rec) > 0)
-											sgg_blk.SupplID = lot_rec.SupplID;
-									}
-									*/
+									sgg_blk.LotID = p_gge->LotID;
 									THROW(GObj.SubstGoods(goods_id, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 								}
 								//

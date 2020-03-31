@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -207,8 +207,8 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		entry.Dt = dt;
 		datefmt(&dt, DATF_DMY, entry.Title);
 		gga.Reset();
-		THROW(agg.BeginGoodsGroupingProcess(&f));
-		THROW(gga.ProcessGoodsGrouping(&f, &agg));
+		THROW(agg.BeginGoodsGroupingProcess(f));
+		THROW(gga.ProcessGoodsGrouping(f, &agg));
 		for(uint i = 0; gga.enumItems(&i, (void **)&e);) {
 			if(oneof3(e->OpID, -1, 10000, 0))
 				continue;
@@ -296,7 +296,7 @@ int SLAPI PPViewGoodsTrnovr::InitIteration()
 int FASTCALL PPViewGoodsTrnovr::NextIteration(GoodsTrnovrViewItem * pItem)
 {
 	int    ok = -1;
-	if(P_Items->getCount() && Cntr < (ulong)((long)P_Items->getCount()-1)) {
+	if(P_Items->getCount() && Cntr < (ulong)(P_Items->getCountI()-1)) {
 		const GoodsTrnovrViewItem * goods_trnovr_item = static_cast<const GoodsTrnovrViewItem *>(P_Items->at(Cntr));
 		strtodate(goods_trnovr_item->Title, DATF_DMY, &pItem->Dt);
 		pItem->RcptSuppl  = goods_trnovr_item->RcptSuppl;
@@ -367,8 +367,8 @@ SArray * SLAPI PPViewGoodsTrnovr::MakeGoodsTurnover()
 		entry.Dt = dt;
 		datefmt(&dt, DATF_DMY, entry.Title);
 		gga.freeAll();
-		THROW(BeginGoodsGroupingProcess(&f, &agg));
-		THROW(gga.ProcessGoodsGrouping(&f, &agg));
+		THROW(BeginGoodsGroupingProcess(f, &agg));
+		THROW(gga.ProcessGoodsGrouping(f, &agg));
 		for(i = 0; gga.enumItems(&i, (void **)&e);) {
 			if(oneof3(e->OpID, -1, 10000, 0))
 				continue;

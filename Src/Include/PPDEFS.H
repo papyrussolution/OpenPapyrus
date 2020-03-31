@@ -710,6 +710,7 @@
 	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
 	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
 	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
+		#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
 	#define PPACN_LAST             88L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
@@ -928,7 +929,6 @@
 
 	#define PPUPRF_LOGIN              1
 	#define PPUPRF_SESSION            2
-
 	#define PPUPRF_BILLTURN_RCPT      3
 	#define PPUPRF_BILLTURN_EXP       4
 	#define PPUPRF_BILLTURN_IEXP      5
@@ -938,7 +938,6 @@
 	#define PPUPRF_BILLTURN_DRFT      9
 	#define PPUPRF_BILLTURN_RET      10
 	#define PPUPRF_BILLTURN_ETC      11
-
 	#define PPUPRF_BILLUPD_RCPT      12
 	#define PPUPRF_BILLUPD_EXP       13
 	#define PPUPRF_BILLUPD_IEXP      14
@@ -948,7 +947,6 @@
 	#define PPUPRF_BILLUPD_DRFT      18
 	#define PPUPRF_BILLUPD_RET       19
 	#define PPUPRF_BILLUPD_ETC       20
-
 	#define PPUPRF_BILLRMV_RCPT      21
 	#define PPUPRF_BILLRMV_EXP       22
 	#define PPUPRF_BILLRMV_IEXP      23
@@ -958,13 +956,11 @@
 	#define PPUPRF_BILLRMV_DRFT      27
 	#define PPUPRF_BILLRMV_RET       28
 	#define PPUPRF_BILLRMV_ETC       29
-
 	#define PPUPRF_VIEW_GREST        51
 	#define PPUPRF_VIEW_GREST_DT     52
 	#define PPUPRF_VATFREEPERSONLIST 53
 	#define PPUPRF_PSALBLDGOODS      54
 	#define PPUPRF_PSALBLDGOODSTEST  55
-
 	#define PPUPRF_GOODSPUT          56
 	#define PPUPRF_CCHECKPUT         57
 	#define PPUPRF_GETMTXLISTBYLOC   58
@@ -986,8 +982,7 @@
 	#define PPUPRF_SRCHINGOODSFL     74 // @v10.1.4
 	#define PPUPRF_TIMSERWRITE       75 // @v10.3.3
 	#define PPUPRF_TSEVALSTAKES      76 // @v10.3.3
-
-	#define PPUPRF_LAST              77 // @v10.3.3 75-->77
+	#define PPUPRF_LAST              77 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений
 #define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -1070,7 +1065,7 @@
 	#define GGPRP_EXSTRTITLES    4L  // Заголовки дополнительных полей товара.
 	#define GDSPRP_PICTURE       5L  // Картинка
 	#define GDSPRP_MINSTOCKBYLOC 6L  // Минимальный запас товара по складам
-	#define GGPRP_GOODSFILT2     7L  // @v8.6.4 Фильтр товаров для альтернативной группы (сериализованный вариант)
+	#define GGPRP_GOODSFILT2     7L  // Фильтр товаров для альтернативной группы (сериализованный вариант)
 #define PPOBJ_LOCATION      1010L  // Позиции @store(LocationTbl)
 	// Зарезервированные позиции (не используются)
 	#define PPLOC_RECEIPT        1L // @unused Поступление товара из-вне
@@ -1120,8 +1115,8 @@
 #define PPOBJ_MRPTAB        1035L  // MRP-таблицы
 #define PPOBJ_PRJTASK       1036L  // Задачи по проекту
 #define PPOBJ_PROCESSOR     1037L  // Процессоры
-	#define PRCPRP_EXT           1L // @v8.1.6 Структура расширения пакета процессора
-	#define PRCPRP_EXT2          2L // @v8.7.0 Структура расширения пакета процессора (новая версия с сериализацией)
+	#define PRCPRP_EXT           1L // Структура расширения пакета процессора
+	#define PRCPRP_EXT2          2L // Структура расширения пакета процессора (новая версия с сериализацией)
 #define PPOBJ_TECH          1038L  // Технологии
 	#define TECPRP_EXTSTR        1L  // Строка дополнительных параметров
 #define PPOBJ_TSESSION      1039L  // Процессорные сессии
@@ -3452,6 +3447,7 @@
 	#define CTLSEL_REPLPRSN_ADDR1       (12 + WINDOWS_ID_BIAS)
 	#define CTL_REPLPRSN_ADDR2          (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLPRSN_ADDR2       (14 + WINDOWS_ID_BIAS)
+	#define CTL_REPLPRSN_FLAGS          (15 + WINDOWS_ID_BIAS)
 #define DLG_PRNBLST               242 // Форма печати реестра документов
 	#define CTL_PRNBLST_AMTTYPE          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRNBLST_ORDER            (2 + WINDOWS_ID_BIAS)
@@ -10694,6 +10690,8 @@
 	#define CTL_TIMSER_FXSTAKE        (22 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSER_SBIDT          (23 + WINDOWS_ID_BIAS) // strategy build init date
 	#define CTLCAL_TIMSER_SBIDT       (24 + WINDOWS_ID_BIAS) // strategy build init date
+	#define CTL_TIMSER_TSSMODEL       (25 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TIMSER_TSSMODEL    (26 + WINDOWS_ID_BIAS)
 #define DLG_TSSA                  1353 //
 	#define CTL_TSSA_TS               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TSSA_TS            (2 + WINDOWS_ID_BIAS)
@@ -10879,7 +10877,7 @@
 	#define CTL_TSSMODEL_BSUBSPHIT    (15  + IMPEXP_CTL_BIAS) // BestSubsetMaxPhonyIters
 	#define CTL_TSSMODEL_MFRC         (16  + IMPEXP_CTL_BIAS) // MainFrameRangeCount
 	#define CTL_TSSMODEL_OPTRSTEP     (17  + IMPEXP_CTL_BIAS) // OptRangeStep
-	#define CTL_TSSMODEL_OPTRSTEPMP   (18  + IMPEXP_CTL_BIAS) // OptRangeStepMkPart
+	//#define CTL_TSSMODEL_OPTRSTEPMP   (18  + IMPEXP_CTL_BIAS) // OptRangeStepMkPart
 	#define CTL_TSSMODEL_OPTRMLIM     (19  + IMPEXP_CTL_BIAS) // OptRangeMultiLimit
 	#define CTL_TSSMODEL_OPTRMEXTP    (20  + IMPEXP_CTL_BIAS) // OptRangeMaxExtProbe
 	#define CTL_TSSMODEL_CHAOSFACTOR  (21  + IMPEXP_CTL_BIAS) // ChaosFactor
@@ -10887,6 +10885,10 @@
 	#define CTL_TSSMODEL_IFERRLIM     (23  + IMPEXP_CTL_BIAS) // InitTrendErrLimit
 	#define CTL_TSSMODEL_MINWINRATE   (24  + IMPEXP_CTL_BIAS) // MinWinRate
 	#define CTL_TSSMODEL_OMINWINRATE  (25  + IMPEXP_CTL_BIAS) // OverallWinRateLimit
+	#define CTL_TSSMODEL_OPTRSTEPCT   (26  + IMPEXP_CTL_BIAS) // OptRangeStepCount
+	#define CTL_TSSMODEL_TRTOPTRSTEP  (27  + IMPEXP_CTL_BIAS) //
+	#define CTL_TSSMODEL_TRTIFERRLIM  (28  + IMPEXP_CTL_BIAS) // InitTrendErrLimit
+#define DLG_TSSMODELVIEW          1381
 //
 // Win32 Dialog Identifiers
 //

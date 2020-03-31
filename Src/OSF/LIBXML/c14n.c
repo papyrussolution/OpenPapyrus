@@ -248,7 +248,7 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
-		cur->PP_NodeTab = (xmlNode **)tmp;
+		cur->PP_NodeTab = static_cast<xmlNode **>(tmp);
 		cur->nsMax = tmpSize;
 	}
 	cur->nsTab[cur->nsCurEnd] = ns;

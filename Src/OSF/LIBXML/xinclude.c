@@ -34,7 +34,7 @@ struct _xmlXIncludeRef {
 	xmlNode * inc;        /* the included copy */
 	int xml;               /* xml or txt */
 	int count;             /* how many refs use that specific doc */
-	xmlXPathObjectPtr xptr; /* the xpointer if needed */
+	xmlXPathObject * xptr; /* the xpointer if needed */
 	int emptyFb;           /* flag to show fallback empty */
 };
 
@@ -730,7 +730,7 @@ xmlNode * xmlXPtrAdvanceNode(xmlNode * cur, int * level); /* in xpointer.c */
  * Returns an xmlNode * list or NULL.
  *    The caller has to free the node tree.
  */
-static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlXPathObjectPtr range)
+static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, xmlDoc * source, xmlXPathObject * range)
 {
 	/* pointers to generated nodes */
 	xmlNode * list = NULL;
@@ -1348,7 +1348,7 @@ loaded:
 		 * Computes the XPointer expression and make a copy used
 		 * as the replacement copy.
 		 */
-		xmlXPathObjectPtr xptr;
+		xmlXPathObject * xptr;
 		xmlNodeSet * set;
 		xmlXPathContext * xptrctxt = doc ? xmlXPtrNewContext(doc, 0, 0) : xmlXPtrNewContext(ctxt->doc, ctxt->incTab[nr]->ref, 0);
 		if(!xptrctxt) {

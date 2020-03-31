@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -531,107 +531,100 @@ void SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 //
 //
 //
-#define GRP_CYCLE 1
-
-class AccturnFiltDialog : public WLDialog {
-public:
-	AccturnFiltDialog() : WLDialog(DLG_ATFLT, CTL_ATFLT_WL)
-	{
-		CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, CTL_ATFLT_PERIOD);
-		addGroup(GRP_CYCLE, grp);
-		SetupCalCtrl(CTLCAL_ATFLT_PERIOD, this, CTL_ATFLT_PERIOD, 1);
-	}
-	int setDTS(const AccturnFilt *);
-	int getDTS(AccturnFilt *);
-private:
-	DECL_HANDLE_EVENT;
-	AccturnFilt Filt;
-};
-
-IMPL_HANDLE_EVENT(AccturnFiltDialog)
-{
-	WLDialog::handleEvent(event);
-	if(event.isCmd(cmClusterClk)) {
-		if(event.isCtlEvent(CTL_ATFLT_GRPACO) || event.isCtlEvent(CTL_ATFLT_LASTONLY)) {
-			ushort v_grpaco   = getCtrlUInt16(CTL_ATFLT_GRPACO);
-			ushort v_lastonly = getCtrlUInt16(CTL_ATFLT_LASTONLY);
-			disableCtrls((v_grpaco == 0 || (v_lastonly & 0x01)), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
-		}
-		clearEvent(event);
-	}
-}
-
-int AccturnFiltDialog::setDTS(const AccturnFilt * pFilt)
-{
-	PPIDArray types;
-	ushort v;
-	CycleCtrlGroup::Rec cycle_rec;
-	if(!RVALUEPTR(Filt, pFilt))
-		Filt.Init(1, 0);
-	SetPeriodInput(this, CTL_ATFLT_PERIOD, &Filt.Period);
-	types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
-		PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK,
-		PPOPT_POOL, PPOPT_GENERIC, 0L);
-	SetupOprKindCombo(this, CTLSEL_ATFLT_OPRKIND, Filt.OpID, 0, &types, 0);
-	SetupCurrencyCombo(this, CTLSEL_ATFLT_CUR, Filt.CurID, 0, 1, 0);
-	SetRealRangeInput(this, CTL_ATFLT_AMOUNT, &Filt.AmtR);
-	v = 0;
-	SETFLAG(v, 0x01, Filt.Flags & AccturnFilt::fLastOnly);
-	setCtrlData(CTL_ATFLT_LASTONLY, &v);
-	v = 0;
-	SETFLAG(v, 1, Filt.Flags & AccturnFilt::fAllCurrencies);
-	setCtrlData(CTL_ATFLT_ALLCUR, &v);
-	setWL(BIN(Filt.Flags & AccturnFilt::fLabelOnly));
-	v = 0;
-	if(Filt.GrpAco == ACO_1)
-		v = 1;
-	else if(Filt.GrpAco == ACO_2)
-		v = 2;
-	else if(Filt.GrpAco == ACO_3)
-		v = 3;
-	else
-		v = 0;
-	setCtrlData(CTL_ATFLT_GRPACO, &v);
-	cycle_rec.C = Filt.Cycl;
-	setGroupData(GRP_CYCLE, &cycle_rec);
-	disableCtrls(((Filt.Flags & AccturnFilt::fLastOnly) || Filt.GrpAco == 0), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
-	return 1;
-}
-
-int AccturnFiltDialog::getDTS(AccturnFilt * pFilt)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	CycleCtrlGroup::Rec cycle_rec;
-	THROW(GetPeriodInput(this, sel = CTL_ATFLT_PERIOD, &Filt.Period));
-	ushort v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
-	SETFLAG(Filt.Flags, AccturnFilt::fLastOnly,   v & 0x01);
-	SETFLAG(Filt.Flags, AccturnFilt::fLabelOnly, getWL());
-	THROW(Filt.Flags & AccturnFilt::fLastOnly || AdjustPeriodToRights(Filt.Period, 1));
-	getCtrlData(CTL_ATFLT_ALLCUR, &v);
-	SETFLAG(Filt.Flags, AccturnFilt::fAllCurrencies, v & 1);
-	getCtrlData(CTLSEL_ATFLT_OPRKIND, &Filt.OpID);
-	getCtrlData(CTLSEL_ATFLT_CUR,     &Filt.CurID);
-	GetRealRangeInput(this, CTL_ATFLT_AMOUNT, &Filt.AmtR);
-	getCtrlData(CTL_ATFLT_GRPACO, &v);
-	if(v == 1)
-		Filt.GrpAco = ACO_1;
-	else if(v == 2)
-		Filt.GrpAco = ACO_2;
-	else if(v == 3)
-		Filt.GrpAco = ACO_3;
-	else
-		Filt.GrpAco = 0;
-	getGroupData(GRP_CYCLE, &cycle_rec);
-	Filt.Cycl = cycle_rec.C;
-	ASSIGN_PTR(pFilt, Filt);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 // virtual
 int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
 {
+	class AccturnFiltDialog : public WLDialog {
+		DECL_DIALOG_DATA(AccturnFilt);
+		enum {
+			ctrgroupCycle = 1
+		};
+	public:
+		AccturnFiltDialog() : WLDialog(DLG_ATFLT, CTL_ATFLT_WL)
+		{
+			CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, CTL_ATFLT_PERIOD);
+			addGroup(ctrgroupCycle, grp);
+			SetupCalCtrl(CTLCAL_ATFLT_PERIOD, this, CTL_ATFLT_PERIOD, 1);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			PPIDArray types;
+			ushort v;
+			CycleCtrlGroup::Rec cycle_rec;
+			if(!RVALUEPTR(Data, pData))
+				Data.Init(1, 0);
+			SetPeriodInput(this, CTL_ATFLT_PERIOD, &Data.Period);
+			types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
+				PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GENERIC, 0L);
+			SetupOprKindCombo(this, CTLSEL_ATFLT_OPRKIND, Data.OpID, 0, &types, 0);
+			SetupCurrencyCombo(this, CTLSEL_ATFLT_CUR, Data.CurID, 0, 1, 0);
+			SetRealRangeInput(this, CTL_ATFLT_AMOUNT, &Data.AmtR);
+			v = 0;
+			SETFLAG(v, 0x01, Data.Flags & AccturnFilt::fLastOnly);
+			setCtrlData(CTL_ATFLT_LASTONLY, &v);
+			v = 0;
+			SETFLAG(v, 1, Data.Flags & AccturnFilt::fAllCurrencies);
+			setCtrlData(CTL_ATFLT_ALLCUR, &v);
+			setWL(BIN(Data.Flags & AccturnFilt::fLabelOnly));
+			v = 0;
+			if(Data.GrpAco == ACO_1)
+				v = 1;
+			else if(Data.GrpAco == ACO_2)
+				v = 2;
+			else if(Data.GrpAco == ACO_3)
+				v = 3;
+			else
+				v = 0;
+			setCtrlData(CTL_ATFLT_GRPACO, &v);
+			cycle_rec.C = Data.Cycl;
+			setGroupData(ctrgroupCycle, &cycle_rec);
+			disableCtrls(((Data.Flags & AccturnFilt::fLastOnly) || Data.GrpAco == 0), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			CycleCtrlGroup::Rec cycle_rec;
+			THROW(GetPeriodInput(this, sel = CTL_ATFLT_PERIOD, &Data.Period));
+			ushort v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
+			SETFLAG(Data.Flags, AccturnFilt::fLastOnly,   v & 0x01);
+			SETFLAG(Data.Flags, AccturnFilt::fLabelOnly, getWL());
+			THROW(Data.Flags & AccturnFilt::fLastOnly || AdjustPeriodToRights(Data.Period, 1));
+			getCtrlData(CTL_ATFLT_ALLCUR, &v);
+			SETFLAG(Data.Flags, AccturnFilt::fAllCurrencies, v & 1);
+			getCtrlData(CTLSEL_ATFLT_OPRKIND, &Data.OpID);
+			getCtrlData(CTLSEL_ATFLT_CUR,     &Data.CurID);
+			GetRealRangeInput(this, CTL_ATFLT_AMOUNT, &Data.AmtR);
+			getCtrlData(CTL_ATFLT_GRPACO, &v);
+			if(v == 1)
+				Data.GrpAco = ACO_1;
+			else if(v == 2)
+				Data.GrpAco = ACO_2;
+			else if(v == 3)
+				Data.GrpAco = ACO_3;
+			else
+				Data.GrpAco = 0;
+			getGroupData(ctrgroupCycle, &cycle_rec);
+			Data.Cycl = cycle_rec.C;
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			WLDialog::handleEvent(event);
+			if(event.isCmd(cmClusterClk)) {
+				if(event.isCtlEvent(CTL_ATFLT_GRPACO) || event.isCtlEvent(CTL_ATFLT_LASTONLY)) {
+					ushort v_grpaco   = getCtrlUInt16(CTL_ATFLT_GRPACO);
+					ushort v_lastonly = getCtrlUInt16(CTL_ATFLT_LASTONLY);
+					disableCtrls((v_grpaco == 0 || (v_lastonly & 0x01)), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
+				}
+				clearEvent(event);
+			}
+		}
+	};
 	DIALOG_PROC_BODY(AccturnFiltDialog, static_cast<AccturnFilt *>(pFilt));
 }
 
@@ -936,4 +929,150 @@ int SLAPI PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 int SLAPI PPViewAccturn::Browse(int modeless)
 {
 	return (P_BObj->atobj->CheckRights(PPR_READ)) ? PPView::Browse(modeless) : 0;
+}
+
+SLAPI CvtAt2Ab_Param::CvtAt2Ab_Param() : LocID(0), OpID(0), ObjID(0), ExtObjID(0), Flags(0), P_OpList(0)
+{
+}
+
+int SLAPI PPViewAccturn::ConvertGenAccturnToExtAccBill()
+{
+	class CvtAt2Ab_Dialog : public TDialog {
+		DECL_DIALOG_DATA(CvtAt2Ab_Param);
+	public:
+		CvtAt2Ab_Dialog() : TDialog(DLG_CVTAT2AB), AccSheetID(0), AccSheet2ID(0)
+		{
+			// @v10.7.5 @ctr MEMSZERO(Data);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			ushort v;
+			PPOprKind op_rec;
+			SetupOprKindCombo(this, CTLSEL_CVTAT2AB_OP, 0, 0, Data.P_OpList, OPKLF_OPLIST);
+			if(GetOpData(Data.OpID, &op_rec) > 0) {
+				AccSheetID  = (op_rec.AccSheetID != 0)  ? op_rec.AccSheetID  : (Data.ObjID = 0);
+				AccSheet2ID = (op_rec.AccSheet2ID != 0) ? op_rec.AccSheet2ID : (Data.ExtObjID = 0);
+			}
+			else
+				AccSheet2ID = AccSheetID = Data.ExtObjID = Data.ObjID = 0;
+			SetupArCombo(this, CTLSEL_CVTAT2AB_OBJ,    Data.ObjID,    OLW_CANINSERT, AccSheetID, 0);
+			SetupArCombo(this, CTLSEL_CVTAT2AB_EXTOBJ, Data.ExtObjID, OLW_CANINSERT, AccSheet2ID, 0);
+			SetupPPObjCombo(this, CTLSEL_CVTAT2AB_LOC, PPOBJ_LOCATION, Data.LocID, 0);
+			v = 0;
+			SETFLAG(v, 0x01, Data.Flags & CvtAt2Ab_Param::fNegAmount);
+			setCtrlData(CTL_CVTAT2AB_FLAGS, &v);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			ushort v = 0;
+			getCtrlData(CTLSEL_CVTAT2AB_OP,     &Data.OpID);
+			getCtrlData(CTLSEL_CVTAT2AB_OBJ,    &Data.ObjID);
+			getCtrlData(CTLSEL_CVTAT2AB_EXTOBJ, &Data.ExtObjID);
+			getCtrlData(CTLSEL_CVTAT2AB_LOC,    &Data.LocID);
+			getCtrlData(CTL_CVTAT2AB_FLAGS,     &(v = 0));
+			SETFLAG(Data.Flags, CvtAt2Ab_Param::fNegAmount, v & 0x01);
+			if(Data.OpID == 0)
+				return (PPError(PPERR_OPRKINDNEEDED, 0), 0);
+			else {
+				ASSIGN_PTR(pData, Data);
+				return 1;
+			}
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_CVTAT2AB_OP)) {
+				PPOprKind op_rec;
+				PPID   op_id = getCtrlLong(CTLSEL_CVTAT2AB_OP);
+				if(GetOpData(op_id, &op_rec) > 0) {
+					if(op_rec.AccSheet2ID != 0) {
+						if(op_rec.AccSheet2ID != AccSheet2ID)
+							AccSheet2ID = op_rec.AccSheet2ID;
+					}
+					else
+						AccSheet2ID = Data.ExtObjID = 0;
+					if(op_rec.AccSheetID != 0) {
+						if(op_rec.AccSheetID != AccSheetID)
+							AccSheetID = op_rec.AccSheetID;
+					}
+					else
+						AccSheetID = Data.ObjID = 0;
+				}
+				else
+					AccSheetID = AccSheet2ID = Data.ObjID = Data.ExtObjID = 0;
+				SetupArCombo(this, CTLSEL_CVTAT2AB_OBJ,    0, OLW_CANINSERT, AccSheetID, 0);
+				SetupArCombo(this, CTLSEL_CVTAT2AB_EXTOBJ, 0, OLW_CANINSERT, AccSheet2ID, 0);
+				clearEvent(event);
+			}
+		}
+		PPID   AccSheetID;
+		PPID   AccSheet2ID;
+	};
+	int    ok = -1;
+	int    frrl_tag = 0;
+	uint   i;
+	PPID   op_id;
+	CvtAt2Ab_Dialog * dlg = 0;
+	AccturnViewItem item;
+	if(oneof2(Filt.Aco, ACO_2, ACO_3) && Filt.DbtAcct.ac && Filt.CrdAcct.ac) {
+		PPOprKind op_rec;
+		PPIDArray op_list;
+		int    skip = 0;
+		if(IsGenericOp(Filt.OpID) > 0) {
+			GetGenericOpList(Filt.OpID, &op_list);
+			for(i = 0; !skip && i < op_list.getCount(); i++)
+				if(GetOpType(op_list.at(i), &op_rec) != PPOPT_ACCTURN)
+					skip = 1;
+		}
+		else if(GetOpType(Filt.OpID, &op_rec) != PPOPT_ACCTURN)
+			skip = 1;
+		if(!skip) {
+			op_list.freeAll();
+			for(op_id = 0; EnumOperations(PPOPT_ACCTURN, &op_id, &op_rec) > 0;) {
+				if(op_rec.Flags & OPKF_EXTACCTURN)
+					op_list.add(op_id);
+			}
+			{
+				int    valid_data = 0;
+				CvtAt2Ab_Param param;
+				// @v10.7.5 @ctr MEMSZERO(param);
+				param.P_OpList = &op_list;
+				THROW(CheckDialogPtr(&(dlg = new CvtAt2Ab_Dialog())));
+				dlg->setDTS(&param);
+				while(!valid_data && ExecView(dlg) == cmOK) {
+					if(dlg->getDTS(&param)) {
+						PPIDArray bill_id_list;
+						valid_data = 1;
+						ZDELETE(dlg);
+						PPWait(1);
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							THROW(P_ATC->LockingFRR(1, &frrl_tag, 0));
+							for(InitIteration(); NextIteration(&item) > 0;)
+								if(P_BObj->Search(item.BillID) > 0)
+									bill_id_list.addUnique(item.BillID);
+							for(i = 0; i < bill_id_list.getCount(); i++) {
+								THROW(P_BObj->ConvertGenAccturnToExtAccBill(bill_id_list.at(i), 0, &param, 0));
+								PPWaitPercent(i+1, bill_id_list.getCount());
+							}
+							THROW(P_ATC->LockingFRR(0, &frrl_tag, 0));
+							THROW(tra.Commit());
+						}
+						PPWait(0);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		P_ATC->LockingFRR(-1, &frrl_tag, 0);
+		ok = PPErrorZ();
+	ENDCATCH
+	delete dlg;
+	return ok;
 }

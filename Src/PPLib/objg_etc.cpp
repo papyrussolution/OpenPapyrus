@@ -44,8 +44,7 @@ int SLAPI PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
+	// @v10.7.5 @ctr else MEMSZERO(rec);
 	dlg->setCtrlData(CTL_GDSTYP_NAME, rec.Name);
 	dlg->setCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_GDSTYP_ID,   &rec.ID);
@@ -303,6 +302,7 @@ SLAPI PPObjGoodsValRestr::PPObjGoodsValRestr(void * extraPtr) : PPObjReference(P
 }
 
 class GoodsValRestrDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPGoodsValRestrPacket);
 public:
 	GoodsValRestrDialog() : PPListDialog(DLG_GVR, CTL_GVR_BARLIST)
 	{
@@ -310,9 +310,9 @@ public:
 		SetupInputLine(CTL_GVR_UPPBFORM, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0)); // @v10.2.8
 		updateList(-1);
 	}
-	int    setDTS(const PPGoodsValRestrPacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_GVR_NAME, Data.Rec.Name);
 		setCtrlData(CTL_GVR_SYMB, Data.Rec.Symb);
 		setCtrlLong(CTL_GVR_ID,   Data.Rec.ID);
@@ -321,7 +321,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(PPGoodsValRestrPacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlData(CTL_GVR_NAME, Data.Rec.Name);
@@ -397,10 +397,9 @@ private:
 			ok = 1;
 		}
 		CATCHZOKPPERR
+		delete dlg; // @v10.7.5 @fix
 		return ok;
 	}
-
-	PPGoodsValRestrPacket Data;
 };
 
 int GoodsValRestrDialog::setupList()

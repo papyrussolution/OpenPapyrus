@@ -3883,36 +3883,35 @@ SLAPI PPObjFreightPackageType::PPObjFreightPackageType(void * extraPtr) : PPObjR
 {
 }
 
-class FreightPackageTypeDialog : public TDialog {
-	DECL_DIALOG_DATA(PPFreightPackageType);
-public:
-	FreightPackageTypeDialog() : TDialog(DLG_FPACKTYPE)
-	{
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		RVALUEPTR(Data, pData);
-		setCtrlLong(CTL_FPACKTYPE_ID, Data.ID);
-		setCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
-		setCtrlData(CTL_FPACKTYPE_SYMB, Data.Symb);
-		AddClusterAssoc(CTL_FPACKTYPE_FLAGS, 0, PPFreightPackageType::fPassive);
-		SetClusterData(CTL_FPACKTYPE_FLAGS, Data.Flags);
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		getCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
-		getCtrlData(CTL_FPACKTYPE_SYMB, Data.Symb);
-		GetClusterData(CTL_FPACKTYPE_FLAGS, &Data.Flags);
-		ASSIGN_PTR(pData, Data);
-		return ok;
-	}
-};
-
 int SLAPI PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
 {
+	class FreightPackageTypeDialog : public TDialog {
+		DECL_DIALOG_DATA(PPFreightPackageType);
+	public:
+		FreightPackageTypeDialog() : TDialog(DLG_FPACKTYPE)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlLong(CTL_FPACKTYPE_ID, Data.ID);
+			setCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
+			setCtrlData(CTL_FPACKTYPE_SYMB, Data.Symb);
+			AddClusterAssoc(CTL_FPACKTYPE_FLAGS, 0, PPFreightPackageType::fPassive);
+			SetClusterData(CTL_FPACKTYPE_FLAGS, Data.Flags);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTL_FPACKTYPE_NAME, Data.Name);
+			getCtrlData(CTL_FPACKTYPE_SYMB, Data.Symb);
+			GetClusterData(CTL_FPACKTYPE_FLAGS, &Data.Flags);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	};
 	int    ok = 1;
 	int    r = cmCancel, valid_data = 0;
 	PPFreightPackageType rec;

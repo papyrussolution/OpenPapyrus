@@ -659,6 +659,7 @@ int SLAPI EditName(SString & rName)
 #define GRP_BKGND 2
 
 class EditMenusDlg : public PPListDialog {
+	DECL_DIALOG_DATA(PPCommandGroup);
 public:
 	EditMenusDlg(int isDesktop, long initID) : PPListDialog(DLG_MENULIST, CTL_MENULIST_LIST), IsMaster(PPMaster), IsDesktop(isDesktop)
 	{
@@ -696,10 +697,53 @@ public:
 		InitID = initID;
 		updateList(-1);
 	}
-	int    setDTS(const PPCommandGroup * pDdata);
-	int    getDTS(PPCommandGroup * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		PPID   cur_id = 0;
+		RVALUEPTR(Data, pData);
+		AddClusterAssoc(CTL_MENULIST_GRPFLAGS, 0, PPCommandItem::fNotUseDefDesktop);
+		SetClusterData(CTL_MENULIST_GRPFLAGS, static_cast<long>(Data.Flags));
+		AddClusterAssoc(CTL_MENULIST_FLAGS, 0, PPCommandItem::fBkgndGradient);
+		if(InitID)
+			updateList(InitID, 0);
+		else
+			updateList(-1);
+		getSelection(&cur_id);
+		LoadCfg(InitID ? InitID : cur_id);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		LoadCfg(0);
+		Data.Flags = static_cast<int16>(GetClusterData(CTL_MENULIST_GRPFLAGS));
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		long   id = 0;
+		if(event.isCmd(cmEditMenu)) {
+			if(P_Box && P_Box->getCurID(&id) > 0)
+				if(!EditMenu(id))
+					PPError();
+		}
+		else if(event.isCmd(cmEditAsscCmdCommonList) || event.isCmd(cmEditAsscCmdList)) {
+			int    edit_by_desk = (TVCMD == cmEditAsscCmdList) ? 1 : 0;
+			if(edit_by_desk)
+				getSelection(&id);
+			if(!edit_by_desk || edit_by_desk && id)
+				PPDesktop::EditAssocCmdList(id);
+		}
+		else if(event.isCmd(cmLBItemSelected)) {
+			getSelection(&id);
+			LoadCfg(id);
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
@@ -713,33 +757,7 @@ private:
 	long   InitID;
 	long   PrevID;
 	SString DbSymb;
-	PPCommandGroup Data;
 };
-
-IMPL_HANDLE_EVENT(EditMenusDlg)
-{
-	PPListDialog::handleEvent(event);
-	long   id = 0;
-	if(event.isCmd(cmEditMenu)) {
-		if(P_Box && P_Box->getCurID(&id) > 0)
-			if(!EditMenu(id))
-				PPError();
-	}
-	else if(event.isCmd(cmEditAsscCmdCommonList) || event.isCmd(cmEditAsscCmdList)) {
-		int    edit_by_desk = (TVCMD == cmEditAsscCmdList) ? 1 : 0;
-		if(edit_by_desk)
-			getSelection(&id);
-		if(!edit_by_desk || edit_by_desk && id)
-			PPDesktop::EditAssocCmdList(id);
-	}
-	else if(event.isCmd(cmLBItemSelected)) {
-		getSelection(&id);
-		LoadCfg(id);
-	}
-	else
-		return;
-	clearEvent(event);
-}
 
 int EditMenusDlg::LoadCfg(long id)
 {
@@ -783,30 +801,6 @@ int EditMenusDlg::LoadCfg(long id)
 		showCtrl(CTL_MENULIST_ADDIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
 		showCtrl(CTL_MENULIST_DELIMG, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
 	}
-	return 1;
-}
-
-int EditMenusDlg::setDTS(const PPCommandGroup * pData)
-{
-	PPID   cur_id = 0;
-	RVALUEPTR(Data, pData);
-	AddClusterAssoc(CTL_MENULIST_GRPFLAGS, 0, PPCommandItem::fNotUseDefDesktop);
-	SetClusterData(CTL_MENULIST_GRPFLAGS, static_cast<long>(Data.Flags));
-	AddClusterAssoc(CTL_MENULIST_FLAGS, 0, PPCommandItem::fBkgndGradient);
-	if(InitID)
-		updateList(InitID, 0);
-	else
-		updateList(-1);
-	getSelection(&cur_id);
-	LoadCfg(InitID ? InitID : cur_id);
-	return 1;
-}
-
-int EditMenusDlg::getDTS(PPCommandGroup * pData)
-{
-	LoadCfg(0);
-	Data.Flags = static_cast<int16>(GetClusterData(CTL_MENULIST_GRPFLAGS));
-	ASSIGN_PTR(pData, Data);
 	return 1;
 }
 
@@ -980,8 +974,12 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		desks = *pData;
 	else {
 		THROW(p_mgr = GetCommandMngr(0, isDesktop, 0));
-		//THROW(p_mgr->Load__(&desks));
-		THROW(p_mgr->Load__2(&desks, PPCommandMngr::fRWByXml)); //@erik v10.7.2
+		if(isDesktop) {
+			THROW(p_mgr->Load__2(&desks, PPCommandMngr::fRWByXml)); //@erik v10.7.2
+		}
+		else {
+			THROW(p_mgr->Load__(&desks));
+		}
 	}
 	p_dlg->setDTS(&desks);
 	if(ExecView(p_dlg) == cmOK) {
@@ -989,7 +987,12 @@ int SLAPI EditMenus(PPCommandGroup * pData, long initID, int isDesktop)
 		if(pData)
 			*pData = desks;
 		else {
-			THROW(p_mgr->Save__2(&desks, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
+			if(isDesktop) {
+				THROW(p_mgr->Save__2(&desks, PPCommandMngr::fRWByXml)); //@erik v10.7.2 Save__ => Save__2
+			}
+			else {
+				THROW(p_mgr->Save__(&desks));
+			}
 		}
 		ok = 1;
 	}

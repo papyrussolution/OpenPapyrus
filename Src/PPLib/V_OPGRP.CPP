@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -150,8 +150,8 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 				gct_flt.Flags |= (OPG_PROCESSRECKONING | OPG_PROCESSGENOP);
 				{
 					AdjGdsGrpng agg;
-					THROW(agg.BeginGoodsGroupingProcess(&gct_flt));
-					THROW(ary.ProcessGoodsGrouping(&gct_flt, &agg));
+					THROW(agg.BeginGoodsGroupingProcess(gct_flt));
+					THROW(ary.ProcessGoodsGrouping(gct_flt, &agg));
 					agg.EndGoodsGroupingProcess();
 				}
 				ary.InitOpNames();

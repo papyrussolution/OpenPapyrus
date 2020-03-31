@@ -735,7 +735,7 @@ int SLAPI CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam
 		long   tab_type = Filt.TabType;
 		SString buf;
 		TempPrjTaskTbl::Rec temp_rec;
-		MEMSZERO(temp_rec);
+		// @v10.7.5 @ctr MEMSZERO(temp_rec);
 		temp_rec.TabID       = tabID;
 		temp_rec.EmployerID  = pRec->EmployerID;
 		temp_rec.ClientID    = pRec->ClientID;
@@ -2290,7 +2290,7 @@ int PPALDD_PrjTaskViewCt::InitIteration(PPIterID iterId, int sortId, long rsrv)
 int PPALDD_PrjTaskViewCt::NextIteration(PPIterID iterId)
 {
 	START_PPVIEW_ALDD_ITER(PrjTask);
-	const PrjTaskFilt * p_filt = (const PrjTaskFilt *)p_v->GetBaseFilt();
+	const PrjTaskFilt * p_filt = static_cast<const PrjTaskFilt *>(p_v->GetBaseFilt());
 	SString idx_name, tab_name;
 	if(p_filt->TabType == PrjTaskFilt::crstDateHour) {
 		idx_name.Cat(item.StartDt);

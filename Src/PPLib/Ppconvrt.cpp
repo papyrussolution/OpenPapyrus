@@ -7570,13 +7570,12 @@ int SLAPI Convert10702()
 int SLAPI Convert10703()
 {
 	int    ok = 1;
-	PPWait(1);
+	// @v10.7.5 PPWait(1);
 	PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
-	if(p_mgr) {
-		THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
-	}
-	PPWait(0);
-	CATCHZOK
+	THROW(p_mgr);
+	THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
+	// @v10.7.5 PPWait(0);
+	CATCHZOKPPERR
 	delete p_mgr;
 	return ok;
 }

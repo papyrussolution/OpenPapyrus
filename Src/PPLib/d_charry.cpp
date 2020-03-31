@@ -5672,7 +5672,7 @@ int SLAPI PPDS_CrrBillStatus::InitData(Ido op, void * dataPtr, long addedParam)
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
 				PPBillStatus rec;
-				MEMSZERO(rec);
+				// @v10.7.5 @ctr MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {

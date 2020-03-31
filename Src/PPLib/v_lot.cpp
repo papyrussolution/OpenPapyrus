@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1612,7 +1612,6 @@ int SLAPI PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, Ui
 	long   nr = DEREFPTRORZ(pCounter);
 	PPObjBillStatus bs_obj;
 	SString temp_buf;
-	TempLotTbl::Rec rec;
 	LotViewItem item;
 	PPBillStatus bs_rec;
 	BillTbl::Rec brec;
@@ -1620,7 +1619,8 @@ int SLAPI PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, Ui
 		while(NextIteration(&item) > 0) {
 			if(!pHt || !pHt->Has(item.ID)) {
 				int    skip = 0;
-				MEMSZERO(rec);
+				TempLotTbl::Rec rec;
+				// @v10.7.5 @ctr MEMSZERO(rec);
 				rec.LotID   = item.ID;
 				rec.Dt      = item.Dt;
 				rec.OrgDt   = item.OrgLotDt;

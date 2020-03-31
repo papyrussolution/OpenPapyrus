@@ -9,7 +9,6 @@
  *
  * daniel@veillard.com
  */
-
 /*
  * TODOs:
  * - XML Schemas validation
@@ -66,13 +65,9 @@
 	#define DUMP_READER
 #endif
 #define CHUNK_SIZE 512
-/************************************************************************
-*									*
-*	The parser: maps the Text Reader API on top of the existing	*
-*		parsing routines building a tree			*
-*									*
-************************************************************************/
-
+// 
+// The parser: maps the Text Reader API on top of the existing	 parsing routines building a tree			*
+// 
 #define XML_TEXTREADER_INPUT    1
 #define XML_TEXTREADER_CTXT     2
 
@@ -212,7 +207,7 @@ static void xmlFreeID(xmlID * id)
  */
 static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttr * attr)
 {
-	xmlIDTablePtr table;
+	xmlIDTable * table;
 	xmlID * id;
 	xmlChar * ID;
 	if(!doc || !attr)
@@ -385,7 +380,7 @@ static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur)
  *
  * Deallocate the memory used by an ID hash table.
  */
-static void xmlTextReaderFreeIDTable(xmlIDTablePtr table)
+static void xmlTextReaderFreeIDTable(xmlIDTable * table)
 {
 	xmlHashFree(table, (xmlHashDeallocator)xmlFreeID);
 }
@@ -435,12 +430,9 @@ static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 		SAlloc::F(cur);
 	}
 }
-
-/************************************************************************
-*									*
-*			The reader core parser				*
-*									*
-************************************************************************/
+// 
+// The reader core parser
+// 
 #ifdef DEBUG_READER
 static void xmlTextReaderDebug(xmlTextReader * reader)
 {
@@ -468,7 +460,6 @@ static void xmlTextReaderDebug(xmlTextReader * reader)
 }
 
 #endif
-
 /**
  * xmlTextReaderEntPush:
  * @reader:  the (xmlTextReader *) used
@@ -482,7 +473,7 @@ static int FASTCALL xmlTextReaderEntPush(xmlTextReader * reader, xmlNode * value
 {
 	if(reader->entMax <= 0) {
 		reader->entMax = 10;
-		reader->entTab = (xmlNode **)SAlloc::M(reader->entMax * sizeof(reader->entTab[0]));
+		reader->entTab = static_cast<xmlNode **>(SAlloc::M(reader->entMax * sizeof(reader->entTab[0])));
 		if(reader->entTab == NULL) {
 			xmlGenericError(0, "xmlMalloc failed !\n");
 			return 0;
@@ -490,7 +481,7 @@ static int FASTCALL xmlTextReaderEntPush(xmlTextReader * reader, xmlNode * value
 	}
 	if(reader->entNr >= reader->entMax) {
 		reader->entMax *= 2;
-		reader->entTab = (xmlNode **)SAlloc::R(reader->entTab, reader->entMax * sizeof(reader->entTab[0]));
+		reader->entTab = static_cast<xmlNode **>(SAlloc::R(reader->entTab, reader->entMax * sizeof(reader->entTab[0])));
 		if(reader->entTab == NULL) {
 			xmlGenericError(0, "xmlRealloc failed !\n");
 			return 0;

@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -31,8 +31,7 @@ void SLAPI GoodsMovTotal::Init()
 
 int SLAPI GoodsMovTotal::IsEmpty() const
 {
-	return !(InRestQtty || InRestPhQtty || InRestCost || InRestPrice ||
-		OutRestQtty || OutRestPhQtty || OutRestCost || OutRestPrice);
+	return !(InRestQtty || InRestPhQtty || InRestCost || InRestPrice || OutRestQtty || OutRestPhQtty || OutRestCost || OutRestPrice);
 }
 
 int SLAPI GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -204,7 +203,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 		GoodsGrpngArray ary;
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
-		THROW(agg.BeginGoodsGroupingProcess(&temp_filt));
+		THROW(agg.BeginGoodsGroupingProcess(temp_filt));
 		gf.GrpID   = Filt.GoodsGrpID;
 		gf.SupplID = Filt.SupplID;
 		gf.BrandList.Add(Filt.BrandID);
@@ -215,7 +214,7 @@ int SLAPI PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 				// @v10.6.6 @ctr MEMSZERO(rec);
 				temp_filt.GoodsID = gr.ID;
 				ary.clear();
-				THROW(ary.ProcessGoodsGrouping(&temp_filt, &agg));
+				THROW(ary.ProcessGoodsGrouping(temp_filt, &agg));
 				for(i = 0; ary.enumItems(&i, (void **)&p_entry);) {
 					int no_upd_lot_op = 0;
 					if(!accs_cost)

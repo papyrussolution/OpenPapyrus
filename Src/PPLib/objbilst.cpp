@@ -9,15 +9,21 @@
 //
 // @ModuleDef(PPObjBillStatus)
 //
+SLAPI PPBillStatus2::PPBillStatus2()
+{
+	THISZERO();
+}
+
 SLAPI PPObjBillStatus::PPObjBillStatus(void * extraPtr) : PPObjReference(PPOBJ_BILLSTATUS, extraPtr)
 {
 	ImplementFlags |= implStrAssocMakeList;
 }
 
-#define GRP_COLOR 1
-
 int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 {
+	enum {
+		ctlgroupColor
+	};
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
@@ -29,9 +35,8 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
-	dlg->addGroup(GRP_COLOR, new ColorCtrlGroup(CTL_BILLSTATUS_COLOR, CTLSEL_BILLSTATUS_COLOR, cmSelColor, CTL_BILLSTATUS_SELCOLOR));
+	// @v10.7.5 @ctr else MEMSZERO(rec);
+	dlg->addGroup(ctlgroupColor, new ColorCtrlGroup(CTL_BILLSTATUS_COLOR, CTLSEL_BILLSTATUS_COLOR, cmSelColor, CTL_BILLSTATUS_SELCOLOR));
 	dlg->setCtrlData(CTL_BILLSTATUS_NAME, rec.Name);
 	dlg->setCtrlData(CTL_BILLSTATUS_SYMB, rec.Symb);
 	dlg->setCtrlLong(CTL_BILLSTATUS_ID,   rec.ID);
@@ -73,7 +78,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 		ColorCtrlGroup::Rec color_rec;
 		color_rec.SetupStdColorList();
 		color_rec.C = (COLORREF)rec.IndColor;
-		dlg->setGroupData(GRP_COLOR, &color_rec);
+		dlg->setGroupData(ctlgroupColor, &color_rec);
 	}
 	// } @v10.2.4 
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -96,7 +101,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 			// @v10.2.4 {
 			{
 				ColorCtrlGroup::Rec color_rec;
-				dlg->getGroupData(GRP_COLOR, &color_rec);
+				dlg->getGroupData(ctlgroupColor, &color_rec);
 				if(color_rec.C == 0)
 					rec.IndColor.SetEmpty();
 				else
@@ -292,7 +297,7 @@ void SLAPI BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 {
 	PPBillStatus * p_data_rec = static_cast<PPBillStatus *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	// @v10.7.5 @ctr memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_BILLSTATUS;
 	p_data_rec->ID    = p_cache_rec->ID;
 	#define FLD(f) p_data_rec->f = p_cache_rec->f

@@ -4593,6 +4593,7 @@ int SLAPI PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNo
 	return ok;
 }
 
+/* @v10.7.5 (replaced with PPBackupOperationFile) 
 int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 {
 	int    ok = 1;
@@ -4671,6 +4672,7 @@ int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 	ENDCATCH
 	return ok;
 }
+*/
 
 struct PosProtocolFileProcessedEntry {
 	SLAPI  PosProtocolFileProcessedEntry() : FileDtm(ZERODATETIME)
@@ -5010,7 +5012,8 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 											all_receipients_processed_file = 1;
 									}
 									if(all_receipients_processed_file) {
-										int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
+										// @v10.7.5 int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
+										int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? PPBackupOperationFile(in_file_name, "pppp-backup", 0) : 1; // @v10.7.5
 										if(do_remove_file && backup_ok)
 											to_remove_file_list.add(in_file_name);
 									}

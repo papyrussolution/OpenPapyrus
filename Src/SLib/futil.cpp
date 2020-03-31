@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -97,7 +97,7 @@ char * SLAPI setLastSlash(char * p)
 
 char * SLAPI rmvLastSlash(char * p)
 {
-	size_t len = sstrlen(p);
+	const size_t len = sstrlen(p);
 	if(len > 0 && oneof2(p[len-1], '\\', '/'))
 		p[len-1] = 0;
 	return p;

@@ -38,7 +38,6 @@
     <ClCompile Include="..\PPLib\Amtdlg.cpp" />
     <ClCompile Include="..\PPLib\AMTLIST.CPP" />
     <ClCompile Include="..\PPLib\Asstwrof.cpp" />
-    <ClCompile Include="..\PPLib\At2eat.cpp" />
     <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
     <ClCompile Include="..\PPLib\Autocmpl.cpp" />
     <ClCompile Include="..\PPLib\Balance.cpp" />

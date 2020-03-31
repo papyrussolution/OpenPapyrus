@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -241,7 +241,7 @@ int SLAPI PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArr
 			for(uint j = 0; list.enumItems(&j, (void **)&p_chunk);) {
 				int    update = 0;
 				TempStaffCalTbl::Rec temp_rec;
-				MEMSZERO(temp_rec);
+				// @v10.7.5 @ctr MEMSZERO(temp_rec);
 				temp_rec.CalID = cal_id;
 				temp_rec.LinkObjID = objID;
 				temp_rec.Count = 1;

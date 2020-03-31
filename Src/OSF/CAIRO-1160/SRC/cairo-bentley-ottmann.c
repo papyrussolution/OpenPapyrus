@@ -138,11 +138,7 @@ static void dump_traps(cairo_traps_t * traps, const char * filename)
 	}
 #endif
 	_cairo_traps_extents(traps, &extents);
-	printf("%s: extents=(%d, %d, %d, %d)\n",
-	    filename,
-	    extents.p1.x, extents.p1.y,
-	    extents.p2.x, extents.p2.y);
-
+	printf("%s: extents=(%d, %d, %d, %d)\n", filename, extents.p1.x, extents.p1.y, extents.p2.x, extents.p2.y);
 	file = fopen(filename, "a");
 	if(file != NULL) {
 		for(n = 0; n < traps->num_traps; n++) {
@@ -787,9 +783,7 @@ static void _cairo_bo_sweep_line_swap(cairo_bo_sweep_line_t * sweep_line, cairo_
 #if DEBUG_PRINT_STATE
 static void _cairo_bo_edge_print(cairo_bo_edge_t * edge)
 {
-	printf("(0x%x, 0x%x)-(0x%x, 0x%x)",
-	    edge->edge.line.p1.x, edge->edge.line.p1.y,
-	    edge->edge.line.p2.x, edge->edge.line.p2.y);
+	printf("(0x%x, 0x%x)-(0x%x, 0x%x)", edge->edge.line.p1.x, edge->edge.line.p1.y, edge->edge.line.p2.x, edge->edge.line.p2.y);
 }
 
 static void _cairo_bo_event_print(cairo_bo_event_t * event)
@@ -831,8 +825,7 @@ static void _cairo_bo_sweep_line_print(cairo_bo_sweep_line_t * sweep_line)
 	printf("\n");
 }
 
-static void print_state(const char * msg, cairo_bo_event_t * event, cairo_bo_event_queue_t * event_queue,
-    cairo_bo_sweep_line_t * sweep_line)
+static void print_state(const char * msg, cairo_bo_event_t * event, cairo_bo_event_queue_t * event_queue, cairo_bo_sweep_line_t * sweep_line)
 {
 	printf("%s ", msg);
 	_cairo_bo_event_print(event);
@@ -844,8 +837,7 @@ static void print_state(const char * msg, cairo_bo_event_t * event, cairo_bo_eve
 #endif
 
 #if DEBUG_EVENTS
-static void CAIRO_PRINTF_FORMAT(1, 2)
-event_log(const char * fmt, ...)
+static void CAIRO_PRINTF_FORMAT(1, 2) event_log(const char * fmt, ...)
 {
 	FILE * file;
 	if(getenv("CAIRO_DEBUG_EVENTS") == NULL)
@@ -914,8 +906,7 @@ static void _cairo_bo_edge_end_trap(cairo_bo_edge_t * left, int32_t bot, cairo_t
 		_cairo_traps_add_trap(traps, trap->top, bot, &left->edge.line, &trap->right->edge.line);
 
 #if DEBUG_PRINT_STATE
-		printf("Deferred trap: left=(%x, %x)-(%x,%x) "
-		    "right=(%x,%x)-(%x,%x) top=%x, bot=%x\n",
+		printf("Deferred trap: left=(%x, %x)-(%x,%x) right=(%x,%x)-(%x,%x) top=%x, bot=%x\n",
 		    left->edge.line.p1.x, left->edge.line.p1.y,
 		    left->edge.line.p2.x, left->edge.line.p2.y,
 		    trap->right->edge.line.p1.x, trap->right->edge.line.p1.y,
@@ -970,8 +961,7 @@ static inline void _active_edges_to_traps(cairo_bo_edge_t * pos, int32_t top, un
 			/* XXX It shouldn't be possible to here with 2 deferred traps
 			 * on colinear edges... See bug-bo-rictoz.
 			 */
-			if(left->deferred_trap.right == NULL &&
-			    edges_colinear(left, pos)) {
+			if(left->deferred_trap.right == NULL && edges_colinear(left, pos)) {
 				/* continuation on left */
 				left->deferred_trap = pos->deferred_trap;
 				pos->deferred_trap.right = NULL;

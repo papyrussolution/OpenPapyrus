@@ -865,7 +865,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 						SysJournalTbl::Rec sysj_rec;
 						// @v10.6.4 MEMSZERO(sysj_rec);
 						LDATETIME prev_dtm = rPrevRunTime;
-						if(p_sj->GetLastEvent(PPACN_BIZSCOREUPDATED, &prev_dtm, 2) > 0)
+						if(p_sj->GetLastEvent(PPACN_BIZSCOREUPDATED, 0/*extraVal*/, &prev_dtm, 2) > 0)
 							do_notify = 1;
 					}
 				}
@@ -1765,6 +1765,8 @@ static void InitTest()
 	REF_TEST_RECSIZE(PPGoodsBasket);
 	REF_TEST_RECSIZE(PPDraftCreateRule);
 	REF_TEST_RECSIZE(PPGoodsInfo);
+	assert(sizeof(PPTimeSeries) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
+	assert(sizeof(PPTssModel) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
 	assert(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
 	assert(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	assert(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
@@ -5369,61 +5371,71 @@ int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent *
 	if(kind == PPAdviseBlock::evQuartz) {
 		const double prob_common_mqs_config = 0.00001;
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
-			/* @construction
+			SString logmsg_buf;
+			LDATETIME last_ev_dtm = ZERODATETIME;
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			if(p_sj) {
 				LDATETIME since = ZERODATETIME;
 				SysJournalTbl::Rec sj_rec;
-				if(p_sj->GetLastEvent(PPACN_SYSMAINTENANCE, &since, 3, &sj_rec) > 0) {
-
+				if(p_sj->GetLastEvent(PPACN_SYSMAINTENANCE, SYSMAINTENANCEFUNC_AUTOMQSCONFIG, &since, 3, &sj_rec) > 0) {
+					last_ev_dtm.Set(sj_rec.Dt, sj_rec.Tm);
 				}
 			}
-			*/
-			SString temp_buf;
-			SString org_val_buf;
-			SString logmsg_buf;
-			PPUhttClient uhtt_cli;
-			PPAlbatrossConfig temp_alb_cfg;
-			int result_uhtt_get = uhtt_cli.GetCommonMqsConfig(temp_alb_cfg);
-			int result_cfgmngr_get = 0;
-			int result_cfgmngr_put = 0;
-			if(result_uhtt_get > 0) {
-				PPAlbatrossConfig current_alb_cfg;
-				result_cfgmngr_get = PPAlbatrosCfgMngr::Get(&current_alb_cfg);
-				if(result_cfgmngr_get != 0) {
-					int    do_update = 0;
-					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-					current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, org_val_buf);
-					if(temp_buf != org_val_buf) {
-						current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-						do_update = 1;
+			if(!last_ev_dtm) {
+				SString temp_buf;
+				SString org_val_buf;
+				PPUhttClient uhtt_cli;
+				PPAlbatrossConfig temp_alb_cfg;
+				int result_uhtt_get = uhtt_cli.GetCommonMqsConfig(temp_alb_cfg);
+				int result_cfgmngr_get = 0;
+				int result_cfgmngr_put = 0;
+				if(result_uhtt_get > 0) {
+					PPAlbatrossConfig current_alb_cfg;
+					result_cfgmngr_get = PPAlbatrosCfgMngr::Get(&current_alb_cfg);
+					if(result_cfgmngr_get != 0) {
+						int    do_update = 0;
+						temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+						current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, org_val_buf);
+						if(temp_buf != org_val_buf) {
+							current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+							do_update = 1;
+						}
+						temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
+						current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, org_val_buf);
+						if(temp_buf != org_val_buf) {
+							current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
+							do_update = 1;
+						}
+						temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+						current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, org_val_buf);
+						if(temp_buf != org_val_buf) {
+							current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+							do_update = 1;
+						}
+						temp_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+						current_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, org_val_buf);
+						if(temp_buf != org_val_buf) {
+							current_alb_cfg.SetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+							do_update = 1;
+						}
+						if(do_update)
+							result_cfgmngr_put = PPAlbatrosCfgMngr::Put(&current_alb_cfg, 1);
+						else
+							result_cfgmngr_put = -1;
+						DS.LogAction(PPACN_SYSMAINTENANCE, PPCFGOBJ_ALBATROS, 0, SYSMAINTENANCEFUNC_AUTOMQSCONFIG, 1);
 					}
-					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
-					current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, org_val_buf);
-					if(temp_buf != org_val_buf) {
-						current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
-						do_update = 1;
-					}
-					temp_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-					current_alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, org_val_buf);
-					if(temp_buf != org_val_buf) {
-						current_alb_cfg.PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-						do_update = 1;
-					}
-					temp_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-					current_alb_cfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, org_val_buf);
-					if(temp_buf != org_val_buf) {
-						current_alb_cfg.SetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-						do_update = 1;
-					}
-					result_cfgmngr_put = do_update ? PPAlbatrosCfgMngr::Put(&current_alb_cfg, 1) : -1;
 				}
+				PPLoadText(PPTXT_LOG_SYSMNTNC_MQSCONFIG, logmsg_buf);
+				temp_buf.Z().CatEq("probability", prob_common_mqs_config, MKSFMTD(0, 8, 0)).Space().CatEq("uhtt_get", static_cast<long>(result_uhtt_get)).Space().
+					CatEq("cfgmgr_get", static_cast<long>(result_cfgmngr_get)).Space().CatEq("cfgmgr_put", static_cast<long>(result_cfgmngr_put));
+				logmsg_buf.CatDiv(':', 2).Cat(temp_buf);
+				PPLogMessage(PPFILNAM_INFO_LOG, logmsg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
 			}
-			PPLoadText(PPTXT_LOG_SYSMNTNC_MQSCONFIG, logmsg_buf);
-			temp_buf.Z().CatEq("probability", prob_common_mqs_config, MKSFMTD(0, 8, 0)).Space().CatEq("uhtt_get", static_cast<long>(result_uhtt_get)).Space().
-				CatEq("cfgmgr_get", static_cast<long>(result_cfgmngr_get)).Space().CatEq("cfgmgr_put", static_cast<long>(result_cfgmngr_put));
-			logmsg_buf.CatDiv(':', 2).Cat(temp_buf);
-			PPLogMessage(PPFILNAM_INFO_LOG, logmsg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
+			else {
+				PPLoadText(PPTXT_LOG_SYSMNTNC_MQSCONFIG_SKIPTE, logmsg_buf);
+				logmsg_buf.CatDiv(':', 2).Cat(last_ev_dtm, DATF_ISO8601|DATF_CENTURY, 0);
+				PPLogMessage(PPFILNAM_INFO_LOG, logmsg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
+			}
 		}
 	}
 	return ok;

@@ -1132,7 +1132,7 @@ int xmlNop(void);
 			int    index2;
 		};
 
-		typedef xmlXPathObject * xmlXPathObjectPtr;
+		//typedef xmlXPathObject * xmlXPathObjectPtr;
 		/**
 		 * xmlXPathConvertFunc:
 		 * @obj:  an XPath object
@@ -1190,7 +1190,7 @@ int xmlNop(void);
 		 *
 		 * Returns the next node in that axis or NULL if at the end of the axis.
 		 */
-		typedef xmlXPathObjectPtr (*xmlXPathAxisFunc)(xmlXPathParserContextPtr ctxt, xmlXPathObjectPtr cur);
+		typedef xmlXPathObject * (*xmlXPathAxisFunc)(xmlXPathParserContextPtr ctxt, xmlXPathObject * cur);
 		/*
 		 * Extra axis: a name and an axis function.
 		 */
@@ -1224,7 +1224,7 @@ int xmlNop(void);
 		 *
 		 * Returns the XPath object value or NULL if not found.
 		 */
-		typedef xmlXPathObjectPtr (*xmlXPathVariableLookupFunc)(void *ctxt, const xmlChar *name, const xmlChar *ns_uri);
+		typedef xmlXPathObject * (*xmlXPathVariableLookupFunc)(void *ctxt, const xmlChar *name, const xmlChar *ns_uri);
 		/**
 		 * xmlXPathFuncLookupFunc:
 		 * @ctxt:  an XPath context
@@ -1328,10 +1328,10 @@ int xmlNop(void);
 			const xmlChar * base; // the full expression 
 			int    error;               // error code 
 			xmlXPathContextPtr context; // the evaluation context
-			xmlXPathObjectPtr  value;   // the current value 
+			xmlXPathObject * value;   // the current value 
 			int    valueNr;             // number of values stacked 
 			int    valueMax;            // max number of values stacked 
-			xmlXPathObjectPtr * valueTab; // stack of values 
+			xmlXPathObject ** valueTab; // stack of values 
 			xmlXPathCompExprPtr comp;     // the precompiled expression 
 			int    xptr;                  // it this an XPointer expression 
 			xmlNode * ancestor;           // used for walking preceding axis 
@@ -1417,7 +1417,7 @@ int xmlNop(void);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNodeEval(xmlNode * P_Node, const xmlChar *str, xmlXPathContextPtr ctx);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEval(const xmlChar *str, xmlXPathContextPtr ctx);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEvalExpression(const xmlChar *str, xmlXPathContextPtr ctxt);
-		XMLPUBFUN int XMLCALL xmlXPathEvalPredicate(xmlXPathContextPtr ctxt, xmlXPathObjectPtr res);
+		XMLPUBFUN int XMLCALL xmlXPathEvalPredicate(xmlXPathContextPtr ctxt, xmlXPathObject * res);
 		/**
 		 * Separate compilation/evaluation entry points.
 		 */
@@ -1446,7 +1446,7 @@ int xmlNop(void);
 		struct xmlLocationSet {
 			int    locNr;  // number of locations in the set 
 			int    locMax; // size of the array as allocated 
-			xmlXPathObjectPtr * locTab; // array of locations 
+			xmlXPathObject ** locTab; // array of locations 
 		};
 
 		//typedef xmlLocationSet * xmlLocationSetPtr;
@@ -1457,17 +1457,17 @@ int xmlNop(void);
 		XMLPUBFUN void XMLCALL xmlXPtrFreeLocationSet(xmlLocationSet * obj);
 		XMLPUBFUN xmlLocationSet * XMLCALL xmlXPtrLocationSetMerge(xmlLocationSet * val1, xmlLocationSet * val2);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRange(xmlNode * start, int startindex, xmlNode * end, int endindex);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePoints(xmlXPathObjectPtr start, xmlXPathObjectPtr end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObjectPtr end);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePointNode(xmlXPathObjectPtr start, xmlNode * end);
+		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePoints(xmlXPathObject * start, xmlXPathObject * end);
+		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodePoint(xmlNode * start, xmlXPathObject * end);
+		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangePointNode(xmlXPathObject * start, xmlNode * end);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodes(xmlNode * start, xmlNode * end);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewLocationSetNodes(xmlNode * start, xmlNode * end);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewLocationSetNodeSet(xmlNodeSet * set);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObjectPtr end);
+		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewRangeNodeObject(xmlNode * start, xmlXPathObject * end);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrNewCollapsedRange(xmlNode * start);
-		XMLPUBFUN void XMLCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObjectPtr val);
+		XMLPUBFUN void XMLCALL xmlXPtrLocationSetAdd(xmlLocationSet * cur, xmlXPathObject * val);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrWrapLocationSet(xmlLocationSet * val);
-		XMLPUBFUN void XMLCALL xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObjectPtr val);
+		XMLPUBFUN void XMLCALL xmlXPtrLocationSetDel(xmlLocationSet * cur, xmlXPathObject * val);
 		XMLPUBFUN void XMLCALL xmlXPtrLocationSetRemove(xmlLocationSet * cur, int val);
 		XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx);
@@ -1697,7 +1697,7 @@ int xmlNop(void);
 		XMLPUBFUN void XMLCALL xmlXPatherror(xmlXPathParserContextPtr ctxt, const char * file, int line, int no);
 		XMLPUBFUN void /*XMLCALL*/FASTCALL xmlXPathErr(xmlXPathParserContextPtr ctxt, int error);
 		#ifdef LIBXML_DEBUG_ENABLED
-			XMLPUBFUN void XMLCALL xmlXPathDebugDumpObject(FILE * output, xmlXPathObjectPtr cur, int depth);
+			XMLPUBFUN void XMLCALL xmlXPathDebugDumpObject(FILE * output, xmlXPathObject * cur, int depth);
 			XMLPUBFUN void XMLCALL xmlXPathDebugDumpCompExpr(FILE * output, xmlXPathCompExprPtr comp, int depth);
 		#endif
 		// 
@@ -1725,8 +1725,8 @@ int xmlNop(void);
 		XMLPUBFUN void XMLCALL xmlXPathRegisteredNsCleanup(xmlXPathContextPtr ctxt);
 		XMLPUBFUN int /*XMLCALL*/FASTCALL xmlXPathRegisterFunc(xmlXPathContextPtr ctxt, const xmlChar * name, xmlXPathFunction f);
 		XMLPUBFUN int XMLCALL xmlXPathRegisterFuncNS(xmlXPathContextPtr ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathFunction f);
-		XMLPUBFUN int XMLCALL xmlXPathRegisterVariable(xmlXPathContextPtr ctxt, const xmlChar * name, xmlXPathObjectPtr value);
-		XMLPUBFUN int XMLCALL xmlXPathRegisterVariableNS(xmlXPathContextPtr ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathObjectPtr value);
+		XMLPUBFUN int XMLCALL xmlXPathRegisterVariable(xmlXPathContextPtr ctxt, const xmlChar * name, xmlXPathObject * value);
+		XMLPUBFUN int XMLCALL xmlXPathRegisterVariableNS(xmlXPathContextPtr ctxt, const xmlChar * name, const xmlChar * ns_uri, xmlXPathObject * value);
 		XMLPUBFUN xmlXPathFunction XMLCALL xmlXPathFunctionLookup(xmlXPathContextPtr ctxt, const xmlChar * name);
 		XMLPUBFUN xmlXPathFunction XMLCALL xmlXPathFunctionLookupNS(xmlXPathContextPtr ctxt, const xmlChar * name, const xmlChar * ns_uri);
 		XMLPUBFUN void XMLCALL xmlXPathRegisteredFuncsCleanup(xmlXPathContextPtr ctxt);
@@ -1761,7 +1761,7 @@ int xmlNop(void);
 		// Existing functions.
 		// 
 		XMLPUBFUN double XMLCALL xmlXPathStringEvalNumber(const xmlChar * str);
-		XMLPUBFUN int XMLCALL xmlXPathEvaluatePredicateResult(xmlXPathParserContextPtr ctxt, xmlXPathObjectPtr res);
+		XMLPUBFUN int XMLCALL xmlXPathEvaluatePredicateResult(xmlXPathParserContextPtr ctxt, xmlXPathObject * res);
 		XMLPUBFUN void XMLCALL xmlXPathRegisterAllFunctions(xmlXPathContextPtr ctxt);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeSetMerge(xmlNodeSet * val1, xmlNodeSet * val2);
 		XMLPUBFUN void XMLCALL xmlXPathNodeSetDel(xmlNodeSet * cur, xmlNode * val);
@@ -2081,7 +2081,7 @@ int xmlNop(void);
 			typedef int (*xmlShellCmd)(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
 
 			XMLPUBFUN void XMLCALL xmlShellPrintXPathError(int errorType, const char * arg);
-			XMLPUBFUN void XMLCALL xmlShellPrintXPathResult(xmlXPathObjectPtr list);
+			XMLPUBFUN void XMLCALL xmlShellPrintXPathResult(xmlXPathObject * list);
 			XMLPUBFUN int XMLCALL xmlShellList(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
 			XMLPUBFUN int XMLCALL xmlShellBase(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
 			XMLPUBFUN int XMLCALL xmlShellDir(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);

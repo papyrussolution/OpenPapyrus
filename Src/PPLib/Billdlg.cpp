@@ -3370,7 +3370,7 @@ int BillDialog::calcAdvanceRepRest()
 IMPL_CMPFUNC(PPBillStatus_Rank_Name, i1, i2)
 {
 	int    r = 0;
-	const PPBillStatus2 * p_s1 = static_cast<const PPBillStatus *>(i1);
+	const PPBillStatus * p_s1 = static_cast<const PPBillStatus *>(i1);
 	const PPBillStatus * p_s2 = static_cast<const PPBillStatus *>(i2);
 	if(p_s1->Rank < p_s2->Rank)
 		r = -1;
@@ -3398,7 +3398,7 @@ int SLAPI PPObjBill::EditBillStatus(PPID billID)
 			setCtrlString(CTL_SELBILLSTATUS_BILL, temp_buf);
 			GetObjectName(PPOBJ_BILLSTATUS, Rec.StatusID, temp_buf);
 			setCtrlString(CTL_SELBILLSTATUS_STQUO, temp_buf);
-			setCtrlData(CTL_SELBILLSTATUS_LIST, &Rec.StatusID); // @v6.5.8
+			setCtrlData(CTL_SELBILLSTATUS_LIST, &Rec.StatusID);
 			updateList(-1);
 			if(IsThereStatus == 0)
 				ok = PPSetError(PPERR_NBILLSTATUS);
@@ -3422,7 +3422,7 @@ int SLAPI PPObjBill::EditBillStatus(PPID billID)
 			IsThereStatus = 0;
 			PPObjBillStatus bs_obj;
 			PPBillStatus bs_rec;
-			SArray temp_list(sizeof(PPBillStatus));
+			SVector temp_list(sizeof(PPBillStatus)); // @v10.7.5 SArray-->SVector
 			for(SEnum en = bs_obj.ref->Enum(PPOBJ_BILLSTATUS, 0); en.Next(&bs_rec) > 0;) {
 				if(!Rec.OpID || !bs_rec.RestrictOpID || IsOpBelongTo(Rec.OpID, bs_rec.RestrictOpID)) {
 					THROW_SL(temp_list.insert(&bs_rec));
@@ -3433,7 +3433,7 @@ int SLAPI PPObjBill::EditBillStatus(PPID billID)
 			}
 			temp_list.sort(PTR_CMPFUNC(PPBillStatus_Rank_Name));
 			for(uint i = 0; i < temp_list.getCount(); i++) {
-				const PPBillStatus * p_rec = (const PPBillStatus *)temp_list.at(i);
+				const PPBillStatus * p_rec = static_cast<const PPBillStatus *>(temp_list.at(i));
 				THROW(addStringToList(p_rec->ID, p_rec->Name));
 			}
 			CATCHZOK

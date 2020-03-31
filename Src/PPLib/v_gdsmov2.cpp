@@ -1,5 +1,5 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -110,7 +110,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		GetGenericOpList(Filt.OpID, &op_list);
 		THROW(tra);
-		THROW(agg.BeginGoodsGroupingProcess(&temp_filt));
+		THROW(agg.BeginGoodsGroupingProcess(temp_filt));
 		gf.GrpID   = Filt.GoodsGrpID;
 		gf.SupplID = Filt.SupplID;
 		gf.BrandList.Add(Filt.BrandID);
@@ -123,7 +123,7 @@ int SLAPI PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 				gds_op_list.clear();
 				ary.clear();
 				rec.GoodsID  = gr.ID;
-				THROW(ary.ProcessGoodsGrouping(&temp_filt, &agg));
+				THROW(ary.ProcessGoodsGrouping(temp_filt, &agg));
 				for(i = 0; ary.enumItems(&i, (void **)&p_entry);) {
 					int no_upd_lot_op = 0;
 					if(!accs_cost)

@@ -112,7 +112,7 @@ typedef xmlHashTable xmlAttributeTable;
  * There is one table per document.
  */
 typedef xmlHashTable xmlIDTable;
-typedef xmlIDTable * xmlIDTablePtr;
+// typedef xmlIDTable * xmlIDTablePtr;
 /*
  * ALL Refs attributes are stored in a table.
  * There is one table per document.
@@ -179,13 +179,13 @@ XMLPUBFUN void XMLCALL xmlFreeAttributeTable(xmlAttributeTable * table);
 
 /* IDs */
 XMLPUBFUN xmlID * XMLCALL xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr);
-XMLPUBFUN void XMLCALL xmlFreeIDTable(xmlIDTablePtr table);
+XMLPUBFUN void XMLCALL xmlFreeIDTable(xmlIDTable * table);
 XMLPUBFUN xmlAttr * XMLCALL xmlGetID(xmlDoc * doc, const xmlChar * ID);
 XMLPUBFUN int XMLCALL xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr);
 XMLPUBFUN int XMLCALL xmlRemoveID(xmlDoc * doc, xmlAttr * attr);
 
 /* IDREFs */
-XMLPUBFUN xmlRefPtr XMLCALL xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr);
+XMLPUBFUN xmlRef * XMLCALL xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeRefTable(xmlRefTable * table);
 XMLPUBFUN int XMLCALL xmlIsRef(xmlDoc * doc, xmlNode * elem, xmlAttr * attr);
 XMLPUBFUN int XMLCALL xmlRemoveRef(xmlDoc * doc, xmlAttr * attr);

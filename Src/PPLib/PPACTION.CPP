@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -77,7 +77,7 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 	return ok;
 }
 
-int SLAPI SysJournal::GetEvent(PPID action, int mode, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
+int SLAPI SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
 {
 	SysJournalTbl::Key0 k;
 	DBQ  * dbq = 0;
@@ -107,6 +107,7 @@ int SLAPI SysJournal::GetEvent(PPID action, int mode, LDATETIME * pMoment, int m
 		}
 	}
 	dbq = ppcheckfiltid(dbq, this->Action, action);
+	dbq = ppcheckfiltid(dbq, this->Extra, extraVal); // @v10.7.5
 	q.selectAll().where(*dbq);
 	q.initIteration(((mode > 0) ? 0 : 1), &k, sp);
 	if(q.nextIteration() > 0) {
@@ -145,9 +146,9 @@ int SLAPI SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, co
 		return PPDbSearchError();
 }
 
-int SLAPI SysJournal::GetLastEvent(PPID action, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * b)
+int SLAPI SysJournal::GetLastEvent(PPID action, long extraVal, LDATETIME * pMoment, int maxDays, SysJournalTbl::Rec * pRec)
 {
-	return GetEvent(action, -1, pMoment, maxDays, b);
+	return GetEvent(action, extraVal, -1, pMoment, maxDays, pRec);
 }
 
 int SLAPI SysJournal::GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDestID, SysJournalTbl::Rec * pRec)

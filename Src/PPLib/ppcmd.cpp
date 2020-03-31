@@ -884,7 +884,12 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 		p_grp = pGrp;
 	else {
 		THROW(p_mgr = GetCommandMngr(1, isDesktop));
-		THROW(p_mgr->Load__2(&grp, PPCommandMngr::fRWByXml)); // @erik v10.7.3
+		if(isDesktop) {
+			THROW(p_mgr->Load__2(&grp, PPCommandMngr::fRWByXml)); // @erik v10.7.3
+		}
+		else {
+			THROW(p_mgr->Load__(&grp));
+		}
 		p_grp = &grp;
 		ZDELETE(p_mgr);
 	}
@@ -1599,7 +1604,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 				p_temp_command_group = new PPCommandGroup();
 				temp_buf.Z().Cat(path).SetLastSlash().Cat(de.FileName);
 				THROW(p_xml_parser = xmlNewParserCtxt());
-				xmlNode * p_root = 0;
+				
 				//THROW_SL(fileExists(temp_buf));
 				//THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)), p_xml_parser);
 				//THROW(p_root = xmlDocGetRootElement(p_doc));
@@ -1607,7 +1612,8 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 				//=> УСЛОВИЯ {
 				if(fileExists(temp_buf) > 0) {
 					if((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)) > 0) {
-						if((p_root = xmlDocGetRootElement(p_doc))) {
+						xmlNode * p_root = xmlDocGetRootElement(p_doc);
+						if(p_root) {
 							if(SXml::IsName(p_root, "CommandGroup")) {
 								THROW(p_temp_command_group->Read2(p_root, rwFlag));
 								if(pCmdGrp->Add(-1, p_temp_command_group)>0) {
@@ -1619,7 +1625,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 					}
 				}
 				// } УСЛОВИЯ
-				 //@erik v10.6.10 {
+				//@erik v10.6.10 {
 				xmlFreeDoc(p_doc);
 				p_doc = 0;
 				xmlFreeParserCtxt(p_xml_parser); 

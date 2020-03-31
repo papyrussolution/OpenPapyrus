@@ -111,8 +111,7 @@ void ObjReceiveParamDialog::delItem()
 	uint   p = 0;
 	PPID   id;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBTRANSM_IN_LIST));
-	if(Data.SenderDbDivList.getCount() > 0 && p_list && p_list->getCurID(&id) &&
-		Data.SenderDbDivList.lsearch(id, &p)) {
+	if(Data.SenderDbDivList.getCount() > 0 && p_list && p_list->getCurID(&id) && Data.SenderDbDivList.lsearch(id, &p)) {
 		Data.SenderDbDivList.atFree(p);
 		updateList();
 	}
@@ -666,21 +665,16 @@ int ObjTransmMqProps::GetFromMqbMessage(const PPMqbClient::MessageProperties & r
 	if(rProps.ContentType == SFileFormat::PapyruDbDivXchg) {
 		for(uint propidx = 0; propidx < rProps.Headers.getCount(); propidx++) {
 			StrStrAssocArray::Item prop_item = rProps.Headers.at(propidx);
-			if(sstreqi_ascii(prop_item.Key, "filename")) {
+			if(sstreqi_ascii(prop_item.Key, "filename"))
 				(FileName = prop_item.Val).Strip().Transf(CTRANSF_UTF8_TO_OUTER);
-			}
-			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-source")) {
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-source"))
 				SrcDbDivID = (temp_buf = prop_item.Val).ToLong();
-			}
-			else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-source")) {
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-source"))
 				SrcDbGUID.FromStr(prop_item.Val);
-			}
-			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-dest")) {
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-id-dest"))
 				DestDbDivID = (temp_buf = prop_item.Val).ToLong();
-			}
-			else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-dest")) {
+			else if(sstreqi_ascii(prop_item.Key, "dbdiv-guid-dest"))
 				DestDbGUID.FromStr(prop_item.Val);
-			}
 		}
 	}
 	else
@@ -908,6 +902,38 @@ static int SLAPI PutFilesToDiskPath(const SFileEntryPool * pFileList, const char
 	return ok;
 }
 
+static int BackupTransmittedFiles(SFileEntryPool & rFep, long trnsmFlags)
+{
+	int    ok = 1;
+	if(trnsmFlags & TRNSMF_DELINFILES) {
+		SString file_name;
+		SFileEntryPool::Entry fe;
+		for(uint fepidx = 0; fepidx < rFep.GetCount(); fepidx++) {
+			rFep.Get(fepidx, &fe, &file_name);
+			PPBackupOperationFile(file_name, "ppos-backup", 0);
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+static int RemoveTransmittedFiles(SFileEntryPool & rFep, long trnsmFlags)
+{
+	int    ok = 1;
+	if(trnsmFlags & TRNSMF_DELINFILES) {
+		SString file_name;
+		SFileEntryPool::Entry fe;
+		for(uint fepidx = 0; fepidx < rFep.GetCount(); fepidx++) {
+			rFep.Get(fepidx, &fe, &file_name);
+			SFile::Remove(file_name);
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
 int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 {
 	int    ok = 1;
@@ -989,16 +1015,21 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 							}
 						}
 					}
+					BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
+					RemoveTransmittedFiles(fep, trnsmFlags); // @v10.7.5
 				}
 			}
 			// } @v10.5.4 
 			if(IsEmailAddr(dest)) {
+				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
 				THROW(PutFilesToEmail(&fep, 0, dest, _PPConst.P_SubjectDbDiv, trnsmFlags));
 			}
 			else if(IsFtpAddr(dest)) {
+				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
 				THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
 			}
 			else if(dest.NotEmpty()) { // @v10.6.8 if(dest.NotEmpty())
+				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
 				THROW(PutFilesToDiskPath(&fep, dest, trnsmFlags));
 			}
 		}
@@ -1116,3 +1147,83 @@ static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFi
 	return ok;
 }
 // } AHTOXA
+
+int SLAPI PPBackupOperationFile(const char * pFileName, const char * pFolderName, long flags)
+{
+	int    ok = 1;
+	const  int use_arc = BIN(flags & bofCompress);
+	long   n = 0;
+	SString src_file_name;
+	SString src_file_ext;
+	SPathStruc ps(pFileName);
+	src_file_name = ps.Nam;
+	src_file_ext = ps.Ext;
+	if(!use_arc) {
+		SString backup_path;
+		ps.Nam = isempty(pFolderName) ? "operation-backup" : pFolderName;
+		ps.Ext.Z();
+		ps.Merge(backup_path);
+		THROW_SL(createDir(backup_path));
+		{
+			int   _found = 0;
+			SString to_backup_name;
+			do {
+				_found = 0;
+				(to_backup_name = backup_path).SetLastSlash().Cat(src_file_name);
+				if(n)
+					to_backup_name.CatChar('-').CatLongZ(n, 4);
+				if(src_file_ext.NotEmpty()) {
+					if(src_file_ext.C(0) != '.')
+						to_backup_name.Dot();
+					to_backup_name.Cat(src_file_ext);
+				}
+				if(fileExists(to_backup_name)) {
+					n++;
+					_found = 1;
+				}
+			} while(_found);
+			THROW_SL(copyFileByName(pFileName, to_backup_name));
+		}
+	}
+	else {
+		SString arc_file_name;
+		//ps.Nam = "pppp-backup";
+		ps.Nam = isempty(pFolderName) ? "operation-backup" : pFolderName;
+		ps.Ext = "zip";
+		ps.Merge(arc_file_name);
+		{
+			SArchive arc;
+			SString temp_buf;
+			SString to_arc_name;
+			THROW_SL(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite, 0));
+			{
+				const int64 zec = arc.GetEntriesCount();
+				int   _found = 0;
+				do {
+					_found = 0;
+					to_arc_name = src_file_name;
+					if(n)
+						to_arc_name.CatChar('-').CatLongZ(n, 4);
+					if(src_file_ext.NotEmpty()) {
+						if(src_file_ext.C(0) != '.')
+							to_arc_name.Dot();
+						to_arc_name.Cat(src_file_ext);
+					}
+					for(int64 i = 0; !_found && i < zec; i++) {
+						arc.GetEntryName(i, temp_buf);
+						if(temp_buf.CmpNC(to_arc_name) == 0) {
+							n++;
+							_found = 1;
+						}
+					}
+				} while(_found);
+			}
+			THROW_SL(arc.AddEntry(pFileName, to_arc_name, 0));
+		}
+	}
+    CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}

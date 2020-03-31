@@ -171,7 +171,7 @@ int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				TempPersonEventTbl::Rec temp_rec;
 				MEMSZERO(k0);
-				MEMSZERO(temp_rec);
+				// @v10.7.5 @ctr MEMSZERO(temp_rec);
 				temp_rec.Count = 1;
 				if(save_filt.Sgd != sgdNone) {
 					LTIME tm = ZEROTIME;

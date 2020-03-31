@@ -1,7 +1,7 @@
 // CRCSHSRV.CPP
 // Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
-// Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
+// @codepage UTF-8
+// РРЅС‚РµСЂС„РµР№СЃ (Р°СЃРёРЅС…СЂРѕРЅРЅС‹Р№) Рє РґСЂР°Р№РІРµСЂСѓ РєР°СЃСЃРѕРІРѕРіРѕ СЃРµСЂРІРµСЂР° (РћРћРћ РљСЂРёСЃС‚Р°Р»Р» РЎРµСЂРІРёСЃ)
 //
 #include <pp.h>
 #pragma hdrstop
@@ -223,8 +223,8 @@ private:
 		oSeparateReports = 0x0004
 	};
 	long   Options;
-	int    ModuleVer;    // Версия модуля Set-Retail
-	int    ModuleSubVer; // Субверсия модуля Set-Retail
+	int    ModuleVer;    // Р’РµСЂСЃРёСЏ РјРѕРґСѓР»СЏ Set-Retail
+	int    ModuleSubVer; // РЎСѓР±РІРµСЂСЃРёСЏ РјРѕРґСѓР»СЏ Set-Retail
 	LDATE  CurOperDate;
 	SString   PathSetRExpCfg;
 	StringSet SeparatedFileSet;
@@ -292,38 +292,37 @@ int SLAPI ACS_CRCSHSRV::IsReadyForExport()
 	return ready;
 }
 /*
-	Позиции прав доступа кассиров в SetRetail
-	1  Оформление возвратов
-	2  Печать товарных чеков
-	3  Инкассация из кассы
-	4  Инкассация из администратора
-	5  Внесение денег
-	6  Суточный отчет (Z)
-	7  Печать отчетов
-	8  Дневная сводка
-	9  Удаление покупки из чека ***
-	10 Копия чека
-	11 Нарастающие итоги
-	12 Работа в меню администратор
-	13 Безналичный расчет
-	14 Контрольная лента
-	15 Аннулирование чеков
-	16 По секциям
-	17 По кассе (отчет Х)
-	18 По кассирам
-	19 По видам товаров
-	20 По времени
-	21 Почасовой
-	22 Печать чеков
-	23 Акт списания сумм
-	24 Копия Z-отчета
-	25 Безналичные расчеты
+	РџРѕР·РёС†РёРё РїСЂР°РІ РґРѕСЃС‚СѓРїР° РєР°СЃСЃРёСЂРѕРІ РІ SetRetail
+	1  РћС„РѕСЂРјР»РµРЅРёРµ РІРѕР·РІСЂР°С‚РѕРІ
+	2  РџРµС‡Р°С‚СЊ С‚РѕРІР°СЂРЅС‹С… С‡РµРєРѕРІ
+	3  РРЅРєР°СЃСЃР°С†РёСЏ РёР· РєР°СЃСЃС‹
+	4  РРЅРєР°СЃСЃР°С†РёСЏ РёР· Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°
+	5  Р’РЅРµСЃРµРЅРёРµ РґРµРЅРµРі
+	6  РЎСѓС‚РѕС‡РЅС‹Р№ РѕС‚С‡РµС‚ (Z)
+	7  РџРµС‡Р°С‚СЊ РѕС‚С‡РµС‚РѕРІ
+	8  Р”РЅРµРІРЅР°СЏ СЃРІРѕРґРєР°
+	9  РЈРґР°Р»РµРЅРёРµ РїРѕРєСѓРїРєРё РёР· С‡РµРєР° ***
+	10 РљРѕРїРёСЏ С‡РµРєР°
+	11 РќР°СЂР°СЃС‚Р°СЋС‰РёРµ РёС‚РѕРіРё
+	12 Р Р°Р±РѕС‚Р° РІ РјРµРЅСЋ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ
+	13 Р‘РµР·РЅР°Р»РёС‡РЅС‹Р№ СЂР°СЃС‡РµС‚
+	14 РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ Р»РµРЅС‚Р°
+	15 РђРЅРЅСѓР»РёСЂРѕРІР°РЅРёРµ С‡РµРєРѕРІ
+	16 РџРѕ СЃРµРєС†РёСЏРј
+	17 РџРѕ РєР°СЃСЃРµ (РѕС‚С‡РµС‚ РҐ)
+	18 РџРѕ РєР°СЃСЃРёСЂР°Рј
+	19 РџРѕ РІРёРґР°Рј С‚РѕРІР°СЂРѕРІ
+	20 РџРѕ РІСЂРµРјРµРЅРё
+	21 РџРѕС‡Р°СЃРѕРІРѕР№
+	22 РџРµС‡Р°С‚СЊ С‡РµРєРѕРІ
+	23 РђРєС‚ СЃРїРёСЃР°РЅРёСЏ СЃСѓРјРј
+	24 РљРѕРїРёСЏ Z-РѕС‚С‡РµС‚Р°
+	25 Р‘РµР·РЅР°Р»РёС‡РЅС‹Рµ СЂР°СЃС‡РµС‚С‹
 	26
-	27 Режим кассира
-	28 Печать контрольной ленты из ЭКЛЗ
-	29 Дисконтная карта
+	27 Р РµР¶РёРј РєР°СЃСЃРёСЂР°
+	28 РџРµС‡Р°С‚СЊ РєРѕРЅС‚СЂРѕР»СЊРЅРѕР№ Р»РµРЅС‚С‹ РёР· Р­РљР›Р—
+	29 Р”РёСЃРєРѕРЅС‚РЅР°СЏ РєР°СЂС‚Р°
 */
-
 static void SLAPI ConvertCashierRightsToCrystalRightsSet(const char * pRights, char * pCrystalRights, size_t szCrRts)
 {
 	static const char correspondance[32] = {
@@ -351,7 +350,7 @@ static int SLAPI PrepareDscntCodeBiasList(LAssocArray * pAry)
 	PPObjQuotKind qk_obj;
 	qk_flt.Flags = QuotKindFilt::fAddBase;
 	THROW(qk_obj.MakeList(&qk_flt, &qk_list));
-	k = MIN(qk_list.getCount(), 127); // Вынуждены ограничивать кол-во видов котировок (BIAS <128)
+	k = MIN(qk_list.getCount(), 127); // Р’С‹РЅСѓР¶РґРµРЅС‹ РѕРіСЂР°РЅРёС‡РёРІР°С‚СЊ РєРѕР»-РІРѕ РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє (BIAS <128)
 	for(i = 0; i < k; i++) {
 		uint  pos = 0;
 		PPID  key, qk_id = qk_list.Get(i).Id;
@@ -367,17 +366,17 @@ static int SLAPI PrepareDscntCodeBiasList(LAssocArray * pAry)
 	return ok;
 }
 //
-// В старом варианте код скидки формировался следующим образом:
-//    dscnt_code_bias * 0x01000000 + ИД товара, где dscnt_code_bias генерируется как ИД вида котировки % 127
-//    (см. функцию PrepareDscntCodeBiasList выше)
-// Новый алгоритм формирования кодов скидок учитывает то, что скидки могут быть как по котировкам, так и по картам:
-//    1. dscnt_code_bias = ИД объекта - 900, где ИД объекта - ИД серии карт или ИД вида котировки
-//       Для ИД объекта < 1000 (например базовая котировка) dscnt_code_bias = ИД объекта
-//    2. Код скидки представляет собой 32-битовое число следующего вида:
-//       бит  31 = 0
-//       бит  30 = 0 - для кодов по картам, 1 - для кодов по видам котировок
-//       биты 19-29 - dscnt_code_bias (< 2048)
-//       биты  0-18 - ИД товара (< 524288)
+// Р’ СЃС‚Р°СЂРѕРј РІР°СЂРёР°РЅС‚Рµ РєРѕРґ СЃРєРёРґРєРё С„РѕСЂРјРёСЂРѕРІР°Р»СЃСЏ СЃР»РµРґСѓСЋС‰РёРј РѕР±СЂР°Р·РѕРј:
+//    dscnt_code_bias * 0x01000000 + РР” С‚РѕРІР°СЂР°, РіРґРµ dscnt_code_bias РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ РєР°Рє РР” РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё % 127
+//    (СЃРј. С„СѓРЅРєС†РёСЋ PrepareDscntCodeBiasList РІС‹С€Рµ)
+// РќРѕРІС‹Р№ Р°Р»РіРѕСЂРёС‚Рј С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РєРѕРґРѕРІ СЃРєРёРґРѕРє СѓС‡РёС‚С‹РІР°РµС‚ С‚Рѕ, С‡С‚Рѕ СЃРєРёРґРєРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РєР°Рє РїРѕ РєРѕС‚РёСЂРѕРІРєР°Рј, С‚Р°Рє Рё РїРѕ РєР°СЂС‚Р°Рј:
+//    1. dscnt_code_bias = РР” РѕР±СЉРµРєС‚Р° - 900, РіРґРµ РР” РѕР±СЉРµРєС‚Р° - РР” СЃРµСЂРёРё РєР°СЂС‚ РёР»Рё РР” РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё
+//       Р”Р»СЏ РР” РѕР±СЉРµРєС‚Р° < 1000 (РЅР°РїСЂРёРјРµСЂ Р±Р°Р·РѕРІР°СЏ РєРѕС‚РёСЂРѕРІРєР°) dscnt_code_bias = РР” РѕР±СЉРµРєС‚Р°
+//    2. РљРѕРґ СЃРєРёРґРєРё РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ СЃРѕР±РѕР№ 32-Р±РёС‚РѕРІРѕРµ С‡РёСЃР»Рѕ СЃР»РµРґСѓСЋС‰РµРіРѕ РІРёРґР°:
+//       Р±РёС‚  31 = 0
+//       Р±РёС‚  30 = 0 - РґР»СЏ РєРѕРґРѕРІ РїРѕ РєР°СЂС‚Р°Рј, 1 - РґР»СЏ РєРѕРґРѕРІ РїРѕ РІРёРґР°Рј РєРѕС‚РёСЂРѕРІРѕРє
+//       Р±РёС‚С‹ 19-29 - dscnt_code_bias (< 2048)
+//       Р±РёС‚С‹  0-18 - РР” С‚РѕРІР°СЂР° (< 524288)
 //
 static long FASTCALL GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
 {
@@ -716,8 +715,8 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 							}
 						}
 					}
-					// тип товара:
-					// ProductPieceEntity - штучный, ProductWeightEntity - весовой и т.д.
+					// С‚РёРї С‚РѕРІР°СЂР°:
+					// ProductPieceEntity - С€С‚СѓС‡РЅС‹Р№, ProductWeightEntity - РІРµСЃРѕРІРѕР№ Рё С‚.Рґ.
 					if(is_spirit)
 						p_writer->PutElement("product-type", "ProductSpiritsEntity");
 					else if(is_tobacco) {
@@ -753,7 +752,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 				if(oneof2(mode, 0, 1)) {
 					p_writer->PutElement("vat", prev_gds_info.VatRate);
 					//
-					// Иерархия товарных групп
+					// РРµСЂР°СЂС…РёСЏ С‚РѕРІР°СЂРЅС‹С… РіСЂСѓРїРї
 					//
 					if(rCnData.Flags & CASHF_EXPGOODSGROUPS && prev_gds_info.ParentID) {
 						Goods2Tbl::Rec ggrec;
@@ -806,7 +805,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 						}
 					}
 					//
-					// Загрузка принадлежности группам продаж
+					// Р—Р°РіСЂСѓР·РєР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РіСЂСѓРїРїР°Рј РїСЂРѕРґР°Р¶
 					//
 					if(EqCfg.SalesGoodsGrp != 0) {
 						uint   sg_pos = 0;
@@ -834,9 +833,9 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 					}
 					else {
 						SString ingred, storage, energy;
-						// 1. composition (состав)
-						// 2. storage-conditions (условия хранения)
-						// 3. food-value (пищевая ценность)
+						// 1. composition (СЃРѕСЃС‚Р°РІ)
+						// 2. storage-conditions (СѓСЃР»РѕРІРёСЏ С…СЂР°РЅРµРЅРёСЏ)
+						// 3. food-value (РїРёС‰РµРІР°СЏ С†РµРЅРЅРѕСЃС‚СЊ)
 						{
 							uint   ss_pos = 0;
 							prev_gds_info.AddedMsgList.get(&ss_pos, ingred) && prev_gds_info.AddedMsgList.get(&ss_pos, storage) && prev_gds_info.AddedMsgList.get(&ss_pos, energy);
@@ -927,7 +926,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 		const char * p_subj_type = "GOOD";
 		SString restr_id;
 		//
-		// Выгрузка максимальных скидок на товар
+		// Р’С‹РіСЂСѓР·РєР° РјР°РєСЃРёРјР°Р»СЊРЅС‹С… СЃРєРёРґРѕРє РЅР° С‚РѕРІР°СЂ
 		//
 		PPLoadText(PPTXT_MAXDISEXPORT, iter_msg);
 		{
@@ -957,7 +956,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 		}
 		//
 		// @v10.6.4 {
-		// Выгрузка минимальных допустимых цен
+		// Р’С‹РіСЂСѓР·РєР° РјРёРЅРёРјР°Р»СЊРЅС‹С… РґРѕРїСѓСЃС‚РёРјС‹С… С†РµРЅ
 		//
 		{
 			for(uint i = 0; i < min_price_list.getCount(); i++) {
@@ -1004,7 +1003,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	SString path_cashiers;
 	SString path_cards;
 	SString iter_msg;
-	SString store_index; // Индекс магазина (извлекается из тега склада по конфигурационному параметру PPLocationConfig::StoreIdxTag)
+	SString store_index; // РРЅРґРµРєСЃ РјР°РіР°Р·РёРЅР° (РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· С‚РµРіР° СЃРєР»Р°РґР° РїРѕ РєРѕРЅС„РёРіСѓСЂР°С†РёРѕРЅРЅРѕРјСѓ РїР°СЂР°РјРµС‚СЂСѓ PPLocationConfig::StoreIdxTag)
 	StringSet ss_path_goods;
 	PPObjTag  tag_obj;
 	PPObjQuotKind  qk_obj;
@@ -1017,7 +1016,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	//SVector max_dis_list(sizeof(_MaxDisEntry)); // @v10.6.3 SArray-->SVector
 	PPObjGoodsGroup ggobj;
 	//
-	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
+	// РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ {РЎРµСЂРёСЏ РєР°СЂС‚С‹; Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё} => Key - СЃРµСЂРёСЏ РєР°СЂС‚С‹, Val - РІРёРґ РєРѕС‚РёСЂРѕРІРєРё
 	//
 	LAssocArray scard_quot_ary, dscnt_code_ary;
 	PPQuotArray grp_dscnt_ary;
@@ -1056,7 +1055,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	createEmptyFile(path);
 	THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
 	//
-	// Подготовка списка групп продаж
+	// РџРѕРґРіРѕС‚РѕРІРєР° СЃРїРёСЃРєР° РіСЂСѓРїРї РїСЂРѕРґР°Р¶
 	//
 	if(EqCfg.SalesGoodsGrp != 0) {
 		SString code;
@@ -1088,7 +1087,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	giftcard_cls_id = p_gds_iter->GetGiftCardGoodsCls();
 	*/
 	//
-	// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ РЅР°Рј РїРѕРЅР°РґРѕР±СЏС‚СЃСЏ РѕС‚ RetailGoodsExtractor РґР»СЏ СЌРєСЃРїРѕСЂС‚Р°
 	//
 	for(i = 0; i < scard_quot_ary.getCount(); i++)
 		if(scard_quot_ary.at(i).Val)
@@ -1124,7 +1123,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	PROFILE_END
 	ZDELETE(p_grp_iter);
 	//ZDELETE(p_gds_iter);
-	/* кассиры заводятся в сете
+	/* РєР°СЃСЃРёСЂС‹ Р·Р°РІРѕРґСЏС‚СЃСЏ РІ СЃРµС‚Рµ
 	if(EqCfg.CshrsPsnKindID) {
 		AsyncCashierInfo      cshr_info;
 		AsyncCashiersIterator cshr_iter;
@@ -1153,7 +1152,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	}
 	*/
 	//
-	// Дисконтные карты
+	// Р”РёСЃРєРѕРЅС‚РЅС‹Рµ РєР°СЂС‚С‹
 	//
 	{
 		PPID   ser_id = 0;
@@ -1528,11 +1527,11 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	PPObjGoodsGroup ggobj;
 	PrcssrAlcReport::GoodsItem agi;
 	//
-	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
+	// РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ {РЎРµСЂРёСЏ РєР°СЂС‚С‹; Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё} => Key - СЃРµСЂРёСЏ РєР°СЂС‚С‹, Val - РІРёРґ РєРѕС‚РёСЂРѕРІРєРё
 	//
 	LAssocArray  scard_quot_ary, dscnt_code_ary;
 	//
-	// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
+	// РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРє, РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРµРґРѕСЃС‚Р°РІР»СЏСЋС‚СЃСЏ СЃРІРѕР±РѕРґРЅС‹Рµ СЃРєРёРґРєРё (РЅРµ РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє РєР°СЂС‚Р°Рј)
 	//
 	PPIDArray rtl_quot_list;
 	//
@@ -1552,7 +1551,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	if(!P_Dls)
 		THROW_MEM(P_Dls = new DeviceLoadingStat);
 	//
-	// Подготовка списка групп продаж
+	// РџРѕРґРіРѕС‚РѕРІРєР° СЃРїРёСЃРєР° РіСЂСѓРїРї РїСЂРѕРґР°Р¶
 	//
 	if(EqCfg.SalesGoodsGrp != 0) {
 		SString code;
@@ -1598,16 +1597,16 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 					const char * p_mode = info.IsClosed ? "-" : "+";
 					DbfRecord dbfrC(p_tbl);
 					dbfrC.empty();
-					dbfrC.put(1,  p_mode);                         // Тип действия //
-					dbfrC.put(2,  info.Rec.Code);                  // Код дисконтной карты
-					dbfrC.put(3,  info.PsnName);                   // Владелец карты
-					dbfrC.put(4,  ser_rec.Name);                   // Наименование карты
-					dbfrC.put(5,  (int)0);                         // Тип карты (0 - дисконтная)
-					dbfrC.put(6,  ser_rec.ID);                     // Категория карты (ID серии карт)
-					dbfrC.put(7,  fdiv100i(info.Rec.PDis));        // Процент скидки
-					dbfrC.put(8,  info.Rec.MaxCredit);             // Максимальный кредит по карте
-					dbfrC.put(9,  info.Rec.Dt);                    // Дата выпуска карты
-					dbfrC.put(10, info.Rec.Expiry);                // Срок действия карты
+					dbfrC.put(1,  p_mode);                         // РўРёРї РґРµР№СЃС‚РІРёСЏ //
+					dbfrC.put(2,  info.Rec.Code);                  // РљРѕРґ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
+					dbfrC.put(3,  info.PsnName);                   // Р’Р»Р°РґРµР»РµС† РєР°СЂС‚С‹
+					dbfrC.put(4,  ser_rec.Name);                   // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РєР°СЂС‚С‹
+					dbfrC.put(5,  (int)0);                         // РўРёРї РєР°СЂС‚С‹ (0 - РґРёСЃРєРѕРЅС‚РЅР°СЏ)
+					dbfrC.put(6,  ser_rec.ID);                     // РљР°С‚РµРіРѕСЂРёСЏ РєР°СЂС‚С‹ (ID СЃРµСЂРёРё РєР°СЂС‚)
+					dbfrC.put(7,  fdiv100i(info.Rec.PDis));        // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё
+					dbfrC.put(8,  info.Rec.MaxCredit);             // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РєСЂРµРґРёС‚ РїРѕ РєР°СЂС‚Рµ
+					dbfrC.put(9,  info.Rec.Dt);                    // Р”Р°С‚Р° РІС‹РїСѓСЃРєР° РєР°СЂС‚С‹
+					dbfrC.put(10, info.Rec.Expiry);                // РЎСЂРѕРє РґРµР№СЃС‚РІРёСЏ РєР°СЂС‚С‹
 					THROW_PP(p_tbl->appendRec(&dbfrC), PPERR_DBFWRFAULT);
 					iter.SetStat();
 				}
@@ -1673,7 +1672,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		// @v9.1.8 {
 		{
 			//
-			// Вставляем специальную группу для маркированного алкоголя
+			// Р’СЃС‚Р°РІР»СЏРµРј СЃРїРµС†РёР°Р»СЊРЅСѓСЋ РіСЂСѓРїРїСѓ РґР»СЏ РјР°СЂРєРёСЂРѕРІР°РЅРЅРѕРіРѕ Р°Р»РєРѕРіРѕР»СЏ
 			//
 			_GroupEntry  grpe;
 			MEMSZERO(grpe);
@@ -1694,7 +1693,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				dbfrGG.put(k + 2, grpe.GrpID[grpe.Level - k]);
 			for(; k <= grpe.Level; k++)
 				dbfrGG.put(k + 2, 0L);
-			dbfrGG.put(7, (cn_data.Flags & CASHF_EXPDIVN) ? grpe.DivN : 1); // Номер секции
+			dbfrGG.put(7, (cn_data.Flags & CASHF_EXPDIVN) ? grpe.DivN : 1); // РќРѕРјРµСЂ СЃРµРєС†РёРё
 			THROW_PP(p_out_tbl_group->appendRec(&dbfrGG), PPERR_DBFWRFAULT);
 			for(pos = 0; grp_dscnt_ary.lsearch(&grpe.GrpID[0], &pos, CMPF_LONG, offsetof(PPQuot, GoodsID)); pos++) {
 				uint  p = 0;
@@ -1707,12 +1706,12 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 					for(; k <= grpe.Level; k++)
 						dbfrGGQD.put(k + 1, 0L);
 					if(use_new_dscnt_code_alg)
-						dbfrGGQD.put(6, GetDscntCode(grpe.GrpID[0], quot_by_qtty.Kind, 1)); // Код скидки
+						dbfrGGQD.put(6, GetDscntCode(grpe.GrpID[0], quot_by_qtty.Kind, 1)); // РљРѕРґ СЃРєРёРґРєРё
 					else
-						dbfrGGQD.put(6, (long)(0x01000000 * old_dscnt_code_bias + grpe.GrpID[0])); // Код скидки
-					dbfrGGQD.put(7, 2L);                             // Код обработки кол-ва (2 - на превышение)
-					dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
-					dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
+						dbfrGGQD.put(6, (long)(0x01000000 * old_dscnt_code_bias + grpe.GrpID[0])); // РљРѕРґ СЃРєРёРґРєРё
+					dbfrGGQD.put(7, 2L);                             // РљРѕРґ РѕР±СЂР°Р±РѕС‚РєРё РєРѕР»-РІР° (2 - РЅР° РїСЂРµРІС‹С€РµРЅРёРµ)
+					dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // РљРѕР»-РІРѕ, Р±РѕР»СЊС€Рµ РєРѕС‚РѕСЂРѕРіРѕ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ СЃРєРёРґРєР°
+					dbfrGGQD.put(9, -quot_by_qtty.Quot);             // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РЅР° РєРѕР»-РІРѕ С‚РѕРІР°СЂР°
 					if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) <= 0)
 						MEMSZERO(qk_rec);
 					dbfrGGQD.put(10, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
@@ -1724,16 +1723,16 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	}
 	{
 		//
-		// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ РЅР°Рј РїРѕРЅР°РґРѕР±СЏС‚СЃСЏ РѕС‚ RetailGoodsExtractor РґР»СЏ СЌРєСЃРїРѕСЂС‚Р°
 		//
 		for(i = 0; i < scard_quot_ary.getCount(); i++)
 			if(scard_quot_ary.at(i).Val)
 				gi.QuotList.Add(scard_quot_ary.at(i).Val, 0, 1);
 		{
 			//
-			// Формируем список розничных котировок, не входящих в список scard_quot_ary
-			// и имеющих ограничение по дню недели или времени. Это список будет
-			// использоваться для передачи в кассовый модуль соответствующих скидок.
+			// Р¤РѕСЂРјРёСЂСѓРµРј СЃРїРёСЃРѕРє СЂРѕР·РЅРёС‡РЅС‹С… РєРѕС‚РёСЂРѕРІРѕРє, РЅРµ РІС…РѕРґСЏС‰РёС… РІ СЃРїРёСЃРѕРє scard_quot_ary
+			// Рё РёРјРµСЋС‰РёС… РѕРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕ РґРЅСЋ РЅРµРґРµР»Рё РёР»Рё РІСЂРµРјРµРЅРё. Р­С‚Рѕ СЃРїРёСЃРѕРє Р±СѓРґРµС‚
+			// РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РїРµСЂРµРґР°С‡Рё РІ РєР°СЃСЃРѕРІС‹Р№ РјРѕРґСѓР»СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… СЃРєРёРґРѕРє.
 			//
 			PPIDArray temp_list;
 			TimeRange tr;
@@ -1766,7 +1765,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			dbfrG.put(2,  gi.Name);
 		   	unit_obj.Fetch(gi.UnitID, &unit_rec);
 			dbfrG.put(3,  unit_rec.Name);
-			dbfrG.put(4,  (int)1);            // Разрешение к продаже
+			dbfrG.put(4,  (int)1);            // Р Р°Р·СЂРµС€РµРЅРёРµ Рє РїСЂРѕРґР°Р¶Рµ
 			if(is_spirit && agi.StatusFlags & agi.stMarkWanted) {
 				dbfrG.put(5+0, alco_special_grp_id);
 				for(k = 5+1; k < 10; k++) {
@@ -1774,7 +1773,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				}
 			}
 			else {
-				// Группа товаров 1-5 {
+				// Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ 1-5 {
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gi.ParentID && grp_list.lsearch(&gi.ParentID, &(i = 0), CMPF_LONG)) {
 					_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 					for(k = 0; k <= grpe.Level; k++)
@@ -1786,20 +1785,20 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 					for(k = 5; k < 10; k++)
 						dbfrG.put(k, (int)0);
 				}
-				// } Группа товаров 1-5
+				// } Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ 1-5
 			}
-			dbfrG.put(10, gi.Price);	                                  // Цена товара
-			// @v6.7.8 dbfrG.put(11, fpow10i(-3));                        // Мерность товара
-			dbfrG.put(11, gi.Precision);                                  // @v6.7.8 Мерность товара
-			dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
-			dbfrG.put(13,  gi.ID);                                        // ID ограничения на скидку
-			dbfrG.put(14, (double)((gi.NoDis > 0) ? 100 : 0));            // Min цена товара
-				// (100% - скидки запрещены, 0% - любые скидки разрешены)
+			dbfrG.put(10, gi.Price);	                                  // Р¦РµРЅР° С‚РѕРІР°СЂР°
+			// @v6.7.8 dbfrG.put(11, fpow10i(-3));                        // РњРµСЂРЅРѕСЃС‚СЊ С‚РѕРІР°СЂР°
+			dbfrG.put(11, gi.Precision);                                  // @v6.7.8 РњРµСЂРЅРѕСЃС‚СЊ С‚РѕРІР°СЂР°
+			dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // РќРѕРјРµСЂ СЃРµРєС†РёРё
+			dbfrG.put(13,  gi.ID);                                        // ID РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РЅР° СЃРєРёРґРєСѓ
+			dbfrG.put(14, (double)((gi.NoDis > 0) ? 100 : 0));            // Min С†РµРЅР° С‚РѕРІР°СЂР°
+				// (100% - СЃРєРёРґРєРё Р·Р°РїСЂРµС‰РµРЅС‹, 0% - Р»СЋР±С‹Рµ СЃРєРёРґРєРё СЂР°Р·СЂРµС€РµРЅС‹)
 			dbfrG.put(15, gi.VatRate);
 			dbfrG.put(16, gi.Rest);
 			THROW_PP(p_out_tbl_goods->appendRec(&dbfrG), PPERR_DBFWRFAULT);
 			//
-			// Загрузка принадлежности группам продаж
+			// Р—Р°РіСЂСѓР·РєР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РіСЂСѓРїРїР°Рј РїСЂРѕРґР°Р¶
 			//
 			if(EqCfg.SalesGoodsGrp != 0) {
 				DbfTable * p_tbl = 0;
@@ -1819,7 +1818,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 			{
 				//
-				// Загрузка скидок по котировкам, привязанным к дисконтным картам
+				// Р—Р°РіСЂСѓР·РєР° СЃРєРёРґРѕРє РїРѕ РєРѕС‚РёСЂРѕРІРєР°Рј, РїСЂРёРІСЏР·Р°РЅРЅС‹Рј Рє РґРёСЃРєРѕРЅС‚РЅС‹Рј РєР°СЂС‚Р°Рј
 				//
 				DbfTable * p_tbl = fp.GetTable(fp.tDiscount);
 				THROW(p_tbl);
@@ -1842,14 +1841,14 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 						DbfRecord dbfrD(p_tbl);
 						dbfrD.empty();
 						dbfrD.put(1, ltoa(gi.ID, tempbuf, 10));
-						dbfrD.put(2, scard_quot_ary.at(i).Key); // Категория карты (ID серии карт)
-						dbfrD.put(3, dscnt_sum);                // Сумма скидки
+						dbfrD.put(2, scard_quot_ary.at(i).Key); // РљР°С‚РµРіРѕСЂРёСЏ РєР°СЂС‚С‹ (ID СЃРµСЂРёРё РєР°СЂС‚)
+						dbfrD.put(3, dscnt_sum);                // РЎСѓРјРјР° СЃРєРёРґРєРё
 						next_fld = 4;
 						if(use_dscnt_code)
 							if(use_new_dscnt_code_alg)
-								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // Код скидки
+								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // РљРѕРґ СЃРєРёРґРєРё
 							else
-								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
+								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // РљРѕРґ СЃРєРёРґРєРё
 						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) <= 0)
 							MEMSZERO(qk_rec);
 						dbfrD.put(next_fld++, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
@@ -1870,7 +1869,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 			if(gi.P_QuotByQttyList) {
 				//
-				// Загрузка скидок, призязанных к количеству
+				// Р—Р°РіСЂСѓР·РєР° СЃРєРёРґРѕРє, РїСЂРёР·СЏР·Р°РЅРЅС‹С… Рє РєРѕР»РёС‡РµСЃС‚РІСѓ
 				//
 				DbfTable * p_tbl = fp.GetTable(fp.tGoodsQttyDis);
 				THROW(p_tbl);
@@ -1880,14 +1879,14 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 					if(use_new_dscnt_code_alg || dscnt_code_ary.Search(quot_by_qtty.Kind, &old_dscnt_code_bias, &pos)) {
 						DbfRecord dbfrGQD(p_tbl);
 						dbfrGQD.empty();
-						dbfrGQD.put(1, ltoa(gi.ID, tempbuf, 10)); // Ид товара
+						dbfrGQD.put(1, ltoa(gi.ID, tempbuf, 10)); // РРґ С‚РѕРІР°СЂР°
 						if(use_new_dscnt_code_alg)
-							dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // Код скидки
+							dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // РљРѕРґ СЃРєРёРґРєРё
 						else
-							dbfrGQD.put(2, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
-						dbfrGQD.put(3, 0L);                             // Тип скидки (0 - на кол-во)
-						dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
-						dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
+							dbfrGQD.put(2, (0x01000000L * old_dscnt_code_bias + gi.ID)); // РљРѕРґ СЃРєРёРґРєРё
+						dbfrGQD.put(3, 0L);                             // РўРёРї СЃРєРёРґРєРё (0 - РЅР° РєРѕР»-РІРѕ)
+						dbfrGQD.put(4, quot_by_qtty.MinQtty);           // РљРѕР»-РІРѕ, РЅР° РєРѕС‚РѕСЂРѕРµ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ СЃРєРёРґРєР°
+						dbfrGQD.put(5, -quot_by_qtty.Quot);             // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РЅР° РєРѕР»-РІРѕ С‚РѕРІР°СЂР°
 						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) <= 0)
 							MEMSZERO(qk_rec);
 						dbfrGQD.put(6, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
@@ -1898,7 +1897,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 			if(rtl_quot_list.getCount()) {
 				//
-				// Загрузка скидок, не привязанных к картам, но зависящих от дня недели либо времени
+				// Р—Р°РіСЂСѓР·РєР° СЃРєРёРґРѕРє, РЅРµ РїСЂРёРІСЏР·Р°РЅРЅС‹С… Рє РєР°СЂС‚Р°Рј, РЅРѕ Р·Р°РІРёСЃСЏС‰РёС… РѕС‚ РґРЅСЏ РЅРµРґРµР»Рё Р»РёР±Рѕ РІСЂРµРјРµРЅРё
 				//
 				DbfTable * p_tbl = fp.GetTable(fp.tGoodsDis);
 				THROW(p_tbl);
@@ -1923,9 +1922,9 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 								}
 								tempbuf[7] = 0;
 								dbfr.put(2, tempbuf); // weekdays
-								dbfr.put(3, GetDscntCode(gi.ID, qk_id, 1)); // Код скидки
-								dbfr.put(4, 0.0);       // Процент скидки
-								dbfr.put(5, dscnt_sum); // Сумма скидки
+								dbfr.put(3, GetDscntCode(gi.ID, qk_id, 1)); // РљРѕРґ СЃРєРёРґРєРё
+								dbfr.put(4, 0.0);       // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё
+								dbfr.put(5, dscnt_sum); // РЎСѓРјРјР° СЃРєРёРґРєРё
 								dbfr.put(6, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
 								dbfr.put(7, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
 								dbfr.put(8, 4L);
@@ -1947,7 +1946,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				dbfrB.put(1, ltoa(gi.ID, tempbuf, 10));
 				dbfrB.put(2, gi.BarCode);
 				dbfrB.put(3, gi.UnitPerPack);
-				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
+				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // РќРѕРјРµСЂ СЃРµРєС†РёРё
 				THROW_PP(p_tbl->appendRec(&dbfrB), PPERR_DBFWRFAULT);
 			}
 		}
@@ -1979,7 +1978,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 						rights[pos] = (cr_rights[pos + CRCSHSRV_CSHRRIGHTS_STRLEN]) ? ':' : '.';
 					else
 						rights[pos] = (cr_rights[pos + CRCSHSRV_CSHRRIGHTS_STRLEN]) ? ((pos == 1) ? ':'
-						/* по какой-то причине Кристалл понимает назначение этого права только так */ : '`') : 'x';
+						/* РїРѕ РєР°РєРѕР№-С‚Рѕ РїСЂРёС‡РёРЅРµ РљСЂРёСЃС‚Р°Р»Р» РїРѕРЅРёРјР°РµС‚ РЅР°Р·РЅР°С‡РµРЅРёРµ СЌС‚РѕРіРѕ РїСЂР°РІР° С‚РѕР»СЊРєРѕ С‚Р°Рє */ : '`') : 'x';
 				}
 				dbfrC.put(5, rights);
 				THROW_PP(p_tbl->appendRec(&dbfrC), PPERR_DBFWRFAULT);
@@ -1987,7 +1986,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 		}
 	}
 	//
-	// Выгрузка групп продаж
+	// Р’С‹РіСЂСѓР·РєР° РіСЂСѓРїРї РїСЂРѕРґР°Р¶
 	//
 	if(EqCfg.SalesGoodsGrp != 0 && sales_grp_list.getCount()) {
 		DbfTable * p_tbl = fp.GetTable(fp.tSalesGroup);
@@ -2079,11 +2078,11 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
 		PPObjGoodsGroup ggobj;
 		//
-		// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
+		// РЎРїРёСЃРѕРє Р°СЃСЃРѕС†РёР°С†РёР№ {РЎРµСЂРёСЏ РєР°СЂС‚С‹; Р’РёРґ РєРѕС‚РёСЂРѕРІРєРё} => Key - СЃРµСЂРёСЏ РєР°СЂС‚С‹, Val - РІРёРґ РєРѕС‚РёСЂРѕРІРєРё
 		//
 		LAssocArray  scard_quot_ary, dscnt_code_ary;
 		//
-		// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
+		// РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРє, РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРµРґРѕСЃС‚Р°РІР»СЏСЋС‚СЃСЏ СЃРІРѕР±РѕРґРЅС‹Рµ СЃРєРёРґРєРё (РЅРµ РїСЂРёРІСЏР·Р°РЅРЅС‹Рµ Рє РєР°СЂС‚Р°Рј)
 		//
 		LAssocArray rtl_quot_ary;
 		LAssocArray rtl_dscnt_code_ary;
@@ -2125,7 +2124,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		if(!P_Dls)
 			THROW_MEM(P_Dls = new DeviceLoadingStat);
 		//
-		// Подготовка списка групп продаж
+		// РџРѕРґРіРѕС‚РѕРІРєР° СЃРїРёСЃРєР° РіСЂСѓРїРї РїСЂРѕРґР°Р¶
 		//
 		if(EqCfg.SalesGoodsGrp != 0) {
 			SString code;
@@ -2166,16 +2165,16 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						const char * p_mode = info.IsClosed ? "-" : "+";
 						DbfRecord dbfrC(p_out_tbl_cards);
 						dbfrC.empty();
-						dbfrC.put(1,  p_mode);                         // Тип действия //
-						dbfrC.put(2,  info.Rec.Code);                  // Код дисконтной карты
-						dbfrC.put(3,  info.PsnName);                   // Владелец карты
-						dbfrC.put(4,  ser_rec.Name);                   // Наименование карты
-						dbfrC.put(5,  (int)0);                         // Тип карты (0 - дисконтная)
-						dbfrC.put(6,  ser_rec.ID);                     // Категория карты (ID серии карт)
-						dbfrC.put(7,  fdiv100i(info.Rec.PDis));        // Процент скидки
-						dbfrC.put(8,  info.Rec.MaxCredit);             // Максимальный кредит по карте
-						dbfrC.put(9,  info.Rec.Dt);                    // Дата выпуска карты
-						dbfrC.put(10, info.Rec.Expiry);                // Срок действия карты
+						dbfrC.put(1,  p_mode);                         // РўРёРї РґРµР№СЃС‚РІРёСЏ //
+						dbfrC.put(2,  info.Rec.Code);                  // РљРѕРґ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
+						dbfrC.put(3,  info.PsnName);                   // Р’Р»Р°РґРµР»РµС† РєР°СЂС‚С‹
+						dbfrC.put(4,  ser_rec.Name);                   // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РєР°СЂС‚С‹
+						dbfrC.put(5,  (int)0);                         // РўРёРї РєР°СЂС‚С‹ (0 - РґРёСЃРєРѕРЅС‚РЅР°СЏ)
+						dbfrC.put(6,  ser_rec.ID);                     // РљР°С‚РµРіРѕСЂРёСЏ РєР°СЂС‚С‹ (ID СЃРµСЂРёРё РєР°СЂС‚)
+						dbfrC.put(7,  fdiv100i(info.Rec.PDis));        // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё
+						dbfrC.put(8,  info.Rec.MaxCredit);             // РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РєСЂРµРґРёС‚ РїРѕ РєР°СЂС‚Рµ
+						dbfrC.put(9,  info.Rec.Dt);                    // Р”Р°С‚Р° РІС‹РїСѓСЃРєР° РєР°СЂС‚С‹
+						dbfrC.put(10, info.Rec.Expiry);                // РЎСЂРѕРє РґРµР№СЃС‚РІРёСЏ РєР°СЂС‚С‹
 						THROW_PP(p_out_tbl_cards->appendRec(&dbfrC), PPERR_DBFWRFAULT);
 						iter.SetStat();
 					}
@@ -2242,7 +2241,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					dbfrGG.put(k + 2, grpe.GrpID[grpe.Level - k]);
 				for(; k <= grpe.Level; k++)
 					dbfrGG.put(k + 2, 0L);
-				dbfrGG.put(7, (cn_data.Flags & CASHF_EXPDIVN) ? grpe.DivN : 1); // Номер секции
+				dbfrGG.put(7, (cn_data.Flags & CASHF_EXPDIVN) ? grpe.DivN : 1); // РќРѕРјРµСЂ СЃРµРєС†РёРё
 				THROW_PP(p_out_tbl_group->appendRec(&dbfrGG), PPERR_DBFWRFAULT);
 				for(pos = 0; grp_dscnt_ary.lsearch(&grpe.GrpID[0], &pos, CMPF_LONG, offsetof(PPQuot, GoodsID)); pos++) {
 					uint  p = 0;
@@ -2255,12 +2254,12 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						for(; k <= grpe.Level; k++)
 							dbfrGGQD.put(k + 1, 0L);
 						if(use_new_dscnt_code_alg)
-							dbfrGGQD.put(6, GetDscntCode(grpe.GrpID[0], quot_by_qtty.Kind, 1)); // Код скидки
+							dbfrGGQD.put(6, GetDscntCode(grpe.GrpID[0], quot_by_qtty.Kind, 1)); // РљРѕРґ СЃРєРёРґРєРё
 						else
-							dbfrGGQD.put(6, (0x01000000L * old_dscnt_code_bias + grpe.GrpID[0])); // Код скидки
-						dbfrGGQD.put(7, 2L);                             // Код обработки кол-ва (2 - на превышение)
-						dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
-						dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
+							dbfrGGQD.put(6, (0x01000000L * old_dscnt_code_bias + grpe.GrpID[0])); // РљРѕРґ СЃРєРёРґРєРё
+						dbfrGGQD.put(7, 2L);                             // РљРѕРґ РѕР±СЂР°Р±РѕС‚РєРё РєРѕР»-РІР° (2 - РЅР° РїСЂРµРІС‹С€РµРЅРёРµ)
+						dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // РљРѕР»-РІРѕ, Р±РѕР»СЊС€Рµ РєРѕС‚РѕСЂРѕРіРѕ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ СЃРєРёРґРєР°
+						dbfrGGQD.put(9, -quot_by_qtty.Quot);             // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РЅР° РєРѕР»-РІРѕ С‚РѕРІР°СЂР°
 						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
 							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.BeginTm)[0], PTR8(&qk_rec.BeginTm)[1], 0, 0), TIMF_HM);
@@ -2281,7 +2280,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			}
 		}
 		//
-		// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ РЅР°Рј РїРѕРЅР°РґРѕР±СЏС‚СЃСЏ РѕС‚ RetailGoodsExtractor РґР»СЏ СЌРєСЃРїРѕСЂС‚Р°
 		//
 		for(i = 0; i < scard_quot_ary.getCount(); i++)
 			if(scard_quot_ary.at(i).Val)
@@ -2297,8 +2296,8 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				dbfrG.put(2,  gi.Name);
 		   		unit_obj.Fetch(gi.UnitID, &unit_rec);
 				dbfrG.put(3,  unit_rec.Name);
-				dbfrG.put(4,  (int)1);            // Разрешение к продаже
-				// Группа товаров 1-5 {
+				dbfrG.put(4,  (int)1);            // Р Р°Р·СЂРµС€РµРЅРёРµ Рє РїСЂРѕРґР°Р¶Рµ
+				// Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ 1-5 {
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gi.ParentID && grp_list.lsearch(&gi.ParentID, &(i = 0), CMPF_LONG)) {
 					_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 					for(k = 0; k <= grpe.Level; k++)
@@ -2310,19 +2309,19 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					for(k = 5; k < 10; k++)
 						dbfrG.put(k, static_cast<int>(0));
 				}
-				// } Группа товаров 1-5
-				dbfrG.put(10, gi.Price);	  // Цена товара
-				// @v6.7.8 dbfrG.put(11, fpow10i(-3));       // Мерность товара
-				dbfrG.put(11, gi.Precision);           // @v6.7.8 Мерность товара
-				dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
-				dbfrG.put(13,  gi.ID);       // ID ограничения на скидку
-				dbfrG.put(14, (gi.NoDis > 0) ? 100.0 : 0.0); // Min цена товара
-				// (100% - скидки запрещены, 0% - любые скидки разрешены)
+				// } Р“СЂСѓРїРїР° С‚РѕРІР°СЂРѕРІ 1-5
+				dbfrG.put(10, gi.Price);	  // Р¦РµРЅР° С‚РѕРІР°СЂР°
+				// @v6.7.8 dbfrG.put(11, fpow10i(-3));       // РњРµСЂРЅРѕСЃС‚СЊ С‚РѕРІР°СЂР°
+				dbfrG.put(11, gi.Precision);           // @v6.7.8 РњРµСЂРЅРѕСЃС‚СЊ С‚РѕРІР°СЂР°
+				dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // РќРѕРјРµСЂ СЃРµРєС†РёРё
+				dbfrG.put(13,  gi.ID);       // ID РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РЅР° СЃРєРёРґРєСѓ
+				dbfrG.put(14, (gi.NoDis > 0) ? 100.0 : 0.0); // Min С†РµРЅР° С‚РѕРІР°СЂР°
+				// (100% - СЃРєРёРґРєРё Р·Р°РїСЂРµС‰РµРЅС‹, 0% - Р»СЋР±С‹Рµ СЃРєРёРґРєРё СЂР°Р·СЂРµС€РµРЅС‹)
 				dbfrG.put(15, gi.VatRate);
 				dbfrG.put(16, gi.Rest);
 				THROW_PP(p_out_tbl_goods->appendRec(&dbfrG), PPERR_DBFWRFAULT);
 				//
-				// Загрузка принадлежности группам продаж
+				// Р—Р°РіСЂСѓР·РєР° РїСЂРёРЅР°РґР»РµР¶РЅРѕСЃС‚Рё РіСЂСѓРїРїР°Рј РїСЂРѕРґР°Р¶
 				//
 				if(EqCfg.SalesGoodsGrp != 0) {
 					uint   sg_pos = 0;
@@ -2337,7 +2336,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					}
 				}
 				//
-				// Загрузка скидок по котировкам
+				// Р—Р°РіСЂСѓР·РєР° СЃРєРёРґРѕРє РїРѕ РєРѕС‚РёСЂРѕРІРєР°Рј
 				//
 				for(i = 0; i < scard_quot_ary.getCount(); i++) {
 					int    is_there_quot = 0;
@@ -2347,8 +2346,8 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						double quot = gi.QuotList.Get(scard_quot_ary.at(i).Val);
 						if(quot > 0.0) {
 							dscnt_sum = gi.Price - quot;
-							// @v5.3.12 Следующая строка комментируется из-за того, что она препятствует
-							// загрузке цен по картам, которые равны базовой цене.
+							// @v5.3.12 РЎР»РµРґСѓСЋС‰Р°СЏ СЃС‚СЂРѕРєР° РєРѕРјРјРµРЅС‚РёСЂСѓРµС‚СЃСЏ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РѕРЅР° РїСЂРµРїСЏС‚СЃС‚РІСѓРµС‚
+							// Р·Р°РіСЂСѓР·РєРµ С†РµРЅ РїРѕ РєР°СЂС‚Р°Рј, РєРѕС‚РѕСЂС‹Рµ СЂР°РІРЅС‹ Р±Р°Р·РѕРІРѕР№ С†РµРЅРµ.
 							// if(use_dscnt_code == 0)
 								is_there_quot = 1;
 						}
@@ -2361,14 +2360,14 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						DbfRecord dbfrD(p_out_tbl_dscnt);
 						dbfrD.empty();
 						dbfrD.put(1, ltoa(gi.ID, tempbuf, 10));
-						dbfrD.put(2, scard_quot_ary.at(i).Key); // Категория карты (ID серии карт)
-						dbfrD.put(3, dscnt_sum);        // Сумма скидки
+						dbfrD.put(2, scard_quot_ary.at(i).Key); // РљР°С‚РµРіРѕСЂРёСЏ РєР°СЂС‚С‹ (ID СЃРµСЂРёРё РєР°СЂС‚)
+						dbfrD.put(3, dscnt_sum);        // РЎСѓРјРјР° СЃРєРёРґРєРё
 						next_fld = 4;
 						if(use_dscnt_code)
 							if(use_new_dscnt_code_alg)
-								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // Код скидки
+								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // РљРѕРґ СЃРєРёРґРєРё
 							else
-								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
+								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // РљРѕРґ СЃРєРёРґРєРё
 						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) > 0) {
 							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
 							dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
@@ -2393,14 +2392,14 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						if(use_new_dscnt_code_alg || dscnt_code_ary.Search(quot_by_qtty.Kind, &old_dscnt_code_bias, &pos)) {
 							DbfRecord dbfrGQD(p_out_tbl_gdsqtty_dscnt);
 							dbfrGQD.empty();
-							dbfrGQD.put(1, ltoa(gi.ID, tempbuf, 10)); // Ид товара
+							dbfrGQD.put(1, ltoa(gi.ID, tempbuf, 10)); // РРґ С‚РѕРІР°СЂР°
 							if(use_new_dscnt_code_alg)
-								dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // Код скидки
+								dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // РљРѕРґ СЃРєРёРґРєРё
 							else
-								dbfrGQD.put(2, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
-							dbfrGQD.put(3, 0L);                             // Тип скидки (0 - на кол-во)
-							dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
-							dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
+								dbfrGQD.put(2, (0x01000000L * old_dscnt_code_bias + gi.ID)); // РљРѕРґ СЃРєРёРґРєРё
+							dbfrGQD.put(3, 0L);                             // РўРёРї СЃРєРёРґРєРё (0 - РЅР° РєРѕР»-РІРѕ)
+							dbfrGQD.put(4, quot_by_qtty.MinQtty);           // РљРѕР»-РІРѕ, РЅР° РєРѕС‚РѕСЂРѕРµ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ СЃРєРёРґРєР°
+							dbfrGQD.put(5, -quot_by_qtty.Quot);             // РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РЅР° РєРѕР»-РІРѕ С‚РѕРІР°СЂР°
 							if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
 								dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
 								dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
@@ -2427,7 +2426,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				dbfrB.put(1, ltoa(gi.ID, tempbuf, 10));
 				dbfrB.put(2, gi.BarCode);
 				dbfrB.put(3, gi.UnitPerPack);
-				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // @v6.7.10 Номер секции
+				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // @v6.7.10 РќРѕРјРµСЂ СЃРµРєС†РёРё
 				THROW_PP(p_out_tbl_barcode->appendRec(&dbfrB), PPERR_DBFWRFAULT);
 			}
 	   		prev_goods_id = gi.ID;
@@ -2455,13 +2454,13 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						rights[pos] = (cr_rights[pos + CRCSHSRV_CSHRRIGHTS_STRLEN]) ? ':' : '.';
 					else
 						rights[pos] = (cr_rights[pos + CRCSHSRV_CSHRRIGHTS_STRLEN]) ? ((pos == 1) ? ':'
-						/* по какой-то причине Кристалл понимает назначение этого права только так */ : '`') : 'x';
+						/* РїРѕ РєР°РєРѕР№-С‚Рѕ РїСЂРёС‡РёРЅРµ РљСЂРёСЃС‚Р°Р»Р» РїРѕРЅРёРјР°РµС‚ РЅР°Р·РЅР°С‡РµРЅРёРµ СЌС‚РѕРіРѕ РїСЂР°РІР° С‚РѕР»СЊРєРѕ С‚Р°Рє */ : '`') : 'x';
 				dbfrC.put(5, rights);
 				THROW_PP(p_out_tbl_cashiers->appendRec(&dbfrC), PPERR_DBFWRFAULT);
 			}
 		}
 		//
-		// Выгрузка групп продаж
+		// Р’С‹РіСЂСѓР·РєР° РіСЂСѓРїРї РїСЂРѕРґР°Р¶
 		//
 		if(EqCfg.SalesGoodsGrp != 0) {
 			if(sales_grp_list.getCount()) {
@@ -2632,13 +2631,13 @@ int SLAPI ACS_CRCSHSRV::GetCashiersList()
 				by_num_ary.clear();
 				buf.Chomp();
 				ss.add(buf);
-				ss.get(&i, cshr_tabnum_); // Табельный номер
+				ss.get(&i, cshr_tabnum_); // РўР°Р±РµР»СЊРЅС‹Р№ РЅРѕРјРµСЂ
 				cshr_tabnum_.StripQuotes();
-				ss.get(&i, cshr_name_);                  // Имя кассира
+				ss.get(&i, cshr_name_);                  // РРјСЏ РєР°СЃСЃРёСЂР°
 				cshr_name_.Transf(CTRANSF_INNER_TO_OUTER).StripQuotes();
-				ss.get(&i, cshr_password_);   // Пароль
+				ss.get(&i, cshr_password_);   // РџР°СЂРѕР»СЊ
 				cshr_password_.StripQuotes();
-				ss.get(&i, cshr_rights, sizeof(cshr_rights)); // Права
+				ss.get(&i, cshr_rights, sizeof(cshr_rights)); // РџСЂР°РІР°
 				strtolong(cshr_rights, &rights);
 				PPObjPerson::SrchAnalogPattern sap(cshr_name_, PPObjPerson::sapfMatchWholeWord);
 				psn_obj.GetListByPattern(&sap, &by_name_ary);
@@ -2923,7 +2922,7 @@ int SLAPI ACS_CRCSHSRV::CreateSCardPaymTbl()
 	}
 	else {
 		//
-		// Коды полей входного файла скидок по чекам
+		// РљРѕРґС‹ РїРѕР»РµР№ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° СЃРєРёРґРѕРє РїРѕ С‡РµРєР°Рј
 		//
 		int  fldn_d_chkln_id   = 0;
 		int  fldn_d_dscnt_type = 0;
@@ -2978,8 +2977,8 @@ static int SLAPI GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME 
 	SString  dttm_buf = pDttmBuf;
 	strtodate(dttm_buf.Strip(), DATF_DMY, &dt);
 	//
-	// Для времени 00:00:00 кассовый сервер возвращает пустую строку,
-	// из-за этого такой случай приходится обрабатывать особо.
+	// Р”Р»СЏ РІСЂРµРјРµРЅРё 00:00:00 РєР°СЃСЃРѕРІС‹Р№ СЃРµСЂРІРµСЂ РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ,
+	// РёР·-Р·Р° СЌС‚РѕРіРѕ С‚Р°РєРѕР№ СЃР»СѓС‡Р°Р№ РїСЂРёС…РѕРґРёС‚СЃСЏ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РѕСЃРѕР±Рѕ.
 	//
 	if(dttm_buf.SearchChar(' ', &pos))
 		strtotime(dttm_buf.ShiftLeft(pos).Strip(), TIMF_HMS, &tm);
@@ -3037,12 +3036,12 @@ public:
 		int16  IsSale;
 		int16  Banking;
 		long   Div;
-		double Amount;        // извлекается из заголовка чека, как показала практика эта сумма не всегда достоверна
-		double CheckAmount;   // Сумма оплат внесенных за чек
-		double AddedDiscount; // дополнительная скидка
+		double Amount;        // РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· Р·Р°РіРѕР»РѕРІРєР° С‡РµРєР°, РєР°Рє РїРѕРєР°Р·Р°Р»Р° РїСЂР°РєС‚РёРєР° СЌС‚Р° СЃСѓРјРјР° РЅРµ РІСЃРµРіРґР° РґРѕСЃС‚РѕРІРµСЂРЅР°
+		double CheckAmount;   // РЎСѓРјРјР° РѕРїР»Р°С‚ РІРЅРµСЃРµРЅРЅС‹С… Р·Р° С‡РµРє
+		double AddedDiscount; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ СЃРєРёРґРєР°
 		double BankingAmount;
 		double GiftCardAmount;
-		double Discount;      // извлекается из заголовка чека
+		double Discount;      // РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· Р·Р°РіРѕР»РѕРІРєР° С‡РµРєР°
 		long   TabNum;
 	};
 
@@ -3177,11 +3176,11 @@ int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isP
 						val = (const char *)p_fld->children->content;
 						if(PPSearchSubStr(p_plug_card_attr, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 							switch(idx) {
-								case 0: // Серийный номер подарочной карты
+								case 0: // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РїРѕРґР°СЂРѕС‡РЅРѕР№ РєР°СЂС‚С‹
 									serial = val;
 									break;
 								case 1:
-									if(val.Cmp(p_gift_card, 1) == 0) // Подарочная карта
+									if(val.Cmp(p_gift_card, 1) == 0) // РџРѕРґР°СЂРѕС‡РЅР°СЏ РєР°СЂС‚Р°
 										is_gift_card = 1;
 									break;
 							}
@@ -3218,35 +3217,35 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						val.Set(p_fld->children->content).ToLower();
 						if(attr_name == "shop") {
 						}
-						else if(attr_name == "operationtype") { // Тип чека (продажа/возврат)
+						else if(attr_name == "operationtype") { // РўРёРї С‡РµРєР° (РїСЂРѕРґР°Р¶Р°/РІРѕР·РІСЂР°С‚)
 							if(val == "true")
 								hdr.IsSale = 1;
 						}
-						else if(attr_name == "operday") { // Операционный день (дата)
+						else if(attr_name == "operday") { // РћРїРµСЂР°С†РёРѕРЅРЅС‹Р№ РґРµРЅСЊ (РґР°С‚Р°)
 						}
-						else if(attr_name == "cash") { // Номер кассы
+						else if(attr_name == "cash") { // РќРѕРјРµСЂ РєР°СЃСЃС‹
 							hdr.CashNum = val.ToLong();
 						}
-						else if(attr_name == "shift") { // Номер смены
+						else if(attr_name == "shift") { // РќРѕРјРµСЂ СЃРјРµРЅС‹
 							hdr.SmenaNum = val.ToLong();
 						}
-						else if(attr_name == "saletime") { // Дата время чека
+						else if(attr_name == "saletime") { // Р”Р°С‚Р° РІСЂРµРјСЏ С‡РµРєР°
 							strtodatetime(val, &hdr.Dtm, DATF_ISO8601, 0);
 						}
-						else if(attr_name == "number") { // Номер чека
+						else if(attr_name == "number") { // РќРѕРјРµСЂ С‡РµРєР°
 							hdr.ChkNum = val.ToLong();
 						}
-						else if(attr_name == "amount") { // Сумма
+						else if(attr_name == "amount") { // РЎСѓРјРјР°
 							hdr.Amount = val.ToReal();
 						}
-						else if(attr_name == "discountamount") { // Сумма скидки
+						else if(attr_name == "discountamount") { // РЎСѓРјРјР° СЃРєРёРґРєРё
 							hdr.Discount = val.ToReal();
 						}
-						else if(attr_name == "username") { // Имя кассира
+						else if(attr_name == "username") { // РРјСЏ РєР°СЃСЃРёСЂР°
 						}
-						else if(attr_name == "usertabnumber") { // Номер кассира (userTabNumber)
+						else if(attr_name == "usertabnumber") { // РќРѕРјРµСЂ РєР°СЃСЃРёСЂР° (userTabNumber)
 						}
-						else if(attr_name == "tabnumber") { // Номер кассира для более новых версий Set Retail 10 (tabNumber)
+						else if(attr_name == "tabnumber") { // РќРѕРјРµСЂ РєР°СЃСЃРёСЂР° РґР»СЏ Р±РѕР»РµРµ РЅРѕРІС‹С… РІРµСЂСЃРёР№ Set Retail 10 (tabNumber)
 							hdr.TabNum = val.ToLong();
 						}
 					}
@@ -3261,7 +3260,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		}
 	} while(P_CurRec && ok < 0);
 	//
-	// Строки чека, дисконтые карты
+	// РЎС‚СЂРѕРєРё С‡РµРєР°, РґРёСЃРєРѕРЅС‚С‹Рµ РєР°СЂС‚С‹
 	//
 	if(ok > 0) {
 		const char * p_items_attr = "order;goodsCode;barCode;cost;count;amount;nds;ndsSumm;discountValue;departNumber;costWithDiscount";
@@ -3269,11 +3268,11 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		xmlNode * p_items = 0;
 		xmlNode * p_fld_ = 0;
 		for(p_fld_ = P_CurRec->children; !p_root && p_fld_; p_fld_ = p_fld_->next)
-			if(sstreqi_ascii((const char *)p_fld_->name, "positions"))
+			if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "positions"))
 				p_root = p_fld_;
 		if(p_root) {
 			for(p_fld_ = p_root->children; !p_items && p_fld_; p_fld_ = p_fld_->next)
-				if(sstreqi_ascii((const char *)p_fld_->name, "position"))
+				if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "position"))
 					p_items = p_fld_;
 		}
 		if(p_items) {
@@ -3285,7 +3284,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						if(p_fld->children && p_fld->children->content) {
 							attr_name.Set(p_fld->name).ToLower();
 							val.Set(p_fld->children->content).ToLower();
-							if(attr_name == "order") { // Номер позиции в чеке
+							if(attr_name == "order") { // РќРѕРјРµСЂ РїРѕР·РёС†РёРё РІ С‡РµРєРµ
 								item.Pos = val.ToLong();
 							}
 							else if(attr_name == "goodscode") {
@@ -3321,7 +3320,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						}
 					}
 					//
-					// Извлекаем информацию о подарочной карте (продажа подарочной карты)
+					// РР·РІР»РµРєР°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕРґР°СЂРѕС‡РЅРѕР№ РєР°СЂС‚Рµ (РїСЂРѕРґР°Р¶Р° РїРѕРґР°СЂРѕС‡РЅРѕР№ РєР°СЂС‚С‹)
 					//
 					{
 						/*const char * p_gift_card = "gift.card.number";
@@ -3342,11 +3341,11 @@ int SLAPI XmlReader::Next(Packet * pPack)
 										val = (const char *)p_fld->children->content;
 										if(PPSearchSubStr(p_plug_card_attr, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 											switch(idx) {
-												case 0: // Серийный номер подарочной карты
+												case 0: // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РїРѕРґР°СЂРѕС‡РЅРѕР№ РєР°СЂС‚С‹
 													serial = val;
 													break;
 												case 1:
-													if(val.Cmp(p_gift_card, 1) == 0) // Подарочная карта
+													if(val.Cmp(p_gift_card, 1) == 0) // РџРѕРґР°СЂРѕС‡РЅР°СЏ РєР°СЂС‚Р°
 														is_gift_card = 1;
 													break;
 											}
@@ -3364,7 +3363,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			}
 		}
 		//
-		// Извлекаем тип оплаты
+		// РР·РІР»РµРєР°РµРј С‚РёРї РѕРїР»Р°С‚С‹
 		//
 		{
 			/*
@@ -3399,11 +3398,11 @@ int SLAPI XmlReader::Next(Packet * pPack)
 											amount_type = CCAMTTYP_BANK;
 										else if(val.IsEqiAscii("GiftCardPaymentEntity"))
 											amount_type = CCAMTTYP_CRDCARD;
-										else if(val.IsEqiAscii("CashChangePaymentEntity")) // сдача
+										else if(val.IsEqiAscii("CashChangePaymentEntity")) // СЃРґР°С‡Р°
 											amount_type = CCAMTTYP_DELIVERY;
-										else if(val.IsEqiAscii("CashPaymentEntity")) // Сумма, полученная наличными (без учета сдачи)
+										else if(val.IsEqiAscii("CashPaymentEntity")) // РЎСѓРјРјР°, РїРѕР»СѓС‡РµРЅРЅР°СЏ РЅР°Р»РёС‡РЅС‹РјРё (Р±РµР· СѓС‡РµС‚Р° СЃРґР°С‡Рё)
 											amount_type = CCAMTTYP_NOTE;
-										else if(val.IsEqiAscii("com_mobimoney_plugin")) // @v10.1.0 Специальная сумма - заносится как банковская оплата
+										else if(val.IsEqiAscii("com_mobimoney_plugin")) // @v10.1.0 РЎРїРµС†РёР°Р»СЊРЅР°СЏ СЃСѓРјРјР° - Р·Р°РЅРѕСЃРёС‚СЃСЏ РєР°Рє Р±Р°РЅРєРѕРІСЃРєР°СЏ РѕРїР»Р°С‚Р°
 											amount_type = CCAMTTYP_BANK;
 									}
 									if(amount_type == CCAMTTYP_CRDCARD)
@@ -3428,7 +3427,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			}
 		}
 		//
-		// Извлекаем скидки
+		// РР·РІР»РµРєР°РµРј СЃРєРёРґРєРё
 		//
 		{
 			xmlNode * p_fld = P_CurRec->children;
@@ -3458,7 +3457,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 								}
 							}
 						}
-						if(pos == 0) // Скидка с позицией 0 особенная, ее нет в строках чека
+						if(pos == 0) // РЎРєРёРґРєР° СЃ РїРѕР·РёС†РёРµР№ 0 РѕСЃРѕР±РµРЅРЅР°СЏ, РµРµ РЅРµС‚ РІ СЃС‚СЂРѕРєР°С… С‡РµРєР°
 							head.AddedDiscount += discount;
 					}
 					pack.PutHead(&head);
@@ -3466,7 +3465,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 				}
 			}
 			//
-			// извлекаем номер дисконтной карты
+			// РёР·РІР»РµРєР°РµРј РЅРѕРјРµСЂ РґРёСЃРєРѕРЅС‚РЅРѕР№ РєР°СЂС‚С‹
 			//
 			xmlNode * p_cards_fld = 0;
 			p_fld = P_CurRec->children;
@@ -3563,7 +3562,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 					fl |= CCHKF_TEMPSESS;
 				double chk_dis = hdr.Discount + hdr.AddedDiscount;
 				//
-				// Если подарочная карта не найдена, будем считать что оплата без нее
+				// Р•СЃР»Рё РїРѕРґР°СЂРѕС‡РЅР°СЏ РєР°СЂС‚Р° РЅРµ РЅР°Р№РґРµРЅР°, Р±СѓРґРµРј СЃС‡РёС‚Р°С‚СЊ С‡С‚Рѕ РѕРїР»Р°С‚Р° Р±РµР· РЅРµРµ
 				//
 				if(!gift_card_id)
 					hdr.GiftCardAmount = 0.0;
@@ -3614,9 +3613,9 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 				}
 				if(id) {
 					/*
-					double Amount;        // извлекается из заголовка чека, как показала практика эта сумма не всегда достоверна
-					double CheckAmount;   // Сумма оплат внесенных за чек
-					double AddedDiscount; // дополнительная скидка
+					double Amount;        // РёР·РІР»РµРєР°РµС‚СЃСЏ РёР· Р·Р°РіРѕР»РѕРІРєР° С‡РµРєР°, РєР°Рє РїРѕРєР°Р·Р°Р»Р° РїСЂР°РєС‚РёРєР° СЌС‚Р° СЃСѓРјРјР° РЅРµ РІСЃРµРіРґР° РґРѕСЃС‚РѕРІРµСЂРЅР°
+					double CheckAmount;   // РЎСѓРјРјР° РѕРїР»Р°С‚ РІРЅРµСЃРµРЅРЅС‹С… Р·Р° С‡РµРє
+					double AddedDiscount; // РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ СЃРєРёРґРєР°
 					double BankingAmount;
 					double GiftCardAmount;
 					*/
@@ -3626,7 +3625,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char
 					double cash_amount = (total_amount - bank_amount - ccard_amount);
 					assert(total_amount == (cash_amount + bank_amount + ccard_amount));
 					long   added_cc_flags = 0;
-					int    _list = 0; // Признак наличия списка оплат
+					int    _list = 0; // РџСЂРёР·РЅР°Рє РЅР°Р»РёС‡РёСЏ СЃРїРёСЃРєР° РѕРїР»Р°С‚
 					if(hdr.GiftCardAmount != 0.0) {
 						if(gift_card_id) {
 							THROW(AddTempCheckPaym(id, CCAMTTYP_CRDCARD, ccard_amount, gift_card_id));
@@ -3673,7 +3672,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	PPObjGoods goods_obj; // @average
 	IterCounter cntr;
 	//
-	// Коды полей входного файла чеков
+	// РљРѕРґС‹ РїРѕР»РµР№ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° С‡РµРєРѕРІ
 	//
 	int    fldn_h_op       = 0;
 	int    fldn_h_date     = 0;
@@ -3682,7 +3681,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	int    fldn_h_sess     = 0;
 	int    fldn_h_cashier  = 0;
 	//
-	// Коды полей входного файла чековых строк
+	// РљРѕРґС‹ РїРѕР»РµР№ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° С‡РµРєРѕРІС‹С… СЃС‚СЂРѕРє
 	//
 	int    fldn_l_chkln_id = 0;
 	int    fldn_l_check    = 0;
@@ -3695,7 +3694,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 	int    fldn_l_disc     = 0;
 	int    fldn_l_barcode  = 0; // @average
 	int    fldn_l_banking  = 0;
-	int    fldn_l_sum      = 0; // Сумма по строке.
+	int    fldn_l_sum      = 0; // РЎСѓРјРјР° РїРѕ СЃС‚СЂРѕРєРµ.
 
 	DbfTable * p_dbfth = 0;
 	DbfTable * p_dbftr = 0;
@@ -3797,9 +3796,9 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * 
 				dbfrr.get(fldn_l_sum,   sum);
 				// @average {
 				//
-				// Обработка аварийного случая, когда на кассовом модуле
-				// остались товары, с идентификаторами, отличными от тех, что
-				// в нашей базе данных. Для такого случая сверяемся по штрихкоду.
+				// РћР±СЂР°Р±РѕС‚РєР° Р°РІР°СЂРёР№РЅРѕРіРѕ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° РЅР° РєР°СЃСЃРѕРІРѕРј РјРѕРґСѓР»Рµ
+				// РѕСЃС‚Р°Р»РёСЃСЊ С‚РѕРІР°СЂС‹, СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё, РѕС‚Р»РёС‡РЅС‹РјРё РѕС‚ С‚РµС…, С‡С‚Рѕ
+				// РІ РЅР°С€РµР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…. Р”Р»СЏ С‚Р°РєРѕРіРѕ СЃР»СѓС‡Р°СЏ СЃРІРµСЂСЏРµРјСЃСЏ РїРѕ С€С‚СЂРёС…РєРѕРґСѓ.
 				//
 				barcode[0] = 0;                     // @average
 				dbfrr.get(fldn_l_barcode, barcode); // @average
@@ -4248,9 +4247,9 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 				val.Set(p_fld->children->content);
 				if(PPSearchSubStr(p_tag_names, &(idx = 0), (const char *)p_fld->name, 1) > 0) {
 					switch(idx) {
-						case 0: item.ZRepCode = val.ToLong(); break; // Номер смены
-						case 1: item.CashCode = val.ToLong(); break; // Номер кассы
-						case 2:  // Дата время чека
+						case 0: item.ZRepCode = val.ToLong(); break; // РќРѕРјРµСЂ СЃРјРµРЅС‹
+						case 1: item.CashCode = val.ToLong(); break; // РќРѕРјРµСЂ РєР°СЃСЃС‹
+						case 2:  // Р”Р°С‚Р° РІСЂРµРјСЏ С‡РµРєР°
 							strtodatetime(val, &item.Start, DATF_ISO8601, TIMF_HMS); // @v10.1.1
 							/* @v10.1.1 
 							{
@@ -4326,7 +4325,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 					{
 						XmlZRepReader _rdr(data_path);
 						while(_rdr.Next(&zrep) > 0) {
-							// if(zrep.Start >= ChkRepPeriod.low && zrep.Stop <= ChkRepPeriod.upp) // @todo забирать только за определенную дату
+							// if(zrep.Start >= ChkRepPeriod.low && zrep.Stop <= ChkRepPeriod.upp) // @todo Р·Р°Р±РёСЂР°С‚СЊ С‚РѕР»СЊРєРѕ Р·Р° РѕРїСЂРµРґРµР»РµРЅРЅСѓСЋ РґР°С‚Сѓ
 							THROW_SL(pZRepList->insert(&zrep));
 						}
 					}
@@ -4363,7 +4362,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 			}
 			else {
 				//
-				// Коды полей входного файла Z-отчетов
+				// РљРѕРґС‹ РїРѕР»РµР№ РІС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р° Z-РѕС‚С‡РµС‚РѕРІ
 				//
 				int    fldn_z_cash     = 0;
 				int    fldn_z_sess     = 0;
@@ -4459,9 +4458,9 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 	PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);
 	THROW(CreateTables());
 	//
-	// Все Z-отчеты мы должны получить до того, как начнем обрабатывать чеки,
-	// поскольку в противном случае может получиться так, что мы увидим чек,
-	// не увидев Z-отчет, и не сбросим чек в систему.
+	// Р’СЃРµ Z-РѕС‚С‡РµС‚С‹ РјС‹ РґРѕР»Р¶РЅС‹ РїРѕР»СѓС‡РёС‚СЊ РґРѕ С‚РѕРіРѕ, РєР°Рє РЅР°С‡РЅРµРј РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ С‡РµРєРё,
+	// РїРѕСЃРєРѕР»СЊРєСѓ РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ РјРѕР¶РµС‚ РїРѕР»СѓС‡РёС‚СЊСЃСЏ С‚Р°Рє, С‡С‚Рѕ РјС‹ СѓРІРёРґРёРј С‡РµРє,
+	// РЅРµ СѓРІРёРґРµРІ Z-РѕС‚С‡РµС‚, Рё РЅРµ СЃР±СЂРѕСЃРёРј С‡РµРє РІ СЃРёСЃС‚РµРјСѓ.
 	//
 	THROW(r = ImportZRepList(&zrep_list, files_local));
 	if(r > 0) {
@@ -4514,7 +4513,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				}
 				else {
 					if(!files_local) {
-						if(!(ModuleVer == 5 && ModuleSubVer >= 9)) { // @v9.2.7 В режиме 5.9 при посылке запроса на отчеты SetRetail возвращает все отчеты
+						if(!(ModuleVer == 5 && ModuleSubVer >= 9)) { // @v9.2.7 Р’ СЂРµР¶РёРјРµ 5.9 РїСЂРё РїРѕСЃС‹Р»РєРµ Р·Р°РїСЂРѕСЃР° РЅР° РѕС‚С‡РµС‚С‹ SetRetail РІРѕР·РІСЂР°С‰Р°РµС‚ РІСЃРµ РѕС‚С‡РµС‚С‹
 							SDelay(2000);
 							if(r > 0)
 								THROW(r = QueryFile(filTypChkHeads, query_buf, oper_date));
@@ -4539,7 +4538,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 		if(r > 0) {
 			if(ModuleVer == 10) {
 				//
-				// Сбрасываем признак Temporary с завершенных сессий
+				// РЎР±СЂР°СЃС‹РІР°РµРј РїСЂРёР·РЅР°Рє Temporary СЃ Р·Р°РІРµСЂС€РµРЅРЅС‹С… СЃРµСЃСЃРёР№
 				//
 				PPTransaction tra(1);
 				THROW(tra);

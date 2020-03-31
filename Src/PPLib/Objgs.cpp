@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -324,7 +324,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 	int    ok = -1;
 	double p = 0.0, t = 0.0;
 	ReceiptTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.7.5 @ctr MEMSZERO(rec);
 	if(itemIdx < Items.getCount()) {
 		const PPGoodsStrucItem & r_item = Items.at(itemIdx);
 		const PPID loc_id = LConfig.Location;
@@ -333,7 +333,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 			PPObjGoods goods_obj;
 			const PPGoodsConfig & r_cfg = goods_obj.GetConfig();
 			Goods2Tbl::Rec grec;
-			MEMSZERO(grec);
+			// @v10.7.5 @ctr MEMSZERO(grec);
 			goods_obj.Fetch(r_item.GoodsID, &grec);
 			if(grec.Flags & GF_UNLIM) {
 				QuotIdent q_i(loc_id, PPQUOTK_BASE);
@@ -676,6 +676,11 @@ int FASTCALL PPGoodsStruc::IsSimpleQttyString(const char * pStr)
 //
 //
 //
+SLAPI PPGoodsStrucHeader2::PPGoodsStrucHeader2()
+{
+	THISZERO();
+}
+
 SLAPI PPGoodsStrucItem::PPGoodsStrucItem()
 {
 	THISZERO();
@@ -1016,6 +1021,9 @@ int SLAPI PPObjGoodsStruc::SelectorDialog(PPID * pNamedGsID)
 // GSDialog
 //
 struct GoodsStrucCopyParam {
+	SLAPI  GoodsStrucCopyParam() : GoodsGrpID(0), GoodsID(0), GStrucID(0)
+	{
+	}
 	PPID   GoodsGrpID;
 	PPID   GoodsID;
 	PPID   GStrucID;
@@ -1025,7 +1033,7 @@ class GSDialog : public PPListDialog {
 public:
 	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0), Changed(0)
 	{
-		MEMSZERO(GscParam);
+		// @v10.7.5 @ctr MEMSZERO(GscParam);
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
 		if(P_Box)
 			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));

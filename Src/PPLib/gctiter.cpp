@@ -1,5 +1,5 @@
 // GCTITER.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020
 // @Kernel
 //
 // GCTIterator
@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-IMPLEMENT_PPFILT_FACTORY(GCT); SLAPI GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, 0)
+void SLAPI GCTFilt::Helper_Init()
 {
 	SetFlatChunk(offsetof(GCTFilt, ReserveStart), offsetof(GCTFilt, BillList) - offsetof(GCTFilt, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(GCTFilt, BillList));
@@ -16,6 +16,17 @@ IMPLEMENT_PPFILT_FACTORY(GCT); SLAPI GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT,
 	SetBranchObjIdListFilt(offsetof(GCTFilt, ArList));
 	SetBranchObjIdListFilt(offsetof(GCTFilt, AgentList));
 	Init(1, 0);
+}
+
+IMPLEMENT_PPFILT_FACTORY(GCT); SLAPI GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, 0)
+{
+	Helper_Init();
+}
+
+SLAPI GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, 0)
+{
+	Helper_Init();
+	Copy(&rS, 1);
 }
 
 /*SLAPI GCTFilt::GCTFilt()

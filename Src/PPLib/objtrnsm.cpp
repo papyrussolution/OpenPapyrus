@@ -264,9 +264,9 @@ int SLAPI PPObjectTransmit::IncrementCharryOutCounter()
 //
 //
 //
-SLAPI ObjTransmitParam::ObjTransmitParam()
+SLAPI ObjTransmitParam::ObjTransmitParam() : Since_(ZERODATETIME), UpdProtocol(0), Flags(0), TrnsmFlags(0)
 {
-	Init();
+	//Init();
 }
 
 void SLAPI ObjTransmitParam::Init()
@@ -276,9 +276,9 @@ void SLAPI ObjTransmitParam::Init()
 	ObjList.Z();
 	ObjList.InitEmpty();
 	Since_.Z();
-	UpdProtocol   = 0;
-	Flags         = 0;
-	TrnsmFlags    = 0;
+	UpdProtocol = 0;
+	Flags       = 0;
+	TrnsmFlags  = 0;
 }
 
 int SLAPI ObjTransmitParam::Read(SBuffer & rBuf, long)
@@ -2731,7 +2731,7 @@ int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - n
 				if(by_this_dbdiv == 0)
 					db_div_id = rary.at(i);
 				if(mode > 0) {
-					while(ok < 0 && p_sj->GetEvent(PPACN_TRANSMOD, 1, &min_since, 0, 0) > 0)
+					while(ok < 0 && p_sj->GetEvent(PPACN_TRANSMOD, 0/*extraVal*/, 1, &min_since, 0, 0) > 0)
 						if(!db_div_id || p_sj->data.ObjID == db_div_id)
 							ok = 1;
 				}
@@ -2739,7 +2739,7 @@ int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - n
 					if(!mode)
 						since = min_since;
 					LDATETIME prev = ZERODATETIME;
-					while(ok < 0 && p_sj->GetEvent(PPACN_TRANSMOD, 1, &since, 0, 0) > 0) {
+					while(ok < 0 && p_sj->GetEvent(PPACN_TRANSMOD, 0/*extraVal*/, 1, &since, 0, 0) > 0) {
 						if(!db_div_id || p_sj->data.ObjID == db_div_id) {
 							if(cmp(min_since, Since) > 0) {
 								if(prev.d)
@@ -3027,8 +3027,7 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 	return ok;
 }
 
-int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID,
-	PPID * pPrimID, LDATETIME * pModDtm, char * pObjName, size_t bufLen)
+int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, PPID * pPrimID, LDATETIME * pModDtm, char * pObjName, size_t bufLen)
 {
 	int    ok = -1;
 	PPID   primary_id = 0;
@@ -3065,7 +3064,9 @@ int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID com
 // static
 int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 {
-	int    ok = 1, next_pass = 0, r;
+	int    ok = 1;
+	int    next_pass = 0;
+	int    r;
 	int    is_locked = 0;
 	const  long db_path_id = DBS.GetDbPathID();
 	ObjReceiveParam param;
@@ -3163,8 +3164,10 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 			}
 		} while(next_pass);
 		if(param.Flags & ObjReceiveParam::fClearInpAfter) {
-			for(uint i = 0; flist.enumItems(&i, (void **)&p_fname);)
+			for(uint i = 0; flist.enumItems(&i, (void **)&p_fname);) {
+				PPBackupOperationFile(p_fname, "ppos-backup", 0); // @v10.7.5
 				SFile::Remove(p_fname);
+			}
 		}
 		if(param.Flags & ObjReceiveParam::fCommitQueue) {
 			//SString flagsval = "flags: ";
@@ -3373,6 +3376,8 @@ int SLAPI SynchronizeObjects(PPID dest)
 					PPOBJ_TAG,
 					PPOBJ_UNIT,
 					PPOBJ_ACCOUNT2,        // @v9.0.4
+					PPOBJ_FREIGHTPACKAGETYPE, // @v10.7.5
+					PPOBJ_TAXSYSTEMKIND,      // @v10.7.5
 					0);
 				// @v10.1.5 {
 				if(dbxcfg.Flags & DBDXF_SYNCUSRANDGRPS) {

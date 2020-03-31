@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -979,11 +979,22 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 			PPObjBill * p_bobj = BillObj;
 			ReceiptTbl::Rec rcpt_rec;
 			// @v10.6.4 MEMSZERO(rcpt_rec);
-			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, 0, MAXDATE, &rcpt_rec) > 0) {
+			// @v10.7.5 {
+			{
+				GoodsRestParam rp;
+				rp.GoodsID = pPack->Rec.ID;
+				if(Param.LocID) {
+					rp.LocList.add(Param.LocID);
+				}
+				p_bobj->trfr->GetCurRest(rp);
+				sdr_goods.Rest = rp.Total.Rest;
+			}
+			// } @v10.7.5 
+			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, Param.LocID, MAXDATE, &rcpt_rec) > 0) { // @v10.7.5 0-->Param.LocID
 				QualityCertTbl::Rec qcert_rec;
 				sdr_goods.Price = rcpt_rec.Price;
 				sdr_goods.Cost  = rcpt_rec.Cost;
-				sdr_goods.Rest  = rcpt_rec.Rest;
+				// @v10.7.5 sdr_goods.Rest  = rcpt_rec.Rest;
 				p_bobj->GetClbNumberByLot(rcpt_rec.ID, 0, temp_buf);
 				temp_buf.CopyTo(sdr_goods.Clb, sizeof(sdr_goods.Clb));
 				p_bobj->GetSerialNumberByLot(rcpt_rec.ID, temp_buf, 1);

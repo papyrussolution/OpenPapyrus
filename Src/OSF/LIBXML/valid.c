@@ -349,9 +349,7 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 {
 	if(ctxt->nodeMax <= 0) {
 		ctxt->nodeMax = 4;
-		ctxt->PP_NodeTab =
-		    (xmlNode **)SAlloc::M(ctxt->nodeMax *
-		    sizeof(ctxt->PP_NodeTab[0]));
+		ctxt->PP_NodeTab = static_cast<xmlNode **>(SAlloc::M(ctxt->nodeMax * sizeof(ctxt->PP_NodeTab[0])));
 		if(ctxt->PP_NodeTab == NULL) {
 			xmlVErrMemory_MallocFailed(ctxt);
 			ctxt->nodeMax = 0;
@@ -359,8 +357,7 @@ static int nodeVPush(xmlValidCtxtPtr ctxt, xmlNode * value)
 		}
 	}
 	if(ctxt->nodeNr >= ctxt->nodeMax) {
-		xmlNode ** tmp;
-		tmp = (xmlNode **)SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0]));
+		xmlNode ** tmp = static_cast<xmlNode **>(SAlloc::R(ctxt->PP_NodeTab, ctxt->nodeMax * 2 * sizeof(ctxt->PP_NodeTab[0])));
 		if(!tmp) {
 			xmlVErrMemory(ctxt, "realloc failed");
 			return 0;
@@ -2102,7 +2099,7 @@ xmlID * xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlA
 		/*
 		 * Create the ID table if needed.
 		 */
-		xmlIDTablePtr table = static_cast<xmlIDTable *>(doc->ids);
+		xmlIDTable * table = static_cast<xmlIDTable *>(doc->ids);
 		if(table == NULL) {
 			doc->ids = table = xmlHashCreateDict(0, doc->dict);
 		}
@@ -2147,18 +2144,16 @@ xmlID * xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlA
 	}
 	return ret;
 }
-
 /**
  * xmlFreeIDTable:
  * @table:  An id table
  *
  * Deallocate the memory used by an ID hash table.
  */
-void xmlFreeIDTable(xmlIDTablePtr table)
+void xmlFreeIDTable(xmlIDTable * table)
 {
 	xmlHashFree(table, (xmlHashDeallocator)xmlFreeID);
 }
-
 /**
  * xmlIsID:
  * @doc:  the document
@@ -2222,14 +2217,14 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
  */
 int xmlRemoveID(xmlDoc * doc, xmlAttr * attr)
 {
-	xmlIDTablePtr table;
+	xmlIDTable * table;
 	xmlID * id;
 	xmlChar * ID;
 	if(!doc)
 		return -1;
 	if(!attr)
 		return -1;
-	table = (xmlIDTable *)doc->ids;
+	table = static_cast<xmlIDTable *>(doc->ids);
 	if(table == NULL)
 		return -1;
 	ID = xmlNodeListGetString(doc, attr->children, 1);
@@ -2256,7 +2251,7 @@ int xmlRemoveID(xmlDoc * doc, xmlAttr * attr)
  */
 xmlAttr * xmlGetID(xmlDoc * doc, const xmlChar * ID)
 {
-	xmlIDTablePtr table;
+	xmlIDTable * table;
 	xmlID * id;
 	if(!doc) {
 		return 0;
@@ -2264,27 +2259,23 @@ xmlAttr * xmlGetID(xmlDoc * doc, const xmlChar * ID)
 	if(ID == NULL) {
 		return 0;
 	}
-	table = (xmlIDTable *)doc->ids;
+	table = static_cast<xmlIDTable *>(doc->ids);
 	if(table == NULL)
 		return 0;
-	id = (xmlID *)xmlHashLookup(table, ID);
+	id = static_cast<xmlID *>(xmlHashLookup(table, ID));
 	if(id == NULL)
 		return 0;
 	if(id->attr == NULL) {
 		/*
-		 * We are operating on a stream, return a well known reference
-		 * since the attribute node doesn't exist anymore
+		 * We are operating on a stream, return a well known reference since the attribute node doesn't exist anymore
 		 */
-		return ((xmlAttr *)doc);
+		return reinterpret_cast<xmlAttr *>(doc);
 	}
 	return id->attr;
 }
-
-/************************************************************************
-*									*
-*				Refs					*
-*									*
-************************************************************************/
+// 
+// Refs
+//
 typedef struct xmlRemoveMemo_t {
 	xmlList * l;
 	xmlAttr * ap;
@@ -2307,7 +2298,7 @@ typedef xmlValidateMemo * xmlValidateMemoPtr;
  */
 static void xmlFreeRef(xmlLink * lk)
 {
-	xmlRef * ref = (xmlRef *)xmlLinkGetData(lk);
+	xmlRef * ref = static_cast<xmlRef *>(xmlLinkGetData(lk));
 	if(ref) {
 		SAlloc::F((xmlChar *)ref->value);
 		SAlloc::F((xmlChar *)ref->name);
@@ -2324,7 +2315,6 @@ static void xmlFreeRefList(xmlList * list_ref)
 {
 	xmlListDelete(list_ref);
 }
-
 /**
  * xmlWalkRemoveRef:
  * @data:  Contents of current link
@@ -2334,16 +2324,15 @@ static void xmlFreeRefList(xmlList * list_ref)
  */
 static int xmlWalkRemoveRef(const void * data, const void * user)
 {
-	xmlAttr * attr0 = ((xmlRefPtr)data)->attr;
-	xmlAttr * attr1 = ((xmlRemoveMemoPtr)user)->ap;
-	xmlList * ref_list = ((xmlRemoveMemoPtr)user)->l;
-	if(attr0 == attr1) { /* Matched: remove and terminate walk */
+	const xmlAttr * attr0 = static_cast<const xmlRef *>(data)->attr;
+	const xmlAttr * attr1 = static_cast<const xmlRemoveMemo *>(user)->ap;
+	xmlList * ref_list = static_cast<const xmlRemoveMemo *>(user)->l;
+	if(attr0 == attr1) { // Matched: remove and terminate walk 
 		xmlListRemoveFirst(ref_list, (void *)data);
 		return 0;
 	}
 	return 1;
 }
-
 /**
  * xmlDummyCompare
  * @data0:  Value supplied by the user
@@ -2351,12 +2340,10 @@ static int xmlWalkRemoveRef(const void * data, const void * user)
  *
  * Do nothing, return 0. Used to create unordered lists.
  */
-static int xmlDummyCompare(const void * data0 ATTRIBUTE_UNUSED,
-    const void * data1 ATTRIBUTE_UNUSED)
+static int xmlDummyCompare(const void * data0 ATTRIBUTE_UNUSED, const void * data1 ATTRIBUTE_UNUSED)
 {
 	return 0;
 }
-
 /**
  * xmlAddRef:
  * @ctxt:  the validation context
@@ -2368,15 +2355,15 @@ static int xmlDummyCompare(const void * data0 ATTRIBUTE_UNUSED,
  *
  * Returns NULL if not, otherwise the new xmlRefPtr
  */
-xmlRefPtr xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr)
+xmlRef * xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr)
 {
-	xmlRefPtr ret = 0;
+	xmlRef * ret = 0;
 	xmlList * ref_list;
 	if(doc && value && attr) {
 		/*
 		 * Create the Ref table if needed.
 		 */
-		xmlRefTable * table = (xmlRefTable *)doc->refs;
+		xmlRefTable * table = static_cast<xmlRefTable *>(doc->refs);
 		if(table == NULL) {
 			doc->refs = table = xmlHashCreateDict(0, doc->dict);
 		}
@@ -2384,7 +2371,7 @@ xmlRefPtr xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, x
 			xmlVErrMemory(ctxt, "xmlAddRef: Table creation failed!\n");
 			return 0;
 		}
-		ret = (xmlRefPtr)SAlloc::M(sizeof(xmlRef));
+		ret = static_cast<xmlRef *>(SAlloc::M(sizeof(xmlRef)));
 		if(!ret) {
 			xmlVErrMemory_MallocFailed(ctxt);
 			return 0;
@@ -5506,7 +5493,6 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 	}
 	return ret;
 }
-
 /**
  * xmlValidateRef:
  * @ref:   A reference to be validated
@@ -5514,7 +5500,7 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
  * @name:  Name of ID we are searching for
  *
  */
-static void xmlValidateRef(xmlRefPtr ref, xmlValidCtxtPtr ctxt, const xmlChar * name) 
+static void xmlValidateRef(const xmlRef * ref, xmlValidCtxtPtr ctxt, const xmlChar * name) 
 {
 	xmlAttr * id;
 	xmlAttr * attr;
@@ -5593,7 +5579,7 @@ static void xmlValidateRef(xmlRefPtr ref, xmlValidCtxtPtr ctxt, const xmlChar * 
 static int xmlWalkValidateList(const void * data, const void * user)
 {
 	xmlValidateMemoPtr memo = (xmlValidateMemoPtr)user;
-	xmlValidateRef((xmlRefPtr)data, memo->ctxt, memo->name);
+	xmlValidateRef(static_cast<const xmlRef *>(data), memo->ctxt, memo->name);
 	return 1;
 }
 
@@ -5671,7 +5657,6 @@ int xmlValidateDocumentFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc)
  *
  * returns 1 if valid or 0 otherwise
  */
-
 int xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlDtd * dtd)
 {
 	int ret;
@@ -5755,7 +5740,7 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
 		}
 		if(cur->atype == XML_ATTRIBUTE_NOTATION) {
 			doc = cur->doc;
-			if(cur->elem == NULL) {
+			if(!cur->elem) {
 				xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlValidateAttributeCallback(%s): internal error\n", reinterpret_cast<const char *>(cur->name));
 			}
 			else {
@@ -5794,7 +5779,6 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
  *
  * returns 1 if valid or 0 if invalid and -1 if not well-formed
  */
-
 int xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc) 
 {
 	xmlDtd * dtd;
@@ -5826,7 +5810,6 @@ int xmlValidateDtdFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 	}
 	return ctxt->valid;
 }
-
 /**
  * xmlValidateDocument:
  * @ctxt:  the validation context
@@ -5846,11 +5829,11 @@ int xmlValidateDocument(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 	xmlNode * root;
 	if(!doc)
 		return 0;
-	if((doc->intSubset == NULL) && (doc->extSubset == NULL)) {
+	if(!doc->intSubset && !doc->extSubset) {
 		xmlErrValid(ctxt, XML_DTD_NO_DTD, "no DTD found!\n", 0);
 		return 0;
 	}
-	if(doc->intSubset && (doc->intSubset->SystemID || doc->intSubset->ExternalID) && (doc->extSubset == NULL)) {
+	if(doc->intSubset && (doc->intSubset->SystemID || doc->intSubset->ExternalID) && !doc->extSubset) {
 		xmlChar * sysID;
 		if(doc->intSubset->SystemID) {
 			sysID = xmlBuildURI(doc->intSubset->SystemID, doc->URL);

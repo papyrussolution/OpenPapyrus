@@ -87,6 +87,21 @@ public:
 		}
 		SetupCalendar();
 	}
+	int    setDTS(LDATE dt)
+	{
+		D = dt;
+		y_firstyear = D.year() - 2;
+		Validate();
+		SetupCalendar();
+		InvalidateRect(c_hWnd, 0, true);
+		SetFocus(c_hWnd);
+		return 1;
+	}
+	int    getDTS(LDATE * pDt)
+	{
+		ASSIGN_PTR(pDt, D);
+		return 1;
+	}
 	void   ShowCalendar(HWND hParent)
 	{
 		TView * p_ctl = P_Dlg ? P_Dlg->getCtrlView(DateCtlID) : 0;
@@ -107,8 +122,6 @@ public:
 	int    OnTodaySelection();
 	int    StepMonth(HWND hWnd, int forward);
 	int    IsDayBar(int x, int y) const;
-	int    setDTS(LDATE);
-	int    getDTS(LDATE * pDt);
 	int    GetRetCmd() const { return RetCmd; }
 private:
 	void   DrawBackground(HDC hdc);
@@ -270,23 +283,6 @@ void TCalendar::SetupCalendar()
 void TDateCalendar::CloseCalendar()
 {
 	CALLPTRMEMB(P_Dlg, setCtrlData(DateCtlID, &D));
-}
-
-int TDateCalendar::setDTS(LDATE dt)
-{
-	D = dt;
-	y_firstyear = D.year() - 2;
-	Validate();
-	SetupCalendar();
-	InvalidateRect(c_hWnd, 0, true);
-	SetFocus(c_hWnd);
-	return 1;
-}
-
-int TDateCalendar::getDTS(LDATE * pDt)
-{
-	ASSIGN_PTR(pDt, D);
-	return 1;
 }
 
 int TDateCalendar::OnTodaySelection()

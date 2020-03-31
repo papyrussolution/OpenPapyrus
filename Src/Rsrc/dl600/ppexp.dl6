@@ -269,7 +269,7 @@ data SysJournalEntry {
 	long   ActionID;
 	date   Dt;
 	time   Tm;
-	long   Extra;               // @v8.1.11
+	long   Extra;
 	string ActionName[48];
 
 	TmTxt       = (format(Tm, ~>&N));
@@ -336,7 +336,7 @@ data OprKind {
 	link   AccSheet AccSheet2ID;   // Дополнительная таблица статей
 	link   OprKind  LinkOpID;      // Связанная операция //
 	link   OpCounter OpCntrID;     // Счетчик нумерации документов
-	long   OpType;                 // @v8.7.7
+	long   OpType;                 // 
 	long   Flags;                  // Флаги
 	int16  fNeedPayment;           // Требует платежного документа //
 	int16  fProfitable;            // Доходная операция //
@@ -485,7 +485,7 @@ data PersonRegister {
 	key    ID;                     // @id
 	link   RegisterType RegTypeID; // Тип регистрационного документа
 	link   Person       PersonID;  // Персоналия, которой принадлежит этот регистр
-	link   Location     LocID;     // @v8.3.6 Локация, которой принадлежит регистр
+	link   Location     LocID;     // Локация, которой принадлежит регистр
 		// @#{PersonID^LocID}
 	link   Person       RegOrgID;  // Регистрирующая организация //
 	long   EventID;                // Персональная операция, к которой привязан регистр
@@ -540,15 +540,15 @@ data Location {
 	//   Если у локации нет такого регистра и параметр inherit != 0, то предпринимается попытка извлечь такой регистр
 	//   у персоналии-владельца данной локации.
 	//
-	link PersonRegister GetRegister(string regCode[20], int inherit); // @v8.3.7
+	link PersonRegister GetRegister(string regCode[20], int inherit);
 	//
 	// Descr: Извлекает регистр с символом regCode из данной локации. При этом учитывается актуальность
 	//   регистра на дату dt. Если dt == 0, то функция работает аналогично GetRegister(string).
 	//   Если у локации нет такого регистра и параметр inherit != 0, то предпринимается попытка извлеч такой регистр
 	//   у персоналии-владельца данной локации.
 	//
-	link PersonRegister GetRegisterD(string regCode[20], date dt, int inherit); // @v8.3.7
-	link ObjectTag GetTag(string tagSymb[20]);  // @v8.3.7
+	link PersonRegister GetRegisterD(string regCode[20], date dt, int inherit);
+	link ObjectTag GetTag(string tagSymb[20]);
 }
 //
 // Виды персоналий
@@ -679,7 +679,7 @@ data Person {
 	RAddr   = RLocID.Addr;         // Текст фактического адреса
 
 	link PersonRegister GetRegister(string regCode[20]);
-	link PersonRegister GetRegisterD(string regCode[20], date dt); // @v8.2.8
+	link PersonRegister GetRegisterD(string regCode[20], date dt);
 	//
 	// Descr: Возвращает ссылку на банковский счет персоналии. Если параметр
 	//   bankID не нулевой, то возвращается первый счет или предпочтительный счет,
@@ -826,10 +826,10 @@ data Employee {
 //
 data Warehouse {
 	key    ID;                     // Идентификатор склада
-	link   Warehouse ParentID;     // @v8.3.5 Родительская группа склада
+	link   Warehouse ParentID;     // Родительская группа склада
 	link   Person RspnsPersonID;   // Ответственное лицо
 	link   City CityID;            // Город адреса склада
-	link   Location LocID;         // @v8.3.7 Искусственная ссылка, позволяющая ссылаться на структуру локации,
+	link   Location LocID;         // Искусственная ссылка, позволяющая ссылаться на структуру локации,
 		// соответствующую данной структуре. Фактически, LocID == ID
 	long   Flags;                  // @flags
 	int16  fVatFree;               // Освобожден от НДС
@@ -887,7 +887,7 @@ data Agreement {
 	int16  DefDlvrTerm;            // Срок доставки товара в днях, начиная с даты документа закупки
 	int16  PctRet;                 // Максимальный объем возврата товара по накладной в процентах от суммы накладной
 	int16  Reserve;                // @alignment
-	string EDIPrvdrSymb[20];       // @v8.0.6
+	string EDIPrvdrSymb[20];       // 
 }
 //
 // Статья аналитического учета
@@ -1126,7 +1126,7 @@ data Bill {
 	double RcPercent;              // Процент (годовой)
 	double RcPartAmount;           // Частичная сумма начисления (на каждый период) //
 	string RcCycleText[16];        // Текст наименования цикла (RcCycle)
-	string GetMemo[512]();         // @v8.0.2 Возвращает примечание к документу полной длины
+	string GetMemo[512]();         // Возвращает примечание к документу полной длины
 	double GetAmount(string amountTypeSymb[20]); // Возвращает сумму документа, принадлежащую типу
 		// с символом amountTypeSymb.
 	//
@@ -1419,7 +1419,7 @@ data Goods {
 	link   Brand         BrandID;      // Торговая марка
 	link   SupplNameList Snl;          // Поставщики данного товара за x последних месяцев
 	long   Flags;                      //
-	int    Kind;                       // @v8.6.6 Вид записи.
+	int    Kind;                       // Вид записи.
 		// Не смотря на то, что для большинства из видов записей есть специальные структуры,
 		// иногда ссылка, указывая якобы на товар (Kind=2), в действительно ссылается на запись
 		// иного вида:
@@ -1441,10 +1441,9 @@ data Goods {
 	double MinStock;                   // Минимальный запас товара
 	double Package;                    // Емкость упаковки поставки (торговых единиц)
 	int16  ExpiryPeriod;               // Срок годности товара (дней).
-	int16  GseFlags;                   // @v8.7.8 Флаги параметров хранения и отгрузки товара.
+	int16  GseFlags;                   // Флаги параметров хранения и отгрузки товара.
 		// 0x0001 - MinShippmQtty одновременно определяет кратность отгужаемого количества
-	double MinShippmQtty;              // @v8.7.8 Минимальное допустимое количество для отгрузки
-
+	double MinShippmQtty;              // Минимальное допустимое количество для отгрузки
 	string Name[128];                  //
 	string SingleBarCode[16];          //
 	string Storage[128];               // Условия хранения товара
@@ -1639,7 +1638,7 @@ data Lot {
 	link   Lot GetOrgLotID(); // Возвращает оригинальный лот. Если данный лот не имеет предков, то
 		// возвращается ID.
 	link   ObjectTag GetTag(string tagSymb[20]);
-	link   ObjectTag GetTagByID(long tagID); // @v8.8.11
+	link   ObjectTag GetTagByID(long tagID);
 }
 //
 // Список товаров (PPViewGoods)
@@ -1752,8 +1751,8 @@ data GoodsRest {
 		Barcode   = GoodsID.SingleBarCode;
 		LocName   = fEachLocation ? LocID.Name : "";
 
-		date   LastSellDate; // @v8.7.5 Дата последней продажи (если в фильтре не выбрана соответствующая опция, то 0)
-		int    MatrixStatus; // @v8.7.5 Статус принадлежности матрице (инициализируется только если в фильтре выбрана опция отображения принадлежности матрице)
+		date   LastSellDate; // Дата последней продажи (если в фильтре не выбрана соответствующая опция, то 0)
+		int    MatrixStatus; // Статус принадлежности матрице (инициализируется только если в фильтре выбрана опция отображения принадлежности матрице)
 	}
 }
 
@@ -2603,7 +2602,7 @@ data GoodsBillModif {
 	date   Dt;
 	long   Flags;
 	int16  fShortMainOrg;    // Печатать сокращенное название
-	int16  Reserve;          // @v8.9.11 @alignment
+	int16  Reserve;          // @alignment
 	string Code[24];         //
 	string Memo[128];
 
@@ -2633,9 +2632,9 @@ data GoodsBillModif {
 		long   Iter_NN;       // @internal
 		long   Sign_NN;
 		link   Goods GoodsID;
-		link   Lot   LotID;   // @v8.9.11 Идентификатор лота
+		link   Lot   LotID;   // Идентификатор лота
 		short  Sign;          // Знак операции (-1 - расход, 1 - выход)
-		int16  Reserve;       // @v8.9.11 @alignment
+		int16  Reserve;       // @alignment
 		double Cost;
 		double Price;
 		double MainPrice;
@@ -2896,7 +2895,7 @@ data BnkPaymOrder {
 	string TxmDocNumber[12];   // Номер документа, согласно которому осуществляется платеж
 	date   TxmDocDate;         // Дата документа, согласно которому осуществляется платеж
 	string TxmPaymType[8];     // Показатель типа платежа
-	string UIN[24];            // @v8.1.9 Код УИН
+	string UIN[24];            // Код УИН
 
 	PayerName = PayerID.ExtName;
 	PayerINN  = PayerID.INN;
@@ -3190,9 +3189,9 @@ data ContentBList {
 		double VatSum;
 		double ExtSum;
 		double StSum;
-		double OldCost;   // @v8.4.9 Для переоценки и корректирующих документов: старая цена поступления
-		double OldPrice;  // @v8.4.9 Для переоценки и корректирующих документов: старая цена реализации
-		double OldQtty;   // @v8.4.9 Для переоценки и корректирующих документов: старое значение количества
+		double OldCost;   // Для переоценки и корректирующих документов: старая цена поступления
+		double OldPrice;  // Для переоценки и корректирующих документов: старая цена реализации
+		double OldQtty;   // Для переоценки и корректирующих документов: старое значение количества
 
 		Dt        = BillID.Dt;
 		Code      = BillID.Code;
@@ -3203,9 +3202,8 @@ data ContentBList {
 		SCost     = Quantity*Cost;
 		Summa     = Quantity*Price;
 		OpName    = BillID.OprKindID.Name;
-
-		CostRevalSum  = (Cost  - OldCost)  * Quantity;  // @v8.4.9
-		PriceRevalSum = (Price - OldPrice) * Quantity;  // @v8.4.9
+		CostRevalSum  = (Cost  - OldCost)  * Quantity;
+		PriceRevalSum = (Price - OldPrice) * Quantity;
 	}
 }
 //
@@ -4665,7 +4663,7 @@ data CSession {
 	double AggrRest;
 	double WrOffAmount;
 	double Banking;      // Сумма, оплаченая по банковским картам
-	double CSCardAmount; // @v8.8.5 Сумма, оплаченная корпоративными картами
+	double CSCardAmount; // Сумма, оплаченная корпоративными картами
 }
 //
 // Структура для печати кассовых отчетов по кассовой сессии
@@ -4711,13 +4709,13 @@ data CCheck {
 	double Amount;                // Общая сумма чека (сумма к оплате).
 	double Discount;              // Сумма скидки (включена в общую сумму чека).
 
-	double CashAmount;            // @v8.2.9 Сумма оплаты наличными
-	double BnkAmount;             // @v8.2.9 Сумма оплаты через банк
-	double CCrdAmount;            // @v8.2.9 Сумма оплаты корпоративной кредитной картой
+	double CashAmount;            // Сумма оплаты наличными
+	double BnkAmount;             // Сумма оплаты через банк
+	double CCrdAmount;            // Сумма оплаты корпоративной кредитной картой
 
 	double AddCrdCardPaym;        // Сумма, оплаченная по дополнительной кредитной карте (AddCrdCardID)
-	date   CreationDt;            // @v8.0.11 Дата создания чека
-	time   CreationTm;            // @v8.0.11 Время создания чека
+	date   CreationDt;            // Дата создания чека
+	time   CreationTm;            // Время создания чека
 	date   OrderStartDt;          // (Для чеков заказа стола) дата начала обслуживания //
 		// Для чеков с доставкой - планируемая дата доставки
 	time   OrderStartTm;          // (Для чеков заказа стола) время начала обслуживания //
@@ -4726,7 +4724,7 @@ data CCheck {
 	time   OrderEndTm;            // (Для чеков заказа стола) время завершения обслуживания //
 	string OrderStartTxt[32];     // Текстовое представление даты/времени начала обслуживания (исполнения доставки)
 	string OrderEndTxt[32];       // Текстовое представление даты/времени завершения обслуживания //
-	string CreationTxt[32];       // @v8.0.11 Текстовое представление даты/времени создания чека //
+	string CreationTxt[32];       // Текстовое представление даты/времени создания чека //
 	string SCardCode[24];         // Номер карты (SCardID)
 }
 //
@@ -4742,10 +4740,10 @@ data CCheckView {
 	link   CashNode   FltCashNodeID;
 	long   FltCashNumber;
 	link   Goods      FltGoodsID;
-	link   GoodsGroup FltGoodsGrpID; // @v8.2.10
+	link   GoodsGroup FltGoodsGrpID; // 
 	link   SCard      FltSCardID;
-	link   Article    FltAgentID; // Агент, по которому фильтруется отчет
-	double AmountQuant; // Квант группировки чеков по сумме или кол-ву
+	link   Article    FltAgentID;    // Агент, по которому фильтруется отчет
+	double AmountQuant;              // Квант группировки чеков по сумме или кол-ву
 	date   FltBeg;
 	date   FltEnd;
 	long   FltFlags;    // Флаги фильтрации
@@ -4967,8 +4965,8 @@ data CCheckDetail {
 	double CrdAmt;             // @unused @todo @v6.8.0 Сумма чека, оплаченная по корпоративной кредитной карте
 	double OrderPrepay;        // Предоплата по заказу. Это значение заполняется и для чека заказа
 		// (в этом случае OrderPrepay == CheckAmount) и для чека обслуживания по заказу.
-	double UsableBonus;        // @v8.2.2 Сумма бонуса, которая может быть использована для оплаты чека
-	double UsableCredit;       // @v8.2.2 Сумма с кредитной карты, которая может быть использована для оплаты чека
+	double UsableBonus;        // Сумма бонуса, которая может быть использована для оплаты чека
+	double UsableCredit;       // Сумма с кредитной карты, которая может быть использована для оплаты чека
 	string CheckSCardCode[24]; // Номер карты, с которой связан чек
 	int32  TableNo;            // Номер столика
 	int16  GuestCount;         // Количество гостей за столом
@@ -4985,29 +4983,29 @@ data CCheckDetail {
 	time   OrderStartTm;       //
 	date   OrderEndDt;         //
 	time   OrderEndTm;         //
-	date   CreationDt;         // @v8.1.10 Дата создания чека
-	time   CreationTm;         // @v8.1.10 Время создания чека
+	date   CreationDt;         // Дата создания чека
+	time   CreationTm;         // Время создания чека
 	string OrderStartTxt[32];  // Текстовое представление даты/времени начала обслуживания (исполнения доставки)
 	string OrderEndTxt[32];    // Текстовое представление даты/времени завершения обслуживания //
 	string OrderCode[16];      // Специальный штрихкод, позволяющий идентифицировать заказ.
-	string CreationTxt[32];    // @v8.1.10 Текстовое представление даты/времени создания чека //
+	string CreationTxt[32];    // Текстовое представление даты/времени создания чека //
 	string Memo[256];          // Примечание к чеку
 	string DlvrAddr[128];      // Адрес доставки (fDelivery != 0)
 	string DlvrPhone[48];      // Контактный телефон доставки (fDelivery != 0)
-	string DlvrContact[64];    // @v8.1.9  Текст контактной информации (fDelivery != 0)
+	string DlvrContact[64];    // Текст контактной информации (fDelivery != 0)
 	//
 	// Возвращает строку коду чека с префексом отложенного чека, заданным в конфигурации оборудования //
 	//
-	string GetPrefixedCode[32]();         // @v8.1.9
+	string GetPrefixedCode[32]();
 	//
 	// Возвращает печатную версию строки коду чека с префексом отложенного чека, заданным в конфигурации оборудования //
 	//
-	string GetPrintablePrefixedCode[32](); // @v8.1.9
+	string GetPrintablePrefixedCode[32]();
 	//
 	// Возвращает наименование стола, если значение TableNo является символом записи
 	//   в справочнике столов ресторанного зала. В противном случае возвращает строковое представление TableNo.
 	//
-	string CTableName[48](); // @v8.4.1
+	string CTableName[48]();
 
 	CurDt      = Glb.CurDate;
 	OrgName    = Glb.MainOrgName;
@@ -6418,7 +6416,7 @@ data Warrant {
 	link   Global    Glb;
 	link   PersonReq PersonReqID;
 	link   Article   SupplID;
-	link   Bill      BillID; // @v8.7.2
+	link   Bill      BillID;
 
 	OrgName    = Glb.MainOrgName;
 	Account    = Glb.MainOrgBankAcc;
@@ -6800,9 +6798,9 @@ data TSession {
 	long   Number;                 // Номер сессии (уникальный по процессору)
 	link   Tech      TechID;       //
 	link   Processor PrcID;        //
-	link   CCheck    CCheckID;     // @v8.3.0 Кассовый чек, привязанный непосредственно к сессии (не путать с чеками, ассоциированными с персональной регистрацией)
-	link   SCard     SCardID;      // @v8.3.0 Персональная карта, привязанная к сессии
-	link   Bill      LinkBillID;   // @v8.3.0 Документ, ассоциированный с сессией
+	link   CCheck    CCheckID;     // Кассовый чек, привязанный непосредственно к сессии (не путать с чеками, ассоциированными с персональной регистрацией)
+	link   SCard     SCardID;      // Персональная карта, привязанная к сессии
+	link   Bill      LinkBillID;   // Документ, ассоциированный с сессией
 	string Name[48];               // Составное наименование сессии
 	string SuperName[48];          // Составное наименование родительской сессии
 	date   StDt;                   // Дата начала сессии
@@ -7301,7 +7299,7 @@ data PrjTask {
 	long   Flags;                  // @flags
 	string PriorText[16];          // Наименование приоритета задачи
 	string StatusText[16];         // Наименование статуса задачи
-	string Descr[256];             // Описание задания // @v8.8.0 @fix [224]-->[256]
+	string Descr[256];             // Описание задания
 	string Memo[1024];             //
 }
 //
@@ -8650,7 +8648,7 @@ data UhttLocation {
 	double Longitude;              // Географическая долгота
 	string Address[256];           // Строка адреса
 	string Phone[48];              // Телефон (специализированное поле)
-	string EMail[128];             // @v8.2.3 Электронная почта, ассоциированная с (автономным) адресом
+	string EMail[128];             // Электронная почта, ассоциированная с (автономным) адресом
 	string Contact[128];           // Наименование контакта, ассоциированное с адресом
 }
 //
@@ -8668,9 +8666,9 @@ data UhttBill {
 	link      Currency      CurID;
 	link      Article       AgentID;
 	link      BillStatus    StatusID;
-	double    Amount;    // @v8.2.10
-	double    Discount;  // @v8.2.10
-	string    GUID[40];  // @v8.7.8 [64]-->[40]
+	double    Amount;    
+	double    Discount;  
+	string    GUID[40];
 	long      Flags;
 	string    Memo[256];
 	iteration Items {
@@ -8682,9 +8680,8 @@ data UhttBill {
 		double Discount;
 		double Amount;
 		long   Flags;
-		//
-		long   TSessID;        // @v8.7.8 Идентификатор сессии, для которой необходимо зафиксировать регистрацию
-		string PlaceCode[16];  // @v8.7.8 Код посадочного места, для которого фиксируется регистрация по техсессии (TSessID)
+		long   TSessID;        // Идентификатор сессии, для которой необходимо зафиксировать регистрацию
+		string PlaceCode[16];  // Код посадочного места, для которого фиксируется регистрация по техсессии (TSessID)
 	}
 }
 //
@@ -8749,7 +8746,7 @@ data UhttStore {
 	link   UhttLocation LocID;
 	string Name[48];              // @name
 	string Symb[20];              //
-	int    Kind;                  // @v8.7.5 Вид магазина: 0 - generic store, 1 - tsessio cip
+	int    Kind;                  // Вид магазина: 0 - generic store, 1 - tsessio cip
 	int    Flags;                 // @flags
 	double UpRestShowThreshold;   // Порог остатка, после которого следует отображать значение в виде "более 8"
 	iteration TagList {
@@ -8830,7 +8827,7 @@ data UhttWorkbook {
 	time   ModifTm;               // @v9.3.8 Время последней модификации записи //
 	date   ContentModifDt;        // @v9.3.7 Дата последней модификации файла содержания //
 	time   ContentModifTm;        // @v9.3.7 Время последней модификации файла содержания //
-	string Version[8];            // @v8.2.0 Символ версии записи
+	string Version[8];            // Символ версии записи
 	string Descr[512];            // Описание
 	iteration TagList {
 		link   TagType  TagTypeID;
@@ -8838,7 +8835,7 @@ data UhttWorkbook {
 		long   IntVal;
 		double RealVal;
 		date   DateVal;
-		string StrVal[1024]; // @v8.2.1 [128]-->[1024]
+		string StrVal[1024];
 	}
 }
 //
@@ -8891,7 +8888,7 @@ data UhttTSession {
 	string StTime[24];      // Время начала сессии (дата/время в формате ISO8601)
 	string FinTime[24];     // Время окончания сессии (дата/время в формате ISO8601)
 	string Memo[256];       // Примечание
-	string Detail[4000];    // @v8.8.0 Длинное описание сессии
+	string Detail[4000];    // Длинное описание сессии
 	iteration Lines {
 		link   TSession TSessID;
 		long   OprNo;
@@ -8948,11 +8945,11 @@ data UhttTSession {
 data UhttTSessPlaceStatusList {
 	iteration {
 		link   TSession TSessID; // ИД технологической сессии
-		string Code[8];       // Код места
-		string PinCode[8];    // @v8.8.0 PIN-код, подтверждающий аутентичность заказа
-		link   Goods GoodsID; // Товар, ассоциированный с местом
-		link   Person PersonID; // @v8.8.2 Персоналия, ассоциированная с местом (заказчик). Если Status >= 0, то 0
-		long   CipID;      // @v8.8.2 Идентификатор в таблице персональных регистраций сессии. Если Status >= 0, то 0
+		string Code[8];          // Код места
+		string PinCode[8];       // PIN-код, подтверждающий аутентичность заказа
+		link   Goods GoodsID;    // Товар, ассоциированный с местом
+		link   Person PersonID;  // Персоналия, ассоциированная с местом (заказчик). Если Status >= 0, то 0
+		long   CipID;      // Идентификатор в таблице персональных регистраций сессии. Если Status >= 0, то 0
 		double Price;      // Цена, полученная по котировке товара GoodsID
 		int    Status;     // Статус места 0 - не идентифицировано, 1 - свободно, -1 - занято
 		string Descr[128]; // Описание места

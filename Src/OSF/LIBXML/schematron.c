@@ -472,7 +472,7 @@ xmlSchematronParserCtxt * xmlSchematronNewParserCtxt(const char * URL)
 	xmlSchematronParserCtxt * ret;
 	if(URL == NULL)
 		return 0;
-	ret = (xmlSchematronParserCtxt *)SAlloc::M(sizeof(xmlSchematronParserCtxt));
+	ret = static_cast<xmlSchematronParserCtxt *>(SAlloc::M(sizeof(xmlSchematronParserCtxt)));
 	if(!ret) {
 		xmlSchematronPErrMemory(NULL, "allocating schema parser context", 0);
 		return 0;
@@ -505,7 +505,7 @@ xmlSchematronParserCtxt * xmlSchematronNewMemParserCtxt(const char * buffer, int
 {
 	xmlSchematronParserCtxt * ret = 0;
 	if(buffer && size > 0) {
-		ret = (xmlSchematronParserCtxt *)SAlloc::M(sizeof(xmlSchematronParserCtxt));
+		ret = static_cast<xmlSchematronParserCtxt *>(SAlloc::M(sizeof(xmlSchematronParserCtxt)));
 		if(!ret) {
 			xmlSchematronPErrMemory(NULL, "allocating schema parser context", 0);
 		}
@@ -537,7 +537,7 @@ xmlSchematronParserCtxt * xmlSchematronNewDocParserCtxt(xmlDoc * doc)
 {
 	xmlSchematronParserCtxt * ret = 0;
 	if(doc) {
-		ret = (xmlSchematronParserCtxt *)SAlloc::M(sizeof(xmlSchematronParserCtxt));
+		ret = static_cast<xmlSchematronParserCtxt *>(SAlloc::M(sizeof(xmlSchematronParserCtxt)));
 		if(!ret) {
 			xmlSchematronPErrMemory(NULL, "allocating schema parser context", 0);
 		}
@@ -588,7 +588,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxt * ctxt, xmlDoc * do
 {
 	if(ctxt->includes == NULL) {
 		ctxt->maxIncludes = 10;
-		ctxt->includes = (xmlNode **)SAlloc::M(ctxt->maxIncludes * 2 * sizeof(xmlNode *));
+		ctxt->includes = static_cast<xmlNode **>(SAlloc::M(ctxt->maxIncludes * 2 * sizeof(xmlNode *)));
 		if(ctxt->includes == NULL) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", 0);
 			return;
@@ -596,7 +596,7 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxt * ctxt, xmlDoc * do
 		ctxt->nbIncludes = 0;
 	}
 	else if(ctxt->nbIncludes + 2 >= ctxt->maxIncludes) {
-		xmlNode ** tmp = (xmlNode **)SAlloc::R(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *));
+		xmlNode ** tmp = static_cast<xmlNode **>(SAlloc::R(ctxt->includes, ctxt->maxIncludes * 4 * sizeof(xmlNode *)));
 		if(!tmp) {
 			xmlSchematronPErrMemory(NULL, "allocating parser includes", 0);
 			return;
@@ -1292,7 +1292,7 @@ static xmlNode * xmlSchematronNextNode(xmlNode * cur)
 static int xmlSchematronRunTest(xmlSchematronValidCtxt * ctxt,
     xmlSchematronTestPtr test, xmlDoc * instance, xmlNode * cur, xmlSchematronPatternPtr pattern)
 {
-	xmlXPathObjectPtr ret;
+	xmlXPathObject * ret;
 	int failed = 0;
 	ctxt->xctxt->doc = instance;
 	ctxt->xctxt->P_Node = cur;

@@ -62,7 +62,7 @@
     <ProjectGuid>{45586DBF-6009-49EA-8FFA-B9330F6A9488}</ProjectGuid>
     <RootNamespace>papyrus</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>5.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
@@ -1196,7 +1196,6 @@
     <ClCompile Include="..\PPLib\Amtdlg.cpp" />
     <ClCompile Include="..\PPLib\AMTLIST.CPP" />
     <ClCompile Include="..\PPLib\Asstwrof.cpp" />
-    <ClCompile Include="..\PPLib\At2eat.cpp" />
     <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
     <ClCompile Include="..\PPLib\Autocmpl.cpp" />
     <ClCompile Include="..\PPLib\Balance.cpp" />

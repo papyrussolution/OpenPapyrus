@@ -1731,9 +1731,13 @@ struct SelTagDialogData {
 	SString Txt;
 };
 
-#define GRP_COLOR 1
+//#define GRP_COLOR 1
 
 class SelTagDialog : public TDialog {
+	DECL_DIALOG_DATA(SelTagDialogData);
+	enum {
+		ctlgroupColor = 1
+	};
 public:
 	SelTagDialog(int checkRestrict, PPID objType) : TDialog(DLG_SELTAG), EnumID(0), CheckRestrict(checkRestrict), ObjType(objType)
 	{
@@ -1742,9 +1746,9 @@ public:
 			GetObjectTitle(ObjType, temp_buf);
 			setCtrlString(CTL_SELTAG_INFO, temp_buf);
 		}
-		addGroup(GRP_COLOR, new ColorCtrlGroup(CTL_SELTAG_COLOR, CTLSEL_SELTAG_COLOR, cmSelColor, CTL_SELTAG_SELCOLOR));
+		addGroup(ctlgroupColor, new ColorCtrlGroup(CTL_SELTAG_COLOR, CTLSEL_SELTAG_COLOR, cmSelColor, CTL_SELTAG_SELCOLOR));
 	}
-	int    setDTS(const SelTagDialogData * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		SString restrict_buf;
 		SColor color;
@@ -1773,11 +1777,11 @@ public:
 			ColorCtrlGroup::Rec color_rec;
 			color_rec.SetupStdColorList();
 			color_rec.C = NZOR((COLORREF)color, GetColorRef(SClrCoral));
-			setGroupData(GRP_COLOR, &color_rec);
+			setGroupData(ctlgroupColor, &color_rec);
 		}
 		return 1;
 	}
-	int    getDTS(SelTagDialogData * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -1823,7 +1827,7 @@ public:
 		}
 		{
 			ColorCtrlGroup::Rec color_rec;
-			getGroupData(GRP_COLOR, &color_rec);
+			getGroupData(ctlgroupColor, &color_rec);
 			color = SColor((COLORREF)color_rec.C);
 		}
 		TagFilt::SetRestriction(restrict_buf, Data.Txt);
@@ -1953,7 +1957,6 @@ private:
 	const  int  CheckRestrict;
 	const  PPID ObjType;
 	PPID   EnumID;
-	SelTagDialogData Data;
 	PPObjTag ObjTag;
 };
 

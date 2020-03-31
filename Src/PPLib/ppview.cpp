@@ -1332,7 +1332,8 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 	{
 		PPNamedFiltMngr mgr;
 		PPNamedFiltPool pool(0, 1);
-		THROW(mgr.LoadPool(db_symb, &pool, 1));
+		//THROW(mgr.LoadPool(db_symb, &pool, 1)); //@erik v10.7.5
+		THROW(mgr.LoadPool2(db_symb, &pool, 1)); //@erik v10.7.5
 		const PPNamedFilt * p_nf = pool.GetBySymb(filt_symb, 0);
 		THROW(p_nf);
 		THROW_PP_S(p_nf->ViewID, PPERR_NAMEDFILTUNDEFVIEWID, filt_symb);
@@ -1431,7 +1432,8 @@ int SLAPI PPView::EditExecNfViewParam(ExecNfViewParam & rData)
 		PPNamedFilt nf;
 		PPID   nf_id = 0, sel_nf_id = 0;
 		StrAssocArray nf_list;
-		THROW(nf_mngr.LoadPool(db_symb, &nf_pool, 0));
+		/*THROW(nf_mngr.LoadPool(db_symb, &nf_pool, 0));*/ //@erik v10.7.5
+		THROW(nf_mngr.LoadPool2(db_symb, &nf_pool, 0)); //@erik v10.7.5
 		for(nf_id = 0; nf_pool.Enum(&nf_id, &nf) > 0;) {
 			if(rData.NfSymb.NotEmpty() && rData.NfSymb.CmpNC(nf.Symb) == 0)
 				sel_nf_id = nf.ID;

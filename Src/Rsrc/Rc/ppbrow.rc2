@@ -1374,6 +1374,7 @@ browser GOODSWITHSTRUC north(100), 3, 1, "Товары {%s} со структурами", OWNER|GRI
 browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 {
 	"@id",                 0, long, 0,             10, BCO_USERPROC
+	"@appellation",        8, zstring(48), 0,      20, BCO_USERPROC // @v10.7.5
 	"N",                   7, long, 0,              4, BCO_USERPROC
 	"@ware",               1, zstring(128), 0,     60, BCO_USERPROC // @v10.2.5 eliminated BCO_DONTSHOWDUPL
 	"Компонент структуры", 2, zstring(128), 0,     60, BCO_USERPROC

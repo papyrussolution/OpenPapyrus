@@ -1,6 +1,6 @@
 // OBJREG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -127,9 +127,9 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 		DECL_DIALOG_DATA(RegisterTbl::Rec);
 	public:
 		//
-		// ARG(rezID IN): Èä äèàëîãà
-		// ARG(pRegAry INOUT): @#{vptr0} Ñïèñîê ðåãèñòðîâ, êîòîðîìó ïðèíàäëåæèò ðåäàêòèðóåìûé
-		//   (ñîçäàâàåìûé) ðåãèñòð
+		// ARG(rezID IN): Ð˜Ð´ Ð´Ð¸Ð°Ð»Ð¾Ð³Ð°
+		// ARG(pRegAry INOUT): @#{vptr0} Ð¡Ð¿Ð¸ÑÐ¾Ðº Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¾Ð², ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¼Ñƒ Ð¿Ñ€Ð¸Ð½Ð°Ð´Ð»ÐµÐ¶Ð¸Ñ‚ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€ÑƒÐµÐ¼Ñ‹Ð¹
+		//   (ÑÐ¾Ð·Ð´Ð°Ð²Ð°ÐµÐ¼Ñ‹Ð¹) Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€
 		//
 		RegisterDialog(uint rezID, const RegisterArray * pRegAry) : TDialog(rezID), P_RegAry(pRegAry), P_PsnPack(0), P_LocPack(0)
 		{
@@ -672,11 +672,11 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 				if(p_dc && ValidAcc >= 0 && getCtrlHandle(CTL_BACCT_ACCT) == p_dc->H_Ctl) {
 					if(ValidAcc > 0) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidNumber);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidNumber));
 					}
 					else {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidNumber);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidNumber));
 					}
 				}
 				else
@@ -733,7 +733,6 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 	delete dlg;
 	return ok;
 }
-
 //
 // BankAccountListDialog
 //
@@ -798,7 +797,7 @@ private:
 	virtual int  editItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)P_Data->getCount()) {
+		if(id > 0 && id <= P_Data->getCountI()) {
 			RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
 			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 				PPBankAccount ba_rec(r_reg_rec);
@@ -837,8 +836,6 @@ private:
 
 	PPObjPerson  PsnObj;
 	PPObjRegister RObj;
-	//BnkAcctArray Data;
-
 	RegisterArray StubData;
 	RegisterArray * P_Data;
 	PPPersonPacket * P_PsnPack;
@@ -883,14 +880,14 @@ int SLAPI PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccou
 	return ok;
 }
 /* =====
-		 Ïåðåìåííûå, èñïîëüçóåìûå â øàáëîíå íàèìåíîâàíèÿ ðåãèñòðà
+		 ÐŸÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ðµ, Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼Ñ‹Ðµ Ð² ÑˆÐ°Ð±Ð»Ð¾Ð½Ðµ Ð½Ð°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ñ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°
 
-@regname Íàèìåíîâàíèå òèïà ðåãèñòðà
-@regsn   Ñåðèÿ ðåãèñòðà
-@regno   Íîìåð ðåãèñòðà
-@date    Äàòà ðåãèñòðà
-@expiry  Äàòà îêîí÷àíèÿ ñðîêà äåéñòâèÿ ðåãèñòðà
-@regorg  Ðåãèñòðèðóþùèé îðãàí
+@regname ÐÐ°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ‚Ð¸Ð¿Ð° Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°
+@regsn   Ð¡ÐµÑ€Ð¸Ñ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°
+@regno   ÐÐ¾Ð¼ÐµÑ€ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°
+@date    Ð”Ð°Ñ‚Ð° Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°
+@expiry  Ð”Ð°Ñ‚Ð° Ð¾ÐºÐ¾Ð½Ñ‡Ð°Ð½Ð¸Ñ ÑÑ€Ð¾ÐºÐ° Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°
+@regorg  Ð ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Ð¾Ñ€Ð³Ð°Ð½
 
 ===== */
 int SLAPI PPObjRegister::Format(PPID id, const char * pFormat, char * pBuf, size_t bufLen)

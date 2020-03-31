@@ -7670,13 +7670,13 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 	 * Build arrays to store the first and last node of the chain
 	 * pertaining to each group
 	 */
-	list = (xmlNode **)SAlloc::M(nbgroups * sizeof(xmlNode *));
+	list = static_cast<xmlNode **>(SAlloc::M(nbgroups * sizeof(xmlNode *)));
 	if(list == NULL) {
 		xmlRngVErrMemory(ctxt, "validating\n");
 		return -1;
 	}
 	memzero(list, nbgroups * sizeof(xmlNode *));
-	lasts = (xmlNode **)SAlloc::M(nbgroups * sizeof(xmlNode *));
+	lasts = static_cast<xmlNode **>(SAlloc::M(nbgroups * sizeof(xmlNode *)));
 	if(lasts == NULL) {
 		xmlRngVErrMemory(ctxt, "validating\n");
 		return -1;

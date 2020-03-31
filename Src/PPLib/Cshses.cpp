@@ -1594,7 +1594,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 			P_Dls->GetUpdatedObjects(PPOBJ_GOODS, moment, &UpdGoods);
 		}
 		else {
-			while(SJ.GetLastEvent(PPACN_EXPCASHSESS, &moment, 7) > 0) {
+			while(SJ.GetLastEvent(PPACN_EXPCASHSESS, 0/*extraVal*/, &moment, 7) > 0) {
 				if(SJ.data.ObjType == PPOBJ_CASHNODE && SJ.data.ObjID == CashNodeID) {
 					last_exp_moment = moment;
 					SysJournalTbl::Key0 sjk0;
@@ -2159,7 +2159,7 @@ SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updO
 				}
 			}
 			if(!is_event && p_sj) {
-				while(!is_event && p_sj->GetLastEvent(PPACN_EXPCASHSESS, &Since, 7) > 0)
+				while(!is_event && p_sj->GetLastEvent(PPACN_EXPCASHSESS, 0/*extraVal*/, &Since, 7) > 0)
 					if(p_sj->data.ObjType == PPOBJ_CASHNODE && p_sj->data.ObjID == cashNodeID)
 						is_event = 1;
 			}
@@ -2290,7 +2290,7 @@ int SLAPI AsyncCashiersIterator::Init(PPID cashNodeID)
 		int  is_event = 0;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		if(p_sj) {
-			while(!is_event && p_sj->GetLastEvent(PPACN_EXPCASHSESS, &Since, 7) > 0)
+			while(!is_event && p_sj->GetLastEvent(PPACN_EXPCASHSESS, 0/*extraVal*/, &Since, 7) > 0)
 				if(p_sj->data.ObjType == PPOBJ_CASHNODE && p_sj->data.ObjID == cashNodeID)
 					is_event = 1;
 		}

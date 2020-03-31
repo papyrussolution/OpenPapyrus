@@ -47,7 +47,6 @@ index:
 file:
 	"ref2.btr";
 	acstable = "rusncase.alt";
-	// @v8.1.3 balanced;
 	access=3;
 }
 //
@@ -72,7 +71,6 @@ index:
 file:
 	"prop.btr";
 	vlr;
-	// @v8.1.3 balanced;
 	access=3;
 }
 //
@@ -259,7 +257,6 @@ index:
 file:
 	"objassoc.btr";
 	acstable = "rusncase.alt";
-	// @v8.1.3 balanced;
 }
 //
 //
@@ -636,7 +633,7 @@ index:
 file:
 	"register.btr";
 	balanced;
-	compress; // @v8.2.3
+	compress;
 	access=1;
 }
 //
@@ -907,7 +904,6 @@ file:
 	"xgoods.btr";
 	vlr;
 	acstable = "rusncase.alt";
-	// @v8.1.3 balanced;
 }
 //
 // Справочник штрихкодов
@@ -1202,7 +1198,6 @@ index:
 file:
 	"bill.btr";
 	vlr;
-	// @v8.1.3 balanced;
 	access=1;
 }
 //
@@ -1266,7 +1261,6 @@ index:
 	BillID, AmtTypeID, CurID (unique);
 file:
 	"billamt.btr";
-	// @v8.1.3 balanced;
 	access=1;
 }
 //
@@ -1281,7 +1275,6 @@ index:
 	BillID, PayDate (unique mod);
 file:
 	"payplan.btr";
-	// @v8.1.3 balanced;
 	access=1;
 }
 //

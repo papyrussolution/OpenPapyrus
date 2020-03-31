@@ -122,7 +122,7 @@ int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const ch
 }
 
 //static 
-int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
+int SLAPI PPChZnPrcssr::Helper_ParseChZnCode(const char * pCode, GtinStruc & rS, int pass)
 {
 	int    ok = 0;
 	SString raw_buf;
@@ -133,8 +133,10 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 	rS.AddOnlyToken(GtinStruc::fldSscc18);
 	rS.AddOnlyToken(GtinStruc::fldGTIN14);
 	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-	rS.AddOnlyToken(GtinStruc::fldUSPS); // @v10.7.2
-	rS.AddOnlyToken(GtinStruc::fldInner1); // @v10.7.2
+	if(pass == 2) { // @v10.7.5
+		rS.AddOnlyToken(GtinStruc::fldUSPS); // @v10.7.2
+		rS.AddOnlyToken(GtinStruc::fldInner1); // @v10.7.2
+	}
 	{
 		temp_buf = pCode;
 		if(!temp_buf.IsAscii()) {
@@ -163,6 +165,15 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 		}
 	}
 	return ok;
+}
+
+//static 
+int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
+{
+	int r = Helper_ParseChZnCode(pCode, rS, 1);
+	if(!r)
+		r = Helper_ParseChZnCode(pCode, rS, 2);
+	return r;
 }
 
 //static 

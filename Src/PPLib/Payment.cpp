@@ -1,18 +1,19 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
 struct _PaymentEntry {
-	LDATE  Date;           // Äàòà äîêóìåíòà
-	char   Code[24];       // Íîìåð äîêóìåíòà
+	LDATE  Date;           // Ð”Ð°Ñ‚Ð° Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+	char   Code[24];       // ÐÐ¾Ð¼ÐµÑ€ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 	char   StatusName[48]; //
-	char   OpName[48];     // Íàèìåíîâàíèå âèäà îïåðàöèè
-	double Amount;         // Ñóììà äîêóìåíòà
-	double Payment;        // Ñóììà ó÷òåííàÿ êàê îïëàòà
-	double Rest;           // Îñòàòîê äîëãà
-	char   Memo[256];      // Ïðèìå÷àíèå
+	char   OpName[48];     // ÐÐ°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð²Ð¸Ð´Ð° Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸
+	double Amount;         // Ð¡ÑƒÐ¼Ð¼Ð° Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+	double Payment;        // Ð¡ÑƒÐ¼Ð¼Ð° ÑƒÑ‡Ñ‚ÐµÐ½Ð½Ð°Ñ ÐºÐ°Ðº Ð¾Ð¿Ð»Ð°Ñ‚Ð°
+	double Rest;           // ÐžÑÑ‚Ð°Ñ‚Ð¾Ðº Ð´Ð¾Ð»Ð³Ð°
+	char   Memo[256];      // ÐŸÑ€Ð¸Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ
 	PPID   ID;
 	PPID   CurID;
 	int16  LinkKind;   // 1 - link, 2 - pool, 3 - writeoff link
@@ -23,7 +24,7 @@ struct _PaymentEntry {
 //
 // @ModuleDef(PPViewPaymBill)
 //
-// êëàññ èñïîëüçóåòñÿ òîëüêî äëÿ ïåðå÷èñëåíèÿ îïëàò
+// ÐºÐ»Ð°ÑÑ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ Ð¿ÐµÑ€ÐµÑ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð¾Ð¿Ð»Ð°Ñ‚
 struct PaymBillFilt {
 	PaymBillFilt() : LinkBillID(0), LinkOpID(0), Kind(0)
 	{
@@ -35,18 +36,18 @@ struct PaymBillFilt {
 
 typedef _PaymentEntry PaymBillViewItem;
 //
-// ARG(id   ID): Äîêóìåíò, ïðèâÿçêè ê êîòîðîìó ñëåäóåò ïîêàçàòü
+// ARG(id   ID): Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚, Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÐ¸ Ðº ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¼Ñƒ ÑÐ»ÐµÐ´ÑƒÐµÑ‚ Ð¿Ð¾ÐºÐ°Ð·Ð°Ñ‚ÑŒ
 // ARG(kind IN):
-//   0 - Îïëàòû ïî äîêóìåíòó
-//   1 - Íà÷èñëåíèÿ ðåíòû ïî äîêóìåíòó
-//   2 - Çà÷èòûâàþùèå îïëàòû ïî çà÷åòíîìó äîêóìåíòó
-//   3 - Çà÷òåííûå äîêóìåíòû ïî çà÷åòíîìó äîêóìåíòó
-//   reserved 4 - Çà÷åòíûå äîêóìåíòû, ñîîòâåòñòâóþùèå îïëàòàì äîëãîâîãî äîêóìåíòà
-//   5 - Äîêóìåíòû ñïèñàíèÿ äðàôò-äîêóìåíòà
+//   0 - ÐžÐ¿Ð»Ð°Ñ‚Ñ‹ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
+//   1 - ÐÐ°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ñ€ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
+//   2 - Ð—Ð°Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÑŽÑ‰Ð¸Ðµ Ð¾Ð¿Ð»Ð°Ñ‚Ñ‹ Ð¿Ð¾ Ð·Ð°Ñ‡ÐµÑ‚Ð½Ð¾Ð¼Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
+//   3 - Ð—Ð°Ñ‡Ñ‚ÐµÐ½Ð½Ñ‹Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾ Ð·Ð°Ñ‡ÐµÑ‚Ð½Ð¾Ð¼Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
+//   reserved 4 - Ð—Ð°Ñ‡ÐµÑ‚Ð½Ñ‹Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹, ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ðµ Ð¾Ð¿Ð»Ð°Ñ‚Ð°Ð¼ Ð´Ð¾Ð»Ð³Ð¾Ð²Ð¾Ð³Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+//   5 - Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 //
 SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 {
-	_PaymentEntry entry, * p_entry;
+	_PaymentEntry entry;
 	uint   i;
 	int    r;
 	uint   blnk = 0;
@@ -100,11 +101,11 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 					r = P_Tbl->EnumMembersOfPool(PPASS_PAYMBILLPOOL, id, &member_id);
 				} while(r > 0 && (P_Tbl->Search(member_id, &bill_rec) <= 0 || P_Tbl->Search(bill_rec.LinkBillID, &bill_rec) <= 0));
 				break;
-			case LinkedBillFilt::lkWrOffDraft: // Äîêóìåíòû ñïèñàíèÿ äðàôò-äîêóìåíòà
+			case LinkedBillFilt::lkWrOffDraft: // Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 				r = P_Tbl->EnumLinks(id, &diter, blnk, &bill_rec);
 				link_kind = 3;
 				break;
-			case LinkedBillFilt::lkCorrection: // Äîêóìåíòû êîððåêòèðîâêè
+			case LinkedBillFilt::lkCorrection: // Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
 				r = P_Tbl->EnumLinks(id, &diter, blnk, &bill_rec);
 				link_kind = 3;
 				break;
@@ -112,7 +113,7 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 		if(r > 0) {
 			if(ObjRts.CheckOpID(bill_rec.OpID, PPR_READ)) {
 				PPID   pool_id = 0;
-				int    no_paym = 0; // Ñòàòóñ äîêóìåíòà ïðåäïèñûâàåò íå ó÷èòûâàòü îïëàòó
+				int    no_paym = 0; // Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð¿Ñ€ÐµÐ´Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÑ‚ Ð½Ðµ ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°Ñ‚ÑŒ Ð¾Ð¿Ð»Ð°Ñ‚Ñƒ
 				MEMSZERO(entry);
 				entry.ID    = bill_rec.ID;
 				entry.LinkBillID = bill_rec.LinkBillID;
@@ -147,9 +148,11 @@ SArray * SLAPI PPObjBill::MakePaymentList(PPID id, int kind)
 	}
 	THROW(r);
 	p_ary->sort(CMPF_LONG);
-	if(kind != 1)
+	if(kind != 1) {
+		_PaymentEntry * p_entry = 0;
 		for(i = 0; p_ary->enumItems(&i, reinterpret_cast<void **>(&p_entry));)
 			p_entry->Rest = (debt -= p_entry->Payment);
+	}
 	CATCH
 		ZDELETE(p_ary);
 	ENDCATCH
@@ -213,7 +216,7 @@ int FASTCALL PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
 		while(Counter < Counter.GetTotal() && ok < 0) {
 			if(pItem) {
 				const Entry & r_entry = List.at(Counter);
-				if(P_BObj->Search(r_entry.ID, pItem) > 0) { // Fetch-->Search (êýø íå õðàíèò ïðèìå÷àíèå ê äîêóìåíòó)
+				if(P_BObj->Search(r_entry.ID, pItem) > 0) { // Fetch-->Search (ÐºÑÑˆ Ð½Ðµ Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ Ð¿Ñ€Ð¸Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ Ðº Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ)
 					pItem->Payment = r_entry.Payment;
 					pItem->Rest = r_entry.Rest;
 					pItem->LinkBillID = r_entry.LinkBillID;
@@ -243,8 +246,7 @@ int SLAPI PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		int    r = 0;
 		if(P_BObj->Fetch(bill_id, &bill_rec) > 0)
 			r = 1;
-		else
-			MEMSZERO(bill_rec);
+		// @v10.7.4 @ctr else MEMSZERO(bill_rec);
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(bill_id); break; // @id
 			case 1: pBlk->Set(bill_rec.Dt); break; // @date
@@ -383,7 +385,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 					r = p_bt->EnumMembersOfPool(PPASS_PAYMBILLPOOL, Filt.BillID, &member_id);
 				} while(r > 0 && (P_BObj->Search(member_id, &bill_rec) <= 0 || P_BObj->Search(bill_rec.LinkBillID, &bill_rec) <= 0));
 				break;
-			case LinkedBillFilt::lkWrOffDraft: // Äîêóìåíòû ñïèñàíèÿ äðàôò-äîêóìåíòà
+			case LinkedBillFilt::lkWrOffDraft: // Ð”Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ ÑÐ¿Ð¸ÑÐ°Ð½Ð¸Ñ Ð´Ñ€Ð°Ñ„Ñ‚-Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 				r = p_bt->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
 				link_kind = 3;
 				break;
@@ -399,7 +401,7 @@ int SLAPI PPViewLinkedBill::MakeList()
 		if(r > 0) {
 			if(ObjRts.CheckOpID(bill_rec.OpID, PPR_READ)) {
 				PPID   pool_id = 0;
-				int    no_paym = 0; // Ñòàòóñ äîêóìåíòà ïðåäïèñûâàåò íå ó÷èòûâàòü îïëàòó
+				int    no_paym = 0; // Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð¿Ñ€ÐµÐ´Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÑ‚ Ð½Ðµ ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°Ñ‚ÑŒ Ð¾Ð¿Ð»Ð°Ñ‚Ñƒ
 				MEMSZERO(entry);
 				entry.ID    = bill_rec.ID;
 				entry.LinkBillID = bill_rec.LinkBillID;
@@ -884,7 +886,7 @@ int SLAPI PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOp
 	uint   i, j;
 	PPOprKind op_rec;
 	PPIDArray op_list, paym_op_list, ar_list;
-	PPID   prim_sheet_id = 0; // Òàáëèöà, ê êîòîðîé îòíîñèòñÿ ñòàòüÿ arID
+	PPID   prim_sheet_id = 0; // Ð¢Ð°Ð±Ð»Ð¸Ñ†Ð°, Ðº ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¹ Ð¾Ñ‚Ð½Ð¾ÑÐ¸Ñ‚ÑÑ ÑÑ‚Ð°Ñ‚ÑŒÑ arID
 	ArticleTbl::Rec ar_rec;
 	if(arID) {
 		THROW(ArObj.Fetch(arID, &ar_rec) > 0);
@@ -997,12 +999,12 @@ public:
 		amt_buf.Z().Cat(Data.PaymAmount, MKSFMTD(0, 2, 0));
 		GetCurSymbText(Data.CurID, temp_buf);
 		if(Data.DebtOrPaym) {
-			//@cfmrcknparam_info_reverse "Ïî êîíòðàãåíòó '@zstr' ñóùåñòâóþò äîêóìåíòû íà ñóììó @zstr, ïîçâîëÿþùèå çà÷åñòü çàäàííûé äîêóìåíò, äîëã ïî êîòîðîìó ñîñòàâëÿåò @zstr"
+			//@cfmrcknparam_info_reverse "ÐŸÐ¾ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ñƒ '@zstr' ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‚ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð½Ð° ÑÑƒÐ¼Ð¼Ñƒ @zstr, Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÑŽÑ‰Ð¸Ðµ Ð·Ð°Ñ‡ÐµÑÑ‚ÑŒ Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚, Ð´Ð¾Ð»Ð³ Ð¿Ð¾ ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¼Ñƒ ÑÐ¾ÑÑ‚Ð°Ð²Ð»ÑÐµÑ‚ @zstr"
 			PPLoadString("cfmrcknparam_info_reverse", fmt_buf);
 			PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
 		}
 		else {
-			//@cfmrcknparam_info_direct "Ïî êîíòðàãåíòó '@zstr' ñóùåñòâóþò íåîïëà÷åííûå äîêóìåíòû íà ñóììó @zstr. Çàäàííûé äîêóìåíò ïîçâîëÿåò çà÷åñòü ñóììó @zstr"
+			//@cfmrcknparam_info_direct "ÐŸÐ¾ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ñƒ '@zstr' ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‚ Ð½ÐµÐ¾Ð¿Ð»Ð°Ñ‡ÐµÐ½Ð½Ñ‹Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð½Ð° ÑÑƒÐ¼Ð¼Ñƒ @zstr. Ð—Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÐµÑ‚ Ð·Ð°Ñ‡ÐµÑÑ‚ÑŒ ÑÑƒÐ¼Ð¼Ñƒ @zstr"
 			PPLoadString("cfmrcknparam_info_direct", fmt_buf);
 			PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
 		}
@@ -1091,13 +1093,13 @@ IMPL_HANDLE_EVENT(CfmReckoningDialog)
 	else if(event.isCmd(cmRcknSelectedBill)) {
 		if(IsInState(sfModal)) {
 			endModal(cmRcknSelectedBill);
-			return; // Ïîñëå endModal íå ñëåäóåò îáðàùàòüñÿ ê this
+			return; // ÐŸÐ¾ÑÐ»Ðµ endModal Ð½Ðµ ÑÐ»ÐµÐ´ÑƒÐµÑ‚ Ð¾Ð±Ñ€Ð°Ñ‰Ð°Ñ‚ÑŒÑÑ Ðº this
 		}
 	}
 	else if(event.isCmd(cmLBDblClk)) {
 		if(TVINFOVIEW == P_List && P_List && IsInState(sfModal)) {
 			endModal(cmRcknSelectedBill);
-			return; // Ïîñëå endModal íå ñëåäóåò îáðàùàòüñÿ ê this
+			return; // ÐŸÐ¾ÑÐ»Ðµ endModal Ð½Ðµ ÑÐ»ÐµÐ´ÑƒÐµÑ‚ Ð¾Ð±Ñ€Ð°Ñ‰Ð°Ñ‚ÑŒÑÑ Ðº this
 		}
 	}
 	else if(TVBROADCAST && event.isCtlEvent(CTL_CFM_RECKONING_LIST)) {
@@ -1557,8 +1559,8 @@ int SLAPI PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, P
 	k.Object = arID;
 	{
 		//
-		// Äëÿ óñêîðåíèÿ ïðîâåðêè îòñóòñòâèÿ èäåíòèôèêàòîðà íàéäåííîãî äîêóìåíòà â ñïèñêå pList
-		// ïåðåíîñèì èäåíòèôèêàòîðû èç pList âî âðåìåííûé ñïèñîê ndup_list è ñîðòèðóåì åãî.
+		// Ð”Ð»Ñ ÑƒÑÐºÐ¾Ñ€ÐµÐ½Ð¸Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²Ð¸Ñ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ð° Ð½Ð°Ð¹Ð´ÐµÐ½Ð½Ð¾Ð³Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð² ÑÐ¿Ð¸ÑÐºÐµ pList
+		// Ð¿ÐµÑ€ÐµÐ½Ð¾ÑÐ¸Ð¼ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ñ‹ Ð¸Ð· pList Ð²Ð¾ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ð¹ ÑÐ¿Ð¸ÑÐ¾Ðº ndup_list Ð¸ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€ÑƒÐµÐ¼ ÐµÐ³Ð¾.
 		//
 		LongArray ndup_list;
 		pList->GetIdList(ndup_list);
@@ -1708,7 +1710,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 				BExtQuery q(p_t, 3, 256);
 				if(use_omt_paymamt) {
 					q.select(p_t->ID, p_t->Dt, p_t->Flags, p_t->Amount, p_t->OpID, p_t->PaymAmount, 0L).
-						where(p_t->Object == clientID && daterange(p_t->Dt,  &period) /* (òàêîå îãðàíè÷åíèå íå ðàáîòàåò) && tbl->PaymAmount < tbl->Amount*/);
+						where(p_t->Object == clientID && daterange(p_t->Dt,  &period) /* (Ñ‚Ð°ÐºÐ¾Ðµ Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ðµ Ð½Ðµ Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚) && tbl->PaymAmount < tbl->Amount*/);
 					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 						if(op_list.bsearch(p_t->data.OpID)) {
 							BillTbl::Rec rec;
@@ -1845,6 +1847,10 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 //
 //
 struct CBO_BillEntry { // @flat
+	SLAPI  CBO_BillEntry() : ID(0), Dt(ZERODATE), ArID(0), Ar2ID(0), Amount(0.0)
+	{
+		PTR32(Code)[0] = 0;
+	}
 	PPID   ID;
 	LDATE  Dt;
 	PPID   ArID;
@@ -1866,7 +1872,7 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 			P_Tbl->CalcPayment(bill_rec.ID, 1, 0, bill_rec.CurID, &paym);
 			if(paym < bill_rec.Amount) {
 				CBO_BillEntry entry;
-				MEMSZERO(entry);
+				// @v10.7.5 @ctr MEMSZERO(entry);
 				entry.ID = bill_rec.ID;
 				entry.Dt = bill_rec.Dt;
 				entry.ArID = bill_rec.Object;
@@ -1881,11 +1887,11 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 		list.sort(PTR_CMPFUNC(CBO_BillEntry));
 		{
 			//
-			// Â êîíåö ñïèñêà äîáàâëÿåì ïóñòîé ýëåìåíò äàáû íå
-			// ïîâòîðÿòü ôóíêöèþ ôîðìèðîâàíèÿ áàêîâñêîãî îðäåðà ïîñëå çàâåðøåíèÿ öèêëà.
+			// Ð’ ÐºÐ¾Ð½ÐµÑ† ÑÐ¿Ð¸ÑÐºÐ° Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð¿ÑƒÑÑ‚Ð¾Ð¹ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ð´Ð°Ð±Ñ‹ Ð½Ðµ
+			// Ð¿Ð¾Ð²Ñ‚Ð¾Ñ€ÑÑ‚ÑŒ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÑŽ Ñ„Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð±Ð°ÐºÐ¾Ð²ÑÐºÐ¾Ð³Ð¾ Ð¾Ñ€Ð´ÐµÑ€Ð° Ð¿Ð¾ÑÐ»Ðµ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ñ Ñ†Ð¸ÐºÐ»Ð°.
 			//
 			CBO_BillEntry entry;
-			MEMSZERO(entry);
+			// @v10.7.5 @ctr MEMSZERO(entry);
 			entry.ArID = MAXLONG;
 			list.insert(&entry);
 		}
@@ -1951,7 +1957,7 @@ int SLAPI PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags
 	return ok;
 }
 //
-// @obsolete Èñïîëüçóåòñÿ òîëüêî äëÿ îáñëóæèâàíèÿ ýêñïîðòíîé ñòðóêòóðû äàííûõ PaymBillList
+// @obsolete Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ Ð¾Ð±ÑÐ»ÑƒÐ¶Ð¸Ð²Ð°Ð½Ð¸Ñ ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð½Ð¾Ð¹ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹ Ð´Ð°Ð½Ð½Ñ‹Ñ… PaymBillList
 //
 class PPViewPaymBill {
 public:
@@ -2093,7 +2099,7 @@ private:
 	PPID   getCurrID();
 
 	int    Kind;
-	int    PrevKind;  // Çíà÷åíèå Kind äî ïåðåêëþ÷åíèÿ âèäà
+	int    PrevKind;  // Ð—Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Kind Ð´Ð¾ Ð¿ÐµÑ€ÐµÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ Ð²Ð¸Ð´Ð°
 	PPID   LinkBillID;
 	PPID   LinkOpID;
 	PPObjBill * P_BObj;

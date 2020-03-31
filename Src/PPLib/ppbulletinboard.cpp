@@ -186,7 +186,8 @@ public:
 		}
 		double SLAPI GetAverageSpread_WithAdjustment() const
 		{
-			return fdivui(SpreadSum, SpreadCount) * 1.2; // @20190703 2.0-->1.2 // @20190707 1.2-->1.5 // @20190708 1.5-->2.0 // @20200207 2.0-->1.2
+			// @20190703 2.0-->1.2 // @20190707 1.2-->1.5 // @20190708 1.5-->2.0 // @20200207 2.0-->1.2 // @20200329 1.2-->1.0
+			return fdivui(SpreadSum, SpreadCount) * 1.0; 
 		}
 		int FASTCALL GetLastValue(double * pValue) const
 		{

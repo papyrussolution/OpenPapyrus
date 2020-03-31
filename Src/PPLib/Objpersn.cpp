@@ -2313,11 +2313,13 @@ int SLAPI PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int rep
 // Объединение персоналий
 //
 struct ReplacePersonParam {
-	SLAPI  ReplacePersonParam() : Flags(0), SrcKindID(0), SrcID(0), DestKindID(0)
+	SLAPI  ReplacePersonParam() : Flags(fRemoveDest), SrcKindID(0), SrcID(0), DestKindID(0)
 	{
 	}
 	enum {
-		fAddress = 0x0001
+		fAddress     = 0x0001,
+		fRemoveDest  = 0x0002, // Удалять DestIdList-объекты
+		fDontConfirm = 0x0004  // Не запрашивать подтверждение на удаление DestIdList-объектов
 	};
 	long   Flags;
 	PPID   SrcKindID;
@@ -2370,10 +2372,14 @@ public:
 			SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, psn_id, 0, reinterpret_cast<void *>(kind_id));
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR2, psn_id, 0);
 		}
+		else {
+			AddClusterAssoc(CTL_REPLPRSN_FLAGS, 0, Data.fRemoveDest);
+			AddClusterAssoc(CTL_REPLPRSN_FLAGS, 1, Data.fDontConfirm);
+			SetClusterData(CTL_REPLPRSN_FLAGS, Data.Flags);
+		}
 		SetupGroup();
 		return 1;
 	}
-	//int getDTS(PPID * pDestID, PPID * pSrcID)
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
@@ -2388,6 +2394,7 @@ public:
 			PersonListCtrlGroup::Rec grp_rec;
 			getGroupData(ctlgroupPsnList, &grp_rec);
 			Data.DestIdList = grp_rec.List;
+			GetClusterData(CTL_REPLPRSN_FLAGS, &Data.Flags);
 		}
 		THROW_PP(Data.SrcID != 0, PPERR_REPLZEROOBJ);
 		for(uint i = 0; i < Data.DestIdList.getCount(); i++) {
@@ -2395,8 +2402,6 @@ public:
 			THROW_PP(dest_id != 0, PPERR_REPLZEROOBJ);
 			THROW_PP(dest_id != Data.SrcID, PPERR_REPLSAMEOBJ);
 		}
-		//ASSIGN_PTR(pSrcID,  src_id);
-		//ASSIGN_PTR(pDestID, dest_id);
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			selectCtrl(Data.SrcID ? ((Data.Flags & Data.fAddress) ? CTL_REPLPRSN_ADDR2 : CTL_REPLPRSN_PRSN2) : ((Data.Flags & Data.fAddress) ? CTL_REPLPRSN_ADDR1 : CTL_REPLPRSN_PRSN1));
@@ -2441,18 +2446,33 @@ private:
 	void   Swap()
 	{
 		PPID   src_kind_id  = getCtrlLong(CTLSEL_REPLPRSN_KIND1);
-		PPID   dest_kind_id = getCtrlLong(CTLSEL_REPLPRSN_KIND2);
 		PPID   src_psn_id   = getCtrlLong(CTLSEL_REPLPRSN_PRSN1);
-		PPID   dest_psn_id  = getCtrlLong(CTLSEL_REPLPRSN_PRSN2);
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, dest_kind_id, 0);
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, src_kind_id,  0);
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, reinterpret_cast<void *>(dest_kind_id));
-		SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, src_psn_id,  0, reinterpret_cast<void *>(src_kind_id));
 		if(Data.Flags & Data.fAddress) {
+			PPID   dest_kind_id = getCtrlLong(CTLSEL_REPLPRSN_KIND2);
+			PPID   dest_psn_id  = getCtrlLong(CTLSEL_REPLPRSN_PRSN2);
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, dest_kind_id, 0);
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, reinterpret_cast<void *>(dest_kind_id));
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, src_kind_id,  0);
+			SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN2, PPOBJ_PERSON, src_psn_id,  0, reinterpret_cast<void *>(src_kind_id));
+
 			PPID   src_addr_id   = getCtrlLong(CTLSEL_REPLPRSN_ADDR1);
 			PPID   dest_addr_id  = getCtrlLong(CTLSEL_REPLPRSN_ADDR2);
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR1, dest_psn_id, dest_addr_id);
 			PsnObj.SetupDlvrLocCombo(this, CTLSEL_REPLPRSN_ADDR2, src_psn_id, src_addr_id);
+		}
+		else {
+			PersonListCtrlGroup::Rec grp_rec;
+			getGroupData(ctlgroupPsnList, &grp_rec);
+			PPIDArray dest_id_list = grp_rec.List;
+			if(dest_id_list.getCount() <= 1) {
+				PPID   dest_kind_id = grp_rec.PsnKindID;
+				PPID   dest_psn_id = dest_id_list.getSingle();
+				SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, dest_kind_id, 0);
+				SetupPPObjCombo(this, CTLSEL_REPLPRSN_PRSN1, PPOBJ_PERSON, dest_psn_id, 0, reinterpret_cast<void *>(dest_kind_id));
+				grp_rec.PsnKindID = src_kind_id;
+				grp_rec.List.Z().add(src_psn_id);
+				setGroupData(ctlgroupPsnList, &grp_rec);
+			}
 		}
 	}
 
@@ -2481,7 +2501,9 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 int SLAPI PPObjPerson::ReplacePerson(PPID srcID, PPID srcKindID)
 {
 	int    ok = -1;
-	//PPID   dest_id = 0, src_id = srcID;
+	PPLogger logger;
+	SString msg_buf;
+	SString temp_buf;
 	ReplacePersonParam param;
 	PPObjPerson psn_obj;
 	ReplPrsnDialog * dlg = 0;
@@ -2490,19 +2512,31 @@ int SLAPI PPObjPerson::ReplacePerson(PPID srcID, PPID srcKindID)
 	param.SrcID = srcID;
 	param.SrcKindID = srcKindID;
 	dlg->setDTS(&param);
-	while(ExecView(dlg) == cmOK)
+	while(ExecView(dlg) == cmOK) {
 		if(!dlg->getDTS(&param))
 			PPError();
 		else {
+			uint   replace_obj_options = PPObject::use_transaction;
+			if(!(param.Flags & param.fRemoveDest))
+				replace_obj_options |= PPObject::not_repl_remove;
+			else if(!(param.Flags & param.fDontConfirm))
+				replace_obj_options |= PPObject::user_request;
 			for(uint i = 0; i < param.DestIdList.getCount(); i++) {
 				const PPID dest_id = param.DestIdList.get(i);
-				if(!PPObject::ReplaceObj(PPOBJ_PERSON, dest_id, param.SrcID, PPObject::use_transaction|PPObject::user_request)) {
-					PPError();
+				PPLoadString("unite_persons", msg_buf.Z());
+				GetPersonName(dest_id, temp_buf);
+				msg_buf.CatDiv(':', 2).Cat(temp_buf).Space().Cat("-->");
+				GetPersonName(param.SrcID, temp_buf);
+				msg_buf.Space().Cat(temp_buf);
+				logger.Log(msg_buf);
+				if(!PPObject::ReplaceObj(PPOBJ_PERSON, dest_id, param.SrcID, replace_obj_options)) {
+					logger.LogLastError();
 				}
 			}
 			dlg->replyKindSelected(1);
 			ok = 1;
 		}
+	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;

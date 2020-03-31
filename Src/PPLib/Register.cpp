@@ -1,5 +1,6 @@
 // REGISTER.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -109,7 +110,7 @@ int FASTCALL RegisterArray::IsEqual(const RegisterArray & rS) const
 		eq = 0;
 	else if(c) {
 		//
-		// Перестановка элементов считается отличием (хотя, сейчас она и не важна)
+		// РџРµСЂРµСЃС‚Р°РЅРѕРІРєР° СЌР»РµРјРµРЅС‚РѕРІ СЃС‡РёС‚Р°РµС‚СЃСЏ РѕС‚Р»РёС‡РёРµРј (С…РѕС‚СЏ, СЃРµР№С‡Р°СЃ РѕРЅР° Рё РЅРµ РІР°Р¶РЅР°)
 		//
 		for(uint i = 0; eq && i < c; i++) {
 			const RegisterTbl::Rec & r_rec = at(i);
@@ -350,8 +351,7 @@ int SLAPI RegisterArray::GetListByPeriod(PPID regTypeID, const DateRange & rPeri
 	for(uint i = 0; i < getCount(); i++) {
 		const RegisterTbl::Rec & r_reg = at(i);
 		if(r_reg.RegTypeID == regTypeID && (!r_reg.Expiry || (r_reg.Expiry >= _l)) && (!r_reg.Dt || !_u || r_reg.Dt <= _u)) {
-			if(pList)
-				pList->insert(&r_reg);
+			CALLPTRMEMB(pList, insert(&r_reg));
 			ok = 1;
 		}
 	}
@@ -429,11 +429,14 @@ int SLAPI RegisterArray::ProcessObjRefs(PPObjIDArray * ary, int replace)
 			r_reg_rec.ID = 0;
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &r_reg_rec.RegTypeID, ary, replace));
 		THROW(PPObject::ProcessObjRefInArray(PPOBJ_PERSON, &r_reg_rec.RegOrgID, ary, replace));
-		// @v9.0.4 {
 		if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 			THROW(PPObject::ProcessObjRefInArray(PPOBJ_BNKACCTYPE, &r_reg_rec.ExtID, ary, replace));
 		}
-		// } @v9.0.4
+		// @v10.7.5 {
+		else if(r_reg_rec.RegTypeID == PPREGT_TAXSYSTEM) {
+			THROW(PPObject::ProcessObjRefInArray(PPOBJ_TAXSYSTEMKIND, &r_reg_rec.ExtID, ary, replace));
+		}
+		// } @v10.7.5 
 	}
 	CATCHZOK
 	return ok;
@@ -450,8 +453,7 @@ int SLAPI RegisterCore::Search(PPID id, RegisterTbl::Rec * b)
 	return SearchByID(this, PPOBJ_REGISTER, id, b);
 }
 
-int SLAPI RegisterCore::SearchByNumber(PPID * pID, PPID regTypeID,
-	const char * pSerial, const char * pNumber, RegisterTbl::Rec * pBuf)
+int SLAPI RegisterCore::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSerial, const char * pNumber, RegisterTbl::Rec * pBuf)
 {
 	RegisterTbl::Key3 k;
 	MEMSZERO(k);

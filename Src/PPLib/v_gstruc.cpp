@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Таблица просмотра товарных структур
 //
@@ -163,7 +163,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsStruc); SLAPI GoodsStrucFilt::GoodsStrucFilt() : P
 	Init(1, 0);
 }
 
-SLAPI PPViewGoodsStruc::PPViewGoodsStruc() : PPView(0, &Filt, PPVIEW_GOODSSTRUC), CurrentViewOrder(OrdByDefault), IterIdx(0)
+SLAPI PPViewGoodsStruc::PPViewGoodsStruc() : PPView(0, &Filt, PPVIEW_GOODSSTRUC), CurrentViewOrder(OrdByDefault), IterIdx(0), P_DsList__(0)
 {
 	DefReportId = REPORT_GOODSSTRUCLIST;
 	ImplementFlags |= implBrowseArray;
@@ -171,6 +171,115 @@ SLAPI PPViewGoodsStruc::PPViewGoodsStruc() : PPView(0, &Filt, PPVIEW_GOODSSTRUC)
 
 SLAPI PPViewGoodsStruc::~PPViewGoodsStruc()
 {
+	ZDELETE(P_DsList__);
+}
+
+int SLAPI PPViewGoodsStruc::CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewGoodsStruc::ItemEntry * pItem1, const PPViewGoodsStruc::ItemEntry * pItem2)
+{
+	int    sn = 0;
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+	if(p_def) {
+		for(uint i = 0; !sn && i < pBrw->GetSettledOrderList().getCount(); i++) {
+			int    col = pBrw->GetSettledOrderList().get(i);
+			TYPEID typ1 = 0;
+			TYPEID typ2 = 0;
+			uint8  dest_data1[512];
+			uint8  dest_data2[512];
+			if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+				assert(typ1 == typ2);
+				if(typ1 == typ2) {
+					sn = stcomp(typ1, dest_data1, dest_data2);
+					if(sn && col < 0)
+						sn = -sn;
+				}
+			}
+		}
+	}
+	return sn;
+}
+
+static IMPL_CMPFUNC(ViewGoodsStruc_ItemEntry, i1, i2)
+{
+	int    si = 0;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(pExtraData);
+	if(p_brw) {
+		PPViewGoodsStruc * p_view = static_cast<PPViewGoodsStruc *>(p_brw->P_View);
+		if(p_view) {
+			const PPViewGoodsStruc::ItemEntry * p_item1 = static_cast<const PPViewGoodsStruc::ItemEntry *>(i1);
+			const PPViewGoodsStruc::ItemEntry * p_item2 = static_cast<const PPViewGoodsStruc::ItemEntry *>(i2);
+			si = p_view->CmpSortIndexItems(p_brw, p_item1, p_item2);
+		}
+	}
+	return si;
+}
+
+int SLAPI PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
+{
+	int    ok = 1;
+	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
+	if(is_sorting_needed) {
+		ItemList.sort(PTR_CMPFUNC(ViewGoodsStruc_ItemEntry), pBrw);
+	}
+	return ok;
+}
+
+int SLAPI PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
+{
+	Problems.freeAll();
+	StrucList.clear();
+	ItemList.clear();
+	StrPool.ClearS();
+	int    ok = 1;
+	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
+	Goods2Tbl::Rec grec;
+	if(Filt.PrmrGoodsID) {
+		if(GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
+			THROW(AddItem(grec.ID, grec.StrucID, 0));
+		}
+	}
+	else {
+		GoodsFilt goods_filt;
+		goods_filt.GrpIDList.Add(Filt.PrmrGoodsGrpID);
+		goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
+		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
+			if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
+				THROW(AddItem(grec.ID, grec.StrucID, 0));
+			}
+			PPWaitPercent(gi.GetIterCounter());
+		}
+		if(!Filt.PrmrGoodsGrpID && !Filt.PrmrGoodsID && Filt.Flags & Filt.fShowUnrefs) {
+			long   t = 0;
+			uint   p = 0;
+			PPIDArray owner_list;
+			PPGoodsStrucHeader gsh;
+			for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0;)
+				t++;
+			for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
+				const PPID gs_id = gsh.ID;
+				owner_list.clear();
+				GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
+				if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
+					uint   ex_spos = 0;
+					if(!StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID))) {
+						THROW(AddItem(0, gs_id, 0));
+					}
+				}
+				PPWaitPercent(p, t);
+			}
+		}
+	}
+	ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+	// @v10.7.5 {
+	if(pBrw) {
+		BrowserDef * p_def = pBrw->getDef();
+		for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
+			p_def->at(cidx).Options |= BCO_SORTABLE;
+		}
+		SortList(pBrw);
+	}
+	// } @v10.7.5 
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
@@ -178,51 +287,8 @@ int SLAPI PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = -1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	PPWait(1);
-	Problems.freeAll();
-	StrucList.clear();
-	ItemList.clear();
-	StrPool.ClearS();
 	CurrentViewOrder = static_cast<IterOrder>(Filt.InitOrder);
-	{
-		Goods2Tbl::Rec grec;
-		if(Filt.PrmrGoodsID) {
-			if(GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
-				THROW(AddItem(grec.ID, grec.StrucID, 0));
-			}
-		}
-		else {
-			GoodsFilt goods_filt;
-			goods_filt.GrpIDList.Add(Filt.PrmrGoodsGrpID);
-			goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
-			for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
-				if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
-					THROW(AddItem(grec.ID, grec.StrucID, 0));
-				}
-				PPWaitPercent(gi.GetIterCounter());
-			}
-			if(!Filt.PrmrGoodsGrpID && !Filt.PrmrGoodsID && Filt.Flags & Filt.fShowUnrefs) {
-				long   t = 0;
-				uint   p = 0;
-				PPIDArray owner_list;
-				PPGoodsStrucHeader gsh;
-				for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0;)
-					t++;
-				for(SEnum en = GSObj.Enum(0); en.Next(&gsh) > 0; p++) {
-					const PPID gs_id = gsh.ID;
-					owner_list.clear();
-					GObj.P_Tbl->SearchGListByStruc(gs_id, &owner_list);
-					if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
-						uint   ex_spos = 0;
-						if(!StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID))) {
-							THROW(AddItem(0, gs_id, 0));
-						}
-					}
-					PPWaitPercent(p, t);
-				}
-			}
-		}
-	}
-	ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
+	THROW(MakeList(0));
 	CATCHZOK
 	PPWait(0);
 	return ok;
@@ -408,6 +474,15 @@ int SLAPI FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * 
 					pBlk->Set(0.0);
 				break;
 			case 7: pBlk->Set(p_item->ItemNo); break; // Номер строки внутри стурктуры
+			case 8: // @v10.7.5 Наименование структуры
+				{
+					temp_buf.Z();
+					PPGoodsStrucHeader rec;
+					if(GSObj.Fetch(p_item->GStrucID, &rec) > 0)
+						temp_buf = rec.Name;
+					pBlk->Set(temp_buf); break;
+				}
+				break;
 		}
 	}
 	return ok;
@@ -478,6 +553,14 @@ void SLAPI PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewGoodsStruc::GetDataForBrowser, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		// @v10.7.5 {
+		BrowserDef * p_def = pBrw->getDef();
+		if(p_def) {
+			for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
+				p_def->at(cidx).Options |= BCO_SORTABLE;
+			}
+		}
+		// } @v10.7.5 
 	}
 }
 
@@ -681,6 +764,10 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 		else
 			MEMSZERO(brw_hdr);
 		switch(ppvCmd) {
+			case PPVCMD_USERSORT: // @v10.7.5
+				SortList(pBrw);
+				ok = 1; // The rest will be done below
+				break;
 			case PPVCMD_EDITITEM:
 			case PPVCMD_EDITGOODS:
 			case PPVCMD_EDITITEMGOODS:
@@ -719,7 +806,7 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					PPGoodsStruc gs;
 					const StrucEntry & r_struc_entry = StrucList.at(brw_hdr.StrucEntryP);
 					if(GSObj.Get(brw_hdr.GStrucID, &gs) > 0) {
-						PPID   goods_id = r_struc_entry.PrmrGoodsID;
+						const PPID  goods_id = r_struc_entry.PrmrGoodsID;
 						GoodsOpAnalyzeFilt filt;
 						filt.OpGrpID = GoodsOpAnalyzeFilt::ogInOutAnalyze;
 						filt.Flags |= GoodsOpAnalyzeFilt::fLeaderInOutGoods;
@@ -796,7 +883,32 @@ int SLAPI PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				pBrw->search2(&brw_hdr.GStrucID, CMPF_LONG, srchFirst, 0);
 			}
 		}
-		else if(oneof2(ppvCmd, PPVCMD_EDITGOODS, PPVCMD_EDITITEMGOODS)) {
+		else if(ppvCmd == PPVCMD_USERSORT) {
+			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+			if(p_def) {
+				SArray * p_array = new SArray(ItemList);
+				p_def->setArray(p_array, 0, 1);
+				if(p_array) {
+					pBrw->setRange(p_array->getCount());
+					uint   temp_pos = 0;
+					long   update_pos = -1;
+					if(pHdr) {
+						for(uint i = 0; i < ItemList.getCount(); i++) {
+							const ItemEntry & r_entry = ItemList.at(i);
+							if(r_entry.GStrucID == brw_hdr.GStrucID && r_entry.ItemNo == brw_hdr.ItemNo) {
+								update_pos = static_cast<long>(i);
+								break;
+							}
+						}
+					}
+					if(update_pos >= 0)
+						pBrw->go(update_pos);
+					else if(update_pos == MAXLONG)
+						pBrw->go(p_array->getCount()-1);
+				}
+			}
+		}
+		else if(oneof2(ppvCmd, PPVCMD_EDITGOODS, PPVCMD_EDITITEMGOODS)) { 
 			CALLPTRMEMB(pBrw, Update());
 		}
 	}

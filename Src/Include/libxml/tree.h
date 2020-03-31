@@ -392,7 +392,7 @@ struct xmlRef {
 	int lineno;             /* The line number if attr is not available */
 };
 
-typedef xmlRef * xmlRefPtr;
+//typedef xmlRef * xmlRefPtr;
 // 
 // Descr: A node in an XML tree.
 // 

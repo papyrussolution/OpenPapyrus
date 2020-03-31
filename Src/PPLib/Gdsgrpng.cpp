@@ -205,7 +205,46 @@ SLAPI AdjGdsGrpng::AdjGdsGrpng()
 	Period.Z();
 }
 
-int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
+int SLAPI AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
+{
+	int    ok = 1;
+	PPID   op_id = 0;
+	PPOprKind op_rec;
+	PPIDArray op_list;
+	PPObjBill * p_bobj = BillObj;
+	BillCore * p_bc = p_bobj->P_Tbl;
+	BillTbl::Rec bill_rec;
+	CorrectionBillList.clear();
+	for(op_id = 0; EnumOperations(PPOPT_CORRECTION, &op_id, &op_rec) > 0;) {
+		PPOprKind link_op_rec;
+		if(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0) {
+			if(link_op_rec.Flags & OPKF_PROFITABLE) {
+				THROW_SL(op_list.add(op_rec.ID));
+			}
+			else if(rF.Flags & OPG_COSTBYPAYM && link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+				THROW_SL(op_list.add(op_rec.ID));
+			}
+		}
+	}
+	for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
+		const PPID correction_op_id = op_list.get(opidx);
+		DateRange dr;
+		dr.low = rF.Period.low;
+		dr.upp = ZERODATE;
+		for(SEnum en = p_bc->EnumByOp(correction_op_id, &dr, 0); en.Next(&bill_rec) > 0;) {
+			const PPID correction_bill_id = bill_rec.ID;
+			if(bill_rec.LinkBillID) {
+				if(p_bobj->Fetch(bill_rec.LinkBillID, &bill_rec) > 0 && rF.Period.CheckDate(bill_rec.Dt)) {
+					CorrectionBillList.Add(bill_rec.ID, correction_bill_id);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
@@ -215,7 +254,7 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 	Period.low = MAXDATE;
 	Period.upp = ZERODATE;
 	BillList.freeAll();
-	SupplAgentBillList.clear(); // @v8.1.0 freeAll()-->clear()
+	SupplAgentBillList.clear();
 	//
 	// Найдем все коды операций оплат по продажам приносящим доход
 	//
@@ -224,16 +263,16 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 		if(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0) {
 			if(link_op_rec.Flags & OPKF_NEEDPAYMENT) {
 				if(link_op_rec.Flags & OPKF_PROFITABLE) {
-					THROW(op_list.add(op_rec.ID));
+					THROW_SL(op_list.add(op_rec.ID));
 				}
-				else if(pF->Flags & OPG_COSTBYPAYM && link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
-					THROW(op_list.add(op_rec.ID));
+				else if(rF.Flags & OPG_COSTBYPAYM && link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+					THROW_SL(op_list.add(op_rec.ID));
 				}
 			}
 		}
 	}
-	THROW(MakeBillIDList(pF, &op_list, 0));
-	if(pF->Flags & OPG_PROCESSRECKONING) {
+	THROW(MakeBillIDList(&rF, &op_list, 0));
+	if(rF.Flags & OPG_PROCESSRECKONING) {
 		op_list.freeAll();
 		//
 		// Найдем коды зачитывающих оплат
@@ -241,12 +280,10 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 		for(op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
 			int    r = 0;
 			if(op_rec.Flags & OPKF_RECKON) {
-				if(op_rec.Flags & OPKF_PROFITABLE) {
+				if(op_rec.Flags & OPKF_PROFITABLE)
 					r = 1;
-				}
-				else if(pF->Flags & OPG_COSTBYPAYM && op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+				else if(rF.Flags & OPG_COSTBYPAYM && op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
 					r = 1;
-				}
 			}
 			if(r) {
 				PPReckonOpEx rox;
@@ -254,17 +291,21 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 					op_list.addUnique(&rox.OpList);
 			}
 		}
-		THROW(MakeBillIDList(pF, &op_list, 1));
+		THROW(MakeBillIDList(&rF, &op_list, 1));
 	}
-	if(pF->SupplAgentID) {
-		THROW(BillObj->P_Tbl->GetBillListByExt(pF->SupplAgentID, 0L, SupplAgentBillList));
+	if(rF.SupplAgentID) {
+		THROW(BillObj->P_Tbl->GetBillListByExt(rF.SupplAgentID, 0L, SupplAgentBillList));
 		// @v8.1.0 (сортировку теперь выполняет GetBillListByExt) SupplAgentBillList.sort();
 	}
 	// AHTOXA {
-	if(pF->BillList.IsExists())
-		for(long i = (long)BillList.getCount() - 1; i >= 0; i--)
-			if(!pF->BillList.CheckID(BillList.at((uint)i)))
+	if(rF.BillList.IsExists()) {
+		uint i = BillList.getCount();
+		if(i) do {
+			const PPID _id = BillList.get(--i);
+			if(!rF.BillList.CheckID(_id))
 				BillList.atFree(i);
+		} while(i);
+	}
 	// } AHTOXA
 	CATCH
 		ok = 0;
@@ -273,9 +314,15 @@ int SLAPI AdjGdsGrpng::PrevPaymentList(const GCTFilt * pF)
 	return ok;
 }
 
-int SLAPI AdjGdsGrpng::BeginGoodsGroupingProcess(const GCTFilt * pFilt)
+int SLAPI AdjGdsGrpng::BeginGoodsGroupingProcess(const GCTFilt & rFilt)
 {
-	return PrevPaymentList(pFilt);
+	int    ok = 1;
+	THROW(PrevPaymentList(rFilt));
+	if(rFilt.Flags & OPG_MERGECORRECTION) {
+		THROW(CorrectionList(rFilt));
+	}
+	CATCHZOK
+	return ok;
 }
 
 int SLAPI AdjGdsGrpng::EndGoodsGroupingProcess()
@@ -568,24 +615,25 @@ SLAPI GoodsGrpngArray::AddEntryBlock::AddEntryBlock() : Part(0.0), Flags(0)
 {
 }
 
-int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
+int SLAPI GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec * pTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
 {
 	int    ok = 1, r;
+	BillCore * p_bc = P_BObj->P_Tbl;
 	AddEntryBlock blk;
 	// @v10.6.8 @ctr MEMSZERO(blk);
 	blk.Part = 1.0;
 	blk.TrfrRec = *pTrfrRec;
-	if(pFilt->Flags & OPG_SETCOSTWOTAXES)
+	if(rF.Flags & OPG_SETCOSTWOTAXES)
 		blk.Flags |= GGEF_SETCOSTWOTAXES;
 	// @v10.6.6 {
-	if(pFilt->Flags & OPG_SETPRICEWOTAXES)
+	if(rF.Flags & OPG_SETPRICEWOTAXES)
 		blk.Flags |= GGEF_SETPRICEWOTAXES_;
 	// } @v10.6.6 
-	if(pFilt->Flags & OPG_DIFFBYTAX)
+	if(rF.Flags & OPG_DIFFBYTAX)
 		blk.Flags |= GGEF_DIFFBYTAX;
-	if(pFilt->Flags & OPG_PROCESSBYLOTS)
+	if(rF.Flags & OPG_PROCESSBYLOTS)
 		blk.Flags |= GGEF_BYLOT;
-	if(pFilt->Flags & OPG_COSTBYPAYM)
+	if(rF.Flags & OPG_COSTBYPAYM)
 		blk.Flags |= GGEF_COSTBYPAYM;
 	const  PPID bill_id = pTrfrRec->BillID;
 	BillTbl::Rec bill_rec;
@@ -600,8 +648,8 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 	else {
 		const  PPID   op_id  = bill_rec.OpID;
 		const  double amount = BR2(bill_rec.Amount);
-		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, PPR_READ)) {
-			const int r2 = pFilt->AcceptIntr3(bill_rec);
+		if((!(rF.Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, PPR_READ)) {
+			const int r2 = rF.AcceptIntr3(bill_rec);
 			if(r2) {
 				PPID   l_tax_grp_id = 0;
 				PPGoodsTaxEntry  gtx;
@@ -621,9 +669,37 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 					}
 					blk.TrfrRec = tr;
 				}
+				// @v10.7.5 {
+				else if(rF.Flags & OPG_MERGECORRECTION) {
+					uint cid_pos = 0;
+					long cid = 0;
+					if(!pAgg || pAgg->CorrectionBillList.Search(bill_id, &cid, &cid_pos)) {
+						PPIDArray cor_bill_list;
+						for(DateIter di(/*&pFilt->Period*/0); p_bc->EnumLinks(bill_id, &di, BLNK_CORRECTION, &bill_rec) > 0;) {
+							cor_bill_list.add(bill_rec.ID);
+						}
+						if(cor_bill_list.getCount()) {
+							PPBillPacket cor_bp;
+							for(uint i = 0; i < cor_bill_list.getCount(); i++) {
+								const PPID cor_bill_id = cor_bill_list.get(i);
+								THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
+								for(uint j = 0; j < cor_bp.GetTCount(); j++) {
+									const PPTransferItem & r_other = cor_bp.ConstTI(j);
+									if(r_other.LotID == pTrfrRec->LotID) {
+										blk.TrfrRec.Quantity = r_other.Qtty();
+										blk.TrfrRec.Cost = r_other.Cost;
+										blk.TrfrRec.Price = r_other.Price;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				// } @v10.7.5 
 				if(PPObjGoodsTax::Fetch(taxGrpID, pTrfrRec->Dt, op_id, &gtx) > 0)
 					l_tax_grp_id = gtx.TaxGrpID;
-				if(!(pFilt->Flags & OPG_ADJPAYM)) {
+				if(!(rF.Flags & OPG_ADJPAYM)) {
 					if(r2 == 3) {
 						blk.OpRec.ID = PPOPK_INTRRECEIPT;
 						blk.OpRec.OpTypeID = PPOPT_GOODSRECEIPT;
@@ -651,17 +727,16 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 				if(blk.OpRec.Flags & OPKF_NEEDPAYMENT && amount != 0.0) {
 					const PPID link_op = blk.OpRec.ID;
 					const PPID bill_id = pTrfrRec->BillID;
-					BillCore * p_bc = P_BObj->P_Tbl;
-					for(DateIter di(&pFilt->Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) {
+					for(DateIter di(&rF.Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) {
 						GetOpData(bill_rec.OpID, &blk.OpRec);
 						if(blk.OpRec.OpTypeID != PPOPT_PAYMENT || !IsLockPaymStatus(bill_rec.StatusID)) {
 							blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
 							THROW_SL(blk_list.insert(&blk));
 						}
 					}
-					if(pFilt->Flags & OPG_PROCESSRECKONING) {
+					if(rF.Flags & OPG_PROCESSRECKONING) {
 						for(PPID reck_id = 0; p_bc->EnumMembersOfPool(PPASS_PAYMBILLPOOL, bill_id, &reck_id) > 0;) {
-							if(P_BObj->Fetch(reck_id, &bill_rec) > 0 && pFilt->Period.CheckDate(bill_rec.Dt)) {
+							if(P_BObj->Fetch(reck_id, &bill_rec) > 0 && rF.Period.CheckDate(bill_rec.Dt)) {
 								GetOpData(bill_rec.OpID, &blk.OpRec);
 								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
 								// Искусственно устанавливаем связанную операцию, указывающую на зачетную операцию (отгрузка)
@@ -725,7 +800,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 						if(r_blk.TrfrRec.Flags & PPTFR_RECEIPT /*&& r_blk.TrfrRec.Reverse == 0*/ && GetOpType(entry.OpID) == PPOPT_PAYMENT) {
 							PPObjBill::EprBlock epr;
 							DateRange _p;
-							_p.Set(ZERODATE, plusdate(pFilt->Period.low, -1));
+							_p.Set(ZERODATE, plusdate(rF.Period.low, -1));
 							P_BObj->GetExpendedPartOfReceipt(r_blk.TrfrRec.LotID, &_p, 0, epr);
 							if(epr.Amount != 0.0) {
 								entry.Cost *= fabs(epr.Payout / epr.Amount);
@@ -734,7 +809,7 @@ int SLAPI GoodsGrpngArray::Calc(GCTFilt * pFilt, TransferTbl::Rec * pTrfrRec, PP
 						}
 						else {
 							double part = 1.0;
-							THROW_MEM(SETIFZ(P_PplBlk, new PPObjBill::PplBlock(pFilt->Period, 0, 0)));
+							THROW_MEM(SETIFZ(P_PplBlk, new PPObjBill::PplBlock(rF.Period, 0, 0)));
 							P_BObj->GetPayoutPartOfLot(r_blk.TrfrRec.LotID, *P_PplBlk, &part);
 							entry.Cost *= part;
 						}
@@ -1040,14 +1115,13 @@ int FASTCALL GoodsGrpngArray::IsLockPaymStatus(PPID statusID) const
 	return (LockPaymStatusList.IsExists() && LockPaymStatusList.CheckID(statusID));
 }
 
-int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const AdjGdsGrpng * pAgg)
+int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrpng * pAgg)
 {
 	int    ok = 1;
 	uint   i;
-	GCTFilt filt;
+	GCTFilt filt = rFilt;
 	GoodsGrpngEntry * p_entry;
 	ObjRestrictArray * p_rtloclist = DS.GetTLA().Rights.P_LocList;
-	filt = *pFilt;
 	{
 		PPObjBillStatus bs_obj;
 		PPBillStatus bs_rec;
@@ -1122,7 +1196,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 			}
 			if(!(filt.Flags & OPG_NOZEROEXCISE) || !(gtx.Flags & GTAXF_ZEROEXCISE)) {
 				TransferTbl::Rec trfr_rec;
-				if(filt.Flags & (OPG_CALCINREST | OPG_CALCOUTREST)) {
+				if(filt.Flags & (OPG_CALCINREST|OPG_CALCOUTREST)) {
 					GoodsRestParam gp;
 					PPOprKind      op_rec;
 					gp.CalcMethod = GoodsRestParam::pcmSum;
@@ -1156,7 +1230,7 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 					if(gcti.First(&trfr_rec) > 0)
 						do {
 							if(pAgg->BillList.bsearch(trfr_rec.BillID))
-								THROW(Calc(&filt, &trfr_rec, tax_grp_id, phuperu, tax_factor));
+								THROW(Calc_(filt, pAgg, &trfr_rec, tax_grp_id, phuperu, tax_factor));
 						} while(gcti.Next(&trfr_rec) > 0);
 					filt.Flags &= ~OPG_ADJPAYM;
 				}
@@ -1164,19 +1238,20 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt * pFilt, const Adj
 					GCT_Iterator gcti(filt, &filt.Period, pAgg);
 					if(gcti.First(&trfr_rec) > 0)
 						do {
-							THROW(Calc(&filt, &trfr_rec, tax_grp_id, phuperu, tax_factor));
+							THROW(Calc_(filt, pAgg, &trfr_rec, tax_grp_id, phuperu, tax_factor));
 						} while(gcti.Next(&trfr_rec) > 0);
 				}
 			}
 			filt.GoodsID = save_filt_goods_id;
 		}
 	}
-	for(i = 0; enumItems(&i, (void **)&p_entry);)
+	for(i = 0; enumItems(&i, (void **)&p_entry);) {
 		p_entry->Price -= p_entry->Discount;
-	if(pFilt->Flags & OPG_PROCESSGENOP && IsGenericOp(pFilt->OpID) > 0) {
+	}
+	if(rFilt.Flags & OPG_PROCESSGENOP && IsGenericOp(rFilt.OpID) > 0) {
 		PPObjOprKind op_obj;
 		ObjRestrictArray gen_list;
-		THROW(op_obj.GetGenericList(pFilt->OpID, &gen_list));
+		THROW(op_obj.GetGenericList(rFilt.OpID, &gen_list));
 		for(i = 0; enumItems(&i, (void **)&p_entry);) {
 			if(gen_list.SearchItemByID(p_entry->OpID, 0)) {
 				if(gen_list.CheckFlag(p_entry->OpID, GOIF_NEGATIVE)) {

@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -588,7 +588,6 @@ int SLAPI PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 	else if(Filt.Mode == LocTransfFilt::modeEmpty) {
 		THROW(P_TempTbl = CreateTempFile());
 		{
-			TempLocTransfTbl::Rec temp_rec;
 			PPIDArray list;
 			Tbl.GetEmptyCellList(&Domain.Get(), &list);
 			BExtInsert bei(P_TempTbl);
@@ -596,7 +595,8 @@ int SLAPI PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 				PPTransaction tra(ppDbDependTransaction, 1);
 				THROW(tra);
 				for(uint i = 0; i < list.getCount(); i++) {
-					MEMSZERO(temp_rec);
+					TempLocTransfTbl::Rec temp_rec;
+					// @v10.7.5 @ctr MEMSZERO(temp_rec);
 					temp_rec.LocID = list.get(i);
 					THROW_DB(bei.insert(&temp_rec));
 				}

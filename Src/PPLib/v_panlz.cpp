@@ -1,5 +1,5 @@
 // V_PANLZ.CPP
-// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -344,7 +344,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					}
 					if(!skip) {
 						TempPriceAnlzTbl::Rec temp_rec;
-						MEMSZERO(temp_rec);
+						// @v10.7.5 @ctr MEMSZERO(temp_rec);
 						temp_rec.GoodsID = goods_rec.ID;
 						STRNSCPY(temp_rec.GoodsName, goods_rec.Name);
 						for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);) {

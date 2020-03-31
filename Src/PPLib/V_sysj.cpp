@@ -54,7 +54,7 @@ IMPL_HANDLE_EVENT(SysJFiltDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmSysJActionList)) {
-		ListToListData l2l_data(PPOBJ_ACTION, (void *)-1, &Filt.ActionIDList);
+		ListToListData l2l_data(PPOBJ_ACTION, reinterpret_cast<void *>(-1), &Filt.ActionIDList);
 		l2l_data.TitleStrID = 0; // PPTXT_XXX;
 		if(ListToListDialog(&l2l_data) > 0)
 			if(Filt.ActionIDList.isList()) {
@@ -265,7 +265,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 						if(CheckRecForFilt(&r_rec) > 0) {
 							TempSysJournalTbl::Key0 k0;
 							TempSysJournalTbl::Rec temp_rec;
-							MEMSZERO(temp_rec);
+							// @v10.7.5 @ctr MEMSZERO(temp_rec);
 							// temp_rec.ID  = r_rec.Dt.v;
 							// temp_rec.ID2 = r_rec.Tm.v;
 							P_Tbl->Subst(Filt.Sgsj, r_rec.Action, r_rec.UserID, r_rec.ObjType, &temp_rec.ID);

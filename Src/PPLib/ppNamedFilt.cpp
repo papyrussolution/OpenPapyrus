@@ -88,6 +88,137 @@ int SLAPI PPNamedFilt::Read(SBuffer & rBuf, long p)
 	return ok;
 }
 
+int SLAPI PPNamedFilt::Write2(xmlTextWriter * pXmlWriter)
+{
+	int ok = 1;
+	SString temp_buf;
+	SBuffer buf;
+	SSerializeContext sctx;
+	Ver = Current_PPNamedFilt_Ver;
+	assert(pXmlWriter);
+	THROW(pXmlWriter);
+	{
+	SXml::WNode pp_nfilt_node(pXmlWriter, "NamedFilt");
+	pp_nfilt_node.PutInner("ID", temp_buf.Z().Cat(ID));
+	pp_nfilt_node.PutInner("Ver", temp_buf.Z().Cat(Ver));
+	pp_nfilt_node.PutInner("ViewID", temp_buf.Z().Cat(ViewID));
+	pp_nfilt_node.PutInner("Flags", temp_buf.Z().Cat(Flags));
+	XMLReplaceSpecSymb(temp_buf.Z().Cat(Name), "&<>\'");
+	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+	pp_nfilt_node.PutInner("Name", temp_buf);
+	XMLReplaceSpecSymb(temp_buf.Z().Cat(DbSymb), "&<>\'");
+	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+	pp_nfilt_node.PutInner("DbSymb", temp_buf);
+	XMLReplaceSpecSymb(temp_buf.Z().Cat(Symb), "&<>\'");
+	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+	pp_nfilt_node.PutInner("Symb", temp_buf);
+	XMLReplaceSpecSymb(temp_buf.Z().Cat(ViewSymb), "&<>\'");
+	temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+	pp_nfilt_node.PutInner("ViewSymb", temp_buf);
+	temp_buf.Z().EncodeMime64(static_cast<const char *>(Param.GetBuf(Param.GetRdOffs())), Param.GetAvailableSize());
+	pp_nfilt_node.PutInner("Param", temp_buf);
+	THROW(VD.XmlWrite(pXmlWriter));
+	THROW(XmlWriteGuaList(pXmlWriter));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPNamedFilt::XmlWriteGuaList(xmlTextWriter * pXmlWriter)
+{
+	int    ok = 1;
+	SString temp_buf;
+	assert(pXmlWriter);
+	THROW(pXmlWriter);
+	{
+		temp_buf.Z();
+		if(DestGuaList.IsExists()) {
+			for(uint i = 0; i<DestGuaList.GetCount(); i++) {
+				temp_buf.Cat(DestGuaList.Get(i));
+				if(i<DestGuaList.GetCount()-1) {
+					temp_buf.Comma();
+				}
+			}
+		}
+		else {
+			temp_buf.Cat("undefined");
+		}
+		SXml::WNode gua_list_node(pXmlWriter, "DestGuaList", temp_buf);
+	}
+	CATCHZOK;
+	return ok;
+} 
+
+int SLAPI PPNamedFilt::ReadGuaListFromStr(SString & rGuaListInStr)
+{
+	int     ok = 1;
+	SString temp_buf;
+	StringSet ss;
+	if(!rGuaListInStr.IsEqiAscii("undefined")) {
+		THROW(DestGuaList.InitEmpty());
+		if(rGuaListInStr.NotEmpty()) {
+			THROW(rGuaListInStr.Tokenize(",", ss));
+			temp_buf.Z();
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				DestGuaList.Add(temp_buf.ToLong());
+			}
+		}
+	}
+	else {
+		DestGuaList.Set(0);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPNamedFilt::Read2(xmlNode * pParentNode)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
+		if(SXml::GetContentByName(p_node, "ID", temp_buf)>0) {
+			ID = temp_buf.ToLong();
+		}
+		else if(SXml::GetContentByName(p_node, "Ver", temp_buf)) {
+			Ver = temp_buf.ToLong();
+		}
+		else if(SXml::GetContentByName(p_node, "ViewID", temp_buf)) {
+			ViewID = temp_buf.ToLong();
+		}
+		else if(SXml::GetContentByName(p_node, "Flags", temp_buf)) {
+			Flags = temp_buf.ToLong();
+		}
+		else if(SXml::GetContentByName(p_node, "Name", temp_buf)) {
+			Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		else if(SXml::GetContentByName(p_node, "DbSymb", temp_buf)) {
+			DbSymb = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		else if(SXml::GetContentByName(p_node, "Symb", temp_buf)) {
+			Symb = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		else if(SXml::GetContentByName(p_node, "ViewSymb", temp_buf)) {
+			ViewSymb = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		else if(SXml::GetContentByName(p_node, "Param", temp_buf)) {
+			STempBuffer bin_buf(temp_buf.Len()*3);
+			size_t actual_len = 0;
+			temp_buf.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len);
+			Param.Write(bin_buf, actual_len);
+		}
+		else if(SXml::GetContentByName(p_node, "DestGuaList", temp_buf)) {
+			THROW(ReadGuaListFromStr(temp_buf));
+		}
+		else {
+			if(SXml::IsName(p_node, "VD")) {
+				THROW(VD.XmlRead(p_node));
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 SLAPI PPNamedFilt::~PPNamedFilt()
 {
 	Param.Z();
@@ -211,6 +342,10 @@ SLAPI PPNamedFiltMngr::PPNamedFiltMngr() : LastLoading(ZERODATETIME)
 	SString name;
 	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_NFPOOL, FilePath);
+	//@erik v10.7.5
+	GetXmlPoolDir(XmlFilePath);
+	XmlFilePath.SetLastSlash().Cat("namedfiltpool").Cat(".xml");
+	// } @erik
 }
 
 SLAPI PPNamedFiltMngr::~PPNamedFiltMngr()
@@ -316,6 +451,89 @@ int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 	CATCHZOK
 	return ok;
 }
+
+int PPNamedFiltMngr::GetXmlPoolDir(SString &rXmlPoolPath)
+{
+	int ok = 1;
+	THROW(PPGetFilePath(PPPATH_WORKSPACE, "namedfilt", rXmlPoolPath));  // получаем путь к workspace
+	THROW(::createDir(rXmlPoolPath));
+	CATCHZOK
+		return ok;
+}
+
+int SLAPI PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, int readOnly) //@erik v10.7.4
+{
+	int    ok = 1;
+	pPool->Flags &= ~PPNamedFiltPool::fReadOnly;
+	pPool->freeAll();
+	if(!fileExists(XmlFilePath)) {
+		THROW(ConvertBinToXml());
+	}
+	xmlDoc  * p_doc = 0;
+	xmlParserCtxt * p_xml_parser = xmlNewParserCtxt();
+	assert(p_xml_parser);
+	THROW(p_xml_parser);
+	THROW_SL(fileExists(XmlFilePath));
+	THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, XmlFilePath, 0, XML_PARSE_NOENT)), p_xml_parser) 
+	for(xmlNode * p_root = p_doc->children; p_root; p_root = p_root->next) {
+		if(SXml::IsName(p_root, "NamedFiltPool")) {
+			for(xmlNode * p_node = p_root->children; p_node; p_node = p_node->next) {
+				if(SXml::IsName(p_node, "NamedFilt")) {
+					PPID   id = 0;
+					PPNamedFilt nf;
+					THROW(nf.Read2(p_node));
+					id = nf.ID;
+					THROW(pPool->PutNamedFilt(&id, &nf));
+				}
+			}
+		}
+	}
+	LastLoading = getcurdatetime_();
+	pPool->DbSymb = pDbSymb;
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_xml_parser);
+	SETFLAG(pPool->Flags, PPNamedFiltPool::fReadOnly, readOnly);
+	return ok;
+}
+
+int SLAPI PPNamedFiltMngr::ConvertBinToXml()
+{
+	int ok = 1;
+	PPNamedFiltPool pool(0, 0);
+	THROW(LoadPool(0, &pool, 1));
+	THROW(SavePool2(&pool));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPNamedFiltMngr::SavePool2(const PPNamedFiltPool * pPool) const //@erik v10.7.4
+{
+	int    ok = 1;
+	SString temp_buf;
+	xmlTextWriter * p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0);
+	assert(p_xml_writer);
+	THROW(p_xml_writer);
+	xmlTextWriterSetIndent(p_xml_writer, 1);
+	xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+	{
+		SXml::WDoc _doc(p_xml_writer, cpUTF8);
+		uint count = pPool->getCount();
+		SXml::WNode root_node(p_xml_writer, "NamedFiltPool");
+		{
+			SXml::WNode xml_job_pool_hdr(p_xml_writer, "NamedFiltStrgHeader");
+			xml_job_pool_hdr.PutInner("Count", temp_buf.Z().Cat(count));
+		}
+		for(uint i = 0; i < count; i++) {
+			PPNamedFilt * p_nfilt = pPool->at(i);
+			THROW(p_nfilt->Write2(p_xml_writer));
+		}
+	}
+	CATCHZOK
+	xmlFreeTextWriter(p_xml_writer);
+	return ok;
+}
+
 //
 // Descr: Отвечает за диалог "Список фильтров"
 //
@@ -377,10 +595,12 @@ int SLAPI ViewFiltPool()
 	SString db_symb;
 	FiltPoolDialog * dlg = 0;
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-	THROW(mngr.LoadPool(db_symb, &pool, 0));
+	//THROW(mngr.LoadPool(db_symb, &pool, 0)); //@erik v10.7.5
+	THROW(mngr.LoadPool2(db_symb, &pool, 0));//@erik v10.7.5
 	THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
 	while(ExecView(dlg) == cmOK) {
-		if(mngr.SavePool(&pool)) {
+		//if(mngr.SavePool(&pool)) { //@erik v10.7.5
+		if(mngr.SavePool2(&pool)) {  //@erik v10.7.5
 			ok = 1;
 			break;
 		}
@@ -691,6 +911,63 @@ int PPNamedFilt::ViewDefinition::XmlWriter(void * param)
 	return ok;
 }
 
+int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter) 
+{
+	int ok = 1;
+	SString temp_buf;
+	SBuffer buf;
+	assert(pXmlWriter);
+	THROW(pXmlWriter);
+	{
+		SXml::WNode pp_vd_node(pXmlWriter, "VD");
+		for(uint i = 0; i<GetCount(); i++) {
+			Entry tmp_entry;
+			if(GetEntry(i, tmp_entry)) {
+				SXml::WNode pp_entry_node(pXmlWriter, "Entry");
+				XMLReplaceSpecSymb(temp_buf.Z().Cat(tmp_entry.Zone), "&<>\'");
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				pp_entry_node.PutInner("Zone", temp_buf);
+				XMLReplaceSpecSymb(temp_buf.Z().Cat(tmp_entry.FieldName), "&<>\'");
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				pp_entry_node.PutInner("FieldName", temp_buf);
+				XMLReplaceSpecSymb(temp_buf.Z().Cat(tmp_entry.Text), "&<>\'");
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				pp_entry_node.PutInner("Description", temp_buf);
+				pp_entry_node.PutInner("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
+			}
+		}
+	} 
+	CATCHZOK;
+	return ok;
+}
+
+int PPNamedFilt::ViewDefinition::XmlRead(xmlNode * pParentNode) 
+{
+	int ok = 1;
+	SString temp_buf;
+	for(xmlNode * p_node = pParentNode->children; p_node; p_node = p_node->next) {
+		if(SXml::IsName(p_node, "Entry")) {
+			Entry tmp_entry;
+			for(xmlNode * p_entry_node = p_node->children; p_entry_node; p_entry_node = p_entry_node->next) {
+				if(SXml::GetContentByName(p_entry_node, "Zone", temp_buf)){
+					tmp_entry.Zone = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::GetContentByName(p_entry_node, "FieldName", temp_buf)) {
+					tmp_entry.FieldName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::GetContentByName(p_entry_node, "Description", temp_buf)) {
+					tmp_entry.Text = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(SXml::GetContentByName(p_entry_node, "TotalFunc", temp_buf)) {
+					tmp_entry.TotalFunc = temp_buf.ToLong();
+				}
+			}	
+			SetEntry(tmp_entry);
+		}
+	}
+	return ok;
+} 
+
 /* @v10.6.7 int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
@@ -725,8 +1002,9 @@ public:
 		if(Data.GetStrucSymb().NotEmpty()) {
 			P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, Data.GetStrucSymb());
 		}
-		for(uint i = 0; ok && i < Data.GetCount(); i++) {
-			const PPID id = static_cast<PPID>(i + 1);
+
+		for(uint i = 0; ok && i<Data.GetCount(); i++) {
+			const PPID id = static_cast<PPID>(i+1);
 			Data.GetEntry(i, mobTypeClmn);
 			ss.clear();
 			((ss += mobTypeClmn.Zone) += mobTypeClmn.FieldName) += mobTypeClmn.Text;

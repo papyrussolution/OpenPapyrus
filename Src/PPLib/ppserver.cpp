@@ -1118,7 +1118,8 @@ int SLAPI PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray
 	int    ok = -1, r;
 	LDATETIME curdtm = getcurdatetime_();
 	pPlan->freeAll();
-	if((r = Mngr.LoadPool(0, pPool, 1)) > 0) {
+	//if((r = Mngr.LoadPool(0, pPool, 1))>0) { //@erik v10.7.4
+	if((r = Mngr.LoadPool2(0, pPool, 1)) > 0) { //@erik v10.7.4
 		PPJob job;
 		for(PPID id = 0; pPool->Enum(&id, &job) > 0;) {
 			if(!(job.Flags & PPJob::fDisable)) { // @v8.2.5 |PPJob::fUnSheduled

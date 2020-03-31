@@ -5651,7 +5651,7 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 	return ok;
 }
 
-PPObjBill::PplBlock::PplBlock(DateRange & rPeriod, const PPIDArray * pOpList, const PPIDArray * pPaymOpList) :
+PPObjBill::PplBlock::PplBlock(const DateRange & rPeriod, const PPIDArray * pOpList, const PPIDArray * pPaymOpList) :
 	Flags(0), Period(rPeriod), Amount(0.0), NominalAmount(0.0), Payment(0.0), PaymentBefore(0.0), Part(1.0), PartBefore(1.0)
 {
 	GatherPaymPeriod.Z();
@@ -9120,6 +9120,60 @@ int SLAPI PPObjBill::SubstMemo(PPBillPacket * pPack)
 	}
 	else
 		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const CvtAt2Ab_Param * pParam, int use_ta)
+{
+	int    ok = 1;
+	double amt;
+	PPOprKind op_rec;
+	PPBillPacket src_pack;
+	PPBillPacket dest_pack;
+	PPAccTurn * p_at = 0;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW(ExtractPacket(srcID, &src_pack) > 0);
+		THROW_PP(src_pack.Turns.getCount(), PPERR_UNABLECVTBILL2BILL);
+		THROW(GetOpData(src_pack.Rec.OpID, &op_rec) > 0);
+		THROW_PP(op_rec.OpTypeID == PPOPT_ACCTURN /*&&!(op_rec.Flags & OPKF_EXTACCTURN)*/, PPERR_UNABLECVTBILL2BILL);
+		THROW(GetOpData(pParam->OpID, &op_rec) > 0);
+		p_at = & src_pack.Turns.at(0);
+		THROW(dest_pack.CreateBlank(pParam->OpID, 0, pParam->LocID ? pParam->LocID : src_pack.Rec.LocID, use_ta));
+		dest_pack.Rec.Object  = pParam->ObjID;
+		dest_pack.Rec.Object2 = pParam->ExtObjID;
+		if(p_at->DbtSheet) {
+			if(p_at->DbtSheet == op_rec.AccSheetID) {
+				SETIFZ(dest_pack.Rec.Object, p_at->DbtID.ar);
+			}
+			else if(p_at->DbtSheet == op_rec.AccSheet2ID) {
+				SETIFZ(dest_pack.Rec.Object2, p_at->DbtID.ar);
+			}
+		}
+		if(p_at->CrdSheet) {
+			if(p_at->CrdSheet == op_rec.AccSheetID) {
+				SETIFZ(dest_pack.Rec.Object, p_at->CrdID.ar);
+			}
+			else if(p_at->CrdSheet == op_rec.AccSheet2ID) {
+				SETIFZ(dest_pack.Rec.Object2, p_at->CrdID.ar);
+			}
+		}
+		dest_pack.Rec.Dt = src_pack.Rec.Dt;
+		STRNSCPY(dest_pack.Rec.Code, src_pack.Rec.Code);
+		dest_pack.Rec.LocID = pParam->LocID ? pParam->LocID : src_pack.Rec.LocID;
+		STRNSCPY(dest_pack.Rec.Memo, src_pack.Rec.Memo);
+		amt = (pParam->Flags & CvtAt2Ab_Param::fNegAmount) ? -p_at->Amount : p_at->Amount;
+		dest_pack.Rec.Amount = BR2(amt);
+		dest_pack.Amounts.Put(PPAMT_MAIN, 0L, amt, 0, 1);
+		//dest_pack.InitAmounts();
+		THROW(FillTurnList(&dest_pack));
+		THROW(TurnPacket(&dest_pack, 0));
+		ASSIGN_PTR(pDestID, dest_pack.Rec.ID);
+		THROW(RemovePacket(srcID, 0));
+		THROW(tra.Commit());
+	}
 	CATCHZOK
 	return ok;
 }

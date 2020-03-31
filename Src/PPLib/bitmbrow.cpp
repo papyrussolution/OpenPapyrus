@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -2341,19 +2341,21 @@ void BillItemBrowser::selectPckg(PPID goodsID)
 }
 
 class LotXCodeListDialog_Base : public PPListDialog {
+protected:
+	DECL_DIALOG_DATA(PPLotExtCodeContainer);
 public:
 	LotXCodeListDialog_Base(uint dlgId, uint listCtlId, const PPBillPacket * pPack, int rowIdx, long flags) : PPListDialog(dlgId, listCtlId, flags),
 		P_Pack(pPack), P_LotXcT(BillObj->P_LotXcT), RowIdx(rowIdx)
 	{
 		SetCtrlFont(CTL_LOTXCLIST_LIST, "Courier New", 14);
 	}
-	int    setDTS(const PPLotExtCodeContainer * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(PPLotExtCodeContainer * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -2447,7 +2449,6 @@ protected:
 	}
 	const  int RowIdx;
 	const  PPBillPacket * P_Pack;
-	PPLotExtCodeContainer Data;
 	LotExtCodeCore * P_LotXcT;
 };
 
@@ -2983,9 +2984,9 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 							PPErrorByDialog(dlg, sel);
 					}
 					else {
-						if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
-							rSet.AddBox(0, mark_buf, 1);
-						else if(oneof2(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM)) {
+						/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
+							rSet.AddBox(0, mark_buf, 1);*/
+						if(oneof4(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
 							long last_box_id = rSet.SearchLastBox(-1);
 							rSet.AddNum(last_box_id, mark_buf, 1);
 						}

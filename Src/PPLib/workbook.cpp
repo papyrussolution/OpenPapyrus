@@ -275,37 +275,30 @@ int SLAPI PPObjWorkbook::EditConfig()
 			PPOpCounterPacket Cntr;
 			PPWorkbookConfig Cfg;
 		};
+		DECL_DIALOG_DATA(Rec);
+
 		WorkbookCfgDialog() : TDialog(DLG_WBCFG)
 		{
 		}
-		int setDTS(const Rec * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_WBCFG_CODETEMPL, Data.Cntr.Head.CodeTemplate);
 			setCtrlLong(CTL_WBCFG_CODECNTR,  Data.Cntr.Head.Counter);
 			SetupPPObjCombo(this, CTLSEL_WBCFG_UHTTXEVTOK, PPOBJ_EVENTTOKEN, Data.Cfg.UhttXEvTokID, OLW_CANINSERT, 0); // @v9.3.9
 			SetupPPObjCombo(this, CTLSEL_WBCFG_DEFIMGFOLD, PPOBJ_WORKBOOK, Data.Cfg.DefImageFolderID, OLW_CANINSERT|OLW_CANSELUPLEVEL, 0);
 			return 1;
 		}
-		int getDTS(Rec * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			//uint   sel = 0;
 			getCtrlData(CTL_WBCFG_CODETEMPL,     Data.Cntr.Head.CodeTemplate);
 			getCtrlData(CTL_WBCFG_CODECNTR,      &Data.Cntr.Head.Counter);
 			getCtrlData(CTLSEL_WBCFG_UHTTXEVTOK, &Data.Cfg.UhttXEvTokID); // @v9.3.9
 			getCtrlData(CTLSEL_WBCFG_DEFIMGFOLD, &Data.Cfg.DefImageFolderID);
 			ASSIGN_PTR(pData, Data);
-			/*
-			CATCH
-				PPErrorByDialog(this, sel, 1);
-				ok = 0;
-			ENDCATCH
-			*/
 			return ok;
 		}
-	private:
-		Rec    Data;
 	};
 	int    ok = -1, is_new = 0;
 	WorkbookCfgDialog * dlg = new WorkbookCfgDialog;

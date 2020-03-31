@@ -10,6 +10,7 @@
 //
 //
 class JobItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPJob);
 public:
 	JobItemDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBITEM), P_Mngr(pMngr), P_JobPool(pJobPool)
 	{
@@ -21,14 +22,82 @@ public:
 		}
 		SetupTimePicker(this, CTL_JOBITEM_SCHDLBEFORE, CTLTM_JOBITEM_SCHDLBEFORE);
 	}
-	int    setDTS(const PPJob *);
-	int    getDTS(PPJob *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		int    db_id = 0;
+		PPDbEntrySet2 dbes;
+		PPIniFile ini_file;
+		SString db_symb, db_name;
+		StrAssocArray cmd_txt_list;
+		PPID   cmd_id = 0;
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_JOBITEM_NAME, Data.Name);
+		setCtrlData(CTL_JOBITEM_SYMB, Data.Symb);
+		setCtrlLong(CTL_JOBITEM_ID, Data.ID);
+		AddClusterAssoc(CTL_JOBITEM_FLAGS, 0, PPJob::fNotifyByMail);
+		AddClusterAssoc(CTL_JOBITEM_FLAGS, 1, PPJob::fDisable);
+		AddClusterAssoc(CTL_JOBITEM_FLAGS, 2, PPJob::fOnStartUp);
+		AddClusterAssoc(CTL_JOBITEM_FLAGS, 3, PPJob::fPermanent);
+		AddClusterAssoc(CTL_JOBITEM_FLAGS, 4, PPJob::fUnSheduled);
+		AddClusterAssoc(CTL_JOBITEM_FLAGS, 5, PPJob::fSkipEmptyNotification);
+		SetClusterData(CTL_JOBITEM_FLAGS, Data.Flags);
+		setCtrlTime(CTL_JOBITEM_SCHDLBEFORE, Data.ScheduleBeforeTime); // @v9.2.11
+		dbes.ReadFromProfile(&ini_file);
+		if(Data.DbSymb.NotEmpty()) {
+			db_id = dbes.GetBySymb(Data.DbSymb, 0);
+			if(db_id)
+				dbes.SetSelection(db_id);
+		}
+		SetupDBEntryComboBox(this, CTLSEL_JOBITEM_DBSYMB, &dbes);
+		if(db_id == 0 && Data.DbSymb.NotEmpty())
+			setCtrlString(CTL_JOBITEM_DBSYMB, Data.DbSymb);
+		disableCtrl(CTLSEL_JOBITEM_DBSYMB, 1);
+		P_Mngr->GetResourceList(1, cmd_txt_list);
+		cmd_txt_list.SortByText();
+		uint   pos = 0;
+		if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
+			cmd_id = CmdSymbList.Get(pos).Id;
+		SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, &cmd_txt_list, cmd_id, 0);
+		SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, &JobList, Data.NextJobID, 0, 0, 0);
+		disableCtrl(CTLSEL_JOBITEM_CMD, cmd_id);
+		{
+			PPJobDescr job_descr;
+			if(cmd_id && P_Mngr->LoadResource(cmd_id, &job_descr) > 0)
+				enableCommand(cmJobParam, !(job_descr.Flags & PPJobDescr::fNoParam));
+			else
+				enableCommand(cmJobParam, 0);
+			enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled));
+			DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
+			disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		PPID   cmd_id = 0;
+		uint   sel = 0;
+		getCtrlString(sel = CTL_JOBITEM_NAME, Data.Name);
+		THROW_PP(Data.Name.NotEmptyS(), PPERR_NAMENEEDED);
+		getCtrlData(sel = CTL_JOBITEM_SYMB, Data.Symb);
+		THROW(P_JobPool->CheckUniqueJob(&Data));
+		getCtrlData(sel = CTLSEL_JOBITEM_CMD, &cmd_id);
+		THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
+		THROW(P_Mngr->LoadResource(cmd_id, &Data.Descr));
+		getCtrlData(sel = CTLSEL_JOBITEM_NEXTJOB, &Data.NextJobID);
+		GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
+		Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE); // @v9.2.11
+		THROW(CheckRecursion(&Data));
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   editSchedule();
 	int    CheckRecursion(const PPJob * pData);
 
-	PPJob  Data;
 	PPJobPool * P_JobPool;
 	PPJobMngr * P_Mngr;
 	StrAssocArray CmdSymbList;
@@ -52,14 +121,12 @@ IMPL_HANDLE_EVENT(JobItemDialog)
 			else
 				enableCommand(cmJobParam, 0);
 		}
-		// @v8.2.5 {
 		else if(event.isClusterClk(CTL_JOBITEM_FLAGS)) {
 			GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
 			enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled));
 			DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
 			disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
 		}
-		// } @v8.2.5
 		else if(TVCMD == cmSchedule)
 			editSchedule();
 		else if(TVCMD == cmJobParam)
@@ -110,79 +177,6 @@ void JobItemDialog::editSchedule()
 				valid_data = 1;
 	}
 	delete dlg;
-}
-
-int JobItemDialog::setDTS(const PPJob * pData)
-{
-	int    ok = 1;
-	int    db_id = 0;
-	PPDbEntrySet2 dbes;
-	PPIniFile ini_file;
-	SString db_symb, db_name;
-	StrAssocArray cmd_txt_list;
-	PPID   cmd_id = 0;
-	Data = *pData;
-	setCtrlString(CTL_JOBITEM_NAME, Data.Name);
-	setCtrlData(CTL_JOBITEM_SYMB, Data.Symb);
-	setCtrlLong(CTL_JOBITEM_ID, Data.ID);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 0, PPJob::fNotifyByMail);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 1, PPJob::fDisable);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 2, PPJob::fOnStartUp);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 3, PPJob::fPermanent);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 4, PPJob::fUnSheduled);
-	AddClusterAssoc(CTL_JOBITEM_FLAGS, 5, PPJob::fSkipEmptyNotification);
-	SetClusterData(CTL_JOBITEM_FLAGS, Data.Flags);
-	setCtrlTime(CTL_JOBITEM_SCHDLBEFORE, Data.ScheduleBeforeTime); // @v9.2.11
-	dbes.ReadFromProfile(&ini_file);
-	if(Data.DbSymb.NotEmpty()) {
-		db_id = dbes.GetBySymb(Data.DbSymb, 0);
-		if(db_id)
-			dbes.SetSelection(db_id);
-	}
-	SetupDBEntryComboBox(this, CTLSEL_JOBITEM_DBSYMB, &dbes);
-	if(db_id == 0 && Data.DbSymb.NotEmpty())
-		setCtrlString(CTL_JOBITEM_DBSYMB, Data.DbSymb);
-	disableCtrl(CTLSEL_JOBITEM_DBSYMB, 1);
-	P_Mngr->GetResourceList(1, cmd_txt_list);
-	cmd_txt_list.SortByText();
-	uint   pos = 0;
-	if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
-		cmd_id = CmdSymbList.Get(pos).Id;
-	SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, &cmd_txt_list, cmd_id, 0);
-	SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, &JobList, Data.NextJobID, 0, 0, 0);
-	disableCtrl(CTLSEL_JOBITEM_CMD, cmd_id);
-	{
-		PPJobDescr job_descr;
-		if(cmd_id && P_Mngr->LoadResource(cmd_id, &job_descr) > 0)
-			enableCommand(cmJobParam, !(job_descr.Flags & PPJobDescr::fNoParam));
-		else
-			enableCommand(cmJobParam, 0);
-		enableCommand(cmSchedule, !(Data.Flags & PPJob::fUnSheduled));
-		DisableClusterItem(CTL_JOBITEM_FLAGS, 5, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
-		disableCtrl(CTL_JOBITEM_SCHDLBEFORE, (Data.Flags & PPJob::fUnSheduled)); // @v9.2.11
-	}
-	return ok;
-}
-
-int JobItemDialog::getDTS(PPJob * pData)
-{
-	int    ok = 1;
-	PPID   cmd_id = 0;
-	uint   sel = 0;
-	getCtrlString(sel = CTL_JOBITEM_NAME, Data.Name);
-	THROW_PP(Data.Name.NotEmptyS(), PPERR_NAMENEEDED);
-	getCtrlData(sel = CTL_JOBITEM_SYMB, Data.Symb);
-	THROW(P_JobPool->CheckUniqueJob(&Data));
-	getCtrlData(sel = CTLSEL_JOBITEM_CMD, &cmd_id);
-	THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
-	THROW(P_Mngr->LoadResource(cmd_id, &Data.Descr));
-	getCtrlData(sel = CTLSEL_JOBITEM_NEXTJOB, &Data.NextJobID);
-	GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
-	Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE); // @v9.2.11
-	THROW(CheckRecursion(&Data));
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int JobItemDialog::CheckRecursion(const PPJob * pData)
@@ -314,11 +308,13 @@ int SLAPI ViewJobPool()
 	JobPoolDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_READ, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-	THROW(mngr.LoadPool(db_symb, &pool, 0));
+	/*THROW(mngr.LoadPool(db_symb, &pool, 0));*/ //@erik v10.7.4
+	THROW(mngr.LoadPool2(db_symb, &pool, 0)); //@erik v10.7.4
 	THROW(CheckDialogPtrErr(&(dlg = new JobPoolDialog(&mngr, &pool))));
 	while(ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0));
-		if(mngr.SavePool(&pool)) {
+		//if(mngr.SavePool(&pool)) { //@erik v10.7.4
+		if(mngr.SavePool2(&pool)) { //@erik v10.7.4
 			DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_JOBPOOL, 0, 0, 1);
 			ok = 1;
 			break;
@@ -415,7 +411,8 @@ int SLAPI PPViewJob::LoadPool()
 	ZDELETE(P_Pool);
 	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
-	THROW(Mngr.LoadPool(db_symb, P_Pool, 0));
+	//THROW(Mngr.LoadPool(db_symb, P_Pool, 0)); //@erik v10.7.4
+	THROW(Mngr.LoadPool2(db_symb, P_Pool, 0)); //@erik v10.7.4
 	Mngr.GetResourceList(0, CmdSymbList);
 	CATCH
 		ZDELETE(P_Pool);
@@ -428,7 +425,8 @@ int SLAPI PPViewJob::SavePool()
 {
 	int    ok = -1;
 	if(P_Pool) {
-		if(Mngr.SavePool(P_Pool)) {
+		//if(Mngr.SavePool(P_Pool)) { //@erik v10.7.4
+		if(Mngr.SavePool2(P_Pool)) { //@erik v10.7.4
 			IsChanged = 0;
 			DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_JOBPOOL, 0, 0, 1);
 			ok = 1;
@@ -442,9 +440,9 @@ int SLAPI PPViewJob::SavePool()
 class JobFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(JobFilt);
 public:
-	JobFiltDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBFILT), P_Mngr(pMngr), P_Pool(pJobPool)
+	JobFiltDialog(PPJobMngr & rMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBFILT), R_Mngr(rMngr), P_Pool(pJobPool)
 	{
-		P_Mngr->GetResourceList(0, CmdSymbList);
+		R_Mngr.GetResourceList(0, CmdSymbList);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -452,7 +450,7 @@ public:
 			Data.Init(1, 0);
 		{
 			StrAssocArray cmd_txt_list;
-			P_Mngr->GetResourceList(1, cmd_txt_list);
+			R_Mngr.GetResourceList(1, cmd_txt_list);
 			cmd_txt_list.SortByText();
 			SetupStrAssocCombo(this, CTLSEL_JOBFILT_CMD, &cmd_txt_list, Data.CmdId, 0);
 		}
@@ -477,13 +475,13 @@ public:
 	}
 private:
 	StrAssocArray CmdSymbList;
-	PPJobMngr * P_Mngr;
+	PPJobMngr & R_Mngr;
 	PPJobPool * P_Pool;
 };
 
 int SLAPI PPViewJob::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	DIALOG_PROC_BODY_P2ERR(JobFiltDialog, &Mngr, P_Pool, static_cast<JobFilt *>(pFilt));
+	DIALOG_PROC_BODY_P2ERR(JobFiltDialog, Mngr, P_Pool, static_cast<JobFilt *>(pFilt));
 }
 
 int SLAPI PPViewJob::Init_(const PPBaseFilt * pFilt)

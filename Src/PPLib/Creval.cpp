@@ -1,7 +1,7 @@
 // CREVAL.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
-// Валютная переоценка
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
+// Р’Р°Р»СЋС‚РЅР°СЏ РїРµСЂРµРѕС†РµРЅРєР°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -9,6 +9,7 @@
 //
 //
 class CRevalDialog : public PPListDialog {
+	DECL_DIALOG_DATA(CurRevalParam);
 public:
 	CRevalDialog() : PPListDialog(DLG_CREVAL, CTL_CREVAL_ACCLIST)
 	{
@@ -19,8 +20,49 @@ public:
 		updateList(-1);
 		updateCRateList();
 	}
-	int    setDTS(const CurRevalParam *);
-	int    getDTS(CurRevalParam *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_CREVAL_DT, &Data.Dt);
+		setCtrlData(CTL_CREVAL_CORRACC,    &Data.CorrAcc);
+		setCtrlData(CTL_CREVAL_NEGCORRACC, &Data.NegCorrAcc);
+		SetupPPObjCombo(this, CTLSEL_CREVAL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+		for(uint i = 0; i < Data.AccList.getCount(); i++)
+			setupCRateList(Data.AccList.at(i), 0);
+		updateList(-1);
+		updateCRateList();
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1, r;
+		uint   i, sel = 0;
+		PPID * p_acc_id = 0;
+		getCtrlData(CTL_CREVAL_DT, &Data.Dt);
+		THROW_SL(checkdate(Data.Dt));
+		getCtrlData(sel = CTLSEL_CREVAL_LOC, &Data.LocID);
+		THROW_PP(Data.LocID, PPERR_LOCNEEDED);
+		THROW(r = getAcc(sel = CTL_CREVAL_CORRACC, &Data.CorrAcc));
+		THROW_PP(r > 0, PPERR_ACCNEEDED);
+		THROW(r = getAcc(sel = CTL_CREVAL_NEGCORRACC, &Data.NegCorrAcc));
+		sel = CTL_CREVAL_CRATELIST;
+		for(i = 0; Data.AccList.enumItems(&i, (void **)&p_acc_id);) {
+			PPIDArray cur_list;
+			if(AccObj.GetCurList(*p_acc_id, 0, &cur_list) > 0) {
+				PPID * p_cur_id = 0;
+	   			for(uint j = 0; cur_list.enumItems(&j, (void **)&p_cur_id);) {
+		   			if(*p_cur_id) {
+						const double crate = Data.CRateList.Get(PPAMT_CRATE, *p_cur_id);
+						THROW_PP(crate > 0.0, PPERR_INVCRATE);
+					}
+				}
+			}
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -30,25 +72,9 @@ private:
 	void   editCRate();
 	void   updateCRateList();
 	int    setupCRateList(PPID accID, int * pIsCurAcc);
-
-	CurRevalParam Data;
+	
 	PPObjAccount AccObj;
 };
-
-int CRevalDialog::setDTS(const CurRevalParam * pData)
-{
-	int    ok = 1;
-	Data = *pData;
-	setCtrlData(CTL_CREVAL_DT, &Data.Dt);
-	setCtrlData(CTL_CREVAL_CORRACC,    &Data.CorrAcc);
-	setCtrlData(CTL_CREVAL_NEGCORRACC, &Data.NegCorrAcc);
-	SetupPPObjCombo(this, CTLSEL_CREVAL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-	for(uint i = 0; i < Data.AccList.getCount(); i++)
-		setupCRateList(Data.AccList.at(i), 0);
-	updateList(-1);
-	updateCRateList();
-	return ok;
-}
 
 int CRevalDialog::getAcc(uint ctl, Acct * pAcc)
 {
@@ -56,36 +82,6 @@ int CRevalDialog::getAcc(uint ctl, Acct * pAcc)
 	getCtrlData(ctl, pAcc);
 	//pAcc->ar = 0;
 	return (pAcc->ac == 0 && pAcc->sb == 0) ? -1 : ((BillObj->atobj->ConvertAcct(pAcc, 0L, &acctid, 0) > 0) ? 1 : (selectCtrl(ctl), 0));
-}
-
-int CRevalDialog::getDTS(CurRevalParam * pData)
-{
-	int    ok = 1, r;
-	uint   i, sel = 0;
-	PPID * p_acc_id = 0;
-	getCtrlData(CTL_CREVAL_DT, &Data.Dt);
-	THROW_SL(checkdate(Data.Dt));
-	getCtrlData(sel = CTLSEL_CREVAL_LOC, &Data.LocID);
-	THROW_PP(Data.LocID, PPERR_LOCNEEDED);
-	THROW(r = getAcc(sel = CTL_CREVAL_CORRACC, &Data.CorrAcc));
-	THROW_PP(r > 0, PPERR_ACCNEEDED);
-	THROW(r = getAcc(sel = CTL_CREVAL_NEGCORRACC, &Data.NegCorrAcc));
-	sel = CTL_CREVAL_CRATELIST;
-	for(i = 0; Data.AccList.enumItems(&i, (void **)&p_acc_id);) {
-		PPIDArray cur_list;
-		if(AccObj.GetCurList(*p_acc_id, 0, &cur_list) > 0) {
-			PPID * p_cur_id = 0;
-	   	    for(uint j = 0; cur_list.enumItems(&j, (void **)&p_cur_id);) {
-		   	    if(*p_cur_id) {
-					const double crate = Data.CRateList.Get(PPAMT_CRATE, *p_cur_id);
-					THROW_PP(crate > 0.0, PPERR_INVCRATE);
-				}
-			}
-		}
-	}
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 IMPL_HANDLE_EVENT(CRevalDialog)
