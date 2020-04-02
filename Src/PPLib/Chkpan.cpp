@@ -5465,8 +5465,7 @@ public:
 		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 0, Data.fDelivery);
 		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished); // @v9.7.7
 		SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
-		SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/),
-			0/*OLW_LOADDEFONOPEN*/, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+		SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/), 0/*OLW_LOADDEFONOPEN*/, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 		SetupDeliveryCtrls(0);
 		if(DlvrPhone.NotEmpty()) {
 			Data.Flags |= Data.fDelivery;

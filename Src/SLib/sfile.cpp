@@ -1113,7 +1113,7 @@ int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, L
 //		0 - файл доступен для открытия на чтение
 //	   -1 - ошибка
 //
-int SLAPI SFile::IsOpenedForWrite(const char * pFileName)
+int SLAPI SFile::IsOpenedForWriting(const char * pFileName)
 {
 	int    ok = 0;
 	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
@@ -1138,7 +1138,7 @@ int SLAPI SFile::IsOpenedForWrite(const char * pFileName)
 int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout)
 {
 	int    ok = -1;
-	int    r = IsOpenedForWrite(pFileName);
+	int    r = IsOpenedForWriting(pFileName);
 	if(r == 0)
 		ok = -1;
 	else if(r < 0)
@@ -1150,7 +1150,7 @@ int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout
 		long   days = 0;
 		do {
 			SDelay(100);
-			r = IsOpenedForWrite(pFileName);
+			r = IsOpenedForWriting(pFileName);
 			//LDATETIME dtm_cur = getcurdatetime_();
 			//msec = diffdatetime(dtm_cur, dtm_start, 4, &(days = 0));
 			const long c_cur = clock();
@@ -2793,19 +2793,19 @@ SLTEST_R(SFile)
 	SString file_name;
 	file_name = MakeOutputFilePath("open_for_write_test.txt");
 	//
-	// Тестирование функции IsOpenedForWrite()
+	// Тестирование функции IsOpenedForWriting()
 	//
-	// Откроем файл на запись (IsOpenedForWrite должен вернуть 1)
+	// Откроем файл на запись (IsOpenedForWriting должен вернуть 1)
 	//
 	THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mWrite)));
-	SLTEST_CHECK_NZ(SFile::IsOpenedForWrite(file_name));
+	SLTEST_CHECK_NZ(SFile::IsOpenedForWriting(file_name));
 	SLTEST_CHECK_NZ(file.WriteLine("test"));
 	SLTEST_CHECK_NZ(file.Close());
 	//
-	// Откроем файл на чтение (IsOpenedForWrite должен вернуть 0)
+	// Откроем файл на чтение (IsOpenedForWriting должен вернуть 0)
 	//
 	THROW(SLTEST_CHECK_NZ(file.Open(file_name, SFile::mRead)));
-	SLTEST_CHECK_Z(SFile::IsOpenedForWrite(file_name));
+	SLTEST_CHECK_Z(SFile::IsOpenedForWriting(file_name));
 	SLTEST_CHECK_NZ(file.Close());
 	//
 	{

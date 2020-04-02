@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Штатное расписание
 //
@@ -712,14 +712,48 @@ int SLAPI PPObjStaffList::GetPostList(PPID staffID, PersonPostArray * pList)
 #define GRP_DIV 1
 
 class StaffDialog : public TDialog {
+	DECL_DIALOG_DATA(PPStaffPacket);
 public:
 	StaffDialog() : TDialog(DLG_STAFF)
 	{
 		addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_STAFF_ORG, CTLSEL_STAFF_DIV, 0, 0));
 		enableCommand(cmAmounts, SlObj.CheckRights(PPObjStaffList::rtReadAmounts));
 	}
-	int    setDTS(const PPStaffPacket * pData);
-	int    getDTS(PPStaffPacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		{
+			DivisionCtrlGroup::Rec grp_rec(Data.Rec.OrgID, Data.Rec.DivisionID);
+			setGroupData(GRP_DIV, &grp_rec);
+		}
+		setCtrlData(CTL_STAFF_NAME,   Data.Rec.Name);
+		setCtrlData(CTL_STAFF_RANK,   &Data.Rec.Rank);
+		setCtrlData(CTL_STAFF_COUNT,  &Data.Rec.VacancyCount);
+		SetupStringCombo(this, CTLSEL_STAFF_FIX, PPTXT_FIXSTAFFLIST, Data.Rec.FixedStaff);
+		SetupPPObjCombo(this, CTLSEL_STAFF_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, reinterpret_cast<void *>(-1000));
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_STAFF_NAME,   Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
+		getCtrlData(CTL_STAFF_COUNT,  &Data.Rec.VacancyCount);
+		getCtrlData(CTLSEL_STAFF_FIX, &Data.Rec.FixedStaff);
+		{
+			DivisionCtrlGroup::Rec grp_rec;
+			getGroupData(GRP_DIV, &grp_rec);
+			Data.Rec.OrgID      = grp_rec.OrgID;
+			Data.Rec.DivisionID = grp_rec.DivID;
+		}
+		getCtrlData(CTL_STAFF_RANK,   &Data.Rec.Rank);
+		getCtrlData(CTL_STAFF_CHARGE, &Data.Rec.ChargeGrpID);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -735,45 +769,7 @@ private:
 		}
 	}
 	PPObjStaffList SlObj;
-	PPStaffPacket Data;
 };
-
-int StaffDialog::setDTS(const PPStaffPacket * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	{
-		DivisionCtrlGroup::Rec grp_rec(Data.Rec.OrgID, Data.Rec.DivisionID);
-		setGroupData(GRP_DIV, &grp_rec);
-	}
-	setCtrlData(CTL_STAFF_NAME,   Data.Rec.Name);
-	setCtrlData(CTL_STAFF_RANK,   &Data.Rec.Rank);
-	setCtrlData(CTL_STAFF_COUNT,  &Data.Rec.VacancyCount);
-	SetupStringCombo(this, CTLSEL_STAFF_FIX, PPTXT_FIXSTAFFLIST, Data.Rec.FixedStaff);
-	SetupPPObjCombo(this, CTLSEL_STAFF_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, reinterpret_cast<void *>(-1000));
-	return 1;
-}
-
-int StaffDialog::getDTS(PPStaffPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_STAFF_NAME,   Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
-	getCtrlData(CTL_STAFF_COUNT,  &Data.Rec.VacancyCount);
-	getCtrlData(CTLSEL_STAFF_FIX, &Data.Rec.FixedStaff);
-	{
-		DivisionCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_DIV, &grp_rec);
-		Data.Rec.OrgID      = grp_rec.OrgID;
-		Data.Rec.DivisionID = grp_rec.DivID;
-	}
-	getCtrlData(CTL_STAFF_RANK,   &Data.Rec.Rank);
-	getCtrlData(CTL_STAFF_CHARGE, &Data.Rec.ChargeGrpID);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 
 int SLAPI PPObjStaffList::EditDialog(PPStaffPacket * pPack) { DIALOG_PROC_BODY(StaffDialog, pPack); }
 

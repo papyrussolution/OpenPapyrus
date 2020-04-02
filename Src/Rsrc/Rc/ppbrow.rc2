@@ -854,21 +854,21 @@ toolbar export GOODSOPER TB_FIRST_TOOLBAR {
 }
 
 toolbar export SALARY TB_FIRST_TOOLBAR {
-	EDITITEM      : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
-	ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
-	DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
-	DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,  "@{doremoveall}\tCtrl-F8"
+	EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
+	ADDITEM       : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
+	DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
+	DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
 	separator
-	EDITPERSON    : kbF2,     TBBM_PERSONS,      "@{person}\tF2"
-	EDITSTAFF     : kbF3,     PPDV_NOICON,       "@{person_position}\tF3"
-	EDITSALCHARGE : kbF4,     PPDV_NOICON,       "Вид начисления\tF4"
-	EDITBILL      : kbCtrlF3, PPDV_DOCUMENT_PL02,        "@{linkdocument}\tCtrl-F3"
+	EDITPERSON    : kbF2,     TBBM_PERSONS,       "@{person}\tF2"
+	EDITSTAFF     : kbF3,     PPDV_NOICON,        "@{person_position}\tF3"
+	EDITSALCHARGE : kbF4,     PPDV_NOICON,        "@{salarychargekind}\tF4"
+	EDITBILL      : kbCtrlF3, PPDV_DOCUMENT_PL02, "@{linkdocument}\tCtrl-F3"
 	separator
-	CHARGE        : kbF6,     TBBM_CHARGE,       "@{accrual}\tF6"
+	CHARGE        : kbF6,     TBBM_CHARGE,        "@{accrual}\tF6"
 	separator
-	PRINT         : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
+	PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
 	separator
-	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
+	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
 }
 
 toolbar export ARTICLE TB_FIRST_TOOLBAR {
@@ -3304,7 +3304,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		separator
 		TRANSMIT         : kbCtrlH, PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
 		CHANGEFILT       : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
-		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "Специальная функция\tCtrl-X"
+		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "@{specialfunction}\tCtrl-X"
 	}
 }
 
@@ -3329,7 +3329,7 @@ browser SYSJ_OBJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		separator
 		TRANSMIT         : kbCtrlH, PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
 		CHANGEFILT       : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
-		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "Специальная функция\tCtrl-X"
+		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "@{specialfunction}\tCtrl-X"
 	}
 }
 
@@ -3344,7 +3344,7 @@ browser SYSJ_SUBST north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		PRINT            : kbF7,    PPDV_PRINTER01,      "@{print}\tF7"
 		separator
 		CHANGEFILT       : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
-		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "Специальная функция\tCtrl-X"
+		SPCFUNC          : kbCtrlX, PPDV_NOICON, hidden, "@{specialfunction}\tCtrl-X"
 	}
 }
 
@@ -5351,7 +5351,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 	}
 }
 
-browser TSESS_MANUFPLAN north(100), 3, 1, "Производственные планы {%s}", OWNER|GRID, 0
+browser TSESS_MANUFPLAN north(100), 3, 1, "@{productionplan_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",                    0, notype, 0,  4
 	"@number",                1, notype, 0,  6

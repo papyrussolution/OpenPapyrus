@@ -819,6 +819,8 @@ SLAPI PPPosProtocol::SCardBlock::SCardBlock() : ObjectBlock(), CodeP(0), OwnerBl
 	{}
 SLAPI PPPosProtocol::CSessionBlock::CSessionBlock() : ObjectBlock(), /*ID(0),*/ Code(0), PosBlkP(0), Dtm(ZERODATETIME)
 	{}
+SLAPI PPPosProtocol::AddressBlock::AddressBlock() : ObjectBlock(), CCheckBlkP(0), CityP(0), ZipP(0), TextP(0), PhoneP(0), EMailP(0), ContactP(0)
+	{}
 SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlags(0), SaCcFlags(0), CTableN(0), GuestCount(0), CSessionBlkP(0),
 	AddrBlkP(0), AgentBlkP(0), Amount(0.0), Discount(0.0), Dtm(ZERODATETIME), CreationDtm(ZERODATETIME), SCardBlkP(0), MemoP(0)
 	{}
@@ -916,6 +918,7 @@ int  SLAPI PPPosProtocol::ReadBlock::CreateItem(int type, uint * pRefPos)
 		case obPayment:     THROW(Helper_CreateItem(CcPaymBlkList, type, pRefPos)); break;
 		case obPosNode:     THROW(Helper_CreateItem(PosBlkList, type, pRefPos)); break;
 		case obQuery:       THROW(Helper_CreateItem(QueryList, type, pRefPos)); break;
+		case obAddress:     THROW(Helper_CreateItem(AddressList, type, pRefPos)); break; // @v10.7.5
 		default:
 			assert(0);
 			CALLEXCEPT();
@@ -953,6 +956,7 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 	CPY_FLD(CcPaymBlkList);
 	CPY_FLD(QueryList);
 	CPY_FLD(RefList);
+	CPY_FLD(AddressList); // @v10.7.5
 	#undef CPY_FLD
 	return *this;
 }
@@ -1008,6 +1012,7 @@ void * SLAPI PPPosProtocol::ReadBlock::GetItem(uint refPos, int * pType) const
 			case obPosNode:     p_ret = &PosBlkList.at(r_ref.P); break;
 			case obQuery:       p_ret = &QueryList.at(r_ref.P); break;
 			case obLot:         p_ret = &LotBlkList.at(r_ref.P); break;
+			case obAddress:     p_ret = &AddressList.at(r_ref.P); break; // @v10.7.5
 			default:
 				assert(0);
 				CALLEXCEPT();
@@ -1284,6 +1289,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 	int    ok = 1;
 	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
 	long   glbs_flags = 0; // @v10.1.5 Флаги вызова функции CCheckCore::GetListBySess
+	PPObjWorld wrld_obj;
 	LDATETIME dtm;
 	SString temp_buf;
 	{
@@ -1340,6 +1346,56 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 							SXml::WNode w_sc(rB.P_Xw, "card");
 							w_sc.PutInner("code", CorrectAndEncText(sc_rec.Code));
 						}
+						// @v10.7.5 {
+						if(cc_pack.Ext.AddrID) {
+							PPLocationPacket loc_pack;
+							if(PsnObj.LocObj.GetPacket(cc_pack.Ext.AddrID, &loc_pack) > 0) {
+								S_GUID loc_uuid;
+								const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_UUID);
+								int    is_uuid_ok = 0;
+								if(p_tag_item && p_tag_item->GetGuid(&loc_uuid)) {
+									is_uuid_ok = 1;
+								}
+								/*else {
+									loc_uuid.Generate();
+									ObjTagItem new_tag_item_uuid;
+									if(new_tag_item_uuid.SetGuid(PPTAG_LOC_UUID, &loc_uuid)) {
+										if(PPRef->Ot.PutTag(PPOBJ_LOCATION, loc_pack.ID, &new_tag_item_uuid, 1))
+											is_uuid_ok = 1;
+									}
+								}*/
+								{
+									SXml::WNode w_a(rB.P_Xw, "address");
+									{
+										loc_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+										w_a.PutInner("uuid", EncText(temp_buf));
+										WorldTbl::Rec wrec;
+										if(loc_pack.CityID && wrld_obj.Search(loc_pack.CityID, &wrec) > 0) {
+											w_a.PutInner("city", EncText(temp_buf = wrec.Name));
+										}
+										if(LocationCore::GetExField(&loc_pack, LOCEXSTR_ZIP, temp_buf) > 0) {
+											w_a.PutInner("zip", EncText(temp_buf));
+										}
+										if(LocationCore::GetExField(&loc_pack, LOCEXSTR_FULLADDR, temp_buf) > 0) {
+											w_a.PutInner("text", EncText(temp_buf));
+										}
+										else if(LocationCore::GetExField(&loc_pack, LOCEXSTR_SHORTADDR, temp_buf) > 0) {
+											w_a.PutInner("text", EncText(temp_buf));
+										}
+										if(LocationCore::GetExField(&loc_pack, LOCEXSTR_PHONE, temp_buf) > 0) {
+											w_a.PutInner("phone", EncText(temp_buf));
+										}
+										if(LocationCore::GetExField(&loc_pack, LOCEXSTR_EMAIL, temp_buf) > 0) {
+											w_a.PutInner("email", EncText(temp_buf));
+										}
+										if(LocationCore::GetExField(&loc_pack, LOCEXSTR_CONTACT, temp_buf) > 0) {
+											w_a.PutInner("contact", EncText(temp_buf));
+										}
+									}
+								}
+							}
+						}
+						// } @v10.7.5 
 						for(uint ln_idx = 0; ln_idx < cc_pack.GetCount(); ln_idx++) {
 							const CCheckLineTbl::Rec & r_item = cc_pack.GetLine(ln_idx);
 							const double item_qtty  = fabs(r_item.Quantity);
@@ -2071,6 +2127,17 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 						}
 					}
 					break;
+				case PPHS_ADDRESS: // @v10.7.5
+					{
+						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
+						THROW(RdB.CreateItem(obAddress, &ref_pos));
+						RdB.RefPosStack.push(ref_pos);
+						if(link_type == obCCheck) {
+							AddressBlock * p_item = static_cast<AddressBlock *>(RdB.GetItemWithTest(ref_pos, obAddress));
+							p_item->CCheckBlkP = link_ref_pos; // Адрес ссылается на позицию чека, которому принадлежит
+						}
+					}
+					break;
 				case PPHS_PAYMENT:
 					{
 						void * p_link_item = RdB.GetItem(link_ref_pos, &link_type);
@@ -2157,6 +2224,11 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_MARKED: // @v10.7.3
 				case PPHS_CHZNPRODTYPE: // @v10.7.3
 				case PPHS_PHONE: // @v10.6.3
+				case PPHS_EMAIL: // @v10.7.5
+				case PPHS_CITY:  // @v10.7.5
+				case PPHS_CONTACT: // @v10.7.5
+				case PPHS_ZIP: // @v10.7.5
+				case PPHS_TEXT: // @v10.7.5
 					break;
 			}
 		}
@@ -2179,8 +2251,8 @@ void FASTCALL PPPosProtocol::Helper_AddStringToPool(uint * pPos)
 
 uint SLAPI PPPosProtocol::PeekRefPos() const
 {
-	void * p_test = RdB.RefPosStack.SStack::peek();
-	return p_test ? *(uint *)p_test : UINT_MAX;
+	const void * p_test = RdB.RefPosStack.SStack::peek();
+	return p_test ? *static_cast<const uint *>(p_test) : UINT_MAX;
 }
 
 void * SLAPI PPPosProtocol::PeekRefItem(uint * pRefPos, int * pType) const
@@ -2301,6 +2373,14 @@ int PPPosProtocol::EndElement(const char * pName)
 								static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
 							}
 						}
+						// @v10.7.5 {
+						else if(type == obAddress) {
+							if(RdB.TagValue.NotEmptyS()) {
+								AddressBlock * p_blk = static_cast<AddressBlock *>(p_item);
+								THROW_SL(p_blk->Uuid.FromStr(RdB.TagValue));
+							}
+						}
+						// } @v10.7.5 
 					}
 				}
 				break;
@@ -2499,15 +2579,12 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_TYPE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obPayment) {
-					if(RdB.TagValue.CmpNC("cash") == 0) {
+					if(RdB.TagValue.CmpNC("cash") == 0)
 						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_CASH;
-					}
-					else if(RdB.TagValue.CmpNC("bank") == 0) {
+					else if(RdB.TagValue.CmpNC("bank") == 0)
 						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_BANK;
-					}
-					else if(RdB.TagValue.CmpNC("card") == 0) {
+					else if(RdB.TagValue.CmpNC("card") == 0)
 						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_CRDCARD;
-					}
 				}
 				break;
 			case PPHS_PERIOD:
@@ -2894,6 +2971,33 @@ int PPPosProtocol::EndElement(const char * pName)
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obSCard)
 					Helper_AddStringToPool(&static_cast<SCardBlock *>(p_item)->PhoneP);
+				else if(type == obAddress)
+					Helper_AddStringToPool(&static_cast<AddressBlock *>(p_item)->PhoneP);
+				break;
+			case PPHS_EMAIL: // @v10.7.5
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obAddress)
+					Helper_AddStringToPool(&static_cast<AddressBlock *>(p_item)->EMailP);
+				break;
+			case PPHS_CITY:  // @v10.7.5
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obAddress)
+					Helper_AddStringToPool(&static_cast<AddressBlock *>(p_item)->CityP);
+				break;
+			case PPHS_CONTACT: // @v10.7.5
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obAddress)
+					Helper_AddStringToPool(&static_cast<AddressBlock *>(p_item)->ContactP);
+				break;
+			case PPHS_ZIP: // @v10.7.5
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obAddress)
+					Helper_AddStringToPool(&static_cast<AddressBlock *>(p_item)->ZipP);
+				break;
+			case PPHS_TEXT: // @v10.7.5
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obAddress)
+					Helper_AddStringToPool(&static_cast<AddressBlock *>(p_item)->TextP);
 				break;
 			case PPHS_RETURN:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -3076,6 +3180,7 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	CcPaymBlkList.freeAll();
 	QueryList.freeAll();
 	RefList.freeAll();
+	AddressList.freeAll(); // @v10.7.5
 }
 
 int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID)
@@ -3926,11 +4031,11 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			PPLoadText(PPTXT_IMPGOODSGRP, wait_msg_buf);
 			const uint __count = RdB.GoodsGroupBlkList.getCount();
 			for(uint i = 0; i < __count; i++) {
-				GoodsGroupBlock & r_blk = RdB.GoodsGroupBlkList.at(i);
+				const  GoodsGroupBlock & r_blk = RdB.GoodsGroupBlkList.at(i);
 				PPID   parent_id = 0;
 				if(r_blk.ParentBlkP) {
 					int   inner_type = 0;
-					ParentBlock * p_inner_blk = (ParentBlock *)RdB.GetItem(r_blk.ParentBlkP, &inner_type);
+					const ParentBlock * p_inner_blk = static_cast<const ParentBlock *>(RdB.GetItem(r_blk.ParentBlkP, &inner_type));
 					assert(p_inner_blk);
 					if(p_inner_blk) {
 						assert(inner_type == obParent);
@@ -4058,7 +4163,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					if(r_blk.VatRate > 0 || r_blk.SalesTaxRate > 0) {
 						int    is_tg_found = 0;
 						for(uint j = 0; !is_tg_found && j < tax_rate_list.getCount(); j++) {
-							const SurrTaxRateEntry * p_entry = (const SurrTaxRateEntry *)tax_rate_list.at(j);
+							const SurrTaxRateEntry * p_entry = static_cast<const SurrTaxRateEntry *>(tax_rate_list.at(j));
 							if(p_entry->VatRate == r_blk.VatRate && p_entry->SalesTaxRate == r_blk.SalesTaxRate) {
 								r_blk.TaxGrpID = j+1;
 								is_tg_found = 1;
@@ -4225,7 +4330,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					STRNSCPY(scs_pack.Rec.Symb, code_buf);
 					if(r_blk.QuotKindBlkP) {
 						int   inner_type = 0;
-						QuotKindBlock * p_qk_blk = (QuotKindBlock *)RdB.GetItem(r_blk.QuotKindBlkP, &inner_type);
+						const QuotKindBlock * p_qk_blk = static_cast<const QuotKindBlock *>(RdB.GetItem(r_blk.QuotKindBlkP, &inner_type));
 						if(p_qk_blk && inner_type == obQuotKind)
 							scs_pack.Rec.QuotKindID_s = p_qk_blk->NativeID;
 					}
@@ -4479,6 +4584,16 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					PPWaitPercent(i+1, __count, wait_msg_buf);
 				}
 			}
+		}
+	}
+	{
+		//
+		// Акцепт адресов @todo
+		//
+		for(uint i = 0; i < RdB.AddressList.getCount(); i++) {
+			uint   ref_pos = 0;
+			AddressBlock & r_blk = RdB.AddressList.at(i);
+			THROW_PP(RdB.SearchRef(obAddress, i, &ref_pos), PPERR_PPPP_INNERREFNF_ADDR);
 		}
 	}
 	{

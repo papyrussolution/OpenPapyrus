@@ -8749,16 +8749,17 @@ struct LocTypeDescr {
 //
 // Идентификаторы строковых полей, хранящихся в хвостовой части записи LocationTbl
 //
-#define MAX_DLVRADDRFLDS     40 // Максимальное кол-во дополнительных полей адреса доставки // @v8.3.0 20-->40
-#define MAX_DLVRADDRFLDLEN   64 // Максимальная длина дополнительного поля адреса доставки
+#define MAX_DLVRADDRFLDS      40 // Максимальное кол-во дополнительных полей адреса доставки // @v8.3.0 20-->40
+#define MAX_DLVRADDRFLDLEN    64 // Максимальная длина дополнительного поля адреса доставки
 
-#define LOCEXSTR_ZIP         1
-#define LOCEXSTR_SHORTADDR   2
-#define LOCEXSTR_FULLADDR    3
-#define LOCEXSTR_PHONE       4   // Специальная опция для непривязанных (к персоналиям) адресов
-#define LOCEXSTR_CONTACT     5   // Имя контактного лица, ассоциированного с адресом. Необходимость
+#define LOCEXSTR_ZIP           1
+#define LOCEXSTR_SHORTADDR     2
+#define LOCEXSTR_FULLADDR      3
+#define LOCEXSTR_PHONE         4   // Специальная опция для непривязанных (к персоналиям) адресов
+#define LOCEXSTR_CONTACT       5   // Имя контактного лица, ассоциированного с адресом. Необходимость
 	// в этом теге может быть обусловлена теми же причинами, что и LOCEXSTR_PHONE: адрес не связан с персоналией.
-#define LOCEXSTR_EMAIL       6   // Специальная опция для непривязанных (к персоналиям) адресов
+#define LOCEXSTR_EMAIL         6   // Специальная опция для непривязанных (к персоналиям) адресов
+#define LOCEXSTR_INITID
 #define LOCEXSTR_EXTFLDSOFFS 100 // смещение для ид дополнительных полей адресов доставки
 
 class LocationCore : public LocationTbl {
@@ -23611,8 +23612,7 @@ public:
 //
 // @ModuleDecl(PPObjWorld)
 //
-#define WORLDOBJ_SPECIAL    -100  // Специальная запись, являющаяся индикатором того, что таблица была
-	// отконвертирована из старого набора объектов PPObjCountry, PPObjCity, PPObjRegion
+#define WORLDOBJ_SPECIAL    -100  // Специальная запись: индикатор того, что таблица была отконвертирована из старого набора объектов PPObjCountry, PPObjCity, PPObjRegion
 #define WORLDOBJ_CONTINENT  1
 #define WORLDOBJ_GENREGION  2
 #define WORLDOBJ_COUNTRY    3
@@ -45778,7 +45778,8 @@ private:
 		obQuery,
 		obLot,
 		obPayment,
-		obUnit
+		obUnit,
+		obAddress // @v10.7.5
 	};
 
 	struct ObjectBlock { // @flat
@@ -45919,6 +45920,17 @@ private:
         long   Code;
         uint   PosBlkP;
         LDATETIME Dtm;
+	};
+	struct AddressBlock : public ObjectBlock { // @flat @v10.7.5 
+		SLAPI  AddressBlock();
+		S_GUID Uuid;  // Проецируется в базу данных как тег PPTAG_LOC_UUID
+		uint   CCheckBlkP; // Ссылка на чек, которому принадлежит
+		uint   CityP;
+		uint   ZipP;
+		uint   TextP;
+		uint   PhoneP;
+		uint   EMailP;
+		uint   ContactP;
 	};
 	struct CCheckBlock : public ObjectBlock { // @flat
 		SLAPI  CCheckBlock();
@@ -46061,6 +46073,7 @@ private:
 		TSVector <CcPaymentBlock> CcPaymBlkList;
 		TSVector <QueryBlock> QueryList;
 		TSVector <ObjBlockRef> RefList;
+		TSVector <AddressBlock> AddressList; // @v10.7.5
 	private:
 		int    SLAPI Implement_CreateItem(SVector & rList, const void * pNewBlk, int type, uint * pRefPos);
 	};

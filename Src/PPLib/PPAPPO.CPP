@@ -1461,7 +1461,8 @@ int PPBackupSystemFiles_Arc()
 	PPGetFileName(PPFILNAM_BULOCK, fname);
 	(lock_path = backup_dir).SetLastSlash().Cat(fname);
 	createDir(backup_dir);
-	if(!fileExists(lock_path)) {
+	const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path)); // @v10.7.5 дополнительная проверка на то, чтоб файл был открыт для записи
+	if(!is_locked) {
 		const LDATETIME cur_dtm = getcurdatetime_();
 		LDATE last_copy_dt;
 		SString buf, last_copy_path;
@@ -1516,6 +1517,20 @@ int PPBackupSystemFiles_Arc()
 				PPGetPath(PPPATH_WORKSPACE, path);
 				arc.AddEntries(path, SArchive::aefRecursive);
 // } @erik 
+				// @v10.7.5 {
+				{
+					//
+					// Локальные отчеты
+					//
+					PPIniFile ifile;
+					ifile.Get(PPINISECT_PATH, PPINIPARAM_WINLOCALRPT, path);
+					if(path.Empty()) {
+						PPGetPath(PPPATH_BIN, path);
+						path.SetLastSlash().Cat("RPT").SetLastSlash().Cat("LOCAL");
+					}
+					arc.AddEntries(path, SArchive::aefRecursive);
+				}
+				// @v10.7.5 {
 				arc.Close();
 				{
 					const uint max_arc = 5;

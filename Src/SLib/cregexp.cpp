@@ -853,48 +853,53 @@ int CRegExp::regtry(const char * string, const char ** start, const char ** end,
 //
 int CRegExp::Find(const char * pText)
 {
-	P_Text = pText;
-	const char * s;
-	// Check validity of P_Program.
-	if(UCHARAT(P_Program) != MAGIC)
-		return (ErrCode = SLERR_RE_BUFCORRUPT, 0);
-	// If there is a "must appear" pText, look for it.
-	if(P_RegMust) {
-		for(s = pText; (s = sstrchr(s, P_RegMust[0])) != NULL; s++)
-			if(strncmp(s, P_RegMust, RegMLen) == 0)
-				break; // Found it.
-		if(s == NULL) // Not present.
-			return 0;
-	}
-	P_RegBol = pText; // Mark beginning of line for ^ .
-	//
-	// Simplest case: anchored match need be tried only once.
-	//
-	if(RegAnch)
-		return regtry(pText, startp, endp, P_Program);
-	else {
-		//
-		// Messy cases: unanchored match.
-		//
-		s = pText;
-		if(RegStart != '\0') { // We know what char it must start with.
-			for(; (s = sstrchr(s, RegStart)) != NULL; s++)
-				if(regtry(s, startp, endp, P_Program))
-					return 1;
+	if(pText) {
+		P_Text = pText;
+		// Check validity of P_Program.
+		if(UCHARAT(P_Program) != MAGIC)
+			return (ErrCode = SLERR_RE_BUFCORRUPT, 0);
+		// If there is a "must appear" pText, look for it.
+		if(P_RegMust) {
+			const char * s = pText;
+			for(; (s = sstrchr(s, P_RegMust[0])) != NULL; s++)
+				if(strncmp(s, P_RegMust, RegMLen) == 0)
+					break; // Found it.
+			if(!s) // Not present.
+				return 0;
 		}
-		else // We don't -- general case.
-			do {
-				if(regtry(s, startp, endp, P_Program))
-					return 1;
-			} while(*s++ != '\0');
-		return 0;
+		P_RegBol = pText; // Mark beginning of line for ^ .
+		//
+		// Simplest case: anchored match need be tried only once.
+		//
+		if(RegAnch)
+			return regtry(pText, startp, endp, P_Program);
+		else {
+			//
+			// Messy cases: unanchored match.
+			//
+			const char * s = pText;
+			if(RegStart != '\0') { // We know what char it must start with.
+				for(; (s = sstrchr(s, RegStart)) != NULL; s++)
+					if(regtry(s, startp, endp, P_Program))
+						return 1;
+			}
+			else { // We don't -- general case.
+				do {
+					if(regtry(s, startp, endp, P_Program))
+						return 1;
+				} while(*s++ != '\0');
+			}
+			return 0;
+		}
 	}
+	else
+		return 0;
 }
 
 int CRegExp::Find(SStrScan * pScan)
 {
-	const char * p = (const char *)*pScan; //pScan->P_Buf + pScan->Offs;
-	if(Find(p)) {
+	const char * p = pScan ? static_cast<const char *>(*pScan) : 0;
+	if(!isempty(p) && Find(p)) { // @v10.7.5 @fix !isempty(p)
 		pScan->Incr(startp[0] - p);
 		pScan->SetLen(endp[0] - startp[0]);
 		return 1;

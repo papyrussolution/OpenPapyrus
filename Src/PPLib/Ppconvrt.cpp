@@ -221,7 +221,7 @@ int SLAPI PPTableConversion::Convert()
 			for(i = 0; i < tpl.GetCount(); i++) {
 				THROW_SL(tpl.Get(i, tpe));
 				if((tpe.Flags && !(tpe.Flags & tpl.fBu)) && (tpe.Flags & (tpl.fMain|tpl.fExt|tpl.fCon))) {
-					THROW_PP_S(SFile::IsOpenedForWrite(tpe.Path) == 0, /*PPERR_CVT_FILEWROPENED*/1, tpe.Path);
+					THROW_PP_S(SFile::IsOpenedForWriting(tpe.Path) == 0, /*PPERR_CVT_FILEWROPENED*/1, tpe.Path);
 					to_copy_pos_list.add(static_cast<long>(i));
 				}
 			}

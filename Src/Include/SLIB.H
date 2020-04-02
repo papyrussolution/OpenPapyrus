@@ -8613,7 +8613,7 @@ public:
 	static int SLAPI GetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif);
 	static int SLAPI SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif);
 	static int SLAPI IdentifyFormat(const char * pFileName);
-	static int SLAPI IsOpenedForWrite(const char * pFileName);
+	static int SLAPI IsOpenedForWriting(const char * pFileName);
 	//
 	// Descr: Ожидает момента, когда файл не открыт для записи.
 	// Returns:

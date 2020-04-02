@@ -492,7 +492,7 @@
 	#define HELP_BROWSER_TSESSION                               224
 #define BROWSER_TSUBSESSION                            225 // Технологические субсессии {%s}
 	#define HELP_BROWSER_TSUBSESSION                            225
-#define BROWSER_TSESS_MANUFPLAN                        226 // Производственные планы {%s}
+#define BROWSER_TSESS_MANUFPLAN                        226 // @{productionplan_pl} {%s}
 	#define HELP_BROWSER_TSESS_MANUFPLAN                        226
 #define BROWSER_TSESSLINE                              227 // Строки технологической сессии {%s}
 	#define HELP_BROWSER_TSESSLINE                              227

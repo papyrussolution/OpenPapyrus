@@ -756,7 +756,8 @@ struct VetisBatch {
 		Unit = rS.Unit;
 		DateOfProduction = rS.DateOfProduction;
 		ExpiryDate = rS.ExpiryDate;
-		ProductMarkingList = rS.ProductMarkingList;
+		// @v10.7.5 @fix ProductMarkingList = rS.ProductMarkingList;
+		TSCollection_Copy(ProductMarkingList, rS.ProductMarkingList); // @v10.7.5 @fix
 		Flags = rS.Flags;
 		// @v10.5.6 BatchID = rS.BatchID; // @v10.5.5
 		BatchIdList = rS.BatchIdList; // @v10.5.6

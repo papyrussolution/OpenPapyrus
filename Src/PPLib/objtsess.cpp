@@ -2549,7 +2549,7 @@ int SLAPI PPObjTSession::GetCode(PPID sessID, long flags, char * pBuf, size_t bu
 	if(Search(sessID, &tses_rec) > 0)
 		ok = GetCode(&tses_rec, flags, pBuf, bufLen);
 	else {
-		GetCode((TSessionTbl::Rec *)0, flags, pBuf, bufLen);
+		GetCode(static_cast<TSessionTbl::Rec *>(0), flags, pBuf, bufLen);
 		ok = -1;
 	}
 	return ok;
@@ -2560,7 +2560,8 @@ int SLAPI PPObjTSession::GenerateSerial(TSessLineTbl::Rec * pRec)
 	int    ok = -1;
 	if(pRec->Sign >= 0) {
 		PPObjBill * p_bobj = BillObj;
-		char   templt[48], tses_code[32];
+		char   templt[128]; // [48]-->[128]
+		char   tses_code[32];
 		SString serial;
 		STRNSCPY(templt, p_bobj->Cfg.SnTemplt);
 		GetCode(pRec->TSessID, 0, tses_code, sizeof(tses_code));
