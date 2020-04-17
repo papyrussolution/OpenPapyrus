@@ -598,7 +598,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 										if(!(inv_rec.Flags & INVENTF_SURPLUS))
 											do_skip = 1;
 									}
-									else{
+									else {
 										if(!(inv_rec.Flags & INVENTF_SURPLUS) && !(inv_rec.Flags & INVENTF_LACK))
 											do_skip = 1;
 									}

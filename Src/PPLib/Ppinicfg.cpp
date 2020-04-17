@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @Kernel
 //
 #include <pp.h>
@@ -246,7 +246,7 @@ SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable:
 			SBuffer buf;
 			rKey.Get(buf);
 			CObjHeader hdr;
-			((PPConfigDatabase::CObjTbl *)P_MainT)->SerializeKeyBuf(-1, &hdr, buf);
+			static_cast<PPConfigDatabase::CObjTbl *>(P_MainT)->SerializeKeyBuf(-1, &hdr, buf);
 			rResult = hdr.Type;
 			return 0;
 		}
@@ -312,6 +312,162 @@ int SLAPI PPConfigDatabase::CObjTbl::SerializeKeyBuf(int dir, CObjHeader * pRec,
 	return ok;
 }
 
+int SLAPI PPConfigDatabase::AddStringHistory(const char * pKey, const char * pTextUtf8)
+{
+	int    ok = 0;
+	SString key;
+	StringHistoryPool * p_pool = 0;
+	int    is_pool_allocated = 0;
+	(key = pKey).Strip().Utf8ToLower();
+	for(uint i = 0; !p_pool && i < ShL.getCount(); i++) {
+		StringHistoryPool * p_local_pool = ShL.at(i);
+		if(p_local_pool->GetKey() == key) {
+			p_pool = p_local_pool;
+		}
+	}
+	if(!p_pool) {
+		THROW_SL(p_pool = new StringHistoryPool(key));
+		is_pool_allocated = 1;
+		THROW(LoadStringHistory(*p_pool));
+		ShL.insert(p_pool);
+		is_pool_allocated = 0; // to avoid destruction at the end of the function
+	}
+	assert(p_pool);
+	ok = p_pool->Add(pTextUtf8);
+	CATCHZOK
+	if(is_pool_allocated)
+		delete p_pool;
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
+{
+	rList.clear();
+	int    ok = 0;
+	SString key;
+	StringHistoryPool * p_pool = 0;
+	int    is_pool_allocated = 0;
+	(key = pKey).Strip().Utf8ToLower();
+	for(uint i = 0; !p_pool && i < ShL.getCount(); i++) {
+		StringHistoryPool * p_local_pool = ShL.at(i);
+		if(p_local_pool->GetKey() == key) {
+			p_pool = p_local_pool;
+		}
+	}
+	if(!p_pool) {
+		THROW_SL(p_pool = new StringHistoryPool(key));
+		is_pool_allocated = 1;
+		THROW(LoadStringHistory(*p_pool));
+		ShL.insert(p_pool);
+		is_pool_allocated = 0; // to avoid destruction at the end of the function
+	}
+	assert(p_pool);
+	ok = p_pool->Get(pSubUtf8, flags, rList);
+	CATCHZOK
+	if(is_pool_allocated)
+		delete p_pool;
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::LoadStringHistory(StringHistoryPool & rPool)
+{
+	int    ok = -1;
+	BDbTable::Buffer key_buf, data_buf;
+	SString temp_buf;
+	data_buf.Alloc(4096);
+	(temp_buf = rPool.GetKey()).Strip().Utf8ToLower();
+	key_buf = temp_buf;
+	if(P_ShT->Search(0, key_buf, data_buf)) {
+		SBuffer cbuf;
+		SSerializeContext sctx;
+		data_buf.Get(cbuf);
+		{
+			const size_t actual_size = cbuf.GetAvailableSize();
+			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
+			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(cbuf.GetBuf(cbuf.GetRdOffs()))) {
+				SCompressor compr(SCompressor::tZLib);
+				SBuffer sbuf;
+				THROW_SL(compr.DecompressBlock(cbuf.GetBuf(cbuf.GetRdOffs()+cs_size), actual_size-cs_size, sbuf));
+				THROW_SL(rPool.Serialize(-1, sbuf, &sctx));
+			}
+			else {
+				THROW_SL(rPool.Serialize(-1, cbuf, &sctx));
+			}
+		}
+		//THROW_SL(rPool.Serialize(-1, buf, &sctx));
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use_ta)
+{
+	int    ok = 0;
+	SString temp_buf;
+	if(pPool == 0) {
+		if(ShL.getCount()) {
+			BDbTransaction tra(P_Db, use_ta);
+			THROW_DB(tra);
+			for(uint i = 0; i < ShL.getCount(); i++) {
+				StringHistoryPool * p_local_pool = ShL.at(i);
+				if(p_local_pool) {
+					THROW(SaveStringHistory(p_local_pool, 0)); // @recursion
+				}
+			}
+			THROW_DB(tra.Commit(1));
+		}
+	}
+	else {
+		temp_buf = pPool->GetKey();
+		temp_buf.Strip().Utf8ToLower();
+		if(temp_buf.NotEmpty()) {
+			StringHistoryPool org_pool(temp_buf);
+			BDbTable::Buffer key_buf, data_buf;
+			SBuffer sbuf;
+			SBuffer cbuf;
+			SSerializeContext sctx;
+			data_buf.Alloc(4096);
+			key_buf = temp_buf;
+			int   do_update = 0; // if 1 then update rec else insert
+			BDbTransaction tra(P_Db, use_ta);
+			THROW_DB(tra);
+			if(P_ShT->Search(key_buf, data_buf)) {
+				data_buf.Get(sbuf);
+				THROW_SL(org_pool.Serialize(-1, sbuf, &sctx));
+				THROW(pPool->Merge(org_pool));
+				THROW_SL(org_pool.Serialize(+1, sbuf.Z(), &sctx));
+				do_update = 1;
+			}
+			else {
+				THROW(pPool->Serialize(+1, sbuf, &sctx));
+			}
+			{
+				SCompressor compr(SCompressor::tZLib);
+				if(sbuf.GetAvailableSize() > 128) {
+					uint8 cs[32];
+					const size_t cs_size = SSerializeContext::GetCompressPrefix(cs);
+					THROW_SL(cbuf.Write(cs, cs_size));
+					THROW_SL(compr.CompressBlock(sbuf.GetBuf(0), sbuf.GetAvailableSize(), cbuf, 0, 0));
+				}
+				else {
+					cbuf = sbuf;
+				}
+				data_buf = cbuf;
+				if(do_update) {
+					THROW_DB(P_ShT->UpdateRec(key_buf, data_buf));
+				}
+				else {
+					THROW_DB(P_ShT->InsertRec(key_buf, data_buf));
+				}
+			}
+			THROW_DB(tra.Commit(1));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 SLAPI PPConfigDatabase::CObjTailTbl::CObjTailTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobjtail", 0, 0, 0), pDb)
 {
 }
@@ -320,7 +476,175 @@ SLAPI PPConfigDatabase::CObjTailTbl::~CObjTailTbl()
 {
 }
 
-SLAPI PPConfigDatabase::PPConfigDatabase(const char * pDbDir) : P_OT(0), P_OtT(0), P_Db(0)
+SLAPI PPConfigDatabase::StringHistoryTbl::StringHistoryTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->stringhistory", 0, 0, 0), pDb)
+{
+}
+
+SLAPI PPConfigDatabase::StringHistoryTbl::~StringHistoryTbl()
+{
+}
+
+SLAPI  PPConfigDatabase::StringHistoryPool::StringHistoryPool(const char * pKey) : Key(pKey), Ht(8192)
+{
+}
+
+const SString & SLAPI PPConfigDatabase::StringHistoryPool::GetKey() const
+{
+	return Key;
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int   ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, Key, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, &L, rBuf));
+	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::SearchEntries(const char * pSubUtf8, long flags, LongArray & rPosList) const
+{
+	int    ok = 0;
+	rPosList.clear();
+	SStringU ci_text;
+	SStringU temp_buf_u;
+	ci_text.CopyFromUtf8(pSubUtf8, sstrlen(pSubUtf8));
+	ci_text.ToLower();
+	SString temp_buf;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_entry = L.at(i);
+		if(GetS(r_entry.TextCiP, temp_buf)) {
+			temp_buf_u.CopyFromUtf8(temp_buf);
+			if(flags & sefFullString) {
+				if(temp_buf_u.IsEqual(ci_text)) {
+					rPosList.add(static_cast<long>(i));
+					ok = 1;
+				}
+			}
+			else if(flags & sefFromBegin) {
+				if(temp_buf_u.CmpPrefix(ci_text) == 0) {
+					rPosList.add(static_cast<long>(i));
+					ok = 1;
+				}
+			}
+			else if(temp_buf_u.Search(ci_text, 0, 0)) {
+				rPosList.add(static_cast<long>(i));
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
+{
+	int   ok = 0;
+	LongArray pos_list;
+	SString text_buf = pTextUtf8;
+	text_buf.Strip();
+	if(text_buf.Len()) {
+		if(SearchEntries(text_buf, sefFullString, pos_list)) {
+			assert(pos_list.getCount() == 1);
+			if(pos_list.getCount()) {
+				InnerEntry & r_entry = L.at(pos_list.get(0));
+				r_entry.UsageCount++;
+				r_entry.Dtm = getcurdatetime_();
+			}
+			ok = 2;
+		}
+		else {
+			InnerEntry new_entry;
+			new_entry.UsageCount = 1;
+			new_entry.OrgUsageCount = 0;
+			new_entry.Dtm = getcurdatetime_();
+			SStringU ci_text;
+			AddS(text_buf, &new_entry.TextP);
+			ci_text.CopyFromUtf8(text_buf, text_buf.Len());
+			ci_text.ToLower();
+			ci_text.CopyToUtf8(text_buf, 1);
+			AddS(text_buf, &new_entry.TextCiP);
+			L.insert(&new_entry);
+			ok = 1;
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS) const
+{
+	int    ok = 1;
+	SString temp_buf;
+	LongArray pos_list;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_this_entry = L.at(i);
+		GetS(r_this_entry.TextCiP, temp_buf);
+		if(rS.SearchEntries(temp_buf, sefFullString, pos_list) > 0) {
+			assert(pos_list.getCount());
+			for(uint pidx = 0; pidx < pos_list.getCount(); pidx++) {
+				const uint other_pos = static_cast<uint>(pos_list.get(pidx));
+				InnerEntry & r_other_entry = rS.L.at(other_pos);
+				if(cmp(r_this_entry.Dtm, r_other_entry.Dtm) > 0)
+					r_other_entry.Dtm = r_this_entry.Dtm;
+				if(r_this_entry.UsageCount > r_this_entry.OrgUsageCount)
+					r_other_entry.UsageCount += (r_this_entry.UsageCount - r_this_entry.OrgUsageCount);
+			}
+		}
+		else {
+			InnerEntry new_entry;
+			new_entry.Dtm = r_this_entry.Dtm;
+			new_entry.UsageCount = r_this_entry.UsageCount;
+			new_entry.OrgUsageCount = 0;
+			rS.AddS(temp_buf, &new_entry.TextCiP);
+			GetS(r_this_entry.TextP, temp_buf);
+			rS.AddS(temp_buf, &new_entry.TextP);
+			rS.L.insert(&new_entry);
+		}
+	}
+	return ok;
+}
+
+int FASTCALL PPConfigDatabase::StringHistoryPool::CmpEntryIndices(const void * p1, const void * p2) const
+{
+	uint idx1 = *static_cast<const uint *>(p1);
+	uint idx2 = *static_cast<const uint *>(p2);
+	const InnerEntry & r_e1 = L.at(idx1);
+	const InnerEntry & r_e2 = L.at(idx2);
+	return cmp(r_e2.Dtm, r_e1.Dtm); // —ортировка в обратном пор€дке (большее врем€ - наверх)
+}
+
+static IMPL_CMPFUNC(StringHistoryPool_EntryIndex, p1, p2)
+{
+	PPConfigDatabase::StringHistoryPool * p_pool = static_cast<PPConfigDatabase::StringHistoryPool *>(pExtraData);
+	return p_pool ? p_pool->CmpEntryIndices(p1, p2) : 0;
+}
+		
+int SLAPI PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long flags, StringSet & rList) const
+{
+	int   ok = 0;
+	rList.clear();
+	LongArray pos_list;
+	SString text_buf = pSubUtf8;
+	text_buf.Strip();
+	if(text_buf.Len()) {
+		if(SearchEntries(text_buf, flags, pos_list)) {
+			SString temp_buf;
+			pos_list.SVectorBase::sort(PTR_CMPFUNC(StringHistoryPool_EntryIndex), const_cast<PPConfigDatabase::StringHistoryPool *>(this)); // @badcast
+			for(uint i = 0; i < pos_list.getCount(); i++) {
+				const InnerEntry & r_entry = L.at(pos_list.get(i));
+				GetS(r_entry.TextP, temp_buf);
+				if(temp_buf.Len())
+					rList.add(temp_buf);
+			}
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+SLAPI PPConfigDatabase::PPConfigDatabase(const char * pDbDir) : P_OT(0), P_OtT(0), P_ShT(0), P_Db(0)
 {
 	if(pDbDir)
 		Open(pDbDir);
@@ -339,6 +663,7 @@ int SLAPI PPConfigDatabase::Open(const char * pDbPath)
 	THROW(!!*P_Db);
 	THROW_MEM(P_OT = new CObjTbl(P_Db));
 	THROW_MEM(P_OtT = new CObjTailTbl(P_Db));
+	THROW_MEM(P_ShT = new StringHistoryTbl(P_Db)); // @v10.7.6
 	CATCH
 		ok = 0;
 		Close();
@@ -350,6 +675,7 @@ void SLAPI PPConfigDatabase::Close()
 {
 	ZDELETE(P_OT);
 	ZDELETE(P_OtT);
+	ZDELETE(P_ShT); // @v10.7.6
 	ZDELETE(P_Db);
 }
 
@@ -373,7 +699,7 @@ int SLAPI PPConfigDatabase::GetObjList(int type, const char * pSubSymb, const ch
 					data_buf.Get(&id);
 					rList.Add(id, rec.Name);
 				}
-				key_buf = (int32)type;
+				key_buf = static_cast<int32>(type);
 			}
 			else
 				break;
@@ -469,6 +795,65 @@ int SLAPI PPConfigDatabase::GetObj(int32 id, CObjHeader * pHdr, SBuffer * pData)
 				ok = 0;
 		}
 	}
+	return ok;
+}
+
+int SLAPI TestConfigDatabase_StringHistory()
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString inp_file_name;
+	StringSet ss_result;
+	const char * p_key = "test-string-history-key";
+	PPGetPath(PPPATH_TESTROOT, inp_file_name);
+	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("email-list.txt");
+	SFile f_inp(inp_file_name, SFile::mRead);
+	if(f_inp.IsValid()) {
+		PPGetPath(PPPATH_WORKSPACE, temp_buf);
+		temp_buf.SetLastSlash().Cat("bdbconfig-test");
+		PPConfigDatabase cdb(temp_buf);
+		SStrGroup ssg;
+		LongArray ssg_pos_list;
+		uint   line_no = 0;
+		while(f_inp.ReadLine(temp_buf)) {
+			line_no++;
+			temp_buf.Chomp().Strip();
+			temp_buf.ToUtf8();
+			if(cdb.AddStringHistory(p_key, temp_buf)) {
+				uint sp = 0;
+				ssg.AddS(temp_buf, &sp);
+				ssg_pos_list.add(static_cast<long>(sp));
+			}
+		}
+		ssg_pos_list.shuffle();
+		temp_buf = "YAHOO.COM";
+		if(cdb.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefSubString, ss_result) > 0) {
+			for(uint j = 0; ss_result.get(&j, temp_buf);) {
+				;
+			}
+		}
+		for(uint i = 0; i < ssg_pos_list.getCount(); i++) {
+			uint sp = static_cast<uint>(ssg_pos_list.get(i));
+			if(ssg.GetS(sp, temp_buf)) {
+				if(cdb.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefFullString, ss_result) > 0) {
+					;
+				}
+			}
+		}
+		THROW(cdb.SaveStringHistory(0, 1));
+	}
+	{
+		PPGetPath(PPPATH_WORKSPACE, temp_buf);
+		temp_buf.SetLastSlash().Cat("bdbconfig-test");
+		PPConfigDatabase cdb(temp_buf);
+		temp_buf = "GmAil.com";
+		if(cdb.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefSubString, ss_result) > 0) {
+			for(uint j = 0; ss_result.get(&j, temp_buf);) {
+				;
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 

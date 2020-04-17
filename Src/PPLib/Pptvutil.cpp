@@ -2692,7 +2692,7 @@ int SLAPI ComboBoxSelDialog2(const StrAssocArray * pAry, uint subTitleStrId, uin
 	return ok;
 }
 
-int  SLAPI AdvComboBoxSeldialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
+int  SLAPI AdvComboBoxSelDialog(const StrAssocArray * pAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags)
 {
 	int    ok = -1;
 	TDialog * p_dlg = 0;

@@ -2657,7 +2657,7 @@ int SLAPI UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * p
 				{
 					assert(tl); // Ранее мы проверили длину текста на 0
 					THROW(writeLobData(VT, cbuf.GetBuf(0), tl));
-					data.Size = (long)tl;
+					data.Size = static_cast<long>(tl);
 				}
 				THROW_DB(updateRec()); // @sfu
 				destroyLobData(VT); // @v10.2.11 @fix

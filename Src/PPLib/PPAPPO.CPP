@@ -1466,101 +1466,104 @@ int PPBackupSystemFiles_Arc()
 		const LDATETIME cur_dtm = getcurdatetime_();
 		LDATE last_copy_dt;
 		SString buf, last_copy_path;
-		SFile f(lock_path, SFile::mWrite);
-		f.Close();
+		SFile f_lck(lock_path, SFile::mWrite);
+		// @v10.7.6 @fix f_lck.Close();
 		PPGetFileName(PPFILNAM_LASTBACKUP, fname);
 		(last_copy_path = backup_dir).SetLastSlash().Cat(fname);
-		f.Open(last_copy_path, SFile::mRead);
-		f.ReadLine(buf);
-		f.Close();
-		strtodate(buf, DATF_DMY, &last_copy_dt);
-		if(last_copy_dt < cur_dtm.d) {
-			SArchive arc;
-			SString arc_file_name;
-			// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
-			(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);
-			if(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite, 0)) {
-				long start = 1;
-				SString path;
-				SString dest_dir;
-				SString dest_path;
-				fname = "PP.INI";
-				(path = bin_dir).SetLastSlash().Cat(fname);
-				(dest_path = dest_dir).SetLastSlash().Cat(fname);
-				arc.AddEntry(path, fname, 0);
-				{
-					static const uint _bin_file_id_list[] = {
-						PPFILNAM_PPCMD_BIN,
-						PPFILNAM_PPDESK_BIN,
-						PPFILNAM_JOBPOOL,
-						PPFILNAM_REPORT_INI,
-						PPFILNAM_IMPEXP_INI,
-						PPFILNAM_BARLABEL_LBL, // @v10.1.5
-						PPFILNAM_REGDATA,      // @v10.1.5
-						PPFILNAM_STDSLIP_FMT   // @v10.1.5
-					};
-					for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
-						PPGetFileName(_bin_file_id_list[i], fname);
-						(path = bin_dir).SetLastSlash().Cat(fname);
-						if(fileExists(path)) {
-							(dest_path = dest_dir).SetLastSlash().Cat(fname);
-							arc.AddEntry(path, fname, 0);
-						}
-					}
-				}
-				PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
-				PPGetPath(PPPATH_DD, path);
-				path.SetLastSlash().Cat(fname);
-				(dest_path = dest_dir).SetLastSlash().Cat(fname);
-				arc.AddEntry(path, fname, 0);
-//@erik v10.6.13 {
-				PPGetPath(PPPATH_WORKSPACE, path);
-				arc.AddEntries(path, SArchive::aefRecursive);
-// } @erik 
-				// @v10.7.5 {
-				{
-					//
-					// Локальные отчеты
-					//
-					PPIniFile ifile;
-					ifile.Get(PPINISECT_PATH, PPINIPARAM_WINLOCALRPT, path);
-					if(path.Empty()) {
-						PPGetPath(PPPATH_BIN, path);
-						path.SetLastSlash().Cat("RPT").SetLastSlash().Cat("LOCAL");
-					}
-					arc.AddEntries(path, SArchive::aefRecursive);
-				}
-				// @v10.7.5 {
-				arc.Close();
-				{
-					const uint max_arc = 5;
-					//
-					// Если количество архивов больше max_arc, то лишние самые старые удаляем
-					//
-					SFileEntryPool fep;
-					fep.Scan(backup_dir, path.Z().Cat("bu").CatChar('-').CatCharN('*', 14), 0);
-					fep.Sort(SFileEntryPool::scByWrTime);
-					if(fep.GetCount() > max_arc) {
-						uint to_remove_count = (fep.GetCount() - max_arc);
-						SFileEntryPool::Entry fep_entry;
-						for(uint i = 0; i < to_remove_count; i++) {
-							if(fep.Get(i, &fep_entry, &path)) {
-								SFile::Remove(path);
+		{
+			SFile f(last_copy_path, SFile::mRead);
+			f.ReadLine(buf);
+			f.Close();
+			strtodate(buf, DATF_DMY, &last_copy_dt);
+			if(last_copy_dt < cur_dtm.d) {
+				SArchive arc;
+				SString arc_file_name;
+				// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
+				(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);
+				if(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite, 0)) {
+					long start = 1;
+					SString path;
+					SString dest_dir;
+					SString dest_path;
+					fname = "PP.INI";
+					(path = bin_dir).SetLastSlash().Cat(fname);
+					(dest_path = dest_dir).SetLastSlash().Cat(fname);
+					arc.AddEntry(path, fname, 0);
+					{
+						static const uint _bin_file_id_list[] = {
+							PPFILNAM_PPCMD_BIN,
+							PPFILNAM_PPDESK_BIN,
+							PPFILNAM_JOBPOOL,
+							PPFILNAM_REPORT_INI,
+							PPFILNAM_IMPEXP_INI,
+							PPFILNAM_BARLABEL_LBL, // @v10.1.5
+							PPFILNAM_REGDATA,      // @v10.1.5
+							PPFILNAM_STDSLIP_FMT   // @v10.1.5
+						};
+						for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
+							PPGetFileName(_bin_file_id_list[i], fname);
+							(path = bin_dir).SetLastSlash().Cat(fname);
+							if(fileExists(path)) {
+								(dest_path = dest_dir).SetLastSlash().Cat(fname);
+								arc.AddEntry(path, fname, 0);
 							}
 						}
 					}
+					PPGetFileName(PPFILNAM_LOCAL_DL6, fname);
+					PPGetPath(PPPATH_DD, path);
+					path.SetLastSlash().Cat(fname);
+					(dest_path = dest_dir).SetLastSlash().Cat(fname);
+					arc.AddEntry(path, fname, 0);
+	//@erik v10.6.13 {
+					PPGetPath(PPPATH_WORKSPACE, path);
+					arc.AddEntries(path, SArchive::aefRecursive);
+	// } @erik 
+					// @v10.7.5 {
+					{
+						//
+						// Локальные отчеты
+						//
+						PPIniFile ifile;
+						ifile.Get(PPINISECT_PATH, PPINIPARAM_WINLOCALRPT, path);
+						if(path.Empty()) {
+							PPGetPath(PPPATH_BIN, path);
+							path.SetLastSlash().Cat("RPT").SetLastSlash().Cat("LOCAL");
+						}
+						arc.AddEntries(path, SArchive::aefRecursive);
+					}
+					// @v10.7.5 {
+					arc.Close();
+					{
+						const uint max_arc = 5;
+						//
+						// Если количество архивов больше max_arc, то лишние самые старые удаляем
+						//
+						SFileEntryPool fep;
+						fep.Scan(backup_dir, path.Z().Cat("bu").CatChar('-').CatCharN('*', 14), 0);
+						fep.Sort(SFileEntryPool::scByWrTime);
+						if(fep.GetCount() > max_arc) {
+							uint to_remove_count = (fep.GetCount() - max_arc);
+							SFileEntryPool::Entry fep_entry;
+							for(uint i = 0; i < to_remove_count; i++) {
+								if(fep.Get(i, &fep_entry, &path)) {
+									SFile::Remove(path);
+								}
+							}
+						}
+					}
+					{
+						f.Open(last_copy_path, SFile::mWrite);
+						buf.Z().Cat(cur_dtm.d, DATF_DMY|DATF_CENTURY);
+						f.WriteLine(buf);
+						ok = 1;
+					}
 				}
-				{
-					f.Open(last_copy_path, SFile::mWrite);
-					buf.Z().Cat(cur_dtm.d, DATF_DMY|DATF_CENTURY);
-					f.WriteLine(buf);
-					ok = 1;
+				else {
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 				}
-			}
-			else {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 			}
 		}
+		f_lck.Close(); // @v10.7.6
 		SFile::Remove(lock_path);
 	}
 	return ok;

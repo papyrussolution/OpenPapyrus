@@ -436,7 +436,7 @@ int32 DL6ICLS_StrAssocList::SearchByText(SString & text, STaggedString* pItem)
 	return ok;
 }
 
-IMPL_CMPFUNC(PcharNoCaseLen, i1, i2) { return strnicmp866((const char *)i1, (const char *)i2, sstrlen((const char *)i2)); }
+IMPL_CMPFUNC(PcharNoCaseLen, i1, i2) { return strnicmp866(static_cast<const char *>(i1), static_cast<const char *>(i2), sstrlen(static_cast<const char *>(i2))); }
 
 int32 DL6ICLS_StrAssocList::SearchByTextPattern(SString & rText, STaggedString * pItem)
 {
@@ -541,7 +541,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPRtlPriceExtractor, DL6ICLS_PPRtlPriceExtractor_VTab,
 int32 DL6ICLS_PPRtlPriceExtractor::Init(int32 locID, int32 extQuotKindID, PpyRtlPriceFlags flags)
 {
 	if(ExtraPtr) {
-		RetailPriceExtractor & r_rpe = *(RetailPriceExtractor*)ExtraPtr;
+		RetailPriceExtractor & r_rpe = *static_cast<RetailPriceExtractor *>(ExtraPtr);
 		RetailPriceExtractor::ExtQuotBlock eqb(extQuotKindID);
 		return r_rpe.Init(locID, &eqb, 0, ZERODATETIME, flags);
 	}
@@ -877,7 +877,7 @@ SDbfFldType DL6ICLS_PPDbfRecord::GetFieldType(uint32 fldN)
 }
 
 DL6_IC_CONSTRUCTOR(PPDbfTable, DL6ICLS_PPDbfTable_VTab) { ExtraPtr = 0; }
-DL6_IC_DESTRUCTOR(PPDbfTable) { delete (DbfTable *)ExtraPtr; }
+DL6_IC_DESTRUCTOR(PPDbfTable) { delete static_cast<DbfTable *>(ExtraPtr); }
 //
 // Interface ISDbfTable implementation
 //

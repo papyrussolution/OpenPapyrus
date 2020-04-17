@@ -2739,6 +2739,7 @@ void SLAPI TestCRC();
 int  SLAPI TestUhttClient();
 int  SLAPI TestReadXmlMem_EgaisAck();
 int  SLAPI TestGtinStruc();
+int  SLAPI TestConfigDatabase_StringHistory();
 
 /*static int SLAPI TestWorkspacePath()
 {
@@ -2751,7 +2752,8 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestGtinStruc();
+	TestConfigDatabase_StringHistory();
+	//TestGtinStruc();
 	//PPChZnPrcssr::Test();
 	//TestWorkspacePath();
 	//TestReadXmlMem_EgaisAck();

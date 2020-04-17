@@ -75,7 +75,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	dbp = dbc->dbp;
 	env = dbp->env;
 	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	t = static_cast<BTREE *>(dbp->bt_internal);
 	h = (PAGE *)cp->page;
 	indx = cp->indx;

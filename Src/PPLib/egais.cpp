@@ -2093,10 +2093,20 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									ar2_main_org_id = ObjectToPerson(p_bp->Rec.Object2, 0);
 								if(IsIntrExpndOp(p_bp->Rec.OpID)) {
 									consignee_psn_id = main_org_id;
-									consignee_loc_id = PPObjLocation::ObjToWarehouse(p_bp->Rec.Object);
+									consignee_loc_id = PPObjLocation::ObjToWarehouse_IgnoreRights(p_bp->Rec.Object); // @v10.7.6 ObjToWarehouse-->ObjToWarehouse_IgnoreRights
 									shipper_psn_id = main_org_id;
 									shipper_loc_id = p_bp->Rec.LocID;
 									is_intrexpend = 1;
+									// @v10.7.6 {
+									{
+										SString ar_name;
+										SString loc_name;
+										GetArticleName(p_bp->Rec.Object, ar_name);
+										GetLocationName(consignee_loc_id, loc_name);
+										(temp_buf = bill_text).Space().Cat("-->").Space().Cat(ar_name).Space().CatChar('[').Cat(loc_name).CatChar(']');
+										LogTextWithAddendum(PPTXT_EGAIS_DEBUG_INTREXPND, temp_buf);
+									}
+									// } @v10.7.6 
 								}
 								else {
 									consignee_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
@@ -4953,7 +4963,8 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
 								if(p_src_tag_list) {
 									const ObjTagItem * p_infa_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFA);
 									const ObjTagItem * p_infb_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
-									if(p_infa_tag || p_infb_tag) {
+									const ObjTagItem * p_egaiscode_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARLOTGOODSCODE); // @v10.7.6
+									if(p_infa_tag || p_infb_tag || p_egaiscode_tag) { // @v10.7.6 p_egaiscode_tag
 										ObjTagList dest_tag_list;
 										const ObjTagList * p_dest_tag_list = 0;
 										switch(intr) {
@@ -4965,6 +4976,8 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
 													do_update_wroff_pack = 1;
 												if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
 													do_update_wroff_pack = 1;
+												if(dest_tag_list.PutItemNZ(p_egaiscode_tag, 0) > 0) // @v10.7.6
+													do_update_wroff_pack = 1;
 												wroff_pack.P_MirrorLTagL->Set(i, &dest_tag_list);
 												break;
 											case INTRRCPT:
@@ -4973,6 +4986,8 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
 												if(dest_tag_list.PutItemNZ(p_infa_tag, 0) > 0)
 													do_update_wroff_pack = 1;
 												if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
+													do_update_wroff_pack = 1;
+												if(dest_tag_list.PutItemNZ(p_egaiscode_tag, 0) > 0) // @v10.7.6
 													do_update_wroff_pack = 1;
 												wroff_pack.LTagL.Set(i, &dest_tag_list);
 												break;

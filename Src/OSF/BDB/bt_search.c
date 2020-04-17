@@ -61,7 +61,7 @@ int __bam_get_root(DBC * dbc, db_pgno_t root_pgno, int slevel, uint32 flags, int
 	LOCK_INIT(lock);
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * If write-locking pages, we need to know whether or not to acquire a
 	 * write lock on a page before getting it.  This depends on how deep it
@@ -220,7 +220,7 @@ int __bam_search(DBC * dbc, db_pgno_t root_pgno, const DBT * key, uint32 flags, 
 	dbp = dbc->dbp;
 	env = dbp->env;
 	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	h = NULL;
 	parent_h = NULL;
 	t = static_cast<BTREE *>(dbp->bt_internal);
@@ -766,7 +766,7 @@ int FASTCALL __bam_stkrel(DBC * dbc, uint32 flags)
 	DB_ASSERT(NULL, dbc != NULL);
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	//
 	// Release inner pages first.
 	//

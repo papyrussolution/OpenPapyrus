@@ -152,7 +152,7 @@ int __bamc_init(DBC * dbc, DBTYPE dbtype)
 		if((ret = __os_calloc(env, 1, sizeof(BTREE_CURSOR), &dbc->internal)) != 0)
 			return ret;
 #ifdef HAVE_COMPRESSION
-		cp = (BTREE_CURSOR *)dbc->internal;
+		cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 		cp->compressed.flags = DB_DBT_USERMEM;
 		cp->key1.flags = DB_DBT_USERMEM;
 		cp->key2.flags = DB_DBT_USERMEM;
@@ -200,7 +200,7 @@ int __bamc_refresh(DBC * dbc)
 {
 	DB * dbp = dbc->dbp;
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * If our caller set the root page number, it's because the root was
 	 * known.  This is always the case for off page dup cursors.  Else,
@@ -264,7 +264,7 @@ static int __bamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	BTREE_CURSOR * cp_opd = (dbc_opd = cp->opd) == NULL ? NULL : (BTREE_CURSOR *)dbc_opd->internal;
 	int cdb_lock = 0;
 	int ret = 0;
@@ -540,8 +540,8 @@ done:
 int __bamc_cmp(DBC * dbc, DBC * other_dbc, int * result)
 {
 	ENV * env = dbc->env;
-	BTREE_CURSOR * bcp = (BTREE_CURSOR *)dbc->internal;
-	BTREE_CURSOR * obcp = (BTREE_CURSOR *)other_dbc->internal;
+	BTREE_CURSOR * bcp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
+	BTREE_CURSOR * obcp = reinterpret_cast<BTREE_CURSOR *>(other_dbc->internal);
 	DB_ASSERT(env, bcp->pgno == obcp->pgno);
 	DB_ASSERT(env, bcp->indx == obcp->indx);
 	/* Check to see if both cursors have the same deleted flag. */
@@ -553,9 +553,9 @@ int __bamc_cmp(DBC * dbc, DBC * other_dbc, int * result)
  */
 static int __bamc_destroy(DBC * dbc)
 {
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	ENV * env = dbc->env;
-	/* Discard the structures. */
+	// Discard the structures
 	if(cp->sp != cp->stack)
 		__os_free(env, cp->sp);
 #ifdef HAVE_COMPRESSION
@@ -583,7 +583,7 @@ int __bamc_count(DBC * dbc, db_recno_t * recnop)
 	int ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Called with the top-level cursor that may reference an off-page
 	 * duplicates tree.  We don't have to acquire any new locks, we have
@@ -650,7 +650,7 @@ static int __bamc_del(DBC * dbc, uint32 flags)
 	uint32 count;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	int ret = 0;
 	COMPQUIET(flags, 0);
 	/* If the item was already deleted, return failure. */
@@ -745,7 +745,7 @@ static int __bamc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	int exact, ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	db_pgno_t orig_pgno = cp->pgno;
 	db_indx_t orig_indx = cp->indx;
 	int newopd = 0;
@@ -947,7 +947,7 @@ static int FASTCALL __bam_get_prev(DBC * dbc)
 	if((ret = __bamc_prev(dbc)) != 0)
 		return ret;
 	if(__bam_isopd(dbc, &pgno)) {
-		cp = (BTREE_CURSOR *)dbc->internal;
+		cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 		if((ret = __dbc_newopd(dbc, pgno, cp->opd, &cp->opd)) != 0)
 			return ret;
 		if((ret = cp->opd->am_get(cp->opd, &key, &data, DB_LAST, NULL)) != 0)
@@ -972,7 +972,7 @@ static int __bam_bulk(DBC * dbc, DBT * data, uint32 flags)
 	int32 key_off = 0;
 	uint32 size = 0;
 	uint32 pagesize = dbc->dbp->pgsize;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * dp tracks the beginning of the page in the buffer.
 	 * np is the next place to copy things into the buffer.
@@ -1297,7 +1297,7 @@ int __bam_bulk_duplicates(DBC * dbc, db_pgno_t pgno, uint8 * dbuf, int32 * keyof
 	int first, need_pg, t_ret;
 	int ret = 0;
 	DB * dbp = dbc->dbp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DBC * opd = cp->opd;
 	if(opd == NULL) {
 		if((ret = __dbc_newopd(dbc, pgno, NULL, &opd)) != 0)
@@ -1452,7 +1452,7 @@ static int __bam_getbothc(DBC * dbc, DBT * data)
 	int cmp, exact, ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Acquire the current page.  We have at least a read-lock
 	 * already.  The caller may have set DB_RMW asking for a
@@ -1514,7 +1514,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 	db_pgno_t pgno;
 	int exact, ret;
 	dbp = dbc->dbp;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/* Begin by searching for the key */
 	ret = __bamc_search(dbc, PGNO_INVALID, key, DB_SET_RANGE, &exact);
 	if(ret == DB_NOTFOUND)
@@ -1626,7 +1626,7 @@ static int __bam_getboth_finddatum(DBC * dbc, DBT * data, uint32 flags)
 	db_indx_t base, lim, top;
 	int cmp, ret;
 	dbp = dbc->dbp;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 
 	cmp = 0;
 	/*
@@ -1714,7 +1714,7 @@ static int __bamc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	void * arg;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	db_pgno_t root_pgno = cp->root;
 split:
 	ret = stack = 0;
@@ -1966,7 +1966,7 @@ int __bamc_rget(DBC * dbc, DBT * data)
 	int exact, ret, t_ret;
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Get the page with the current item on it.
 	 * Get a copy of the key.
@@ -1996,7 +1996,7 @@ err:
 static int __bamc_writelock(DBC * dbc)
 {
 	int ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(cp->lock_mode == DB_LOCK_WRITE)
 		return 0;
 	/*
@@ -2016,7 +2016,7 @@ static int FASTCALL __bamc_next(DBC * dbc, int initial_move, int deleted_okay)
 	db_lockmode_t lock_mode;
 	db_pgno_t pgno;
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * We're either moving through a page of duplicates or a btree leaf page.
 	 * !!!
@@ -2071,7 +2071,7 @@ static int FASTCALL __bamc_prev(DBC * dbc)
 	db_lockmode_t lock_mode;
 	db_pgno_t pgno;
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * We're either moving through a page of duplicates or a btree leaf page.
 	 * !!!
@@ -2122,7 +2122,7 @@ static int FASTCALL __bamc_search(DBC * dbc, db_pgno_t root_pgno, const DBT * ke
 	int cmp, t_ret;
 	COMPQUIET(cmp, 0);
 	DB * dbp = dbc->dbp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	int ret = 0;
 	int bulk = (F_ISSET(dbc, DBC_BULK) && cp->pgno != PGNO_INVALID);
@@ -2341,7 +2341,7 @@ static int FASTCALL __bamc_physdel(DBC * dbc)
 	int ret = 0;
 	DB * dbp = dbc->dbp;
 	// (replaced by ctr) memzero(&key, sizeof(DBT));
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	LOCK_INIT(next_lock);
 	LOCK_INIT(prev_lock);
 	/* If the page is going to be emptied, consider deleting it. */
@@ -2459,7 +2459,7 @@ static int __bamc_getstack(DBC * dbc)
 	int exact, ret, t_ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Get the page with the current item on it.  The caller of this
 	 * routine has to already hold a read lock on the page, so there

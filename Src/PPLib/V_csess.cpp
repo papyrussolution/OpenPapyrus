@@ -255,7 +255,7 @@ int SLAPI PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 		}
 		if(temp_node_list.GetCount()) {
 			PPObjCashNode cn_obj;
-			PPCashNode2 cn_rec;
+			PPCashNode cn_rec;
 			PPIDArray temp_list;
 			for(uint i = 0; i < temp_node_list.GetCount(); i++) {
 				PPID   cn_id = temp_node_list.Get().get(i);

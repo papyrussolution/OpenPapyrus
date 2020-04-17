@@ -9,17 +9,16 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __qam_bulk __P((DBC*, DBT*, uint32));
-static int __qamc_close __P((DBC*, db_pgno_t, int *));
-static int __qamc_del (DBC*, uint32);
+static int __qam_bulk(DBC*, DBT*, uint32);
+static int __qamc_close(DBC*, db_pgno_t, int *);
+static int __qamc_del(DBC*, uint32);
 static int __qamc_destroy(DBC *);
-static int __qamc_get __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
-static int __qamc_put __P((DBC*, DBT*, DBT*, uint32, db_pgno_t *));
-static int __qam_consume __P((DBC*, QMETA*, db_recno_t));
-static int __qam_getno __P((DB*, const DBT*, db_recno_t *));
+static int __qamc_get(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
+static int __qamc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
+static int __qam_consume(DBC*, QMETA*, db_recno_t);
+static int __qam_getno(DB*, const DBT*, db_recno_t *);
 
 #define DONT_NEED_LOCKS(dbc) ((dbc)->txn == NULL || F_ISSET(dbc, DBC_READ_COMMITTED|DBC_READ_UNCOMMITTED))
-
 /*
  * __qam_position --
  *	Position a queued access method cursor at a record.  This returns
@@ -33,7 +32,7 @@ int __qam_position(DBC * dbc, db_recno_t * recnop, uint32 get_mode /* flags to _
 	db_pgno_t pg;
 	int ret;
 	DB * dbp = dbc->dbp;
-	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	/* Fetch the page for this recno. */
 	cp->pgno = pg = QAM_RECNO_PAGE(dbp, *recnop);
 	cp->page = NULL;
@@ -47,8 +46,7 @@ int __qam_position(DBC * dbc, db_recno_t * recnop, uint32 get_mode /* flags to _
 	if(PGNO(cp->page) == 0) {
 		/*
 		 * We have read an uninitialized page: set the page number if
-		 * we're creating the page.  Otherwise, we know that the record
-		 * doesn't exist yet.
+		 * we're creating the page.  Otherwise, we know that the record doesn't exist yet.
 		 */
 		if(!FLD_ISSET(get_mode, DB_MPOOL_CREATE)) {
 			*exactp = 0;
@@ -80,7 +78,7 @@ int __qam_pitem(DBC * dbc, QPAGE * pagep, uint32 indx, db_recno_t recno, DBT * d
 	uint8 * dest, * p;
 	DB    * dbp = dbc->dbp;
 	ENV   * env = dbp->env;
-	QUEUE * t = (QUEUE *)dbp->q_internal;
+	QUEUE * t = static_cast<QUEUE *>(dbp->q_internal);
 	int    allocated = 0;
 	int    ret = 0;
 	if(data->size > t->re_len)
@@ -170,9 +168,8 @@ static int __qamc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	if(pgnop != NULL)
-		*pgnop = PGNO_INVALID;
-	cp = (QUEUE_CURSOR *)dbc->internal;
+	ASSIGN_PTR(pgnop, PGNO_INVALID);
+	cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	switch(flags) {
 	    case DB_KEYFIRST:
 	    case DB_KEYLAST:
@@ -184,21 +181,20 @@ static int __qamc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	    case DB_CURRENT:
 		break;
 	    default:
-		/* The interface shouldn't let anything else through. */
+		// The interface shouldn't let anything else through. 
 		return __db_ferr(env, "DBC->put", 0);
 	}
-	/* Write lock the record. */
+	// Write lock the record. 
 	if((ret = __db_lget(dbc, LCK_COUPLE, cp->recno, DB_LOCK_WRITE, DB_LOCK_RECORD, &cp->lock)) != 0)
 		return ret;
 	if((ret = __qam_position(dbc, &cp->recno, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &exact)) != 0) {
-		/* We could not get the page, we can release the record lock. */
+		// We could not get the page, we can release the record lock. 
 		__LPUT(dbc, cp->lock);
 		return ret;
 	}
 	if(exact != 0 && flags == DB_NOOVERWRITE)
 		ret = DB_KEYEXIST;
-	else
-		/* Put the item on the page. */
+	else // Put the item on the page. 
 		ret = __qam_pitem(dbc, (QPAGE *)cp->page, cp->indx, cp->recno, data);
 	if((t_ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
@@ -223,7 +219,6 @@ static int __qamc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	 * queue is empty, move first and current to where the new
 	 * insert is.
 	 */
-
 recheck:
 	if(meta->first_recno == meta->cur_recno) {
 		new_first = cp->recno;
@@ -280,10 +275,10 @@ int __qam_append(DBC * dbc, DBT * key, DBT * data)
 	int ret, t_ret, waited;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	LOCK_INIT(lock);
 	/* Exclusive latch the meta page. */
-	metapg = ((QUEUE *)dbp->q_internal)->q_meta;
+	metapg = static_cast<const QUEUE *>(dbp->q_internal)->q_meta;
 again:
 	if((ret = __memp_fget(mpf, &metapg, dbc->thread_info, dbc->txn, DB_MPOOL_DIRTY, &meta)) != 0)
 		return ret;
@@ -317,8 +312,7 @@ again:
 	if(dbc->dbp->db_append_recno && (t_ret = dbc->dbp->db_append_recno(dbc->dbp, data, recno)) != 0 && ret == 0)
 		ret = t_ret;
 	/*
-	 * Capture errors from either the lock couple or the call to
-	 * dbp->db_append_recno.
+	 * Capture errors from either the lock couple or the call to dbp->db_append_recno.
 	 */
 	if(ret != 0)
 		goto err;
@@ -352,7 +346,7 @@ again:
 	// Position the cursor on this record. 
 	cp->recno = recno;
 	// See if we are leaving the extent.
-	qp = (QUEUE *)dbp->q_internal;
+	qp = static_cast<QUEUE *>(dbp->q_internal);
 	if(qp->page_ext != 0 && (recno%(qp->page_ext*qp->rec_page) == 0 || recno == UINT32_MAX)) {
 		if((ret = __memp_fget(mpf, &metapg, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 			goto err;
@@ -383,8 +377,8 @@ static int __qamc_del(DBC * dbc, uint32 flags)
 	int exact, ret, t_ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
-	db_pgno_t metapg = ((QUEUE *)dbp->q_internal)->q_meta;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
+	db_pgno_t metapg = static_cast<const QUEUE *>(dbp->q_internal)->q_meta;
 	/* Read latch the meta page. */
 	if((ret = __memp_fget(mpf, &metapg, dbc->thread_info, dbc->txn, 0, &meta)) != 0)
 		return ret;
@@ -408,7 +402,7 @@ static int __qamc_del(DBC * dbc, uint32 flags)
 		ret = DB_NOTFOUND;
 		goto err;
 	}
-	pagep = (PAGE *)cp->page;
+	pagep = static_cast<PAGE *>(cp->page);
 	qp = QAM_GET_RECORD(dbp, pagep, cp->indx);
 	if(DBC_LOGGING(dbc)) {
 		if(((QUEUE *)dbp->q_internal)->page_ext == 0 || ((QUEUE *)dbp->q_internal)->re_len == 0) {
@@ -416,7 +410,7 @@ static int __qamc_del(DBC * dbc, uint32 flags)
 				goto err;
 		}
 		else {
-			data.size = ((QUEUE *)dbp->q_internal)->re_len;
+			data.size = static_cast<const QUEUE *>(dbp->q_internal)->re_len;
 			data.data = qp->data;
 			if((ret = __qam_delext_log(dbp, dbc->txn, &LSN(pagep), 0, &LSN(pagep), pagep->pgno, cp->indx, cp->recno, &data)) != 0)
 				goto err;
@@ -459,27 +453,23 @@ err:
  */
 static int __qamc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop)
 {
-	DB * dbp;
 	DBC * dbcdup;
 	DBT tmp;
 	DB_LOCK lock, metalock;
-	DB_MPOOLFILE * mpf;
-	ENV * env;
 	PAGE * pg;
 	QAMDATA * qp;
 	QMETA * meta;
 	QUEUE * t;
-	QUEUE_CURSOR * cp;
 	db_lockmode_t lock_mode;
 	db_pgno_t metapno;
 	db_recno_t first;
 	int exact, inorder, is_first, ret, t_ret, wait, with_delete;
 	int retrying;
 	uint32 skip, meta_mode;
-	dbp = dbc->dbp;
-	env = dbp->env;
-	mpf = dbp->mpf;
-	cp = (QUEUE_CURSOR *)dbc->internal;
+	DB * dbp = dbc->dbp;
+	ENV * env = dbp->env;
+	DB_MPOOLFILE * mpf = dbp->mpf;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	LOCK_INIT(lock);
 	lock_mode = F_ISSET(dbc, DBC_RMW) ? DB_LOCK_WRITE : DB_LOCK_READ;
 	meta_mode = 0;
@@ -502,7 +492,7 @@ static int __qamc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 	/* Make lint and friends happy. */
 	is_first = 0;
 	first = 0;
-	t = (QUEUE *)dbp->q_internal;
+	t = static_cast<QUEUE *>(dbp->q_internal);
 	metapno = t->q_meta;
 	/*
 	 * Get the meta page first
@@ -910,21 +900,19 @@ err:    if(meta) {
  */
 static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 {
-	DB_LOCK lock, save_lock;
-	db_indx_t save_indx;
-	db_pgno_t save_page;
-	db_recno_t current, save_first, save_recno;
+	DB_LOCK lock;
+	db_recno_t current;
 	uint32 rec_extent;
 	int exact, t_ret, wrapped;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	int ret = 0;
-	save_page = cp->pgno;
-	save_indx = cp->indx;
-	save_recno = cp->recno;
-	save_lock = cp->lock;
-	save_first = first;
+	db_pgno_t save_page = cp->pgno;
+	db_indx_t save_indx = cp->indx;
+	db_recno_t save_recno = cp->recno;
+	DB_LOCK save_lock = cp->lock;
+	db_recno_t save_first = first;
 	/*
 	 * We call this routine for two reasons:
 	 *  1) to toss pages and extents as we leave them.
@@ -1064,24 +1052,18 @@ static int __qam_bulk(DBC * dbc, DBT * data, uint32 flags)
 	uint8 * dbuf, * dp, * np;
 	int exact, ret, t_ret, valid;
 	int is_key, need_pg, size, space;
-
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
 	cp = (QUEUE_CURSOR *)dbc->internal;
-
 	lkmode = F_ISSET(dbc, DBC_RMW) ? DB_LOCK_WRITE : DB_LOCK_READ;
-
 	pagesize = dbp->pgsize;
 	re_len = ((QUEUE *)dbp->q_internal)->re_len;
 	recs = ((QUEUE *)dbp->q_internal)->rec_page;
 	metapno = ((QUEUE *)dbp->q_internal)->q_meta;
-
 	is_key = LF_ISSET(DB_MULTIPLE_KEY) ? 1 : 0;
 	size = 0;
-
 	dbuf = (uint8 *)data->data;
 	np = dp = dbuf;
-
 	/* Keep track of space that is left.  There is an termination entry */
 	space = (int)data->ulen;
 	space -= (int)sizeof(*offp);
@@ -1112,7 +1094,7 @@ next_pg:
 		 * calling QAM_GET_RECORD is unsafe.
 		 */
 		valid = 0;
-		if(pg != NULL) {
+		if(pg) {
 			if((ret = __db_lget(dbc, LCK_COUPLE, cp->recno, lkmode, DB_LOCK_NOWAIT|DB_LOCK_RECORD, &rlock)) != 0) {
 				if(ret != DB_LOCK_NOTGRANTED && ret != DB_LOCK_DEADLOCK)
 					goto done;
@@ -1197,11 +1179,10 @@ done:
  */
 static int __qamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 {
-	QUEUE_CURSOR * cp;
 	int ret;
 	COMPQUIET(root_pgno, 0);
 	COMPQUIET(rmroot, 0);
-	cp = (QUEUE_CURSOR *)dbc->internal;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	/* Discard any locks not acquired inside of a transaction. */
 	ret = __TLPUT(dbc, cp->lock);
 	LOCK_INIT(cp->lock);
@@ -1222,8 +1203,8 @@ static int __qamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
  */
 int FASTCALL __qamc_dup(DBC * orig_dbc, DBC * new_dbc)
 {
-	QUEUE_CURSOR * orig = (QUEUE_CURSOR *)orig_dbc->internal;
-	QUEUE_CURSOR * p_new_cursor = (QUEUE_CURSOR *)new_dbc->internal;
+	QUEUE_CURSOR * orig = reinterpret_cast<QUEUE_CURSOR *>(orig_dbc->internal);
+	QUEUE_CURSOR * p_new_cursor = reinterpret_cast<QUEUE_CURSOR *>(new_dbc->internal);
 	p_new_cursor->recno = orig->recno;
 	return 0;
 }
@@ -1237,11 +1218,11 @@ int __qamc_init(DBC * dbc)
 	int ret;
 	DB * dbp = dbc->dbp;
 	/* Allocate the internal structure. */
-	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	if(cp == NULL) {
 		if((ret = __os_calloc(dbp->env, 1, sizeof(QUEUE_CURSOR), &cp)) != 0)
 			return ret;
-		dbc->internal = (DBC_INTERNAL *)cp;
+		dbc->internal = reinterpret_cast<DBC_INTERNAL *>(cp);
 	}
 	/* Initialize methods. */
 	dbc->close = dbc->c_close = __dbc_close_pp;
@@ -1267,7 +1248,7 @@ int __qamc_init(DBC * dbc)
  */
 static int __qamc_destroy(DBC * dbc)
 {
-	/* Discard the structures. */
+	// Discard the structures
 	__os_free(dbc->env, dbc->internal);
 	return 0;
 }
@@ -1277,12 +1258,12 @@ static int __qamc_destroy(DBC * dbc)
  */
 static int __qam_getno(DB * dbp, const DBT * key, db_recno_t * rep)
 {
-	/* If passed an empty DBT from Java, key->data may be NULL */
+	// If passed an empty DBT from Java, key->data may be NULL 
 	if(key->size != sizeof(db_recno_t)) {
 		__db_errx(dbp->env, DB_STR("1143", "illegal record number size"));
 		return EINVAL;
 	}
-	if((*rep = *(db_recno_t *)key->data) == 0) {
+	if((*rep = *static_cast<const db_recno_t *>(key->data)) == 0) {
 		__db_errx(dbp->env, DB_STR("1144", "illegal record number of 0"));
 		return EINVAL;
 	}
@@ -1340,7 +1321,7 @@ err:
 int __qam_delete(DBC * dbc, DBT * key, uint32 flags)
 {
 	int ret;
-	QUEUE_CURSOR * cp = (QUEUE_CURSOR *)dbc->internal;
+	QUEUE_CURSOR * cp = reinterpret_cast<QUEUE_CURSOR *>(dbc->internal);
 	if((ret = __qam_getno(dbc->dbp, key, &cp->recno)) != 0)
 		goto err;
 	ret = __qamc_del(dbc, flags);

@@ -62,7 +62,7 @@ int __bam_split(DBC*dbc, void * arg, db_pgno_t * root_pgnop)
 	int exact, level, ret;
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_OFF(dbc->thread_info);
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	LOCK_INIT(next_lock);
 	next_pgno = PGNO_INVALID;
 	/*
@@ -360,7 +360,7 @@ static int __bam_page(DBC * dbc, EPG * pp, EPG * cp)
 	DB_ASSERT(dbp->env, IS_DIRTY(cp->page));
 	DB_ASSERT(dbp->env, IS_DIRTY(pp->page));
 
-	bc = (BTREE_CURSOR *)dbc->internal;
+	bc = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/* Actually update the parent page. */
 	if((ret = __bam_pinsert(dbc, pp, split, lp, rp, F_ISSET(bc, C_RECNUM) ? 0 : BPI_NOLOGGING)) != 0)
 		goto err;
@@ -487,7 +487,7 @@ int __bam_broot(DBC*dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 	db_pgno_t root_pgno;
 	int ret;
 	DB * dbp = dbc->dbp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	BOVERFLOW * child_bo = NULL;
 	data.data = NULL;
 	memzero(&bi, sizeof(bi));
@@ -655,7 +655,7 @@ int __bam_pinsert(DBC*dbc, EPG * parent, uint32 split, PAGE * lchild, PAGE * rch
 	int ret;
 
 	dbp = dbc->dbp;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	t = static_cast<BTREE *>(dbp->bt_internal);
 	ppage = parent->page;
 	child = parent+1;

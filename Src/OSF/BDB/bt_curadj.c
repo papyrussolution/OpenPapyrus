@@ -38,7 +38,7 @@ static int __bam_ca_delete_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pgn
 {
 	COMPQUIET(my_dbc, 0);
 	uint32 del = *(uint32 *)args;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(cp->pgno == pgno && cp->indx == indx && !MVCC_SKIP_CURADJ(dbc, pgno)) {
 		/*
 		 * [#8032] This assert is checking for possible race
@@ -188,7 +188,7 @@ static int __bam_opd_cursor(DB * dbp, DBC * dbc, uint32 first, db_pgno_t tpgno, 
 {
 	BTREE_CURSOR * cp;
 	int ret;
-	BTREE_CURSOR * orig_cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * orig_cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DBC * dbc_nopd = NULL;
 	/*
 	 * Allocate a new cursor and create the stack.  If duplicates
@@ -244,7 +244,7 @@ static int __bam_ca_dup_func(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 	 * Since we rescan the list see if this is already
 	 * converted.
 	 */
-	orig_cp = (BTREE_CURSOR *)dbc->internal;
+	orig_cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(orig_cp->opd)
 		return 0;
 	/* Find cursors pointing to this record. */
@@ -294,7 +294,7 @@ static int __bam_ca_undodup_func(DBC * dbc, DBC * my_dbc, uint32 * countp, db_pg
 	struct __bam_ca_dup_args * args;
 	COMPQUIET(my_dbc, 0);
 	COMPQUIET(countp, 0);
-	orig_cp = (BTREE_CURSOR *)dbc->internal;
+	orig_cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	dbp = dbc->dbp;
 	args = (struct __bam_ca_dup_args *)vargs;
 	/*

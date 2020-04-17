@@ -3678,6 +3678,23 @@ int FASTCALL SStringU::CmpPrefix(const wchar_t * pS) const
 		return -1;
 }
 
+int SLAPI SStringU::Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const
+{
+	int    ok = 0;
+	const size_t plen = sstrlen(pPattern);
+	const size_t tlen = Len();
+	if((plen+startPos) <= tlen) {
+		for(uint i = startPos; i <= (tlen - plen); i++) {
+			if(wcsncmp(P_Buf+i, pPattern, plen) == 0) {
+				ASSIGN_PTR(pPos, i);
+				ok = 1;
+				break;
+			}
+		}
+	}
+	return ok;
+}
+
 wchar_t SLAPI SStringU::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
 
 int FASTCALL SStringU::HasChr(wchar_t c) const
@@ -7314,6 +7331,39 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SLTEST_CHECK_EQ(static_cast<uint8>(str.C(i)), static_cast<uint8>(rev_str.C(org_len-i-1)));
 				}
 			}
+		}
+		{
+			//
+			// Тестирование функций Search
+			//
+			const char * p_text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz АБРИКОС городовой";
+			const char * p_temp_text = 0;
+			SStringU text_u;
+			SStringU temp_buf_u;
+			text_u.CopyFromUtf8(p_text, sstrlen(p_text));
+			uint pos;
+			SLTEST_CHECK_NZ(text_u.Search(L"ABC", 0, &pos));
+			SLTEST_CHECK_EQ(pos, 0);
+			SLTEST_CHECK_Z(text_u.Search(L"ABC", 10, &pos));
+			p_temp_text = "АБРИК";
+			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
+			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 0, &pos));
+			SLTEST_CHECK_EQ(pos, 63);
+			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 20, &pos));
+			SLTEST_CHECK_EQ(pos, 63);
+			temp_buf_u.CopyFromUtf8(p_text, sstrlen(p_text));
+			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 0, &pos));
+			SLTEST_CHECK_EQ(pos, 0);
+			p_temp_text = "городовой";
+			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
+			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 0, &pos));
+			SLTEST_CHECK_EQ(pos, 71);
+			SLTEST_CHECK_NZ(text_u.Search(temp_buf_u, 71, &pos));
+			SLTEST_CHECK_EQ(pos, 71);
+			SLTEST_CHECK_Z(text_u.Search(temp_buf_u, 1000, &pos));
+			p_temp_text = "гороДовой";
+			temp_buf_u.CopyFromUtf8(p_temp_text, sstrlen(p_temp_text));
+			SLTEST_CHECK_Z(text_u.Search(temp_buf_u, 1, &pos));
 		}
 		{
 			SLTEST_CHECK_EQ((str = " abc ").Strip(1), " abc");

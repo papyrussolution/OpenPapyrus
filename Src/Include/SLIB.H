@@ -2963,7 +2963,8 @@ struct IntRange { // @persistent @size=8
 	//   2 - диапазоны пересекаются в одной точке.
 	//  -1 - один или оба диапазона имеют перевернутые границы (low > upp).
 	//
-	int    SLAPI Intersect(const IntRange & rD, IntRange * pResult) const;
+	int    FASTCALL Intersect(const IntRange & rD, IntRange * pResult) const;
+	int    FASTCALL Intersect(const IntRange & rD) const;
 	SString & SLAPI Format(long fmt, SString &) const;
 
 	int32  low;
@@ -4000,6 +4001,7 @@ public:
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
 	int    FASTCALL HasChr(wchar_t c) const;
+	int    SLAPI Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const;
 	SStringU & SLAPI Z();
 	wchar_t SLAPI Last() const;
 	//
@@ -4215,7 +4217,6 @@ struct SPathStruc {
 	// Descr: Унифицирует текстовое представление пути pPath. Результат переносится в rNormalizedPath
 	//
 	static SString & FASTCALL NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
-
 	int    Invariant(SInvariantParam *);
 	SPathStruc();
 	//
@@ -4600,30 +4601,30 @@ enum {
 //   >0 - строка преобразована успешно
 //   0  - ошибка
 //
-int   FASTCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
+int    FASTCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
 //
 // Current date getting
 //
-int   FASTCALL getcurdate(LDATE *);
-int   FASTCALL getcurtime(LTIME *);
+int    FASTCALL getcurdate(LDATE *);
+int    FASTCALL getcurtime(LTIME *);
 //
 // Descr: Возвращает текущую системную дату
 //
-LDATE FASTCALL getcurdate_();
+LDATE  FASTCALL getcurdate_();
 //
 // Descr: Возвращает текущее системное время //
 //
-LTIME FASTCALL getcurtime_();
-int   FASTCALL getcurdatetime(LDATETIME *);
-int   FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
+LTIME  FASTCALL getcurtime_();
+int    FASTCALL getcurdatetime(LDATETIME *);
+int    FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
 LDATETIME FASTCALL getcurdatetime_();
-int   SLAPI setcurdatetime(LDATETIME dtm);
-int   gettimezone();
+int    SLAPI setcurdatetime(LDATETIME dtm);
+int    SLAPI gettimezone();
 //
 // Date arithmetic
 //
-long  FASTCALL _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
-void  FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
+long   FASTCALL _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
+void   FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest.
@@ -4634,10 +4635,10 @@ void  FASTCALL _plusdate(void * pDest, int numdays, int format, int _360);
 // ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
 //   при этом длительность года полагается равной 360 дням.
 //
-void  SLAPI _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
-int   FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
-long  FASTCALL diffdate(const void *, const void *, int _360);
-void  FASTCALL plusdate(void *, int, int _360);
+void   SLAPI _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
+int    FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
+long   FASTCALL diffdate(const void *, const void *, int _360);
+void   FASTCALL plusdate(void *, int, int _360);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest. Функция считает, что бинарный формат представления даты pDest
@@ -4648,7 +4649,7 @@ void  FASTCALL plusdate(void *, int, int _360);
 // ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
 //   при этом длительность года полагается равной 360 дням.
 //
-void  FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360);
+void   FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360);
 //
 // Descr: возвращает день недели, на который приходится дата pDate.
 // Parameters:
@@ -4658,7 +4659,7 @@ void  FASTCALL plusperiod(void * pDest, int period, int numperiods, int _360);
 // Returns:
 //   Номер дня недели. См комментарии к параметру sundayIsSeventh
 //
-int   FASTCALL dayofweek(const void * pDate, int sundayIsSeventh = 0); // 0..6 (0=Sunday) // @>>_dayofweek
+int    FASTCALL dayofweek(const void * pDate, int sundayIsSeventh = 0); // 0..6 (0=Sunday) // @>>_dayofweek
 //
 // Descr: возвращает количество дней в месяце month для года year.
 // ARG(month IN): номер месяца @# [1..12]
@@ -4667,7 +4668,7 @@ int   FASTCALL dayofweek(const void * pDate, int sundayIsSeventh = 0); // 0..6 (
 //   номер последнего дня в месяце month года year
 //   Если month < 1 || month > 12, то возвращает 0
 //
-int   FASTCALL dayspermonth(int month, int year);
+int    FASTCALL dayspermonth(int month, int year);
 //
 // Descr: Возвращает текст, соответствующий дню недели dayOfWeek.
 // ARG(options    IN): формат представления текста (dowtXXX see below).
@@ -4683,16 +4684,16 @@ enum {
 	dowtRuFull,
 	dowtRuShrt
 };
-int   FASTCALL GetDayOfWeekText(int options, int dayOfWeek, SString & rBuf);
-int   FASTCALL GetDayOfWeekByText(const char * pText);
+int    FASTCALL GetDayOfWeekText(int options, int dayOfWeek, SString & rBuf);
+int    FASTCALL GetDayOfWeekByText(const char * pText);
 //
 // Time format convertion
 //
 // @v10.0.02 int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
 // @v10.0.02 int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
-void  FASTCALL encodetime(int h, int m, int s, int ts, void *);
-void  FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
-LTIME FASTCALL encodetime(int h, int m, int s, int ts);
+void   FASTCALL encodetime(int h, int m, int s, int ts, void *);
+void   FASTCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
+LTIME  FASTCALL encodetime(int h, int m, int s, int ts);
 /*
 	Result of difftime:
 		(dim == 1) : hours
@@ -4700,17 +4701,15 @@ LTIME FASTCALL encodetime(int h, int m, int s, int ts);
 		(dim == 3) : seconds
 		(dim == 4) : thousandths of second
 */
-long  FASTCALL DiffTime(LTIME t1, LTIME t2, int dim);
-long  SLAPI diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
-long  SLAPI diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
-long  SLAPI diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
-long  FASTCALL diffdatetimesec(const LDATETIME &, const LDATETIME &);
-//
+long   FASTCALL DiffTime(LTIME t1, LTIME t2, int dim);
+long   SLAPI diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
+long   SLAPI diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
+long   SLAPI diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
+long   FASTCALL diffdatetimesec(const LDATETIME &, const LDATETIME &);
 LDATETIME FASTCALL plusdatetime(const LDATETIME &, long plus, int dim);
-LDATE FASTCALL encodedate(int day, int month, int year);
-LDATE FASTCALL plusdate(LDATE d, long a);
-long  FASTCALL diffdate(LDATE d, LDATE s);
-
+LDATE  FASTCALL encodedate(int day, int month, int year);
+LDATE  FASTCALL plusdate(LDATE d, long a);
+long   FASTCALL diffdate(LDATE d, LDATE s);
 char * FASTCALL _commfmt(long fmt, char * pBuf);
 SString & FASTCALL _commfmt(long fmt, SString & rBuf);
 char * FASTCALL realfmt(double val, long fmt, char * pBuf);
@@ -4749,15 +4748,14 @@ enum {
 //    rBuf
 //
 SString & FASTCALL TimeZoneFmt(int tz, int flags, SString & rBuf);
-
 char * SLAPI strfmt(const char * str, long fmt, char * buf);
 //char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
 // @v9.6.0 int   SLAPI strtoirng(const char * pBuf, long * pLow, long * pUpp);
-int   FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp);
-int   FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
-int   FASTCALL strtodoub(const char * pBuf, double *);
-int   FASTCALL strtolong(const char * pBuf, long *);
-int   FASTCALL strtoulong(const char * pBuf, ulong *);
+int    FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp);
+int    FASTCALL strtorrng(const char * pBuf, RealRange & rRng);
+int    FASTCALL strtodoub(const char * pBuf, double *);
+int    FASTCALL strtolong(const char * pBuf, long *);
+int    FASTCALL strtoulong(const char * pBuf, ulong *);
 //
 enum {
 	strtodatefZero     = 0x0001, // Пустая дата
@@ -4834,8 +4832,7 @@ struct BNField {
 	int    SLAPI setValue(void * pDataBuf, const void * pValBuf) const;
 	int    SLAPI putValueToString(const void * pDataBuf, char * pBuf) const;
 
-	int32  Id;   // If object attached to dictionary then
-	//              id = X$FIELD.XeId, else id = 0,1,..
+	int32  Id;   // If object attached to dictionary then id = X$FIELD.XeId, else id = 0,1,..
 	char   Name[20];
 	uint32 Offs;
 	TYPEID T;
@@ -4874,7 +4871,49 @@ private:
 	BNField * fields;
 };
 //
-// Descr: Универсальный итератор
+// Descr: Универсальный итератор.
+//   Механизм использования на примере:
+// class Foo {
+// private:
+//	 class EnImp : public SEnumImp {
+//	 public:
+//	 	EnImp(const void * pArg) : I(0), P_Arg(pArg)
+//		{
+//		}
+//		virtual int Next(void * pData)
+//		{
+//			if(I < 10) {
+//				static_cast<double *>(pData) = I * 1.01;
+//				I++;
+//				return 1;
+//			}
+//			else
+//				return 0;
+//		}
+//	private:
+//		uint  I;
+//		const void * P_Arg;
+//	};
+// public:
+//	SEnumImp * Enum(const void * pArg)
+//	{
+//		return new EnImp(pArg);
+//	}
+// };
+//
+// void foo()
+// {
+//	Foo f;
+//	double abc;
+//	for(SEnum en = f.Enum(); en.Next(&abc);) {
+//		// do something with abc
+//	}
+// }
+// 
+// Класс Foo реализует механизм итерирования (от 0 до 9) посредством вложенного класса, унаследованного от SEnumImp, экземпляр
+// которого возвращает публичной функцией Enum().
+// Клиентская функция foo() не знает о реализации Foo::EnImp но знает о том, какого типа итерируемый объект (в примере double).
+// Аргумент итератора pArg приведен только для примера и не используется.
 //
 class SEnumImp {
 public:
@@ -4929,7 +4968,6 @@ char * SLAPI rmvLastSlash(char *);
 //   pBuf
 //
 SString & SLAPI getExecPath(SString & rBuf);
-
 int    FASTCALL fileExists(const char * pFileName);
 int    SLAPI driveValid(const char * path);
 int    FASTCALL IsDirectory(const char * pStr);
@@ -6378,7 +6416,7 @@ public:
 	//
 	void   SLAPI clear();
 	//
-	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
+	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включительно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
 	//   Если lowPos == uppPod, то вызов эквивалентен freeItem(lowPos)
 	//   Если lowPos < getCount(), то удаляет все элементы от позиции lowPos до MIN(uppPos, getCount()-1)
@@ -12282,7 +12320,7 @@ private:
 //
 class ACount { // @#size=4
 public:
-	explicit SLAPI  ACount();
+	SLAPI  ACount();
 	//
 	// Descr: Этот конструктор используется тогда, когда
 	//   не следует явно инициализировать переменную в ноль.
@@ -14450,23 +14488,9 @@ private:
 	TSCollection <UsbBasicDescrSt> Children;
 	SBuffer ExtBuffer;
 };
-
 //
 // Debug
 //
-/* @v9.4.11
-#ifndef __DEBUG
-	#define __DEBUG 2
-#endif
-#undef CHECK
-#if (__DEBUG < 2)
-	#define CHECKE(p) (p)
-	#define CHECK(p)  ((void)0)
-#else
-	#define CHECKE(p) assert(p)
-	#define CHECK(p)  assert(p)
-#endif
-*/
 //
 //
 //
@@ -14626,8 +14650,7 @@ private:
 	//
 	SString LogFileName;
 	SString TabFileName; // Полное имя файла, содержащего тестовые таблицы. Если параметр tabfile не
-		// определен, то считается, что имя файла таблиц совпадает с именем файла описания тестов, но
-		// с расширением .tab
+		// определен, то считается, что имя файла таблиц совпадает с именем файла описания тестов, но с расширением .tab
 	SString CaseBuffer;  // Строка, в которую тест может вывести какую-либо информацию
 	MemHeapTracer Mht;
 };
@@ -14636,7 +14659,7 @@ private:
 //
 class STestCase {
 public:
-	STestCase(STestSuite *);
+	explicit STestCase(STestSuite *);
 	virtual ~STestCase();
 	//
 	// Descr: Функция должна выполнить собственно процедуру тестирования.

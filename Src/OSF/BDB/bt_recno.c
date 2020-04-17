@@ -122,7 +122,7 @@ int __ram_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, d
  */
 int __ram_append(DBC * dbc, DBT * key, DBT * data)
 {
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Make sure we've read in all of the backing source file.  If
 	 * we found the record or it simply didn't exist, add the user's record.
@@ -151,7 +151,7 @@ int __ramc_del(DBC * dbc, uint32 flags)
 	db_pgno_t npgno, ppgno, save_npgno, save_ppgno;
 	int exact, nc, ret, t_ret;
 	DB * dbp = dbc->dbp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	int stack = 0;
 	save_npgno = save_ppgno = PGNO_INVALID;
@@ -291,7 +291,7 @@ int __ramc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop
 	int cmp, exact, ret;
 	COMPQUIET(pgnop, 0);
 	dbp = dbc->dbp;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	LF_CLR(DB_MULTIPLE|DB_MULTIPLE_KEY);
 retry:
 	switch(flags) {
@@ -520,7 +520,7 @@ int __ramc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * pgnop
 	COMPQUIET(pgnop, 0);
 	dbp = dbc->dbp;
 	env = dbp->env;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * DB_KEYFIRST and DB_KEYLAST mean different things if they're
 	 * used in an off-page duplicate tree.  If we're an off-page
@@ -646,7 +646,7 @@ static int __ram_ca_getorder(DBC * dbc, DBC * my_dbc, uint32 * orderp, db_pgno_t
 	BTREE_CURSOR * cp;
 	COMPQUIET(my_dbc, 0);
 	COMPQUIET(args, 0);
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(root_pgno == BAM_ROOT_PGNO(dbc) && recno == cp->recno && CD_ISSET(cp) && *orderp <= cp->order && !MVCC_SKIP_CURADJ(dbc, BAM_ROOT_PGNO(dbc)))
 		*orderp = cp->order;
 	return 0;
@@ -659,7 +659,7 @@ static int __ram_ca_setorder(DBC * dbc, DBC * my_dbc, uint32 * foundp, db_pgno_t
 	ca_recno_arg op;
 	db_recno_t recno;
 	COMPQUIET(pgno, 0);
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	cp_arg = (BTREE_CURSOR *)my_dbc->internal;
 	op = *(ca_recno_arg *)args;
 	if(cp_arg->root != cp->root || MVCC_SKIP_CURADJ(dbc, BAM_ROOT_PGNO(dbc)))
@@ -1103,7 +1103,7 @@ err:
 static int __ram_add(DBC * dbc, db_recno_t * recnop, DBT * data, uint32 flags, uint32 bi_flags)
 {
 	int exact, ret, stack, t_ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 retry:
 	/* Find the slot for insertion. */
 	if((ret = __bam_rsearch(dbc, recnop, SR_INSERT|(flags == DB_APPEND ? SR_APPEND : 0), 1, &exact)) != 0)

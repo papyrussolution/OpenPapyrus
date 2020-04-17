@@ -1003,7 +1003,7 @@ int SLAPI WriteOffDrafts(const PPIDArray * pCSessList)
 	PrcssrWrOffDraftFilt p;
 	PrcssrWrOffDraft proc;
 	proc.InitParam(&p);
-	if(pCSessList && pCSessList->getCount()) {
+	if(SVector::GetCount(pCSessList)) {
 		p.CSessList = *pCSessList;
 		PPObjCSession cs_obj;
 		PPObjCashNode cn_obj;

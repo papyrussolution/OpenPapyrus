@@ -329,7 +329,7 @@ void __bam_print_cursor(DBC * dbc)
 		{ 0,            NULL }
 	};
 	ENV * env = dbc->env;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	STAT_ULONG("Overflow size", cp->ovflsize);
 	if(dbc->dbtype == DB_RECNO)
 		STAT_ULONG("Recno", cp->recno);
@@ -368,7 +368,7 @@ int __bam_key_range(DBC * dbc, DBT * dbt, DB_KEY_RANGE * kp, uint32 flags)
 	COMPQUIET(flags, 0);
 	if((ret = __bam_search(dbc, PGNO_INVALID, dbt, SR_STK_ONLY, 1, NULL, &exact)) != 0)
 		return ret;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	kp->less = kp->greater = 0.0;
 	factor = 1.0;
 	/* Correct the leaf page. */

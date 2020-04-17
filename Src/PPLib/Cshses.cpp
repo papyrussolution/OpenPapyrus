@@ -11,8 +11,7 @@
 //
 // PPSyncCashSession
 //
-SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) :
-	State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
+SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) : State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Port)[0] = 0;
@@ -2099,7 +2098,7 @@ IMPL_INVARIANT_C(AsyncCashGoodsInfo)
 
 int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 {
-	size_t bclen = sstrlen(BarCode);
+	const size_t bclen = sstrlen(BarCode);
 	if(bclen > 3 && bclen < 7) {
 		padleft(BarCode, '0', 12 - bclen);
 		if(chkDig)

@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -68,12 +68,13 @@ SLAPI PPPaths::PPPaths() : P(0)
 
 SLAPI PPPaths::~PPPaths()
 {
-	Empty();
+	ZFREE(P);
 }
 
-void SLAPI PPPaths::Empty()
+PPPaths & SLAPI PPPaths::Z()
 {
 	ZFREE(P);
+	return *this;
 }
 
 int SLAPI PPPaths::IsEmpty() const
@@ -360,7 +361,7 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		THROW(Resize(Size()));
 	}
 	else
-		Empty();
+		Z();
 	//
 	// Восстановление значений сохраненных ранее TEMP и LOG каталогов
 	//

@@ -1064,7 +1064,7 @@ LDATETIME FASTCALL getcurdatetime_()
 	return dtm;
 }
 
-int gettimezone()
+int SLAPI gettimezone()
 {
 	TIME_ZONE_INFORMATION tz;
 	::GetTimeZoneInformation(&tz);

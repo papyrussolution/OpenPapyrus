@@ -310,7 +310,7 @@
 	#define HELP_BROWSER_GTAJ_OBJ                               135
 #define BROWSER_GEOTRACKING                            136 // Гео-треки
 	#define HELP_BROWSER_GEOTRACKING                            136
-#define BROWSER_LOGSMON                                137 // Монитор журналов
+#define BROWSER_LOGSMON                                137 // @{view_logsmonitor}
 	#define HELP_BROWSER_LOGSMON                                137
 #define BROWSER_PLINES                                 138 // @{pricelist} {%s}
 	#define HELP_BROWSER_PLINES                                 138
@@ -558,7 +558,7 @@
 	#define HELP_BROWSER_BIZSCTEMPL                             257
 #define BROWSER_BIZSCVALBYTEMPL                        258 // Значения бизнес-показателей по шаблону {%s}
 	#define HELP_BROWSER_BIZSCVALBYTEMPL                        258
-#define BROWSER_CHKOPJ                                 259 // Журнал чековых операций
+#define BROWSER_CHKOPJ                                 259 // @{view_checkopjrnl}
 	#define HELP_BROWSER_CHKOPJ                                 259
 #define BROWSER_STOCKOPT_ITEMS                         260 // @view_stockopt
 	#define HELP_BROWSER_STOCKOPT_ITEMS                         260

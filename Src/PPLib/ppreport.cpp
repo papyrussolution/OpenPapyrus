@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -976,7 +976,6 @@ public:
 	{
 		int    ok = 1;
 		SString temp_buf;
-		//char   cr_path[MAXPATH];
 		SString cr_path_;
 		StrAssocArray list;
 		P_Data = pData;
@@ -984,8 +983,10 @@ public:
 		P_Data->Selection = 0;
 		{
 			int    silent = 0;
-			if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()) > 0)
-				EnableEMail = 1;
+			/* @v10.7.6 if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()) > 0)
+				EnableEMail = 1; */
+			LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()); // @v10.7.6
+			EnableEMail = 1; // @v10.7.6
 		}
 		AddClusterAssoc(CTL_PRINT2_ACTION, 0, PrnDlgAns::aPrint);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 1, PrnDlgAns::aExport);
@@ -1070,7 +1071,7 @@ public:
 			getCtrlString(CTL_PRINT2_MAKEDATAPATH, pData->PrepareDataPath);
 		GetClusterData(CTL_PRINT2_DUPLEX, &P_Data->Flags);
 		long   sel_id = getCtrlLong(CTLSEL_PRINT2_PRINTER);
-		pData->Printer = (sel_id && sel_id <= (long)PrnList.getCount()) ? PrnList.at(sel_id-1).PrinterName : 0;
+		pData->Printer = (sel_id && sel_id <= PrnList.getCountI()) ? PrnList.at(sel_id-1).PrinterName : 0;
 		return ok;
 	}
 private:
@@ -1143,7 +1144,7 @@ private:
 				path.SetLastSlash().Cat(data_name);
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
 		}
-		else if(P_Data->Dest == PrnDlgAns::aExport) {
+		else if(oneof2(P_Data->Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) { // @v10.7.6 PrnDlgAns::aExportXML
 			if(EnableEMail) {
 				enable_email = 1;
 				disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
@@ -1869,8 +1870,7 @@ int SLAPI CrystalReportPrint(const char * pReportName, const char * pDir, const 
 //	}
 }   // }@erik v10.4.10
 
-int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName,
-	const char * pEMailAddr, int options)
+int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options)
 {
 	int    ok = 1, silent = 0;
 	SString path;
@@ -1887,19 +1887,20 @@ int SLAPI CrystalReportExport(const char * pReportPath, const char * pDir, const
 	eo.formatOptions      = 0;
 	THROW(LoadExportOptions(pReportName, &eo, &silent, path));
 	if(silent || PEGetExportOptions(h_job, &eo)) {
+		const char * p_dest_fn = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2); // @v10.7.6
 		PEExportTo(h_job, &eo);
 		THROW(SetupReportLocations(h_job, pDir, 0));
 		if(options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-		if(silent && pEMailAddr && fileExists(path)) {
+		if(/* @v10.7.6 silent &&*/pEMailAddr && fileExists(/*path*/p_dest_fn)) { // @v10.7.6 path-->p_dest_fn
 			//
 			// Отправка на определенный почтовый адрес
 			//
 			PPAlbatrossConfig alb_cfg;
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			if(alb_cfg.Hdr.MailAccID) {
-				THROW(SendMailWithAttach(pReportName, path, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID));
+				THROW(SendMailWithAttach(pReportName, /*path*/p_dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID));
 			}
 		}
 	}

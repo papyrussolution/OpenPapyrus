@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -149,14 +149,14 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, const Config & rCfg)
 			uint32 b_ = 0, b = 0;
 			THROW(ProcessError(E->get_cachesize(E, &gb_, &b_, &n_)));
 			if(rCfg.CacheSize != 0) {
-				gb = (uint32)(rCfg.CacheSize / SGIGABYTE(1));
-				b = (uint32)(rCfg.CacheSize % SGIGABYTE(1));
+				gb = static_cast<uint32>(rCfg.CacheSize / SGIGABYTE(1));
+				b = static_cast<uint32>(rCfg.CacheSize % SGIGABYTE(1));
 			}
 			else {
 				gb = gb_;
 				b = b_;
 			}
-			n = (int)NZOR(rCfg.CacheCount, n_);
+			n = static_cast<int>(NZOR(rCfg.CacheCount, n_));
 			THROW(ProcessError(E->set_cachesize(E, gb, b, n)));
 		}
 		if(rCfg.MaxLockers) {
@@ -1515,7 +1515,7 @@ DB * FASTCALL BDbCursor::GetIntTbl(int idx)
 		p_db = static_cast<DB *>(R_Tbl);
 	else {
 		TSCollection <BDbTable> & r_idx_list = R_Tbl.GetIdxList();
-		if(idx <= (int)r_idx_list.getCount()) {
+		if(idx <= r_idx_list.getCountI()) {
 			BDbTable * p_tbl = r_idx_list.at(idx-1);
 			p_db = p_tbl ? *p_tbl : static_cast<DB *>(0);
 		}

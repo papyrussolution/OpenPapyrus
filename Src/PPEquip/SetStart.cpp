@@ -176,7 +176,7 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 		//
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_list.freeAll();
-		MEMSZERO(ser_rec);
+		// @v10.7.6 (no reason) MEMSZERO(ser_rec);
 		/* @v10.7.0 
 		if(!updOnly) {
 			fputs((f_str = "$$$DELETEALLCCARDDISCS").CR(), p_file);

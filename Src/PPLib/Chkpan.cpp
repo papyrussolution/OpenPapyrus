@@ -1379,10 +1379,13 @@ int CPosProcessor::SetupItem(PPID goodsID, double qtty, double price)
 
 int CPosProcessor::OpenSession(LDATE * pDt, int ifClosed)
 {
-	int r = 0, r_ext = 0, open = 0, ok = 0;
+	int    ok = 0;
+	int    r = 0;
+	int    r_ext = 0;
+	int    open = 0;
 	THROW(InitCashMachine());
 	if(ifClosed) {
-		PPCashNode    cn_rec;
+		PPCashNode cn_rec;
 		CnObj.Search(CashNodeID, &cn_rec);
 		if(cn_rec.Flags & CASHF_DAYCLOSED || cn_rec.CurDate == 0 || ((cn_rec.Flags & CASHF_CHKPAN) && !cn_rec.CurSessID))
 			open = 1;
@@ -10497,6 +10500,22 @@ void CheckPaneDialog::SetupRowData(int calcRest)
 	ViewStoragePlaces(0);
 }
 
+int SLAPI CPosProcessor::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const
+{
+	int    ok = -1;
+	rBound = 0.0;
+	if(rFormula.NotEmptyS()) {
+		double bound = 0.0;
+		//CALLPTRMEMB(pPack, SetTPointer(itemPos));
+		GdsClsCalcExprContext ctx(&rCi);
+		if(PPCalcExpression(rFormula, &bound, &ctx) && bound > 0.0) {
+			rBound = bound;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 {
 	int    ok = 1, r = 0;
@@ -10508,6 +10527,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 		const  int gift_money = BIN(giftID && rBlk.PriceBySerial > 0.0);
 		if(AcceptRow(giftID)) {
 			RetailGoodsInfo rgi;
+			Goods2Tbl::Rec goods_rec;
 			long   ext_rgi_flags = 0;
 			int    is_abstract = 0;
 			if(gift_money)
@@ -10527,7 +10547,6 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 				// Начисление на кредитную карту
 				//
 				rgi.ID = goodsID;
-				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 					STRNSCPY(rgi.Name, goods_rec.Name);
 					GObj.FetchSingleBarcode(goodsID, temp_buf);
@@ -10584,13 +10603,49 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 								r_item.Flags |= cifGiftDiscount;
 							}
 						}
-						P.CurPos = P.getCount();
-						if(CalcRestByCrdCard_(1)) {
-							SetupRowData(1);
+						// @v10.7.6 {
+						{
+							if(GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+								PPObjGoodsType gt_obj;
+								PPGoodsType gt_rec;
+								if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
+									PPObjGoodsValRestr gvr_obj;
+									PPGoodsValRestrPacket gvr_pack;
+									RealRange range;
+									int   pr = 0;
+									if(gvr_obj.Fetch(gt_rec.PriceRestrID, &gvr_pack) > 0) {
+										if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, r_item, range.low) > 0)
+											pr = 1;
+										if(Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, r_item, range.upp) > 0)
+											pr = 1;
+									}
+									if(pr) {
+										if(!range.CheckValEps(r_item.Price, 1E-7)) {
+											if(range.low > 0.0 && r_item.Price < range.low) {
+												temp_buf.Z().Cat(range.low, SFMT_MONEY);
+												PPSetError(PPERR_PRICERESTRLOW, temp_buf);
+												ok = MessageError(PPERR_PRICERESTRLOW, temp_buf, eomStatusLine|eomBeep);
+											}
+											else if(range.upp > 0.0 && r_item.Price > range.upp) {
+												temp_buf.Z().Cat(range.upp, SFMT_MONEY);
+												PPSetError(PPERR_PRICERESTRUPP, temp_buf);
+												ok = MessageError(PPERR_PRICERESTRUPP, temp_buf, eomStatusLine|eomBeep);
+											}
+										}
+									}
+								}
+							}
 						}
-						else {
-							ClearRow();
-							ok = 0;
+						// } @v10.7.6 
+						if(ok) {
+							P.CurPos = P.getCount();
+							if(CalcRestByCrdCard_(1)) {
+								SetupRowData(1);
+							}
+							else {
+								ClearRow();
+								ok = 0;
+							}
 						}
 					}
 					else {
@@ -12024,7 +12079,7 @@ int SLAPI CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long f
 	CheckPaneDialog * dlg = 0;
 	PPObjSCard sc_obj;
   	if(cashNodeID) {
-		PPCashNode    cn_rec;
+		PPCashNode cn_rec;
 		PPObjCashNode cn_obj;
 		THROW(cn_obj.Search(cashNodeID, &cn_rec) > 0);
 		if(cn_rec.CashType != PPCMT_DISTRIB)

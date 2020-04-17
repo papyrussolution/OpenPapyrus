@@ -112,14 +112,7 @@ int SLAPI PPGenCashNode::GetRoundParam(RoundParam * pParam) const
 			pParam->AmtRoundPrec = fdiv100i((long)AmtRoundPrec);
 			pParam->AmtRoundDir  = (ExtFlags & CASHFX_ROUNDAMTUP) ? +1 : ((ExtFlags & CASHFX_ROUNDAMTDOWN) ? -1 : 0);
 		}
-//@erik v10.6.13 {
-		if(ExtFlags & CASHFX_IGNPENNYFROMBCARD) {
-			pParam->IgnPennyFromBCardFlag = 1;
-		}		
-		else{
-			pParam->IgnPennyFromBCardFlag = 0;
-		}
-// } @erik
+		pParam->IgnPennyFromBCardFlag = BIN(ExtFlags & CASHFX_IGNPENNYFROMBCARD); // @erik v10.6.13 
 		ok = 1;
 	}
 	return ok;
@@ -2665,7 +2658,7 @@ int SLAPI CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjCashNode cn_obj;
-	PPCashNode2 rec;
+	PPCashNode rec;
 	if(cn_obj.Search(id, &rec) > 0) {
 #define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
 		CPY_FLD(CashType);

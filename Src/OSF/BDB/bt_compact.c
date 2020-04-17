@@ -41,7 +41,7 @@ static int __bam_savekey __P((DBC*, int, DBT *));
 static int __bam_csearch(DBC * dbc, DBT * start, uint32 sflag, int level)
 {
 	int not_used, ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(dbc->dbtype == DB_RECNO) {
 		/* If GETRECNO is not set the cp->recno is what we want. */
 		if(FLD_ISSET(sflag, CS_GETRECNO)) {
@@ -147,7 +147,7 @@ int __bam_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, int * s
 	dbp = dbc->dbp;
 	env = dbp->env;
 	dbmp = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	pgs_free = c_data->compact_pages_free;
 	/* Search down the tree for the starting point. */
 	if((ret = __bam_csearch(dbc, start, CS_READ|CS_GETRECNO, LEAFLEVEL)) != 0) {
@@ -302,7 +302,7 @@ retry:
 		goto err;
 	npg = NULL;
 	if(ndbc) {
-		ncp = (BTREE_CURSOR *)ndbc->internal;
+		ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 		if(clear_root == 1) {
 			ncp->sp->page = NULL;
 			LOCK_INIT(ncp->sp->lock);
@@ -368,7 +368,7 @@ retry:
 		if(ndbc == NULL && (ret = __dbc_dup(dbc, &ndbc, 0)) != 0)
 			goto err;
 		DB_ASSERT(env, ndbc != NULL);
-		ncp = (BTREE_CURSOR *)ndbc->internal;
+		ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 		ncp->recno = cp->recno;
 		cp->recno = next_recno;
 		if((ret = __bam_csearch(dbc, start, CS_NEXT_BOTH, 0)) != 0) {
@@ -406,10 +406,10 @@ retry:
 		 * If this is RECNO then we want to swap the stacks.
 		 */
 		if(dbc->dbtype == DB_RECNO) {
-			ndbc->internal = (DBC_INTERNAL *)cp;
-			dbc->internal = (DBC_INTERNAL *)ncp;
+			ndbc->internal = reinterpret_cast<DBC_INTERNAL *>(cp);
+			dbc->internal = reinterpret_cast<DBC_INTERNAL *>(ncp);
 			cp = ncp;
-			ncp = (BTREE_CURSOR *)ndbc->internal;
+			ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 			cp->sp->indx--;
 		}
 		else
@@ -602,7 +602,7 @@ retry:
 			goto err1;
 		if((ret = __dbc_dup(dbc, &ndbc, DB_POSITION)) != 0)
 			goto err1;
-		ncp = (BTREE_CURSOR *)ndbc->internal;
+		ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 
 		/*
 		 * ncp->recno needs to have the recno of the next page.
@@ -728,7 +728,7 @@ retry:
 
 next_page:
 	if(ndbc) {
-		ncp = (BTREE_CURSOR *)ndbc->internal;
+		ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 		if(ncp->sp->page == cp->sp->page) {
 			ncp->sp->page = NULL;
 			LOCK_INIT(ncp->sp->lock);
@@ -798,7 +798,7 @@ err:
 	if(dbc->txn && ret != 0)
 		sflag |= STK_PGONLY;
 	if(ndbc) {
-		ncp = (BTREE_CURSOR *)ndbc->internal;
+		ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 		if(npg == ncp->csp->page)
 			npg = NULL;
 		if(ncp->sp->page == cp->sp->page) {
@@ -840,8 +840,8 @@ static int __bam_merge(DBC * dbc, DBC * ndbc, uint32 factor, DBT * stop, DB_COMP
 	DB_ASSERT(NULL, dbc != NULL);
 	DB_ASSERT(NULL, ndbc != NULL);
 	dbp = dbc->dbp;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	ncp = (BTREE_CURSOR *)ndbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
+	ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 	pg = cp->csp->page;
 	npg = ncp->csp->page;
 	nent = NUM_ENT(npg);
@@ -891,8 +891,8 @@ static int __bam_merge_records(DBC * dbc, DBC * ndbc, uint32 factor, DB_COMPACT 
 	dbp = dbc->dbp;
 	env = dbp->env;
 	t = static_cast<BTREE *>(dbp->bt_internal);
-	cp = (BTREE_CURSOR *)dbc->internal;
-	ncp = (BTREE_CURSOR *)ndbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
+	ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 	pg = cp->csp->page;
 	memzero(&hdr, sizeof(hdr));
 	pind = NUM_ENT(pg);
@@ -1153,13 +1153,12 @@ static int __bam_merge_pages(DBC * dbc, DBC * ndbc, DB_COMPACT * c_data)
 	uint8 * bp;
 	uint32 len;
 	int i, level, ret;
-
 	LOCK_INIT(root_lock);
 	COMPQUIET(ppgno, PGNO_INVALID);
 	dbp = dbc->dbp;
 	dbmp = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	ncp = (BTREE_CURSOR *)ndbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
+	ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 	pg = cp->csp->page;
 	npg = ncp->csp->page;
 	memzero(&hdr, sizeof(hdr));
@@ -1172,7 +1171,6 @@ static int __bam_merge_pages(DBC * dbc, DBC * ndbc, DB_COMPACT * c_data)
 	DB_ASSERT(dbp->env, IS_DIRTY(pg));
 	DB_ASSERT(dbp->env, IS_DIRTY(npg));
 	DB_ASSERT(dbp->env, nent == NUM_ENT(npg));
-
 	/* Bulk copy the data to the new page. */
 	len = dbp->pgsize-HOFFSET(npg);
 	if(DBC_LOGGING(dbc)) {
@@ -1269,7 +1267,6 @@ free_page:
 err:
 	return ret;
 }
-
 /*
  * __bam_merge_internal --
  *	Merge internal nodes of the tree.
@@ -1305,11 +1302,10 @@ static int __bam_merge_internal(DBC * dbc, DBC * ndbc, int level, DB_COMPACT * c
 	 */
 	dbp = dbc->dbp;
 	dbmp = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	ncp = (BTREE_CURSOR *)ndbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
+	ncp = reinterpret_cast<BTREE_CURSOR *>(ndbc->internal);
 	*merged = 0;
 	ret = 0;
-
 	/*
 	 * Set the stacks to the level requested.
 	 * Save the old value to restore when we exit.
@@ -1318,24 +1314,20 @@ static int __bam_merge_internal(DBC * dbc, DBC * ndbc, int level, DB_COMPACT * c
 	cp->csp = &cp->csp[-level+1];
 	pg = cp->csp->page;
 	pind = NUM_ENT(pg);
-
 	nsave_csp = ncp->csp;
 	ncp->csp = &ncp->csp[-level+1];
 	npg = ncp->csp->page;
 	indx = NUM_ENT(npg);
 	/*
-	 * The caller may have two stacks that include common ancestors, we
-	 * check here for convenience.
+	 * The caller may have two stacks that include common ancestors, we check here for convenience.
 	 */
 	if(npg == pg)
 		goto done;
 	if(TYPE(pg) == P_IBTREE) {
 		/*
-		 * Check for overflow keys on both pages while we have
-		 * them locked.
+		 * Check for overflow keys on both pages while we have them locked.
 		 */
-		if((ret =
-		            __bam_truncate_internal_overflow(dbc, pg, c_data)) != 0)
+		if((ret = __bam_truncate_internal_overflow(dbc, pg, c_data)) != 0)
 			goto err;
 		if((ret =
 		            __bam_truncate_internal_overflow(dbc, npg, c_data)) != 0)
@@ -1568,7 +1560,6 @@ err:
 	ncp->csp = nsave_csp;
 	return ret;
 }
-
 /*
  * __bam_compact_dups -- try to compress off page dup trees.
  * We may or may not have a write lock on this page.
@@ -1576,17 +1567,13 @@ err:
 static int __bam_compact_dups(DBC * dbc, PAGE ** ppg, uint32 factor, int have_lock, DB_COMPACT * c_data, int * donep)
 {
 	BOVERFLOW * bo;
-	BTREE_CURSOR * cp;
-	DB * dbp;
-	DB_MPOOLFILE * dbmp;
-	db_indx_t i;
 	db_pgno_t pgno;
 	int ret = 0;
 	DB_ASSERT(NULL, dbc != NULL);
-	dbp = dbc->dbp;
-	dbmp = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
-	for(i = 0; i <  NUM_ENT(*ppg); i++) {
+	DB * dbp = dbc->dbp;
+	DB_MPOOLFILE * dbmp = dbp->mpf;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
+	for(db_indx_t i = 0; i <  NUM_ENT(*ppg); i++) {
 		bo = GET_BOVERFLOW(dbp, *ppg, i);
 		if(B_TYPE(bo->type) == B_KEYDATA)
 			continue;
@@ -1647,7 +1634,7 @@ int __bam_compact_opd(DBC * dbc, db_pgno_t root_pgno, PAGE ** ppg, uint32 factor
 	opd = NULL;
 	env = dbc->dbp->env;
 	dbmp = dbc->dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Take a peek at the root.  If it's a leaf then
 	 * there is no tree here, avoid all the trouble.
@@ -1764,7 +1751,7 @@ static int __bam_compact_isdone(DBC * dbc, DBT * stop, PAGE * pg, int * isdone)
 	BTREE_CURSOR * cp;
 	int cmp, ret;
 	*isdone = 0;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	t = static_cast<BTREE *>(dbc->dbp->bt_internal);
 	if(dbc->dbtype == DB_RECNO) {
 		if((ret = __ram_getno(dbc, stop, &recno, 0)) != 0)
@@ -1870,7 +1857,7 @@ static int __bam_savekey(DBC * dbc, int next, DBT * start)
 	int level;
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	PAGE * pg = cp->csp->page;
 	int ret = 0;
 	if(dbc->dbtype == DB_RECNO) {
@@ -1989,7 +1976,7 @@ new_txn:
 		goto err;
 	if((ret = __db_cursor(dbp, ip, txn, &dbc, 0)) != 0)
 		goto err;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 
 	/*
 	 * If the the root is a leaf we have nothing to do.

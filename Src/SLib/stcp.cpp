@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -594,7 +594,25 @@ int SLAPI TcpServer::Run()
 //
 //
 //
-static const struct ContentDispositionTypeName { const char * P_Name; int Type; } ContentDispositionTypeNameList[] = {
+static const SIntToSymbTabEntry ContentDispositionTypeNameList_[] = { // @v10.7.6
+	{ SMailMessage::ContentDispositionBlock::tInline, "inline" },
+	{ SMailMessage::ContentDispositionBlock::tAttachment, "attachment" },
+	{ SMailMessage::ContentDispositionBlock::tFormData, "form-data" },
+	{ SMailMessage::ContentDispositionBlock::tSignal, "signal" },
+	{ SMailMessage::ContentDispositionBlock::tAlert, "alert" },
+	{ SMailMessage::ContentDispositionBlock::tIcon, "icon" },
+	{ SMailMessage::ContentDispositionBlock::tRender, "render" },
+	{ SMailMessage::ContentDispositionBlock::tRecipientListHistory, "recipient-list-history" },
+	{ SMailMessage::ContentDispositionBlock::tSession, "session" },
+	{ SMailMessage::ContentDispositionBlock::tAIB, "aib" },
+	{ SMailMessage::ContentDispositionBlock::tEarlySession, "early-session" },
+	{ SMailMessage::ContentDispositionBlock::tRecipientList, "recipient-list" },
+	{ SMailMessage::ContentDispositionBlock::tNotification, "notification" },
+	{ SMailMessage::ContentDispositionBlock::tByReference, "by-reference" },
+	{ SMailMessage::ContentDispositionBlock::tRecordingSession, "recording-session" }
+};
+
+/* @v10.7.6 static const struct ContentDispositionTypeName { const char * P_Name; int Type; } ContentDispositionTypeNameList[] = {
 	{ "inline", SMailMessage::ContentDispositionBlock::tInline },
 	{ "attachment", SMailMessage::ContentDispositionBlock::tAttachment },
 	{ "form-data", SMailMessage::ContentDispositionBlock::tFormData },
@@ -610,12 +628,13 @@ static const struct ContentDispositionTypeName { const char * P_Name; int Type; 
 	{ "notification", SMailMessage::ContentDispositionBlock::tNotification },
 	{ "by-reference", SMailMessage::ContentDispositionBlock::tByReference },
 	{ "recording-session", SMailMessage::ContentDispositionBlock::tRecordingSession }
-};
+};*/
 
 //static
 int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString & rBuf)
 {
-	int    ok = 0;
+	return SIntToSymbTab_GetSymb(ContentDispositionTypeNameList_, SIZEOFARRAY(ContentDispositionTypeNameList_), t, rBuf); // @v10.7.6
+	/* @v10.7.6 int    ok = 0;
 	rBuf.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(ContentDispositionTypeNameList); i++) {
 		if(t == ContentDispositionTypeNameList[i].Type) {
@@ -623,18 +642,24 @@ int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString &
 			ok = 1;
 		}
 	}
-	return ok;
+	return ok;*/
 }
 
 //static
 int FASTCALL SMailMessage::ContentDispositionBlock::IdentifyType(const char * pTypeName)
 {
-	int    type = ContentDispositionBlock::tUnkn;
+	// SMailMessage::ContentDispositionBlock::tUnkn == 0
+	// @v10.7.6 {
+	int      type = SIntToSymbTab_GetId(ContentDispositionTypeNameList_, SIZEOFARRAY(ContentDispositionTypeNameList_), pTypeName); 
+	SETIFZ(type, SMailMessage::ContentDispositionBlock::tUnkn);
+	return type;
+	// } @v10.7.6 
+	/*int    type = ContentDispositionBlock::tUnkn;
 	for(uint i = 0; type == ContentDispositionBlock::tUnkn && i < SIZEOFARRAY(ContentDispositionTypeNameList); i++) {
 		if(sstreqi_ascii(pTypeName, ContentDispositionTypeNameList[i].P_Name))
 			type = ContentDispositionTypeNameList[i].Type;
 	}
-	return type;
+	return type;*/
 }
 
 SLAPI SMailMessage::ContentDispositionBlock::ContentDispositionBlock()
@@ -772,7 +797,7 @@ SString & SLAPI SMailMessage::GetBoundary(int start, SString & rBuf) const
 
 int SLAPI SMailMessage::IsPpyData() const
 {
-	return (Flags & (fPpyOrder | fPpyObject)) ? 1 : 0;
+	return BIN(Flags & (fPpyOrder|fPpyObject));
 }
 
 int SLAPI SMailMessage::AttachFile(const char * pFileName)

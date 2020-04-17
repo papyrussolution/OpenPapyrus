@@ -594,7 +594,7 @@ int SLAPI PPViewAccAnlz::ViewGraph(const PPViewBrowser * pBrw)
 			DI     di;
 			MEMSZERO(di);
 			for(i = 0; i < list.getCount(); i++) {
-				I * p_it = (I *)list.at(i);
+				I * p_it = static_cast<I *>(list.at(i));
 				p_it->N = ++di.Count;
 				if(p_it->Dt != di.Dt) {
 					if(di.Dt)
@@ -607,12 +607,12 @@ int SLAPI PPViewAccAnlz::ViewGraph(const PPViewBrowser * pBrw)
 				di_list.insert(&di);
 			plot.StartData(1);
 			for(i = 0; i < list.getCount(); i++) {
-				I * p_it = (I *)list.at(i);
+				const I * p_it = static_cast<const I *>(list.at(i));
 				uint di_pos = 0;
 				LDATETIME dtm;
 				dtm.d = p_it->Dt;
 				if(di_list.bsearch(&p_it->Dt, &di_pos, CMPF_LONG)) {
-					const DI * p_di = (DI *)di_list.at(di_pos);
+					const DI * p_di = static_cast<const DI *>(di_list.at(di_pos));
 					dtm.t.settotalsec((long)((86400.0 * p_it->N) / p_di->Count));
 				}
 				else
@@ -2166,8 +2166,7 @@ static int SLAPI SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint
 		{
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_SELPRNAT_SEL)) {
-				disableCtrls(getCtrlUInt16(CTL_SELPRNAT_SEL) != 3,
-					CTL_SELPRNAT_FLAGS, CTL_SELPRNAT_EXPIRY, CTLCAL_SELPRNAT_EXPIRY, 0);
+				disableCtrls(getCtrlUInt16(CTL_SELPRNAT_SEL) != 3, CTL_SELPRNAT_FLAGS, CTL_SELPRNAT_EXPIRY, CTLCAL_SELPRNAT_EXPIRY, 0);
 				clearEvent(event);
 			}
 		}
@@ -2242,8 +2241,7 @@ int SLAPI PPViewAccAnlz::Print(const void *)
 			rpt_id = dlg->getCtrlUInt16(CTL_PRNCASHBOOK_WHAT) ? REPORT_CASHBOOK2 : REPORT_CASHBOOK;
 		else
 			ok = -1;
-		delete dlg;
-		dlg = 0;
+		ZDELETE(dlg);
 		if(ok > 0 && Filt.Period.low != Filt.Period.upp) {
 			int    leaf_no = Filt.LeafNo;
 			PPViewAccAnlz temp_view;
@@ -2854,7 +2852,7 @@ int PPALDD_AccRel::InitData(PPFilt & rFilt, long rsrv)
 			H.Sb    = rec.Sb;
 			H.Ar    = rec.Ar;
 			H.CurID = rec.CurID;
-			GetAcctName((Acct*)&H.Ac, H.CurID, 0, temp_buf);
+			GetAcctName(reinterpret_cast<const Acct *>(&H.Ac), H.CurID, 0, temp_buf);
 			temp_buf.CopyTo(H.AccName, sizeof(H.AccName));
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}

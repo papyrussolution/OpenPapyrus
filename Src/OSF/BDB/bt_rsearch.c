@@ -67,7 +67,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 	dbp = dbc->dbp;
 	env = dbp->env;
 	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	h = NULL;
 	ret = 0;
 	BT_STK_CLR(cp);
@@ -347,7 +347,7 @@ int __bam_adjust(DBC * dbc, int32 adjust)
 	int ret;
 	DB * dbp = dbc->dbp;
 	DB_MPOOLFILE * mpf = dbp->mpf;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	db_pgno_t root_pgno = BAM_ROOT_PGNO(dbc);
 	/* Update the record counts for the tree. */
 	for(epg = cp->sp; epg <= cp->csp; ++epg) {

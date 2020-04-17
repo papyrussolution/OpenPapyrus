@@ -132,7 +132,7 @@ int __hamc_init(DBC*dbc)
 		__os_free(env, new_curs);
 		return ret;
 	}
-	dbc->internal = (DBC_INTERNAL *)new_curs;
+	dbc->internal = reinterpret_cast<DBC_INTERNAL *>(new_curs);
 	dbc->close = dbc->c_close = __dbc_close_pp;
 	dbc->cmp = __dbc_cmp_pp;
 	dbc->count = dbc->c_count = __dbc_count_pp;
@@ -150,22 +150,21 @@ int __hamc_init(DBC*dbc)
 	dbc->am_writelock = __hamc_writelock;
 	return __ham_item_init(dbc);
 }
-
 /*
  * __hamc_close --
  *	Close down the cursor from a single use.
  */
 static int __hamc_close(DBC*dbc, db_pgno_t root_pgno, int * rmroot)
 {
-	DB_MPOOLFILE * mpf;
-	HASH_CURSOR * hcp;
 	HKEYDATA * dp;
 	db_lockmode_t lock_mode;
-	int doroot, gotmeta, ret, t_ret;
+	int    doroot = 0;
+	int    gotmeta = 0;
+	int    ret = 0;
+	int    t_ret = 0;
 	COMPQUIET(rmroot, 0);
-	mpf = dbc->dbp->mpf;
-	doroot = gotmeta = ret = 0;
-	hcp = (HASH_CURSOR *)dbc->internal;
+	DB_MPOOLFILE * mpf = dbc->dbp->mpf;
+	HASH_CURSOR * hcp = reinterpret_cast<HASH_CURSOR *>(dbc->internal);
 	/* Check for off page dups. */
 	if(dbc->internal->opd != NULL) {
 		if((ret = __ham_get_meta(dbc)) != 0)
@@ -192,7 +191,8 @@ static int __hamc_close(DBC*dbc, db_pgno_t root_pgno, int * rmroot)
 				goto out;
 		}
 	}
-out:    if(ret != 0)
+out:    
+	if(ret != 0)
 		F_SET(dbc, DBC_ERROR);
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;

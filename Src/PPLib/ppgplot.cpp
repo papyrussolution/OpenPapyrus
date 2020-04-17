@@ -1,5 +1,5 @@
 // PPGPLOT.CPP
-// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017, 2018, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -662,14 +662,13 @@ int Generator_GnuPlot::PutEOR()
 	return ok;
 }
 
-int Generator_GnuPlot::PutEndOfData()
+void Generator_GnuPlot::PutEndOfData()
 {
 	/*
 	LineBuf.Z().CatChar('e').CR();
 	return PutDataLine();
 	*/
 	DataFile.Close();
-	return 1;
 }
 
 int Generator_GnuPlot::Plot(const PlotParam * pParam)
@@ -760,7 +759,16 @@ int Generator_GnuPlot::Run()
 	LineBuf.Z().Cat("pause").Space().Cat(100000).CR();
 	PutLine();
 	Close();
+	// @construction {
+	{
+		// HKEY_CLASSES_ROOT\gnuplot\shell\open\command
+		SString gp_reg_cmd;
+		WinRegKey reg_key(HKEY_CLASSES_ROOT, "gnuplot\\shell\\open\\command", 1);
+		if(reg_key.GetString(0, gp_reg_cmd) > 0) {
 
+		}
+	}
+	// } @construction 
 	PPGetFilePath(PPPATH_BIN, "ppgplot.exe", cmd_line);
 	spawnl(_P_NOWAIT, cmd_line.cptr(), cmd_line.cptr(), q_file_name.cptr(), 0);
 //#ifndef _DEBUG

@@ -459,7 +459,7 @@ static int __bamc_start_decompress(DBC * dbc)
 {
 	int ret;
 	uint32 datasize;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	cp->prevKey = NULL;
 	cp->prevData = NULL;
 	cp->currentKey = &cp->key1;
@@ -482,7 +482,7 @@ static int __bamc_next_decompress(DBC * dbc)
 {
 	DBT compressed;
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * db = dbc->dbp;
 	if(cp->compcursor >= cp->compend)
 		return DB_NOTFOUND;
@@ -559,7 +559,7 @@ static int __bamc_compress_seek(DBC * dbc, const DBT * seek_key, const DBT * see
 	int ret;
 	uint32 method;
 	DB * dbp = dbc->dbp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if((ret = __bam_compress_set_dbt(dbp, &cp->key1, seek_key->data, seek_key->size)) != 0)
 		return ret;
 	/*
@@ -591,7 +591,7 @@ static int __bamc_compress_seek(DBC * dbc, const DBT * seek_key, const DBT * see
 /* Reset the cursor to an uninitialized state */
 static void __bamc_compress_reset(DBC * dbc)
 {
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	cp->prevKey = 0;
 	cp->prevData = 0;
 	cp->currentKey = 0;
@@ -637,7 +637,7 @@ static int __bamc_compress_relocate(DBC * dbc)
 	int ret, t_ret;
 	BTREE_CURSOR * cp, * cp_n;
 	DBC * dbc_n;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if((ret = __dbc_dup(dbc, &dbc_n, 0)) != 0)
 		return ret;
 	F_SET(dbc_n, DBC_TRANSIENT);
@@ -707,7 +707,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 	int    moreStream;
 	uint32 chunk_count;
 	ENV  * env = dbc->env;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB   * dbp = dbc->dbp;
 	int    bulk_ret = 0;
 	// (replaced by ctr) memzero(&ikey1, sizeof(DBT));
@@ -895,7 +895,7 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 	int iSmallEnough;
 	uint32 chunk_count;
 	ENV  * env = dbc->env;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB   * dbp = dbc->dbp;
 	int    bulk_ret = 0;
 	// (replaced by ctr) memzero(&ikey, sizeof(DBT));
@@ -1041,7 +1041,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 	int    iSmallEnough, ifound;
 	uint32 chunk_count;
 	ENV  * env = dbc->env;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB  * dbp = dbc->dbp;
 	int   bulk_ret = 0;
 	// (replaced by ctr) memzero(&ikey, sizeof(DBT));
@@ -1211,7 +1211,7 @@ static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)
 {
 	uint32 tofind;
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	F_CLR(cp, C_COMPRESS_DELETED);
 	if(cp->prevKey) {
 		/* Return the stored previous key */
@@ -1260,7 +1260,7 @@ static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)
 static int __bamc_compress_get_prev_dup(DBC * dbc, uint32 flags)
 {
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
@@ -1282,7 +1282,7 @@ static int __bamc_compress_get_prev_dup(DBC * dbc, uint32 flags)
 static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 {
 	int ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
@@ -1311,7 +1311,7 @@ static int __bamc_compress_get_prev_nodup(DBC * dbc, uint32 flags)
 static int __bamc_compress_get_next(DBC * dbc, uint32 flags)
 {
 	int ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(F_ISSET(cp, C_COMPRESS_DELETED)) {
 		if(cp->currentKey == 0)
 			return DB_NOTFOUND;
@@ -1348,7 +1348,7 @@ static int __bamc_compress_get_next(DBC * dbc, uint32 flags)
 static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 {
 	int ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
@@ -1396,7 +1396,7 @@ static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 static int __bamc_compress_get_next_nodup(DBC * dbc, uint32 flags)
 {
 	int ret;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	BTREE * t = static_cast<BTREE *>(dbp->bt_internal);
 	if(cp->currentKey == 0)
@@ -1422,7 +1422,7 @@ static int __bamc_compress_get_next_nodup(DBC * dbc, uint32 flags)
 static int __bamc_compress_get_set(DBC * dbc, DBT * key, DBT * data, uint32 method, uint32 flags)
 {
 	int ret, cmp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	if(method == DB_SET || method == DB_SET_RANGE)
 		data = NULL;
@@ -1470,7 +1470,7 @@ static int __bamc_compress_get_set(DBC * dbc, DBT * key, DBT * data, uint32 meth
 static int __bamc_compress_get_bothc(DBC * dbc, DBT * data, uint32 flags)
 {
 	int ret, cmp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	/* Check that the data we are looking for comes after the current
 	   position */
@@ -1498,7 +1498,7 @@ static int __bamc_compress_get_multiple_key(DBC * dbc, DBT * data, uint32 flags)
 	uint8 * writekey, * writedata;
 	void * mptr;
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB_MULTIPLE_WRITE_INIT(mptr, data);
 	DB_MULTIPLE_KEY_RESERVE_NEXT(mptr, data, writekey, cp->currentKey->size, writedata, cp->currentData->size);
 	if(writekey == NULL) {
@@ -1530,7 +1530,7 @@ static int __bamc_compress_get_multiple(DBC * dbc, DBT * key, DBT * data, uint32
 	uint8 * writedata;
 	void * mptr;
 	int ret = 0;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	data->size = 0;
 	DB_MULTIPLE_WRITE_INIT(mptr, data);
 	DB_MULTIPLE_RESERVE_NEXT(mptr, data, writedata, cp->currentData->size);
@@ -1562,7 +1562,7 @@ static int __bamc_compress_get_multiple(DBC * dbc, DBT * key, DBT * data, uint32
  */
 static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 {
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	int ret = 0;
 	uint32 multiple = flags&(DB_MULTIPLE|DB_MULTIPLE_KEY);
@@ -1688,7 +1688,7 @@ static int __bamc_compress_iput(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	DBT    pdata;
 	DBT    empty;
 	BTREE_COMPRESS_STREAM stream;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	DB * dbp = dbc->dbp;
 	ENV * env = dbc->env;
 	// (replaced by ctr) memzero(&pdata, sizeof(DBT));
@@ -1821,7 +1821,7 @@ static int __bamc_compress_idel(DBC * dbc, uint32 flags)
 	BTREE_CURSOR * cp;
 	COMPQUIET(flags, 0);
 	dbp = dbc->dbp;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	if(F_ISSET(cp, C_COMPRESS_DELETED))
 		return DB_KEYEMPTY;
 	if(cp->currentKey == 0)
@@ -1942,7 +1942,7 @@ int __bamc_compress_count(DBC * dbc, db_recno_t * countp)
 	int ret, t_ret;
 	db_recno_t count;
 	DBC * dbc_n;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	//
 	// If the current entry is deleted use del_key, otherwise use currentKey.
 	//
@@ -1982,7 +1982,7 @@ int __bamc_compress_cmp(DBC * dbc, DBC * other_dbc, int * result)
 	 * DB.
 	 */
 	DB * dbp = dbc->dbp;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	BTREE_CURSOR * ocp = (BTREE_CURSOR *)other_dbc->internal;
 	if(F_ISSET(cp, C_COMPRESS_DELETED))
 		if(F_ISSET(ocp, C_COMPRESS_DELETED))

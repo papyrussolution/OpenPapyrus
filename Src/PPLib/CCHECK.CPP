@@ -3173,7 +3173,7 @@ int SLAPI CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const ch
 			CCheckLineArray lines_list;
 			if(LoadLinesByList(goodsID, &check_list, &lines_list) > 0) {
 				PPObjCashNode cn_obj;
-				PPCashNode2 cn_rec;
+				PPCashNode cn_rec;
 				CSessionTbl::Rec cs_rec;
 				CCheckTbl::Rec cc_rec;
 				SString text_buf;

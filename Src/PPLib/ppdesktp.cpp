@@ -2173,7 +2173,7 @@ int PPDesktop::CreateDefault(long * pID)
 			desk.InitDefaultDesktop(def_desk_name);
 			desktop_list.GetUniqueID(&id);
 			desk.SetUniqueID(&id);
-			desk.GenerateDeskGuid(); // @erik v10.6.6
+			desk.GenerateGuid(); // @erik v10.6.6
 			desktop_list.Add(-1, &desk);
 			//THROW(p_mgr->Save__(&desk_list)); // @erik v10.6.6
 			THROW(p_mgr->Save__2(&desktop_list, PPCommandMngr::fRWByXml)); // @erik v10.6.1

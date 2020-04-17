@@ -297,19 +297,25 @@ int SLAPI PPCommandItem::Write2(void * pHandler, const long rwFlag) const  //@er
 	SString temp_buf;
 	_kf_block _kf(this);
 	if(rwFlag==PPCommandMngr::fRWByXml) {
+		assert(pHandler);
+		THROW(pHandler);
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
-		if(p_xml_writer) {
-			SXml::WNode command_item_node(p_xml_writer, "CommandItem");
-			command_item_node.PutInner("Kind", temp_buf.Z().Cat(_kf.Kind));
-			command_item_node.PutInner("Flags", temp_buf.Z().Cat(_kf.Flags));
-			command_item_node.PutInner("ID", temp_buf.Z().Cat(ID));
-			command_item_node.PutInner("Name", temp_buf.Z().Cat(Name).Transf(CTRANSF_INNER_TO_UTF8));
-			command_item_node.PutInner("Icon", temp_buf.Z().Cat(Icon).Transf(CTRANSF_INNER_TO_UTF8));
-		}
+		THROW(p_xml_writer);
+		SXml::WNode command_item_node(p_xml_writer, "CommandItem");
+		command_item_node.PutInner("Kind", temp_buf.Z().Cat(_kf.Kind));
+		command_item_node.PutInner("Flags", temp_buf.Z().Cat(_kf.Flags));
+		command_item_node.PutInner("ID", temp_buf.Z().Cat(ID));
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(Name), "&<>\'");
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		command_item_node.PutInner("Name", temp_buf);
+		XMLReplaceSpecSymb(temp_buf.Z().Cat(Icon), "&<>\'");
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		command_item_node.PutInner("Icon", temp_buf);
 	}
-	else if(rwFlag ==PPCommandMngr::fRWByTxt) {
-
+	else {
+		ok = 0;
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -317,6 +323,8 @@ int SLAPI PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6
 {
 	int ok = 1;
 	SString temp_buf;
+	assert(pHandler);
+	THROW(pHandler);
 	if(rwFlag==PPCommandMngr::fRWByXml) {
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandItem")){
@@ -342,41 +350,26 @@ int SLAPI PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6
 	else if(rwFlag & PPCommandMngr::fRWByTxt) {
 
 	}
+	CATCHZOK;
 	return ok;
 }
 
 int SLAPI PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 {
 	int yes = 1;
-	if(pCommand) {
+	if(!pCommand)
+		return 0;
+	else {
 		const PPCommandItem * p_compare_item = static_cast<const PPCommandItem *>(pCommand);
-		if(Kind!=p_compare_item->Kind) {
-			yes = 0;
-		}
-		else {
-			if(Flags!=p_compare_item->Flags) {
-				yes = 0;
-			}
-			else {
-				if(ID!=p_compare_item->ID) {
-					yes = 0;
-				}
-				else {
-					if(!Name.IsEqual(p_compare_item->Name)) {
-						yes = 0;
-					}
-					else {
-						if(!Icon.IsEqual(p_compare_item->Icon)) {
-							yes = 0;
-						}
-					}	
-				}
-			}
-		}
+#define CMPF(f) if(f != p_compare_item->f) return 0;
+		CMPF(Kind);
+		CMPF(Flags);
+		CMPF(ID);
+		CMPF(Name);
+		CMPF(Icon);
+#undef CMPF
 	}
-	else
-		yes = 0;
-	return yes;
+	return 1;
 }
 
 // virtual
@@ -453,6 +446,8 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 	int ok = 1;
 	SString temp_buf;
 	_kf_block _kf(this);
+	assert(pHandler);
+	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
 		if(p_xml_writer) {
@@ -465,8 +460,8 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 			command_node.PutInner("Param", temp_buf);
 		}
 	}
-	else if(rwFlag == PPCommandMngr::fRWByTxt) {
-
+	else {
+		ok = 0;
 	}
 	CATCHZOK
 	return ok;
@@ -476,6 +471,8 @@ int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 	int    ok = 1;
 	SString temp_buf;
 	int16 x, y;
+	assert(pHandler);
+	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "Command")) {
@@ -499,12 +496,7 @@ int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 					THROW(PPCommandItem::Read2(p_node, rwFlag));
 				}
 			}
-			if(x && y){
-				P.Set(x, y);
-			}
-			else{
-				ok = 0;
-			}
+			P.Set(x, y);
 		}
 	}
 	else if(rwFlag==PPCommandMngr::fRWByTxt) {
@@ -516,37 +508,23 @@ int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 
 int SLAPI PPCommand::IsEqual(const void * pCommand) const  //@erik v10.6.1
 {
-	int yes = 1;
-	if(pCommand) {
+	if(!pCommand)
+		return 0;
+	else {
 		const PPCommand * p_compare_command = static_cast<const PPCommand *>(pCommand);
 		if(!PPCommandItem::IsEqual(pCommand)) {
-			yes = 0;
+			return 0;
 		}
 		else {
-			if(CmdID!=p_compare_command->CmdID) {
-				yes = 0;
-			}
-			else {
-				if(P.x!=p_compare_command->P.x || P.y!=p_compare_command->P.y) {
-					yes = 0;
-				}
-				else {
-					if(!Param.IsEqual(p_compare_command->Param)) {
-						yes = 0;
-					}
-					/*else {
-						if((memcmp(Reserve, p_compare_command->Reserve, sizeof(Reserve))!=0)) {
-							yes = 0;
-						}
-					}*/
-				}
-			}
+			#define CMPF(f) if(f != p_compare_command->f) return 0;
+			CMPF(CmdID);
+			CMPF(P);
+			#undef CMPF
+			if(!Param.IsEqual(p_compare_command->Param))
+				return 0;
 		}	
 	}
-	else {
-		yes = 0;		
-	}
-	return yes;
+	return 1;
 }
 //
 //
@@ -625,71 +603,63 @@ int SLAPI PPCommandFolder::Read(SBuffer & rBuf, long extraParam)
 	THROW(PPCommandItem::Read(rBuf, extraParam));
 	THROW_SL(rBuf.Read(&c, sizeof(c)));
 	for(i = 0; i < c; i++) {
-		//char * ptr = 0;
 		PPCommandItem * ptr = 0;
 		size_t offs = rBuf.GetRdOffs();
 		PPCommandItem item;
 		THROW(item.Read(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
 		if(item.Kind == PPCommandItem::kCommand) {
-			ptr = /*(char *)*/new PPCommand;
+			ptr = new PPCommand;
 			static_cast<PPCommand *>(ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kFolder) {
-			ptr = /*(char *)*/new PPCommandFolder;
+			ptr = new PPCommandFolder;
 			static_cast<PPCommandFolder *>(ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kGroup) {
-			ptr = /*(char *)*/new PPCommandGroup;
+			ptr = new PPCommandGroup;
 			static_cast<PPCommandGroup *>(ptr)->Read(rBuf, extraParam);
 		}
 		else if(item.Kind == PPCommandItem::kSeparator) {
-			ptr = /*(char *)*/new PPCommandItem;
+			ptr = new PPCommandItem;
 			static_cast<PPCommandItem *>(ptr)->Read(rBuf, extraParam);
 		}
-		THROW_SL(List.insert(/*(PPCommandItem*)*/ptr));
+		THROW_SL(List.insert(ptr));
 	}
 	CATCHZOK
 	return ok;
 }
-
-//@erik v10.6.1 {
+//
+// @erik v10.6.1 {
+//
 int SLAPI PPCommandFolder::Write2(void * pHandler, const long rwFlag) const // @recursion
 {
 	int    ok = 1;
-	uint   c = 0;
-	uint   i;
-	if(rwFlag==PPCommandMngr::fRWByXml) {
+	assert(pHandler);
+	THROW(pHandler);
+	if(rwFlag == PPCommandMngr::fRWByXml) {
 		xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
+		//
 		//зависимы от зоны видимости command_folder_node.
-		//  Поэтому происходит дублирование цикла for.
+		//  Поэтому происходит дублирование цикла forB.
 		//  Если выйдем за пределы зоны видемости, будем писать в файл за пределами
 		//  тега CommandFolder
 		//Если  p_xml_writer определен, то пишем в него. Если нет, то мы еще в начале xml файла и 
 		//  p_ci является экземпляром PPCommandGroup, в нем мы и определим далее p_xml_writer
-		if(p_xml_writer) {
-			SXml::WNode command_folder_node(p_xml_writer, "CommandFolder");
-			if(!(Kind == PPCommandItem::kGroup && !Flags && !ID))
-				THROW(PPCommandItem::Write2(p_xml_writer, rwFlag));
-			c = List.getCount();
-			for(i = 0; i < c; i++) {
-				const PPCommandItem * p_ci = List.at(i);
-				if(p_ci) {
-					THROW(p_ci->Write2(p_xml_writer, rwFlag));
-				}
-			}
-		}
-		else {
-			c = List.getCount();
-			for(i = 0; i < c; i++) {
-				const PPCommandItem * p_ci = List.at(i);
-				if(p_ci) {
-					THROW(p_ci->Write2(0, rwFlag));
-				}
+		//
+		THROW(p_xml_writer)
+		SXml::WNode command_folder_node(p_xml_writer, "CommandFolder");
+		//if(!(Kind == PPCommandItem::kGroup && !Flags && !ID))
+		THROW(PPCommandItem::Write2(p_xml_writer, rwFlag));
+		uint c = List.getCount();
+		for(uint i = 0; i < c; i++) {
+			const PPCommandItem * p_ci = List.at(i);
+			if(p_ci) {
+				THROW(p_ci->Write2(p_xml_writer, rwFlag));
 			}
 		}
 	}
-	else{
+	else {
 		ok = 0;
 	}
 	CATCHZOK
@@ -700,12 +670,27 @@ int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
 	PPCommandItem * p_command_item = 0;
+	assert(pHandler);
+	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml){
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandFolder")) {
 			for(xmlNode *p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::IsName(p_node, "CommandItem")) {
-					THROW(PPCommandItem::Read2(p_node, rwFlag));
+					p_command_item = new PPCommandItem;
+					THROW(p_command_item->Read2(p_node, rwFlag));
+					if(p_command_item->Kind == PPCommandItem::kSeparator) {
+						THROW_SL(List.insert(p_command_item));						
+					}
+					else {
+						Kind = p_command_item->Kind;
+						ID = p_command_item->ID;
+						Flags= p_command_item->Flags;
+						Name = p_command_item->Name;
+						Icon = p_command_item->Icon;
+						delete p_command_item;
+					}
+					p_command_item = 0;
 				}
 				else {
 					if(SXml::IsName(p_node, "Command")) {
@@ -732,7 +717,6 @@ int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 		ok = 0;
 	}
 	CATCHZOK
-	delete p_command_item;
 	return ok;
 }
 
@@ -745,11 +729,10 @@ int SLAPI PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
 			yes = 0;
 		else {
 			const uint c = List.getCount();
-			if(c != p_compare_folder->List.getCount()) {
+			if(c != p_compare_folder->List.getCount())
 				yes = 0;
-			}
 			else {
-				for(uint i = 0; yes && i<c; i++) {
+				for(uint i = 0; yes && i < c; i++) {
 					const PPCommandItem * p_comm_item = List.at(i);
 					if(p_comm_item) {
 						const PPCommandItem * p_other_comm_item = p_compare_folder->SearchByID(p_comm_item->ID, 0);
@@ -884,12 +867,12 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 		p_grp = pGrp;
 	else {
 		THROW(p_mgr = GetCommandMngr(1, isDesktop));
-		if(isDesktop) {
+		//if(isDesktop) {
 			THROW(p_mgr->Load__2(&grp, PPCommandMngr::fRWByXml)); // @erik v10.7.3
-		}
-		else {
-			THROW(p_mgr->Load__(&grp));
-		}
+		//}
+		//else {
+		//	THROW(p_mgr->Load__(&grp));
+		//}
 		p_grp = &grp;
 		ZDELETE(p_mgr);
 	}
@@ -897,7 +880,8 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 	for(uint i = 0; p_item = p_grp->Next(&i);) {
 		if(isDesktop)
 			p_desk = (p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
-		if((!isDesktop && p_item->Kind == PPCommandItem::kFolder) || (p_desk && p_desk->IsDbSymbEq(db_symb)))
+		//if((!isDesktop && p_item->Kind == PPCommandItem::kFolder) || (p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
+		if((!isDesktop && p_item->Kind==PPCommandItem::kGroup)||(p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
 			pAry->Add(p_item->ID, p_item->Name);
 		ZDELETE(p_desk);
 	}
@@ -984,6 +968,9 @@ const PPCommandItem * SLAPI PPCommandFolder::SearchByID(long id, uint * pPos) co
 }
 
 struct _Srch {
+	_Srch(long parentID, long id, const PPCommandItem * pItem) : ParentID(parentID), ID(id), P_Item(pItem)
+	{
+	}
 	long   ParentID;               // out param
 	long   ID;                     // in param
 	const  PPCommandItem * P_Item; // out param
@@ -1003,12 +990,17 @@ static int _SearchByID(const PPCommandItem * pItem, long parentID, void * extraP
 	return ok;
 }
 
-const PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive(long id, long * pParentID)
+PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive(long id, long * pParentID)
 {
-	_Srch _s;
-	_s.ParentID = 0;
-	_s.ID       = id;
-	_s.P_Item   = 0;
+	_Srch _s(0, id, 0);
+	if(Enumerate(_SearchByID, ID, &_s) > 0)
+		ASSIGN_PTR(pParentID, _s.ParentID);
+	return const_cast<PPCommandItem *>(_s.P_Item); // @badcast
+}
+
+const PPCommandItem * SLAPI PPCommandFolder::SearchByIDRecursive_Const(long id, long * pParentID) const
+{
+	_Srch _s(0, id, 0);
 	if(Enumerate(_SearchByID, ID, &_s) > 0)
 		ASSIGN_PTR(pParentID, _s.ParentID);
 	return _s.P_Item;
@@ -1206,7 +1198,7 @@ int FASTCALL PPCommandGroup::IsDbSymbEq(const PPCommandGroup & rGrp) const
 	return BIN(DbSymb.CmpNC(rGrp.DbSymb) == 0);
 }
 
-int FASTCALL PPCommandGroup::GenerateDeskGuid()
+int SLAPI PPCommandGroup::GenerateGuid()
 {
 	DeskGuid.Generate();
 	return 1;
@@ -1222,6 +1214,7 @@ int FASTCALL PPCommandGroup::Copy(const PPCommandGroup & s)
 	DbSymb = s.DbSymb;
 	Logo_  = s.Logo_;
 	DeskGuid = s.DeskGuid;	
+	Type = s.Type;
 	return PPCommandFolder::Copy(s);
 }
 
@@ -1286,59 +1279,52 @@ int SLAPI PPCommandGroup::Read(SBuffer & rBuf, long extraParam)
 	return ok;
 }
 
-//@erik v10.6.1 {
+//@erik v10.7.6 {
 int SLAPI PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 {
 	int    ok = 1;
 	SString temp_buf;
-	xmlTextWriter * p_xml_writer = 0;
+	assert(pHandler);
+	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml){
 		if(DbSymb.NotEmpty()) {
 			SString path, guid_str;
-			if(DeskGuid.ToStr(S_GUID::fmtIDL, guid_str)) {
-				PPCommandMngr::GetDesksDir(path);
-				path.SetLastSlash().Cat(guid_str).Cat(".xml");
-				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
-				if(p_xml_writer) {
-					xmlTextWriterSetIndent(p_xml_writer, 1);
-					xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
-					SXml::WDoc _doc(p_xml_writer, cpUTF8);
-					{					
-						SXml::WNode command_group_node(p_xml_writer, "CommandGroup");
-						if(DbSymb.NotEmpty()) {
-							command_group_node.PutInner("DbSymb", temp_buf.Z().Cat(DbSymb).Transf(CTRANSF_OUTER_TO_UTF8));
-							command_group_node.PutInner("DeskGuid", guid_str);
-							SVerT version_ppy = DS.GetVersion();
-							version_ppy.ToStr(temp_buf.Z());
-							command_group_node.PutInner("PpyVersion", temp_buf);
-						}
-						THROW(PPCommandFolder::Write2(p_xml_writer, rwFlag));
-						if(Flags & (fBkgndImage|fBkgndImageLoaded)) {
-							SString buf, dir;
-							PPGetPath(PPPATH_BIN, dir);
-							PPLoadText(PPTXT_DESKIMGDIR, buf);
-							dir.SetLastSlash().Cat(buf).SetLastSlash();
-							ObjLinkFiles _lf;
-							_lf.Init(PPOBJ_DESKTOP, dir);
-							_lf.Load(ID, 0L);
-							if(Logo_.NotEmpty()) {
-								_lf.Replace(0, Logo_);
-							}
-							else {
-								_lf.Remove(0);
-							}
-							_lf.Save(ID, 0L);
-						}
-					}
+			xmlTextWriter * p_xml_writer = static_cast<xmlTextWriter *>(pHandler);
+			THROW(DeskGuid.ToStr(S_GUID::fmtIDL, guid_str));
+			THROW(p_xml_writer);
+			SXml::WNode command_group_node(p_xml_writer, "CommandGroup");
+			if(DbSymb.NotEmpty()) {
+				if(Type) {
+					command_group_node.PutInner("Type", temp_buf.Z().Cat(Type));
 				}
+				XMLReplaceSpecSymb(temp_buf.Z().Cat(DbSymb), "&<>\'");
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				command_group_node.PutInner("DbSymb", temp_buf);
+				command_group_node.PutInner("DeskGuid", guid_str);
+				SVerT version_ppy = DS.GetVersion();
+				version_ppy.ToStr(temp_buf.Z());
+				command_group_node.PutInner("PpyVersion", temp_buf);
 			}
-		}
-		else {
-			THROW(PPCommandFolder::Write2(0, rwFlag));
+			THROW(PPCommandFolder::Write2(p_xml_writer, rwFlag));
+			if(Flags & (fBkgndImage|fBkgndImageLoaded)) {
+				SString buf, dir;
+				PPGetPath(PPPATH_BIN, dir);
+				PPLoadText(PPTXT_DESKIMGDIR, buf);
+				dir.SetLastSlash().Cat(buf).SetLastSlash();
+				ObjLinkFiles _lf;
+				_lf.Init(PPOBJ_DESKTOP, dir);
+				_lf.Load(ID, 0L);
+				if(Logo_.NotEmpty()) {
+					_lf.Replace(0, Logo_);
+				}
+				else {
+					_lf.Remove(0);
+				}
+				_lf.Save(ID, 0L);
+			}
 		}
 	}
 	CATCHZOK
-	xmlFreeTextWriter(p_xml_writer);
 	return ok;
 }
 
@@ -1346,6 +1332,8 @@ int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 {
 	int    ok = 1, state = 0;
 	SString temp_buf;
+	assert(pHandler);
+	THROW(pHandler);
 	if(rwFlag==PPCommandMngr::fRWByXml) {
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandGroup")) {
@@ -1358,6 +1346,9 @@ int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 				if(SXml::GetContentByName(p_node, "DeskGuid", temp_buf)!=0) {
 					DeskGuid.FromStr(temp_buf);
 				}
+				if(SXml::GetContentByName(p_node, "Type", temp_buf)!=0) {
+					Type = temp_buf.ToLong();
+				}
 				if(SXml::IsName(p_node, "CommandFolder")) {
 					THROW(PPCommandFolder::Read2(p_node, rwFlag));
 					state = 1; // если данные считаны корректно, то можем работать дальше
@@ -1367,7 +1358,10 @@ int SLAPI PPCommandGroup::Read2(void * pHandler, const long rwFlag)
 				DeskGuid.Generate();
 		}	
 	}
-	if(Flags & fBkgndImage && state == 1) {
+	else {
+		ok = 0;
+	}
+	if(ok>0 && Flags & fBkgndImage && state == 1) {
 		PROFILE_START
 		SString buf, dir;
 		PPGetPath(PPPATH_BIN, dir);
@@ -1471,17 +1465,20 @@ int SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
 PPCommandMngr * SLAPI GetCommandMngr(int readOnly, int isDesktop, const char * pPath /*=0*/)
 {
 	PPCommandMngr * p_mgr = 0;
-	SString path;
+	SString path, path2;
 	if(pPath)
 		path = pPath;
-	else if(isDesktop)
+	else if(isDesktop) {
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_PPDESK_BIN, path);
-	else
+	}
+	else {
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_PPCMD_BIN, path);
+	}
+	
 	if(path.Empty())
 		PPSetError(PPERR_UNDEFCMDFILENAME);
 	else
-		p_mgr = new PPCommandMngr(path, readOnly);
+		p_mgr = new PPCommandMngr(path, readOnly, isDesktop);
 	if(p_mgr) {
 		if(!p_mgr->IsValid_()) {
 			ZDELETE(p_mgr);
@@ -1498,7 +1495,7 @@ int SLAPI PPCommandMngr::Backup()
 }
 */
 
-SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly) : ReadOnly(readOnly)
+SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isDesktop) : ReadOnly(readOnly)
 {
 	SString temp_buf;
 	long   mode = 0;
@@ -1518,6 +1515,13 @@ SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly) : ReadO
 		}
 		else
 			SDelay(100);
+	}
+
+	if(isDesktop) {
+		PPCommandMngr::GetDesksDir(XmlDirPath);
+	}
+	else {
+		PPCommandMngr::GetMenuDir(XmlDirPath);
 	}
 }
 
@@ -1561,81 +1565,174 @@ int SLAPI PPCommandMngr::Load__(PPCommandGroup * pCmdGrp)
 	SBuffer buf;
 	THROW_SL(F.IsValid());
 	F.CalcSize(&fsz);
-	if(fsz > 0) {
+	if(fsz>0) {
 		THROW_SL(F.CalcCRC(sizeof(hdr), &crc));
 		F.Seek(0, SEEK_SET);
 		THROW_SL(F.Read(&hdr, sizeof(hdr)));
-		THROW_PP_S(hdr.Signature == PPCS_SIGNATURE, PPERR_CMDFILSIGN, F.GetName());
-		THROW_PP_S(hdr.Crc == crc, PPERR_CMDFILCRC, F.GetName());
+		THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F.GetName());
+		THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F.GetName());
 		THROW_SL(F.Read(buf));
 		THROW(pCmdGrp->Read(buf, 0));
 	}
 	CATCHZOK
-	return ok;
+		return ok;
 }
 
 //@erik v10.6.1 {
 int SLAPI PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 {
 	int    ok = 1;
-	if(rwFlag == PPCommandMngr::fRWByXml) {
-		THROW(pCmdGrp->Write2(0, rwFlag)); //@erik v10.6.6
-	}
-	else if(rwFlag == PPCommandMngr::fRWByTxt) {
-
+	SString path, guid_str;
+	xmlTextWriter * p_xml_writer = 0;
+	assert(pCmdGrp);
+	THROW(pCmdGrp);
+	if(rwFlag == PPCommandMngr::fRWByXml) 
+	{
+		if(pCmdGrp->DbSymb.NotEmpty()) {
+			if(pCmdGrp->DeskGuid.ToStr(S_GUID::fmtIDL, guid_str)) {
+				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Cat(".xml");
+				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
+				xmlTextWriterSetIndent(p_xml_writer, 1);
+				xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+				SXml::WDoc _doc(p_xml_writer, cpUTF8);
+				THROW(pCmdGrp->Write2(p_xml_writer, rwFlag)); //@erik v10.6.6				
+			}
+		}
+		else {
+			const uint c = pCmdGrp->List.getCount();
+			for(uint i = 0; i < c; i++) {
+				const PPCommandItem * p_item = pCmdGrp->List.at(i);
+				assert(p_item);
+				THROW(p_item);
+				if(p_item->Kind == PPCommandItem::kGroup) {
+					//PPCommandGroup cg = *static_cast<const PPCommandGroup *>(p_item->Dup());
+					const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
+					if(p_cg->DeskGuid.ToStr(S_GUID::fmtIDL, guid_str)) {
+						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Cat(".xml");
+						p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
+						xmlTextWriterSetIndent(p_xml_writer, 1);
+						xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+						SXml::WDoc _doc(p_xml_writer, cpUTF8);
+						THROW(p_cg->Write2(p_xml_writer, rwFlag)); //@erik v10.6.6
+					}
+				}
+				// @sobolev @v10.7.6 {
+				else if(p_item->Kind == PPCommandItem::kFolder) {
+					const PPCommandFolder * p_cf = static_cast<const PPCommandFolder *>(p_item);
+					SXml::WDoc _doc(p_xml_writer, cpUTF8);
+					THROW(p_cf->Write2(p_xml_writer, rwFlag));
+				}
+				// } @sobolev @v10.7.6 
+				xmlFreeTextWriter(p_xml_writer);
+				p_xml_writer = 0;
+			}
+		}
 	}
 	CATCHZOK
+	xmlFreeTextWriter(p_xml_writer);
 	return ok;
 }
 
 int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 {
-	int    ok = 0;
+	int    ok = 1;
 	xmlParserCtxt * p_xml_parser = 0;
 	xmlDoc  * p_doc = 0;
 	SString temp_buf, path;
-	PPCommandGroup * p_temp_command_group = 0;
+	SString lock_path;
 	if(rwFlag == PPCommandMngr::fRWByXml) {
-		GetDesksDir(path);
-		temp_buf.Z().Cat(path).SetLastSlash().Cat("*.xml");
+		path.Z().Cat(XmlDirPath).SetLastSlash().Cat("*.xml");
 		SDirEntry de;
-		for(SDirec direc(temp_buf, 0); direc.Next(&de)>0;) {
-			if(de.IsFile()) {
-				p_temp_command_group = new PPCommandGroup();
-				temp_buf.Z().Cat(path).SetLastSlash().Cat(de.FileName);
-				THROW(p_xml_parser = xmlNewParserCtxt());
-				
-				//THROW_SL(fileExists(temp_buf));
-				//THROW_LXML((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)), p_xml_parser);
-				//THROW(p_root = xmlDocGetRootElement(p_doc));
-
-				//=> УСЛОВИЯ {
-				if(fileExists(temp_buf) > 0) {
-					if((p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT)) > 0) {
-						xmlNode * p_root = xmlDocGetRootElement(p_doc);
-						if(p_root) {
-							if(SXml::IsName(p_root, "CommandGroup")) {
-								THROW(p_temp_command_group->Read2(p_root, rwFlag));
-								if(pCmdGrp->Add(-1, p_temp_command_group)>0) {
-									p_temp_command_group = 0;
-									ok = 1;
+		// Конверация происходит, если папка с xml пуста
+		uint count = 0;
+		for(SDirec direc(path, 0); direc.Next(&de)>0;) {
+			count++;
+			if(count > 0)
+				break;
+		}
+		if(!count) {
+			PPGetFileName(PPFILNAM_MENUDESKLOCK, temp_buf);
+			lock_path = lock_path.Z().Cat(XmlDirPath).SetLastSlash().Cat(temp_buf);
+			temp_buf.Z();
+			const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path));
+			if(!is_locked) {
+				SFile f(lock_path, SFile::mWrite);
+				// @v10.7.6 f.Close();
+				PPCommandGroup cg_from_bin;
+				if(F.IsValid()) {
+					int64  fsz = 0;
+					if(F.CalcSize(&fsz)) {
+						if(fsz>0) {
+							THROW(Load__(&cg_from_bin));
+							const uint c = cg_from_bin.List.getCount();
+							PPCommandGroup cg_pool;
+							for(uint i = 0; i < c; i++) {
+								PPCommandGroup * p_tmp_cg = 0;
+								PPCommandItem * p_item = cg_from_bin.List.at(i);
+								assert(p_item);
+								THROW(p_item);
+								if(p_item->Kind == PPCommandItem::kFolder) { // Если так, то это меню. Значит его нужно обернуть в CommandGroup, задать GuiD и Type
+									PPCommandFolder * p_menu = static_cast<PPCommandFolder *>(p_item->Dup());
+									if(p_menu) {
+										p_tmp_cg = new PPCommandGroup();
+										TSCollection_Copy(p_tmp_cg->List, p_menu->List); // @fix (=)-->TSCollection_Copy
+										p_tmp_cg->Name = p_menu->Name;
+										p_tmp_cg->ID = p_menu->ID;
+										p_tmp_cg->Flags = p_menu->Flags;
+										p_tmp_cg->Icon = p_menu->Icon;
+										p_tmp_cg->GenerateGuid();
+										p_tmp_cg->Type = PPCommandGroup::tMenu;
+										p_tmp_cg->DbSymb = "undefined";
+									}
 								}
+								else {
+									p_tmp_cg = static_cast<PPCommandGroup *>(p_item);
+									p_tmp_cg->Type = PPCommandGroup::tDesk;
+								}
+								if(p_tmp_cg)
+									cg_pool.Add(-1, p_tmp_cg);
+							}
+							THROW(Save__2(&cg_pool, rwFlag));
+						}
+					}
+				}
+				f.Close();
+				SFile::Remove(lock_path);
+			}			
+		}
+		//
+		// Конец конвертации
+		//
+		for(SDirec direc(path, 0); direc.Next(&de)>0;) {
+			if(de.IsFile()) {
+				PPCommandGroup * p_temp_command_group = new PPCommandGroup();
+				temp_buf.Z().Cat(XmlDirPath).SetLastSlash().Cat(de.FileName);
+				THROW(p_xml_parser = xmlNewParserCtxt());
+				if(fileExists(temp_buf) > 0) {
+					THROW_LXML(p_doc = xmlCtxtReadFile(p_xml_parser, temp_buf, 0, XML_PARSE_NOENT), p_xml_parser);
+					xmlNode * p_root = xmlDocGetRootElement(p_doc);
+					if(p_root) {
+						if(SXml::IsName(p_root, "CommandGroup")) {
+							THROW(p_temp_command_group->Read2(p_root, rwFlag));
+							if(pCmdGrp->Add(-1, p_temp_command_group)>0) {
+								p_temp_command_group = 0;
 							}
 						}
 					}
 				}
-				// } УСЛОВИЯ
-				//@erik v10.6.10 {
 				xmlFreeDoc(p_doc);
 				p_doc = 0;
 				xmlFreeParserCtxt(p_xml_parser); 
 				p_xml_parser = 0;
-				// } @erik v10.6.10 
+				delete p_temp_command_group;
 			}
 		}
 	}
 	CATCH
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		if(!fileExists(lock_path)) {
+			SFile::Remove(lock_path);
+		}
 		ok = 0;
 	ENDCATCH
 	xmlFreeDoc(p_doc);
@@ -1707,6 +1804,13 @@ int SLAPI PPCommandMngr::DeleteDesktopByGUID(const SString &guid, const long rwF
 int PPCommandMngr::GetDesksDir(SString &rDesksPath)
 {
 	PPGetFilePath(PPPATH_WORKSPACE, "desktop", rDesksPath);  // получаем путь к workspace
+	::createDir(rDesksPath);
+	return 1;
+}
+
+int PPCommandMngr::GetMenuDir(SString &rDesksPath)
+{
+	PPGetFilePath(PPPATH_WORKSPACE, "menu", rDesksPath);  // получаем путь к workspace
 	::createDir(rDesksPath);
 	return 1;
 }

@@ -1052,6 +1052,13 @@ SLAPI GoodsContext::GoodsContext(const PPTransferItem * pTi, const PPBillPacket 
 	P.GoodsID = P_Ti ? P_Ti->GoodsID : 0;
 }
 
+SLAPI GoodsContext::GoodsContext(const CCheckItem * pCi) : ExprEvalContext()
+{
+	Init();
+	P_Ci = pCi;
+	P.GoodsID = P_Ci ? P_Ci->GoodsID : 0;
+}
+
 void SLAPI GoodsContext::Init()
 {
 	P_ClsPack = 0;
@@ -1440,7 +1447,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 				THROW(qk_obj.SearchSymb(&qk_id, ref) > 0);
 				{
 					const double cost  = P_Ti ? P_Ti->Cost  : 0.0;
-					const double price = P_Ti ? P_Ti->Price : 0.0;
+					const double price = P_Ti ? P_Ti->Price : (P_Ci ? P_Ci->Price : 0.0);
 					const PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
 					const PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
 					const PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
@@ -1518,6 +1525,8 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 				else if(ref.IsEqiAscii("price")) {
 					if(P_Ti)
 						v = P_Ti->Price;
+					else if(P_Ci) // @v10.7.6
+						v = P_Ci->Price;
 					else if(P.Flags & P.fPriceSettled) // @v10.7.3
 						v = P.Price;
 					else
@@ -1526,6 +1535,8 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 				else if(ref.IsEqiAscii("discount")) {
 					if(P_Ti)
 						v = P_Ti->Discount;
+					else if(P_Ci) // @v10.7.6
+						v = P_Ci->Discount;
 					else
 						r = 0; // discount может быть суммой документа
 				}
@@ -1634,6 +1645,13 @@ SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPTransferItem * pTi, c
 	P_Ti = pTi;
 	P_BillPack = pBillPack;
 	GoodsID = P_Ti ? P_Ti->GoodsID : 0;
+}
+
+SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v10.7.6
+{
+	THISZERO();
+	P_Ci = pCi;
+	GoodsID = P_Ci ? P_Ci->GoodsID : 0;
 }
 
 int SLAPI PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext * pCtx)

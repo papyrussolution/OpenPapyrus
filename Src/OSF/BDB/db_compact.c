@@ -426,7 +426,7 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	if(!LF_ISSET(DB_EXCH_PARENT))
 		goto done;
 	/* Update the parent. */
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	epg = &cp->csp[-1];
 	switch(TYPE(epg->page)) {
 	    case P_IBTREE:

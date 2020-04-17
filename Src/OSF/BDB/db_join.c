@@ -169,7 +169,7 @@ int __db_join(DB * primary, DBC ** curslist, DBC ** dbcp, uint32 flags)
 	dbc->del = dbc->c_del = __db_join_del;
 	dbc->get = dbc->c_get = __db_join_get_pp;
 	dbc->put = dbc->c_put = __db_join_put;
-	dbc->internal = (DBC_INTERNAL *)jc;
+	dbc->internal = reinterpret_cast<DBC_INTERNAL *>(jc);
 	dbc->dbp = primary;
 	jc->j_primary = primary;
 

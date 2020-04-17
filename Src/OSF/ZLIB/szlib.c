@@ -4180,7 +4180,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits,
 	s = (deflate_state*)ZLIB_ALLOC(strm, 1, sizeof(deflate_state));
 	if(s == Z_NULL) 
 		return Z_MEM_ERROR;
-	strm->state = (struct internal_state *)s;
+	strm->state = (struct internal_state *)(s);
 	s->strm = strm;
 	s->status = INIT_STATE; /* to pass state test in deflateReset() */
 	s->wrap = wrap;
@@ -4198,7 +4198,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method, int windowBits,
 	s->high_water = 0;  /* nothing written to s->window yet */
 	s->lit_bufsize = 1 << (memLevel + 6); /* 16K elements by default */
 	overlay = static_cast<ushort *>(ZLIB_ALLOC(strm, s->lit_bufsize, sizeof(ushort)+2));
-	s->pending_buf = (uchar *)overlay;
+	s->pending_buf = reinterpret_cast<uchar *>(overlay);
 	s->pending_buf_size = (ulong)s->lit_bufsize * (sizeof(ushort)+2L);
 	if(s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
 	    s->pending_buf == Z_NULL) {

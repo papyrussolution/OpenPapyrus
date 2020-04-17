@@ -108,6 +108,7 @@
 			MENUITEM "@cmd_personreltype",				cmPersonRelType
 			MENUITEM "@cmd_personrel",					cmPersonRel
 			MENUITEM "@cmd_taxsystemkind",	            cmTaxSystemKind
+			MENUITEM "@addressbook",                    cmAddressBook // @v10.7.6
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_scardseries",				cmSCardSeries
 			MENUITEM "@cmd_scard",						cmSCard

@@ -12,11 +12,11 @@ SLAPI GoodsGrpngEntry::GoodsGrpngEntry()
 	THISZERO();
 }
 
-void FASTCALL GoodsGrpngEntry::SetOp(const PPOprKind * pOpRec)
+void FASTCALL GoodsGrpngEntry::SetOp(const PPOprKind & rOpRec)
 {
-	OpID     = pOpRec->ID;
-	OpTypeID = pOpRec->OpTypeID;
-	Link     = pOpRec->LinkOpID;
+	OpID     = rOpRec.ID;
+	OpTypeID = rOpRec.OpTypeID;
+	Link     = rOpRec.LinkOpID;
 }
 
 double FASTCALL GoodsGrpngEntry::IncomeByOpr(PPID opID) const
@@ -487,11 +487,11 @@ int SLAPI GCT_Iterator::Next(TransferTbl::Rec * pRec)
 //
 //
 //
-int SLAPI GoodsGrpngArray::CalcRest(GoodsRestParam & rP, const PPOprKind * pOpRec, double phuperu)
+int SLAPI GoodsGrpngArray::CalcRest(GoodsRestParam & rP, const PPOprKind & rOpRec, double phuperu)
 {
 	if(P_BObj->trfr->GetRest(rP)) {
 		GoodsGrpngEntry entry;
-		entry.SetOp(pOpRec);
+		entry.SetOp(rOpRec);
 		entry.Quantity = rP.Total.Rest;
 		entry.Volume   = rP.Total.Rest * phuperu;
 		entry.Cost     = rP.Total.Cost;
@@ -513,6 +513,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 	const  long   flags = pEntry->Flags;
 	const  double qtty = pEntry->Quantity;
 	if(flags & GGEF_CALCBYPRICE) {
+		const int cfg_price_wo_excise = BIN(CConfig.Flags & CCFLG_PRICEWOEXCISE);
 		pEntry->Cost     *= qtty;
 		pEntry->Price    *= qtty;
 		pEntry->Discount *= qtty;
@@ -527,7 +528,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 				pEntry->Price -= pEntry->Discount;
 				pEntry->Discount = 0.0;
 			}
-			if((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
+			if(cfg_price_wo_excise ? !re : re)
 				excl_stax = 1;
 			GObj.AdjPriceToTaxes(goods_tax_grp_id, pEntry->TaxFactor, &pEntry->Price, excl_stax);
 		}
@@ -536,7 +537,7 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 			//
 			// Расчет цены реализации без НДС
 			//
-			const long amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES; // ! не уверен в этой строке в контексте блока if(flags & GGEF_PRICEWOTAXES) {}
+			const long amt_fl = cfg_price_wo_excise ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES; // ! не уверен в этой строке в контексте блока if(flags & GGEF_PRICEWOTAXES) {}
 			GTaxVect vect;
 			PPGoodsTaxEntry gtx;
 			if(GObj.GTxObj.FetchByID(goods_tax_grp_id, &gtx) > 0) {
@@ -730,8 +731,21 @@ int SLAPI GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, T
 					for(DateIter di(&rF.Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) {
 						GetOpData(bill_rec.OpID, &blk.OpRec);
 						if(blk.OpRec.OpTypeID != PPOPT_PAYMENT || !IsLockPaymStatus(bill_rec.StatusID)) {
-							blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
-							THROW_SL(blk_list.insert(&blk));
+							// @v10.7.6 {
+							int    do_skip_paym = 0;
+							if(rF.Flags & OPG_MERGECORRECTION) {
+								PPID   pool_id = 0;
+								if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id) > 0) {
+									BillTbl::Rec pool_bill_rec;
+									if(P_BObj->Fetch(pool_id, &pool_bill_rec) > 0 && GetOpType(pool_bill_rec.OpID) == PPOPT_CORRECTION)
+										do_skip_paym = 1;
+								}
+							}
+							// } @v10.7.6 
+							if(!do_skip_paym) {
+								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
+								THROW_SL(blk_list.insert(&blk));
+							}
 						}
 					}
 					if(rF.Flags & OPG_PROCESSRECKONING) {
@@ -782,7 +796,7 @@ int SLAPI GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, T
 						entry.Flags |= GGEF_INTRREVERSE;
 					if(r_blk.Flags & GGEF_SUPPRDISCOUNT)
 						entry.Flags |= GGEF_SUPPRDISCOUNT;
-					entry.SetOp(&r_blk.OpRec);
+					entry.SetOp(r_blk.OpRec);
 					entry.LotID    = (r_blk.Flags & GGEF_BYLOT) ? r_blk.LotRec.ID : 0;
 					entry.Quantity = fabs(r_blk.TrfrRec.Quantity);
 					entry.Sign     = (r_blk.TrfrRec.Flags & PPTFR_PLUS) ? 1 : ((r_blk.TrfrRec.Flags & PPTFR_MINUS) ? -1 : 0);
@@ -931,7 +945,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 			PPOprKind op_rec;
 			op_type_id = GetOpType(op_id);
 			if(oneof6(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_PAYMENT, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF)) {
-				int    r2 = pFilt->AcceptIntr3(bill_rec);
+				const int r2 = pFilt->AcceptIntr3(bill_rec);
 				if(r2) {
 					op_id = bill_rec.OpID; // Функция AcceptIntr2 могла изменить вид операции записи
 					DateRange shpm_prd = pFilt->ShipmentPeriod;
@@ -999,7 +1013,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 				}
 			}
 			else if((pFilt->OpID || (pFilt->Flags & OPG_INCLACCOPS)) && op_type_id == PPOPT_ACCTURN) {
-				int    r2 = pFilt->AcceptIntr3(bill_rec);
+				const int r2 = pFilt->AcceptIntr3(bill_rec);
 				if(r2) {
 					op_id = bill_rec.OpID;
 					double amount = BR2(bill_rec.Amount);
@@ -1013,7 +1027,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 			PPWaitPercent(counter.Increment(), wait_msg);
 	}
 	for(uint i = 0; i < bill_entry_list.getCount(); i++) {
-		AddBillEntry & r_bill_entry = bill_entry_list.at(i);
+		const AddBillEntry & r_bill_entry = bill_entry_list.at(i);
 		GoodsGrpngEntry entry;
 		entry.OpID = r_bill_entry.OpID;
 		entry.OpTypeID = r_bill_entry.OpTypeID;
@@ -1055,7 +1069,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 	}
 	bill_entry_list.freeAll();
 	//
-	if(pFilt->Flags & (OPG_CALCINREST | OPG_CALCOUTREST)) {
+	if(pFilt->Flags & (OPG_CALCINREST|OPG_CALCOUTREST)) {
 		GoodsGrpngEntry entry;
 		GoodsRestTotal  gr_total;
 		GoodsRestFilt   gr_flt;
@@ -1064,7 +1078,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		// @v10.6.4 MEMSZERO(r_op_rec);
 		if(pFilt->Flags & OPG_CALCINREST) {
 			r_op_rec.ID = -1;
-			entry.SetOp(&r_op_rec);
+			entry.SetOp(r_op_rec);
 			if(pFilt->Period.low) {
 				gr_flt.Init(1, 0);
 				gr_flt.Date   = pFilt->Period.low;
@@ -1094,7 +1108,7 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 			gr_flt.WaitMsgID = PPTXT_CALCOUTREST;
 			THROW(gr_view.Init_(&gr_flt));
 			gr_view.GetTotal(&gr_total);
-			entry.SetOp(&r_op_rec);
+			entry.SetOp(r_op_rec);
 			entry.Quantity = gr_total.Quantity;
 			entry.Cost     = gr_total.SumCost;
 			entry.Price    = gr_total.SumPrice;
@@ -1216,12 +1230,12 @@ int SLAPI GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const Adj
 					if(filt.Flags & OPG_CALCINREST) {
 						gp.Date = plusdate(filt.Period.low, -1);
 						op_rec.ID  = -1;
-						THROW(CalcRest(gp, &op_rec, phuperu));
+						THROW(CalcRest(gp, op_rec, phuperu));
 					}
 					if(filt.Flags & OPG_CALCOUTREST) {
 						gp.Date = filt.Period.upp;
 						op_rec.ID  = 10000L;
-						THROW(CalcRest(gp, &op_rec, phuperu));
+						THROW(CalcRest(gp, op_rec, phuperu));
 					}
 				}
 				if(pAgg && pAgg->BillList.getCount()) {

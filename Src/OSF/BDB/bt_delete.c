@@ -188,7 +188,7 @@ int __bam_dpages(DBC*dbc, int use_top, int flags)
 
 	dbp = dbc->dbp;
 	mpf = dbp->mpf;
-	cp = (BTREE_CURSOR *)dbc->internal;
+	cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	nitems = 0;
 	pgno = PGNO_INVALID;
 
@@ -427,7 +427,7 @@ int __bam_pupdate(DBC * dbc, PAGE * lpg)
 {
 	int ret = 0;
 	ENV * env = dbc->env;
-	BTREE_CURSOR * cp = (BTREE_CURSOR *)dbc->internal;
+	BTREE_CURSOR * cp = reinterpret_cast<BTREE_CURSOR *>(dbc->internal);
 	/*
 	 * Update the parents up the tree.  __bam_pinsert only looks at the
 	 * left child if is a leaf page, so we don't need to change it.  We

@@ -1465,7 +1465,7 @@ struct __HI { // @flat
 	LDATE  Dt;
 };
 
-static IMPL_CMPFUNC(__HI, i1, i2) { RET_CMPCASCADE2((const __HI*)i1, (const __HI*)i2, LocIdx, Dt); }
+static IMPL_CMPFUNC(__HI, i1, i2) { RET_CMPCASCADE2(static_cast<const __HI *>(i1), static_cast<const __HI *>(i2), LocIdx, Dt); }
 
 class __HolidayArray : public TSVector <__HI> { // @v9.8.4 TSArray-->TSVector
 public:

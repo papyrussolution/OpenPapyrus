@@ -95,6 +95,24 @@ IntRange & FASTCALL IntRange::Set(int val)
 	return *this;
 }
 
+int FASTCALL IntRange::Intersect(const IntRange & rD) const
+{
+	int    ret = 0;
+	int32  c1 = 0;
+	int32  c2 = 0;
+	if(low <= upp && rD.low <= rD.upp) {
+		c1 = MAX(low, rD.low);
+		c2 = MIN(upp, rD.upp);
+		if(c1 < c2)
+			ret = 1;
+		else if(c1 == c2)
+			ret = 2;
+	}
+	else
+		ret = -1;
+	return ret;
+}
+
 int SLAPI IntRange::Intersect(const IntRange & rD, IntRange * pResult) const
 {
 	int    ret = 0;

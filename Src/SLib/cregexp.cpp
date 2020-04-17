@@ -35,20 +35,9 @@ CRegExp::~CRegExp()
 	delete P_Program;
 }
 
-int CRegExp::GetLastErr() const
-{
-	return ErrCode;
-}
-
-int CRegExp::IsValid() const
-{
-	return (ErrCode == 0);
-}
-
-void CRegExp::set_invalid()
-{
-	ZDELETE(P_Program);
-}
+int CRegExp::GetLastErr() const { return ErrCode; }
+int CRegExp::IsValid() const { return (ErrCode == 0); }
+void CRegExp::set_invalid() { ZDELETE(P_Program); }
 
 int FASTCALL CRegExp::operator == (const CRegExp & rxp) const
 {
@@ -124,10 +113,8 @@ int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 #define EXACTLY 8						/* str Match this string. */
 #define NOTHING 9						/* no Match empty string. */
 #define STAR	10						/* node Match this (simple) thing 0 or more */
-
 /* times. */
 #define PLUS	11						/* node Match this (simple) thing 1 or more */
-
 /* times. */
 #define OPEN	20						/* no Mark this point in input as start of */
 

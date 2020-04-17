@@ -177,7 +177,7 @@ public:
 	};
 	struct TimeSeriesBlock {
 		SLAPI  TimeSeriesBlock() : Flags(0), SpreadSum(0), SpreadCount(0), VolumeMin(0.0), VolumeMax(0.0), VolumeStep(0.0),
-			Actual_Regular_Parity(0)
+			Actual_Regular_Parity(0), LastStakeTime(ZERODATETIME)
 		{
 		}
 		double SLAPI GetAverageSpread() const
@@ -219,6 +219,7 @@ public:
 		double VolumeMin;
 		double VolumeMax;
 		double VolumeStep;
+		LDATETIME LastStakeTime; // @v10.7.6 Время установки последней ставки - для предупреждения двойных ставок при задержках сети
 		PPTimeSeriesPacket PPTS;
 		STimeSeries T_;
 		//
@@ -1480,6 +1481,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 	SString tk_symb;
 	SString stk_symb;
 	SString stk_memo;
+	LongArray seen_ts_list; // @v10.7.6 Список серий, которые уже были обработаны. Введен из-за того, что (вероятно) иногда в обработку попадает двойной набор.
 	TSVector <PotentialStakeEntry> potential_stake_list;
 	const uint current_stake_count = StkEnv.SL.getCount();
 	const double evaluated_used_margin = EvaluateUsedMargin();
@@ -1493,8 +1495,14 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 		const long cur_diff_sec = diffdatetimesec(now, tktime);
 		uint  blk_idx = 0;
 		StkEnv.GetS(r_tk.SymbP, tk_symb);
-		const TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
-		if(p_blk) {
+		//
+		// @v10.7.6 Следующая переменная p_blk должны быть const, но, увы, из-за того что мы вынуждены
+		// менять в ней время последней рассчитанной ставки (иначе может случиться двойное срабатывание ставки по причине задержки в сети)
+		//
+		/*const*/TimeSeriesBlock * p_blk = SearchBlockBySymb(tk_symb, &blk_idx);
+		//
+		if(p_blk && !seen_ts_list.lsearch(p_blk->PPTS.Rec.ID)) { // @v10.7.6 (&& !seen_ts_list.lsearch(p_blk->PPTS.Rec.ID))
+			seen_ts_list.add(p_blk->PPTS.Rec.ID); // @v10.7.6
 			// @v10.6.8 {
 			if(Cfg.Flags & Cfg.fLogStakeEvaluation) {
 				const double test_cost = EvaluateCost(*p_blk, 0, p_blk->VolumeMin, ecfTrickChf); // @v10.6.10
@@ -1543,50 +1551,54 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 			}
 			// } @v10.6.8 
 			if(abs(cur_diff_sec) <= max_diff_sec) { // @v10.6.8 cur_diff_sec-->abs(cur_diff_sec)
-				// @v10.4.10 {
-				/* @v10.6.8 if(0) {
-					log_msg.Z().Cat(tktime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
-					for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
-						const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
-						if(p_tre) {
-							const uint tre_tlc = p_tre->TL.getCount();
-							const uint tre_erc = p_tre->ErrL.getCount();
-							log_msg.CR().Tab();
-							log_msg.Cat(p_tre->ErrAvg * 10E9, MKSFMTD(0, 5, 0));
-							log_msg.Tab().Cat(p_tre->Stride);
-							if(tre_tlc == 0) {
-								log_msg.Tab().Cat("zero-tl-count");
-							}
-							else {
-								if(tre_tlc != tre_erc)
-									log_msg.Tab().Cat("tl-count != te-count");
-								log_msg.Tab().Cat(p_tre->TL.at(tre_tlc-1) * 10E9, MKSFMTD(0, 5, 0));
-								if(tre_erc == 0)
-									log_msg.Tab().Cat("zero-te-count");
-								else 
-									log_msg.Tab().Cat(p_tre->ErrL.at(tre_erc-1) * 10E9, MKSFMTD(0, 5, 0));
+				if(!p_blk->LastStakeTime || diffdatetimesec(now, p_blk->LastStakeTime) >= 20) { // @v10.7.6
+					// @v10.4.10 {
+					/* @v10.6.8 if(0) {
+						log_msg.Z().Cat(tktime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
+						for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
+							const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
+							if(p_tre) {
+								const uint tre_tlc = p_tre->TL.getCount();
+								const uint tre_erc = p_tre->ErrL.getCount();
+								log_msg.CR().Tab();
+								log_msg.Cat(p_tre->ErrAvg * 10E9, MKSFMTD(0, 5, 0));
+								log_msg.Tab().Cat(p_tre->Stride);
+								if(tre_tlc == 0) {
+									log_msg.Tab().Cat("zero-tl-count");
+								}
+								else {
+									if(tre_tlc != tre_erc)
+										log_msg.Tab().Cat("tl-count != te-count");
+									log_msg.Tab().Cat(p_tre->TL.at(tre_tlc-1) * 10E9, MKSFMTD(0, 5, 0));
+									if(tre_erc == 0)
+										log_msg.Tab().Cat("zero-te-count");
+									else 
+										log_msg.Tab().Cat(p_tre->ErrL.at(tre_erc-1) * 10E9, MKSFMTD(0, 5, 0));
+								}
 							}
 						}
+						(temp_buf = "tst").CatChar('-').Cat(tk_symb).Dot().Cat("log");
+						PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
+						PPLogMessage(log_file_name, log_msg, 0);
+					}*/
+					// } @v10.4.10 
+					int   is_there_stake = 0;
+					PotentialStakeEntry pse(*p_blk);
+					const int fosfsr = FindOptimalStrategyForStake(evaluated_used_margin, pse);
+					for(uint si = 0; si < current_stake_count; si++) {
+						const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
+						StkEnv.GetS(r_stk.SymbP, stk_symb);
+						if(stk_symb.IsEqiAscii(tk_symb)) {
+							int fosasr = FindOptimalStrategyAtStake(*p_blk, r_stk, ((fosfsr > 0) ? &pse : 0), rResult);
+							if(fosasr != 100) // @v10.4.6
+								is_there_stake = 1;
+						}
 					}
-					(temp_buf = "tst").CatChar('-').Cat(tk_symb).Dot().Cat("log");
-					PPGetFilePath(PPPATH_LOG, temp_buf, log_file_name);
-					PPLogMessage(log_file_name, log_msg, 0);
-				}*/
-				// } @v10.4.10 
-				int   is_there_stake = 0;
-				PotentialStakeEntry pse(*p_blk);
-				const int fosfsr = FindOptimalStrategyForStake(evaluated_used_margin, pse);
-				for(uint si = 0; si < current_stake_count; si++) {
-					const TsStakeEnvironment::Stake & r_stk = StkEnv.SL.at(si);
-					StkEnv.GetS(r_stk.SymbP, stk_symb);
-					if(stk_symb.IsEqiAscii(tk_symb)) {
-						int fosasr = FindOptimalStrategyAtStake(*p_blk, r_stk, ((fosfsr > 0) ? &pse : 0), rResult);
-						if(fosasr != 100) // @v10.4.6
-							is_there_stake = 1;
+					if(fosfsr > 0 && !is_there_stake && current_stake_count < Cfg.MaxStakeCount) {
+						potential_stake_list.insert(&pse);
+						p_blk->LastStakeTime = now; // @v10.7.6
 					}
 				}
-				if(fosfsr > 0 && !is_there_stake && current_stake_count < Cfg.MaxStakeCount)
-					potential_stake_list.insert(&pse);
 			}
 		}
 	}

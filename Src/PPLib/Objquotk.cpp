@@ -613,12 +613,12 @@ StrAssocArray * SLAPI PPObjQuotKind::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-IMPL_CMPFUNC(_QUOTK_LIST_ENTRY, i1, i2) { return stricmp866(((PPObjQuotKind::ListEntry *)i1)->Name, ((PPObjQuotKind::ListEntry *)i2)->Name); }
+IMPL_CMPFUNC(_QUOTK_LIST_ENTRY, i1, i2) { return stricmp866(static_cast<const PPObjQuotKind::ListEntry *>(i1)->Name, static_cast<const PPObjQuotKind::ListEntry *>(i2)->Name); }
 
 IMPL_CMPFUNC(PPQuotKind, i1, i2)
 {
-	PPQuotKind * p1 = (PPQuotKind *)i1;
-	PPQuotKind * p2 = (PPQuotKind *)i2;
+	const PPQuotKind * p1 = static_cast<const PPQuotKind *>(i1);
+	const PPQuotKind * p2 = static_cast<const PPQuotKind *>(i2);
 	if(p1->Rank < p2->Rank)
 		return +1;
 	else if(p1->Rank > p2->Rank)

@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -151,16 +151,39 @@ int FASTCALL SEnum::Next(void * pData)
 #if 0 // {
 
 class Foo {
+private:
+	class EnImp : public SEnumImp {
+	public:
+		EnImp(const void * pArg) : I(0), P_Arg(pArg)
+		{
+		}
+		virtual int Next(void * pData)
+		{
+			if(I < 10) {
+				static_cast<double *>(pData) = I * 1.01;
+				I++;
+				return 1;
+			}
+			else
+				return 0;
+		}
+	private:
+		uint  I;
+		const void * P_Arg;
+	};
 public:
-	SEnumImp * EnumByName();
+	SEnumImp * Enum(const void * pArg)
+	{
+		return new EnImp(pArg);
+	}
 };
 
 void foo()
 {
 	Foo f;
-	Abc abc;
-	for(SEnum enum = f.EnumByName(); enum.Next(&abc);) {
-
+	double abc;
+	for(SEnum en = f.EnumByName(); en.Next(&abc);) {
+		// do something with abc
 	}
 }
 

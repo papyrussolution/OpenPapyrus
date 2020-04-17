@@ -1520,7 +1520,7 @@ int PPSession::SetThreadSock(int32 uniqueSessID, TcpSocket & rSock, PPJobSrvRepl
 }
 
 SLAPI PPSession::PPSession() : Id(1), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
-	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc())
+	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc()), P_ExtCfgDb(0)
 {
 	InitThread(0);
 }
@@ -1533,7 +1533,46 @@ SLAPI PPSession::~PPSession()
 	delete P_DbCtx;
 	delete P_AlbatrosCfg;
 	delete P_SrStxSet; // @v9.8.10
+	delete P_ExtCfgDb; // @v10.6.7
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
+}
+
+int SLAPI PPSession::InitExtCfgDb()
+{
+	int    ok = -1;	
+	if(!P_ExtCfgDb) {
+		SString temp_buf;
+		PPGetPath(PPPATH_WORKSPACE, temp_buf);
+		temp_buf.SetLastSlash().Cat("bdbconfig");
+		P_ExtCfgDb = new PPConfigDatabase(temp_buf);
+		if(P_ExtCfgDb)
+			ok = 1;
+		else 
+			ok = 0;
+	}
+	return ok;
+}
+
+int SLAPI PPSession::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
+{
+	int    ok = 0;
+	ENTER_CRITICAL_SECTION
+	if(InitExtCfgDb()) {
+		ok = P_ExtCfgDb->GetStringHistory(pKey, pSubUtf8, flags, rList);
+	}
+	LEAVE_CRITICAL_SECTION
+	return ok;
+}
+
+int SLAPI PPSession::AddStringHistory(const char * pKey, const char * pTextUtf8)
+{
+	int    ok = 0;
+	ENTER_CRITICAL_SECTION
+	if(InitExtCfgDb()) {
+		ok = P_ExtCfgDb->AddStringHistory(pKey, pTextUtf8);
+	}
+	LEAVE_CRITICAL_SECTION
+	return ok;
 }
 
 /*uint64 SLAPI PPSession::GetProfileTime()

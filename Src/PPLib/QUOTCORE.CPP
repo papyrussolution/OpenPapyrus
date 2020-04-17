@@ -120,7 +120,8 @@ int SLAPI PPQuotItem_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pS
 	return ok;
 }
 
-IMPL_CMPFUNC(PPQuotItem_, i1, i2) { RET_CMPCASCADE6((const PPQuotItem_ *)i1, (const PPQuotItem_ *)i2, GoodsID, KindID, LocID, ArID, CurID, Period); }
+IMPL_CMPFUNC(PPQuotItem_, i1, i2) 
+	{ RET_CMPCASCADE6(static_cast<const PPQuotItem_ *>(i1), static_cast<const PPQuotItem_ *>(i2), GoodsID, KindID, LocID, ArID, CurID, Period); }
 
 PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> () // @v9.8.4 TSArray-->TSVector
 {
@@ -466,7 +467,8 @@ int SLAPI PPQuot::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	return ok;
 }
 
-IMPL_CMPFUNC(PPQuot, i1, i2) { RET_CMPCASCADE4((const PPQuot*)i1, (const PPQuot*)i2, LocID, Kind, CurID, ArID); }
+IMPL_CMPFUNC(PPQuot, i1, i2) 
+	{ RET_CMPCASCADE4(static_cast<const PPQuot *>(i1), static_cast<const PPQuot *>(i2), LocID, Kind, CurID, ArID); }
 //
 // PPQuotArray
 //
@@ -1792,7 +1794,8 @@ private:
 };
 
 // descending order
-IMPL_CMPFUNC(GoodsQuotCacheEntry_UseCountDesc, i1, i2) { return cmp_long(((QuotCache::CacheEntry *)i2)->UseCount, ((QuotCache::CacheEntry *)i1)->UseCount); }
+IMPL_CMPFUNC(GoodsQuotCacheEntry_UseCountDesc, i1, i2) 
+	{ return cmp_long(static_cast<const QuotCache::CacheEntry *>(i2)->UseCount, static_cast<const QuotCache::CacheEntry *>(i1)->UseCount); }
 
 // typedef int (*PPAdviseProc)(int kind, const PPNotifyEvent * pEv, long procExtVal);
 //static

@@ -317,20 +317,20 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsOrder,       "@{cmd_goodsorder}",        TBBM_ORDERBILLS
 	cmInventory,        "@{inventorydocument_pl}",  TBBM_INVENTORY
 	cmDraftBillList,    "@{draftdocument_pl}",      TBBM_DRAFTBILLS
-	cmUnifyGoodsPrice,  "Унификация цен",           TBBM_UNIFYPRICE
-	cmVATBook,          "Книги продаж/покупок",     TBBM_VATBOOK
+	cmUnifyGoodsPrice,  "@{cmd_unifygoodsprice}",   TBBM_UNIFYPRICE
+	cmVATBook,          "@{view_vatbook}",          TBBM_VATBOOK
 	separator
 	cmAccAnalyze,       "@{cmd_accanalyze}",        TBBM_ACCANLZ
 	cmBalance,          "@{cmd_balance}",           TBBM_BALANCE
-	cmCashBook,         "Кассовая книга",           TBBM_CASHBOOK
+	cmCashBook,         "@{cmd_cashbook}",          TBBM_CASHBOOK
 	separator
 	cmPriceList,        "@{cmd_pricelist}",         TBBM_PRICELIST
 	cmGoodsRest,        "@{cmd_goodsrest}",         TBBM_GOODSREST
 	cmViewLots,         "@{cmd_viewlots}",          TBBM_LOTS
-	cmViewOrdLots,      "Анализ заказов",           TBBM_ORDLOTS
+	cmViewOrdLots,      "@{cmd_viewordlots}",       TBBM_ORDLOTS
 	cmGoodsOprGrouping, "@{cmd_goodsoprgrouping}",  TBBM_OPGRPNG
 	cmGoodsOper,        "@{cmd_goodsoper}",         TBBM_GOODSANLZ
-	cmTrfrAnalyze,      "Анализ товарных операций", TBBM_TRFRANLZ
+	cmTrfrAnalyze,      "@{view_trfranlz}", TBBM_TRFRANLZ
 	separator
 	cmOpenTextFile,     "Открыть текстовый файл",   TBBM_OPENTEXTFILE
 }
@@ -745,7 +745,7 @@ toolbar export ACCOUNT TB_FIRST_TOOLBAR {
 	EDITITEM         : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
 	ADDITEM          : kbIns,     PPDV_ADDFILE02,    "@{add}\tInsert"
 	DELETEITEM       : kbDel,     PPDV_DELETEFILE02, "@{delete}\tDelete"
-	ACCANLZ          : kbF3,      TBBM_ACCANLZ,      "Анализ\tF3"
+	ACCANLZ          : kbF3,      TBBM_ACCANLZ,      "@{analysis}\tF3"
 	ARTICLES         : kbF4,      PPDV_LINS01,       "@{cmd_accarticle}\tF4"
 	PRINT            : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
 	separator
@@ -1138,8 +1138,8 @@ browser PERSONATTR_DLVRADDR north(100), 1, 0, "Адреса персоналий {%s}", OWNER|GR
 {
 	"@id",          0, notype, 0,  4
 	"@name",        2, notype, 0, 30
-	"Тип адреса",   5, notype, 0, 10
-	"Ид адреса",    1, notype, NMBF_NOZERO, 10
+	"@addresstype", 5, notype, 0, 10
+	"@addressid",   1, notype, NMBF_NOZERO, 10
 	"@code",        4, notype, 0, 10
 	"@city",        6, notype, 0, 20
 	"@address",     3, notype, 0, 40
@@ -1148,8 +1148,8 @@ browser PERSONATTR_DLVRADDR north(100), 1, 0, "Адреса персоналий {%s}", OWNER|GR
 
 browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER|GRID, 0
 {
-	"Тип адреса",   5, notype, 0, 10
-	"Ид адреса",    1, notype, NMBF_NOZERO, 10
+	"@addresstype", 5, notype, 0, 10
+	"@addressid",   1, notype, NMBF_NOZERO, 10
 	"@code",        4, notype, 0, 10
 	"@city",        6, notype, 0, 20
 	"@address",     3, notype, 0, 40
@@ -1165,7 +1165,7 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER
 		separator
 		VIEWCCHECKS    : kbF3,        TBBM_CCHECKS,         "@{check_pl}\tF3"
 		VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "Просмотр персональных карт\tCtrl-S"
-		DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "Дополнительные поля адреса"
+		DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
 		RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "Удалить зависшие адреса\tCtrl-X"
 		PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
 		SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
@@ -1173,9 +1173,9 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER
 		TRANSMKIND     : kbCtrlB,     PPDV_NOICON,          "Передать выборку видов персоналий\tCtrl-B"
 		EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,          "Передать персоналию в формате vCard\tCtrl-D"
 		EXPORTUHTT     : kbAltU,      TBBM_EXPORTUHTT,      "@{exporttouhtt}\tAlt-U" // @v8.3.2
-		UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,           "@{unite_abstract}\tCtrl-U"
+		UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_abstract}\tCtrl-U"
 		TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
-		DORECOVER      : kbCtrlR,     PPDV_REPAIR02,          "@{verificationandrecovery}\tCtrl-R"
+		DORECOVER      : kbCtrlR,     PPDV_REPAIR02,        "@{verificationandrecovery}\tCtrl-R"
 		SENDSMS	       : kbCtrlM,	  PPDV_NOICON,          "Разослать SMS\tCtrl-M"
 		separator
 		CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
@@ -1198,13 +1198,13 @@ browser PERSONREL north(100), 1, 0, "Отношения персоналий", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		ADDREVERSEITEM: kbCtrlA,  PPDV_ADDFILE02,    "Добавить обратное отношение\tInsert"
-		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,    "@{delete}\tDelete"
-		EDITPERSON    : kbF2,     TBBM_PERSONS,   "@{person}\tF2"
+		DELETEITEM    : kbDel,    PPDV_DELETEFILE02, "@{delete}\tDelete"
+		EDITPERSON    : kbF2,     TBBM_PERSONS,      "@{person}\tF2"
 		separator
-		REVERSE       : kbCtrlR,  PPDV_NOICON,    "Обратные отношения\tCtrl-R"
-		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,    "@{filter}\tCtrl-V"
+		REVERSE       : kbCtrlR,  PPDV_NOICON,       "Обратные отношения\tCtrl-R"
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		separator
-		PRINT         : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
+		PRINT         : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
 	}
 }
 
@@ -1761,11 +1761,11 @@ browser ACCTRNOVR north(100), 3, 1, "Обороты по статьям счета %s", OWNER|GRID, 0
 		"@credit", 14, notype, NMBF_NOZERO | NMBF_NONEG, 12.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL  :  kbEnter, PPDV_LINS02,      "Анализ\tEnter"
-		PRINT   :  kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
-		TOTAL   :  kbF9,    PPDV_SIGMA02,        "@{totals}\tF9"
+		DETAIL  :  kbEnter, PPDV_LINS02,      "@{analysis}\tEnter"
+		PRINT   :  kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
+		TOTAL   :  kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
 		separator
-		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		CHANGEFILT : kbCtrlV, PPDV_FILTER01,  "@{filter}\tCtrl-V"
 		REFRESH    : kbCtrlZ, PPDV_REFRESH01, "@{refresh}\tCtrl-Z"
 	}
 }
@@ -1789,7 +1789,7 @@ browser SUPPLTRNOVR north(100), 3, 1, "Обороты по поставщикам {%s}", OWNER|GRID,
 	}
 	"Остаток\nтоваров", 12, notype, NMBF_NOZERO, 12.2
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL     :  kbEnter, PPDV_LINS02,      "Анализ\tEnter"
+		DETAIL     :  kbEnter, PPDV_LINS02,      "@{analysis}\tEnter"
 		VIEWLOTS   :  kbF3,    TBBM_LOTS,        "@{lots}\tF3"
 		VIEWBILLS  :  kbF4,    PPDV_DOCUMENT_PL02,       "@{documents}\tF4"
 		GOODSREST  :  kbF5,    TBBM_GOODSREST,   "@{view_goodsrest}\tF5"
@@ -3083,7 +3083,7 @@ browser BILLOPGRPNGEXT north(100), 3, 1, "Группировка документов {%s}", OWNER|GR
 	}
 	"@discount",              15, notype, NMBF_NOZERO, 11.2
 	"@profitableness",         8, notype, NMBF_NOZERO, 11.2
-	group "Дополнительные суммы" {
+	group "@addendumamount_pl" {
 		"@termcost_sfx",      11, notype, NMBF_NOZERO, 11.2
 		"@termprice_sfx",     12, notype, NMBF_NOZERO, 11.2
 	}
@@ -3102,7 +3102,7 @@ browser BILLOPGRPNGCYCLEEXT north(100), 3, 1, "Группировка операций по документа
 	}
 	"@discount",              15, notype, NMBF_NOZERO, 11.2
 	"@profitableness",              8, notype, NMBF_NOZERO, 11.2
-	group "Дополнительные суммы" {
+	group "@{addendumamount_pl}" {
 		"@termcost_sfx",      11, notype, NMBF_NOZERO, 11.2
 		"@termprice_sfx",     12, notype, NMBF_NOZERO, 11.2
 	}
@@ -3286,14 +3286,14 @@ browser GOODSOPER_CROSSTAB north(100), 3, 1, "Товарный отчет {%s} с табуляцией",
 
 browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 {
-	"@date",        4, notype, DATF_DMY, 8
-	"@time",        5, notype, TIMF_HMS | TIMF_MSEC, 11
-	"@user",        6, notype, 0, 12
-	"@person",     10, notype, 0, 12 // @v7.5.11
-	"@op",          7, notype, 0, 20
-	"@objtype",     9, notype, 0, 16
-	"@id",          1, notype, 0,  8
-	"Дополнительное значение", 8, notype, 0,  8
+	"@date",          4, notype, DATF_DMY, 8
+	"@time",          5, notype, TIMF_HMS | TIMF_MSEC, 11
+	"@user",          6, notype, 0, 12
+	"@person",       10, notype, 0, 12 // @v7.5.11
+	"@op",            7, notype, 0, 20
+	"@objtype",       9, notype, 0, 16
+	"@id",            1, notype, 0,  8
+	"@addendumvalue", 8, notype, 0,  8
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter, PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		VIEWHISTORY      : kbF3,    PPDV_DOCUMENT_PL02,  "@{dobrowseobjbeforemod}\tF3"
@@ -3310,15 +3310,15 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 
 browser SYSJ_OBJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 {
-	"@date",         4,  notype, DATF_DMY, 8
-	"@time",         5,  notype, TIMF_HMS | TIMF_MSEC, 11
-	"@user",         6,  notype, 0, 10
-	"@person",      10,  notype, 0, 12 // @v7.5.11
-	"@op",           7,  notype, 0, 20
-	"@id",           1,  notype, 0,  8
-	"Дополнительное значение", 8,  notype, 0,  8
-	"@objtype",      9,  notype, 0, 16
-	"@object",      11,  notype, 0, 30
+	"@date",          4,  notype, DATF_DMY, 8
+	"@time",          5,  notype, TIMF_HMS | TIMF_MSEC, 11
+	"@user",          6,  notype, 0, 10
+	"@person",       10,  notype, 0, 12 // @v7.5.11
+	"@op",            7,  notype, 0, 20
+	"@id",            1,  notype, 0,  8
+	"@addendumvalue", 8,  notype, 0,  8
+	"@objtype",       9,  notype, 0, 16
+	"@object",       11,  notype, 0, 30
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL           : kbEnter, PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		VIEWHISTORY      : kbF3,    PPDV_DOCUMENT_PL02,  "@{dobrowseobjbeforemod}\tF3"
@@ -3399,7 +3399,7 @@ browser GEOTRACKING north(100), 1, 1, "Гео-треки", OWNER|GRID, 0
 	}
 }
 
-browser LOGSMON north(100), 1, 1, "Монитор журналов", OWNER|GRID, 0
+browser LOGSMON north(100), 1, 1, "@{view_logsmonitor}", OWNER|GRID, 0
 {
 	"@file",     1, notype, 0, 10
 	"Строка",    2, notype, 0, 10
@@ -5275,11 +5275,11 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 		EDITTECH    : kbF4,      TBBM_TECH,            "@{tech}\tF4"
 		VIEWTSESS   : kbCtrlS,   TBBM_TSESS,           "Другие сессии процессора\tCtrl-S"
 		separator
-		TSESSANLZ   : kbCtrlF3,  TBBM_TSESSANLZ,       "Анализ сессий\tCtrl-F3"
+		TSESSANLZ   : kbCtrlF3,  TBBM_TSESSANLZ,       "@{view_tsessanlz}\tCtrl-F3"
 		separator
 		COMPLETE    : kbCtrlF8,  TBBM_COMPLETECSESS,   "Рассчитать автоматическое списание\tCtrl-F8"
 		WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,      "@{dowriteoffsess}\tCtrl-W"
-		WROFFBILLS  : kbF5,      PPDV_DOCUMENT_PL02,           "@{document_wroff_pl}\tF5"
+		WROFFBILLS  : kbF5,      PPDV_DOCUMENT_PL02,   "@{document_wroff_pl}\tF5"
 		DFCTBILLS   : kbShiftF5, TBBM_DFCTBILLS,       "Документы покрытия дефицита\tShift-F5"
 		CHECKPAN    : kbF8,      TBBM_CCHECKS,         "Загрузка сессии в кассовую панель\tF8"
 		separator
@@ -5332,7 +5332,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 		EDITTECH    : kbF4,      TBBM_TECH,          "@{tech}\tF4"
 		VIEWTSESS   : kbCtrlS,   TBBM_TSESS,         "Другие сессии процессора\tCtrl-S"
 		separator
-		TSESSANLZ   : kbCtrlF3,  TBBM_TSESSANLZ,     "Анализ сессий\tCtrl-F3"
+		TSESSANLZ   : kbCtrlF3,  TBBM_TSESSANLZ,     "@{view_tsessanlz}\tCtrl-F3"
 		separator
 		COMPLETE    : kbCtrlF8,  TBBM_CHARGE,        "Cформировать автоматически\tCtrl-F8"
 		//WROFFSESS   : kbCtrlW,   TBBM_CLOSECSESS,  "@{dowriteoffsess}\tCtrl-W"
@@ -5369,7 +5369,7 @@ browser TSESS_MANUFPLAN north(100), 3, 1, "@{productionplan_pl} {%s}", OWNER|GRI
 		EDITPRC    : kbF2,     TBBM_PRC,          "@{processor}\tF2"
 		VIEWTSESS  : kbCtrlS,   TBBM_TSESS,       "Другие планы процессора\tCtrl-S"
 		separator
-		TSESSANLZ  : kbCtrlF3, TBBM_TSESSANLZ,    "Анализ сессий\tCtrl-F3"
+		TSESSANLZ  : kbCtrlF3, TBBM_TSESSANLZ,    "@{view_tsessanlz}\tCtrl-F3"
 		separator
 		SYSJ       : kbCtrlJ,  PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		TRANSMIT   : kbCtrlH,  PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
@@ -5571,7 +5571,7 @@ browser REPORT north(100), 1, 1, "Настройка отчетов", GRID, 0
 	"@appellation",		  1,    zstring(30),    0, 10
 	"@modifdate",	      2,    date, DATF_DMY, 8
 	"@description",       3,    zstring(128),   0, 20
-	"Структура данных",   4,    zstring(30),    0, 10
+	"@datastructure",     4,    zstring(30),    0, 10
 	"@type",              5,    zstring(12),    0, 10
 	"@path",              6,    zstring(70),    0, 20
 	toolbar TB_FIRST_TOOLBAR {
@@ -6061,7 +6061,7 @@ browser BIZSCVALBYTEMPL north(100), 1, 1, "Значения бизнес-показателей по шаблон
 	}
 }
 
-browser CHKOPJ north(100), 1, 1, "Журнал чековых операций", OWNER|GRID, 0
+browser CHKOPJ north(100), 1, 1, "@{view_checkopjrnl}", OWNER|GRID, 0
 {
 	"@date",        0,  notype, DATF_DMY, 8
 	"@time",        1,  notype, TIMF_HMS | TIMF_MSEC, 11
@@ -6225,6 +6225,7 @@ browser TIMSERDETAIL north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 	"Time",          1, zstring(20), 0, 12, BCO_USERPROC
 	"Diff Sec",      2, int32,       0, 10, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
+		GRAPH          : kbCtrlN,  PPDV_PLOT01,        "@{plot}\tCtrl-N"
 		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
 	}
 }
@@ -8295,7 +8296,7 @@ reportstub TSessLineGoods	{ dl600data=TSessLineView,		"Строки технологических се
 reportstub TSessLine		{ dl600data=TSessLineView,		"Строки технологических сессий"}
 reportstub TSessAnlz_CompPart { dl600data=TSessAnlz,		"Производственный отчет"}
 reportstub TSessAnlz		{ dl600data=TSessAnlz,			"Производственный отчет"}
-reportstub TrfrAnlz_Ct		{ dl600data=TrfrAnlz_G,			"Анализ товарных операций (кросстаб)"}
+reportstub TrfrAnlz_Ct		{ dl600data=TrfrAnlz_G,			"@{view_trfranlz} (crosstab)"}
 reportstub GoodsCardCompr	{ dl600data=GoodsCard,			"Спрессованная по дням карточка товара"}
 reportstub GoodsCard		{ dl600data=GoodsCard,			"Карточка товара"}
 reportstub GoodsCardL		{ dl600data=GoodsCard,			"Карточка товара по всем локациям"}
@@ -8307,8 +8308,8 @@ reportstub TrfrAnlz_G3		{ dl600data=TrfrAnlz_G,			"Анализ товарных операций с гр
 reportstub TrfrAnlz_DPAG	{ dl600data=TrfrAnlz_DPAG,		"Анализ товарных операций с группировкой по четырем полям"}
 reportstub PrjTaskView		{ dl600data=PrjTaskView,		"Список задач"}
 reportstub PrjTaskViewCt	{ dl600data=PrjTaskViewCt,		"Список задач с табуляцией"}
-reportstub SysJObj			{ dl600data=SysJournal,			"Системный журнал"}
-reportstub SysJ				{ dl600data=SysJournal,			"Системный журнал"}
+reportstub SysJObj			{ dl600data=SysJournal,			"@{sysjournal}"}
+reportstub SysJ				{ dl600data=SysJournal,			"@{sysjournal}"}
 reportstub SysJSubst2		{ dl600data=SysJournal,			"Системный журнал с подстановкой 2"}
 reportstub SysJSubst		{ dl600data=SysJournal,			"Системный журнал с подстановкой"}
 reportstub ObjSyncCmp		{ dl600data=ObjSyncCmp,			"АНАЛИЗ СИНХРОНИЗАЦИИ ОБЪЕКТОВ"}
@@ -8442,8 +8443,8 @@ reportstub Balance			{ dl600data=Balance,			"Баланс"}
 reportstub AturnCycleGrpng	{ dl600data=AccturnList,		"Циклическая группировка описи проводок по счетам"}
 reportstub AturnGrpng		{ dl600data=AccturnList,		"Группировка описи бух проводок по счетам"}
 reportstub ATurnList		{ dl600data=AccturnList,		"Опись бухгалтерских проводок"}
-reportstub AssetView		{ dl600data=AssetView,			"ОСНОВНЫЕ СРЕДСТВА"}
-reportstub AssetOperView	{ dl600data=AssetView,			"ОСНОВНЫЕ СРЕДСТВА (С операционным периодом)"}
+reportstub AssetView		{ dl600data=AssetView,			"Основные средства"}
+reportstub AssetOperView	{ dl600data=AssetView,			"Основные средства (с операционным периодом)"}
 reportstub AssetCard		{ dl600data=AssetReceipt,		"Инвентарная карточка учета основных средств"}
 reportstub ArtclViewWCliAgt	{ dl600data=ArticleView,		"Аналитические статьи с соглашениями с клиентами"}
 reportstub ArtclViewWSpplAgt { dl600data=ArticleView,		"Аналитические статьи с соглашениями с поставщиками"}
@@ -8453,12 +8454,12 @@ reportstub AccGrpngByLoc	{ dl600data=AccAnlz,			"Анализ счета с группировкой по 
 reportstub AccGrpng			{ dl600data=AccAnlz,			"Анализ счета с группировкой"}
 reportstub SupplTrnovr		{ dl600data=SupplTrnovr,		"Обороты по поставщикам"}
 reportstub AccTrnovr		{ dl600data=AccAnlz,			"Оборотка по аналитическим статьям"}
-reportstub DbtrsStmnt		{ dl600data=AccAnlz,			"Акт расчетов с дебиторами"}
-reportstub CrdtrsStmnt		{ dl600data=AccAnlz,			"Акт расчетов с кредиторами"}
+reportstub DbtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountsreceivable}"}
+reportstub CrdtrsStmnt		{ dl600data=AccAnlz,			"@{accanlz_prn_acstrnovr_accountspayable}"}
 reportstub DebtAck			{ dl600data=DebtAck,			"Акт сверки дебиторской задолженности"}
-reportstub CashBook2		{ dl600data=AccAnlz,			"Кассовая книга (новая форма)"}
-reportstub CashBook			{ dl600data=AccAnlz,			"Кассовая книга (новая форма)"}
-reportstub AccAnlz			{ dl600data=AccAnlz,			"Анализ счета"}
+reportstub CashBook2		{ dl600data=AccAnlz,			"@{cmd_cashbook} (new form)"}
+reportstub CashBook			{ dl600data=AccAnlz,			"@{cmd_cashbook} (new form)"}
+reportstub AccAnlz			{ dl600data=AccAnlz,			"@{view_accanlz}"}
 reportstub AccGrpngCycle	{ dl600data=AccAnlz,			"Группировка анализа счету по циклам"}
 reportstub TechView			{ dl600data=TechView,			"Технологии"}
 reportstub PsnEventItem		{ dl600data=PsnEventItem,		"Персональная операция"}

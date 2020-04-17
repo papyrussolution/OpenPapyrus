@@ -1,13 +1,13 @@
 // DECLSTRU.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 #include <ppds.h>
 #include <charry.h>
 /*
-	Формат представления декларации данных в ресурсах:
+	Р¤РѕСЂРјР°С‚ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РґРµРєР»Р°СЂР°С†РёРё РґР°РЅРЅС‹С… РІ СЂРµСЃСѓСЂСЃР°С…:
 
 	Resource Type: PP_RCDECLSTRUC
 	Resource ID:   PPDS_XXX
@@ -76,7 +76,7 @@ PPDeclStruc * SLAPI PPDeclStruc::CreateInstance(long typeID, void * /*extraPtr*/
 	if(p_decl) {
 		p_decl->Id = typeID;
 		p_decl->P_Outer = pOuter;
-		p_decl->P_Logger = pLogger; // @v6.5.0
+		p_decl->P_Logger = pLogger;
 		if(!p_decl->LoadFromResource(typeID))
 			ZDELETE(p_decl);
 	}
@@ -128,7 +128,7 @@ public:
 			PTR32(DestAddr)[0] = 0;
 		}
 		enum {
-			fRemoveSrcFiles = 0x0001 // После успешной передачи удалить исходные файлы
+			fRemoveSrcFiles = 0x0001 // РџРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕР№ РїРµСЂРµРґР°С‡Рё СѓРґР°Р»РёС‚СЊ РёСЃС…РѕРґРЅС‹Рµ С„Р°Р№Р»С‹
 		};
 		PPID   MailAccID;
 		long   Flags;
@@ -157,38 +157,42 @@ private:
 	Param  P;
 };
 
-#define GRP_MAILACC 1
+//#define GRP_MAILACC 1
 
 int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 {
 	class MailCharryParamDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrMailCharry::Param);
 	public:
+		enum {
+			ctlgroupMailAcc = 1
+		};
 		MailCharryParamDialog() : TDialog(DLG_MAILCHRY)
 		{
 			MailAccCtrlGroup * p_grp = new MailAccCtrlGroup(CTLSEL_MAILCHRY_MAILACC, cmEditMailAcc);
-			addGroup(GRP_MAILACC, p_grp);
+			addGroup(ctlgroupMailAcc, p_grp);
 		}
-		int    setDTS(const PrcssrMailCharry::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			ushort v = 0;
 			MailAccCtrlGroup::Rec mac_rec;
 			mac_rec.MailAccID = Data.MailAccID;
 			mac_rec.ExtraPtr = reinterpret_cast<void *>(PPObjInternetAccount::filtfMail); // INETACCT_ONLYMAIL;
-			setGroupData(GRP_MAILACC, &mac_rec);
+			setGroupData(ctlgroupMailAcc, &mac_rec);
 			setCtrlData(CTL_MAILCHRY_DESTADDR, Data.DestAddr);
 			SETFLAG(v, 0x01, Data.Flags & PrcssrMailCharry::Param::fRemoveSrcFiles);
 			setCtrlData(CTL_MAILCHRY_FLAGS, &v);
 			return 1;
 		}
-		int    getDTS(PrcssrMailCharry::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
 			ushort v = 0;
 			MailAccCtrlGroup::Rec mac_rec;
 			sel = CTLSEL_MAILCHRY_MAILACC;
-			getGroupData(GRP_MAILACC, &mac_rec);
+			getGroupData(ctlgroupMailAcc, &mac_rec);
 			Data.MailAccID = mac_rec.MailAccID;
 			THROW_PP(Data.MailAccID, PPERR_MAILACCNEEDED);
 			getCtrlData(sel = CTL_MAILCHRY_DESTADDR, Data.DestAddr);
@@ -220,7 +224,6 @@ int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 				return;
 			clearEvent(event);
 		}
-		PrcssrMailCharry::Param Data;
 	};
 	DIALOG_PROC_BODY(MailCharryParamDialog, pParam);
 }
@@ -231,8 +234,8 @@ struct __MailCharryParam {
 	PPID   Prop;           // Const PPPRP_MAILCHARRYCFG
 	char   Reserve[60];
 	long   Flags;
-	PPID   DestPersonID;   // -> Person.ID              Персоналия-получатель сообщения //
-	PPID   MailAccID;      // -> Ref(PPOBJ_INTERNETACCOUNT) ИД учетной записи электронной почты
+	PPID   DestPersonID;   // -> Person.ID              РџРµСЂСЃРѕРЅР°Р»РёСЏ-РїРѕР»СѓС‡Р°С‚РµР»СЊ СЃРѕРѕР±С‰РµРЅРёСЏ //
+	PPID   MailAccID;      // -> Ref(PPOBJ_INTERNETACCOUNT) РР” СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё СЌР»РµРєС‚СЂРѕРЅРЅРѕР№ РїРѕС‡С‚С‹
 	char   DestAddr[64];
 };
 
@@ -308,16 +311,19 @@ RcvCharryParam::RcvCharryParam() : MailAccID(0), Action(0), Flags(0)
 
 int SLAPI RcvCharryParam::Edit()
 {
+	enum {
+		ctlgroupMailAcc = 1
+	};
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_RCVCHRY);
 	if(CheckDialogPtrErr(&dlg)) {
 		long   action = 0;
 		MailAccCtrlGroup::Rec mac_rec;
 		MailAccCtrlGroup * p_grp = new MailAccCtrlGroup(CTLSEL_RCVCHRY_MAILACC, cmEditMailAcc);
-		dlg->addGroup(GRP_MAILACC, p_grp);
+		dlg->addGroup(ctlgroupMailAcc, p_grp);
 		mac_rec.MailAccID = MailAccID;
 		mac_rec.ExtraPtr = reinterpret_cast<void *>(PPObjInternetAccount::filtfMail); // INETACCT_ONLYMAIL;
-		dlg->setGroupData(GRP_MAILACC, &mac_rec);
+		dlg->setGroupData(ctlgroupMailAcc, &mac_rec);
 		dlg->AddClusterAssoc(CTL_RCVCHRY_ACTION, 0, RcvCharryParam::aRcvFromMail);
 		dlg->AddClusterAssoc(CTL_RCVCHRY_ACTION, 1, RcvCharryParam::aGetFromInPath);
 		dlg->AddClusterAssoc(CTL_RCVCHRY_ACTION, 2, RcvCharryParam::aRcvFromFile);
@@ -325,7 +331,7 @@ int SLAPI RcvCharryParam::Edit()
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			dlg->GetClusterData(CTL_RCVCHRY_ACTION, &action);
 			Action = (int)action;
-			dlg->getGroupData(GRP_MAILACC, &mac_rec);
+			dlg->getGroupData(ctlgroupMailAcc, &mac_rec);
 			MailAccID = mac_rec.MailAccID;
 			if(Action == RcvCharryParam::aRcvFromMail && MailAccID == 0)
 				PPErrorByDialog(dlg, CTLSEL_RCVCHRY_MAILACC, PPERR_MAILACCNEEDED);

@@ -2014,7 +2014,7 @@ int SLAPI PPObjGoodsStruc::GetChildIDList(PPID strucID, PPIDArray * pList)
 	return ok;
 }
 
-static IMPL_CMPFUNC(_GSItem, i1, i2) { return cmp_long(((const _GSItem *)i1)->Num, ((const _GSItem *)i2)->Num); }
+static IMPL_CMPFUNC(_GSItem, i1, i2) { return cmp_long(static_cast<const _GSItem *>(i1)->Num, static_cast<const _GSItem *>(i2)->Num); }
 
 int SLAPI PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 {

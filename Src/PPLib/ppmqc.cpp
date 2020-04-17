@@ -840,7 +840,7 @@ int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void 
 												if(gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, login.Z())>0) {
 													obj_name_list.Add(gua_rec.ID, login.Transf(CTRANSF_INNER_TO_UTF8));
 												}
-												else{
+												else {
 													obj_name_list.Add(gua_rec.ID, (login = gua_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 												}
 											}
