@@ -4370,14 +4370,14 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 		//
 		p_list->reverse(0, p_list->getCount());
 		for(i = 0; i < F.GetSaCount(); i++) {
-			SLTEST_CHECK_EQ(*(long *)p_list->at(i), F.Sa[F.GetSaCount()-i-1]);
+			SLTEST_CHECK_EQ(*static_cast<const long *>(p_list->at(i)), F.Sa[F.GetSaCount()-i-1]);
 		}
 		//
 		// Сортируем список p_list и тестируем правильность сортировки
 		//
 		p_list->sort(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
-			SLTEST_CHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+			SLTEST_CHECK_LE(*static_cast<const long *>(p_list->at(i)), *static_cast<const long *>(p_list->at(i+1)));
 		}
 		//
 		// Перемешиваем элементы массива случайным образом

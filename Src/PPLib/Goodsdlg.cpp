@@ -279,7 +279,6 @@ int SLAPI PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	char   code[64];
 	rBuf.Z();
 	if(kind == PPGDSK_GOODS) {
 		PPBarcodeStruc rec;
@@ -287,10 +286,8 @@ int SLAPI PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
 		PPID   id = bcs_obj.GetSingle();
 		if(id || PPSelectObject(PPOBJ_BCODESTRUC, &id, 0, 0) > 0) {
 			if(bcs_obj.Search(id, &rec) > 0) {
-				if(GetBarcodeByTemplate(parentID, rec.Templ, code)) {
-					rBuf = code;
+				if(GetBarcodeByTemplate(parentID, rec.Templ, 0, rBuf))
 					ok = 1;
-				}
 			}
 			else
 				ok = PPErrorZ();

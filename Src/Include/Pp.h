@@ -3901,14 +3901,23 @@ public:
 	ObjVersioningCore * P_OvT;
 };
 //
-// Система внутренних штрихкодов (PPOBJ_BCODESTRUC)
+// Descr: Система внутренних штрихкодов (PPOBJ_BCODESTRUC)
 //
 struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
+	SLAPI  PPBarcodeStruc2();
+	//
+	// Descr: Типы специализации шаблонов
+	//
+	enum {
+		spcNone = 0,
+		spcUhttSync = 1 // Шаблон кодов для синхронизации с Universe-HTT
+	};
 	long   Tag;            // Const=PPOBJ_BCODESTRUC
 	long   ID;             // @id
 	char   Name[48];       // @name
 	char   Templ[20];      // Шаблон
-	char   Reserve[60];    // @reserve
+	char   Reserve[56];    // @reserve // @v10.7.6 [60]-->[56]
+	long   Speciality;     // @v10.7.6 Специальное назначение шаблона   
 	long   Flags;          // Флаги
 	long   Reserve1;       // @reserve
 	long   Reserve2;       // @reserve
@@ -4855,7 +4864,11 @@ public:
 	//
 	int    SLAPI SearchArCodeSubstr(PPID arID, const char * substr, BarcodeArray * codes);
 	int    SLAPI GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 * pPack);
-	int    SLAPI GetBarcodeByTemplate(PPID grp, const PPGoodsConfig & rCfg /*const char * pWghtPrefix*/, const char * pTempl, char * pBuf);
+	int    SLAPI GetBarcodeByTemplate(PPID grp, const PPGoodsConfig & rCfg, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf);
+	//
+	// Descr: Определяет соответствует ли код pCode шаблону pTempl
+	//
+	int    SLAPI IsTemplatedBarcode(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const char * pCode);
 	//
 	// Descr: Удаляет штрихкод, эквивалентный pCode и не принадлежащий товару goodsID
 	// Note: Используется для устранения дубликатов штрихкодов перед сохранением
@@ -5006,12 +5019,13 @@ private:
 	Reference   * P_Ref;
 	QuotationCore  * P_Qc;
 	Quotation2Core * P_Qc2;
-
+	int   SLAPI ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, void * pBlk);
+	//static int SLAPI Helper_SearchTemplatedBarcode(const BarcodeArray & rList, const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode);
+	static int SLAPI Helper_SearchTemplatedBarcode(const BarcodeArray & rList, const void * pBlk, SString & rBarcode);
 	void   SLAPI InitQc();
 	DBQ  & SLAPI SetupDimDBQ(const PPGdsClsPacket *, int dim, const RealRange *);
 		// @<<GoodsCore::GetListByExtFilt
-	//int    SLAPI Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int, long, long, int addChkDig, SString &);
-	int    SLAPI Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode);
+	int    SLAPI Helper_GetBarcodeByTempl(const void * pBlk, SString & rBarcode);
 	int    SLAPI SearchAnyDynObjRef(PPID objType, PPID objID, PPID * pID);
 		// @<<GoodsCore::SearchAnyRef
 	int    SLAPI FetchStockExt(PPID id, GoodsStockExt * pExt);
@@ -5392,8 +5406,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_ECOGOODSSEL            0x00000008L
 #define ECF_433OLDGENBARCODEMETHOD 0x00000010L // Использовать старый метод генерации штрихкода
 	// Этот флаг инициализируется  параметром [config] 433OldGenBarcodeMethod в файле pp.ini
-	// Различия в методах генерации штрихкода определены функцией
-	// int SLAPI GoodsCore::Helper_GetBarcodeByTempl (goods.cpp)
+	// Различия в методах генерации штрихкода определены функцией int SLAPI GoodsCore::Helper_GetBarcodeByTempl (goods.cpp)
 #define ECF_SYSSERVICE			   0x00000020L // Работа в режиме системного сервиса
 // @v10.1.4 #define ECF_CLIENT				   0x00000040L // Работа в режиме клиента трехзвенки
 #define ECF_AVERAGE                0x00000080L // Установленный флаг делает доступными некоторые аварийные операции
@@ -28213,7 +28226,7 @@ public:
 	// Descr: Упрощенная версия GetRetailGoodsInfo с нулевыми значениями параметров: pEqBlk, arID, qtty, flags.
 	//
 	int    SLAPI GetRetailGoodsInfo(PPID goodsID, PPID locID, RetailGoodsInfo * pInfo);
-	int    SLAPI GetBarcodeByTemplate(PPID grp, const char * pTempl, char * pBuf);
+	int    SLAPI GetBarcodeByTemplate(PPID grp, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf);
 	//
 	// Descr: Удаляет из пакета товара штрихкоды, для которых есть дубликаты в базе данных
 	//
@@ -29796,13 +29809,14 @@ private:
 			aRemoveAll = 1,
 			aMoveToGroup,
 			aChgClssfr,
-			aActionByFlags, // @v8.1.0
-			aActionByRule,  // @v8.3.11
-			aChgMinStock,   // @v8.6.4
+			aActionByFlags,
+			aActionByRule,
+			aChgMinStock,
 			aSplitBarcodeItems, // @v8.6.9
 			aMergeDiezNames,    // @v8.6.9
 			aChgTaxGroup,       // @v9.5.0
-			aChgGoodsType       // @v9.8.12
+			aChgGoodsType,      // @v9.8.12
+			aAssignCodeByTemplate // @v10.7.6
 		};
 		enum {
 			fMassOpAllowed  = 0x0001,

@@ -82,7 +82,7 @@ SLAPI ACount::ACount() : C(0)
 {
 }
 
-SLAPI ACount::ACount(int)
+SLAPI ACount::ACount(int initValue) : C(initValue) // @v10.7.6 @fix (empty)-->: C(initValue)
 {
 }
 

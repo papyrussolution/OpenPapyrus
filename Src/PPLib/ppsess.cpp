@@ -5408,7 +5408,7 @@ int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent *
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
-		const double prob_common_mqs_config = 0.00001;
+		const double prob_common_mqs_config = 0.000005; // @v10.7.6 0.00001-->0.000005
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
 			SString logmsg_buf;
 			LDATETIME last_ev_dtm = ZERODATETIME;

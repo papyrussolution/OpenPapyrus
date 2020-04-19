@@ -1675,7 +1675,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 									PPCommandFolder * p_menu = static_cast<PPCommandFolder *>(p_item->Dup());
 									if(p_menu) {
 										p_tmp_cg = new PPCommandGroup();
-										TSCollection_Copy(p_tmp_cg->List, p_menu->List); // @fix (=)-->TSCollection_Copy
+										p_tmp_cg->List = p_menu->List;
 										p_tmp_cg->Name = p_menu->Name;
 										p_tmp_cg->ID = p_menu->ID;
 										p_tmp_cg->Flags = p_menu->Flags;

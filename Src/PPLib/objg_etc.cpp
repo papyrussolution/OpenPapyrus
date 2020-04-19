@@ -202,6 +202,11 @@ int SLAPI PPObjGoodsType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 //
 // @ModuleDef(PPObjBarCodeStruc)
 //
+PPBarcodeStruc2::PPBarcodeStruc2()
+{
+	THISZERO();
+}
+
 SLAPI PPObjBarCodeStruc::PPObjBarCodeStruc(void * extraPtr) : PPObjReference(PPOBJ_BCODESTRUC, extraPtr)
 {
 }
@@ -209,7 +214,9 @@ SLAPI PPObjBarCodeStruc::PPObjBarCodeStruc(void * extraPtr) : PPObjReference(PPO
 int SLAPI PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPBarcodeStruc rec;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_BCODESTR))));
@@ -217,10 +224,14 @@ int SLAPI PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
+	// @v10.7.6 @ctr else MEMSZERO(rec);
 	dlg->setCtrlData(CTL_BCODESTR_NAME, rec.Name);
 	dlg->setCtrlData(CTL_BCODESTR_TEMPL, rec.Templ);
+	// @v10.7.6 {
+	dlg->AddClusterAssocDef(CTL_BCODESTR_SPC, 0, PPBarcodeStruc::spcNone);
+	dlg->AddClusterAssoc(CTL_BCODESTR_SPC, 1, PPBarcodeStruc::spcUhttSync);
+	dlg->SetClusterData(CTL_BCODESTR_SPC, rec.Speciality);
+	// } @v10.7.6 
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_BCODESTR_NAME, rec.Name);
 		if(*strip(rec.Name) == 0)
@@ -228,6 +239,7 @@ int SLAPI PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 		else {
 			valid_data = 1;
 			dlg->getCtrlData(CTL_BCODESTR_TEMPL, rec.Templ);
+			dlg->GetClusterData(CTL_BCODESTR_SPC, &rec.Speciality); // @v10.7.6
 			if(*pID)
 				*pID = rec.ID;
 			THROW(EditItem(PPOBJ_BCODESTRUC, *pID, &rec, 1));

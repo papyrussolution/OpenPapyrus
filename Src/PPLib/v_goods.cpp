@@ -2001,10 +2001,10 @@ int SLAPI PPViewGoods::RemoveAll()
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 4, GoodsMoveParam::aRemoveAll);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 5, GoodsMoveParam::aActionByFlags);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 6, GoodsMoveParam::aActionByRule);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aChgMinStock); // @v8.6.4
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aSplitBarcodeItems); // @v8.6.9
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 9, GoodsMoveParam::aMergeDiezNames); // @v8.6.9
-
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aChgMinStock);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aSplitBarcodeItems);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 9, GoodsMoveParam::aMergeDiezNames);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 10, GoodsMoveParam::aAssignCodeByTemplate); // @v10.7.6
 			SetClusterData(CTL_REMOVEALL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 0, GoodsMoveParam::fRemoveExtTextA);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 1, GoodsMoveParam::fRemoveExtTextB);
@@ -2030,10 +2030,10 @@ int SLAPI PPViewGoods::RemoveAll()
 			int    ok = 1;
 			uint   sel = 0;
 			GetClusterData(CTL_REMOVEALL_WHAT, &Data.Action);
-			THROW_PP(oneof10(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
+			THROW_PP(oneof11(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
 				GoodsMoveParam::aActionByFlags, GoodsMoveParam::aActionByRule, GoodsMoveParam::aChgMinStock,
 				GoodsMoveParam::aSplitBarcodeItems, GoodsMoveParam::aMergeDiezNames, GoodsMoveParam::aChgTaxGroup,
-				GoodsMoveParam::aChgGoodsType), PPERR_USERINPUT);
+				GoodsMoveParam::aChgGoodsType, GoodsMoveParam::aAssignCodeByTemplate), PPERR_USERINPUT);
 			GetClusterData(CTL_REMOVEALL_FLAGS, &Data.Flags);
 			getCtrlString(CTL_REMOVEALL_RULE, Data.Rule);
 			if(Data.Action == GoodsMoveParam::aChgClssfr) {
@@ -2079,6 +2079,12 @@ int SLAPI PPViewGoods::RemoveAll()
 					THROW_PP_S(scan.IsNumber(), PPERR_INVMINSTOCKINPUT, Data.Rule);
                 }
 			}
+			// @v10.7.6 {
+			else if(Data.Action == GoodsMoveParam::aAssignCodeByTemplate) {
+				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+				THROW_PP(Data.DestGrpID, PPERR_BARCODESTRUCNEEDED);
+			}
+			// } @v10.7.6 
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -2108,14 +2114,13 @@ int SLAPI PPViewGoods::RemoveAll()
 		}
 		void    SetupExtCombo()
 		{
-			SString combo_label_buf;
 			SString rule_label_buf;
-			int    disable_grp_combo = 1;
+			const char * p_title_meta = 0;
+			int    disable_grp_combo = 0;
 			if(Data.Action == GoodsMoveParam::aChgMinStock) {
 				showButton(cmLocList, 1);
 				//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
-				disable_grp_combo = 0;
-				PPLoadString("warehouse", combo_label_buf);
+				p_title_meta = "warehouse";
 				PPLoadString("minrest", rule_label_buf);
 				addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_REMOVEALL_GRP, 0, 0, cmLocList, 0, 0, 0));
 				LocationCtrlGroup::Rec loc_rec(&Data.LocList);
@@ -2126,27 +2131,36 @@ int SLAPI PPViewGoods::RemoveAll()
 				addGroup(ctlgroupLoc, 0);
 				showButton(cmLocList, 0);
 				if(Data.Action == GoodsMoveParam::aMoveToGroup) {
-					disable_grp_combo = 0;
-					PPLoadString("goodsgroup", combo_label_buf);
+					p_title_meta = "goodsgroup";
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL));
 				}
 				// @v9.5.0 {
 				else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
-					disable_grp_combo = 0;
-					PPLoadString("taxgroup", combo_label_buf);
+					p_title_meta = "taxgroup";
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTAX, Data.DestGrpID, 0, 0);
 				}
 				// } @v9.5.0
 				// @v9.8.12 {
 				else if(Data.Action == GoodsMoveParam::aChgGoodsType) {
-					disable_grp_combo = 0;
-					PPLoadString("goods_type", combo_label_buf);
+					p_title_meta = "goods_type";
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTYPE, Data.DestGrpID, 0, 0);
 				}
 				// } @v9.8.12
+				// @v10.7.6 {
+				else if(Data.Action == GoodsMoveParam::aAssignCodeByTemplate) {
+					p_title_meta = "barcodestruc";
+					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_BCODESTRUC, Data.DestGrpID, 0, 0);
+				}
+				else 
+					disable_grp_combo = 1;
+				// } @v10.7.6 
 			}
 			disableCtrl(CTLSEL_REMOVEALL_GRP, disable_grp_combo);
-			setLabelText(CTL_REMOVEALL_GRP, combo_label_buf);
+			if(p_title_meta) {
+				SString combo_label_buf;
+				PPLoadString(p_title_meta, combo_label_buf);
+				setLabelText(CTL_REMOVEALL_GRP, combo_label_buf);
+			}
 			setLabelText(CTL_REMOVEALL_RULE, rule_label_buf);
 			disableCtrl(CTL_REMOVEALL_RULE, !oneof2(Data.Action, GoodsMoveParam::aActionByRule, GoodsMoveParam::aChgMinStock));
 		}
@@ -2174,6 +2188,7 @@ int SLAPI PPViewGoods::RemoveAll()
 		PPWait(1);
 		GoodsViewItem item;
 		PPGoodsPacket pack;
+		PPIDArray id_list;
 		PPLogger logger;
 		const long _flags = GmParam.Flags;
 		if(oneof4(GmParam.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgTaxGroup, GoodsMoveParam::aChgGoodsType, GoodsMoveParam::aChgMinStock)) {
@@ -2308,14 +2323,14 @@ int SLAPI PPViewGoods::RemoveAll()
 		else if(GmParam.Action == GoodsMoveParam::aChgClssfr) {
 			if(GmParam.Clssfr.GoodsClsID) {
 				IterCounter cntr;
-				PPIDArray id_list;
 				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 					if(GmParam.Clssfr.GoodsClsID == item.GdsClsID || item.GdsClsID == 0)
-						id_list.addUnique(item.ID);
+						id_list.add(item.ID); // @v10.7.6 addUnique-->add
 					else
 						skip_count++;
 					PPWaitPercent(GetCounter());
 				}
+				id_list.sortAndUndup(); // @v10.7.6
 				cntr.Init(id_list.getCount());
 				for(uint i = 0; i < id_list.getCount(); i++) {
 					PPID goods_id = id_list.get(i);
@@ -2363,15 +2378,12 @@ int SLAPI PPViewGoods::RemoveAll()
 			}
 		}
 		else if(GmParam.Action == GoodsMoveParam::aRemoveAll) {
-			PPIDArray id_list;
 			PPID   assc_type = 0;
 			PPID   assc_owner_id = 0;
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
-				id_list.addUnique(item.ID);
-			//
-			//
-			//
+				id_list.add(item.ID); // @v10.7.6 addUnique-->add
 			if(id_list.getCount()) {
+				id_list.sortAndUndup(); // @v10.7.6
 				ObjCollection oc;
 				oc.CreateFullList(gotlfExcludeDyn|gotlfExcludeObjBill|gotlfExcludeObsolete);
 				PPTransaction tra(1);
@@ -2418,8 +2430,45 @@ int SLAPI PPViewGoods::RemoveAll()
 					ok = 1;
 			}
 		}
+		else if(GmParam.Action == GoodsMoveParam::aAssignCodeByTemplate) { // @v10.7.6
+			if(GmParam.DestGrpID) {
+				PPObjBarCodeStruc bcs_obj;
+				PPBarcodeStruc bcs_rec;
+				if(bcs_obj.Search(GmParam.DestGrpID, &bcs_rec) > 0 && bcs_rec.Templ[0]) {
+					IterCounter cntr;
+					BarcodeArray current_code_list;
+					for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+						id_list.add(item.ID);
+						PPWaitPercent(GetCounter());
+					}
+					if(id_list.getCount()) {
+						id_list.sortAndUndup();
+						PPTransaction tra(1);
+						THROW(tra);
+						for(uint i = 0; i < id_list.getCount(); i++) {
+							const PPID goods_id = id_list.get(i);
+							if(GObj.GetPacket(goods_id, &pack, 0) > 0) {
+								if(GObj.GetBarcodeByTemplate(pack.Rec.ParentID, bcs_rec.Templ, &pack.Codes, temp_buf) > 0) {
+									BarcodeTbl::Rec new_code_rec;
+									new_code_rec.GoodsID = goods_id;
+									new_code_rec.BarcodeType = 0;
+									new_code_rec.Qtty = 1.0;
+									STRNSCPY(new_code_rec.Code, temp_buf);
+									pack.Codes.insert(&new_code_rec);
+									PPID   temp_id = goods_id;
+									THROW(GObj.PutPacket(&temp_id, &pack, 0));
+									success_count++;
+								}
+								else
+									skip_count++;
+							}
+						}
+						THROW(tra.Commit());
+					}
+				}
+			}
+		}
 		else if(GmParam.Action == GoodsMoveParam::aMergeDiezNames) {
-			PPIDArray id_list;
 			LAssocArray to_process_list;
 			THROW(GObj.CheckRights(GOODSRT_UNITE));
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
@@ -2468,7 +2517,6 @@ int SLAPI PPViewGoods::RemoveAll()
 			}
 		}
 		else if(GmParam.Action == GoodsMoveParam::aSplitBarcodeItems) {
-			PPIDArray id_list;
 			LAssocArray to_process_list;
 			PPID   prev_id = 0;
 			SString result_barcode;
@@ -3403,6 +3451,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 		PPViewGoods * P_View; // @notowned
 	};
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	TSCollection <UhttGoodsPacket> uhtt_goods_list;
 	BarcodeArray bc_list;
 	PPUhttClient uc;
@@ -3415,7 +3464,20 @@ int SLAPI PPViewGoods::ExportUhtt()
 		if(dlg->getDTS(&param)) {
 			LongArray uniq_id_list;
 			PPObjBrand brand_obj;
-			SString img_path, temp_buf, barcode, msg_buf, fmt_buf;
+			SString img_path;
+			SString temp_buf;
+			SString barcode;
+			SString msg_buf;
+			SString fmt_buf;
+			StringSet ss_uhttsync_bcode_template;
+			{
+				PPBarcodeStruc bcs_rec;
+				for(SEnum en = p_ref->Enum(PPOBJ_BCODESTRUC, 0); en.Next(&bcs_rec) > 0;) {
+					if(bcs_rec.Speciality == PPBarcodeStruc::spcUhttSync && bcs_rec.Templ[0]) {
+						ss_uhttsync_bcode_template.add((temp_buf = bcs_rec.Templ).Strip());
+					}
+				}
+			}
 			ObjLinkFiles lf(PPOBJ_GOODS);
 			{
 				GoodsViewItem item;
@@ -3426,10 +3488,12 @@ int SLAPI PPViewGoods::ExportUhtt()
 			if(uniq_id_list.getCount()) {
 				uint i;
 				SString code_buf;
+				SString template_buf;
 				LAssocArray ref_list;
 				LAssocArray brand_ref_list;
 				LAssocArray manuf_ref_list;
 				StrAssocArray code_ref_list;
+				LongArray templated_code_pos_list; // Список позиций кодов, соответствующих Universe-HTT-шаблонам в bc_list
 				PPIDArray uhtt_id_list;
 
 				PPWait(1);
@@ -3446,6 +3510,9 @@ int SLAPI PPViewGoods::ExportUhtt()
 					int    is_private_code = 0;
 					uint   private_code_pos = 0;
 					Goods2Tbl::Rec goods_rec;
+					PersonTbl::Rec psn_rec;
+					PPBrand brand_rec;
+					templated_code_pos_list.clear();
 					THROW(GObj.Search(goods_id, &goods_rec) > 0);
 					GObj.ReadBarcodes(goods_id, bc_list);
 					// @v10.0.0 Убираем из списка кодов коды алкогольной продукции ЕГАИС {
@@ -3455,7 +3522,22 @@ int SLAPI PPViewGoods::ExportUhtt()
 							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcidx); // @v10.0.02 @fix --i-->--bcidx
 							if(sstrlen(r_bc_rec.Code) == 19)
 								bc_list.atFree(bcidx);
+							else {
+								for(uint ssp = 0; ss_uhttsync_bcode_template.get(&ssp, template_buf);) {
+									if(GObj.P_Tbl->IsTemplatedBarcode(goods_rec.ParentID, GObj.GetConfig(), template_buf, r_bc_rec.Code)) {
+										templated_code_pos_list.add(bcidx);
+									}
+								}
+							}
 						} while(bcidx);
+						if(templated_code_pos_list.getCount() > 1) {
+							//
+							// Если мы нашли более одного шаблонизированного кода, то используем только первый из них
+							// (не забываем, что оригинальный список bc_list мы просматривали в обратном порядке - потому
+							// реверсируем templated_code_pos_list дабы извлекать первый элемент по индексу 0).
+							//
+							templated_code_pos_list.reverse(0, templated_code_pos_list.getCount());
+						}
 					}
 					// } @v10.0.0
 					if(bc_list.getCount()) { // @v10.0.0
@@ -3493,40 +3575,32 @@ int SLAPI PPViewGoods::ExportUhtt()
 									if(brand_ref_list.Search(goods_rec.BrandID, &temp_uhtt_id, 0) > 0) {
 										uhtt_brand_id = temp_uhtt_id;
 									}
-									else {
-										PPBrand brand;
-										if(brand_obj.Fetch(goods_rec.BrandID, &brand) > 0 && brand.Name[0]) {
-											TSCollection <UhttBrandPacket> brand_list;
-											if(uc.GetBrandByName(brand.Name, brand_list) > 0 && brand_list.getCount())
-												uhtt_brand_id = brand_list.at(0)->ID;
-											brand_ref_list.Add(goods_rec.BrandID, uhtt_brand_id, 0);
-										}
+									else if(brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0 && brand_rec.Name[0]) {
+										TSCollection <UhttBrandPacket> brand_list;
+										if(uc.GetBrandByName(brand_rec.Name, brand_list) > 0 && brand_list.getCount())
+											uhtt_brand_id = brand_list.at(0)->ID;
+										brand_ref_list.Add(goods_rec.BrandID, uhtt_brand_id, 0);
 									}
 								}
-								// @v8.3.5 {
 								if(goods_rec.ManufID) {
 									PPID   temp_uhtt_id = 0;
 									if(manuf_ref_list.Search(goods_rec.ManufID, &temp_uhtt_id, 0) > 0) {
 										uhtt_manuf_id = temp_uhtt_id;
 									}
-									else {
-										PersonTbl::Rec psn_rec;
-										if(PsnObj.Fetch(goods_rec.ManufID, &psn_rec) > 0 && psn_rec.Name[0]) {
-											TSCollection <UhttPersonPacket> person_list;
-											if(uc.GetPersonByName(psn_rec.Name, person_list) > 0 && person_list.getCount()) {
-												for(uint k = 0; !uhtt_manuf_id && k < person_list.getCount(); k++) {
-													const UhttPersonPacket * p_pack = person_list.at(k);
-													for(uint n = 0; !uhtt_manuf_id && n < p_pack->KindList.getCount(); n++) {
-														if(sstreqi_ascii(p_pack->KindList.at(n)->Code, "MANUF"))
-															uhtt_manuf_id = p_pack->ID;
-													}
+									else if(PsnObj.Fetch(goods_rec.ManufID, &psn_rec) > 0 && psn_rec.Name[0]) {
+										TSCollection <UhttPersonPacket> person_list;
+										if(uc.GetPersonByName(psn_rec.Name, person_list) > 0 && person_list.getCount()) {
+											for(uint k = 0; !uhtt_manuf_id && k < person_list.getCount(); k++) {
+												const UhttPersonPacket * p_pack = person_list.at(k);
+												for(uint n = 0; !uhtt_manuf_id && n < p_pack->KindList.getCount(); n++) {
+													if(sstreqi_ascii(p_pack->KindList.at(n)->Code, "MANUF"))
+														uhtt_manuf_id = p_pack->ID;
 												}
 											}
-											manuf_ref_list.Add(goods_rec.ManufID, uhtt_manuf_id, 0);
 										}
+										manuf_ref_list.Add(goods_rec.ManufID, uhtt_manuf_id, 0);
 									}
 								}
-								// } @v8.3.5
 								if(!uhtt_goods_id) {
 									logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNFOUND, &msg_buf, goods_id));
 								}
@@ -3538,8 +3612,11 @@ int SLAPI PPViewGoods::ExportUhtt()
 										int    one_iter = 0;
 										if(!uhtt_goods_id || is_private_code) {
 											assert(m < bc_list.getCount());
-											assert(private_code_pos < bc_list.getCount()); // @v8.2.10
-											m = private_code_pos;
+											assert(private_code_pos < bc_list.getCount());
+											if(!is_private_code && templated_code_pos_list.getCount()) // @v10.7.6
+												m = templated_code_pos_list.get(0);
+											else
+												m = private_code_pos;
 											one_iter = 1;
 										}
 										(barcode = bc_list.at(m).Code).Strip();
@@ -3547,13 +3624,12 @@ int SLAPI PPViewGoods::ExportUhtt()
 										Goods2Tbl::Rec grp_rec;
 										new_pack.SetName(goods_rec.Name);
 										new_pack.ID = uhtt_goods_id;
-										new_pack.BrandID = uhtt_brand_id; // @v8.2.10
-										new_pack.ManufID = uhtt_manuf_id; // @v8.3.5
-										// @v8.3.6 {
+										new_pack.BrandID = uhtt_brand_id;
+										new_pack.ManufID = uhtt_manuf_id;
 										if(param.CategoryObject == UhttExpGoodsParam::coTag) {
 											if(param.CategoryTagID) {
 												ObjTagItem tag_item;
-												if(PPRef->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, &tag_item) > 0) {
+												if(p_ref->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, &tag_item) > 0) {
 													tag_item.GetStr(temp_buf);
 													if(temp_buf.NotEmptyS()) {
 														UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf);
@@ -3563,7 +3639,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 												}
 											}
 										}
-										else if(param.CategoryObject == UhttExpGoodsParam::coGoodsGrpName) { // } @v8.3.6
+										else if(param.CategoryObject == UhttExpGoodsParam::coGoodsGrpName) {
 											if(GObj.Fetch(goods_rec.ParentID, &grp_rec) > 0) {
 												UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf = grp_rec.Name);
 												THROW_MEM(p_new_item);

@@ -2308,8 +2308,8 @@ int SLAPI PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // 
 	return ok;
 }
 
-int SLAPI PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, char * pBuf)
-	{ return P_Tbl->GetBarcodeByTemplate(grp, GetConfig()/*GetConfig().WghtPrefix*/, pTempl, pBuf); }
+int SLAPI PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
+	{ return P_Tbl->GetBarcodeByTemplate(grp, GetConfig(), pTempl, pCurrentList, rBuf); }
 
 /* @v9.1.4 int SLAPI PPObjGoods::GetGoodsArticle(PPID id, PPID * pArticle) { return tbl->GetGoodsArticle(id, pArticle); } */
 
@@ -3435,8 +3435,10 @@ int SLAPI PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 			PPBarcodeStruc bcs_rec;
 			if(SearchObject(PPOBJ_BCODESTRUC, grp_rec.DefBCodeStrucID, &bcs_rec) > 0) {
 				BarcodeTbl::Rec bc_rec;
+				SString code_buf;
 				// @v10.6.12 @ctr MEMSZERO(bc_rec);
-				if(GetBarcodeByTemplate(grp_rec.ID, bcs_rec.Templ, bc_rec.Code)) {
+				if(GetBarcodeByTemplate(grp_rec.ID, bcs_rec.Templ, 0, code_buf)) {
+					STRNSCPY(bc_rec.Code, code_buf);
 					bc_rec.Qtty = 1;
 					ok = pPack->Codes.insert(&bc_rec) ? 1 : PPSetErrorSLib();
 				}
@@ -4482,9 +4484,9 @@ int UhttIndexGoods(uint setSz, const SString & rOutPath)
 
 int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 {
-	int        ok = 1;
-	uint       i = 0, iter_total, set_size;
-	PPID       last_id = 0;
+	int    ok = 1;
+	uint   i = 0, iter_total, set_size;
+	PPID   last_id = 0;
 	Goods2Tbl      goods_tbl;
 	Goods2Tbl::Rec goods_rec;
 	GoodsIterator  goods_iter;

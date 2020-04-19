@@ -3363,6 +3363,7 @@
 	#define CTL_BCODESTR_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_BCODESTR_TEMPL           (2 + WINDOWS_ID_BIAS)
 	#define CTL_BCODESTR_FLAGS           (3 + WINDOWS_ID_BIAS)
+	#define CTL_BCODESTR_SPC             (4 + WINDOWS_ID_BIAS)
 #define DLG_CBAL                  231 // Корректировка балансов
 	#define CTL_CBAL_PERIOD              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CBAL_BAL                 (2 + WINDOWS_ID_BIAS)

@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -3135,17 +3135,20 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,5,20,215,120
 END
 
-DLG_BCODESTR DIALOGEX 72, 56, 202, 88
+DLG_BCODESTR DIALOGEX 72, 56, 271, 127
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@barcodestruc"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    LTEXT           "@appellation",4001,10,5,115,8
-    EDITTEXT        CTL_BCODESTR_NAME,10,15,185,13,ES_AUTOHSCROLL
-    LTEXT           "@template",4002,10,30,125,8
-    EDITTEXT        CTL_BCODESTR_TEMPL,10,40,130,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,85,65,50,14
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,145,65,50,14
+    LTEXT           "@appellation",4001,50,5,115,8
+    EDITTEXT        CTL_BCODESTR_NAME,50,15,185,13,ES_AUTOHSCROLL
+    LTEXT           "@template",4002,50,30,125,8
+    EDITTEXT        CTL_BCODESTR_TEMPL,50,40,130,13,ES_AUTOHSCROLL
+    GROUPBOX        "@specialization",CTL_BCODESTR_SPC,50,60,185,35,WS_GROUP
+    CONTROL         "@no",5300,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,53,70,142,10
+    CONTROL         "Universe-HTT sync",9396,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,53,81,177,10
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,120,105,50,14
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,185,105,50,14
 END
 
 DLG_BCPLABEL DIALOGEX 78, 40, 302, 151
@@ -7347,7 +7350,7 @@ BEGIN
     CONTROL         "Индикация",5322,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,251,25,149,10
     CONTROL         "Запрет POS-продаж",9418,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,251,35,149,10
     CONTROL         "Запрет продаж документами",13514,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,251,45,149,10
-    LTEXT           "Период предупреждения об истечении срока годности лота, дней",4006,240,65,130,30
+    LTEXT           "Период предупреждения об истечении срока годности лота, @{days}",4006,240,65,130,30
     EDITTEXT        CTL_BILLCFG_WLED,375,75,30,13,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,295,125,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,360,125,50,13
@@ -9167,7 +9170,7 @@ BEGIN
     EDITTEXT        CTL_DEBTRATE_ACS,10,20,215,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@accsheet",4001,10,10,210,8
     PUSHBUTTON      "",CTLSEL_DEBTRATE_ACS,225,20,12,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Гандикап (дней)",4002,10,45,64,8
+    LTEXT           "Гандикап, @{days}",4002,10,45,64,8
     EDITTEXT        CTL_DEBTRATE_GANDICAP,80,45,45,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_DEBTRATE_FLAGS,10,65,230,135,WS_GROUP
     CONTROL         "Только отчет",5300,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,75,215,10
@@ -10702,12 +10705,12 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,225,70,210,85
 END
 
-DLG_GOODSRMVALL DIALOGEX 88, 48, 455, 217
+DLG_GOODSRMVALL DIALOGEX 88, 48, 455, 227
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@goodsmoveparam"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",CTL_REMOVEALL_WHAT,10,35,235,120,WS_GROUP
+    GROUPBOX        "",CTL_REMOVEALL_WHAT,10,35,235,130,WS_GROUP
     CONTROL         "@goodsmoveparam_amovetogroup",5297,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,46,215,10
     CONTROL         "@goodsmoveparam_achgclssfr",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,55,215,10
     CONTROL         "@goodsmoveparam_achgtaxgroup",13489,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,65,220,10
@@ -10718,21 +10721,22 @@ BEGIN
     CONTROL         "@goodsmoveparam_achgminstock",33969,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,115,215,10
     CONTROL         "@goodsmoveparam_asplitbarcodeitems",38065,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,125,215,10
     CONTROL         "@goodsmoveparam_amergedieznames",42161,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,136,210,10
-    EDITTEXT        CTL_REMOVEALL_GRP,10,171,225,13,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "@goodsmoveparam_destgroup",4001,10,160,215,8
-    PUSHBUTTON      "",CTLSEL_REMOVEALL_GRP,236,171,12,13,BS_BITMAP | NOT WS_TABSTOP
-    PUSHBUTTON      "@but_list",STDCTL_LOCLISTBUTTON,250,171,40,13
-    LTEXT           "@goodsmoveparam_rule",4002,10,186,200,8
-    EDITTEXT        CTL_REMOVEALL_RULE,10,195,225,13,ES_AUTOHSCROLL
+    CONTROL         "@goodsmoveparam_aassigncodebytemplate",46257,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,145,220,10
+    EDITTEXT        CTL_REMOVEALL_GRP,10,180,225,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "@goodsmoveparam_destgroup",4001,10,170,215,8
+    PUSHBUTTON      "",CTLSEL_REMOVEALL_GRP,236,181,12,13,BS_BITMAP | NOT WS_TABSTOP
+    PUSHBUTTON      "@but_list",STDCTL_LOCLISTBUTTON,250,181,40,13
+    LTEXT           "@goodsmoveparam_rule",4002,10,196,200,8
+    EDITTEXT        CTL_REMOVEALL_RULE,10,205,225,13,ES_AUTOHSCROLL
     GROUPBOX        "",CTL_REMOVEALL_FLAGS,250,75,195,70,WS_GROUP
     CONTROL         "@goodsmoveparam_fremoveexttexta",5300,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,256,85,179,10
     CONTROL         "@goodsmoveparam_fremoveexttextb",9396,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,256,94,179,10
     CONTROL         "@goodsmoveparam_fremoveexttextc",13492,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,256,105,179,10
     CONTROL         "@goodsmoveparam_fremoveexttextd",17588,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,256,115,179,10
     CONTROL         "@goodsmoveparam_fremoveexttexte",21684,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,256,125,179,10
-    PUSHBUTTON      "@{goodsmoveparam_clssfr}...",4003,355,170,90,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,335,195,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,395,195,50,13
+    PUSHBUTTON      "@{goodsmoveparam_clssfr}...",4003,355,180,90,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,335,205,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,395,205,50,13
     ICON            ICON_CAUTION,IDC_STATIC,10,5,20,20
     LTEXT           "@goodsmoveparam_warn",IDC_STATIC,40,5,360,25
 END
@@ -12829,7 +12833,7 @@ BEGIN
     EDITTEXT        CTL_PSALESFLT_GOODS,11,95,230,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_PSALESFLT_GOODS,241,95,13,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",IDC_STATIC,5,115,220,30
-    LTEXT           "Цикл (дней)",4005,10,126,40,8
+    LTEXT           "Цикл, @{days}",4005,10,126,40,8
     EDITTEXT        CTL_PSALESFLT_CYCLE,55,126,45,13,ES_AUTOHSCROLL
     LTEXT           "Дата отсчета",4006,105,126,50,8
     EDITTEXT        CTL_PSALESFLT_WATERSHED,160,126,45,13,ES_AUTOHSCROLL
@@ -13053,7 +13057,7 @@ BEGIN
     EDITTEXT        CTL_SOI_DEMAND,10,110,45,13,ES_AUTOHSCROLL
     LTEXT           "@unitperpack",4006,105,100,68,8
     EDITTEXT        CTL_SOI_PCKG,105,110,45,13,ES_AUTOHSCROLL
-    LTEXT           "Период годности, дней",4007,10,130,88,8
+    LTEXT           "Период годности, @{days}",4007,10,130,88,8
     EDITTEXT        CTL_SOI_EXPIRYPERIOD,10,140,45,13,ES_AUTOHSCROLL
     LTEXT           "@minstock",4008,105,130,85,8
     EDITTEXT        CTL_SOI_MINREST,105,140,45,13,ES_AUTOHSCROLL
@@ -15183,7 +15187,7 @@ BEGIN
     CONTROL         "По событию: создание документа",13539,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,40,147,10
     CONTROL         "Принудительно включать GPS-локацию на устройстве",17635,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,10,50,200,10
-    LTEXT           "Периодичность автоматической регистрации, секунд",4001,5,70,195,8
+    LTEXT           "Периодичность автоматической регистрации, @{seconds}",4001,5,70,195,8
     EDITTEXT        CTL_GEOTRACKMODE_CYCLE,200,70,35,13,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,120,90,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,185,90,50,13
@@ -17473,7 +17477,7 @@ BEGIN
     EDITTEXT        CTL_MAILACC_RCVNAME,251,84,180,13,ES_AUTOHSCROLL
     LTEXT           "Пароль для доступа к входящей почте",4010,251,100,144,8
     EDITTEXT        CTL_MAILACC_RCVPASSWORD,251,110,180,13,ES_PASSWORD | ES_AUTOHSCROLL
-    LTEXT           "Таймаут сервера, сек",4011,5,140,75,8
+    LTEXT           "Таймаут сервера, @{seconds}",4011,5,140,75,8
     EDITTEXT        CTL_MAILACC_TIMEOUT,5,150,50,13,ES_AUTOHSCROLL
     CONTROL         "Использовать SSL",5309,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,135,150,105,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,371,150,50,13
@@ -21235,7 +21239,7 @@ BEGIN
     LTEXT           "Периодичность оплаты",4002,10,30,88,8
     EDITTEXT        CTL_RENT_PERIOD,145,30,55,13,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "",CTLSEL_RENT_PERIOD,200,30,13,13,BS_BITMAP | NOT WS_TABSTOP
-    LTEXT           "Смещение даты начисления от конца периода (дней)",4003,10,50,196,8
+    LTEXT           "Смещение даты начисления от конца периода, @{days}",4003,10,50,196,8
     EDITTEXT        CTL_RENT_ACMDATE,145,60,55,13,ES_AUTOHSCROLL
     CONTROL         "Процентные начисления",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,30,90,108,13
     LTEXT           "Процентная ставка (годовая)",4004,30,105,105,8
@@ -30178,6 +30182,12 @@ BEGIN
         BOTTOMMARGIN, 145
     END
 
+    DLG_BCODESTR, DIALOG
+    BEGIN
+        RIGHTMARGIN, 202
+        BOTTOMMARGIN, 88
+    END
+
     DLG_BCPLABEL, DIALOG
     BEGIN
         BOTTOMMARGIN, 149
@@ -31213,7 +31223,7 @@ BEGIN
     DLG_GOODSRMVALL, DIALOG
     BEGIN
         RIGHTMARGIN, 450
-        BOTTOMMARGIN, 207
+        BOTTOMMARGIN, 217
     END
 
     DLG_G2OA, DIALOG
@@ -36703,6 +36713,11 @@ BEGIN
 END
 
 DLG_PAYMENT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_BCODESTR AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

@@ -5944,12 +5944,12 @@ browser AMOUNTTYPE north(100), 1, 1, "@{view_amounttype}", OWNER|GRID, 0
 
 browser REGISTERTYPE north(100), 1, 1, "Типы регистрационных документов", OWNER|GRID, 0
 {
-	"@id",                       0, int32,        0,  6, BCO_USERPROC
-	"@appellation",              1, zstring(48),  0, 30, BCO_USERPROC
-	"Вид рег. органа",           2, zstring(48),  0, 20, BCO_USERPROC
-	"Допустимый вид персоналии", 3, zstring(48),  0, 20, BCO_USERPROC
-	"Срок действия, дней",       4, int32,        NMBF_NOZERO, 10, BCO_USERPROC
-	"@format",                   5, zstring(256), 0, 30, BCO_USERPROC
+	"@id",                        0, int32,        0,  6, BCO_USERPROC
+	"@appellation",               1, zstring(48),  0, 30, BCO_USERPROC
+	"Вид рег. органа",            2, zstring(48),  0, 20, BCO_USERPROC
+	"Допустимый вид персоналии",  3, zstring(48),  0, 20, BCO_USERPROC
+	"@registertype_expiryperiod", 4, int32,        NMBF_NOZERO, 10, BCO_USERPROC
+	"@format",                    5, zstring(256), 0, 30, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM        : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
 		EDITITEM       : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"

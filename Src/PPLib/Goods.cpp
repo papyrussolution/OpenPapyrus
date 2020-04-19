@@ -1855,20 +1855,68 @@ int SLAPI GoodsCore::GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 *
 	return ok;
 }
 
-static SString & FormatBarcode(const char * pPrfx, const char * pSfx, uint len, int64 n, SString & rBuf)
+struct BarcodeTemplateBlock {
+	BarcodeTemplateBlock() : Len(0), Low(0), Upp(0), AddCheckDig(0)
+	{
+		PTR32(Prefix)[0] = 0;
+		PTR32(Suffix)[0] = 0;
+	}
+	SString & FormatCode(int64 n, SString & rBuf) const
+	{
+		return rBuf.Z().Cat(Prefix).CatLongZ(n, Len).Cat(Suffix);
+	}
+	uint   Len;
+	int64  Low;
+	int64  Upp;
+	int    AddCheckDig;
+	char   Prefix[32];
+	char   Suffix[32];
+};
+
+//static
+int SLAPI GoodsCore::Helper_SearchTemplatedBarcode(const BarcodeArray & rList, const void * pBlk, SString & rBarcode)
 {
-	return rBuf.Z().Cat(pPrfx).CatLongZ(n, len).Cat(pSfx);
+	const BarcodeTemplateBlock * p_btblk = static_cast<const BarcodeTemplateBlock *>(pBlk);
+	int    ok = 0;
+	rBarcode.Z();
+	if(rList.getCount()) {
+		SString buffer;
+		SString bound_buf, val_str;
+		const  size_t code_len = sstrlen(p_btblk->Prefix) + sstrlen(p_btblk->Suffix) + p_btblk->Len;
+		int64  prev_val = (p_btblk->Low > 0) ? (p_btblk->Low-1) : 0;
+		int64  using_val = 0;
+		BarcodeTbl::Key0 k_low, k_upp;
+		p_btblk->FormatCode(p_btblk->Low, bound_buf);
+		if(p_btblk->AddCheckDig)
+			bound_buf.CatChar('0');
+		STRNSCPY(k_low.Code, bound_buf);
+		p_btblk->FormatCode(p_btblk->Upp, bound_buf);
+		if(p_btblk->AddCheckDig)
+			bound_buf.CatChar('9');
+		STRNSCPY(k_upp.Code, bound_buf);
+		for(uint i = 0; !ok && i < rList.getCount(); i++) {
+			const BarcodeTbl::Rec & r_item = rList.at(i);
+			int r1 = stricmp(r_item.Code, k_low.Code);
+			int r2 = stricmp(r_item.Code, k_upp.Code);
+			if(r1 >= 0 && r2 <= 0 && sstrlen(r_item.Code) == (code_len+BIN(p_btblk->AddCheckDig))) {
+				rBarcode = r_item.Code;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
 }
 
-//int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, int len, long low, long upp, int addChkDig, SString & rBarcode)
-int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode)
+//int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * pSfx, uint len, int64 low, int64 upp, int addChkDig, SString & rBarcode)
+int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const void * pBlk, SString & rBarcode)
 {
+	const BarcodeTemplateBlock * p_btblk = static_cast<const BarcodeTemplateBlock *>(pBlk);
 	int    ok = 0;
 	SString buffer;
 	if(DS.CheckExtFlag(ECF_433OLDGENBARCODEMETHOD)) {
-		for(int64 n = low; !ok && n <= upp; n++) {
-			FormatBarcode(pPrfx, pSfx, (int)len, n, buffer);
-			if(addChkDig)
+		for(int64 n = p_btblk->Low; !ok && n <= p_btblk->Upp; n++) {
+			p_btblk->FormatCode(n, buffer);
+			if(p_btblk->AddCheckDig)
 				AddBarcodeCheckDigit(buffer);
 			if(SearchBarcode(buffer, 0) <= 0)
 				ok = 1;
@@ -1876,16 +1924,16 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 	}
 	else {
 		SString bound_buf, val_str;
-		const  size_t code_len = sstrlen(pPrfx) + sstrlen(pSfx) + len;
-		int64  prev_val = (low > 0) ? (low-1) : 0;
+		const  size_t code_len = sstrlen(p_btblk->Prefix) + sstrlen(p_btblk->Suffix) + p_btblk->Len;
+		int64  prev_val = (p_btblk->Low > 0) ? (p_btblk->Low-1) : 0;
 		int64  using_val = 0;
 		BarcodeTbl::Key0 k0, k_low, k_upp;
-		FormatBarcode(pPrfx, pSfx, len, low, bound_buf);
-		if(addChkDig)
+		p_btblk->FormatCode(p_btblk->Low, bound_buf);
+		if(p_btblk->AddCheckDig)
 			bound_buf.CatChar('0');
 		STRNSCPY(k_low.Code, bound_buf);
-		FormatBarcode(pPrfx, pSfx, len, upp, bound_buf);
-		if(addChkDig)
+		p_btblk->FormatCode(p_btblk->Upp, bound_buf);
+		if(p_btblk->AddCheckDig)
 			bound_buf.CatChar('9');
 		STRNSCPY(k_upp.Code, bound_buf);
 		BExtQuery q(&BCTbl, 0, 128);
@@ -1894,9 +1942,9 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 		for(q.initIteration(0, &k0, spGe); !ok && q.nextIteration() > 0;) {
 			char   temp_buf[32];
 			STRNSCPY(temp_buf, BCTbl.data.Code);
-			if(sstrlen(temp_buf) == (code_len+BIN(addChkDig))) {
-				val_str = temp_buf + sstrlen(pPrfx);
-				val_str.Trim(len);
+			if(sstrlen(temp_buf) == (code_len+BIN(p_btblk->AddCheckDig))) {
+				val_str = temp_buf + sstrlen(p_btblk->Prefix);
+				val_str.Trim(p_btblk->Len);
 				int64  cur_val = val_str.ToInt64();
 			  	if(prev_val && cur_val > (prev_val+1)) {
 					using_val = prev_val+1;
@@ -1905,13 +1953,13 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 				prev_val = cur_val;
 			}
 		}
-		if(!ok && prev_val < upp) {
+		if(!ok && prev_val < p_btblk->Upp) {
 			using_val = prev_val+1;
 			ok = 1;
 		}
 		if(ok && using_val) {
-			FormatBarcode(pPrfx, pSfx, len, using_val, buffer);
-			if(addChkDig)
+			p_btblk->FormatCode(using_val, buffer);
+			if(p_btblk->AddCheckDig)
 				AddBarcodeCheckDigit(buffer);
 			if(SearchBarcode(buffer, 0) > 0)
 				ok = 0;
@@ -1923,46 +1971,42 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 	return ok;
 }
 
-int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/const PPGoodsConfig & rCfg, const char * pTempl, char * buf)
+int SLAPI GoodsCore::ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, void * pBlk)
 {
-	const  long sGRP = 0x00505247L; // "GRP"
-	const  long sGR  = 0x00524740L; // "@GR"
-	const  long sWP  = 0x00505740L; // "@WP"
-	const  long sCP  = 0x00504340L; // "@CP"
-
-	int    ok = -1;
-	size_t x_len = 0, r_len = 0;
-	double low = 0, upp = 0;
-	char   pfx[32], t[32];
-	char * c = pfx;
+	const char * p_meta_grp = "GRP";
+	const char * p_meta_gr  = "@GR";
+	const char * p_meta_wp  = "@WP";
+	const char * p_meta_cp  = "@CP";
+	int    ok = 0;
+	BarcodeTemplateBlock * p_btblk = static_cast<BarcodeTemplateBlock *>(pBlk);
+	char * c = p_btblk->Prefix;
 	char * p_dup_templ = newStr(pTempl);
-	int    to_add_chkdig = 0;
 	SString temp_buf;
 	strip(p_dup_templ);
 	size_t templ_len = sstrlen(p_dup_templ);
 	if(p_dup_templ[templ_len-1] == '^') {
 		p_dup_templ[--templ_len] = 0;
-		to_add_chkdig = 1;
+		p_btblk->AddCheckDig = 1;
 	}
-	char * x, * p = strip(p_dup_templ);
+	char * p = strip(p_dup_templ);
 	if(*p) {
-		memzero(pfx, sizeof(pfx));
+		memzero(p_btblk->Prefix, sizeof(p_btblk->Prefix));
 		while(*p) {
 			if(isdec(*p))
 				*c++ = *p++;
-			else if(strnicmp(p, (char *)&sGRP, 3) == 0 || strnicmp(p, (char *)&sGR, 3) == 0) {
-				if(GetSingleBarcode(grp, temp_buf) > 0) {
+			else if(strnicmp(p, p_meta_grp, 3) == 0 || strnicmp(p, p_meta_gr, 3) == 0) {
+				if(GetSingleBarcode(grpID, temp_buf) > 0) {
 					temp_buf.ShiftLeftChr('@').Strip();
 					c += sstrlen(strcpy(c, temp_buf));
 				}
 				p += 3;
 			}
-			else if(strnicmp(p, (char *)&sWP, 3) == 0) {
+			else if(strnicmp(p, p_meta_wp, 3) == 0) {
 				if(rCfg.WghtPrefix[0])
 					c += sstrlen(strip(strcpy(c, rCfg.WghtPrefix)));
 			   	p += 3;
 			}
-			else if(strnicmp(p, (char *)&sCP, 3) == 0) {
+			else if(strnicmp(p, p_meta_cp, 3) == 0) {
 				if(rCfg.WghtCntPrefix[0])
 					c += sstrlen(strip(strcpy(c, rCfg.WghtCntPrefix)));
 			   	p += 3;
@@ -1970,43 +2014,92 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 			else if(*p >= 'A' && *p <= 'Z')
 				*c++ = *p++;
 			else if(*p == '%') {
-				SString sfx, barcode;
-				x_len = sstrlen(pfx);
+				SString sfx;
+				double _rlo = 0.0;
+				double _rup = 0.0;
+				char   t[32];
+				char * x;
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
-				r_len = atoi(t);
+				p_btblk->Len = atoi(t);
 				if(*p == '[') {
 					for(++p, x = t; *p && *p != ']';)
 						*x++ = *p++;
 					if(*p == ']')
 						p++;
 					*x = 0;
-					strtorrng(t, &low, &upp);
+					strtorrng(t, &_rlo, &_rup);
 				}
 				for(; *p != 0; p++)
 					if(*p != '\\')
 						sfx.CatChar(*p);
-				if(low <= 0)
-					low = 1;
-				if(upp <= 0 || upp > (fpow10i(r_len) - 1))
-					upp = fpow10i(r_len) - 1;
-				if(Helper_GetBarcodeByTempl(pfx, sfx, (int)r_len, (int64)low, (int64)upp, to_add_chkdig, barcode)) {
-					strnzcpy(buf, barcode, 16);
-					ok = 1;
-				}
+				if(_rlo <= 0)
+					_rlo = 1.0;
+				if(_rup <= 0 || _rup > (fpow10i(p_btblk->Len) - 1))
+					_rup = fpow10i(p_btblk->Len) - 1;
+				p_btblk->Low = static_cast<int64>(_rlo);
+				p_btblk->Upp = static_cast<int64>(_rup);
+				STRNSCPY(p_btblk->Suffix, sfx);
+				ok = 1;
 				break;
 			}
 			else
 				break;
 		}
 	}
-	if(ok < 0) {
-		memset(buf, '0', x_len + r_len);
-		buf[x_len + r_len] = 0;
-		ok = 0;
-	}
 	delete p_dup_templ;
+	return ok;
+}
+
+int SLAPI GoodsCore::IsTemplatedBarcode(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const char * pCode)
+{
+	int    ok = 0;
+	BarcodeTemplateBlock btblk;
+	if(!isempty(pCode) && ParseBarcodeTemplate(grpID, rCfg, pTempl, &btblk)) {
+		SString buffer;
+		SString bound_buf, val_str;
+		const  size_t code_len = sstrlen(btblk.Prefix) + sstrlen(btblk.Suffix) + btblk.Len;
+		int64  prev_val = (btblk.Low > 0) ? (btblk.Low-1) : 0;
+		int64  using_val = 0;
+		BarcodeTbl::Key0 k_low, k_upp;
+		btblk.FormatCode(btblk.Low, bound_buf);
+		if(btblk.AddCheckDig)
+			bound_buf.CatChar('0');
+		STRNSCPY(k_low.Code, bound_buf);
+		btblk.FormatCode(btblk.Upp, bound_buf);
+		if(btblk.AddCheckDig)
+			bound_buf.CatChar('9');
+		STRNSCPY(k_upp.Code, bound_buf);
+		{
+			int r1 = stricmp(pCode, k_low.Code);
+			int r2 = stricmp(pCode, k_upp.Code);
+			if(r1 >= 0 && r2 <= 0 && sstrlen(pCode) == (code_len+BIN(btblk.AddCheckDig))) {
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grpID, const PPGoodsConfig & rCfg, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	BarcodeTemplateBlock btblk;
+	if(ParseBarcodeTemplate(grpID, rCfg, pTempl, &btblk)) {
+		SString temp_buf;
+		if(SVector::GetCount(pCurrentList) && Helper_SearchTemplatedBarcode(*pCurrentList, &btblk, temp_buf) > 0) {
+			rBuf = temp_buf;
+			ok = -1;
+		}
+		else if(Helper_GetBarcodeByTempl(&btblk, temp_buf)) {
+			rBuf = temp_buf;
+			ok = 1;
+		}
+	}
+	else
+		rBuf.CatCharN('0', sstrlen(btblk.Prefix) + btblk.Len);
 	return ok;
 }
 

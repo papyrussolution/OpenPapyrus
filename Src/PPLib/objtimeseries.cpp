@@ -2253,47 +2253,28 @@ static double CalcFactorRangeResult_R2DivC(const TSVector <StrategyOptEntry> & r
 	return fdivnz(s2, c) /* * (lastIdx - firstIdx + 1) */;
 }
 
-static double CalcFactorRangeResult2Sum(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList) // CalcFactorRangeResult2_Func
+static double CalcFactorRangeResult2Sum(const TSVector <StrategyOptEntry> & rList, const IntRange & rPosRange) // CalcFactorRangeResult2_Func
 {
-	double result = 0.0;
-	for(uint i = 0; i < rPosRangeList.getCount(); i++) {
-		const IntRange & r_range = rPosRangeList.at(i);
-		result += rList.sumDouble(offsetof(StrategyOptEntry, Result1), r_range.low, r_range.upp);
-	}
-	return result;
+	return rList.sumDouble(offsetof(StrategyOptEntry, Result1), rPosRange.low, rPosRange.upp);
 }
 
-static double CalcFactorRangeResult2_R1DivR2(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList) // CalcFactorRangeResult2_Func
+static double CalcFactorRangeResult2_R1DivR2(const TSVector <StrategyOptEntry> & rList, const IntRange & rPosRange) // CalcFactorRangeResult2_Func
 {
-	double s1 = 0.0;
-	double s2 = 0.0;
-	for(uint i = 0; i < rPosRangeList.getCount(); i++) {
-		const IntRange & r_range = rPosRangeList.at(i);
-		s1 += rList.sumDouble(offsetof(StrategyOptEntry, Result1), r_range.low, r_range.upp);
-		s2 += rList.sumDouble(offsetof(StrategyOptEntry, Result2), r_range.low, r_range.upp);
-	}
+	double s1 = rList.sumDouble(offsetof(StrategyOptEntry, Result1), rPosRange.low, rPosRange.upp);
+	double s2 = rList.sumDouble(offsetof(StrategyOptEntry, Result2), rPosRange.low, rPosRange.upp);
 	return fdivnz(s1, s2) /* * (lastIdx - firstIdx + 1) */;
 }
 
-static double CalcFactorRangeResult2_R2DivC(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList) // CalcFactorRangeResult2_Func
+static double CalcFactorRangeResult2_R2DivC(const TSVector <StrategyOptEntry> & rList, const IntRange & rPosRange) // CalcFactorRangeResult2_Func
 {
-	double s2 = 0.0;
-	double c = 0.0;
-	for(uint i = 0; i < rPosRangeList.getCount(); i++) {
-		const IntRange & r_range = rPosRangeList.at(i);
-		//s1 += rList.sumDouble(offsetof(StrategyOptEntry, Result1), r_range.low, r_range.upp); // @debug @20200415
-		s2 += rList.sumDouble(offsetof(StrategyOptEntry, Result2), r_range.low, r_range.upp);
-		c += static_cast<double>(r_range.upp - r_range.low + 1);
-	}
+	//s1 = rList.sumDouble(offsetof(StrategyOptEntry, Result1), rPosRange.low, rPosRange.upp); // @debug @20200415
+	double s2 = rList.sumDouble(offsetof(StrategyOptEntry, Result2), rPosRange.low, rPosRange.upp);
+	double c = static_cast<double>(rPosRange.upp - rPosRange.low + 1);
 	// @debug @20200415 return fdivnz(s2, c) /* * (lastIdx - firstIdx + 1) */;
 	// @debug @20200415 {
 	double result = fdivnz(s2, c);
 	if(result == 1.0) {
-		double s1 = 0.0;
-		for(uint i = 0; i < rPosRangeList.getCount(); i++) {
-			const IntRange & r_range = rPosRangeList.at(i);
-			s1 += rList.sumDouble(offsetof(StrategyOptEntry, Result1), r_range.low, r_range.upp);
-		}
+		double s1 = rList.sumDouble(offsetof(StrategyOptEntry, Result1), rPosRange.low, rPosRange.upp);
 		result *= s1;
 	}
 	return result;
@@ -2301,7 +2282,7 @@ static double CalcFactorRangeResult2_R2DivC(const TSVector <StrategyOptEntry> & 
 }
 
 typedef double (* CalcFactorRangeResult_Func)(const TSVector <StrategyOptEntry> & rList, uint firstIdx, uint lastIdx);
-typedef double (* CalcFactorRangeResult2_Func)(const TSVector <StrategyOptEntry> & rList, const TSVector <IntRange> & rPosRangeList);
+typedef double (* CalcFactorRangeResult2_Func)(const TSVector <StrategyOptEntry> & rList, const IntRange & rPosRange);
 
 static int FASTCALL IsThereIntRangeIntersection(const TSVector <IntRange> & rList, const IntRange & rR/*, int32 * pFirstIsUpperBount*/)
 {
@@ -2330,7 +2311,6 @@ static int SLAPI FindOptimalSegmentation(const TSVector <StrategyOptEntry> & rLi
 	THROW(firstIdx <= lastIdx && firstIdx < rList.getCount() && lastIdx < rList.getCount());
 	{
 		const  uint _count = (lastIdx - firstIdx + 1);
-		TSVector <IntRange> work_pos_range_list;
 		IntRange work_range;
 		double max_segm_result = 0.0;
 		double max_result_per_segm = 0.0;
@@ -2347,9 +2327,7 @@ static int SLAPI FindOptimalSegmentation(const TSVector <StrategyOptEntry> & rLi
 				for(work_range.low = firstIdx; work_range.low <= static_cast<int>(lastIdx); work_range.low += part) {
 					work_range.upp = MIN(work_range.low + part - 1, lastIdx);
 					if(work_range.upp >= work_range.low && (work_range.upp - work_range.low + 1) >= static_cast<int>(minPart)) {
-						work_pos_range_list.clear();
-						work_pos_range_list.insert(&work_range);
-						const double _result = CalcFactorRangeResult2Sum(rList, work_pos_range_list);
+						const double _result = CalcFactorRangeResult2Sum(rList, work_range);
 						if(_result > 0.0) {
 							result_stat_list.add(_result);
 						}
@@ -2453,7 +2431,6 @@ static int SLAPI FindOptimalFactorRange_PostProcess(const TSVector <StrategyOptE
 {
 	int    ok = 1;
 	if(rRc.getCount() > 1) {
-		TSVector <IntRange> work_pos_range_list;
 		IntRange work_range;
 		rRc.sort(PTR_CMPFUNC(OptimalFactorRange_WithPositions_ByPos));
 		int is_there_adjacent_chunks = 0;
@@ -2486,18 +2463,15 @@ static int SLAPI FindOptimalFactorRange_PostProcess(const TSVector <StrategyOptE
 #ifndef NDEBUG
 					const double result_prev = r_prev.Result;
 					const double result_this = r_this.Result;
-					work_pos_range_list.clear();
-					work_pos_range_list.insert(&work_range.Set(r_prev.LoPos, r_prev.UpPos));
-					const double result_prev_c = cfrrFunc(rList, work_pos_range_list);
+					work_range.Set(r_prev.LoPos, r_prev.UpPos);
+					const double result_prev_c = cfrrFunc(rList, work_range);
 					assert(feqeps(result_prev_c, result_prev, 1E-6));
-					work_pos_range_list.clear();
-					work_pos_range_list.insert(&work_range.Set(r_this.LoPos, r_this.UpPos));
-					const double result_this_c = cfrrFunc(rList, work_pos_range_list);
+					work_range.Set(r_this.LoPos, r_this.UpPos);
+					const double result_this_c = cfrrFunc(rList, work_range);
 					assert(feqeps(result_this_c, result_this, 1E-6));
 #endif
-					work_pos_range_list.clear();
-					work_pos_range_list.insert(&work_range.Set(new_range.LoPos, new_range.UpPos));
-					const double temp_result = cfrrFunc(rList, work_pos_range_list);
+					work_range.Set(new_range.LoPos, new_range.UpPos);
+					const double temp_result = cfrrFunc(rList, work_range);
 					new_range.Result = temp_result;
 					//
 					new_range.Count = (new_range.UpPos - new_range.LoPos + 1);
@@ -2550,7 +2524,6 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 	if(FindOptimalFactorRange_InitialSplitting(rList, useInitialSplitting, &_first_idx, &_last_idx)) {
 		double total_max_result = 0.0;
 		TSVector <IntRange> pos_range_list;
-		TSVector <IntRange> work_pos_range_list;
 		IntRange work_range;
 		// @construction uint opt_segment_size = 0;
 		// @construction FindOptimalSegmentation(rList, _first_idx, _last_idx, 20, &opt_segment_size); // @v10.7.6
@@ -2624,9 +2597,7 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 					if(sfidx_up > sfidx) {
 						//int32 first_is_upper_bound = 0;
 						if(!IsThereIntRangeIntersection(pos_range_list, work_range.Set(sfidx, sfidx_up)/*, &first_is_upper_bound*/)) {
-							work_pos_range_list.clear();
-							work_pos_range_list.insert(&work_range);
-							const double _result = cfrrFunc(rList, work_pos_range_list);
+							const double _result = cfrrFunc(rList, work_range);
 							if(_result > _extr_entry.MaxResult) {
 								_extr_entry.MaxResult = _result;
 								_extr_entry.MaxSfIdx = sfidx;
@@ -2649,9 +2620,7 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 						int done = 0;
 						for(uint probedeep = 1; !done && probedeep <= maxprobe && probedeep <= lo_idx; probedeep++) { // @v10.3.12 @fix (probedeep > lo_idx)-->(probedeep <= lo_idx)
 							if(!IsThereIntRangeIntersection(pos_range_list, work_range.Set(lo_idx-probedeep, up_idx)/*, 0*/)) {
-								work_pos_range_list.clear();
-								work_pos_range_list.insert(&work_range);
-								const double temp_result = cfrrFunc(rList, work_pos_range_list);
+								const double temp_result = cfrrFunc(rList, work_range);
 								if(prev_result < temp_result) {
 									prev_result = temp_result;
 									lo_idx -= probedeep;
@@ -2666,9 +2635,7 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 						int done = 0;
 						for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx+probedeep) < _c; probedeep++) {
 							if(!IsThereIntRangeIntersection(pos_range_list, work_range.Set(lo_idx, up_idx+probedeep)/*, 0*/)) {
-								work_pos_range_list.clear();
-								work_pos_range_list.insert(&work_range);
-								const double temp_result = cfrrFunc(rList, work_pos_range_list);
+								const double temp_result = cfrrFunc(rList, work_range);
 								if(prev_result < temp_result) {
 									prev_result = temp_result;
 									up_idx += probedeep;
@@ -2685,9 +2652,7 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 						int done = 0;
 						for(uint probedeep = 1; !done && probedeep <= maxprobe && (lo_idx+probedeep) <= up_idx; probedeep++) {
 							if(!IsThereIntRangeIntersection(pos_range_list, work_range.Set(lo_idx+probedeep, up_idx)/*, 0*/)) {
-								work_pos_range_list.clear();
-								work_pos_range_list.insert(&work_range);
-								const double temp_result = cfrrFunc(rList, work_pos_range_list);
+								const double temp_result = cfrrFunc(rList, work_range);
 								if(prev_result < temp_result) {
 									prev_result = temp_result;
 									lo_idx += probedeep;
@@ -2702,9 +2667,7 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 						int done = 0;
 						for(uint probedeep = 1; !done && probedeep <= maxprobe && (up_idx) >= (lo_idx+probedeep); probedeep++) {
 							if(!IsThereIntRangeIntersection(pos_range_list, work_range.Set(lo_idx, up_idx-probedeep)/*, 0*/)) {
-								work_pos_range_list.clear();
-								work_pos_range_list.insert(&work_range);
-								const double temp_result = cfrrFunc(rList, work_pos_range_list);
+								const double temp_result = cfrrFunc(rList, work_range);
 								if(prev_result < temp_result) {
 									prev_result = temp_result;
 									up_idx -= probedeep;
@@ -2761,9 +2724,7 @@ static int SLAPI FindOptimalFactorRange2(const PPTssModelPacket & rTssModel,
 					new_range.Count = (_sfd_extr_entry.MaxSfIdxUp - _sfd_extr_entry.MaxSfIdx + 1);
 					//
 #ifndef NDEBUG
-					work_pos_range_list.clear();
-					work_pos_range_list.insert(&work_range);
-					const double temp_result = cfrrFunc(rList, work_pos_range_list);
+					const double temp_result = cfrrFunc(rList, work_range);
 					assert(feqeps(temp_result, new_range.Result, 1E-6));
 #endif
 					//
@@ -5290,6 +5251,11 @@ struct TsFindStrategiesBlock {
 					else // @v10.7.6 if(criterion == PPTssModel::tcWinRatio)
 						ResultAddendumList.add((rRvEx.Result > 0.0) ? 1.0 : 0.0);
 				}
+				void FASTCALL AddZero()
+				{
+					ResultList.add(0.0);
+					ResultAddendumList.add(0.0);
+				}
 				RealArray ResultList;
 				RealArray ResultAddendumList;
 			};
@@ -5315,11 +5281,8 @@ struct TsFindStrategiesBlock {
 						rSre.SetValue(rv_ex);
 						rSre.LastResultIdx = i;
 					}
-					else {
-						result_block.ResultList.add(0.0);
-						// @v10.7.6 if(oneof2(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcVelocity, PPTssModel::tcWinRatio))
-							result_block.ResultAddendumList.add(0.0);
-					}
+					else
+						result_block.AddZero();
 				}
 			}
 			else if(rSre.StakeMode == 1) {
@@ -5354,11 +5317,8 @@ struct TsFindStrategiesBlock {
 						result_block.Add(rv_ex, R_TssModel.Rec.OptTargetCriterion);
 						rSre.SetValue(rv_ex);
 					}
-					else {
-						result_block.ResultList.add(0.0);
-						// @v10.7.6 if(oneof2(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcVelocity, PPTssModel::tcWinRatio))
-							result_block.ResultAddendumList.add(0.0);
-					}
+					else
+						result_block.AddZero();
 				}
 			}
 			if(signal_count) {
@@ -5374,8 +5334,7 @@ struct TsFindStrategiesBlock {
 				rSre.PeakMaxQuant = static_cast<uint16>(R0i(rSre.MaxPeak / rSre.SpikeQuant)); // Для каждого из режимов
 			}
 			assert(result_block.ResultList.getCount() == tsc);
-			// @v10.7.6 assert(result_block.ResultAddendumList.getCount() == (oneof2(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcVelocity, PPTssModel::tcWinRatio) ? tsc : 0));
-			assert(result_block.ResultAddendumList.getCount() == tsc); // @v10.7.6
+			assert(result_block.ResultAddendumList.getCount() == tsc);
 			PROFILE_END
 			if(pOptResultList && options & tstsofroMode1) {
 				const uint  first_correl_idx = ifs;
@@ -6033,9 +5992,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 								PPObjTimeSeries::StrategyContainer sc_process;
 								PPObjTimeSeries::StrategyContainer sc_skip_due_dup; // @v10.6.9 стратегии, вынесенные из рассмотрения, поскольку для них есть более удачливые дубликаты
 								long   ssflags = PPObjTimeSeries::StrategyContainer::gbsfLong|PPObjTimeSeries::StrategyContainer::gbsfShort|
-									PPObjTimeSeries::StrategyContainer::gbsfStakeMode3|
-									PPObjTimeSeries::StrategyContainer::gbsfStakeMode2|
-									PPObjTimeSeries::StrategyContainer::gbsfStakeMode1;
+									PPObjTimeSeries::StrategyContainer::gbsfStakeMode3|PPObjTimeSeries::StrategyContainer::gbsfStakeMode2|PPObjTimeSeries::StrategyContainer::gbsfStakeMode1;
 								// ssflags |= scontainer.gbsfCritProfitMultProb; // @20190413
 								// ssflags |= scontainer.gbsfCritProb; // @20190419
 								// @v10.7.4 ssflags |= scontainer.gbsfEliminateDups; // @20190416

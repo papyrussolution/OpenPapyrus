@@ -295,7 +295,7 @@ private:
 	struct LocalTSessPlaceFilt {
 		LocalTSessPlaceFilt()
 		{
-			PlaceCode[0] = 0;
+			PTR32(PlaceCode)[0] = 0;
 		}
 		char   PlaceCode[24];
 	};
