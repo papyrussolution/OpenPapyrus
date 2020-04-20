@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147491834
+LastSignatureCode=2147491835
 LastAutoCodeList=1,11973;102,10171;103,10071;110,10000;111,11971;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10124;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10097
 
 [SignatureList]
@@ -8167,7 +8167,7 @@ goodsreplacenameparam_fabbr=2147491771
 goodsreplacenameparam_fnameandabbr=2147491772
 goodsreplacenameparam_fdoreplace=2147491773
 goodsreplacenameparam_frestorelasthistoryname=2147491774
-taxsysk_imputed=2147491327
+taxsysk_imputed=2147491835
 
 [GrpSymbList]
 .N.=124

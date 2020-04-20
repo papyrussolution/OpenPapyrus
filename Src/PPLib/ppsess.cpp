@@ -1038,7 +1038,7 @@ int SLAPI PPThreadLocalArea::ReleasePPViewPtr(int32 id)
 //
 //
 //
-static ACount TlpC(0); // @global @threadsafe
+static ACount TlpC(ACount::ctrDontInitialize); // @global @threadsafe
 
 SLAPI  __PPThrLocPtr::__PPThrLocPtr() : Idx(TlpC.Incr())
 {

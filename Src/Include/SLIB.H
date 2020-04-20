@@ -12321,11 +12321,13 @@ private:
 class ACount { // @#size=4
 public:
 	SLAPI  ACount();
+	enum CtrOption {
+		ctrDontInitialize
+	};
 	//
-	// Descr: Этот конструктор используется тогда, когда
-	//   не следует явно инициализировать переменную в ноль.
+	// Descr: Этот конструктор используется тогда, когда не следует явно инициализировать переменную в ноль.
 	//
-	explicit SLAPI  ACount(int);
+	explicit SLAPI  ACount(CtrOption);
 	SLAPI  operator long() const;
 	long   FASTCALL Add(long add);
 	long   FASTCALL Assign(long val);

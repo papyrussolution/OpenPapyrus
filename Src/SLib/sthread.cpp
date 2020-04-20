@@ -81,8 +81,10 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 SLAPI ACount::ACount() : C(0)
 {
 }
-
-SLAPI ACount::ACount(int initValue) : C(initValue) // @v10.7.6 @fix (empty)-->: C(initValue)
+//
+// Descr: Этот конструктор используется тогда, когда не следует явно инициализировать переменную в ноль.
+//
+SLAPI ACount::ACount(CtrOption option)
 {
 }
 

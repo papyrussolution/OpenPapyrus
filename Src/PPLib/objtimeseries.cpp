@@ -4334,7 +4334,7 @@ PrcssrTsStrategyAnalyzeFilt & FASTCALL PrcssrTsStrategyAnalyzeFilt::operator = (
 	return *this;
 }
 
-SLAPI PrcssrTsStrategyAnalyze::PrcssrTsStrategyAnalyze() : LastStrategyId(0)
+SLAPI PrcssrTsStrategyAnalyze::PrcssrTsStrategyAnalyze() : LastStrategyId()
 {
 }
 
