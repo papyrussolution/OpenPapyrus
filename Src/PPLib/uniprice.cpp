@@ -1,7 +1,7 @@
 // UNIPRICE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019
-// @codepage windows-1251
-// Унификация цен реализации товара
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020
+// @codepage UTF-8
+// РЈРЅРёС„РёРєР°С†РёСЏ С†РµРЅ СЂРµР°Р»РёР·Р°С†РёРё С‚РѕРІР°СЂР°
 //
 #include <pp.h>
 #pragma hdrstop
@@ -59,13 +59,10 @@ static int SLAPI GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec
 	private:
 		DECL_HANDLE_EVENT
 		{
-			//PPID   lot_id = 0;
-			//ReceiptTbl::Rec rec;
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmLot)) {
 				PPObjBill::SelectLotParam slp(GoodsID, Param.LocID, 0, PPObjBill::SelectLotParam::fFillLotRec);
 				if(BillObj->SelectLot2(slp) > 0) {
-				//if(SelectLot(Param.LocID, GoodsID, 0, &lot_id, &rec) > 0) {
 					if(Param.Mode == PrcssrUnifyPriceFilt::mUnify && !Param.QuotKindID)
 						setCtrlReal(CTL_NEWPRICE_PRICE, Param.CalcPrice(slp.RetLotRec.Cost, slp.RetLotRec.Price));
 				}
@@ -111,22 +108,24 @@ SLAPI PrcssrUnifyPrice::PrcssrUnifyPrice() : P_BObj(BillObj)
 
 int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 {
-#define GRP_GOODSFILT 1L
-
 	class UnifyPriceDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrUnifyPriceFilt);
+		enum {
+			ctlgroupGoodsFilt = 1
+		};
 	public:
 		explicit UnifyPriceDialog(uint dlgID) : TDialog(dlgID)
 		{
-			addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_UNIPRICE_GGRP, cmGoodsFilt));
+			addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_UNIPRICE_GGRP, cmGoodsFilt));
 		}
-		int    setDTS(const PrcssrUnifyPriceFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			size_t spctval_len = 0;
 			char   spctval[64];
 			ushort v;
 			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-			setGroupData(GRP_GOODSFILT, &gf_rec);
+			setGroupData(ctlgroupGoodsFilt, &gf_rec);
 			setCtrlOption(CTL_UNIPRICE_FRAME, ofFramed, 1);
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_OPRKIND, PPOBJ_OPRKIND,    Data.OpKindID,   0, reinterpret_cast<void *>(PPOPT_GOODSREVAL));
 			SetupPPObjCombo(this, CTLSEL_UNIPRICE_LOC,     PPOBJ_LOCATION,   Data.LocID,      0);
@@ -168,7 +167,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			disableCtrl(CTL_UNIPRICE_PCT, BIN(Data.QuotKindID));
 			return 1;
 		}
-		int    getDTS(PrcssrUnifyPriceFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -177,13 +176,12 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			char   spctval[64];
 			ushort v;
 			GoodsFiltCtrlGroup::Rec gf_rec;
-
 			getCtrlData(sel = CTLSEL_UNIPRICE_OPRKIND, &Data.OpKindID);
 			THROW_PP(Data.OpKindID, PPERR_OPRKINDNEEDED);
 			getCtrlData(sel = CTLSEL_UNIPRICE_LOC,     &Data.LocID);
 			THROW_PP(Data.LocID, PPERR_LOCNEEDED);
 			getCtrlData(CTLSEL_UNIPRICE_QUOTK,   &Data.QuotKindID);
-			THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+			THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 			Data.GoodsGrpID = gf_rec.GoodsGrpID;
 			GetClusterData(CTL_UNIPRICE_EXCLGGRPF, &Data.Flags);
 			GetClusterData(CTL_UNIPRICE_FLAGS,     &Data.Flags);
@@ -234,7 +232,6 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 				clearEvent(event);
 			}
 		}
-		PrcssrUnifyPriceFilt Data;
 	};
 	DIALOG_PROC_BODY_P1(UnifyPriceDialog, pParam->CostReval ? DLG_UNICOST : DLG_UNIPRICE, pParam);
 }
@@ -512,7 +509,7 @@ int SLAPI PrcssrUnifyPrice::Process(const PrcssrUnifyPriceFilt * pParam)
 	else
 		excl_goodsgrp_id = P.GoodsGrpID;
 	//
-	// @todo В фильтр по товарам добавить опцию "!GF_UNLIM"
+	// @todo Р’ С„РёР»СЊС‚СЂ РїРѕ С‚РѕРІР°СЂР°Рј РґРѕР±Р°РІРёС‚СЊ РѕРїС†РёСЋ "!GF_UNLIM"
 	//
 	for(iter.Init(goodsgrp_id, GoodsIterator::ordByName); iter.Next(&grec) > 0;) {
 		Goods2Tbl::Rec temp_grec;

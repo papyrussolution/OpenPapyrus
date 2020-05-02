@@ -1110,17 +1110,18 @@
 #define PPVCMD_VIEWCHECK                              268
 #define PPVCMD_IMPORTUHTT                             269
 #define PPVCMD_TRANSACTJ                              270
-#define PPVCMD_UPDATEITEMS                            271
-#define PPVCMD_LOTOPS                                 272
-#define PPVCMD_VIEWLINKREST                           273
-#define PPVCMD_MATCHPERSON                            274
-#define PPVCMD_UTILIZEDVDOC                           275
-#define PPVCMD_SETUPOUTGOING                          276
-#define PPVCMD_SENDOUTGOING                           277
-#define PPVCMD_VETISWAREHOUSE                         278
-#define PPVCMD_VETISPRODUCT                           279
-#define PPVCMD_EDITLINKQR                             280
-#define PPVCMD_CREATELINKQR                           281
+#define PPVCMD_OPTENTRYGRAPH                          271
+#define PPVCMD_UPDATEITEMS                            272
+#define PPVCMD_LOTOPS                                 273
+#define PPVCMD_VIEWLINKREST                           274
+#define PPVCMD_MATCHPERSON                            275
+#define PPVCMD_UTILIZEDVDOC                           276
+#define PPVCMD_SETUPOUTGOING                          277
+#define PPVCMD_SENDOUTGOING                           278
+#define PPVCMD_VETISWAREHOUSE                         279
+#define PPVCMD_VETISPRODUCT                           280
+#define PPVCMD_EDITLINKQR                             281
+#define PPVCMD_CREATELINKQR                           282
 //
 // PPCMD definitions
 //

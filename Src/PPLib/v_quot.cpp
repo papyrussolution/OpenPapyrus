@@ -1863,7 +1863,8 @@ int SLAPI PPViewQuot::AddItem(PPID * pGoodsID)
 		}
 		else {
 			if(!P_GoodsSelDlg) {
-				P_GoodsSelDlg = new ExtGoodsSelDialog(0, Filt.GoodsGrpID, ExtGoodsSelDialog::fByName);
+				long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fByName); // @v10.7.7
+				P_GoodsSelDlg = new ExtGoodsSelDialog(0, Filt.GoodsGrpID, egsd_flags);
 				if(!CheckDialogPtrErr(&P_GoodsSelDlg))
 					return PPErrorZ();
 			}

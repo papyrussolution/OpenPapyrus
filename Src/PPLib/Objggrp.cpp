@@ -2066,7 +2066,7 @@ int SLAPI PPObjBrand::Edit(PPID * pID, void * extraPtr)
 	}
 	else
 		pack.Init();
-	dlg->setCtrlLong(CTL_GOODS_ID, pack.Rec.ID); // @v8.2.9
+	dlg->setCtrlLong(CTL_GOODS_ID, pack.Rec.ID);
 	dlg->setCtrlData(CTL_GOODS_NAME, pack.Rec.Name);
 	dlg->addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
 		cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));

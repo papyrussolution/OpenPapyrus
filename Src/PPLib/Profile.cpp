@@ -588,7 +588,7 @@ SString & SLAPI Profile::GetUserProfileFileName(int fk, SString & rBuf)
 		else {
 			assert(0);
 		}
-		fname.CatChar('.').Cat("log");
+		fname.Dot().Cat("log");
 		PPGetFilePath(PPPATH_LOG, fname, rBuf);
 	}
 	return rBuf;

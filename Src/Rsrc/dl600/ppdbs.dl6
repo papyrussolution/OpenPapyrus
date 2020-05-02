@@ -123,24 +123,6 @@ file:
 	vlr;
 }
 //
-// @construction {
-// @v10.0.04
-// Временные серии. Ассоциируются с объектами данных и (специальным образом) с тегами.
-//
-//table TimeSeries {
-//    long   ObjID;
-//    int16  ObjType;
-//    int16  Prop;
-//    long   Size;
-//    blob   VT[2048];
-//index:
-//	ObjType, Prop, ObjID (unique mod);
-//file:
-//	"ts.btr";
-//	vlr;
-//}
-// } @construction
-//
 //
 //
 table ObjLikeness {
@@ -3626,6 +3608,41 @@ index:
 file:
 	"ufp.btr";
 	acstable = "rusncase.alt";
+}
+//
+// @v10.7.7 @construction
+//
+table TsTaJournal {
+	autolong ID;
+	date   NotifyDt;      // Дата регистрации извещения
+	time   NotifyTm;      // Время регистрации извещения
+	uint32 Deal;          // Тикет сделки
+	uint32 Order;         // Тикет ордера
+	long   TsID;          // Ид инструмента
+	char   Symb[32];      // Символ инструмента
+	long   TaType;        // Информация о типе транзакции содержится в поле type переменной trans.
+	long   OrdType;       // Тип ордера
+	long   OrdState;      // Состояние ордера
+	long   DealType;      // Тип сделки
+	long   OrdTypeTime;   // Тип ордера по времени действия
+	datetime Expiration;  // Срок истечения ордера
+	double Price;         // Цена
+	double PriceTrigger;  // Цена срабатывания стоп-лимитного ордера
+	double PriceSL;       // Уровень Stop Loss
+	double PriceTP;       // Уровень Take Profit
+	double Volume;        // Объем в лотах
+	uint32 Position;      // Тикет позиции
+	uint32 PositionBy;    // Тикет встречной позиции
+	blob   VT[2048];
+index:
+	ID (unique);                          // #0
+	NotifyDt, NotifyTm (dup mod);         // #1
+	TsID, NotifyDt, NotifyTm (dup mod);   // #2
+	Symb, NotifyDt, NotifyTm (dup mod);   // #3
+	TaType, NotifyDt, NotifyTm (dup mod); // #4
+file:
+	"tstajrnl.btr";
+	vlr;
 }
 //
 // Временная таблица производственного отчета по техн сессии

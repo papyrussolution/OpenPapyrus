@@ -415,6 +415,15 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 			THROW(tra.Commit());
 		}
 		else {
+			// @v10.7.7 {
+			PPIDArray common_goods_list; 
+			const  int  income_calc_method = (Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
+			if(!Filt.BillList.IsExists()) {
+				for(GoodsIterator giter(Filt.GoodsGrpID, GoodsIterator::ordByName); giter.Next(&goods_rec) > 0;)
+					if(!(goods_rec.Flags & GF_GENERIC))
+						common_goods_list.add(goods_rec.ID);
+			}
+			// } @v10.7.7
 			PPObjGoods::SubstBlock sgg_blk;
 			sgg_blk.ExclParentID = Filt.GoodsGrpID;
 			PPTransaction tra(ppDbDependTransaction, 1);
@@ -463,9 +472,10 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					}
 				}
 				else {
-					for(GoodsIterator giter(Filt.GoodsGrpID, GoodsIterator::ordByName); giter.Next(&goods_rec) > 0;)
+					/* @v10.7.7 for(GoodsIterator giter(Filt.GoodsGrpID, GoodsIterator::ordByName); giter.Next(&goods_rec) > 0;)
 						if(!(goods_rec.Flags & GF_GENERIC))
-							goods_list.add(goods_rec.ID);
+							goods_list.add(goods_rec.ID);*/
+					goods_list = common_goods_list; // @v10.7.7
 				}
 				const uint gc = goods_list.getCount();
 				for(uint j = 0; j < gc; j++) {
@@ -479,7 +489,6 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 						THROW(gga.ProcessGoodsGrouping(gctf, &agg));
 						for(i = 0; gga.enumItems(&i, (void **)&p_gge);) {
 							PPID   op_id = 0;
-							const  int  income_calc_method = (Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
 							if(!Filt.OpID) {
 								op_id = p_gge->IsProfitable(BIN(income_calc_method == INCM_BYPAYMENT));
 								if(!op_id && p_gge->Flags & GGEF_PAYMBYPAYOUTLOT) {
@@ -938,8 +947,7 @@ int SLAPI PPViewGoodsTaxAnalyze::CalcTotal(GoodsTaxAnalyzeTotal * pTotal)
 				pTotal->STaxSum     += item.STaxSum;
 			}
 		}
-		if(P_InOutVATList)
-			P_InOutVATList->sort(PTR_CMPFUNC(BVATAccm));
+		CALLPTRMEMB(P_InOutVATList, sort(PTR_CMPFUNC(BVATAccm)));
 		PPWait(0);
 		ok = 1;
 	}

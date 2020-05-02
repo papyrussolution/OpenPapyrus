@@ -388,6 +388,7 @@ int SLAPI GoodsFilt::Describe(long flags, SString & rBuf) const
 		if(Flags & fShowCargo)             flag_list.Add(id++, STRINGIZE(fShowCargo));
 		if(Flags & fHidePassive)           flag_list.Add(id++, STRINGIZE(fHidePassive));
 		if(Flags & fPassiveOnly)           flag_list.Add(id++, STRINGIZE(fPassiveOnly));
+		if(Flags & fHideGeneric)           flag_list.Add(id++, STRINGIZE(fHideGeneric)); // @v10.7.7
 		if(Flags & fGenGoodsOnly)          flag_list.Add(id++, STRINGIZE(fGenGoodsOnly));
 		if(Flags & fWOTaxGdsOnly)          flag_list.Add(id++, STRINGIZE(fWOTaxGdsOnly));
 		if(Flags & fNoZeroRestOnLotPeriod) flag_list.Add(id++, STRINGIZE(fNoZeroRestOnLotPeriod));
@@ -452,7 +453,8 @@ int SLAPI GoodsFilt::Setup()
 int SLAPI GoodsFilt::IsEmpty() const
 {
 	const long nemp_fl = (fWithStrucOnly|fIntUnitOnly|fFloatUnitOnly|fHidePassive|
-		fPassiveOnly|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand); // @v10.6.8 fWoBrand
+		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand); 
+		// @v10.6.8 fWoBrand // @v10.7.7 fHideGeneric
 	// Setup();
 	/*
 	return !(GrpID || ManufID || UnitID || SupplID || GoodsTypeID || BrandID || PhUnitID ||
@@ -1547,8 +1549,9 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			if(Filt.Flags & GoodsFilt::fWoTaxGrp || Filt.TaxGrpID)
 				dbq = & (*dbq && g->TaxGrpID == Filt.TaxGrpID);
 		}
-		dbq = ppcheckflag(dbq, g->Flags, GF_PASSIV, (Filt.Flags & GoodsFilt::fHidePassive) ? -1 : BIN(Filt.Flags & GoodsFilt::fPassiveOnly));
-		dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC,      BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly));
+		dbq = ppcheckflag(dbq, g->Flags, GF_PASSIV,  (Filt.Flags & GoodsFilt::fHidePassive) ? -1 : BIN(Filt.Flags & GoodsFilt::fPassiveOnly));
+		dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC, (Filt.Flags & GoodsFilt::fHideGeneric) ? -1 : BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly)); // @v10.7.7 
+		// @v10.7.7 dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC,      BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_PRICEWOTAXES, BIN(Filt.Flags & GoodsFilt::fWOTaxGdsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_NODISCOUNT,   BIN(Filt.Flags & GoodsFilt::fNoDisOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_HASIMAGES,    BIN(Filt.Flags & GoodsFilt::fHasImages));

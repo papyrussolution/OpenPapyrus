@@ -1,5 +1,5 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1699,7 +1699,7 @@ int SLAPI PPViewGeoTracking::Export()
 				(schema_loc = p_schema_url).Cat(gpx_ver_major).CatChar('/').Cat(gpx_ver_minor);
 				SXml::WNode n_gpx(p_writer, "gpx");
 					n_gpx.PutAttrib("xmlns", schema_loc);
-					temp_buf.Z().Cat(gpx_ver_major).CatChar('.').Cat(gpx_ver_minor);
+					temp_buf.Z().Cat(gpx_ver_major).Dot().Cat(gpx_ver_minor);
 					n_gpx.PutAttrib("version", temp_buf);
 					{
 						PPVersionInfo vi = DS.GetVersionInfo();

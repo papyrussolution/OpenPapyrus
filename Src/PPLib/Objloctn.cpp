@@ -425,7 +425,7 @@ SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int optio
 				if(rec.Code[0] && (rec.Type != LOCTYP_WAREHOUSE || options & mcsWhCodePrefix)) {
 					temp_buf.Z().Cat(rec.Code);
 					if(cfg.WhCodingDiv == 0)
-						temp_buf.CatChar('.');
+						temp_buf.Dot();
 					else if(cfg.WhCodingDiv == 1)
 						temp_buf.CatChar('-');
 					temp_buf.Cat(rBuf);

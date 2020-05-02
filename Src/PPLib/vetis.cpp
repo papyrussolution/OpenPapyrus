@@ -9245,7 +9245,6 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 	PPIDArray op_list;
 	PrcssrAlcReport::Config alcr_cfg;
 	PrcssrAlcReport::ReadConfig(&alcr_cfg);
-	// @v10.6.3 {
 	struct SetupOutgoingEntries_ControlBlock {
 		long   Flags;
 		PPID   SrcOpList[6];
@@ -9271,50 +9270,6 @@ int SLAPI PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & r
 			}
 		}
 	}
-	// } @v10.6.3 
-	/* @v10.6.3 {
-		PPIDArray base_op_list;
-		base_op_list.add(alcr_cfg.RcptEtcOpID);
-		base_op_list.add(alcr_cfg.ExpndEtcOpID); // @v10.5.11
-		if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
-			const long put_bill_row_flags = pbrfDiscrepancy;
-			if(MakeOutgoingBillList(locID, rPeriod, op_list, pbrfDiscrepancy, temp_bill_list) > 0) {
-				const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
-				THROW(local_ok);
-				if(local_ok > 0)
-					ok = 1;
-			}
-		}
-	}
-	// @v10.6.3 {
-	{
-		PPIDArray base_op_list;
-		base_op_list.add(alcr_cfg.E.ManufOpID);
-		if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
-			const long put_bill_row_flags = pbrfManuf;
-			if(MakeOutgoingBillList(locID, rPeriod, op_list, pbrfManuf, temp_bill_list) > 0) {
-				const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
-				THROW(local_ok);
-				if(local_ok > 0)
-					ok = 1;
-			}
-		}
-	}
-	// } @v10.6.3 
-	{
-		PPIDArray base_op_list;
-		base_op_list.add(alcr_cfg.ExpndOpID);
-		base_op_list.add(alcr_cfg.IntrExpndOpID);
-		if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
-			const long put_bill_row_flags = 0;
-			if(MakeOutgoingBillList(locID, rPeriod, op_list, 0, temp_bill_list) > 0) {
-				const int local_ok = Helper_PutOutgoingBillList(temp_bill_list, put_bill_row_flags);
-				THROW(local_ok);
-				if(local_ok > 0)
-					ok = 1;
-			}
-		}
-	}*/
 	CATCHZOK
 	return ok;
 }
@@ -10128,26 +10083,10 @@ int FASTCALL VetisDocumentFilt::GetStatusList(PPIDArray & rList) const
 {
 	rList.clear();
 	if(VDStatusFlags) {
-		// @v10.6.3 {
 		static const VetisDocStatus statuses[] = {vetisdocstCREATED, vetisdocstCONFIRMED, vetisdocstWITHDRAWN, vetisdocstUTILIZED, vetisdocstFINALIZED, vetisdocstOUTGOING_PREPARING, vetisdocstSTOCK};
 		for(uint i = 0; i < SIZEOFARRAY(statuses); i++)
 			if(VDStatusFlags & (1<<statuses[i]))
 				rList.add(statuses[i]);
-		// } @v10.6.3 
-		/* @v10.6.3 if(VDStatusFlags & (1<<vetisdocstCREATED))
-			rList.add(vetisdocstCREATED);
-		if(VDStatusFlags & (1<<vetisdocstCONFIRMED))
-			rList.add(vetisdocstCONFIRMED);
-		if(VDStatusFlags & (1<<vetisdocstWITHDRAWN))
-			rList.add(vetisdocstWITHDRAWN);
-		if(VDStatusFlags & (1<<vetisdocstUTILIZED))
-			rList.add(vetisdocstUTILIZED);
-		if(VDStatusFlags & (1<<vetisdocstFINALIZED))
-			rList.add(vetisdocstFINALIZED);
-		if(VDStatusFlags & (1<<vetisdocstOUTGOING_PREPARING))
-			rList.add(vetisdocstOUTGOING_PREPARING);
-		if(VDStatusFlags & (1<<vetisdocstSTOCK))
-			rList.add(vetisdocstSTOCK);*/
 		return 1;
 	}
 	else
@@ -10594,7 +10533,6 @@ int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID,
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	SStringU temp_buf_u;
-	// @v10.6.4 {
 	const struct {
 		PPID   ObjType;
 		PPID   ObjID;
@@ -10621,31 +10559,6 @@ int SLAPI VetisEntityCore::GetProductItemName(PPID entityID, PPID productItemID,
 			}
 		}
 	}
-	// } @v10.6.4 
-	/* @v10.6.4 
-	if(productItemID) {
-		p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, productItemID, PPTRPROP_NAME), temp_buf_u);
-		ok = 1;
-	}
-	if(!temp_buf_u.Len() && entityID) {
-		p_ref->UtrC.Search(TextRefIdent(PPOBJ_VETISENTITY, entityID, VetisEntityCore::txtprpProductItemName), temp_buf_u);
-		ok = 2;
-	}
-	if(!temp_buf_u.Len() && subProductID) {
-		p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, subProductID, PPTRPROP_NAME), temp_buf_u);
-		ok = 3;
-	}
-	if(!temp_buf_u.Len() && productID) {
-		p_ref->TrT.Search(TextRefIdent(PPOBJ_VETISENTITY, productID, PPTRPROP_NAME), temp_buf_u);
-		ok = 4;
-	}
-	if(temp_buf_u.Len()) {
-		temp_buf_u.CopyToUtf8(rBuf, 0);
-		rBuf.Transf(CTRANSF_UTF8_TO_INNER);
-	}
-	else
-		ok = -1;
-	*/
 	return ok;
 }
 

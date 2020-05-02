@@ -6,8 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-// @construction {
-
 class PPBulletinBoard {
 public:
 	class Sticker {
@@ -2062,5 +2060,3 @@ int SLAPI PPObjTimeSeries::SetExternTimeSeriesProp(const char * pSymb, const cha
 	CATCHZOK
 	return ok;
 }
-
-// } @construction

@@ -88,18 +88,12 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf)
 			*buf++ = '\'';
 		}
 		if(flag & STRF_OEM) {
-			// @v10.3.10 CharToOem(str, buf); // @unicodeproblem
-			// @v10.3.10 {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			(r_temp_buf = str).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(buf, 0);
-			// } @v10.3.10 
 		}
 		else if(flag & STRF_ANSI) {
-			// @v10.3.10 OemToChar(str, buf); // @unicodeproblem
-			// @v10.3.10 {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			(r_temp_buf = str).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, 0);
-			// } @v10.3.10 
 		}
 		else if(buf != str)
 			strcpy(buf, str);

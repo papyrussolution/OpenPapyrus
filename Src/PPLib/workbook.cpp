@@ -304,7 +304,6 @@ int SLAPI PPObjWorkbook::EditConfig()
 	WorkbookCfgDialog * dlg = new WorkbookCfgDialog;
 	PPObjOpCounter opc_obj;
 	WorkbookCfgDialog::Rec data;
-
 	THROW(CheckDialogPtr(&dlg));
 	THROW(CheckCfgRights(PPCFGOBJ_WORKBOOK, PPR_READ, 0));
 	is_new = ReadConfig(&data.Cfg);

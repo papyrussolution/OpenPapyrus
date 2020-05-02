@@ -1029,6 +1029,7 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 {
 	int    ok = 1;
 	int    skip_passive = 0;
+	int    skip_generic = 0; // @v10.7.7
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
 	SString pattern;
@@ -1043,6 +1044,14 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 	}
 	else if(flags & glsfSkipPassive)
 		skip_passive = 1;
+	// @v10.7.7 {
+	if(flags & glsfDefGeneric) {
+		//PPObjGoods goods_obj;
+		//skip_generic = BIN(goods_obj.GetConfig().Flags & GCF_DONTSELPASSIVE);
+	}
+	else if(flags & glsfSkipGeneric)
+		skip_generic = 1;
+	// } @v10.7.7 
 	const StrAssocArray * p_full_list = GetFullList();
 	if(p_full_list) {
 		PPUserFuncProfiler ufp(PPUPRF_SRCHINGOODSFL);
@@ -1059,19 +1068,20 @@ int SLAPI GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pLis
 			r = tsp.Detect(item.Txt);
 			PROFILE_END
 			PROFILE_START
-			if(r > 0 && (!skip_passive || (Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_PASSIV)))) {
-				result_count++;
-				if(p_list) {
-					if(!p_list->add(item.Id)) { // @v10.1.4 addUnique-->add
-						//
-						// Здесь THROW не годится из-за того, что сразу после завершения цикла
-						// необходимо быстро сделать ReleaseFullList
-						//
-						ok = PPSetErrorSLib();
+			if(r > 0 && (!(skip_passive || skip_generic) || Fetch(item.Id, &goods_rec) > 0)) {
+				if((!skip_passive || !(goods_rec.Flags & GF_PASSIV)) && (!skip_generic || !(goods_rec.Flags & GF_GENERIC))) {
+					result_count++;
+					if(p_list) {
+						if(!p_list->add(item.Id)) { // @v10.1.4 addUnique-->add
+							//
+							// Здесь THROW не годится из-за того, что сразу после завершения цикла необходимо быстро сделать ReleaseFullList
+							//
+							ok = PPSetErrorSLib();
+						}
 					}
-				}
-				else if(p_str_list) {
-					p_str_list->Add(item.Id, item.Txt);
+					else if(p_str_list) {
+						p_str_list->Add(item.Id, item.Txt);
+					}
 				}
 			}
 			PROFILE_END

@@ -6453,7 +6453,7 @@ int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SStri
 	_up.GetComponent(InetUrl::cPath, 0, temp_buf);
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
 	SPathStruc ps(rFileName);
-	(temp_buf = ps.Nam).CatChar('.').Cat("xml");
+	(temp_buf = ps.Nam).Dot().Cat("xml");
 	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rFileName);
 	THROW_SL(::createDir(rFileName));
 	rFileName.SetLastSlash().Cat(temp_buf);

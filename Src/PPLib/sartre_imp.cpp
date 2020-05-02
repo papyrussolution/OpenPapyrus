@@ -3952,7 +3952,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			for(uint i = 0; i < ling_list.getCount(); i++) {
 				GetLinguaCode(ling_list.get(i), temp_buf);
 				temp_buf.ToUtf8().ToLower();
-				(in_file_name = pPath).SetLastSlash().Cat("featureCodes").CatChar('_').Cat(temp_buf).CatChar('.').Cat("txt");
+				(in_file_name = pPath).SetLastSlash().Cat("featureCodes").CatChar('_').Cat(temp_buf).Dot().Cat("txt");
 				if(fileExists(in_file_name)) {
 					SFile inf(in_file_name, SFile::mRead);
 					THROW(inf.IsValid());

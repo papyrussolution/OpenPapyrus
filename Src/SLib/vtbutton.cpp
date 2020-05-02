@@ -1,5 +1,5 @@
 // VTBUTTON.CPP
-// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -13,7 +13,7 @@ int SLAPI showInputLineCalc(TDialog *, uint);
 
 #pragma warn -par
 
-VirtButtonWndEx::VirtButtonWndEx(const char * pSignature) : P_Dlg(0), FieldCtrlId(0), ButtonCtrlId(0), PrevWndProc(0), HBmp(0)
+TCalcInputLine::VirtButtonWndEx::VirtButtonWndEx(const char * pSignature) : P_Dlg(0), FieldCtrlId(0), ButtonCtrlId(0), PrevWndProc(0), HBmp(0)
 {
 	STRNSCPY(Signature, pSignature);
 }
@@ -45,12 +45,12 @@ LRESULT CALLBACK InLnCalcWindProc(HWND, UINT, WPARAM, LPARAM);
 
 int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT (CALLBACK *virtButtonProc[])(HWND, UINT, WPARAM, LPARAM) = { 0, InLnCalcWindProc, InLnCalcWindProc };
-	const int virtButtonBitmapId[] = { 0, IDB_INLNCALC, IDB_INLNCALCL };
+	static LRESULT (CALLBACK * virtButtonProc[])(HWND, UINT, WPARAM, LPARAM) = { 0, InLnCalcWindProc, InLnCalcWindProc }; // @v10.7.7 static
+	static const int virtButtonBitmapId[] = { 0, IDB_INLNCALC, IDB_INLNCALCL }; // @v10.7.7 static
 	int    ok = TInputLine::handleWindowsMessage(uMsg, wParam, lParam);
 	if(ok > 0) {
 		if(uMsg == WM_INITDIALOG) {
-			Vbwe.P_Dlg = (TDialog *)P_Owner;
+			Vbwe.P_Dlg = static_cast<TDialog *>(P_Owner);
 			Vbwe.FieldCtrlId = Id;
 			HWND hwnd = GetDlgItem(Parent, Vbwe.ButtonCtrlId);
 			Vbwe.PrevWndProc = static_cast<WNDPROC>(TView::GetWindowProp(hwnd, GWLP_WNDPROC));
@@ -71,7 +71,7 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 
 class InputLineCalc : public TDialog {
 public:
-	InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId);
+	InputLineCalc(uint dlgID, TDialog * pParentDlg, uint fieldCtlId);
 	~InputLineCalc()
 	{
 		InLnCalcUncapture();
@@ -210,15 +210,10 @@ int InputLineCalc::Calculate()
 	if(IsNumber == 0)
 		Number[1] = Number[0];
 	switch(Command) {
-		case ILC_PLUS:
-			Number[0] += Number[1];
-			break;
-		case ILC_MINUS:
-			Number[0] -= Number[1];
-			break;
-		case ILC_MULTIPLE:
-			Number[0] *= Number[1];
-			break;
+		case ILC_INVERSE: Number[0] = -Number[1]; break;
+		case ILC_PLUS: Number[0] += Number[1]; break;
+		case ILC_MINUS: Number[0] -= Number[1]; break;
+		case ILC_MULTIPLE: Number[0] *= Number[1]; break;
 		case ILC_DIVIDE:
 			if(Number[1])
 				Number[0] /= Number[1];
@@ -227,9 +222,6 @@ int InputLineCalc::Calculate()
 				P_Il->setText("Error");
 				ok = 0;
 			}
-			break;
-		case ILC_INVERSE:
-			Number[0] = -Number[1];
 			break;
 	}
 	Number[1] = 0;
@@ -404,9 +396,10 @@ int SLAPI showInputLineCalc(TDialog * pParentDlg, uint fieldCtlId)
 	return ok;
 }
 
-LRESULT CALLBACK InLnCalcWindProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+//static
+LRESULT CALLBACK TCalcInputLine::InLnCalcWindProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	VirtButtonWndEx * p_vbwe = static_cast<VirtButtonWndEx *>(TView::GetWindowUserData(hWnd));
+	TCalcInputLine::VirtButtonWndEx * p_vbwe = static_cast<TCalcInputLine::VirtButtonWndEx *>(TView::GetWindowUserData(hWnd));
 	if(msg == WM_LBUTTONUP)
 		showInputLineCalc(p_vbwe->P_Dlg, p_vbwe->FieldCtrlId);
 	return CallWindowProc(p_vbwe->PrevWndProc, hWnd, msg, wParam, lParam);

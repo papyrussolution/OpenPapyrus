@@ -33,7 +33,7 @@ int SLAPI pathToUNC(const char * pPath, SString & rUncPath)
 	char   disk[4] = "X:\\";
 	*disk = *pPath;
 	rUncPath = pPath;
-	if(GetDriveType(SUcSwitch(disk)) == DRIVE_REMOTE) { // @unicodeproblem
+	if(GetDriveType(SUcSwitch(disk)) == DRIVE_REMOTE) {
 		char   namebuf[MAXPATH + sizeof(UNIVERSAL_NAME_INFO)];
 		namebuf[0] = 0;
 		DWORD  len = MAXPATH;
@@ -299,7 +299,7 @@ int SLAPI createDir(const char * pPath)
 				if(path[0] == path[1] && path[0] == '\\' && !sstrchr(path+2, '\\'))
 					is_root = 1;
 				if(!is_root && (path[0] && ::access(path, 0) != 0))
-					if(::CreateDirectory(SUcSwitch(path), NULL) == 0) { // @unicodeproblem
+					if(::CreateDirectory(SUcSwitch(path), NULL) == 0) {
 						SLS.SetAddedMsgString(path);
 						ok = (SLibError = SLERR_MKDIRFAULT, 0);
 					}
@@ -408,7 +408,7 @@ void SLAPI encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
 int SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 {
 #ifdef __WIN32__
-	int    r = ::CopyFile(SUcSwitch(pSrcFileName), SUcSwitch(pDestFileName), 0); // @unicodeproblem
+	int    r = ::CopyFile(SUcSwitch(pSrcFileName), SUcSwitch(pDestFileName), 0);
 	if(r == 0)
 		SLS.SetOsError();
 	return r;
@@ -433,7 +433,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	SString added_msg;
 	SString sys_err_buf; // @v10.3.11
 	FILETIME creation_time, last_access_time, last_modif_time;
-	HANDLE srchdl = ::CreateFile(SUcSwitch(pSrcFileName), GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0); // @unicodeproblem
+	HANDLE srchdl = ::CreateFile(SUcSwitch(pSrcFileName), GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
 	if(srchdl == INVALID_HANDLE_VALUE) {
 		added_msg = pSrcFileName;
 		//char   tmp_msg_buf[256];
@@ -450,7 +450,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	//SLS.SetAddedMsgString(pSrcFileName);
 	//THROW_V(srchdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	GetFileTime(srchdl, &creation_time, &last_access_time, &last_modif_time);
-	desthdl = ::CreateFile(SUcSwitch(pDestFileName), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
+	desthdl = ::CreateFile(SUcSwitch(pDestFileName), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if(desthdl == INVALID_HANDLE_VALUE) {
 		added_msg = pDestFileName;
 		//char   tmp_msg_buf[256];
@@ -622,7 +622,7 @@ int RemoveDir(const char * pDir)
 		}
 		if(ok > 0) {
 			(path = pDir).RmvLastSlash();
-			if(::RemoveDirectory(SUcSwitch(path)) != 0) // @unicodeproblem
+			if(::RemoveDirectory(SUcSwitch(path)) != 0)
 				ok = 1;
 			else
 				ok = 0;
@@ -698,7 +698,7 @@ int SFileUtil::GetSysDir(int pathId, SString & rPath)
 		case sdCommonDocuments: folder = CSIDL_COMMON_DOCUMENTS; break;
 	}
 	if(folder) {
-		if(SUCCEEDED(SHGetFolderPath(0, folder, 0, SHGFP_TYPE_CURRENT, path))) { // @unicodeproblem
+		if(SUCCEEDED(SHGetFolderPath(0, folder, 0, SHGFP_TYPE_CURRENT, path))) {
 			rPath = SUcSwitch(path);
 			ok = 1;
 		}

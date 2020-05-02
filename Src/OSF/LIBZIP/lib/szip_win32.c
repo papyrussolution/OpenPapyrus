@@ -40,16 +40,16 @@ struct _zip_source_win32_read_file {
     int64 supports;
 	struct _zip_source_win32_file_ops * ops; // operations 
     /* reading */
-    void *fname;            /* name of file to read from - ANSI (char *) or Unicode (wchar_t *) */
-    void *h;                /* HANDLE for file to read from */
-    int closep;             /* whether to close f on ZIP_CMD_FREE */
-    zip_stat_t st;     /* stat information passed in */
-    uint64 start;     /* start offset of data to read */
-    uint64 end;       /* end offset of data to read, 0 for up to EOF */
-    uint64 current;   /* current offset */
+    void * fname;   /* name of file to read from - ANSI (char *) or Unicode (wchar_t *) */
+    void * h;       /* HANDLE for file to read from */
+    int    closep;  /* whether to close f on ZIP_CMD_FREE */
+    zip_stat_t st;  /* stat information passed in */
+    uint64 start;   /* start offset of data to read */
+    uint64 end;     /* end offset of data to read, 0 for up to EOF */
+    uint64 current; /* current offset */
     /* writing */
-    void *tmpname;          /* name of temp file - ANSI (char *) or Unicode (wchar_t *) */
-    void *hout;             /* HANDLE for output file */
+    void * tmpname; /* name of temp file - ANSI (char *) or Unicode (wchar_t *) */
+    void * hout;    /* HANDLE for output file */
 };
 
 typedef struct _zip_source_win32_read_file _zip_source_win32_read_file_t;
@@ -152,7 +152,7 @@ static int _win32_rename_temp_a(_zip_source_win32_read_file_t * ctx)
 
 static int _win32_remove_a(const void * fname)
 {
-	DeleteFileA((const char *)fname);
+	DeleteFileA(static_cast<const char *>(fname));
 	return 0;
 }
 
@@ -585,7 +585,7 @@ ZIP_EXTERN zip_source_t * zip_source_file_create(const char * fname, uint64 star
 		if(size == 0) {
 			zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		}
-		else if((wfname = (wchar_t*)SAlloc::M(sizeof(wchar_t) * size)) == NULL) {
+		else if((wfname = (wchar_t *)SAlloc::M(sizeof(wchar_t) * size)) == NULL) {
 			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		}
 		else {
@@ -623,7 +623,7 @@ static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** 
 			return INVALID_HANDLE_VALUE;
 		}
 	}
-	if(_snwprintf((wchar_t*)*temp, len, L"%s.%08x", (const wchar_t*)ctx->fname, value) != len - 1) {
+	if(_snwprintf((wchar_t *)*temp, len, L"%s.%08x", (const wchar_t*)ctx->fname, value) != len - 1) {
 		return INVALID_HANDLE_VALUE;
 	}
 	return CreateFileW((const wchar_t*)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ,

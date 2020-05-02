@@ -3309,13 +3309,14 @@ SLAPI PrcssrDebtRate::~PrcssrDebtRate()
 int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 {
 	class DebtRateFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrDebtRate::Param);
 	public:
 		explicit DebtRateFiltDialog(int isThereDebtRateLic) : TDialog(DLG_DEBTRATE), IsThereDebtRateLic(isThereDebtRateLic)
 		{
 		}
-		int setDTS(const PrcssrDebtRate::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_DEBTRATE_ACS, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
 			setCtrlLong(CTL_DEBTRATE_GANDICAP, Data.Gandicap);
 			if(!IsThereDebtRateLic) {
@@ -3347,7 +3348,7 @@ int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 			SetClusterData(CTL_DEBTRATE_FLAGS, Data.Flags);
 			return 1;
 		}
-		int getDTS(PrcssrDebtRate::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -3383,7 +3384,6 @@ int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 			}
 		}
 		int    IsThereDebtRateLic;
-		PrcssrDebtRate::Param Data;
 	};
 	DIALOG_PROC_BODY_P1(DebtRateFiltDialog, IsThereDebtRateLic, pParam);
 }

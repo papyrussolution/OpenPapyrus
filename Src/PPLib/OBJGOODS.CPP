@@ -2600,6 +2600,8 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fPassiveOnly && !(rec.Flags & GF_PASSIV))
 		CFF_RET;
+	if(pFilt->Flags & GoodsFilt::fHideGeneric && rec.Flags & GF_GENERIC) // @v10.7.7
+		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fGenGoodsOnly && !(rec.Flags & GF_GENERIC))
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fWOTaxGdsOnly && !(rec.Flags & GF_PRICEWOTAXES))
@@ -2895,6 +2897,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	const  long brand = (options & selfExtLongAsBrand) ? reinterpret_cast<long>(extraPtr) : 0;
 	const  int  exist_only = BIN(parent < 0);
 	const  int  dont_sel_passive = (options & selfHidePassive) ? 1 : ((options & selfForcePassive) ? 0 : BIN(GetConfig().Flags & GCF_DONTSELPASSIVE));
+	const  int  dont_sel_generic = BIN(options & selfHideGeneric); // @v10.7.7
 	const  PPID loc_id = NZOR(locID, LConfig.Location);
 	const  PPID mtx_qk_id = (options & selfUseMatrix) ? GetConfig().MtxQkID : 0;
 	Goods2Tbl * t = 0;
@@ -2944,6 +2947,10 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 			}
 			if(dont_sel_passive)
 				q.Cat("PASSIVE").CatParStr("no").Space();
+			// @v10.7.7 {
+			if(dont_sel_generic)
+				q.Cat("GENERIC").CatParStr("no").Space();
+			// } @v10.7.7 
 			q.Cat("LOCATION").CatParStr(loc_id).Space();
 			q.Cat("FORMAT").Dot().Cat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
@@ -2965,6 +2972,10 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 				gf.BrandList.Add(brand);
 			if(dont_sel_passive)
 				gf.Flags |= GoodsFilt::fHidePassive;
+			// @v10.7.7 {
+			if(dont_sel_generic)
+				gf.Flags |= GoodsFilt::fHideGeneric;
+			// } @v10.7.7 
 			THROW_MEM(p_array);
 			if(exist_only)
 				gf.Flags |= GoodsFilt::fActualOnly;
@@ -2976,9 +2987,8 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 			SString text_buf;
 			for(uint i = 0; i < p_array->getCount(); i++) {
 				StrAssocArray::Item item = p_array->at_WithoutParent(i);
-				if(FetchSingleBarcode(item.Id, text_buf.Z()) > 0) {
+				if(FetchSingleBarcode(item.Id, text_buf.Z()) > 0)
 					text_buf.CatCharN(' ', 3).Cat(item.Txt);
-				}
 				else
 					text_buf = item.Txt;
 				temp_array.AddFast(item.Id, text_buf);
@@ -2991,8 +3001,14 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	else {
 		THROW(CheckTblPtr(t = new Goods2Tbl));
 		DBQ * dbq = &(t->Kind == Kind);
-		if(dont_sel_passive && Kind == PPGDSK_GOODS)
-			dbq = &(*dbq && (t->Flags & GF_PASSIV) == 0L); // @memleak
+		if(Kind == PPGDSK_GOODS) {
+			if(dont_sel_passive)
+				dbq = &(*dbq && (t->Flags & GF_PASSIV) == 0L); // @memleak
+			// @v10.7.7 {
+			if(dont_sel_generic)
+				dbq = &(*dbq && (t->Flags & GF_GENERIC) == 0L); // @memleak
+			// } @v10.7.7 
+		}
 		p_q = & select(t->ID, ((options & selfByName) ? t->Name : t->Abbr), 0L).from(t, 0L);
 		p_q->where(*dbq).orderBy(t->Kind, ((options & selfByName) ? t->Name : t->Abbr), 0L);
 	}

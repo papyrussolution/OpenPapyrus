@@ -98,11 +98,9 @@ IntRange & FASTCALL IntRange::Set(int val)
 int FASTCALL IntRange::Intersect(const IntRange & rD) const
 {
 	int    ret = 0;
-	int32  c1 = 0;
-	int32  c2 = 0;
 	if(low <= upp && rD.low <= rD.upp) {
-		c1 = MAX(low, rD.low);
-		c2 = MIN(upp, rD.upp);
+		const int32 c1 = MAX(low, rD.low);
+		const int32 c2 = MIN(upp, rD.upp);
 		if(c1 < c2)
 			ret = 1;
 		else if(c1 == c2)

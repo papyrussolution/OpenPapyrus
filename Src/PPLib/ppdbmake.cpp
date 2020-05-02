@@ -1,16 +1,58 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
 static int isNeededFile(const char * pName)
 {
+	const char * p_tables[] = {
+		"Reference2",
+		"Property",
+		"UuidRef", // @v10.7.7
+		"TextRef", // @v10.7.7
+		"UnxTextRef", // @v10.7.7
+		"ObjSync",
+		"ObjAssoc",
+		"World",
+		"Person",
+		// @v10.7.7 "BankAccount",
+		"PersonKind",
+		"Register",
+		"PersonEvent",
+		"StaffList",
+		"StaffCalendar",
+		"PersonPost",
+		"Goods2",
+		"Barcode",
+		"ArGoodsCode",
+		"GoodsExt",
+		"Location",
+		"CurrencyRate",
+		"Quotation",
+		"Quotation2",
+		"Quot2Rel",
+		"QualityCert",
+		"Article",
+		"Account",
+		"Processor",
+		"Tech",
+		"SCard",
+		"SCardOp",
+		"ObjTag"
+	};
 	int    ok = 0;
-	SString temp_buf;
-	for(int i = 0; !ok && PPGetSubStr(PPTXT_NEEDEDFILES, i, temp_buf) > 0; i++)
-		if(temp_buf.CmpNC(pName) == 0)
+	for(size_t i = 0; !ok && i < SIZEOFARRAY(p_tables); i++) {
+		if(sstreqi_ascii(p_tables[i], pName))
 			ok = 1;
+	}
+	/* @v10.7.7 {
+		SString temp_buf;
+		for(int i = 0; !ok && PPGetSubStr(PPTXT_NEEDEDFILES, i, temp_buf) > 0; i++)
+			if(temp_buf.CmpNC(pName) == 0)
+				ok = 1;
+	}*/
 	return ok;
 }
 
@@ -50,7 +92,7 @@ static int64 calcNeededSize(int isEmpty)
 	return size;
 }
 
-/* @v9.2.1 Èñïîëüçîâàíèå çàìåíåíî íà RemoveDir()
+/* @v9.2.1 Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð·Ð°Ð¼ÐµÐ½ÐµÐ½Ð¾ Ð½Ð° RemoveDir()
 static void RemovePath(const char * pPath)
 {
 	SDirEntry sde;
@@ -78,11 +120,12 @@ int SLAPI CreateByExample(const char * pPath)
 	pp.SetLastSlash();
 	PPWait(1);
 	//
-	// Âû÷èñëÿåì íåîáõîäèìûé ðàçìåð äèñêîâîãî ïðîñòðàíñòâà è ñðàâíèâàåì åãî ñ äîñòóïíûì
+	// Ð’Ñ‹Ñ‡Ð¸ÑÐ»ÑÐµÐ¼ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð´Ð¸ÑÐºÐ¾Ð²Ð¾Ð³Ð¾ Ð¿Ñ€Ð¾ÑÑ‚Ñ€Ð°Ð½ÑÑ‚Ð²Ð° Ð¸ ÑÑ€Ð°Ð²Ð½Ð¸Ð²Ð°ÐµÐ¼ ÐµÐ³Ð¾ Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹Ð¼
 	//
-	int64  disk_total = 0, disk_avail = 0;
+	int64  disk_total = 0;
+	int64  disk_avail = 0;
 	SFileUtil::GetDiskSpace(pPath, &disk_total, &disk_avail);
-	// *2 - êîýôôèöèåíò çàïàñà
+	// *2 - ÐºÐ¾ÑÑ„Ñ„Ð¸Ñ†Ð¸ÐµÐ½Ñ‚ Ð·Ð°Ð¿Ð°ÑÐ°
 	if((calcNeededSize(0) * 2) > disk_avail) {
 		DBErrCode = SDBERR_BU_NOFREESPACE;
 		CALLEXCEPT_PP(PPERR_DBLIB);
@@ -115,6 +158,8 @@ int SLAPI CreateByExample(const char * pPath)
 						if(p_src_tbl->step(spFirst)) {
 							const int is_assoc = tbl_name.IsEqiAscii("objassoc");
 							const int is_ref = tbl_name.IsEqiAscii("reference2");
+							const int is_text_ref = tbl_name.IsEqiAscii("textref"); // @v10.7.7
+							const int is_unxtext_ref = tbl_name.IsEqiAscii("unxtextref"); // @v10.7.7
 							do {
 								int   ins_rec = 0;
 								p_dst_tbl->clearDataBuf();
@@ -126,6 +171,18 @@ int SLAPI CreateByExample(const char * pPath)
 										PPASS_PRJBILLPOOL, PPASS_PRJPHASEBILLPOOL, PPASS_TODOBILLPOOL))
 										ins_rec = 1;
 								}
+								// @v10.7.7 {
+								else if(is_text_ref) {
+									TextRefTbl::Rec * p_rec = static_cast<TextRefTbl::Rec *>(p_src_tbl->getDataBuf());
+									if(!oneof4(p_rec->ObjType, PPOBJ_BILL, PPOBJ_TSESSION, PPOBJ_CCHECK, PPOBJ_CSESSION))
+										ins_rec = 1;
+								}
+								else if(is_unxtext_ref) {
+									UnxTextRefTbl::Rec * p_rec = static_cast<UnxTextRefTbl::Rec *>(p_src_tbl->getDataBuf());
+									if(!oneof4(p_rec->ObjType, PPOBJ_BILL, PPOBJ_TSESSION, PPOBJ_CCHECK, PPOBJ_CSESSION))
+										ins_rec = 1;
+								}
+								// } @v10.7.7 
 								else {
 									ins_rec = 1;
 									// @v10.2.0 {
@@ -145,9 +202,9 @@ int SLAPI CreateByExample(const char * pPath)
 									SString msg_buf, rec_txt_buf;
 									msg_buf.Cat(p_dst_tbl->GetName()).CatDiv('-', 1);
 									//
-									// Òàê êàê ñïèñîê ïîëåé	â p_dst_tbl íå èíèöèàëèçèðîâàí,
-									// à áóôåð ýòîé òàáëèöû èäåíòè÷åí áóôåðó p_src_tbl,
-									// òî äëÿ âûâîäà ñîäåðæèìîãî áóôåðà èñïîëüçóåì p_src_tbl.
+									// Ð¢Ð°Ðº ÐºÐ°Ðº ÑÐ¿Ð¸ÑÐ¾Ðº Ð¿Ð¾Ð»ÐµÐ¹	Ð² p_dst_tbl Ð½Ðµ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€Ð¾Ð²Ð°Ð½,
+									// Ð° Ð±ÑƒÑ„ÐµÑ€ ÑÑ‚Ð¾Ð¹ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ‡ÐµÐ½ Ð±ÑƒÑ„ÐµÑ€Ñƒ p_src_tbl,
+									// Ñ‚Ð¾ Ð´Ð»Ñ Ð²Ñ‹Ð²Ð¾Ð´Ð° ÑÐ¾Ð´ÐµÑ€Ð¶Ð¸Ð¼Ð¾Ð³Ð¾ Ð±ÑƒÑ„ÐµÑ€Ð° Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ p_src_tbl.
 									//
 									p_src_tbl->putRecToString(rec_txt_buf, 1);
 									msg_buf.Cat(rec_txt_buf);
@@ -173,7 +230,7 @@ int SLAPI CreateByExample(const char * pPath)
 	}
 	{
 		//
-		// Ïåðåíîñ ïîñëåäíèõ ëîòîâ èç îðèãèíàëüíîé áàçû â íîâóþ
+		// ÐŸÐµÑ€ÐµÐ½Ð¾Ñ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ñ… Ð»Ð¾Ñ‚Ð¾Ð² Ð¸Ð· Ð¾Ñ€Ð¸Ð³Ð¸Ð½Ð°Ð»ÑŒÐ½Ð¾Ð¹ Ð±Ð°Ð·Ñ‹ Ð² Ð½Ð¾Ð²ÑƒÑŽ
 		//
 		SString path;
 		Goods2Tbl::Rec  goods_rec;
@@ -201,7 +258,7 @@ int SLAPI CreateByExample(const char * pPath)
 						THROW_DB(dst_tbl.insertRec());
 						{
 							//
-							// Ïåðåíîñ òåãîâ ëîòà ñ èñõîäíîé áàçû â ñîçäàâàåìóþ.
+							// ÐŸÐµÑ€ÐµÐ½Ð¾Ñ Ñ‚ÐµÐ³Ð¾Ð² Ð»Ð¾Ñ‚Ð° Ñ Ð¸ÑÑ…Ð¾Ð´Ð½Ð¾Ð¹ Ð±Ð°Ð·Ñ‹ Ð² ÑÐ¾Ð·Ð´Ð°Ð²Ð°ÐµÐ¼ÑƒÑŽ.
 							//
 							ObjTagList lot_tag_list;
 							if(p_bobj->GetTagListByLot(rcpt_rec.ID, 0, &lot_tag_list) > 0) {
@@ -267,6 +324,7 @@ struct MakeDatabaseParam {
 };
 
 class MakeDatabaseParamDialog : public TDialog {
+	DECL_DIALOG_DATA(MakeDatabaseParam);
 public:
 	enum {
 		ctlgroupFbb = 1
@@ -275,7 +333,7 @@ public:
 	{
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_MAKENEWDB_PATH, CTL_MAKENEWDB_PATH, ctlgroupFbb, PPTXT_SELNEWBASEDIR, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
 	}
-	int    setDTS(const MakeDatabaseParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -294,7 +352,7 @@ public:
 		disableCtrl(CTLSEL_MAKENEWDB_POSHOST, Data.How != Data.howAutoPosNode);
 		return ok;
 	}
-	int    getDTS(MakeDatabaseParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -320,16 +378,17 @@ private:
 			clearEvent(event);
 		}
 	}
-	MakeDatabaseParam Data;
 };
 
 int SLAPI MakeDatabase()
 {
 	int    ok = -1;
-	PPIniFile ini_file;
 	MakeDatabaseParam param;
 	PPDbEntrySet2 dbes;
-	dbes.ReadFromProfile(&ini_file);
+	{
+		PPIniFile ini_file;
+		dbes.ReadFromProfile(&ini_file);
+	}
 	{
 		SString temp_buf;
 		const char * p_pattern = "new-database";
@@ -391,7 +450,7 @@ int SLAPI MakeDatabase()
 			}
 			else if(IsDirectory(param.Path)) {
 				//
-				// Ïðîâåðêà íà òî, ÷òî áû êàòàëîã íàçíà÷åíèÿ áûë ïóñòûì
+				// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ñ‚Ð¾, Ñ‡Ñ‚Ð¾ Ð±Ñ‹ ÐºÐ°Ñ‚Ð°Ð»Ð¾Ð³ Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð±Ñ‹Ð» Ð¿ÑƒÑÑ‚Ñ‹Ð¼
 				//
 				SString src_file;
 				SDirEntry sd_entry;
@@ -482,7 +541,10 @@ int SLAPI MakeDatabase()
 				if(param.How == param.howBySample) {
 					if(CreateByExample(param.Path) > 0) {
 						param.DbName.Comma().Cat(param.Path.RmvLastSlash());
-						THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
+						{
+							PPIniFile ini_file;
+							THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
+						}
 						ok = 1;
 					}
 				}
@@ -490,11 +552,11 @@ int SLAPI MakeDatabase()
 					ok = 1;
 					PPWait(1);
 					//
-					// Âû÷èñëÿåì íåîáõîäèìûé ðàçìåð äèñêîâîãî ïðîñòðàíñòâà è ñðàâíèâàåì åãî ñ äîñòóïíûì
+					// Ð’Ñ‹Ñ‡Ð¸ÑÐ»ÑÐµÐ¼ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð´Ð¸ÑÐºÐ¾Ð²Ð¾Ð³Ð¾ Ð¿Ñ€Ð¾ÑÑ‚Ñ€Ð°Ð½ÑÑ‚Ð²Ð° Ð¸ ÑÑ€Ð°Ð²Ð½Ð¸Ð²Ð°ÐµÐ¼ ÐµÐ³Ð¾ Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹Ð¼
 					//
 					int64  disk_total = 0, disk_avail = 0;
 					SFileUtil::GetDiskSpace(param.Path, &disk_total, &disk_avail);
-					// *3/2 - êîýôôèöèåíò çàïàñà
+					// *3/2 - ÐºÐ¾ÑÑ„Ñ„Ð¸Ñ†Ð¸ÐµÐ½Ñ‚ Ð·Ð°Ð¿Ð°ÑÐ°
 					if((calcNeededSize(1) * 3 / 2) > disk_avail) {
 						DBErrCode = SDBERR_BU_NOFREESPACE;
 						CALLEXCEPT_PP(PPERR_DBLIB);
@@ -519,7 +581,10 @@ int SLAPI MakeDatabase()
 					}
 					*/
 					param.DbName.Comma().Cat(param.Path.RmvLastSlash());
-					THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
+					{
+						PPIniFile ini_file;
+						THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
+					}
 					{
 						PPCreateDatabaseSession::Param sess_param;
 						sess_param.DbSymb = param.DbSymb;
@@ -549,6 +614,7 @@ int SLAPI MakeDatabase()
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
 						p_sess->Start(1);
+						::WaitForSingleObject(*p_sess, INFINITE); // @v10.7.7
 					}
 					PPWait(0);
 				}
@@ -556,11 +622,11 @@ int SLAPI MakeDatabase()
 					ok = 1;
 					PPWait(1);
 					//
-					// Âû÷èñëÿåì íåîáõîäèìûé ðàçìåð äèñêîâîãî ïðîñòðàíñòâà è ñðàâíèâàåì åãî ñ äîñòóïíûì
+					// Ð’Ñ‹Ñ‡Ð¸ÑÐ»ÑÐµÐ¼ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð´Ð¸ÑÐºÐ¾Ð²Ð¾Ð³Ð¾ Ð¿Ñ€Ð¾ÑÑ‚Ñ€Ð°Ð½ÑÑ‚Ð²Ð° Ð¸ ÑÑ€Ð°Ð²Ð½Ð¸Ð²Ð°ÐµÐ¼ ÐµÐ³Ð¾ Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹Ð¼
 					//
 					int64  disk_total = 0, disk_avail = 0;
 					SFileUtil::GetDiskSpace(param.Path, &disk_total, &disk_avail);
-					// *3/2 - êîýôôèöèåíò çàïàñà
+					// *3/2 - ÐºÐ¾ÑÑ„Ñ„Ð¸Ñ†Ð¸ÐµÐ½Ñ‚ Ð·Ð°Ð¿Ð°ÑÐ°
 					if((calcNeededSize(1) * 3 / 2) > disk_avail) {
 						DBErrCode = SDBERR_BU_NOFREESPACE;
 						CALLEXCEPT_PP(PPERR_DBLIB);
@@ -585,7 +651,10 @@ int SLAPI MakeDatabase()
 					}
 					*/
 					param.DbName.Comma().Cat(param.Path.RmvLastSlash());
-					THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
+					{
+						PPIniFile ini_file;
+						THROW_SL(ini_file.AppendParam("dbname", param.DbSymb, param.DbName, 1));
+					}
 					{
 						PPCreateDatabaseSession::Param sess_param;
 						sess_param.Action = sess_param.acnCreatePosNode;
@@ -616,6 +685,7 @@ int SLAPI MakeDatabase()
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
 						p_sess->Start(1);
+						::WaitForSingleObject(*p_sess, INFINITE); // @v10.7.7
 					}
 					PPWait(0);
 				}

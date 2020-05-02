@@ -198,12 +198,10 @@ private:
 			int    ok = 1;
 			GetClusterData(CTL_SELOBJBYPHN_WHAT, &Data.Oid.Obj);
 			Data.ExtSelector = getCtrlLong(CTLSEL_SELOBJBYPHN_EXT);
-			if(Data.Oid.Obj == PPOBJ_PERSON) {
+			if(Data.Oid.Obj == PPOBJ_PERSON)
 				Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
-			}
-			else if(Data.Oid.Obj == PPOBJ_SCARD) {
+			else if(Data.Oid.Obj == PPOBJ_SCARD)
 				Data.Oid.Id = getCtrlLong(CTL_SELOBJBYPHN_SRCH);
-			}
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}

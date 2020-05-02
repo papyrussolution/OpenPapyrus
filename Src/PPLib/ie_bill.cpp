@@ -674,6 +674,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					setGroupData(ctlgroupEmailList, &grp_rec);
 				}
 				setCtrlString(CTL_IEBILLSEL_MAILSUBJ, P_Data->Tp.Subject);
+				SetupWordSelector(CTL_IEBILLSEL_MAILSUBJ, new TextHistorySelExtra("emailsubj-exportbills-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.7
 			}
 			CATCHZOKPPERR
 			return ok;

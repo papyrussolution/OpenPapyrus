@@ -1,5 +1,5 @@
 // CHKSYSCR.CPP
-// 2005, 2007, 2008, 2009, 2010, 2016, 2018
+// 2005, 2007, 2008, 2009, 2010, 2016, 2018, 2020
 // Слегка видоизмененный метод проверки имени пользователя и пароля в Windows
 //
 // ----------------------------------------------------------------
@@ -266,11 +266,11 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	// Initialize auth identity structure
 	ZeroMemory(&ai, sizeof(ai));
 #if defined(UNICODE) || defined(_UNICODE)
-	ai.Domain = reinterpret_cast<ushort *>(szDomain); // @unicodeproblem
+	ai.Domain = reinterpret_cast<ushort *>(szDomain);
 	ai.DomainLength = lstrlen(szDomain);
-	ai.User = reinterpret_cast<ushort *>(szUser); // @unicodeproblem
+	ai.User = reinterpret_cast<ushort *>(szUser);
 	ai.UserLength = lstrlen(szUser);
-	ai.Password = reinterpret_cast<ushort *>(szPassword); // @unicodeproblem
+	ai.Password = reinterpret_cast<ushort *>(szPassword);
 	ai.PasswordLength = lstrlen(szPassword);
 	ai.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
 #else
@@ -284,7 +284,7 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 #endif
 	// Prepare client message (negotiate) .
 	cbOut = cbMaxToken;
-	THROW(GenClientContext(vt, &asClient, &ai, NULL, 0, pClientBuf, &cbOut, &fDone)); // @unicodeproblem
+	THROW(GenClientContext(vt, &asClient, &ai, NULL, 0, pClientBuf, &cbOut, &fDone));
 	// Prepare server message (challenge) .
 	cbIn = cbOut;
 	cbOut = cbMaxToken;
@@ -324,7 +324,7 @@ int SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, 
 	STRNSCPY(domain, SUcSwitch(pDomain));
 	STRNSCPY(user, SUcSwitch(pUserName));
 	STRNSCPY(pw, SUcSwitch(pPw));
-	return BIN(SSPLogonUser(domain, user, pw)); // @unicodeproblem
+	return BIN(SSPLogonUser(domain, user, pw));
 }
 //
 //

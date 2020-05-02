@@ -6235,6 +6235,79 @@ public:
 	DBField Reserve;
 };
 
+class TsTaJournalTbl : public DBTable {
+public:
+	TsTaJournalTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		int32  ID;
+		LDATE  NotifyDt;
+		LTIME  NotifyTm;
+		uint32 Deal;
+		uint32 Order;
+		int32  TsID;
+		int8   Symb[32];
+		int32  TaType;
+		int32  OrdType;
+		int32  OrdState;
+		int32  DealType;
+		int32  OrdTypeTime;
+		LDATETIME Expiration;
+		double Price;
+		double PriceTrigger;
+		double PriceSL;
+		double PriceTP;
+		double Volume;
+		uint32 Position;
+		uint32 PositionBy;
+		TSLob <2048> VT;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		LDATE  NotifyDt;
+		LTIME  NotifyTm;
+	};
+	struct Key2 {
+		int32  TsID;
+		LDATE  NotifyDt;
+		LTIME  NotifyTm;
+	};
+	struct Key3 {
+		int8   Symb[32];
+		LDATE  NotifyDt;
+		LTIME  NotifyTm;
+	};
+	struct Key4 {
+		int32  TaType;
+		LDATE  NotifyDt;
+		LTIME  NotifyTm;
+	};
+	DBField ID;
+	DBField NotifyDt;
+	DBField NotifyTm;
+	DBField Deal;
+	DBField Order;
+	DBField TsID;
+	DBField Symb;
+	DBField TaType;
+	DBField OrdType;
+	DBField OrdState;
+	DBField DealType;
+	DBField OrdTypeTime;
+	DBField Expiration;
+	DBField Price;
+	DBField PriceTrigger;
+	DBField PriceSL;
+	DBField PriceTP;
+	DBField Volume;
+	DBField Position;
+	DBField PositionBy;
+	DBField VT;
+};
+
 class TempTSessRepTbl : public DBTable {
 public:
 	TempTSessRepTbl(const char * pFileName = 0);

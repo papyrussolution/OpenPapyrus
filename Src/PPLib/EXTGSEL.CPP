@@ -257,6 +257,19 @@ int TIDlgInitData::GetTiSign() const
 #define MAX_GOODS_RECS   50000
 #define MIN_WORDSEL_SYMB 4
 
+//static 
+long ExtGoodsSelDialog::GetDefaultFlags()
+{
+	long   f = 0;
+	UserInterfaceSettings uiset;
+	uiset.Restore();
+	if(uiset.Flags & UserInterfaceSettings::fExtGoodsSelHideGenerics)
+		f |= fHideGeneric;
+	if(uiset.Flags & UserInterfaceSettings::fExtGoodsSelMainName)
+		f |= ExtGoodsSelDialog::fByName;
+	return f;
+}
+
 ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : TDialog(DLG_EXTGSEL), P_ObjTkn(0), Flags(0), OpID(_op),
 	ArID(0), InnerSelectionID(0), Price(0.0)
 {
@@ -267,6 +280,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fHidePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags);
+	SETFLAGBYSAMPLE(Flags, fHideGeneric, flags); // @v10.7.7
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
 	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_EXTGSEL_LIST));
@@ -488,6 +502,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 			long   _sel_options = 0;
 			SETFLAG(_sel_options, PPObjGoods::selfByName, Flags & fByName);
 			SETFLAG(_sel_options, PPObjGoods::selfHidePassive, Flags & fHidePassive);
+			SETFLAG(_sel_options, PPObjGoods::selfHideGeneric, Flags & fHideGeneric); // @v10.7.7
 			SETFLAG(_sel_options, PPObjGoods::selfForcePassive, Flags & fForcePassive);
 			if(Flags & fMatrix) {
 				showCtrl(CTL_EXTGSEL_MTX_IND, 1);
@@ -629,14 +644,15 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			return;
 	}
 	else if(event.isKeyDown(kbCtrlF8)) {
-		PPID   goods_id = getSelectedItem();
+		const PPID goods_id = getSelectedItem();
 		Goods2Tbl::Rec goods_rec;
 		if(goods_id && GObj.Fetch(goods_id, &goods_rec) > 0) {
 			PPIDArray analog_list;
 			SString transit_component_buf;
 			if(GObj.P_Tbl->SearchGoodsAnalogs(goods_id, analog_list, &transit_component_buf) > 0 && analog_list.getCount()) {
 				TIDlgInitData inner_tidi;
-				ExtGoodsSelDialog * p_inner_dlg = new ExtGoodsSelDialog(0);
+				long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+				ExtGoodsSelDialog * p_inner_dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
 				if(CheckDialogPtrErr(&p_inner_dlg)) {
 					SString info_buf, temp_buf;
 					PPLoadString("analogs", temp_buf);

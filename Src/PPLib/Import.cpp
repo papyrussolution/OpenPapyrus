@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 // Функции импорта справочников
@@ -4359,7 +4359,7 @@ int FiasImporter::StartDocument()
 				const ProcessState::Item & r_state = Ps.L.at(CurPsPos);
 				if(r_state.Phase == phaseCount) {
 					SString debug_output_fname;
-					(debug_output_fname = P.Path).SetLastSlash().Cat(debug_file_name).CatChar('.').Cat("txt");
+					(debug_output_fname = P.Path).SetLastSlash().Cat(debug_file_name).Dot().Cat("txt");
 					P_DebugOutput = new SFile(debug_output_fname, SFile::mWrite);
 				}
 			}
@@ -4860,12 +4860,12 @@ int FiasImporter::Import(int inpObject)
 	SString dest_file_obj_name;
 	if(inpObject == inpAddrObj) {
 		// 	RawRecN	2489624
-		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_ADDROBJ").CatChar('*').CatChar('.').Cat("xml");
+		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_ADDROBJ").CatChar('*').Dot().Cat("xml");
 		dest_file_obj_name = "ADDROBJ";
 	}
 	else if(inpObject == inpHouse) {
 		// RawRecN 35979557
-		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_HOUSE").CatChar('*').CatChar('.').Cat("xml");
+		(wildcard = P.Path).Strip().SetLastSlash().Cat("AS_HOUSE").CatChar('*').Dot().Cat("xml");
 		dest_file_obj_name = "HOUSE";
 	}
 	if(wildcard.NotEmpty()) {

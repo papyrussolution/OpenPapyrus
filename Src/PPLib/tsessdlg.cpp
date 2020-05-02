@@ -92,7 +92,8 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 {
 	PPID   prc_id = pDlg->getCtrlLong(CtlselPrc);
 	if(prc_id) {
-		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0);
+		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
 		if(CheckDialogPtrErr(&dlg)) {
 			PPIDArray goods_id_list;
 			TIDlgInitData tidi;

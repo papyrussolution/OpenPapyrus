@@ -1731,7 +1731,8 @@ int GBDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1, r = 0;
 	SString msg_buf;
-	SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(0, 0, 0));
+	long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+	SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(0, 0, egsd_flags));
 	if(CheckDialogPtrErr(&P_EGSDlg)) {
 		while(ExecView(P_EGSDlg) == cmOK) {
 			TIDlgInitData tidi;

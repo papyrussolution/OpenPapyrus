@@ -1012,23 +1012,23 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 
 int    SLAPI PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
 int    SLAPI PPThreadLocalArea::IsConsistent() const { return BIN(Sign == SIGN_PPTLA); }
-PPView * SLAPI PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= (int32)SrvViewList.getCount()) ? SrvViewList.at(id-1) : 0; }
+PPView * SLAPI PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
 
 int32 SLAPI PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
 {
 	for(uint i = 0; i < SrvViewList.getCount(); i++) {
 		if(SrvViewList.at(i) == 0) {
 			SrvViewList.atPut(i, pView);
-			return (int32)(i+1);
+			return static_cast<int32>(i+1);
 		}
 	}
 	SrvViewList.insert(pView);
-	return (int32)SrvViewList.getCount();
+	return SrvViewList.getCountI();
 }
 
 int SLAPI PPThreadLocalArea::ReleasePPViewPtr(int32 id)
 {
-	if(id > 0 && id <= (int32)SrvViewList.getCount()) {
+	if(id > 0 && id <= SrvViewList.getCountI()) {
 		SrvViewList.atPut(id-1, 0);
 		return 1;
 	}
@@ -1556,22 +1556,44 @@ int SLAPI PPSession::InitExtCfgDb()
 int SLAPI PPSession::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
 {
 	int    ok = 0;
-	ENTER_CRITICAL_SECTION
+	ExtCfgDbLock.Lock();
 	if(InitExtCfgDb()) {
 		ok = P_ExtCfgDb->GetStringHistory(pKey, pSubUtf8, flags, rList);
 	}
-	LEAVE_CRITICAL_SECTION
+	ExtCfgDbLock.Unlock();
+	return ok;
+}
+
+int SLAPI PPSession::GetStringHistoryRecent(const char * pKey, uint maxItems, StringSet & rList)
+{
+	int    ok = 0;
+	ExtCfgDbLock.Lock();
+	if(InitExtCfgDb()) {
+		ok = P_ExtCfgDb->GetRecentStringHistory(pKey, maxItems, rList);
+	}
+	ExtCfgDbLock.Unlock();
 	return ok;
 }
 
 int SLAPI PPSession::AddStringHistory(const char * pKey, const char * pTextUtf8)
 {
 	int    ok = 0;
-	ENTER_CRITICAL_SECTION
+	ExtCfgDbLock.Lock();
 	if(InitExtCfgDb()) {
 		ok = P_ExtCfgDb->AddStringHistory(pKey, pTextUtf8);
 	}
-	LEAVE_CRITICAL_SECTION
+	ExtCfgDbLock.Unlock();
+	return ok;
+}
+
+int SLAPI PPSession::SaveStringHistory()
+{
+	int    ok = 0;
+	ExtCfgDbLock.Lock();
+	if(P_ExtCfgDb) {
+		ok = P_ExtCfgDb->SaveStringHistory(0, 1/*use_ta*/);
+	}
+	ExtCfgDbLock.Unlock();
 	return ok;
 }
 
@@ -2388,7 +2410,7 @@ int SLAPI PPSession::CheckLicense(MACAddr * pMachineID, int * pIsDemo)
 			if(ma.Cmp(machine_id) == 0 && (cur_term_sess_id == 0 || cur_term_sess_id == term_sess_id))
 				this_machine_logged = 1;
 		}
-		ok = (this_machine_logged || max_user_count > (int32)ma_list.getCount()) ? 1 : -1;
+		ok = (this_machine_logged || max_user_count > ma_list.getCountI()) ? 1 : -1;
 		if(!this_machine_logged)
 			GetMachineID(&machine_id, 1);
 	}

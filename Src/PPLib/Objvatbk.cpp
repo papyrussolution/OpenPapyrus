@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //  ниги продаж и покупок
 //
@@ -2826,13 +2826,13 @@ int SLAPI PPViewVatBook::Export()
 		if(Filt.Kind == PPVTB_BUY) {
 			p_ledger_title = " нигаѕокуп";
 			p_ledger_line_title = " нѕок—тр";
-			id_file.Cat("NO_NDS").CatChar('.').Cat("8").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
+			id_file.Cat("NO_NDS").Dot().Cat("8").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 		else if(Filt.Kind == PPVTB_SELL) {
 			p_ledger_title = " нигаѕрод";
 			p_ledger_line_title = " нѕрод—тр";
-			id_file.Cat("NO_NDS").CatChar('.').Cat("9").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
+			id_file.Cat("NO_NDS").Dot().Cat("9").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 	}

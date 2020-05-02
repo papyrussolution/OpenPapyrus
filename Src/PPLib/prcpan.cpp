@@ -1,5 +1,5 @@
 // PRCPAN.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -29,6 +29,11 @@ private:
 		sCOST                   // @v5.2.0  Ввод стоимости
 	};
 	struct Header {
+		SLAPI  Header() : PrcID(0), SessID(0), MainGoodsID(0), MainGoodsPack(0.0), LinkBillID(0)
+		{
+			PTR32(SessText)[0] = 0;
+			PTR32(MainGoodsName)[0] = 0;
+		}
 		PPID   PrcID;
 		ProcessorTbl::Rec PrcRec;
 		PPID   SessID;
@@ -39,16 +44,17 @@ private:
 		PPID   LinkBillID;         // @v5.1.3 ИД связанного документа
 	};
 	struct Entry : public TSessLineTbl::Rec {
+		SLAPI  Entry() : TSessLineTbl::Rec(), Pack(0.0), PackQtty(0.0)
+		{
+			PTR32(GoodsName)[0] = 0;
+		}
 		char   GoodsName[64];
 		double Pack;       // Емкость упаковки
 		double PackQtty;   // Количество упаковок
 	};
 	DECL_HANDLE_EVENT;
 	virtual int FASTCALL valid(ushort command);
-	int    isRestState() const
-	{
-		return BIN(State == sREST || State == sREST_SERIAL_NOQTTY || State == sREST_SERIAL_QTTY);
-	}
+	int    isRestState() const { return BIN(oneof3(State, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)); }
 	int    setupProcessor(PPID prcID, int init);
 	void   updateStatus(int forceUpdate);
 	void   showMessage(int msgKind, int msgCode, const char * pAddMsg);
@@ -164,68 +170,34 @@ F10  - выбор основного товара
 void PrcPaneDialog::setupHint()
 {
 	PPIDArray hint_list;
-	if(State == sUNDEF) {
-		hint_list.add(PPTXT_PRCPAN_HINT01);
-	}
-	else if(State == sEMPTY_NOSESS) {
-		hint_list.add(PPTXT_PRCPAN_HINT01);
-	}
-	else if(State == sEMPTY_SESS) {
-		hint_list.add(PPTXT_PRCPAN_HINT04);
-		hint_list.add(PPTXT_PRCPAN_HINT03);
-		hint_list.add(PPTXT_PRCPAN_HINT08);
-		hint_list.add(PPTXT_PRCPAN_HINT09);
-		hint_list.add(PPTXT_PRCPAN_HINT10);
-		hint_list.add(PPTXT_PRCPAN_HINT01);
-	}
-	else if(State == sGOODS_NOQTTY) {
-		hint_list.add(PPTXT_PRCPAN_HINT04);
-		hint_list.add(PPTXT_PRCPAN_HINT05);
-		hint_list.add(PPTXT_PRCPAN_HINT06);
-		hint_list.add(PPTXT_PRCPAN_HINT03);
-		hint_list.add(PPTXT_PRCPAN_HINT01);
-	}
-	else if(State == sGOODS_QTTY) {
-		hint_list.add(PPTXT_PRCPAN_HINT04);
-		hint_list.add(PPTXT_PRCPAN_HINT05);
-		hint_list.add(PPTXT_PRCPAN_HINT06);
-		hint_list.add(PPTXT_PRCPAN_HINT03);
-		hint_list.add(PPTXT_PRCPAN_HINT02);
-		hint_list.add(PPTXT_PRCPAN_HINT01);
-	}
-	else if(State == sIDLE) {
-		hint_list.add(PPTXT_PRCPAN_HINT07);
-		hint_list.add(PPTXT_PRCPAN_HINT01);
-	}
-	else if(State == sREST) {
-		hint_list.add(PPTXT_PRCPAN_HINT04);
-		hint_list.add(PPTXT_PRCPAN_HINT12);
-	}
-	else if(State == sREST_SERIAL_NOQTTY) {
-		hint_list.add(PPTXT_PRCPAN_HINT04);
-		hint_list.add(PPTXT_PRCPAN_HINT05);
-		hint_list.add(PPTXT_PRCPAN_HINT06);
-		hint_list.add(PPTXT_PRCPAN_HINT12);
-	}
-	else if(State == sREST_SERIAL_QTTY) {
-		hint_list.add(PPTXT_PRCPAN_HINT04);
-		hint_list.add(PPTXT_PRCPAN_HINT05);
-		hint_list.add(PPTXT_PRCPAN_HINT06);
-		hint_list.add(PPTXT_PRCPAN_HINT02);
-		hint_list.add(PPTXT_PRCPAN_HINT12);
-	}
-	else if(State == sEXPIRY) {
-		hint_list.add(PPTXT_PRCPAN_HINT13);
-		hint_list.add(PPTXT_PRCPAN_HINT14);
-	}
-	else {
-		hint_list.add(PPTXT_PRCPAN_HINT01);
+	switch(State) {
+		case sUNDEF: hint_list.add(PPTXT_PRCPAN_HINT01); break;
+		case sEMPTY_NOSESS: hint_list.add(PPTXT_PRCPAN_HINT01); break;
+		case sEMPTY_SESS:
+			hint_list.addzlist(PPTXT_PRCPAN_HINT04, PPTXT_PRCPAN_HINT03, PPTXT_PRCPAN_HINT08, PPTXT_PRCPAN_HINT09, PPTXT_PRCPAN_HINT10, PPTXT_PRCPAN_HINT01, 0);
+			break;
+		case sGOODS_NOQTTY:
+			hint_list.addzlist(PPTXT_PRCPAN_HINT04, PPTXT_PRCPAN_HINT05, PPTXT_PRCPAN_HINT06, PPTXT_PRCPAN_HINT03, PPTXT_PRCPAN_HINT01, 0);
+			break;
+		case sGOODS_QTTY:
+			hint_list.addzlist(PPTXT_PRCPAN_HINT04, PPTXT_PRCPAN_HINT05, PPTXT_PRCPAN_HINT06, PPTXT_PRCPAN_HINT03, PPTXT_PRCPAN_HINT02, PPTXT_PRCPAN_HINT01, 0);
+			break;
+		case sIDLE: hint_list.addzlist(PPTXT_PRCPAN_HINT07, PPTXT_PRCPAN_HINT01, 0); break;
+		case sREST: hint_list.addzlist(PPTXT_PRCPAN_HINT04, PPTXT_PRCPAN_HINT12, 0); break;
+		case sREST_SERIAL_NOQTTY:
+			hint_list.addzlist(PPTXT_PRCPAN_HINT04, PPTXT_PRCPAN_HINT05, PPTXT_PRCPAN_HINT06, PPTXT_PRCPAN_HINT12, 0);
+			break;
+		case sREST_SERIAL_QTTY:
+			hint_list.addzlist(PPTXT_PRCPAN_HINT04, PPTXT_PRCPAN_HINT05, PPTXT_PRCPAN_HINT06, PPTXT_PRCPAN_HINT02, PPTXT_PRCPAN_HINT12, 0);
+			break;
+		case sEXPIRY: hint_list.addzlist(PPTXT_PRCPAN_HINT13, PPTXT_PRCPAN_HINT14, 0); break;
+		default: hint_list.add(PPTXT_PRCPAN_HINT01); break;
 	}
 	SString temp_buf, hint, keyb;
 	for(uint i = 0; i < CTL_PRCPAN_NUMHINTS; i++) {
 		int    r = 0;
 		if(i < hint_list.getCount()) {
-			uint   idx = hint_list.at(i);
+			const uint idx = hint_list.get(i);
 			if(PPLoadText(idx, temp_buf) > 0) {
 				if(temp_buf.Divide('=', hint, keyb) > 0)
 					setStaticText(CTL_PRCPAN_HINT1 + i + CTL_PRCPAN_KBHINTBIAS, keyb);
@@ -245,8 +217,8 @@ PrcPaneDialog::PrcPaneDialog() : TDialog(DLG_PRCPAN), State(sUNDEF), NewGoodsGrp
 	CanSwitch(0), LastPrcStatusCheckTime(ZERODATETIME)
 {
 	SString font_face;
-	MEMSZERO(H);
-	MEMSZERO(E);
+	// @v10.7.7 @ctr MEMSZERO(H);
+	// @v10.7.7 @ctr MEMSZERO(E);
 	PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 	SetCtrlFont(CTL_PRCPAN_QTTY,      font_face, 32);
 	SetCtrlFont(CTL_PRCPAN_QTTYPACK,  font_face, 32);
@@ -758,7 +730,8 @@ void PrcPaneDialog::selectGoods(int mode)
 	setCtrlString(CTL_PRCPAN_INFO, static_cast<const char *>(0));
 	if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
 		if(mode == 0) {
-			ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID);
+			long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+			ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
 			if(CheckDialogPtrErr(&dlg)) {
 				TIDlgInitData tidi;
 				PPIDArray goods_list;

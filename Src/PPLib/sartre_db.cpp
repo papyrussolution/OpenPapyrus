@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2567,7 +2567,7 @@ CONCEPTID SrDatabase::SearchConceptInTokenizer(CONCEPTID targetCID, const SToken
 					for(; tidx2 <= idxLast; tidx2++) {
 						if(rT.Get(tidx2, titem_next)) {
 							if(titem_prev.Token == STokenizer::tokWord && titem_next.Text == ".") {
-								synth_word.CatChar('.');
+								synth_word.Dot();
 								titem_prev = titem_next;
 								synth_word_count++;
 							}

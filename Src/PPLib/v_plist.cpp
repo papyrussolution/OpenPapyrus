@@ -1246,8 +1246,10 @@ int SLAPI PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				ok = -1;
 				{
 					PPID   goods_grp_id = NewGoodsGrpID;
-					ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, goods_grp_id,
-						(Filt.Flags & PLISTF_PRESENTONLY) ? ExtGoodsSelDialog::fExistsOnly : 0);
+					long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+					if(Filt.Flags & PLISTF_PRESENTONLY) 
+						egsd_flags |= ExtGoodsSelDialog::fExistsOnly;
+					ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, goods_grp_id, egsd_flags);
 					if(CheckDialogPtrErr(&dlg)) {
 						while(ExecView(dlg) == cmOK) {
 							TIDlgInitData tidi;

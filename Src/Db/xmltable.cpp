@@ -1,5 +1,5 @@
 // XMLTABLE.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -293,7 +293,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 		THROW(reader = xmlReaderForFile(pPath, NULL, options));
 		//(pattern = r_param.RecTag).ReplaceChar('\\', '/');
 		//(pattern = r_param.RootTag).ReplaceChar('\\', '/');
-		pattern.CatChar('.');
+		pattern.Dot();
 		xmlTextReaderPreservePattern(reader, pattern.ucptr(), 0);
 		r = xmlTextReaderRead(reader);
 		while(r == 1)

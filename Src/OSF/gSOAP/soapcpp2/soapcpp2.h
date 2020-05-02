@@ -212,7 +212,10 @@ typedef struct tagSymbol {
 	struct tagSymbol * next; 
 } Symbol;
 
-Symbol * install(const char *, Token), *lookup(const char *), *gensym(const char *), *gensymidx(const char *, int);
+Symbol * install(const char *, Token);
+Symbol * lookup(const char *);
+Symbol * gensym(const char *);
+Symbol * gensymidx(const char *, int);
 
 typedef struct tagTnode {       
 	Type type;
@@ -341,10 +344,10 @@ typedef struct Pragma {
 } Pragma;
 
 Entry * enter(Table *, Symbol *);
-Entry  * entry(Table*, Symbol *);
-Entry  * reenter(Table*, Symbol *);
-Entry  * enumentry(Symbol *);
-int merge(Table *, Table *);
+Entry * entry(Table*, Symbol *);
+Entry * reenter(Table*, Symbol *);
+Entry * enumentry(Symbol *);
+int    merge(Table *, Table *);
 Table * mktable(Table *);
 Tnode * mkmethod(Tnode *, Table *);
 char * emalloc(size_t);

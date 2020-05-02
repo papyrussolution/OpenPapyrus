@@ -1,6 +1,7 @@
 // Universe-HTT JS core
 // uhtt.js, 
-// (c) Michael Kazakov, A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016
+// (c) Michael Kazakov, A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2020
+// D:\Universe-HTT\liferay-portal-6.1.1\tomcat-7.0.27\webapps\rsrc\js\uhtt.js
 //
 // Common
 //
@@ -982,6 +983,32 @@ var UHTT = {
 					return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
 				}
 			},
+			toStringSkipItem : function(obj, skipItemName) 
+			{
+				var t = typeof(obj);
+				if(t != "object" || obj == null) {
+					// simple data type
+					if(t == "string")
+						obj = '"' + obj.toUnicode() + '"';
+					return String(obj);
+				}
+				else {
+					// recurse array or object
+					var v, json = [], arr = (obj && (obj.constructor == Array));
+					for(var n in obj) {
+						if(n != skipItemName) {
+							v = obj[n];
+							t = typeof(v);
+							if(t == "string")
+								v = '"' + v.toUnicode() + '"';
+							else if(t == "object" && v !== null)
+								v = this.toStringSkipItem(v, skipItemName); // @recursion
+							json.push((arr ? "" : '"' + n + '":') + String(v));
+						}
+					}
+					return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+				}
+			},			
 			parse : function(json) 
 			{
 				var obj = null;
@@ -1865,7 +1892,8 @@ var UHTT = {
 						UHTT.BlockUI.block();
 						var url = "/dispatcher/store/draw_catalog?sid=" + UHTT.Store.Preferences.SID;
 						var has_class = false;
-						for(var i = 0, n = F.Selectors.getCount(); i < n; i++) {
+						var selectors_count = F.Selectors.getCount();
+						for(var i = 0; i < selectors_count; i++) {
 							var s = F.Selectors.at(i);
 							if(s != null) {
 								if(s.S.Attr == UHTT.Store.Selector.ATTR.attrClass) {
@@ -1876,9 +1904,10 @@ var UHTT = {
 						}
 						if(has_class)
 							url += "&class=" + UHTT.Store.Ctx.ClassID;
-						url += "&crits=" + UHTT.Util.JSON.toString(F.Selectors.getArray());
+						url += "&crits=" + UHTT.Util.JSON.toStringSkipItem(F.Selectors.getArray(), "Values");
 						url += "&page=" + F.PageNumber;
 						url += "&view_mode=" + (!isEmpty(mode) ? mode : this.DefaultTemplate);
+						console.log(url);
 						jQuery.ajax(
 							{
 								url: url,
@@ -2803,13 +2832,13 @@ var UHTT = {
 		},
 		Util : {
 			/* Проверка фильтра
-			 * Коды возврата
-			 *    0    - OK
-			 *    1001 - Не указаны критерии
-			 *    1002 - Длина подстроки наименования меньше 4 символов
-			 *    1003 - Строка штрихкода содержит некорректные символы
-			 *    1004 - Длина подстроки штрихкода меньше 5 символов
-			 *    1005 - Не указан шаблон вывода
+			 *    Коды возврата
+			 *       0    - OK
+			 *       1001 - Не указаны критерии
+			 *       1002 - Длина подстроки наименования меньше 4 символов
+			 *       1003 - Строка штрихкода содержит некорректные символы
+			 *       1004 - Длина подстроки штрихкода меньше 5 символов
+			 *       1005 - Не указан шаблон вывода
 			 */
 			checkFilter : function(F) {
 				var r = 0;

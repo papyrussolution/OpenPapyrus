@@ -927,18 +927,18 @@ int SLAPI PPAccTurnTempl::SubstToString(SString & rBuf, int * lp, int skipzobj)
 		}
 		if(v & LINKFLAG) {
 			THROW(st.Retranslate(PPSYM_LINK, temp_buf));
-			rBuf.Cat(temp_buf).CatChar('.');
+			rBuf.Cat(temp_buf).Dot();
 			v &= ~LINKFLAG;
 		}
 		else if(v & RCKNFLAG) {
 			THROW(st.Retranslate(PPSYM_RECKON, temp_buf));
-			rBuf.Cat(temp_buf).CatChar('.');
+			rBuf.Cat(temp_buf).Dot();
 			v &= ~RCKNFLAG;
 		}
 		THROW(st.Retranslate(v & ~LMASK, temp_buf));
 		rBuf.Cat(temp_buf);
 		if(v & PARENTFLAG) {
-			rBuf.CatChar('.');
+			rBuf.Dot();
 			THROW(st.Retranslate(PPSYM_PARENT, temp_buf));
 			rBuf.Cat(temp_buf);
 		}

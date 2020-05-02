@@ -67,10 +67,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 #include "archive_string_composition.h"
 
 #if !defined(HAVE_WMEMCPY) && !defined(wmemcpy)
-	#define wmemcpy(a, b, i)  (wchar_t*)memcpy((a), (b), (i) * sizeof(wchar_t))
+	#define wmemcpy(a, b, i)  (wchar_t *)memcpy((a), (b), (i) * sizeof(wchar_t))
 #endif
 #if !defined(HAVE_WMEMMOVE) && !defined(wmemmove)
-	#define wmemmove(a, b, i)  (wchar_t*)memmove((a), (b), (i) * sizeof(wchar_t))
+	#define wmemmove(a, b, i)  (wchar_t *)memmove((a), (b), (i) * sizeof(wchar_t))
 #endif
 
 struct archive_string_conv {
@@ -436,7 +436,7 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 			ret = archive_string_normalize_C(&u16, s, count, sc);
 		else
 			ret = archive_string_normalize_D(&u16, s, count, sc);
-		dest->s = (wchar_t*)u16.s;
+		dest->s = (wchar_t *)u16.s;
 		dest->length = u16.length >> 1;
 		dest->buffer_length = u16.buffer_length;
 		sc->flag = saved_flag;/* restore the saved flag. */

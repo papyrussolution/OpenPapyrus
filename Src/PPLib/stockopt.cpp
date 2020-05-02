@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -818,7 +818,8 @@ int SLAPI PPViewStockOpt::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				{
 					TIDlgInitData tidi;
 					ExtGoodsSelDialog * dlg = 0;
-					if(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, 0)))) {
+					long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+					if(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, 0, egsd_flags)))) {
 						while(ExecView(dlg) == cmOK) {
 							if(dlg->getDTS(&tidi) > 0 && tidi.GoodsID) {
 								PPStockOpt::Item item(tidi.GoodsID);

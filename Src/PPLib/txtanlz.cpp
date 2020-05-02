@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1019,7 +1019,7 @@ int SLAPI PPTextAnalyzer::Helper_ReplacerSrcItemToStr(const PPTextAnalyzer::Repl
 				}
 				else
 					rBuf.Cat("#0");
-				rBuf.CatChar('.');
+				rBuf.Dot();
 			}
 			else if(r_term.Type == Replacer::stNumL) {
 				rBuf.CatLongZ(r_term.Tok, 2);
@@ -1799,7 +1799,7 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 								}
 							}
 							if(code_list.getCount() == 0) {
-								temp_buf.Z().CatChar('.');
+								temp_buf.Z().Dot();
 								code_list.add(temp_buf);
 							}
 							for(uint j = 0; code_list.get(&j, norm_code);) {

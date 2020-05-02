@@ -51,6 +51,13 @@ public:
 	//
 	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
 	virtual StrAssocArray * GetList(const char * pText);
+	virtual StrAssocArray * GetRecentList();
+	//
+	// Descr: Функция вызывается при подтверждении пользователем ввода данных (вероятно, речь может пока идти о кнопке [OK]).
+	//   Функция может каким-либо образом зафиксировать факт согласия пользователем с данными.
+	// Note: Фактически, функция вводится ради сохранения истории ввода данных пользователем в текстовых полях.
+	//
+	virtual void OnAcceptInput(const char * pText, long id);
 	long   GetFlags() const { return Flags; }
 	bool   IsTextMode() const { return CtrlTextMode; }
 	void   SetTextMode(bool v);
@@ -62,7 +69,8 @@ public:
 	int    GetData(long * pId, SString & rBuf);
 
 	enum {
-		fAlwaysSearchBySubStr = 0x0001
+		fAlwaysSearchBySubStr = 0x0001,
+		fFreeText             = 0x0002 // @v10.7.7 Текст в основной строке вводится свободно без вызова окна поиска
 	};
 //protected:
 	long   Flags;
@@ -1411,6 +1419,11 @@ public:
 	static int  FASTCALL SGetWindowText(HWND hWnd, SString & rBuf);
 	static int  FASTCALL SSetWindowText(HWND hWnd, const char * pText);
 	//
+	// Descr: Специализированный метод, вызывающий для всех элементов группы TGroup
+	//   метод P_WordSelBlk->OnAcceptInput()
+	//
+	static void SLAPI CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG);
+	//
 	// Descr: перебирает дочерние окна родительского окна hWnd и
 	//   выполняет подстановку шаблонизированных текстовых строк
 	//   вида "@textident" или "@{textident}"
@@ -1436,8 +1449,7 @@ public:
 	virtual int    FASTCALL valid(ushort command);
 	//
 	// Descr: Метод, используемый для передачи (извлечения) данных в (из)
-	//   экземпляр объекта. Кроме того, метод реализует возрат размера
-	//   данных объекта.
+	//   экземпляр объекта. Кроме того, метод реализует возрат размера данных объекта.
 	//
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
@@ -1511,7 +1523,7 @@ public:
 	int    OnDestroy(HWND);
 	void   SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   SetWordSelBlock(WordSel_ExtraBlock *);
-	int    hasWordSelector() const { return BIN(P_WordSelBlk); }
+	int    HasWordSelector() const { return BIN(P_WordSelBlk); }
 	//
 	// Descr: Только для применения в функции TWindow::getCtrlView
 	//
@@ -2754,7 +2766,6 @@ public:
 			// Необходим для идентификации проблемы спонтанной невозможности вывода окна диалога из модального режима при нажатии OK или Cancel.
 	};
 
-	//friend  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  INT_PTR CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  void centerDlg(HWND);
 	int     SetCtrlFont(uint ctrlID, const char * pFontName, int height);
@@ -2823,9 +2834,9 @@ public:
 	void   SetupCalPeriod(uint calCtlID, uint inputCtlID);
 	void   SetCtrlState(uint ctlID, uint state, bool enable);
 	//
-	// Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.
-	// Если proc = 0, то используется GetListFromSmartLbx
-	// Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
+	// Descr: Ассоциирует с элементом диалога специальный список выбора, который фильтруется по мере ввода текста.
+	//   Если proc = 0, то используется GetListFromSmartLbx
+	//   Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
 	//
 	// int SetupWordSelector(uint ctlID, WordSelectionProc proc, long wordSelExtra, long id, int minSymbCount); // @v7.x.x AHTOXA
 	int    SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, uint16 flags);
@@ -2939,8 +2950,21 @@ public:
 	long   resourceID;
 	int    DefInputLine;
 };
+//
+// Descr: Вспомогательный класс, реализующий высокоуровневый механизм работы с инлайновым списком выбора 
+//
+class Helper_WordSelector {
+protected:
+	SLAPI  Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId);
+	SLAPI ~Helper_WordSelector();
+	int    SLAPI IsWsVisible() const;
+	
+	uint   InputCtlId;
+	WordSel_ExtraBlock * P_OuterWordSelBlk; // @notowner
+	WordSelector * P_WordSel;
+};
 
-class TInputLine : public TView {
+class TInputLine : public TView, private Helper_WordSelector {
 public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -2950,6 +2974,7 @@ public:
 	virtual void   setState(uint aState, bool enable);
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   setupCombo(ComboBox *);
+	void   setupFreeTextWordSelector(WordSel_ExtraBlock * pBlk);
 	void   setFormat(long fmt);
 	long   getFormat() const { return format; }
 	void   setType(TYPEID typ);
@@ -3017,22 +3042,22 @@ private:
 	int    OnPaste();
 };
 
-struct VirtButtonWndEx {
-	VirtButtonWndEx(const char * pSignature);
-
-    char    Signature[24]; // @anchor - должен находится строго в начале структуры
-	TDialog * P_Dlg;
-	uint   FieldCtrlId;
-	uint   ButtonCtrlId;
-	WNDPROC PrevWndProc;
-	HBITMAP HBmp;
-};
-
 class TCalcInputLine : public TInputLine {
 public:
 	TCalcInputLine(uint virtButtonId, uint buttonCtrlId, TRect& bounds, TYPEID aType, long fmt);
 	~TCalcInputLine();
 private:
+	struct VirtButtonWndEx {
+		explicit VirtButtonWndEx(const char * pSignature);
+
+		char    Signature[24]; // @anchor - должен находится строго в начале структуры
+		TDialog * P_Dlg;
+		uint   FieldCtrlId;
+		uint   ButtonCtrlId;
+		WNDPROC PrevWndProc;
+		HBITMAP HBmp;
+	};
+	static  LRESULT CALLBACK InLnCalcWindProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
 	DECL_HANDLE_EVENT;
 	VirtButtonWndEx Vbwe;
@@ -3145,18 +3170,6 @@ public:
 protected:
 	TView * link;
 };
-#if 0 // @v9.1.5 @unused {
-class TInfoPane : public TView {
-public:
-	TInfoPane(TRect & r);
-	~TInfoPane();
-	// @v9.6.2 virtual void draw();
-	void setText(char *);
-	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-protected:
-	char * text;
-};
-#endif // } 0 @v9.1.5
 //
 // msgbox {
 //
@@ -3416,7 +3429,7 @@ protected:
 	DBQuery * query;
 };
 
-class UiSearchTextBlock {
+class UiSearchTextBlock : Helper_WordSelector {
 public:
 	static int ExecDialog(HWND hWnd, uint ctlId, SString & rText, int isFirstLetter, WordSel_ExtraBlock * pBlk, int linkToList);
 private:
@@ -3430,8 +3443,8 @@ private:
 	int    IsBnClicked;
 	int    LinkToList;  // Данный блок будет прилинкован непосредственно к списку, в некоторых случаях нужно для корректного отображения и фокусировки.
 	int    FirstLetter; // Первый символ, по которому был вызван диалог, следует отправить в окно ввода посредством эмуляции нажатия клавиши.
-	WordSel_ExtraBlock * P_WordSelBlk; // not owner
-	WordSelector * P_WordSel; //
+	//WordSel_ExtraBlock * P_WordSelBlk; // not owner
+	//WordSelector * P_WordSel; //
 	WNDPROC PrevInputCtlProc;
 	SString Text;
 };
@@ -3460,7 +3473,7 @@ public:
 
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
 	~SmartListBox();
-	void   FASTCALL setDef(ListBoxDef *);
+	void   FASTCALL setDef(ListBoxDef * pDef);
 	int    search(const void * pattern, CompFunc fcmp, int srchMode);
 	int    FASTCALL getCurID(long * pId);
 	int    FASTCALL getCurData(void * pData);
@@ -3596,11 +3609,11 @@ public:
 	int    getString(SString & rBuf);
 	int    getListData(void *);
 	int    isTreeList() const;
-	int    FASTCALL setDef(ListBoxDef * pDef);
+	void   FASTCALL setDef(ListBoxDef * pDef);
 	void   setCompFunc(CompFunc f);
 	ListWindowSmartListBox * listBox() const;
-	int    MoveWindow(HWND linkHwnd, long right);
-	int    MoveWindow(const RECT & rRect);
+	void   MoveWindow(HWND linkHwnd, long right); // @v10.7.7 int-->void
+	void   MoveWindow(const RECT & rRect); // @v10.7.7 int-->void
 	ListBoxDef * getDef() const { return P_Def; }
 	void   SetToolbar(uint tbId);
 	uint   GetToolbar() const { return TbId; }
@@ -3622,8 +3635,9 @@ public:
 class WordSelector : public ListWindow {
 public:
 	WordSelector(WordSel_ExtraBlock * pBlk);
-	int    FASTCALL setDef(ListBoxDef * pDef);
+	void   FASTCALL setDef(ListBoxDef * pDef);
 	int    Refresh(const char * pText);
+	int    ViewRecent(); // @v10.7.7
 	int    Activate();
 	void   ActivateInput();
 	int    CheckVisible() const;
@@ -3632,6 +3646,7 @@ private:
 	DECL_HANDLE_EVENT;
 	// @v9.7.12 (replaced with DrawListItem2) void   DrawListItem(TDrawItemData * pDrawItem);
 	void   DrawListItem2(TDrawItemData * pDrawItem);
+	int    Helper_PullDown(const char * pText, int recent);
 
 	enum {
 		dummyFirst = 1,
@@ -3675,7 +3690,7 @@ public:
 	virtual void   selectItem(long item);
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
-	void   FASTCALL setDef(ListBoxDef*);
+	void   FASTCALL setDef(ListBoxDef * pDef);
 	//
 	// Descr: Устанавливает признак ComboBox::Undef.
 	//
@@ -3882,29 +3897,28 @@ class UserInterfaceSettings { // @persistent @store(WinReg[HKCU\Software\Papyrus
 public:
 	static const char * SubKey;  // "Software\\Papyrus\\UI";
 	enum {
-		fDontExitBrowserByEsc            = 0x0001,
-		fShowShortcuts                   = 0x0002,
-		fAddToBasketItemCurBrwItemAsQtty = 0x0004, // При добавлении в корзину новой позиции из отчета
-			// в качестве начального количества использовать текущую ячейку в активном броузере
-		fShowBizScoreOnDesktop           = 0x0008, // Отображать бизнес показатели на рабочем столе
-		fDisableNotFoundWindow           = 0x0010, // Не отображать окно "Не найдено" при поиске в таблицах
-		fUpdateReminder                  = 0x0020, // Отображать напоминание об имеющихся обновлениях программы
-		fTcbInterlaced                   = 0x0040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным
-			// изменением цвета. В противном случае = отделять строки линиями.
-		fShowLeftTree                    = 0x0080, // Показывать древовидную навигацию в левой части окна
-		fShowObjectsInLeftWindow         = 0x0100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
-		fDisableBeep                     = 0x0200, // Запретить звуковые сигналы (ограниченная реализация)
-		fBasketItemFocusPckg             = 0x0400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
+		fDontExitBrowserByEsc            = 0x00000001,
+		fShowShortcuts                   = 0x00000002,
+		fAddToBasketItemCurBrwItemAsQtty = 0x00000004, // При добавлении в корзину новой позиции из отчета в качестве начального количества использовать текущую ячейку в активном броузере
+		fShowBizScoreOnDesktop           = 0x00000008, // Отображать бизнес показатели на рабочем столе
+		fDisableNotFoundWindow           = 0x00000010, // Не отображать окно "Не найдено" при поиске в таблицах
+		fUpdateReminder                  = 0x00000020, // Отображать напоминание об имеющихся обновлениях программы
+		fTcbInterlaced                   = 0x00000040, // Горизонтальные полосы временной диаграммы отображать с черезстрочным изменением цвета. В противном случае = отделять строки линиями.
+		fShowLeftTree                    = 0x00000080, // Показывать древовидную навигацию в левой части окна
+		fShowObjectsInLeftWindow         = 0x00000100, // @unused @v8.x.x Показывать диалоги редактирования списка объектов в левой части окна
+		fDisableBeep                     = 0x00000200, // Запретить звуковые сигналы (ограниченная реализация)
+		fBasketItemFocusPckg             = 0x00000400, // При вводе нового элемента товарной корзины фокус ввода устанавливать на
 			// количество упаковок (а не единиц, как по умолчанию).
-		fOldModifSignSelection           = 0x0800, // Использовать технику выбора знака для строки документа модификации
+		fOldModifSignSelection           = 0x00000800, // Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
-		fPollVoipService                 = 0x1000, // @v9.8.11 Опрашивать VoIP сервис для обработки событий вызовов и звонков
-		fExtGoodsSelMainName             = 0x2000, // @v9.9.1 В списке расширенного выбора товара всегда показывать полные наименования товаров
+		fPollVoipService                 = 0x00001000, // @v9.8.11 Опрашивать VoIP сервис для обработки событий вызовов и звонков
+		fExtGoodsSelMainName             = 0x00002000, // @v9.9.1 В списке расширенного выбора товара всегда показывать полные наименования товаров
 			// Эта опция потенциально способно ускорить выборку поскольку не будет вынуждать программу лишний раз обращаться к записи товара
 			// когда сокращенное наименование не совпадает с полным (see PPObjGoods::_Selector2()).
-		fEnalbeBillMultiPrint            = 0x4000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
-		fDisableBillMultiPrint           = 0x8000  // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fEnalbeBillMultiPrint            = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fDisableBillMultiPrint           = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
+		fExtGoodsSelHideGenerics         = 0x00010000  // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
 	};
 	enum {
 		wndVKDefault = 0,

@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -642,6 +642,22 @@ IMPL_HANDLE_EVENT(TDialog)
 			case TEvent::evCommand:
 				switch(event.message.command) {
 					case cmOK:
+						// @v10.7.7 {
+						{
+							TView * p_temp = P_Last;
+							if(p_temp) {
+								const TView * p_term = P_Last;
+								do {
+									p_temp = p_temp->P_Next;
+									if(p_temp && p_temp->IsConsistent())
+										TView::messageCommand(p_temp, cmNotifyCommit, this);
+									else
+										break;
+								} while(p_temp != p_term);
+							}
+						}
+						// @fallthrough
+						// } @v10.7.7 
 					case cmCancel:
 					case cmYes:
 					case cmNo:
@@ -650,23 +666,10 @@ IMPL_HANDLE_EVENT(TDialog)
 							EndModalCmd = event.message.command;
 							clearEvent(event);
 						}
-						// @v9.8.12 {
 						else if(event.message.command == cmCancel) {
 							close();
 							return; // Окно разрушено - делать в этой процедуре больше нечего!
 						}
-						// } @v9.8.12 
-						/* @v9.6.2
-						// @v7.7.6 {
-						else if(DlgFlags & fInitModal) {
-							SString msg_buf;
-							(msg_buf = "Dialog").Space().CatChar('\'').Cat(getTitle()).CatChar('\'').Space().Cat("hasn't sfModal but has fInitModal");
-							SLS.LogMessage(0, msg_buf);
-							EndModalCmd = event.message.command;
-							clearEvent(event);
-						}
-						// } @v7.7.6
-						@v9.6.2 */
 						break;
 					case cmaCalculate:
 						{
@@ -1289,9 +1292,8 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 {
 	int   ok = 1;
 	uint  i, p;
-	//TSArray <long> x_calced, y_calced;
 	LongArray x_calced, y_calced;
-	TSVector <ResizeParamEntry> new_coord_ary; // @v9.8.4 TSArray-->TSVector
+	TSVector <ResizeParamEntry> new_coord_ary;
 	ResizeParamEntry  rpe, new_coord;
 	for(int pass = 0; ok > 0 && pass < 3; pass++) {
 		for(i = 0; ok > 0 && i < ResizeParamAry.getCount(); i++) {
@@ -1495,8 +1497,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 		int   sy = GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
 		int   cy = GetSystemMetrics(SM_CYCAPTION);
 		::ShowWindow(H(), SW_HIDE);
-		::MoveWindow(H(), pNewDlgRect->left, pNewDlgRect->top,
-			pNewDlgRect->right - pNewDlgRect->left, pNewDlgRect->bottom - pNewDlgRect->top, 1);
+		::MoveWindow(H(), pNewDlgRect->left, pNewDlgRect->top, pNewDlgRect->right - pNewDlgRect->left, pNewDlgRect->bottom - pNewDlgRect->top, 1);
 		for(i = 0; i < new_coord_ary.getCount(); i++) {
 			new_coord = new_coord_ary.at(i);
 			::MoveWindow(new_coord.CtrlWnd,
@@ -1574,7 +1575,18 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 			}
 		}
 		else if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
-			if(pExtra) {
+			// @v10.7.7 {
+			if(flags & WordSel_ExtraBlock::fFreeText) {
+				//
+				// В случае WordSel_ExtraBlock::fFreeText нулевой pExtra сбросит текущую установку селектора
+				//
+				TInputLine * p_il = static_cast<TInputLine *>(p_v);
+				CALLPTRMEMB(pExtra, Init(p_il->GetId(), H(), this, p_il->GetId(), minSymbCount, flags));
+				p_il->setupFreeTextWordSelector(pExtra);
+				ok = 1;
+			}
+			// } @v10.7.7 
+			else if(pExtra) {
 				pExtra->Init(CTL_LBX_LIST, 0, this, p_v->GetId(), minSymbCount, flags);
 				p_v->SetWordSelBlock(pExtra);
 				pExtra->SetupData(id);

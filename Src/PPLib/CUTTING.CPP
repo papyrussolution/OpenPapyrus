@@ -1,5 +1,6 @@
 // CUTTING.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,14 +8,13 @@
 int SLAPI Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 {
 	int    ok = 1, recalc_rests = 0;
-	int    is_forward_op = 0; // Признак того, что по лоту есть операции после усекаемого периода.
-		// Если "да", то лот с нулевым остатком не удаляется.
+	int    is_forward_op = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїРѕ Р»РѕС‚Сѓ РµСЃС‚СЊ РѕРїРµСЂР°С†РёРё РїРѕСЃР»Рµ СѓСЃРµРєР°РµРјРѕРіРѕ РїРµСЂРёРѕРґР°.
+		// Р•СЃР»Рё "РґР°", С‚Рѕ Р»РѕС‚ СЃ РЅСѓР»РµРІС‹Рј РѕСЃС‚Р°С‚РєРѕРј РЅРµ СѓРґР°Р»СЏРµС‚СЃСЏ.
 	LDATE  dt;
 	long   oprno = 0;
 	double end_rest, lot_qtty = 0.0;
 	ReceiptTbl::Rec lot_rec;
 	TransferTbl::Rec rec;
-	//RECORDNUMBER lot_pos, first_rec_pos = 0;
 	DBRowId lot_pos, first_rec_pos;
 	first_rec_pos.SetZero();
 	THROW(Rcpt.Search(lotID, &lot_rec) > 0);
@@ -23,7 +23,6 @@ int SLAPI Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEn
 	GetLotPrices(&lot_rec, endDate, 0L);
 	lot_qtty = lot_rec.Quantity;
 	for(dt = ZERODATE; EnumByLot(lotID, &dt, &oprno, &rec) > 0 && dt <= endDate;) {
-		//RECORDNUMBER pos;
 		DBRowId pos;
 		THROW_DB(getPosition(&pos));
 		if(rec.Flags & PPTFR_RECEIPT && !((RECORDNUMBER)first_rec_pos))
@@ -54,12 +53,10 @@ int SLAPI Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEn
 		}
 	}
 	lot_qtty = R6(lot_qtty);
-	// @v5.3.11 {
-	if(lot_qtty <= 0) {
+	if(lot_qtty <= 0.0) {
 		if(EnumByLot(lotID, &dt, &oprno, &rec) > 0)
 			is_forward_op = 1;
 	}
-	// } @v5.3.11
 	if(lot_qtty > 0 || is_forward_op) {
 		THROW_DB(getDirect(-1, 0, first_rec_pos));
 		data.Cost  = TR5(lot_rec.Cost);
@@ -93,7 +90,7 @@ int SLAPI Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEn
 int SLAPI Transfer::Cutting(LDATE endDate, int use_ta)
 {
 	int    ok = 1, ta = 0;
-	LDATE  /*@v5.1.5 dt,*/ prev_date = ZERODATE;
+	LDATE  prev_date = ZERODATE;
 	long   oprno = 0;
 	SString msg_buf, msg_buf2;
 	ReceiptTbl::Key1 rk;
@@ -149,7 +146,6 @@ int SLAPI PPObjBill::CuttingUntiedCLB(int use_ta)
 int SLAPI PPObjBill::Cutting(LDATE endDate, int use_ta)
 {
 	trfr->__DontCheckQttyInUpdateTransferItem__ = 1;
-
 	int    ok = 1, ta = 0, frrl_tag = 0;
 	SString balance_fname;
 	SString msg_buf;
@@ -158,16 +154,13 @@ int SLAPI PPObjBill::Cutting(LDATE endDate, int use_ta)
 	bk.BillNo = MAXLONG;
 	int    rbybill = 0;
 	PPTransferItem ti;
-
 	MakeTempFileName(0, 0, 0, 0, balance_fname);
 	THROW(SaveBalance(endDate, balance_fname));
-
 	THROW(PPStartTransaction(&ta, use_ta));
 	THROW(atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 2, msg_buf);
 	PPWaitMsg(msg_buf);
 	THROW(trfr->Cutting(endDate, 0));
-
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 3, msg_buf);
 	PPWaitMsg(msg_buf);
 	while(P_Tbl->search(1, &bk, spLt)) {
@@ -177,10 +170,8 @@ int SLAPI PPObjBill::Cutting(LDATE endDate, int use_ta)
 		PPBillPacket pack;
 		BillTbl::Rec bill_rec, link_bill_rec;
 		DateIter di;
-
 		P_Tbl->copyBufTo(&bill_rec);
 		PPWaitDate(bill_rec.Dt);
-
 		if(bill_rec.OpID == PPOPK_UNASSIGNED)
 			continue;
 		if(IsOpPaymOrRetn(bill_rec.OpID) && bill_rec.LinkBillID)

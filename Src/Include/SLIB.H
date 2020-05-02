@@ -441,11 +441,18 @@ class SlConstParam {
 public:
 	SlConstParam() :
 		VectorImageMask(0x00008000U),
-		Ssc_CompressionSignature(0xFDB975312468ACE0ULL)
+		Ssc_CompressionSignature(0xFDB975312468ACE0ULL),
+		WaitableObjCheckTimeout(1 * 60 * 1000)
 	{
 	}
 	const uint VectorImageMask;
 	const uint64 Ssc_CompressionSignature; // Сигнатура сжатия в буфере SBuffer
+	//
+	// Descr: Контрольный таймаут ожидания для заданных бесконечных таймаутов (milliseconds).
+	//   Если в течении этого таймаута ожидание на завершилось, то предпринимаются
+	//   информирующие действия (например, вывод в журнал).
+	//
+	const long WaitableObjCheckTimeout; 
 };
 
 extern const SlConstParam _SlConst;
@@ -2689,7 +2696,7 @@ public:
 	// @v9.1.11
 	// Descr: Функция должна преобразовать бинарное представление данные pData
 	//   в строку rBuf в соответствии с форматом преобразования format.
-	//   Функция ToStr обязана предварительно очистить буфер rBuf вызовом rBuf = 0
+	//   Функция ToStr обязана предварительно очистить буфер rBuf вызовом rBuf.Z()
 	// Note: Эта функция замещает устаревшую tostr.
 	//   На начальном этапе default-реализация функции вызывает tostr()
 	//
@@ -3663,6 +3670,7 @@ public:
 	//
 	int    SLAPI ToIntRange(IntRange & rRange, long flags) const;
 	SString & SLAPI Sub(size_t startPos, size_t len, SString & rBuf) const;
+	SString & SLAPI Fmt(long fmt);
 	SString & SLAPI TrimRight();
 	//
 	// Descr: Обрезает самый правый символ строки, если он равен c.
@@ -7918,8 +7926,7 @@ public:
 	int    FASTCALL InitIteration(Iter * pI) const;
 	int    NextIteration(Iter *, uint * pVal, uint * pPos, SString * pStr) const;
 	//
-	// Descr: Возвращает максимальное значение идентификатора Val из всех,
-	//   хранящихся в таблице.
+	// Descr: Возвращает максимальное значение идентификатора Val из всех, хранящихся в таблице.
 	//
 	uint   GetMaxVal() const;
 	//
@@ -7935,7 +7942,6 @@ public:
 	//   в дальнейшем ассоциации можно вызвать эту функцию.
 	//
 	int    BuildAssoc();
-
 	int    Test_Cmp(const SymbHashTable & rPat) const;
 private:
 	size_t FASTCALL Hash(const char * pSymb) const;

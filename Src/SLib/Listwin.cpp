@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -57,7 +57,7 @@ void ListWindow::executeNM(HWND parent)
 	}
 }
 
-int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
+void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 {
 	int    found = 0;
 	TView * p_next = 0;
@@ -80,7 +80,7 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 				remove(p);
 				found = 1;
 			}
-		} while(!found && p && (p = p->P_Next));
+		} while(!found && p && (p = p->P_Next) != 0);
 		P_Lb->SetId(isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
 		P_Lb->SetTreeListState(isTreeList());
 		if(found)
@@ -88,7 +88,6 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 		else
 			Insert_(P_Lb);
 	}
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(ListWindow)
@@ -244,7 +243,7 @@ int ListWindow::getSingle(long * pVal)
 	return 0;
 }
 
-int ListWindow::MoveWindow(HWND linkHwnd, long right)
+void ListWindow::MoveWindow(HWND linkHwnd, long right)
 {
 	uint   list_ctl = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
@@ -275,10 +274,9 @@ int ListWindow::MoveWindow(HWND linkHwnd, long right)
 	::MoveWindow(h_list, 0, 0, list_rect.right, list_rect.bottom, 1);
 	if(!isTreeList() && h_scroll)
 		::MoveWindow(h_scroll, list_rect.right, 0, GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);
-	return 1;
 }
 
-int ListWindow::MoveWindow(const RECT & rRect)
+void ListWindow::MoveWindow(const RECT & rRect)
 {
 	uint   list_ctl = (isTreeList()) ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
@@ -291,7 +289,6 @@ int ListWindow::MoveWindow(const RECT & rRect)
 	::MoveWindow(h_list, list_rect.left, list_rect.top, list_rect.right, list_rect.bottom, 1);
 	if(P_Lb && !isTreeList())
 		P_Lb->MoveScrollBar(1);
-	return 1;
 }
 //
 // WordSelector
@@ -334,7 +331,7 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
 		TView * p_v = p_dlg->getCtrlView(ctl_id);
  		if(p_v) {
  			if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
-				bool   preserve_text_mode = CtrlTextMode;
+				const bool preserve_text_mode = CtrlTextMode;
 				SetTextMode(true);
 				p_dlg->setCtrlData(ctl_id, (void *)pText); // @badcast
 				SetTextMode(preserve_text_mode);
@@ -364,6 +361,12 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 	return 1;
 }
 
+//virtual 
+StrAssocArray * WordSel_ExtraBlock::GetRecentList()
+{
+	return 0;
+}
+
 // virtual
 StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 {
@@ -372,7 +375,7 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 	uint text_len = sstrlen(pText);
 	if(text_len > 0) {
 		uint min_symb_count = MinSymbCount;
-		text_len = (pText[0] == '*') ? text_len - 1 : text_len;
+		text_len = (pText[0] == '*') ? (text_len-1) : text_len;
 		if(text_len >= min_symb_count) {
 			if(P_OutDlg) {
 				TView * p_view = P_OutDlg->getCtrlView(OutCtlId);
@@ -385,6 +388,11 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 		}
 	}
 	return p_list;
+}
+
+//virtual 
+void WordSel_ExtraBlock::OnAcceptInput(const char * pText, long id)
+{
 }
 
 int WordSelector::CheckActive() const { return IsActive; }
@@ -401,7 +409,7 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0
 
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));
-	Ptb.SetColor(clrBkgnd,  RGB(0xFF, 0xFF, 0x00));
+	Ptb.SetColor(clrBkgnd,  GetColorRef((P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? SClrAntiquewhite : SClrYellow)/*RGB(0xFF, 0xFF, 0x00)*/);
 	// @v9.7.12 Ptb.SetBrush(brSel,    SPaintObj::psSolid, Ptb.GetColor(clrFocus), 0);
 	// @v9.7.12 Ptb.SetBrush(brOdd,    SPaintObj::psSolid, Ptb.GetColor(clrOdd), 0);
 	// @v9.7.12 Ptb.SetBrush(brBkgnd,  SPaintObj::psSolid, Ptb.GetColor(clrBkgnd), 0);
@@ -424,38 +432,58 @@ void WordSelector::ActivateInput()
 	SetFocus(GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl));
 }
 
-int WordSelector::Refresh(const char * pText)
+int WordSelector::Helper_PullDown(const char * pText, int recent)
 {
-	if(sstrlen(pText) >= P_Blk->MinSymbCount) {
+	if(recent || sstrlen(pText) >= P_Blk->MinSymbCount) {
 		int    r = 0;
+		SString temp_buf;
 		StrAssocArray * p_data = 0;
-		SString text;
-		if((P_Blk->GetFlags() & WordSel_ExtraBlock::fAlwaysSearchBySubStr) && pText[0] != '*')
-			(text = "*").Cat(pText);
-		else
-			text = pText;
-		if((p_data = P_Blk->GetList(text)) && p_data->getCount()) {
+		if(recent)
+			p_data = P_Blk->GetRecentList();
+		else {
+			if((P_Blk->GetFlags() & WordSel_ExtraBlock::fAlwaysSearchBySubStr) && pText[0] != '*')
+				(temp_buf = "*").Cat(pText);
+			else
+				temp_buf = pText;
+			p_data = P_Blk->GetList(temp_buf);
+		}
+		int    skip = BIN(!p_data || p_data->getCount() == 0);
+		if(!skip && !recent && p_data->getCount() == 1 && (P_Blk->GetFlags() & WordSel_ExtraBlock::fFreeText)) {
+			//
+			// @v10.7.7 Специальный случай: в режиме fFreeText единственный доступный в списке элемент,
+			// равный образцу не предусмотрен для вывода в списке (в этом просто нет смыслы - текст уже в поле ввода)
+			//
+			StrAssocArray::Item sitem = p_data->Get(0);
+			(temp_buf = pText).Strip();
+			if(temp_buf.CmpNC(sitem.Txt) == 0)
+				skip = 1;
+		}
+		if(!skip) {
 			if(P_Def) {
 				static_cast<StrAssocListBoxDef *>(P_Def)->setArray(p_data);
 				setDef(P_Def);
-				MoveWindow(P_Blk->H_InputDlg, 0);
+				HWND hw_resize_base = 0;
+				if(P_Blk->H_InputDlg) {
+					if(P_Blk->InputCtl)
+						hw_resize_base = GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
+					SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
+				}
+				MoveWindow(hw_resize_base, 0);
 			}
-			if(CheckVisible() == 0) {
+			if(!CheckVisible()) {
 				IsVisible = 1;
 				IsActive  = 1;
 				if(APPL->P_DeskTop->execView(this) == cmOK) {
 					long   id = 0L;
-					SString buf;
 					getResult(&id);
-					if(id && P_Blk->Search(id, buf) > 0) {
+					if(id && P_Blk->Search(id, temp_buf) > 0) {
 						;
 					}
-					else {
-						getString(buf);
-					}
+					else
+						getString(temp_buf);
 					IsActive  = 0;
 					IsVisible = 0;
-					P_Blk->SetData(id, buf);
+					P_Blk->SetData(id, temp_buf);
 					if(P_Blk->P_OutDlg && P_Blk->P_OutDlg->IsConsistent() && P_Blk->OutCtlId) { // @v9.4.11 P_Blk->P_OutDlg->IsConsistent()
 						TView * p_v = P_Blk->P_OutDlg->getCtrlView(P_Blk->OutCtlId);
  						if(p_v) {
@@ -477,12 +505,23 @@ int WordSelector::Refresh(const char * pText)
 			r = 1;
 		}
 		if(r <= 0 && CheckVisible() == 1) {
+			ZDELETE(p_data); // @v10.7.7
 			::SetFocus(H());
 			TView::messageCommand(this, cmCancel);
 			IsVisible = 0;
 		}
 	}
 	return 1;
+}
+
+int WordSelector::ViewRecent()
+{
+	return Helper_PullDown(0, 1);
+}
+
+int WordSelector::Refresh(const char * pText)
+{
+	return Helper_PullDown(pText, 0);
 }
 
 IMPL_HANDLE_EVENT(WordSelector)
@@ -496,7 +535,15 @@ IMPL_HANDLE_EVENT(WordSelector)
 			Id = lw_dlg_id;
 			HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
-			MoveWindow(P_Blk->H_InputDlg, 0);
+			{
+				HWND hw_resize_base = 0;
+				if(P_Blk->H_InputDlg) {
+					if(P_Blk->InputCtl)
+						hw_resize_base = GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
+					SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
+				}
+				MoveWindow(hw_resize_base, 0);
+			}
 			if(APPL->PushModalWindow(this, H())) {
 				::ShowWindow(H(), SW_SHOW);
 				resourceID = -1;
@@ -638,7 +685,7 @@ void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 	}
 }
 
-int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
+void FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 {
 	int    found = 0;
 	TView * p_next = 0;
@@ -669,7 +716,6 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 		else
 			Insert_(P_Lb);
 	}
-	return 1;
 }
 //
 // Utils

@@ -2514,7 +2514,7 @@ LRESULT ScintillaWin::ImeOnReconvert(LPARAM lParam)
 	RECONVERTSTRING * rc = (RECONVERTSTRING*)lParam;
 	if(!rc)
 		return rcSize;  // Immediately be back with rcSize of memory block.
-	wchar_t * rcFeedStart = (wchar_t*)(rc + 1);
+	wchar_t * rcFeedStart = (wchar_t *)(rc + 1);
 	memcpy(rcFeedStart, &rcFeed[0], rcFeedLen);
 	std::string rcCompString = RangeText(mainStart, mainEnd);
 	std::wstring rcCompWstring = StringDecode(rcCompString, codePage);

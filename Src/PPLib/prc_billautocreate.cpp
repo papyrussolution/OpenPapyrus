@@ -1,5 +1,6 @@
 // prc_billautocreate.cpp
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -28,16 +29,16 @@ struct _OrdArEntry {
 	PPID   ArID;
 	PPID   GoodsGrpID;       // ->Goods2.ID
 	PPID   LocID;            // ->Location.ID
-	PPID   MngrID;           // ->Person.ID Менеджер, закрепленный за этой группой закупки
+	PPID   MngrID;           // ->Person.ID РњРµРЅРµРґР¶РµСЂ, Р·Р°РєСЂРµРїР»РµРЅРЅС‹Р№ Р·Р° СЌС‚РѕР№ РіСЂСѓРїРїРѕР№ Р·Р°РєСѓРїРєРё
 	int16  OrdPrdDays;       //
 	int16  DuePrdDays;       //
-	DateRepeating Dr;        // Периодичность заказа
+	DateRepeating Dr;        // РџРµСЂРёРѕРґРёС‡РЅРѕСЃС‚СЊ Р·Р°РєР°Р·Р°
 };
 
 static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, SString & rBuf)
 {
-    return rBuf.Z().Cat("PCZ").CatChar('.').Cat(rEntry.ArID).CatChar('.').Cat(rEntry.GoodsGrpID).CatChar('.').
-		Cat(rEntry.LocID).CatChar('.').Cat(rEntry.MngrID).CatChar('.').Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
+    return rBuf.Z().Cat("PCZ").Dot().Cat(rEntry.ArID).Dot().Cat(rEntry.GoodsGrpID).Dot().
+		Cat(rEntry.LocID).Dot().Cat(rEntry.MngrID).Dot().Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 }
 
 // static
@@ -132,7 +133,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt
                                 	const PPID ex_bill_id = ex_bill_list.get(j);
                                 	BillTbl::Rec ex_bill_rec;
 									if(p_bobj->Search(ex_bill_id, &ex_bill_rec) > 0) {
-										// PPTXT_SUPPLORDEXISTS         "Документ заказа поставщику '%s' был создан ранее"
+										// PPTXT_SUPPLORDEXISTS         "Р”РѕРєСѓРјРµРЅС‚ Р·Р°РєР°Р·Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ '%s' Р±С‹Р» СЃРѕР·РґР°РЅ СЂР°РЅРµРµ"
 										PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
 										msg_buf.Printf(PPLoadStringS(PPSTR_TEXT, PPTXT_SUPPLORDEXISTS, fmt_buf), temp_buf.cptr());
 										log.Log(msg_buf);
@@ -196,21 +197,20 @@ struct TaBonusSupplItem {
 
 static SString & MakeTaAutocreationTag(PPID arID, PPID locID, LDATE dt, SString & rBuf)
 {
-    return rBuf.Z().Cat("TAB").CatChar('.').Cat(arID).CatChar('.').Cat(locID).CatChar('.').
-		Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
+    return rBuf.Z().Cat("TAB").Dot().Cat(arID).Dot().Cat(locID).Dot().Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 }
 
 int SLAPI PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 {
 	//
-	// Очень специализированная функция, формирующая драфт-документы по бонусам, предоставленным
-	// покупателям. Контрагентами таких документов являются поставщики.
-	// -- Цены в драфт-документах:
-	//      -- номинальная цена реализации равна полной цене отгрузки
-	//      -- скидка равна полной цене заказа. Таким образом, полная цена реализации в драфт-документе будет равна бонусной скидке.
-	//      -- цена поступления равна просуммированной величине в ценах поступления из документов отгрузки,
-	//         поделенной на суммарное отгруженное количество.
-	// Для будущих применений значение speciality будет отличаться от 1
+	// РћС‡РµРЅСЊ СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ, С„РѕСЂРјРёСЂСѓСЋС‰Р°СЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚С‹ РїРѕ Р±РѕРЅСѓСЃР°Рј, РїСЂРµРґРѕСЃС‚Р°РІР»РµРЅРЅС‹Рј
+	// РїРѕРєСѓРїР°С‚РµР»СЏРј. РљРѕРЅС‚СЂР°РіРµРЅС‚Р°РјРё С‚Р°РєРёС… РґРѕРєСѓРјРµРЅС‚РѕРІ СЏРІР»СЏСЋС‚СЃСЏ РїРѕСЃС‚Р°РІС‰РёРєРё.
+	// -- Р¦РµРЅС‹ РІ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°С…:
+	//      -- РЅРѕРјРёРЅР°Р»СЊРЅР°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё СЂР°РІРЅР° РїРѕР»РЅРѕР№ С†РµРЅРµ РѕС‚РіСЂСѓР·РєРё
+	//      -- СЃРєРёРґРєР° СЂР°РІРЅР° РїРѕР»РЅРѕР№ С†РµРЅРµ Р·Р°РєР°Р·Р°. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РїРѕР»РЅР°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё РІ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Рµ Р±СѓРґРµС‚ СЂР°РІРЅР° Р±РѕРЅСѓСЃРЅРѕР№ СЃРєРёРґРєРµ.
+	//      -- С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ СЂР°РІРЅР° РїСЂРѕСЃСѓРјРјРёСЂРѕРІР°РЅРЅРѕР№ РІРµР»РёС‡РёРЅРµ РІ С†РµРЅР°С… РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РёР· РґРѕРєСѓРјРµРЅС‚РѕРІ РѕС‚РіСЂСѓР·РєРё,
+	//         РїРѕРґРµР»РµРЅРЅРѕР№ РЅР° СЃСѓРјРјР°СЂРЅРѕРµ РѕС‚РіСЂСѓР¶РµРЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ.
+	// Р”Р»СЏ Р±СѓРґСѓС‰РёС… РїСЂРёРјРµРЅРµРЅРёР№ Р·РЅР°С‡РµРЅРёРµ speciality Р±СѓРґРµС‚ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ РѕС‚ 1
 	//
 	int    speciality = 1;
 
@@ -229,7 +229,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftByTrfrAnlz()
 						PPObjBill * p_bobj = BillObj;
 						PPObjGoods goods_obj;
 						const   PPID loc_id = LConfig.Location;
-						LDATE   last_rep_date = ZERODATE; // Дата самой поздней операции в отчете
+						LDATE   last_rep_date = ZERODATE; // Р”Р°С‚Р° СЃР°РјРѕР№ РїРѕР·РґРЅРµР№ РѕРїРµСЂР°С†РёРё РІ РѕС‚С‡РµС‚Рµ
 						PPViewTrfrAnlz view;
 						TrfrAnlzViewItem item;
 						TSArray <TaBonusSupplItem> result_list;

@@ -1174,33 +1174,24 @@ int SLAPI AndroidReader::ReadGeoTracks(PalmInputParam * pParam)
 						val.Set(p_fld->children->content);
 						if(SXml::IsName(p_fld, "_id")) {
 						}
-						else if(SXml::IsName(p_fld, "Dt")) {
+						else if(SXml::IsName(p_fld, "Dt"))
 							strtodate(val, DATF_DMY, &gt_item.Dtm.d);
-						}
-						else if(SXml::IsName(p_fld, "Tm")) {
+						else if(SXml::IsName(p_fld, "Tm"))
 							strtotime(val, TIMF_HMS, &gt_item.Dtm.t);
-						}
-						else if(SXml::IsName(p_fld, "Latitude")) {
+						else if(SXml::IsName(p_fld, "Latitude"))
 							gt_item.Latitude = val.ToReal();
-						}
-						else if(SXml::IsName(p_fld, "Longitude")) {
+						else if(SXml::IsName(p_fld, "Longitude"))
 							gt_item.Longitude = val.ToReal();
-						}
-						else if(SXml::IsName(p_fld, "Altitude")) {
+						else if(SXml::IsName(p_fld, "Altitude"))
 							gt_item.Altitude = val.ToReal();
-						}
-						else if(SXml::IsName(p_fld, "Speed")) {
+						else if(SXml::IsName(p_fld, "Speed"))
 							gt_item.Speed = val.ToReal();
-						}
-						else if(SXml::IsName(p_fld, "Flags")) {
+						else if(SXml::IsName(p_fld, "Flags"))
 							gt_item.Flags = val.ToLong();
-						}
-						else if(SXml::IsName(p_fld, "ExtObjType")) {
+						else if(SXml::IsName(p_fld, "ExtObjType"))
 							gt_item.ExtOid.Obj = val.ToLong();
-						}
-						else if(SXml::IsName(p_fld, "ExtObjID")) {
+						else if(SXml::IsName(p_fld, "ExtObjID"))
 							gt_item.ExtOid.Id = val.ToLong();
-						}
 					}
 				}
 				gt_item.Oid.Set(PPOBJ_STYLOPALM, PalmRec.ID);
@@ -2726,24 +2717,6 @@ int SLAPI AndroidXmlWriter::AddAttrib(const char * pName, LDATE val)
 	SString attr_val;
 	return AddAttrib(pName, attr_val.Cat(val));
 }
-
-/*
-int SLAPI InitImpExpParam(PPImpExpParam * pParam, const char * pFileName, uint recTyp, int forExport)
-{
-	int    ok = 1;
-	THROW_INVARG(pParam && pFileName);
-	pParam->Init();
-	THROW(LoadSdRecord(recTyp, &pParam->InnerRec));
-	pParam->Direction  = forExport ? 0 : 1;
-	pParam->DataFormat = PPImpExpParam::dfDbf;
-	pParam->TdfParam.Flags |= TextDbFile::fOemText;
-	pParam->TdfParam.FldDiv.CopyFrom(";");
-	pParam->FileName.CopyFrom(pFileName);
-	pParam->OuterRec = pParam->InnerRec;
-	CATCHZOK
-	return ok;
-}
-*/
 
 int PutGoods(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 {

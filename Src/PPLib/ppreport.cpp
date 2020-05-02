@@ -1155,6 +1155,7 @@ private:
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 1);
 		}
 		disableCtrl(CTL_PRINT2_DOMAIL, !enable_email);
+		SetupWordSelector(CTL_PRINT2_MAKEDATAPATH, (enable_email ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.7
 		setCtrlString(CTL_PRINT2_MAKEDATAPATH, path);
 	}
 

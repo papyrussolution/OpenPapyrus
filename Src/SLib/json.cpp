@@ -1,5 +1,6 @@
-// Copyright (C) 2007 by Rui Maciel
-// rui.maciel@gmail.com
+// JSON.CPP
+// Copyright (C) 2007 by Rui Maciel rui.maciel@gmail.com
+// @codepage UTF-8
 //
 // This program is free software; you can redistribute it and/or modify it under the terms of the
 // GNU Library General Public License as published by the Free Software Foundation; either version 2 of the
@@ -76,7 +77,7 @@ static rstring_code FASTCALL rcs_resize(RcString * rcs, size_t length)
 {
 	assert(rcs);
 	char * p_temp = static_cast<char *>(SAlloc::R(rcs->P_Text, sizeof(char) * (length + 1))); // length plus '\0'
-	if(p_temp == NULL) {
+	if(!p_temp) {
 		SAlloc::F(rcs);
 		return RS_MEMORY;
 	}
@@ -131,8 +132,8 @@ json_t::json_t(/*enum json_value_type*/int aType) : Type(aType), P_Next(0), P_Pr
 json_t::~json_t()
 {
 	//
-	// Велик соблазн использовать здесь рекурсивное удаление внутренних объектов, но нельзя!
-	// При больших цепочках возможно переполнение стека.
+	// Р’РµР»РёРє СЃРѕР±Р»Р°Р·РЅ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р·РґРµСЃСЊ СЂРµРєСѓСЂСЃРёРІРЅРѕРµ СѓРґР°Р»РµРЅРёРµ РІРЅСѓС‚СЂРµРЅРЅРёС… РѕР±СЉРµРєС‚РѕРІ, РЅРѕ РЅРµР»СЊР·СЏ!
+	// РџСЂРё Р±РѕР»СЊС€РёС… С†РµРїРѕС‡РєР°С… РІРѕР·РјРѕР¶РЅРѕ РїРµСЂРµРїРѕР»РЅРµРЅРёРµ СЃС‚РµРєР°.
 	//
 	if(P_Next) {
 		for(json_t * p_next = P_Next; p_next;) {

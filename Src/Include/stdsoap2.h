@@ -1514,13 +1514,14 @@ public:
 		size_t size;
 		size_t chunksize;
 		size_t buflen;
-		char flags;
+		char   flags;
+		uint8  Reserve[3]; // @v10.7.7 @alignment 
 		char * ptr;
-		const char * id;
-		const char * type;
-		const char * options;
-		struct soap_multipart * list;          /* list of DIME attachments received */
-		struct soap_multipart * first, * last;  /* temporary in/out queue */
+		const  char * id;
+		const  char * type;
+		const  char * options;
+		struct soap_multipart * list; // list of DIME attachments received 
+		struct soap_multipart * first, * last; // temporary in/out queue 
 	#ifdef __cplusplus
 		soap_multipart_iterator begin() { soap_multipart_iterator iter(list); return iter; };
 		soap_multipart_iterator end() { soap_multipart_iterator iter(NULL); return iter; };
@@ -1569,8 +1570,8 @@ public:
 	// attachment DIME and MTOM XOP forwarding 
 	struct soap_xlist { 
 		struct soap_xlist * next;
-		unsigned char ** ptr;
-		int * size;
+		uchar ** ptr;
+		int  * size;
 		char * id;
 		char ** type;
 		char ** options; 
@@ -1891,7 +1892,7 @@ struct SOAP_STD_API soap {
 	struct soap_cookie * cookies;
 	const char * cookie_domain;
 	const char * cookie_path;
-	int cookie_max;
+	int   cookie_max;
 #endif
 #ifndef WITH_NOIO
 	int    ipv6_multicast_if;  // in6addr->sin6_scope_id IPv6 value */
@@ -2305,7 +2306,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_response(struct soap *, int);
 SOAP_FMAC1 int SOAP_FMAC2 soap_send_empty_response(struct soap *, int status);
 SOAP_FMAC1 int SOAP_FMAC2 soap_recv_empty_response(struct soap *);
 SOAP_FMAC1 int SOAP_FMAC2 soap_send_fault(struct soap *);
-SOAP_FMAC1 int SOAP_FMAC2 soap_recv_fault(struct soap *, int check);
+SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_recv_fault(struct soap *, int check);
 #ifndef WITH_NOSTDLIB
 	SOAP_FMAC1 void SOAP_FMAC2 soap_print_fault(struct soap *, FILE *);
 	SOAP_FMAC1 void SOAP_FMAC2 soap_print_fault_location(struct soap *, FILE *);

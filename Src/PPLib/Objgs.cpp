@@ -1639,7 +1639,8 @@ int GSDialog::addItem(long * pPos, long * pID)
 int GSDialog::addItemExt(long * pPos, long * pID)
 {
 	int    ok = -1;
-	ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, ExtGoodsSelDialog::fForcePassive);
+	long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fForcePassive); // @v10.7.7
+	ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
 	if(CheckDialogPtrErr(&dlg)) {
 		TIDlgInitData tidi;
 		tidi.GoodsGrpID = NewGoodsGrpID;
@@ -1784,7 +1785,7 @@ int GSExtDialog::setDTS(const PPGoodsStruc * pData)
 	}
 	Data = *pData;
 	setCtrlData(CTL_GSTRUC_NAME, Data.Rec.Name);
-	setCtrlLong(CTL_GSTRUC_ID, Data.Rec.ID); // @v7.2.4
+	setCtrlLong(CTL_GSTRUC_ID, Data.Rec.ID);
 	updateList(-1);
 	enableCommand(cmGStrucExpandReduce, Data.CanReduce());
 	return 1;

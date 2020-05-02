@@ -340,6 +340,34 @@ int SLAPI PPConfigDatabase::AddStringHistory(const char * pKey, const char * pTe
 	return ok;
 }
 
+int SLAPI PPConfigDatabase::GetRecentStringHistory(const char * pKey, uint maxItems, StringSet & rList)
+{
+	rList.clear();
+	int    ok = 0;
+	SString key;
+	StringHistoryPool * p_pool = 0;
+	int    is_pool_allocated = 0;
+	(key = pKey).Strip().Utf8ToLower();
+	for(uint i = 0; !p_pool && i < ShL.getCount(); i++) {
+		StringHistoryPool * p_local_pool = ShL.at(i);
+		if(p_local_pool->GetKey() == key)
+			p_pool = p_local_pool;
+	}
+	if(!p_pool) {
+		THROW_SL(p_pool = new StringHistoryPool(key));
+		is_pool_allocated = 1;
+		THROW(LoadStringHistory(*p_pool));
+		ShL.insert(p_pool);
+		is_pool_allocated = 0; // to avoid destruction at the end of the function
+	}
+	assert(p_pool);
+	ok = p_pool->GetRecent(maxItems, rList);
+	CATCHZOK
+	if(is_pool_allocated)
+		delete p_pool;
+	return ok;
+}
+
 int SLAPI PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList)
 {
 	rList.clear();
@@ -350,9 +378,8 @@ int SLAPI PPConfigDatabase::GetStringHistory(const char * pKey, const char * pSu
 	(key = pKey).Strip().Utf8ToLower();
 	for(uint i = 0; !p_pool && i < ShL.getCount(); i++) {
 		StringHistoryPool * p_local_pool = ShL.at(i);
-		if(p_local_pool->GetKey() == key) {
+		if(p_local_pool->GetKey() == key)
 			p_pool = p_local_pool;
-		}
 	}
 	if(!p_pool) {
 		THROW_SL(p_pool = new StringHistoryPool(key));
@@ -393,6 +420,7 @@ int SLAPI PPConfigDatabase::LoadStringHistory(StringHistoryPool & rPool)
 			else {
 				THROW_SL(rPool.Serialize(-1, cbuf, &sctx));
 			}
+			THROW(rPool.BuildHash());
 		}
 		//THROW_SL(rPool.Serialize(-1, buf, &sctx));
 		ok = 1;
@@ -403,7 +431,7 @@ int SLAPI PPConfigDatabase::LoadStringHistory(StringHistoryPool & rPool)
 
 int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use_ta)
 {
-	int    ok = 0;
+	int    ok = -1;
 	SString temp_buf;
 	if(pPool == 0) {
 		if(ShL.getCount()) {
@@ -412,13 +440,16 @@ int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use
 			for(uint i = 0; i < ShL.getCount(); i++) {
 				StringHistoryPool * p_local_pool = ShL.at(i);
 				if(p_local_pool) {
-					THROW(SaveStringHistory(p_local_pool, 0)); // @recursion
+					int    r;
+					THROW(r = SaveStringHistory(p_local_pool, 0)); // @recursion
+					if(r > 0)
+						ok = 1;
 				}
 			}
 			THROW_DB(tra.Commit(1));
 		}
 	}
-	else {
+	else if(pPool->IsSavingNeeded()) {
 		temp_buf = pPool->GetKey();
 		temp_buf.Strip().Utf8ToLower();
 		if(temp_buf.NotEmpty()) {
@@ -432,9 +463,7 @@ int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use
 			int   do_update = 0; // if 1 then update rec else insert
 			BDbTransaction tra(P_Db, use_ta);
 			THROW_DB(tra);
-			if(P_ShT->Search(key_buf, data_buf)) {
-				data_buf.Get(sbuf);
-				THROW_SL(org_pool.Serialize(-1, sbuf, &sctx));
+			if(LoadStringHistory(org_pool) > 0) {
 				THROW(pPool->Merge(org_pool));
 				THROW_SL(org_pool.Serialize(+1, sbuf.Z(), &sctx));
 				do_update = 1;
@@ -462,6 +491,8 @@ int SLAPI PPConfigDatabase::SaveStringHistory(StringHistoryPool * pPool, int use
 				}
 			}
 			THROW_DB(tra.Commit(1));
+			pPool->OnSave();
+			ok = 1;
 		}
 	}
 	CATCHZOK
@@ -512,25 +543,32 @@ int SLAPI PPConfigDatabase::StringHistoryPool::SearchEntries(const char * pSubUt
 	ci_text.CopyFromUtf8(pSubUtf8, sstrlen(pSubUtf8));
 	ci_text.ToLower();
 	SString temp_buf;
-	for(uint i = 0; i < L.getCount(); i++) {
-		const InnerEntry & r_entry = L.at(i);
-		if(GetS(r_entry.TextCiP, temp_buf)) {
-			temp_buf_u.CopyFromUtf8(temp_buf);
-			if(flags & sefFullString) {
-				if(temp_buf_u.IsEqual(ci_text)) {
-					rPosList.add(static_cast<long>(i));
+	if(flags & sefFullString) {
+		ci_text.CopyToUtf8(temp_buf, 1);
+		uint   val = 0;
+		if(Ht.Search(temp_buf, &val, 0)) {
+			assert(val > 0 && val <= L.getCount());
+			rPosList.add(static_cast<long>(val-1));
+			ok = 1;
+		}
+	}
+	else {
+		HashTableBase::Iter hti;
+		if(Ht.InitIteration(&hti)) {
+			uint val = 0;
+			while(Ht.NextIteration(&hti, &val, 0, &temp_buf)) {
+				assert(val > 0 && val <= L.getCount());
+				temp_buf_u.CopyFromUtf8(temp_buf);
+				if(flags & sefFromBegin) {
+					if(temp_buf_u.CmpPrefix(ci_text) == 0) {
+						rPosList.add(static_cast<long>(val-1));
+						ok = 1;
+					}
+				}
+				else if(temp_buf_u.Search(ci_text, 0, 0)) {
+					rPosList.add(static_cast<long>(val-1));
 					ok = 1;
 				}
-			}
-			else if(flags & sefFromBegin) {
-				if(temp_buf_u.CmpPrefix(ci_text) == 0) {
-					rPosList.add(static_cast<long>(i));
-					ok = 1;
-				}
-			}
-			else if(temp_buf_u.Search(ci_text, 0, 0)) {
-				rPosList.add(static_cast<long>(i));
-				ok = 1;
 			}
 		}
 	}
@@ -550,6 +588,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
 				InnerEntry & r_entry = L.at(pos_list.get(0));
 				r_entry.UsageCount++;
 				r_entry.Dtm = getcurdatetime_();
+				St.Dirty = 1;
 			}
 			ok = 2;
 		}
@@ -563,8 +602,10 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
 			ci_text.CopyFromUtf8(text_buf, text_buf.Len());
 			ci_text.ToLower();
 			ci_text.CopyToUtf8(text_buf, 1);
-			AddS(text_buf, &new_entry.TextCiP);
+			Ht.Add(text_buf, L.getCount()+1, 0);
+			//AddS(text_buf, &new_entry.TextCiP);
 			L.insert(&new_entry);
+			St.Dirty = 1;
 			ok = 1;
 		}
 	}
@@ -573,23 +614,48 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
 	return ok;
 }
 
-int SLAPI PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS) const
+int SLAPI PPConfigDatabase::StringHistoryPool::BuildHash()
+{
+	Ht.Clear();
+	int    ok = 1;
+	SString temp_buf;
+	SStringU temp_buf_u;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const InnerEntry & r_this_entry = L.at(i);
+		GetS(r_this_entry.TextP, temp_buf);
+		temp_buf.Strip();
+		temp_buf_u.CopyFromUtf8(temp_buf);
+		temp_buf_u.ToLower();
+		temp_buf_u.CopyToUtf8(temp_buf, 1);
+		THROW_SL(Ht.Add(temp_buf, i+1));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS)
 {
 	int    ok = 1;
 	SString temp_buf;
 	LongArray pos_list;
+	Ht.BuildAssoc();
 	for(uint i = 0; i < L.getCount(); i++) {
 		const InnerEntry & r_this_entry = L.at(i);
-		GetS(r_this_entry.TextCiP, temp_buf);
+		Ht.GetByAssoc(i+1, temp_buf);
+		//GetS(r_this_entry.TextCiP, temp_buf);
 		if(rS.SearchEntries(temp_buf, sefFullString, pos_list) > 0) {
 			assert(pos_list.getCount());
 			for(uint pidx = 0; pidx < pos_list.getCount(); pidx++) {
 				const uint other_pos = static_cast<uint>(pos_list.get(pidx));
 				InnerEntry & r_other_entry = rS.L.at(other_pos);
-				if(cmp(r_this_entry.Dtm, r_other_entry.Dtm) > 0)
+				if(cmp(r_this_entry.Dtm, r_other_entry.Dtm) > 0) {
 					r_other_entry.Dtm = r_this_entry.Dtm;
-				if(r_this_entry.UsageCount > r_this_entry.OrgUsageCount)
+					St.Dirty = 1;
+				}
+				if(r_this_entry.UsageCount > r_this_entry.OrgUsageCount) {
 					r_other_entry.UsageCount += (r_this_entry.UsageCount - r_this_entry.OrgUsageCount);
+					St.Dirty = 1;
+				}
 			}
 		}
 		else {
@@ -597,13 +663,26 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Merge(StringHistoryPool & rS) con
 			new_entry.Dtm = r_this_entry.Dtm;
 			new_entry.UsageCount = r_this_entry.UsageCount;
 			new_entry.OrgUsageCount = 0;
-			rS.AddS(temp_buf, &new_entry.TextCiP);
+			rS.Ht.Add(temp_buf, rS.L.getCount()+1);
+			//rS.AddS(temp_buf, &new_entry.TextCiP);
 			GetS(r_this_entry.TextP, temp_buf);
 			rS.AddS(temp_buf, &new_entry.TextP);
 			rS.L.insert(&new_entry);
+			St.Dirty = 1;
 		}
 	}
 	return ok;
+}
+
+void SLAPI PPConfigDatabase::StringHistoryPool::OnSave()
+{
+	St.Dirty = 0;
+	St.LastSaveTm = getcurdatetime_();
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::IsSavingNeeded() const
+{
+	return St.Dirty;
 }
 
 int FASTCALL PPConfigDatabase::StringHistoryPool::CmpEntryIndices(const void * p1, const void * p2) const
@@ -619,6 +698,28 @@ static IMPL_CMPFUNC(StringHistoryPool_EntryIndex, p1, p2)
 {
 	PPConfigDatabase::StringHistoryPool * p_pool = static_cast<PPConfigDatabase::StringHistoryPool *>(pExtraData);
 	return p_pool ? p_pool->CmpEntryIndices(p1, p2) : 0;
+}
+
+int SLAPI PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSet & rList) const
+{
+	int    ok = 0;
+	rList.clear();
+	if(maxItems > 0 && L.getCount()) {
+		LongArray pos_list;
+		SString temp_buf;
+		for(uint i = 0; i < L.getCount(); i++) {
+			pos_list.add(static_cast<long>(i));
+		}
+		pos_list.SVectorBase::sort(PTR_CMPFUNC(StringHistoryPool_EntryIndex), const_cast<PPConfigDatabase::StringHistoryPool *>(this)); // @badcast
+		for(uint i = 0; i < pos_list.getCount() && i < maxItems; i++) {
+			const InnerEntry & r_entry = L.at(pos_list.get(i));
+			GetS(r_entry.TextP, temp_buf);
+			if(temp_buf.Len())
+				rList.add(temp_buf);
+		}
+		ok = 1;
+	}
+	return ok;
 }
 		
 int SLAPI PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long flags, StringSet & rList) const
@@ -659,11 +760,24 @@ int SLAPI PPConfigDatabase::Open(const char * pDbPath)
 {
 	int    ok = 1;
 	Close();
-	THROW_MEM(P_Db = new BDbDatabase(pDbPath));
-	THROW(!!*P_Db);
-	THROW_MEM(P_OT = new CObjTbl(P_Db));
-	THROW_MEM(P_OtT = new CObjTailTbl(P_Db));
-	THROW_MEM(P_ShT = new StringHistoryTbl(P_Db)); // @v10.7.6
+	if(!isempty(pDbPath) && pathValid(pDbPath, 1)) {
+		BDbDatabase::Config cfg;
+		cfg.CacheSize   = SMEGABYTE(8);
+		cfg.MaxLockers  = SKILOBYTE(2);
+		cfg.MaxLocks    = SKILOBYTE(2);
+		cfg.MaxLockObjs = SKILOBYTE(2);
+		cfg.LogBufSize  = SMEGABYTE(1);
+		cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove);
+		{
+			long   db_options = BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/;
+			THROW_MEM(P_Db = new BDbDatabase(pDbPath, &cfg, db_options));
+			THROW(!!*P_Db);
+		}
+		//
+		THROW_MEM(P_OT = new CObjTbl(P_Db));
+		THROW_MEM(P_OtT = new CObjTailTbl(P_Db));
+		THROW_MEM(P_ShT = new StringHistoryTbl(P_Db)); // @v10.7.6
+	}
 	CATCH
 		ok = 0;
 		Close();
@@ -798,6 +912,19 @@ int SLAPI PPConfigDatabase::GetObj(int32 id, CObjHeader * pHdr, SBuffer * pData)
 	return ok;
 }
 
+int SLAPI TestConfigDatabase_StringHistory_Interactive()
+{
+	int    ok = -1;
+	const char * p_key = "test-string-history-key";
+	TDialog * dlg = new TDialog(DLG_INPUT);
+	if(CheckDialogPtr(&dlg)) {
+		dlg->SetupWordSelector(CTL_INPUT_STR, new TextHistorySelExtra(p_key), 0, 3, WordSel_ExtraBlock::fFreeText);
+		ExecView(dlg);
+	}
+	delete dlg;
+	return ok;
+}
+
 int SLAPI TestConfigDatabase_StringHistory()
 {
 	int    ok = 1;
@@ -809,9 +936,9 @@ int SLAPI TestConfigDatabase_StringHistory()
 	inp_file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("email-list.txt");
 	SFile f_inp(inp_file_name, SFile::mRead);
 	if(f_inp.IsValid()) {
-		PPGetPath(PPPATH_WORKSPACE, temp_buf);
-		temp_buf.SetLastSlash().Cat("bdbconfig-test");
-		PPConfigDatabase cdb(temp_buf);
+		//PPGetPath(PPPATH_WORKSPACE, temp_buf);
+		//temp_buf.SetLastSlash().Cat("bdbconfig-test");
+		//PPConfigDatabase cdb(temp_buf);
 		SStrGroup ssg;
 		LongArray ssg_pos_list;
 		uint   line_no = 0;
@@ -819,7 +946,7 @@ int SLAPI TestConfigDatabase_StringHistory()
 			line_no++;
 			temp_buf.Chomp().Strip();
 			temp_buf.ToUtf8();
-			if(cdb.AddStringHistory(p_key, temp_buf)) {
+			if(DS.AddStringHistory(p_key, temp_buf)) {
 				uint sp = 0;
 				ssg.AddS(temp_buf, &sp);
 				ssg_pos_list.add(static_cast<long>(sp));
@@ -827,7 +954,7 @@ int SLAPI TestConfigDatabase_StringHistory()
 		}
 		ssg_pos_list.shuffle();
 		temp_buf = "YAHOO.COM";
-		if(cdb.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefSubString, ss_result) > 0) {
+		if(DS.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefSubString, ss_result) > 0) {
 			for(uint j = 0; ss_result.get(&j, temp_buf);) {
 				;
 			}
@@ -835,14 +962,14 @@ int SLAPI TestConfigDatabase_StringHistory()
 		for(uint i = 0; i < ssg_pos_list.getCount(); i++) {
 			uint sp = static_cast<uint>(ssg_pos_list.get(i));
 			if(ssg.GetS(sp, temp_buf)) {
-				if(cdb.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefFullString, ss_result) > 0) {
+				if(DS.GetStringHistory(p_key, temp_buf, PPConfigDatabase::StringHistoryPool::sefFullString, ss_result) > 0) {
 					;
 				}
 			}
 		}
-		THROW(cdb.SaveStringHistory(0, 1));
+		THROW(DS.SaveStringHistory());
 	}
-	{
+	/*{
 		PPGetPath(PPPATH_WORKSPACE, temp_buf);
 		temp_buf.SetLastSlash().Cat("bdbconfig-test");
 		PPConfigDatabase cdb(temp_buf);
@@ -852,7 +979,7 @@ int SLAPI TestConfigDatabase_StringHistory()
 				;
 			}
 		}
-	}
+	}*/
 	CATCHZOK
 	return ok;
 }

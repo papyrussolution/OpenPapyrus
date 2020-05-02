@@ -506,6 +506,27 @@ HFONT TView::setFont(HWND hWnd, const char * pFontName, int height)
 	return new_font;
 }
 
+//static 
+void SLAPI TView::CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG)
+{
+	if(pG) {
+		TView * p_temp = pG->GetLastView();
+		if(p_temp) {
+			const TView * p_term = p_temp;
+			do {
+				p_temp = p_temp->P_Next;
+				if(p_temp && p_temp->IsConsistent()) {
+					if(p_temp->P_WordSelBlk) {
+						p_temp->P_WordSelBlk->OnAcceptInput(0, 0);
+					}
+				}
+				else
+					break;
+			} while(p_temp != p_term);
+		}
+	}
+}
+
 int TView::IsConsistent() const
 {
 	int    ok = 1;

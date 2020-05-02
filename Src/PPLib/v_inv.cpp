@@ -1782,7 +1782,6 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 							int    sel_by_name = BIN(ppvCmd == PPVCMD_SELECTBYNAME);
-							long   sel_flags = 0;
 							StrAssocArray goods_list;
 							if(sel_by_name) {
 								SString sub;
@@ -1797,9 +1796,10 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 								else
 									sel_by_name = 0;
 							}
-							SETFLAG(sel_flags, ExtGoodsSelDialog::fExistsOnly, (Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
-							SETFLAG(sel_flags, ExtGoodsSelDialog::fByName, Flags & fSelGoodsByName); // В диалоге будут полные наименования //
-							ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(bill_rec.OpID, 0, sel_flags);
+							long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+							SETFLAG(egsd_flags, ExtGoodsSelDialog::fExistsOnly, (Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
+							SETFLAG(egsd_flags, ExtGoodsSelDialog::fByName, Flags & fSelGoodsByName); // В диалоге будут полные наименования //
+							ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(bill_rec.OpID, 0, egsd_flags);
 							if(CheckDialogPtrErr(&dlg)) {
 								if(sel_by_name)
 									dlg->setSelectionByGoodsList(&goods_list);

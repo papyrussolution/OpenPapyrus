@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1357,7 +1357,7 @@ int SLAPI DL2_Score::PutToStr(SString & rBuf) const
 		default: rBuf.CatEq("@invalid", (long)Kind); break;
 	}
 	if(Sub) {
-		rBuf.CatChar('.');
+		rBuf.Dot();
 		switch(Sub) {
 			case subAmount:         rBuf.Cat("amount"); break;
 			case subCost:           rBuf.Cat("cost"); break;

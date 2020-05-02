@@ -3086,6 +3086,31 @@ SString & SLAPI SString::Sub(size_t startPos, size_t len, SString & rBuf) const
 	return rBuf;
 }
 
+SString & SLAPI SString::Fmt(long fmt)
+{
+	int    flag = SFMTFLAG(fmt);
+	if(flag & STRF_OEM) {
+		Transf(CTRANSF_OUTER_TO_INNER);
+	}
+	else if(flag & STRF_ANSI) {
+		Transf(CTRANSF_INNER_TO_OUTER);
+	}
+	if(flag & STRF_UPPER) {
+		ToUpper();
+	}
+	else if(flag & STRF_LOWER) {
+		ToLower();
+	}
+	if(flag & STRF_PASSWORD) {
+		const size_t org_len = Len();
+		Z().CatCharN(DEFAULT_PASSWORD_SYMB, org_len);
+	}
+	if(flag & COMF_SQL) {
+		Quot('\'', '\'');
+	}
+	return _commfmt(fmt, *this);
+}
+
 SString & SLAPI SString::SetLastDSlash()
 {
 	int    last = Last();
@@ -4599,7 +4624,7 @@ int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int forc
 			if(pExt && pExt[0] == '.')
 				rPath.Cat(pExt);
 			else
-				rPath.CatChar('.').Cat(pExt);
+				rPath.Dot().Cat(pExt);
 			ok = 1;
 		}
 	}

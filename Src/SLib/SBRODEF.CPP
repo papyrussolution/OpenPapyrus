@@ -414,11 +414,11 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 
 char * SLAPI BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint heightMult, uint * pCalcHeight)
 {
-	char   ptr[1024]; // @v9.0.5 [256]-->[1024]
-	char   buf[1024];
+	char   ptr[4096]; // @v9.0.5 [256]-->[1024] // @v10.7.7 [1024]-->[4096]
+	char   buf[4096]; // @v10.7.7 [1024]-->[4096]
 	PTR32(buf)[0] = 0;
 	const  char * p_src_data = static_cast<const char *>(getRow(row));
-	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
+	if(p_src_data && column >= 0 && column < getCountI()) {
 		const  BroColumn & c = at(column);
 		const void * p_bin_data = 0;
 		int    r = 1;

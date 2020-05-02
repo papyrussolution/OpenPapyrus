@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1533,9 +1533,9 @@ SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSY
 		AddType("raw",      MKSTYPE(S_RAW, 0));
 		AddType("blob",     MKSTYPE(S_BLOB, 0));
 		AddType("clob",     MKSTYPE(S_CLOB, 0));
-		AddType("ipoint2",  MKSTYPE(S_IPOINT2, sizeof(TPoint))); // @v6.9.4
-		AddType("fpoint2",  MKSTYPE(S_FPOINT2, sizeof(FPoint))); // @v6.9.4
-		AddType("guid",     MKSTYPE(S_UUID_, sizeof(S_GUID))); // @v8.0.10
+		AddType("ipoint2",  MKSTYPE(S_IPOINT2, sizeof(TPoint)));
+		AddType("fpoint2",  MKSTYPE(S_FPOINT2, sizeof(FPoint)));
+		AddType("guid",     MKSTYPE(S_UUID_, sizeof(S_GUID)));
 		BuiltinOp(0, 0);
 		AddMacro("Date2WStr", "date2wstr");
 		AddMacro("Date2Str",  "date2str");
@@ -1549,7 +1549,7 @@ SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSY
 
 DLSYMBID SLAPI DlContext::GetNewSymbID()
 {
-	SETIFZ(LastSymbId, Tab.GetMaxVal()); // @v6.1.11
+	SETIFZ(LastSymbId, Tab.GetMaxVal());
 	return ++LastSymbId;
 }
 

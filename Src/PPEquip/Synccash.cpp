@@ -1301,7 +1301,7 @@ int SLAPI SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
 			SlipLineParam  sl_param;
-			if(sdc_param.PageWidth > (uint)CheckStrLen)
+			if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
 				WriteLogFile_PageWidthOver(format_name);
 			RibbonParam = 0;
 			Arr_In.Z();
@@ -1622,10 +1622,40 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 			for(uint pos = 0; str_set.get(&pos, str) > 0;) {
 				str.Chomp();
 				Arr_In.Z();
-				THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-				THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
-				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
-				THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				// @v10.7.6 {
+				// 0xDF^^
+				// ~0xDA^^
+				// ~0xDE^^
+				if(str.CmpPrefix("0xDF^^", 1)) {
+					//THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					str.Z().CatCharN('-', 8);
+					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				}
+				else if(str.CmpPrefix("~0xDA^^", 1)) {
+					//THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					str.Z().CatCharN('-', 8);
+					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				}
+				else if(str.CmpPrefix("~0xDE^^", 1)) {
+					//THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					str.Z().CatCharN('-', 8);
+					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				}
+				else { // } @v10.7.6 
+					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				}
 			}
 			Arr_In.Z();
 			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out.Z()));

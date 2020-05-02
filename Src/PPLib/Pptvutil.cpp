@@ -2797,7 +2797,8 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg);
 		AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
-		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fPollVoipService); // @v9.8.11
+		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics); // @v10.7.7
+		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService); // @v9.8.11 // @v10.7.7 11-->12
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
 		// @v10.3.0 {
@@ -3273,6 +3274,91 @@ int LocationCtrlGroup::getData(TDialog * pDlg, void * pData)
 	}
 	ASSIGN_PTR(p_rec, Data);
 	return 1;
+}
+//
+//
+//
+/*
+class TextHistorySelExtra : public WordSel_ExtraBlock {
+public:
+	explicit TextHistorySelExtra(const char * pKey);
+	virtual StrAssocArray * GetList(const char * pText);
+	virtual int Search(long id, SString & rBuf);
+	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
+private:
+	const SString Key;
+};
+*/
+TextHistorySelExtra::TextHistorySelExtra(const char * pKey) : WordSel_ExtraBlock(0, 0, 0, 2, 0), Key(pKey)
+{
+	SetTextMode(true);
+}
+
+//virtual 
+StrAssocArray * TextHistorySelExtra::GetRecentList()
+{
+	StrAssocArray * p_result = 0;
+	if(Key.NotEmpty()) {
+		SString temp_buf;
+		StringSet ss;
+		if(DS.GetStringHistoryRecent(Key, 10, ss)) {
+			p_result = new StrAssocArray;
+			if(p_result) {
+				long  surrogate_id = 0;
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					p_result->Add(++surrogate_id, temp_buf, 0);
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+//virtual 
+StrAssocArray * TextHistorySelExtra::GetList(const char * pText)
+{
+	StrAssocArray * p_result = 0;
+	if(Key.NotEmpty()) {
+		SString temp_buf;
+		(temp_buf = pText).Transf(CTRANSF_INNER_TO_UTF8);
+		StringSet ss;
+		if(DS.GetStringHistory(Key, temp_buf, PPConfigDatabase::StringHistoryPool::sefSubString, ss)) {
+			p_result = new StrAssocArray;
+			if(p_result) {
+				long  surrogate_id = 0;
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					p_result->Add(++surrogate_id, temp_buf, 0);
+				}
+			}
+		}
+	}
+	return p_result;
+}
+//virtual 
+int TextHistorySelExtra::Search(long id, SString & rBuf)
+{
+	return 0;
+}
+//virtual 
+int TextHistorySelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
+{
+	return 0;
+}
+
+//virtual 
+void TextHistorySelExtra::OnAcceptInput(const char * pText, long id)
+{
+	if(Key.NotEmpty()) {
+		SString temp_buf;
+		temp_buf = pText;
+		if(temp_buf.NotEmptyS()) {
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			DS.AddStringHistory(Key, temp_buf);
+			DS.SaveStringHistory();
+		}
+	}
 }
 //
 //
@@ -5174,7 +5260,10 @@ int ResolveGoodsDialog::editItem(long pos, long id)
 	if(id > 0) {
 		const int maxlike_goods = BIN(Flags & RESOLVEGF_MAXLIKEGOODS);
 		TIDlgInitData tidi;
-		THROW_MEM(p_dlg = new ExtGoodsSelDialog(0, maxlike_goods ? 0 : GoodsGrpID, maxlike_goods ? ExtGoodsSelDialog::fByName : 0));
+		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+		if(maxlike_goods)
+			egsd_flags |= ExtGoodsSelDialog::fByName;
+		THROW_MEM(p_dlg = new ExtGoodsSelDialog(0, maxlike_goods ? 0 : GoodsGrpID, egsd_flags));
 		THROW(CheckDialogPtr(&p_dlg));
 		if(maxlike_goods) {
 			StrAssocArray goods_list;
@@ -6052,12 +6141,14 @@ int EmailCtrlGroup::getData(TDialog * pDlg, void * pData)
 int EmailCtrlGroup::SetLine(TDialog * pDlg)
 {
 	SString addr_list;
-	for(uint i = 0; i < Data.AddrList.getCount(); i++) {
+	const uint alcnt = Data.AddrList.getCount();
+	for(uint i = 0; i < alcnt; i++) {
 		addr_list.Cat(Data.AddrList.Get(i).Txt);
-		if(i + 1 < Data.AddrList.getCount())
+		if((i + 1) < alcnt)
 			addr_list.Semicol();
 	}
 	if(pDlg) {
+		pDlg->SetupWordSelector(Ctl, (oneof2(alcnt, 0, 1) ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.7
 		pDlg->setCtrlString(Ctl, addr_list);
 		pDlg->disableCtrl(Ctl, Data.AddrList.getCount() > 1);
 	}

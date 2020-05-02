@@ -25,14 +25,15 @@ struct UhttSearchGoodsParam {
 int SLAPI PPObjGoods::SearchUhttInteractive(const SString & rName, const SString & rBarcode, UhttGoodsPacket * pResultItem)
 {
 	class UhttSearchGoodsDialog : public TDialog {
+		DECL_DIALOG_DATA(UhttSearchGoodsParam);
 	public:
 		UhttSearchGoodsDialog() : TDialog(DLG_UHTTSGOODS)
 		{
 		}
-		int    setDTS(const UhttSearchGoodsParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_UHTTSGOODS_SEL, 0, UhttSearchGoodsParam::critBarcode);
 			AddClusterAssoc(CTL_UHTTSGOODS_SEL, 1, UhttSearchGoodsParam::critName);
 			SetClusterData(CTL_UHTTSGOODS_SEL, Data.Criterion);
@@ -44,7 +45,7 @@ int SLAPI PPObjGoods::SearchUhttInteractive(const SString & rName, const SString
 			}
 			return ok;
 		}
-		int    getDTS(UhttSearchGoodsParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			Data.Criterion = GetClusterData(CTL_UHTTSGOODS_SEL);
@@ -84,7 +85,6 @@ int SLAPI PPObjGoods::SearchUhttInteractive(const SString & rName, const SString
 				clearEvent(event);
 			}
 		}
-		UhttSearchGoodsParam Data;
 	};
 	class SelectDialog : public PPListDialog {
 	public:
@@ -610,7 +610,7 @@ int BarcodeListDialog::moveItem(long pos, long id, int up)
 	int    ok = 1;
 	if(up && pos > 0)
 		Data.swap(pos, pos-1);
-	else if(!up && pos < (long)(Data.getCount()-1))
+	else if(!up && pos < (Data.getCountI()-1))
 		Data.swap(pos, pos+1);
 	else
 		ok = -1;
@@ -621,7 +621,7 @@ int BarcodeListDialog::addItem(long * pPos, long *)
 {
 	int    ok = -1;
 	BarcodeTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.7.7 @ctr MEMSZERO(rec);
 	rec.GoodsID = GoodsID;
 	rec.Qtty = 1.0;
 	if(_EditBarcodeItem(&rec, GoodsGrpID) > 0) {
@@ -642,7 +642,7 @@ int BarcodeListDialog::addItem(long * pPos, long *)
 
 int BarcodeListDialog::editItem(long pos, long)
 {
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < Data.getCountI()) {
 		BarcodeTbl::Rec rec = Data.at(static_cast<uint>(pos));
 		if(_EditBarcodeItem(&rec, GoodsGrpID) > 0) {
 			Data.at(static_cast<uint>(pos)) = rec;
@@ -689,18 +689,59 @@ int BarcodeListDialog::setupList()
 //
 //
 class ArGoodsCodeDialog : public TDialog {
+	DECL_DIALOG_DATA(ArGoodsCodeTbl::Rec);
 public:
 	ArGoodsCodeDialog(int ownCode) : TDialog(DLG_ARGOODSCODE), AcsID(0), OwnCode(ownCode)
 	{
 	}
-	int    setDTS(const ArGoodsCodeTbl::Rec * pData);
-	int    getDTS(ArGoodsCodeTbl::Rec * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString goods_name;
+		GetGoodsName(Data.GoodsID, goods_name);
+		setCtrlString(CTL_ARGOODSCODE_GOODS, goods_name);
+		ArticleTbl::Rec ar_rec;
+		if(Data.ArID && ArObj.Fetch(Data.ArID, &ar_rec) > 0) {
+			AcsID = ar_rec.AccSheetID;
+			disableCtrl(CTLSEL_ARGOODSCODE_ACS, 1);
+		}
+		else
+			AcsID = GetSupplAccSheet();
+		SetupPPObjCombo(this, CTLSEL_ARGOODSCODE_ACS, PPOBJ_ACCSHEET, AcsID, 0, 0);
+		SetupArCombo(this, CTLSEL_ARGOODSCODE_AR, Data.ArID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
+		setCtrlData(CTL_ARGOODSCODE_CODE, Data.Code);
+		setCtrlReal(CTL_ARGOODSCODE_UPP,  fdiv1000i(Data.Pack));
+		uint   sel = 0;
+		if(OwnCode)
+			sel = CTL_ARGOODSCODE_CODE;
+		else if(AcsID == 0)
+			sel = CTL_ARGOODSCODE_ACS;
+		else if(Data.ArID == 0)
+			sel = CTL_ARGOODSCODE_AR;
+		else
+			sel = CTL_ARGOODSCODE_CODE;
+		selectCtrl(sel);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		int    sel = 0;
+		getCtrlData(sel = CTLSEL_ARGOODSCODE_AR, &Data.ArID);
+		getCtrlData(sel = CTL_ARGOODSCODE_CODE, Data.Code);
+		THROW_PP(strip(Data.Code)[0], PPERR_BARCODENEEDED);
+		double upp = getCtrlReal(CTL_ARGOODSCODE_UPP);
+		THROW_PP(upp > 0.0, PPERR_INVUNITPPACK);
+		Data.Pack = (long)(upp * 1000.0);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	PPObjArticle ArObj;
 	PPID   AcsID; // PPOBJ_ACCSHEET
 	int    OwnCode;
-	ArGoodsCodeTbl::Rec Data;
 };
 
 IMPL_HANDLE_EVENT(ArGoodsCodeDialog)
@@ -730,50 +771,6 @@ IMPL_HANDLE_EVENT(ArGoodsCodeDialog)
 	else
 		return;
 	clearEvent(event);
-}
-
-int ArGoodsCodeDialog::setDTS(const ArGoodsCodeTbl::Rec * pData)
-{
-	Data = *pData;
-	SString goods_name;
-	GetGoodsName(Data.GoodsID, goods_name);
-	setCtrlString(CTL_ARGOODSCODE_GOODS, goods_name);
-	ArticleTbl::Rec ar_rec;
-	if(Data.ArID && ArObj.Fetch(Data.ArID, &ar_rec) > 0) {
-		AcsID = ar_rec.AccSheetID;
-		disableCtrl(CTLSEL_ARGOODSCODE_ACS, 1);
-	}
-	else
-		AcsID = GetSupplAccSheet();
-	SetupPPObjCombo(this, CTLSEL_ARGOODSCODE_ACS, PPOBJ_ACCSHEET, AcsID, 0, 0);
-	SetupArCombo(this, CTLSEL_ARGOODSCODE_AR, Data.ArID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
-	setCtrlData(CTL_ARGOODSCODE_CODE, Data.Code);
-	setCtrlReal(CTL_ARGOODSCODE_UPP,  fdiv1000i(Data.Pack));
-	uint   sel = 0;
-	if(OwnCode)
-		sel = CTL_ARGOODSCODE_CODE;
-	else if(AcsID == 0)
-		sel = CTL_ARGOODSCODE_ACS;
-	else if(Data.ArID == 0)
-		sel = CTL_ARGOODSCODE_AR;
-	else
-		sel = CTL_ARGOODSCODE_CODE;
-	selectCtrl(sel);
-	return 1;
-}
-
-int ArGoodsCodeDialog::getDTS(ArGoodsCodeTbl::Rec * pData)
-{
-	int    ok = 1, sel = 0;
-	getCtrlData(sel = CTLSEL_ARGOODSCODE_AR, &Data.ArID);
-	getCtrlData(sel = CTL_ARGOODSCODE_CODE, Data.Code);
-	THROW_PP(strip(Data.Code)[0], PPERR_BARCODENEEDED);
-	double upp = getCtrlReal(CTL_ARGOODSCODE_UPP);
-	THROW_PP(upp > 0.0, PPERR_INVUNITPPACK);
-	Data.Pack = (long)(upp * 1000.0);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 static int SLAPI _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode) { DIALOG_PROC_BODY_P1(ArGoodsCodeDialog, ownCode, pRec); }
@@ -854,7 +851,7 @@ int ArGoodsCodeListDialog::addItem(long * pPos, long * pID)
 
 int ArGoodsCodeListDialog::editItem(long pos, long id)
 {
-	if(pos >= 0 && pos < (long)Data.getCount()) {
+	if(pos >= 0 && pos < Data.getCountI()) {
 		ArGoodsCodeTbl::Rec item = Data.at(static_cast<uint>(pos));
 		while(_EditArGoodsCodeItem(&item, BIN(item.ArID == 0)) > 0) {
 			int    r = 1;
@@ -3174,6 +3171,10 @@ int GoodsFiltAdvDialog::getDTS(GoodsFilt * pFilt)
 		SETFLAG(Data.Flags, GoodsFilt::fNoDisOnly,    v == 4);
 		if(Data.Flags & GoodsFilt::fPassiveOnly)
 			Data.Flags &= ~GoodsFilt::fHidePassive;
+		// @v10.7.7 {
+		if(Data.Flags & GoodsFilt::fGenGoodsOnly)
+			Data.Flags &= ~GoodsFilt::fHideGeneric;
+		// } @v10.7.7 
 		ASSIGN_PTR(pFilt, Data);
 		ok = 1;
 	}
@@ -3545,6 +3546,10 @@ void GoodsFiltDialog::SetupCtrls()
 	long post_flags = Data.Flags;
 	if(Data.Flags & GoodsFilt::fHidePassive)
 		Data.Flags &= ~GoodsFilt::fPassiveOnly;
+	// @v10.7.7 {
+	if(Data.Flags & GoodsFilt::fHideGeneric)
+		Data.Flags &= ~GoodsFilt::fGenGoodsOnly;
+	// } @v10.7.7 
 	if(Data.Flags & GoodsFilt::fRestrictByMatrix && !(prev_flags & GoodsFilt::fRestrictByMatrix))
 		Data.Flags &= ~GoodsFilt::fOutOfMatrix;
 	else if(Data.Flags & GoodsFilt::fOutOfMatrix && !(prev_flags & GoodsFilt::fOutOfMatrix))
@@ -3596,6 +3601,7 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 2, GoodsFilt::fOutOfMatrix);
 	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 3, GoodsFilt::fHasImages);
 	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 4, GoodsFilt::fUseIndepWtOnly);
+	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 5, GoodsFilt::fHideGeneric); // @v10.7.7
 	SetClusterData(CTL_GOODSFLT_FLAGS, Data.Flags);
 	setCtrlUInt16(CTL_GOODSFLT_NOT, BIN(Data.Flags & GoodsFilt::fNegation));
 	setCtrlUInt16(CTL_GOODSFLT_WOTAXGRP, BIN(Data.Flags & GoodsFilt::fWoTaxGrp));

@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -1388,7 +1388,7 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 			if(Cp == r_entry.Cp) {
 				if(fmt == fmtCLibLocale) {
 					if(r_entry.P_CLibLocale[0]) {
-						rBuf.CatChar('.').Cat(r_entry.P_CLibLocale);
+						rBuf.Dot().Cat(r_entry.P_CLibLocale);
 					}
 				}
 				else if(fmt == fmtXML) {

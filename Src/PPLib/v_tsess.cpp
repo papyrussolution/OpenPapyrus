@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1663,7 +1663,7 @@ void SLAPI PPViewTSessLine::PreprocessBrowser(PPViewBrowser * pBrw)
 int SLAPI PPViewTSessLine::TranslateBrwHdr(const void * pRow, BrwHdr * pHdr)
 {
 	if(pRow) {
-		ASSIGN_PTR(pHdr, *(BrwHdr *)pRow);
+		ASSIGN_PTR(pHdr, *static_cast<const BrwHdr *>(pRow));
 		return 1;
 	}
 	else
@@ -1682,38 +1682,41 @@ int SLAPI PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 	if(tsesID) {
 		if(!TSesObj.CheckRights(TSESRT_ADDLINE))
 			ok = PPErrorZ();
-		else if(CheckDialogPtrErr(&(dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID)))) {
-			TIDlgInitData tidi;
-			PPIDArray goods_list;
-			TGSArray tgs_list;
-			TSessionTbl::Rec tses_rec;
-			ProcessorTbl::Rec prc_rec;
-			MEMSZERO(prc_rec);
-			if(TSesObj.Search(tsesID, &tses_rec) > 0) {
-				if(TSesObj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0)
-					dlg->setLocation(prc_rec.LocID);
-			}
-			else
-				MEMSZERO(tses_rec);
-			const int free_goods_sel = BIN(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
-			if(!free_goods_sel && TSesObj.GetGoodsStrucList(tsesID, 1, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
-				dlg->setSelectionByGoodsList(&goods_list);
-				dlg->setDTS(&tidi);
-			}
-			else if(NewGoodsGrpID == 0) {
-				//GetDefScaleData(&tidi);
-				dlg->setDTS(&tidi);
-			}
-			while(ExecView(dlg) == cmOK) {
-				if(dlg->getDTS(&tidi) > 0) {
-					long   oprno = 0;
-					if(TSesObj.EditLine(tsesID, &oprno, tidi.GoodsID, tidi.Serial, tidi.Quantity) > 0) {
-						CALLPTRMEMB(pBrw, Update());
-						ok = 1;
+		else {
+			long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+			if(CheckDialogPtrErr(&(dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags)))) {
+				TIDlgInitData tidi;
+				PPIDArray goods_list;
+				TGSArray tgs_list;
+				TSessionTbl::Rec tses_rec;
+				ProcessorTbl::Rec prc_rec;
+				MEMSZERO(prc_rec);
+				if(TSesObj.Search(tsesID, &tses_rec) > 0) {
+					if(TSesObj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0)
+						dlg->setLocation(prc_rec.LocID);
+				}
+				else
+					MEMSZERO(tses_rec);
+				const int free_goods_sel = BIN(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
+				if(!free_goods_sel && TSesObj.GetGoodsStrucList(tsesID, 1, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
+					dlg->setSelectionByGoodsList(&goods_list);
+					dlg->setDTS(&tidi);
+				}
+				else if(NewGoodsGrpID == 0) {
+					//GetDefScaleData(&tidi);
+					dlg->setDTS(&tidi);
+				}
+				while(ExecView(dlg) == cmOK) {
+					if(dlg->getDTS(&tidi) > 0) {
+						long   oprno = 0;
+						if(TSesObj.EditLine(tsesID, &oprno, tidi.GoodsID, tidi.Serial, tidi.Quantity) > 0) {
+							CALLPTRMEMB(pBrw, Update());
+							ok = 1;
+						}
 					}
 				}
+				delete dlg;
 			}
-			delete dlg;
 		}
 	}
 	return ok;

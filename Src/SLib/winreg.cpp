@@ -1,12 +1,13 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 #include <shlwapi.h>
 //
-// @v8.3.3 Удалено условие #ifdef __WIN32__
+// @v8.3.3 РЈРґР°Р»РµРЅРѕ СѓСЃР»РѕРІРёРµ #ifdef __WIN32__
 //
 //
 SLAPI SDynLibrary::SDynLibrary(const char * pFileName) : H(0)
@@ -27,7 +28,7 @@ int FASTCALL SDynLibrary::Load(const char * pFileName)
 		::FreeLibrary(H);
 		H = 0;
 	}
-	H = ::LoadLibrary(SUcSwitch(pFileName)); // @unicodeproblem
+	H = ::LoadLibrary(SUcSwitch(pFileName));
 	if(H)
 		return 1;
 	else {

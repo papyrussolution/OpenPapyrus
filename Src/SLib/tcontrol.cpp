@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -7,12 +7,12 @@
 //
 // TStaticText
 //
-TStaticText::TStaticText(const TRect & bounds, const char * pText) : TView(bounds)
+TStaticText::TStaticText(const TRect & bounds, const char * pText) : TView(bounds), Text(pText)
 {
 	SubSign = TV_SUBSIGN_STATIC;
-	if(pText && *pText == 3)
-		pText++;
-	Text = pText;
+	Text.ShiftLeftChr(3); // @v10.7.7 
+	// @v10.7.7 if(pText && *pText == 3) pText++;
+	// @v10.7.7 Text = pText;
 }
 
 int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -27,12 +27,8 @@ int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 SString & TStaticText::getText(SString & rBuf) const
 {
-	// @v9.1.5 char   temp_buf[1024];
-	// @v9.1.5 SendDlgItemMessage(Parent, Id, WM_GETTEXT, sizeof(temp_buf), (long)temp_buf);
-	// @v9.1.5 (rBuf = temp_buf).Transf(CTRANSF_OUTER_TO_INNER);
-	// @v9.1.5 return rBuf;
-	TView::SGetWindowText(GetDlgItem(Parent, Id), rBuf); // @v9.1.5
-	return rBuf.Transf(CTRANSF_OUTER_TO_INNER); // @v9.1.5
+	TView::SGetWindowText(GetDlgItem(Parent, Id), rBuf);
+	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
 int TStaticText::setText(const char * s)
@@ -41,22 +37,6 @@ int TStaticText::setText(const char * s)
 	Text = s;
 	Text.ShiftLeftChr('\003');
 	if(Parent) {
-		/* @v9.1.5
-		char   temp_buf[1024];
-		size_t p;
-		const char * t = Text.SearchChar('~', &p);
-		if(t && t[1] && t[2] == '~') {
-			memcpy(temp_buf, (const char *)Text, p);
-			temp_buf[p] = '&';
-			temp_buf[p+1] = t[1];
-			strnzcpy(temp_buf+p+2, t+3, sizeof(temp_buf)-p-2);
-		}
-		else
-			Text.CopyTo(temp_buf, sizeof(temp_buf));
-		// @v9.1.5 SOemToChar(temp_buf);
-		// @v9.1.5 ::SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (LPARAM)temp_buf);
-		*/
-		// @v9.1.5 {
 		//
 		// Замещаем конструкцию '~c~' на '$c'
 		//
@@ -72,7 +52,6 @@ int TStaticText::setText(const char * s)
 		}
 		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		TView::SSetWindowText(GetDlgItem(Parent, Id), temp_buf);
-		// } @v9.1.5
 		ok = 1;
 	}
 	return ok;
@@ -186,25 +165,11 @@ TButton::~TButton()
 	RestoreOnDestruction();
 }
 
-HBITMAP TButton::GetBitmap() const
-{
-	return HBmp;
-}
-
-uint TButton::GetBmpID() const
-{
-	return BmpID;
-}
-
-ushort TButton::GetCommand() const
-{
-	return command;
-}
-
-int TButton::IsDefault() const
-{
-	return BIN(flags & bfDefault);
-}
+HBITMAP TButton::GetBitmap() const { return HBmp; }
+uint    TButton::GetBmpID() const { return BmpID; }
+ushort  TButton::GetCommand() const { return command; }
+int     TButton::IsDefault() const { return BIN(flags & bfDefault); }
+void    TButton::drawState(bool down) { TView::SSetWindowText(GetDlgItem(Parent, Id), Title); }
 
 int TButton::LoadBitmap_(uint bmpID)
 {
@@ -250,11 +215,6 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	 return result;
 }
 
-void TButton::drawState(bool down)
-{
-	TView::SSetWindowText(GetDlgItem(Parent, Id), Title);
-}
-
 IMPL_HANDLE_EVENT(TButton)
 {
 	TView::handleEvent(event);
@@ -285,8 +245,7 @@ IMPL_HANDLE_EVENT(TButton)
 					}
 					break;
 				case cmSearchButton:
-					// @v9.5.5 if(command && event.message.infoWord == command)
-					if(command && event.message.infoPtr == reinterpret_cast<void *>(command)) // @v9.5.5
+					if(command && event.message.infoPtr == reinterpret_cast<void *>(command))
 						clearEvent(event);
 					break;
 			}
@@ -320,8 +279,7 @@ int TButton::TransmitData(int dir, void * pData)
 	int    s = 0;
 	if(dir > 0) {
 		Title = static_cast<const char *>(pData);
-		// @v9.1.5 SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (LPARAM)(const char *)Title);
-		TView::SSetWindowText(GetDlgItem(Parent, Id), Title); // @v9.1.5
+		TView::SSetWindowText(GetDlgItem(Parent, Id), Title);
 	}
 	else
 		s = TView::TransmitData(dir, pData);
@@ -331,13 +289,10 @@ int TButton::TransmitData(int dir, void * pData)
 void TButton::press(ushort item)
 {
 	if(!IsInState(sfDisabled)) {
-		// @v9.5.5 TView::message(owner, (flags & bfBroadcast) ? evBroadcast : evCommand, command, this);
-		// @v9.5.5 {
 		if(flags & bfBroadcast)
 			TView::messageBroadcast(P_Owner, command, this);
 		else
 			MessageCommandToOwner(command);
-		// } @v9.5.5
 	}
 }
 //
@@ -382,10 +337,10 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_DESTROY: p_view->OnDestroy(hWnd); return 0;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1)
-				SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
+				::SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			break;
 		case WM_CHAR:
-			if(p_view->GetCombo() || p_view->hasWordSelector()) {
+			if(p_view->GetCombo() || p_view->HasWordSelector()) {
 				if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) {
 					if(!oneof2(wParam, '+', '-'))
 						p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
@@ -400,9 +355,28 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				const long _style = TView::GetWindowStyle(hWnd);
 				const int _ml = BIN(_style & ES_MULTILINE);
 				const int _k = wParam;
-				if((_k >= VK_F1 && _k <= VK_F12) ||
-					(!_ml && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
-					((p_view->GetCombo() || p_view->hasWordSelector()) && _k == VK_DELETE) ||
+				// @v10.7.7 {
+				if(_k == VK_DOWN) {
+					if(p_view->P_WordSel) {
+						if(p_view->IsWsVisible()) {
+							p_view->P_WordSel->Activate();
+						}
+						else {
+							if(p_view->P_OuterWordSelBlk && p_view->P_OuterWordSelBlk->Flags & WordSel_ExtraBlock::fFreeText) {
+								//p_view->P_OuterWordSelBlk->GetRecentList();
+								p_view->P_WordSel->ViewRecent();
+							}
+						}
+					}
+				}
+				else if(p_view->IsWsVisible() && _k == VK_ESCAPE) {
+					//p_view->SendToParent(hWnd, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), p_view->Id);
+				}
+				else if(p_view->IsWsVisible() && _k == VK_RETURN) {
+				}
+				// } @v10.7.7 
+				if((_k >= VK_F1 && _k <= VK_F12) || (!_ml && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
+					((p_view->GetCombo() || p_view->HasWordSelector()) && _k == VK_DELETE) ||
 					(_k == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {
 					p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)_k, 0), reinterpret_cast<LPARAM>(hWnd));
 					return 0;
@@ -415,7 +389,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			CALLPTRMEMB(p_view, MessageCommandToOwner(cmInputDblClk));
 			break;
 		case WM_MBUTTONDOWN:
-			if(p_view->GetCombo() || p_view->hasWordSelector()) {
+			if(p_view->GetCombo() || p_view->HasWordSelector()) {
 				p_view->SendToParent(hWnd, WM_VKEYTOITEM, MAKELPARAM((WORD)VK_DELETE, 0), reinterpret_cast<LPARAM>(hWnd));
 				return 0;
 			}
@@ -476,7 +450,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 int TInputLine::OnPaste()
 {
 	InlSt |= stPaste;
-	if(hasWordSelector()) {
+	if(HasWordSelector()) {
 		SString symb;
 		if(::OpenClipboard(0)) {
 			HANDLE h_cb = ::GetClipboardData(CF_TEXT);
@@ -667,7 +641,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			else if(wParam == VK_DELETE) {
 				if(P_Combo)
 					P_Combo->handleWindowsMessage(WM_USER_COMBO_CLEAR, wParam, lParam);
-				else if(hasWordSelector())
+				else if(HasWordSelector())
 					P_WordSelBlk->SetupData(0);
 				else
 					return 0;
@@ -682,10 +656,20 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_CHAR:
 			if(P_Combo)
 				P_Combo->handleWindowsMessage(WM_USER_COMBO_ACTIVATEBYCHAR, wParam, lParam);
-			else if(hasWordSelector()) {
-				SString symb;
-				symb.CatChar((char)wParam);
-				UiSearchTextBlock::ExecDialog(getHandle(), 0, symb, 1, P_WordSelBlk, 0);
+			else if(HasWordSelector()) {
+				assert(P_WordSelBlk);
+				// @v10.7.7 {
+				if(P_WordSelBlk->Flags & WordSel_ExtraBlock::fFreeText) {
+					/*if(P_WordSel) {
+						P_WordSel->Refresh(Data);
+					}*/
+				}
+				// } @v10.7.7 
+				else {
+					SString & r_symb = SLS.AcquireRvlStr(); // @v10.7.7 SLS.AcquireRvlStr
+					r_symb.CatChar(static_cast<char>(wParam));
+					UiSearchTextBlock::ExecDialog(getHandle(), 0, r_symb, 1, P_WordSelBlk, 0);
+				}
 			}
 			break;
 		case WM_COMMAND:
@@ -708,6 +692,11 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
+				// @v10.7.7 {
+				if(P_WordSel) {
+					P_WordSel->Refresh(Data);
+				}
+				// } @v10.7.7 
 				MessageCommandToOwner(cmInputUpdated);
 			}
 			break;
@@ -727,7 +716,7 @@ void TInputLine::Init()
 	InlSt = stValidStr;
 }
 
-TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bounds)
+TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bounds), Helper_WordSelector(0, 0)
 {
 	TInputLine::Init();
 	maxLen = SFMTLEN(fmt);
@@ -735,7 +724,11 @@ TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bound
 	type     = typ;
 }
 
-TInputLine::~TInputLine() { RestoreOnDestruction(); }
+TInputLine::~TInputLine() 
+{ 
+	RestoreOnDestruction(); 
+}
+
 const char * TInputLine::getText() { return Data.cptr(); }
 ComboBox * TInputLine::GetCombo() { return P_Combo; }
 
@@ -756,6 +749,16 @@ void TInputLine::setupCombo(ComboBox * pCombo)
 	CALLPTRMEMB(pCombo, SetLink(this));
 }
 
+void TInputLine::setupFreeTextWordSelector(WordSel_ExtraBlock * pBlk)
+{
+	ZDELETE(Helper_WordSelector::P_WordSel);
+	Helper_WordSelector::P_OuterWordSelBlk = pBlk;
+	if(pBlk) {
+		Helper_WordSelector::P_WordSel = new WordSelector(Helper_WordSelector::P_OuterWordSelBlk);
+	}
+	Helper_WordSelector::InputCtlId = Id;
+}
+
 void TInputLine::disableDeleteSelection(int _disable)
 {
 	SETFLAG(InlSt, stDisableDelSel, _disable);
@@ -764,11 +767,9 @@ void TInputLine::disableDeleteSelection(int _disable)
 
 void TInputLine::Implement_Draw()
 {
-	// @v9.1.5 char   buf[4096]; // @v8.3.11 [1024]-->[4096]
-	// @v9.1.5 SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (long)SOemToChar(Data.CopyTo(buf, sizeof(buf))));
-	SString text_buf; // @v9.1.5
-	(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER); // @v9.1.5
-	TView::SSetWindowText(GetDlgItem(Parent, Id), text_buf); // @v9.1.5
+	SString text_buf;
+	(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER);
+	TView::SSetWindowText(GetDlgItem(Parent, Id), text_buf);
 	if(IsInState(sfSelected))
 		::SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
 	if(InlSt & stDisableDelSel)
@@ -799,14 +800,14 @@ int TInputLine::TransmitData(int dir, void * pData)
 	int    s = stsize(type);
 	if(dir > 0) {
 		char   temp[4096];
-		if(hasWordSelector() && !P_WordSelBlk->IsTextMode()) {
+		if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
 			P_WordSelBlk->SetupData(pData ? *static_cast<long *>(pData) : 0);
 		}
 		else {
 			if(pData == 0)
-				temp[0] = 0;
+				PTR32(temp)[0] = 0;
 			else {
-				long f = MKSFMTD(0, SFMTPRC(format), SFMTFLAG(format)) & ~(SFALIGNMASK|STRF_PASSWORD);
+				const long f = MKSFMTD(0, SFMTPRC(format), SFMTFLAG(format)) & ~(SFALIGNMASK|STRF_PASSWORD);
 				sttostr(type, pData, f, temp);
 			}
 			setText(temp);
@@ -815,7 +816,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 	else if(dir < 0) {
 		if(P_Combo)
 			s = P_Combo->TransmitData(dir, pData);
-		else if(hasWordSelector() && !P_WordSelBlk->IsTextMode()) {
+		else if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
 			long   id = 0L;
 			SString buf;
 			P_WordSelBlk->GetData(&id, buf);
@@ -864,6 +865,13 @@ IMPL_HANDLE_EVENT(TInputLine)
 	if(event.isCmd(cmDraw)) {
 		Implement_Draw();
 	}
+	// @v10.7.7 {
+	else if(event.isCmd(cmNotifyCommit)) {
+		if(P_OuterWordSelBlk) {
+			P_OuterWordSelBlk->OnAcceptInput(Data, 0);
+		}
+	}
+	// } @v10.7.7 
 	else if(TVCOMMAND && IsInState(sfSelected)) {
 		if(event.message.infoPtr)
 			if(event.message.command == cmGetFocusedNumber)
@@ -934,41 +942,6 @@ int ComboBoxInputLine::TransmitData(int dir, void * pData)
 	}
 	return s;
 }
-
-#if 0 // @v9.1.5 @unused {
-//
-// TInfoPane
-//
-TInfoPane::TInfoPane(TRect & r) : TView(r)
-{
-	text = 0;
-}
-
-TInfoPane::~TInfoPane()
-{
-	delete text;
-}
-
-void TInfoPane::draw()
-{
-	SendDlgItemMessage(Parent, Id, WM_SETTEXT, 0, (long)text);
-}
-
-void TInfoPane::setText(char * str)
-{
-	delete text;
-	text = newStr(str);
-	SOemToChar(text);
-	Draw_();
-}
-
-int TInfoPane::handleWindowsMessage(UINT  uMsg, WPARAM  wParam, LPARAM  lParam)
-{
-	if(uMsg == WM_INITDIALOG)
-		Draw_();
-	return 1;
-}
-#endif // } 0 @v9.1.5
 //
 // TCluster
 //
@@ -1297,15 +1270,11 @@ int TCluster::column(int item) const
 	return col;
 }
 
-int TCluster::row(int item) const
-{
-	return (item % ViewSize.y);
-}
-
-uint TCluster::getNumItems() const
-{
-	return Strings.getCount();
-}
+int  TCluster::row(int item) const { return (item % ViewSize.y); }
+uint TCluster::getNumItems() const { return Strings.getCount(); }
+int  TCluster::isItemEnabled(int item) const { return (DisableMask & (1<<item)) ? 0 : 1; }
+void TCluster::deleteAll() { Strings.freeAll(); }
+int  TCluster::addAssoc(long pos, long val) { return ValAssoc.Update(pos, val, 0); }
 
 void TCluster::addItem(int item, const char * pStr)
 {
@@ -1317,11 +1286,6 @@ void TCluster::addItem(int item, const char * pStr)
 			Strings.atInsert(item, p_dup_str);
 		ViewSize.y = Strings.getCount();
 	}
-}
-
-int TCluster::isItemEnabled(int item) const
-{
-	return (DisableMask & (1<<item)) ? 0 : 1;
 }
 
 void TCluster::deleteItem(int item)
@@ -1357,16 +1321,6 @@ int TCluster::setText(int pos, const char * pText)
 		ok = 1;
 	}
 	return ok;
-}
-
-void TCluster::deleteAll()
-{
-	Strings.freeAll();
-}
-
-int TCluster::addAssoc(long pos, long val)
-{
-	return ValAssoc.Update(pos, val, 0);
 }
 
 int TCluster::getItemByAssoc(long val, int * pItem) const
@@ -1693,15 +1647,12 @@ void FASTCALL ComboBox::setDef(ListBoxDef * pDef)
 		P_Def = 0;
 }
 
-void ComboBox::setUndefTag(int set)
-{
-	SETFLAG(State, stUndef, set);
-}
-
-void ComboBox::setUndefID(long undefID)
-{
-	NoDefID = undefID;
-}
+void ComboBox::setUndefTag(int set) { SETFLAG(State, stUndef, set); }
+void ComboBox::setUndefID(long undefID) { NoDefID = undefID; }
+void ComboBox::selectItem(long) { MessageCommandToOwner(cmLBItemSelected); }
+void ComboBox::setRange(long aRange) { Range = aRange; }
+TInputLine * ComboBox::link() const { return P_ILink; }
+void ComboBox::SetLink(TInputLine * pLink) { P_ILink = pLink; }
 
 int ComboBox::setDataByUndefID()
 {
@@ -1800,16 +1751,6 @@ IMPL_HANDLE_EVENT(ComboBox)
 	}
 }
 
-void ComboBox::selectItem(long)
-{
-	MessageCommandToOwner(cmLBItemSelected);
-}
-
-void ComboBox::setRange(long aRange)
-{
-	Range = aRange;
-}
-
 void ComboBox::setState(uint aState, bool enable)
 {
 	if(aState & sfDisabled)
@@ -1843,16 +1784,6 @@ void ComboBox::freeAll()
 		P_Def->freeAll();
 		setRange(P_Def->getRecsCount());
 	}
-}
-
-TInputLine * ComboBox::link() const
-{
-	return P_ILink;
-}
-
-void ComboBox::SetLink(TInputLine * pLink)
-{
-	P_ILink = pLink;
 }
 //
 //
@@ -1946,7 +1877,7 @@ TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBo
 	, P_Image_GDIP(0)
 #endif
 {
-	SubSign = TV_SUBSIGN_IMAGEVIEW; // @v8.3.11
+	SubSign = TV_SUBSIGN_IMAGEVIEW;
 	ReplacedColor.Set(0); // @v9.6.5
 	ReplacedColor.Alpha = 0; // @v9.6.5
 	if(FigSymb.NotEmpty()) {

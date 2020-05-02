@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -18,15 +18,15 @@ public:
 class SInt : public DataType {
 public:
 	explicit SLAPI SInt(uint32 sz/*= 2*/); 
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_INT; }
-	int    SLAPI tobase(const void *, void *) const;
-	int    SLAPI baseto(void *, const void *) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
-	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_INT; }
+	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual int    SLAPI baseto(void *, const void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
+	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 typedef SInt SAutoinc;
@@ -34,71 +34,71 @@ typedef SInt SAutoinc;
 class SInt64 : public DataType {
 public:
 	SLAPI  SInt64(); 
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_INT64_; }
-	int    SLAPI tobase(const void *, void *) const;
-	int    SLAPI baseto(void *, const void *) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
-	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_INT64_; }
+	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual int    SLAPI baseto(void *, const void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
+	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 class SBool : public DataType {
 public:
 	explicit SLAPI SBool(uint32 sz = 4);
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_BOOL; }
-	int    SLAPI tobase(const void *, void *) const;
-	int    SLAPI baseto(void *, const void *) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
-	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_BOOL; }
+	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual int    SLAPI baseto(void *, const void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
+	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 class SUInt : public DataType {
 public:
  	explicit SLAPI SUInt(uint32 sz = 2);
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_INT; }
-	int    SLAPI tobase(const void *, void *) const;
-	int    SLAPI baseto(void *, const void *) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
-	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_INT; }
+	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual int    SLAPI baseto(void *, const void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
+	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 class SFloat : public DataType {
 public:
 	explicit SLAPI SFloat(uint32 sz = 8);
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_REAL; }
-	int    SLAPI tobase(const void *, void *) const;
-	int    SLAPI baseto(void *, const void *) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
-	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_REAL; }
+	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual int    SLAPI baseto(void *, const void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
+	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 class SDecimal : public DataType {
 public:
 	SLAPI  SDecimal(size_t sz = 8, size_t prec = 2);
-	uint32 SLAPI size() const; // @v10.2.1 size_t-->uint32
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_REAL; }
-	int    SLAPI tobase(const void *, void *) const;
-	int    SLAPI baseto(void *, const void *) const;
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
+	virtual uint32 SLAPI size() const; // @v10.2.1 size_t-->uint32
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_REAL; }
+	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual int    SLAPI baseto(void *, const void *) const;
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
 };
 
 class SMoney : public SDecimal {
@@ -109,42 +109,42 @@ public:
 class SDate : public DataType {
 public:
 	SLAPI  SDate();
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_DATE; }
-	int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
-	int    SLAPI baseto(void * s, const void * b) const{ memmove(s, b, size()); return 1; }
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_DATE; }
+	virtual int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
+	virtual int    SLAPI baseto(void * s, const void * b) const{ memmove(s, b, size()); return 1; }
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
 	virtual int SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 class STime : public DataType {
 public:
 	SLAPI  STime();
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_TIME; }
-	int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
-	int    SLAPI baseto(void * s, const void * b) const { memmove(s, b, size()); return 1; }
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_TIME; }
+	virtual int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
+	virtual int    SLAPI baseto(void * s, const void * b) const { memmove(s, b, size()); return 1; }
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
 	virtual int SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 class SDateTime : public DataType {
 public:
 	SLAPI  SDateTime();
-	int    SLAPI comp(const void *, const void *) const;
-	char * SLAPI tostr(const void *, long, char *) const;
-	int    SLAPI fromstr(void *, long, const char *) const;
-	int    SLAPI base() const { return BTS_DATETIME; }
-	int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
-	int    SLAPI baseto(void * s, const void * b) const{ memmove(s, b, size()); return 1; }
-	void   SLAPI minval(void *) const;
-	void   SLAPI maxval(void *) const;
+	virtual int    SLAPI comp(const void *, const void *) const;
+	virtual char * SLAPI tostr(const void *, long, char *) const;
+	virtual int    SLAPI fromstr(void *, long, const char *) const;
+	virtual int    SLAPI base() const { return BTS_DATETIME; }
+	virtual int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
+	virtual int    SLAPI baseto(void * s, const void * b) const{ memmove(s, b, size()); return 1; }
+	virtual void   SLAPI minval(void *) const;
+	virtual void   SLAPI maxval(void *) const;
 	virtual int SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
@@ -397,6 +397,15 @@ char * SLAPI SZString::tostr(const void * d, long fmt, char * buf) const
 {
 	return strfmt(strnzcpy(buf, static_cast<const char *>(d), S), fmt, buf);
 }
+
+/* @construction SString & SLAPI SZString::ToStr(const void * pData, long format, SString & rBuf) const
+{
+	rBuf.Z();
+	if(S > 0)
+		rBuf.CatN(static_cast<const char *>(pData), S);
+	else
+		rBuf.Cat(static_cast<const char *>(pData));
+}*/
 
 int SLAPI SZString::fromstr(void * d, long, const char * buf) const
 {

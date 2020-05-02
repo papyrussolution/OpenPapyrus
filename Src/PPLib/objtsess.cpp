@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2656,17 +2656,10 @@ int SLAPI PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Re
 	RetailPriceExtractor::ExtQuotBlock * p_eqb = 0;
 	ProcessorTbl::Rec prc_rec;
 	if(GetPrc(rTSesRec.PrcID, &prc_rec, 1) > 0) {
-		long   rgi_flags = PPObjGoods::rgifUseQuotWTimePeriod;
 		SCardTbl::Rec sc_rec;
-		//
-		if(TSess_UseQuot_As_Price)
-			rgi_flags |= PPObjGoods::rgifUseBaseQuotAsPrice;
-		//
-		PPID   agent_ar_id = 0;
 		PPObjTSession::WrOffAttrib attrib;
-		if(GetWrOffAttrib(&rTSesRec, &attrib) > 0) {
-			agent_ar_id = attrib.AgentID;
-		}
+		const  PPID agent_ar_id = (GetWrOffAttrib(&rTSesRec, &attrib) > 0) ? attrib.AgentID : 0;
+		const  long rgi_flags = TSess_UseQuot_As_Price ? (PPObjGoods::rgifUseQuotWTimePeriod|PPObjGoods::rgifUseBaseQuotAsPrice) : PPObjGoods::rgifUseQuotWTimePeriod;
 		int    nodis = 0;
 		LDATETIME actual_dtm; // = P.Eccd.InitDtm;
 		actual_dtm.Set(rTSesRec.StDt, rTSesRec.StTm);
@@ -2720,7 +2713,7 @@ int SLAPI PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, 
 								THROW_PP(sstreq(pRec->Serial, line_rec.Serial), PPERR_TSESRECOMPLDIFSER);
 						}
 					}
-					if(pRec->Serial[0] == 0)
+					if(isempty(pRec->Serial))
 						last_serial.CopyTo(pRec->Serial, sizeof(pRec->Serial));
 					THROW_PP(pRec->Serial[0], PPERR_TSESRECOMPLNOSER);
 					pRec->Flags |= TSESLF_RECOMPL;
@@ -2735,11 +2728,8 @@ int SLAPI PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, 
 		}
 		SETFLAG(pRec->Flags, TSESLF_INDEPPHQTTY, GObj.CheckFlag(goodsID, GF_USEINDEPWT));
 		if(GetConfig().Flags & PPTSessConfig::fUsePricing && GetPrc(tses_rec.PrcID, &prc_rec, 1) > 0) {
-			PPID   agent_ar_id = 0;
 			PPObjTSession::WrOffAttrib attrib;
-			if(GetWrOffAttrib(&tses_rec, &attrib) > 0) {
-				agent_ar_id = attrib.AgentID;
-			}
+			const PPID agent_ar_id = (GetWrOffAttrib(&tses_rec, &attrib) > 0) ? attrib.AgentID : 0;
 			RetailExtrItem rpi;
 			RetailPriceExtractor rpe(prc_rec.LocID, 0, agent_ar_id, ZERODATETIME, 0);
 			rpe.GetPrice(goodsID, 0, 0.0, &rpi);
@@ -4459,7 +4449,7 @@ int SLAPI PPObjTSession::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr
 	return ok;
 }
 
-int SLAPI PPObjTSession::GetSerialListByGoodsID(PPID goodsID, PPID locID, SArray * pList)
+int SLAPI PPObjTSession::GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pList)
 {
 	PPObjBill * p_bobj = BillObj;
 	SerialByGoodsListItem item;
@@ -4508,7 +4498,7 @@ int SLAPI PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByG
 {
 	int    ok = -1;
 	PPListDialog * dlg = 0;
-	SArray list(sizeof(SerialByGoodsListItem));
+	SVector list(sizeof(SerialByGoodsListItem)); // @v10.7.7 SArray-->SVector
 	if(GetSerialListByGoodsID(goodsID, locID, &list) > 0) {
 		if(CheckDialogPtrErr(&(dlg = new PPListDialog(DLG_SELSERIAL, CTL_SELSERIAL_LIST, PPListDialog::fOnDblClkOk)))) {
 			SString goods_name;
@@ -4524,8 +4514,8 @@ int SLAPI PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByG
 			dlg->Draw_();
 			if(ExecView(dlg) == cmOK) {
 				PPID   id = 0;
-				if(dlg->getSelection(&id) > 0 && id > 0 && id <= (PPID)list.getCount()) {
-					ASSIGN_PTR(pItem, *(SerialByGoodsListItem *)list.at(id-1));
+				if(dlg->getSelection(&id) > 0 && id > 0 && id <= list.getCountI()) {
+					ASSIGN_PTR(pItem, *static_cast<const SerialByGoodsListItem *>(list.at(id-1)));
 					ok = 1;
 				}
 			}

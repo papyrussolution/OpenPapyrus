@@ -10,10 +10,7 @@
 // Контрольный таймаут ожидания для заданных бесконечных таймаутов.
 // Если в течении этого таймаута ожидание на завершилось, то предпринимаются
 // информирующие действия (например, вывод в журнал).
-//
-static const long _CheckTimeout = 1 * 60 * 1000; 
-//
-//
+// @v10.7.7 (moved to SlConstParam::WaitableObjCheckTimeout) static const long _CheckTimeout = 1 * 60 * 1000; 
 //
 void FASTCALL SDelay(uint msec)
 {
@@ -53,7 +50,7 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 		ok = ::WaitForSingleObject(H, timeout);
 	}
 	else {
-		int    r = ::WaitForSingleObject(H, _CheckTimeout);
+		int    r = ::WaitForSingleObject(H, _SlConst.WaitableObjCheckTimeout); // @v10.7.7 _CheckTimeout-->_SlConst.WaitableObjCheckTimeout
 		if(r < 0) {
 			// @v10.4.0 {
 			{

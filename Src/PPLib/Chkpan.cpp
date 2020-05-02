@@ -8878,7 +8878,10 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 	}
 	else {
 		Flags &= ~fSelByPrice;
-		SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(GetCashOp(), 0, (CnFlags & CASHF_SELALLGOODS) ? ExtGoodsSelDialog::fForceExhausted : 0));
+		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
+		if(CnFlags & CASHF_SELALLGOODS)
+			egsd_flags |= ExtGoodsSelDialog::fForceExhausted;
+		SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(GetCashOp(), 0, egsd_flags));
 		if(CheckDialogPtrErr(&P_EGSDlg)) {
 			PPWait(1);
 			SString temp_buf;
@@ -11025,7 +11028,10 @@ int CPosProcessor::ProcessGift()
 										}
 										//
 										if(!manual_gift) {
-											ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(GetCashOp(), 0, (CnFlags & CASHF_SELALLGOODS) ? ExtGoodsSelDialog::fForceExhausted : 0);
+											long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
+											if(CnFlags & CASHF_SELALLGOODS) 
+												egsd_flags |= ExtGoodsSelDialog::fForceExhausted;
+											ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(GetCashOp(), 0, egsd_flags);
 											THROW(CheckDialogPtrErr(&dlg));
 											dlg->setSelectionByGoodsList(&gen_list);
 											if(ExecView(dlg) == cmOK) {
@@ -12614,7 +12620,8 @@ int InfoKioskDialog::SelectGoods(SearchParam srch)
 		}
 		else if(oneof3(srch, srchByName, srchByPrice, srchByNone)) {
 			TIDlgInitData tidi;
-			THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0))));
+			long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
+			THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, 0, egsd_flags))));
 			if(srch == srchByName) {
 				SString pattern;
 				StrAssocArray goods_list;

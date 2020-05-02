@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -744,9 +744,9 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				if(p_blk->Text == "ppypict" || p_blk->Text == "ppypictsc") {
 					if(p_first_brc_arg) {
 						if(IsDirectory(in_pic_path) && IsDirectory(out_pic_path)) {
-							(temp_buf = in_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).CatChar('.').Cat("png");
+							(temp_buf = in_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).Dot().Cat("png");
 							if(fileExists(temp_buf)) {
-								(file_name_buf = out_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).CatChar('.').Cat("png");
+								(file_name_buf = out_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).Dot().Cat("png");
 								if(copyFileByName(temp_buf, file_name_buf)) {
 									SPathStruc::GetRelativePath(out_file_name, 0, file_name_buf, 0, line_buf);
 									temp_buf2.Z().Cat("pic").CatChar('-').Cat(p_first_brc_arg->Text);
@@ -927,11 +927,11 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 			p_new_item->OrgSymb = org_symb;
 
 			if(IsDirectory(in_pic_path) && IsDirectory(out_pic_path)) {
-				(temp_buf = in_pic_path).SetLastSlash().Cat(org_symb).CatChar('.').Cat("png");
+				(temp_buf = in_pic_path).SetLastSlash().Cat(org_symb).Dot().Cat("png");
 				if(fileExists(temp_buf)) {
 					SString file_name_buf;
 					p_new_item->SrcFileName = temp_buf;
-					(file_name_buf = out_pic_path).SetLastSlash().Cat(org_symb).CatChar('.').Cat("png");
+					(file_name_buf = out_pic_path).SetLastSlash().Cat(org_symb).Dot().Cat("png");
 					if(copyFileByName(temp_buf, file_name_buf)) {
 						p_new_item->DestFileName = file_name_buf;
 						if(P.Flags & Param::fAttachToWorkbook) {
@@ -1406,14 +1406,14 @@ int PPTex2HtmlPrcssr::OutputStyles(SFile & rOut)
 	temp_buf.Z().CatQStr("text/css");
 	line_buf.Z().CatChar('<').Cat("style").Space().CatEq("type", temp_buf).CatChar('>');
 
-		line_buf.Space().CatChar('.').Cat("ppynote").Space().CatChar('{').Space();
+		line_buf.Space().Dot().Cat("ppynote").Space().CatChar('{').Space();
 		line_buf.Cat("width").CatDiv(':', 2).Cat("600px").Semicol();
 		line_buf.Cat("background").CatDiv(':', 2).Cat("#ccc").Semicol();
 		line_buf.Cat("border").CatDiv(':', 2).Cat("solid lpx black").Semicol();
 		//line_buf.Cat("float").CatDiv(':', 2).Cat("left").Semicol();
 		line_buf.CatChar('}');
 
-		line_buf.Space().CatChar('.').Cat("ppyexample").Space().CatChar('{').Space();
+		line_buf.Space().Dot().Cat("ppyexample").Space().CatChar('{').Space();
 		line_buf.Cat("width").CatDiv(':', 2).Cat("800px").Semicol();
 		line_buf.Cat("background").CatDiv(':', 2).Cat("#ccc").Semicol();
 		line_buf.Cat("border").CatDiv(':', 2).Cat("solid lpx black").Semicol();

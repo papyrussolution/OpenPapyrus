@@ -409,6 +409,7 @@ struct PhnSvcChannelStatus;
 class  PPAdviseEventVector;
 struct PPNotifyEvent;
 struct CCheckItem;
+struct TimeSeries_OptEntryList_Graph_Param;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -2130,8 +2131,19 @@ public:
 		const  SString & SLAPI GetKey() const;
 		int    SLAPI Add(const char * pTextUtf8);
 		int    SLAPI Get(const char * pSubUtf8, long flags, StringSet & rList) const;
-		int    SLAPI Merge(StringHistoryPool & rS) const;
+		int    SLAPI GetRecent(uint maxItems, StringSet & rList) const;
+		int    SLAPI BuildHash();
+		//
+		// Descr: Сливает экземпляр this с rS. При этом изменяется rS, this остается
+		//   неизменным (функция non-const из-за того, что должна вызвать Ht.BuildAssoc).
+		//
+		int    SLAPI Merge(StringHistoryPool & rS);
 		int    FASTCALL CmpEntryIndices(const void * p1, const void * p2) const;
+		//
+		// Descr: Устанавливает внутреннее состояние, фиксирующее факт сохранения пула в базе данных
+		//
+		void   SLAPI OnSave();
+		int    SLAPI IsSavingNeeded() const;
 	private:
 		int    SLAPI SearchEntries(const char * pSubUtf8, long flags, LongArray & rPosList) const;
 		struct InnerEntry {
@@ -2139,11 +2151,19 @@ public:
 			uint32 UsageCount;
 			uint32 OrgUsageCount; // Значение UsageCount которое было в записи при считывании из БД
 			uint   TextP;
-			uint   TextCiP;
+			//uint   TextCiP;
 		};
 		SString Key;
-		TSVector <InnerEntry> L;
+		TSVector <InnerEntry> L; // Порядок элементов в массиве не меняется (на номер элемента ссылается символ в хэше Ht)
 		SymbHashTable Ht;
+		struct State {
+			State() : Dirty(0), LastSaveTm(ZERODATETIME)
+			{
+			}
+			int    Dirty;
+			LDATETIME LastSaveTm; // Время последнего сохранения пула в базе данных
+		};
+		State St; // @transient 
 	};
 
 	explicit SLAPI  PPConfigDatabase(const char * pDbDir);
@@ -2158,6 +2178,7 @@ public:
 	const  StringHistoryPool * SLAPI GetStringHistoryPool(const char * pKey);
 	int    SLAPI AddStringHistory(const char * pKey, const char * pTextUtf8);
 	int    SLAPI GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList);
+	int    SLAPI GetRecentStringHistory(const char * pKey, uint maxItems, StringSet & rList);
 	int    SLAPI LoadStringHistory(StringHistoryPool & rPool);
 	int    SLAPI SaveStringHistory(StringHistoryPool * pPool, int use_ta);
 private:
@@ -5038,7 +5059,9 @@ private:
 		glsfStrList     = 0x0001, // Возвращает по указателю pList StrAssocArray, иначе - PPIDArray
 		glsfSkipPassive = 0x0002,
 		glsfDefPassive  = 0x0004,
-		glsfByExtStr    = 0x0008
+		glsfByExtStr    = 0x0008,
+		glsfSkipGeneric = 0x0010, // @v10.7.7
+		glsfDefGeneric  = 0x0020  // @v10.7.7
 	};
 	int    SLAPI Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags);
 };
@@ -5879,8 +5902,7 @@ public:
 	int    SLAPI DepositSCardAmount(const char * pNumber, const double amount);
 	int    SLAPI WithdrawSCardAmount(const char * pNumber, const double amount);
 	int    SLAPI GetSCardRest(const char * pNumber, const char * pDate, double & rRest);
-	int    SLAPI FileVersionAdd(const char * pFileName, const char * pKey,
-		const char * pVersionLabel, const char * pVersionMemo, SDataMoveProgressProc pp, void * pExtra);
+	int    SLAPI FileVersionAdd(const char * pFileName, const char * pKey, const char * pVersionLabel, const char * pVersionMemo, SDataMoveProgressProc pp, void * pExtra);
 	int    SLAPI GetVersionList(const char * pKey, TSCollection <UhttDCFileVersionInfo> & rResult, SVerT * pMinVer);
 	int    SLAPI SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollection <UhttStatus> & rResult);
 	int    SLAPI GetWorkbookItemByID(int id, UhttWorkbookItemPacket & rPack);
@@ -6043,8 +6065,7 @@ public:
 	static int SLAPI InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP);
 	static int SLAPI SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain);
 	//
-	// Descr: Высокоуровневый вариант инициализации клиента, использующий
-	//   конфигурацию глобального обмена.
+	// Descr: Высокоуровневый вариант инициализации клиента, использующий конфигурацию глобального обмена.
 	//
 	static int SLAPI InitClient(PPMqbClient & rC, SString * pDomain);
 	SLAPI  PPMqbClient();
@@ -7412,7 +7433,9 @@ public:
 	static int SLAPI Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb);
 	static int FASTCALL GetStartUpOption(int o, SString & rArgBuf);
 	int    SLAPI GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList);
+	int    SLAPI GetStringHistoryRecent(const char * pKey, uint maxItems, StringSet & rList);
 	int    SLAPI AddStringHistory(const char * pKey, const char * pTextUtf8);
+	int    SLAPI SaveStringHistory();
 private:
 	int    SLAPI Helper_SetPath(int pathId, SString & rPath);
 	int    SLAPI MakeMachineID(MACAddr * pMachineID);
@@ -7434,9 +7457,9 @@ private:
 	long   Id;
 	ACount LastThread;
 	ACount DllRef;         // Счетчик активных клиентов для DLL-сервера
-	long   MaxLogFileSize; // @v8.0.6 Максимальный размер файлов журналов в Kb. По умолчанию - 32768.
+	long   MaxLogFileSize; // Максимальный размер файлов журналов в Kb. По умолчанию - 32768.
 	PPVersionInfo Ver;
-	SString BinPath;       // @v8.1.6 @*PPSession::Init()
+	SString BinPath;       // @*PPSession::Init()
 	PPPaths CommonPaths;
 	PPDriveMapping DrvMap;
 	ObjIdentBlock * P_ObjIdentBlk;
@@ -7449,7 +7472,8 @@ private:
 	};
 	long   State;
 	long   ExtFlags_;      // ECF_XXX
-	SMtLock ExtFlagsLck;   // @v8.0.3 Блокировка доступа к ExtFlags
+	SMtLock ExtFlagsLck;   // Блокировка доступа к ExtFlags
+	SMtLock ExtCfgDbLock;  // @v10.7.7 Блокировка доступа к P_ExtCfgDb
 	//
 	DbLocalCacheMng CMng;  // Менеджер локальных по отношению к базе данных объектных кэшей
 	PPAdviseList AdvList;  // Подписка на извещения о событиях.
@@ -7892,7 +7916,6 @@ public:
 };
 //
 // Символьные обозначения и их транслятор
-// @v8.6.1 define-->enum
 //
 enum {
 	PPSYM_NONE = 0,
@@ -8038,8 +8061,7 @@ private:
 // PPOBJ_ARTICLE мог создать статью, соответствующую этому складу.
 //
 #define DBMSG_WAREHOUSEADDED     9
-#define DBMSG_DUMMY             10 // Пустое сообщение, необходимое для того, чтобы
-	// все объекты данных создали необходимые таблицы в БД.
+#define DBMSG_DUMMY             10 // Пустое сообщение, необходимое для того, чтобы все объекты данных создали необходимые таблицы в БД.
 #define DBMSG_GLOBALACCADDED    11 // @v9.1.3 Посылается при создании новой глобальной учетной записи
 //
 // Object message reply codes
@@ -16606,6 +16628,16 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 		orsLog        = 3, // Логарифм от общего количества точек в выборке, умноженный на параметр
 		orsRadialPart = 4  // Микро-доли от общего углового сектора выборки
 	};
+	//
+	// Descr: Варианты предварительной сортировки списка стратегий перед селекцией
+	//
+	enum {
+		sppsResult    = 1,
+		sppsProb      = 2,
+		sppsVelocity  = 3,
+		sppsCqaFactor = 4, // Значение CQA
+		sppsShuffle   = 5  // Случайное перемешивание  
+	};
 	uint16 BestSubsetDimention;
 	uint16 BestSubsetMaxPhonyIters;
 	uint8  BestSubsetOptChunk;      // 3 || 7 || 15
@@ -16623,7 +16655,10 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	double MinWinRate;              // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
 	double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
 	uint8  OptRangeStep_Measure;    // @v10.7.6 orsXXX
-	uint8  Reserve3[3];             //
+	uint8  StrategyPoolSortOrder;   // @v10.7.7 Порядок сортировки пула стратегий перед селекцией
+	uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными, 
+		// что является поводом для удаления из пула стратегий самых малодоходных из них перед селекцией. Если 0, то не проверять на соответствие этому фактору.
+	uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1   
 	long   Flags;
 	long   Reserve1;
 	long   Reserve2;
@@ -16769,7 +16804,9 @@ public:
 				// локальной девиации на ошибку магистрального тренда в промилле.
 			int32  ChaosFactor; // @v10.7.1
 			float  MainTrendMaxErrRel; // @v10.7.2 Максимальная относительная ошибка магистрального тренда при выставлении ставки.
-			uint8  Reserve[32]; // @v10.4.2 [56]-->[48] @v10.7.1 [40]-->[36] // @v10.7.2 [36]-->[32]
+			uint16 TestCount;   // @v10.7.7 Количество повторных тестов, выполняемых функцией TsSimulateStrategyContainer()
+			uint16 Reserve2;    // @v10.7.7 @alignment
+			uint8  Reserve[28]; // @v10.4.2 [56]-->[48] @v10.7.1 [40]-->[36] // @v10.7.2 [36]-->[32] // @v10.7.7 [32]-->[28]
 		};
 		ExtBlock   E;
 		TSVector <Entry> List;
@@ -16882,7 +16919,8 @@ public:
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
 		double MainTrendErrLim;  // @v10.7.0 Ограничение для ошибки регрессии магистрального тренда
-		uint8  Reserve2[4];      // @v10.6.12 @reserve // @10.7.0 [12]-->[4]
+		uint   StakeCountAtFinalSimulation; // @v10.7.7
+		// @v10.7.7 uint8  Reserve2[4];      // @v10.6.12 @reserve // @10.7.0 [12]-->[4]
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -16924,7 +16962,7 @@ public:
 		SLAPI  StrategyContainer(const StrategyContainer & rS);
 		StrategyContainer & FASTCALL operator = (const StrategyContainer & rS);
 		int    FASTCALL Copy(const StrategyContainer & rS);
-		int    SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack);
+		int    SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel);
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		void   SLAPI SetUseDataForStrategiesTill(LDATE dt);
 		LDATETIME SLAPI GetLastValTm() const { return LastValTm; }
@@ -16934,6 +16972,7 @@ public:
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		double SLAPI EvaluateScore() const;
 		const  Strategy * FASTCALL SearchByID(uint32 id) const;
+		int    SLAPI IsThereSimilStrategy(uint thisIdx, const LongArray & rSelectedIdxList, LongArray & rSimilIdxList) const;
 
 		struct CritEntry {
 			explicit SLAPI CritEntry(uint idx);
@@ -16960,7 +16999,8 @@ public:
 			gbsfTrendFollowing     = 0x0200, // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
 			gbsfCritTotalResult    = 0x0400, // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
 			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
-			gbsfEliminateCQADups   = 0x1000  // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
+			gbsfEliminateCQADups   = 0x1000, // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
+			gbsfShuffle            = 0x2000, // @v10.7.7 Перед селекцией хаотизировать список стратегий
 		};
 		int    SLAPI MakeOrderIndex(long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
 		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, uint cqaMatchPromille, StrategyContainer & rScDest,
@@ -16990,6 +17030,7 @@ public:
 			selcritfSkipLong        = 0x0400, // Флаг, блокирующий выбор длинных стратегий
 			selcritfWeightAmbiguous = 0x0800, // @v10.4.12 Флаг, предписывающий при наличии разнонаправленных стратегий выбирать то направление,
 				// которому соответствует большее количество допустимых стратегий. Если количества равны, то не выбирать ничего
+			selcritfSingle          = 0x1000  // @v10.7.7 В коллекции намеренно представлена единственная стратегия: не применять критерий MinSimilItems
 		};
 		struct SelectBlock : public BestStrategyBlock {
 			SLAPI  SelectBlock(const TSCollection <TrendEntry> & rTrendList, const Index1 & rIndex);
@@ -16999,6 +17040,7 @@ public:
 			const  STimeSeries * P_Ts;    // IN
 			const  RealArray   * P_VList; // IN Если P_VList !0 то локальное отклонение отсчитывается по нему, в противном случае - по P_Ts (если P_Ts != 0)
 			int    LastTrendIdx;          // IN
+			// int    MinSimilItems;         // IN @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
 			long   Criterion;             // IN
 			long   ChaosFactor;           // IN
 			long   DevPtCount;            // IN Количество точек P_Ts, по которым отсчитывать разброс (для анализа неустойчивости ряда)
@@ -17018,7 +17060,8 @@ public:
 			double MainTrendErrAvg;   // Среднее значение ошибки регрессии для магистрального тренда
 			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
 			LDATE  UseDataForStrategiesTill; // @v10.7.3
-			uint8  Reserve[44];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44]
+			uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1   
+			uint8  Reserve[42];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42]
 		} Fb;
 		long   State; // @transient
 	};
@@ -17180,6 +17223,7 @@ private:
 	TimeSeriesFilt Filt;
 	PPObjTimeSeries Obj;
 	PPObjTimeSeries::Config Cfg;
+	TimeSeries_OptEntryList_Graph_Param * P_OelgParam;
 };
 //
 //
@@ -17241,7 +17285,8 @@ public:
 		fProcessLong       = 0x0008,
 		fProcessShort      = 0x0010,
 		fAutodetectTargets = 0x0020, // Автоматически идентифицировать серии, модели по которым следует пересчитать
-		fSimulateAfter     = 0x0040  // @v10.7.0 Провести имитационный тест после построения моделей
+		fSimulateAfter     = 0x0040, // @v10.7.0 Провести имитационный тест после построения моделей
+		fAnalyzeModels     = 0x0080, // @v10.7.7 Анализ возможных параметров моделей
 	};
 	uint8  ReserveStart[32]; // @anchor
 	long   Flags;            // @flags
@@ -17315,11 +17360,11 @@ public:
 	//
 	// Descr: Увеличивает внутренний счетчик идентификаторов и возвращает новое значение идентификатора для очередной стратегии.
 	//
-	long   SLAPI GetNewStrategyId();
+	long   SLAPI GetNewStrategyId() const;
 private:
 	// @v10.7.2 int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
-	int    SLAPI FindStrategies(void * pBlk);
+	int    SLAPI FindStrategies(void * pBlk) const;
 	int    SLAPI FindStrategiesLoop(void * pBlk);
 	enum {
 		mavfDontSqrtErrList = 0x0001
@@ -17327,7 +17372,7 @@ private:
 	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	PrcssrTsStrategyAnalyzeFilt P;
 	PPObjTimeSeries TsObj;
-	ACount LastStrategyId;
+	mutable ACount LastStrategyId;
 };
 //
 // @ModuleDecl(CurRateCore)
@@ -27289,6 +27334,7 @@ public:
 	*/
 	enum {
 		// @v9.9.3 fUseGrpList        = 0x00000001L,
+		fHideGeneric           = 0x00000001L, // @v10.7.7 @construction Не отображать обобщенные товары 
 		fWithStrucOnly         = 0x00000002L, // @v9.9.3 Только товары, с которыми связаны структуры
 		// @v9.9.3 fUseUnitMask       = 0x00000004L,
 		fWoBrand               = 0x00000004L, // @v10.6.8 Только те товары, у которых не определен бренд. Флаг имеет приоритет перед полями BrandList, BrandOwnerList
@@ -27309,7 +27355,7 @@ public:
 		fWOTaxGdsOnly          = 0x00020000L, // Показывать только товары с ценой без налогов. @#{fPassiveOnly^fGenGoodsOnly^fWOTaxGdsOnly}
 		fNoZeroRestOnLotPeriod = 0x00040000L, // Если товар не удовлетворяет ограничению LotPeriod, но есть на остатке, то попадает в выборку
 		fNoDisOnly             = 0x00080000L, // Показывать только товары с признаком без скидки
-		fShowStrucType         = 0x00100000L, // Показывать признак наличия структуры AHTOXA
+		fShowStrucType         = 0x00100000L, // Показывать признак наличия структуры
 		fNotUseViewOptions     = 0x00200000L, // Не показывать в товарном фильтре кнопку опции просмотра
 		fShowGoodsWOStruc      = 0x00400000L, // Показывать товары без структуры
 		fWoTaxGrp              = 0x00800000L, // Показывать только товары без налоговой группы
@@ -28051,14 +28097,15 @@ public:
 	int    SLAPI AddBySample(PPID *, PPID sampleID);
 
 	enum {
-		selfByName       = 0x0001, // В списке показывать наименования //
-		selfHidePassive  = 0x0002, // Не показывать пассивные товары
-		selfForcePassive = 0x0004, // Показывать пассивные товары
+		selfByName         = 0x0001, // В списке показывать наименования //
+		selfHidePassive    = 0x0002, // Не показывать пассивные товары
+		selfForcePassive   = 0x0004, // Показывать пассивные товары
 			// Если !selfHidePassive && !selfForcePassive, то функция выясняет
 			// показывать или нет пассивные товары по флагу GCF_DONTSELPASSIVE конфигурации товаров.
 			// Если установлены оба флага, то работает так, как будто установлен только selfHidePassive.
-		selfUseMatrix    = 0x0008, // Применять товарную матрицу
-		selfExtLongAsBrand = 0x0010 // extLong - ид Бренда
+		selfUseMatrix      = 0x0008, // Применять товарную матрицу
+		selfExtLongAsBrand = 0x0010, // extLong - ид Бренда
+		selfHideGeneric    = 0x0020  // @v10.7.7 Не показывать обобщенные товары
 	};
 	//
 	// Descr: Формирует ListBoxDef посредством выборки товаров (либо других объектов, управляемых
@@ -35497,14 +35544,14 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI SelectBySerial(SelectBySerialParam * pParam);
-	struct SerialByGoodsListItem {
+	struct SerialByGoodsListItem { // @flat
 		PPID   LotID;
 		PPID   TSessID;
 		double Qtty;
 		char   Serial[32];
 		char   Text[48];
 	};
-	int    SLAPI GetSerialListByGoodsID(PPID goodsID, PPID locID, SArray * pList);
+	int    SLAPI GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pList); // @v10.7.7 SArray-->SVector
 	int    SLAPI SelectSerialByGoods(PPID goodsID, PPID locID, SerialByGoodsListItem * pItem);
 	int    SLAPI GetTagList(PPID id, ObjTagList * pTagList);
 	int    SLAPI SetTagList(PPID id, const ObjTagList * pTagList, int use_ta);
@@ -39561,10 +39608,8 @@ struct PriceListConfig {       // @persistent @store(PropertyTbl)
 
 int FASTCALL ReadPriceListConfig(PriceListConfig *);
 
-#define PLISTF_PRESENTONLY  0x0001L  // Отфильтровывает только те строки,
-	// товар по которым присутствует на складе
-#define PLISTF_BYQUOT       0x0002L  // Позволяет формировать прайс-лист по
-	// котировкам, в противном случае - только по базовым ценам
+#define PLISTF_PRESENTONLY  0x0001L  // Отфильтровывает только те строки, товар по которым присутствует на складе
+#define PLISTF_BYQUOT       0x0002L  // Позволяет формировать прайс-лист по котировкам, в противном случае - только по базовым ценам
 #define PLISTF_FILLQCERT    0x0004L  // Заполнять поле PriceListViewItem::QCertID
 	// Этот флаг влияет только на инициализацию функцией
 	// PPViewPriceList::NextIteration() поля PriceListViewItem::QCertID,
@@ -39576,8 +39621,7 @@ int FASTCALL ReadPriceListConfig(PriceListConfig *);
 #define PLISTF_NOTCFMDEL    0x0040L  // Не запрашивать подтверждение перед удалением строки
 #define PLISTF_USECOMMON    0x0080L  // Использовать общий прайс-лист
 #define PLISTF_CALCREST     0x0100L  // Рассчитывать остатки
-#define PLISTF_IGNZEROQUOT  0x0200L  // Если QuotKindID >= 0, то будут показаны те товары, которые
-	// не имеют подходящей котировки
+#define PLISTF_IGNZEROQUOT  0x0200L  // Если QuotKindID >= 0, то будут показаны те товары, которые не имеют подходящей котировки
 
 class PriceListFilt : public PPBaseFilt {
 public:
@@ -40005,7 +40049,7 @@ private:
 	int    SLAPI ProcessBill(const BillTbl::Rec & rRec, ProcessBlock & rBlk);
 	int    SLAPI ProcessBillPaymPlanEntry(const BillTbl::Rec & rRec, const PayPlanTbl::Rec & rPayPlanEntry, PPID arID, ProcessBlock & rBlk);
 
-	const int UseOmtPaymAmt;        // @v8.5.8 = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
+	const int UseOmtPaymAmt;        // = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 	DebtTrnovrFilt  Filt;           // @viewstatefilt
 	PPIDArray PayableOpList;        // @!Init_() Список операций, требующих оплаты для таблицы Filt.AccSheetID. // @viewstate
 	PPIDArray GoodsList;            // @v9.5.1 @!Init_() Список товаров, ограничивающих отчет
@@ -40022,9 +40066,8 @@ private:
 	TempSellTrnovrTbl * P_TempTbl;  // @viewstatetable
 	LAssocArray DlvrAddrList;       // @viewstate
 	int    IsDlvrAddrListInited;    // @viewstate
-	PPObjBill::SubstParam Bsp;      // @viewstate @v7.0.1 Параметр подстановки по документам
-	PPObjBill::SubstParam RcknBsp;  // @viewstate @v7.0.1 Параметр подстановки по зачетным документам
-		// RcknBsp отличается от Bsp только внутренним списком ассоциаций Подстановка-Документ
+	PPObjBill::SubstParam Bsp;      // @viewstate Параметр подстановки по документам
+	PPObjBill::SubstParam RcknBsp;  // @viewstate Параметр подстановки по зачетным документам RcknBsp отличается от Bsp только внутренним списком ассоциаций Подстановка-Документ
 	PPIDArray DaySieve;             // Решето, фильтрующее документы по периоду (дней) задолженности
 	PPCycleArray CycleSieve;        // Решето, фильтрующее документы по дате оплаты (отгрузки и т.д.)
 };
@@ -40073,7 +40116,6 @@ struct PPDebtorStat {
 	long   LimitTerm;      // Срок (в днях), на который рассчитан кредитный лимит
 	long   Flags;
 	char   Rating[12];
-
 	LongArray DelayList;
 	LongArray ExpiryList;
 	//
@@ -40260,8 +40302,7 @@ public:
 		int    SLAPI Write(SBuffer & rBuf, long);
 
 		enum {
-			fReportOnly            = 0x0001, // Не изменять признак СТОП, а лишь выдать сообщение о том,
-				// что это следует сделать
+			fReportOnly            = 0x0001, // Не изменять признак СТОП, а лишь выдать сообщение о том, что это следует сделать
 			fReportAgtAbsence      = 0x0002, // Информировать об отсутствии клиентского соглашения //
 			fAllowForMaxCredit     = 0x0004, // Учитывать максимальную сумму кредита по соглашению
 			fGatherPaymDelayStat   = 0x0008, // Собирать статистику по дебиторам
@@ -47631,8 +47672,7 @@ public:
 	};
 	enum {
 		fIndex         = 0x0001, // Используется предопределенный стиль индексом Idx
-		fVariableColor = 0x0002, // variable color (последний индекс данных должен содержать
-			// ссылку на колонку, определяющую цвет)
+		fVariableColor = 0x0002, // variable color (последний индекс данных должен содержать ссылку на колонку, определяющую цвет)
 		fNoBorder      = 0x0004  // kFill noborder
 	};
 	//
@@ -49286,6 +49326,18 @@ private:
 	const uint   CmEditList;
 };
 
+class TextHistorySelExtra : public WordSel_ExtraBlock {
+public:
+	explicit TextHistorySelExtra(const char * pKey);
+	virtual StrAssocArray * GetList(const char * pText);
+	virtual StrAssocArray * GetRecentList();
+	virtual int Search(long id, SString & rBuf);
+	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
+	virtual void OnAcceptInput(const char * pText, long id);
+private:
+	const SString Key;
+};
+
 class SCardSelExtra : public WordSel_ExtraBlock {
 public:
 	explicit SCardSelExtra(PPID serId);
@@ -49927,7 +49979,6 @@ private:
 //
 // Диалог расширенного выбора товара для товарной операции
 //
-
 #define TIDIF_PACKS     0x00000001L // TIDlgInitData::Quantity in packs
 #define TIDIF_AUTOCLOSE 0x00000002L // Автоматом закрывать диалог если Quantity != 0
 #define TIDIF_DSBLGSEL  0x00000004L // Запретить выбор товара, отличного от TIDlgInitData::GoodsID
@@ -49950,9 +50001,8 @@ struct TIDlgInitData {
 	PPID   GoodsGrpID;
 	PPID   GoodsID;
 	PPID   LotID;      // Используется при выборе по серийному номеру лота
-	PPID   ArID;       // Контекстная статья для поиска товара по артикулу и проверки принадлежности
-		// товара к матрице (для внутренней передачи)
-	long   Flags;
+	PPID   ArID;       // Контекстная статья для поиска по артикулу и проверки принадлежности товара матрице (для внутренней передачи)
+	long   Flags;      // @flags
 	int    ModifMode;  // Режим ввода строки модификации TISIGN_MINUS||TISIGN_PLUS||TISIGN_RECOMPLETE
 	char   Serial[32]; // Выбранный пользователем серийный номер
 	double Quantity;
@@ -49966,8 +50016,7 @@ public:
 			// Если opID является расходной операцией, либо переоценкой, либо товарным заказом
 			// в котором установлен флаг OPKF_ORDEXSTONLY, и не установлен флаг fForceExhausted,
 			// то и без флага fExistsOnly в списке будут только товары, которые есть на остатке.
-		fForceExhausted  = 0x0002, // Если установлен, то будут безусловно показаны товары, которых
-			// нет на остатке.
+		fForceExhausted  = 0x0002, // Если установлен, то будут безусловно показаны товары, которых нет на остатке.
 		fByName          = 0x0004,
 		fHidePassive     = 0x0008,
 		fForcePassive    = 0x0010,
@@ -49975,10 +50024,12 @@ public:
 		fSelByList       = 0x0040, // @internal В конструкторе игнорируется //
 		fMatrix          = 0x0080, // @internal В конструкторе игнорируется //
 		fSelByStrList    = 0x0100, // @internal В конструкторе игнорируется //
-		fUseLotSelOnExp  = 0x0200, // @v8.4.11 Если fExistsOnly, то выбирать из лотов
-		fSelectModifMode = 0x0400  // @v8.4.12 В диалог включается выбор знака операции (для модификации): расход/выход/рекомплектация
+		fUseLotSelOnExp  = 0x0200, // Если fExistsOnly, то выбирать из лотов
+		fSelectModifMode = 0x0400, // В диалог включается выбор знака операции (для модификации): расход/выход/рекомплектация
+		fHideGeneric     = 0x0800 // @v10.7.7 @construction Не отображать обобщенные товары
 	};
-	explicit ExtGoodsSelDialog(PPID opID, PPID initGoodsGrpID = 0, long flags = 0);
+	static long GetDefaultFlags();
+	ExtGoodsSelDialog(PPID opID, PPID initGoodsGrpID/*= 0*/, long flags/*= 0*/);
 	~ExtGoodsSelDialog();
 	void   setSelectionByPrice(double price);
 	void   setSelectionByGroup();

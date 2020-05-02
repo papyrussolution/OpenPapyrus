@@ -233,12 +233,13 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, 
 {
 	int    prefix_id = -1;
 	const  size_t src_len = sstrlen(pSrc);
+	uint   prefix_len = 0;
 	SString temp_buf;
 	if(src_len >= 4) {
 		temp_buf.Z().CatN(pSrc, 4);
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
-			ASSIGN_PTR(pPrefixLen, 4);
+			prefix_len = 4;
 			prefix_id = _id;
 		}
 	}
@@ -246,7 +247,7 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, 
 		temp_buf.Z().CatN(pSrc, 3);
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
-			ASSIGN_PTR(pPrefixLen, 3);
+			prefix_len = 3;
 			prefix_id = _id;
 		}
 	}
@@ -255,11 +256,30 @@ int SLAPI GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, 
 		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			if((flags & dpfBOL) || !oneof2(_id, fldSscc18, fldGTIN14)) {
-				ASSIGN_PTR(pPrefixLen, 2);
+				prefix_len = 2;
 				prefix_id = _id;
 			}
 		}
 	}
+	// @v10.7.7 {
+	if(oneof5(prefix_id, GtinStruc::fldManufDate, GtinStruc::fldExpiryPeriod, GtinStruc::fldPackDate, GtinStruc::fldBestBeforeDate, GtinStruc::fldExpiryDate)) {
+		// 6 digits
+		int   false_prefix = 0;
+		if(sstrlen(pSrc+prefix_len) >= 6) {
+			for(uint ci = 0; !false_prefix && ci < 6; ci++) {
+				if(!isdec(pSrc[prefix_len+ci]))
+					false_prefix = 1;
+			}
+		}
+		else
+			false_prefix = 1;
+		if(false_prefix) {
+			prefix_id = -1;
+			prefix_len = 0;
+		}
+	}
+	// } @v10.7.7 
+	ASSIGN_PTR(pPrefixLen, prefix_len);
 	return prefix_id;
 }
 

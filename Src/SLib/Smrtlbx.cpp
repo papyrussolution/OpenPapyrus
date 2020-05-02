@@ -1162,18 +1162,34 @@ int SmartListBox::search(const void * pPattern, CompFunc fcmp, int srchMode)
 //
 //
 //
+SLAPI Helper_WordSelector::Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId) : P_WordSel(0), P_OuterWordSelBlk(pBlk), InputCtlId(inputCtlId)
+{
+}
+
+SLAPI Helper_WordSelector::~Helper_WordSelector()
+{
+	HWND hw = P_WordSel ? P_WordSel->H() : 0;
+	if(hw)
+		::EndDialog(hw, cmCancel);
+	ZDELETE(P_WordSel);
+}
+
+int SLAPI Helper_WordSelector::IsWsVisible() const
+{
+	return P_WordSel ? P_WordSel->CheckVisible() : 0;
+}
+//
+//
+//
 #define UISEARCHTEXTBLOCK_MAXLEN 64
 
-UiSearchTextBlock::UiSearchTextBlock(HWND h, uint ctlId, char * pText, int firstLetter, WordSel_ExtraBlock * pBlk, int linkToList) :
-	H_Wnd(h), Id(ctlId), Text(pText), P_WordSel(0), P_WordSelBlk(pBlk), PrevInputCtlProc(0), LinkToList(linkToList), FirstLetter(firstLetter), IsBnClicked(0)
+UiSearchTextBlock::UiSearchTextBlock(HWND h, uint ctlId, char * pText, int firstLetter, WordSel_ExtraBlock * pBlk, int linkToList) : 
+	Helper_WordSelector(pBlk, CTL_LBX_LIST), H_Wnd(h), Id(ctlId), Text(pText), PrevInputCtlProc(0), LinkToList(linkToList), FirstLetter(firstLetter), IsBnClicked(0)
 {
 }
 
 UiSearchTextBlock::~UiSearchTextBlock()
 {
-	if(P_WordSel && P_WordSel->H())
-		::EndDialog(P_WordSel->H(), cmCancel);
-	ZDELETE(P_WordSel);
 }
 
 //static
@@ -1206,7 +1222,7 @@ LRESULT CALLBACK UiSearchTextBlock::InputCtlProc(HWND hWnd, UINT uMsg, WPARAM wP
 			::SendMessage(GetParent(hWnd), uMsg, wParam, lParam);
 			break;
 	}
-	return (p_slb) ? CallWindowProc(p_slb->PrevInputCtlProc, hWnd, uMsg, wParam, lParam) : DefWindowProc(hWnd, uMsg, wParam, lParam);
+	return p_slb ? CallWindowProc(p_slb->PrevInputCtlProc, hWnd, uMsg, wParam, lParam) : DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 // static
@@ -1218,35 +1234,49 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 			{
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
 				UiSearchTextBlock * p_slb = reinterpret_cast<UiSearchTextBlock *>(lParam);
-				int    is_browser = 0;
-				RECT   parent, chld;
-				GetWindowRect(hwndDlg, &chld);
 				{
-					HWND   h_parent = 0;
-					SString cls_name;
-					TView::SGetWindowClassName(p_slb->H_Wnd, cls_name);
-					if(cls_name.Cmp(SUcSwitch(BrowserWindow::WndClsName), 0) == 0) { // @unicodeproblem
-						h_parent = p_slb->H_Wnd;
-						is_browser = 1;
+					int    is_browser = 0;
+					RECT   rc_parent;
+					RECT   rc_chld;
+					::GetWindowRect(hwndDlg, &rc_chld);
+					{
+						HWND   h_parent = 0;
+						SString cls_name;
+						TView::SGetWindowClassName(p_slb->H_Wnd, cls_name);
+						if(cls_name.Cmp(SUcSwitch(BrowserWindow::WndClsName), 0) == 0) {
+							h_parent = p_slb->H_Wnd;
+							is_browser = 1;
+						}
+						else if(cls_name.Cmp(SUcSwitch(TInputLine::WndClsName), 0) == 0)
+							h_parent = p_slb->H_Wnd;
+						else
+							h_parent = p_slb->LinkToList ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);
+						::GetWindowRect(h_parent, &rc_parent);
 					}
-					else if(cls_name.Cmp(SUcSwitch(TInputLine::WndClsName), 0) == 0) // @unicodeproblem
-						h_parent = p_slb->H_Wnd;
-					else
-						h_parent = (p_slb->LinkToList) ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);
-					GetWindowRect(h_parent, &parent);
+					int    wd = rc_parent.right - rc_parent.left;
+					int    ht = rc_chld.bottom - rc_chld.top;
+					int    x  = rc_parent.left;
+					int    y  = is_browser ? rc_parent.top : (rc_parent.top - ht);
+					::MoveWindow(hwndDlg, x, y, wd, ht, 0);
+					// @v10.7.7 {
+					{
+						HWND hw_input = GetDlgItem(hwndDlg, p_slb->InputCtlId);
+						if(hw_input) {
+							::GetClientRect(hwndDlg, &rc_parent);
+							::GetWindowRect(hw_input, &rc_chld);
+							::MoveWindow(hw_input, rc_parent.left, rc_parent.top, 
+								rc_parent.right-rc_parent.left, rc_chld.bottom-rc_chld.top, 0);
+						}
+					}
+					// } @v10.7.7 
 				}
-				int    wd = parent.right - parent.left;
-				int    ht = chld.bottom - chld.top;
-				int    x  = parent.left;
-				int    y  = is_browser ? parent.top : (parent.top - ht);
-				MoveWindow(hwndDlg, x, y, wd, ht, 0);
-				SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, EM_SETLIMITTEXT, UISEARCHTEXTBLOCK_MAXLEN, 0);
-				TView::SSetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), (temp_buf = p_slb->Text).Transf(CTRANSF_INNER_TO_OUTER));
+				SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, EM_SETLIMITTEXT, UISEARCHTEXTBLOCK_MAXLEN, 0);
+				TView::SSetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), (temp_buf = p_slb->Text).Transf(CTRANSF_INNER_TO_OUTER));
 				p_slb->IsBnClicked = 0;
-				if(p_slb->P_WordSelBlk) {
-					p_slb->P_WordSelBlk->H_InputDlg = hwndDlg;
-					p_slb->P_WordSel = new WordSelector(p_slb->P_WordSelBlk);
-					HWND h_ctl = GetDlgItem(hwndDlg, CTL_LBX_LIST);
+				if(p_slb->P_OuterWordSelBlk) {
+					p_slb->P_OuterWordSelBlk->H_InputDlg = hwndDlg;
+					p_slb->P_WordSel = new WordSelector(p_slb->P_OuterWordSelBlk);
+					HWND h_ctl = GetDlgItem(hwndDlg, p_slb->InputCtlId);
 					TView::SetWindowUserData(h_ctl, p_slb);
 					p_slb->PrevInputCtlProc = static_cast<WNDPROC>(TView::SetWindowProp(h_ctl, GWLP_WNDPROC, UiSearchTextBlock::InputCtlProc));
 				}
@@ -1256,7 +1286,7 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 			if(wParam == 1) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb && p_slb->P_WordSel) {
-					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text);
+					TView::SGetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), p_slb->Text);
 					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER);
 					p_slb->P_WordSel->Refresh(p_slb->Text);
 				}
@@ -1265,28 +1295,26 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 		case WM_DESTROY:
 			{
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
-				TView::SetWindowProp(GetDlgItem(hwndDlg, CTL_LBX_LIST), GWLP_WNDPROC, p_slb->PrevInputCtlProc);
+				TView::SetWindowProp(GetDlgItem(hwndDlg, p_slb->InputCtlId), GWLP_WNDPROC, p_slb->PrevInputCtlProc);
 			}
 			break;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == BN_CLICKED) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(p_slb) {
-					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text);
+					TView::SGetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), p_slb->Text);
 					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER); // @v9.1.5
 					p_slb->IsBnClicked = 1;
-					if(p_slb->P_WordSel)
-						TView::messageCommand(p_slb->P_WordSel, cmCancel);
+					TView::messageCommand(p_slb->P_WordSel, cmCancel);
 				}
 				EndDialog(hwndDlg, (LOWORD(wParam) == IDOK) ? cmOK : cmCancel);
 			}
 			else if(HIWORD(wParam) == EN_SETFOCUS) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
-				int wordsel_visible = (p_slb->P_WordSel) ? p_slb->P_WordSel->CheckVisible() : 0;
-				if(!wordsel_visible) {
-					SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_KEYDOWN, VK_END, 1);
-					SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, WM_KEYUP,   VK_END, 1);
-					SendDlgItemMessage(hwndDlg, CTL_LBX_LIST, EM_SETSEL,  0xffff, 0xffff);
+				if(!p_slb->IsWsVisible()) {
+					SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, WM_KEYDOWN, VK_END, 1);
+					SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, WM_KEYUP,   VK_END, 1);
+					SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, EM_SETSEL,  0xffff, 0xffff);
 #if 0 // @construction {
 					if(p_slb && p_slb->FirstLetter) {
 						uint   n = 0;
@@ -1315,10 +1343,9 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 			}
 			else if(HIWORD(wParam) == EN_KILLFOCUS) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
-				int wordsel_visible = (p_slb->P_WordSel) ? p_slb->P_WordSel->CheckVisible() : 0;
-				int send_cancel = BIN(!p_slb->IsBnClicked && !wordsel_visible);
+				const int send_cancel = BIN(!p_slb->IsBnClicked && !p_slb->IsWsVisible());
 				if(send_cancel || p_slb->LinkToList) {
-					HWND   h_parent = (p_slb->LinkToList) ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);
+					HWND   h_parent = p_slb->LinkToList ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);
 					if(send_cancel)
 						EndDialog(hwndDlg, cmCancel);
 					if(h_parent)
@@ -1331,31 +1358,30 @@ INT_PTR CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM w
 				if(p_slb->P_WordSel) {
 					long   id = 0;
 					SString result_text;
-					TView::SGetWindowText(GetDlgItem(hwndDlg, CTL_LBX_LIST), p_slb->Text);
+					TView::SGetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), p_slb->Text);
 					p_slb->Text.Transf(CTRANSF_OUTER_TO_INNER);
-					if(p_slb->P_WordSelBlk && p_slb->Text.Len() >= p_slb->P_WordSelBlk->MinSymbCount && p_slb->P_WordSelBlk->SearchText(p_slb->Text, &id, result_text) > 0) {
-						p_slb->P_WordSelBlk->SetData(id, result_text);
-						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), CTL_LBX_LIST);
+					if(p_slb->P_OuterWordSelBlk && p_slb->Text.Len() >= p_slb->P_OuterWordSelBlk->MinSymbCount && p_slb->P_OuterWordSelBlk->SearchText(p_slb->Text, &id, result_text) > 0) {
+						p_slb->P_OuterWordSelBlk->SetData(id, result_text);
+						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), p_slb->InputCtlId);
 					}
-					else {
+					else
 						p_slb->P_WordSel->Refresh(p_slb->Text);
-					}
 				}
 			}
 			return 0;
 		case WM_KEYDOWN:
 			{
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
-				if(p_slb->P_WordSel && p_slb->P_WordSel->CheckVisible()) {
-					long key = wParam;
+				if(p_slb->IsWsVisible()) {
+					const long key = static_cast<long>(wParam);
 					if(key == VK_DOWN) {
 						if(p_slb->P_WordSel->Activate() > 0)
 							return 0;
 					}
 					else if(key == VK_ESCAPE)
-						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), CTL_LBX_LIST);
+						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDCANCEL, BN_CLICKED), p_slb->InputCtlId);
 					else if(key == VK_RETURN)
-						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), CTL_LBX_LIST);
+						::SendMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, BN_CLICKED), p_slb->InputCtlId);
 				}
 			}
 			break;

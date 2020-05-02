@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -73,6 +73,7 @@ public:
 		cMatrix,
 		cMatrixLoc,
 		cPassive,
+		cGeneric, // @v10.7.7
 		cAndFlags,
 		cNotFlags,
 		cPeriod,
@@ -1038,6 +1039,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cMatrix,        "MATRIX"  },
 		{ cMatrixLoc,     "MATRIXLOC" },
 		{ cPassive,       "PASSIVE" },
+		{ cGeneric,       "GENERIC" }, // @v10.7.7
 		{ cAndFlags,      "ANDFLAGS" },
 		{ cNotFlags,      "NOTFLAGS" },
 		{ cPeriod,        "PERIOD" },
@@ -1073,7 +1075,6 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cPerson,        "PERSON"        },
 		{ cTagExist,      "TAGEXIST"      },
 		{ cTagValue,      "TAGVALUE"      },
-
 		{ cClass,         "CLASS"         },
 		{ cGcDimX,        "GCDIMX"        },
 		{ cGcDimY,        "GCDIMY"        },
@@ -1084,7 +1085,6 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cGcAdd,         "GCADD"         },
 		{ cGcAdd2,        "GCADD2"        },
 		{ cQuotKind,      "QUOTKIND"      },
-
 		{ cSeparate,      "SEPARATE"  },
 		{ cStripSSfx,     "STRIPSSFX" },
 		{ cPhone,		  "PHONE"     },
@@ -1096,7 +1096,6 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cTSession,      "TSESSION"  },
 		{ cPinCode,       "PINCODE"   },
 		{ cCip,           "CIP"       }
-
 		/*
 		{ cCountry,  "COUNTRY" },
 		{ cCity,     "CITY" }
@@ -1326,7 +1325,7 @@ struct LocalSelectorDescr {
 					PPObjTag tag_obj;
 					PPObjectTag tag_rec;
 					if(rSdEntry.TagID && tag_obj.Fetch(rSdEntry.TagID, &tag_rec) > 0)
-						Crit.CatChar('.').Cat(tag_rec.Symb);
+						Crit.Dot().Cat(tag_rec.Symb);
 					Part = "text";
 				}
 				break;
@@ -1352,7 +1351,7 @@ struct LocalSelectorDescr {
 				json_t * p_jsel_val = new json_t(json_t::tOBJECT);
 				StrAssocArray::Item _val = Values.Get(j);
 				p_jsel_val->Insert("ID", json_new_string(temp_buf.Z().Cat(_val.Id)));
-				p_jsel_val->Insert("Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER)));
+				p_jsel_val->Insert("Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER).Escape())); // @v10.7.7 Escape()
 				p_jsel_val->Insert("PID", json_new_string(temp_buf.Z().Cat(_val.ParentId)));
 				named_id_list.add(_val.Id);
 				if(_val.ParentId)
@@ -4738,7 +4737,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							break;
 						case cDate:
 							{
-								LDATE dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
+								const LDATE dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
 								THROW_SL(checkdate(dt));
 								P_BillF->Period.SetDate(dt);
 							}
@@ -4809,10 +4808,8 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					SETIFZ(P_DtGrF, new LocalDraftTransitGoodsRestFilt);
 					switch(criterion) {
 						case cDate:
-							{
-								P_DtGrF->Dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
-								THROW_SL(checkdate(P_DtGrF->Dt));
-							}
+							P_DtGrF->Dt = strtodate_((temp_buf = rArg).Strip(), DATF_DMY);
+							THROW_SL(checkdate(P_DtGrF->Dt));
 							break;
 						case cLocation:
 							THROW(r = ResolveCrit_Loc(subcriterion, rArg, &P_DtGrF->LocID));
@@ -5225,6 +5222,14 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						else
 							P_GoodsF->Flags &= ~GoodsFilt::fHidePassive;
 						break;
+						// @v10.7.7 {
+					case cGeneric:
+						if(rArg.OneOf(';', "no;false;0;default", 1))
+							P_GoodsF->Flags |= GoodsFilt::fHideGeneric;
+						else
+							P_GoodsF->Flags &= ~GoodsFilt::fHideGeneric;
+						break;
+						// } @v10.7.7 
 					case cLocation:
 						THROW(ResolveCrit_Loc(subcriterion, rArg, &temp_id));
 						P_GoodsF->LocList.Add(temp_id);

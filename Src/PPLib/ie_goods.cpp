@@ -1922,9 +1922,9 @@ int PPGoodsImporter::ImageFileBlock::SetFile(const char * pFileName, PPID goodsI
 		{
 			long   c = 0;
 			Ps.Split(pFileName);
-			(TempBuf = SetPath).SetLastSlash().Cat(Ps.Nam).CatChar('.').Cat(Ps.Ext);
+			(TempBuf = SetPath).SetLastSlash().Cat(Ps.Nam).Dot().Cat(Ps.Ext);
 			while(fileExists(TempBuf)) {
-				(TempBuf = SetPath).SetLastSlash().Cat(Ps.Nam).CatChar('#').Cat(++c).CatChar('.').Cat(Ps.Ext);
+				(TempBuf = SetPath).SetLastSlash().Cat(Ps.Nam).CatChar('#').Cat(++c).Dot().Cat(Ps.Ext);
 			}
 			SCopyFile(pFileName, TempBuf, 0, FILE_SHARE_READ, 0);
 		}
