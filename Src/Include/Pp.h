@@ -7206,8 +7206,23 @@ public:
 		cmdlUhttGoodsToGitHubExport, // UHTTGOODSTOGITHUBEXPORT
 		cmdlUiLang          // @v10.4.4 UILANG
 	};
+	struct LoggerIntermediateBlock {
+		explicit SLAPI LoggerIntermediateBlock(const PPSession & rS);
+
+		const   long CfgMaxFileSize;
+		SString MsgBuf;
+		SString TempBuf; // @allocreuse
+		SString NewFileName;
+	};
 	static const char * P_JobLogin; // "$SYSSERVICE$"
 	static const char * P_EmptyBaseCreationLogin; // "$EMPTYBASECREATION$"
+
+	static int SLAPI Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb);
+	static int FASTCALL GetStartUpOption(int o, SString & rArgBuf);
+	//
+	// Descr: Создает конфигурационную базу данных BDB если видит, что каталог отсутствует
+	//
+	static int SLAPI EnsureExtCfgDb();
 
 	SLAPI  PPSession();
 	SLAPI ~PPSession();
@@ -7416,22 +7431,8 @@ public:
 	int    SLAPI Unregister();
 	int    SLAPI GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * pData);
 	const  SrSyntaxRuleSet * SLAPI GetSrSyntaxRuleSet(); // @cs @v9.8.10
-	//
-	//
-	//
-	struct LoggerIntermediateBlock {
-		explicit SLAPI LoggerIntermediateBlock(const PPSession & rS);
-
-		const   long CfgMaxFileSize;
-		SString MsgBuf;
-		SString TempBuf; // @allocreuse
-		SString NewFileName;
-	};
-
 	int    FASTCALL PushLogMsgToQueue(const PPLogMsgItem & rItem);
 	int    SLAPI Log(const char * pFileName, const char * pStr, long options);
-	static int SLAPI Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb);
-	static int FASTCALL GetStartUpOption(int o, SString & rArgBuf);
 	int    SLAPI GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList);
 	int    SLAPI GetStringHistoryRecent(const char * pKey, uint maxItems, StringSet & rList);
 	int    SLAPI AddStringHistory(const char * pKey, const char * pTextUtf8);
@@ -9334,10 +9335,8 @@ public:
 //
 #define PCKGF_UNIQUECODE 0x0001 // Код пакета, в соответствии с типом пакета, должен быть уникальным
 #define PCKGF_MOUNTED    0x0002 // Пакет собран из существующих лотов
-	// В этом случае используются сдвоенные операции перемещения товара,
-	// аналогичные межскладской передаче.
-#define PCKGF_SERIALCODE 0x0004 // Серийный номер лота. Пакет привязан
-	// к одному лоту и не содержит элементов.
+	// В этом случае используются сдвоенные операции перемещения товара, аналогичные межскладской передаче.
+#define PCKGF_SERIALCODE 0x0004 // Серийный номер лота. Пакет привязан к одному лоту и не содержит элементов.
 #define PCKGF_MIRROR     0x0008
 
 class LPackage : private SVector { // @v9.8.11 SArray-->SVector
@@ -9372,9 +9371,7 @@ public:
 	int16  Closed;
 	int16  UniqCntr;
 	long   Flags;
-
 	int16  PckgIdx;
-
 	double Qtty;
 	double PhQtty;
 	double Cost;
@@ -10649,8 +10646,7 @@ public:
 			uAbs = 0,
 			uPct = 1
 		};
-		uint   Position; // Номер позиции [1..] в PUGL к которой относится данный дескриптор.
-			// Нуль означает, что дескриптор используется как шаблон
+		uint   Position; // Номер позиции [1..] в PUGL к которой относится данный дескриптор. Нуль означает, что дескриптор используется как шаблон
 		PPID   SupplID;  // ->Article.ID ИД поставщика
 		long   Unit;     // SupplSubstItem::uXXX
 		double Qtty;     // Количество

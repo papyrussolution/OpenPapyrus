@@ -1061,7 +1061,7 @@ public:
 		pData->Selection = getCtrlLong(CTLSEL_PRINT2_REPORT)-1;
 		pData->NumCopies = getCtrlLong(CTL_PRINT2_NUMCOPIES);
 		pData->Flags &= ~PrnDlgAns::fEMail;
-		if(pData->Dest == PrnDlgAns::aExport && EnableEMail) {
+		if(oneof2(pData->Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML) && EnableEMail) { // @v10.7.7 PrnDlgAns::aExportXML
 			if(getCtrlUInt16(CTL_PRINT2_DOMAIL)) {
 				pData->Flags |= PrnDlgAns::fEMail;
 				getCtrlString(CTL_PRINT2_MAKEDATAPATH, pData->EmailAddr);
@@ -2501,6 +2501,18 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			else if(rpt.PrnDest == PrnDlgAns::aExportXML) {
 				ep.Cp = DS.GetConstTLA().DL600XmlCp; // @v9.4.6
 				THROW(p_rtm->ExportXML(ep, out_file_name));
+				// @v10.7.7 {
+				if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS() && fileExists(out_file_name)) {
+					//
+					// Отправка на определенный почтовый адрес
+					//
+					PPAlbatrossConfig alb_cfg;
+					THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
+					if(alb_cfg.Hdr.MailAccID) {
+						THROW(SendMailWithAttach(pans.P_ReportName, out_file_name, pans.P_ReportName, pans.EmailAddr, alb_cfg.Hdr.MailAccID));
+					}
+				}
+				// } @v10.7.7 
 			}
 			else {
 				if(oneof2(rpt.PrnDest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {

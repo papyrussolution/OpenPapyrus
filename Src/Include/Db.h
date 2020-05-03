@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -4270,11 +4270,9 @@ public:
 		uint64 CacheSize;   // Максимальный размер кэш-буферов (bytes).
 		uint   CacheCount;  // Максимальное количество кэш-буферов.
 		uint   PageSize;    // @v9.6.4 Размер страницы данных
-
 		uint   MaxLockers;  // Максимальное количество локеров.
 		uint   MaxLocks;    // @v9.6.4 A thread uses this structure to lock a page (or record for the QUEUE access method) and hold it to the end of a transactions
 		uint   MaxLockObjs; // @v9.6.4 For each page (or record) which is locked in the system, a lock object will be allocated.
-
 		uint   LogBufSize;  // Размер буфера журнала транзакция (bytes).
 		uint   LogFileSize; // Размер одного файла журнала транзакций (bytes). BerkeleyDB формирует журналы
 			// транзакций файлами одинакового размера. После заполнения очередного файла создается //
@@ -4290,7 +4288,6 @@ public:
 	static int SplitFileName(const char * pFileName, SString & rFile, SString & rTbl);
 	static int FASTCALL ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg);
 	static int FASTCALL ProcessError(int bdbErrCode);
-
 	explicit BDbDatabase(const char * pHomeDir, Config * pCfg = 0, long options = 0);
 	~BDbDatabase();
 	int    operator ! () const;

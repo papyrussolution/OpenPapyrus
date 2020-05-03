@@ -192,8 +192,8 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 					Cat(mht_stat.UsedSize).CatDiv('-', 1).
 					Cat(mht_stat.UnusedBlockCount).CatDiv('-', 1).
 					Cat(mht_stat.UnusedSize).CatDiv(';', 2).
-					CatEq("GDI", (long)gr_gdiobj).CatDiv(';', 2).
-					CatEq("USER", (long)gr_userobj).CatDiv(';', 2).
+					CatEq("GDI", gr_gdiobj).CatDiv(';', 2).
+					CatEq("USER", gr_userobj).CatDiv(';', 2).
 					Cat("FOCUS").Eq().CatHex((long)::GetFocus()).CatDiv(';', 2).
 					Cat("CAPTURE").Eq().CatHex((long)::GetCapture());
 				p_app->AddStatusBarItem(sbuf);
@@ -1537,6 +1537,31 @@ SLAPI PPSession::~PPSession()
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
 
+int SLAPI PPSession::EnsureExtCfgDb()
+{
+	int    ok = -1;
+	SString dbpath_buf;
+	PPGetPath(PPPATH_WORKSPACE, dbpath_buf);
+	dbpath_buf.SetLastSlash().Cat("bdbconfig");
+	if(!IsDirectory(dbpath_buf)) {
+		createDir(dbpath_buf);
+		//
+		SString lock_path;
+		(lock_path = dbpath_buf).SetLastSlash().Cat("ppcfgdbcrlock");
+		const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path));
+		if(!is_locked) {
+			SFile f_lck(lock_path, SFile::mWrite);
+			{
+				PPConfigDatabase * p_db = new PPConfigDatabase(dbpath_buf);
+				ZDELETE(p_db);
+			}
+			f_lck.Close();
+			SFile::Remove(lock_path);
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPSession::InitExtCfgDb()
 {
 	int    ok = -1;	
@@ -1544,7 +1569,10 @@ int SLAPI PPSession::InitExtCfgDb()
 		SString temp_buf;
 		PPGetPath(PPPATH_WORKSPACE, temp_buf);
 		temp_buf.SetLastSlash().Cat("bdbconfig");
-		P_ExtCfgDb = new PPConfigDatabase(temp_buf);
+		if(!IsDirectory(temp_buf))
+			createDir(temp_buf);
+		if(IsDirectory(temp_buf))
+			P_ExtCfgDb = new PPConfigDatabase(temp_buf);
 		if(P_ExtCfgDb)
 			ok = 1;
 		else 
@@ -1904,31 +1932,11 @@ static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandStri
 static int PPQueryPathFunc(const char * pSignature, SString & rBuf)
 {
     rBuf.Z();
-	// @v10.1.11 {
 	static const SIntToSymbTabEntry path_symb_list[] = {
 		{ PPPATH_BIN, "bin" }, { PPPATH_LOCAL, "local" }, { PPPATH_TEMP, "temp" },         { PPPATH_IN, "in" },
 		{ PPPATH_OUT, "out" }, { PPPATH_LOG, "log" },     { PPPATH_TESTROOT, "testroot" }, { PPPATH_WORKSPACE, "workspace" },
 	};
 	int    path_id = SIntToSymbTab_GetId(path_symb_list, SIZEOFARRAY(path_symb_list), pSignature);
-	// } @v10.1.11
-    /* @v10.1.11
-	if(sstreqi_ascii(pSignature, "bin"))
-		path_id = PPPATH_BIN;
-    else if(sstreqi_ascii(pSignature, "local"))
-    	path_id = PPPATH_LOCAL;
-    else if(sstreqi_ascii(pSignature, "temp"))
-    	path_id = PPPATH_TEMP;
-    else if(sstreqi_ascii(pSignature, "in"))
-		path_id = PPPATH_IN;
-    else if(sstreqi_ascii(pSignature, "out"))
-		path_id = PPPATH_OUT;
-    else if(sstreqi_ascii(pSignature, "log"))
-    	path_id = PPPATH_LOG;
-    else if(sstreqi_ascii(pSignature, "testroot"))
-    	path_id = PPPATH_TESTROOT;
-    else if(sstreqi_ascii(pSignature, "workspace"))
-    	path_id = PPPATH_WORKSPACE;
-	*/
 	return path_id ? PPGetPath(path_id, rBuf) : 0;
 }
 
@@ -4060,7 +4068,7 @@ int SLAPI PPSession::Logout()
 		GetPath(PPPATH_TEMP, pn);
 		pn.SetLastSlash().CatLongZ(r_tla.PrnDirId, 8);
 		PPRemoveFilesByExt(pn, "*", 0, 0);
-		::RemoveDirectory(SUcSwitch(pn)); // @unicodeproblem
+		::RemoveDirectory(SUcSwitch(pn));
 		//
 		if(CCfg().Flags & CCFLG_DEBUG)
 			CMng.LogCacheStat();

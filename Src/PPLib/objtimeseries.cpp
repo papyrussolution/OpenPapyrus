@@ -5381,7 +5381,7 @@ struct TsFindStrategiesBlock {
 					}
 					break;
 				case PPTssModel::orsRadialPart:
-					sf_step_angle = ((_end_factor_angle - _start_factor_angle) * static_cast<double>(r_tssm.OptRangeStep_)) / 1000000.0;
+					sf_step_angle = ((_end_factor_angle - _start_factor_angle) * static_cast<double>(r_tssm.OptRangeStep_)) / 10000000.0; // @202005002 1000000.0-->10000000.0
 					sf_step = 1; // calculated during the loop
 					use_radial_partitioning = 1;
 					break;

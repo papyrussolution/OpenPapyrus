@@ -1,5 +1,6 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 // Run-time DL600 modules
 //
 #pragma hdrstop
@@ -29,9 +30,9 @@ PView::PView(void * ptr) : ID(0), Ptr(ptr)
 {
 }
 //
-// Блок доступа к распакованным формулам. При обращении к формуле вызывается функция //
-// DlContext::GetFormula, которая пытается найти уже распакованную формулу. Если это у нее
-// не выходит, то формула распаковывается, вставляется в таблицу и передается клиенту.
+// Р‘Р»РѕРє РґРѕСЃС‚СѓРїР° Рє СЂР°СЃРїР°РєРѕРІР°РЅРЅС‹Рј С„РѕСЂРјСѓР»Р°Рј. РџСЂРё РѕР±СЂР°С‰РµРЅРёРё Рє С„РѕСЂРјСѓР»Рµ РІС‹Р·С‹РІР°РµС‚СЃСЏ С„СѓРЅРєС†РёСЏ //
+// DlContext::GetFormula, РєРѕС‚РѕСЂР°СЏ РїС‹С‚Р°РµС‚СЃСЏ РЅР°Р№С‚Рё СѓР¶Рµ СЂР°СЃРїР°РєРѕРІР°РЅРЅСѓСЋ С„РѕСЂРјСѓР»Сѓ. Р•СЃР»Рё СЌС‚Рѕ Сѓ РЅРµРµ
+// РЅРµ РІС‹С…РѕРґРёС‚, С‚Рѕ С„РѕСЂРјСѓР»Р° СЂР°СЃРїР°РєРѕРІС‹РІР°РµС‚СЃСЏ, РІСЃС‚Р°РІР»СЏРµС‚СЃСЏ РІ С‚Р°Р±Р»РёС†Сѓ Рё РїРµСЂРµРґР°РµС‚СЃСЏ РєР»РёРµРЅС‚Сѓ.
 //
 struct UnpFormItem {
 	DLSYMBID ScopeID;
@@ -109,14 +110,14 @@ CtmExpr * SLAPI DlContext::GetFormula(const DlScope * pScope, uint fldPos)
 	return p_expr;
 }
 //
-// Блок создания run-time объектов SCoClass и DlRtm
+// Р‘Р»РѕРє СЃРѕР·РґР°РЅРёСЏ run-time РѕР±СЉРµРєС‚РѕРІ SCoClass Рё DlRtm
 //
 int DlContext::CreateDlIClsInstance(const DlScope * pScope, SCoClass ** ppInstance) const
 {
 	int    ok = 1;
 	SCoClass * p_inst = 0;
 	SString ffn;
-	Use001(); // чтобы линковались модули с коклассами
+	Use001(); // С‡С‚РѕР±С‹ Р»РёРЅРєРѕРІР°Р»РёСЃСЊ РјРѕРґСѓР»Рё СЃ РєРѕРєР»Р°СЃСЃР°РјРё
 	ffn.Cat("DL6CF_").Cat(pScope->Name);
 	FN_DL6CLS_FACTORY f = reinterpret_cast<FN_DL6CLS_FACTORY>(::GetProcAddress(SLS.GetHInst(), ffn));
 	THROW_PP_S(f, PPERR_DL6_ICLSNOTIMPL, ffn);
@@ -293,12 +294,12 @@ const DlScope * SLAPI DlContext::GetEvaluatedVarScope(const DlScope * pScope, DL
 	return p_target;
 }
 //
-// ARG(pRtm  IN) - Run-time - контекст исполнения операторов
-// ARG(pExpr IN) - Вычисляемое выражение
-// ARG(sp    IN) - Позиция на стеке, по которой должен быть записан результат выражения //
+// ARG(pRtm  IN) - Run-time - РєРѕРЅС‚РµРєСЃС‚ РёСЃРїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С‚РѕСЂРѕРІ
+// ARG(pExpr IN) - Р’С‹С‡РёСЃР»СЏРµРјРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ
+// ARG(sp    IN) - РџРѕР·РёС†РёСЏ РЅР° СЃС‚РµРєРµ, РїРѕ РєРѕС‚РѕСЂРѕР№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅ СЂРµР·СѓР»СЊС‚Р°С‚ РІС‹СЂР°Р¶РµРЅРёСЏ //
 // Returns:
-// Remark: Пространство на стеке для возвращаемого значения выделяет вызывающая функция.
-//   Пространство для аргументов - эта функция.
+// Remark: РџСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РЅР° СЃС‚РµРєРµ РґР»СЏ РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РІС‹РґРµР»СЏРµС‚ РІС‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ.
+//   РџСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ - СЌС‚Р° С„СѓРЅРєС†РёСЏ.
 //
 int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCallerRtm, const DlScope * pCallerScope, CtmExpr * pExpr, size_t sp)
 {
@@ -369,10 +370,10 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 								PPFilt pf(*static_cast<const long *>(S.GetPtr(ret_sp)));
 								THROW(r = p_rtm->InitData(pf));
 								//
-								// Если порожденный класс не смог инициализировать данные, то
-								// мы инициализируем их сами. Это - наследие прошлого: слишком
-								// большой объем кода работает так, что DlRtm::InitData не вызывается //
-								// в случае неудачи с поиском требуемой записи и т.д.
+								// Р•СЃР»Рё РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№ РєР»Р°СЃСЃ РЅРµ СЃРјРѕРі РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ, С‚Рѕ
+								// РјС‹ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РёС… СЃР°РјРё. Р­С‚Рѕ - РЅР°СЃР»РµРґРёРµ РїСЂРѕС€Р»РѕРіРѕ: СЃР»РёС€РєРѕРј
+								// Р±РѕР»СЊС€РѕР№ РѕР±СЉРµРј РєРѕРґР° СЂР°Р±РѕС‚Р°РµС‚ С‚Р°Рє, С‡С‚Рѕ DlRtm::InitData РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ //
+								// РІ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё СЃ РїРѕРёСЃРєРѕРј С‚СЂРµР±СѓРµРјРѕР№ Р·Р°РїРёСЃРё Рё С‚.Рґ.
 								if(r < 0) {
 									PPFilt empty_filt;
 									p_rtm->DlRtm::InitData(empty_filt, 0);
@@ -425,8 +426,8 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 								}
 								else {
 									//
-									// Половинчатый оператор IF. Если условие оператора ложное, то
-									// обнуляем результат выражения (наверное, это не всегда будет правильно!).
+									// РџРѕР»РѕРІРёРЅС‡Р°С‚С‹Р№ РѕРїРµСЂР°С‚РѕСЂ IF. Р•СЃР»Рё СѓСЃР»РѕРІРёРµ РѕРїРµСЂР°С‚РѕСЂР° Р»РѕР¶РЅРѕРµ, С‚Рѕ
+									// РѕР±РЅСѓР»СЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚ РІС‹СЂР°Р¶РµРЅРёСЏ (РЅР°РІРµСЂРЅРѕРµ, СЌС‚Рѕ РЅРµ РІСЃРµРіРґР° Р±СѓРґРµС‚ РїСЂР°РІРёР»СЊРЅРѕ!).
 									//
 									THROW(SearchTypeID(pExpr->GetOrgTypeID(), 0, &te));
 									if(te.T.IsZStr(&slen)) {
@@ -487,7 +488,7 @@ int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
 	int    ok = 1;
 	if(pScope) {
 		//
-		// Сначала инициализируем собственно pScope
+		// РЎРЅР°С‡Р°Р»Р° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРѕР±СЃС‚РІРµРЅРЅРѕ pScope
 		//
 		DlScope * p_child = 0;
 		for(uint i = 0; pScope->EnumChilds(&i, &p_child);) {
@@ -500,8 +501,8 @@ int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
 				else if(p_child->IsKind(DlScope::kExpDataIter)) {
 					if(p_child->Name == "iter@def" && IterList.GetCount()) {
 						//
-						// default-итератор должен быть самым первым в списке.
-						// Этот блок гарантирует выполнение такого правила.
+						// default-РёС‚РµСЂР°С‚РѕСЂ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃР°РјС‹Рј РїРµСЂРІС‹Рј РІ СЃРїРёСЃРєРµ.
+						// Р­С‚РѕС‚ Р±Р»РѕРє РіР°СЂР°РЅС‚РёСЂСѓРµС‚ РІС‹РїРѕР»РЅРµРЅРёРµ С‚Р°РєРѕРіРѕ РїСЂР°РІРёР»Р°.
 						//
 						const uint32 first = IterList[0];
 						IterList.P_Data[1+0] = p_child->ID;
@@ -512,7 +513,7 @@ int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
 				}
 		}
 		//
-		// Теперь инициализируем базовую область
+		// РўРµРїРµСЂСЊ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј Р±Р°Р·РѕРІСѓСЋ РѕР±Р»Р°СЃС‚СЊ
 		//
 		THROW(InitScope(pScope->GetBase(), 0)); // @recursion
 	}
@@ -579,18 +580,18 @@ int FASTCALL DlRtm::FinishRecord(const DlScope * pScope)
 	int    ok = 1;
 	uint   i;
 	//
-	// Сначала формируем базовые области
+	// РЎРЅР°С‡Р°Р»Р° С„РѕСЂРјРёСЂСѓРµРј Р±Р°Р·РѕРІС‹Рµ РѕР±Р»Р°СЃС‚Рё
 	//
 	if(pScope->GetBase())
 		THROW(FinishRecord(pScope->GetBase())); // @recursion
 	//
-	// После того, как сформировали базовые области, формируем текущую
+	// РџРѕСЃР»Рµ С‚РѕРіРѕ, РєР°Рє СЃС„РѕСЂРјРёСЂРѕРІР°Р»Рё Р±Р°Р·РѕРІС‹Рµ РѕР±Р»Р°СЃС‚Рё, С„РѕСЂРјРёСЂСѓРµРј С‚РµРєСѓС‰СѓСЋ
 	//
 	{
 		size_t fix_offs = 0;
 		uint   c = pScope->GetCount();
 		//
-		// Перенос фиксированных полей в буфер данных
+		// РџРµСЂРµРЅРѕСЃ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹С… РїРѕР»РµР№ РІ Р±СѓС„РµСЂ РґР°РЅРЅС‹С…
 		//
 		for(i = 0; i < c; i++) {
 			const STypEx & r_t = pScope->GetC(i)->T;
@@ -601,7 +602,7 @@ int FASTCALL DlRtm::FinishRecord(const DlScope * pScope)
 			}
 		}
 		//
-		// Расчет значений, задаваемых формулами
+		// Р Р°СЃС‡РµС‚ Р·РЅР°С‡РµРЅРёР№, Р·Р°РґР°РІР°РµРјС‹С… С„РѕСЂРјСѓР»Р°РјРё
 		//
 		for(i = 0; i < c; i++) {
 			const STypEx & r_t = pScope->GetC(i)->T;
@@ -882,7 +883,6 @@ SLAPI DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0), P_ViewDef(0
 int SLAPI DlRtm::Export(ExportParam & rParam)
 {
 	P_Ep = &rParam;
-
 	int    ok = 1;
 	const  int use_ddf = BIN(!DS.CheckExtFlag(ECF_DBDICTDL600) || rParam.Flags & ExportParam::fForceDDF);
 	const  DlScope * p_data = GetData();
@@ -989,11 +989,11 @@ int SLAPI DlRtm::Export(ExportParam & rParam)
 	}
 	else {
 		//
-		// Участок кода, введенный как попытка решить следующую проблему:
-		//   в некоторых случаях при печати CrystalReports выдает ошибку "Файл не найден"
-		//   или что-то в этом роде. Предположительно, ошибка возникает из-за того,
-		//   что при каких-то особенностях операционной системы файловая система
-		//   в течении короткого промежутка времени "не успевает" отобразить файлы данных.
+		// РЈС‡Р°СЃС‚РѕРє РєРѕРґР°, РІРІРµРґРµРЅРЅС‹Р№ РєР°Рє РїРѕРїС‹С‚РєР° СЂРµС€РёС‚СЊ СЃР»РµРґСѓСЋС‰СѓСЋ РїСЂРѕР±Р»РµРјСѓ:
+		//   РІ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… РїСЂРё РїРµС‡Р°С‚Рё CrystalReports РІС‹РґР°РµС‚ РѕС€РёР±РєСѓ "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ"
+		//   РёР»Рё С‡С‚Рѕ-С‚Рѕ РІ СЌС‚РѕРј СЂРѕРґРµ. РџСЂРµРґРїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕ, РѕС€РёР±РєР° РІРѕР·РЅРёРєР°РµС‚ РёР·-Р·Р° С‚РѕРіРѕ,
+		//   С‡С‚Рѕ РїСЂРё РєР°РєРёС…-С‚Рѕ РѕСЃРѕР±РµРЅРЅРѕСЃС‚СЏС… РѕРїРµСЂР°С†РёРѕРЅРЅРѕР№ СЃРёСЃС‚РµРјС‹ С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР°
+		//   РІ С‚РµС‡РµРЅРёРё РєРѕСЂРѕС‚РєРѕРіРѕ РїСЂРѕРјРµР¶СѓС‚РєР° РІСЂРµРјРµРЅРё "РЅРµ СѓСЃРїРµРІР°РµС‚" РѕС‚РѕР±СЂР°Р·РёС‚СЊ С„Р°Р№Р»С‹ РґР°РЅРЅС‹С….
 		//
 		const int _by_btr = BIN(p_dict && DS.CheckExtFlag(ECF_DETECTCRDBTEXISTBYOPEN));
 		for(uint p = 0; out_file_set.get(&p, path);) {
@@ -1220,7 +1220,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 			rParam.Cp = cp1251;
 		rParam.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf); // @v9.4.6
 		xmlTextWriterStartDocument(p_writer, 0, temp_buf, 0); // @v9.4.6
-		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) { // @v8.4.2
+		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) {
 			xmlTextWriterStartDTD(p_writer, head_name.ucptr(), 0, 0);
 			XMLWriteSpecSymbEntities(p_writer);
 			{
@@ -1264,9 +1264,9 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		xmlTextWriterStartElement(p_writer, head_name.ucptr());
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlTypes)) {
 		// @paul (pentaho export types) {
-			int    h_i = 0; // счетчик, обработали ли мы уже И "Head" И "Iter"
+			int    h_i = 0; // СЃС‡РµС‚С‡РёРє, РѕР±СЂР°Р±РѕС‚Р°Р»Рё Р»Рё РјС‹ СѓР¶Рµ Р "Head" Р "Iter"
 			StringSet * p_dtd = 0;
-			xmlTextWriterStartElement(p_writer, (const xmlChar *)"Types");
+			xmlTextWriterStartElement(p_writer, reinterpret_cast<const xmlChar *>("Types"));
 			for(i = 0; p_data->EnumChilds(&i, &p_child);) {
 				if(h_i >= 2)
 					break;
@@ -1299,7 +1299,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		// } @paul (pentaho export types)
 		}
 		// @erik v10.5.2{
-		if(rParam.P_ViewDef) { //надеюсь, список всех entry  отсортирован по Zone. При обратном ничего плохого конечно не случится, но XML будет некрасивый
+		if(rParam.P_ViewDef) { //РЅР°РґРµСЋСЃСЊ, СЃРїРёСЃРѕРє РІСЃРµС… entry  РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ РїРѕ Zone. РџСЂРё РѕР±СЂР°С‚РЅРѕРј РЅРёС‡РµРіРѕ РїР»РѕС…РѕРіРѕ РєРѕРЅРµС‡РЅРѕ РЅРµ СЃР»СѓС‡РёС‚СЃСЏ, РЅРѕ XML Р±СѓРґРµС‚ РЅРµРєСЂР°СЃРёРІС‹Р№
 			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
 			PPNamedFilt::ViewDefinition::Entry tmp_entry;
 			suffix = "ViewDescription";
@@ -1397,8 +1397,7 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 	return ok;
 }
 
-//int SLAPI DlRtm::Helper_PutItemToJson(PPFilt * pFilt, json_t * pRoot, ExportParam & rParam)
-int SLAPI DlRtm::Helper_PutItemToJson(ExportParam & rParam/*PPFilt * pFilt*/, json_t * pRoot)
+int SLAPI DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
 {
 	int     ok = 1;
 	SString left, suffix;
@@ -1540,7 +1539,7 @@ int PPALDD_Test::InitData(PPFilt & rFilt, long rsrv)
 	H.L = 1000;
 	H.X = 20.;
 	H.Y = 40.5;
-	// H.Z Не инициализирован
+	// H.Z РќРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ
 	STRNSCPY(H.S1, "123456");
 	STRNSCPY(H.S2, "789");
 	return DlRtm::InitData(rFilt, rsrv);
@@ -1577,7 +1576,7 @@ int Test_DL6_Rtm()
 
 #endif // }
 //
-// Тест вызова интерфейсов
+// РўРµСЃС‚ РІС‹Р·РѕРІР° РёРЅС‚РµСЂС„РµР№СЃРѕРІ
 //
 #if 0 // {
 
@@ -1587,7 +1586,7 @@ int Use001();
 
 int Test_InterfaceCall()
 {
-	Use001(); // Насильственная линковка модуля, содержащего TestSession
+	Use001(); // РќР°СЃРёР»СЊСЃС‚РІРµРЅРЅР°СЏ Р»РёРЅРєРѕРІРєР° РјРѕРґСѓР»СЏ, СЃРѕРґРµСЂР¶Р°С‰РµРіРѕ TestSession
 	CoInitialize(0);
 	IPapyrusSession * p_obj = 0;
 	HRESULT ok = CoCreateInstance(CLSID_PPSession, 0, CLSCTX_INPROC_SERVER, IID_IPapyrusSession, (void **)&p_obj);

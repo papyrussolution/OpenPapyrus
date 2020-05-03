@@ -1816,6 +1816,7 @@ void PPApp::login(int processCmdLine)
 			// станции отличается от сервера более чем на 1 секунду
 			//
 			SetDatetimeByServer(&ini_file, 0);
+			PPSession::EnsureExtCfgDb(); // @v10.7.7
 			// @v10.1.5 PPBackupSystemFiles();
 			PPBackupSystemFiles_Arc(); // @v10.1.5
 			// @v10.0.1 @experimental {
