@@ -169,6 +169,11 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 //
 //
 //
+ToolbarItem::ToolbarItem() : Cmd(0), KeyCode(0), Flags(0), BitmapIndex(0)
+{
+	PTR32(ToolTipText)[0] = 0;
+}
+
 ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)), Bitmap(0) {} // @v9.8.4 SArray-->SVector
 void  ToolbarList::setBitmap(uint b) { Bitmap = b; }
 uint  ToolbarList::getBitmap() const { return Bitmap; }

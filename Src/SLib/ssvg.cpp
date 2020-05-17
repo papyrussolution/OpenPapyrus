@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -368,7 +368,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 		case tStopOpacity: rBlk.GradientColor.Alpha = static_cast<uint8>(rVal.ToFloat() * rBlk.Opacity * 255.0f); break;
 		case tFill:
 			if(rVal != "none") {
-				if(rVal.CmpPrefix("url", 0) == 0) {
+				if(rVal.HasPrefix("url")) {
 					temp_buf = rVal;
 					temp_buf.ShiftLeft(3);
 					temp_buf.ShiftLeftChr('(');

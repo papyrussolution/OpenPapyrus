@@ -452,9 +452,6 @@
 				RelativePath="..\Osf\scintilla\src\Document.cxx">
 			</File>
 			<File
-				RelativePath="..\Osf\scintilla\src\EditModel.cxx">
-			</File>
-			<File
 				RelativePath="..\Osf\scintilla\src\Editor.cxx">
 			</File>
 			<File

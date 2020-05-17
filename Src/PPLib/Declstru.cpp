@@ -146,7 +146,7 @@ public:
 	int    SLAPI EditParam(Param *);
 	int    SLAPI Init(const Param * pParam)
 	{
-		P = *pParam;
+		RVALUEPTR(P, pParam);
 		return 1;
 	}
 	int    SLAPI Run();
@@ -156,8 +156,6 @@ private:
 
 	Param  P;
 };
-
-//#define GRP_MAILACC 1
 
 int SLAPI PrcssrMailCharry::EditParam(Param * pParam)
 {

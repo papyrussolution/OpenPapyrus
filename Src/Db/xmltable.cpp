@@ -94,7 +94,7 @@ int FASTCALL XmlDbFile::State::IsRecNode(const xmlNode * pNode) const
 			const xmlNode * p_node = pNode;
 			int   y = 1;
 			for(uint p = 0; y && p_node && P_SplittedRecTag->get(&p, temp_buf); p_node = p_node->P_ParentNode) {
-				if(temp_buf.CmpNC((const char *)p_node->name) != 0)
+				if(temp_buf.CmpNC(PTRCHRC_(p_node->name)) != 0)
 					y = 0;
 			}
 			yes = y;
@@ -112,7 +112,7 @@ const xmlNode * FASTCALL XmlDbFile::State::GetHeadRecNode(const xmlNode * pNode)
 		const xmlNode * p_node = pNode;
 		const xmlNode * p_last = 0;
 		for(uint p = 0; p_node && P_SplittedRecTag->get(&p, temp_buf);) {
-			if(temp_buf.CmpNC((const char *)p_node->name) != 0) {
+			if(temp_buf.CmpNC(PTRCHRC_(p_node->name)) != 0) {
 				p_last = 0;
 				p_node = 0;
 			}

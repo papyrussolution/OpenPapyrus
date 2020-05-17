@@ -161,10 +161,7 @@ static cairo_status_t _cairo_surface_subsurface_mark_dirty(void * abstract_surfa
 		extents.width  = surface->extents.width;
 		extents.height = surface->extents.height;
 		if(_cairo_rectangle_intersect(&rect, &extents)) {
-			status = surface->target->backend->mark_dirty_rectangle(surface->target,
-				rect.x + surface->extents.x,
-				rect.y + surface->extents.y,
-				rect.width, rect.height);
+			status = surface->target->backend->mark_dirty_rectangle(surface->target, rect.x + surface->extents.x, rect.y + surface->extents.y, rect.width, rect.height);
 		}
 	}
 	return status;
@@ -191,8 +188,7 @@ static cairo_surface_t * _cairo_surface_subsurface_source(void * abstract_surfac
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
 	cairo_surface_t * source = _cairo_surface_get_source(surface->target, extents);
-	if(extents)
-		*extents = surface->extents;
+	ASSIGN_PTR(extents, surface->extents);
 	return source;
 }
 

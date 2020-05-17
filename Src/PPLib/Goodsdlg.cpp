@@ -1316,7 +1316,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		setCtrlUInt16(CTL_GOODS_FLDFLAGS, BIN(Data.Rec.Flags & GF_EXCLALTFOLD));
 		selgrp_bias = GGRTYP_SEL_FOLDER;
 	}
-	SetupPPObjCombo(this, CTLSEL_GOODS_GROUP, PPOBJ_GOODSGROUP, Data.Rec.ParentID, f, (void *)(prev_grp_level + selgrp_bias));
+	SetupPPObjCombo(this, CTLSEL_GOODS_GROUP, PPOBJ_GOODSGROUP, Data.Rec.ParentID, f, reinterpret_cast<void *>(prev_grp_level + selgrp_bias));
 	if(Data.Rec.ID) {
 		disableCtrl(CTL_GOODS_GENERIC, !PPMaster);
 		//disableCtrl(CTLSEL_GOODS_CLS, Data.Rec.GdsClsID && !PPMaster);
@@ -3071,118 +3071,109 @@ private:
 	GoodsFilt Data;
 };
 //
-// диалог дополнительных опций фильтра по товарам
+// Диалог дополнительных опций фильтра по товарам
 //
-class GoodsFiltAdvDialog : public TDialog {
-public:
-	enum {
-		ctlgroupLoc = 3
-	};
-	GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int doDisable) : TDialog(rezID), CtlDisableSuppl(doDisable)
-	{
-		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.6.8
-		setDTS(pF);
-		SetupCalCtrl(CTLCAL_GFLTADVOPT_LOTPERIOD, this, CTL_GFLTADVOPT_LOTPERIOD, 1);
-	}
-	int    setDTS(const GoodsFilt *);
-	int    getDTS(GoodsFilt *);
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isClusterClk(CTL_GFLTADVOPT_PLISTFNEW) || event.isClusterClk(CTL_GFLTADVOPT_PLUSNREST)) {
-			SetupCtrls();
-			clearEvent(event);
-		}
-	}
-	void   SetupCtrls();
-
-	GoodsFilt Data;
-	int	   CtlDisableSuppl;
-};
-
-void GoodsFiltAdvDialog::SetupCtrls()
-{
-	GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
-	DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 1, Data.Flags & GoodsFilt::fNewLots);
-	DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 0, Data.Flags & GoodsFilt::fNoZeroRestOnLotPeriod);
-}
-
-int GoodsFiltAdvDialog::setDTS(const GoodsFilt * pFilt)
-{
-	ushort v = 0;
-	Data = *pFilt;
-	SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod);
-
-	// @v9.6.8 SetupPPObjCombo(this, CTLSEL_GFLTADVOPT_LOC, PPOBJ_LOCATION, Data.LocList.GetSingle(), OLW_LOADDEFONOPEN, 0);
-	// @v9.6.8 {
-	{
-		LocationCtrlGroup::Rec l_rec(&Data.LocList);
-		setGroupData(ctlgroupLoc, &l_rec);
-	}
-	// } @v9.6.8
-	if(CtlDisableSuppl)
-		disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, 1);
-	else
-		SetupArCombo(this, CTLSEL_GFLTADVOPT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
-	AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 0, GoodsFilt::fNewLots);
-	AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 1, GoodsFilt::fNoZeroRestOnLotPeriod);
-	AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 2, GoodsFilt::fActualOnly);
-	SetClusterData(CTL_GFLTADVOPT_FLAGS, Data.Flags);
-	if(Data.Flags & GoodsFilt::fPassiveOnly)
-		v = 1;
-	else if(Data.Flags & GoodsFilt::fGenGoodsOnly)
-		v = 2;
-	else if(Data.Flags & GoodsFilt::fWOTaxGdsOnly)
-		v = 3;
-	else if(Data.Flags & GoodsFilt::fNoDisOnly)
-		v = 4;
-	else
-		v = 0;
-	setCtrlData(CTL_GFLTADVOPT_EXTFLT, &v);
-	SetupCtrls();
-	return 1;
-}
-
-int GoodsFiltAdvDialog::getDTS(GoodsFilt * pFilt)
-{
-	int    ok = 0;
-	ushort v = 0;
-	GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
-	if(!GetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod))
-		PPErrorByDialog(this, CTL_GFLTADVOPT_LOTPERIOD);
-	else if((Data.Flags & (GoodsFilt::fNewLots | GoodsFilt::fNoZeroRestOnLotPeriod)) && !Data.LotPeriod.low)
-		PPErrorByDialog(this, CTL_GFLTADVOPT_PLISTFNEW, PPERR_CHKWPER);
-	else {
-		if(!CtlDisableSuppl)
-			getCtrlData(CTLSEL_GFLTADVOPT_SUPPL, &Data.SupplID);
-		// @v9.6.8 Data.LocList.SetSingle(getCtrlLong(CTLSEL_GFLTADVOPT_LOC));
-		// @v9.6.8 {
-		{
-			LocationCtrlGroup::Rec l_rec;
-			getGroupData(ctlgroupLoc, &l_rec);
-			Data.LocList = l_rec.LocList;
-		}
-		// } @v9.6.8
-		getCtrlData(CTL_GFLTADVOPT_EXTFLT, &(v = 0));
-		SETFLAG(Data.Flags, GoodsFilt::fPassiveOnly,  v == 1);
-		SETFLAG(Data.Flags, GoodsFilt::fGenGoodsOnly, v == 2);
-		SETFLAG(Data.Flags, GoodsFilt::fWOTaxGdsOnly, v == 3);
-		SETFLAG(Data.Flags, GoodsFilt::fNoDisOnly,    v == 4);
-		if(Data.Flags & GoodsFilt::fPassiveOnly)
-			Data.Flags &= ~GoodsFilt::fHidePassive;
-		// @v10.7.7 {
-		if(Data.Flags & GoodsFilt::fGenGoodsOnly)
-			Data.Flags &= ~GoodsFilt::fHideGeneric;
-		// } @v10.7.7 
-		ASSIGN_PTR(pFilt, Data);
-		ok = 1;
-	}
-	return ok;
-}
-
 int SLAPI GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 {
+	class GoodsFiltAdvDialog : public TDialog {
+		DECL_DIALOG_DATA(GoodsFilt);
+	public:
+		enum {
+			ctlgroupLoc = 3
+		};
+		GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int doDisable) : TDialog(rezID), CtlDisableSuppl(doDisable)
+		{
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.6.8
+			setDTS(pF);
+			SetupCalCtrl(CTLCAL_GFLTADVOPT_LOTPERIOD, this, CTL_GFLTADVOPT_LOTPERIOD, 1);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			ushort v = 0;
+			RVALUEPTR(Data, pData);
+			SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod);
+			// @v9.6.8 SetupPPObjCombo(this, CTLSEL_GFLTADVOPT_LOC, PPOBJ_LOCATION, Data.LocList.GetSingle(), OLW_LOADDEFONOPEN, 0);
+			// @v9.6.8 {
+			{
+				LocationCtrlGroup::Rec l_rec(&Data.LocList);
+				setGroupData(ctlgroupLoc, &l_rec);
+			}
+			// } @v9.6.8
+			if(CtlDisableSuppl)
+				disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, 1);
+			else
+				SetupArCombo(this, CTLSEL_GFLTADVOPT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
+			AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 0, GoodsFilt::fNewLots);
+			AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 1, GoodsFilt::fNoZeroRestOnLotPeriod);
+			AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 2, GoodsFilt::fActualOnly);
+			SetClusterData(CTL_GFLTADVOPT_FLAGS, Data.Flags);
+			if(Data.Flags & GoodsFilt::fPassiveOnly)
+				v = 1;
+			else if(Data.Flags & GoodsFilt::fGenGoodsOnly)
+				v = 2;
+			else if(Data.Flags & GoodsFilt::fWOTaxGdsOnly)
+				v = 3;
+			else if(Data.Flags & GoodsFilt::fNoDisOnly)
+				v = 4;
+			else
+				v = 0;
+			setCtrlData(CTL_GFLTADVOPT_EXTFLT, &v);
+			SetupCtrls();
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 0;
+			ushort v = 0;
+			GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
+			if(!GetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod))
+				PPErrorByDialog(this, CTL_GFLTADVOPT_LOTPERIOD);
+			else if((Data.Flags & (GoodsFilt::fNewLots | GoodsFilt::fNoZeroRestOnLotPeriod)) && !Data.LotPeriod.low)
+				PPErrorByDialog(this, CTL_GFLTADVOPT_PLISTFNEW, PPERR_CHKWPER);
+			else {
+				if(!CtlDisableSuppl)
+					getCtrlData(CTLSEL_GFLTADVOPT_SUPPL, &Data.SupplID);
+				// @v9.6.8 Data.LocList.SetSingle(getCtrlLong(CTLSEL_GFLTADVOPT_LOC));
+				// @v9.6.8 {
+				{
+					LocationCtrlGroup::Rec l_rec;
+					getGroupData(ctlgroupLoc, &l_rec);
+					Data.LocList = l_rec.LocList;
+				}
+				// } @v9.6.8
+				getCtrlData(CTL_GFLTADVOPT_EXTFLT, &(v = 0));
+				SETFLAG(Data.Flags, GoodsFilt::fPassiveOnly,  v == 1);
+				SETFLAG(Data.Flags, GoodsFilt::fGenGoodsOnly, v == 2);
+				SETFLAG(Data.Flags, GoodsFilt::fWOTaxGdsOnly, v == 3);
+				SETFLAG(Data.Flags, GoodsFilt::fNoDisOnly,    v == 4);
+				if(Data.Flags & GoodsFilt::fPassiveOnly)
+					Data.Flags &= ~GoodsFilt::fHidePassive;
+				// @v10.7.7 {
+				if(Data.Flags & GoodsFilt::fGenGoodsOnly)
+					Data.Flags &= ~GoodsFilt::fHideGeneric;
+				// } @v10.7.7 
+				ASSIGN_PTR(pData, Data);
+				ok = 1;
+			}
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_GFLTADVOPT_PLISTFNEW) || event.isClusterClk(CTL_GFLTADVOPT_PLUSNREST)) {
+				SetupCtrls();
+				clearEvent(event);
+			}
+		}
+		void   SetupCtrls()
+		{
+			GetClusterData(CTL_GFLTADVOPT_FLAGS, &Data.Flags);
+			DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 1, Data.Flags & GoodsFilt::fNewLots);
+			DisableClusterItem(CTL_GFLTADVOPT_FLAGS, 0, Data.Flags & GoodsFilt::fNoZeroRestOnLotPeriod);
+		}
+		int	   CtlDisableSuppl;
+	};
 	int    ok = -1;
 	GoodsFiltAdvDialog * dlg = new GoodsFiltAdvDialog(DLG_GFLTADVOPT, pFilt, disable);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -3230,8 +3221,7 @@ int GoodsFiltDialog::editSysjFilt()
 	}
 	if(Data.P_SjF) {
 		//
-		// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType
-		// не пустым. В данном случае это - не верно.
+		// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType не пустым. В данном случае это - не верно.
 		//
 		Data.P_SjF->ObjType = 0;
 		if(Data.P_SjF->IsEmpty()) {
@@ -3616,10 +3606,12 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	{
 		Data.GetExtssData(Data.extssNameText, temp_buf.Z());
 		setCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
+		SetupWordSelector(CTL_GOODSFLT_NAMESTR, new TextHistorySelExtra("goodsfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 	}
 	{
 		Data.GetExtssData(Data.extssBarcodeText, temp_buf.Z());
 		setCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
+		SetupWordSelector(CTL_GOODSFLT_BARCODESTR, new TextHistorySelExtra("goodsfilt-barcodetext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 	}
 	setCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
 	if(Data.Flags & GoodsFilt::fNotUseViewOptions) {

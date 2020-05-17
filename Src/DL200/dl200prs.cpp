@@ -1176,25 +1176,54 @@ int SLAPI PrcssrDL200::InitParam(Param * p)
 	return 1;
 }
 
-#define GRP_CYCLE 1
-
 class DL200_ParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrDL200::Param);
+	enum {
+		ctlgroupCycle = 1
+	};
 public:
 	DL200_ParamDialog() : TDialog(DLG_DL200P)
 	{
 		CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_DL200P_CYCLE, CTL_DL200P_NUMCYCLES, CTL_DL200P_PERIOD);
-		addGroup(GRP_CYCLE, grp);
+		addGroup(ctlgroupCycle, grp);
 		SetupCalCtrl(CTLCAL_DL200P_PERIOD, this, CTL_DL200P_PERIOD, 1);
 	}
-	int    setDTS(const PrcssrDL200::Param *);
-	int    getDTS(PrcssrDL200::Param *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		CycleCtrlGroup::Rec cycle_rec;
+		//setCtrlData(CTL_DL200P_FNAME, Data.FileName);
+		//setCtrlData(CTL_DL200P_DATANAME, Data.DataName);
+		setupFileCombo();
+		setupFormCombo();
+		SetPeriodInput(this, CTL_DL200P_PERIOD, &Data.Period);
+		cycle_rec.C = Data.Cycl;
+		setGroupData(ctlgroupCycle, &cycle_rec);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		CycleCtrlGroup::Rec cycle_rec;
+		getSelectedFileName(Data.FileName, sizeof(Data.FileName));
+		ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME));
+		if(p_cb)
+			p_cb->getInputLineText(Data.DataName, sizeof(Data.DataName));
+		else
+			Data.DataName[0] = 0;
+		//getCtrlData(CTL_DL200P_FNAME, Data.FileName);
+		//getCtrlData(CTL_DL200P_DATANAME, Data.DataName);
+		GetPeriodInput(this, CTL_DL200P_PERIOD, &Data.Period);
+		getGroupData(ctlgroupCycle, &cycle_rec);
+		Data.Cycl = cycle_rec.C;
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    setupFileCombo();
 	int    setupFormCombo();
 	int    getSelectedFileName(char * pBuf, size_t bufLen);
 
-	PrcssrDL200::Param Data;
 	char   DdPath[MAXPATH];
 };
 
@@ -1291,38 +1320,6 @@ int DL200_ParamDialog::setupFileCombo()
 	}
 	CATCHZOK
 	return ok;
-}
-
-int DL200_ParamDialog::setDTS(const PrcssrDL200::Param * pData)
-{
-	Data = *pData;
-	CycleCtrlGroup::Rec cycle_rec;
-	//setCtrlData(CTL_DL200P_FNAME, Data.FileName);
-	//setCtrlData(CTL_DL200P_DATANAME, Data.DataName);
-	setupFileCombo();
-	setupFormCombo();
-	SetPeriodInput(this, CTL_DL200P_PERIOD, &Data.Period);
-	cycle_rec.C = Data.Cycl;
-	setGroupData(GRP_CYCLE, &cycle_rec);
-	return 1;
-}
-
-int DL200_ParamDialog::getDTS(PrcssrDL200::Param * pData)
-{
-	CycleCtrlGroup::Rec cycle_rec;
-	getSelectedFileName(Data.FileName, sizeof(Data.FileName));
-	ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME));
-	if(p_cb)
-		p_cb->getInputLineText(Data.DataName, sizeof(Data.DataName));
-	else
-		Data.DataName[0] = 0;
-	//getCtrlData(CTL_DL200P_FNAME, Data.FileName);
-	//getCtrlData(CTL_DL200P_DATANAME, Data.DataName);
-	GetPeriodInput(this, CTL_DL200P_PERIOD, &Data.Period);
-	getGroupData(GRP_CYCLE, &cycle_rec);
-	Data.Cycl = cycle_rec.C;
-	*pData = Data;
-	return 1;
 }
 
 int SLAPI PrcssrDL200::EditParam(Param * pData)

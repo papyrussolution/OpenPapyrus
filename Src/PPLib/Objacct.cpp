@@ -618,9 +618,7 @@ IMPL_HANDLE_EVENT(GenAccountDialog)
 			Data.GenList.freeAll();
 			AccObj.GetListByAccSheet(acc_sheet_id, acc_list);
 			for(uint i = 0; i < acc_list.getCount(); i++) {
-				ObjRestrictItem item;
-				item.ObjID = acc_list.at(i);
-				item.Flags = ACO_2;
+				ObjRestrictItem item(acc_list.at(i), ACO_2);
 				Data.GenList.insert(&item);
 			}
 			selectCtrl(CTL_ACCAGGR_LIST);

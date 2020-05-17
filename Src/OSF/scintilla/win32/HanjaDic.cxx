@@ -54,16 +54,12 @@ interface IHanjaDic : IUnknown {
 	STDMETHOD(MaxHanjaType) (HANJA_TYPE pHanjaType);
 };
 
-extern "C" const GUID __declspec(selectany) IID_IHanjaDic =
-{
-	0xad75f3ac, 0x18cd, 0x48c6, { 0xa2, 0x7d, 0xf1, 0xe9, 0xa7, 0xdc, 0xe4, 0x32 }
-};
+extern "C" const GUID __declspec(selectany) IID_IHanjaDic = { 0xad75f3ac, 0x18cd, 0x48c6, { 0xa2, 0x7d, 0xf1, 0xe9, 0xa7, 0xdc, 0xe4, 0x32 } };
 
 class HanjaDic {
 private:
 	HRESULT hr;
 	CLSID CLSID_HanjaDic;
-
 public:
 	IHanjaDic * HJinterface;
 	HanjaDic() : HJinterface(NULL) 
@@ -83,12 +79,9 @@ public:
 			HJinterface->Release();
 		}
 	}
-
-	bool HJdictAvailable() {
-		return SUCCEEDED(hr);
-	}
-
-	bool IsHanja(int hanja) {
+	bool HJdictAvailable() { return SUCCEEDED(hr); }
+	bool IsHanja(int hanja) 
+	{
 		HANJA_TYPE hanjaType;
 		hr = HJinterface->GetHanjaType(static_cast<ushort>(hanja), &hanjaType);
 		if(SUCCEEDED(hr)) {

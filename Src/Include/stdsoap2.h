@@ -2252,9 +2252,9 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_array_begin_out(struct soap *, const char * tag, 
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_ref(struct soap *, const char * tag, int id, int href);
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_href(struct soap *, const char * tag, int id, const char * ref, const char * val);
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_null(struct soap *, const char * tag, int id, const char * type);
-SOAP_FMAC1 int SOAP_FMAC2 soap_element_nil(struct soap *, const char * tag);
-SOAP_FMAC1 int SOAP_FMAC2 soap_element_id(struct soap *, const char * tag, int id, const void * p, const struct soap_array * a, int d, const char * type, int n);
-SOAP_FMAC1 int SOAP_FMAC2 soap_element_result(struct soap *, const char * tag);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_nil(struct soap *, const char * tag);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_id(struct soap *, const char * tag, int id, const void * p, const struct soap_array * a, int d, const char * type, int n);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_result(struct soap *, const char * tag);
 SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_check_result(struct soap *, const char * tag);
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_end_out(struct soap *, const char * tag);
 SOAP_FMAC1 int SOAP_FMAC2 soap_element_start_end_out(struct soap *, const char * tag);

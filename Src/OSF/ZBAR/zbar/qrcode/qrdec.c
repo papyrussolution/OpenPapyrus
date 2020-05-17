@@ -1579,8 +1579,7 @@ static void qr_hom_cell_init(qr_hom_cell * _cell, int _u0, int _v0,
    normal 2-D representation.
    In loops, we can avoid many multiplies by computing the homogeneous _x, _y,
    and _w incrementally, but we cannot avoid the divisions, done here.*/
-static void qr_hom_cell_fproject(qr_point _p, const qr_hom_cell * _cell,
-    int _x, int _y, int _w)
+static void qr_hom_cell_fproject(qr_point _p, const qr_hom_cell * _cell, int _x, int _y, int _w)
 {
 	if(_w==0) {
 		_p[0] = _x<0 ? INT_MIN : INT_MAX;

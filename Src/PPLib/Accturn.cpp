@@ -703,7 +703,7 @@ int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 	int    ok = 1;
 	uint   i;
 	SArray temp_list(sizeof(_ENTRY));
-	ObjRestrictItem item, * p_item;
+	ObjRestrictItem * p_item;
 	for(i = 0; pGenList->enumItems(&i, (void **)&p_item);) {
 		if(abs(GetAcoByGenFlags(p_item->Flags)) == ACO_3) {
 			AcctRelTbl::Rec arel_rec;
@@ -730,8 +730,7 @@ int SLAPI AccTurnCore::SortGenAccList(ObjRestrictArray * pGenList)
 	}
 	pGenList->freeAll();
 	for(i = 0; temp_list.enumItems(&i, (void **)&p_entry);) {
-		item.ObjID = p_entry->id;
-		item.Flags = p_entry->flags;
+		ObjRestrictItem item(p_entry->id, p_entry->flags);
 		THROW_SL(pGenList->insert(&item));
 	}
 	CATCHZOK

@@ -1401,7 +1401,6 @@ static int file_cmp_node(const struct archive_rb_node * n1,
 static int file_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct file * f = (const struct file *)n;
-
 	return (f->name_len - *(const char *)key);
 }
 
@@ -1411,9 +1410,9 @@ static int file_new(struct archive_write * a, struct archive_entry * entry, stru
 	const char * u16;
 	size_t u16len;
 	int ret = ARCHIVE_OK;
-	struct _7zip * zip = (struct _7zip *)a->format_data;
+	struct _7zip * zip = static_cast<struct _7zip *>(a->format_data);
 	*newfile = NULL;
-	file = (struct file *)SAlloc::C(1, sizeof(*file));
+	file = static_cast<struct file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 		return ARCHIVE_FATAL;
@@ -1427,7 +1426,7 @@ static int file_new(struct archive_write * a, struct archive_entry * entry, stru
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A filename cannot be converted to UTF-16LE;You should disable making Joliet extension");
 		ret = ARCHIVE_WARN;
 	}
-	file->utf16name = (uint8_t *)SAlloc::M(u16len + 2);
+	file->utf16name = static_cast<uint8_t *>(SAlloc::M(u16len + 2));
 	if(file->utf16name == NULL) {
 		SAlloc::F(file);
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Name");
@@ -1811,7 +1810,7 @@ static int compression_init_encoder_lzma(struct archive * a,
 		return ARCHIVE_FATAL;
 	}
 	if(lastrm->prop_size) {
-		lastrm->props = (uint8_t *)SAlloc::M(lastrm->prop_size);
+		lastrm->props = static_cast<uint8_t *>(SAlloc::M(lastrm->prop_size));
 		if(lastrm->props == NULL) {
 			SAlloc::F(strm);
 			lastrm->real_stream = NULL;
@@ -1965,12 +1964,12 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 	int r;
 	if(lastrm->valid)
 		compression_end(a, lastrm);
-	strm = (struct ppmd_stream *)SAlloc::C(1, sizeof(*strm));
+	strm = static_cast<struct ppmd_stream *>(SAlloc::C(1, sizeof(*strm)));
 	if(strm == NULL) {
 		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
 	}
-	strm->buff = (uint8_t *)SAlloc::M(32);
+	strm->buff = static_cast<uint8_t *>(SAlloc::M(32));
 	if(strm->buff == NULL) {
 		SAlloc::F(strm);
 		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
@@ -1978,7 +1977,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 	}
 	strm->buff_ptr = strm->buff;
 	strm->buff_end = strm->buff + 32;
-	props = (uint8_t *)SAlloc::M(1+4);
+	props = static_cast<uint8_t *>(SAlloc::M(1+4));
 	if(props == NULL) {
 		SAlloc::F(strm->buff);
 		SAlloc::F(strm);
@@ -1988,8 +1987,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 	props[0] = maxOrder;
 	archive_le32enc(props+1, msize);
 	__archive_ppmd7_functions.Ppmd7_Construct(&strm->ppmd7_context);
-	r = __archive_ppmd7_functions.Ppmd7_Alloc(
-		&strm->ppmd7_context, msize);
+	r = __archive_ppmd7_functions.Ppmd7_Alloc(&strm->ppmd7_context, msize);
 	if(r == 0) {
 		SAlloc::F(strm->buff);
 		SAlloc::F(strm);

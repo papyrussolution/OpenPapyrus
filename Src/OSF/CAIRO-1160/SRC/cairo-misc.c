@@ -85,95 +85,51 @@ COMPILE_TIME_ASSERT(CAIRO_INT_STATUS_LAST_STATUS <= 127);
 const char * cairo_status_to_string(cairo_status_t status)
 {
 	switch(status) {
-		case CAIRO_STATUS_SUCCESS:
-		    return "no error has occurred";
-		case CAIRO_STATUS_NO_MEMORY:
-		    return "out of memory";
-		case CAIRO_STATUS_INVALID_RESTORE:
-		    return "cairo_restore() without matching cairo_save()";
-		case CAIRO_STATUS_INVALID_POP_GROUP:
-		    return "no saved group to pop, i.e. cairo_pop_group() without matching cairo_push_group()";
-		case CAIRO_STATUS_NO_CURRENT_POINT:
-		    return "no current point defined";
-		case CAIRO_STATUS_INVALID_MATRIX:
-		    return "invalid matrix (not invertible)";
-		case CAIRO_STATUS_INVALID_STATUS:
-		    return "invalid value for an input cairo_status_t";
-		case CAIRO_STATUS_NULL_POINTER:
-		    return "NULL pointer";
-		case CAIRO_STATUS_INVALID_STRING:
-		    return "input string not valid UTF-8";
-		case CAIRO_STATUS_INVALID_PATH_DATA:
-		    return "input path data not valid";
-		case CAIRO_STATUS_READ_ERROR:
-		    return "error while reading from input stream";
-		case CAIRO_STATUS_WRITE_ERROR:
-		    return "error while writing to output stream";
-		case CAIRO_STATUS_SURFACE_FINISHED:
-		    return "the target surface has been finished";
-		case CAIRO_STATUS_SURFACE_TYPE_MISMATCH:
-		    return "the surface type is not appropriate for the operation";
-		case CAIRO_STATUS_PATTERN_TYPE_MISMATCH:
-		    return "the pattern type is not appropriate for the operation";
-		case CAIRO_STATUS_INVALID_CONTENT:
-		    return "invalid value for an input cairo_content_t";
-		case CAIRO_STATUS_INVALID_FORMAT:
-		    return "invalid value for an input cairo_format_t";
-		case CAIRO_STATUS_INVALID_VISUAL:
-		    return "invalid value for an input Visual*";
-		case CAIRO_STATUS_FILE_NOT_FOUND:
-		    return "file not found";
-		case CAIRO_STATUS_INVALID_DASH:
-		    return "invalid value for a dash setting";
-		case CAIRO_STATUS_INVALID_DSC_COMMENT:
-		    return "invalid value for a DSC comment";
-		case CAIRO_STATUS_INVALID_INDEX:
-		    return "invalid index passed to getter";
-		case CAIRO_STATUS_CLIP_NOT_REPRESENTABLE:
-		    return "clip region not representable in desired format";
-		case CAIRO_STATUS_TEMP_FILE_ERROR:
-		    return "error creating or writing to a temporary file";
-		case CAIRO_STATUS_INVALID_STRIDE:
-		    return "invalid value for stride";
-		case CAIRO_STATUS_FONT_TYPE_MISMATCH:
-		    return "the font type is not appropriate for the operation";
-		case CAIRO_STATUS_USER_FONT_IMMUTABLE:
-		    return "the user-font is immutable";
-		case CAIRO_STATUS_USER_FONT_ERROR:
-		    return "error occurred in a user-font callback function";
-		case CAIRO_STATUS_NEGATIVE_COUNT:
-		    return "negative number used where it is not allowed";
-		case CAIRO_STATUS_INVALID_CLUSTERS:
-		    return "input clusters do not represent the accompanying text and glyph arrays";
-		case CAIRO_STATUS_INVALID_SLANT:
-		    return "invalid value for an input cairo_font_slant_t";
-		case CAIRO_STATUS_INVALID_WEIGHT:
-		    return "invalid value for an input cairo_font_weight_t";
-		case CAIRO_STATUS_INVALID_SIZE:
-		    return "invalid value (typically too big) for the size of the input (surface, pattern, etc.)";
-		case CAIRO_STATUS_USER_FONT_NOT_IMPLEMENTED:
-		    return "user-font method not implemented";
-		case CAIRO_STATUS_DEVICE_TYPE_MISMATCH:
-		    return "the device type is not appropriate for the operation";
-		case CAIRO_STATUS_DEVICE_ERROR:
-		    return "an operation to the device caused an unspecified error";
-		case CAIRO_STATUS_INVALID_MESH_CONSTRUCTION:
-		    return "invalid operation during mesh pattern construction";
-		case CAIRO_STATUS_DEVICE_FINISHED:
-		    return "the target device has been finished";
-		case CAIRO_STATUS_JBIG2_GLOBAL_MISSING:
-		    return "CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID used but no CAIRO_MIME_TYPE_JBIG2_GLOBAL data provided";
-		case CAIRO_STATUS_PNG_ERROR:
-		    return "error occurred in libpng while reading from or writing to a PNG file";
-		case CAIRO_STATUS_FREETYPE_ERROR:
-		    return "error occurred in libfreetype";
-		case CAIRO_STATUS_WIN32_GDI_ERROR:
-		    return "error occurred in the Windows Graphics Device Interface";
-		case CAIRO_STATUS_TAG_ERROR:
-		    return "invalid tag name, attributes, or nesting";
+		case CAIRO_STATUS_SUCCESS: return "no error has occurred";
+		case CAIRO_STATUS_NO_MEMORY: return "out of memory";
+		case CAIRO_STATUS_INVALID_RESTORE: return "cairo_restore() without matching cairo_save()";
+		case CAIRO_STATUS_INVALID_POP_GROUP: return "no saved group to pop, i.e. cairo_pop_group() without matching cairo_push_group()";
+		case CAIRO_STATUS_NO_CURRENT_POINT: return "no current point defined";
+		case CAIRO_STATUS_INVALID_MATRIX: return "invalid matrix (not invertible)";
+		case CAIRO_STATUS_INVALID_STATUS: return "invalid value for an input cairo_status_t";
+		case CAIRO_STATUS_NULL_POINTER: return "NULL pointer";
+		case CAIRO_STATUS_INVALID_STRING: return "input string not valid UTF-8";
+		case CAIRO_STATUS_INVALID_PATH_DATA: return "input path data not valid";
+		case CAIRO_STATUS_READ_ERROR: return "error while reading from input stream";
+		case CAIRO_STATUS_WRITE_ERROR: return "error while writing to output stream";
+		case CAIRO_STATUS_SURFACE_FINISHED: return "the target surface has been finished";
+		case CAIRO_STATUS_SURFACE_TYPE_MISMATCH: return "the surface type is not appropriate for the operation";
+		case CAIRO_STATUS_PATTERN_TYPE_MISMATCH: return "the pattern type is not appropriate for the operation";
+		case CAIRO_STATUS_INVALID_CONTENT: return "invalid value for an input cairo_content_t";
+		case CAIRO_STATUS_INVALID_FORMAT: return "invalid value for an input cairo_format_t";
+		case CAIRO_STATUS_INVALID_VISUAL: return "invalid value for an input Visual*";
+		case CAIRO_STATUS_FILE_NOT_FOUND: return "file not found";
+		case CAIRO_STATUS_INVALID_DASH: return "invalid value for a dash setting";
+		case CAIRO_STATUS_INVALID_DSC_COMMENT: return "invalid value for a DSC comment";
+		case CAIRO_STATUS_INVALID_INDEX: return "invalid index passed to getter";
+		case CAIRO_STATUS_CLIP_NOT_REPRESENTABLE: return "clip region not representable in desired format";
+		case CAIRO_STATUS_TEMP_FILE_ERROR: return "error creating or writing to a temporary file";
+		case CAIRO_STATUS_INVALID_STRIDE: return "invalid value for stride";
+		case CAIRO_STATUS_FONT_TYPE_MISMATCH: return "the font type is not appropriate for the operation";
+		case CAIRO_STATUS_USER_FONT_IMMUTABLE: return "the user-font is immutable";
+		case CAIRO_STATUS_USER_FONT_ERROR: return "error occurred in a user-font callback function";
+		case CAIRO_STATUS_NEGATIVE_COUNT: return "negative number used where it is not allowed";
+		case CAIRO_STATUS_INVALID_CLUSTERS: return "input clusters do not represent the accompanying text and glyph arrays";
+		case CAIRO_STATUS_INVALID_SLANT: return "invalid value for an input cairo_font_slant_t";
+		case CAIRO_STATUS_INVALID_WEIGHT: return "invalid value for an input cairo_font_weight_t";
+		case CAIRO_STATUS_INVALID_SIZE: return "invalid value (typically too big) for the size of the input (surface, pattern, etc.)";
+		case CAIRO_STATUS_USER_FONT_NOT_IMPLEMENTED: return "user-font method not implemented";
+		case CAIRO_STATUS_DEVICE_TYPE_MISMATCH: return "the device type is not appropriate for the operation";
+		case CAIRO_STATUS_DEVICE_ERROR: return "an operation to the device caused an unspecified error";
+		case CAIRO_STATUS_INVALID_MESH_CONSTRUCTION: return "invalid operation during mesh pattern construction";
+		case CAIRO_STATUS_DEVICE_FINISHED: return "the target device has been finished";
+		case CAIRO_STATUS_JBIG2_GLOBAL_MISSING: return "CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID used but no CAIRO_MIME_TYPE_JBIG2_GLOBAL data provided";
+		case CAIRO_STATUS_PNG_ERROR: return "error occurred in libpng while reading from or writing to a PNG file";
+		case CAIRO_STATUS_FREETYPE_ERROR: return "error occurred in libfreetype";
+		case CAIRO_STATUS_WIN32_GDI_ERROR: return "error occurred in the Windows Graphics Device Interface";
+		case CAIRO_STATUS_TAG_ERROR: return "invalid tag name, attributes, or nesting";
 		default:
-		case CAIRO_STATUS_LAST_STATUS:
-		    return "<unknown error status>";
+		case CAIRO_STATUS_LAST_STATUS: return "<unknown error status>";
 	}
 }
 
@@ -197,11 +153,9 @@ const char * cairo_status_to_string(cairo_status_t status)
  *
  * Since: 1.8
  **/
-cairo_glyph_t * cairo_glyph_allocate(int num_glyphs)
+cairo_glyph_t * FASTCALL cairo_glyph_allocate(int num_glyphs)
 {
-	if(num_glyphs <= 0)
-		return NULL;
-	return static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t)));
+	return (num_glyphs > 0) ? static_cast<cairo_glyph_t *>(_cairo_malloc_ab(num_glyphs, sizeof(cairo_glyph_t))) : 0;
 }
 
 slim_hidden_def(cairo_glyph_allocate);
@@ -219,7 +173,7 @@ slim_hidden_def(cairo_glyph_allocate);
  *
  * Since: 1.8
  **/
-void cairo_glyph_free(cairo_glyph_t * glyphs)
+void FASTCALL cairo_glyph_free(cairo_glyph_t * glyphs)
 {
 	SAlloc::F(glyphs);
 }
@@ -295,26 +249,18 @@ slim_hidden_def(cairo_text_cluster_free);
  * The error is either invalid UTF-8 input,
  * or bad cluster mapping.
  **/
-cairo_status_t _cairo_validate_text_clusters(const char * utf8,
-    int utf8_len,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_text_cluster_t * clusters,
-    int num_clusters,
-    cairo_text_cluster_flags_t cluster_flags)
+cairo_status_t _cairo_validate_text_clusters(const char * utf8, int utf8_len, const cairo_glyph_t * glyphs, int num_glyphs,
+    const cairo_text_cluster_t * clusters, int num_clusters, cairo_text_cluster_flags_t cluster_flags)
 {
 	cairo_status_t status;
 	uint n_bytes  = 0;
 	uint n_glyphs = 0;
 	int i;
-
 	for(i = 0; i < num_clusters; i++) {
 		int cluster_bytes  = clusters[i].num_bytes;
 		int cluster_glyphs = clusters[i].num_glyphs;
-
 		if(cluster_bytes < 0 || cluster_glyphs < 0)
 			goto BAD;
-
 		/* A cluster should cover at least one character or glyph.
 		 * I can't see any use for a 0,0 cluster.
 		 * I can't see an immediate use for a zero-text cluster
@@ -333,16 +279,13 @@ cairo_status_t _cairo_validate_text_clusters(const char * utf8,
 		status = _cairo_utf8_to_ucs4(utf8+n_bytes, cluster_bytes, NULL, NULL);
 		if(unlikely(status))
 			return _cairo_error(CAIRO_STATUS_INVALID_CLUSTERS);
-
 		n_bytes  += cluster_bytes;
 		n_glyphs += cluster_glyphs;
 	}
-
 	if(n_bytes != (uint)utf8_len || n_glyphs != (uint)num_glyphs) {
 BAD:
 		return _cairo_error(CAIRO_STATUS_INVALID_CLUSTERS);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -928,45 +871,35 @@ cairo_status_t _cairo_fopen(const char * filename, const char * mode, FILE ** fi
  */
 FILE * _cairo_win32_tmpfile(void)
 {
-	DWORD path_len;
 	WCHAR path_name[MAX_PATH + 1];
 	WCHAR file_name[MAX_PATH + 1];
 	HANDLE handle;
-	int fd;
-	FILE * fp;
-
-	path_len = GetTempPathW(MAX_PATH, path_name);
+	DWORD path_len = GetTempPathW(MAX_PATH, path_name);
 	if(path_len <= 0 || path_len >= MAX_PATH)
 		return NULL;
-
 	if(GetTempFileNameW(path_name, L"ps_", 0, file_name) == 0)
 		return NULL;
-
-	handle = CreateFileW(file_name,
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		NULL,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
-		NULL);
+	handle = CreateFileW(file_name, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE, NULL);
 	if(handle == INVALID_HANDLE_VALUE) {
 		DeleteFileW(file_name);
 		return NULL;
 	}
-
-	fd = _open_osfhandle((intptr_t)handle, 0);
-	if(fd < 0) {
-		CloseHandle(handle);
-		return NULL;
+	else {
+		int fd = _open_osfhandle((intptr_t)handle, 0);
+		if(fd < 0) {
+			CloseHandle(handle);
+			return NULL;
+		}
+		else {
+			FILE * fp = fdopen(fd, "w+b");
+			if(!fp) {
+				_close(fd);
+				return NULL;
+			}
+			else
+				return fp;
+		}
 	}
-
-	fp = fdopen(fd, "w+b");
-	if(fp == NULL) {
-		_close(fd);
-		return NULL;
-	}
-
-	return fp;
 }
 
 #endif /* !_WIN32_WCE */

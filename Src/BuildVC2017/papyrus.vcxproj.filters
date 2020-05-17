@@ -22,7 +22,6 @@
     <ClCompile Include="..\PPEquip\Objscale.cpp" />
     <ClCompile Include="..\PPEquip\Palm.cpp" />
     <ClCompile Include="..\PPEquip\palmexch.cpp" />
-    <ClCompile Include="..\PPEquip\Petrovi.cpp" />
     <ClCompile Include="..\PPEquip\SetStart.cpp" />
     <ClCompile Include="..\PPEquip\Shtrihfr.cpp" />
     <ClCompile Include="..\PPEquip\Shtrihmf.cpp" />
@@ -229,7 +228,6 @@
     <ClCompile Include="..\PPLib\TAGCORE.CPP" />
     <ClCompile Include="..\PPLib\tddo.cpp" />
     <ClCompile Include="..\PPLib\tech.cpp" />
-    <ClCompile Include="..\PPLib\tempassc.cpp" />
     <ClCompile Include="..\PPLib\textbrw.cpp" />
     <ClCompile Include="..\PPLib\transfer.cpp" />
     <ClCompile Include="..\PPLib\Trfridlg.cpp" />
@@ -1647,7 +1645,9 @@
     <Image Include="..\Rsrc\Bitmap\Tbbutton\wroffdraft.bmp">
       <Filter>Resource\BMP</Filter>
     </Image>
-    <Image Include="..\rsrc\ico\phone.ico" />
+    <Image Include="..\rsrc\ico\phone.ico">
+      <Filter>Resource\ICO</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Rsrc\Dl600\ppifc.tlb" />

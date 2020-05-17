@@ -733,10 +733,7 @@ slim_hidden_def(cairo_region_xor_rectangle);
  **/
 boolint cairo_region_is_empty(const cairo_region_t * region)
 {
-	if(region->status)
-		return TRUE;
-
-	return !pixman_region32_not_empty(CONST_CAST &region->rgn);
+	return region->status ? TRUE : (!pixman_region32_not_empty(/*CONST_CAST*/&region->rgn));
 }
 
 slim_hidden_def(cairo_region_is_empty);
@@ -751,13 +748,10 @@ slim_hidden_def(cairo_region_is_empty);
  *
  * Since: 1.10
  **/
-void cairo_region_translate(cairo_region_t * region,
-    int dx, int dy)
+void cairo_region_translate(cairo_region_t * region, int dx, int dy)
 {
-	if(region->status)
-		return;
-
-	pixman_region32_translate(&region->rgn, dx, dy);
+	if(region->status == 0)
+		pixman_region32_translate(&region->rgn, dx, dy);
 }
 
 slim_hidden_def(cairo_region_translate);

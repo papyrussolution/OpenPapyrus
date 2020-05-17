@@ -4412,7 +4412,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					memo_base.Transf(CTRANSF_UTF8_TO_INNER);
                 else if(SXml::GetContentByName(p_h, "Note", memo_note)) {
                 	memo_note.Transf(CTRANSF_UTF8_TO_INNER);
-                	if(memo_note.CmpPrefix(P_IntrExpndNotePrefix, 1) == 0) {
+                	if(memo_note.HasPrefixNC(P_IntrExpndNotePrefix)) {
 						(temp_buf = memo_note).ShiftLeft(sstrlen(P_IntrExpndNotePrefix)).Strip().ShiftLeftChr('=').Strip();
 						intr_expend_bill_id = temp_buf.ToLong();
 						SETIFZ(intr_expend_bill_id, -1);
@@ -6898,7 +6898,7 @@ int SLAPI PPEgaisProcessor::CollectRefs()
 		SDirEntry de;
 		for(SDirec direc(temp_buf, 1); direc.Next(&de) > 0;) {
 			temp_buf = de.FileName;
-			if(temp_buf.Len() == 18 && temp_buf.CmpPrefix("EGAIS-", 1) == 0) {
+			if(temp_buf.Len() == 18 && temp_buf.HasPrefixIAscii("EGAIS-")) {
 				(temp_buf = temp_path).SetLastSlash().Cat(de.FileName);
 				ss_egais_paths.add(temp_buf);
 			}

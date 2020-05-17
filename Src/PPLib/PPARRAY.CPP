@@ -251,6 +251,14 @@ int SLAPI PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 //
 //
 //
+SLAPI ObjRestrictItem::ObjRestrictItem() : ObjID(0), Flags(0)
+{
+}
+
+SLAPI ObjRestrictItem::ObjRestrictItem(PPID objID, long flags) : ObjID(objID), Flags(flags)
+{
+}
+
 SLAPI ObjRestrictArray::ObjRestrictArray() : /*TSArray*/TSVector <ObjRestrictItem> ()
 {
 }
@@ -301,9 +309,7 @@ int SLAPI ObjRestrictArray::Merge(const ObjRestrictArray * pS, long options)
 
 int SLAPI ObjRestrictArray::Add(PPID objID, long flags, uint * pPos)
 {
-	ObjRestrictItem item;
-	item.ObjID = objID;
-	item.Flags = flags;
+	ObjRestrictItem item(objID, flags);
 	if(insert(&item)) {
 		ASSIGN_PTR(pPos, getCount()-1);
 		return 1;

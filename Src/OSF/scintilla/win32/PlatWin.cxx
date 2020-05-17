@@ -2528,7 +2528,7 @@ POINT ListBoxX::MinTrackSize() const
 POINT ListBoxX::MaxTrackSize() const
 {
 	PRectangle rc = PRectangle::FromInts(0, 0, smax(MinClientWidth(),
-		maxCharWidth * maxItemCharacters + static_cast<int>(TextInset.x) * 2 + TextOffset() + ::GetSystemMetrics(SM_CXVSCROLL)),
+		static_cast<int>(maxCharWidth * maxItemCharacters) + static_cast<int>(TextInset.x) * 2 + TextOffset() + ::GetSystemMetrics(SM_CXVSCROLL)),
 	    ItemHeight() * lti.Count());
 	AdjustWindowRect(&rc);
 	POINT ret = {static_cast<LONG>(rc.Width()), static_cast<LONG>(rc.Height())};
@@ -3151,21 +3151,8 @@ int Platform::DBCSCharMaxLength()
 
 // These are utility functions not really tied to a platform
 /* @sobolev (replaced with smin and smax respectively)
-int Platform::Minimum(int a, int b)
-{
-	if(a < b)
-		return a;
-	else
-		return b;
-}
-
-int Platform::Maximum(int a, int b)
-{
-	if(a > b)
-		return a;
-	else
-		return b;
-}
+int Platform::Minimum(int a, int b) { return (a < b) ? a : b; }
+int Platform::Maximum(int a, int b) { return (a > b) ? a : b; }
 */
 //#define TRACE
 
@@ -3220,14 +3207,14 @@ void Platform::Assert(const char * c, const char * file, int line)
 	}
 }
 
-int Platform::Clamp(int val, int minVal, int maxVal)
+/* @sobolev @20200511 int Platform::Clamp(int val, int minVal, int maxVal)
 {
 	if(val > maxVal)
 		val = maxVal;
 	if(val < minVal)
 		val = minVal;
 	return val;
-}
+}*/
 
 void Platform_Initialise(void * hInstance)
 {
@@ -3235,21 +3222,14 @@ void Platform_Initialise(void * hInstance)
 	hinstPlatformRes = static_cast<HINSTANCE>(hInstance);
 	// This may be called from DllMain, in which case the call to LoadLibrary
 	// is bad because it can upset the DLL load order.
-	if(!hDLLImage) {
-		hDLLImage = ::LoadLibrary(TEXT("Msimg32"));
+	if(SETIFZ(hDLLImage, ::LoadLibrary(TEXT("Msimg32")))) {
+		AlphaBlendFn = reinterpret_cast<AlphaBlendSig>(::GetProcAddress(hDLLImage, "AlphaBlend"));
 	}
-	if(hDLLImage) {
-		AlphaBlendFn = (AlphaBlendSig) ::GetProcAddress(hDLLImage, "AlphaBlend");
+	if(SETIFZ(hDLLUser32, ::LoadLibrary(TEXT("User32")))) {
+		MonitorFromPointFn = reinterpret_cast<MonitorFromPointSig>(::GetProcAddress(hDLLUser32, "MonitorFromPoint"));
+		MonitorFromRectFn = reinterpret_cast<MonitorFromRectSig>(::GetProcAddress(hDLLUser32, "MonitorFromRect"));
+		GetMonitorInfoFn = reinterpret_cast<GetMonitorInfoSig>(::GetProcAddress(hDLLUser32, "GetMonitorInfoA"));
 	}
-	if(!hDLLUser32) {
-		hDLLUser32 = ::LoadLibrary(TEXT("User32"));
-	}
-	if(hDLLUser32) {
-		MonitorFromPointFn = (MonitorFromPointSig) ::GetProcAddress(hDLLUser32, "MonitorFromPoint");
-		MonitorFromRectFn = (MonitorFromRectSig) ::GetProcAddress(hDLLUser32, "MonitorFromRect");
-		GetMonitorInfoFn = (GetMonitorInfoSig) ::GetProcAddress(hDLLUser32, "GetMonitorInfoA");
-	}
-
 	ListBoxX_Register();
 }
 

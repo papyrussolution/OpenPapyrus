@@ -92,27 +92,29 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
-	if(cpio == NULL) {
+	cpio = static_cast<struct cpio *>(SAlloc::C(1, sizeof(*cpio)));
+	if(!cpio) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
 		return ARCHIVE_FATAL;
 	}
-	a->format_data = cpio;
-	a->format_name = "cpio";
-	a->format_options = archive_write_newc_options;
-	a->format_write_header = archive_write_newc_header;
-	a->format_write_data = archive_write_newc_data;
-	a->format_finish_entry = archive_write_newc_finish_entry;
-	a->format_close = archive_write_newc_close;
-	a->format_free = archive_write_newc_free;
-	a->archive.archive_format = ARCHIVE_FORMAT_CPIO_SVR4_NOCRC;
-	a->archive.archive_format_name = "SVR4 cpio nocrc";
-	return ARCHIVE_OK;
+	else {
+		a->format_data = cpio;
+		a->format_name = "cpio";
+		a->format_options = archive_write_newc_options;
+		a->format_write_header = archive_write_newc_header;
+		a->format_write_data = archive_write_newc_data;
+		a->format_finish_entry = archive_write_newc_finish_entry;
+		a->format_close = archive_write_newc_close;
+		a->format_free = archive_write_newc_free;
+		a->archive.archive_format = ARCHIVE_FORMAT_CPIO_SVR4_NOCRC;
+		a->archive.archive_format_name = "SVR4 cpio nocrc";
+		return ARCHIVE_OK;
+	}
 }
 
 static int archive_write_newc_options(struct archive_write * a, const char * key, const char * val)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	int ret = ARCHIVE_FAILED;
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
@@ -135,7 +137,7 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 static struct archive_string_conv * get_sconv(struct archive_write * a)                                     
 {
 	struct archive_string_conv * sconv;
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
@@ -180,12 +182,11 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	struct archive_entry * entry_main;
 	size_t len;
 	int pad;
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	ret_final = ARCHIVE_OK;
 	sconv = get_sconv(a);
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	/* Make sure the path separators in pathname, hardlink and symlink
-	 * are all slash '/', not the Windows path separator '\'. */
+	// Make sure the path separators in pathname, hardlink and symlink are all slash '/', not the Windows path separator '\'. 
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
@@ -311,7 +312,7 @@ exit_write_header:
 static ssize_t archive_write_newc_data(struct archive_write * a, const void * buff, size_t s)
 {
 	int ret;
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	if(s > cpio->entry_bytes_remaining)
 		s = (size_t)cpio->entry_bytes_remaining;
 	ret = __archive_write_output(a, buff, s);
@@ -366,7 +367,7 @@ static int archive_write_newc_close(struct archive_write * a)
 
 static int archive_write_newc_free(struct archive_write * a)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	SAlloc::F(cpio);
 	a->format_data = NULL;
 	return ARCHIVE_OK;
@@ -374,6 +375,6 @@ static int archive_write_newc_free(struct archive_write * a)
 
 static int archive_write_newc_finish_entry(struct archive_write * a)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	return (__archive_write_nulls(a, (size_t)cpio->entry_bytes_remaining + cpio->padding));
 }

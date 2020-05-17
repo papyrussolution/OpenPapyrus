@@ -163,10 +163,7 @@ static int xmlXPathCmpNodesExt(xmlNode * node1, xmlNode * node2)
 				    }
 				    if(node1->prev == NULL) {
 					    precedence1 = 2; /* element is parent */
-					    /*
-					 * URGENT TODO: Are there any cases, where the
-					 * parent of such a node is not an element node?
-					     */
+					    // URGENT TODO: Are there any cases, where the parent of such a node is not an element node? 
 					    node1 = node1->P_ParentNode;
 					    break;
 				    }

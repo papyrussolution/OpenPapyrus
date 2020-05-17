@@ -484,7 +484,7 @@ int GoodsValRestrDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ObjRestrictItem item;
-	MEMSZERO(item);
+	// @v10.7.8 @ctr MEMSZERO(item);
 	while(ok < 0 && EditItem(item) > 0) {
 		if(!Data.SetBillArRestr(item.ObjID, item.Flags)) {
 			PPError();

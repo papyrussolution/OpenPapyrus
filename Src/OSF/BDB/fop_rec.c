@@ -53,18 +53,14 @@ int __fop_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 	DBMETA * meta;
 	uint8 mbuf[DBMETASIZE];
 	int ret;
-	char * real_name;
+	char * real_name = 0;
 	const char * dirname;
 	COMPQUIET(info, 0);
-	real_name = NULL;
 	REC_PRINT(__fop_create_print);
 	REC_NOOP_INTRO(__fop_create_read);
 	meta = reinterpret_cast<DBMETA *>(mbuf);
-	if(argp->dirname.size == 0)
-		dirname = NULL;
-	else
-		dirname = (const char *)argp->dirname.data;
-	if((ret = __db_appname(env, (APPNAME)argp->appname == DB_APP_DATA ? DB_APP_RECOVER : (APPNAME)argp->appname, (const char *)argp->name.data, &dirname, &real_name)) != 0)
+	dirname = (argp->dirname.size == 0) ? NULL : (const char *)argp->dirname.data;
+	if((ret = __db_appname(env, (APPNAME)argp->appname == DB_APP_DATA ? DB_APP_RECOVER : (APPNAME)argp->appname, PTRCHRC(argp->name.data), &dirname, &real_name)) != 0)
 		goto out;
 	if(DB_UNDO(op)) {
 		/*
@@ -111,13 +107,12 @@ int __fop_create_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 	DBMETA * meta;
 	uint8 mbuf[DBMETASIZE];
 	int ret;
-	char * real_name;
+	char * real_name = 0;
 	COMPQUIET(info, 0);
-	real_name = NULL;
 	REC_PRINT(__fop_create_print);
 	REC_NOOP_INTRO(__fop_create_read);
 	meta = reinterpret_cast<DBMETA *>(mbuf);
-	if((ret = __db_appname(env, (APPNAME)argp->appname, (const char *)argp->name.data, NULL, &real_name)) != 0)
+	if((ret = __db_appname(env, (APPNAME)argp->appname, PTRCHRC(argp->name.data), NULL, &real_name)) != 0)
 		goto out;
 	if(DB_UNDO(op)) {
 		/*
@@ -160,12 +155,11 @@ int __fop_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 {
 	__fop_remove_args * argp;
 	int ret;
-	char * real_name;
+	char * real_name = 0;
 	COMPQUIET(info, 0);
-	real_name = NULL;
 	REC_PRINT(__fop_remove_print);
 	REC_NOOP_INTRO(__fop_remove_read);
-	if((ret = __db_appname(env, (APPNAME)argp->appname, (const char *)argp->name.data, NULL, &real_name)) != 0)
+	if((ret = __db_appname(env, (APPNAME)argp->appname, PTRCHRC(argp->name.data), NULL, &real_name)) != 0)
 		goto out;
 	/* Its ok if the file is not there. */
 	if(DB_REDO(op))
@@ -193,7 +187,7 @@ int __fop_write_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 	if(DB_UNDO(op))
 		DB_ASSERT(env, argp->flag != 0);
 	else if(DB_REDO(op))
-		ret = __fop_write(env, argp->txnp, (const char *)argp->name.data,
+		ret = __fop_write(env, argp->txnp, PTRCHRC(argp->name.data),
 			(argp->dirname.size == 0) ? NULL : (const char *)argp->dirname.data,
 			(APPNAME)argp->appname == DB_APP_DATA ? DB_APP_RECOVER : (APPNAME)argp->appname,
 			NULL, argp->pgsize, argp->pageno, argp->offset, argp->page.data, argp->page.size, argp->flag, 0);
@@ -219,7 +213,7 @@ int __fop_write_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, v
 	if(DB_UNDO(op))
 		DB_ASSERT(env, argp->flag != 0);
 	else if(DB_REDO(op))
-		ret = __fop_write(env, argp->txnp, (const char *)argp->name.data, NULL, (APPNAME)argp->appname,
+		ret = __fop_write(env, argp->txnp, PTRCHRC(argp->name.data), NULL, (APPNAME)argp->appname,
 			NULL, argp->pgsize, argp->pageno, argp->offset, argp->page.data, argp->page.size, argp->flag, 0);
 	if(!ret)
 		*lsnp = argp->prev_lsn;
@@ -438,26 +432,21 @@ out:
 int __fop_file_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * info)
 {
 	__fop_file_remove_args * argp;
-	DBMETA * meta;
-	DB_FH * fhp;
+	DB_FH * fhp = 0;
 	size_t len;
 	uint8 mbuf[DBMETASIZE];
 	uint32 cstat, ret_stat;
-	int is_real, is_tmp, ret;
-	char * real_name;
-	fhp = NULL;
-	meta = reinterpret_cast<DBMETA *>(&mbuf[0]);
-	is_real = is_tmp = 0;
-	real_name = NULL;
+	int is_real = 0;
+	int is_tmp = 0;
+	int ret;
+	char * real_name = 0;
+	DBMETA * meta = reinterpret_cast<DBMETA *>(&mbuf[0]);
 	REC_PRINT(__fop_file_remove_print);
 	REC_NOOP_INTRO(__fop_file_remove_read);
-	/*
-	 * This record is only interesting on the backward, forward, and
-	 * apply phases.
-	 */
+	// This record is only interesting on the backward, forward, and apply phases.
 	if(op != DB_TXN_BACKWARD_ROLL && op != DB_TXN_FORWARD_ROLL && op != DB_TXN_APPLY)
 		goto done;
-	if((ret = __db_appname(env, (APPNAME)argp->appname, (const char *)argp->name.data, NULL, &real_name)) != 0)
+	if((ret = __db_appname(env, (APPNAME)argp->appname, PTRCHRC(argp->name.data), NULL, &real_name)) != 0)
 		goto out;
 	/* Verify that we are manipulating the correct file.  */
 	len = 0;

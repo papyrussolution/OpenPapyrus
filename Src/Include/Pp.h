@@ -2,7 +2,7 @@
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
-// Спасибо за проделанную работу:
+// Спасибо за проделанную работу (Thanks for the work you've done):
 //   Насонову Вадиму (VADIM)
 //   Стародубу Антону (AHTOXA)
 //   Казакову Михаилу (Muxa)
@@ -410,6 +410,7 @@ class  PPAdviseEventVector;
 struct PPNotifyEvent;
 struct CCheckItem;
 struct TimeSeries_OptEntryList_Graph_Param;
+class  UhttTagItem;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -1857,6 +1858,8 @@ private:
 // @todo DATE:12/06/2004 Объединить с LAssocArray
 //
 struct ObjRestrictItem { // @flat
+	SLAPI  ObjRestrictItem();
+	SLAPI  ObjRestrictItem(PPID objID, long flags);
 	PPID   ObjID;
 	long   Flags;
 };
@@ -2593,7 +2596,7 @@ enum SubstGrpGoods { // @persistent
 	sggVatRate,            // Ставка НДС в ценах реализации
 	sggCVatRate,           // Ставка НДС в ценах поступления
 	sggAlcoCategory,       // Категория алкогольной продукции по классификации РосАлкогольРегулирования
-		// Доступно только в случае, если правильно определенаконфигруация алкогольной декларации
+		// Доступно только в случае, если правильно определена конфигруация алкогольной декларации
 	sggDimW,               // Размерность W
 	sggLocAssoc,           // Ассоциированное с товаром место хранения //
 	sggType,               // @v9.6.0 Тип товара
@@ -2633,8 +2636,7 @@ enum SubstGrpPerson {
 		// 10001 начиная с этого значения, типы отношений персоналий
 		// Строки соотвествующие типам отношений не указаны в PPTXT_SUBSTPERSONLIST
 		// и заносятся в строки для combobox'а динамически
-	sgpArticleMask   = 0x8000000 // Маска, индицирующая то, что идентификатор для подстановки
-		// является статьей, а не персоналией.
+	sgpArticleMask   = 0x8000000 // Маска, индицирующая то, что идентификатор для подстановки является статьей, а не персоналией.
 };
 
 #define IS_SGG_CLSSUBST(x) oneof10(x, sggDimX, sggDimY, sggDimZ, sggDimW, sggClsKind, sggClsGrade,\
@@ -2675,7 +2677,7 @@ struct SubstGrpBill { // @size=8
 	} S2;
 };
 
-class BillSubstList {
+/* @v10.7.8 (@unused) class BillSubstList {
 public:
 	struct Item {
 		PPID   BillID;
@@ -2686,7 +2688,7 @@ public:
 private:
 	SArray List;
 	LAssocArray * P_AsscList;
-};
+};*/
 //
 // Descr: Внешнее представление 'лемента списка PPViewDisplayExtList
 //   Схема нумерации идентификаторов данных:
@@ -2940,6 +2942,7 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 #define CFGFLG_SEC_DSBLNSYSDATE        0x08000000L // Запрет на вход с операционной датой, отличной от системной
 #define CFGFLG_DONTPROCESSDATAONJOBSRV 0x10000000L // Не обрабатывать данные на Job сервере
 #define CFGFLG_FEFO                    0x20000000L // Модификация метода подбора партий по наиболее близкому сроку истечения годности лота
+#define CFGFLG_MULTICURBILL_DISABLE    0x40000000L // @v10.7.8 Допускается применять мультивалютность в документах (дифференцируется оп пользователям/группам)
 
 #define CFGST_INITIATE                 0x00000001L // Структура инициализирована
 #define CFGST_INHERITED                0x00000002L // Структура унаследована от предыдущего уровня //
@@ -5796,8 +5799,7 @@ public:
 	enum {
 		stConnected = 0x0001,
 		stLoggedIn  = 0x0002,
-		stLockExec  = 0x0004, // Сигнализирует от том, что Exec запущен. Необходим
-			// для предотвращения параллельного вызова по cmIdle
+		stLockExec  = 0x0004, // Сигнализирует от том, что Exec запущен. Необходим для предотвращения параллельного вызова по cmIdle
 		stDebugMode = 0x0008  // Клиент находится в отладочном режиме (вывод дополнительной информации в журнал)
 	};
 
@@ -5837,10 +5839,8 @@ private:
 	SString TempBuf; // @allocreuse
 	SString DebugLogFileName;
 	SBuffer Reply;
-	SCycleTimer SyncTimer; // Таймер, по котрому серверу
-		// отсылаются запросы на подтверждение соединения.
-	SMtLock ExecLock; // @v8.3.4 Блокировка для гарантированной сериализации
-		// обращений к серверу.
+	SCycleTimer SyncTimer; // Таймер, по котрому серверу отсылаются запросы на подтверждение соединения.
+	SMtLock ExecLock; // Блокировка для гарантированной сериализации обращений к серверу.
 	int    (*InformerCallbackProc)(const char * pMsg, void * pParam);
 	void * P_InformerCallbackParam;
 };
@@ -5927,6 +5927,10 @@ public:
 	int    SLAPI GetCommonMqsConfig(PPAlbatrossConfig & rCfg);
 	const SString & SLAPI GetLastMessage() const { return LastMsg; }
 	const SString & SLAPI GetUrlBase() const { return UrlBase; }
+	// 
+	// Descr: Utility
+	// 
+	UhttTagItem * SLAPI GetUhttTagText(PPID objType, PPID objID, PPID tagID, const char * pTagSymb);
 private:
 	FARPROC SLAPI GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess);
 	int    SLAPI StartTransferData(const char * pName, int64 totalRawSize, int32 chunkCount, int * pTransferID);
@@ -8434,20 +8438,6 @@ template <class ObjType, class ObjPackType> int SLAPI Implement_ObjReadPacket(Ob
 // Descr: Проверяет наличие прав для конфигурации cfgID.
 //
 int FASTCALL CheckCfgRights(PPID cfgID, ushort rt, int oprRights);
-//
-//
-//
-class TempAssoc {
-public:
-	static TempAssoc * SLAPI CreateInstance();
-	SLAPI  TempAssoc();
-	int    SLAPI IsValid() const;
-	int    SLAPI Add(PPID prmrID, PPID scndID);
-	int    SLAPI EnumPrmr(PPID * pPrmrID);
-	int    SLAPI GetList(PPID prmrID, PPIDArray *);
-private:
-	TempAssocTbl * P_Tbl;
-};
 //
 //
 //
@@ -15827,16 +15817,16 @@ void   SLAPI FormatSubstDateExt(SubstGrpDate sgd, LDATE dt, LTIME tm, SString & 
 struct PPCommObjEntry {
 	enum {
 		fPassive      = 0x0001,
-		fHierarchical = 0x0002  // @v8.2.3 Только для типов динамических объектов: записи допускают иерархию
+		fHierarchical = 0x0002  // Только для типов динамических объектов: записи допускают иерархию
 	};
-	PPCommObjEntry(PPID objType = 0, PPID id = 0, const char * pName = 0, const char * pSymb = 0, long flags = 0);
+	explicit PPCommObjEntry(PPID objType = 0, PPID id = 0, const char * pName = 0, const char * pSymb = 0, long flags = 0);
 
 	PPID   ObjType;
 	PPID   ID;
 	char   Name[48];
 	char   Symb[20];
-	long   Flags;
-	long   ParentID;
+	long   Flags;      // Проецируется на Reference2Tbl::Rec::Val1
+	long   ParentID;   // Проецируется на Reference2Tbl::Rec::Val2
 };
 //
 //
@@ -15970,7 +15960,7 @@ struct ObjTagFilt {
 
 class PPObjTag : public PPObjReference {
 public:
-	static int     SLAPI EditEnumListDialog(PPTagEnumList *);
+	// @v10.7.8 (unused) static int     SLAPI EditEnumListDialog(PPTagEnumList *);
 	static int     SLAPI CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt);
 	//
 	// Descr: Вспомогательная функция для извлечения тега объекта {objType; objID}
@@ -16636,7 +16626,7 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	};
 	uint16 BestSubsetDimention;
 	uint16 BestSubsetMaxPhonyIters;
-	uint8  BestSubsetOptChunk;      // 3 || 7 || 15
+	uint8  BestSubsetOptChunk;      // 1 || 3 || 7 || 15
 	uint8  MainFrameRangeCount;     // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
 	uint16 DefTargetQuant;          // @v10.4.2
 	uint16 OptRangeStep_;           // @v10.4.7
@@ -16856,11 +16846,12 @@ public:
 		uint   Opt2Stride; // @v10.4.7
 		double Result;
 	};
-	struct OptimalFactorRange_WithPositions : public OptimalFactorRange { // @persistent @flat
+	struct OptimalFactorRange_WithPositions : public OptimalFactorRange { // @transient @flat
 		OptimalFactorRange_WithPositions();
 		OptimalFactorRange_WithPositions & Z();
 		uint   LoPos;
 		uint   UpPos;
+		uint   GenSeq; // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
 	};
 	struct Strategy { // @flat @persistent // @v10.6.12 модифицирована структура; для обратной совместимости используется Ts_Strategy_Before10612
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant, double averageSpreadForAdjustment);
@@ -16897,7 +16888,7 @@ public:
 		uint16 PeakAvgQuant;
 		uint16 BottomAvgQuant;
 		uint16 PeakMaxQuant;
-		uint16 Reserve;          // @v10.6.12 @alignment
+		uint16 GenSeq;           // @v10.6.12 @alignment // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
 		uint32 BaseFlags;        // @flags
 		uint32 StakeCount;       // Количество ставок при тестировании
 		uint32 WinCount;         // Количество выигрышей в результате тестирования
@@ -16976,6 +16967,7 @@ public:
 			double Crit1;
 			double Crit2;
 			double Crit3;
+			uint   StakeCount;
 		};
 		//
 		// Descr: Флаги функции GetBestSubset
@@ -17229,10 +17221,10 @@ public:
 	SLAPI  TimSerDetailFilt();
 
 	uint8  ReserveStart[128]; // @anchor
-	long   Flags;
-	PPID   TsID;             // Идент временной серии
-	DateRange Period;        //
-	long   Reserve;          // @anchor
+	long   Flags;             // @flags    
+	PPID   TsID;              // Идент временной серии
+	DateRange Period;         //
+	long   Reserve;           // @anchor
 };
 
 class TimSerDetailViewItem {
@@ -17266,6 +17258,42 @@ private:
 	PPObjTimeSeries Obj;
 	STimeSeries Ts;
 };
+
+#if 0 // @construction {
+
+class TimSerStrategyContainerFilt : public PPBaseFilt {
+public:
+	SLAPI  TimSerStrategyContainerFilt();
+
+	uint8  ReserveStart[128]; // @anchor
+	long   Flags;
+	PPID   TsID;             // Идент временной серии
+	long   Reserve;          // @anchor
+};
+
+class PPViewTimSerStrategyContainer : public PPView {
+public:
+	SLAPI  PPViewTimSerStrategyContainer();
+	SLAPI ~PPViewTimSerStrategyContainer();
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(PPObjTimeSeries::Strategy *);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI MakeList(PPViewBrowser * pBrw);
+
+	SArray * P_DsList;
+	TimSerStrategyContainerFilt Filt;
+	PPObjTimeSeries::StrategyContainer Sc;
+	PPObjTimeSeries TsObj;
+};
+#endif // } 0 @construction
 //
 //
 //
@@ -17321,7 +17349,7 @@ public:
 		double InitMainTrendErrLimit;   // @v10.7.0
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
-		uint   BestSubsetOptChunk;      // 3 || 7 || 15
+		uint   BestSubsetOptChunk;      // 1 || 3 || 7 || 15
 		uint   OptRangeStep;            // @v10.4.7
 		uint   OptRangeStepMkPart;      // @v10.4.7
 		uint   OptRangeMultiLimit;      // @v10.4.7
@@ -17362,6 +17390,8 @@ private:
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    SLAPI FindStrategies(void * pBlk) const;
 	int    SLAPI FindStrategiesLoop(void * pBlk);
+	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
+	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	enum {
 		mavfDontSqrtErrList = 0x0001
 	};
@@ -20046,8 +20076,7 @@ struct PPAccount { // @persistent
 
 struct PPAccountPacket {
 	SLAPI  PPAccountPacket();
-	void   SLAPI  Init();
-	PPAccountPacket & FASTCALL operator = (const PPAccountPacket &);
+	PPAccountPacket & SLAPI Z();
 
 	PPAccount Rec;
 	PPIDArray CurList;
@@ -20480,6 +20509,7 @@ struct SlipLineParam {
 	SString ChZnCode;     // @v10.6.8 Маркировка товара маркой честный знак
 	SString ChZnGTIN;     // @v10.7.2
 	SString ChZnSerial;   // @v10.7.2
+	SString ChZnPartN;    // @v10.7.8 Номер партии в марке честный знак
 };
 
 struct SlipDocCommonParam {
@@ -26454,7 +26484,8 @@ struct PersonEventFilt : public PPBaseFilt {
 };
 
 struct PersonEventViewItem : public PersonEventTbl::Rec {
-	void   Clear();
+	SLAPI  PersonEventViewItem();
+	PersonEventViewItem & Z();
 	SString GrpText1;
 	SString GrpText2;
 	SString AvgEvTime;
@@ -27166,6 +27197,7 @@ private:
 // @ModuleDecl(PPViewLogsMonitor)
 //
 struct LogFileEntry {
+	SLAPI  LogFileEntry();
 	PPID   ID;
 	char   LogName[128];
 	char   FileName[32];
@@ -29843,7 +29875,7 @@ private:
 	int    SLAPI IsTempTblNeeded(); // not const function
 	void   SLAPI MakeTempRec(const Goods2Tbl::Rec *, TempOrderTbl::Rec *);
 	int    SLAPI InitGroupNamesList();
-	int    SLAPI RemoveTempAltGroup();
+	void   SLAPI RemoveTempAltGroup();
 	int    SLAPI NextInnerIteration(int initList, GoodsViewItem *);
 
 	struct GoodsMoveParam {
@@ -38497,7 +38529,7 @@ public:
 			fRemoveContinueMode = 0x0002, // При запуске снять режим продолжения прерванного процесса
 			fTestUpdatedItems   = 0x0004, // Тестировать только те товары, которые входят в измененные и созданные
 				// за период this->Period документы.
-			fUsePPViewGoodsRest = 0x0008  // @v8.0.10 Для расчета начальных остатков использовать PPViewGoodsRest
+			fUsePPViewGoodsRest = 0x0008  // Для расчета начальных остатков использовать PPViewGoodsRest
 				// (вместо расчета для каждого отдельного товара)
 		};
 		//
@@ -38902,10 +38934,10 @@ public:
 		fCrosstab               = 0x02000000, // Кросстаб, если включена опция fEachLocation
 		fShowGoodsMatrixBelongs = 0x04000000, // Отображать принадлежность товарной матрице
 		fCalcUncompleteSess     = 0x08000000,    // Рассчитывать с учетом незавершенных сессий
-		fZeroSupplAgent         = 0x10000000,    // @v7.5.11 Только с нулевым агентом поставщика
-		fCalcCVat               = 0x20000000,    // @v8.3.4 Рассчитывать валовую сумму НДС в ценах поступления //
-		fCalcPVat               = 0x40000000,    // @v8.3.4 Рассчитывать валовую сумму НДС в ценах реализации //
-		fForceNullRest          = 0x80000000     // @v8.6.6 Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
+		fZeroSupplAgent         = 0x10000000,    // Только с нулевым агентом поставщика
+		fCalcCVat               = 0x20000000,    // Рассчитывать валовую сумму НДС в ценах поступления //
+		fCalcPVat               = 0x40000000,    // Рассчитывать валовую сумму НДС в ценах реализации //
+		fForceNullRest          = 0x80000000     // Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
 	};
 	//
 	// Descr: Значения флагов, хранящихся в поле Flags2
@@ -39860,7 +39892,7 @@ struct DebtTrnovrViewItem { // @transient
 	PPID   ObjType;        // Тип объекта, которым представляется поле ID_
 	long   Ar;             //
 	PPID   PersonID;       //
-	char   ArName[128];    // @v7.1.1 [80]-->[128]
+	char   ArName[128];    // 
 	PPID   BillID;         //
 	PPID   CurID;          //
 	long   TabID;          //
@@ -41400,8 +41432,7 @@ class CSessExcFilt : public PPBaseFilt {
 public:
 	enum {
 		fNoZeroAltGoods = 0x0001 // Если этот флаг установлен то выбираются все       //
-			// строки, содержащие альтернативный товар, при этом игнорируется наличия //
-			// излишков по этим строкам.                                              //
+			// строки, содержащие альтернативный товар, при этом игнорируется наличия излишков по этим строкам. //
 	};
 	SLAPI  CSessExcFilt();
 
@@ -41482,7 +41513,7 @@ public:
 		gCashiersNGoods,  // Группировать по кассирам и товарам
 		gDlvrAddr,        // Группировать по адресу доставки
 		gGoodsSCSer,      // Группировка по товару и серии карт
-		gAmountNGoods,    // @v8.4.8
+		gAmountNGoods,    // 
 		gAgentGoodsSCSer, // @v9.6.6 Группировать по агентам, товарам и сериям карт
 		gGoodsDateSerial, // @v10.2.6 Группировать по товару/дате/серийному номеру
 		gGoodsCard        // @erik v10.5.2 Группировка по товару и картам
@@ -41733,8 +41764,8 @@ private:
 	enum {
 		stHasExt        = 0x0001,
 		stUseGoodsList  = 0x0002,
-		stIterLines     = 0x0004, // @v8.3.7
-		stOuterCc       = 0x0008, // @v8.6.12
+		stIterLines     = 0x0004, // 
+		stOuterCc       = 0x0008, // 
 		stSkipUnprinted = 0x0010  // @v9.7.11 Если в фильтре заданы конкретные кассовые узлы
 			// и все они имеют установленный флаг CASHF_SKIPUNPRINTEDCHECKS, то чеки, не имеющие
 			// флага CCHKF_PRINTF считаются неучитываемым (как будто имеют флаг CCHKF_SKIP).
@@ -41982,12 +42013,12 @@ public:
 		// @v9.3.4 ravPrice        = 0x0010  // Суммовое значение показателя в терминах цен реализации
 	};
 
-	uint8  ReserveStart[4]; // @anchor // @v10.0.04 [12]-->[4]
-	DateRange DueDatePeriod; // @v10.0.04 Период даты исполнения документов
+	uint8  ReserveStart[4];   // @anchor // @v10.0.04 [12]-->[4]
+	DateRange DueDatePeriod;  // @v10.0.04 Период даты исполнения документов
 	long   ExtValueParam[2];  // @v9.3.4 Параметры, определяющие вычисление дополнительных показателей отчета
 	long   RestAddendumValue; // @v9.1.3 Параметр, определяющий варинат отображения значений, базирующихся на остатках
-	PPID   AcsID;        // @v8.4.1 Таблица статей для выбора контрагента (если не выбран вид операции)
-	PPID   SupplAgentID; // @v7.0.11 Агент поставщика
+	PPID   AcsID;             // Таблица статей для выбора контрагента (если не выбран вид операции)
+	PPID   SupplAgentID;      // Агент поставщика
 	DateRange Period;
 	DateRange LotsPeriod;
 	PPID   OpID;
@@ -42048,7 +42079,7 @@ struct TrfrAnlzViewItem {
 	double SaldoQtty;      // Товарное сальдо в торговых единицах (для отдельных опций фильтрации)
 	double SaldoAmt;       // Суммовое сальдо в номинальных ценах (для отдельных опций фильтрации)
 	double PVat;           // Сумма НДС в ценах реализации
-	double Brutto;         // @v8.7.7
+	double Brutto;         // 
 	double LinkQtty;       // @v9.6.8
 	double LinkCost;       // @v9.6.8
 	double LinkPrice;      // @v9.6.8
@@ -42068,7 +42099,7 @@ struct TrfrAnlzTotal {
 		stProblemBrutto = 0x0002  // Масса брутто определена не для всех товаров
 	};
 	long   Count;          // Количество строк
-	long   State;	       // @v8.7.7 Флаги, индицирующие особенности в расчете итогов
+	long   State;	       // Флаги, индицирующие особенности в расчете итогов
 	double Qtty;           // Количество торговых единиц
 	double PhQtty;         // Количество физических единиц
 	double Cost;           // Сумма в ценах поступления //
@@ -42078,7 +42109,7 @@ struct TrfrAnlzTotal {
 	double SaldoQtty;      // Суммарное сальдо в торговых единицах
 	double SaldoAmt;       // Суммарное сальдо в номинальных ценах
 	double PVat;           // Сумма НДС в ценах реализации
-	double Brutto;         // @v8.7.7 Масса брутто товарных позиций в отчете
+	double Brutto;         // Масса брутто товарных позиций в отчете
 	double ExtValue[2];    // @v9.7.5 Дополнительные показатели, определяемые специальными опциями фильтра
 };
 
@@ -42345,8 +42376,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		fBadSellingGoods     = 0x00004000, // Плохо продающиеся товары
 		fComparePctDiff      = 0x00008000, // При расчете сравнения разницу показывать в %
 		fBillListAsTradePlan = 0x00010000, // @internal Список документов трактуется как набор документов планов продаж
-		fTradePlanObjAsSuppl = 0x00020000, // @internal Интерпретировать контрагента документов плана продаж
-			// как поставщика (план продаж по поставщикам)
+		fTradePlanObjAsSuppl = 0x00020000, // @internal Интерпретировать контрагента документов плана продаж как поставщика (план продаж по поставщикам)
 		fTradePlanGoodsOnly  = 0x00040000, // Показывать только те позиции, которые есть в торговом плане
 		fAddNzRestItems      = 0x00080000, // Дополнить отчет позициями, которые есть на остатке (при наличии флага fCalcRest)
 		fCrosstab            = 0x00100000, // Кросстаб
@@ -42379,7 +42409,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 	};
 
 	char   ReserveStart[8];    // @anchor @v8.1.12 [12]-->[8]
-	PPID   FreightAgentID;     // @v8.1.12 ->Person.ID Транспортный брокер
+	PPID   FreightAgentID;     // ->Person.ID Транспортный брокер
 	SubstGrpBill Sgb;          // Подстановка документа.
 		// Если !!Sgb то отчет строится не в разрезе товаров (или их подстановок), а в разрезе подстановочного
 		// атрибута документов.
@@ -42400,7 +42430,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 	PPID   AgentID;            // ->Article.ID Агент по документам
 	PPID   SupplAgentID;       // ->Article.ID Агент поставщика
 	PPID   GoodsGrpID;         // ->Goods2.ID  Товарная группа. Если GoodsIdList.IsExists(), то GoodsGrpID не используется //
-	long   Flags;              // Флаги
+	long   Flags;              // @flags
 	SubstGrpGoods Sgg;         // Подстановка товара
 	LDATE  RestCalcDate;       // Дата расчета остатков (используется если Flags & fCalcRest)
 	ABCAnlzFilt ABCAnlz;       // Параметры ABC-анализа
@@ -42409,8 +42439,7 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 	PPID   QuotKindID;         // ->Quotation.ID Вид котировки, который следует использовать вместо цены реализации
 	PPID   Object2;            // Дополнительный объект. Таблица статей для данного объекта берется из вида операции.
 	ObjIdListFilt GoodsIdList; // Список товаров. Если GoodsIdList.IsExists() то GoodsGrpID не используется.
-	ObjIdListFilt BillList;    // Список документов. Если BillList.IsExists(), то поля OpID, OpGrpID, AccSheetID,
-   		// LocList и ObjectID игнорируются.
+	ObjIdListFilt BillList;    // Список документов. Если BillList.IsExists(), то поля OpID, OpGrpID, AccSheetID, LocList и ObjectID игнорируются.
 	ObjIdListFilt LocList;     // Список складов
 	ObjRestrictArray CompareItems;
 };
@@ -42433,9 +42462,8 @@ struct GoodsOpAnalyzeViewItem {
 	PPID   LocID;          //
 	int16  InOutTag;       // -1 - in, 1 - out, 0 - undef
 	int16  Reserve;        // @alignment
-	PPID   GoodsID;        // Если используется подстановка инородного объекта
-		// (производитель, атрибуты класса), то поле содержит маску 0x40000000L
-	PPID   GoodsGrpID;
+	PPID   GoodsID;        // Если используется подстановка инородного объекта (производитель, атрибуты класса), то поле содержит маску 0x40000000L
+	PPID   GoodsGrpID;     //
 	PPID   SubstArID;      // Статья, подставленная вместо GoodsID
 	PPID   SubstPsnID;     // Персоналия, подставленная вместо GoodsID
 	PPID   SubstLocID;     // Склад, подставленный вместо GoodsID
@@ -42533,7 +42561,7 @@ public:
 	void   SLAPI GetTempTableName(SString & rBuf) const;
 	int    SLAPI GetByID(PPID id, TempGoodsOprTbl::Rec * pRec);
 	int    SLAPI InitUniq(const SArray * pUniq);
-	int    SLAPI CopyUniq(SArray * pUniq);
+	void   SLAPI CopyUniq(SArray * pUniq) const;
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf);
 	void   SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
@@ -45076,7 +45104,6 @@ public:
 	//int    FASTCALL NextIteration(ServerStatViewItem *);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -45084,8 +45111,8 @@ private:
 	int    SLAPI StopThread(long tid);
 	int    SLAPI ResetCache();
 	int    SLAPI LogLockStack();
-
 	int    SLAPI FetchStat();
+
 	SArray Data;
 	ServerStatFilt Filt;
 };
@@ -46912,9 +46939,11 @@ public:
 		fkInterchangeParam = 1
 	};
 	enum {
-		icacnLoadUpdated = 0x0001,
-		icacnLoadAllDocs = 0x0002,
-		icacnLoadStock   = 0x0004,
+		icacnLoadUpdated     = 0x0001,
+		icacnLoadAllDocs     = 0x0002,
+		icacnLoadStock       = 0x0004,
+		icacnPrepareOutgoing = 0x0008, // @v10.7.8
+		icacnSendOutgoing    = 0x0010  // @v10.7.8 
 	};
 	enum {
 		fAsSelector      = 0x0001
@@ -51368,7 +51397,7 @@ protected:
 	//   1 - режим запроса к строронним службам
 	//
 	int    Helper_PreprocessDiscountLoop(int mode, void * pBlk);
-	void   SetupDiscount(int distributeGiftDiscount = 0);
+	void   SetupDiscount(int distributeGiftDiscount/*@v10.7.8 = 0*/);
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const; // @v9.8.6 TSArray-->TSVector
 	double CalcCurrentRest(PPID goodsID, int checkInputBuffer);
@@ -51388,6 +51417,7 @@ protected:
 	int    IsOnlyChargeGoodsInPacket(PPID scID, const CCheckPacket * pPack);
 	int    LoadModifiers(PPID goodsID, SaModif & rModif);
 	int    Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const;
+	int    CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, double price, RealRange * pRange);
 	void   MsgToDisp_Clear(); // @v10.2.3
 	int    MsgToDisp_Add(const char * pMsg); // @v10.2.3
 	virtual int MsgToDisp_Show(); // @v10.2.3

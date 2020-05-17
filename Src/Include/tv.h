@@ -1654,6 +1654,7 @@ private:
 //
 //
 struct ToolbarItem {
+	ToolbarItem();
 	enum {
 		fHidden = 0x0001
 	};
@@ -2839,7 +2840,7 @@ public:
 	//   Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
 	//
 	// int SetupWordSelector(uint ctlID, WordSelectionProc proc, long wordSelExtra, long id, int minSymbCount); // @v7.x.x AHTOXA
-	int    SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, uint16 flags);
+	int    SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, long flags);
 	int    ResetWordSelector(uint ctlID);
 
 	TView * P_Frame;

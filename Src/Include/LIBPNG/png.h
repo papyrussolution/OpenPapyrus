@@ -1767,22 +1767,22 @@ PNG_EXPORT(106, void, png_chunk_warning, (png_const_structrp png_ptr, const char
 #ifdef PNG_BENIGN_ERRORS_SUPPORTED
 /* Benign error in libpng.  Can continue, but may have a problem.
  * User can choose whether to handle as a fatal error or as a warning. */
-PNG_EXPORT(107, void, png_benign_error, (png_const_structrp png_ptr,
-    const char * warning_message));
+PNG_EXPORT(107, void, png_benign_error, (png_const_structrp png_ptr, const char * warning_message));
 
 #ifdef PNG_READ_SUPPORTED
 /* Same, chunk name is prepended to message (only during read) */
-PNG_EXPORT(108, void, png_chunk_benign_error, (png_const_structrp png_ptr, const char * warning_message));
+// @sobolev PNG_EXPORT(108, void, png_chunk_benign_error, (png_const_structrp png_ptr, const char * warning_message));
+void FASTCALL png_chunk_benign_error(png_const_structrp png_ptr, const char * warning_message); // @sobolev
 #endif
 PNG_EXPORT(109, void, png_set_benign_errors, (png_structrp png_ptr, int allowed));
 #else
-#  ifdef PNG_ALLOW_BENIGN_ERRORS
-#    define png_benign_error png_warning
-#    define png_chunk_benign_error png_chunk_warning
-#  else
-#    define png_benign_error png_error
-#    define png_chunk_benign_error png_chunk_error
-#  endif
+	#ifdef PNG_ALLOW_BENIGN_ERRORS
+		#define png_benign_error png_warning
+		#define png_chunk_benign_error png_chunk_warning
+	#else
+		#define png_benign_error png_error
+		#define png_chunk_benign_error png_chunk_error
+	#endif
 #endif
 
 /* The png_set_<chunk> functions are for storing values in the png_info_struct.

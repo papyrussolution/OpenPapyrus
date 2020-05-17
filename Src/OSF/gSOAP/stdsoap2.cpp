@@ -8199,12 +8199,9 @@ static struct soap_nlist * soap_push_ns(struct soap * soap, const char * id, con
 
 static void soap_utilize_ns(struct soap * soap, const char * tag)
 {
-	struct soap_nlist * np;
-	size_t n = 0;
 	const char * t = sstrchr(tag, ':');
-	if(t)
-		n = t-tag;
-	np = soap_lookup_ns(soap, tag, n);
+	const size_t n = t ? (t-tag) : 0;
+	struct soap_nlist * np = soap_lookup_ns(soap, tag, n);
 	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Utilizing namespace of '%s'\n", tag));
 	if(np) {
 		if(np->index == 0)
@@ -8240,9 +8237,8 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element(struct soap * soap, const cha
 		if(soap->evlev >= soap->level)
 			soap->evlev = 0;
 		if(soap->event == SOAP_SEC_BEGIN && !soap->evlev) {
-			struct soap_nlist * np;
-			/* non-nested wsu:Id found: clear xmlns, re-emit them for exc-c14n */
-			for(np = soap->nlist; np; np = np->next) {
+			// non-nested wsu:Id found: clear xmlns, re-emit them for exc-c14n 
+			for(struct soap_nlist * np = soap->nlist; np; np = np->next) {
 				if(np->index == 2) {
 					struct soap_nlist * np1 = soap_push_ns(soap, np->id, np->ns, 1);
 					if(np1)
@@ -8361,9 +8357,8 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element(struct soap * soap, const cha
  #endif
 	}
 	if(soap->null && soap->position > 0) {
-		int i;
 		sprintf(soap->tmpbuf, "[%d", soap->positions[0]);
-		for(i = 1; i < soap->position; i++)
+		for(int i = 1; i < soap->position; i++)
 			sprintf(soap->tmpbuf+sstrlen(soap->tmpbuf), ",%d", soap->positions[i]);
 		strcat(soap->tmpbuf, "]");
 		if(soap_attribute(soap, "SOAP-ENC:position", soap->tmpbuf))
@@ -8466,8 +8461,7 @@ SOAP_FMAC1 long SOAP_FMAC2 soap_strtol(const char * s, char ** t, int b)
 			s++;
 		}
 	}
-	if(t)
-		*t = (char *)s;
+	ASSIGN_PTR(t, (char *)s); // @badcast
 	return n;
 }
 #endif
@@ -8505,8 +8499,7 @@ SOAP_FMAC1 ulong SOAP_FMAC2 soap_strtoul(const char * s, char ** t, int b)
 			s++;
 		}
 	}
-	if(t)
-		*t = (char *)s;
+	ASSIGN_PTR(t, (char *)s); // @badcast
 	return n;
 }
 #endif
@@ -8696,14 +8689,14 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_element_null(struct soap * soap, const char * tag
 	return SOAP_OK;
 }
 
-SOAP_FMAC1 int SOAP_FMAC2 soap_element_nil(struct soap * soap, const char * tag)
+SOAP_FMAC1 int FASTCALL soap_element_nil(struct soap * soap, const char * tag)
 {
 	if(soap_element(soap, tag, -1, NULL) || soap_attribute(soap, "xsi:nil", "true"))
 		return soap->error;
 	return soap_element_start_end_out(soap, tag);
 }
 
-SOAP_FMAC1 int SOAP_FMAC2 soap_element_id(struct soap * soap, const char * tag, int id, const void * p, const struct soap_array * a,
+SOAP_FMAC1 int FASTCALL soap_element_id(struct soap * soap, const char * tag, int id, const void * p, const struct soap_array * a,
 	int n, const char * type, int t)
 {
 	if(!p) {
@@ -8732,7 +8725,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_element_id(struct soap * soap, const char * tag, 
  #endif
 }
 
-SOAP_FMAC1 int SOAP_FMAC2 soap_element_result(struct soap * soap, const char * tag)
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_element_result(struct soap * soap, const char * tag)
 {
 	if(soap->version == 2 && soap->encodingStyle) {
 		if(soap_element(soap, "SOAP-RPC:result", 0, NULL) || soap_attribute(soap, "xmlns:SOAP-RPC", soap_rpc) ||
@@ -14060,8 +14053,8 @@ SOAP_FMAC1 char * SOAP_FMAC2 soap_sprint_fault(struct soap * soap, char * buf, s
 	if(soap_check_state(soap))
 		strncpy(buf, "Error: soap struct not initialized", len);
 	else if(soap->error) {
-		const char ** c, * v = NULL, * s, * d;
-		c = soap_faultcode(soap);
+		const char * v = NULL, * s, * d;
+		const char ** c = soap_faultcode(soap);
 		if(!*c)
 			soap_set_fault(soap);
 		if(soap->version == 2)

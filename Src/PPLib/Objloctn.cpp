@@ -1799,8 +1799,8 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 	setCtrlData(CTL_LOCATION_ID, &Data.ID);
 	SetupPPObjCombo(this, CTLSEL_LOCATION_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_EMPLOYER));
 	SetupPPObjCombo(this, CTLSEL_LOCATION_RSPNS, PPOBJ_PERSON, Data.RspnsPersonID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_EMPL));
-	SetupPPObjCombo(this, CTLSEL_LOCATION_CITY,  PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN|OLW_CANINSERT|OLW_CANSELUPLEVEL,
-		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+	SetupPPObjCombo(this, CTLSEL_LOCATION_CITY,  PPOBJ_WORLD, Data.CityID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_WORDSELECTOR
 	LocationCore::GetExField(&Data, LOCEXSTR_ZIP, temp_buf);
 	setCtrlString(CTL_LOCATION_ZIP, temp_buf);
 	LocationCore::GetExField(&Data, LOCEXSTR_SHORTADDR, temp_buf);

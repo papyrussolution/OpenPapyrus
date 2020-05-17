@@ -4038,7 +4038,7 @@ int SLAPI PPDS_CrrAccount::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
 	if(op == idoAlloc)
-		Data.Init();
+		Data.Z();
 	else if(op == idoExtract) {
 		if(dataPtr)
 			Data = *static_cast<const PPAccountPacket *>(dataPtr);

@@ -2741,7 +2741,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_SETGLOBALUSER:
 			{
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-				PPID   gua_id = name.ToLong();
+				PPID gua_id = name.ToLong();
 				PPThreadLocalArea & r_tla = DS.GetTLA();
 				// @ Muxa {
 				r_tla.GlobAccID = 0;
@@ -3728,7 +3728,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			//
 			case PPSCMD_SUSPEND:
 				if(pEv->GetParam(1, name) > 0) { //if(PPGetExtStrData(1, pEv->Params, name) > 0) {
-					long timeout = name.ToLong();
+					const long timeout = name.ToLong();
 					if(timeout > 0 && timeout <= 1000000)
 						SuspendTimeout = timeout * 1000;
 				}
@@ -3793,10 +3793,10 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			case PPSCMD_TIMESERIESTANOTIFY:  ok = SetTimeSeriesTaNotification(rReply); break; // @v10.4.0
 			case PPSCMD_GETDISPLAYINFO:
 				{
-					long   id = 0;
 					SString str_id, str_buf;
 					pEv->GetParam(1, str_id); // PPGetExtStrData(1, pEv->Params, str_id);
-					if((id = str_id.ToLong()) > 0) {
+					long   id = str_id.ToLong();
+					if(id > 0) {
 						int r = 0;
 						PalmDisplayBlock blk;
 						THROW(PPObjStyloPalm::LockDisplayQueue(id));

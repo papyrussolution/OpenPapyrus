@@ -1068,7 +1068,11 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.lpfnWndProc   = static_cast<WNDPROC>(MainWndProc);
 		wc.style         = CS_HREDRAW | CS_VREDRAW;
 		wc.hIcon         = H_Icon;
-		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_GRAYTEXT);
+		{
+			// @v10.7.8 wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_GRAYTEXT);
+			HBRUSH hbr_bkg = ::CreateSolidBrush(RGB(0x20, 0x63, 0x9b)); // @v10.7.8
+			wc.hbrBackground = hbr_bkg; // @v10.7.8
+		}
 		wc.cbClsExtra    = sizeof(long);
 		wc.cbWndExtra    = sizeof(long);
 		::RegisterClassEx(&wc);

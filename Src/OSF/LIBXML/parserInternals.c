@@ -82,7 +82,7 @@ void FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, con
 		return;
 	if(ctxt)
 		ctxt->errNo = xmlerr;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		if(ctxt->recovery == 0)

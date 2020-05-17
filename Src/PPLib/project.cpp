@@ -1829,6 +1829,7 @@ int SLAPI PPObjPrjTask::CreateByTemplate(PPID templID, const DateRange * pPeriod
 //
 //
 class PrjTaskDialog : public TDialog {
+	DECL_DIALOG_DATA(PPPrjTaskPacket);
 public:
 	explicit PrjTaskDialog(uint dlgID) : TDialog(/*DLG_TODO*/dlgID)
 	{
@@ -1842,13 +1843,138 @@ public:
 		SetupTimePicker(this, CTL_TODO_ESTFINISHTM, CTLTM_TODO_ESTFINISHTM);
 		SetupTimePicker(this, CTL_TODO_FINISHTM, CTLTM_TODO_FINISHTM);
 	}
-	int    setDTS(const PPPrjTaskPacket * pData);
-	int    getDTS(PPPrjTaskPacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString buf;
+		PPID   prj_id = 0;
+		PPID   phase_id = 0;
+		if(Data.Rec.ProjectID) {
+			PPObjProject prj_obj;
+			ProjectTbl::Rec prj_rec;
+			if(prj_obj.Search(Data.Rec.ProjectID, &prj_rec) > 0) {
+				if(prj_rec.ParentID) {
+					phase_id = prj_rec.ID;
+					prj_id = prj_rec.ParentID;
+				}
+				else
+					prj_id = prj_rec.ID;
+				//prj_obj.GetFullName(Data.ProjectID, buf);
+				//setStaticText(CTL_TODO_PARENTNAME, buf);
+			}
+		}
+		setCtrlLong(CTL_TODO_ID, Data.Rec.ID);
+		SetupPPObjCombo(this, CTLSEL_TODO_PRJ,   PPOBJ_PROJECT, prj_id,   OLW_CANINSERT, 0);
+		SetupPPObjCombo(this, CTLSEL_TODO_PHASE, PPOBJ_PROJECT, phase_id, OLW_CANINSERT, reinterpret_cast<void *>(NZOR(prj_id, -1)));
+		setCtrlData(CTL_TODO_CODE,        Data.Rec.Code);
+		if(Data.Rec.Kind == TODOKIND_TASK && Data.Rec.LinkTaskID) {
+			PrjTaskTbl::Rec  link_rec;
+			if(PTCore.Search(Data.Rec.LinkTaskID, &link_rec) > 0)
+				setCtrlData(CTL_TODO_LINKTASK, link_rec.Code);
+		}
+		setCtrlData(CTL_TODO_DT,          &Data.Rec.Dt);
+		setCtrlData(CTL_TODO_TM,          &Data.Rec.Tm);
+		setCtrlData(CTL_TODO_START,       &Data.Rec.StartDt);
+		setCtrlData(CTL_TODO_STARTTM,     &Data.Rec.StartTm);
+		setCtrlData(CTL_TODO_ESTFINISH,   &Data.Rec.EstFinishDt);
+		setCtrlData(CTL_TODO_ESTFINISHTM, &Data.Rec.EstFinishTm);
+		setCtrlData(CTL_TODO_FINISH,      &Data.Rec.FinishDt);
+		setCtrlData(CTL_TODO_FINISHTM,    &Data.Rec.FinishTm);
+		SetupPPObjCombo(this, CTLSEL_TODO_TEMPLATE, PPOBJ_PRJTASK, Data.Rec.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
+		SetupPersonCombo(this, CTLSEL_TODO_CREATOR,  Data.Rec.CreatorID,  OLW_CANINSERT, PPPRK_EMPL,   0);
+		SetupPersonCombo(this, CTLSEL_TODO_EMPLOYER, Data.Rec.EmployerID, OLW_CANINSERT, PPPRK_EMPL,   0);
+		SetupPersonCombo(this, CTLSEL_TODO_CLIENT,   Data.Rec.ClientID,   OLW_CANINSERT, PPPRK_CLIENT, 0);
+		PsnObj.SetupDlvrLocCombo(this, CTLSEL_TODO_DLVRADDR, Data.Rec.ClientID, Data.Rec.DlvrAddrID);
+		SetupStringCombo(this, CTLSEL_TODO_PRIOR,  PPTXT_TODO_PRIOR,  Data.Rec.Priority);
+		int    str_id = 0;
+		if(Data.Rec.Kind == TODOKIND_TEMPLATE)
+			str_id = PPTXT_TODOTEMPL_STATUS;
+		else {
+			str_id = PPTXT_TODO_STATUS;
+			selectCtrl(CTL_TODO_START);
+		}
+		SetupStringCombo(this, CTLSEL_TODO_STATUS, str_id, Data.Rec.Status);
+		SetupWordSelector(CTL_TODO_DESCR, new TextHistorySelExtra("todo-descr-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
+		SetupWordSelector(CTL_TODO_MEMO, new TextHistorySelExtra("todo-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
+		setCtrlString(CTL_TODO_DESCR,   Data.SDescr);
+		setCtrlString(CTL_TODO_MEMO,    Data.SMemo);
+		setCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
+		{
+			PPID   accsheet = 0;
+			PPID   billop = 0;
+			ProjectTbl::Rec prj_rec;
+			// @v10.6.4 MEMSZERO(prj_rec);
+			for(billop = 0, prj_id = Data.Rec.ProjectID; !billop && PrjObj.Search(prj_id, &prj_rec) > 0; prj_id = prj_rec.ParentID)
+				billop = prj_rec.BillOpID;
+			if(!billop) {
+				PPProjectConfig prj_cfg;
+				// @v10.7.8 @ctr MEMSZERO(prj_cfg);
+				PPObjProject::ReadConfig(&prj_cfg);
+				billop = prj_cfg.BillOpID;
+			}
+			if(billop) {
+				PPOprKind opr_kind;
+				GetOpData(billop, &opr_kind);
+				accsheet = opr_kind.AccSheetID;
+			}
+			Data.Rec.BillArID = accsheet ? Data.Rec.BillArID : 0;
+			SetupArCombo(this, CTLSEL_TODO_BILLAR, Data.Rec.BillArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, accsheet, sacfDisableIfZeroSheet);
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		char   linktask_code[32];
+		PPID   temp_id = 0;
+		PPID   prj_id = getCtrlLong(CTLSEL_TODO_PRJ);
+		PPID   phase_id = getCtrlLong(CTLSEL_TODO_PHASE);
+		Data.Rec.ProjectID = (phase_id && prj_id) ? phase_id : prj_id;
+		getCtrlData(CTL_TODO_CODE, Data.Rec.Code);
+		if(Data.Rec.Kind == TODOKIND_TASK) {
+			getCtrlData(sel = CTL_TODO_LINKTASK, linktask_code);
+			if(linktask_code[0]) {
+				int    r;
+				THROW_PP_S(strcmp(Data.Rec.Code, linktask_code), PPERR_DUPTASKCODE, linktask_code);
+				THROW_PP_S(r = PTCore.GetSingleByCode(TODOKIND_TASK, linktask_code, &Data.Rec.LinkTaskID), PPERR_DUPTASKCODE, linktask_code);
+				THROW_PP_S(r > 0, PPERR_UNDEFTASKWCODE, linktask_code);
+			}
+			else
+				Data.Rec.LinkTaskID = 0;
+		}
+		getCtrlData(sel = CTL_TODO_DT, &Data.Rec.Dt);
+		THROW_SL(checkdate(Data.Rec.Dt, 1));
+		getCtrlData(sel = CTL_TODO_TM, &Data.Rec.Tm);
+		getCtrlData(sel = CTL_TODO_START, &Data.Rec.StartDt);
+		THROW_SL(checkdate(Data.Rec.StartDt, 1));
+		getCtrlData(sel = CTL_TODO_STARTTM, &Data.Rec.StartTm);
+		getCtrlData(sel = CTL_TODO_ESTFINISH, &Data.Rec.EstFinishDt);
+		THROW_SL(checkdate(Data.Rec.EstFinishDt, 1));
+		getCtrlData(sel = CTL_TODO_ESTFINISHTM, &Data.Rec.EstFinishTm);
+		getCtrlData(sel = CTL_TODO_FINISH, &Data.Rec.FinishDt);
+		THROW_SL(checkdate(Data.Rec.FinishDt, 1));
+		getCtrlData(CTL_TODO_FINISHTM, &Data.Rec.FinishTm);
+		getCtrlData(CTLSEL_TODO_TEMPLATE, &Data.Rec.TemplateID);
+		getCtrlData(CTLSEL_TODO_CREATOR,  &Data.Rec.CreatorID);
+		getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployerID);
+		getCtrlData(CTLSEL_TODO_CLIENT,   &Data.Rec.ClientID);
+		getCtrlData(CTLSEL_TODO_DLVRADDR, &Data.Rec.DlvrAddrID);
+		if(getCtrlData(CTLSEL_TODO_PRIOR, &(temp_id = 0)))
+			Data.Rec.Priority = (int16)temp_id;
+		if(getCtrlData(CTLSEL_TODO_STATUS, &(temp_id = 0)))
+			Data.Rec.Status = (int16)temp_id;
+		getCtrlString(CTL_TODO_DESCR,   Data.SDescr);
+		getCtrlString(CTL_TODO_MEMO,    Data.SMemo);
+		getCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
+		getCtrlData(CTLSEL_TODO_BILLAR, &Data.Rec.BillArID);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    editRepeating();
-	//PrjTaskTbl::Rec Data;
-	PPPrjTaskPacket Data;
 	PrjTaskCore PTCore;
 	PPObjProject PrjObj;
 	PPObjPerson PsnObj;
@@ -1935,134 +2061,6 @@ IMPL_HANDLE_EVENT(PrjTaskDialog)
 	else
 		return;
 	clearEvent(event);
-}
-
-int PrjTaskDialog::setDTS(const PPPrjTaskPacket * pData)
-{
-	RVALUEPTR(Data, pData);
-	SString buf;
-	PPID   prj_id = 0;
-	PPID   phase_id = 0;
-	if(Data.Rec.ProjectID) {
-		PPObjProject prj_obj;
-		ProjectTbl::Rec prj_rec;
-		if(prj_obj.Search(Data.Rec.ProjectID, &prj_rec) > 0) {
-			if(prj_rec.ParentID) {
-				phase_id = prj_rec.ID;
-				prj_id = prj_rec.ParentID;
-			}
-			else
-				prj_id = prj_rec.ID;
-			//prj_obj.GetFullName(Data.ProjectID, buf);
-			//setStaticText(CTL_TODO_PARENTNAME, buf);
-		}
-	}
-	setCtrlLong(CTL_TODO_ID, Data.Rec.ID);
-	SetupPPObjCombo(this, CTLSEL_TODO_PRJ,   PPOBJ_PROJECT, prj_id,   OLW_CANINSERT, 0);
-	SetupPPObjCombo(this, CTLSEL_TODO_PHASE, PPOBJ_PROJECT, phase_id, OLW_CANINSERT, reinterpret_cast<void *>(NZOR(prj_id, -1)));
-	setCtrlData(CTL_TODO_CODE,        Data.Rec.Code);
-	if(Data.Rec.Kind == TODOKIND_TASK && Data.Rec.LinkTaskID) {
-		PrjTaskTbl::Rec  link_rec;
-		if(PTCore.Search(Data.Rec.LinkTaskID, &link_rec) > 0)
-			setCtrlData(CTL_TODO_LINKTASK, link_rec.Code);
-	}
-	setCtrlData(CTL_TODO_DT,          &Data.Rec.Dt);
-	setCtrlData(CTL_TODO_TM,          &Data.Rec.Tm);
-	setCtrlData(CTL_TODO_START,       &Data.Rec.StartDt);
-	setCtrlData(CTL_TODO_STARTTM,     &Data.Rec.StartTm);
-	setCtrlData(CTL_TODO_ESTFINISH,   &Data.Rec.EstFinishDt);
-	setCtrlData(CTL_TODO_ESTFINISHTM, &Data.Rec.EstFinishTm);
-	setCtrlData(CTL_TODO_FINISH,      &Data.Rec.FinishDt);
-	setCtrlData(CTL_TODO_FINISHTM,    &Data.Rec.FinishTm);
-	SetupPPObjCombo(this, CTLSEL_TODO_TEMPLATE, PPOBJ_PRJTASK, Data.Rec.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
-	SetupPersonCombo(this, CTLSEL_TODO_CREATOR,  Data.Rec.CreatorID,  OLW_CANINSERT, (PPID)PPPRK_EMPL,   0);
-	SetupPersonCombo(this, CTLSEL_TODO_EMPLOYER, Data.Rec.EmployerID, OLW_CANINSERT, (PPID)PPPRK_EMPL,   0);
-	SetupPersonCombo(this, CTLSEL_TODO_CLIENT,   Data.Rec.ClientID,   OLW_CANINSERT, (PPID)PPPRK_CLIENT, 0);
-	PsnObj.SetupDlvrLocCombo(this, CTLSEL_TODO_DLVRADDR, Data.Rec.ClientID, Data.Rec.DlvrAddrID);
-	SetupStringCombo(this, CTLSEL_TODO_PRIOR,  PPTXT_TODO_PRIOR,  Data.Rec.Priority);
-	int    str_id = 0;
-	if(Data.Rec.Kind == TODOKIND_TEMPLATE)
-		str_id = PPTXT_TODOTEMPL_STATUS;
-	else {
-		str_id = PPTXT_TODO_STATUS;
-		selectCtrl(CTL_TODO_START);
-	}
-	SetupStringCombo(this, CTLSEL_TODO_STATUS, str_id, Data.Rec.Status);
-	setCtrlString(CTL_TODO_DESCR,   Data.SDescr);
-	setCtrlString(CTL_TODO_MEMO,    Data.SMemo);
-	setCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
-	{
-		PPID accsheet = 0, billop = 0;
-		ProjectTbl::Rec prj_rec;
-		// @v10.6.4 MEMSZERO(prj_rec);
-		for(billop = 0, prj_id = Data.Rec.ProjectID; !billop && PrjObj.Search(prj_id, &prj_rec) > 0; prj_id = prj_rec.ParentID)
-			billop = prj_rec.BillOpID;
-		if(!billop) {
-			PPProjectConfig prj_cfg;
-			MEMSZERO(prj_cfg);
-			PPObjProject::ReadConfig(&prj_cfg);
-			billop = prj_cfg.BillOpID;
-		}
-		if(billop) {
-			PPOprKind opr_kind;
-			GetOpData(billop, &opr_kind);
-			accsheet = opr_kind.AccSheetID;
-		}
-		Data.Rec.BillArID = accsheet ? Data.Rec.BillArID : 0;
-		SetupArCombo(this, CTLSEL_TODO_BILLAR, Data.Rec.BillArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, accsheet, sacfDisableIfZeroSheet);
-	}
-	return 1;
-}
-
-int PrjTaskDialog::getDTS(PPPrjTaskPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	char   linktask_code[32];
-	PPID   temp_id = 0;
-	PPID   prj_id = getCtrlLong(CTLSEL_TODO_PRJ);
-	PPID   phase_id = getCtrlLong(CTLSEL_TODO_PHASE);
-	Data.Rec.ProjectID = (phase_id && prj_id) ? phase_id : prj_id;
-	getCtrlData(CTL_TODO_CODE, Data.Rec.Code);
-	if(Data.Rec.Kind == TODOKIND_TASK) {
-		getCtrlData(sel = CTL_TODO_LINKTASK, linktask_code);
-		if(linktask_code[0]) {
-			int    r;
-			THROW_PP_S(strcmp(Data.Rec.Code, linktask_code), PPERR_DUPTASKCODE, linktask_code);
-			THROW_PP_S(r = PTCore.GetSingleByCode(TODOKIND_TASK, linktask_code, &Data.Rec.LinkTaskID), PPERR_DUPTASKCODE, linktask_code);
-			THROW_PP_S(r > 0, PPERR_UNDEFTASKWCODE, linktask_code);
-		}
-		else
-			Data.Rec.LinkTaskID = 0;
-	}
-	getCtrlData(sel = CTL_TODO_DT, &Data.Rec.Dt);
-	THROW_SL(checkdate(Data.Rec.Dt, 1));
-	getCtrlData(sel = CTL_TODO_TM, &Data.Rec.Tm);
-	getCtrlData(sel = CTL_TODO_START, &Data.Rec.StartDt);
-	THROW_SL(checkdate(Data.Rec.StartDt, 1));
-	getCtrlData(sel = CTL_TODO_STARTTM, &Data.Rec.StartTm);
-	getCtrlData(sel = CTL_TODO_ESTFINISH, &Data.Rec.EstFinishDt);
-	THROW_SL(checkdate(Data.Rec.EstFinishDt, 1));
-	getCtrlData(sel = CTL_TODO_ESTFINISHTM, &Data.Rec.EstFinishTm);
-	getCtrlData(sel = CTL_TODO_FINISH, &Data.Rec.FinishDt);
-	THROW_SL(checkdate(Data.Rec.FinishDt, 1));
-	getCtrlData(CTL_TODO_FINISHTM, &Data.Rec.FinishTm);
-	getCtrlData(CTLSEL_TODO_TEMPLATE, &Data.Rec.TemplateID);
-	getCtrlData(CTLSEL_TODO_CREATOR,  &Data.Rec.CreatorID);
-	getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployerID);
-	getCtrlData(CTLSEL_TODO_CLIENT,   &Data.Rec.ClientID);
-	getCtrlData(CTLSEL_TODO_DLVRADDR, &Data.Rec.DlvrAddrID);
-	if(getCtrlData(CTLSEL_TODO_PRIOR, &(temp_id = 0)))
-		Data.Rec.Priority = (int16)temp_id;
-	if(getCtrlData(CTLSEL_TODO_STATUS, &(temp_id = 0)))
-		Data.Rec.Status = (int16)temp_id;
-	getCtrlString(CTL_TODO_DESCR,   Data.SDescr);
-	getCtrlString(CTL_TODO_MEMO,    Data.SMemo);
-	getCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
-	getCtrlData(CTLSEL_TODO_BILLAR, &Data.Rec.BillArID);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int SLAPI PPObjPrjTask::EditDialog(PPPrjTaskPacket * pPack)

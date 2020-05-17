@@ -57,7 +57,7 @@ static int DotFound(char * pB)
 	return 0;
 }
 
-int _fnsplit(const char * pathP, char * driveP, char * dirP, char * nameP, char * extP)
+static int _fnsplit(const char * pathP, char * driveP, char * dirP, char * nameP, char * extP)
 {
 	char * pB;
 	int    Wrk;

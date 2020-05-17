@@ -124,7 +124,7 @@ QuotImpExpDialog::QuotImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPQUOT)
 
 int QuotImpExpDialog::setDTS(const PPQuotImpExpParam * pData)
 {
-	Data = *pData;
+	RVALUEPTR(Data, pData);
 	ImpExpParamDialog::setDTS(&Data);
 	{
 		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
@@ -513,36 +513,16 @@ int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & 
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
 			switch(item.Id) {
-				case PPGOODSPAR_SUBCODE:
-					SubCode = temp_buf;
-					break;
-				case PPGOODSPAR_ACCSHEET:
-					AccSheetID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_SUPPL:
-					SupplID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_DEFUNIT:
-					DefUnitID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_PHUNIT:
-					PhUnitID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_DEFPARENT:
-					DefParentID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_RCPTOP:
-					RcptOpID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_FLAGS:
-					Flags = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_LOC:
-					LocID = temp_buf.ToLong();
-					break;
-				case PPGOODSPAR_MATRIXACTION:
-					MatrixAction = temp_buf.ToLong();
-					break;
+				case PPGOODSPAR_SUBCODE: SubCode = temp_buf; break;
+				case PPGOODSPAR_ACCSHEET: AccSheetID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_SUPPL: SupplID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_DEFUNIT: DefUnitID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_PHUNIT: PhUnitID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_DEFPARENT: DefParentID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_RCPTOP: RcptOpID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_FLAGS: Flags = temp_buf.ToLong(); break;
+				case PPGOODSPAR_LOC: LocID = temp_buf.ToLong(); break;
+				case PPGOODSPAR_MATRIXACTION: MatrixAction = temp_buf.ToLong(); break;
 			}
 		}
 	}
@@ -3222,9 +3202,9 @@ int SLAPI ReformatIceCat(const char * pFileName)
 							int    r = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, 0);
 							if(r > 0) {
 								int    skip = 0;
-								if(title.CmpPrefix("ISBN", 1) == 0) {
+								if(title.HasPrefixIAscii("ISBN")) {
 									(compose_buf = "ISBN").Space().Cat(temp_buf);
-									if(title.CmpPrefix(compose_buf, 1) == 0)
+									if(title.HasPrefixNC(compose_buf))
 										skip = 1;
 								}
 								if(!skip) {

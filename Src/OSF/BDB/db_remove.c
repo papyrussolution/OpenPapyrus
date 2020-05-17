@@ -176,9 +176,9 @@ int __db_remove(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, 
 int __db_remove_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * name, const char * subdb, uint32 flags)
 {
 	int ret;
-	char * real_name, * tmpname;
+	char * real_name = 0;
+	char * tmpname = 0;
 	ENV * env = dbp->env;
-	real_name = tmpname = NULL;
 	if(name == NULL && subdb == NULL) {
 		__db_errx(env, DB_STR("0691", "Remove on temporary files invalid"));
 		ret = EINVAL;

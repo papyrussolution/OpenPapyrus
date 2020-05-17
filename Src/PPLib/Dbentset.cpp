@@ -18,7 +18,7 @@ static int FASTCALL GetAveragePath(const char * name, SString & rBuf)
 		p--;
 		if(dir[p] == '\\')
 			p--;
-		while(p > 0 && dir[p] != '\\') // @v8.9.10 (p>=0)-->(p>0)
+		while(p > 0 && dir[p] != '\\')
 			p--;
 	}
 	if(dir[p] != '\\')

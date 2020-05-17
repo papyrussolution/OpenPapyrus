@@ -1,6 +1,6 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019
-//
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -18,14 +18,9 @@ BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReser
 				SLS.Init(temp_buf, static_cast<HINSTANCE>(hModule));
 			}
 			break;
-		case DLL_THREAD_ATTACH:
-			SLS.InitThread();
-			break;
-		case DLL_THREAD_DETACH:
-			SLS.ReleaseThread();
-			break;
-		case DLL_PROCESS_DETACH:
-			break;
+		case DLL_THREAD_ATTACH: SLS.InitThread(); break;
+		case DLL_THREAD_DETACH: SLS.ReleaseThread(); break;
+		case DLL_PROCESS_DETACH: break;
 	}
 	return TRUE;
 }
@@ -50,15 +45,15 @@ int FASTCALL PPSoapDestroyResultPtr(void * p)
 
 PPSoapClientSession::PPSoapClientSession() : ErrCode(0)
 {
-	Url[0] = 0;
-	ErrMsg[0] = 0;
+	PTR32(Url)[0] = 0;
+	PTR32(ErrMsg)[0] = 0;
 }
 
 void PPSoapClientSession::Setup(const char * pUrl)
 {
 	STRNSCPY(Url, pUrl);
 	ErrCode = 0;
-	ErrMsg[0] = 0;
+	PTR32(ErrMsg)[0] = 0;
 	User.Z();
 	Password.Z();
 }
@@ -79,7 +74,7 @@ void FASTCALL PPSoapClientSession::SetMsg(const char * pUtf8Text)
 {
 	SString temp_buf;
 	(temp_buf = pUtf8Text).Transf(CTRANSF_UTF8_TO_INNER);
-	temp_buf.ReplaceChar('\xA', ' '); // @v8.7.4
+	temp_buf.ReplaceChar('\xA', ' ');
 	temp_buf.CopyTo(ErrMsg, sizeof(ErrMsg));
 }
 //
@@ -87,8 +82,8 @@ void FASTCALL PPSoapClientSession::SetMsg(const char * pUtf8Text)
 //
 void ** FASTCALL PPSoapCreateArray(uint count, int & rArrayCount)
 {
-	void ** pp_list = count ? (void **)SAlloc::C(count, sizeof(void *)) : 0;
-	rArrayCount = (int)count;
+	void ** pp_list = count ? static_cast<void **>(SAlloc::C(count, sizeof(void *))) : 0;
+	rArrayCount = static_cast<int>(count);
 	return pp_list;
 }
 
@@ -98,9 +93,9 @@ InParamString::InParamString(const char * pStr) : STempBuffer(0)
 	size_t len = slen ? slen*2 : 32;
 	if(Alloc(len)) {
 		if(pStr)
-			strnzcpy((char *)*this, pStr, GetSize());
+			strnzcpy(static_cast<char *>(*this), pStr, GetSize());
 		else
-			((char *)*this)[0] = 0;
+			static_cast<char *>(*this)[0] = 0;
 	}
 }
 
@@ -112,7 +107,7 @@ char * FASTCALL GetDynamicParamString(const char * pSrc, TSCollection <InParamSt
 			ZDELETE(p_new_item);
 		}
 	}
-	return p_new_item ? (char *)*p_new_item : 0;
+	return p_new_item ? static_cast<char *>(*p_new_item) : 0;
 }
 
 char * FASTCALL GetDynamicParamString(long ival, TSCollection <InParamString> & rPool)
@@ -184,7 +179,7 @@ UhttDate::operator LDATE () const
 	return dt;
 }
 //
-// Descr: Дата/время, передаваемые одной строкой в формате ISO-8601 (yyyy-mm-dd Thh:mm:ss)
+// Descr: Р”Р°С‚Р°/РІСЂРµРјСЏ, РїРµСЂРµРґР°РІР°РµРјС‹Рµ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№ РІ С„РѕСЂРјР°С‚Рµ ISO-8601 (yyyy-mm-dd Thh:mm:ss)
 //
 UhttTimestamp & UhttTimestamp::Z()
 {
@@ -285,8 +280,8 @@ UhttDateTime::operator LTIME () const
 UhttDateTime::operator LDATETIME () const
 {
 	LDATETIME dtm;
-	dtm.d = (LDATE)*this;
-	dtm.t = (LTIME)*this;
+	dtm.d = static_cast<LDATE>(*this);
+	dtm.t = static_cast<LTIME>(*this);
 	return dtm;
 }
 //
@@ -325,7 +320,7 @@ void FASTCALL UhttTagItem::SetValue(const char * pText) { _StripAndTransfToUtf8(
 //
 UhttBrandPacket::UhttBrandPacket() : ID(0), OwnerID(0), Flags(0)
 {
-	Name[0] = 0;
+	PTR32(Name)[0] = 0;
 }
 //
 //
@@ -341,8 +336,8 @@ void FASTCALL UhttStyloDevicePacket::SetSymb(const char * pText) { _StripAndTran
 //
 UhttGoodsPacket::UhttGoodsPacket() : ID(0), BrandID(0), ManufID(0), Package(0.0)
 {
-	Name[0] = 0;
-	SingleBarcode[0] = 0;
+	PTR32(Name)[0] = 0;
+	PTR32(SingleBarcode)[0] = 0;
 }
 
 UhttGoodsPacket & FASTCALL UhttGoodsPacket::operator = (const UhttGoodsPacket & rS)
@@ -396,12 +391,12 @@ void FASTCALL UhttGoodsPacket::SetExt(int extFldId, const char * pText)
 	}
 }
 //
-// Descr: Представление 'лемента сопоставления приватного идентификатора объекта с идентификатором
-//   соответствующего объекта в Universe-HTT по коду.
+// Descr: РџСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёСЏ РїСЂРёРІР°С‚РЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РѕР±СЉРµРєС‚Р° СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј
+//   СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ РѕР±СЉРµРєС‚Р° РІ Universe-HTT РїРѕ РєРѕРґСѓ.
 //
 UhttCodeRefItem::UhttCodeRefItem() : PrivateID(0), UhttID(0), InnerPos(0)
 {
-	Code[0] = 0;
+	PTR32(Code)[0] = 0;
 }
 
 UhttCodeRefItem & FASTCALL UhttCodeRefItem::Set(int privateID, const char * pCode)
@@ -436,7 +431,7 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 	}
 	Encoding = "base64";
 	{
-		STempBuffer tbuf(8192*3); // Кратность размера буфера 3 КРИТИЧНА!
+		STempBuffer tbuf(8192*3); // РљСЂР°С‚РЅРѕСЃС‚СЊ СЂР°Р·РјРµСЂР° Р±СѓС„РµСЂР° 3 РљР РРўРР§РќРђ!
 		SString temp_str;
 		THROW(f.CalcSize(&Size));
 		for(int64 rest_size = Size; rest_size > 0;) {
@@ -563,10 +558,9 @@ UhttBillFilter::UhttBillFilter() : LocID(0), ArID(0), CurrID(0), AgentID(0), Cou
 	Since = ZERODATETIME;
 }
 
-int FASTCALL UhttBillFilter::SetDate(LDATE dt)
+void FASTCALL UhttBillFilter::SetDate(LDATE dt)
 {
 	Dt.Z().Cat(dt, DATF_DMY|DATF_CENTURY);
-	return 1;
 }
 
 void FASTCALL UhttBillFilter::SetOpSymb(const char * pOpSymb) { _StripAndTransfToUtf8(OpSymb = pOpSymb); }

@@ -792,13 +792,11 @@ static cairo_operator_t FASTCALL _reduce_op(cairo_gstate_t * gstate)
 
 static cairo_status_t _cairo_gstate_get_pattern_status(const cairo_pattern_t * pattern)
 {
-	if(unlikely(pattern->type == CAIRO_PATTERN_TYPE_MESH &&
-	    ((const cairo_mesh_pattern_t*)pattern)->current_patch)) {
+	if(unlikely(pattern->type == CAIRO_PATTERN_TYPE_MESH && ((const cairo_mesh_pattern_t *)pattern)->current_patch)) {
 		/* If current patch != NULL, the pattern is under construction
 		 * and cannot be used as a source */
 		return CAIRO_STATUS_INVALID_MESH_CONSTRUCTION;
 	}
-
 	return pattern->status;
 }
 

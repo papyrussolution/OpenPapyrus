@@ -104,7 +104,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 		if(mbs_fn)
 			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%s' to WCS", (const char *)filename);
 		else
-			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%S' to MBS", (const wchar_t*)filename);
+			archive_set_error(a, ARCHIVE_ERRNO_MISC, "Can't convert '%S' to MBS", (const wchar_t *)filename);
 		return ARCHIVE_FAILED;
 	}
 	mine->fd = -1;

@@ -1301,7 +1301,7 @@ static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 	while(rez.getUINT() != TV_END) {
 		fseek(rez.getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 		ToolbarItem item;
-		MEMSZERO(item);
+		// @v10.7.8 @ctr MEMSZERO(item);
 		item.Cmd = rez.getUINT();
 		if(item.Cmd != TV_MENUSEPARATOR) {
 			item.KeyCode = rez.getUINT();
@@ -1757,7 +1757,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						}
 						if(Doc.OrgCp == cpUTF8) {
 							// Pass through UTF-8 (this does not check validity of characters, thus inserting a multi-byte character in two halfs is working)
-							CallFunc(SCI_APPENDTEXT, actual_size, reinterpret_cast<LPARAM>((const char *)buffer));
+							CallFunc(SCI_APPENDTEXT, actual_size, reinterpret_cast<LPARAM>(buffer.cptr()));
 						}
 						else {
 							ubuf.CopyFromMb(Doc.OrgCp, buffer, actual_size);

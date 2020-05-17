@@ -795,7 +795,7 @@ DBQuery * SLAPI PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 //
 //
 //
-int SLAPI ViewMrpLine(const MrpLineFilt * pFilt, PPID tabID) { return PPView::Execute(PPVIEW_MRPLINE, pFilt, 1, (void *)tabID); }
+int SLAPI ViewMrpLine(const MrpLineFilt * pFilt, PPID tabID) { return PPView::Execute(PPVIEW_MRPLINE, pFilt, 1, reinterpret_cast<void *>(tabID)); }
 //
 // Implementation of PPALDD_MrpTab
 //

@@ -3289,7 +3289,7 @@ private:
 	const SString Key;
 };
 */
-TextHistorySelExtra::TextHistorySelExtra(const char * pKey) : WordSel_ExtraBlock(0, 0, 0, 2, 0), Key(pKey)
+TextHistorySelExtra::TextHistorySelExtra(const char * pKey) : WordSel_ExtraBlock(0, 0, 0, 0, 2, WordSel_ExtraBlock::fFreeText), Key(pKey)
 {
 	SetTextMode(true);
 }
@@ -4979,7 +4979,7 @@ int FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf
 				CALLPTRMEMB(il, disableDeleteSelection(1));
 			}
 			if(pParam->P_Wse) {
-				dlg->SetupWordSelector(CTL_INPUT_STR, pParam->P_Wse, 0, pParam->P_Wse->MinSymbCount, 0);
+				dlg->SetupWordSelector(CTL_INPUT_STR, pParam->P_Wse, 0, pParam->P_Wse->MinSymbCount, pParam->P_Wse->Flags);
 				pParam->P_Wse = 0; // Диалог разрушит объект pParam->P_Wse
 			}
 		}
@@ -5182,14 +5182,12 @@ int ResolveGoodsDialog::setupList()
 			int    barcode_added = 0, wo_name = 0, id_added = 0;
 			buf.Z();
 			if(p_item->GoodsID) {
-				// @v9.0.2 PPGetWord(PPWORD_ID, 0, word);
-				PPLoadString("id", word); // @v9.0.2
+				PPLoadString("id", word);
 				buf.Cat(word).CatDiv(':', 2).Cat(p_item->GoodsID);
 				id_added = 1;
 			}
 			if(sstrlen(p_item->GoodsName)) {
-				// @v9.0.2 PPGetWord(PPWORD_NAME, 0, word);
-				PPLoadString("name", word); // @v9.0.2
+				PPLoadString("name", word);
 				if(id_added)
 					buf.CatDiv(',', 2);
 				buf.Cat(word).CatDiv(':', 2).Cat(p_item->GoodsName);
@@ -5197,16 +5195,14 @@ int ResolveGoodsDialog::setupList()
 			else
 				wo_name = 1;
 			if(wo_name || (Flags & RESOLVEGF_SHOWBARCODE)) {
-				// @v9.0.2 PPGetWord(PPWORD_BARCODE, 0, word);
-				PPLoadString("barcode", word); // @v9.0.2
+				PPLoadString("barcode", word);
 				if(!wo_name || id_added)
 					buf.CatDiv(',', 2);
 				buf.Cat(word).CatDiv(':', 2).Cat(p_item->Barcode);
 				barcode_added = 1;
 			}
 			if((wo_name || (Flags & RESOLVEGF_SHOWQTTY)) && p_item->Quantity != 0) {
-				// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, word);
-				PPLoadString("qtty", word); // @v9.1.4
+				PPLoadString("qtty", word);
 				if(!wo_name || barcode_added || id_added)
 					buf.CatDiv(',', 2);
 				buf.Cat(word).CatDiv(':', 2).Cat(p_item->Quantity, MKSFMTD(10, 2, 0));

@@ -817,25 +817,18 @@ LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP * sftp)
 /* sftp_open
  */
 static LIBSSH2_SFTP_HANDLE * sftp_open(LIBSSH2_SFTP * sftp, const char * filename,
-    size_t filename_len, uint32 flags, long mode,
-    int open_type)
+    size_t filename_len, uint32 flags, long mode, int open_type)
 {
 	LIBSSH2_CHANNEL * channel = sftp->channel;
 	LIBSSH2_SESSION * session = channel->session;
 	LIBSSH2_SFTP_HANDLE * fp;
-	LIBSSH2_SFTP_ATTRIBUTES attrs = {
-		LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
-	};
+	LIBSSH2_SFTP_ATTRIBUTES attrs = { LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0 };
 	uchar * s;
 	ssize_t rc;
 	int open_file = (open_type == LIBSSH2_SFTP_OPENFILE) ? 1 : 0;
-
 	if(sftp->open_state == libssh2_NB_state_idle) {
-		/* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
-		   flags(4) */
-		sftp->open_packet_len = filename_len + 13 +
-		    (open_file ? (4 + sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS)) : 0);
-
+		// packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) + flags(4) 
+		sftp->open_packet_len = filename_len + 13 + (open_file ? (4 + sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS)) : 0);
 		/* surprise! this starts out with nothing sent */
 		sftp->open_packet_sent = 0;
 		s = sftp->open_packet = (uchar *)LIBSSH2_ALLOC(session, sftp->open_packet_len);
@@ -1526,13 +1519,10 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char * buffer,
 	uchar * s, * data;
 	ssize_t rc;
 	struct sftp_pipeline_chunk * chunk;
-
 	struct sftp_pipeline_chunk * next;
-
 	size_t acked = 0;
 	size_t org_count = count;
 	size_t already;
-
 	switch(sftp->write_state) {
 		default:
 		case libssh2_NB_state_idle:
@@ -1727,7 +1717,6 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE * handle)
 	uchar * packet, * s, * data;
 	ssize_t rc;
 	uint32 retcode;
-
 	if(sftp->fsync_state == libssh2_NB_state_idle) {
 		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Issuing fsync command");
 		s = packet = (uchar *)LIBSSH2_ALLOC(session, packet_len);
@@ -1818,10 +1807,8 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
 	uint32 packet_len =
 	    handle->handle_len + 13 + (setstat ? sftp_attrsize(attrs->flags) : 0);
 	uchar * s, * data;
-	static const uchar fstat_responses[2] =
-	{ SSH_FXP_ATTRS, SSH_FXP_STATUS };
+	static const uchar fstat_responses[2] = { SSH_FXP_ATTRS, SSH_FXP_STATUS };
 	ssize_t rc;
-
 	if(sftp->fstat_state == libssh2_NB_state_idle) {
 		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Issuing %s command", setstat ? "set-stat" : "stat");
 		s = sftp->fstat_packet = (uchar *)LIBSSH2_ALLOC(session, packet_len);
@@ -2425,9 +2412,7 @@ static int sftp_statvfs(LIBSSH2_SFTP * sftp, const char * path,
 	uchar * packet, * s, * data;
 	ssize_t rc;
 	uint flag;
-	static const uchar responses[2] =
-	{ SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
-
+	static const uchar responses[2] = { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
 	if(sftp->statvfs_state == libssh2_NB_state_idle) {
 		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Getting file system statistics of %s", path);
 		s = packet = (uchar *)LIBSSH2_ALLOC(session, packet_len);

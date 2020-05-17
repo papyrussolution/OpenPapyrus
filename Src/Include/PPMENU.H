@@ -332,8 +332,8 @@
 #define cmGenerateGoodsBills           441 // Генерация товарных документов
 #define cmPersonRel                    442 // Редактирование персональных отношений
 #define cmViewLogs                     443 // Просмотр логов
-#define cmMailAcct                     444 // Редактирование почтовых акаунтов
-#define cmImportEmailAccts             445 // Импорт почтовых акаунтов
+#define cmMailAcct                     444 // Редактирование почтовых аккаунтов
+#define cmImportEmailAccts             445 // Импорт почтовых аккаунтов
 #define cmKeyboardWKeyCfg              446 // Конфигурация клавиатуры с ключом
 #define cmViewGoodsStruc               447 // Товарные структуры
 #define cmCorrectTransfer              448 // Восстановление записей transfer

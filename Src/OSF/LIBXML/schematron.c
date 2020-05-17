@@ -206,7 +206,7 @@ static void FASTCALL xmlSchematronPErr(xmlSchematronParserCtxt * ctxt, xmlNode *
 		schannel = ctxt->serror;
 	}
 	__xmlRaiseError(schannel, channel, data, ctxt, P_Node, XML_FROM_SCHEMASP, error, XML_ERR_ERROR, NULL, 0, 
-		(const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+		PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
 /**
  * xmlSchematronVTypeErrMemory:

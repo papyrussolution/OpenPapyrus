@@ -406,7 +406,7 @@ static const char * ParseMapWithPaths(NWildcard::CCensor &censor, const UString 
 	int pos2 = s.Find(L':', pos + 1);
 	if(pos2 < 0)
 		return k_IncorrectMapCommand;
-	CEventSetEnd eventSetEnd((const wchar_t*)s + ((uint)pos2 + 1));
+	CEventSetEnd eventSetEnd((const wchar_t *)s + ((uint)pos2 + 1));
 	s.DeleteFrom(pos2);
 	uint32 size;
 	if(!StringToUInt32(s.Ptr(pos + 1), size) || size < sizeof(wchar_t) || size > ((uint32)1 << 31) || size % sizeof(wchar_t) != 0)
@@ -420,7 +420,7 @@ static const char * ParseMapWithPaths(NWildcard::CCensor &censor, const UString 
 		return "MapViewOfFile error";
 	CFileUnmapper unmapper(data);
 	UString name;
-	const wchar_t * p = (const wchar_t*)data;
+	const wchar_t * p = (const wchar_t *)data;
 	if(*p != 0) // data format marker
 		return "Unsupported Map data";
 	else {

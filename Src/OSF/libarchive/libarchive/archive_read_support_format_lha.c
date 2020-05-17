@@ -417,13 +417,13 @@ static int lha_skip_sfx(struct archive_read * a)
 		 */
 		while(p + H_SIZE < q) {
 			if((next = lha_check_header_format(p)) == 0) {
-				skip = p - (const char *)h;
+				skip = p - PTRCHRC(h);
 				__archive_read_consume(a, skip);
 				return ARCHIVE_OK;
 			}
 			p += next;
 		}
-		skip = p - (const char *)h;
+		skip = p - PTRCHRC(h);
 		__archive_read_consume(a, skip);
 	}
 fatal:

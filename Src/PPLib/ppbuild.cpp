@@ -1,5 +1,6 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -24,8 +25,8 @@ public:
 			fBuildSoap         = 0x0010,
 			fBuildDistrib      = 0x0020,
 			fCopyToUhtt        = 0x0040,
-			fOpenSource        = 0x0080, // OpenSource-вариант сборки
-			fSupplementalBuild = 0x0100  // @v10.6.1 дополнительная сборка XP-совместимых исполняемых файлов
+			fOpenSource        = 0x0080, // OpenSource-РІР°СЂРёР°РЅС‚ СЃР±РѕСЂРєРё
+			fSupplementalBuild = 0x0100  // @v10.6.1 РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ СЃР±РѕСЂРєР° XP-СЃРѕРІРјРµСЃС‚РёРјС‹С… РёСЃРїРѕР»РЅСЏРµРјС‹С… С„Р°Р№Р»РѕРІ
 		};
 		Param() : Flags(0), ConfigEntryIdx(0), XpConfigEntryIdx(0)
 		{
@@ -54,23 +55,23 @@ public:
 			rBuf.Z().Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).CatChar('(').Cat(Ver.Asm).CatChar(')');
 			return rBuf;
 		}
-		BuildVer Ver;            // Собираемая версия //
+		BuildVer Ver;            // РЎРѕР±РёСЂР°РµРјР°СЏ РІРµСЂСЃРёСЏ //
 		long   Flags;
-		uint   ConfigEntryIdx;   // Индекс выбранной конфигурации сборки. 0 - undef
-		uint   XpConfigEntryIdx; // @v10.6.1 Индекс дополнительной конфигурации сборки для Windows-XP. 0 - undef
-		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
+		uint   ConfigEntryIdx;   // РРЅРґРµРєСЃ РІС‹Р±СЂР°РЅРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё СЃР±РѕСЂРєРё. 0 - undef
+		uint   XpConfigEntryIdx; // @v10.6.1 РРЅРґРµРєСЃ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё СЃР±РѕСЂРєРё РґР»СЏ Windows-XP. 0 - undef
+		SString VerSuffix;       // РћРїС†РёРѕРЅР°Р»СЊРЅС‹Р№ СЃСѓС„С„РёРєСЃ РІРµСЂСЃРёРё РґРёСЃС‚СЂРёР±СѓС‚РёРІР° (РЅР°РїСЂРёРјРµСЂ, PRE)
 		struct ConfigEntry {
 			ConfigEntry() : PrefMsvsVerMajor(0)
 			{
 			}
-			SString Name;            // Наименование элемента конфигурации сборки
+			SString Name;            // РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЌР»РµРјРµРЅС‚Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё СЃР±РѕСЂРєРё
 			int    PrefMsvsVerMajor; // PPINIPARAM_PREFMSVSVER
-			SString RootPath;        // PPINIPARAM_BUILDROOT     Корневой каталог проекта
-			SString SrcPath;         // PPINIPARAM_BUILDSRC      Каталог исходных кодов
-			SString SlnPath;         // PPINIPARAM_BUILDSOLUTION Каталог, содержащий файлы проектов
-			SString TargetRootPath;  // PPINIPARAM_BUILDTARGET   Корневой каталог, в котором должна собираться версия (C:\PPY)
-			SString NsisPath;        // PPINIPARAM_BUILDNSIS     Путь к исполняемому файлу NSIS (сборщик дистрибутива)
-			SString DistribPath;     // PPINIPARAM_BUILDDISTRIB  Корневой каталог, хранящий дистрибутивы
+			SString RootPath;        // PPINIPARAM_BUILDROOT     РљРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі РїСЂРѕРµРєС‚Р°
+			SString SrcPath;         // PPINIPARAM_BUILDSRC      РљР°С‚Р°Р»РѕРі РёСЃС…РѕРґРЅС‹С… РєРѕРґРѕРІ
+			SString SlnPath;         // PPINIPARAM_BUILDSOLUTION РљР°С‚Р°Р»РѕРі, СЃРѕРґРµСЂР¶Р°С‰РёР№ С„Р°Р№Р»С‹ РїСЂРѕРµРєС‚РѕРІ
+			SString TargetRootPath;  // PPINIPARAM_BUILDTARGET   РљРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі, РІ РєРѕС‚РѕСЂРѕРј РґРѕР»Р¶РЅР° СЃРѕР±РёСЂР°С‚СЊСЃСЏ РІРµСЂСЃРёСЏ (C:\PPY)
+			SString NsisPath;        // PPINIPARAM_BUILDNSIS     РџСѓС‚СЊ Рє РёСЃРїРѕР»РЅСЏРµРјРѕРјСѓ С„Р°Р№Р»Сѓ NSIS (СЃР±РѕСЂС‰РёРє РґРёСЃС‚СЂРёР±СѓС‚РёРІР°)
+			SString DistribPath;     // PPINIPARAM_BUILDDISTRIB  РљРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі, С…СЂР°РЅСЏС‰РёР№ РґРёСЃС‚СЂРёР±СѓС‚РёРІС‹
 		};
 		TSCollection <ConfigEntry> ConfigList;
 	};
@@ -151,7 +152,7 @@ PrcssrBuild::Param::ConfigEntry * SLAPI PrcssrBuild::SetupParamByEntryIdx(Param 
 		SString file_name_buf;
 		SString full_path_buf;
 		//
-		// Извлекаем из файла SRC\RSRC\VERSION\genver.dat номер создаваемой версии
+		// РР·РІР»РµРєР°РµРј РёР· С„Р°Р№Р»Р° SRC\RSRC\VERSION\genver.dat РЅРѕРјРµСЂ СЃРѕР·РґР°РІР°РµРјРѕР№ РІРµСЂСЃРёРё
 		//
 		(temp_buf = p_entry->SrcPath).SetLastSlash().Cat("RSRC").SetLastSlash().Cat("Version").SetLastSlash();
 		PPGetFileName(PPFILNAM_GENVER_DAT, file_name_buf);
@@ -190,7 +191,7 @@ int	SLAPI PrcssrBuild::InitParam(Param * pParam)
 		StringSet sections;
 		ini_file.GetSections(&sections);
 		for(uint sp = 0; sections.get(&sp, temp_buf);) {
-			if(temp_buf.CmpPrefix("selfbuild", 1) == 0) {
+			if(temp_buf.HasPrefixIAscii("selfbuild")) {
 				if(temp_buf.Divide('-', left, right) > 0 || temp_buf.Divide(':', left, right) > 0) {
 					uint   new_entry_pos = 0;
 					Param::ConfigEntry * p_new_entry = pParam->ConfigList.CreateNewItem(&new_entry_pos);
@@ -292,7 +293,7 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 						if(IsInState(sfModal)) {
 							// @v10.5.9 clearEvent(event);
 							endModal(cmOK);
-							return; // После endModal не следует обращаться к this
+							return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 						}
 					}
 				}
@@ -409,12 +410,12 @@ int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SSt
 			int    msvs_ver_minor = (item.Id & 0xffff);
 			if(prefMsvsVerMajor) {
 				if(msvs_ver_major == prefMsvsVerMajor) {
-					(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv.exe");
+					(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").Dot().Cat("exe");
 					ok = 2;
 				}
 			}
 			else if(msvs_ver_major == 7 && msvs_ver_minor == 1) {
-				(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv.exe");
+				(*pPrefPath = item.Txt).SetLastSlash().Cat("devenv").Dot().Cat("exe");
 				ok = 2;
 			}
 		}
@@ -450,7 +451,7 @@ int SLAPI PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int 
 	SString fmt_buf;
 	SString build_log_path;
 	//
-	// Сборка исполняемых файлов и ресурсов
+	// РЎР±РѕСЂРєР° РёСЃРїРѕР»РЅСЏРµРјС‹С… С„Р°Р№Р»РѕРІ Рё СЂРµСЃСѓСЂСЃРѕРІ
 	//
 	struct SolutionEntry {
 		const char * P_Name;
@@ -592,7 +593,7 @@ int	SLAPI PrcssrBuild::Run()
 	THROW(Helper_Compile(p_config_entry, 0, logger));
 	if(P.Flags & Param::fBuildDistrib) {
 		//
-		// Сборка дистрибутива
+		// РЎР±РѕСЂРєР° РґРёСЃС‚СЂРёР±СѓС‚РёРІР°
 		//
 		struct NsisEntry {
 			const char * P_Name;
@@ -707,7 +708,7 @@ int	SLAPI PrcssrBuild::Run()
 		}
 		if(P.Flags & Param::fCopyToUhtt) {
 			//
-			// Копирование файлов дистрибутива в хранилище Universe-HTT
+			// РљРѕРїРёСЂРѕРІР°РЅРёРµ С„Р°Р№Р»РѕРІ РґРёСЃС‚СЂРёР±СѓС‚РёРІР° РІ С…СЂР°РЅРёР»РёС‰Рµ Universe-HTT
 			//
 			SString uhtt_symb;
 			PPWait(1);
@@ -722,7 +723,7 @@ int	SLAPI PrcssrBuild::Run()
 						uhtt_symb = r_nsis_entry.P_UhttSymb;
 					// } @v9.4.12
 					{
-						//PPTXT_BUILD_UHTTCOPY_INFO        "Копирование на сервер @{brand_uhtt}"
+						//PPTXT_BUILD_UHTTCOPY_INFO        "РљРѕРїРёСЂРѕРІР°РЅРёРµ РЅР° СЃРµСЂРІРµСЂ @{brand_uhtt}"
 						PPLoadText(PPTXT_BUILD_UHTTCOPY_INFO, msg_buf);
 						msg_buf.CatDiv(':', 2).Cat(r_nsis_entry.FileName).CatDiv('-', 1).Cat(uhtt_symb).CatDiv('-', 1).Cat(ver_label);
 						logger.Log(msg_buf);

@@ -205,7 +205,7 @@ CCodecs::~CCodecs()
 	// OutputDebugStringA("~CCodecs");
 }
 
-const wchar_t * FASTCALL CCodecs::GetFormatNamePtr(int formatIndex) const { return formatIndex < 0 ? L"#" : (const wchar_t*)Formats[formatIndex].Name; }
+const wchar_t * FASTCALL CCodecs::GetFormatNamePtr(int formatIndex) const { return formatIndex < 0 ? L"#" : (const wchar_t *)Formats[formatIndex].Name; }
 
 HRESULT CCodecs::CreateInArchive(unsigned formatIndex, CMyComPtr<IInArchive> &archive) const
 {

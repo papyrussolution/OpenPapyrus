@@ -398,7 +398,7 @@ int SLAPI PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem 
 	}
 	else {
 		TempTrfrGrpngTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.7.8 @ctr MEMSZERO(rec);
 #define CPY(f) rec.f = rItem.f
 		CPY(ID__);  //
 		CPY(Dt);
@@ -711,7 +711,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 						prf_measure += 1.0;
 						if(Filt.PsnCatID || Filt.CityID) {
 							PersonTbl::Rec p_rec;
-							MEMSZERO(p_rec);
+							// @v10.7.8 @ctr MEMSZERO(p_rec);
 							const PPID psn_id = ObjectToPerson(bill_rec.Object);
 							if(psn_id && PsnObj.Fetch(psn_id, &p_rec) > 0) {
 								if(Filt.PsnCatID)
@@ -1218,7 +1218,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 		if(Filt.Grp) {
 			TempTrfrGrpngTbl::Key1 k;
 			TempTrfrGrpngTbl::Rec tg_rec;
-			MEMSZERO(tg_rec);
+			// @v10.7.8 @ctr MEMSZERO(tg_rec);
 			double rest = 0.0;
 			tg_rec.Qtty      = pTrfrRec->Quantity;
 			if(GObj.GetPhUPerU(goods_id, 0, &phuperu) > 0)
@@ -1441,7 +1441,7 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 		}
 		else {
 			TempTrfrAnlzTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.7.8 @ctr MEMSZERO(rec);
 			memcpy(rec.BillCode, pBillRec->Code, sizeof(rec.BillCode));
 			// @debug {
 			if(pBillRec->Dt != pTrfrRec->Dt) {
@@ -1550,7 +1550,6 @@ int SLAPI PPViewTrfrAnlz::AddAbsentSaldo()
 	PPID   goods_id, art_id;
 	PPIDArray ary;
 	TempTrfrGrpngTbl::Key1 k;
-	TempTrfrGrpngTbl::Rec  tg_rec;
 	if(P_TrGrpngTbl) {
 		if(Filt.Grp == TrfrAnlzFilt::gGoods) {
 			if(Filt.ArList.GetSingle())
@@ -1572,7 +1571,8 @@ int SLAPI PPViewTrfrAnlz::AddAbsentSaldo()
 			}
 		}
 		for(uint i = 0; i < ary.getCount(); i++) {
-			MEMSZERO(tg_rec);
+			TempTrfrGrpngTbl::Rec tg_rec;
+			// @v10.7.8 @ctr MEMSZERO(tg_rec);
 			MEMSZERO(k);
 			if(Filt.Grp == TrfrAnlzFilt::gGoods)
 				k.GoodsID = tg_rec.GoodsID = goods_id = ary.at(i);
@@ -4815,8 +4815,6 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID 
 	const  PPID reg_type_id = GetWkrRegisterTypeID(wkr);
 	PPID   psn_id = psnID;
 	SString temp_buf;
-	RegisterTbl::Rec reg_rec;
-	MEMSZERO(reg_rec);
 	RegisterArray full_reg_list;
 	RegisterArray _reg_list;
 	LocationTbl::Rec loc_rec;
@@ -4831,7 +4829,8 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID 
 				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
 				// дополнительное поле локации.
 				//
-				MEMSZERO(reg_rec);
+				RegisterTbl::Rec reg_rec;
+				// @v10.7.8 @ctr MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
 				reg_rec.ObjID = locID;
 				temp_buf.CopyTo(reg_rec.Num, sizeof(reg_rec.Num));
@@ -4868,8 +4867,6 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, L
 	const  PPID reg_type_id = GetWkrRegisterTypeID(wkr);
 	PPID   psn_id = psnID;
 	SString temp_buf;
-	RegisterTbl::Rec reg_rec;
-	MEMSZERO(reg_rec);
 	RegisterArray full_reg_list;
 	RegisterArray _reg_list;
 	LocationTbl::Rec loc_rec;
@@ -4884,7 +4881,8 @@ int SLAPI PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, L
 				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
 				// дополнительное поле локации.
 				//
-				MEMSZERO(reg_rec);
+				RegisterTbl::Rec reg_rec;
+				// @v10.7.8 @ctr MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
 				reg_rec.ObjID = locID;
 				temp_buf.CopyTo(reg_rec.Num, sizeof(reg_rec.Num));
@@ -4922,7 +4920,7 @@ int SLAPI PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE
 	PPID   psn_id = psnID;
 	SString temp_buf;
 	RegisterTbl::Rec reg_rec;
-	MEMSZERO(reg_rec);
+	// @v10.7.8 @ctr MEMSZERO(reg_rec);
 	RegisterArray reg_list;
 	LocationTbl::Rec loc_rec;
 	if(reg_type_id) {
@@ -4936,7 +4934,7 @@ int SLAPI PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE
 				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
 				// дополнительное поле локации.
 				//
-				MEMSZERO(reg_rec);
+				// @v10.7.8 @ctr MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
 				reg_rec.ObjID = locID;
 				temp_buf.CopyTo(reg_rec.Num, sizeof(reg_rec.Num));

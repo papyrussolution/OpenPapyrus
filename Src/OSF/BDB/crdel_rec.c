@@ -126,7 +126,7 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 				goto out;
 			F_SET(dbp, DB_AM_RECOVER|DB_AM_INMEM);
 			memcpy(dbp->fileid, argp->fid.data, DB_FILE_ID_LEN);
-			if(((ret = __os_strdup(env, (const char *)argp->name.data, &dbp->dname)) != 0))
+			if(((ret = __os_strdup(env, PTRCHRC(argp->name.data), &dbp->dname)) != 0))
 				goto out;
 			/*
 			 * This DBP is never going to be entered into the
@@ -141,19 +141,19 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 			goto out;
 		dbp->preserve_fid = 1;
 		MAKE_INMEM(dbp);
-		if((ret = __env_setup(dbp, NULL, NULL, (const char *)argp->name.data, TXN_INVALID, 0)) != 0)
+		if((ret = __env_setup(dbp, NULL, NULL, PTRCHRC(argp->name.data), TXN_INVALID, 0)) != 0)
 			goto out;
-		ret = __env_mpool(dbp, (const char *)argp->name.data, 0);
+		ret = __env_mpool(dbp, PTRCHRC(argp->name.data), 0);
 		if(ret == ENOENT) {
 			dbp->pgsize = argp->pgsize;
-			if((ret = __env_mpool(dbp, (const char *)argp->name.data, DB_CREATE)) != 0)
+			if((ret = __env_mpool(dbp, PTRCHRC(argp->name.data), DB_CREATE)) != 0)
 				goto out;
 		}
 		else if(ret != 0)
 			goto out;
 	}
 	if(DB_UNDO(op)) {
-		SETIFZ(ret, __memp_nameop(env, (uint8 *)argp->fid.data, NULL, (const char *)argp->name.data,  NULL, 1));
+		SETIFZ(ret, __memp_nameop(env, (uint8 *)argp->fid.data, NULL, PTRCHRC(argp->name.data),  NULL, 1));
 		if(ret == ENOENT || ret == DB_DELETED)
 			ret = 0;
 		else
@@ -214,7 +214,7 @@ int __crdel_inmem_remove_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 	 * The remove may fail, which is OK.
 	 */
 	if(DB_REDO(op)) {
-		__memp_nameop(env, (uint8 *)argp->fid.data, NULL, (const char *)argp->name.data, NULL, 1);
+		__memp_nameop(env, (uint8 *)argp->fid.data, NULL, PTRCHRC(argp->name.data), NULL, 1);
 	}
 	*lsnp = argp->prev_lsn;
 	ret = 0;

@@ -199,7 +199,7 @@ int FASTCALL xmlStrncmp(const xmlChar * str1, const xmlChar * str2, int len)
 	if(str1 == NULL) return -1;
 	if(str2 == NULL) return 1;
 #ifdef __GNUC__
-	tmp = strncmp((const char *)str1, (const char *)str2, len);
+	tmp = strncmp(PTRCHRC_(str1), PTRCHRC_(str2), len);
 	return tmp;
 #else
 	do {

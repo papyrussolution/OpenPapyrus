@@ -1,5 +1,5 @@
 // MAILSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -374,8 +374,8 @@ int SLAPI SMailClient::CheckReply(const SString & rReplyBuf, int onlyValidCode)
 	const int protocol = Url.GetProtocol();
 	if(oneof2(protocol, InetUrl::protPOP3, InetUrl::protPOP3S)) {
 		THROW_S(rReplyBuf.NotEmpty(), SLERR_MAIL_POP3_NOREPLY);
-		THROW_S_S(rReplyBuf.CmpPrefix("-ERR", 1) != 0, SLERR_MAIL_POP3_REPLYERR, rReplyBuf);
-		THROW_S_S(rReplyBuf.CmpPrefix("+OK", 1) == 0, SLERR_MAIL_POP3_UNDEFREPLY, rReplyBuf);
+		THROW_S_S(!rReplyBuf.HasPrefixIAscii("-ERR"), SLERR_MAIL_POP3_REPLYERR, rReplyBuf);
+		THROW_S_S(rReplyBuf.HasPrefixIAscii("+OK"), SLERR_MAIL_POP3_UNDEFREPLY, rReplyBuf);
 	}
 	else if(oneof2(protocol, InetUrl::protSMTP, InetUrl::protSMTPS)) {
 		THROW_S(rReplyBuf.NotEmpty(), SLERR_MAIL_SMTP_NOREPLY);
@@ -536,9 +536,9 @@ int SLAPI SMailClient::WriteBlock(const void * pData, size_t dataSize)
 SString & FASTCALL SMailClient::Pop3_SkipReplyStatus(SString & rBuf)
 {
 	rBuf.Strip();
-	if(rBuf.CmpPrefix("+OK", 0) == 0)
+	if(rBuf.HasPrefix("+OK"))
 		rBuf.ShiftLeft(3);
-	else if(rBuf.CmpPrefix("-ERR", 0) == 0)
+	else if(rBuf.HasPrefix("-ERR"))
 		rBuf.ShiftLeft(4);
 	return rBuf.Strip();
 }

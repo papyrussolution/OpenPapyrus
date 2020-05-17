@@ -286,13 +286,12 @@ int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, 
             StringSet ss;
             rFilter.Tokenize(" ;,", ss);
             for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
-				if(rChannel.CmpPrefix(temp_buf, 1) == 0)
+				if(rChannel.HasPrefixNC(temp_buf))
 					ok = 1;
             }
 		}
-		else if(rChannel.CmpPrefix(rFilter, 1) == 0) {
+		else if(rChannel.HasPrefixNC(rFilter))
 			ok = 1;
-		}
 	}
 	return ok;
 }

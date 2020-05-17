@@ -1,5 +1,5 @@
 // AMTDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -14,6 +14,7 @@ struct AmtDialogEntry {
 };
 
 class AmountDialog : public TDialog {
+	DECL_DIALOG_DATA(AmtDialogEntry);
 public:
 	enum {
 		ctlgroupCurAmt = 1
@@ -25,48 +26,43 @@ public:
 			CTLSEL_BILLAMT_CUR, CTL_BILLAMT_CRATE, CTL_BILLAMT_BASEAMT, 0, cmBillAmtSelRate, pList);
 		addGroup(ctlgroupCurAmt, p_ca_grp);
 	}
-	int    setDTS(const AmtDialogEntry *);
-	int    getDTS(AmtDialogEntry *);
+	DECL_DIALOG_SETDTS()
+	{
+		CurAmtCtrlGroup::Rec ca_rec;
+		RVALUEPTR(Data, pData);
+		if(Data.AmtTypeID == 0 && P_RestrictList && P_RestrictList->getCount() == 1)
+			Data.AmtTypeID = P_RestrictList->at(0);
+		SetupAmtTypeCombo(this, CTLSEL_BILLAMT_AMTTYPE, Data.AmtTypeID, OLW_CANINSERT, 0, P_RestrictList);
+		disableCtrl(CTL_BILLAMT_BASEAMT, 1);
+		disableCtrls(!CanEdit, CTLSEL_BILLAMT_AMTTYPE, CTLSEL_BILLAMT_CUR, 0);
+		disableCtrls(Data.AmtTypeID == PPAMT_CRATE, CTL_BILLAMT_CRATE, 0);
+		if(!CanEdit)
+			selectCtrl(CTL_BILLAMT_AMOUNT);
+		ca_rec.Amount = Data.Amt;
+		ca_rec.CurID  = Data.CurID;
+		ca_rec.CRate  = Data.CRate;
+		ca_rec.BaseAmount = Data.BaseAmt;
+		ca_rec.CRateDate = Data.CRateDate;
+		setGroupData(ctlgroupCurAmt, &ca_rec);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		CurAmtCtrlGroup::Rec ca_rec;
+		getCtrlData(CTLSEL_BILLAMT_AMTTYPE, &Data.AmtTypeID);
+		getGroupData(ctlgroupCurAmt, &ca_rec);
+		Data.CurID   = ca_rec.CurID;
+		Data.Amt     = ca_rec.Amount;
+		Data.CRate   = ca_rec.CRate;
+		Data.BaseAmt = ca_rec.BaseAmount;
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	int    CanEdit;
-	AmtDialogEntry Data;
 	PPIDArray * P_RestrictList; // Not owned by this
 };
-
-int AmountDialog::setDTS(const AmtDialogEntry * pData)
-{
-	CurAmtCtrlGroup::Rec ca_rec;
-	Data = *pData;
-	if(Data.AmtTypeID == 0 && P_RestrictList && P_RestrictList->getCount() == 1)
-		Data.AmtTypeID = P_RestrictList->at(0);
-	SetupAmtTypeCombo(this, CTLSEL_BILLAMT_AMTTYPE, Data.AmtTypeID, OLW_CANINSERT, 0, P_RestrictList);
-	disableCtrl(CTL_BILLAMT_BASEAMT, 1);
-	disableCtrls(!CanEdit, CTLSEL_BILLAMT_AMTTYPE, CTLSEL_BILLAMT_CUR, 0);
-	disableCtrls(Data.AmtTypeID == PPAMT_CRATE, CTL_BILLAMT_CRATE, 0);
-	if(!CanEdit)
-		selectCtrl(CTL_BILLAMT_AMOUNT);
-	ca_rec.Amount = Data.Amt;
-	ca_rec.CurID  = Data.CurID;
-	ca_rec.CRate  = Data.CRate;
-	ca_rec.BaseAmount = Data.BaseAmt;
-	ca_rec.CRateDate = Data.CRateDate;
-	setGroupData(ctlgroupCurAmt, &ca_rec);
-	return 1;
-}
-
-int AmountDialog::getDTS(AmtDialogEntry * pData)
-{
-	int    ok = 1;
-	CurAmtCtrlGroup::Rec ca_rec;
-	getCtrlData(CTLSEL_BILLAMT_AMTTYPE, &Data.AmtTypeID);
-	getGroupData(ctlgroupCurAmt, &ca_rec);
-	Data.CurID   = ca_rec.CurID;
-	Data.Amt     = ca_rec.Amount;
-	Data.CRate   = ca_rec.CRate;
-	Data.BaseAmt = ca_rec.BaseAmount;
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
 //
 //
 //
@@ -295,11 +291,12 @@ int StaffAmtListDialog::setupList()
 }
 
 class StaffAmtEntryDlg : public TDialog {
+	DECL_DIALOG_DATA(StaffAmtEntry);
 public:
 	StaffAmtEntryDlg() : TDialog(DLG_STAFFAMT)
 	{
 	}
-	int    setDTS(const StaffAmtEntry * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
@@ -310,7 +307,7 @@ public:
 		SetPeriodInput(this, CTL_BILLAMT_PERIOD, &Data.Period);
 		return 1;
 	}
-	int    getDTS(StaffAmtEntry * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ushort sel = 0;
@@ -324,8 +321,6 @@ public:
 		ENDCATCH
 		return ok;
 	}
-private:
-	StaffAmtEntry Data;
 };
 
 int EditStaffAmtEntry(long idx, StaffAmtList * pAmtList)

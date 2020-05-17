@@ -1,5 +1,5 @@
 // PPEDI-BASE.CPP
-// Copyright (c) A.Sobolev 2018
+// Copyright (c) A.Sobolev 2018, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -24,28 +24,28 @@ int SEancomXmlSegment::GetNext(SEancomXmlSegment & rSeg)
 
 int SEancomXmlSegment::Is(const char * pName) const
 {
-	return P_Node ? IsText((const char *)P_Node->name, pName) : 0;
+	return P_Node ? IsText(PTRCHRC_(P_Node->name), pName) : 0;
 }
 
 int SEancomXmlSegment::IsContent(const char * pText) const
 {
-	return P_Node ? IsText((const char *)P_Node->content, pText) : 0;
+	return P_Node ? IsText(PTRCHRC_(P_Node->content), pText) : 0;
 }
 
 SString & SEancomXmlSegment::GetContent(SString & rBuf) const
 {
-	rBuf = P_Node ? (const char *)P_Node->content : 0;
+	rBuf = P_Node ? PTRCHRC_(P_Node->content) : 0;
 	return rBuf;
 }
 
 int SEancomXmlSegment::GetMsgTypeName() const
 {
-	return P_Node ? GetMsgType((const char *)P_Node->name) : 0;
+	return P_Node ? GetMsgType(PTRCHRC_(P_Node->name)) : 0;
 }
 
 int SEancomXmlSegment::GetMsgTypeContent() const
 {
-	return P_Node ? GetMsgType((const char *)P_Node->content) : 0;
+	return P_Node ? GetMsgType(PTRCHRC_(P_Node->content)) : 0;
 }
 
 int SEancomXmlSegment::GetMsgType(const char * pText) const
@@ -74,7 +74,7 @@ int SEancomXmlSegment::GetInt(int & rVal) const
 {
 	int    ok = 0;
 	if(P_Node && P_Node->content) {
-		rVal = atoi((const char *)P_Node->content);
+		rVal = atoi(PTRCHRC_(P_Node->content));
 		ok = 1;
 	}
 	else {
@@ -88,7 +88,7 @@ int SEancomXmlSegment::GetReal(double & rVal) const
 {
 	int    ok = 0;
 	if(P_Node && P_Node->content) {
-		rVal = atof((const char *)P_Node->content);
+		rVal = atof(PTRCHRC_(P_Node->content));
 		ok = 1;
 	}
 	else {

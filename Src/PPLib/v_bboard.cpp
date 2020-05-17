@@ -1,6 +1,6 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -78,17 +78,17 @@ int SLAPI PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		const ServerStatViewItem * p_item = static_cast<const ServerStatViewItem *>(pBlk->P_SrcData);
 		void * p_dest = pBlk->P_DestData;
 		switch(pBlk->ColumnN) {
-			case 0: // ÈÄ ïîòîêà
+			case 0: // Ð˜Ð” Ð¿Ð¾Ñ‚Ð¾ÐºÐ°
 				pBlk->Set((int32)p_item->TId);
 				break;
-			case 1: // Âèä ïîòîêà
+			case 1: // Ð’Ð¸Ð´ Ð¿Ð¾Ñ‚Ð¾ÐºÐ°
 				PPThread::GetKindText(p_item->Kind, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 2: // Âðåìÿ çàïóñêà
+			case 2: // Ð’Ñ€ÐµÐ¼Ñ Ð·Ð°Ð¿ÑƒÑÐºÐ°
 				pBlk->Set(temp_buf.Cat(p_item->StartMoment, DATF_DMY, TIMF_HMS));
 				break;
-			case 3: // Âðåìÿ ðàáîòû
+			case 3: // Ð’Ñ€ÐµÐ¼Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹
 				{
 					LDATETIME cur = getcurdatetime_();
 					LTIME ctm;
@@ -96,10 +96,10 @@ int SLAPI PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(ctm);
 				}
 				break;
-			case 4: // Íàèìåíîâàíèå
+			case 4: // ÐÐ°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ
 				pBlk->Set(p_item->Text);
 				break;
-			case 5: // Ïîñëåäíåå ñîîáùåíèå
+			case 5: // ÐŸÐ¾ÑÐ»ÐµÐ´Ð½ÐµÐµ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ
 				pBlk->Set(p_item->LastMsg);
 				break;
 		}

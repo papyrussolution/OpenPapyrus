@@ -264,7 +264,7 @@
 	#define HELP_BROWSER_GOODSTAXANLZ_PIL                       112
 #define BROWSER_GOODSMOV                               113 // @{view_goodsmov} {%s}
 	#define HELP_BROWSER_GOODSMOV                               113
-#define BROWSER_GOODSMOV_CT                            114 // Движение товаров с кросстабуляцией {%s}
+#define BROWSER_GOODSMOV_CT                            114 // @{view_goodsmov2} {%s}
 	#define HELP_BROWSER_GOODSMOV_CT                            114
 #define BROWSER_OPGRPNG                                115 // @{opgrouping} {%s}
 	#define HELP_BROWSER_OPGRPNG                                115
@@ -576,22 +576,24 @@
 	#define HELP_BROWSER_TIMESERIES                             266
 #define BROWSER_TIMSERDETAIL                           267 // @{timeseries_p}
 	#define HELP_BROWSER_TIMSERDETAIL                           267
-#define BROWSER_DBMONITOR                              268 // Монитор базы данных
-	#define HELP_BROWSER_DBMONITOR                              268
-#define BROWSER_SUPRWARE                               269 // Базовые товары и компоненты
-	#define HELP_BROWSER_SUPRWARE                               269
-#define BROWSER_USERPROFILE                            270 // Профайлер пользовательских функций
-	#define HELP_BROWSER_USERPROFILE                            270
-#define BROWSER_JOB                                    271 // @{jobtask_pl}
-	#define HELP_BROWSER_JOB                                    271
-#define BROWSER_PHNSVCMONITOR                          272 // @{view_phnsvcmonitor}
-	#define HELP_BROWSER_PHNSVCMONITOR                          272
-#define BROWSER_TSSTKENVMONITOR                        273 // TSSTKENVMONITOR
-	#define HELP_BROWSER_TSSTKENVMONITOR                        273
-#define BROWSER_VETISDOCUMENT                          274 // @{view_vetisdocument}
-	#define HELP_BROWSER_VETISDOCUMENT                          274
-#define BROWSER_QUOTEREQANALYZE                        275 // @{view_quotereqanalyze}
-	#define HELP_BROWSER_QUOTEREQANALYZE                        275
+#define BROWSER_TIMSERSTRATEGIES                       268 // @{timeseries_p}
+	#define HELP_BROWSER_TIMSERSTRATEGIES                       268
+#define BROWSER_DBMONITOR                              269 // Монитор базы данных
+	#define HELP_BROWSER_DBMONITOR                              269
+#define BROWSER_SUPRWARE                               270 // Базовые товары и компоненты
+	#define HELP_BROWSER_SUPRWARE                               270
+#define BROWSER_USERPROFILE                            271 // Профайлер пользовательских функций
+	#define HELP_BROWSER_USERPROFILE                            271
+#define BROWSER_JOB                                    272 // @{jobtask_pl}
+	#define HELP_BROWSER_JOB                                    272
+#define BROWSER_PHNSVCMONITOR                          273 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                          273
+#define BROWSER_TSSTKENVMONITOR                        274 // TSSTKENVMONITOR
+	#define HELP_BROWSER_TSSTKENVMONITOR                        274
+#define BROWSER_VETISDOCUMENT                          275 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                          275
+#define BROWSER_QUOTEREQANALYZE                        276 // @{view_quotereqanalyze}
+	#define HELP_BROWSER_QUOTEREQANALYZE                        276
 
 //
 // PPVIEW COMMAND definitions
@@ -1840,6 +1842,9 @@
 #define PPVIEW_QUOTEREQANALYZE                       1190
 	#define PPFILT_QUOTEREQANALYZE                       1191
 	#define PPVIEWITEM_QUOTEREQANALYZE                       1192
+#define PPVIEW_TIMSERSTRATEGYCONTAINER               1200
+	#define PPFILT_TIMSERSTRATEGYCONTAINER               1201
+	#define PPVIEWITEM_TIMSERSTRATEGYCONTAINER               1202
 //
 // RECORD definitions
 //
@@ -4781,5 +4786,16 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_LINK01                          32925
 #define PPDV_PLOT01                          32926
 #define PPDV_PLOT02                          32927
-#define PPDV_LOGOPAPYRUS                     32928
+#define PPDV_DOCUMENTS_ACC                   32928
+#define PPDV_DOCUMENTS_GOODS                 32929
+#define PPDV_DOCUMENTS_ORDER                 32930
+#define PPDV_DOCUMENTS_INVENTORY             32931
+#define PPDV_DOCUMENTS_DRAFT                 32932
+#define PPDV_OPLIST                          32933
+#define PPDV_LOTS                            32934
+#define PPDV_ORDLOTS                         32935
+#define PPDV_GOODSREST                       32936
+#define PPDV_TEST01                          32937
+#define PPDV_TOGGLE01                        32938
+#define PPDV_LOGOPAPYRUS                     32939
 

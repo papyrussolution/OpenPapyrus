@@ -1410,7 +1410,7 @@ int SLAPI CasCL5000J::SendPLU(const ScalePLU * pPLU)
 	THROW(CheckSync());
 	longfmtz(pPLU->Barcode, 6, buf, sizeof(buf));
 	barcode = buf;
-	if(barcode.CmpPrefix(WghtPrefix1, 1) == 0) {
+	if(barcode.HasPrefixNC(WghtPrefix1)) {
 		//
 		// DIRECT MESSAGE
 		//
@@ -5121,7 +5121,7 @@ int SLAPI PPObjScale::SendPlu(PPScalePacket * pScaleData, const char * pFileName
 		THROW_PP(in_stream.IsValid(), PPERR_SCALE_FOPEN);
 		if(in_stream.ReadLine(line_buf)) {
 			line_buf.Chomp();
-			if(line_buf.CmpPrefix(P_ScalePrepareFormatSignature, 0) == 0) {
+			if(line_buf.HasPrefix(P_ScalePrepareFormatSignature)) {
 				StringSet ss_rec("\t");
 				SString fld_buf;
 				while(in_stream.ReadLine(line_buf)) {
@@ -5271,7 +5271,7 @@ int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 					THROW_PP(in_stream.IsValid(), PPERR_SCALE_FOPEN);
 					if(in_stream.ReadLine(line_buf)) {
 						line_buf.Chomp();
-						if(line_buf.CmpPrefix(P_ScalePrepareFormatSignature, 0) == 0) {
+						if(line_buf.HasPrefix(P_ScalePrepareFormatSignature)) {
 							line_buf.Excise(0, sstrlen(P_ScalePrepareFormatSignature));
 							line_buf.Strip();
 							SVerT ver;

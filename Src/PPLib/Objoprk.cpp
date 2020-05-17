@@ -1530,9 +1530,7 @@ static int SLAPI AddGenOpItems(ObjRestrictArray & rList)
 			} while(i);
 		}
 		for(i = 0; i < dd_list.getCount(); i++) {
-			ObjRestrictItem new_item;
-			new_item.Flags = 0;
-			new_item.ObjID = dd_list.get(i);
+			ObjRestrictItem new_item(dd_list.get(i), 0);
 			if(rList.CheckUniqueID(new_item.ObjID)) {
 				rList.insert(&new_item);
 				ok = 1;
@@ -1786,126 +1784,6 @@ void OprKindDialog::prnOptDialog()
 //
 //
 //
-#if 0 // @v9.3.6 {
-void OprKindDialog::editOptions(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, ...)
-{
-	va_list ap;
-	PPIDArray options;
-	int    valid_data = 0;
-	uint   i;
-	int    warn_noupdlotrestflagdisabled = 0;
-	ushort v = 0;
-	long   _o, s, b, f = P_Data->Rec.Flags;
-	ulong  o;
-	TDialog * dlg = 0;
-	SString memo_tmpl;
-	SString obj2name;
-	SString amt_formula;
-
-	va_start(ap, pSubTypeList);
-	while((_o = va_arg(ap, long)) != 0)
-		options.add(_o);
-	if(CheckDialogPtrErr(&(dlg = new TDialog(dlgID)))) {
-		for(i = 0; i < options.getCount(); i++) {
-			o = (ulong)options.at(i);
-			SETFLAG(v, (1 << i), f & o);
-		}
-		dlg->setCtrlData(CTL_OPKMORE_FLAGS, &v);
-		if(useMainAmt) {
-			s = (f & OPKF_SELLING);
-			b = (f & OPKF_BUYING);
-			if(useMainAmt == 1)
-				v = (s ^ b) ? (b ? 1 : 2) : 0;
-			else if(s)
-				v = 1;
-			else
-				v = 0;
-			dlg->setCtrlData(CTL_OPKMORE_AMOUNT, &v);
-			// ahtoxa {
-			P_Data->GetExtStrData(OPKEXSTR_AMTFORMULA, amt_formula);
-			dlg->setCtrlString(CTL_OPKMORE_AMTFORMULA, amt_formula);
-			// } ahtoxa
-		}
-		P_Data->GetExtStrData(OPKEXSTR_MEMO, memo_tmpl);
-		P_Data->GetExtStrData(OPKEXSTR_OBJ2NAME, obj2name);
-		dlg->setCtrlString(CTL_OPKMORE_MEMO,     memo_tmpl);
-		dlg->setCtrlString(CTL_OPKMORE_OBJ2NAME, obj2name);
-		if(dlg->getCtrlView(CTLSEL_OPKMORE_DEFLOC))
-			SetupPPObjCombo(dlg, CTLSEL_OPKMORE_DEFLOC, PPOBJ_LOCATION, P_Data->Rec.DefLocID, 0, 0);
-		if(dlg->getCtrlView(CTL_OPKMORE_SUBTYPE) && pSubTypeList) {
-			v = 0;
-			if(pSubTypeList->lsearch(P_Data->Rec.SubType, &(i = 0)))
-				v = i;
-			dlg->setCtrlData(CTL_OPKMORE_SUBTYPE, &v);
-		}
-		while(!valid_data && ExecView(dlg) == cmOK) {
-			dlg->getCtrlData(CTL_OPKMORE_FLAGS,  &v);
-			for(i = 0; i < options.getCount(); i++) {
-				o = (ulong)options.at(i);
-				SETFLAG(f, o, v & (1 << i));
-			}
-			f &= ~(OPKF_BUYING | OPKF_SELLING);
-			if(useMainAmt) {
-				// ahtoxa {
-				PPBillPacket bill_pack;
-				SString temp_formula;
-				dlg->getCtrlString(CTL_OPKMORE_AMTFORMULA, amt_formula);
-				amt_formula.Strip();
-				if(amt_formula.CmpPrefix("ignfix", 1) == 0)
-					(temp_formula = amt_formula).ShiftLeft(sstrlen("ignfix")).Strip();
-				else
-					temp_formula = amt_formula;
-				if(amt_formula.Strip().Empty() || PPCalcExpression(temp_formula, 0, &bill_pack, 0, 0) > 0) {
-					P_Data->PutExtStrData(OPKEXSTR_AMTFORMULA, amt_formula);
-					valid_data = 1;
-					dlg->getCtrlData(CTL_OPKMORE_AMOUNT, &v);
-					if(useMainAmt == 1) {
-						if(v == 1)
-							f |= OPKF_BUYING;
-						else if(v == 2)
-							f |= OPKF_SELLING;
-					}
-					else if(f & OPKF_CURTRANSIT)
-						if(v == 1)
-							f |= OPKF_SELLING;
-						else
-							f |= OPKF_BUYING;
-				}
-				else
-					PPErrorByDialog(dlg, CTL_OPKMORE_AMTFORMULA);
-				// } ahtoxa
-			}
-			else
-				valid_data = 1;
-			if(valid_data) {
-				if(!(CConfig.Flags & CCFLG_USENOUPDRESTOPFLAG)) {
-					if(f & OPKF_NOUPDLOTREST) {
-						warn_noupdlotrestflagdisabled = 1;
-						f &= ~OPKF_NOUPDLOTREST;
-					}
-				}
-				P_Data->Rec.Flags = f;
-				if(dlg->getCtrlView(CTLSEL_OPKMORE_DEFLOC))
-					dlg->getCtrlData(CTLSEL_OPKMORE_DEFLOC, &P_Data->Rec.DefLocID);
-				dlg->getCtrlString(CTL_OPKMORE_MEMO, memo_tmpl);
-				dlg->getCtrlString(CTL_OPKMORE_OBJ2NAME, obj2name);
-				if(dlg->getCtrlView(CTL_OPKMORE_SUBTYPE) && pSubTypeList) {
-					dlg->getCtrlData(CTL_OPKMORE_SUBTYPE, &(v = 0));
-					P_Data->Rec.SubType = (v < pSubTypeList->getCount()) ? (int16)pSubTypeList->at(v) : 0;
-				}
-				P_Data->PutExtStrData(OPKEXSTR_MEMO, memo_tmpl.Strip());
-				P_Data->PutExtStrData(OPKEXSTR_OBJ2NAME, obj2name.Strip());
-			}
-		}
-		delete dlg;
-	}
-	if(warn_noupdlotrestflagdisabled)
-		PPMessage(mfInfo, PPINF_NOUPDRESTOPFLAGDISABLED);
-	va_end(ap);
-	enableCommand(cmOprKindExt, P_Data->Rec.OpTypeID == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT);
-}
-#endif // } 0 @v9.3.6
-
 void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList)
 {
 	PPIDArray options, ext_options;
@@ -1925,7 +1803,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 	if(CheckDialogPtrErr(&(dlg = new TDialog(dlgID)))) {
 		v = 0;
 		for(i = 0; i < options.getCount(); i++) {
-			o = (ulong)options.at(i);
+			o = static_cast<ulong>(options.at(i));
 			SETFLAG(v, (1 << i), f & o);
 		}
 		dlg->setCtrlUInt16(CTL_OPKMORE_FLAGS, v);
@@ -2014,7 +1892,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 				SString temp_formula;
 				dlg->getCtrlString(CTL_OPKMORE_AMTFORMULA, amt_formula);
 				amt_formula.Strip();
-				if(amt_formula.CmpPrefix("ignfix", 1) == 0)
+				if(amt_formula.HasPrefixIAscii("ignfix"))
 					(temp_formula = amt_formula).ShiftLeft(sstrlen("ignfix")).Strip();
 				else
 					temp_formula = amt_formula;

@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -190,8 +190,8 @@ int FreightFiltDialog::setDTS(const FreightFilt * pData)
 	setupAccSheet(acc_sheet_id);
 	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
 	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_SHIP, PPOBJ_TRANSPORT, Data.ShipID, 0);
-	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_PORT, PPOBJ_WORLD, Data.PortID, OLW_CANSELUPLEVEL,
-		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0));
+	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_PORT, PPOBJ_WORLD, Data.PortID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
 	AddClusterAssoc(CTL_FRGHTFLT_ORDER,  0, PPViewFreight::OrdByBillDate);
 	AddClusterAssoc(CTL_FRGHTFLT_ORDER, -1, PPViewFreight::OrdByDefault);
 	AddClusterAssoc(CTL_FRGHTFLT_ORDER,  1, PPViewFreight::OrdByArrivalDate);

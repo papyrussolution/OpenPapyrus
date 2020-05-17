@@ -22,7 +22,6 @@
     <ClCompile Include="..\PPEquip\Objscale.cpp" />
     <ClCompile Include="..\PPEquip\Palm.cpp" />
     <ClCompile Include="..\PPEquip\palmexch.cpp" />
-    <ClCompile Include="..\PPEquip\Petrovi.cpp" />
     <ClCompile Include="..\PPEquip\SetStart.cpp" />
     <ClCompile Include="..\PPEquip\Shtrihfr.cpp" />
     <ClCompile Include="..\PPEquip\Shtrihmf.cpp" />
@@ -229,7 +228,6 @@
     <ClCompile Include="..\PPLib\TAGCORE.CPP" />
     <ClCompile Include="..\PPLib\tddo.cpp" />
     <ClCompile Include="..\PPLib\tech.cpp" />
-    <ClCompile Include="..\PPLib\tempassc.cpp" />
     <ClCompile Include="..\PPLib\textbrw.cpp" />
     <ClCompile Include="..\PPLib\transfer.cpp" />
     <ClCompile Include="..\PPLib\Trfridlg.cpp" />

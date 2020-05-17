@@ -808,7 +808,7 @@ static const char k_DefultChar = '_';
 			return;
 		}
 		{
-			const wchar_t * s = (const wchar_t*)src;
+			const wchar_t * s = (const wchar_t *)src;
 			uint i;
 			for(i = 0;; ) {
 				wchar_t c = s[i];
@@ -892,7 +892,7 @@ HRESULT SetProperties(IUnknown * unknown, const CObjectVector<CProperty> & prope
 				}
 				CRecordVector <const wchar_t *> names;
 				for(i = 0; i < realNames.Size(); i++)
-					names.Add((const wchar_t*)realNames[i]);
+					names.Add((const wchar_t *)realNames[i]);
 				RINOK(setProperties->SetProperties(&names.Front(), values, names.Size()));
 			}
 			catch(...) {

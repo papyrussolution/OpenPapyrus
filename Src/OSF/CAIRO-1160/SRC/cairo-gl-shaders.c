@@ -525,43 +525,27 @@ static void cairo_gl_shader_emit_color(cairo_output_stream_t * stream,
  * If nearest filtering is used, the emitted function just returns
  * 0.0 for all values outside [0, 1).
  */
-static void _cairo_gl_shader_emit_border_fade(cairo_output_stream_t * stream,
-    cairo_gl_operand_t * operand,
-    cairo_gl_tex_t name)
+static void _cairo_gl_shader_emit_border_fade(cairo_output_stream_t * stream, cairo_gl_operand_t * operand, cairo_gl_tex_t name)
 {
 	const char * namestr = operand_names[name];
 	GLint gl_filter = _cairo_gl_operand_get_gl_filter(operand);
-
 	/* 2D version */
-	_cairo_output_stream_printf(stream,
-	    "vec2 %s_border_fade (vec2 coords, vec2 dims)\n"
-	    "{\n",
-	    namestr);
-
+	_cairo_output_stream_printf(stream, "vec2 %s_border_fade (vec2 coords, vec2 dims)\n{\n", namestr);
 	if(gl_filter == GL_LINEAR)
-		_cairo_output_stream_printf(stream,
-		    "    return clamp(-abs(dims * (coords - 0.5)) + (dims + vec2(1.0)) * 0.5, 0.0, 1.0);\n");
+		_cairo_output_stream_printf(stream, "    return clamp(-abs(dims * (coords - 0.5)) + (dims + vec2(1.0)) * 0.5, 0.0, 1.0);\n");
 	else
 		_cairo_output_stream_printf(stream,
 		    "    bvec2 in_tex1 = greaterThanEqual (coords, vec2 (0.0));\n"
 		    "    bvec2 in_tex2 = lessThan (coords, vec2 (1.0));\n"
 		    "    return vec2 (float (all (in_tex1) && all (in_tex2)));\n");
-
 	_cairo_output_stream_printf(stream, "}\n");
-
 	/* 1D version */
-	_cairo_output_stream_printf(stream,
-	    "float %s_border_fade (float x, float dim)\n"
-	    "{\n",
+	_cairo_output_stream_printf(stream, "float %s_border_fade (float x, float dim)\n{\n",
 	    namestr);
 	if(gl_filter == GL_LINEAR)
-		_cairo_output_stream_printf(stream,
-		    "    return clamp(-abs(dim * (x - 0.5)) + (dim + 1.0) * 0.5, 0.0, 1.0);\n");
+		_cairo_output_stream_printf(stream, "    return clamp(-abs(dim * (x - 0.5)) + (dim + 1.0) * 0.5, 0.0, 1.0);\n");
 	else
-		_cairo_output_stream_printf(stream,
-		    "    bool in_tex = x >= 0.0 && x < 1.0;\n"
-		    "    return float (in_tex);\n");
-
+		_cairo_output_stream_printf(stream, "    bool in_tex = x >= 0.0 && x < 1.0;\n    return float (in_tex);\n");
 	_cairo_output_stream_printf(stream, "}\n");
 }
 

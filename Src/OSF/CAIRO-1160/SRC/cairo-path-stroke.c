@@ -193,57 +193,39 @@ static inline int _range_step(int i, int step, int max)
 		i = 0;
 	return i;
 }
-
 /*
- * Construct a fan around the midpoint using the vertices from pen between
- * inpt and outpt.
+ * Construct a fan around the midpoint using the vertices from pen between inpt and outpt.
  */
-static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
-    const cairo_slope_t * in_vector,
-    const cairo_slope_t * out_vector,
-    const cairo_point_t * midpt,
-    const cairo_point_t * inpt,
-    const cairo_point_t * outpt,
-    boolint clockwise)
+static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker, const cairo_slope_t * in_vector, const cairo_slope_t * out_vector,
+    const cairo_point_t * midpt, const cairo_point_t * inpt, const cairo_point_t * outpt, boolint clockwise)
 {
 	cairo_point_t stack_points[64], * points = stack_points;
 	cairo_pen_t * pen = &stroker->pen;
 	int start, stop, num_points = 0;
 	cairo_status_t status;
-
-	if(stroker->has_bounds &&
-	    !_cairo_box_contains_point(&stroker->bounds, midpt))
+	if(stroker->has_bounds && !_cairo_box_contains_point(&stroker->bounds, midpt))
 		goto BEVEL;
-
 	assert(stroker->pen.num_vertices);
-
 	if(clockwise) {
-		_cairo_pen_find_active_ccw_vertices(pen,
-		    in_vector, out_vector,
-		    &start, &stop);
+		_cairo_pen_find_active_ccw_vertices(pen, in_vector, out_vector, &start, &stop);
 		if(stroker->add_external_edge) {
 			cairo_point_t last;
 			last = *inpt;
 			while(start != stop) {
 				cairo_point_t p = *midpt;
 				_translate_point(&p, &pen->vertices[start].point);
-
-				status = stroker->add_external_edge(stroker->closure,
-					&last, &p);
+				status = stroker->add_external_edge(stroker->closure, &last, &p);
 				if(unlikely(status))
 					return status;
 				last = p;
-
 				if(start-- == 0)
 					start += pen->num_vertices;
 			}
-			status = stroker->add_external_edge(stroker->closure,
-				&last, outpt);
+			status = stroker->add_external_edge(stroker->closure, &last, outpt);
 		}
 		else {
 			if(start == stop)
 				goto BEVEL;
-
 			num_points = stop - start;
 			if(num_points < 0)
 				num_points += pen->num_vertices;
@@ -266,22 +248,17 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 		}
 	}
 	else {
-		_cairo_pen_find_active_cw_vertices(pen,
-		    in_vector, out_vector,
-		    &start, &stop);
+		_cairo_pen_find_active_cw_vertices(pen, in_vector, out_vector, &start, &stop);
 		if(stroker->add_external_edge) {
 			cairo_point_t last;
 			last = *inpt;
 			while(start != stop) {
 				cairo_point_t p = *midpt;
 				_translate_point(&p, &pen->vertices[start].point);
-
-				status = stroker->add_external_edge(stroker->closure,
-					&p, &last);
+				status = stroker->add_external_edge(stroker->closure, &p, &last);
 				if(unlikely(status))
 					return status;
 				last = p;
-
 				if(++start == pen->num_vertices)
 					start = 0;
 			}
@@ -311,12 +288,9 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker,
 			points[num_points++] = *outpt;
 		}
 	}
-
 	if(num_points) {
-		status = stroker->add_triangle_fan(stroker->closure,
-			midpt, points, num_points);
+		status = stroker->add_triangle_fan(stroker->closure, midpt, points, num_points);
 	}
-
 	if(points != stack_points)
 		SAlloc::F(points);
 

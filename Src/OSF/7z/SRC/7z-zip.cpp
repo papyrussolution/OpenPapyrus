@@ -5469,7 +5469,7 @@ namespace NArchive {
 					RINOK(getTextPassword->CryptoGetTextPassword(&password));
 					AString charPassword;
 					if(password) {
-						UnicodeStringToMultiByte2(charPassword, (const wchar_t*)password, CP_ACP);
+						UnicodeStringToMultiByte2(charPassword, (const wchar_t *)password, CP_ACP);
 						/*
 						   if(wzAesMode || pkAesMode)
 						   {

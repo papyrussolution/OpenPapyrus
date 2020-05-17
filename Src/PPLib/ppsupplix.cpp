@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2280,16 +2280,18 @@ int SLAPI PPSupplExchange_Baltika::Send()
 
 int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 {
-	#define GRP_LOC 1
-
 	class SupplExpFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(SupplExpFilt);
+		enum {
+			ctlgroupLoc = 1
+		};
 	public:
 		explicit SupplExpFiltDialog(int selOnlySuppl) : TDialog(DLG_SUPLEXPFLT), SelOnlySuppl(selOnlySuppl)
 		{
 			SetupCalPeriod(CTLCAL_SUPLEXPFLT_PRD, CTL_SUPLEXPFLT_PRD);
-			addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SUPLEXPFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SUPLEXPFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		}
-		int    setDTS(const SupplExpFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			if(!RVALUEPTR(Data, pData))
@@ -2310,13 +2312,13 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 			Data.Flags = (Data.Flags) ? Data.Flags : (SupplExpFilt::expDelRecentBills|SupplExpFilt::expBills);
 			SetClusterData(CTL_SUPLEXPFLT_FLAGS, Data.Flags);
 			SetPeriodInput(this, CTL_SUPLEXPFLT_PRD, &Data.Period);
-			setGroupData(GRP_LOC, &loc_rec);
+			setGroupData(ctlgroupLoc, &loc_rec);
 			disableCtrls(SelOnlySuppl, CTL_SUPLEXPFLT_FLAGS, CTLSEL_SUPLEXPFLT_OP, CTLSEL_SUPLEXPFLT_GGRP, CTL_SUPLEXPFLT_PRD, CTLSEL_SUPLEXPFLT_LOC, 0);
 			enableCommand(cmLocList, !SelOnlySuppl);
 			enableCommand(cmaMore,   !SelOnlySuppl);
 			return ok;
 		}
-		int    getDTS(SupplExpFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -2329,7 +2331,7 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 				THROW_PP(Data.Flags, PPERR_INVEXPCFG);
 				THROW(GetPeriodInput(this, sel = CTL_SUPLEXPFLT_PRD, &Data.Period));
 				// getCtrlData(CTLSEL_SUPLEXPFLT_OP,    &Data.OpID);
-				THROW(getGroupData(GRP_LOC, &loc_rec));
+				THROW(getGroupData(ctlgroupLoc, &loc_rec));
 				Data.LocList = loc_rec.LocList;
 				getCtrlData(sel = CTL_SUPLEXPFLT_DISCOUNT1, &Data.PctDis1);
 				THROW_PP(Data.PctDis1 >= 0 && Data.PctDis1 <= 100, PPERR_PERCENTINPUT);
@@ -2369,7 +2371,6 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 			clearEvent(event);
 		}
 		const int SelOnlySuppl;
-		SupplExpFilt Data;
 		PPObjArticle ArObj;
 	};
 	DIALOG_PROC_BODY_P1ERR(SupplExpFiltDialog, selOnlySuppl, pFilt)
@@ -2379,11 +2380,14 @@ int SLAPI EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 //
 class SupplInterchangeFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(SupplInterchangeFilt);
+	enum {
+		ctlgroupLoc = 1
+	};
 public:
 	SupplInterchangeFiltDialog() : TDialog(DLG_SUPPLIX)
 	{
 		SetupCalPeriod(CTLCAL_SUPPLIX_EXPPRD, CTL_SUPPLIX_EXPPRD);
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SUPPLIX_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SUPPLIX_LOC, 0, 0, cmLocList, 0, 0, 0));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -2418,7 +2422,7 @@ public:
 		SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
 		{
 			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-			setGroupData(GRP_LOC, &loc_rec);
+			setGroupData(ctlgroupLoc, &loc_rec);
 		}
 		Data.GetExtStrData(Data.extssParam, temp_buf); // @v9.5.0
 		setCtrlString(CTL_SUPPLIX_ADDPARAM, temp_buf); // @v9.5.0
@@ -2439,7 +2443,7 @@ public:
 		THROW(GetPeriodInput(this, sel = CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod));
 		{
 			LocationCtrlGroup::Rec loc_rec;
-			THROW(getGroupData(GRP_LOC, &loc_rec));
+			THROW(getGroupData(ctlgroupLoc, &loc_rec));
 			Data.LocList = loc_rec.LocList;
 		}
 		getCtrlString(CTL_SUPPLIX_ADDPARAM, temp_buf); // @v9.5.0

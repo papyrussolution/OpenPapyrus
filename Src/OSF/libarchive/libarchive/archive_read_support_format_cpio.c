@@ -213,7 +213,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 	struct archive_read * a = reinterpret_cast<struct archive_read *>(_a);
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_cpio");
-	struct cpio * cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
+	struct cpio * cpio = static_cast<struct cpio *>(SAlloc::C(1, sizeof(*cpio)));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
 		return ARCHIVE_FATAL;
@@ -233,7 +233,7 @@ static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
 	const uchar * p;
 	int bid;
 	(void)best_bid; /* UNUSED */
-	struct cpio * cpio = (struct cpio *)(a->format->data);
+	struct cpio * cpio = static_cast<struct cpio *>(a->format->data);
 	if((p = (const uchar *)__archive_read_ahead(a, 6, NULL)) == NULL)
 		return -1;
 	bid = 0;
@@ -295,7 +295,7 @@ static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
 static int archive_read_format_cpio_options(struct archive_read * a, const char * key, const char * val)
 {
 	int ret = ARCHIVE_FAILED;
-	struct cpio * cpio = (struct cpio *)(a->format->data);
+	struct cpio * cpio = static_cast<struct cpio *>(a->format->data);
 	if(strcmp(key, "compat-2x")  == 0) {
 		/* Handle filenames as libarchive 2.x */
 		cpio->init_default_conversion = (val != NULL) ? 1 : 0;
@@ -325,7 +325,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	size_t namelength;
 	size_t name_pad;
 	int r;
-	struct cpio * cpio = (struct cpio *)(a->format->data);
+	struct cpio * cpio = static_cast<struct cpio *>(a->format->data);
 	struct archive_string_conv * sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
@@ -342,7 +342,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	if(h == NULL)
 		return ARCHIVE_FATAL;
 	if(archive_entry_copy_pathname_l(entry,
-	    (const char *)h, namelength, sconv) != 0) {
+	    PTRCHRC(h), namelength, sconv) != 0) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
@@ -380,7 +380,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	 * header.  XXX */
 
 	/* Compare name to "TRAILER!!!" to test for end-of-archive. */
-	if(namelength == 11 && strncmp((const char *)h, "TRAILER!!!", 11) == 0) {
+	if(namelength == 11 && strncmp(PTRCHRC(h), "TRAILER!!!", 11) == 0) {
 		/* TODO: Store file location of start of block. */
 		archive_clear_error(&a->archive);
 		return (ARCHIVE_EOF);
@@ -395,7 +395,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 static int archive_read_format_cpio_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
 {
 	ssize_t bytes_read;
-	struct cpio * cpio = (struct cpio *)(a->format->data);
+	struct cpio * cpio = static_cast<struct cpio *>(a->format->data);
 	if(cpio->entry_bytes_unconsumed) {
 		__archive_read_consume(a, cpio->entry_bytes_unconsumed);
 		cpio->entry_bytes_unconsumed = 0;
@@ -427,7 +427,7 @@ static int archive_read_format_cpio_read_data(struct archive_read * a, const voi
 
 static int archive_read_format_cpio_skip(struct archive_read * a)
 {
-	struct cpio * cpio = (struct cpio *)(a->format->data);
+	struct cpio * cpio = static_cast<struct cpio *>(a->format->data);
 	int64_t to_skip = cpio->entry_bytes_remaining + cpio->entry_padding + cpio->entry_bytes_unconsumed;
 	if(to_skip != __archive_read_consume(a, to_skip)) {
 		return ARCHIVE_FATAL;
@@ -464,7 +464,7 @@ static int find_newc_header(struct archive_read * a)
 		h = __archive_read_ahead(a, newc_header_size, &bytes);
 		if(h == NULL)
 			return ARCHIVE_FATAL;
-		p = (const char *)h;
+		p = PTRCHRC(h);
 		q = p + bytes;
 		/* Try the typical case first, then go into the slow search.*/
 		if(memcmp("07070", p, 5) == 0 && (p[5] == '1' || p[5] == '2') && is_hex(p, newc_header_size))
@@ -478,7 +478,7 @@ static int find_newc_header(struct archive_read * a)
 				case '1':
 				case '2':
 				    if(memcmp("07070", p, 5) == 0 && is_hex(p, newc_header_size)) {
-					    skip = p - (const char *)h;
+					    skip = p - PTRCHRC(h);
 					    __archive_read_consume(a, skip);
 					    skipped += skip;
 					    if(skipped > 0) {
@@ -497,7 +497,7 @@ static int find_newc_header(struct archive_read * a)
 				    break;
 			}
 		}
-		skip = p - (const char *)h;
+		skip = p - PTRCHRC(h);
 		__archive_read_consume(a, skip);
 		skipped += skip;
 	}
@@ -515,7 +515,7 @@ static int header_newc(struct archive_read * a, struct cpio * cpio, struct archi
 	if(h == NULL)
 		return ARCHIVE_FATAL;
 	/* Parse out hex fields. */
-	header = (const char *)h;
+	header = PTRCHRC(h);
 	if(memcmp(header + newc_magic_offset, "070701", 6) == 0) {
 		a->archive.archive_format = ARCHIVE_FORMAT_CPIO_SVR4_NOCRC;
 		a->archive.archive_format_name = "ASCII cpio (SVR4 with no CRC)";
@@ -606,7 +606,7 @@ static int find_odc_header(struct archive_read * a)
 		h = __archive_read_ahead(a, odc_header_size, &bytes);
 		if(h == NULL)
 			return ARCHIVE_FATAL;
-		p = (const char *)h;
+		p = PTRCHRC(h);
 		q = p + bytes;
 
 		/* Try the typical case first, then go into the slow search.*/
@@ -625,7 +625,7 @@ static int find_odc_header(struct archive_read * a)
 			switch(p[5]) {
 				case '7':
 				    if((memcmp("070707", p, 6) == 0 && is_octal(p, odc_header_size)) || (memcmp("070727", p, 6) == 0 && is_afio_large(p, q - p))) {
-					    skip = p - (const char *)h;
+					    skip = p - PTRCHRC(h);
 					    __archive_read_consume(a, skip);
 					    skipped += skip;
 					    if(p[4] == '2')
@@ -646,7 +646,7 @@ static int find_odc_header(struct archive_read * a)
 				    break;
 			}
 		}
-		skip = p - (const char *)h;
+		skip = p - PTRCHRC(h);
 		__archive_read_consume(a, skip);
 		skipped += skip;
 	}
@@ -675,7 +675,7 @@ static int header_odc(struct archive_read * a, struct cpio * cpio, struct archiv
 	if(h == NULL)
 		return ARCHIVE_FATAL;
 	/* Parse out octal fields. */
-	header = (const char *)h;
+	header = PTRCHRC(h);
 	archive_entry_set_dev(entry, (dev_t)atol8(header + odc_dev_offset, odc_dev_size));
 	archive_entry_set_ino(entry, atol8(header + odc_ino_offset, odc_ino_size));
 	archive_entry_set_mode(entry, (mode_t)atol8(header + odc_mode_offset, odc_mode_size));
@@ -718,7 +718,7 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio, struct arch
 	if(h == NULL)
 		return ARCHIVE_FATAL;
 	/* Parse out octal fields. */
-	header = (const char *)h;
+	header = PTRCHRC(h);
 	archive_entry_set_dev(entry, (dev_t)atol16(header + afiol_dev_offset, afiol_dev_size));
 	archive_entry_set_ino(entry, atol16(header + afiol_ino_offset, afiol_ino_size));
 	archive_entry_set_mode(entry, (mode_t)atol8(header + afiol_mode_offset, afiol_mode_size));
@@ -804,7 +804,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio, struct arc
 
 static int archive_read_format_cpio_cleanup(struct archive_read * a)
 {
-	struct cpio * cpio = (struct cpio *)(a->format->data);
+	struct cpio * cpio = static_cast<struct cpio *>(a->format->data);
 	/* Free inode->name map */
 	while(cpio->links_head != NULL) {
 		struct links_entry * lp = cpio->links_head->next;

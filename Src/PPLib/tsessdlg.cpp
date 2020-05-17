@@ -155,7 +155,7 @@ void PrcTechCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		selTechByGoods(pDlg);
 	else if(event.isCmd(CmdCreateGoods) && AutoGoodsGrpID) {
 		PPID   goods_id = 0;
-		if(GObj.Edit(&goods_id, (void *)AutoGoodsGrpID) == cmOK && goods_id) {
+		if(GObj.Edit(&goods_id, reinterpret_cast<void *>(AutoGoodsGrpID)) == cmOK && goods_id) {
 			if(!Data.TechID && pDlg->getCtrlLong(CtlselTech) == 0) {
 				SelGoodsID = goods_id;
 				PPObjTech::SetupCombo(pDlg, CtlselTech, 0, 0, Data.PrcID, SelGoodsID);
@@ -282,8 +282,7 @@ private:
 
 	TSessionPacket Data;
 	int    OrgStatus;
-	int    SessUpdated; // Получает значение !0, если сессия была сохранена в
-		// процессе редактирования (переход в режим чека, либо переход в строки).
+	int    SessUpdated; // Получает значение !0, если сессия была сохранена в процессе редактирования (переход в режим чека, либо переход в строки).
 	int    InnerGetDTS;
 	long   InpUpdLock;
 	//
@@ -742,7 +741,7 @@ private:
 	{
 		int    ok = -1;
 		const uint c = Data.Ext.GetPlaceDescriptionCount();
-		if(pos < (long)c) {
+		if(pos < static_cast<long>(c)) {
 			PPProcessorPacket::PlaceDescription item;
 			if(Data.Ext.GetPlaceDescription(pos, item)) {
 				if(PPObjProcessor::EditPrcPlaceItem(&item) > 0) {
@@ -759,7 +758,7 @@ private:
 	{
 		int    ok = -1;
 		const uint c = Data.Ext.GetPlaceDescriptionCount();
-		if(pos < (long)c) {
+		if(pos < static_cast<long>(c)) {
 			Data.Ext.PutPlaceDescription(pos, 0);
 			ok = 1;
 		}

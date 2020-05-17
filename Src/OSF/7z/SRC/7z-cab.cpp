@@ -614,7 +614,7 @@ namespace NArchive {
 						ConvertUTF8ToUnicode(item.Name, unicodeName);
 					else
 						unicodeName = MultiByteToUnicodeString(item.Name, CP_ACP);
-					prop = (const wchar_t*)NItemName::WinPathToOsPath(unicodeName);
+					prop = (const wchar_t *)NItemName::WinPathToOsPath(unicodeName);
 					break;
 				}
 				case kpidIsDir:  prop = item.IsDir(); break;

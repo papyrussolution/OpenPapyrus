@@ -68,18 +68,11 @@ SLAPI PPAccountPacket::PPAccountPacket()
 {
 }
 
-void SLAPI PPAccountPacket::Init()
+PPAccountPacket & SLAPI PPAccountPacket::Z()
 {
 	MEMSZERO(Rec);
 	CurList.Z();
 	GenList.clear();
-}
-
-PPAccountPacket & FASTCALL PPAccountPacket::operator = (const PPAccountPacket & src)
-{
-	Rec = src.Rec;
-	CurList.copy(src.CurList);
-	GenList.copy(src.GenList);
 	return *this;
 }
 //

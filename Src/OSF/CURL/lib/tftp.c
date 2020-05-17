@@ -329,7 +329,7 @@ static CURLcode tftp_parse_option_ack(tftp_state_data_t * state,
 	return CURLE_OK;
 }
 
-static size_t tftp_option_add(tftp_state_data_t * state, size_t csize, char * buf, const char * option)
+static size_t FASTCALL tftp_option_add(tftp_state_data_t * state, size_t csize, char * buf, const char * option)
 {
 	if((sstrlen(option) + csize + 1) > (size_t)state->blksize)
 		return 0;
@@ -387,7 +387,7 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 			    /* If we are uploading, send an WRQ */
 			    setpacketevent(&state->spacket, TFTP_EVENT_WRQ);
 			    state->conn->data->req.upload_fromhere =
-			    (char *)state->spacket.data+4;
+			    PTRCHR_(state->spacket.data)+4;
 			    if(data->state.infilesize != -1)
 				    Curl_pgrsSetUploadSize(data, data->state.infilesize);
 		    }
@@ -401,7 +401,7 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 		    result = Curl_urldecode(data, &state->conn->data->state.path[1], 0, &filename, NULL, FALSE);
 		    if(result)
 			    return result;
-		    snprintf((char *)state->spacket.data+2, state->blksize, "%s%c%s%c", filename, '\0',  mode, '\0');
+		    snprintf(PTRCHR_(state->spacket.data)+2, state->blksize, "%s%c%s%c", filename, '\0',  mode, '\0');
 		    sbytes = 4 + sstrlen(filename) + sstrlen(mode);
 		    /* optional addition of TFTP options */
 		    if(!data->set.tftp_no_options) {
@@ -410,29 +410,22 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 				    snprintf(buf, sizeof(buf), "%" CURL_FORMAT_CURL_OFF_T, data->state.infilesize);
 			    else
 				    strcpy(buf, "0");  /* the destination is large enough */
-			    sbytes += tftp_option_add(state, sbytes, (char *)state->spacket.data+sbytes, TFTP_OPTION_TSIZE);
-			    sbytes += tftp_option_add(state, sbytes,
-			    (char *)state->spacket.data+sbytes, buf);
+			    sbytes += tftp_option_add(state, sbytes, PTRCHR_(state->spacket.data)+sbytes, TFTP_OPTION_TSIZE);
+			    sbytes += tftp_option_add(state, sbytes, PTRCHR_(state->spacket.data)+sbytes, buf);
 			    /* add blksize option */
 			    snprintf(buf, sizeof(buf), "%d", state->requested_blksize);
-			    sbytes += tftp_option_add(state, sbytes,
-			    (char *)state->spacket.data+sbytes,
-			    TFTP_OPTION_BLKSIZE);
-			    sbytes += tftp_option_add(state, sbytes,
-			    (char *)state->spacket.data+sbytes, buf);
+			    sbytes += tftp_option_add(state, sbytes, PTRCHR_(state->spacket.data)+sbytes, TFTP_OPTION_BLKSIZE);
+			    sbytes += tftp_option_add(state, sbytes, PTRCHR_(state->spacket.data)+sbytes, buf);
 
 			    /* add timeout option */
 			    snprintf(buf, sizeof(buf), "%d", state->retry_time);
-			    sbytes += tftp_option_add(state, sbytes,
-			    (char *)state->spacket.data+sbytes,
-			    TFTP_OPTION_INTERVAL);
-			    sbytes += tftp_option_add(state, sbytes,
-			    (char *)state->spacket.data+sbytes, buf);
+			    sbytes += tftp_option_add(state, sbytes, PTRCHR_(state->spacket.data)+sbytes, TFTP_OPTION_INTERVAL);
+			    sbytes += tftp_option_add(state, sbytes, PTRCHR_(state->spacket.data)+sbytes, buf);
 		    }
 
 		    /* the typecase for the 3rd argument is mostly for systems that do
 		       not have a size_t argument, like older unixes that want an 'int' */
-		    senddata = sendto(state->sockfd, (const char *)state->spacket.data, (SEND_TYPE_ARG3)sbytes, 0, state->conn->ip_addr->ai_addr, state->conn->ip_addr->ai_addrlen);
+		    senddata = sendto(state->sockfd, PTRCHRC_(state->spacket.data), (SEND_TYPE_ARG3)sbytes, 0, state->conn->ip_addr->ai_addr, state->conn->ip_addr->ai_addrlen);
 		    if(senddata != (ssize_t)sbytes) {
 			    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
 		    }
@@ -499,7 +492,7 @@ static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event)
 		    state->block = (ushort)rblock;
 		    setpacketevent(&state->spacket, TFTP_EVENT_ACK);
 		    setpacketblock(&state->spacket, state->block);
-		    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+		    sbytes = sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    if(sbytes < 0) {
 			    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
 			    return CURLE_SEND_ERROR;
@@ -521,7 +514,7 @@ static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event)
 		    state->retries = 0;
 		    setpacketevent(&state->spacket, TFTP_EVENT_ACK);
 		    setpacketblock(&state->spacket, state->block);
-		    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+		    sbytes = sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    if(sbytes < 0) {
 			    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
 			    return CURLE_SEND_ERROR;
@@ -540,7 +533,7 @@ static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event)
 		    }
 		    else {
 			    /* Resend the previous ACK */
-			    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+			    sbytes = sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 			    if(sbytes<0) {
 				    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
 				    return CURLE_SEND_ERROR;
@@ -551,7 +544,7 @@ static CURLcode tftp_rx(tftp_state_data_t * state, tftp_event_t event)
 		case TFTP_EVENT_ERROR:
 		    setpacketevent(&state->spacket, TFTP_EVENT_ERROR);
 		    setpacketblock(&state->spacket, state->block);
-		    (void)sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+		    (void)sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    /* don't bother with the return code, but if the socket is still up we
 		 * should be a good TFTP client and let the server know we're done */
 		    state->state = TFTP_STATE_FIN;
@@ -602,7 +595,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 				    }
 				    else {
 					    /* Re-send the data packet */
-					    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4+state->sbytes, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+					    sbytes = sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4+state->sbytes, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 					    /* Check all sbytes were sent */
 					    if(sbytes<0) {
 						    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
@@ -629,7 +622,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 		 * data block.
 		 * */
 		    state->sbytes = 0;
-		    state->conn->data->req.upload_fromhere = (char *)state->spacket.data+4;
+		    state->conn->data->req.upload_fromhere = PTRCHR_(state->spacket.data)+4;
 		    do {
 			    result = Curl_fillreadbuffer(state->conn, state->blksize - state->sbytes, &cb);
 			    if(result)
@@ -637,7 +630,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 			    state->sbytes += cb;
 			    state->conn->data->req.upload_fromhere += cb;
 		    } while(state->sbytes < state->blksize && cb != 0);
-		    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4 + state->sbytes, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+		    sbytes = sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4 + state->sbytes, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    /* Check all sbytes were sent */
 		    if(sbytes<0) {
 			    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
@@ -658,7 +651,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 		    }
 		    else {
 			    /* Re-send the data packet */
-			    sbytes = sendto(state->sockfd, (const char *)state->spacket.data, 4+state->sbytes, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+			    sbytes = sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4+state->sbytes, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 			    /* Check all sbytes were sent */
 			    if(sbytes<0) {
 				    failf(data, "%s", Curl_strerror(state->conn, SOCKERRNO));
@@ -673,7 +666,7 @@ static CURLcode tftp_tx(tftp_state_data_t * state, tftp_event_t event)
 		    state->state = TFTP_STATE_FIN;
 		    setpacketevent(&state->spacket, TFTP_EVENT_ERROR);
 		    setpacketblock(&state->spacket, state->block);
-		    (void)sendto(state->sockfd, (const char *)state->spacket.data, 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
+		    (void)sendto(state->sockfd, PTRCHRC_(state->spacket.data), 4, SEND_4TH_ARG, reinterpret_cast<struct sockaddr *>(&state->remote_addr), state->remote_addrlen);
 		    /* don't bother with the return code, but if the socket is still up we
 		 * should be a good TFTP client and let the server know we're done */
 		    state->state = TFTP_STATE_FIN;

@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -94,7 +94,7 @@ int FASTCALL StringSet::copy(const StringSet & rS)
 	int    ok = 1;
 	clear();
 	setDelim(rS.Delim);
-	if(Alloc(rS.DataLen)) { // @v9.2.0 @fix rS.Size-->rS.DataLen
+	if(Alloc(rS.DataLen)) {
 		memcpy(P_Buf, rS.P_Buf, rS.DataLen);
 		DataLen = rS.DataLen;
 	}
@@ -286,20 +286,19 @@ int SLAPI StringSet::reverse()
 {
 	int    ok = 1;
 	SString temp_buf;
-	StringSet temp_ss;
-	temp_ss = *this;
+	StringSet temp_ss = *this;
 	temp_ss.clear();
 	LongArray pos_list;
 	uint prev_pos = 0;
 	uint pos = 0;
 	while((prev_pos = pos), get(&pos, temp_buf)) {
-		pos_list.add((long)prev_pos);
+		pos_list.add(static_cast<long>(prev_pos));
 	}
 	const uint plc = pos_list.getCount();
 	if(plc > 1) {
 		pos_list.reverse(0, plc);
 		for(uint i = 0; i < plc; i++) {
-			pos = (uint)pos_list.get(i);
+			pos = static_cast<uint>(pos_list.get(i));
 			get(pos, temp_buf);
 			temp_ss.add(temp_buf);
 		}
@@ -310,9 +309,9 @@ int SLAPI StringSet::reverse()
 
 void FASTCALL StringSet::setDelim(const char * pDelim)
 {
-	Delim[0] = 0;
+	PTR32(Delim)[0] = 0;
 	if(pDelim) {
-		size_t dl = sstrlen(pDelim);
+		const size_t dl = sstrlen(pDelim);
 		assert(dl < sizeof(Delim));
 		memcpy(Delim, pDelim, dl+1);
 		//STRNSCPY(Delim, pDelim);
@@ -345,7 +344,7 @@ int FASTCALL StringSet::add(const char * pStr, uint * pPos)
 	int    ok = 1;
 	char   temp_buf[32];
 	if(!pStr) {
-		temp_buf[0] = 0;
+		PTR32(temp_buf)[0] = 0;
 		pStr = temp_buf;
 	}
 	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
@@ -578,20 +577,13 @@ SLAPI SStrGroup::SStrGroup(const SStrGroup & rS) : Pool(rS.Pool) // @v10.3.4
 {
 }
 
-size_t SLAPI SStrGroup::GetPoolDataLen() const
-	{ return Pool.getDataLen(); }
-size_t SLAPI SStrGroup::GetPoolSize() const
-	{ return Pool.getSize(); }
-SStrGroup & FASTCALL SStrGroup::operator = (const SStrGroup & rS)
-	{ return CopyS(rS); }
-int SLAPI SStrGroup::GetS(uint pos, SString & rStr) const
-	{ return Pool.getnz(pos, rStr); }
-int FASTCALL SStrGroup::WriteS(SBuffer & rBuf) const
-	{ return Pool.Write(rBuf); }
-int FASTCALL SStrGroup::ReadS(SBuffer & rBuf)
-	{ return Pool.Read(rBuf); }
-int SLAPI SStrGroup::SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
-	{ return Pool.Serialize(dir, rBuf, pCtx); }
+size_t SLAPI SStrGroup::GetPoolDataLen() const { return Pool.getDataLen(); }
+size_t SLAPI SStrGroup::GetPoolSize() const { return Pool.getSize(); }
+SStrGroup & FASTCALL SStrGroup::operator = (const SStrGroup & rS) { return CopyS(rS); }
+int    SLAPI SStrGroup::GetS(uint pos, SString & rStr) const { return Pool.getnz(pos, rStr); }
+int    FASTCALL SStrGroup::WriteS(SBuffer & rBuf) const { return Pool.Write(rBuf); }
+int    FASTCALL SStrGroup::ReadS(SBuffer & rBuf) { return Pool.Read(rBuf); }
+int    SLAPI SStrGroup::SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx) { return Pool.Serialize(dir, rBuf, pCtx); }
 
 SStrGroup & FASTCALL SStrGroup::CopyS(const SStrGroup & rS)
 {
@@ -613,22 +605,16 @@ void SLAPI SStrGroup::DestroyS()
 
 int SLAPI SStrGroup::AddS(const char * pStr, uint * pPos)
 {
-	int    ok = 1;
 	uint   pos = 0;
-	if(!isempty(pStr)) {
-		Pool.add(pStr, &pos);
-	}
+	int    ok = isempty(pStr) ? 1 : Pool.add(pStr, &pos);
 	ASSIGN_PTR(pPos, pos);
 	return ok;
 }
 
 int SLAPI SStrGroup::AddS(const char * pStr, uint32 * pPos)
 {
-	int    ok = 1;
 	uint   pos = 0;
-	if(!isempty(pStr)) {
-		Pool.add(pStr, &pos);
-	}
+	int    ok = isempty(pStr) ? 1 : Pool.add(pStr, &pos);
 	ASSIGN_PTR(pPos, pos);
 	return ok;
 }

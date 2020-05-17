@@ -1182,7 +1182,6 @@ static const xmlChar* xmlSchemaGetIDCDesignation(xmlChar ** buf, xmlSchemaIDCPtr
 {
 	return (xmlSchemaGetComponentDesignation(buf, idc));
 }
-
 /**
  * xmlSchemaWildcardPCToString:
  * @pc: the type of processContents
@@ -1267,7 +1266,6 @@ internal_error:
 	SAlloc::F((xmlChar *)value2);
 	return -1;
 }
-
 /**
  * xmlSchemaFormatItemForReport:
  * @buf: the string buffer
@@ -1474,7 +1472,6 @@ static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * ite
 	ZFREE(str);
 	return (*buf);
 }
-
 /**
  * xmlSchemaFormatFacetEnumSet:
  * @buf: the string buffer
@@ -1530,13 +1527,9 @@ static const xmlChar * xmlSchemaFormatFacetEnumSet(xmlSchemaAbstractCtxtPtr actx
 	} while(type && (type->type != XML_SCHEMA_TYPE_BASIC));
 	return ((const xmlChar *)*buf);
 }
-
-/************************************************************************
-*									*
-*			Error functions				        *
-*									*
-************************************************************************/
-
+//
+// Error functions
+//
 #if 0
 static void xmlSchemaErrMemory(const char * msg)
 {
@@ -1587,7 +1580,7 @@ static void xmlSchemaPErr(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int err
 		schannel = ctxt->serror;
 	}
 	__xmlRaiseError(schannel, channel, data, ctxt, P_Node, XML_FROM_SCHEMASP,
-	    error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	    error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
 
 /**
@@ -1735,8 +1728,8 @@ static void xmlSchemaErr4Line(xmlSchemaAbstractCtxtPtr ctxt, xmlErrorLevel error
 					file = vctxt->parserCtxt->input->filename;
 			}
 			if(vctxt->locFunc) {
-				if((file == NULL) || (line == 0)) {
-					unsigned long l;
+				if(!file || !line) {
+					ulong l;
 					const char * f;
 					vctxt->locFunc(vctxt->locCtxt, &f, &l);
 					SETIFZ(file, f);
@@ -1746,7 +1739,7 @@ static void xmlSchemaErr4Line(xmlSchemaAbstractCtxtPtr ctxt, xmlErrorLevel error
 			if(!file && vctxt->filename)
 				file = vctxt->filename;
 			__xmlRaiseError(schannel, channel, data, ctxt, P_Node, XML_FROM_SCHEMASV,
-			    error, errorLevel, file, line, (const char *)str1, (const char *)str2, (const char *)str3, 0, col, msg, str1, str2, str3, str4);
+			    error, errorLevel, file, line, PTRCHRC_(str1), PTRCHRC_(str2), PTRCHRC_(str3), 0, col, msg, str1, str2, str3, str4);
 		}
 		else if(ctxt->type == XML_SCHEMA_CTXT_PARSER) {
 			xmlSchemaParserCtxtPtr pctxt = (xmlSchemaParserCtxtPtr)ctxt;
@@ -1761,7 +1754,7 @@ static void xmlSchemaErr4Line(xmlSchemaAbstractCtxtPtr ctxt, xmlErrorLevel error
 			schannel = pctxt->serror;
 			data = pctxt->errCtxt;
 			__xmlRaiseError(schannel, channel, data, ctxt, P_Node, XML_FROM_SCHEMASP, error,
-			    errorLevel, NULL, 0, (const char *)str1, (const char *)str2, (const char *)str3, 0, 0, msg, str1, str2, str3, str4);
+			    errorLevel, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), PTRCHRC_(str3), 0, 0, msg, str1, str2, str3, str4);
 		}
 		else {
 			TODO

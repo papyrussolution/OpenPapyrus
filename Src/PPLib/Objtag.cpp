@@ -546,74 +546,6 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 //
 //
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
-
-class TagEnumListDialog : public PPListDialog {
-	DECL_DIALOG_DATA(PPTagEnumList);
-public:
-	TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
-	{
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		RVALUEPTR(Data, pData);
-		updateList(-1);
-		return 1;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		ASSIGN_PTR(pData, Data);
-		return 1;
-	}
-private:
-	virtual int  setupList();
-	virtual int  addItem(long * pos, long * id);
-	virtual int  editItem(long pos, long id);
-	virtual int  delItem(long pos, long id);
-};
-
-int TagEnumListDialog::setupList()
-{
-	for(uint i = 0; i < Data.getCount(); i++) {
-		StrAssocArray::Item item = Data.Get(i);
-		if(!addStringToList(item.Id, item.Txt))
-			return 0;
-	}
-	return 1;
-}
-
-int TagEnumListDialog::addItem(long * pPos, long * pID)
-{
-	int    ok = -1;
-	PPCommObjEntry param(Data.GetEnumID());
-	if(PPObjReference::EditCommObjItem(&param) > 0) {
-		if(!Data.PutItem(&param.ID, param.Name, param.ParentID))
-			ok = PPSetErrorSLib();
-		else {
-			ASSIGN_PTR(pPos, Data.getCount());
-			ASSIGN_PTR(pID, param.ID);
-			ok = 1;
-		}
-	}
-	return ok;
-}
-
-int TagEnumListDialog::editItem(long, long id)
-{
-	int    ok = -1;
-	SString name;
-	if(id && Data.GetText(id, name) > 0) {
-		PPCommObjEntry param(Data.GetEnumID(), id, name, 0);
-		if(PPObjReference::EditCommObjItem(&param) > 0) {
-			ok = Data.PutItem(&param.ID, param.Name, param.ParentID);
-		}
-	}
-	return ok;
-}
-
-int TagEnumListDialog::delItem(long, long id)
-{
-	return id ? Data.PutItem(&id, 0, 0) : 0;
-}
 //
 //
 //
@@ -1151,9 +1083,69 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
+#if 0 // @v10.7.8 (unused) {
 // static
 int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
 {
+	class TagEnumListDialog : public PPListDialog {
+		DECL_DIALOG_DATA(PPTagEnumList);
+	public:
+		TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			updateList(-1);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		virtual int setupList()
+		{
+			for(uint i = 0; i < Data.getCount(); i++) {
+				StrAssocArray::Item item = Data.Get(i);
+				if(!addStringToList(item.Id, item.Txt))
+					return 0;
+			}
+			return 1;
+		}
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int    ok = -1;
+			PPCommObjEntry param(Data.GetEnumID());
+			if(PPObjReference::EditCommObjItem(&param) > 0) {
+				if(!Data.PutItem(&param.ID, param.Name, param.ParentID))
+					ok = PPSetErrorSLib();
+				else {
+					ASSIGN_PTR(pPos, Data.getCount());
+					ASSIGN_PTR(pID, param.ID);
+					ok = 1;
+				}
+			}
+			return ok;
+		}
+		virtual int editItem(long, long id)
+		{
+			int    ok = -1;
+			SString name;
+			if(id && Data.GetText(id, name) > 0) {
+				PPCommObjEntry param(Data.GetEnumID(), id, name, 0);
+				if(PPObjReference::EditCommObjItem(&param) > 0) {
+					ok = Data.PutItem(&param.ID, param.Name, param.ParentID);
+				}
+			}
+			return ok;
+		}
+		virtual int delItem(long, long id)
+		{
+			return id ? Data.PutItem(&id, 0, 0) : 0;
+		}
+	};
 	int    ok = -1;
 	TagEnumListDialog * dlg = new TagEnumListDialog((pList->GetFlags() & PPCommObjEntry::fHierarchical) ? DLG_TAGENUMTREEVIEW : DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48);
 	if(CheckDialogPtrErr(&dlg)) {
@@ -1167,6 +1159,7 @@ int SLAPI PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
 	delete dlg;
 	return ok;
 }
+#endif // } 0 @v10.7.8 (unused)
 
 SArray * SLAPI PPObjTag::CreateList(long current, long parent)
 {

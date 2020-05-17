@@ -586,7 +586,7 @@ void Document::GetHighlightDelimiters(Document::HighlightDelimiter & highlightDe
 
 int FASTCALL Document::ClampPositionIntoDocument(int pos) const
 {
-	return Platform::Clamp(pos, 0, Length());
+	return sclamp(pos, 0, Length());
 }
 
 bool FASTCALL Document::IsCrLf(int pos) const
@@ -601,12 +601,10 @@ bool FASTCALL Document::IsCrLf(int pos) const
 
 int FASTCALL Document::LenChar(int pos)
 {
-	if(pos < 0) {
+	if(pos < 0)
 		return 1;
-	}
-	else if(IsCrLf(pos)) {
+	else if(IsCrLf(pos))
 		return 2;
-	}
 	else if(SC_CP_UTF8 == dbcsCodePage) {
 		const uchar leadByte = static_cast<uchar>(cb.CharAt(pos));
 		const int widthCharBytes = UTF8BytesOfLead[leadByte];
@@ -616,12 +614,10 @@ int FASTCALL Document::LenChar(int pos)
 		else
 			return widthCharBytes;
 	}
-	else if(dbcsCodePage) {
+	else if(dbcsCodePage)
 		return IsDBCSLeadByte(cb.CharAt(pos)) ? 2 : 1;
-	}
-	else {
+	else
 		return 1;
-	}
 }
 
 bool Document::InGoodUTF8(int pos, int &start, int &end) const
@@ -639,8 +635,7 @@ bool Document::InGoodUTF8(int pos, int &start, int &end) const
 		int trailBytes = widthCharBytes - 1;
 		int len = pos - start;
 		if(len > trailBytes)
-			// pos too far from lead
-			return false;
+			return false; // pos too far from lead
 		char charBytes[UTF8MaxBytes] = {static_cast<char>(leadByte), 0, 0, 0};
 		for(int b = 1; b<widthCharBytes && ((start+b) < Length()); b++)
 			charBytes[b] = cb.CharAt(static_cast<int>(start+b));
@@ -695,25 +690,20 @@ int Document::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) c
 			int posStartLine = LineStart(LineFromPosition(pos));
 			if(pos == posStartLine)
 				return pos;
-
 			// Step back until a non-lead-byte is found.
 			int posCheck = pos;
 			while((posCheck > posStartLine) && IsDBCSLeadByte(cb.CharAt(posCheck-1)))
 				posCheck--;
-
 			// Check from known start of character.
 			while(posCheck < pos) {
-				int mbsize = IsDBCSLeadByte(cb.CharAt(posCheck)) ? 2 : 1;
-				if(posCheck + mbsize == pos) {
+				const int mbsize = IsDBCSLeadByte(cb.CharAt(posCheck)) ? 2 : 1;
+				if(posCheck + mbsize == pos)
 					return pos;
-				}
 				else if(posCheck + mbsize > pos) {
-					if(moveDir > 0) {
-						return posCheck + mbsize;
-					}
-					else {
+					if(moveDir > 0)
+						return (posCheck + mbsize);
+					else
 						return posCheck;
-					}
 				}
 				posCheck += mbsize;
 			}
@@ -3209,21 +3199,15 @@ const char * BuiltinRegex::SubstituteByPosition(Document * doc, const char * tex
 }
 
 #ifndef SCI_OWNREGEX
-
-#ifdef SCI_NAMESPACE
-
-RegexSearchBase * Scintilla::CreateRegexSearch(CharClassify * charClassTable)
-{
-	return new BuiltinRegex(charClassTable);
-}
-
-#else
-
-RegexSearchBase * CreateRegexSearch(CharClassify * charClassTable)
-{
-	return new BuiltinRegex(charClassTable);
-}
-
-#endif
-
+	#ifdef SCI_NAMESPACE
+		RegexSearchBase * Scintilla::CreateRegexSearch(CharClassify * charClassTable)
+		{
+			return new BuiltinRegex(charClassTable);
+		}
+	#else
+		RegexSearchBase * CreateRegexSearch(CharClassify * charClassTable)
+		{
+			return new BuiltinRegex(charClassTable);
+		}
+	#endif
 #endif

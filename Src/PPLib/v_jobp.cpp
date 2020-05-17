@@ -59,6 +59,7 @@ public:
 		if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
 			cmd_id = CmdSymbList.Get(pos).Id;
 		SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, &cmd_txt_list, cmd_id, 0);
+		SetupWordSelector(CTLSEL_JOBITEM_CMD, 0, cmd_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
 		SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, &JobList, Data.NextJobID, 0, 0, 0);
 		disableCtrl(CTLSEL_JOBITEM_CMD, cmd_id);
 		{

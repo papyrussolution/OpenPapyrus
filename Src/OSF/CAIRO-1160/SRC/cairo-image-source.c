@@ -626,9 +626,7 @@ static double lanczos(double x, double n)
 static double lanczos3_kernel(double x, double r)
 {
 	if(r < 1.0)
-		return
-			lanczos3_kernel(x * 2 - .5, r * 2) +
-			lanczos3_kernel(x * 2 + .5, r * 2);
+		return lanczos3_kernel(x * 2 - .5, r * 2) + lanczos3_kernel(x * 2 + .5, r * 2);
 	else
 		return lanczos(x / r, 3.0);
 }
@@ -689,23 +687,19 @@ static const filter_info_t filters[] =
 };
 
 /* Fills in one dimension of the filter array */
-static void get_filter(kernel_t filter, double r,
-    int width, int subsample,
-    pixman_fixed_t* out)
+static void get_filter(kernel_t filter, double r, int width, int subsample, pixman_fixed_t* out)
 {
 	int i;
 	pixman_fixed_t * p = out;
 	int n_phases = 1 << subsample;
 	double step = 1.0 / n_phases;
 	kernel_func_t func = filters[filter].func;
-
 	/* special-case the impulse filter: */
 	if(width <= 1) {
 		for(i = 0; i < n_phases; ++i)
 			*p++ = pixman_fixed_1;
 		return;
 	}
-
 	for(i = 0; i < n_phases; ++i) {
 		double frac = (i + .5) * step;
 		/* Center of left-most pixel: */
@@ -850,43 +844,27 @@ static boolint _pixman_image_set_properties(pixman_image_t * pixman_image, const
 
 		if(pixman_filter == PIXMAN_FILTER_SEPARABLE_CONVOLUTION) {
 			int n_params;
-			pixman_fixed_t * params;
-			params = create_separable_convolution
-				    (&n_params, kernel, dx, kernel, dy);
-			pixman_image_set_filter(pixman_image, pixman_filter,
-			    params, n_params);
+			pixman_fixed_t * params = create_separable_convolution(&n_params, kernel, dx, kernel, dy);
+			pixman_image_set_filter(pixman_image, pixman_filter, params, n_params);
 			SAlloc::F(params);
 		}
 		else {
 			pixman_image_set_filter(pixman_image, pixman_filter, NULL, 0);
 		}
 	}
-
 	{
 		pixman_repeat_t pixman_repeat;
-
 		switch(pattern->extend) {
 			default:
-			case CAIRO_EXTEND_NONE:
-			    pixman_repeat = PIXMAN_REPEAT_NONE;
-			    break;
-			case CAIRO_EXTEND_REPEAT:
-			    pixman_repeat = PIXMAN_REPEAT_NORMAL;
-			    break;
-			case CAIRO_EXTEND_REFLECT:
-			    pixman_repeat = PIXMAN_REPEAT_REFLECT;
-			    break;
-			case CAIRO_EXTEND_PAD:
-			    pixman_repeat = PIXMAN_REPEAT_PAD;
-			    break;
+			case CAIRO_EXTEND_NONE: pixman_repeat = PIXMAN_REPEAT_NONE; break;
+			case CAIRO_EXTEND_REPEAT: pixman_repeat = PIXMAN_REPEAT_NORMAL; break;
+			case CAIRO_EXTEND_REFLECT: pixman_repeat = PIXMAN_REPEAT_REFLECT; break;
+			case CAIRO_EXTEND_PAD: pixman_repeat = PIXMAN_REPEAT_PAD; break;
 		}
-
 		pixman_image_set_repeat(pixman_image, pixman_repeat);
 	}
-
 	if(pattern->has_component_alpha)
 		pixman_image_set_component_alpha(pixman_image, TRUE);
-
 	return TRUE;
 }
 
@@ -1318,46 +1296,27 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 	return pixman_image;
 }
 
-pixman_image_t * _pixman_image_for_pattern(cairo_image_surface_t * dst,
-    const cairo_pattern_t * pattern,
-    boolint is_mask,
-    const cairo_rectangle_int_t * extents,
-    const cairo_rectangle_int_t * sample,
-    int * tx, int * ty)
+pixman_image_t * _pixman_image_for_pattern(cairo_image_surface_t * dst, const cairo_pattern_t * pattern,
+    boolint is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * tx, int * ty)
 {
 	*tx = *ty = 0;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	if(pattern == NULL)
 		return _pixman_white_image();
-
 	switch(pattern->type) {
 		default:
 		    ASSERT_NOT_REACHED;
 		case CAIRO_PATTERN_TYPE_SOLID:
 		    return _pixman_image_for_color(&((const cairo_solid_pattern_t*)pattern)->color);
-
 		case CAIRO_PATTERN_TYPE_RADIAL:
 		case CAIRO_PATTERN_TYPE_LINEAR:
-		    return _pixman_image_for_gradient((const cairo_gradient_pattern_t*)pattern,
-			       extents, tx, ty);
-
+		    return _pixman_image_for_gradient((const cairo_gradient_pattern_t *)pattern, extents, tx, ty);
 		case CAIRO_PATTERN_TYPE_MESH:
-		    return _pixman_image_for_mesh((const cairo_mesh_pattern_t*)pattern,
-			       extents, tx, ty);
-
+		    return _pixman_image_for_mesh((const cairo_mesh_pattern_t *)pattern, extents, tx, ty);
 		case CAIRO_PATTERN_TYPE_SURFACE:
-		    return _pixman_image_for_surface(dst,
-			       (const cairo_surface_pattern_t*)pattern,
-			       is_mask, extents, sample,
-			       tx, ty);
-
+		    return _pixman_image_for_surface(dst, (const cairo_surface_pattern_t*)pattern, is_mask, extents, sample, tx, ty);
 		case CAIRO_PATTERN_TYPE_RASTER_SOURCE:
-		    return _pixman_image_for_raster(dst,
-			       (const cairo_raster_source_pattern_t*)pattern,
-			       is_mask, extents, sample,
-			       tx, ty);
+		    return _pixman_image_for_raster(dst, (const cairo_raster_source_pattern_t*)pattern, is_mask, extents, sample, tx, ty);
 	}
 }
 

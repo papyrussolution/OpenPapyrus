@@ -737,8 +737,10 @@ int SLAPI DbfTable::getFieldName(uint fldNumber, char * pFldName, size_t bufLen)
 		strnzcpy(pFldName, temp_buf, bufLen);
 		return 1;
 	}
-	ASSIGN_PTR(pFldName, 0);
-	return 0;
+	else {
+		ASSIGN_PTR(pFldName, 0);
+		return 0;
+	}
 }
 
 int FASTCALL DbfTable::getFieldNumber(const char * pFldName, int * pFldNumber) const

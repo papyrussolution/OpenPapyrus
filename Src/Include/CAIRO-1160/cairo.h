@@ -442,10 +442,7 @@ typedef enum _cairo_format {
  *
  * Since: 1.0
  **/
-typedef cairo_status_t (* cairo_write_func_t) (void * closure,
-    const uchar * data,
-    uint length);
-
+typedef cairo_status_t (* cairo_write_func_t) (void * closure, const uchar * data, uint length);
 /**
  * cairo_read_func_t:
  * @closure: the input closure
@@ -464,10 +461,7 @@ typedef cairo_status_t (* cairo_write_func_t) (void * closure,
  *
  * Since: 1.0
  **/
-typedef cairo_status_t (* cairo_read_func_t) (void * closure,
-    uchar * data,
-    uint length);
-
+typedef cairo_status_t (* cairo_read_func_t) (void * closure, uchar * data, uint length);
 /**
  * cairo_rectangle_int_t:
  * @x: X coordinate of the left side of the rectangle
@@ -487,31 +481,16 @@ typedef struct _cairo_rectangle_int {
 
 /* Functions for manipulating state objects */
 cairo_public cairo_t * cairo_create(cairo_surface_t * target);
-
 cairo_public cairo_t * cairo_reference(cairo_t * cr);
-
 cairo_public void cairo_destroy(cairo_t * cr);
-
 cairo_public uint cairo_get_reference_count(cairo_t * cr);
-
-cairo_public void * cairo_get_user_data(cairo_t * cr,
-    const cairo_user_data_key_t * key);
-
-cairo_public cairo_status_t cairo_set_user_data(cairo_t * cr,
-    const cairo_user_data_key_t * key,
-    void * user_data,
-    cairo_destroy_func_t destroy);
-
+cairo_public void * cairo_get_user_data(cairo_t * cr, const cairo_user_data_key_t * key);
+cairo_public cairo_status_t cairo_set_user_data(cairo_t * cr, const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy);
 cairo_public void cairo_save(cairo_t * cr);
-
 cairo_public void cairo_restore(cairo_t * cr);
-
 cairo_public void cairo_push_group(cairo_t * cr);
-
 cairo_public void cairo_push_group_with_content(cairo_t * cr, cairo_content_t content);
-
 cairo_public cairo_pattern_t * cairo_pop_group(cairo_t * cr);
-
 cairo_public void cairo_pop_group_to_source(cairo_t * cr);
 
 /* Modify state */
@@ -951,8 +930,8 @@ typedef struct {
 	//double y;
 } cairo_glyph_t;
 
-cairo_public cairo_glyph_t * cairo_glyph_allocate(int num_glyphs);
-cairo_public void cairo_glyph_free(cairo_glyph_t * glyphs);
+cairo_public cairo_glyph_t * FASTCALL cairo_glyph_allocate(int num_glyphs);
+cairo_public void FASTCALL cairo_glyph_free(cairo_glyph_t * glyphs);
 
 /**
  * cairo_text_cluster_t:
@@ -1572,7 +1551,7 @@ cairo_public cairo_pattern_t * cairo_get_source(cairo_t * cr);
 cairo_public double cairo_get_tolerance(cairo_t * cr);
 cairo_public cairo_antialias_t cairo_get_antialias(cairo_t * cr);
 cairo_public boolint cairo_has_current_point(cairo_t * cr);
-cairo_public void cairo_get_current_point(cairo_t * cr, double * x, double * y);
+cairo_public void FASTCALL cairo_get_current_point(cairo_t * cr, double * x, double * y);
 cairo_public cairo_fill_rule_t cairo_get_fill_rule(cairo_t * cr);
 cairo_public double cairo_get_line_width(cairo_t * cr);
 cairo_public cairo_line_cap_t cairo_get_line_cap(cairo_t * cr);

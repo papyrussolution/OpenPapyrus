@@ -4108,7 +4108,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 		int    r = op_obj.GetExtStrData(Rec.OpID, OPKEXSTR_AMTFORMULA, amt_formula);
 		if(r > 0 && amt_formula.NotEmptyS()) {
 			const char * p_ignfix = "ignfix";
-			if(amt_formula.CmpPrefix(p_ignfix, 1) == 0) {
+			if(amt_formula.HasPrefixIAscii(p_ignfix)) {
 				amt_formula.ShiftLeft(sstrlen(p_ignfix));
 				do_calc_amount = 1;
 			}

@@ -321,13 +321,12 @@ void FASTCALL _zip_buffer_free(zip_buffer_t * buffer)
 
 uint8 * FASTCALL _zip_buffer_get(zip_buffer_t * buffer, uint64 length)
 {
-	uint8 * data;
 	if(!buffer->ok || buffer->offset + length < length || buffer->offset + length > buffer->size) {
 		buffer->ok = false;
 		return NULL;
 	}
 	else {
-		data = buffer->data + buffer->offset;
+		uint8 * data = buffer->data + buffer->offset;
 		buffer->offset += length;
 		return data;
 	}

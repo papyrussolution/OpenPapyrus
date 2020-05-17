@@ -3941,7 +3941,7 @@ static long xmlGetLineNoInternal(const xmlNode * P_Node, int depth)
 			if(oneof4(P_Node->type, XML_ELEMENT_NODE, XML_TEXT_NODE, XML_COMMENT_NODE, XML_PI_NODE)) {
 				if(P_Node->line == 65535) {
 					if((P_Node->type == XML_TEXT_NODE) && P_Node->psvi)
-						result = (long)P_Node->psvi;
+						result = (long)P_Node->psvi; // @x64crit
 					else if((P_Node->type == XML_ELEMENT_NODE) && P_Node->children)
 						result = xmlGetLineNoInternal(P_Node->children, depth + 1);
 					else if(P_Node->next)

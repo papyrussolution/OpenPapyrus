@@ -1,5 +1,6 @@
 // INETURL.CPP
-// Copyright (c) A.Sobolev 2019
+// Copyright (c) A.Sobolev 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -376,7 +377,7 @@ int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 int InetUrl::Parse(const char * pUrl)
 {
 	// http://<host>:<port>/<context>
-	// <схема>://<логин>:<пароль>@<хост>:<порт>/<URL-путь>?<параметры>#<якорь>
+	// <СЃС…РµРјР°>://<Р»РѕРіРёРЅ>:<РїР°СЂРѕР»СЊ>@<С…РѕСЃС‚>:<РїРѕСЂС‚>/<URL-РїСѓС‚СЊ>?<РїР°СЂР°РјРµС‚СЂС‹>#<СЏРєРѕСЂСЊ>
 	//
 	// Divisors: :, :/, ://, :\, :\\, /, \, ?, #, @
 
@@ -399,13 +400,13 @@ int InetUrl::Parse(const char * pUrl)
 		int    _done = 0;
 		{
 			//
-			// Сначала разберем специальные случаи, которые не обрабатываются функцией UriParseUri
+			// РЎРЅР°С‡Р°Р»Р° СЂР°Р·Р±РµСЂРµРј СЃРїРµС†РёР°Р»СЊРЅС‹Рµ СЃР»СѓС‡Р°Рё, РєРѕС‚РѕСЂС‹Рµ РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ С„СѓРЅРєС†РёРµР№ UriParseUri
 			// Note:
-			//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
-			//   вроде \\.\COM1
+			//   Р­С‚РѕС‚ Р±Р»РѕРє С‚СЂРµР±СѓРµС‚ Р·РЅР°С‡РёС‚РµР»СЊРЅС‹С… СѓС‚РѕС‡РЅРµРЅРёР№, РІ С‚РѕРј С‡РёСЃР»Рµ РєР°СЃР°С‚РµР»СЊРЅРѕ РѕС‡РµРЅСЊ СЃРїРµС†РёР°Р»СЊРЅС‹С… СЃР»СѓС‡Р°РµРІ
+			//   РІСЂРѕРґРµ \\.\COM1
 			//
 			if(_url[1] == ':' && IsLetterASCII(_url[0])) {
-				// Путь файловой системы
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url, 1);
@@ -413,23 +414,23 @@ int InetUrl::Parse(const char * pUrl)
 				_done = 1;
 			}
 			else if(oneof2(_url[0], '/', '\\') && oneof2(_url[1], '/', '\\')) {
-				// Путь файловой системы
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url, 1);
 				State &= ~stEmpty;
 				_done = 1;
 			}
-			else if(oneof2(_url[0], '/', '\\')) { // Сомнительный случай, но пути типа "/abc/catalog/x.bin" реальность
-				// Путь файловой системы
+			else if(oneof2(_url[0], '/', '\\')) { // РЎРѕРјРЅРёС‚РµР»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№, РЅРѕ РїСѓС‚Рё С‚РёРїР° "/abc/catalog/x.bin" СЂРµР°Р»СЊРЅРѕСЃС‚СЊ
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url, 1);
 				State &= ~stEmpty;
 				_done = 1;
 			}
-			else if(_url.CmpPrefix("file:", 1) == 0 && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
-				// Путь файловой системы, начиная с _url[8]
+			else if(_url.HasPrefixIAscii("file:") && oneof2(_url[5], '/', '\\') && oneof2(_url[6], '/', '\\') && oneof2(_url[7], '/', '\\')) {
+				// РџСѓС‚СЊ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹, РЅР°С‡РёРЅР°СЏ СЃ _url[8]
 				Protocol = GetSchemeId("file");
 				TermList.Add(cScheme, "file", 1);
 				TermList.Add(cPath, _url+8, 1);

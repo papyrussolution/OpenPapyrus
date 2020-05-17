@@ -446,7 +446,7 @@ static void FASTCALL xmlRngPErr(xmlRelaxNGParserCtxt * ctxt, xmlNode * P_Node, i
 		data = ctxt->userData;
 		ctxt->nbErrors++;
 	}
-	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGP, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGP, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
 /**
  * xmlRngVErr:
@@ -473,7 +473,7 @@ static void xmlRngVErr(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node, int error,
 		ctxt->nbErrors++;
 	}
 	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGV, error, XML_ERR_ERROR, NULL, 0,
-	    (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	    PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
 /************************************************************************
 *									*

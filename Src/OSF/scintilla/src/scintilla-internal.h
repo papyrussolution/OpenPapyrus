@@ -1047,14 +1047,11 @@ public:
 
 	Document();
 	virtual ~Document();
-
 	int AddRef();
 	int SCI_METHOD Release();
-
 	virtual void Init();
 	virtual void InsertLine(int line);
 	virtual void RemoveLine(int line);
-
 	int LineEndTypesSupported() const;
 	bool SetDBCSCodePage(int dbcsCodePage_);
 	int GetLineEndTypesAllowed() const { return cb.GetLineEndTypes(); }

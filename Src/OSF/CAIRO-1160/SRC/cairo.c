@@ -578,10 +578,9 @@ uint cairo_get_reference_count(cairo_t * cr)
  **/
 void cairo_save(cairo_t * cr)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->save(cr);
+	cairo_status_t status = cr->backend->save(cr);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -793,14 +792,12 @@ slim_hidden_def(cairo_set_operator);
  */
 void cairo_set_opacity(cairo_t * cr, double opacity)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
-	status = cr->backend->set_opacity(cr, opacity);
+	cairo_status_t status = cr->backend->set_opacity(cr, opacity);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 #endif
 
 /**
@@ -1662,7 +1659,6 @@ slim_hidden_def(cairo_curve_to);
  **/
 void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(angle2 < angle1) {
@@ -1672,7 +1668,7 @@ void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1,
 			angle2 += 2 * M_PI;
 		angle2 += angle1;
 	}
-	status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, TRUE);
+	cairo_status_t status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, TRUE);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -1698,7 +1694,6 @@ void cairo_arc(cairo_t * cr, double xc, double yc, double radius, double angle1,
  **/
 void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, double angle1, double angle2)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	if(angle2 > angle1) {
@@ -1708,7 +1703,7 @@ void cairo_arc_negative(cairo_t * cr, double xc, double yc, double radius, doubl
 			angle2 -= 2 * M_PI;
 		angle2 += angle1;
 	}
-	status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, FALSE);
+	cairo_status_t status = cr->backend->arc(cr, xc, yc, radius, angle1, angle2, FALSE);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
@@ -2676,7 +2671,6 @@ cairo_public void cairo_tag_end(cairo_t * cr, const char * tag_name)
  **/
 void cairo_select_font_face(cairo_t * cr, const char * family, cairo_font_slant_t slant, cairo_font_weight_t weight)
 {
-	cairo_status_t status;
 	if(unlikely(cr->status))
 		return;
 	cairo_font_face_t * font_face = cairo_toy_font_face_create(family, slant, weight);
@@ -2684,7 +2678,7 @@ void cairo_select_font_face(cairo_t * cr, const char * family, cairo_font_slant_
 		_cairo_set_error(cr, font_face->status);
 		return;
 	}
-	status = cr->backend->set_font_face(cr, font_face);
+	cairo_status_t status = cr->backend->set_font_face(cr, font_face);
 	cairo_font_face_destroy(font_face);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
@@ -2970,33 +2964,34 @@ slim_hidden_def(cairo_get_scaled_font);
 void cairo_text_extents(cairo_t * cr, const char * utf8, cairo_text_extents_t * extents)
 {
 	cairo_status_t status;
-	cairo_scaled_font_t * scaled_font;
 	cairo_glyph_t * glyphs = NULL;
 	int num_glyphs = 0;
-	double x, y;
-	extents->x_bearing = 0.0;
-	extents->y_bearing = 0.0;
-	extents->width  = 0.0;
-	extents->height = 0.0;
-	extents->x_advance = 0.0;
-	extents->y_advance = 0.0;
+	// @v10.7.8 extents->x_bearing = 0.0;
+	// @v10.7.8 extents->y_bearing = 0.0;
+	// @v10.7.8 extents->width  = 0.0;
+	// @v10.7.8 extents->height = 0.0;
+	// @v10.7.8 extents->x_advance = 0.0;
+	// @v10.7.8 extents->y_advance = 0.0;
+	memzero(extents, sizeof(*extents)); // @v10.7.8
 	if(unlikely(cr->status))
 		return;
-	if(utf8 == NULL)
-		return;
-	scaled_font = cairo_get_scaled_font(cr);
-	if(unlikely(scaled_font->status)) {
-		_cairo_set_error(cr, scaled_font->status);
-		return;
+	if(utf8) {
+		cairo_scaled_font_t * scaled_font = cairo_get_scaled_font(cr);
+		if(unlikely(scaled_font->status)) {
+			_cairo_set_error(cr, scaled_font->status);
+		}
+		else {
+			double x, y;
+			cairo_get_current_point(cr, &x, &y);
+			status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
+			if(likely(status == CAIRO_STATUS_SUCCESS)) {
+				status = cr->backend->glyph_extents(cr, glyphs, num_glyphs, extents);
+			}
+			cairo_glyph_free(glyphs);
+			if(unlikely(status))
+				_cairo_set_error(cr, status);
+		}
 	}
-	cairo_get_current_point(cr, &x, &y);
-	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
-	if(likely(status == CAIRO_STATUS_SUCCESS)) {
-		status = cr->backend->glyph_extents(cr, glyphs, num_glyphs, extents);
-	}
-	cairo_glyph_free(glyphs);
-	if(unlikely(status))
-		_cairo_set_error(cr, status);
 }
 /**
  * cairo_glyph_extents:
@@ -3018,41 +3013,31 @@ void cairo_text_extents(cairo_t * cr, const char * utf8, cairo_text_extents_t * 
  *
  * Since: 1.0
  **/
-void cairo_glyph_extents(cairo_t * cr,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    cairo_text_extents_t * extents)
+void cairo_glyph_extents(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyphs, cairo_text_extents_t * extents)
 {
-	cairo_status_t status;
-
-	extents->x_bearing = 0.0;
-	extents->y_bearing = 0.0;
-	extents->width  = 0.0;
-	extents->height = 0.0;
-	extents->x_advance = 0.0;
-	extents->y_advance = 0.0;
-
+	// @v10.7.8 extents->x_bearing = 0.0;
+	// @v10.7.8 extents->y_bearing = 0.0;
+	// @v10.7.8 extents->width  = 0.0;
+	// @v10.7.8 extents->height = 0.0;
+	// @v10.7.8 extents->x_advance = 0.0;
+	// @v10.7.8 extents->y_advance = 0.0;
+	memzero(extents, sizeof(*extents)); // @v10.7.8
 	if(unlikely(cr->status))
 		return;
-
 	if(num_glyphs == 0)
 		return;
-
 	if(unlikely(num_glyphs < 0)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NEGATIVE_COUNT);
 		return;
 	}
-
 	if(unlikely(glyphs == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-
-	status = cr->backend->glyph_extents(cr, glyphs, num_glyphs, extents);
+	cairo_status_t status = cr->backend->glyph_extents(cr, glyphs, num_glyphs, extents);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_show_text:
  * @cr: a cairo context
@@ -3508,7 +3493,7 @@ boolint cairo_has_current_point(cairo_t * cr)
  *
  * Since: 1.0
  **/
-void cairo_get_current_point(cairo_t * cr, double * x_ret, double * y_ret)
+void FASTCALL cairo_get_current_point(cairo_t * cr, double * x_ret, double * y_ret)
 {
 	double x = 0.0;
 	double y = 0.0;

@@ -2213,7 +2213,7 @@ int SLAPI PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::Update
 							temp_buf = sc_pack.Rec.Code;
 							for(uint i = 0; i < gua_to_prefix_list.getCount(); i++) {
 								StrAssocArray::Item gua_to_prefix_item = gua_to_prefix_list.at_WithoutParent(i);
-								if(temp_buf.CmpPrefix(gua_to_prefix_item.Txt, 1) == 0) {
+								if(temp_buf.HasPrefixNC(gua_to_prefix_item.Txt)) {
 									gua_id = gua_to_prefix_item.Id;
 									temp_buf.ShiftLeft(sstrlen(gua_to_prefix_item.Txt));
 									break;
@@ -2881,6 +2881,7 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0); // @v9.8.9
 	pattern = scs_pack.Eb.CodeTempl; // @v9.8.9 ser.CodeTempl-->scs_pack.Eb.CodeTempl
 	PPLoadText(PPTXT_SCARDCODETEMPL, isd_param.Title);
+	isd_param.P_Wse = new TextHistorySelExtra("scardcodetemplate-common"); // @v10.7.8
 	if(InputStringDialog(&isd_param, pattern) > 0) {
 		PPWait(1);
 		THROW(P_Tbl->AutoFill(scs_pack, pattern, use_ta));

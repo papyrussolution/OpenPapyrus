@@ -74,11 +74,11 @@ UString CDirItems::GetPrefixesPath(const CIntVector &parents, int index, const U
 		len += Prefixes[i].Len();
 	wchar_t * p = path.GetBuf_SetEnd(len) + len;
 	p -= name.Len();
-	wmemcpy(p, (const wchar_t*)name, name.Len());
+	wmemcpy(p, (const wchar_t *)name, name.Len());
 	for(i = index; i >= 0; i = parents[i]) {
 		const UString &s = Prefixes[i];
 		p -= s.Len();
-		wmemcpy(p, (const wchar_t*)s, s.Len());
+		wmemcpy(p, (const wchar_t *)s, s.Len());
 	}
 	return path;
 }

@@ -774,7 +774,7 @@ XXH_FORCE_INLINE void XXH3_accumulate(uint64* XXH_RESTRICT acc, const void* XXH_
 #  pragma clang loop unroll(enable)
 #endif
 	for(n = 0; n < nbStripes; n++) {
-		XXH3_accumulate_512(acc, (const char *)data   + n*STRIPE_LEN, (const char *)secret + n*XXH_SECRET_CONSUME_RATE, accWidth);
+		XXH3_accumulate_512(acc, (const char *)data   + n*STRIPE_LEN, PTRCHRC(secret) + n*XXH_SECRET_CONSUME_RATE, accWidth);
 	}
 }
 
@@ -798,7 +798,7 @@ XXH3_hashLong_internal_loop(uint64* XXH_RESTRICT acc, const void* XXH_RESTRICT d
 	XXH_ASSERT(secretSize >= XXH3_SECRET_SIZE_MIN);
 	for(n = 0; n < nb_blocks; n++) {
 		XXH3_accumulate(acc, (const char *)data + n*block_len, secret, nb_rounds, accWidth);
-		XXH3_scrambleAcc(acc, (const char *)secret + secretSize - STRIPE_LEN);
+		XXH3_scrambleAcc(acc, PTRCHRC(secret) + secretSize - STRIPE_LEN);
 	}
 	/* last partial block */
 	XXH_ASSERT(len > STRIPE_LEN);
@@ -810,7 +810,7 @@ XXH3_hashLong_internal_loop(uint64* XXH_RESTRICT acc, const void* XXH_RESTRICT d
 	    if(len & (STRIPE_LEN - 1)) {
 		    const void* const p = (const char *)data + len - STRIPE_LEN;
 #define XXH_SECRET_LASTACC_START 7  /* do not align on 8, so that secret is different from scrambler */
-		    XXH3_accumulate_512(acc, p, (const char *)secret + secretSize - STRIPE_LEN - XXH_SECRET_LASTACC_START, accWidth);
+		    XXH3_accumulate_512(acc, p, PTRCHRC(secret) + secretSize - STRIPE_LEN - XXH_SECRET_LASTACC_START, accWidth);
 	    }
 	}
 }
@@ -824,10 +824,10 @@ XXH_FORCE_INLINE uint64 XXH3_mix2Accs(const uint64* XXH_RESTRICT acc, const void
 static XXH64_hash_t XXH3_mergeAccs(const uint64* XXH_RESTRICT acc, const void* XXH_RESTRICT secret, uint64 start)
 {
 	uint64 result64 = start;
-	result64 += XXH3_mix2Accs(acc+0, (const char *)secret +  0);
-	result64 += XXH3_mix2Accs(acc+2, (const char *)secret + 16);
-	result64 += XXH3_mix2Accs(acc+4, (const char *)secret + 32);
-	result64 += XXH3_mix2Accs(acc+6, (const char *)secret + 48);
+	result64 += XXH3_mix2Accs(acc+0, PTRCHRC(secret) +  0);
+	result64 += XXH3_mix2Accs(acc+2, PTRCHRC(secret) + 16);
+	result64 += XXH3_mix2Accs(acc+4, PTRCHRC(secret) + 32);
+	result64 += XXH3_mix2Accs(acc+6, PTRCHRC(secret) + 48);
 	return XXH3_avalanche(result64);
 }
 
@@ -842,7 +842,7 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_hashLong_internal(const void* XXH_RESTRICT da
 	XXH_STATIC_ASSERT(sizeof(acc) == 64);
 #define XXH_SECRET_MERGEACCS_START 11  /* do not align on 8, so that secret is different from accumulator */
 	XXH_ASSERT(secretSize >= sizeof(acc) + XXH_SECRET_MERGEACCS_START);
-	return XXH3_mergeAccs(acc, (const char *)secret + XXH_SECRET_MERGEACCS_START, (uint64)len * PRIME64_1);
+	return XXH3_mergeAccs(acc, PTRCHRC(secret) + XXH_SECRET_MERGEACCS_START, (uint64)len * PRIME64_1);
 }
 
 XXH_NO_INLINE XXH64_hash_t // It's important for performance that XXH3_hashLong is not inlined. Not sure why (uop cache maybe ?), but difference is large and easily measurable 
@@ -908,7 +908,7 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_17to128_64b(const void* XXH_RESTRICT data
     const void* XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = (const char *)secret;
+	const char* const key = PTRCHRC(secret);
 	XXH_ASSERT(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	XXH_ASSERT(16 < len && len <= 128);
 	{   
@@ -937,7 +937,7 @@ XXH_NO_INLINE XXH64_hash_t XXH3_len_129to240_64b(const void* XXH_RESTRICT data, 
     const void* XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = (const char *)secret;
+	const char* const key = PTRCHRC(secret);
 	XXH_ASSERT(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	XXH_ASSERT(128 < len && len <= XXH3_MIDSIZE_MAX);
     #define XXH3_MIDSIZE_STARTOFFSET 3
@@ -1062,13 +1062,13 @@ XXH_FORCE_INLINE void XXH3_consumeStripes(uint64* acc, XXH32_hash_t* nbStripesSo
 	if(nbStripesPerBlock - *nbStripesSoFarPtr <= totalStripes) {
 		/* need a scrambling operation */
 		size_t const nbStripes = nbStripesPerBlock - *nbStripesSoFarPtr;
-		XXH3_accumulate(acc, data, (const char *)secret + nbStripesSoFarPtr[0] * XXH_SECRET_CONSUME_RATE, nbStripes, accWidth);
-		XXH3_scrambleAcc(acc, (const char *)secret + secretLimit);
+		XXH3_accumulate(acc, data, PTRCHRC(secret) + nbStripesSoFarPtr[0] * XXH_SECRET_CONSUME_RATE, nbStripes, accWidth);
+		XXH3_scrambleAcc(acc, PTRCHRC(secret) + secretLimit);
 		XXH3_accumulate(acc, (const char *)data + nbStripes * STRIPE_LEN, secret, totalStripes - nbStripes, accWidth);
 		*nbStripesSoFarPtr = (XXH32_hash_t)(totalStripes - nbStripes);
 	}
 	else {
-		XXH3_accumulate(acc, data, (const char *)secret + nbStripesSoFarPtr[0] * XXH_SECRET_CONSUME_RATE, totalStripes, accWidth);
+		XXH3_accumulate(acc, data, PTRCHRC(secret) + nbStripesSoFarPtr[0] * XXH_SECRET_CONSUME_RATE, totalStripes, accWidth);
 		*nbStripesSoFarPtr += (XXH32_hash_t)totalStripes;
 	}
 }
@@ -1254,8 +1254,8 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_hashLong_128b_internal(const void* XXH_RESTR
 	XXH_STATIC_ASSERT(sizeof(acc) == 64);
 	XXH_ASSERT(secretSize >= sizeof(acc) + XXH_SECRET_MERGEACCS_START);
 	{   
-		uint64 const low64 = XXH3_mergeAccs(acc, (const char *)secret + XXH_SECRET_MERGEACCS_START, (uint64)len * PRIME64_1);
-	    uint64 const high64 = XXH3_mergeAccs(acc, (const char *)secret + secretSize - sizeof(acc) - XXH_SECRET_MERGEACCS_START, ~((uint64)len * PRIME64_2));
+		uint64 const low64 = XXH3_mergeAccs(acc, PTRCHRC(secret) + XXH_SECRET_MERGEACCS_START, (uint64)len * PRIME64_1);
+	    uint64 const high64 = XXH3_mergeAccs(acc, PTRCHRC(secret) + secretSize - sizeof(acc) - XXH_SECRET_MERGEACCS_START, ~((uint64)len * PRIME64_2));
 	    XXH128_hash_t const h128 = { low64, high64 };
 	    return h128;
 	}
@@ -1287,7 +1287,7 @@ XXH_NO_INLINE XXH128_hash_t XXH3_len_129to240_128b(const void* XXH_RESTRICT data
     const void* XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = (const char *)secret;
+	const char* const key = PTRCHRC(secret);
 	XXH_ASSERT(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	XXH_ASSERT(128 < len && len <= XXH3_MIDSIZE_MAX);
 	{   
@@ -1322,7 +1322,7 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_17to128_128b(const void* XXH_RESTRICT da
     const void* XXH_RESTRICT secret, size_t secretSize, XXH64_hash_t seed)
 {
 	const BYTE * const p = (const BYTE *)data;
-	const char* const key = (const char *)secret;
+	const char* const key = PTRCHRC(secret);
 	XXH_ASSERT(secretSize >= XXH3_SECRET_SIZE_MIN); (void)secretSize;
 	XXH_ASSERT(16 < len && len <= 128);
 	{   

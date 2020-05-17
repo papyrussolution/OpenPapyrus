@@ -606,7 +606,7 @@ ZIP_EXTERN zip_source_t * zip_source_win32w(zip_t * za, const wchar_t * fname, u
 
 static void * _win32_strdup_w(const void * str)
 {
-	return _wcsdup((const wchar_t*)str);
+	return _wcsdup(static_cast<const wchar_t *>(str));
 }
 
 static HANDLE _win32_open_w(_zip_source_win32_read_file_t * ctx)
@@ -616,17 +616,17 @@ static HANDLE _win32_open_w(_zip_source_win32_read_file_t * ctx)
 
 static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** temp, uint32 value, PSECURITY_ATTRIBUTES sa)
 {
-	int len = (int)wcslen((const wchar_t*)ctx->fname) + 10;
+	int len = (int)wcslen((const wchar_t *)ctx->fname) + 10;
 	if(*temp == NULL) {
 		if((*temp = SAlloc::M(sizeof(wchar_t) * len)) == NULL) {
 			zip_error_set(&ctx->error, SLERR_ZIP_MEMORY, 0);
 			return INVALID_HANDLE_VALUE;
 		}
 	}
-	if(_snwprintf((wchar_t *)*temp, len, L"%s.%08x", (const wchar_t*)ctx->fname, value) != len - 1) {
+	if(_snwprintf((wchar_t *)*temp, len, L"%s.%08x", (const wchar_t *)ctx->fname, value) != len - 1) {
 		return INVALID_HANDLE_VALUE;
 	}
-	return CreateFileW((const wchar_t*)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ,
+	return CreateFileW((const wchar_t *)*temp, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ,
 	    sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_TEMPORARY, 0);
 }
 
@@ -637,7 +637,7 @@ static int _win32_rename_temp_w(_zip_source_win32_read_file_t * ctx)
 
 static int _win32_remove_w(const void * fname)
 {
-	DeleteFileW((const wchar_t*)fname);
+	DeleteFileW((const wchar_t *)fname);
 	return 0;
 }
 

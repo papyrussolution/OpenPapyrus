@@ -63,7 +63,7 @@ IMPL_HANDLE_EVENT(StaffCalFiltDialog)
 		if(oneof2(obj_type, PPOBJ_PERSON, PPOBJ_STAFFLIST2)) {
 			PPIDArray temp_list;
 			Data.LinkObjList.CopyTo(&temp_list);
-			ListToListData lst_param(obj_type, ((obj_type == PPOBJ_PERSON) ? (void *)NZOR(Data.LinkPersonKind, PPPRK_EMPL) : 0), &temp_list);
+			ListToListData lst_param(obj_type, ((obj_type == PPOBJ_PERSON) ? reinterpret_cast<void *>(NZOR(Data.LinkPersonKind, PPPRK_EMPL)) : 0), &temp_list);
 			if(ListToListDialog(&lst_param) > 0) {
 				Data.LinkObjList.Set(&temp_list);
 				if(Data.LinkObjList.GetCount() == 1) {

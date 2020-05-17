@@ -482,7 +482,7 @@ HRESULT CArc::GetItemPathToParent(uint32 index, uint32 parent, UStringVector &pa
 		uint32 propType;
 		RINOK(GetRawProps->GetRawProp(curIndex, kpidName, &p, &size, &propType));
 		if(p && propType == PROP_DATA_TYPE_wchar_t_PTR_Z_LE)
-			s = (const wchar_t*)p;
+			s = (const wchar_t *)p;
 		else
     #endif
 		{
@@ -1838,7 +1838,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 			RINOK(PrepareToOpen(op, FormatIndex, archive));
 			if(!archive)
 				continue;
-			PRF(printf("\nSorted Open %S", (const wchar_t*)ai.Name));
+			PRF(printf("\nSorted Open %S", (const wchar_t *)ai.Name));
 			HRESULT result;
 			{
 				uint64 searchLimit = 0;
@@ -2198,7 +2198,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 				   if(pos == 67109888)
 				   pos = pos;
 				 */
-				PRF(printf("\npos = %9I64d : %S", pos, (const wchar_t*)ai.Name));
+				PRF(printf("\npos = %9I64d : %S", pos, (const wchar_t *)ai.Name));
 				bool isMainFormat = isMainFormatArr[index];
 				const COpenSpecFlags &specFlags = mode.GetSpec(isForced, isMainFormat, isUnknownExt);
 				CMyComPtr <IInArchive> archive;

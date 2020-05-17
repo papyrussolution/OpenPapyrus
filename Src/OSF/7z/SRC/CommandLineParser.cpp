@@ -71,7 +71,7 @@ namespace NCommandLineParser {
 			unsigned switchLen = sstrlen(key);
 			if((int)switchLen <= maxLen || pos + switchLen > s.Len())
 				continue;
-			if(IsString1PrefixedByString2_NoCase_Ascii((const wchar_t*)s + pos, key)) {
+			if(IsString1PrefixedByString2_NoCase_Ascii((const wchar_t *)s + pos, key)) {
 				switchIndex = i;
 				maxLen = switchLen;
 			}

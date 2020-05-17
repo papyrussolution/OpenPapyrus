@@ -461,7 +461,7 @@ int PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServer
 					}
 					reply_size = rReply.GetAvailableSize();
 					if(do_preprocess_content) {
-						temp_buf.Z().CatN((const char *)rReply.GetBuf(rReply.GetRdOffs()), reply_size);
+						temp_buf.Z().CatN(PTRCHRC(rReply.GetBuf(rReply.GetRdOffs())), reply_size);
 						rReply.Z();
 						PreprocessContent(temp_buf, rReply);
 						reply_size = rReply.GetAvailableSize();
@@ -549,15 +549,15 @@ int SLAPI PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 					DbLoginBlock dblblk;
 					if(p_cfg) {
 						if(p_cfg->DbSymb.len) {
-							temp_buf.Z().CatN((const char *)p_cfg->DbSymb.data, p_cfg->DbSymb.len);
+							temp_buf.Z().CatN(PTRCHRC_(p_cfg->DbSymb.data), p_cfg->DbSymb.len);
 							dblblk.SetAttr(DbLoginBlock::attrDbSymb, temp_buf);
 						}
 						if(p_cfg->UserName.len) {
-							temp_buf.Z().CatN((const char *)p_cfg->UserName.data, p_cfg->UserName.len);
+							temp_buf.Z().CatN(PTRCHRC_(p_cfg->UserName.data), p_cfg->UserName.len);
 							dblblk.SetAttr(DbLoginBlock::attrUserName, temp_buf);
 						}
 						if(p_cfg->Password.len) {
-							temp_buf.Z().CatN((const char *)p_cfg->Password.data, p_cfg->Password.len);
+							temp_buf.Z().CatN(PTRCHRC_(p_cfg->Password.data), p_cfg->Password.len);
 							dblblk.SetAttr(DbLoginBlock::attrPassword, temp_buf);
 						}
 					}

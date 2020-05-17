@@ -44,6 +44,7 @@ int SLAPI EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDeks
 			uint   pos = 0;
 			cmd_txt_list.SortByText();
 			SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, &cmd_txt_list, Data.CmdID, 0);
+			SetupWordSelector(CTLSEL_CMDITEM_CMD, 0, Data.CmdID, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
 			setCtrlString(CTL_CMDITEM_ICON, Data.Icon);
 			AddClusterAssoc(CTL_CMDITEM_USEDEFICON, 0, USEDEFICON);
 			SetClusterData(CTL_CMDITEM_USEDEFICON, Data.Icon.ToLong() || !Data.Icon.Len());
@@ -760,7 +761,8 @@ int EditMenusDlg::LoadCfg(long id)
 		ColorCtrlGroup::Rec color_rec;
 		PPCommandGroup * p_desk = 0;
 		if(PrevID) {
-			if(p_desk = Data.GetDesktop(PrevID)) {
+			p_desk = Data.GetDesktop(PrevID);
+			if(p_desk) {
 				GetClusterData(CTL_MENULIST_FLAGS, &flags);
 				p_desk->Flags = static_cast<uint16>(flags);
 				getGroupData(GRP_BKGND, &color_rec);
@@ -773,7 +775,8 @@ int EditMenusDlg::LoadCfg(long id)
 		color_rec.C = 0;
 		flags    = 0;
 		PrevID   = id;
-		if(p_desk = Data.GetDesktop(id)) {
+		p_desk   = Data.GetDesktop(id);
+		if(p_desk) {
 			rec.Path = p_desk->GetLogo();
 			flags    = static_cast<long>(p_desk->Flags);
 			color_rec.C = p_desk->Icon.ToLong();

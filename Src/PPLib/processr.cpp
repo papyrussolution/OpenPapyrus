@@ -1961,7 +1961,7 @@ int FASTCALL PPViewProcessor::NextIteration(ProcessorViewItem * pItem)
 
 void * SLAPI PPViewProcessor::GetEditExtraParam()
 {
-	return (Filt.Kind == PPPRCK_GROUP) ? (void *)(Filt.ParentID | PRCEXDF_GROUP) : (void *)Filt.ParentID;
+	return (Filt.Kind == PPPRCK_GROUP) ? reinterpret_cast<void *>(Filt.ParentID | PRCEXDF_GROUP) : reinterpret_cast<void *>(Filt.ParentID);
 }
 
 int SLAPI PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)

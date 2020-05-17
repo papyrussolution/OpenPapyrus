@@ -441,7 +441,7 @@ void PNGAPI png_chunk_warning(png_const_structrp png_ptr, const char * warning_m
 
 #ifdef PNG_READ_SUPPORTED
 #ifdef PNG_BENIGN_ERRORS_SUPPORTED
-void PNGAPI png_chunk_benign_error(png_const_structrp png_ptr, const char * error_message)
+void /*PNGAPI*/FASTCALL png_chunk_benign_error(png_const_structrp png_ptr, const char * error_message)
 {
 	if((png_ptr->flags & PNG_FLAG_BENIGN_ERRORS_WARN) != 0)
 		png_chunk_warning(png_ptr, error_message);

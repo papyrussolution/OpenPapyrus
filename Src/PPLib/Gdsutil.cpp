@@ -850,17 +850,17 @@ int FASTCALL PPObjGoods::ReadConfig(PPGoodsConfig * pCfg)
 				//
 				// Сначала считаем данные до номера версии включительно...
 				//
-				memcpy(pCfg, (const char *)temp_buf, after_ver_offs);
+				memcpy(pCfg, temp_buf.cptr(), after_ver_offs);
 				if(!pCfg->Ver__.IsLt(7, 7, 2)) {
 					//
 					// ... и, если версия больше или равна 7.7.2, дочитаем оставшийся кусочек
 					//
-					memcpy(PTR8(pCfg)+after_ver_offs, ((const char *)temp_buf)+after_ver_offs, offs-after_ver_offs);
+					memcpy(PTR8(pCfg)+after_ver_offs, temp_buf.cptr()+after_ver_offs, offs-after_ver_offs);
 				}
 				strip(pCfg->WghtPrefix);
 				if(sz > offs) {
 					SBuffer ser_buf;
-					THROW_SL(ser_buf.Write(((const char *)temp_buf)+offs, sz - offs));
+					THROW_SL(ser_buf.Write(temp_buf.cptr()+offs, sz - offs));
 					if(!pCfg->TagIndFilt.Read(ser_buf, 0)) {
 						pCfg->TagIndFilt.Init(1, 0);
 						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);

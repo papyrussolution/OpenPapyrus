@@ -302,7 +302,7 @@ int SLAPI PPViewQCert::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 			case PPVCMD_ADDBYSAMPLE:
 				{
 					PPID   temp_id = 0;
-					ok = (id && QcObj.Edit(&temp_id, (void *)id) == cmOK) ? 1 : -1;
+					ok = (id && QcObj.Edit(&temp_id, reinterpret_cast<void *>(id)) == cmOK) ? 1 : -1;
 				}
 				break;
 			case PPVCMD_VIEWLOTS:

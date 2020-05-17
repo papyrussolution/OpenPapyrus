@@ -1,5 +1,6 @@
 // SALARY.CPP
 // Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -90,7 +91,7 @@ int SLAPI SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 			}
 			else {
 				//
-				// Íå áóäåì ñ÷èòàòü îøèáêîé îòñóòñòâèå äîêóìåíòà ïðè ïîïûòêå åãî óäàëèòü
+				// ÐÐµ Ð±ÑƒÐ´ÐµÐ¼ ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð¾ÑˆÐ¸Ð±ÐºÐ¾Ð¹ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²Ð¸Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð¿Ñ€Ð¸ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÐµ ÐµÐ³Ð¾ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ
 				//
 				if(org_rec.GenBillID && BillObj->Search(org_rec.GenBillID, 0) > 0)
 					THROW(BillObj->RemovePacket(org_rec.GenBillID, 0));
@@ -685,7 +686,7 @@ int FASTCALL PPViewSalary::NextIteration(SalaryViewItem * pItem)
 					else {
 						if(pItem) {
 							//
-							// Äâîéíàÿ ïåðåãîíêà äàííûõ - çàòî èçáåãàåì ëèøíåãî êîäà
+							// Ð”Ð²Ð¾Ð¹Ð½Ð°Ñ Ð¿ÐµÑ€ÐµÐ³Ð¾Ð½ÐºÐ° Ð´Ð°Ð½Ð½Ñ‹Ñ… - Ð·Ð°Ñ‚Ð¾ Ð¸Ð·Ð±ÐµÐ³Ð°ÐµÐ¼ Ð»Ð¸ÑˆÐ½ÐµÐ³Ð¾ ÐºÐ¾Ð´Ð°
 							//
 							TempSalaryTbl::Rec temp_rec;
 							MakeTempRec(0, &r_rec, &temp_rec);
@@ -698,7 +699,7 @@ int FASTCALL PPViewSalary::NextIteration(SalaryViewItem * pItem)
 			else {
 				if(pItem) {
 					//
-					// Äâîéíàÿ ïåðåãîíêà äàííûõ - çàòî èçáåãàåì ëèøíåãî êîäà
+					// Ð”Ð²Ð¾Ð¹Ð½Ð°Ñ Ð¿ÐµÑ€ÐµÐ³Ð¾Ð½ÐºÐ° Ð´Ð°Ð½Ð½Ñ‹Ñ… - Ð·Ð°Ñ‚Ð¾ Ð¸Ð·Ð±ÐµÐ³Ð°ÐµÐ¼ Ð»Ð¸ÑˆÐ½ÐµÐ³Ð¾ ÐºÐ¾Ð´Ð°
 					//
 					TempSalaryTbl::Rec temp_rec;
 					MakeTempRec(0, &r_rec, &temp_rec);
@@ -937,38 +938,38 @@ private:
 };
 
 /*
-sckName     - âèä íà÷èñëåíèÿ ñ ñèìâîëîì Name //
-samtName    - òèï øòàòíîé ñóììû ñ ñèìâîëîì Name
-amtName     - òèï ñóììû äîêóìåíòîâ ñ ñèìâîëîì Name
-evName      - âèä ïåðñîíàëüíîé îïåðàöèè ñ ñèìâîëîì Name
-prLastMonth - ïîñëåäíèé ìåñÿö äî ïåðèîäà íà÷èñëåíèÿ                    = -30.   //
-prLastQuart - ïîñëåäíèé êâàðòàë äî ïåðèîäà íà÷èñëåíèÿ                  = -90.   //
-prLastYear  - ïîñëåäíèé ãîä äî ïåðèîäà íà÷èñëåíèÿ                      = -360.  //
-prThisMonth - ñ íà÷àëà ýòîãî ìåñÿöà                                    = -30.5  //
-prThisQuart - ñ íà÷àëà ýòîãî êâàðòàëà                                  = -90.5  //
-prThisYear  - ñ íà÷àëà ýòîãî ãîäà                                      = -360.5 //
-prNominal   - ïåðèîä íà÷èñëåíèÿ                                        = 1.    //
-prActual    - ïåðèîä íà÷èñëåíèÿ ñ ïîïðàâêîé íà äàòó ïðèåìà (óâîëíåíèÿ) = 1.5   //
-tagName     - çíà÷åíèå òåãà ïåðñîíàëèè (ïðåîáðàçóåòñÿ ê double)
+sckName     - Ð²Ð¸Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ñ ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð¼ Name //
+samtName    - Ñ‚Ð¸Ð¿ ÑˆÑ‚Ð°Ñ‚Ð½Ð¾Ð¹ ÑÑƒÐ¼Ð¼Ñ‹ Ñ ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð¼ Name
+amtName     - Ñ‚Ð¸Ð¿ ÑÑƒÐ¼Ð¼Ñ‹ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ñ ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð¼ Name
+evName      - Ð²Ð¸Ð´ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»ÑŒÐ½Ð¾Ð¹ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ñ ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð¼ Name
+prLastMonth - Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð¼ÐµÑÑÑ† Ð´Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ                    = -30.   //
+prLastQuart - Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ ÐºÐ²Ð°Ñ€Ñ‚Ð°Ð» Ð´Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ                  = -90.   //
+prLastYear  - Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð³Ð¾Ð´ Ð´Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ                      = -360.  //
+prThisMonth - Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ‚Ð¾Ð³Ð¾ Ð¼ÐµÑÑÑ†Ð°                                    = -30.5  //
+prThisQuart - Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ‚Ð¾Ð³Ð¾ ÐºÐ²Ð°Ñ€Ñ‚Ð°Ð»Ð°                                  = -90.5  //
+prThisYear  - Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ‚Ð¾Ð³Ð¾ Ð³Ð¾Ð´Ð°                                      = -360.5 //
+prNominal   - Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ                                        = 1.    //
+prActual    - Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐºÐ¾Ð¹ Ð½Ð° Ð´Ð°Ñ‚Ñƒ Ð¿Ñ€Ð¸ÐµÐ¼Ð° (ÑƒÐ²Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ) = 1.5   //
+tagName     - Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ñ‚ÐµÐ³Ð° Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸ (Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·ÑƒÐµÑ‚ÑÑ Ðº double)
 
-charge      - ñóììà íà÷èñëåíèÿ //
-	Arg1 - âèä íà÷èñëåíèÿ //
-	Arg2 - ïåðèîä (åñëè íå çàäàí, òî çà ïåðèîä íà÷èñëåíèÿ)
-avgcharge   - ñðåäíÿÿ âåëè÷èíà íà÷èñëåíèÿ //
-	Arg1 - âèä íà÷èñëåíèÿ //
-	Arg2 - ïåðèîä (åñëè ïåðèîä íå çàäàí, òî ðàâíî charge(Arg1))
-bill        - ñóììà ïî äîêóìåíòàì çà çàäàííûé ïåðèîä.
-	Arg1 - èä âèäà îïåðàöèè
-	Arg2 - åñëè 0 - òî äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê êîíòðàãåíòó äîêóìåíòà
-		   1 - äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê äîïîëíèòåëüíîìó îáúåêòó äîêóìåíòà
-		   2 - äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê àãåíòó ïî äîêóìåíòó
-	Arg3 - ïåðèîä (åñëè íå çàäàí, òî çà ïåðèîä íà÷èñëåíèÿ)
-paym        - ñóììà îïëàò çà çàäàííûé ïåðèîä ïî äîêóìåíòàì
-	Arg1 - èä âèäà îïåðàöèè äîêóìåíòîâ, ê êîòîðûì ïðèâÿçàíû îïëàòû
-	Arg2 - åñëè 0 - òî äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê êîíòðàãåíòó äîêóìåíòà
-		   1 - äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê äîïîëíèòåëüíîìó îáúåêòó äîêóìåíòà
-		   2 - äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê àãåíòó ïî äîêóìåíòó
-	Arg3 - ïåðèîä (åñëè íå çàäàí, òî çà ïåðèîä íà÷èñëåíèÿ)
+charge      - ÑÑƒÐ¼Ð¼Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ //
+	Arg1 - Ð²Ð¸Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ //
+	Arg2 - Ð¿ÐµÑ€Ð¸Ð¾Ð´ (ÐµÑÐ»Ð¸ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½, Ñ‚Ð¾ Ð·Ð° Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ)
+avgcharge   - ÑÑ€ÐµÐ´Ð½ÑÑ Ð²ÐµÐ»Ð¸Ñ‡Ð¸Ð½Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ //
+	Arg1 - Ð²Ð¸Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ //
+	Arg2 - Ð¿ÐµÑ€Ð¸Ð¾Ð´ (ÐµÑÐ»Ð¸ Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½, Ñ‚Ð¾ Ñ€Ð°Ð²Ð½Ð¾ charge(Arg1))
+bill        - ÑÑƒÐ¼Ð¼Ð° Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°Ð¼ Ð·Ð° Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¹ Ð¿ÐµÑ€Ð¸Ð¾Ð´.
+	Arg1 - Ð¸Ð´ Ð²Ð¸Ð´Ð° Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸
+	Arg2 - ÐµÑÐ»Ð¸ 0 - Ñ‚Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+		   1 - Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ð¼Ñƒ Ð¾Ð±ÑŠÐµÐºÑ‚Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+		   2 - Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº Ð°Ð³ÐµÐ½Ñ‚Ñƒ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
+	Arg3 - Ð¿ÐµÑ€Ð¸Ð¾Ð´ (ÐµÑÐ»Ð¸ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½, Ñ‚Ð¾ Ð·Ð° Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ)
+paym        - ÑÑƒÐ¼Ð¼Ð° Ð¾Ð¿Ð»Ð°Ñ‚ Ð·Ð° Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¹ Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°Ð¼
+	Arg1 - Ð¸Ð´ Ð²Ð¸Ð´Ð° Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð², Ðº ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¼ Ð¿Ñ€Ð¸Ð²ÑÐ·Ð°Ð½Ñ‹ Ð¾Ð¿Ð»Ð°Ñ‚Ñ‹
+	Arg2 - ÐµÑÐ»Ð¸ 0 - Ñ‚Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+		   1 - Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ð¼Ñƒ Ð¾Ð±ÑŠÐµÐºÑ‚Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+		   2 - Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº Ð°Ð³ÐµÐ½Ñ‚Ñƒ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
+	Arg3 - Ð¿ÐµÑ€Ð¸Ð¾Ð´ (ÐµÑÐ»Ð¸ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½, Ñ‚Ð¾ Ð·Ð° Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ)
 
 sieve[0; 20000:0.15; 40000:0.18](x)
 */
@@ -1113,12 +1114,12 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 						PPID s_id = list.get(j);
 						THROW(Tbl.Search(s_id, &s_rec) > 0);
 						//
-						// Óäàëÿåì äîêóìåíò, êîòîðûé áûë ïðèâÿçàí ê ñòðîêå íà÷èñëåíèÿ äî ýòîãî ìîìåíòà
-						// (ïîçàáîòèìñÿ î òîì, ÷òîáû íå ïûòàòüñÿ óäàëèòü îäèí äîêóìåíò äâàæäû)
+						// Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð±Ñ‹Ð» Ð¿Ñ€Ð¸Ð²ÑÐ·Ð°Ð½ Ðº ÑÑ‚Ñ€Ð¾ÐºÐµ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð´Ð¾ ÑÑ‚Ð¾Ð³Ð¾ Ð¼Ð¾Ð¼ÐµÐ½Ñ‚Ð°
+						// (Ð¿Ð¾Ð·Ð°Ð±Ð¾Ñ‚Ð¸Ð¼ÑÑ Ð¾ Ñ‚Ð¾Ð¼, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð¿Ñ‹Ñ‚Ð°Ñ‚ÑŒÑÑ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¾Ð´Ð¸Ð½ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð´Ð²Ð°Ð¶Ð´Ñ‹)
 						//
 						if(s_rec.GenBillID && !removed_bill_list.lsearch(s_rec.GenBillID)) {
 							//
-							// Íå áóäåì ñ÷èòàòü îøèáêîé îòñóòñòâèå äîêóìåíòà ïðè ïîïûòêå åãî óäàëèòü
+							// ÐÐµ Ð±ÑƒÐ´ÐµÐ¼ ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð¾ÑˆÐ¸Ð±ÐºÐ¾Ð¹ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²Ð¸Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð¿Ñ€Ð¸ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÐµ ÐµÐ³Ð¾ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ
 							//
 							if(p_bobj->Search(s_rec.GenBillID, 0) > 0) {
 								THROW(p_bobj->RemovePacket(s_rec.GenBillID, 0));
@@ -1126,7 +1127,7 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 							}
 						}
 						//
-						// Ôèêñèðóåì â ñòðîêå íà÷èñëåíèÿ èä ñãåíåðèðîâàííîãî äîêóìåíòà
+						// Ð¤Ð¸ÐºÑÐ¸Ñ€ÑƒÐµÐ¼ Ð² ÑÑ‚Ñ€Ð¾ÐºÐµ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð¸Ð´ ÑÐ³ÐµÐ½ÐµÑ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 						//
 						s_rec.GenBillID = pack.Rec.ID;
 						s_rec.RByGenBill = 0;
@@ -1140,12 +1141,12 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 						PPBillPacket pack;
 						THROW(Tbl.Search(s_id, &s_rec) > 0);
 						//
-						// Óäàëÿåì äîêóìåíò, êîòîðûé áûë ïðèâÿçàí ê ñòðîêå íà÷èñëåíèÿ äî ýòîãî ìîìåíòà
-						// (ïîçàáîòèìñÿ î òîì, ÷òîáû íå ïûòàòüñÿ óäàëèòü îäèí äîêóìåíò äâàæäû)
+						// Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð±Ñ‹Ð» Ð¿Ñ€Ð¸Ð²ÑÐ·Ð°Ð½ Ðº ÑÑ‚Ñ€Ð¾ÐºÐµ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð´Ð¾ ÑÑ‚Ð¾Ð³Ð¾ Ð¼Ð¾Ð¼ÐµÐ½Ñ‚Ð°
+						// (Ð¿Ð¾Ð·Ð°Ð±Ð¾Ñ‚Ð¸Ð¼ÑÑ Ð¾ Ñ‚Ð¾Ð¼, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð½Ðµ Ð¿Ñ‹Ñ‚Ð°Ñ‚ÑŒÑÑ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¾Ð´Ð¸Ð½ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚ Ð´Ð²Ð°Ð¶Ð´Ñ‹)
 						//
 						if(s_rec.GenBillID && !removed_bill_list.lsearch(s_rec.GenBillID)) {
 							//
-							// Íå áóäåì ñ÷èòàòü îøèáêîé îòñóòñòâèå äîêóìåíòà ïðè ïîïûòêå åãî óäàëèòü
+							// ÐÐµ Ð±ÑƒÐ´ÐµÐ¼ ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð¾ÑˆÐ¸Ð±ÐºÐ¾Ð¹ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²Ð¸Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð° Ð¿Ñ€Ð¸ Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÐµ ÐµÐ³Ð¾ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ
 							//
 							if(p_bobj->Search(s_rec.GenBillID, 0) > 0) {
 								THROW(p_bobj->RemovePacket(s_rec.GenBillID, 0));
@@ -1156,8 +1157,8 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 						THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, LConfig.Location, 0));
 						if(SlObj.FetchPost(s_rec.PostID, &post_rec) > 0) {
 							//
-							// Ïûòàåìñÿ óñòàíîâèòü ïåðñîíàëèþ, ïî êîòîðîé áûëî íà÷èñëåíèå,
-							// â êà÷åñòâå êîíòðàãåíòà ïî äîêóìåíòó
+							// ÐŸÑ‹Ñ‚Ð°ÐµÐ¼ÑÑ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸ÑŽ, Ð¿Ð¾ ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¹ Ð±Ñ‹Ð»Ð¾ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ðµ,
+							// Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ð° Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
 							//
 							PPID ar_id = 0;
 							if(ar_obj.GetByPerson(op_rec.AccSheetID, post_rec.PersonID, &ar_id) > 0)
@@ -1173,7 +1174,7 @@ int SLAPI PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, in
 						bill_id_list.addUnique(pack.Rec.ID);
 						Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 						//
-						// Ôèêñèðóåì â ñòðîêå íà÷èñëåíèÿ èä ñãåíåðèðîâàííîãî äîêóìåíòà
+						// Ð¤Ð¸ÐºÑÐ¸Ñ€ÑƒÐµÐ¼ Ð² ÑÑ‚Ñ€Ð¾ÐºÐµ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð¸Ð´ ÑÐ³ÐµÐ½ÐµÑ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
 						//
 						s_rec.GenBillID = pack.Rec.ID;
 						s_rec.RByGenBill = 0;
@@ -1203,8 +1204,8 @@ int SLAPI PrcssrSalary::Run()
 		PPViewStaffPost post_view, post_view2;
 		StaffPostViewItem post_item;
 		//
-		// post_view && post_filt - äëÿ îòêðûòûõ íàçíà÷åíèé
-		// post_view2 && post_filt2 - äëÿ çàêðûòûõ â òå÷åíèè ïåðèîäà íà÷èñëåíèÿ íàçíà÷åíèé
+		// post_view && post_filt - Ð´Ð»Ñ Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ñ‹Ñ… Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ð¹
+		// post_view2 && post_filt2 - Ð´Ð»Ñ Ð·Ð°ÐºÑ€Ñ‹Ñ‚Ñ‹Ñ… Ð² Ñ‚ÐµÑ‡ÐµÐ½Ð¸Ð¸ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ð¹
 		//
 		StaffPostFilt post_filt;
 		StaffPostFilt post_filt2;
@@ -1232,8 +1233,8 @@ int SLAPI PrcssrSalary::Run()
 					ok = 1;
 			}
 			//
-			// Òåïåðü ïðîâåäåì ðàñ÷åò ïî çàêðûòûì äîëæíîñòÿì, äàòà
-			// çàêðûòèÿ êîòîðûõ íàõîäèòñÿ â ïåðèîäå íà÷èñëåíèÿ.
+			// Ð¢ÐµÐ¿ÐµÑ€ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÐ´ÐµÐ¼ Ñ€Ð°ÑÑ‡ÐµÑ‚ Ð¿Ð¾ Ð·Ð°ÐºÑ€Ñ‹Ñ‚Ñ‹Ð¼ Ð´Ð¾Ð»Ð¶Ð½Ð¾ÑÑ‚ÑÐ¼, Ð´Ð°Ñ‚Ð°
+			// Ð·Ð°ÐºÑ€Ñ‹Ñ‚Ð¸Ñ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ñ… Ð½Ð°Ñ…Ð¾Ð´Ð¸Ñ‚ÑÑ Ð² Ð¿ÐµÑ€Ð¸Ð¾Ð´Ðµ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ.
 			//
 			for(post_view2.InitIteration(0); post_view2.NextIteration(&post_item) > 0;) {
 				if(!ProcessPost(post_item.ID, &id_list, 0))
@@ -1255,11 +1256,11 @@ int SLAPI PrcssrSalary::Run()
 int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 {
 	int    ok = 0;
-	PPID   cur_id = 0; // ÈÄ âàëþòû (çàðåçåðâèðîâàíî íà áóäóùåå)
+	PPID   cur_id = 0; // Ð˜Ð” Ð²Ð°Ð»ÑŽÑ‚Ñ‹ (Ð·Ð°Ñ€ÐµÐ·ÐµÑ€Ð²Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¾ Ð½Ð° Ð±ÑƒÐ´ÑƒÑ‰ÐµÐµ)
 	uint   pos = 0;
 	double result = 0.0;
 	SString fmt_buf, msg_buf;
-	if(sstreqi_ascii(pSymb, "stdcal")) { // ñòàíäàðòíûé êàëåíäàðü
+	if(sstreqi_ascii(pSymb, "stdcal")) { // ÑÑ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ñ‹Ð¹ ÐºÐ°Ð»ÐµÐ½Ð´Ð°Ñ€ÑŒ
 		result = PPSTCAL_STANDARD;
 		ok = 1;
 	}
@@ -1382,18 +1383,18 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 	else if(strnicmp(pSymb, "pr", 2) == 0) {
 		const char * p_symb = pSymb+2;
 		//
-		// prLastMonth - ïîñëåäíèé ìåñÿö äî ïåðèîäà íà÷èñëåíèÿ    =  -30.0 //
-		// prLastQuart - ïîñëåäíèé êâàðòàë äî ïåðèîäà íà÷èñëåíèÿ  =  -90.0 //
-		// prLastYear  - ïîñëåäíèé ãîä äî ïåðèîäà íà÷èñëåíèÿ      = -360.0 //
-		// prNextMonth - ñëåäóþùèé çà ïåðèîäîì íà÷èñëåíèÿ ìåñÿö   = -30.25
-		// prNextQuart - ñëåäóþùèé çà ïåðèîäîì íà÷èñëåíèÿ êâàðòàë = -90.25
-		// prNextYear  - ñëåäóþùèé çà ïåðèîäîì íà÷èñëåíèÿ ãîä     = -360.25
+		// prLastMonth - Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð¼ÐµÑÑÑ† Ð´Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ    =  -30.0 //
+		// prLastQuart - Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ ÐºÐ²Ð°Ñ€Ñ‚Ð°Ð» Ð´Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ  =  -90.0 //
+		// prLastYear  - Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¹ Ð³Ð¾Ð´ Ð´Ð¾ Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ      = -360.0 //
+		// prNextMonth - ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ Ð·Ð° Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð¾Ð¼ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð¼ÐµÑÑÑ†   = -30.25
+		// prNextQuart - ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ Ð·Ð° Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð¾Ð¼ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ ÐºÐ²Ð°Ñ€Ñ‚Ð°Ð» = -90.25
+		// prNextYear  - ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ Ð·Ð° Ð¿ÐµÑ€Ð¸Ð¾Ð´Ð¾Ð¼ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ð³Ð¾Ð´     = -360.25
 		//
-		// prThisMonth - ñ íà÷àëà ýòîãî ìåñÿöà                    =  -30.5 //
-		// prThisQuart - ñ íà÷àëà ýòîãî êâàðòàëà                  =  -90.5 //
-		// prThisYear  - ñ íà÷àëà ýòîãî ãîäà                      = -360.5 //
-		// prNominal   - ïåðèîä íà÷èñëåíèÿ                                        = 1.    //
-		// prActual    - ïåðèîä íà÷èñëåíèÿ ñ ïîïðàâêîé íà äàòó ïðèåìà (óâîëíåíèÿ) = 1.5   //
+		// prThisMonth - Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ‚Ð¾Ð³Ð¾ Ð¼ÐµÑÑÑ†Ð°                    =  -30.5 //
+		// prThisQuart - Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ‚Ð¾Ð³Ð¾ ÐºÐ²Ð°Ñ€Ñ‚Ð°Ð»Ð°                  =  -90.5 //
+		// prThisYear  - Ñ Ð½Ð°Ñ‡Ð°Ð»Ð° ÑÑ‚Ð¾Ð³Ð¾ Ð³Ð¾Ð´Ð°                      = -360.5 //
+		// prNominal   - Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ                                        = 1.    //
+		// prActual    - Ð¿ÐµÑ€Ð¸Ð¾Ð´ Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ Ñ Ð¿Ð¾Ð¿Ñ€Ð°Ð²ÐºÐ¾Ð¹ Ð½Ð° Ð´Ð°Ñ‚Ñƒ Ð¿Ñ€Ð¸ÐµÐ¼Ð° (ÑƒÐ²Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ) = 1.5   //
 		//
 		ok = 1;
 		if(sstreqi_ascii(p_symb, "LastMonth"))
@@ -1982,7 +1983,7 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 			for(P_EvView->InitIteration(); P_EvView->NextIteration(&pev_item) > 0;) {
 				c++;
 			}
-			result = (double)c;
+			result = static_cast<double>(c);
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
 				Logger.Log(PPFormatT(PPTXT_LOG_PRCSALTAKENEVCNT, &msg_buf, pok_id, period, result));
 			}
@@ -2011,9 +2012,9 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 			PPID   psn_id = CurPostPack.Rec.PersonID;
 			PPOprKind op_rec;
 			//
-			// 0 - òî äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê êîíòðàãåíòó äîêóìåíòà
-			// 1 - äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê äîïîëíèòåëüíîìó îáúåêòó äîêóìåíòà
-			// 2 - äîêóìåíòû ïîäíèìàþòñÿ ïî ïåðñîíàëèè, êàê àãåíòó ïî äîêóìåíòó
+			// 0 - Ñ‚Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+			// 1 - Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ð¼Ñƒ Ð¾Ð±ÑŠÐµÐºÑ‚Ñƒ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°
+			// 2 - Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ Ð¿Ð¾Ð´Ð½Ð¸Ð¼Ð°ÑŽÑ‚ÑÑ Ð¿Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð»Ð¸Ð¸, ÐºÐ°Ðº Ð°Ð³ÐµÐ½Ñ‚Ñƒ Ð¿Ð¾ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñƒ
 			//
 			PPID   acs_id = 0;
 			PPObjArticle ar_obj;
@@ -2066,7 +2067,7 @@ int SLAPI PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pAr
 						double temp_val = 0.0;
 						if(!is_ext_bill_list_inited && kind == 2) {
 							THROW(BillObj->P_Tbl->GetBillListByExt(ar_list.get(0), 0L, ext_bill_list));
-							// @v8.1.0 (ñîðòèðîâêó òåïåðü âûïîëíÿåò GetBillListByExt) ext_bill_list.sort();
+							// @v8.1.0 (ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÑƒ Ñ‚ÐµÐ¿ÐµÑ€ÑŒ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ GetBillListByExt) ext_bill_list.sort();
 							is_ext_bill_list_inited = 1;
 						}
 						THROW(Helper_CalcPayment(paym_op_list.get(i), period, kind, ar_list, &ext_bill_list, descr, &temp_val));
@@ -2127,11 +2128,10 @@ int SLAPI PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int us
 							PersonEventViewItem pev_item; //PersonEventTbl
 							PPViewPersonEvent pev_view;
 							//
-							// Ïðåäâàðèòåëüíî óäàëÿåì çàïèñè ïî ïàðå {postID, charge_id}
-							// ñ äàòîé íà÷àëà, ðàâíîé ðàñ÷åòíîé äàòå íà÷àëà.
+							// ÐŸÑ€ÐµÐ´Ð²Ð°Ñ€Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ ÑƒÐ´Ð°Ð»ÑÐµÐ¼ Ð·Ð°Ð¿Ð¸ÑÐ¸ Ð¿Ð¾ Ð¿Ð°Ñ€Ðµ {postID, charge_id}
+							// Ñ Ð´Ð°Ñ‚Ð¾Ð¹ Ð½Ð°Ñ‡Ð°Ð»Ð°, Ñ€Ð°Ð²Ð½Ð¾Ð¹ Ñ€Ð°ÑÑ‡ÐµÑ‚Ð½Ð¾Ð¹ Ð´Ð°Ñ‚Ðµ Ð½Ð°Ñ‡Ð°Ð»Ð°.
 							//
-							THROW_DB(deleteFrom(&Tbl, 0, (Tbl.PostID == postID &&
-								Tbl.SalChargeID == charge_id && Tbl.Beg == P.NominalPeriod.low)));
+							THROW_DB(deleteFrom(&Tbl, 0, (Tbl.PostID == postID && Tbl.SalChargeID == charge_id && Tbl.Beg == P.NominalPeriod.low)));
 							//
 							pev_filt.Period = P.NominalPeriod;
 							pev_filt.PrmrID = CurPostPack.Rec.PersonID;
@@ -2143,7 +2143,7 @@ int SLAPI PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int us
 								PPID   sal_id = 0;
 								SalaryTbl::Rec sal_entry;
 								PPExprParser::CalcExpression(sc_pack.Formula, &value, 0, &expr_ctx);
-								MEMSZERO(sal_entry);
+								// @v10.7.8 @ctr MEMSZERO(sal_entry);
 								sal_entry.Beg = P.NominalPeriod.low;
 								sal_entry.End = P.NominalPeriod.upp;
 								sal_entry.PostID = postID;
@@ -2163,7 +2163,7 @@ int SLAPI PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int us
 						SalaryTbl::Rec sal_entry;
 						P_CurEv = 0;
 						PPExprParser::CalcExpression(sc_pack.Formula, &value, 0, &expr_ctx);
-						MEMSZERO(sal_entry);
+						// @v10.7.8 @ctr MEMSZERO(sal_entry);
 						sal_entry.Beg = P.NominalPeriod.low;
 						sal_entry.End = P.NominalPeriod.upp;
 						sal_entry.PostID = postID;
@@ -2218,14 +2218,15 @@ int SLAPI PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, d
 int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 {
 	class TestStaffCalDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrSalary::CalcPeriodParam);
 	public:
 		explicit TestStaffCalDialog(PrcssrSalary * pPrc) : TDialog(DLG_TESTSTAFFCAL), P_Prc(pPrc)
 		{
 			SetupCalPeriod(CTLCAL_TESTSTAFFCAL_PERIOD, CTL_TESTSTAFFCAL_PERIOD);
 		}
-		int    setDTS(const PrcssrSalary::CalcPeriodParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			PersonPostTbl::Rec post_rec;
 			if(P_Prc->SlObj.SearchPost(Data.PostID, &post_rec) > 0)
@@ -2236,7 +2237,7 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 			SetPeriodInput(this, CTL_TESTSTAFFCAL_PERIOD, &Data.Period);
 			return 1;
 		}
-		int    getDTS(PrcssrSalary::CalcPeriodParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlString(CTL_TESTSTAFFCAL_CSYM, Data.CalSymb);
 			getCtrlString(CTL_TESTSTAFFCAL_PCSYM, Data.ProjCalSymb);
@@ -2246,7 +2247,6 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 		}
 	private:
 		PrcssrSalary * P_Prc;
-		PrcssrSalary::CalcPeriodParam Data;
 	};
 	int    ok = 1;
 	TestStaffCalDialog * dlg = new TestStaffCalDialog(this);

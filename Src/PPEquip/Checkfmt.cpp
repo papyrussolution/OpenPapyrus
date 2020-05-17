@@ -154,6 +154,7 @@ public:
 		char   ChZnCode[64];  // @v10.6.8
 		char   ChZnGTIN[16];  // @v10.7.2
 		char   ChZnSerial[32];  // @v10.7.2
+		char   ChZnPartN[32];  // @v10.7.8
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -1490,6 +1491,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			PTR32(pIter->ChZnCode)[0] = 0; // @v10.7.0
 			PTR32(pIter->ChZnGTIN)[0] = 0;  // @v10.7.2
 			PTR32(pIter->ChZnSerial)[0] = 0;  // @v10.7.2
+			PTR32(pIter->ChZnPartN)[0] = 0; // @v10.7.8
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1555,6 +1557,15 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 											STRNSCPY(pIter->ChZnCode, result_chzn_code);
 											STRNSCPY(pIter->ChZnSerial, temp_buf); // @v10.7.2
 										}
+										// @v10.7.8 {
+										if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
+											if(isempty(pIter->ChZnSerial)) {
+												result_chzn_code.Cat(temp_buf);
+												STRNSCPY(pIter->ChZnCode, result_chzn_code);
+											}
+											STRNSCPY(pIter->ChZnPartN, temp_buf); 
+										}
+										// } @v10.7.8 
 									}
 								}
 							}
@@ -2447,6 +2458,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.ChZnCode = CurIter.ChZnCode; // @v10.6.12
 			sl_param.ChZnGTIN = CurIter.ChZnGTIN; // @v10.6.12
 			sl_param.ChZnSerial = CurIter.ChZnSerial; // @v10.6.12
+			sl_param.ChZnPartN = CurIter.ChZnPartN; // @v10.7.8
 			sl_param.ChZnProductType = CurIter.ChZnProductType; // @v10.7.2
 			{
 				const  long font_id = sl_param.Font;

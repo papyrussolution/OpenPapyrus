@@ -447,9 +447,9 @@ int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
 	int    ok = 1;
 	SString symb = pSymb;
 	rBodyBuf.Z();
-	if(symb.CmpPrefix("DLGW_", 1) == 0)
+	if(symb.HasPrefixIAscii("DLGW_"))
 		symb.Sub(5, symb.Len()-5, rBodyBuf);
-	else if(symb.CmpPrefix("DLG_", 1) == 0)
+	else if(symb.HasPrefixIAscii("DLG_"))
 		symb.Sub(4, symb.Len()-4, rBodyBuf);
 	else {
 		rBodyBuf = symb;
@@ -1548,7 +1548,7 @@ void TDialog::SetCtrlState(uint ctlID, uint state, bool enable)
 // Если proc = 0, то используется GetListFromSmartLbx
 // Если wordSelExtra = 0 и элемент ctlID является списком или комбобоксом, то wordSelExtra = (long)SmartListBox*
 //
-int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, uint16 flags)
+int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id, int minSymbCount, long flags)
 {
 	int    ok = -1;
 	TView * p_v = getCtrlView(ctlID);

@@ -472,7 +472,7 @@ private:
 	SetBlock * P_SetBlk;
 	TagBlock * P_TagBlk;   // Значение тэга объекта (SETOBJECTTAG, INCOBJECTTAG, DECOBJECTTAG, GETOBJECTTAG)
 	SelectObjectBlock::DistribCCheck * P_DCc;
-	UuidArray * P_UuidList; // @v8.7.5
+	UuidArray * P_UuidList;
 	StrAssocArray ResultList;
 	SString ResultText;
 };
@@ -4681,12 +4681,8 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							THROW(r = ResolveCrit_SCard(subcriterion, rArg, &P_SetBlk->U.C.SCardID));
 							THROW_PP_S(r > 0, PPERR_CMDSEL_UNIDENTSCARD, rArg);
 							break;
-						case cAmount:
-							P_SetBlk->U.C.Amount = rArg.ToReal();
-							break;
-						case cDiscount:
-							P_SetBlk->U.C.Discount = rArg.ToReal();
-							break;
+						case cAmount: P_SetBlk->U.C.Amount = rArg.ToReal(); break;
+						case cDiscount: P_SetBlk->U.C.Discount = rArg.ToReal(); break;
 						default:
 							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
 							break;
@@ -4695,21 +4691,13 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				else if(Operator == oCCheckAddLine) {
 					SETIFZ(P_SetBlk, new SetBlock);
 					switch(criterion) {
-						case cID:
-							P_SetBlk->U.C.ID = rArg.ToLong();
-							break;
+						case cID: P_SetBlk->U.C.ID = rArg.ToLong(); break;
+						case cQuantity: P_SetBlk->U.C.Qtty = rArg.ToReal(); break;
+						case cPrice: P_SetBlk->U.C.Price = rArg.ToReal(); break;
+						case cDiscount: P_SetBlk->U.C.Discount = rArg.ToReal(); break;
 						case cGoods:
 							THROW(r = ResolveCrit_Goods(subcriterion, rArg, &P_SetBlk->U.C.GoodsID));
 							THROW_PP_S(r > 0, PPERR_CMDSEL_UNIDENTGOODS, rArg);
-							break;
-						case cQuantity:
-							P_SetBlk->U.C.Qtty = rArg.ToReal();
-							break;
-						case cPrice:
-							P_SetBlk->U.C.Price = rArg.ToReal();
-							break;
-						case cDiscount:
-							P_SetBlk->U.C.Discount = rArg.ToReal();
 							break;
 						default:
 							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
@@ -4719,9 +4707,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				else if(Operator == oCCheckFinish) {
 					SETIFZ(P_SetBlk, new SetBlock);
 					switch(criterion) {
-						case cID:
-							P_SetBlk->U.C.ID = rArg.ToLong();
-							break;
+						case cID: P_SetBlk->U.C.ID = rArg.ToLong(); break;
 						default:
 							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
 							break;

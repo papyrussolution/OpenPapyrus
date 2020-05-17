@@ -1,5 +1,6 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -306,8 +307,8 @@ int SDrawFigure::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	//
-	// Kind & Flags сериализуются в первую очередь для правильной идентификации
-	// считываемого из потока объекта функцией SDrawFigure::Unserialize.
+	// Kind & Flags СЃРµСЂРёР°Р»РёР·СѓСЋС‚СЃСЏ РІ РїРµСЂРІСѓСЋ РѕС‡РµСЂРµРґСЊ РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С†РёРё
+	// СЃС‡РёС‚С‹РІР°РµРјРѕРіРѕ РёР· РїРѕС‚РѕРєР° РѕР±СЉРµРєС‚Р° С„СѓРЅРєС†РёРµР№ SDrawFigure::Unserialize.
 	//
 	THROW(pCtx->Serialize(dir, Kind, rBuf));
 	THROW(pCtx->Serialize(dir, Flags, rBuf));
@@ -390,7 +391,7 @@ int SDrawFigure::TransformToImage(const SViewPort * pVp, SImageBuffer & rImg) co
 		FRect rc(size.X, size.Y);
 		canv.SetTransform(vp.GetMatrix(rc, mtx));
 		canv.Rect(rc);
-		canv.Fill(SColor(255, 255, 255, 0), 0); // Прозрачный фон
+		canv.Fill(SColor(255, 255, 255, 0), 0); // РџСЂРѕР·СЂР°С‡РЅС‹Р№ С„РѕРЅ
 		canv.Draw(this);
 	}
 	else
@@ -822,7 +823,7 @@ int SDrawPath::Quad(const FPoint & rMiddle, const FPoint & rEnd)
 int SDrawPath::ArcSvg(const FPoint & rCenter, float xAxRotation, int largeFlag, int sweepFlag, const FPoint & rEnd)
 {
 	int    ok = 1;
-	// @todo Проверить на существование текущей точки
+	// @todo РџСЂРѕРІРµСЂРёС‚СЊ РЅР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ С‚РµРєСѓС‰РµР№ С‚РѕС‡РєРё
 	OpList.Add(opArcSvg, ArgList.getCount(), 0);
 	ArgList.add(rCenter);
 	ArgList.add(xAxRotation);
@@ -889,6 +890,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'M': // 2, SVG_PATH_CMD_MOVE_TO
 					for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						if(first)
 							Move(pnt);
 						else
@@ -908,6 +910,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
 					for (int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
 						if (first)
 							Move(cur + pnt);
@@ -934,12 +937,14 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'L': // 2, SVG_PATH_CMD_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						Line(pnt);
 					}
 					break;
 				case 'l': // 2, SVG_PATH_CMD_REL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
 						Line(cur + pnt);
 					}
@@ -947,6 +952,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'H': // 1, SVG_PATH_CMD_HORIZONTAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
 						Line(pnt.Set(nmb, cur.Y));
 					}
@@ -954,6 +960,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'h': // 1, SVG_PATH_CMD_REL_HORIZONTAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						pnt = GetCurrent();
 						Line(pnt.AddX(nmb));
 					}
@@ -961,6 +968,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'V': // 1, SVG_PATH_CMD_VERTICAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
 						Line(pnt.Set(cur.X, nmb));
 					}
@@ -968,6 +976,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'v': // 1, SVG_PATH_CMD_REL_VERTICAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						pnt = GetCurrent();
 						Line(pnt.AddY(nmb));
 					}
@@ -979,6 +988,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						Curve(pa[0], pa[1], pa[2]);
 					}
 					break;
@@ -990,6 +1000,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 							THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
 							scan.Skip().IncrChr(',');
 							THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
+							scan.Skip().IncrChr(','); // @v10.7.8
 							const FPoint cur = GetCurrent();
 							Curve(cur + pa[0], cur + pa[1], cur + pa[2]);
 						}
@@ -1000,6 +1011,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
 							FPoint pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
@@ -1013,10 +1025,11 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					}
 					break;
 				case 's': // 4, SVG_PATH_CMD_REL_SMOOTH_CURVE_TO
-					while(scan.Skip().IsDotPrefixedNumber()) { // @v8.9.9
+					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
 							FPoint pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
@@ -1034,6 +1047,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 					scan.Skip().IncrChr(',');
 					THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
+					scan.Skip().IncrChr(','); // @v10.7.8
 					Quad(pa[0], pa[1]);
 					break;
 				case 'q': // 4, SVG_PATH_CMD_REL_QUADRATIC_CURVE_TO
@@ -1041,6 +1055,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
 						Quad(cur + pa[0], cur + pa[1]);
 					}
@@ -1048,6 +1063,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'T': // 2, SVG_PATH_CMD_SMOOTH_QUADRATIC_CURVE_TO
 					{
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opQuad) {
 							//FPoint refl_p2 = ArgList[ArgList.getCount()-1];
 							//FPoint refl_p1 = ArgList[ArgList.getCount()-2];
@@ -1064,6 +1080,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 't': // 2, SVG_PATH_CMD_REL_SMOOTH_QUADRATIC_CURVE_TO
 					{
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opQuad) {
 							pnt = ArgList.getPoint(ArgList.getCount()-4);
 							const FPoint cur = GetCurrent();
@@ -1081,23 +1098,33 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						float large_arc_flag = 0.0f;
 						float sweep_flag = 0.0f;
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0])); // radius
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, x_axis_rotation));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
+						scan.Skip().IncrChr(','); // @v10.7.8
 						ArcSvg(pa[0], x_axis_rotation, (int)large_arc_flag, (int)sweep_flag, pa[1]);
 					}
 					break;
 				case 'a': // 7, SVG_PATH_CMD_REL_ARC_TO
-					{
+					while(scan.Skip().IsDotPrefixedNumber()) { // @v10.7.8
 						float x_axis_rotation = 0.0f;
 						float large_arc_flag = 0.0f;
 						float sweep_flag = 0.0f;
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0])); // radius
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, x_axis_rotation));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
+						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
+						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
 						ArcSvg(pa[0], x_axis_rotation, (int)large_arc_flag, (int)sweep_flag, cur + pa[1]);
 					}
@@ -1323,9 +1350,9 @@ uint FASTCALL SImageBuffer::PixF::GetStride(uint width) const
 	const  uint bpp = GetBpp();
 	if(bpp) {
 		const  uint m = (bpp * width);
-		/*const*/  uint junk = ((~(m-1)>>3) & 3); // неиспользуемый "хвост" строки
+		/*const*/  uint junk = ((~(m-1)>>3) & 3); // РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ "С…РІРѕСЃС‚" СЃС‚СЂРѕРєРё
 		if(S == s24RGB) {
-			junk = 0; // @v9.6.11 Что-то не понятное с этим "хвостиком"
+			junk = 0; // @v9.6.11 Р§С‚Рѕ-С‚Рѕ РЅРµ РїРѕРЅСЏС‚РЅРѕРµ СЃ СЌС‚РёРј "С…РІРѕСЃС‚РёРєРѕРј"
 		}
 		return (ALIGNSIZE(m, 3) >> 3) + junk;
 	}
@@ -1536,7 +1563,7 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 			}
 			while(i < width)
 				*p_ufb++ = p_palette_buf[p_src8[i++]];
-			/* Медленный, но безопасный вариант
+			/* РњРµРґР»РµРЅРЅС‹Р№, РЅРѕ Р±РµР·РѕРїР°СЃРЅС‹Р№ РІР°СЂРёР°РЅС‚
 			for(i = 0; i < width; ++i)
 				*p_ufb++ = pPalette->GetColor(p_src8[i]);
 			*/
@@ -2162,7 +2189,7 @@ void * SImageBuffer::TransformToIcon() const
 	const int _w = (int)S.x;
 	const int _h = (int)S.y;
 	//
-	// Получаем размеры битмапа
+	// РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂС‹ Р±РёС‚РјР°РїР°
 	//
 	//BITMAP bm;
 	//::GetObject(hBitmap, sizeof(BITMAP), &bm);
@@ -2174,6 +2201,8 @@ void * SImageBuffer::TransformToIcon() const
 	//HBITMAP hOldMainBitmap     = (HBITMAP)::SelectObject(hMainDC,    hBitmap);
 	HBITMAP hOldAndMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hAndMaskDC, hAndMaskBitmap));
 	HBITMAP hOldXorMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hXorMaskDC, hXorMaskBitmap));
+	SetBkMode(hAndMaskDC, TRANSPARENT); // @v10.7.8
+	SetBkMode(hXorMaskDC, TRANSPARENT); // @v10.7.8
 	//Scan each pixel of the souce bitmap and create the masks
 	//COLORREF MainBitPixel;
 
@@ -2186,13 +2215,14 @@ void * SImageBuffer::TransformToIcon() const
 		size_t uboffs = 0;
 		THROW(F.GetUniform(GetScanline(y), uniform_buf, S.x, 0));
 		for(int x = 0; x < _w; x++) {
-			COLORREF and_mask = RGB(0, 0, 0);
 			COLORREF xor_mask = SImageBuffer::PixF::UniformToRGB(*PTR32C(uniform_buf.ucptr() + uboffs));
-			::SetPixel(hAndMaskDC, x, y, and_mask);
+			::SetPixel(hAndMaskDC, x, y, RGB(0x00, 0x00, 0x00));
 			::SetPixel(hXorMaskDC, x, y, xor_mask);
 			uboffs += 4;
 		}
 	}
+	::SelectObject(hAndMaskDC, hOldAndMaskBitmap); // @v10.7.8
+	::SelectObject(hXorMaskDC, hOldXorMaskBitmap); // @v10.7.8
 	{
 		ICONINFO iconinfo = {0};
 		iconinfo.fIcon    = TRUE; // icon (FALSE - cursor)
@@ -2350,7 +2380,7 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 			fh.Init();
 			uint   width = (uint)labs(bi.bmiHeader.biWidth);
 			uint   height = (uint)labs(bi.bmiHeader.biHeight);
-			STempBuffer temp_buf(width * height * sizeof(uint32)); // Буфер для изображения (с запасом)
+			STempBuffer temp_buf(width * height * sizeof(uint32)); // Р‘СѓС„РµСЂ РґР»СЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (СЃ Р·Р°РїР°СЃРѕРј)
 			bi.bmiHeader.biCompression = 0;
 			::GetDIBits(hDc, hBmp, 0, height, temp_buf, &bi, DIB_RGB_COLORS);
 			THROW(buffer.Write(&fh, sizeof(fh)));

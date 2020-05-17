@@ -2794,8 +2794,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 				_cairo_scaled_font_thaw_cache(scaled_font);
 				goto BAIL;
 			}
-
-			if((long unsigned)scaled_glyph->dev_private > 256)
+			if((ulong)scaled_glyph->dev_private > 256) // @x64crit
 				break;
 		}
 	}
@@ -2850,21 +2849,19 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 				}
 			}
 		}
-		if(base85_stream != NULL) {
+		if(base85_stream) {
 			uint8_t c;
 			if(font_private->has_sfnt)
 				c = static_cast<uint8_t>(glyphs[n].index);
 			else
-				c = (uint8_t)(long unsigned)scaled_glyph->dev_private;
+				c = (uint8_t)(ulong)scaled_glyph->dev_private; // @x64crit
 			_cairo_output_stream_write(base85_stream, &c, 1);
 		}
 		else {
 			if(font_private->has_sfnt)
-				_cairo_output_stream_printf(ctx->stream, " %lu",
-				    glyphs[n].index);
+				_cairo_output_stream_printf(ctx->stream, " %lu", glyphs[n].index);
 			else
-				_cairo_output_stream_printf(ctx->stream, " %lu",
-				    (long unsigned)scaled_glyph->dev_private);
+				_cairo_output_stream_printf(ctx->stream, " %lu", (ulong)scaled_glyph->dev_private); // @x64crit
 		}
 
 		dx = scaled_glyph->metrics.x_advance;

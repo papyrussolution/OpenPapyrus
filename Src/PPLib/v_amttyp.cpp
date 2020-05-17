@@ -125,16 +125,98 @@ int SLAPI PPViewAmountType::MakeListEntry(const PPAmountTypePacket * pPack, Amou
 //
 //
 class AmtTypeFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(AmountTypeFilt);
 public:
-	AmtTypeFiltDialog() : TDialog(DLG_FLTAMTTYPE) {}
-
-	int    setDTS(const AmountTypeFilt *);
-	int    getDTS(AmountTypeFilt *);
+	AmtTypeFiltDialog() : TDialog(DLG_FLTAMTTYPE) 
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		ushort v = 0;
+		ComboBox * p_cb_tax = static_cast<ComboBox *>(getCtrlView(CTLSEL_AMOUNTTYPE_TAX));
+		const long flags = Data.Flags;
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 0, PPAmountType::fErrOnDefault);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 1, PPAmountType::fManual);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 2, PPAmountType::fStaffAmount);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 3, PPAmountType::fFormula);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 4, PPAmountType::fDistribCost);
+		SetClusterData(CTL_AMOUNTTYPE_FLAGS, flags);
+		if(flags & PPAmountType::fTax)
+			v = 1;
+		else if(flags & PPAmountType::fInAmount)
+			v = 2;
+		else if(flags & PPAmountType::fOutAmount)
+			v = 3;
+		else
+			v = 0;
+		setCtrlData(CTL_AMOUNTTYPE_KIND, &v);
+		ushort replace = 0;
+		if(flags & PPAmountType::fReplaceCost)
+			replace = 1;
+		else if(flags & PPAmountType::fReplacePrice)
+			replace = 2;
+		else if(flags & PPAmountType::fReplaceDiscount)
+			replace = 3;
+		setCtrlData(CTL_AMOUNTTYPE_REPLACE, &replace);
+		if(p_cb_tax) {
+			SString word;
+			ListWindow * p_lw = CreateListWindow(16, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
+			// @v9.0.2 PPGetWord(PPWORD_VAT, 0, word);
+			PPLoadString("vat", word); // @v9.0.2
+			p_lw->listBox()->addItem(GTAX_VAT, word);
+			// @v9.2.6 PPGetWord(PPWORD_STAX, 0, word);
+			PPLoadString("salestax", word); // @v9.2.6
+			p_lw->listBox()->addItem(GTAX_SALES, word);
+			p_cb_tax->setListWindow(p_lw);
+		}
+		SetupPPObjCombo(this, CTLSEL_AMOUNTTYPE_REFAMT, PPOBJ_AMOUNTTYPE, 0, 0, 0);
+		setCtrlData(CTLSEL_AMOUNTTYPE_TAX, &Data.TaxID);
+		if(!(flags & PPAmountType::fTax) && Data.IsComplementary())
+			setCtrlData(CTLSEL_AMOUNTTYPE_REFAMT, &Data.RefAmtTypeID);
+		disableCtrls(!(flags & PPAmountType::fTax), CTLSEL_AMOUNTTYPE_TAX, CTL_AMOUNTTYPE_TAXRATE, 0);
+		disableCtrl(CTLSEL_AMOUNTTYPE_REFAMT, !Data.IsComplementary());
+		disableCtrl(CTL_AMOUNTTYPE_REPLACE, (flags & (PPAmountType::fTax | PPAmountType::fManual)));
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1, sel = 0;
+		ushort v, replace;
+		GetClusterData(CTL_AMOUNTTYPE_FLAGS, &Data.Flags);
+		v = getCtrlUInt16(CTL_AMOUNTTYPE_KIND);
+		Data.Flags &= ~(PPAmountType::fTax | PPAmountType::fInAmount | PPAmountType::fOutAmount);
+		if(v == 1)
+			Data.Flags |= PPAmountType::fTax;
+		else if(v == 2)
+			Data.Flags |= PPAmountType::fInAmount;
+		else if(v == 3)
+			Data.Flags |= PPAmountType::fOutAmount;
+		if(Data.Flags & PPAmountType::fTax)
+			getCtrlData(sel = CTLSEL_AMOUNTTYPE_TAX, &Data.TaxID);
+		else {
+			Data.TaxID = 0;
+			if(Data.Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount))
+				getCtrlData(sel = CTLSEL_AMOUNTTYPE_REFAMT, &Data.RefAmtTypeID);
+		}
+		replace = getCtrlUInt16(CTL_AMOUNTTYPE_REPLACE);
+		Data.Flags &= ~PPAmountType::fReplaces;
+		if(!(Data.Flags & (PPAmountType::fTax | PPAmountType::fManual))) {
+			if(replace == 1)
+				Data.Flags |= PPAmountType::fReplaceCost;
+			else if(replace == 2)
+				Data.Flags |= PPAmountType::fReplacePrice;
+			else if(replace == 3)
+				Data.Flags |= PPAmountType::fReplaceDiscount;
+		}
+		ASSIGN_PTR(pData, Data);
+		//CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
-
-	AmountTypeFilt Data;
 };
 
 void AmtTypeFiltDialog::SetupCtrls()
@@ -218,92 +300,6 @@ IMPL_HANDLE_EVENT(AmtTypeFiltDialog)
 	else
 		return;
 	clearEvent(event);
-}
-
-int AmtTypeFiltDialog::setDTS(const AmountTypeFilt * pData)
-{
-	Data = *pData;
-	ushort v = 0;
-	ComboBox * p_cb_tax = static_cast<ComboBox *>(getCtrlView(CTLSEL_AMOUNTTYPE_TAX));
-	const long flags = Data.Flags;
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 0, PPAmountType::fErrOnDefault);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 1, PPAmountType::fManual);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 2, PPAmountType::fStaffAmount);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 3, PPAmountType::fFormula);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 4, PPAmountType::fDistribCost);
-	SetClusterData(CTL_AMOUNTTYPE_FLAGS, flags);
-	if(flags & PPAmountType::fTax)
-		v = 1;
-	else if(flags & PPAmountType::fInAmount)
-		v = 2;
-	else if(flags & PPAmountType::fOutAmount)
-		v = 3;
-	else
-		v = 0;
-	setCtrlData(CTL_AMOUNTTYPE_KIND, &v);
-	ushort replace = 0;
-	if(flags & PPAmountType::fReplaceCost)
-		replace = 1;
-	else if(flags & PPAmountType::fReplacePrice)
-		replace = 2;
-	else if(flags & PPAmountType::fReplaceDiscount)
-		replace = 3;
-	setCtrlData(CTL_AMOUNTTYPE_REPLACE, &replace);
-	if(p_cb_tax) {
-		SString word;
-		ListWindow * p_lw = CreateListWindow(16, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
-		// @v9.0.2 PPGetWord(PPWORD_VAT, 0, word);
-		PPLoadString("vat", word); // @v9.0.2
-		p_lw->listBox()->addItem(GTAX_VAT, word);
-		// @v9.2.6 PPGetWord(PPWORD_STAX, 0, word);
-		PPLoadString("salestax", word); // @v9.2.6
-		p_lw->listBox()->addItem(GTAX_SALES, word);
-		p_cb_tax->setListWindow(p_lw);
-	}
-	SetupPPObjCombo(this, CTLSEL_AMOUNTTYPE_REFAMT, PPOBJ_AMOUNTTYPE, 0, 0, 0);
-	setCtrlData(CTLSEL_AMOUNTTYPE_TAX, &Data.TaxID);
-	if(!(flags & PPAmountType::fTax) && Data.IsComplementary())
-		setCtrlData(CTLSEL_AMOUNTTYPE_REFAMT, &Data.RefAmtTypeID);
-	disableCtrls(!(flags & PPAmountType::fTax), CTLSEL_AMOUNTTYPE_TAX, CTL_AMOUNTTYPE_TAXRATE, 0);
-	disableCtrl(CTLSEL_AMOUNTTYPE_REFAMT, !Data.IsComplementary());
-	disableCtrl(CTL_AMOUNTTYPE_REPLACE, (flags & (PPAmountType::fTax | PPAmountType::fManual)));
-	SetupCtrls();
-	return 1;
-}
-
-int AmtTypeFiltDialog::getDTS(AmountTypeFilt * pData)
-{
-	int    ok = 1, sel = 0;
-	ushort v, replace;
-	GetClusterData(CTL_AMOUNTTYPE_FLAGS, &Data.Flags);
-	v = getCtrlUInt16(CTL_AMOUNTTYPE_KIND);
-	Data.Flags &= ~(PPAmountType::fTax | PPAmountType::fInAmount | PPAmountType::fOutAmount);
-	if(v == 1)
-		Data.Flags |= PPAmountType::fTax;
-	else if(v == 2)
-		Data.Flags |= PPAmountType::fInAmount;
-	else if(v == 3)
-		Data.Flags |= PPAmountType::fOutAmount;
-	if(Data.Flags & PPAmountType::fTax)
-		getCtrlData(sel = CTLSEL_AMOUNTTYPE_TAX, &Data.TaxID);
-	else {
-		Data.TaxID = 0;
-		if(Data.Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount))
-			getCtrlData(sel = CTLSEL_AMOUNTTYPE_REFAMT, &Data.RefAmtTypeID);
-	}
-	replace = getCtrlUInt16(CTL_AMOUNTTYPE_REPLACE);
-	Data.Flags &= ~PPAmountType::fReplaces;
-	if(!(Data.Flags & (PPAmountType::fTax | PPAmountType::fManual))) {
-		if(replace == 1)
-			Data.Flags |= PPAmountType::fReplaceCost;
-		else if(replace == 2)
-			Data.Flags |= PPAmountType::fReplacePrice;
-		else if(replace == 3)
-			Data.Flags |= PPAmountType::fReplaceDiscount;
-	}
-	*pData = Data;
-	//CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int SLAPI PPViewAmountType::EditBaseFilt(PPBaseFilt * pFilt)

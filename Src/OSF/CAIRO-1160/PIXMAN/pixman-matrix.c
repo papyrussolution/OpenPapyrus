@@ -288,8 +288,7 @@ PIXMAN_EXPORT void pixman_transform_point_31_16_3d(const pixman_transform_t * t,
 {
 	int i;
 	int64_t tmp[3][2];
-	/* input vector values must have no more than 31 bits (including sign)
-	 * in the integer part */
+	// input vector values must have no more than 31 bits (including sign) in the integer part 
 	assert(v->v[0] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[0] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[1] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
@@ -297,8 +296,8 @@ PIXMAN_EXPORT void pixman_transform_point_31_16_3d(const pixman_transform_t * t,
 	assert(v->v[2] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
 	assert(v->v[2] >= -((pixman_fixed_48_16_t)1 << (30 + 16)));
 	for(i = 0; i < 3; i++) {
-		tmp[i][0] = (int64_t)t->matrix[i][0] * (v->v[0] >> 16);
-		tmp[i][1] = (int64_t)t->matrix[i][0] * (v->v[0] & 0xFFFF);
+		tmp[i][0]  = (int64_t)t->matrix[i][0] * (v->v[0] >> 16);
+		tmp[i][1]  = (int64_t)t->matrix[i][0] * (v->v[0] & 0xFFFF);
 		tmp[i][0] += (int64_t)t->matrix[i][1] * (v->v[1] >> 16);
 		tmp[i][1] += (int64_t)t->matrix[i][1] * (v->v[1] & 0xFFFF);
 		tmp[i][0] += (int64_t)t->matrix[i][2] * (v->v[2] >> 16);

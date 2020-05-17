@@ -155,6 +155,10 @@ void SecurDialog::getPaths()
 			st[2] = 0;
 			dlg->setStaticText(path_fld_list[i].IndFldId, st);
 		}
+		dlg->disableCtrl(CTL_PATH_DAT, 1); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_ARC, 1); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_BIN, 1); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_TMP, 1); // @v10.7.8
 		if(ExecView(dlg) == cmOK) {
 			for(i = 0; i < SIZEOFARRAY(path_fld_list); i++) {
 				//getPathFld(dlg, path_fld_list[i].PathID, path_fld_list[i].FldId);
@@ -354,6 +358,7 @@ static int SLAPI CfgRoundDialog(PPConfig * pCfg)
 }
 
 class CfgOptionsDialog : public TDialog {
+	DECL_DIALOG_DATA(PPConfig);
 public:
 	explicit CfgOptionsDialog(PPID obj) : TDialog(obj == PPOBJ_CONFIG ? DLG_MAINCFG : DLG_CFGOPTIONS)
 	{
@@ -369,112 +374,108 @@ public:
 			s = TDialog::TransmitData(dir, pData);
 		return s;
 	}
-	int    setDTS(const PPConfig *);
-	int    getDTS(PPConfig *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(pData) {
+			Data = *pData;
+			setCtrlData(CTL_CFGOPTIONS_ACCESS, &Data.AccessLevel);
+			setCtrlData(CTL_CFGOPTIONS_MENU,   &Data.Menu);
+			SetupPPObjCombo(this, CTLSEL_CONFIG_MAINORG, PPOBJ_PERSON, Data.MainOrg, 0, reinterpret_cast<void *>(PPPRK_MAIN));
+			SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_SHEET, PPOBJ_ACCSHEET, Data.LocAccSheetID, 0);
+			SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_LOC, PPOBJ_LOCATION, Data.Location, 0);
+			SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_DBDIV, PPOBJ_DBDIV, Data.DBDiv, 0);
+			if(Id == DLG_CFGOPTIONS) {
+				StrAssocArray list;
+				PPCommandFolder::GetMenuList(0, &list, 1);
+				SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, &list, Data.DesktopID, 0);
+				PPCommandFolder::GetMenuList(0, &list.Z(), 0);
+				SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, &list, Data.MenuID, 0);
+			}
+			AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 0, RLZORD_FIFO);
+			AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 1, RLZORD_LIFO);
+			SetClusterData(CTL_CFGOPTIONS_RLZORD, Data.RealizeOrder);
+			AddClusterAssoc(CTL_CFGOPTIONS_FEFO, 0, CFGFLG_FEFO);
+			SetClusterData(CTL_CFGOPTIONS_FEFO, Data.Flags);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  0, CFGFLG_CHECKTURNREST);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  1, CFGFLG_DISCOUNTBYSUM);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  2, CFGFLG_USEPACKAGE);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  3, CFGFLG_SELGOODSBYPRICE);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  4, CFGFLG_FREEPRICE);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  5, CFGFLG_ALLOWOVERPAY);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  6, CFGFLG_ENABLEFIXDIS);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  7, CFGFLG_AUTOQUOT);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  8, CFGFLG_SHOWPHQTTY);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  9, CFGFLG_CONFGBROWRMV);
+			AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS, 10, CFGFLG_USEGOODSMATRIX);
+			if(Id == DLG_CFGOPTIONS) {
+				AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS, 11, CFGFLG_DONTPROCESSDATAONJOBSRV);
+				AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS, 12, CFGFLG_MULTICURBILL_DISABLE); // @v10.7.8
+			}
+			SetClusterData(CTL_CFGOPTIONS_OPTIONS, Data.Flags);
+
+			AddClusterAssoc(CTL_CFGOPTIONS_STAFF, 0, CFGFLG_STAFFMGMT);
+			SetClusterData(CTL_CFGOPTIONS_STAFF, Data.Flags);
+
+			AddClusterAssoc(CTL_CFGOPTIONS_SECFLAGS, 0, CFGFLG_SEC_CASESENSPASSW);
+			AddClusterAssoc(CTL_CFGOPTIONS_SECFLAGS, 1, CFGFLG_SEC_DSBLMULTLOGIN);
+			AddClusterAssoc(CTL_CFGOPTIONS_SECFLAGS, 2, CFGFLG_SEC_DSBLNSYSDATE);
+			SetClusterData(CTL_CFGOPTIONS_SECFLAGS, Data.Flags);
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTL_CFGOPTIONS_ACCESS,   &Data.AccessLevel);
+		getCtrlData(CTL_CFGOPTIONS_MENU,     &Data.Menu);
+		getCtrlData(CTLSEL_CONFIG_MAINORG,   &Data.MainOrg);
+		getCtrlData(CTLSEL_CFGOPTIONS_SHEET, &Data.LocAccSheetID);
+		getCtrlData(CTLSEL_CFGOPTIONS_LOC,   &Data.Location);
+		getCtrlData(CTLSEL_CFGOPTIONS_DBDIV, &Data.DBDiv);
+		if(Id == DLG_CFGOPTIONS) {
+			getCtrlData(CTLSEL_CFGOPTIONS_DESK,  &Data.DesktopID);
+			getCtrlData(CTLSEL_CFGOPTIONS_MENU2, &Data.MenuID);
+			DS.GetTLA().Lc.DesktopID = Data.DesktopID;
+		}
+		Data.RealizeOrder = static_cast<short>(GetClusterData(CTL_CFGOPTIONS_RLZORD));
+		GetClusterData(CTL_CFGOPTIONS_FEFO, &Data.Flags);
+		GetClusterData(CTL_CFGOPTIONS_OPTIONS, &Data.Flags);
+		GetClusterData(CTL_CFGOPTIONS_STAFF,   &Data.Flags);
+		GetClusterData(CTL_CFGOPTIONS_SECFLAGS, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmCfgRound))
-			CfgRoundDialog(&Cfg);
+			CfgRoundDialog(&Data);
 		else if(event.isCmd(cmCfgCurrency))
 			editCurConfig();
 		else
 			return;
 		clearEvent(event);
 	}
-	void   editCurConfig();
-
-	PPConfig Cfg;
+	void editCurConfig()
+	{
+		TDialog * dlg = 0;
+		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CURCFG)))) {
+			SetupPPObjCombo(dlg, CTLSEL_CURCFG_BASECUR, PPOBJ_CURRENCY, Data.BaseCurID, OLW_CANINSERT, 0);
+			SetupPPObjCombo(dlg, CTLSEL_CURCFG_RATETYPE, PPOBJ_CURRATETYPE, Data.BaseRateTypeID, OLW_CANINSERT, 0);
+			dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 0, CFGFLG_MULTICURACCT);
+			dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 1, CFGFLG_MULTICURBILL_DISABLE); // @v10.7.8
+			dlg->SetClusterData(CTL_CURCFG_FLAGS, Data.Flags);
+			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+				dlg->getCtrlData(CTLSEL_CURCFG_BASECUR,  &Data.BaseCurID);
+				dlg->getCtrlData(CTLSEL_CURCFG_RATETYPE, &Data.BaseRateTypeID);
+				dlg->GetClusterData(CTL_CURCFG_FLAGS, &Data.Flags);
+				valid_data = 1;
+			}
+		}
+		delete dlg;
+	}
 };
-
-void CfgOptionsDialog::editCurConfig()
-{
-	TDialog * dlg = 0;
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CURCFG)))) {
-		SetupPPObjCombo(dlg, CTLSEL_CURCFG_BASECUR, PPOBJ_CURRENCY, Cfg.BaseCurID, OLW_CANINSERT, 0);
-		SetupPPObjCombo(dlg, CTLSEL_CURCFG_RATETYPE, PPOBJ_CURRATETYPE, Cfg.BaseRateTypeID, OLW_CANINSERT, 0);
-		dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 0, CFGFLG_MULTICURACCT);
-		dlg->SetClusterData(CTL_CURCFG_FLAGS, Cfg.Flags);
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-			dlg->getCtrlData(CTLSEL_CURCFG_BASECUR,  &Cfg.BaseCurID);
-			dlg->getCtrlData(CTLSEL_CURCFG_RATETYPE, &Cfg.BaseRateTypeID);
-			dlg->GetClusterData(CTL_CURCFG_FLAGS, &Cfg.Flags);
-			valid_data = 1;
-		}
-	}
-	delete dlg;
-}
-
-int CfgOptionsDialog::setDTS(const PPConfig * pCfg)
-{
-	if(pCfg) {
-		Cfg = *pCfg;
-		setCtrlData(CTL_CFGOPTIONS_ACCESS, &Cfg.AccessLevel);
-		setCtrlData(CTL_CFGOPTIONS_MENU,   &Cfg.Menu);
-		SetupPPObjCombo(this, CTLSEL_CONFIG_MAINORG, PPOBJ_PERSON, Cfg.MainOrg, 0, reinterpret_cast<void *>(PPPRK_MAIN));
-		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_SHEET, PPOBJ_ACCSHEET, Cfg.LocAccSheetID, 0);
-		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_LOC, PPOBJ_LOCATION, Cfg.Location, 0);
-		SetupPPObjCombo(this, CTLSEL_CFGOPTIONS_DBDIV, PPOBJ_DBDIV, Cfg.DBDiv, 0);
-		if(Id == DLG_CFGOPTIONS) {
-			StrAssocArray list;
-			PPCommandFolder::GetMenuList(0, &list, 1);
-			SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_DESK, &list, Cfg.DesktopID, 0);
-			PPCommandFolder::GetMenuList(0, &list.Z(), 0);
-			SetupStrAssocCombo(this, CTLSEL_CFGOPTIONS_MENU2, &list, Cfg.MenuID, 0);
-		}
-		AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 0, RLZORD_FIFO);
-		AddClusterAssoc(CTL_CFGOPTIONS_RLZORD, 1, RLZORD_LIFO);
-		SetClusterData(CTL_CFGOPTIONS_RLZORD, Cfg.RealizeOrder);
-		AddClusterAssoc(CTL_CFGOPTIONS_FEFO, 0, CFGFLG_FEFO);
-		SetClusterData(CTL_CFGOPTIONS_FEFO, Cfg.Flags);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  0, CFGFLG_CHECKTURNREST);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  1, CFGFLG_DISCOUNTBYSUM);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  2, CFGFLG_USEPACKAGE);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  3, CFGFLG_SELGOODSBYPRICE);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  4, CFGFLG_FREEPRICE);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  5, CFGFLG_ALLOWOVERPAY);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  6, CFGFLG_ENABLEFIXDIS);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  7, CFGFLG_AUTOQUOT);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  8, CFGFLG_SHOWPHQTTY);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS,  9, CFGFLG_CONFGBROWRMV);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS, 10, CFGFLG_USEGOODSMATRIX);
-		AddClusterAssoc(CTL_CFGOPTIONS_OPTIONS, 11, CFGFLG_DONTPROCESSDATAONJOBSRV);
-		SetClusterData(CTL_CFGOPTIONS_OPTIONS, Cfg.Flags);
-
-		AddClusterAssoc(CTL_CFGOPTIONS_STAFF, 0, CFGFLG_STAFFMGMT);
-		SetClusterData(CTL_CFGOPTIONS_STAFF, Cfg.Flags);
-
-		AddClusterAssoc(CTL_CFGOPTIONS_SECFLAGS, 0, CFGFLG_SEC_CASESENSPASSW);
-		AddClusterAssoc(CTL_CFGOPTIONS_SECFLAGS, 1, CFGFLG_SEC_DSBLMULTLOGIN);
-		AddClusterAssoc(CTL_CFGOPTIONS_SECFLAGS, 2, CFGFLG_SEC_DSBLNSYSDATE);
-		SetClusterData(CTL_CFGOPTIONS_SECFLAGS, Cfg.Flags);
-	}
-	return 1;
-}
-
-int CfgOptionsDialog::getDTS(PPConfig * pCfg)
-{
-	int    ok = 1;
-	getCtrlData(CTL_CFGOPTIONS_ACCESS,   &Cfg.AccessLevel);
-	getCtrlData(CTL_CFGOPTIONS_MENU,     &Cfg.Menu);
-	getCtrlData(CTLSEL_CONFIG_MAINORG,   &Cfg.MainOrg);
-	getCtrlData(CTLSEL_CFGOPTIONS_SHEET, &Cfg.LocAccSheetID);
-	getCtrlData(CTLSEL_CFGOPTIONS_LOC,   &Cfg.Location);
-	getCtrlData(CTLSEL_CFGOPTIONS_DBDIV, &Cfg.DBDiv);
-	if(Id == DLG_CFGOPTIONS) {
-		getCtrlData(CTLSEL_CFGOPTIONS_DESK,  &Cfg.DesktopID);
-		getCtrlData(CTLSEL_CFGOPTIONS_MENU2, &Cfg.MenuID);
-		DS.GetTLA().Lc.DesktopID = Cfg.DesktopID;
-	}
-	Cfg.RealizeOrder = static_cast<short>(GetClusterData(CTL_CFGOPTIONS_RLZORD));
-	GetClusterData(CTL_CFGOPTIONS_FEFO, &Cfg.Flags);
-	GetClusterData(CTL_CFGOPTIONS_OPTIONS, &Cfg.Flags);
-	GetClusterData(CTL_CFGOPTIONS_STAFF,   &Cfg.Flags);
-	GetClusterData(CTL_CFGOPTIONS_SECFLAGS, &Cfg.Flags);
-	ASSIGN_PTR(pCfg, Cfg);
-	return ok;
-}
 
 int SLAPI EditCfgOptionsDialog(PPConfig * pCfg, long, EmbedDialog * pDlg)
 {

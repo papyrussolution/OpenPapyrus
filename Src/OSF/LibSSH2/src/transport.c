@@ -73,7 +73,6 @@ static void debugdump(LIBSSH2_SESSION * session, const char * desc, const uchar 
 				buffer[used++] = ' ';
 				buffer[used++] = ' ';
 			}
-
 			buffer[used++] = ' ';
 			if((width/2) - 1 == c)
 				buffer[used++] = ' ';
@@ -91,7 +90,6 @@ static void debugdump(LIBSSH2_SESSION * session, const char * desc, const uchar 
 			fprintf(stderr, "%s", buffer);
 	}
 }
-
 #else
 	#define debugdump(a, x, y, z)
 #endif
@@ -310,17 +308,11 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 					    LIBSSH2_SESSION_BLOCK_INBOUND;
 					return LIBSSH2_ERROR_EAGAIN;
 				}
-				_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-				    "Error recving %d bytes (got %d)",
-				    PACKETBUFSIZE - remainbuf, -nread);
+				_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Error recving %d bytes (got %d)", PACKETBUFSIZE - remainbuf, -nread);
 				return LIBSSH2_ERROR_SOCKET_RECV;
 			}
-			_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-			    "Recved %d/%d bytes to %p+%d", nread,
-			    PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
-
-			debugdump(session, "libssh2_transport_read() raw",
-			    &p->buf[remainbuf], nread);
+			_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Recved %d/%d bytes to %p+%d", nread, PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
+			debugdump(session, "libssh2_transport_read() raw", &p->buf[remainbuf], nread);
 			/* advance write pointer */
 			p->writeidx += nread;
 
@@ -408,7 +400,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 				memcpy(p->wptr, &block[5], blocksize - 5);
 				p->wptr += blocksize - 5; /* advance write pointer */
 			}
-
 			/* init the data_num field to the number of bytes of
 			   the package read so far */
 			p->data_num = p->wptr - p->payload;
@@ -416,11 +407,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 			/* we already dealt with a blocksize worth of data */
 			numbytes -= blocksize;
 		}
-
-		/* how much there is left to add to the current payload
-		   package */
+		/* how much there is left to add to the current payload package */
 		remainpack = p->total_num - p->data_num;
-
 		if(numbytes > remainpack) {
 			/* if we have more data in the buffer than what is going into this
 			   particular packet, we limit this round to this packet only */
@@ -474,16 +462,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 			p->wptr += numdecrypt;
 			/* increase data_num */
 			p->data_num += numdecrypt;
-
 			/* bytes left to take care of without decryption */
 			numbytes -= numdecrypt;
 		}
-
 		/* if there are bytes to copy that aren't decrypted, simply
 		   copy them as-is to the target buffer */
 		if(numbytes > 0) {
 			memcpy(p->wptr, &p->buf[p->readidx], numbytes);
-
 			/* advance the read pointer */
 			p->readidx += numbytes;
 			/* advance write pointer */
@@ -491,11 +476,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 			/* increase data_num */
 			p->data_num += numbytes;
 		}
-
-		/* now check how much data there's left to read to finish the
-		   current packet */
+		/* now check how much data there's left to read to finish the current packet */
 		remainpack = p->total_num - p->data_num;
-
 		if(!remainpack) {
 			/* we have a full packet */
 libssh2_transport_read_point1:
@@ -513,26 +495,20 @@ libssh2_transport_read_point1:
 					session->readPack_encrypted = encrypted;
 					session->readPack_state = libssh2_NB_state_jump1;
 				}
-
 				return rc;
 			}
-
 			p->total_num = 0; /* no packet buffer available */
-
 			return rc;
 		}
 	} while(1);             /* loop */
-
 	return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
-static int send_existing(LIBSSH2_SESSION * session, const uchar * data,
-    size_t data_len, ssize_t * ret)
+static int send_existing(LIBSSH2_SESSION * session, const uchar * data, size_t data_len, ssize_t * ret)
 {
 	ssize_t rc;
 	ssize_t length;
 	struct transportpacket * p = &session->packet;
-
 	if(!p->olen) {
 		*ret = 0;
 		return LIBSSH2_ERROR_NONE;
@@ -556,14 +532,10 @@ static int send_existing(LIBSSH2_SESSION * session, const uchar * data,
 	rc = LIBSSH2_SEND(session, &p->outbuf[p->osent], length,
 	    LIBSSH2_SOCKET_SEND_FLAGS(session));
 	if(rc < 0)
-		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-		    "Error sending %d bytes: %d", length, -rc);
+		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Error sending %d bytes: %d", length, -rc);
 	else {
-		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-		    "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf,
-		    p->osent);
-		debugdump(session, "libssh2_transport_write send()",
-		    &p->outbuf[p->osent], rc);
+		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf, p->osent);
+		debugdump(session, "libssh2_transport_write send()", &p->outbuf[p->osent], rc);
 	}
 
 	if(rc == length) {

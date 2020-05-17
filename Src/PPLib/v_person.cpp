@@ -432,7 +432,7 @@ int SLAPI PPViewPerson::AddItem(PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	if(PsnObj.Edit(&id, (void *)Filt.Kind) == cmOK) {
+	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.Kind)) == cmOK) {
 		AddTempRec(id, 0, 1);
 		ASSIGN_PTR(pID, id);
 		ok = 1;
@@ -443,7 +443,7 @@ int SLAPI PPViewPerson::AddItem(PPID * pID)
 int SLAPI PPViewPerson::EditItem(PPID id)
 {
 	int    ok = -1;
-	if(PsnObj.Edit(&id, (void *)Filt.Kind) == cmOK) {
+	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.Kind)) == cmOK) {
 		EditTempRec(id, 1);
 		ok = 1;
 	}
@@ -1517,7 +1517,7 @@ static SArray * SLAPI CreateExtRegList(PersonFilt * pFilt, PPID * pAttrID, int o
 		PPRegisterType rt_rec;
 		SString reg_name, name;
 		if(onlyRegs)
-			reg_name = 0;
+			reg_name.Z();
 		else
 			PPGetSubStr(PPTXT_PERSONATTRIBUTE, PPPSNATTR_REGISTER, reg_name);
 		ere.AttribType = PPPSNATTR_REGISTER;
@@ -1826,17 +1826,18 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class PersonFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(PersonFilt);
 	public:
 		PersonFiltDialog() : TDialog(DLG_PSNFLT), CluFlagsLock_(0)
 		{
 			SetupCalPeriod(CTLCAL_PSNFLT_NEWCLIPERIOD, CTL_PSNFLT_NEWCLIPERIOD);
 			enableCommand(cmAdvOptions, 1);
 		}
-		int    setDTS(const PersonFilt * pFilt)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pFilt;
+			RVALUEPTR(Data, pData);
 			SString temp_buf;
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL, 0);
+			SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0); // @v10.7.8
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PRSNKIND, Data.Kind, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY,   PPOBJ_PRSNCATEGORY, Data.Category, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_PSNFLT_STATUS, PPOBJ_PRSNSTATUS, Data.Status, 0, 0);
@@ -1847,6 +1848,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				disableCtrl(CTL_PSNFLT_EMPTY, 1);
 			Data.GetExtssData(PersonFilt::extssNameText, temp_buf);
 			setCtrlString(CTL_PSNFLT_NAMESTR, temp_buf);
+			SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 			setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
 			AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fTagsCrsstab);
 			AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fHasImages);
@@ -1874,7 +1876,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			}
 			return 1;
 		}
-		int    getDTS(PersonFilt * pFilt)
+		DECL_DIALOG_GETDTS()
 		{
 			SString temp_buf;
 			getCtrlData(CTLSEL_PSNFLT_CITY, &Data.CityID);
@@ -1891,7 +1893,7 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
 				GetClusterData(CTL_PSNFLT_NEWCLIONLY, &Data.Flags); // @v9.4.5
 			}
-			ASSIGN_PTR(pFilt, Data);
+			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
 	private:
@@ -1999,7 +2001,6 @@ int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			clearEvent(event);
 		}
 		int    CluFlagsLock_;
-		PersonFilt Data;
 		PPObjPerson PsnObj;
 	};
 	DIALOG_PROC_BODY(PersonFiltDialog, static_cast<PersonFilt *>(pFilt));
@@ -3046,10 +3047,9 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 
 int SLAPI PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, uint what /*=0*/)
 {
-	size_t i = 0;
+	long   i = 0;
  	SString buf, phone;
 	PersonViewItem item;
-
  	for(InitIteration(); NextIteration(&item) > 0;) {
 		PPELinkArray elink_list;
 		if(PersonCore::GetELinks(item.ID, &elink_list) > 0) {

@@ -10186,6 +10186,8 @@ int FASTCALL PPViewVetisDocument::EditInterchangeParam(VetisDocumentFilt * pFilt
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 0, VetisDocumentFilt::icacnLoadUpdated);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 1, VetisDocumentFilt::icacnLoadStock);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 2, VetisDocumentFilt::icacnLoadAllDocs);
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 3, VetisDocumentFilt::icacnPrepareOutgoing); // @v10.7.8
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 4, VetisDocumentFilt::icacnSendOutgoing); // @v10.7.8
 			SetClusterData(CTL_VETDOCFLT_ACTIONS, Data.Actions);
 			return ok;
 		}
@@ -10333,6 +10335,28 @@ int FASTCALL PPViewVetisDocument::RunInterchangeProcess(VetisDocumentFilt * pFil
 						req_offs += reply.VetStockList.getCount();
 				}
 			}
+			// @v10.7.8 {
+			if(filt.Actions & VetisDocumentFilt::icacnPrepareOutgoing) {
+				DateRange period;
+				if(checkdate(filt.Period.low))
+					period.low = filt.Period.low;
+				if(checkdate(filt.Period.upp))
+					period.upp = filt.Period.upp;
+				if(!checkdate(period.low)) {
+					if(checkdate(period.upp))
+						period.low = period.upp;
+					else
+						period.low = getcurdate_();
+				}
+				if(!checkdate(period.upp)) {
+					period.upp = getcurdate_();
+				}
+				if(ifc.SetupOutgoingEntries(filt.LocID, period) > 0)
+					ok = 1;
+			}
+			if(filt.Actions & VetisDocumentFilt::icacnSendOutgoing) {
+			}
+			// } @v10.7.8 
 			if(ok > 0)
 				THROW(ifc.ProcessUnresolvedEntityList(ure_list));
 		}

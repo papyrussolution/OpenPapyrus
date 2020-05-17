@@ -1290,7 +1290,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 			ushort v = data.StatusType;
 			setCtrlData(CTL_PSNOPKPC_STATUSTYP, &v);
 			if(Scnd)
-	   			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_DEFAULT, PPOBJ_PERSON, data.DefaultID, 0, (void *)data.PersonKindID);
+	   			SetupPPObjCombo(this, CTLSEL_PSNOPKPC_DEFAULT, PPOBJ_PERSON, data.DefaultID, 0, reinterpret_cast<void *>(data.PersonKindID));
 			{
 				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_PSNOPKPC_SCSLIST));
 				if(p_box) {

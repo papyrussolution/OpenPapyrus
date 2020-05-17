@@ -558,9 +558,9 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 		case 2: // undecorate name
 			(rec_prefx = InrRec.Name).ToUpper().CatChar('@');
 			temp_buf = rName;
-			if(temp_buf.CmpPrefix(p_prefix_imp, 1) == 0 || temp_buf.CmpPrefix(p_prefix_exp, 1) == 0)
+			if(temp_buf.HasPrefixNC(p_prefix_imp) || temp_buf.HasPrefixNC(p_prefix_exp))
 				temp_buf.ShiftLeft(sstrlen(Direction ? p_prefix_imp : p_prefix_exp)+1);
-			if(temp_buf.CmpPrefix(rec_prefx, 1) == 0)
+			if(temp_buf.HasPrefixNC(rec_prefx))
 				temp_buf.ShiftLeft(rec_prefx.Len());
 			rName = temp_buf;
 			ok = 1;
@@ -569,9 +569,9 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 			(rec_prefx = InrRec.Name).ToUpper().CatChar('@');
 			temp_buf  = rName;
 			ok = 0;
-			if(temp_buf.CmpPrefix(p_prefix_imp, 1) == 0 || temp_buf.CmpPrefix(p_prefix_exp, 1) == 0) {
+			if(temp_buf.HasPrefixNC(p_prefix_imp) || temp_buf.HasPrefixNC(p_prefix_exp)) {
 				temp_buf.ShiftLeft(sstrlen(Direction ? p_prefix_imp : p_prefix_exp)+1);
-				if(temp_buf.CmpPrefix(rec_prefx, 1) == 0)
+				if(temp_buf.HasPrefixNC(rec_prefx))
 					ok = 1;
 			}
 			break;
@@ -1312,15 +1312,15 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 			switch(tsl_par.Translate(par.Strip(), &next_pos)) {
 				case iefFileName: FileName = val; break;
 				case iefImpExp:
-					if(val.CmpPrefix("IMP", 1) == 0)
+					if(val.HasPrefixIAscii("IMP"))
 						Direction = 1;
-					else if(val.CmpPrefix("EXP", 1) == 0)
+					else if(val.HasPrefixIAscii("EXP"))
 						Direction = 0;
 					break;
 				case iefFormat:
-					if(val.CmpPrefix("DBF", 1) == 0)
+					if(val.HasPrefixIAscii("DBF"))
 						DataFormat = dfDbf;
-					else if(val.CmpPrefix("TXT", 1) == 0 || val.CmpPrefix("TEXT", 1) == 0) {
+					else if(val.HasPrefixIAscii("TXT") || val.HasPrefixIAscii("TEXT")) {
 						DataFormat = dfText;
 						if(fld_div.Empty()) {
 							size_t pos = 0;
@@ -1332,15 +1332,15 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 							}
 						}
 					}
-					else if(val.CmpPrefix("XML", 1) == 0)
+					else if(val.HasPrefixIAscii("XML"))
 						DataFormat = dfXml;
-					else if(val.CmpPrefix("XLS", 1) == 0)
+					else if(val.HasPrefixIAscii("XLS"))
 						DataFormat = dfExcel;
 					break;
 				case iefOrient:
-					if(val.CmpPrefix("HOR", 1) == 0)
+					if(val.HasPrefixIAscii("HOR"))
 						TdfParam.Flags &= ~TextDbFile::fVerticalRec;
-					else if(val.CmpPrefix("VER", 1) == 0)
+					else if(val.HasPrefixIAscii("VER"))
 						TdfParam.Flags |= TextDbFile::fVerticalRec;
 					break;
 				case iefCodepage:
@@ -1373,9 +1373,9 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				case iefXlsQuotStr: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fQuotText, val.ToLong()); break;
 				case iefOneRecPerFile: SETFLAG(XlsdfParam.Flags, ExcelDbFile::fOneRecPerFile, val.ToLong()); break;
 				case iefXlsOrient:
-					if(val.CmpPrefix("HOR", 1) == 0)
+					if(val.HasPrefixIAscii("HOR"))
 						XlsdfParam.Flags &= ~ExcelDbFile::fVerticalRec;
-					else if(val.CmpPrefix("VER", 1) == 0)
+					else if(val.HasPrefixIAscii("VER"))
 						XlsdfParam.Flags |= ExcelDbFile::fVerticalRec;
 					break;
 				case iefXlsHdrLinesCount: XlsdfParam.HdrLinesCount = val.ToLong(); break;
@@ -1434,7 +1434,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					}
 					break;
 				default:
-					if(par.CmpPrefix("empty", 1) == 0) {
+					if(par.HasPrefixIAscii("empty")) {
 						THROW(ParseFormula(0, par, val));
 					}
 					else if(InrRec.GetFieldByName(par, &fld) > 0) {
@@ -3134,7 +3134,7 @@ int ImpExpCfgsListDialog::setupList()
 								uint sect_id = 0;
 								Sections.add(section, &sect_id);
 								p_param->ProcessName(2, sect = section);
-								if(sect.CmpPrefix("DLL_", 1)) { // @vmiller
+								if(!sect.HasPrefixIAscii("DLL_")) { // @vmiller
 									ss.clear();
 									ss.add(sect);
 									ss.add(p_param->Direction ? "Import" : "Export");

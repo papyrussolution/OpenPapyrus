@@ -428,12 +428,11 @@ static int agent_list_identities(LIBSSH2_AGENT * agent)
 		transctx->request_len = 1;
 		transctx->state = agent_NB_state_request_created;
 	}
-	/* Make sure to be re-called as a result of EAGAIN. */
+	// Make sure to be re-called as a result of EAGAIN. 
 	if(*transctx->request != SSH2_AGENTC_REQUEST_IDENTITIES)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE, "illegal agent request");
 	if(!agent->ops)
-		/* if no agent has been connected, bail out */
-		return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE, "agent not connected");
+		return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE, "agent not connected"); // if no agent has been connected, bail out 
 	rc = agent->ops->transact(agent, transctx);
 	if(rc) {
 		goto error;
@@ -530,7 +529,7 @@ static void agent_free_identities(LIBSSH2_AGENT * agent)
 {
 	struct agent_publickey * next;
 	for(struct agent_publickey * node = (struct agent_publickey *)_libssh2_list_first(&agent->head); node; node = next) {
-		next = (struct agent_publickey *)_libssh2_list_next(&node->node);
+		next = static_cast<struct agent_publickey *>(_libssh2_list_next(&node->node));
 		LIBSSH2_FREE(agent->session, node->external.blob);
 		LIBSSH2_FREE(agent->session, node->external.comment);
 		LIBSSH2_FREE(agent->session, node);

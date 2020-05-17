@@ -1186,7 +1186,7 @@ int _libssh2_channel_extended_data(LIBSSH2_CHANNEL * channel, int ignore_mode);
 /*
  * Send data to a channel
  */
-ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL * channel, int stream_id, const uchar * buf, size_t buflen);
+ssize_t FASTCALL _libssh2_channel_write(LIBSSH2_CHANNEL * channel, int stream_id, const uchar * buf, size_t buflen);
 /*
  * Establish a generic session channel
  */
@@ -1203,7 +1203,7 @@ int _libssh2_channel_process_startup(LIBSSH2_CHANNEL * channel, const char * req
  * complete. If we read stuff from the wire but it was no payload data to fill
  * in the buffer with, we MUST make sure to return PACKET_EAGAIN.
  */
-ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id, char * buf, size_t buflen);
+ssize_t FASTCALL _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id, char * buf, size_t buflen);
 uint32 _libssh2_channel_nextid(LIBSSH2_SESSION * session);
 LIBSSH2_CHANNEL * _libssh2_channel_locate(LIBSSH2_SESSION * session, uint32 channel_id);
 size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id);

@@ -729,9 +729,6 @@
 				RelativePath="..\SLib\Range.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\round.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\samqp.cpp">
 			</File>
 			<File

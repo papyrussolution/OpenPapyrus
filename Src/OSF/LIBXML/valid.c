@@ -112,7 +112,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErr
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0,
-	    (const char *)str1, (const char *)str1, (const char *)str3, 0, 0, msg, str1, str2, str3);
+	    PTRCHRC_(str1), PTRCHRC_(str1), PTRCHRC_(str3), 0, 0, msg, str1, str2, str3);
 }
 
 #endif /* LIBXML_VALID_ENABLED or LIBXML_SCHEMAS_ENABLED */
@@ -145,7 +145,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserE
 				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
-	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str3, NULL, int2, 0, msg, str1, int2, str3);
+	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str3), NULL, int2, 0, msg, str1, int2, str3);
 }
 
 /**
@@ -179,7 +179,7 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_WARNING, NULL, 0,
-	    (const char *)str1, (const char *)str1, (const char *)str3, 0, 0, msg, str1, str2, str3);
+	    PTRCHRC_(str1), PTRCHRC_(str1), PTRCHRC_(str3), 0, 0, msg, str1, str2, str3);
 }
 
 #ifdef LIBXML_REGEXP_ENABLED

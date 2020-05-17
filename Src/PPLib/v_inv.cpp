@@ -1786,6 +1786,7 @@ int SLAPI PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 							if(sel_by_name) {
 								SString sub;
 								PPInputStringDialogParam isd_param;
+								isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common"); // @v10.7.8
 								PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
 								if(InputStringDialog(&isd_param, sub) > 0 && sub.NotEmptyS()) {
 									if(!GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1)) {

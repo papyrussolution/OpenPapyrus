@@ -865,7 +865,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	else
 		sconv = zip->sconv_default;
 
-	if(archive_entry_copy_pathname_l(entry, (const char *)h, filename_length, sconv) != 0) {
+	if(archive_entry_copy_pathname_l(entry, PTRCHRC(h), filename_length, sconv) != 0) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
@@ -881,7 +881,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 		return ARCHIVE_FATAL;
 	}
 
-	if(ARCHIVE_OK != process_extra(a, (const char *)h, extra_length, zip_entry)) {
+	if(ARCHIVE_OK != process_extra(a, PTRCHRC(h), extra_length, zip_entry)) {
 		return ARCHIVE_FATAL;
 	}
 	__archive_read_consume(a, extra_length);
@@ -1320,7 +1320,7 @@ static int zipx_xz_init(struct archive_read * a, struct zip * zip)
 	if(zip->uncompressed_buffer)
 		SAlloc::F(zip->uncompressed_buffer);
 	zip->uncompressed_buffer_size = 256 * 1024;
-	zip->uncompressed_buffer = (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
+	zip->uncompressed_buffer = static_cast<uint8_t *>(SAlloc::M(zip->uncompressed_buffer_size));
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for xz decompression");
 		return ARCHIVE_FATAL;
@@ -1415,7 +1415,7 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 
 	if(!zip->uncompressed_buffer) {
 		zip->uncompressed_buffer_size = 256 * 1024;
-		zip->uncompressed_buffer = (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
+		zip->uncompressed_buffer = static_cast<uint8_t *>(SAlloc::M(zip->uncompressed_buffer_size));
 		if(zip->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for lzma decompression");
 			return ARCHIVE_FATAL;
@@ -1666,7 +1666,7 @@ static int zipx_ppmd8_init(struct archive_read * a, struct zip * zip)
 	if(zip->uncompressed_buffer)
 		SAlloc::F(zip->uncompressed_buffer);
 	zip->uncompressed_buffer_size = 256 * 1024;
-	zip->uncompressed_buffer = (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
+	zip->uncompressed_buffer = static_cast<uint8_t *>(SAlloc::M(zip->uncompressed_buffer_size));
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for PPMd8 decompression");
 		return ARCHIVE_FATAL;
@@ -1770,7 +1770,7 @@ static int zipx_bzip2_init(struct archive_read * a, struct zip * zip)
 	if(zip->uncompressed_buffer)
 		SAlloc::F(zip->uncompressed_buffer);
 	zip->uncompressed_buffer_size = 256 * 1024;
-	zip->uncompressed_buffer = (uint8_t *)SAlloc::M(zip->uncompressed_buffer_size);
+	zip->uncompressed_buffer = static_cast<uint8_t *>(SAlloc::M(zip->uncompressed_buffer_size));
 	if(zip->uncompressed_buffer == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "No memory for bzip2 decompression");
 		return ARCHIVE_FATAL;
@@ -2027,7 +2027,7 @@ static int read_decryption_header(struct archive_read * a)
 	if(p == NULL)
 		goto truncated;
 	if(zip->iv == NULL) {
-		zip->iv = (uint8_t *)SAlloc::M(zip->iv_size);
+		zip->iv = static_cast<uint8_t *>(SAlloc::M(zip->iv_size));
 		if(zip->iv == NULL)
 			goto nomem;
 	}
@@ -2111,7 +2111,7 @@ static int read_decryption_header(struct archive_read * a)
 	if(p == NULL)
 		goto truncated;
 	if(zip->erd == NULL) {
-		zip->erd = (uint8_t *)SAlloc::M(zip->erd_size);
+		zip->erd = static_cast<uint8_t *>(SAlloc::M(zip->erd_size));
 		if(zip->erd == NULL)
 			goto nomem;
 	}
@@ -2150,7 +2150,7 @@ static int read_decryption_header(struct archive_read * a)
 	if(p == NULL)
 		goto truncated;
 	if(zip->v_data == NULL) {
-		zip->v_data = (uint8_t *)SAlloc::M(zip->v_size);
+		zip->v_data = static_cast<uint8_t *>(SAlloc::M(zip->v_size));
 		if(zip->v_data == NULL)
 			goto nomem;
 	}

@@ -148,91 +148,57 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
-
 	conf->capability.len = size;
 	conf->capability.data = p;
-
-	p = ngx_cpymem(p, "+OK Capability list follows" CRLF,
-	    sizeof("+OK Capability list follows" CRLF) - 1);
-
+	p = ngx_cpymem(p, "+OK Capability list follows" CRLF, sizeof("+OK Capability list follows" CRLF) - 1);
 	for(i = 0; i < conf->capabilities.nelts; i++) {
 		p = ngx_cpymem(p, c[i].data, c[i].len);
 		*p++ = __CR; *p++ = LF;
 	}
-
 	p = ngx_cpymem(p, "SASL", sizeof("SASL") - 1);
-
-	for(m = NGX_MAIL_AUTH_PLAIN_ENABLED, i = 0;
-	    m <= NGX_MAIL_AUTH_EXTERNAL_ENABLED;
-	    m <<= 1, i++) {
+	for(m = NGX_MAIL_AUTH_PLAIN_ENABLED, i = 0; m <= NGX_MAIL_AUTH_EXTERNAL_ENABLED; m <<= 1, i++) {
 		if(ngx_mail_pop3_auth_methods_names[i].len == 0) {
 			continue;
 		}
-
 		if(m & conf->auth_methods) {
 			*p++ = ' ';
-			p = ngx_cpymem(p, ngx_mail_pop3_auth_methods_names[i].data,
-			    ngx_mail_pop3_auth_methods_names[i].len);
+			p = ngx_cpymem(p, ngx_mail_pop3_auth_methods_names[i].data, ngx_mail_pop3_auth_methods_names[i].len);
 		}
 	}
-
 	*p++ = __CR; *p++ = LF;
-
 	*p++ = '.'; *p++ = __CR; *p = LF;
-
 	size += sizeof("STLS" CRLF) - 1;
-
 	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
-
 	conf->starttls_capability.len = size;
 	conf->starttls_capability.data = p;
-
-	p = ngx_cpymem(p, conf->capability.data,
-	    conf->capability.len - (sizeof("." CRLF) - 1));
-
+	p = ngx_cpymem(p, conf->capability.data, conf->capability.len - (sizeof("." CRLF) - 1));
 	p = ngx_cpymem(p, "STLS" CRLF, sizeof("STLS" CRLF) - 1);
 	*p++ = '.'; *p++ = __CR; *p = LF;
-
-	size = sizeof("+OK methods supported:" CRLF) - 1
-	    + sizeof("." CRLF) - 1;
-
-	for(m = NGX_MAIL_AUTH_PLAIN_ENABLED, i = 0;
-	    m <= NGX_MAIL_AUTH_EXTERNAL_ENABLED;
-	    m <<= 1, i++) {
+	size = sizeof("+OK methods supported:" CRLF) - 1 + sizeof("." CRLF) - 1;
+	for(m = NGX_MAIL_AUTH_PLAIN_ENABLED, i = 0; m <= NGX_MAIL_AUTH_EXTERNAL_ENABLED; m <<= 1, i++) {
 		if(ngx_mail_pop3_auth_methods_names[i].len == 0) {
 			continue;
 		}
-
 		if(m & conf->auth_methods) {
-			size += ngx_mail_pop3_auth_methods_names[i].len
-			    + sizeof(CRLF) - 1;
+			size += ngx_mail_pop3_auth_methods_names[i].len + sizeof(CRLF) - 1;
 		}
 	}
-
 	p = static_cast<u_char *>(ngx_pnalloc(cf->pool, size));
 	if(!p) {
 		return NGX_CONF_ERROR;
 	}
-
 	conf->auth_capability.data = p;
 	conf->auth_capability.len = size;
-
-	p = ngx_cpymem(p, "+OK methods supported:" CRLF,
-	    sizeof("+OK methods supported:" CRLF) - 1);
-
-	for(m = NGX_MAIL_AUTH_PLAIN_ENABLED, i = 0;
-	    m <= NGX_MAIL_AUTH_EXTERNAL_ENABLED;
-	    m <<= 1, i++) {
+	p = ngx_cpymem(p, "+OK methods supported:" CRLF, sizeof("+OK methods supported:" CRLF) - 1);
+	for(m = NGX_MAIL_AUTH_PLAIN_ENABLED, i = 0; m <= NGX_MAIL_AUTH_EXTERNAL_ENABLED; m <<= 1, i++) {
 		if(ngx_mail_pop3_auth_methods_names[i].len == 0) {
 			continue;
 		}
-
 		if(m & conf->auth_methods) {
-			p = ngx_cpymem(p, ngx_mail_pop3_auth_methods_names[i].data,
-			    ngx_mail_pop3_auth_methods_names[i].len);
+			p = ngx_cpymem(p, ngx_mail_pop3_auth_methods_names[i].data, ngx_mail_pop3_auth_methods_names[i].len);
 			*p++ = __CR; *p++ = LF;
 		}
 	}

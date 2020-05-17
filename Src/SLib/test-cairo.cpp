@@ -4,8 +4,8 @@
 #include <tv.h>
 #pragma hdrstop
 #include <cairo-1160/cairo.h>
-#include <cairo/cairo-test-private.h>
-#include <cairo/buffer-diff.h>
+//#include <cairo/cairo-test-private.h>
+//#include <cairo/buffer-diff.h>
 //
 // @construction
 // Test of cairo module
@@ -1105,32 +1105,20 @@ REPEAT:
 		ref_image = cairo_test_get_reference_image(ctx, base_ref_png_path,
 		    target->content == CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED);
 		if(cairo_surface_status(ref_image)) {
-			cairo_test_log(ctx, "Error: Cannot open reference image for %s: %s\n",
-			    base_ref_png_path,
-			    cairo_status_to_string(cairo_surface_status(ref_image)));
+			cairo_test_log(ctx, "Error: Cannot open reference image for %s: %s\n", base_ref_png_path, cairo_status_to_string(cairo_surface_status(ref_image)));
 			cairo_surface_destroy(test_image);
 			ret = CAIRO_TEST_FAILURE;
 			goto UNWIND_CAIRO;
 		}
-
-		diff_image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-		    ctx->test->width,
-		    ctx->test->height);
-
+		diff_image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ctx->test->width, ctx->test->height);
 		cmp_png_path = base_ref_png_path;
-		diff_status = image_diff(ctx,
-		    test_image, ref_image, diff_image,
-		    &result);
+		diff_status = image_diff(ctx, test_image, ref_image, diff_image, &result);
 		_xunlink(ctx, diff_png_path);
-		if(diff_status ||
-		    image_diff_is_failure(&result, target->error_tolerance)) {
+		if(diff_status || image_diff_is_failure(&result, target->error_tolerance)) {
 			/* that failed, so check against the specific backend */
-			ref_image = cairo_test_get_reference_image(ctx, ref_png_path,
-			    target->content == CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED);
+			ref_image = cairo_test_get_reference_image(ctx, ref_png_path, target->content == CAIRO_TEST_CONTENT_COLOR_ALPHA_FLATTENED);
 			if(cairo_surface_status(ref_image)) {
-				cairo_test_log(ctx, "Error: Cannot open reference image for %s: %s\n",
-				    ref_png_path,
-				    cairo_status_to_string(cairo_surface_status(ref_image)));
+				cairo_test_log(ctx, "Error: Cannot open reference image for %s: %s\n", ref_png_path, cairo_status_to_string(cairo_surface_status(ref_image)));
 				cairo_surface_destroy(test_image);
 				ret = CAIRO_TEST_FAILURE;
 				goto UNWIND_CAIRO;
@@ -1464,10 +1452,8 @@ const cairo_test_context_t * cairo_test_get_context(cairo_t * cr)
 
 cairo_surface_t * cairo_test_create_surface_from_png(const cairo_test_context_t * ctx, const char * filename)
 {
-	cairo_surface_t * image;
-	cairo_status_t status;
-	image = cairo_image_surface_create_from_png(filename);
-	status = cairo_surface_status(image);
+	cairo_surface_t * image = cairo_image_surface_create_from_png(filename);
+	cairo_status_t status = cairo_surface_status(image);
 	if(status == CAIRO_STATUS_FILE_NOT_FOUND) {
 		/* expect not found when running with srcdir != builddir
 		 * such as when 'make distcheck' is run

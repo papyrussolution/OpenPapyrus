@@ -311,7 +311,7 @@ PPBaseFilt * SLAPI PPViewSCard::CreateFilt(void * extraPtr) const
 {
 	PPObjSCardSeries scs_obj;
 	SCardFilt * p_filt = new SCardFilt;
-	if((reinterpret_cast<long>(extraPtr)) && scs_obj.Search((reinterpret_cast<long>(extraPtr)), 0) > 0)
+	if(reinterpret_cast<long>(extraPtr) && scs_obj.Search(reinterpret_cast<long>(extraPtr), 0) > 0)
 		p_filt->SeriesID = scs_obj.GetSingle();
 	else
 		p_filt->SeriesID = scs_obj.GetSingle();

@@ -1752,10 +1752,10 @@ int ImportCls::ParseAperakResp()
 					}
 				}
 				else if(SXml::IsName(p_node, "E9321")) { // Код статуса
-					AperakInfo.Code = (const char *)p_node->children->content;
+					AperakInfo.Code = PTRCHRC_(p_node->children->content);
 				}
 				else if(SXml::IsName(p_node, "E4451")) {
-					if(strcmp((const char *)p_node->children->content, "AAO") == 0) {
+					if(strcmp(PTRCHRC_(p_node->children->content), "AAO") == 0) {
 						if(p_node->next) {
 							// Этот элемент может повторяться два раза. В первом будет общее сообщение, во втором - подробное описание
 							if(SXml::IsName(p_node->next->children, "E4440") && p_node->next->children->children) {
@@ -1912,7 +1912,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 					p_node = p_node->next; // <E5004>
 					if(SXml::IsName(p_node, "E5004") && p_node->children) {
 						if(str == "128") { // Сумма документа с НДС
-							pBill->Amount = atof((const char *)p_node->children->content);
+							pBill->Amount = atof(PTRCHRC_(p_node->children->content));
 							ok = 1;
 						}
 						else if(str == "98") { // Сумма документа без НДС
@@ -1926,7 +1926,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 				if(SXml::IsContent(p_node->children, "2")) {
 					p_node = p_node->next; // <E6060>
 					if(SXml::IsName(p_node, "E6066") && p_node->children) { // Количество товарных позиций в документе
-						GoodsCount = atoi((const char *)p_node->children->content);
+						GoodsCount = atoi(PTRCHRC_(p_node->children->content));
 						ok = 1;
 					}
 				}
@@ -2068,9 +2068,9 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 												if(str == "21") // Заказанное количество
 													str.Set(p_node->children->content);
 												else if(str == "113" || str == "170" || str == "12") // Подтвержденное количество
-													pBRow->Quantity = atof((const char *)p_node->children->content);
+													pBRow->Quantity = atof(PTRCHRC_(p_node->children->content));
 												else if(str == "59") // Количество товара в упаковке
-													pBRow->UnitPerPack = atof((const char *)p_node->children->content);
+													pBRow->UnitPerPack = atof(PTRCHRC_(p_node->children->content));
 											}
 										}
 									}
@@ -2092,7 +2092,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 													else if(str == "79") // Сумма товарной позиции с НДС
 														str.Set(p_node->children->content);
 													else if(MessageType == PPEDIOP_DESADV && str.CmpNC("XB5") == 0) // Цена товара с НДС для DESADV
-														pBRow->Cost = atof((const char *)p_node->children->content);
+														pBRow->Cost = atof(PTRCHRC_(p_node->children->content));
 												}
 											}
 										}
@@ -2131,7 +2131,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 												if(str.CmpNC("AAA") == 0) // Цена товара без НДС
 													str.Set(p_node->children->content);
 												else if(str.CmpNC("AAE") == 0) // Цена товара с НДС для ORDRSP
-													pBRow->Cost = atof((const char *)p_node->children->content);
+													pBRow->Cost = atof(PTRCHRC_(p_node->children->content));
 											}
 										}
 									}

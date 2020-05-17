@@ -417,7 +417,7 @@ int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 	while(rez.getUINT() != TV_END) {
 		fseek(rez.getStream(), -static_cast<long>(sizeof(uint16)), SEEK_CUR);
 		ToolbarItem item;
-		MEMSZERO(item);
+		// @v10.7.8 @ctr MEMSZERO(item);
 		item.Cmd = rez.getUINT();
 		if(item.Cmd != TV_MENUSEPARATOR) {
 			item.KeyCode = rez.getUINT();
@@ -443,7 +443,7 @@ static int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 	while(rez.getUINT() != TV_END) {
 		fseek(rez.getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 		ToolbarItem item;
-		MEMSZERO(item);
+		// @v10.7.8 @ctr MEMSZERO(item);
 		item.Cmd = rez.getUINT();
 		if(item.Cmd != TV_MENUSEPARATOR) {
 			item.KeyCode = rez.getUINT();

@@ -719,7 +719,7 @@ int PPJob::Read2(xmlNode * pParentNode) //@erik v10.7.1
 			}
 		}
 	}
-	CATCHZOK
+	//CATCHZOK
 	return ok;
 }
 //
@@ -1751,16 +1751,55 @@ int SLAPI LaunchAppParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-#define GRP_BROWSE 1
-
 class LaunchAppDialog : public TDialog {
+	DECL_DIALOG_DATA(LaunchAppParam);
+	enum {
+		ctlgroupBrowse = 1
+	};
 public:
 	LaunchAppDialog() : TDialog(DLG_LAUNCHAPP)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_LAUNCHAPP_APP, CTL_LAUNCHAPP_APP, GRP_BROWSE, PPTXT_TITLE_SELAPPFILE, 0, FileBrowseCtrlGroup::fbcgfFile);
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_LAUNCHAPP_APP, CTL_LAUNCHAPP_APP, ctlgroupBrowse, PPTXT_TITLE_SELAPPFILE, 0, FileBrowseCtrlGroup::fbcgfFile);
 	}
-	int    setDTS(const LaunchAppParam * pData);
-	int    getDTS(LaunchAppParam * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_LAUNCHAPP_APP, Data.App);
+		setCtrlString(CTL_LAUNCHAPP_PARAMS, Data.Arg);
+		AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 0, LaunchAppParam::fWait);
+		AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 1, LaunchAppParam::fRemote);
+		SetClusterData(CTL_LAUNCHAPP_FLAGS, Data.Flags);
+		setCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
+		setCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
+		//
+		char   pw_buf[256];
+		size_t ret_len = 0;
+		Data.UserPassword.DecodeMime64(pw_buf, sizeof(pw_buf), &ret_len);
+		IdeaDecrypt(0, pw_buf, ret_len);
+		setCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
+		memzero(pw_buf, sizeof(pw_buf));
+		disableCtrls((Data.Flags & LaunchAppParam::fRemote) ? 0 : 1, CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlString(sel = CTL_LAUNCHAPP_APP, Data.App);
+		THROW_PP(Data.App.Len(), PPERR_USERINPUT);
+		getCtrlString(CTL_LAUNCHAPP_PARAMS, Data.Arg);
+		GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
+		getCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
+		getCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
+
+		char   pw_buf[256];
+		getCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
+		IdeaEncrypt(0, pw_buf, sizeof(pw_buf));
+		Data.UserPassword.EncodeMime64(pw_buf, sizeof(pw_buf));
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -1771,49 +1810,7 @@ private:
 			clearEvent(event);
 		}
 	}
-	LaunchAppParam Data;
 };
-
-int LaunchAppDialog::setDTS(const LaunchAppParam * pData)
-{
-	RVALUEPTR(Data, pData);
-	setCtrlString(CTL_LAUNCHAPP_APP, Data.App);
-	setCtrlString(CTL_LAUNCHAPP_PARAMS, Data.Arg);
-	AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 0, LaunchAppParam::fWait);
-	AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 1, LaunchAppParam::fRemote);
-	SetClusterData(CTL_LAUNCHAPP_FLAGS, Data.Flags);
-	setCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
-	setCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
-	//
-	char   pw_buf[256];
-	size_t ret_len = 0;
-	Data.UserPassword.DecodeMime64(pw_buf, sizeof(pw_buf), &ret_len);
-	IdeaDecrypt(0, pw_buf, ret_len);
-	setCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
-	memzero(pw_buf, sizeof(pw_buf));
-	disableCtrls((Data.Flags & LaunchAppParam::fRemote) ? 0 : 1, CTL_LAUNCHAPP_SERVER, CTL_LAUNCHAPP_USER, CTL_LAUNCHAPP_PWD, 0);
-	return 1;
-}
-
-int LaunchAppDialog::getDTS(LaunchAppParam * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlString(sel = CTL_LAUNCHAPP_APP, Data.App);
-	THROW_PP(Data.App.Len(), PPERR_USERINPUT);
-	getCtrlString(CTL_LAUNCHAPP_PARAMS, Data.Arg);
-	GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
-	getCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
-	getCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
-
-	char   pw_buf[256];
-	getCtrlData(CTL_LAUNCHAPP_PWD, pw_buf);
-	IdeaEncrypt(0, pw_buf, sizeof(pw_buf));
-	Data.UserPassword.EncodeMime64(pw_buf, sizeof(pw_buf));
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 
 int EditLaunchAppParam(LaunchAppParam * pData) { DIALOG_PROC_BODYERR(LaunchAppDialog, pData); }
 
@@ -2142,9 +2139,8 @@ public:
 			// } @vmiller
 			// @vmiller {
 			pBillParam->ProcessName(2, sect);
-			if(sect.CmpPrefix("DLL_", 1) == 0) {
+			if(sect.HasPrefixIAscii("DLL_"))
 				pBillParam->BaseFlags |= PPImpExpParam::bfDLL;
-			}
 			// } @vmiller
 			pBRowParam->ProcessName(1, (sect = pBRowParamName));
 			THROW_PP_S(pBRowParam->ReadIni(&ini_file, sect, 0) > 0, PPERR_INVBILLEXPCFG, pBRowParamName);
@@ -2346,14 +2342,12 @@ int ExportBillsFiltDialog::getDTS(ExpBillsFilt * pData)
 	uint    id = 0, sel = 0;
 	long    v  = 0;
 	SString sect;
-
 	getCtrlData(sel = CTLSEL_BILLEXPFILT_CFG, &id);
 	THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
 	HdrList.GetText(id, sect);
 	Data.BillParam = sect;
-
 	if(!(Data.Flags & ExpBillsFilt::fEdi)) { // @vmiller
-		if(sect.CmpPrefix("DLL_", 1) != 0) { // @vmiller
+		if(!sect.HasPrefixIAscii("DLL_")) { // @vmiller
 			getCtrlData(sel = CTLSEL_BILLEXPFILT_RCFG, &id);
 			THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
 			LineList.GetText(id, sect);
@@ -2379,7 +2373,6 @@ public:
 		ExportBillsFiltDialog::ExpBillsFilt filt;
 		ExportBillsFiltDialog * p_dlg = new ExportBillsFiltDialog;
 		PPViewBill view;
-
 		filt.Init(); // @vmiller
 		const size_t sav_offs = pParam->GetRdOffs();
 		THROW_INVARG(pParam);
@@ -2448,7 +2441,7 @@ struct ExportGoodsParam { // @persistent
 	void Init()
 	{
 		Filt.Init(1, 0);
-		ExpCfg = 0;
+		ExpCfg.Z();
 	}
 	int Read(SBuffer & rBuf, long)
 	{
@@ -2463,6 +2456,7 @@ struct ExportGoodsParam { // @persistent
 };
 
 class ExportGoodsFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(ExportGoodsParam);
 public:
 	static int GetParamByName(const char * pParamName, PPGoodsImpExpParam * pParam)
 	{
@@ -2488,10 +2482,10 @@ public:
 		PPGoodsImpExpParam param;
 		GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &CfgList, 1);
 	}
-	int setDTS(const ExportGoodsParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		{
 			uint    p  = 0, id = 0;
 			PPGoodsImpExpParam param;
@@ -2501,7 +2495,7 @@ public:
 		}
 		return ok;
 	}
-	int getDTS(ExportGoodsParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -2525,7 +2519,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	ExportGoodsParam Data;
 	StrAssocArray CfgList;
 };
 
@@ -2633,15 +2626,17 @@ SLAPI PPObjRFIDDevice::PPObjRFIDDevice(void * extraPtr) : PPObjReference(PPOBJ_R
 {
 }
 
-#define GRP_GOODS 1
-
 class RFIDDeviceDialog : public TDialog {
+	DECL_DIALOG_DATA(PPRFIDDevice);
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	RFIDDeviceDialog() : TDialog(DLG_RFIDDEV)
 	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_RFIDDEV_GGRP, CTLSEL_RFIDDEV_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_RFIDDEV_GGRP, CTLSEL_RFIDDEV_GOODS));
 	}
-	int    setDTS(const PPRFIDDevice * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
@@ -2661,11 +2656,11 @@ public:
 		setCtrlData(CTL_RFIDDEV_RELECOUNT,  &Data.ReleCount);
 		{
 			GoodsCtrlGroup::Rec grp_rec(0, Data.GoodsID, GoodsCtrlGroup::disableEmptyGoods|GoodsCtrlGroup::enableInsertGoods);
-			setGroupData(GRP_GOODS, &grp_rec);
+			setGroupData(ctlgroupGoods, &grp_rec);
 		}
 		return 1;
 	}
-	int    getDTS(PPRFIDDevice * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   ctl_id = 0;
@@ -2691,7 +2686,7 @@ public:
 		THROW_PP(Data.ReleCount > 0 && Data.ReleCount <= 255, PPERR_INVRELECOUNT);
 		{
 			GoodsCtrlGroup::Rec grp_rec;
-			getGroupData(GRP_GOODS, &grp_rec);
+			getGroupData(ctlgroupGoods, &grp_rec);
 			Data.GoodsID = grp_rec.GoodsID;
 			THROW_PP(Data.GoodsID, PPERR_GOODSNOTSEL);
 		}
@@ -2715,7 +2710,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	PPRFIDDevice    Data;
 	PPObjRFIDDevice RdObj;
 };
 
@@ -4241,4 +4235,3 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(VETISINTERCHANGE);
-

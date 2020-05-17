@@ -693,7 +693,7 @@ int xmlNop()
  */
 static int xmlFdRead(void * context, char * buffer, int len)
 {
-	int ret = read((int)(long)context, &buffer[0], len);
+	int ret = read(reinterpret_cast<long>(context), &buffer[0], len);
 	if(ret < 0)
 		xmlIOErr(0, "read()");
 	return ret;
@@ -714,7 +714,7 @@ static int xmlFdWrite(void * context, const char * buffer, int len)
 {
 	int ret = 0;
 	if(len > 0) {
-		ret = write((int)(long)context, &buffer[0], len);
+		ret = write(reinterpret_cast<long>(context), &buffer[0], len);
 		if(ret < 0)
 			xmlIOErr(0, "write()");
 	}
@@ -733,7 +733,7 @@ static int xmlFdWrite(void * context, const char * buffer, int len)
  */
 static int xmlFdClose(void * context)
 {
-	int ret = close((int)(long)context);
+	int ret = close(reinterpret_cast<long>(context));
 	if(ret < 0)
 		xmlIOErr(0, "close()");
 	return ret;

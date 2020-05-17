@@ -1220,7 +1220,7 @@ int FASTCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
 	int    ok = 0;
 	char   temp_buf[256];
 	SString _t;
-	temp_buf[0] = 0;
+	PTR32(temp_buf)[0] = 0;
 	switch(objType) {
 		case PPOBJ_PERSON: ok = GetPersonName(objID, _t); break;
 		case PPOBJ_GOODS: ok = GetGoodsNameR(objID, _t); break;
@@ -1664,21 +1664,14 @@ ObjLinkFiles & FASTCALL ObjLinkFiles::operator = (const ObjLinkFiles & rSrc)
 	return *this;
 }
 
-long SLAPI ObjLinkFiles::GetState() const
-{
-	return State;
-}
-
-uint SLAPI ObjLinkFiles::GetCount() const
-{
-	return Files.getCount();
-}
+long SLAPI ObjLinkFiles::GetState() const { return State; }
+uint SLAPI ObjLinkFiles::GetCount() const { return Files.getCount(); }
 
 int SLAPI ObjLinkFiles::CheckFile(uint pos, const char * pPath)
 {
 	SString path = pPath;
 	const char * p_exist_file = (pos < Files.getCount()) ? Files.at(pos) : 0;
-	const int    is_store_path = BIN(!(State & stIgnoreCheckStorageDir) && path.CmpPrefix(StoreDir, 1) == 0);
+	const int    is_store_path = BIN(!(State & stIgnoreCheckStorageDir) && path.HasPrefixNC(StoreDir));
 	if(p_exist_file && is_store_path && path.CmpNC(p_exist_file) == 0)
 		return -1;
 	else

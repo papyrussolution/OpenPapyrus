@@ -378,11 +378,10 @@ int SLAPI PPViewGoodsOpAnalyze::InitUniq(const SArray * pUniq)
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::CopyUniq(SArray * pUniq)
+void SLAPI PPViewGoodsOpAnalyze::CopyUniq(SArray * pUniq) const
 {
 	if(P_Uniq && pUniq)
 		pUniq->copy(*P_Uniq);
-	return 1;
 }
 
 int SLAPI PPViewGoodsOpAnalyze::GetByID(PPID id, TempGoodsOprTbl::Rec * pRec)
@@ -760,9 +759,7 @@ int SLAPI GoodsOpAnlzCmpFiltDialog::editItem(long pos, long id)
 void SLAPI GoodsOpAnlzCmpFiltDialog::SetupFlags()
 {
 	uint   p = 0;
-	ObjRestrictItem item;
-	item.ObjID = PrevID;
-	item.Flags = 0;
+	ObjRestrictItem item(PrevID, 0);
 	GetClusterData(CTL_GOODSOPRE_FLAGS, &item.Flags);
 	if(item.Flags)
 		Data.CompareItems.UpdateItemByID(item.ObjID, item.Flags);
@@ -2062,7 +2059,7 @@ void SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PP
 	PPID   goods_id = 0;
 	if(pRow) {
 		if(P_Ct) {
-			int    crsst_flds = (int)Filt.CompareItems.getCount();
+			int    crsst_flds = Filt.CompareItems.getCountI();
 			col = (col > 0 && Filt.Sgg == sggNone && !Filt.Sgb) ? col - 1 : col;
 			crsst_flds = (crsst_flds > 0) ? crsst_flds : 1;
 			uint   tab_idx = (col > 0) ? (col / (crsst_flds + 1)) + 1 : col;
@@ -2071,7 +2068,7 @@ void SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PP
 				P_Ct->GetIdxFieldVal(0, pRow, &goods_id, sizeof(goods_id));
 		}
 		else {
-			BrwHdr hdr = *(BrwHdr*)pRow;
+			BrwHdr hdr = *static_cast<const BrwHdr *>(pRow);
 			loc_id   = hdr.LocID;
 			goods_id = hdr.GoodsID;
 		}
@@ -2100,7 +2097,7 @@ public:
 private:
 	virtual int SLAPI GetTabTitle(const void * pVal, TYPEID typ, SString & rBuf) const
 	{
-		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*(const long *)pVal, rBuf) : 0;
+		return (pVal && /*typ == MKSTYPE(S_INT, 4) &&*/ P_V) ? P_V->GetTabTitle(*static_cast<const long *>(pVal), rBuf) : 0;
 	}
 	PPViewGoodsOpAnalyze * P_V;
 };
@@ -2156,7 +2153,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			if(r > 0)
 				THROW(AddItem(&blk));
 		}
-		pUfpFactors[0] += (double)P_TradePlanPacket->getCount();
+		pUfpFactors[0] += static_cast<double>(P_TradePlanPacket->getCount());
 	}
 	if(Filt.AgentID) {
 		// @todo Опционально использовать индивидуальную фильтрацию по расширению документа

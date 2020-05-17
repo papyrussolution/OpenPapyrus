@@ -13,7 +13,43 @@
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+//
+//
+//
+EditModel::Caret::Caret()
+{
+	//active = false;
+	//on = false;
+	Flags = 0;
+	period = 500;
+}
 
+EditModel::EditModel() : EditModelFlags(fPrimarySelection), xOffset(0), posDrag(SelectionPosition(invalidPosition)), bracesMatchStyle(STYLE_BRACEBAD),
+	highlightGuideColumn(0), imeInteraction(imeWindowed), foldFlags(0), foldDisplayTextStyle(SC_FOLDDISPLAYTEXT_HIDDEN), hotspot(invalidPosition),
+	hoverIndicatorPos(invalidPosition), wrapWidth(LineLayout::wrapWidthInfinite)
+{
+	//inOverstrike = false;
+	//trackLineWidth = false;
+	//primarySelection = true;
+	braces[0] = invalidPosition;
+	braces[1] = invalidPosition;
+	pdoc = new Document();
+	pdoc->AddRef();
+}
+
+EditModel::~EditModel()
+{
+	pdoc->Release();
+	pdoc = 0;
+}
+
+ColourDesired EditModel::SelectionBackground(const ViewStyle & vsDraw, bool main) const
+{
+	return main ? ((EditModelFlags & fPrimarySelection) ? vsDraw.selColours.back : vsDraw.selBackground2) : vsDraw.selAdditionalBackground;
+}
+//
+//
+//
 AutoLineLayout::AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) 
 {
 }
@@ -206,7 +242,7 @@ void Editor::WorkNeeded::Need(workItems items_, Position pos)
 //
 //
 //
-Editor::Editor()
+Editor::Editor() : EditModel(), DocWatcher()
 {
 	Flags = (fMouseDownCaptures|fMouseWheelCaptures|fHorizontalScrollBarVisible|fVerticalScrollBarVisible|fEndAtLastLine|fConvertPastes);
 	ctrlID = 0;
@@ -997,11 +1033,11 @@ SelectionPosition Editor::MovePositionSoVisible(SelectionPosition pos, int moveD
 		int lineDisplay = cs.DisplayFromDoc(lineDoc);
 		if(moveDir > 0) {
 			// lineDisplay is already line before fold as lines in fold use display line of line after fold
-			lineDisplay = Platform::Clamp(lineDisplay, 0, cs.LinesDisplayed());
+			lineDisplay = sclamp(lineDisplay, 0, cs.LinesDisplayed());
 			return SelectionPosition(pdoc->LineStart(cs.DocFromDisplay(lineDisplay)));
 		}
 		else {
-			lineDisplay = Platform::Clamp(lineDisplay - 1, 0, cs.LinesDisplayed());
+			lineDisplay = sclamp(lineDisplay - 1, 0, cs.LinesDisplayed());
 			return SelectionPosition(pdoc->LineEnd(cs.DocFromDisplay(lineDisplay)));
 		}
 	}
@@ -1024,7 +1060,7 @@ void Editor::SetLastXChosen()
 
 void Editor::ScrollTo(int line, bool moveThumb)
 {
-	int topLineNew = Platform::Clamp(line, 0, MaxScrollPos());
+	int topLineNew = sclamp(line, 0, MaxScrollPos());
 	if(topLineNew != topLine) {
 		// Try to optimise small scrolls
 #ifndef UNDER_CE
@@ -1266,13 +1302,13 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 				else {
 					// yMarginT must equal to caretYSlop, with a minimum of 1 and
 					// a maximum of slightly less than half the heigth of the text area.
-					yMarginT = Platform::Clamp(caretYSlop, 1, halfScreen);
+					yMarginT = sclamp(caretYSlop, 1, halfScreen);
 					yMarginB = bEven ? yMarginT : (linesOnScreen - yMarginT - 1);
 				}
 				yMoveT = yMarginT;
 				if(bEven) {
 					if(bJump) {
-						yMoveT = Platform::Clamp(caretYSlop * 3, 1, halfScreen);
+						yMoveT = sclamp(caretYSlop * 3, 1, halfScreen);
 					}
 					yMoveB = yMoveT;
 				}
@@ -1288,7 +1324,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 			}
 			else { // Not strict
 				yMoveT = bJump ? caretYSlop * 3 : caretYSlop;
-				yMoveT = Platform::Clamp(yMoveT, 1, halfScreen);
+				yMoveT = sclamp(yMoveT, 1, halfScreen);
 				yMoveB = bEven ? yMoveT : (linesOnScreen - yMoveT - 1);
 				if(lineCaret < topLine) { // Caret goes too high
 					newXY.topLine = lineCaret - yMoveT;
@@ -1330,7 +1366,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 				newXY.topLine = smin(newXY.topLine, lineCaret);
 			}
 		}
-		newXY.topLine = Platform::Clamp(newXY.topLine, 0, MaxScrollPos());
+		newXY.topLine = sclamp(newXY.topLine, 0, MaxScrollPos());
 	}
 
 	// Horizontal positioning
@@ -1352,11 +1388,11 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 				else {
 					// xMargin must equal to caretXSlop, with a minimum of 2 and
 					// a maximum of slightly less than half the width of the text area.
-					xMarginR = Platform::Clamp(caretXSlop, 2, halfScreen);
+					xMarginR = sclamp(caretXSlop, 2, halfScreen);
 					xMarginL = bEven ? xMarginR : (static_cast<int>(rcClient.Width()) - xMarginR - 4);
 				}
 				if(bJump && bEven) { // Jump is used only in even mode
-					xMoveL = xMoveR = Platform::Clamp(caretXSlop * 3, 1, halfScreen);
+					xMoveL = xMoveR = sclamp(caretXSlop * 3, 1, halfScreen);
 				}
 				else {
 					xMoveL = xMoveR = 0; // Not used, avoid a warning
@@ -1382,7 +1418,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 			}
 			else { // Not strict
 				xMoveR = bJump ? caretXSlop * 3 : caretXSlop;
-				xMoveR = Platform::Clamp(xMoveR, 1, halfScreen);
+				xMoveR = sclamp(xMoveR, 1, halfScreen);
 				xMoveL = bEven ? xMoveR : (static_cast<int>(rcClient.Width()) - xMoveR - 4);
 				if(pt.x < rcClient.left) { // Caret is on the left of the display
 					newXY.xOffset -= xMoveL;
@@ -1611,7 +1647,7 @@ bool Editor::WrapLines(enum wrapScope ws)
 		const int lineDocTop = cs.DocFromDisplay(topLine);
 		const int subLineTop = topLine - cs.DisplayFromDoc(lineDocTop);
 		if(ws == wsVisible) {
-			lineToWrap = Platform::Clamp(lineDocTop-5, wrapPending.start, pdoc->LinesTotal());
+			lineToWrap = sclamp(lineDocTop-5, wrapPending.start, pdoc->LinesTotal());
 			// Priority wrap to just after visible area.
 			// Since wrapping could reduce display lines, treat each
 			// as taking only one display line.
@@ -1663,7 +1699,7 @@ bool Editor::WrapLines(enum wrapScope ws)
 	}
 	if(wrapOccurred) {
 		SetScrollBars();
-		SetTopLine(Platform::Clamp(goodTopLine, 0, MaxScrollPos()));
+		SetTopLine(sclamp(goodTopLine, 0, MaxScrollPos()));
 		SetVerticalScrollPos();
 	}
 	return wrapOccurred;
@@ -1896,7 +1932,7 @@ void Editor::SetScrollBars()
 	// @todo ensure always showing as many lines as possible
 	// May not be, if, for example, window made larger
 	if(topLine > MaxScrollPos()) {
-		SetTopLine(Platform::Clamp(topLine, 0, MaxScrollPos()));
+		SetTopLine(sclamp(topLine, 0, MaxScrollPos()));
 		SetVerticalScrollPos();
 		Redraw();
 	}
@@ -2755,7 +2791,7 @@ void Editor::NotifyModified(Document *, const DocModification & rMh, void *)
 		if(rMh.linesAdded != 0) {
 			// Avoid scrolling of display if change before current display
 			if(rMh.position < posTopLine && !CanDeferToLastStep(rMh)) {
-				int newTop = Platform::Clamp(topLine + rMh.linesAdded, 0, MaxScrollPos());
+				int newTop = sclamp(topLine + rMh.linesAdded, 0, MaxScrollPos());
 				if(newTop != topLine) {
 					SetTopLine(newTop);
 					SetVerticalScrollPos();
@@ -2984,7 +3020,7 @@ void Editor::PageMove(int direction, Selection::selTypes selt, bool stuttered)
 	}
 	else {
 		const Point pt = LocationFromPosition(Sel.MainCaret());
-		topLineNew = Platform::Clamp(topLine + direction * LinesToScroll(), 0, MaxScrollPos());
+		topLineNew = sclamp(topLine + direction * LinesToScroll(), 0, MaxScrollPos());
 		pt__.y = pt.y + direction * (vs.lineHeight * LinesToScroll());
 		newPos = SPositionFromLocation(pt__, false, false, UserVirtualSpace());
 	}
@@ -5097,7 +5133,7 @@ int Editor::PositionAfterMaxStyling(int posMax, bool scrolling) const
 	// Try to keep time taken by styling reasonable so interaction remains smooth.
 	// When scrolling, allow less time to ensure responsive
 	const double secondsAllowed = scrolling ? 0.005 : 0.02;
-	const int linesToStyle = Platform::Clamp(static_cast<int>(secondsAllowed / pdoc->durationStyleOneLine), 10, 0x10000);
+	const int linesToStyle = sclamp(static_cast<int>(secondsAllowed / pdoc->durationStyleOneLine), 10, 0x10000);
 	const int stylingMaxLine = smin(static_cast<int>(pdoc->LineFromPosition(pdoc->GetEndStyled()) + linesToStyle), pdoc->LinesTotal());
 	return smin(static_cast<int>(pdoc->LineStart(stylingMaxLine)), posMax);
 }
@@ -5416,20 +5452,20 @@ void Editor::EnsureLineVisible(int lineDoc, bool enforcePolicy)
 		int lineDisplay = cs.DisplayFromDoc(lineDoc);
 		if(visiblePolicy & VISIBLE_SLOP) {
 			if((topLine > lineDisplay) || ((visiblePolicy & VISIBLE_STRICT) && (topLine + visibleSlop > lineDisplay))) {
-				SetTopLine(Platform::Clamp(lineDisplay - visibleSlop, 0, MaxScrollPos()));
+				SetTopLine(sclamp(lineDisplay - visibleSlop, 0, MaxScrollPos()));
 				SetVerticalScrollPos();
 				Redraw();
 			}
 			else if((lineDisplay > topLine + LinesOnScreen() - 1) ||
 			    ((visiblePolicy & VISIBLE_STRICT) && (lineDisplay > topLine + LinesOnScreen() - 1 - visibleSlop))) {
-				SetTopLine(Platform::Clamp(lineDisplay - LinesOnScreen() + 1 + visibleSlop, 0, MaxScrollPos()));
+				SetTopLine(sclamp(lineDisplay - LinesOnScreen() + 1 + visibleSlop, 0, MaxScrollPos()));
 				SetVerticalScrollPos();
 				Redraw();
 			}
 		}
 		else {
 			if((topLine > lineDisplay) || (lineDisplay > topLine + LinesOnScreen() - 1) || (visiblePolicy & VISIBLE_STRICT)) {
-				SetTopLine(Platform::Clamp(lineDisplay - LinesOnScreen() / 2 + 1, 0, MaxScrollPos()));
+				SetTopLine(sclamp(lineDisplay - LinesOnScreen() / 2 + 1, 0, MaxScrollPos()));
 				SetVerticalScrollPos();
 				Redraw();
 			}
@@ -5939,7 +5975,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETTAG: return GetTag(CharPtrFromSPtr(lParam), static_cast<int>(wParam));
 		case SCI_POSITIONBEFORE: return pdoc->MovePositionOutsideChar(static_cast<int>(wParam) - 1, -1, true);
 		case SCI_POSITIONAFTER: return pdoc->MovePositionOutsideChar(static_cast<int>(wParam) + 1, 1, true);
-		case SCI_POSITIONRELATIVE: return Platform::Clamp(pdoc->GetRelativePosition(static_cast<int>(wParam), static_cast<int>(lParam)), 0, pdoc->Length());
+		case SCI_POSITIONRELATIVE: return sclamp(pdoc->GetRelativePosition(static_cast<int>(wParam), static_cast<int>(lParam)), 0, pdoc->Length());
 		case SCI_LINESCROLL:
 		    ScrollTo(topLine + static_cast<int>(lParam));
 		    HorizontalScrollTo(xOffset + static_cast<int>(wParam)* static_cast<int>(vs.spaceWidth));

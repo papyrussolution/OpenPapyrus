@@ -1,5 +1,5 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -13,10 +13,6 @@ int FASTCALL IsComDvcSymb(const char * pSymb, int * pCount)
 	int    comdvcs = 0;
 	char   temp_buf[32];
 	if(pSymb) {
-		//long   s_com = 0x004D4F43L; // "COM"
-		//long   s_lpt = 0x0054504CL; // "LPT"
-		//long   s_prn = 0x004E5250L; // "PRN"
-		//long   s_con = 0x004E4F43L; // "CON"
 		memzero(temp_buf, sizeof(temp_buf));
 		if(sstreqi_ascii(pSymb, "PRN"))
 			comdvcs = comdvcsPrn;
@@ -43,10 +39,6 @@ int FASTCALL IsComDvcSymb(const char * pSymb, int * pCount)
 
 SString & SLAPI GetComDvcSymb(int comdvcs, int count, int option, SString & rBuf)
 {
-	//const long   s_com = 0x004D4F43L; // "COM"
-	//const long   s_lpt = 0x0054504CL; // "LPT"
-	//const long   s_prn = 0x004E5250L; // "PRN"
-	//const long   s_con = 0x004E4F43L; // "CON"
 	rBuf.Z();
 	if(option & 0x0001)
 		rBuf.CatCharN('\\', 2).Dot().CatChar('\\');
@@ -334,8 +326,8 @@ int FASTCALL SCommPort::PutChr(int c)
 {
 	char   buf[8];
 	DWORD  sz = 1;
+	PTR32(buf)[0] = 0;
 	buf[0] = c;
-	buf[1] = 0;
 	return (H_Port != INVALID_HANDLE_VALUE && ::WriteFile(H_Port, buf, sz, &sz, 0) && sz == 1) ? 1 : (SLibError = SLERR_COMMSEND, 0);
 }
 

@@ -232,8 +232,8 @@ void FASTCALL memswap(void * p1, void * p2, size_t size)
 				const size_t s4 = size / 4; // size >> 2
 				const size_t m4 = size % 4; // size &= 3
 				if(s4) {
-					uint32 * p321 = (uint32 *)p1;
-					uint32 * p322 = (uint32 *)p2;
+					uint32 * p321 = static_cast<uint32 *>(p1);
+					uint32 * p322 = static_cast<uint32 *>(p2);
 					for(size_t i = 0; i < s4; i++) {
 						const uint32 t32 = *p321;
 						*p321++ = *p322;
@@ -241,8 +241,8 @@ void FASTCALL memswap(void * p1, void * p2, size_t size)
 					}
 				}
 				if(m4) {
-					uint8 * p81 = (uint8 *)(PTR32(p1)+s4);
-					uint8 * p82 = (uint8 *)(PTR32(p2)+s4);
+					uint8 * p81 = reinterpret_cast<uint8 *>(PTR32(p1)+s4);
+					uint8 * p82 = reinterpret_cast<uint8 *>(PTR32(p2)+s4);
 					for(size_t i = 0; i < m4; i++) {
 						const uint8 t8 = *p81;
 						*p81++ = *p82;

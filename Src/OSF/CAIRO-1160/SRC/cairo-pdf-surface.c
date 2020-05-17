@@ -3981,7 +3981,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_mesh_pattern(cairo_pdf_surface
 
 	cairo_matrix_multiply(&pat_to_pdf, &pat_to_pdf, &mat);
 
-	status = _cairo_pdf_shading_init_color(&shading, (cairo_mesh_pattern_t*)pattern);
+	status = _cairo_pdf_shading_init_color(&shading, reinterpret_cast<cairo_mesh_pattern_t *>(pattern));
 	if(unlikely(status))
 		return status;
 
@@ -4044,7 +4044,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_mesh_pattern(cairo_pdf_surface
 		if(unlikely(res.id == 0))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 
-		status = _cairo_pdf_shading_init_alpha(&shading, (cairo_mesh_pattern_t*)pattern);
+		status = _cairo_pdf_shading_init_alpha(&shading, reinterpret_cast<cairo_mesh_pattern_t *>(pattern));
 		if(unlikely(status))
 			return status;
 

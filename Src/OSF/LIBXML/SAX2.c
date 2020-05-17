@@ -42,14 +42,14 @@ static void FASTCALL xmlSAX2ErrMemory(xmlParserCtxt * ctxt, const char * msg)
 		if(ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC))
 			schannel = ctxt->sax->serror;
 		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY,
-		    XML_ERR_ERROR, NULL, 0, (const char *)str1, NULL, NULL, 0, 0, msg, (const char *)str1, 0);
+		    XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), NULL, NULL, 0, 0, msg, PTRCHRC_(str1), 0);
 		ctxt->errNo = XML_ERR_NO_MEMORY;
 		ctxt->instate = XML_PARSER_EOF;
 		ctxt->disableSAX = 1;
 	}
 	else {
-		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, (const char *)str1,
-		    NULL, NULL, 0, 0, msg, (const char *)str1, 0);
+		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1),
+		    NULL, NULL, 0, 0, msg, PTRCHRC_(str1), 0);
 	}
 }
 /**
@@ -72,12 +72,12 @@ static void FASTCALL xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, co
 		if(ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC))
 			schannel = ctxt->sax->serror;
 		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_DTD, error,
-		    XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, (const char *)str1, (const char *)str2);
+		    XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
 		ctxt->valid = 0;
 	}
 	else {
 		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_DTD, error,
-		    XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, (const char *)str1, (const char *)str2);
+		    XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
 	}
 }
 
@@ -97,7 +97,7 @@ static void FASTCALL xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error,
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 	if(ctxt) {
 		ctxt->wellFormed = 0;
 		ctxt->valid = 0;
@@ -121,7 +121,7 @@ static void xmlWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char *
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, (const char *)str1, NULL, NULL, 0, 0, msg, str1);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), NULL, NULL, 0, 0, msg, str1);
 }
 /**
  * xmlNsErrMsg:
@@ -139,7 +139,7 @@ static void FASTCALL xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, co
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
 
 /**
@@ -157,7 +157,7 @@ static void FASTCALL xmlNsWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, c
 		return;
 	if(ctxt)
 		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_WARNING, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, str1, str2);
+	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
 /**
  * xmlSAX2GetPublicId:

@@ -24,7 +24,7 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 		wc.style = CS_HREDRAW|CS_VREDRAW;
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
 		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
-		::RegisterClassEx(&wc); // @unicodeproblem
+		::RegisterClassEx(&wc);
 	}
 	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, 0, TProgram::GetInst(), 0); // @unicodeproblem
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
@@ -80,15 +80,10 @@ LRESULT TToolbar::OnSize(WPARAM wParam, LPARAM lParam)
 		switch(CurrPos) {
 			case TOOLBAR_ON_BOTTOM:
 			case TOOLBAR_ON_TOP:
-			case TOOLBAR_ON_FREE:
-				::MoveWindow(H_Toolbar, 9, -1, LOWORD(lParam)-9, HIWORD(lParam), 1);
-				break;
+			case TOOLBAR_ON_FREE: ::MoveWindow(H_Toolbar, 9, -1, LOWORD(lParam)-9, HIWORD(lParam), 1); break;
 			case TOOLBAR_ON_RIGHT:
-			case TOOLBAR_ON_LEFT:
-				::MoveWindow(H_Toolbar, 0, 8, LOWORD(lParam), HIWORD(lParam)-9, 1);
-				break;
-			default:
-				::MoveWindow(H_Toolbar, 0, -1, LOWORD(lParam), HIWORD(lParam), 1);
+			case TOOLBAR_ON_LEFT: ::MoveWindow(H_Toolbar, 0,  8, LOWORD(lParam), HIWORD(lParam)-9, 1); break;
+			default:              ::MoveWindow(H_Toolbar, 0, -1, LOWORD(lParam), HIWORD(lParam), 1); break;
 		}
 	return 0;
 }
@@ -102,24 +97,14 @@ LRESULT TToolbar::OnMainSize(int rightSpace/*=0*/)
 		if(H_MainWnd == APPL->H_MainWnd)
 			APPL->GetStatusBarRect(&status_rect);
 		client_rect.bottom -= status_rect.bottom - status_rect.top;
-		/*
-		switch(CurrPos) {
-			case TOOLBAR_ON_BOTTOM:
-				MoveWindow(H_Wnd, 0, client_rect.bottom-Height, client_rect.right, Height, 1);
-				break;
-			case TOOLBAR_ON_TOP:
-				MoveWindow(H_Wnd, 0, 0, client_rect.right, Height, 1);
-				break;
-			case TOOLBAR_ON_RIGHT:
-				MoveWindow(H_Wnd, client_rect.right-Width-4, 0, Width+4, client_rect.bottom, 1);
-				break;
-			case TOOLBAR_ON_LEFT:
-				MoveWindow(H_Wnd, 0, 0, Width+4, client_rect.bottom, 1);
-				break;
-		}
-		*/
+		/* switch(CurrPos) {
+			case TOOLBAR_ON_BOTTOM: MoveWindow(H_Wnd, 0, client_rect.bottom-Height, client_rect.right, Height, 1); break;
+			case TOOLBAR_ON_TOP: MoveWindow(H_Wnd, 0, 0, client_rect.right, Height, 1); break;
+			case TOOLBAR_ON_RIGHT: MoveWindow(H_Wnd, client_rect.right-Width-4, 0, Width+4, client_rect.bottom, 1); break;
+			case TOOLBAR_ON_LEFT: MoveWindow(H_Wnd, 0, 0, Width+4, client_rect.bottom, 1); break;
+		} */
 		client_rect.right -= rightSpace;
-		if(CurrPos == TOOLBAR_ON_TOP || CurrPos == TOOLBAR_ON_BOTTOM) {
+		if(oneof2(CurrPos, TOOLBAR_ON_TOP, TOOLBAR_ON_BOTTOM)) {
 			DWORD r = static_cast<DWORD>(::SendMessage(H_Toolbar, TB_GETROWS, 0, 0));
 			if(CurrPos == TOOLBAR_ON_BOTTOM)
 				client_rect.top = client_rect.bottom-Height*r;

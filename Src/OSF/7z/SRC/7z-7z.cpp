@@ -1932,7 +1932,7 @@ namespace NArchive {
 			wchar_t * s = path.GetBuf((uint)size - 1);
 			const Byte * p = ((const Byte *)NamesBuf + offset * 2);
 		  #if defined(_WIN32) && defined(MY_CPU_LE)
-			wmemcpy(s, (const wchar_t*)p, size);
+			wmemcpy(s, (const wchar_t *)p, size);
 		  #else
 			for(size_t i = 0; i < size; i++) {
 				*s = Get16(p);
@@ -7339,7 +7339,7 @@ namespace NArchive {
 			UString s2 = s;
 			s2.MakeLower_Ascii();
 			for(uint i = 0; i < s2.Len(); ) {
-				const wchar_t * start = ((const wchar_t*)s2) + i;
+				const wchar_t * start = ((const wchar_t *)s2) + i;
 				const wchar_t * end;
 				uint64 v = ConvertStringToUInt64(start, &end);
 				if(start == end) {

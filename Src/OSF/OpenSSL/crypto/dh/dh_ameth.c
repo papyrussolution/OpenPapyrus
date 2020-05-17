@@ -592,7 +592,7 @@ static int dh_cms_set_shared_info(EVP_PKEY_CTX * pctx, CMS_RecipientInfo * ri)
 		goto err;
 	if(ukm) {
 		dukmlen = ASN1_STRING_length(ukm);
-		dukm = (uchar *)OPENSSL_memdup(ASN1_STRING_get0_data(ukm), dukmlen);
+		dukm = static_cast<uchar *>(OPENSSL_memdup(ASN1_STRING_get0_data(ukm), dukmlen));
 		if(!dukm)
 			goto err;
 	}

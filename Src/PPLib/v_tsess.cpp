@@ -157,7 +157,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	p_filt = static_cast<TSessionFilt *>(pBaseFilt);
 	dlg_id = (p_filt->Flags & TSessionFilt::fManufPlan) ? DLG_TSESSPLANFILT : DLG_TSESSFILT;
 	THROW(CheckDialogPtr(&(dlg = new TSessFiltDialog(dlg_id))));
-	MEMSZERO(ptcg_rec);
+	// @v10.7.8 @ctr MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = p_filt->PrcID;
 	if(p_filt->Flags & TSessionFilt::fManufPlan) {
 		//SetupPPObjCombo(dlg, CTLSEL_TSESSFILT_PRC, PPOBJ_PROCESSOR, p_filt->PrcID, 0, PRCEXDF_GROUP);
@@ -1690,7 +1690,7 @@ int SLAPI PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 				TGSArray tgs_list;
 				TSessionTbl::Rec tses_rec;
 				ProcessorTbl::Rec prc_rec;
-				MEMSZERO(prc_rec);
+				// @v10.7.8 @ctr MEMSZERO(prc_rec);
 				if(TSesObj.Search(tsesID, &tses_rec) > 0) {
 					if(TSesObj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0)
 						dlg->setLocation(prc_rec.LocID);

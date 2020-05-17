@@ -2019,8 +2019,8 @@ bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
 			return false;
 		else if(len) {
             for(size_t i = 0; i < len; i++) {
-				/*char*/uint c1 = P_Buf[i];
-				/*char*/uint c2 = pS[i];
+				uint c1 = P_Buf[i];
+				uint c2 = pS[i];
 				if(c1 != c2) {
 					if(c1 >= 'A' && c1 <= 'Z')
 						c1 += ('a' - 'A');
@@ -2056,6 +2056,40 @@ int FASTCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
 		return ignoreCase ? strnicmp866(P_Buf, pS, len) : strncmp(P_Buf, pS, len);
 	else
 		return -1;
+}
+
+int FASTCALL SString::HasPrefix(const char * pS) const
+{
+	const size_t len = sstrlen(pS);
+	return (len && Len() >= len) ? BIN(strncmp(P_Buf, pS, len) == 0) : 0;
+}
+
+int FASTCALL SString::HasPrefixNC(const char * pS) const
+{
+	const size_t len = sstrlen(pS);
+	return (len && Len() >= len) ? BIN(strnicmp866(P_Buf, pS, len) == 0) : 0;
+}
+
+int FASTCALL SString::HasPrefixIAscii(const char * pS) const
+{
+	const size_t len = sstrlen(pS);
+	if(len && Len() >= len) {
+        for(size_t i = 0; i < len; i++) {
+			uint c1 = P_Buf[i];
+			uint c2 = pS[i];
+			if(c1 != c2) {
+				if(c1 >= 'A' && c1 <= 'Z')
+					c1 += ('a' - 'A');
+				if(c2 >= 'A' && c2 <= 'Z')
+					c2 += ('a' - 'A');
+				if(c1 != c2)
+					return 0;
+			}
+        }
+		return 1;
+	}
+	else
+		return 0;
 }
 
 int FASTCALL SString::CmpL(const char * pS, int ignoreCase) const
@@ -7301,6 +7335,49 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLTEST_CHECK_Z(sstreqi_ascii("string", "string "));
 		}
 		//
+		// Тестирование функций HasPrefix() и CmpPrefix()
+		//
+		{
+			SString text;
+			SString prefix;
+			text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+			SLTEST_CHECK_NZ(text.HasPrefix("A"));
+			SLTEST_CHECK_NZ(text.HasPrefix("ABC"));
+			SLTEST_CHECK_NZ(text.HasPrefix("ABCD"));
+			SLTEST_CHECK_Z(text.HasPrefix("a"));
+			SLTEST_CHECK_Z(text.HasPrefix("abc"));
+			SLTEST_CHECK_Z(text.HasPrefix("aBcd"));
+			SLTEST_CHECK_NZ(text.HasPrefixNC("A"));
+			SLTEST_CHECK_NZ(text.HasPrefixNC("ABC"));
+			SLTEST_CHECK_NZ(text.HasPrefixNC("ABCD"));
+			SLTEST_CHECK_NZ(text.HasPrefixNC("a"));
+			SLTEST_CHECK_NZ(text.HasPrefixNC("AbC"));
+			SLTEST_CHECK_NZ(text.HasPrefixNC("AbCd"));
+			SLTEST_CHECK_Z(text.HasPrefixNC("QUQU"));
+			SLTEST_CHECK_NZ(text.HasPrefixIAscii("A"));
+			SLTEST_CHECK_NZ(text.HasPrefixIAscii("ABC"));
+			SLTEST_CHECK_NZ(text.HasPrefixIAscii("ABCD"));
+			SLTEST_CHECK_NZ(text.HasPrefixIAscii("a"));
+			SLTEST_CHECK_NZ(text.HasPrefixIAscii("AbC"));
+			SLTEST_CHECK_NZ(text.HasPrefixIAscii("AbCd"));
+
+			(text = "На дворе трава на траве дрова").Transf(CTRANSF_UTF8_TO_INNER);
+			SLTEST_CHECK_NZ(text.HasPrefix((prefix = "Н").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_NZ(text.HasPrefix((prefix = "На дворе").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_NZ(text.HasPrefix((prefix = "На дворе трава").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefix((prefix = "дрова").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefix((prefix = "НА ДВОРЕ ТРАВА").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_NZ(text.HasPrefixNC((prefix = "н").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_NZ(text.HasPrefixNC((prefix = "На дВоре").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_NZ(text.HasPrefixNC((prefix = "На дворе трАва").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_NZ(text.HasPrefixNC((prefix = "НА ДВОРЕ ТРАВА").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefixNC((prefix = "ДРОВА").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefixIAscii((prefix = "н").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefixIAscii((prefix = "На дВоре").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefixIAscii((prefix = "На дворе трАва").Transf(CTRANSF_UTF8_TO_INNER)));
+			SLTEST_CHECK_Z(text.HasPrefixIAscii((prefix = "НА ДВОРЕ ТРАВА").Transf(CTRANSF_UTF8_TO_INNER)));
+		}
+		//
 		// Тестирование функции CopyTo
 		//
 		{
@@ -7321,21 +7398,24 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 			for(uint tl = 1; tl <= sizeof(buffer); tl++) {
 				str.CopyTo(buffer, tl);
-				if(tl > 1)
+				if(tl > 1) {
 					SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
+					SLTEST_CHECK_NZ(str.HasPrefix(buffer)); // @v10.7.8
+				}
 				{
 					const size_t real_data_len = MIN(tl, str.Len()+1);
 					SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, real_data_len-1));
-					SLTEST_CHECK_EQ((uint8)buffer[real_data_len-1], (uint8)0);
+					SLTEST_CHECK_EQ((uint8)buffer[real_data_len-1], static_cast<uint8>(0));
 					SLTEST_CHECK_Z(memcmp(buffer+real_data_len, preserve_buffer+real_data_len, sizeof(buffer)-real_data_len));
 				}
 			}
 			{
 				str.CopyTo(buffer, 0);
 				SLTEST_CHECK_Z(str.CmpPrefix(buffer, 0));
+				SLTEST_CHECK_NZ(str.HasPrefix(buffer));
 				SLTEST_CHECK_Z(memcmp(str.cptr(), buffer, str.Len()));
 				SLTEST_CHECK_EQ(strlen(buffer), str.Len());
-				SLTEST_CHECK_EQ((uint8)buffer[str.Len()], (uint8)0);
+				SLTEST_CHECK_EQ((uint8)buffer[str.Len()], static_cast<uint8>(0));
 				SLTEST_CHECK_Z(memcmp(buffer+str.Len()+1, preserve_buffer+str.Len()+1, sizeof(buffer)-str.Len()-1));
 			}
 		}

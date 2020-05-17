@@ -170,14 +170,11 @@ static inline pixman_bool_t clip_general_image(pixman_region32_t * region, pixma
 	else {
 		if(dx || dy)
 			pixman_region32_translate(region, -dx, -dy);
-
 		if(!pixman_region32_intersect(region, region, clip))
 			return FALSE;
-
 		if(dx || dy)
 			pixman_region32_translate(region, dx, dy);
 	}
-
 	return pixman_region32_not_empty(region);
 }
 

@@ -5718,7 +5718,7 @@ namespace NArchive {
 					{
 						UString s = NItemName::WinPathToOsPath(_archive.GetReducedName(index));
 						if(!s.IsEmpty())
-							prop = (const wchar_t*)s;
+							prop = (const wchar_t *)s;
 						break;
 					}
 					case kpidSize:

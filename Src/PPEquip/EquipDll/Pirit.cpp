@@ -136,6 +136,7 @@ struct CheckStruct {
 		ChZnCode.Z(); // @v10.6.12
 		ChZnGTIN.Z(); // @v10.7.2
 		ChZnSerial.Z(); // @v10.7.2
+		ChZnPartN.Z(); // @v10.7.8
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
@@ -165,6 +166,7 @@ struct CheckStruct {
 	SString ChZnCode; // @v10.6.12
 	SString ChZnGTIN; // @v10.7.2
 	SString ChZnSerial; // @v10.7.2
+	SString ChZnPartN;  // @v10.7.8
 	int    ChZnProdType; // @v10.7.2
 	double PaymCash;
 	double PaymBank;
@@ -578,7 +580,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 	SString cmd;
 	SString temp_buf;
 	if(sstreqi_ascii(pCmd, "CONTINUEPRINT")) {
-		if((LastCmd.CmpNC("PRINTFISCAL") != 0) && (LastCmd.CmpNC("PRINTTEXT") != 0)) { // new
+		if(!LastCmd.IsEqiAscii("PRINTFISCAL") && !LastCmd.IsEqiAscii("PRINTTEXT")) { // new
 			cmd = LastCmd;
 			temp_buf = LastParams;
 			LastCmd.Z();
@@ -1000,6 +1002,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.ChZnGTIN = param_val;
 				else if(s_param == "CHZNSERIAL") // @v10.7.2
 					Check.ChZnSerial = param_val;
+				else if(s_param == "CHZNPARTN") // @v10.7.8
+					Check.ChZnPartN = param_val;
 				else if(s_param == "CHZNPRODTYPE") // @v10.7.2
 					Check.ChZnProdType = param_val.ToLong();
 				else if(s_param == "VATRATE") { // @v9.7.1
@@ -1836,8 +1840,9 @@ int PiritEquip::RunCheck(int opertype)
 					5 	Комиссионер
 					6 	Агент
 			*/
+			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up) 
 			// @v10.6.12 @construction {
-			if(Check.ChZnProdType && Check.ChZnGTIN.NotEmpty() && Check.ChZnSerial.NotEmpty()/*Check.ChZnCode.NotEmpty()*/) {
+			if(Check.ChZnProdType && Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())/*Check.ChZnCode.NotEmpty()*/) {
 				in_data.Z();
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
@@ -1849,7 +1854,9 @@ int PiritEquip::RunCheck(int opertype)
 					product_type_bytes = 0x1520;
 				else if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
 					product_type_bytes = 0x0003;
-				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, Check.ChZnSerial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
+				//const char * p_serial = Check.ChZnPartN.NotEmpty() ? Check.ChZnPartN.cptr() : Check.ChZnSerial.cptr(); // @v10.7.8
+				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
+				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 				if(rl > 0) {
 					str.Z();
 					for(int si = 0; si < rl; si++) {
@@ -1877,8 +1884,8 @@ int PiritEquip::RunCheck(int opertype)
 				}
 			}
 			// } @v10.6.12 
+			// @v10.7.9 (moved up) THROW(GetCurFlags(3, flag));
 			in_data.Z();
-			THROW(GetCurFlags(3, flag));
 			(str = Check.Text).Trim(220); // [0..224]
 			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
 			(str = Check.Code).Trim(13); // [0..18]
@@ -2273,6 +2280,9 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 
 int PiritEquip::PutData(const char * pCommand, const char * pData)
 {
+	// 01189011480055911722090010B90206621B2K662Y1M301
+	// \x2PIRI124$00$03$11$30$c4$36$74$d7B2K662Y1M301\x1c\x3360\x10
+	// \x2PIRI!00\x320
 	int    ok = 1;
 	int    crc = 0;
 	char   buf[2];
@@ -2297,12 +2307,34 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 		buf[0] = '0';
 	}
 	// Отправляем пакет на ККМ
-	THROW(CommPort.PutChr(STX));
-	for(p = 0; p < r_pack.Len(); p++)
-		THROW(CommPort.PutChr(r_pack.C(p)));
-	THROW(CommPort.PutChr(ETX));
-	THROW(CommPort.PutChr(buf[0]));
-	THROW(CommPort.PutChr(buf[1]));
+	const int fill_debug_buffer = 1;
+	char   debug_packet[1024];
+	size_t debug_packet_pos = 0;
+	if(fill_debug_buffer) {
+		// блок для отладки
+		memzero(debug_packet, sizeof(debug_packet));
+		THROW(CommPort.PutChr(STX));
+		debug_packet[debug_packet_pos++] = STX;
+		for(p = 0; p < r_pack.Len(); p++) {
+			const char v = r_pack.C(p);
+			THROW(CommPort.PutChr(v));
+			debug_packet[debug_packet_pos++] = v;
+		}
+		THROW(CommPort.PutChr(ETX));
+		debug_packet[debug_packet_pos++] = ETX;
+		THROW(CommPort.PutChr(buf[0]));
+		debug_packet[debug_packet_pos++] = buf[0];
+		THROW(CommPort.PutChr(buf[1]));
+		debug_packet[debug_packet_pos++] = buf[1];
+	}
+	else {
+		THROW(CommPort.PutChr(STX));
+		for(p = 0; p < r_pack.Len(); p++)
+			THROW(CommPort.PutChr(r_pack.C(p)));
+		THROW(CommPort.PutChr(ETX));
+		THROW(CommPort.PutChr(buf[0]));
+		THROW(CommPort.PutChr(buf[1]));
+	}
 	CATCHZOK
 	return ok;
 }

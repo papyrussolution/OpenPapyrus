@@ -992,7 +992,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 				// Добавляем в список товаров группы, принадлежащие группе pFilt->GoodsGrpID
 				// (к ним тоже могут быть привязаны котировки).
 				//
-				StrAssocArray * p_list = gg_obj.MakeStrAssocList((void *)filt_group_id);
+				StrAssocArray * p_list = gg_obj.MakeStrAssocList(reinterpret_cast<void *>(filt_group_id));
 				if(p_list) {
 					PPIDArray grp_list;
 					p_list->GetListByParent(filt_group_id, 1, grp_list);

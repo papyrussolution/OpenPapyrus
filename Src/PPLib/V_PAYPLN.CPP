@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -63,17 +63,16 @@ struct IterProcParam_ProcessPeriod {
 int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPtr)
 {
 	int    ok = 1;
-	ArticleTbl::Rec ar_rec;
 	IterProcParam_ProcessPeriod * p = static_cast<IterProcParam_ProcessPeriod *>(extraPtr);
 	PPViewPaymPlan * p_v = p->P_V;
 	BillTbl::Rec bill_rec;
 	if(p->P_Cntr)
 		PPWaitPercent(p->P_Cntr->Increment());
 	if(p_v->P_BObj->Search(pRec->BillID, &bill_rec) > 0) {
-		MEMSZERO(ar_rec);
 		if(!p_v->Filt.LocList.CheckID(bill_rec.LocID))
 			return 1;
 		else if(!p_v->Filt.ObjectID) {
+			ArticleTbl::Rec ar_rec;
 			if(p_v->ArObj.Fetch(bill_rec.Object, &ar_rec) > 0)
 				if(ar_rec.AccSheetID != p_v->Filt.AccSheetID)
 					return 1;
@@ -126,7 +125,7 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 		if(debt > 0.0) {
 			TempPaymPlanTbl::Rec rec;
 			TempPaymPlanTbl::Key0 pk0;
-			MEMSZERO(rec);
+			// @v10.7.8 @ctr MEMSZERO(rec);
 			rec.Dt     = p->Period.low;
 			rec.PayPlanDt = pRec->PayDate;
 			rec.BillID = 0;
@@ -140,7 +139,6 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 						dlvr_loc_id = freight.DlvrAddrID;
 					else
 						MEMSZERO(freight);
-
 					if(p_v->Filt.Sgp == sgpBillAgent) {
 						PPBillExt billext_rec;
 						if(p_v->P_BObj->FetchExt(bill_rec.ID, &billext_rec) > 0 && billext_rec.AgentID)
@@ -425,92 +423,85 @@ int SLAPI PPViewPaymPlan::ViewTotal()
 	return ok;
 }
 
-#define GRP_CYCLE 1
-#define GRP_LOC   2
-
-class PaymPlanFiltDialog : public WLDialog {
-public:
-	PaymPlanFiltDialog() : WLDialog(DLG_PAYPLANFLT, CTL_PAYPLANFLT_LABEL)
-	{
-		CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_PAYPLANFLT_CYCLE, CTL_PAYPLANFLT_NUMCYCLES, CTL_PAYPLANFLT_PERIOD);
-		addGroup(GRP_CYCLE, grp);
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PAYPLANFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
-		SetupCalPeriod(CTLCAL_PAYPLANFLT_PERIOD, CTL_PAYPLANFLT_PERIOD);
-	}
-	int    setDTS(const PaymPlanFilt *);
-	int    getDTS(PaymPlanFilt *);
-private:
-	DECL_HANDLE_EVENT;
-
-	PaymPlanFilt Data;
-};
-
-IMPL_HANDLE_EVENT(PaymPlanFiltDialog)
-{
-	WLDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_PAYPLANFLT_SHEET)) {
-		Data.AccSheetID = getCtrlLong(CTLSEL_PAYPLANFLT_SHEET);
-		SetupArCombo(this, CTLSEL_PAYPLANFLT_OBJECT, 0, OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
-		clearEvent(event);
-	}
-	else if(event.isClusterClk(CTL_PAYPLANFLT_FLAGS)) {
-		GetClusterData(CTL_PAYPLANFLT_FLAGS, &Data.Flags);
-		disableCtrl(CTLSEL_PAYPLANFLT_SGP, !(Data.Flags & PaymPlanFilt::fDetail));
-	}
-}
-
-int PaymPlanFiltDialog::setDTS(const PaymPlanFilt * pData)
-{
-	Data = *pData;
-	CycleCtrlGroup::Rec cycle_rec;
-	SETIFZ(Data.AccSheetID, GetSellAccSheet());
-	SetPeriodInput(this, CTL_PAYPLANFLT_PERIOD, &Data.Period);
-	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &loc_rec);
-	SetupPPObjCombo(this, CTLSEL_PAYPLANFLT_SHEET, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
-	SetupArCombo(this, CTLSEL_PAYPLANFLT_OBJECT, Data.ObjectID, OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
-	SetupArCombo(this, CTLSEL_PAYPLANFLT_AGENT,  Data.AgentID,  OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
-	cycle_rec.C = Data.Cycl;
-	setGroupData(GRP_CYCLE, &cycle_rec);
-	AddClusterAssoc(CTL_PAYPLANFLT_FLAGS, 0, PaymPlanFilt::fCurrentDebt);
-	AddClusterAssoc(CTL_PAYPLANFLT_FLAGS, 1, PaymPlanFilt::fDetail);
-	AddClusterAssoc(CTL_PAYPLANFLT_FLAGS, 2, PaymPlanFilt::fCrosstab);
-	SetClusterData(CTL_PAYPLANFLT_FLAGS, Data.Flags);
-	SetupSubstPersonCombo(this, CTLSEL_PAYPLANFLT_SGP, Data.Sgp);
-	disableCtrl(CTLSEL_PAYPLANFLT_SGP, !(Data.Flags & PaymPlanFilt::fDetail));
-	setWL(BIN(Data.Flags & PaymPlanFilt::fLabelOnly));
-	return 1;
-}
-
-int PaymPlanFiltDialog::getDTS(PaymPlanFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	CycleCtrlGroup::Rec cycle_rec;
-	LocationCtrlGroup::Rec loc_rec;
-	getGroupData(GRP_LOC, &loc_rec);
-	Data.LocList = loc_rec.LocList;
-	THROW(GetPeriodInput(this, sel = CTL_PAYPLANFLT_PERIOD, &Data.Period));
-	getCtrlData(sel = CTLSEL_PAYPLANFLT_SHEET, &Data.AccSheetID);
-	THROW_PP(Data.AccSheetID, PPERR_ACCSHEETNEEDED);
-	getCtrlData(CTLSEL_PAYPLANFLT_OBJECT, &Data.ObjectID);
-	getCtrlData(CTLSEL_PAYPLANFLT_AGENT,  &Data.AgentID);
-	getGroupData(GRP_CYCLE, &cycle_rec);
-	Data.Cycl = cycle_rec.C;
-	GetClusterData(CTL_PAYPLANFLT_FLAGS, &Data.Flags);
-	if(Data.Flags & PaymPlanFilt::fDetail) {
-		getCtrlData(CTLSEL_PAYPLANFLT_SGP, &Data.Sgp);
-	}
-	else
-		Data.Sgp = sgpNone;
-	SETFLAG(Data.Flags, PaymPlanFilt::fLabelOnly, getWL());
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 int SLAPI PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
+	class PaymPlanFiltDialog : public WLDialog {
+		DECL_DIALOG_DATA(PaymPlanFilt);
+		enum {
+			ctlgroupCycle = 1,
+			ctlgroupLoc   = 2
+		};
+	public:
+		PaymPlanFiltDialog() : WLDialog(DLG_PAYPLANFLT, CTL_PAYPLANFLT_LABEL)
+		{
+			CycleCtrlGroup * grp = new CycleCtrlGroup(CTLSEL_PAYPLANFLT_CYCLE, CTL_PAYPLANFLT_NUMCYCLES, CTL_PAYPLANFLT_PERIOD);
+			addGroup(ctlgroupCycle, grp);
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PAYPLANFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+			SetupCalPeriod(CTLCAL_PAYPLANFLT_PERIOD, CTL_PAYPLANFLT_PERIOD);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			CycleCtrlGroup::Rec cycle_rec;
+			SETIFZ(Data.AccSheetID, GetSellAccSheet());
+			SetPeriodInput(this, CTL_PAYPLANFLT_PERIOD, &Data.Period);
+			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
+			setGroupData(ctlgroupLoc, &loc_rec);
+			SetupPPObjCombo(this, CTLSEL_PAYPLANFLT_SHEET, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
+			SetupArCombo(this, CTLSEL_PAYPLANFLT_OBJECT, Data.ObjectID, OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_PAYPLANFLT_AGENT,  Data.AgentID,  OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
+			cycle_rec.C = Data.Cycl;
+			setGroupData(ctlgroupCycle, &cycle_rec);
+			AddClusterAssoc(CTL_PAYPLANFLT_FLAGS, 0, PaymPlanFilt::fCurrentDebt);
+			AddClusterAssoc(CTL_PAYPLANFLT_FLAGS, 1, PaymPlanFilt::fDetail);
+			AddClusterAssoc(CTL_PAYPLANFLT_FLAGS, 2, PaymPlanFilt::fCrosstab);
+			SetClusterData(CTL_PAYPLANFLT_FLAGS, Data.Flags);
+			SetupSubstPersonCombo(this, CTLSEL_PAYPLANFLT_SGP, Data.Sgp);
+			disableCtrl(CTLSEL_PAYPLANFLT_SGP, !(Data.Flags & PaymPlanFilt::fDetail));
+			setWL(BIN(Data.Flags & PaymPlanFilt::fLabelOnly));
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			CycleCtrlGroup::Rec cycle_rec;
+			LocationCtrlGroup::Rec loc_rec;
+			getGroupData(ctlgroupLoc, &loc_rec);
+			Data.LocList = loc_rec.LocList;
+			THROW(GetPeriodInput(this, sel = CTL_PAYPLANFLT_PERIOD, &Data.Period));
+			getCtrlData(sel = CTLSEL_PAYPLANFLT_SHEET, &Data.AccSheetID);
+			THROW_PP(Data.AccSheetID, PPERR_ACCSHEETNEEDED);
+			getCtrlData(CTLSEL_PAYPLANFLT_OBJECT, &Data.ObjectID);
+			getCtrlData(CTLSEL_PAYPLANFLT_AGENT,  &Data.AgentID);
+			getGroupData(ctlgroupCycle, &cycle_rec);
+			Data.Cycl = cycle_rec.C;
+			GetClusterData(CTL_PAYPLANFLT_FLAGS, &Data.Flags);
+			if(Data.Flags & PaymPlanFilt::fDetail) {
+				getCtrlData(CTLSEL_PAYPLANFLT_SGP, &Data.Sgp);
+			}
+			else
+				Data.Sgp = sgpNone;
+			SETFLAG(Data.Flags, PaymPlanFilt::fLabelOnly, getWL());
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			WLDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_PAYPLANFLT_SHEET)) {
+				Data.AccSheetID = getCtrlLong(CTLSEL_PAYPLANFLT_SHEET);
+				SetupArCombo(this, CTLSEL_PAYPLANFLT_OBJECT, 0, OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
+				clearEvent(event);
+			}
+			else if(event.isClusterClk(CTL_PAYPLANFLT_FLAGS)) {
+				GetClusterData(CTL_PAYPLANFLT_FLAGS, &Data.Flags);
+				disableCtrl(CTLSEL_PAYPLANFLT_SGP, !(Data.Flags & PaymPlanFilt::fDetail));
+			}
+		}
+	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	PaymPlanFilt * p_filt = static_cast<PaymPlanFilt *>(pBaseFilt);

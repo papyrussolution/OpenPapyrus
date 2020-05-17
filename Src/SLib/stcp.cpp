@@ -956,7 +956,7 @@ int SLAPI SMailMessage::IsFieldHeader(const SString & rLineBuf, const char * pHe
 {
 	rValue.Z();
 	size_t hl = sstrlen(pHeader);
-	if(hl && rLineBuf.CmpPrefix(pHeader, 1) == 0) {
+	if(hl && rLineBuf.HasPrefixNC(pHeader)) {
 		if(rLineBuf[hl] == ':') {
 			hl++;
 			while(rLineBuf[hl] == ' ')
@@ -1222,7 +1222,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::Helper_SearchBoundary(const SString
 	Boundary * p_result = 0;
 	if(pParent) {
 		SString boundary_ident;
-		if(pParent->Ct.BoundaryP && GetS(pParent->Ct.BoundaryP, boundary_ident) > 0 && rIdent.CmpPrefix(boundary_ident, 1) == 0) {
+		if(pParent->Ct.BoundaryP && GetS(pParent->Ct.BoundaryP, boundary_ident) > 0 && rIdent.HasPrefixNC(boundary_ident)) {
 			p_result = pParent;
 		}
 		else {
@@ -2302,7 +2302,7 @@ int FASTCALL SHttpProtocol::ParseAuth(const char * pAuthParam, SHttpProtocol::Au
 	SString temp_buf = pAuthParam;
 	if(temp_buf.NotEmptyS()) {
 		const char * p_basic_prefix = "Basic";
-		if(temp_buf.CmpPrefix(p_basic_prefix, 1) == 0) {
+		if(temp_buf.HasPrefixIAscii(p_basic_prefix)) {
 			rResult.Type = authtBasic;
 			temp_buf.ShiftLeft(sstrlen(p_basic_prefix)).Strip();
 			size_t real_len = 0;

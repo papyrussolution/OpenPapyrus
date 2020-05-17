@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -141,7 +141,7 @@ file:
 
 SOraDbProvider::OH::operator uint32 () const
 {
-	return (uint32)H;
+	return (uint32)H; // @x64crit
 }
 
 //static
@@ -655,17 +655,17 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
-				uint32 lob_loc = 0;
+				uint32 lob_loc = 0; // @x64crit
 				if(p_lob) {
 					p_lob->GetSize(labs(pBind->Pos)-1, &lob_sz);
-					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc);
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
+					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc); // @x64crit
+					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H); // @x64crit
 					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
 				}
 				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
 			}
 			else if(action == 1) {
-				OD ocilob = *(OD *)pStmt->GetBindOuterPtr(pBind, count);
+				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
 				uint32 lob_loc = 0;

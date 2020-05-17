@@ -506,7 +506,7 @@ static int skip_sfx(struct archive_read * a, ssize_t bytes_avail)
 			window = 4096;
 			continue;
 		}
-		p = (const char *)h;
+		p = PTRCHRC(h);
 		q = p + bytes;
 
 		/*
@@ -517,14 +517,14 @@ static int skip_sfx(struct archive_read * a, ssize_t bytes_avail)
 			int step = check_7zip_header_in_sfx(p);
 			if(step == 0) {
 				struct _7zip * zip = static_cast<struct _7zip *>(a->format->data);
-				skip = p - (const char *)h;
+				skip = p - PTRCHRC(h);
 				__archive_read_consume(a, skip);
 				zip->seek_base = SFX_MIN_ADDR + offset + skip;
 				return ARCHIVE_OK;
 			}
 			p += step;
 		}
-		skip = p - (const char *)h;
+		skip = p - PTRCHRC(h);
 		__archive_read_consume(a, skip);
 		offset += skip;
 		if(window == 1)
@@ -1133,15 +1133,12 @@ static int decompress(struct archive_read * a, struct _7zip * zip, void * buff, 
 	uint8_t * bcj2_next_out;
 	size_t bcj2_avail_out;
 	int r, ret = ARCHIVE_OK;
-
 	t_avail_in = o_avail_in = *used;
 	t_avail_out = o_avail_out = *outbytes;
 	t_next_in = (const uint8_t *)b;
-	t_next_out = (uint8_t *)buff;
-
+	t_next_out = static_cast<uint8_t *>(buff);
 	if(zip->codec != _7Z_LZMA2 && zip->codec2 == _7Z_X86) {
 		int i;
-
 		/* Do not copy out the BCJ remaining bytes when the output
 		 * buffer size is less than five bytes. */
 		if(o_avail_in != 0 && t_avail_out < 5 && zip->odd_bcj_size) {
@@ -1360,7 +1357,7 @@ static int decompress(struct archive_read * a, struct _7zip * zip, void * buff, 
 	 * Decord BCJ.
 	 */
 	if(zip->codec != _7Z_LZMA2 && zip->codec2 == _7Z_X86) {
-		size_t l = x86_Convert(zip, (uint8_t *)buff, *outbytes);
+		size_t l = x86_Convert(zip, static_cast<uint8_t *>(buff), *outbytes);
 		zip->odd_bcj_size = *outbytes - l;
 		if(zip->odd_bcj_size > 0 && zip->odd_bcj_size <= 4 &&
 		    o_avail_in && ret != ARCHIVE_EOF) {

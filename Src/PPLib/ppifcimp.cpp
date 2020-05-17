@@ -853,7 +853,7 @@ SString & DL6ICLS_PPDbfRecord::GetFieldName(uint32 fldN)
 	RetStrBuf.Z();
 	if(p_rec) {
 		char buf[128];
-		memzero(buf, sizeof(buf));
+		// @v10.7.8 (@proof getFieldName) memzero(buf, sizeof(buf));
 		p_rec->getFieldName(fldN, buf, sizeof(buf));
 		RetStrBuf.CopyFrom(buf);
 	}
@@ -916,7 +916,7 @@ SString & DL6ICLS_PPDbfTable::GetFieldName(uint32 fldN)
 	RetStrBuf.Z();
 	if(p_tbl) {
 		char buf[128];
-		memzero(buf, sizeof(buf));
+		// @v10.7.8 (@proof getFieldName) memzero(buf, sizeof(buf));
 		p_tbl->getFieldName(fldN, buf, sizeof(buf));
 		RetStrBuf.CopyFrom(buf);
 	}

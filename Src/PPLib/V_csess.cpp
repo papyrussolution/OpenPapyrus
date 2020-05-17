@@ -2623,9 +2623,8 @@ int SLAPI PPViewCSessExc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 }
 
 struct CSessExcAltGoodsParam {
-	CSessExcAltGoodsParam()
+	CSessExcAltGoodsParam() : GoodsID(0), AltGoodsID(0), LocID(0), SelExistsGoodsOnly(0), Price(0.0)
 	{
-		THISZERO();
 	}
 	PPID   GoodsID;
 	PPID   AltGoodsID;

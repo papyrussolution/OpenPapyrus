@@ -18,13 +18,13 @@ public:
 	{
 		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
 		if(p_filt)
-			PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, (long)this);
+			PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, reinterpret_cast<long>(this)); // @x64crit
 	}
 	~GoodsTrnovrBrowser()
 	{
 		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
 		if(p_filt)
-			PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, (long)this);
+			PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, reinterpret_cast<long>(this)); // @x64crit
 		if(IsDataOwner)
 			delete P_View;
 	}
@@ -96,6 +96,7 @@ const GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const { return &Filt;
 int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 {
 	class GCTFiltDialog : public WLDialog {
+		DECL_DIALOG_DATA(GCTFilt);
 	public:
 		enum {
 			ctlgroupGoodsFilt = 1,
@@ -107,33 +108,33 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
 			SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
 		}
-		int   setDTS(const GCTFilt * lf)
+		DECL_DIALOG_SETDTS()
 		{
-			data = *lf;
+			RVALUEPTR(Data, pData);
 			PPIDArray types;
-			SetPeriodInput(this, CTL_GTO_PERIOD, &data.Period);
+			SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
 			{
-				LocationCtrlGroup::Rec l_rec(&data.LocList);
+				LocationCtrlGroup::Rec l_rec(&Data.LocList);
 				setGroupData(ctlgroupLoc, &l_rec);
 			}
-			SetupArCombo(this, CTLSEL_GTO_SUPPL, data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
+			SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
 				PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_GENERIC, 0L);
-			SetupOprKindCombo(this, CTLSEL_GTO_OPR, data.OpID, 0, &types, 0);
-			GoodsFiltCtrlGroup::Rec gf_rec(data.GoodsGrpID, data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
+			SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
+			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 			if(ForceGoodsSelection)
 				gf_rec.Flags |= GoodsCtrlGroup::disableEmptyGoods;
 			setGroupData(ctlgroupGoodsFilt, &gf_rec);
-			setWL((data.Flags & OPG_LABELONLY) ? 1 : 0);
+			setWL(BIN(Data.Flags & OPG_LABELONLY));
 			AddClusterAssocDef(CTL_GTO_ORDER, 0, GCTFilt::ordByDate);
 			AddClusterAssoc(CTL_GTO_ORDER, 1, GCTFilt::ordByGoods);
 			AddClusterAssoc(CTL_GTO_ORDER, 2, GCTFilt::ordByArticle);
-			SetClusterData(CTL_GTO_ORDER, data.Order);
+			SetClusterData(CTL_GTO_ORDER, Data.Order);
 			if(getCtrlView(CTL_GTO_GENGGRP))
-				setCtrlUInt16(CTL_GTO_GENGGRP, BIN(data.Flags & OPG_GRPBYGENGOODS));
+				setCtrlUInt16(CTL_GTO_GENGGRP, BIN(Data.Flags & OPG_GRPBYGENGOODS));
 			return 1;
 		}
-		int   getDTS(GCTFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -142,29 +143,28 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			// AHTOXA {
 			LocationCtrlGroup::Rec l_rec;
 			getGroupData(ctlgroupLoc, &l_rec);
-			data.LocList = l_rec.LocList;
+			Data.LocList = l_rec.LocList;
 			// } AHTOXA
-			THROW(GetPeriodInput(this, sel = CTL_GTO_PERIOD, &data.Period));
-			THROW(AdjustPeriodToRights(data.Period, 1));
-			getCtrlData(CTLSEL_GTO_SUPPL, &data.SupplID);
-			getCtrlData(CTLSEL_GTO_OPR,   &data.OpID);
+			THROW(GetPeriodInput(this, sel = CTL_GTO_PERIOD, &Data.Period));
+			THROW(AdjustPeriodToRights(Data.Period, 1));
+			getCtrlData(CTLSEL_GTO_SUPPL, &Data.SupplID);
+			getCtrlData(CTLSEL_GTO_OPR,   &Data.OpID);
 			THROW(getGroupData(sel = ctlgroupGoodsFilt, &gf_rec));
-			data.GoodsGrpID = gf_rec.GoodsGrpID;
-			data.GoodsID    = gf_rec.GoodsID;
-			SETFLAG(data.Flags, OPG_LABELONLY, getWL());
-			GetClusterData(CTL_GTO_ORDER, &data.Order);
+			Data.GoodsGrpID = gf_rec.GoodsGrpID;
+			Data.GoodsID    = gf_rec.GoodsID;
+			SETFLAG(Data.Flags, OPG_LABELONLY, getWL());
+			GetClusterData(CTL_GTO_ORDER, &Data.Order);
 			if(getCtrlView(CTL_GTO_GENGGRP)) {
 				getCtrlData(CTL_GTO_GENGGRP, &v);
-				SETFLAG(data.Flags, OPG_GRPBYGENGOODS, v);
+				SETFLAG(Data.Flags, OPG_GRPBYGENGOODS, v);
 			}
 			else
-				data.Flags &= ~OPG_GRPBYGENGOODS;
-			ASSIGN_PTR(pData, data);
+				Data.Flags &= ~OPG_GRPBYGENGOODS;
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
 	private:
-		GCTFilt data;
 		int    ForceGoodsSelection;
 	};
 	DIALOG_PROC_BODY_P2(GCTFiltDialog, DLG_GTO, (int)(pFilt->Flags & OPG_FORCEGOODS), pFilt);

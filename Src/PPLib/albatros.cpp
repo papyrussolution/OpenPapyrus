@@ -491,7 +491,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pC
 				THROW(pRef->GetPropMainConfig(PPPRP_ALBATROSCFG2, buffer, sz) > 0);
 			}
 			memcpy(&pCfg->Hdr, buffer, sizeof(pCfg->Hdr));
-			tail = ((const char *)buffer)+sizeof(pCfg->Hdr);
+			tail = buffer.cptr()+sizeof(pCfg->Hdr);
 			for(uint i = 0; i < SIZEOFARRAY(AlbatrossStrIdList); i++) {
 				const int str_id = AlbatrossStrIdList[i];
 				PPGetExtStrData(str_id, tail, temp_buf);

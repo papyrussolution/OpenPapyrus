@@ -4154,51 +4154,32 @@ static cairo_status_t _cairo_ps_surface_emit_gradient(cairo_ps_surface_t * surfa
 	return status;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_mesh_pattern(cairo_ps_surface_t * surface,
-    cairo_mesh_pattern_t * pattern,
-    boolint is_ps_pattern)
+static cairo_status_t _cairo_ps_surface_emit_mesh_pattern(cairo_ps_surface_t * surface, const cairo_mesh_pattern_t * pattern, boolint is_ps_pattern)
 {
 	cairo_matrix_t pat_to_ps;
 	cairo_status_t status;
 	cairo_pdf_shading_t shading;
 	int i;
-
 	if(_cairo_array_num_elements(&pattern->patches) == 0)
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	pat_to_ps = pattern->base.matrix;
 	status = cairo_matrix_invert(&pat_to_ps);
 	/* cairo_pattern_set_matrix ensures the matrix is invertible */
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	cairo_matrix_multiply(&pat_to_ps, &pat_to_ps, &surface->cairo_to_ps);
-
 	status = _cairo_pdf_shading_init_color(&shading, pattern);
 	if(unlikely(status))
 		return status;
-
-	_cairo_output_stream_printf(surface->stream,
-	    "currentfile\n"
-	    "/ASCII85Decode filter /FlateDecode filter /ReusableStreamDecode filter\n");
-
-	status = _cairo_ps_surface_emit_base85_string(surface,
-		shading.data,
-		shading.data_length,
-		CAIRO_PS_COMPRESS_DEFLATE,
-		FALSE);
+	_cairo_output_stream_printf(surface->stream, "currentfile\n/ASCII85Decode filter /FlateDecode filter /ReusableStreamDecode filter\n");
+	status = _cairo_ps_surface_emit_base85_string(surface, shading.data, shading.data_length, CAIRO_PS_COMPRESS_DEFLATE, FALSE);
 	if(status)
 		return status;
-
-	_cairo_output_stream_printf(surface->stream,
-	    "\n"
-	    "/CairoData exch def\n");
-
+	_cairo_output_stream_printf(surface->stream, "\n/CairoData exch def\n");
 	if(is_ps_pattern) {
 		_cairo_output_stream_printf(surface->stream,
 		    "<< /PatternType 2\n"
 		    "   /Shading\n");
 	}
-
 	_cairo_output_stream_printf(surface->stream,
 	    "   << /ShadingType %d\n"
 	    "      /ColorSpace /DeviceRGB\n"
@@ -4274,7 +4255,7 @@ static cairo_status_t _cairo_ps_surface_emit_pattern(cairo_ps_surface_t * surfac
 			    return status;
 		    break;
 		case CAIRO_PATTERN_TYPE_MESH:
-		    status = _cairo_ps_surface_emit_mesh_pattern(surface, (cairo_mesh_pattern_t*)pattern, TRUE);
+		    status = _cairo_ps_surface_emit_mesh_pattern(surface, reinterpret_cast<const cairo_mesh_pattern_t *>(pattern), TRUE);
 		    if(unlikely(status))
 			    return status;
 		    break;
@@ -4284,14 +4265,10 @@ static cairo_status_t _cairo_ps_surface_emit_pattern(cairo_ps_surface_t * surfac
 }
 
 static cairo_status_t _cairo_ps_surface_paint_gradient(cairo_ps_surface_t * surface,
-    const cairo_pattern_t * source,
-    const cairo_rectangle_int_t * extents)
+    const cairo_pattern_t * source, const cairo_rectangle_int_t * extents)
 {
-	cairo_matrix_t pat_to_ps;
-	cairo_status_t status;
-
-	pat_to_ps = source->matrix;
-	status = cairo_matrix_invert(&pat_to_ps);
+	cairo_matrix_t pat_to_ps = source->matrix;
+	cairo_status_t status = cairo_matrix_invert(&pat_to_ps);
 	/* cairo_pattern_set_matrix ensures the matrix is invertible */
 	assert(status == CAIRO_STATUS_SUCCESS);
 	cairo_matrix_multiply(&pat_to_ps, &pat_to_ps, &surface->cairo_to_ps);
@@ -4303,28 +4280,20 @@ static cairo_status_t _cairo_ps_surface_paint_gradient(cairo_ps_surface_t * surf
 	}
 
 	if(source->type == CAIRO_PATTERN_TYPE_MESH) {
-		status = _cairo_ps_surface_emit_mesh_pattern(surface,
-			(cairo_mesh_pattern_t*)source,
-			FALSE);
+		status = _cairo_ps_surface_emit_mesh_pattern(surface, reinterpret_cast<const cairo_mesh_pattern_t *>(source), FALSE);
 		if(unlikely(status))
 			return status;
 	}
 	else {
-		status = _cairo_ps_surface_emit_gradient(surface,
-			(cairo_gradient_pattern_t*)source,
-			FALSE);
+		status = _cairo_ps_surface_emit_gradient(surface, (cairo_gradient_pattern_t*)source, FALSE);
 		if(unlikely(status))
 			return status;
 	}
-
 	return status;
 }
 
-static cairo_status_t _cairo_ps_surface_paint_pattern(cairo_ps_surface_t * surface,
-    const cairo_pattern_t * source,
-    cairo_rectangle_int_t * extents,
-    cairo_operator_t op,
-    boolint stencil_mask)
+static cairo_status_t _cairo_ps_surface_paint_pattern(cairo_ps_surface_t * surface, 
+	const cairo_pattern_t * source, cairo_rectangle_int_t * extents, cairo_operator_t op, boolint stencil_mask)
 {
 	switch(source->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE:

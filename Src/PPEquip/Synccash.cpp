@@ -618,6 +618,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode)); // @v10.6.12
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN)); // @v10.7.2
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial)); // @v10.7.2
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN)); // @v10.7.8
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType)); // @v10.7.2
 						}
 						// @v10.4.1 {
@@ -1626,29 +1627,29 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 				// 0xDF^^
 				// ~0xDA^^
 				// ~0xDE^^
-				if(str.CmpPrefix("0xDF^^", 1)) {
-					//THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
-					str.Z().CatCharN('-', 8);
-					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
-					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
-					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				if(str.CmpPrefix("0xDF^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
+					THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					//str.Z().CatCharN('-', 8);
+					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else if(str.CmpPrefix("~0xDA^^", 1)) {
-					//THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
-					str.Z().CatCharN('-', 8);
-					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
-					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
-					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				else if(str.CmpPrefix("~0xDA^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
+					THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					//str.Z().CatCharN('-', 8);
+					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else if(str.CmpPrefix("~0xDE^^", 1)) {
-					//THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
-					str.Z().CatCharN('-', 8);
-					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
-					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
-					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
+				else if(str.CmpPrefix("~0xDE^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
+					THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					//str.Z().CatCharN('-', 8);
+					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
+					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
+					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
 				else { // } @v10.7.6 
 					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));

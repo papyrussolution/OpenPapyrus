@@ -280,21 +280,18 @@ static int vfw_cleanup(zbar_video_t * vdo)
 	DestroyWindow(state->hwnd);
 	state->hwnd = NULL;
 	_zbar_thread_stop(&state->thread, &vdo->qlock);
-
 	if(state->captured) {
-		CloseHandle(state->captured);
+		::CloseHandle(state->captured);
 		state->captured = NULL;
 	}
 	return 0;
 }
 
-static int vfw_probe_format(zbar_video_t * vdo,
-    uint32 fmt)
+static int vfw_probe_format(zbar_video_t * vdo, uint32 fmt)
 {
 	const zbar_format_def_t * fmtdef = _zbar_format_lookup(fmt);
 	if(!fmtdef)
 		return 0;
-
 	zprintf(4, "    trying %.4s(%08x)...\n", (char *)&fmt, fmt);
 	BITMAPINFOHEADER * bih = vdo->state->bih;
 	bih->biWidth = vdo->width;
@@ -315,22 +312,17 @@ static int vfw_probe_format(zbar_video_t * vdo,
 		    bih->biBitCount = 0;
 	}
 	bih->biCompression = fmt;
-
 	if(!capSetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size)) {
 		zprintf(4, "\tno (set fails)\n");
 		return 0;
 	}
-
 	if(!capGetVideoFormat(vdo->state->hwnd, bih, vdo->state->bi_size))
 		return (0 /*FIXME error...*/);
-
 	zprintf(6, "\tactual: " BIH_FMT "\n", BIH_FIELDS(bih));
-
 	if(bih->biCompression != fmt) {
 		zprintf(4, "\tno (set ignored)\n");
 		return 0;
 	}
-
 	zprintf(4, "\tyes\n");
 	return 1;
 }
@@ -341,26 +333,22 @@ static int vfw_probe(zbar_video_t * vdo)
 	state->bi_size = capGetVideoFormatSize(state->hwnd);
 	BITMAPINFOHEADER * bih = state->bih = (BITMAPINFOHEADER*)SAlloc::R(state->bih, state->bi_size);
 	/* FIXME check OOM */
-
-	if(!capSetUserData(state->hwnd, (LONG)vdo) || !state->bi_size || !bih || !capGetVideoFormat(state->hwnd, bih, state->bi_size))
+	if(!capSetUserData(state->hwnd, /*(LONG)*/vdo) || !state->bi_size || !bih || !capGetVideoFormat(state->hwnd, bih, state->bi_size))
 		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "setting up video capture");
 	zprintf(3, "initial format: " BIH_FMT " (bisz=%x)\n", BIH_FIELDS(bih), state->bi_size);
-
 	if(!vdo->width || !vdo->height) {
 		vdo->width = bih->biWidth;
 		vdo->height = bih->biHeight;
 	}
 	vdo->datalen = bih->biSizeImage;
 	zprintf(2, "probing supported formats:\n");
-	vdo->formats = (uint32 *)SAlloc::C(VFW_NUM_FORMATS, sizeof(uint32));
+	vdo->formats = static_cast<uint32 *>(SAlloc::C(VFW_NUM_FORMATS, sizeof(uint32)));
 	int n = 0;
 	const uint32 * fmt;
 	for(fmt = vfw_formats; *fmt; fmt++)
 		if(vfw_probe_format(vdo, *fmt))
 			vdo->formats[n++] = *fmt;
-
-	vdo->formats = (uint32 *)SAlloc::R(vdo->formats, (n + 1) * sizeof(uint32));
-
+	vdo->formats = static_cast<uint32 *>(SAlloc::R(vdo->formats, (n + 1) * sizeof(uint32)));
 	vdo->width = bih->biWidth;
 	vdo->height = bih->biHeight;
 	vdo->intf = VIDEO_VFW;

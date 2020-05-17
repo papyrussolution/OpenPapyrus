@@ -1,5 +1,6 @@
 // SMATH.CPP
-// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2004, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -87,18 +88,16 @@ void SLAPI ExploreIEEE754()
 
 int SLAPI IsValidIEEE(double v)
 {
-	/*
-	_FPCLASS_SNAN	Signaling NaN
-	_FPCLASS_QNAN	Quiet NaN
-	_FPCLASS_NINF	Negative infinity ( �INF)
-	_FPCLASS_NN		Negative normalized non-zero
-	_FPCLASS_ND		Negative denormalized
-	_FPCLASS_NZ		Negative zero ( � 0)
-	_FPCLASS_PZ		Positive 0 (+0)
-	_FPCLASS_PD		Positive denormalized
-	_FPCLASS_PN		Positive normalized non-zero
-	_FPCLASS_PINF	Positive infinity (+INF)
-	*/
+	// _FPCLASS_SNAN	Signaling NaN
+	// _FPCLASS_QNAN	Quiet NaN
+	// _FPCLASS_NINF	Negative infinity ( –INF)
+	// _FPCLASS_NN		Negative normalized non-zero
+	// _FPCLASS_ND		Negative denormalized
+	// _FPCLASS_NZ		Negative zero ( – 0)
+	// _FPCLASS_PZ		Positive 0 (+0)
+	// _FPCLASS_PD		Positive denormalized
+	// _FPCLASS_PN		Positive normalized non-zero
+	// _FPCLASS_PINF	Positive infinity (+INF)
 	int    c = _fpclass(v);
 	return oneof6(c, _FPCLASS_NN, _FPCLASS_ND, _FPCLASS_NZ, _FPCLASS_PZ, _FPCLASS_PD, _FPCLASS_PN);
 }
@@ -110,31 +109,15 @@ int fisnan(double v)
 
 int fisinf(double v)
 {
-	int    fpc = _fpclass(v);
-	if(fpc == _FPCLASS_PINF)
-		return +1;
-	else if(fpc == _FPCLASS_NINF)
-		return -1;
-	else
-		return 0;
+	const int fpc = _fpclass(v);
+	return (fpc == _FPCLASS_PINF) ? +1 : ((fpc == _FPCLASS_NINF) ? -1 : 0);
 }
 //
 // SMathResult {
 //
-void SMathResult::SetErr(double e, double adjMult)
-{
-	E = (e + (adjMult * SMathConst::Epsilon * fabs(V)));
-}
-
-void SMathResult::AdjustErr(double mult)
-{
-	E += mult * SMathConst::Epsilon * fabs(V);
-}
-
-void SMathResult::SetZero()
-{
-	V = E = 0;
-}
+void SMathResult::SetErr(double e, double adjMult) { E = (e + (adjMult * SMathConst::Epsilon * fabs(V))); }
+void SMathResult::AdjustErr(double mult) { E += mult * SMathConst::Epsilon * fabs(V); }
+void SMathResult::SetZero() { V = E = 0.0; }
 
 int SMathResult::SetDomainViolation()
 {
@@ -163,11 +146,19 @@ double fgetposinf() { return _fdiv(+1.0, 0.0); }
 double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
 int    FASTCALL smax(int a, int b)       { return MAX(a, b); }
+int    FASTCALL smax(uint a, uint b)     { return MAX(a, b); }
 int    FASTCALL smin(int a, int b)       { return MIN(a, b); }
+int    FASTCALL smin(uint a, uint b)     { return MIN(a, b); }
 double FASTCALL smax(double a, double b) { return MAX(a, b); }
 double FASTCALL smin(double a, double b) { return MIN(a, b); }
 float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
 float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
+
+int    FASTCALL sclamp(int v, int lo, int up)          { return (v < lo) ? lo : ((v > up) ? up : v); }
+uint   FASTCALL sclamp(uint v, uint lo, uint up)       { return (v < lo) ? lo : ((v > up) ? up : v); }
+double FASTCALL sclamp(double v, double lo, double up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+float  FASTCALL sclamp(float v, float lo, float up)    { return (v < lo) ? lo : ((v > up) ? up : v); }
+
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return (static_cast<double>(v)) / 100.0; }
 double FASTCALL fdiv1000i(long v)     { return (static_cast<double>(v)) / 1000.0; }
@@ -191,25 +182,8 @@ double FASTCALL ffrac(double v)
 	return modf(v, &ip);
 }
 
-double fgetwsign(double val, int sign)
-{
-	if(sign > 0)
-		return val;
-	else if(sign < 0)
-		return -val;
-	else
-		return 0;
-}
-
-double faddwsign(double val, double addendum, int sign)
-{
-	if(sign > 0)
-		return (val + addendum);
-	else if(sign < 0)
-		return (val - addendum);
-	else
-		return val;
-}
+double fgetwsign(double val, int sign) { return (sign > 0) ? val : ((sign < 0) ? -val : 0.0); }
+double faddwsign(double val, double addendum, int sign) { return (sign > 0) ? (val + addendum) : ((sign < 0) ? (val - addendum) : val); }
 
 uint64 SLAPI ui64pow(uint64 x, uint n)
 {
@@ -236,8 +210,8 @@ double FASTCALL fpowi(double x, int n)
 		return 1.0;
 	else {
 		//
-		// ������ �����, ��� �������������� ��� ��� ������ ������ ������� � �� ��������.
-		// ��������� �������� �������� ����� (�� ����� ������) ���������.
+		// Ничего умнее, чем продублировать код для разных знаков степени я не придумал.
+		// Остальные варианты работать будут (по моему мнению) медленнее.
 		//
 		if(n > 0) {
 			if(n == 1)
@@ -281,8 +255,8 @@ float FASTCALL fpowfi(float x, int n)
 		return 1.0f;
 	else {
 		//
-		// ������ �����, ��� �������������� ��� ��� ������ ������ ������� � �� ��������.
-		// ��������� �������� �������� ����� (�� ����� ������) ���������.
+		// Ничего умнее, чем продублировать код для разных знаков степени я не придумал.
+		// Остальные варианты работать будут (по моему мнению) медленнее.
 		//
 		if(n > 0) {
 			if(n == 1)
@@ -610,17 +584,17 @@ long SLAPI SHistogram::Put(double val)
 					AddBin(i+1+hc, DevMean + DevWidth * i);
 				}
 				//
-				// ��������� ���� �������, ������� ������� �� ���� ��� ��������,
-				// ����������� avg + width * DevBinCount / 2.
-				// ��������, ������� ���� (avg - width * DevBinCount / 2) ������ �� ���� //
-				// ������� �� ��������� (-MAXLONG).
+				// Добавляем одну корзину, которая заберет на себя все значения,
+				// превышающие avg + width * DevBinCount / 2.
+				// Значения, которые ниже (avg - width * DevBinCount / 2) возмет на себя //
+				// корзина по умолчанию (-MAXLONG).
 				//
 				AddBin(MAXLONG, DevMean + DevWidth * hc);
 			}
 			else {
 				uint hc = (((DevBinCount - 1) / 2) * 2) / 2;
 				//
-				// ������� �������
+				// Средняя корзина
 				//
 				AddBin(hc+1, DevMean - DevWidth / 2);
 				//
@@ -629,14 +603,14 @@ long SLAPI SHistogram::Put(double val)
 					AddBin(i+2+hc, DevMean + DevWidth / 2.0 + DevWidth * i);
 				}
 				//
-				// ��. ���������� ����.
+				// См. примечание выше.
 				//
 				AddBin(MAXLONG, DevMean + DevWidth / 2.0 + DevWidth * hc);
 			}
 			c = BinList.getCount();
 #ifndef NDEBUG
 			//
-			// ���������� �������� �� ��������� ���� ����������
+			// Отладочная проверка на равенство всех диапазонов
 			//
 			if(c > 2) {
 				double wd = BinList.at(1).Val - BinList.at(0).Val;
@@ -737,3 +711,206 @@ int  SLAPI SHistogram::GetResult(uint pos, Result * pResult) const
 		ok = 0;
 	return ok;
 }
+//
+//
+//
+static const double _mizer = 1.0E-8; //0.00000001
+
+static FORCEINLINE double implement_round(double n, int prec)
+{
+	const  int sign = (fsign(n) - 1);
+	if(sign)
+		n = _chgsign(n);
+	if(prec == 0) {
+		const double f = floor(n);
+		n = ((n - f + _mizer) < 0.5) ? f : ceil(n);
+	}
+	else {
+		const double p = fpow10i(prec);
+		const double t = n * p;
+		const double f = floor(t);
+		n = (((t - f + _mizer) < 0.5) ? f : ceil(t)) / p;
+	}
+	return sign ? _chgsign(n) : n;
+}
+
+double FASTCALL round(double n, int prec)
+{
+	return implement_round(n, prec);
+	/*
+	static const double _mizer = 1.0E-8; //0.00000001
+	double p;
+	int    sign = (fsign(n) - 1);
+	if(sign)
+		n = _chgsign(n);
+	if(prec == 0) {
+		p = floor(n);
+		n = ((n - p + _mizer) < 0.5) ? p : ceil(n);
+	}
+	else {
+		p = fpow10i(prec);
+		double t = n * p;
+		double f = floor(t);
+		n = (((t - f + _mizer) < 0.5) ? f : ceil(t)) / p;
+	}
+	return sign ? _chgsign(n) : n;
+	*/
+}
+
+double FASTCALL round(double v, double prec, int dir)
+{
+	SETIFZ(prec, 0.01);
+	double r = (v / prec);
+	const double f_ = floor(r);
+	const double c_ = ceil(r);
+	/*
+	Экспериментальный участок кода: надежда решить проблему мизерного отклонения от требуемого значения.
+	В строй не вводим из-за риска напороться на неожиданные эффекты.
+	if(feqeps(r, c_, 1E-10))
+		return prec * c_;
+	else if(feqeps(r, f_, 1E-10))
+		return prec * f_;
+	else
+	*/
+	if(dir > 0) {
+		return prec * c_;
+	}
+	else if(dir < 0) {
+		return prec * f_;
+	}
+	else {
+		const double down = prec * f_;
+		const double up   = prec * c_;
+		return ((2.0 * v - down - up) >= 0) ? up : down;
+	}
+}
+
+double FASTCALL R0(double v)  { return implement_round(v, 0); }
+long   FASTCALL R0i(double v) { return static_cast<long>(implement_round(v, 0)); }
+double FASTCALL R2(double v)  { return implement_round(v, 2); }
+double FASTCALL R3(double v)  { return implement_round(v, 3); }
+double FASTCALL R4(double v)  { return implement_round(v, 4); }
+double FASTCALL R5(double v)  { return implement_round(v, 5); }
+double FASTCALL R6(double v)  { return implement_round(v, 6); }
+
+double FASTCALL roundnev(double n, int prec)
+{
+	if(prec == 0) {
+		const double p = floor(n);
+		const double diff = n - p;
+		if(diff < 0.5)
+			n = p;
+		else if(diff > 0.5)
+			n = ceil(n);
+		else // diff == 0.5
+			if(!(static_cast<long>(p) & 1))
+				n = p;
+			else
+				n = ceil(n);
+	}
+	else {
+		const double p = fpow10i(prec);
+		const double t = n * p;
+		const double f = floor(t);
+		const double diff = t - f;
+		if(diff < 0.5)
+			n = f / p;
+		else if(diff > 0.5)
+			n = (ceil(t) / p);
+		else { // diff == 0.5
+			if(!(static_cast<long>(f) & 1))
+				n = f / p;
+			else
+				n = (ceil(t) / p);
+		}
+	}
+	return n;
+}
+
+double SLAPI trunc(double n, int prec)
+{
+	double p = fpow10i(prec);
+	double f = floor(n * p);
+	return f / p;
+}
+//
+// Note about next 4 functions:
+// Функции intmnytodbl и dbltointmny идентичны соответственно inttodbl2 и dbltoint2
+// Исторически, intmnytodbl и dbltointmny появились раньше, давно и успешно работают.
+// Вполне возможно, что реализацию можно уточнить - тогда начинать следует с inttodbl2 и dbltoint2
+// так как они реже используются.
+//
+double FASTCALL inttodbl2(long v) { return implement_round(fdiv100i(v), 2); }
+long   FASTCALL dbltoint2(double r) { return static_cast<long>(implement_round(r * 100.0, 0)); }
+double FASTCALL intmnytodbl(long m) { return implement_round(fdiv100i(m), 2); }
+long   FASTCALL dbltointmny(double r) { return static_cast<long>(implement_round(r * 100.0, 0)); }
+//
+//
+//
+#if SLTEST_RUNNING // {
+	SLTEST_R(fpow10i)
+	{
+		for(int i = -9; i < +9; i++) {
+			SLTEST_CHECK_EQ(fpow10i(i), pow(10.0, i));
+		}
+		return CurrentStatus;
+	}
+
+	SLTEST_R(round)
+	{
+		struct A {
+			int    R;  // точность округления //
+			double T;  // тестовое значение
+			double E0; // ожидаемый результат функции round(x, 0)
+			double E1; // ожидаемый результат функции roundnev(x, 0)
+		};
+		A a[] = {
+			{0, 0., 0., 0.},
+			{0, -1., -1., -1.},
+			{0, -5.00000000103, -5., -5.},
+			{0, -4.99999981, -5., -5.},
+			{0, -2.5, -3., -2.},
+			{0, -17.5, -18., -18.},
+			{0, -1023.499999, -1023., -1023.},
+			{0, 5.00000000103, 5., 5.},
+			{0, 4.99999981, 5., 5.},
+			{0, 2.5, 3., 2.},
+			{0, 17.5, 18., 18.},
+			{0, 1023.499999, 1023., 1023.},
+			{2, 72.055, 72.06, 72.06 }
+		};
+		uint i;
+		int  j;
+		for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
+			SLTEST_CHECK_EQ(round   (a[i].T, a[i].R), a[i].E0);
+			SLTEST_CHECK_EQ(roundnev(a[i].T, a[i].R), a[i].E1);
+		}
+		for(j = -11; j < +13; j++) {
+			double p_ = fpow10i(j);
+			for(i = 0; i < sizeof(a) / sizeof(a[0]); i++) {
+				if(a[i].R == 0) { // Для ненулевого начального округления возникает мелкая ошибка
+					double v = a[i].T / p_;
+					SLTEST_CHECK_EQ(round(v, j),    a[i].E0 / p_);
+					SLTEST_CHECK_EQ(roundnev(v, j), a[i].E1 / p_);
+				}
+			}
+		}
+		if(CurrentStatus) {
+			SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
+			for(i = 0; i < 1000; i++) {
+				double b, v, r;
+				for(j = -11; j < +13; j++) {
+					b = p_rng->GetReal();
+					if(i % 2)
+						b = _chgsign(b);
+					v = round(b, j);
+					SLTEST_CHECK_LT(fabs(v - b), fpow10i(-j)/2.0);
+					r = fabs(b * fpow10i(j));
+					SLTEST_CHECK_CRANGE(fabs(v), floor(r)/fpow10i(j), ceil(r)/fpow10i(j));
+				}
+			}
+			delete p_rng;
+		}
+		return CurrentStatus;
+	}
+#endif // } SLTEST_RUNNING

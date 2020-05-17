@@ -1,5 +1,5 @@
 // GENVER.CPP
-// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020
 //
 // For private use only. Redistribution prohibited !
 
@@ -133,7 +133,6 @@ int SLAPI PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 //int PPErrCode;
 
 /*
-
 [version]
 Signature    = 46V9FLAG19CZ5GPF
 Product      = Project Papyrus
@@ -154,23 +153,6 @@ CCP = "xxxxx"
 UHTT = "xxxx:xxxxx"
 MSTR = "xxxx:xxxx"
 */
-
-/* @v5.1.6 Pchar SLAPI replaceExt(char * fileName, const char * newExt, int force)
-{
-	char drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
-	fnsplit(fileName, drv, dir, nam, ext);
-	if(force || *ext == 0) {
-		if(newExt[0] != '.') {
-			ext[0] = '.';
-			strnzcpy(ext+1, newExt, sizeof(ext)-1);
-		}
-		else
-			strnzcpy(ext, newExt, sizeof(ext));
-		fnmerge(fileName, drv, dir, nam, ext);
-	}
-	return fileName;
-} */
-
 int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 {
 	int    ok = 1;

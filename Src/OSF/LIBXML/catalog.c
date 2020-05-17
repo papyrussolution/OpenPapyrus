@@ -197,7 +197,7 @@ static void FASTCALL xmlCatalogErrMemory(const char * extra)
  */
 static void FASTCALL xmlCatalogErr(xmlCatalogEntryPtr catal, xmlNode * pNode, int error, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
-	__xmlRaiseError(0, 0, 0, catal, pNode, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, (const char *)str3, 0, 0,
+	__xmlRaiseError(0, 0, 0, catal, pNode, XML_FROM_CATALOG, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), PTRCHRC_(str3), 0, 0,
 	    msg, str1, str2, str3);
 }
 //

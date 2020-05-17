@@ -377,7 +377,7 @@ int archive_match_path_unmatched_inclusions_next_w(struct archive * _a, const wc
 	archive_check_magic(_a, ARCHIVE_MATCH_MAGIC, ARCHIVE_STATE_NEW, "archive_match_unmatched_inclusions_next_w");
 	struct archive_match * a = reinterpret_cast<struct archive_match *>(_a);
 	int r = match_list_unmatched_inclusions_next(a, &(a->inclusions), 0, &v);
-	*_p = (const wchar_t*)v;
+	*_p = (const wchar_t *)v;
 	return r;
 }
 /*
@@ -594,7 +594,7 @@ static int match_path_exclusion(struct archive_match * a, struct match * m, int 
 		const wchar_t * p;
 		r = archive_mstring_get_wcs(&(a->archive), &(m->pattern), &p);
 		if(r == 0)
-			return (archive_pathmatch_w(p, (const wchar_t*)pn, flag));
+			return (archive_pathmatch_w(p, (const wchar_t *)pn, flag));
 	}
 	if(errno == ENOMEM)
 		return (error_nomem(a));
@@ -619,7 +619,7 @@ static int match_path_inclusion(struct archive_match * a, struct match * m, int 
 		const wchar_t * p;
 		r = archive_mstring_get_wcs(&(a->archive), &(m->pattern), &p);
 		if(r == 0)
-			return (archive_pathmatch_w(p, (const wchar_t*)pn, flag));
+			return (archive_pathmatch_w(p, (const wchar_t *)pn, flag));
 	}
 	if(errno == ENOMEM)
 		return (error_nomem(a));
@@ -1061,7 +1061,7 @@ static int cmp_key_wcs(const struct archive_rb_node * n, const void * key)
 	archive_mstring_get_wcs(NULL, &(f->pathname), &p);
 	if(p == NULL)
 		return -1;
-	return (wcscmp(p, (const wchar_t*)key));
+	return (wcscmp(p, (const wchar_t *)key));
 }
 
 static void entry_list_init(struct entry_list * list)

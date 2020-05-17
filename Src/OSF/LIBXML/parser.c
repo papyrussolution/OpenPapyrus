@@ -356,11 +356,11 @@ static void FASTCALL xmlWarningMsg(xmlParserCtxt * ctxt, xmlParserErrors error, 
 		schannel = ctxt->sax->serror;
 	if(ctxt) {
 		__xmlRaiseError(schannel, (ctxt->sax) ? ctxt->sax->warning : NULL, ctxt->userData, ctxt, NULL, XML_FROM_PARSER, error,
-		    XML_ERR_WARNING, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0, msg, (const char *)str1, (const char *)str2);
+		    XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
 	}
 	else {
-		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0,
-		    msg, (const char *)str1, (const char *)str2);
+		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0,
+		    msg, PTRCHRC_(str1), PTRCHRC_(str2));
 	}
 }
 /**
@@ -383,13 +383,13 @@ static void FASTCALL xmlValidityError(xmlParserCtxt * ctxt, xmlParserErrors erro
 			schannel = ctxt->sax->serror;
 	}
 	if(ctxt) {
-		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_DTD, error, XML_ERR_ERROR, NULL, 0, (const char *)str1,
-		    (const char *)str2, NULL, 0, 0, msg, (const char *)str1, (const char *)str2);
+		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_DTD, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1),
+		    PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
 		ctxt->valid = 0;
 	}
 	else {
-		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_DTD, error, XML_ERR_ERROR, NULL, 0, (const char *)str1, (const char *)str2, NULL, 0, 0,
-		    msg, (const char *)str1, (const char *)str2);
+		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_DTD, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0,
+		    msg, PTRCHRC_(str1), PTRCHRC_(str2));
 	}
 }
 /**
@@ -430,7 +430,7 @@ static void FASTCALL xmlFatalErrMsgStrIntStr(xmlParserCtxt * ctxt, xmlParserErro
 	if(!ctxt || !ctxt->disableSAX || ctxt->instate != XML_PARSER_EOF) {
 		if(ctxt)
 			ctxt->errNo = error;
-		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, (const char *)str1, (const char *)str2, NULL, val, 0, msg, str1, val, str2);
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, val, 0, msg, str1, val, str2);
 		if(ctxt) {
 			ctxt->wellFormed = 0;
 			if(ctxt->recovery == 0)

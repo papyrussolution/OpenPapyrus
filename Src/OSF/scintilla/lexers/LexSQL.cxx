@@ -113,54 +113,18 @@ public:
 		SETFLAG(sqlStatesLine, MASK_INTO_CREATE_VIEW_AS_STATEMENT, enable);
 		return sqlStatesLine;
 	}
-	bool IsIgnoreWhen(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_IGNORE_WHEN) != 0;
-	}
-	bool IsIntoCondition(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_CONDITION) != 0;
-	}
-	bool IsIntoCaseBlock(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_NESTED_CASES) != 0;
-	}
-	bool IsIntoExceptionBlock(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_EXCEPTION) != 0;
-	}
-	bool IsIntoSelectStatementOrAssignment(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT) != 0;
-	}
-	bool IsCaseMergeWithoutWhenFound(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_CASE_MERGE_WITHOUT_WHEN_FOUND) != 0;
-	}
-	bool IsIntoDeclareBlock(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_DECLARE) != 0;
-	}
-	bool IsIntoMergeStatement(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_MERGE_STATEMENT) != 0;
-	}
-	bool IsIntoCreateStatement(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_CREATE) != 0;
-	}
-	bool IsIntoCreateViewStatement(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_CREATE_VIEW) != 0;
-	}
-	bool IsIntoCreateViewAsStatement(sql_state_t sqlStatesLine) const
-	{
-		return (sqlStatesLine & MASK_INTO_CREATE_VIEW_AS_STATEMENT) != 0;
-	}
-	sql_state_t ForLine(Sci_Position lineNumber)
-	{
-		return sqlStatement.ValueAt(lineNumber);
-	}
+	bool IsIgnoreWhen(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_IGNORE_WHEN) != 0; }
+	bool IsIntoCondition(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_CONDITION) != 0; }
+	bool IsIntoCaseBlock(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_NESTED_CASES) != 0; }
+	bool IsIntoExceptionBlock(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_EXCEPTION) != 0; }
+	bool IsIntoSelectStatementOrAssignment(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT) != 0; }
+	bool IsCaseMergeWithoutWhenFound(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_CASE_MERGE_WITHOUT_WHEN_FOUND) != 0; }
+	bool IsIntoDeclareBlock(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_DECLARE) != 0; }
+	bool IsIntoMergeStatement(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_MERGE_STATEMENT) != 0; }
+	bool IsIntoCreateStatement(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_CREATE) != 0; }
+	bool IsIntoCreateViewStatement(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_CREATE_VIEW) != 0; }
+	bool IsIntoCreateViewAsStatement(sql_state_t sqlStatesLine) const { return (sqlStatesLine & MASK_INTO_CREATE_VIEW_AS_STATEMENT) != 0; }
+	sql_state_t ForLine(Sci_Position lineNumber) { return sqlStatement.ValueAt(lineNumber); }
 	SQLStates()
 	{
 	}
@@ -183,15 +147,16 @@ private:
 
 // Options used for LexerSQL
 struct OptionsSQL {
-	bool fold;
-	bool foldAtElse;
-	bool foldComment;
-	bool foldCompact;
-	bool foldOnlyBegin;
-	bool sqlBackticksIdentifier;
-	bool sqlNumbersignComment;
-	bool sqlBackslashEscapes;
-	bool sqlAllowDottedWord;
+	bool   fold;
+	bool   foldAtElse;
+	bool   foldComment;
+	bool   foldCompact;
+	bool   foldOnlyBegin;
+	bool   sqlBackticksIdentifier;
+	bool   sqlNumbersignComment;
+	bool   sqlBackslashEscapes;
+	bool   sqlAllowDottedWord;
+	uint8  Reserve[3]; // @alignment
 	OptionsSQL()
 	{
 		fold = false;

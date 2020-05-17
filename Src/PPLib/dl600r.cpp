@@ -809,7 +809,7 @@ int DlRtm::SetByJSON(json_t * pJSONDoc, PPID & ObjId)
 	THROW(s_blk.Init(P_Data));
 	THROW(SetByJSON_Helper(pJSONDoc, s_blk));
 	THROW(Set(0, 1));
-	ObjId = (PPID)Extra[4].Ptr;
+	ObjId = reinterpret_cast<PPID>(Extra[4].Ptr);
 	CATCHZOK
 	return ok;
 }

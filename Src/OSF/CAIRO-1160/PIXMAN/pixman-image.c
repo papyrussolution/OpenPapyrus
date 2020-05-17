@@ -42,21 +42,18 @@ static void gradient_property_changed(pixman_image_t * image)
 		    end->x = INT32_MAX;
 		    end->color = transparent_black;
 		    break;
-
 		case PIXMAN_REPEAT_NORMAL:
 		    begin->x = stops[n - 1].x - pixman_fixed_1;
 		    begin->color = stops[n - 1].color;
 		    end->x = stops[0].x + pixman_fixed_1;
 		    end->color = stops[0].color;
 		    break;
-
 		case PIXMAN_REPEAT_REFLECT:
 		    begin->x = -stops[0].x;
 		    begin->color = stops[0].color;
 		    end->x = pixman_int_to_fixed(2) - stops[n - 1].x;
 		    end->color = stops[n - 1].color;
 		    break;
-
 		case PIXMAN_REPEAT_PAD:
 		    begin->x = INT32_MIN;
 		    begin->color = stops[0].color;
@@ -66,12 +63,9 @@ static void gradient_property_changed(pixman_image_t * image)
 	}
 }
 
-pixman_bool_t _pixman_init_gradient(gradient_t * gradient,
-    const pixman_gradient_stop_t * stops,
-    int n_stops)
+pixman_bool_t _pixman_init_gradient(gradient_t * gradient, const pixman_gradient_stop_t * stops, int n_stops)
 {
 	return_val_if_fail(n_stops > 0, FALSE);
-
 	/* We allocate two extra stops, one before the beginning of the stop list,
 	 * and one after the end. These stops are initialized to whatever color
 	 * would be used for positions outside the range of the stop list.
@@ -85,13 +79,10 @@ pixman_bool_t _pixman_init_gradient(gradient_t * gradient,
 	gradient->stops = (pixman_gradient_stop_t *)pixman_malloc_ab(n_stops + 2, sizeof(pixman_gradient_stop_t));
 	if(!gradient->stops)
 		return FALSE;
-
 	gradient->stops += 1;
 	memcpy(gradient->stops, stops, n_stops * sizeof(pixman_gradient_stop_t));
 	gradient->n_stops = n_stops;
-
 	gradient->common.property_changed = gradient_property_changed;
-
 	return TRUE;
 }
 
@@ -492,7 +483,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_transform(pixman_image_t * image, c
 		return TRUE;
 	}
 	if(common->transform == NULL)
-		common->transform = (pixman_transform_t *)SAlloc::M(sizeof(pixman_transform_t));
+		common->transform = static_cast<pixman_transform_t *>(SAlloc::M(sizeof(pixman_transform_t)));
 	if(common->transform == NULL) {
 		result = FALSE;
 		goto out;
@@ -530,7 +521,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixm
 	}
 	new_params = NULL;
 	if(params) {
-		new_params = (pixman_fixed_t *)pixman_malloc_ab(n_params, sizeof(pixman_fixed_t));
+		new_params = static_cast<pixman_fixed_t *>(pixman_malloc_ab(n_params, sizeof(pixman_fixed_t)));
 		if(!new_params)
 			return FALSE;
 		memcpy(new_params, params, n_params * sizeof(pixman_fixed_t));
@@ -558,7 +549,7 @@ PIXMAN_EXPORT void pixman_image_set_source_clipping(pixman_image_t * image, pixm
  */
 PIXMAN_EXPORT void pixman_image_set_indexed(pixman_image_t * image, const pixman_indexed_t * indexed)
 {
-	bits_image_t * bits = (bits_image_t*)image;
+	bits_image_t * bits = reinterpret_cast<bits_image_t *>(image);
 	if(bits->indexed == indexed)
 		return;
 	bits->indexed = indexed;

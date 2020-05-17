@@ -1,15 +1,16 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020
 //
 #include <pp.h>
 #pragma hdrstop
 //
 //
 //
-SLAPI PPGenericDevice::PPGenericDevice()
+SLAPI PPGenericDevice::PPGenericDevice() : Tag(PPOBJ_GENERICDEVICE), ID(0), Flags(0), DeviceClass(0), Reserve2(0)
 {
-	THISZERO();
-	Tag = PPOBJ_GENERICDEVICE;
+	PTR32(Name)[0] = 0;
+	PTR32(Symb)[0] = 0;
+	memzero(Reserve, sizeof(Reserve));
 }
 
 SLAPI PPGenericDevicePacket::PPGenericDevicePacket()
@@ -95,13 +96,14 @@ int SLAPI PPObjGenericDevice::GetPacket(PPID id, PPGenericDevicePacket * pPack)
 int SLAPI PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 {
 	class GenDvcDialog : public TDialog {
+		DECL_DIALOG_DATA(PPGenericDevicePacket);
 	public:
 		GenDvcDialog() : TDialog(DLG_ADEVICE)
 		{
 		}
-		int    setDTS(const PPGenericDevicePacket * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			setCtrlLong(CTL_ADEVICE_ID, Data.Rec.ID);
 			setCtrlString(CTL_ADEVICE_NAME, Data.Rec.Name);
@@ -109,15 +111,13 @@ int SLAPI PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 			SetupStringCombo(this, CTLSEL_ADEVICE_CLS, PPTXT_ABSTRACTDEVICETYPENAMES, Data.Rec.DeviceClass);
 			AddClusterAssoc(CTL_ADEVICE_FLAGS, 0, PPCommObjEntry::fPassive);
 			SetClusterData(CTL_ADEVICE_FLAGS, Data.Rec.Flags);
-
 			Data.GetExtStrData(GENDVCEXSTR_ENTRY, temp_buf);
 			setCtrlString(CTL_ADEVICE_DVCSYMB, temp_buf);
-			Data.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf); // @v7.9.6
-			setCtrlString(CTL_ADEVICE_INITSTR, temp_buf);      // @v7.9.6
-
+			Data.GetExtStrData(GENDVCEXSTR_INITSTR, temp_buf);
+			setCtrlString(CTL_ADEVICE_INITSTR, temp_buf);
 			return 1;
 		}
-		int    getDTS(PPGenericDevicePacket * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			SString temp_buf;
@@ -127,13 +127,11 @@ int SLAPI PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 			GetClusterData(CTL_ADEVICE_FLAGS, &Data.Rec.Flags);
 			getCtrlString(CTL_ADEVICE_DVCSYMB, temp_buf);
 			Data.PutExtStrData(GENDVCEXSTR_ENTRY, temp_buf);
-			getCtrlString(CTL_ADEVICE_INITSTR, temp_buf);       // @v7.9.6
-			Data.PutExtStrData(GENDVCEXSTR_INITSTR, temp_buf);  // @v7.9.6
+			getCtrlString(CTL_ADEVICE_INITSTR, temp_buf);
+			Data.PutExtStrData(GENDVCEXSTR_INITSTR, temp_buf);
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
-	public:
-		PPGenericDevicePacket Data;
 	};
 	int    ok = -1, is_new = 0;
 	GenDvcDialog * dlg = 0;
@@ -300,11 +298,9 @@ int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol,
 
 	int    ok = 0, r = 2;
 	int    drv_impl = 0;
-	SString temp_buf;
 	const char * p_eq = sstrchr(pLine, '=');
-
 	size_t eq_pos = 0;
-	temp_buf = pLine;
+	SString temp_buf = pLine;
 	if(temp_buf.SearchChar('=', &eq_pos)) {
 		rSymbol = temp_buf.Trim(eq_pos).Strip();
 		r = 1;
@@ -597,14 +593,12 @@ class PPDevice_Leader : public PPAbstractDevice {
 public:
 	PPDevice_Leader();
 	~PPDevice_Leader();
-
 	virtual int GetCapability(Capability * pCpb);
 	virtual int OpenConnection(const ConnectionParam &);
 	virtual int CloseConnection();
 	virtual int RunCmd(int innerId, const StrAssocArray & rIn, StrAssocArray & rOut);
 	virtual int GetConnParam(ConnectionParam *);
 	virtual int GetSessionPrice(PPObjGoods *, double *);
-
 	int    CardCodeToString(const uint8 * pCardCode, SString & rBuf) const;
 	int    StringToCardCode(const char * pStr, uint8 * pCardCode) const;
 private:
@@ -692,7 +686,7 @@ int PPDevice_Leader::OpenConnection(const ConnectionParam & rConnParam)
 			ConnP.P_Conn = (long)P_Cp;
 		}
 		else {
-			P_Cp = (SCommPort*)ConnP.P_Conn;
+			P_Cp = reinterpret_cast<SCommPort *>(ConnP.P_Conn);
 			THROW(P_Cp);
 			State |= stConnected;
 		}
@@ -751,7 +745,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 				{
 					data_size = 0;
 					data_buf[data_size++] = 0xAA;
-					data_buf[data_size++] = (uint8)ConnP.DeviceNo;
+					data_buf[data_size++] = static_cast<uint8>(ConnP.DeviceNo);
 					data_buf[data_size++] = 0x01;
 					cs = CalcCheckCode(data_buf, data_size);
 					data_buf[data_size++] = cs;
@@ -763,12 +757,12 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 						int    chr;
 						for(num_tries = 0; !data_size && num_tries < get_num_tries; num_tries++)
 							while(P_Cp->GetChr(&chr))
-								data_buf[data_size++] = (uint8)chr;
+								data_buf[data_size++] = static_cast<uint8>(chr);
 						THROW_PP(data_size, PPERR_DVC_NOREPLY);
 						cs = CalcCheckCode(data_buf, data_size-1);
 						THROW_PP(cs == data_buf[data_size-1], PPERR_DVC_INVREPLY);
 						THROW_PP(data_buf[0] == 0xAA, PPERR_DVC_INVREPLY);
-						THROW_PP(data_buf[1] == (int8)ConnP.DeviceNo, PPERR_DVC_INVREPLY);
+						THROW_PP(data_buf[1] == static_cast<int8>(ConnP.DeviceNo), PPERR_DVC_INVREPLY);
 						if(data_buf[2] == 0x01) {
 							temp_buf.Z();
 							CardCodeToString(data_buf+3, temp_buf);
@@ -788,7 +782,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 						// Header
 						data_size = 0;
 						data_buf[data_size++] = 0xAA;
-						data_buf[data_size++] = (uint8)ConnP.DeviceNo;
+						data_buf[data_size++] = static_cast<uint8>(ConnP.DeviceNo);
 						data_buf[data_size++] = 0x06;
 						// Line 1
 						temp_buf.Wrap(DispLineSize, head_buf, tail_buf);
@@ -814,13 +808,13 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 							int    chr;
 							for(num_tries = 0; !data_size && num_tries < get_num_tries; num_tries++)
 								while(P_Cp->GetChr(&chr)) {
-									data_buf[data_size++] = (uint8)chr;
+									data_buf[data_size++] = static_cast<uint8>(chr);
 								}
 							THROW_PP(data_size, PPERR_DVC_NOREPLY);
 							cs = CalcCheckCode(data_buf, data_size-1);
 							THROW_PP(cs == data_buf[data_size-1], PPERR_DVC_INVREPLY);
 							THROW_PP(data_buf[0] == 0xAA, PPERR_DVC_INVREPLY);
-							THROW_PP(data_buf[1] == (int8)ConnP.DeviceNo, PPERR_DVC_INVREPLY);
+							THROW_PP(data_buf[1] == static_cast<int8>(ConnP.DeviceNo), PPERR_DVC_INVREPLY);
 							THROW_PP(data_buf[2] == 0x02, PPERR_DVC_INVREPLY);
 						}
 					}
@@ -831,7 +825,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 					long   rele = 0;
 					data_size = 0;
 					data_buf[data_size++] = 0xAA;
-					data_buf[data_size++] = (uint8)ConnP.DeviceNo;
+					data_buf[data_size++] = static_cast<uint8>(ConnP.DeviceNo);
 					data_buf[data_size++] = 0x03;
 					temp_buf.Z();
 					rIn.GetText(DVCCMDPAR_TEXT, temp_buf);
@@ -854,7 +848,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 						if(rele < 0 || rele > 255)
 							rele = 0;
 					}
-					data_buf[data_size++] = (uint8)rele;
+					data_buf[data_size++] = static_cast<uint8>(rele);
 					cs = CalcCheckCode(data_buf, data_size);
 					data_buf[data_size++] = cs;
 					for(i = 0; i < data_size; i++) {

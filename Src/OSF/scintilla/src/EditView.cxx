@@ -43,8 +43,7 @@ bool ValidStyledText(const ViewStyle &vs, size_t styleOffset, const Document::St
 	return true;
 }
 
-static int WidthStyledText(Surface * surface, const ViewStyle &vs, int styleOffset,
-    const char * text, const uchar * styles, size_t len)
+static int WidthStyledText(Surface * surface, const ViewStyle &vs, int styleOffset, const char * text, const uchar * styles, size_t len)
 {
 	int width = 0;
 	for(size_t start = 0; start < len;) {
@@ -2027,7 +2026,7 @@ static ColourDesired InvertedLight(ColourDesired orig)
 		r = r * il / l;
 		g = g * il / l;
 		b = b * il / l;
-		return ColourDesired(smin(r, 0xff), smin(g, 0xff), smin(b, 0xff));
+		return ColourDesired(smin(r, 0xffU), smin(g, 0xffU), smin(b, 0xffU));
 	}
 }
 

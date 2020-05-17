@@ -2105,7 +2105,7 @@ int PPApp::RegisterComServer()
 				SString subkey2;
 				WinRegValue reg_val;
 				for(uint idx = 0; reg_key.EnumValues(&idx, &subkey2.Z(), &reg_val) > 0;) {
-					if(subkey2.CmpPrefix(p_open_name, 1) == 0) {
+					if(subkey2.HasPrefixNC(p_open_name)) {
 						SString open_idx_str;
 						long open_idx = (open_idx_str = subkey2).ShiftLeft(4).ToLong();
 						if(reg_key.GetString(subkey2, param_buf) > 0 && src_path.CmpNC(param_buf) == 0)

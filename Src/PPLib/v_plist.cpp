@@ -2935,13 +2935,6 @@ int PPALDD_PriceListData::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_PriceListData::InitIteration(PPIterID iterId, int sortId, long)
 {
 	INIT_PPVIEW_ALDD_ITER_ORD(PriceList, static_cast<PPViewPriceList::IterOrder>(sortId));
-	/*
-	PPViewPriceList * p_plv = static_cast<PPViewPriceList *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
-	IterProlog(iterId, 1);
-	if(sortId >= 0)
-		SortIdx = sortId;
-	return BIN(p_plv->InitIteration((PPViewPriceList::IterOrder)SortIdx));
-	*/
 }
 
 int PPALDD_PriceListData::NextIteration(PPIterID iterId)

@@ -121,15 +121,13 @@ static void combine_dst(pixman_implementation_t * imp, pixman_op_t op, uint32_t 
 	return;
 }
 
-static void combine_src_u(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src,
-    const uint32_t * mask, int width)
+static void combine_src_u(pixman_implementation_t * imp, pixman_op_t op, uint32_t * dest, const uint32_t * src, const uint32_t * mask, int width)
 {
-	int i;
 	if(!mask) {
 		memcpy(dest, src, width * sizeof(uint32_t));
 	}
 	else {
-		for(i = 0; i < width; ++i) {
+		for(int i = 0; i < width; ++i) {
 			uint32_t s = combine_mask(src, mask, i);
 			*(dest + i) = s;
 		}

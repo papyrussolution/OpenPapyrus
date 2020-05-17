@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -22,59 +22,55 @@ SLAPI PPViewUserProfile::~PPViewUserProfile()
 }
 
 class UserProfileFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(UserProfileFilt);
 public:
 	explicit UserProfileFiltDialog(TSArray <PPUserProfileCore::UfpDbEntry> & rUfpDbList) : TDialog(DLG_FLTUSRPROF), R_UfpDbList(rUfpDbList)
 	{
 		SetupCalCtrl(CTLCAL_FLTUSRPROF_PRD, this, CTL_FLTUSRPROF_PRD, 1);
 	}
-	int    setDTS(UserProfileFilt *);
-	int    getDTS(UserProfileFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		long   db_pos = 0;
+		uint   i;
+		SString func_name;
+		StrAssocArray db_list, func_list;
+		if(!RVALUEPTR(Data, pData))
+			Data.Init(1, 0);
+		for(i = 0; i < R_UfpDbList.getCount(); i++) {
+			const PPUserProfileCore::UfpDbEntry & r_entry = R_UfpDbList.at(i);
+			db_list.Add(i + 1, 0, r_entry.DbSymb);
+			if(r_entry.DbID == Data.DbID)
+				db_pos = i + 1;
+		}
+		for(i = PPUPRF_LOGIN; i < PPUPRF_LAST; i++) {
+			PPLoadString(PPSTR_USRPROFILEFUNCNAM, i, func_name);
+			if(func_name.NotEmptyS())
+				func_list.Add(i, 0, func_name);
+		}
+		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, &db_list, db_pos, 0);
+		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, &func_list, Data.FuncID, 0);
+		SetPeriodInput(this, CTLCAL_FLTUSRPROF_PRD, &Data.Period);
+		SetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Data.TmPeriod);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		long   db_pos = getCtrlLong(CTL_FLTUSRPROF_DB) - 1;
+		Data.FuncID = getCtrlLong(CTL_FLTUSRPROF_FUNC);
+		if(db_pos >= 0)
+			Data.DbID = R_UfpDbList.at(db_pos).DbID;
+		else
+			Data.DbID.Z();
+		GetPeriodInput(this, CTL_FLTUSRPROF_PRD, &Data.Period);
+		GetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Data.TmPeriod);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	TSArray <PPUserProfileCore::UfpDbEntry> & R_UfpDbList;
 	TSArray <PPUserProfileFileItem> * P_OffsList;
-	UserProfileFilt Filt;
 };
-
-int UserProfileFiltDialog::setDTS(UserProfileFilt * pFilt)
-{
-	long   db_pos = 0;
-	uint   i;
-	SString func_name;
-	StrAssocArray db_list, func_list;
-	if(!RVALUEPTR(Filt, pFilt))
-		Filt.Init(1, 0);
-	for(i = 0; i < R_UfpDbList.getCount(); i++) {
-		const PPUserProfileCore::UfpDbEntry & r_entry = R_UfpDbList.at(i);
-		db_list.Add(i + 1, 0, r_entry.DbSymb);
-		if(r_entry.DbID == Filt.DbID)
-			db_pos = i + 1;
-	}
-	for(i = PPUPRF_LOGIN; i < PPUPRF_LAST; i++) {
-		PPLoadString(PPSTR_USRPROFILEFUNCNAM, i, func_name);
-		if(func_name.NotEmptyS())
-			func_list.Add(i, 0, func_name);
-	}
-	SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, &db_list, db_pos, 0);
-	SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, &func_list, Filt.FuncID, 0);
-	SetPeriodInput(this, CTLCAL_FLTUSRPROF_PRD, &Filt.Period);
-	SetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Filt.TmPeriod);
-	return 1;
-}
-
-int UserProfileFiltDialog::getDTS(UserProfileFilt * pFilt)
-{
-	int    ok = 1;
-	long   db_pos = getCtrlLong(CTL_FLTUSRPROF_DB) - 1;
-	Filt.FuncID = getCtrlLong(CTL_FLTUSRPROF_FUNC);
-	if(db_pos >= 0)
-		Filt.DbID = R_UfpDbList.at(db_pos).DbID;
-	else
-		Filt.DbID.Z();
-	GetPeriodInput(this, CTL_FLTUSRPROF_PRD, &Filt.Period);
-	GetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Filt.TmPeriod);
-	ASSIGN_PTR(pFilt, Filt);
-	return ok;
-}
 
 // virtual
 int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
@@ -108,7 +104,7 @@ int FASTCALL PPViewUserProfile::NextIteration(UserProfileViewItem * pItem)
 {
 	int    ok = -1;
 	UserProfileViewItem item;
-	MEMSZERO(item);
+	// @v10.7.8 @ctr MEMSZERO(item);
 	ASSIGN_PTR(pItem, item);
 	return ok;
 }

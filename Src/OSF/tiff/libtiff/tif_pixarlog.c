@@ -168,15 +168,12 @@ static void horizontalAccumulateF(uint16 * wp, int n, int stride, float * op, fl
 	}
 }
 
-static void horizontalAccumulate12(uint16 * wp, int n, int stride, int16 * op,
-    float * ToLinearF)
+static void horizontalAccumulate12(uint16 * wp, int n, int stride, int16 * op, float * ToLinearF)
 {
-	register unsigned int cr, cg, cb, ca, mask;
-	register float t0, t1, t2, t3;
-
+	unsigned int cr, cg, cb, ca, mask;
+	float t0, t1, t2, t3;
 #define SCALE12 2048.0F
 #define CLAMP12(t) (((t) < 3071) ? static_cast<uint16>(t) : 3071)
-
 	if(n >= stride) {
 		mask = CODE_MASK;
 		if(stride == 3) {

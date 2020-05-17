@@ -1,5 +1,6 @@
 // GDSCLS.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -304,12 +305,74 @@ int SLAPI PPObjGoodsClass::GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim
 //
 //
 class GoodsClassDialog : public TDialog {
+	DECL_DIALOG_DATA(PPGdsClsPacket);
 public:
 	GoodsClassDialog() : TDialog(DLG_GDSCLS)
 	{
 	}
-	int    setDTS(const PPGdsClsPacket *);
-	int    getDTS(PPGdsClsPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_GDSCLS_NAME, Data.Rec.Name);
+		setCtrlData(CTL_GDSCLS_SYMB, Data.Rec.Symb);
+		setCtrlData(CTL_GDSCLS_ID, &Data.Rec.ID);
+		setCtrlString(CTL_GDSCLS_NAMECONV,  Data.NameConv);
+		setCtrlString(CTL_GDSCLS_ABBRCONV,  Data.AbbrConv);
+		setCtrlString(CTL_GDSCLS_PHUPERU,   Data.PhUPerU_Formula);
+		setCtrlString(CTL_GDSCLS_TAXFACTOR, Data.TaxMult_Formula);
+		setCtrlString(CTL_GDSCLS_PACKAGE,   Data.Package_Formula);
+		SetupPPObjCombo(this, CTLSEL_GDSCLS_UNIT, PPOBJ_UNIT, Data.Rec.DefUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade));
+		SetupPPObjCombo(this, CTLSEL_GDSCLS_PHUNIT, PPOBJ_UNIT, Data.Rec.DefPhUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade|PPUnit::Physical));
+		SetupPPObjCombo(this, CTLSEL_GDSCLS_GDSTYPE, PPOBJ_GOODSTYPE, Data.Rec.DefGoodsTypeID, OLW_CANINSERT);
+		SetupPPObjCombo(this, CTLSEL_GDSCLS_TAXGRP, PPOBJ_GOODSTAX, Data.Rec.DefTaxGrpID, OLW_CANINSERT);
+		SetupPPObjCombo(this, CTLSEL_GDSCLS_GRP, PPOBJ_GOODSGROUP, Data.Rec.DefGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
+		setupCmdFlag(PPGdsCls::fUsePropKind,  CTL_GDSCLS_E_KIND,  cmGdsClsKind);
+		setupCmdFlag(PPGdsCls::fUsePropGrade, CTL_GDSCLS_E_GRADE, cmGdsClsGrade);
+		setupCmdFlag(PPGdsCls::fUsePropAdd,   CTL_GDSCLS_E_ADD,   cmGdsClsAdd);
+		setupCmdFlag(PPGdsCls::fUsePropAdd2,  CTL_GDSCLS_E_ADD2,  cmGdsClsAdd2);
+		setupCmdFlag(PPGdsCls::fUseDimX, CTL_GDSCLS_E_X, cmGdsClsX);
+		setupCmdFlag(PPGdsCls::fUseDimY, CTL_GDSCLS_E_Y, cmGdsClsY);
+		setupCmdFlag(PPGdsCls::fUseDimZ, CTL_GDSCLS_E_Z, cmGdsClsZ);
+		setupCmdFlag(PPGdsCls::fUseDimW, CTL_GDSCLS_E_W, cmGdsClsW);
+		AddClusterAssoc(CTL_GDSCLS_FLAGS, 0, PPGdsCls::fStdEditDlg);
+		AddClusterAssoc(CTL_GDSCLS_FLAGS, 1, PPGdsCls::fDupCombine);
+		AddClusterAssoc(CTL_GDSCLS_FLAGS, 2, PPGdsCls::fDisableFreeDim);
+		AddClusterAssoc(CTL_GDSCLS_FLAGS, 3, PPGdsCls::fPrintDiffLots);
+		SetClusterData(CTL_GDSCLS_FLAGS, Data.Rec.Flags);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTL_GDSCLS_NAME, Data.Rec.Name);
+		getCtrlData(CTL_GDSCLS_SYMB, Data.Rec.Symb);
+		if(Data.Rec.ID == 0)
+			getCtrlData(CTL_GDSCLS_ID, &Data.Rec.ID);
+		getCtrlString(CTL_GDSCLS_NAMECONV, Data.NameConv);
+		getCtrlString(CTL_GDSCLS_ABBRCONV, Data.AbbrConv);
+		getCtrlString(CTL_GDSCLS_PHUPERU,  Data.PhUPerU_Formula);
+		getCtrlString(CTL_GDSCLS_TAXFACTOR,  Data.TaxMult_Formula);
+		getCtrlString(CTL_GDSCLS_PACKAGE,    Data.Package_Formula);
+		getCtrlData(CTLSEL_GDSCLS_UNIT,    &Data.Rec.DefUnitID);
+		getCtrlData(CTLSEL_GDSCLS_PHUNIT,  &Data.Rec.DefPhUnitID);
+		getCtrlData(CTLSEL_GDSCLS_GDSTYPE, &Data.Rec.DefGoodsTypeID);
+		getCtrlData(CTLSEL_GDSCLS_TAXGRP,  &Data.Rec.DefTaxGrpID);
+		getCtrlData(CTLSEL_GDSCLS_GRP,     &Data.Rec.DefGrpID);
+		getCmdFlag(PPGdsCls::fUsePropKind,  CTL_GDSCLS_E_KIND);
+		getCmdFlag(PPGdsCls::fUsePropGrade, CTL_GDSCLS_E_GRADE);
+		getCmdFlag(PPGdsCls::fUsePropAdd,   CTL_GDSCLS_E_ADD);
+		getCmdFlag(PPGdsCls::fUsePropAdd2,   CTL_GDSCLS_E_ADD2);
+		getCmdFlag(PPGdsCls::fUseDimX, CTL_GDSCLS_E_X);
+		getCmdFlag(PPGdsCls::fUseDimY, CTL_GDSCLS_E_Y);
+		getCmdFlag(PPGdsCls::fUseDimZ, CTL_GDSCLS_E_Z);
+		getCmdFlag(PPGdsCls::fUseDimW, CTL_GDSCLS_E_W);
+		GetClusterData(CTL_GDSCLS_FLAGS, &Data.Rec.Flags);
+		if(!(Data.Rec.Flags & (PPGdsCls::fDupCombine|PPGdsCls::fStdEditDlg)))
+			THROW_PP(Data.NameConv.NotEmptyS(), PPERR_GDSCLSNMTMPLNEEDED);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupCmdFlag(uint struF, uint flgCtlID, uint cmdID);
@@ -318,7 +381,6 @@ private:
 	int    replyDimCmd(PPGdsClsDim *);
 	int    editDynGenMask();
 	int    EditLotDimParam();
-	PPGdsClsPacket Data;
 };
 
 class GoodsClassProp2Dialog : public TDialog {
@@ -461,8 +523,8 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 								ushort v = 0;
 								getCtrlData(CTL_GDSCLS_FLAGS, &v);
 								SETFLAG(Data.Rec.Flags, PPGdsCls::fDupCombine, v & 0x02);
-								/* @v5.1.9 Для поддержки уникальности записей GoodsExt
-								 теперь используется специализированное поле UniqCntr
+								/* @v5.1.9 Р”Р»СЏ РїРѕРґРґРµСЂР¶РєРё СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚Рё Р·Р°РїРёСЃРµР№ GoodsExt
+								 С‚РµРїРµСЂСЊ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅРѕРµ РїРѕР»Рµ UniqCntr
 								if(v & 0x02) {
 									Data.Rec.Flags &= ~PPGdsCls::fUsePropAdd;
 									setupCmdFlag(PPGdsCls::fUsePropAdd, CTL_GDSCLS_E_ADD, cmGdsClsAdd);
@@ -504,72 +566,6 @@ int GoodsClassDialog::getCmdFlag(uint struF, uint flgCtlID)
 	getCtrlData(flgCtlID, &v);
 	SETFLAG(Data.Rec.Flags, struF, v);
 	return BIN(v);
-}
-
-int GoodsClassDialog::setDTS(const PPGdsClsPacket * pData)
-{
-	Data = *pData;
-
-	setCtrlData(CTL_GDSCLS_NAME, Data.Rec.Name);
-	setCtrlData(CTL_GDSCLS_SYMB, Data.Rec.Symb);
-	setCtrlData(CTL_GDSCLS_ID, &Data.Rec.ID);
-	setCtrlString(CTL_GDSCLS_NAMECONV,  Data.NameConv);
-	setCtrlString(CTL_GDSCLS_ABBRCONV,  Data.AbbrConv);
-	setCtrlString(CTL_GDSCLS_PHUPERU,   Data.PhUPerU_Formula);
-	setCtrlString(CTL_GDSCLS_TAXFACTOR, Data.TaxMult_Formula);
-	setCtrlString(CTL_GDSCLS_PACKAGE,   Data.Package_Formula);
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_UNIT, PPOBJ_UNIT, Data.Rec.DefUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade));
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_PHUNIT, PPOBJ_UNIT, Data.Rec.DefPhUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade|PPUnit::Physical));
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_GDSTYPE, PPOBJ_GOODSTYPE, Data.Rec.DefGoodsTypeID, OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_TAXGRP, PPOBJ_GOODSTAX, Data.Rec.DefTaxGrpID, OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_GDSCLS_GRP, PPOBJ_GOODSGROUP, Data.Rec.DefGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
-	setupCmdFlag(PPGdsCls::fUsePropKind,  CTL_GDSCLS_E_KIND,  cmGdsClsKind);
-	setupCmdFlag(PPGdsCls::fUsePropGrade, CTL_GDSCLS_E_GRADE, cmGdsClsGrade);
-	setupCmdFlag(PPGdsCls::fUsePropAdd,   CTL_GDSCLS_E_ADD,   cmGdsClsAdd);
-	setupCmdFlag(PPGdsCls::fUsePropAdd2,  CTL_GDSCLS_E_ADD2,  cmGdsClsAdd2);
-	setupCmdFlag(PPGdsCls::fUseDimX, CTL_GDSCLS_E_X, cmGdsClsX);
-	setupCmdFlag(PPGdsCls::fUseDimY, CTL_GDSCLS_E_Y, cmGdsClsY);
-	setupCmdFlag(PPGdsCls::fUseDimZ, CTL_GDSCLS_E_Z, cmGdsClsZ);
-	setupCmdFlag(PPGdsCls::fUseDimW, CTL_GDSCLS_E_W, cmGdsClsW);
-	AddClusterAssoc(CTL_GDSCLS_FLAGS, 0, PPGdsCls::fStdEditDlg);
-	AddClusterAssoc(CTL_GDSCLS_FLAGS, 1, PPGdsCls::fDupCombine);
-	AddClusterAssoc(CTL_GDSCLS_FLAGS, 2, PPGdsCls::fDisableFreeDim);
-	AddClusterAssoc(CTL_GDSCLS_FLAGS, 3, PPGdsCls::fPrintDiffLots);
-	SetClusterData(CTL_GDSCLS_FLAGS, Data.Rec.Flags);
-	return 1;
-}
-
-int GoodsClassDialog::getDTS(PPGdsClsPacket * pData)
-{
-	int    ok = 1;
-	getCtrlData(CTL_GDSCLS_NAME, Data.Rec.Name);
-	getCtrlData(CTL_GDSCLS_SYMB, Data.Rec.Symb);
-	if(Data.Rec.ID == 0)
-		getCtrlData(CTL_GDSCLS_ID, &Data.Rec.ID);
-	getCtrlString(CTL_GDSCLS_NAMECONV, Data.NameConv);
-	getCtrlString(CTL_GDSCLS_ABBRCONV, Data.AbbrConv);
-	getCtrlString(CTL_GDSCLS_PHUPERU,  Data.PhUPerU_Formula);
-	getCtrlString(CTL_GDSCLS_TAXFACTOR,  Data.TaxMult_Formula);
-	getCtrlString(CTL_GDSCLS_PACKAGE,    Data.Package_Formula);
-	getCtrlData(CTLSEL_GDSCLS_UNIT,    &Data.Rec.DefUnitID);
-	getCtrlData(CTLSEL_GDSCLS_PHUNIT,  &Data.Rec.DefPhUnitID);
-	getCtrlData(CTLSEL_GDSCLS_GDSTYPE, &Data.Rec.DefGoodsTypeID);
-	getCtrlData(CTLSEL_GDSCLS_TAXGRP,  &Data.Rec.DefTaxGrpID);
-	getCtrlData(CTLSEL_GDSCLS_GRP,     &Data.Rec.DefGrpID);
-	getCmdFlag(PPGdsCls::fUsePropKind,  CTL_GDSCLS_E_KIND);
-	getCmdFlag(PPGdsCls::fUsePropGrade, CTL_GDSCLS_E_GRADE);
-	getCmdFlag(PPGdsCls::fUsePropAdd,   CTL_GDSCLS_E_ADD);
-	getCmdFlag(PPGdsCls::fUsePropAdd2,   CTL_GDSCLS_E_ADD2);
-	getCmdFlag(PPGdsCls::fUseDimX, CTL_GDSCLS_E_X);
-	getCmdFlag(PPGdsCls::fUseDimY, CTL_GDSCLS_E_Y);
-	getCmdFlag(PPGdsCls::fUseDimZ, CTL_GDSCLS_E_Z);
-	getCmdFlag(PPGdsCls::fUseDimW, CTL_GDSCLS_E_W);
-	GetClusterData(CTL_GDSCLS_FLAGS, &Data.Rec.Flags);
-	if(!(Data.Rec.Flags & (PPGdsCls::fDupCombine|PPGdsCls::fStdEditDlg)))
-		THROW_PP(Data.NameConv.NotEmptyS(), PPERR_GDSCLSNMTMPLNEEDED);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERR
-	return ok;
 }
 
 int GdsClsParamMask::Edit(long options)

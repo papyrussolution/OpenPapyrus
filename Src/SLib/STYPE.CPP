@@ -341,7 +341,7 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 	for(uint i = 0; i < SIZEOFARRAY(TypeNameList); i++) {
 		StringSet ss(',', TypeNameList[i].P_Names);
 		for(uint p = 0; ss.get(&p, temp_buf);) {
-			if(text.CmpPrefix(temp_buf, 1) == 0) {
+			if(text.HasPrefixNC(temp_buf)) {
 				uchar next2 = static_cast<uchar>(text[temp_buf.Len()]);
 				if(!isalnum(next2) && next2 != '_') {
 					rScan.SetLen(temp_buf.Len());

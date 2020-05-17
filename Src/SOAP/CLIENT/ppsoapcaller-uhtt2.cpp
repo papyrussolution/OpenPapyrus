@@ -509,22 +509,19 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateGoods(PPSoapClientSessio
 	InParamString arg_token(pToken);
 	InParamString arg_name(rPack.Name);
 	InParamString arg_single_barcode(rPack.SingleBarcode);
-
 	InParamString arg_ext_a(rPack.ExtA);
 	InParamString arg_ext_b(rPack.ExtB);
 	InParamString arg_ext_c(rPack.ExtC);
 	InParamString arg_ext_d(rPack.ExtD);
 	InParamString arg_ext_e(rPack.ExtE);
-
 	TSCollection <ns1__tagValue> tag_list;
 	TSCollection <InParamString> arglist_tag;
-
 	ns1__goods goods_param;
 	goods_param.ID = rPack.ID;
 	goods_param.OKOF = 0;
 	goods_param.Barcodes = 0;
-	goods_param.BrandID = rPack.BrandID; // @v8.2.10 0-->rPack.BrandID
-	goods_param.ManufactorID = rPack.ManufID; // @v8.3.5
+	goods_param.BrandID = rPack.BrandID;
+	goods_param.ManufactorID = rPack.ManufID;
 	goods_param.Brutto = 0.0;
 	goods_param.ClassID = 0;
 	goods_param.Energy = arg_ext_d;
@@ -545,7 +542,6 @@ extern "C" __declspec(dllexport) UhttStatus * UhttCreateGoods(PPSoapClientSessio
 	goods_param.UnitID = 0;
 	goods_param.SingleBarcode = arg_single_barcode;
 	goods_param.Package = rPack.Package;
-
 	for(i = 0; i < rPack.TagList.getCount(); i++) {
 		const UhttTagItem * p_item = rPack.TagList.at(i);
 		ns1__tagValue * p_tag = new ns1__tagValue;

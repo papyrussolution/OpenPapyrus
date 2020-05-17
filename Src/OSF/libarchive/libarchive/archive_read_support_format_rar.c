@@ -697,13 +697,13 @@ static int skip_sfx(struct archive_read * a)
 		 */
 		while(p + 7 < q) {
 			if(memcmp(p, RAR_SIGNATURE, 7) == 0) {
-				skip = p - (const char *)h;
+				skip = p - PTRCHRC(h);
 				__archive_read_consume(a, skip);
 				return ARCHIVE_OK;
 			}
 			p += 0x10;
 		}
-		skip = p - (const char *)h;
+		skip = p - PTRCHRC(h);
 		__archive_read_consume(a, skip);
 		total += skip;
 	}
@@ -1243,7 +1243,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 	rar->bytes_remaining = rar->packed_size;
 	/* TODO: RARv3 subblocks contain comments. For now the complete block is consumed at the end. */
 	if(head_type == NEWSUB_HEAD) {
-		size_t distance = p - (const char *)h;
+		size_t distance = p - PTRCHRC(h);
 		header_size += rar->packed_size;
 		/* Make sure we have the extended data. */
 		if((h = __archive_read_ahead(a, (size_t)header_size - 7, NULL)) == NULL)

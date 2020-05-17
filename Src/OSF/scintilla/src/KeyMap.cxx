@@ -25,10 +25,8 @@ bool FASTCALL KeyMap::KeyModifiers::operator < (const KeyModifiers &other) const
 
 KeyMap::KeyMap()
 {
-	for(int i = 0; MapDefault[i].key; i++) {
-		AssignCmdKey(MapDefault[i].key,
-		    MapDefault[i].modifiers,
-		    MapDefault[i].msg);
+	for(uint i = 0; MapDefault[i].key; i++) {
+		AssignCmdKey(MapDefault[i].key, MapDefault[i].modifiers, MapDefault[i].msg);
 	}
 }
 
@@ -54,19 +52,19 @@ uint KeyMap::Find(int key, int modifiers) const
 }
 
 #if PLAT_GTK_MACOSX
-#define OS_X_KEYS 1
+	#define OS_X_KEYS 1
 #else
-#define OS_X_KEYS 0
+	#define OS_X_KEYS 0
 #endif
 
 // Define a modifier that is exactly Ctrl key on all platforms
 // Most uses of Ctrl map to Cmd on OS X but some can't so use SCI_[S]CTRL_META
 #if OS_X_KEYS
-#define SCI_CTRL_META SCI_META
-#define SCI_SCTRL_META (SCI_META | SCI_SHIFT)
+	#define SCI_CTRL_META SCI_META
+	#define SCI_SCTRL_META (SCI_META | SCI_SHIFT)
 #else
-#define SCI_CTRL_META SCI_CTRL
-#define SCI_SCTRL_META (SCI_CTRL | SCI_SHIFT)
+	#define SCI_CTRL_META SCI_CTRL
+	#define SCI_SCTRL_META (SCI_CTRL | SCI_SHIFT)
 #endif
 
 const KeyMap::KeyToCommand KeyMap::MapDefault[] = {

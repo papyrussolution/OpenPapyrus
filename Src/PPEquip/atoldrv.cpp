@@ -1,7 +1,7 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020
 // @codepage UTF-8
-// Интерфейс эмулятора синхронного кассового аппарата
+// Интерфейс с драйвером оборудования АТОЛ 
 //
 #include <pp.h>
 #pragma hdrstop
@@ -571,10 +571,7 @@ private:
 		return ok;
 	}
 	void SLAPI WriteLogFile(PPID id);
-	void SLAPI CutLongTail(SString & rBuf) const
-	{
-		rBuf.Trim(CheckStrLen).TrimRightChr(' ');
-	}
+	void SLAPI CutLongTail(SString & rBuf) const { rBuf.Trim(CheckStrLen).TrimRightChr(' '); }
 	int  SLAPI AllowPrintOper(uint id);
 	int  SLAPI AllowPrintOper_Fptr10();
 	int  SLAPI PrintDiscountInfo(const CCheckPacket * pPack, uint flags);
@@ -744,10 +741,13 @@ SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 		}
 	}
 	if(P_Fptr10) {
+		RefToIntrf++; // @v10.7.8
 	}
 	else {
-		RefToIntrf++;
+		// @v10.7.8 RefToIntrf++; 
 		SETIFZ(P_Disp, InitDisp());
+		if(P_Disp)
+			RefToIntrf++; // @v10.7.8
 	}
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;
@@ -757,8 +757,10 @@ SLAPI SCS_ATOLDRV::~SCS_ATOLDRV()
 {
 	if(RefToIntrf > 0) {
 		RefToIntrf--;
-		if(RefToIntrf == 0)
+		if(RefToIntrf == 0) {
 			ZDELETE(P_Disp);
+			ZDELETE(P_Fptr10); // @v10.7.8
+		}
 	}
 }
 

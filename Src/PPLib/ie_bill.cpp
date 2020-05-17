@@ -735,7 +735,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					THROW_PP(bill_struc_id, PPERR_INVBILLIMPEXPCFG);
 					HdrList.GetText(bill_struc_id, sect);
 					if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp)) {
-						if(!sect.CmpPrefix("DLL_", 1))
+						if(sect.HasPrefixIAscii("DLL_"))
 							P_Data->BillParam.BaseFlags |= PPImpExpParam::bfDLL;
 						P_Data->BillParam.ProcessName(1, sect);
 						THROW(P_Data->BillParam.ReadIni(P_IniFile, sect, 0));
@@ -1097,9 +1097,8 @@ int SLAPI PPBillImporter::LoadConfig(int import)
 		else {
 			BillParam.ProcessName(2, name); // @vmiller
 			// @vmiller (impexp) {
-			if(name.CmpPrefix("DLL_", 1) == 0) {
+			if(name.HasPrefixIAscii("DLL_"))
 				BillParam.BaseFlags |= PPImpExpParam::bfDLL;
-			}
 			// } @vmiller (impexp)
 			BillParam.ProcessName(1, name);
 			THROW(BillParam.ReadIni(&ini_file, name, 0));

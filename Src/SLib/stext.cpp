@@ -655,7 +655,7 @@ int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 			}
 			else {
 				size_t code_len = sstrlen(p_code);
-				if(temp_buf.CmpPrefix(p_code, 0) == 0 && code_len > max_found_len) {
+				if(temp_buf.HasPrefix(p_code) && code_len > max_found_len) {
 					const char nextc = temp_buf.C(code_len);
 					//
 					// @v9.1.8 ƒополнительное ограничение: следующий символ не должен быть латинской буквой.
@@ -795,7 +795,7 @@ int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
 		for(i = 0; i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
 			const char * p_code = P_SNScriptIdentList[i].P_Code;
 			const size_t code_len = sstrlen(p_code);
-			if(temp_buf.CmpPrefix(p_code, 0) == 0 && code_len > max_found_len) {
+			if(temp_buf.HasPrefix(p_code) && code_len > max_found_len) {
 				const char nextc = temp_buf.C(code_len);
 				if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
 					max_found_len = code_len;

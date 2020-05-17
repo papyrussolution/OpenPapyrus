@@ -1,5 +1,6 @@
 // XLSTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -26,8 +27,8 @@ void ExcelDbFile::Param::Init()
 	TimeFormat = 0;
 	RealFormat = 0;
 	Flags = 0;
-	SheetName_ = 0;
-	EndStr_ = 0;
+	SheetName_.Z();
+	EndStr_.Z();
 }
 
 int ExcelDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -96,7 +97,7 @@ int ExcelDbFile::Open(const char * pFileName, const Param * pParam, int readOnly
 		long   sheets_count = P_Sheets->GetCount();
 		SString name;
 		while(sheets_count < P.SheetNum) {
-			(name = "Sheet").Cat(++sheets_count); // @v7.6.12 "Лист"-->"Sheet"
+			(name = "Sheet").Cat(++sheets_count); // @v7.6.12 "Р›РёСЃС‚"-->"Sheet"
 			THROW(P_Sheets->_Add(0, 0, name));
 		}
 		THROW(P_Sheet = P_Sheets->Get(P.SheetNum));
@@ -116,8 +117,7 @@ int ExcelDbFile::Open(const char * pFileName, const Param * pParam, int readOnly
 			else
 				ZDELETE(p_sheet);
 		}
-		if(!P_Sheet)
-			P_Sheet = P_Sheets->Get(P.SheetNum);
+		SETIFZ(P_Sheet, P_Sheets->Get(P.SheetNum));
 	}
 	THROW(P_Sheet);
 	CurRec   = -1;
@@ -153,7 +153,6 @@ int ExcelDbFile::Close()
 int ExcelDbFile::GetFldNames()
 {
 	const  int max_items = 100;
-
 	int    stop = 0;
 	int    is_vert = BIN(P.Flags & fVerticalRec);
 	long   col = 1 + P.ColumnsCount;
@@ -177,8 +176,8 @@ int ExcelDbFile::GetFldNames()
 
 int ExcelDbFile::Scan()
 {
-	const int max_empty = 5; // Максимальное количество пустых ячеек, просмотр после которых считается избыточным.
-		// То есть, после max_empty пустых ячеек функция считает, что дальше ничего интересного нет.
+	const int max_empty = 5; // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСѓСЃС‚С‹С… СЏС‡РµРµРє, РїСЂРѕСЃРјРѕС‚СЂ РїРѕСЃР»Рµ РєРѕС‚РѕСЂС‹С… СЃС‡РёС‚Р°РµС‚СЃСЏ РёР·Р±С‹С‚РѕС‡РЅС‹Рј.
+		// РўРѕ РµСЃС‚СЊ, РїРѕСЃР»Рµ max_empty РїСѓСЃС‚С‹С… СЏС‡РµРµРє С„СѓРЅРєС†РёСЏ СЃС‡РёС‚Р°РµС‚, С‡С‚Рѕ РґР°Р»СЊС€Рµ РЅРёС‡РµРіРѕ РёРЅС‚РµСЂРµСЃРЅРѕРіРѕ РЅРµС‚.
 	const int is_vert = BIN(P.Flags & fVerticalRec);
 	const int end_str_decl = BIN(P.EndStr_.NotEmpty());
 	int    ok = 1, stop = 0;
@@ -369,16 +368,14 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 			for(uint fld_pos = 0; fld_pos < rRec.GetCount(); fld_pos++) {
 				if(rRec.GetFieldByPos(fld_pos, &fld) > 0) {
 					row = col = 0;
-					if(fld.Name.CmpPrefix(p_celln, 1) == 0) {
+					if(fld.Name.HasPrefixIAscii(p_celln)) {
 						(temp_buf = fld.Name).ShiftLeft(sstrlen(p_celln));
 						temp_buf.Divide('_', str_row_no, str_col_no);
 						row = str_row_no.ToLong();
 						col = str_col_no.ToLong();
 					}
-					if(row == 0)
-						row = is_vert ? (1 + fld_pos + P.HdrLinesCount) : cur_rec;
-					if(col == 0)
-						col = is_vert ? cur_rec : (1 + fld_pos + P.ColumnsCount);
+					SETIFZ(row, is_vert ? (1 + fld_pos + P.HdrLinesCount) : cur_rec);
+					SETIFZ(col, is_vert ? cur_rec : (1 + fld_pos + P.ColumnsCount));
 					THROW(P_Sheet->GetValue(row, col, field_buf));
 					PutFieldDataToBuf(fld, field_buf.Strip(), pDataBuf);
 				}
@@ -386,7 +383,7 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		}
 		else {
 			//SString fn;
-			cur_rec++; // Пропустим наименования столбцов/строк
+			cur_rec++; // РџСЂРѕРїСѓСЃС‚РёРј РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ СЃС‚РѕР»Р±С†РѕРІ/СЃС‚СЂРѕРє
 			for(uint p = 0, fld_pos = 0; FldNames.get(&p, temp_buf) > 0; fld_pos++) {
 				if(rRec.GetFieldByName(temp_buf, &fld) > 0) {
 					row = (is_vert) ? 1 + fld_pos + P.HdrLinesCount : cur_rec;
@@ -419,8 +416,8 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	if(CurRec <= 0) {
 		THROW(P_Sheet->_Clear(1, MAX_COLUMN));
 		//
-		// Если файл пустой, то добавляем специфицированное количество пустых строк
-		// и (если необходимо) запись, содержащую наименования полей.
+		// Р•СЃР»Рё С„Р°Р№Р» РїСѓСЃС‚РѕР№, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј СЃРїРµС†РёС„РёС†РёСЂРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСѓСЃС‚С‹С… СЃС‚СЂРѕРє
+		// Рё (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) Р·Р°РїРёСЃСЊ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РїРѕР»РµР№.
 		//
 		CurRec = 0;
 		if(P.Flags & fFldNameRec) {
@@ -450,7 +447,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 			int    base_type = stbase(st);
 			const  void * p_fld_data = PTR8C(pDataBuf)+fld.InnerOffs;
 			if(base_type == BTS_REAL) {
-				double real_val = 0;
+				double real_val = 0.0;
 				sttobase(st, p_fld_data, &real_val);
 				THROW(P_Sheet->SetValue(row, col, real_val) > 0);
 			}

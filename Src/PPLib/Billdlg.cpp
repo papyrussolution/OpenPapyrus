@@ -547,7 +547,8 @@ int SLAPI BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, 
 		p_listbox->setDef(new StrAssocListBoxDef(op_obj.MakeOprKindList(linkOpID, pOpList, opklFlags), lbtDblClkNotify|lbtFocNotify|lbtDisposeData));
 		if(op_id)
 			p_listbox->search(&op_id, 0, srchFirst | lbSrchByID);
-		SetupPPObjCombo(dlg, CTLSEL_BILLPRELUDE_LOC, PPOBJ_LOCATION, loc_id, 0);
+		dlg->SetupWordSelector(CTL_BILLPRELUDE_OPLIST, 0, 0, /*MIN_WORDSEL_SYMB*/2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
+		SetupPPObjCombo(dlg, CTLSEL_BILLPRELUDE_LOC, PPOBJ_LOCATION, loc_id, OLW_WORDSELECTOR); // @v10.7.8 OLW_WORDSELECTOR
 		if(loc_id && opklFlags & OPKLF_FIXEDLOC)
 			dlg->disableCtrl(CTLSEL_BILLPRELUDE_LOC, 1);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -623,8 +624,7 @@ private:
 	void   SetupPaymDateCtrls();
 	enum {
 		fPctDis            = 0x0001, // Признак того, что скидка указана в процентах
-		fExtMainCurAmount  = 0x0002, // Признак наличия в диалоге полей валюты
-			// и валютного курса (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
+		fExtMainCurAmount  = 0x0002, // Признак наличия в диалоге полей валюты и валютного курса (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
 		fEditMode          = 0x0004,
 		fHasAmtIDList      = 0x0008,
 		fModified          = 0x0010,
@@ -764,15 +764,16 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	P_Pack(pPack), CurrDebt(0.0), Flags(0), PaymTerm(-1), PayDateBase(0)
 {
 	SETFLAG(Flags, fEditMode, isEdit);
-	int    is_cash = BIN(P_Pack->Rec.Flags & BILLF_CASH);
+	const int is_cash = BIN(P_Pack->Rec.Flags & BILLF_CASH);
 	Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 	Ptb.SetBrush(brushSynced, SPaintObj::bsSolid, GetColorRef(SClrLightsteelblue), 0);
-	if(getCtrlView(CTLSEL_BILL_CUR)) {
+	if((!(LConfig.Flags & CFGFLG_MULTICURBILL_DISABLE) || pPack->Rec.CurID) && getCtrlView(CTLSEL_BILL_CUR)) {
 		Flags |= fExtMainCurAmount;
-		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_AMOUNT,
-			CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT, CTL_BILL_DATE, 0, &P_Pack->Amounts);
+		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_AMOUNT, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT, CTL_BILL_DATE, 0, &P_Pack->Amounts);
 		addGroup(GRP_CURAMT, p_ca_grp);
 	}
+	else
+		disableCtrls(1, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT, 0);
 	PPSetupCtrlMenu(this, CTL_BILL_DOC, CTLMNU_BILL_DOC, CTRLMENU_BILLNUMBER);
 	PPSetupCtrlMenu(this, CTL_BILL_PAYDATE, CTLMNU_BILL_PAYDATE, CTRLMENU_BILLPAYDATE);
 	{
@@ -782,6 +783,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 			p_memo_input->setFormat(MKSFMT(sizeof(pPack->Rec.Memo), 0));
 			p_memo_input->setType(MKSTYPE(S_ZSTRING, sizeof(pPack->Rec.Memo)));
 			p_memo_input->setMaxLen(sizeof(pPack->Rec.Memo));
+			SetupWordSelector(CTL_BILL_MEMO, new TextHistorySelExtra("bill-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 		}
 	}
 	SetupCalDate(CTLCAL_BILL_DATE,    CTL_BILL_DATE);
@@ -3166,10 +3168,10 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_ISSLOC,   PPOBJ_WORLD, Data.PortOfLoading,   OLW_CANINSERT|OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL,
-				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0));
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL,
-				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0));
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_ISSLOC,   PPOBJ_WORLD, Data.PortOfLoading,   OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+				PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
 			if(P_Pack) {
 				// @v9.1.10 if(oneof2(P_Pack->OprType, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT) && DS.CheckExtFlag(ECF_RCPTDLVRLOCASWAREHOUSE)) {
 				// @v9.1.10 {
@@ -3467,31 +3469,33 @@ int SLAPI PPObjBill::EditBillStatus(PPID billID)
 static int EditPaymPlanItem(const PPBillPacket * pPack, PayPlanTbl::Rec * pData)
 {
 	int    ok = -1;
-	PayPlanTbl::Rec data = *pData;
-	TDialog * dlg = new TDialog(DLG_PAYPLANITEM);
-	if(CheckDialogPtrErr(&dlg)) {
-		dlg->SetupCalDate(CTLCAL_PAYPLANITEM_DT, CTL_PAYPLANITEM_DT);
-		dlg->setCtrlData(CTL_PAYPLANITEM_DT, &data.PayDate);
-		dlg->setCtrlData(CTL_PAYPLANITEM_AMOUNT,   &data.Amount);
-		dlg->setCtrlData(CTL_PAYPLANITEM_INTEREST, &data.Interest);
-		while(ok < 0 && ExecView(dlg) == cmOK) {
-			dlg->getCtrlData(CTL_PAYPLANITEM_DT, &data.PayDate);
-			if(pPack && data.PayDate < pPack->Rec.Dt)
-				PPErrorByDialog(dlg, CTL_PAYPLANITEM_AMOUNT, PPERR_PAYDTLTBILLDT);
-			else {
-				dlg->getCtrlData(CTL_PAYPLANITEM_AMOUNT,   &data.Amount);
-				dlg->getCtrlData(CTL_PAYPLANITEM_INTEREST, &data.Interest);
-				if(data.Amount < 0 || data.Interest < 0 || (data.Amount == 0 && data.Interest == 0))
-					PPErrorByDialog(dlg, CTL_PAYPLANITEM_AMOUNT, PPERR_INVAMOUNT);
+	TDialog * dlg = 0;
+	if(pData) {
+		PayPlanTbl::Rec data = *pData;
+		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PAYPLANITEM)))) {
+			dlg->SetupCalDate(CTLCAL_PAYPLANITEM_DT, CTL_PAYPLANITEM_DT);
+			dlg->setCtrlData(CTL_PAYPLANITEM_DT, &data.PayDate);
+			dlg->setCtrlData(CTL_PAYPLANITEM_AMOUNT,   &data.Amount);
+			dlg->setCtrlData(CTL_PAYPLANITEM_INTEREST, &data.Interest);
+			while(ok < 0 && ExecView(dlg) == cmOK) {
+				dlg->getCtrlData(CTL_PAYPLANITEM_DT, &data.PayDate);
+				if(pPack && data.PayDate < pPack->Rec.Dt)
+					PPErrorByDialog(dlg, CTL_PAYPLANITEM_AMOUNT, PPERR_PAYDTLTBILLDT);
 				else {
-					*pData = data;
-					ok = 1;
+					dlg->getCtrlData(CTL_PAYPLANITEM_AMOUNT,   &data.Amount);
+					dlg->getCtrlData(CTL_PAYPLANITEM_INTEREST, &data.Interest);
+					if(data.Amount < 0 || data.Interest < 0 || (data.Amount == 0 && data.Interest == 0))
+						PPErrorByDialog(dlg, CTL_PAYPLANITEM_AMOUNT, PPERR_INVAMOUNT);
+					else {
+						*pData = data;
+						ok = 1;
+					}
 				}
 			}
 		}
+		else
+			ok = 0;
 	}
-	else
-		ok = 0;
 	delete dlg;
 	return ok;
 }

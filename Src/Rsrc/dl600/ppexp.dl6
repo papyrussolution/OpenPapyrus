@@ -336,7 +336,7 @@ data OprKind {
 	link   AccSheet AccSheet2ID;   // Дополнительная таблица статей
 	link   OprKind  LinkOpID;      // Связанная операция //
 	link   OpCounter OpCntrID;     // Счетчик нумерации документов
-	long   OpType;                 // 
+	long   OpType;                 //
 	long   Flags;                  // Флаги
 	int16  fNeedPayment;           // Требует платежного документа //
 	int16  fProfitable;            // Доходная операция //
@@ -887,7 +887,7 @@ data Agreement {
 	int16  DefDlvrTerm;            // Срок доставки товара в днях, начиная с даты документа закупки
 	int16  PctRet;                 // Максимальный объем возврата товара по накладной в процентах от суммы накладной
 	int16  Reserve;                // @alignment
-	string EDIPrvdrSymb[20];       // 
+	string EDIPrvdrSymb[20];       //
 }
 //
 // Статья аналитического учета
@@ -4740,7 +4740,7 @@ data CCheckView {
 	link   CashNode   FltCashNodeID;
 	long   FltCashNumber;
 	link   Goods      FltGoodsID;
-	link   GoodsGroup FltGoodsGrpID; // 
+	link   GoodsGroup FltGoodsGrpID; //
 	link   SCard      FltSCardID;
 	link   Article    FltAgentID;    // Агент, по которому фильтруется отчет
 	double AmountQuant;              // Квант группировки чеков по сумме или кол-ву
@@ -8464,7 +8464,7 @@ data UhttGoods {
 		long   IntVal;
 		double RealVal;
 		date   DateVal;
-		string StrVal[128];
+		string StrVal[1024]; // @v10.7.9 [128]-->[1024]
 	}
 }
 //
@@ -8666,8 +8666,8 @@ data UhttBill {
 	link      Currency      CurID;
 	link      Article       AgentID;
 	link      BillStatus    StatusID;
-	double    Amount;    
-	double    Discount;  
+	double    Amount;
+	double    Discount;
 	string    GUID[40];
 	long      Flags;
 	string    Memo[256];

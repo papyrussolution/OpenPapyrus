@@ -258,7 +258,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 	int heightAlloced = static_cast<int>(rcList.bottom - rcList.top);
 	widthLB = smax(widthLB, static_cast<int>(rcList.right - rcList.left));
 	if(maxListWidth != 0)
-		widthLB = smin(widthLB, aveCharWidth*maxListWidth);
+		widthLB = smin(widthLB, static_cast<int>(aveCharWidth)*maxListWidth);
 	// Make an allowance for large strings in list
 	rcList.left = pt.x - ac.lb->CaretFromEdge();
 	rcList.right = rcList.left + widthLB;

@@ -1,5 +1,6 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -158,29 +159,29 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 
 @gname    - Goods Name
 @price    - Price
-@revalprice - Цена до переоценки // @v6.9.0
+@revalprice - Р¦РµРЅР° РґРѕ РїРµСЂРµРѕС†РµРЅРєРё // @v6.9.0
 @expiry   - Expiration
 @manuf    - Manufacturer
 @country  - Manufacturer country
-@brand    - Торговая марка
+@brand    - РўРѕСЂРіРѕРІР°СЏ РјР°СЂРєР°
 @date     - Print date
 @time     - Print time
 @user     - User name
 
-@serial   - Серийный номер лота
-@billdate - Дата документа прихода лота
-@billno   - Номер документа прихода лота
-@qtty     - Оприходованное количество в лоте
-@phqtty   - Оприходованное количество в лоте в физических единицах
-@pack     - Емкость упаковки
-@brutto   - Масса брутто оприходованного количества
-@serxnom  - Серийный номер со следующим за ним через разделитель 'X' номенклатурынм кодом товара (Code39)
+@serial   - РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ Р»РѕС‚Р°
+@billdate - Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° РїСЂРёС…РѕРґР° Р»РѕС‚Р°
+@billno   - РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° РїСЂРёС…РѕРґР° Р»РѕС‚Р°
+@qtty     - РћРїСЂРёС…РѕРґРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІ Р»РѕС‚Рµ
+@phqtty   - РћРїСЂРёС…РѕРґРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІ Р»РѕС‚Рµ РІ С„РёР·РёС‡РµСЃРєРёС… РµРґРёРЅРёС†Р°С…
+@pack     - Р•РјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё
+@brutto   - РњР°СЃСЃР° Р±СЂСѓС‚С‚Рѕ РѕРїСЂРёС…РѕРґРѕРІР°РЅРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР°
+@serxnom  - РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ СЃРѕ СЃР»РµРґСѓСЋС‰РёРј Р·Р° РЅРёРј С‡РµСЂРµР· СЂР°Р·РґРµР»РёС‚РµР»СЊ 'X' РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹РЅРј РєРѕРґРѕРј С‚РѕРІР°СЂР° (Code39)
 
-@ext_a - дополнительное поле товара A
-@ext_b - дополнительное поле товара B
-@ext_c - дополнительное поле товара C
-@ext_d - дополнительное поле товара D
-@ext_e - дополнительное поле товара E
+@ext_a - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ С‚РѕРІР°СЂР° A
+@ext_b - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ С‚РѕРІР°СЂР° B
+@ext_c - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ С‚РѕРІР°СЂР° C
+@ext_d - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ С‚РѕРІР°СЂР° D
+@ext_e - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РїРѕР»Рµ С‚РѕРІР°СЂР° E
 
 @gcdimx     - //
 @gcdimy     - //
@@ -227,9 +228,9 @@ home x y
 .
 text    0 20  10 A1 1 1 "@gname"
 barcode 0 20  30 70 1 1
-text    0 20 100 A1 1 1 "–Ґ­ : @price"
-text    0 20 120 A1 1 1 "„ в  ¬ аЄЁа®ўЄЁ: @date"
-text    0 20 140 A1 1 1 "Њ аЄЁа®ўйЁЄ: @user"
+text    0 20 100 A1 1 1 "вЂ“ТђВ­В : @price"
+text    0 20 120 A1 1 1 "вЂћВ РІВ  В¬В Р°Р„РЃР°В®СћР„РЃ: @date"
+text    0 20 140 A1 1 1 "РЉВ Р°Р„РЃР°В®СћР№РЃР„: @user"
 }
 
 load FONTS {
@@ -255,13 +256,13 @@ UsbOpt EltronUsbOpt[] = {
 
 struct BarcodeLabelParam {
 	char   Name[64];
-	int    SizeX;         // Ширина этикетки
-	int    SizeY;         // Высота этикетки
-	int    Gap;           // Размер зазора между этикетками
-	int    HomeX;         // Начальная позиция этикетки по ширине
-	int    HomeY;         // Начальная позиция этикетки по высоте
-	char   MemModule[32]; // Наименование модуля памяти
-	char   Codepage[32];  // Кодовая страница (windows-1251 | cp866)
+	int    SizeX;         // РЁРёСЂРёРЅР° СЌС‚РёРєРµС‚РєРё
+	int    SizeY;         // Р’С‹СЃРѕС‚Р° СЌС‚РёРєРµС‚РєРё
+	int    Gap;           // Р Р°Р·РјРµСЂ Р·Р°Р·РѕСЂР° РјРµР¶РґСѓ СЌС‚РёРєРµС‚РєР°РјРё
+	int    HomeX;         // РќР°С‡Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ СЌС‚РёРєРµС‚РєРё РїРѕ С€РёСЂРёРЅРµ
+	int    HomeY;         // РќР°С‡Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ СЌС‚РёРєРµС‚РєРё РїРѕ РІС‹СЃРѕС‚Рµ
+	char   MemModule[32]; // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РјРѕРґСѓР»СЏ РїР°РјСЏС‚Рё
+	char   Codepage[32];  // РљРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р° (windows-1251 | cp866)
 	//
 	int    BcNarrowPt;    // @v8.0.9
 	int    BcWidePt;      // @v8.0.9
@@ -272,7 +273,7 @@ struct BarcodeLabelEntry {
 		 etText = 1, // LABEL & LOAD
 		 etBarcode,  // LABEL
 		 etFile,     // LOAD
-		 etWrap      // LABEL Перенос предыдущей строки текста
+		 etWrap      // LABEL РџРµСЂРµРЅРѕСЃ РїСЂРµРґС‹РґСѓС‰РµР№ СЃС‚СЂРѕРєРё С‚РµРєСЃС‚Р°
 	};
 	EntryType Type;
 	int    Rotation; // Degree (0, 90, 180, 270)
@@ -286,7 +287,7 @@ struct BarcodeLabelEntry {
 	int    BarcodeStd;
 	char   Font[32];
 	uint   TextIdx;
-	int    TextMaxLen; // Максимальная длина строки (символов)
+	int    TextMaxLen; // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° СЃС‚СЂРѕРєРё (СЃРёРјРІРѕР»РѕРІ)
 	const  char * Text;
 };
 
@@ -309,7 +310,7 @@ enum BarcodeFormatToken {
 	tokCodepage,
 	tokLoad,
 	tokFile,
-	tokSerXNom, // (Серийный номер) 'X' (номенклатурный номер)
+	tokSerXNom, // (РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ) 'X' (РЅРѕРјРµРЅРєР»Р°С‚СѓСЂРЅС‹Р№ РЅРѕРјРµСЂ)
 	tokWrap
 };
 
@@ -443,7 +444,7 @@ enum BarcodeVarStr {
 	bcvsExtD,
 	bcvsExtE,
 	bcvsPrcName,      // prcname
-	bcvsGoodsGrpName, // goodsgrpname Наименование группы товара
+	bcvsGoodsGrpName, // goodsgrpname РќР°РёРјРµРЅРѕРІР°РЅРёРµ РіСЂСѓРїРїС‹ С‚РѕРІР°СЂР°
 
 	bcvsBrand,        //
 	bcvsGcDimX,       //
@@ -457,19 +458,19 @@ enum BarcodeVarStr {
 	bcvsGcAddProp,    //
 	bcvsLineCost,     //
 	bcvsLinePrice,    //
-	bcvsManufDate,    // @v7.5.1 Дата/время производства
-	bcvsManuf,        // @v7.5.1 Перенесено сверху-вниз (во избежании коллизии с bcvsManufDate)
+	bcvsManufDate,    // @v7.5.1 Р”Р°С‚Р°/РІСЂРµРјСЏ РїСЂРѕРёР·РІРѕРґСЃС‚РІР°
+	bcvsManuf,        // @v7.5.1 РџРµСЂРµРЅРµСЃРµРЅРѕ СЃРІРµСЂС…Сѓ-РІРЅРёР· (РІРѕ РёР·Р±РµР¶Р°РЅРёРё РєРѕР»Р»РёР·РёРё СЃ bcvsManufDate)
 	bcvsQuot,         // @v7.6.10 quot:
-	bcvsGoodsCode,    // @v8.1.3 Текстовое представление кода товара
-	bcvsMainOrg,      // @v9.8.11 Наименование главной организации
-	bcvsWarehouse,    // @v9.8.11 Наименование склада
+	bcvsGoodsCode,    // @v8.1.3 РўРµРєСЃС‚РѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РєРѕРґР° С‚РѕРІР°СЂР°
+	bcvsMainOrg,      // @v9.8.11 РќР°РёРјРµРЅРѕРІР°РЅРёРµ РіР»Р°РІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
+	bcvsWarehouse,    // @v9.8.11 РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРєР»Р°РґР°
 
 	bcvsMemory,
 	bcvsCodepage,
-	bcvsLoad,         // Начало формата загрузки данных на принтер
+	bcvsLoad,         // РќР°С‡Р°Р»Рѕ С„РѕСЂРјР°С‚Р° Р·Р°РіСЂСѓР·РєРё РґР°РЅРЅС‹С… РЅР° РїСЂРёРЅС‚РµСЂ
 	bcvsFile,         // file
 	bcvsSerXNom,      //
-	bcvsWrap          // Перенос предыдущей строки
+	bcvsWrap          // РџРµСЂРµРЅРѕСЃ РїСЂРµРґС‹РґСѓС‰РµР№ СЃС‚СЂРѕРєРё
 };
 
 #define FIRSTSUBSTVAR bcvsGoodsName
@@ -658,7 +659,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 	char * d = *ppDest;
 	char   temp[256];
 	SString temp_str;
-	temp_str.Space() = 0; // Для уверенности, что буфер не нулевой
+	temp_str.Space() = 0; // Р”Р»СЏ СѓРІРµСЂРµРЅРЅРѕСЃС‚Рё, С‡С‚Рѕ Р±СѓС„РµСЂ РЅРµ РЅСѓР»РµРІРѕР№
 	if(*s == '@')
 		s++;
 	for(int i = FIRSTSUBSTVAR; i < FIRSTSUBSTVAR + NUMSUBSTVARS; i++) {
@@ -843,7 +844,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 	return 1;
 }
 
-// @todo Заменить использование этой функции методом SString::Wrap
+// @todo Р—Р°РјРµРЅРёС‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РјРµС‚РѕРґРѕРј SString::Wrap
 int SLAPI BarcodeLabel::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail)
 {
 	int    ok = 1;
@@ -882,7 +883,7 @@ int SLAPI BarcodeLabel::GetText(int wrap, char ** ppLine)
 	MEMSZERO(entry);
 	entry.Type = BarcodeLabelEntry::etText;
 	//
-	// Извлекаем опциональную максимальную длину строки {
+	// РР·РІР»РµРєР°РµРј РѕРїС†РёРѕРЅР°Р»СЊРЅСѓСЋ РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ РґР»РёРЅСѓ СЃС‚СЂРѕРєРё {
 	//
 	char * s = *ppLine;
 	while(oneof2(*s, ' ', '\t'))
@@ -902,8 +903,8 @@ int SLAPI BarcodeLabel::GetText(int wrap, char ** ppLine)
 			WrapText(p_entry->Text, p_entry->TextMaxLen, head, tail);
 			UpdateText(pos, head);
 			//
-			// Если для этой точки переноса не назначена макс длина строки,
-			// то она наследуется от предыдущей точки переноса или текста.
+			// Р•СЃР»Рё РґР»СЏ СЌС‚РѕР№ С‚РѕС‡РєРё РїРµСЂРµРЅРѕСЃР° РЅРµ РЅР°Р·РЅР°С‡РµРЅР° РјР°РєСЃ РґР»РёРЅР° СЃС‚СЂРѕРєРё,
+			// С‚Рѕ РѕРЅР° РЅР°СЃР»РµРґСѓРµС‚СЃСЏ РѕС‚ РїСЂРµРґС‹РґСѓС‰РµР№ С‚РѕС‡РєРё РїРµСЂРµРЅРѕСЃР° РёР»Рё С‚РµРєСЃС‚Р°.
 			//
 			SETIFZ(entry.TextMaxLen, p_entry->TextMaxLen);
 			entry.Text = tail;
@@ -1136,7 +1137,7 @@ BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTy
 		return (PPSetError(PPERR_INVBCPTYPE), /*(BarcodeLabelPrinter*)*/0);
 }
 
-//#define BLPF_PRINTALL   0x0001L // Печать всей выборки
+//#define BLPF_PRINTALL   0x0001L // РџРµС‡Р°С‚СЊ РІСЃРµР№ РІС‹Р±РѕСЂРєРё
 
 SLAPI BarcodeLabelPrinter::BarcodeLabelPrintParam::BarcodeLabelPrintParam() : PrinterID(0), NumCopies(0), Pad(0), LocID(0), Flags(0)
 {
@@ -1346,7 +1347,7 @@ int SLAPI BarcodeLabelPrinter::PrintGoodsLabel__(RetailGoodsInfo * pRgi, PPID pr
 		THROW(p_prn->EndLabel());
 		// @vmiller {
 		SString str = bclpp.Port;
-		if(!str.CmpPrefix("usb", 1))
+		if(str.HasPrefixIAscii("usb"))
 			THROW(p_prn->PrintLabelUsb(rec.PrinterType))
 		else
 		// } @vmiller
@@ -1465,16 +1466,16 @@ int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrint
 							THROW(EndLabel());
 							// @vmiller {
 							temp_buf = rBclpp.Port;
-							if(!temp_buf.CmpPrefix("usb", 1))
+							if(temp_buf.HasPrefixIAscii("usb"))
 								THROW(PrintLabelUsb(PrnPack.PrinterType))
 							else
 							// } @vmiller
 								THROW(PrintLabel(rBclpp.Port, &PrnPack.Cpp));
 						}
 						//
-						// При печати большого количества этикеток принтер не успевает обрабатывать запросы
-						// Из-за этого делаем задержку между отдельными строками (между каждыми 10-ю строками
-						// задержка больше)
+						// РџСЂРё РїРµС‡Р°С‚Рё Р±РѕР»СЊС€РѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° СЌС‚РёРєРµС‚РѕРє РїСЂРёРЅС‚РµСЂ РЅРµ СѓСЃРїРµРІР°РµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ Р·Р°РїСЂРѕСЃС‹
+						// РР·-Р·Р° СЌС‚РѕРіРѕ РґРµР»Р°РµРј Р·Р°РґРµСЂР¶РєСѓ РјРµР¶РґСѓ РѕС‚РґРµР»СЊРЅС‹РјРё СЃС‚СЂРѕРєР°РјРё (РјРµР¶РґСѓ РєР°Р¶РґС‹РјРё 10-СЋ СЃС‚СЂРѕРєР°РјРё
+						// Р·Р°РґРµСЂР¶РєР° Р±РѕР»СЊС€Рµ)
 						//
 						if(++part_count >= 10) {
 							SDelay(2000);
@@ -1527,7 +1528,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 			THROW_SL(p_rgi);
 			const PPTransferItem * p_ti = &pPack->ConstTI(cur_pos);
 			int    r = 0;
-			if(p_ti->LotID && pPack->OpTypeID != PPOPT_GOODSORDER) { // @v10.5.10 (&& pPack->OpTypeID != PPOPT_GOODSORDER) для заказа те же правила, что и для драфт-документов
+			if(p_ti->LotID && pPack->OpTypeID != PPOPT_GOODSORDER) { // @v10.5.10 (&& pPack->OpTypeID != PPOPT_GOODSORDER) РґР»СЏ Р·Р°РєР°Р·Р° С‚Рµ Р¶Рµ РїСЂР°РІРёР»Р°, С‡С‚Рѕ Рё РґР»СЏ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚РѕРІ
 				PPID   lot_id = p_ti->LotID;
 				if(cor_loc_id && p_ti->BillID && p_ti->RByBill) {
 					TransferTbl::Rec trfr_rec;
@@ -1555,7 +1556,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 				}
 			}
 			//
-			// Цены поступления и реализации из строки документа
+			// Р¦РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Рё СЂРµР°Р»РёР·Р°С†РёРё РёР· СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р°
 			//
 			p_rgi->LineCost = p_ti->Cost;
 			p_rgi->LinePrice = p_ti->Price;
@@ -1663,7 +1664,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, ui
 				}
 			}
 			//
-			// Цены поступления и реализации из строки документа
+			// Р¦РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Рё СЂРµР°Р»РёР·Р°С†РёРё РёР· СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚Р°
 			//
 			rgi.LineCost = p_ti->Cost;
 			rgi.LinePrice = p_ti->Price;
@@ -1694,7 +1695,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, ui
 					}
 					THROW_PP(label.ParseFormat(&rgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
 					THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
-					label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt); // @v8.0.9
+					label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt);
 					THROW(p_prn->StartLabel(label.GetParam(), num_copies));
 					for(uint i = 0; i < label.GetEntryCount(); i++)
 						THROW(p_prn->PutDataEntry(label.GetEntry(i)));
@@ -1702,16 +1703,16 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(const PPBillPacket * pPack, ui
 
 					// @vmiller {
 					SString str = bclpp.Port;
-					if(!str.CmpPrefix("usb", 1))
+					if(str.HasPrefixIAscii("usb"))
 						THROW(p_prn->PrintLabelUsb(rec.PrinterType))
 					else
 					// } @vmiller
 						THROW(p_prn->PrintLabel(bclpp.Port, &rec.Cpp));
 					ZDELETE(p_prn);
 					//
-					// При печати большого количества этикеток принтер не успевает обрабатывать запросы
-					// Из-за этого делаем задержку между отдельными строками (между каждыми 10-ю строками
-					// задержка больше)
+					// РџСЂРё РїРµС‡Р°С‚Рё Р±РѕР»СЊС€РѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° СЌС‚РёРєРµС‚РѕРє РїСЂРёРЅС‚РµСЂ РЅРµ СѓСЃРїРµРІР°РµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ Р·Р°РїСЂРѕСЃС‹
+					// РР·-Р·Р° СЌС‚РѕРіРѕ РґРµР»Р°РµРј Р·Р°РґРµСЂР¶РєСѓ РјРµР¶РґСѓ РѕС‚РґРµР»СЊРЅС‹РјРё СЃС‚СЂРѕРєР°РјРё (РјРµР¶РґСѓ РєР°Р¶РґС‹РјРё 10-СЋ СЃС‚СЂРѕРєР°РјРё
+					// Р·Р°РґРµСЂР¶РєР° Р±РѕР»СЊС€Рµ)
 					//
 					if(++part_count >= 10) {
 						SDelay(2000);
@@ -2227,7 +2228,9 @@ int SLAPI EltronLabelPrinter::EndLabel()
 	PutChr('\n');
 	return 1;
 }
-
+//
+// @todo use SIntToSymbTabEntry
+//
 struct BarCStdToEltronEntry {
 	int8   Std;
 	char * P_Str;
@@ -2362,8 +2365,8 @@ struct DlBarcodeLabelListBlock {
 	DlBarcodeLabelListBlock(const void * ptr) : N(0), ExemplarN(0), P_RgiList(static_cast<const TSCollection <RetailGoodsInfo> *>(ptr))
 	{
 	}
-	uint   N; // Текущий номер позиции
-	uint   ExemplarN; // Номер экземпляра для N [0..P_RgiList[N].LabelCount-1]
+	uint   N; // РўРµРєСѓС‰РёР№ РЅРѕРјРµСЂ РїРѕР·РёС†РёРё
+	uint   ExemplarN; // РќРѕРјРµСЂ СЌРєР·РµРјРїР»СЏСЂР° РґР»СЏ N [0..P_RgiList[N].LabelCount-1]
 	const TSCollection <RetailGoodsInfo> * P_RgiList;
 };
 

@@ -4437,7 +4437,7 @@ namespace NArchive {
 					   u = mainItem->GetName();
 					   u += item.GetName();
 					 */
-					prop = (const wchar_t*)NItemName::WinPathToOsPath(item.GetName());
+					prop = (const wchar_t *)NItemName::WinPathToOsPath(item.GetName());
 					break;
 				}
 				case kpidIsDir: prop = item.IsDir(); break;

@@ -493,6 +493,7 @@ file:
 }
 //
 // Персоналии
+// @todo Memo перенести в UnxTextRef
 //
 table Person {           // size=80+128
 	autolong ID;         // @id
@@ -622,6 +623,7 @@ file:
 }
 //
 // Персональные события //
+// @todo Memo перенести в UnxTextRef
 //
 table PersonEvent {
 	autolong ID;        // Ид
@@ -875,7 +877,7 @@ file:
 //
 // История товаров
 //
-table HistGoods {
+table HistGoods { // @obsolete
 	autolong ID;
 	long   GoodsID;
 	long   Ver;
@@ -1129,6 +1131,7 @@ file:
 //
 // Универсальная таблица для накладных, проводок и прочих
 // документов. Конкретная характеристика документа определяется полем Bill.OpID.
+// @todo Memo перенести в UnxTextRef
 //
 table Bill {            // size=128+160
 	autolong  ID;       // @id
@@ -1183,12 +1186,11 @@ file:
 //
 // История изменения документов
 //
-table HistBill {
+table HistBill { // @obsolete
 	autolong ID;
 	long   InnerID;
 	long   BillID;
 	long   Ver;
-
 	string Code[24];    // Код документа
 	date   Dt;          // Дата документа
 	long   OpID;        // Вид операции          ->Ref(PPOBJ_OPRKIND)
@@ -1212,7 +1214,7 @@ file:
 	"xbill.btr";
 }
 
-table HistTrfr {
+table HistTrfr { // @obsolete
 	long   HistBillID; // ->HistBill.ID
 	long   OprNo;      // >> Transfer.OprNo
 	long   GoodsID;    // ->Goods2.ID
@@ -1705,8 +1707,7 @@ table PriceList {
 	long   SupplID;     // Поставщик (0 - главная организация) ->Article.ID
 	long   LocID;       // Локация (для главной организации)   ->Location.ID
 	date   Dt;          // Дата
-	long   QuotKindID;  // Котировка (0 - по всем либо по базовым ценам
-	//                     если !(Flags & PLISTF_BYQUOT)       ->Ref(PPOBJ_QUOTKIND)
+	long   QuotKindID;  // Котировка (0 - по всем либо по базовым ценам. If !(Flags & PLISTF_BYQUOT) then ->Ref(PPOBJ_QUOTKIND)
 	long   Flags;       // PLISTF_XXX
 	long   GoodsGrpID;  // Группа товаров                      ->Goods2.ID
 	long   UserID;      // Идентификатор пользователя, который составил прайс-лист
@@ -1935,6 +1936,7 @@ file:
 //     Размер поля AdvCode - [24]
 //     Для выравнивания после RByBill добавить int16 Reserve2;
 // } @v6.2.2
+// @todo Memo перенести в UnxTextRef
 //
 table AdvBillItem {        // size=128+128
 	long   BillID;         // ->Bill.ID (!=0)
@@ -2002,7 +2004,7 @@ file:
 }
 //
 // Project management
-// @todo Descr и Memo перенести в UnxTextRef
+// @done @todo Descr и Memo перенести в UnxTextRef
 //
 table Project {         // size=384+128=512
 	autolong   ID;      // @id
@@ -2034,7 +2036,7 @@ file:
 	// @v10.7.2 vlr;
 }
 //
-// @todo Descr и Memo перенести в UnxTextRef
+// @done @todo Descr и Memo перенести в UnxTextRef
 //
 table PrjTask {         // size =
 	autolong ID;        //
@@ -2309,6 +2311,7 @@ file:
 //   чеков по продавцам и столам (для общепита).
 //   Эти данные не вводятся в общую структуру чека из-за того, что таблица CCheck
 //   очень большая, а поля расширения используются нечасто и лишь отдельными видами бизнеса
+// @todo Memo перенести в UnxTextRef
 //
 table CCheckExt {          // size=20
 	long   CheckID;        // ->CCheck.ID
@@ -2587,6 +2590,7 @@ file:
 // Дата производства может быть не указана, или вместо нее может быть текст (например "На упаковке").
 // Вследствии этого под это поле выделяем символьную строку SPrDate.
 // @v4.4.5 Часть зарезервированного поля выделена под поле InnerCode; добавлен индекс {Passive, Code}
+// @todo BlankCode, GoodsName, Manuf, SPrDate перенести в UnxTextRef
 //
 table QualityCert {        // size=224
 	autolong ID;           // Ид. сертификата
@@ -2790,6 +2794,7 @@ file:
 }
 //
 // Бюджет
+// @todo Memo перенести в UnxTextRef
 //
 table BudgetItem {
 	autolong ID;           // @id
@@ -3330,6 +3335,7 @@ file:
 //
 // Технологии. Таблица, связывающая процессоры с обрабатываемыми на них
 // (производимыми или расходуемыми) товарами и, возможно, структурами этих товаров.
+// @todo Memo перенести в UnxTextRef
 //
 table Tech {               // size=104+160
 	autolong ID;           // @id
@@ -3373,6 +3379,7 @@ file:
 //
 // Технологические сессии
 // Одна сессия может использовать только один процессор и (или) одну технологию.
+// @todo Memo перенести в UnxTextRef
 //
 table TSession {           // size=104+160
 	autolong ID;           // @id
@@ -3455,6 +3462,7 @@ file:
 }
 //
 // Descr: Рассчитанные бизнес-показатели
+// @todo Str перенести в UnxTextRef
 //
 table BizScore {
 	date   ActualDate;     // Дата, для которой проводился расчет
@@ -3554,7 +3562,7 @@ file:
 	access=1;
 }
 //
-//
+// @todo DbUUID_s и SessUUID_s преобразовать в guid; DbName, UserName, MachineName перенести в UnxTextRef
 //
 table UserFuncPrfSess {
 	autolong ID;            // @id
@@ -5197,7 +5205,6 @@ file:
 	"testta1.btr";
 	page=4096;
 }
-
 //
 //
 //

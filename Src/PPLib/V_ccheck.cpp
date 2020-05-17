@@ -267,13 +267,14 @@ PPBaseFilt * SLAPI PPViewCCheck::CreateFilt(void * extraPtr) const
 #define SHOW_CTVAL 0x00000001L
 
 class CCheckFiltCtDialog : public PPListDialog {
+	DECL_DIALOG_DATA(CCheckFilt);
 public:
 	CCheckFiltCtDialog() : PPListDialog(DLG_CROSST, CTL_CROSST_VALLIST)
 	{
 		PPLoadText(PPTXT_CCHECKCTVALNAMES, CtValNames);
 		setSmartListBoxOption(CTL_CROSST_VALLIST, lbtSelNotify);
 	}
-	int    setDTS(const CCheckFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init(1, 0);
@@ -289,7 +290,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(CCheckFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		GetClusterData(CTL_CROSST_KIND, &Data.CtKind);
@@ -316,7 +317,6 @@ private:
 	}
 	int    ToggleFlag(long itemId);
 	SString CtValNames;
-	CCheckFilt Data;
 };
 
 int CCheckFiltCtDialog::setupList()
@@ -2741,7 +2741,7 @@ int SLAPI PPViewCCheck::CreateGoodsCorrTbl()
 				}
 				if(!ary_is_found) {
 					THROW_MEM(p_goods_ary = new LAssocArray);
-					THROW_SL(p_la_ary->Add(goods1, (long)p_goods_ary, 0, 1));
+					THROW_SL(p_la_ary->Add(goods1, (long)p_goods_ary, 0, 1)); // @x64crit
 					ary_count++;
 				}
 				if(p_goods_ary->BSearch(goods2, 0, &goods2_pos)) {

@@ -1468,7 +1468,7 @@ namespace Scintilla {
 		static void DebugPrintf(const char * format, ...);
 		static bool ShowAssertionPopUps(bool assertionPopUps_);
 		static void Assert(const char * c, const char * file, int line) CLANG_ANALYZER_NORETURN;
-		static int Clamp(int val, int minVal, int maxVal);
+		// @sobolev @20200511 static int Clamp(int val, int minVal, int maxVal);
 	};
 
 	#ifdef  NDEBUG

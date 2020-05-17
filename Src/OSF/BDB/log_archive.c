@@ -342,7 +342,7 @@ static int __build_data(ENV * env, char * pref, char *** listp)
 			if((ret = __os_realloc(env, sizeof(char *)*array_size, &array)) != 0)
 				goto free_continue;
 		}
-		if((ret = __os_strdup(env, (const char *)argp->name.data, &array[n++])) != 0)
+		if((ret = __os_strdup(env, PTRCHRC(argp->name.data), &array[n++])) != 0)
 			goto free_continue;
 		array[n] = NULL;
 		if(argp->ftype == DB_QUEUE) {

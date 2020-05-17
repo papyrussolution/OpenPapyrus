@@ -602,11 +602,9 @@ static SString & GetFileName(const char * pPath, SString & rFile)
 	SPathStruc ps(pPath);
 	ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFile); 
 	// } @v10.6.10
-	/* @v10.6.10
-	char drv[MAXDRIVE], dir[MAXDIR], fname[MAXPATH], ext[MAXEXT];
-	fnsplit(pPath, drv, dir, fname, ext);
-	(rFile = fname).Cat(ext);
-	*/
+	//@v10.6.10 char drv[MAXDRIVE], dir[MAXDIR], fname[MAXPATH], ext[MAXEXT];
+	//@v10.6.10 fnsplit(pPath, drv, dir, fname, ext);
+	//@v10.6.10 (rFile = fname).Cat(ext);
 	return rFile;
 }
 
@@ -992,12 +990,10 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 {
 	int    ok = 1, r;
-	/*
-	THROW_INVARG(pDir);
-	char   drv[MAXDRIVE], dir[MAXDIR], fname[MAXFILE + MAXEXT], ext[MAXEXT];
-	fnsplit(pDir, drv, dir, fname, ext);
-	sdir = dir;
-	*/
+	//THROW_INVARG(pDir);
+	//char   drv[MAXDRIVE], dir[MAXDIR], fname[MAXFILE + MAXEXT], ext[MAXEXT];
+	//fnsplit(pDir, drv, dir, fname, ext);
+	//sdir = dir;
 	if(pDir) {
 		SPathStruc ps(pDir);
 		SString sdir = ps.Dir;

@@ -1437,7 +1437,6 @@
     <ClCompile Include="..\SLib\prime.cpp" />
     <ClCompile Include="..\SLib\punycode.cpp" />
     <ClCompile Include="..\SLib\Range.cpp" />
-    <ClCompile Include="..\SLib\round.cpp" />
     <ClCompile Include="..\SLib\samqp.cpp" />
     <ClCompile Include="..\SLib\sarc.cpp" />
     <ClCompile Include="..\SLib\Sarray.cpp" />

@@ -1257,8 +1257,7 @@ LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL * channel,
  * The receive window must be maintained (enlarged) by the user of this
  * function.
  */
-ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id,
-    char * buf, size_t buflen)
+ssize_t FASTCALL _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id, char * buf, size_t buflen)
 {
 	LIBSSH2_SESSION * session = channel->session;
 	int rc;
@@ -1267,31 +1266,20 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id,
 	int unlink_packet;
 	LIBSSH2_PACKET * read_packet;
 	LIBSSH2_PACKET * read_next;
-
-	_libssh2_debug(session, LIBSSH2_TRACE_CONN,
-	    "channel_read() wants %d bytes from channel %lu/%lu "
-	    "stream #%d",
-	    (int)buflen, channel->local.id, channel->remote.id,
-	    stream_id);
-
+	_libssh2_debug(session, LIBSSH2_TRACE_CONN, "channel_read() wants %d bytes from channel %lu/%lu stream #%d",
+	    (int)buflen, channel->local.id, channel->remote.id, stream_id);
 	/* expand the receiving window first if it has become too narrow */
 	if( (channel->read_state == libssh2_NB_state_jump1) ||
 	    (channel->remote.window_size < channel->remote.window_size_initial / 4 * 3 + buflen) ) {
 		uint32 adjustment = channel->remote.window_size_initial + buflen - channel->remote.window_size;
-		if(adjustment < LIBSSH2_CHANNEL_MINADJUST)
-			adjustment = LIBSSH2_CHANNEL_MINADJUST;
-
-		/* the actual window adjusting may not finish so we need to deal with
-		   this special state here */
+		SETMAX(adjustment, LIBSSH2_CHANNEL_MINADJUST);
+		// the actual window adjusting may not finish so we need to deal with this special state here
 		channel->read_state = libssh2_NB_state_jump1;
-		rc = _libssh2_channel_receive_window_adjust(channel, adjustment,
-		    0, NULL);
+		rc = _libssh2_channel_receive_window_adjust(channel, adjustment, 0, NULL);
 		if(rc)
 			return rc;
-
 		channel->read_state = libssh2_NB_state_idle;
 	}
-
 	/* Process all pending incoming packets. Tests prove that this way
 	   produces faster transfers. */
 	do {
@@ -1450,7 +1438,7 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id
 				    == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 			return (read_packet->data_len - read_packet->data_head);
 		}
-		read_packet = (LIBSSH2_PACKET *)_libssh2_list_next(&read_packet->node);
+		read_packet = static_cast<LIBSSH2_PACKET *>(_libssh2_list_next(&read_packet->node));
 	}
 
 	return 0;
@@ -1464,7 +1452,7 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id
  * Returns: number of bytes sent, or if it returns a negative number, that is
  * the error code!
  */
-ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL * channel, int stream_id, const uchar * buf, size_t buflen)
+ssize_t FASTCALL _libssh2_channel_write(LIBSSH2_CHANNEL * channel, int stream_id, const uchar * buf, size_t buflen)
 {
 	int rc = 0;
 	LIBSSH2_SESSION * session = channel->session;

@@ -41,11 +41,9 @@ private:
 			modes.resize(line + 1, 0);
 		modes[line] = mode;
 	}
-	int getMode(Sci_Position line) 
+	int getMode(Sci_Position line) const
 	{
-		if(line >= 0 && line < static_cast<Sci_Position>(modes.size())) 
-			return modes[line];
-		return 0;
+		return (line >= 0 && line < static_cast<Sci_Position>(modes.size())) ? modes[line] : 0;
 	}
 	void truncModes(Sci_Position numLines) 
 	{
@@ -53,7 +51,7 @@ private:
 			modes.resize(numLines + 128);
 	}
 
-	vector<latexFoldSave> saves;
+	vector <latexFoldSave> saves;
 	void setSave(Sci_Position line, const latexFoldSave &save) 
 	{
 		if(line >= static_cast<Sci_Position>(saves.size())) 
@@ -83,22 +81,10 @@ public:
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 };
 
-static bool latexIsSpecial(int ch) 
-{
-	return oneof8(ch, '#', '$', '%', '&', '_', '{', '}', ' ');
-}
-
-/*static bool latexIsBlank(int ch) { return (ch == ' ') || (ch == '\t'); }*/
-
-static bool latexIsBlankAndNL(int ch) 
-{
-	return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n');
-}
-
-static bool latexIsLetter(int ch) 
-{
-	return IsASCII(ch) && isalpha(ch);
-}
+static bool latexIsSpecial(int ch) { return oneof8(ch, '#', '$', '%', '&', '_', '{', '}', ' '); }
+// static bool latexIsBlank(int ch) { return (ch == ' ') || (ch == '\t'); }
+static bool latexIsBlankAndNL(int ch) { return (ch == ' ') || (ch == '\t') || (ch == '\r') || (ch == '\n'); }
+static bool latexIsLetter(int ch) { return IsASCII(ch) && isalpha(ch); }
 
 static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor & styler) 
 {
@@ -124,9 +110,8 @@ static bool latexIsTagValid(Sci_Position &i, Sci_Position l, Accessor & styler)
 
 static bool latexNextNotBlankIs(Sci_Position i, Accessor & styler, char needle) 
 {
-	char ch;
 	while(i < styler.Length()) {
-		ch = styler.SafeGetCharAt(i);
+		const char ch = styler.SafeGetCharAt(i);
 		if(!latexIsBlankAndNL(ch) && ch != '*') {
 			if(ch == needle)
 				return true;

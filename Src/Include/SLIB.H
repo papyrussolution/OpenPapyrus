@@ -452,7 +452,7 @@ public:
 	//   Если в течении этого таймаута ожидание на завершилось, то предпринимаются
 	//   информирующие действия (например, вывод в журнал).
 	//
-	const long WaitableObjCheckTimeout; 
+	const long WaitableObjCheckTimeout;
 };
 
 extern const SlConstParam _SlConst;
@@ -532,12 +532,14 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 //
 #include <asmlib.h>
 
-extern "C" void * cdecl xeos_memchr(const void * s, int c, size_t n);
-extern "C" void * cdecl xeos_memchr32(const void * s, int c, size_t n);
-extern "C" void * cdecl xeos_memchr32_sse2(const void * s, int c, size_t n);
-extern "C" uint   cdecl xeos_strlen(const char * s);
-extern "C" uint   cdecl xeos_strlen32(const char * s);
-extern "C" uint   cdecl xeos_strlen32_sse2(const char * s);
+extern "C" {
+	void * cdecl xeos_memchr(const void * s, int c, size_t n);
+	void * cdecl xeos_memchr32(const void * s, int c, size_t n);
+	void * cdecl xeos_memchr32_sse2(const void * s, int c, size_t n);
+	uint   cdecl xeos_strlen(const char * s);
+	uint   cdecl xeos_strlen32(const char * s);
+	uint   cdecl xeos_strlen32_sse2(const char * s);
+}
 
 #if USE_ASMLIB
 	#define memcpy   A_memcpy
@@ -2140,6 +2142,10 @@ private:
 #define PTR32C(p)             (reinterpret_cast<const uint32*>(p))
 #define PTR64C(p)             (reinterpret_cast<const uint64*>(p))
 #define PTRDBLC(p)            (reinterpret_cast<const double*>(p))
+#define PTRCHR(p)             (static_cast<char *>(p)) // @v10.7.8
+#define PTRCHRC(p)            (static_cast<const char *>(p)) // @v10.7.8
+#define PTRCHR_(p)            (reinterpret_cast<char *>(p)) // @v10.7.8
+#define PTRCHRC_(p)           (reinterpret_cast<const char *>(p)) // @v10.7.8
 #define PTR2U(p)              (static_cast<uint32>(p))
 #define U2PTR(typ,u)          (static_cast<typ *>(u))
 #define U2PTRV(u)             (static_cast<void *>(u))
@@ -3544,6 +3550,9 @@ public:
 	//   Если pS == 0 или this->Len() < strlen(pS), то функция возвращает -1
 	//
 	int    FASTCALL CmpPrefix(const char * pS, int ignoreCase) const;
+	int    FASTCALL HasPrefix(const char * pS) const;
+	int    FASTCALL HasPrefixNC(const char * pS) const;
+	int    FASTCALL HasPrefixIAscii(const char * pS) const;
 	//
 	// Descr: Сравнивает строку this c префиксом строки pS длиной this->Len().
 	//   Если this->Len() == 0, то результат в любом случае -1.
@@ -4917,7 +4926,7 @@ private:
 //		// do something with abc
 //	}
 // }
-// 
+//
 // Класс Foo реализует механизм итерирования (от 0 до 9) посредством вложенного класса, унаследованного от SEnumImp, экземпляр
 // которого возвращает публичной функцией Enum().
 // Клиентская функция foo() не знает о реализации Foo::EnImp но знает о том, какого типа итерируемый объект (в примере double).
@@ -6986,7 +6995,7 @@ struct LAssoc : public LAssocBase {
 	int    FASTCALL operator == (const LAssoc &) const;
 };
 
-class LAssocArray : public /*TSArray*/TSVector <LAssoc> {
+class LAssocArray : public TSVector <LAssoc> {
 public:
 	SLAPI  LAssocArray();
 	SLAPI  LAssocArray(const LAssocArray &);
@@ -10665,7 +10674,7 @@ public:
 		};
 		long   State;
 		int16  LocalDevPtCount; // @v10.7.1 Ширина отрезка для измерения средней величины локального отклонения
-		uint16 Reserve;         // @v10.7.1 @alignment 
+		uint16 Reserve;         // @v10.7.1 @alignment
 		double DeltaAvg;        // Среднее значение изменения относительно предыдущего значения в долях от единицы
 		double LocalDevAvg;     // @v10.7.1 Среднее стандартное отклонение по узким отрезкам длиной LocalDevPtCount
 	};
@@ -10953,10 +10962,20 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 int    FASTCALL smax(int a, int b);
 int    FASTCALL smin(int a, int b);
+int    FASTCALL smax(uint a, uint b);
+int    FASTCALL smin(uint a, uint b);
 double FASTCALL smax(double a, double b);
 double FASTCALL smin(double a, double b);
 float  FASTCALL smax(float a, float b);
 float  FASTCALL smin(float a, float b);
+//
+// Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
+//
+int    FASTCALL sclamp(int v, int lo, int up);
+uint   FASTCALL sclamp(uint v, uint lo, uint up);
+double FASTCALL sclamp(double v, double lo, double up);
+float  FASTCALL sclamp(float v, float lo, float up);
+
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
@@ -11247,7 +11266,8 @@ public:
 	friend int operator == (TPoint one, TPoint two);
 	friend int operator != (TPoint one, TPoint two);
 
-	int16  x, y;
+	int16  x;
+	int16  y;
 };
 
 class TRect {

@@ -1,5 +1,5 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8 // @v10.4.5
 //
 #include <pp.h>
@@ -88,12 +88,11 @@ int SLAPI StringStore2::Hash::Get(long id, long * pValue) const
 	return ok;
 }
 
-SLAPI StringStore2::ParseItem::ParseItem()
+SLAPI StringStore2::ParseItem::ParseItem() : Kind(0), Flags(0), Group(0), Code(0), SLang(0), Scope(0)
 {
-	Clear();
 }
 
-void SLAPI StringStore2::ParseItem::Clear()
+StringStore2::ParseItem & SLAPI StringStore2::ParseItem::Z()
 {
 	Kind = 0;
 	Flags = 0;
@@ -105,6 +104,7 @@ void SLAPI StringStore2::ParseItem::Clear()
 	CodeSymb.Z();
 	Signature.Z();
 	Str.Z();
+	return *this;
 }
 
 SLAPI StringStore2::StringStore2() : P_Pb(0), Flags(0), ErrCode(0), ActiveLanguage(0), P_SignatureHash(0)
@@ -807,7 +807,7 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 	// @debug {
 	{
 		int  there_is_a_problem = 0;
-		uint debug_pos = 0;
+		size_t debug_pos = 0;
 		if(rBuf.Search("#0", 0, 0, &debug_pos)) {
 			there_is_a_problem = 1;
 		}
@@ -1471,7 +1471,7 @@ int SLAPI StringStore2::ParseString(const SString & rStr, SStrScan & rScan, Stri
 		}
 		else {
 			StringStore2::ParseItem preserve_item = rItem;
-			rItem.Clear();
+			rItem.Z();
 			if(TempBuf.CmpPrefix("#{", 0) == 0) {
 				rItem.Kind = rItem.kScopeStart;
 				rItem.Scope = rItem.scopeDescr;

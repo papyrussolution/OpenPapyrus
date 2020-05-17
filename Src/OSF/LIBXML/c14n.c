@@ -49,15 +49,6 @@ typedef struct _xmlC14NCtx {
 } xmlC14NCtx, * xmlC14NCtxPtr;
 
 static xmlC14NVisibleNsStackPtr xmlC14NVisibleNsStackCreate();
-static void xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur);
-static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlNode * P_Node);
-static void xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state);
-static void xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state);
-static void xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur);
-static int  xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns);
-static int  xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, xmlC14NCtxPtr ctx);
-static int  xmlC14NIsNodeInNodeset(const xmlNodeSet * pNodes, xmlNode * pNode, xmlNode * parent);
-static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur);
 static int xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNode * cur);
 typedef enum {
 	XMLC14N_NORMALIZE_ATTR = 0,
@@ -74,13 +65,9 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 #define xmlC11NNormalizeText(a)	xmlC11NNormalizeString((a), XMLC14N_NORMALIZE_TEXT)
 #define xmlC14NIsVisible(ctx, P_Node, parent) (((ctx)->is_visible_callback) ? (ctx)->is_visible_callback((ctx)->user_data, (xmlNode *)(P_Node), (xmlNode *)(parent)) : 1)
 #define xmlC14NIsExclusive(ctx)	((ctx)->mode == XML_C14N_EXCLUSIVE_1_0)
-
-/************************************************************************
-*									*
-*		Some factorized error routines				*
-*									*
-************************************************************************/
-
+//
+// Some factorized error routines
+//
 /**
  * xmlC14NErrMemory:
  * @extra:  extra informations
@@ -430,7 +417,7 @@ static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
 	else {
 		if(ns->prefix) {
 			xmlOutputBufferWriteString(ctx->buf, " xmlns:");
-			xmlOutputBufferWriteString(ctx->buf, (const char *)ns->prefix);
+			xmlOutputBufferWriteString(ctx->buf, PTRCHRC_(ns->prefix));
 			xmlOutputBufferWriteString(ctx->buf, "=");
 		}
 		else
@@ -1265,15 +1252,12 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNode * cur, int visib
 		xmlOutputBufferWriteString(ctx->buf, reinterpret_cast<const char *>(cur->name));
 		xmlOutputBufferWriteString(ctx->buf, ">");
 		if(parent_is_doc) {
-			/* restore this flag from the stack for next node */
+			// restore this flag from the stack for next node 
 			ctx->parent_is_doc = parent_is_doc;
 			ctx->pos = XMLC14N_AFTER_DOCUMENT_ELEMENT;
 		}
 	}
-
-	/*
-	 * Restore ns_rendered stack position
-	 */
+	// Restore ns_rendered stack position
 	xmlC14NVisibleNsStackRestore(ctx->ns_rendered, &state);
 	return 0;
 }
@@ -1383,12 +1367,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		 * declaration).
 		     */
 		    if(visible && ctx->with_comments) {
-			    if(ctx->pos == XMLC14N_AFTER_DOCUMENT_ELEMENT) {
-				    xmlOutputBufferWriteString(ctx->buf, "\x0A<!--");
-			    }
-			    else {
-				    xmlOutputBufferWriteString(ctx->buf, "<!--");
-			    }
+			    xmlOutputBufferWriteString(ctx->buf, (ctx->pos == XMLC14N_AFTER_DOCUMENT_ELEMENT) ? "\x0A<!--" : "<!--");
 			    if(cur->content) {
 				    // todo: do we need to normalize comment? 
 				    xmlChar * buffer = xmlC11NNormalizeComment(cur->content);
@@ -1401,12 +1380,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 					    return -1;
 				    }
 			    }
-			    if(ctx->pos == XMLC14N_BEFORE_DOCUMENT_ELEMENT) {
-				    xmlOutputBufferWriteString(ctx->buf, "-->\x0A");
-			    }
-			    else {
-				    xmlOutputBufferWriteString(ctx->buf, "-->");
-			    }
+			    xmlOutputBufferWriteString(ctx->buf, (ctx->pos == XMLC14N_BEFORE_DOCUMENT_ELEMENT) ? "-->\x0A" : "-->");
 		    }
 		    break;
 		case XML_DOCUMENT_NODE:
@@ -1437,9 +1411,7 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 		case XML_XINCLUDE_START:
 		case XML_XINCLUDE_END:
 #endif
-		    /*
-		 * should be ignored according to "W3C Canonical XML"
-		     */
+			// should be ignored according to "W3C Canonical XML"
 		    break;
 		default:
 		    xmlC14NErrUnknownNode(cur->type, "processing node");
@@ -1448,7 +1420,6 @@ static int xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNode * cur)
 
 	return ret;
 }
-
 /**
  * xmlC14NProcessNodeList:
  * @ctx:		the pointer to C14N context object

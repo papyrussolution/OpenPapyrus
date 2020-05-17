@@ -4251,6 +4251,42 @@ int SLAPI PPUhttClient::CreateTSession(long * pID, const UhttTSessionPacket & rP
 	ASSIGN_PTR(pID, id);
 	return ok;
 }
+
+UhttTagItem * SLAPI PPUhttClient::GetUhttTagText(PPID objType, PPID objID, PPID tagID, const char * pTagSymb)
+{
+	UhttTagItem * p_result = 0;
+	if(tagID && objType && objID && !isempty(pTagSymb)) {
+		Reference * p_ref = PPRef;
+		ObjTagItem tag_item;
+		if(p_ref->Ot.GetTag(objType, objID, tagID, &tag_item) > 0) {
+			SString temp_buf;
+			if(tag_item.TagDataType == OTTYP_ENUM && tag_item.TagEnumID && IS_DYN_OBJTYPE(tag_item.TagEnumID)) {
+				Reference2Tbl::Rec en_rec;
+				if(p_ref->GetItem(tag_item.TagEnumID, tag_item.Val.IntVal, &en_rec) > 0) {
+					if(en_rec.Val2) { // ref to parent item
+						(temp_buf = "/h|").Cat(en_rec.ObjName);
+						for(PPID next_id = en_rec.Val2; next_id != 0;) {
+							if(p_ref->GetItem(tag_item.TagEnumID, next_id, &en_rec) > 0) {
+								temp_buf.Cat("/h>").Cat(en_rec.ObjName);
+								next_id = en_rec.Val2;
+							}
+							else
+								break;
+						}
+					}
+					else
+						temp_buf = en_rec.ObjName;
+				}
+			}
+			else
+				tag_item.GetStr(temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				p_result = new UhttTagItem(pTagSymb, temp_buf);
+			}
+		}
+	}
+	return p_result;
+}
 //
 //
 //

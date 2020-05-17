@@ -85,7 +85,7 @@ int archive_write_set_format_cpio(struct archive * _a)
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
+	cpio = static_cast<struct cpio *>(SAlloc::C(1, sizeof(*cpio)));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");
 		return ARCHIVE_FATAL;
@@ -105,7 +105,7 @@ int archive_write_set_format_cpio(struct archive * _a)
 
 static int archive_write_cpio_options(struct archive_write * a, const char * key, const char * val)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	int ret = ARCHIVE_FAILED;
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
@@ -182,7 +182,7 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 
 static struct archive_string_conv * get_sconv(struct archive_write * a)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	struct archive_string_conv * sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
@@ -228,7 +228,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	struct archive_entry * entry_main;
 	size_t len;
 
-	cpio = (struct cpio *)a->format_data;
+	cpio = static_cast<struct cpio *>(a->format_data);
 	ret_final = ARCHIVE_OK;
 	sconv = get_sconv(a);
 
@@ -345,7 +345,7 @@ static ssize_t archive_write_cpio_data(struct archive_write * a, const void * bu
 	struct cpio * cpio;
 	int ret;
 
-	cpio = (struct cpio *)a->format_data;
+	cpio = static_cast<struct cpio *>(a->format_data);
 	if(s > cpio->entry_bytes_remaining)
 		s = (size_t)cpio->entry_bytes_remaining;
 
@@ -398,7 +398,7 @@ static int archive_write_cpio_close(struct archive_write * a)
 
 static int archive_write_cpio_free(struct archive_write * a)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	SAlloc::F(cpio->ino_list);
 	SAlloc::F(cpio);
 	a->format_data = NULL;
@@ -407,6 +407,6 @@ static int archive_write_cpio_free(struct archive_write * a)
 
 static int archive_write_cpio_finish_entry(struct archive_write * a)
 {
-	struct cpio * cpio = (struct cpio *)a->format_data;
+	struct cpio * cpio = static_cast<struct cpio *>(a->format_data);
 	return (__archive_write_nulls(a, (size_t)cpio->entry_bytes_remaining));
 }

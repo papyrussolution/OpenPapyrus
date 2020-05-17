@@ -119,10 +119,7 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 	if(conn->bits.user_passwd) {
 		/* AUTH is missing */
 	}
-
-	if(strncasecompare(path, DICT_MATCH, sizeof(DICT_MATCH)-1) ||
-	    strncasecompare(path, DICT_MATCH2, sizeof(DICT_MATCH2)-1) ||
-	    strncasecompare(path, DICT_MATCH3, sizeof(DICT_MATCH3)-1)) {
+	if(strncasecompare(path, DICT_MATCH, sizeof(DICT_MATCH)-1) || strncasecompare(path, DICT_MATCH2, sizeof(DICT_MATCH2)-1) || strncasecompare(path, DICT_MATCH3, sizeof(DICT_MATCH3)-1)) {
 		word = sstrchr(path, ':');
 		if(word) {
 			word++;
@@ -150,32 +147,16 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 		if((strategy == NULL) || (*strategy == (char)0)) {
 			strategy = (char *)".";
 		}
-
 		eword = unescape_word(data, word);
 		if(!eword)
 			return CURLE_OUT_OF_MEMORY;
-
-		result = Curl_sendf(sockfd, conn,
-		    "CLIENT " LIBCURL_NAME " " LIBCURL_VERSION "\r\n"
-		    "MATCH "
-		    "%s "        /* database */
-		    "%s "        /* strategy */
-		    "%s\r\n"     /* word */
-		    "QUIT\r\n",
-
-		    database,
-		    strategy,
-		    eword
-		    );
-
+		result = Curl_sendf(sockfd, conn, "CLIENT " LIBCURL_NAME " " LIBCURL_VERSION "\r\nMATCH %s %s %s\r\nQUIT\r\n", database, strategy, eword);
 		SAlloc::F(eword);
-
 		if(result) {
 			failf(data, "Failed sending DICT request");
 			return result;
 		}
-		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount,
-		    -1, 0);     /* no upload */
+		Curl_setup_transfer(conn, FIRSTSOCKET, -1, FALSE, bytecount, -1, 0); /* no upload */
 	}
 	else if(strncasecompare(path, DICT_DEFINE, sizeof(DICT_DEFINE)-1) ||
 	    strncasecompare(path, DICT_DEFINE2, sizeof(DICT_DEFINE2)-1) ||

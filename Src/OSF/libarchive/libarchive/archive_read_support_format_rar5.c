@@ -494,7 +494,7 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
 	struct rar5* rar = get_context(a);
 	if(rar->cstate.filtered_buf)
 		SAlloc::F(rar->cstate.filtered_buf);
-	rar->cstate.filtered_buf = (uint8_t *)SAlloc::M(flt->block_length);
+	rar->cstate.filtered_buf = static_cast<uint8_t *>(SAlloc::M(flt->block_length));
 	if(!rar->cstate.filtered_buf) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for filter data.");
 		return ARCHIVE_FATAL;
@@ -1620,15 +1620,11 @@ static int rar5_read_header(struct archive_read * a,
 		if(ARCHIVE_OK != consume(a, rar5_signature_size)) {
 			return ARCHIVE_EOF;
 		}
-
 		rar->skipped_magic = 1;
 	}
-
 	do {
 		ret = process_base_block(a, entry);
-	} while(ret == ARCHIVE_RETRY ||
-	    (rar->main.endarc > 0 && ret == ARCHIVE_OK));
-
+	} while(ret == ARCHIVE_RETRY || (rar->main.endarc > 0 && ret == ARCHIVE_OK));
 	return ret;
 }
 
@@ -1643,8 +1639,8 @@ static void init_unpack(struct rar5* rar)
 		SAlloc::F(rar->cstate.window_buf);
 	if(rar->cstate.filtered_buf)
 		SAlloc::F(rar->cstate.filtered_buf);
-	rar->cstate.window_buf = (uint8_t *)SAlloc::C(1, rar->cstate.window_size);
-	rar->cstate.filtered_buf = (uint8_t *)SAlloc::C(1, rar->cstate.window_size);
+	rar->cstate.window_buf = static_cast<uint8_t *>(SAlloc::C(1, rar->cstate.window_size));
+	rar->cstate.filtered_buf = static_cast<uint8_t *>(SAlloc::C(1, rar->cstate.window_size));
 	rar->cstate.write_ptr = 0;
 	rar->cstate.last_write_ptr = 0;
 	memzero(&rar->cstate.bd, sizeof(rar->cstate.bd));
@@ -2435,32 +2431,26 @@ static int merge_block(struct archive_read* a, ssize_t block_size,
 	ssize_t cur_block_size, partial_offset = 0;
 	const uint8_t* lp;
 	int ret;
-
 	/* Set a flag that we're in the switching mode. */
 	rar->cstate.switch_multivolume = 1;
-
 	/* Reallocate the memory which will hold the whole block. */
 	if(rar->vol.push_buf)
 		SAlloc::F((void*)rar->vol.push_buf);
-
 	/* Increasing the allocation block by 8 is due to bit reading functions,
 	 * which are using additional 2 or 4 bytes. Allocating the block size
 	 * by exact value would make bit reader perform reads from invalid memory
 	 * block when reading the last byte from the buffer. */
-	rar->vol.push_buf = (uint8_t *)SAlloc::M(block_size + 8);
+	rar->vol.push_buf = static_cast<uint8_t *>(SAlloc::M(block_size + 8));
 	if(!rar->vol.push_buf) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a merge block buffer.");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Valgrind complains if the extension block for bit reader is not
 	 * initialized, so initialize it. */
 	memzero(&rar->vol.push_buf[block_size], 8);
-
 	/* A single block can span across multiple multivolume archive files,
 	 * so we use a loop here. This loop will consume enough multivolume
 	 * archive files until the whole block is read. */
-
 	while(1) {
 		/* Get the size of current block chunk in this multivolume archive
 		 * file and read it. */

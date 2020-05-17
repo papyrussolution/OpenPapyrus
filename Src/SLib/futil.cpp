@@ -320,14 +320,12 @@ int SLAPI isWild(const char * f)
 SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)
 {
 	HMODULE h_inst = SLS.GetHInst();
-	/* @v10.3.9
-	char   drv[MAXDRIVE], dir[MAXDIR];
-	char   path[MAXPATH];
-	GetModuleFileName(h_inst, path, sizeof(path)); // @unicodeproblem
-	fnsplit(path, drv, dir, 0, 0);
-	fnmerge(path, drv, dir, pName, pExt);
-	rPath = path;
-	*/
+	// @v10.3.9 char   drv[MAXDRIVE], dir[MAXDIR];
+	// @v10.3.9 char   path[MAXPATH];
+	// @v10.3.9 GetModuleFileName(h_inst, path, sizeof(path)); // @unicodeproblem
+	// @v10.3.9 fnsplit(path, drv, dir, 0, 0);
+	// @v10.3.9 fnmerge(path, drv, dir, pName, pExt);
+	// @v10.3.9 rPath = path;
 	// @v10.3.9 {
 	SString path;
 	SSystem::SGetModuleFileName(h_inst, path);

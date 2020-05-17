@@ -19,16 +19,14 @@
 #define QR_CLAMP255(_x)     ((uchar)((((_x)<0)-1)&((_x)|-((_x)>255))))
 #define QR_SWAP2I(_a,_b) \
   do { \
-    int t__; \
-    t__=(_a); \
+    int t__=(_a); \
     (_a)=(_b); \
     (_b)=t__; \
   } while(0)
 /*Swaps two integers _a and _b if _a>_b.*/
 #define QR_SORT2I(_a,_b) \
   do { \
-    int t__; \
-    t__=QR_MINI(_a,_b)^(_a); \
+    int t__=QR_MINI(_a,_b)^(_a); \
     (_a)^=t__; \
     (_b)^=t__; \
   } while(0)

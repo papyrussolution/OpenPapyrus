@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -733,7 +733,7 @@ int PPDesktop::DrawIcon(TCanvas & rC, long cmdID, int isSelected)
 {
 	int    ok = -1;
 	const  PPCommandItem * p_item = P_ActiveDesktop->SearchByID(cmdID, 0);
-	PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? (PPCommand*)p_item->Dup() : 0;
+	PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<PPCommand *>(p_item->Dup()) : 0;
     if(p_cmd) {
 		ok = DrawIcon(rC, p_cmd->ID, p_cmd->P, p_cmd->Name, p_cmd->Icon, isSelected);
     }
@@ -745,7 +745,8 @@ int PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rTe
 {
 	RECT   cr;
 	GetClientRect(H(), &cr);
-	long   x = cr.left + coord.x, y = cr.top + coord.y;
+	const long x = cr.left + coord.x;
+	const long y = cr.top + coord.y;
 	if(isSelected) {
 		rC.SelectObjectAndPush(Ptb.Get(brushSelTextRect));
 		rC.SelectObjectAndPush(Ptb.Get(penSelTextRect));
@@ -763,14 +764,53 @@ int PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rTe
 			text_color = GetPixel(rC, (int)(x + IconSize * 1.5), (int)(y + IconSize * 1.5));
 			text_color = (labs(text_color - SClrBlack) > labs(text_color - SClrWhite)) ? SClrBlack : SClrWhite;
 		}
-		if(rIcon.ToLong())
-			h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(rIcon.ToLong()));
-		else
-			h_icon = static_cast<HICON>(::LoadImage(0, SUcSwitch(rIcon), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE)); // @unicodeproblem
+		{
+			long icon_id = rIcon.ToLong();
+			if(icon_id) {
+				if(icon_id & _SlConst.VectorImageMask) {
+					// @v10.7.8 {
+					TWhatmanToolArray::Item tool_item;
+					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
+					const uint _w = IconSize;
+					const uint _h = IconSize;
+					SImageBuffer ib(_w, _h);
+					{
+						TCanvas2 canv_temp(APPL->GetUiToolBox(), ib);
+						if(!tool_item.ReplacedColor.IsEmpty()) {
+							SColor replacement_color;
+							replacement_color = APPL->GetUiToolBox().GetColor(TProgram::tbiIconRegColor);
+							canv_temp.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+						}
+						LMatrix2D mtx;
+						SViewPort vp;
+						FRect pic_bounds;
+						pic_bounds.a.X = 0.0f;
+						pic_bounds.a.Y = 0.0f;
+						pic_bounds.b.X = static_cast<float>(_w);
+						pic_bounds.b.Y = static_cast<float>(_h);
+						//
+						canv_temp.Rect(pic_bounds);
+						//canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+						canv_temp.Fill(SColor(0xd4, 0xf0, 0xf0, 255), 0); // Прозрачный фон
+						canv_temp.PushTransform();
+						p_fig->GetViewPort(&vp);
+						canv_temp.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+						canv_temp.Draw(p_fig);
+					}
+					h_icon = static_cast<HICON>(ib.TransformToIcon());
+					// } @v10.7.8 
+				}
+				else
+					h_icon = LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(icon_id));
+			}
+			else
+				h_icon = static_cast<HICON>(::LoadImage(0, SUcSwitch(rIcon), IMAGE_ICON, IconSize, IconSize, LR_LOADFROMFILE));
+		}
 		SETIFZ(h_icon, LoadIcon(TProgram::GetInst(), MAKEINTRESOURCE(ICON_DEFAULT)));
 		if(h_icon) {
 			SString text;
 			(text = rText).Transf(CTRANSF_INNER_TO_OUTER);
+			::SetBkMode(rC, TRANSPARENT); // @v10.7.8
 			::DrawIconEx(rC, cr.left + coord.x + IconSize / 2, cr.top + coord.y + 2, h_icon, 0, 0, 0, 0, DI_DEFAULTSIZE|DI_IMAGE|DI_MASK);
 			PPDesktop::DrawText(rC, coord, static_cast<COLORREF>(text_color), text);
 			AddTooltip(id, coord, text);
@@ -823,8 +863,8 @@ int PPDesktop::Paint()
 				canv.FillRect(cli_rect, static_cast<HBRUSH>(Ptb.Get(brushBkg)));
 			}
 			if(Logotype.IsValid()) {
-				int    w  = (uint)Logotype.GetWidth();
-				int    h  = (uint)Logotype.GetHeight();
+				int    w  = static_cast<int>(Logotype.GetWidth());
+				int    h  = static_cast<int>(Logotype.GetHeight());
 				for(int x = cli_rect.a.x - cli_rect.a.x % w; x < cli_rect.b.x; x+= w) {
 					for(int y = cli_rect.a.y - cli_rect.a.y % h; y < cli_rect.b.y; y += h) {
 						RECT image_rect, dest_rect;
@@ -2138,13 +2178,13 @@ int PPDesktop::RegWindowClass(HINSTANCE hInst)
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
 	wc.cbSize = sizeof(wc);
-	wc.lpszClassName = SUcSwitch(PPDesktop::WndClsName); // @unicodeproblem
+	wc.lpszClassName = SUcSwitch(PPDesktop::WndClsName);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = PPDesktop::DesktopWndProc;
 	wc.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(102));
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(LTGRAY_BRUSH));
 	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-	return ::RegisterClassEx(&wc); // @unicodeproblem
+	return ::RegisterClassEx(&wc);
 }
 
 // static

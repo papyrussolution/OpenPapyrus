@@ -1684,7 +1684,7 @@ int SLAPI PPViewBudget::OnExecBrowser(PPViewBrowser * pBrw)
 		PPBudget rec;
 		if(ObjBudg.Search(Filt.BudgetID, &rec) > 0)
 			parent_id = (rec.ParentID) ? rec.ParentID : parent_id;
-		pBrw->SetupToolbarCombo(PPOBJ_BUDGET, Filt.BudgetID, OLW_CANSELUPLEVEL, (void *)-parent_id);
+		pBrw->SetupToolbarCombo(PPOBJ_BUDGET, Filt.BudgetID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(-parent_id));
 	}
 	return 1;
 }

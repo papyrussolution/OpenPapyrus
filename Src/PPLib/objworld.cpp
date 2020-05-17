@@ -605,14 +605,14 @@ int EditWorldDialog::setDTS(const PPWorldPacket * pData)
 			extra_ptr = PPObjWorld::MakeExtraParam(WORLDOBJ_CONTINENT, 0, 0);
 		else if(oneof2(Id, DLG_CITY, DLG_REGION)) {
 			SetupPPObjCombo(this, CTLSEL_WORLD_STATUS,  PPOBJ_CITYSTATUS, Data.Rec.Status, OLW_CANINSERT); // @v10.5.4 @fix PPOBJ_STATUS-->PPOBJ_CITYSTATUS
-			SetupPPObjCombo(this, CTLSEL_WORLD_COUNTRY, PPOBJ_WORLD,  Data.Rec.CountryID, OLW_CANINSERT|OLW_CANSELUPLEVEL,
-				PPObjWorld::MakeExtraParam(WORLDOBJ_COUNTRY, 0, 0));
+			SetupPPObjCombo(this, CTLSEL_WORLD_COUNTRY, PPOBJ_WORLD,  Data.Rec.CountryID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+				PPObjWorld::MakeExtraParam(WORLDOBJ_COUNTRY, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
 			kind_list.addzlist(WORLDOBJ_REGION, WORLDOBJ_COUNTRY, 0);
 			extra_ptr = PPObjWorld::MakeExtraParam(kind_list, 0, 0);
 		}
 	}
 	if(extra_ptr)
-		SetupPPObjCombo(this, CTLSEL_WORLD_PARENT, PPOBJ_WORLD, Data.Rec.ParentID, parent_flags, extra_ptr);
+		SetupPPObjCombo(this, CTLSEL_WORLD_PARENT, PPOBJ_WORLD, Data.Rec.ParentID, parent_flags|OLW_WORDSELECTOR, extra_ptr); // @v10.7.8 OLW_WORDSELECTOR
 	if(oneof2(Data.Rec.Kind, WORLDOBJ_STREET, WORLDOBJ_CITYAREA)) {
 		if(Data.Rec.ParentID)
 			selectCtrl(CTL_WORLD_NAME);

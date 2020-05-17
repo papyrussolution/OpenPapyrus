@@ -41,20 +41,20 @@
  */
 void TIFFCIELabToXYZ(TIFFCIELabToRGB * cielab, uint32 l, int32 a, int32 b, float * X, float * Y, float * Z)
 {
-	float L = (float)l * 100.0F / 255.0F;
+	float L = (float)l * 100.0f / 255.0f;
 	float cby, tmp;
 	if(L < 8.856F) {
-		*Y = (L * cielab->Y0) / 903.292F;
-		cby = 7.787F * (*Y / cielab->Y0) + 16.0F / 116.0F;
+		*Y = (L * cielab->Y0) / 903.292f;
+		cby = 7.787F * (*Y / cielab->Y0) + 16.0f / 116.0f;
 	}
 	else {
-		cby = (L + 16.0F) / 116.0F;
+		cby = (L + 16.0f) / 116.0f;
 		*Y = cielab->Y0 * cby * cby * cby;
 	}
 	tmp = (float)a / 500.0F + cby;
-	*X = (tmp < 0.2069F) ? (cielab->X0 * (tmp - 0.13793F) / 7.787F) : (cielab->X0 * tmp * tmp * tmp);
-	tmp = cby - (float)b / 200.0F;
-	*Z = (tmp < 0.2069F) ? (cielab->Z0 * (tmp - 0.13793F) / 7.787F) : (cielab->Z0 * tmp * tmp * tmp);
+	*X = (tmp < 0.2069f) ? (cielab->X0 * (tmp - 0.13793f) / 7.787f) : (cielab->X0 * tmp * tmp * tmp);
+	tmp = cby - (float)b / 200.0f;
+	*Z = (tmp < 0.2069f) ? (cielab->Z0 * (tmp - 0.13793f) / 7.787f) : (cielab->Z0 * tmp * tmp * tmp);
 }
 
 #define RINT(R) ((uint32)((R)>0 ? ((R)+0.5) : ((R)-0.5)))
@@ -142,7 +142,7 @@ int TIFFCIELabToRGBInit(TIFFCIELabToRGB* cielab, const TIFFDisplay * display, fl
 #define FIX(x)                  ((int32)((x) * (1L<<SHIFT) + 0.5))
 #define ONE_HALF                ((int32)(1<<(SHIFT-1)))
 #define Code2V(c, RB, RW, CR)   ((((c)-(int32)(RB))*(float)(CR))/(float)(((RW)-(RB)!=0) ? ((RW)-(RB)) : 1))
-#define CLAMP(f, min, max)        ((f)<(min) ? (min) : (f)>(max) ? (max) : (f))
+// @sobolev @20200511 #define CLAMP(f, min, max)        ((f)<(min) ? (min) : (f)>(max) ? (max) : (f))
 #define HICLAMP(f, max)          ((f)>(max) ? (max) : (f))
 
 void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 Cr, uint32 * r, uint32 * g, uint32 * b)
@@ -150,18 +150,18 @@ void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 C
 	int32 i;
 	// XXX: Only 8-bit YCbCr input supported for now 
 	Y = HICLAMP(Y, 255);
-	Cb = CLAMP(Cb, 0, 255);
-	Cr = CLAMP(Cr, 0, 255);
+	Cb = sclamp(Cb, 0, 255);
+	Cr = sclamp(Cr, 0, 255);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cr_r_tab[Cr];
-	*r = CLAMP(i, 0, 255);
+	*r = sclamp(i, 0, 255);
 	i = ycbcr->Y_tab[Y] + (int)((ycbcr->Cb_g_tab[Cb] + ycbcr->Cr_g_tab[Cr]) >> SHIFT);
-	*g = CLAMP(i, 0, 255);
+	*g = sclamp(i, 0, 255);
 	i = ycbcr->Y_tab[Y] + ycbcr->Cb_b_tab[Cb];
-	*b = CLAMP(i, 0, 255);
+	*b = sclamp(i, 0, 255);
 }
 
-/* Clamp function for sanitization purposes. Normally clamping should not */
-/* occur for well behaved chroma and refBlackWhite coefficients */
+// Clamp function for sanitization purposes. Normally clamping should not 
+// occur for well behaved chroma and refBlackWhite coefficients 
 static float CLAMPw(float v, float vmin, float vmax)
 {
 	if(v < vmin) {
@@ -192,12 +192,11 @@ static float CLAMPw(float v, float vmin, float vmax)
  */
 int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB* ycbcr, float * luma, float * refBlackWhite)
 {
-	TIFFRGBValue* clamptab;
 	int i;
 #define LumaRed     luma[0]
 #define LumaGreen   luma[1]
 #define LumaBlue    luma[2]
-	clamptab = (TIFFRGBValue*)((uint8 *)ycbcr+TIFFroundup_32(sizeof(TIFFYCbCrToRGB), sizeof(long)));
+	TIFFRGBValue * clamptab = (TIFFRGBValue*)((uint8 *)ycbcr+TIFFroundup_32(sizeof(TIFFYCbCrToRGB), sizeof(long)));
 	memzero(clamptab, 256); /* v < 0 => 0 */
 	ycbcr->clamptab = (clamptab += 256);
 	for(i = 0; i < 256; i++)
@@ -210,10 +209,10 @@ int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB* ycbcr, float * luma, float * refBlackWhit
 	ycbcr->Y_tab = ycbcr->Cb_g_tab + 256;
 
 	{
-		float f1 = 2-2*LumaRed;           int32 D1 = FIX(CLAMP(f1, 0.0F, 2.0F));
-		float f2 = LumaRed*f1/LumaGreen;  int32 D2 = -FIX(CLAMP(f2, 0.0F, 2.0F));
-		float f3 = 2-2*LumaBlue;          int32 D3 = FIX(CLAMP(f3, 0.0F, 2.0F));
-		float f4 = LumaBlue*f3/LumaGreen; int32 D4 = -FIX(CLAMP(f4, 0.0F, 2.0F));
+		float f1 = 2-2*LumaRed;           int32 D1 = FIX(sclamp(f1, 0.0f, 2.0f));
+		float f2 = LumaRed*f1/LumaGreen;  int32 D2 = -FIX(sclamp(f2, 0.0f, 2.0f));
+		float f3 = 2-2*LumaBlue;          int32 D3 = FIX(sclamp(f3, 0.0f, 2.0f));
+		float f4 = LumaBlue*f3/LumaGreen; int32 D4 = -FIX(sclamp(f4, 0.0f, 2.0f));
 		int x;
 #undef LumaBlue
 #undef LumaGreen
@@ -226,13 +225,13 @@ int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB* ycbcr, float * luma, float * refBlackWhit
 		 * constructing tables indexed by the raw pixel data.
 		 */
 		for(i = 0, x = -128; i < 256; i++, x++) {
-			int32 Cr = (int32)CLAMPw(Code2V(x, refBlackWhite[4] - 128.0F, refBlackWhite[5] - 128.0F, 127), -128.0F * 32, 128.0F * 32);
-			int32 Cb = (int32)CLAMPw(Code2V(x, refBlackWhite[2] - 128.0F, refBlackWhite[3] - 128.0F, 127), -128.0F * 32, 128.0F * 32);
+			int32 Cr = (int32)CLAMPw(Code2V(x, refBlackWhite[4] - 128.0f, refBlackWhite[5] - 128.0f, 127), -128.0f * 32, 128.0f * 32);
+			int32 Cb = (int32)CLAMPw(Code2V(x, refBlackWhite[2] - 128.0f, refBlackWhite[3] - 128.0f, 127), -128.0f * 32, 128.0f * 32);
 			ycbcr->Cr_r_tab[i] = (int32)((D1*Cr + ONE_HALF)>>SHIFT);
 			ycbcr->Cb_b_tab[i] = (int32)((D3*Cb + ONE_HALF)>>SHIFT);
 			ycbcr->Cr_g_tab[i] = D2*Cr;
 			ycbcr->Cb_g_tab[i] = D4*Cb + ONE_HALF;
-			ycbcr->Y_tab[i] = (int32)CLAMPw(Code2V(x + 128, refBlackWhite[0], refBlackWhite[1], 255), -128.0F * 32, 128.0F * 32);
+			ycbcr->Y_tab[i] = (int32)CLAMPw(Code2V(x + 128, refBlackWhite[0], refBlackWhite[1], 255), -128.0f * 32, 128.0f * 32);
 		}
 	}
 	return 0;

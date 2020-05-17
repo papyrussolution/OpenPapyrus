@@ -47,13 +47,18 @@ int SLAPI AverageEventTimePrcssr::Enum(uint * pPos, Item ** pItem)
 //
 //
 //
-void PersonEventViewItem::Clear()
+PersonEventViewItem::PersonEventViewItem() : GrpCount(0)
+{
+}
+
+PersonEventViewItem & PersonEventViewItem::Z()
 {
 	memzero(this, sizeof(PersonEventTbl::Rec));
 	GrpText1.Z();
 	GrpText2.Z();
+	AvgEvTime.Z();
 	GrpCount  = 0;
-	AvgEvTime = 0;
+	return *this;
 }
 //
 //
@@ -80,10 +85,8 @@ SLAPI PPViewPersonEvent::~PPViewPersonEvent()
 
 int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	//#define GRP_PSNOP 1L
 	class PersonEventFiltDialog : public TDialog {
-		typedef PersonEventFilt DlgDataType;
-		DlgDataType Data;
+		DECL_DIALOG_DATA(PersonEventFilt);
 		enum {
 			ctlgroupPsnOp = 1
 		};
@@ -93,9 +96,9 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupCalPeriod(CTLCAL_PSNEVFLT_PERIOD, CTL_PSNEVFLT_PERIOD);
 			addGroup(ctlgroupPsnOp, new PersonOpCtrlGroup(CTLSEL_PSNEVFLT_OP, CTLSEL_PSNEVFLT_PRMR, CTLSEL_PSNEVFLT_SCND, cmOpList));
 		}
-		int    setDTS(const DlgDataType * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			PPID   kind = 0;
 			PPPsnOpKindPacket pok_pack;
 			PPObjPsnOpKind    pok_obj;
@@ -112,7 +115,7 @@ int SLAPI PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetClusterData(CTL_PSNEVFLT_FLAGS, Data.Flags);
 			return 1;
 		}
-		int    getDTS(DlgDataType * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			GetPeriodInput(this, CTL_PSNEVFLT_PERIOD, &Data.Period);
 			getCtrlData(CTLSEL_PSNEVFLT_PRMR, &Data.PrmrID);
@@ -226,7 +229,7 @@ int SLAPI PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 			THROW(tra);
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				PersonEventTbl::Rec temp_rec;
-				temp_rec = *(PersonEventTbl::Rec *)&item;
+				temp_rec = *static_cast<const PersonEventTbl::Rec *>(&item);
 				THROW_DB(p_temp_tbl->insertRecBuf(&temp_rec));
 			}
 			THROW(tra.Commit());
@@ -306,7 +309,7 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 		if(P_TempGrpTbl) {
 			if(pItem) {
 				TempPersonEventTbl::Rec & r_rec = P_TempGrpTbl->data;
-				pItem->Clear();
+				pItem->Z();
 				pItem->ID       = r_rec.ID;
 				pItem->Dt       = r_rec.Dt;
 				pItem->GrpCount = r_rec.Count;
@@ -326,7 +329,7 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 		else if(P_TempTbl) {
 			PersonEventTbl::Rec rec;
 			if(PsnEvObj.Search(P_TempTbl->data.ID, &rec) > 0) {
-				ASSIGN_PTR((PersonEventTbl::Rec *)pItem, rec);
+				ASSIGN_PTR(static_cast<PersonEventTbl::Rec *>(pItem), rec);
 				return 1;
 			}
 		}
@@ -352,7 +355,7 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 			else
 				skip = 1;
 			if(!skip) {
-				ASSIGN_PTR((PersonEventTbl::Rec *)pItem, rec);
+				ASSIGN_PTR(static_cast<PersonEventTbl::Rec *>(pItem), rec);
 				return 1;
 			}
 		}
@@ -445,7 +448,7 @@ DBQuery * SLAPI PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * p
 	return q;
 }
 
-void * SLAPI PPViewPersonEvent::GetEditExtraParam() { return (void *)Filt.PrmrID; }
+void * SLAPI PPViewPersonEvent::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.PrmrID); }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {

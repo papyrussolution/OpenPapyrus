@@ -1,5 +1,6 @@
 // PPSOAPCLIENT.H
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 
@@ -11,10 +12,7 @@ public:
 
 	virtual void Destroy() = 0;
 	virtual const void * GetPtr() const = 0;
-	int operator == (const void * ptr) const
-	{
-		return (ptr == GetPtr());
-	}
+	int operator == (const void * ptr) const { return (ptr == GetPtr()); }
 };
 
 template <class T> class PPSoapResultPtr : public PPSoapResultPtrBase {
@@ -82,10 +80,10 @@ char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSC
 class UhttStatus {
 public:
 	UhttStatus();
-	int    Code;    // Код результата исполнения операции
-	int    Index;   // Для списка - индекс в исходном списке (переденном в виде параметра), к которому относится статус
-	int    Id;      // Для списка - идентификатор объекта в исходном списке (переденном в виде параметра), к которому относится статус
-	SString Msg;    // Текст сообщения //
+	int    Code;    // РљРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚Р° РёСЃРїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё
+	int    Index;   // Р”Р»СЏ СЃРїРёСЃРєР° - РёРЅРґРµРєСЃ РІ РёСЃС…РѕРґРЅРѕРј СЃРїРёСЃРєРµ (РїРµСЂРµРґРµРЅРЅРѕРј РІ РІРёРґРµ РїР°СЂР°РјРµС‚СЂР°), Рє РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РЅРѕСЃРёС‚СЃСЏ СЃС‚Р°С‚СѓСЃ
+	int    Id;      // Р”Р»СЏ СЃРїРёСЃРєР° - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЉРµРєС‚Р° РІ РёСЃС…РѕРґРЅРѕРј СЃРїРёСЃРєРµ (РїРµСЂРµРґРµРЅРЅРѕРј РІ РІРёРґРµ РїР°СЂР°РјРµС‚СЂР°), Рє РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РЅРѕСЃРёС‚СЃСЏ СЃС‚Р°С‚СѓСЃ
+	SString Msg;    // РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ //
 };
 
 class UhttDate {
@@ -98,7 +96,7 @@ public:
 	SString Date;
 };
 //
-// Descr: Дата/время, передаваемые одной строкой в формате ISO-8601 (yyyy-mm-ddThh:mm:ss)
+// Descr: Р”Р°С‚Р°/РІСЂРµРјСЏ, РїРµСЂРµРґР°РІР°РµРјС‹Рµ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№ РІ С„РѕСЂРјР°С‚Рµ ISO-8601 (yyyy-mm-ddThh:mm:ss)
 //
 class UhttTimestamp {
 public:
@@ -174,13 +172,13 @@ public:
 	UhttGoodsPacket & FASTCALL operator = (const UhttGoodsPacket & rS);
 	UhttGoodsPacket & FASTCALL Copy(const UhttGoodsPacket & rS);
 	//
-	// Descr: Устанавливает наименование товара (с перекодировкой и корректировкой не верных символов);
-	// Note: Доступно только из проекта Papyrus
+	// Descr: РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР° (СЃ РїРµСЂРµРєРѕРґРёСЂРѕРІРєРѕР№ Рё РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРѕР№ РЅРµ РІРµСЂРЅС‹С… СЃРёРјРІРѕР»РѕРІ);
+	// Note: Р”РѕСЃС‚СѓРїРЅРѕ С‚РѕР»СЊРєРѕ РёР· РїСЂРѕРµРєС‚Р° Papyrus
 	//
 	void    FASTCALL SetName(const char * pName);
 	//
-	// Descr: Устанавливает текст расширения товара (с перекодировкой и корректировкой не верных символов);
-	// Note: Доступно только из проекта Papyrus
+	// Descr: РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С‚РµРєСЃС‚ СЂР°СЃС€РёСЂРµРЅРёСЏ С‚РѕРІР°СЂР° (СЃ РїРµСЂРµРєРѕРґРёСЂРѕРІРєРѕР№ Рё РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРѕР№ РЅРµ РІРµСЂРЅС‹С… СЃРёРјРІРѕР»РѕРІ);
+	// Note: Р”РѕСЃС‚СѓРїРЅРѕ С‚РѕР»СЊРєРѕ РёР· РїСЂРѕРµРєС‚Р° Papyrus
 	//
 	void    FASTCALL SetExt(int extFldId, const char * pText);
 
@@ -205,8 +203,8 @@ public:
 	TSCollection <UhttTagItem> TagList;
 };
 //
-// Descr: Представление элемента сопоставления приватного идентификатора объекта с идентификатором
-//   соответствующего объекта в Universe-HTT по коду.
+// Descr: РџСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёСЏ РїСЂРёРІР°С‚РЅРѕРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° РѕР±СЉРµРєС‚Р° СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј
+//   СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ РѕР±СЉРµРєС‚Р° РІ Universe-HTT РїРѕ РєРѕРґСѓ.
 //
 struct UhttCodeRefItem {
 	UhttCodeRefItem();
@@ -214,7 +212,7 @@ struct UhttCodeRefItem {
 
 	int32  PrivateID;
 	int32  UhttID;
-	uint   InnerPos; // Внутреннее поле. Используется при вызове WSDL-метода для сопоставления списков.
+	uint   InnerPos; // Р’РЅСѓС‚СЂРµРЅРЅРµРµ РїРѕР»Рµ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РІС‹Р·РѕРІРµ WSDL-РјРµС‚РѕРґР° РґР»СЏ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёСЏ СЃРїРёСЃРєРѕРІ.
 	char   Code[32];
 };
 
@@ -387,7 +385,7 @@ public:
 	struct AddressP : public UhttLocationPacket {
 		AddressP();
 
-		int    Kind; // 1 - юр адрес, 2 - фактический адрес, 3 - адрес доставки
+		int    Kind; // 1 - СЋСЂ Р°РґСЂРµСЃ, 2 - С„Р°РєС‚РёС‡РµСЃРєРёР№ Р°РґСЂРµСЃ, 3 - Р°РґСЂРµСЃ РґРѕСЃС‚Р°РІРєРё
 		SString CountryName;
 		SString CityName;
 	};
@@ -439,7 +437,7 @@ public:
 class UhttBillFilter {
 public:
 	UhttBillFilter();
-	int  FASTCALL SetDate(LDATE dt);
+	void FASTCALL SetDate(LDATE dt);
 	void FASTCALL SetOpSymb(const char * pOpSymb);
 
 	int     LocID;
@@ -460,9 +458,9 @@ public:
 
 	int    GoodsID;
 	int    LocID;
-	SString Name;     // Наименование организации
-	SString LocCode;  // Код локации
-	SString LocAddr;  // Адрес локации
+	SString Name;     // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕСЂРіР°РЅРёР·Р°С†РёРё
+	SString LocCode;  // РљРѕРґ Р»РѕРєР°С†РёРё
+	SString LocAddr;  // РђРґСЂРµСЃ Р»РѕРєР°С†РёРё
 	double Rest;
 	double Price;
 	UhttDateTime RestDtm;
@@ -522,7 +520,7 @@ public:
 	void FASTCALL SetRange(const char * pText);
 	void FASTCALL SetDescr(const char * pText);
 
-	int    GoodsID;    // Товар, ассоциированный с диапазоном мест
+	int    GoodsID;    // РўРѕРІР°СЂ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Р№ СЃ РґРёР°РїР°Р·РѕРЅРѕРј РјРµСЃС‚
 	SString Range;
 	SString Descr;
 };
@@ -575,23 +573,23 @@ public:
 	void FASTCALL SetMemo(const char * pText);
 	void FASTCALL SetPlaceCode(const char * pText);
 
-	int    ID;     // Идентификатор ассоциации. В пределах одного раздела БД строка идентифицируется этим полем.
-	int    Kind;   // Вид ассоциации.
-	int    PrmrID; // Идентификатор первичного объекта, для которого фиксируется регистрация (например, PPObjTSession)
+	int    ID;     // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°СЃСЃРѕС†РёР°С†РёРё. Р’ РїСЂРµРґРµР»Р°С… РѕРґРЅРѕРіРѕ СЂР°Р·РґРµР»Р° Р‘Р” СЃС‚СЂРѕРєР° РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµС‚СЃСЏ СЌС‚РёРј РїРѕР»РµРј.
+	int    Kind;   // Р’РёРґ Р°СЃСЃРѕС†РёР°С†РёРё.
+	int    PrmrID; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂРІРёС‡РЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ С„РёРєСЃРёСЂСѓРµС‚СЃСЏ СЂРµРіРёСЃС‚СЂР°С†РёСЏ (РЅР°РїСЂРёРјРµСЂ, PPObjTSession)
 	int    PersonID; // ->Person.ID
-	int    Num;      // Номер записи в однородном списке относительно заданного первичного объекта
-	int    RegCount; // Количество персоналий, включенное в данную регистрацию. Как правило =1,
-		// но в некоторых случаях может быть >1, например, для анонимной или групповой регистрации
-	int    CiCount;  // Количество персоналий, включенное в данную регистрацию со статусом CheckedIn. Как правило =(0|1),
-		// но в некоторых случаях может быть >1, например, для анонимной или групповой регистрации
+	int    Num;      // РќРѕРјРµСЂ Р·Р°РїРёСЃРё РІ РѕРґРЅРѕСЂРѕРґРЅРѕРј СЃРїРёСЃРєРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р·Р°РґР°РЅРЅРѕРіРѕ РїРµСЂРІРёС‡РЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
+	int    RegCount; // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЂСЃРѕРЅР°Р»РёР№, РІРєР»СЋС‡РµРЅРЅРѕРµ РІ РґР°РЅРЅСѓСЋ СЂРµРіРёСЃС‚СЂР°С†РёСЋ. РљР°Рє РїСЂР°РІРёР»Рѕ =1,
+		// РЅРѕ РІ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… РјРѕР¶РµС‚ Р±С‹С‚СЊ >1, РЅР°РїСЂРёРјРµСЂ, РґР»СЏ Р°РЅРѕРЅРёРјРЅРѕР№ РёР»Рё РіСЂСѓРїРїРѕРІРѕР№ СЂРµРіРёСЃС‚СЂР°С†РёРё
+	int    CiCount;  // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЂСЃРѕРЅР°Р»РёР№, РІРєР»СЋС‡РµРЅРЅРѕРµ РІ РґР°РЅРЅСѓСЋ СЂРµРіРёСЃС‚СЂР°С†РёСЋ СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј CheckedIn. РљР°Рє РїСЂР°РІРёР»Рѕ =(0|1),
+		// РЅРѕ РІ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… РјРѕР¶РµС‚ Р±С‹С‚СЊ >1, РЅР°РїСЂРёРјРµСЂ, РґР»СЏ Р°РЅРѕРЅРёРјРЅРѕР№ РёР»Рё РіСЂСѓРїРїРѕРІРѕР№ СЂРµРіРёСЃС‚СЂР°С†РёРё
 	int    Flags;   // @flags
-	UhttTimestamp RegTm;  // Время регистрации //
-	UhttTimestamp CiTm;   // Время подтверждения регистрации (CheckID)
-	double Amount;   // Сумма, уплаченная или которая должна быть уплачена за регистрацию (подтверждение)
-	int    CCheckID; // Кассовый чек, которым оплачено подтверждение регистрации
-	int    SCardID;  // Карта, с которой ассоциирована зерегистрированная персоналия //
-	SString Memo;      // Примечание
-	SString PlaceCode; // Номер места (для регистрации, ассоциированной с посадочным местом)
+	UhttTimestamp RegTm;  // Р’СЂРµРјСЏ СЂРµРіРёСЃС‚СЂР°С†РёРё //
+	UhttTimestamp CiTm;   // Р’СЂРµРјСЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ СЂРµРіРёСЃС‚СЂР°С†РёРё (CheckID)
+	double Amount;   // РЎСѓРјРјР°, СѓРїР»Р°С‡РµРЅРЅР°СЏ РёР»Рё РєРѕС‚РѕСЂР°СЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СѓРїР»Р°С‡РµРЅР° Р·Р° СЂРµРіРёСЃС‚СЂР°С†РёСЋ (РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ)
+	int    CCheckID; // РљР°СЃСЃРѕРІС‹Р№ С‡РµРє, РєРѕС‚РѕСЂС‹Рј РѕРїР»Р°С‡РµРЅРѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ СЂРµРіРёСЃС‚СЂР°С†РёРё
+	int    SCardID;  // РљР°СЂС‚Р°, СЃ РєРѕС‚РѕСЂРѕР№ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅР° Р·РµСЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅР°СЏ РїРµСЂСЃРѕРЅР°Р»РёСЏ //
+	SString Memo;      // РџСЂРёРјРµС‡Р°РЅРёРµ
+	SString PlaceCode; // РќРѕРјРµСЂ РјРµСЃС‚Р° (РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅРѕР№ СЃ РїРѕСЃР°РґРѕС‡РЅС‹Рј РјРµСЃС‚РѕРј)
 };
 
 class UhttTSessionPacket {
@@ -603,7 +601,7 @@ public:
 	void FASTCALL SetDetail(const char * pText);
 
 	int    ID;
-	int    Num; // Номер сессии (уникальный по процессору)
+	int    Num; // РќРѕРјРµСЂ СЃРµСЃСЃРёРё (СѓРЅРёРєР°Р»СЊРЅС‹Р№ РїРѕ РїСЂРѕС†РµСЃСЃРѕСЂСѓ)
 	int    PrcID;
 	int    TechID;
 	int    ParentID;
@@ -626,11 +624,11 @@ public:
 	SString Text;
 };
 //
-// Descr: Инициализирует параметры openssl
+// Descr: РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РїР°СЂР°РјРµС‚СЂС‹ openssl
 //
 int SLAPI gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile);
 //
-// Descr: Инициализирует вызов методов gSoap
+// Descr: РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РІС‹Р·РѕРІ РјРµС‚РѕРґРѕРІ gSoap
 //
 int SLAPI gSoapClientInit(struct soap * pSoap, long flags, const char * pKeyfile);
 
@@ -694,13 +692,13 @@ struct iSalesUOM {
 	iSalesUOM();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
-	int    Code;     // 0 - штука, 1 - коробка, 2 - условная коробка
-    double Width;    // Ширана, см
-    double Height;   // Высота, см
-    double Length;   // Длина, см
-    double Netto;    // Масса нетто, кг
-    double Brutto;   // Масса брутто, кг
-    SString Barcode; // Штрихкод
+	int    Code;     // 0 - С€С‚СѓРєР°, 1 - РєРѕСЂРѕР±РєР°, 2 - СѓСЃР»РѕРІРЅР°СЏ РєРѕСЂРѕР±РєР°
+    double Width;    // РЁРёСЂР°РЅР°, СЃРј
+    double Height;   // Р’С‹СЃРѕС‚Р°, СЃРј
+    double Length;   // Р”Р»РёРЅР°, СЃРј
+    double Netto;    // РњР°СЃСЃР° РЅРµС‚С‚Рѕ, РєРі
+    double Brutto;   // РњР°СЃСЃР° Р±СЂСѓС‚С‚Рѕ, РєРі
+    SString Barcode; // РЁС‚СЂРёС…РєРѕРґ
 };
 
 struct iSalesUOMCvt {
@@ -726,10 +724,10 @@ struct iSalesGoodsPacket {
     SString Name;
     SString Abbr;
     double VatRate;
-    int    UnitCode; // 0 - штука, 1 - коробка, 2 - условная коробка
+    int    UnitCode; // 0 - С€С‚СѓРєР°, 1 - РєРѕСЂРѕР±РєР°, 2 - СѓСЃР»РѕРІРЅР°СЏ РєРѕСЂРѕР±РєР°
     int    Valid;    // 0 - active, 1 - passive
     SString CountryName;
-    SString CLB;     // ГТД
+    SString CLB;     // Р“РўР”
     TSCollection <iSalesUOM> UomList;
     TSCollection <iSalesUOMCvt> CvtList;
     SString ErrMsg;
@@ -738,10 +736,10 @@ struct iSalesGoodsPacket {
 struct iSalesVisit {
     SString Ident;
     int    Valid;	   // 0 - active, 1 - passive
-    int    Freq;   // Частота (2 - раз в 2 недели)
-    int    DayOfWeek; // День недели [1..7]
+    int    Freq;   // Р§Р°СЃС‚РѕС‚Р° (2 - СЂР°Р· РІ 2 РЅРµРґРµР»Рё)
+    int    DayOfWeek; // Р”РµРЅСЊ РЅРµРґРµР»Рё [1..7]
     LDATE  InitDate;
-    SString Order; // Порядок посещения
+    SString Order; // РџРѕСЂСЏРґРѕРє РїРѕСЃРµС‰РµРЅРёСЏ
     SString OuterClientCode;
     SString InnerClientCode;
 };
@@ -766,32 +764,32 @@ struct iSalesCustomerPacket {
 	SString Name;
 	SString Title;
 	SString ShortName;
-	SString OuterCode;       // Код клиента или адреса доставки у контрагента
-	SString NativeCode;      // Код клиента или адреса доставки у нас
-	SString OuterOwnerCode;  // Код головного подразделения у контрагента
-	SString NativeOwnerCode; // Код головного подразделения у нас
+	SString OuterCode;       // РљРѕРґ РєР»РёРµРЅС‚Р° РёР»Рё Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё Сѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+	SString NativeCode;      // РљРѕРґ РєР»РёРµРЅС‚Р° РёР»Рё Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё Сѓ РЅР°СЃ
+	SString OuterOwnerCode;  // РљРѕРґ РіРѕР»РѕРІРЅРѕРіРѕ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ Сѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+	SString NativeOwnerCode; // РљРѕРґ РіРѕР»РѕРІРЅРѕРіРѕ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ Сѓ РЅР°СЃ
 	SString INN;
 	SString KPP;
-	int    TaxScheme; // 0 - плательщик НДС, 1 - УСНО
+	int    TaxScheme; // 0 - РїР»Р°С‚РµР»СЊС‰РёРє РќР”РЎ, 1 - РЈРЎРќРћ
     //
     SString ErrMsg;
 };
 
 struct iSalesStockCountingItem {
 	SString OuterCode;
-	int   Type; // Тип остатков: 0 - годные, 1 - брак, 2 - резерв
-	int   UnitCode; // 0 - штука, 1 - коробка, 2 - условная коробка
-	double Qtty; // Количество на остатке
+	int   Type; // РўРёРї РѕСЃС‚Р°С‚РєРѕРІ: 0 - РіРѕРґРЅС‹Рµ, 1 - Р±СЂР°Рє, 2 - СЂРµР·РµСЂРІ
+	int   UnitCode; // 0 - С€С‚СѓРєР°, 1 - РєРѕСЂРѕР±РєР°, 2 - СѓСЃР»РѕРІРЅР°СЏ РєРѕСЂРѕР±РєР°
+	double Qtty; // РљРѕР»РёС‡РµСЃС‚РІРѕ РЅР° РѕСЃС‚Р°С‚РєРµ
 };
 
 struct iSalesStockCountingWhPacket {
 	int   WhID;
-	SString WhCode; // Символ склада
+	SString WhCode; // РЎРёРјРІРѕР» СЃРєР»Р°РґР°
 	TSCollection <iSalesStockCountingItem> Items;
 };
 
 struct iSalesPriceItem {
-	SString OuterCode; // Код товара у контрагента
+	SString OuterCode; // РљРѕРґ С‚РѕРІР°СЂР° Сѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
 	double Price;
 };
 
@@ -804,7 +802,7 @@ struct iSalesPriceListPacket {
 struct iSalesBillAmountEntry {
 	iSalesBillAmountEntry();
 
-	int    SetType;       // 0 - Значения, рассчитанные на основе базовых цен, 1 - Значения, которые д.б. в реальности, 2 - Значения, которые будут печататься в документах
+	int    SetType;       // 0 - Р—РЅР°С‡РµРЅРёСЏ, СЂР°СЃСЃС‡РёС‚Р°РЅРЅС‹Рµ РЅР° РѕСЃРЅРѕРІРµ Р±Р°Р·РѕРІС‹С… С†РµРЅ, 1 - Р—РЅР°С‡РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ Рґ.Р±. РІ СЂРµР°Р»СЊРЅРѕСЃС‚Рё, 2 - Р—РЅР°С‡РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ РїРµС‡Р°С‚Р°С‚СЊСЃСЏ РІ РґРѕРєСѓРјРµРЅС‚Р°С…
 	double NetPrice;
 	double GrossPrice;
 	double NetSum;
@@ -818,11 +816,11 @@ struct iSalesBillAmountEntry {
 struct iSalesBillItem {
 	iSalesBillItem();
 
-	int    LineN; // Номер строки
-	SString OuterGoodsCode;  // Outer-код товара
-	SString NativeGoodsCode; // Native-код товара
-	SString Country; // Страна происхождения
-	SString CLB;     // Номер ГТД
+	int    LineN; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё
+	SString OuterGoodsCode;  // Outer-РєРѕРґ С‚РѕРІР°СЂР°
+	SString NativeGoodsCode; // Native-РєРѕРґ С‚РѕРІР°СЂР°
+	SString Country; // РЎС‚СЂР°РЅР° РїСЂРѕРёСЃС…РѕР¶РґРµРЅРёСЏ
+	SString CLB;     // РќРѕРјРµСЂ Р“РўР”
 
 	int    UnitCode;
 	double Qtty;
@@ -830,15 +828,15 @@ struct iSalesBillItem {
 	TSCollection <iSalesBillAmountEntry> Amounts;
 };
 //
-// Descr: Атрибуты связанного документа
+// Descr: РђС‚СЂРёР±СѓС‚С‹ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 //
 struct iSalesBillRef {
-	int    DocType; // Тип связанного документа
-	SString Code;   // Номер связанного документа
-	LDATETIME Dtm;  // Дата/время связанного документа
+	int    DocType; // РўРёРї СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+	SString Code;   // РќРѕРјРµСЂ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+	LDATETIME Dtm;  // Р”Р°С‚Р°/РІСЂРµРјСЏ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 };
 //
-// Descr: Дополнительный атрибут передачи данных от iSales
+// Descr: Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р°С‚СЂРёР±СѓС‚ РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РѕС‚ iSales
 //
 struct iSalesExtAttr {
 	SString Name;
@@ -850,31 +848,31 @@ struct iSalesBillPacket {
 
 	long   NativeID;
 	SString iSalesId;
-	int    DocType; // 0 - отгрузка, 1 - документ реализации, 2 - счет на оплату, 3 - возврат от покупателя,
-		// 4 - возврат обратной реализации, 5 - возврат по акту, 6 - накладная доставки/приход, 7 - документ поступления,
-		// 8 - оплата дистибьютору, 9 - взаимозачет, 10 - движение долга между клиентами, 11 - списание/начисление долга,
-		// 12 - аванс от клиента, 13 - заказ от клиента, 14 - выплата (дистрибьютора контрагенту)
-	int    ExtDocType; // (должно быть пусто)
-	int    Status; // 0 - проведен, 1 - отменен
-	SString Code;    // Номер документа
-	SString ExtCode; // Номер внешнего документа
-	LDATETIME Dtm;    // Дата/время документа (передается строкой dd.mm.yyyy hh:mm:ss)
-	LDATETIME IncDtm; // Дата входящего документа (должно быть пусто), для заказа - дата исполнения
-	LDATETIME ExtDtm; // Дата/время внешнего документа (передается строкой dd.mm.yyyy hh:mm:ss)
-	LDATETIME CreationDtm; // Дата/время создания документа (передается строкой dd.mm.yyyy hh:mm:ss)
-	LDATETIME LastUpdDtm;  // Дата/время последнего изменения документа (передается строкой dd.mm.yyyy hh:mm:ss)
-	LDATE   DueDate;  // Срок оплаты
-	SString ShipFrom; // Код грузоотправителя (iSales код дистрибьютора при отгрузке на клиента, Native-код клиента при возврате)
-	SString ShipTo;   // Код грузополучателя (Native-код клиента (точки доставки) при документе реализации, iSales код дистрибьютора при возврате)
-    SString SellerCode; // Код продавца (iSales код дистрибьютора при отгрузке на клиента, Native-код клиента при возврате)
-	SString PayerCode;  // Код плательщика (Native-код клиента при отгрузке на клиента, iSales код дистрибьютора при возврате)
-	SString Memo;      // Примечание
-	SString SrcLocCode;  // Код склада-отправителя
-	SString DestLocCode; // Код склада-получателя
-	SString AgentCode;   // Native-код агента
-	SString AuthId;      // Ключевой пользователь (Native-код), кто зарегистрировал документ в iSales
-	SString EditId;      // Ключевой пользователь (Native-код), кто изменил документ в iSales
-	SString ErrMsg;      // Сообщение об ошибке, приходящее от сервера
+	int    DocType; // 0 - РѕС‚РіСЂСѓР·РєР°, 1 - РґРѕРєСѓРјРµРЅС‚ СЂРµР°Р»РёР·Р°С†РёРё, 2 - СЃС‡РµС‚ РЅР° РѕРїР»Р°С‚Сѓ, 3 - РІРѕР·РІСЂР°С‚ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ,
+		// 4 - РІРѕР·РІСЂР°С‚ РѕР±СЂР°С‚РЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё, 5 - РІРѕР·РІСЂР°С‚ РїРѕ Р°РєС‚Сѓ, 6 - РЅР°РєР»Р°РґРЅР°СЏ РґРѕСЃС‚Р°РІРєРё/РїСЂРёС…РѕРґ, 7 - РґРѕРєСѓРјРµРЅС‚ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ,
+		// 8 - РѕРїР»Р°С‚Р° РґРёСЃС‚РёР±СЊСЋС‚РѕСЂСѓ, 9 - РІР·Р°РёРјРѕР·Р°С‡РµС‚, 10 - РґРІРёР¶РµРЅРёРµ РґРѕР»РіР° РјРµР¶РґСѓ РєР»РёРµРЅС‚Р°РјРё, 11 - СЃРїРёСЃР°РЅРёРµ/РЅР°С‡РёСЃР»РµРЅРёРµ РґРѕР»РіР°,
+		// 12 - Р°РІР°РЅСЃ РѕС‚ РєР»РёРµРЅС‚Р°, 13 - Р·Р°РєР°Р· РѕС‚ РєР»РёРµРЅС‚Р°, 14 - РІС‹РїР»Р°С‚Р° (РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° РєРѕРЅС‚СЂР°РіРµРЅС‚Сѓ)
+	int    ExtDocType; // (РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїСѓСЃС‚Рѕ)
+	int    Status; // 0 - РїСЂРѕРІРµРґРµРЅ, 1 - РѕС‚РјРµРЅРµРЅ
+	SString Code;    // РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°
+	SString ExtCode; // РќРѕРјРµСЂ РІРЅРµС€РЅРµРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+	LDATETIME Dtm;    // Р”Р°С‚Р°/РІСЂРµРјСЏ РґРѕРєСѓРјРµРЅС‚Р° (РїРµСЂРµРґР°РµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№ dd.mm.yyyy hh:mm:ss)
+	LDATETIME IncDtm; // Р”Р°С‚Р° РІС…РѕРґСЏС‰РµРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїСѓСЃС‚Рѕ), РґР»СЏ Р·Р°РєР°Р·Р° - РґР°С‚Р° РёСЃРїРѕР»РЅРµРЅРёСЏ
+	LDATETIME ExtDtm; // Р”Р°С‚Р°/РІСЂРµРјСЏ РІРЅРµС€РЅРµРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (РїРµСЂРµРґР°РµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№ dd.mm.yyyy hh:mm:ss)
+	LDATETIME CreationDtm; // Р”Р°С‚Р°/РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° (РїРµСЂРµРґР°РµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№ dd.mm.yyyy hh:mm:ss)
+	LDATETIME LastUpdDtm;  // Р”Р°С‚Р°/РІСЂРµРјСЏ РїРѕСЃР»РµРґРЅРµРіРѕ РёР·РјРµРЅРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р° (РїРµСЂРµРґР°РµС‚СЃСЏ СЃС‚СЂРѕРєРѕР№ dd.mm.yyyy hh:mm:ss)
+	LDATE   DueDate;  // РЎСЂРѕРє РѕРїР»Р°С‚С‹
+	SString ShipFrom; // РљРѕРґ РіСЂСѓР·РѕРѕС‚РїСЂР°РІРёС‚РµР»СЏ (iSales РєРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° РїСЂРё РѕС‚РіСЂСѓР·РєРµ РЅР° РєР»РёРµРЅС‚Р°, Native-РєРѕРґ РєР»РёРµРЅС‚Р° РїСЂРё РІРѕР·РІСЂР°С‚Рµ)
+	SString ShipTo;   // РљРѕРґ РіСЂСѓР·РѕРїРѕР»СѓС‡Р°С‚РµР»СЏ (Native-РєРѕРґ РєР»РёРµРЅС‚Р° (С‚РѕС‡РєРё РґРѕСЃС‚Р°РІРєРё) РїСЂРё РґРѕРєСѓРјРµРЅС‚Рµ СЂРµР°Р»РёР·Р°С†РёРё, iSales РєРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° РїСЂРё РІРѕР·РІСЂР°С‚Рµ)
+    SString SellerCode; // РљРѕРґ РїСЂРѕРґР°РІС†Р° (iSales РєРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° РїСЂРё РѕС‚РіСЂСѓР·РєРµ РЅР° РєР»РёРµРЅС‚Р°, Native-РєРѕРґ РєР»РёРµРЅС‚Р° РїСЂРё РІРѕР·РІСЂР°С‚Рµ)
+	SString PayerCode;  // РљРѕРґ РїР»Р°С‚РµР»СЊС‰РёРєР° (Native-РєРѕРґ РєР»РёРµРЅС‚Р° РїСЂРё РѕС‚РіСЂСѓР·РєРµ РЅР° РєР»РёРµРЅС‚Р°, iSales РєРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° РїСЂРё РІРѕР·РІСЂР°С‚Рµ)
+	SString Memo;      // РџСЂРёРјРµС‡Р°РЅРёРµ
+	SString SrcLocCode;  // РљРѕРґ СЃРєР»Р°РґР°-РѕС‚РїСЂР°РІРёС‚РµР»СЏ
+	SString DestLocCode; // РљРѕРґ СЃРєР»Р°РґР°-РїРѕР»СѓС‡Р°С‚РµР»СЏ
+	SString AgentCode;   // Native-РєРѕРґ Р°РіРµРЅС‚Р°
+	SString AuthId;      // РљР»СЋС‡РµРІРѕР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ (Native-РєРѕРґ), РєС‚Рѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°Р» РґРѕРєСѓРјРµРЅС‚ РІ iSales
+	SString EditId;      // РљР»СЋС‡РµРІРѕР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ (Native-РєРѕРґ), РєС‚Рѕ РёР·РјРµРЅРёР» РґРѕРєСѓРјРµРЅС‚ РІ iSales
+	SString ErrMsg;      // РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ, РїСЂРёС…РѕРґСЏС‰РµРµ РѕС‚ СЃРµСЂРІРµСЂР°
 	TSCollection <iSalesBillItem> Items;
 	TSCollection <iSalesBillAmountEntry> Amounts;
 	TSCollection <iSalesBillRef> Refs;
@@ -886,7 +884,7 @@ struct iSalesBillDebt {
 	int   DocType;
 	SString Code;
 	LDATETIME Dtm;
-	SString PayerCode;  // Код плательщика (Native-код клиента при отгрузке на клиента, iSales код дистрибьютора при возврате)
+	SString PayerCode;  // РљРѕРґ РїР»Р°С‚РµР»СЊС‰РёРєР° (Native-РєРѕРґ РєР»РёРµРЅС‚Р° РїСЂРё РѕС‚РіСЂСѓР·РєРµ РЅР° РєР»РёРµРЅС‚Р°, iSales РєРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° РїСЂРё РІРѕР·РІСЂР°С‚Рµ)
 	double Amount;
 	double Debt;
 	//
@@ -901,7 +899,7 @@ struct iSalesTransferStatus {
 		ifcReceipt     // DOCS
 	};
 	int    Ifc;
-	SString Ident; // Идентификатор созданного на принимающей стороне объекта (принимающая стороная отправляет iSalesTransferStatus)
+	SString Ident; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕР·РґР°РЅРЅРѕРіРѕ РЅР° РїСЂРёРЅРёРјР°СЋС‰РµР№ СЃС‚РѕСЂРѕРЅРµ РѕР±СЉРµРєС‚Р° (РїСЂРёРЅРёРјР°СЋС‰Р°СЏ СЃС‚РѕСЂРѕРЅР°СЏ РѕС‚РїСЂР°РІР»СЏРµС‚ iSalesTransferStatus)
 };
 
 typedef TSCollection <iSalesGoodsPacket> * (*ISALESGETGOODSLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod);
@@ -933,13 +931,13 @@ enum SapEfesUnitType {
 };
 
 struct SapEfesBillItem {
-    int    PosN;   // Номер позиции
+    int    PosN;   // РќРѕРјРµСЂ РїРѕР·РёС†РёРё
     int    UnitType;
     int    BaseUnitType;
-    double Qtty;   // Количество в выбранной единице измерения
-    double QtyN;   // Числитель коэффициента выбранной единицы по отношению к базовой
-    double QtyD;   // Знаменатель коэффициента выбранной единицы по отношению к базовой
-	double Amount; // Сумма без НДС по строке
+    double Qtty;   // РљРѕР»РёС‡РµСЃС‚РІРѕ РІ РІС‹Р±СЂР°РЅРЅРѕР№ РµРґРёРЅРёС†Рµ РёР·РјРµСЂРµРЅРёСЏ
+    double QtyN;   // Р§РёСЃР»РёС‚РµР»СЊ РєРѕСЌС„С„РёС†РёРµРЅС‚Р° РІС‹Р±СЂР°РЅРЅРѕР№ РµРґРёРЅРёС†С‹ РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє Р±Р°Р·РѕРІРѕР№
+    double QtyD;   // Р—РЅР°РјРµРЅР°С‚РµР»СЊ РєРѕСЌС„С„РёС†РёРµРЅС‚Р° РІС‹Р±СЂР°РЅРЅРѕР№ РµРґРёРЅРёС†С‹ РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє Р±Р°Р·РѕРІРѕР№
+	double Amount; // РЎСѓРјРјР° Р±РµР· РќР”РЎ РїРѕ СЃС‚СЂРѕРєРµ
     SString PosType;
     SString GoodsCode;
     SString Currency;
@@ -957,9 +955,9 @@ struct SapEfesContractor {
 struct SapEfesOrder {
 	SapEfesOrder();
 
-	LDATETIME Date; // Время создания документа
-	LDATE  DueDate; // Дата поставки
-	double Amount;  // Сумма заказа без НДС
+	LDATETIME Date; // Р’СЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚Р°
+	LDATE  DueDate; // Р”Р°С‚Р° РїРѕСЃС‚Р°РІРєРё
+	double Amount;  // РЎСѓРјРјР° Р·Р°РєР°Р·Р° Р±РµР· РќР”РЎ
     SString Code;
     SString DocType;
     SString Status;
@@ -1008,7 +1006,7 @@ struct SapEfesBillPacket {
 		tBonus,      // ZDS1
 		tBonusEfes   // ZDS2
 	};
-	long   NativeID; // Идентификатор документа в собственной БД (поставщику не передается)
+	long   NativeID; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґРѕРєСѓРјРµРЅС‚Р° РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕР№ Р‘Р” (РїРѕСЃС‚Р°РІС‰РёРєСѓ РЅРµ РїРµСЂРµРґР°РµС‚СЃСЏ)
 	int    Flags;
     int    DocType;
     LDATE  Date;
@@ -1032,11 +1030,11 @@ struct SapEfesGoodsReportEntry {
 struct SapEfesDebtReportEntry {
 	SapEfesDebtReportEntry();
 
-	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 Ид статьи в нашей базе данных
+	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 РРґ СЃС‚Р°С‚СЊРё РІ РЅР°С€РµР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 	double Debt;
 	double CreditLimit;
 	long   PayPeriod;
-	long   DebtDelayDays; // Задолженность в днях
+	long   DebtDelayDays; // Р—Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚СЊ РІ РґРЅСЏС…
 	SString BuyerCode;
 	SString Memo;
 };
@@ -1044,7 +1042,7 @@ struct SapEfesDebtReportEntry {
 struct SapEfesDebtDetailReportEntry {
 	SapEfesDebtDetailReportEntry();
 
-	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 Ид статьи в нашей базе данных
+	long   NativeArID; // @anchor(strictly the first member) @v9.5.2 РРґ СЃС‚Р°С‚СЊРё РІ РЅР°С€РµР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
 	LDATE  BillDate;
 	LDATE  PaymDate;
 	double Amount;
@@ -1104,9 +1102,9 @@ struct SfaHeinekenDistributorDelivery {
 
 struct SfaHeinekenSalePointDelivery {
 	SString InnerOrderCode;
-	SString DistributorOrderID; // @v10.4.4 Для отправки приходных документов
+	SString DistributorOrderID; // @v10.4.4 Р”Р»СЏ РѕС‚РїСЂР°РІРєРё РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
 	int    InnerDlvrLocID;
-	int    ForeignLocID; // Склад @v10.0.08
+	int    ForeignLocID; // РЎРєР»Р°Рґ @v10.0.08
 	SString DlvrLocName;
 	SString DlvrLocAddr;
 	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
@@ -1115,9 +1113,9 @@ struct SfaHeinekenSalePointDelivery {
 struct SfaHeinekenInvoice {
 	SString Code;
 	LDATE  Dt;
-	TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
-	TSCollection <SfaHeinekenDistributorDelivery> DistributorDeliveryList; // Если доставка вне заказа из системы Jeans, по ТТ из системы Jeans
-	TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
+	TSCollection <SfaHeinekenOrderDelivery> OrderList; // Р•СЃР»Рё РґРѕСЃС‚Р°РІРєР° РїРѕ Р·Р°РєР°Р·Сѓ РёР· СЃРёСЃС‚РµРјС‹ Jeans
+	TSCollection <SfaHeinekenDistributorDelivery> DistributorDeliveryList; // Р•СЃР»Рё РґРѕСЃС‚Р°РІРєР° РІРЅРµ Р·Р°РєР°Р·Р° РёР· СЃРёСЃС‚РµРјС‹ Jeans, РїРѕ РўРў РёР· СЃРёСЃС‚РµРјС‹ Jeans
+	TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Р•СЃР»Рё РґРѕСЃС‚Р°РІРєР° РІРЅРµ Р·Р°РєР°Р·Р° РёР· СЃРёСЃС‚РµРјС‹ Jeans, РїРѕ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРµ, РѕСЃС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РµР№ РІ СЃРёСЃС‚РµРјРµ Jeans
 };
 
 struct SfaHeinekenDebetEntry {

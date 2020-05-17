@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -138,7 +138,7 @@ static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & r
 				SString temp_symb;
 				SStrScan temp_scan = rScan;
 				temp_scan.IncrLen();
-				if(GetNextToken(temp_scan, rRl, &lv, temp_symb) == TOK_TYPE) {
+				if(GetNextToken(temp_scan, rRl, &lv, temp_symb) == TOK_TYPE) { // @recursion
 					if(rRl.ReSymb.Find(&rScan)) {
 						rScan.Get(rBuf);
 						rScan.IncrLen();
@@ -575,7 +575,7 @@ int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
 	for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
 		if((i-1) != excludePos) {
 			StringPool.get(p_item->NamePos, temp_buf);
-			if(scan_buf.CmpPrefix(temp_buf, 1) == 0) {
+			if(scan_buf.HasPrefixNC(temp_buf)) {
 				rScan.Len = temp_buf.Len();
 				ASSIGN_PTR(pPos, i-1);
 				return 1;

@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 // Права доступа
@@ -42,12 +42,80 @@ int FASTCALL AdjustPeriodToRights(DateRange & rPeriod, int checkOnly)
 }
 
 class RightsDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPRights);
 public:
 	RightsDialog() : PPListDialog(DLG_RTCOMM, CTL_RTCOMM_OBJLIST)
 	{
 	}
-	int    setDTS(const PPRights *);
-	int    getDTS(PPRights *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		PPAccessRestriction accsr;
+		Data.GetAccessRestriction(accsr);
+		setCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
+		setCtrlData(CTL_RTCOMM_PWPERIOD, &accsr.PwPeriod);
+		setCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
+		accsr.SetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
+		accsr.SetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
+		// @v9.2.11 {
+		AddClusterAssoc(CTL_RTCOMM_PRDFORCSESS, 0, PPAccessRestriction::cfApplyBillPeriodsToCSess);
+		SetClusterData(CTL_RTCOMM_PRDFORCSESS, accsr.CFlags);
+		// } @v9.2.11
+		/*
+		AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 0, PPR_INS);
+		AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPR_MOD);
+		SetClusterData(CTL_RTCOMM_RTDESKTOP, (long)accsr.RtDesktop);
+		*/
+		AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 0, PPAccessRestriction::cfDesktopCr);
+		AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPAccessRestriction::cfDesktopMod);
+		SetClusterData(CTL_RTCOMM_RTDESKTOP, accsr.CFlags);
+
+		AddClusterAssocDef(CTL_RTCOMM_OWNBILLRESTR, 0, 0);
+		AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 1, PPAccessRestriction::cfOwnBillRestr);
+		AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 2, PPAccessRestriction::cfOwnBillRestr2);
+		SetClusterData(CTL_RTCOMM_OWNBILLRESTR, (accsr.CFlags & (PPAccessRestriction::cfOwnBillRestr | PPAccessRestriction::cfOwnBillRestr2)));
+
+		SetupPPObjCombo(this, CTLSEL_RTCOMM_ONLYGGRP, PPOBJ_GOODSGROUP, accsr.OnlyGoodsGrpID, OLW_CANSELUPLEVEL, 0);
+		AddClusterAssoc(CTL_RTCOMM_ONLYGGRPSTRIC, 0, PPAccessRestriction::cfStrictOnlyGoodsGrp);
+		SetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, accsr.CFlags);
+		// @v10.5.7 {
+		AddClusterAssoc(CTL_RTCOMM_DBXRCV, 0, PPAccessRestriction::cfAllowDbxReceive);
+		SetClusterData(CTL_RTCOMM_DBXRCV, accsr.CFlags);
+		// } @v10.5.7
+		DisableClusterItem(CTL_RTCOMM_ONLYGGRPSTRIC, 0, accsr.OnlyGoodsGrpID == 0);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		// @v10.3.0 (never used) long   rt_desk = 0;
+		PPAccessRestriction accsr;
+		// @v10.7.8 @ctr MEMSZERO(accsr);
+		getCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
+		getCtrlData(CTL_RTCOMM_PWPERIOD, &accsr.PwPeriod);
+		getCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
+		accsr.GetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
+		accsr.GetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
+		GetClusterData(CTL_RTCOMM_PRDFORCSESS, &accsr.CFlags); // @v9.2.11
+		getCtrlData(CTLSEL_RTCOMM_ONLYGGRP, &accsr.OnlyGoodsGrpID);
+		//GetClusterData(CTL_RTCOMM_RTDESKTOP, &rt_desk);
+		//accsr.RtDesktop = (uint8)rt_desk;
+		GetClusterData(CTL_RTCOMM_RTDESKTOP, &accsr.CFlags);
+		{
+			long temp = 0;
+			GetClusterData(CTL_RTCOMM_OWNBILLRESTR, &temp);
+			accsr.CFlags &= ~(PPAccessRestriction::cfOwnBillRestr | PPAccessRestriction::cfOwnBillRestr2);
+			accsr.CFlags |= temp;
+		}
+		GetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, &accsr.CFlags);
+		GetClusterData(CTL_RTCOMM_DBXRCV, &accsr.CFlags); // @v10.5.7
+		accsr.SetSaveMode(1);
+		Data.SetAccessRestriction(&accsr);
+		accsr.SetSaveMode(0);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -59,7 +127,6 @@ private:
 	void   editAccList();
 	void   editPosNodeList();
 	void   editQuotKindList();
-	PPRights Data;
 };
 
 IMPL_HANDLE_EVENT(RightsDialog)
@@ -86,77 +153,6 @@ IMPL_HANDLE_EVENT(RightsDialog)
 	clearEvent(event);
 }
 
-int RightsDialog::setDTS(const PPRights * pRt)
-{
-	Data = *pRt;
-	PPAccessRestriction accsr;
-	Data.GetAccessRestriction(accsr);
-	setCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
-	setCtrlData(CTL_RTCOMM_PWPERIOD, &accsr.PwPeriod);
-	setCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
-	accsr.SetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
-	accsr.SetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
-	// @v9.2.11 {
-	AddClusterAssoc(CTL_RTCOMM_PRDFORCSESS, 0, PPAccessRestriction::cfApplyBillPeriodsToCSess);
-	SetClusterData(CTL_RTCOMM_PRDFORCSESS, accsr.CFlags);
-	// } @v9.2.11
-	/*
-	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 0, PPR_INS);
-	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPR_MOD);
-	SetClusterData(CTL_RTCOMM_RTDESKTOP, (long)accsr.RtDesktop);
-	*/
-	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 0, PPAccessRestriction::cfDesktopCr);
-	AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPAccessRestriction::cfDesktopMod);
-	SetClusterData(CTL_RTCOMM_RTDESKTOP, accsr.CFlags);
-
-	AddClusterAssocDef(CTL_RTCOMM_OWNBILLRESTR, 0, 0);
-	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 1, PPAccessRestriction::cfOwnBillRestr);
-	AddClusterAssoc(CTL_RTCOMM_OWNBILLRESTR, 2, PPAccessRestriction::cfOwnBillRestr2);
-	SetClusterData(CTL_RTCOMM_OWNBILLRESTR, (accsr.CFlags & (PPAccessRestriction::cfOwnBillRestr | PPAccessRestriction::cfOwnBillRestr2)));
-
-	SetupPPObjCombo(this, CTLSEL_RTCOMM_ONLYGGRP, PPOBJ_GOODSGROUP, accsr.OnlyGoodsGrpID, OLW_CANSELUPLEVEL, 0);
-	AddClusterAssoc(CTL_RTCOMM_ONLYGGRPSTRIC, 0, PPAccessRestriction::cfStrictOnlyGoodsGrp);
-	SetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, accsr.CFlags);
-	// @v10.5.7 {
-	AddClusterAssoc(CTL_RTCOMM_DBXRCV, 0, PPAccessRestriction::cfAllowDbxReceive);
-	SetClusterData(CTL_RTCOMM_DBXRCV, accsr.CFlags);
-	// } @v10.5.7
-	DisableClusterItem(CTL_RTCOMM_ONLYGGRPSTRIC, 0, accsr.OnlyGoodsGrpID == 0);
-	updateList(-1);
-	return 1;
-}
-
-int RightsDialog::getDTS(PPRights * pRt)
-{
-	int    ok = 1;
-	// @v10.3.0 (never used) long   rt_desk = 0;
-	PPAccessRestriction accsr;
-	MEMSZERO(accsr);
-	getCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
-	getCtrlData(CTL_RTCOMM_PWPERIOD, &accsr.PwPeriod);
-	getCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
-	accsr.GetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
-	accsr.GetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
-	GetClusterData(CTL_RTCOMM_PRDFORCSESS, &accsr.CFlags); // @v9.2.11
-	getCtrlData(CTLSEL_RTCOMM_ONLYGGRP, &accsr.OnlyGoodsGrpID);
-	//GetClusterData(CTL_RTCOMM_RTDESKTOP, &rt_desk);
-	//accsr.RtDesktop = (uint8)rt_desk;
-	GetClusterData(CTL_RTCOMM_RTDESKTOP, &accsr.CFlags);
-	{
-		long temp = 0;
-		GetClusterData(CTL_RTCOMM_OWNBILLRESTR, &temp);
-		accsr.CFlags &= ~(PPAccessRestriction::cfOwnBillRestr | PPAccessRestriction::cfOwnBillRestr2);
-		accsr.CFlags |= temp;
-	}
-	GetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, &accsr.CFlags);
-	GetClusterData(CTL_RTCOMM_DBXRCV, &accsr.CFlags); // @v10.5.7
-	accsr.SetSaveMode(1);
-	Data.SetAccessRestriction(&accsr);
-	accsr.SetSaveMode(0);
-	ASSIGN_PTR(pRt, Data);
-	return ok;
-}
-
 int RightsDialog::setupList()
 {
 	int    ok = 1;
@@ -169,9 +165,9 @@ int RightsDialog::setupList()
 	SString obj_title;
 	PPIDArray obj_type_list;
 	PPGetObjTypeList(&obj_type_list, 0);
-	const  int inh = Data.IsInherited(); // @v8.3.3 BIN(p_obj_rt->OprFlags & PPORF_INHERITED)-->Data.IsInherited()
+	const  int inh = Data.IsInherited();
 	for(i = 0; i < obj_type_list.getCount(); i++) {
-		PPID   obj_type = obj_type_list.get(i);
+		const PPID obj_type = obj_type_list.get(i);
 		if(!IS_DYN_OBJTYPE(obj_type))
 			temp_list.Add(obj_type, GetObjectTitle(obj_type, obj_title));
 	}
@@ -226,11 +222,12 @@ int RightsDialog::editItem(long pos, long id)
 //
 //
 class RtOpListDialog : public ObjRestrictListDialog {
+	DECL_DIALOG_DATA(ObjRestrictArray);
 public:
 	RtOpListDialog() : ObjRestrictListDialog(DLG_RTOPLIST, CTL_RTOPLIST_LIST)
 	{
 	}
-	int    setDTS(const ObjRestrictArray * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.freeAll();
@@ -238,7 +235,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(ObjRestrictArray * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -279,19 +276,19 @@ private:
 		}
 	}
 	virtual int    editItemDialog(ObjRestrictItem *);
-	ObjRestrictArray Data;
 };
 
 int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 {
 	class RtOpItemDialog : public TDialog {
+		DECL_DIALOG_DATA(ObjRestrictItem);
 	public:
 		explicit RtOpItemDialog(const ObjRestrictArray * pList) : TDialog(DLG_RTOPLI), P_List(pList)
 		{
 		}
-		int setDTS(const ObjRestrictItem * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			PPID   op_id = 0;
 			PPIDArray op_list;
 			while(EnumOperations(0L, &op_id) > 0) {
@@ -299,9 +296,8 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 					op_list.add(op_id);
 			}
 			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, 1);
-			//
 			{
-				long   comm = (Data.Flags & 0x80000000) ? 0 : 1;
+				const long comm = (Data.Flags & 0x80000000) ? 0 : 1;
 				{
 					AddClusterAssoc(CTL_RTOPLI_COMMRT, 0, 1);
 					SetClusterData(CTL_RTOPLI_COMMRT, comm);
@@ -315,7 +311,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 			}
 			return 1;
 		}
-		int getDTS(ObjRestrictItem * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -347,7 +343,6 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 				return;
 			clearEvent(event);
 		}
-		ObjRestrictItem Data;
 		const ObjRestrictArray * P_List;
 	};
 	int    ok = -1, valid_data = 0;
@@ -388,11 +383,12 @@ void RightsDialog::editOpList()
 //
 //
 class RtLocListDialog : public ObjRestrictListDialog {
+	DECL_DIALOG_DATA(ObjRestrictArray);
 public:
 	RtLocListDialog() : ObjRestrictListDialog(DLG_RTLOCLIST, CTL_RTLOCLIST_LIST)
 	{
 	}
-	int    setDTS(const ObjRestrictArray * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.freeAll();
@@ -400,7 +396,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(ObjRestrictArray * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -451,7 +447,6 @@ private:
 		delete p_dlg;
 		return ok;
 	}
-	ObjRestrictArray Data;
 	PPObjLocation LocObj;
 };
 
@@ -475,20 +470,34 @@ void RightsDialog::editLocList()
 }
 
 class RtCfgListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(ObjRestrictArray);
 public:
 	RtCfgListDialog() : PPListDialog(DLG_RTCFGLIST, CTL_RTCFGLIST_LIST)
 	{
 		PPLoadText(PPTXT_CFGNAMES, CfgNames);
 	}
-	int    setDTS(const ObjRestrictArray *);
-	int    getDTS(ObjRestrictArray *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.freeAll();
+		StrAssocArray t_ary;
+		PPGetConfigList(&t_ary);
+		for(uint i = Data.getCount(); i < t_ary.getCount(); i++)
+			Data.Add(t_ary.Get(i).Id, 0, 0);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int delItem(long pos, long id);
 
 	SString CfgNames;
-	ObjRestrictArray Data;
 };
 
 int RtCfgListDialog::setupList()
@@ -512,24 +521,6 @@ int RtCfgListDialog::setupList()
 				return 0;
 		}
 	}
-	return 1;
-}
-
-int RtCfgListDialog::setDTS(const ObjRestrictArray * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.freeAll();
-	StrAssocArray t_ary;
-	PPGetConfigList(&t_ary);
-	for(uint i = Data.getCount(); i < t_ary.getCount(); i++)
-		Data.Add(t_ary.Get(i).Id, 0, 0);
-	updateList(-1);
-	return 1;
-}
-
-int RtCfgListDialog::getDTS(ObjRestrictArray * pData)
-{
-	ASSIGN_PTR(pData, Data);
 	return 1;
 }
 
@@ -594,11 +585,12 @@ void RightsDialog::editCfgList()
 //
 //
 class RtAccListDialog : public ObjRestrictListDialog {
+	DECL_DIALOG_DATA(ObjRestrictArray);
 public:
 	RtAccListDialog() : ObjRestrictListDialog(DLG_RTACCLIST, CTL_RTACCLIST_LIST)
 	{
 	}
-	int    setDTS(const ObjRestrictArray * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.freeAll();
@@ -608,7 +600,7 @@ public:
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(ObjRestrictArray * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -630,7 +622,7 @@ private:
 		if(P_ORList) {
 			uint   pos = 0;
 			ObjRestrictItem item;
-			MEMSZERO(item);
+			// @v10.7.8 @ctr MEMSZERO(item);
 			if(editItemDialog(&item, 1) > 0)
 				if(Data.Add(item.ObjID, item.Flags, &pos)) {
 					ASSIGN_PTR(pID, item.ObjID);
@@ -711,7 +703,6 @@ private:
 	{
 		PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
 	}
-	ObjRestrictArray Data;
 	PPObjAccount AcctObj;
 };
 
@@ -771,7 +762,7 @@ private:
 		if(P_ORList) {
 			uint   pos = 0;
 			ObjRestrictItem item;
-			MEMSZERO(item);
+			// @v10.7.8 @ctr MEMSZERO(item);
 			if(editItemDialog(&item, 1) > 0)
 				if(Data.Add(item.ObjID, item.Flags, &pos)) {
 					ASSIGN_PTR(pID, item.ObjID);
@@ -909,7 +900,7 @@ private:
 		if(P_ORList) {
 			uint   pos = 0;
 			ObjRestrictItem item;
-			MEMSZERO(item);
+			// @v10.7.8 @ctr MEMSZERO(item);
 			if(editItemDialog(&item, 1) > 0)
 				if(Data.Add(item.ObjID, item.Flags, &pos)) {
 					ASSIGN_PTR(pID, item.ObjID);
@@ -1040,8 +1031,8 @@ public:
 			atFree(0);
 	}
 	int    SLAPI copy(const SecurCollection & aSrc);
-	PPSecurPacket * SLAPI at(uint pos) const { return (PPSecurPacket*)SCollection::at(pos); }
-	virtual void FASTCALL freeItem(void * item) { if(item) delete (PPSecurPacket *)item; }
+	PPSecurPacket * SLAPI at(uint pos) const { return static_cast<PPSecurPacket *>(SCollection::at(pos)); }
+	virtual void FASTCALL freeItem(void * item) { if(item) delete static_cast<PPSecurPacket *>(item); }
 };
 
 int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
@@ -1068,9 +1059,11 @@ int SLAPI SecurCollection::copy(const SecurCollection & aSrc)
 //
 //   PPAccessRestriction
 //
-SLAPI PPAccessRestriction::PPAccessRestriction()
+SLAPI PPAccessRestriction::PPAccessRestriction() : TimeBeg(ZEROTIME), TimeEnd(ZEROTIME), WeekDays(0), PwMinLen(0), PwPeriod(0), AccessLevel(0), CFlags(0), OnlyGoodsGrpID(0),
+	ShowInnerDates(0)
 {
-	ShowInnerDates = 0;
+	RBillPeriod.Z();
+	WBillPeriod.Z();
 }
 
 void SLAPI PPAccessRestriction::SetSaveMode(int saveData)
@@ -1358,8 +1351,7 @@ int FastEditRightsDlg::updateChildsRights(const PPSecurPacket * pParent)
 		PPSecurPacket * p_pack = 0;
 		for(uint i = 0; Data.enumItems(&i, (void **)&p_pack) > 0;) {
 			if(p_pack->Secur.ParentID == pParent->Secur.ID && p_pack->Secur.Tag == PPOBJ_USR
-				&& (p_pack->Secur.Flags & USRF_INHRIGHTS || EditWhat == cConfig
-				&& (p_pack->Secur.Flags & USRF_INHCFG))) {
+				&& ((EditWhat != cConfig && p_pack->Secur.Flags & USRF_INHRIGHTS) || (EditWhat == cConfig && (p_pack->Secur.Flags & USRF_INHCFG)))) {
 				switch(EditWhat) {
 					case cAccessPeriod:
 						{

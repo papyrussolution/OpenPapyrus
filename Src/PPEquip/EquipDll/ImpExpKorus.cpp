@@ -580,7 +580,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 		while(xmlTextReaderRead(p_xml_ptr)) {
 			p_node = xmlTextReaderCurrentNode(p_xml_ptr);
 			if(p_node && p_node->children) {
-				const char * p_nn = (const char *)p_node->name;
+				const char * p_nn = PTRCHRC_(p_node->name);
 				if(strcmp(p_nn, ELEMENT_NAME_RELATION) == 0) {
 					p_rln_cfg = new StRlnConfig;
 					p_rln_cfg->Clear();
@@ -593,7 +593,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 						p_rln_cfg->Direction.Set(p_node->children->content);
 					}
 					else if(strcmp(p_nn, "document-type") == 0) { // Тип документа
-						GetMsgTypeBySymb((const char *)p_node->children->content, p_rln_cfg->EdiDocType);
+						GetMsgTypeBySymb(PTRCHRC_(p_node->children->content), p_rln_cfg->EdiDocType);
 					}
 					else if(strcmp(p_nn, "document-version") == 0) { // Версия спецификации
 						p_rln_cfg->DocVersion.Set(p_node->children->content);
@@ -2156,7 +2156,7 @@ int ImportCls::ListMessageBox(uint messageType)
 						THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 						while(xmlTextReaderRead(p_xml_ptr)) {
 							xmlNode * p_node = xmlTextReaderCurrentNode(p_xml_ptr);
-							if(p_node && p_node->children && sstreqi_ascii((const char *)p_node->name, "document-info")) {
+							if(p_node && p_node->children && sstreqi_ascii(PTRCHRC_(p_node->name), "document-info")) {
 								//THROWERR(p_info_blk = new MessageInfoBlock, IEERR_NOMEM);
 								PPEdiMessageEntry eme;
 								for(xmlNode * p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {
@@ -2281,8 +2281,8 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 				str.CopyTo(pBill->Code, sizeof(pBill->Code));
 				DocNum = str;
 				ok = 1;
-				//strcpy(pBill->Code, (const char *)p_node->children->content);
-				//DocNum.CopyFrom((const char *)p_node->children->content);
+				//strcpy(pBill->Code, PTRCHRC_(p_node->children->content));
+				//DocNum.CopyFrom(PTRCHRC_(p_node->children->content));
 				//ok = 1;
 			}
 			else if(SXml::IsName(p_node, "C506") && p_node->children && p_node->children->type == XML_READER_TYPE_ELEMENT) {
@@ -2339,8 +2339,8 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 						p_node = p_node->children; // <E3039>
 						if(SXml::IsName(p_node, ELEMENT_NAME_E3039) && p_node->children) {
 							if(str.CmpNC("BY") == 0) { // GLN покупателя
-								STRNSCPY(pBill->MainGLN, (const char *)p_node->children->content);
-								STRNSCPY(pBill->AgentGLN, (const char *)p_node->children->content);
+								STRNSCPY(pBill->MainGLN, PTRCHRC_(p_node->children->content));
+								STRNSCPY(pBill->AgentGLN, PTRCHRC_(p_node->children->content));
 								ok = 1;
 							}
 							else if(str.CmpNC("SU") == 0) { // GLN поставщика
@@ -2371,7 +2371,7 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 						p_node = p_node->next; // <E5004>
 						if(p_node && SXml::IsName(p_node, ELEMENT_NAME_E5004) && p_node->children) {
 							if(str == "9") { // сумма документа с НДС
-								pBill->Amount = atof((const char *)p_node->children->content);
+								pBill->Amount = atof(PTRCHRC_(p_node->children->content));
 								ok = 1;
 							}
 							else if(str == "98") { // сумма документа без НДС
@@ -2388,7 +2388,7 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 						p_node = p_node->next; // <E6060>
 						if(SXml::IsName(p_node, "E6066") && p_node->children) {
 							// Запишем количество товарных позиций в документе
-							GoodsCount = atoi((const char *)p_node->children->content);
+							GoodsCount = atoi(PTRCHRC_(p_node->children->content));
 							ok = 1;
 						}
 					}
@@ -2535,11 +2535,11 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 												if(str == "21")
 													str.Set(p_node->children->content); // @vmiller Заказанное количество (ORDRSP/DESADV)
 												else if(str == "113" || str == "170")
-													pBRow->Quantity = atof((const char *)p_node->children->content); // Подтвержденное количество (ORDRSP)
+													pBRow->Quantity = atof(PTRCHRC_(p_node->children->content)); // Подтвержденное количество (ORDRSP)
 												else if(str == "12")
-													pBRow->Quantity = atof((const char *)p_node->children->content); // Отгруженное количество (DESADV)
+													pBRow->Quantity = atof(PTRCHRC_(p_node->children->content)); // Отгруженное количество (DESADV)
 												else if(str == "59")
-													pBRow->UnitPerPack = atof((const char *)p_node->children->content); // Количество товара в упаковке
+													pBRow->UnitPerPack = atof(PTRCHRC_(p_node->children->content)); // Количество товара в упаковке
 											}
 										}
 									}
@@ -2562,7 +2562,7 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 												else if(str == "79")
 													str.Set(p_node->children->content); // @vmiller // Сумма товарной позиции с НДС
 												else if(messageType == PPEDIOP_DESADV && str.CmpNC(ELEMENT_CODE_E5025_XB5) == 0)
-													pBRow->Cost = atof((const char *)p_node->children->content); // Цена товара с НДС для DESADV
+													pBRow->Cost = atof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС для DESADV
 											}
 										}
 									}
@@ -2577,7 +2577,7 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 												if(str.CmpNC("AAA") == 0)
 													str.Set(p_node->children->content); // @vmiller // Цена товара без НДС
 												else if(str.CmpNC("AAE") == 0)
-													pBRow->Cost = atof((const char *)p_node->children->content); // Цена товара с НДС
+													pBRow->Cost = atof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС
 											}
 										}
 									}
@@ -2674,9 +2674,9 @@ int ImportCls::ParseAperakResp(const char * pResp)
 					}
 				}
 				// Решили не передавать этот параметр
-				//else if(p_node && (strcmp((const char *)p_node->name, "E4441") == 0) && p_node->children) {
+				//else if(p_node && (strcmp(PTRCHRC_(p_node->name), "E4441") == 0) && p_node->children) {
 				//	// Запомним дополнительное сообщение
-				//	AperakInfo.AddedMsg = (const char *)p_node->children->content;
+				//	AperakInfo.AddedMsg = PTRCHRC_(p_node->children->content);
 				//}
 			}
 		}

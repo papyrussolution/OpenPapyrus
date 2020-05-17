@@ -591,7 +591,7 @@ int ObjRestrictListDialog::addItem(long * pPos, long * pID)
 	if(P_ORList) {
 		uint   pos = 0;
 		ObjRestrictItem item;
-		MEMSZERO(item);
+		// @v10.7.8 @ctr MEMSZERO(item);
 		if(editItemDialog(&item) > 0)
 			if(P_ORList->Add(item.ObjID, item.Flags, &pos)) {
 				ASSIGN_PTR(pID, item.ObjID);

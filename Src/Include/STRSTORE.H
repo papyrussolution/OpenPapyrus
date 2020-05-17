@@ -91,7 +91,7 @@ public:
 private:
 	struct ParseItem {
 		SLAPI  ParseItem();
-		void   SLAPI Clear();
+		ParseItem & SLAPI Z();
 		enum {
 			kGroup = 1, // Определитель группы строк [999]
 			kString,    // Строка
