@@ -1,5 +1,5 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -320,8 +320,7 @@ int Generator_SQL::GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SStri
 	return ok;
 }
 
-//static
-const char * FASTCALL Generator_SQL::GetToken(uint tok)
+/*static*/const char * FASTCALL Generator_SQL::GetToken(uint tok)
 {
 	return (tok < tokCountOfTokens) ? P_Tokens[tok] : 0;
 }

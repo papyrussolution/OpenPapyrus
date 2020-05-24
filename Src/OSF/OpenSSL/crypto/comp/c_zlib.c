@@ -102,7 +102,7 @@ static int zlib_stateful_init(COMP_CTX * ctx)
 {
 	int err;
 	struct zlib_state * state = (struct zlib_state *)OPENSSL_zalloc(sizeof(*state));
-	if(state == NULL)
+	if(!state)
 		goto err;
 	state->istream.zalloc = zlib_zalloc;
 	state->istream.zfree = zlib_zfree;
@@ -142,7 +142,7 @@ static int zlib_stateful_compress_block(COMP_CTX * ctx, uchar * out, uint olen, 
 {
 	int err = Z_OK;
 	struct zlib_state * state = (struct zlib_state *)ctx->data;
-	if(state == NULL)
+	if(!state)
 		return -1;
 	state->ostream.next_in = in;
 	state->ostream.avail_in = ilen;
@@ -159,7 +159,7 @@ static int zlib_stateful_expand_block(COMP_CTX * ctx, uchar * out, uint olen, uc
 {
 	int err = Z_OK;
 	struct zlib_state * state = (struct zlib_state *)ctx->data;
-	if(state == NULL)
+	if(!state)
 		return 0;
 	state->istream.next_in = in;
 	state->istream.avail_in = ilen;

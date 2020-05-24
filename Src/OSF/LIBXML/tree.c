@@ -956,11 +956,11 @@ void FASTCALL xmlFreeDtd(xmlDtd * pCur)
  */
 xmlDoc * xmlNewDoc(const xmlChar * version)
 {
-	SETIFZ(version, (const xmlChar *)"1.0");
+	SETIFZ(version, reinterpret_cast<const xmlChar *>("1.0"));
 	/*
 	 * Allocate a new document and fill the fields.
 	 */
-	xmlDoc * cur = (xmlDoc *)SAlloc::M(sizeof(xmlDoc));
+	xmlDoc * cur = static_cast<xmlDoc *>(SAlloc::M(sizeof(xmlDoc)));
 	if(!cur) {
 		xmlTreeErrMemory("building doc");
 	}
@@ -1011,16 +1011,16 @@ void FASTCALL xmlFreeDoc(xmlDoc * pDoc)
 		// 
 		// Do this before freeing the children list to avoid ID lookups
 		// 
-		xmlFreeIDTable((xmlIDTable *)pDoc->ids);
+		xmlFreeIDTable(static_cast<xmlIDTable *>(pDoc->ids));
 		pDoc->ids = NULL;
-		xmlFreeRefTable((xmlRefTable *)pDoc->refs);
+		xmlFreeRefTable(static_cast<xmlRefTable *>(pDoc->refs));
 		pDoc->refs = NULL;
 		extSubset = pDoc->extSubset;
 		intSubset = pDoc->intSubset;
 		if(intSubset == extSubset)
 			extSubset = NULL;
 		if(extSubset) {
-			xmlUnlinkNode((xmlNode *)pDoc->extSubset);
+			xmlUnlinkNode(reinterpret_cast<xmlNode *>(pDoc->extSubset));
 			pDoc->extSubset = NULL;
 			xmlFreeDtd(extSubset);
 		}
@@ -1055,7 +1055,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 {
 	xmlNode * ret = NULL;
 	xmlNode * last = NULL;
-	xmlNode * P_Node;
+	xmlNode * p_node;
 	xmlChar * val;
 	const xmlChar * cur = value, * end = cur + len;
 	const xmlChar * q;
@@ -1108,7 +1108,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 			else if((cur + 1 < end) && (cur[1] == '#')) {
 				cur += 2;
 				tmp = (cur < end) ? *cur : 0;
-				while(tmp != ';') { /* Non input consuming loops */
+				while(tmp != ';') { // Non input consuming loops 
 					if((tmp >= '0') && (tmp <= '9'))
 						charval = charval * 10 + (tmp - '0');
 					else {
@@ -1149,30 +1149,28 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 						 * Flush buffer so far
 						 */
 						if(!xmlBufIsEmpty(buf)) {
-							P_Node = xmlNewDocText(doc, 0);
-							if(!P_Node) {
+							p_node = xmlNewDocText(doc, 0);
+							if(!p_node) {
 								SAlloc::F(val);
 								goto out;
 							}
-							P_Node->content = xmlBufDetach(buf);
-							if(last == NULL) {
-								last = ret = P_Node;
-							}
-							else {
-								last = xmlAddNextSibling(last, P_Node);
-							}
+							p_node->content = xmlBufDetach(buf);
+							if(last == NULL)
+								last = ret = p_node;
+							else
+								last = xmlAddNextSibling(last, p_node);
 						}
 						/*
 						 * Create a new REFERENCE_REF node
 						 */
-						P_Node = xmlNewReference(doc, val);
-						if(!P_Node) {
+						p_node = xmlNewReference(doc, val);
+						if(!p_node) {
 							SAlloc::F(val);
 							goto out;
 						}
-						else if(ent && (ent->children == NULL)) {
+						else if(ent && !ent->children) {
 							xmlNode * temp;
-							ent->children = xmlStringGetNodeList(doc, (const xmlChar *)P_Node->content);
+							ent->children = xmlStringGetNodeList(doc, (const xmlChar *)p_node->content);
 							ent->owner = 1;
 							temp = ent->children;
 							while(temp) {
@@ -1181,12 +1179,10 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 								temp = temp->next;
 							}
 						}
-						if(last == NULL) {
-							last = ret = P_Node;
-						}
-						else {
-							last = xmlAddNextSibling(last, P_Node);
-						}
+						if(last == NULL)
+							last = ret = p_node;
+						else
+							last = xmlAddNextSibling(last, p_node);
 					}
 					SAlloc::F(val);
 				}
@@ -1213,16 +1209,14 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 			goto out;
 	}
 	if(!xmlBufIsEmpty(buf)) {
-		P_Node = xmlNewDocText(doc, 0);
-		if(!P_Node)
+		p_node = xmlNewDocText(doc, 0);
+		if(!p_node)
 			goto out;
-		P_Node->content = xmlBufDetach(buf);
-		if(last == NULL) {
-			last = ret = P_Node;
-		}
-		else {
-			last = xmlAddNextSibling(last, P_Node);
-		}
+		p_node->content = xmlBufDetach(buf);
+		if(last == NULL)
+			last = ret = p_node;
+		else
+			last = xmlAddNextSibling(last, p_node);
 	}
 	else if(!ret) {
 		ret = xmlNewDocText(doc, reinterpret_cast<const xmlChar *>(""));

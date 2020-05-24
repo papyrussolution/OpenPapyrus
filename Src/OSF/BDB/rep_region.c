@@ -318,7 +318,7 @@ int __rep_preclose(ENV*env)
 	 */
 	if(dblp == NULL)
 		goto out;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * If we have something in the bulk buffer, send anything in it
 	 * if we are able to.

@@ -400,7 +400,7 @@ void FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter)
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */
-int xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, const char * encoding, const char * standalone)
+int FASTCALL xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, const char * encoding, const char * standalone)
 {
 	const char * _p_func_name = "xmlTextWriterStartDocument";
 	int    sum = 0;
@@ -420,7 +420,7 @@ int xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, con
 	// AHTOXA {
 	if(stricmp(encoding, "windows-1251") == 0) {
 		_cp1251 = 1;
-		writer->doc->encoding = sstrdup((xmlChar *)"windows-1251"); // @sobolev @v7.6.8
+		writer->doc->encoding = sstrdup(reinterpret_cast<const xmlChar *>("windows-1251")); // @sobolev @v7.6.8
 	}
 	else { // } AHTOXA
 		if(encoding) {
@@ -436,7 +436,7 @@ int xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, con
 		SETIFZ(writer->out->conv, xmlBufCreateSize(4000));
 		xmlCharEncOutput(writer->out, 1);
 		if(writer->doc && !writer->doc->encoding)
-			writer->doc->encoding = sstrdup((xmlChar *)writer->out->encoder->name);
+			writer->doc->encoding = sstrdup(reinterpret_cast<const xmlChar *>(writer->out->encoder->name));
 	}
 	else
 		writer->out->conv = NULL;
@@ -514,7 +514,7 @@ int xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, con
  *
  * Returns the bytes written or -1 in case of error
  */
-int xmlTextWriterEndDocument(xmlTextWriter * writer)
+int FASTCALL xmlTextWriterEndDocument(xmlTextWriter * writer)
 {
 	const char * _p_func_name = "xmlTextWriterEndDocument";
 	int count;
@@ -3344,15 +3344,9 @@ int xmlTextWriterWriteDTDNotation(xmlTextWriter * writer, const xmlChar * name, 
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */
-int xmlTextWriterFlush(xmlTextWriter * writer)
+int FASTCALL xmlTextWriterFlush(xmlTextWriter * writer)
 {
-	int count;
-	if(writer == NULL)
-		count = -1;
-	else if(writer->out == NULL)
-		count = 0;
-	else
-		count = xmlOutputBufferFlush(writer->out);
+	int count = (!writer) ? -1 : ((!writer->out) ? 0 : xmlOutputBufferFlush(writer->out));
 	return count;
 }
 /**
@@ -3631,6 +3625,17 @@ int xmlTextWriterSetIndentString(xmlTextWriter * writer, const xmlChar * str)
 		return writer->ichar ? 0 : -1;
 	}
 }
+
+int FASTCALL xmlTextWriterSetIndentTab(xmlTextWriter * writer) // @sobolev
+{
+	if(!writer)
+		return -1;
+	else {
+		SAlloc::F(writer->ichar);
+		writer->ichar = reinterpret_cast<xmlChar *>(sstrdup("\t"));
+		return writer->ichar ? 0 : -1;
+	}
+}
 /**
  * xmlTextWriterSetQuoteChar:
  * @writer:  the xmlTextWriterPtr
@@ -3659,17 +3664,17 @@ int xmlTextWriterSetQuoteChar(xmlTextWriter * writer, xmlChar quotechar)
  */
 static int FASTCALL xmlTextWriterWriteIndent(xmlTextWriter * writer)
 {
-	int i;
-	int ret;
 	int lksize = xmlListSize(writer->nodes);
 	if(lksize < 1)
-		return -1;    /* list is empty */
-	for(i = 0; i < (lksize - 1); i++) {
-		ret = xmlOutputBufferWriteString(writer->out, (const char *)writer->ichar);
-		if(ret == -1)
-			return -1;
+		return -1; // list is empty 
+	else {
+		for(int i = 0; i < (lksize - 1); i++) {
+			int ret = xmlOutputBufferWriteString(writer->out, (const char *)writer->ichar);
+			if(ret == -1)
+				return -1;
+		}
+		return (lksize - 1);
 	}
-	return (lksize - 1);
 }
 /**
  * xmlTextWriterHandleStateDependencies:

@@ -5,6 +5,8 @@
 #include <tv.h>
 #pragma hdrstop
 
+int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange); // @prototype
+
 SLAPI SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)
 {
 }
@@ -573,8 +575,8 @@ static int FASTCALL is_zero(const char * c)
 
 static char * FASTCALL fmtnumber(const char * ptr, int dec, int sign, long fmt, char * buf)
 {
-	int16  prec = (int16)(signed char)SFMTPRC(fmt);
-	uint16 flags = SFMTFLAG(fmt);
+	const  int16  prec = static_cast<int16>(static_cast<signed char>(SFMTPRC(fmt)));
+	const  uint16 flags = SFMTFLAG(fmt);
 	char * b = buf;
 	if(!(flags & NMBF_NOZERO) || !is_zero(ptr)) {
 		if(sign) {
@@ -642,7 +644,7 @@ char * SLAPI decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf)
 char * FASTCALL realfmt(double val, long fmt, char * pBuf)
 {
 	int    dec, sign;
-	int    prc = (int)(signed char)SFMTPRC(fmt);
+	int    prc = static_cast<int>(static_cast<signed char>(SFMTPRC(fmt)));
 	if(prc < 0) {
 		val = val * fpow10i(prc);
 		prc = 0;
@@ -749,7 +751,32 @@ static char * FASTCALL clearDelimiters(char * b)
 	return b;
 }
 
-int FASTCALL satof(const char * pBuf, double * pVal) // @construction
+int FASTCALL satof(const char * pBuf, double * pVal) 
+{
+	if(isempty(pBuf)) {
+		ASSIGN_PTR(pVal, 0.0);
+		return 0;
+	}
+	else {
+		const char * p_end = 0;
+		int   erange = 0;
+		return dconvstr_scan(pBuf, &p_end, pVal, &erange);
+	}
+}
+
+double FASTCALL satof(const char * pBuf)
+{
+	if(isempty(pBuf))
+		return 0.0;
+	else {
+		const char * p_end = 0;
+		int   erange = 0;
+		double val = 0.0;
+		return dconvstr_scan(pBuf, &p_end, &val, &erange) ? val : 0.0;
+	}
+}
+
+static int FASTCALL satof_unused(const char * pBuf, double * pVal) // @construction
 {
 	int    ok = 0;
     const  char * p = pBuf;
@@ -856,7 +883,7 @@ int FASTCALL strtodoub(const char * pBuf, double * pVal)
 	if(p == 0)
 		if((p = sstrchr(temp, ',')) != 0)
 			*p = '.';
-	ASSIGN_PTR(pVal, atof(temp));
+	ASSIGN_PTR(pVal, satof(temp)); // @v10.7.9 atof-->satof
 	return 1;
 }
 

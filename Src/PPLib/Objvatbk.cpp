@@ -786,7 +786,7 @@ int SLAPI PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 		THROW(Search(*pID, &rec) > 0);
 	}
 	else {
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec.Dt = LConfig.OperDate;
 	}
 	THROW(_kind = SelectLineType(&res_id, NZOR(rec.LineType_, extra_kind)));
@@ -2852,7 +2852,7 @@ int SLAPI PPViewVatBook::Export()
 		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
 			xmlTextWriterSetIndent(p_writer, 1);
-			xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+			xmlTextWriterSetIndentTab(p_writer);
 			xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
 			//
 			{

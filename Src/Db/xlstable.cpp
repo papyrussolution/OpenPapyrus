@@ -341,7 +341,7 @@ void ExcelDbFile::PutFieldDataToBuf(const SdbField & rFld, const SString & rText
 	rFld.PutFieldDataToBuf(rTextData, pRecBuf, fp);
 }
 
-int ExcelDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf)
+void ExcelDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf)
 {
 	SFormatParam fp;
 	fp.FDate = P.DateFormat;
@@ -349,7 +349,7 @@ int ExcelDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData,
 	fp.FReal = P.RealFormat;
 	if(P.Flags & fQuotText)
 		fp.Flags |= SFormatParam::fQuotText;
-	return rFld.GetFieldDataFromBuf(rTextData, pRecBuf, fp);
+	rFld.GetFieldDataFromBuf(rTextData, pRecBuf, fp);
 }
 
 int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
@@ -414,7 +414,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	else
 		cur_rec += P.ColumnsCount;
 	if(CurRec <= 0) {
-		THROW(P_Sheet->_Clear(1, MAX_COLUMN));
+		P_Sheet->_Clear(1, MAX_COLUMN);
 		//
 		// Если файл пустой, то добавляем специфицированное количество пустых строк
 		// и (если необходимо) запись, содержащую наименования полей.
@@ -452,7 +452,7 @@ int ExcelDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 				THROW(P_Sheet->SetValue(row, col, real_val) > 0);
 			}
 			else {
-				THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
+				GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf);
 				THROW(P_Sheet->SetValue(row, col, field_buf.Strip().cptr()) > 0);
 			}
 		}

@@ -783,7 +783,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 			p_memo_input->setFormat(MKSFMT(sizeof(pPack->Rec.Memo), 0));
 			p_memo_input->setType(MKSTYPE(S_ZSTRING, sizeof(pPack->Rec.Memo)));
 			p_memo_input->setMaxLen(sizeof(pPack->Rec.Memo));
-			SetupWordSelector(CTL_BILL_MEMO, new TextHistorySelExtra("bill-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
+			// (не понравилось пользователям) SetupWordSelector(CTL_BILL_MEMO, new TextHistorySelExtra("bill-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 		}
 	}
 	SetupCalDate(CTLCAL_BILL_DATE,    CTL_BILL_DATE);

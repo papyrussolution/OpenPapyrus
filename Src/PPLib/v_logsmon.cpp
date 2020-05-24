@@ -1,5 +1,6 @@
 // V_LOGSMON.CPP
 // A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -82,13 +83,13 @@ IMPL_HANDLE_EVENT(LogsMonitorFiltDialog)
 		LogsArray l_logs, r_logs;
 		LoadAllLogs(&l_logs);
 		ListToListAryData lists_data(0, &l_logs, &r_logs);
-		SelectLogsDialog *p_dlg = 0;
-		if(CheckDialogPtrErr(&(p_dlg = new SelectLogsDialog(&lists_data, &l_logs, &r_logs)))) {
+		SelectLogsDialog * p_dlg =  new SelectLogsDialog(&lists_data, &l_logs, &r_logs);
+		if(CheckDialogPtrErr(&p_dlg)) {
 			if(ExecView(p_dlg) == cmOK) {
-				SArray *p_selected = p_dlg->getSelected();
+				SArray * p_selected = p_dlg->getSelected();
 				SelectedLogs.clear();
 				if(p_selected) {
-					for(uint i=0; i<p_selected->getCount(); i++)
+					for(uint i = 0; i < p_selected->getCount(); i++)
 						SelectedLogs.insert(p_selected->at(i));
 					updateList(-1);
 				}
@@ -106,7 +107,7 @@ int LogsMonitorFiltDialog::setupList()
 	PPGetPath(PPPATH_LOG, path);
 	path.SetLastSlash();
 	for(uint i=0; ok && i<SelectedLogs.getCount(); i++) {
-		const LogFileEntry *p_entry = &SelectedLogs.at(i);
+		const LogFileEntry * p_entry = &SelectedLogs.at(i);
 		StringSet ss(SLBColumnDelim);
 		ss.add(p_entry->FileName);
 		ss.add(p_entry->LogName);
@@ -179,10 +180,10 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempLogFileMon);
 //
 SLAPI PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONITOR), P_TmpTbl(0), FirstTime(1)
 {
-	// смещения строк для всех журналов установить равным 0
+	// СЃРјРµС‰РµРЅРёСЏ СЃС‚СЂРѕРє РґР»СЏ РІСЃРµС… Р¶СѓСЂРЅР°Р»РѕРІ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЂР°РІРЅС‹Рј 0
 	LogsArray all_logs;
 	LoadAllLogs(&all_logs);
-	for(uint i=0; i<all_logs.getCount(); i++)
+	for(uint i = 0; i < all_logs.getCount(); i++)
 		LogsOffsets.AddUnique(all_logs.at(i).ID, 0, 0);
 }
 //
@@ -288,7 +289,7 @@ int SLAPI PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent *pE
 		SString log_fname;
 		SString logs_fpath;	PPGetPath(PPPATH_LOG, logs_fpath);
 		SFileUtil::Stat log_file_stat;
-		// из тех журналов, что отмечены в фильтре получить список измененных в ExpiredLogs
+		// РёР· С‚РµС… Р¶СѓСЂРЅР°Р»РѕРІ, С‡С‚Рѕ РѕС‚РјРµС‡РµРЅС‹ РІ С„РёР»СЊС‚СЂРµ РїРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РёР·РјРµРЅРµРЅРЅС‹С… РІ ExpiredLogs
 		for(uint i = 0; i < Filt.Selected.getCount(); i++) {
 			(log_fname = logs_fpath).Cat(Filt.Selected.at(i).FileName);
 			SFileUtil::GetStat(log_fname, &log_file_stat);
@@ -330,12 +331,12 @@ int PPViewLogsMonitor::UpdateTempTable(LogsArray *pExpiredLogs)
 		for(i = 0; i < pExpiredLogs->getCount(); i++) {
 			(log_fname = logs_fpath).Cat(pExpiredLogs->at(i).FileName);
 			if(log_file.Open(log_fname, SFile::mRead) && LogsOffsets.Search(Filt.Selected.at(i).ID, &offset, &pos)) {
-				// "быстро" переместиться в нужную строку
-				const size_t block_size = 0x100; // изначально читать достаточно большими блоками
+				// "Р±С‹СЃС‚СЂРѕ" РїРµСЂРµРјРµСЃС‚РёС‚СЊСЃСЏ РІ РЅСѓР¶РЅСѓСЋ СЃС‚СЂРѕРєСѓ
+				const size_t block_size = 0x100; // РёР·РЅР°С‡Р°Р»СЊРЅРѕ С‡РёС‚Р°С‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±РѕР»СЊС€РёРјРё Р±Р»РѕРєР°РјРё
 				p_log_file = log_file.operator FILE *();
 				char c, cbuff[0x100];
-				for(j = 0; j < offset; ) { // j: номер строки в файле
-					if(size_t(offset - j) < block_size) { // если "конец близок" то читать по одному байту
+				for(j = 0; j < offset; ) { // j: РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё РІ С„Р°Р№Р»Рµ
+					if(size_t(offset - j) < block_size) { // РµСЃР»Рё "РєРѕРЅРµС† Р±Р»РёР·РѕРє" С‚Рѕ С‡РёС‚Р°С‚СЊ РїРѕ РѕРґРЅРѕРјСѓ Р±Р°Р№С‚Сѓ
 						if(fread(&c, 1, 1, p_log_file)) {
 							if(c=='\n')
 								j ++;
@@ -348,30 +349,30 @@ int PPViewLogsMonitor::UpdateTempTable(LogsArray *pExpiredLogs)
 						}
 					}
 					else
-						j = offset; // чтобы не повисло в случае если весь файл является одной строкой
+						j = offset; // С‡С‚РѕР±С‹ РЅРµ РїРѕРІРёСЃР»Рѕ РІ СЃР»СѓС‡Р°Рµ РµСЃР»Рё РІРµСЃСЊ С„Р°Р№Р» СЏРІР»СЏРµС‚СЃСЏ РѕРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№
 				}
-				// читаем начиная с нужной строки
+				// С‡РёС‚Р°РµРј РЅР°С‡РёРЅР°СЏ СЃ РЅСѓР¶РЅРѕР№ СЃС‚СЂРѕРєРё
 				for(/* j=offset */; log_file.ReadLine(log_line); j++) {
 					MEMSZERO(log_record);
 					log_record.LogFileId = Filt.Selected.at(i).ID;
 					log_record.LineNo = j;
-					// #0 обязательно дата до 1-го пробела
+					// #0 РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґР°С‚Р° РґРѕ 1-РіРѕ РїСЂРѕР±РµР»Р°
 					if(log_line.Divide(' ', date, tail) > 0 && date.Len()>4) {
 						strtodate(date, 0, &log_record.Dt);
-						// #1 обязательно время до 1-й табуляции
+						// #1 РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РІСЂРµРјСЏ РґРѕ 1-Р№ С‚Р°Р±СѓР»СЏС†РёРё
 						if(tail.Divide('\t', time, log_line) > 0 && time.Len()>4) {
 							strtotime(time, 0, &log_record.Tm);
-							// #2 необязательно имя пользователя до 2-й табуляции
+							// #2 РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РґРѕ 2-Р№ С‚Р°Р±СѓР»СЏС†РёРё
 							if(log_line.Divide('\t', t, tail) > 0)
 								t.ToOem().CopyTo(log_record.UserName, sizeof(log_record.UserName));
 							else
 								tail = log_line;
-							// #3 необязательно имя базы до 3-й табуляции
+							// #3 РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РёРјСЏ Р±Р°Р·С‹ РґРѕ 3-Р№ С‚Р°Р±СѓР»СЏС†РёРё
 							if(tail.Divide('\t', t, log_line) > 0)
 								t.ToOem().CopyTo(log_record.DbSymb, sizeof(log_record.DbSymb));
 							else
 								log_line = tail;
-							// #4 обязательно сообщение до конца
+							// #4 РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ РґРѕ РєРѕРЅС†Р°
 							if(log_line.NotEmpty()) {
 								log_line.ToOem().CopyTo(log_record.Text, sizeof(log_record.Text));
 								THROW_DB(P_TmpTbl->insertRecBuf(&log_record));

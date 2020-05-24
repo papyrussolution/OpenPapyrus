@@ -2709,7 +2709,7 @@ public:
 	virtual SString & SLAPI ToStr(const void * pData, long format, SString & rBuf) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const;
-	virtual int    SLAPI tobase(const void * data, void * baseData) const;
+	virtual void   SLAPI tobase(const void * data, void * baseData) const;
 	virtual int    SLAPI baseto(void * data, const void * baseData) const;
 	virtual void   FASTCALL destroy(void *) const; // @v9.8.5 const
 	// DataType::minval and DataType::maxval sets to parameter
@@ -2742,7 +2742,7 @@ int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b);
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b);
 int    FASTCALL stbase(TYPEID t);
-int    FASTCALL sttobase(TYPEID t, const void * data, void * baseData);
+void   FASTCALL sttobase(TYPEID t, const void * data, void * baseData);
 int    FASTCALL stbaseto(TYPEID t, void * data, const void * baseData);
 void   FASTCALL stdestroy(TYPEID t, void * d);
 int    FASTCALL stisnumber(TYPEID t);
@@ -4449,6 +4449,7 @@ int    FASTCALL satoi(const wchar_t * pT);
 int64  FASTCALL satoi64(const char * pT);
 int64  FASTCALL satoi64(const wchar_t * pT);
 int    FASTCALL satof(const char * pBuf, double * pVal);
+double FASTCALL satof(const char * pBuf);
 // @v9.5.1 (moved as static to sbrodef.cpp) uint   GetTextHeight(char * pBuf, size_t strLen);
 // @v9.5.1 (moved as static to sbrodef.cpp) void   FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
@@ -6392,6 +6393,12 @@ protected:
 	uint8 * P_VData;   //
 };
 //
+// @v10.7.9 
+// Descr: Макрос, обеспечивающий короткую запись цикла по всем элементам.
+// Note: Я скептически отношусь к такого рода макросам (равно как и к новым с++-итераторам) но ради эксперимента все же решил сделать.
+//
+#define SForEachVectorItem(__vec, __iteridx) for(uint __iteridx = 0; __iteridx < __vec.getCount(); __iteridx++)
+//
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
 //   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).
 //
@@ -7441,6 +7448,14 @@ public:
 	//   эта функция обеспечит уникальность идентификаторов.
 	//
 	int    SLAPI UpdateByPos(uint pos, long newId);
+	//
+	// Descr: Вносит в массив rList все идентификаторы из this.
+	// Note: rList предварительно очищается, а по завершении функции сортируется и лишается дубликатов (sortAndUndup)
+	// Returns:
+	//   >0 - в список rList внесен по крайней мере один элемент
+	//   <0 - список this пустой (соответственно и rList при выходе из функции пуст)
+	//
+	int    SLAPI GetIdList(LongArray & rList) const;
 	int    SLAPI GetListByParent(long parentId, int recursive, LongArray &) const;
 	int    FASTCALL HasChild(long id) const;
 	int    SLAPI GetParent(long id, long * pParentId) const;
@@ -7463,6 +7478,7 @@ public:
 	int    SLAPI Pack();
 	void   SLAPI SortByID();
 	void   SLAPI SortByText();
+	void   SLAPI SortByTextInTreeOrder();
 	void   SLAPI SortByLength(int descend = 0);
 	void   SLAPI Reverse();
 	int    SLAPI RemoveRecursion(LongArray * pBadList);
@@ -7488,6 +7504,7 @@ protected:
 	LAssocArray ParentList;
 private:
 	int    SLAPI Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
+	void   SLAPI Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList);
 };
 //
 //

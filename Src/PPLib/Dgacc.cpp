@@ -29,7 +29,7 @@ int AcctCtrlGroup::setData(TDialog * dlg, void * data)
 	int    acc_sel_param_changed = 0;
 	const  Rec * p_rec = static_cast<const Rec *>(data);
 	Acct   acct;
-	MEMSZERO(acct);
+	acct.Z();
 	AcctId     = p_rec->AcctId;
 	AccSheetID = p_rec->AccSheetID;
 	if(AccSelParam != p_rec->AccSelParam)
@@ -448,7 +448,7 @@ SLAPI CurAmtCtrlGroup::Rec::Rec()
 CurAmtCtrlGroup::CurAmtCtrlGroup(uint amtCID, uint curSelCID, uint crateCID, uint baseAmtCID, uint dateCID, uint selCRateCmd, AmtList * pAmtList) : 
 	CtrlGroup(), AmtCID(amtCID), CurSelCID(curSelCID), CRateCID(crateCID), BaseAmtCID(baseAmtCID), DateCID(dateCID), SelCRateCmd(selCRateCmd), P_AL(pAmtList)
 {
-	MEMSZERO(Data);
+	// @v10.7.9 @ctr MEMSZERO(Data);
 }
 
 CurAmtCtrlGroup::~CurAmtCtrlGroup()

@@ -1,5 +1,5 @@
 // SOAPDBT.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2007, 2008, 2010, 2015, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -76,14 +76,15 @@ int SoapDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 int SoapDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 {
 	int    ok = -1;
+	SString line;
+	SString field_name;
+	SdbField fld;
 	SFormatParam fp;
 	fp.Flags |= SFormatParam::fFloatSize;
 	// THROW(CheckParam(rRec));
 	if(Pos == 0) {
 	}
 	for(uint i = 0; i < rRec.GetCount(); i++) {
-		SString line, field_name;
-		SdbField fld;
 		THROW(rRec.GetFieldByPos(i, &fld));
 		field_name = fld.Name;
 		if(!field_name.NotEmptyS())

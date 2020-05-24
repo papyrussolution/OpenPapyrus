@@ -3125,19 +3125,13 @@ int FASTCALL PPBarcode::CreateImage(PPBarcode::BarcodeImageParam & rParam)
     THROW(p_zs);
 	switch(rParam.Std) {
 		case BARCSTD_EAN8:
-		case BARCSTD_EAN13:
-			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_EANX_CHK : BARCODE_EANX;
-			break;
-		case BARCSTD_UPCA:
-			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCA_CHK : BARCODE_UPCA;
-			break;
-		case BARCSTD_UPCE:
-			zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCE_CHK : BARCODE_UPCE;
-			break;
+		case BARCSTD_EAN13: zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_EANX_CHK : BARCODE_EANX; break;
+		case BARCSTD_UPCA:  zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCA_CHK : BARCODE_UPCA; break;
+		case BARCSTD_UPCE:  zint_barc_std = (rParam.Flags & rParam.fWithCheckDigit) ? BARCODE_UPCE_CHK : BARCODE_UPCE; break;
 		case BARCSTD_CODE128: zint_barc_std = BARCODE_CODE128; break;
-		case BARCSTD_CODE39: zint_barc_std = BARCODE_CODE39; break;
-		case BARCSTD_PDF417: zint_barc_std = BARCODE_PDF417; break;
-		case BARCSTD_QR: zint_barc_std = BARCODE_QRCODE; break; // @v9.6.11
+		case BARCSTD_CODE39:  zint_barc_std = BARCODE_CODE39; break;
+		case BARCSTD_PDF417:  zint_barc_std = BARCODE_PDF417; break;
+		case BARCSTD_QR:      zint_barc_std = BARCODE_QRCODE; break; // @v9.6.11
 	}
 	THROW(zint_barc_std);
     p_zs->Std = zint_barc_std;

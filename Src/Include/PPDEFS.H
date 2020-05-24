@@ -6259,24 +6259,24 @@
 	#define CTL_BUCFG_COMPRESS           (6 + WINDOWS_ID_BIAS)
 	#define CTL_BUCFG_PATH               (7 + WINDOWS_ID_BIAS)
 	#define CTLBRW_BUCFG_PATH            (8 + WINDOWS_ID_BIAS)
-#define DLG_CFGINI                609 // Конфигурирование INI файла
-	#define CTLSLC_CFGINI                (1 + WINDOWS_ID_BIAS)
-#define DLG_CFGINI_SYSPATH        610 // Различные пути
-	#define CTL_SYSPATH_SYS              (1 + WINDOWS_ID_BIAS)
-	#define CTL_SYSPATH_DAT              (2 + WINDOWS_ID_BIAS)
-	#define CTL_SYSPATH_ARC              (3 + WINDOWS_ID_BIAS)
-	#define CTL_SYSPATH_PACK             (4 + WINDOWS_ID_BIAS)
-	#define CTL_SYSPATH_TMP              (5 + WINDOWS_ID_BIAS)
-	#define CTL_SYSPATH_RECOV            (6 + WINDOWS_ID_BIAS)
-	#define CTL_SYSPATH_LOG              (7 + WINDOWS_ID_BIAS)
-#define DLG_CFGINI_PARAMS         611 // Прочие конфигурирации INI файла
-	#define CTLSLC_PARAMS_CHECK          (1 + WINDOWS_ID_BIAS)
-#define DLG_CFGINI_DBNAME         612 // Список именованных БД INI файла
-	#define CTLLST_DBNAME_LIST           (1 + WINDOWS_ID_BIAS)
-#define DLG_CFGINI_DBNEDIT        613 // Изменение параметров БД INI файла
-	#define CTL_DBNEDIT_ENTRY            (1 + WINDOWS_ID_BIAS)
-	#define CTL_DBNEDIT_NAME             (2 + WINDOWS_ID_BIAS)
-	#define CTL_DBNEDIT_PATH             (3 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) #define DLG_CFGINI                609 // Конфигурирование INI файла
+// @v10.7.9 (unused) 	#define CTLSLC_CFGINI                (1 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) #define DLG_CFGINI_SYSPATH        610 // Различные пути
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_SYS              (1 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_DAT              (2 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_ARC              (3 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_PACK             (4 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_TMP              (5 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_RECOV            (6 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_SYSPATH_LOG              (7 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) #define DLG_CFGINI_PARAMS         611 // Прочие конфигурирации INI файла
+// @v10.7.9 (unused) 	#define CTLSLC_PARAMS_CHECK          (1 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) #define DLG_CFGINI_DBNAME         612 // Список именованных БД INI файла
+// @v10.7.9 (unused) 	#define CTLLST_DBNAME_LIST           (1 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) #define DLG_CFGINI_DBNEDIT        613 // Изменение параметров БД INI файла
+// @v10.7.9 (unused) 	#define CTL_DBNEDIT_ENTRY            (1 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_DBNEDIT_NAME             (2 + WINDOWS_ID_BIAS)
+// @v10.7.9 (unused) 	#define CTL_DBNEDIT_PATH             (3 + WINDOWS_ID_BIAS)
 #define DLG_CFGBAT                614 // Конфигурация BAT файла
 	#define CTL_CFGBAT_BTRVPATH          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CFGBAT_TYPE              (2 + WINDOWS_ID_BIAS)
@@ -10900,6 +10900,9 @@
 	#define CTL_TSOELGRAPH_FUNC      (3  + IMPEXP_CTL_BIAS) //
 	#define CTL_TSOELGRAPH_GRPPT     (4  + IMPEXP_CTL_BIAS) //
 	#define CTL_TSOELGRAPH_SEGM      (5  + IMPEXP_CTL_BIAS) //
+#define DLG_RTDYNOBJ              1383
+	#define CTL_RTDYNOBJ_FLAGS       (1  + IMPEXP_CTL_BIAS) //
+	#define CTL_RTDYNOBJ_SFLAGS      (11 + IMPEXP_CTL_BIAS) //
 //
 // Win32 Dialog Identifiers
 //

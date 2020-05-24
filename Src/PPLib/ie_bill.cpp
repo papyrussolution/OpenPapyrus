@@ -1742,7 +1742,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 		Sdr_BRow brow_;
 		BarcodeTbl::Rec bcrec;
 		MEMSZERO(brow_);
-		MEMSZERO(bcrec);
+		// @v10.7.9 @ctr MEMSZERO(bcrec);
 		if(pFnFldList) {
 			AssignFnFieldToRecord(*pFnFldList, 0, &brow_);
 		}
@@ -1802,7 +1802,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 				else if(CConfig.Flags & CCFLG_USEARGOODSCODE && (brow_.Barcode[0] || brow_.ArCode[0])) {
 					PPID   ar_id = 0;
 					ArticleTbl::Rec ar_rec;
-					MEMSZERO(code_rec);
+					// @v10.7.9 @ctr MEMSZERO(code_rec);
 					if(brow_.CntragID && ArObj.Fetch(brow_.CntragID, &ar_rec) > 0) {
 						ar_id = brow_.CntragID;
 					}
@@ -2527,7 +2527,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 								gpack.Rec.UnitID = r_gcfg.DefUnitID;
 								if(r_rgi.ArID && r_rgi.ArCode[0]) {
 									ArGoodsCodeTbl::Rec ar_code_rec;
-									MEMSZERO(ar_code_rec);
+									// @v10.7.9 @ctr MEMSZERO(ar_code_rec);
 									ar_code_rec.ArID = r_rgi.ArID;
 									ar_code_rec.Pack = 1000; // 1.0
 									STRNSCPY(ar_code_rec.Code, r_rgi.ArCode);
@@ -3624,7 +3624,7 @@ int SLAPI PPBillImporter::DoFullEdiProcess()
 									PPID   desadv_bill_id = 0;
 									BillTbl::Rec desadv_bill_rec;
 									BillTbl::Rec desadv_bill_rec_pattern;
-									MEMSZERO(desadv_bill_rec_pattern);
+									// @v10.7.9 @ctr MEMSZERO(desadv_bill_rec_pattern);
 									STRNSCPY(desadv_bill_rec_pattern.Code, p_recadv_pack->DesadvBillCode);
 									desadv_bill_rec_pattern.Dt = p_recadv_pack->DesadvBillDate;
 									desadv_bill_rec_pattern.Object = p_recadv_pack->RBp.Rec.Object;
@@ -4974,7 +4974,7 @@ int SLAPI Generator_DocNalogRu::StartDoc(const char * pFileName)
 	P_X = 0;
 	THROW(P_X = xmlNewTextWriterFilename(pFileName, 0));
 	xmlTextWriterSetIndent(P_X, 1);
-	xmlTextWriterSetIndentString(P_X, reinterpret_cast<const xmlChar *>("\t"));
+	xmlTextWriterSetIndentTab(P_X);
 	THROW_SL(P_Doc = new SXml::WDoc(P_X, cp1251));
 	CATCHZOK
 	return ok;

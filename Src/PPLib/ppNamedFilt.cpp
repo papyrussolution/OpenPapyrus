@@ -1,5 +1,5 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -515,7 +515,7 @@ int SLAPI PPNamedFiltMngr::SavePool2(const PPNamedFiltPool * pPool) const //@eri
 	assert(p_xml_writer);
 	THROW(p_xml_writer);
 	xmlTextWriterSetIndent(p_xml_writer, 1);
-	xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+	xmlTextWriterSetIndentTab(p_xml_writer);
 	{
 		SXml::WDoc _doc(p_xml_writer, cpUTF8);
 		uint count = pPool->getCount();

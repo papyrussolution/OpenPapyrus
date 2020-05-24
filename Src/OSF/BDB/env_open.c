@@ -81,11 +81,13 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 {
 	DB_THREAD_INFO * ip = 0;
 	uint32 orig_flags;
-	int    ret, t_ret;
+	int    ret;
+	int    t_ret;
 	ENV  * env = dbenv->env;
 	int    register_recovery = 0;
 	// Initial configuration
-	if((ret = __env_config(dbenv, db_home, &flags, mode)) != 0)
+	ret = __env_config(dbenv, db_home, &flags, mode);
+	if(ret != 0)
 		return ret;
 	/*
 	 * Save the DB_ENV handle's configuration flags as set by user-called
@@ -96,7 +98,8 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 	 */
 	orig_flags = dbenv->flags;
 	// Check open flags
-	if((ret = __env_open_arg(dbenv, flags)) != 0)
+	ret = __env_open_arg(dbenv, flags);
+	if(ret != 0)
 		return ret;
 	// 
 	// If we're going to register with the environment, that's the first thing we do.
@@ -113,7 +116,8 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 			__env_set_thread_count(dbenv, 50);
 			dbenv->is_alive = __envreg_isalive;
 		}
-		if((ret = __envreg_register(env, &register_recovery, flags)) != 0)
+		ret = __envreg_register(env, &register_recovery, flags);
+		if(ret != 0)
 			goto err;
 		if(register_recovery) {
 			if(!LF_ISSET(DB_RECOVER)) {

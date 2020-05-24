@@ -331,7 +331,8 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementContent * cont, xmlNode *
 	return (ctxt->vstateNr++);
 }
 
-static int vstateVPop(xmlValidCtxtPtr ctxt) {
+static int vstateVPop(xmlValidCtxtPtr ctxt) 
+{
 	if(ctxt->vstateNr <= 1) return -1;
 	ctxt->vstateNr--;
 	ctxt->vstate = &ctxt->vstateTab[0];
@@ -376,10 +377,7 @@ static xmlNode * nodeVPop(xmlValidCtxtPtr ctxt)
 	if(ctxt->nodeNr <= 0)
 		return 0;
 	ctxt->nodeNr--;
-	if(ctxt->nodeNr > 0)
-		ctxt->P_Node = ctxt->PP_NodeTab[ctxt->nodeNr - 1];
-	else
-		ctxt->P_Node = NULL;
+	ctxt->P_Node = (ctxt->nodeNr > 0) ? ctxt->PP_NodeTab[ctxt->nodeNr - 1] : 0;
 	ret = ctxt->PP_NodeTab[ctxt->nodeNr];
 	ctxt->PP_NodeTab[ctxt->nodeNr] = NULL;
 	return ret;
@@ -419,7 +417,8 @@ static void xmlValidPrintNode(xmlNode * cur)
 	}
 }
 
-static void xmlValidPrintNodeList(xmlNode * cur) {
+static void xmlValidPrintNodeList(xmlNode * cur) 
+{
 	if(!cur)
 		xmlGenericError(0, "null ");
 	while(cur) {
@@ -439,38 +438,28 @@ static void xmlValidDebug(xmlNode * cur, xmlElementContent * cont)
 	xmlGenericError(0, "%s\n", expr);
 }
 
-static void xmlValidDebugState(xmlValidStatePtr state) {
+static void xmlValidDebugState(xmlValidStatePtr state) 
+{
 	xmlGenericError(0, "(");
 	if(state->cont == NULL)
 		xmlGenericError(0, "null,");
 	else
 		switch(state->cont->type) {
-			case XML_ELEMENT_CONTENT_PCDATA:
-			    xmlGenericError(0, "pcdata,");
-			    break;
-			case XML_ELEMENT_CONTENT_ELEMENT:
-			    xmlGenericError(0, "%s,",
-			    state->cont->name);
-			    break;
-			case XML_ELEMENT_CONTENT_SEQ:
-			    xmlGenericError(0, "seq,");
-			    break;
-			case XML_ELEMENT_CONTENT_OR:
-			    xmlGenericError(0, "or,");
-			    break;
+			case XML_ELEMENT_CONTENT_PCDATA: xmlGenericError(0, "pcdata,"); break;
+			case XML_ELEMENT_CONTENT_ELEMENT: xmlGenericError(0, "%s,", state->cont->name); break;
+			case XML_ELEMENT_CONTENT_SEQ: xmlGenericError(0, "seq,"); break;
+			case XML_ELEMENT_CONTENT_OR: xmlGenericError(0, "or,"); break;
 		}
 	xmlValidPrintNode(state->node);
-	xmlGenericError(0, ",%d,%X,%d)",
-	    state->depth, state->occurs, state->state);
+	xmlGenericError(0, ",%d,%X,%d)", state->depth, state->occurs, state->state);
 }
 
-static void xmlValidStateDebug(xmlValidCtxtPtr ctxt) {
+static void xmlValidStateDebug(xmlValidCtxtPtr ctxt) 
+{
 	int i, j;
-
 	xmlGenericError(0, "state: ");
 	xmlValidDebugState(ctxt->vstate);
-	xmlGenericError(0, " stack: %d ",
-	    ctxt->vstateNr - 1);
+	xmlGenericError(0, " stack: %d ", ctxt->vstateNr - 1);
 	for(i = 0, j = ctxt->vstateNr - 1; (i < 3) && (j > 0); i++, j--)
 		xmlValidDebugState(&ctxt->vstateTab[j]);
 	xmlGenericError(0, "\n");
@@ -481,8 +470,7 @@ static void xmlValidStateDebug(xmlValidCtxtPtr ctxt) {
 *****/
 
 #define DEBUG_VALID_STATE(n, c) xmlValidStateDebug(ctxt);
-#define DEBUG_VALID_MSG(m)					\
-	xmlGenericError(0, "%s\n", m);
+#define DEBUG_VALID_MSG(m)      xmlGenericError(0, "%s\n", m);
 
 #else
 #define DEBUG_VALID_STATE(n, c)
@@ -497,13 +485,9 @@ static void xmlValidStateDebug(xmlValidCtxtPtr ctxt) {
 	    (doc->extSubset == NULL)) return (0)
 
 #ifdef LIBXML_REGEXP_ENABLED
-
-/************************************************************************
-*									*
-*		Content model validation based on the regexps		*
-*									*
-************************************************************************/
-
+//
+// Content model validation based on the regexps
+//
 /**
  * xmlValidBuildAContentModel:
  * @content:  the content model
@@ -526,43 +510,38 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 		    return 0;
 		    break;
 		case XML_ELEMENT_CONTENT_ELEMENT: {
-		    xmlAutomataStatePtr oldstate = ctxt->state;
+		    xmlAutomataState * oldstate = ctxt->state;
 		    xmlChar fn[50];
-		    xmlChar * fullname;
-
-		    fullname = xmlBuildQName(content->name, content->prefix, fn, 50);
+		    xmlChar * fullname = xmlBuildQName(content->name, content->prefix, fn, 50);
 		    if(fullname == NULL) {
 			    xmlVErrMemory(ctxt, "Building content model");
 			    return 0;
 		    }
-
 		    switch(content->ocur) {
 			    case XML_ELEMENT_CONTENT_ONCE:
-				ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
-				break;
+					ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
+					break;
 			    case XML_ELEMENT_CONTENT_OPT:
-				ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
-				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
-				break;
+					ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
+					xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
+					break;
 			    case XML_ELEMENT_CONTENT_PLUS:
-				ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
-				xmlAutomataNewTransition(ctxt->am, ctxt->state, ctxt->state, fullname, 0);
-				break;
+					ctxt->state = xmlAutomataNewTransition(ctxt->am, ctxt->state, NULL, fullname, 0);
+					xmlAutomataNewTransition(ctxt->am, ctxt->state, ctxt->state, fullname, 0);
+					break;
 			    case XML_ELEMENT_CONTENT_MULT:
-				ctxt->state = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
-				xmlAutomataNewTransition(ctxt->am, ctxt->state, ctxt->state, fullname, 0);
-				break;
+					ctxt->state = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
+					xmlAutomataNewTransition(ctxt->am, ctxt->state, ctxt->state, fullname, 0);
+					break;
 		    }
 		    if(fullname != fn && fullname != content->name)
 			    SAlloc::F(fullname);
 		    break;
 	    }
 		case XML_ELEMENT_CONTENT_SEQ: {
-		    xmlAutomataStatePtr oldend;
-		    /*
-		 * Simply iterate over the content
-		     */
-		    xmlAutomataStatePtr oldstate = ctxt->state;
+		    xmlAutomataState * oldend;
+		    // Simply iterate over the content
+		    xmlAutomataState * oldstate = ctxt->state;
 		    xmlElementContentOccur ocur = content->ocur;
 		    if(ocur != XML_ELEMENT_CONTENT_ONCE) {
 			    ctxt->state = xmlAutomataNewEpsilon(ctxt->am, oldstate, 0);
@@ -588,17 +567,17 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
 	    }
 		case XML_ELEMENT_CONTENT_OR: 
 		{
-		    xmlAutomataStatePtr oldstate, oldend;
+		    xmlAutomataState * oldstate;
+			xmlAutomataState * oldend;
 		    xmlElementContentOccur ocur = content->ocur;
 		    if(oneof2(ocur, XML_ELEMENT_CONTENT_PLUS, XML_ELEMENT_CONTENT_MULT)) {
 			    ctxt->state = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
 		    }
 		    oldstate = ctxt->state;
 		    oldend = xmlAutomataNewState(ctxt->am);
-		    /*
-		 * iterate over the subtypes and remerge the end with an
-		 * epsilon transition
-		     */
+		    // 
+			// iterate over the subtypes and remerge the end with an epsilon transition
+			//
 		    do {
 			    ctxt->state = oldstate;
 			    xmlValidBuildAContentModel(content->c1, ctxt, name);

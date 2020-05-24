@@ -7212,7 +7212,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 
 #if SLTEST_RUNNING // {
 
-int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
+// @v10.7.9 int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
 
 struct SlTestFixtureSString {
 public:
@@ -7669,7 +7669,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 
 					const char * p_end = 0;
 					int erange = 0;
-					SLTEST_CHECK_NZ(dconvstr_scan(p_text, &p_end, &v_satof, &erange));
+					//SLTEST_CHECK_NZ(dconvstr_scan(p_text, &p_end, &v_satof, &erange));
+					v_satof = satof(p_text); // @v10.7.9 dconvstr_scan-->satof
 					SLTEST_CHECK_EQ(v_satof, v_atof);
 				}
 				SString atof_buf;
@@ -7679,7 +7680,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					const double v_atof = atof(atof_buf);
 					const char * p_end = 0;
 					int erange = 0;
-					SLTEST_CHECK_NZ(dconvstr_scan(atof_buf, &p_end, &v_satof, &erange));
+					//SLTEST_CHECK_NZ(dconvstr_scan(atof_buf, &p_end, &v_satof, &erange));
+					v_satof = satof(atof_buf); // @v10.7.9 dconvstr_scan-->satof
 					//SLTEST_CHECK_NZ(satof(atof_buf, &v_satof));
 					SLTEST_CHECK_EQ(v_satof, v_atof);
 				}
@@ -8011,7 +8013,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				//
 				const char * p_end = 0;
 				int erange = 0;
-				dconvstr_scan(atof_buf, &p_end, &r2, &erange);
+				//dconvstr_scan(atof_buf, &p_end, &r2, &erange);
+				r2 = satof(atof_buf); // @v10.7.9 dconvstr_scan-->satof
 			}
 		}
 		else if(bm == 9) { // strlen

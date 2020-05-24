@@ -1,11 +1,17 @@
 // OBJCNTR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // @ModuleDef(PPObjOpCounter)
 //
+SLAPI PPOpCounter2::PPOpCounter2()
+{
+	THISZERO();
+}
+
 PPOpCounterPacket::PPOpCounterPacket() : P_Items(0), Flags(0)
 {
 	STRNSCPY(Head.CodeTemplate, "%05");
@@ -336,8 +342,6 @@ int SLAPI PPObjOpCounter::PutPacket(PPID * pOpCntrID, const PPOpCounterPacket * 
 			if(opc_rec.Flags & OPCNTF_DIFFBYLOC) {
 				THROW(ref->PutPropArray(PPOBJ_OPRKIND, *pOpCntrID, OPKPRP_DIFFCNTRS, pPack->P_Items, 0));
 			}
-			/* @v8.2.9 else
-				THROW(ref->PutPropArray(PPOBJ_OPRKIND, *pOpCntrID, OPKPRP_DIFFCNTRS, 0, 0)); */
 			ok = 1;
 		}
 		else if(*pOpCntrID) {
@@ -373,8 +377,8 @@ int SLAPI PPObjOpCounter::MakeReserved(long flags)
 		templ.CopyTo(pack.Head.CodeTemplate, sizeof(pack.Head.CodeTemplate));
 		if(id && Search(id, &temp_rec) <= 0 && SearchBySymb(symb, 0, &temp_rec) <= 0) {
 			//
-			// Çäåñü íåëüçÿ èñïîëüçîâàòü PutPacket ïîñêîëüêó äîáàâëÿåòñÿ çàïèñü
-			// ñ ïðåäîïðåäåëåííûì èäåíòèôèêàòîðîì.
+			// Ð—Ð´ÐµÑÑŒ Ð½ÐµÐ»ÑŒÐ·Ñ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒ PutPacket Ð¿Ð¾ÑÐºÐ¾Ð»ÑŒÐºÑƒ Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÑ‚ÑÑ Ð·Ð°Ð¿Ð¸ÑÑŒ
+			// Ñ Ð¿Ñ€ÐµÐ´Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð½Ñ‹Ð¼ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ð¾Ð¼.
 			//
 			THROW(EditItem(Obj, 0, &pack.Head, 1));
 		}

@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Реализация контроллера анализ данных PPViewArticle
 //
@@ -155,7 +155,6 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 		if(AgtProp) {
 			THROW(P_TempTbl = CreateTempFile());
 			{
-				TempArAgtTbl::Rec rec;
 				BExtInsert bei(P_TempTbl);
 				PropertyTbl::Key0 k0;
 				PropertyTbl & r_pt = PPRef->Prop;
@@ -168,7 +167,8 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						PPTransaction tra(ppDbDependTransaction, 1);
 						THROW(tra);
 						for(q.initIteration(0, &k0, spGe); q.nextIteration() > 0;) {
-							MEMSZERO(rec);
+							TempArAgtTbl::Rec rec;
+							// @v10.7.9 @ctr MEMSZERO(rec);
 							PPClientAgreement cli_agt;
 							PPObjArticle::PropToClientAgt(&r_pt.data, &cli_agt, 1);
 							rec.ArID        = cli_agt.ClientID;
@@ -224,7 +224,8 @@ int SLAPI PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						for(uint i = 0; i < ar_agt_list.getCount(); i++) {
 							const PPID ar_id = ar_agt_list.get(i);
 							if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0) {
-								MEMSZERO(rec);
+								TempArAgtTbl::Rec rec;
+								// @v10.7.9 @ctr MEMSZERO(rec);
 								rec.ArID        = suppl_agt.SupplID;
 								rec.Beg         = suppl_agt.BegDt;
 								rec.Expiry      = suppl_agt.Expiry;

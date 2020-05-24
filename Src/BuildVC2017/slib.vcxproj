@@ -1474,7 +1474,6 @@
     <ClCompile Include="..\SLib\Md5.cpp" />
     <ClCompile Include="..\SLib\Mkstring.cpp" />
     <ClCompile Include="..\SLib\Msgbox.cpp" />
-    <ClCompile Include="..\SLib\prime.cpp" />
     <ClCompile Include="..\SLib\punycode.cpp" />
     <ClCompile Include="..\SLib\Range.cpp" />
     <ClCompile Include="..\SLib\samqp.cpp" />

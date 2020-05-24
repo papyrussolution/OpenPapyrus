@@ -680,7 +680,7 @@ int SLAPI PPExprParser::GetToken()
 				Next();
 			} while(isdec(Cur) || ((Cur == '.') && !dot));
 			*p = 0;
-			Number = atof(buf);
+			Number = satof(buf); // @v10.7.9 atof-->satof
 			Token  = tokNumber;
 		}
 		else if(Cur == '<') {
@@ -750,7 +750,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 					Pos += next_pos;
 					Cur = P_S[Pos-1];
 					THROW(P_CFL->CalcFunc(func_id, &params, result, sizeof(result)));
-					*pResult = atof(result);
+					*pResult = satof(result); // @v10.7.9 atof-->satof
 				}
 				else {
 					//THROW_PP(P_Ctx, PPERR_ILLVAR);

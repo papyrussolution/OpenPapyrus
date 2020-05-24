@@ -144,7 +144,7 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 	if(ret != ARCHIVE_OK)
 		return ret;
 	state = (struct private_data *)SAlloc::C(1, sizeof(*state));
-	if(state == NULL) {
+	if(!state) {
 		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression");
 		return ARCHIVE_FATAL;
 	}

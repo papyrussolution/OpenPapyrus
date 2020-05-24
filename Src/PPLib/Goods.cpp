@@ -2590,7 +2590,7 @@ int SLAPI GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int u
 				PPID   _id = temp_list.get(i);
 				if(_id != goodsID && Fetch(_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 					ObjAssocTbl::Rec assc_rec;
-					MEMSZERO(assc_rec);
+					// @v10.7.9 @ctr MEMSZERO(assc_rec);
 					assc_rec.AsscType  = PPASS_GENGOODS;
 					assc_rec.PrmrObjID = goodsID;
 					assc_rec.ScndObjID = _id;

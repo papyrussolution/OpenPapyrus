@@ -1,12 +1,11 @@
 // SCLIPBOARD.CPP
-// Copyright (c) A.Sobolev 2019
+// Copyright (c) A.Sobolev 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 
-//static 
-int FASTCALL SClipboard::OpenClipboardRetry(void * hWnd)
+/*static*/int FASTCALL SClipboard::OpenClipboardRetry(void * hWnd)
 {
 	int    ok = 0;
 	for(uint attempt = 0; !ok && attempt < 8; attempt++) {
@@ -18,8 +17,7 @@ int FASTCALL SClipboard::OpenClipboardRetry(void * hWnd)
 	return ok;
 }
 
-//static 
-int FASTCALL SClipboard::Helper_OpenClipboardForCopy(int & rHasBeenOpened)
+/*static*/int FASTCALL SClipboard::Helper_OpenClipboardForCopy(int & rHasBeenOpened)
 {
 	int    ok = 1;
 	rHasBeenOpened = 0;
@@ -30,16 +28,14 @@ int FASTCALL SClipboard::Helper_OpenClipboardForCopy(int & rHasBeenOpened)
 	return ok;
 }
 
-//static 
-int FASTCALL SClipboard::Helper_CloseClipboard(int hasBeenOpened)
+/*static*/int FASTCALL SClipboard::Helper_CloseClipboard(int hasBeenOpened)
 {
 	if(hasBeenOpened)
 		::CloseClipboard();
 	return 1;
 }
 
-//static 
-int FASTCALL SClipboard::Copy_Text(const char * pText, size_t len)
+/*static*/int FASTCALL SClipboard::Copy_Text(const char * pText, size_t len)
 {
 	int    ok = 1;
 	int    cb_has_been_openen = 0;
@@ -59,8 +55,7 @@ int FASTCALL SClipboard::Copy_Text(const char * pText, size_t len)
 	return ok;
 }
 
-//static 
-int FASTCALL SClipboard::Copy_TextUnicode(const wchar_t * pText, size_t len)
+/*static*/int FASTCALL SClipboard::Copy_TextUnicode(const wchar_t * pText, size_t len)
 {
 	int    ok = 1;
 	int    cb_has_been_openen = 0;
@@ -80,8 +75,7 @@ int FASTCALL SClipboard::Copy_TextUnicode(const wchar_t * pText, size_t len)
 	return ok;
 }
 
-//static
-int FASTCALL SClipboard::Copy_SYLK(const SString & rText)
+/*static*/int FASTCALL SClipboard::Copy_SYLK(const SString & rText)
 {
 	int    ok = 1;
 	int    cb_has_been_openen = 0;
@@ -102,8 +96,7 @@ int FASTCALL SClipboard::Copy_SYLK(const SString & rText)
 	return ok;
 }
 
-//static 
-int FASTCALL SClipboard::Past_Text(SStringU & rBuf)
+/*static*/int FASTCALL SClipboard::Past_Text(SStringU & rBuf)
 {
 	rBuf.Z();
 	int    ok = -1;

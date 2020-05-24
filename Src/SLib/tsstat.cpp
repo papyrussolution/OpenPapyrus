@@ -1507,6 +1507,7 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count,
 		rS.State |= Stat::stSorted;
 		SUniTime prev_utm;
 		SUniTime utm;
+		// @construction RealArray value_list;
 		double prev_value = 0.0;
 		for(uint i = firstIdx; i < _c; i++) {
 			THROW(GetTime(i, &utm));
@@ -1521,6 +1522,7 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count,
 			{
 				const void * p_value_buf = p_vec->at(i);
 				double value = p_vec->ConvertInnerToDouble(p_value_buf);
+				// @construction value_list.add(value);
 				rS.Step(value);
 				if(i > firstIdx) {
 					double delta = (value - prev_value) / prev_value;
@@ -1572,6 +1574,33 @@ int SLAPI STimeSeries::Analyze(const char * pVecSymb, uint firstIdx, uint count,
 		rS.Finish();
 		rS.DeltaAvg = stat_delta.GetExp();
 		rS.LocalDevAvg = stat_local_dev.GetExp(); // @v10.7.1
+		/* @construction 
+		{
+			struct MoveListBlock {
+				MoveListBlock(uint step) : Step(step)
+				{
+					const double zero = 0.0;
+					for(uint i = 0; i < Step; i++) {
+						List.insert(&zero);
+					}
+				}
+				void  Put(uint rawIdx, double value)
+				{
+				}
+				const uint Step;
+				RealArray List;
+			};
+			RealArray move_list_s60;
+			RealArray move_list_s720;
+			RealArray move_list_s1440;
+			RealArray move_list_s2880;
+			uint   last_pt_s60 = 0;
+			uint   last_pt_s720 = 0;
+			uint   last_pt_s1440 = 0;
+			for(uint j = 0; j < value_list.getCount(); j++) {
+			}
+		} 
+		*/
 	}
 	CATCHZOK
 	delete p_local_dev_queue;

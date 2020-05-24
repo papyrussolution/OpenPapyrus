@@ -1,5 +1,5 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -93,7 +93,8 @@ int SLAPI BNKey::setKeyParams(int keyNumber, int acsNumber)
 			HEAD.acsNumber = acsNumber;
 		return 1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 int SLAPI BNKey::getNumSeg() const { return data ? HEAD.numSeg : 0; }

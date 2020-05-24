@@ -1898,6 +1898,10 @@ private:
 #define PPR_DEL         0x0008
 #define PPR_ADM         0x0010
 //
+// @v10.7.9 Специальные права доступа динамических объектов 
+//
+#define DYNOBJRT_RMVALL 0x0100 // Удаление всей выборки объектов
+//
 // Последние два операционных бита зарезервированы
 //
 #define PPORF_INHERITED 0x4000 // Структура унаследована от вышестоящего объекта
@@ -2070,7 +2074,7 @@ public:
 	int    SLAPI Backup(uint maxCopies = 5);
 	int    SLAPI UpdateFromFile(const char * pSrcFileName);
 private:
-	int    SLAPI ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam);
+	static void FASTCALL ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam);
 };
 
 class PPRegKeys {
@@ -3470,7 +3474,7 @@ private:
 //
 // Флаги тегов
 //
-// @v8.0.1 флаг больше не используется - т'ги не могут быть дублируемыми #define OTF_DUP         0x0001 // Объекту может соответствовать несколько таких тегов с различающимися значениями
+// @v8.0.1 флаг больше не используется - теги не могут быть дублируемыми #define OTF_DUP         0x0001 // Объекту может соответствовать несколько таких тегов с различающимися значениями
 #define OTF_NOZERO           0x0002 // Тег с нулевым значение удаляется //
 #define OTF_NMBRULE          0x0004 // Для тега с числовым значением определено правило
 #define OTF_WARNZERO         0x0008 // Нулевое или отрицательное значение тега является поводом для предупреждения //
@@ -3481,10 +3485,7 @@ private:
 #define OTF_HIERENUM         0x0040 // Иерерхическое перечисление
 
 struct PPObjectTag2 {   // @persistent @store(Reference2Tbl+)
-	PPObjectTag2()
-	{
-		THISZERO();
-	}
+	SLAPI  PPObjectTag2();
 	PPID   Tag;         // Const=PPOBJ_TAG
 	PPID   ID;          // @id
 	char   Name[48];    // @name @!refname
@@ -8231,7 +8232,7 @@ public:
 		not_addtolog      = 0x0008, // Не добавлять в журнал (для временных товарных групп)
 		not_checkrights   = 0x0010, // Не проверять права (для временных товарныхгрупп)
 		not_repl_remove   = 0x0020, // PPObject::ReplaceObj не удалять объединяемый объект
-		not_objnotify     = 0x0040  // @v8.0.4  Удалять объект без посылки сообщений другим объектам (без проверки ссылочной целостности)
+		not_objnotify     = 0x0040  // Удалять объект без посылки сообщений другим объектам (без проверки ссылочной целостности)
 	};
 	virtual int    SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 		// @>>PPObject::Search
@@ -8371,7 +8372,7 @@ public:
 	virtual void * SLAPI CreateObjListWin(uint aFlags, void * extraPtr);
 
 	enum {
-		implTaggedStrMakeList = 0x0001, // Класс реализует виртуальнцю функцию TaggedStringArray * PPObject::MakeList_(long)
+		implTaggedStrMakeList = 0x0001, // Класс реализует виртуальную функцию TaggedStringArray * PPObject::MakeList_(long)
 		implStrAssocMakeList  = 0x0002, // Класс реализует виртуальную функцию StrAssocArray * PPObject::MakeSStrAssocList(long)
 		implTreeSelector      = 0x0004, // Класс реализует метод MakeSStrAssocList, возвращающий
 			// древовидный список (функции Selector и UpdateSelector должна инициализировать StdTreeListBoxDef).
@@ -16157,10 +16158,7 @@ public:
 // Descr: Вид персоналии //
 //
 struct PPPersonKind2 {     // @persistent @store(Reference2Tbl+)
-	SLAPI  PPPersonKind2()
-	{
-		THISZERO();
-	}
+	SLAPI  PPPersonKind2();
 	//
 	// Descr: флаги вида персоналии
 	//
@@ -16180,7 +16178,7 @@ struct PPPersonKind2 {     // @persistent @store(Reference2Tbl+)
 
 class PPObjPersonKind : public PPObjReference {
 public:
-	SLAPI  PPObjPersonKind(void * extraPtr = 0);
+	explicit SLAPI PPObjPersonKind(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
 	int    SLAPI Fetch(PPID id, PPPersonKind * pRec);
@@ -17555,10 +17553,7 @@ public:
 #define OPCNTF_DIFFBYLOC   0x00000002L // Счетчики, рездельные по складам
 
 struct PPOpCounter2 {      // @persistent @store(Reference2Tbl+)
-	SLAPI  PPOpCounter2()
-	{
-		THISZERO();
-	}
+	SLAPI  PPOpCounter2();
 	long   Tag;            // Const=PPOBJ_OPCOUNTER
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -19374,6 +19369,7 @@ public:
 };
 
 struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
+	SLAPI  PPCashNode2();
 	//
 	// Descr: Варианты специализации кассового узла
 	//
@@ -19844,7 +19840,7 @@ public:
 	//
 	int    SLAPI TestPrintCheck(CCheckPacket * pPack);
 protected:
-	SLAPI  PPCashMachine(PPID cashID);
+	explicit SLAPI PPCashMachine(PPID cashID);
 	int    SLAPI GetNode();
 	int    SLAPI UpdateNode(int use_ta);
 
@@ -19981,10 +19977,7 @@ int SLAPI GetBnkTerm(PPID bnkTermID, uint logNum, const char * pPort, const char
 // Descr: Принтеры, привязанные к складам
 //
 struct PPLocPrinter2 {     // @persistent @store(Reference2Tbl+)
-	SLAPI  PPLocPrinter2()
-	{
-		THISZERO();
-	}
+	SLAPI  PPLocPrinter2();
 	enum {
 		fHasKitchenBell = 0x0001 // Принтер имеет кухонных звонок. При печати на этот принтер следует отправлять сигнал для подачи звонка.
 	};
@@ -20001,7 +19994,7 @@ struct PPLocPrinter2 {     // @persistent @store(Reference2Tbl+)
 
 class PPObjLocPrinter : public PPObjReference {
 public:
-	SLAPI  PPObjLocPrinter(void * extraPtr = 0);
+	explicit SLAPI PPObjLocPrinter(void * extraPtr = 0);
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI Browse(void * extraPtr);
 	int    SLAPI GetPacket(PPID id, PPLocPrinter * pPack);
@@ -20747,8 +20740,7 @@ protected:
 	//   0  - кассовая машина не готова принять данные (ExportData() не вызывается)
 	//   <0 - функция не поддерживается данной реализацией (ExportData() вызывается)
 	//
-	virtual int SLAPI IsReadyForExport();
-		// @<<PPAsyncCashSession::OpenSession
+	virtual int SLAPI IsReadyForExport(); // @<<PPAsyncCashSession::OpenSession
 	virtual int SLAPI SetGoodsRestLoadFlag(int updOnly);
 	int    SLAPI CreateTables();
 	void   SLAPI DestroyTables();
@@ -27577,20 +27569,18 @@ struct RetailExtrItem { // @transient
 	double BasePrice;            // Цена реализации без учета розничных котировок.
 	double ExtPrice;             // Цена по котировки RetailPriceExtractor::ExtQuotKindID
 	LDATE  CurLotDate;           //
-	LDATE  Expiry;
+	LDATE  Expiry;               //
 	LDATETIME ManufDtm;          // Дата/время производства товара (извлекается из лота по зарезервированному т'гу PPTAG_LOT_MANUFTIME)
 	PPID   QuotKindUsedForPrice; // Вид котировки, использованный для формирования значения Price.
 		// Если цена сформирована по последнему лоту, либо вообще не определена, то 0.
-	PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock,
-		// примененный для формиования ExtPrice.
+	PPID   QuotKindUsedForExtPrice; // Вид котировки из блока RetailPriceExtractor::ExtQuotBlock, примененный для формиования ExtPrice.
 	long   Flags;
 	double OuterPrice;    // IN Цена, заданная вызывающей функцией. Имеет силу если RetailPriceExtractor::GetPrice
 		// вызывается с флагом RTLPF_USEOUTERPRICE
 	RealRange AllowedPriceR; // @v10.6.4 OUT Допустимый диапазон цен, рассчитанный на основании ограничений товарных величин.
 	RAssocArray QuotList; // IN Список дополнительных котировок.
 		// Вызывающая функция заполняет поля Key идентификаторами видов котировок.
-		// AsyncCashGoodsIterator инициализирует поля Val массива соответствующими
-		// эффективными значениями котировок.
+		// AsyncCashGoodsIterator инициализирует поля Val массива соответствующими эффективными значениями котировок.
 };
 
 class RetailPriceExtractor {
@@ -34574,10 +34564,7 @@ private:
 #define DWOF_SETMANUFDATE  0x0004L // @v10.5.12 При формировании компенсации дефицита устанавливать в лотах дату производства
 
 struct PPDraftWrOff2 {           // @persistent @store(Reference2Tbl+)
-	PPDraftWrOff2()
-	{
-		THISZERO();
-	}
+	SLAPI  PPDraftWrOff2();
 	void   SLAPI SetLotManufTimeParam(const PUGL::SetLotManufTimeParam * pS);
 	void   SLAPI GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) const;
 
@@ -34615,7 +34602,7 @@ struct PPDraftWrOffPacket {
 
 class PPObjDraftWrOff : public PPObjReference {
 public:
-	SLAPI  PPObjDraftWrOff(void * extraPtr = 0);
+	explicit SLAPI  PPObjDraftWrOff(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
 	int    SLAPI PutPacket(PPID * pID, PPDraftWrOffPacket *, int use_ta);
@@ -35268,7 +35255,7 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 #define TSESRT_MODLINE       0x0200 // Изменение строк сессий
 #define TSESRT_DELLINE       0x0400 // Удаление строк сессий
 #define TSESRT_MODPRICE      0x0800 // Изменение цены (скидки) в строке сессии
-#define TSESRT_CLOSEWOCC     0x1000 // @v7.6.2 Закрытие тех сессии без кассового чека
+#define TSESRT_CLOSEWOCC     0x1000 // Закрытие тех сессии без кассового чека
 //
 // Descr: Запись BHT-терминала, для учета операций по техн сессиям
 //   Используется функцией PPObjTSession::ProcessBhtRec
@@ -39016,12 +39003,11 @@ struct GoodsRestViewItem { // @transient
 	PPID   GoodsID;
 	PPID   GoodsGrpID;
 	PPID   LocID;
-	PPID   LotID;          // @v8.1.1
-	// @v8.1.3 const  char * P_GoodsGrpName; // @OWNED_BY PPViewGoodsRest instance
+	PPID   LotID;          //
 	char   GoodsName[128]; //
-	char   GoodsGrpName[128]; // @v8.1.3
+	char   GoodsGrpName[128]; //
 	char   UnitName[48];   // Наименование единицы измерения // @v7.2.6 [32]-->[48]
-	char   Serial[24];     // @v8.1.0
+	char   Serial[24];     // 
 	int16  IsPredictTrust; // Прогноз продаж удовлетворяет требованиям надежности
 	int16  Reserve;        // @alignment
 	double Rest;           //
@@ -39033,8 +39019,8 @@ struct GoodsRestViewItem { // @transient
 	double Price;          //
 	double SumCost;        //
 	double SumPrice;       //
-	double SumCVat;        // @v8.3.4 Сумма НДС в ценах поступления
-	double SumPVat;        // @v8.3.4 Сумма НДС в ценах реализации
+	double SumCVat;        // Сумма НДС в ценах поступления
+	double SumPVat;        // Сумма НДС в ценах реализации
 	double PctAddedVal;    // Средняя наценка на позицию
 	double Predict;        // Прогноз продаж
 	double RestInDays;     // Остаток товаров в днях
@@ -39043,7 +39029,7 @@ struct GoodsRestViewItem { // @transient
 	double SStatSales;     // Среднедневные продажи из статистики продаж
 	double DraftRcpt;      //
 	long   SubstAsscCount; //
-	LDATE  LastSellDate;   // @v8.7.3
+	LDATE  LastSellDate;   // 
 	LDATE  Expiry;         // @v9.7.11
 };
 //
@@ -39622,8 +39608,7 @@ struct PriceListConfig {       // @persistent @store(PropertyTbl)
 	PPID   Prop;               // Const=PPPRP_PLISTCFG
 	long   Flags;              // PLISTF_XXX
 	PPID   AddPriceQuot[6];    // Used only first 3
-	PPID   ExtFldMemoSubst;    // Дополнительное поле товара,
-		// которое следует подставлять вместо примечания к строке (GDSEXSTR_XXX)
+	PPID   ExtFldMemoSubst;    // Дополнительное поле товара, которое следует подставлять вместо примечания к строке (GDSEXSTR_XXX)
 	long   Reserve1[8];        // @reserve
 	PPID   GoodsGrpID;         //
 	PPID   LocID;              //
@@ -39807,8 +39792,7 @@ public:
 
 	enum {
 		fDebtOnly       = 0x0001, // Только по документам с ненулевым долгом
-		fPrintExt       = 0x0002, // Печатать долговые документы с каждым клиентом
-			// Учитывать только те оплаты, которые сделаны за период Period
+		fPrintExt       = 0x0002, // Печатать долговые документы с каждым клиентом. Учитывать только те оплаты, которые сделаны за период Period
 		fNoForwardPaym  = 0x0004, //
 		fLabelOnly      = 0x0008, // Только по WL-документам
 		fByReckoning    = 0x0010, //
@@ -39820,7 +39804,7 @@ public:
 		fCalcTotalDebt  = 0x0400, // Рассчитывать значение общего долга до конца
 			// периода оплаты (независимо от периода отгрузки и периода срока оплаты)
 			// Этот флаг несколько увеличивает время обработки
-		fSkipPassive    = 0x0800, // @v7.0.1 Пропускать пассивные аналитические статьи
+		fSkipPassive    = 0x0800, // Пропускать пассивные аналитические статьи
 		fShowExpiryDebt = 0x1000  // @v9.2.3 Показывать сумму просроченного долга
 	};
 	//
@@ -40031,12 +40015,8 @@ private:
 		uint   IterN;    // Номер итерации
 		IterCounter Cntr; // Счетчик для вывода хода выполнения процесса
 		SString IterMsgPrefix; // Префекс текста сообщения о ходе выполнения процесса
-		//
 		PPID   ReckonOpID;
 		PPID   ReckonAccSheetID; // == PPOprKind(ReckonOpID).AccSheetID
-		//
-		//
-		//
 		BExtQuery * P_Q;
 		//
 		// Step specific data {
@@ -40115,7 +40095,7 @@ struct PPDebtorStat {
 		fAgent   = 0x0001, // Запись относится к агенту (агрегат)
 		fHolding = 0x0002  // Запись относится к холдингу (агрегат)
 	};
-	SLAPI  PPDebtorStat(PPID arID);
+	explicit SLAPI PPDebtorStat(PPID arID);
 	int    SLAPI AddPayment(PPID debtDimID, LDATE dt, double amount);
 	int    SLAPI Finish();
 	int    SLAPI IsAggregate() const;
@@ -49095,6 +49075,8 @@ protected:
 	PPObject * P_Obj;
 	void * ExtraPtr;
 	int    Rt;                 // Access rights flags (PPR_XXX)
+private:
+	int    RemoveAll();
 };
 //
 // Диалог для просмотра объектов унаследованных от PPObjReference с возможностью отправки данных charry

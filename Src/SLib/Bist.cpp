@@ -22,7 +22,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_INT; }
-	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual void   SLAPI tobase(const void *, void *) const;
 	virtual int    SLAPI baseto(void *, const void *) const;
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -38,7 +38,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_INT64_; }
-	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual void   SLAPI tobase(const void *, void *) const;
 	virtual int    SLAPI baseto(void *, const void *) const;
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -52,7 +52,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_BOOL; }
-	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual void   SLAPI tobase(const void *, void *) const;
 	virtual int    SLAPI baseto(void *, const void *) const;
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -66,7 +66,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_INT; }
-	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual void   SLAPI tobase(const void *, void *) const;
 	virtual int    SLAPI baseto(void *, const void *) const;
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -80,7 +80,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_REAL; }
-	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual void   SLAPI tobase(const void *, void *) const;
 	virtual int    SLAPI baseto(void *, const void *) const;
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -95,7 +95,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_REAL; }
-	virtual int    SLAPI tobase(const void *, void *) const;
+	virtual void   SLAPI tobase(const void *, void *) const;
 	virtual int    SLAPI baseto(void *, const void *) const;
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -113,7 +113,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_DATE; }
-	virtual int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
+	virtual void   SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); }
 	virtual int    SLAPI baseto(void * s, const void * b) const{ memmove(s, b, size()); return 1; }
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -127,7 +127,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_TIME; }
-	virtual int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
+	virtual void   SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); }
 	virtual int    SLAPI baseto(void * s, const void * b) const { memmove(s, b, size()); return 1; }
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -141,7 +141,7 @@ public:
 	virtual char * SLAPI tostr(const void *, long, char *) const;
 	virtual int    SLAPI fromstr(void *, long, const char *) const;
 	virtual int    SLAPI base() const { return BTS_DATETIME; }
-	virtual int    SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); return 1; }
+	virtual void   SLAPI tobase(const void * s, void * b) const { memmove(b, s, size()); }
 	virtual int    SLAPI baseto(void * s, const void * b) const{ memmove(s, b, size()); return 1; }
 	virtual void   SLAPI minval(void *) const;
 	virtual void   SLAPI maxval(void *) const;
@@ -155,7 +155,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
+	void   SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -168,7 +168,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
+	void   SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -187,7 +187,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
+	void   SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -200,7 +200,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const { return BTS_STRING; }
-	int    SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); return 1; }
+	void   SLAPI tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    SLAPI baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -218,7 +218,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const;
-	int    SLAPI tobase(const void * s, void * b) const;
+	void   SLAPI tobase(const void * s, void * b) const;
 	int    SLAPI baseto(void * s, const void * b) const;
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -231,7 +231,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const;
-	int    SLAPI tobase(const void * s, void * b) const;
+	void   SLAPI tobase(const void * s, void * b) const;
 	int    SLAPI baseto(void * s, const void * b) const;
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -245,7 +245,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const;
-	int    SLAPI tobase(const void * s, void * b) const;
+	void   SLAPI tobase(const void * s, void * b) const;
 	int    SLAPI baseto(void * s, const void * b) const;
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -259,7 +259,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const;
-	int    SLAPI tobase(const void * s, void * b) const;
+	void   SLAPI tobase(const void * s, void * b) const;
 	int    SLAPI baseto(void * s, const void * b) const;
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -583,9 +583,9 @@ int SLAPI SInt::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-int SLAPI SInt::tobase(const void * d, void * baseData) const
+void SLAPI SInt::tobase(const void * d, void * baseData) const
 {
-	return ((*static_cast<int32 *>(baseData) = static_cast<int32>(_tolong(d, S))), 1);
+	*static_cast<int32 *>(baseData) = static_cast<int32>(_tolong(d, S));
 }
 
 int SLAPI SInt::baseto(void * d, const void * baseData) const
@@ -749,7 +749,7 @@ int SLAPI SInt64::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-int  SLAPI SInt64::tobase(const void * d, void * baseData) const { return ((*static_cast<int64 *>(baseData) = _tolong(d, S)), 1); }
+void SLAPI SInt64::tobase(const void * d, void * baseData) const { *static_cast<int64 *>(baseData) = _tolong(d, S); }
 int  SLAPI SInt64::baseto(void * d, const void * baseData) const { return (_longto(*static_cast<const int64 *>(baseData), d, S), 1); }
 void SLAPI SInt64::minval(void * d) const { *static_cast<int64 *>(d) = LLONG_MIN; }
 void SLAPI SInt64::maxval(void * d) const { *static_cast<int64 *>(d) = LLONG_MAX; }
@@ -856,9 +856,9 @@ int SLAPI SBool::fromstr(void * d, long fmt, const char * buf) const
 	return ok;
 }
 
-int SLAPI SBool::tobase(const void * pData, void * pBaseData) const
+void SLAPI SBool::tobase(const void * pData, void * pBaseData) const
 {
-	return ((*static_cast<int32 *>(pBaseData) = static_cast<int32>(_tolong(pData, S))), 1);
+	*static_cast<int32 *>(pBaseData) = static_cast<int32>(_tolong(pData, S));
 }
 
 int SLAPI SBool::baseto(void * pData, const void * pBaseData) const
@@ -988,8 +988,8 @@ int SLAPI SUInt::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-int SLAPI SUInt::tobase(const void * d, void * baseData) const { return ((*(long *)baseData = (long)_toulong(d, S)), 1); }
-int SLAPI SUInt::baseto(void * d, const void * baseData) const { return (_ulongto((ulong)*(long *)baseData, d, S), 1); }
+void SLAPI SUInt::tobase(const void * d, void * baseData) const { *static_cast<long *>(baseData) = static_cast<long>(_toulong(d, S)); }
+int  SLAPI SUInt::baseto(void * d, const void * baseData) const { return (_ulongto((ulong)*(long *)baseData, d, S), 1); }
 void SLAPI SUInt::minval(void * d) const { _ulongto(0L, d, S); }
 
 void SLAPI SUInt::maxval(void * d) const
@@ -1159,10 +1159,8 @@ int SLAPI SFloat::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-int SLAPI SFloat::tobase(const void * d, void * baseData) const
-	{ return ((*(double *)baseData = __toldbl(d, S)), 1); }
-int SLAPI SFloat::baseto(void * d, const void * baseData) const
-	{ return (__ldblto(*(double *)baseData, d, S), 1); }
+void SLAPI SFloat::tobase(const void * d, void * baseData) const { *static_cast<double *>(baseData) = __toldbl(d, S); }
+int  SLAPI SFloat::baseto(void * d, const void * baseData) const { return (__ldblto(*static_cast<const double *>(baseData), d, S), 1); }
 
 //static const double min_dbl = MINDOUBLE;
 //static const float min_flt = MINFLOAT;
@@ -1319,9 +1317,9 @@ int SLAPI SDecimal::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-int SLAPI SDecimal::tobase(const void * d, void * baseData) const
+void SLAPI SDecimal::tobase(const void * d, void * baseData) const
 {
-	return ((*static_cast<double *>(baseData) = dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8))), 1);
+	*static_cast<double *>(baseData) = dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8));
 }
 
 int SLAPI SDecimal::baseto(void * d, const void * baseData) const
@@ -1617,12 +1615,9 @@ int SLAPI SRaw::fromstr(void * pData, long, const char * pStr) const
 	return temp_buf.DecodeMime64(pData, S, &real_len);
 }
 
-int SLAPI SRaw::base() const
-	{ return BTS_STRING; }
-int SLAPI SRaw::tobase(const void * s, void * b) const
-	{ tostr(s, 0L, static_cast<char *>(b)); return 1; }
-int SLAPI SRaw::baseto(void * s, const void * b) const
-	{ fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
+int  SLAPI SRaw::base() const { return BTS_STRING; }
+void SLAPI SRaw::tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
+int  SLAPI SRaw::baseto(void * s, const void * b) const  { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 
 void SLAPI SRaw::minval(void * pData) const
 {
@@ -1676,12 +1671,11 @@ int SLAPI SIPoint2::base() const
 	return BTS_POINT2;
 }
 
-int SLAPI SIPoint2::tobase(const void * s, void * b) const
+void SLAPI SIPoint2::tobase(const void * s, void * b) const
 {
 	RPoint * p_rp = static_cast<RPoint *>(b);
 	p_rp->x = static_cast<const TPoint *>(s)->x;
 	p_rp->y = static_cast<const TPoint *>(s)->y;
-	return 1;
 }
 
 int SLAPI SIPoint2::baseto(void * s, const void * b) const
@@ -1776,12 +1770,11 @@ int SLAPI SFPoint2::base() const
 	return BTS_POINT2;
 }
 
-int SLAPI SFPoint2::tobase(const void * pData, void * pBase) const
+void SLAPI SFPoint2::tobase(const void * pData, void * pBase) const
 {
 	RPoint * p_rp = static_cast<RPoint *>(pBase);
 	p_rp->x = static_cast<const FPoint *>(pData)->X;
 	p_rp->y = static_cast<const FPoint *>(pData)->Y;
-	return 1;
 }
 
 int SLAPI SFPoint2::baseto(void * pData, const void * pBase) const
@@ -1851,7 +1844,7 @@ char * SLAPI SGuid::tostr(const void * pData, long f, char * pBuf) const
 
 int  SLAPI SGuid::fromstr(void * pData, long f, const char * pStr) const { return static_cast<S_GUID *>(pData)->FromStr(pStr); }
 int  SLAPI SGuid::base() const { return BTS_STRING; }
-int  SLAPI SGuid::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); return 1; }
+void SLAPI SGuid::tobase(const void * pData, void * pBase) const { tostr(pData, 0L, static_cast<char *>(pBase)); }
 int  SLAPI SGuid::baseto(void * pData, const void * pBase) const { fromstr(pData, 0L, static_cast<const char *>(pBase)); return 1; }
 void SLAPI SGuid::minval(void * pData) const { memzero(pData, sizeof(S_GUID)); }
 void SLAPI SGuid::maxval(void * pData) const { memset(pData, 0xff, sizeof(S_GUID)); }

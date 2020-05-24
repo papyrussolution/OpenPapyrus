@@ -40,8 +40,8 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter);
 /*
  * Document
  */
-XMLPUBFUN int XMLCALL xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, const char * encoding, const char * standalone);
-XMLPUBFUN int XMLCALL xmlTextWriterEndDocument(xmlTextWriter * writer);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, const char * encoding, const char * standalone);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterEndDocument(xmlTextWriter * writer);
 /*
  * Comments
  */
@@ -183,11 +183,15 @@ XMLPUBFUN int XMLCALL xmlTextWriterWriteDTDNotation(xmlTextWriter * writer, cons
  */
 XMLPUBFUN int XMLCALL xmlTextWriterSetIndent(xmlTextWriter * writer, int indent);
 XMLPUBFUN int XMLCALL xmlTextWriterSetIndentString(xmlTextWriter * writer, const xmlChar * str);
+//
+// Descr: equivalent to xmlTextWriterSetIndentString(writer, "\t");
+//
+XMLPUBFUN int FASTCALL xmlTextWriterSetIndentTab(xmlTextWriter * writer); // @sobolev
 XMLPUBFUN int XMLCALL xmlTextWriterSetQuoteChar(xmlTextWriter * writer, xmlChar quotechar);
 /*
  * misc
  */
-XMLPUBFUN int XMLCALL xmlTextWriterFlush(xmlTextWriter * writer);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterFlush(xmlTextWriter * writer);
 
 #ifdef __cplusplus
 }

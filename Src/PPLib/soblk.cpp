@@ -1283,7 +1283,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 // Локальная структура описания селектора интернет-магазина Universe-HTT
 //
 struct LocalSelectorDescr {
-	LocalSelectorDescr() : ID(0), Attr(0), Clsf(0), Type(0)
+	LocalSelectorDescr() : ID(0), Attr(0), Clsf(0), Type(0), TagID(0)
 	{
 	}
 	explicit LocalSelectorDescr(const StrAssocArray::Item & rSi) : ID(rSi.Id), Attr(0), Clsf(0), Type(0), Title(rSi.Txt)
@@ -1324,8 +1324,10 @@ struct LocalSelectorDescr {
 					Crit = "TAGVALUE";
 					PPObjTag tag_obj;
 					PPObjectTag tag_rec;
-					if(rSdEntry.TagID && tag_obj.Fetch(rSdEntry.TagID, &tag_rec) > 0)
+					if(rSdEntry.TagID && tag_obj.Fetch(rSdEntry.TagID, &tag_rec) > 0) {
+						TagID = tag_rec.ID; // @v10.7.9
 						Crit.Dot().Cat(tag_rec.Symb);
+					}
 					Part = "text";
 				}
 				break;
@@ -1359,7 +1361,7 @@ struct LocalSelectorDescr {
 				//
 				json_insert_child(p_jsel_val_ary, p_jsel_val);
 			}
-			if(parent_id_list.getCount() && Attr == PPUhttStoreSelDescr::attrTag && Crit.Divide('.', o_buf, txt_buf) > 0) {
+			/* @v10.7.9 if(parent_id_list.getCount() && Attr == PPUhttStoreSelDescr::attrTag && Crit.Divide('.', o_buf, txt_buf) > 0) {
 				PPID tag_id = 0;
 				PPObjTag tag_obj;
 				PPObjectTag tag_rec;
@@ -1386,7 +1388,7 @@ struct LocalSelectorDescr {
 						}
 					}
 				}
-			}
+			}*/
 		}
 		p_jsel->Insert("Values", p_jsel_val_ary);
 		//json_insert_child(p_jsel_ary, p_jsel);
@@ -1396,6 +1398,7 @@ struct LocalSelectorDescr {
 	int    Attr;
 	int    Clsf;
 	int    Type;
+	PPID   TagID;
 	SString Title;
 	SString Crit;
 	SString Subcrit;
@@ -1659,12 +1662,10 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					json_t * p_jhdr = new json_t(json_t::tOBJECT);
 					json_t * p_jsel_ary = new json_t(json_t::tARRAY);
 					json_t * p_jitem_list = new json_t(json_t::tARRAY);
-					//
 					p_jpack->Insert("Header", p_jhdr);
 					p_jhdr->Insert("Class", json_new_string(temp_buf.Z().Cat(0L)));
 					p_jhdr->Insert("Selectors", p_jsel_ary);
 					p_jpack->Insert("Items", p_jitem_list);
-					//
 					if(Separate == 1) {
 						uint pos = 0;
 						PPViewTSession::UhttStoreExt iter_ext;
@@ -1690,10 +1691,8 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						}
 						for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
 							const LocalSelectorDescr * p_sdescr = sdescr_list.at(i);
-							if(p_sdescr) {
-								json_t * p_jsel = p_sdescr->CreateJSON();
-								json_insert_child(p_jsel_ary, p_jsel);
-							}
+							if(p_sdescr)
+								json_insert_child(p_jsel_ary, p_sdescr->CreateJSON());
 						}
 					}
 					else {
@@ -1807,6 +1806,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	int    use_filt = 1;
 	SString temp_buf, o_buf, txt_buf;
 	Goods2Tbl::Rec goods_rec;
@@ -1849,7 +1849,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 		UintHashTable id_list;
 		for(uint i = 0; i < TagExistList.getCount(); i++) {
 			PPID   tag_id = TagExistList.get(i);
-			PPRef->Ot.GetObjectList(PPOBJ_GOODS, tag_id, id_list);
+			p_ref->Ot.GetObjectList(PPOBJ_GOODS, tag_id, id_list);
 		}
 		for(ulong lp = 0; id_list.Enum(&lp);) {
 			if(GObj.Fetch((long)lp, &goods_rec) > 0) {
@@ -1913,8 +1913,12 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 									if(p_sdescr) {
 										pos = 0;
 										StrAssocArray::Item _item = iter_ext.SfList.Get(i);
-										if(_item.Id || _item.Txt) {
-											if(p_sdescr->Values.SearchByText(_item.Txt, 1, &pos) == 0)
+										if(_item.Id) {
+											if(!p_sdescr->Values.Search(_item.Id, &pos))
+												p_sdescr->Values.AddFast(_item.Id, _item.ParentId, _item.Txt);
+										}
+										else if(!isempty(_item.Txt)) {
+											if(!p_sdescr->Values.SearchByText(_item.Txt, 1, &pos))
 												p_sdescr->Values.AddFast(_item.Id, _item.ParentId, _item.Txt);
 										}
 									}
@@ -1922,11 +1926,43 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 								}
 							}
 						}
-						for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
-							const LocalSelectorDescr * p_sdescr = sdescr_list.at(i);
-							if(p_sdescr) {
-								json_t * p_jsel = p_sdescr->CreateJSON();
-								json_insert_child(p_jsel_ary, p_jsel);
+						// @v10.7.9 {
+						{
+							PPObjTag tag_obj;
+							for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
+								LocalSelectorDescr * p_sdescr = sdescr_list.at(i);
+								if(p_sdescr && p_sdescr->Attr == PPUhttStoreSelDescr::attrTag && p_sdescr->TagID) {
+									PPObjectTag tag_rec;
+									if(tag_obj.Fetch(p_sdescr->TagID, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_ENUM && tag_rec.TagEnumID) {
+										const uint vc = p_sdescr->Values.getCount();
+										for(uint vi = 0; vi < vc; vi++) {
+											for(PPID par_id = p_sdescr->Values.Get(vi).ParentId; par_id;) {
+												uint vpos = 0;
+												if(p_sdescr->Values.Search(par_id, &vpos)) {
+													par_id = p_sdescr->Values.Get(vpos).ParentId;
+												}
+												else {
+													ReferenceTbl::Rec en_rec;
+													if(p_ref->GetItem(tag_rec.TagEnumID, par_id, &en_rec) > 0) {
+														p_sdescr->Values.AddFast(par_id, en_rec.Val2, en_rec.ObjName);
+														par_id = en_rec.Val2;
+													}
+													else
+														par_id = 0;
+												}
+											}
+										}
+										p_sdescr->Values.SortByTextInTreeOrder();
+									}
+								}
+							}
+						}
+						// } @v10.7.9 
+						{
+							for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
+								const LocalSelectorDescr * p_sdescr = sdescr_list.at(i);
+								if(p_sdescr)
+									json_insert_child(p_jsel_ary, p_sdescr->CreateJSON());
 							}
 						}
 					}
@@ -1934,7 +1970,6 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 						GoodsIterator::Ext iter_ext;
 						while(iter.Next(&goods_rec, &iter_ext) > 0) {
 							json_t * p_jitem = new json_t(json_t::tOBJECT);
-							//
 							p_jitem->Insert("ID", json_new_string(temp_buf.Z().Cat(goods_rec.ID)));
 							p_jitem->Insert("Name", json_new_string((temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 							p_jitem->Insert("CurID", json_new_string(temp_buf.Z().Cat(iter_ext.CurID)));
@@ -1942,7 +1977,6 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 							p_jitem->Insert("Rest", json_new_string(temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD(0, 3, 0))));
 							p_jitem->Insert("PriceDt", json_new_string(temp_buf.Z().Cat(iter_ext.PriceDtm.d, DATF_DMY).Escape()));
 							p_jitem->Insert("PriceTm", json_new_string(temp_buf.Z().Cat(iter_ext.PriceDtm.t, TIMF_HM).Escape()));
-							//
 							json_insert_child(p_jitem_list, p_jitem);
 						}
 					}

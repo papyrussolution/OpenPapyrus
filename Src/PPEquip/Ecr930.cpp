@@ -188,7 +188,7 @@ int SLAPI ACS_ECR930::ExportData(int)
 		int intg = 0;
 		DbfRecord    dbfr(p_out_tbl);
 		dbfr.empty();
-		dbfr.put( 1, atof(info.BarCode));
+		dbfr.put( 1, satof(info.BarCode)); // @v10.7.9 atof-->satof
 		dbfr.put( 2, info.Name);
 		dbfr.put( 3, (info.Price * info.UnitPerPack));
 		dbfr.put( 7, intg);    // Штучный товар

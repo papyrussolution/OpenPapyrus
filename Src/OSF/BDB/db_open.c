@@ -312,13 +312,13 @@ int __db_chk_meta(ENV * env, DB * dbp, DBMETA * meta, uint32 flags)
 		if(dbp)
 			F_SET(dbp, DB_AM_CHKSUM);
 		is_hmac = (meta->encrypt_alg == 0) ? 0 : 1;
-		chksum = ((BTMETA *)meta)->chksum;
+		chksum = reinterpret_cast<BTMETA *>(meta)->chksum;
 		// 
 		// If we need to swap, the checksum function overwrites the
 		// original checksum with 0, so we need to save a copy of the
 		// original for swapping later.
 		// 
-		orig_chk = *(uint32 *)chksum;
+		orig_chk = *reinterpret_cast<const uint32 *>(chksum);
 		// 
 		// We cannot add this to __db_metaswap because that gets done
 		// later after we've verified the checksum or decrypted.
@@ -326,12 +326,13 @@ int __db_chk_meta(ENV * env, DB * dbp, DBMETA * meta, uint32 flags)
 		if(LF_ISSET(DB_CHK_META)) {
 			swapped = 0;
 chk_retry:
-			if((ret = __db_check_chksum(env, NULL, env->crypto_handle, chksum, meta, DBMETASIZE, is_hmac)) != 0) {
+			ret = __db_check_chksum(env, NULL, env->crypto_handle, chksum, meta, DBMETASIZE, is_hmac);
+			if(ret != 0) {
 				if(is_hmac || swapped)
 					return ret;
 				M_32_SWAP(orig_chk);
 				swapped = 1;
-				*(uint32 *)chksum = orig_chk;
+				*reinterpret_cast<uint32 *>(chksum) = orig_chk;
 				goto chk_retry;
 			}
 		}
@@ -373,29 +374,23 @@ lsn_retry:
 	}
 	return ret;
 }
-/*
- * __db_meta_setup --
- *
- * Take a buffer containing a meta-data page and figure out if it's
- * valid, and if so, initialize the dbp from the meta-data page.
- *
- * PUBLIC: int __db_meta_setup __P((ENV *,
- * PUBLIC:     DB *, const char *, DBMETA *, uint32, uint32));
- */
+// 
+// Descr: Take a buffer containing a meta-data page and figure out if it's
+//   valid, and if so, initialize the dbp from the meta-data page.
+// 
 int __db_meta_setup(ENV * env, DB * dbp, const char * name, DBMETA * meta, uint32 oflags, uint32 flags)
 {
-	uint32 magic;
 	int ret = 0;
-	/*
-	 * Figure out what access method we're dealing with, and then
-	 * call access method specific code to check error conditions
-	 * based on conflicts between the found file and application
-	 * arguments.  A found file overrides some user information --
-	 * we don't consider it an error, for example, if the user set
-	 * an expected byte order and the found file doesn't match it.
-	 */
+	// 
+	// Figure out what access method we're dealing with, and then
+	// call access method specific code to check error conditions
+	// based on conflicts between the found file and application
+	// arguments.  A found file overrides some user information --
+	// we don't consider it an error, for example, if the user set
+	// an expected byte order and the found file doesn't match it.
+	// 
 	F_CLR(dbp, DB_AM_SWAP|DB_AM_IN_RENAME);
-	magic = meta->magic;
+	uint32 magic = meta->magic;
 swap_retry:
 	switch(magic) {
 	    case DB_BTREEMAGIC:
@@ -405,12 +400,11 @@ swap_retry:
 	    case DB_RENAMEMAGIC:
 		break;
 	    case 0:
-		/*
-		 * The only time this should be 0 is if we're in the
-		 * midst of opening a subdb during recovery and that
-		 * subdatabase had its meta-data page allocated, but
-		 * not yet initialized.
-		 */
+		// 
+		// The only time this should be 0 is if we're in the
+		// midst of opening a subdb during recovery and that
+		// subdatabase had its meta-data page allocated, but not yet initialized.
+		// 
 		if(F_ISSET(dbp, DB_AM_SUBDB) && ((IS_RECOVERING(env) &&  F_ISSET(env->lg_handle, DBLOG_FORCE_OPEN)) || meta->pgno != PGNO_INVALID))
 			return ENOENT;
 		goto bad_format;
@@ -421,13 +415,13 @@ swap_retry:
 		F_SET(dbp, DB_AM_SWAP);
 		goto swap_retry;
 	}
-	/*
-	 * We can only check the meta page if we are sure we have a meta page.
-	 * If it is random data, then this check can fail.  So only now can we
-	 * checksum and decrypt.  Don't distinguish between configuration and
-	 * checksum match errors here, because we haven't opened the database
-	 * and even a checksum error isn't a reason to panic the environment.
-	 */
+	// 
+	// We can only check the meta page if we are sure we have a meta page.
+	// If it is random data, then this check can fail.  So only now can we
+	// checksum and decrypt.  Don't distinguish between configuration and
+	// checksum match errors here, because we haven't opened the database
+	// and even a checksum error isn't a reason to panic the environment.
+	// 
 	if((ret = __db_chk_meta(env, dbp, meta, flags)) != 0) {
 		if(ret == -1)
 			__db_errx(env, DB_STR_A("0640", "%s: metadata page checksum error", "%s"), name);
@@ -435,46 +429,46 @@ swap_retry:
 	}
 	switch(magic) {
 	    case DB_BTREEMAGIC:
-		if(dbp->type != DB_UNKNOWN && dbp->type != DB_RECNO && dbp->type != DB_BTREE)
-			goto bad_format;
-		flags = meta->flags;
-		if(F_ISSET(dbp, DB_AM_SWAP))
-			M_32_SWAP(flags);
-		if(LF_ISSET(BTM_RECNO))
-			dbp->type = DB_RECNO;
-		else
-			dbp->type = DB_BTREE;
-		if((oflags&DB_TRUNCATE) == 0 && (ret = __bam_metachk(dbp, name, (BTMETA *)meta)) != 0)
-			return ret;
-		break;
+			if(dbp->type != DB_UNKNOWN && dbp->type != DB_RECNO && dbp->type != DB_BTREE)
+				goto bad_format;
+			flags = meta->flags;
+			if(F_ISSET(dbp, DB_AM_SWAP))
+				M_32_SWAP(flags);
+			if(LF_ISSET(BTM_RECNO))
+				dbp->type = DB_RECNO;
+			else
+				dbp->type = DB_BTREE;
+			if((oflags&DB_TRUNCATE) == 0 && (ret = __bam_metachk(dbp, name, (BTMETA *)meta)) != 0)
+				return ret;
+			break;
 	    case DB_HASHMAGIC:
-		if(dbp->type != DB_UNKNOWN && dbp->type != DB_HASH)
-			goto bad_format;
-		dbp->type = DB_HASH;
-		if((oflags&DB_TRUNCATE) == 0 && (ret = __ham_metachk(dbp, name, (HMETA *)meta)) != 0)
-			return ret;
-		break;
+			if(dbp->type != DB_UNKNOWN && dbp->type != DB_HASH)
+				goto bad_format;
+			dbp->type = DB_HASH;
+			if((oflags&DB_TRUNCATE) == 0 && (ret = __ham_metachk(dbp, name, (HMETA *)meta)) != 0)
+				return ret;
+			break;
 	    case DB_HEAPMAGIC:
-		if(dbp->type != DB_UNKNOWN && dbp->type != DB_HEAP)
-			goto bad_format;
-		dbp->type = DB_HEAP;
-		if((oflags&DB_TRUNCATE) == 0 && (ret = __heap_metachk(dbp, name, (HEAPMETA *)meta)) != 0)
-			return ret;
-		break;
+			if(dbp->type != DB_UNKNOWN && dbp->type != DB_HEAP)
+				goto bad_format;
+			dbp->type = DB_HEAP;
+			if((oflags&DB_TRUNCATE) == 0 && (ret = __heap_metachk(dbp, name, (HEAPMETA *)meta)) != 0)
+				return ret;
+			break;
 	    case DB_QAMMAGIC:
-		if(dbp->type != DB_UNKNOWN && dbp->type != DB_QUEUE)
-			goto bad_format;
-		dbp->type = DB_QUEUE;
-		if((oflags&DB_TRUNCATE) == 0 && (ret = __qam_metachk(dbp, name, (QMETA *)meta)) != 0)
-			return ret;
-		break;
+			if(dbp->type != DB_UNKNOWN && dbp->type != DB_QUEUE)
+				goto bad_format;
+			dbp->type = DB_QUEUE;
+			if((oflags&DB_TRUNCATE) == 0 && (ret = __qam_metachk(dbp, name, (QMETA *)meta)) != 0)
+				return ret;
+			break;
 	    case DB_RENAMEMAGIC:
-		F_SET(dbp, DB_AM_IN_RENAME);
-		/* Copy the file's ID. */
-		memcpy(dbp->fileid, reinterpret_cast<const DBMETA *>(meta)->uid, DB_FILE_ID_LEN);
-		break;
+			F_SET(dbp, DB_AM_IN_RENAME);
+			// Copy the file's ID. 
+			memcpy(dbp->fileid, reinterpret_cast<const DBMETA *>(meta)->uid, DB_FILE_ID_LEN);
+			break;
 	    default:
-		goto bad_format;
+			goto bad_format;
 	}
 	if(FLD_ISSET(meta->metaflags, DBMETA_PART_RANGE|DBMETA_PART_CALLBACK))
 		if((ret = __partition_init(dbp, meta->metaflags)) != 0)

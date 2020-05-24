@@ -5,7 +5,6 @@
  *
  * Daniel Veillard <veillard@redhat.com>
  */
-
 /**
  * @todo 
  * - add support for DTD compatibility spec
@@ -201,8 +200,8 @@ struct _xmlRelaxNGParserCtxt {
 	xmlRelaxNGIncludePtr * incTab;  /* array of incs */
 	int idref;              /* requires idref checking */
 	/* used to compile content models */
-	xmlAutomataPtr am;      /* the automata */
-	xmlAutomataStatePtr state; /* used to build the automata */
+	xmlAutomata * am;       // the automata
+	xmlAutomataState * state; // used to build the automata 
 	int crng;               /* compact syntax and other flags */
 	int freedoc;            /* need to free the document */
 };
@@ -850,7 +849,7 @@ static xmlRelaxNGStates * xmlRelaxNGNewStates(xmlRelaxNGValidCtxtPtr ctxt, int s
  */
 static int xmlRelaxNGAddStatesUniq(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates * states, xmlRelaxNGValidStatePtr state)
 {
-	if(state == NULL) {
+	if(!state) {
 		return -1;
 	}
 	else {
@@ -1037,7 +1036,6 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 	ret->nbAttrLeft = ret->nbAttrs;
 	return ret;
 }
-
 /**
  * xmlRelaxNGCopyValidState:
  * @ctxt:  a Relax-NG validation context
@@ -1052,7 +1050,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 	xmlRelaxNGValidStatePtr ret;
 	uint maxAttrs;
 	xmlAttr ** attrs;
-	if(state == NULL)
+	if(!state)
 		return 0;
 	if(ctxt->freeState && (ctxt->freeState->nbState > 0)) {
 		ctxt->freeState->nbState--;
@@ -2262,7 +2260,7 @@ void xmlRelaxNGCleanupTypes()
 // Sometime the element content can be compiled into a pure regexp, This allows a faster execution and streamability at that level
 // 
 /* from automata.c but not exported */
-void xmlAutomataSetFlags(xmlAutomataPtr am, int flags);
+void xmlAutomataSetFlags(xmlAutomata * am, int flags);
 
 static int xmlRelaxNGTryCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDefinePtr def);
 /**
@@ -2405,8 +2403,8 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 	switch(def->type) {
 		case XML_RELAXNG_START:
 		    if((xmlRelaxNGIsCompileable(def) == 1) && (def->depth != -25)) {
-			    xmlAutomataPtr oldam = ctxt->am;
-			    xmlAutomataStatePtr oldstate = ctxt->state;
+			    xmlAutomata * oldam = ctxt->am;
+			    xmlAutomataState * oldstate = ctxt->state;
 			    def->depth = -25;
 			    list = def->content;
 			    ctxt->am = xmlNewAutomata();
@@ -2439,8 +2437,8 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 			    ctxt->state = xmlAutomataNewTransition2(ctxt->am, ctxt->state, NULL, def->name, def->ns, def);
 		    }
 		    if((def->dflags & IS_COMPILABLE) && (def->depth != -25)) {
-			    xmlAutomataPtr oldam = ctxt->am;
-			    xmlAutomataStatePtr oldstate = ctxt->state;
+			    xmlAutomata * oldam = ctxt->am;
+			    xmlAutomataState * oldstate = ctxt->state;
 			    def->depth = -25;
 			    list = def->content;
 			    ctxt->am = xmlNewAutomata();
@@ -2469,11 +2467,11 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 			    ctxt->am = oldam;
 		    }
 		    else {
-			    xmlAutomataPtr oldam = ctxt->am;
-			    /*
-			 * we can't build the content model for this element content
-			 * but it still might be possible to build it for some of its children, recurse.
-			     */
+			    xmlAutomata * oldam = ctxt->am;
+				// 
+				// we can't build the content model for this element content
+				// but it still might be possible to build it for some of its children, recurse.
+				//
 			    ret = xmlRelaxNGTryCompile(ctxt, def);
 			    ctxt->am = oldam;
 		    }
@@ -2483,7 +2481,7 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 		    break;
 		case XML_RELAXNG_OPTIONAL: 
 			{
-				xmlAutomataStatePtr oldstate = ctxt->state;
+				xmlAutomataState * oldstate = ctxt->state;
 				for(list = def->content; list; list = list->next)
 					xmlRelaxNGCompile(ctxt, list); // @recursion
 				xmlAutomataNewEpsilon(ctxt->am, oldstate, ctxt->state);
@@ -2512,8 +2510,8 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 			break;
 		case XML_RELAXNG_CHOICE: 
 			{
-				xmlAutomataStatePtr target = NULL;
-				xmlAutomataStatePtr oldstate = ctxt->state;
+				xmlAutomataState * target = NULL;
+				xmlAutomataState * oldstate = ctxt->state;
 				for(list = def->content; list; list = list->next) {
 					ctxt->state = oldstate;
 					ret = xmlRelaxNGCompile(ctxt, list); // @recursion
@@ -2540,7 +2538,7 @@ static int FASTCALL xmlRelaxNGCompile(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 		    break;
 		case XML_RELAXNG_TEXT: 
 			{
-				xmlAutomataStatePtr oldstate;
+				xmlAutomataState * oldstate;
 				ctxt->state = xmlAutomataNewEpsilon(ctxt->am, ctxt->state, 0);
 				oldstate = ctxt->state;
 				xmlRelaxNGCompile(ctxt, def->content); // @recursion
@@ -6696,7 +6694,7 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
 	 * Validate the attributes part of the content.
 	 */
 	state = xmlRelaxNGNewValidState(ctxt, P_Node);
-	if(state == NULL) {
+	if(!state) {
 		ctxt->pstate = -1;
 		return;
 	}
@@ -6922,7 +6920,7 @@ int xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTR
 	xmlGenericError(0, "FullElem %s\n", elem->name);
 #endif
 	state = xmlRelaxNGNewValidState(ctxt, elem->P_ParentNode);
-	if(state == NULL) {
+	if(!state) {
 		return -1;
 	}
 	state->seq = elem;
@@ -8210,7 +8208,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    ctxt->flags -= FLAGS_MIXED_CONTENT;
 		    }
 		    state = xmlRelaxNGNewValidState(ctxt, P_Node);
-		    if(state == NULL) {
+		    if(!state) {
 			    ret = -1;
 			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
 				    xmlRelaxNGDumpValidError(ctxt);

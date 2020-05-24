@@ -512,7 +512,7 @@ int SLAPI StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIIL
 		p_list = LocObj.MakeList_(&filt);
 	if(p_list && (count = p_list->getCount())) {
 		LocationTbl::Rec loc_rec;
-		MEMSZERO(loc_rec);
+		// @v10.7.9 @ctr MEMSZERO(loc_rec);
 		for(uint i = 0; ok < 0 && i < count; i++ ) {
 			if(LocObj.Fetch(p_list->Get(i).Id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL && (!pName || stricmp866(pName, loc_rec.Name) == 0)) {
 				SBIILocCellRec sbii_lrec;

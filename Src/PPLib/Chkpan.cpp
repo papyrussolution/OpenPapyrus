@@ -1579,7 +1579,7 @@ struct CPosProcessor_SetupDiscontBlock {
 int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 {
 	int    result = 1;
-	CPosProcessor_SetupDiscontBlock & r_blk = *(CPosProcessor_SetupDiscontBlock *)pBlk;
+	CPosProcessor_SetupDiscontBlock & r_blk = *static_cast<CPosProcessor_SetupDiscontBlock *>(pBlk);
 	if(mode == 0 || (mode == 1 && r_blk.P_Scst)) {
 		PPObjBill * p_bobj = BillObj;
 		CCheckItem * p_item;
@@ -1738,15 +1738,7 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 	// ≈сли товар не имеет котировки, то на него распростран€етс€ обща€ скидка.
 	//
 	CPosProcessor_SetupDiscontBlock sdb(roundingDiscount, distributeGiftDiscount);
-	//const  int is_rounding = BIN(roundingDiscount != 0.0);
-	//uint   last_index = 0;
-	//const  int cfg_dsbl_no_dis = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fIgnoreNoDisGoodsTag);
-	//double amount  = 0.0; // Ѕазова€ сумма дл€ расчета общей скидки
-	//RAssocArray gift_dis_list;
-	//LongArray wodis_pos_list;
-	//SCardSpecialTreatment * p_scst = (CSt.GetID() && CSt.SpcCardTreatment) ? SCardSpecialTreatment::CreateInstance(CSt.SpcCardTreatment) : 0; // @v10.1.6
 	sdb.P_Scst = (CSt.GetID() && CSt.SpcCardTreatment) ? SCardSpecialTreatment::CreateInstance(CSt.SpcCardTreatment) : 0; // @v10.1.6
-	//SCardSpecialTreatment::CardBlock scst_cb;
 	if(sdb.P_Scst) {
 		if(SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), CashNodeID, sdb.ScstCb) > 0) {
 			Helper_PreprocessDiscountLoop(1/*mode*/, &sdb); // ѕервый цикл (mode = 1) дл€ запроса к сторонним сервисам
@@ -2400,17 +2392,13 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 			SString org_ext_cctext;
 			epb.Pack.PackTextExt(org_cctext); // @v10.3.9
 			epb.ExtPack.PackTextExt(org_ext_cctext); // @v10.3.9
-			int   dont_accept_ccode_from_printer = 0; // @v9.1.10
-			// @v9.0.11 {
+			int   dont_accept_ccode_from_printer = 0;
 			if(mode == accmRegular) {
 				if(oneof2(EgaisMode, 1, 2)) {
-					// @v9.1.10 {
 					if(EgaisMode == 1) {
 						dont_accept_ccode_from_printer = 1;
 					}
-					// } @v9.1.10
 					if(P_EgPrc) {
-						// @v9.1.0 {
 						//
 						// ѕеред передачей в ≈√ј»— необходимо предварительное проведение чеков
 						// дл€ того, что бы сформировались значени€ номеров чеков.
@@ -2424,7 +2412,6 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 							CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
 							was_turned_before_printing = 1;
 						}
-						// } @v9.1.0
 						{
 							PPEgaisProcessor::Ack eg_ack;
 							PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck before", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
@@ -2435,11 +2422,9 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
                                 epb.Pack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
                             }
 							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 1 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-                            // @v9.1.8 {
                             if(eg_ack.Url.NotEmpty()) {
 								epb.Pack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
                             }
-                            // } @v9.1.8
 							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 2 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
 						}
 						if(epb.Flags & epb.fIsExtPack) {
@@ -2449,16 +2434,13 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 								msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
                                 epb.ExtPack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
                             }
-                            // @v9.1.8 {
                             if(eg_ack.Url.NotEmpty()) {
 								epb.ExtPack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
                             }
-                            // } @v9.1.8
 						}
 					}
 				}
 			}
-			// } @v9.0.11
 			if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
 				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 				CCheckCore::MakeCodeString(&epb.Pack.Rec, before_printing_check_text);
@@ -2469,13 +2451,11 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 				if(!Implement_AcceptCheckOnEquipment(pPl, epb))
 					ok = 0;
 			}
-			// @v9.1.10 {
 			if(dont_accept_ccode_from_printer) {
 				epb.Pack.Rec.Code = org_code;
 				if(epb.Flags & epb.fIsExtPack)
 					epb.ExtPack.Rec.Code = org_ext_code;
 			}
-			// } @v9.1.10
 			// @v9.5.10 {
 			// ѕо непон€тным причинам Viki Print перестал возвращать ненулевой номер чека прежним образом.
 			// ѕока, до решени€ проблемы, будем замещать нулевой номер нашим собственным.
@@ -8171,10 +8151,8 @@ void CheckPaneDialog::OnUpdateList(int goBottom)
 				ss.add(p_item->Serial);
 			ss.add(intfmt(p_item->Division, NMBF_NOZERO, sub));
 			ss.add(intfmt(p_item->Queue, NMBF_NOZERO, sub));
-			// @v9.2.9 {
 			if(do_show_egaismark)
 				ss.add(p_item->EgaisMark);
-			// } @v9.2.9
 			if(!p_list->addItem(i, ss.getBuf())) {
 				Flags |= fSuspSleepTimeout;
 				PPError(PPERR_SLIB, 0);
@@ -8282,9 +8260,7 @@ int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 	int    ok = 1;
 	if(P_CDY) {
 		switch(cmd) {
-			case cdispcmdClear:
-				ok = P_CDY->ClearDisplay();
-				break;
+			case cdispcmdClear: ok = P_CDY->ClearDisplay(); break;
 			case cdispcmdText:
 				if(iVal == cdisptxtOpened)
 					ok = P_CDY->OpenedCash();
@@ -8293,15 +8269,9 @@ int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 				else
 					ok = -1;
 				break;
-			case cdispcmdTotal:
-				ok = P_CDY->SetTotal(rv1);
-				break;
-			case cdispcmdTotalDiscount:
-				ok = P_CDY->SetDiscount(rv1, rv2);
-				break;
-			case cdispcmdChange:
-				ok = (P_CDY->ClearDisplay() && P_CDY->SetChange(rv1, rv2));
-				break;
+			case cdispcmdTotal: ok = P_CDY->SetTotal(rv1); break;
+			case cdispcmdTotalDiscount: ok = P_CDY->SetDiscount(rv1, rv2); break;
+			case cdispcmdChange: ok = (P_CDY->ClearDisplay() && P_CDY->SetChange(rv1, rv2)); break;
 			case cdispcmdCurrentItem:
 				if(P.CurPos < P.getCountI() && P.HasCur()) {
 					P_CDY->ClearDisplay();
@@ -8497,8 +8467,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 										virtual int setupList()
 										{
 											SString temp_buf;
-											for(uint i = 0; i < R_List.getCount(); i++)
-												addStringToList(i+1, temp_buf.Z().Cat(R_List.at(i), MKSFMTD(0, 2, 0)));
+											SForEachVectorItem(R_List, i) { addStringToList(i+1, temp_buf.Z().Cat(R_List.at(i), MKSFMTD(0, 2, 0))); }
 											return 1;
 										}
 										const RealArray & R_List;
@@ -8550,46 +8519,44 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												int    cc_even = 0;
 												temp_buf.Z();
 												if(r_cc.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
+													SString debug_msg_buf;
 													for(uint j = 0; j < cc_list.getCount(); j++) {
 														const PPID cc_id = cc_list.get(j);
 														CCheckTbl::Rec cc_rec;
-														if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
-															// @v10.4.5 {
-															int   take_in_attention = 0;
-															CSessionTbl::Rec cs_rec;
-															PPCashNode cn_rec;
-															if(sent_list.get(j))
-																take_in_attention = 1;
-															else if(cc_rec.SessID) {
-																//
-																// —пециальный случай: рестораны - вскрытие тары. ‘ормируют отложенные чеки с отсканированными
-																// марками с бутылок. ѕовтор однозначно блокируетс€ невзира€ на продажи-возвраты (cc_even = 1)
-																//
-																if(CsObj.Fetch(cc_rec.SessID, &cs_rec) > 0 && CnObj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.Speciality == cn_rec.spCafe) {
+														if(r_cc.Search(cc_id, &cc_rec) > 0) {
+															// @v10.7.9 {
+															debug_msg_buf.Z().Cat("egais-mark").CatChar(':').Cat(egais_mark).Space().
+																Cat("is found at").Space().Cat(cc_rec.Dt, DATF_YMD).Space().Cat(cc_rec.Tm, TIMF_HMS).Space().Cat(cc_rec.Code).Space().
+																CatHex(cc_rec.Flags);
+															PPLogMessage(PPFILNAM_DEBUG_LOG, debug_msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+															// } @v10.7.9 
+															if(!(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
+																// @v10.4.5 {
+																int   take_in_attention = 0;
+																CSessionTbl::Rec cs_rec;
+																PPCashNode cn_rec;
+																if(sent_list.get(j))
 																	take_in_attention = 1;
-																	cc_even = 1;
-																	break;
+																else if(cc_rec.SessID) {
+																	//
+																	// —пециальный случай: рестораны - вскрытие тары. ‘ормируют отложенные чеки с отсканированными
+																	// марками с бутылок. ѕовтор однозначно блокируетс€ невзира€ на продажи-возвраты (cc_even = 1)
+																	//
+																	if(CsObj.Fetch(cc_rec.SessID, &cs_rec) > 0 && CnObj.Fetch(cs_rec.CashNodeID, &cn_rec) > 0 && cn_rec.Speciality == cn_rec.spCafe) {
+																		take_in_attention = 1;
+																		cc_even = 1;
+																		break;
+																	}
 																}
-															}
-															// } @v10.4.5
-															if(take_in_attention) {
-																CCheckCore::MakeCodeString(&cc_rec, temp_buf);
-																if(cc_rec.Flags & CCHKF_RETURN)
-																	cc_even--;
-																else
-																	cc_even++;
-															}
-															/* @v10.4.5
-															if(!(cc_rec.Flags & CCHKF_SKIP) || cc_rec.SessID) { // @v10.1.12
-																// @v10.1.8 if(j == (cc_list.getCount()-1))
-																if(!(CnFlags & CASHF_SKIPUNPRINTEDCHECKS) || (cc_rec.Flags & CCHKF_PRINTED)) { // @v10.2.3
+																// } @v10.4.5
+																if(take_in_attention) {
 																	CCheckCore::MakeCodeString(&cc_rec, temp_buf);
 																	if(cc_rec.Flags & CCHKF_RETURN)
 																		cc_even--;
 																	else
 																		cc_even++;
 																}
-															}*/
+															}
 														}
 													}
 												}
@@ -8734,7 +8701,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 								MEMSZERO(log_font);
 								log_font.lfCharSet = DEFAULT_CHARSET;
 								PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIAL, temp_buf);
-								STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf)); // @unicodeproblem
+								STRNSCPY(log_font.lfFaceName, SUcSwitch(temp_buf));
 								log_font.lfHeight = (DEFAULT_TS_FONTSIZE - TSGGROUPSASITEMS_FONTDELTA);
 								Ptb.SetFont(fontList, ::CreateFontIndirect(&log_font));
 							}
@@ -9096,9 +9063,9 @@ int CheckPaneDialog::AcceptRowDiscount()
 		double pct_dis = 0.0;
 		int    is_row_dis = 1;
 		if(oneof3(prefx, '%', '/', '\\'))
-			pct_dis = atof(Input + 1);
+			pct_dis = satof(Input + 1); // @v10.7.9 atof-->satof
 		else if(oneof3(postfx, '%', '/', '\\'))
-			pct_dis = atof(Input);
+			pct_dis = satof(Input); // @v10.7.9 atof-->satof
 		else
 			is_row_dis = 0;
 		if(is_row_dis) {

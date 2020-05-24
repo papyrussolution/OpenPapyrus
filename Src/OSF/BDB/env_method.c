@@ -976,22 +976,16 @@ void __env_set_errcall(DB_ENV * dbenv, void (*errcall)(const DB_ENV*, const char
 	F_CLR(env, ENV_NO_OUTPUT_SET);
 	dbenv->db_errcall = errcall;
 }
-/*
- * __env_get_errfile --
- *	{DB_ENV,DB}->get_errfile.
- *
- * PUBLIC: void __env_get_errfile __P((DB_ENV *, FILE **));
- */
+//
+// {DB_ENV,DB}->get_errfile.
+//
 void __env_get_errfile(DB_ENV * dbenv, FILE ** errfilep)
 {
 	*errfilep = dbenv->db_errfile;
 }
-/*
- * __env_set_errfile --
- *	{DB_ENV,DB}->set_errfile.
- *
- * PUBLIC: void __env_set_errfile __P((DB_ENV *, FILE *));
- */
+//
+// {DB_ENV,DB}->set_errfile.
+//
 void __env_set_errfile(DB_ENV * dbenv, FILE * errfile)
 {
 	ENV * env = dbenv->env;

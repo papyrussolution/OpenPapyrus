@@ -318,7 +318,7 @@ static int xmlRegStrEqualWildcard(const xmlChar * expStr, const xmlChar * valStr
 static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint);
 static int FASTCALL xmlRegCheckCharacterRange(xmlRegAtomType type, int codepoint, int neg, int start, int end, const xmlChar * blockName);
 
-void xmlAutomataSetFlags(xmlAutomataPtr am, int flags);
+void xmlAutomataSetFlags(xmlAutomata * am, int flags);
 //
 // Regexp memory error handler
 //
@@ -969,7 +969,7 @@ static void xmlRegPrintState(FILE * output, xmlRegStatePtr state)
 {
 	int i;
 	fprintf(output, " state: ");
-	if(state == NULL) {
+	if(!state) {
 		fprintf(output, "NULL\n");
 		return;
 	}
@@ -1148,7 +1148,7 @@ static void xmlRegStateAddTransTo(xmlRegParserCtxt * ctxt, xmlRegState * target,
 static void FASTCALL xmlRegStateAddTrans(xmlRegParserCtxt * ctxt, xmlRegStatePtr state, xmlRegAtom * atom, xmlRegStatePtr target, int counter, int count)
 {
 	int nrtrans;
-	if(state == NULL) {
+	if(!state) {
 		ERROR("add state: state is NULL");
 		return;
 	}
@@ -1213,7 +1213,7 @@ static void FASTCALL xmlRegStateAddTrans(xmlRegParserCtxt * ctxt, xmlRegStatePtr
 
 static int FASTCALL xmlRegStatePush(xmlRegParserCtxt * ctxt, xmlRegStatePtr state)
 {
-	if(state == NULL)
+	if(!state)
 		return -1;
 	if(ctxt->maxStates == 0) {
 		ctxt->maxStates = 4;
@@ -1611,7 +1611,7 @@ static void xmlFAEliminateSimpleEpsilonTransitions(xmlRegParserCtxt * ctxt)
 	xmlRegState * tmp;
 	for(statenr = 0; statenr < ctxt->nbStates; statenr++) {
 		state = ctxt->states[statenr];
-		if(state == NULL)
+		if(!state)
 			continue;
 		if(state->nbTrans != 1)
 			continue;
@@ -1692,7 +1692,7 @@ static void xmlFAEliminateEpsilonTransitions(xmlRegParserCtxt * ctxt)
 	 */
 	for(statenr = ctxt->nbStates - 1; statenr >= 0; statenr--) {
 		state = ctxt->states[statenr];
-		if(state == NULL)
+		if(!state)
 			continue;
 		if((state->nbTrans == 0) && (state->type != XML_REGEXP_FINAL_STATE)) {
 			state->type = XML_REGEXP_SINK_STATE;
@@ -1731,7 +1731,7 @@ static void xmlFAEliminateEpsilonTransitions(xmlRegParserCtxt * ctxt)
 	if(has_epsilon) {
 		for(statenr = 0; statenr < ctxt->nbStates; statenr++) {
 			state = ctxt->states[statenr];
-			if(state == NULL)
+			if(!state)
 				continue;
 			for(transnr = 0; transnr < state->nbTrans; transnr++) {
 				xmlRegTransPtr trans = &(state->trans[transnr]);
@@ -2248,7 +2248,7 @@ static int xmlFARecurseDeterminism(xmlRegParserCtxt * ctxt, xmlRegStatePtr state
 	int transnr, nbTrans;
 	xmlRegTransPtr t1;
 	int deep = 1;
-	if(state == NULL)
+	if(!state)
 		return ret;
 	if(state->markd == XML_REGEXP_MARK_VISITED)
 		return ret;
@@ -4917,7 +4917,6 @@ xmlRegexp * xmlRegexpCompile(const xmlChar * regexp)
 	ctxt->end = NULL;
 	ctxt->start = ctxt->state = xmlRegNewState(ctxt);
 	xmlRegStatePush(ctxt, ctxt->start);
-
 	/* parse the expression building an automata */
 	xmlFAParseRegExp(ctxt, 1);
 	if(CUR != 0) {
@@ -4964,7 +4963,7 @@ int xmlRegexpExec(xmlRegexp * comp, const xmlChar * content)
  */
 int xmlRegexpIsDeterminist(xmlRegexp * comp)
 {
-	xmlAutomataPtr am;
+	xmlAutomata * am;
 	int ret;
 	if(comp == NULL)
 		return -1;
@@ -5020,12 +5019,9 @@ void xmlRegFreeRegexp(xmlRegexp * regexp)
 }
 
 #ifdef LIBXML_AUTOMATA_ENABLED
-/************************************************************************
-*									*
-*			The Automata interface				*
-*									*
-************************************************************************/
-
+//
+// The Automata interface
+//
 /**
  * xmlNewAutomata:
  *
@@ -5033,26 +5029,28 @@ void xmlRegFreeRegexp(xmlRegexp * regexp)
  *
  * Returns the new object or NULL in case of failure
  */
-xmlAutomataPtr xmlNewAutomata() 
+xmlAutomata * xmlNewAutomata() 
 {
 	xmlAutomata * ctxt = xmlRegNewParserCtxt(NULL);
-	if(!ctxt)
-		return 0;
-	/* initialize the parser */
-	ctxt->end = NULL;
-	ctxt->start = ctxt->state = xmlRegNewState(ctxt);
-	if(ctxt->start == NULL) {
-		xmlFreeAutomata(ctxt);
-		return 0;
+	if(ctxt) {
+		// initialize the parser 
+		ctxt->end = NULL;
+		ctxt->start = ctxt->state = xmlRegNewState(ctxt);
+		if(ctxt->start == NULL) {
+			xmlFreeAutomata(ctxt);
+			ctxt = 0;
+		}
+		else {
+			ctxt->start->type = XML_REGEXP_START_STATE;
+			if(xmlRegStatePush(ctxt, ctxt->start) < 0) {
+				xmlRegFreeState(ctxt->start);
+				xmlFreeAutomata(ctxt);
+				ctxt = 0;
+			}
+			else 
+				ctxt->flags = 0;
+		}
 	}
-	ctxt->start->type = XML_REGEXP_START_STATE;
-	if(xmlRegStatePush(ctxt, ctxt->start) < 0) {
-		xmlRegFreeState(ctxt->start);
-		xmlFreeAutomata(ctxt);
-		return 0;
-	}
-	ctxt->flags = 0;
-
 	return ctxt;
 }
 /**
@@ -5061,7 +5059,7 @@ xmlAutomataPtr xmlNewAutomata()
  *
  * Free an automata
  */
-void xmlFreeAutomata(xmlAutomataPtr am) 
+void xmlFreeAutomata(xmlAutomata * am) 
 {
 	xmlRegFreeParserCtxt(am);
 }
@@ -5072,7 +5070,7 @@ void xmlFreeAutomata(xmlAutomataPtr am)
  *
  * Set some flags on the automata
  */
-void xmlAutomataSetFlags(xmlAutomataPtr am, int flags) 
+void xmlAutomataSetFlags(xmlAutomata * am, int flags) 
 {
 	if(am)
 		am->flags |= flags;
@@ -5085,7 +5083,7 @@ void xmlAutomataSetFlags(xmlAutomataPtr am, int flags)
  *
  * Returns the initial state of the automata
  */
-xmlAutomataStatePtr xmlAutomataGetInitState(xmlAutomataPtr am) 
+xmlAutomataState * xmlAutomataGetInitState(xmlAutomata * am) 
 {
 	return am ? (am->start) : 0;
 }
@@ -5098,9 +5096,9 @@ xmlAutomataStatePtr xmlAutomataGetInitState(xmlAutomataPtr am)
  *
  * Returns 0 or -1 in case of error
  */
-int xmlAutomataSetFinalState(xmlAutomataPtr am, xmlAutomataStatePtr state) 
+int xmlAutomataSetFinalState(xmlAutomata * am, xmlAutomataState * state) 
 {
-	if((am == NULL) || (state == NULL))
+	if(!am || !state)
 		return -1;
 	state->type = XML_REGEXP_FINAL_STATE;
 	return 0;
@@ -5119,23 +5117,25 @@ int xmlAutomataSetFinalState(xmlAutomataPtr am, xmlAutomataStatePtr state)
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewTransition(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, const xmlChar * token, void * data) 
+xmlAutomataState * xmlAutomataNewTransition(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, void * data) 
 {
-	xmlRegAtom * atom;
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
-	atom = xmlRegNewAtom(am, XML_REGEXP_STRING);
-	if(atom == NULL)
-		return 0;
-	atom->data = data;
-	atom->valuep = sstrdup(token);
-	if(xmlFAGenerateTransitions(am, from, to, atom) < 0) {
-		xmlRegFreeAtom(atom);
-		return 0;
+	else {
+		xmlRegAtom * atom = xmlRegNewAtom(am, XML_REGEXP_STRING);
+		if(!atom)
+			return 0;
+		else {
+			atom->data = data;
+			atom->valuep = sstrdup(token);
+			if(xmlFAGenerateTransitions(am, from, to, atom) < 0) {
+				xmlRegFreeAtom(atom);
+				return 0;
+			}
+			else
+				return to ? to : (am->state);
+		}
 	}
-	if(to == NULL)
-		return (am->state);
-	return to;
 }
 /**
  * xmlAutomataNewTransition2:
@@ -5152,8 +5152,7 @@ xmlAutomataStatePtr xmlAutomataNewTransition(xmlAutomataPtr am, xmlAutomataState
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, const xmlChar * token, const xmlChar * token2, void * data) 
+xmlAutomataState * xmlAutomataNewTransition2(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, const xmlChar * token2, void * data) 
 {
 	xmlRegAtom * atom;
 	if((am == NULL) || (from == NULL) || (token == NULL))
@@ -5177,16 +5176,14 @@ xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStat
 		str[lenp] = '|';
 		memcpy(&str[lenp + 1], token2, lenn);
 		str[lenn + lenp + 1] = 0;
-
 		atom->valuep = str;
 	}
 	if(xmlFAGenerateTransitions(am, from, to, atom) < 0) {
 		xmlRegFreeAtom(atom);
 		return 0;
 	}
-	if(to == NULL)
-		return (am->state);
-	return to;
+	else
+		return to ? to : am->state;
 }
 /**
  * xmlAutomataNewNegTrans:
@@ -5205,15 +5202,14 @@ xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am, xmlAutomataStat
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, const xmlChar * token, const xmlChar * token2, void * data) 
+xmlAutomataState * xmlAutomataNewNegTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, const xmlChar * token2, void * data) 
 {
 	xmlRegAtom * atom;
 	xmlChar err_msg[200];
-	if((am == NULL) || (from == NULL) || (token == NULL))
+	if(!am || !from || !token)
 		return 0;
 	atom = xmlRegNewAtom(am, XML_REGEXP_STRING);
-	if(atom == NULL)
+	if(!atom)
 		return 0;
 	atom->data = data;
 	atom->neg = 1;
@@ -5266,7 +5262,7 @@ xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am, xmlAutomataStatePt
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewCountTrans2(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, const xmlChar * token,
+xmlAutomataState * xmlAutomataNewCountTrans2(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token,
     const xmlChar * token2, int min, int max, void * data) 
 {
 	xmlRegAtom * atom;
@@ -5343,7 +5339,7 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans2(xmlAutomataPtr am, xmlAutomataStat
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewCountTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, const xmlChar * token, int min, int max, void * data) 
+xmlAutomataState * xmlAutomataNewCountTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, int min, int max, void * data) 
 {
 	xmlRegAtom * atom;
 	int counter;
@@ -5405,8 +5401,7 @@ xmlAutomataStatePtr xmlAutomataNewCountTrans(xmlAutomataPtr am, xmlAutomataState
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, const xmlChar * token, const xmlChar * token2, int min, int max, void * data)
+xmlAutomataState * xmlAutomataNewOnceTrans2(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, const xmlChar * token2, int min, int max, void * data)
 {
 	xmlRegAtom * atom;
 	int counter;
@@ -5476,8 +5471,7 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am, xmlAutomataState
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewOnceTrans(xmlAutomataPtr am, xmlAutomataStatePtr from,
-    xmlAutomataStatePtr to, const xmlChar * token, int min, int max, void * data)
+xmlAutomataState * xmlAutomataNewOnceTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, const xmlChar * token, int min, int max, void * data)
 {
 	xmlRegAtom * atom;
 	int counter;
@@ -5519,9 +5513,9 @@ xmlAutomataStatePtr xmlAutomataNewOnceTrans(xmlAutomataPtr am, xmlAutomataStateP
  *
  * Returns the new state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewState(xmlAutomataPtr am)
+xmlAutomataState * xmlAutomataNewState(xmlAutomata * am)
 {
-	xmlAutomataStatePtr to = 0;
+	xmlAutomataState * to = 0;
 	if(am) {
 		to = xmlRegNewState(am);
 		xmlRegStatePush(am, to);
@@ -5540,7 +5534,7 @@ xmlAutomataStatePtr xmlAutomataNewState(xmlAutomataPtr am)
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr FASTCALL xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to)
+xmlAutomataState * FASTCALL xmlAutomataNewEpsilon(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to)
 {
 	if(!am || !from)
 		return 0;
@@ -5563,7 +5557,7 @@ xmlAutomataStatePtr FASTCALL xmlAutomataNewEpsilon(xmlAutomataPtr am, xmlAutomat
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewAllTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int lax)
+xmlAutomataState * xmlAutomataNewAllTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, int lax)
 {
 	if((am == NULL) || (from == NULL))
 		return 0;
@@ -5580,7 +5574,7 @@ xmlAutomataStatePtr xmlAutomataNewAllTrans(xmlAutomataPtr am, xmlAutomataStatePt
  *
  * Returns the counter number or -1 in case of error
  */
-int xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max)
+int xmlAutomataNewCounter(xmlAutomata * am, int min, int max)
 {
 	int ret;
 	if(am == NULL)
@@ -5605,7 +5599,7 @@ int xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max)
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr FASTCALL xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter)
+xmlAutomataState * FASTCALL xmlAutomataNewCountedTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, int counter)
 {
 	if(!am || !from || counter < 0)
 		return 0;
@@ -5625,7 +5619,7 @@ xmlAutomataStatePtr FASTCALL xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAu
  *
  * Returns the target state or NULL in case of error
  */
-xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter)
+xmlAutomataState * xmlAutomataNewCounterTrans(xmlAutomata * am, xmlAutomataState * from, xmlAutomataState * to, int counter)
 {
 	if((am == NULL) || (from == NULL) || (counter < 0))
 		return 0;
@@ -5641,7 +5635,7 @@ xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataSta
  *
  * Returns the compiled regexp or NULL in case of error
  */
-xmlRegexp * xmlAutomataCompile(xmlAutomataPtr am)
+xmlRegexp * xmlAutomataCompile(xmlAutomata * am)
 {
 	xmlRegexp * ret;
 	if((am == NULL) || (am->error != 0)) 
@@ -5659,7 +5653,7 @@ xmlRegexp * xmlAutomataCompile(xmlAutomataPtr am)
  *
  * Returns 1 if true, 0 if not, and -1 in case of error
  */
-int xmlAutomataIsDeterminist(xmlAutomataPtr am)
+int xmlAutomataIsDeterminist(xmlAutomata * am)
 {
 	int ret;
 	if(am == NULL)

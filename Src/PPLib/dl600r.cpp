@@ -1087,7 +1087,7 @@ int SLAPI DlRtm::PutToXmlBuffer(ExportParam & rParam, SString & rBuf)
 		uint   i;
 		DlScope * p_child = 0;
 		xmlTextWriterSetIndent(p_writer, 0);
-		//xmlTextWriterSetIndentString(writer, reinterpret_cast<const xmlChar *>("\t"));
+		//xmlTextWriterSetIndentTab(writer);
 		if(!(rParam.Flags & ExportParam::fDontWriteXmlDTD)) {
 			{
 				left = 0;
@@ -1212,7 +1212,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		uint   i;
 		DlScope * p_child = 0;
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		// @v9.4.6 xmlTextWriterStartDocument(writer, 0, "windows-1251", 0);
 		if(rParam.Cp == cpUndef)
 			rParam.Cp = cp1251;

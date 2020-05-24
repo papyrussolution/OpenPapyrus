@@ -56,7 +56,7 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 	char path[DB_MAXPATHLEN];
 #endif
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	char ** array = NULL;
 	char * name = NULL;
 	int ret = 0;

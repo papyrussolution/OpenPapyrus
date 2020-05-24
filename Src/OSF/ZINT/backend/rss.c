@@ -1345,7 +1345,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 					encoding_method = 7;
 					if((source[19] == '3') && (src_len == 26)) {
 						/* (01) and (3103) */
-						weight = (float)(atof(weight_str) / 1000.0);
+						weight = (float)(satof(weight_str) / 1000.0); // @v10.7.9 atof-->satof
 						if(weight <= 32.767) {
 							encoding_method = 3;
 						}
@@ -1382,12 +1382,12 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 					if(((source[19] == '2') || (source[19] == '3')) && (src_len == 26)) {
 						/* (01) and (3202)/(3203) */
 						if(source[19] == '3') {
-							weight = (float)(atof(weight_str) / 1000.0F);
+							weight = (float)(satof(weight_str) / 1000.0f); // @v10.7.9 atof-->satof
 							if(weight <= 22.767)
 								encoding_method = 4;
 						}
 						else {
-							weight = (float)(atof(weight_str) / 100.0F);
+							weight = (float)(satof(weight_str) / 100.0f); // @v10.7.9 atof-->satof
 							if(weight <= 99.99)
 								encoding_method = 4;
 						}

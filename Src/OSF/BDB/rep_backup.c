@@ -670,7 +670,7 @@ int __rep_update_setup(ENV * env, int eid, __rep_control_args * rp, DBT * rec, _
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	infop = env->reginfo;
 	renv = (REGENV *)infop->primary;
 	clientdb_locked = 0;
@@ -1091,7 +1091,7 @@ static int __rep_remove_logs(ENV * env)
 	int ret = 0;
 	char * name;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * Call memp_sync to flush any pages that might be in the log buffers
 	 * and not on disk before we remove files on disk.  If there were no
@@ -1503,7 +1503,7 @@ static int __rep_page_gap(ENV*env, REP * rep, __rep_fileinfo_args * msgfp, uint3
 	int t_ret;
 	DB_REP * db_rep = env->rep_handle;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	REGINFO * infop = env->reginfo;
 	int ret = 0;
 	/*
@@ -1787,7 +1787,7 @@ static int __rep_clean_interrupted(ENV*env)
 		 * interrupted internal init.
 		 */
 		dblp = env->lg_handle;
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		/* Step 1b. */
 		ret = __rep_log_setup(env, rep, 1, DB_LOGVERSION, &lp->ready_lsn);
 	}
@@ -1969,7 +1969,7 @@ static int __rep_nextfile(ENV*env, int eid, REP * rep)
 	 * to a sync point at an arbitrary LSN.
 	 */
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * Update ready_lsn so that future rerequests and VERIFY_FAILs know
 	 * where to start.
@@ -2006,7 +2006,7 @@ static int __rep_rollback(ENV*env, DB_LSN * lsnp)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	ENV_GET_THREAD_INFO(env, ip);
 	DB_ASSERT(env, FLD_ISSET(rep->lockout_flags, REP_LOCKOUT_API|REP_LOCKOUT_MSG|REP_LOCKOUT_OP));
 	REP_SYSTEM_UNLOCK(env);
@@ -2235,7 +2235,7 @@ static int __rep_log_setup(ENV * env, REP * rep, uint32 file, uint32 version, DB
 	DB_LSN lsn;
 	int ret;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_TXNMGR * mgr = env->tx_handle;
 	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	/*

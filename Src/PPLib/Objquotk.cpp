@@ -1,5 +1,6 @@
 // OBJQUOTK.CPP
 // Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -248,8 +249,7 @@ int SLAPI PPObjQuotKind::MakeReserved(long flags)
 		symb.CopyTo(pack.Rec.Symb, sizeof(pack.Rec.Symb));
 		if(id && Search(id, &temp_rec) <= 0 && SearchBySymb(symb, 0, &temp_rec) <= 0) {
 			//
-			// Здесь нельзя использовать PutPacket поскольку добавляется запись
-			// с предопределенным идентификатором.
+			// Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ PutPacket РїРѕСЃРєРѕР»СЊРєСѓ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ Р·Р°РїРёСЃСЊ СЃ РїСЂРµРґРѕРїСЂРµРґРµР»РµРЅРЅС‹Рј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј.
 			//
 			THROW(EditItem(Obj, 0, &pack.Rec, 1));
 		}
@@ -270,12 +270,12 @@ int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 		const PPID id = p_item->ID;
 		if(ObjRts.CheckQuotKindID(id, 0)) {
 			//
-			// Если котировка не матричная И ("не для документов" либо нам это безразлично)
+			// Р•СЃР»Рё РєРѕС‚РёСЂРѕРІРєР° РЅРµ РјР°С‚СЂРёС‡РЅР°СЏ Р ("РЅРµ РґР»СЏ РґРѕРєСѓРјРµРЅС‚РѕРІ" Р»РёР±Рѕ РЅР°Рј СЌС‚Рѕ Р±РµР·СЂР°Р·Р»РёС‡РЅРѕ)
 			//
 			if(id != matrix_qk_id && !(p_item->Flags & QUOTKF_NOTFORBILL) && p_item->Period.CheckDate(dt)) {
 				//
-				// Если для вида котировки определен вид операции, то безусловно проверяем
-				// соответствие нашей операции этому виду.
+				// Р•СЃР»Рё РґР»СЏ РІРёРґР° РєРѕС‚РёСЂРѕРІРєРё РѕРїСЂРµРґРµР»РµРЅ РІРёРґ РѕРїРµСЂР°С†РёРё, С‚Рѕ Р±РµР·СѓСЃР»РѕРІРЅРѕ РїСЂРѕРІРµСЂСЏРµРј
+				// СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РЅР°С€РµР№ РѕРїРµСЂР°С†РёРё СЌС‚РѕРјСѓ РІРёРґСѓ.
 				//
 				if(p_item->OpID) {
 					if(IsOpBelongTo(opID, p_item->OpID) > 0)
@@ -283,7 +283,7 @@ int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 				}
 				else {
 					//
-					// В противном случае, для внутренней передачи используется только базовая котировка
+					// Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ, РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ Р±Р°Р·РѕРІР°СЏ РєРѕС‚РёСЂРѕРІРєР°
 					//
 					if(intrexpnd) {
 						if(id == PPQUOTK_BASE)
@@ -291,7 +291,7 @@ int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 					}
 					else {
 						//
-						// Остальные виды операций безусловно могут использовать этот вид котировки
+						// РћСЃС‚Р°Р»СЊРЅС‹Рµ РІРёРґС‹ РѕРїРµСЂР°С†РёР№ Р±РµР·СѓСЃР»РѕРІРЅРѕ РјРѕРіСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚РѕС‚ РІРёРґ РєРѕС‚РёСЂРѕРІРєРё
 						//
 						pList->addUnique(id);
 					}
@@ -307,8 +307,8 @@ int SLAPI PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 IMPL_CMPFUNC(PPQuotKind_RankName, i1, i2)
 {
 	int    cmp = 0;
-	const PPQuotKind * k1 = (const PPQuotKind *)i1;
-	const PPQuotKind * k2 = (const PPQuotKind *)i2;
+	const PPQuotKind * k1 = static_cast<const PPQuotKind *>(i1);
+	const PPQuotKind * k2 = static_cast<const PPQuotKind *>(i2);
 	if(k1->ID == PPQUOTK_BASE && k2->ID != PPQUOTK_BASE)
 		cmp = -1;
 	else if(k1->ID != PPQUOTK_BASE && k2->ID == PPQUOTK_BASE)
@@ -359,7 +359,7 @@ int SLAPI PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList
 		qk_list.sort(PTR_CMPFUNC(PPQuotKind_RankName));
 		rQkList.clear();
 		for(i = 0; i < qk_list.getCount(); i++)
-			rQkList.addUnique(((PPQuotKind *)qk_list.at(i))->ID);
+			rQkList.addUnique(static_cast<const PPQuotKind *>(qk_list.at(i))->ID);
 	}
 	return ok;
 }
@@ -402,7 +402,7 @@ int SLAPI PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * p
 			qk_list.sort(PTR_CMPFUNC(PPQuotKind_RankName));
 			pList->clear();
 			for(uint i = 0; i < qk_list.getCount(); i++)
-				pList->addUnique(((PPQuotKind *)qk_list.at(i))->ID);
+				pList->addUnique(static_cast<const PPQuotKind *>(qk_list.at(i))->ID);
 		}
 		ASSIGN_PTR(pTmList, tm_list);
 		ok = 1;
@@ -553,7 +553,7 @@ int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint opt
 {
 	int    r = -1;
 	THROW(CheckRights(PPR_DEL));
-	// @v9.2.9 Блокировка возможности удаления специальных видов котировок {
+	// @v9.2.9 Р‘Р»РѕРєРёСЂРѕРІРєР° РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СѓРґР°Р»РµРЅРёСЏ СЃРїРµС†РёР°Р»СЊРЅС‹С… РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє {
 	if(id) {
 		const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitialize);
 		const char * p_spcqk_symb = 0;
@@ -784,7 +784,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 	char   buf[32];
 	if(pDlg->getCtrlData(ctl, buf)) {
 		SString pattern;
-		(pattern = "CcСс").Transf(CTRANSF_OUTER_TO_INNER);
+		(pattern = "CcРЎСЃ").Transf(CTRANSF_UTF8_TO_INNER); // module int utf8 format (lat 'c' and russian 'СЃ')
 		strip(buf);
 		char * p = strpbrk(buf, "%/");
 		if(p) {
@@ -810,7 +810,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 		strtodoub(buf, &v);
 		v = R2(v);
 		if(v == 0 && !absdis)
-			buf[0] = 0;
+			PTR32(buf)[0] = 0;
 		pDlg->setCtrlData(ctl, buf);
 	}
 	else
@@ -823,12 +823,59 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 }
 
 class QuotKindDialog : public TDialog {
+	DECL_DIALOG_DATA(PPQuotKindPacket);
 public:
 	explicit QuotKindDialog(PPObjReference * pRef) : TDialog(DLG_QUOTKIND), P_Ref(pRef)
 	{
 	}
- 	int    setDTS(const PPQuotKindPacket * pPack);
-	int    getDTS(PPQuotKindPacket * pPack);
+	DECL_DIALOG_SETDTS()
+	{
+		PPIDArray  op_type_list;
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_QUOTKIND_NAME, Data.Rec.Name);
+		setCtrlData(CTL_QUOTKIND_SYMB, Data.Rec.Symb);
+		setCtrlData(CTL_QUOTKIND_ID,   &Data.Rec.ID);
+		disableCtrl(CTL_QUOTKIND_ID, (int)Data.Rec.ID || !PPMaster);
+		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER,
+			PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0); // @v10.3.11 PPOPT_DRAFTRECEIPT // @v10.5.7 PPOPT_DRAFTQUOTREQ
+		SetupOprKindCombo(this, CTLSEL_QUOTKIND_OP, Data.Rec.OpID, 0, &op_type_list, 0);
+		SetupPPObjCombo(this, CTLSEL_QUOTKIND_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
+		setCtrlData(CTL_QUOTKIND_RANK, &Data.Rec.Rank);
+		SetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
+		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 0, QUOTKF_NOTFORBILL);
+		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 1, QUOTKF_EXTPRICEBYBASE);
+		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 2, QUOTKF_RETAILED);
+		SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
+		{
+			SString restr_text;
+			Data.Rec.GetRestrText(restr_text);
+			setStaticText(CTL_QUOTKIND_ST_RESTR, restr_text);
+		}
+		UpdateView();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_QUOTKIND_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
+		THROW(P_Ref->CheckDupName(Data.Rec.ID, Data.Rec.Name));
+		getCtrlData(sel = CTL_QUOTKIND_SYMB,  Data.Rec.Symb);
+		THROW(P_Ref->ref->CheckUniqueSymb(P_Ref->Obj, Data.Rec.ID, Data.Rec.Symb, offsetof(PPQuotKind, Symb)))
+		getCtrlData(CTL_QUOTKIND_ID,    &Data.Rec.ID);
+		getCtrlData(CTLSEL_QUOTKIND_OP, &Data.Rec.OpID);
+		getCtrlData(CTLSEL_QUOTKIND_ACCSHEET, &Data.Rec.AccSheetID);
+		GetClusterData(CTL_QUOTKIND_FLAGS, &Data.Rec.Flags);
+		GetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
+		getCtrlData(CTL_QUOTKIND_RANK,  &Data.Rec.Rank);
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			ok = 0;
+			selectCtrl(sel);
+		ENDCATCH
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   UpdateView();
@@ -837,7 +884,6 @@ private:
 	int    EditRestr();
 
 	PPObjReference * P_Ref;
-	PPQuotKindPacket Data;
 };
 
 void QuotKindDialog::SetTimePeriod(TDialog * pDlg)
@@ -930,56 +976,6 @@ int QuotKindDialog::EditRestr()
 	}
 	else
 		ok = 0;
-	return ok;
-}
-
-int QuotKindDialog::setDTS(const PPQuotKindPacket * pPack)
-{
-	PPIDArray  op_type_list;
-	Data = *pPack;
-	setCtrlData(CTL_QUOTKIND_NAME, Data.Rec.Name);
-	setCtrlData(CTL_QUOTKIND_SYMB, Data.Rec.Symb);
-	setCtrlData(CTL_QUOTKIND_ID,   &Data.Rec.ID);
-	disableCtrl(CTL_QUOTKIND_ID, (int)Data.Rec.ID || !PPMaster);
-	op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER,
-		PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0); // @v10.3.11 PPOPT_DRAFTRECEIPT // @v10.5.7 PPOPT_DRAFTQUOTREQ
-	SetupOprKindCombo(this, CTLSEL_QUOTKIND_OP, Data.Rec.OpID, 0, &op_type_list, 0);
-	SetupPPObjCombo(this, CTLSEL_QUOTKIND_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
-	setCtrlData(CTL_QUOTKIND_RANK, &Data.Rec.Rank);
-	SetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
-	AddClusterAssoc(CTL_QUOTKIND_FLAGS, 0, QUOTKF_NOTFORBILL);
-	AddClusterAssoc(CTL_QUOTKIND_FLAGS, 1, QUOTKF_EXTPRICEBYBASE);
-	AddClusterAssoc(CTL_QUOTKIND_FLAGS, 2, QUOTKF_RETAILED);
-	SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
-	{
-		SString restr_text;
-		Data.Rec.GetRestrText(restr_text);
-		setStaticText(CTL_QUOTKIND_ST_RESTR, restr_text);
-	}
-	UpdateView();
-	return 1;
-}
-
-int QuotKindDialog::getDTS(PPQuotKindPacket * pPack)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_QUOTKIND_NAME, Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
-	THROW(P_Ref->CheckDupName(Data.Rec.ID, Data.Rec.Name));
-	getCtrlData(sel = CTL_QUOTKIND_SYMB,  Data.Rec.Symb);
-	THROW(P_Ref->ref->CheckUniqueSymb(P_Ref->Obj, Data.Rec.ID, Data.Rec.Symb, offsetof(PPQuotKind, Symb)))
-	getCtrlData(CTL_QUOTKIND_ID,    &Data.Rec.ID);
-	getCtrlData(CTLSEL_QUOTKIND_OP, &Data.Rec.OpID);
-	getCtrlData(CTLSEL_QUOTKIND_ACCSHEET, &Data.Rec.AccSheetID);
-	GetClusterData(CTL_QUOTKIND_FLAGS, &Data.Rec.Flags);
-	GetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
-	getCtrlData(CTL_QUOTKIND_RANK,  &Data.Rec.Rank);
-	ASSIGN_PTR(pPack, Data);
-	CATCH
-		ok = 0;
-		selectCtrl(sel);
-	ENDCATCH
 	return ok;
 }
 
@@ -1202,9 +1198,9 @@ private:
 	virtual int  FASTCALL Dirty(PPID id); // @sync_w
 
 	int    RtlListInited;
-	PPIDArray RtlQkList;   // Список видов котировок с признаком QUOTKF_RETAILED
-	PPIDArray RtlTmQkList; // Список видов котировок с признаком QUOTKF_RETAILED, имеющих
-		// ограничение к применению по дате/времени
+	PPIDArray RtlQkList;   // РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє СЃ РїСЂРёР·РЅР°РєРѕРј QUOTKF_RETAILED
+	PPIDArray RtlTmQkList; // РЎРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє СЃ РїСЂРёР·РЅР°РєРѕРј QUOTKF_RETAILED, РёРјРµСЋС‰РёС…
+		// РѕРіСЂР°РЅРёС‡РµРЅРёРµ Рє РїСЂРёРјРµРЅРµРЅРёСЋ РїРѕ РґР°С‚Рµ/РІСЂРµРјРµРЅРё
 	ReadWriteLock RtlLock;
 	ReadWriteLock SkLock;
 public:

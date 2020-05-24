@@ -268,11 +268,9 @@ int BDbDatabase::operator ! () const { return BIN(State & stError); }
 BDbDatabase::operator DB_ENV * () { return E; }
 BDbDatabase::operator DB_TXN * () { return T.T; }
 
-//static 
-int FASTCALL BDbDatabase::ProcessError(int bdbErrCode) { return bdbErrCode ? BDbDatabase::ProcessError(bdbErrCode, 0, 0) : 1; }
+/*static*/int FASTCALL BDbDatabase::ProcessError(int bdbErrCode) { return bdbErrCode ? BDbDatabase::ProcessError(bdbErrCode, 0, 0) : 1; }
 
-// static
-int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg)
+/*static*/int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg)
 {
 	int    ok = 0;
 	if(bdbErrCode) {
@@ -780,8 +778,7 @@ SSerializeContext * BDbDatabase::GetSCtx() const
 	return P_SCtx ? P_SCtx : (DBS.SetError(BE_BDB_UNDEFSERIALIZECTX), 0);
 }
 
-//static
-int BDbTable::VerifyStatic()
+/*static*/int BDbTable::VerifyStatic()
 {
 	assert(BDbTable::Buffer::fMalloc == DB_DBT_MALLOC);
 	assert(BDbTable::Buffer::fRealloc == DB_DBT_REALLOC);
@@ -1082,8 +1079,7 @@ void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
 //
 #if 0 // { Этот вариант функции работает как-то не стабильно.
 
-//static
-int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
+/*static*/int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
 {
 	int    r = DB_DONOTINDEX;
 	const  DbThreadLocalArea::DbRegList & r_reg = DBS.GetConstTLA().GetBDbRegList_Const();
@@ -1112,8 +1108,7 @@ int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pDa
 }
 #endif // } 0
 
-//static
-int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
+/*static*/int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pData, DBT * pResult)
 {
 	int    r = DB_DONOTINDEX;
 	int    _found = 0;
@@ -1135,14 +1130,12 @@ int BDbTable::ScndIdxCallback(DB * pSecondary, const DBT * pKey, const DBT * pDa
 	return r;
 }
 
-//static 
-int BDbTable::CmpCallback_6232(DB * pDb, const DBT * pDbt1, const DBT * pDbt2, size_t * locp)
+/*static*/int BDbTable::CmpCallback_6232(DB * pDb, const DBT * pDbt1, const DBT * pDbt2, size_t * locp)
 {
 	return CmpCallback(pDb, pDbt1, pDbt2);
 }
 
-//static
-int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
+/*static*/int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 {
 	int    c = 0;
 	if(pDbt1 != 0 || pDbt2 != 0) {
@@ -1169,8 +1162,7 @@ int BDbTable::CmpCallback(DB * pDb, const DBT * pDbt1, const DBT * pDbt2)
 	return c;
 }
 
-//static
-uint32 BDbTable::PartitionCallback(DB * pDb, DBT * pDbt)
+/*static*/uint32 BDbTable::PartitionCallback(DB * pDb, DBT * pDbt)
 {
 	uint32 partition = 0;
 	if(pDb && pDbt) {
@@ -1422,19 +1414,25 @@ static uint32 FASTCALL _GetBDBSearchFlags(int sp)
 
 int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 {
-	SProfile::Measure pm;
-	DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0);
-	int    r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
-	if(!r && BtrError == BE_UBUFLEN) {
-		int    r2 = 0;
-		r2 = rData.Realloc();
-		if(r2 > 0) {
-			r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
-			if(r > 0)
-				Stat.CtGet.Put(pm.Get());
+	int    ok = 0;
+	if(H) {
+		SProfile::Measure pm;
+		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0);
+		int r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
+		if(!r && BtrError == BE_UBUFLEN) {
+			int    r2 = 0;
+			r2 = rData.Realloc();
+			if(r2 > 0) {
+				r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
+				if(r > 0)
+					Stat.CtGet.Put(pm.Get());
+				ok = r;
+			}
 		}
 	}
-	return r;
+	else
+		ok = 0;
+	return ok;
 }
 
 int BDbTable::Search(Buffer & rKey, Buffer & rData) { return Helper_Search(rKey, rData, 0); }
@@ -1454,6 +1452,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 			pkey.Alloc(256);
 			uint32 flags = 0;
 			THROW_D(p_idx_tbl, BE_INVKEY);
+			THROW_D(p_idx_tbl->H, BE_INVKEY); // @v10.7.9
 			{
 				SProfile::Measure pm;
 				DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
@@ -1477,16 +1476,19 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 
 int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
 {
-	SProfile::Measure pm;
-	DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
-	int    ok = BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
-	if(ok > 0) {
-		Stat.SzKey.Put(rKey);
-		Stat.SzRec.Put(rData);
-		if(flags & DB_NOOVERWRITE)
-			Stat.CtIns.Put(pm.Get());
-		else
-			Stat.CtUpd.Put(pm.Get());
+	int    ok = 0;
+	if(H) { // @v10.7.9
+		SProfile::Measure pm;
+		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
+		ok = BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
+		if(ok > 0) {
+			Stat.SzKey.Put(rKey);
+			Stat.SzRec.Put(rData);
+			if(flags & DB_NOOVERWRITE)
+				Stat.CtIns.Put(pm.Get());
+			else
+				Stat.CtUpd.Put(pm.Get());
+		}
 	}
 	return ok;
 }
@@ -1497,11 +1499,15 @@ int BDbTable::UpdateRec(Buffer & rKey, Buffer & rData) { return Helper_Put(rKey,
 int BDbTable::DeleteRec(Buffer & rKey)
 {
 	int    ok = 1;
-	SProfile::Measure pm;
-	DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
-	//int DB->del(DB *db, DB_TXN *txnid, DBT *key, uint32 flags);
-	THROW(BDbDatabase::ProcessError(H->del(H, p_txn, rKey, 0 /*flags*/), H, 0));
-	Stat.CtRmv.Put(pm.Get());
+	if(H) { // @v10.7.9
+		SProfile::Measure pm;
+		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
+		//int DB->del(DB *db, DB_TXN *txnid, DBT *key, uint32 flags);
+		THROW(BDbDatabase::ProcessError(H->del(H, p_txn, rKey, 0 /*flags*/), H, 0));
+		Stat.CtRmv.Put(pm.Get());
+	}
+	else
+		ok = 0;
 	CATCHZOK
 	return ok;
 }

@@ -36,7 +36,7 @@ int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2) { DataType _t
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b) { DataType _t; return stype(t, &_t).tostr(d, f, b); }
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b) { DataType _t; return stype(t, &_t).fromstr(d, f, b); }
 int    FASTCALL stbase(TYPEID t) { DataType _t; return stype(t, &_t).base(); }
-int    FASTCALL sttobase(TYPEID t, const void * data, void * baseData) { DataType _t; return stype(t, &_t).tobase(data, baseData); }
+void   FASTCALL sttobase(TYPEID t, const void * data, void * baseData) { DataType _t; stype(t, &_t).tobase(data, baseData); }
 int    FASTCALL stbaseto(TYPEID t, void * data, const void * baseData) { DataType _t; return stype(t, &_t).baseto(data, baseData); }
 void   FASTCALL stdestroy(TYPEID t, void * d) { DataType _t; stype(t, &_t).destroy(d); }
 int    FASTCALL stisnumber(TYPEID t) { DataType _t; return stype(t, &_t).isnumber(); }
@@ -61,7 +61,7 @@ SString & SLAPI DataType::ToStr(const void * pData, long format, SString & rBuf)
 
 int    SLAPI DataType::fromstr(void *, long, const char *) const { return 0; }
 int    SLAPI DataType::base() const { return BTS_VOID; }
-int    SLAPI DataType::tobase(const void * data, void * baseData) const { return 0; }
+void   SLAPI DataType::tobase(const void * data, void * baseData) const {}
 int    SLAPI DataType::baseto(void * data, const void * baseData) const { return 0; }
 void   FASTCALL DataType::destroy(void *) const {} // @v9.8.5 const
 void   SLAPI DataType::minval(void *) const { }

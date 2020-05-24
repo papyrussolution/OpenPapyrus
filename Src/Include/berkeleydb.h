@@ -931,7 +931,7 @@ struct __db_txn {
 	/* DB_TXN PUBLIC HANDLE LIST END */
 
 	/* DB_TXN PRIVATE HANDLE LIST BEGIN */
-	void      (*set_txn_lsnp)(DB_TXN*txn, DB_LSN**, DB_LSN**);
+	void      (*set_txn_lsnp)(DB_TXN * txn, DB_LSN**, DB_LSN**);
 	/* DB_TXN PRIVATE HANDLE LIST END */
 
  #define TXN_XA_THREAD_NOTA              0

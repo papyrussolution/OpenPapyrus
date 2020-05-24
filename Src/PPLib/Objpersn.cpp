@@ -6133,6 +6133,11 @@ int SLAPI MessagePersonBirthDay(TDialog * pDlg, PPID psnID)
 //
 // @ModuleDef(PPObjPersonKind)
 //
+SLAPI PPPersonKind2::PPPersonKind2()
+{
+	THISZERO();
+}
+
 SLAPI PPObjPersonKind::PPObjPersonKind(void * extraPtr) : PPObjReference(PPOBJ_PRSNKIND, extraPtr)
 {
 }

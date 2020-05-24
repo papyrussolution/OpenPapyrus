@@ -1578,11 +1578,10 @@ PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle)(const region_t
 	const box_type_t * pbox;
 	const box_type_t * pbox_end;
 	int part_in, part_out;
-	int numRects;
 	int x, y;
 	GOOD(region);
-	numRects = PIXREGION_NUMRECTS(region);
-	/* useful optimization */
+	int numRects = PIXREGION_NUMRECTS(region);
+	// useful optimization 
 	if(!numRects || !EXTENTCHECK(&region->extents, prect))
 		return(PIXMAN_REGION_OUT);
 	if(numRects == 1) {
@@ -1640,15 +1639,10 @@ PIXMAN_EXPORT pixman_region_overlap_t PREFIX(_contains_rectangle)(const region_t
 			break;
 		}
 	}
-	if(part_in) {
-		if(y < prect->y2)
-			return PIXMAN_REGION_PART;
-		else
-			return PIXMAN_REGION_IN;
-	}
-	else {
+	if(part_in)
+		return (y < prect->y2) ? PIXMAN_REGION_PART : PIXMAN_REGION_IN;
+	else
 		return PIXMAN_REGION_OUT;
-	}
 }
 //
 // PREFIX(_translate) (region, x, y)

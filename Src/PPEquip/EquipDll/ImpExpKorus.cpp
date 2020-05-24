@@ -1533,7 +1533,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	P_ExportCls->P_XmlWriter = xmlNewTextWriterFilename(P_ExportCls->ExpFileName, 0);
 	THROWERR(P_ExportCls->P_XmlWriter, IEERR_NULLWRIEXMLPTR);
 	// @v9.7.10 xmlTextWriterSetIndent(P_ExportCls->P_XmlWriter, 1); // @v9.7.10
-	xmlTextWriterSetIndentString(P_ExportCls->P_XmlWriter, reinterpret_cast<const xmlChar *>("\t"));
+	xmlTextWriterSetIndentTab(P_ExportCls->P_XmlWriter);
 	// UTF-8 - по требованию провайдера
 	xmlTextWriterStartDocument(P_ExportCls->P_XmlWriter, 0, "UTF-8", 0);
 	P_ExportCls->Bill = *(Sdr_Bill *)pObjData;
@@ -2371,7 +2371,7 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 						p_node = p_node->next; // <E5004>
 						if(p_node && SXml::IsName(p_node, ELEMENT_NAME_E5004) && p_node->children) {
 							if(str == "9") { // сумма документа с НДС
-								pBill->Amount = atof(PTRCHRC_(p_node->children->content));
+								pBill->Amount = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 								ok = 1;
 							}
 							else if(str == "98") { // сумма документа без НДС
@@ -2535,11 +2535,11 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 												if(str == "21")
 													str.Set(p_node->children->content); // @vmiller Заказанное количество (ORDRSP/DESADV)
 												else if(str == "113" || str == "170")
-													pBRow->Quantity = atof(PTRCHRC_(p_node->children->content)); // Подтвержденное количество (ORDRSP)
+													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // Подтвержденное количество (ORDRSP) // @v10.7.9 atof-->satof
 												else if(str == "12")
-													pBRow->Quantity = atof(PTRCHRC_(p_node->children->content)); // Отгруженное количество (DESADV)
+													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // Отгруженное количество (DESADV) // @v10.7.9 atof-->satof
 												else if(str == "59")
-													pBRow->UnitPerPack = atof(PTRCHRC_(p_node->children->content)); // Количество товара в упаковке
+													pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // Количество товара в упаковке // @v10.7.9 atof-->satof
 											}
 										}
 									}
@@ -2562,7 +2562,7 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 												else if(str == "79")
 													str.Set(p_node->children->content); // @vmiller // Сумма товарной позиции с НДС
 												else if(messageType == PPEDIOP_DESADV && str.CmpNC(ELEMENT_CODE_E5025_XB5) == 0)
-													pBRow->Cost = atof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС для DESADV
+													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС для DESADV // @v10.7.9 atof-->satof
 											}
 										}
 									}
@@ -2577,7 +2577,7 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 												if(str.CmpNC("AAA") == 0)
 													str.Set(p_node->children->content); // @vmiller // Цена товара без НДС
 												else if(str.CmpNC("AAE") == 0)
-													pBRow->Cost = atof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС
+													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС // @v10.7.9 atof-->satof
 											}
 										}
 									}

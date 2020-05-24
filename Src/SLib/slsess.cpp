@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -55,13 +55,13 @@ SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOs
 	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
 	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
 {
-	const LDATE _cd = getcurdate_();
+	const LDATETIME now_time = getcurdatetime_();
 	{
-		DefaultYear_  = _cd.year();
-		DefaultMonth_ = _cd.month();
+		DefaultYear_  = now_time.d.year();
+		DefaultMonth_ = now_time.d.month();
 	}
 	// @v9.6.5 memzero(OneCStrBuf, sizeof(OneCStrBuf));
-	Rg.Set(_cd.v ^ getcurtime_().v);
+	Rg.Set(now_time.d.v ^ now_time.t.v);
 	NextDialogLuPos.Set(-1, -1);
 }
 
@@ -584,7 +584,7 @@ struct GlobalObjectEntry {
 		if(VT) {
 			uint8  stub[32];
 			SClassWrapper * p_cls = reinterpret_cast<SClassWrapper *>(stub);
-			(*(void **)p_cls) = VT;
+			*reinterpret_cast<void **>(p_cls) = VT;
 			Ptr = p_cls->Create();
 		}
 		return (Ptr != 0);

@@ -121,7 +121,7 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 {
 	/* allocate xzFile structure to return */
 	xz_statep state = SAlloc::M(sizeof(xz_state));
-	if(state == NULL)
+	if(!state)
 		return NULL;
 	state->size = 0;        /* no buffers allocated yet */
 	state->want = BUFSIZ;   /* requested buffer size */

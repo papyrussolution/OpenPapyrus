@@ -70,7 +70,7 @@ int __dbreg_log_files(ENV * env, uint32 opcode)
 	DB_LSN r_unused;
 	FNAME * fnp;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	int ret = 0;
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	SH_TAILQ_FOREACH(fnp, &lp->fq, q, __fname) {
@@ -114,7 +114,7 @@ int __dbreg_log_files(ENV * env, uint32 opcode)
 int __dbreg_log_nofiles(ENV * env)
 {
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	return SH_TAILQ_EMPTY(&lp->fq);
 }
 /*
@@ -212,7 +212,7 @@ int __dbreg_mark_restored(ENV * env)
 	if(!LOGGING_ON(env))
 		return 0;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	SH_TAILQ_FOREACH(fnp, &lp->fq, q, __fname)
 	if(fnp->id != DB_LOGFILEID_INVALID)
@@ -230,16 +230,13 @@ int __dbreg_mark_restored(ENV * env)
  */
 int __dbreg_invalidate_files(ENV * env, int do_restored)
 {
-	DB_LOG * dblp;
 	FNAME * fnp;
-	LOG * lp;
-	int ret;
+	int ret = 0;
 	/* If we haven't initialized logging, we have nothing to do. */
 	if(!LOGGING_ON(env))
 		return 0;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
-	ret = 0;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	SH_TAILQ_FOREACH(fnp, &lp->fq, q, __fname) {
 		/*
@@ -368,7 +365,7 @@ int __dbreg_id_to_fname(DB_LOG * dblp, int32 id, int have_lock, FNAME ** fnamep)
 {
 	FNAME * fnp;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	int ret = -1;
 	if(!have_lock)
 		MUTEX_LOCK(env, lp->mtx_filelist);
@@ -393,7 +390,7 @@ int __dbreg_fid_to_fname(DB_LOG * dblp, uint8 * fid, int have_lock, FNAME ** fna
 {
 	FNAME * fnp;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	int ret = -1;
 	if(!have_lock)
 		MUTEX_LOCK(env, lp->mtx_filelist);
@@ -606,7 +603,7 @@ int __dbreg_lazy_id(DB * dbp)
 	DB_ASSERT(env, IS_REP_MASTER(env) || F_ISSET(dbp, DB_AM_NOT_DURABLE));
 	env = dbp->env;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	fnp = dbp->log_filename;
 	/* The mtx_filelist protects the FNAME list and id management. */
 	MUTEX_LOCK(env, lp->mtx_filelist);

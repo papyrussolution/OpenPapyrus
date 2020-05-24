@@ -9,8 +9,7 @@
 //
 //
 //
-//static
-DbDictionary * (*DbDictionary::CreateInstanceProc)(const char * pPath, long options) = 0;
+/*static*/DbDictionary * (*DbDictionary::CreateInstanceProc)(const char * pPath, long options) = 0;
 
 DbTableStat::DbTableStat() : ReqItems(0), RetItems(0), UnsupItem(0), ID(0), OwnerLevel(0), Flags(0), FixRecSize(0), NumRecs(0), FldCount(0), IdxCount(0), PageSize(0)
 {
@@ -50,8 +49,7 @@ int SLAPI DbDictionary::IsValid() const
 	return BIN(!(State & stError));
 }
 
-//static
-void DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options))
+/*static*/void DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPath, long options))
 {
 	ENTER_CRITICAL_SECTION
 	CreateInstanceProc = proc;
@@ -59,17 +57,15 @@ void DbDictionary::SetCreateInstanceProc(DbDictionary * (*proc)(const char * pPa
 }
 
 
-//static
-DbDictionary * DbDictionary::CreateInstance(const char * pPath, long options)
+/*static*/DbDictionary * DbDictionary::CreateInstance(const char * pPath, long options)
 {
 	return CreateInstanceProc ? CreateInstanceProc(pPath, options) : new DbDict_Btrieve(pPath);
 }
 //
 //
-// static
-const char * BDictionary::DdfTableFileName = "FILE.DDF";
-const char * BDictionary::DdfFieldFileName = "FIELD.DDF";
-const char * BDictionary::DdfIndexFileName = "INDEX.DDF";
+/*static*/const char * BDictionary::DdfTableFileName = "FILE.DDF";
+/*static*/const char * BDictionary::DdfFieldFileName = "FIELD.DDF";
+/*static*/const char * BDictionary::DdfIndexFileName = "INDEX.DDF";
 //
 // Implementation of API functions
 //
@@ -80,8 +76,7 @@ void SLAPI DBRemoveTempFiles()
 //
 // Implementation of class BDictionary
 //
-//static
-BDictionary * SLAPI BDictionary::CreateBtrDictInstance(const char * pPath)
+/*static*/BDictionary * SLAPI BDictionary::CreateBtrDictInstance(const char * pPath)
 {
 	return new BDictionary(1, pPath);
 }

@@ -215,11 +215,7 @@ int SLAPI InetAddr::Set(const char * pHostName, int port)
 //
 //
 //
-//
-//
-//
-//static
-int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
+/*static*/int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 {
 	int    port = 0;
 	switch(protocol) {
@@ -253,8 +249,7 @@ int FASTCALL InetUrl::GetDefProtocolPort(int protocol)
 	return port;
 }
 
-//static 
-SString & FASTCALL InetUrl::Mk(int protocol, const char * pHost, const char * pPath)
+/*static*/SString & FASTCALL InetUrl::Mk(int protocol, const char * pHost, const char * pPath)
 {
 	assert(!isempty(pHost));
 	const char * p_scheme = protocol ? GetSchemeMnem(protocol) : "";
@@ -270,8 +265,7 @@ SString & FASTCALL InetUrl::Mk(int protocol, const char * pHost, const char * pP
 	return r_buf;
 }
 
-//static 
-int FASTCALL InetUrl::ValidateComponent(int c)
+/*static*/int FASTCALL InetUrl::ValidateComponent(int c)
 {
 	return oneof8(c, cScheme, cUserName, cPassword, cHost, cPort, cPath, cQuery, cRef) ? 1 : SLS.SetError(SLERR_INVPARAM);
 }
@@ -358,14 +352,12 @@ static const char * SchemeMnem[] = {
 	"amqps",    // #39
 };
 
-//static
-const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
+/*static*/const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
 {
 	return (schemeId >= 0 && schemeId < SIZEOFARRAY(SchemeMnem)) ? SchemeMnem[schemeId] : SchemeMnem[0];
 }
 
-//static
-int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
+/*static*/int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 {
 	for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
 		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i]))

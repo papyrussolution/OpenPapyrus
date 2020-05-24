@@ -88,7 +88,7 @@ int SEancomXmlSegment::GetReal(double & rVal) const
 {
 	int    ok = 0;
 	if(P_Node && P_Node->content) {
-		rVal = atof(PTRCHRC_(P_Node->content));
+		rVal = satof(PTRCHRC_(P_Node->content)); // @v10.7.9 atof-->satof
 		ok = 1;
 	}
 	else {

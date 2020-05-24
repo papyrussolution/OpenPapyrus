@@ -88,7 +88,7 @@ int __log_set_lg_filemode(DB_ENV * dbenv, int lg_mode)
 	ENV_NOT_CONFIGURED(env, env->lg_handle, "DB_ENV->set_lg_filemode", DB_INIT_LOG);
 	if(LOGGING_ON(env)) {
 		dblp = env->lg_handle;
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		ENV_ENTER(env, ip);
 		LOG_SYSTEM_LOCK(env);
 		lp->filemode = lg_mode;
@@ -132,7 +132,7 @@ int __log_set_lg_max(DB_ENV * dbenv, uint32 lg_max)
 	ENV_NOT_CONFIGURED(env, env->lg_handle, "DB_ENV->set_lg_max", DB_INIT_LOG);
 	if(LOGGING_ON(env)) {
 		dblp = env->lg_handle;
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		ENV_ENTER(env, ip);
 		if((ret = __log_check_sizes(env, lg_max, 0)) == 0) {
 			LOG_SYSTEM_LOCK(env);
@@ -195,7 +195,7 @@ void __log_get_flags(DB_ENV * dbenv, uint32 * flagsp)
 	ENV * env = dbenv->env;
 	DB_LOG * dblp = env->lg_handle;
 	if(dblp) {
-		LOG * lp = (LOG *)dblp->reginfo.primary;
+		LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 		uint32 flags = *flagsp;
 		SETFLAG(flags, DB_LOG_AUTO_REMOVE, lp->db_log_autoremove);
 		SETFLAG(flags, DB_LOG_IN_MEMORY, lp->db_log_inmemory);
@@ -208,7 +208,7 @@ void __log_set_flags(ENV * env, uint32 flags, int on)
 {
 	DB_LOG * dblp = env->lg_handle;
 	if(dblp) {
-		LOG * lp = (LOG *)dblp->reginfo.primary;
+		LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 		if(LF_ISSET(DB_LOG_AUTO_REMOVE))
 			lp->db_log_autoremove = BIN(on);
 		if(LF_ISSET(DB_LOG_IN_MEMORY))

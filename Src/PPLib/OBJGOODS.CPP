@@ -2521,7 +2521,58 @@ int SLAPI PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	ENDCATCH
 	return ok;
 }
+//
+// @v10.7.9 Удалено использование TaggedStringArray
+//
+int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
+{
+	int    ok = 1;
+	const  int  all = BIN(GetConfig().Flags & GCF_ADDTOALTGRPWITHOUTMSG);
+	if(!IsGeneric(id)) {
+		StrAssocArray grp_txt_list;
+		PPIDArray grp_list;
+		GoodsFilt grp_filt;
+		P_Tbl->GetGroupTerminalList(0, &grp_list, 0);
+		for(uint i = 0; i < grp_list.getCount(); i++) {
+			Goods2Tbl::Rec grp_rec;
+			const PPID grp_id = grp_list.get(i);
+			if(Fetch(grp_id, &grp_rec) > 0 && grp_rec.Flags & GF_ALTGROUP && !(grp_rec.Flags & (GF_TEMPALTGRP_|GF_DYNAMIC))) {
+				if(P_Tbl->GetGroupFilt(grp_id, &grp_filt) > 0) {
+					if(!grp_filt.IsEmpty() && CheckForFilt(&grp_filt, id)) {
+						grp_txt_list.Add(grp_id, grp_rec.Name);
+					}
+				}
+			}
+		}
+		if(grp_txt_list.getCount()) {
+			PPIDArray sel_list;
+			if(all) {
+				grp_txt_list.GetIdList(sel_list);
+			}
+			else {
+				ListToListData ll_data(&grp_txt_list, 0, &sel_list);
+				ll_data.TitleStrID = PPTXT_SELALTGOODSGRPS;
+				if(ListToListDialog(&ll_data) > 0) {
+					;
+				}
+				else
+					sel_list.clear();
+			}
+			if(sel_list.getCount()) {
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				for(uint i = 0; i < sel_list.getCount(); i++) {
+					THROW(AssignGoodsToAltGrp(id, sel_list.get(i), 0, 0));
+				}
+				THROW(tra.Commit());
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
 
+#if 0 // @v10.7.9 {
 int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 {
 	int    ok = 1;
@@ -2566,6 +2617,7 @@ int SLAPI PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 	CATCHZOKPPERR
 	return ok;
 }
+#endif // } 0
 
 int SLAPI PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
@@ -4416,7 +4468,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 		addr_list.sortAndUndup();
 		addr_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("PersonAddrIndex").ucptr());
 		uint c = addr_list.getCount();
@@ -4467,7 +4519,7 @@ int UhttIndexGoods(uint setSz, const SString & rOutPath)
 		}
 		id_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("GoodsIndex").ucptr());
 		uint c = id_list.getCount();
@@ -4530,7 +4582,7 @@ int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 			}
 			id_ary.sort();
 			xmlTextWriterSetIndent(p_writer, 1);
-			xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+			xmlTextWriterSetIndentTab(p_writer);
 			xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 			xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("RandomGoodsIndex").ucptr());
 			for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
@@ -4558,8 +4610,7 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_CHANGED_SET_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
 	if(p_writer) {
-		filt.P_SjF = new SysJournalFilt;
-		THROW_MEM(filt.P_SjF);
+		THROW_MEM(filt.P_SjF = new SysJournalFilt);
 		filt.P_SjF->ObjType = PPOBJ_GOODS;
 		filt.P_SjF->BegTm = 0;
 		filt.P_SjF->Period.low = getcurdate_();
@@ -4571,7 +4622,7 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 		}
 		id_ary.sort();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("ChangedGoodsIndex").ucptr());
 		for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
@@ -4626,7 +4677,7 @@ int UhttIndexBrands(const SString & rOutPath)
 		id_list.shuffle();
 		id_image_list.shuffle();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("BrandIndexRoot").ucptr());
 		{
@@ -4673,7 +4724,7 @@ int UhttIndexStores(const SString & rOutPath)
 		}
 		id_list.sort();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("StoresIndex").ucptr());
 		for(uint i = 0, n = id_list.getCount(); i < n; i++) {

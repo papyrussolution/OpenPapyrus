@@ -1,5 +1,5 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -324,7 +324,7 @@ int SLAPI PPGdsClsDim::FromStr(int, const char * pBuf)
 	char   tmp_buf[32];
 	StringSet ss(',', pBuf);
 	for(uint pos = 0; ss.get(&pos, tmp_buf, sizeof(tmp_buf));) {
-		double val = atof(tmp_buf);
+		double val = satof(tmp_buf); // @v10.7.9 atof-->satof
 		if(Scale)
 			val *= fpow10i((int)Scale);
 		ValList.add(R0i(val));

@@ -2264,24 +2264,20 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 // 
 int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
 {
+	int    ok = 1;
+	int    output_erange = 0;
 	// 1. Handle special cases
 	if(oneof2(pInput[0], 'n', 'N') && oneof2(pInput[1], 'a', 'A') && oneof2(pInput[2], 'n', 'N')) {
 		ASSIGN_PTR(ppInputEnd, pInput + 3);
 		pack_ieee754_double(1/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
-		*pOutputERange = 0;
-		return 1;
 	}
 	else if(oneof2(pInput[0], 'i', 'I') && oneof2(pInput[1], 'n', 'N') && oneof2(pInput[2], 'f', 'F')) {
 		ASSIGN_PTR(ppInputEnd, pInput + 3);
 		pack_ieee754_double( 0/*input_is_nan*/, 0/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
-		*pOutputERange = 0;
-		return 1;
 	}
 	else if(pInput[0] == '-' && oneof2(pInput[1], 'i', 'I') && oneof2(pInput[2], 'n', 'N') && oneof2(pInput[3], 'f', 'F')) {
 		ASSIGN_PTR(ppInputEnd, pInput + 4);
 		pack_ieee754_double(0/*input_is_nan*/, 1/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
-		*pOutputERange = 0;
-		return 1;
 	}
 	else {
 		// 2. Parse input string
@@ -2311,7 +2307,7 @@ int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double
 			switch(state) {
 				// State 0: skip leading whitespaces, before mantissa sign and digits
 				case S0:
-					if(ch == ' ' || ch == '\t')
+					if(oneof2(ch, ' ', '\t'))
 						++s; // remain in state S0
 					else if(ch == '-') {
 						++s;
@@ -2384,7 +2380,7 @@ int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double
 							--exponent_offset;
 						}
 					}
-					else if(ch == 'e' || ch == 'E') {
+					else if(oneof2(ch, 'e', 'E')) {
 						++s;
 						state = S5;
 					}
@@ -2447,30 +2443,26 @@ int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double
 		++exponent_offset;
 		uint64 mantissa = bcd_compress(parsed_digits);
 		// 4. Compute exponent
-		if(mantissa == 0)
-			exponent = 0;
-		else
-			exponent = ((exponent < 350) ? exponent_offset : 0) + (flag_negative_exponent ? -exponent : exponent);
+		exponent = (mantissa == 0) ? 0 : (((exponent < 350) ? exponent_offset : 0) + (flag_negative_exponent ? -exponent : exponent));
 		// 5. Check exponent for overflow and underflow
 		if(exponent <= -350) {
 			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput);
-			*pOutputERange = 1; // strtod(3) would set errno = ERANGE
-			return 1;
+			output_erange = 1; // strtod(3) would set errno = ERANGE
 		}
 		else if(exponent >= 350) {
 			pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, 0/*input_binary_mantissa*/, 0/*input_binary_exponent*/, 1/*input_is_infinity*/, pOutput);
-			*pOutputERange = 1; // strtod(3) would set errno = ERANGE
-			return 1;
+			output_erange = 1; // strtod(3) would set errno = ERANGE
 		}
 		else {
 			// 6. Convert to binary representation, pack bits up and exit
-			if(mantissa != 0) {
-				if(!convert_extended_decimal_to_binary_and_round(mantissa, exponent, &mantissa, &exponent) )
-					return 0; // internal error
+			if(mantissa != 0 && !convert_extended_decimal_to_binary_and_round(mantissa, exponent, &mantissa, &exponent))
+				ok = 0; // internal error
+			else {
+				output_erange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
+					exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput));
 			}
-			*pOutputERange = (!pack_ieee754_double(0/*input_is_nan*/, flag_negative_mantissa/*input_sign*/, mantissa/*input_binary_mantissa*/, 
-				exponent/*input_binary_exponent*/, 0/*input_is_infinity*/, pOutput));
-			return 1;
 		}
 	}
+	ASSIGN_PTR(pOutputERange, output_erange);
+	return ok;
 }

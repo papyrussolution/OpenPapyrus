@@ -675,8 +675,7 @@ int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
 	return ok;
 }
 
-//static
-int SFileUtil::GetSysDir(int pathId, SString & rPath)
+/*static*/int SFileUtil::GetSysDir(int pathId, SString & rPath)
 {
 	/*
 	typedef HRESULT (SHFOLDERAPI * SHGETFOLDERPATH)(HWND, int, HANDLE, DWORD, LPTSTR);

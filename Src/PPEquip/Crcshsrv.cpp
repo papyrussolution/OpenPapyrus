@@ -430,7 +430,7 @@ XmlWriter::XmlWriter(const char * pPath, int replaceSpecSymb) : ReplaceSpecSymb(
 {
 	if(P_Writer) {
 		xmlTextWriterSetIndent(P_Writer, 1);
-		xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(P_Writer);
 		xmlTextWriterStartDocument(P_Writer, 0, "utf8", 0);
 	}
 }

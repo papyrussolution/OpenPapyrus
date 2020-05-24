@@ -646,7 +646,7 @@ int SLAPI PPViewSStat::AddStat(PPID goodsID, LDATE dt, int setTotal, const Predi
 	if(pStat->Count || !(Filt.Flags & SStatFilt::fSkipZeroNhCount)) {
 		SString temp_buf;
 		TempGoodsStatTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec.GoodsID  = goodsID;
 		rec.Dt = dt;
 		GObj.GetSubstText(goodsID, Filt.Sgg, &Gsl, temp_buf);
@@ -1350,7 +1350,7 @@ int SLAPI PPViewSStat::ConvertLinesToBasket()
 			if(!goods_id_list.lsearch(goods_id) && ss_item.SupplOrder != 0.0 && GObj.CheckSpecQuot(Filt.SupplID, goods_id, loc_id, 0)) {
 				ILTI   i_i;
 				ReceiptTbl::Rec lot_rec;
-				MEMSZERO(lot_rec);
+				// @v10.7.9 @ctr MEMSZERO(lot_rec);
 				THROW(::GetCurGoodsPrice(goods_id, loc_id, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 				i_i.GoodsID     = goods_id;
 				//i_i.UnitPerPack = gr_item.UnitPerPack;
@@ -1423,7 +1423,7 @@ int SLAPI PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPack
 				if(accept) {
 					PPTransferItem ti;
 					ReceiptTbl::Rec lot_rec;
-					MEMSZERO(lot_rec);
+					// @v10.7.9 @ctr MEMSZERO(lot_rec);
 					THROW(::GetCurGoodsPrice(goods_id, loc_id, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 					THROW(ti.Init(&pPack->Rec));
 					ti.SetupGoods(goods_id);

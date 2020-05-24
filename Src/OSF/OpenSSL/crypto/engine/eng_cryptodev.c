@@ -984,7 +984,7 @@ static int cryptodev_digest_cleanup(EVP_MD_CTX * ctx)
 	struct dev_crypto_state * state = EVP_MD_CTX_md_data(ctx);
 	struct session_op * sess = &state->d_sess;
 
-	if(state == NULL)
+	if(!state)
 		return 0;
 
 	if(state->d_fd < 0) {

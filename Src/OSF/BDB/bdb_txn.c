@@ -33,7 +33,7 @@ static int __txn_dispatch_undo(ENV*, DB_TXN*, DBT*, DB_LSN*, DB_TXNHEAD *);
 static int __txn_end(DB_TXN*, int);
 static int __txn_isvalid(const DB_TXN*, txnop_t);
 static int __txn_undo(DB_TXN *);
-static int __txn_set_commit_token(DB_TXN*txn, DB_TXN_TOKEN *);
+static int __txn_set_commit_token(DB_TXN * txn, DB_TXN_TOKEN *);
 static void __txn_set_txn_lsnp(DB_TXN*, DB_LSN**, DB_LSN**);
 static int __txn_init(ENV*, DB_TXNMGR *);
 static int __txn_compare(const void *, const void *);
@@ -240,7 +240,7 @@ int __txn_recycle_id(ENV*env, int locked)
  * __txn_begin_int --
  *	Normal DB version of txn_begin.
  */
-static int __txn_begin_int(DB_TXN*txn)
+static int __txn_begin_int(DB_TXN * txn)
 {
 	uint32 id;
 	int ret;
@@ -451,7 +451,7 @@ int __txn_continue(ENV*env, DB_TXN * txn, TXN_DETAIL * td, DB_THREAD_INFO * ip, 
  * __txn_commit_pp --
  *	Interface routine to TXN->commit.
  */
-static int __txn_commit_pp(DB_TXN*txn, uint32 flags)
+static int __txn_commit_pp(DB_TXN * txn, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	int ret, t_ret;
@@ -468,7 +468,7 @@ static int __txn_commit_pp(DB_TXN*txn, uint32 flags)
  * __txn_commit --
  *	Commit a transaction.
  */
-int __txn_commit(DB_TXN*txn, uint32 flags)
+int __txn_commit(DB_TXN * txn, uint32 flags)
 {
 	DBT list_dbt;
 	DB_LOCKREQ request;
@@ -727,7 +727,7 @@ static int __txn_set_commit_token(DB_TXN * txn, DB_TXN_TOKEN * tokenp)
  * previously designated by the user.  Called only in the case where the user
  * has indeed supplied a buffer address.
  */
-static void __txn_build_token(DB_TXN*txn, DB_LSN * lsnp)
+static void __txn_build_token(DB_TXN * txn, DB_LSN * lsnp)
 {
 	uint8 * bp = txn->token_buffer->buf;
 	ENV * env = txn->mgrp->env;
@@ -745,7 +745,7 @@ static void __txn_build_token(DB_TXN*txn, DB_LSN * lsnp)
  * __txn_abort_pp --
  *	Interface routine to TXN->abort.
  */
-static int __txn_abort_pp(DB_TXN*txn)
+static int __txn_abort_pp(DB_TXN * txn)
 {
 	DB_THREAD_INFO * ip;
 	int ret, t_ret;
@@ -869,7 +869,7 @@ int __txn_abort(DB_TXN * txn)
  * __txn_discard --
  *	Interface routine to TXN->discard.
  */
-static int __txn_discard(DB_TXN*txn, uint32 flags)
+static int __txn_discard(DB_TXN * txn, uint32 flags)
 {
 	DB_THREAD_INFO * ip;
 	int ret, t_ret;
@@ -886,7 +886,7 @@ static int __txn_discard(DB_TXN*txn, uint32 flags)
  * __txn_discard --
  *	Free the per-process resources associated with this txn handle.
  */
-int __txn_discard_int(DB_TXN*txn, uint32 flags)
+int __txn_discard_int(DB_TXN * txn, uint32 flags)
 {
 	DB_TXNMGR * mgr;
 	ENV * env;
@@ -917,7 +917,7 @@ int __txn_discard_int(DB_TXN*txn, uint32 flags)
  * __txn_prepare --
  *	Flush the log so a future commit is guaranteed to succeed.
  */
-int __txn_prepare(DB_TXN*txn, uint8 * gid)
+int __txn_prepare(DB_TXN * txn, uint8 * gid)
 {
 	DBT list_dbt, gid_dbt;
 	DB_LOCKREQ request;
@@ -976,28 +976,25 @@ err:
 	ENV_LEAVE(env, ip);
 	return ret;
 }
-/*
- * __txn_id --
- *	Return the transaction ID.
- */
-uint32 __txn_id(DB_TXN*txn)
+//
+// Descr: Return the transaction ID.
+//
+uint32 __txn_id(DB_TXN * txn)
 {
 	return txn->txnid;
 }
-/*
- * __txn_get_name --
- *	Get a descriptive string from a transaction.
- */
-int __txn_get_name(DB_TXN*txn, const char ** namep)
+//
+// Descr: Get a descriptive string from a transaction.
+//
+int __txn_get_name(DB_TXN * txn, const char ** namep)
 {
 	*namep = txn->name;
 	return 0;
 }
-/*
- * __txn_set_name --
- *	Set a descriptive string for a transaction.
- */
-int __txn_set_name(DB_TXN*txn, const char * name)
+//
+// Descr: Set a descriptive string for a transaction.
+//
+int __txn_set_name(DB_TXN * txn, const char * name)
 {
 	DB_THREAD_INFO * ip;
 	int ret;
@@ -1037,11 +1034,10 @@ int __txn_set_name(DB_TXN*txn, const char * name)
 	ENV_LEAVE(env, ip);
 	return 0;
 }
-/*
- * __txn_get_priority --
- *	Get a transaction's priority level
- */
-int __txn_get_priority(DB_TXN*txn, uint32 * priorityp)
+//
+// Descr: Get a transaction's priority level
+//
+int __txn_get_priority(DB_TXN * txn, uint32 * priorityp)
 {
 	if(txn->locker == NULL)
 		return EINVAL;
@@ -1054,13 +1050,13 @@ int __txn_get_priority(DB_TXN*txn, uint32 * priorityp)
  * __txn_set_priority --
  *	Assign a transaction a priority level
  */
-int __txn_set_priority(DB_TXN*txn, uint32 priority)
+int __txn_set_priority(DB_TXN * txn, uint32 priority)
 {
 	if(txn->locker == NULL)
 		return EINVAL;
 	else {
 		txn->locker->priority = priority;
-		((TXN_DETAIL *)txn->td)->priority = priority;
+		static_cast<TXN_DETAIL *>(txn->td)->priority = priority;
 		return 0;
 	}
 }
@@ -1068,7 +1064,7 @@ int __txn_set_priority(DB_TXN*txn, uint32 priority)
  * __txn_set_timeout --
  *	ENV->set_txn_timeout.
  */
-int __txn_set_timeout(DB_TXN*txn, db_timeout_t timeout, uint32 op)
+int __txn_set_timeout(DB_TXN * txn, db_timeout_t timeout, uint32 op)
 {
 	DB_THREAD_INFO * ip;
 	int ret;
@@ -1084,7 +1080,7 @@ int __txn_set_timeout(DB_TXN*txn, db_timeout_t timeout, uint32 op)
  * __txn_isvalid --
  *	Return 0 if the DB_TXN is reasonable, otherwise panic.
  */
-static int __txn_isvalid(const DB_TXN*txn, txnop_t op)
+static int __txn_isvalid(const DB_TXN * txn, txnop_t op)
 {
 	TXN_DETAIL * td;
 	DB_TXNMGR * mgr = txn->mgrp;
@@ -1176,7 +1172,7 @@ err:
  * __txn_end --
  *	Internal transaction end routine.
  */
-static int __txn_end(DB_TXN*txn, int is_commit)
+static int __txn_end(DB_TXN * txn, int is_commit)
 {
 	DB_LOCKREQ request;
 	DB_TXNLOGREC * lr;
@@ -1341,7 +1337,7 @@ static int __txn_dispatch_undo(ENV*env, DB_TXN * txn, DBT * rdbt, DB_LSN * key_l
  * __txn_undo --
  *	Undo the transaction with id txnid.
  */
-static int __txn_undo(DB_TXN*txn)
+static int __txn_undo(DB_TXN * txn)
 {
 	DBT rdbt;
 	DB_LSN key_lsn;
@@ -1526,7 +1522,7 @@ int __txn_reset(ENV*env)
  *	Set the pointer to the begin_lsn field if that field is zero.
  *	Set the pointer to the last_lsn field.
  */
-static void __txn_set_txn_lsnp(DB_TXN*txn, DB_LSN ** blsnp, DB_LSN ** llsnp)
+static void __txn_set_txn_lsnp(DB_TXN * txn, DB_LSN ** blsnp, DB_LSN ** llsnp)
 {
 	TXN_DETAIL * td = (TXN_DETAIL *)txn->td;
 	*llsnp = &td->last_lsn;
@@ -1650,7 +1646,7 @@ int __txn_checkpoint(ENV * env, uint32 kbytes, uint32 minutes, uint32 flags)
 	}
 	else {
 		dblp = env->lg_handle;
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		mgr = env->tx_handle;
 		region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 		infop = env->reginfo;
@@ -3596,7 +3592,7 @@ void __txn_remove_fe_watermark(DB_TXN * txn, DB * db)
  * page number in the MPOOLFILE.  The metadata lock associated with
  * the mfp must be held when this function is called.
  */
-void __txn_add_fe_watermark(DB_TXN*txn, DB * db, db_pgno_t pgno)
+void __txn_add_fe_watermark(DB_TXN * txn, DB * db, db_pgno_t pgno)
 {
 	if(txn && F_ISSET(txn, TXN_BULK)) {
 		MPOOLFILE * mfp = db->mpf->mfp;
@@ -3618,7 +3614,7 @@ void __txn_add_fe_watermark(DB_TXN*txn, DB * db, db_pgno_t pgno)
  * For every extended file in which a log record write was skipped,
  * flush the data pages.  This is called during commit.
  */
-int __txn_flush_fe_files(DB_TXN*txn)
+int __txn_flush_fe_files(DB_TXN * txn)
 {
 	DB * db;
 	int ret;
@@ -3643,7 +3639,7 @@ int __txn_flush_fe_files(DB_TXN*txn)
  * update can be suppressed when the file extension/bulk loading
  * optimization is in force.
  */
-int __txn_pg_above_fe_watermark(DB_TXN*txn, MPOOLFILE * mpf, db_pgno_t pgno)
+int __txn_pg_above_fe_watermark(DB_TXN * txn, MPOOLFILE * mpf, db_pgno_t pgno)
 {
 	if(txn == NULL || (!F_ISSET(txn, TXN_BULK)) || mpf->fe_watermark == PGNO_INVALID)
 		return 0;

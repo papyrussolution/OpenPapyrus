@@ -39,7 +39,7 @@ int FASTCALL SdbField::IsEqual(const SdbField & rPat) const
 	return ok;
 }
 
-int SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, const SFormatParam & rFmt) const
+void SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, const SFormatParam & rFmt) const
 {
 	size_t ns = T.GetBinSize();
 	const  TYPEID st = T.GetDbFieldType();
@@ -63,12 +63,11 @@ int SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, con
 	else if(base_type == BTS_REAL)
 		fmt = rFmt.FReal;
 	char   temp_buf[8192];
-	temp_buf[0] = 0;
+	PTR32(temp_buf)[0] = 0;
 	sttostr(st, p_fld_data, fmt, temp_buf);
 	rTextData = temp_buf;
 	if(base_type == BTS_STRING && rFmt.Flags & SFormatParam::fQuotText)
 		rTextData.Quot('\"', '\"');
-	return 1;
 }
 
 void SdbField::PutFieldDataToBuf(const SString & rTextData, void * pRecBuf, const SFormatParam & rFmt) const
@@ -197,15 +196,16 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 	int    tok = 0, prev_tok = 0;
 	long   tok_val = 0;
 	SString tok_buf;
+	SString msg_buf;
 	T.Typ = 0;
-	Name = 0;
+	Name.Z();
 	OuterFormat = 0;
 	size_t org_offs = rScan.Offs;
 	size_t prev_offs = rScan.Offs;
 	while(ok && (tok = GetNextToken(rScan, *p_re_list, &tok_val, tok_buf)) != 0) {
 		if(tok == TOK_TYPE) {
 			if(T.Typ)
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 			else
 				T.Typ = static_cast<TYPEID>(tok_val);
 		}
@@ -213,20 +213,19 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			if(prev_tok == TOK_SLASH)
 				Name.Cat(tok_buf);
 			else if(Name.NotEmpty())
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 			else
 				Name = tok_buf;
 		}
 		else if(tok == TOK_SLASH) {
 			if(prev_tok != TOK_SYMB)
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
-			else {
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));
+			else
 				Name.CatChar('\\');
-			}
 		}
 		else if(tok == TOK_SIZE) {
 			if(OuterFormat)
-				ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(prev_offs));
+				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 			else
 				OuterFormat = tok_val;
 		}
@@ -236,7 +235,7 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			break;
 	}
 	if(!T.Typ || Name.Empty())
-		ok = SLS.SetError(SLERR_SDREC_SYNTAX, rScan.GetBuf(org_offs));
+		ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(org_offs)).Transf(CTRANSF_OUTER_TO_INNER));
 	if(!ok) {
 		rScan.Offs = org_offs;
 		rScan.Len = 0;

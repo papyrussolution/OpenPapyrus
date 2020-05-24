@@ -195,7 +195,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_LZ4;
 	self->name = "lz4";
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
-	if(state == NULL) {
+	if(!state) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lz4 decompression");
 		return ARCHIVE_FATAL;
 	}

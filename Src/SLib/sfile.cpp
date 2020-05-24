@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -10,8 +10,7 @@
 #include <sys\locking.h>
 
 #if 0 // @construction {
-//static
-void * SIo::SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode /*= 0*/)
+/*static*/void * SIo::SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode /*= 0*/)
 {
 	SString name = pName;
 	if(ioType) {
@@ -979,20 +978,17 @@ backtrack:
 	}
 }
 
-//static
-int FASTCALL SFile::Remove(const char * pFileName)
+/*static*/int FASTCALL SFile::Remove(const char * pFileName)
 {
 	return isempty(pFileName) ? -1 : ((::remove(pFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_DELETE, pFileName));
 }
 
-//static
-int SLAPI SFile::Rename(const char * pFileName, const char * pNewFileName)
+/*static*/int SLAPI SFile::Rename(const char * pFileName, const char * pNewFileName)
 {
 	return (::rename(pFileName, pNewFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_RENAME, pFileName);
 }
 
-//static
-int SLAPI SFile::Compare(const char * pFileName1, const char * pFileName2, long flags)
+/*static*/int SLAPI SFile::Compare(const char * pFileName1, const char * pFileName2, long flags)
 {
 	int    ok = 1;
 	int    r1 = 0, r2 = 0;
@@ -1107,13 +1103,12 @@ int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, L
 #endif
 }
 //
-//static
 // Returns:
 //		1 - файл открыт для записи другим процессом
 //		0 - файл доступен для открытия на чтение
 //	   -1 - ошибка
 //
-int SLAPI SFile::IsOpenedForWriting(const char * pFileName)
+/*static*/int SLAPI SFile::IsOpenedForWriting(const char * pFileName)
 {
 	int    ok = 0;
 	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
@@ -1134,8 +1129,7 @@ int SLAPI SFile::IsOpenedForWriting(const char * pFileName)
     return ok;
 }
 
-//static
-int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout)
+/*static*/int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout)
 {
 	int    ok = -1;
 	int    r = IsOpenedForWriting(pFileName);
@@ -1161,8 +1155,7 @@ int SLAPI SFile::WaitForWriteSharingRelease(const char * pFileName, long timeout
 	return ok;
 }
 
-//static
-void FASTCALL SFile::ZClose(FILE ** ppF)
+/*static*/void FASTCALL SFile::ZClose(FILE ** ppF)
 {
 	if(ppF && *ppF) {
 		fclose(*ppF);
@@ -2337,17 +2330,14 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	return ok;
 }
 
-//static
-uint SFileFormat::GloBaseIdx = 0;
+/*static*/uint SFileFormat::GloBaseIdx = 0;
 
-//static
-int FASTCALL SFileFormat::Register(int id, const char * pExt, const char * pSign)
+/*static*/int FASTCALL SFileFormat::Register(int id, const char * pExt, const char * pSign)
 {
 	return Register(id, 0, 0, pExt, pSign);
 }
 
-//static
-int FASTCALL SFileFormat::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
+/*static*/int FASTCALL SFileFormat::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
 {
 	int    ok = 0;
 	if(!GloBaseIdx) {
@@ -2366,8 +2356,7 @@ int FASTCALL SFileFormat::Register(int id, int mimeType, const char * pMimeSubty
 	return ok;
 }
 
-//static
-int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
+/*static*/int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
 {
 	int    cte = cteUndef;
 	if(!isempty(pCte)) {
@@ -2385,8 +2374,7 @@ int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
 	return cte;
 }
 
-//static
-int SFileFormat::GetContentTransferEncName(int cte, SString & rBuf)
+/*static*/int SFileFormat::GetContentTransferEncName(int cte, SString & rBuf)
 {
 	int    ok = 1;
 	switch(cte) {
@@ -2413,15 +2401,12 @@ static const SIntToSymbTabEntry MimeTypeNameList[] = {
 	{ SFileFormat::mtExample, "example" }
 };
 
-//static
-int SFileFormat::IdentifyMimeType(const char * pMimeType)
+/*static*/int SFileFormat::IdentifyMimeType(const char * pMimeType)
 	{ return SIntToSymbTab_GetId(MimeTypeNameList, SIZEOFARRAY(MimeTypeNameList), pMimeType); }
-//static
-int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
+/*static*/int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
 	{ return SIntToSymbTab_GetSymb(MimeTypeNameList, SIZEOFARRAY(MimeTypeNameList), mimeType, rBuf); }
 
-//static
-int SFileFormat::GetMime(int id, SString & rMime)
+/*static*/int SFileFormat::GetMime(int id, SString & rMime)
 {
 	rMime.Z();
 	int    ok = 0;
@@ -2437,8 +2422,7 @@ int SFileFormat::GetMime(int id, SString & rMime)
 	return ok;
 }
 
-//static
-int SFileFormat::GetExt(int id, SString & rExt)
+/*static*/int SFileFormat::GetExt(int id, SString & rExt)
 {
 	rExt.Z();
 	int    ok = 0;
@@ -2484,8 +2468,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	return ok;
 }
 
-//static
-int SFileFormat::Register()
+/*static*/int SFileFormat::Register()
 {
 	int    ok = 1;
 	Register(Txt,    mtText,  "plain", "txt;csv", 0);

@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -219,8 +219,7 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 {
 }
 
-//static 
-int cdecl SArchive::LaCbOpen(struct archive * pA, void * pClientData)
+/*static*/int cdecl SArchive::LaCbOpen(struct archive * pA, void * pClientData)
 {
 	int    err = -1; // 0 - ok
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -230,8 +229,7 @@ int cdecl SArchive::LaCbOpen(struct archive * pA, void * pClientData)
 	return err;
 }
 
-//static 
-int cdecl SArchive::LaCbClose(struct archive * pA, void * pClientData)
+/*static*/int cdecl SArchive::LaCbClose(struct archive * pA, void * pClientData)
 {
 	int    err = -1; // 0 - ok
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -243,8 +241,7 @@ int cdecl SArchive::LaCbClose(struct archive * pA, void * pClientData)
 	return err;
 }
 
-//static 
-SSIZE_T cdecl SArchive::LaCbRead(struct archive * pA, void * pClientData, const void ** ppBuf)
+/*static*/SSIZE_T cdecl SArchive::LaCbRead(struct archive * pA, void * pClientData, const void ** ppBuf)
 {
 	SSIZE_T result = 0;
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -258,8 +255,7 @@ SSIZE_T cdecl SArchive::LaCbRead(struct archive * pA, void * pClientData, const 
 	return result;
 }
 
-//static 
-int64 cdecl SArchive::LaCbSkip(struct archive * pA, void * pClientData, int64 request)
+/*static*/int64 cdecl SArchive::LaCbSkip(struct archive * pA, void * pClientData, int64 request)
 {
 	int64  result = 0;
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);

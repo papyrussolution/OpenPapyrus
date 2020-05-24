@@ -189,7 +189,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	infop = env->reginfo;
 	renv = (REGENV *)infop->primary;
 	/*
@@ -611,7 +611,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 		/* This is a rebroadcast; simply tell the application. */
 		if(F_ISSET(rep, REP_F_MASTER)) {
 			dblp = env->lg_handle;
-			lp = (LOG *)dblp->reginfo.primary;
+			lp = static_cast<LOG *>(dblp->reginfo.primary);
 			LOG_SYSTEM_LOCK(env);
 			lsn = lp->lsn;
 			LOG_SYSTEM_UNLOCK(env);
@@ -974,7 +974,7 @@ int __rep_apply(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * r
 		goto out;
 	}
 	dbp = db_rep->rep_db;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	newfile_seen = 0;
 	REP_SYSTEM_LOCK(env);
 	if(rep->sync_state == SYNC_LOG && LOG_COMPARE(&lp->ready_lsn, &rep->first_lsn) < 0)
@@ -1507,7 +1507,7 @@ static int __rep_newfile(ENV * env, __rep_control_args * rp, DBT * rec)
 	__rep_newfile_args nf_args;
 	int ret;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	/*
@@ -1634,7 +1634,7 @@ static int __rep_getnext(ENV*env, DB_THREAD_INFO * ip)
 	__rep_control_args * rp;
 	int ret, t_ret;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_REP * db_rep = env->rep_handle;
 	DB * dbp = db_rep->rep_db;
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)
@@ -1689,7 +1689,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB * dbp = db_rep->rep_db;
 	int ret = 0;
 	int t_ret = 0;
@@ -1882,7 +1882,7 @@ int __rep_resend_req(ENV*env, int rereq)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	ret = 0;
 	lsnp = NULL;
 	msgtype = REP_INVALID;
@@ -1947,7 +1947,7 @@ int __rep_check_doreq(ENV*env, REP * rep)
 	db_timespec now;
 	int req;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	__os_gettime(env, &now, 1);
 	timespecsub(&now, &lp->rcvd_ts);
 	req = timespeccmp(&now, &lp->wait_ts, >=);
@@ -2068,7 +2068,7 @@ int __rep_check_missing(ENV*env, uint32 gen, DB_LSN * master_perm_lsn)
 	}
 	/* Check for interior or tail log gap. */
 	if(do_req && !has_page_gap) {
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		/*
 		 * The LOG_COMPARE test is <= because ready_lsn is
 		 * the next LSN we are expecting but we do not have

@@ -858,7 +858,6 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 	if(ok > 0) {
 		if(pItem) {
 			*static_cast<InventoryTbl::Rec *>(pItem) = inv_rec;
-			pItem->FullGrpName = 0;
 			P_GgIter->Get(goods_rec.ParentID, pItem->FullGrpName);
 		}
 	}

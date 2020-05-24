@@ -418,7 +418,7 @@ int SLAPI PPJobMngr::SavePool2(const PPJobPool * pPool)
 	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1)>0) {
 		THROW(p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0));
 		xmlTextWriterSetIndent(p_xml_writer, 1);
-		xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_xml_writer);
 		SXml::WDoc _doc(p_xml_writer, cpUTF8);
 		{
 			SXml::WNode root_node(p_xml_writer, "JobPool");

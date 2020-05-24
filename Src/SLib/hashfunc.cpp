@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -1150,8 +1150,7 @@ SLAPI SCRC32::~SCRC32()
 #define CRC_START_64_ECMA    0x0000000000000000ull
 #define CRC_START_64_WE      0xFFFFFFFFFFFFFFFFull
 
-//static 
-uint8 FASTCALL SlHash::CRC8(State * pS, const void * pData, size_t dataLen)
+/*static*/uint8 FASTCALL SlHash::CRC8(State * pS, const void * pData, size_t dataLen)
 {
 	const uint8 init_val = CRC_START_8;
 	uint8 result = 0;
@@ -1212,8 +1211,7 @@ uint8 FASTCALL SlHash::CRC8(State * pS, const void * pData, size_t dataLen)
 	return result;
 }
 
-//static 
-uint32 FASTCALL SlHash::CRC32(State * pS, const void * pData, size_t dataLen)
+/*static*/uint32 FASTCALL SlHash::CRC32(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
@@ -1260,8 +1258,7 @@ uint32 FASTCALL SlHash::CRC32(State * pS, const void * pData, size_t dataLen)
 	return result;
 }
 
-//static 
-uint32 FASTCALL SlHash::CRC24(State * pS, const void * pData, size_t dataLen)
+/*static*/uint32 FASTCALL SlHash::CRC24(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
@@ -1483,8 +1480,7 @@ uint32 FASTCALL SlHash::CRC24(State * pS, const void * pData, size_t dataLen)
 	return result;
 }
 
-//static 
-uint32 FASTCALL SlHash::Adler32(State * pS, const void * pData, size_t dataLen)
+/*static*/uint32 FASTCALL SlHash::Adler32(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
@@ -1585,8 +1581,7 @@ uint32 FASTCALL SlHash::Adler32(State * pS, const void * pData, size_t dataLen)
 // This processes one or more 64-byte data blocks, but does not update
 // the bit counters.  There are no alignment requirements.
 // 
-//static 
-const  uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size)
+/*static*/const  uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size)
 {
 	uint32 words[80];
 	uint   i;
@@ -1716,8 +1711,7 @@ const  uchar * SlHash::Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_
 	return p;
 }
 
-//static 
-int FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
+/*static*/int FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
 {
 	int    ok = 1;
 	if(!pS) {
@@ -1814,8 +1808,7 @@ int FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen, void *
 	return ok;
 }
 
-//static 
-int FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
+/*static*/int FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
 {
 	int    ok = 0;
 	if(!pS) {

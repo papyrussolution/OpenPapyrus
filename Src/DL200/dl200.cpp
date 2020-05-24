@@ -300,7 +300,7 @@ DL2_CI * SLAPI DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pA
 				else if(p_arg->CiType == DL2CIT_INT)
 					p_result->Init(-p_arg->I);
 				else if(p_arg->CiType == DL2CIT_STRING)
-					p_result->Init(-atof(p_arg->GetStr()));
+					p_result->Init(-satof(p_arg->GetStr())); // @v10.7.9 atof-->satof
 				else
 					PPSetError(PPERR_DL200_INVPARAMTYPE);
 			}

@@ -2179,7 +2179,7 @@ void FASTCALL PPSession::MoveCommonPathOnInitThread(long pathID)
 	SString temp_buf;
 	if(CommonPaths.GetPath(pathID, 0, temp_buf) > 0) {
 		SetPath(pathID, temp_buf, 0, 1);
-		if(pathID == PPPATH_TEMP)
+		if(pathID == PPPATH_LOG) // @v10.7.9 @fix PPPATH_TEMP-->PPPATH_LOG
 			SLS.SetLogPath(temp_buf);
 	}
 }

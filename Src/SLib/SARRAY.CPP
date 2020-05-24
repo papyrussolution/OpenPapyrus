@@ -12,8 +12,7 @@
 #define _USERPTR_C(ptr)  ((VFlags&aryPtrContainer)?(*reinterpret_cast<const void * const *>(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((VFlags&aryPtrContainer)?&(ptr):(ptr))
 
-//static
-uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
+/*static*/uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
 {
 	return pB ? pB->getCount() : 0;
 }
@@ -1955,10 +1954,8 @@ int SLAPI UUIDAssocArray::GetMaxKey(long * pMaxKey, uint * pPos) const
 //
 //
 //
-//static 
-TYPEID SLAPI TaggedString::BufType() { return static_cast<TYPEID>(MKSTYPE(S_ZSTRING, TaggedString::BufSize())); }
-//static 
-size_t SLAPI TaggedString::BufSize() { return (sizeof(TaggedString)-sizeof(long)); }
+/*static*/TYPEID SLAPI TaggedString::BufType() { return static_cast<TYPEID>(MKSTYPE(S_ZSTRING, TaggedString::BufSize())); }
+/*static*/size_t SLAPI TaggedString::BufSize() { return (sizeof(TaggedString)-sizeof(long)); }
 
 SLAPI TaggedString::TaggedString() : Id(0)
 {
@@ -2221,6 +2218,22 @@ int SLAPI StrAssocArray::GetParent(long id, long * pParentId) const
 	return ok;
 }
 
+int SLAPI StrAssocArray::GetIdList(LongArray & rList) const
+{
+	int    ok = -1;
+	rList.clear();
+	const uint c = LAssocArray::getCount();
+	if(c) {
+		for(uint i = 0; i < c; i++) {
+			const long id = LAssocArray::at(i).Key;
+			rList.add(id);
+		}
+		rList.sortAndUndup();
+		ok = 1;
+	}
+	return ok;
+}
+
 int SLAPI StrAssocArray::GetListByParent(long parentId, int recursive, LongArray & rList) const
 {
 	int    ok = 1;
@@ -2228,20 +2241,21 @@ int SLAPI StrAssocArray::GetListByParent(long parentId, int recursive, LongArray
 	if(parentId) {
 		const uint c = LAssocArray::getCount();
 		for(uint i = 0; i < c; i++) {
-			long   id = LAssocArray::at(i).Key;
+			const long id = LAssocArray::at(i).Key;
 			if(ParentList.SearchPair(id, parentId, 0) > 0)
-				temp_list.addUnique(id);
+				temp_list.add(id); // @v10.7.9 addUnique-->add
 		}
 	}
 	else {
 		const uint c = LAssocArray::getCount();
 		for(uint i = 0; i < c; i++) {
-			long   id = LAssocArray::at(i).Key;
+			const  long id = LAssocArray::at(i).Key;
 			long   p = 0;
 			if(!ParentList.Search(id, &p, 0) || p == 0)
-				temp_list.addUnique(id);
+				temp_list.add(id); // @v10.7.9 addUnique-->add
 		}
 	}
+	temp_list.sortAndUndup(); // @v10.7.9 
 	if(recursive) {
 		const uint c = temp_list.getCount();
 		LongArray temp_list2;
@@ -2801,6 +2815,32 @@ void SLAPI StrAssocArray::SortByText()
 {
 	ParentList.Sort();
 	LAssocArray::sort(PTR_CMPFUNC(StrAssoc_ByText), this);
+}
+
+void SLAPI StrAssocArray::Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList)
+{
+	LongArray child_list;
+	GetListByParent(parentId, 0, child_list);
+	child_list.sort();
+	for(uint i = 0; i < getCount(); i++) {
+		StrAssocArray::Item item = Get(i);
+		if(child_list.bsearch(item.Id)) {
+			assert(item.ParentId == parentId);
+			rTempList.AddFast(item.Id, item.ParentId, item.Txt);
+			if(HasChild(item.Id)) {
+				Helper_SortByTextInTreeOrder(item.Id, rTempList); // @recursion
+			}
+		}
+	}
+}
+
+void SLAPI StrAssocArray::SortByTextInTreeOrder()
+{
+	SortByText();
+	LongArray child_list;
+	StrAssocArray temp_list;
+	Helper_SortByTextInTreeOrder(0, temp_list);
+	*this = temp_list;
 }
 
 void SLAPI StrAssocArray::SortByLength(int descend)

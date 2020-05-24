@@ -266,7 +266,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
         }
 		const char * p_codepage = IsUtf8() ? "utf-8" : "windows-1251";
 		xmlTextWriterSetIndent(P_Writer, 1);
-		xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(P_Writer);
 		xmlTextWriterStartDocument(P_Writer, 0, p_codepage, 0);
 		// @v7.2.6 {
 		{

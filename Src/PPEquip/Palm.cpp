@@ -2519,7 +2519,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 			PPAlbatrossConfig cfg;
 			DS.FetchAlbatrosConfig(&cfg);
 			xmlTextWriterSetIndent(P_Writer, 1);
-			xmlTextWriterSetIndentString(P_Writer, reinterpret_cast<const xmlChar *>("\t"));
+			xmlTextWriterSetIndentTab(P_Writer);
 			xmlTextWriterStartDocument(P_Writer, 0, "utf8", 0);
 			StartElement(isempty(pRoot) ? "StyloPalm" : pRoot);
 			if(pHdr) {
@@ -3589,7 +3589,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 					out_brand_rec.ID      = r_entry.BrandID;
 					out_brand_rec.OwnID   = r_entry.OwnerID;
 					STRNSCPY(out_brand_rec.Name, r_entry.BrandName);
-					STRNSCPY(out_brand_rec.OwnName, r_entry.OwnerName); // @v8.8.0 @fix out_brand_rec.Name-->out_brand_rec.OwnName
+					STRNSCPY(out_brand_rec.OwnName, r_entry.OwnerName); 
 					THROW(p_ie_brand->AppendRecord(&out_brand_rec, sizeof(out_brand_rec)));
 				}
 			}

@@ -2429,7 +2429,8 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 {
 	const PPID save_loc_id = LConfig.Location;
 	Rec  * p_rec = static_cast<Rec *>(pData);
-	PPID   grp_id = 0, prev_grp_level = 0;
+	PPID   grp_id = 0;
+	PPID   prev_grp_level = 0;
 	int    disable_group_selection = 0;
 	PPObjGoods gobj;
 	Flags = p_rec->Flags;
@@ -3470,11 +3471,11 @@ void EditExtParamsDlg::getRange(uint ctlID, RealRange * pRng, long scale)
 {
 	GetRealRangeInput(this, ctlID, pRng);
 	if(scale < 0) {
-		const double _pw = fpow10i((int)scale);
+		const double _pw = fpow10i(scale);
 		pRng->Set(pRng->low * _pw, pRng->upp * _pw);
 	}
 	else if(scale > 0)
-		pRng->Set(round(pRng->low, (int)scale), round(pRng->upp, (int)scale));
+		pRng->Set(round(pRng->low, scale), round(pRng->upp, scale));
 }
 
 int GoodsFiltDialog::EditExtParams() { DIALOG_PROC_BODY(EditExtParamsDlg, &Data.Ep); }
@@ -3486,7 +3487,7 @@ void GoodsFiltDialog::GroupList()
 	Data.GrpIDList.InitEmpty();
 	Data.GrpIDList.Add(prev_grp_id);
 	PPIDArray temp_list = Data.GrpIDList.Get();
-	ListToListData data(PPOBJ_GOODSGROUP, (void *)GGRTYP_SEL_NORMAL, &temp_list);
+	ListToListData data(PPOBJ_GOODSGROUP, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL), &temp_list);
 	data.Flags |= ListToListData::fIsTreeList;
 	data.TitleStrID = PPTXT_SELGOODSGRPS;
 	if(!ListToListDialog(&data))

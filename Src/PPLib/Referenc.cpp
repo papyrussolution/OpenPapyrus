@@ -757,7 +757,7 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 	PropVlrString * pm = 0;
 	uint   s = 0;
 	if(!isempty(b)) {
-		uint sz = sstrlen(b) + 1;
+		const uint sz = sstrlen(b) + 1;
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
 		THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(s)));
 		memzero(pm, s);

@@ -257,7 +257,7 @@ int FASTCALL __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp,
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	int    ret = 0;
 #if defined(DEBUG_ROP) || defined(DEBUG_WOP)
 	if(db_rep->send == NULL)
@@ -466,7 +466,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	ret = 0;
 	logc = NULL;
 	lockout_msg = 0;
@@ -891,7 +891,7 @@ static int __rep_show_progress(ENV*env, const char * which, int mins)
 	DB_LSN ready_lsn;
 	REP * rep = env->rep_handle->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (dblp == NULL) ? NULL : (LOG *)dblp->reginfo.primary;
+	LOG * lp = dblp ? (LOG *)dblp->reginfo.primary : 0;
 #define WAITING_MSG  DB_STR_A("3505", "%s waiting %d minutes for replication lockout to complete", "%s %d")
 #define WAITING_ARGS WAITING_MSG, which, mins
 	__db_errx(env, WAITING_ARGS);
@@ -2195,7 +2195,7 @@ int __rep_get_maxpermlsn(ENV*env, DB_LSN * max_perm_lsnp)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	ENV_ENTER(env, ip);
 	MUTEX_LOCK(env, rep->mtx_clientdb);
 	*max_perm_lsnp = lp->max_perm_lsn;

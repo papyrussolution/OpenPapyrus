@@ -974,7 +974,7 @@ EXPORT int FinishImpExp()
 				P_ExportCls->CreateFileName(fAlco, p_item->ContragName, p_item->ShopAddr, pos + 1, alco_name);
 				P_ExportCls->P_WXmlAlco = xmlNewTextWriterFilename(alco_name, 0);
 				if(P_ExportCls->P_WXmlAlco) {
-					xmlTextWriterSetIndentString(P_ExportCls->P_WXmlAlco, reinterpret_cast<const xmlChar *>("\t"));
+					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlAlco);
 					xmlTextWriterStartDocument(P_ExportCls->P_WXmlAlco, 0, "windows-1251", 0);
 					P_ExportCls->SaveInfo(&p_item->ShopAlco, P_ExportCls->P_WXmlAlco);
 					xmlTextWriterEndDocument(P_ExportCls->P_WXmlAlco);
@@ -986,7 +986,7 @@ EXPORT int FinishImpExp()
 				P_ExportCls->CreateFileName(fBeer, p_item->ContragName, p_item->ShopAddr, pos + 1, beer_name);
 				P_ExportCls->P_WXmlBeer = xmlNewTextWriterFilename(beer_name, 0);
 				if(P_ExportCls->P_WXmlBeer) {
-					xmlTextWriterSetIndentString(P_ExportCls->P_WXmlBeer, reinterpret_cast<const xmlChar *>("\t"));
+					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlBeer);
 					xmlTextWriterStartDocument(P_ExportCls->P_WXmlBeer, 0, "windows-1251", 0);
 					P_ExportCls->SaveInfo(&p_item->ShopBeer, P_ExportCls->P_WXmlBeer, 1);
 					xmlTextWriterEndDocument(P_ExportCls->P_WXmlBeer);
@@ -1000,7 +1000,7 @@ EXPORT int FinishImpExp()
 				P_ExportCls->CreateFileName(fAlco | fReturn, p_item->ContragName, p_item->ShopAddr, pos + 1, alco_name);
 				P_ExportCls->P_WXmlAlcoRet = xmlNewTextWriterFilename(alco_name, 0);
 				if(P_ExportCls->P_WXmlAlcoRet) {
-					xmlTextWriterSetIndentString(P_ExportCls->P_WXmlAlcoRet, reinterpret_cast<const xmlChar *>("\t"));
+					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlAlcoRet);
 					xmlTextWriterStartDocument(P_ExportCls->P_WXmlAlcoRet, 0, "windows-1251", 0);
 					P_ExportCls->SaveInfo(&p_item->ShopAlcoRet, P_ExportCls->P_WXmlAlcoRet);
 					xmlTextWriterEndDocument(P_ExportCls->P_WXmlAlcoRet);
@@ -1012,7 +1012,7 @@ EXPORT int FinishImpExp()
 				P_ExportCls->CreateFileName(fBeer | fReturn, p_item->ContragName, p_item->ShopAddr, pos + 1, beer_name);
 				P_ExportCls->P_WXmlBeerRet = xmlNewTextWriterFilename(beer_name, 0);
 				if(P_ExportCls->P_WXmlBeerRet) {
-					xmlTextWriterSetIndentString(P_ExportCls->P_WXmlBeerRet, reinterpret_cast<const xmlChar *>("\t"));
+					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlBeerRet);
 					xmlTextWriterStartDocument(P_ExportCls->P_WXmlBeerRet, 0, "windows-1251", 0);
 					P_ExportCls->SaveInfo(&p_item->ShopBeerRet, P_ExportCls->P_WXmlBeerRet, 1);
 					xmlTextWriterEndDocument(P_ExportCls->P_WXmlBeerRet);
@@ -1026,7 +1026,7 @@ EXPORT int FinishImpExp()
 			if(!fileExists(contrag_name)) {
 				P_ExportCls->P_WXmlContrag = xmlNewTextWriterFilename(contrag_name, 0);
 				if(P_ExportCls->P_WXmlContrag) {
-					xmlTextWriterSetIndentString(P_ExportCls->P_WXmlContrag, reinterpret_cast<const xmlChar *>("\t"));
+					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlContrag);
 					xmlTextWriterStartDocument(P_ExportCls->P_WXmlContrag, 0, "windows-1251", 0);
 					P_ExportCls->SaveContragInfo(&P_ExportCls->ContragInfo);
 					xmlTextWriterEndDocument(P_ExportCls->P_WXmlContrag);
@@ -1039,7 +1039,7 @@ EXPORT int FinishImpExp()
 				P_ExportCls->CreateFileName(fContrag, 0, pos + 1, contrag_name);
 				P_ExportCls->P_WXmlContrag = xmlNewTextWriterFilename(contrag_name, 0);
 				if(P_ExportCls->P_WXmlContrag) {
-					xmlTextWriterSetIndentString(P_ExportCls->P_WXmlContrag, reinterpret_cast<const xmlChar *>("\t"));
+					xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlContrag);
 					xmlTextWriterStartDocument(P_ExportCls->P_WXmlContrag, 0, "windows-1251", 0);
 					P_ExportCls->SaveContragInfo(&p_item->ShopContrag);
 					xmlTextWriterEndDocument(P_ExportCls->P_WXmlContrag);
@@ -1052,7 +1052,7 @@ EXPORT int FinishImpExp()
 		//P_ExportCls->CreateFileName(fContrag, 0, 0, pos + 1, contrag_name);
 		//P_ExportCls->P_WXmlContrag = xmlNewTextWriterFilename(contrag_name, 0);
 		//if(P_ExportCls->P_WXmlContrag) {
-		//	xmlTextWriterSetIndentString(P_ExportCls->P_WXmlContrag, reinterpret_cast<const xmlChar *>("\t"));
+		//	xmlTextWriterSetIndentTab(P_ExportCls->P_WXmlContrag);
 		//	xmlTextWriterStartDocument(P_ExportCls->P_WXmlContrag, 0, "windows-1251", 0);
 		//	P_ExportCls->SaveContragInfo(&P_ExportCls->ContragInfo);
 		//	xmlTextWriterEndDocument(P_ExportCls->P_WXmlContrag);

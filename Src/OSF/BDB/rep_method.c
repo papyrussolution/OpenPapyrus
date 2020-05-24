@@ -189,7 +189,7 @@ int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 		 * toggled.
 		 */
 		dblp = env->lg_handle;
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		if(FLD_ISSET(rep->config, REP_C_BULK) && !FLD_ISSET(orig, REP_C_BULK))
 			db_rep->bulk = (uint8 *)R_ADDR(&dblp->reginfo, lp->bulk_buf);
 		REP_SYSTEM_UNLOCK(env);
@@ -427,7 +427,7 @@ int __rep_start_int(ENV * env, DBT * dbt, uint32 flags)
 		locked = 1;
 	}
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(role == DB_REP_MASTER) {
 		if(role_chg) {
 			/*
@@ -1064,7 +1064,7 @@ static int __rep_abort_prepared(ENV * env)
 	DB_TXNMGR * mgr = env->tx_handle;
 	DB_TXNREGION * region = static_cast<DB_TXNREGION *>(mgr->reginfo.primary);
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(region->stat.st_nrestores == 0)
 		return 0;
 	op = DB_FIRST;
@@ -1900,7 +1900,7 @@ int __rep_sync(DB_ENV * dbenv, uint32 flags)
 		return EINVAL;
 	}
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	rep = db_rep->region;
 	ret = 0;
 	ENV_ENTER(env, ip);
@@ -2126,7 +2126,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	uint32 gen = rep->gen;
 	if(F_ISSET(rep, REP_F_MASTER)) {
 		LOG_SYSTEM_LOCK(env);

@@ -532,8 +532,7 @@ int SLAPI SMailClient::WriteBlock(const void * pData, size_t dataSize)
 	return ok;
 }
 
-//static
-SString & FASTCALL SMailClient::Pop3_SkipReplyStatus(SString & rBuf)
+/*static*/SString & FASTCALL SMailClient::Pop3_SkipReplyStatus(SString & rBuf)
 {
 	rBuf.Strip();
 	if(rBuf.HasPrefix("+OK"))

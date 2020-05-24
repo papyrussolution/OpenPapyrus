@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -353,104 +353,96 @@ SLAPI PPViewTSessAnlz::~PPViewTSessAnlz()
 //
 //
 //
-class TSessAnlzFilt3Dialog : public TDialog {
-public:
-	TSessAnlzFilt3Dialog() : TDialog(DLG_TSESANLZFILT3)
-	{
-	}
-	int    setDTS(const TSessAnlzFilt *);
-	int    getDTS(TSessAnlzFilt *);
-private:
-	DECL_HANDLE_EVENT;
-	TSessAnlzFilt Data;
-};
-
-IMPL_HANDLE_EVENT(TSessAnlzFilt3Dialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_TSESANLZFILT_DIFPRC)) {
-		GetClusterData(CTL_TSESANLZFILT_DIFPRC, &Data.DiffPrc);
-		DisableClusterItem(CTL_TSESANLZFILT_FLAGS, 4, (!Data.PlanSessID || Data.DiffPrc != TSessAnlzFilt::difprcAr));
-		clearEvent(event);
-	}
-}
-
-int TSessAnlzFilt3Dialog::setDTS(const TSessAnlzFilt * pData)
-{
-	Data = *pData;
-	setCtrlUInt16(CTL_TSESANLZFILT_WHAT, BIN(Data.Flags & TSessAnlzFilt::fAll));
-	AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 0, TSessAnlzFilt::fAddTotalRows);
-	AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 1, TSessAnlzFilt::fPrmrGoodsOnly);
-	AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 2, TSessAnlzFilt::fShowRest);
-	AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 3, TSessAnlzFilt::fExtrapolToPeriod);
-	AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 4, TSessAnlzFilt::fInterpolPlanToAr);
-	AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 5, TSessAnlzFilt::fCalcCompParts);
-	SetClusterData(CTL_TSESANLZFILT_FLAGS, Data.Flags);
-
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 0, TSessAnlzFilt::difprcNone);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 1, TSessAnlzFilt::difprcPrc);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 2, TSessAnlzFilt::difprcPrcGroup);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 3, TSessAnlzFilt::difprcAr);
-	SetClusterData(CTL_TSESANLZFILT_DIFPRC, Data.DiffPrc);
-
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFMG, 0, TSessAnlzFilt::difmgNone);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFMG, 1, TSessAnlzFilt::difmgGoods);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFMG, 2, TSessAnlzFilt::difmgGroup);
-	SetClusterData(CTL_TSESANLZFILT_DIFMG, Data.DiffMg);
-
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFDT, 0, TSessAnlzFilt::difdtNone);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFDT, 1, TSessAnlzFilt::difdtDate);
-	AddClusterAssoc(CTL_TSESANLZFILT_DIFDT, 2, TSessAnlzFilt::difdtSupersess);
-	SetClusterData(CTL_TSESANLZFILT_DIFDT, Data.DiffDt);
-
-	AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 0, TSessAnlzFilt::difdtNone);
-	AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 1, TSessAnlzFilt::difdtDate);
-	long   nmgopt = 0;
-	if(Data.Flags & TSessAnlzFilt::fNmgAllRestrict)
-		nmgopt = 2;
-	else if(Data.Flags & TSessAnlzFilt::fNmgRestrictOnly)
-		nmgopt = 1;
-	else
-		nmgopt = 0;
-	AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 0, 0);
-	AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 1, 1);
-	AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 2, 2);
-	SetClusterData(CTL_TSESANLZFILT_NMGOPT, nmgopt);
-	SetupPPObjCombo(this, CTLSEL_TSESANLZFILT_NMG, PPOBJ_GOODSGROUP, Data.NmGoodsGrpID, OLW_CANSELUPLEVEL, 0);
-	SetupSubstGoodsCombo(this, CTLSEL_TSESANLZFILT_SUBS, Data.Sgg); // @v6.0.2 AHTOXA
-	disableCtrl(CTL_TSESANLZFILT_WHAT, Data.PlanSessID);
-	DisableClusterItem(CTL_TSESANLZFILT_FLAGS, 3, !Data.PlanSessID);
-	DisableClusterItem(CTL_TSESANLZFILT_FLAGS, 4, (!Data.PlanSessID || Data.DiffPrc != TSessAnlzFilt::difprcAr));
-	return 1;
-}
-
-int TSessAnlzFilt3Dialog::getDTS(TSessAnlzFilt * pData)
-{
-	ushort v = getCtrlUInt16(CTL_TSESANLZFILT_WHAT);
-	SETFLAG(Data.Flags, TSessAnlzFilt::fAll, v == 1);
-	GetClusterData(CTL_TSESANLZFILT_FLAGS, &Data.Flags);
-	GetClusterData(CTL_TSESANLZFILT_DIFPRC, &Data.DiffPrc);
-	GetClusterData(CTL_TSESANLZFILT_DIFMG,  &Data.DiffMg);
-	GetClusterData(CTL_TSESANLZFILT_DIFDT,  &Data.DiffDt);
-	long   nmgopt = 0;
-	GetClusterData(CTL_TSESANLZFILT_NMGOPT, &nmgopt);
-	Data.Flags &= ~(TSessAnlzFilt::fNmgRestrictOnly | TSessAnlzFilt::fNmgAllRestrict);
-	if(nmgopt == 0) {
-		;
-	}
-	else if(nmgopt == 1)
-		Data.Flags |= TSessAnlzFilt::fNmgRestrictOnly;
-	else if(nmgopt == 2)
-		Data.Flags |= TSessAnlzFilt::fNmgAllRestrict;
-	getCtrlData(CTLSEL_TSESANLZFILT_NMG, &Data.NmGoodsGrpID);
-	getCtrlData(CTLSEL_TSESANLZFILT_SUBS, &Data.Sgg);
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-//
-
 int SLAPI PPViewTSessAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
+	class TSessAnlzFilt3Dialog : public TDialog {
+		DECL_DIALOG_DATA(TSessAnlzFilt);
+	public:
+		TSessAnlzFilt3Dialog() : TDialog(DLG_TSESANLZFILT3)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			setCtrlUInt16(CTL_TSESANLZFILT_WHAT, BIN(Data.Flags & TSessAnlzFilt::fAll));
+			AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 0, TSessAnlzFilt::fAddTotalRows);
+			AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 1, TSessAnlzFilt::fPrmrGoodsOnly);
+			AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 2, TSessAnlzFilt::fShowRest);
+			AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 3, TSessAnlzFilt::fExtrapolToPeriod);
+			AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 4, TSessAnlzFilt::fInterpolPlanToAr);
+			AddClusterAssoc(CTL_TSESANLZFILT_FLAGS, 5, TSessAnlzFilt::fCalcCompParts);
+			SetClusterData(CTL_TSESANLZFILT_FLAGS, Data.Flags);
+
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 0, TSessAnlzFilt::difprcNone);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 1, TSessAnlzFilt::difprcPrc);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 2, TSessAnlzFilt::difprcPrcGroup);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFPRC, 3, TSessAnlzFilt::difprcAr);
+			SetClusterData(CTL_TSESANLZFILT_DIFPRC, Data.DiffPrc);
+
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFMG, 0, TSessAnlzFilt::difmgNone);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFMG, 1, TSessAnlzFilt::difmgGoods);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFMG, 2, TSessAnlzFilt::difmgGroup);
+			SetClusterData(CTL_TSESANLZFILT_DIFMG, Data.DiffMg);
+
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFDT, 0, TSessAnlzFilt::difdtNone);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFDT, 1, TSessAnlzFilt::difdtDate);
+			AddClusterAssoc(CTL_TSESANLZFILT_DIFDT, 2, TSessAnlzFilt::difdtSupersess);
+			SetClusterData(CTL_TSESANLZFILT_DIFDT, Data.DiffDt);
+
+			AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 0, TSessAnlzFilt::difdtNone);
+			AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 1, TSessAnlzFilt::difdtDate);
+			long   nmgopt = 0;
+			if(Data.Flags & TSessAnlzFilt::fNmgAllRestrict)
+				nmgopt = 2;
+			else if(Data.Flags & TSessAnlzFilt::fNmgRestrictOnly)
+				nmgopt = 1;
+			else
+				nmgopt = 0;
+			AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 0, 0);
+			AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 1, 1);
+			AddClusterAssoc(CTL_TSESANLZFILT_NMGOPT, 2, 2);
+			SetClusterData(CTL_TSESANLZFILT_NMGOPT, nmgopt);
+			SetupPPObjCombo(this, CTLSEL_TSESANLZFILT_NMG, PPOBJ_GOODSGROUP, Data.NmGoodsGrpID, OLW_CANSELUPLEVEL, 0);
+			SetupSubstGoodsCombo(this, CTLSEL_TSESANLZFILT_SUBS, Data.Sgg);
+			disableCtrl(CTL_TSESANLZFILT_WHAT, Data.PlanSessID);
+			DisableClusterItem(CTL_TSESANLZFILT_FLAGS, 3, !Data.PlanSessID);
+			DisableClusterItem(CTL_TSESANLZFILT_FLAGS, 4, (!Data.PlanSessID || Data.DiffPrc != TSessAnlzFilt::difprcAr));
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			ushort v = getCtrlUInt16(CTL_TSESANLZFILT_WHAT);
+			SETFLAG(Data.Flags, TSessAnlzFilt::fAll, v == 1);
+			GetClusterData(CTL_TSESANLZFILT_FLAGS, &Data.Flags);
+			GetClusterData(CTL_TSESANLZFILT_DIFPRC, &Data.DiffPrc);
+			GetClusterData(CTL_TSESANLZFILT_DIFMG,  &Data.DiffMg);
+			GetClusterData(CTL_TSESANLZFILT_DIFDT,  &Data.DiffDt);
+			long   nmgopt = 0;
+			GetClusterData(CTL_TSESANLZFILT_NMGOPT, &nmgopt);
+			Data.Flags &= ~(TSessAnlzFilt::fNmgRestrictOnly | TSessAnlzFilt::fNmgAllRestrict);
+			if(nmgopt == 0) {
+				;
+			}
+			else if(nmgopt == 1)
+				Data.Flags |= TSessAnlzFilt::fNmgRestrictOnly;
+			else if(nmgopt == 2)
+				Data.Flags |= TSessAnlzFilt::fNmgAllRestrict;
+			getCtrlData(CTLSEL_TSESANLZFILT_NMG, &Data.NmGoodsGrpID);
+			getCtrlData(CTLSEL_TSESANLZFILT_SUBS, &Data.Sgg);
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_TSESANLZFILT_DIFPRC)) {
+				GetClusterData(CTL_TSESANLZFILT_DIFPRC, &Data.DiffPrc);
+				DisableClusterItem(CTL_TSESANLZFILT_FLAGS, 4, (!Data.PlanSessID || Data.DiffPrc != TSessAnlzFilt::difprcAr));
+				clearEvent(event);
+			}
+		}
+	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODY(TSessAnlzFilt3Dialog, static_cast<TSessAnlzFilt *>(pBaseFilt));
@@ -893,11 +885,11 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			//
 			SString temp_buf, word_total;
 			PPGetWord(PPWORD_TOTAL, 0, word_total);
-			TempTSessRepTbl::Rec rec;
 			PPObjArticle ar_obj;
 			BExtInsert bei(P_TempTbl);
 			for(i = 0; result.enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
-				MEMSZERO(rec);
+				TempTSessRepTbl::Rec rec;
+				// @v10.7.9 @ctr MEMSZERO(rec);
 				rec.DtVal       = p_entry->DtVal;
 				rec.PrcID       = p_entry->PrcID;
 				rec.PrmrGoodsID = p_entry->PrmrGoodsID;

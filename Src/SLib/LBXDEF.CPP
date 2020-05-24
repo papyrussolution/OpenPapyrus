@@ -564,7 +564,6 @@ int SLAPI StdTreeListBoxDef::Helper_CreateTree()
 	if(P_SaList) {
 		UintHashTable added_idx_list;
 		for(uint i = 0; i < P_SaList->getCount(); i++) {
-			//StrAssocArray::Item item_ = P_SaList->at(i); // @debug
 			uint32 pos = 0;
 			THROW(Helper_AddTreeItem(i, added_idx_list, &pos));
 		}

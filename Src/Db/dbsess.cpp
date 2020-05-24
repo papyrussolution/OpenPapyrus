@@ -195,7 +195,7 @@ public:
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 	int    SLAPI base() const;
-	int    SLAPI tobase(const void * s, void * b) const;
+	void   SLAPI tobase(const void * s, void * b) const;
 	int    SLAPI baseto(void * s, const void * b) const;
 	void   SLAPI minval(void *) const;
 	void   SLAPI maxval(void *) const;
@@ -229,12 +229,9 @@ int SLAPI SRowId::fromstr(void * pData, long, const char * pStr) const
 	return 1;
 }
 
-int SLAPI SRowId::base() const
-	{ return BTS_STRING; }
-int SLAPI SRowId::tobase(const void * s, void * b) const
-	{ tostr(s, 0L, static_cast<char *>(b)); return 1; }
-int SLAPI SRowId::baseto(void * s, const void * b) const
-	{ fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
+int  SLAPI SRowId::base() const { return BTS_STRING; }
+void SLAPI SRowId::tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
+int  SLAPI SRowId::baseto(void * s, const void * b) const  { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 
 void SLAPI SRowId::minval(void * pData) const
 {

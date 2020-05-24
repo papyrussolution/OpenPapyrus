@@ -123,7 +123,7 @@ int FASTCALL PPObjListWindow::valid(ushort command)
 		if(!getResult(&id))
 			id = 0;
 		if(p_lb->isTreeList()) {
-			r = ((StdTreeListBoxDef*)p_lb->def)->HasChild(id);
+			r = static_cast<const StdTreeListBoxDef *>(p_lb->def)->HasChild(id);
 			r = BIN(r && (Flags & OLW_CANSELUPLEVEL) || !r);
 			if(r)
 				r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
@@ -375,7 +375,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 					p_box->def->getCurID(&cur_id);
 					if(p_box->isTreeList()) {
 						is_tree_list = 1;
-						if(((StdTreeListBoxDef*)p_box->def)->HasChild(cur_id))
+						if(static_cast<const StdTreeListBoxDef *>(p_box->def)->HasChild(cur_id))
 							edit = 0;
 					}
 					if(event.isCtlEvent(ctlList)) {

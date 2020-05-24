@@ -1,5 +1,6 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -179,7 +180,7 @@ int TextDbFile::Scan()
 		SString line;
 		long   line_no = 0;
 		F.Seek(0, SEEK_SET);
-		int    is_terminator = 0; // Если !0, то предыдущая строка была терминатором вертикальной записи.
+		int    is_terminator = 0; // Р•СЃР»Рё !0, С‚Рѕ РїСЂРµРґС‹РґСѓС‰Р°СЏ СЃС‚СЂРѕРєР° Р±С‹Р»Р° С‚РµСЂРјРёРЅР°С‚РѕСЂРѕРј РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ Р·Р°РїРёСЃРё.
 		int    is_first_rec = 1;
 		uint   vert_fld_no = 0;
 		{
@@ -203,14 +204,14 @@ int TextDbFile::Scan()
 				if(P.Flags & fVerticalRec) {
 					if(is_terminator) {
 						//
-						// Предыдущая строка была терминатором.
-						// Следовательно:
-						THROW(RecPosList.insert(&pos)); // и мы можем зафиксировать позицию очередной записи
+						// РџСЂРµРґС‹РґСѓС‰Р°СЏ СЃС‚СЂРѕРєР° Р±С‹Р»Р° С‚РµСЂРјРёРЅР°С‚РѕСЂРѕРј.
+						// РЎР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ:
+						THROW(RecPosList.insert(&pos)); // Рё РјС‹ РјРѕР¶РµРј Р·Р°С„РёРєСЃРёСЂРѕРІР°С‚СЊ РїРѕР·РёС†РёСЋ РѕС‡РµСЂРµРґРЅРѕР№ Р·Р°РїРёСЃРё
 						is_terminator = 0;
 					}
 					is_terminator = IsTerminalLine(line, vert_fld_no);
 					//
-					// is_terminator == 2 означает неявный конец записи по количеству полей
+					// is_terminator == 2 РѕР·РЅР°С‡Р°РµС‚ РЅРµСЏРІРЅС‹Р№ РєРѕРЅРµС† Р·Р°РїРёСЃРё РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ РїРѕР»РµР№
 					//
 					if(is_terminator != 1) {
 						if(is_first_rec) {
@@ -219,13 +220,13 @@ int TextDbFile::Scan()
 							}
 							else {
 								//
-								// Первая строка (терминатора, естественно, до этого не было):
+								// РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° (С‚РµСЂРјРёРЅР°С‚РѕСЂР°, РµСЃС‚РµСЃС‚РІРµРЅРЅРѕ, РґРѕ СЌС‚РѕРіРѕ РЅРµ Р±С‹Р»Рѕ):
 								if(RecPosList.getCount() == 0)
-									THROW(RecPosList.insert(&pos)); // зафиксируем позицию первой записи
+									THROW(RecPosList.insert(&pos)); // Р·Р°С„РёРєСЃРёСЂСѓРµРј РїРѕР·РёС†РёСЋ РїРµСЂРІРѕР№ Р·Р°РїРёСЃРё
 							}
 						}
 						else if(is_terminator == 2) {
-							THROW(RecPosList.insert(&pos)); // и мы можем зафиксировать позицию очередной записи
+							THROW(RecPosList.insert(&pos)); // Рё РјС‹ РјРѕР¶РµРј Р·Р°С„РёРєСЃРёСЂРѕРІР°С‚СЊ РїРѕР·РёС†РёСЋ РѕС‡РµСЂРµРґРЅРѕР№ Р·Р°РїРёСЃРё
 							vert_fld_no = 0;
 						}
 						is_terminator = 0;
@@ -237,11 +238,17 @@ int TextDbFile::Scan()
 						if(P.Flags & fFldNameRec) {
 							THROW(ParseFieldNameRec(line));
 						}
-						else
-							THROW(RecPosList.insert(&pos));
+						else {
+							if(line.NotEmpty()) { // @v10.7.9
+								THROW(RecPosList.insert(&pos));
+							}
+						}
 					}
-					else
-						THROW(RecPosList.insert(&pos));
+					else {
+						if(line.NotEmpty()) { // @v10.7.9
+							THROW(RecPosList.insert(&pos));
+						}
+					}
 				}
 				is_first_rec = 0;
 			}
@@ -296,7 +303,7 @@ void TextDbFile::PutFieldDataToBuf(const SdbField & rFld, const SString & rTextD
 	rFld.PutFieldDataToBuf(rTextData, pRecBuf, fp);
 }
 
-int TextDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf)
+void TextDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, const void * pRecBuf)
 {
 	SFormatParam fp;
 	fp.FDate = P.DateFormat;
@@ -306,7 +313,7 @@ int TextDbFile::GetFieldDataFromBuf(const SdbField & rFld, SString & rTextData, 
 		fp.Flags |= SFormatParam::fFloatSize;
 	if(P.Flags & fQuotText)
 		fp.Flags |= SFormatParam::fQuotText;
-	return rFld.GetFieldDataFromBuf(rTextData, pRecBuf, fp);
+	rFld.GetFieldDataFromBuf(rTextData, pRecBuf, fp);
 }
 
 int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
@@ -358,10 +365,10 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				for(uint fld_pos = 0; fld_pos < rRec.GetCount(); fld_pos++) {
 					if(rRec.GetFieldByPos(fld_pos, &fld) > 0) {
 						line.Sub(offs, SFMTLEN(fld.OuterFormat), field_buf);
-						field_buf.Strip(); // @v5.3.4 Не уверен, что это правильный оператор.
-							// В общем случае следует использовать поле со всеми пробелами, однако
-							// случаи, когда лидирующие и хвостовые пробелы могут быть полезны
-							// припомнить не смог, в то время как вред от них очевиден.
+						field_buf.Strip(); // @v5.3.4 РќРµ СѓРІРµСЂРµРЅ, С‡С‚Рѕ СЌС‚Рѕ РїСЂР°РІРёР»СЊРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ.
+							// Р’ РѕР±С‰РµРј СЃР»СѓС‡Р°Рµ СЃР»РµРґСѓРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїРѕР»Рµ СЃРѕ РІСЃРµРјРё РїСЂРѕР±РµР»Р°РјРё, РѕРґРЅР°РєРѕ
+							// СЃР»СѓС‡Р°Рё, РєРѕРіРґР° Р»РёРґРёСЂСѓСЋС‰РёРµ Рё С…РІРѕСЃС‚РѕРІС‹Рµ РїСЂРѕР±РµР»С‹ РјРѕРіСѓС‚ Р±С‹С‚СЊ РїРѕР»РµР·РЅС‹
+							// РїСЂРёРїРѕРјРЅРёС‚СЊ РЅРµ СЃРјРѕРі, РІ С‚Рѕ РІСЂРµРјСЏ РєР°Рє РІСЂРµРґ РѕС‚ РЅРёС… РѕС‡РµРІРёРґРµРЅ.
 						offs += SFMTLEN(fld.OuterFormat);
 						PutFieldDataToBuf(fld, field_buf, pDataBuf);
 					}
@@ -400,8 +407,8 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	pos = F.Tell();
 	if(pos == 0) {
 		//
-		// Если файл пустой, то добавляем специфицированное количество пустых строк
-		// и (если необходимо) запись, содержащую наименования полей.
+		// Р•СЃР»Рё С„Р°Р№Р» РїСѓСЃС‚РѕР№, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј СЃРїРµС†РёС„РёС†РёСЂРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСѓСЃС‚С‹С… СЃС‚СЂРѕРє
+		// Рё (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) Р·Р°РїРёСЃСЊ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РїРѕР»РµР№.
 		//
 		for(i = 0; i < static_cast<uint>(P.HdrLinesCount); i++)
 			THROW(F.WriteLine(0));
@@ -433,7 +440,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 	if(P.Flags & fVerticalRec) {
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
-			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
+			GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf);
 			if(P.Flags & fFldEqVal) {
 				if(fld.Name.CmpPrefix("empty", 1) == 0)
 					line = field_buf;
@@ -450,7 +457,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		line.Z();
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
-			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
+			GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf);
 			line.Cat(field_buf);
 			if(!(P.Flags & fFixedFields) && i < rRec.GetCount()-1)
 				line.Cat(P.FldDiv);
@@ -476,8 +483,8 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 	THROW_S_S(pos == 0 && !(State & stHeaderAdded), SLERR_TXTDB_MISSPLHEADER, F.GetName()); // @v7.4.1
 	{
 		//
-		// Если файл пустой, то добавляем специфицированное количество пустых строк
-		// и (если необходимо) запись, содержащую наименования полей.
+		// Р•СЃР»Рё С„Р°Р№Р» РїСѓСЃС‚РѕР№, С‚Рѕ РґРѕР±Р°РІР»СЏРµРј СЃРїРµС†РёС„РёС†РёСЂРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїСѓСЃС‚С‹С… СЃС‚СЂРѕРє
+		// Рё (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) Р·Р°РїРёСЃСЊ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РїРѕР»РµР№.
 		//
 		for(i = 0; i < (uint)P.HdrLinesCount; i++)
 			THROW(F.WriteLine(0));
@@ -509,7 +516,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 	if(P.Flags & fVerticalRec) {
 		for(i = 0; i < rRec.GetCount(); i++) {
 			THROW(rRec.GetFieldByPos(i, &fld));
-			THROW(GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf));
+			GetFieldDataFromBuf(fld, field_buf.Z(), pDataBuf);
 			if(P.Flags & fFldEqVal) {
 				if(fld.Name.CmpPrefix("empty", 1) == 0)
 					line = field_buf;

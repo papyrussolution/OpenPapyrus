@@ -873,10 +873,9 @@ int SLAPI GoodsImportBillIdent::Get(Sdr_Goods2 * pRec, PPID supplID)
 {
 	int    ok = 1;
 	SString suppl_code;
-
 	SupplID = 0;
 	BillDate = ZERODATE;
-	BillCode = 0;
+	BillCode.Z();
 	/*
 	if(*strip(pRec->BillSupplCode) && AccSheetID) {
 		if(CvtCodeToHex)
@@ -1225,7 +1224,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 										*p_v++ = *p++;
 									}
 									*p_v = 0;
-									double phperu = atof(val_buf);
+									double phperu = satof(val_buf); // @v10.7.9 atof-->satof
 									while(*p == ' ')
 										p++;
 									if(*p == '*') {
@@ -1239,7 +1238,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 											*p_v++ = *p++;
 										}
 										*p_v = 0;
-										phperu *= atof(val_buf);
+										phperu *= satof(val_buf); // @v10.7.9 atof-->satof
 									}
 									size_t len = sstrlen(STRNSCPY(val_buf, strip(p)));
 									if(val_buf[len] == '.') {

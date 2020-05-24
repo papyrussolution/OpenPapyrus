@@ -30,7 +30,7 @@ int __rep_update_grant(ENV*env, db_timespec * ts)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	timespecclear(&mytime);
 	//
 	// Get current time, and add in the (skewed) lease duration time to send the grant to the master.
@@ -248,7 +248,7 @@ int FASTCALL __rep_lease_check(ENV * env, int refresh)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	lease_lsn = lp->max_perm_lsn;
 	LOG_SYSTEM_UNLOCK(env);

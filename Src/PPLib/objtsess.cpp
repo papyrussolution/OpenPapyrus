@@ -2094,7 +2094,7 @@ int SLAPI PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX 
 {
 	int    ok = 1;
 	TSessionTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.7.9 @ctr MEMSZERO(rec);
 	ProcessorTbl::Rec prc_rec;
 	rec.Incomplete = 10;
 	if(PrcObj.GetRecWithInheritance(labs(prcID), &prc_rec) > 0) {
@@ -2422,7 +2422,7 @@ int SLAPI PPObjTSession::InitLinePacket(TSessLineTbl::Rec * pRec, PPID sessID)
 {
 	int    ok = -1;
 	TSessLineTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.7.9 @ctr MEMSZERO(rec);
 	TSessionTbl::Rec tses_rec;
 	if(Search(sessID, &tses_rec) > 0) {
 		rec.TSessID = sessID;
@@ -2943,8 +2943,9 @@ SLAPI PPObjTSession::SelectBySerialParam::SelectBySerialParam(PPID sessID, const
 int SLAPI TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign, long flags, TSessLineTbl::Rec * pRec)
 {
 	int    ok = -1;
-	TSessLineTbl::Rec line_rec, temp_line_rec;
-	MEMSZERO(line_rec);
+	TSessLineTbl::Rec line_rec;
+	TSessLineTbl::Rec temp_line_rec;
+	// @v10.7.9 @ctr MEMSZERO(line_rec);
 	LDATETIME dtm = ZERODATETIME;
 	long   hdl_ln_enum = -1;
 	InitLineEnumBySerial(pSerial, sign, &hdl_ln_enum);

@@ -276,35 +276,25 @@ cleanup_clip:
 	return status;
 }
 
-static cairo_int_status_t fixup_unbounded_polygon(const cairo_spans_compositor_t * compositor,
-    const cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+static cairo_int_status_t fixup_unbounded_polygon(const cairo_spans_compositor_t * compositor, const cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_polygon_t polygon, intersect;
 	cairo_composite_rectangles_t composite;
 	cairo_fill_rule_t fill_rule;
 	cairo_antialias_t antialias;
 	cairo_int_status_t status;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	/* Can we treat the clip as a regular clear-polygon and use it to fill? */
-	status = _cairo_clip_get_polygon(extents->clip, &polygon,
-		&fill_rule, &antialias);
+	status = _cairo_clip_get_polygon(extents->clip, &polygon, &fill_rule, &antialias);
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED)
 		return status;
-
 	status = _cairo_polygon_init_boxes(&intersect, boxes);
 	if(unlikely(status))
 		goto cleanup_polygon;
-
-	status = _cairo_polygon_intersect(&polygon, fill_rule,
-		&intersect, CAIRO_FILL_RULE_WINDING);
+	status = _cairo_polygon_intersect(&polygon, fill_rule, &intersect, CAIRO_FILL_RULE_WINDING);
 	_cairo_polygon_fini(&intersect);
-
 	if(unlikely(status))
 		goto cleanup_polygon;
-
 	status = _cairo_composite_rectangles_init_for_polygon(&composite,
 		extents->surface,
 		CAIRO_OPERATOR_CLEAR,
@@ -350,11 +340,9 @@ static cairo_int_status_t fixup_unbounded_boxes(const cairo_spans_compositor_t *
 	else {
 		box.p1.x = _cairo_fixed_from_int(extents->unbounded.x);
 		box.p2.x = _cairo_fixed_from_int(extents->unbounded.x + extents->unbounded.width);
-
 		status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &box);
 		assert(status == CAIRO_INT_STATUS_SUCCESS);
 	}
-
 	/* If we have a clip polygon, we need to intersect with that as well */
 	if(extents->clip->path) {
 		status = fixup_unbounded_polygon(compositor, extents, &clear);
@@ -364,29 +352,18 @@ static cairo_int_status_t fixup_unbounded_boxes(const cairo_spans_compositor_t *
 	else {
 		/* Otherwise just intersect with the clip boxes */
 		if(extents->clip->num_boxes) {
-			_cairo_boxes_init_for_array(&tmp,
-			    extents->clip->boxes,
-			    extents->clip->num_boxes);
+			_cairo_boxes_init_for_array(&tmp, extents->clip->boxes, extents->clip->num_boxes);
 			status = _cairo_boxes_intersect(&clear, &tmp, &clear);
 			if(unlikely(status))
 				goto error;
 		}
-
 		if(clear.is_pixel_aligned) {
-			status = compositor->fill_boxes(extents->surface,
-				CAIRO_OPERATOR_CLEAR,
-				CAIRO_COLOR_TRANSPARENT,
-				&clear);
+			status = compositor->fill_boxes(extents->surface, CAIRO_OPERATOR_CLEAR, CAIRO_COLOR_TRANSPARENT, &clear);
 		}
 		else {
 			cairo_composite_rectangles_t composite;
-
-			status = _cairo_composite_rectangles_init_for_boxes(&composite,
-				extents->surface,
-				CAIRO_OPERATOR_CLEAR,
-				&_cairo_pattern_clear.base,
-				&clear,
-				NULL);
+			status = _cairo_composite_rectangles_init_for_boxes(&composite, extents->surface,
+				CAIRO_OPERATOR_CLEAR, &_cairo_pattern_clear.base, &clear, NULL);
 			if(likely(status == CAIRO_INT_STATUS_SUCCESS)) {
 				status = composite_boxes(compositor, &composite, &clear);
 				_cairo_composite_rectangles_fini(&composite);

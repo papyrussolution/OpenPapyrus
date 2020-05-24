@@ -626,9 +626,9 @@ ERR_STATE * ERR_get_state(void)
 	if(!RUN_ONCE(&err_init, err_do_init))
 		return NULL;
 	state = (ERR_STATE*)CRYPTO_THREAD_get_local(&err_thread_local);
-	if(state == NULL) {
+	if(!state) {
 		state = (ERR_STATE*)OPENSSL_zalloc(sizeof(*state));
-		if(state == NULL)
+		if(!state)
 			return NULL;
 		if(!CRYPTO_THREAD_set_local(&err_thread_local, state)) {
 			ERR_STATE_free(state);

@@ -1,5 +1,5 @@
 // DTI.CPP
-// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018
+// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018, 2020
 //
 // DTI
 //
@@ -36,8 +36,7 @@ PT_PvGetServerName       PervasiveDBCatalog::PvGetServerName = 0;
 
 SDynLibrary * PervasiveDBCatalog::P_Lib = 0;
 
-//static
-int PervasiveDBCatalog::PtLoad()
+/*static*/int PervasiveDBCatalog::PtLoad()
 {
 	int    ok = -1;
 	SETIFZ(P_Lib, new SDynLibrary("w3dbav80.dll"));
@@ -68,8 +67,7 @@ int PervasiveDBCatalog::PtLoad()
 	return ok;
 }
 
-//static
-int PervasiveDBCatalog::PtRelease()
+/*static*/int PervasiveDBCatalog::PtRelease()
 {
 	int    ok = -1;
 	if(P_Lib) {

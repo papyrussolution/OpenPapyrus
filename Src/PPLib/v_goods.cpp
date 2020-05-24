@@ -5080,6 +5080,69 @@ int PPALDD_UhttGoods::NextIteration(long iterId)
 	return ok;
 }
 
+static int SLAPI SetOuterGoodsTag(PPID tagID, const SString & rTagStrValue, PPGoodsPacket & rP)
+{
+	int    ok = -1;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
+	if(tagID && rTagStrValue.NotEmpty() && tag_obj.Fetch(tagID, &tag_rec) > 0) {
+		Reference * p_ref = PPRef;
+		ObjTagItem pgg_tag_value;
+		if(rTagStrValue.HasPrefix("/h|")) {
+			StringSet ss("/h>");
+			SString value_buf;
+			ss.setBuf(rTagStrValue+3, rTagStrValue.Len()-3+1);
+			if(tag_rec.TagDataType == OTTYP_ENUM && tag_rec.TagEnumID) {
+				ss.reverse();
+				PPID   prev_level_id = 0;
+				SString temp_buf;
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					value_buf = temp_buf;
+					if(value_buf.NotEmptyS()) {
+						ReferenceTbl::Rec ref_rec;
+						PPID   ref_id = 0;
+						int    r = p_ref->SearchName(tag_rec.TagEnumID, &ref_id, value_buf, &ref_rec);
+						THROW(r);
+						if(r > 0) {
+						}
+						else if(r < 0) {
+							MEMSZERO(ref_rec);
+							value_buf.CopyTo(ref_rec.ObjName, sizeof(ref_rec.ObjName));
+							ref_rec.Val2 = prev_level_id;
+							PPTransaction tra(-1);
+							THROW(tra);
+							THROW(p_ref->AddItem(tag_rec.TagEnumID, &ref_id, &ref_rec, 0));
+							THROW(tra.Commit());
+						}
+						prev_level_id = ref_id;
+					}
+				}
+				if(prev_level_id) {
+					if(pgg_tag_value.SetInt(tagID, prev_level_id)) {
+						rP.TagL.PutItem(tagID, &pgg_tag_value);
+						ok = 1;
+					}
+				}
+			}
+			else {
+				uint ssp = 0;
+				if(ss.get(&ssp, value_buf) && value_buf.NotEmptyS()) {
+					if(pgg_tag_value.SetStr(tagID, value_buf)) {
+						rP.TagL.PutItem(tagID, &pgg_tag_value);
+						ok = 1;
+					}
+				}
+			}
+		}
+		else if(pgg_tag_value.SetStr(tagID, rTagStrValue)) {
+			rP.TagL.PutItem(tagID, &pgg_tag_value);
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPALDD_UhttGoods::Set(long iterId, int commit)
 {
 	int    ok = 1;
@@ -5185,59 +5248,12 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 			if(glob_acc_id && sstreqi_ascii(I_TagList.TagSymb, "OuterGroup")) {
 				ObjTagItem pgg_tag;
 				if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, glob_acc_id, PPTAG_GUA_PGGTAG, &pgg_tag) > 0) {
-					if(pgg_tag.GetStr(temp_buf.Z()) > 0) {
+					if(pgg_tag.GetStr(temp_buf) > 0) {
 						PPID   pgg_tag_id = 0;
-						PPObjectTag tag_rec;
-						if(r_blk.TagObj.FetchBySymb(temp_buf, &pgg_tag_id) > 0 && r_blk.TagObj.Fetch(pgg_tag_id, &tag_rec) > 0) {
+						if(r_blk.TagObj.FetchBySymb(temp_buf, &pgg_tag_id) > 0) {
 							r_blk.PrivateGoodsGroupTagID = pgg_tag_id;
 							r_blk.PrivateGoodsGroup = I_TagList.StrVal;
-							ObjTagItem pgg_tag_value;
-							if(r_blk.PrivateGoodsGroup.HasPrefix("/h|")) {
-								StringSet ss("/h>");
-								SString value_buf;
-								ss.setBuf(r_blk.PrivateGoodsGroup+3, r_blk.PrivateGoodsGroup.Len()-3+1);
-								if(tag_rec.TagDataType == OTTYP_ENUM && tag_rec.TagEnumID) {
-									ss.reverse();
-									PPID   prev_level_id = 0;
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										value_buf = temp_buf;
-										if(value_buf.NotEmptyS()) {
-											ReferenceTbl::Rec ref_rec;
-											PPID   ref_id = 0;
-											int    r = p_ref->SearchName(tag_rec.TagEnumID, &ref_id, value_buf, &ref_rec);
-											THROW(r);
-											if(r > 0) {
-											}
-											else if(r < 0) {
-												MEMSZERO(ref_rec);
-												value_buf.CopyTo(ref_rec.ObjName, sizeof(ref_rec.ObjName));
-												ref_rec.Val2 = prev_level_id;
-												PPTransaction tra(-1);
-												THROW(tra);
-												THROW(p_ref->AddItem(tag_rec.TagEnumID, &ref_id, &ref_rec, 0));
-												THROW(tra.Commit());
-											}
-											prev_level_id = ref_id;
-										}
-									}
-									if(prev_level_id) {
-										if(pgg_tag_value.SetInt(pgg_tag_id, prev_level_id)) {
-											r_blk.Pack.TagL.PutItem(pgg_tag_id, &pgg_tag_value);
-										}
-									}
-								}
-								else {
-									uint ssp = 0;
-									if(ss.get(&ssp, value_buf) && value_buf.NotEmptyS()) {
-										if(pgg_tag_value.SetStr(pgg_tag_id, value_buf)) {
-											r_blk.Pack.TagL.PutItem(pgg_tag_id, &pgg_tag_value);
-										}
-									}
-								}
-							}
-							else if(pgg_tag_value.SetStr(pgg_tag_id, r_blk.PrivateGoodsGroup)) {
-								r_blk.Pack.TagL.PutItem(pgg_tag_id, &pgg_tag_value);
-							}
+							THROW(SetOuterGoodsTag(pgg_tag_id, r_blk.PrivateGoodsGroup, r_blk.Pack));
 						}
 					}
 				}
@@ -5276,20 +5292,13 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 						org_pack.PutExtStrData(GDSEXSTR_C, ext_c);
 						org_pack.PutExtStrData(GDSEXSTR_D, ext_d);
 						org_pack.PutExtStrData(GDSEXSTR_E, ext_e);
-						// @v8.2.10 {
 						if(r_blk.Pack.Rec.BrandID)
 							org_pack.Rec.BrandID = r_blk.Pack.Rec.BrandID;
-						// } @v8.2.10
-						// @v8.3.5 {
 						if(r_blk.Pack.Rec.ManufID) {
 							org_pack.Rec.ManufID = r_blk.Pack.Rec.ManufID;
 						}
-						// } @v8.3.5
 						if(r_blk.PrivateGoodsGroupTagID) {
-							ObjTagItem pgg_tag_value;
-							if(pgg_tag_value.SetStr(r_blk.PrivateGoodsGroupTagID, r_blk.PrivateGoodsGroup)) {
-								org_pack.TagL.PutItem(r_blk.PrivateGoodsGroupTagID, &pgg_tag_value);
-							}
+							THROW(SetOuterGoodsTag(r_blk.PrivateGoodsGroupTagID, r_blk.PrivateGoodsGroup, org_pack));
 						}
 						THROW(r_blk.GObj.PutPacket(&id, &org_pack, 1));
 					}

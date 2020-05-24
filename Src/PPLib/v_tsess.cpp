@@ -576,7 +576,6 @@ int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, 
     int    ok = 1;
     rExt.Z();
     rExt.ID = rItem.ID;
-
 	PPUhttStoreSelDescr::Entry sd_entry;
 	SString ext_sd_text;
 	long   ext_sd_id = 0;
@@ -584,19 +583,18 @@ int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, 
 	PPObjTag tag_obj;
 	ObjTagItem tag_item;
 	ProcessorTbl::Rec prc_rec;
-
 	for(uint i = 0; i < ExtSfTitleList.getCount(); i++) {
 		StrAssocArray::Item item = ExtSfTitleList.at_WithoutParent(i);
 		const uint sd_pos = (item.Id - 1);
 		assert(sd_pos < P_UhttsPack->Sd.GetCount());
-		ext_sd_text = 0;
+		ext_sd_text.Z();
 		ext_sd_id = 0;
 		ext_sd_parent_id = 0;
 		if(P_UhttsPack->Sd.GetEntry(sd_pos, sd_entry)) {
 			switch(sd_entry.Attr) {
 				case PPUhttStoreSelDescr::attrName:
 					ext_sd_id = rItem.ID;
-					ext_sd_text = 0; // @todo Description
+					ext_sd_text.Z(); // @todo Description
 					break;
 				case PPUhttStoreSelDescr::attrTag:
 					if(sd_entry.TagID && tag_obj.FetchTag(rItem.ID, sd_entry.TagID, &tag_item) > 0) {
@@ -610,7 +608,7 @@ int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, 
 					}
 					break;
 				case PPUhttStoreSelDescr::attrPeriod:
-                    ext_sd_id = (long)rItem.StDt.v;
+                    ext_sd_id = static_cast<long>(rItem.StDt.v);
                     ext_sd_text.Cat(rItem.StDt, DATF_YMD|DATF_CENTURY);
 					break;
 				case PPUhttStoreSelDescr::attrProcessor:
@@ -627,8 +625,9 @@ int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, 
 					break;
 			}
 		}
-		if(ext_sd_parent_id)
+		if(ext_sd_parent_id) {
 			rExt.SfList.AddFast(ext_sd_id, ext_sd_parent_id, ext_sd_text);
+		}
 		else
 			rExt.SfList.AddFast(ext_sd_id, ext_sd_text);
 	}

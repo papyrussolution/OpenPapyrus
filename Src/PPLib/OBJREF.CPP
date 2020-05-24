@@ -104,6 +104,37 @@ int ObjViewDialog::transmit(PPID)
 	return ok;
 }
 
+int ObjViewDialog::RemoveAll()
+{
+	int    ok = -1;
+	if(P_Obj && IS_DYN_OBJTYPE(P_Obj->Obj)) {
+		if(P_Obj->CheckRights(0, DYNOBJRT_RMVALL)) {
+			if(CONFIRMCRIT(PPCFM_RMVALLREFITEMS)) {
+				PPID   id = 0;
+				PPIDArray id_list;
+				PPWait(1);
+				for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)
+					id_list.addnz(id);
+				if(id_list.getCount()) {
+					PPLogger logger;
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint i = 0; i < id_list.getCount(); i++) {
+						id = id_list.get(i);
+						if(!P_Obj->RemoveObjV(id, 0, PPObject::no_wait_indicator|PPObject::not_checkrights, ExtraPtr)) {
+							logger.LogLastError();
+						}
+					}
+					THROW(tra.Commit());
+					updateList(-1);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(ObjViewDialog)
 {
 	TDialog::handleEvent(event);
@@ -115,7 +146,7 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 					if(P_List->def && P_List->isTreeList()) {
 						PPID cur_id = 0;
 						P_List->def->getCurID(&cur_id);
-						if(static_cast<StdTreeListBoxDef *>(P_List->def)->HasChild(cur_id))
+						if(static_cast<const StdTreeListBoxDef *>(P_List->def)->HasChild(cur_id))
 							edit = 0;
 					}
 					if(edit)
@@ -140,7 +171,8 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 		switch(TVKEY) {
 			case kbF11:
 			case kbCtrlEnter: extraProc(getCurrID()); break;
-			default:          return;
+			case kbCtrlF8: RemoveAll(); break;
+			default: return;
 		}
 	}
 	else

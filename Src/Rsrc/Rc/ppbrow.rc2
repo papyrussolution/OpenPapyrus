@@ -7057,7 +7057,7 @@ record Bill {
 	Code          zstring(24)  "@{billno}";
 	Date          date         "@{date}";
 	OpID          long         "Ид вида операции";
-	OpSymb        zstring(20)  "Символ вида операции";
+	OpSymb        zstring(20)  "@{oprkindsymb}";
 	EdiOp         long         "Тип операции EDI";                          // @v8.5.6
 	EdiOpSymb     zstring(12)  "Символ типа операции EDI";                  // @v8.5.6
 	InvoiceCode   zstring(24)  "Номер счет-фактуры";
@@ -7156,7 +7156,7 @@ record BRow {
 	BillCode      zstring(24)  "@{billno}";
 	BillDate      date         "@{date}";
 	OpID          long         "Ид вида операции";
-	OpSymb        zstring(20)  "Символ вида операции";
+	OpSymb        zstring(20)  "@{oprkindsymb}";
 	InvcCode      zstring(24)  "Номер счет-фактуры";
 	InvcDate      date         "Дата счет-фактуры";
 	INN           zstring(32)  "ИНН контрагента";

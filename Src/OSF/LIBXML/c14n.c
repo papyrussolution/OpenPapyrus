@@ -160,12 +160,7 @@ static int xmlC14NIsNodeInNodeset(const xmlNodeSet * pNodes, xmlNode * pNode, xm
 			xmlNs ns;
 			memcpy(&ns, pNode, sizeof(ns));
 			// this is a libxml hack! check xpath.c for details 
-			if(parent && (parent->type == XML_ATTRIBUTE_NODE)) {
-				ns.next = reinterpret_cast<xmlNs *>(parent->P_ParentNode);
-			}
-			else {
-				ns.next = reinterpret_cast<xmlNs *>(parent);
-			}
+			ns.next = (parent && parent->type == XML_ATTRIBUTE_NODE) ? reinterpret_cast<xmlNs *>(parent->P_ParentNode) : reinterpret_cast<xmlNs *>(parent);
 			/*
 			 * If the input is an XPath node-set, then the node-set must explicitly
 			 * contain every node to be rendered to the canonical form.
@@ -211,10 +206,10 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 		xmlC14NErrParam("adding namespace to stack");
 		return;
 	}
-	if((cur->nsTab == NULL) && (cur->PP_NodeTab == NULL)) {
+	if(!cur->nsTab && !cur->PP_NodeTab) {
 		cur->nsTab = static_cast<xmlNs **>(SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNs *)));
 		cur->PP_NodeTab = static_cast<xmlNode **>(SAlloc::M(XML_NAMESPACES_DEFAULT * sizeof(xmlNode *)));
-		if((cur->nsTab == NULL) || (cur->PP_NodeTab == NULL)) {
+		if(!cur->nsTab || !cur->PP_NodeTab) {
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
@@ -229,14 +224,18 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 			xmlC14NErrMemory("adding node to stack");
 			return;
 		}
-		cur->nsTab = static_cast<xmlNs **>(tmp);
-		tmp = SAlloc::R(cur->PP_NodeTab, tmpSize * sizeof(xmlNode *));
-		if(!tmp) {
-			xmlC14NErrMemory("adding node to stack");
-			return;
+		else {
+			cur->nsTab = static_cast<xmlNs **>(tmp);
+			tmp = SAlloc::R(cur->PP_NodeTab, tmpSize * sizeof(xmlNode *));
+			if(!tmp) {
+				xmlC14NErrMemory("adding node to stack");
+				return;
+			}
+			else {
+				cur->PP_NodeTab = static_cast<xmlNode **>(tmp);
+				cur->nsMax = tmpSize;
+			}
 		}
-		cur->PP_NodeTab = static_cast<xmlNode **>(tmp);
-		cur->nsMax = tmpSize;
 	}
 	cur->nsTab[cur->nsCurEnd] = ns;
 	cur->PP_NodeTab[cur->nsCurEnd] = pNode;
@@ -245,7 +244,7 @@ static void xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNs * ns, x
 
 static void xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state) 
 {
-	if(!cur || (state == NULL)) {
+	if(!cur || !state) {
 		xmlC14NErrParam("saving namespaces stack");
 	}
 	else {
@@ -257,7 +256,7 @@ static void xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisib
 
 static void xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state) 
 {
-	if(!cur || (state == NULL)) {
+	if(!cur || !state) {
 		xmlC14NErrParam("restoring namespaces stack");
 	}
 	else {

@@ -513,7 +513,7 @@ int SSvg::_GetPoints(SStrScan & rScan, const char * pTxt, FloatArray & rList)
 	rScan.Skip();
 	while(rScan.GetDotPrefixedNumber(temp_buf)) {
 		// @v10.4.10 float val = temp_buf.ToFloat();
-		float val = static_cast<float>(atof(temp_buf)); // @v10.4.10 
+		float val = static_cast<float>(satof(temp_buf)); // @v10.4.10 // @v10.7.9 atof-->satof
 		float temp_val = temp_buf.ToFloat();
 		assert(val == temp_val);
 		rList.add(val);

@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -893,20 +893,19 @@ int ComExcelWorksheet::GetValue(long row, long col, SString & rValue)
 	return ok;
 }
 
-int ComExcelWorksheet::_Clear(long col1, long colN)
+void ComExcelWorksheet::_Clear(long col1, long colN)
 {
 	for(long i = col1; i < colN; i++) {
 		ComExcelRange * p_range = GetColumn(i);
-		if(p_range)
+		if(p_range) {
 			p_range->DoClear();
-		ZDELETE(p_range);
+			ZDELETE(p_range);
+		}
 	}
-	return 1;
 }
 
-int ComExcelWorksheet::_Clear(long row1, long col1, long row2, long col2)
+void ComExcelWorksheet::_Clear(long row1, long col1, long row2, long col2)
 {
-	return -1;
 }
 
 ComExcelRange * ComExcelWorksheet::_Select(long row1, long col1, long row2, long col2)
@@ -1107,7 +1106,7 @@ int SLAPI ComExcelWorksheets::Activate(long pos)
 	int    ok = 0;
 	ComExcelWorksheet * p_sheet = Get(pos);
 	if(p_sheet) {
-		ok = (p_sheet->_Activate() > 0) ? 1 : 0;
+		ok = BIN(p_sheet->_Activate() > 0);
 		ZDELETE(p_sheet);
 	}
 	return ok;

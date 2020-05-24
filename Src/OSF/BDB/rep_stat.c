@@ -93,7 +93,7 @@ static int __rep_stat(ENV * env, DB_REP_STAT ** statp, uint32 flags)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 
 	*statp = NULL;
 	/* Allocate a stat struct to return to the user. */
@@ -418,7 +418,7 @@ static int __rep_print_all(ENV*env, uint32 flags)
 	__db_msg(env, "LOG replication information:");
 	MUTEX_LOCK(env, rep->mtx_clientdb);
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	STAT_LSN("First log record after a gap", &lp->waiting_lsn);
 	STAT_LSN("Maximum permanent LSN processed", &lp->max_perm_lsn);
 	STAT_LSN("LSN waiting to verify", &lp->verify_lsn);

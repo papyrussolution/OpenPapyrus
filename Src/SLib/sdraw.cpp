@@ -848,7 +848,7 @@ static int GetSvgPathNumber(SStrScan & rScan, SString & rTempBuf, float & rF)
 	if(rScan.Skip().GetDotPrefixedNumber(rTempBuf)) {
 		float temp_val = rTempBuf.ToFloat();
 		// @v10.4.10 rF = rTempBuf.ToFloat();
-		rF = static_cast<float>(atof(rTempBuf)); // @v10.4.10
+		rF = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
 		assert(rF == temp_val);
 	}
 	else
@@ -863,13 +863,13 @@ static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, FPoint & rP)
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
 	// @v10.4.10 rP.X = rTempBuf.ToFloat();
 	temp_val = rTempBuf.ToFloat();
-	rP.X = static_cast<float>(atof(rTempBuf)); // @v10.4.10
+	rP.X = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
 	assert(temp_val == rP.X);
 	rScan.Skip().IncrChr(',');
 	THROW(rScan.Skip().GetDotPrefixedNumber(rTempBuf));
 	// @v10.4.10 rP.Y = rTempBuf.ToFloat();
 	temp_val = rTempBuf.ToFloat();
-	rP.Y = static_cast<float>(atof(rTempBuf)); // @v10.4.10
+	rP.Y = static_cast<float>(satof(rTempBuf)); // @v10.4.10 // @v10.7.9 atof-->satof
 	assert(temp_val == rP.Y);
 	CATCHZOK
 	return ok;

@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -730,15 +730,14 @@ struct SscDbtItem {
 	BNFieldList Fields;
 };
 
-//static 
-size_t FASTCALL SSerializeContext::GetCompressPrefix(uint8 * pBuf) // size of pBuf >= 8
+/*static*/size_t FASTCALL SSerializeContext::GetCompressPrefix(uint8 * pBuf) // size of pBuf >= 8
 {
 	if(pBuf)
 		*reinterpret_cast<uint64 *>(pBuf) = _SlConst.Ssc_CompressionSignature;
 	return sizeof(_SlConst.Ssc_CompressionSignature);
 }
-//static 
-int  FASTCALL SSerializeContext::IsCompressPrefix(const void * pBuf)
+
+/*static*/int  FASTCALL SSerializeContext::IsCompressPrefix(const void * pBuf)
 {
 	return BIN(*reinterpret_cast<const uint64 *>(pBuf) == _SlConst.Ssc_CompressionSignature);
 }

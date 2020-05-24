@@ -331,6 +331,11 @@ PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & rS)
 	Rule = rS.Rule;
 	return *this;
 }
+
+SLAPI PPObjectTag2::PPObjectTag2()
+{
+	THISZERO();
+}
 //
 // PPTagEnumList
 //
@@ -943,14 +948,15 @@ int SLAPI PPObjTag::PutPacket(PPID * pID, PPObjTagPacket * pPack, int use_ta)
 int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 {
 	class ObjTagDialog : public TDialog {
+		DECL_DIALOG_DATA(PPObjTagPacket);
 	public:
 		explicit ObjTagDialog(uint rezID) : TDialog(rezID)
 		{
 		}
-		int    setDTS(const PPObjTagPacket * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			SString typ_name_buf;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			enableCommand(cmaMore, Data.Rec.TagDataType == OTTYP_ENUM);
 			disableCtrl(CTL_OBJTAG_ID, !PPMaster || Data.Rec.ID);
 			ObjTagFilt ot_filt(Data.Rec.ObjTypeID, ObjTagFilt::fOnlyGroups);
@@ -985,7 +991,7 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 			enableCommand(cmaMore, Data.Rec.TagDataType == OTTYP_ENUM);
 			return 1;
 		}
-		int    getDTS(PPObjTagPacket * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   selctl = 0;
@@ -1037,7 +1043,6 @@ int SLAPI PPObjTag::Edit(PPID * pID, void * extraPtr)
 			CATCHZOK
 			return ok;
 		}
-		PPObjTagPacket Data;
 	};
 	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
 	ObjTagDialog * dlg = 0;

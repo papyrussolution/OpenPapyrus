@@ -392,8 +392,8 @@ int PPObject::ReplaceObjInteractive(PPID objTypeID, PPID srcID /*=0*/)
 			if(ObjTypeID == PPOBJ_WORLD) {
 				WorldTbl::Rec wrec_src, wrec_dest;
 				PPObjWorld objworld;
-				MEMSZERO(wrec_src);
-				MEMSZERO(wrec_dest);
+				// @v10.7.9 @ctr MEMSZERO(wrec_src);
+				// @v10.7.9 @ctr MEMSZERO(wrec_dest);
 				objworld.Search(src_id, &wrec_src);
 				objworld.Search(dest_id, &wrec_dest);
 				THROW_PP(wrec_src.Kind == wrec_dest.Kind, PPERR_OBJKINDNOTEQUAL);
@@ -873,8 +873,13 @@ int SLAPI GenericObjRightsDialog(PPID obj, ObjRights * rt, EmbedDialog * pDlg)
 
 int SLAPI PPObject::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
-	int    r;
-	if((r = GenericObjRightsDialog(Obj, rt, pDlg)) == cmOK)
+	int    r = 0;
+	if(IS_DYN_OBJTYPE(Obj) || Obj == PPOBJ_DYNAMICOBJS) {
+		r = EditSpcRightFlags(DLG_RTDYNOBJ, CTL_RTDYNOBJ_FLAGS, CTL_RTDYNOBJ_SFLAGS, bufSize, rt, pDlg);
+	}
+	else
+		r = GenericObjRightsDialog(Obj, rt, pDlg);
+	if(r == cmOK)
 		if(pDlg)
 			return 1;
 		else
@@ -1499,7 +1504,7 @@ int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 	PPObject * ppobj = GetPPObject(obj, extraPtr);
 	PPObjListWindow * p_lw = ppobj ? static_cast<PPObjListWindow *>(ppobj->CreateObjListWin(OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE, extraPtr)) : 0;
 	SString obj_title;
-	if(!p_lw || APPL->AddListToTree(static_cast<PPApp *>(APPL)->LastCmd, (const char *)GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER), p_lw) <= 0) {
+	if(!p_lw || APPL->AddListToTree(static_cast<PPApp *>(APPL)->LastCmd, GetObjectTitle(obj, obj_title).Transf(CTRANSF_INNER_TO_OUTER).cptr(), p_lw) <= 0) {
 		ok = 0;
 		ZDELETE(p_lw);
 	}
@@ -1869,7 +1874,6 @@ int SLAPI ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 	return ok;
 }
 
-
 int SLAPI ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
 {
 	if(addedID) {
@@ -2062,7 +2066,7 @@ int SLAPI ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer
 						STempBuffer _buf(file_chunk_size);
 						THROW_SL(_buf.IsValid());
 						while(fp < fs) {
-							size_t actual_size = (size_t)MIN((int64)_buf.GetSize(), (fs - fp));
+							const size_t actual_size = (size_t)MIN((int64)_buf.GetSize(), (fs - fp));
 							THROW_SL(rBuf.Read(_buf, actual_size));
 							THROW_SL(f.Write(_buf, actual_size));
 							fp += actual_size;

@@ -281,9 +281,9 @@ int SLAPI CalcPriceParam::Restore()
 		StringSet ss(';', temp_buf);
 		uint   pos = 0;
 		if(ss.get(&pos, temp_buf)) {
-			VaPercent = round(atof(temp_buf), 4);
+			VaPercent = R4(satof(temp_buf)); // @v10.7.9 atof-->satof
 			if(ss.get(&pos, temp_buf)) {
-				RoundPrec = round(atof(temp_buf), 4);
+				RoundPrec = R4(satof(temp_buf)); // @v10.7.9 atof-->satof
 				if(ss.get(&pos, temp_buf)) {
 					RoundDir = (int16)atol(temp_buf);
 					if(ss.get(&pos, temp_buf)) {

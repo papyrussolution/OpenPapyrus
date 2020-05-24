@@ -214,7 +214,7 @@ int __rep_log(ENV * env, DB_THREAD_INFO * ip, __rep_control_args * rp, DBT * rec
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	ret = __rep_apply(env, ip, rp, rec, ret_lsnp, &is_dup, &last_lsn);
 	switch(ret) {
 	    /*
@@ -676,7 +676,7 @@ int __rep_loggap_req(ENV * env, REP * rep, DB_LSN * lsnp, uint32 gapflags)
 	int master, ret;
 	uint8 buf[__REP_LOGREQ_SIZE];
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(FLD_ISSET(gapflags, REP_GAP_FORCE))
 		next_lsn = *lsnp;
 	else
@@ -826,7 +826,7 @@ static int __rep_chk_newfile(ENV * env, DB_LOGC * logc, REP * rep, __rep_control
 	size_t len;
 	int ret = 0;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	memzero(&data_dbt, sizeof(data_dbt));
 	LOG_SYSTEM_LOCK(env);
 	endlsn = lp->lsn;

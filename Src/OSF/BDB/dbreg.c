@@ -102,7 +102,7 @@ int __dbreg_setup(DB*dbp, const char * fname, const char * dname, uint32 create_
 	if((ret = __env_alloc(infop, sizeof(FNAME), &fnp)) != 0)
 		goto err;
 #ifdef HAVE_STATISTICS
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(++lp->stat.st_nfileid > lp->stat.st_maxnfileid)
 		lp->stat.st_maxnfileid = lp->stat.st_nfileid;
 #endif
@@ -207,7 +207,7 @@ int __dbreg_teardown_int(ENV*env, FNAME * fnp)
 	dblp = env->lg_handle;
 	infop = &dblp->reginfo;
 #ifdef HAVE_STATISTICS
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 #endif
 	DB_ASSERT(env, fnp->id == DB_LOGFILEID_INVALID);
 	ret = __mutex_free(env, &fnp->mutex);
@@ -235,7 +235,7 @@ int __dbreg_new_id(DB*dbp, DB_TXN * txn)
 	int ret;
 	ENV * env = dbp->env;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	FNAME * fnp = dbp->log_filename;
 	/* The mtx_filelist protects the FNAME list and id management. */
 	MUTEX_LOCK(env, lp->mtx_filelist);
@@ -262,7 +262,7 @@ int __dbreg_get_id(DB*dbp, DB_TXN * txn, int32 * idp)
 	int ret;
 	ENV * env = dbp->env;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	FNAME * fnp = dbp->log_filename;
 	/*
 	 * It's possible that after deciding we needed to call this function,
@@ -324,7 +324,7 @@ int __dbreg_assign_id(DB*dbp, int32 id, int deleted)
 	int ret;
 	ENV * env = dbp->env;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	FNAME * fnp = dbp->log_filename;
 	DB * close_dbp = NULL;
 	FNAME * close_fnp = NULL;
@@ -426,12 +426,10 @@ int __dbreg_revoke_id(DB*dbp, int have_lock, int32 force_id)
  */
 int __dbreg_revoke_id_int(ENV*env, FNAME * fnp, int have_lock, int push, int32 force_id)
 {
-	DB_LOG * dblp;
-	LOG * lp;
 	int32 id;
 	int ret;
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	ret = 0;
 	/* If we lack an ID, this is a null-op. */
 	if(fnp == NULL)
@@ -481,7 +479,7 @@ int __dbreg_close_id(DB*dbp, DB_TXN * txn, uint32 op)
 	int ret, t_ret;
 	ENV * env = dbp->env;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	FNAME * fnp = dbp->log_filename;
 	/* If we lack an ID, this is a null-op. */
 	if(fnp == NULL)
@@ -539,12 +537,10 @@ no_log:
  */
 int __dbreg_close_id_int(ENV*env, FNAME * fnp, uint32 op, int locked)
 {
-	DB_LOG * dblp;
-	LOG * lp;
 	int ret, t_ret;
 	DB_ASSERT(env, fnp->txn_ref == 1);
-	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(fnp->id == DB_LOGFILEID_INVALID)
 		return __dbreg_revoke_id_int(env, fnp, locked, 1, DB_LOGFILEID_INVALID);
 	if(F_ISSET(fnp, DB_FNAME_RECOVER))
@@ -566,39 +562,29 @@ err:
 	return ret;
 }
 /*
- * __dbreg_failchk --
- *
  * Look for entries that belong to dead processes and either close them
  * out or, if there are pending transactions, just remove the mutex which
  * will get discarded later.
- *
- * PUBLIC: int __dbreg_failchk(ENV *);
  */
 int __dbreg_failchk(ENV*env)
 {
-	DB_ENV * dbenv;
-	DB_LOG * dblp;
 	FNAME * fnp, * nnp;
-	LOG * lp;
-	int ret, t_ret;
+	int ret = 0;
+	int t_ret;
 	char buf[DB_THREADID_STRLEN];
-	if((dblp = env->lg_handle) == NULL)
+	DB_LOG * dblp = env->lg_handle;
+	if(!dblp)
 		return 0;
-	lp = (LOG *)dblp->reginfo.primary;
-	dbenv = env->dbenv;
-	ret = 0;
-
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
+	DB_ENV * dbenv = env->dbenv;
 	MUTEX_LOCK(env, lp->mtx_filelist);
 	for(fnp = SH_TAILQ_FIRST(&lp->fq, __fname); fnp != NULL; fnp = nnp) {
 		nnp = SH_TAILQ_NEXT(fnp, q, __fname);
 		if(dbenv->is_alive(dbenv, fnp->pid, 0, DB_MUTEX_PROCESS_ONLY))
 			continue;
 		MUTEX_LOCK(env, fnp->mutex);
-		__db_msg(env, DB_STR_A("1502",
-				"Freeing log information for process: %s, (ref %lu)",
-				"%s %lu"),
-			dbenv->thread_id_string(dbenv, fnp->pid, 0, buf),
-			(ulong)fnp->txn_ref);
+		__db_msg(env, DB_STR_A("1502", "Freeing log information for process: %s, (ref %lu)", "%s %lu"),
+			dbenv->thread_id_string(dbenv, fnp->pid, 0, buf), (ulong)fnp->txn_ref);
 		if(fnp->txn_ref > 1 || F_ISSET(fnp, DB_FNAME_CLOSED)) {
 			if(!F_ISSET(fnp, DB_FNAME_CLOSED)) {
 				fnp->txn_ref--;
@@ -715,7 +701,7 @@ static int __dbreg_pop_id(ENV * env, int32 * id)
 {
 	int32 * stack;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/* Do we have anything to pop? */
 	if(lp->free_fid_stack != INVALID_ROFF && lp->free_fids > 0) {
 		stack = (int32 *)R_ADDR(&dblp->reginfo, lp->free_fid_stack);
@@ -737,7 +723,7 @@ static int __dbreg_pop_id(ENV * env, int32 * id)
 static int __dbreg_pluck_id(ENV*env, int32 id)
 {
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(id < lp->fid_max) {
 		// Do we have anything to look at? 
 		if(lp->free_fid_stack != INVALID_ROFF) {
@@ -771,7 +757,7 @@ int __dbreg_log_id(DB*dbp, DB_TXN * txn, int32 id, int needlock)
 	int i, ret;
 	ENV * env = dbp->env;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	FNAME * fnp = dbp->log_filename;
 	/*
 	 * Verify that the fnp has been initialized, by seeing if it

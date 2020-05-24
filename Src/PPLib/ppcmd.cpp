@@ -1593,7 +1593,7 @@ int SLAPI PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFl
 				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Cat(".xml");
 				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
 				xmlTextWriterSetIndent(p_xml_writer, 1);
-				xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+				xmlTextWriterSetIndentTab(p_xml_writer);
 				SXml::WDoc _doc(p_xml_writer, cpUTF8);
 				THROW(pCmdGrp->Write2(p_xml_writer, rwFlag)); //@erik v10.6.6				
 			}
@@ -1611,7 +1611,7 @@ int SLAPI PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFl
 						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).Cat(".xml");
 						p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
 						xmlTextWriterSetIndent(p_xml_writer, 1);
-						xmlTextWriterSetIndentString(p_xml_writer, reinterpret_cast<const xmlChar *>("\t"));
+						xmlTextWriterSetIndentTab(p_xml_writer);
 						SXml::WDoc _doc(p_xml_writer, cpUTF8);
 						THROW(p_cg->Write2(p_xml_writer, rwFlag)); //@erik v10.6.6
 					}
@@ -2169,9 +2169,8 @@ private:
 class SelectPersonByCodeDialog : public TDialog {
 public:
 	struct Rec {
-		Rec()
+		Rec() : PrmrPsnID(0), ScndPsnID(0), SCardID(0)
 		{
-			THISZERO();
 		}
 		PPID   PrmrPsnID;
 		PPID   ScndPsnID;
@@ -2182,10 +2181,8 @@ public:
 		TDialog(DLG_SELPERSONC)
 	{
 		setStaticText(CTL_SELPERSONC_SUBTITLE, pSubTitle);
-		if(!RVALUEPTR(PsnKindRec, pPsnKindRec))
-			MEMSZERO(PsnKindRec);
-		if(!RVALUEPTR(PsnScndKindRec, pPsnScndKindRec))
-			MEMSZERO(PsnScndKindRec);
+		RVALUEPTR(PsnKindRec, pPsnKindRec);
+		RVALUEPTR(PsnScndKindRec, pPsnScndKindRec);
 		if(pInputPrompt)
 			setLabelText(CTL_SELPERSONC_CODEINP, pInputPrompt);
 		showCtrl(CTLSEL_SELPERSONC_SCARD, 0); // @v9.1.3
@@ -2578,8 +2575,8 @@ int CashNodeFiltDialog::SetupCommands(PPID cashNodeID, long commandID)
 {
 	if(!PrevCashNodeID || PrevCashNodeID != cashNodeID) {
 		PPCashNode cnrec, prev_cnrec;
-		MEMSZERO(cnrec);
-		MEMSZERO(prev_cnrec);
+		// @v10.7.9 @ctr MEMSZERO(cnrec);
+		// @v10.7.9 @ctr MEMSZERO(prev_cnrec);
 		if(cashNodeID && CashNObj.Search(cashNodeID, &cnrec) > 0) {
 			SString commands;
 			if(PrevCashNodeID)

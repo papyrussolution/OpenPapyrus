@@ -751,19 +751,12 @@ empty:
 
 	/* Now intersect with the clip boxes */
 	if(extents->clip->num_boxes) {
-		_cairo_boxes_init_for_array(&tmp,
-		    extents->clip->boxes,
-		    extents->clip->num_boxes);
+		_cairo_boxes_init_for_array(&tmp, extents->clip->boxes, extents->clip->num_boxes);
 		status = _cairo_boxes_intersect(&clear, &tmp, &clear);
 		if(unlikely(status))
 			goto error;
 	}
-
-	status = compositor->fill_boxes(dst,
-		CAIRO_OPERATOR_CLEAR,
-		CAIRO_COLOR_TRANSPARENT,
-		&clear);
-
+	status = compositor->fill_boxes(dst, CAIRO_OPERATOR_CLEAR, CAIRO_COLOR_TRANSPARENT, &clear);
 error:
 	_cairo_boxes_fini(&clear);
 	return status;
@@ -778,22 +771,14 @@ enum {
 static boolint need_bounded_clip(cairo_composite_rectangles_t * extents)
 {
 	uint flags = 0;
-
-	if(extents->clip->num_boxes > 1 ||
-	    extents->mask.width > extents->unbounded.width ||
-	    extents->mask.height > extents->unbounded.height) {
+	if(extents->clip->num_boxes > 1 || extents->mask.width > extents->unbounded.width || extents->mask.height > extents->unbounded.height) {
 		flags |= NEED_CLIP_REGION;
 	}
-
-	if(extents->clip->num_boxes > 1 ||
-	    extents->mask.width > extents->bounded.width ||
-	    extents->mask.height > extents->bounded.height) {
+	if(extents->clip->num_boxes > 1 || extents->mask.width > extents->bounded.width || extents->mask.height > extents->bounded.height) {
 		flags |= FORCE_CLIP_REGION;
 	}
-
 	if(!_cairo_clip_is_region(extents->clip))
 		flags |= NEED_CLIP_SURFACE;
-
 	return flags;
 }
 
@@ -831,15 +816,11 @@ static cairo_status_t clip_and_composite(const cairo_traps_compositor_t * compos
 	}
 	compositor->acquire(dst);
 	if(need_clip & NEED_CLIP_REGION) {
-		const cairo_rectangle_int_t * limit;
-		if((need_clip & FORCE_CLIP_REGION) == 0)
-			limit = &extents->unbounded;
-		else
-			limit = &extents->destination;
+		const cairo_rectangle_int_t * limit = ((need_clip & FORCE_CLIP_REGION) == 0) ? &extents->unbounded : &extents->destination;
 		clip_region = _cairo_clip_get_region(extents->clip);
-		if(clip_region != NULL && cairo_region_contains_rectangle(clip_region, limit) == CAIRO_REGION_OVERLAP_IN)
+		if(clip_region && cairo_region_contains_rectangle(clip_region, limit) == CAIRO_REGION_OVERLAP_IN)
 			clip_region = NULL;
-		if(clip_region != NULL) {
+		if(clip_region) {
 			status = compositor->set_clip_region(dst, clip_region);
 			if(unlikely(status)) {
 				compositor->release(dst);
@@ -847,7 +828,6 @@ static cairo_status_t clip_and_composite(const cairo_traps_compositor_t * compos
 			}
 		}
 	}
-
 	if(extents->bounded.width == 0 || extents->bounded.height == 0)
 		goto skip;
 	src = compositor->pattern_to_surface(dst, source, FALSE, &extents->bounded, &extents->source_sample_area, &src_x, &src_y);

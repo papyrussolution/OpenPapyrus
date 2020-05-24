@@ -1,5 +1,5 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -34,8 +34,8 @@ int FASTCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
 	while(t[0] && !(t[0] == '.' && t[1] == '.') && !(t[0] == ',' && t[1] == ','))
 		t++;
 	n = t[0] ? (dot = 1, t + 2) : t;
-	*pLow = atof(p_tmp);
-	*pUpp = (*strip(n) == 0 && !dot) ? *pLow : atof(n);
+	*pLow = satof(p_tmp); // @v10.7.9 atof-->satof
+	*pUpp = (*strip(n) == 0 && !dot) ? *pLow : satof(n); // @v10.7.9 atof-->satof
 	SAlloc::F(p_tmp);
 	return 1;
 }

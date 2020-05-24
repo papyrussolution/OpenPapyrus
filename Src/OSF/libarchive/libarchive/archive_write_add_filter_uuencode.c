@@ -72,7 +72,7 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 	struct private_uuencode * state;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_uu");
 	state = (struct private_uuencode *)SAlloc::C(1, sizeof(*state));
-	if(state == NULL) {
+	if(!state) {
 		archive_set_error(f->archive, ENOMEM,
 		    "Can't allocate data for uuencode filter");
 		return ARCHIVE_FATAL;

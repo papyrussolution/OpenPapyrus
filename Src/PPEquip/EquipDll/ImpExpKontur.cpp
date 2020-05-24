@@ -1296,7 +1296,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	P_ExportCls->CreateFileName(P_ExportCls->ObjId);
 	P_ExportCls->P_XmlWriter = xmlNewTextWriterFilename(P_ExportCls->ExpFileName, 0);
 	THROWERR(P_ExportCls->P_XmlWriter, IEERR_NULLWRIEXMLPTR);
-	xmlTextWriterSetIndentString(P_ExportCls->P_XmlWriter, reinterpret_cast<const xmlChar *>("\t"));
+	xmlTextWriterSetIndentTab(P_ExportCls->P_XmlWriter);
 	// UTF-8 - по требованию провайдера
 	xmlTextWriterStartDocument(P_ExportCls->P_XmlWriter, 0, "UTF-8", 0);
 	P_ExportCls->Bill = *(Sdr_Bill *)pObjData;
@@ -1912,7 +1912,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 					p_node = p_node->next; // <E5004>
 					if(SXml::IsName(p_node, "E5004") && p_node->children) {
 						if(str == "128") { // Сумма документа с НДС
-							pBill->Amount = atof(PTRCHRC_(p_node->children->content));
+							pBill->Amount = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 							ok = 1;
 						}
 						else if(str == "98") { // Сумма документа без НДС
@@ -2068,9 +2068,9 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 												if(str == "21") // Заказанное количество
 													str.Set(p_node->children->content);
 												else if(str == "113" || str == "170" || str == "12") // Подтвержденное количество
-													pBRow->Quantity = atof(PTRCHRC_(p_node->children->content));
+													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 												else if(str == "59") // Количество товара в упаковке
-													pBRow->UnitPerPack = atof(PTRCHRC_(p_node->children->content));
+													pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 											}
 										}
 									}
@@ -2092,7 +2092,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 													else if(str == "79") // Сумма товарной позиции с НДС
 														str.Set(p_node->children->content);
 													else if(MessageType == PPEDIOP_DESADV && str.CmpNC("XB5") == 0) // Цена товара с НДС для DESADV
-														pBRow->Cost = atof(PTRCHRC_(p_node->children->content));
+														pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 												}
 											}
 										}
@@ -2131,7 +2131,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 												if(str.CmpNC("AAA") == 0) // Цена товара без НДС
 													str.Set(p_node->children->content);
 												else if(str.CmpNC("AAE") == 0) // Цена товара с НДС для ORDRSP
-													pBRow->Cost = atof(PTRCHRC_(p_node->children->content));
+													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
 											}
 										}
 									}

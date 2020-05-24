@@ -2996,7 +2996,7 @@ static gzFile gz_open(const void * path, int fd, const char * mode)
 		return NULL;
 	/* allocate gzFile structure to return */
 	state = static_cast<gz_state *>(SAlloc::M(sizeof(gz_state)));
-	if(state == NULL)
+	if(!state)
 		return NULL;
 	state->size = 0;        /* no buffers allocated yet */
 	state->want = GZBUFSIZE; /* requested buffer size */

@@ -1,5 +1,5 @@
 // PPEXPORT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Импорт/Экспорт данных
 //
@@ -115,7 +115,7 @@ int SLAPI PPDbTableXmlExporter::Run(const char * pOutFileName)
 		SString temp_buf, fld_name;
 		const BNFieldList & r_fl = p_t->GetFields();
 		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentString(p_writer, reinterpret_cast<const xmlChar *>("\t"));
+		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
 		// XMLWriteSpecSymbEntities(writer);
 		{

@@ -136,7 +136,7 @@ static int lzop_bidder_init(struct archive_read_filter * self)
 	self->code = ARCHIVE_FILTER_LZOP;
 	self->name = "lzop";
 	state = (struct read_lzop *)SAlloc::C(sizeof(*state), 1);
-	if(state == NULL) {
+	if(!state) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for lzop decompression");
 		return ARCHIVE_FATAL;
 	}

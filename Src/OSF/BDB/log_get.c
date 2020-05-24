@@ -287,7 +287,7 @@ static int __logc_get_int(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags
 	ENV * env = logc->env;
 	DB_CIPHER * db_cipher = env->crypto_handle;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	int is_hmac = 0;
 	uint32 orig_flags = flags; /* flags may be altered later. */
 	size_t blen = 0;
@@ -1012,7 +1012,7 @@ static int __logc_io(DB_LOGC * logc, uint32 fnum, uint32 offset, void * p, size_
 	char * np;
 	ENV * env = logc->env;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * If we've switched files, discard the current file handle and acquire
 	 * a new one.
@@ -1104,7 +1104,7 @@ static int __logc_set_maxrec(DB_LOGC * logc, char * np)
 	 * The log buffer size is set when the environment is opened and never
 	 * changed, we don't need a lock on it.
 	 */
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	SETMAX(logc->bp_maxrec, lp->buffer_size);
 	return 0;
 }

@@ -922,7 +922,7 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 					if(list && list->isTreeList()) {
 						PPID cur_id = 0;
 						list->def->getCurID(&cur_id);
-						if(static_cast<StdTreeListBoxDef *>(list->def)->HasChild(cur_id))
+						if(static_cast<const StdTreeListBoxDef *>(list->def)->HasChild(cur_id))
 							action = 0;
 					}
 					if(action && isCurrCtlID(Data.LeftCtlId))

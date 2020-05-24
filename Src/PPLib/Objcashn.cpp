@@ -5,6 +5,11 @@
 #include <pp.h>
 #pragma hdrstop
 
+SLAPI PPCashNode2::PPCashNode2()
+{
+	THISZERO();
+}
+
 SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry() : N(0)
 {
 }
@@ -3211,6 +3216,11 @@ int SLAPI PPObjTouchScreen::Edit(PPID * pID, void * extraPtr)
 //
 // @ModuleDef(PPLocPrinter)
 //
+SLAPI PPLocPrinter2::PPLocPrinter2()
+{
+	THISZERO();
+}
+
 SLAPI PPObjLocPrinter::PPObjLocPrinter(void * extraPtr) : PPObjReference(PPOBJ_LOCPRINTER, extraPtr)
 {
 }

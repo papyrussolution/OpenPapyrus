@@ -56,7 +56,7 @@ static int __dbreg_print_all(ENV * env, uint32 flags)
 	int del, first;
 	uint32 i;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	__db_msg(env, "LOG FNAME list:");
 	__mutex_print_debug_single(env, "File name mutex", lp->mtx_filelist, flags);
 	STAT_LONG("Fid max", lp->fid_max);

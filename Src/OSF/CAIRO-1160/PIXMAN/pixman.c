@@ -178,10 +178,7 @@ static inline pixman_bool_t clip_general_image(pixman_region32_t * region, pixma
 	return pixman_region32_not_empty(region);
 }
 
-static inline pixman_bool_t clip_source_image(pixman_region32_t * region,
-    pixman_image_t * image,
-    int dx,
-    int dy)
+static inline pixman_bool_t clip_source_image(pixman_region32_t * region, pixman_image_t * image, int dx, int dy)
 {
 	/* Source clips are ignored, unless they are explicitly turned on
 	 * and the clip in question was set by an X client. (Because if
@@ -190,70 +187,46 @@ static inline pixman_bool_t clip_source_image(pixman_region32_t * region,
 	 */
 	if(!image->common.clip_sources || !image->common.client_clip)
 		return TRUE;
-
-	return clip_general_image(region,
-		   &image->common.clip_region,
-		   dx, dy);
+	return clip_general_image(region, &image->common.clip_region, dx, dy);
 }
-
 /*
  * returns FALSE if the final region is empty.  Indistinguishable from
  * an allocation failure, but rendering ignores those anyways.
  */
-pixman_bool_t _pixman_compute_composite_region32(pixman_region32_t * region,
-    pixman_image_t * src_image,
-    pixman_image_t * mask_image,
-    pixman_image_t * dest_image,
-    int32_t src_x,
-    int32_t src_y,
-    int32_t mask_x,
-    int32_t mask_y,
-    int32_t dest_x,
-    int32_t dest_y,
-    int32_t width,
-    int32_t height)
+pixman_bool_t _pixman_compute_composite_region32(pixman_region32_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,
+    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height)
 {
 	region->extents.x1 = dest_x;
 	region->extents.x2 = dest_x + width;
 	region->extents.y1 = dest_y;
 	region->extents.y2 = dest_y + height;
-
 	region->extents.x1 = MAX(region->extents.x1, 0);
 	region->extents.y1 = MAX(region->extents.y1, 0);
 	region->extents.x2 = MIN(region->extents.x2, dest_image->bits.width);
 	region->extents.y2 = MIN(region->extents.y2, dest_image->bits.height);
-
 	region->data = 0;
-
 	/* Check for empty operation */
-	if(region->extents.x1 >= region->extents.x2 ||
-	    region->extents.y1 >= region->extents.y2) {
+	if(region->extents.x1 >= region->extents.x2 || region->extents.y1 >= region->extents.y2) {
 		region->extents.x1 = 0;
 		region->extents.x2 = 0;
 		region->extents.y1 = 0;
 		region->extents.y2 = 0;
 		return FALSE;
 	}
-
 	if(dest_image->common.have_clip_region) {
 		if(!clip_general_image(region, &dest_image->common.clip_region, 0, 0))
 			return FALSE;
 	}
-
 	if(dest_image->common.alpha_map) {
-		if(!pixman_region32_intersect_rect(region, region,
-		    dest_image->common.alpha_origin_x,
-		    dest_image->common.alpha_origin_y,
-		    dest_image->common.alpha_map->width,
-		    dest_image->common.alpha_map->height)) {
+		if(!pixman_region32_intersect_rect(region, region, dest_image->common.alpha_origin_x, dest_image->common.alpha_origin_y,
+		    dest_image->common.alpha_map->width, dest_image->common.alpha_map->height)) {
 			return FALSE;
 		}
 		if(!pixman_region32_not_empty(region))
 			return FALSE;
 		if(dest_image->common.alpha_map->common.have_clip_region) {
 			if(!clip_general_image(region, &dest_image->common.alpha_map->common.clip_region,
-			    -dest_image->common.alpha_origin_x,
-			    -dest_image->common.alpha_origin_y)) {
+			    -dest_image->common.alpha_origin_x, -dest_image->common.alpha_origin_y)) {
 				return FALSE;
 			}
 		}
@@ -284,7 +257,6 @@ pixman_bool_t _pixman_compute_composite_region32(pixman_region32_t * region,
 			}
 		}
 	}
-
 	return TRUE;
 }
 
@@ -300,12 +272,11 @@ struct box_48_16 {
 static pixman_bool_t FASTCALL compute_transformed_extents(pixman_transform_t * transform, const pixman_box32_t * extents, box_48_16_t * transformed)
 {
 	pixman_fixed_48_16_t tx1, ty1, tx2, ty2;
-	pixman_fixed_t x1, y1, x2, y2;
 	int i;
-	x1 = pixman_int_to_fixed(extents->x1) + pixman_fixed_1 / 2;
-	y1 = pixman_int_to_fixed(extents->y1) + pixman_fixed_1 / 2;
-	x2 = pixman_int_to_fixed(extents->x2) - pixman_fixed_1 / 2;
-	y2 = pixman_int_to_fixed(extents->y2) - pixman_fixed_1 / 2;
+	pixman_fixed_t x1 = pixman_int_to_fixed(extents->x1) + pixman_fixed_1 / 2;
+	pixman_fixed_t y1 = pixman_int_to_fixed(extents->y1) + pixman_fixed_1 / 2;
+	pixman_fixed_t x2 = pixman_int_to_fixed(extents->x2) - pixman_fixed_1 / 2;
+	pixman_fixed_t y2 = pixman_int_to_fixed(extents->y2) - pixman_fixed_1 / 2;
 	if(!transform) {
 		transformed->x1 = x1;
 		transformed->y1 = y1;

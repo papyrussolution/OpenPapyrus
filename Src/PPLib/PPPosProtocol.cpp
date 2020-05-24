@@ -1842,7 +1842,7 @@ int SLAPI PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::Wri
 	SString temp_buf;
 	THROW_LXML(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/), 0);
 	xmlTextWriterSetIndent(rB.P_Xw, 1);
-	xmlTextWriterSetIndentString(rB.P_Xw, reinterpret_cast<const xmlChar *>("\t"));
+	xmlTextWriterSetIndentTab(rB.P_Xw);
 	THROW_MEM(rB.P_Xd = new SXml::WDoc(rB.P_Xw, cpUTF8));
 	rB.P_Root = new SXml::WNode(rB.P_Xw, "PapyrusAsyncPosInterchange");
 	// @v9.9.12 {

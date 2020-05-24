@@ -296,13 +296,9 @@ void __db_errx(const ENV * env, const char * fmt, ...)
 	 */
 	DB_REAL_ERR((env ? env->dbenv : 0), 0, DB_ERROR_NOT_SET, 0, fmt);
 }
-/*
- * __db_errcall --
- *	Do the error message work for callback functions.
- *
- * PUBLIC: void __db_errcall
- * PUBLIC:    __P((const DB_ENV *, int, db_error_set_t, const char *, va_list));
- */
+//
+// Descr: Do the error message work for callback functions.
+//
 void __db_errcall(const DB_ENV * dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
 	char buf[2048];         /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
@@ -314,14 +310,9 @@ void __db_errcall(const DB_ENV * dbenv, int error, db_error_set_t error_set, con
 		p += snprintf(p, sizeof(buf)-(size_t)(p-buf), ": %s", error_set == DB_ERROR_SET ? db_strerror(error) : __os_strerror(error, sysbuf, sizeof(sysbuf)));
 	dbenv->db_errcall(dbenv, dbenv->db_errpfx, buf);
 }
-
-/*
- * __db_errfile --
- *	Do the error message work for FILE *s.
- *
- * PUBLIC: void __db_errfile
- * PUBLIC:    __P((const DB_ENV *, int, db_error_set_t, const char *, va_list));
- */
+// 
+// Descr: Do the error message work for FILE *s.
+// 
 void __db_errfile(const DB_ENV * dbenv, int error, db_error_set_t error_set, const char * fmt, va_list ap)
 {
 	char sysbuf[1024];      /* !!!: END OF THE STACK DON'T TRUST SPRINTF. */
@@ -342,14 +333,9 @@ void __db_errfile(const DB_ENV * dbenv, int error, db_error_set_t error_set, con
 	fprintf(fp, "\n");
 	fflush(fp);
 }
-
-/*
- * __db_msgadd --
- *	Aggregate a set of strings into a buffer for the callback API.
- *
- * PUBLIC: void __db_msgadd __P((ENV *, DB_MSGBUF *, const char *, ...))
- * PUBLIC:    __attribute__ ((__format__ (__printf__, 3, 4)));
- */
+//
+// Descr: Aggregate a set of strings into a buffer for the callback API.
+//
 void __db_msgadd(ENV * env, DB_MSGBUF * mbp, const char * fmt, ...)
 {
 	va_list ap;

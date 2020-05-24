@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -86,8 +86,7 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 #undef GETKEYCODE
 }
 
-//static 
-int FASTCALL TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/int FASTCALL TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    ok = 0;
 	TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
@@ -161,8 +160,7 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-//static
-INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TDialog * p_dlg;
 	TView * v;

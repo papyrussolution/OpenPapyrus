@@ -604,7 +604,7 @@ int SLAPI CrosstabProcessor::Start()
 			DateIter dt_iter;
 			for(dt_iter.Init(&Filt.StartPeriod); !dt_iter.IsEnd(); plusdate(&dt, 1, 0), dt_iter.Advance(dt, 0)) {
 				PrjTaskTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.7.9 @ctr MEMSZERO(rec);
 				rec.StartDt = dt;
 				for(int h = PrjCfg.WorkHoursBeg; h <= PrjCfg.WorkHoursEnd; h++)
 					THROW(AddRec(h, 0, 0, &rec));
@@ -1323,7 +1323,7 @@ int SLAPI PPViewPrjTask::NextOuterIteration()
 {
 	int    ok = -1;
 	PrjTaskTbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.7.9 @ctr MEMSZERO(rec);
 	if(P_TempOrd) {
 		if(P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();

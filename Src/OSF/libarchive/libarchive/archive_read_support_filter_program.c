@@ -126,7 +126,7 @@ int archive_read_support_filter_program_signature(struct archive * _a, const cha
 	 * Allocate our private state.
 	 */
 	state = (struct program_bidder *)SAlloc::C(1, sizeof(*state));
-	if(state == NULL)
+	if(!state)
 		goto memerr;
 	state->cmd = sstrdup(cmd);
 	if(state->cmd == NULL)

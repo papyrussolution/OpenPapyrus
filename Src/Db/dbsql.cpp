@@ -144,8 +144,7 @@ SOraDbProvider::OH::operator uint32 () const
 	return (uint32)H; // @x64crit
 }
 
-//static
-SOraDbProvider::OH FASTCALL SOraDbProvider::StmtHandle(const SSqlStmt & rS)
+/*static*/SOraDbProvider::OH FASTCALL SOraDbProvider::StmtHandle(const SSqlStmt & rS)
 {
 	OH h;
 	h.T = OCI_HTYPE_STMT;

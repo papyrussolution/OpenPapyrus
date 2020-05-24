@@ -80,8 +80,8 @@ struct xmlValidCtxt {
 	int vstateMax;                /* Max depth of the validation stack */
 	xmlValidState * vstateTab; /* array of validation states */
 #ifdef LIBXML_REGEXP_ENABLED
-	xmlAutomataPtr am;            /* the automata */
-	xmlAutomataStatePtr state;    /* used to build the automata */
+	xmlAutomata * am;          // the automata 
+	xmlAutomataState * state; // used to build the automata
 #else
 	void * am;
 	void * state;

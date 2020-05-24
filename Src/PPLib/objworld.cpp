@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -677,7 +677,7 @@ int SLAPI PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
 			int    is_parent = 0;
 			WorldTbl::Rec parent_rec;
 			pack.Rec.Kind = world_kind;
-			MEMSZERO(parent_rec);
+			// @v10.7.9 @ctr MEMSZERO(parent_rec);
 			if(Fetch(filt.ParentID, &parent_rec) > 0)
 				is_parent = 1;
 			if(world_kind == WORLDOBJ_CITYAREA) {
@@ -1952,30 +1952,14 @@ int GeoCityImportBlock::Import(const char * pPath)
 			MEMSZERO(rec);
 			for(uint ss_pos = 0, fld_no = 0; ss.get(&ss_pos, fld_buf); fld_no++) {
 				switch(fld_no) {
-					case 0:
-						rec.Id = fld_buf.ToLong();
-						break;
-					case 1:
-						rec.CountryId = fld_buf.ToLong();
-						break;
-					case 2:
-						AddString(fld_buf.Strip(), &rec.NameRuPos);
-						break;
-					case 3:
-						AddString(fld_buf.Strip(), &rec.NameEnPos);
-						break;
-					case 4:
-						fld_buf.CopyTo(rec.Region, sizeof(rec.Region));
-						break;
-					case 5:
-						fld_buf.CopyTo(rec.ZIP, sizeof(rec.ZIP));
-						break;
-					case 6:
-						rec.Latitude = fld_buf.ToReal();
-						break;
-					case 7:
-						rec.Longitude = fld_buf.ToReal();
-						break;
+					case 0: rec.Id = fld_buf.ToLong(); break;
+					case 1: rec.CountryId = fld_buf.ToLong(); break;
+					case 2: AddString(fld_buf.Strip(), &rec.NameRuPos); break;
+					case 3: AddString(fld_buf.Strip(), &rec.NameEnPos); break;
+					case 4: fld_buf.CopyTo(rec.Region, sizeof(rec.Region)); break;
+					case 5: fld_buf.CopyTo(rec.ZIP, sizeof(rec.ZIP)); break;
+					case 6: rec.Latitude = fld_buf.ToReal(); break;
+					case 7: rec.Longitude = fld_buf.ToReal(); break;
 				}
 			}
 			if(rec.Id && rec.CountryId && (rec.NameRuPos || rec.NameEnPos))

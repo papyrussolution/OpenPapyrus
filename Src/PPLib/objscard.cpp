@@ -1792,16 +1792,9 @@ PPID FASTCALL PPObjSCard::GetChargeGoodsID(PPID cardID)
 	return charge_goods_id;
 }
 
-int SLAPI PPObjSCard::Search(PPID id, void * b)
-{
-	return P_Tbl->Search(id, (SCardTbl::Rec*)b);
-}
-
+int SLAPI PPObjSCard::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<SCardTbl::Rec *>(b)); }
 //virtual
-const char * SLAPI PPObjSCard::GetNamePtr()
-{
-	return P_Tbl->data.Code;
-}
+const char * SLAPI PPObjSCard::GetNamePtr() { return P_Tbl->data.Code; }
 
 int SLAPI PPObjSCard::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {

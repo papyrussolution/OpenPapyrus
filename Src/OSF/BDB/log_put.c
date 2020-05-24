@@ -58,7 +58,7 @@ int __log_put(ENV * env, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 	int    ret;
 	uint8 * key;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_CIPHER * db_cipher = env->crypto_handle;
 	DB_REP * db_rep = env->rep_handle;
 	REP  * rep = db_rep ? db_rep->region : NULL;
@@ -290,7 +290,7 @@ err:    if(lock_held)
 int __log_current_lsn_int(ENV * env, DB_LSN * lsnp, uint32 * mbytesp, uint32 * bytesp)
 {
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	/*
 	 * We need the LSN of the last entry in the log.
@@ -343,7 +343,7 @@ static int __log_put_next(ENV * env, DB_LSN * lsn, const DBT * dbt, HDR * hdr, D
 {
 	int ret;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * Save a copy of lp->lsn before we might decide to switch log
 	 * files and change it.  If we do switch log files, and we're
@@ -402,7 +402,7 @@ static int __log_flush_commit(ENV * env, const DB_LSN * lsnp, uint32 flags)
 	size_t nr, nw;
 	uint8 * buffer;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_LSN flush_lsn = *lsnp;
 	int ret = 0;
 	/*
@@ -490,7 +490,7 @@ int __log_newfile(DB_LOG * dblp, DB_LSN * lsnp, uint32 logfile, uint32 version)
 	uint32 lastoff;
 	size_t tsize;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * If we're not specifying a specific log file number and we're
 	 * not at the beginning of a file already, start a new one.
@@ -605,7 +605,7 @@ static int __log_putr(DB_LOG * dblp, DB_LSN * lsn, const DBT * dbt, uint32 prev,
 	size_t nr;
 	uint32 w_off;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * If we weren't given a header, use a local one.
 	 */
@@ -727,7 +727,7 @@ int __log_flush(ENV * env, const DB_LSN * lsn)
 {
 	int ret;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(lsn != NULL && ALREADY_FLUSHED(lp, lsn))
 		return 0;
 	LOG_SYSTEM_LOCK(env);
@@ -747,7 +747,7 @@ int __log_flush_int(DB_LOG * dblp, const DB_LSN * lsnp, int release)
 	uint32 w_off;
 	int do_flush, first;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	uint32 ncommit = 0;
 	int ret = 0;
 	if(lp->db_log_inmemory) {
@@ -939,7 +939,7 @@ static int __log_fill(DB_LOG * dblp, DB_LSN * lsn, void * addr, uint32 len)
 	uint32 nrec;
 	size_t nw, remain;
 	int ret;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	uint32 bsize = lp->buffer_size;
 	if(lp->db_log_inmemory) {
 		__log_inmem_copyin(dblp, lp->b_off, addr, len);
@@ -994,7 +994,7 @@ static int __log_write(DB_LOG * dblp, void * addr, uint32 len)
 	size_t nw;
 	int ret;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_ASSERT(env, !lp->db_log_inmemory);
 	/*
 	 * If we haven't opened the log file yet or the current one has
@@ -1102,7 +1102,7 @@ static int __log_newfh(DB_LOG * dblp, int create)
 	int ret;
 	logfile_validity status;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	// Close any previous file descriptor
 	__os_closehandle(env, dblp->lfhp);
 	dblp->lfhp = NULL;
@@ -1125,7 +1125,7 @@ int __log_name(DB_LOG * dblp, uint32 filenumber, char ** namep, DB_FH ** fhpp, u
 	char * oname;
 	char old_name[sizeof(LFPREFIX)+5+20], new_name[sizeof(LFPREFIX)+10+20];
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_ASSERT(env, !lp->db_log_inmemory);
 	/*
 	 * !!!
@@ -1220,7 +1220,7 @@ int __log_rep_put(ENV * env, DB_LSN * lsnp, const DBT * rec, uint32 flags)
 	HDR hdr;
 	int need_free, ret;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	memzero(&hdr, sizeof(HDR));
 	t = *rec;

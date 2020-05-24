@@ -8,10 +8,8 @@
 // PPIniFile
 //
 
-//static
-int FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
-//static
-int FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
+/*static*/int FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
+/*static*/int FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
 
 SLAPI PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) :
 	SIniFile(pFileName, fcreate, winCoding, useIniBuf)
@@ -25,7 +23,7 @@ SLAPI PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
 	Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), 0, 0, 0);
 }
 
-int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam)
+/*static*/void FASTCALL PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam)
 {
 	if(pSectName) {
 		pSectName->Z();
@@ -35,20 +33,19 @@ int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSect
 		pParam->Z();
 		PPIniFile::GetParamSymb(paramId, *pParam);
 	}
-	return 1;
 }
 
 int SLAPI PPIniFile::Get(uint sectId, uint paramId, SString & rBuf)
 {
-	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
-	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_sect_name = SLS.AcquireRvlStr();
+	SString & r_param_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(sectId, paramId, &r_sect_name, &r_param_name);
 	return GetParam(r_sect_name, r_param_name, rBuf);
 }
 
 int SLAPI PPIniFile::Get(uint sectId, const char * pParamName, SString & rBuf)
 {
-	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_sect_name = SLS.AcquireRvlStr();
 	ParamIdToStrings(sectId, 0, &r_sect_name, 0);
 	return GetParam(r_sect_name, pParamName, rBuf);
 }
@@ -140,7 +137,7 @@ int SLAPI PPIniFile::Backup(uint maxCopies)
 			fe.C = c;
 			fe_list.insert(&fe);
 		}
-		else 
+		else
 			new_name.SetIfEmpty(temp_name);
 	} while(c < 999);
 	if(new_name.NotEmpty()) {
@@ -721,7 +718,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::GetRecent(uint maxItems, StringSe
 	}
 	return ok;
 }
-		
+
 int SLAPI PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long flags, StringSet & rList) const
 {
 	int   ok = 0;
@@ -769,11 +766,20 @@ int SLAPI PPConfigDatabase::Open(const char * pDbPath)
 		cfg.LogBufSize  = SMEGABYTE(1);
 		cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove);
 		{
-			long   db_options = BDbDatabase::oPrivate/*|BDbDatabase::oRecover*/;
+			long   db_options = BDbDatabase::oPrivate|BDbDatabase::oRecover; // @v10.7.9 BDbDatabase::oRecover
 			THROW_MEM(P_Db = new BDbDatabase(pDbPath, &cfg, db_options));
 			THROW(!!*P_Db);
 		}
-		//
+		// @v10.7.9 {
+		{
+			SString err_file_name;
+			SLS.GetLogPath(err_file_name); 
+			if(!IsDirectory(err_file_name))
+				err_file_name = pDbPath;
+			err_file_name.SetLastSlash().Cat("bdberr.log");
+			P_Db->SetupErrLog(err_file_name);
+		}
+		// } @v10.7.9 
 		THROW_MEM(P_OT = new CObjTbl(P_Db));
 		THROW_MEM(P_OtT = new CObjTailTbl(P_Db));
 		THROW_MEM(P_ShT = new StringHistoryTbl(P_Db)); // @v10.7.6

@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -318,8 +318,10 @@ int SLAPI DbfRecord::get(int fldN, double & data) const
 		data = 0.0;
 		return 0;
 	}
-	data = atof(tmp);
-	return 1;
+	else {
+		data = satof(tmp); // @v10.7.9 atof-->satof
+		return 1;
+	}
 }
 
 int SLAPI DbfRecord::get(int fldN, float & data) const
@@ -329,8 +331,10 @@ int SLAPI DbfRecord::get(int fldN, float & data) const
 		data = 0.0f;
 		return 0;
 	}
-	data = (float)atof(tmp);
-	return 1;
+	else {
+		data = (float)satof(tmp); // @v10.7.9 atof-->satof
+		return 1;
+	}
 }
 
 int SLAPI DbfRecord::get(int fldN, long & data) const

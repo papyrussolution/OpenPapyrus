@@ -186,8 +186,8 @@ public:
 	int SLAPI SetValue(long row, long col, const char * pValue);
 	int SLAPI SetValue(long row, long col, double value);
 	int SLAPI GetValue(long row, long col, SString & rValue);
-	int SLAPI _Clear(long row1, long col1, long row2, long col2);
-	int SLAPI _Clear(long col1, long colN);
+	void SLAPI _Clear(long row1, long col1, long row2, long col2);
+	void SLAPI _Clear(long col1, long colN);
 	ComExcelRange  * SLAPI _Select(long row1, long col1, long row2, long col2);
 	ComExcelRange  * SLAPI GetColumn(long pos);
 	ComExcelRange  * SLAPI GetRow(long pos);

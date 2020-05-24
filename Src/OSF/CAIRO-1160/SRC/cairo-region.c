@@ -771,22 +771,17 @@ slim_hidden_def(cairo_region_translate);
  *
  * Since: 1.10
  **/
-cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * region,
-    const cairo_rectangle_int_t * rectangle)
+cairo_region_overlap_t cairo_region_contains_rectangle(const cairo_region_t * region, const cairo_rectangle_int_t * rectangle)
 {
 	pixman_box32_t pbox;
 	pixman_region_overlap_t poverlap;
-
 	if(region->status)
 		return CAIRO_REGION_OVERLAP_OUT;
-
 	pbox.x1 = rectangle->x;
 	pbox.y1 = rectangle->y;
 	pbox.x2 = rectangle->x + rectangle->width;
 	pbox.y2 = rectangle->y + rectangle->height;
-
-	poverlap = pixman_region32_contains_rectangle(CONST_CAST &region->rgn,
-		&pbox);
+	poverlap = pixman_region32_contains_rectangle(CONST_CAST &region->rgn, &pbox);
 	switch(poverlap) {
 		default:
 		case PIXMAN_REGION_OUT:  return CAIRO_REGION_OVERLAP_OUT;

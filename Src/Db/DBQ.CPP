@@ -237,8 +237,10 @@ int FASTCALL DBConst::fromfld(DBField f)
 		sttobase(t, v, b);
 		return BIN((sptr = newStr(b)) != 0);
 	}
-	else
-		return sttobase(t, v, &lval);
+	else {
+		sttobase(t, v, &lval);
+		return 1;
+	}
 }
 
 #define INVALID_TAG_OF_DBCONST       0

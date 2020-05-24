@@ -97,7 +97,7 @@ int __rep_elect_int(ENV*env, uint32 given_nsites, uint32 nvotes, uint32 flags)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	elected = 0;
 	egen = 0;
 	ret = 0;
@@ -559,7 +559,7 @@ int __rep_vote1(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if(F_ISSET(rep, REP_F_MASTER)) {
 		RPRINT(env, (env, DB_VERB_REP_ELECT, "Master received vote"));
 		LOG_SYSTEM_LOCK(env);
@@ -750,7 +750,7 @@ int __rep_vote2(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	RPRINT(env, (env, DB_VERB_REP_ELECT, "We received a vote%s", F_ISSET(rep, REP_F_MASTER) ? " (master)" : ""));
 	if(F_ISSET(rep, REP_F_MASTER)) {
 		LOG_SYSTEM_LOCK(env);

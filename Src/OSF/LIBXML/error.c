@@ -36,13 +36,9 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 				str = larger; \
 			}} \
 }
-
-/************************************************************************
-*									*
-*			Handling of out of context errors		*
-*									*
-************************************************************************/
-
+// 
+// Handling of out of context errors
+// 
 /**
  * xmlGenericErrorDefaultFunc:
  * @ctx:  an error context
@@ -106,12 +102,9 @@ void xmlSetStructuredErrorFunc(void * ctx, xmlStructuredErrorFunc handler)
 	xmlStructuredErrorContext = ctx;
 	xmlStructuredError = handler;
 }
-
-/************************************************************************
-*									*
-*			Handling of parsing errors			*
-*									*
-************************************************************************/
+// 
+// Handling of parsing errors
+// 
 /**
  * xmlParserPrintFileInfo:
  * @input:  an xmlParserInputPtr input
@@ -142,7 +135,7 @@ static void xmlParserPrintFileContextInternal(xmlParserInput * input, xmlGeneric
 		const xmlChar * cur = input->cur;
 		const xmlChar * base = input->base;
 		/* skip backwards over any end-of-lines */
-		while((cur > base) && ((*(cur) == '\n') || (*(cur) == '\r'))) {
+		while(cur > base && ((*(cur) == '\n') || (*(cur) == '\r'))) {
 			cur--;
 		}
 		n = 0;
@@ -204,12 +197,11 @@ static void xmlReportError(xmlError * err, xmlParserCtxt * ctxt, const char * st
 	int domain;
 	SString temp_buf;
 	const xmlChar * name = NULL;
-	xmlNode * P_Node;
 	xmlErrorLevel level;
 	xmlParserInput * input = NULL;
 	xmlParserInput * cur = NULL;
 	if(err) {
-		if(channel == NULL) {
+		if(!channel) {
 			channel = xmlGenericError;
 			data = xmlGenericErrorContext;
 		}
@@ -218,11 +210,11 @@ static void xmlReportError(xmlError * err, xmlParserCtxt * ctxt, const char * st
 		code = err->code;
 		domain = err->domain;
 		level = err->level;
-		P_Node = (xmlNode *)err->P_Node;
+		const xmlNode * p_node = static_cast<const xmlNode *>(err->P_Node);
 		if(code == XML_ERR_OK)
 			return;
-		if(P_Node && P_Node->type == XML_ELEMENT_NODE)
-			name = P_Node->name;
+		if(p_node && p_node->type == XML_ELEMENT_NODE)
+			name = p_node->name;
 		/*
 		 * Maintain the compatibility with the legacy error handling
 		 */
@@ -401,12 +393,11 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		to = &ctxt->lastError;
 	}
 	else if(p_node && !file) {
-		int i;
 		if(p_node->doc && p_node->doc->URL) {
 			baseptr = p_node;
-			/* file = (const char *) node->doc->URL; */
+			/* file = (const char *)node->doc->URL; */
 		}
-		for(i = 0; ((i < 10) && p_node && (p_node->type != XML_ELEMENT_NODE)); i++)
+		for(int i = 0; ((i < 10) && p_node && (p_node->type != XML_ELEMENT_NODE)); i++)
 			p_node = p_node->P_ParentNode;
 		if(!baseptr && p_node && p_node->doc && p_node->doc->URL)
 			baseptr = p_node;
@@ -536,7 +527,7 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 	char * str;
 	if(ctxt) {
 		input = ctxt->input;
-		if(input && (input->filename == NULL) && (ctxt->inputNr > 1)) {
+		if(input && !input->filename && ctxt->inputNr > 1) {
 			cur = input;
 			input = ctxt->inputTab[ctxt->inputNr - 2];
 		}
@@ -608,12 +599,12 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * input = NULL;
 	char * str;
-	int len = sstrlen((const xmlChar *)msg);
+	int len = sstrlen(msg);
 	static int had_info = 0;
 	if((len > 1) && (msg[len - 2] != ':')) {
 		if(ctxt) {
 			input = ctxt->input;
-			if((input->filename == NULL) && (ctxt->inputNr > 1))
+			if(!input->filename && ctxt->inputNr > 1)
 				input = ctxt->inputTab[ctxt->inputNr - 2];
 			if(had_info == 0) {
 				xmlParserPrintFileInfo(input);
@@ -646,8 +637,8 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
 	xmlParserInput * input = NULL;
 	char * str;
-	int len = sstrlen((const xmlChar *)msg);
-	if(ctxt && (len != 0) && (msg[len-1] != ':')) {
+	const int len = sstrlen(msg);
+	if(ctxt && len && msg[len-1] != ':') {
 		input = ctxt->input;
 		if((input->filename == NULL) && (ctxt->inputNr > 1))
 			input = ctxt->inputTab[ctxt->inputNr - 2];
@@ -673,9 +664,7 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
  */
 xmlError * xmlGetLastError()
 {
-	if(xmlLastError.code == XML_ERR_OK)
-		return 0;
-	return (&xmlLastError);
+	return (xmlLastError.code == XML_ERR_OK) ? 0 : (&xmlLastError);
 }
 /**
  * xmlResetError:
@@ -703,9 +692,8 @@ void xmlResetError(xmlError * err)
  */
 void xmlResetLastError()
 {
-	if(xmlLastError.code == XML_ERR_OK)
-		return;
-	xmlResetError(&xmlLastError);
+	if(xmlLastError.code != XML_ERR_OK)
+		xmlResetError(&xmlLastError);
 }
 /**
  * xmlCtxtGetLastError:
@@ -718,9 +706,7 @@ void xmlResetLastError()
 xmlError * xmlCtxtGetLastError(void * ctx)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	if(!ctxt)
-		return 0;
-	if(ctxt->lastError.code == XML_ERR_OK)
+	if(!ctxt || ctxt->lastError.code == XML_ERR_OK)
 		return 0;
 	return (&ctxt->lastError);
 }

@@ -805,7 +805,6 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				SString wait_msg;
 				SString temp_fname;
 				SString dest_fname;
-
 				mail.Init(&mac_rec);
 				mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
 				PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);

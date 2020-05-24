@@ -720,9 +720,6 @@
 				RelativePath="..\SLib\Msgbox.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\prime.cpp">
-			</File>
-			<File
 				RelativePath="..\SLib\punycode.cpp">
 			</File>
 			<File

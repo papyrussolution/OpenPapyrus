@@ -3851,7 +3851,7 @@ int SLAPI CGoodsLine::Add(PPID sessID, const CCheckGoodsArray * pList, int use_t
 			}
 			else {
 				CGoodsLineTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.7.9 @ctr MEMSZERO(rec);
 				rec.SessID   = sessID;
 				rec.Dt       = p_entry->Dt;
 				rec.GoodsID  = p_entry->GoodsID;

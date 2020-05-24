@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -304,8 +304,8 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			ushort orient = getCtrlUInt16(CTL_TXTDBPARAM_ORIENT);
 			SETFLAG(Data.Flags, TextDbFile::fVerticalRec, orient);
 			GetClusterData(CTL_TXTDBPARAM_FLAGS, &Data.Flags);
-			Data.VertRecTerm = 0;
-			Data.FldDiv = 0;
+			Data.VertRecTerm.Z();
+			Data.FldDiv.Z();
 			SString temp_buf;
 			getCtrlString(CTL_TXTDBPARAM_DIV, temp_buf);
 			// @v10.4.7 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -452,7 +452,7 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 			getCtrlString(CTL_XLSDBPARAM_SHEETNAME, Data.SheetName_);
 			Data.SheetNum = MAX(Data.SheetNum, 1);
 			if(!Data.SheetName_.NotEmptyS()) {
-				Data.SheetName_ = 0;
+				Data.SheetName_.Z();
 				PPGetWord(PPWORD_SHEET, 0, Data.SheetName_);
 				Data.SheetName_.CatChar('1');
 			}
@@ -633,7 +633,7 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 						overflow = 0;
 					}
 				}
-				nam = 0;
+				nam.Z();
 				for(uint i = 0, k = 0; i < fnl; i++) {
 					if(ps.Nam.C(i) == '?')
 						nam.CatChar(cntr[k++]);
@@ -784,11 +784,8 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 			}
 			// } @todo obsolete block. must be refactored
 			if(ok < 0) {
-				//PPFileNameArray fna;
 				SFileEntryPool fep;
-				//fna.Scan(path, wildcard);
 				fep.Scan(path, wildcard, 0);
-				//for(uint i = 0; fna.Enum(&i, 0, &temp_buf.Z());) {
 				for(uint i = 0; i < fep.GetCount(); i++) {
 					if(fep.Get(i, 0, &temp_buf))
 						rList.add(temp_buf);
@@ -1612,7 +1609,6 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 	}
 	getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
 	Data.InetAccID = 0; // @v9.8.12 @fix(не возможно было очистить это поле)
-	// @v8.6.1 {
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
 		PPID   acc_id = 0;
 		getCtrlData(CTLSEL_IMPEXP_FTPACC, &acc_id);
@@ -1624,7 +1620,6 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 			}
 		}
 	}
-	// } @v8.6.1
 	getCtrlString(CTL_IMPEXP_NAME, name);
 	THROW_PP(name.NotEmptyS(), PPERR_NAMENEEDED);
 	pData->Direction = Data.Direction;
@@ -2044,7 +2039,7 @@ int PPImpExp::ResolveVarName(const char * pSymb, const SdRecord & rRec, double *
 				if(oneof4(t, S_FLOAT, S_DEC, S_MONEY, S_INT)) {
 					fmt = SFMT_MONEY;
 					sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
-					val = atof(buf);
+					val = satof(buf); // @v10.7.9 atof-->satof
 					ok = 1;
 				}
 			}
@@ -2734,16 +2729,12 @@ private:
 	PPBillImpExpParam  BRowParam;
 	PPInventoryImpExpParam  InvParam;
 	PPPriceListImpExpParam  PriceListParam;
-	// @v9.1.3 PPImpExpParam           CSessParam;
-	// @v9.1.3 PPImpExpParam           CCheckParam;
-	// @v9.1.3 PPImpExpParam           CCheckLineParam;
-	// @v9.1.3 PPCSessComplexImpExpParam CscParam;     // @v8.2.7
-	PPPhoneListImpExpParam  PhoneListParam; // @v7.3.3
-	PPSCardImpExpParam      SCardListParam; // @v7.3.12
-	PPLotImpExpParam        LotParam;       // @v7.4.7 @Muxa
-	PPPersonImpExpParam     PersonParam;    // @v7.6.1
-	PPWorkbookImpExpParam   WorkbookParam;  // @v8.1.1
-	PPQuotImpExpParam       QuotParam;      // @v8.5.11
+	PPPhoneListImpExpParam  PhoneListParam;
+	PPSCardImpExpParam      SCardListParam;
+	PPLotImpExpParam        LotParam;
+	PPPersonImpExpParam     PersonParam;
+	PPWorkbookImpExpParam   WorkbookParam;
+	PPQuotImpExpParam       QuotParam;
 };
 
 ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_IMPEXPCFGS_LIST), CDb(0)
@@ -2754,16 +2745,12 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 		PPREC_BROW,
 		PPREC_INVENTORYITEM,
 		PPREC_PRICELIST,
-		// @v9.1.3 PPREC_CSESS,
-		// @v9.1.3 PPREC_CCHECKS,
-		// @v9.1.3 PPREC_CCLINES,
-		// @v9.1.3 PPREC_CSESSCOMPLEX, // @v8.2.7
 		PPREC_PHONELIST,
 		PPREC_SCARD,
 		PPREC_LOT,
 		PPREC_PERSON,
-		PPREC_WORKBOOK, // @v8.1.1
-		PPREC_QUOTVAL   // @v8.5.11
+		PPREC_WORKBOOK,
+		PPREC_QUOTVAL
 	};
 	SString str_cfgs, buf;
 	PPLoadText(PPTXT_IMPEXPCFGNAMELIST, str_cfgs);
@@ -2776,16 +2763,12 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 	P_ParamList[pp++] = &BRowParam;
 	P_ParamList[pp++] = &InvParam;
 	P_ParamList[pp++] = &PriceListParam;
-	// @v9.1.3 P_ParamList[pp++] = &CSessParam;
-	// @v9.1.3 P_ParamList[pp++] = &CCheckParam;
-	// @v9.1.3 P_ParamList[pp++] = &CCheckLineParam;
-	// @v9.1.3 P_ParamList[pp++] = &CscParam;       // @v8.2.7
-	P_ParamList[pp++] = &PhoneListParam; // @v7.3.3
-	P_ParamList[pp++] = &SCardListParam; // @v7.3.12
+	P_ParamList[pp++] = &PhoneListParam;
+	P_ParamList[pp++] = &SCardListParam;
 	P_ParamList[pp++] = &LotParam;
-	P_ParamList[pp++] = &PersonParam;    // @v7.6.1
-	P_ParamList[pp++] = &WorkbookParam;  // @v8.1.1
-	P_ParamList[pp++] = &QuotParam;      // @v8.5.11
+	P_ParamList[pp++] = &PersonParam;
+	P_ParamList[pp++] = &WorkbookParam;
+	P_ParamList[pp++] = &QuotParam;
 	{
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_IMPEXPCFGS_CFGS));
 		if(p_box) {
@@ -2891,9 +2874,6 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 			case PPREC_CCHECKS:
 			case PPREC_CCLINES:
 			case PPREC_WORKBOOK: p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0); break;
-			/* @v9.1.3 case PPREC_CSESSCOMPLEX: // @v8.2.7
-				p_dlg = new CSessComplexImpExpDialog;
-				break; */
 			case PPREC_LOT: p_dlg = new LotImpExpDialog; break; // @Muxa
 			case PPREC_PHONELIST: p_dlg = new PhoneListImpExpDialog; break;
 			case PPREC_SCARD: p_dlg = new SCardImpExpDialog; break;
@@ -2908,39 +2888,20 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 	int    ok = 0;
 	if(pDlg && cfgPos < CfgsList.getCount()) {
 		switch(CfgsList.Get(cfgPos).Id) {
-			case PPREC_GOODS2:
-				ok = static_cast<GoodsImpExpDialog *>(pDlg)->setDTS(static_cast<PPGoodsImpExpParam *>(pParam));
-				break;
-			case PPREC_PERSON:
-				ok = static_cast<PersonImpExpDialog *>(pDlg)->setDTS(static_cast<PPPersonImpExpParam *>(pParam));
-				break;
-			case PPREC_BILL:
-				ok = static_cast<BillHdrImpExpDialog *>(pDlg)->setDTS(static_cast<PPBillImpExpParam *>(pParam));
-				break;
+			case PPREC_GOODS2: ok = static_cast<GoodsImpExpDialog *>(pDlg)->setDTS(static_cast<PPGoodsImpExpParam *>(pParam)); break;
+			case PPREC_PERSON: ok = static_cast<PersonImpExpDialog *>(pDlg)->setDTS(static_cast<PPPersonImpExpParam *>(pParam)); break;
+			case PPREC_BILL: ok = static_cast<BillHdrImpExpDialog *>(pDlg)->setDTS(static_cast<PPBillImpExpParam *>(pParam)); break;
 			case PPREC_BROW:
 			case PPREC_INVENTORYITEM:
 			case PPREC_PRICELIST:
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
 			case PPREC_CCLINES:
-			case PPREC_WORKBOOK:
-				ok = static_cast<ImpExpParamDialog *>(pDlg)->setDTS(pParam);
-				break;
-			/* @v9.1.3 case PPREC_CSESSCOMPLEX: // @v8.2.7
-				ok = ((CSessComplexImpExpDialog *)pDlg)->setDTS((PPCSessComplexImpExpParam *)pParam);
-				break; */
-			case PPREC_LOT: // @Muxa
-				ok = static_cast<LotImpExpDialog *>(pDlg)->setDTS(static_cast<PPLotImpExpParam *>(pParam));
-				break;
-			case PPREC_PHONELIST:
-				ok = static_cast<PhoneListImpExpDialog *>(pDlg)->setDTS(static_cast<PPPhoneListImpExpParam *>(pParam));
-				break;
-			case PPREC_SCARD:
-				ok = static_cast<SCardImpExpDialog *>(pDlg)->setDTS(static_cast<PPSCardImpExpParam *>(pParam));
-				break;
-			case PPREC_QUOTVAL:
-				ok = static_cast<QuotImpExpDialog *>(pDlg)->setDTS(static_cast<PPQuotImpExpParam *>(pParam));
-				break;
+			case PPREC_WORKBOOK: ok = static_cast<ImpExpParamDialog *>(pDlg)->setDTS(pParam); break;
+			case PPREC_LOT: ok = static_cast<LotImpExpDialog *>(pDlg)->setDTS(static_cast<PPLotImpExpParam *>(pParam)); break; // @Muxa
+			case PPREC_PHONELIST: ok = static_cast<PhoneListImpExpDialog *>(pDlg)->setDTS(static_cast<PPPhoneListImpExpParam *>(pParam)); break;
+			case PPREC_SCARD: ok = static_cast<SCardImpExpDialog *>(pDlg)->setDTS(static_cast<PPSCardImpExpParam *>(pParam)); break;
+			case PPREC_QUOTVAL: ok = static_cast<QuotImpExpDialog *>(pDlg)->setDTS(static_cast<PPQuotImpExpParam *>(pParam)); break;
 		}
 	}
 	return ok;
@@ -2951,39 +2912,20 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 	int    ok = 0;
 	if(pDlg && cfgPos < CfgsList.getCount()) {
 		switch(CfgsList.Get(cfgPos).Id) {
-			case PPREC_GOODS2:
-				ok = static_cast<GoodsImpExpDialog *>(pDlg)->getDTS(static_cast<PPGoodsImpExpParam *>(pParam));
-				break;
-			case PPREC_PERSON:
-				ok = static_cast<PersonImpExpDialog *>(pDlg)->getDTS(static_cast<PPPersonImpExpParam *>(pParam));
-				break;
-			case PPREC_BILL:
-				ok = static_cast<BillHdrImpExpDialog *>(pDlg)->getDTS(static_cast<PPBillImpExpParam *>(pParam));
-				break;
+			case PPREC_GOODS2: ok = static_cast<GoodsImpExpDialog *>(pDlg)->getDTS(static_cast<PPGoodsImpExpParam *>(pParam)); break;
+			case PPREC_PERSON: ok = static_cast<PersonImpExpDialog *>(pDlg)->getDTS(static_cast<PPPersonImpExpParam *>(pParam)); break;
+			case PPREC_BILL: ok = static_cast<BillHdrImpExpDialog *>(pDlg)->getDTS(static_cast<PPBillImpExpParam *>(pParam)); break;
 			case PPREC_BROW:
 			case PPREC_INVENTORYITEM:
 			case PPREC_PRICELIST:
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
 			case PPREC_CCLINES:
-			case PPREC_WORKBOOK:
-				ok = static_cast<ImpExpParamDialog *>(pDlg)->getDTS(pParam);
-				break;
-			/* @v9.1.3 case PPREC_CSESSCOMPLEX: // @v8.2.7
-				ok = ((CSessComplexImpExpDialog *)pDlg)->getDTS((PPCSessComplexImpExpParam *)pParam);
-				break; */
-			case PPREC_LOT: // @Muxa
-				ok = static_cast<LotImpExpDialog *>(pDlg)->getDTS(static_cast<PPLotImpExpParam *>(pParam));
-				break;
-			case PPREC_PHONELIST:
-				ok = static_cast<PhoneListImpExpDialog *>(pDlg)->getDTS(static_cast<PPPhoneListImpExpParam *>(pParam));
-				break;
-			case PPREC_SCARD:
-				ok = static_cast<SCardImpExpDialog *>(pDlg)->getDTS(static_cast<PPSCardImpExpParam *>(pParam));
-				break;
-			case PPREC_QUOTVAL:
-				ok = static_cast<QuotImpExpDialog *>(pDlg)->getDTS(static_cast<PPQuotImpExpParam *>(pParam));
-				break;
+			case PPREC_WORKBOOK: ok = static_cast<ImpExpParamDialog *>(pDlg)->getDTS(pParam); break;
+			case PPREC_LOT: ok = static_cast<LotImpExpDialog *>(pDlg)->getDTS(static_cast<PPLotImpExpParam *>(pParam)); break; // @Muxa
+			case PPREC_PHONELIST: ok = static_cast<PhoneListImpExpDialog *>(pDlg)->getDTS(static_cast<PPPhoneListImpExpParam *>(pParam)); break;
+			case PPREC_SCARD: ok = static_cast<SCardImpExpDialog *>(pDlg)->getDTS(static_cast<PPSCardImpExpParam *>(pParam)); break;
+			case PPREC_QUOTVAL: ok = static_cast<QuotImpExpDialog *>(pDlg)->getDTS(static_cast<PPQuotImpExpParam *>(pParam)); break;
 		}
 	}
 	return ok;
@@ -3127,7 +3069,7 @@ int ImpExpCfgsListDialog::setupList()
 						PROFILE_START
 						if(p_param->ProcessName(3, section)) {
 							p_param->OtrRec.Clear();
-							p_param->FileName = 0;
+							p_param->FileName.Z();
 							const int r = p_param->ReadIni(&ini_file, section, 0);
 							if(r) {
 								PROFILE_START

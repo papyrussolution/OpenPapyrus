@@ -1,5 +1,5 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
@@ -10,8 +10,7 @@
 #define EG_sign 0x4745U
 #define UC_sign 0x4355U
 
-//static
-void FASTCALL BExtQuery::ZDelete(BExtQuery ** ppQ)
+/*static*/void FASTCALL BExtQuery::ZDelete(BExtQuery ** ppQ)
 {
 	if(ppQ && *ppQ) {
 		delete *ppQ;
@@ -19,8 +18,7 @@ void FASTCALL BExtQuery::ZDelete(BExtQuery ** ppQ)
 	}
 }
 
-//static 
-int FASTCALL BExtQuery::SlToBeqOp(int s)
+/*static*/int FASTCALL BExtQuery::SlToBeqOp(int s)
 {
 	switch(s) {
 		case _EQ_: return opEq;
@@ -34,8 +32,7 @@ int FASTCALL BExtQuery::SlToBeqOp(int s)
 	return 0;
 }
 	
-//static 
-int FASTCALL BExtQuery::SlToBeqLink(int s)
+/*static*/int FASTCALL BExtQuery::SlToBeqLink(int s)
 {
 	switch(s) {
 		case _AND___: return linkAnd;

@@ -44,7 +44,7 @@ static int __log_stat(ENV * env, DB_LOG_STAT ** statp, uint32 flags)
 	int ret;
 	*statp = NULL;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	if((ret = __os_umalloc(env, sizeof(DB_LOG_STAT), &stats)) != 0)
 		return ret;
 	/* Copy out the global statistics. */
@@ -173,7 +173,7 @@ static int __log_print_all(ENV * env, uint32 flags)
 		{ 0,                    NULL }
 	};
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	__db_print_reginfo(env, &dblp->reginfo, "Log", flags);
 	__db_msg(env, "%s", DB_GLOBAL(db_line));

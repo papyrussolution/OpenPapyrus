@@ -2028,7 +2028,7 @@ void SLAPI BhtRecord::GetDbl(uint fldNo, double * pVal)
 		char tmp_buf[128];
 		memzero(tmp_buf, sizeof(tmp_buf));
 		memcpy(tmp_buf, Buf+FldOfs(fldNo), Lens[fldNo]);
-		*pVal = atof(strip(tmp_buf));
+		*pVal = satof(strip(tmp_buf)); // @v10.7.9 atof-->satof
 	}
 }
 
@@ -5144,7 +5144,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 		barcode = gid;
 		IdentifyGoods(&g_obj, barcode, &goods_id, &goods_rec);
 		if(qtty != 0.0 && (goods_id || barcode.Len())) {
-			price = atof(str_price);
+			price = satof(str_price); // @v10.7.9 atof-->satof
 			if(goods_id == 0) {
 				ResolveGoodsItem gi(goods_id);
 				barcode.CopyTo(gi.Barcode, sizeof(gi.Barcode));

@@ -31,7 +31,7 @@ int __rep_verify(ENV * env, __rep_control_args * rp, DBT * rec, int eid, __time6
 	db_rep = env->rep_handle;
 	rep = db_rep->region;
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/* Do nothing if VERIFY is not set. */
 	if(rep->sync_state != SYNC_VERIFY)
 		return ret;
@@ -226,7 +226,7 @@ int __rep_verify_fail(ENV * env, __rep_control_args * rp)
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * If we are already in the middle of updating (PAGE or UPDATE state),
 	 * then we ignore this message.
@@ -522,7 +522,7 @@ int __rep_verify_match(ENV * env, DB_LSN * reclsnp, __time64_t savetime)
 	DB_LOG * dblp = env->lg_handle;
 	DB_REP * db_rep = env->rep_handle;
 	REP * rep = db_rep->region;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	int ret = 0;
 	event = 0;
 	infop = env->reginfo;

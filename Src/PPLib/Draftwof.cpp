@@ -34,6 +34,11 @@ void SLAPI PPDraftWrOff2::GetLotManufTimeParam(PUGL::SetLotManufTimeParam * pS) 
 	}
 }
 
+SLAPI PPDraftWrOff2::PPDraftWrOff2()
+{
+	THISZERO();
+}
+
 SLAPI PPDraftWrOffPacket::PPDraftWrOffPacket() : P_List(0)
 {
 	// @v10.5.12 (Rec get ctr now) Init();

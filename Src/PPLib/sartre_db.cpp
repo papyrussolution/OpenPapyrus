@@ -1480,6 +1480,14 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 			THROW_S(P_Db = new BDbDatabase(db_path, &cfg, db_options), SLERR_NOMEM);
 			THROW(!!*P_Db);
 		}
+		{
+			SString err_file_name;
+			SLS.GetLogPath(err_file_name); // @v10.7.9
+			if(!IsDirectory(err_file_name))
+				err_file_name = pDbPath;
+			err_file_name.SetLastSlash().Cat("bdberr.log");
+			P_Db->SetupErrLog(err_file_name);
+		}
 		THROW_S(P_WdT = new SrWordTbl(P_Db), SLERR_NOMEM);
 		THROW_S(P_GrT = new SrGrammarTbl(P_Db), SLERR_NOMEM);
 		THROW_S(P_WaT = new SrWordAssocTbl(P_Db), SLERR_NOMEM);
@@ -1498,11 +1506,6 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 			THROW(prop_subclass);
 			THROW(prop_crtype);
 			THROW(prop_hmember);
-		}
-		{
-			SString err_file_name;
-			(err_file_name = pDbPath).SetLastSlash().Cat("bdberr.log");
-			P_Db->SetupErrLog(err_file_name);
 		}
 	}
 	CATCH

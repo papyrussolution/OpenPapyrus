@@ -1415,6 +1415,7 @@ int SLAPI PPObjLocation::Browse(void * extraPtr)
 //
 //
 class LocationExtFieldsDialog : public PPListDialog {
+	DECL_DIALOG_DATA(LocationTbl::Rec);
 public:
 	LocationExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
@@ -1425,8 +1426,30 @@ public:
 		FieldNames.copy(psn_cfg.DlvrAddrExtFldList);
 		showCtrl(STDCTL_INSBUTTON, 0);
 	}
-	int    setDTS(const LocationTbl::Rec *);
-	int    getDTS(LocationTbl::Rec *);
+	DECL_DIALOG_SETDTS()
+	{
+		SString temp_buf;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		Fields.Z();
+		for(int id = 1; id <= MAX_DLVRADDRFLDS; id++) {
+			if(LocationCore::GetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, temp_buf.Z()) > 0)
+				Fields.Add(id + LOCEXSTR_EXTFLDSOFFS, 0, temp_buf);
+		}
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		for(uint id = 1; id <= MAX_DLVRADDRFLDS; id++)
+			LocationCore::SetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, 0);
+		for(uint i = 0; i < Fields.getCount(); i++) {
+			StrAssocArray::Item item = Fields.Get(i);
+			LocationCore::SetExField(&Data, item.Id, item.Txt);
+		}
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
@@ -1435,15 +1458,14 @@ private:
 
 	TaggedStringArray FieldNames;
 	StrAssocArray     Fields;
-	LocationTbl::Rec  Data;
 };
 
 static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedStringArray * pStrings, long initID, uint /*flags*/)
 {
 	int    ok = 1;
-	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
+	ComboBox   * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
+	if(p_cb) {
 		uint   options = (lbtDisposeData|lbtDblClkNotify);
 		uint   idx = 0;
 		TaggedString * p_s;
@@ -1567,32 +1589,6 @@ int LocationExtFieldsDialog::setupList()
 		}
 	}
 	return ok;
-}
-
-int LocationExtFieldsDialog::setDTS(const LocationTbl::Rec * pData)
-{
-	SString temp_buf;
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	Fields.Z();
-	for(int id = 1; id <= MAX_DLVRADDRFLDS; id++) {
-		if(LocationCore::GetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, temp_buf.Z()) > 0)
-			Fields.Add(id + LOCEXSTR_EXTFLDSOFFS, 0, temp_buf);
-	}
-	updateList(-1);
-	return 1;
-}
-
-int LocationExtFieldsDialog::getDTS(LocationTbl::Rec * pData)
-{
-	for(uint id = 1; id <= MAX_DLVRADDRFLDS; id++)
-		LocationCore::SetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, 0);
-	for(uint i = 0; i < Fields.getCount(); i++) {
-		StrAssocArray::Item item = Fields.Get(i);
-		LocationCore::SetExField(&Data, item.Id, item.Txt);
-	}
-	ASSIGN_PTR(pData, Data);
-	return 1;
 }
 
 int SLAPI EditDlvrAddrExtFields(LocationTbl::Rec * pData) { DIALOG_PROC_BODYERR(LocationExtFieldsDialog, pData); }

@@ -162,7 +162,7 @@ static int __log_init(ENV*env, DB_LOG * dblp)
 	if((ret = __env_alloc(&dblp->reginfo, sizeof(*lp), &dblp->reginfo.primary)) != 0)
 		goto mem_err;
 	((REGENV *)env->reginfo->primary)->lg_primary = R_OFFSET(&dblp->reginfo, dblp->reginfo.primary);
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	memzero(lp, sizeof(*lp));
 	// We share the region so we need the same mutex. 
 	lp->mtx_region = ((REGENV *)env->reginfo->primary)->mtx_regenv;
@@ -237,7 +237,7 @@ static int __log_recover(DB_LOG * dblp)
 	ENV * env = dblp->env;
 	DB_ENV * dbenv = env->dbenv;
 	DB_LOGC * logc = NULL;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	//
 	// Find a log file.  If none exist, we simply return, leaving everything initialized to a new log.
 	//
@@ -331,7 +331,7 @@ int __log_find(DB_LOG*dblp, int find_first, uint32 * valp, logfile_validity * st
 	const char * dir;
 	char * c, ** names, * p, * q;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	logfile_validity logval_status = DB_LV_NONEXISTENT;
 	logfile_validity status = DB_LV_NONEXISTENT;
 	/* Return a value of 0 as the log file number on failure. */
@@ -632,7 +632,7 @@ int __log_valid(DB_LOG * dblp, uint32 number, int set_persist, DB_FH ** fhpp, ui
 	 * Override the current log file size.
 	 */
 	if(set_persist) {
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		lp->log_size = persist->log_size;
 		lp->persist.version = persist->version;
 	}
@@ -739,7 +739,7 @@ int __log_env_refresh(ENV * env)
 int __log_get_cached_ckp_lsn(ENV * env, DB_LSN * ckp_lsnp)
 {
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	*ckp_lsnp = lp->cached_ckp_lsn;
 	LOG_SYSTEM_UNLOCK(env);
@@ -843,7 +843,7 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 		return ret;
 	// Now do the truncate
 	dblp = env->lg_handle;
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	LOG_SYSTEM_LOCK(env);
 	//
 	// Flush the log so we can simply initialize the in-memory buffer after the truncate.
@@ -912,7 +912,7 @@ int __log_is_outdated(ENV * env, uint32 fnum, int * outdatedp)
 	 */
 	if(FLD_ISSET(env->dbenv->lg_flags, DB_LOG_IN_MEMORY)) {
 		LOG_SYSTEM_LOCK(env);
-		lp = (LOG *)dblp->reginfo.primary;
+		lp = static_cast<LOG *>(dblp->reginfo.primary);
 		filestart = SH_TAILQ_FIRST(&lp->logfiles, __db_filestart);
 		*outdatedp = filestart == NULL ? 0 : (fnum < filestart->file);
 		LOG_SYSTEM_UNLOCK(env);
@@ -932,7 +932,7 @@ int __log_is_outdated(ENV * env, uint32 fnum, int * outdatedp)
 	 * that the LSN is outdated.
 	 */
 	LOG_SYSTEM_LOCK(env);
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	cfile = lp->lsn.file;
 	LOG_SYSTEM_UNLOCK(env);
 	if(cfile > fnum)
@@ -955,7 +955,7 @@ int __log_zero(ENV * env, DB_LSN * from_lsn)
 	int ret;
 	char * fname;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_ASSERT(env, LOG_COMPARE(from_lsn, &lp->lsn) <= 0);
 	if(LOG_COMPARE(from_lsn, &lp->lsn) > 0) {
 		__db_errx(env, DB_STR("2534", "Warning: truncating to point beyond end of log"));
@@ -1024,7 +1024,7 @@ err:
 int __log_inmem_lsnoff(DB_LOG * dblp, DB_LSN * lsnp, size_t * offsetp)
 {
 	struct __db_filestart * filestart;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	SH_TAILQ_FOREACH(filestart, &lp->logfiles, links, __db_filestart)
 	if(filestart->file == lsnp->file) {
 		*offsetp = (uint32)(filestart->b_off+lsnp->Offset_)%lp->buffer_size;
@@ -1045,7 +1045,7 @@ int __log_inmem_newfile(DB_LOG * dblp, uint32 file)
 #ifdef DIAGNOSTIC
 	struct __db_filestart * first, * last;
 #endif
-	lp = (LOG *)dblp->reginfo.primary;
+	lp = static_cast<LOG *>(dblp->reginfo.primary);
 	/*
 	 * If the log buffer is empty, reuse the filestart entry.
 	 */
@@ -1098,7 +1098,7 @@ int __log_inmem_chkspace(DB_LOG * dblp, size_t len)
 	size_t offset;
 	int ret;
 	ENV * env = dblp->env;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_ASSERT(env, lp->db_log_inmemory);
 	/*
 	 * Allow room for an extra header so that we don't need to check for
@@ -1157,7 +1157,7 @@ int __log_inmem_chkspace(DB_LOG * dblp, size_t len)
  */
 void __log_inmem_copyout(DB_LOG * dblp, size_t offset, void * buf, size_t size)
 {
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	size_t nbytes = (offset+size < lp->buffer_size) ? size : lp->buffer_size-offset;
 	memcpy(buf, dblp->bufp+offset, nbytes);
 	if(nbytes < size)
@@ -1170,7 +1170,7 @@ void __log_inmem_copyout(DB_LOG * dblp, size_t offset, void * buf, size_t size)
  */
 void __log_inmem_copyin(DB_LOG * dblp, size_t offset, void * buf, size_t size)
 {
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	size_t nbytes = (offset+size < lp->buffer_size) ? size : lp->buffer_size-offset;
 	memcpy(dblp->bufp+offset, buf, nbytes);
 	if(nbytes < size)
@@ -1186,7 +1186,7 @@ void __log_inmem_copyin(DB_LOG * dblp, size_t offset, void * buf, size_t size)
 void __log_set_version(ENV * env, uint32 newver)
 {
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	// We should be able to update this atomically without locking.
 	lp->persist.version = newver;
 }
@@ -1209,7 +1209,7 @@ int __log_get_oldversion(ENV * env, uint32 * ver)
 	uint32 firstfnum, fnum, lastver;
 	int t_ret;
 	DB_LOG * dblp = env->lg_handle;
-	LOG * lp = (LOG *)dblp->reginfo.primary;
+	LOG * lp = static_cast<LOG *>(dblp->reginfo.primary);
 	DB_LOGC * logc = NULL;
 	int ret = 0;
 	uint32 oldver = DB_LOGVERSION;
