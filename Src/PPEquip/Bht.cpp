@@ -410,7 +410,6 @@ int SBIIOpRestrRec::ToBuf(void * pBuf, size_t * pBufSize)
 		else {
 			char * p_buf = (char *)pBuf;
 			size_t bytes = 0;
-
 			memcpy(p_buf + bytes,                              &ID,              sizeof(ID));
 			memcpy(p_buf + (bytes += sizeof(ID)),              &AccSheetID,      sizeof(AccSheetID));
 			memcpy(p_buf + (bytes += sizeof(AccSheetID)),      &OnBhtOpID,       sizeof(OnBhtOpID));
@@ -445,7 +444,6 @@ DbfTable * SBIIBillRec::CreateDbfTbl(const char * pPath)
 	if(p_tbl = new DbfTable(pPath)) {
 		int    num_flds = 0;
 		DBFCreateFld fld_list[32];
-
 		fld_list[num_flds++].Init("ID",       'N', 10, 0);
 		fld_list[num_flds++].Init("SAMPLEID", 'N', 10, 0);
 		fld_list[num_flds++].Init("DATE",     'D',  8, 0);
@@ -467,7 +465,6 @@ int SBIIBillRec::ToDbfTbl(DbfTable * pTbl)
 		S_GUID guid;
 		SString str_guid, str_tm;
 		DbfRecord dbf_rec(pTbl);
-
 		str_tm.Cat(Tm, TIMF_HMS);
 		guid.Init(Uuid);
 		guid.ToStr(S_GUID::fmtIDL, str_guid);
@@ -534,7 +531,6 @@ DbfTable * SBIIBillRowRec::CreateDbfTbl(const char * pPath)
 	if(p_tbl = new DbfTable(pPath)) {
 		int    num_flds = 0;
 		DBFCreateFld fld_list[32];
-
 		fld_list[num_flds++].Init("BILLID",   'N', 10, 0);
 		fld_list[num_flds++].Init("GOODSID",  'N', 10, 0);
 		fld_list[num_flds++].Init("STORAGEP", 'N', 10, 0);
@@ -552,11 +548,10 @@ DbfTable * SBIIBillRowRec::CreateDbfTbl(const char * pPath)
 	
 int SBIIBillRowRec::ToDbfTbl(DbfTable * pTbl)
 {
-	int ok = 0;
+	int    ok = 0;
 	if(pTbl) {
 		SString str_tm;
 		DbfRecord dbf_rec(pTbl);
-
 		str_tm.Cat(Tm, TIMF_HMS);
 		dbf_rec.put(1, BillID);
 		dbf_rec.put(2, GoodsID);
@@ -1165,7 +1160,7 @@ void StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 	}
 }
 
-// virtual
+//virtual
 int StyloBhtIIOpInfoDlg::setupList()
 {
 	int    ok = 1;
@@ -1205,14 +1200,8 @@ int StyloBhtIIOpInfoDlg::setDTS(const SBIIOpInfo * pData)
 	updateList(-1);
 	{
 		SString buf;
-		{
-			StringSet ss(';', ErrList);
-			ss.get(0U, buf);
-		}
-		{
-			StringSet ss2(',', buf);
-			ss2.get(0U, buf);
-		}
+		StringSet(';', ErrList).get(0U, buf);
+		StringSet(',', buf).get(0U, buf);
 		SetupCtrls(buf.ToLong());
 	}
 	return 1;
@@ -1259,7 +1248,7 @@ private:
 	PPObjOprKind OprkObj;
 };
 
-// virtual
+//virtual
 int StyloBhtIICfgDialog::setupList()
 {
 	int    ok = -1;
@@ -1285,7 +1274,7 @@ int StyloBhtIICfgDialog::setupList()
 	return ok;
 }
 
-// virtual
+//virtual
 int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
@@ -1323,7 +1312,7 @@ int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
 	return ok;
 }
 
-// virtual
+//virtual
 int StyloBhtIICfgDialog::editItem(long pos, long id)
 {
 	int    ok = -1, valid_data = 0;
@@ -1343,7 +1332,7 @@ int StyloBhtIICfgDialog::editItem(long pos, long id)
 	return ok;
 }
 
-// virtual
+//virtual
 int StyloBhtIICfgDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
@@ -2968,8 +2957,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 		for(pack.InitExtTIter(0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 			double qtty = 0.0;
 			Sdr_SBIIBillRowWithCells sdr_brow;
-
-			MEMSZERO(sdr_brow);
+			// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 			// @v9.8.11 pack.SnL.GetNumber(i, &serial);
 			pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v9.8.11 
 			sdr_brow.BillID   = billID;
@@ -3143,8 +3131,7 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 						QuotIdent suppl_deal_qi(item.Dt, item.LocID, 0, 0, item.Object);
 						PPBillPacket pack;
 						Sdr_SBIISampleBill sdr_bill;
-
-						MEMSZERO(sdr_bill);
+						// @v10.7.9 @ctr MEMSZERO(sdr_bill);
 						SOemToChar(item.Code);
 						sdr_bill.ID      = item.ID;
 						sdr_bill.Date    = item.Dt;
@@ -3157,7 +3144,7 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 							PPTransferItem ti;
 							for(pack.InitExtTIter((uniteGoods) ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 								Sdr_SBIISampleBillRow sdr_brow;
-   								MEMSZERO(sdr_brow);
+   								// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 								pack.SnL.GetNumber(i, &serial);
 								sdr_brow.BillID  = item.ID;
 								sdr_brow.GoodsID = ti.GoodsID;
@@ -3317,8 +3304,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 					const  QuotIdent suppl_deal_qi(item.Dt, item.LocID, 0, 0, item.Object);
 					PPBillPacket pack;
 					Sdr_SBIISampleBill sdr_bill;
-
-					MEMSZERO(sdr_bill);
+					// @v10.7.9 @ctr MEMSZERO(sdr_bill);
 					// @v9.4.11 SOemToChar(item.Code);
 					(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
 					STRNSCPY(item.Code, temp_buf); // @v9.4.11
@@ -3333,7 +3319,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 						PPTransferItem ti;
 						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 							Sdr_SBIISampleBillRow sdr_brow;
-							MEMSZERO(sdr_brow);
+							// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 							// @v9.8.11 pack.SnL.GetNumber(i, &serial);
 							pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v9.8.11 
 							sdr_brow.BillID  = item.ID;
@@ -3409,7 +3395,7 @@ int SLAPI PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
 				LocationTbl::Rec loc_rec;
 				if(loc_obj.Search(p_cell_list->Get(i).Id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL) {
 					Sdr_SBIILocCell sdr_loc;
-					MEMSZERO(sdr_loc);
+					// @v10.7.9 @ctr MEMSZERO(sdr_loc);
 					sdr_loc.ID = loc_rec.ID;
 					STRNSCPY(sdr_loc.Code, (temp_buf = loc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER));
 					STRNSCPY(sdr_loc.Name, (temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
@@ -3707,7 +3693,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 				ReceiptTbl::Rec lot_rec;
 				// @v10.6.4 MEMSZERO(lot_rec);
 				if(goods_rec.Flags & GF_UNLIM) {
-					const QuotIdent qi(QIDATE(getcurdate_()), loc_id, PPQUOTK_BASE, 0L /* @curID */);
+					const QuotIdent qi(QIDATE(getcurdate_()), loc_id, PPQUOTK_BASE, 0L/*@curID*/);
 					goods_obj.GetQuot(goods_id, qi, 0L, 0L, &price);
 				}
 				else
@@ -4431,7 +4417,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 		ie_brow.GetNumRecs(&rows_count);
 		for(long j = 0; j < rows_count; j++) {
 			Sdr_SBIIBillRow sdr_brow;
-			MEMSZERO(sdr_brow);
+			// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 			THROW(ie_brow.ReadRecord(&sdr_brow, sizeof(sdr_brow)));
 			//
 			// Поиск товара по серйному номеру, затем, если не найден, по штрихкоду
@@ -4523,7 +4509,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 			BillTbl::Rec bill_rec;
 			PPBillPacket pack, link_pack;
 			Sdr_SBIIBill sdr_bill;
-			MEMSZERO(sdr_bill);
+			// @v10.7.9 @ctr MEMSZERO(sdr_bill);
 			// @v10.6.4 MEMSZERO(bill_rec);
 			THROW(p_ie_bill->ReadRecord(&sdr_bill, sizeof(sdr_bill)));
 			uuid.FromStr(sdr_bill.Guid);
@@ -6067,7 +6053,6 @@ int SLAPI CPT720Receive()
 	int    ok = 1;
 	HRESULT hr;
 	SmartPtr<CPT720Interface, &IID_CPT720Interface> s_p;
-
 	PPWait(1);
 	CoInitialize(NULL);
 	THROW(SUCCEEDED(hr = s_p.CreateInstance(CLSID_CPT720, NULL, CLSCTX_ALL)));

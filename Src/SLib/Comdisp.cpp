@@ -55,8 +55,7 @@ int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 	return ok;
 }
 
-//virtual
-int SLAPI ComDispInterface::Init(IDispatch * pIDisp)
+/*virtual*/int SLAPI ComDispInterface::Init(IDispatch * pIDisp)
 {
 	ProgIdent.Z();
 	DispIDAry.clear();

@@ -1,5 +1,5 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -83,8 +83,7 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 	return ok;
 }
 
-//virtual 
-int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * extraPtr)
+/*virtual*/int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * extraPtr)
 {
 	rBuf.Z();
 	return -1;
@@ -689,8 +688,7 @@ int SLAPI DbLocalCacheMng::HasDbEntry(long dbPathID)
 	return ok;
 }
 
-//virtual
-void FASTCALL DbLocalCacheMng::freeItem(void * pItem)
+/*virtual*/void FASTCALL DbLocalCacheMng::freeItem(void * pItem)
 {
 	DbLocalCacheEntry * p_item = static_cast<DbLocalCacheEntry *>(pItem);
 	if(p_item) {

@@ -758,9 +758,9 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 			THROW(p_ref->RemoveProperty(PPOBJ_BILL, *pID, BILLPRP_RENT, 0));
 			pInfo->Amounts.Remove(PPAMT_RENTPRD, -1);
 		}
-		THROW(PutBillProp(*pID, BILLPRP_PAYMORDER, pInfo->Rec.Flags & BILLF_BANKING, pInfo->P_PaymOrder, sizeof(PPBankingOrder)));
-		THROW(PutBillProp(*pID, BILLPRP_FREIGHT, pInfo->Rec.Flags & BILLF_FREIGHT, pInfo->P_Freight, sizeof(PPFreight)));
-		THROW(PutBillProp(*pID, BILLPRP_ADVANCEREP, pInfo->Rec.Flags & BILLF_ADVANCEREP, pInfo->P_AdvRep, sizeof(PPAdvanceRep)));
+		THROW(PutBillProp(*pID, BILLPRP_PAYMORDER, (pInfo->Rec.Flags & BILLF_BANKING), pInfo->P_PaymOrder, sizeof(PPBankingOrder)));
+		THROW(PutBillProp(*pID, BILLPRP_FREIGHT, (pInfo->Rec.Flags & BILLF_FREIGHT), pInfo->P_Freight, sizeof(PPFreight)));
+		THROW(PutBillProp(*pID, BILLPRP_ADVANCEREP, (pInfo->Rec.Flags & BILLF_ADVANCEREP), pInfo->P_AdvRep, sizeof(PPAdvanceRep)));
 		THROW(PutBillProp(*pID, BILLPRP_AGREEMENT, GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT, pInfo->P_Agt, sizeof(PPBill::Agreement))); // @v10.1.12
 		if(is_new) {
 			{
@@ -1042,11 +1042,6 @@ int SLAPI BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec
 	return r;
 }
 
-int SLAPI BillCore::EnumByObj(PPID obj, DateIter * diter, void * b)
-	{ return _Enum(3, obj, diter, b); }
-int SLAPI BillCore::EnumByOpr(PPID opr, DateIter * diter, void * b)
-	{ return _Enum(2, opr, diter, b); }
-
 int SLAPI BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags, long * pHandle)
 {
 	int    idx = 2;
@@ -1063,6 +1058,10 @@ int SLAPI BillCore::InitEnumByOp(PPID opID, const DateRange * pPeriod, int flags
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
+int SLAPI BillCore::EnumByObj(PPID obj, DateIter * diter, void * b)
+	{ return _Enum(3, obj, diter, b); }
+int SLAPI BillCore::EnumByOpr(PPID opr, DateIter * diter, void * b)
+	{ return _Enum(2, opr, diter, b); }
 int SLAPI BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
 	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
 int SLAPI BillCore::DestroyIter(long enumHandle)
@@ -1466,14 +1465,13 @@ int SLAPI BillCore::HasWLabel(PPID id)
 //
 //
 int SLAPI BillCore::EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, ObjAssocTbl::Rec * b)
-{
-	return PPRef->Assc.EnumByPrmr(poolType, poolOwnerID, pMemberID, b);
-}
-
+	{ return PPRef->Assc.EnumByPrmr(poolType, poolOwnerID, pMemberID, b); }
 int SLAPI BillCore::GetPoolMembersList(PPID poolType, PPID poolOwnerID, PPIDArray * pList)
-{
-	return PPRef->Assc.GetListByPrmr(poolType, poolOwnerID, pList);
-}
+	{ return PPRef->Assc.GetListByPrmr(poolType, poolOwnerID, pList); }
+int SLAPI BillCore::GetPoolList(PPID poolType, LAssocArray * pAry) 
+	{ return PPRef->Assc.GetList(poolType, pAry); }
+int SLAPI BillCore::RemoveFromPool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta)
+	{ return PPRef->Assc.Remove(poolType, poolOwnerID, billID, use_ta); }
 
 int SLAPI BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pList)
 {
@@ -1484,12 +1482,6 @@ int SLAPI BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pLi
 		ok = 1;
 	}
 	return ok;
-}
-
-// AHTOXA {
-int SLAPI BillCore::GetPoolList(PPID poolType, LAssocArray * pAry)
-{
-	return PPRef->Assc.GetList(poolType, pAry);
 }
 
 int SLAPI BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
@@ -1536,11 +1528,6 @@ int SLAPI BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int
 	}
 	CATCHZOK
 	return ok;
-}
-
-int SLAPI BillCore::RemoveFromPool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta)
-{
-	return PPRef->Assc.Remove(poolType, poolOwnerID, billID, use_ta);
 }
 
 int SLAPI BillCore::CalcPoolAmounts(PPID poolType, PPID poolOwnerID, AmtList * pAmounts)

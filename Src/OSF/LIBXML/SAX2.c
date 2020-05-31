@@ -16,6 +16,11 @@
 /* #define DEBUG_SAX2 */
 /* #define DEBUG_SAX2_TREE */
 
+xmlSAXHandler::xmlSAXHandler() // @v10.7.9
+{
+	THISZERO();
+}
+
 /**
  * @todo 
  *

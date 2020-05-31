@@ -1,5 +1,5 @@
 // TDDO2.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1573,8 +1573,7 @@ SLAPI TddoContentGraph::LocalScope::DataPool::DataPool() : SArray(sizeof(void *)
 {
 }
 
-//virtual
-void FASTCALL TddoContentGraph::LocalScope::DataPool::freeItem(void * p)
+/*virtual*/void FASTCALL TddoContentGraph::LocalScope::DataPool::freeItem(void * p)
 {
 	SAlloc::F(p);
 }

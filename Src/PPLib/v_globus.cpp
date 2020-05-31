@@ -1,5 +1,5 @@
 // V_GLOBUS.CPP
-// Copyright (c) A.Starodub 2012, 2016, 2017, 2019
+// Copyright (c) A.Starodub 2012, 2016, 2017, 2019, 2020
 //
 // PPViewGlobalUserAcc
 //
@@ -42,16 +42,14 @@ TempGlobUserAccTbl::Rec & SLAPI PPViewGlobalUserAcc::MakeTempEntry(const PPGloba
 	return rTempRec;
 }
 
-// virtual
-int SLAPI PPViewGlobalUserAcc::EditBaseFilt(PPBaseFilt *)
+/*virtual*/int SLAPI PPViewGlobalUserAcc::EditBaseFilt(PPBaseFilt *)
 {
 	return 1;
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGlobUserAcc);
 
-// virtual
-int SLAPI PPViewGlobalUserAcc::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewGlobalUserAcc::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -137,8 +135,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	return -1;
 }
 
-// virtual
-DBQuery * SLAPI PPViewGlobalUserAcc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewGlobalUserAcc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DBQuery * q  = 0;
 	TempGlobUserAccTbl * t = 0;
@@ -164,8 +161,7 @@ DBQuery * SLAPI PPViewGlobalUserAcc::CreateBrowserQuery(uint * pBrwId, SString *
 	return q;
 }
 
-// virtual
-int SLAPI PPViewGlobalUserAcc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewGlobalUserAcc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;

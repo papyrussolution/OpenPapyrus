@@ -32,8 +32,8 @@ static void FASTCALL SplitString(const char * pStr, int count, SBaseBuffer * pIt
 			size_t j = 0;
 			while(pStr[src_pos] != 0 && j < l) {
 				if(pStr[src_pos] == ' ') {
-					src_space_pos = (int)src_pos;
-					dst_space_pos = (int)dest_pos;
+					src_space_pos = static_cast<int>(src_pos);
+					dst_space_pos = static_cast<int>(dest_pos);
 				}
 				pItems[i].P_Buf[dest_pos] = pStr[src_pos];
 				dest_pos++;
@@ -89,7 +89,6 @@ int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSiz
 	int    ok = 1;
 	char   ip[16], encoded_ip[8];
 	uint   k = 0, i = 0;
-
 	memzero(ip, sizeof(ip));
 	memset(encoded_ip, 32, sizeof(encoded_ip));
 	encoded_ip[7] = '\0';
@@ -106,9 +105,9 @@ int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSiz
 		THROW_PP((dig = atoi(str_dig)) >= 0 && dig < 256, PPERR_SCALE_INVIP);
 		THROW_PP(dig != 0 || (i != 0 && str_dig[0] == '0'), PPERR_SCALE_INVIP);
 		if(dig == 0)
-			encoded_ip[i+3] = (uchar)1;
+			encoded_ip[i+3] = static_cast<uchar>(1);
 		else
-			encoded_ip[i] = (uchar)dig;
+			encoded_ip[i] = static_cast<uchar>(dig);
 	}
 	THROW_PP(i == 4, PPERR_SCALE_INVIP);
 	strnzcpy(pEncodedIP, encoded_ip, 8);
@@ -4242,25 +4241,18 @@ int ScaleDialog::editSysData()
 		if(CheckDialogPtrErr(&dlg)) {
 			if(!(Data.Rec.Flags & SCALF_SYSPINITED)) {
 				PPScaleDevice * p_comm = 0;
-				if(scale_type_id == PPSCLT_CAS)
-					p_comm = new CommLP15(0, &Data);
-				else if(scale_type_id == PPSCLT_MASSAK)
-					p_comm = new CommMassaK(0, &Data);
-				else if(scale_type_id == PPSCLT_MTOLEDO)
-					p_comm = new TCPIPMToledo(0, &Data);
-				else if(scale_type_id == PPSCLT_BIZERBA)
-					p_comm = new Bizerba(0, &Data);
-				else if(scale_type_id == PPSCLT_SHTRIHPRINT)
-					p_comm = new ShtrihPrint(0, &Data);
-				else if(scale_type_id == PPSCLT_WEIGHTTERM)
-					p_comm = new WeightTerm(0, &Data);
-				else if(scale_type_id == PPSCLT_DIGI)
-					p_comm = new DIGI(&Data);
-				else if(scale_type_id == PPSCLT_CASCL5000J)
-					p_comm = new CasCL5000J(0, &Data);
-				else {
-					delete dlg;
-					return -1;
+				switch(scale_type_id) {
+					case PPSCLT_CAS: p_comm = new CommLP15(0, &Data); break;
+					case PPSCLT_MASSAK: p_comm = new CommMassaK(0, &Data); break;
+					case PPSCLT_MTOLEDO: p_comm = new TCPIPMToledo(0, &Data); break;
+					case PPSCLT_BIZERBA: p_comm = new Bizerba(0, &Data); break;
+					case PPSCLT_SHTRIHPRINT: p_comm = new ShtrihPrint(0, &Data); break;
+					case PPSCLT_WEIGHTTERM: p_comm = new WeightTerm(0, &Data); break;
+					case PPSCLT_DIGI: p_comm = new DIGI(&Data); break;
+					case PPSCLT_CASCL5000J: p_comm = new CasCL5000J(0, &Data); break;
+					default:
+						delete dlg;
+						return -1;
 				}
 				p_comm->GetDefaultSysParams(&Data);
 				delete p_comm;
@@ -4680,21 +4672,17 @@ int SLAPI PPObjScale::Edit(PPID * pID, void * extraPtr)
 	int    valid_data = 0;
 	int    is_new = 0;
 	PPScalePacket pack;
-	ScaleDialog * dlg = 0;
-	//SString paths;
-	THROW(CheckDialogPtr(&(dlg = new ScaleDialog())));
+	ScaleDialog * dlg = new ScaleDialog();
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);
-		/*if(oneof2(pack.Rec.ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_DIGI))
-			ref->GetPropVlrString(PPOBJ_SCALE, *pID, SCLPRP_EXPPATHS, paths);*/
 	}
 	else {
 		SString temp_buf;
 		for(int i = 1; i <= 32; i++) {
-			// @v9.4.9 sprintf(scale.Name, "Scale #%d", i);
-			(temp_buf = "Scale").Space().CatChar('#').Cat(i); // @v9.4.9
-			STRNSCPY(pack.Rec.Name, temp_buf); // @v9.4.9
+			(temp_buf = "Scale").Space().CatChar('#').Cat(i);
+			STRNSCPY(pack.Rec.Name, temp_buf);
 			if(CheckDupName(*pID, pack.Rec.Name))
 				break;
 			else

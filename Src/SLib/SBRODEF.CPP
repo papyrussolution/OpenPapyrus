@@ -96,10 +96,8 @@ int FASTCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
 	return 0;
 }
 
-//virtual
-int SLAPI BrowserDef::insertColumn(int, const char *, uint, TYPEID, long, uint) { return 0; }
-//virtual
-int SLAPI BrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt) { return 0; }
+/*virtual*/int SLAPI BrowserDef::insertColumn(int, const char *, uint, TYPEID, long, uint) { return 0; }
+/*virtual*/int SLAPI BrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt) { return 0; }
 int SLAPI BrowserDef::removeColumn(int pos) { return atFree(pos); }
 
 int SLAPI BrowserDef::setColumnTitle(int colN, const char * pText)
@@ -193,8 +191,7 @@ void SLAPI BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 	ExtraPtr = extraPtr;
 }
 
-//virtual
-void FASTCALL BrowserDef::freeItem(void * pItem)
+/*virtual*/void FASTCALL BrowserDef::freeItem(void * pItem)
 {
 	if(pItem)
 		delete static_cast<BroColumn *>(pItem)->text;
@@ -606,8 +603,7 @@ int SLAPI AryBrowserDef::valid()
 	return (P_Array != 0);
 }
 
-//virtual
-int SLAPI AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
+/*virtual*/int SLAPI AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
 	BroColumn c;
 	c.OrgOffs = fldNo;

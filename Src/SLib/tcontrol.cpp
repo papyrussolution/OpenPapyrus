@@ -516,7 +516,7 @@ int TInputLine::OnMouseWheel(int delta)
 }
 
 #if 0 // @v9.1.3 {
-// virtual
+//virtual
 int TInputLine::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 0;
@@ -692,11 +692,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
-				// @v10.7.7 {
-				if(P_WordSel) {
-					P_WordSel->Refresh(Data);
-				}
-				// } @v10.7.7 
+				CALLPTRMEMB(P_WordSel, Refresh(Data)); // @v10.7.7 
 				MessageCommandToOwner(cmInputUpdated);
 			}
 			break;
@@ -767,9 +763,9 @@ void TInputLine::disableDeleteSelection(int _disable)
 
 void TInputLine::Implement_Draw()
 {
-	SString text_buf;
-	(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER);
-	TView::SSetWindowText(GetDlgItem(Parent, Id), text_buf);
+	//SString text_buf;
+	//(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER);
+	TView::SSetWindowText(GetDlgItem(Parent, Id), /*text_buf*//*SString(Data).Transf(CTRANSF_INNER_TO_OUTER)*/(SLS.AcquireRvlStr() = Data).Transf(CTRANSF_INNER_TO_OUTER));
 	if(IsInState(sfSelected))
 		::SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
 	if(InlSt & stDisableDelSel)
@@ -1015,7 +1011,7 @@ TCluster::~TCluster()
 }
 
 #if 0 // @v9.1.3 {
-// virtual
+//virtual
 int TCluster::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 0;

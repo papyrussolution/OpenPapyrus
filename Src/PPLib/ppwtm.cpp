@@ -729,7 +729,7 @@ WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Proc
 	AdvCookie(0), BusyDtm(ZERODATETIME)
 {
 	Options |= oSelectable;
-	MEMSZERO(PrcRec);
+	// @v10.7.9 @ctr MEMSZERO(PrcRec);
 	TextParam tp;
 	tp.Side = SIDE_BOTTOM;
 	tp.AlongSize = -1.0f;

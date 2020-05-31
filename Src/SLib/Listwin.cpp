@@ -361,14 +361,12 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 	return 1;
 }
 
-//virtual 
-StrAssocArray * WordSel_ExtraBlock::GetRecentList()
+/*virtual*/StrAssocArray * WordSel_ExtraBlock::GetRecentList()
 {
 	return 0;
 }
 
-// virtual
-StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
+/*virtual*/StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 {
 	StrAssocArray * p_list = 0;
 	SString text;
@@ -390,8 +388,7 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 	return p_list;
 }
 
-//virtual 
-void WordSel_ExtraBlock::OnAcceptInput(const char * pText, long id)
+/*virtual*/void WordSel_ExtraBlock::OnAcceptInput(const char * pText, long id)
 {
 }
 

@@ -271,7 +271,7 @@ int SLAPI PPObjBill::AutoCharge(PPID billID, PPID opID, const PPRentCondition * 
 				THROW(pack.CreateBlank(opID, billID, 0, 1));
 				pack.Rec.Dt = charge_dt;
 				pack.Rec.Amount = BR2(amount);
-				pack.Amounts.Put(PPAMT_MAIN, 0L /* @curID */, amount, 0, 1);
+				pack.Amounts.Put(PPAMT_MAIN, 0L/*@curID*/, amount, 0, 1);
 				SubstMemo(&pack);
 				THROW(FillTurnList(&pack));
 				THROW(TurnPacket(&pack, 1));

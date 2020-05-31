@@ -441,11 +441,11 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 		if(prev) {
 			if(prev->type == XML_XINCLUDE_START) {
 				prev->type = XML_ELEMENT_NODE;
-				to->file = (char *)xmlGetProp(prev, reinterpret_cast<const xmlChar *>("href"));
+				to->file = PTRCHR_(xmlGetProp(prev, reinterpret_cast<const xmlChar *>("href")));
 				prev->type = XML_XINCLUDE_START;
 			}
 			else {
-				to->file = (char *)xmlGetProp(prev, reinterpret_cast<const xmlChar *>("href"));
+				to->file = PTRCHR_(xmlGetProp(prev, reinterpret_cast<const xmlChar *>("href")));
 			}
 		}
 		else

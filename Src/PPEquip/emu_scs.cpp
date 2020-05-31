@@ -315,7 +315,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-// virtual
+//virtual
 int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int     ok = 1;
@@ -372,7 +372,7 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 }
 
 #if 0 // @v10.0.0 {
-// virtual
+//virtual
 int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
 {
 	int     ok = 1;
@@ -413,7 +413,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 }
 #endif // } 0 @v10.0.0
 
-// virtual
+//virtual
 int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
@@ -448,7 +448,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * p
 	return ok;
 }
 
-// virtual
+//virtual
 int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 {
 	int     ok = 1;
@@ -480,7 +480,7 @@ int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 	return ok;
 }
 
-// virtual
+//virtual
 int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 {
 	int     ok = 1;
@@ -515,7 +515,7 @@ int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 	return ok;
 }
 
-// virtual
+//virtual
 int SLAPI SCS_SYNCSYM::CloseSession(PPID sessID)
 {
 	int    ok = -1;

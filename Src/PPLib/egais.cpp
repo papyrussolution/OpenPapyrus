@@ -4940,7 +4940,6 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
 			THROW(P_BObj->TurnPacket(p_bp, 1));
 			pPack->Flags |= Packet::fAcceptedBill;
 			ok = 1;
-			//
 			PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 			LogTextWithAddendum(PPTXT_EGAIS_BILLACCEPTED, bill_text);
 			if(pPack->IntrBillID > 0) {
@@ -5277,9 +5276,11 @@ int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSC
 }
 
 struct EgaisRestItem { // @flat
-	EgaisRestItem()
+	EgaisRestItem() : GoodsID(0), MnfOrImpPsnID(0), Rest(0.0)
 	{
-		THISZERO();
+		PTR32(InformAIdent)[0] = 0;
+		PTR32(InformBIdent)[0] = 0;
+		PTR32(EgaisCode)[0] = 0;
 	}
 	PPID   GoodsID;
 	PPID   MnfOrImpPsnID;

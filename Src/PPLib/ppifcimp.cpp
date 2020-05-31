@@ -2836,7 +2836,7 @@ int32 DL6ICLS_PPObjCashNode::Search(int32 id, PPYOBJREC rec)
 	PPObjCashNode * p_obj = static_cast<PPObjCashNode *>(ExtraPtr);
 	if(p_obj) {
 		PPCashNode cn_rec;
-		MEMSZERO(cn_rec);
+		// @v10.7.9 @ctr MEMSZERO(cn_rec);
 		ok = p_obj->Search(id, &cn_rec);
 		FillCashNodeRec(&cn_rec, static_cast<SPpyO_CashNode *>(rec));
 	}
@@ -2851,7 +2851,7 @@ int32 DL6ICLS_PPObjCashNode::SearchByName(SString & text, int32 kind, int32 extr
 	if(p_obj) {
 		PPCashNode cn_rec;
 		PPID   id = 0;
-		MEMSZERO(cn_rec);
+		// @v10.7.9 @ctr MEMSZERO(cn_rec);
 		ok = p_obj->SearchByName(text, &id, &cn_rec);
 		FillCashNodeRec(&cn_rec, static_cast<SPpyO_CashNode *>(rec));
 	}
@@ -3771,8 +3771,7 @@ int32 DL6ICLS_PPObjGoods::GetQuot(int32 goodsID, int32 quotKind, double * pQuot)
 	int    ok = -1;
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	if(p_obj) {
-		const QuotIdent qi(0, quotKind);
-		ok = p_obj->GetQuotExt(goodsID, qi, pQuot, 1);
+		ok = p_obj->GetQuotExt(goodsID, QuotIdent(0, quotKind), pQuot, 1);
 	}
 	return ok;
 }
@@ -8830,9 +8829,8 @@ SPpyI_SupplDeal DL6ICLS_PPQuotation::GetSupplDeal(int32 goodsID, int32 locID, in
 {
 	SPpyI_SupplDeal od;
 	MEMSZERO(od);
-	const QuotIdent qi(locID, 0, curID, supplID);
 	PPSupplDeal sd;
-	static_cast<PPObjGoods *>(ExtraPtr)->GetSupplDeal(goodsID, qi, &sd, 1);
+	static_cast<PPObjGoods *>(ExtraPtr)->GetSupplDeal(goodsID, QuotIdent(locID, 0, curID, supplID), &sd, 1);
 	od.Val = sd.Cost;
 	od.LowBound = sd.DnDev;
 	od.UppBound = sd.UpDev;
@@ -8845,13 +8843,12 @@ int32 DL6ICLS_PPQuotation::SetSupplDeal(int32 goodsID, int32 locID, int32 curID,
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	if(p_obj && pDeal) {
 		PPSupplDeal sd;
-		const QuotIdent qi(locID, 0, curID, supplID);
 		MEMSZERO(sd);
 		sd.DnDev      = pDeal->LowBound;
 		sd.UpDev      = pDeal->UppBound;
 		sd.Cost       = pDeal->Val;
 		sd.IsDisabled = pDeal->Disabled;
-	 	THROW(p_obj->SetSupplDeal(goodsID, qi, &sd, 1));
+	 	THROW(p_obj->SetSupplDeal(goodsID, QuotIdent(locID, 0, curID, supplID), &sd, 1));
 	}
 	CATCH
 		AppError = 1;

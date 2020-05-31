@@ -24,8 +24,7 @@ CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 	return *this;
 }
 
-//virtual
-int SLAPI CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int SLAPI CCheckFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 3) {

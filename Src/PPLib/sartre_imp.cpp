@@ -2221,11 +2221,11 @@ private:
 	};
 	static IMPL_CMPCFUNC(SrImpHumanNameEntry, i1, i2)
 	{
-		const InnerEntry * p1 = (const InnerEntry *)i1;
-		const InnerEntry * p2 = (const InnerEntry *)i2;
+		const InnerEntry * p1 = static_cast<const InnerEntry *>(i1);
+		const InnerEntry * p2 = static_cast<const InnerEntry *>(i2);
 		SString n1, n2;
-		((SrImpHumanNameList *)pExtraData)->GetS(p1->NameP, n1);
-		((SrImpHumanNameList *)pExtraData)->GetS(p2->NameP, n2);
+		static_cast<const SrImpHumanNameList *>(pExtraData)->GetS(p1->NameP, n1);
+		static_cast<const SrImpHumanNameList *>(pExtraData)->GetS(p2->NameP, n2);
 		SStringU nu1, nu2;
 		nu1.CopyFromUtf8(n1);
 		nu2.CopyFromUtf8(n2);

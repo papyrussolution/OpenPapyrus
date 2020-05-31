@@ -1,5 +1,5 @@
 // RC2.H
-// Copyright V.Antonov, A.Sobolev 2006, 2007, 2008, 2013, 2016
+// Copyright V.Antonov, A.Sobolev 2006, 2007, 2008, 2013, 2016, 2020
 // Part of project Papyrus
 //
 #include <slib.h>
@@ -9,7 +9,9 @@
 class TRect;
 
 struct BrowserLayout {
-	BrowserLayout() { THISZERO(); }
+	BrowserLayout() : LayoutBase(LayoutCenter), SizeInPercent(0)
+	{ 
+	}
 	enum Base {
 		LayoutCenter = 0,
 		LayoutNorth,
@@ -61,9 +63,9 @@ struct Rc2BitmapItem {
 };
 
 struct Rc2DrawVectorItem {
-	Rc2DrawVectorItem()
+	Rc2DrawVectorItem() : SymbID(0), ReplacedColor(ZEROCOLOR)
 	{
-		THISZERO();
+		PTR32(FileName)[0] = 0;
 	}
 	long   SymbID;
 	SColor ReplacedColor; // Цвет, который может быть изменен при отрисовке. Если ReplacedColor.Alpha == 0, то не определен
@@ -90,10 +92,10 @@ struct Rc2ToolbarItem {
 
 class ToolbarDefinition : public TSArray <Rc2ToolbarItem> {
 public:
-	ToolbarDefinition() : TSArray <Rc2ToolbarItem> ()
+	ToolbarDefinition() : TSArray <Rc2ToolbarItem> (), IsLocal(0), IsExport(0)
 	{
-		*Name = *BitmapIndex = 0;
-		IsLocal = IsExport = 0;
+		PTR32(Name)[0] = 0;
+		PTR32(BitmapIndex)[0] = 0;
 	}
 	int    IsLocal;
 	int    IsExport;
@@ -102,9 +104,9 @@ public:
 };
 
 struct GroupDefinition {
-	GroupDefinition()
+	GroupDefinition() : startColumn(0), stopColumn(0)
 	{
-		THISZERO();
+		PTR32(Name)[0] = 0;
 	}
 	char   Name[64];
 	int    startColumn;
@@ -112,9 +114,12 @@ struct GroupDefinition {
 };
 
 struct BrowserColumn {
-	BrowserColumn()
+	BrowserColumn() : IsCrosstab(0), Width(0), Prec(0), Type(0)
 	{
-		THISZERO();
+		PTR32(Name)[0] = 0;
+		PTR32(ReqNumber)[0] = 0;
+		PTR32(Flags)[0] = 0;
+		PTR32(Options)[0] = 0;
 	}
 	int    IsCrosstab;
 	char   Name[64];
@@ -127,10 +132,11 @@ struct BrowserColumn {
 };
 
 struct BrowserDefinition {
-	BrowserDefinition()
+	BrowserDefinition() : Height(0), Freeze(0), Flags(0)
 	{
-		Height = Freeze = 0;
-		*Name = *Header = 0;
+		PTR32(Name)[0] = 0;
+		PTR32(Header)[0] = 0;
+		PTR32(HelpID)[0] = 0;
 	}
 	char   Name[64];
 	int    Height;
@@ -146,13 +152,25 @@ struct BrowserDefinition {
 
 struct CmdDefinition {
 	struct CmdFilt {
+		CmdFilt & Z()
+		{
+			DeclView = 0;
+			PTR32(FiltSymb)[0] = 0;
+			PTR32(FiltExtraSymb)[0] = 0;
+			return *this;
+		}
 		int    DeclView;           // Если !0 то FiltSymb рассматривается как символ view, а не filter
 		char   FiltSymb[32];
 		char   FiltExtraSymb[32];
 	};
-	CmdDefinition()
+	CmdDefinition() : ID(0), Flags(0)
 	{
-		THISZERO();
+		PTR32(Name)[0] = 0;
+		PTR32(Descr)[0] = 0;
+		PTR32(IconIdent)[0] = 0;
+		PTR32(ToolbarIdent)[0] = 0;
+		PTR32(MenuCmdIdent)[0] = 0;
+		Filt.Z();
 	}
 	long   ID;
 	long   Flags;
@@ -173,15 +191,16 @@ class CtrlMenuDefinition : public TSArray <CtrlMenuItem> {
 public:
 	CtrlMenuDefinition() : TSArray <CtrlMenuItem> ()
 	{
-		memzero(Name, sizeof(Name));
+		PTR32(Name)[0] = 0;
 	}
 	char   Name[64];
 };
 
 struct JobDefinition {
-	JobDefinition()
+	JobDefinition() : ID(0), Flags(0)
 	{
-		THISZERO();
+		PTR32(Name)[0] = 0;
+		PTR32(Descr)[0] = 0;
 	}
 	long   ID;
 	long   Flags;
@@ -190,9 +209,10 @@ struct JobDefinition {
 };
 
 struct ObjDefinition {
-	ObjDefinition()
+	ObjDefinition() : ID(0)
 	{
-		THISZERO();
+		PTR32(Name)[0] = 0;
+		PTR32(Descr)[0] = 0;
 	}
 	long   ID;
 	char   Name[64];
@@ -203,10 +223,8 @@ struct ViewDefinition {
 	enum {
 		fFilterOnly = 0x0001
 	};
-	ViewDefinition()
+	ViewDefinition() : ID(0), Flags(0)
 	{
-		ID = 0;
-		Flags = 0;
 	}
 	long   ID;
 	long   Flags;
@@ -215,9 +233,8 @@ struct ViewDefinition {
 };
 
 struct ReportStubDefinition {
-	ReportStubDefinition()
+	ReportStubDefinition() : ID(0)
 	{
-		ID = 0;
 	}
 	long   ID;
 	SString Name;
@@ -226,10 +243,8 @@ struct ReportStubDefinition {
 };
 
 struct RFileDefinition {
-	RFileDefinition()
+	RFileDefinition() : ID(0), Flags(0)
 	{
-		ID = 0;
-		Flags = 0;
 	}
 	long   ID;
 	long   Flags;
@@ -254,14 +269,8 @@ int SLAPI GetFlagValue(const char * pFlagText, const char * pVariants, int * pRe
 
 class Rc2Data {
 public:
-	SLAPI  Rc2Data::Rc2Data()
+	SLAPI  Rc2Data() : pHdr(0), pRc(0), BrwCounter(0), TbCounter(0), P_Record(0), P_CurCtrlMenuDef(0)
 	{
-		pHdr = 0;  // Генерируемый заголовочный файл
-		pRc  = 0;  // Генерируемый RC файл
-		BrwCounter = 0;
-		TbCounter = 0;
-		P_Record = 0;
-		P_CurCtrlMenuDef = 0;
 	}
 	SLAPI ~Rc2Data()
 	{
@@ -270,19 +279,14 @@ public:
 		delete P_CurCtrlMenuDef;
 	}
 	int    SLAPI Init(const char * pInputFileName, const char * pRcName, const char * pHdrName, const char * pEmbedRcName);
-	const  SString & GetInputFileName() const
-	{
-		return InputFileName;
-	}
+	const  SString & GetInputFileName() const { return InputFileName; }
 	int    SLAPI GenerateRCHeader();
-	int    SLAPI GenerateIncHeader();
+	void   SLAPI GenerateIncHeader();
 	int    SLAPI GenerateSymbDefinitions();
 	int    SLAPI GenerateBrowserDefine(char * pName, char * comment);
 	int    SLAPI GenerateBrowserDefinition(BrowserDefinition * pB);
-
 	int    SLAPI GenerateToolbarDefine(char * pName);
 	int    SLAPI GenerateToolbarDefinition(ToolbarDefinition * pT);
-
 	int    SLAPI GenerateJobDefinitions();
 	int    SLAPI GenerateObjDefinitions();
 	int    SLAPI GenerateCmdDefinitions();
@@ -344,7 +348,6 @@ private:
 		TSArray <Rc2DrawVectorItem> List;
 	};
 	TSCollection <DrawVectorGroup> DrawVectorList;
-
 	FILE * pHdr; // Генерируемый заголовочный файл
 	FILE * pRc;  // Генерируемый RC файл
 	SString InputFileName;

@@ -78,8 +78,6 @@ int has_detail_string(void);
 int has_Detail_string(void);
 void FASTCALL needs_lang(const Entry * e);
 int is_mutable(Tnode * typ);
-int is_header_or_fault(Tnode * typ);
-int is_body(Tnode * typ);
 int FASTCALL is_volatile(const Tnode * typ);
 int FASTCALL is_untyped(const Tnode * typ);
 static int FASTCALL is_item(const Entry * p) { return p ? sstreq(p->sym->name, "__item") : 0; }
@@ -88,6 +86,20 @@ static const char * FASTCALL ident(const char * name)
 {
 	const char * s = strrchr(name, ':');
 	return (s && *(s+1) && *(s-1) != ':') ? (s+1) : name;
+}
+
+static int FASTCALL is_body(const Tnode * typ)
+{
+	return oneof2(typ->type, Tpointer, Treference) ? is_body((Tnode *)typ->ref) : (oneof2(typ->type, Tstruct, Tclass) && sstreq(ident(typ->id->name), "SOAP_ENV__Body"));
+}
+
+static int FASTCALL is_header_or_fault(const Tnode * typ)
+{
+	if(oneof2(typ->type, Tpointer, Treference))
+		return is_header_or_fault(static_cast<const Tnode *>(typ->ref));
+	return (typ->type == Tstruct || typ->type == Tclass) && (sstreq(ident(typ->id->name), "SOAP_ENV__Header") ||
+		sstreq(ident(typ->id->name), "SOAP_ENV__Fault") || sstreq(ident(typ->id->name), "SOAP_ENV__Code") || 
+		sstreq(ident(typ->id->name), "SOAP_ENV__Detail") || sstreq(ident(typ->id->name), "SOAP_ENV__Reason"));
 }
 
 static const Entry * FASTCALL is_dynamic_array(const Tnode * typ)
@@ -1383,7 +1395,6 @@ void compile(Table * table)
 				if(!cflag && !namespaceid)
 					fprintf(fout, "\n\n#ifdef __cplusplus\n}\n#endif");
 				fprintf(fout, "\n#endif");
-
 			}
 			if(!cflag) {
 				fprintf(fhead, "\n\nSOAP_FMAC3 void * SOAP_FMAC4 %s_instantiate(struct soap*, int, const char*, const char*, size_t*);", prefix);
@@ -9473,12 +9484,10 @@ int is_binary(const Tnode * typ)
 
 int is_attachment(const Tnode * typ)
 {
-	Entry * p;
-	Table * t;
 	if(!is_binary(typ) || is_transient(typ))
 		return 0;
-	for(t = (Table *)typ->ref; t; t = t->prev) {
-		for(p = t->list; p; p = p->next) {
+	for(const Table * t = static_cast<const Table *>(typ->ref); t; t = t->prev) {
+		for(const Entry * p = t->list; p; p = p->next) {
 			if(is_string(p->info.typ) && sstreq(p->sym->name, "id")) {
 				p = p->next;
 				if(!p || !is_string(p->info.typ) || strcmp(p->sym->name, "type"))
@@ -9496,20 +9505,6 @@ int is_attachment(const Tnode * typ)
 int is_mutable(Tnode * typ)
 {
 	return is_header_or_fault(typ);
-}
-
-int is_header_or_fault(Tnode * typ)
-{
-	if(typ->type == Tpointer || typ->type == Treference)
-		return is_header_or_fault((Tnode *)typ->ref);
-	return (typ->type == Tstruct || typ->type == Tclass) && (sstreq(ident(typ->id->name), "SOAP_ENV__Header") ||
-		sstreq(ident(typ->id->name), "SOAP_ENV__Fault") || sstreq(ident(typ->id->name), "SOAP_ENV__Code") || 
-		sstreq(ident(typ->id->name), "SOAP_ENV__Detail") || sstreq(ident(typ->id->name), "SOAP_ENV__Reason"));
-}
-
-int is_body(Tnode * typ)
-{
-	return oneof2(typ->type, Tpointer, Treference) ? is_body((Tnode *)typ->ref) : (oneof2(typ->type, Tstruct, Tclass) && sstreq(ident(typ->id->name), "SOAP_ENV__Body"));
 }
 
 static long FASTCALL minlen(const Tnode * typ) { return (typ->minLength < 0 || (typ->maxLength>>31) != 0) ? 0 : (long)typ->minLength; }
@@ -9554,16 +9549,8 @@ int is_primitive_or_string(const Tnode * typ)
 	       is_qname(typ) || is_stdqname(typ);
 }
 
-static int FASTCALL is_primitive(const Tnode * typ)
-{
-	return (typ->type <= Tenum);
-}
-
-int FASTCALL is_fixedstring(const Tnode * typ)
-{
-	return (bflag && typ->type == Tarray && static_cast<const Tnode *>(typ->ref)->type == Tchar);
-}
-
+static int FASTCALL is_primitive(const Tnode * typ) { return (typ->type <= Tenum); }
+int FASTCALL is_fixedstring(const Tnode * typ) { return (bflag && typ->type == Tarray && static_cast<const Tnode *>(typ->ref)->type == Tchar); }
 int FASTCALL is_stdstring(const Tnode * typ) { return (typ->type == Tclass && typ->id == lookup("std::string")); }
 int FASTCALL is_stdwstring(const Tnode * typ) { return (typ->type == Tclass && typ->id == lookup("std::wstring")); }
 
@@ -9688,7 +9675,7 @@ static void FASTCALL soap_attr_value(const Entry * p, char * obj, const char * n
 		fprintf(fout, "\n\t{\tconst char *t = soap_attr_value(soap, \"%s\", %d);\n\t\tif(t)\n\t\t{\twchar_t *s;\n\t\t\tif(soap_s2wchar(soap, t, &s, %ld, %ld))\n\t\t\t\treturn NULL;\n\t\t\t%s->%s.assign(s);\n\t\t}\n\t\telse if(soap->error)\n\t\t\treturn NULL;\n\t}",
 			tag, flag, minlen(typ), maxlen(typ), obj, name);
 	else if(typ->type == Tpointer) {
-		Tnode * ptr = (Tnode *)typ->ref;
+		Tnode * ptr = static_cast<Tnode *>(typ->ref);
 		if(!is_anyAttribute(ptr))
 			fprintf(fout, "\n\t{\tconst char *t = soap_attr_value(soap, \"%s\", %d);\n\t\tif(t)\n\t\t{", tag, flag);
 		if(!is_stdstring(ptr))
@@ -9868,7 +9855,7 @@ void soap_out(Tnode * typ)
 	}
 	switch(typ->type) {
 	    case Tstruct:
-		table = (Table *)typ->ref;
+		table = static_cast<Table *>(typ->ref);
 		if(is_external(typ)) {
 			fprintf(fhead, "\nSOAP_FMAC1 int SOAP_FMAC2 soap_out_%s(struct soap*, const char*, int, const %s, const char*);",
 				c_ident(typ), c_type_id(typ, "*"));
@@ -9916,18 +9903,14 @@ void soap_out(Tnode * typ)
 				fprintf(fout, "\n\treturn a->%s.soap_out(soap, tag, id, \"%s\");", ident(
 						p->sym->name), xsi_type_u(typ));
 			else if(is_qname(p->info.typ))
-				fprintf(fout,
-					"\n\treturn soap_out_%s(soap, tag, id, (char*const*)&soap_tmp_%s, \"%s\");",
-					c_ident(
-						p->info.typ), ident(p->sym->name), xsi_type_u(typ));
+				fprintf(fout, "\n\treturn soap_out_%s(soap, tag, id, (char*const*)&soap_tmp_%s, \"%s\");",
+					c_ident(p->info.typ), ident(p->sym->name), xsi_type_u(typ));
 			else if(is_stdqname(p->info.typ))
 				fprintf(fout, "\n\treturn soap_out_%s(soap, tag, id, &soap_tmp_%s, \"%s\");",
 					c_ident(p->info.typ), ident(p->sym->name), xsi_type_u(typ));
 			else if(p->info.typ->type == Tpointer && is_qname((Tnode *)p->info.typ->ref))
-				fprintf(fout,
-					"\n\treturn soap_out_%s(soap, tag, id, (char*const*)soap_tmp_%s, \"%s\");",
-					c_ident(
-						(Tnode *)p->info.typ->ref), ident(p->sym->name), xsi_type_u(typ));
+				fprintf(fout, "\n\treturn soap_out_%s(soap, tag, id, (char*const*)soap_tmp_%s, \"%s\");",
+					c_ident((Tnode *)p->info.typ->ref), ident(p->sym->name), xsi_type_u(typ));
 			else if(p->info.typ->type == Tpointer && is_stdqname((Tnode *)p->info.typ->ref))
 				fprintf(fout, "\n\treturn soap_out_%s(soap, tag, id, &soap_tmp_%s, \"%s\");",
 					c_ident(p->info.typ), ident(p->sym->name), xsi_type_u(typ));

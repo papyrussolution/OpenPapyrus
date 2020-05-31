@@ -1996,8 +1996,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 	return ok;
 }
 
-//virtual
-void SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
 }

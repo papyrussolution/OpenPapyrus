@@ -1886,7 +1886,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 					PPID   obj_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 					if(obj_id) {
 						AccAnlzFilt flt;
-						if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0 /* @curID */, &flt.AcctId, &flt.AccSheetID) > 0) {
+						if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0 /*@curID*/, &flt.AcctId, &flt.AccSheetID) > 0) {
 							flt.AcctId.ar = obj_id;
 							flt.Aco = ACO_3;
 							int    r = P_BObj->atobj->P_Tbl->AcctIDToRel(&flt.AcctId, &flt.AccID);
@@ -3351,7 +3351,7 @@ int BillDialog::calcAdvanceRepRest()
 		DateRange period;
 		period.low = ZERODATE;
 		getCtrlData(CTL_BILL_DATE, &period.upp);
-		if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0L /* @curID */, &acctid, &acc_sheet_id) > 0 &&
+		if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0L/*@curID*/, &acctid, &acc_sheet_id) > 0 &&
 			acc_sheet_id && GetArticleSheetID(obj_id, &ar_sheet_id) > 0 && ar_sheet_id == acc_sheet_id) {
 			acctid.ar = obj_id;
 			THROW(P_BObj->atobj->P_Tbl->AcctIDToRel(&acctid, &acc_rel));

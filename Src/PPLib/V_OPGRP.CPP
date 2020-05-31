@@ -1188,8 +1188,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewOpGrouping::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewOpGrouping::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);

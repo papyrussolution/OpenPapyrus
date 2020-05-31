@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // STextBrowser
 //
 #include <pp.h>
@@ -906,8 +906,7 @@ int STextBrowser::SetSpecialMode(int spcm)
 	return ok;
 }
 
-//virtual
-TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
+/*virtual*/TBaseBrowserWindow::IdentBlock & STextBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasTextBrowser;
 	rBlk.ClsName = SUcSwitch(STextBrowser::WndClsName); // @unicodeproblem

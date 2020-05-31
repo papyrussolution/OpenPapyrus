@@ -2886,7 +2886,7 @@ int SLAPI ACS_CRCSHSRV::CreateSCardPaymTbl()
 			p_ie_csd->GetNumRecs(&count);
 			for(c = 0; c < count; c++) {
 				Sdr_CS_Dscnt  cs_dscnt;
-				MEMSZERO(cs_dscnt);
+				// @v10.7.9 @ctr MEMSZERO(cs_dscnt);
 				THROW(p_ie_csd->ReadRecord(&cs_dscnt, sizeof(cs_dscnt)));
 				if(cs_dscnt.DscntType == CRCSHSRV_DISCCARD_DEFTYPE) {
 					MEMSZERO(k0);
@@ -3881,7 +3881,7 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char 
 				long   cshr_id;
 				LDATETIME  dttm;
 				Sdr_CS_Chkhd  cs_chkhd;
-				MEMSZERO(cs_chkhd);
+				// @v10.7.9 @ctr MEMSZERO(cs_chkhd);
 				THROW(p_ie_csh->ReadRecord(&cs_chkhd, sizeof(cs_chkhd)));
 				GetCrCshSrvDateTime(cs_chkhd.OperDate, cs_chkhd.CheckNumber, &dttm);
 				cshr_id = CshrList.GetCshrID(cs_chkhd.CashierNo, dttm.d);
@@ -3943,8 +3943,8 @@ int SLAPI ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 			cntr.Init(count);
 			for(c = 0; c < count; c++) {
 				int    r;
-				Sdr_CS_ChkLn  cs_chkln;
-				MEMSZERO(cs_chkln);
+				Sdr_CS_ChkLn cs_chkln;
+				// @v10.7.9 @ctr MEMSZERO(cs_chkln);
 				THROW(p_ie_csl->ReadRecord(&cs_chkln, sizeof(cs_chkln)));
 				THROW(r = SearchTempCheckByCode(cs_chkln.CashNumber, cs_chkln.CheckNumber, cs_chkln.SessNumber));
 				if(r > 0) {
@@ -4343,7 +4343,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 				p_ie_csz->GetNumRecs(&count);
 				for(long c = 0; c < count; c++) {
 					Sdr_CS_ZRep  cs_zrep;
-					MEMSZERO(cs_zrep);
+					// @v10.7.9 @ctr MEMSZERO(cs_zrep);
 					MEMSZERO(zrep);
 					THROW(p_ie_csz->ReadRecord(&cs_zrep, sizeof(cs_zrep)));
 					zrep.CashCode = cs_zrep.CashNumber;

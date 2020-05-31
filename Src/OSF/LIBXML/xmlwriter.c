@@ -284,7 +284,7 @@ xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression)
 	xmlTextWriter * ret;
 	xmlSAXHandler saxHandler;
 	xmlParserCtxt * ctxt;
-	MEMSZERO(saxHandler);
+	// @v10.7.9 @ctr MEMSZERO(saxHandler);
 	xmlSAX2InitDefaultSAXHandler(&saxHandler, 1);
 	saxHandler.startDocument = xmlTextWriterStartDocumentCallback;
 	saxHandler.startElement = xmlSAX2StartElement;
@@ -338,7 +338,7 @@ xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNode * pNode, int compress
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, _p_func_name, "invalid document tree!");
 	}
 	else {
-		MEMSZERO(saxHandler);
+		// @v10.7.9 @ctr MEMSZERO(saxHandler);
 		xmlSAX2InitDefaultSAXHandler(&saxHandler, 1);
 		saxHandler.startDocument = xmlTextWriterStartDocumentCallback;
 		saxHandler.startElement = xmlSAX2StartElement;

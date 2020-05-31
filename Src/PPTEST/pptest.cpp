@@ -772,7 +772,7 @@ int SLAPI GenerateGoodsBills()
 	PPViewOpGrouping * p_vop = 0;
 	PPViewGoodsOpAnalyze * p_vgoods = 0;
 	Rng * p_rng = 0;
-
+	const PPConfig & r_lcfg = LConfig;
 	int  i = 0, j = 0, m = 0;  //счетчики в циклах
 	uint k = 0;
 	double cost = 0, price = 0; //сумма и цена
@@ -822,7 +822,7 @@ int SLAPI GenerateGoodsBills()
 	p_rng = RngAlloc(p_type);
 
 	//генерация периода времени (год назад от настоящего)
-	period.SetDate(LConfig.OperDate);
+	period.SetDate(r_lcfg.OperDate);
 	plusperiod(&period.low, PRD_ANNUAL, -1, 0);
 
 	//введение количества документов
@@ -888,7 +888,7 @@ int SLAPI GenerateGoodsBills()
 						//
 						// создание бланка документа с выбранным типом операции
 						//
-						THROW(bpack.CreateBlank(op_id, 0, LConfig.Location, 0));
+						THROW(bpack.CreateBlank(op_id, 0, r_lcfg.Location, 0));
 						//
 						// выбор таблицы статей
 						//
@@ -925,7 +925,7 @@ int SLAPI GenerateGoodsBills()
 							Transfer trnsf;
 							double rest = 0;
 							// @v10.6.4 MEMSZERO(rcpt_rec);
-							MEMSZERO(ilti);
+							// @v10.7.9 @ctr MEMSZERO(ilti);
 							//
 							// выбор ID товара с использованием генератора по экспон. з-ну
 							// и учетом остатка товара по данному ID
@@ -936,8 +936,8 @@ int SLAPI GenerateGoodsBills()
 									k2 = generator.Exponential(p_rng, mu);
 								goods_id = goods_list.at((uint)k2);
 								rest_param.CalcMethod = GoodsRestParam::pcmDiff;
-								rest_param.Date = LConfig.OperDate;
-								rest_param.LocID = LConfig.Location;
+								rest_param.Date = r_lcfg.OperDate;
+								rest_param.LocID = r_lcfg.Location;
 								rest_param.GoodsID = goods_id;
 								trnsf.GetRest(rest_param);
 								rest = rest_param.Total.Rest;
@@ -949,7 +949,7 @@ int SLAPI GenerateGoodsBills()
 							//
 							// цена реализации по последнему лоту
 							//
-							BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goods_id, LConfig.Location, GPRET_INDEF, &price, &rcpt_rec);
+							BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goods_id, r_lcfg.Location, GPRET_INDEF, &price, &rcpt_rec);
 							cost = rcpt_rec.Cost; //цена поступления по товару
 							//ti.Discount = GetRandom(0, 10); //скидка по товару
 							//знак документа
@@ -986,7 +986,7 @@ int SLAPI GenerateGoodsBills()
 	//
 	if(ok > 0) {
 		BillFilt filt;
-		filt.Period.low = filt.Period.upp = LConfig.OperDate;
+		filt.Period.low = filt.Period.upp = r_lcfg.OperDate;
 		ViewGoodsBills(&filt, 1);
 	}
 	return ok;

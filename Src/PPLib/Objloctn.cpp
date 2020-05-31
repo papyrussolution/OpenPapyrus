@@ -951,16 +951,14 @@ int SLAPI PPObjLocation::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-// virtual
-ListBoxDef * SLAPI PPObjLocation::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * SLAPI PPObjLocation::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-// virtual
-int SLAPI PPObjLocation::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int SLAPI PPObjLocation::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)

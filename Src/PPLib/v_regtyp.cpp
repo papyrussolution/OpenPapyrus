@@ -287,7 +287,7 @@ int SLAPI PPViewRegisterType::FetchData(long id)
 			MEMSZERO(item);
 			MakeListEntry(&pack, &item);
 			if(found)
-				*((RegTypeViewItem*)Data.at(pos)) = item;
+				*static_cast<RegTypeViewItem *>(Data.at(pos)) = item;
 			else
 				THROW_SL(Data.insert(&item));
 		}

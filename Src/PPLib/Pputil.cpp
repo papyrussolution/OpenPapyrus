@@ -4575,8 +4575,7 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 	return ok;
 }
 
-//virtual
-int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList)
+/*virtual*/int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList)
 {
 	ElementCount++;
 	int    ok = 1;

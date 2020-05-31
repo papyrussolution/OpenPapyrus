@@ -4,9 +4,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//virtual
-int LogsMonitorFilt::Describe(long flags, SString & rBuff) const
+
+/*virtual*/int LogsMonitorFilt::Describe(long flags, SString & rBuff) const
 {
 	int    ok = 1;
 	rBuff.Z();

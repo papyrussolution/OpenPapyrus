@@ -1040,9 +1040,9 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		if(r_bill_entry.BillID) {
 			AmtList amt_list;
 			P_BObj->P_Tbl->GetAmountList(r_bill_entry.BillID, &amt_list);
-			entry.Cost     = amt_list.Get(PPAMT_BUYING,   0L /* @curID */) * r_bill_entry.Part;
-			entry.Price    = amt_list.Get(PPAMT_SELLING,  0L /* @curID */) * r_bill_entry.Part;
-			entry.Discount = amt_list.Get(PPAMT_DISCOUNT, 0L /* @curID */) * r_bill_entry.Part;
+			entry.Cost     = amt_list.Get(PPAMT_BUYING,   0L/*@curID*/) * r_bill_entry.Part;
+			entry.Price    = amt_list.Get(PPAMT_SELLING,  0L/*@curID*/) * r_bill_entry.Part;
+			entry.Discount = amt_list.Get(PPAMT_DISCOUNT, 0L/*@curID*/) * r_bill_entry.Part;
 			if(r_bill_entry.Flags & AddBillEntry::fIntrReverseReverse) {
 				entry.Flags |= GGEF_INTRREVERSE;
 			}
@@ -1051,11 +1051,11 @@ int SLAPI GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 				entry.Discount = 0.0;
 			}
 			if(ExtCostAmtID)
-				entry.ExtCost   = amt_list.Get(ExtCostAmtID,  0L /* @curID */) * r_bill_entry.Part;
+				entry.ExtCost   = amt_list.Get(ExtCostAmtID,  0L/*@curID*/) * r_bill_entry.Part;
 			if(ExtPriceAmtID)
-				entry.ExtPrice  = amt_list.Get(ExtPriceAmtID, 0L /* @curID */) * r_bill_entry.Part;
+				entry.ExtPrice  = amt_list.Get(ExtPriceAmtID, 0L/*@curID*/) * r_bill_entry.Part;
 			if(ExtDisAmtID) {
-				entry.ExtDis    = amt_list.Get(ExtDisAmtID,   0L /* @curID */) * r_bill_entry.Part;
+				entry.ExtDis    = amt_list.Get(ExtDisAmtID,   0L/*@curID*/) * r_bill_entry.Part;
 				entry.ExtPrice -= entry.ExtDis;
 			}
 		}

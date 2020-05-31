@@ -1408,15 +1408,13 @@ SLAPI PPViewGeoTracking::~PPViewGeoTracking()
 {
 }
 
-//virtual
-PPBaseFilt * SLAPI PPViewGeoTracking::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * SLAPI PPViewGeoTracking::CreateFilt(void * extraPtr) const
 {
 	GeoTrackingFilt * p_filt = new GeoTrackingFilt;
 	return p_filt;
 }
 
-//virtual
-int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class GeoTrackFiltDialog : public TDialog {
 	public:
@@ -1484,8 +1482,7 @@ int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(GeoTrackFiltDialog, p_filt);
 }
 
-//virtual
-int SLAPI PPViewGeoTracking::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewGeoTracking::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	// @v10.3.0 (never used) BExtInsert * p_bei = 0;
@@ -1552,8 +1549,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 	return 1;
 }
 
-//virtual
-DBQuery * SLAPI PPViewGeoTracking::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewGeoTracking::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    add_dbe = 0;
 	uint   brw_id = BROWSER_GEOTRACKING;
@@ -1642,8 +1638,7 @@ int SLAPI PPViewGeoTracking::CalcTotal(GeoTrackingTotal * pTotal)
     return ok;
 }
 
-//virtual
-int SLAPI PPViewGeoTracking::ViewTotal()
+/*virtual*/int SLAPI PPViewGeoTracking::ViewTotal()
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
@@ -1659,8 +1654,7 @@ int SLAPI PPViewGeoTracking::ViewTotal()
 	return ok;
 }
 
-//virtual
-int SLAPI PPViewGeoTracking::Detail(const void *, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewGeoTracking::Detail(const void *, PPViewBrowser * pBrw)
 {
 	return -1;
 }
@@ -1756,8 +1750,7 @@ int SLAPI PPViewGeoTracking::Export()
 	return ok;
 }
 
-//virtual
-int SLAPI PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewGeoTracking::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    update = 0;

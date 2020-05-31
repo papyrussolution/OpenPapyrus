@@ -384,8 +384,8 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	TAGS             :  kbF6,       PPDV_TAGS01,          "@{tags}\tF6" // @v10.3.5
 	//TAGSALL        :  kbAltG,     TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
-	PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          "Печать нулевого чека\tAlt-Minus"
@@ -447,8 +447,8 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	TAGS             :  kbF6,    PPDV_TAGS01,            "@{tags}\tF6" // @v10.3.5
 	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
-	PRINT            :  kbF7,       PPDV_PRINTER01,           "Печать текущего документа\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
@@ -508,8 +508,8 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	TAGS             :  kbF6,    PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
 	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,            "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
-	PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
@@ -554,8 +554,8 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	TAGS             :  kbF6,    PPDV_TAGS01,               "@{tags}\tF6" // @v10.3.5
 	//TAGSALL        :  kbAltG,  TBBM_TAGSALL,              "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
-	PRINT            :  kbF7,       PPDV_PRINTER01,         "Печать текущего документа\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "Печать выборки документов\tAlt-F7"
+	PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
+	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden, "Печать всех документов\tCtrl-S"
 	separator
@@ -608,8 +608,8 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	TAGS             :  kbF6,   PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
 	//TAGSALL          :  kbAltG,  TBBM_TAGSALL,         "@{doupdatetags}\Alt-G" // @v10.3.5
 	separator
-	PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
-	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
@@ -1393,18 +1393,18 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 	"@netto",              5, double,      NMBF_NOZERO, 10.3, BCO_USERPROC
 	"@type",               4, zstring(48),  0,     10, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM        : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
-		EDITGOODS       : kbF2,      TBBM_GOODS,  "@{ware}\tF2"
-		EDITITEMGOODS   : kbShiftF2, TBBM_GOODS,  "@{component}\tShift-F2"
-		VIEWGOODSOPANLZ : kbF4,      TBBM_GOODSANLZ, "Товарный отчет по товару-владельцу\tF4"
-		PRINT           : kbF7,      PPDV_PRINTER01,  "Печать списка\tF7"
+		EDITITEM        : kbEnter,   PPDV_EDITFILE02,  "@{edit}\tEnter"
+		EDITGOODS       : kbF2,      TBBM_GOODS,       "@{ware}\tF2"
+		EDITITEMGOODS   : kbShiftF2, TBBM_GOODS,       "@{component}\tShift-F2"
+		VIEWGOODSOPANLZ : kbF4,      TBBM_GOODSANLZ,   "Товарный отчет по товару-владельцу\tF4"
+		PRINT           : kbF7,      PPDV_PRINTER01,   "Печать списка\tF7"
 		separator
-		CHANGEFILT      : kbCtrlV,   PPDV_FILTER01, "@{filter}\tCtrl-V"
+		CHANGEFILT      : kbCtrlV,   PPDV_FILTER01,    "@{filter}\tCtrl-V"
 		separator
 		SYSJ            : kbCtrlJ,   PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J" // @v10.0.09
-		TRANSMIT        : kbCtrlH,   PPDV_SYNC01, "@{dotransmit}\tCtrl-H"      // @v10.0.09
-		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,  "Проверка структур\tCtrl-R"  // @v10.0.09
-		TOTAL           : kbF9,      PPDV_SIGMA02,    "@{totals}\tF9"
+		TRANSMIT        : kbCtrlH,   PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"      // @v10.0.09
+		DORECOVER       : kbCtrlR,   PPDV_REPAIR02,      "Проверка структур\tCtrl-R"  // @v10.0.09
+		TOTAL           : kbF9,      PPDV_SIGMA02,       "@{totals}\tF9"
 
 		NEXTPROBLEM     : kbCtrlZ,   PPDV_NOICON,  "Следующая проблема\tCtrl-Z"
 		PREVPROBLEM     : kbCtrlA,   PPDV_NOICON,  "Предыдущая проблема\tCtrl-A"
@@ -1443,16 +1443,16 @@ browser TRANSPORT north(100), 3, 0, "@{view_transport}", OWNER|GRID, 0
 	"@transport_trailercode", 8, notype, 0, 15
 	"Грузоподъемность",       9, notype, NMBF_NOZERO, 8.3
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM                : kbEnter, PPDV_EDITFILE02,         "@{edit}\tEnter"
+		EDITITEM                : kbEnter, PPDV_EDITFILE02,      "@{edit}\tEnter"
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,       "@{add}\tInsert"
-		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		PRINT                   : kbF7,    PPDV_PRINTER01,        "Печать ордера\tF7"
+		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,    "@{delete}\tDelete"
+		PRINT                   : kbF7,    PPDV_PRINTER01,       "Печать ордера\tF7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
 		separator
-		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT                : kbCtrlH, PPDV_SYNC01,      "@{dotransmit}\tCtrl-H"
+		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT                : kbCtrlH, PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 		separator
-		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
 }
 
@@ -1465,13 +1465,13 @@ browser BRAND north(100), 3, 0, "@{view_brand}", OWNER|GRID, 0
 		EDITITEM                : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
-		UNITEOBJ                : kbCtrlU, PPDV_MERGE01,        "@{cmd_replacebrand}\tCtrl-U"
+		UNITEOBJ                : kbCtrlU, PPDV_MERGE01,      "@{cmd_replacebrand}\tCtrl-U"
 		VIEWGOODS               : kbF5,    TBBM_GOODS,        "Товары, связанные с брэндом\tF5"
 		PRINT                   : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
-		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,         "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT                : kbCtrlH, PPDV_SYNC01,      "@{dotransmit}\tCtrl-H"
+		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT                : kbCtrlH, PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
 		separator
 		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
@@ -1623,7 +1623,7 @@ browser SELLTRNOVR_EXT_TRUNOVER north(100), 2, 1, "Оборачиваемость дебиторской з
 	"№",            3, notype, 0, 4
 	"Оборот за период",                5, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	"Задолженность\nна конец периода", 7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
-	"Оборачиваемость",                 9, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
+	"@turnaround",                     9, notype, NMBF_DELCOMMA | NMBF_NOZERO, 14.2
 	toolbar DEBTTRNOVR
 }
 
@@ -2294,9 +2294,9 @@ browser PAYMENTS south(56), 1, 0, "Оплаты документа (%s)", OWNER|GRID, 0
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,          "Переключить отображение\tCtrl-T"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,            "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
-		PRINT            :  kbF7,       PPDV_PRINTER01,         "Печать текущего документа\tF7"
+		PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
 		POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,          "Печать чека на POS-принтер\tCtrl-Z"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "Печать выборки документов\tAlt-F7"
+		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,           "@{totals}\tF9"
 	}
@@ -2321,8 +2321,8 @@ browser RECKONINGS south(56), 1, 0, "Зачеты документа (%s)", OWNER|GRID, 0
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,        "Переключить отображение\tCtrl-T"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
-		PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
@@ -2351,8 +2351,8 @@ browser CHARGES south(73), 1, 0, "Начисления по документу (%s)", OWNER|GRID, 0
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
 		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
 		CHARGE           :  kbF6,       TBBM_CHARGE,          "Автоначисление\tF6"
-		PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
@@ -2379,8 +2379,8 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		separator
-		PRINT            :  kbF7,       PPDV_PRINTER01,       "Печать текущего документа\tF7"
-		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "Печать выборки документов\tAlt-F7"
+		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
+		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 		separator
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
@@ -4621,15 +4621,15 @@ browser SSTAT north(100), 3, 1, "Статистика по продажам товаров {%s}", OWNER|GRI
 	"@itemcount",            3, notype, NMBF_NOTRAILZ, 10
 	group "По реализованному количеству" {
 		"@average",          4, notype, NMBF_NOTRAILZ, 10.4
-		"Ст отклонение",     5, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",      5, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",          6, notype, NMBF_NOTRAILZ, 10.4
-		"Оборачиваемость",   7, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",       7, notype, NMBF_NOTRAILZ, 10.4
 	}
 	group "По сумме реализации" {
 		"@average",          8, notype, NMBF_NOTRAILZ, 10.4
-		"Ст отклонение",     9, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",      9, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",         10, notype, NMBF_NOTRAILZ, 10.4
-		"Оборачиваемость",  11, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",      11, notype, NMBF_NOTRAILZ, 10.4
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
@@ -4643,7 +4643,7 @@ browser SSTAT north(100), 3, 1, "Статистика по продажам товаров {%s}", OWNER|GRI
 		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,     "@{qkcls_predictcoeff}\tCtrl-E"
 		separator
 		TOTAL         : kbF9,      PPDV_SIGMA02,       "@{totals}\tF9"
-		PRINT         : kbF7,      PPDV_PRINTER01,     "Печать статистики\tF7"
+		PRINT         : kbF7,      PPDV_PRINTER01,     "@{printstatistics}\tF7"
 		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
@@ -4655,15 +4655,15 @@ browser SSTAT_CYCLE north(100), 3, 1, "Статистика по продажам товаров {%s}", OWN
 	"@itemcount",            3, notype, NMBF_NOTRAILZ, 10
 	group "По реализованному количеству" {
 		"@average",         4, notype, NMBF_NOTRAILZ, 10.4
-		"Ст отклонение",    5, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",     5, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",         6, notype, NMBF_NOTRAILZ, 10.4
-		"Оборачиваемость",  7, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",      7, notype, NMBF_NOTRAILZ, 10.4
 	}
 	group "По сумме реализации" {
 		"@average",         8, notype, NMBF_NOTRAILZ, 10.4
-		"Ст отклонение",    9, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",     9, notype, NMBF_NOTRAILZ, 10.4
 		"Вариация",        10, notype, NMBF_NOTRAILZ, 10.4
-		"Оборачиваемость", 11, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",     11, notype, NMBF_NOTRAILZ, 10.4
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
@@ -4677,7 +4677,7 @@ browser SSTAT_CYCLE north(100), 3, 1, "Статистика по продажам товаров {%s}", OWN
 		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,     "@{qkcls_predictcoeff}\tCtrl-E"
 		separator
 		TOTAL         : kbF9,      PPDV_SIGMA02,       "@{totals}\tF9"
-		PRINT         : kbF7,      PPDV_PRINTER01,     "Печать статистики\tF7"
+		PRINT         : kbF7,      PPDV_PRINTER01,     "@{printstatistics}\tF7"
 		CHANGEFILT    : kbCtrlV,   PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
@@ -4714,7 +4714,7 @@ browser SSTAT_SORD north(100), 2, 1, "Расчет заказа поставщику {%s}", OWNER|GRID
 		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,      "@{qkcls_predictcoeff}\tCtrl-E"
 		separator
 		TOTAL             : kbF9,      PPDV_SIGMA02,    "@{totals}\tF9"
-		PRINT             : kbF7,      PPDV_PRINTER01,  "Печать статистики\tF7"
+		PRINT             : kbF7,      PPDV_PRINTER01,  "@{printstatistics}\tF7"
 		CHANGEFILT        : kbCtrlV,   PPDV_FILTER01,   "@{filter}\tCtrl-V"
 	}
 }
@@ -4737,14 +4737,14 @@ browser SSTAT_SORD_CT north(100), 3, 1, "Расчет заказа поставщику {%s}", OWNER|G
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,          "Создание закупки\tCtrl-P"
 		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,   "Просмотр созданных документов закупки\tAlt-P"
 		separator
-		VIEWQUOT          : kbCtrlQ,  TBBM_QUOTATION,  "@{quotes}\tCtrl-Q"
-		VIEWSUPPLQUOT     : kbCtrlW,  TBBM_SUPPLQUOTS, "@{qkcls_suppldeal}\tCtrl-W"
-		VIEWGOODSMATRIX   : kbCtrlM,  PPDV_MATRIX01,   "@{goodsmatrix}\tCtrl-M"
-		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,     "@{qkcls_predictcoeff}\tCtrl-E"
+		VIEWQUOT          : kbCtrlQ,  TBBM_QUOTATION,    "@{quotes}\tCtrl-Q"
+		VIEWSUPPLQUOT     : kbCtrlW,  TBBM_SUPPLQUOTS,   "@{qkcls_suppldeal}\tCtrl-W"
+		VIEWGOODSMATRIX   : kbCtrlM,  PPDV_MATRIX01,     "@{goodsmatrix}\tCtrl-M"
+		VIEWPREDICTCOEFF  : kbCtrlE,  PPDV_NOICON,       "@{qkcls_predictcoeff}\tCtrl-E"
 		separator
 		TOTAL             : kbF9,      PPDV_SIGMA02,     "@{totals}\tF9"
-		PRINT             : kbF7,      PPDV_PRINTER01,    "Печать статистики\tF7"
-		CHANGEFILT        : kbCtrlV,   PPDV_FILTER01,   "@{filter}\tCtrl-V"
+		PRINT             : kbF7,      PPDV_PRINTER01,   "@{printstatistics}\tF7"
+		CHANGEFILT        : kbCtrlV,   PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
 }
 
@@ -4770,8 +4770,8 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		TOTAL             : kbF9,      PPDV_SIGMA02,     "@{totals}\tF9"
 		separator
 		PRINT             : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
-		PRINTBILL         : kbCtrlB,   PPDV_NOICON,    "Печать текущего документа\tCtrl-B"
-		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST, "Печать выборки документов\tAlt-F7"
+		PRINTBILL         : kbCtrlB,   PPDV_NOICON,    "@{printcurrentdocument}\tCtrl-B"
+		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST, "@{printselectionofdocuments}\tAlt-F7"
 		PRINTBILLINFOLIST : kbShiftF7, PPDV_NOICON,    "Печать информации о выборке документов\tShift-F7"
 		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,    "Печать всех документов\tCtrl-S"
 		// @v10.0.0 PRINTCHECK        : kbCtrlF7,  PPDV_NOICON,    "@{printcheck}\tCtrl-F7"
@@ -4802,7 +4802,7 @@ browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 	"Мест",            11, notype, 0, 8
 	"@memo",           15, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL            : kbEnter,  PPDV_DOCUMENT_PL02,          "@{document}\tEnter"
+		DETAIL            : kbEnter,  PPDV_DOCUMENT_PL02,  "@{document}\tEnter"
 		EDITBILLFREIGHT   : kbCtrlF4, PPDV_FREIGHT02,      "@{freight}\tCtrl-F4"
 		separator
 		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "Переключить признак отгрузки\tF8"
@@ -4811,8 +4811,8 @@ browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		TOTAL             : kbF9,      PPDV_SIGMA02,       "@{totals}\tF9"
 		separator
 		PRINT             : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
-		PRINTBILL         : kbCtrlB,   PPDV_NOICON,       "Печать текущего документа\tCtrl-B"
-		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST,    "Печать выборки документов\tAlt-F7"
+		PRINTBILL         : kbCtrlB,   PPDV_NOICON,       "@{printcurrentdocument}\tCtrl-B"
+		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST,    "@{printselectionofdocuments}\tAlt-F7"
 		PRINTBILLINFOLIST : kbShiftF7, PPDV_NOICON,       "Печать информации о выборке документов\tShift-F7"
 		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,       "Печать всех документов\tCtrl-S"
 		// @v10.0.0 PRINTCHECK        : kbCtrlF7,  PPDV_NOICON,    "@{printcheck}\tCtrl-F7"
@@ -7028,7 +7028,7 @@ record CliBnkData {
 	PaymMethod       int16        format(4)    "Вид платежа";
 	AddedAssocTag    int16        format(4)    "Дополнительный признак ассоциации вида операции";
 	AgentName        zstring(48)  "Наименование агента по документу";
-	AgentINN         zstring(24)  "ИНН агента по документу";
+	AgentINN         zstring(24)  "@{agentinn}";
 	LocSymb          zstring(12)  "@{warehousesymb}";
 	DebtBillID       long         "ИД долгового документа (для зачета)";
 	DebtBillDate     date         "Дата долгового документа (для зачета)";
@@ -7060,10 +7060,10 @@ record Bill {
 	OpSymb        zstring(20)  "@{oprkindsymb}";
 	EdiOp         long         "Тип операции EDI";                          // @v8.5.6
 	EdiOpSymb     zstring(12)  "Символ типа операции EDI";                  // @v8.5.6
-	InvoiceCode   zstring(24)  "Номер счет-фактуры";
-	InvoiceDate   date         "Дата счет-фактуры";
+	InvoiceCode   zstring(24)  "@{bill_invoicecode}";
+	InvoiceDate   date         "@{bill_invoicedate}";
 	MainGLN       zstring(16)  "GLN главной организации";                   // @v7.1.12
-	INN           zstring(32)  "ИНН контрагента";
+	INN           zstring(32)  "@{contractorinn}";
 	GLN           zstring(16)  "GLN контрагента";                           // @v7.1.12
 	CntragID      long         "ИД статьи контрагента";
 	CntragName    zstring(128) "Имя контрагента";
@@ -7083,7 +7083,7 @@ record Bill {
 	VatSum        double       format(8.2) "Сумма НДС в номинальных ценах";
 	Memo          zstring(160) "@{memo}";
 	LocID         zstring(32)  "@{warehouseid}";
-	LocName       zstring(48)  "Наименование склада";
+	LocName       zstring(48)  "@{warehousename}";
 	LocCode       zstring(16)  "Код склада";
 	City          zstring(48)  "Город склада";
 	Addr          zstring(255) "@{warehouseaddress}";
@@ -7096,7 +7096,7 @@ record Bill {
 	DlvrAddrCode  zstring(16)  "@{daddresscode}";
 	DlvrAddr      zstring(255) "@{daddress}";
 	AgentName     zstring(128) "Имя агента";
-	AgentINN      zstring(32)  "ИНН агента";
+	AgentINN      zstring(32)  "@{agentinn}";
 	AgentGLN      zstring(16)  "GLN агента";          // @v7.1.12
 	AgentPersonID long         "ИД персоналии агента"; // @v9.8.7
 
@@ -7157,9 +7157,9 @@ record BRow {
 	BillDate      date         "@{date}";
 	OpID          long         "Ид вида операции";
 	OpSymb        zstring(20)  "@{oprkindsymb}";
-	InvcCode      zstring(24)  "Номер счет-фактуры";
-	InvcDate      date         "Дата счет-фактуры";
-	INN           zstring(32)  "ИНН контрагента";
+	InvcCode      zstring(24)  "@{bill_invoicecode}";
+	InvcDate      date         "@{bill_invoicedate}";
+	INN           zstring(32)  "@{contractorinn}";
 	CntragID      long         "ИД статьи контрагента";
 	CntragName    zstring(128) "Имя контрагента";
 	CntragNo      long         "Номер статьи контрагента";
@@ -7177,7 +7177,7 @@ record BRow {
 	BillVatSum    double       format(8.2) "Сумма НДС документа в номинальных ценах";
 	BillMemo      zstring(160)    "@{documentmemo}";
 	LocID         zstring(32)     "@{warehouseid}";
-	LocName       zstring(48)     "Наименование склада";
+	LocName       zstring(48)     "@{warehousename}";
 	LocCode       zstring(16)     "Код склада";
 	City          zstring(48)     "Город склада";
 	Addr          zstring(255)    "@{warehouseaddress}";
@@ -7187,7 +7187,7 @@ record BRow {
 	DlvrAddrCode  zstring(16)     "@{daddresscode}";
 	DlvrAddr      zstring(255)    "@{daddress}";
 	AgentName     zstring(128)    "Имя агента";
-	AgentINN      zstring(32)     "ИНН агента";
+	AgentINN      zstring(32)     "@{agentinn}";
 	AgentPersonID long            "ИД персоналии агента"; // @v9.8.7
 	CostWithSTax  int16 format(4) "Цены документа включают налог с продаж";
 	GoodKindCode  long	          "Код вида товара (dll)";
@@ -8531,8 +8531,8 @@ reportstub GoodsLadingBill	{ dl600data=LadingBillData,		"Товарно-транспортная на
 reportstub GoodsLadingBack	{ dl600data=LadingBillData,		"Товарно-транспортная накладная (транспортный раздел)"}
 reportstub ServiceAct		{ dl600data=InvoiceData,		"Акт выполненных работ"}
 reportstub PLabel			{ dl600data=PLabelBillData,		"Ценник (WIN32 only)"}
-reportstub CashPayOrder		{ dl600data=PayCashOrder,		"Расходный кассовый ордер"}
-reportstub CashRcvOrder		{ dl600data=RcvCashOrder,		"Приходный кассовый ордер"}
+reportstub CashPayOrder		{ dl600data=PayCashOrder,		"@{cashorder_expend}"}
+reportstub CashRcvOrder		{ dl600data=RcvCashOrder,		"@{cashorder_income}"}
 reportstub LogList			{ dl600data=LogList,			"LogList"}
 reportstub PaymBillList		{ dl600data=PaymBillList,		"Список оплат документа"}
 reportstub VATBookBuy		{ dl600data=VatBook,			"Книга покупок (раскладка полей таже, что и в VATBookSell)"}

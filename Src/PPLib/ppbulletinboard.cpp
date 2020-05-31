@@ -158,7 +158,7 @@ public:
 		long   Flags;
 		double BuyMarg;
 		double SellMarg;
-		double SpikeQuant;     //
+		double SpikeQuant_tc;  //
 		double AvgSpread;      //
 		uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
@@ -932,7 +932,7 @@ struct StakeCommentBlock {
 	}
 	void  MakeText(const PPObjTimeSeries::Strategy & rS, double outerSpikeQuant, SString & rBuf)
 	{
-		SpikeQuant = (outerSpikeQuant > 0.0) ? outerSpikeQuant : rS.SpikeQuant;
+		SpikeQuant = (outerSpikeQuant > 0.0) ? outerSpikeQuant : rS.SpikeQuant_s;
 		MaxDuckQuant = rS.MaxDuckQuant;
 		TargetQuant = rS.TargetQuant;
 		Flags = 0;
@@ -1630,7 +1630,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 					if(cost > 0.0) {
 						const PPObjTimeSeries::TrendEntry * p_te = PPObjTimeSeries::SearchTrendEntry(r_pse.R_Blk.TrendList, r_s.InputFrameSize);
 						// @v10.4.11 const double spike_quant = p_te ? p_te->SpikeQuant : r_s.SpikeQuant;
-						const double spike_quant = r_s.SpikeQuant; // @v10.4.11
+						const double spike_quant = r_s.SpikeQuant_s; // @v10.4.11
 						const double avg_spread_sl = r_pse.R_Blk.GetAverageSpread_WithAdjustment();
 						const double avg_spread_tp = r_pse.R_Blk.GetAverageSpread_WithAdjustment();
 						const double sl = r_s.CalcSL(last_value, spike_quant, avg_spread_sl);
@@ -1643,7 +1643,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							Cat(last_value, MKSFMTD(0, 5, NMBF_NOTRAILZ)).CatChar('/').
 							Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar('/').
 							Cat(tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
-						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).CatChar('/').Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
+						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).CatChar('/').Cat(r_s.SpikeQuant_s, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
 						log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(r_s, &r_pse.Tv, &r_pse.Tv2, temp_buf));
 						{
 							//temp_buf.Z().Cat("PPAT").Comma().Cat(r_s.MaxDuckQuant).Comma().Cat(r_s.TargetQuant).Comma().Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0));
@@ -1687,7 +1687,7 @@ int SLAPI TimeSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->Flags    = rec.Flags;
 		p_cache_rec->BuyMarg  = rec.BuyMarg;
 		p_cache_rec->SellMarg = rec.SellMarg;
-		p_cache_rec->SpikeQuant = rec.SpikeQuant;
+		p_cache_rec->SpikeQuant_tc = rec.SpikeQuant_t;
 		p_cache_rec->AvgSpread = rec.AvgSpread;
 		p_cache_rec->OptMaxDuck = rec.OptMaxDuck;
 		p_cache_rec->OptMaxDuck_S = rec.OptMaxDuck_S;
@@ -1716,7 +1716,7 @@ void SLAPI TimeSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	p_data_rec->Flags = p_cache_rec->Flags;
 	p_data_rec->BuyMarg  = p_cache_rec->BuyMarg;
 	p_data_rec->SellMarg = p_cache_rec->SellMarg;
-	p_data_rec->SpikeQuant = p_cache_rec->SpikeQuant;
+	p_data_rec->SpikeQuant_t = p_cache_rec->SpikeQuant_tc;
 	p_data_rec->AvgSpread = p_cache_rec->AvgSpread;
 	p_data_rec->OptMaxDuck = p_cache_rec->OptMaxDuck;
 	p_data_rec->OptMaxDuck_S = p_cache_rec->OptMaxDuck_S;
@@ -1856,7 +1856,7 @@ int SLAPI TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSer
 					{
 						STimeSeries::Stat st(0);
 						THROW(pBlk->T_.Analyze("close", tsc-p_entry->Stride, p_entry->Stride, st));
-						p_entry->SpikeQuant = st.DeltaAvg / 2.0;
+						p_entry->SpikeQuant_r = st.DeltaAvg / 2.0;
 					}
 					// } @v10.4.10 
 				}

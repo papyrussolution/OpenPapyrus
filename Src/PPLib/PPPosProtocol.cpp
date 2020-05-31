@@ -85,9 +85,7 @@ public:
 		int    ok = -1;
 		TSVector <PPPosProtocol::QueryBlock> qb_list; // @v9.8.4 TSArray-->TSVector
 		if(PPPosProtocol::EditPosQuery(qb_list) > 0) {
-			for(uint i = 0; i < qb_list.getCount(); i++) {
-				THROW(Pp.SendQuery(NodeID, qb_list.at(i)));
-			}
+			SForEachVectorItem(qb_list, i) { THROW(Pp.SendQuery(NodeID, qb_list.at(i))); }
 		}
 		CATCHZOKPPERR
 		return ok;
@@ -298,8 +296,7 @@ public:
 
 REGISTER_CMT(PAPYRUS,0,1);
 
-//virtual
-int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
+/*virtual*/int SLAPI ACS_PAPYRUS_APN::ExportData(int updOnly)
 {
 	return Pp.ExportDataForPosNode(NodeID, updOnly, SinceDlsID);
 }
@@ -316,13 +313,10 @@ int SLAPI PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlo
 		if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, &tag_item) > 0 && tag_item.GetGuid(&uuid) > 0) {
 			rInfo.Uuid = uuid;
 		}
-		{
-			(temp_buf = cn_rec.Symb).Strip();
-			if(temp_buf.IsDigit()) {
-				long cn_n = temp_buf.ToLong();
-				if(cn_n > 0)
-					rInfo.Code = temp_buf;
-			}
+		if((temp_buf = cn_rec.Symb).Strip().IsDigit()) {
+			long cn_n = temp_buf.ToLong();
+			if(cn_n > 0)
+				rInfo.Code = temp_buf;
 		}
 	}
 	{
@@ -425,10 +419,10 @@ int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlo
 				}
 			}
 			else if(rQ.Q == QueryBlock::qRefs) {
-				SXml::WNode w_s(wb.P_Xw, "query-refs");
+				SXml::WNode(wb.P_Xw, "query-refs");
 			}
 			else if(rQ.Q == QueryBlock::qTest) {
-				SXml::WNode w_s(wb.P_Xw, "query-test");
+				SXml::WNode(wb.P_Xw, "query-test");
 			}
 		}
 		FinishWriting(wb);
@@ -579,9 +573,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 							// @v10.0.0 {
 							for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
 								const PPID qk_id = qk_list.get(qkidx);
-								const QuotIdent qi(cn_data.LocID, qk_id, 0, 0);
 								uint   ql_pos = 0;
-								if(qlist.SearchNearest(qi, &ql_pos) > 0) {
+								if(qlist.SearchNearest(QuotIdent(cn_data.LocID, qk_id, 0, 0), &ql_pos) > 0) {
 									qlist_result.insert(&qlist.at(ql_pos));
 									used_qk_list.addUnique(qk_id);
 								}
@@ -612,9 +605,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 						// @v10.0.0 {
 						for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
 							const PPID qk_id = qk_list.get(qkidx);
-							const QuotIdent qi(cn_data.LocID, qk_id, 0, 0);
 							uint   ql_pos = 0;
-							if(qlist.SearchNearest(qi, &ql_pos) > 0) {
+							if(qlist.SearchNearest(QuotIdent(cn_data.LocID, qk_id, 0, 0), &ql_pos) > 0) {
 								qlist_result.insert(&qlist.at(ql_pos));
 								used_qk_list.addUnique(qk_id);
 							}
@@ -3267,7 +3259,7 @@ int SLAPI PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint ref
 				if(p_qk_item) {
 					assert(type_qk == obQuotKind);
 					if(p_qk_item->NativeID) {
-						const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0 /*curID*/, 0);
+						const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0/*@curID*/, 0);
 						quot_list.SetQuot(qi, r_qb.Value, r_qb.QuotFlags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
 					}
 				}
@@ -3681,7 +3673,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 						if(p_qk_item) {
 							assert(type_qk == obQuotKind);
 							if(p_qk_item->NativeID) {
-								const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0 /*curID*/, 0);
+								const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0/*@curID*/, 0);
 								quot_list.SetQuot(qi, r_qb.Value, r_qb.QuotFlags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
 							}
 						}
@@ -3692,7 +3684,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				// была указана и базовая (дабы перебить неоднозначность в пользу Price).
 				//
 				if(rBlk.Price > 0.0) {
-					const QuotIdent qi(0 /*locID*/, PPQUOTK_BASE, 0 /*curID*/, 0);
+					const QuotIdent qi(0 /*locID*/, PPQUOTK_BASE, 0/*@curID*/, 0);
 					quot_list.SetQuot(qi, rBlk.Price, 0 /*flags*/, 0, 0 /* period */);
 				}
 				THROW(GObj.PutQuotList(native_id, &quot_list, 1));
@@ -3998,22 +3990,19 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				UnitBlock & r_blk = RdB.UnitBlkList.at(i);
 				if(r_blk.Flags_ & r_blk.fRefItem) {
 					long   native_id = 0;
-					if(r_blk.ID && unit_foreign_to_native_assoc.Search(r_blk.ID, &native_id, 0) && native_id) {
+					if(r_blk.ID && unit_foreign_to_native_assoc.Search(r_blk.ID, &native_id, 0) && native_id)
 						r_blk.NativeID = native_id;
-					}
 					else {
 						PPID   temp_id = 0;
 						RdB.GetS(r_blk.NameP, name_buf);
 						name_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(name_buf.NotEmptyS() && u_obj.SearchByName(name_buf, &temp_id, 0) > 0) {
+						if(name_buf.NotEmptyS() && u_obj.SearchByName(name_buf, &temp_id, 0) > 0)
 							r_blk.NativeID = temp_id;
-						}
 						else {
 							RdB.GetS(r_blk.SymbP, symb_buf);
 							symb_buf.Transf(CTRANSF_UTF8_TO_INNER);
-							if(symb_buf.NotEmptyS() && u_obj.SearchBySymb(symb_buf, &(temp_id = 0), 0) > 0) {
+							if(symb_buf.NotEmptyS() && u_obj.SearchBySymb(symb_buf, &(temp_id = 0), 0) > 0)
 								r_blk.NativeID = temp_id;
-							}
 						}
 					}
 				}
@@ -4637,7 +4626,7 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, in
 	if(!silent)
 		PPWait(1);
 	xmlSAXHandler saxh;
-	MEMSZERO(saxh);
+	// @v10.7.9 @ctr MEMSZERO(saxh);
 	saxh.startDocument = Scb_StartDocument;
 	saxh.endDocument = Scb_EndDocument;
 	saxh.startElement = Scb_StartElement;

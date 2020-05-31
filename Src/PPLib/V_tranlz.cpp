@@ -204,8 +204,7 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 	return 1;
 }
 
-// virtual
-int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 {
 	SString temp_buf;
 	PutMembToBuf(&Period,     STRINGIZE(Period), rBuf);

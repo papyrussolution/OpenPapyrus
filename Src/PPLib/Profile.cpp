@@ -149,8 +149,7 @@ SLAPI Profile::~Profile()
 	freeAll();
 }
 
-//virtual
-void FASTCALL Profile::freeItem(void * pItem) { static_cast<ProfileEntry *>(pItem)->Destroy(); }
+/*virtual*/void FASTCALL Profile::freeItem(void * pItem) { static_cast<ProfileEntry *>(pItem)->Destroy(); }
 
 ProfileEntry & FASTCALL Profile::at(uint p) const
 {

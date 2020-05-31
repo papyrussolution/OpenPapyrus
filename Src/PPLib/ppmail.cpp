@@ -1797,7 +1797,7 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 			SString buf;
 			Sdr_EmailAccount  account_rec;
 			PPInternetAccount account;
-			MEMSZERO(account_rec);
+			// @v10.7.9 @ctr MEMSZERO(account_rec);
 			THROW(ie.ReadRecord(&account_rec, sizeof(account_rec)));
 			STRNSCPY(account.Name, account_rec.Name);
 			account.Timeout = account_rec.Timeout;
@@ -1938,7 +1938,7 @@ int SLAPI ExportEmailAccts(const PPIDArray * pMailAcctsList)
 			Sdr_EmailAccount account_rec;
 			SString smtp, smtp_port, pop3, pop3_port, user, from;
 			THROW(mobj.Get(id, &account));
-			MEMSZERO(account_rec);
+			// @v10.7.9 @ctr MEMSZERO(account_rec);
 			account.GetExtField(MAEXSTR_SENDSERVER,  smtp);
 			account.GetExtField(MAEXSTR_SENDPORT,    smtp_port);
 			account.GetExtField(MAEXSTR_RCVSERVER,   pop3);

@@ -7,72 +7,66 @@
 #pragma hdrstop
 
 class TaxPeriodDialog : public TDialog {
+	DECL_DIALOG_DATA(PPTaxPeriod);
 public:
 	TaxPeriodDialog() : TDialog(DLG_TXMPERIOD)
 	{
 	}
-	int    setDTS(const PPTaxPeriod * pData);
-	int    getDTS(PPTaxPeriod *);
-private:
-	DECL_HANDLE_EVENT;
-	PPTaxPeriod Data;
-};
-
-IMPL_HANDLE_EVENT(TaxPeriodDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_TXMPERIOD_PERIOD)) {
-		ushort v = getCtrlUInt16(CTL_TXMPERIOD_PERIOD);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		ushort v = static_cast<ushort>(Data.P);
+		setCtrlData(CTL_TXMPERIOD_PERIOD, &v);
+		setCtrlData(CTL_TXMPERIOD_YEAR, &Data.Year);
+		setCtrlData(CTL_TXMPERIOD_DAY, &Data.Day);
+		SetupStringCombo(this, CTLSEL_TXMPERIOD_MONTH, PPTXT_MONTHES, Data.Month);
 		disableCtrl(CTLSEL_TXMPERIOD_MONTH, (v < PPTaxPeriod::eMonth));
 		disableCtrl(CTL_TXMPERIOD_DAY, (v != PPTaxPeriod::eDate));
-		clearEvent(event);
+		return 1;
 	}
-}
-
-int TaxPeriodDialog::setDTS(const PPTaxPeriod * pData)
-{
-	Data = *pData;
-	ushort v = static_cast<ushort>(Data.P);
-	setCtrlData(CTL_TXMPERIOD_PERIOD, &v);
-	setCtrlData(CTL_TXMPERIOD_YEAR, &Data.Year);
-	setCtrlData(CTL_TXMPERIOD_DAY, &Data.Day);
-	SetupStringCombo(this, CTLSEL_TXMPERIOD_MONTH, PPTXT_MONTHES, Data.Month);
-	disableCtrl(CTLSEL_TXMPERIOD_MONTH, (v < PPTaxPeriod::eMonth));
-	disableCtrl(CTL_TXMPERIOD_DAY, (v != PPTaxPeriod::eDate));
-	return 1;
-}
-
-int TaxPeriodDialog::getDTS(PPTaxPeriod * pData)
-{
-	int    ok = 1;
-	long   monthid = 0;
-	ushort v = getCtrlUInt16(CTL_TXMPERIOD_PERIOD);
-	Data.P = (int8)v;
-	getCtrlData(CTL_TXMPERIOD_YEAR, &Data.Year);
-	if(Data.Year == 0)
-		ok = PPErrorByDialog(this, CTL_TXMPERIOD_YEAR, PPERR_INVPERIODINPUT);
-	else {
-		if(Data.Year < 100)
-			if(Data.Year >= 50)
-				Data.Year += 1900;
-			else
-				Data.Year += 2000;
-		else if(Data.Year >= 200 && Data.Year <= 299)
-			Data.Year = 2000 + (Data.Year - 200);
-		getCtrlData(CTL_TXMPERIOD_MONTH, &monthid);
-		Data.Month = (monthid >= 0 && monthid <= 12) ? (int8)monthid : 0;
-		getCtrlData(CTL_TXMPERIOD_DAY, &Data.Day);
-		if(Data.Year < 1990 || Data.Year > 2100)
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		long   monthid = 0;
+		ushort v = getCtrlUInt16(CTL_TXMPERIOD_PERIOD);
+		Data.P = (int8)v;
+		getCtrlData(CTL_TXMPERIOD_YEAR, &Data.Year);
+		if(Data.Year == 0)
 			ok = PPErrorByDialog(this, CTL_TXMPERIOD_YEAR, PPERR_INVPERIODINPUT);
-		else if(Data.P >= PPTaxPeriod::eMonth && Data.Month == 0)
-			ok = PPErrorByDialog(this, CTLSEL_TXMPERIOD_MONTH, PPERR_INVPERIODINPUT);
-		else if(Data.P == PPTaxPeriod::eDate && Data.Day < 1 || Data.Day > 31)
-			ok = PPErrorByDialog(this, CTL_TXMPERIOD_DAY, PPERR_INVPERIODINPUT);
-		else
-			ASSIGN_PTR(pData, Data);
+		else {
+			if(Data.Year < 100)
+				if(Data.Year >= 50)
+					Data.Year += 1900;
+				else
+					Data.Year += 2000;
+			else if(Data.Year >= 200 && Data.Year <= 299)
+				Data.Year = 2000 + (Data.Year - 200);
+			getCtrlData(CTL_TXMPERIOD_MONTH, &monthid);
+			Data.Month = (monthid >= 0 && monthid <= 12) ? (int8)monthid : 0;
+			getCtrlData(CTL_TXMPERIOD_DAY, &Data.Day);
+			if(Data.Year < 1990 || Data.Year > 2100)
+				ok = PPErrorByDialog(this, CTL_TXMPERIOD_YEAR, PPERR_INVPERIODINPUT);
+			else if(Data.P >= PPTaxPeriod::eMonth && Data.Month == 0)
+				ok = PPErrorByDialog(this, CTLSEL_TXMPERIOD_MONTH, PPERR_INVPERIODINPUT);
+			else if(Data.P == PPTaxPeriod::eDate && Data.Day < 1 || Data.Day > 31)
+				ok = PPErrorByDialog(this, CTL_TXMPERIOD_DAY, PPERR_INVPERIODINPUT);
+			else
+				ASSIGN_PTR(pData, Data);
+		}
+		return ok;
 	}
-	return ok;
-}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_TXMPERIOD_PERIOD)) {
+			ushort v = getCtrlUInt16(CTL_TXMPERIOD_PERIOD);
+			disableCtrl(CTLSEL_TXMPERIOD_MONTH, (v < PPTaxPeriod::eMonth));
+			disableCtrl(CTL_TXMPERIOD_DAY, (v != PPTaxPeriod::eDate));
+			clearEvent(event);
+		}
+	}
+};
 
 class BnkOrdTaxMarkersDialog : public TDialog {
 public:
@@ -272,11 +266,11 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 			int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
 			if(valid_code > 0) {
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidNumber);
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidNumber));
 			}
 			else {
 				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidNumber);
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidNumber));
 			}
 		}
 		else
@@ -290,7 +284,7 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 			double amount  = getCtrlReal(CTL_BNKPAYM_AMOUNT);
 			double vat_sum = getCtrlReal(CTL_BNKPAYM_VATSUM);
 			double calc_rate = R2(100.0 * vat_sum / (amount - vat_sum));
-			if(calc_rate != (double)vat_rate)
+			if(calc_rate != static_cast<double>(vat_rate))
 				setCtrlLong(CTL_BNKPAYM_VATRATE, 0);
 		}
 	}
@@ -367,6 +361,7 @@ int BankingOrderDialog::setDTS(const PPBankingOrder * pData)
 	setCtrlData(CTL_BNKPAYM_METHOD, &v);
 	setCtrlData(CTL_BNKPAYM_PAYERSTATUS, &Data.PayerStatus);
 	setCtrlData(CTL_BNKPAYM_QUEUEING, &Data.BnkQueueing);
+	setCtrlData(CTL_BNKPAYM_FPURPS,   &Data.FormalPurpose); // @v10.7.9
 	setCtrlData(CTL_BNKPAYM_AMOUNT,   &Data.Amount);
 	setCtrlData(CTL_BNKPAYM_VATRATE,  &Data.VATRate);
 	setCtrlData(CTL_BNKPAYM_VATSUM,   &Data.VATSum);
@@ -401,6 +396,7 @@ int BankingOrderDialog::getDTS(PPBankingOrder * pData)
 	}
 	getCtrlData(CTL_BNKPAYM_PAYERSTATUS, &Data.PayerStatus);
 	getCtrlData(CTL_BNKPAYM_QUEUEING, &Data.BnkQueueing);
+	getCtrlData(CTL_BNKPAYM_FPURPS,   &Data.FormalPurpose); // @v10.7.9
 	getCtrlData(CTL_BNKPAYM_AMOUNT,   &Data.Amount);
 	Data.Amount = R2(Data.Amount);
 	getCtrlData(CTL_BNKPAYM_VATRATE,  &Data.VATRate);

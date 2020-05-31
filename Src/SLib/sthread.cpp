@@ -822,8 +822,7 @@ SLAPI SlThread_WithStartupSignal::SlThread_WithStartupSignal(void * pInitData, l
 	InitStartupSignal();
 }
 
-//virtual 
-void SlThread_WithStartupSignal::SLAPI Startup()
+/*virtual*/void SlThread_WithStartupSignal::SLAPI Startup()
 {
 	SlThread::Startup();
 	SignalStartup();

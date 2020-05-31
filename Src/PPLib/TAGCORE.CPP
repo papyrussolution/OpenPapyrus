@@ -775,8 +775,7 @@ int FASTCALL ObjTagList::IsEqual(const ObjTagList & rS) const
 }
 
 uint SLAPI ObjTagList::GetCount() const { return count; }
-//virtual
-void FASTCALL ObjTagList::freeItem(void * pItem) { static_cast<ObjTagItem *>(pItem)->Destroy(); }
+/*virtual*/void FASTCALL ObjTagList::freeItem(void * pItem) { static_cast<ObjTagItem *>(pItem)->Destroy(); }
 const ObjTagItem * FASTCALL ObjTagList::GetItemByPos(uint pos) const
 	{ return (pos < count) ? static_cast<const ObjTagItem *>(at(pos)) : 0; }
 const ObjTagItem * FASTCALL ObjTagList::EnumItems(uint * pos) const

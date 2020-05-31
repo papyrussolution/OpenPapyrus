@@ -22,8 +22,7 @@ void SLAPI PPQuotImpExpParam::Clear()
 	LocID = 0;
 }
 
-//virtual
-int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -357,7 +356,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 					long   qf = 0;
 					PPID   temp_id = 0;
 					Sdr_QuotVal sdr_rec;
-					MEMSZERO(sdr_rec);
+					// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 					if(sdr_rec.QuotKindID && qk_obj.Search(sdr_rec.QuotKindID, &qk_rec) > 0) {
@@ -477,8 +476,7 @@ void SLAPI PPGoodsImpExpParam::Clear()
 	SubCode = 0;
 }
 
-//virtual
-int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -885,7 +883,6 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 {
 	int    ok = 1;
 	SString temp_buf;
-	Sdr_Goods2 sdr_goods;
 	THROW_MEM(P_GObj && P_PsnObj && P_QcObj);
 	THROW_INVARG(pPack && P_IEGoods);
 	if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
@@ -920,7 +917,8 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 		}
 	}
 	else {
-		MEMSZERO(sdr_goods);
+		Sdr_Goods2 sdr_goods;
+		// @v10.7.9 @ctr MEMSZERO(sdr_goods);
 		PreprocessGoodsExtText(temp_buf = pPack->Rec.Name, sdr_goods.Name, sizeof(sdr_goods.Name));
 		PreprocessGoodsExtText(temp_buf = pPack->Rec.Abbr, sdr_goods.Abbr, sizeof(sdr_goods.Abbr));
 		//
@@ -1543,7 +1541,7 @@ int SLAPI PPGoodsImporter::LoadHierList(HierArray * pList)
 		P_IE->GetNumRecs(&numrecs);
 		for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 			Sdr_Goods2 sdr_rec;
-			MEMSZERO(sdr_rec);
+			// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 			P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec));
 			pList->Add(strip(sdr_rec.HierObjCode), strip(sdr_rec.HierParentCode));
 		}
@@ -1569,7 +1567,7 @@ int SLAPI PPGoodsImporter::Helper_ImportHier(PPID defUnitID, HierArray * pHierLi
 		for(i = 0; i < static_cast<uint>(numrecs); i++) {
 			PPID   id = 0;
 			Sdr_Goods2 sdr_rec;
-			MEMSZERO(sdr_rec);
+			// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 			P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec));
 			if(strip(sdr_rec.HierObjCode) && pHierList->IsThereChildOf(sdr_rec.HierObjCode)) {
 				THROW(GGObj.AddSimple(&id, gpkndOrdinaryGroup, 0, strip(sdr_rec.Name), sdr_rec.HierObjCode, defUnitID, 0));
@@ -2214,7 +2212,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 					cntr.SetTotal(numrecs);
 					for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 						Sdr_Goods2 sdr_rec;
-						MEMSZERO(sdr_rec);
+						// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 						THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 						(temp_buf2 = Param.FileName).CatChar('#').Cat(i+1);
@@ -2315,7 +2313,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						BarcodeTbl::Rec bc_entry;
 						PPGoodsPacket pack;
 						ObjTagList tag_list;
-						MEMSZERO(sdr_rec);
+						// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 						THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec), &dyn_rec));
 						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 						if(dyn_rec.GetCount()) {
@@ -2970,27 +2968,13 @@ int SLAPI ExportUhttForGitHub()
 				}
 				group_name.Transf(CTRANSF_INNER_TO_UTF8);
 			}
-			{
-				long cc = 0;
-				uint cp = 0;
-				if(categ_concord.Search(goods_rec.ParentID, &cc, &cp))
-					categ_concord.at(cp).Val = cc+1; 
-				else
-					categ_concord.Add(goods_rec.ParentID, 1); 
-			}
+			categ_concord.IncrementValueByKey(goods_rec.ParentID);
 			group_name.ReplaceChar('\t', ' ');
 			brand_name.Z();
 			if(goods_rec.BrandID && brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
 				(brand_name = brand_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				brand_name.ReplaceChar('\t', ' ');
-				{
-					long cc = 0;
-					uint cp = 0;
-					if(brand_concord.Search(goods_rec.BrandID, &cc, &cp))
-						brand_concord.at(cp).Val = cc+1; 
-					else
-						brand_concord.Add(goods_rec.BrandID, 1); 
-				}
+				brand_concord.IncrementValueByKey(goods_rec.BrandID);
 			}
 			{
 				uint   j;

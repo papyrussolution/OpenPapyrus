@@ -21,8 +21,7 @@ IMPLEMENT_PPFILT_FACTORY(SuprWare); SLAPI SuprWareFilt::SuprWareFilt() : PPBaseF
 	InitInstance();
 }
 
-// virtual
-int SLAPI SuprWareFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI SuprWareFilt::Describe(long flags, SString & rBuf) const
 {
 	PutMembToBuf(SuprWareType, STRINGIZE(SuprWareType), rBuf);
 	PutMembToBuf(SuprWareCat, STRINGIZE(SuprWareCat), rBuf);
@@ -245,8 +244,7 @@ int SLAPI PPViewSuprWare::DeleteAll()
 	return ok;
 }
 
-//virtual
-int SLAPI PPViewSuprWare::Detail(const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewSuprWare::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return (id && SwObj.EditList(&id) == cmOK) ? 1 : -1;

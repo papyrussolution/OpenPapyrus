@@ -1,5 +1,5 @@
 // SFXTREE2.CPP
-// Copyright (c) A.Sobolev 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -25,10 +25,7 @@ public:
 	};
 
 	SSuffixTree(uint32 itemSize);
-	uint   GetItemSize() const
-	{
-		return ItemSize;
-	}
+	uint   GetItemSize() const { return ItemSize; }
 	uint   FASTCALL CreateString(uint32 * pId);
 	int    AddChunkToString(uint strP, const void * pItems, uint itemsCount);
 	int    InsertString(uint stringP);
@@ -295,8 +292,7 @@ int SSuffixTree::StringArray::CreateNewItem(const SSuffixTree * pT, uint32 id, u
 	return ok;
 }
 
-//virtual
-void FASTCALL SSuffixTree::StringArray::freeItem(void * pItem) { ((SSuffixTree::String *)pItem)->freeAll(); }
+/*virtual*/void FASTCALL SSuffixTree::StringArray::freeItem(void * pItem) { ((SSuffixTree::String *)pItem)->freeAll(); }
 //
 //
 //
@@ -476,10 +472,9 @@ uint SSuffixTree::EdgeHubArray::Add_()
 	return insert(&new_hub) ? new_pos : 0;
 }
 
-//virtual
-void FASTCALL SSuffixTree::EdgeHubArray::freeItem(void * pItem)
+/*virtual*/void FASTCALL SSuffixTree::EdgeHubArray::freeItem(void * pItem)
 {
-	EdgeHub * p_hub = (EdgeHub *)pItem;
+	EdgeHub * p_hub = static_cast<EdgeHub *>(pItem);
 	p_hub->Destroy();
 }
 //

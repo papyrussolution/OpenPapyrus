@@ -1155,7 +1155,7 @@ int SLAPI PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTrans
 			else {
 				if(r > 0) { // @v9.2.7 @fix(r-->(r>0)) Счет в разделе найден, но с ним ассоциирована иная таблица статей: придется присвоить счету другой номер.
 					for(int i = 1; i < 100; i++) {
-						if(SearchNum(p_pack->Rec.A.Ac, i, 0L /* @curID */) < 0) {
+						if(SearchNum(p_pack->Rec.A.Ac, i, 0L/*@curID*/) < 0) {
 							p_pack->Rec.A.Sb = i;
 							break;
 						}

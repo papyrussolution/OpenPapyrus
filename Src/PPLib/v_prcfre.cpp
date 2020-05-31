@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -183,7 +183,7 @@ int SLAPI PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 	for(uint i = 0; i < busy_list.getCount(); i++) {
 		const PrcBusy & entry = *static_cast<const PrcBusy *>(busy_list.at(i));
 		TempPrcBusyTbl::Rec rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec.PrcID = prcID;
 		rec.StDt = entry.Start.d;
 		rec.StTm = entry.Start.t;
@@ -375,8 +375,7 @@ int SLAPI PPViewPrcBusy::Print(const void * pHdr)
 	return -1;
 }
 
-//virtual
-void SLAPI PPViewPrcBusy::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewPrcBusy::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTSessChanged, 0, PPOBJ_TSESSION, 0));
 }
@@ -828,7 +827,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 			rBuf.Cat(temp_buf);
 			{
 				ProcessorTbl::Rec prc_rec;
-				MEMSZERO(prc_rec);
+				// @v10.7.9 @ctr MEMSZERO(prc_rec);
 				if(P_View->TSesObj.GetPrc(ses_rec.PrcID, &prc_rec, 1, 1) > 0) {
 					if(prc_rec.Flags & PRCF_ALLOWCIP) {
 						PPCheckInPersonArray cip_list;
@@ -860,7 +859,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 			// процессор, основной товар, время начала и окончания, контрагент, примечание
 			TechTbl::Rec tec_rec;
 			ProcessorTbl::Rec prc_rec;
-			MEMSZERO(prc_rec);
+			// @v10.7.9 @ctr MEMSZERO(prc_rec);
 			if(P_View->TSesObj.GetPrc(ses_rec.PrcID, &prc_rec, 1, 1) > 0) {
 				rBuf.CatDivIfNotEmpty('\n', 0).Cat(prc_rec.Name);
 			}

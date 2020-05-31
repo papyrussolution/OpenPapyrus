@@ -69,8 +69,7 @@ struct ExtParams_Before24 {
 	RealRange DimW;
 };
 
-//virtual
-int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == -24) {
@@ -329,7 +328,6 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		CPYFLD(LocList);
 		CPYFLD(BrandList);
 #undef CPYFLD
-		// @v8.6.4 {
 		{
 			Ep.GdsClsID    = fv22.Ep.GdsClsID;
 			Ep.KindList    = fv22.Ep.KindID;
@@ -341,7 +339,6 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 			Ep.DimZ_Rng = fv22.Ep.DimZ;
 			Ep.DimW_Rng = fv22.Ep.DimW;
 		}
-		// } @v8.6.4
 		THROW_SL(TSDupPtr <SysJournalFilt> (&P_SjF, fv22.P_SjF));
 		THROW_SL(TSDupPtr <TagFilt> (&P_TagF, fv22.P_TagF));
 		ok = 1;
@@ -350,8 +347,7 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-// virtual
-int SLAPI GoodsFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI GoodsFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_PERSON,     BrandOwnerID,   STRINGIZE(BrandOwnerID),   rBuf);
 	PutObjMembToBuf(PPOBJ_UNIT,       UnitID,         STRINGIZE(UnitID),         rBuf);
@@ -2878,6 +2874,9 @@ static int RecoverGoodsExtPropRef(PPID goodsID, PPID * pRefID, int isCls, const 
 }
 
 struct GoodsRecoverParam {
+	GoodsRecoverParam() : Flags(0)
+	{
+	}
 	enum {
 		fCorrect          = 0x0001, // Исправлять ошибки
 		fCheckAlcoAttribs = 0x0002  // @v9.3.5 Проверять алкогольные атрибут
@@ -2920,12 +2919,48 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 	SString temp_buf;
 	SString valid_code;
 	SString fmt_buf, msg_buf;
-	MEMSZERO(param);
 	if(EditGoodsRecoverParam(&param) > 0) {
 		if(param.Flags & param.fCheckAlcoAttribs) {
 			THROW_MEM(p_eg_prc = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, &logger, 0));
 		}
 		PPWait(1);
+		// @v10.7.9 {
+		{
+			//
+			// Проверка на наличие висячих записей штрихкодов
+			//
+			BarcodeTbl & r_bctbl = GObj.P_Tbl->GetBcTbl_();
+			BarcodeTbl::Key0 bck0;
+			PPIDArray hanged_bc_goods_list;
+			MEMSZERO(bck0);
+			if(r_bctbl.search(0, &bck0, spFirst)) do {
+				PPID   bc_goods_id = r_bctbl.data.GoodsID;
+				int    r = GObj.Search(bc_goods_id, 0);
+				if(r > 0) {
+					; // ok
+				}
+				else if(r < 0) {
+					// Висячая запись штрихкода %s
+					// PPTXT_LOG_HANGEDBARCODEREC
+					hanged_bc_goods_list.add(bc_goods_id);
+					msg_buf.Z().Cat(r_bctbl.data.Code).Space().CatChar('#').Cat(bc_goods_id);
+					logger.LogString(PPTXT_LOG_HANGEDBARCODEREC, msg_buf);
+				}
+				else {
+					logger.LogLastError();
+				}
+			} while(r_bctbl.search(0, &bck0, spNext));
+			if(param.Flags & GoodsRecoverParam::fCorrect && hanged_bc_goods_list.getCount()) {
+				hanged_bc_goods_list.sortAndUndup();
+				PPTransaction tra(1);
+				THROW(tra);
+				for(uint ididx = 0; ididx < hanged_bc_goods_list.getCount(); ididx++) {
+					THROW(GObj.P_Tbl->UpdateBarcodes(hanged_bc_goods_list.get(ididx), 0, 0));
+				}
+				THROW(tra.Commit());
+			}
+		}
+		// } @v10.7.9 
 		PPID   prev_id = 0;
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			if(item.ID != prev_id) {
@@ -2933,7 +2968,7 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 				int    err = 0;
 				int    to_turn_packet = 0;
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-					int    is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
+					const int is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.KindID, is_cls, gc_pack.PropKind, &logger))
 						err = 1;
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.GradeID, is_cls, gc_pack.PropGrade, &logger))
@@ -3011,18 +3046,12 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 							}
 							if(agi.StatusFlags & agi.stEgaisCodeByGoods) {
 							}
-							if(agi.CategoryCode.Empty()) {
-								//PPTXT_LOG_ALCGOODSHASNTCAT      "Для алкогольного товара '%s' не определен вид алкогольной продукции"
-								logger.LogString(PPTXT_LOG_ALCGOODSHASNTCAT, pack.Rec.Name);
-							}
-							if(agi.Proof <= 0.0) {
-								//PPTXT_LOG_ALCGOODSHASNTPROOF    "Для алкогольного товара '%s' не определено содержание спирта"
-								logger.LogString(PPTXT_LOG_ALCGOODSHASNTPROOF, pack.Rec.Name);
-							}
-							if(agi.Volume <= 0.0) {
-								//PPTXT_LOG_ALCGOODSHASNTVOL      "Для алкогольного товара '%s' не определен объем"
-								logger.LogString(PPTXT_LOG_ALCGOODSHASNTVOL, pack.Rec.Name);
-							}
+							if(agi.CategoryCode.Empty())
+								logger.LogString(PPTXT_LOG_ALCGOODSHASNTCAT, pack.Rec.Name); // Для алкогольного товара '%s' не определен вид алкогольной продукции
+							if(agi.Proof <= 0.0)
+								logger.LogString(PPTXT_LOG_ALCGOODSHASNTPROOF, pack.Rec.Name); // Для алкогольного товара '%s' не определено содержание спирта
+							if(agi.Volume <= 0.0)
+								logger.LogString(PPTXT_LOG_ALCGOODSHASNTVOL, pack.Rec.Name); // Для алкогольного товара '%s' не определен объем
 						}
 					}
 					if(err || to_turn_packet) {
@@ -3922,7 +3951,7 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				ok = -1;
 				if(id)
 					if(GObj.CheckFlag(id, GF_UNLIM))
-						GObj.EditQuotations(id, 0, -1L /* @curID */, 0, PPQuot::clsGeneral);
+						GObj.EditQuotations(id, 0, -1L/*@curID*/, 0, PPQuot::clsGeneral);
 					else
 						::ViewLots(id, 0, Filt.SupplID, 0, 1);
 				break;
@@ -4030,13 +4059,13 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				break;
 			case PPVCMD_VIEWQUOT:
 				ok = -1;
-				GObj.EditQuotations(id, r_cfg.Location, -1L /* @curID */, 0, PPQuot::clsGeneral);
+				GObj.EditQuotations(id, r_cfg.Location, -1L/*@curID*/, 0, PPQuot::clsGeneral);
 				break;
 			case PPVCMD_VIEWSUPPLQUOT:
-				GObj.EditQuotations(id, r_cfg.Location, -1L /* @curID */, 0, PPQuot::clsSupplDeal);
+				GObj.EditQuotations(id, r_cfg.Location, -1L/*@curID*/, 0, PPQuot::clsSupplDeal);
 				break;
 			case PPVCMD_VIEWGOODSMATRIX:
-				GObj.EditQuotations(id, r_cfg.Location, -1L /* @curID */, 0, PPQuot::clsMtx);
+				GObj.EditQuotations(id, r_cfg.Location, -1L/*@curID*/, 0, PPQuot::clsMtx);
 				break;
 			case PPVCMD_VIEWGOODSAGGR:
 				ok = (GObj.ShowGoodsAsscInfo(id) > 0) ? 1 : -1;

@@ -854,7 +854,7 @@ int xmlNop(void);
 		 * This is the prototype for the link detection routine.
 		 * It calls the default link detection callbacks upon link detection.
 		 */
-		typedef void (*xlinkNodeDetectFunc)(void * ctx, xmlNode * P_Node);
+		typedef void (*xlinkNodeDetectFunc)(void * ctx, xmlNode * pNode);
 		// 
 		// The link detection module interact with the upper layers using
 		// a set of callback registered at parsing time.
@@ -869,7 +869,7 @@ int xmlNop(void);
 		 *
 		 * This is the prototype for a simple link detection callback.
 		 */
-		typedef void (*xlinkSimpleLinkFunk)(void * ctx, xmlNode * P_Node, const xlinkHRef href, const xlinkRole role, const xlinkTitle title);
+		typedef void (*xlinkSimpleLinkFunk)(void * ctx, xmlNode * pNode, const xlinkHRef href, const xlinkRole role, const xlinkTitle title);
 		/**
 		 * xlinkExtendedLinkFunk:
 		 * @ctx:  user data pointer
@@ -888,7 +888,7 @@ int xmlNop(void);
 		 *
 		 * This is the prototype for a extended link detection callback.
 		 */
-		typedef void (*xlinkExtendedLinkFunk)(void * ctx, xmlNode * P_Node, int nbLocators, const xlinkHRef * hrefs, const xlinkRole * roles,
+		typedef void (*xlinkExtendedLinkFunk)(void * ctx, xmlNode * pNode, int nbLocators, const xlinkHRef * hrefs, const xlinkRole * roles,
 			int nbArcs, const xlinkRole * from, const xlinkRole * to, xlinkShow * show, xlinkActuate * actuate, int nbTitles, const xlinkTitle * titles, const xmlChar ** langs);
 		/**
 		 * xlinkExtendedLinkSetFunk:
@@ -903,7 +903,7 @@ int xmlNop(void);
 		 *
 		 * This is the prototype for a extended link set detection callback.
 		 */
-		typedef void (*xlinkExtendedLinkSetFunk)(void * ctx, xmlNode * P_Node, int nbLocators, const xlinkHRef * hrefs,
+		typedef void (*xlinkExtendedLinkSetFunk)(void * ctx, xmlNode * pNode, int nbLocators, const xlinkHRef * hrefs,
 			const xlinkRole * roles, int nbTitles, const xlinkTitle * titles, const xmlChar ** langs);
 		// 
 		// This is the structure containing a set of Links detection callbacks.
@@ -932,7 +932,7 @@ int xmlNop(void);
 		// 
 		// Link detection module itself.
 		// 
-		XMLPUBFUN xlinkType XMLCALL xlinkIsLink(xmlDoc * doc, xmlNode * P_Node);
+		XMLPUBFUN xlinkType XMLCALL xlinkIsLink(xmlDoc * doc, xmlNode * pNode);
 	#endif
 
 	#ifdef __cplusplus
@@ -1392,12 +1392,12 @@ int xmlNop(void);
 		XMLPUBFUN int XMLCALL xmlXPathCastToBoolean	(xmlXPathObject * val);
 		XMLPUBFUN double XMLCALL xmlXPathCastBooleanToNumber(int val);
 		XMLPUBFUN double XMLCALL xmlXPathCastStringToNumber(const xmlChar * val);
-		XMLPUBFUN double XMLCALL xmlXPathCastNodeToNumber(xmlNode * P_Node);
+		XMLPUBFUN double XMLCALL xmlXPathCastNodeToNumber(xmlNode * pNode);
 		XMLPUBFUN double XMLCALL xmlXPathCastNodeSetToNumber(xmlNodeSet * ns);
 		XMLPUBFUN double XMLCALL xmlXPathCastToNumber(xmlXPathObject * val);
 		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastBooleanToString(int val);
 		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNumberToString(double val);
-		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeToString(xmlNode * P_Node);
+		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeToString(xmlNode * pNode);
 		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastNodeSetToString(xmlNodeSet * ns);
 		XMLPUBFUN xmlChar * XMLCALL xmlXPathCastToString(xmlXPathObject * val);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathConvertBoolean(xmlXPathObject * val);
@@ -1413,8 +1413,8 @@ int xmlNop(void);
 		// Evaluation functions.
 		// 
 		XMLPUBFUN long XMLCALL xmlXPathOrderDocElems(xmlDoc * doc);
-		XMLPUBFUN int XMLCALL xmlXPathSetContextNode(xmlNode * P_Node, xmlXPathContextPtr ctx);
-		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNodeEval(xmlNode * P_Node, const xmlChar *str, xmlXPathContextPtr ctx);
+		XMLPUBFUN int XMLCALL xmlXPathSetContextNode(xmlNode * pNode, xmlXPathContextPtr ctx);
+		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathNodeEval(xmlNode * pNode, const xmlChar *str, xmlXPathContextPtr ctx);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEval(const xmlChar *str, xmlXPathContextPtr ctx);
 		XMLPUBFUN xmlXPathObject * XMLCALL xmlXPathEvalExpression(const xmlChar *str, xmlXPathContextPtr ctxt);
 		XMLPUBFUN int XMLCALL xmlXPathEvalPredicate(xmlXPathContextPtr ctxt, xmlXPathObject * res);
@@ -1709,13 +1709,13 @@ int xmlNop(void);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathDistinctSorted(xmlNodeSet * nodes);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathDistinct(xmlNodeSet * nodes);
 		XMLPUBFUN int XMLCALL xmlXPathHasSameNodes(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeLeadingSorted(xmlNodeSet * nodes, xmlNode * P_Node);
+		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeLeadingSorted(xmlNodeSet * nodes, xmlNode * pNode);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathLeadingSorted(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeLeading(xmlNodeSet * nodes, xmlNode * P_Node);
+		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeLeading(xmlNodeSet * nodes, xmlNode * pNode);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathLeading(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeTrailingSorted(xmlNodeSet * nodes, xmlNode * P_Node);
+		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeTrailingSorted(xmlNodeSet * nodes, xmlNode * pNode);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathTrailingSorted(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
-		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeTrailing(xmlNodeSet * nodes, xmlNode * P_Node);
+		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathNodeTrailing(xmlNodeSet * nodes, xmlNode * pNode);
 		XMLPUBFUN xmlNodeSet * XMLCALL xmlXPathTrailing(xmlNodeSet * nodes1, xmlNodeSet * nodes2);
 		// 
 		// Extending a context.
@@ -1915,7 +1915,7 @@ int xmlNop(void);
 		XMLPUBFUN void XMLCALL xmlFreePattern(xmlPattern * comp);
 		XMLPUBFUN void XMLCALL xmlFreePatternList(xmlPattern * comp);
 		XMLPUBFUN xmlPattern * XMLCALL xmlPatterncompile(const xmlChar *pattern, xmlDict *dict, int flags, const xmlChar **namespaces);
-		XMLPUBFUN int XMLCALL xmlPatternMatch(xmlPattern * comp, xmlNode * P_Node);
+		XMLPUBFUN int XMLCALL xmlPatternMatch(xmlPattern * comp, xmlNode * pNode);
 
 		/* streaming interfaces */
 		typedef struct _xmlStreamCtxt xmlStreamCtxt;
@@ -2021,9 +2021,9 @@ int xmlNop(void);
 		XMLPUBFUN void XMLCALL xmlDebugDumpString(FILE * output, const xmlChar * str);
 		XMLPUBFUN void XMLCALL xmlDebugDumpAttr(FILE * output, xmlAttr * attr, int depth);
 		XMLPUBFUN void XMLCALL xmlDebugDumpAttrList(FILE * output, xmlAttr * attr, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpOneNode(FILE * output, xmlNode * P_Node, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpNode(FILE * output, xmlNode * P_Node, int depth);
-		XMLPUBFUN void XMLCALL xmlDebugDumpNodeList(FILE * output, xmlNode * P_Node, int depth);
+		XMLPUBFUN void XMLCALL xmlDebugDumpOneNode(FILE * output, xmlNode * pNode, int depth);
+		XMLPUBFUN void XMLCALL xmlDebugDumpNode(FILE * output, xmlNode * pNode, int depth);
+		XMLPUBFUN void XMLCALL xmlDebugDumpNodeList(FILE * output, xmlNode * pNode, int depth);
 		XMLPUBFUN void XMLCALL xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc);
 		XMLPUBFUN void XMLCALL xmlDebugDumpDocument(FILE * output, xmlDoc * doc);
 		XMLPUBFUN void XMLCALL xmlDebugDumpDTD(FILE * output, xmlDtd * dtd);
@@ -2035,8 +2035,8 @@ int xmlNop(void);
 		// 
 		// XML shell helpers
 		// 
-		XMLPUBFUN void XMLCALL xmlLsOneNode(FILE * output, xmlNode * P_Node);
-		XMLPUBFUN int XMLCALL xmlLsCountNode(xmlNode * P_Node);
+		XMLPUBFUN void XMLCALL xmlLsOneNode(FILE * output, xmlNode * pNode);
+		XMLPUBFUN int XMLCALL xmlLsCountNode(xmlNode * pNode);
 		XMLPUBFUN const char * XMLCALL xmlBoolToText(int boolval);
 		// 
 		// The XML shell related structures and functions
@@ -2078,25 +2078,25 @@ int xmlNop(void);
 			 *
 			 * Returns an int, negative returns indicating errors.
 			 */
-			typedef int (*xmlShellCmd)(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
+			typedef int (*xmlShellCmd)(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
 
 			XMLPUBFUN void XMLCALL xmlShellPrintXPathError(int errorType, const char * arg);
 			XMLPUBFUN void XMLCALL xmlShellPrintXPathResult(xmlXPathObject * list);
-			XMLPUBFUN int XMLCALL xmlShellList(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellBase(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellDir(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNode * node2);
+			XMLPUBFUN int XMLCALL xmlShellList(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN int XMLCALL xmlShellBase(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN int XMLCALL xmlShellDir(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+			XMLPUBFUN int XMLCALL xmlShellLoad(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
 			#ifdef LIBXML_OUTPUT_ENABLED
-				XMLPUBFUN void XMLCALL xmlShellPrintNode(xmlNode * P_Node);
-				XMLPUBFUN int XMLCALL xmlShellCat(xmlShellCtxtPtr ctxt, char * arg, xmlNode * P_Node, xmlNode * node2);
-				XMLPUBFUN int XMLCALL xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNode * node2);
-				XMLPUBFUN int XMLCALL xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNode * node2);
+				XMLPUBFUN void XMLCALL xmlShellPrintNode(xmlNode * pNode);
+				XMLPUBFUN int XMLCALL xmlShellCat(xmlShellCtxtPtr ctxt, char * arg, xmlNode * pNode, xmlNode * node2);
+				XMLPUBFUN int XMLCALL xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
+				XMLPUBFUN int XMLCALL xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNode * node2);
 			#endif /* LIBXML_OUTPUT_ENABLED */
 			#ifdef LIBXML_VALID_ENABLED
-				XMLPUBFUN int XMLCALL xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node, xmlNode * node2);
+				XMLPUBFUN int XMLCALL xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * pNode, xmlNode * node2);
 			#endif /* LIBXML_VALID_ENABLED */
 			XMLPUBFUN int XMLCALL xmlShellDu(xmlShellCtxtPtr ctxt, char * arg, xmlNode * tree, xmlNode * node2);
-			XMLPUBFUN int XMLCALL xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode * P_Node, xmlNode * node2);
+			XMLPUBFUN int XMLCALL xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode * pNode, xmlNode * node2);
 			/*
 			 * The Shell interface.
 			 */

@@ -1,5 +1,5 @@
 // V_ACCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019
+// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020
 // @codepage UTF-8
 // PPViewAccount
 //
@@ -31,14 +31,12 @@ SLAPI PPViewAccount::~PPViewAccount()
 	delete P_AnlzFilt;
 }
 
-// virtual
-void * SLAPI PPViewAccount::GetEditExtraParam()
+/*virtual*/void * SLAPI PPViewAccount::GetEditExtraParam()
 {
 	return reinterpret_cast<void *>(Filt.Type);
 }
 
-// virtual
-PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
 {
 	AccountFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_ACCOUNT, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -46,8 +44,7 @@ PPBaseFilt * SLAPI PPViewAccount::CreateFilt(void * extraPtr) const
 	return static_cast<PPBaseFilt *>(p_filt);
 }
 
-// virtual
-int SLAPI PPViewAccount::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int SLAPI PPViewAccount::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	uint   v = 0;
@@ -171,8 +168,7 @@ int SLAPI PPViewAccount::FetchData(long id)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewAccount::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewAccount::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -313,8 +309,7 @@ static void SLAPI dbqf_account_checkrights_i(int option, DBConst * result, DBCon
 // static
 int PPViewAccount::DynFuncCheckRights = 0;
 
-// virtual
-DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewAccount::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncCheckRights, BTS_INT, dbqf_account_checkrights_i, 1, BTS_INT);
 
@@ -405,8 +400,7 @@ int SLAPI PPViewAccount::Transmit(PPID id, int transmitKind)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewAccount::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewAccount::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	Hdr    hdr;
 	if(!RVALUEPTR(hdr, static_cast<const Hdr *>(pHdr)))

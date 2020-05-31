@@ -3094,8 +3094,7 @@ ListBoxDef * SLAPI PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long o
 	return p_def;
 }
 
-// virtual
-StrAssocArray * SLAPI PPObjGoods::MakeStrAssocList(void * extraPtr)
+/*virtual*/StrAssocArray * SLAPI PPObjGoods::MakeStrAssocList(void * extraPtr)
 {
 	StrAssocListBoxDef * p_def = static_cast<StrAssocListBoxDef *>(PPObjGoods::Selector(extraPtr));
 	StrAssocArray * p_ret_list = 0;
@@ -4280,8 +4279,7 @@ int SLAPI PPObjGoods::GetSubstList(PPID goodsID, int substStrucOnly, RAssocArray
 	return ok;
 }
 
-//virtual
-int  SLAPI PPObjGoods::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int  SLAPI PPObjGoods::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	SETFLAG(options, not_addtolog, 1);
 	return PPObject::RemoveObjV(id, pObjColl, options, pExtraParam);
@@ -4314,8 +4312,7 @@ int SLAPI PPObjGoods::CheckSpecQuot(PPID supplID, PPID goodsID, PPID locID, PPID
 	int    ok = 1;
 	if(supplID) {
 		PPSupplDeal sd;
-		const QuotIdent qi(locID, 0, currID, supplID);
-        if(GetSupplDeal(goodsID, qi, &sd, 1) > 0)
+        if(GetSupplDeal(goodsID, QuotIdent(locID, 0, currID, supplID), &sd, 1) > 0)
 			THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
 	}
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
@@ -4684,7 +4681,7 @@ int UhttIndexBrands(const SString & rOutPath)
 			{
 				xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("BrandsIndex").ucptr());
 				for(uint i = 0, n = id_list.getCount(); i < n; i++) {
-					PPID id = id_list.get(i);
+					const PPID id = id_list.get(i);
 					xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
 				}
 				xmlTextWriterEndElement(p_writer);
@@ -4692,7 +4689,7 @@ int UhttIndexBrands(const SString & rOutPath)
 			if(id_image_list.getCount()) {
 				xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("BrandImageIndex").ucptr());
 				for(uint i = 0, n = id_image_list.getCount(); i < n; i++) {
-					PPID id = id_image_list.get(i);
+					const PPID id = id_image_list.get(i);
 					xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
 				}
 				xmlTextWriterEndElement(p_writer);

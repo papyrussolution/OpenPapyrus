@@ -133,7 +133,7 @@ static cairo_int_status_t _cairo_surface_subsurface_glyphs(void * abstract_surfa
     const cairo_pattern_t * source, cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_surface_subsurface_t * surface = static_cast<cairo_surface_subsurface_t *>(abstract_surface);
-	cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
+	const cairo_rectangle_int_t rect = { 0, 0, surface->extents.width, surface->extents.height };
 	cairo_clip_t * target_clip = _cairo_clip_copy_intersect_rectangle(clip, &rect);
 	cairo_status_t status = _cairo_surface_offset_glyphs(surface->target, -surface->extents.x, -surface->extents.y,
 		op, source, scaled_font, glyphs, num_glyphs, target_clip);

@@ -1042,8 +1042,8 @@ int Lst2LstAryDialog::removeItem()
 	int    ok = 1;
 	uint   idx = 0;
 	PPID   tmp;
-	SmartListBox * l = GetRightList();
-	if(l && l->getCurID(&tmp)) {
+	SmartListBox * p_lbx = GetRightList();
+	if(p_lbx && p_lbx->getCurID(&tmp)) {
 		P_Right->lsearch(&tmp, &idx, CMPF_LONG, 0);
 		if(P_Right->atFree(idx) > 0)
 			THROW(setupRightList());
@@ -1171,8 +1171,8 @@ int Lst2LstObjDialog::setupRightTList()
 int Lst2LstObjDialog::setupRightList()
 {
 	int    ok = 1;
-	StdListBoxDef * p_def = 0;
-	TaggedStringArray * p_ary = 0;
+	StrAssocListBoxDef * p_def = 0; // @v10.7.9 StdListBoxDef-->StrAssocListBoxDef
+	StrAssocArray * p_ary = 0; // @v10.7.9 TaggedStringArray-->StrAssocArray
 	if(Data.Flags & ListToListData::fIsTreeList) {
 		return setupRightTList();
 	}
@@ -1182,7 +1182,7 @@ int Lst2LstObjDialog::setupRightList()
 			PPID * p_id;
 			SString name_buf;
 			const long pos = p_lb->def ? p_lb->def->_curItem() : 0L;
-			THROW_MEM(p_ary = new TaggedStringArray);
+			THROW_MEM(p_ary = new StrAssocArray);
 			for(uint i = 0; Data.P_List->enumItems(&i, (void **)&p_id);) {
 				/* @v9.2.1
 				P_Object->GetName(*p_id, &name_buf);
@@ -1193,7 +1193,8 @@ int Lst2LstObjDialog::setupRightList()
 				THROW_SL(p_ary->Add(*p_id, name_buf));
 			}
 			p_ary->SortByText();
-			THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
+			// @v10.7.9 THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
+			THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify)); // @v10.7.9 
 			p_lb->setDef(p_def);
 			p_lb->def->go(pos);
 			p_lb->Draw_();
@@ -2799,6 +2800,7 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
 		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics); // @v10.7.7
 		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService); // @v9.8.11 // @v10.7.7 11-->12
+		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled); // 10.7.9
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
 		// @v10.3.0 {
@@ -2936,8 +2938,7 @@ int EmbedDialog::Embed(TDialog * pDlg)
 	return ok;
 }
 
-// virtual
-void EmbedDialog::setChildPos(uint neighbourCtl)
+/*virtual*/void EmbedDialog::setChildPos(uint neighbourCtl)
 {
 	if(P_ChildDlg && P_ChildDlg->H()) {
 		RECT   child_rect, ctl_rect, dlg_rect;
@@ -3294,8 +3295,7 @@ TextHistorySelExtra::TextHistorySelExtra(const char * pKey) : WordSel_ExtraBlock
 	SetTextMode(true);
 }
 
-//virtual 
-StrAssocArray * TextHistorySelExtra::GetRecentList()
+/*virtual*/StrAssocArray * TextHistorySelExtra::GetRecentList()
 {
 	StrAssocArray * p_result = 0;
 	if(Key.NotEmpty()) {
@@ -3315,8 +3315,7 @@ StrAssocArray * TextHistorySelExtra::GetRecentList()
 	return p_result;
 }
 
-//virtual 
-StrAssocArray * TextHistorySelExtra::GetList(const char * pText)
+/*virtual*/StrAssocArray * TextHistorySelExtra::GetList(const char * pText)
 {
 	StrAssocArray * p_result = 0;
 	if(Key.NotEmpty()) {
@@ -3336,19 +3335,18 @@ StrAssocArray * TextHistorySelExtra::GetList(const char * pText)
 	}
 	return p_result;
 }
-//virtual 
-int TextHistorySelExtra::Search(long id, SString & rBuf)
-{
-	return 0;
-}
-//virtual 
-int TextHistorySelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
+
+/*virtual*/int TextHistorySelExtra::Search(long id, SString & rBuf)
 {
 	return 0;
 }
 
-//virtual 
-void TextHistorySelExtra::OnAcceptInput(const char * pText, long id)
+/*virtual*/int TextHistorySelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
+{
+	return 0;
+}
+
+/*virtual*/void TextHistorySelExtra::OnAcceptInput(const char * pText, long id)
 {
 	if(Key.NotEmpty()) {
 		SString temp_buf;
@@ -4786,8 +4784,7 @@ SpinCtrlGroup::SpinCtrlGroup(uint ctlEdit, uint cmdUp, uint ctlUp, uint cmdDown,
 {
 }
 
-// virtual
-int SpinCtrlGroup::setData(TDialog * pDlg, void * pData)
+/*virtual*/int SpinCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
@@ -4800,8 +4797,7 @@ int SpinCtrlGroup::setData(TDialog * pDlg, void * pData)
 	return ok;
 }
 
-// virtual
-int SpinCtrlGroup::getData(TDialog * pDlg, void * pData)
+/*virtual*/int SpinCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
@@ -4814,8 +4810,7 @@ int SpinCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return ok;
 }
 
-// virtual
-void SpinCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
+/*virtual*/void SpinCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(TVCOMMAND) {
 		if(TVCMD == CmdUp && event.isCtlEvent(CtlUp)) {
@@ -4853,8 +4848,7 @@ BrandCtrlGroup::BrandCtrlGroup(uint ctlsel, uint cmSelList) : Ctlsel(ctlsel), Cm
 {
 }
 
-// virtual
-int BrandCtrlGroup::setData(TDialog * pDlg, void * pData)
+/*virtual*/int BrandCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
@@ -4865,8 +4859,7 @@ int BrandCtrlGroup::setData(TDialog * pDlg, void * pData)
 	return ok;
 }
 
-// virtual
-int BrandCtrlGroup::getData(TDialog * pDlg, void * pData)
+/*virtual*/int BrandCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
@@ -4896,8 +4889,7 @@ int BrandCtrlGroup::Setup(TDialog * pDlg)
 	return ok;
 }
 
-// virtual
-void BrandCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
+/*virtual*/void BrandCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(TVCOMMAND) {
 		if(TVCMD == CmSelList) {
@@ -5474,8 +5466,7 @@ int EditMemosDialog::getDTS(SString & rMemos)
 	return 1;
 }
 
-// virtual
-int EditMemosDialog::setupList()
+/*virtual*/int EditMemosDialog::setupList()
 {
 	int    ok = 1;
 	SString buf;
@@ -5488,8 +5479,7 @@ int EditMemosDialog::setupList()
 	return ok;
 }
 
-// virtual
-int EditMemosDialog::addItem(long * pPos, long * pID)
+/*virtual*/int EditMemosDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	SString buf;
@@ -5502,8 +5492,7 @@ int EditMemosDialog::addItem(long * pPos, long * pID)
 	return ok;
 }
 
-// virtual
-int EditMemosDialog::editItem(long pos, long id)
+/*virtual*/int EditMemosDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	SString buf;
@@ -5516,8 +5505,7 @@ int EditMemosDialog::editItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int EditMemosDialog::delItem(long pos, long id)
+/*virtual*/int EditMemosDialog::delItem(long pos, long id)
 {
 	Memos.Remove(id);
 	return 1;
@@ -6059,16 +6047,14 @@ int TimePickerCtrlGroup::Edit(TDialog * pDlg)
 	return ok;
 }
 
-// virtual
-int TimePickerCtrlGroup::setData(TDialog * pDlg, void * pData)
+/*virtual*/int TimePickerCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	Data = (pData) ? *static_cast<const LTIME *>(pData) : ZEROTIME;
 	pDlg->setCtrlData(Ctl, &Data);
 	return 1;
 }
 
-// virtual
-int TimePickerCtrlGroup::getData(TDialog * pDlg, void * pData)
+/*virtual*/int TimePickerCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	int    ok = 0;
 	pDlg->getCtrlData(Ctl, &Data);
@@ -6079,8 +6065,7 @@ int TimePickerCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return ok;
 }
 
-// virtual
-void TimePickerCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
+/*virtual*/void TimePickerCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(pDlg) {
 		if(event.isCmd(Cmd)) {
@@ -6358,8 +6343,7 @@ int SendMailDialog::setupList()
 	return ok;
 }
 
-// virtual
-int SendMailDialog::addItem(long * pPos, long * pId)
+/*virtual*/int SendMailDialog::addItem(long * pPos, long * pId)
 {
 	int    ok = -1;
 	long   pos = -1, id = -1;
@@ -6378,8 +6362,7 @@ int SendMailDialog::addItem(long * pPos, long * pId)
 	return ok;
 }
 
-// virtual
-int SendMailDialog::editItem(long pos, long id)
+/*virtual*/int SendMailDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.FilesList.getCount()) {
@@ -6398,8 +6381,7 @@ int SendMailDialog::editItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int SendMailDialog::delItem(long pos, long id)
+/*virtual*/int SendMailDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.FilesList.getCount()) {

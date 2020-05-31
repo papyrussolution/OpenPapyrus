@@ -709,7 +709,7 @@ int SLAPI PPSupplExchange_Baltika::ExportPrice()
 			int    pack_code = 0;
 			double bc_pack = 1.0;
 			Sdr_SupplPrice rec;
-			MEMSZERO(rec);
+			// @v10.7.9 @ctr MEMSZERO(rec);
 			if(GetBarcode(grec.ID, rec.WareId, sizeof(rec.WareId), &pack_code, 0, &bc_pack) > 0 && pack_code == 0) {
 				THROW(BillObj->trfr->Rcpt.GetCurrentGoodsPrice(grec.ID, LConfig.Location, 0, &rec.Price));
 				STRNSCPY(rec.PriceTypeId, "001");
@@ -847,7 +847,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 			for(gr_view.InitIteration(); gr_view.NextIteration(&item) > 0;) {
 				double bc_pack = 1.0;
 				Sdr_Baltika_RestPartLine line_rec;
-				MEMSZERO(line_rec);
+				// @v10.7.9 @ctr MEMSZERO(line_rec);
 				if(sstrlen(item.Serial) && GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 					line_rec.Quantity = item.Rest;
 					STRNSCPY(line_rec.UnitId, GetEaText());
@@ -905,7 +905,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 					if(item.Serial[0] && GObj.BelongToGroup(item.GoodsID, tare_ggrpid) > 0) {
 						double bc_pack = 1.0;
 						Sdr_Baltika_RestPartLine line_rec;
-						MEMSZERO(line_rec);
+						// @v10.7.9 @ctr MEMSZERO(line_rec);
 						if(GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 							uint   idx = 0;
 							line_rec.Quantity = item.Rest;
@@ -1005,7 +1005,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 		else
 			Ep.GetExtStrData(Ep.extssClientCode, client_code);
 		Sdr_SupplRest head_rec;
-		MEMSZERO(head_rec);
+		// @v10.7.9 @ctr MEMSZERO(head_rec);
 		soap_e.SetClientCode(client_code);
 		THROW(soap_e.Init(file_name, PPREC_SUPPLREST, PPREC_SUPPLRESTLINE, "CRMWhBalance", "CRMWhBalanceLine", /*&se_filt,*/ "CRMWhBalanceEx"));
 		soap_e.SetMaxTransmitSize(P.MaxTransmitSize);
@@ -1025,7 +1025,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 				else if(!tare_ggrpid || GObj.BelongToGroup(item.GoodsID, tare_ggrpid) <= 0) {
 					double bc_pack = 1.0;
 					Sdr_SupplRestLine line_rec;
-					MEMSZERO(line_rec);
+					// @v10.7.9 @ctr MEMSZERO(line_rec);
 					if(GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 						uint   idx = 0;
 						line_rec.Quantity = item.Rest;
@@ -1058,7 +1058,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 				double rest     = p_rest_list->at(j).Val;
 				double bc_pack  = 1.0;
 				Sdr_SupplRestLine line_rec;
-				MEMSZERO(line_rec);
+				// @v10.7.9 @ctr MEMSZERO(line_rec);
 				if(GetBarcode(goods_id, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 					uint idx = 0;
 					line_rec.Quantity = rest;
@@ -1079,7 +1079,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 					if(GObj.BelongToGroup(item.GoodsID, tare_ggrpid) > 0) {
 						double bc_pack = 1.0;
 						Sdr_SupplRestLine line_rec;
-						MEMSZERO(line_rec);
+						// @v10.7.9 @ctr MEMSZERO(line_rec);
 						if(GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 							uint idx = 0;
 							line_rec.Quantity = item.Rest;
@@ -1141,7 +1141,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 	for(v.InitIteration(); v.NextIteration(&rest_item) > 0;) {
 		double bc_pack = 1.0;
 		Sdr_SupplRestLine line_rec;
-		MEMSZERO(line_rec);
+		// @v10.7.9 @ctr MEMSZERO(line_rec);
 		if(GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 			uint idx = 0;
 			if(wotarebeer_ggrpid && GObj.BelongToGroup(item.GoodsID, wotarebeer_ggrpid) > 0) {
@@ -1323,7 +1323,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 	filt.Period  = P.ExpPeriod;
 	filt.Bbt     = bbtGoodsBills;
 	filt.LocList = P.LocList;
-	MEMSZERO(item);
+	// @v10.7.9 @ctr MEMSZERO(item);
 	THROW(v.Init_(&filt));
 	if(Ep.ProtVer == 0) {
 		soap_e.SetAddedScheme(PPREC_SUPPLDLVRADDR, "CRMClientAddress");
@@ -1506,8 +1506,8 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					double bc_pack = 1.0;
 					Sdr_SupplBillLine line_rec;
 					Sdr_BaltikaBillItemAttrs line_attrs_rec;
-					MEMSZERO(line_rec);
-					MEMSZERO(line_attrs_rec);
+					// @v10.7.9 @ctr MEMSZERO(line_rec);
+					// @v10.7.9 @ctr MEMSZERO(line_attrs_rec);
 					if(GetBarcode(trfr_item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, &is_horeca, &bc_pack) > 0) {
 						BillExpParam exp_param;
 						(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER);
@@ -1615,7 +1615,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								GetQtty(trfr_item.GoodsID, IsKegUnit(trfr_item.GoodsID), &temp_qtty_val, &nominal_price);
 								if(nominal_price > line_rec.Price) {
 									Sdr_BaltikaBillPricePromo promo_rec;
-									MEMSZERO(promo_rec);
+									// @v10.7.9 @ctr MEMSZERO(promo_rec);
 									STRNSCPY(promo_rec.CompanyId, line_rec.CompanyId);
 									STRNSCPY(promo_rec.AddressId, line_rec.AddressId);
 									STRNSCPY(promo_rec.WareHouseId, line_rec.WareHouseId);
@@ -1656,7 +1656,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 								// @v10.1.9 {
 								if(oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp)) {
 									Sdr_BaltikaBillItemAttrs line_attrs_mirror_rec;
-									MEMSZERO(line_attrs_mirror_rec);
+									// @v10.7.9 @ctr MEMSZERO(line_attrs_mirror_rec);
 									memcpy(&line_attrs_mirror_rec, &line_attrs_rec, sizeof(line_attrs_rec));
 									add_link_op_str.Z();
 									if(item.OpID == Ep.MovInOp)
@@ -1743,7 +1743,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 				if(LocObj.Search(dlvr_addr_id, &loc_rec) > 0) {
 					PPID   client_id = dlvr_addr_list.at(i).Key;
 					Sdr_SupplDlvrAddr addr_rec;
-					MEMSZERO(addr_rec);
+					// @v10.7.9 @ctr MEMSZERO(addr_rec);
 					GetObjectName(PPOBJ_PERSON, client_id, cli_name = 0);
 					// specencodesym=%01,294520000;%02,294520003
 					// %01478954         294520003780100
@@ -1859,7 +1859,6 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
     Sdr_BaltikaSaldoAggregate sdr_saldo_aggr;
     Sdr_BaltikaSaldoDoc sdr_saldo_doc;
     Sdr_BaltikaSaldoWare sdr_saldo_ware;
-
 	PPGetFilePath(PPPATH_OUT, "spsaldo.xml", out_file_name);
     xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
     THROW(p_x);

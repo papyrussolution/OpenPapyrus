@@ -754,7 +754,9 @@ int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
 int SLAPI PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	uint   dlg_id = 0;
 	PPStyloPalmPacket pack;
 	StyloPalmDialog * dlg = 0;
@@ -2724,7 +2726,7 @@ int PutGoods(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 	if(pRec && pWriter) {
 		Sdr_PalmGoods rec;
 		SString buf;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  buf);
 		buf.CopyTo(rec.Name, sizeof(rec.Name));
@@ -2762,7 +2764,7 @@ int PutQuots(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 	int    ok = -1;
 	if(pRec && pWriter) {
 		Sdr_PalmQuot rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.GoodsID);
 		pRec->get(2,  rec.QuotKindID);
 		pRec->get(3,  rec.ClientID);
@@ -2782,7 +2784,7 @@ int PutGoodsGrp(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 	if(pRec && pWriter) {
 		SString buf;
 		Sdr_PalmGoodsGrp rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  rec.ParentID);
 		pRec->get(3,  buf);
@@ -2802,7 +2804,7 @@ int PutClients(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		long   flags = 0;
 		SString buf;
 		Sdr_PalmClient rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  buf);
 		buf.CopyTo(rec.Name, sizeof(rec.Name));
@@ -2835,8 +2837,7 @@ int PutDlvrAddr(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		long flags = 0;
 		SString buf;
 		Sdr_PalmDlvrAddr rec;
-		MEMSZERO(rec);
-
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  rec.ClientID);
 		pRec->get(3,  buf);
@@ -2856,8 +2857,7 @@ int PutQuotKind(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		long flags = 0;
 		SString buf;
 		Sdr_PalmQuotKind rec;
-		MEMSZERO(rec);
-
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.ID);
 		pRec->get(3,  buf);
 		buf.CopyTo(rec.Name, sizeof(rec.Name));
@@ -2875,8 +2875,7 @@ int PutBrand(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		long flags = 0;
 		SString buf;
 		Sdr_PalmBrand rec;
-		MEMSZERO(rec);
-
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.BrandID);
 		pRec->get(2,  rec.BrandOwnerID);
 		pRec->get(3,  buf);
@@ -2900,7 +2899,7 @@ int PutDebt(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		long flags = 0;
 		SString buf;
 		Sdr_PalmCliDebt rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1, rec.ClientID);
 		pRec->get(2, rec.BillID);
 		pRec->get(3, buf);
@@ -2909,7 +2908,6 @@ int PutDebt(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		pRec->get(5, rec.BillAmt);
 		pRec->get(6, rec.BillDebt);
 		pRec->get(7, rec.AgentID);
-
 		pWriter->PutElement("ClientID",  rec.ClientID);
 		pWriter->PutElement("AgentID",   rec.AgentID);
 		pWriter->PutElement("BillID",    rec.BillID);
@@ -2929,12 +2927,10 @@ int PutWarehouse(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		long flags = 0;
 		SString buf;
 		Sdr_PalmWarehouse rec;
-		MEMSZERO(rec);
-
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  buf);
 		buf.CopyTo(rec.Name, sizeof(rec.Name));
-
 		pWriter->PutElement("_id",        rec.ID);
 		pWriter->PutElement("Name",       rec.Name);
 		pWriter->PutElement("Latitude",   rec.Latitude);
@@ -3490,7 +3486,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 								drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
 								{
 									Sdr_PalmQuot quot_rec;
-									MEMSZERO(quot_rec);
+									// @v10.7.9 @ctr MEMSZERO(quot_rec);
 									quot_rec.GoodsID    = r_goods_entry.GoodsID;
 									quot_rec.QuotKindID = r_item.Id;
 									quot_rec.ClientID   = 0;
@@ -3520,7 +3516,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 										drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
 										{
 											Sdr_PalmQuot quot_rec;
-											MEMSZERO(quot_rec);
+											// @v10.7.9 @ctr MEMSZERO(quot_rec);
 											quot_rec.GoodsID    = r_goods_entry.GoodsID;
 											quot_rec.QuotKindID = r_item.Id;
 											quot_rec.ClientID   = 0;
@@ -3585,7 +3581,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 				for(uint i = 0; i < rBlk.P_BrandList->getCount(); i++) {
 					const ExportBlock::BrandEntry & r_entry = rBlk.P_BrandList->at(i);
 					Sdr_SPIIBrand out_brand_rec;
-					MEMSZERO(out_brand_rec);
+					// @v10.7.9 @ctr MEMSZERO(out_brand_rec);
 					out_brand_rec.ID      = r_entry.BrandID;
 					out_brand_rec.OwnID   = r_entry.OwnerID;
 					STRNSCPY(out_brand_rec.Name, r_entry.BrandName);
@@ -3607,7 +3603,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 				for(uint i = 0; i < rBlk.P_WhList->getCount(); i++) {
 					const ExportBlock::WhEntry & r_entry = rBlk.P_WhList->at(i);
 					Sdr_SPIILoc out_loc_rec;
-					MEMSZERO(out_loc_rec);
+					// @v10.7.9 @ctr MEMSZERO(out_loc_rec);
 					out_loc_rec.ID = r_entry.WhID;
 					STRNSCPY(out_loc_rec.Name, r_entry.WhName);
 					THROW(p_ie_loc->AppendRecord(&out_loc_rec, sizeof(out_loc_rec)));

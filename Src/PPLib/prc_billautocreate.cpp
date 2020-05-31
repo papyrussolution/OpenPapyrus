@@ -45,7 +45,6 @@ static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, 
 int SLAPI PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 {
 	_OrdArEntry ord_entry;
-
 	int    ok = 1, r = 0;
 	SString temp_buf, fmt_buf, msg_buf;
 	SArray ar_list(sizeof(_OrdArEntry));
@@ -58,7 +57,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt
 	PPIDArray list;
 	PrcssrPrediction::GetPredictCfg(&pr_cfg);
 	LDATE  cur_dt = getcurdate_();
-	THROW_MEM(p_filt = (SStatFilt*)view.CreateFilt((void *)1));
+	THROW_MEM(p_filt = static_cast<SStatFilt *>(view.CreateFilt(reinterpret_cast<void *>(1))));
 	if(pFilt)
 		r = p_filt->Copy(pFilt, 0);
 	else
@@ -107,7 +106,7 @@ int SLAPI PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt
 			{
 				const LDATE base_date = encodedate(1, 1, cur_dt.year());
 				for(uint i = 0; i < ar_list.getCount(); i++) {
-					ord_entry = *(_OrdArEntry*)ar_list.at(i);
+					ord_entry = *static_cast<const _OrdArEntry *>(ar_list.at(i));
 					LDATE  doc_dt = ZERODATE;
 					DateRepIterator dr_iter(ord_entry.Dr, base_date);
 					do {

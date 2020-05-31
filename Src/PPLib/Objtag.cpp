@@ -459,7 +459,7 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 }
 //
 //
-// virtual
+//virtual
 void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjTagListWindow : public PPObjListWindow {

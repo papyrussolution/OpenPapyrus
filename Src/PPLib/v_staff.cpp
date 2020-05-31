@@ -1081,8 +1081,7 @@ int FastEditSumByDivDlg::EditAmount(long * pPos)
 	return ok;
 }
 
-// virtual
-int FastEditSumByDivDlg::addItem(long * pPos, long * pID)
+/*virtual*/int FastEditSumByDivDlg::addItem(long * pPos, long * pID)
 {
 	int ok = -1, create_cal = 0;
 	long pos = -1, id = 0;
@@ -1121,8 +1120,7 @@ int FastEditSumByDivDlg::addItem(long * pPos, long * pID)
 	return ok;
 }
 
-//virtual
-int FastEditSumByDivDlg::editItem(long pos, long id)
+/*virtual*/int FastEditSumByDivDlg::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(id < AMOUNTTYPE_OFFS) {
@@ -1138,8 +1136,7 @@ int FastEditSumByDivDlg::editItem(long pos, long id)
 	return ok;
 }
 
-//virtual
-int FastEditSumByDivDlg::delItem(long pos, long id)
+/*virtual*/int FastEditSumByDivDlg::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if(id < AMOUNTTYPE_OFFS) {
@@ -1163,8 +1160,7 @@ int FastEditSumByDivDlg::delItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int FastEditSumByDivDlg::setupList()
+/*virtual*/int FastEditSumByDivDlg::setupList()
 {
 	int    ok = 1;
 	StrAssocArray * p_list = MakeSumList(CurDivID);
@@ -1452,8 +1448,7 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 	return ok;
 }
 
-//virtual
-int FastEditDivBySumDlg::editItem(long pos, long id)
+/*virtual*/int FastEditDivBySumDlg::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(CurAmtID < AMOUNTTYPE_OFFS) {
@@ -1466,8 +1461,7 @@ int FastEditDivBySumDlg::editItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int FastEditDivBySumDlg::setupList()
+/*virtual*/int FastEditDivBySumDlg::setupList()
 {
 	int    ok = 1;
 	StrAssocArray * p_list = MakeDivList(CurAmtID);

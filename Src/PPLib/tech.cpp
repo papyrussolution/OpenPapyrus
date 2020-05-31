@@ -186,16 +186,8 @@ int SLAPI PPObjTech::CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, in
 	return ok;
 }
 
-int SLAPI PPObjTech::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
-//virtual
-const char * SLAPI PPObjTech::GetNamePtr()
-{
-	return P_Tbl->data.Code;
-}
+/*virtual*/int SLAPI PPObjTech::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+/*virtual*/const char * SLAPI PPObjTech::GetNamePtr() { return P_Tbl->data.Code; }
 
 int SLAPI PPObjTech::SearchByCode(const char * pCode, TechTbl::Rec * pRec)
 {

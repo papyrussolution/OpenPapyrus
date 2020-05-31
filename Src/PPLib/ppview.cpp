@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -849,8 +849,7 @@ int SLAPI PPBaseFilt::Write(SBuffer & rBuf, long) const
 	return ok;
 }
 
-//virtual
-int SLAPI PPBaseFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int SLAPI PPBaseFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	return -1;
 }
@@ -1089,8 +1088,7 @@ int SLAPI PPBaseFilt::IsEqual(const PPBaseFilt * pS, int) const
 	return ok;
 }
 
-// virtual
-int SLAPI PPBaseFilt::IsEmpty() const
+/*virtual*/int SLAPI PPBaseFilt::IsEmpty() const
 {
 	PPBaseFilt * p_filt = 0;
 	PPView::CreateFiltInstance(Signature, &p_filt);
@@ -1923,14 +1921,12 @@ int SLAPI PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrow
 	return ok;
 }
 
-// virtual
-int SLAPI PPView::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
+/*virtual*/int SLAPI PPView::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
 	return -1;
 }
 
-// virtual
-int SLAPI PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+/*virtual*/int SLAPI PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
 	THROW_SL(pCtx->Serialize(dir, ServerInstId, rBuf));
@@ -2497,8 +2493,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 {
 }
 
-//virtual
-int PPTimeChunkBrowser::ExportToExcel()
+/*virtual*/int PPTimeChunkBrowser::ExportToExcel()
 {
 	int    ok = -1;
 	ComExcelApp * p_app = 0;

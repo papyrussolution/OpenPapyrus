@@ -216,16 +216,11 @@ int PPDrvReader::Listen(SString & rOutput)
 		}
 		*/
 	}
-	/*
-	CATCH
-		ok = 0;
-	ENDCATCH;
-	*/
+	//CATCHZOK
 	return ok;
 }
 
-// virtual
-int PPDrvReader::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)
+/*virtual*/int PPDrvReader::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)
 {
 	int    err = 0;
 	SString value;

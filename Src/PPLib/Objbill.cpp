@@ -483,11 +483,13 @@ int SLAPI PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 						if(!restr_bounds.CheckValEps(validated_price, 1E-7)) { // @v10.2.12
 							//THROW(restr_bounds.CheckVal(validated_price));
 							if(restr_bounds.low > 0.0) {
-								temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY);
+								SString & r_nam_buf = SLS.AcquireRvlStr();
+								temp_buf.Z().Cat(restr_bounds.low, SFMT_MONEY).Space().Cat(GetGoodsName(r_ti.GoodsID, r_nam_buf));
 								THROW_PP_S(validated_price >= restr_bounds.low, PPERR_PRICERESTRLOW, temp_buf);
 							}
 							if(restr_bounds.upp > 0.0) {
-								temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY);
+								SString & r_nam_buf = SLS.AcquireRvlStr();
+								temp_buf.Z().Cat(restr_bounds.upp, SFMT_MONEY).Space().Cat(GetGoodsName(r_ti.GoodsID, r_nam_buf));
 								THROW_PP_S(validated_price <= restr_bounds.upp, PPERR_PRICERESTRUPP, temp_buf);
 							}
 						}
@@ -639,8 +641,7 @@ int SLAPI PPObjBill::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-//virtual
-int  SLAPI PPObjBill::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int  SLAPI PPObjBill::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    r = 1;
 	PPBillPacket pack;
@@ -4043,7 +4044,7 @@ int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			//
 			AcctID accid;
 			PPID   acc_sheet_id = 0;
-			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /* @curID */, &accid, &acc_sheet_id) > 0)
+			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /*@curID*/, &accid, &acc_sheet_id) > 0)
 				pCard->AssetAcctID = accid;
 
 			int    op_code = 0;
@@ -8587,7 +8588,7 @@ int SLAPI PPObjBill::UpdatePool(PPID poolID, int use_ta)
 		if(ExtractPacket(poolID, &pack) > 0) {
 			P_Tbl->CalcPoolAmounts(PPASS_OPBILLPOOL, poolID, &amounts);
 			pack.Amounts.copy(amounts);
-			const double main_amount = amounts.Get(PPAMT_MAIN, 0L /* @curID */);
+			const double main_amount = amounts.Get(PPAMT_MAIN, 0L/*@curID*/);
 			pack.Rec.Amount = BR2(main_amount);
 			THROW(FillTurnList(&pack));
 			THROW(UpdatePacket(&pack, 0));

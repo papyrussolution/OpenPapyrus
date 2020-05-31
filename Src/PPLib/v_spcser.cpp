@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -74,17 +74,14 @@ int SpecSerFiltDlg::getDTS(SpecSeriesFilt * pData)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
 	DIALOG_PROC_BODYERR(SpecSerFiltDlg, static_cast<SpecSeriesFilt *>(pBaseFilt));
 }
 
-// virtual
-
-int SLAPI PPViewSpecSeries::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewSpecSeries::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -140,7 +137,7 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 		temp_buf = params[2].sptr;
 		int   fld_id = params[3].lval;
 		SpecSeries2Tbl::Rec ss_rec;
-		MEMSZERO(ss_rec);
+		// @v10.7.9 @ctr MEMSZERO(ss_rec);
 		temp_buf.CopyTo(ss_rec.Tail, sizeof(ss_rec.Tail));
 		temp_buf.Z();
 		if(fld_id == SPCSNEXSTR_GOODSNAME && goods_id) {
@@ -159,8 +156,7 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 // static
 int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
 
-// virtual
-DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncSpcSnTextFld, BTS_STRING, dbqf_spcsn_textfld_iisi, 4, BTS_INT, BTS_INT, BTS_STRING, BTS_INT);
 
@@ -217,8 +213,7 @@ DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pS
 	return q;
 }
 
-// virtual
-void SLAPI PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 }
 
@@ -335,7 +330,7 @@ int SLAPI PPViewSpecSeries::AddItem()
 	int    ok = -1;
 	PPID   id = 0;
 	SpecSeries2Tbl::Rec rec;
-	MEMSZERO(rec);
+	// @v10.7.9 @ctr MEMSZERO(rec);
 	SpecSerDlg * p_dlg = new SpecSerDlg();
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&rec);
@@ -385,8 +380,7 @@ int SLAPI PPViewSpecSeries::Import()
 	return ImportSpecSeries();
 }
 
-// virtual
-int SLAPI PPViewSpecSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewSpecSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;

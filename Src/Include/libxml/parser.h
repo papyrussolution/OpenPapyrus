@@ -607,6 +607,7 @@ typedef void (*startElementNsSAX2Func)(void * ctx, const xmlChar * localname, co
 typedef void (*endElementNsSAX2Func)(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI);
 
 struct xmlSAXHandler {
+	xmlSAXHandler(); // @v10.7.9
 	internalSubsetSAXFunc internalSubset;
 	isStandaloneSAXFunc isStandalone;
 	hasInternalSubsetSAXFunc hasInternalSubset;
@@ -630,12 +631,12 @@ struct xmlSAXHandler {
 	commentSAXFunc comment;
 	warningSAXFunc warning;
 	errorSAXFunc error;
-	fatalErrorSAXFunc fatalError; /* unused error() get all the errors */
+	fatalErrorSAXFunc fatalError; // unused error() get all the errors 
 	getParameterEntitySAXFunc getParameterEntity;
 	cdataBlockSAXFunc cdataBlock;
 	externalSubsetSAXFunc externalSubset;
 	uint initialized;
-	/* The following fields are extensions available only on version 2 */
+	// The following fields are extensions available only on version 2 
 	void * _private;
 	startElementNsSAX2Func startElementNs;
 	endElementNsSAX2Func endElementNs;

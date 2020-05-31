@@ -107,8 +107,7 @@ int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	return 1;
 }
 
-//virtual
-int SLAPI PPObjGoodsGroup::MakeReserved(long flags)
+/*virtual*/int SLAPI PPObjGoodsGroup::MakeReserved(long flags)
 {
     int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -128,8 +127,7 @@ int SLAPI PPObjGoodsGroup::MakeReserved(long flags)
 }
 
 //int SLAPI PPObjGoodsGroup::Remove(PPID id, long extraData, uint flags /* = user_request | use_transaction */)
-//virtual
-int  SLAPI PPObjGoodsGroup::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int  SLAPI PPObjGoodsGroup::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    ok = -1;
 	int    user_request = BIN(options & PPObject::user_request);
@@ -225,6 +223,7 @@ static int SLAPI EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 			setCtrlString(CTL_RCVRGGRP_LOG, Data.LogFileName);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 0, GoodsGroupRecoverParam::fCorrect);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 1, GoodsGroupRecoverParam::fDelTempAltGrp);
+			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 2, GoodsGroupRecoverParam::fDelUnusedBrands); // @v10.7.9
 			SetClusterData(CTL_RCVRGGRP_FLAGS, Data.Flags);
 			AddClusterAssocDef(CTL_RCVRGGRP_EGA, 0, GoodsGroupRecoverParam::egaNone);
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 1, GoodsGroupRecoverParam::egaReport);
@@ -291,10 +290,43 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 		const int del_temp_alt = BIN(param.Flags & GoodsGroupRecoverParam::fDelTempAltGrp);
 		Goods2Tbl::Key1 k;
 		SString fmt_buf, msg_buf, dest_grp_name, temp_buf;
+		PPIDArray brand_to_delete_list;
 		ObjCollection obj_coll;
+		PPObjBrand br_obj;
+		PPWait(1);
 		if(del_temp_alt)
 			obj_coll.CreateFullList(gotlfExcludeDyn|gotlfExcludeObjBill|gotlfExcludeObsolete);
-		PPWait(1);
+		if(param.Flags & GoodsGroupRecoverParam::fDelUnusedBrands) {
+			GoodsCore & r_gc = *P_Tbl;
+			PPIDArray brand_list;
+			PPLoadText(PPTXT_FINDINGUNREFBRANDS, msg_buf);
+			PPWaitMsg(msg_buf);
+			br_obj.GetListByFilt(0, &brand_list);
+			brand_list.sortAndUndup();
+			for(uint bridx = 0; bridx < brand_list.getCount(); bridx++) {
+				const PPID brand_id = brand_list.get(bridx);
+				PPBrandPacket br_pack;
+				if(br_obj.Get(brand_id, &br_pack) > 0) {
+					Goods2Tbl::Key3 k3;
+					MEMSZERO(k3);
+					k3.Kind = PPGDSK_GOODS;
+					k3.BrandID = brand_id;
+					if(r_gc.search(3, &k3, spEq)) {
+						;
+					}
+					else if(BTROKORNFOUND) {
+						// На брэнд '%s' не ссылается ни один товар
+						pLogger->LogString(PPTXT_LOG_BRANDHASNTREFS, br_pack.Rec.Name);
+						brand_to_delete_list.add(brand_id);
+					}
+					else {
+						PPSetErrorDB();
+						pLogger->LogLastError();
+					}
+				}
+				PPWaitPercent(bridx+1, brand_list.getCount(), msg_buf);
+			}
+		}
 		PPTransaction tra(BIN(param.Flags & (GoodsGroupRecoverParam::fCorrect|GoodsGroupRecoverParam::fDelTempAltGrp)));
 		THROW(tra);
 		{
@@ -312,7 +344,7 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 			k.ParentID = 0;
 			q.select(ggrp_tbl.ID, ggrp_tbl.Name, 0L).where(ggrp_tbl.Kind == PPGDSK_GROUP);
 			for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
-				PPID    grp_id = ggrp_tbl.data.ID;
+				const PPID  grp_id = ggrp_tbl.data.ID;
 				grp_name = ggrp_tbl.data.Name;
 				if(IsTempAlt(grp_id) > 0) {
 					temp_list.addUnique(grp_id);
@@ -341,6 +373,20 @@ int SLAPI PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogg
 						THROW(RemoveObjV(grp_id, &obj_coll, PPObject::not_checkrights|PPObject::not_addtolog|PPObject::not_objnotify|PPObject::no_wait_indicator, 0));
 					}
 					PPWaitPercent(tlc+i+1, tdlc, msg_buf);
+				}
+			}
+		}
+		if(brand_to_delete_list.getCount() && param.Flags & GoodsGroupRecoverParam::fCorrect) {
+			for(uint bridx = 0; bridx < brand_to_delete_list.getCount(); bridx++) {
+				PPID   brand_id = brand_to_delete_list.get(bridx);
+				PPBrandPacket br_pack;
+				if(br_obj.Get(brand_id, &br_pack) > 0) {
+					int    br_del_result = br_obj.PutPacket(&brand_id, 0, 0);
+					if(br_del_result > 0) {
+						pLogger->LogString(PPTXT_LOG_BRANDWOREFSREMOVED, br_pack.Rec.Name);
+					}
+					else
+						pLogger->LogLastError();
 				}
 			}
 		}
@@ -543,16 +589,14 @@ int SLAPI PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-// virtual
-ListBoxDef * SLAPI PPObjGoodsGroup::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * SLAPI PPObjGoodsGroup::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-// virtual
-int SLAPI PPObjGoodsGroup::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int SLAPI PPObjGoodsGroup::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)
@@ -1938,7 +1982,7 @@ int SLAPI PPObjBrand::GetListByFilt(const BrandFilt * pFilt, PPIDArray * pList)
 	int    ok = -1;
 	PPIDArray result_list;
 	Goods2Tbl::Key2 k2;
-	const PPID single_owner_id = pFilt->OwnerList.GetSingle();
+	const PPID single_owner_id = pFilt ? pFilt->OwnerList.GetSingle() : 0;
 	BExtQuery q(P_Tbl, 2);
 	DBQ * dbq = &(P_Tbl->Kind == Kind);
 	dbq = ppcheckfiltid(dbq, P_Tbl->ManufID, single_owner_id);
@@ -1961,8 +2005,7 @@ ListBoxDef * SLAPI PPObjBrand::Selector(void * extraPtr)
 	return _Selector2(0, 0, PPObjGoods::selfByName, 0, 0, 0);
 }
 
-// virtual
-void * SLAPI PPObjBrand::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjBrand::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return 0;
 #if 0 // {
@@ -2826,14 +2869,42 @@ int SLAPI PPViewBrand::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(BrandFiltDialog, p_filt);
 }
 
-int SLAPI PPViewBrand::InitIteration()
+/*virtual*/int SLAPI PPViewBrand::ViewTotal()
 {
-	return 0;
+	TDialog * dlg = new TDialog(DLG_BRANDTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
+		long count = 0;
+		BrandViewItem item;
+		PPWait(1);
+		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
+			count++;
+		PPWait(0);
+		dlg->setCtrlLong(CTL_BRANDTOTAL_COUNT, count);
+		ExecViewAndDestroy(dlg);
+		return -1;
+	}
+	else
+		return 0;
 }
 
-int FASTCALL PPViewBrand::NextIteration(BrandViewItem *)
+int SLAPI PPViewBrand::InitIteration()
 {
-	return 0;
+	return MakeList();
+}
+
+int FASTCALL PPViewBrand::NextIteration(BrandViewItem * pItem)
+{
+	int    ok = -1;
+	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
+		const PPID id = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()))->ID;
+		PPBrandPacket brand;
+		if(Obj.Get(id, &brand) > 0) {
+			ASSIGN_PTR(pItem, brand.Rec);
+			P_DsList->incPointer();
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 int SLAPI PPViewBrand::MakeList()
@@ -2871,6 +2942,7 @@ int SLAPI PPViewBrand::MakeList()
 		}
 	}
 	CATCHZOK
+	CALLPTRMEMB(P_DsList, setPointer(0));
 	return ok;
 }
 

@@ -507,7 +507,7 @@ SEnumImp * FtpClient::Enum(const char * pWildcard)
 				if(GetLastError() == ERROR_NO_MORE_FILES)
 					ok = -1;
 			}
-			ASSIGN_PTR((SDirEntry *)pRec, entry);
+			ASSIGN_PTR(static_cast<SDirEntry *>(pRec), entry);
 			return ok;
 		}
 	protected:

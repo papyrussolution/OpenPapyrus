@@ -131,7 +131,7 @@ int SLAPI PPObjSecur::AssignImages(ListBoxDef * pDef)
 	return 1;
 }
 
-// virtual
+//virtual
 ListBoxDef * SLAPI PPObjSecur::Selector(void * extraPtr)
 {
 	if(extraPtr && static_cast<const ExtraParam *>(extraPtr)->IsConsistent())
@@ -141,7 +141,7 @@ ListBoxDef * SLAPI PPObjSecur::Selector(void * extraPtr)
 	return p_def;
 }
 
-// virtual
+//virtual
 int SLAPI PPObjSecur::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, &SelectorP);
@@ -559,7 +559,7 @@ int SLAPI PPObjSecur::Browse(void * extraPtr)
 	return ok;
 }
 
-// virtual
+//virtual
 void * SLAPI PPObjSecur::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjSecurListWindow : public PPObjListWindow {

@@ -3317,7 +3317,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							P_Pack->CalcTotal(&btd, 0);
 							btd.Amounts.copy(P_Pack->Amounts);
 							if(!P_BObj->CheckRights(BILLRT_ACCSCOST))
-								btd.Amounts.Put(PPAMT_BUYING, 0L /* @curID */, 0, 0, 1);
+								btd.Amounts.Put(PPAMT_BUYING, 0L/*@curID*/, 0, 0, 1);
 							AmtListDialog * dlg = new AmtListDialog(DLG_GOODSBILLTOTAL, CTL_GBILLTOTAL_AMTLIST, 1, &btd.Amounts, 0, 0, 0);
 							if(CheckDialogPtrErr(&dlg)) {
 								dlg->setCtrlLong(CTL_GBILLTOTAL_LINES,  btd.LinesCount);

@@ -1708,8 +1708,7 @@ PersonFilt & FASTCALL PersonFilt::operator = (const PersonFilt &src)
 int SLAPI PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, extssNameText, SrchStr_, rBuf); }
 int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
 
-//virtual
-int SLAPI PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int SLAPI PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {
@@ -2119,8 +2118,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-// virtual
-void SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & PersonFilt::fShowFiasRcgn && Filt.IsLocAttr() && P_TempPsn) {
@@ -3011,7 +3009,7 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 	SString temp_buf;
 	SFile  file;
 	Sdr_CPosAuth rec;
-	MEMSZERO(rec);
+	// @v10.7.9 @ctr MEMSZERO(rec);
 	rec._id = 1;
 	p_dict->GetDbUUID(&guid);
 	guid.ToStr(S_GUID::fmtIDL, temp_buf);

@@ -109,8 +109,7 @@ IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); SLAPI DebtTrnovrFilt::DebtTrnovrFilt() : P
 	Init(1, 0);
 }
 
-//virtual
-int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 1) {

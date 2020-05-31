@@ -388,7 +388,6 @@ int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use
 
 	IterCounter cntr;
 	TempOrderTbl * p_o = 0;
-	TempOrderTbl::Rec ord_rec;
 	TempGoodsStatTbl::Key0 k;
 	TempGoodsStatTbl * p_t = P_TempTbl;
 	BExtQuery q(P_TempTbl, 0);
@@ -410,7 +409,8 @@ int SLAPI PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use
 					(Filt.QttyAvgRange.IsZero() || Filt.QttyAvgRange.CheckX(p_t->data.QttyAvg)) &&
 					(Filt.AmtAvgRange.IsZero()  || Filt.AmtAvgRange.CheckX(p_t->data.AmtAvg)) &&
 					(Filt.QttyVarRange.IsZero() || Filt.QttyVarRange.CheckX(p_t->data.QttyVar))) {
-					MEMSZERO(ord_rec);
+					TempOrderTbl::Rec ord_rec;
+					// @v10.7.9 @ctr MEMSZERO(ord_rec);
 					ord_rec.ID = p_t->data.GoodsID;
 					// Если установлены циклы, то допускается сортировка только по наименованию //
 					if(ord == OrdByGoodsName || CycleList.getCount()) {
@@ -1518,8 +1518,7 @@ int SLAPI PPViewSStat::CalcTotal(SStatTotal * pTotal)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewSStat::ViewTotal()
+/*virtual*/int SLAPI PPViewSStat::ViewTotal()
 {
 	int    ok = 1;
 	SStatTotal total;

@@ -274,17 +274,12 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 		/* how much data there is remaining in the buffer to deal with
 		   before we should read more from the network */
 		remainbuf = p->writeidx - p->readidx;
-
 		/* if remainbuf turns negative we have a bad internal error */
 		assert(remainbuf >= 0);
-
 		if(remainbuf < blocksize) {
-			/* If we have less than a blocksize left, it is too
-			   little data to deal with, read more */
+			// If we have less than a blocksize left, it is too little data to deal with, read more 
 			ssize_t nread;
-
-			/* move any remainder to the start of the buffer so
-			   that we can do a full refill */
+			// move any remainder to the start of the buffer so that we can do a full refill 
 			if(remainbuf) {
 				memmove(p->buf, &p->buf[p->readidx], remainbuf);
 				p->readidx = 0;
@@ -294,18 +289,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 				/* nothing to move, just zero the indexes */
 				p->readidx = p->writeidx = 0;
 			}
-
 			/* now read a big chunk from the network into the temp buffer */
-			nread =
-			    LIBSSH2_RECV(session, &p->buf[remainbuf],
-			    PACKETBUFSIZE - remainbuf,
-			    LIBSSH2_SOCKET_RECV_FLAGS(session));
+			nread = LIBSSH2_RECV(session, &p->buf[remainbuf], PACKETBUFSIZE - remainbuf, LIBSSH2_SOCKET_RECV_FLAGS(session));
 			if(nread <= 0) {
 				/* check if this is due to EAGAIN and return the special
 				   return code if so, error out normally otherwise */
 				if((nread < 0) && (nread == -EAGAIN)) {
-					session->socket_block_directions |=
-					    LIBSSH2_SESSION_BLOCK_INBOUND;
+					session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_INBOUND;
 					return LIBSSH2_ERROR_EAGAIN;
 				}
 				_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Error recving %d bytes (got %d)", PACKETBUFSIZE - remainbuf, -nread);
@@ -333,8 +323,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 				   check is only done for the initial block since once we have
 				   got the start of a block we can in fact deal with fractions
 				 */
-				session->socket_block_directions |=
-				    LIBSSH2_SESSION_BLOCK_INBOUND;
+				session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_INBOUND;
 				return LIBSSH2_ERROR_EAGAIN;
 			}
 
@@ -362,15 +351,10 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 			p->packet_length = _libssh2_ntohu32(block);
 			if(p->packet_length < 1)
 				return LIBSSH2_ERROR_DECRYPT;
-
 			p->padding_length = block[4];
-
 			/* total_num is the number of bytes following the initial
 			   (5 bytes) packet length and padding length fields */
-			total_num =
-			    p->packet_length - 1 +
-			    (encrypted ? session->remote.mac->mac_len : 0);
-
+			total_num = p->packet_length - 1 + (encrypted ? session->remote.mac->mac_len : 0);
 			/* RFC4253 section 6.1 Maximum Packet Length says:
 			 *
 			 * "All implementations MUST be able to process
@@ -382,9 +366,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 			if(total_num > LIBSSH2_PACKET_MAXPAYLOAD) {
 				return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
 			}
-
-			/* Get a packet handle put data into. We get one to
-			   hold all data, including padding and MAC. */
+			// Get a packet handle put data into. We get one to hold all data, including padding and MAC. 
 			p->payload = (uchar *)LIBSSH2_ALLOC(session, total_num);
 			if(!p->payload) {
 				return LIBSSH2_ERROR_ALLOC;
@@ -580,13 +562,9 @@ static int send_existing(LIBSSH2_SESSION * session, const uchar * data, size_t d
  *
  * This function DOES NOT call _libssh2_error() on any errors.
  */
-int _libssh2_transport_send(LIBSSH2_SESSION * session,
-    const uchar * data, size_t data_len,
-    const uchar * data2, size_t data2_len)
+int _libssh2_transport_send(LIBSSH2_SESSION * session, const uchar * data, size_t data_len, const uchar * data2, size_t data2_len)
 {
-	int blocksize =
-	    (session->state & LIBSSH2_STATE_NEWKEYS) ?
-	    session->local.crypt->blocksize : 8;
+	int blocksize = (session->state & LIBSSH2_STATE_NEWKEYS) ? session->local.crypt->blocksize : 8;
 	int padding_length;
 	size_t packet_length;
 	int total_length;

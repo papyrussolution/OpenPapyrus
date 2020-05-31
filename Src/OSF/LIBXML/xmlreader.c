@@ -1754,7 +1754,7 @@ xmlTextReader * xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
 		xmlGenericError(0, "xmlNewTextReader : malloc failed\n");
 		return 0;
 	}
-	ret->sax = (xmlSAXHandler*)SAlloc::M(sizeof(xmlSAXHandler));
+	ret->sax = static_cast<xmlSAXHandler *>(SAlloc::M(sizeof(xmlSAXHandler)));
 	if(!ret->sax) {
 		xmlBufFree(ret->buffer);
 		SAlloc::F(ret);
@@ -4226,7 +4226,7 @@ int xmlTextReaderSetup(xmlTextReader * reader, xmlParserInputBuffer * input, con
 		xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 		return -1;
 	}
-	SETIFZ(reader->sax, (xmlSAXHandler*)SAlloc::M(sizeof(xmlSAXHandler)));
+	SETIFZ(reader->sax, static_cast<xmlSAXHandler *>(SAlloc::M(sizeof(xmlSAXHandler))));
 	if(reader->sax == NULL) {
 		xmlGenericError(0, "xmlTextReaderSetup : malloc failed\n");
 		return -1;

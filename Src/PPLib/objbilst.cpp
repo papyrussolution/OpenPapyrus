@@ -120,8 +120,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-// virtual
-void * SLAPI PPObjBillStatus::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjBillStatus::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjBillStatusListWindow : public PPObjListWindow {
 	public:

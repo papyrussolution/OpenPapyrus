@@ -1032,7 +1032,7 @@ private:
 //
 //
 struct GdsClsCalcExprContext {
-	SLAPI  GdsClsCalcExprContext(PPGdsClsPacket * pGcPack, PPGoodsPacket * pGPack);
+	SLAPI  GdsClsCalcExprContext(const PPGdsClsPacket * pGcPack, const PPGoodsPacket * pGPack);
 	//
 	// Descr: Конструктор, используемый для расчетов формул в структуре товара
 	//
@@ -1047,8 +1047,8 @@ struct GdsClsCalcExprContext {
 	SLAPI  GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack);
 	SLAPI  GdsClsCalcExprContext(const CCheckItem * pCi); // @v10.7.6
 
-	PPGdsClsPacket * P_GcPack;
-	PPGoodsPacket  * P_GPack;
+	const  PPGdsClsPacket * P_GcPack;
+	const  PPGoodsPacket  * P_GPack;
 	const  PPGoodsStruc * P_GsPack;
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
@@ -1898,7 +1898,7 @@ private:
 #define PPR_DEL         0x0008
 #define PPR_ADM         0x0010
 //
-// @v10.7.9 Специальные права доступа динамических объектов 
+// @v10.7.9 Специальные права доступа динамических объектов
 //
 #define DYNOBJRT_RMVALL 0x0100 // Удаление всей выборки объектов
 //
@@ -2170,7 +2170,7 @@ public:
 			int    Dirty;
 			LDATETIME LastSaveTm; // Время последнего сохранения пула в базе данных
 		};
-		State St; // @transient 
+		State St; // @transient
 	};
 
 	explicit SLAPI  PPConfigDatabase(const char * pDbDir);
@@ -3942,7 +3942,7 @@ struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name
 	char   Templ[20];      // Шаблон
 	char   Reserve[56];    // @reserve // @v10.7.6 [60]-->[56]
-	long   Speciality;     // @v10.7.6 Специальное назначение шаблона   
+	long   Speciality;     // @v10.7.6 Специальное назначение шаблона
 	long   Flags;          // Флаги
 	long   Reserve1;       // @reserve
 	long   Reserve2;       // @reserve
@@ -4552,8 +4552,7 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	long   Flags;              //
 	PPID   DefUnitID;          // ->Ref(PPOBJ_UNIT)
 	PPID   DefPckgTypeID;      //
-	int16  MinUniqBcLen;       // Мин длина штрих-кода по которому
-		// допускается идентифицировать товар при передаче между разделами БД
+	int16  MinUniqBcLen;       // Мин длина штрих-кода по которому допускается идентифицировать товар при передаче между разделами БД
 	int16  ACGI_Threshold;     // Количество дней с даты последнего прихода товара, в течении которых еще следует
 		// загружать полностью израсходованный товар на кассы при полной загрузке (0 = infinity)
 		// @v4.6.6 Этот параметр также определяет выбор товаров по цене лота
@@ -4565,9 +4564,7 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPID   MtxRestrQkID;       // ->Ref(PPOBJ_QUOTKIND) Вид котировки ограничение товарной матрицы
 	char   WghtCntPrefix[12];  // Префикс счетного весового товара (возможен специальный вариант передачи на весы).
 	PPID   DefGroupID;         // Товарная группа по умолчанию
-	SVerT  Ver__;              // @anchor Версия, сформировавшая запись. Если размер считанной записи меньше или равен,
-		// чем (&Ver-this), то версия предшествует 7.7.0
-	//
+	SVerT  Ver__;              // @anchor Версия, сформировавшая запись. Если размер считанной записи меньше или равен, чем (&Ver-this), то версия предшествует 7.7.0
 	PPID   BcPrefixGuaTagID;   // Тег, содержащий допустимые префиксы штрихкодов для глобальной учетной записи
 	PPID   DefGoodsID;         // Товар по умолчанию для подстановки вместо неопределенных или не идентифицированных товаров
 	uint8  Reserve[8];         //
@@ -5416,7 +5413,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	long   Flags2;                      // CCFLG2_XXX Дополнительное поле флагов
 	int16  IltiCvtQttyEpsilon;          // 1E-7 Величина количественного дефицита, которую следует игнорировать при
 		// проведении расходных товарных операций. Умножается на 1E-7.
-	int16  Reserve3;                    // @alignment
+	// @v10.7.9 int16  Reserve3;                    // @alignment
+	int16  StringHistoryUsage;          // @v10.7.9 Использование StringHistory: 0 - disabled, 1 - enabled, -1 - в зависимости от установки в конфигурации пользовательского интерфейса
 	LDATE  _InvcMergeTaxCalcAlg2Since;  // Дата, начиная с которой применяется алгорим 2 для расчета налогов по
 		// объединенным строкам счет-фактуры (для печати).
 	PPID   PrepayInvoiceGoodsID;        // @v9.7.0 Товара для печати счета-фактуры на предоплату по бухгалтерскому документу
@@ -5928,9 +5926,9 @@ public:
 	int    SLAPI GetCommonMqsConfig(PPAlbatrossConfig & rCfg);
 	const SString & SLAPI GetLastMessage() const { return LastMsg; }
 	const SString & SLAPI GetUrlBase() const { return UrlBase; }
-	// 
+	//
 	// Descr: Utility
-	// 
+	//
 	UhttTagItem * SLAPI GetUhttTagText(PPID objType, PPID objID, PPID tagID, const char * pTagSymb);
 private:
 	FARPROC SLAPI GetFuncEntryAndSetupSess(const char * pFuncName, PPSoapClientSession & rSess);
@@ -10014,8 +10012,19 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 struct PPTaxPeriod {       // @persistent @size=6
 	SString & SLAPI Format(SString & rBuf) const;
 	enum {
-		eEmpty = 0, eYear, eSemiyear1, eSemiyear2, eQuart1, eQuart2, eQuart3, eQuart4,
-		eMonth, eDec1, eDec2, eDec3, eDate
+		eEmpty = 0, 
+		eYear, 
+		eSemiyear1, 
+		eSemiyear2, 
+		eQuart1, 
+		eQuart2, 
+		eQuart3, 
+		eQuart4,
+		eMonth, 
+		eDec1, 
+		eDec2, 
+		eDec3, 
+		eDate
 	};
 	int16  Year;           //
 	int8   Month;          // @#{1..12}
@@ -10044,7 +10053,7 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 		LDATE  DocDate;       // Дата подписи декларации
 		char   PaymType[8];   // Тип платежа
 		char   TaxClass2[24]; // Код бюджетной классификации налога с 2005 года (20 знаков)
-		char   UIN[24];       // @v8.0.9 Код УИН
+		char   UIN[24];       // Код УИН
 	};
 	PPID   Tag;              // const = PPOBJ_BILL
 	PPID   BillID;           // ИД документа
@@ -10067,6 +10076,8 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 	int16  PayerStatus;      // Статус плательщика (1..7, default 1)
 	// Part stored in variable tail of record
 	TaxMarkers Txm;
+	int16  FormalPurpose;    // @v10.7.9 Формальное назначение платежа (4byte-aligned with Txm)
+	uint8  Reserve[24];      // @v10.7.9 @reserve
 };
 //
 // Descr: Информация по фрахту документа
@@ -16578,8 +16589,8 @@ private:
 
 struct PPTssModel { // @persistent @store(Reference2Tbl)
 	static const uint16 Default_OptRangeStep; // 288
-	static const uint16 Default_OptRangeStepCount; // 6
-	static const uint16 Default_OptRangeMultiLimit; // 6
+	static const uint16 Default_OptRangeStepCount; // 1
+	static const uint16 Default_OptRangeMultiLimit; // 250
 	static const uint16 Default_CqaMatchPromille; // 18
 
 	SLAPI  PPTssModel();
@@ -16597,9 +16608,10 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 			// Методика вычисления лимита (предварительно) такая: среднее значение доходности всех кандидатов минус 3 дисперсии.
 	};
 	enum {
-		tcAmount = 0,
-		tcVelocity = 1,
-		tcWinRatio = 2
+		tcAmount     = 0, // Абсолютный объем выигрыша
+		tcVelocity   = 1, // Скорость выигрыша
+		tcWinRatio   = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
+		tcAngleRatio = 3  // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
 	};
 	//
 	// @v10.7.6
@@ -16616,11 +16628,13 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	// Descr: Варианты предварительной сортировки списка стратегий перед селекцией
 	//
 	enum {
-		sppsResult    = 1,
-		sppsProb      = 2,
-		sppsVelocity  = 3,
-		sppsCqaFactor = 4, // Значение CQA
-		sppsShuffle   = 5  // Случайное перемешивание  
+		sppsResult     = 1,
+		sppsProb       = 2,
+		sppsVelocity   = 3,
+		sppsCqaFactor  = 4, // Значение CQA
+		sppsShuffle    = 5, // Случайное перемешивание
+		sppsStakeCount = 6  // @v10.7.9 Количество ставок, полученных при генерации стратегии (критерий основывается на предположении, что
+			// чем больше таких ставок, тем больше доверия вызывает стратегия).
 	};
 	uint16 BestSubsetDimention;
 	uint16 BestSubsetMaxPhonyIters;
@@ -16640,9 +16654,9 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
 	uint8  OptRangeStep_Measure;    // @v10.7.6 orsXXX
 	uint8  StrategyPoolSortOrder;   // @v10.7.7 Порядок сортировки пула стратегий перед селекцией
-	uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными, 
+	uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными,
 		// что является поводом для удаления из пула стратегий самых малодоходных из них перед селекцией. Если 0, то не проверять на соответствие этому фактору.
-	uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1   
+	uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
 	long   Flags;
 	long   Reserve1;
 	long   Reserve2;
@@ -16702,7 +16716,7 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	double SellMarg;
 	int16  Prec;
 	char   CurrencySymb[12];
-	double SpikeQuant;     //
+	double SpikeQuant_t;   //
 	double AvgSpread;      //
 	uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 	uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
@@ -16823,15 +16837,16 @@ public:
 	struct StrategyResultValueEx : public StrategyResultValue { // @transient
 		SLAPI  StrategyResultValueEx();
 		StrategyResultValueEx & SLAPI Z();
-		double Peak;   // Максимальное значение, которого достигла котировка в течении сессии
-		double Bottom; // Минимальное значение, которого достигла котировка в течении сессии
-		uint   LastPoint; // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
-		STimeChunk TmR;     // @v10.4.11
-		int    StrategyIdx; // @v10.4.11 [0..], (<0) - undefined. Strategy index at the StrategyContainer
-		double OptFactor;   // @v10.4.11
-		double OptFactor2;  // @v10.4.11
-		double TrendErr;    // @v10.4.11
-		double TrendErrRel; // @v10.4.11
+		double Peak;            // Максимальное значение, которого достигла котировка в течении сессии
+		double Bottom;          // Минимальное значение, которого достигла котировка в течении сессии
+		uint   StartPoint;      // @10.7.9 Точка ряда, на которой алгоритм TsCalcStrategyResult2 начал работу
+		uint   LastPoint;       // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
+		STimeChunk TmR;         // @v10.4.11
+		int    StrategyIdx;     // @v10.4.11 [0..], (<0) - undefined. Strategy index at the StrategyContainer
+		double OptFactor;       // @v10.4.11
+		double OptFactor2;      // @v10.4.11
+		double TrendErr;        // @v10.4.11
+		double TrendErrRel;     // @v10.4.11
 		double MainTrendErr;    // @v10.6.12
 		double MainTrendErrRel; // @v10.6.12
 		double LocalDeviation;  // @v10.7.1
@@ -16840,7 +16855,7 @@ public:
 	struct OptimalFactorRange : public RealRange { // @persistent @flat
 		OptimalFactorRange();
 		OptimalFactorRange & Z();
-		uint32 Count; // Количество элементов исходного ряда, входящих в диапазон при тестировании
+		uint32 Count;      // Количество элементов исходного ряда, входящих в диапазон при тестировании
 		uint   Opt2Stride; // @v10.4.7
 		double Result;
 	};
@@ -16891,10 +16906,14 @@ public:
 		uint32 StakeCount;       // Количество ставок при тестировании
 		uint32 WinCount;         // Количество выигрышей в результате тестирования
 		double Margin;           // Маржа
-		double SpikeQuant;       // Минимальный квант относительного изменения котировки для дискретизации параметров
+		double SpikeQuant_s;     // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
 		// @v10.7.4 double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
-		double Reserve3;         // @v10.7.4
+		uint32 StakeDistMedian;  // @v10.7.9 Медианное растояние между ставками. Предположительно важный фактор для оценки адекватности стратегии.
+			// Соображение лежащее в основе предположения следующее: если этот фактор мал, то выигрыши лежат в плотной области и не
+			// могут быть спроецированы на будущее, если же значителен, то выигрыши достаточно равномерно распределены по области наблюдения
+			// и стратегия может рассматриваться для адекватной проекции на будущее.
+		uint32 Reserve3;         // @v10.7.9 double-->uint32
 		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
 		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
@@ -16919,11 +16938,11 @@ public:
 
 		const  uint Stride;
 		const  uint NominalCount;
-		double ErrAvg;     // @v10.3.12 Средняя ошибка регрессии
-		double SpikeQuant; // @v10.4.10 Квант расчета для периода NominalCount
+		double ErrAvg;        // @v10.3.12 Средняя ошибка регрессии
+		double SpikeQuant_r;  // @v10.4.10 Квант расчета для периода NominalCount
 		double ErrLimitByPel; // @v10.7.4 Локальный предел ошибки рассчитанный на основе частичного предела ошибки.
 		RealArray TL;
-		RealArray ErrL;   // @v10.3.12 Ошибки регрессии
+		RealArray ErrL;       // @v10.3.12 Ошибки регрессии
 	};
 	struct BestStrategyBlock {
 		SLAPI  BestStrategyBlock();
@@ -16950,12 +16969,24 @@ public:
 		int    SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel);
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		void   SLAPI SetUseDataForStrategiesTill(LDATE dt);
+		void   SLAPI TrimByVariance(double bound);
 		LDATETIME SLAPI GetLastValTm() const { return LastValTm; }
 		LDATETIME SLAPI GetStorageTm() const { return StorageTm; }
 		LDATE  SLAPI GetUseDataForStrategiesTill() const { return Fb.UseDataForStrategiesTill; }
 		uint32 SLAPI GetVersion() const { return Ver; }
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
-		double SLAPI EvaluateScore() const;
+
+		enum {
+			scoreResult = 1,          // Сумма результата
+			scoreEvStakeCountMean,    // Среднее по количеству ставок на этапе вычисления стратегий
+			scoreEvStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе вычисления стратегий
+			scoreEvStakeCountVarCoeff,  // Коэффициент вариации по количеству ставок на этапе вычисления стратегий
+			scoreSeStakeCountMean,      // Среднее по количеству ставок на этапе отбора стратегий
+			scoreSeStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе отбора стратегий
+			scoreSeStakeCountVarCoeff   // Коэффициент вариации по количеству ставок на этапе отбора стратегий
+		};
+
+		double SLAPI EvaluateScore(int scoreId) const;
 		const  Strategy * FASTCALL SearchByID(uint32 id) const;
 		int    SLAPI IsThereSimilStrategy(uint thisIdx, const LongArray & rSelectedIdxList, LongArray & rSimilIdxList) const;
 
@@ -16987,6 +17018,8 @@ public:
 			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
 			gbsfEliminateCQADups   = 0x1000, // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
 			gbsfShuffle            = 0x2000, // @v10.7.7 Перед селекцией хаотизировать список стратегий
+			gbsfEliminate100prob   = 0x4000, // @v10.7.9 Не включать в пул стратегии с вероятность выигрыша 100% (подозреваю, что они мешают)
+			gbsfCritStakeCount     = 0x8000  // @v10.7.9 В качестве критерия сортировки применять количество ставок стратегии.
 		};
 		int    SLAPI MakeOrderIndex(long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
 		int    SLAPI GetBestSubset(long flags, uint maxCount, double minWinRate, uint cqaMatchPromille, StrategyContainer & rScDest,
@@ -17046,7 +17079,7 @@ public:
 			double MainTrendErrAvg;   // Среднее значение ошибки регрессии для магистрального тренда
 			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
 			LDATE  UseDataForStrategiesTill; // @v10.7.3
-			uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1   
+			uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
 			uint8  Reserve[42];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42]
 		} Fb;
 		long   State; // @transient
@@ -17175,7 +17208,7 @@ public:
 		int16  Type;           // @v10.5.6
 		int16  Prec;
 		char   CurrencySymb[12];
-		double SpikeQuant;     //
+		double SpikeQuant_t;   //
 		double AvgSpread;      //
 		uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
@@ -17219,7 +17252,7 @@ public:
 	SLAPI  TimSerDetailFilt();
 
 	uint8  ReserveStart[128]; // @anchor
-	long   Flags;             // @flags    
+	long   Flags;             // @flags
 	PPID   TsID;              // Идент временной серии
 	DateRange Period;         //
 	long   Reserve;           // @anchor
@@ -17327,10 +17360,14 @@ public:
 			fBestSubsetTrendFollowing = 0x0001,
 			fOptRangeMulti            = 0x0004, // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
 		};
+		//
+		// Descr: Целевая функция при нахождении оптимальных секторов
+		//
 		enum {
-			tcAmount = 0,   // Целевая функция при определении оптимального сектора - абсолютный объем выигрыша
-			tcVelocity = 1, // Целевая функция при определении оптимального сектора - скорость выигрыша
-			tcWinRatio = 2  // Целевая функция при определении оптимального сектора - вероятность выигрыша
+			tcAmount     = 0, // Абсолютный объем выигрыша
+			tcVelocity   = 1, // Скорость выигрыша
+			tcWinRatio   = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
+			tcAngleRatio = 3  // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
 		};
 		long   Flags;
 		long   OptTargetCriterion;      // @v10.4.6
@@ -17390,10 +17427,22 @@ private:
 	int    SLAPI FindStrategiesLoop(void * pBlk);
 	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
+	uint   SLAPI CalcStakeDistanceMedian(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
+	double SLAPI CalcFailDistribution(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx, const DateTimeArray & rTsTmList, uint partitionCount) const;
 	enum {
 		mavfDontSqrtErrList = 0x0001
 	};
 	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
+	int    SLAPI Helper_StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
+		const DateTimeArray & rTsTmList, const RealArray & rTsValList,
+		const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
+		const PPObjTimeSeries::StrategyContainer & rSrcSc,
+		PPObjTimeSeries::StrategyContainer & rScSelection, PPObjTimeSeries::StrategyResultEntry * pSre, SFile * pFOut);
+	int    SLAPI StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
+		const DateTimeArray & rTsTmList, const RealArray & rTsValList,
+		const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
+		const PPObjTimeSeries::StrategyContainer & rSrcSc,
+		PPObjTimeSeries::StrategyContainer & rScSelection, SFile * pFOut);
 	PrcssrTsStrategyAnalyzeFilt P;
 	PPObjTimeSeries TsObj;
 	mutable ACount LastStrategyId;
@@ -19205,7 +19254,6 @@ public:
 	virtual int GetConnParam(ConnectionParam *);
 	virtual int GetSessionPrice(PPObjGoods *, double *);
 	virtual int RunCmd(int innerId, const StrAssocArray & rIn, StrAssocArray & rOut);
-
 	//
 	// Descr: метод для работы с dll-файлами устройств.
 	// ARG(cmdID	IN): ID команды, которую должно выполнить устройство
@@ -22032,7 +22080,6 @@ public:
 		attrName      = 3,
 		attrClass     = 4,
 		attrTag       = 5,
-
 		attrPeriod    = 6,
 		attrProcessor = 7,
 		attrCity      = 8
@@ -24939,10 +24986,8 @@ private:
 // Опции (параметр option) функции PPObjPerson::GetAddrID
 //
 #define PSNGETADDRO_DEFAULT   0 // Брать основной адрес персоналии
-#define PSNGETADDRO_REALADDR  1 // Брать действительный адрес персоналии.
-	// Если этот адрес для персоналии не определен, то брать основной адрес.
-#define PSNGETADDRO_DLVRADDR  2 // Брать адрес доставки.
-	// Если адрес доставки не определен, то работает как PSNGETADDRO_REALADDR.
+#define PSNGETADDRO_REALADDR  1 // Брать действительный адрес персоналии. Если этот адрес для персоналии не определен, то брать основной адрес.
+#define PSNGETADDRO_DLVRADDR  2 // Брать адрес доставки. Если адрес доставки не определен, то работает как PSNGETADDRO_REALADDR.
 //
 // Флаги (параметр flags) функции PPObjPerson::Subst
 //
@@ -24950,8 +24995,7 @@ private:
 
 class PPObjPerson : public PPObject {
 	//
-	// В качестве дополнительного параметра методам PPObjPerson
-	// передается вид персоналии.
+	// В качестве дополнительного параметра методам PPObjPerson передается вид персоналии.
 	//
 public:
 	enum {
@@ -27354,7 +27398,7 @@ public:
 	*/
 	enum {
 		// @v9.9.3 fUseGrpList        = 0x00000001L,
-		fHideGeneric           = 0x00000001L, // @v10.7.7 @construction Не отображать обобщенные товары 
+		fHideGeneric           = 0x00000001L, // @v10.7.7 @construction Не отображать обобщенные товары
 		fWithStrucOnly         = 0x00000002L, // @v9.9.3 Только товары, с которыми связаны структуры
 		// @v9.9.3 fUseUnitMask       = 0x00000004L,
 		fWoBrand               = 0x00000004L, // @v10.6.8 Только те товары, у которых не определен бренд. Флаг имеет приоритет перед полями BrandList, BrandOwnerList
@@ -27810,7 +27854,7 @@ enum GoodsPacketKind {
 #define GDSEXSTR_D         5 // (D) Синоним
 #define GDSEXSTR_E         6 // (E) Синоним
 #define GDSEXSTR_OKOF     10 // Код ОКОФ основного средства
-#define GDSEXSTR_INFOSYMB 11 // @v8.7.2 Специальный символ, идентифицирующий дополнительную информацию о товаре, отображаемую в диалоге товара
+#define GDSEXSTR_INFOSYMB 11 // Специальный символ, идентифицирующий дополнительную информацию о товаре, отображаемую в диалоге товара
 //
 // Descr: Специализированная структура для переноса параметров лотов по товару из
 //   одного раздела БД в другой
@@ -28673,8 +28717,8 @@ private:
 	int    SLAPI ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, double * pVal);
 	int    SLAPI AllocGoodsStruc();
 
-	PPGoodsPacket  * P_Pack;
-	PPGdsClsPacket * P_ClsPack;
+	const  PPGoodsPacket  * P_Pack;
+	const  PPGdsClsPacket * P_ClsPack;
 	const  PPGoodsStruc * P_Gs;
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
@@ -28855,8 +28899,9 @@ private:
 struct GoodsGroupRecoverParam {
 	SLAPI  GoodsGroupRecoverParam();
 	enum {
-		fCorrect       = 0x0001, // Исправлять ошибки
-		fDelTempAltGrp = 0x0002  // Удалять временные альтернативные группы
+		fCorrect         = 0x0001, // Исправлять ошибки
+		fDelTempAltGrp   = 0x0002, // Удалять временные альтернативные группы
+		fDelUnusedBrands = 0x0004  // @v10.7.9 Удалять не используемые бренды
 	};
 	//
 	// Descr: Действия над пустыми группами
@@ -29222,6 +29267,7 @@ private:
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  SLAPI ViewTotal();
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI MakeList();
 
@@ -36773,6 +36819,7 @@ private:
 // Бюджеты
 //
 struct PPBudget {
+	SLAPI  PPBudget();
 	int32  ObjType;
 	int32  ID;
 	char   Name[48];
@@ -37293,6 +37340,7 @@ public:
 };
 
 struct BillViewItem : public BillTbl::Rec {
+	SLAPI  BillViewItem();
 	double Debit;
 	double Credit;
 	double Saldo;
@@ -38946,14 +38994,14 @@ public:
 		evfShowLastSaleDate = 0x0001 // Показывать дату последней продажи
 	};
 	char   ReserveStart[4];  // @anchor
-	uint32 DiffParam;        // @v8.1.0 Параметр дифференциации записей отчета
-	PPID   UhttExpLocID;     // @v7.7.9 Склад, по которому синхронизируется загрузка данных на сервер Universe-HTT
+	uint32 DiffParam;        // Параметр дифференциации записей отчета
+	PPID   UhttExpLocID;     // Склад, по которому синхронизируется загрузка данных на сервер Universe-HTT
 		// Если UhttExpLocID == 0, то синхронизируется по LocList.GetSingle()
-	int16  UhttExpFlags;     // @v7.6.3 Опции 'кспорта в Universe-HTT
+	int16  UhttExpFlags;     // Опции 'кспорта в Universe-HTT
 	uint16 ExtViewFlags;     // Допольнительные опции просмотра
-	PPID   DiffLotTagID;     // @v7.2.8 Тип тега лотов, по значениям которого следует дифференцировать отчет
+	PPID   DiffLotTagID;     // Тип тега лотов, по значениям которого следует дифференцировать отчет
 	DateRange DraftRcptPrd;  // Период расчета будущих драфт приходов
-	int16  PrgnTerm;         // @v7.2.2 Количество дней, на которые необходимо спрогнозировать продажи.
+	int16  PrgnTerm;         // Количество дней, на которые необходимо спрогнозировать продажи.
 		// По смыслу, это поле конфликтует с PrgnPeriod, однако имеет несколько отличное применение:
 		// используется для расчета дополнительного поля прогноза продаж без признака CalcPrognosis.
 	int16  ExhaustTerm;      // Срок истощения остатков (<0 - количество дней, прошедшее после истощения остатка)
@@ -39007,7 +39055,7 @@ struct GoodsRestViewItem { // @transient
 	char   GoodsName[128]; //
 	char   GoodsGrpName[128]; //
 	char   UnitName[48];   // Наименование единицы измерения // @v7.2.6 [32]-->[48]
-	char   Serial[24];     // 
+	char   Serial[24];     //
 	int16  IsPredictTrust; // Прогноз продаж удовлетворяет требованиям надежности
 	int16  Reserve;        // @alignment
 	double Rest;           //
@@ -39029,7 +39077,7 @@ struct GoodsRestViewItem { // @transient
 	double SStatSales;     // Среднедневные продажи из статистики продаж
 	double DraftRcpt;      //
 	long   SubstAsscCount; //
-	LDATE  LastSellDate;   // 
+	LDATE  LastSellDate;   //
 	LDATE  Expiry;         // @v9.7.11
 };
 //
@@ -39876,7 +39924,7 @@ struct DebtTrnovrViewItem { // @transient
 	PPID   ObjType;        // Тип объекта, которым представляется поле ID_
 	long   Ar;             //
 	PPID   PersonID;       //
-	char   ArName[128];    // 
+	char   ArName[128];    //
 	PPID   BillID;         //
 	PPID   CurID;          //
 	long   TabID;          //
@@ -41493,7 +41541,7 @@ public:
 		gCashiersNGoods,  // Группировать по кассирам и товарам
 		gDlvrAddr,        // Группировать по адресу доставки
 		gGoodsSCSer,      // Группировка по товару и серии карт
-		gAmountNGoods,    // 
+		gAmountNGoods,    //
 		gAgentGoodsSCSer, // @v9.6.6 Группировать по агентам, товарам и сериям карт
 		gGoodsDateSerial, // @v10.2.6 Группировать по товару/дате/серийному номеру
 		gGoodsCard        // @erik v10.5.2 Группировка по товару и картам
@@ -41744,8 +41792,8 @@ private:
 	enum {
 		stHasExt        = 0x0001,
 		stUseGoodsList  = 0x0002,
-		stIterLines     = 0x0004, // 
-		stOuterCc       = 0x0008, // 
+		stIterLines     = 0x0004, //
+		stOuterCc       = 0x0008, //
 		stSkipUnprinted = 0x0010  // @v9.7.11 Если в фильтре заданы конкретные кассовые узлы
 			// и все они имеют установленный флаг CASHF_SKIPUNPRINTEDCHECKS, то чеки, не имеющие
 			// флага CCHKF_PRINTF считаются неучитываемым (как будто имеют флаг CCHKF_SKIP).
@@ -42059,7 +42107,7 @@ struct TrfrAnlzViewItem {
 	double SaldoQtty;      // Товарное сальдо в торговых единицах (для отдельных опций фильтрации)
 	double SaldoAmt;       // Суммовое сальдо в номинальных ценах (для отдельных опций фильтрации)
 	double PVat;           // Сумма НДС в ценах реализации
-	double Brutto;         // 
+	double Brutto;         //
 	double LinkQtty;       // @v9.6.8
 	double LinkCost;       // @v9.6.8
 	double LinkPrice;      // @v9.6.8
@@ -46923,7 +46971,7 @@ public:
 		icacnLoadAllDocs     = 0x0002,
 		icacnLoadStock       = 0x0004,
 		icacnPrepareOutgoing = 0x0008, // @v10.7.8
-		icacnSendOutgoing    = 0x0010  // @v10.7.8 
+		icacnSendOutgoing    = 0x0010  // @v10.7.8
 	};
 	enum {
 		fAsSelector      = 0x0001
@@ -49662,8 +49710,7 @@ public:
 		explicit SLAPI  Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, uint flags = 0);
 		PPID   GrpID;
 		PPID   GoodsID;
-		PPID   LocID;      // Склад (используется только если задан флаг existsGoodsOnly)
-			// Если 0, то предполагается текущий склад (LConfig.Location)
+		PPID   LocID;      // Склад (используется только если задан флаг existsGoodsOnly). Если 0, то предполагается текущий склад (LConfig.Location)
 		PPID   ArID;       // Контекстная статья для поиска товара по артикулу
 		uint   Flags;
 	};
@@ -49903,6 +49950,9 @@ protected:
 // GoodsDialog
 //
 class GoodsDialog : public TDialog {
+	enum {
+		ctlgroupIBG = 1
+	};
 public:
 	GoodsDialog(uint rezID);
 	int    setDTS(const PPGoodsPacket *);
@@ -51380,6 +51430,7 @@ protected:
 	//
 	int    Helper_PreprocessDiscountLoop(int mode, void * pBlk);
 	void   SetupDiscount(int distributeGiftDiscount/*@v10.7.8 = 0*/);
+	int    VerifyPrices();
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const; // @v9.8.6 TSArray-->TSVector
 	double CalcCurrentRest(PPID goodsID, int checkInputBuffer);
@@ -52868,7 +52919,6 @@ int    SLAPI SetupStaffListCombo(TDialog *, uint, PPID, uint flags, PPID orgID, 
 int    SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID);
 int    SLAPI SetupSubstBillCombo(TDialog * pDlg, uint ctlID, SubstGrpBill sgb);
 int    FASTCALL SetupPersonCombo(TDialog *, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind);
-// @v9.7.0 int    SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, void * extraPtr);
 int    SLAPI MessagePersonBirthDay(TDialog * pDlg, PPID psnID);
 int    SLAPI SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp);
 int    SLAPI SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID);

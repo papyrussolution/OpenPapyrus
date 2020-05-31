@@ -26,9 +26,8 @@ int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp
 #define TSGGROUPSASITEMS_FONTDELTA 4
 #define UNDEF_CHARGEGOODSID        -1000000000L
 
-#define GRP_IBG   1
-#define GRP_SCARD 2
-
+//#define GRP_IBG   1
+//#define GRP_SCARD 2
 //PPCustDisp * SLAPI GetCustDisp(PPID cashNodeID); // Prototype (CUSTDISP.CPP)
 //PPBnkTerminal * SLAPI GetBnkTerm(PPID bnkTermID, const char * pPort, const char * pPath); // Prototype (BNKTERM.CPP)
 int SLAPI showInputLineCalc(TDialog *, uint);    // Prototype (VTBUTTON.CPP)
@@ -190,8 +189,7 @@ int SaComplex::RecalcFinalPrice()
 	return ok;
 }
 
-//virtual
-void FASTCALL SaComplex::freeItem(void * pItem) { static_cast<SaComplexEntry *>(pItem)->GenericList.freeAll(); }
+/*virtual*/void FASTCALL SaComplex::freeItem(void * pItem) { static_cast<SaComplexEntry *>(pItem)->GenericList.freeAll(); }
 //
 //
 //
@@ -251,12 +249,9 @@ int CPosProcessor::Packet::ClearGift()
 	return 1;
 }
 
-PPID FASTCALL CPosProcessor::Packet::GetAgentID(int actual) const
-	{ return actual ? AgentID__ : NZOR(OrgAgentID, AgentID__); }
-int CPosProcessor::Packet::HasCur() const
-	{ return BIN(CurPos >= 0); }
-void CPosProcessor::Packet::SetRest(double rest)
-	{ Rest = rest; }
+PPID FASTCALL CPosProcessor::Packet::GetAgentID(int actual) const { return actual ? AgentID__ : NZOR(OrgAgentID, AgentID__); }
+int  CPosProcessor::Packet::HasCur() const { return BIN(CurPos >= 0); }
+void CPosProcessor::Packet::SetRest(double rest) { Rest = rest; }
 
 double CPosProcessor::Packet::GetGoodsQtty(PPID goodsID) const
 {
@@ -372,8 +367,7 @@ int CPosProcessor::Packet::SetQueue(uint itemIdx, int8 queue)
 	if(i < c) {
 		at(i++).Queue = queue;
 		//
-		// Для всех элементов, сгруппированных с данным, необходимо выставить тот же самый
-		// номер очереди.
+		// Для всех элементов, сгруппированных с данным, необходимо выставить тот же самый номер очереди.
 		//
 		while(i < c && at(i).Flags & (cifGrouped|cifModifier)) {
 			at(i++).Queue = queue;
@@ -500,10 +494,7 @@ double CPosProcessor::CardState::GetDiscount(double ccAmount) const
 	double ret = 0.0;
 	if(P_DisByAmtRule && ccAmount > 0.0) {
 		const TrnovrRngDis * p_item = P_DisByAmtRule->SearchItem(ccAmount);
-		if(p_item && !(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue))
-			ret = p_item->Value;
-		else
-			ret = Discount;
+		ret = (p_item && !(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)) ? p_item->Value : Discount;
 	}
 	else
 		ret = Discount;
@@ -641,16 +632,13 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 	rBuf.Z();
 	int    ok = 1;
 	int    use_def_ctbl = 0;
-	uint   i;
 	SString temp_buf;
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
 	TSVector <CCheckViewItem> cc_list;
 	LongArray ctbl_list;
 	if(CTblList.getCount()) {
-		for(i = 0; i < CTblList.getCount(); i++) {
-			ctbl_list.add(CTblList.get(i));
-		}
+		SForEachVectorItem(CTblList, i) { ctbl_list.add(CTblList.get(i)); }
 	}
 	else {
 		ctbl_list.add(PPObjCashNode::SubstCTblID);
@@ -667,7 +655,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 		xmlTextWriterEndDTD(p_writer);
 		{
 			SXml::WNode n_list(p_writer, "CPosProcessorCTableList");
-			for(i = 0; i < ctbl_list.getCount(); i++) {
+			for(uint i = 0; i < ctbl_list.getCount(); i++) {
 				const long ctbl_id = ctbl_list.get(i);
 				SXml::WNode n_item(p_writer, "CPosProcessorCTable");
 				n_item.PutInner("ID", temp_buf.Z().Cat(ctbl_id));
@@ -699,7 +687,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 			}
 		}
 		xmlTextWriterFlush(p_writer);
-		rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
+		rBuf.CopyFromN(PTRCHRC_(p_xml_buf->content), p_xml_buf->use)/*.UTF8ToChar()*/;
 		rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	}
 	CATCHZOK
@@ -918,7 +906,7 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 		}
 	}
 	xmlTextWriterFlush(p_writer);
-	rBuf.CopyFromN((char *)p_xml_buf->content, p_xml_buf->use)/*.UTF8ToChar()*/;
+	rBuf.CopyFromN(PTRCHRC_(p_xml_buf->content), p_xml_buf->use)/*.UTF8ToChar()*/;
 	rBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	CATCHZOK
 	xmlFreeTextWriter(p_writer);
@@ -1068,8 +1056,7 @@ CCheckCore & CPosProcessor::GetCc() { return *ScObj.P_CcTbl; }
 PPObjSCard & CPosProcessor::GetScObj() { return ScObj; }
 int CPosProcessor::InitCcView() { return BIN(SETIFZ(P_CcView, new PPViewCCheck(GetCc()))); }
 
-//virtual
-int CPosProcessor::MessageError(int errCode, const char * pAddedMsg, long outputMode)
+/*virtual*/int CPosProcessor::MessageError(int errCode, const char * pAddedMsg, long outputMode)
 {
 	SString err_msg;
 	if(errCode < 0)
@@ -1081,27 +1068,13 @@ int CPosProcessor::MessageError(int errCode, const char * pAddedMsg, long output
 	return 0;
 }
 
-//virtual
-int CPosProcessor::ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse)
-	{ return defaultResponse; }
-//virtual
-int CPosProcessor::CDispCommand(int cmd, int iVal, double rv1, double rv2)
-	{ return -1; }
-//virtual
-int CPosProcessor::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB)
-	{ return 1; }
-// virtual
-int CPosProcessor::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
-	{ return -1; }
-// virtual
-void CPosProcessor::SetPrintedFlag(int set)
-	{ SETFLAG(Flags, fPrinted, set); }
-//virtual
-void CPosProcessor::SetupInfo(const char * pErrMsg)
-	{ }
-//virtual
-void CPosProcessor::OnUpdateList(int goBottom)
-	{}
+/*virtual*/int CPosProcessor::ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse) { return defaultResponse; }
+/*virtual*/int CPosProcessor::CDispCommand(int cmd, int iVal, double rv1, double rv2) { return -1; }
+/*virtual*/int CPosProcessor::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB) { return 1; }
+/*virtual*/int CPosProcessor::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift) { return -1; }
+/*virtual*/void CPosProcessor::SetPrintedFlag(int set) { SETFLAG(Flags, fPrinted, set); }
+/*virtual*/void CPosProcessor::SetupInfo(const char * pErrMsg) {}
+/*virtual*/void CPosProcessor::OnUpdateList(int goBottom) {}
 
 int CPosProcessor::GetNewCheckCode(PPID cashNodeID, long * pCode)
 {
@@ -1308,8 +1281,7 @@ double CPosProcessor::CalcCurrentRest(PPID goodsID, int checkInputBuffer)
 	return rest;
 }
 
-//virtual
-void CPosProcessor::SetupRowData(int calcRest)
+/*virtual*/void CPosProcessor::SetupRowData(int calcRest)
 {
 	const CCheckItem & r_item = P.GetCur();
 	SetupState(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF) ? sLISTSEL_BUF : (P.getCount() ? sLIST_BUF : sEMPTYLIST_BUF));
@@ -1896,6 +1868,22 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 	}
 }
 
+int CPosProcessor::VerifyPrices()
+{
+	int    ok = 1;
+	if(P.getCount()) {
+		for(uint i = 0; ok && i < P.getCount(); i++) {
+			const CCheckItem & r_item = P.at(i);
+			RealRange pr;
+			int r = CheckPriceRestrictions(labs(r_item.GoodsID), r_item, r_item.NetPrice(), &pr);
+			if(!r) {
+				ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
 void CPosProcessor::ResetSCard()
 {
 	CSt.Z();
@@ -2249,8 +2237,7 @@ int CPosProcessor::AutosaveCheck()
 	return (CsObj.GetEqCfg().Flags & PPEquipConfig::fAutosaveSyncChecks) ? AcceptCheck(0, 0, 0.0, accmJunk) : -1;
 }
 
-// virtual
-int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
+/*virtual*/int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = 1;
 	const  int turn_check_before_printing = 1;
@@ -2519,8 +2506,7 @@ int CPosProcessor::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, doub
 	return ok;
 }
 
-//virtual
-void CPosProcessor::ClearCheck()
+/*virtual*/void CPosProcessor::ClearCheck()
 {
 	if(SuspCheckID) {
 		if(!GetCc().RemovePacket(SuspCheckID, 1))
@@ -2542,8 +2528,7 @@ void CPosProcessor::ClearCheck()
 	//setupRetCheck(0);
 }
 
-//virtual
-void CPosProcessor::ClearRow()
+/*virtual*/void CPosProcessor::ClearRow()
 {
 	P.ClearCur();
 	SetupRowData(0);
@@ -3427,8 +3412,7 @@ int FASTCALL CheckPaneDialog::valid(ushort command)
 	return r;
 }
 
-// virtual
-int CheckPaneDialog::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
+/*virtual*/int CheckPaneDialog::AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = CPosProcessor::AcceptCheck(pPl, altPosNodeID, cash, mode /*suspended*/);
 	if(!oneof2(mode, accmJunk, accmAveragePrinting)) {
@@ -3454,12 +3438,10 @@ int CheckPaneDialog::SuspendCheck()
 		if(OperRightsFlags & orfSuspCheck) {
 			double total = 0.0, discount = 0.0;
 			CalcTotal(&total, &discount);
-			//
 			CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
 			CDispCommand(cdispcmdTotal, 0, total, 0.0);
 			if(discount != 0.0)
 				CDispCommand(cdispcmdTotalDiscount, 0, (discount * 100.0) / (total + discount), discount);
-			//
 			AcceptCheck(0, 0, total, accmSuspended);
 			ok = 1;
 		}
@@ -4163,6 +4145,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				MessageError(PPERR_CHKPAN_SCARDNEEDED, 0, eomBeep|eomStatusLine);
 			else if(!(OperRightsFlags & orfPrintCheck))
 				MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
+			else if(!VerifyPrices()) // @v10.7.9
+				MessageError(-1, 0, eomBeep|eomStatusLine);
 			else {
 				// @v9.8.4 Standalone variable (double diff = 0.0) replaced with paym_blk2.DeliveryAmt
 				PosPaymentBlock paym_blk2(0, BonusMaxPart);
@@ -4716,8 +4700,7 @@ private:
 	const  AddedParam * P_AddParam; // @notowned
 };
 
-// virtual
-int SelCheckListDialog::addItem(long * pPos, long * pID)
+/*virtual*/int SelCheckListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	if(State & stTblOrders) {
@@ -4735,8 +4718,7 @@ int SelCheckListDialog::addItem(long * pPos, long * pID)
 	return ok;
 }
 
-//virtual
-int SelCheckListDialog::editItem(long pos, long id)
+/*virtual*/int SelCheckListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if((State & stTblOrders) && pos >= 0 && pos < ChkList.getCountI()) {
@@ -4755,8 +4737,7 @@ int SelCheckListDialog::editItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int SelCheckListDialog::delItem(long pos, long id)
+/*virtual*/int SelCheckListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if((State & stTblOrders) && pos >= 0 && pos < ChkList.getCountI() && CONFIRM(PPCFM_CANCELCTBLORD)) {
@@ -4772,8 +4753,7 @@ int SelCheckListDialog::delItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int SelCheckListDialog::setupList()
+/*virtual*/int SelCheckListDialog::setupList()
 {
 	int    ok = -1;
 	uint   i;
@@ -5043,8 +5023,7 @@ private:
 	CCheckPacket * P_Pack;
 };
 
-// virtual
-int SplitSuspCheckDialog::addItem()
+/*virtual*/int SplitSuspCheckDialog::addItem()
 {
 	int    ok  = 1;
 	long   id = 0;
@@ -5077,8 +5056,7 @@ int SplitSuspCheckDialog::addItem()
 	return ok;
 }
 
-// virtual
-int SplitSuspCheckDialog::removeItem()
+/*virtual*/int SplitSuspCheckDialog::removeItem()
 {
 	int    ok  = 1;
 	uint   pos = 0;
@@ -5107,8 +5085,7 @@ int SplitSuspCheckDialog::removeItem()
 	return ok;
 }
 
-// virtual
-int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
+/*virtual*/int SplitSuspCheckDialog::SetupList(SArray * pList, SmartListBox * pListBox)
 {
 	int    ok = 1;
 	if(pList && pListBox && pListBox->def) {
@@ -5424,11 +5401,14 @@ struct AddrByPhoneItem { // @flat
 
 class CheckDlvrDialog : public TDialog {
 	DECL_DIALOG_DATA(CheckPaneDialog::ExtCcData);
+	enum {
+		ctlgrouSCard = 1
+	};
 public:
 	CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), ScsRsrvPoolID(0), Channel(pChannel),
 		LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
 	{
-		addGroup(GRP_SCARD, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
+		addGroup(ctlgrouSCard, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
 		// @v10.6.4 MEMSZERO(OrgLocRec);
 		Data.SCardID_ = scardID;
 		SetupCalDate(CTLCAL_CCHKDLVR_DT, CTL_CCHKDLVR_DT);
@@ -5462,7 +5442,7 @@ public:
 		{
 			SCardCtrlGroup::Rec screc;
 			screc.SCardID = Data.SCardID_;
-			setGroupData(GRP_SCARD, &screc);
+			setGroupData(ctlgrouSCard, &screc);
 		}
 		// } @v9.4.5
 		// @v9.4.11 {
@@ -5505,7 +5485,7 @@ public:
 		// @v9.4.5 {
 		{
 			SCardCtrlGroup::Rec screc;
-			getGroupData(GRP_SCARD, &screc);
+			getGroupData(ctlgrouSCard, &screc);
 			Data.SCardID_ = screc.SCardID;
 		}
 		// } @v9.4.5
@@ -5592,7 +5572,7 @@ private:
 		else if(TVCMD == cmWSSelected) {
 			if(event.isCtlEvent(CTL_CCHKDLVR_SCARD)) {
 				SCardCtrlGroup::Rec scgrec;
-				getGroupData(GRP_SCARD, &scgrec);
+				getGroupData(ctlgrouSCard, &scgrec);
 				if(scgrec.SCardID) {
 					int    local_ok = 0;
 					SCardTbl::Rec sc_rec;
@@ -5604,7 +5584,7 @@ private:
 					}
 					if(!local_ok && scgrec.SCardID) {
 						scgrec.SCardID = 0;
-						setGroupData(GRP_SCARD, &scgrec);
+						setGroupData(ctlgrouSCard, &scgrec);
 					}
 				}
 				else
@@ -5869,10 +5849,10 @@ private:
 					// @v10.2.7 {
 					if(sc_list.getCount()) {
 						SCardCtrlGroup::Rec scgrec;
-						getGroupData(GRP_SCARD, &scgrec);
+						getGroupData(ctlgrouSCard, &scgrec);
 						if(!scgrec.SCardID) {
 							scgrec.SCardID = sc_list.get(0);
-							setGroupData(GRP_SCARD, &scgrec);
+							setGroupData(ctlgrouSCard, &scgrec);
 						}
 					}
 					// } @v10.2.7
@@ -8094,8 +8074,7 @@ int CheckPaneDialog::RemoveRow()
 	return ok;
 }
 
-//virtual
-void CheckPaneDialog::OnUpdateList(int goBottom)
+/*virtual*/void CheckPaneDialog::OnUpdateList(int goBottom)
 {
 //@lbt_chkpan    "3,R,#;3,C,;70,L,Товар;16,L,Штрихкод;11,R,Цена;10,R,Кол-во;11,R,Сумма;12,L,Серия;9,R,Отдел;4,C,Q" // DLG_CHKPAN
 //@lbt_chkpan_ts "4,R,#;3,C,;60,L,Товар;12,R,Цена;12,R,Кол-во;12,R,Сумма;10,R,Отдел;4,C,Q"                         // DLG_CHKPAN_TS
@@ -8199,8 +8178,7 @@ static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf,
 		rBuf.CatChar(chr);
 }
 
-// virtual
-int CheckPaneDialog::MessageError(int errCode, const char * pAddedMsg, long outputMode)
+/*virtual*/int CheckPaneDialog::MessageError(int errCode, const char * pAddedMsg, long outputMode)
 {
 	const int dest = (outputMode & 0xff);
 	SString err_msg;
@@ -8228,8 +8206,7 @@ int CheckPaneDialog::MessageError(int errCode, const char * pAddedMsg, long outp
 	return 0;
 }
 
-//virtual
-int CheckPaneDialog::MsgToDisp_Show()
+/*virtual*/int CheckPaneDialog::MsgToDisp_Show()
 {
 	if(MsgToDisp.getCount()) {
 		SString temp_buf;
@@ -8246,16 +8223,14 @@ int CheckPaneDialog::MsgToDisp_Show()
 	return 1;
 }
 
-//virtual
-int CheckPaneDialog::ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse)
+/*virtual*/int CheckPaneDialog::ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse)
 {
 	if(pAddedMsg)
 		PPSetAddedMsgString(pAddedMsg);
 	return CONFIRM(msgId);
 }
 
-//virtual
-int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
+/*virtual*/int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 {
 	int    ok = 1;
 	if(P_CDY) {
@@ -9100,13 +9075,16 @@ int CheckPaneDialog::AcceptRowDiscount()
 }
 
 class SCardInfoDialog : public PPListDialog {
+	enum {
+		ctlgroupIBG = 1
+	};
 public:
 	SCardInfoDialog(PPID posNodeID, int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST),
 		PosNodeID(posNodeID), LocalState(0), SCardID(0), OwnerID(0)
 	{
 		if(asSelector)
 			LocalState |= stAsSelector;
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_SCARDVIEW_IMAGE, cmAddImage, cmDelImage,
+		addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_SCARDVIEW_IMAGE, cmAddImage, cmDelImage,
 			PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		selectCtrl(CTL_SCARDVIEW_INPUT);
 		Ptb.SetColor(clrRed,   GetColorRef(SClrRed));
@@ -9134,7 +9112,7 @@ public:
 	{
 		int    ok = 1;
 		ImageBrowseCtrlGroup::Rec rec;
-		if(OwnerID && PsnObj.CheckRights(PSNRT_UPDIMAGE) && getGroupData(GRP_IBG, &rec) && rec.Flags & ImageBrowseCtrlGroup::Rec::fUpdated) {
+		if(OwnerID && PsnObj.CheckRights(PSNRT_UPDIMAGE) && getGroupData(ctlgroupIBG, &rec) && rec.Flags & ImageBrowseCtrlGroup::Rec::fUpdated) {
 			long   set_f = 0;
 			long   reset_f = 0;
 			ObjLinkFiles _lf(PPOBJ_PERSON);
@@ -9307,8 +9285,7 @@ private:
 	SpcArray OwnerList;
 };
 
-// virtual
-int SCardInfoDialog::editItem(long pos, long id)
+/*virtual*/int SCardInfoDialog::editItem(long pos, long id)
 {
 	if(id) {
 		if(Mode == modeCheckView) {
@@ -9476,7 +9453,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		else
 			info_buf.Z();
 		setStaticText(CTL_SCARDVIEW_OWNERINFO, info_buf);
-		setGroupData(GRP_IBG, &ibg_rec);
+		setGroupData(ctlgroupIBG, &ibg_rec);
 		{
 			const int enbl_psn = BIN(OwnerID && PsnObj.CheckRights(PPR_MOD));
 			const int enbl_pic = BIN(PsnObj.CheckRights(PSNRT_UPDIMAGE));
@@ -9498,7 +9475,7 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 	}
 	else {
 		SCardID = 0;
-		setGroupData(GRP_IBG, &ibg_rec);
+		setGroupData(ctlgroupIBG, &ibg_rec);
 		// @v10.1.9 {
 		{
 			PPLoadString("new_fem", temp_buf);
@@ -10394,8 +10371,7 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 	}
 }
 
-//virtual
-void CheckPaneDialog::SetupRowData(int calcRest)
+/*virtual*/void CheckPaneDialog::SetupRowData(int calcRest)
 {
 	const CCheckItem & r_item = P.GetCurC();
 	SString   buf, temp_buf;
@@ -10461,14 +10437,14 @@ int SLAPI CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem &
 				if(!range.CheckValEps(price, 1E-7)) {
 					SString temp_buf;
 					if(range.low > 0.0 && price < range.low) {
-						temp_buf.Z().Cat(range.low, SFMT_MONEY);
+						SString & r_nam_buf = SLS.AcquireRvlStr();
+						temp_buf.Z().Cat(range.low, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
 						ok = PPSetError(PPERR_PRICERESTRLOW, temp_buf);
-						//ok = MessageError(PPERR_PRICERESTRLOW, temp_buf, eomStatusLine|eomBeep);
 					}
 					else if(range.upp > 0.0 && price > range.upp) {
-						temp_buf.Z().Cat(range.upp, SFMT_MONEY);
+						SString & r_nam_buf = SLS.AcquireRvlStr();
+						temp_buf.Z().Cat(range.upp, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
 						ok = PPSetError(PPERR_PRICERESTRUPP, temp_buf);
-						//ok = MessageError(PPERR_PRICERESTRUPP, temp_buf, eomStatusLine|eomBeep);
 					}
 				}
 			}
@@ -10640,8 +10616,7 @@ void CheckPaneDialog::SetInput(const char * pStr)
 	ProcessEnter(1);
 }
 
-// virtual
-int CheckPaneDialog::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
+/*virtual*/int CheckPaneDialog::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
 {
 	SString msg_buf, fmt_buf, goods_name;
 	if(giftID > 0) {
@@ -11145,22 +11120,19 @@ int CPosProcessor::AcceptRow(PPID giftID)
 	return ok;
 }
 
-//virtual
-void CheckPaneDialog::ClearRow()
+/*virtual*/void CheckPaneDialog::ClearRow()
 {
 	CPosProcessor::ClearRow();
 	ViewStoragePlaces(0);
 }
 
-// virtual
-void CheckPaneDialog::SetPrintedFlag(int set)
+/*virtual*/void CheckPaneDialog::SetPrintedFlag(int set)
 {
 	CPosProcessor::SetPrintedFlag(set);
 	setButtonBitmap(cmChkPanPrint, (Flags & fPrinted) ? IDB_PRINTDEFMARK : IDB_PRINTDEF);
 }
 
-//virtual
-void CheckPaneDialog::ClearCheck()
+/*virtual*/void CheckPaneDialog::ClearCheck()
 {
 	CPosProcessor::ClearCheck();
 	ClearRow();
@@ -11313,8 +11285,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 	return ok;
 }
 
-//virtual
-int CheckPaneDialog::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB)
+/*virtual*/int CheckPaneDialog::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB)
 {
 	int    ok = 1;
 	CCheckCore & r_cc = GetCc();

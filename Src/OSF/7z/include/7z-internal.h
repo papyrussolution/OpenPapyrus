@@ -1044,7 +1044,7 @@ public:
 	CMyUnknownImp() : __m_RefCount(0) 
 	{
 	}
-	// virtual
+	//virtual
 	~CMyUnknownImp() 
 	{
 	}

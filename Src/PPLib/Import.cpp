@@ -1792,7 +1792,7 @@ int SLAPI ImportSpecSeries()
 					logger.LogString(PPTXT_IMPSPOIL_CLEAR, 0);
 					THROW(deleteFrom(&ss_tbl, 0, *reinterpret_cast<DBQ *>(0)));
 				}
-				MEMSZERO(src_rec);
+				// @v10.7.9 @ctr MEMSZERO(src_rec);
 				while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 					int    dup = 0;
 					SpecSeries2Tbl::Rec ss_rec;
@@ -1865,8 +1865,7 @@ PPPhoneListImpExpParam::PPPhoneListImpExpParam(uint recId, long flags) : PPImpEx
 
 #define IMPEXPPARAM_PHONELIST_DEFCITYPHONEPREFIX 1
 
-//virtual
-int PPPhoneListImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPPhoneListImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2113,13 +2112,13 @@ int SLAPI PrcssrPhoneListImport::Run()
 	if(numrecs) {
 		int    r;
 		IterCounter cntr;
-		Sdr_PhoneList rec;
 		PPEAddr::Phone::NormalizeStr(IeParam.DefCityPhonePrefix, 0, city_prefix);
 		PPTransaction tra(1);
 		THROW(tra);
 		{
 			cntr.Init(numrecs);
-			MEMSZERO(rec);
+			Sdr_PhoneList rec;
+			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
 				int    found = 0;
 				PPEAddr::Phone::NormalizeStr(rec.Phone, 0, phone);
@@ -3288,7 +3287,7 @@ int SLAPI PrcssrPersonImport::Run()
 		PPTransaction tra(1);
 		THROW(tra);
 		cntr.Init(numrecs);
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
 			IeParam.InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &rec);
 			int    do_turn = 1; // Импортированный пакет следует сохранить в БД
@@ -4884,7 +4883,7 @@ int FiasImporter::Import(int inpObject)
 		}
 		if(file_name.NotEmpty() && checkdate(max_date)) {
 			xmlSAXHandler saxh_addr_obj;
-			MEMSZERO(saxh_addr_obj);
+			// @v10.7.9 @ctr MEMSZERO(saxh_addr_obj);
 			saxh_addr_obj.startDocument = Scb_StartDocument;
 			saxh_addr_obj.endDocument = Scb_EndDocument;
 			saxh_addr_obj.startElement = Scb_StartElement;
@@ -6310,7 +6309,7 @@ int SLAPI PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fPreprocess) {
 		Phase = phasePreprocess;
 		xmlSAXHandler saxh_addr_obj;
-		MEMSZERO(saxh_addr_obj);
+		// @v10.7.9 @ctr MEMSZERO(saxh_addr_obj);
 		saxh_addr_obj.startDocument = Scb_StartDocument;
 		saxh_addr_obj.endDocument = Scb_EndDocument;
 		saxh_addr_obj.startElement = Scb_StartElement;
@@ -6503,7 +6502,7 @@ int SLAPI PrcssrOsm::Run()
 			THROW(O.OpenDatabase(p_db_path));
 			{
 				xmlSAXHandler saxh_addr_obj;
-				MEMSZERO(saxh_addr_obj);
+				// @v10.7.9 @ctr MEMSZERO(saxh_addr_obj);
 				saxh_addr_obj.startDocument = Scb_StartDocument;
 				saxh_addr_obj.endDocument = Scb_EndDocument;
 				saxh_addr_obj.startElement = Scb_StartElement;

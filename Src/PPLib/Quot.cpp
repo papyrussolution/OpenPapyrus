@@ -671,7 +671,7 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 				for(i = 0; pQuotKindList->enumItems(&i, (void **)&p_qk_id);) {
 					for(uint j = 0; j < ar_list.getCount(); j++) {
 						const  PPID    ar_id = ar_list.get(j);
-						const  QuotIdent qi(locID, *p_qk_id, 0L /* @curID */, ar_id);
+						const  QuotIdent qi(locID, *p_qk_id, 0L/*@curID*/, ar_id);
 						const  int is_exist = BIN(pList->SearchQiList(qi, qp_list) > 0);
 						assert(!is_exist || qp_list.getCount()); // Уверенность в корректности SearchQiList
 						if(is_exist) {
@@ -701,7 +701,7 @@ static int SLAPI SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goods
 			for(i = 0; pQuotKindList->enumItems(&i, (void **)&p_qk_id);) {
 				for(uint j = 0; j < ar_list.getCount(); j++) {
 					const  PPID    ar_id = ar_list.get(j);
-					QuotIdent qi(locID, *p_qk_id, 0L /* @curID */, ar_id);
+					QuotIdent qi(locID, *p_qk_id, 0L/*@curID*/, ar_id);
 					qi.SetIdentPeriod(p_period);
 					const  int is_exist = BIN(pList->SearchQiList(qi, qp_list) > 0);
 					assert(!is_exist || qp_list.getCount()); // Уверенность в корректности SearchQiList
@@ -938,7 +938,7 @@ int SLAPI UpdateQuots(const QuotUpdFilt * pFilt)
 									double price = 0.0;
 									THROW(r = ::GetCurGoodsPrice(goods_id, p_ti->LocID, GPRET_MOSTRECENT, &price));
 									if(oneof2(r, GPRET_PRESENT, GPRET_CLOSEDLOTS)) {
-										QuotIdent qi(p_ti->LocID, kind, 0 /* @curID */, 0 /* ArID */);
+										QuotIdent qi(p_ti->LocID, kind, 0 /*@curID*/, 0 /* ArID */);
 										PPQuotArray qary(goods_id);
 										if(flt.AdvOptQuot == 0 || flt.IsQuotByAdvOptExists(&qary)) {
 											int    to_process = 1;

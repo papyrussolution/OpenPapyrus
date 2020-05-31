@@ -737,7 +737,7 @@ int SLAPI PPViewSCard::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				SCardTbl::Rec sc_rec;
 				TempOrderTbl::Rec ord_rec;
-				MEMSZERO(sc_rec);
+				// @v10.7.9 @ctr MEMSZERO(sc_rec);
 				sc_rec.ID       = item.ID;
 				sc_rec.PersonID = item.PersonID;
 				sc_rec.PDis     = item.PDis;
@@ -764,7 +764,7 @@ int SLAPI PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, Te
 		const double large_val = 1e12;
 		const char * p_fmt = "%030.8lf";
 		TempOrderTbl::Rec ord_rec;
-		MEMSZERO(ord_rec);
+		// @v10.7.9 @ctr MEMSZERO(ord_rec);
 		ord_rec.ID = pRec->ID;
 		if(ord == OrdByPerson) {
 			GetPersonName(pRec->PersonID, temp_buf);
@@ -1264,7 +1264,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 				PPID   dest_scard = dupl_ary.at(i).Val;
 				long   code_postfx;
 				SCardTbl::Rec rec;
-				MEMSZERO(rec);
+				// @v10.7.9 @ctr MEMSZERO(rec);
 				MEMSZERO(k1);
 				THROW(SCObj.Search(dupl_scard, &rec) > 0);
 				code = rec.Code;
@@ -1408,7 +1408,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 					double amount = 0.0;
 					UhttSCardPacket scp;
 					SCardOpTbl::Rec scop_rec;
-					MEMSZERO(scop_rec);
+					// @v10.7.9 @ctr MEMSZERO(scop_rec);
 					scop_rec.SCardID = item.ID;
 					scop_rec.Dt = param.Dt;
 					getcurtime(&scop_rec.Tm);
@@ -1594,7 +1594,7 @@ int SLAPI PPViewSCard::ReplaceCardInChecks(PPID destCardID)
 	int    ok = -1;
 	TDialog * dlg = 0;
 	SCardTbl::Rec dest_card_rec, src_card_rec;
-	MEMSZERO(src_card_rec);
+	// @v10.7.9 @ctr MEMSZERO(src_card_rec);
 	THROW(SCObj.CheckRights(SCRDRT_BINDING));
 	if(SCObj.Search(destCardID, &dest_card_rec) > 0 && !SCObj.IsCreditSeries(dest_card_rec.SeriesID)) {
 		CCheckCore & r_cc = *SCObj.P_CcTbl;

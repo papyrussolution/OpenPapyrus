@@ -469,8 +469,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 		if(sstrlen(sbii_grec.Barcode) == 0)
 			GObj.GetSingleBarcode(goods_id, sbii_grec.Barcode, sizeof(sbii_grec.Barcode));
 		if(goods_rec.Flags & GF_UNLIM) {
-			QuotIdent qi(loc_id, PPQUOTK_BASE, 0L /* @curID */);
-			GObj.GetQuot(goods_id, qi, 0L, 0L, &sbii_grec.Cost);
+			GObj.GetQuot(goods_id, QuotIdent(loc_id, PPQUOTK_BASE, 0L/*@curID*/), 0L, 0L, &sbii_grec.Cost);
 		}
 		else
 			::GetCurGoodsPrice(goods_id, loc_id, GPRET_INDEF, &sbii_grec.Cost, &lot_rec);
@@ -482,8 +481,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 		STRNSCPY(sbii_grec.Name, goods_rec.Name);
 		SOemToChar(sbii_grec.Name);
 		if(sstrlen(sbii_grec.Barcode) < 7) {
-			SString temp_buf;
-			temp_buf = sbii_grec.Barcode;
+			SString temp_buf = sbii_grec.Barcode;
 			temp_buf.PadLeft(12-temp_buf.Len(), '0');
 			if(GObj.GetConfig().Flags & GCF_BCCHKDIG)
 				AddBarcodeCheckDigit(temp_buf);

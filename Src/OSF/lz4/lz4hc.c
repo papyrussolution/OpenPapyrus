@@ -321,7 +321,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 								    if(ip - (base+matchIndex) > MAX_DISTANCE) break;
 								    assert(maxML < 2 GB);
 								    longest = (int)maxML;
-								    *matchpos = base + matchIndex; // virtual pos, relative to ip, to retrieve offset 
+								    *matchpos = base + matchIndex; //virtual pos, relative to ip, to retrieve offset 
 								    *startpos = ip;
 							    }
 							    {   

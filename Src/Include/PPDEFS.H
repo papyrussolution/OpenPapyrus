@@ -4841,6 +4841,7 @@
 	#define CTL_BNKPAYM_ACCEPT           (23 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BNKPAYM_DT            (24 + WINDOWS_ID_BIAS)
 	#define CTL_BNKPAYM_PAYERSTATUS      (25 + WINDOWS_ID_BIAS)
+	#define CTL_BNKPAYM_FPURPS           (26 + WINDOWS_ID_BIAS)
 #define DLG_OPRPOOL               429 // Доп опции операции пула документов
 	#define CTL_OPRPOOL_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPRPOOL_FLAGS            (2 + WINDOWS_ID_BIAS)
@@ -10903,6 +10904,8 @@
 #define DLG_RTDYNOBJ              1383
 	#define CTL_RTDYNOBJ_FLAGS       (1  + IMPEXP_CTL_BIAS) //
 	#define CTL_RTDYNOBJ_SFLAGS      (11 + IMPEXP_CTL_BIAS) //
+#define DLG_BRANDTOTAL            1384 // Итоги по выборке брэндов
+	#define CTL_BRANDTOTAL_COUNT     (1 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -477,8 +477,7 @@ void SLAPI PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-//virtual
-int SLAPI PPViewPriceAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewPriceAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	struct _E {
 		PPID   ID;

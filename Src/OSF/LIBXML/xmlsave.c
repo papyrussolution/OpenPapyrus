@@ -54,6 +54,10 @@ int xmlIsXHTML(const xmlChar * systemID, const xmlChar * publicID)
 #define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 
 struct xmlSaveCtxt {
+	xmlSaveCtxt()
+	{
+		THISZERO();
+	}
 	void * _private;
 	int    type;
 	int    fd;
@@ -376,7 +380,7 @@ static xmlSaveCtxt * FASTCALL xmlNewSaveCtxt(const char * encoding, int options)
  */
 static void xmlAttrSerializeContent(xmlOutputBuffer * buf, xmlAttr * attr)
 {
-	for(xmlNode * children = attr->children; children; children = children->next) {
+	for(const xmlNode * children = attr->children; children; children = children->next) {
 		switch(children->type) {
 			case XML_TEXT_NODE:
 			    xmlBufAttrSerializeTxtContent(buf->buffer, attr->doc, attr, children->content);
@@ -848,34 +852,30 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxt * ctxt, xmlNode * cur)
 				}
 			}
 		}
-		else if(cur->type == XML_ATTRIBUTE_NODE) {
-			xmlAttrDumpOutput(ctxt, (xmlAttr *)cur);
-		}
-		else if(cur->type == XML_NAMESPACE_DECL) {
-			xmlNsDumpOutputCtxt(ctxt, (xmlNs *)cur);
-		}
+		else if(cur->type == XML_ATTRIBUTE_NODE)
+			xmlAttrDumpOutput(ctxt, reinterpret_cast<xmlAttr *>(cur));
+		else if(cur->type == XML_NAMESPACE_DECL)
+			xmlNsDumpOutputCtxt(ctxt, reinterpret_cast<xmlNs *>(cur));
 		else {
 			int format = ctxt->format;
 			if(format == 1) {
-				xmlNode * p_tmp = cur->children;
-				while(p_tmp) {
-					if((p_tmp->type == XML_TEXT_NODE) || (p_tmp->type == XML_CDATA_SECTION_NODE) || (p_tmp->type == XML_ENTITY_REF_NODE)) {
+				for(xmlNode * p_tmp = cur->children; p_tmp; p_tmp = p_tmp->next) {
+					if(oneof3(p_tmp->type, XML_TEXT_NODE, XML_CDATA_SECTION_NODE, XML_ENTITY_REF_NODE)) {
 						ctxt->format = 0;
 						break;
 					}
-					p_tmp = p_tmp->next;
 				}
 			}
 			xmlOutputBufferWrite(p_buf, 1, "<");
-			if(cur->ns && (cur->ns->prefix != NULL)) {
+			if(cur->ns && cur->ns->prefix) {
 				xmlOutputBufferWriteString(p_buf, reinterpret_cast<const char *>(cur->ns->prefix));
 				xmlOutputBufferWrite(p_buf, 1, ":");
 			}
 			xmlOutputBufferWriteString(p_buf, reinterpret_cast<const char *>(cur->name));
 			xmlNsListDumpOutputCtxt(ctxt, cur->nsDef);
-			if(cur->properties != NULL)
+			if(cur->properties)
 				xmlAttrListDumpOutput(ctxt, cur->properties);
-			if(((cur->type == XML_ELEMENT_NODE) || (cur->content == NULL)) && (cur->children == NULL) && ((ctxt->options & XML_SAVE_NO_EMPTY) == 0)) {
+			if(((cur->type == XML_ELEMENT_NODE) || !cur->content) && !cur->children && ((ctxt->options & XML_SAVE_NO_EMPTY) == 0)) {
 				if(ctxt->format == 2)
 					xmlOutputBufferWriteWSNonSig(ctxt, 0);
 				xmlOutputBufferWrite(p_buf, 2, "/>");
@@ -937,13 +937,13 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 	if((cur->type != XML_HTML_DOCUMENT_NODE) && (cur->type != XML_DOCUMENT_NODE))
 		return -1;
 	if(ctxt->encoding) {
-		cur->encoding = BAD_CAST ctxt->encoding;
+		cur->encoding = ctxt->encoding;
 	}
-	else if(cur->encoding != NULL) {
+	else if(cur->encoding) {
 		encoding = cur->encoding;
 	}
 	else if(cur->charset != XML_CHAR_ENCODING_UTF8) {
-		encoding = (const xmlChar *)xmlGetCharEncodingName((xmlCharEncoding)cur->charset);
+		encoding = reinterpret_cast<const xmlChar *>(xmlGetCharEncodingName((xmlCharEncoding)cur->charset));
 	}
 	if(((cur->type == XML_HTML_DOCUMENT_NODE) && !(ctxt->options & XML_SAVE_AS_XML) && !(ctxt->options & XML_SAVE_XHTML)) || (ctxt->options & XML_SAVE_AS_HTML)) {
 #ifdef LIBXML_HTML_ENABLED
@@ -993,7 +993,7 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 		 */
 		if(!(ctxt->options & XML_SAVE_NO_DECL)) {
 			xmlOutputBufferWrite(buf, 14, "<?xml version=");
-			if(cur->version != NULL)
+			if(cur->version)
 				xmlBufWriteQuotedString(buf->buffer, cur->version);
 			else
 				xmlOutputBufferWrite(buf, 5, "\"1.0\"");
@@ -1021,8 +1021,7 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 		}
 #endif
 		if(cur->children) {
-			xmlNode * child = cur->children;
-			while(child != NULL) {
+			for(xmlNode * child = cur->children; child; child = child->next) {
 				ctxt->level = 0;
 #ifdef LIBXML_HTML_ENABLED
 				if(is_xhtml)
@@ -1031,14 +1030,13 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 #endif
 				xmlNodeDumpOutputInternal(ctxt, child);
 				xmlOutputBufferWrite(buf, 1, "\n");
-				child = child->next;
 			}
 		}
 	}
 	/*
 	 * Restore the state of the saving context at the end of the document
 	 */
-	if((switched_encoding) && (oldctxtenc == NULL)) {
+	if(switched_encoding && !oldctxtenc) {
 		xmlSaveClearEncoding(ctxt);
 		ctxt->escape = oldescape;
 		ctxt->escapeAttr = oldescapeAttr;
@@ -1194,21 +1192,17 @@ static void xhtmlAttrListDumpOutput(xmlSaveCtxt * ctxt, xmlAttr * cur)
  */
 static void xhtmlNodeListDumpOutput(xmlSaveCtxt * ctxt, xmlNode * cur) 
 {
-	xmlOutputBuffer * buf;
-	if(!cur) return;
-	buf = ctxt->buf;
-	while(cur) {
-		if((ctxt->format == 1) && (xmlIndentTreeOutput) &&
-		    (cur->type == XML_ELEMENT_NODE))
-			xmlOutputBufferWrite(buf, ctxt->indent_size *
-			    (ctxt->level > ctxt->indent_nr ?
-				    ctxt->indent_nr : ctxt->level),
-			    ctxt->indent);
-		xhtmlNodeDumpOutput(ctxt, cur);
-		if(ctxt->format == 1) {
-			xmlOutputBufferWrite(buf, 1, "\n");
+	if(cur) {
+		xmlOutputBuffer * buf = ctxt->buf;
+		while(cur) {
+			if((ctxt->format == 1) && (xmlIndentTreeOutput) && (cur->type == XML_ELEMENT_NODE))
+				xmlOutputBufferWrite(buf, ctxt->indent_size * (ctxt->level > ctxt->indent_nr ? ctxt->indent_nr : ctxt->level), ctxt->indent);
+			xhtmlNodeDumpOutput(ctxt, cur);
+			if(ctxt->format == 1) {
+				xmlOutputBufferWrite(buf, 1, "\n");
+			}
+			cur = cur->next;
 		}
-		cur = cur->next;
 	}
 }
 /**
@@ -2036,15 +2030,15 @@ void xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur)
  */
 void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format, const char * encoding)
 {
-	xmlSaveCtxt ctxt;
 #ifdef LIBXML_HTML_ENABLED
 	xmlDtd * dtd;
 	int is_xhtml = 0;
 #endif
 	xmlInitParser();
 	if(buf && cur) {
+		xmlSaveCtxt ctxt;
 		SETIFZ(encoding, "UTF-8");
-		MEMSZERO(ctxt);
+		//@v10.7.9 @ctr MEMSZERO(ctxt);
 		ctxt.doc = doc;
 		ctxt.buf = buf;
 		ctxt.level = level;
@@ -2082,7 +2076,6 @@ void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, int l
  */
 void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format)
 {
-	xmlSaveCtxt ctxt;
 	int dummy = 0;
 	xmlOutputBuffer * out_buff = NULL;
 	xmlCharEncodingHandler * conv_hdlr = NULL;
@@ -2110,7 +2103,8 @@ void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * d
 				xmlSaveErrMemory("creating buffer");
 			}
 			else {
-				MEMSZERO(ctxt);
+				xmlSaveCtxt ctxt;
+				//@v10.7.9 @ctr MEMSZERO(ctxt);
 				ctxt.doc = out_doc;
 				ctxt.buf = out_buff;
 				ctxt.level = 0;
@@ -2192,7 +2186,6 @@ void xmlDocDumpMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt
  */
 int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 {
-	xmlSaveCtxt ctxt;
 	xmlOutputBuffer * buf;
 	const char * encoding;
 	xmlCharEncodingHandler * handler = NULL;
@@ -2205,25 +2198,28 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 	encoding = reinterpret_cast<const char *>(cur->encoding);
 	if(encoding) {
 		handler = xmlFindCharEncodingHandler(encoding);
-		if(handler == NULL) {
+		if(!handler) {
 			SAlloc::F((char *)cur->encoding);
 			cur->encoding = NULL;
 			encoding = NULL;
 		}
 	}
 	buf = xmlOutputBufferCreateFile(f, handler);
-	if(!buf)
+	if(!buf) 
 		return -1;
-	MEMSZERO(ctxt);
-	ctxt.doc = cur;
-	ctxt.buf = buf;
-	ctxt.level = 0;
-	ctxt.format = format ? 1 : 0;
-	ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
-	xmlSaveCtxtInit(&ctxt);
-	ctxt.options |= XML_SAVE_AS_XML;
-	xmlDocContentDumpOutput(&ctxt, cur);
-	return xmlOutputBufferClose(buf);
+	else {
+		xmlSaveCtxt ctxt;
+		//@v10.7.9 @ctr MEMSZERO(ctxt);
+		ctxt.doc = cur;
+		ctxt.buf = buf;
+		ctxt.level = 0;
+		ctxt.format = format ? 1 : 0;
+		ctxt.encoding = reinterpret_cast<const xmlChar *>(encoding);
+		xmlSaveCtxtInit(&ctxt);
+		ctxt.options |= XML_SAVE_AS_XML;
+		xmlDocContentDumpOutput(&ctxt, cur);
+		return xmlOutputBufferClose(buf);
+	}
 }
 /**
  * xmlDocDump:
@@ -2259,7 +2255,7 @@ int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding)
 		}
 		else {
 			xmlSaveCtxt ctxt;
-			MEMSZERO(ctxt);
+			//@v10.7.9 @ctr MEMSZERO(ctxt);
 			ctxt.doc = cur;
 			ctxt.buf = buf;
 			ctxt.level = 0;
@@ -2295,7 +2291,7 @@ int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encodi
 		}
 		else {
 			xmlSaveCtxt ctxt;
-			MEMSZERO(ctxt);
+			//@v10.7.9 @ctr MEMSZERO(ctxt);
 			ctxt.doc = cur;
 			ctxt.buf = buf;
 			ctxt.level = 0;
@@ -2325,11 +2321,10 @@ int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encodi
 int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encoding, int format)
 {
 	int    ret = -1;
-	xmlSaveCtxt ctxt;
 	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
 	if(cur) {
-		SETIFZ(encoding, (const char *)cur->encoding);
+		SETIFZ(encoding, PTRCHRC_(cur->encoding));
 		if(encoding) {
 			handler = xmlFindCharEncodingHandler(encoding);
 			if(handler == NULL)
@@ -2341,7 +2336,8 @@ int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encod
 		// save the content to a temp buffer.
 		buf = xmlOutputBufferCreateFilename(filename, handler, cur->compression);
 		if(buf) {
-			MEMSZERO(ctxt);
+			xmlSaveCtxt ctxt;
+			//@v10.7.9 @ctr MEMSZERO(ctxt);
 			ctxt.doc = cur;
 			ctxt.buf = buf;
 			ctxt.level = 0;
@@ -2365,11 +2361,7 @@ int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encod
  *
  * returns: the number of bytes written or -1 in case of failure.
  */
-int xmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding)
-{
-	return (xmlSaveFormatFileEnc(filename, cur, encoding, 0));
-}
-
+int xmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding) { return xmlSaveFormatFileEnc(filename, cur, encoding, 0); }
 /**
  * xmlSaveFormatFile:
  * @filename:  the filename (or URL)
@@ -2384,10 +2376,7 @@ int xmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding)
  *
  * returns: the number of bytes written or -1 in case of failure.
  */
-int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format)
-{
-	return xmlSaveFormatFileEnc(filename, cur, NULL, format);
-}
+int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format) { return xmlSaveFormatFileEnc(filename, cur, NULL, format); }
 /**
  * xmlSaveFile:
  * @filename:  the filename (or URL)
@@ -2398,10 +2387,7 @@ int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format)
  * used.
  * returns: the number of bytes written or -1 in case of failure.
  */
-int xmlSaveFile(const char * filename, xmlDoc * cur)
-{
-	return (xmlSaveFormatFileEnc(filename, cur, NULL, 0));
-}
+int xmlSaveFile(const char * filename, xmlDoc * cur) { return xmlSaveFormatFileEnc(filename, cur, NULL, 0); }
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 

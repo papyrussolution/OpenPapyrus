@@ -1961,7 +1961,7 @@ public:
 		pTbl->clearDataBuf();
 		SString temp_buf;
 		RegisterTbl::Rec tmp_rec;
-		MEMSZERO(tmp_rec);
+		// @v10.7.9 @ctr MEMSZERO(tmp_rec);
 		memcpy(&tmp_rec, pRec, sizeof(RegisterTbl::Rec));
 		tmp_rec.UniqCntr = 0;
 		tmp_rec.Flags = 0;

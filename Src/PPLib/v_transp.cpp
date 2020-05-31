@@ -20,8 +20,7 @@ IMPLEMENT_PPFILT_FACTORY(Transport); SLAPI TransportFilt::TransportFilt() : PPBa
 	InitInstance();
 }
 
-// virtual
-int SLAPI TransportFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI TransportFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_TRANSPMODEL, ModelID,   STRINGIZE(ModelID),      rBuf);
 	PutObjMembToBuf(PPOBJ_PERSON,      OwnerID,   STRINGIZE(BrandOwnerID), rBuf);

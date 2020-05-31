@@ -809,7 +809,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 								double quot = 0.0;
 								double cost_ = NZOR(RGI.LineCost, RGI.Cost);
 								double price_ = NZOR(RGI.LinePrice, RGI.Price);
-								const QuotIdent qi(QIDATE(getcurdate_()), RGI.LocID, qk_id, 0L /* @curID */);
+								const QuotIdent qi(QIDATE(getcurdate_()), RGI.LocID, qk_id, 0L/*@curID*/);
 								goods_obj.GetQuotExt(RGI.ID, qi, cost_, price_, &quot, 1);
 								d = stpcpy(d, realfmt(quot, MKSFMTD(0, 2, NMBF_NOZERO), temp));
 								var_len += (ss_+1);

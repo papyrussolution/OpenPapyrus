@@ -1058,7 +1058,7 @@ int SLAPI PPObject::ProcessObjListRefInArray(PPID objTypeID, PPIDArray & rList, 
 	return 1;
 }
 
-// virtual
+//virtual
 void * SLAPI PPObject::CreateObjListWin(uint aFlags, void * extraPtr)
 {
 	return 0;

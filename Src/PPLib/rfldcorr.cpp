@@ -581,8 +581,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 	return ok;
 }
 
-//virtual
-int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
+/*virtual*/int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
 {
 	rResult.Z();
 
@@ -660,8 +659,7 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 	return ok;
 }
 
-//virtual
-int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
+/*virtual*/int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -726,8 +724,7 @@ int PPImpExpParam::PtTokenList::Get(uint pos, long * pTokenId, long * pExtID, SS
 	return ok;
 }
 
-//virtual
-int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
+/*virtual*/int PPImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
 {
 	return -1;
 }
@@ -993,8 +990,7 @@ enum {
 	iefFtpAccID        // @v8.6.1 Идентификатор FTP-аккаунта
 };
 
-//virtual
-int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1239,10 +1235,8 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	return ok;
 }
 
-//virtual
-int PPImpExpParam::Edit() { return -1; }
-//virtual
-int PPImpExpParam::Select() { return -1; }
+/*virtual*/int PPImpExpParam::Edit() { return -1; }
+/*virtual*/int PPImpExpParam::Select() { return -1; }
 
 int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & rVal)
 {
@@ -1827,7 +1821,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_SL(P_TxtT->Open(filename, &P.TdfParam, readOnly));
 		if(P.TdfParam.Flags & TextDbFile::fVerticalRec && P.HdrOtrRec.GetCount()) {
 			Sdr_ImpExpHeader sdr_hdr;
-			MEMSZERO(sdr_hdr);
+			// @v10.7.9 @ctr MEMSZERO(sdr_hdr);
 			if(P_HdrData) {
 				sdr_hdr.PeriodLow = P_HdrData->PeriodLow;
 				sdr_hdr.PeriodUpp = P_HdrData->PeriodUpp;
@@ -1852,7 +1846,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_SL(P_XmlT->Open(filename, &P.XdfParam, &P.OtrRec, readOnly));
 		if(P.XdfParam.HdrTag.NotEmpty()) {
 			Sdr_ImpExpHeader sdr_hdr;
-			MEMSZERO(sdr_hdr);
+			// @v10.7.9 @ctr MEMSZERO(sdr_hdr);
 			getcurdatetime(&sdr_hdr.CurDate, &sdr_hdr.CurTime);
 			PPVersionInfo vi = DS.GetVersionInfo();
 			vi.GetProductName(temp_buf);

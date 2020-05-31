@@ -390,6 +390,21 @@ static void InitTest()
 		SETIFZ(dtm, cdtm);
 		assert(dtm != cdtm);
 	}
+	// @v10.7.9 {
+	{
+		{
+			SString temp_buf;
+			StringSet ss(';', "1;2");
+			ss.get(static_cast<size_t>(0), temp_buf);
+			assert(temp_buf == "1");
+		}
+		{
+			SString temp_buf;
+			StringSet(';', "1;2").get(static_cast<size_t>(0), temp_buf);
+			assert(temp_buf == "1");
+		}
+	}
+	// } @v10.7.9 
 #endif // } NDEBUG
 }
 

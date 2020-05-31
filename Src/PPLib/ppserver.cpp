@@ -1779,7 +1779,7 @@ int SLAPI CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply &
 					CTblList.freeAll();
 					for(i = 0; i < P_Prcssr->CTblList.getCount(); i++) {
 						Sdr_CPosTable sdr_ctbl;
-						MEMSZERO(sdr_ctbl);
+						// @v10.7.9 @ctr MEMSZERO(sdr_ctbl);
 						sdr_ctbl._id = P_Prcssr->CTblList.at(i);
 						PPLoadString("cafetable", temp_buf);
 						STRNSCPY(sdr_ctbl.Name, temp_buf.Space().Cat(sdr_ctbl._id));
@@ -2013,8 +2013,7 @@ SLAPI PPWorkerSession::~PPWorkerSession()
 	ZDELETE(P_CPosBlk);
 }
 
-// virtual
-void SLAPI PPWorkerSession::Shutdown()
+/*virtual*/void SLAPI PPWorkerSession::Shutdown()
 {
 	ZDELETE(P_CPosBlk);
 	FtbList.freeAll();
@@ -2531,7 +2530,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			{
 				SString left, right;
 				Sdr_CPosAuth rec;
-				MEMSZERO(rec);
+				// @v10.7.9 @ctr MEMSZERO(rec);
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				temp_buf.Divide(' ', left, right);
 				memcpy(&rec, right.cptr(), sizeof(rec));
@@ -3888,8 +3887,7 @@ int FASTCALL PPServerSession::SendReply(PPJobSrvReply & rReply)
 	return So.SendBuf(rReply, 0) ? 1 : PPSetErrorSLib();
 }
 
-// virtual
-int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply)
+/*virtual*/int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply)
 {
 	//
 	// Note: Функция выполняется вне потока PPServerSession
@@ -3926,8 +3924,7 @@ int SLAPI PPServerSession::SubstituteSock(TcpSocket & rS, PPJobSrvReply * pReply
 	return ok;
 }
 
-// virtual
-void SLAPI PPServerSession::Shutdown()
+/*virtual*/void SLAPI PPServerSession::Shutdown()
 {
 	ZDELETE(P_SbiiBlk);
 	PPWorkerSession::Shutdown();

@@ -297,8 +297,7 @@ int SLAPI PPViewReport::SaveChanges(int remove)
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempReport);
 
-// virtual
-int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString fname, temp_fname;
@@ -429,8 +428,7 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewReport::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewReport::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY_P1ERR(ReportFiltDlg, this, static_cast<ReportFilt *>(pFilt));
 }
@@ -891,8 +889,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	return ok;
 }
 
-// virtual
-DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewReport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	int    ok = 1;
 	uint brw_id = BROWSER_REPORT;

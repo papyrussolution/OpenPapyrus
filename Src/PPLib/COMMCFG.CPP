@@ -46,7 +46,7 @@ int CommCfgDialog::getAcc(uint ctl, Acct * pAcc)
 {
 	getCtrlData(ctl, pAcc);
 	pAcc->ar = 0;
-	return BIN((!pAcc->ac && !pAcc->sb) || AccObj.SearchNum(pAcc->ac, pAcc->sb, 0L /* @curID */) > 0);
+	return BIN((!pAcc->ac && !pAcc->sb) || AccObj.SearchNum(pAcc->ac, pAcc->sb, 0L/*@curID*/) > 0);
 }
 
 int CommCfgDialog::getDTS(PPCommConfig * pData)

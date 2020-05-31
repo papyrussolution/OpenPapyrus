@@ -2442,7 +2442,7 @@ int SLAPI PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char
 	return ok;
 }
 
-// virtual
+//virtual
 int  SLAPI PPObjGlobalUserAcc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {

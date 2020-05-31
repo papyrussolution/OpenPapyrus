@@ -49,8 +49,7 @@ uint32 SLAPI DataType::size() const { return S; } // @v10.2.1
 int    SLAPI DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
 char * SLAPI DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
 
-//virtual
-SString & SLAPI DataType::ToStr(const void * pData, long format, SString & rBuf) const
+/*virtual*/SString & SLAPI DataType::ToStr(const void * pData, long format, SString & rBuf) const
 {
 	rBuf.Z();
 	char    temp_buf[4096];

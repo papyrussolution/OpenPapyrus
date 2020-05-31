@@ -156,8 +156,7 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
@@ -548,8 +547,7 @@ int SLAPI PPViewGoodsMov::EditGoods(PPID goodsID)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewGoodsMov::Print(const void *)
+/*virtual*/int SLAPI PPViewGoodsMov::Print(const void *)
 {
 	class PrintGoodsMovDialog : public TDialog {
 	public:
@@ -660,8 +658,7 @@ DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return p_q;
 }
 
-// virtual
-int SLAPI PPViewGoodsMov::ViewTotal()
+/*virtual*/int SLAPI PPViewGoodsMov::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * p_dlg = 0;

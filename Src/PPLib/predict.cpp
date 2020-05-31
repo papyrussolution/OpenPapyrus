@@ -537,6 +537,7 @@ int SLAPI PrcssrPrediction::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rL
 #define GRP_GOODS 1
 
 class PSalesTestParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrPrediction::Param);
 public:
 	PSalesTestParamDialog(PPPredictConfig * pCfg) : TDialog(DLG_PSALESTEST)
 	{
@@ -544,7 +545,7 @@ public:
 			MEMSZERO(Cfg);
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PSALTST_GGROUP, CTLSEL_PSALTST_GOODS));
 	}
-	int    setDTS(const PrcssrPrediction::Param * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		long   mode = 0;
@@ -564,7 +565,7 @@ public:
 		}
 		return ok;
 	}
-	int    getDTS(PrcssrPrediction::Param * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		long   mode = 0;
@@ -584,7 +585,6 @@ public:
 		return ok;
 	}
 private:
-	PrcssrPrediction::Param Data;
 	PPPredictConfig Cfg;
 };
 
@@ -1828,7 +1828,6 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		const double rest = rLvEntry.Rest;
 		const double sell = rLvEntry.Sell;
 		const double amt  = rLvEntry.SellAmt;
-		PredictSalesTbl::Rec rec;
 		T.AddLocEntry(loc_id, &loc_idx);
 		//
 		// Ограничение (sell > 0.0 || rest > 0.0) препятствует занесению нулевых
@@ -1837,6 +1836,7 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		//
 		if(sell > 0.0 || rest > 0.0) {
 			if(!rHa.Is(loc_idx, last_date)) {
+				PredictSalesTbl::Rec rec;
 				int16  dt_idx = 0;
 				// @v10.6.4 MEMSZERO(rec);
 				T.ShrinkDate(last_date, &dt_idx);
@@ -1857,8 +1857,9 @@ int SLAPI PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goo
 		if(rest > 0.0) {
 			for(LDATE dt = plusdate(last_date, 1); dt < date; dt = plusdate(dt, 1)) {
 				if(!rHa.Is(loc_idx, dt)) {
+					PredictSalesTbl::Rec rec;
 					int16  dt_idx = 0;
-					MEMSZERO(rec);
+					// @v10.7.9 @ctr MEMSZERO(rec);
 					T.ShrinkDate(dt, &dt_idx);
 					rec.RType = PSRECTYPE_DAY;
 					rec.GoodsID = goodsID;

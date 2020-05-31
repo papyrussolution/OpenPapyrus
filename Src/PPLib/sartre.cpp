@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -38,15 +38,13 @@ int FASTCALL SrSList::Copy(const SrSList & rS)
 	return 1;
 }
 
-//virtual
-void SrSList::Clear()
+/*virtual*/void SrSList::Clear()
 {
 	Len = 0;
 	ASSIGN_PTR(P_Buf, 0);
 }
 
-//virtual
-int SrSList::IsEqual(const SrSList & rS) const
+/*virtual*/int SrSList::IsEqual(const SrSList & rS) const
 {
 	if(Type != rS.Type || Len != rS.Len)
 		return 0;
@@ -56,8 +54,7 @@ int SrSList::IsEqual(const SrSList & rS) const
 		return 1;
 }
 
-//virtual
-int SrSList::Validate() const
+/*virtual*/int SrSList::Validate() const
 {
 	return 1;
 }

@@ -1207,8 +1207,7 @@ int SLAPI GoodsContext::ResolveFunc(int funcId, FC & rFc)
 			}
 			SETIFZ(cur_id, P_BillPack ? P_BillPack->Rec.CurID : P.CurID);
 			SETIFZ(ar_id, P_BillPack ? P_BillPack->Rec.Object : P.ArID);
-			const QuotIdent qi(QIDATE(getcurdate_()), loc_id, qk_id, cur_id, ar_id);
-			GObj.GetQuotExt(P.GoodsID, qi, cost, price, &result, 0);
+			GObj.GetQuotExt(P.GoodsID, QuotIdent(QIDATE(getcurdate_()), loc_id, qk_id, cur_id, ar_id), cost, price, &result, 0);
 		}
 	}
 	rFc.RetType = T_DOUBLE;
@@ -1452,8 +1451,7 @@ int SLAPI GoodsContext::Resolve(const char * pSymb, double * pVal)
 					const PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
 					const PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
 					const LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
-					const QuotIdent qi(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id);
-					GObj.GetQuotExt(P.GoodsID, qi, cost, price, &v, 0);
+					GObj.GetQuotExt(P.GoodsID, QuotIdent(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id), cost, price, &v, 0);
 				}
 			}
 			else if(spcref == spcrefLotTag) {
@@ -1611,7 +1609,7 @@ int SLAPI PPCalcExpression(const char * pStr, double * pResult, PPBillPacket * p
 //
 //
 //
-SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(PPGdsClsPacket * pGcPack, PPGoodsPacket * pGPack)
+SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const PPGdsClsPacket * pGcPack, const PPGoodsPacket * pGPack)
 {
 	THISZERO();
 	P_GcPack = pGcPack;
@@ -1657,7 +1655,7 @@ SLAPI GdsClsCalcExprContext::GdsClsCalcExprContext(const CCheckItem * pCi) // @v
 int SLAPI PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext * pCtx)
 {
 	GoodsContext * p_ctx = (pCtx && (pCtx->P_GPack || pCtx->P_GsPack ||
-		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);
+		(pCtx->GoodsID && (pCtx->PrevGoodsID || pCtx->P_Ti || pCtx->P_Ci)))) ? new GoodsContext(pCtx) : static_cast<GoodsContext *>(0);
 	int    ok = PPExprParser::CalcExpression(pStr, pResult, 0, p_ctx);
 	delete p_ctx;
 	return ok;

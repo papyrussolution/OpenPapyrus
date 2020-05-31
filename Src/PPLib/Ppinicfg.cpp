@@ -189,8 +189,6 @@ int SLAPI PPIniFile::UpdateFromFile(const char * pSrcFileName)
 //
 //
 //
-#if 1 // @construction {
-
 PPConfigDatabase::CObjHeader::CObjHeader() : ID(0), Ver(0), Type(0), Flags(0)
 {
 }
@@ -262,8 +260,7 @@ SLAPI PPConfigDatabase::CObjTbl::~CObjTbl()
 	CALLPTRMEMB(P_Db, CloseSequence(SeqID));
 }
 
-//virtual
-int PPConfigDatabase::CObjTbl::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
+/*virtual*/int PPConfigDatabase::CObjTbl::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
 {
 	int    c = 0;
 	if(pKey1 && pKey2) {
@@ -989,5 +986,3 @@ int SLAPI TestConfigDatabase_StringHistory()
 	CATCHZOK
 	return ok;
 }
-
-#endif // } 0 @construction

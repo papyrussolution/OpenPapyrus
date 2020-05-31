@@ -541,8 +541,7 @@ int PPDrvINPASTrmnl::GetSessReport(SString & rCheck)
 	return ok;
 }
 
-// virtual
-int PPDrvINPASTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)
+/*virtual*/int PPDrvINPASTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)
 {
 	int    err = 0;
 	SString value;

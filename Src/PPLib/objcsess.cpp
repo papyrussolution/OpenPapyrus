@@ -489,8 +489,7 @@ int SLAPI PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 	return ok;
 }
 
-//virtual
-int  SLAPI PPObjCSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int SLAPI PPObjCSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    ok = 1;
 	CGoodsLine cgl;

@@ -13,8 +13,7 @@ IMPLEMENT_PPFILT_FACTORY(ShipmAnalyze); SLAPI ShipmAnalyzeFilt::ShipmAnalyzeFilt
 	Init(1, 0);
 }
 
-// virtual
-int SLAPI ShipmAnalyzeFilt::Init(int fullyDestroy, long extraData)
+/*virtual*/int SLAPI ShipmAnalyzeFilt::Init(int fullyDestroy, long extraData)
 {
 	int   ok = PPBaseFilt::Init(1, 0);
 	Period.SetDate(LConfig.OperDate);
@@ -37,8 +36,7 @@ int SLAPI ShipmAnalyzeFilt::TranslateToBillFilt(BillFilt * pBillFilt)
 }
 //
 //
-// virtual
-PPBaseFilt * SLAPI PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * SLAPI PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
 {
 	ShipmAnalyzeFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_SHIPMANALYZE, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -322,8 +320,8 @@ int SLAPI PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 					BExtInsert bei(Tbl);
 					for(i = 0; i < cache.getCount(); i++) {
 						TempShipmentAnlzTbl::Rec rec;
-						const ShipmAnalyzeCache::Entry * p_entry = (const ShipmAnalyzeCache::Entry *)cache.at(i);
-						MEMSZERO(rec);
+						const ShipmAnalyzeCache::Entry * p_entry = static_cast<const ShipmAnalyzeCache::Entry *>(cache.at(i));
+						// @v10.7.9 @ctr MEMSZERO(rec);
 						STRNSCPY(rec.GoodsName, GetGoodsName(p_entry->GoodsID, goods_name));
 						rec.GoodsID = p_entry->GoodsID;
 						rec.BillID  = p_entry->BillID;
@@ -382,8 +380,7 @@ int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 		return -1;
 }
 
-// virtual
-DBQuery * SLAPI PPViewShipmAnalyze::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewShipmAnalyze::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	DBQuery * q = 0;
@@ -434,8 +431,7 @@ int SLAPI PPViewShipmAnalyze::Print(const void * pHdr)
 	return Helper_Print(rpt_id);
 }
 
-// virtual
-int SLAPI PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -472,8 +468,7 @@ int SLAPI PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 	return ok;
 }
 
-//virtual
-void SLAPI PPViewShipmAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewShipmAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 }
 //

@@ -1485,7 +1485,6 @@ int SLAPI PrcssrInvImport::Run()
 		int    r;
 		IterCounter cntr;
 		PPBillPacket pack;
-		Sdr_InventoryItem rec;
 		Goods2Tbl::Rec goods_rec;
 		BarcodeTbl::Rec bc_rec;
 		InventoryCore & r_inv_tbl = BillObj->GetInvT();
@@ -1496,9 +1495,10 @@ int SLAPI PrcssrInvImport::Run()
 		{
 			SString serial;
 			PPObjBill::InvBlock blk;
+			Sdr_InventoryItem rec;
 			THROW(P_BObj->InitInventoryBlock(pack.Rec.ID, blk));
 			cntr.Init(numrecs);
-			MEMSZERO(rec);
+			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
 				serial = 0;
 
@@ -1819,7 +1819,7 @@ int SLAPI TestGenerateInventory()
 					THROW(ie.OpenFileForWriting(0, 1));
 					while((ulong)cntr < cntr.GetTotal() && gen.Next(&goods_id, &goods_rec) > 0) {
 						Sdr_InventoryItem item;
-						MEMSZERO(item);
+						// @v10.7.9 @ctr MEMSZERO(item);
 						item.GoodsID = goods_rec.ID;
 						STRNSCPY(item.GoodsName, goods_rec.Name);
 						SOemToChar(item.GoodsName);

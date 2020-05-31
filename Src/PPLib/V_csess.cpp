@@ -1217,8 +1217,7 @@ void SLAPI PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 	ASSIGN_PTR(pRules, rules);
 }
 
-// virtual
-int SLAPI PPObjDraftCreateRule::Browse(void * extraPtr)
+/*virtual*/int SLAPI PPObjDraftCreateRule::Browse(void * extraPtr)
 {
 	class DraftCreateRuleBrowseDialog : public ObjViewDialog {
 	public:
@@ -1289,8 +1288,7 @@ int SLAPI PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-// virtual
-int SLAPI PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int SLAPI PPObjDraftCreateRule::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    r = cmCancel;

@@ -4,9 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//
-//
-//
+
 PPProjectConfig::PPProjectConfig()
 {
 	Z();
@@ -1380,12 +1378,8 @@ SLAPI PPObjPrjTask::~PPObjPrjTask()
 	TLP_CLOSE(P_Tbl);
 }
 
-//virtual
-int SLAPI PPObjPrjTask::Search(PPID id, void * pRec)
-	{ return P_Tbl->Search(id, static_cast<PrjTaskTbl::Rec *>(pRec)); }
-//virtual
-const char * SLAPI PPObjPrjTask::GetNamePtr()
-	{ return P_Tbl->data.Code; }
+/*virtual*/int SLAPI PPObjPrjTask::Search(PPID id, void * pRec) { return P_Tbl->Search(id, static_cast<PrjTaskTbl::Rec *>(pRec)); }
+/*virtual*/const char * SLAPI PPObjPrjTask::GetNamePtr() { return P_Tbl->data.Code; }
 
 StrAssocArray * SLAPI PPObjPrjTask::MakeStrAssocList(void * extraPtr)
 {
@@ -2253,8 +2247,7 @@ private:
 	PPObjPrjTask ObjPrjT;
 };
 
-// virtual
-int ViewTasksDialog::setupList()
+/*virtual*/int ViewTasksDialog::setupList()
 {
 	int    ok = -1;
 	if(P_Data) {
@@ -2401,8 +2394,7 @@ int RestoreLostPrjTPersonDlg::GetText(PPID id, const SString & rWord, SString & 
 	return ok;
 }
 
-// virtual
-int RestoreLostPrjTPersonDlg::setupList()
+/*virtual*/int RestoreLostPrjTPersonDlg::setupList()
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2448,22 +2440,20 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 		PPObjPrjTask todo_obj;
 		PrjTaskTbl * p_t = todo_obj.P_Tbl;
 		SString temp_buf;
+		MEMSZERO(k);
 		if(cm == cmViewTasksByCreator) {
 			idx = 0;
-			MEMSZERO(k.k0);
-			k_ = (void *)&k.k0;
+			k_ = static_cast<void *>(&k.k0);
 			dbq = ppcheckfiltid(dbq, p_t->CreatorID, pItem->CreatorID);
 		}
 		else if(cm == cmViewTasksByEmployer) {
 			idx = 4;
-			MEMSZERO(k.k4);
 			k.k4.EmployerID = pItem->EmployerID;
 			k_ = &k.k4;
 			dbq = ppcheckfiltid(dbq, p_t->EmployerID, pItem->EmployerID);
 		}
 		else {
 			idx = 5;
-			MEMSZERO(k.k5);
 			k.k5.ClientID = pItem->ClientID;
 			k_ = &k.k5;
 			dbq = ppcheckfiltid(dbq, p_t->ClientID, pItem->ClientID);

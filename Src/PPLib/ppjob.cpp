@@ -2878,8 +2878,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 	return ok;
 }
 
-// virtual
-int SLAPI PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int SLAPI PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, ta = 0;
 	PPRFIDDevice rec;
@@ -2906,8 +2905,7 @@ int SLAPI PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-// virtual
-int  SLAPI PPObjRFIDDevice::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRRFIDDEVICE, 0); }
+/*virtual*/int  SLAPI PPObjRFIDDevice::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRRFIDDEVICE, 0); }
 
 #define DISPLAY_ROW_SIZE 16
 

@@ -947,8 +947,7 @@ int SLAPI PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-//virtual
-int SLAPI PPObjOprKind::MakeReserved(long flags)
+/*virtual*/int SLAPI PPObjOprKind::MakeReserved(long flags)
 {
     int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -1100,8 +1099,7 @@ int SLAPI PPObjOprKind::MakeReserved(long flags)
     return ok;
 }
 
-// virtual
-StrAssocArray * SLAPI PPObjOprKind::MakeStrAssocList(void * extraPtr)
+/*virtual*/StrAssocArray * SLAPI PPObjOprKind::MakeStrAssocList(void * extraPtr)
 {
 	const PPID op_type_id = reinterpret_cast<const PPID>(extraPtr);
 	PPIDArray op_list;

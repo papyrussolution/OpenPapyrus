@@ -147,8 +147,7 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 
 }
 
-// virtual
-int PPDrvSberTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)
+/*virtual*/int PPDrvSberTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)
 {
 	int    err = 0;
 	SString value;

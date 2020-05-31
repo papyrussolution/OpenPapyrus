@@ -473,7 +473,7 @@ int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 #ifdef UNICODE
 	SStringU temp_buf_u;
 	temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
-	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)(const wchar_t *)temp_buf_u));
+	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(temp_buf_u.ucptr())));
 #else
 	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(pText)));
 #endif // UNICODE

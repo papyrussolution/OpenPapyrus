@@ -315,8 +315,7 @@ int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
 	return DisableGroupSelection;
 }
 
-// virtual
-int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
+/*virtual*/int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	if(pDlg && pData) {
@@ -375,8 +374,7 @@ int GoodsFiltCtrlGroup::setData(TDialog * pDlg, void * pData)
 	return ok;
 }
 
-// virtual
-int GoodsFiltCtrlGroup::getData(TDialog * pDlg, void * pData)
+/*virtual*/int GoodsFiltCtrlGroup::getData(TDialog * pDlg, void * pData)
 {
 	int    ok = -1;
 	THROW(PPObjGoodsGroup::RemoveDynamicAlt(Data.GoodsGrpID, 0, 1));
@@ -1184,22 +1182,19 @@ int ClsdGoodsDialog::getDTS(PPGoodsPacket * pPack)
 //
 //
 //
-#define GRP_IBG 1L
-
+//#define GRP_IBG 1L
 GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID), St(0), gpk(gpkndUndef)
 {
-	int    use_gdscls = BIN(CConfig.Flags & CCFLG_USEGDSCLS);
+	const  long ccflags = CConfig.Flags;
+	int    use_gdscls = BIN(ccflags & CCFLG_USEGDSCLS);
 	Ptb.SetBrush(brushPriorBarcode, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
 	enableCommand(cmGoodsExt, use_gdscls);
-	enableCommand(cmArGoodsCodeList, (CConfig.Flags & CCFLG_USEARGOODSCODE));
-	{
-		PPObjGoodsStruc gs_obj;
-		enableCommand(cmGoodsStruc, gs_obj.CheckRights(PPR_READ));
-	}
+	enableCommand(cmArGoodsCodeList, (ccflags & CCFLG_USEARGOODSCODE));
+	enableCommand(cmGoodsStruc, PPObjGoodsStruc().CheckRights(PPR_READ));
 	disableCtrl(CTLSEL_GOODS_CLS, !use_gdscls);
 	if(GObj.GetConfig().Flags & GCF_DISABLEWOTAXFLAG)
 		St |= stWoTaxFlagDisabled;
-	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
+	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
 		cmAddImage, cmDelImage, GObj.CheckRights(GOODSRT_UPDIMAGE)));
 }
 
@@ -1214,6 +1209,28 @@ void GoodsDialog::setupInhTaxGrpName()
 		temp_buf.Strip().Space().Cat(inh_tax_name);
 		setStaticText(CTL_GOODS_ST_INH_TAXGRP, temp_buf);
 	}
+}
+
+static int SLAPI __Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const PPGoodsPacket * pPack, double & rBound)
+{
+	int    ok = -1;
+	rBound = 0.0;
+	if(pPack && rFormula.NotEmptyS()) {
+		double bound = 0.0;
+		PPGdsClsPacket gc_pack;
+		PPGdsClsPacket * p_gc_pack = 0;
+		if(pPack->Rec.GdsClsID) {
+			PPObjGoodsClass gc_obj;
+			if(gc_obj.Fetch(pPack->Rec.GdsClsID, &gc_pack) > 0)
+				p_gc_pack = &gc_pack;
+		}
+		GdsClsCalcExprContext ctx(p_gc_pack, pPack);
+		if(PPCalcExpression(rFormula, &bound, &ctx) && bound > 0.0) {
+			rBound = bound;
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 void GoodsDialog::SetupAddedInfo()
@@ -1249,6 +1266,32 @@ void GoodsDialog::SetupAddedInfo()
 			}
 			else
 				title_buf.Z();
+		}
+		else if(temp_buf == "pricerestriction") { // @v10.7.9
+			title_buf = "no price restriction";
+			if(Data.Rec.ID && Data.Rec.GoodsTypeID) {
+				PPObjGoodsType gt_obj;
+				PPGoodsType gt_rec;
+				if(gt_obj.Fetch(Data.Rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.PriceRestrID) {
+					PPObjGoodsValRestr gvr_obj;
+					PPGoodsValRestrPacket gvr_pack;
+					RealRange range;
+					int   pr = 0;
+					if(gvr_obj.Fetch(gt_rec.PriceRestrID, &gvr_pack) > 0) {
+						if(__Helper_GetPriceRestrictions_ByFormula(gvr_pack.LowBoundFormula, &Data, range.low) > 0)
+							pr = 1;
+						if(__Helper_GetPriceRestrictions_ByFormula(gvr_pack.UppBoundFormula, &Data, range.upp) > 0)
+							pr = 1;
+						(title_buf = "price restriction").CatDiv(':', 2);
+						if(range.low > 0.0)
+							title_buf.Cat(range.low, MKSFMTD(0, 2, 0));
+						title_buf.Dot().Dot();
+						if(range.upp > 0.0)
+							title_buf.Cat(range.upp, MKSFMTD(0, 2, 0));
+					}
+				}
+			}
+
 		}
 		else
 			title_buf.Z();
@@ -1351,7 +1394,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		if(Data.Rec.Flags & GF_HASIMAGES)
 			Data.LinkFiles.Load(Data.Rec.ID, 0L);
 		Data.LinkFiles.At(0, rec.Path);
-		setGroupData(GRP_IBG, &rec);
+		setGroupData(ctlgroupIBG, &rec);
 	}
 	return ok;
 }
@@ -1432,7 +1475,7 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 	}
 	{
 		ImageBrowseCtrlGroup::Rec rec;
-		if(getGroupData(GRP_IBG, &rec))
+		if(getGroupData(ctlgroupIBG, &rec))
 			if(rec.Path.Len()) {
 				THROW(Data.LinkFiles.Replace(0, rec.Path));
 			}
@@ -1558,13 +1601,13 @@ void GoodsDialog::printLabel()
 			BarcodeLabelPrinter::PrintGoodsLabel(Data.Rec.ID);
 		else {
 			RetailGoodsInfo rgi;
-			int    count = Data.Codes.getCount();
+			const uint count = Data.Codes.getCount();
 			if(count) {
 				// @v10.6.8 @ctr rgi.BarCode[0] = 0;
 				if(count == 1)
 					getCtrlData(CTL_GOODS_BARCODE, rgi.BarCode);
 				else
-					for(int i = 0; i < count; i++)
+					for(uint i = 0; i < count; i++)
 						if(Data.Codes.at(i).Qtty == 1.0)
 							STRNSCPY(rgi.BarCode, Data.Codes.at(i).Code);
 				if(rgi.BarCode[0] == 0)
@@ -1594,8 +1637,7 @@ void GoodsDialog::printInfoLabel()
 							PPError(PPERR_USERINPUT, 0);
 					}
 				}
-				delete dlg;
-				dlg = 0;
+				ZDELETE(dlg);
 			}
 			if(ok > 0) {
 				uint   rpt_id = REPORT_GOODSLABEL;
@@ -1626,11 +1668,23 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 	if(CheckDialogPtrErr(&dlg)) {
 		enum {
 			adinfNone = 1,
-			adinfLastSellDate = 2
+			adinfLastSellDate = 2,
+			adinfPriceRestrictions = 3 // @v10.7.9
 		};
 		long   adinf = 0;
 		SString buf;
-		PPGetExtStrData(GDSEXSTR_STORAGE, rGoodsExTitles, buf);
+		static const struct {
+			int16  F;
+			uint16 C;
+		} fld_to_ctl_list[] = { {GDSEXSTR_STORAGE, CTL_GOODSEXTITLES_A}, {GDSEXSTR_STANDARD, CTL_GOODSEXTITLES_B}, 
+			{ GDSEXSTR_INGRED, CTL_GOODSEXTITLES_C }, { GDSEXSTR_ENERGY, CTL_GOODSEXTITLES_D }, { GDSEXSTR_USAGE, CTL_GOODSEXTITLES_E } };
+		{
+			for(uint i = 0; i < SIZEOFARRAY(fld_to_ctl_list); i++) {
+				PPGetExtStrData(fld_to_ctl_list[i].F, rGoodsExTitles, buf);
+				dlg->setCtrlString(fld_to_ctl_list[i].C, buf);
+			}
+		}
+		/*PPGetExtStrData(GDSEXSTR_STORAGE, rGoodsExTitles, buf);
 		dlg->setCtrlString(CTL_GOODSEXTITLES_A, buf);
 		PPGetExtStrData(GDSEXSTR_STANDARD, rGoodsExTitles, buf);
 		dlg->setCtrlString(CTL_GOODSEXTITLES_B, buf);
@@ -1639,16 +1693,25 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 		PPGetExtStrData(GDSEXSTR_ENERGY, rGoodsExTitles, buf);
 		dlg->setCtrlString(CTL_GOODSEXTITLES_D, buf);
 		PPGetExtStrData(GDSEXSTR_USAGE, rGoodsExTitles, buf);
-		dlg->setCtrlString(CTL_GOODSEXTITLES_E, buf);
+		dlg->setCtrlString(CTL_GOODSEXTITLES_E, buf);*/
 		PPGetExtStrData(GDSEXSTR_INFOSYMB, rGoodsExTitles, buf);
 		if(buf == "lastselldate")
 			adinf = adinfLastSellDate;
+		else if(buf == "pricerestriction") // @v10.7.9
+			adinf = adinfPriceRestrictions;
 		dlg->AddClusterAssocDef(CTL_GOODSEXTITLES_AI, 0, adinfNone);
 		dlg->AddClusterAssoc(CTL_GOODSEXTITLES_AI, 1, adinfLastSellDate);
+		dlg->AddClusterAssoc(CTL_GOODSEXTITLES_AI, 2, adinfPriceRestrictions); // @v10.7.9
 		dlg->SetClusterData(CTL_GOODSEXTITLES_AI, adinf);
 		if(ExecView(dlg) == cmOK) {
 			rGoodsExTitles.Z();
-			dlg->getCtrlString(CTL_GOODSEXTITLES_A, buf);
+			{
+				for(uint i = 0; i < SIZEOFARRAY(fld_to_ctl_list); i++) {
+					dlg->getCtrlString(fld_to_ctl_list[i].C, buf);
+					PPPutExtStrData(fld_to_ctl_list[i].F, rGoodsExTitles, buf);
+				}
+			}
+			/*dlg->getCtrlString(CTL_GOODSEXTITLES_A, buf);
 			PPPutExtStrData(GDSEXSTR_STORAGE, rGoodsExTitles, buf);
 			dlg->getCtrlString(CTL_GOODSEXTITLES_B, buf);
 			PPPutExtStrData(GDSEXSTR_STANDARD, rGoodsExTitles, buf);
@@ -1657,10 +1720,12 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 			dlg->getCtrlString(CTL_GOODSEXTITLES_D, buf);
 			PPPutExtStrData(GDSEXSTR_ENERGY, rGoodsExTitles, buf);
 			dlg->getCtrlString(CTL_GOODSEXTITLES_E, buf);
-			PPPutExtStrData(GDSEXSTR_USAGE, rGoodsExTitles, buf);
+			PPPutExtStrData(GDSEXSTR_USAGE, rGoodsExTitles, buf);*/
 			dlg->GetClusterData(CTL_GOODSEXTITLES_AI, &adinf);
 			if(adinf == adinfLastSellDate)
 				buf = "lastselldate";
+			else if(adinf == adinfPriceRestrictions) // @v10.7.9
+				buf = "pricerestriction";
 			else
 				buf.Z();
 			PPPutExtStrData(GDSEXSTR_INFOSYMB, rGoodsExTitles, buf);
@@ -1674,12 +1739,80 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 }
 
 class GoodsVadDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPGoodsPacket);
 public:
 	GoodsVadDialog() : PPListDialog(DLG_GOODSVAD, CTL_GOODSVAD_MINSTOCKLI), MaxExtTextLen(4000), LastPalletTypeID(0)
 	{
 	}
-	int    setDTS(const PPGoodsPacket * pData);
-	int    getDTS(PPGoodsPacket * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString ex_titles;
+		if(Data.Rec.Name[0]) {
+			SString title_buf = getTitle();
+			title_buf.CatDiv('-', 1).Cat(Data.Rec.Name);
+			setTitle(title_buf);
+		}
+		PPObjGoods::ReadGoodsExTitles(Data.Rec.ParentID, ex_titles);
+		double brutto = R6(fdiv1000i(Data.Stock.Brutto));
+		setExtStrData(CTL_GOODSVAD_STORAGE,  ex_titles);
+		setExtStrData(CTL_GOODSVAD_STANDARD, ex_titles);
+		setExtStrData(CTL_GOODSVAD_LABELNAME, ex_titles);
+		setExtStrData(CTL_GOODSVAD_INGRED, ex_titles);
+		setExtStrData(CTL_GOODSVAD_ENERGY, ex_titles);
+		setExtStrData(CTL_GOODSVAD_USAGE,  ex_titles);
+
+		setCtrlData(CTL_GOODSVAD_BRUTTO, &brutto);
+		setCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
+		setDimentions();
+		setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1.0));
+		ushort v = BIN(Data.Rec.Flags & GF_VOLUMEVAL);
+		setCtrlData(CTL_GOODSVAD_VOLUMEVAL, &v);
+		if(v)
+			disableCtrls(1, CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT, 0);
+		else
+			disableCtrl(CTL_GOODSVAD_VOLUME, 1);
+		setCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
+		setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty);
+		setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm));
+		setCtrlData(CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff); // @v9.8.12
+		SetPalletData(-1);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		double brutto = 0.0;
+		Data.ExtString.Z();
+		getExtStrData(CTL_GOODSVAD_STORAGE);
+		getExtStrData(CTL_GOODSVAD_STANDARD);
+		getExtStrData(CTL_GOODSVAD_LABELNAME);
+		getExtStrData(CTL_GOODSVAD_INGRED);
+		getExtStrData(CTL_GOODSVAD_ENERGY);
+		getExtStrData(CTL_GOODSVAD_USAGE);
+		SETFLAG(Data.Rec.Flags, GF_EXTPROP, Data.ExtString.NotEmptyS());
+		getCtrlData(CTL_GOODSVAD_BRUTTO,   &brutto);
+		Data.Stock.Brutto = R0i(brutto * 1000.0);
+		getCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
+		getDimentions();
+		ushort v = getCtrlUInt16(CTL_GOODSVAD_VOLUMEVAL);
+		if(v)
+			Data.Stock.SetVolume(getCtrlReal(CTL_GOODSVAD_VOLUME));
+		SETFLAG(Data.Rec.Flags, GF_VOLUMEVAL, v);
+		getCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
+		getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty);
+		SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH));
+		// @v9.8.12 {
+		getCtrlData(sel = CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff);
+		THROW_PP(Data.Stock.NettBruttCoeff >= 0.0f && Data.Stock.NettBruttCoeff <= 1.0f, PPERR_INVNETTOBRUTTOCOEF);
+		// } @v9.8.12
+		GetPalletData(-1);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	struct ExtStrCtlEntry {
 		uint   CtlId;
@@ -1711,12 +1844,10 @@ private:
 	int    GetPalletData(PPID palletTypeID);
 
 	const uint MaxExtTextLen;
-	PPGoodsPacket Data;
 	PPID   LastPalletTypeID;
 };
 
-// virtual
-int GoodsVadDialog::setupList()
+/*virtual*/int GoodsVadDialog::setupList()
 {
 	int    ok = 1;
 	SString buf;
@@ -1749,8 +1880,7 @@ int GoodsVadDialog::setupList()
 	return ok;
 }
 
-// virtual
-int GoodsVadDialog::delItem(long pos, long id)
+/*virtual*/int GoodsVadDialog::delItem(long pos, long id)
 {
 	int    ok = 1;
 	if(id >= 0)
@@ -1760,8 +1890,7 @@ int GoodsVadDialog::delItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int GoodsVadDialog::editItem(long pos, long id)
+/*virtual*/int GoodsVadDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(id >= 0) {
@@ -1911,77 +2040,6 @@ void GoodsVadDialog::getExtStrData(uint ctlID)
 		if(temp_buf.NotEmptyS())
 			Data.PutExtStrData(p_entry->FldId, temp_buf);
 	}
-}
-
-int GoodsVadDialog::setDTS(const PPGoodsPacket * pData)
-{
-	RVALUEPTR(Data, pData);
-	SString ex_titles;
-	if(Data.Rec.Name[0]) {
-		SString title_buf = getTitle();
-		title_buf.CatDiv('-', 1).Cat(Data.Rec.Name);
-		setTitle(title_buf);
-	}
-	PPObjGoods::ReadGoodsExTitles(Data.Rec.ParentID, ex_titles);
-	double brutto = R6(fdiv1000i(Data.Stock.Brutto));
-	setExtStrData(CTL_GOODSVAD_STORAGE,  ex_titles);
-	setExtStrData(CTL_GOODSVAD_STANDARD, ex_titles);
-	setExtStrData(CTL_GOODSVAD_LABELNAME, ex_titles);
-	setExtStrData(CTL_GOODSVAD_INGRED, ex_titles);
-	setExtStrData(CTL_GOODSVAD_ENERGY, ex_titles);
-	setExtStrData(CTL_GOODSVAD_USAGE,  ex_titles);
-
-	setCtrlData(CTL_GOODSVAD_BRUTTO, &brutto);
-	setCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
-	setDimentions();
-	setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1.0));
-	ushort v = BIN(Data.Rec.Flags & GF_VOLUMEVAL);
-	setCtrlData(CTL_GOODSVAD_VOLUMEVAL, &v);
-	if(v)
-		disableCtrls(1, CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT, 0);
-	else
-		disableCtrl(CTL_GOODSVAD_VOLUME, 1);
-	setCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
-	setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty);
-	setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm));
-	setCtrlData(CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff); // @v9.8.12
-	SetPalletData(-1);
-	updateList(-1);
-	return 1;
-}
-
-int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	double brutto = 0.0;
-	Data.ExtString.Z();
-	getExtStrData(CTL_GOODSVAD_STORAGE);
-	getExtStrData(CTL_GOODSVAD_STANDARD);
-	getExtStrData(CTL_GOODSVAD_LABELNAME);
-	getExtStrData(CTL_GOODSVAD_INGRED);
-	getExtStrData(CTL_GOODSVAD_ENERGY);
-	getExtStrData(CTL_GOODSVAD_USAGE);
-	SETFLAG(Data.Rec.Flags, GF_EXTPROP, Data.ExtString.NotEmptyS());
-	getCtrlData(CTL_GOODSVAD_BRUTTO,   &brutto);
-	Data.Stock.Brutto = R0i(brutto * 1000.0);
-	getCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
-	getDimentions();
-	ushort v = getCtrlUInt16(CTL_GOODSVAD_VOLUMEVAL);
-	if(v)
-		Data.Stock.SetVolume(getCtrlReal(CTL_GOODSVAD_VOLUME));
-	SETFLAG(Data.Rec.Flags, GF_VOLUMEVAL, v);
-	getCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
-	getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty);
-	SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH));
-	// @v9.8.12 {
-	getCtrlData(sel = CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff);
-	THROW_PP(Data.Stock.NettBruttCoeff >= 0.0f && Data.Stock.NettBruttCoeff <= 1.0f, PPERR_INVNETTOBRUTTOCOEF);
-	// } @v9.8.12
-	GetPalletData(-1);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 IMPL_HANDLE_EVENT(GoodsVadDialog)
@@ -2336,30 +2394,6 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 		return;
 	clearEvent(event);
 }
-//
-//
-//
-#if 0 // @v9.7.0 {
-int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, void * extraPtr)
-{
-	int    ok = 0;
-	ComboBox * p_combo = dlg ? static_cast<ComboBox *>(dlg->getCtrlView(ctlID)) : 0;
-	if(p_combo) {
-		/*
-		StrAssocArray * p_list = PPObjOprKind::MakeOprKindList(0, pOpList, opklFlags);
-		PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_OPRKIND, p_list, lbtDisposeData|lbtDblClkNotify, 0);
-		if(p_lw) {
-			p_combo->setListWindow(p_lw, id);
-			dlg->SetupWordSelector(ctl, 0, id, 2, 0);
-			ok = 1;
-		}
-		*/
-	}
-	else
-		ok = -1;
-	return ok;
-}
-#endif // } @v9.7.0
 //
 // GoodsCtrlGroup
 //
@@ -2996,7 +3030,7 @@ int GoodsAsscDialog::setupList()
 
 int GoodsAsscDialog::editItem(long pos, long /*id*/)
 {
-	if(pos >= 0 && (uint)pos < AsscList.getCount()) {
+	if(pos >= 0 && pos < AsscList.getCountI()) {
 		LAssoc & item = AsscList.at(static_cast<uint>(pos));
 		if(item.Val) {
 			int    r = -1;
@@ -3019,7 +3053,7 @@ int GoodsAsscDialog::addItem(long * pPos, long * pID)
 {
 	int    r = -1, valid_data = 0;
 	PPID   alt_grp = 0;
-	while(!valid_data && ListBoxSelDialog(PPOBJ_GOODSGROUP, &alt_grp, (void *)GGRTYP_SEL_ALT) > 0)
+	while(!valid_data && ListBoxSelDialog(PPOBJ_GOODSGROUP, &alt_grp, reinterpret_cast<void *>(GGRTYP_SEL_ALT)) > 0)
 		if(P_GObj && P_GObj->IsAltGroup(alt_grp) > 0) {
 			r = P_GObj->AssignGoodsToAltGrp(GoodsID, alt_grp, 0, 1);
 			valid_data = 1;
@@ -3047,6 +3081,7 @@ int SLAPI PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 // Диалог фильтра по товарам
 //
 class GoodsFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(GoodsFilt);
 public:
 	enum {
 		ctlgroupBrand      = 1,
@@ -3057,8 +3092,98 @@ public:
 		addGroup(ctlgroupBrand, new BrandCtrlGroup(CTLSEL_GOODSFLT_BRAND, cmBrandList));
 		addGroup(ctlgroupBrandOwner, new PersonListCtrlGroup(CTLSEL_GOODSFLT_BROWNER, 0, cmBrandOwnerList, 0));
 	}
-	int    setDTS(GoodsFilt *);
-	int    getDTS(GoodsFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString temp_buf;
+		BrandCtrlGroup::Rec brand_grp_rec(Data.BrandList.IsExists() ? &Data.BrandList.Get() : 0);
+		PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0);
+		setGroupData(ctlgroupBrand, &brand_grp_rec);
+		setCtrlUInt16(CTL_GOODSFLT_NOBRAND, BIN(Data.Flags & GoodsFilt::fWoBrand)); // @v10.6.8
+		setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_PHUNIT,  PPOBJ_UNIT,       Data.PhUnitID,    0, 0);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_KIND,    PPOBJ_GOODSTYPE,  Data.GoodsTypeID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_TAXGRP,  PPOBJ_GOODSTAX,   Data.TaxGrpID,    0, 0);
+		setupVat();
+		AddClusterAssoc(CTL_GOODSFLT_FLAGS, 0, GoodsFilt::fHidePassive);
+		AddClusterAssoc(CTL_GOODSFLT_FLAGS, 1, GoodsFilt::fRestrictByMatrix);
+		AddClusterAssoc(CTL_GOODSFLT_FLAGS, 2, GoodsFilt::fOutOfMatrix);
+		AddClusterAssoc(CTL_GOODSFLT_FLAGS, 3, GoodsFilt::fHasImages);
+		AddClusterAssoc(CTL_GOODSFLT_FLAGS, 4, GoodsFilt::fUseIndepWtOnly);
+		AddClusterAssoc(CTL_GOODSFLT_FLAGS, 5, GoodsFilt::fHideGeneric); // @v10.7.7
+		SetClusterData(CTL_GOODSFLT_FLAGS, Data.Flags);
+		setCtrlUInt16(CTL_GOODSFLT_NOT, BIN(Data.Flags & GoodsFilt::fNegation));
+		setCtrlUInt16(CTL_GOODSFLT_WOTAXGRP, BIN(Data.Flags & GoodsFilt::fWoTaxGrp));
+		AddClusterAssoc(CTL_GOODSFLT_UNITF, 0, GoodsFilt::fIntUnitOnly);
+		AddClusterAssoc(CTL_GOODSFLT_UNITF, 1, GoodsFilt::fFloatUnitOnly);
+		SetClusterData(CTL_GOODSFLT_UNITF, Data.Flags);
+		setCtrlUInt16(CTL_GOODSFLT_NOKIND, BIN(Data.Flags & GoodsFilt::fUndefType));
+		if(Data.GrpIDList.IsExists()) {
+			SetComboBoxListText(this, CTLSEL_GOODSFLT_GRP);
+			disableCtrl(CTLSEL_GOODSFLT_GRP, 1);
+		}
+		{
+			Data.GetExtssData(Data.extssNameText, temp_buf.Z());
+			setCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
+			SetupWordSelector(CTL_GOODSFLT_NAMESTR, new TextHistorySelExtra("goodsfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
+		}
+		{
+			Data.GetExtssData(Data.extssBarcodeText, temp_buf.Z());
+			setCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
+			SetupWordSelector(CTL_GOODSFLT_BARCODESTR, new TextHistorySelExtra("goodsfilt-barcodetext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
+		}
+		setCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
+		if(Data.Flags & GoodsFilt::fNotUseViewOptions) {
+			Data.Flags &= ~(GoodsFilt::fShowBarcode|GoodsFilt::fShowCargo|GoodsFilt::fShowStrucType);
+			showCtrl(STDCTL_VIEWOPTBUTTON, 0);
+		}
+		SetupStringCombo(this, CTLSEL_GOODSFLT_ORDER, PPTXT_GOODSORDER, Data.InitOrder);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		SString temp_buf;
+		getCtrlData(CTLSEL_GOODSFLT_GRP,    &Data.GrpID);
+		getCtrlData(CTLSEL_GOODSFLT_MANUF,  &Data.ManufID);
+		getCtrlData(CTLSEL_GOODSFLT_COUNTRY, &Data.ManufCountryID);
+		getCtrlData(CTLSEL_GOODSFLT_UNIT,   &Data.UnitID);
+		getCtrlData(CTLSEL_GOODSFLT_PHUNIT, &Data.PhUnitID);
+		getCtrlData(CTLSEL_GOODSFLT_KIND,   &Data.GoodsTypeID);
+		getCtrlData(CTLSEL_GOODSFLT_TAXGRP, &Data.TaxGrpID);
+		GetClusterData(CTL_GOODSFLT_FLAGS,  &Data.Flags);
+		SETFLAG(Data.Flags, GoodsFilt::fNegation, getCtrlUInt16(CTL_GOODSFLT_NOT));
+		SETFLAG(Data.Flags, GoodsFilt::fWoTaxGrp, getCtrlUInt16(CTL_GOODSFLT_WOTAXGRP));
+		GetClusterData(CTL_GOODSFLT_UNITF, &Data.Flags);
+		SETFLAG(Data.Flags, GoodsFilt::fUndefType, getCtrlUInt16(CTL_GOODSFLT_NOKIND));
+		{
+			getCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
+			Data.PutExtssData(Data.extssNameText, temp_buf);
+		}
+		{
+			getCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
+			Data.PutExtssData(Data.extssBarcodeText, temp_buf);
+		}
+		getCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
+		{
+			BrandCtrlGroup::Rec brand_grp_rec;
+			getGroupData(ctlgroupBrand, &brand_grp_rec);
+			Data.BrandList.Set(&brand_grp_rec.List);
+			SETFLAG(Data.Flags, GoodsFilt::fWoBrand, getCtrlUInt16(CTL_GOODSFLT_NOBRAND)); // @v10.6.8
+		}
+		{
+			PersonListCtrlGroup::Rec brandowner_grp_rec;
+			getGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
+			Data.BrandOwnerList.Set(&brandowner_grp_rec.List);
+		}
+		getCtrlData(CTLSEL_GOODSFLT_ORDER, &Data.InitOrder);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    editGoodsViewOptions();
@@ -3068,8 +3193,6 @@ private:
 	int    vatFilt();
 	void   setupVat();
 	void   SetupCtrls();
-
-	GoodsFilt Data;
 };
 //
 // Диалог дополнительных опций фильтра по товарам
@@ -3093,13 +3216,10 @@ int SLAPI GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 			ushort v = 0;
 			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod);
-			// @v9.6.8 SetupPPObjCombo(this, CTLSEL_GFLTADVOPT_LOC, PPOBJ_LOCATION, Data.LocList.GetSingle(), OLW_LOADDEFONOPEN, 0);
-			// @v9.6.8 {
 			{
 				LocationCtrlGroup::Rec l_rec(&Data.LocList);
 				setGroupData(ctlgroupLoc, &l_rec);
 			}
-			// } @v9.6.8
 			if(CtlDisableSuppl)
 				disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, 1);
 			else
@@ -3505,8 +3625,7 @@ void GoodsFiltDialog::setupVat()
 {
 	SString temp_buf;
 	if(Data.VatRate) {
-		// @v9.0.2 PPGetWord(PPWORD_VAT, 0, temp_buf);
-		PPLoadString("vat", temp_buf); // @v9.0.2
+		PPLoadString("vat", temp_buf);
 		temp_buf.CatDiv('-', 1).Cat(fdiv100i(Data.VatRate), MKSFMTD(0, 2, NMBF_NOTRAILZ));
 		if(Data.VatDate)
 			temp_buf.CatDiv('-', 1).Cat(Data.VatDate, MKSFMT(0, DATF_DMY));
@@ -3568,100 +3687,6 @@ void GoodsFiltDialog::SetupCtrls()
 	enableCommand(cmBrandList, !BIN(v));
 	enableCommand(cmBrandOwnerList, !BIN(v));
 	// } @v10.6.8 
-}
-
-int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
-{
-	RVALUEPTR(Data, pFilt);
-	SString temp_buf;
-	BrandCtrlGroup::Rec brand_grp_rec(Data.BrandList.IsExists() ? &Data.BrandList.Get() : 0);
-	PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0);
-	setGroupData(ctlgroupBrand, &brand_grp_rec);
-	setCtrlUInt16(CTL_GOODSFLT_NOBRAND, BIN(Data.Flags & GoodsFilt::fWoBrand)); // @v10.6.8
-	setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_PHUNIT,  PPOBJ_UNIT,       Data.PhUnitID,    0, 0);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_KIND,    PPOBJ_GOODSTYPE,  Data.GoodsTypeID, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_GOODSFLT_TAXGRP,  PPOBJ_GOODSTAX,   Data.TaxGrpID,    0, 0);
-	setupVat();
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 0, GoodsFilt::fHidePassive);
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 1, GoodsFilt::fRestrictByMatrix);
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 2, GoodsFilt::fOutOfMatrix);
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 3, GoodsFilt::fHasImages);
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 4, GoodsFilt::fUseIndepWtOnly);
-	AddClusterAssoc(CTL_GOODSFLT_FLAGS, 5, GoodsFilt::fHideGeneric); // @v10.7.7
-	SetClusterData(CTL_GOODSFLT_FLAGS, Data.Flags);
-	setCtrlUInt16(CTL_GOODSFLT_NOT, BIN(Data.Flags & GoodsFilt::fNegation));
-	setCtrlUInt16(CTL_GOODSFLT_WOTAXGRP, BIN(Data.Flags & GoodsFilt::fWoTaxGrp));
-	AddClusterAssoc(CTL_GOODSFLT_UNITF, 0, GoodsFilt::fIntUnitOnly);
-	AddClusterAssoc(CTL_GOODSFLT_UNITF, 1, GoodsFilt::fFloatUnitOnly);
-	SetClusterData(CTL_GOODSFLT_UNITF, Data.Flags);
-	setCtrlUInt16(CTL_GOODSFLT_NOKIND, BIN(Data.Flags & GoodsFilt::fUndefType));
-	if(Data.GrpIDList.IsExists()) {
-		SetComboBoxListText(this, CTLSEL_GOODSFLT_GRP);
-		disableCtrl(CTLSEL_GOODSFLT_GRP, 1);
-	}
-	{
-		Data.GetExtssData(Data.extssNameText, temp_buf.Z());
-		setCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
-		SetupWordSelector(CTL_GOODSFLT_NAMESTR, new TextHistorySelExtra("goodsfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
-	}
-	{
-		Data.GetExtssData(Data.extssBarcodeText, temp_buf.Z());
-		setCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
-		SetupWordSelector(CTL_GOODSFLT_BARCODESTR, new TextHistorySelExtra("goodsfilt-barcodetext-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
-	}
-	setCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
-	if(Data.Flags & GoodsFilt::fNotUseViewOptions) {
-		Data.Flags &= ~(GoodsFilt::fShowBarcode|GoodsFilt::fShowCargo|GoodsFilt::fShowStrucType);
-		showCtrl(STDCTL_VIEWOPTBUTTON, 0);
-	}
-	SetupStringCombo(this, CTLSEL_GOODSFLT_ORDER, PPTXT_GOODSORDER, Data.InitOrder);
-	SetupCtrls();
-	return 1;
-}
-
-int GoodsFiltDialog::getDTS(GoodsFilt * pFilt)
-{
-	SString temp_buf;
-	getCtrlData(CTLSEL_GOODSFLT_GRP,    &Data.GrpID);
-	getCtrlData(CTLSEL_GOODSFLT_MANUF,  &Data.ManufID);
-	getCtrlData(CTLSEL_GOODSFLT_COUNTRY, &Data.ManufCountryID);
-	getCtrlData(CTLSEL_GOODSFLT_UNIT,   &Data.UnitID);
-	getCtrlData(CTLSEL_GOODSFLT_PHUNIT, &Data.PhUnitID);
-	getCtrlData(CTLSEL_GOODSFLT_KIND,   &Data.GoodsTypeID);
-	getCtrlData(CTLSEL_GOODSFLT_TAXGRP, &Data.TaxGrpID);
-	GetClusterData(CTL_GOODSFLT_FLAGS,  &Data.Flags);
-	SETFLAG(Data.Flags, GoodsFilt::fNegation, getCtrlUInt16(CTL_GOODSFLT_NOT));
-	SETFLAG(Data.Flags, GoodsFilt::fWoTaxGrp, getCtrlUInt16(CTL_GOODSFLT_WOTAXGRP));
-	GetClusterData(CTL_GOODSFLT_UNITF, &Data.Flags);
-	SETFLAG(Data.Flags, GoodsFilt::fUndefType, getCtrlUInt16(CTL_GOODSFLT_NOKIND));
-	{
-		getCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
-		Data.PutExtssData(Data.extssNameText, temp_buf);
-	}
-	{
-		getCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
-		Data.PutExtssData(Data.extssBarcodeText, temp_buf);
-	}
-	getCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
-	{
-		BrandCtrlGroup::Rec brand_grp_rec;
-		getGroupData(ctlgroupBrand, &brand_grp_rec);
-		Data.BrandList.Set(&brand_grp_rec.List);
-		SETFLAG(Data.Flags, GoodsFilt::fWoBrand, getCtrlUInt16(CTL_GOODSFLT_NOBRAND)); // @v10.6.8
-	}
-	{
-		PersonListCtrlGroup::Rec brandowner_grp_rec;
-		getGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
-		Data.BrandOwnerList.Set(&brandowner_grp_rec.List);
-	}
-	getCtrlData(CTLSEL_GOODSFLT_ORDER, &Data.InitOrder);
-	ASSIGN_PTR(pFilt, Data);
-	return 1;
 }
 
 int SLAPI GoodsFilterDialog(GoodsFilt * pFilt) { DIALOG_PROC_BODY(GoodsFiltDialog, pFilt); }

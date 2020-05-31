@@ -560,8 +560,7 @@ int SLAPI PPViewJob::DeleteItem(PPID id)
 	return ok;
 }
 
-// virtual
-SArray  * SLAPI PPViewJob::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+/*virtual*/SArray  * SLAPI PPViewJob::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = new SArray(List);
 	uint   brw_id = BROWSER_JOB;
@@ -600,8 +599,7 @@ void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewJob::GetDataForBrowser, this));
 }
 
-// virtual
-int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -691,8 +689,7 @@ int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewJob::Print(const void *)
+/*virtual*/int SLAPI PPViewJob::Print(const void *)
 {
 	int    ok = -1;
 	if(P_Pool) {

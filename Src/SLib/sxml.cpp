@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // Вспомогательные механизмы для работы с XML
 //
 #include <slib.h>
@@ -463,7 +463,7 @@ int SXmlSaxParser::ParseFile(const char * pFileName)
 	THROW(fileExists(pFileName));
 	{
 		xmlSAXHandler saxh;
-		MEMSZERO(saxh);
+		// @v10.7.9 @ctr MEMSZERO(saxh);
 		if(Flags & fStartDocument)
 			saxh.startDocument = Scb_StartDocument;
 		if(Flags & fEndDocument)
@@ -499,30 +499,29 @@ void SXmlSaxParser::SaxStop()
 	xmlStopParser(P_SaxCtx);
 }
 
-//virtual 
-int SXmlSaxParser::StartDocument()
+/*virtual*/int SXmlSaxParser::StartDocument()
 {
 	TagValue.Z();
 	return 1;
 }
-//virtual 
-int SXmlSaxParser::EndDocument()
+
+/*virtual*/int SXmlSaxParser::EndDocument()
 {
 	return 1;
 }
-//virtual 
-int SXmlSaxParser::StartElement(const char * pName, const char ** ppAttrList)
+ 
+/*virtual*/int SXmlSaxParser::StartElement(const char * pName, const char ** ppAttrList)
 {
 	TagValue.Z();
 	return 1;
 }
-//virtual 
-int SXmlSaxParser::EndElement(const char * pName)
+ 
+/*virtual*/int SXmlSaxParser::EndElement(const char * pName)
 {
 	return 1;
 }
-//virtual 
-int SXmlSaxParser::Characters(const char * pS, size_t len)
+ 
+/*virtual*/int SXmlSaxParser::Characters(const char * pS, size_t len)
 {
 	//
 	// Одна строка может быть передана несколькими вызовами. По этому StartElement обнуляет

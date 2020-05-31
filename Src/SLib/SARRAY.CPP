@@ -1082,8 +1082,7 @@ int FASTCALL SArray::IsEqual(const SArray & src) const
 	return 0;
 }
 
-//virtual
-void FASTCALL SArray::freeItem(void * pItem)
+/*virtual*/void FASTCALL SArray::freeItem(void * pItem)
 {
 	if(VFlags & aryPtrContainer)
 		delete pItem;
@@ -1395,6 +1394,20 @@ int SLAPI LAssocArray::AddUnique(long key, long val, uint * pPos, int inOrder)
 {
 	const int is_found = inOrder ? BSearch(key, 0, pPos) : Search(key, 0, pPos);
 	return is_found ? 0 : Add(key, val, pPos, inOrder);
+}
+
+int FASTCALL LAssocArray::IncrementValueByKey(long key)
+{
+	int    ok = 1;
+	uint   pos = 0;
+	long   c = 0;
+	if(Search(key, &c, &pos))
+		at(pos).Val = (c+1);
+	else {
+		Add(key, 1);
+		ok = 2;
+	}
+	return ok;
 }
 
 int SLAPI LAssocArray::Update(long key, long val, int binary)
@@ -3837,16 +3850,7 @@ SLAPI STypArray::STypArray(TYPEID aType, uint o) : SArray(stsize(aType), o), typ
 {
 }
 
-/* @v9.0.5
-int FASTCALL STypArray::insert(const void * pItem)
-{
-	uint p;
-	return (flags & arySorted) ? SArray::ordInsert(pItem, &p, Subst, (void *)type) : SArray::insert(pItem);
-}
-*/
-
-// virtual
-void FASTCALL STypArray::freeItem(void * pItem)
+/*virtual*/void FASTCALL STypArray::freeItem(void * pItem)
 {
 	stdestroy(type, pItem);
 	SArray::freeItem(pItem);

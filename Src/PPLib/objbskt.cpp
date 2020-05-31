@@ -672,8 +672,7 @@ int SLAPI PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	return ok;
 }
 
-//virtual 
-int SLAPI PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
+/*virtual*/int SLAPI PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
 {
 	int    ok = 1;
 	int    r;
@@ -696,10 +695,8 @@ int SLAPI PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
 	CATCHZOK
 	return ok;
 }
-//
-//
-// virtual
-void * SLAPI PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
+
+/*virtual*/void * SLAPI PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjGoodsBasketListWindow : public PPObjListWindow {
 	public:
@@ -1446,10 +1443,10 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 	else if(event.isCmd(cmQuot)) {
 		const PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
 		if(goods_id > 0)
-			GObj.EditQuotations(goods_id, 0L, -1L /* @curID */, 0, PPQuot::clsGeneral);
+			GObj.EditQuotations(goods_id, 0L, -1L/*@curID*/, 0, PPQuot::clsGeneral);
 	}
 	else if(event.isCmd(cmInputUpdatedByBtn)) {
-		uint   ctl = event.getCtlID();
+		const uint ctl = event.getCtlID();
 		if(oneof3(ctl, CTL_GBITEM_VALUE, CTL_GBITEM_UPPACK, CTL_GBITEM_QTTYPACK)) {
 			setupQuantity(ctl, 1);
 			setupAmount(0, 0);

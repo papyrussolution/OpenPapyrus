@@ -796,7 +796,7 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 	return ok;
 }
 
-// virtual
+//virtual
 ListBoxDef * SLAPI PPObjSCardSeries::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
@@ -804,7 +804,7 @@ ListBoxDef * SLAPI PPObjSCardSeries::Selector(void * extraPtr)
 	return p_def;
 }
 
-// virtual
+//virtual
 int SLAPI PPObjSCardSeries::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
@@ -1737,7 +1737,7 @@ IMPL_HANDLE_EVENT(PPObjSCardSeriesListWindow)
 	}
 }
 
-// virtual
+//virtual
 void * SLAPI PPObjSCardSeries::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return new PPObjSCardSeriesListWindow(this, flags, extraPtr);
@@ -3476,11 +3476,11 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 	int    ok = -1;
 	int    r = cmCancel, valid_data = 0, is_new = 0;
 	long   prev_pdis = 0;
-	SCardDialog * dlg = 0;
 	PPSCardPacket pack;
 	PPObjSCardSeries ser_obj;
 	PPSCardSerPacket scs_pack;
-	THROW(CheckDialogPtrErr(&(dlg = new SCardDialog())));
+	SCardDialog * dlg = new SCardDialog();
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);
@@ -5008,7 +5008,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 					PPID   sc_id = 0;
 					PPID   temp_id = 0;
 					Sdr_SCard sdr_rec;
-					MEMSZERO(sdr_rec);
+					// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 					sc_pack.Z();
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);

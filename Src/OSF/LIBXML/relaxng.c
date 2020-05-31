@@ -3014,28 +3014,27 @@ static const xmlChar * invalidName = reinterpret_cast<const xmlChar *>("\1");
 static int xmlRelaxNGCompareNameClasses(xmlRelaxNGDefinePtr def1, xmlRelaxNGDefinePtr def2)
 {
 	int ret = 1;
-	xmlNode P_Node;
+	xmlNode node;
 	xmlNs ns;
 	xmlRelaxNGValidCtxt ctxt;
 	MEMSZERO(ctxt);
 	ctxt.flags = FLAGS_IGNORABLE | FLAGS_NOERROR;
-	if((def1->type == XML_RELAXNG_ELEMENT) || (def1->type == XML_RELAXNG_ATTRIBUTE)) {
+	if(oneof2(def1->type, XML_RELAXNG_ELEMENT, XML_RELAXNG_ATTRIBUTE)) {
 		if(def2->type == XML_RELAXNG_TEXT)
 			return 1;
-		P_Node.name = def1->name ? def1->name : invalidName;
+		node.name = def1->name ? def1->name : invalidName;
 		if(def1->ns) {
-			if(def1->ns[0] == 0) {
-				P_Node.ns = NULL;
-			}
+			if(def1->ns[0] == 0)
+				node.ns = NULL;
 			else {
-				P_Node.ns = &ns;
+				node.ns = &ns;
 				ns.href = def1->ns;
 			}
 		}
 		else {
-			P_Node.ns = NULL;
+			node.ns = NULL;
 		}
-		if(xmlRelaxNGElementMatch(&ctxt, def2, &P_Node))
+		if(xmlRelaxNGElementMatch(&ctxt, def2, &node))
 			ret = def1->nameClass ? xmlRelaxNGCompareNameClasses(def1->nameClass, def2) : 0;
 		else
 			ret = 1;
@@ -3054,12 +3053,11 @@ static int xmlRelaxNGCompareNameClasses(xmlRelaxNGDefinePtr def1, xmlRelaxNGDefi
 	if(!ret)
 		return ret;
 	if(oneof2(def2->type, XML_RELAXNG_ELEMENT, XML_RELAXNG_ATTRIBUTE)) {
-		P_Node.name = def2->name ? def2->name : invalidName;
-		P_Node.ns = &ns;
+		node.name = def2->name ? def2->name : invalidName;
+		node.ns = &ns;
 		if(def2->ns) {
-			if(def2->ns[0] == 0) {
-				P_Node.ns = NULL;
-			}
+			if(def2->ns[0] == 0)
+				node.ns = NULL;
 			else {
 				ns.href = def2->ns;
 			}
@@ -3067,12 +3065,10 @@ static int xmlRelaxNGCompareNameClasses(xmlRelaxNGDefinePtr def1, xmlRelaxNGDefi
 		else {
 			ns.href = invalidName;
 		}
-		if(xmlRelaxNGElementMatch(&ctxt, def1, &P_Node)) {
+		if(xmlRelaxNGElementMatch(&ctxt, def1, &node))
 			ret = def2->nameClass ? xmlRelaxNGCompareNameClasses(def2->nameClass, def1) : 0;
-		}
-		else {
+		else
 			ret = 1;
-		}
 	}
 	else {
 		TODO ret = 0;

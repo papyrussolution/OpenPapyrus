@@ -788,14 +788,12 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 					ilti.SetQtty(ps->NeedQty, 0, PPTFR_RECEIPT|PPTFR_PLUS);
 					SETFLAG(ilti.Flags, PPTFR_COSTWOVAT, pGS->Rec.Flags & GSF_OUTPWOVAT);
 					if(ps->GoodsFlags & GF_UNLIM) {
-						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
-						if(goods_obj.GetQuot(ilti.GoodsID, qi, 0, 0, &out_quot) <= 0)
+						if(goods_obj.GetQuot(ilti.GoodsID, QuotIdent(Rec.LocID, PPQUOTK_BASE, 0L/*@curID*/), 0, 0, &out_quot) <= 0)
 							out_quot = 0.0;
 					}
 					else {
 						if(out_price_by_quot) {
-							const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
-							if(goods_obj.GetQuot(ilti.GoodsID, qi, 0, 0, &out_quot) <= 0)
+							if(goods_obj.GetQuot(ilti.GoodsID, QuotIdent(Rec.LocID, PPQUOTK_BASE, 0L/*@curID*/), 0, 0, &out_quot) <= 0)
 								out_quot = 0.0;
 						}
 						ReceiptTbl::Rec lot_rec;
@@ -806,8 +804,7 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 				}
 				else {
 					if(ps->GoodsFlags & GF_UNLIM) {
-						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, 0L /* @curID */);
-						if(goods_obj.GetQuot(ilti.GoodsID, qi, 0, 0, &out_quot) <= 0)
+						if(goods_obj.GetQuot(ilti.GoodsID, QuotIdent(Rec.LocID, PPQUOTK_BASE, 0L/*@curID*/), 0, 0, &out_quot) <= 0)
 							out_quot = 0.0;
 						ilti.Cost = out_quot;
 						ilti.Price = out_quot;
@@ -1019,8 +1016,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 					else if(is_sum_val)
 						ilti.Price = r_item.Val;
 					if(!(is_sum_val && ilti.Price > 0.0) && (goods_obj.CheckFlag(ilti.GoodsID, GF_UNLIM) || ilti.Price == 0.0)) {
-						const QuotIdent qi(Rec.LocID, PPQUOTK_BASE, Rec.CurID);
-						goods_obj.GetQuotExt(ilti.GoodsID, qi, &ilti.Price, 1);
+						goods_obj.GetQuotExt(ilti.GoodsID, QuotIdent(Rec.LocID, PPQUOTK_BASE, Rec.CurID), &ilti.Price, 1);
 					}
 					ilti.SetQtty(qtty, 0, (sign > 0) ? (PPTFR_RECEIPT|PPTFR_PLUS) : PPTFR_MINUS);
 					THROW(P_BObj->ConvertILTI(&ilti, this, &pos_list, CILTIF_OPTMZLOTS | CILTIF_ABSQTTY, 0));

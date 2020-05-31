@@ -1,5 +1,5 @@
 // AMTLIST.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2004, 2005, 2007, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2004, 2005, 2007, 2011, 2012, 2014, 2015, 2016, 2017, 2020
 // @Kernel
 //
 #include <pp.h>
@@ -47,8 +47,7 @@ int FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 	if(pTai) {
 		AmtEntry * p_ae;
 		for(uint i = 0; !yes && enumItems(&i, (void **)&p_ae);)
-			if(p_ae->AmtTypeID && p_ae->Amt != 0.0 &&
-				oneof3(p_ae->AmtTypeID, pTai->VatAmtID[0], pTai->VatAmtID[1], pTai->VatAmtID[2]))
+			if(p_ae->AmtTypeID && p_ae->Amt != 0.0 && oneof3(p_ae->AmtTypeID, pTai->VatAmtID[0], pTai->VatAmtID[1], pTai->VatAmtID[2]))
 				yes = 1;
 	}
 	return yes;
@@ -63,7 +62,7 @@ int FASTCALL AmtList::IsEqual(const AmtList * pS) const
 		for(uint i = 0; ok && enumItems(&i, (void **)&p_e1);) {
 			int found = 0;
 			for(uint j = 0; !found && pS->enumItems(&j, (void **)&p_e2);) {
-				long   p = (long)j;
+				const long p = static_cast<long>(j);
 				if(!saw_list.lsearch(p) && p_e1->IsEqual(*p_e2)) {
 					saw_list.add(p);
 					found = 1;

@@ -38,8 +38,7 @@ LotFilt & FASTCALL LotFilt::operator = (const LotFilt & s)
 int SLAPI LotFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int SLAPI LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
-//virtual
-int SLAPI LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
+/*virtual*/int SLAPI LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
 	if(ver == 0) {
@@ -227,8 +226,7 @@ int SLAPI LotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-// virtual
-int SLAPI LotFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI LotFilt::Describe(long flags, SString & rBuf) const
 {
 	{
 		SString buf;
@@ -2802,8 +2800,7 @@ SLAPI PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam
 {
 }
 
-//virtual
-int PPLotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPLotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2836,8 +2833,7 @@ int PPLotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rH
 	return ok;
 }
 
-//virtual
-int PPLotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
+/*virtual*/int PPLotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
 	int    ok = 1;
 	long   flags = 0;
@@ -2856,8 +2852,7 @@ int PPLotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	return ok;
 }
 
-//virtual
-int PPLotImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
+/*virtual*/int PPLotImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
 {
 	int    ok = 1;
 	SString params, fld_name, param_val;
@@ -3023,7 +3018,7 @@ int SLAPI PPLotExporter::Export(const LotViewItem * pItem)
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	Sdr_Lot  sdr_lot;
-	MEMSZERO(sdr_lot);
+	// @v10.7.9 @ctr MEMSZERO(sdr_lot);
 	THROW_INVARG(pItem && P_IE);
 	sdr_lot.ID = pItem->ID;
 	sdr_lot.BillID = pItem->BillID;

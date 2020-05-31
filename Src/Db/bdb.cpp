@@ -1038,8 +1038,7 @@ BDbTable::SecondaryIndex::~SecondaryIndex()
 {
 }
 
-//virtual
-int BDbTable::SecondaryIndex::Implement_Cmp(BDbTable * pMainTbl, const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
+/*virtual*/int BDbTable::SecondaryIndex::Implement_Cmp(BDbTable * pMainTbl, const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
 {
 	return 0;
 }
@@ -1243,8 +1242,7 @@ BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb, SecondaryIndex * pIdx
 	ENDCATCH
 }
 
-// virtual
-BDbTable::~BDbTable()
+/*virtual*/BDbTable::~BDbTable()
 {
 	Close();
 	Sign = 0;
@@ -1259,14 +1257,12 @@ int    FASTCALL BDbTable::GetState(long stateFlag) const { return BIN(State & st
 int    BDbTable::IsConsistent() const { return (Sign == BDBT_SIGNATURE) ? 1 : DBS.SetError(BE_BDB_INVALID_TABLE, 0); }
 TSCollection <BDbTable> & BDbTable::GetIdxList() { return IdxList; }
 
-//virtual
-int BDbTable::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
+/*virtual*/int BDbTable::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
 {
 	return P_IdxHandle ? P_IdxHandle->Implement_Cmp(this, pKey1, pKey2) : 0;
 }
 
-//virtual
-uint FASTCALL BDbTable::Implement_PartitionFunc(DBT * pKey)
+/*virtual*/uint FASTCALL BDbTable::Implement_PartitionFunc(DBT * pKey)
 {
 	return 0;
 }
@@ -1419,7 +1415,11 @@ int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 		SProfile::Measure pm;
 		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0);
 		int r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
-		if(!r && BtrError == BE_UBUFLEN) {
+		// @v10.7.9 @fix {
+		if(r)
+			ok = 1;
+		// } @v10.7.9 @fix 
+		else if(!r && BtrError == BE_UBUFLEN) {
 			int    r2 = 0;
 			r2 = rData.Realloc();
 			if(r2 > 0) {

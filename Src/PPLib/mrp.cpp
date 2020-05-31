@@ -991,8 +991,7 @@ int SLAPI PPObjMrpTab::Search(PPID id, void * pRec)
 	return P_Tbl->Search(id, (MrpTabTbl::Rec *)pRec);
 }
 
-//virtual 
-const char * SLAPI PPObjMrpTab::GetNamePtr() 
+/*virtual*/const char * SLAPI PPObjMrpTab::GetNamePtr() 
 { 
 	return P_Tbl->data.Name; 
 }

@@ -667,8 +667,7 @@ int SLAPI PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int pai
 	return ok;
 }
 
-//virtual
-void SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & SysJournalFilt::fShowObjects) {

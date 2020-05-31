@@ -580,7 +580,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 					for(uint i = 0; i < QList_.getCount(); i++) {
 						const PPQuotItem_ & r_item = QList_.at(i);
 						TempQuotSerialTbl::Rec ts_rec;
-						MEMSZERO(ts_rec);
+						// @v10.7.9 @ctr MEMSZERO(ts_rec);
 						ts_rec.GoodsID = r_item.GoodsID;
 						ts_rec.QuotKindID = r_item.KindID;
 						ts_rec.LocID = r_item.LocID;
@@ -677,7 +677,7 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 				for(uint i = 0; i < QList_.getCount(); i++) {
 					const PPQuotItem_ & r_item = QList_.at(i);
 					TempQuotTbl::Rec rec;
-					MEMSZERO(rec);
+					// @v10.7.9 @ctr MEMSZERO(rec);
 					rec.GoodsID  = r_item.GoodsID;
 					if(rec.GoodsID) {
 						STRNSCPY(rec.GoodsName, GetGoodsName(rec.GoodsID, temp_buf));
@@ -1258,7 +1258,7 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 			SString last_goods_name;
 			PPIDArray temp_goods_list;
 			TempQuotTbl::Rec rec;
-			MEMSZERO(rec);
+			// @v10.7.9 @ctr MEMSZERO(rec);
 			pQList->sort(PTR_CMPFUNC(PPQuotItem_GLA));
 			const uint qlc = pQList->getCount();
 			PPLoadText(PPTXT_WAIT_QUOTTMPTBUILDING, msg_buf);

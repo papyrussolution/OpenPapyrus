@@ -72,8 +72,7 @@ private:
 	TSArray <PPUserProfileFileItem> * P_OffsList;
 };
 
-// virtual
-int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
 		return 0;
@@ -82,8 +81,7 @@ int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY_P1ERR(UserProfileFiltDialog, ufp_db_list, static_cast<UserProfileFilt *>(pBaseFilt))
 }
 
-// virtual
-int SLAPI PPViewUserProfile::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewUserProfile::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	Counter.Init();
@@ -144,8 +142,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-// virtual
-void SLAPI PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
@@ -153,8 +150,7 @@ void SLAPI PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-// virtual
-DBQuery * SLAPI PPViewUserProfile::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewUserProfile::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = 0;
 	TempUserProfileTbl * t = 0;
@@ -232,8 +228,7 @@ int SLAPI PPViewUserProfile::HandleNotifyEvent(int kind, const PPNotifyEvent * p
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewUserProfile::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewUserProfile::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    update = 0;

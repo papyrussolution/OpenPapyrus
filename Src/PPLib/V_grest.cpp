@@ -17,8 +17,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsRest); SLAPI GoodsRestFilt::GoodsRestFilt() : PPBa
 	Init(1, 0);
 }
 
-// virtual
-int SLAPI GoodsRestFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI GoodsRestFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_ARTICLE,     SupplID,    STRINGIZE(SupplID),    rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSGROUP,  GoodsGrpID, STRINGIZE(GoodsGrpID), rBuf);
@@ -1562,8 +1561,8 @@ int SLAPI PPViewGoodsRest::AddTotal(const PPViewGoodsRest::CacheItem & rItem)
 		}
 	}
 	if(Flags & fAccsCost)
-		Total.Amounts.Add(amt_type_cost, 0L /* @curID */, sum_cost, 0);
-	Total.Amounts.Add(amt_type_price, 0L /* @curID */, sum_price, 0);
+		Total.Amounts.Add(amt_type_cost, 0L/*@curID*/, sum_cost, 0);
+	Total.Amounts.Add(amt_type_price, 0L/*@curID*/, sum_price, 0);
 	return ok;
 }
 
@@ -2745,7 +2744,6 @@ int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl
 	if(oneof4(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode)) {
 		SString temp_buf;
 		SString code_buf;
-		TempOrderTbl::Rec ord_rec;
 		TempGoodsRestTbl::Key0 k;
 		TempGoodsRestTbl * p_t = P_Tbl;
 		BExtQuery q(p_t, 0, 64);
@@ -2754,7 +2752,8 @@ int SLAPI PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl
 		q.select(p_t->ID__, p_t->GoodsID, p_t->GoodsGrp, /*p_t->BarCode*/p_t->BarcodeSP, p_t->Price, 0L); // @v9.8.3 p_t->BarCode-->p_t->BarcodeSP
 		MEMSZERO(k);
 		for(q.initIteration(0, &k, spFirst); q.nextIteration() > 0;) {
-			MEMSZERO(ord_rec);
+			TempOrderTbl::Rec ord_rec;
+			// @v10.7.9 @ctr MEMSZERO(ord_rec);
 			ord_rec.ID = p_t->data.ID__;
 			if(ord == OrdByPrice)
 				sprintf(ord_rec.Name, "%055.8lf", p_t->data.Price);
@@ -3138,8 +3137,8 @@ int SLAPI PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 					}
 				}
 			}
-			pTotal->Amounts.Add(amt_type_cost,  0L /* @curID */, sum_cost, 0);
-			pTotal->Amounts.Add(amt_type_price, 0L /* @curID */, sum_price, 0);
+			pTotal->Amounts.Add(amt_type_cost,  0L/*@curID*/, sum_cost, 0);
+			pTotal->Amounts.Add(amt_type_price, 0L/*@curID*/, sum_price, 0);
 		}
 		if(pTotal->SumCost > 0)
 			pTotal->PctAddedVal = (100.0 * (pTotal->SumPrice - pTotal->SumCost) / pTotal->SumCost);
@@ -3307,8 +3306,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 	return ok;
 }
 
-//virtual
-void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	uint   brw_id = 0;
 	int    deficit_col = 0, minstock_col = 0, draft_rcpt_col = 0;
@@ -3377,8 +3375,7 @@ void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
 }
 
-// virtual
-DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	if(!P_Tbl)
 		return 0;
@@ -3577,8 +3574,7 @@ DBQuery * SLAPI PPViewGoodsRest::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-// virtual
-int SLAPI PPViewGoodsRest::ViewTotal()
+/*virtual*/int SLAPI PPViewGoodsRest::ViewTotal()
 {
 	class GoodsRestTotalDialog : public AmtListDialog {
 	public:
@@ -3863,8 +3859,7 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    update = 0;
 	int    ok = (ppvCmd != PPVCMD_DETAIL && ppvCmd != PPVCMD_PRINT) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;

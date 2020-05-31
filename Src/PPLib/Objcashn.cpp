@@ -3259,8 +3259,7 @@ int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int
 	return ok;
 }
 
-// virtual
-int SLAPI PPObjLocPrinter::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int SLAPI PPObjLocPrinter::Edit(PPID * pID, void * extraPtr)
 {
 	class LocPrinterDialog : public TDialog {
 	public:

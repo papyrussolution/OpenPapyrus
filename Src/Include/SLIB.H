@@ -7023,6 +7023,14 @@ public:
 	int    SLAPI Add(long key, long val);
 	int    SLAPI Add(long key, long val, uint * pPos, int inOrder = 0);
 	int    SLAPI AddUnique(long key, long val, uint * pPos, int inOrder = 0);
+	//
+	// Descr: Если находит в массиве элемент со ключем key, то увеличивает соответствующее значение val на единицу,
+	//   в противном случае добавляет новый элемент с ключем key и значением val.
+	// Returns:
+	//   1 - ключ key найден и соответствующее значение увеличено на 1
+	//   2 - ключ key не найден - создан новый элемент со значением 1.
+	//
+	int    FASTCALL IncrementValueByKey(long key);
 	int    SLAPI Update(long key, long val, int binary = 0);
 	int    SLAPI Remove(long key, int binary = 0);
 	//

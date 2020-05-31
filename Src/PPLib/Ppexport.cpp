@@ -97,8 +97,7 @@ SLAPI PPDbTableXmlExporter::PPDbTableXmlExporter()
 {
 }
 
-//virtual
-SLAPI PPDbTableXmlExporter::~PPDbTableXmlExporter()
+/*virtual*/SLAPI PPDbTableXmlExporter::~PPDbTableXmlExporter()
 {
 }
 
@@ -271,8 +270,7 @@ SLAPI PPDbTableXmlExporter_Transfer::PPDbTableXmlExporter_Transfer(const PPDbTab
 	P_T = p_bobj ? p_bobj->trfr : 0;
 }
 
-//virtual
-DBTable * PPDbTableXmlExporter_Transfer::Init()
+/*virtual*/DBTable * PPDbTableXmlExporter_Transfer::Init()
 {
 	BExtQuery::ZDelete(&P_Q);
 	if(P_T) {
@@ -292,8 +290,7 @@ DBTable * PPDbTableXmlExporter_Transfer::Init()
 	return P_T;
 }
 
-//virtual
-int PPDbTableXmlExporter_Transfer::Next()
+/*virtual*/int PPDbTableXmlExporter_Transfer::Next()
 {
 	int    ok = P_Q ? P_Q->nextIteration() : 0;
 	if(ok > 0)
@@ -311,8 +308,7 @@ SLAPI PPDbTableXmlExporter_Bill::PPDbTableXmlExporter_Bill(const PPDbTableXmlExp
 	P_T = p_bobj ? p_bobj->P_Tbl : 0;
 }
 
-//virtual
-DBTable * PPDbTableXmlExporter_Bill::Init()
+/*virtual*/DBTable * PPDbTableXmlExporter_Bill::Init()
 {
 	BExtQuery::ZDelete(&P_Q);
 	if(P_T) {
@@ -332,8 +328,7 @@ DBTable * PPDbTableXmlExporter_Bill::Init()
 	return P_T;
 }
 
-//virtual
-int PPDbTableXmlExporter_Bill::Next()
+/*virtual*/int PPDbTableXmlExporter_Bill::Next()
 {
 	int    ok = P_Q ? P_Q->nextIteration() : 0;
 	if(ok > 0)

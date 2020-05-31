@@ -576,8 +576,7 @@ STimeChunkBrowser::~STimeChunkBrowser()
 	ZDELETE(P_Tt);
 }
 
-//virtual
-TBaseBrowserWindow::IdentBlock & STimeChunkBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
+/*virtual*/TBaseBrowserWindow::IdentBlock & STimeChunkBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasTimeChunkBrowser;
 	rBlk.ClsName = STimeChunkBrowser::WndClsName;

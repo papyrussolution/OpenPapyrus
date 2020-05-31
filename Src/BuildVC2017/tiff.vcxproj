@@ -259,6 +259,11 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -307,6 +312,11 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -356,6 +366,11 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -405,6 +420,11 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -453,6 +473,11 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -501,6 +526,11 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <EnableModules>false</EnableModules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

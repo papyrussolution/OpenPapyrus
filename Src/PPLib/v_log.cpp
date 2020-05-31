@@ -53,8 +53,7 @@ IMPL_HANDLE_EVENT(LogsDialog)
 	}
 }
 
-// virtual
-int LogsDialog::setupList()
+/*virtual*/int LogsDialog::setupList()
 {
 	int    ok = 1;
 	SString path;
@@ -84,8 +83,7 @@ int LogsDialog::setupList()
 	return ok;
 }
 
-// virtual
-int LogsDialog::editItem(long pos, long id)
+/*virtual*/int LogsDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < static_cast<long>(LogsAry.getCount())) {

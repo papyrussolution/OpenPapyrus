@@ -1561,21 +1561,40 @@ int SLAPI PPSession::EnsureExtCfgDb()
 	}
 	return ok;
 }
-
+//
+// Attention: вызов PPSession::InitExtCfgDb() должен быть защищен блокировкой ExtCfgDbLock
+//
 int SLAPI PPSession::InitExtCfgDb()
 {
 	int    ok = -1;	
 	if(!P_ExtCfgDb) {
-		SString temp_buf;
-		PPGetPath(PPPATH_WORKSPACE, temp_buf);
-		temp_buf.SetLastSlash().Cat("bdbconfig");
-		if(!IsDirectory(temp_buf))
-			createDir(temp_buf);
-		if(IsDirectory(temp_buf))
-			P_ExtCfgDb = new PPConfigDatabase(temp_buf);
-		if(P_ExtCfgDb)
-			ok = 1;
-		else 
+		static int string_history_disabled = 0; // @global (полагаемся на то, что вызов этой функции защищен блокировкой)
+		int cc_shu = string_history_disabled ? 0 : CConfig.StringHistoryUsage;
+		if(cc_shu < 0) {
+			UserInterfaceSettings ui_cfg;
+			if(ui_cfg.Restore() > 0)
+				cc_shu = (ui_cfg.Flags & UserInterfaceSettings::fStringHistoryDisabled) ? 0 : 1;
+			else
+				cc_shu = 1;
+		}
+		if(!cc_shu) {
+			string_history_disabled = 1;
+			ok = 0;
+		}
+		else if(cc_shu > 0) {
+			SString temp_buf;
+			PPGetPath(PPPATH_WORKSPACE, temp_buf);
+			temp_buf.SetLastSlash().Cat("bdbconfig");
+			if(!IsDirectory(temp_buf))
+				createDir(temp_buf);
+			if(IsDirectory(temp_buf))
+				P_ExtCfgDb = new PPConfigDatabase(temp_buf);
+			if(P_ExtCfgDb)
+				ok = 1;
+			else 
+				ok = 0;
+		}
+		else
 			ok = 0;
 	}
 	return ok;
@@ -3222,6 +3241,17 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					if(checkdate(dt))
 						r_cc._InvcMergeTaxCalcAlg2Since = dt;
 				}
+				// @v10.7.9 {
+				r_cc.StringHistoryUsage = -1;
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_STRINGHISTORYUSAGE, &(iv = 0)) > 0) {
+					if(iv > 0)
+						r_cc.StringHistoryUsage = 1;
+					else if(iv < 0)
+						r_cc.StringHistoryUsage = -1;
+					else
+						r_cc.StringHistoryUsage = 0;
+				}
+				// } @v10.7.9
 				r_tla.Bac.Load();
 			}
 			if(CheckExtFlag(ECF_USESJLOGINEVENT))
@@ -3790,7 +3820,7 @@ int SLAPI PPSession::Register()
 {
 	int    ok = 1;
 	RegSessData data;
-	MEMSZERO(data);
+	// @v10.7.9 @ctr MEMSZERO(data);
 	data.Uuid = SLS.GetSessUuid();
 	data.InitTime = getcurdatetime_();
 	data.Ver = DS.GetVersion();
@@ -3804,7 +3834,7 @@ int SLAPI PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessD
 {
 	int    ok = -1;
 	RegSessData data;
-	MEMSZERO(data);
+	// @v10.7.9 @ctr MEMSZERO(data);
 	SString uuid_buf;
 	rUuid.ToStr(S_GUID::fmtIDL, uuid_buf);
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::Sessions, 1);

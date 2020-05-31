@@ -3931,7 +3931,7 @@ void SLAPI PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 					}
 		}
 		if(pctdis) {
-			Amounts.Put(PPAMT_PCTDIS, 0L /* @curID */, dis, 1, 1);
+			Amounts.Put(PPAMT_PCTDIS, 0L/*@curID*/, dis, 1, 1);
 			Amounts.Remove(PPAMT_MANDIS, -1);
 		}
 		else {
@@ -4616,14 +4616,14 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 		SString grp_name, goods_name, temp_buf;
 		uint   i = 0;
 		long   uniq_counter = 0;
-		struct Ext {
+		struct Ext { // @flat
 			long   Uc;
 			long   Pos;
 			long   Extra;
 			long   DispPos;
 		};
 		Ext    ext;
-		SArray ext_list(sizeof(Ext));
+		SVector ext_list(sizeof(Ext)); // @v10.7.9 SArray-->SVector
 		PPTransferItem * p_ti;
 		PPIDArray scale_alt_grp_list;
 		PPIDArray skip_list;
@@ -5205,6 +5205,10 @@ int SLAPI PPBillPacket::CompareTI(PPBillPacket & rS, long tidFlags, long filtGrp
 //
 //
 //
+SLAPI BillViewItem::BillViewItem() : Debit(0.0), Credit(0.0), Saldo(0.0), LastPaymDate(ZERODATE)
+{
+}
+
 SLAPI BillTotal::BillTotal()
 {
 	Reset();
@@ -5295,23 +5299,23 @@ void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double s
 {
 	PPID   in_id = 0, out_id = 0;
 	if(altAmtID && altAmtID != stdAmtID) {
-		P_Data->Amounts.Add(altAmtID, 0L /* @curID */, altAmount, 1);
+		P_Data->Amounts.Add(altAmtID, 0L/*@curID*/, altAmount, 1);
 		if(in_out && ATObj.FetchCompl(altAmtID, &in_id, &out_id) > 0) {
 			if(in_out < 0 && in_id) {
-				P_Data->Amounts.Add(in_id, 0L /* @curID */, -altAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
+				P_Data->Amounts.Add(in_id, 0L/*@curID*/, -altAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 			}
 			if(in_out > 0 && out_id)
-				P_Data->Amounts.Add(out_id, 0L /* @curID */, altAmount, 1);
+				P_Data->Amounts.Add(out_id, 0L/*@curID*/, altAmount, 1);
 		}
 	}
 	if(!replaceStdAmount || altAmtID == stdAmtID) {
-		P_Data->Amounts.Add(stdAmtID, 0L /* @curID */, stdAmount, 1);
+		P_Data->Amounts.Add(stdAmtID, 0L/*@curID*/, stdAmount, 1);
 		if(in_out && ATObj.FetchCompl(stdAmtID, &in_id, &out_id) > 0) {
 			if(in_out < 0 && in_id) {
-				P_Data->Amounts.Add(in_id, 0L /* @curID */, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
+				P_Data->Amounts.Add(in_id, 0L/*@curID*/, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 			}
 			if(in_out > 0 && out_id)
-				P_Data->Amounts.Add(out_id, 0L /* @curID */, stdAmount, 1);
+				P_Data->Amounts.Add(out_id, 0L/*@curID*/, stdAmount, 1);
 		}
 	}
 }
@@ -5319,13 +5323,13 @@ void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double s
 void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out)
 {
 	PPID   in_id = 0, out_id = 0;
-	P_Data->Amounts.Add(stdAmtID, 0L /* @curID */, stdAmount, 1);
+	P_Data->Amounts.Add(stdAmtID, 0L/*@curID*/, stdAmount, 1);
 	if(in_out && ATObj.FetchCompl(stdAmtID, &in_id, &out_id) > 0) {
 		if(in_out < 0 && in_id) {
-			P_Data->Amounts.Add(in_id, 0L /* @curID */, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
+			P_Data->Amounts.Add(in_id, 0L/*@curID*/, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 		}
 		if(in_out > 0 && out_id)
-			P_Data->Amounts.Add(out_id, 0L /* @curID */, stdAmount, 1);
+			P_Data->Amounts.Add(out_id, 0L/*@curID*/, stdAmount, 1);
 	}
 }
 
@@ -5544,7 +5548,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				SetupStdAmount(PPAMT_SELLING,  pq, in_out);
 				SetupStdAmount(PPAMT_DISCOUNT, dq, 0);
 			}
-			P_Data->Amounts.Add(PPAMT_ASSETEXPL, 0L  /* @curID */, asset_expl, 1);
+			P_Data->Amounts.Add(PPAMT_ASSETEXPL, 0L  /*@curID*/, asset_expl, 1);
 			if(!exclamount) {
 				P_Data->Amt = R2(P_Data->Amt + ((State & stSelling) ? (pq - dq) : cq));
 				if(pTI->CurID)
@@ -5579,7 +5583,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					cexcise = vect.GetValue(GTAXVF_EXCISE) * sign;
 					cstax   = vect.GetValue(GTAXVF_SALESTAX) * sign;
 					if(cvat_amt_id)
-						P_Data->Amounts.Add(cvat_amt_id, 0L /* @curID */, cvat, 1);
+						P_Data->Amounts.Add(cvat_amt_id, 0L/*@curID*/, cvat, 1);
 					P_Data->CostVatList.Add(vect.GetTaxRate(GTAX_VAT, 0), cvat, vect.GetValue(GTAXVF_AFTERTAXES) * sign, vect.GetValue(GTAXVF_BEFORETAXES) * sign);
 				}
 				{
@@ -5599,10 +5603,10 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				P_Data->CSTax   += cstax;
 				if(vat != 0.0) {
 					if(ATObj.FetchByTax(&tax_amt_id, GTAX_VAT, tax_rate) > 0)
-						P_Data->Amounts.Add(tax_amt_id, 0L /* @curID */, vat, 1);
+						P_Data->Amounts.Add(tax_amt_id, 0L/*@curID*/, vat, 1);
 				}
 				if(stax != 0.0 && ATObj.FetchByTax(&tax_amt_id, GTAX_SALES, vect.GetTaxRate(GTAX_SALES, 0)) > 0)
-					P_Data->Amounts.Add(tax_amt_id, 0L /* @curID */, stax, 1);
+					P_Data->Amounts.Add(tax_amt_id, 0L/*@curID*/, stax, 1);
 				SetupStdAmount(PPAMT_VATAX,    vat,     in_out);
 				SetupStdAmount(PPAMT_CVAT,     cvat,    in_out);
 				SetupStdAmount(PPAMT_PVAT,     pvat,    in_out);
@@ -5695,7 +5699,7 @@ int SLAPI PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 			if(total_data.CVAT != 0.0 && OpTypeID == PPOPT_GOODSRECEIPT && Rec.Object)
 				if(IsSupplVATFree(Rec.Object) > 0 || PPObjLocation::CheckWarehouseFlags(Rec.LocID, LOCF_VATFREE)) {
 					total_data.CVAT = 0;
-					pList->Put(PPAMT_CVAT, 0L /* @curID */, 0, 1, 1);
+					pList->Put(PPAMT_CVAT, 0L/*@curID*/, 0, 1, 1);
 				}
 		}
 	}

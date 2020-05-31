@@ -101,8 +101,7 @@ SLAPI BDictionary::BDictionary(const char * pPath, const char * pDataPath, const
 SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDict_Btrieve(pPath), 0)
 	{ Init(0, 0); }
 
-//virtual 
-int SLAPI BDictionary::GetDatabaseState(uint * pStateFlags)
+/*virtual*/int SLAPI BDictionary::GetDatabaseState(uint * pStateFlags)
 {
 	int    ok = 1;
 	uint   state = 0;
@@ -121,8 +120,7 @@ int SLAPI BDictionary::GetDatabaseState(uint * pStateFlags)
 	return ok;
 }
 
-//virtual
-SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
+/*virtual*/SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
 {
 	SPathStruc ps(rFileName);
 	if(ps.Dir.Empty()) {

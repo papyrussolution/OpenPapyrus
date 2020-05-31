@@ -492,8 +492,8 @@ int SLAPI PPPriceListImporter::Run()
 		BarcodeTbl::Rec bcrec;
 		ArGoodsCodeTbl::Rec code_rec;
 		MEMSZERO(pl_rec);
-		MEMSZERO(bcrec);
-		MEMSZERO(code_rec);
+		// @v10.7.9 @ctr MEMSZERO(bcrec);
+		// @v10.7.9 @ctr MEMSZERO(code_rec);
 		THROW(ie.ReadRecord(&pl_rec, sizeof(pl_rec)));
 		(temp_buf = pl_rec.Barcode).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(pl_rec.Barcode, temp_buf);
@@ -658,7 +658,7 @@ int SLAPI PPViewPriceList::UpdatePriceList(LDATE date, const Sdr_PriceListArray 
 			GoodsIterator iter;
 			Goods2Tbl::Rec goods_grp_rec;
 			PriceLineIdent pl_ident, pl_iter;
-			MEMSZERO(goods_grp_rec);
+			// @v10.7.9 @ctr MEMSZERO(goods_grp_rec);
 			pl_ident.PListID = Filt.PListID;
 			pl_iter = pl_ident;
 			while(Tbl.EnumLines(&pl_ident, &pl_iter) > 0)
@@ -1833,7 +1833,7 @@ IMPL_HANDLE_EVENT(PLineDialog)
 		if(goods_id > 0) {
 			PPObjGoods gobj;
 			loc_id = static_cast<const PriceListFilt *>(P_PLV->GetBaseFilt())->LocID;
-			gobj.EditQuotations(goods_id, loc_id, -1L /* @curID */, 0, PPQuot::clsGeneral);
+			gobj.EditQuotations(goods_id, loc_id, -1L/*@curID*/, 0, PPQuot::clsGeneral);
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_PLINE_GOODS))
@@ -1859,7 +1859,7 @@ int SLAPI PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 	PLineDialog * dlg = 0;
 	Gsl.Clear(); // AHTOXA
 	THROW(CheckDialogPtr(&(dlg = new PLineDialog(this))));
-	MEMSZERO(rec);
+	// @v10.7.9 @ctr MEMSZERO(rec);
 	rec.ListID  = pIdent->PListID;
 	rec.GoodsID = pIdent->GoodsID;
 	rec.QuotKindID = Filt.QuotKindID;
@@ -1959,7 +1959,7 @@ int SLAPI PPPriceListExporter::Export(const PriceListViewItem * pItem)
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
 	Sdr_PriceList sdr;
-	MEMSZERO(sdr);
+	// @v10.7.9 @ctr MEMSZERO(sdr);
 	THROW_INVARG(pItem && P_IE);
 	sdr.GoodsID = pItem->GoodsID;
 	sdr.AltGrpPLU = pItem->GoodsCode;
@@ -2311,9 +2311,8 @@ int SLAPI PPViewPriceList::SendPListInXmlFormat()
 	PPObjWorld w_obj;
 	WorldTbl::Rec w_rec;
 	MEMSZERO(s_i);
-	MEMSZERO(psn_rec);
+	// @v10.7.9 @ctr MEMSZERO(psn_rec);
 	MEMSZERO(cfg);
-
 	THROW(ini_file.IsValid());
 	ReadPriceListConfig(&plist_cfg);
 	PPLoadText(PPTXT_PLISTTOALBATROS, msg_buf);

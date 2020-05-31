@@ -26,8 +26,7 @@ SLAPI PPObjBizScore::~PPObjBizScore()
 #define BIZSCEXSTR_FORMULA 2
 
 //int SLAPI PPObjBizScore::Remove(PPID id, long, uint options)
-//virtual
-int  SLAPI PPObjBizScore::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int  SLAPI PPObjBizScore::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    r = -1, conf = 1;
 	THROW(CheckRights(PPR_DEL));
@@ -1218,11 +1217,9 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 						S_GUID xml_guid;
 						Sdr_BizScoreVal xml_rec;
 						GlobalBizScoreVal * p_bizsc_rec = new GlobalBizScoreVal;
-
 						THROW_MEM(p_bizsc_rec);
 						memzero(p_bizsc_rec, sizeof(GlobalBizScoreVal));
-						MEMSZERO(xml_rec);
-
+						// @v10.7.9 @ctr MEMSZERO(xml_rec);
 						THROW(ie.ReadRecord(&xml_rec, sizeof(xml_rec)));
 						xml_guid.FromStr(xml_rec.DbUuid);
 						// THROW_PP(xml_guid == user_acc.LocalDbUuid, PPERR_INVDBGUIDINFILE);

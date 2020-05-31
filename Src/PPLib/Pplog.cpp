@@ -1242,8 +1242,7 @@ SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThre
 {
 }
 
-//virtual
-void PPLogMsgSession::Run()
+/*virtual*/void PPLogMsgSession::Run()
 {
 	PPLogMsgItem msg_item;
 	SString diag_msg_buf;

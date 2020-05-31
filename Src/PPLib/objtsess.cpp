@@ -3612,10 +3612,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 							if(price == 0 && price_list.Search(ilti.GoodsID, &price, 0) <= 0) {
 								if(ilti.GoodsID == tec_goods_id && order_price > 0)
 									price = order_price;
-								else {
-									const QuotIdent qi(bill_pack.Rec.LocID, PPQUOTK_BASE);
-									GObj.GetQuotExt(ilti.GoodsID, qi, &price, 1);
-								}
+								else
+									GObj.GetQuotExt(ilti.GoodsID, QuotIdent(bill_pack.Rec.LocID, PPQUOTK_BASE), &price, 1);
 								price_list.Add(ilti.GoodsID, price, 0);
 							}
 							ilti.Cost  = cost;
@@ -3623,10 +3621,9 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 						}
 						if(line_rec.Sign > 0 && ilti.UnitPerPack == 0) {
 							//
-							// Определяем емкость упаковки для исходящих позиций (если связанный документ
-							//   не снабдил нас такой информацией)
+							// Определяем емкость упаковки для исходящих позиций (если связанный документ не снабдил нас такой информацией)
 							//
-							double package = 0;
+							double package = 0.0;
 							GoodsStockExt gse;
 							if(pack_list.Search(ilti.GoodsID, &package, 0) > 0)
 								ilti.UnitPerPack = package;

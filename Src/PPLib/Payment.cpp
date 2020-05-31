@@ -1770,7 +1770,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 						for(uint j = 0; j < bi_list.getCount(); j++) {
 							const _BI & r_bi_item = *static_cast<const _BI *>(bi_list.at(j));
 							a += BR2(r_bi_item.Amount);
-							THROW(p_t->GetAmount(r_bi_item.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
+							THROW(p_t->GetAmount(r_bi_item.ID, PPAMT_PAYMENT, 0L/*@curID*/, &t));
 							p += t;
 							double debt = BR2(r_bi_item.Amount) - t;
 							if(debt > 1.0) {
@@ -1802,7 +1802,7 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 								BillTbl::Rec rec;
 								p_t->copyBufTo(&rec);
 								a += BR2(rec.Amount);
-								THROW(p_t->GetAmount(rec.ID, PPAMT_PAYMENT, 0L /* @curID */, &t));
+								THROW(p_t->GetAmount(rec.ID, PPAMT_PAYMENT, 0L/*@curID*/, &t));
 								p += t;
 								double debt = BR2(rec.Amount) - t;
 								if(debt > 1.0) {

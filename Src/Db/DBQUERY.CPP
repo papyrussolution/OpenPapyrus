@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -1264,8 +1264,7 @@ DBUpdateSetItem & DBUpdateSet::Get(uint pos) const
 	return *static_cast<DBUpdateSetItem *>(SArray::at(pos));
 }
 
-//virtual
-void FASTCALL DBUpdateSet::freeItem(void * pItem)
+/*virtual*/void FASTCALL DBUpdateSet::freeItem(void * pItem)
 {
 	DBUpdateSetItem * p_item = static_cast<DBUpdateSetItem *>(pItem);
 	p_item->Val.I.destroy();

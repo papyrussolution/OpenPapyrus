@@ -31,7 +31,7 @@ int SLAPI EditELink(PPELink * pLink)
 						}
 					}
 				}
-				setStaticText(CTL_ELINK_INFO, info_buf);
+				setCtrlString(CTL_ELINK_INFO, info_buf); // @v10.7.9 @fix setStaticText-->setCtrlString
 			}	
 			else if(event.isKeyDown(kbF2)) { // test
 				SString addr;

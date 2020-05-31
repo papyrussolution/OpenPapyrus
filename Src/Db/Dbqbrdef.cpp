@@ -1,5 +1,5 @@
 // DBQBRO.CPP
-// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019
+// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -34,8 +34,7 @@ int SLAPI DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	return 1;
 }
 
-// virtual
-int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
+/*virtual*/int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
 	BroColumn bc;
 	bc.OrgOffs = fldNo;
@@ -66,8 +65,7 @@ int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, 
 		return 0;
 }
 
-//virtual
-int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
+/*virtual*/int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
 {
 	uint   fld_no = 0;
 	return (query->getFieldPosByName(pFldName, &fld_no) > 0) ? insertColumn(atPos, pTxt, fld_no, typ, fmt, opt) : 0;

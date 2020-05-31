@@ -426,8 +426,7 @@ int PsnOpKindView::delItem(long, long id)
 	return ok;
 }
 
-// virtual
-int PsnOpKindView::setupList()
+/*virtual*/int PsnOpKindView::setupList()
 {
 	int    ok = -1;
 	if(P_Box) {
@@ -578,8 +577,7 @@ long SLAPI PPObjPsnOpKind::GetLevel(PPID id)
 	return level;
 }
 
-// virtual
-void * SLAPI PPObjPsnOpKind::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjPsnOpKind::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjPsnOpKindListWindow : public PPObjListWindow {
 	public:
@@ -642,8 +640,7 @@ void * SLAPI PPObjPsnOpKind::CreateObjListWin(uint flags, void * extraPtr)
 	return new PPObjPsnOpKindListWindow(this, flags, extraPtr);
 }
 
-// virtual
-int SLAPI PPObjPsnOpKind::Browse(void * extraPtr)
+/*virtual*/int SLAPI PPObjPsnOpKind::Browse(void * extraPtr)
 {
 	int    ok = 0;
 	if(CheckRights(PPR_READ)) {
@@ -659,8 +656,7 @@ int SLAPI PPObjPsnOpKind::Browse(void * extraPtr)
 	return ok;
 }
 
-// virtual
-int  SLAPI PPObjPsnOpKind::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
+/*virtual*/int  SLAPI PPObjPsnOpKind::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
 {
 	int    ok = 0;
 	PPPsnOpKind rec;

@@ -139,8 +139,7 @@ SLAPI PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSH
 	// @v10.4.10 (ответственность ctr PPObjReference) FiltProc = 0;
 }
 
-//virtual
-int SLAPI PPObjAccSheet::MakeReserved(long flags)
+/*virtual*/int SLAPI PPObjAccSheet::MakeReserved(long flags)
 {
 	int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -242,8 +241,7 @@ int SLAPI PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-// virtual
-void * SLAPI PPObjAccSheet::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjAccSheet::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjAccSheetListWindow : public PPObjListWindow {
 	public:

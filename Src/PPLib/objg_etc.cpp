@@ -24,7 +24,7 @@ int SLAPI PPObjGoodsType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPt
 		if(_obj == PPOBJ_AMOUNTTYPE && _id) {
 			PPGoodsType rec;
 			for(PPID id = 0; EnumItems(&id, &rec) > 0;)
-				if(rec.AmtCost == _id || rec.AmtPrice == _id || rec.AmtDscnt == _id || rec.AmtCVat == _id)
+				if(oneof4(_id, rec.AmtCost, rec.AmtPrice, rec.AmtDscnt, rec.AmtCVat))
 					return RetRefsExistsErr(Obj, id);
 		}
 	}
@@ -114,10 +114,50 @@ int SLAPI PPObjGoodsType::Browse(void * extraPtr) { return RefObjView(this, PPDS
 //
 class GoodsTypeCache : public ObjCache {
 public:
-	SLAPI GoodsTypeCache() : ObjCache(PPOBJ_GOODSTYPE, sizeof(GoodsTypeData)) {}
+	SLAPI  GoodsTypeCache() : ObjCache(PPOBJ_GOODSTYPE, sizeof(GoodsTypeData)) {}
 private:
-	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+	virtual int SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	{
+		int    ok = 1;
+		GoodsTypeData * p_cache_rec = static_cast<GoodsTypeData *>(pEntry);
+		PPObjGoodsType gt_obj;
+		PPGoodsType rec;
+		if(gt_obj.Search(id, &rec) > 0) {
+			#define FLD(f) p_cache_rec->f = rec.f
+			FLD(PriceRestrID);
+			FLD(WrOffGrpID);
+			FLD(AmtCost);
+			FLD(AmtPrice);
+			FLD(AmtDscnt);
+			FLD(AmtCVat);
+			FLD(ChZnProdType); // @v10.7.2
+			FLD(Flags);
+			#undef FLD
+			/* @v10.4.2 ok =*/PutName(rec.Name, p_cache_rec);
+		}
+		else
+			ok = -1;
+		return ok;
+	}
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+	{
+		PPGoodsType * p_data_rec = static_cast<PPGoodsType *>(pDataRec);
+		const GoodsTypeData * p_cache_rec = static_cast<const GoodsTypeData *>(pEntry);
+		memzero(p_data_rec, sizeof(*p_data_rec));
+		p_data_rec->Tag   = PPOBJ_GOODSTYPE;
+		#define FLD(f) p_data_rec->f = p_cache_rec->f
+		FLD(ID);
+		FLD(PriceRestrID);
+		FLD(WrOffGrpID);
+		FLD(AmtCost);
+		FLD(AmtPrice);
+		FLD(AmtDscnt);
+		FLD(AmtCVat);
+		FLD(ChZnProdType); // @v10.7.2
+		FLD(Flags);
+		#undef FLD
+		GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
+	}
 public:
 	struct GoodsTypeData : public ObjCacheEntry {
 		PPID   PriceRestrID;
@@ -130,50 +170,6 @@ public:
 		long   Flags;
 	};
 };
-
-int SLAPI GoodsTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
-{
-	int    ok = 1;
-	GoodsTypeData * p_cache_rec = static_cast<GoodsTypeData *>(pEntry);
-	PPObjGoodsType gt_obj;
-	PPGoodsType rec;
-	if(gt_obj.Search(id, &rec) > 0) {
-		#define FLD(f) p_cache_rec->f = rec.f
-		FLD(PriceRestrID);
-		FLD(WrOffGrpID);
-		FLD(AmtCost);
-		FLD(AmtPrice);
-		FLD(AmtDscnt);
-		FLD(AmtCVat);
-		FLD(ChZnProdType); // @v10.7.2
-		FLD(Flags);
-		#undef FLD
-		/* @v10.4.2 ok =*/PutName(rec.Name, p_cache_rec);
-	}
-	else
-		ok = -1;
-	return ok;
-}
-
-void SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
-{
-	PPGoodsType * p_data_rec = static_cast<PPGoodsType *>(pDataRec);
-	const GoodsTypeData * p_cache_rec = static_cast<const GoodsTypeData *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
-	p_data_rec->Tag   = PPOBJ_GOODSTYPE;
-	#define FLD(f) p_data_rec->f = p_cache_rec->f
-	FLD(ID);
-	FLD(PriceRestrID);
-	FLD(WrOffGrpID);
-	FLD(AmtCost);
-	FLD(AmtPrice);
-	FLD(AmtDscnt);
-	FLD(AmtCVat);
-	FLD(ChZnProdType); // @v10.7.2
-	FLD(Flags);
-	#undef FLD
-	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-}
 
 IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType, GoodsTypeCache);
 
@@ -534,10 +530,13 @@ int SLAPI PPObjGoodsValRestr::TestFormula(const char * pFormula)
 
 int SLAPI PPObjGoodsValRestr::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    ok = 1;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPGoodsValRestrPacket pack;
-	GoodsValRestrDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new GoodsValRestrDialog)));
+	GoodsValRestrDialog * dlg = new GoodsValRestrDialog;
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new)
 		THROW(GetPacket(*pID, &pack) > 0);
@@ -665,8 +664,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsValRestr, PPGoodsValRestrPacket);
 int  SLAPI PPObjGoodsValRestr::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 	{ return Implement_ObjReadPacket<PPObjGoodsValRestr, PPGoodsValRestrPacket>(this, p, id, stream, pCtx); }
 
-//virtual
-int  SLAPI PPObjGoodsValRestr::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
+/*virtual*/int SLAPI PPObjGoodsValRestr::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx)
 {
 	int    ok = 1, r;
 	if(p && p->Data) {
@@ -730,8 +728,7 @@ int  SLAPI PPObjGoodsValRestr::Write(PPObjPack * p, PPID * pID, void * stream, O
 	return ok;
 }
 
-//virtual
-int  SLAPI PPObjGoodsValRestr::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
+/*virtual*/int  SLAPI PPObjGoodsValRestr::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	int    ok = 1;
 	if(p && p->Data) {
@@ -915,8 +912,8 @@ void SLAPI GoodsValRestrCache::EntryToData(const ObjCacheEntry * pEntry, void * 
 	PPGoodsValRestrPacket * p_data_pack = static_cast<PPGoodsValRestrPacket *>(pDataRec);
 	const GoodsValRestrData * p_cache_rec = static_cast<const GoodsValRestrData *>(pEntry);
 	MEMSZERO(p_data_pack->Rec);
-	p_data_pack->LowBoundFormula = 0;
-	p_data_pack->UppBoundFormula = 0;
+	p_data_pack->LowBoundFormula.Z();
+	p_data_pack->UppBoundFormula.Z();
 	p_data_pack->Rec.Tag   = PPOBJ_GOODSVALRESTR;
 	p_data_pack->Rec.ID    = p_cache_rec->ID;
 #define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
@@ -955,7 +952,8 @@ SLAPI PPObjPallet::PPObjPallet(void * extraPtr) : PPObjReference(PPOBJ_PALLET, e
 
 int SLAPI PPObjPallet::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, is_new = 0;
+	int    ok = cmCancel;
+	int    is_new = 0;
 	TDialog * dlg = 0;
 	PPPallet pack;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PALLET))));

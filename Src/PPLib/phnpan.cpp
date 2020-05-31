@@ -465,7 +465,6 @@ PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const Phone
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmLocCCheck);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmSwitchTo);
 	AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 7, State::lmNone);
-
 	AddClusterAssoc(CTL_PHNCPANE_AUTOCLOSE, 0, 1);
 	Setup(pPSER, pSt);
 	static_cast<PPApp *>(APPL)->LastCmd = cmPhonePane; // @V10.5.9
@@ -494,7 +493,7 @@ int PhonePaneDialog::SetupInfo()
 	else {
 		temp_buf.CatDivIfNotEmpty(';', 2).Cat("DOWN");
 	}
-	setStaticText(CTL_PHNCPANE_ST_INFO, temp_buf);
+	setCtrlString(CTL_PHNCPANE_ST_INFO, temp_buf); // @v10.7.9 @fix setStaticText-->setCtrlString
 	if(S.Status != PhnSvcChannelStatus::stUp) {
 		showCtrl(CTL_PHNCPANE_AUTOCLOSE, 1);
 		if(!S.SinceDown) {

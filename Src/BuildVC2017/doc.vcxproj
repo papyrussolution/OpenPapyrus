@@ -982,6 +982,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\Doc\PP_INI.TXT" />
     <Text Include="..\Doc\Version.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

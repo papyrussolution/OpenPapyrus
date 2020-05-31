@@ -263,7 +263,7 @@ public:
 		if(P_ImEx) {
 			if(!Period.IsZero()) {
 				Sdr_ImpExpHeader hdr_data;
-				MEMSZERO(hdr_data);
+				// @v10.7.9 @ctr MEMSZERO(hdr_data);
 				hdr_data.PeriodLow = Period.low;
 				hdr_data.PeriodUpp = Period.upp;
 				P_ImEx->SetHeaderData(&hdr_data);
@@ -1376,7 +1376,7 @@ int SLAPI ConvertRbcBnk(const char * pPath)
 			Sdr_RbcBnkReg rec;
 			THROW(in_file.OpenFileForReading(0));
 			THROW(out_file.OpenFileForWriting(0, 1));
-			MEMSZERO(rec);
+			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = in_file.ReadRecord(&rec, sizeof(rec))) > 0) {
 				THROW(out_file.AppendRecord(&rec, sizeof(rec)));
 				MEMSZERO(rec);
@@ -1386,14 +1386,12 @@ int SLAPI ConvertRbcBnk(const char * pPath)
 	}
 	{
 		PPImpExpParam in_par, out_par;
-
 		in_par.Direction = 1;
 		in_par.DataFormat = PPImpExpParam::dfText;
 		in_par.TdfParam.FldDiv = "\t";
 		THROW(LoadSdRecord(PPREC_RBCBNKSEEK, &in_par.OtrRec));
 		in_par.InrRec = in_par.OtrRec;
 		(in_par.FileName = path).SetLastSlash().Cat("bnkseek.txt");
-
 		out_par.Direction = 0;
 		out_par.DataFormat = PPImpExpParam::dfDbf;
 		out_par.TdfParam.Flags |= TextDbFile::fOemText;
@@ -1406,7 +1404,7 @@ int SLAPI ConvertRbcBnk(const char * pPath)
 			Sdr_RbcBnkSeek rec;
 			THROW(in_file.OpenFileForReading(0));
 			THROW(out_file.OpenFileForWriting(0, 1));
-			MEMSZERO(rec);
+			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = in_file.ReadRecord(&rec, sizeof(rec))) > 0) {
 				THROW(out_file.AppendRecord(&rec, sizeof(rec)));
 				MEMSZERO(rec);

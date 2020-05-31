@@ -432,8 +432,7 @@ int SLAPI PPObjWorkbook::SerializePacket(int dir, PPWorkbookPacket * pPack, SBuf
 	return ok;
 }
 
-//virtual
-int  SLAPI PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int  SLAPI PPObjWorkbook::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    ok = -1;
 	int    r;
@@ -931,15 +930,16 @@ private:
 };
 
 class AddWorkbookItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPObjWorkbook::AddBlock);
 public:
 	AddWorkbookItemDialog() : TDialog(DLG_WBPRELUDE)
 	{
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_WBPRELUDE_FILE, CTL_WBPRELUDE_FILE, 1, 0, 0,
 			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 	}
-	int    setDTS(const PPObjWorkbook::AddBlock * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 0, PPWBTYP_SITE);
 		AddClusterAssocDef(CTL_WBPRELUDE_TYPE, 1, PPWBTYP_PAGE);
 		AddClusterAssoc(CTL_WBPRELUDE_TYPE, 2, PPWBTYP_MEDIA);
@@ -950,15 +950,13 @@ public:
 		setCtrlString(CTL_WBPRELUDE_FILE, Data.FileName);
 		return 1;
 	}
-	int    getDTS(PPObjWorkbook::AddBlock * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		GetClusterData(CTL_WBPRELUDE_TYPE, &Data.Type);
 		getCtrlString(CTL_WBPRELUDE_FILE, Data.FileName);
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-public:
-	PPObjWorkbook::AddBlock Data;
 };
 
 SLAPI PPObjWorkbook::AddBlock::AddBlock() : Type(0), ParentID(0), Flags(0)
@@ -1593,14 +1591,12 @@ int SLAPI PPObjWorkbook::RemoveAll()
 	return ok;
 }
 
-//virtual
-const char * SLAPI PPObjWorkbook::GetNamePtr()
+/*virtual*/const char * SLAPI PPObjWorkbook::GetNamePtr()
 {
 	return P_Tbl->data.Name;
 }
 
-// virtual
-void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjWorkbook::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjWorkBookListWindow : public PPObjListWindow {
 	public:
@@ -2780,12 +2776,12 @@ int SLAPI PrcssrWorkbookImport::Run()
 	if(numrecs) {
 		int    r;
 		IterCounter cntr;
-		Sdr_Workbook sdr_rec;
 		PPTransaction tra(1);
 		THROW(tra);
 		{
+			Sdr_Workbook sdr_rec;
 			cntr.Init(numrecs);
-			MEMSZERO(sdr_rec);
+			// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 			while((r = ie.ReadRecord(&sdr_rec, sizeof(sdr_rec))) > 0) {
 				ie.GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 				PPID   id = 0, same_id = 0;
@@ -2894,7 +2890,7 @@ int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 	WorkbookTbl::Rec inner_rec;
 	Sdr_Workbook sdr_rec;
 	THROW_INVARG(pPack);
-	MEMSZERO(sdr_rec);
+	// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 	sdr_rec.ID = pPack->Rec.ID;
 	STRNSCPY(sdr_rec.Name, pPack->Rec.Name);
 	STRNSCPY(sdr_rec.Symb, pPack->Rec.Symb);
@@ -2954,9 +2950,8 @@ struct UhttWorkbookBlock {
 		stFetch = 0,
 		stSet
 	};
-	UhttWorkbookBlock()
+	UhttWorkbookBlock() : TagPos(0), State(stFetch)
 	{
-		Clear();
 	}
 	void Clear()
 	{
@@ -3220,7 +3215,7 @@ int PPALDD_UhttWorkbook::Set(long iterId, int commit)
 					Extra[4].Ptr = reinterpret_cast<void *>(id);
 				}
 				else
-					Extra[4].Ptr = (void *)ex_id;
+					Extra[4].Ptr = reinterpret_cast<void *>(ex_id);
 			}
 			else {
 				THROW_PP_S(rights_blk.IsAllow(PPGlobalAccRights::fCreate), PPERR_NORIGHTS, DS.GetTLA().GlobAccName);

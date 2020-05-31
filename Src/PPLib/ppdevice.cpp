@@ -716,7 +716,7 @@ int PPDevice_Leader::CloseConnection()
 	return ok;
 }
 
-// virtual
+//virtual
 int PPDevice_Leader::RunCmd(int cmdId, const StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int ok = 0;

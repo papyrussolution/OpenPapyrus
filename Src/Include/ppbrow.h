@@ -1860,6 +1860,7 @@
 	#define PPFLD_IMPEXPHEADER_EDIDOCTYPE                               9
 
 struct Sdr_ImpExpHeader {
+	Sdr_ImpExpHeader() { THISZERO(); }
 	LDATE  CurDate;
 	LTIME  CurTime;
 	LDATE  PeriodLow;
@@ -1924,6 +1925,7 @@ struct Sdr_ImpExpHeader {
 	#define PPFLD_CLIBNKDATA_UIN                                     50
 
 struct Sdr_CliBnkData {
+	Sdr_CliBnkData() { THISZERO(); }
 	char   Empty[16];
 	int32  BillID;
 	LDATE  Date;
@@ -1992,6 +1994,7 @@ struct Sdr_CliBnkData {
 	#define PPFLD_SPECSERIES_ALLOWFLAG                               13
 
 struct Sdr_SpecSeries {
+	Sdr_SpecSeries() { THISZERO(); }
 	char   Serial[64];
 	char   GoodsName[128];
 	char   ManufName[128];
@@ -2067,6 +2070,7 @@ struct Sdr_SpecSeries {
 	#define PPFLD_BILL_CNTRAGEMAIL                             57
 
 struct Sdr_Bill {
+	Sdr_Bill() { THISZERO(); }
 	char   ID[32];
 	char   Code[24];
 	LDATE  Date;
@@ -2230,6 +2234,7 @@ struct Sdr_Bill {
 	#define PPFLD_BROW_ISALCO                                 101
 
 struct Sdr_BRow {
+	Sdr_BRow() { THISZERO(); }
 	char   BillID[32];
 	int32  LineId;
 	int32  LineNo;
@@ -2339,6 +2344,7 @@ struct Sdr_BRow {
 	#define PPFLD_GOODSGROUP_PARENTNAME                               3
 
 struct Sdr_GoodsGroup {
+	Sdr_GoodsGroup() { THISZERO(); }
 	int32  Article;
 	char   GroupName[128];
 	char   ParentName[128];
@@ -2355,6 +2361,7 @@ struct Sdr_GoodsGroup {
 	#define PPFLD_GOODS_GOODSREST                                8
 
 struct Sdr_Goods {
+	Sdr_Goods() { THISZERO(); }
 	int32  Article;
 	char   GoodsName[128];
 	char   Abbr[128];
@@ -2371,6 +2378,7 @@ struct Sdr_Goods {
 	#define PPFLD_BARCODES_UNITPERPACK                              3
 
 struct Sdr_Barcodes {
+	Sdr_Barcodes() { THISZERO(); }
 	int32  Article;
 	char   Barcode[24];
 	double UnitPerPack;
@@ -2390,6 +2398,7 @@ struct Sdr_Barcodes {
 	#define PPFLD_QUOTKINDS_USINGWSCARD                             11
 
 struct Sdr_QuotKinds {
+	Sdr_QuotKinds() { THISZERO(); }
 	int32  QuotKindID;
 	char   QuotKindName[48];
 	double DefDiscount;
@@ -2409,6 +2418,7 @@ struct Sdr_QuotKinds {
 	#define PPFLD_QUOTS_QUOT                                     3
 
 struct Sdr_Quots {
+	Sdr_Quots() { THISZERO(); }
 	int32  Article;
 	int32  QuotKindID;
 	double Quot;
@@ -2432,6 +2442,7 @@ struct Sdr_Quots {
 	#define PPFLD_SCARD_OPENEDTAG                               15
 
 struct Sdr_SCard {
+	Sdr_SCard() { THISZERO(); }
 	char   SeriesName[48];
 	char   SeriesSymb[20];
 	char   Code[32];
@@ -2486,6 +2497,7 @@ struct Sdr_SCard {
 	#define PPFLD_CSESSCOMPLEX_LNDSCNT                                 34
 
 struct Sdr_CSessComplex {
+	Sdr_CSessComplex() { THISZERO(); }
 	int32  StoreID;
 	int32  PosNodeID;
 	int32  PosN;
@@ -2535,6 +2547,7 @@ struct Sdr_CSessComplex {
 	#define PPFLD_CSESS_BNKRETAMT                               10
 
 struct Sdr_CSess {
+	Sdr_CSess() { THISZERO(); }
 	int32  CashNumber;
 	int32  SessNumber;
 	LDATE  SessDate;
@@ -2570,6 +2583,7 @@ struct Sdr_CSess {
 	#define PPFLD_CCHECKS_BNKRETAMT                               20
 
 struct Sdr_CChecks {
+	Sdr_CChecks() { THISZERO(); }
 	int32  CheckID;
 	int32  CheckNumb;
 	int32  CashNumber;
@@ -2620,6 +2634,7 @@ struct Sdr_CChecks {
 	#define PPFLD_CCLINES_BNKRETAMT                               25
 
 struct Sdr_CCLines {
+	Sdr_CCLines() { THISZERO(); }
 	int32  CheckID;
 	int32  Article;
 	char   Barcode[24];
@@ -2658,6 +2673,7 @@ struct Sdr_CCLines {
 	#define PPFLD_CS_ZREP_CHECKSTATUS                              8
 
 struct Sdr_CS_ZRep {
+	Sdr_CS_ZRep() { THISZERO(); }
 	char   OperDay[20];
 	int32  CashNumber;
 	int32  SessNumber;
@@ -2677,6 +2693,7 @@ struct Sdr_CS_ZRep {
 	#define PPFLD_CS_CHKHD_OPERATION                                6
 
 struct Sdr_CS_Chkhd {
+	Sdr_CS_Chkhd() { THISZERO(); }
 	int32  CheckNumber;
 	int32  CashNumber;
 	int32  SessNumber;
@@ -2701,6 +2718,7 @@ struct Sdr_CS_Chkhd {
 	#define PPFLD_CS_CHKLN_GOODSNAME                               13
 
 struct Sdr_CS_ChkLn {
+	Sdr_CS_ChkLn() { THISZERO(); }
 	int32  CheckLineID;
 	int32  CheckNumber;
 	int32  CashNumber;
@@ -2722,6 +2740,7 @@ struct Sdr_CS_ChkLn {
 	#define PPFLD_CS_DSCNT_CARDNUMBER                               3
 
 struct Sdr_CS_Dscnt {
+	Sdr_CS_Dscnt() { THISZERO(); }
 	int32  CheckLineID;
 	int32  DscntType;
 	char   CardNumber[22];
@@ -2740,6 +2759,7 @@ struct Sdr_CS_Dscnt {
 	#define PPFLD_EMAILACCOUNT_TIMEOUT                                 10
 
 struct Sdr_EmailAccount {
+	Sdr_EmailAccount() { THISZERO(); }
 	char   Name[32];
 	char   FromAddress[255];
 	char   SmtpServer[255];
@@ -2759,6 +2779,7 @@ struct Sdr_EmailAccount {
 	#define PPFLD_SUPPLPRICE_PRICE                                    4
 
 struct Sdr_SupplPrice {
+	Sdr_SupplPrice() { THISZERO(); }
 	char   WareId[24];
 	char   UnitId[24];
 	char   PriceTypeId[24];
@@ -2772,6 +2793,7 @@ struct Sdr_SupplPrice {
 	#define PPFLD_SUPPLREST_PERSONID                                 4
 
 struct Sdr_SupplRest {
+	Sdr_SupplRest() { THISZERO(); }
 	char   WareHouseId[16];
 	LDATE  DocumentDate;
 	char   DocumentNumber[24];
@@ -2784,6 +2806,7 @@ struct Sdr_SupplRest {
 	#define PPFLD_SUPPLRESTLINE_QUANTITY                                 3
 
 struct Sdr_SupplRestLine {
+	Sdr_SupplRestLine() { THISZERO(); }
 	char   WareId[24];
 	char   UnitId[24];
 	double Quantity;
@@ -2795,6 +2818,7 @@ struct Sdr_SupplRestLine {
 	#define PPFLD_SUPPLBILL_ISSUPPLYCONVERTCLIENTS                   3
 
 struct Sdr_SupplBill {
+	Sdr_SupplBill() { THISZERO(); }
 	LDATE  WorkDate;
 	int32  SkipDelete;
 	int32  IsSupplyConvertClients;
@@ -2819,6 +2843,7 @@ struct Sdr_SupplBill {
 	#define PPFLD_SUPPLBILLLINE_ACTIONDATE                              16
 
 struct Sdr_SupplBillLine {
+	Sdr_SupplBillLine() { THISZERO(); }
 	char   CompanyId[24];
 	char   AddressId[24];
 	char   AddressRegionType[64];
@@ -2851,6 +2876,7 @@ struct Sdr_SupplBillLine {
 	#define PPFLD_BALTIKABILLPRICEPROMO_DISCOUNTSUM                             11
 
 struct Sdr_BaltikaBillPricePromo {
+	Sdr_BaltikaBillPricePromo() { THISZERO(); }
 	char   CompanyId[24];
 	char   AddressId[24];
 	char   WareHouseId[24];
@@ -2872,6 +2898,7 @@ struct Sdr_BaltikaBillPricePromo {
 	#define PPFLD_SUPPLGOODS_QUANTITY                                 5
 
 struct Sdr_SupplGoods {
+	Sdr_SupplGoods() { THISZERO(); }
 	char   WareId[24];
 	char   WareName[64];
 	char   UnitId[24];
@@ -2888,6 +2915,7 @@ struct Sdr_SupplGoods {
 	#define PPFLD_SUPPLDLVRADDR_LOCATION                                 6
 
 struct Sdr_SupplDlvrAddr {
+	Sdr_SupplDlvrAddr() { THISZERO(); }
 	char   CRMClientId[24];
 	char   CompanyId[24];
 	char   CompanyName[64];
@@ -2907,6 +2935,7 @@ struct Sdr_SupplDlvrAddr {
 	#define PPFLD_INVENTORYITEM_EMPTY                                    8
 
 struct Sdr_InventoryItem {
+	Sdr_InventoryItem() { THISZERO(); }
 	int32  GoodsID;
 	char   Barcode[24];
 	char   GoodsName[128];
@@ -2927,6 +2956,7 @@ struct Sdr_InventoryItem {
 	#define PPFLD_RBCBNKSEEK_CORRACC                                  7
 
 struct Sdr_RbcBnkSeek {
+	Sdr_RbcBnkSeek() { THISZERO(); }
 	int32  Code;
 	char   City[48];
 	int32  Symb;
@@ -2942,6 +2972,7 @@ struct Sdr_RbcBnkSeek {
 	#define PPFLD_RBCBNKREG_CITY                                     3
 
 struct Sdr_RbcBnkReg {
+	Sdr_RbcBnkReg() { THISZERO(); }
 	int32  Id;
 	char   Name[64];
 	char   City[48];
@@ -2954,6 +2985,7 @@ struct Sdr_RbcBnkReg {
 	#define PPFLD_WORLDOBJSTATUS_KIND                                     4
 
 struct Sdr_WorldObjStatus {
+	Sdr_WorldObjStatus() { THISZERO(); }
 	char   Name[32];
 	char   Abbr[16];
 	int32  Code;
@@ -2971,6 +3003,7 @@ struct Sdr_WorldObjStatus {
 	#define PPFLD_WORLDOBJ_ZIP                                      8
 
 struct Sdr_WorldObj {
+	Sdr_WorldObj() { THISZERO(); }
 	char   Name[48];
 	char   Abbr[20];
 	char   StatusText[32];
@@ -3001,6 +3034,7 @@ struct Sdr_WorldObj {
 	#define PPFLD_PRICELIST_MEMO                                    17
 
 struct Sdr_PriceList {
+	Sdr_PriceList() { THISZERO(); }
 	int32  GoodsID;
 	int32  AltGrpPLU;
 	double Price;
@@ -3037,6 +3071,7 @@ struct Sdr_PriceList {
 	#define PPFLD_BIZSCOREVAL_STR                                     14
 
 struct Sdr_BizScoreVal {
+	Sdr_BizScoreVal() { THISZERO(); }
 	LDATE  ActualDate;
 	LDATE  Dt;
 	char   Tm[12];
@@ -3059,6 +3094,7 @@ struct Sdr_BizScoreVal {
 	#define PPFLD_PHONELIST_CONTACT                                  3
 
 struct Sdr_PhoneList {
+	Sdr_PhoneList() { THISZERO(); }
 	char   Phone[24];
 	char   Address[252];
 	char   Contact[128];
@@ -3073,6 +3109,7 @@ struct Sdr_PhoneList {
 	#define PPFLD_SBIIGOODS_REST                                     6
 
 struct Sdr_SBIIGoods {
+	Sdr_SBIIGoods() { THISZERO(); }
 	int32  ID;
 	char   Code[16];
 	char   Name[64];
@@ -3087,6 +3124,7 @@ struct Sdr_SBIIGoods {
 	#define PPFLD_SBIISUPPL_ACCSHEET                                 3
 
 struct Sdr_SBIISuppl {
+	Sdr_SBIISuppl() { THISZERO(); }
 	int32  ID;
 	char   Name[48];
 	int32  AccSheet;
@@ -3100,6 +3138,7 @@ struct Sdr_SBIISuppl {
 	#define PPFLD_SBIIOPRESTR_BHTCFMA                                  5
 
 struct Sdr_SBIIOpRestr {
+	Sdr_SBIIOpRestr() { THISZERO(); }
 	int32  OpID;
 	int32  AccSheet;
 	int32  ToBhtOp;
@@ -3115,6 +3154,7 @@ struct Sdr_SBIIOpRestr {
 	#define PPFLD_SBIISAMPLEBILL_CODE                                     5
 
 struct Sdr_SBIISampleBill {
+	Sdr_SBIISampleBill() { THISZERO(); }
 	int32  ID;
 	LDATE  Date;
 	int32  Article;
@@ -3133,6 +3173,7 @@ struct Sdr_SBIISampleBill {
 	#define PPFLD_SBIISAMPLEBILLROW_SUPLDUP                                  8
 
 struct Sdr_SBIISampleBillRow {
+	Sdr_SBIISampleBillRow() { THISZERO(); }
 	int32  BillID;
 	int32  GoodsID;
 	char   Serial[16];
@@ -3154,6 +3195,7 @@ struct Sdr_SBIISampleBillRow {
 	#define PPFLD_SBIIBILL_GUID                                     8
 
 struct Sdr_SBIIBill {
+	Sdr_SBIIBill() { THISZERO(); }
 	int32  ID;
 	int32  SampleID;
 	LDATE  Date;
@@ -3176,6 +3218,7 @@ struct Sdr_SBIIBill {
 	#define PPFLD_SBIIBILLROW_COST                                     9
 
 struct Sdr_SBIIBillRow {
+	Sdr_SBIIBillRow() { THISZERO(); }
 	int32  BillID;
 	int32  GoodsID;
 	int32  StorageP;
@@ -3206,6 +3249,7 @@ struct Sdr_SBIIBillRow {
 	#define PPFLD_QUOTVAL_VALUETEXT                               16
 
 struct Sdr_QuotVal {
+	Sdr_QuotVal() { THISZERO(); }
 	int32  QuotKindID;
 	char   QuotKindSymb[20];
 	int32  GoodsID;
@@ -3305,6 +3349,7 @@ struct Sdr_QuotVal {
 	#define PPFLD_GOODS2_FLGWANTVETISCERT                        78
 
 struct Sdr_Goods2 {
+	Sdr_Goods2() { THISZERO(); }
 	char   Code[32];
 	char   CodeCD[32];
 	char   AddedCode[32];
@@ -3430,6 +3475,7 @@ struct Sdr_Goods2 {
 	#define PPFLD_PERSON_MEMO                                    42
 
 struct Sdr_Person {
+	Sdr_Person() { THISZERO(); }
 	char   Code[20];
 	int32  DblGisCode;
 	char   Name[128];
@@ -3481,6 +3527,7 @@ struct Sdr_Person {
 	#define PPFLD_SPIIBRAND_OWNNAME                                  4
 
 struct Sdr_SPIIBrand {
+	Sdr_SPIIBrand() { THISZERO(); }
 	int32  ID;
 	int32  OwnID;
 	char   Name[64];
@@ -3494,6 +3541,7 @@ struct Sdr_SPIIBrand {
 	#define PPFLD_SBIILOCCELL_QTTY                                     4
 
 struct Sdr_SBIILocCell {
+	Sdr_SBIILocCell() { THISZERO(); }
 	int32  ID;
 	char   Code[16];
 	char   Name[48];
@@ -3505,6 +3553,7 @@ struct Sdr_SBIILocCell {
 	#define PPFLD_SPIILOC_NAME                                     2
 
 struct Sdr_SPIILoc {
+	Sdr_SPIILoc() { THISZERO(); }
 	int32  ID;
 	char   Name[48];
 };
@@ -3525,6 +3574,7 @@ struct Sdr_SPIILoc {
 	#define PPFLD_CSESS_FRONT_BNKRETAMT                               13
 
 struct Sdr_CSess_Front {
+	Sdr_CSess_Front() { THISZERO(); }
 	LDATE  SessDate;
 	char   SessTime[10];
 	int32  CashNumber;
@@ -3568,6 +3618,7 @@ struct Sdr_CSess_Front {
 	#define PPFLD_CCHECK_FRONT_BNKRETAMT                               25
 
 struct Sdr_CCheck_Front {
+	Sdr_CCheck_Front() { THISZERO(); }
 	int32  CheckNumber;
 	int32  CashierNo;
 	LDATE  OperDate;
@@ -3610,6 +3661,7 @@ struct Sdr_CCheck_Front {
 	#define PPFLD_PALMGOODS_MULTMINORD                              12
 
 struct Sdr_PalmGoods {
+	Sdr_PalmGoods() { THISZERO(); }
 	int32  ID;
 	char   Name[64];
 	char   Barcode[16];
@@ -3630,6 +3682,7 @@ struct Sdr_PalmGoods {
 	#define PPFLD_PALMGOODSGRP_NAME                                     3
 
 struct Sdr_PalmGoodsGrp {
+	Sdr_PalmGoodsGrp() { THISZERO(); }
 	int32  ID;
 	int32  ParentID;
 	char   Name[64];
@@ -3645,6 +3698,7 @@ struct Sdr_PalmGoodsGrp {
 	#define PPFLD_PALMCLIENT_STOP                                     7
 
 struct Sdr_PalmClient {
+	Sdr_PalmClient() { THISZERO(); }
 	int32  ID;
 	char   Name[48];
 	char   Code[16];
@@ -3660,6 +3714,7 @@ struct Sdr_PalmClient {
 	#define PPFLD_PALMDLVRADDR_ADDRSTRING                               3
 
 struct Sdr_PalmDlvrAddr {
+	Sdr_PalmDlvrAddr() { THISZERO(); }
 	int32  ID;
 	int32  ClientID;
 	char   AddrString[128];
@@ -3670,6 +3725,7 @@ struct Sdr_PalmDlvrAddr {
 	#define PPFLD_PALMQUOTKIND_NAME                                     2
 
 struct Sdr_PalmQuotKind {
+	Sdr_PalmQuotKind() { THISZERO(); }
 	int32  ID;
 	char   Name[48];
 };
@@ -3681,6 +3737,7 @@ struct Sdr_PalmQuotKind {
 	#define PPFLD_PALMBRAND_BRANDOWNERNAME                           4
 
 struct Sdr_PalmBrand {
+	Sdr_PalmBrand() { THISZERO(); }
 	int32  BrandID;
 	char   BrandName[64];
 	int32  BrandOwnerID;
@@ -3695,6 +3752,7 @@ struct Sdr_PalmBrand {
 	#define PPFLD_PALMWAREHOUSE_ADDRSTRING                               5
 
 struct Sdr_PalmWarehouse {
+	Sdr_PalmWarehouse() { THISZERO(); }
 	int32  ID;
 	char   Name[64];
 	double Latitude;
@@ -3709,6 +3767,7 @@ struct Sdr_PalmWarehouse {
 	#define PPFLD_PALMQUOT_PRICE                                    4
 
 struct Sdr_PalmQuot {
+	Sdr_PalmQuot() { THISZERO(); }
 	int32  GoodsID;
 	int32  QuotKindID;
 	int32  ClientID;
@@ -3725,6 +3784,7 @@ struct Sdr_PalmQuot {
 	#define PPFLD_PALMCLIDEBT_BILLDEBT                                 7
 
 struct Sdr_PalmCliDebt {
+	Sdr_PalmCliDebt() { THISZERO(); }
 	int32  ClientID;
 	int32  AgentID;
 	int32  BillID;
@@ -3746,6 +3806,7 @@ struct Sdr_PalmCliDebt {
 	#define PPFLD_SBIIBILLROWWITHCELLS_LOCID                                    9
 
 struct Sdr_SBIIBillRowWithCells {
+	Sdr_SBIIBillRowWithCells() { THISZERO(); }
 	int32  BillID;
 	int32  GoodsID;
 	char   Serial[16];
@@ -3794,6 +3855,7 @@ struct Sdr_SBIIBillRowWithCells {
 	#define PPFLD_LOT_VETISCERTGUID                           34
 
 struct Sdr_Lot {
+	Sdr_Lot() { THISZERO(); }
 	int32  ID;
 	int32  BillID;
 	int32  LocID;
@@ -3853,6 +3915,7 @@ struct Sdr_Lot {
 	#define PPFLD_WORKBOOK_KEYWORDTAG                              20
 
 struct Sdr_Workbook {
+	Sdr_Workbook() { THISZERO(); }
 	int32  ID;
 	char   Name[128];
 	char   Symb[20];
@@ -3885,6 +3948,7 @@ struct Sdr_Workbook {
 	#define PPFLD_BALTIKASALDOWARE_SUMM                                     7
 
 struct Sdr_BaltikaSaldoWare {
+	Sdr_BaltikaSaldoWare() { THISZERO(); }
 	LDATE  Date;
 	char   CompanyId[24];
 	char   AddressId[24];
@@ -3915,6 +3979,7 @@ struct Sdr_BaltikaSaldoWare {
 	#define PPFLD_BALTIKASALDOAGGREGATE_MTOTALBALANCE                           18
 
 struct Sdr_BaltikaSaldoAggregate {
+	Sdr_BaltikaSaldoAggregate() { THISZERO(); }
 	LDATE  SaldoDate;
 	char   CompanyId[24];
 	char   AddressId[24];
@@ -3950,6 +4015,7 @@ struct Sdr_BaltikaSaldoAggregate {
 	#define PPFLD_BALTIKASALDODOC_PAYDOCSUMM                              12
 
 struct Sdr_BaltikaSaldoDoc {
+	Sdr_BaltikaSaldoDoc() { THISZERO(); }
 	char   CompanyId[24];
 	char   AddressId[24];
 	char   ProductId[24];
@@ -3975,6 +4041,7 @@ struct Sdr_BaltikaSaldoDoc {
 	#define PPFLD_BALTIKABILLITEMATTRS_QUANTITY                                 8
 
 struct Sdr_BaltikaBillItemAttrs {
+	Sdr_BaltikaBillItemAttrs() { THISZERO(); }
 	LDATE  DocumentDate;
 	char   DocumentNumber[16];
 	char   DocumentTypeId[32];
@@ -3990,6 +4057,7 @@ struct Sdr_BaltikaBillItemAttrs {
 	#define PPFLD_DLLIMPEXPRECEIPT_RECEIPTNUMBER                            2
 
 struct Sdr_DllImpExpReceipt {
+	Sdr_DllImpExpReceipt() { THISZERO(); }
 	int32  ID;
 	char   ReceiptNumber[64];
 };
@@ -3998,6 +4066,7 @@ struct Sdr_DllImpExpReceipt {
 	#define PPFLD_DLLIMPOBJSTATUS_DOCSTATUS                                1
 
 struct Sdr_DllImpObjStatus {
+	Sdr_DllImpObjStatus() { THISZERO(); }
 	int32  DocStatus;
 };
 
@@ -4006,6 +4075,7 @@ struct Sdr_DllImpObjStatus {
 	#define PPFLD_TESTREC_FLD2                                     2
 
 struct Sdr_TestRec {
+	Sdr_TestRec() { THISZERO(); }
 	int32  fld1;
 	char   fld2[128];
 };
@@ -4017,6 +4087,7 @@ struct Sdr_TestRec {
 	#define PPFLD_CPOSHEADER_TABLENAME                                4
 
 struct Sdr_CPosHeader {
+	Sdr_CPosHeader() { THISZERO(); }
 	int32  FormatVersion;
 	char   ProductName[32];
 	int32  ProductVersion;
@@ -4031,6 +4102,7 @@ struct Sdr_CPosHeader {
 	#define PPFLD_CPOSTABLE_AMOUNT                                   5
 
 struct Sdr_CPosTable {
+	Sdr_CPosTable() { THISZERO(); }
 	int32  _id;
 	char   Name[32];
 	int32  GuestCount;
@@ -4045,6 +4117,7 @@ struct Sdr_CPosTable {
 	#define PPFLD_CPOSGOODS_PRICE                                    4
 
 struct Sdr_CPosGoods {
+	Sdr_CPosGoods() { THISZERO(); }
 	char   Name[64];
 	char   Barcode[32];
 	int32  ParentID;
@@ -4058,6 +4131,7 @@ struct Sdr_CPosGoods {
 	#define PPFLD_CPOSGOODSGROUP_CODE                                     4
 
 struct Sdr_CPosGoodsGroup {
+	Sdr_CPosGoodsGroup() { THISZERO(); }
 	int32  Id;
 	int32  ParentId;
 	char   Name[64];
@@ -4073,6 +4147,7 @@ struct Sdr_CPosGoodsGroup {
 	#define PPFLD_CPOSCHECK_AMOUNT                                   6
 
 struct Sdr_CPosCheck {
+	Sdr_CPosCheck() { THISZERO(); }
 	int32  _id;
 	int32  TableId;
 	int32  GuestCount;
@@ -4091,6 +4166,7 @@ struct Sdr_CPosCheck {
 	#define PPFLD_CPOSCHECKROW_DISCOUNT                                 7
 
 struct Sdr_CPosCheckRow {
+	Sdr_CPosCheckRow() { THISZERO(); }
 	int32  _id;
 	int32  CheckId;
 	int32  GoodsId;
@@ -4104,6 +4180,7 @@ struct Sdr_CPosCheckRow {
 	#define PPFLD_BALTIKA_RESTPART_SKIPDELETE                               1
 
 struct Sdr_Baltika_RestPart {
+	Sdr_Baltika_RestPart() { THISZERO(); }
 	int32  SkipDelete;
 };
 
@@ -4118,6 +4195,7 @@ struct Sdr_Baltika_RestPart {
 	#define PPFLD_BALTIKA_RESTPARTLINE_QUANTITY                                 8
 
 struct Sdr_Baltika_RestPartLine {
+	Sdr_Baltika_RestPartLine() { THISZERO(); }
 	char   WareHouseId[16];
 	LDATE  DocumentDate;
 	char   PartNumber[64];
@@ -4138,6 +4216,7 @@ struct Sdr_Baltika_RestPartLine {
 	#define PPFLD_CPOSAUTH_PASSWORD                                 7
 
 struct Sdr_CPosAuth {
+	Sdr_CPosAuth() { THISZERO(); }
 	int32  _id;
 	int32  AgentID;
 	char   AgentName[64];
@@ -4171,6 +4250,7 @@ struct Sdr_CPosAuth {
 	#define PPFLD_FIASRAWHOUSEOBJ_COUNTER                                 21
 
 struct Sdr_FiasRawHouseObj {
+	Sdr_FiasRawHouseObj() { THISZERO(); }
 	char   POSTALCODE[16];
 	char   IFNSFL[16];
 	char   TERRIFNSFL[16];
@@ -4215,6 +4295,7 @@ struct Sdr_FiasRawHouseObj {
 	#define PPFLD_FIASRAWHOUSEINTOBJ_COUNTER                                 18
 
 struct Sdr_FiasRawHouseIntObj {
+	Sdr_FiasRawHouseIntObj() { THISZERO(); }
 	char   POSTALCODE[16];
 	char   IFNSFL[16];
 	char   TERRIFNSFL[16];
@@ -4274,6 +4355,7 @@ struct Sdr_FiasRawHouseIntObj {
 	#define PPFLD_FIASRAWADDROBJ_LIVESTATUS                              36
 
 struct Sdr_FiasRawAddrObj {
+	Sdr_FiasRawAddrObj() { THISZERO(); }
 	S_GUID AOGUID;
 	char   FORMALNAME[128];
 	char   REGIONCODE[16];

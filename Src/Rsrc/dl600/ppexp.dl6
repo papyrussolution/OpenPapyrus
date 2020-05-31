@@ -2849,7 +2849,8 @@ data RcvCashOrder : CashOrder {
 }
 //
 // Банковское платежное поручение (платежное требование)
-// @v8.1.9  Verification needed
+// @v8.1.9   Verification needed
+// @v10.7.9  Verification needed
 //
 data BnkPaymOrder {
 	declare "DOSSTUB"
@@ -2860,25 +2861,23 @@ data BnkPaymOrder {
 	link PersonReq PayerBnkID;
 	link PersonReq RcvrBnkID;
 	link Bill      BillID;
-
 	date   LclDt;              // may be not eq BillID.Dt
 	string LclCode[24];        // may be not eq BillID.Code
 	string LclMemo[512];       // may be not eq BillID.Memo
-
 	long   PayerBnkAccID;
 	string PayerBnkCity[48];
 	string PayerBIC[24];
 	string PayerBnkCorAcc[24];
 	string PayerAcc[28];       //
-
 	long   RcvrBnkAccID;
 	string RcvrBnkCity[48];
 	string RcvrBIC[24];
 	string RcvrBnkCorAcc[24];
 	string RcvrAcc[28];        //
-
 	int16  BnkPaymMethod;
 	int16  BnkQueueing;
+	int16  FormalPurpose;      // @v10.7.9 Формальное назначение платежа
+	int16  Reserve;            // @v10.7.9 @alignment
 	int16  PayerStatus;
 	int16  fNoAccept;          // Безакцептное платежное требование
 	string TxtPayerStatus[8];  //
@@ -2900,13 +2899,11 @@ data BnkPaymOrder {
 	PayerName = PayerID.ExtName;
 	PayerINN  = PayerID.INN;
 	PayerKPP  = PayerID.KPP;           // КПП Плательщика
-
 	PayerBnkName = PayerBnkID.ExtName;
 	RcvrName  = RcvrID.ExtName;
 	RcvrINN   = RcvrID.INN;
 	RcvrKPP   = RcvrID.KPP;            // КПП получателя платежа
 	RcvrBnkName = RcvrBnkID.ExtName;
-
 	BnkPaymMethodText = if(BnkPaymMethod == 0)
 			""
 		else if(BnkPaymMethod == 1)

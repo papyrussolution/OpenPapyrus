@@ -1407,19 +1407,57 @@ int SLAPI PPViewVatBook::ViewTotal()
 //
 //
 class VATBFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(VatBookFilt);
 public:
 	VATBFiltDialog(uint rezID, PPObjVATBook * pObj) : TDialog(rezID), P_VBObj(pObj)
 	{
 		SetupCalCtrl(CTLCAL_VATBFLT_PERIOD, this, CTL_VATBFLT_PERIOD, 1);
 	}
-	int    setDTS(const VatBookFilt *);
-	int    getDTS(VatBookFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		ushort v = 0;
+		AddClusterAssocDef(CTL_VATBFLT_WHAT, 0,  PPVTB_SELL);
+		AddClusterAssoc(CTL_VATBFLT_WHAT, 1,  PPVTB_BUY);
+		AddClusterAssoc(CTL_VATBFLT_WHAT, 2,  PPVTB_SIMPLELEDGER);
+		SetClusterData(CTL_VATBFLT_WHAT, Data.Kind);
+		SetPeriodInput(this, CTL_VATBFLT_PERIOD, &Data.Period);
+		setupObj();
+		SETFLAG(v, 1, Data.Flags & VatBookFilt::fShowLink);
+		SETFLAG(v, 2, Data.Flags & VatBookFilt::fShowFree);
+		if(v == 3)
+			v = 0;
+		setCtrlData(CTL_VATBFLT_LINKT, &v);
+		v = BIN(Data.Flags & Data.fPaymPeriod);
+		setCtrlData(CTL_VATBFLT_PAYMPRD, &v);
+		AddClusterAssoc(CTL_VATBFLT_FLAGS, 0, VatBookFilt::fShowExcluded);
+		AddClusterAssoc(CTL_VATBFLT_FLAGS, 1, VatBookFilt::fOnlyEmptyExtAr);
+		SetClusterData(CTL_VATBFLT_FLAGS, Data.Flags);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ushort v;
+		GetClusterData(CTL_VATBFLT_WHAT, &Data.Kind);
+		GetPeriodInput(this, CTL_VATBFLT_PERIOD, &Data.Period);
+		getCtrlData(CTLSEL_VATBFLT_OBJ, &Data.ArticleID);
+		getCtrlData(CTL_VATBFLT_LINKT, &v);
+		SETFLAG(Data.Flags, Data.fShowLink, oneof2(v, 0, 1));
+		SETFLAG(Data.Flags, Data.fShowFree, oneof2(v, 0, 2));
+		getCtrlData(CTL_VATBFLT_PAYMPRD, &v);
+		SETFLAG(Data.Flags, Data.fPaymPeriod, v);
+		GetClusterData(CTL_VATBFLT_FLAGS, &Data.Flags);
+		getCtrlData(CTLSEL_VATBFLT_EOBJSHEET, &Data.AccSheet2ID);
+		getCtrlData(CTLSEL_VATBFLT_EXTOBJ,    &Data.Article2ID);
+		getCtrlData(CTLSEL_VATBFLT_LOC, &Data.LocID);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupObj();
 	void   SetupCtrls();
-
-	VatBookFilt Data;
 	PPObjVATBook * P_VBObj;
 };
 
@@ -1444,8 +1482,16 @@ IMPL_HANDLE_EVENT(VATBFiltDialog)
 void VATBFiltDialog::setupObj()
 {
 	ushort v = getCtrlUInt16(CTL_VATBFLT_WHAT);
-	Data.ArticleID = 0;
+	// @v10.7.9 Data.ArticleID = 0;
 	const PPID acs_id = (v == 0) ? P_VBObj->GetConfig(PPVTB_SELL).AccSheetID : P_VBObj->GetConfig(PPVTB_BUY).AccSheetID;
+	// @v10.7.9 {
+	if(Data.ArticleID) {
+		PPID   prev_ar_acs_id = 0;
+		GetArticleSheetID(Data.ArticleID, &prev_ar_acs_id, 0);
+		if(prev_ar_acs_id != acs_id)
+			Data.ArticleID = 0;
+	}
+	// } @v10.7.9 
 	SetupArCombo(this, CTLSEL_VATBFLT_OBJ, Data.ArticleID, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
 }
 
@@ -1471,49 +1517,6 @@ void VATBFiltDialog::SetupCtrls()
 	SetClusterData(CTL_VATBFLT_FLAGS, Data.Flags);
 }
 
-int VATBFiltDialog::setDTS(const VatBookFilt * pFilt)
-{
-	Data = *pFilt;
-	ushort v = 0;
-	AddClusterAssocDef(CTL_VATBFLT_WHAT, 0,  PPVTB_SELL);
-	AddClusterAssoc(CTL_VATBFLT_WHAT, 1,  PPVTB_BUY);
-	AddClusterAssoc(CTL_VATBFLT_WHAT, 2,  PPVTB_SIMPLELEDGER);
-	SetClusterData(CTL_VATBFLT_WHAT, Data.Kind);
-	SetPeriodInput(this, CTL_VATBFLT_PERIOD, &Data.Period);
-	setupObj();
-	SETFLAG(v, 1, Data.Flags & VatBookFilt::fShowLink);
-	SETFLAG(v, 2, Data.Flags & VatBookFilt::fShowFree);
-	if(v == 3)
-		v = 0;
-	setCtrlData(CTL_VATBFLT_LINKT, &v);
-	v = BIN(Data.Flags & Data.fPaymPeriod);
-	setCtrlData(CTL_VATBFLT_PAYMPRD, &v);
-	AddClusterAssoc(CTL_VATBFLT_FLAGS, 0, VatBookFilt::fShowExcluded);
-	AddClusterAssoc(CTL_VATBFLT_FLAGS, 1, VatBookFilt::fOnlyEmptyExtAr);
-	SetClusterData(CTL_VATBFLT_FLAGS, Data.Flags);
-	SetupCtrls();
-	return 1;
-}
-
-int VATBFiltDialog::getDTS(VatBookFilt * pFilt)
-{
-	ushort v;
-	GetClusterData(CTL_VATBFLT_WHAT, &Data.Kind);
-	GetPeriodInput(this, CTL_VATBFLT_PERIOD, &Data.Period);
-	getCtrlData(CTLSEL_VATBFLT_OBJ, &Data.ArticleID);
-	getCtrlData(CTL_VATBFLT_LINKT, &v);
-	SETFLAG(Data.Flags, Data.fShowLink, oneof2(v, 0, 1));
-	SETFLAG(Data.Flags, Data.fShowFree, oneof2(v, 0, 2));
-	getCtrlData(CTL_VATBFLT_PAYMPRD, &v);
-	SETFLAG(Data.Flags, Data.fPaymPeriod, v);
-	GetClusterData(CTL_VATBFLT_FLAGS, &Data.Flags);
-	getCtrlData(CTLSEL_VATBFLT_EOBJSHEET, &Data.AccSheet2ID);
-	getCtrlData(CTLSEL_VATBFLT_EXTOBJ,    &Data.Article2ID);
-	getCtrlData(CTLSEL_VATBFLT_LOC, &Data.LocID);
-	ASSIGN_PTR(pFilt, Data);
-	return 1;
-}
-
 int SLAPI PPViewVatBook::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(!Filt.IsA(pBaseFilt))
@@ -1529,7 +1532,10 @@ DBQuery * SLAPI PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	uint   brw_id = 0;
 	long   f;
 	DBQ  * dbq = 0;
-	DBE    dbe_ar, dbe_op, dbe_loc, dbe_bill_memo;
+	DBE    dbe_ar;
+	DBE    dbe_op;
+	DBE    dbe_loc;
+	DBE    dbe_bill_memo;
 	DBE  * dbe_fix  = 0;
 	DBE  * dbe_excl = 0;
 	DBQuery    * q   = 0;

@@ -184,7 +184,7 @@ int SLAPI PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 		THROW(pack.SumAmounts(&al, 1));
 		for(uint i = 0; i < al.getCount(); i++) {
 			const PPID t = al.at(i).AmtTypeID;
-			bamt = R2(pack.Amounts.Get(t, 0L /* @curID */));
+			bamt = R2(pack.Amounts.Get(t, 0L/*@curID*/));
 			ramt = R2(al.at(i).Amt);
 			if(bamt != ramt) {
 				if(PPLoadString(PPMSG_ERROR, PPERR_NMATCHBILLAMT, fmt_buf)) {

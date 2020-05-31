@@ -3919,7 +3919,8 @@ public:
 		fEnalbeBillMultiPrint            = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 		fDisableBillMultiPrint           = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
-		fExtGoodsSelHideGenerics         = 0x00010000  // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
+		fExtGoodsSelHideGenerics         = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
+		fStringHistoryDisabled           = 0x00020000  // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
 	};
 	enum {
 		wndVKDefault = 0,

@@ -24,14 +24,12 @@ PPBaseFilt * SLAPI PPViewGoodsMov2::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-// virtual
-int SLAPI PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
 }
 
-// virtual
-int SLAPI PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
+/*virtual*/int SLAPI PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
 {
 	if(opID) {
 		if(opID == -1)
@@ -297,8 +295,7 @@ int SLAPI PPViewGoodsMov2::EditGoods(PPID goodsID)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewGoodsMov2::Print(const void *)
+/*virtual*/int SLAPI PPViewGoodsMov2::Print(const void *)
 {
 	int    ok = 1;
 	uint   rpt_id = REPORT_GOODSMOV2;
@@ -324,8 +321,7 @@ DBQuery * SLAPI PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-// virtual
-int SLAPI PPViewGoodsMov2::ViewTotal()
+/*virtual*/int SLAPI PPViewGoodsMov2::ViewTotal()
 {
 	int    ok = 1;
 	TDialog * p_dlg = 0;

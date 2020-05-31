@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -914,8 +914,7 @@ int BizScTemplDialog::getDTS(PPBizScTemplPacket * pData)
 	return ok;
 }
 
-// virtual
-int SLAPI PPObjBizScTempl::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int SLAPI PPObjBizScTempl::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
 	int    r = cmCancel, valid_data = 0;

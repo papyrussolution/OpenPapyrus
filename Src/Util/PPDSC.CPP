@@ -1,5 +1,5 @@
 // PPDSC.CPP
-// Copyright (c) A.Sobolev 2001-2002, 2008, 2010, 2011, 2016, 2017
+// Copyright (c) A.Sobolev 2001-2002, 2008, 2010, 2011, 2016, 2017, 2020
 //
 #pragma hdrstop
 #define LOCAL_PPERRCODE
@@ -83,9 +83,7 @@ int SLAPI PPDeclStrucProcessor::WriteDeclToFiles(FILE * pRcStream, FILE * pChStr
 			fprintf(pRcStream, "};\n\n");
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -102,12 +100,10 @@ int SLAPI PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 	const char * pOutRcFileName, const char * pOutChFileName)
 {
 	Line = 1;
-
 	int    ok = 1, term = ppdsUnknown;
 	FILE * out_rc_stream = 0;
 	FILE * out_h_stream = 0;
 	PPDeclStruc * p_decl = 0;
-
 	if(InStream) {
 		fclose(InStream);
 		InStream = 0;
@@ -145,7 +141,6 @@ int SLAPI PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 			THROW_PP(GetWord(), PPERR_DS_UNEXPEOF);
 			STRNSCPY(item.Name, WordBuf);
 			item.ID = fld_id++;
-
 			if(GetTerm(&term) == ppdsLeftBracket) {
 				THROW_PP(GetTerm() == ppdsRightBracket, PPERR_DS_EXPRIGHTBRACKET);
 				item.Flags |= DSIF_LIST;
@@ -173,9 +168,7 @@ int SLAPI PPDeclStrucProcessor::ParseDefinition(const char * pFileName,
 		THROW(WriteDeclToFiles(out_rc_stream, out_h_stream, &decl));
 	}
 	THROW_PP(term == 0, PPERR_DS_SYNTAX);
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	delete p_decl;
 	if(InStream) {
 		fclose(InStream);

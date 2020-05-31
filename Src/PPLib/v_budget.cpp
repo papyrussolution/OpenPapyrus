@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // PPViewBudget
 //
@@ -9,7 +9,7 @@
 
 SLAPI PPBudgetPacket::PPBudgetPacket()
 {
-	Init();
+	// @v10.7.9 @ctr Init();
 }
 
 void SLAPI PPBudgetPacket::Init()
@@ -73,6 +73,11 @@ PPBudgetPacket & FASTCALL PPBudgetPacket::operator = (const PPBudgetPacket & rSr
 	Items.copy(rSrc.Items);
 	ScenList.copy(rSrc.ScenList);
 	return *this;
+}
+
+SLAPI PPBudget::PPBudget()
+{
+	THISZERO();
 }
 
 SLAPI BudgetItemCore::BudgetItemCore()
@@ -261,7 +266,7 @@ int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 		if(GetChildBudgets(pPack->Rec.ID, &scen_list) > 0)
 			for(uint i = 0; i < scen_list.getCount(); i++) {
 				PPBudget rec;
-				MEMSZERO(rec);
+				// @v10.7.9 @ctr MEMSZERO(rec);
 				if(Search(scen_list.at(i), &rec) > 0)
 					pPack->ScenList.insert(&rec);
 			}
@@ -331,7 +336,7 @@ int SLAPI PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 		if(*pID && pPack != 0) {
 			PPID item_id = 0;
 			BudgetItemTbl::Rec item;
-			MEMSZERO(item);
+			// @v10.7.9 @ctr MEMSZERO(item);
 			for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
 				item.BudgetID = *pID;
 				THROW(ItemsTbl.PutItem_(&item.ID, &item, 0));
@@ -398,7 +403,7 @@ int BudgetScenDialog::addItem(long * pPos, long * pID)
 	PPInputStringDialogParam isd_param(BudgTitle, BudgTitle);
 	if(InputStringDialog(&isd_param, name) > 0) {
 		PPBudget rec;
-		MEMSZERO(rec);
+		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec    = Data.Rec;
 		rec.ID = 0;
 		name.CopyTo(rec.Name, sizeof(rec.Name));
@@ -589,8 +594,7 @@ int SLAPI PPObjBudget::Helper_Edit(PPBudgetPacket * pPack)
 	return ok;
 }
 
-// virtual
-int SLAPI PPObjBudget::Edit(PPID * pID, void * extraPtr)
+/*virtual*/int SLAPI PPObjBudget::Edit(PPID * pID, void * extraPtr)
 {
 	int    r = cmCancel, is_locked = 0, is_new = 0;
 	PPBudgetPacket pack;
@@ -737,8 +741,7 @@ IMPL_HANDLE_EVENT(BudgetItemsDialog)
 	}
 }
 
-// virtual
-int BudgetItemsDialog::setupList()
+/*virtual*/int BudgetItemsDialog::setupList()
 {
 	SString buf;
 	const uint count = Data.getCount();
@@ -757,8 +760,7 @@ int BudgetItemsDialog::setupList()
 	return 1;
 }
 
-// virtual
-int BudgetItemsDialog::delItem(long pos, long id)
+/*virtual*/int BudgetItemsDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < Data.getCountI()) {
@@ -769,8 +771,7 @@ int BudgetItemsDialog::delItem(long pos, long id)
 	return ok;
 }
 
-// virtual
-int BudgetItemsDialog::editItem(long pos, long id)
+/*virtual*/int BudgetItemsDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < Data.getCountI()) {
@@ -994,7 +995,7 @@ int SLAPI PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString 
 	rText.Z();
 	if(cycle == 0 && budgetID) {
 		PPBudget budg_rec;
-		MEMSZERO(budg_rec);
+		// @v10.7.9 @ctr MEMSZERO(budg_rec);
 		if(Search(budgetID, &budg_rec) > 0)
 			cycle = budg_rec.Cycle;
 	}
@@ -1033,8 +1034,7 @@ int SLAPI PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString 
 	return ok;
 }
 
-// virtual
-StrAssocArray * SLAPI PPObjBudget::MakeStrAssocList(void * extraPtr)
+/*virtual*/StrAssocArray * SLAPI PPObjBudget::MakeStrAssocList(void * extraPtr)
 {
 	long   extra_param = reinterpret_cast<long>(extraPtr);
 	long   h = 0;
@@ -1058,8 +1058,7 @@ IMPLEMENT_PPFILT_FACTORY(Budget); SLAPI BudgetFilt::BudgetFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-// virtual
-int SLAPI BudgetFilt::Init(int fullyDestroy, long extraData)
+/*virtual*/int SLAPI BudgetFilt::Init(int fullyDestroy, long extraData)
 {
 	int    ok = PPBaseFilt::Init(fullyDestroy, extraData);
 	ParentKind = -1;
@@ -1084,14 +1083,12 @@ SLAPI PPViewBudget::~PPViewBudget()
 	delete P_TempBudgItemTbl;
 }
 
-// virtual
-void * SLAPI PPViewBudget::GetEditExtraParam()
+/*virtual*/void * SLAPI PPViewBudget::GetEditExtraParam()
 {
 	return reinterpret_cast<void *>(Filt.Kind);
 }
 
-// virtual
-PPBaseFilt * SLAPI PPViewBudget::CreateFilt(void * extraPtr) const
+/*virtual*/PPBaseFilt * SLAPI PPViewBudget::CreateFilt(void * extraPtr) const
 {
 	BudgetFilt * p_filt = 0;
 	if(PPView::CreateFiltInstance(PPFILT_BUDGET, reinterpret_cast<PPBaseFilt **>(&p_filt)))
@@ -1133,8 +1130,7 @@ int BudgetFiltDialog::getDTS(BudgetFilt * pData)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewBudget::EditBaseFilt(PPBaseFilt * pBaseFilt)
+/*virtual*/int SLAPI PPViewBudget::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	uint   v = 0;
@@ -1238,7 +1234,7 @@ int SLAPI PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 		TempBudgetTbl::Rec  temp_rec;
 		k0.ID = id;
 		// @v10.6.4 MEMSZERO(temp_rec);
-		MEMSZERO(budg_rec);
+		// @v10.7.9 @ctr MEMSZERO(budg_rec);
 		if(id) {
 			if(ObjBudg.Search(id, &budg_rec) > 0 && CheckForFilt(&budg_rec) > 0) {
 				MakeTempRec(&budg_rec, &temp_rec);
@@ -1320,8 +1316,7 @@ int SLAPI PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 	return 1;
 }
 
-// virtual
-int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
@@ -1469,8 +1464,7 @@ int FASTCALL PPViewBudget::NextIteration(BudgetViewItem * pItem)
 	return ok;
 }
 
-// virtual
-DBQuery * SLAPI PPViewBudget::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewBudget::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	PPID brw_id = 0;
 	DBQuery * q = 0;
@@ -1592,8 +1586,7 @@ int SLAPI PPViewBudget::ViewTotal()
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewBudget::Detail(const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewBudget::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	long   ct_id = pHdr ? *static_cast<const long *>(pHdr) : 0;
@@ -1621,8 +1614,7 @@ int SLAPI PPViewBudget::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewBudget::Print(const void * pHdr)
+/*virtual*/int SLAPI PPViewBudget::Print(const void * pHdr)
 {
 	int    ok = 1;
 	uint rpt_id = rpt_id = REPORT_BUDGET;
@@ -1689,8 +1681,7 @@ int SLAPI PPViewBudget::OnExecBrowser(PPViewBrowser * pBrw)
 	return 1;
 }
 
-// virtual
-int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	long cur_col = (pBrw) ? pBrw->GetCurColumn() : 0;

@@ -48,8 +48,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	Object2SrchCode.Z();
 }
 
-//virtual
-int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
+/*virtual*/int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
 {
 	rResult.Z();
 	int    ok = 1;
@@ -138,8 +137,7 @@ int PPBillImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResu
 	return ok;
 }
 
-//virtual
-int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
+/*virtual*/int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 {
 	// mailfrom:coke@gmail.com?subj=orders
 
@@ -204,8 +202,7 @@ int PPBillImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 	return ok;
 }
 
-//virtual
-int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
+/*virtual*/int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, /*StrAssocArray*/PPImpExpParam::PtTokenList & rResultList)
 {
 	rResultList.Z();
 	int    ok = 1;
@@ -218,8 +215,7 @@ int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, /*Str
 	return ok;
 }
 
-//virtual
-int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1741,7 +1737,7 @@ int SLAPI PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBi
 		PPID   id = 0;
 		Sdr_BRow brow_;
 		BarcodeTbl::Rec bcrec;
-		MEMSZERO(brow_);
+		// @v10.7.9 @ctr MEMSZERO(brow_);
 		// @v10.7.9 @ctr MEMSZERO(bcrec);
 		if(pFnFldList) {
 			AssignFnFieldToRecord(*pFnFldList, 0, &brow_);
@@ -1882,7 +1878,7 @@ int SLAPI PPBillImporter::ReadSpecXmlData()
 	ie.GetNumRecs(&count);
 	for(long i = 0; i < count; i++) {
 		Sdr_Bill bill;
-		MEMSZERO(bill);
+		// @v10.7.9 @ctr MEMSZERO(bill);
 		THROW(ie.ReadRecord(&bill, sizeof(bill)));
 		SETIFZ(bill.Date, getcurdate_());
 		if(CheckBill(&bill)) {
@@ -2078,7 +2074,7 @@ int SLAPI PPBillImporter::ReadData()
 		BillParam.ImpExpParamDll.FileName = BillParam.FileName;
 		THROW_SL(imp_dll.InitLibrary(BillParam.ImpExpParamDll.DllPath, 2));
 		Sdr_ImpExpHeader hdr;
-		MEMSZERO(hdr);
+		// @v10.7.9 @ctr MEMSZERO(hdr);
 		hdr.PeriodLow = Period.low;
 		hdr.PeriodUpp = Period.upp;
 		BillParam.ImpExpParamDll.Login.CopyTo(hdr.EdiLogin, sizeof(hdr.EdiLogin));
@@ -2093,7 +2089,7 @@ int SLAPI PPBillImporter::ReadData()
 		//
 		while((r = imp_dll.GetImportObj(sess_id, "BILLS", &bill, &obj_id, BillParam.ImpExpParamDll.OperType)) == 1) {
 			Sdr_DllImpObjStatus imp_obj_stat;
-			MEMSZERO(imp_obj_stat);
+			// @v10.7.9 @ctr MEMSZERO(imp_obj_stat);
 			// Проверка документа и заполнение Sdr_ImpObjStatus
 			GetDocImpStatus(&bill, imp_obj_stat);
 			imp_dll.ReplyImportObjStatus(sess_id, obj_id, &imp_obj_stat);
@@ -4082,7 +4078,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			Goods2Tbl::Rec brand_rec; // @v10.5.3
 			Sdr_BRow brow;
 			BarcodeArray bcd_ary;
-			MEMSZERO(brow);
+			// @v10.7.9 @ctr MEMSZERO(brow);
 			STRNSCPY(brow.BillID, bill.ID);
 			brow.LineNo = i;
 			brow.GoodsID = goods_id;
@@ -4695,7 +4691,7 @@ int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 	int    ok = 1, r = 1;
 	{
 		Sdr_DllImpExpReceipt exp_rcpt;
-		MEMSZERO(exp_rcpt);
+		// @v10.7.9 @ctr MEMSZERO(exp_rcpt);
 		PPTransaction tra(1);
 		THROW(tra);
 		while((r = pExpDll->EnumExpReceipt(&exp_rcpt)) == 1) {

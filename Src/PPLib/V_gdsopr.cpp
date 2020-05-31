@@ -216,8 +216,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); SLAPI GoodsOpAnalyzeFilt::GoodsOpAnaly
 	Init(1, 0);
 }
 
-// virtual
-int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
+/*virtual*/int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
 {
 	PutObjMembToBuf(PPOBJ_QUOTKIND,   QuotKindID,   STRINGIZE(QuotKindID), rBuf);
 	PutObjMembToBuf(PPOBJ_OPRKIND,    OpID,         STRINGIZE(OpID), rBuf);
@@ -731,8 +730,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 	}
 }
 
-// virtual
-int SLAPI GoodsOpAnlzCmpFiltDialog::setupList()
+/*virtual*/int SLAPI GoodsOpAnlzCmpFiltDialog::setupList()
 {
 	int    ok = 1;
 	SString buf;
@@ -743,8 +741,7 @@ int SLAPI GoodsOpAnlzCmpFiltDialog::setupList()
 	return ok;
 }
 
-// virtual
-int SLAPI GoodsOpAnlzCmpFiltDialog::editItem(long pos, long id)
+/*virtual*/int SLAPI GoodsOpAnlzCmpFiltDialog::editItem(long pos, long id)
 {
 	long   set_flags = (Data.Flags & GoodsOpAnalyzeFilt::fCrosstab) ? GoodsOpAnalyzeFilt::ffldMainPeriod :
 		(GoodsOpAnalyzeFilt::ffldMainPeriod|GoodsOpAnalyzeFilt::ffldCmpPeriod|GoodsOpAnalyzeFilt::ffldDiff);
@@ -1471,8 +1468,8 @@ int SLAPI PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
 						}
 					}
 				}
-				pTotal->Amounts.Add(amt_type_cost,  0L /* @curID */, p_t->data.SumCost, 0);
-				pTotal->Amounts.Add(amt_type_price, 0L /* @curID */, p_t->data.SumPrice, 0);
+				pTotal->Amounts.Add(amt_type_cost,  0L/*@curID*/, p_t->data.SumCost, 0);
+				pTotal->Amounts.Add(amt_type_price, 0L/*@curID*/, p_t->data.SumPrice, 0);
 			}
 		}
 	}

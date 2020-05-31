@@ -196,7 +196,7 @@ int SLAPI PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 			PPAccount acc_rec;
 			dlg->getCtrlData(CTL_CBAL_BAL, &acct);
 			acct.ar = 0;
-			if((acct.ac || acct.sb) && P_Tbl->AccObj.SearchNum(acct.ac, acct.sb, 0L /* @curID */, &acc_rec) <= 0)
+			if((acct.ac || acct.sb) && P_Tbl->AccObj.SearchNum(acct.ac, acct.sb, 0L/*@curID*/, &acc_rec) <= 0)
 				PPErrorByDialog(dlg, CTL_CBAL_BAL);
 			else {
 				pParam->BalAccID = (acct.ac || acct.sb) ? acc_rec.ID : 0;

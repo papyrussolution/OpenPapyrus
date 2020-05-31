@@ -1,14 +1,12 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // @codepage UTF-8
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-//
-//
-//
+
 #define MPST_ERROR         0x0001
 #define MPST_PREVSEPARATOR 0x0002
 
@@ -256,10 +254,9 @@ int TWindow::IsMDIClientWindow(HWND h)
 	return (cls_name == "MDICLIENT");
 }
 
-SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0)
+SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0), Title(pTitle)
 {
 	ViewOptions  |= ofSelectable;
-	Title = pTitle;
 }
 
 SLAPI TWindow::~TWindow()

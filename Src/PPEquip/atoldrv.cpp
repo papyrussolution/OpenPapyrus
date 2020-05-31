@@ -884,7 +884,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	return p_disp;
 }
 
-// virtual
+//virtual
 int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
 {
 	int    ok = 1;
@@ -1623,7 +1623,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
-// virtual
+//virtual
 int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;

@@ -1404,7 +1404,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		if(Item.Flags & PPTFR_MINUS && GObj.CheckFlag(Item.GoodsID, GF_AUTOCOMPL))
 			Item.Flags |= PPTFR_AUTOCOMPL;
 		{
-			const double dis = P_Pack->Amounts.Get(PPAMT_PCTDIS, 0L /* @curID */);
+			const double dis = P_Pack->Amounts.Get(PPAMT_PCTDIS, 0L/*@curID*/);
 			if(dis != 0.0)
 				Item.Discount = fdiv100r(dis * quot);
 		}

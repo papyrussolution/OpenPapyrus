@@ -372,7 +372,7 @@ int SLAPI PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 	return 1;
 }
 
-// virtual
+//virtual
 void SLAPI PPCommandItem::SetUniqueID(long * pID)
 {
 	ID = *pID;
@@ -552,7 +552,7 @@ int SLAPI PPCommandFolder::GetUniqueID(long * pID) const
 	return 1;
 }
 
-// virtual
+//virtual
 void SLAPI PPCommandFolder::SetUniqueID(long * pID)
 {
 	PPCommandItem::SetUniqueID(pID);
@@ -2600,7 +2600,7 @@ long CashNodeFiltDialog::ConvertCommand(PPID cashNodeID, long cmd, int toDlgCmd)
 	uint   out_cmd = 0;
 	if(cmd && cashNodeID) {
 		PPCashNode cn_rec;
-		MEMSZERO(cn_rec);
+		// @v10.7.9 @ctr MEMSZERO(cn_rec);
 		if(CashNObj.Search(cashNodeID, &cn_rec) > 0) {
 			static const uint async_cmds[] = { cmCSOpen, cmACSUpdate, cmCSClose, cmCSViewCheckList,  cmACSViewExcess };
 			static const uint sync_cmds[] =  { cmCSOpen, cmCSClose, cmCSViewCheckList, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSZReportCopy, cmSCSIncasso };

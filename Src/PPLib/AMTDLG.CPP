@@ -148,19 +148,21 @@ int AmtListDialog::setupListEntry(PPID idx, const AmtEntry * pEntry)
 
 int AmtListDialog::setupList()
 {
-	uint   i;
-	AmtEntry * ae;
-	PosList.freeAll();
-	if(HasRestrict)
-		for(i = 0; i < RestrictList.getCount(); i++)
+	PosList.clear();
+	if(HasRestrict) {
+		for(uint i = 0; i < RestrictList.getCount(); i++)
 			if(!Data.HasAmtTypeID(RestrictList.at(i))) {
 				AmtEntry entry(RestrictList.at(i));
 				Data.Put(&entry, 0, 0);
 			}
-	for(i = 0; Data.enumItems(&i, (void **)&ae);)
-		if(!HasRestrict || RestrictList.lsearch(ae->AmtTypeID))
-			if(!setupListEntry(i-1, ae))
-				return 0;
+	}
+	{
+		AmtEntry * ae;
+		for(uint i = 0; Data.enumItems(&i, (void **)&ae);)
+			if(!HasRestrict || RestrictList.lsearch(ae->AmtTypeID))
+				if(!setupListEntry(i-1, ae))
+					return 0;
+	}
 	return 1;
 }
 
@@ -264,9 +266,8 @@ int StaffAmtListDialog::setupList()
 	PPCurrency cur_rec;
 	SString sub;
 	StringSet ss(SLBColumnDelim);
-	uint   i;
 	StaffAmtEntry * p_entry;
-	for(i = 0; Data.enumItems(&i, (void **)&p_entry);) {
+	for(uint i = 0; Data.enumItems(&i, (void **)&p_entry);) {
 		ss.clear();
 		if(at_obj.Search(p_entry->AmtTypeID, &at_rec) > 0)
 			sub = at_rec.Name;
@@ -518,7 +519,7 @@ void BillTaxesDialog::setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput
 	if(amtTypeID) {
 		AmtObj.Fetch(amtTypeID, &amtt_rec); // @v10.0.0 Search-->Fetch
 		setStaticText(ctlText, amtt_rec.Name);
-		setCtrlReal(ctlInput, Data.Get(amtTypeID, 0L /* @curID */));
+		setCtrlReal(ctlInput, Data.Get(amtTypeID, 0L/*@curID*/));
 		//disableCtrl(ctlInput, !(amtt_rec.Flags & PPAmountType::fManual));
 	}
 	else
@@ -528,7 +529,7 @@ void BillTaxesDialog::setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput
 void BillTaxesDialog::getBillTaxCtrl(PPID amtTypeID, uint ctlInput)
 {
 	if(amtTypeID)
-		Data.Put(amtTypeID, 0L /* @curID */, getCtrlReal(ctlInput), 0, 1);
+		Data.Put(amtTypeID, 0L/*@curID*/, getCtrlReal(ctlInput), 0, 1);
 }
 
 int BillTaxesDialog::setDTS(const AmtList * pData, const TaxAmountIDs * pTais)

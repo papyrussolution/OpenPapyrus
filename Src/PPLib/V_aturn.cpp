@@ -144,8 +144,7 @@ int SLAPI PPViewAccturn::EditItem(PPID billID)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewAccturn::Detail(const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewAccturn::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	if(Filt.GrpAco) {
 		AccturnFilt temp_flt = Filt;
@@ -176,8 +175,7 @@ int SLAPI PPViewAccturn::Detail(const void * pHdr, PPViewBrowser * pBrw)
 		return -1;
 }
 
-// virtual
-int SLAPI PPViewAccturn::ViewTotal()
+/*virtual*/int SLAPI PPViewAccturn::ViewTotal()
 {
 	AccturnTotal total;
 	if(CalcTotal(&total)) {
@@ -228,8 +226,7 @@ int SLAPI PPViewAccturn::PrintItem(PPID billID)
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewAccturn::Print(const void *)
+/*virtual*/int SLAPI PPViewAccturn::Print(const void *)
 {
 	int    ok = 1;
 	uint   rpt_id;
@@ -417,8 +414,7 @@ int SLAPI PPViewAccturn::CreateGrouping()
 	return ok;
 }
 
-// virtual
-int SLAPI PPViewAccturn::Init_(const PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewAccturn::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	if(P_TmpBillTbl)
@@ -608,8 +604,7 @@ void SLAPI PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 //
 //
 //
-// virtual
-int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
+/*virtual*/int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class AccturnFiltDialog : public WLDialog {
 		DECL_DIALOG_DATA(AccturnFilt);
@@ -705,8 +700,7 @@ int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
 	DIALOG_PROC_BODY(AccturnFiltDialog, static_cast<AccturnFilt *>(pFilt));
 }
 
-// virtual
-void SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
+/*virtual*/void SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.BillID) {
@@ -792,8 +786,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 int PPViewAccturn::DynFuncCheckRelRestrictions = 0;
 int PPViewAccturn::DynFuncCurSymbByAccRelID = 0;
 
-// virtual
-DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*virtual*/DBQuery * SLAPI PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncCheckRelRestrictions, BTS_INT,    dbqf_accturn_checkrelrestriction_iii, 3, BTS_INT, BTS_INT, BTS_INT);
 	DbqFuncTab::RegisterDyn(&DynFuncCurSymbByAccRelID,    BTS_STRING, dbqf_objname_cursymbbyacctrel_i, 1, BTS_INT);
@@ -940,8 +933,7 @@ int SLAPI PPViewAccturn::RemoveBillFromList(PPID billID)
 	return 1;
 }
 
-// virtual
-int SLAPI PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+/*virtual*/int SLAPI PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd == PPVCMD_PRINT) ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	int    update = 0;
@@ -1002,8 +994,7 @@ int SLAPI PPViewAccturn::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 	return (update > 0) ? ok : ((ok <= 0) ? ok : -1);
 }
 
-// virtual
-int SLAPI PPViewAccturn::Browse(int modeless)
+/*virtual*/int SLAPI PPViewAccturn::Browse(int modeless)
 {
 	return (P_BObj->atobj->CheckRights(PPR_READ)) ? PPView::Browse(modeless) : 0;
 }
