@@ -1002,8 +1002,7 @@ SLAPI DL2_ObjList::DL2_ObjList() : SCollection()
 {
 }
 
-//virtual
-void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete static_cast<Item *>(ptr); }
+/*virtual*/void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete static_cast<Item *>(ptr); }
 
 int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 {

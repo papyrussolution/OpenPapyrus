@@ -87,8 +87,7 @@ int PPApp::InitStatusBar()
 	return 1;
 }
 
-//virtual
-int PPApp::LoadVectorTools(TWhatmanToolArray * pT)
+/*virtual*/int PPApp::LoadVectorTools(TWhatmanToolArray * pT)
 {
 	int    ok = -1;
 	SString src_file_name;
@@ -638,6 +637,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPrjTask_ByReminder:   ViewPrjTask_ByReminder();        break;
 		case cmMaintainPrjTask:      MaintainPrjTask();               break;
 		case cmGotoSite:             TProgram::GotoSite();            break;
+		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7 
 		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
 		case cmViewNewVersionList:   PPUhttClient::ViewNewVerList(1); break;
 		case cmViewQuots:            ViewQuot(0);                     break;
@@ -1060,8 +1060,7 @@ int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 
 static int SLAPI StoreLastBinPath()
 {
-	static const char * WrParam_BinPath = "BinPath"; // @global @threadsafe
-
+	// @v10.7.10 static const char * WrParam_BinPath = "BinPath"; // @global @threadsafe
 	SString path, param;
 	SString temp_buf;
 	PPGetPath(PPPATH_BIN, path);
@@ -1070,14 +1069,14 @@ static int SLAPI StoreLastBinPath()
 	WinRegValue reg_val;
 	long   last_path_idx = 0;
 	for(uint i = 0; reg_key.EnumValues(&i, &param, &reg_val) > 0;) {
-		const size_t prfx_len = sstrlen(WrParam_BinPath);
-		if(strnicmp(param, WrParam_BinPath, prfx_len) == 0) {
+		const size_t prfx_len = sstrlen(_PPConst.WrParam_BinPath);
+		if(strnicmp(param, _PPConst.WrParam_BinPath, prfx_len) == 0) {
 			last_path_idx = MAX(atoi(param+prfx_len), last_path_idx);
 			if(reg_val.GetString(temp_buf) && path.CmpNC(temp_buf) == 0)
 				return -1;
 		}
 	}
-	(param = WrParam_BinPath).Cat(last_path_idx+1);
+	(param = _PPConst.WrParam_BinPath).Cat(last_path_idx+1);
 	return BIN(reg_key.PutString(param, path));
 }
 

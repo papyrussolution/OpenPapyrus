@@ -719,8 +719,7 @@ uint SLAPI PPLotTagContainer::GetCount() const
 int SLAPI PPLotTagContainer::GetNumber(PPID tagID, int rowIdx, SString & rBuf) const
 	{ return GetTagStr(rowIdx, tagID, rBuf); }
 
-//virtual
-void FASTCALL PPLotTagContainer::freeItem(void * pItem)
+/*virtual*/void FASTCALL PPLotTagContainer::freeItem(void * pItem)
 {
 	if(pItem)
 		static_cast<Item *>(pItem)->List.Destroy();

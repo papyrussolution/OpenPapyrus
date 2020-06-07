@@ -315,8 +315,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-//virtual
-int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
+/*virtual*/int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -372,8 +371,7 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 }
 
 #if 0 // @v10.0.0 {
-//virtual
-int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
+/*virtual*/int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -413,8 +411,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 }
 #endif // } 0 @v10.0.0
 
-//virtual
-int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
+/*virtual*/int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -448,8 +445,7 @@ int SLAPI SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * p
 	return ok;
 }
 
-//virtual
-int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
+/*virtual*/int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 {
 	int     ok = 1;
 	SlipDocCommonParam  sdc_param;
@@ -480,8 +476,7 @@ int SLAPI SCS_SYNCSYM::PrintXReport(const CSessInfo * pSessInfo)
 	return ok;
 }
 
-//virtual
-int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
+/*virtual*/int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 {
 	int     ok = 1;
 	if(PrinterPort.Len()) {
@@ -515,8 +510,7 @@ int SLAPI SCS_SYNCSYM::PrintZReportCopy(const CSessInfo * pSessInfo)
 	return ok;
 }
 
-//virtual
-int SLAPI SCS_SYNCSYM::CloseSession(PPID sessID)
+/*virtual*/int SLAPI SCS_SYNCSYM::CloseSession(PPID sessID)
 {
 	int    ok = -1;
 	CSessInfo cs_info;

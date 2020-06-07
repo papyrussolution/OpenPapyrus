@@ -4563,6 +4563,12 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							ex_sc_pack.Rec.SeriesID = sc_pack.Rec.SeriesID;
 							ex_sc_pack.Rec.PDis = sc_pack.Rec.PDis;
 							ex_sc_pack.Rec.PersonID = sc_pack.Rec.PersonID;
+							// @v10.7.10 {
+							{
+								sc_pack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
+								ex_sc_pack.PutExtStrData(PPSCardPacket::extssPhone, temp_buf);
+							}
+							// } @v10.7.10 
 							THROW(ScObj.PutPacket(&sc_id, &ex_sc_pack, 1));
 							r_blk.NativeID = sc_id;
 						}

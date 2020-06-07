@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -961,7 +961,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 					if(oneof2(action, PPACN_OBJADD, PPACN_PERSONEVENTREDO) && dir_obj && pClause->CmdText.NotEmpty()) {
 						long   options = 0;
 						const char * p = pClause->CmdText;
-						while(*p == ' ' || *p == '\t')
+						while(oneof2(*p, ' ', '\t'))
 							p++;
 						while(*p == '/') {
 							p++;
@@ -969,7 +969,7 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 								options |= egdcoThread;
 								p += 2;
 							}
-							while(*p == ' ' || *p == '\t')
+							while(oneof2(*p, ' ', '\t'))
 								p++;
 						}
 						THROW(ExecuteGenericDeviceCommand(dir_obj, p, options));
@@ -1451,10 +1451,6 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 //
 //
 //
-#define GRP_IBG          1
-#define GRP_PERSON_PRMR  2
-#define GRP_PERSON_SCND  3
-
 // static
 int SLAPI PsnEventDialog::GetParam(PPID pokID, Param * pParam)
 {
@@ -1474,11 +1470,16 @@ PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPLi
 {
 	setTitle(P.DlgTitle);
 	SetupCalDate(CTLCAL_PSNEVNT_DATE, CTL_PSNEVNT_DATE);
-	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE,
+	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE,
 		cmAddImage, cmDelImage, P_PeObj->CheckRights(PSNRT_UPDIMAGE)));
-	addGroup(GRP_PERSON_PRMR, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
-	addGroup(GRP_PERSON_SCND, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
+	addGroup(ctlgroupPersonPrmr, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
+	addGroup(ctlgroupPersonScnd, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/));
 	SetupInputLine(CTL_PSNEVNT_MEMO, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0)); // @v10.2.3
+	// @v10.7.10 button is still in vevelopment {
+#ifdef NDEBUG
+	showButton(cmVkApiPost, 0);
+#endif
+	// }
 }
 
 int PsnEventDialog::setupList()
@@ -1539,6 +1540,11 @@ void PsnEventDialog::editRegister()
 		Pack.Reg = regrec;
 }
 
+void PsnEventDialog::postVKApi()
+{
+	GotoVK(Pack);
+}
+
 IMPL_HANDLE_EVENT(PsnEventDialog)
 {
 	PPListDialog::handleEvent(event);
@@ -1551,6 +1557,10 @@ IMPL_HANDLE_EVENT(PsnEventDialog)
 			setupPost(1);
 		else if(TVCMD == cmPrint)
 			Print();
+	//@erikTEMP {
+		else if(TVCMD == cmVkApiPost)
+			postVKApi();
+	// } @erikTEMP
 		else
 			return;
 	else
@@ -1663,14 +1673,14 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 		rec.PersonID = Pack.Rec.PersonID;
 		rec.PsnKindID = PokPack.PCPrmr.PersonKindID;
 		rec.SCardID = Pack.Rec.PrmrSCardID;
-		setGroupData(GRP_PERSON_PRMR, &rec);
+		setGroupData(ctlgroupPersonPrmr, &rec);
 	}
 	{
 		PersonCtrlGroup::Rec rec;
 		rec.PersonID = Pack.Rec.SecondID;
 		rec.PsnKindID = PokPack.PCScnd.PersonKindID;
 		rec.SCardID = Pack.Rec.ScndSCardID;
-		setGroupData(GRP_PERSON_SCND, &rec);
+		setGroupData(ctlgroupPersonScnd, &rec);
 	}
 	if(P.ExValGrp == POKEVG_POST) {
 		setupPost(0);
@@ -1688,7 +1698,7 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 		if(Pack.Rec.Flags & PSNEVF_HASIMAGES)
 			Pack.LinkFiles.Load(Pack.Rec.ID, 0L);
 		Pack.LinkFiles.At(0, rec.Path);
-		setGroupData(GRP_IBG, &rec);
+		setGroupData(ctlgroupIBG, &rec);
 	}
 	if(PokPack.AllowedTags.IsExists()) {
 		PPIDArray allowed_tags = PokPack.AllowedTags.Get();
@@ -1718,14 +1728,14 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 	int    ok = 1;
 	{
 		PersonCtrlGroup::Rec rec;
-		getGroupData(GRP_PERSON_PRMR, &rec);
+		getGroupData(ctlgroupPersonPrmr, &rec);
 		Pack.Rec.PersonID = rec.PersonID;
 		Pack.Rec.PrmrSCardID = rec.SCardID;
 	}
 	THROW_PP(Pack.Rec.PersonID, PPERR_PRMRPSNNEEDED);
 	{
 		PersonCtrlGroup::Rec rec;
-		getGroupData(GRP_PERSON_SCND, &rec);
+		getGroupData(ctlgroupPersonScnd, &rec);
 		Pack.Rec.SecondID = rec.PersonID;
 		Pack.Rec.ScndSCardID = rec.SCardID;
 	}
@@ -1739,7 +1749,7 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 		Pack.Rec.Extra = 0;
 	{
 		ImageBrowseCtrlGroup::Rec rec;
-		if(getGroupData(GRP_IBG, &rec))
+		if(getGroupData(ctlgroupIBG, &rec))
 			if(rec.Path.Len()) {
 				THROW(Pack.LinkFiles.Replace(0, rec.Path));
 			}
@@ -1752,7 +1762,7 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 		if(p_item->TagDataType == OTTYP_STRING && p_item->Val.PStr == 0)
 			Pack.TagL.PutItem(p_item->TagID, 0);
 	}
-	GetClusterData(CTL_PSNEVNT_FLAGS, &Pack.Rec.Flags); // @v8.0.3
+	GetClusterData(CTL_PSNEVNT_FLAGS, &Pack.Rec.Flags);
 	ASSIGN_PTR(pPack, Pack);
 	CATCHZOKPPERR
 	return ok;
@@ -1819,7 +1829,8 @@ int SLAPI PPObjPersonEvent::Browse(void * extraPtr /*prmrPersonID*/)
 int SLAPI PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 {
 	const  PPID extra_prmr_id = reinterpret_cast<PPID>(extraPtr);
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	PPID   op = 0;
 	PsnEventDialog::Param param;
 	PPPsnEventPacket pack;
@@ -2178,12 +2189,16 @@ int SLAPI AddPersonEventFilt::ReadText(const char * pText, long)
 }
 
 class AddPersonEventFiltDialog : public TDialog {
+	enum {
+		ctlgroupPersonPrmr = 2,
+		ctlgroupPersonScnd = 3
+	};
 public:
 	AddPersonEventFiltDialog() : TDialog(DLG_FLTADDPSNEV)
 	{
 		SetupCalDate(CTLCAL_FLTADDPSNEV_DATE, CTL_FLTADDPSNEV_DATE);
-		addGroup(GRP_PERSON_PRMR, new PersonCtrlGroup(CTLSEL_FLTADDPSNEV_PRMR, CTL_FLTADDPSNEV_PSCARD, 0, PersonCtrlGroup::fCanInsert));
-		addGroup(GRP_PERSON_SCND, new PersonCtrlGroup(CTLSEL_FLTADDPSNEV_SCND, CTL_FLTADDPSNEV_SSCARD, 0, PersonCtrlGroup::fCanInsert));
+		addGroup(ctlgroupPersonPrmr, new PersonCtrlGroup(CTLSEL_FLTADDPSNEV_PRMR, CTL_FLTADDPSNEV_PSCARD, 0, PersonCtrlGroup::fCanInsert));
+		addGroup(ctlgroupPersonScnd, new PersonCtrlGroup(CTLSEL_FLTADDPSNEV_SCND, CTL_FLTADDPSNEV_SSCARD, 0, PersonCtrlGroup::fCanInsert));
 	}
 	int    setDTS(const AddPersonEventFilt * pData)
 	{
@@ -2212,7 +2227,7 @@ public:
 		Data.Dt = getCtrlDate(CTL_FLTADDPSNEV_DATE);
 		Data.OpID = getCtrlLong(ctl = CTLSEL_FLTADDPSNEV_OP);
 		THROW_PP(Data.OpID, PPERR_PSNOPKNOTDEF);
-		Data.ReaderDvcID = getCtrlLong(ctl = CTLSEL_FLTADDPSNEV_DVC); // @v7.9.6
+		Data.ReaderDvcID = getCtrlLong(ctl = CTLSEL_FLTADDPSNEV_DVC);
 		{
 			long iv = getCtrlLong(CTL_FLTADDPSNEV_RDCYCLE);
 			Data.DvcReadCycle = (uint16)iv;
@@ -2221,13 +2236,13 @@ public:
 		}
 		{
 			PersonCtrlGroup::Rec rec;
-			getGroupData(GRP_PERSON_PRMR, &rec);
+			getGroupData(ctlgroupPersonPrmr, &rec);
 			Data.PrmrPsnID = rec.PersonID;
 			Data.PrmrSCardID = rec.SCardID;
 		}
 		{
 			PersonCtrlGroup::Rec rec;
-			getGroupData(GRP_PERSON_SCND, &rec);
+			getGroupData(ctlgroupPersonScnd, &rec);
 			Data.ScndPsnID = rec.PersonID;
 			Data.ScndSCardID = rec.SCardID;
 		}
@@ -2268,14 +2283,14 @@ private:
 				rec.PersonID = Data.PrmrPsnID;
 				rec.PsnKindID = pok_pack.PCPrmr.PersonKindID;
 				rec.SCardID = Data.PrmrSCardID;
-				setGroupData(GRP_PERSON_PRMR, &rec);
+				setGroupData(ctlgroupPersonPrmr, &rec);
 			}
 			{
 				PersonCtrlGroup::Rec rec;
 				rec.PersonID = Data.ScndPsnID;
 				rec.PsnKindID = pok_pack.PCScnd.PersonKindID;
 				rec.SCardID = Data.ScndSCardID;
-				setGroupData(GRP_PERSON_SCND, &rec);
+				setGroupData(ctlgroupPersonScnd, &rec);
 			}
 			disableCtrls(0, CTLSEL_FLTADDPSNEV_PRMR, CTLSEL_FLTADDPSNEV_SCND, 0L);
 		}

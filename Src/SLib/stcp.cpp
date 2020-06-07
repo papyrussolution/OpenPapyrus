@@ -3202,7 +3202,7 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 		THROW(Execute());
 		{
 			SString line_buf;
-			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			SBuffer * p_result_buf = static_cast<SBuffer *>(reply_stream);
 			SFileEntryPool::Entry entry;
 			if(p_result_buf) {
 				while(p_result_buf->ReadTermStr("\x0D\x0A", line_buf)) {
@@ -3233,12 +3233,15 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDa
 	{
 		SPathStruc ps(pLocalFile);
 		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-		temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.3.0
+		temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.3.0 !
 		url_info.Path.SetLastDSlash().Cat(temp_buf);
 		url_local.SetComponent(InetUrl::cPath, url_info.Path);
+		//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_TRANSFERTEXT, 1))); // @v10.7.10
 		{
-			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
-			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+			SString url_buf;
+			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), url_buf);
+			//url_buf.EncodeUrl(temp_buf.cptr(), 0); // @v10.7.10
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, url_buf.cptr())));
 		}
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
@@ -3252,7 +3255,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDa
 		THROW(Execute());
 		{
 			SString line_buf;
-			SBuffer * p_result_buf = (SBuffer *)reply_stream;
+			SBuffer * p_result_buf = static_cast<SBuffer *>(reply_stream);
 			SFileEntryPool::Entry entry;
 			if(p_result_buf) {
 				while(p_result_buf->ReadTermStr("\x0D\x0A", line_buf)) {

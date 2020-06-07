@@ -3510,7 +3510,7 @@ SString & SLAPI SString::EncodeUrl(const char * pSrc, int mode)
 		char c = pSrc[spos];
 		if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || oneof4(c, '-', '_', '.', '~'))
 			CatChar(c);
-		else if(mode == 0 && oneof7(c, '#', '&', ',', ':', ';', '=', '?'))
+		else if(mode == 0 && oneof8(c, '#', '&', ',', ':', ';', '=', '?', '/')) // @v10.7.10 '/'
 			CatChar(c);
 		else
 			CatChar('%').CatHexUpper(static_cast<uchar>(c));

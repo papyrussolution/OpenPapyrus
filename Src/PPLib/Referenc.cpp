@@ -1900,17 +1900,23 @@ PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & src)
 //
 // PPPrinterCfg
 //
-static const char * RpUseDuplexPrinting = "UseDuplexPrinting";
+//static const char * RpUseDuplexPrinting = "UseDuplexPrinting";
+//static const char * RpStoreLastSelectedPrinter = "StoreLastSelectedPrinter"; // @v10.7.10
+//static const char * RpLastSelectedPrinter = "LastSelectedPrinter"; // @v10.7.10
+		//WrParam_UseDuplexPrinting("UseDuplexPrinting"),
+		//WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
+		//WrParam_LastSelectedPrinter("LastSelectedPrinter")
 
 int SLAPI PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 {
 	int    ok = 1;
 	int    use_duplex_printing = 0;
+	int    store_last_selected_printer = 0;
 	{
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
 		uint32 val = 0;
-		if(reg_key.GetDWord(RpUseDuplexPrinting, &val))
-			use_duplex_printing = val ? 1 : 0;
+		use_duplex_printing = BIN(reg_key.GetDWord(_PPConst.WrParam_UseDuplexPrinting, &val) && val);
+		store_last_selected_printer = BIN(reg_key.GetDWord(_PPConst.WrParam_StoreLastSelectedPrinter, &val) && val);
 	}
 	if(obj == 0 && id == 0) {
 		obj = PPOBJ_USR;
@@ -1934,8 +1940,8 @@ int SLAPI PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 {
 	{
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
-		uint32 val = (pCfg->Flags & PPPrinterCfg::fUseDuplexPrinting) ? 1 : 0;
-		reg_key.PutDWord(RpUseDuplexPrinting, val);
+		reg_key.PutDWord(_PPConst.WrParam_UseDuplexPrinting, BIN(pCfg->Flags & PPPrinterCfg::fUseDuplexPrinting));
+		reg_key.PutDWord(_PPConst.WrParam_StoreLastSelectedPrinter, BIN(pCfg->Flags & PPPrinterCfg::fStoreLastSelPrn)); // @v10.7.10 
 	}
 	if(obj == 0 && id == 0) {
 		obj = PPOBJ_USR;

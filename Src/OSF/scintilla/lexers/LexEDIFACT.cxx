@@ -20,27 +20,12 @@ public:
 	LexerEDIFACT();
 	virtual ~LexerEDIFACT()
 	{
-	}                          //virtual destructor, as we inherit from ILexer
-	static ILexer * Factory()
-	{
-		return new LexerEDIFACT;
-	}
-	virtual int SCI_METHOD Version() const
-	{
-		return lvOriginal;
-	}
-	virtual void SCI_METHOD Release()
-	{
-		delete this;
-	}
-	const char * SCI_METHOD PropertyNames()
-	{
-		return "fold";
-	}
-	int SCI_METHOD PropertyType(const char *)
-	{
-		return SC_TYPE_BOOLEAN; // Only one property!
-	}
+	} //virtual destructor, as we inherit from ILexer
+	static ILexer * Factory() { return new LexerEDIFACT; }
+	virtual int SCI_METHOD Version() const { return lvOriginal; }
+	virtual void SCI_METHOD Release() { delete this; }
+	const char * SCI_METHOD PropertyNames() { return "fold"; }
+	int SCI_METHOD PropertyType(const char *) { return SC_TYPE_BOOLEAN; /*Only one property!*/ }
 	const char * SCI_METHOD DescribeProperty(const char * name)
 	{
 		return sstreq(name, "fold") ? "Whether to apply folding to document or not" :  NULL;
@@ -54,20 +39,11 @@ public:
 			return 0;
 		}
 	}
-	const char * SCI_METHOD DescribeWordListSets()
-	{
-		return NULL;
-	}
-	virtual Sci_Position SCI_METHOD WordListSet(int, const char *)
-	{
-		return -1;
-	}
+	const char * SCI_METHOD DescribeWordListSets() { return NULL; }
+	virtual Sci_Position SCI_METHOD WordListSet(int, const char *) { return -1; }
 	virtual void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument * pAccess);
 	virtual void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument * pAccess);
-	virtual void * SCI_METHOD PrivateCall(int, void *)
-	{
-		return NULL;
-	}
+	virtual void * SCI_METHOD PrivateCall(int, void *) { return NULL; }
 protected:
 	Sci_Position InitialiseFromUNA(IDocument * pAccess, Sci_PositionU MaxLength);
 	Sci_Position FindPreviousEnd(IDocument * pAccess, Sci_Position startPos) const;

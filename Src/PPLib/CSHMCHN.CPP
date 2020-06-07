@@ -203,8 +203,7 @@ SLAPI PPCashMachine::~PPCashMachine()
 	delete P_AsyncIntrf;
 }
 
-//virtual
-int SLAPI PPCashMachine::ValidateCheck(CCheckTbl::Rec *, int /*correct*/, char * /*pErrBuf*/, size_t /*errBufLen*/)
+/*virtual*/int SLAPI PPCashMachine::ValidateCheck(CCheckTbl::Rec *, int /*correct*/, char * /*pErrBuf*/, size_t /*errBufLen*/)
 {
 	return 2; // not supported
 }

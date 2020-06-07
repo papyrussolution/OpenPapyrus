@@ -399,8 +399,7 @@ private:
 	}
 };
 
-//virtual
-void * SLAPI PPObjWorld::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjWorld::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return /*0; */ new PPObjWorldListWindow(this, flags, extraPtr);
 }

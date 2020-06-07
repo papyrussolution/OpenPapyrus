@@ -490,7 +490,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		STRNSCPY(code, pBlk->Code);
 		SOemToChar(code);
 		SString & r_num_symb = SLS.AcquireRvlStr();
-		(r_num_symb = "№").Transf(CTRANSF_UTF8_TO_OUTER); 
+		(r_num_symb = "№").Transf(CTRANSF_UTF8_TO_OUTER);
 		if(oneof2(code[0], '#', r_num_symb.C(0)) && code[1]) {
 			PPID   goods_id = atol(code+1);
 			if(Fetch(goods_id, &goods_rec) > 0) {
@@ -1022,7 +1022,7 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	AddClusterAssoc(CTL_GDSCFG_FLAGS2, 0, GCF_SHOWGSTRUCPRICE);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS2, 1, GCF_BANSTRUCCDONDECOMPL);
 	SetClusterData(CTL_GDSCFG_FLAGS2, Data.Flags);
-	// } @v10.4.6 
+	// } @v10.4.6
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 0, GCF_XCHG_DONTRCVTAXGRPUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 1, GCF_XCHG_RCVSTRUCUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 2, GCF_XCHG_SENDGENGOODSCONTENT);
@@ -1538,7 +1538,7 @@ IMPL_CMPFUNC(RankNName, i1, i2)
 	return cmp;
 }
 
-static const char * pViewQuotsAsListBox = "ViewQuotsAsListBox";
+// @v10.7.10 replaced with PPConstParam::WrParam_ViewQuotsAsListBox static const char * pViewQuotsAsListBox = "ViewQuotsAsListBox";
 
 #define NUM_QUOTS_IN_DLG 10
 
@@ -1627,7 +1627,7 @@ private:
 			else if(onInit) {
 				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
 				uint32 val = 0;
-				if(reg_key.GetDWord(pViewQuotsAsListBox, &val) && val)
+				if(reg_key.GetDWord(_PPConst.WrParam_ViewQuotsAsListBox, &val) && val)
 					ViewQuotsAsListBox = 1;
 			}
 			setCtrlData(CTL_GQUOT_VIEW, &ViewQuotsAsListBox);
@@ -1684,7 +1684,8 @@ public:
 				setCtrlData(CTL_GQUOT_GOODS, goods_rec.Name);
 				if(goods_rec.Kind == PPGDSK_GROUP) {
 					enableCommand(cmaMore, 0);
-					setLabelText(CTL_GQUOT_GOODS, PPGetWord(PPWORD_GROUP, 0, temp_buf));
+					// @v10.7.10 setLabelText(CTL_GQUOT_GOODS, PPGetWord(PPWORD_GROUP, 0, temp_buf));
+					setLabelText(CTL_GQUOT_GOODS, PPLoadStringS("group", temp_buf)); // @v10.7.10
 				}
 				if(!(goods_rec.Flags & GF_PRICEWOTAXES))
 					setStaticText(CTL_GQUOT_GNOTE, 0);
@@ -1768,7 +1769,7 @@ int QuotationDialog::getDTS(PPQuotArray * pAry)
 	pAry->copy(Data);
 	if(Cls == PPQuot::clsGeneral) {
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
-		reg_key.PutDWord(pViewQuotsAsListBox, BIN(getCtrlLong(CTL_GQUOT_VIEW)));
+		reg_key.PutDWord(_PPConst.WrParam_ViewQuotsAsListBox, BIN(getCtrlLong(CTL_GQUOT_VIEW)));
 	}
 	return ok;
 }
@@ -2364,7 +2365,8 @@ int SLAPI PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restric
 			GetGoodsName(goodsID, goods_name);
 			// @v9.0.2 PPGetWord(PPWORD_GOODS,     0, word_goods);
 			PPLoadString("ware", word_goods); // @v9.0.2
-			PPGetWord(PPWORD_GROUP,     0, word_grp);
+			// @v10.7.10 PPGetWord(PPWORD_GROUP,     0, word_grp);
+			PPLoadString("group", word_grp); // @v10.7.10
 			// @v9.0.2 PPGetWord(PPWORD_WAREHOUSE, 0, word_loc);
 			PPLoadString("warehouse", word_loc); // @v9.0.2
 			add_msg.CatEq(word_goods, goods_name).CatDiv(',', 2).CatEq(word_grp, grp_name).CatDiv(',', 2).CatEq(word_loc, loc_name);
@@ -2836,9 +2838,9 @@ int SLAPI RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, doub
 						pItem->ManufDtm = dtm;
 				}
 			}
-			// } @v10.6.0 
+			// } @v10.6.0
 		}
-		if(Flags & RTLPF_PRICEBYQUOT) { 
+		if(Flags & RTLPF_PRICEBYQUOT) {
 			double q_price = 0.0;
 			const QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
 			if(P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &q_price, use_quot_cache) > 0) {

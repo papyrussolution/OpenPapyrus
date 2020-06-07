@@ -1,5 +1,5 @@
 % DEVELOP.TEX
-% Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2019
+% Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2019, 2020
 % Part of project Papyrus
 % –азработка программной системы: принципы и реализаци€ %
 %
@@ -11,6 +11,14 @@
 % “итульный лист {
 %
 \usepackage{CoverPage}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
 
 \CoverPageSetup{
 	title={–азработка систем Papyrus: принципы и реализаци€},
@@ -305,11 +313,11 @@ Visual Studio версий 7.10 (Visual Studio 2003), 14.0 (Visual Studio 2015) и 15.0
 
 ¬от иллюстраци€ бинарной структуры типа LDATE:
 
-\begin{verbatim}
+\begin{lstlisting}
 	uint16 Year;
 	uint8  Month;
 	uint8  Day;
-\end{verbatim}
+\end{lstlisting}
 
 “аким образом, видно, что формат занимает 4 байта и использует структурированное
 представление даты. јльтернативным дл€ структурированного, €вл€етс€ представление,
@@ -326,12 +334,12 @@ Visual Studio версий 7.10 (Visual Studio 2003), 14.0 (Visual Studio 2015) и 15.0
 
 ¬от иллюстраци€ бинарной структуры типа LTIME:
 
-\begin{verbatim}
+\begin{lstlisting}
 	uint8  Hour;
 	uint8  Minuts;
 	uint8  Seconds;
 	uint8  HandredthsOfSecond;
-\end{verbatim}
+\end{lstlisting}	
 
  ак и LDATE, данный тип занимает в пам€ти 4 байта.
 
@@ -358,10 +366,10 @@ Visual Studio версий 7.10 (Visual Studio 2003), 14.0 (Visual Studio 2015) и 15.0
 “ип DateRange используетс€ дл€ представлени€ диапазона дат. ќн состоит из даты
 нижней границы диапазона и даты верхней границы.
 
-\begin{verbatim}
+\begin{lstlisting}
 	LDATE  low;
 	LDATE  upp;
-\end{verbatim}
+\end{lstlisting}
 
 —уществуют следующие особенности трактовки границ диапазона:
 

@@ -420,7 +420,6 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 	Encoding.Z();
 	ContentType.Z();
 	ContentMime.Z();
-
 	SFile f(pFileName, SFile::mRead|SFile::mBinary);
 	THROW(f.IsValid());
 	{

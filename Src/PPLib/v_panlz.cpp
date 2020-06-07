@@ -456,7 +456,8 @@ DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 			pSubTitle->CatDivIfNotEmpty(';', 2).CatEq(temp_buf, obj_name);
 		}
 		if(Filt.GoodsGrpID) {
-			PPGetWord(PPWORD_GROUP, 0, temp_buf);
+			// @v10.7.10 PPGetWord(PPWORD_GROUP, 0, temp_buf);
+			PPLoadStringS("group", temp_buf); // @v10.7.10
 			GetObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, obj_name);
 			pSubTitle->CatDivIfNotEmpty(';', 2).CatEq(temp_buf, obj_name);
 		}

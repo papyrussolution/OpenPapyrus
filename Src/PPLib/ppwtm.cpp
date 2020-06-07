@@ -2753,10 +2753,10 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	PPChZnPrcssr::Test();
 	//TestConfigDatabase_StringHistory();
-	TestConfigDatabase_StringHistory_Interactive();
+	//TestConfigDatabase_StringHistory_Interactive();
 	//TestGtinStruc();
-	//PPChZnPrcssr::Test();
 	//TestWorkspacePath();
 	//TestReadXmlMem_EgaisAck();
 	//TestMqc();

@@ -432,7 +432,7 @@
 	#define HELP_BROWSER_WARRANTITEM                            194
 #define BROWSER_DEBTINVITEM                            195 // Строки долговой инвентаризации {%s}
 	#define HELP_BROWSER_DEBTINVITEM                            195
-#define BROWSER_SCARDOP                                196 // Операции по персональной карте {%s}
+#define BROWSER_SCARDOP                                196 // @{view_scardop} {%s}
 	#define HELP_BROWSER_SCARDOP                                196
 #define BROWSER_SYNCCMP                                197 // Сравнение синхронизации объектов
 	#define HELP_BROWSER_SYNCCMP                                197

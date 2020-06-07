@@ -3798,7 +3798,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "text/xml");
 	{
 		const uint64 at_start = SLS.GetProfileTime();
-		ScURL  curl;
+		ScURL   curl;
 		SBuffer result_buf;
 		SFile wr_stream(result_buf, SFile::mWrite);
 		THROW(curl.HttpGet(url, ScURL::mfDontVerifySslPeer, &http_header, &wr_stream));

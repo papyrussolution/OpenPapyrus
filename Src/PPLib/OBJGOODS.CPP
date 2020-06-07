@@ -2266,7 +2266,7 @@ int SLAPI PPObjGoods::GetPhUPerU(PPID goodsID, PPID * pPhUnitID, double * pPhUPe
 {
 	Goods2Tbl::Rec goods_rec;
 	return (goodsID && Fetch(goodsID, &goods_rec) > 0) ?
-		GetPhUPerU(&goods_rec, pPhUnitID, pPhUPerU) : GetPhUPerU((Goods2Tbl::Rec *)0, pPhUnitID, pPhUPerU);
+		GetPhUPerU(&goods_rec, pPhUnitID, pPhUPerU) : GetPhUPerU(static_cast<const Goods2Tbl::Rec *>(0), pPhUnitID, pPhUPerU);
 }
 
 int SLAPI PPObjGoods::ValidateGoodsParent(PPID parentID)

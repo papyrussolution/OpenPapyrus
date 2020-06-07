@@ -1,5 +1,5 @@
 // PACKAGE.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019, 2020
 // @Kernel
 //
 #include <pp.h>
@@ -173,8 +173,7 @@ SLAPI LPackageList::~LPackageList()
 	freeAll();
 }
 
-//virtual
-void FASTCALL LPackageList::freeItem(void * pItem) { delete ((LPackage*)pItem); }
+/*virtual*/void FASTCALL LPackageList::freeItem(void * pItem) { delete static_cast<LPackage *>(pItem); }
 
 int SLAPI LPackageList::Add(const LPackage * pItem)
 {

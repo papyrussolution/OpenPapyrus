@@ -617,16 +617,8 @@ DL2_CI * SLAPI DL2_Resolver::ResolveScore(const DL2_Score & rSc)
 	return p_ci;
 }
 
-//virtual
-DL2_CI * SLAPI DL2_Resolver::Resolve(int exprNo, const DL2_CI * pCi)
-{
-	return Helper_Resolve(0, pCi);
-}
-
-DL2_CI * SLAPI DL2_Resolver::Resolve(const DL2_CI * pItem)
-{
-	return Helper_Resolve(0, pItem);
-}
+/*virtual*/DL2_CI * SLAPI DL2_Resolver::Resolve(int exprNo, const DL2_CI * pCi) { return Helper_Resolve(0, pCi); }
+DL2_CI * SLAPI DL2_Resolver::Resolve(const DL2_CI * pItem) { return Helper_Resolve(0, pItem); }
 
 DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pItem)
 {
@@ -1454,22 +1446,27 @@ int SLAPI PrcssrDL200::Print()
 	int    ok = -1;
 	int    reply = 0;
 	short  hJob = 0;
-	char   report_name[128];
 	long   fl = 0;
-	char * p_loc_fname = 0;
-	char   fn[MAXPATH+1];
-	PrnDlgAns pans(strupr(strcat(strcpy(report_name, "DL2_"), D.Name)));
+	//char * p_loc_fname = 0;
+	//char   report_name[128];
+	//char   fn[MAXPATH+1];
+	SString fn;
+	SString report_name;
+	//strupr(strcat(strcpy(report_name, "DL2_"), D.Name));
+	(report_name = "DL2_").Cat(D.Name).ToUpper();
+	PrnDlgAns pans(report_name);
 	if(EditPrintParam(&pans) > 0) {
-		STRNSCPY(fn, pans.Entries.at(pans.Selection)->ReportPath_);
+		//STRNSCPY(fn, pans.Entries.at(pans.Selection)->ReportPath_);
+		fn = pans.Entries.at(pans.Selection)->ReportPath_;
 		switch(pans.Dest) {
 			case PrnDlgAns::aPrint:
 				ok = CrystalReportPrint(fn, OutPath, pans.Printer, pans.NumCopies, SPRN_DONTRENAMEFILES, 0);
 				break;
 			case PrnDlgAns::aPreview:
-				ok = CrystalReportPrint(fn, OutPath, pans.Printer, 1, SPRN_PREVIEW | SPRN_DONTRENAMEFILES, 0);
+				ok = CrystalReportPrint(fn, OutPath, pans.Printer, 1, SPRN_PREVIEW|SPRN_DONTRENAMEFILES, 0);
 				break;
 			case PrnDlgAns::aExport:
-				ok = CrystalReportExport(fn, OutPath, pans.P_ReportName, 0, 0);
+				ok = CrystalReportExport(fn, OutPath, pans.ReportName, 0, 0);
 				break;
 			case -1:
 				ok = -1;

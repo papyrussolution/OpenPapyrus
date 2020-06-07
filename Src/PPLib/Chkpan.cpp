@@ -1016,7 +1016,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			{ orfChgAgentInCheck,         CSESSOPRT_CHGCCAGENT,     1 },
 			{ orfEscChkLineBeforeOrder,   CSESSOPRT_ESCCLINEBORD,   1 },
 			{ orfReprnUnfCc,              CSESSOPRT_REPRNUNFCC,     1 }, // @v10.6.11
-			
+
 		};
 		for(uint i = 0; i < SIZEOFARRAY(rt_tab); i++) {
 			SETFLAG(OperRightsFlags, rt_tab[i].Orf, CsObj.CheckRights(rt_tab[i].CsR, rt_tab[i].IsOprRt));
@@ -1215,7 +1215,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 			SETFLAG(f, orfChgAgentInCheck, ort & CSESSOPRT_CHGCCAGENT);
 			SETFLAG(f, orfEscChkLineBeforeOrder, ort & CSESSOPRT_ESCCLINEBORD);
 			SETFLAG(f, orfReprnUnfCc,      ort & CSESSOPRT_REPRNUNFCC); // @v10.6.11
-			
+
 			OperRightsFlags = f;
 			Flags |= fUsedRighsByAgent;
 			{
@@ -2268,7 +2268,7 @@ int CPosProcessor::AutosaveCheck()
 			else
 				epb.Pack = *P_ChkPack;
 		}
-		// } @v10.7.3 
+		// } @v10.7.3
 		else {
 			if(F(fRetCheck)) {
 				THROW_PP(OperRightsFlags & orfReturns, PPERR_NORIGHTS);
@@ -4070,7 +4070,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						// @v10.6.10 {
 						if(gcsb.Flags & (gcsb.fMarkedCode | gcsb.fChZnCode))
 							pgsb.Flags |= PgsBlock::fMarkedBarcode;
-						// } @v10.6.10 
+						// } @v10.6.10
 						// @v10.4.12 {
 						if(gcsb.Flags & gcsb.fChZnCode) {
 							if(gcsb.ChZnSerial[0])
@@ -4560,7 +4560,7 @@ private:
 		}
 		AddClusterAssoc(CTL_SELCHECK_UNFC, 0, stSelectUnfinished);
 		SetClusterData(CTL_SELCHECK_UNFC, State);
-		// } @v10.6.11 
+		// } @v10.6.11
 
 	}
 public:
@@ -4615,7 +4615,7 @@ public:
 			if(P_Srv->GetCc().Search(sel_chk.CheckID, &cc_rec) > 0)
 				sel_chk.Flags |= _SelCheck::fUnfinished;
 		}
-		// } @v10.6.11 
+		// } @v10.6.11
 		CATCHZOKPPERRBYDLG
 		ASSIGN_PTR(pSelCheck, sel_chk);
 		return ok;
@@ -5343,7 +5343,7 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 				updateList(-1);
 			}
 		}
-		// } @v10.6.11 
+		// } @v10.6.11
 		else if(TVCMD == cmSplitCheck) {
 			if(SplitCheck() > 0) {
 				State |= stListUpdated;
@@ -7079,8 +7079,10 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			else {
 				Goods2Tbl::Rec grp_rec;
 				PPWait(1);
-				if(GObj.Fetch(selGroupID, &grp_rec) > 0)
-					PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
+				if(GObj.Fetch(selGroupID, &grp_rec) > 0) {
+					// @v10.7.10 PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
+					PPLoadStringS("group", grp_name).CatDiv(':', 2).Cat(grp_rec.Name); // @v10.7.10
+				}
 				else
 					grp_name.Z();
 				p_def = GObj.Selector(reinterpret_cast<void *>(selGroupID));
@@ -7519,7 +7521,7 @@ int CheckPaneDialog::SelectSuspendedCheck()
 							Flags &= ~fReprinting;
 							THROW(r1);
 						}
-						// } @v10.6.11 
+						// } @v10.6.11
 						else if(cc_rec.Flags & CCHKF_SUSPENDED && (!(cc_rec.Flags & CCHKF_JUNK) || GetCc().IsLostJunkCheck(sel_chk.CheckID, &SessUUID, 0))) {
 							chk_id = sel_chk.CheckID;
 							ok = 1;
@@ -8504,7 +8506,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 																Cat("is found at").Space().Cat(cc_rec.Dt, DATF_YMD).Space().Cat(cc_rec.Tm, TIMF_HMS).Space().Cat(cc_rec.Code).Space().
 																CatHex(cc_rec.Flags);
 															PPLogMessage(PPFILNAM_DEBUG_LOG, debug_msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-															// } @v10.7.9 
+															// } @v10.7.9
 															if(!(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
 																// @v10.4.5 {
 																int   take_in_attention = 0;
@@ -10524,7 +10526,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.Quantity = R6(F(fRetCheck) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
 						r_item.Price    = price;
 						r_item.Discount = 0.0;
-						if(is_abstract || look_back_price) 
+						if(is_abstract || look_back_price)
 							r_item.Flags |= cifFixedPrice;
 						SETFLAG(r_item.Flags, cifPriceBySerial, serial_price_tag);
 						STRNSCPY(r_item.Serial, rBlk.Serial);
@@ -10544,7 +10546,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						if(!CheckPriceRestrictions(goodsID, r_item, r_item.Price, 0)) {
 							ok = MessageError(-1, 0, eomStatusLine|eomBeep);
 						}
-						// } @v10.7.6 
+						// } @v10.7.6
 						if(ok) {
 							P.CurPos = P.getCount();
 							if(CalcRestByCrdCard_(1)) {
@@ -10933,7 +10935,7 @@ int CPosProcessor::ProcessGift()
 										//
 										if(!manual_gift) {
 											long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
-											if(CnFlags & CASHF_SELALLGOODS) 
+											if(CnFlags & CASHF_SELALLGOODS)
 												egsd_flags |= ExtGoodsSelDialog::fForceExhausted;
 											ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(GetCashOp(), 0, egsd_flags);
 											THROW(CheckDialogPtrErr(&dlg));
@@ -11171,7 +11173,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, int
 				else
 					temp_buf.Z();
 				setStaticText(CTL_CHKPAN_INITUSER, temp_buf);
-				// } @v10.6.8 
+				// } @v10.6.8
 				temp_buf.Z();
 				const long f = P_ChkPack->Rec.Flags;
 				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);
@@ -11697,7 +11699,7 @@ int CheckPaneDialog::ResetOperRightsByKey()
 			SETFLAG(f, orfChgAgentInCheck, oper_rights_ary.lsearch(CSESSOPRT_CHGCCAGENT));
 			SETFLAG(f, orfEscChkLineBeforeOrder, oper_rights_ary.lsearch(CSESSOPRT_ESCCLINEBORD));
 			SETFLAG(f, orfReprnUnfCc,      oper_rights_ary.lsearch(CSESSOPRT_REPRNUNFCC)); // @v10.6.11
-		
+
 			if(!(Flags & fUsedRighsByAgent))
 				OrgOperRights = OperRightsFlags = f;
 			else
@@ -12330,8 +12332,10 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 			}
 			else {
 				Goods2Tbl::Rec grp_rec;
-				if(GObj.Fetch(SelGoodsGrpID, &grp_rec) > 0)
-					PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
+				if(GObj.Fetch(SelGoodsGrpID, &grp_rec) > 0) {
+					// @v10.7.10 PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
+					PPLoadStringS("group", grp_name).CatDiv(':', 2).Cat(grp_rec.Name); // @v10.7.10
+				}
 				else
 					grp_name.Z();
 				p_def = GObj.Selector(reinterpret_cast<void *>(SelGoodsGrpID));

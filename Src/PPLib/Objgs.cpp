@@ -5,8 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-#define GRP_GOODS 1
-
 struct _GSItem {           // @persistent @store(ObjAssocTbl)
 	PPID   ID;             //
 	PPID   Tag;            // Const=PPASS_GOODSSTRUC
@@ -29,12 +27,12 @@ SLAPI PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) :
 {
 }
 
-SLAPI PPGoodsStruc::PPGoodsStruc() : P_Cb(0)
+SLAPI PPGoodsStruc::PPGoodsStruc() : GoodsID(0), P_Cb(0)
 {
-	Init();
+	// @v10.7.10 @ctr Init();
 }
 
-SLAPI PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : P_Cb(0)
+SLAPI PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : GoodsID(0), P_Cb(0)
 {
 	Copy(rS);
 }
@@ -52,7 +50,7 @@ PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & rS) { ret
 int    SLAPI PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.getCount()) ? 0 : 1; }
 int    SLAPI PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
 int    SLAPI PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
-int    SLAPI PPGoodsStruc::CanReduce() const { return (Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1) ? 1 : 0; }
+int    SLAPI PPGoodsStruc::CanReduce() const { return BIN(Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1); }
 double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
 int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
@@ -223,7 +221,7 @@ int SLAPI PPGoodsStruc::Helper_Select(const Ident * pIdent, TSCollection <PPGood
 	int    ok = -1;
 	if(Rec.Flags & GSF_FOLDER) {
 		for(uint i = 0; i < Childs.getCount(); i++) {
-			PPGoodsStruc * p_child = Childs.at(i);
+			const PPGoodsStruc * p_child = Childs.at(i);
 			if(p_child) {
 				int    r = p_child->Helper_Select(pIdent, rList); // @recursion
 				THROW(r);
@@ -336,8 +334,7 @@ int SLAPI PPGoodsStruc::GetEstimationPrice(uint itemIdx, double * pPrice, double
 			// @v10.7.5 @ctr MEMSZERO(grec);
 			goods_obj.Fetch(r_item.GoodsID, &grec);
 			if(grec.Flags & GF_UNLIM) {
-				QuotIdent q_i(loc_id, PPQUOTK_BASE);
-				r = goods_obj.GetQuot(r_item.GoodsID, q_i, 0, 0, &p, 1);
+				r = goods_obj.GetQuot(r_item.GoodsID, QuotIdent(loc_id, PPQUOTK_BASE), 0, 0, &p, 1);
 			}
 			else if(::GetCurGoodsPrice(r_item.GoodsID, loc_id, GPRET_MOSTRECENT, &p, &rec) > 0) {
 				if(r_cfg.Flags & GCF_SHOWGSTRUCPRICE)
@@ -626,9 +623,9 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 	int    was_dot = 0;
 	size_t pos = DEREFPTRORZ(pPos);
 	SString temp_buf;
-	while(pStr[pos] == ' ' || pStr[pos] == '\t')
+	while(oneof2(pStr[pos], ' ', '\t'))
 		pos++;
-	if(pStr[pos] == '-' || pStr[pos] == '+') {
+	if(oneof2(pStr[pos], '-', '+')) {
 		if(was_sign) {
 			ASSIGN_PTR(pPos, pos);
 			return BIN(temp_buf.ToReal() != 0.0);
@@ -636,10 +633,10 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 		was_sign = 1;
 		temp_buf.CatChar(pStr[pos++]);
 	}
-	while(pStr[pos] == ' ' || pStr[pos] == '\t')
+	while(oneof2(pStr[pos], ' ', '\t'))
 		pos++;
-	while(isdec(pStr[pos]) || pStr[pos] == '.' || pStr[pos] == ',') {
-		if(pStr[pos] == '.' || pStr[pos] == ',') {
+	while(isdec(pStr[pos]) || oneof2(pStr[pos], '.', ',')) {
+		if(oneof2(pStr[pos], '.', ',')) {
 			if(was_dot) {
 				ASSIGN_PTR(pPos, pos);
 				return BIN(temp_buf.ToReal() != 0.0);
@@ -657,14 +654,14 @@ int FASTCALL PPGoodsStruc::IsSimpleQttyString(const char * pStr)
 {
 	size_t pos = 0;
 	if(IsNumber(pStr, &pos)) {
-		while(pStr[pos] == ' ' || pStr[pos] == '\t')
+		while(oneof2(pStr[pos], ' ', '\t'))
 			pos++;
 		if(pStr[pos] == 0)
 			return 1;
 		else if(pStr[pos] == '/') {
 			pos++;
 			if(IsNumber(pStr, &pos)) {
-				while(pStr[pos] == ' ' || pStr[pos] == '\t')
+				while(oneof2(pStr[pos], ' ', '\t'))
 					pos++;
 				if(pStr[pos] == 0)
 					return 1;
@@ -1397,7 +1394,7 @@ int GSDialog::delItem(long pos, long)
 
 int GSDialog::moveItem(long pos, long id, int up)
 {
-	uint   new_pos = (uint)pos;
+	uint   new_pos = static_cast<uint>(pos);
 	return Data.MoveItem(pos, up, &new_pos);
 }
 
@@ -1405,13 +1402,16 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 {
 	class GSItemDialog : public TDialog {
 	public:
+		enum {
+			ctlgroupGoods = 1
+		};
 		GSItemDialog(PPGoodsStrucItem * pData, const PPGoodsStruc * pStruc) :
 			TDialog(DLG_GSITEM), P_Struc(pStruc), P_Data(pData), Price(0.0), NettBruttCoeff(0.0)
 		{
 			SString buf;
 			ushort v;
 			disableCtrl(CTL_GSITEM_PRICE, 1);
-			addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
+			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
 			long   goods_sel_flags = GoodsCtrlGroup::enableInsertGoods|GoodsCtrlGroup::disableEmptyGoods;
 			if(P_Struc) {
 				const PPGoodsStrucItem * p_main_item = P_Struc->GetMainItem(0);
@@ -1431,7 +1431,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 			}
 			DisableClusterItem(CTL_GSITEM_FLAGS, 3, !P_Struc || !(P_Struc->Rec.Flags & GSF_PARTITIAL));
 			GoodsCtrlGroup::Rec rec(0, P_Data->GoodsID, 0, goods_sel_flags);
-			setGroupData(GRP_GOODS, &rec);
+			setGroupData(ctlgroupGoods, &rec);
 			setCtrlString(CTL_GSITEM_VALUE, P_Data->GetEstimationString(buf));
 			buf = P_Data->Formula__;
 			setCtrlString(CTL_GSITEM_FORMULA, buf);
@@ -1471,12 +1471,12 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 				setupPrice();
 			else if(event.isClusterClk(CTL_GSITEM_GROUPONLY)) {
 				SETFLAG(P_Data->Flags, GSIF_GOODSGROUP, getCtrlUInt16(CTL_GSITEM_GROUPONLY));
-				GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(GRP_GOODS));
+				GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(ctlgroupGoods));
 				CALLPTRMEMB(p_grp, setFlag(this, GoodsCtrlGroup::disableEmptyGoods, BIN(!(P_Data->Flags & GSIF_GOODSGROUP))));
 			}
 			else if(event.isCmd(cmGSItemLots)) {
 				GoodsCtrlGroup::Rec rec;
-				getGroupData(GRP_GOODS, &rec);
+				getGroupData(ctlgroupGoods, &rec);
 				if(rec.GoodsID)
 					ViewLots(rec.GoodsID, 0, 0, 0, 0);
 			}
@@ -1547,7 +1547,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 		{
 			Price = 0.0;
 			GoodsCtrlGroup::Rec rec;
-			getGroupData(GRP_GOODS, &rec);
+			getGroupData(ctlgroupGoods, &rec);
 			if(rec.GoodsID)
 				::GetCurGoodsPrice(rec.GoodsID, LConfig.Location, GPRET_MOSTRECENT, &Price);
 			setCtrlReal(CTL_GSITEM_PRICE, Price);
@@ -1571,7 +1571,7 @@ static int SLAPI EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucIte
 	dlg->setCtrlData(CTL_GSITEM_SYMB, item.Symb);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		ok = -1;
-		dlg->getGroupData(GRP_GOODS, &rec);
+		dlg->getGroupData(GSItemDialog::ctlgroupGoods, &rec);
 		dlg->getCtrlData(CTL_GSITEM_UNITS, &(v = 0));
 		item.Flags &= ~(GSIF_PCTVAL | GSIF_PHUVAL | GSIF_QTTYASPRICE);
 		if(v == 1)
@@ -1674,17 +1674,20 @@ int GSDialog::addItemExt(long * pPos, long * pID)
 int GSDialog::addItemBySample()
 {
 	class GoodsStrucCopyDialog : public TDialog {
+		enum {
+			ctlgroupGoods = 1
+		};
 	public:
 		GoodsStrucCopyDialog() : TDialog(DLG_GSCOPY)
 		{
-			addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_GSCOPY_GGRP, CTLSEL_GSCOPY_GOODS));
+			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSCOPY_GGRP, CTLSEL_GSCOPY_GOODS));
 		}
 		int    setDTS(const GoodsStrucCopyParam * pData)
 		{
 			Data = *pData;
 			int    ok = 1;
 			GoodsCtrlGroup::Rec rec(Data.GoodsGrpID, Data.GoodsID);
-			setGroupData(GRP_GOODS, &rec);
+			setGroupData(ctlgroupGoods, &rec);
 			SetupPPObjCombo(this, CTLSEL_GSCOPY_GSTRUC, PPOBJ_GOODSSTRUC, Data.GStrucID, 0, reinterpret_cast<void *>(Data.GoodsID));
 			return ok;
 		}
@@ -1693,7 +1696,7 @@ int GSDialog::addItemBySample()
 			int    ok = 1;
 			uint   sel =0;
 			GoodsCtrlGroup::Rec rec;
-			getGroupData(GRP_GOODS, &rec);
+			getGroupData(ctlgroupGoods, &rec);
 			Data.GoodsID = rec.GoodsID;
 			getCtrlData(sel = CTLSEL_GSCOPY_GSTRUC, &Data.GStrucID);
 			THROW_PP(Data.GStrucID, PPERR_GSTRUCNEEDED);
@@ -1706,7 +1709,7 @@ int GSDialog::addItemBySample()
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_GSCOPY_GOODS)) {
-				PPID   prev_goods_id = Data.GoodsID;
+				const PPID prev_goods_id = Data.GoodsID;
 				getCtrlData(CTLSEL_GSCOPY_GOODS, &Data.GoodsID);
 				if(Data.GoodsID != prev_goods_id) {
 					Data.GStrucID = 0;

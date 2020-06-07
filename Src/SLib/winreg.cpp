@@ -329,7 +329,7 @@ int SLAPI WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 {
 	if(Key == 0 || !pVal->GetType())
 		return 0;
-	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, pVal->GetType(), (LPBYTE)pVal->P_Buf, (DWORD)pVal->DataSize); // @unicodeproblem
+	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, pVal->GetType(), (LPBYTE)pVal->P_Buf, (DWORD)pVal->DataSize);
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 

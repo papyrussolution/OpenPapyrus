@@ -454,15 +454,13 @@ HBITMAP FASTCALL TProgram::FetchBitmap(uint bmID)
 HBITMAP FASTCALL TProgram::FetchSystemBitmap(uint bmID)
 	{ return BmH.GetSystem(bmID); }
 
-//virtual
-int TProgram::InitStatusBar()
+/*virtual*/int TProgram::InitStatusBar()
 {
 	SETIFZ(P_Stw, new TStatusWin);
 	return BIN(P_Stw);
 }
 
-//virtual
-int TProgram::LoadVectorTools(TWhatmanToolArray * pT)
+/*virtual*/int TProgram::LoadVectorTools(TWhatmanToolArray * pT)
 {
 	return -1;
 }
@@ -2553,6 +2551,7 @@ void TProgram::GotoSite()
 	SString url = "http://www.petroglif.ru/";
 	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL);
 }
+
 //
 //
 //

@@ -361,10 +361,11 @@ public:
 	};
 
 	struct InitBlock {
-		InitBlock() : GuaID(0)
+		InitBlock() : GuaID(0), ProtocolVer(0)
 		{
 		}
 		PPID   GuaID;
+		int    ProtocolVer;
 		PPGlobalUserAccPacket GuaPack;
 		SString CliAccsKey;
 		SString CliSecret;
@@ -471,6 +472,7 @@ public:
 	int    SLAPI SetupInitBlock(PPID guaID, InitBlock & rBlk);
 	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf) const;
 	SString & SLAPI MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	SString & SLAPI MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	enum {
 		mhffTokenOnly = 0x0001
 	};
@@ -478,6 +480,8 @@ public:
 	const CERT_CONTEXT * SLAPI GetClientSslCertificate(InitBlock & rIb);
 	int    SLAPI MakeAuthRequest(InitBlock & rBlk, SString & rBuf);
 	int    SLAPI MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
+	int    SLAPI MakeAuthRequest2(InitBlock & rBlk, SString & rBuf);
+	int    SLAPI MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
 	int    SLAPI MakeDocumentRequest(const InitBlock & rIb, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf);
 	uint   SLAPI GetLastWinInternetResponse(SString & rMsgBuf);
 	uint   SLAPI ReadReply(HINTERNET hReq, SString & rBuf);
@@ -489,6 +493,7 @@ public:
 	int    SLAPI GetIncomeDocList_(InitBlock & rIb);
 	int    SLAPI Connect(InitBlock & rIb);
 	int    SLAPI Connect2(InitBlock & rIb);
+	int    SLAPI Connect3(InitBlock & rIb);
 	int    SLAPI GetToken2(const char * pAuthCode, InitBlock & rIb);
 	int    SLAPI GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
 	int    SLAPI CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
@@ -660,6 +665,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, InitBlock & rBlk)
 {
 	int    ok = 1;
+	SString temp_buf;
 	PPObjGlobalUserAcc gua_obj;
 	THROW(gua_obj.GetPacket(guaID, &rBlk.GuaPack) > 0);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, rBlk.CliAccsKey);
@@ -672,6 +678,12 @@ int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, InitBlock & rBlk)
 		//rBlk.Cn.ReplaceStr("\"", " ", 0);
 		//rBlk.Cn.ReplaceStr("  ", " ", 0);
 		rBlk.Cn.Transf(CTRANSF_INNER_TO_OUTER);
+	}
+	if(rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_PROTOCOL, temp_buf) > 0) {
+		if(temp_buf.IsEqiAscii("v1") || temp_buf == "1")
+			rBlk.ProtocolVer = 1;
+		else if(temp_buf.IsEqiAscii("v3") || temp_buf == "3")
+			rBlk.ProtocolVer = 3;
 	}
 	rBlk.GuaID = guaID;
 	{
@@ -770,6 +782,51 @@ SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, 
 	return rResult;
 }
 
+SString & SLAPI ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
+{
+	//rResult = "http://api.sb.mdlp.crpt.ru";
+	//(rResult = (oneof2(query, qAuth, qToken) ? "http" : "https")).Cat("://");
+	//https://ismp.crpt.ru/api/v3/auth/cert/key
+	//https://demo.lp.crpt.tech
+	// /api/v3/facade/auth"
+	if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+		(rResult = "https").Cat("://").Cat("demo").Dot().Cat("lp").Dot().Cat("crpt").Dot().Cat("tech");
+	else 
+		(rResult = "https").Cat("://").Cat("ismp").Dot().Cat("crpt").Dot().Cat("ru");
+	rResult.SetLastDSlash().Cat("api/v3").SetLastDSlash();
+	switch(query) {
+		case qAuth:  rResult.Cat("auth/cert/key"); break;
+		case qToken: rResult.Cat("auth/cert/"/*"facade/auth"*/); break;
+		/*
+		case qDocOutcome: rResult.Cat("documents/outcome"); break;
+		case qCurrentUserInfo: rResult.Cat("users/current"); break;
+		case qGetIncomeDocList: rResult.Cat("documents/income"); break;
+		case qDocumentSend: rResult.Cat("documents/send"); break;
+		case qGetTicket: 
+			rResult.Cat("documents");
+			if(!isempty(pAddendum))
+				rResult.CatChar('/').Cat(pAddendum);
+			rResult.CatChar('/').Cat("ticket");
+			break;
+		*/
+	}
+	return rResult;
+}
+
+int SLAPI ChZnInterface::MakeAuthRequest2(InitBlock & rBlk, SString & rBuf)
+{
+	// GET https://ismp.crpt.ru/api/v3/auth/cert/key
+	int    ok = 0;
+	return ok;
+}
+
+int SLAPI ChZnInterface::MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf)
+{
+	// POST https://ismp.crpt.ru/api/v3/auth/cert
+	int    ok = 0;
+	return ok;
+}
+
 int SLAPI ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 {
 	rBuf.Z();
@@ -784,7 +841,7 @@ int SLAPI ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
 	}
 	CATCHZOK
-	json_free_value(&p_json_req);
+	delete p_json_req;
 	return ok;
 }
 
@@ -802,7 +859,7 @@ int SLAPI ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCod
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
 	}
 	CATCHZOK
-	json_free_value(&p_json_req);
+	delete p_json_req;
 	return ok;
 }
 
@@ -826,7 +883,7 @@ int SLAPI ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const void *
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
 	}
 	CATCHZOK
-	json_free_value(&p_json_req);
+	delete p_json_req;
 	return ok;
 }
 
@@ -1365,7 +1422,7 @@ int SLAPI ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const c
 			}
 		}
 	}
-	json_free_value(&p_json_doc);
+	delete p_json_doc;
 	return ok;
 }
 
@@ -1391,7 +1448,7 @@ int SLAPI ChZnInterface::GetIncomeDocList_(InitBlock & rIb)
 			p_json_req->Insert("count", json_new_number("100"));
 			THROW_SL(json_tree_to_string(p_json_req, req_buf));
 		}
-		json_free_value(&p_json_req);
+		ZDELETE(p_json_req);
 	}
 	{
 		ScURL c;
@@ -1413,7 +1470,7 @@ int SLAPI ChZnInterface::GetIncomeDocList_(InitBlock & rIb)
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_json_req);
+	delete p_json_req;
 	return ok;
 }
 
@@ -1444,7 +1501,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
 			p_json_req->Insert("count", json_new_number("100"));
 			THROW_SL(json_tree_to_string(p_json_req, req_buf));
 		}
-		json_free_value(&p_json_req);
+		ZDELETE(p_json_req);
 	}
 	{
 		ulong access_type = /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT;
@@ -1489,7 +1546,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_json_req);
+	delete p_json_req;
 	return ok;
 }
 
@@ -1562,6 +1619,97 @@ int SLAPI ChZnInterface::LogTalking(const char * pPrefix, const SString & rMsg)
 	}
 	else
 		ok = 0;
+	return ok;
+}
+
+int SLAPI ChZnInterface::Connect3(InitBlock & rIb)
+{
+	int    ok = -1;
+	S_GUID result_uuid;
+	SString result_data;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	SString result_code;
+	SBuffer ack_buf;
+	{
+		InetUrl url(MakeTargetUrl2(qAuth, 0, rIb, url_buf));
+		//THROW(MakeAuthRequest(rIb, req_buf));
+		{
+			ScURL c;
+			StrStrAssocArray hdr_flds;
+			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			{
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				LogTalking("req", req_buf);
+				THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						LogTalking("rep", temp_buf);
+						{
+							json_t * p_json_doc = 0;
+							if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
+								SString temp_buf;
+								json_t * p_next = 0;
+								for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+									p_next = p_cur->P_Next;
+									switch(p_cur->Type) {
+										case json_t::tOBJECT: p_next = p_cur->P_Child; break;
+										case json_t::tSTRING:
+											if(p_cur->P_Child) {
+												if(sstreqi_ascii(p_cur->Text, "uuid"))
+													result_uuid.FromStr((temp_buf = p_cur->P_Child->Text).Unescape());
+												else if(sstreqi_ascii(p_cur->Text, "data"))
+													(result_data = p_cur->P_Child->Text).Unescape();
+											}
+											break;
+									}
+								}
+							}
+							ZDELETE(p_json_doc);
+						}
+					}
+				}
+			}
+		}
+	}
+	if(!!result_uuid && result_data.NotEmpty()) {
+		req_buf.Z();
+		SString signed_data;
+		GetSign(rIb, result_data.cptr(), result_data.Len(), signed_data);
+		{
+			json_t * p_json_req = new json_t(json_t::tOBJECT);
+			temp_buf.Z().Cat(result_uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+			p_json_req->Insert("uuid", json_new_string(temp_buf));
+			p_json_req->Insert("data", json_new_string(signed_data));
+			THROW_SL(json_tree_to_string(p_json_req, req_buf));
+			ZDELETE(p_json_req);
+		}
+		{
+			InetUrl url(MakeTargetUrl2(qToken, 0, rIb, url_buf));
+			ScURL c;
+			StrStrAssocArray hdr_flds;
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(""));
+			{
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				LogTalking("req", req_buf);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						LogTalking("rep", temp_buf);
+						if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+							ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1852,10 +2000,18 @@ int SLAPI PPChZnPrcssr::Test()
 		THROW(ifc.SetupInitBlock(param.GuaID, *p_ib));
 		{
 			//const CERT_CONTEXT * p_cert = ifc.GetClientSslCertificate(prcssr.Ib);
-			if(ifc.Connect(*p_ib) > 0) {
-				SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
-				ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
-				ifc.GetIncomeDocList_(*p_ib);
+			if(p_ib->ProtocolVer == 1) {
+				if(ifc.Connect(*p_ib) > 0) {
+					//ifc.GetUserInfo2(prcssr.Ib);
+					//ifc.GetIncomeDocList2(*p_ib);
+				}
+			}
+			else if(oneof2(p_ib->ProtocolVer, 0, 3)) {
+				if(ifc.Connect3(*p_ib) > 0) {
+					SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
+					ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
+					ifc.GetIncomeDocList_(*p_ib);
+				}
 			}
 			/*if(ifc.Connect2(prcssr.Ib) > 0) {
 				//ifc.GetUserInfo2(prcssr.Ib);

@@ -1,5 +1,6 @@
 // TCONTROL.CPP
 // Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <slib.h>
 #include <tv.h>
@@ -38,7 +39,7 @@ int TStaticText::setText(const char * s)
 	Text.ShiftLeftChr('\003');
 	if(Parent) {
 		//
-		// Замещаем конструкцию '~c~' на '$c'
+		// Р—Р°РјРµС‰Р°РµРј РєРѕРЅСЃС‚СЂСѓРєС†РёСЋ '~c~' РЅР° '$c'
 		//
 		SString temp_buf = Text;
 		size_t _p = 0;
@@ -59,7 +60,7 @@ int TStaticText::setText(const char * s)
 //
 // TLabel
 //
-TLabel::TLabel(const TRect & bounds, const char *aText, TView * aLink) : TStaticText(bounds, aText), link(aLink)
+TLabel::TLabel(const TRect & bounds, const char * pText, TView * aLink) : TStaticText(bounds, pText), link(aLink)
 {
 	SubSign = TV_SUBSIGN_LABEL;
 	ViewOptions |= (ofPreProcess|ofPostProcess);
@@ -358,15 +359,10 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				// @v10.7.7 {
 				if(_k == VK_DOWN) {
 					if(p_view->P_WordSel) {
-						if(p_view->IsWsVisible()) {
+						if(p_view->IsWsVisible())
 							p_view->P_WordSel->Activate();
-						}
-						else {
-							if(p_view->P_OuterWordSelBlk && p_view->P_OuterWordSelBlk->Flags & WordSel_ExtraBlock::fFreeText) {
-								//p_view->P_OuterWordSelBlk->GetRecentList();
-								p_view->P_WordSel->ViewRecent();
-							}
-						}
+						else if(p_view->P_OuterWordSelBlk && p_view->P_OuterWordSelBlk->Flags & WordSel_ExtraBlock::fFreeText)
+							p_view->P_WordSel->ViewRecent();
 					}
 				}
 				else if(p_view->IsWsVisible() && _k == VK_ESCAPE) {
@@ -428,7 +424,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				lParam = reinterpret_cast<LPARAM>(&di);
 				if(APPL->DrawControl(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(&di)) > 0) {
 					ReleaseDC(hWnd, di.hDC);
-					/* Если в DrawControl используется RoundRect, то этот кусок необходимо включить в код
+					/* Р•СЃР»Рё РІ DrawControl РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ RoundRect, С‚Рѕ СЌС‚РѕС‚ РєСѓСЃРѕРє РЅРµРѕР±С…РѕРґРёРјРѕ РІРєР»СЋС‡РёС‚СЊ РІ РєРѕРґ
 					InvalidateRect(hWnd, 0, TRUE);
 					UpdateWindow(hWnd);
 					*/
@@ -516,8 +512,7 @@ int TInputLine::OnMouseWheel(int delta)
 }
 
 #if 0 // @v9.1.3 {
-//virtual
-int TInputLine::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*virtual*/int TInputLine::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 0;
 	if(APPL->UICfg.WindowViewStyle >= UserInterfaceSettings::wndVKFancy) {
@@ -997,11 +992,11 @@ TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet * pSt
 TCluster::~TCluster()
 {
 	//
-	// Так как иногда экземпляр этого объекта разрушается до того, как будет
-	// разрушено собственно окно, возвращаем назад подставную оконную процедуру.
+	// РўР°Рє РєР°Рє РёРЅРѕРіРґР° СЌРєР·РµРјРїР»СЏСЂ СЌС‚РѕРіРѕ РѕР±СЉРµРєС‚Р° СЂР°Р·СЂСѓС€Р°РµС‚СЃСЏ РґРѕ С‚РѕРіРѕ, РєР°Рє Р±СѓРґРµС‚
+	// СЂР°Р·СЂСѓС€РµРЅРѕ СЃРѕР±СЃС‚РІРµРЅРЅРѕ РѕРєРЅРѕ, РІРѕР·РІСЂР°С‰Р°РµРј РЅР°Р·Р°Рґ РїРѕРґСЃС‚Р°РІРЅСѓСЋ РѕРєРѕРЅРЅСѓСЋ РїСЂРѕС†РµРґСѓСЂСѓ.
 	//
-	// К сожалению, те же действия дублируются одновременно в самой подставной
-	// процедуре (по сообщению WM_DESTROY). Это приводит к некоторой запутанности кода.
+	// Рљ СЃРѕР¶Р°Р»РµРЅРёСЋ, С‚Рµ Р¶Рµ РґРµР№СЃС‚РІРёСЏ РґСѓР±Р»РёСЂСѓСЋС‚СЃСЏ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РІ СЃР°РјРѕР№ РїРѕРґСЃС‚Р°РІРЅРѕР№
+	// РїСЂРѕС†РµРґСѓСЂРµ (РїРѕ СЃРѕРѕР±С‰РµРЅРёСЋ WM_DESTROY). Р­С‚Рѕ РїСЂРёРІРѕРґРёС‚ Рє РЅРµРєРѕС‚РѕСЂРѕР№ Р·Р°РїСѓС‚Р°РЅРЅРѕСЃС‚Рё РєРѕРґР°.
 	//
 	if(PrevWindowProc)
 		for(int i = 0; i < 33; i++) {
@@ -1011,8 +1006,7 @@ TCluster::~TCluster()
 }
 
 #if 0 // @v9.1.3 {
-//virtual
-int TCluster::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*virtual*/int TCluster::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 0;
 	if(APPL->UICfg.WindowViewStyle >= UserInterfaceSettings::wndVKFancy) {
@@ -1091,9 +1085,9 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					const  TRect rc_cluster = rc_temp;
 					::GetWindowRect(hw_parent, &rc_temp);
 					const  TRect  rc_parent = rc_temp;
-					TRect  rc_prev; // Координаты предыдущего элемента
-					int    dispersion_left = 0; // Разброс left-координат
-					int    dispersion_top = 0;  // Разброс top-координат
+					TRect  rc_prev; // РљРѕРѕСЂРґРёРЅР°С‚С‹ РїСЂРµРґС‹РґСѓС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р°
+					int    dispersion_left = 0; // Р Р°Р·Р±СЂРѕСЃ left-РєРѕРѕСЂРґРёРЅР°С‚
+					int    dispersion_top = 0;  // Р Р°Р·Р±СЂРѕСЃ top-РєРѕРѕСЂРґРёРЅР°С‚
                     int    direction = DIREC_UNKN; //DIREC_XXX
 					int    items_count = 0;
 					for(i = 0; i < 33; i++) {
@@ -1240,7 +1234,7 @@ int TCluster::isChecked(ushort item) const
 	int    checked = 0;
 	short  citem = BUTTON_ID(item) - 1;
 	if(Kind == RADIOBUTTONS)
-		checked = (Value == citem) ? 1 : 0;
+		checked = BIN(Value == citem);
 	else
 		if(Value & (1 << citem))
 			checked = 1;
@@ -1342,7 +1336,7 @@ int TCluster::setDataAssoc(long val)
 		uint   i;
 		int    found = 0;
 		long   def_val = 0, def_key = 0;
-		// Находим значение по умолчанию
+		// РќР°С…РѕРґРёРј Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 		for(i = 0; ValAssoc.enumItems(&i, (void **)&p_assoc);)
 			if(p_assoc->Key == -1) {
 				def_val = p_assoc->Val;
@@ -1469,8 +1463,8 @@ int ComboBox::setListWindow(ListWindow * pListWin)
 	if(pListWin) {
 		setDef(pListWin->P_Def);
 		//
-		// @todo В этом месте необходимо принудительно завершить модальность
-		// окна P_ListWin если оно активно и модально
+		// @todo Р’ СЌС‚РѕРј РјРµСЃС‚Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ Р·Р°РІРµСЂС€РёС‚СЊ РјРѕРґР°Р»СЊРЅРѕСЃС‚СЊ
+		// РѕРєРЅР° P_ListWin РµСЃР»Рё РѕРЅРѕ Р°РєС‚РёРІРЅРѕ Рё РјРѕРґР°Р»СЊРЅРѕ
 		//
 		if(P_ListWin && P_ListWin->IsInState(sfModal))
 			P_ListWin = 0;
@@ -1580,8 +1574,8 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if((res = APPL->P_DeskTop->execView(p_list_win)) == cmOK)
 						p_list_win->getResult(&v);
 					//
-					// Список P_ListWin был анулирован в функции ComboBox::setListWindow(ListWindow *)
-					// Во избежании утечки памяти здесь необходимо разрушить оставшийся висячим p_list_win
+					// РЎРїРёСЃРѕРє P_ListWin Р±С‹Р» Р°РЅСѓР»РёСЂРѕРІР°РЅ РІ С„СѓРЅРєС†РёРё ComboBox::setListWindow(ListWindow *)
+					// Р’Рѕ РёР·Р±РµР¶Р°РЅРёРё СѓС‚РµС‡РєРё РїР°РјСЏС‚Рё Р·РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ СЂР°Р·СЂСѓС€РёС‚СЊ РѕСЃС‚Р°РІС€РёР№СЃСЏ РІРёСЃСЏС‡РёРј p_list_win
 					//
 					if(p_list_win != P_ListWin)
 						delete p_list_win;
@@ -1968,8 +1962,8 @@ int TToolTip::AddTool(ToolItem & rItem)
 	int    ok = 1;
 	if(H) {
 		//
-		// @v10.5.2 Почему-то unicode-версия методов TOOLTIP не работает правильно. По-этому здесь явно используются //
-		// multibyte-методы.
+		// @v10.5.2 РџРѕС‡РµРјСѓ-С‚Рѕ unicode-РІРµСЂСЃРёСЏ РјРµС‚РѕРґРѕРІ TOOLTIP РЅРµ СЂР°Р±РѕС‚Р°РµС‚ РїСЂР°РІРёР»СЊРЅРѕ. РџРѕ-СЌС‚РѕРјСѓ Р·РґРµСЃСЊ СЏРІРЅРѕ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ //
+		// multibyte-РјРµС‚РѕРґС‹.
 		//
 		const uint _cur_count = GetToolsCount();
 		TOOLINFOA ti;
@@ -2007,8 +2001,8 @@ uint TToolTip::GetToolsCount()
 
 int TToolTip::GetTool(uint idx, ToolItem & rItem)
 {
-	// @v9.8.0 Сообщение TTM_ENUMTOOLS почему-то не работает (я перепроверил максимум, пробовал явный вызов TTM_ENUMTOOLSW,  
-	// пробовал увеличивать значение, передваемое в TOOLINFO::cbSize - не помогает. Функция всегда возвращает 0
+	// @v9.8.0 РЎРѕРѕР±С‰РµРЅРёРµ TTM_ENUMTOOLS РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ СЂР°Р±РѕС‚Р°РµС‚ (СЏ РїРµСЂРµРїСЂРѕРІРµСЂРёР» РјР°РєСЃРёРјСѓРј, РїСЂРѕР±РѕРІР°Р» СЏРІРЅС‹Р№ РІС‹Р·РѕРІ TTM_ENUMTOOLSW,  
+	// РїСЂРѕР±РѕРІР°Р» СѓРІРµР»РёС‡РёРІР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ, РїРµСЂРµРґРІР°РµРјРѕРµ РІ TOOLINFO::cbSize - РЅРµ РїРѕРјРѕРіР°РµС‚. Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ 0
 	int    ok = 0;
 	if(H) {
 		STempBuffer text_buf(2048);
@@ -2033,7 +2027,7 @@ int TToolTip::RemoveTool(uint idx)
 	int    ok = 0;
 	if(H) {
 		ToolItem item;
-		/*if(GetTool(idx, item))*/ { // @v9.8.0 С WIN-функцией TTM_ENUMTOOLS что-то не так
+		/*if(GetTool(idx, item))*/ { // @v9.8.0 РЎ WIN-С„СѓРЅРєС†РёРµР№ TTM_ENUMTOOLS С‡С‚Рѕ-С‚Рѕ РЅРµ С‚Р°Рє
 			TOOLINFO ti;
 			MEMSZERO(ti);
 			ti.cbSize = sizeof(TOOLINFO);
@@ -2049,8 +2043,8 @@ int TToolTip::RemoveTool(uint idx)
 int TToolTip::RemoveAllTools()
 {
 	//
-	// @v9.8.0 Не понятно: не работают сообщения WINDOWS TTM_DELTOOL и TTM_ENUMTOOLS. 
-	// Пришлось очищать все элементы через колено: удалять и создавать окно снова.
+	// @v9.8.0 РќРµ РїРѕРЅСЏС‚РЅРѕ: РЅРµ СЂР°Р±РѕС‚Р°СЋС‚ СЃРѕРѕР±С‰РµРЅРёСЏ WINDOWS TTM_DELTOOL Рё TTM_ENUMTOOLS. 
+	// РџСЂРёС€Р»РѕСЃСЊ РѕС‡РёС‰Р°С‚СЊ РІСЃРµ СЌР»РµРјРµРЅС‚С‹ С‡РµСЂРµР· РєРѕР»РµРЅРѕ: СѓРґР°Р»СЏС‚СЊ Рё СЃРѕР·РґР°РІР°С‚СЊ РѕРєРЅРѕ СЃРЅРѕРІР°.
 	//
 	int    ok = 0;
 	if(H) {

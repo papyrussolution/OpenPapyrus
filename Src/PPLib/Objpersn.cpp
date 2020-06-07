@@ -339,7 +339,7 @@ SLAPI PPObjPerson::SrchAnalogPattern::SrchAnalogPattern(const char * pNamePatter
 //
 //
 //
-const char * PersonAddImageFolder = "PersonAddImageFolder";
+// @v10.7.10 const char * PersonAddImageFolder = "PersonAddImageFolder";
 
 struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	size_t GetSize() const { return (sizeof(*this) + ExtStrSize); }
@@ -414,7 +414,7 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 				char   reg_buf[16];
 				memzero(reg_buf, sizeof(reg_buf));
 				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
-				reg_key.PutString(PersonAddImageFolder, (pCfg->AddImageFolder.Len() == 0) ? reg_buf : pCfg->AddImageFolder);
+				reg_key.PutString(_PPConst.WrParam_PersonAddImageFolder, (pCfg->AddImageFolder.Len() == 0) ? reg_buf : pCfg->AddImageFolder);
 			}
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
@@ -431,7 +431,6 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
-
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
@@ -460,11 +459,11 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 			//char * p_buf = 0;
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
-			if(reg_key.GetRecSize(PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
+			if(reg_key.GetRecSize(_PPConst.WrParam_PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
 				//p_buf = new char[buf_size + 1];
 				//memzero(p_buf, buf_size + 1);
 				SString temp_buf;
-				reg_key.GetString(PersonAddImageFolder, temp_buf);
+				reg_key.GetString(_PPConst.WrParam_PersonAddImageFolder, temp_buf);
 				pCfg->AddImageFolder = temp_buf;
 				//ZDELETE(p_buf);
 			}
@@ -1896,8 +1895,7 @@ int SLAPI PPObjPerson::AddSimple(PPID * pID, const char * pName, PPID kindID, PP
 	return ok;
 }
 
-//virtual
-int SLAPI PPObjPerson::MakeReserved(long flags)
+/*virtual*/int SLAPI PPObjPerson::MakeReserved(long flags)
 {
     int    ok = -1;
     if(flags & mrfInitializeDb) {
@@ -2844,8 +2842,7 @@ int SLAPI PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 	return ok;
 }
 
-//virtual
-int  SLAPI PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int  SLAPI PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	SETFLAG(options, not_addtolog, 1);
 	return PPObject::RemoveObjV(id, pObjColl, options, pExtraParam);

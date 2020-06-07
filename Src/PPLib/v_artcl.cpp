@@ -21,7 +21,7 @@ ArticleFilt & FASTCALL ArticleFilt::operator = (const ArticleFilt & s)
 	return *this;
 }
 
-SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0), 
+SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0),
 	LimitTerm(0), AddedLimitTerm(0), CtrlX(0), CurIterOrd(ordByName)
 {
 }
@@ -67,7 +67,7 @@ int SLAPI PPViewArticle::UpdateTempTable(PPID arID)
 				rec.ExtObjectID   = cli_agt.ExtObjectID;
 				rec.Flags         = cli_agt.Flags;
 				STRNSCPY(rec.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
-				InitDebtLim(&rec, &cli_agt); 
+				InitDebtLim(&rec, &cli_agt);
 				r = 1;
 			}
 		}
@@ -1031,10 +1031,14 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 void SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		if(Filt.PersonID)
-			pBrw->InsColumnWord(2, PPWORD_ACCSHEET, 5, 0L, MKSFMTD(20, 0, 0), 0);
-		if(Filt.Flags & ArticleFilt::fCheckObj)
-			pBrw->InsColumnWord(-1, PPWORD_MESSAGE, 18, 0L, MKSFMT(40, 0), 0);
+		if(Filt.PersonID) {
+			// @v10.7.10 pBrw->InsColumnWord(2, PPWORD_ACCSHEET, 5, 0L, MKSFMTD(20, 0, 0), 0);
+			pBrw->InsColumn(2, "@accsheet", 5, 0L, MKSFMTD(20, 0, 0), 0); // @v10.7.10
+		}
+		if(Filt.Flags & ArticleFilt::fCheckObj) {
+			// @v10.7.10 pBrw->InsColumnWord(-1, PPWORD_MESSAGE, 18, 0L, MKSFMT(40, 0), 0);
+			pBrw->InsColumn(-1, "@message", 18, 0L, MKSFMT(40, 0), 0); // @v10.7.10
+		}
 		/*
 		if(AgtProp == ARTPRP_SUPPLAGT)
 			pBrw->SetCellStyleFunc(CellStyleFunc, this);

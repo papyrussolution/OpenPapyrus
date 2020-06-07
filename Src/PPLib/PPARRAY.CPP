@@ -772,8 +772,7 @@ SurKeyArray::SurKeyArray() : SArray(sizeof(SurKey), aryDataOwner|aryEachItem), L
 {
 }
 
-//virtual
-void FASTCALL SurKeyArray::freeItem(void * pItem)
+/*virtual*/void FASTCALL SurKeyArray::freeItem(void * pItem)
 {
 	SurKey * p_item = static_cast<SurKey *>(pItem);
 	p_item->Val.Destroy();

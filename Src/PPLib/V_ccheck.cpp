@@ -3027,7 +3027,8 @@ int SLAPI PPViewCCheck::ViewGraph()
 			//
 			// Заголовки столбцов нужны только для гистрограмм
 			//
-			plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
+			// @v10.7.10 plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
+			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.10
 			plot.PutData(PPGetWord(PPWORD_SALES, 1, temp_buf), 1);
 			plot.PutData(PPGetWord(PPWORD_DISCOUNT, 1, temp_buf), 1);
 			plot.PutEOR();

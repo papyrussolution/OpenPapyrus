@@ -546,10 +546,9 @@ int SLAPI PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use
 	return ok;
 }
 
-//virtual
-//int  SLAPI PPObjQuotKind::Remove(PPID id, long, uint options /* = rmv_default */)
-//virtual
-int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+// /*virtual*/int  SLAPI PPObjQuotKind::Remove(PPID id, long, uint options /* = rmv_default */)
+
+/*virtual*/int  SLAPI PPObjQuotKind::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    r = -1;
 	THROW(CheckRights(PPR_DEL));

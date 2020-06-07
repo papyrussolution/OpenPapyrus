@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -321,15 +321,16 @@ SLAPI PPObjPhoneService::PPObjPhoneService(void * extraPtr) : PPObjReference(PPO
 }
 
 class PhoneServiceDialog : public TDialog {
+	DECL_DIALOG_DATA(PPPhoneServicePacket);
 public:
 	PhoneServiceDialog() : TDialog(DLG_PHNSVC)
 	{
 	}
-	int    setDTS(const PPPhoneServicePacket * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_PHNSVC_NAME, Data.Rec.Name);
 		setCtrlData(CTL_PHNSVC_SYMB, Data.Rec.Symb);
 		setCtrlLong(CTL_PHNSVC_ID, Data.Rec.ID);
@@ -345,7 +346,7 @@ public:
 		setCtrlString(CTL_PHNSVC_SCANCHNL, Data.ScanChannelSymb); // @v9.9.11
 		return ok;
 	}
-	int    getDTS(PPPhoneServicePacket * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -367,8 +368,6 @@ public:
 		CATCHZOKPPERRBYDLG
 		return ok;
 	}
-private:
-	PPPhoneServicePacket Data;
 };
 
 int SLAPI PPObjPhoneService::Edit(PPID * pID, void * extraPtr)
@@ -430,8 +429,8 @@ int SLAPI PPObjPhoneService::Browse(void * extraPtr)
 	return ok;
 }
 
-static const char * RpPhnSvcLocalUpChannelSymbol = "PhnSvcLocalChannelSymbol";
-static const char * RpPhnSvcLocalScanChannelSymbol = "PhnSvcLocalScanChannelSymbol";
+// @v10.7.10 static const char * RpPhnSvcLocalUpChannelSymbol = "PhnSvcLocalChannelSymbol";
+// @v10.7.10 static const char * RpPhnSvcLocalScanChannelSymbol = "PhnSvcLocalScanChannelSymbol";
 
 int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int use_ta)
 {
@@ -439,8 +438,8 @@ int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack,
 	SString tail;
 	if(pPack) {
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
-		reg_key.PutString(RpPhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
-		reg_key.PutString(RpPhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb); // @v9.9.11
+		reg_key.PutString(_PPConst.WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
+		reg_key.PutString(_PPConst.WrParam_PhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb); // @v9.9.11
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -474,8 +473,8 @@ int SLAPI PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 		THROW(ref->GetPropVlrString(Obj, id, PHNSVCPRP_TAIL, pPack->Tail));
 		{
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
-			reg_key.GetString(RpPhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
-			reg_key.GetString(RpPhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb); // @v9.9.11
+			reg_key.GetString(_PPConst.WrParam_PhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
+			reg_key.GetString(_PPConst.WrParam_PhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb); // @v9.9.11
 		}
 	}
 	else

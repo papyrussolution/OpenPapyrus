@@ -1195,6 +1195,7 @@
     <ClCompile Include="..\PPLib\Gdssaldo.cpp" />
     <ClCompile Include="..\PPLib\Gdsutil.cpp" />
     <ClCompile Include="..\PPLib\GENVER.CPP" />
+    <ClCompile Include="..\PPLib\Glblsrvs.cpp" />
     <ClCompile Include="..\PPLib\Goods.cpp" />
     <ClCompile Include="..\PPLib\Goodsdlg.cpp" />
     <ClCompile Include="..\PPLib\Gtaxdlg.cpp" />

@@ -6397,7 +6397,7 @@ protected:
 // Descr: Макрос, обеспечивающий короткую запись цикла по всем элементам.
 // Note: Я скептически отношусь к такого рода макросам (равно как и к новым с++-итераторам) но ради эксперимента все же решил сделать.
 //
-#define SForEachVectorItem(__vec, __iteridx) for(uint __iteridx = 0; __iteridx < __vec.getCount(); __iteridx++)
+#define SForEachVectorItem(__vec, __iteridx) for(uint (__iteridx) = 0; (__iteridx) < (__vec).getCount(); (__iteridx)++)
 //
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
 //   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).

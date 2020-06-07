@@ -1,5 +1,6 @@
 // CALENDAR.CPP
 // Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -37,7 +38,6 @@ public:
 	int    SelStarted1;
 	int    SelStarted2;
 	int    SelStarted3;
-	//int    RowCount;
 	int    c_i;
 	int    c_j;
 	int    c_minfirst;
@@ -55,7 +55,7 @@ public:
 	int    IsLarge;
 };
 
-static const _TCHAR __Days[7][3] = {_T("Пн"), _T("Вт"), _T("Ср"), _T("Чт"), _T("Пт"), _T("Сб"), _T("Вс") };
+// @v10.7.10 static const _TCHAR __Days[7][3] = {_T("РџРЅ"), _T("Р’С‚"), _T("РЎСЂ"), _T("Р§С‚"), _T("РџС‚"), _T("РЎР±"), _T("Р’СЃ") };
 
 class TDateCalendar : public TCalendar {
 public:
@@ -93,8 +93,8 @@ public:
 		y_firstyear = D.year() - 2;
 		Validate();
 		SetupCalendar();
-		InvalidateRect(c_hWnd, 0, true);
-		SetFocus(c_hWnd);
+		::InvalidateRect(c_hWnd, 0, true);
+		::SetFocus(c_hWnd);
 		return 1;
 	}
 	int    getDTS(LDATE * pDt)
@@ -131,15 +131,15 @@ private:
 	void   PaintMonthRect(TCanvas & rCanv, TPoint p, uint j, COLORREF color, COLORREF textColor);
 	void   DrawSelectedYearRect(HDC hdc, int brushType, int);
 	void   InvalidateMonthBar(HWND);
-	int    IsYearMarker(int x, int y) const;
-	int    IsYearBar(int x, int y) const;
-	int    IsMonthBar(int x, int y) const;
+	int    IsYearMarker(const TPoint pt) const;
+	int    IsYearBar(const TPoint pt) const;
+	int    IsMonthBar(const TPoint pt) const;
 	int    SelectYear(HWND hWnd, int n /* 1..NumYearInBar */);
 	int    ScrollYear(HWND hWnd, int dir);
-	int    SelectMonth(HWND hWnd, int x, int y);
-	int    SelectQuart(HWND hWnd, int x, int y);
-	int    SelectDay(HWND hWnd, int x, int y);
-	int    SelectWeek(HWND hWnd, int x, int y);
+	void   SelectMonth(HWND hWnd, const TPoint pt);
+	void   SelectQuart(HWND hWnd, const TPoint pt);
+	void   SelectDay(HWND hWnd, int x, int y);
+	void   SelectWeek(HWND hWnd, TPoint pt);
 	int    RetCmd;
 };
 
@@ -208,15 +208,15 @@ public:
 	TCalendarP * P_Inner;
 };
 
-#define C_SELCOL     RGB(0, 0, 0)       // Цвет выделения //
-#define	C_SELPCOL    RGB(90, 90, 90)    // Цвет выделения периода
-#define	C_BACKCOL    RGB(223, 223, 223) // Цвет фона
-#define	M_SELCOL     RGB(255, 255, 255) // Цвет шрифта выделения месяца
-#define	M_DEFCOL     RGB(0, 0, 0)       // Цвет шрифта месяца
-#define	Y_TEXTCOL    RGB(0, 0, 0)       // Цвет шрифта года
-#define	C_TEXT2COL   RGB(255, 255, 100) // Цвет шрифта дня начала периода
-#define	C_TEXTSMCOL  RGB(0, 0, 255)     // Цвет шрифта месяца, входящего в период
-#define C_TEXTSMCCOL RGB(0, 130, 255)   // Цвет шрифта месяца, входящего в период и являющегося текущим
+#define C_SELCOL     RGB(0, 0, 0)       // Р¦РІРµС‚ РІС‹РґРµР»РµРЅРёСЏ //
+#define	C_SELPCOL    RGB(90, 90, 90)    // Р¦РІРµС‚ РІС‹РґРµР»РµРЅРёСЏ РїРµСЂРёРѕРґР°
+#define	C_BACKCOL    RGB(223, 223, 223) // Р¦РІРµС‚ С„РѕРЅР°
+#define	M_SELCOL     RGB(255, 255, 255) // Р¦РІРµС‚ С€СЂРёС„С‚Р° РІС‹РґРµР»РµРЅРёСЏ РјРµСЃСЏС†Р°
+#define	M_DEFCOL     RGB(0, 0, 0)       // Р¦РІРµС‚ С€СЂРёС„С‚Р° РјРµСЃСЏС†Р°
+#define	Y_TEXTCOL    RGB(0, 0, 0)       // Р¦РІРµС‚ С€СЂРёС„С‚Р° РіРѕРґР°
+#define	C_TEXT2COL   RGB(255, 255, 100) // Р¦РІРµС‚ С€СЂРёС„С‚Р° РґРЅСЏ РЅР°С‡Р°Р»Р° РїРµСЂРёРѕРґР°
+#define	C_TEXTSMCOL  RGB(0, 0, 255)     // Р¦РІРµС‚ С€СЂРёС„С‚Р° РјРµСЃСЏС†Р°, РІС…РѕРґСЏС‰РµРіРѕ РІ РїРµСЂРёРѕРґ
+#define C_TEXTSMCCOL RGB(0, 130, 255)   // Р¦РІРµС‚ С€СЂРёС„С‚Р° РјРµСЃСЏС†Р°, РІС…РѕРґСЏС‰РµРіРѕ РІ РїРµСЂРёРѕРґ Рё СЏРІР»СЏСЋС‰РµРіРѕСЃСЏ С‚РµРєСѓС‰РёРј
 
 #define B_OKLEFT    30
 #define B_OKTOP    240
@@ -244,8 +244,17 @@ void TCalendar::SetupCalendar()
 	int    i, j, count = 1;
 	//_TCHAR s[3], t[3];
 	SString temp_buf;
-	for(j = 0; j <= 6; j++)
-		sstrcpy(C[0][j], __Days[j]);
+	SStringU temp_buf_u; // @v10.7.10
+	static const char * p_wd_symb[] = { "monday_s", "tuesday_s", "wednesday_s", "thursday_s", "friday_s", "saturday_s", "sunday_s" }; // @v10.7.10
+	assert(SIZEOFARRAY(p_wd_symb) == 7); // @v10.7.10
+	for(j = 0; j <= SIZEOFARRAY(p_wd_symb); j++) {
+		// @v10.7.10 sstrcpy(C[0][j], __Days[j]);
+		// @v10.7.10 {
+		PPLoadString(p_wd_symb[j], temp_buf);
+		temp_buf_u.CopyFromUtf8(temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+		STRNSCPY(C[0][j], temp_buf_u);
+		// } @v10.7.10 
+	}
 	for(i = 1; i <= 6; i++) {
 		for(j = 0; j <= 6; j++) {
 			if((i == 1 && FirstMonthDow > j) || count > NDays)
@@ -351,15 +360,15 @@ INT_PTR CALLBACK TDateCalendar::CalendarDlgProc(HWND hWnd, UINT message, WPARAM 
 			dc = static_cast<TDateCalendar *>(TView::GetWindowUserData(hWnd));
 			switch(LOWORD(wParam)) {
 				case IDCANCEL:
-					KillTimer(dc->c_hWnd, 1);
-					DestroyWindow(dc->c_hWnd);
-					EndDialog(hWnd, 0);
+					::KillTimer(dc->c_hWnd, 1);
+					::DestroyWindow(dc->c_hWnd);
+					::EndDialog(hWnd, 0);
 					dc->RetCmd = cmCancel;
 					return 1;
 				case IDOK:
-					KillTimer(dc->c_hWnd, 1);
-					DestroyWindow(dc->c_hWnd);
-					EndDialog(hWnd, 1);
+					::KillTimer(dc->c_hWnd, 1);
+					::DestroyWindow(dc->c_hWnd);
+					::EndDialog(hWnd, 1);
 					dc->RetCmd = cmOK;
 					dc->CloseCalendar();
 					return 1;
@@ -376,11 +385,11 @@ void TCalendar::CheckTimer()
 {
 	if(TimerFreq == 50) {
 		TimerFreq = 300;
-		SetTimer(c_hWnd, 1, 300, 0);
+		::SetTimer(c_hWnd, 1, 300, 0);
 	}
 	else {
 		TimerFreq = 52;
-		SetTimer(c_hWnd, 1, 52, 0);
+		::SetTimer(c_hWnd, 1, 52, 0);
 	}
 }
 
@@ -433,7 +442,7 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 				canv.SetTextColor(0);
 				TPoint p, txt_sz;
 				p.Set(Left + j * c_cell_w, Top  + i * c_cell_h);
-				int    tmpd = satoi(C[i][j]); // @unicodeproblem
+				int    tmpd = satoi(C[i][j]);
 				int    is_year = BIN(D1.year() >= 1970 || D2.year() < 2500);
 				LDATE  dd1 = D1; // encodedate(Day1, Month1, Year1);
 				LDATE  dd2 = D2; // encodedate(Day2, Month2, Year2);
@@ -641,20 +650,24 @@ void TDateCalendar::OnPaint(HWND hWnd)
 void TDateCalendar::OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	if(PeriodSelect && wParam == MK_LBUTTON) {
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		if((seltype == SEL_DAYS && IsDayBar(x, y)) ||
-			(oneof2(seltype, SEL_MONTHS, SEL_QUARTALS) && IsMonthBar(x, y)) ||
-			(seltype == SEL_YEARS && IsYearBar(x, y)))
-			SendMessage(hWnd, WM_LBUTTONDOWN, wParam, lParam);
+		TPoint pt;
+		pt.setwparam(lParam);
+		//const int x = LOWORD(lParam);
+		//const int y = HIWORD(lParam);
+		if((seltype == SEL_DAYS && IsDayBar(pt.x, pt.y)) ||
+			(oneof2(seltype, SEL_MONTHS, SEL_QUARTALS) && IsMonthBar(pt)) ||
+			(seltype == SEL_YEARS && IsYearBar(pt)))
+			::SendMessage(hWnd, WM_LBUTTONDOWN, wParam, lParam);
 	}
 }
 
 void TDateCalendar::OnLButtonUp(HWND hWnd, LPARAM lParam)
 {
-	const int x = LOWORD(lParam);
-	const int y = HIWORD(lParam);
-	if(IsMonthBar(x, y) || IsYearBar(x, y))
+	TPoint pt;
+	pt.setwparam(lParam);
+	//const int x = LOWORD(lParam);
+	//const int y = HIWORD(lParam);
+	if(IsMonthBar(pt) || IsYearBar(pt))
 		InvalidateRect(hWnd, NULL, false);
 }
 
@@ -722,30 +735,30 @@ int TDateCalendar::ScrollYear(HWND hWnd, int dir)
 //    -1 - left Year marker
 //    +1 - right Year marker
 //
-int TDateCalendar::IsYearMarker(int x, int y) const
+int TDateCalendar::IsYearMarker(const TPoint pt) const
 {
-	if(y >= y_t && y <= (y_t + y_th)) {
-		if(x >= y_bl && x <= (y_bl + y_bw))
+	if(pt.y >= y_t && pt.y <= (y_t + y_th)) {
+		if(pt.x >= y_bl && pt.x <= (y_bl + y_bw))
 			return -1;
-		else if(x >= (y_br - y_bw) && x <= y_br)
+		else if(pt.x >= (y_br - y_bw) && pt.x <= y_br)
 			return 1;
 	}
 	return 0;
 }
 
-int TDateCalendar::IsYearBar(int x, int y) const
+int TDateCalendar::IsYearBar(const TPoint pt) const
 {
-	if(x >= (y_bl + y_bw) && x <= (y_br - y_bw) && y >= y_t && y <= (y_t + y_th))
-		return 1 + (x - (y_bl + y_bw)) / y_w;
+	if(pt.x >= (y_bl + y_bw) && pt.x <= (y_br - y_bw) && pt.y >= y_t && pt.y <= (y_t + y_th))
+		return 1 + (pt.x - (y_bl + y_bw)) / y_w;
 	else
 		return 0;
 }
 
-int TDateCalendar::IsMonthBar(int x, int y) const
+int TDateCalendar::IsMonthBar(const TPoint pt) const
 {
 	int  m_cell_h = M_CELLH * y_th / 13;
 	int  m_diff_y = M_DIFFY * y_th / 13;
-	return BIN((x > Left + 2) && (x < Left + (y_br - y_bl) - 3) && (y > Top - m_diff_y - 2) && (y < Top - m_diff_y + 2 * m_cell_h + 2));
+	return BIN((pt.x > Left + 2) && (pt.x < Left + (y_br - y_bl) - 3) && (pt.y > Top - m_diff_y - 2) && (pt.y < Top - m_diff_y + 2 * m_cell_h + 2));
 }
 
 void TDateCalendar::InvalidateMonthBar(HWND hWnd)
@@ -766,10 +779,10 @@ int TDateCalendar::IsDayBar(int x, int y) const
 	return BIN((x > Left + 2) && (x < Left + (y_br - y_bl) - 3) && (y > Top + cht + 2) && (y < Top + 7 * cht - 3));
 }
 
-int TDateCalendar::SelectMonth(HWND hWnd, int x, int y)
+void TDateCalendar::SelectMonth(HWND hWnd, const TPoint pt)
 {
-	int    j = (x - Left) * 6 / (y_br - y_bl);
-	int    i = (y - (Top - M_DIFFY * y_th / 13 - 2)) / (M_CELLH * y_th / 13 + 2);
+	int    j = (pt.x - Left) * 6 / (y_br - y_bl);
+	int    i = (pt.y - (Top - M_DIFFY * y_th / 13 - 2)) / (M_CELLH * y_th / 13 + 2);
 	LDATE  dd1 = D2; dd1.setday(1);
 	LDATE  dd2 = encodedate(1, j + 1 + i * 6, D.year());
 	if(dd1 != dd2 || (dd1 == dd2 && !SelStarted2)) {
@@ -805,15 +818,14 @@ int TDateCalendar::SelectMonth(HWND hWnd, int x, int y)
 			}
 			SendToEditBox(D1.month(), D1.year(), D2.month(), D2.year(), 0);
 		}
-		InvalidateRect(hWnd, NULL, false);
+		::InvalidateRect(hWnd, NULL, false);
 	}
-	return 1;
 }
 
-int TDateCalendar::SelectQuart(HWND hWnd, int x, int y)
+void TDateCalendar::SelectQuart(HWND hWnd, const TPoint pt)
 {
-	int    j = (x - Left) * 6 / (y_br - y_bl);
-	int    i = (y - (Top - M_DIFFY * y_th / 13 - 2)) / (M_CELLH * y_th / 13 + 2);
+	int    j = (pt.x - Left) * 6 / (y_br - y_bl);
+	int    i = (pt.y - (Top - M_DIFFY * y_th / 13 - 2)) / (M_CELLH * y_th / 13 + 2);
 	int    q = (j + i * 6) / 3 + 1;
 	LDATE  dd1 = encodedate(1, D2.month(), D.year());
 	LDATE  dd  = encodedate(1, D1.month(), D.year());
@@ -861,7 +873,6 @@ int TDateCalendar::SelectQuart(HWND hWnd, int x, int y)
 		SendToEditBox((D1.month() - 1) / 3 + 1, D1.year(), (D2.month() - 1) / 3 + 1, D2.year());
 		InvalidateMonthBar(hWnd);
 	}
-	return 1;
 }
 
 static int hashd(LDATE d)
@@ -869,7 +880,7 @@ static int hashd(LDATE d)
 	return (d.month() * 31 + (d.year() - 1800) * 366);
 }
 
-int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
+void TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 {
 	int    c_cell_w = (y_br - y_bl + 1) / 7;
 	int    c_cell_h = C_CELLH * y_th / 13;
@@ -890,23 +901,23 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		//
 		// Move the selection
 		//
-		HDC    hdc = GetDC(hWnd);
+		HDC    hdc = ::GetDC(hWnd);
 		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 			DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif")); // @unicodeproblem
 		HFONT  hf_old = static_cast<HFONT>(SelectObject(hdc, hf));
-		SetBkMode(hdc, TRANSPARENT);
-		SetTextColor(hdc, RGB(0, 0, 0));
+		::SetBkMode(hdc, TRANSPARENT);
+		::SetTextColor(hdc, RGB(0, 0, 0));
 		if(PeriodSelect && D == D1)
-			SetTextColor(hdc, C_TEXT2COL);
+			::SetTextColor(hdc, C_TEXT2COL);
 		x = Left + c_j * c_cell_w;
 		y = Top + c_i * c_cell_h;
-		HPEN   pen = CreatePen(PS_SOLID, 3, C_BACKCOL);
-		HPEN   oldpen = (HPEN)SelectObject(hdc, pen);
-		HBRUSH br = CreateSolidBrush(C_BACKCOL);
+		HPEN   pen = ::CreatePen(PS_SOLID, 3, C_BACKCOL);
+		HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+		HBRUSH br = ::CreateSolidBrush(C_BACKCOL);
 		HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
-		Rectangle(hdc, x + 1, y, (c_j < 6) ? (x + c_cell_w - 1) : (x + c_cell_w - 2), y + c_cell_h - 2);
-		SelectObject(hdc, oldpen);
-		SelectObject(hdc, oldbr);
+		::Rectangle(hdc, x + 1, y, (c_j < 6) ? (x + c_cell_w - 1) : (x + c_cell_w - 2), y + c_cell_h - 2);
+		::SelectObject(hdc, oldpen);
+		::SelectObject(hdc, oldbr);
 		ZDeleteWinGdiObject(&pen);
 		ZDeleteWinGdiObject(&br);
 		SIZE ts;
@@ -927,7 +938,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 				}
 				D2 = D;
 				//
-				// Здесь отрисовывать выделение
+				// Р—РґРµСЃСЊ РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ РІС‹РґРµР»РµРЅРёРµ
 				//
 				for(int ii = 1; ii <= c_maxrow; ii++) {
 					for(int jj = 0; jj <= 6; jj++) {
@@ -942,20 +953,20 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 						const  int day2 = D2.day();
 						if((cur_entry >= (eq_ym ? day1 : 1) && cur_entry <= day2 && !is_bound && nd1 < nd2) ||
 							(cur_entry <= (eq_ym ? day1 : 31) && cur_entry >= day2 && !is_bound && nd1 >= nd2)) {
-							pen = CreatePen(PS_SOLID, 3, C_SELPCOL);
-							br  = CreateSolidBrush(C_SELPCOL);
-							SetTextColor(hdc, C_TEXT2COL);
+							pen = ::CreatePen(PS_SOLID, 3, C_SELPCOL);
+							br  = ::CreateSolidBrush(C_SELPCOL);
+							::SetTextColor(hdc, C_TEXT2COL);
 						}
 						else {
-							pen = CreatePen(PS_SOLID, 3, C_BACKCOL);
-							br  = CreateSolidBrush(C_BACKCOL);
-							SetTextColor(hdc, 0);
+							pen = ::CreatePen(PS_SOLID, 3, C_BACKCOL);
+							br  = ::CreateSolidBrush(C_BACKCOL);
+							::SetTextColor(hdc, 0);
 						}
-						oldpen = (HPEN)SelectObject(hdc, pen);
+						oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
 						oldbr  = static_cast<HBRUSH>(::SelectObject(hdc, br));
-						Rectangle(hdc, xx + 1, yy, (jj < 6) ? (xx + c_cell_w - 1) : (xx + c_cell_w - 2), yy + c_cell_h - 2);
-						SelectObject(hdc, oldpen);
-						SelectObject(hdc, oldbr);
+						::Rectangle(hdc, xx + 1, yy, (jj < 6) ? (xx + c_cell_w - 1) : (xx + c_cell_w - 2), yy + c_cell_h - 2);
+						::SelectObject(hdc, oldpen);
+						::SelectObject(hdc, oldbr);
 						ZDeleteWinGdiObject(&pen);
 						ZDeleteWinGdiObject(&br);
 						::GetTextExtentPoint32(hdc, C[ii][jj], 2, &ts); // @unicodeproblem
@@ -969,7 +980,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 				SetTextColor(hdc, C_TEXT2COL);
 			}
 			//
-			// Передача текущего периода в едитбокс
+			// РџРµСЂРµРґР°С‡Р° С‚РµРєСѓС‰РµРіРѕ РїРµСЂРёРѕРґР° РІ РµРґРёС‚Р±РѕРєСЃ
 			//
 			if(D1 > D2)
 				SendToEditBox(D2, D1, 1);
@@ -977,63 +988,62 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 				SendToEditBox(D1, D2, 1);
 		}
 		else
-			SetTextColor(hdc, GetColorRef(SClrWhite));
+			::SetTextColor(hdc, GetColorRef(SClrWhite));
 		x = Left + c_j * c_cell_w;
 		y = Top  + c_i * c_cell_h;
-		pen = CreatePen(PS_SOLID, 3, C_SELCOL);
-		oldpen = (HPEN)SelectObject(hdc, pen);
-		br = CreateSolidBrush(C_SELCOL);
+		pen = ::CreatePen(PS_SOLID, 3, C_SELCOL);
+		oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+		br = ::CreateSolidBrush(C_SELCOL);
 		oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
-		Rectangle(hdc, x + 1, y, c_j < 6 ? x + c_cell_w - 1 : x + c_cell_w - 2, y + c_cell_h - 2);
-		SelectObject(hdc, oldpen);
-		SelectObject(hdc, oldbr);
-		ZDeleteWinGdiObject(&pen);
-		ZDeleteWinGdiObject(&br);
-		::GetTextExtentPoint32(hdc, C[c_i][c_j], 2, &ts); // @unicodeproblem
-		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
-		SelectObject(hdc, hf_old);
-		ZDeleteWinGdiObject(&hf);
-		ReleaseDC(hWnd, hdc);
-		if(!SelStarted1)
-			InvalidateRect(hWnd, NULL, false);
-		SelStarted1 = 1;
-	}
-	return 1;
-}
-
-int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
-{
-	const int c_cell_w = (y_br - y_bl + 1) / 7;
-	const int c_cell_h = C_CELLH * y_th / 13;
-	const int j = (x - Left) / c_cell_w;
-	const int i = (y - Top)  / c_cell_h - 1;
-	if(((i && i < (c_maxrow - 1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) && (satoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2))) { // @unicodeproblem
-		// Move the selection
-		HDC    hdc = GetDC(hWnd);
-		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-			DEFAULT_QUALITY, DEFAULT_PITCH|FW_DONTCARE, _T("MS Sans Serif")); // @unicodeproblem
-		HFONT  hf_old = static_cast<HFONT>(SelectObject(hdc, hf));
-		SetBkMode(hdc, TRANSPARENT);
-		SetTextColor(hdc, RGB(0, 0, 0));
-		if(PeriodSelect && D == D1)
-			SetTextColor(hdc, C_TEXT2COL);
-		x = Left + c_j * c_cell_w /* C_CELLW */;
-		y = Top + c_i * c_cell_h /* C_CELLH */;
-		HPEN   pen = ::CreatePen(PS_SOLID, 3, C_BACKCOL);
-		HPEN   oldpen = (HPEN)::SelectObject(hdc, pen);
-		HBRUSH br = ::CreateSolidBrush(C_BACKCOL);
-		HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
 		::Rectangle(hdc, x + 1, y, c_j < 6 ? x + c_cell_w - 1 : x + c_cell_w - 2, y + c_cell_h - 2);
 		::SelectObject(hdc, oldpen);
 		::SelectObject(hdc, oldbr);
 		ZDeleteWinGdiObject(&pen);
 		ZDeleteWinGdiObject(&br);
+		::GetTextExtentPoint32(hdc, C[c_i][c_j], 2, &ts);
+		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2);
+		::SelectObject(hdc, hf_old);
+		ZDeleteWinGdiObject(&hf);
+		::ReleaseDC(hWnd, hdc);
+		if(!SelStarted1)
+			::InvalidateRect(hWnd, NULL, false);
+		SelStarted1 = 1;
+	}
+}
+
+void TDateCalendar::SelectWeek(HWND hWnd, TPoint pt)
+{
+	const int c_cell_w = (y_br - y_bl + 1) / 7;
+	const int c_cell_h = C_CELLH * y_th / 13;
+	const int j = (pt.x - Left) / c_cell_w;
+	const int i = (pt.y - Top)  / c_cell_h - 1;
+	if(((i && i < (c_maxrow - 1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) && (satoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2))) {
+		// Move the selection
+		HDC    hdc = ::GetDC(hWnd);
+		HFONT  hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+			DEFAULT_QUALITY, DEFAULT_PITCH|FW_DONTCARE, _T("MS Sans Serif"));
+		HFONT  hf_old = static_cast<HFONT>(SelectObject(hdc, hf));
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, RGB(0, 0, 0));
+		if(PeriodSelect && D == D1)
+			SetTextColor(hdc, C_TEXT2COL);
+		pt.x = Left + c_j * c_cell_w /* C_CELLW */;
+		pt.y = Top + c_i * c_cell_h /* C_CELLH */;
+		HPEN   pen = ::CreatePen(PS_SOLID, 3, C_BACKCOL);
+		HPEN   oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
+		HBRUSH br = ::CreateSolidBrush(C_BACKCOL);
+		HBRUSH oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
+		::Rectangle(hdc, pt.x + 1, pt.y, (c_j < 6) ? (pt.x + c_cell_w - 1) : (pt.x + c_cell_w - 2), pt.y + c_cell_h - 2);
+		::SelectObject(hdc, oldpen);
+		::SelectObject(hdc, oldbr);
+		ZDeleteWinGdiObject(&pen);
+		ZDeleteWinGdiObject(&br);
 		SIZE ts;
-		::GetTextExtentPoint32(hdc, C[c_i][c_j], 2, &ts); // @unicodeproblem
-		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
+		::GetTextExtentPoint32(hdc, C[c_i][c_j], 2, &ts);
+		::TextOut(hdc, pt.x + (c_cell_w - ts.cx) / 2, pt.y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2);
 		c_i = i + 1;
 		c_j = j;
-		D.setday(satoi(C[c_i][c_j])); // @unicodeproblem
+		D.setday(satoi(C[c_i][c_j]));
 		const int draw_months = BIN(D2.year() != D.year() || D2.month() != D.month());
 		{
 			const LDATE  beg_dt = encodedate(1, 1, 1);
@@ -1049,7 +1059,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 					D2 = plusdate(dt, 6);
 				}
 				else {
-					D1 = (D2 > D1) ? D2 : D1;
+					D1 = MAX(D2, D1);
 					D2 = dt;
 				}
 			}
@@ -1063,8 +1073,8 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 			}
 		}
 		if(D1.day()) {
-			const LDATE dt1 = (D2 > D1) ? D1 : D2;
-			const LDATE dt2 = (D2 > D1) ? D2 : D1;
+			const LDATE dt1 = MIN(D1, D2);
+			const LDATE dt2 = MAX(D2, D1);
 			if(draw_months) {
 				RECT rr;
 				rr.left   = Left;
@@ -1074,7 +1084,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 				::InvalidateRect(hWnd, &rr, true);
 			}
 			//
-			// Здесь отрисовывать выделение
+			// Р—РґРµСЃСЊ РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ РІС‹РґРµР»РµРЅРёРµ
 			//
 			for(int ii = 1; ii <= c_maxrow; ii++) {
 				for(int jj = 0; jj <= 6; jj++) {
@@ -1087,15 +1097,15 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 					pen = ::CreatePen(PS_SOLID, 3, is_sel ? C_SELPCOL : C_BACKCOL);
 					br  = ::CreateSolidBrush(is_sel ? C_SELPCOL : C_BACKCOL);
 					::SetTextColor(hdc, is_sel ? C_TEXT2COL : 0);
-					oldpen = (HPEN)::SelectObject(hdc, pen);
+					oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
 					oldbr  = static_cast<HBRUSH>(::SelectObject(hdc, br));
 					::Rectangle(hdc, xx + 1, yy, (jj < 6) ? (xx + c_cell_w - 1) : (xx + c_cell_w - 2), yy + c_cell_h - 2);
 					::SelectObject(hdc, oldpen);
 					::SelectObject(hdc, oldbr);
 					ZDeleteWinGdiObject(&pen);
 					ZDeleteWinGdiObject(&br);
-					::GetTextExtentPoint32(hdc, C[ii][jj], 2, &ts); // @unicodeproblem
-					::TextOut(hdc, xx + (c_cell_w - ts.cx) / 2, yy + (c_cell_h - ts.cy) / 2, C[ii][jj], 2); // @unicodeproblem
+					::GetTextExtentPoint32(hdc, C[ii][jj], 2, &ts);
+					::TextOut(hdc, xx + (c_cell_w - ts.cx) / 2, yy + (c_cell_h - ts.cy) / 2, C[ii][jj], 2);
 				}
 			}
 			::SetTextColor(hdc, C_TEXT2COL);
@@ -1108,19 +1118,19 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 			SendToEditBox(D2, D1, 1);
 		else
 			SendToEditBox(D1, D2, 1);
-		x = Left + c_j * c_cell_w;
-		y = Top  + c_i * c_cell_h;
+		pt.x = Left + c_j * c_cell_w;
+		pt.y = Top  + c_i * c_cell_h;
 		pen = ::CreatePen(PS_SOLID, 3, C_SELCOL);
-		oldpen = (HPEN)SelectObject(hdc, pen);
+		oldpen = static_cast<HPEN>(::SelectObject(hdc, pen));
 		br = ::CreateSolidBrush(C_SELCOL);
 		oldbr = static_cast<HBRUSH>(::SelectObject(hdc, br));
-		::Rectangle(hdc, x + 1, y, (c_j < 6) ? (x + c_cell_w - 1) : (x + c_cell_w - 2), y + c_cell_h - 2);
+		::Rectangle(hdc, pt.x + 1, pt.y, (c_j < 6) ? (pt.x + c_cell_w - 1) : (pt.x + c_cell_w - 2), pt.y + c_cell_h - 2);
 		::SelectObject(hdc, oldpen);
 		::SelectObject(hdc, oldbr);
 		ZDeleteWinGdiObject(&pen);
 		ZDeleteWinGdiObject(&br);
-		::GetTextExtentPoint32(hdc, C[c_i][c_j], 2, &ts); // @unicodeproblem
-		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
+		::GetTextExtentPoint32(hdc, C[c_i][c_j], 2, &ts);
+		::TextOut(hdc, pt.x + (c_cell_w - ts.cx) / 2, pt.y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2);
 		::SelectObject(hdc, hf_old);
 		ZDeleteWinGdiObject(&hf);
 		::ReleaseDC(hWnd, hdc);
@@ -1128,32 +1138,33 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 			::InvalidateRect(hWnd, NULL, false);
 		SelStarted1 = 1;
 	}
-	return 1;
 }
 
 void TDateCalendar::OnLButtonDown(HWND hWnd, LPARAM lParam)
 {
 	int i;
-	int x = LOWORD(lParam);
-	int y = HIWORD(lParam);
+	//int x = LOWORD(lParam);
+	//int y = HIWORD(lParam);
+	TPoint pt;
+	pt.setwparam(lParam);
 	SetFocus(hWnd);
-	if((i = IsYearBar(x, y)) != 0)
+	if((i = IsYearBar(pt)) != 0)
 		SelectYear(hWnd, i);
-	else if(IsYearMarker(x, y) < 0)
+	else if(IsYearMarker(pt) < 0)
 		ScrollYear(hWnd, -1);
-	else if(IsYearMarker(x, y) > 0)
+	else if(IsYearMarker(pt) > 0)
 		ScrollYear(hWnd, 1);
-	else if(IsDayBar(x, y) && (!PeriodSelect || seltype == SEL_DAYS || seltype == SEL_WEEKS)) {
+	else if(IsDayBar(pt.x, pt.y) && (!PeriodSelect || oneof2(seltype, SEL_DAYS, SEL_WEEKS))) {
 		if(!PeriodSelect || seltype == SEL_DAYS)
-			SelectDay(hWnd, x, y);
+			SelectDay(hWnd, pt.x, pt.y);
 		else if(seltype == SEL_WEEKS)
-			SelectWeek(hWnd, x, y);
+			SelectWeek(hWnd, pt);
 	}
-	else if(IsMonthBar(x, y))
+	else if(IsMonthBar(pt))
 		if(seltype != SEL_QUARTALS)
-			SelectMonth(hWnd, x, y);
+			SelectMonth(hWnd, pt);
 		else if(PeriodSelect)
-			SelectQuart(hWnd, x, y);
+			SelectQuart(hWnd, pt);
 	{
 		HWND hwnd_ctl = GetDlgItem(GetParent(hWnd), CTL_CALENDAR_FASTPRD);
 		SendMessage(hwnd_ctl, CB_SETCURSEL, -1, 0);
@@ -1162,7 +1173,7 @@ void TDateCalendar::OnLButtonDown(HWND hWnd, LPARAM lParam)
 
 static void FASTCALL SendLButtDownMsg(HWND hWnd, TPoint p)
 {
-	SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, p.towparam());
+	::SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, p.towparam());
 }
 
 void TDateCalendar::OnTimer(HWND hWnd)
@@ -1234,8 +1245,7 @@ int TDateCalendar::OnRButtonDown(HWND hWnd)
 		SelStarted2 = 0;
 		SelStarted3 = 0;
 		HWND ctl_edit = GetDlgItem(parent_hWnd, 1031);
-		// @v9.1.5 SendMessage(ctl_edit, WM_SETTEXT, 0, (LPARAM) "..");
-		TView::SSetWindowText(ctl_edit, ".."); // @v9.1.5
+		TView::SSetWindowText(ctl_edit, "..");
 		InvalidateRect(hWnd, NULL, true);
 	}
 	return 1;
@@ -1264,7 +1274,7 @@ int TDateCalendar::StepMonth(HWND hWnd, int forward)
 			p.Set((mon - 1) * m_cell_w + Left + 3, Top - m_diff_y + 3);
 		else
 			p.Set((mon - 7) * m_cell_w + Left + 3, Top - m_diff_y + 5 + m_cell_h);
-		SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, p.towparam());
+		::SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, p.towparam());
 	}
 	return ok;
 }
@@ -1288,12 +1298,8 @@ LRESULT CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			dc->TimerFreq = 50;
 			SetTimer(dc->c_hWnd, 1, 50, 0);
 			break;
-		case WM_KILLFOCUS:
-			KillTimer(dc->c_hWnd, 1);
-			break;
-		case WM_TIMER:
-			dc->OnTimer(hWnd);
-			break;
+		case WM_KILLFOCUS: KillTimer(dc->c_hWnd, 1); break;
+		case WM_TIMER: dc->OnTimer(hWnd); break;
 		case WM_KEYUP:
 			dc->TimerFreq = 50;
 			SetTimer(dc->c_hWnd, 1, 50, 0);
@@ -1301,29 +1307,17 @@ LRESULT CALLBACK CalendarWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		case WM_KEYDOWN:
 			switch((int)wParam) {
 				case VK_ESCAPE:
-					DestroyWindow(dc->c_hWnd);
+					::DestroyWindow(dc->c_hWnd);
 					EndDialog(hWnd, 0);
 					break;
-				case VK_END:
-					SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKEWPARAM(dc->y_br - 2, dc->y_t + 2));
-					break;
-				case VK_HOME:
-					SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKEWPARAM(dc->y_bl + 2, dc->y_t + 2));
-					break;
-				case VK_NEXT:
-					dc->StepMonth(hWnd, 1);
-					break;
-				case VK_PRIOR:
-					dc->StepMonth(hWnd, 0);
-					break;
-				case VK_DELETE:
-					SendMessage(hWnd, WM_RBUTTONDOWN, 0, MAKEWPARAM(dc->Left + 5, dc->Top + 5));
-					break;
+				case VK_END: ::SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKEWPARAM(dc->y_br - 2, dc->y_t + 2)); break;
+				case VK_HOME: ::SendMessage(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKEWPARAM(dc->y_bl + 2, dc->y_t + 2)); break;
+				case VK_DELETE: ::SendMessage(hWnd, WM_RBUTTONDOWN, 0, MAKEWPARAM(dc->Left + 5, dc->Top + 5)); break;
+				case VK_NEXT: dc->StepMonth(hWnd, 1); break;
+				case VK_PRIOR: dc->StepMonth(hWnd, 0); break;
 			}
 			break;
-		case WM_PAINT:
-			dc->OnPaint(hWnd);
-			break;
+		case WM_PAINT: dc->OnPaint(hWnd); break;
 		case WM_LBUTTONDBLCLK:
 			if(dc->IsDayBar(LOWORD(lParam), HIWORD(lParam)))
   				::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM(IDOK, 0), (LPARAM)hWnd);
@@ -1418,7 +1412,7 @@ void TCalendar::SendToEditBox(int y1, int y2)
 	s.Cat(y1);
 	if(y1 != y2)
 		s.CatCharN('.', 2).Cat(y2);
-	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s); // @v9.1.5
+	TView::SSetWindowText(GetDlgItem(parent_hWnd, CTL_CALENDAR_PERIODEDIT), s);
 }
 
 const char * GetCalCtrlSignature(int type) { return type ? "papyruscalendarperiod" : "papyruscalendardate"; }

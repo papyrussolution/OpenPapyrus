@@ -3058,7 +3058,7 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	uint8  Reserve2[16];       // @reserve @v10.4.4 [20]-->[16]
 };
 
-const char * BillAddFilesFolder = "BillAddFilesFolder";
+// @v10.7.10 replaced with (PPConstParam::WrParam_BillAddFilesFolder) const char * BillAddFilesFolder = "BillAddFilesFolder";
 
 // static
 int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
@@ -3131,9 +3131,9 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 		{
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
-			if(reg_key.GetRecSize(BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
+			if(reg_key.GetRecSize(_PPConst.WrParam_BillAddFilesFolder, &buf_size) > 0 && buf_size > 0) {
 				SString param_buf;
-				reg_key.GetString(BillAddFilesFolder, param_buf);
+				reg_key.GetString(_PPConst.WrParam_BillAddFilesFolder, param_buf);
 				pCfg->AddFilesFolder.CopyFrom(param_buf);
 			}
 		}
@@ -3204,7 +3204,7 @@ int SLAPI PPObjBill_WriteConfig(PPBillConfig * pCfg, PPOpCounterPacket * pSnCntr
 			char reg_buf[32];
 			memzero(reg_buf, sizeof(reg_buf));
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
-			reg_key.PutString(BillAddFilesFolder, (pCfg->AddFilesFolder.Len() == 0) ? reg_buf : pCfg->AddFilesFolder);
+			reg_key.PutString(_PPConst.WrParam_BillAddFilesFolder, (pCfg->AddFilesFolder.Len() == 0) ? reg_buf : pCfg->AddFilesFolder);
 		}
 		THROW(PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_BILLCFG, p_temp, sz, 0));
 		DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_BILL, 0, 0, 0);

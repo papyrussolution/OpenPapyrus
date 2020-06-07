@@ -2471,9 +2471,9 @@ library PapyrusInterfaceLib version(1.1) {
 		date   Expiry;         // Дата истечения срока действия регистра
 		long   UniqCntr;       // @inner Внутрениий счетчик, обеспечивающий уникальность идентичных по серии/номеру регистров
 		long   Flags;          // Битовые флаги
-		long   LocID;          // @v8.3.8 Идентификатор локации, к которой относится регистр
+		long   LocID;          // Идентификатор локации, к которой относится регистр
 			// @#{LocID^PsnID}
-		long   SurID;          // @v8.4.9 Специальный суррогатный идент, используемый в алкогольной декларации
+		long   SurID;          // Специальный суррогатный идент, используемый в алкогольной декларации
 	}
 	//
 	// Descr: Компоненты структурированного адреса
@@ -2492,17 +2492,15 @@ library PapyrusInterfaceLib version(1.1) {
 		lapFloor,             // Этаж
 		lapPostBox,           // Почтовый ящик
 		lapAddendum,          // Дополнительная информация в строке адреса
-
 		lapCityKind,          // Строка вида населенного пункта (город, село, станция и т.д.)
 		lapLocalAreaKind,     // Строка вида локальной области (район, область и т.д.)
 		lapStreetKind,        // Строка вида улицы (улица, площадь, проспект и т.д.)
 		lapHouseKind,         // Строка вида здания (дом, строение и т.д.)
 		lapHouseAddendumKind, // Строка вида доп координаты дома
 		lapApartKind,         // Строка вида помещения (квартира, комната, офис и т.д.)
-
-		lapFiasCityID,        // @v8.6.12
-		lapFiasAddrID,        // @v8.6.12
-		lapFiasHouseID        // @v8.6.12
+		lapFiasCityID,        // Идентификатор города в базе данных ФИАС
+		lapFiasAddrID,        // Идентификатор адреса в базе данных ФИАС
+		lapFiasHouseID        // Идентификатор дома в базе данных ФИАС
 	}
 
 	interface ILocAddrStruc {
@@ -5117,7 +5115,7 @@ library PapyrusInterfaceLib version(1.1) {
 			long   GoodsGrpID;     //
 			long   GoodsID;        //
 			long   ExtGoodsTypeID; // Тип товара по которому дополнительно показывать суммы.
-				                                     // только для группировки по документам (GoodsGrpID == 0 && GoodsID == 0)
+				// только для группировки по документам (GoodsGrpID == 0 && GoodsID == 0)
 			long   SupplAgentID;   //
 			PpyVOpGroupingFlags Flags; //
 			int    Cycle;          //
@@ -5351,13 +5349,11 @@ library PapyrusInterfaceLib version(1.1) {
 		long   SupplRetOpID;         // Операция возврата поставщику
 		long   ExpndEtcOpID;         // Операция прочего расхода
 		long   IntrExpndOpID;        // Операция внутреннего перемещения
-
 		long   AlcGoodsGrpID;        // Товарная группа, ограничивающая алкогольную продукцию
 		long   BeerGoodsGrpID;       // Товарная группа, ограничивающая пивную продукцию
 		long   CategoryTagID;        // Тег, определяющий категорию вида продукции (имеет приоритет перед CategoryClsDim)
 		long   CategoryClsDim;       // PPGdsCls2::e... Размерность класса, определяющая категорию алкогольной продукции
 		long   VolumeClsDim;         // PPGdsCls2::e... Размерность класса, определяющая объем алкоголя в одной торговой единице
-
 		long   AlcLicRegTypeID;      // Тип регистра алкогольной лицензии
 		long   KppDlvrExt;           // Дополнительное поле адреса, содержащее КПП этого адреса (устарело - с приоритетом используется регистр адреса)
 		long   KppRegTypeID;         // Тип регистра КПП. Если 0, то используется зарезервированный тип регистра для КПП.

@@ -240,15 +240,13 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE1, (temp_buf = Object1SrchCode).Strip());
 		if(Object2SrchCode.NotEmpty())
 			param_list.Add(IMPEXPPARAM_BILH_SRCHCODE2, (temp_buf = Object2SrchCode).Strip());
-		// @v9.7.8 {
 		if(PredefFormat)
 			param_list.Add(IMPEXPPARAM_BILH_PREDEFFMT, temp_buf.Z().Cat(PredefFormat));
-		// } @v9.7.8
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
 		Flags = 0;
-		PredefFormat = pfUndef; // @v9.7.8
+		PredefFormat = pfUndef;
 		ImpOpID = 0;
 		Object1SrchCode.Z();
 		Object2SrchCode.Z();
@@ -268,7 +266,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 				case IMPEXPPARAM_BILH_FLAGS: Flags = temp_buf.ToLong(); break;
 				case IMPEXPPARAM_BILH_SRCHCODE1: Object1SrchCode = temp_buf; break;
 				case IMPEXPPARAM_BILH_SRCHCODE2: Object2SrchCode = temp_buf; break;
-				case IMPEXPPARAM_BILH_PREDEFFMT: PredefFormat = temp_buf.ToLong(); break; // @v9.7.8
+				case IMPEXPPARAM_BILH_PREDEFFMT: PredefFormat = temp_buf.ToLong(); break;
 			}
 		}
 	}
@@ -305,10 +303,8 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	}
 	PPGetSubStr(params, IMPEXPPARAM_BILH_FLAGS, fld_name);
 	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
-	// @v9.7.8 {
 	PPGetSubStr(params, IMPEXPPARAM_BILH_PREDEFFMT, fld_name);
 	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(PredefFormat), 1);
-	// } @v9.7.8
 	CATCHZOK
 	return ok;
 }
@@ -317,7 +313,7 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 {
 	ImpOpID = 0;
 	Flags = 0;
-	PredefFormat = pfUndef; // @v9.7.8
+	PredefFormat = pfUndef;
 	int    ok = 1;
 	SString params, fld_name, param_val;
 	StringSet excl;
@@ -4099,12 +4095,10 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
 					temp_buf.CopyTo(brow.ArCode, sizeof(brow.ArCode));
 				}
-				// @v9.1.11 {
 				if(GObj.P_Tbl->GetArCode(0, goods_id, temp_buf, 0) > 0) {
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
 					temp_buf.CopyTo(brow.ArCodeOwn, sizeof(brow.ArCodeOwn));
 				}
-				// } @v9.1.11
 			}
 			if(GObj.ReadBarcodes(goods_id, bcd_ary) > 0) {
 				bcd_ary.GetSingle(temp_buf);
@@ -4436,7 +4430,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				STRNSCPY(brow.DlvrAddr, bill.DlvrAddr);
 				STRNSCPY(brow.AgentName, bill.AgentName);
 				STRNSCPY(brow.AgentINN, bill.AgentINN);
-				brow.AgentPersonID = bill.AgentPersonID; // @v9.8.7
+				brow.AgentPersonID = bill.AgentPersonID;
 			}
 			{
 				if(sessId && pImpExpDll) {
@@ -4501,7 +4495,6 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 					if(PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
 						if(psn_pack.GetSrchRegNumber(0, temp_buf) > 0)
 							temp_buf.CopyTo(pBill->RegistryCode, sizeof(pBill->RegistryCode));
-						// @v9.7.6 {
                         psn_pack.ELA.GetSinglePhone(temp_buf, 0);
                         STRNSCPY(pBill->CntragPhone, temp_buf);
                         {
@@ -4510,7 +4503,6 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
                             if(ss_email.getCount() && ss_email.get(0U, temp_buf))
 								STRNSCPY(pBill->CntragEMail, temp_buf);
 						}
-						// } @v9.7.6
 					}
 				}
 			}

@@ -1160,8 +1160,7 @@ void StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 	}
 }
 
-//virtual
-int StyloBhtIIOpInfoDlg::setupList()
+/*virtual*/int StyloBhtIIOpInfoDlg::setupList()
 {
 	int    ok = 1;
 	SString buf;
@@ -1248,8 +1247,7 @@ private:
 	PPObjOprKind OprkObj;
 };
 
-//virtual
-int StyloBhtIICfgDialog::setupList()
+/*virtual*/int StyloBhtIICfgDialog::setupList()
 {
 	int    ok = -1;
 	if(Data.P_OpList) {
@@ -1274,8 +1272,7 @@ int StyloBhtIICfgDialog::setupList()
 	return ok;
 }
 
-//virtual
-int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
+/*virtual*/int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPID   op_id = 0;
@@ -1312,8 +1309,7 @@ int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
 	return ok;
 }
 
-//virtual
-int StyloBhtIICfgDialog::editItem(long pos, long id)
+/*virtual*/int StyloBhtIICfgDialog::editItem(long pos, long id)
 {
 	int    ok = -1, valid_data = 0;
 	StyloBhtIIOpInfoDlg * dlg = 0;
@@ -1332,8 +1328,7 @@ int StyloBhtIICfgDialog::editItem(long pos, long id)
 	return ok;
 }
 
-//virtual
-int StyloBhtIICfgDialog::delItem(long pos, long id)
+/*virtual*/int StyloBhtIICfgDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if(Data.P_OpList && pos < Data.P_OpList->getCountI() && Data.P_OpList->at(pos).OpID > 0 && CONFIRM(PPCFM_DELITEM)) {

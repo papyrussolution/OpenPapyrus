@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -3956,15 +3956,14 @@ int SPaintToolBox::GetSymb(int ident, SString & rSymb) const
 int FASTCALL SPaintToolBox::SearchColor(SColor c) const
 {
 	for(uint i = 0; i < getCount(); i++) {
-		SPaintObj & r_obj = at(i);
+		const SPaintObj & r_obj = at(i);
 		if(r_obj.GetType() == SPaintObj::tColor && r_obj == c)
 			return r_obj.GetId();
 	}
 	return 0;
 }
 
-//virtual
-void FASTCALL SPaintToolBox::freeItem(void * pItem)
+/*virtual*/void FASTCALL SPaintToolBox::freeItem(void * pItem)
 {
 	if(pItem)
 		static_cast<SPaintObj *>(pItem)->Destroy();

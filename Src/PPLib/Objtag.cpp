@@ -457,10 +457,8 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 	CATCHZOK
 	return ok;
 }
-//
-//
-//virtual
-void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
+
+/*virtual*/void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 {
 	class PPObjTagListWindow : public PPObjListWindow {
 	public:

@@ -1102,8 +1102,7 @@ int SrConceptNgTbl::GetNgList(CONCEPTID cID, Int64Array & rNgList)
 	return ok;
 }
 
-//virtual
-uint FASTCALL SrGeoNodeTbl::Implement_PartitionFunc(DBT * pKey)
+/*virtual*/uint FASTCALL SrGeoNodeTbl::Implement_PartitionFunc(DBT * pKey)
 {
 	uint64 node_id = sexpanduint64(pKey->data, pKey->size);
 	return (uint)(node_id % Cfg.PartitionCount);

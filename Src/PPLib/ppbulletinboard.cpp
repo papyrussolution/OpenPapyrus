@@ -56,8 +56,7 @@ SLAPI PPBulletinBoard::Sticker::~Sticker()
 {
 }
 
-//virtual
-PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::Sticker::Dup() const
+/*virtual*/PPBulletinBoard::Sticker * SLAPI PPBulletinBoard::Sticker::Dup() const
 {
 	Sticker * p_new_item = new Sticker;
 	if(p_new_item) {
@@ -1262,7 +1261,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 		{
 			PPObjTimeSeries::StrategyContainer::SelectBlock scsb(r_blk.TrendList, r_blk.StratIndex);
 			scsb.LastTrendIdx = -1;
-			scsb.ChaosFactor = 0;
+			// @v10.7.10 scsb.ChaosFactor = 0;
 			scsb.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
 			scsb.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
 			scsb.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel; // @v10.7.2
@@ -1304,7 +1303,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					scsb_reverse.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 					scsb_reverse.Criterion &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 				}
-				scsb_reverse.ChaosFactor = scsb.ChaosFactor;
+				// @v10.7.10 scsb_reverse.ChaosFactor = scsb.ChaosFactor;
 				scsb_reverse.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
 				scsb_reverse.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
 				scsb_reverse.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel; // @v10.7.2

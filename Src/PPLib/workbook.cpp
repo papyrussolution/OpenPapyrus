@@ -1440,7 +1440,7 @@ int SLAPI PPObjWorkbook::ProcessObjRefs(PPObjPack * pPack, PPObjIDArray * ary, i
 {
 	int    ok = 1;
 	if(pPack && pPack->Data) {
-		PPWorkbookPacket * p_pack = (PPWorkbookPacket *)pPack->Data;
+		PPWorkbookPacket * p_pack = static_cast<PPWorkbookPacket *>(pPack->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_WORKBOOK, &p_pack->Rec.ParentID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_WORKBOOK, &p_pack->Rec.LinkID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_WORKBOOK, &p_pack->Rec.CssID, ary, replace));
@@ -1469,7 +1469,6 @@ int SLAPI PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExport
 					PPWorkbookPacket pack;
 					THROW(GetPacket(rec.ID, &pack) > 0);
 					THROW(rExporter.ExportPacket(&pack));
-					//
 					THROW(Helper_Export(rec.ID, rExporter, pRecurTrace)); // @recursion
 				}
 				else {

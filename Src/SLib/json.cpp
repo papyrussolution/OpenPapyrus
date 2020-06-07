@@ -189,7 +189,7 @@ enum json_error json_stream_parse(FILE * file, json_t ** document)
 				case JSON_INCOMPLETE_DOCUMENT:
 					break;
 				default:
-					json_free_value(&state.cursor);
+					ZDELETE(state.cursor);
 					return error;
 					break;
 			}

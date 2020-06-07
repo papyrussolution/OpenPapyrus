@@ -70,13 +70,44 @@ PPReportEnv::PPReportEnv() : Sort(0), PrnFlags(0)
 //
 //
 //
-SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), P_ReportName(pReportName), P_DefPrnForm(0), P_DevMode(0) // @erik
+SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), ReportName(pReportName), P_DevMode(0) // @erik
 {
+}
+
+SLAPI PrnDlgAns::PrnDlgAns(const PrnDlgAns & rS) : Dest(0), Selection(0), NumCopies(1), Flags(0), ReportName(rS.ReportName), DefPrnForm(rS.DefPrnForm), P_DevMode(0)
+{
+	Copy(rS);
 }
 
 SLAPI PrnDlgAns::~PrnDlgAns()
 {
 	ZDELETE(P_DevMode);  //@v10.4.10
+}
+
+PrnDlgAns & FASTCALL PrnDlgAns::operator = (const PrnDlgAns & rS)
+{
+	return Copy(rS);
+}
+
+PrnDlgAns & FASTCALL PrnDlgAns::Copy(const PrnDlgAns & rS)
+{
+	Dest = rS.Dest;
+	Selection = rS.Selection;
+	NumCopies = rS.NumCopies;
+	Flags = rS.Flags;
+	ReportName = rS.ReportName;
+	DefPrnForm = rS.DefPrnForm;
+	PrepareDataPath = rS.PrepareDataPath;
+	Printer = rS.Printer;
+	EmailAddr = rS.EmailAddr;
+	ContextSymb = rS.ContextSymb;
+	TSCollection_Copy(Entries, rS.Entries);
+	ZDELETE(P_DevMode);
+	if(rS.P_DevMode) {
+		P_DevMode = new DEVMODEA;
+		*P_DevMode = *rS.P_DevMode;
+	}
+	return *this;
 }
 //
 //
@@ -775,7 +806,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 	const uint16 cr_dll_ver = PEGetVersion(PE_GV_DLL);
 	SString temp_buf, fname, buf2;
 	SString left; // Временные переменные для деления буферов по символу
-	if(isempty(P_ReportName))
+	if(ReportName.Empty())
 		ok = -1;
 	else {
 		SString param_buf;
@@ -784,13 +815,13 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 		if(buf2.Empty())
 			(buf2 = "RPT").SetLastSlash().Cat("LOCAL");
 		ifile.GetInt(PPINISECT_CONFIG, PPINIPARAM_REPORT_FORCE_DDF, &force_ddf);
-		SPathStruc::ReplaceExt((fname = P_ReportName), "RPT", 1);
+		SPathStruc::ReplaceExt((fname = ReportName), "RPT", 1);
 		SPathStruc::ReplacePath(fname, buf2, 1);
 		PPGetFilePath(PPPATH_BIN, fname, temp_buf);
 		if(!fileExists(temp_buf)) {
 			ifile.Get(PPINISECT_PATH, PPINIPARAM_WINDEFAULTRPT, buf2 = 0);
 			buf2.SetIfEmpty("RPT");
-			fname = P_ReportName;
+			fname = ReportName;
 			SPathStruc::ReplaceExt(fname, "RPT", 1);
 			SPathStruc::ReplacePath(fname, buf2, 1);
 			PPGetFilePath(PPPATH_BIN, fname, temp_buf);
@@ -812,11 +843,11 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			// @v10.3.11 win_coding = std_ini_file.IsWinCoding();
 			{
 				if(ContextSymb.NotEmpty()) {
-					(section_name = P_ReportName).Strip().CatChar(':').Cat(ContextSymb);
+					(section_name = ReportName).Strip().CatChar(':').Cat(ContextSymb);
 					std_ini_file.GetEntries(section_name, &std_ss);
 				}
 				if(std_ss.getCount() == 0) {
-					(section_name = P_ReportName).Strip();
+					(section_name = ReportName).Strip();
 					std_ini_file.GetEntries(section_name, &std_ss);
 				}
 			}
@@ -890,11 +921,11 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			// @v10.3.11 win_coding = ini_file.IsWinCoding();
 			{
 				if(ContextSymb.NotEmpty()) {
-					(section_name = P_ReportName).Strip().CatChar(':').Cat(ContextSymb);
+					(section_name = ReportName).Strip().CatChar(':').Cat(ContextSymb);
 					ini_file.GetEntries(section_name, &ss);
 				}
 				if(ss.getCount() == 0) {
-					(section_name = P_ReportName).Strip();
+					(section_name = ReportName).Strip();
 					ini_file.GetEntries(section_name, &ss);
 				}
 			}
@@ -957,10 +988,7 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 				}
 			}
 		}
-		{
-			for(uint j = 0; j < Entries.getCount(); j++)
-				SETFLAG(Entries.at(j)->Flags, ReportDescrEntry::fDiff_ID_ByScope, diffidbyscope);
-		}
+		SForEachVectorItem(Entries, j) { SETFLAG(Entries.at(j)->Flags, ReportDescrEntry::fDiff_ID_ByScope, diffidbyscope); }
 	}
 	CATCHZOK
 	SETFLAG(Flags, fForceDDF, force_ddf);
@@ -968,24 +996,26 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 }
 
 class Print2Dialog : public TDialog {
+	DECL_DIALOG_DATA(PrnDlgAns);
 public:
-	Print2Dialog() : TDialog(DLG_PRINT2), EnableEMail(0), P_Data(0)
+	Print2Dialog() : TDialog(DLG_PRINT2), EnableEMail(0), Data(0)
 	{
+		PPGetPrinterCfg(0, 0, &PrnCfg);
 	}
-	int    setDTS(PrnDlgAns * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
 		SString cr_path_;
 		StrAssocArray list;
-		P_Data = pData;
-		SETIFZ(P_Data->Dest, 1);
-		P_Data->Selection = 0;
+		RVALUEPTR(Data, pData);
+		SETIFZ(Data.Dest, 1);
+		Data.Selection = 0;
 		{
 			int    silent = 0;
 			/* @v10.7.6 if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()) > 0)
 				EnableEMail = 1; */
-			LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()); // @v10.7.6
+			LoadExportOptions(Data.ReportName, 0, &silent, temp_buf.Z()); // @v10.7.6
 			EnableEMail = 1; // @v10.7.6
 		}
 		AddClusterAssoc(CTL_PRINT2_ACTION, 0, PrnDlgAns::aPrint);
@@ -994,84 +1024,102 @@ public:
 		AddClusterAssoc(CTL_PRINT2_ACTION, 3, PrnDlgAns::aExportXML);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 4, PrnDlgAns::aPrepareData);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 5, PrnDlgAns::aPrepareDataAndExecCR);
-		SetClusterData(CTL_PRINT2_ACTION, P_Data->Dest);
+		SetClusterData(CTL_PRINT2_ACTION, Data.Dest);
 		int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 		if(!is_there_cr)
 			DisableClusterItem(CTL_PRINT2_ACTION, 5, 1);
-		THROW(P_Data->SetupReportEntries(0));
-		if(P_Data->P_DefPrnForm) {
+		THROW(Data.SetupReportEntries(0));
+		if(Data.DefPrnForm.NotEmpty()) {
 			//
 			// Если задано имя формы по умолчанию и в списке форм есть файл с именем, совпадающем 
 			// с именем формы по умолчанию, то перемещаем эту форму на самый верх списка. 
 			// 
 			SPathStruc ps;
-			for(uint i = 0; i < P_Data->Entries.getCount(); i++) {
-				ps.Split(P_Data->Entries.at(i)->ReportPath_);
-				if(ps.Nam.CmpNC(P_Data->P_DefPrnForm) == 0) {
+			for(uint i = 0; i < Data.Entries.getCount(); i++) {
+				ps.Split(Data.Entries.at(i)->ReportPath_);
+				if(ps.Nam.IsEqNC(Data.DefPrnForm)) {
 					for(int j = i; j > 0; j--)
-						P_Data->Entries.swap(j, j-1);
+						Data.Entries.swap(j, j-1);
 					break;
 				}
 			}
 		}
-		for(uint i = 0; i < P_Data->Entries.getCount(); i++) {
-			(temp_buf = P_Data->Entries.at(i)->Description_).Transf(CTRANSF_OUTER_TO_INNER);
-			list.Add(i+1, temp_buf);
-		}
+		SForEachVectorItem(Data.Entries, i) { list.Add(i+1, temp_buf.Z().Cat(Data.Entries.at(i)->Description_).Transf(CTRANSF_OUTER_TO_INNER)); }
 		SetupStrAssocCombo(this, CTLSEL_PRINT2_REPORT, &list, 1, 0);
 		{
+			SString last_selected_printer;
 			SPrinting::GetListOfPrinters(&PrnList);
 			list.Z();
 			long   sel_prn_id = 0;
+			if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
+				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+				reg_key.GetString(_PPConst.WrParam_LastSelectedPrinter, last_selected_printer);
+			}
 			//
 			// Перемещаем принтер по умолчанию на верх списка
 			//
 			long   def_prn_id = 0;
-			for(uint j = 0; j < PrnList.getCount(); j++) {
-				if(PrnList.at(j).Flags & SPrinting::PrnInfo::fDefault) {
-					def_prn_id = j+1;
-					break;
+			// @v10.7.10 {
+			if(last_selected_printer.NotEmpty()) {
+				for(uint j = 0; j < PrnList.getCount(); j++) {
+					if(last_selected_printer.IsEqNC(PrnList.at(j).PrinterName)) {
+						def_prn_id = j+1;
+						sel_prn_id = j+1;
+						break;
+					}
+				}
+			}
+			// } @v10.7.10 
+			if(!def_prn_id) {
+				for(uint j = 0; j < PrnList.getCount(); j++) {
+					if(PrnList.at(j).Flags & SPrinting::PrnInfo::fDefault) {
+						def_prn_id = j+1;
+						break;
+					}
 				}
 			}
 			if(def_prn_id > 1)
 				PrnList.swap(0, static_cast<uint>(def_prn_id-1));
 			//
-			for(uint j = 0; j < PrnList.getCount(); j++) {
-				temp_buf.Z().Cat(PrnList.at(j).PrinterName).ToOem();
-				list.Add(j+1, temp_buf);
-			}
+			SForEachVectorItem(PrnList, j) { list.Add(j+1, temp_buf.Z().Cat(PrnList.at(j).PrinterName).Transf(CTRANSF_OUTER_TO_INNER)); }
 			SetupStrAssocCombo(this, CTLSEL_PRINT2_PRINTER, &list, sel_prn_id, 0);
 		}
-		setCtrlLong(CTL_PRINT2_NUMCOPIES, P_Data->NumCopies);
+		setCtrlLong(CTL_PRINT2_NUMCOPIES, Data.NumCopies);
 		{
-			PPPrinterCfg prn_cfg;
-			PPGetPrinterCfg(0, 0, &prn_cfg);
-			SETFLAG(P_Data->Flags, PrnDlgAns::fUseDuplexPrinting, BIN(prn_cfg.Flags & PPPrinterCfg::fUseDuplexPrinting));
+			SETFLAG(Data.Flags, PrnDlgAns::fUseDuplexPrinting, BIN(PrnCfg.Flags & PPPrinterCfg::fUseDuplexPrinting));
 			AddClusterAssoc(CTL_PRINT2_DUPLEX, 0, PrnDlgAns::fUseDuplexPrinting);
-			SetClusterData(CTL_PRINT2_DUPLEX, P_Data->Flags);
+			SetClusterData(CTL_PRINT2_DUPLEX, Data.Flags);
 		}
 		SetupReportEntry();
 		CATCHZOK
 		return ok;
 	}
-	int    getDTS(PrnDlgAns * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		GetClusterData(CTL_PRINT2_ACTION, &pData->Dest);
-		pData->Selection = getCtrlLong(CTLSEL_PRINT2_REPORT)-1;
-		pData->NumCopies = getCtrlLong(CTL_PRINT2_NUMCOPIES);
-		pData->Flags &= ~PrnDlgAns::fEMail;
-		if(oneof2(pData->Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML) && EnableEMail) { // @v10.7.7 PrnDlgAns::aExportXML
+		GetClusterData(CTL_PRINT2_ACTION, &Data.Dest);
+		Data.Selection = getCtrlLong(CTLSEL_PRINT2_REPORT)-1;
+		Data.NumCopies = getCtrlLong(CTL_PRINT2_NUMCOPIES);
+		Data.Flags &= ~PrnDlgAns::fEMail;
+		if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML) && EnableEMail) { // @v10.7.7 PrnDlgAns::aExportXML
 			if(getCtrlUInt16(CTL_PRINT2_DOMAIL)) {
-				pData->Flags |= PrnDlgAns::fEMail;
-				getCtrlString(CTL_PRINT2_MAKEDATAPATH, pData->EmailAddr);
+				Data.Flags |= PrnDlgAns::fEMail;
+				getCtrlString(CTL_PRINT2_MAKEDATAPATH, Data.EmailAddr);
 			}
 		}
 		else
-			getCtrlString(CTL_PRINT2_MAKEDATAPATH, pData->PrepareDataPath);
-		GetClusterData(CTL_PRINT2_DUPLEX, &P_Data->Flags);
+			getCtrlString(CTL_PRINT2_MAKEDATAPATH, Data.PrepareDataPath);
+		GetClusterData(CTL_PRINT2_DUPLEX, &Data.Flags);
 		long   sel_id = getCtrlLong(CTLSEL_PRINT2_PRINTER);
-		pData->Printer = (sel_id && sel_id <= PrnList.getCountI()) ? PrnList.at(sel_id-1).PrinterName : 0;
+		Data.Printer = (sel_id && sel_id <= PrnList.getCountI()) ? PrnList.at(sel_id-1).PrinterName : 0;
+		// @v10.7.10 {
+		Data.Printer.Strip();
+		if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
+			reg_key.PutString(_PPConst.WrParam_LastSelectedPrinter, Data.Printer);
+		}
+		// } @v10.7.10 
+		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
 private:
@@ -1103,12 +1151,12 @@ private:
 				::GlobalUnlock(pd.hDevNames);
 				::GlobalFree(pd.hDevMode);
 				::GlobalFree(pd.hDevNames);
-				SETIFZ(P_Data->P_DevMode, new DEVMODEA);
-				*(P_Data->P_DevMode) = mode;
+				SETIFZ(Data.P_DevMode, new DEVMODEA);
+				*(Data.P_DevMode) = mode;
 				::DeleteDC(pd.hDC); // ?
 			}
 			else
-				ZDELETE(P_Data->P_DevMode);
+				ZDELETE(Data.P_DevMode);
 		}
 		// } @erik
 	}
@@ -1117,10 +1165,10 @@ private:
 		uint   id = static_cast<uint>(getCtrlLong(CTLSEL_PRINT2_REPORT));
 		int    enable_email = 0;
 		SString data_name, path;
-		GetClusterData(CTL_PRINT2_ACTION, &P_Data->Dest);
-		if(id <= P_Data->Entries.getCount()) {
+		GetClusterData(CTL_PRINT2_ACTION, &Data.Dest);
+		if(id <= Data.Entries.getCount()) {
 			SString stat_buf;
-			const ReportDescrEntry * p_entry = P_Data->Entries.at(id-1);
+			const ReportDescrEntry * p_entry = Data.Entries.at(id-1);
 			setStaticText(CTL_PRINT2_ST_FILENAME, p_entry->ReportPath_);
 			SFileUtil::Stat fs;
 			SFileUtil::GetStat(p_entry->ReportPath_, &fs);
@@ -1134,7 +1182,7 @@ private:
 			setStaticText(CTL_PRINT2_ST_FILEDTTM, 0);
 			setStaticText(CTL_PRINT2_ST_DATANAME, 0);
 		}
-		if(oneof2(P_Data->Dest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {
+		if(oneof2(Data.Dest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {
 			/* @v9.8.9 PPIniFile ini_file;
 			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path);
 			if(path.Empty())
@@ -1144,11 +1192,11 @@ private:
 				path.SetLastSlash().Cat(data_name);
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
 		}
-		else if(oneof2(P_Data->Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) { // @v10.7.6 PrnDlgAns::aExportXML
+		else if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) { // @v10.7.6 PrnDlgAns::aExportXML
 			if(EnableEMail) {
 				enable_email = 1;
 				disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
-				path = P_Data->EmailAddr;
+				path = Data.EmailAddr;
 			}
 		}
 		else {
@@ -1160,26 +1208,14 @@ private:
 	}
 
 	int    EnableEMail;
+	PPPrinterCfg PrnCfg;
 	SString InitPrepareDataPath;
 	TSVector <SPrinting::PrnInfo> PrnList; // @v9.8.4 TSArray-->TSVector
-	PrnDlgAns * P_Data;
 };
 
-int SLAPI EditPrintParam(PrnDlgAns * pData)
-{
-	return PPDialogProcBody <Print2Dialog, PrnDlgAns> (pData);
-}
-
-int SLAPI SReport::setNumCopies(int n)
-{
-	NumCopies = (n > 0 && n <= 10) ? n : 1;
-	return 1;
-}
-
-int SLAPI SReport::getNumCopies() const
-{
-	return NumCopies;
-}
+int  SLAPI EditPrintParam(PrnDlgAns * pData) { return PPDialogProcBody <Print2Dialog, PrnDlgAns> (pData); }
+void SLAPI SReport::setNumCopies(int n) { NumCopies = (n > 0 && n <= 10) ? n : 1; }
+int  SLAPI SReport::getNumCopies() const { return NumCopies; }
 
 static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
@@ -1657,7 +1693,7 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 	return ok;
 }
 
-const char * DefaultWindowsPrinter = "DefaultWindowsPrinter";
+// @v10.7.10 const char * DefaultWindowsPrinter = "DefaultWindowsPrinter";
 
 int SLAPI GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 {
@@ -1667,7 +1703,7 @@ int SLAPI GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 	PPLocPrinter loc_prn;
  	PPObjLocPrinter obj_locprn;
  	MEMSZERO(loc_prn);
- 	reg_key.GetDWord(DefaultWindowsPrinter, &loc_prn_id);
+ 	reg_key.GetDWord(_PPConst.WrParam_DefaultWindowsPrinter, &loc_prn_id);
  	if(loc_prn_id && (ok = obj_locprn.Search(loc_prn_id, &loc_prn)) > 0) {
 		ASSIGN_PTR(pPrnID, (PPID)loc_prn_id);
 		CALLPTRMEMB(pPort, CopyFrom(loc_prn.Port));
@@ -2245,20 +2281,20 @@ int SLAPI EditDefaultPrinterCfg()
 	GetWindowsPrinter(&loc_prn_id, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PRNCFG_WINPRINTER, PPOBJ_LOCPRINTER, loc_prn_id, 0, 0);
 	dlg->setCtrlData(CTL_PRNCFG_PORT, cfg.Port);
-	SETFLAG(v, 0x01, cfg.Flags & PPPrinterCfg::fUseDuplexPrinting);
-	dlg->setCtrlData(CTL_PRNCFG_FLAGS, &v);
+	dlg->AddClusterAssoc(CTL_PRNCFG_FLAGS, 0, PPPrinterCfg::fUseDuplexPrinting);
+	dlg->AddClusterAssoc(CTL_PRNCFG_FLAGS, 1, PPPrinterCfg::fStoreLastSelPrn);
+	dlg->SetClusterData(CTL_PRNCFG_FLAGS, cfg.Flags);
 	if(ExecView(dlg) == cmOK) {
 		dlg->getCtrlData(CTLSEL_PRNCFG_PRINTER, &cfg.PrnCmdSet);
 		dlg->getCtrlData(CTL_PRNCFG_PORT, cfg.Port);
-		dlg->getCtrlData(CTL_PRNCFG_FLAGS, &(v = 0));
 		{
 			uint32 dw_loc_prn_id = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
 			dlg->getCtrlData(CTLSEL_PRNCFG_WINPRINTER, &loc_prn_id);
-			dw_loc_prn_id = (uint32)loc_prn_id;
-			reg_key.PutDWord(DefaultWindowsPrinter, dw_loc_prn_id);
+			dw_loc_prn_id = static_cast<uint32>(loc_prn_id);
+			reg_key.PutDWord(_PPConst.WrParam_DefaultWindowsPrinter, dw_loc_prn_id);
 		}
-		SETFLAG(cfg.Flags, PPPrinterCfg::fUseDuplexPrinting, v & 0x01);
+		cfg.Flags = static_cast<int16>(dlg->GetClusterData(CTL_PRNCFG_FLAGS));
 		THROW(PPSetPrinterCfg(PPOBJ_CONFIG, PPCFG_MAIN, &cfg));
 	}
 	CATCHZOKPPERR
@@ -2398,7 +2434,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 		PrnDlgAns pans(rpt.Name);
 		const ReportDescrEntry * p_sel_entry = 0;
 		if(pEnv) {
-			pans.P_DefPrnForm = pEnv->DefPrnForm;
+			pans.DefPrnForm = pEnv->DefPrnForm;
 			pans.EmailAddr = pEnv->EmailAddr;
 			if(pEnv->PrnFlags & SReport::DisableGrouping)
 				rpt.disableGrouping();
@@ -2416,10 +2452,10 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			}
 		}
 		else
-			pans.P_DefPrnForm = 0;
+			pans.DefPrnForm.Z();
 		if(!rpt.PrnDest) {
 			if(EditPrintParam(&pans) > 0) {
-				if (pans.P_DevMode) {
+				if(pans.P_DevMode) {
 
 				}
 				pans.Flags &= ~pans.fForceDDF;
@@ -2509,7 +2545,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					PPAlbatrossConfig alb_cfg;
 					THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 					if(alb_cfg.Hdr.MailAccID) {
-						THROW(SendMailWithAttach(pans.P_ReportName, out_file_name, pans.P_ReportName, pans.EmailAddr, alb_cfg.Hdr.MailAccID));
+						THROW(SendMailWithAttach(pans.ReportName, out_file_name, pans.ReportName, pans.EmailAddr, alb_cfg.Hdr.MailAccID));
 					}
 				}
 				// } @v10.7.7 
@@ -2553,7 +2589,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						const char * p_mail_addr = 0;
 						if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS())
 							p_mail_addr = pans.EmailAddr;
-						ok = CrystalReportExport(fn, ep.Path, pans.P_ReportName, p_mail_addr, rpt.PrnOptions);
+						ok = CrystalReportExport(fn, ep.Path, pans.ReportName, p_mail_addr, rpt.PrnOptions);
 					}
 					break;
 				case PrnDlgAns::aExportXML:

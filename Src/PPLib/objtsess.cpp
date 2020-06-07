@@ -17,7 +17,7 @@
 //
 class BhtTSess : SVector { // @v9.8.11 SArray-->SVector
 public:
-	SLAPI  BhtTSess(PPLogger * pLogger) : SVector(sizeof(PSE)), LastUsedEntryPos(UINT_MAX), P_Logger(pLogger), Ta(0), LastLine_SessID(0), LastLine_OprNo(0)
+	explicit SLAPI BhtTSess(PPLogger * pLogger) : SVector(sizeof(PSE)), LastUsedEntryPos(UINT_MAX), P_Logger(pLogger), Ta(0), LastLine_SessID(0), LastLine_OprNo(0)
 	{
 	}
 	void   SLAPI Reset()
@@ -126,20 +126,18 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 	PPID   IdleAccSheetID;  // ->Ref(PPOBJ_ACCSHEET) @v4.9.12 Таблица статей видов простоев процессоров
 	long   MinIdleCont;     // Минимальная продолжительность простоя (sec). Если простой меньше,
 		// этой величины, то он не регистрируется (сессия простоя удаляется).
-	LTIME  InitTime;        // @v5.0.6 Время, задаваемое в новых техн сессиях по умолчанию. Используется //
+	LTIME  InitTime;        // Время, задаваемое в новых техн сессиях по умолчанию. Используется //
 		// также как расчетное время для сессий, учитывающих товар по времени (гостиницы)
-	long   RoundPeriod;     // @v5.0.6 Период округления (в большую сторону) для сессий, учитывающих
-		// товар по времени
-	long   ViewRefreshPeriod; // @v5.0.8 Период обновления таблиц техн сессий и строк техн сессий (sec)
-	long   TimeChunkBrowserQuant; // @5.6.2 Квант времени (сек) во временной диаграмме
+	long   RoundPeriod;     // Период округления (в большую сторону) для сессий, учитывающих товар по времени
+	long   ViewRefreshPeriod; // Период обновления таблиц техн сессий и строк техн сессий (sec)
+	long   TimeChunkBrowserQuant; // Квант времени (сек) во временной диаграмме
 	long   ColorPlannedStatus;
 	long   ColorPendingStatus;
 	long   ColorInProgressStatus;
 	long   ColorClosedStatus;
 	long   ColorCanceledStatus;
 	SVerT Ver;
-	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД
-		// равен sizeof(PPTSessionConfig) + ExtStrSiz
+	uint16 ExtStrSize;        // Размер "хвоста" под строки расширения. Общий размер записи, хранимой в БД =sizeof(PPTSessionConfig) + ExtStrSiz
 	uint16 SmsConfigPos;
 	PPID   DefTimeTechID;
 	char   Reserve[12];
@@ -1862,13 +1860,15 @@ int SLAPI PPObjTSession::Helper_SetSessionState(TSessionTbl::Rec * pRec, int new
 			for(uint i = 0; i < child_list.getCount(); i++) {
 				PPID   child_id = child_list.at(i);
 				TSessionTbl::Rec child_rec;
-				if(Search(child_id, &child_rec) > 0 && child_rec.Status != TSESST_CANCELED)
+				if(Search(child_id, &child_rec) > 0 && child_rec.Status != TSESST_CANCELED) {
 					if(updateChilds) {
 						THROW(Helper_SetSessionState(&child_rec, new_child_status, 0, 1)); // @recursion
 						THROW(PutRec(&child_id, &child_rec, 0));
 					}
-					else
+					else {
 						THROW(Helper_SetSessionState(&child_rec, new_child_status, 1, 0)); // @recursion
+					}
+				}
 			}
 		}
 	}
@@ -1929,10 +1929,7 @@ int SLAPI PPObjTSession::CheckSuperSessLink(const TSessionTbl::Rec * pRec, PPID 
 			}
 		}
 		if(pRec->StDt && super_rec.StDt) {
-			//
-			// Время начала дочерней сессии должно быть больше или равно
-			// времени начала суперсессии
-			//
+			// Время начала дочерней сессии должно быть больше или равно времени начала суперсессии
 			const long tm_diff = ((long)pRec->StTm.v) - ((long)super_rec.StTm.v);
 			THROW_PP(pRec->StDt > super_rec.StDt || (pRec->StDt == super_rec.StDt && tm_diff > -99), PPERR_CHILDOLDERSUPERSESS);
 		}
@@ -2083,9 +2080,7 @@ int SLAPI PPObjTSession::InitPacket(TSessionPacket * pPack, int kind /* TSESK_XX
 {
 	int    ok = InitRec(pPack ? &pPack->Rec : static_cast<TSessionTbl::Rec *>(0), kind, prcID, superSessID, status);
 	if(ok) {
-		if(pPack) {
-			pPack->CiList.Init(PPCheckInPersonItem::kTSession, 0);
-		}
+		CALLPTRMEMB(pPack, CiList.Init(PPCheckInPersonItem::kTSession, 0));
 	}
 	return ok;
 }
@@ -2107,9 +2102,8 @@ int SLAPI PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX 
 		rec.Status = status;
 	else {
 		PPProcessorPacket::ExtBlock prc_ext;
-		if(PrcObj.GetExtWithInheritance(labs(prcID), &prc_ext) > 0 && ValidateStatus(prc_ext.InitSessStatus)) {
-			rec.Status = (int16)prc_ext.InitSessStatus;
-		}
+		if(PrcObj.GetExtWithInheritance(labs(prcID), &prc_ext) > 0 && ValidateStatus(prc_ext.InitSessStatus))
+			rec.Status = static_cast<int16>(prc_ext.InitSessStatus);
 		else
 			rec.Status = TSESST_PLANNED;
 	}
@@ -2135,15 +2129,13 @@ int SLAPI PPObjTSession::InitRec(TSessionTbl::Rec * pRec, int kind /* TSESK_XXX 
 		rec.ParentID = superSessID;
 		THROW(InductSuperSess(&rec));
 	}
-	if(!rec.StTm)
-		getcurtime(&rec.StTm);
+	SETIFZ(rec.StTm, getcurtime_());
 	ASSIGN_PTR(pRec, rec);
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PPObjTSession::CreateOnlineByLinkBill(PPID * pSessID,
-	const ProcessorTbl::Rec * pPrcRec, const BillTbl::Rec * pBillRec)
+int SLAPI PPObjTSession::CreateOnlineByLinkBill(PPID * pSessID, const ProcessorTbl::Rec * pPrcRec, const BillTbl::Rec * pBillRec)
 {
 	int    ok = 1;
 	PPID   sess_id = 0;
@@ -2209,6 +2201,7 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 		double unit_ratio = 1.0;
 		if(GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
 			double qtty = 0.0;
+			int    main_item_sign = -1; // @v10.7.10
 			//
 			// @v8.1.6 Поменялись местами условия:
 			// Было:
@@ -2229,19 +2222,21 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 				chunk.Start.Set(pPack->StDt, pPack->StTm);
 				chunk.Finish.Set(pPack->FinDt, pPack->FinTm);
 				if(AdjustTiming(*pPack, chunk, result_chunk, &timing) > 0)
-					qtty = Round((double)timing / unit_ratio, tec_rec.Rounding, +1);
+					qtty = Round(static_cast<double>(timing) / unit_ratio, tec_rec.Rounding, +1);
 				else
-					qtty = Round((double)GetContinuation(pPack) / unit_ratio, tec_rec.Rounding, +1);
+					qtty = Round(static_cast<double>(GetContinuation(pPack)) / unit_ratio, tec_rec.Rounding, +1);
 			}
 			else if(tec_rec.Flags & TECF_AUTOMAIN) {
 				qtty = Round(pPack->PlannedQtty, tec_rec.Rounding, 0);
+				main_item_sign = tec_rec.Sign;
 			}
 			if(qtty != 0.0) {
 				TSessLineTbl::Rec line_rec, ex_line_rec;
 				long   oprno = 0;
 				THROW(InitLinePacket(&line_rec, pPack->ID) > 0);
 				THROW(SetupLineGoods(&line_rec, tec_rec.GoodsID, 0, 0));
-				line_rec.Sign = -1;
+				// @v10.7.10 line_rec.Sign = -1;
+				line_rec.Sign = static_cast<int16>(main_item_sign); // @v10.7.10
 				line_rec.Flags |= TSESLF_AUTOMAIN;
 				line_rec.Qtty = qtty;
 				{
@@ -2299,7 +2294,7 @@ int SLAPI PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options
 	int    ok = -1;
 	pPack->destroy();
 	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
-		int    r = Search(id, &pPack->Rec);
+		const int  r = Search(id, &pPack->Rec);
 		if(r > 0) {
 			PPCheckInPersonMngr ci_mgr;
 			THROW(ci_mgr.GetList(PPCheckInPersonItem::kTSession, id, pPack->CiList));
@@ -2886,9 +2881,7 @@ int SLAPI PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * p
 	return ok;
 }
 
-//int SLAPI PPObjTSession::Remove(PPID sessID, long, uint options)
-//virtual
-int SLAPI PPObjTSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
+/*virtual*/int SLAPI PPObjTSession::RemoveObjV(PPID sessID, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam)
 {
 	int    ok = 1;
 	int    level = 0; // 0 - remove, 1 - undo writing off, -1 - cancel
@@ -2939,7 +2932,6 @@ SLAPI PPObjTSession::SelectBySerialParam::SelectBySerialParam(PPID sessID, const
 	STRNSCPY(Serial, pSerial);
 }
 
-
 int SLAPI TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign, long flags, TSessLineTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -2961,8 +2953,7 @@ int SLAPI TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign
 			else {
 				line_rec = temp_line_rec;
 				//
-				// Коль скоро не требуется искать самую последнюю строку, то нас устроит
-				// первая встречная - уходим!
+				// Коль скоро не требуется искать самую последнюю строку, то нас устроит первая встречная - уходим!
 				//
 				ok = 1;
 				break;
@@ -2975,12 +2966,12 @@ int SLAPI TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign
 
 int SLAPI PPObjTSession::SelectBySerial(SelectBySerialParam * pParam)
 {
-	int    ok = -1, r = 0;
+	int    ok = -1;
+	int    r = 0;
 	PPObjBill * p_bobj = BillObj;
 	TSessLineTbl::Rec line_rec;
 	PPIDArray lot_list;
 	PPID   loc_id = 0;
-
 	if(pParam->InTSesID) {
 		TSessionTbl::Rec tses_rec;
 		ProcessorTbl::Rec prc_rec;
@@ -3176,15 +3167,16 @@ SString & SLAPI PPObjTSession::MakeListName(const PPIDArray * pList, SString & r
 	return rBuf;
 }
 
-int SLAPI PPObjTSession::LoadExistedDeficitBills(PPID sessID, TSCollection <PPBillPacket> * pList, PPLogger & rLogger)
+int SLAPI PPObjTSession::LoadExistedDeficitBills(PPID sessID, TSCollection <PPBillPacket> & rList, PPLogger & rLogger)
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
 	PPBillPacket * p_pack = 0;
 	SString bill_code;
 	for(PPID bill_id = 0; p_bobj->EnumMembersOfPool(PPASS_TSDBILLPOOL, sessID, &bill_id) > 0;) {
 		THROW_MEM(p_pack = new PPBillPacket);
-		if((r = p_bobj->ExtractPacket(bill_id, p_pack)) > 0) {
+		const int r = p_bobj->ExtractPacket(bill_id, p_pack);
+		if(r > 0) {
 			PPObjBill::MakeCodeString(&p_pack->Rec, 1, bill_code);
 			if(p_pack->IsDraft()) {
 				if(p_pack->Rec.Flags & BILLF_WRITEDOFF) {
@@ -3192,7 +3184,7 @@ int SLAPI PPObjTSession::LoadExistedDeficitBills(PPID sessID, TSCollection <PPBi
 					ok = -1;
 				}
 				THROW(p_pack->RemoveRows(0, 0));
-				THROW_SL(pList->insert(p_pack));
+				THROW_SL(rList.insert(p_pack));
 			}
 			else {
 				rLogger.LogMsgCode(mfInfo, PPINF_NOTDRAFTINDFCTPOOL, bill_code);
@@ -3203,7 +3195,7 @@ int SLAPI PPObjTSession::LoadExistedDeficitBills(PPID sessID, TSCollection <PPBi
 	}
 	CATCH
 		ok = 0;
-		pList->freeAll();
+		rList.freeAll();
 	ENDCATCH
 	return ok;
 }
@@ -3212,15 +3204,16 @@ int SLAPI PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL
 {
 	int    ok = -1, r;
 	PPObjBill * p_bobj = BillObj;
+	const PPConfig & r_lcfg = LConfig;
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
 	if(eq_cfg.OpOnDfctThisLoc || eq_cfg.OpOnDfctOthrLoc) {
 		TSCollection <PPBillPacket> pack_list;
 		THROW_PP(!eq_cfg.OpOnDfctThisLoc || IsDraftOp(eq_cfg.OpOnDfctThisLoc), PPERR_INVCSESSDFCTOP);
 		THROW_PP(!eq_cfg.OpOnDfctOthrLoc || IsDraftOp(eq_cfg.OpOnDfctOthrLoc), PPERR_INVCSESSDFCTOP);
-		THROW(r = LoadExistedDeficitBills(sessID, &pack_list, rLogger));
+		THROW(r = LoadExistedDeficitBills(sessID, pack_list, rLogger));
 		if(r > 0) {
-			const  LDATE save_oper_date = LConfig.OperDate;
+			const  LDATE save_oper_date = r_lcfg.OperDate;
 			uint   i = 0, j;
 			PUGI * p_pugi;
 			StrAssocArray goods_name_list;
@@ -3269,9 +3262,9 @@ int SLAPI PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL
 							THROW_SL(pack_list.insert(p_pack));
 						}
 						if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
-							if(op_rec.AccSheetID == LConfig.LocAccSheetID)
+							if(op_rec.AccSheetID == r_lcfg.LocAccSheetID)
 								p_pack->Rec.Object = PPObjLocation::WarehouseToObj(locID);
-							if(op_rec.AccSheet2ID == LConfig.LocAccSheetID)
+							if(op_rec.AccSheet2ID == r_lcfg.LocAccSheetID)
 								p_pack->Rec.Object2 = PPObjLocation::WarehouseToObj(locID);
 						}
 						THROW(ti.Init(&p_pack->Rec));
@@ -3463,11 +3456,11 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 	SString ses_name, fmt_buf, msg_buf;
 	PPObjBill * p_bobj = BillObj;
 	ReceiptCore & rcpt_core = p_bobj->trfr->Rcpt;
-
 	PPLoadText(PPTXT_LOG_TSES_WROFF_LINE, fmt_buf);
 	THROW(Search(sessID, &tses_rec) > 0);
 	MakeName(&tses_rec, ses_name);
 	THROW(PrcObj.GetRecWithInheritance(tses_rec.PrcID, &prc_rec, 1) > 0);
+	THROW_PP_S(prc_rec.WrOffOpID, PPERR_UNDEFPRCWROFFOP, prc_rec.Name); // @v10.7.10
 	if(tses_rec.Flags & TSESF_WRITEDOFF)
 		rLogger.LogString(PPTXT_TSESSWRITEDOFF, ses_name);
 	else if(prc_rec.Flags & PRCF_LOCKWROFF)

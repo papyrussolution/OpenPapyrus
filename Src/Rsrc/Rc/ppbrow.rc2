@@ -3417,7 +3417,7 @@ browser LOGSMON north(100), 1, 1, "@{view_logsmonitor}", OWNER|GRID, 0
 	"@time",     4, notype, TIMF_HMS | TIMF_MSEC, 11
 	"@user",     5, notype, 0, 10
 	"@database", 6, notype, 0, 10
-	"Сообщение", 7, notype, 0, 255
+	"@message",  7, notype, 0, 255
 }
 
 browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
@@ -4504,7 +4504,7 @@ browser DEBTINVITEM south(56), 1, 1, "Строки долговой инвентаризации {%s}", OWNE
 	}
 }
 
-browser SCARDOP north(100), 1, 1, "Операции по персональной карте {%s}", OWNER|GRID, 0
+browser SCARDOP north(100), 1, 1, "@{view_scardop} {%s}", OWNER|GRID, 0
 {
 	"@card",                 6, notype, 0,           10
 	"@owner",                7, notype, 0,           16
@@ -8362,7 +8362,7 @@ reportstub ShipmAnlzByBill	{ dl600data=ShipmAnlz,			"Анализ отгрузки с разбивкой
 reportstub ShipmAnlz		{ dl600data=ShipmAnlz,			"@{view_shipmanalyze}"}
 reportstub PSalesView		{ dl600data=PredictSales,		"Продажи товаров"}
 reportstub SCardList		{ dl600data=SCardList,			"@{scard_pl}"}
-reportstub SCardOpList		{ dl600data=SCardOpList,		"Операции по кредитной карте"}
+reportstub SCardOpList		{ dl600data=SCardOpList,		"@{view_scardop}"}
 reportstub RptInfo			{ dl600data=RptInfo,			"Сведения об отчетах Сравнительный анализ цен"}
 reportstub QuotList			{ dl600data=QuotView,			"Список котировок"}
 reportstub QuotList_Loc		{ dl600data=QuotView,			"Список котировок (в выбранным складом)"}

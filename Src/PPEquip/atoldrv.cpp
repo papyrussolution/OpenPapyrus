@@ -732,8 +732,7 @@ SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 						}
 					}
 				}
-				json_free_value(&p_json_doc);
-				p_json_doc = 0;
+				ZDELETE(p_json_doc);
 			}
 		}
 		else {
@@ -884,8 +883,7 @@ ComDispInterface * SLAPI SCS_ATOLDRV::InitDisp()
 	return p_disp;
 }
 
-//virtual
-int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
+/*virtual*/int SLAPI SCS_ATOLDRV::EditParam(void * pDevNum)
 {
 	int    ok = 1;
 	long   dev_num = pDevNum ? *static_cast<const long *>(pDevNum) : 1;
@@ -1623,8 +1621,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	return ok;
 }
 
-//virtual
-int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
+/*virtual*/int SLAPI SCS_ATOLDRV::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;
 	SlipDocCommonParam sdc_param;
@@ -1831,8 +1828,7 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 	return ok;
 }
 
-//virtual 
-int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
+/*virtual*/int SLAPI SCS_ATOLDRV::PrintBnkTermReport(const char * pZCheck)
 {
 	int    ok = 1;
 	size_t zc_len = sstrlen(pZCheck);

@@ -185,8 +185,7 @@ TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1
 	//WoScrollbars = false;
 }
 
-//virtual
-TBaseBrowserWindow::IdentBlock & TBaseBrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
+/*virtual*/TBaseBrowserWindow::IdentBlock & TBaseBrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = 0;
 	rBlk.ClsName.Z();
@@ -819,8 +818,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOption
 	HelpCtx = _rezID; // @Muxa
 }
 
-//virtual
-TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
+/*virtual*/TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasBrowser;
 	rBlk.ClsName = SUcSwitch(BrowserWindow::WndClsName); // @unicodeproblem

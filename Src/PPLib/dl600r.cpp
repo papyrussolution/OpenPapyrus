@@ -79,8 +79,7 @@ CtmExpr * SLAPI DlContext::UnpFormArray::Get(DLSYMBID scopeID, uint fldPos)
 	return (bsearch(&item, &pos, PTR_CMPFUNC(_2long))) ? static_cast<UnpFormItem *>(at(pos))->P_Expr : 0;
 }
 
-//virtual
-void FASTCALL DlContext::UnpFormArray::freeItem(void * pItem)
+/*virtual*/void FASTCALL DlContext::UnpFormArray::freeItem(void * pItem)
 {
 	UnpFormItem * p_item = static_cast<UnpFormItem *>(pItem);
 	if(p_item && p_item->P_Expr) {
@@ -1433,7 +1432,7 @@ int SLAPI DlRtm::Helper_PutItemToJson(ExportParam & rParam, json_t * pRoot)
 	THROW_SL(json_insert_child(pRoot, p_hdr_obj));
 	CATCHZOK
 	if(!ok)
-		json_free_value(&p_hdr_obj);
+		ZDELETE(p_hdr_obj);
 	return ok;
 }
 
@@ -1453,7 +1452,7 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 	}
 	THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	CATCHZOK
-	json_free_value(&p_root_ary);
+	delete p_root_ary;
 	return ok;
 }
 
@@ -1471,7 +1470,7 @@ int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	}
 	CATCHZOK
-	json_free_value(&p_root_ary);
+	delete p_root_ary;
 	return ok;
 }
 
@@ -1490,7 +1489,7 @@ int SLAPI DlRtm::PutToJsonBuffer(PPView * pV, SString & rBuf, int flags)
 		THROW_SL(json_tree_to_string(p_root_ary, rBuf));
 	}
 	CATCHZOK
-	json_free_value(&p_root_ary);
+	delete p_root_ary;
 	return ok;
 }
 //

@@ -3377,7 +3377,8 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 			Generator_GnuPlot::StyleTics xtics;
 
 			plot.StartData(1);
-			plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
+			// @v10.7.10 plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
+			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.10
 			for(c = 0; c < abc_ary.getCount(); c++) {
 				(temp_buf = abc_ary.at(c).Text).ReplaceChar(' ', '_').Transf(CTRANSF_INNER_TO_OUTER);
 				plot.PutData(temp_buf, 1);
@@ -3394,15 +3395,15 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 			}
 			if(goa_total.Cost) {
 				// @v10.5.12 PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Cost"); // @v10.2.2 "_ЦП"-->"Cost"
-				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Cost"); // @v10.5.12 
-				plot.PutData(temp_buf, 1); 
+				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Cost"); // @v10.5.12
+				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).SumCost / goa_total.Cost);
 				plot.PutEOR();
 			}
 			if(goa_total.Price) {
 				// @v10.5.12 PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Price"); // @v10.2.2 "_ЦР"-->"Price"
-				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Price"); // @v10.5.12 
+				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Price"); // @v10.5.12
 				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).SumPrice / goa_total.Price);

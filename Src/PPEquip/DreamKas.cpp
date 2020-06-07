@@ -242,15 +242,14 @@ int SLAPI ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 						}
 					}
 				}
-				json_free_value(&p_json_doc);
-				p_json_doc = 0;
+				ZDELETE(p_json_doc);
 			}
 		}
 		query_offs += ret_count;
 		PPWaitMsg((temp_buf = wait_msg_buf).Space().Cat(query_offs));
 	} while(ret_count > 0 && ret_count == max_chunk_count);
 	CATCHZOK
-	json_free_value(&p_json_doc);
+	delete p_json_doc;
 	return ok;
 }
 
@@ -407,14 +406,13 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 	THROW(SendGoods(&p_iter_ary_to_update, items_to_update_count, 1, 1));
 	THROW(SendGoods(&p_iter_ary_to_create, items_to_create_count, 0, 1));
 	CATCHZOK
-	json_free_value(&p_iter_ary_to_create);
-	json_free_value(&p_iter_ary_to_update);
+	delete p_iter_ary_to_create;
+	delete p_iter_ary_to_update;
 	ZFREE(p_json_buf);
 	return ok;
 }
 
-//virtual 
-int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
+/*virtual*/int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 {
 	int    ok = 1;
 	//
@@ -533,8 +531,7 @@ int SLAPI ACS_DREAMKAS::ExportData(int updOnly)
 	return ok;
 }
 
-//virtual 
-int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd)
+/*virtual*/int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd)
 { 
 	Scb.Reset();
 	int    ok = -1;
@@ -624,8 +621,7 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 						}
 					}
 				}
-				json_free_value(&p_json_doc);
-				p_json_doc = 0;
+				ZDELETE(p_json_doc);
 			}
 		}
 		query_offs += ret_count;
@@ -633,10 +629,10 @@ int SLAPI ACS_DREAMKAS::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 	} while(ret_count > 0 && ret_count == max_chunk_count);
 	if(Scb.SessList.getCount())
 		ok = 1;
-	ASSIGN_PTR(pSessCount, (int)Scb.SessList.getCount());
+	ASSIGN_PTR(pSessCount, Scb.SessList.getCountI());
 	ASSIGN_PTR(pIsForwardSess, 0);
 	CATCHZOK
-	json_free_value(&p_json_doc);
+	delete p_json_doc;
 	return ok;
 }
 
@@ -833,8 +829,7 @@ int SLAPI ACS_DREAMKAS::AcceptCheck(const json_t * pJsonObj)
 	return ok;
 }
 
-//virtual 
-int SLAPI ACS_DREAMKAS::InteractiveQuery()
+/*virtual*/int SLAPI ACS_DREAMKAS::InteractiveQuery()
 {
 	int    ok = -1;
 	/*
@@ -849,8 +844,7 @@ int SLAPI ACS_DREAMKAS::InteractiveQuery()
 	return ok;
 }
 
-//virtual 
-int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
+/*virtual*/int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 { 
 	int    ok = -1;
 	json_t * p_json_doc = 0;
@@ -927,19 +921,15 @@ int SLAPI ACS_DREAMKAS::ImportSession(int sessIdx)
 					THROW(tra.Commit());
 					ok = 1;
 				}
-				json_free_value(&p_json_doc);
-				p_json_doc = 0;
+				ZDELETE(p_json_doc);
 			}
 			query_offs += ret_count;
 		} while(ret_count > 0 && ret_count == max_chunk_count);
 	}
 	CATCHZOK
-	json_free_value(&p_json_doc);
+	delete p_json_doc;
 	return ok;
 }
-//virtual 
-int SLAPI ACS_DREAMKAS::FinishImportSession(PPIDArray *)
-	{ return -1; }
-//virtual 
-int SLAPI ACS_DREAMKAS::SetGoodsRestLoadFlag(int updOnly)
-	{ return -1; }
+
+/*virtual*/int SLAPI ACS_DREAMKAS::FinishImportSession(PPIDArray *) { return -1; }
+/*virtual*/int SLAPI ACS_DREAMKAS::SetGoodsRestLoadFlag(int updOnly) { return -1; }

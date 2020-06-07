@@ -796,16 +796,14 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 	return ok;
 }
 
-//virtual
-ListBoxDef * SLAPI PPObjSCardSeries::Selector(void * extraPtr)
+/*virtual*/ListBoxDef * SLAPI PPObjSCardSeries::Selector(void * extraPtr)
 {
 	ListBoxDef * p_def = PPObject::Selector(extraPtr);
 	AssignImages(p_def);
 	return p_def;
 }
 
-//virtual
-int SLAPI PPObjSCardSeries::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+/*virtual*/int SLAPI PPObjSCardSeries::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
 {
 	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
 	if(ok > 0)
@@ -1737,8 +1735,7 @@ IMPL_HANDLE_EVENT(PPObjSCardSeriesListWindow)
 	}
 }
 
-//virtual
-void * SLAPI PPObjSCardSeries::CreateObjListWin(uint flags, void * extraPtr)
+/*virtual*/void * SLAPI PPObjSCardSeries::CreateObjListWin(uint flags, void * extraPtr)
 {
 	return new PPObjSCardSeriesListWindow(this, flags, extraPtr);
 }
@@ -1793,8 +1790,7 @@ PPID FASTCALL PPObjSCard::GetChargeGoodsID(PPID cardID)
 }
 
 int SLAPI PPObjSCard::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<SCardTbl::Rec *>(b)); }
-//virtual
-const char * SLAPI PPObjSCard::GetNamePtr() { return P_Tbl->data.Code; }
+/*virtual*/const char * SLAPI PPObjSCard::GetNamePtr() { return P_Tbl->data.Code; }
 
 int SLAPI PPObjSCard::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 {
@@ -4679,8 +4675,7 @@ PPSCardImpExpParam::PPSCardImpExpParam(uint recId, long flags) : PPImpExpParam(r
 {
 }
 
-//virtual
-int PPSCardImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/*virtual*/int PPSCardImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;

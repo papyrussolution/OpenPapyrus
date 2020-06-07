@@ -1304,19 +1304,11 @@
 #define PPTAG_PERSON_CHZNCODE       92L // @v10.6.4 Код контрагента в честном знаке
 #define PPTAG_LOC_CHZNCODE          93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
 #define PPTAG_GUA_CHZNCODE          94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
+#define PPTAG_GUA_PROTOCOL          95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
 #define PPGUAID_UHTT_CORE      1L // Universe-HTT
-#if 0 // @v7.8.0 {
-	//
-	// Классы оборудования. Нужны для определения устройства в ppdrv.ini
-	//
-	#define PPDVC_CACHMCHN		   1L // Кассы
-	#define PPDVC_SCALES		   2L // Электронные весы
-	#define PPDVC_CUSTDISP		   3L // Дисплеи покупателей
-	#define PPDVC_BNKTERM		   4L // POS-треминалы
-#endif // } 0 @v7.8.0
 //
 // Типы кассовых систем
 // Очень специфичная штука. Все типы покамест будем резервировать и жестко привязываться в программе к ним.
@@ -1353,7 +1345,6 @@
 #define PPCMT_LAST_DYN_DVC  500L // @v10.0.04 Последний допустимый идентификатор динамически подгружаемого драйвера
 // Все новые статически идентифицируемые устройсва должны иметь идент >PPCMT_LAST_DYN_DVC
 #define PPCMT_DREAMKAS      501L // @v10.0.04 DREAMKAS
-
 //
 // Типы принтеров штрихкодов
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_BCPT.
@@ -1438,7 +1429,7 @@
 #define BBT_CLIENTRPAYMENT      6
 #define BBT_DRAFTBILLS          7
 #define BBT_REALTYPES           8  // Товарные, бухгалтерские документы и оплаты
-#define BBT_WMSBILLS            9  // @v6.1.1 Документы складских операций
+#define BBT_WMSBILLS            9  // Документы складских операций
 //
 // Вид анализа счета. Применяются в PPViewAccAnlz
 // Перечисление AccAnlzKind (pp.h) однозначно проецируется в эти константы.
@@ -4381,6 +4372,7 @@
 #define DLG_PSNEVNT               334 // Персональные событи
 	#define cmPsnEvntRegister         101
 	#define cmPsnEvntLocation         102
+	#define cmVkApiPost               103
 	#define CTL_PSNEVNT_PRMR             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNEVNT_PRMR          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_SCND             (3 + WINDOWS_ID_BIAS)
@@ -10894,7 +10886,9 @@
 	#define CTL_TSSMODEL_SPPS         (29  + IMPEXP_CTL_BIAS) //
 	#define CTL_TSSMODEL_CQAMATCH     (30  + IMPEXP_CTL_BIAS) //
 	#define CTL_TSSMODEL_MINSIMIL     (31  + IMPEXP_CTL_BIAS) //
+	#define CTL_TSSMODEL_ADOPTSLTS    (32  + IMPEXP_CTL_BIAS) //
 #define DLG_TSSMODELVIEW          1381
+
 #define DLG_TSOELGRAPH            1382
 	#define CTL_TSOELGRAPH_FILE      (1  + IMPEXP_CTL_BIAS) //
 	#define CTLSEL_TSOELGRAPH_FILE   (2  + IMPEXP_CTL_BIAS) //
@@ -10906,7 +10900,19 @@
 	#define CTL_RTDYNOBJ_SFLAGS      (11 + IMPEXP_CTL_BIAS) //
 #define DLG_BRANDTOTAL            1384 // Итоги по выборке брэндов
 	#define CTL_BRANDTOTAL_COUNT     (1 + WINDOWS_ID_BIAS)
-//
+#define DLG_VK_API                1385
+	#define cmVkTestGTA               101
+	#define cmOpenDlgSendMsg          102
+	#define cmOpenDlgPost             103
+	#define CTL_TESTVK_TOKEN          (1 + IMPEXP_CTL_BIAS)
+	#define CTL_TESTVK_MSG            (2 + IMPEXP_CTL_BIAS)
+    #define CTL_VK_FRIENDS_LIST      (3 + IMPEXP_CTL_BIAS)
+#define DLG_VK_SENDMSG            1386
+	#define cmSendVkMsg               101
+	#define CTL_VK_MSG                (1 + IMPEXP_CTL_BIAS)
+#define DLG_VK_POST               1387
+    #define cmSendVkPost              101
+    #define CTL_VK_POST_TEXT          (1 + IMPEXP_CTL_BIAS)//
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

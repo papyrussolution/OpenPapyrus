@@ -177,8 +177,11 @@ struct ReportDescrEntry {
 
 struct PrnDlgAns {
 	SLAPI  PrnDlgAns(const char * pReportName);
+	SLAPI  PrnDlgAns(const PrnDlgAns & rS);
 	SLAPI ~PrnDlgAns();
+	PrnDlgAns & FASTCALL operator = (const PrnDlgAns & rS);
 	int    SLAPI SetupReportEntries(const char * pContextSymb);
+	PrnDlgAns & FASTCALL Copy(const PrnDlgAns & rS);
 
 	enum {
 		aUndef = 0,
@@ -199,8 +202,8 @@ struct PrnDlgAns {
 	int    Selection;
 	uint   NumCopies;
 	long   Flags;
-	const  char * P_ReportName;
-	const  char * P_DefPrnForm;
+	SString ReportName;
+	SString DefPrnForm;
 	SString PrepareDataPath;
 	SString Printer;
 	SString EmailAddr;
@@ -322,7 +325,7 @@ public:
 	int    SLAPI setPrinter(SPrinter*);
 	int    SLAPI setDefaultPrinter();
 	int    SLAPI getNumCopies() const;
-	int    SLAPI setNumCopies(int);
+	void   SLAPI setNumCopies(int);
 	int    SLAPI enumFields(SReport::Field **, SReport::Band *, int *);
 	int    SLAPI getFieldName(SReport::Field *, char * buf, size_t buflen);
 	int    SLAPI getFieldName(int id, char * buf, size_t buflen);

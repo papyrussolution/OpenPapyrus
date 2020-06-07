@@ -820,8 +820,7 @@ int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return 1;
 }
 
-//virtual
-void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
+/*virtual*/void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(TVCOMMAND) {
 		if(TVCMD == CmNewColor && event.isCtlEvent(CtlNewColor)) {

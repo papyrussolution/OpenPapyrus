@@ -432,7 +432,6 @@ int SLAPI PPViewTSession::InitIteration(int order)
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	Ib.Init(order);
-
 	int    ok = 1, idx = 0;
 	if(!(State & stEmpty)) {
 		if(P_TempTbl) {
@@ -637,7 +636,6 @@ int SLAPI PPViewTSession::GetUhttStoreExtension(const TSessionTbl::Rec & rItem, 
 DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	static DbqStringSubst status_subst(5); // @global @threadsafe
-
 	uint   brw_id = 0;
 	if(Filt.Flags & TSessionFilt::fManufPlan)
 		brw_id = BROWSER_TSESS_MANUFPLAN;
@@ -676,13 +674,10 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	q->addField(p_tsst->ActQtty);     //  #10
 	q->addField(*dbe_diff_qtty);      //  #11
 	q->addField(p_tsst->Incomplete);  //  #12
-
 	q->addField(p_tsst->Amount);      //  #13
 	q->addField(dbe_ar);              //  #14
 	q->addField(dbe_goods);           //  #15
-
 	q->addField(p_tsst->Memo);        //  #16
-
 	delete dbe_status;
 	delete dbe_diff_qtty;
 	if(p_ord) {

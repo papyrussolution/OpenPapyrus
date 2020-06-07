@@ -372,8 +372,7 @@ int SLAPI PPCommandItem::IsEqual(const void * pCommand) const  //@erik v10.6.1
 	return 1;
 }
 
-//virtual
-void SLAPI PPCommandItem::SetUniqueID(long * pID)
+/*virtual*/void SLAPI PPCommandItem::SetUniqueID(long * pID)
 {
 	ID = *pID;
 	(*pID)++;
@@ -552,8 +551,7 @@ int SLAPI PPCommandFolder::GetUniqueID(long * pID) const
 	return 1;
 }
 
-//virtual
-void SLAPI PPCommandFolder::SetUniqueID(long * pID)
+/*virtual*/void SLAPI PPCommandFolder::SetUniqueID(long * pID)
 {
 	PPCommandItem::SetUniqueID(pID);
 	for(uint i = 0; i < List.getCount(); i++)

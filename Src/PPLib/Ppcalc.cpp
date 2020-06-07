@@ -254,7 +254,7 @@ SLAPI CalcPriceParam::CalcPriceParam()
 	THISZERO();
 }
 
-static const char * WrParam_CalcPriceParam = "CalcPriceParam";
+//static const char * WrParam_CalcPriceParam = "CalcPriceParam";
 
 int SLAPI CalcPriceParam::Save() const
 {
@@ -267,7 +267,7 @@ int SLAPI CalcPriceParam::Save() const
 	ss.add(intfmt(RoundDir, 0, temp_buf));
 	ss.add(intfmt(BIN(Flags & fRoundVat), 0, temp_buf));
 	ss.add(intfmt(BIN(Flags & fVatAboveAddition), 0, temp_buf));
-	reg_key.PutString(WrParam_CalcPriceParam, ss.getBuf());
+	reg_key.PutString(_PPConst.WrParam_CalcPriceParam, ss.getBuf());
 	return 1;
 }
 
@@ -277,7 +277,7 @@ int SLAPI CalcPriceParam::Restore()
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::PrefSettings, 1); // @v9.2.0 readonly 0-->1
 	//char   buf[128];
 	SString temp_buf;
-	if(reg_key.GetString(WrParam_CalcPriceParam, temp_buf)) {
+	if(reg_key.GetString(_PPConst.WrParam_CalcPriceParam, temp_buf)) {
 		StringSet ss(';', temp_buf);
 		uint   pos = 0;
 		if(ss.get(&pos, temp_buf)) {

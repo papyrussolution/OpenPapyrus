@@ -968,8 +968,7 @@ int SLAPI PPObject::RemoveSync(PPID id)
 	return ok;
 }
 
-//virtual
-int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
+/*virtual*/int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    r;
 	if(!(options & not_checkrights))
@@ -1058,8 +1057,7 @@ int SLAPI PPObject::ProcessObjListRefInArray(PPID objTypeID, PPIDArray & rList, 
 	return 1;
 }
 
-//virtual
-void * SLAPI PPObject::CreateObjListWin(uint aFlags, void * extraPtr)
+/*virtual*/void * SLAPI PPObject::CreateObjListWin(uint aFlags, void * extraPtr)
 {
 	return 0;
 }
@@ -1111,8 +1109,7 @@ SLAPI ObjCollection::~ObjCollection()
 		ZDELETE(p_entry->ObjPtr);
 }
 
-//virtual
-void FASTCALL ObjCollection::freeItem(void * pItem)
+/*virtual*/void FASTCALL ObjCollection::freeItem(void * pItem)
 {
 	delete static_cast<ObjCollectionEntry *>(pItem)->ObjPtr;
 	SArray::freeItem(pItem);

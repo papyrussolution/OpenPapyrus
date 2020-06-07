@@ -5429,8 +5429,30 @@ public:
 		SString title;
 		setTitle(PPLoadTextS(PPTXT_EDITMEMOS, title));
 	}
-	int    setDTS(const SString & rMemos);
-	int    getDTS(SString & rMemos);
+	int    setDTS(const SString & rMemos)
+	{
+		SString buf;
+		StringSet ss(_PPConst.P_ObjMemoDelim);
+		Memos.Z();
+		ss.setBuf(rMemos);
+		for(uint i = 0, j = 1; ss.get(&i, buf) > 0; j++)
+			Memos.Add((long)j, 0, buf, 0);
+		updateList(-1);
+		return 1;
+	}
+	int    getDTS(SString & rMemos)
+	{
+		SString buf;
+		rMemos.Z();
+		for(uint i = 0; i < Memos.getCount(); i++) {
+			buf = Memos.Get(i).Txt;
+			buf.ReplaceStr(_PPConst.P_ObjMemoDelim, "", 0);
+			if(i != 0)
+				rMemos.Cat(_PPConst.P_ObjMemoDelim);
+			rMemos.Cat(buf);
+		}
+		return 1;
+	}
 private:
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
@@ -5439,32 +5461,6 @@ private:
 
 	StrAssocArray Memos;
 };
-
-int EditMemosDialog::setDTS(const SString & rMemos)
-{
-	SString buf;
-	StringSet ss(_PPConst.P_ObjMemoDelim);
-	Memos.Z();
-	ss.setBuf(rMemos);
-	for(uint i = 0, j = 1; ss.get(&i, buf) > 0; j++)
-		Memos.Add((long)j, 0, buf, 0);
-	updateList(-1);
-	return 1;
-}
-
-int EditMemosDialog::getDTS(SString & rMemos)
-{
-	SString buf;
-	rMemos.Z();
-	for(uint i = 0; i < Memos.getCount(); i++) {
-		buf = Memos.Get(i).Txt;
-		buf.ReplaceStr(_PPConst.P_ObjMemoDelim, "", 0);
-		if(i != 0)
-			rMemos.Cat(_PPConst.P_ObjMemoDelim);
-		rMemos.Cat(buf);
-	}
-	return 1;
-}
 
 /*virtual*/int EditMemosDialog::setupList()
 {
@@ -5628,7 +5624,6 @@ private:
 				MCellLen = (item.b.x - item.a.x) / minuts_in_line;
 			}
 		}
-
 		int GetTimeByCoord(long x, long y, long * pHour, long * pMinut)
 		{
 			long   h = -1, m = -1;
@@ -5650,10 +5645,12 @@ private:
 						m = ((p.x - item.a.x) / MCellLen + i * mins_in_line) * 5;
 				}
 			}
-			if(pHour && h != -1)
-				*pHour = h;
-			if(pMinut && m != -1)
-				*pMinut = m;
+			if(h != -1) {
+				ASSIGN_PTR(pHour, h);
+			}
+			if(m != -1) {
+				ASSIGN_PTR(pMinut, m);
+			}
 			return 1;
 		}
 
@@ -5678,9 +5675,9 @@ TimePickerDialog::TimePickerDialog() : TDialog(DLG_TMPICKR)
 	Ptb.SetBrush(brSelected,      SPaintObj::psSolid, GetColorRef(SClrBlack), 0);
 	Ptb.SetBrush(brMainRect,      SPaintObj::psSolid, RGB(0xC0, 0xC0, 0xC0), 0);
 	Ptb.SetBrush(brWhiteRect,     SPaintObj::psSolid, LightenColor(GetColorRef(SClrGrey), 0.8f), 0);
-	Ptb.SetBrush(brSquare,        SPaintObj::psSolid, LightenColor(GetColorRef(SClrBrown), 0.5f), 0);
+	Ptb.SetBrush(brSquare,        SPaintObj::psSolid, LightenColor(GetColorRef(SClrAqua), 0.5f), 0); // @v10.7.10 SClrBrown-->SClrAqua
 	Ptb.SetPen(penWhite,          SPaintObj::psSolid, 1, GetColorRef(SClrWhite));
-	Ptb.SetPen(penSquare,         SPaintObj::psSolid, 2, GetColorRef(SClrBlue));
+	Ptb.SetPen(penSquare,         SPaintObj::psSolid, 2, GetColorRef(SClrBlue)); // @v10.7.10 width 2-->1
 	Ptb.SetPen(penBlack,          SPaintObj::psSolid, 1, GetColorRef(SClrBlack));
 	Ptb.SetPen(penBlue,           SPaintObj::psSolid, 1, GetColorRef(SClrLightblue));
 	{
@@ -5891,7 +5888,8 @@ void TimePickerDialog::Implement_Draw()
 					canv.SelectObjectAndPush(Ptb.Get(brSelected));
 				else
 					canv.SelectObjectAndPush(Ptb.Get(brSquare));
-				canv.RoundRect(text_rect, round_pt);
+				// @v10.7.10 canv.RoundRect(text_rect, round_pt);
+				canv.Rectangle(text_rect); // @v10.7.10
 				if(h_ >= 8 && h_ <= 20)
 					font_id = fontWorkHours;
 				color = (h_ == h) ? GetColorRef(SClrWhite) : GetColorRef(SClrBlack);
@@ -5926,7 +5924,8 @@ void TimePickerDialog::Implement_Draw()
 					canv.SelectObjectAndPush(Ptb.Get(brSelected));
 				else
 					canv.SelectObjectAndPush(Ptb.Get(brSquare));
-				canv.RoundRect(text_rect, round_pt);
+				// @v10.7.10 canv.RoundRect(text_rect, round_pt);
+				canv.Rectangle(text_rect); // @v10.7.10
 				canv.PopObject();
 				canv.PopObject();
 				font_id = oneof4(min5, 0, 15, 30, 45) ? fontWorkHours : fontHours;
@@ -5965,7 +5964,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 		}
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
-			TimeButtonWndEx * p_cbwe = (TimeButtonWndEx *)TView::GetWindowUserData(hWnd);
+			TimeButtonWndEx * p_cbwe = static_cast<TimeButtonWndEx *>(TView::GetWindowUserData(hWnd));
 			switch(message) {
 				case WM_DESTROY:
 					TView::SetWindowProp(hWnd, GWLP_USERDATA, static_cast<void *>(0));
@@ -6167,11 +6166,8 @@ protected:
 int EmailListDlg::setupList()
 {
 	int    ok = 1;
-	SString temp_buf;
 	for(uint i = 0; i < Data.getCount(); i++) {
-		long   id = Data.Get(i).Id;
-		temp_buf = Data.Get(i).Txt;
-		if(!addStringToList(id, temp_buf))
+		if(!addStringToList(Data.Get(i).Id, Data.Get(i).Txt))
 			ok = PPErrorZ();
 	}
 	return ok;
@@ -6264,12 +6260,13 @@ SLAPI EmailToBlock::EmailToBlock() : MailAccID(0)
 int SLAPI EmailToBlock::Edit(long flags)
 {
 	class EmailToBlockDialog : public TDialog {
+		DECL_DIALOG_DATA(EmailToBlock);
 	public:
 		explicit EmailToBlockDialog(long flags) : TDialog(DLG_MAILTO), Flags(0)
 		{
 			addGroup(ctlgroupEmailList, new EmailCtrlGroup(CTL_MAILTO_ADDR, cmEMailList));
 		}
-		int    setDTS(const EmailToBlock * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -6282,7 +6279,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 			}
 			return ok;
 		}
-		int    getDTS(EmailToBlock * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTLSEL_MAILTO_ACCNT, &Data.MailAccID);
@@ -6300,7 +6297,6 @@ int SLAPI EmailToBlock::Edit(long flags)
 			ctlgroupEmailList = 1
 		};
 		long   Flags;
-		EmailToBlock Data;
 	};
     DIALOG_PROC_BODY_P1(EmailToBlockDialog, 0, this);
 }
@@ -6336,7 +6332,7 @@ int SendMailDialog::setupList()
 	SString temp_buf;
 	char * p_path = 0;
 	for(uint i = 0; ok && Data.FilesList.enumItems(&i, (void **)&p_path);) {
-		(temp_buf = p_path).ToOem();
+		(temp_buf = p_path).Transf(CTRANSF_OUTER_TO_INNER);
 		if(!addStringToList(i, temp_buf))
 			ok = PPErrorZ();
 	}
@@ -6365,7 +6361,7 @@ int SendMailDialog::setupList()
 /*virtual*/int SendMailDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.FilesList.getCount()) {
+	if(pos >= 0 && pos < Data.FilesList.getCountI()) {
 		SString path = Data.FilesList.at(pos);
 		if(PPOpenFile(PPTXT_FILPAT_ALL, path,  0, 0) > 0) {
 			uint p = 0;
@@ -6384,7 +6380,7 @@ int SendMailDialog::setupList()
 /*virtual*/int SendMailDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.FilesList.getCount()) {
+	if(pos >= 0 && pos < Data.FilesList.getCountI()) {
 		Data.FilesList.atFree(pos);
 		ok = 1;
 	}
