@@ -54,6 +54,7 @@
 #include <slib.h>
 
 #define GSOAP_LIB_VERSION 20808
+//#define WITH_COMPAT // @v10.7.11
 
 #ifdef AS400
 	#pragma convert(819)	/* EBCDIC to ASCII */

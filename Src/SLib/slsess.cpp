@@ -334,6 +334,8 @@ static void InitTest()
 	assert(sizeof(uint32) == 4);
 	assert(sizeof(int64) == 8);
 	assert(sizeof(uint64) == 8);
+	assert(sizeof(float) == 4); // @v10.7.11
+	assert(sizeof(double) == 8); // @v10.7.11
 	assert(sizeof(S_GUID) == 16);
 	assert(sizeof(SColorBase) == 4); // @v10.2.4
 	assert(sizeof(SColor) == sizeof(SColorBase)); // @v10.2.4

@@ -104,7 +104,7 @@ static int LZMASetupDecode(TIFF* tif)
  */
 static int LZMAPreDecode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "LZMAPreDecode";
+	static const char module[] = __FUNCTION__;
 	LZMAState* sp = DecoderState(tif);
 	lzma_ret ret;
 	(void)s;
@@ -131,7 +131,7 @@ static int LZMAPreDecode(TIFF* tif, uint16 s)
 
 static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "LZMADecode";
+	static const char module[] = __FUNCTION__;
 	LZMAState* sp = DecoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -196,7 +196,7 @@ static int LZMASetupEncode(TIFF* tif)
  */
 static int LZMAPreEncode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "LZMAPreEncode";
+	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -216,7 +216,7 @@ static int LZMAPreEncode(TIFF* tif, uint16 s)
  */
 static int LZMAEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "LZMAEncode";
+	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
 	assert(sp != NULL);
 	assert(sp->state == LSTATE_INIT_ENCODE);
@@ -250,10 +250,9 @@ static int LZMAEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  */
 static int LZMAPostEncode(TIFF* tif)
 {
-	static const char module[] = "LZMAPostEncode";
+	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
 	lzma_ret ret;
-
 	sp->stream.avail_in = 0;
 	do {
 		ret = lzma_code(&sp->stream, LZMA_FINISH);
@@ -296,7 +295,7 @@ static void LZMACleanup(TIFF* tif)
 
 static int LZMAVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
-	static const char module[] = "LZMAVSetField";
+	static const char module[] = __FUNCTION__;
 	LZMAState* sp = LState(tif);
 	switch(tag) {
 		case TIFFTAG_LZMAPRESET:
@@ -337,7 +336,7 @@ static const TIFFField lzmaFields[] = {
 
 int TIFFInitLZMA(TIFF* tif, int scheme)
 {
-	static const char module[] = "TIFFInitLZMA";
+	static const char module[] = __FUNCTION__;
 	LZMAState* sp;
 	lzma_stream tmp_stream = LZMA_STREAM_INIT;
 	assert(scheme == COMPRESSION_LZMA);

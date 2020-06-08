@@ -186,7 +186,7 @@ static int LZWFixupTags(TIFF* tif)
 
 static int LZWSetupDecode(TIFF* tif)
 {
-	static const char module[] = "LZWSetupDecode";
+	static const char module[] = __FUNCTION__;
 	LZWCodecState* sp = DecoderState(tif);
 	int code;
 	if(sp == NULL) {
@@ -236,7 +236,7 @@ static int LZWSetupDecode(TIFF* tif)
  */
 static int LZWPreDecode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "LZWPreDecode";
+	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -326,7 +326,7 @@ static void codeLoop(TIFF* tif, const char* module)
 
 static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 {
-	static const char module[] = "LZWDecode";
+	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
 	char * op = (char *)op0;
 	long occ = (long)occ0;
@@ -538,7 +538,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 
 static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 {
-	static const char module[] = "LZWDecodeCompat";
+	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
 	char * op = (char *)op0;
 	long occ = (long)occ0;
@@ -724,7 +724,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 
 static int LZWSetupEncode(TIFF* tif)
 {
-	static const char module[] = "LZWSetupEncode";
+	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = EncoderState(tif);
 	assert(sp != NULL);
 	sp->enc_hashtab = static_cast<hash_t *>(SAlloc::M(HSIZE*sizeof(hash_t)));
@@ -1046,7 +1046,7 @@ static void LZWCleanup(TIFF* tif)
 
 int TIFFInitLZW(TIFF* tif, int scheme)
 {
-	static const char module[] = "TIFFInitLZW";
+	static const char module[] = __FUNCTION__;
 	assert(scheme == COMPRESSION_LZW);
 	/*
 	 * Allocate state block so tag methods have storage to record values.

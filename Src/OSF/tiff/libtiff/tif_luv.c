@@ -176,7 +176,7 @@ struct logLuvState {
  */
 static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "LogL16Decode";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = DecoderState(tif);
 	int shft;
 	tmsize_t i;
@@ -241,7 +241,7 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
  */
 static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "LogLuvDecode24";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = DecoderState(tif);
 	tmsize_t cc;
 	tmsize_t i;
@@ -287,7 +287,7 @@ static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
  */
 static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "LogLuvDecode32";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp;
 	int shft;
 	tmsize_t i;
@@ -389,7 +389,7 @@ static int LogLuvDecodeTile(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  */
 static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "LogL16Encode";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
 	int shft;
 	tmsize_t i;
@@ -483,7 +483,7 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  */
 static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "LogLuvEncode24";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
 	tmsize_t i;
 	tmsize_t npixels;
@@ -533,7 +533,7 @@ static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  */
 static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "LogLuvEncode32";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
 	int shft;
 	tmsize_t i;
@@ -1161,7 +1161,7 @@ static tmsize_t FASTCALL multiply_ms(tmsize_t m1, tmsize_t m2)
 
 static int LogL16InitState(TIFF* tif)
 {
-	static const char module[] = "LogL16InitState";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	LogLuvState * sp = DecoderState(tif);
 	assert(sp != NULL);
@@ -1234,7 +1234,7 @@ static int LogLuvGuessDataFmt(TIFFDirectory * td)
 
 static int LogLuvInitState(TIFF* tif)
 {
-	static const char module[] = "LogLuvInitState";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory* td = &tif->tif_dir;
 	LogLuvState* sp = DecoderState(tif);
 	assert(sp != NULL);
@@ -1274,7 +1274,7 @@ static int LogLuvFixupTags(TIFF* tif)
 
 static int LogLuvSetupDecode(TIFF* tif)
 {
-	static const char module[] = "LogLuvSetupDecode";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = DecoderState(tif);
 	TIFFDirectory* td = &tif->tif_dir;
 	tif->tif_postdecode = _TIFFNoPostDecode;
@@ -1317,7 +1317,7 @@ static int LogLuvSetupDecode(TIFF* tif)
 
 static int LogLuvSetupEncode(TIFF* tif)
 {
-	static const char module[] = "LogLuvSetupEncode";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = EncoderState(tif);
 	TIFFDirectory* td = &tif->tif_dir;
 
@@ -1404,7 +1404,7 @@ static void LogLuvCleanup(TIFF* tif)
 
 static int LogLuvVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
-	static const char module[] = "LogLuvVSetField";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp = DecoderState(tif);
 	int bps, fmt;
 	switch(tag) {
@@ -1462,7 +1462,7 @@ static const TIFFField LogLuvFields[] = {
 
 int TIFFInitSGILog(TIFF* tif, int scheme)
 {
-	static const char module[] = "TIFFInitSGILog";
+	static const char module[] = __FUNCTION__;
 	LogLuvState* sp;
 	assert(scheme == COMPRESSION_SGILOG24 || scheme == COMPRESSION_SGILOG);
 	/*

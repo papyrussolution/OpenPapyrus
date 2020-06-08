@@ -301,47 +301,32 @@ void _cairo_gl_operand_translate(cairo_gl_operand_t * operand,
 	}
 }
 
-static cairo_status_t _cairo_gl_gradient_operand_init(cairo_gl_operand_t * operand,
-    const cairo_pattern_t * pattern,
-    cairo_gl_surface_t * dst,
-    boolint use_texgen)
+static cairo_status_t _cairo_gl_gradient_operand_init(cairo_gl_operand_t * operand, const cairo_pattern_t * pattern,
+    cairo_gl_surface_t * dst, boolint use_texgen)
 {
 	const cairo_gradient_pattern_t * gradient = (const cairo_gradient_pattern_t*)pattern;
 	cairo_status_t status;
-
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
+	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
 	if(!_cairo_gl_device_has_glsl(dst->base.device))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
-	status = _cairo_gl_create_gradient_texture(dst,
-		gradient,
-		&operand->gradient.gradient);
+	status = _cairo_gl_create_gradient_texture(dst, gradient, &operand->gradient.gradient);
 	if(unlikely(status))
 		return status;
-
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
 		cairo_linear_pattern_t * linear = (cairo_linear_pattern_t*)gradient;
 		double x0, y0, dx, dy, sf, offset;
-
 		dx = linear->pd2.x - linear->pd1.x;
 		dy = linear->pd2.y - linear->pd1.y;
 		sf = 1.0 / (dx * dx + dy * dy);
 		dx *= sf;
 		dy *= sf;
-
 		x0 = linear->pd1.x;
 		y0 = linear->pd1.y;
 		offset = dx * x0 + dy * y0;
-
 		operand->type = CAIRO_GL_OPERAND_LINEAR_GRADIENT;
-
 		cairo_matrix_init(&operand->gradient.m, dx, 0, dy, 1, -offset, 0);
 		if(!_cairo_matrix_is_identity(&pattern->matrix)) {
-			cairo_matrix_multiply(&operand->gradient.m,
-			    &pattern->matrix,
-			    &operand->gradient.m);
+			cairo_matrix_multiply(&operand->gradient.m, &pattern->matrix, &operand->gradient.m);
 		}
 	}
 	else {

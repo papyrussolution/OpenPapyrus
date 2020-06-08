@@ -364,8 +364,8 @@ static const char * _line_join_to_string(cairo_line_join_t line_join)
 }
 
 static inline cairo_script_context_t * to_context(const cairo_script_surface_t * surface)
-	{ return (cairo_script_context_t *)surface->base.device; }
-static boolint target_is_active(const cairo_script_surface_t * surface)
+	{ return reinterpret_cast<cairo_script_context_t *>(surface->base.device); }
+static boolint FASTCALL target_is_active(const cairo_script_surface_t * surface)
 	{ return cairo_list_is_first(&surface->operand.link, &to_context(surface)->operands); }
 static void target_push(cairo_script_surface_t * surface)
 	{ cairo_list_move(&surface->operand.link, &to_context(surface)->operands); }

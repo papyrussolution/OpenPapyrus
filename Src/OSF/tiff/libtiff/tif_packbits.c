@@ -209,12 +209,11 @@ static int PackBitsEncodeChunk(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 
 static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "PackBitsDecode";
+	static const char module[] = __FUNCTION__;
 	char * bp;
 	tmsize_t cc;
 	long n;
 	int b;
-
 	(void)s;
 	bp = (char *)tif->tif_rawcp;
 	cc = tif->tif_rawcc;

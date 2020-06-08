@@ -419,11 +419,9 @@ static void OJPEGLibjpegJpegSourceMgrTermSource(jpeg_decompress_struct* cinfo);
 
 int TIFFInitOJPEG(TIFF* tif, int scheme)
 {
-	static const char module[] = "TIFFInitOJPEG";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp;
-
 	assert(scheme==COMPRESSION_OJPEG);
-
 	/*
 	 * Merge codec-specific tag information.
 	 */
@@ -518,7 +516,7 @@ static int OJPEGVGetField(TIFF* tif, uint32 tag, va_list ap)
 
 static int OJPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
-	static const char module[] = "OJPEGVSetField";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint32 ma;
 	uint64* mb;
@@ -638,11 +636,8 @@ static int OJPEGFixupTags(TIFF* tif)
 
 static int OJPEGSetupDecode(TIFF* tif)
 {
-	static const char module[] = "OJPEGSetupDecode";
-	TIFFWarningExt(
-	    tif->tif_clientdata,
-	    module,
-	    "Depreciated and troublesome old-style JPEG compression mode, please convert to new-style JPEG compression and notify vendor of writing software");
+	static const char module[] = __FUNCTION__;
+	TIFFWarningExt(tif->tif_clientdata, module, "Depreciated and troublesome old-style JPEG compression mode, please convert to new-style JPEG compression and notify vendor of writing software");
 	return 1;
 }
 
@@ -733,7 +728,7 @@ static int OJPEGPreDecodeSkipRaw(TIFF* tif)
 
 static int OJPEGPreDecodeSkipScanlines(TIFF* tif)
 {
-	static const char module[] = "OJPEGPreDecodeSkipScanlines";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint32 m;
 	if(!sp->skip_buffer) {
@@ -752,7 +747,7 @@ static int OJPEGPreDecodeSkipScanlines(TIFF* tif)
 
 static int OJPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "OJPEGDecode";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	(void)s;
 	if(!sp->decoder_ok) {
@@ -772,7 +767,7 @@ static int OJPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 
 static int OJPEGDecodeRaw(TIFF* tif, uint8* buf, tmsize_t cc)
 {
-	static const char module[] = "OJPEGDecodeRaw";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8* m;
 	tmsize_t n;
@@ -822,7 +817,7 @@ static int OJPEGDecodeRaw(TIFF* tif, uint8* buf, tmsize_t cc)
 
 static int OJPEGDecodeScanlines(TIFF* tif, uint8* buf, tmsize_t cc)
 {
-	static const char module[] = "OJPEGDecodeScanlines";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8* m;
 	tmsize_t n;
@@ -857,14 +852,14 @@ static void OJPEGPostDecode(TIFF* tif, uint8* buf, tmsize_t cc)
 
 static int OJPEGSetupEncode(TIFF* tif)
 {
-	static const char module[] = "OJPEGSetupEncode";
+	static const char module[] = __FUNCTION__;
 	TIFFErrorExt(tif->tif_clientdata, module, "OJPEG encoding not supported; use new-style JPEG compression instead");
 	return 0;
 }
 
 static int OJPEGPreEncode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "OJPEGPreEncode";
+	static const char module[] = __FUNCTION__;
 	(void)s;
 	TIFFErrorExt(tif->tif_clientdata, module, "OJPEG encoding not supported; use new-style JPEG compression instead");
 	return 0;
@@ -872,7 +867,7 @@ static int OJPEGPreEncode(TIFF* tif, uint16 s)
 
 static int OJPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "OJPEGEncode";
+	static const char module[] = __FUNCTION__;
 	(void)buf;
 	(void)cc;
 	(void)s;
@@ -882,7 +877,7 @@ static int OJPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 
 static int OJPEGPostEncode(TIFF* tif)
 {
-	static const char module[] = "OJPEGPostEncode";
+	static const char module[] = __FUNCTION__;
 	TIFFErrorExt(tif->tif_clientdata, module, "OJPEG encoding not supported; use new-style JPEG compression instead");
 	return 0;
 }
@@ -934,12 +929,11 @@ static void OJPEGCleanup(TIFF* tif)
 
 static void OJPEGSubsamplingCorrect(TIFF* tif)
 {
-	static const char module[] = "OJPEGSubsamplingCorrect";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 mh;
 	uint8 mv;
 	_TIFFFillStriles(tif);
-
 	assert(sp->subsamplingcorrect_done==0);
 	if((tif->tif_dir.td_samplesperpixel!=3) || ((tif->tif_dir.td_photometric!=PHOTOMETRIC_YCBCR) &&
 		    (tif->tif_dir.td_photometric!=PHOTOMETRIC_ITULAB))) {
@@ -1009,7 +1003,7 @@ static void OJPEGSubsamplingCorrect(TIFF* tif)
 
 static int OJPEGReadHeaderInfo(TIFF* tif)
 {
-	static const char module[] = "OJPEGReadHeaderInfo";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	assert(sp->readheader_done==0);
 	sp->image_width = tif->tif_dir.td_imagewidth;
@@ -1110,7 +1104,7 @@ static int OJPEGReadSecondarySos(TIFF* tif, uint16 s)
 
 static int OJPEGWriteHeaderInfo(TIFF* tif)
 {
-	static const char module[] = "OJPEGWriteHeaderInfo";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8** m;
 	uint32 n;
@@ -1207,7 +1201,7 @@ static void OJPEGLibjpegSessionAbort(TIFF* tif)
 
 static int OJPEGReadHeaderInfoSec(TIFF* tif)
 {
-	static const char module[] = "OJPEGReadHeaderInfoSec";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
 	uint16 n;
@@ -1333,7 +1327,7 @@ static int OJPEGReadHeaderInfoSecStreamDri(TIFF* tif)
 {
 	/* This could easily cause trouble in some cases... but no such cases have
 	   occurred so far */
-	static const char module[] = "OJPEGReadHeaderInfoSecStreamDri";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint16 m;
 	if(OJPEGReadWord(sp, &m)==0)
@@ -1350,8 +1344,8 @@ static int OJPEGReadHeaderInfoSecStreamDri(TIFF* tif)
 
 static int OJPEGReadHeaderInfoSecStreamDqt(TIFF* tif)
 {
-	/* this is a table marker, and it is to be saved as a whole for exact pushing on the jpeg stream later on */
-	static const char module[] = "OJPEGReadHeaderInfoSecStreamDqt";
+	// this is a table marker, and it is to be saved as a whole for exact pushing on the jpeg stream later on 
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint16 m;
 	uint32 na;
@@ -1408,7 +1402,7 @@ static int OJPEGReadHeaderInfoSecStreamDht(TIFF* tif)
 	/* this is a table marker, and it is to be saved as a whole for exact pushing on the jpeg stream later on */
 	/* TODO: the following assumes there is only one table in this marker... but i'm not quite sure that assumption
 	  is guaranteed correct */
-	static const char module[] = "OJPEGReadHeaderInfoSecStreamDht";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint16 m;
 	uint32 na;
@@ -1474,7 +1468,7 @@ static int OJPEGReadHeaderInfoSecStreamDht(TIFF* tif)
 static int OJPEGReadHeaderInfoSecStreamSof(TIFF* tif, uint8 marker_id)
 {
 	/* this marker needs to be checked, and part of its data needs to be saved for regeneration later on */
-	static const char module[] = "OJPEGReadHeaderInfoSecStreamSof";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint16 m;
 	uint16 n;
@@ -1605,7 +1599,7 @@ static int OJPEGReadHeaderInfoSecStreamSof(TIFF* tif, uint8 marker_id)
 static int OJPEGReadHeaderInfoSecStreamSos(TIFF* tif)
 {
 	/* this marker needs to be checked, and part of its data needs to be saved for regeneration later on */
-	static const char module[] = "OJPEGReadHeaderInfoSecStreamSos";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint16 m;
 	uint8 n;
@@ -1647,7 +1641,7 @@ static int OJPEGReadHeaderInfoSecStreamSos(TIFF* tif)
 
 static int OJPEGReadHeaderInfoSecTablesQTable(TIFF* tif)
 {
-	static const char module[] = "OJPEGReadHeaderInfoSecTablesQTable";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
 	uint8 n;
@@ -1698,7 +1692,7 @@ static int OJPEGReadHeaderInfoSecTablesQTable(TIFF* tif)
 
 static int OJPEGReadHeaderInfoSecTablesDcTable(TIFF* tif)
 {
-	static const char module[] = "OJPEGReadHeaderInfoSecTablesDcTable";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
 	uint8 n;
@@ -1759,7 +1753,7 @@ static int OJPEGReadHeaderInfoSecTablesDcTable(TIFF* tif)
 
 static int OJPEGReadHeaderInfoSecTablesAcTable(TIFF* tif)
 {
-	static const char module[] = "OJPEGReadHeaderInfoSecTablesAcTable";
+	static const char module[] = __FUNCTION__;
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
 	uint8 n;

@@ -3904,7 +3904,7 @@ int SLAPI PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack
 	BillTbl::Rec bill_rec;
 	PPObjMrpTab mrp_obj;
 	PPID   mrp_tab_id = 0, intr_tab_id = 0;
-	const  PPID wroff_op_type_id = GetOpType(pWrOffParam->WrOffOpID);
+	const  PPID wroff_op_type_id = pWrOffParam ? GetOpType(pWrOffParam->WrOffOpID) : 0; // @v10.7.11 @fix (pWrOffParam ?)
 	{
 		THROW(Search(billID, &bill_rec) > 0);
 		THROW(mrp_obj.GetTabID(pMrpPack, bill_rec.LocID, bill_rec.Dt, &mrp_tab_id, use_ta)); // @v8.6.10 0-->use_ta

@@ -114,7 +114,7 @@ uint32 TIFFNumberOfTiles(TIFF* tif)
  */
 uint64 TIFFTileRowSize64(TIFF* tif)
 {
-	static const char module[] = "TIFFTileRowSize64";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 rowsize;
 	uint64 tilerowsize;
@@ -145,7 +145,7 @@ uint64 TIFFTileRowSize64(TIFF* tif)
 
 tmsize_t TIFFTileRowSize(TIFF* tif)
 {
-	static const char module[] = "TIFFTileRowSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFTileRowSize64(tif);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {
@@ -160,7 +160,7 @@ tmsize_t TIFFTileRowSize(TIFF* tif)
  */
 uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows)
 {
-	static const char module[] = "TIFFVTileSize64";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	if(td->td_tilelength == 0 || td->td_tilewidth == 0 || td->td_tiledepth == 0)
 		return 0;
@@ -195,7 +195,7 @@ uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows)
 
 tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows)
 {
-	static const char module[] = "TIFFVTileSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFVTileSize64(tif, nrows);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {
@@ -214,7 +214,7 @@ uint64 TIFFTileSize64(TIFF* tif)
 
 tmsize_t TIFFTileSize(TIFF* tif)
 {
-	static const char module[] = "TIFFTileSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFTileSize64(tif);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {

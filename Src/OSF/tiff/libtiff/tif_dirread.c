@@ -2592,9 +2592,9 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckedSlong8(TIFF* tif, TIFFDir
 static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckedRational(TIFF* tif, TIFFDirEntry* direntry, double* value)
 {
 	UInt64Aligned_t m;
-	assert(sizeof(double)==8);
-	assert(sizeof(uint64)==8);
-	assert(sizeof(uint32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		enum TIFFReadDirEntryErr err;
 		uint32 offset = direntry->tdir_offset.toff_long;
@@ -2621,10 +2621,10 @@ static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckedRational(TIFF* tif, TIFFD
 static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckedSrational(TIFF* tif, TIFFDirEntry* direntry, double* value)
 {
 	UInt64Aligned_t m;
-	assert(sizeof(double)==8);
-	assert(sizeof(uint64)==8);
-	assert(sizeof(int32)==4);
-	assert(sizeof(uint32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		enum TIFFReadDirEntryErr err;
 		uint32 offset = direntry->tdir_offset.toff_long;
@@ -2654,8 +2654,8 @@ static void TIFFReadDirEntryCheckedFloat(TIFF* tif, TIFFDirEntry* direntry, floa
 		float f;
 		uint32 i;
 	} float_union;
-	assert(sizeof(float)==4);
-	assert(sizeof(uint32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(float)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	assert(sizeof(float_union)==4);
 	float_union.i = *(uint32 *)(&direntry->tdir_offset);
 	*value = float_union.f;
@@ -2665,8 +2665,8 @@ static void TIFFReadDirEntryCheckedFloat(TIFF* tif, TIFFDirEntry* direntry, floa
 
 static enum TIFFReadDirEntryErr TIFFReadDirEntryCheckedDouble(TIFF* tif, TIFFDirEntry* direntry, double* value)
 {
-	assert(sizeof(double)==8);
-	assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	assert(sizeof(UInt64Aligned_t)==8);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		enum TIFFReadDirEntryErr err;
@@ -2739,7 +2739,7 @@ static void FASTCALL TIFFReadDirEntryOutputErr(TIFF* tif, enum TIFFReadDirEntryE
  */
 int TIFFReadDirectory(TIFF* tif)
 {
-	static const char module[] = "TIFFReadDirectory";
+	static const char module[] = __FUNCTION__;
 	TIFFDirEntry* dir;
 	uint16 dircount;
 	TIFFDirEntry* dp;
@@ -3354,7 +3354,7 @@ bad:
 
 static void TIFFReadDirectoryCheckOrder(TIFF* tif, TIFFDirEntry* dir, uint16 dircount)
 {
-	static const char module[] = "TIFFReadDirectoryCheckOrder";
+	static const char module[] = __FUNCTION__;
 	uint16 n;
 	TIFFDirEntry * o;
 	uint16 m = 0;
@@ -3412,7 +3412,7 @@ static void TIFFReadDirectoryFindFieldInfo(TIFF* tif, uint16 tagid, uint32* fii)
  */
 int TIFFReadCustomDirectory(TIFF* tif, toff_t diroff, const TIFFFieldArray* infoarray)
 {
-	static const char module[] = "TIFFReadCustomDirectory";
+	static const char module[] = __FUNCTION__;
 	TIFFDirEntry* dir;
 	uint16 dircount;
 	TIFFDirEntry* dp;
@@ -3499,7 +3499,7 @@ int TIFFReadEXIFDirectory(TIFF* tif, toff_t diroff)
 
 static int EstimateStripByteCounts(TIFF* tif, TIFFDirEntry* dir, uint16 dircount)
 {
-	static const char module[] = "EstimateStripByteCounts";
+	static const char module[] = __FUNCTION__;
 	TIFFDirEntry * dp;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint32 strip;
@@ -3577,7 +3577,7 @@ static int EstimateStripByteCounts(TIFF* tif, TIFFDirEntry* dir, uint16 dircount
 
 static void MissingRequired(TIFF* tif, const char* tagname)
 {
-	static const char module[] = "MissingRequired";
+	static const char module[] = __FUNCTION__;
 	TIFFErrorExt(tif->tif_clientdata, module, "TIFF directory is missing required \"%s\" field", tagname);
 }
 /*
@@ -3592,7 +3592,7 @@ static int TIFFCheckDirOffset(TIFF* tif, uint64 diroff)
 	if(diroff == 0)                         /* no more directories */
 		return 0;
 	if(tif->tif_dirnumber == 65535) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFCheckDirOffset", "Cannot handle more than 65535 TIFF directories");
+		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Cannot handle more than 65535 TIFF directories");
 		return 0;
 	}
 	for(n = 0; n < tif->tif_dirnumber && tif->tif_dirlist; n++) {
@@ -3644,7 +3644,7 @@ static int CheckDirCount(TIFF* tif, TIFFDirEntry* dir, uint32 count)
  */
 static uint16 TIFFFetchDirectory(TIFF* tif, uint64 diroff, TIFFDirEntry** pdir, uint64 * nextdiroff)
 {
-	static const char module[] = "TIFFFetchDirectory";
+	static const char module[] = __FUNCTION__;
 	void* origdir;
 	uint16 dircount16;
 	uint32 dirsize;
@@ -3853,13 +3853,13 @@ static uint16 TIFFFetchDirectory(TIFF* tif, uint64 diroff, TIFFDirEntry** pdir, 
  */
 static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
 {
-	static const char module[] = "TIFFFetchNormalTag";
+	static const char module[] = __FUNCTION__;
 	enum TIFFReadDirEntryErr err;
 	uint32 fii;
 	const TIFFField* fip = NULL;
 	TIFFReadDirectoryFindFieldInfo(tif, dp->tdir_tag, &fii);
 	if(fii == FAILED_FII) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFFetchNormalTag", "No definition found for tag %d", dp->tdir_tag);
+		TIFFErrorExt(tif->tif_clientdata, module, "No definition found for tag %d", dp->tdir_tag);
 		return 0;
 	}
 	fip = tif->tif_fields[fii];
@@ -4427,7 +4427,7 @@ static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
  */
 static int TIFFFetchStripThing(TIFF* tif, TIFFDirEntry* dir, uint32 nstrips, uint64** lpp)
 {
-	static const char module[] = "TIFFFetchStripThing";
+	static const char module[] = __FUNCTION__;
 	uint64 * data;
 	enum TIFFReadDirEntryErr err = TIFFReadDirEntryLong8ArrayWithLimit(tif, dir, &data, nstrips);
 	if(err != TIFFReadDirEntryErrOk) {
@@ -4435,7 +4435,7 @@ static int TIFFFetchStripThing(TIFF* tif, TIFFDirEntry* dir, uint32 nstrips, uin
 		TIFFReadDirEntryOutputErr(tif, err, module, fip ? fip->field_name : "unknown tagname", 0);
 		return 0;
 	}
-	if(dir->tdir_count<(uint64)nstrips) {
+	if(dir->tdir_count < (uint64)nstrips) {
 		uint64* resizeddata;
 		const TIFFField* fip = TIFFFieldWithTag(tif, dir->tdir_tag);
 		const char * pszMax = getenv("LIBTIFF_STRILE_ARRAY_MAX_RESIZE_COUNT");
@@ -4466,13 +4466,13 @@ static int TIFFFetchStripThing(TIFF* tif, TIFFDirEntry* dir, uint32 nstrips, uin
  */
 static int TIFFFetchSubjectDistance(TIFF* tif, TIFFDirEntry* dir)
 {
-	static const char module[] = "TIFFFetchSubjectDistance";
+	static const char module[] = __FUNCTION__;
 	enum TIFFReadDirEntryErr err;
 	UInt64Aligned_t m;
 	m.l = 0;
-	assert(sizeof(double)==8);
-	assert(sizeof(uint64)==8);
-	assert(sizeof(uint32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(dir->tdir_count!=1)
 		err = TIFFReadDirEntryErrCount;
 	else if(dir->tdir_type!=TIFF_RATIONAL)

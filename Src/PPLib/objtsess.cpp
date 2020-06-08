@@ -218,6 +218,11 @@ int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 			THROW_MEM(p_cfg);
 			THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		}
+		// @v10.7.11 {
+		pCfg->Tag = PPOBJ_CONFIG;
+		pCfg->ID = PPCFG_MAIN;
+		pCfg->Prop = prop_cfg_id;
+		// } @v10.7.11 
 		if(r > 0) {
 			pCfg->Flags = p_cfg->Flags;
 			pCfg->IdleAccSheetID = p_cfg->IdleAccSheetID;
@@ -1155,7 +1160,7 @@ int SLAPI PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl
 					}
 				}
 			}
-			// } @v10.0.07 
+			// } @v10.0.07
 			if(use_price && sess_rec.SCardID && ScObj.Search(sess_rec.SCardID, &sc_rec) > 0) {
 				THROW(SetupDiscount(sessID, 1, fdiv100i(sc_rec.PDis), 0));
 			}
@@ -1268,8 +1273,7 @@ int SLAPI PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSess
 }
 
 // private
-int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID,
-	double tecQtty, const PPIDArray * pGoodsIdList, int tooling)
+int SLAPI PPObjTSession::CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID, double tecQtty, const PPIDArray * pGoodsIdList, int tooling)
 {
 	int    ok = -1, r;
 	if(sessID && tecGoodsID && tecStrucID) {
@@ -2178,7 +2182,7 @@ int SLAPI PPObjTSession::IsTimingTech(const TechTbl::Rec * pTechRec, double * pB
 			ok = 1;
 		}
 		// } @v9.9.12
-		/* @v9.9.12 
+		/* @v9.9.12
 		PPUnit unit_rec;
 		THROW(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0);
 		if(unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
@@ -3656,7 +3660,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				ti.Flags |= (PPTFR_PLUS|PPTFR_MODIF|PPTFR_REVAL);
 				ti.Flags &= ~PPTFR_RECEIPT;
 				if(ti.Flags & PPTFR_INDEPPHQTTY)
-					ti.WtQtty = (float)R6(recompl_item.WtQtty);
+					ti.WtQtty = static_cast<float>(R6(recompl_item.WtQtty));
 				if(p_bobj->SearchLotsBySerial(recompl_item.Serial, &lot_list) > 0) {
 					for(uint i = 0; !ti.LotID && i < lot_list.getCount(); i++)
 						if(rcpt_core.Search(lot_list.at(i), &lot_rec) > 0)
@@ -3677,7 +3681,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				int    r;
 				double qtty = 0.0;
 				THROW(gs_obj.Get(tec_struc_id, &gs));
-				while((r = gs.EnumItemsExt(&gs_pos, &gs_item, tec_goods_id, tec_goods_qtty, &qtty)) > 0)
+				while((r = gs.EnumItemsExt(&gs_pos, &gs_item, tec_goods_id, tec_goods_qtty, &qtty)) > 0) {
 					if(gs_item.Flags & GSIF_AUTOTSWROFF && !goods_id_list.lsearch(gs_item.GoodsID)) {
 						qtty = -qtty;
 						LongArray rows;
@@ -3691,15 +3695,17 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 							incomplete = 1;
 						}
 					}
+				}
 				THROW(r);
 			}
 			local_pugl.Log(&rLogger);
 			if(!incomplete || prc_rec.Flags & PRCF_TURNINCOMPLBILL) {
-				if(incomplete)
+				if(incomplete) {
 					//
 					// Информируем оператора о том, что сессия списана несмотря на дефицит
 					//
 					rLogger.LogString(PPTXT_TSESWROFFDEFICIT, ses_name);
+				}
 				if(bill_pack.OpTypeID == PPOPT_GOODSMODIF)
 					bill_pack.CalcModifCost();
 				if(p_link_bill_pack && p_link_bill_pack->IsDraft()) {
@@ -3732,8 +3738,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 					//
 					// Привязка к заказу строк списания, соответствующих заказанной позиции.
 					// Привязываются к заказу только позиции, в которых товар расходуется (то есть,
-					// собственно, производство продукции закрыть заказ не может, ибо для этого требуется //
-					// продукцию отгрузить.
+					// собственно, производство продукции закрыть заказ не может, ибо для этого требуется продукцию отгрузить.
 					//
 					ReceiptTbl::Rec ord_lot;
 					if(p_bobj->trfr->Rcpt.Search(tses_rec.OrderLotID, &ord_lot) > 0) {

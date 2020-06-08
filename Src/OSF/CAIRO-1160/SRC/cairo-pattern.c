@@ -2391,25 +2391,17 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
  *
  * The range isn't guaranteed to be minimal, but it tries to.
  **/
-void _cairo_gradient_pattern_box_to_parameter(const cairo_gradient_pattern_t * gradient,
-    double x0, double y0,
-    double x1, double y1,
-    double tolerance,
-    double out_range[2])
+void _cairo_gradient_pattern_box_to_parameter(const cairo_gradient_pattern_t * gradient, double x0, double y0,
+    double x1, double y1, double tolerance, double out_range[2])
 {
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
+	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
-		_cairo_linear_pattern_box_to_parameter((cairo_linear_pattern_t*)gradient,
-		    x0, y0, x1, y1, out_range);
+		_cairo_linear_pattern_box_to_parameter((cairo_linear_pattern_t*)gradient, x0, y0, x1, y1, out_range);
 	}
 	else {
-		_cairo_radial_pattern_box_to_parameter((cairo_radial_pattern_t*)gradient,
-		    x0, y0, x1, y1, tolerance, out_range);
+		_cairo_radial_pattern_box_to_parameter((cairo_radial_pattern_t*)gradient, x0, y0, x1, y1, tolerance, out_range);
 	}
 }
-
 /**
  * _cairo_gradient_pattern_interpolate:
  *
@@ -2417,15 +2409,10 @@ void _cairo_gradient_pattern_box_to_parameter(const cairo_gradient_pattern_t * g
  * gradients.  The interpolated object is stored in out_circle, with
  * the radius being zero in the linear gradient case.
  **/
-void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradient,
-    double t,
-    cairo_circle_double_t * out_circle)
+void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradient, double t, cairo_circle_double_t * out_circle)
 {
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
+	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR || gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
 #define lerp(a, b) (a)*(1-t) + (b)*t
-
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
 		cairo_linear_pattern_t * linear = (cairo_linear_pattern_t*)gradient;
 		out_circle->center.x = lerp(linear->pd1.x, linear->pd2.x);

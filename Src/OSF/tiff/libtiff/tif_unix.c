@@ -188,7 +188,7 @@ TIFF* TIFFFdOpen(int fd, const char* name, const char* mode)
  */
 TIFF* TIFFOpen(const char* name, const char* mode)
 {
-	static const char module[] = "TIFFOpen";
+	static const char module[] = __FUNCTION__;
 	int m, fd;
 	TIFF* tif;
 	m = _TIFFgetMode(mode, module);
@@ -221,7 +221,7 @@ TIFF* TIFFOpen(const char* name, const char* mode)
  */
 TIFF* TIFFOpenW(const wchar_t* name, const char* mode)
 {
-	static const char module[] = "TIFFOpenW";
+	static const char module[] = __FUNCTION__;
 	int fd;
 	int mbsize;
 	char * mbname;

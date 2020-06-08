@@ -145,8 +145,7 @@ float FASTCALL TIFFClampDoubleToFloat(double val)
 
 static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
-	static const char module[] = "_TIFFVSetField";
-
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory* td = &tif->tif_dir;
 	int status = 1;
 	uint32 v32, i, v;
@@ -458,7 +457,7 @@ static int _TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    if(tv == NULL) {
 			    TIFFTagValue * new_customValues;
 			    td->td_customValueCount++;
-			    new_customValues = (TIFFTagValue*)SAlloc::R(td->td_customValues, sizeof(TIFFTagValue) * td->td_customValueCount);
+			    new_customValues = static_cast<TIFFTagValue *>(SAlloc::R(td->td_customValues, sizeof(TIFFTagValue) * td->td_customValueCount));
 			    if(!new_customValues) {
 				    TIFFErrorExt(tif->tif_clientdata, module, "%s: Failed to allocate space for list of custom values", tif->tif_name);
 				    status = 0;
@@ -636,7 +635,6 @@ badvaluedouble:
 	}
 	return 0;
 }
-
 /*
  * Return 1/0 according to whether or not
  * it is permissible to set the tag's value.
@@ -648,7 +646,7 @@ badvaluedouble:
  */
 static int OkToChangeTag(TIFF* tif, uint32 tag)
 {
-	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
+	const TIFFField * fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {                      /* unknown tag */
 		TIFFErrorExt(tif->tif_clientdata, "TIFFSetField", "%s: Unknown %stag %u", tif->tif_name, isPseudoTag(tag) ? "pseudo-" : "", tag);
 		return 0;
@@ -723,7 +721,7 @@ int TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 	return OkToChangeTag(tif, tag) ? (*tif->tif_tagmethods.vsetfield)(tif, tag, ap) : 0;
 }
 
-static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
+static int _TIFFVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	TIFFDirectory* td = &tif->tif_dir;
 	int ret_val = 1;
@@ -883,7 +881,7 @@ static int _TIFFVGetField(TIFF* tif, uint32 tag, va_list ap)
 		 * codec then we'll arrive here.
 		     */
 		    if(fip->field_bit != FIELD_CUSTOM) {
-			    TIFFErrorExt(tif->tif_clientdata, "_TIFFVGetField", "%s: Invalid %stag \"%s\" (not supported by codec)", tif->tif_name, isPseudoTag(tag) ? "pseudo-" : "", fip->field_name);
+			    TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "%s: Invalid %stag \"%s\" (not supported by codec)", tif->tif_name, isPseudoTag(tag) ? "pseudo-" : "", fip->field_name);
 			    ret_val = 0;
 			    break;
 		    }
@@ -1132,7 +1130,7 @@ int TIFFDefaultDirectory(TIFF* tif)
 
 static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 {
-	static const char module[] = "TIFFAdvanceDirectory";
+	static const char module[] = __FUNCTION__;
 	if(isMapped(tif)) {
 		uint64 poff = *nextdir;
 		if(!(tif->tif_flags&TIFF_BIGTIFF)) {
@@ -1247,7 +1245,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
  */
 uint16 TIFFNumberOfDirectories(TIFF* tif)
 {
-	static const char module[] = "TIFFNumberOfDirectories";
+	static const char module[] = __FUNCTION__;
 	uint64 nextdir;
 	uint16 n;
 	if(!(tif->tif_flags&TIFF_BIGTIFF))
@@ -1332,7 +1330,7 @@ int TIFFLastDirectory(TIFF* tif)
  */
 int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
 {
-	static const char module[] = "TIFFUnlinkDirectory";
+	static const char module[] = __FUNCTION__;
 	uint64 nextdir;
 	uint64 off;
 	uint16 n;

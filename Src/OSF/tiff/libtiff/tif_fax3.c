@@ -471,7 +471,7 @@ static int Fax3FixupTags(TIFF* tif)
  */
 static int Fax3SetupState(TIFF* tif)
 {
-	static const char module[] = "Fax3SetupState";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory* td = &tif->tif_dir;
 	Fax3BaseState* sp = Fax3State(tif);
 	int needsRefLine;
@@ -905,14 +905,12 @@ inline static int32 find1span(uchar* bp, int32 bs, int32 be)
  * color.  The end, be, is returned if no such bit
  * exists.
  */
-#define finddiff(_cp, _bs, _be, _color)	\
-	(_bs + (_color ? find1span(_cp, _bs, _be) : find0span(_cp, _bs, _be)))
+#define finddiff(_cp, _bs, _be, _color)	(_bs + (_color ? find1span(_cp, _bs, _be) : find0span(_cp, _bs, _be)))
 /*
  * Like finddiff, but also check the starting bit
  * against the end in case start > end.
  */
-#define finddiff2(_cp, _bs, _be, _color) \
-	(_bs < _be ? finddiff(_cp, _bs, _be, _color) : _be)
+#define finddiff2(_cp, _bs, _be, _color) (_bs < _be ? finddiff(_cp, _bs, _be, _color) : _be)
 
 /*
  * 1d-encode a row of pixels.  The encoding is
@@ -939,17 +937,14 @@ static int Fax3Encode1DRow(TIFF* tif, uchar* bp, uint32 bits)
 	if(sp->b.mode & (FAXMODE_BYTEALIGN|FAXMODE_WORDALIGN)) {
 		if(sp->bit != 8)                        /* byte-align */
 			Fax3FlushBits(tif, sp);
-		if((sp->b.mode&FAXMODE_WORDALIGN) &&
-		    !isAligned(tif->tif_rawcp, uint16))
+		if((sp->b.mode&FAXMODE_WORDALIGN) && !isAligned(tif->tif_rawcp, uint16))
 			Fax3FlushBits(tif, sp);
 	}
 	return 1;
 }
 
-static const tableentry horizcode =
-{ 3, 0x1, 0 };          /* 001 */
-static const tableentry passcode =
-{ 4, 0x1, 0 };          /* 0001 */
+static const tableentry horizcode = { 3, 0x1, 0 };          /* 001 */
+static const tableentry passcode = { 4, 0x1, 0 };          /* 0001 */
 static const tableentry vcodes[7] = {
 	{ 7, 0x03, 0 }, /* 0000 011 */
 	{ 6, 0x03, 0 }, /* 0000 11 */
@@ -1017,7 +1012,7 @@ static int Fax3Encode2DRow(TIFF* tif, uchar* bp, uchar* rp, uint32 bits)
  */
 static int Fax3Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "Fax3Encode";
+	static const char module[] = __FUNCTION__;
 	Fax3CodecState* sp = EncoderState(tif);
 	(void)s;
 	if(cc % sp->b.rowbytes) {
@@ -1217,13 +1212,13 @@ static void Fax3PrintDir(TIFF* tif, FILE* fd, long flags)
 
 static int InitCCITTFax3(TIFF* tif)
 {
-	static const char module[] = "InitCCITTFax3";
+	static const char module[] = __FUNCTION__;
 	Fax3BaseState* sp;
 	/*
 	 * Merge codec-specific tag information.
 	 */
 	if(!_TIFFMergeFields(tif, faxFields, SIZEOFARRAY(faxFields))) {
-		TIFFErrorExt(tif->tif_clientdata, "InitCCITTFax3", "Merging common CCITT Fax codec-specific tags failed");
+		TIFFErrorExt(tif->tif_clientdata, module, "Merging common CCITT Fax codec-specific tags failed");
 		return 0;
 	}
 	/*
@@ -1280,7 +1275,7 @@ int TIFFInitCCITTFax3(TIFF* tif, int scheme)
 		 * Merge codec-specific tag information.
 		 */
 		if(!_TIFFMergeFields(tif, fax3Fields, SIZEOFARRAY(fax3Fields))) {
-			TIFFErrorExt(tif->tif_clientdata, "TIFFInitCCITTFax3", "Merging CCITT Fax 3 codec-specific tags failed");
+			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Merging CCITT Fax 3 codec-specific tags failed");
 			return 0;
 		}
 		/*
@@ -1351,7 +1346,7 @@ BADG4:
  */
 static int Fax4Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "Fax4Encode";
+	static const char module[] = __FUNCTION__;
 	Fax3CodecState * sp = EncoderState(tif);
 	(void)s;
 	if(cc % sp->b.rowbytes) {
@@ -1387,7 +1382,7 @@ int TIFFInitCCITTFax4(TIFF* tif, int scheme)
 		 * Merge codec-specific tag information.
 		 */
 		if(!_TIFFMergeFields(tif, fax4Fields, SIZEOFARRAY(fax4Fields))) {
-			TIFFErrorExt(tif->tif_clientdata, "TIFFInitCCITTFax4", "Merging CCITT Fax 4 codec-specific tags failed");
+			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Merging CCITT Fax 4 codec-specific tags failed");
 			return 0;
 		}
 		tif->tif_decoderow = Fax4Decode;

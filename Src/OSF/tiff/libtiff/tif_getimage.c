@@ -1902,7 +1902,7 @@ static int FASTCALL isInRefBlackWhiteRange(float f)
 
 static int initYCbCrConversion(TIFFRGBAImage* img)
 {
-	static const char module[] = "initYCbCrConversion";
+	static const char module[] = __FUNCTION__;
 	float * luma, * refBlackWhite;
 	if(img->ycbcr == NULL) {
 		img->ycbcr = (TIFFYCbCrToRGB*)SAlloc::M(TIFFroundup_32(sizeof(TIFFYCbCrToRGB), sizeof(long)) + 4*256*sizeof(TIFFRGBValue) + 2*256*sizeof(int) + 3*256*sizeof(int32));
@@ -1930,7 +1930,7 @@ static int initYCbCrConversion(TIFFRGBAImage* img)
 
 static tileContigRoutine initCIELabConversion(TIFFRGBAImage* img)
 {
-	static const char module[] = "initCIELabConversion";
+	static const char module[] = __FUNCTION__;
 	float   * whitePoint;
 	float refWhite[3];
 	TIFFGetFieldDefaulted(img->tif, TIFFTAG_WHITEPOINT, &whitePoint);
@@ -2367,7 +2367,7 @@ static int PickSeparateCase(TIFFRGBAImage* img)
 
 static int BuildMapUaToAa(TIFFRGBAImage* img)
 {
-	static const char module[] = "BuildMapUaToAa";
+	static const char module[] = __FUNCTION__;
 	uint8* m;
 	uint16 na, nv;
 	assert(img->UaToAa == NULL);
@@ -2386,7 +2386,7 @@ static int BuildMapUaToAa(TIFFRGBAImage* img)
 
 static int FASTCALL BuildMapBitdepth16To8(TIFFRGBAImage* img)
 {
-	static const char module[] = "BuildMapBitdepth16To8";
+	static const char module[] = __FUNCTION__;
 	uint8* m;
 	uint32 n;
 	assert(img->Bitdepth16To8 == NULL);

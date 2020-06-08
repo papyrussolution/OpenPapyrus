@@ -1,5 +1,6 @@
 // TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -211,9 +212,9 @@ int SLAPI TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & 
 			}
 			else {
 				//
-				// Åñëè îáíàðóæåíà ñåññèÿ, êîòîðàÿ çàêîí÷èëàñü ðàíåå çàäàííîãî ìîìåíòà, òî
-				// ïîèñê ìîæíî íå ïðîäîëæàòü - âñå îñòàëüíûå ñåññèè èìåþò ìåíüøåå âðåìÿ îêîí÷àíèÿ,
-				// â ïðîòèâíîì ñëó÷àå ìû èìåëè áû ïåðåñå÷åíèå ñåññèé.
+				// Ð•ÑÐ»Ð¸ Ð¾Ð±Ð½Ð°Ñ€ÑƒÐ¶ÐµÐ½Ð° ÑÐµÑÑÐ¸Ñ, ÐºÐ¾Ñ‚Ð¾Ñ€Ð°Ñ Ð·Ð°ÐºÐ¾Ð½Ñ‡Ð¸Ð»Ð°ÑÑŒ Ñ€Ð°Ð½ÐµÐµ Ð·Ð°Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð¼Ð¾Ð¼ÐµÐ½Ñ‚Ð°, Ñ‚Ð¾
+				// Ð¿Ð¾Ð¸ÑÐº Ð¼Ð¾Ð¶Ð½Ð¾ Ð½Ðµ Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶Ð°Ñ‚ÑŒ - Ð²ÑÐµ Ð¾ÑÑ‚Ð°Ð»ÑŒÐ½Ñ‹Ðµ ÑÐµÑÑÐ¸Ð¸ Ð¸Ð¼ÐµÑŽÑ‚ Ð¼ÐµÐ½ÑŒÑˆÐµÐµ Ð²Ñ€ÐµÐ¼Ñ Ð¾ÐºÐ¾Ð½Ñ‡Ð°Ð½Ð¸Ñ,
+				// Ð² Ð¿Ñ€Ð¾Ñ‚Ð¸Ð²Ð½Ð¾Ð¼ ÑÐ»ÑƒÑ‡Ð°Ðµ Ð¼Ñ‹ Ð¸Ð¼ÐµÐ»Ð¸ Ð±Ñ‹ Ð¿ÐµÑ€ÐµÑÐµÑ‡ÐµÐ½Ð¸Ðµ ÑÐµÑÑÐ¸Ð¹.
 				//
 				break;
 			}
@@ -484,16 +485,14 @@ int SLAPI TSessionCore::GetProcessed(PPID prcID, int kind, TSessionTbl::Rec * pR
 
 int SLAPI TSessionCore::AdjustTime(TSessionTbl::Rec * pRec)
 {
-	// @v6.2.2 if(!pRec->StDt) {
-		TSessionTbl::Key4 k4;
-		MEMSZERO(k4);
-		k4.PrcID = pRec->PrcID;
-		k4.StDt = pRec->StDt;
-		k4.StTm = pRec->StTm;
-		while(search(4, &k4, spEq) && (!pRec->ID || data.ID != pRec->ID)) {
-			k4.StTm = pRec->StTm.addhs(1);
-		}
-	// @v6.2.2 }
+	TSessionTbl::Key4 k4;
+	MEMSZERO(k4);
+	k4.PrcID = pRec->PrcID;
+	k4.StDt = pRec->StDt;
+	k4.StTm = pRec->StTm;
+	while(search(4, &k4, spEq) && (!pRec->ID || data.ID != pRec->ID)) {
+		k4.StTm = pRec->StTm.addhs(1);
+	}
 	return 1;
 }
 
@@ -509,20 +508,20 @@ int SLAPI TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 			THROW(Search(*pID, &rec) > 0);
 			if(pRec == 0) {
 				//
-				// Óäàëåíèå ïàêåòà
+				// Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¿Ð°ÐºÐµÑ‚Ð°
 				//
 				THROW(deleteFrom(&Lines, 0, Lines.TSessID == *pID));
 				THROW(RemoveByID(this, *pID, 0));
 				THROW(PPRef->Assc.Remove(PPASS_CHECKINPSNTSES, 0, *pID, 0)); // @v7.7.2
-				// log_action_id íå èíèöèàëèçèðóåì, ïî-ñêîëüêó óäàëåíèå îáúåêòà îáû÷íî
-				// ðåàëèçóåòñÿ ôóíêöèåé PPObject::Remove, êîòîðàÿ ñàìîñòîÿòåëüíî çàíîñèò
-				// ýòî ñîáûòèå
+				// log_action_id Ð½Ðµ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÐ¼, Ð¿Ð¾-ÑÐºÐ¾Ð»ÑŒÐºÑƒ ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¾Ð±ÑŠÐµÐºÑ‚Ð° Ð¾Ð±Ñ‹Ñ‡Ð½Ð¾
+				// Ñ€ÐµÐ°Ð»Ð¸Ð·ÑƒÐµÑ‚ÑÑ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹ PPObject::Remove, ÐºÐ¾Ñ‚Ð¾Ñ€Ð°Ñ ÑÐ°Ð¼Ð¾ÑÑ‚Ð¾ÑÑ‚ÐµÐ»ÑŒÐ½Ð¾ Ð·Ð°Ð½Ð¾ÑÐ¸Ñ‚
+				// ÑÑ‚Ð¾ ÑÐ¾Ð±Ñ‹Ñ‚Ð¸Ðµ
 			}
 			else {
 				//
-				// Èçìåíåíèå ïàêåòà
+				// Ð˜Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ Ð¿Ð°ÐºÐµÑ‚Ð°
 				//
-				// Åñëè ñåññèÿ ÿâëÿåòñÿ íåçíà÷èòåëüíûì ïðîñòîåì, òî ïðîñòî óäàëÿåì åå
+				// Ð•ÑÐ»Ð¸ ÑÐµÑÑÐ¸Ñ ÑÐ²Ð»ÑÐµÑ‚ÑÑ Ð½ÐµÐ·Ð½Ð°Ñ‡Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¼ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ÐµÐ¼, Ñ‚Ð¾ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ ÑƒÐ´Ð°Ð»ÑÐµÐ¼ ÐµÐµ
 				if(PPObjTSession::IsIdleInsignificant(pRec, rec.Status)) {
 					THROW(deleteFrom(&Lines, 0, Lines.TSessID == *pID));
 					THROW(RemoveByID(this, *pID, 0));
@@ -533,8 +532,8 @@ int SLAPI TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 					THROW(AdjustTime(pRec));
 					if(rec.PrcID != pRec->PrcID || pRec->Num == 0) { // @v7.6.5 (|| pRec->Num == 0)
 						//
-						// Åñëè èçìåíÿåòñÿ ïðîöåññîð â ñåññèè, òî îáíîâëÿåì çíà÷åíèå ñ÷åò÷èêà Number
-						// äëÿ òîãî, ÷òîáû èçáåæàòü äóáëèðîâàíèÿ èíäåêñà
+						// Ð•ÑÐ»Ð¸ Ð¸Ð·Ð¼ÐµÐ½ÑÐµÑ‚ÑÑ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ¾Ñ€ Ð² ÑÐµÑÑÐ¸Ð¸, Ñ‚Ð¾ Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÐµÐ¼ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÑ‡ÐµÑ‚Ñ‡Ð¸ÐºÐ° Number
+						// Ð´Ð»Ñ Ñ‚Ð¾Ð³Ð¾, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¸Ð·Ð±ÐµÐ¶Ð°Ñ‚ÑŒ Ð´ÑƒÐ±Ð»Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¸Ð½Ð´ÐµÐºÑÐ°
 						//
 						long   sess_number = 0;
 						THROW(SearchSessNumber(pRec->PrcID, &sess_number, 0) > 0);
@@ -550,7 +549,7 @@ int SLAPI TSessionCore::Put(PPID * pID, TSessionTbl::Rec * pRec, int use_ta)
 		}
 		else if(pRec) {
 			//
-			// Äîáàâëåíèå ïàêåòà
+			// Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿Ð°ÐºÐµÑ‚Ð°
 			//
 			long   sess_number = 0;
 			THROW(SearchSessNumber(pRec->PrcID, &sess_number, 0) > 0);

@@ -310,8 +310,7 @@ void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 	if(tif->tif_fields && tif->tif_nfields > 0) {
 		for(uint32 i = 0; i < tif->tif_nfields; i++) {
 			TIFFField * fld = tif->tif_fields[i];
-			if(fld->field_bit == FIELD_CUSTOM &&
-			    strncmp("Tag ", fld->field_name, 4) == 0) {
+			if(fld->field_bit == FIELD_CUSTOM && strncmp("Tag ", fld->field_name, 4) == 0) {
 				SAlloc::F(fld->field_name);
 				SAlloc::F(fld);
 			}
@@ -321,7 +320,7 @@ void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 		tif->tif_nfields = 0;
 	}
 	if(!_TIFFMergeFields(tif, fieldarray->fields, fieldarray->count)) {
-		TIFFErrorExt(tif->tif_clientdata, "_TIFFSetupFields", "Setting up field info failed");
+		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Setting up field info failed");
 	}
 }
 
@@ -349,7 +348,7 @@ static int tagNameCompare(const void* a, const void* b)
 
 int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
 {
-	static const char module[] = "_TIFFMergeFields";
+	static const char module[] = __FUNCTION__;
 	static const char reason[] = "for fields array";
 	/* TIFFField** tp; */
 	uint32 i;
@@ -488,7 +487,7 @@ const TIFFField* TIFFFieldWithTag(TIFF* tif, uint32 tag)
 {
 	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithTag", "Internal error, unknown tag 0x%x", (uint)tag);
+		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Internal error, unknown tag 0x%x", (uint)tag);
 	}
 	return (fip);
 }
@@ -497,7 +496,7 @@ const TIFFField* TIFFFieldWithName(TIFF* tif, const char * field_name)
 {
 	const TIFFField * fip = _TIFFFindFieldByName(tif, field_name, TIFF_ANY);
 	if(!fip) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithName", "Internal error, unknown tag %s", field_name);
+		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Internal error, unknown tag %s", field_name);
 	}
 	return (fip);
 }
@@ -709,7 +708,7 @@ static TIFFSetGetFieldType _TIFFSetGetType(TIFFDataType type, short count, uchar
 
 int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
 {
-	static const char module[] = "TIFFMergeFieldInfo";
+	static const char module[] = __FUNCTION__;
 	static const char reason[] = "for fields array";
 	TIFFField * tp;
 	size_t nfields;

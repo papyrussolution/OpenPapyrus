@@ -326,7 +326,7 @@ static void options(int argc, char ** argv)
 				      else
 					      fprintf(stderr, "wsdl2h: Option -r requires a proxy host:port argument\n");
 				      if(proxy_host) {
-					      char * s = (char *)emalloc(strlen(proxy_host + 1));
+					      char * s = static_cast<char *>(emalloc(strlen(proxy_host + 1)));
 					      strcpy(s, proxy_host);
 					      proxy_host = s;
 					      s = strchr(proxy_host, ':');
@@ -442,17 +442,19 @@ infile.wsdl infile.xsd http://www... list of input sources (if none: use stdin)\
 		}
 	}
 	if(infiles) {
-		if(!outfile)              {
-			if(strncmp(infile[0], "http://", 7) && strncmp(infile[0], "https://", 8))                            {
+		if(!outfile) {
+			if(strncmp(infile[0], "http://", 7) && strncmp(infile[0], "https://", 8)) {
 				const char * s = strrchr(infile[0], '.');
 				if(s && (!soap_tag_cmp(s, ".wsdl") || !soap_tag_cmp(s, ".gwsdl") || !soap_tag_cmp(s, ".xsd"))) {
 					outfile = estrdup(infile[0]);
 					outfile[s - infile[0] + 1] = 'h';
 					outfile[s - infile[0] + 2] = '\0';
 				}
-				else{outfile = (char *)emalloc(strlen(infile[0]) + 3);
+				else {
+					outfile = static_cast<char *>(emalloc(strlen(infile[0]) + 3));
 				     strcpy(outfile, infile[0]);
-				     strcat(outfile, ".h"); }
+				     strcat(outfile, ".h"); 
+				}
 			}
 		}
 		if(outfile) {

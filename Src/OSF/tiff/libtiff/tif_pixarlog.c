@@ -657,7 +657,7 @@ static int PixarLogFixupTags(TIFF* tif)
 
 static int PixarLogSetupDecode(TIFF* tif)
 {
-	static const char module[] = "PixarLogSetupDecode";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	PixarLogState* sp = DecoderState(tif);
 	tmsize_t tbuf_size;
@@ -710,7 +710,7 @@ static int PixarLogSetupDecode(TIFF* tif)
  */
 static int PixarLogPreDecode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "PixarLogPreDecode";
+	static const char module[] = __FUNCTION__;
 	PixarLogState* sp = DecoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -727,7 +727,7 @@ static int PixarLogPreDecode(TIFF* tif, uint16 s)
 
 static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "PixarLogDecode";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	PixarLogState* sp = DecoderState(tif);
 	tmsize_t i;
@@ -849,7 +849,7 @@ static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 
 static int PixarLogSetupEncode(TIFF* tif)
 {
-	static const char module[] = "PixarLogSetupEncode";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	PixarLogState* sp = EncoderState(tif);
 	tmsize_t tbuf_size;
@@ -883,17 +883,13 @@ static int PixarLogSetupEncode(TIFF* tif)
  */
 static int PixarLogPreEncode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "PixarLogPreEncode";
+	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = EncoderState(tif);
-
 	(void)s;
 	assert(sp != NULL);
 	sp->stream.next_out = tif->tif_rawdata;
-	assert(sizeof(sp->stream.avail_out)==4);  /* if this assert gets raised,
-	                                             we need to simplify this code to reflect a ZLib that is likely
-	                                                updated
-	                                             to deal with 8byte memory sizes, though this code will respond
-	                                             appropriately even before we simplify it */
+	assert(sizeof(sp->stream.avail_out)==4);  /* if this assert gets raised, we need to simplify this code to reflect a ZLib that is likely
+		updated to deal with 8byte memory sizes, though this code will respond appropriately even before we simplify it */
 	sp->stream.avail_out = (uInt)tif->tif_rawdatasize;
 	if((tmsize_t)sp->stream.avail_out != tif->tif_rawdatasize) {
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
@@ -1060,16 +1056,14 @@ static void horizontalDifference8(uchar * ip, int n, int stride,
  */
 static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "PixarLogEncode";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	PixarLogState * sp = EncoderState(tif);
 	tmsize_t i;
 	tmsize_t n;
 	int llen;
 	ushort * up;
-
 	(void)s;
-
 	switch(sp->user_datafmt) {
 		case PIXARLOGDATAFMT_FLOAT:
 		    n = cc / sizeof(float);     /* XXX float == 32 bits */
@@ -1150,12 +1144,10 @@ static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 
 static int PixarLogPostEncode(TIFF* tif)
 {
-	static const char module[] = "PixarLogPostEncode";
+	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = EncoderState(tif);
 	int state;
-
 	sp->stream.avail_in = 0;
-
 	do {
 		state = deflate(&sp->stream, Z_FINISH);
 		switch(state) {
@@ -1238,7 +1230,7 @@ static void PixarLogCleanup(TIFF* tif)
 
 static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
-	static const char module[] = "PixarLogVSetField";
+	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = (PixarLogState*)tif->tif_data;
 	int result;
 	switch(tag) {
@@ -1319,7 +1311,7 @@ static const TIFFField pixarlogFields[] = {
 
 int TIFFInitPixarLog(TIFF* tif, int scheme)
 {
-	static const char module[] = "TIFFInitPixarLog";
+	static const char module[] = __FUNCTION__;
 	PixarLogState* sp;
 	assert(scheme == COMPRESSION_PIXARLOG);
 	/*

@@ -51,7 +51,7 @@ static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s);
 
 static int PredictorSetup(TIFF* tif)
 {
-	static const char module[] = "PredictorSetup";
+	static const char module[] = __FUNCTION__;
 	TIFFPredictorState* sp = PredictorState(tif);
 	TIFFDirectory* td = &tif->tif_dir;
 	switch(sp->predictor) { // no differencing 
@@ -604,7 +604,7 @@ static int PredictorEncodeRow(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 
 static int PredictorEncodeTile(TIFF* tif, uint8* bp0, tmsize_t cc0, uint16 s)
 {
-	static const char module[] = "PredictorEncodeTile";
+	static const char module[] = __FUNCTION__;
 	TIFFPredictorState * sp = PredictorState(tif);
 	uint8 * working_copy;
 	tmsize_t cc = cc0, rowsize;

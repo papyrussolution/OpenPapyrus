@@ -122,7 +122,7 @@ void SLAPI LssLin::Solve_Simple(uint count, const double * pX, const double * pY
 //
 // Черт его знает почему, но эта, якобы ускоренная всякими SSE-AVX версия почти в 2 раза медленнее тупого варианта Solve_Simle.
 // По-этому оставляю для истории.
-#if 0 {
+#if 0 // {
 //
 #define INSTRSET 7 // AVX
 #include <..\osf\vectorclass\V1\vectorclass.h>

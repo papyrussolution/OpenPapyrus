@@ -67,21 +67,21 @@ int _TIFFgetMode(const char* mode, const char* module)
 TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata, TIFFReadWriteProc readproc,
     TIFFReadWriteProc writeproc, TIFFSeekProc seekproc, TIFFCloseProc closeproc, TIFFSizeProc sizeproc, TIFFMapFileProc mapproc, TIFFUnmapFileProc unmapproc)
 {
-	static const char module[] = "TIFFClientOpen";
+	static const char module[] = __FUNCTION__;
 	TIFF * tif;
 	int m;
 	const char* cp;
 	/* The following are configuration checks. They should be redundant, but should not
 	 * compile to any actual code in an optimised release build anyway. If any of them
 	 * fail, (makefile-based or other) configuration is not correct */
-	assert(sizeof(uint8)==1);
-	assert(sizeof(int8)==1);
-	assert(sizeof(uint16)==2);
-	assert(sizeof(int16)==2);
-	assert(sizeof(uint32)==4);
-	assert(sizeof(int32)==4);
-	assert(sizeof(uint64)==8);
-	assert(sizeof(int64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int8)==1);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int16)==2);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int64)==8);
 	assert(sizeof(tmsize_t)==sizeof(void *));
 	{
 		union {
@@ -99,7 +99,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	m = _TIFFgetMode(mode, module);
 	if(m == -1)
 		goto bad2;
-	tif = (TIFF*)SAlloc::M((tmsize_t)(sizeof(TIFF) + strlen(name) + 1));
+	tif = static_cast<TIFF *>(SAlloc::M((tmsize_t)(sizeof(TIFF) + strlen(name) + 1)));
 	if(tif == NULL) {
 		TIFFErrorExt(clientdata, module, "%s: Out of memory (TIFF structure)", name);
 		goto bad2;

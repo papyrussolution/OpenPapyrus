@@ -186,7 +186,7 @@ TIFFCodec* TIFFRegisterCODEC(uint16 scheme, const char* name, TIFFInitMethod ini
 {
 	codec_t* cd = (codec_t*)SAlloc::M((tmsize_t)(sizeof(codec_t) + sizeof(TIFFCodec) + strlen(name)+1));
 	if(cd) {
-		cd->info = (TIFFCodec*)((uint8 *)cd + sizeof(codec_t));
+		cd->info = (TIFFCodec *)((uint8 *)cd + sizeof(codec_t));
 		cd->info->name = (char *)((uint8 *)cd->info + sizeof(TIFFCodec));
 		strcpy(cd->info->name, name);
 		cd->info->scheme = scheme;
@@ -233,7 +233,7 @@ TIFFCodec* TIFFGetConfiguredCODECs()
 	TIFFCodec* codecs = NULL;
 	TIFFCodec* new_codecs;
 	for(cd = registeredCODECS; cd; cd = cd->next) {
-		new_codecs = (TIFFCodec*)SAlloc::R(codecs, i * sizeof(TIFFCodec));
+		new_codecs = static_cast<TIFFCodec *>(SAlloc::R(codecs, i * sizeof(TIFFCodec)));
 		if(!new_codecs) {
 			SAlloc::F(codecs);
 			return NULL;
@@ -244,7 +244,7 @@ TIFFCodec* TIFFGetConfiguredCODECs()
 	}
 	for(c = _TIFFBuiltinCODECS; c->name; c++) {
 		if(TIFFIsCODECConfigured(c->scheme)) {
-			new_codecs = (TIFFCodec*)SAlloc::R(codecs, i * sizeof(TIFFCodec));
+			new_codecs = static_cast<TIFFCodec *>(SAlloc::R(codecs, i * sizeof(TIFFCodec)));
 			if(!new_codecs) {
 				SAlloc::F(codecs);
 				return NULL;
@@ -254,7 +254,7 @@ TIFFCodec* TIFFGetConfiguredCODECs()
 			i++;
 		}
 	}
-	new_codecs = (TIFFCodec*)SAlloc::R(codecs, i * sizeof(TIFFCodec));
+	new_codecs = static_cast<TIFFCodec *>(SAlloc::R(codecs, i * sizeof(TIFFCodec)));
 	if(!new_codecs) {
 		SAlloc::F(codecs);
 		return NULL;

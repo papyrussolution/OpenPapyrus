@@ -179,8 +179,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_cbc = {
 };
 
 /* rijndael-cbc@lysator.liu.se == aes256-cbc */
-static const LIBSSH2_CRYPT_METHOD
-    libssh2_crypt_method_rijndael_cbc_lysator_liu_se = {
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_rijndael_cbc_lysator_liu_se = {
 	"rijndael-cbc@lysator.liu.se",
 	16,                     /* blocksize */
 	16,                     /* initial value length */

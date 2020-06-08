@@ -458,32 +458,31 @@ public:
 	const int    UseAdvEvQueue; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	const uint32 Flags;
 	const uint32 Signature_DbDump;
-	const uint32 Signature_VerHist;         // Сигнатура файла истории обновления версий
-	const uint32 Signature_PPObjSCard_Filt; // Специальная сигнатура объекта PPObjSCard::Filt
-	const uint32 Signature_PhoneServiceEventResponder; // Сигнатура респондера событий телефонного сервиса
-	const uint32 Signature_MqbEventResponder; // Сигнатура респондера событий брокера сообщений
-	const uint32 Signature_SysMaintenanceEventResponder; // Сигатура респондера событий обслуживания системы
-	const long   Signature_LaunchAppParam;
-	const uint64 Signature_Quotation2_DumpHeader; // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
+	const uint32 Signature_VerHist;                      // Сигнатура файла истории обновления версий
+	const uint32 Signature_PPObjSCard_Filt;              // Специальная сигнатура объекта PPObjSCard::Filt
+	const uint32 Signature_PhoneServiceEventResponder;   // Сигнатура респондера событий телефонного сервиса
+	const uint32 Signature_MqbEventResponder;            // Сигнатура респондера событий брокера сообщений
+	const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
+	const long   Signature_LaunchAppParam;               //
+	const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
-	const char * P_ObjMemoDelim;        // MemosDelim разделитель примечаний объектов
-	const char * P_ObjMemo_UtmRejPfx;   // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС УТМ
-	const char * P_ObjMemo_EgaisRejPfx; // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС
-	const char * P_ObjMemo_ChznRejPfx;  // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от честного знака
-
+	const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
+	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС УТМ
+	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС
+	const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от честного знака
 	const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
 	const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
 	const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
 	const char * WrParam_BinPath;            // "BinPath" string
-	const char * WrParam_PhnSvcLocalUpChannelSymbol; // "PhnSvcLocalChannelSymbol"
+	const char * WrParam_PhnSvcLocalUpChannelSymbol;   // "PhnSvcLocalChannelSymbol"
 	const char * WrParam_PhnSvcLocalScanChannelSymbol; // "PhnSvcLocalScanChannelSymbol"
-	const char * WrParam_DefaultWindowsPrinter; // "DefaultWindowsPrinter"
-	const char * WrParam_PersonAddImageFolder;  // "PersonAddImageFolder"
-	const char * WrParam_UseDuplexPrinting;        // "UseDuplexPrinting";
-	const char * WrParam_StoreLastSelectedPrinter; // "StoreLastSelectedPrinter"; // @v10.7.10
-	const char * WrParam_LastSelectedPrinter;      // "LastSelectedPrinter"; // @v10.7.10
+	const char * WrParam_DefaultWindowsPrinter;        // "DefaultWindowsPrinter"
+	const char * WrParam_PersonAddImageFolder;         // "PersonAddImageFolder"
+	const char * WrParam_UseDuplexPrinting;            // "UseDuplexPrinting"
+	const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter"; // @v10.7.10
+	const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter"; // @v10.7.10
 };
 
 extern const PPConstParam _PPConst;
@@ -32143,7 +32142,9 @@ public:
 
 	SLAPI  PPObjBill(void * extraPtr = 0);
 	SLAPI ~PPObjBill();
-	virtual int    SLAPI Search(PPID id, void * = 0);
+	virtual int SLAPI Search(PPID id, void * = 0);
+	virtual int FASTCALL Dirty(PPID id); // @macrow
+	virtual int SLAPI Browse(void * extraPtr);
 	//
 	// Descr: осуществляет кэшированное извлечение записи по идентификатору id.
 	//   Заполняются следующие поля: ID, Code, Dt, OpID, LocID, Object, Flags, Amount
@@ -32162,8 +32163,6 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI FetchExtMemo(PPID id, SString & rBuf);
-	virtual int FASTCALL Dirty(PPID id); // @macrow
-
 	const  StrAssocArray * SLAPI GetFullSerialList();
 	void   SLAPI ReleaseFullSerialList(const StrAssocArray * pList);
 	void   SLAPI ResetFullSerialList();
@@ -32173,7 +32172,6 @@ public:
 	int    SLAPI SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec);
 	int    SLAPI PutGuid(PPID id, const S_GUID * pUuid, int use_ta);
 	int    SLAPI GetGuid(PPID id, S_GUID * pUuid);
-	virtual int  SLAPI Browse(void * extraPtr);
 	//
 	// Descr: Флаги редактирования документов
 	//
@@ -33521,14 +33519,12 @@ private:
 #define GGEF_INTERNAL          (GGEF_CALCBYPRICE|GGEF_COSTWOVAT|GGEF_SETCOSTWOTAXES)
 #define GGEF_BYLOT             0x0400L // Обработка по лотам
 #define GGEF_COSTBYPAYM        0x0800L // Себестоимость элемента умножать на оплаченную долю документа
-	// оригинального лота. Оплата учитывается за период, открытый слева и ограниченный справа верхней датой
-	// расчетного периода.
+	// оригинального лота. Оплата учитывается за период, открытый слева и ограниченный справа верхней датой расчетного периода.
 #define GGEF_PAYMBYPAYOUTLOT   0x1000L // Оплата по полностью оплаченному лоту
 	// Этот флаг устанавливается для элемента GoodsGrpngEntry если фильтр имеет флаг
 	// OPG_COSTBYPAYM и элемент сформирован по оплате приходного документа при условии,
 	// что весь товар этого документа израсходован и оплачен покупателями.
-#define GGEF_INTRREVERSE       0x2000L // Зеркальная по отношению к внутренней
-	// передаче запись (межскладской приход)
+#define GGEF_INTRREVERSE       0x2000L // Зеркальная по отношению к внутренней передаче запись (межскладской приход)
 #define GGEF_SUPPRDISCOUNT     0x4000L // @internal
 #define GGEF_SETPRICEWOTAXES_  0x8000L // @internal
 
@@ -33974,7 +33970,7 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	char   Symb[20];           // @symb
 	PPID   ChargeGoodsID;      // Товар, использующийся для начисления на карту. Имеет приоритет перед PPSCardConfig::ChargeGoodsID.
 	PPID   BonusChrgGrpID;     // Товарная группа, ограничивающая начисления на бонусные карты
-	int16  BonusChrgExtRule;   // @v8.2.10 Дополнительная величина правила изменения начисления бонуса по карте
+	int16  BonusChrgExtRule;   // Дополнительная величина правила изменения начисления бонуса по карте
 	uint8  Reserve2;           // @reserve
 	int8   VerifTag;           // Если 1, то запись верифицирована версией 7.3.7 на предмет правильности установки флагов
 		// @v9.8.9 Если VerifTag == 2, то запись сохранена в версии v9.8.9 или выше.
@@ -34007,10 +34003,10 @@ struct TrnovrRngDis {      // @persistent @flat
 		fDiscountMultValue  = 0x0004  // Величина Value применяется как мультипликатор для величины скидки [0..10]
 	};
 	RealRange R;
-	double Value;          // @v7.9.5 PDis-->Value
+	double Value;          // 
 	PPID   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES) Серия, в которую следует переместить карту, если обороты по ней попадают в интервал [Beg..End]
-	PPID   LocID;          // @v7.5.0 Локация, для которой применяется данный элемент правила.
-	long   Flags;          // @v7.9.5 Reserve-->Flags
+	PPID   LocID;          // Локация, для которой применяется данный элемент правила.
+	long   Flags;          // @flags
 };
 
 #define SCARDSER_AUTODIS_PREVPRD 1L
@@ -34071,8 +34067,8 @@ struct PPSCardSerPacket {
 	PPSCardSeries2 Rec;
 	PPSCardSerRule Rule;
 	PPSCardSerRule CcAmtDisRule;
-	PPSCardSerRule BonusRule;    // @v7.3.9
-	PPIDArray QuotKindList_;     // @v7.4.0 Список видов котировок, применимых для карт этой серии.
+	PPSCardSerRule BonusRule;    // 
+	PPIDArray QuotKindList_;     // Список видов котировок, применимых для карт этой серии.
 		// Конкретный вид котировки выбирается в соответствии с рангом и ограничениями.
 	struct Ext {
 		SLAPI  Ext();
@@ -34100,10 +34096,10 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 		fValid                = 0x0001, // Признак того, что запись является действительной (загруженной из базы данных)
 		fSyncWoChecks         = 0x0002, // Заменяет DBDXF_SYNCSCARDWOCHECKS
 		fAcceptOwnerInDispDiv = 0x0004, // Принимать изменения владельца карты в диспетчерском разделе
-		fDontUseBonusCards    = 0x0008, // @v7.5.12 Использовать бонусные карты только как дисконтные.
+		fDontUseBonusCards    = 0x0008, // Использовать бонусные карты только как дисконтные.
 			// Флаг следует установить в разделе базы данных, обслуживающем магазин, в котором бонусные карты не
 			// должны использоваться, в противоположность другим синхронизированным магазинам.
-		fCheckBillDebt        = 0x0010  // @v8.6.9 При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
+		fCheckBillDebt        = 0x0010  // При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
 	};
 	PPID   Tag;                // Const=PPOBJ_CONFIG
 	PPID   ID;                 // Const=PPCFG_MAIN
@@ -34116,7 +34112,7 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 	PPID   ChargeAmtID;        // ->Ref(PPOBJ_AMOUNTTYPE) Тип суммы, применяемый для начисления на кредитную карту из документа.
 	PPID   DefSerID;           // Серия дисконтных карт по умолчанию //
 	PPID   DefCreditSerID;     // Серия кредитных карт по умолчанию //
-	long   WarnExpiryBefore;   // @v8.6.4 Период в днях, в течении которого владельца карты следует предупредить об истечении срока действия //
+	long   WarnExpiryBefore;   // Период в днях, в течении которого владельца карты следует предупредить об истечении срока действия //
 	char   Reserve1[40];       //
 	long   Reserve2[2];        //
 };
@@ -34456,7 +34452,7 @@ private:
 	void   SLAPI ReleaseFullList(const StrAssocArray * pList);
 
 	PPObjCSession * P_CsObj;  // Uses for transmission data to another db division
-	PPObjLocation LocObj; // @v9.4.7 Из-за внесения собственного номера телефона в атрибуты карты,
+	PPObjLocation LocObj;     // @v9.4.7 Из-за внесения собственного номера телефона в атрибуты карты,
 		// PPObjLocation понадобится при сохранении пакета для индексации телефонов.
 	PPSCardConfig Cfg;
 	int    DoObjVer_SCard;    // @v10.5.3 Хранить версии измененных и удаленных объектов
@@ -34748,8 +34744,7 @@ private:
 #define PRCF_ACCDUPSERIALINSESS    0x00001000L // Принимать две строки сессии с одним серийным номером
 #define PRCF_TURNINCOMPLBILL       0x00002000L // Проводить документы по сессиям, даже если есть дефицит
 #define PRCF_PASSIVE               0x00004000L // Пассивный процессор (флаг не наследуется от группы)
-#define PRCF_ADDEDOBJASAGENT       0x00008000L // Доп объект сессии списывается как агент (только в случае, если
-	// доп объект по виду операции не определен).
+#define PRCF_ADDEDOBJASAGENT       0x00008000L // Доп объект сессии списывается как агент (только в случае, если доп объект по виду операции не определен).
 #define PRCF_CLOSEBYJOBSRV         0x00010000L // Сессия процессора может быть закрыта JobServer'ом
 #define PRCF_USETSESSSIMPLEDLG     0x00020000L // Использовать упрощенный диалог редактирования технологической сессии
 #define PRCF_NEEDCCHECK            0x00040000L // Тех сессии по процессору требуют кассовый чек (запрет на проведение
@@ -34757,8 +34752,8 @@ private:
 #define PRCF_ALLOWCIP              0x00080000L // Тех сессии по процессору позволяют ассоциировать регистрацию персоналий
 #define PRCF_AUTOCREATE            0x00100000L // Для групп процессоров. Если процессоры группы ассоциированы с объектами,
 	// то при создании нового объекта автоматически создавать и процессор в этой группе, соответствующий новому объекту.
-#define PRCF_HASEXT                0x00200000L // @v8.1.6 С процессором связана запись расширения в PropertyTbl
-#define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // @v8.2.9 Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
+#define PRCF_HASEXT                0x00200000L // С процессором связана запись расширения в PropertyTbl
+#define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
 //
 // Флаг передаваемый с дополнительным параметром, и сигнализирующий о том, что
 // речь идет о группе процессоров
@@ -34821,13 +34816,13 @@ public:
 		LTIME  CheckInTime;
 		LTIME  CheckOutTime;
 		long   TimeFlags;
-		long   InitSessStatus; // @v8.2.9 Статус, с которым создаются новые сессии процессора. 0 - по умолчанию или наследуется от группы.
+		long   InitSessStatus; // Статус, с которым создаются новые сессии процессора. 0 - по умолчанию или наследуется от группы.
 	private:
 		uint   ExtStrP; // Позиция строки расширения в пуле SStrGroup
 		struct FlatBlock {
 			PPID   OwnerGuaID;       // Глобальная учетная запись, владеющая процессором
-			long   CipCancelTimeout; // @v8.8.0 @#{>=0} Таймаут снятия резерва (секунд).
-			long   CipLockTimeout;   // @v8.8.1 @#{>=0} Таймаут блокировки резерва за заданное количество секунд до начала сессии
+			long   CipCancelTimeout; // @#{>=0} Таймаут снятия резерва (секунд).
+			long   CipLockTimeout;   // @#{>=0} Таймаут блокировки резерва за заданное количество секунд до начала сессии
 			uint8  FbReserve[20];    // @reserve
 		} Fb;                    // @anchor
 		struct InnerPlaceDescription { // @flat
@@ -34835,7 +34830,7 @@ public:
 			uint   RangeP;   // Идент строки расширения, определяющий диапазон посадочных мест
 			uint   DescrP;   // Идент строки расширения, определяющий описание диапазона мест
 		};
-		TSVector <InnerPlaceDescription> Places; // @v8.7.0 // @v9.8.6 TSArray-->TSVector
+		TSVector <InnerPlaceDescription> Places; // @v9.8.6 TSArray-->TSVector
 	};
 	ProcessorTbl::Rec Rec;
 	ExtBlock Ext;
@@ -34878,7 +34873,7 @@ class PPObjProcessor : public PPObject {
 public:
 	static int FASTCALL ReadConfig(PPProcessorConfig *);
 	static int SLAPI EditPrcPlaceItem(PPProcessorPacket::PlaceDescription * pItem);
-	SLAPI  PPObjProcessor(void * extraPtr = 0);
+	explicit SLAPI PPObjProcessor(void * extraPtr = 0);
 	SLAPI ~PPObjProcessor();
 	virtual int SLAPI Search(PPID, void *);
 	//
@@ -34992,7 +34987,7 @@ struct ProcessorFilt : public PPBaseFilt {
 	long   Kind;             // PPPRCK_XXX
 	PPID   ParentID;
 	PPID   LocID;            //
-	long   Reserve;          // @anchor Заглулшка для отмера "плоского" участка фильтра
+	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 };
 
 typedef ProcessorTbl::Rec ProcessorViewItem;
@@ -35045,7 +35040,7 @@ private:
 	// Если ни один из вышеперечисленных флагов не выставлен, то параметр - ИД процессора
 #define TECEXDF_TOOLING 0x20000000L // Речь идет о записи технологии перенастройки
 #define TECEXDF_AUTO    0x10000000L // Речь идет о записи автотехнологии
-#define TECEXDF_PARENT  0x08000000L // @v7.5.6 Остальная часть параметра - ИД родительской технологии
+#define TECEXDF_PARENT  0x08000000L // Остальная часть параметра - ИД родительской технологии
 #define TECEXDF_MASK    0x07ffffffL
 //
 // Флаги технологий
@@ -35057,11 +35052,9 @@ private:
 	// серийного номера основного товара со знаком +.
 #define TECF_EXTSTRING        0x0002 // Технология содержит строку расширения //
 #define TECF_CALCTIMEBYROWS   0x0004 // Для каждой строки сессии извлекается доступная технология //
-	// для процессора и время выполнения количества, заданного по строке прибавляется к планируемому времени
-	// сессии
+	// для процессора и время выполнения количества, заданного по строке прибавляется к планируемому времени сессии
 #define TECF_AUTOMAIN         0x0008 // Основной товар автоматически вставляется в строки сессии
-#define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора
-	// (не зависимо от количества обоабатываемой позиции).
+#define TECF_ABSCAPACITYTIME  0x0010 // Производительность определяет абсолютное время работы процессора (не зависимо от количества обоабатываемой позиции).
 #define TECF_RVRSCMAINGOODS   0x0020 // @v10.0.06 Обратный расчет количества основого товара по заданным в строках сессии компонентам
 //
 //

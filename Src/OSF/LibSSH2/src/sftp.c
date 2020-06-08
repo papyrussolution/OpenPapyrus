@@ -1325,10 +1325,7 @@ LIBSSH2_API ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * hnd, char * buffer, 
 /* sftp_readdir
  * Read from an SFTP directory handle
  */
-static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE * handle, char * buffer,
-    size_t buffer_maxlen, char * longentry,
-    size_t longentry_maxlen,
-    LIBSSH2_SFTP_ATTRIBUTES * attrs)
+static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buffer_maxlen, char * longentry, size_t longentry_maxlen, LIBSSH2_SFTP_ATTRIBUTES * attrs)
 {
 	LIBSSH2_SFTP * sftp = handle->sftp;
 	LIBSSH2_CHANNEL * channel = sftp->channel;
@@ -1338,11 +1335,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE * handle, char * buffer,
 	/* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
 	uint32 packet_len = handle->handle_len + 13;
 	uchar * s, * data;
-	static const uchar read_responses[2] = {
-		SSH_FXP_NAME, SSH_FXP_STATUS
-	};
+	static const uchar read_responses[2] = { SSH_FXP_NAME, SSH_FXP_STATUS };
 	ssize_t retcode;
-
 	if(sftp->readdir_state == libssh2_NB_state_idle) {
 		if(handle->u.dir.names_left) {
 			/*

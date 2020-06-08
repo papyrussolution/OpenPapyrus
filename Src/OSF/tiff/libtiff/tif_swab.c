@@ -34,10 +34,9 @@
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabShort)
 void FASTCALL TIFFSwabShort(uint16* wp)
 {
-	uchar* cp = (uchar *)wp;
-	uchar t;
-	assert(sizeof(uint16)==2);
-	t = cp[1]; cp[1] = cp[0]; cp[0] = t;
+	uchar * cp = (uchar *)wp;
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
+	uchar t = cp[1]; cp[1] = cp[0]; cp[0] = t;
 }
 #endif
 
@@ -45,12 +44,10 @@ void FASTCALL TIFFSwabShort(uint16* wp)
 void FASTCALL TIFFSwabLong(uint32 * lp)
 {
 	uchar * cp = (uchar *)lp;
-	uchar t;
-	assert(sizeof(uint32)==4);
-	t = cp[3]; 
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
+	uchar t = cp[3]; 
 	cp[3] = cp[0]; 
 	cp[0] = t;
-	
 	t = cp[2]; 
 	cp[2] = cp[1]; 
 	cp[1] = t;
@@ -62,7 +59,7 @@ void FASTCALL TIFFSwabLong8(uint64* lp)
 {
 	uchar* cp = (uchar *)lp;
 	uchar t;
-	assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	t = cp[7]; cp[7] = cp[0]; cp[0] = t;
 	t = cp[6]; cp[6] = cp[1]; cp[1] = t;
 	t = cp[5]; cp[5] = cp[2]; cp[2] = t;
@@ -75,7 +72,7 @@ void FASTCALL TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 {
 	uchar* cp;
 	uchar t;
-	assert(sizeof(uint16)==2);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
 		cp = (uchar *)wp;
@@ -83,7 +80,6 @@ void FASTCALL TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 		wp++;
 	}
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfTriples)
@@ -98,7 +94,6 @@ void TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 		tp += 3;
 	}
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong)
@@ -106,7 +101,7 @@ void FASTCALL TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;
-	assert(sizeof(uint32)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
 		cp = (uchar *)lp;
@@ -123,7 +118,7 @@ void FASTCALL TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;
-	assert(sizeof(uint64)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
 		cp = (uchar *)lp;
@@ -134,7 +129,6 @@ void FASTCALL TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 		lp++;
 	}
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabFloat)
@@ -142,11 +136,10 @@ void TIFFSwabFloat(float* fp)
 {
 	uchar* cp = (uchar *)fp;
 	uchar t;
-	assert(sizeof(float)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(float)==4);
 	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
 	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfFloat)
@@ -154,7 +147,7 @@ void TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;
-	assert(sizeof(float)==4);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(float)==4);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
 		cp = (uchar *)fp;
@@ -171,13 +164,12 @@ void TIFFSwabDouble(double * dp)
 {
 	uchar* cp = (uchar *)dp;
 	uchar t;
-	assert(sizeof(double)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
 	t = cp[7]; cp[7] = cp[0]; cp[0] = t;
 	t = cp[6]; cp[6] = cp[1]; cp[1] = t;
 	t = cp[5]; cp[5] = cp[2]; cp[2] = t;
 	t = cp[4]; cp[4] = cp[3]; cp[3] = t;
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfDouble)
@@ -185,7 +177,7 @@ void TIFFSwabArrayOfDouble(double* dp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;
-	assert(sizeof(double)==8);
+	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
 		cp = (uchar *)dp;

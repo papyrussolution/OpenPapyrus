@@ -1319,15 +1319,13 @@ static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha1 = {
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD
-    kex_method_diffie_helman_group_exchange_sha1 = {
+static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group_exchange_sha1 = {
 	"diffie-hellman-group-exchange-sha1",
 	kex_method_diffie_hellman_group_exchange_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD
-    kex_method_diffie_helman_group_exchange_sha256 = {
+static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group_exchange_sha256 = {
 	"diffie-hellman-group-exchange-sha256",
 	kex_method_diffie_hellman_group_exchange_sha256_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
@@ -1353,16 +1351,13 @@ typedef struct _LIBSSH2_COMMON_METHOD {
 static size_t kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
 {
 	size_t len = 0;
-
 	if(!method || !*method) {
 		return 0;
 	}
-
 	while(*method && (*method)->name) {
 		len += strlen((*method)->name) + 1;
 		method++;
 	}
-
 	return len - 1;
 }
 

@@ -68,13 +68,12 @@ static int DumpModeEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
 	}
 	return 1;
 }
-
 /*
  * Decode a hunk of pixels.
  */
 static int DumpModeDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "DumpModeDecode";
+	static const char module[] = __FUNCTION__;
 	(void)s;
 	if(tif->tif_rawcc < cc) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))

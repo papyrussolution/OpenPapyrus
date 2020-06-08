@@ -48,7 +48,7 @@
 
 static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "NeXTDecode";
+	static const char module[] = __FUNCTION__;
 	uchar * bp, * op;
 	tmsize_t cc;
 	uint8* row;
@@ -143,14 +143,13 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 	tif->tif_rawcc = cc;
 	return 1;
 bad:
-	TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %ld",
-	    (long)tif->tif_row);
+	TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %ld", (long)tif->tif_row);
 	return 0;
 }
 
 static int NeXTPreDecode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "NeXTPreDecode";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	(void)s;
 	if(td->td_bitspersample != 2) {

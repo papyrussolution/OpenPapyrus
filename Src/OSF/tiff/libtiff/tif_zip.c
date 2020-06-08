@@ -88,7 +88,7 @@ static int ZIPFixupTags(TIFF* tif)
 
 static int ZIPSetupDecode(TIFF* tif)
 {
-	static const char module[] = "ZIPSetupDecode";
+	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
 	assert(sp != NULL);
 	/* if we were last encoding, terminate this mode */
@@ -96,7 +96,6 @@ static int ZIPSetupDecode(TIFF* tif)
 		deflateEnd(&sp->stream);
 		sp->state = 0;
 	}
-
 	/* This function can possibly be called several times by */
 	/* PredictorSetupDecode() if this function succeeds but */
 	/* PredictorSetup() fails */
@@ -115,7 +114,7 @@ static int ZIPSetupDecode(TIFF* tif)
  */
 static int ZIPPreDecode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "ZIPPreDecode";
+	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -134,7 +133,7 @@ static int ZIPPreDecode(TIFF* tif, uint16 s)
 
 static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 {
-	static const char module[] = "ZIPDecode";
+	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -175,7 +174,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 
 static int ZIPSetupEncode(TIFF* tif)
 {
-	static const char module[] = "ZIPSetupEncode";
+	static const char module[] = __FUNCTION__;
 	ZIPState* sp = EncoderState(tif);
 	assert(sp != NULL);
 	if(sp->state & ZSTATE_INIT_DECODE) {
@@ -197,7 +196,7 @@ static int ZIPSetupEncode(TIFF* tif)
  */
 static int ZIPPreEncode(TIFF* tif, uint16 s)
 {
-	static const char module[] = "ZIPPreEncode";
+	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
 	(void)s;
 	assert(sp != NULL);
@@ -218,7 +217,7 @@ static int ZIPPreEncode(TIFF* tif, uint16 s)
  */
 static int ZIPEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	static const char module[] = "ZIPEncode";
+	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
 	assert(sp != NULL);
 	assert(sp->state == ZSTATE_INIT_ENCODE);
@@ -251,7 +250,7 @@ static int ZIPEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
  */
 static int ZIPPostEncode(TIFF* tif)
 {
-	static const char module[] = "ZIPPostEncode";
+	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
 	int state;
 	sp->stream.avail_in = 0;
@@ -297,7 +296,7 @@ static void ZIPCleanup(TIFF* tif)
 
 static int ZIPVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
-	static const char module[] = "ZIPVSetField";
+	static const char module[] = __FUNCTION__;
 	ZIPState* sp = ZState(tif);
 	switch(tag) {
 		case TIFFTAG_ZIPQUALITY:
@@ -336,7 +335,7 @@ static const TIFFField zipFields[] = {
 
 int TIFFInitZIP(TIFF* tif, int scheme)
 {
-	static const char module[] = "TIFFInitZIP";
+	static const char module[] = __FUNCTION__;
 	ZIPState* sp;
 	assert((scheme == COMPRESSION_DEFLATE) || (scheme == COMPRESSION_ADOBE_DEFLATE));
 	/*

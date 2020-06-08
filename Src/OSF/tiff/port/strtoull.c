@@ -44,7 +44,6 @@
  */
 uint64 strtoull(const char * nptr, char ** endptr, int base)
 {
-	const char * s;
 	uint64 acc;
 	char c;
 	uint64 cutoff;
@@ -52,7 +51,7 @@ uint64 strtoull(const char * nptr, char ** endptr, int base)
 	/*
 	 * See strtoq for comments as to the logic used.
 	 */
-	s = nptr;
+	const char * s = nptr;
 	do {
 		c = *s++;
 	} while(isspace((uchar)c));

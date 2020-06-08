@@ -3550,19 +3550,13 @@ static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surfa
 			    x_scale*72);
 		}
 		else {
-			_cairo_output_stream_printf(surface->stream,
-			    "res=%fx%fppi ",
-			    x_scale*72,
-			    y_scale*72);
+			_cairo_output_stream_printf(surface->stream, "res=%fx%fppi ", x_scale*72, y_scale*72);
 		}
-		_cairo_output_stream_printf(surface->stream,
-		    "size=%ld\n",
-		    (long)src_surface_extents.width * src_surface_extents.height * 3);
+		_cairo_output_stream_printf(surface->stream, "size=%ld\n", (long)src_surface_extents.width * src_surface_extents.height * 3);
 	}
 	else {
 		if(op == CAIRO_OPERATOR_SOURCE) {
-			_cairo_output_stream_printf(surface->stream,
-			    "%d g %d %d %d %d rectfill\n",
+			_cairo_output_stream_printf(surface->stream, "%d g %d %d %d %d rectfill\n",
 			    surface->content == CAIRO_CONTENT_COLOR ? 0 : 1,
 			    surface->surface_extents.x,
 			    surface->surface_extents.y,
@@ -3570,15 +3564,12 @@ static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surfa
 			    surface->surface_extents.height);
 		}
 	}
-
 	status = cairo_matrix_invert(&cairo_p2d);
 	/* cairo_pattern_set_matrix ensures the matrix is invertible */
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	ps_p2d = surface->cairo_to_ps;
 	cairo_matrix_multiply(&ps_p2d, &cairo_p2d, &ps_p2d);
 	cairo_matrix_translate(&ps_p2d, x_offset, y_offset);
-
 	params.src_surface = image ? &image->base : source_surface;
 	params.op = op;
 	params.src_surface_extents = &src_surface_extents;
@@ -3588,44 +3579,34 @@ static cairo_status_t _cairo_ps_surface_paint_surface(cairo_ps_surface_t * surfa
 	params.stencil_mask = stencil_mask;
 	params.is_image = FALSE;
 	params.approx_size = 0;
-
 	status = _cairo_ps_surface_emit_surface(surface, CAIRO_EMIT_SURFACE_ANALYZE, &params);
 	if(unlikely(status))
 		goto release_source;
-
 	if(params.is_image) {
 		cairo_matrix_translate(&ps_p2d, 0.0, src_surface_extents.height);
 		cairo_matrix_scale(&ps_p2d, 1.0, -1.0);
 		cairo_matrix_scale(&ps_p2d, src_surface_extents.width, src_surface_extents.height);
 	}
-
 	if(!_cairo_matrix_is_identity(&ps_p2d)) {
 		_cairo_output_stream_printf(surface->stream, "[ ");
 		_cairo_output_stream_print_matrix(surface->stream, &ps_p2d);
 		_cairo_output_stream_printf(surface->stream, " ] concat\n");
 	}
-
 	status = _cairo_ps_surface_emit_surface(surface, CAIRO_EMIT_SURFACE_EMIT, &params);
-
 release_source:
 	if(image)
 		cairo_surface_destroy(&image->base);
-
 	_cairo_ps_surface_release_source_surface_from_pattern(surface, pattern, source_surface);
-
 	return status;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_surface_pattern(cairo_ps_surface_t * surface,
-    cairo_pattern_t * pattern,
-    cairo_rectangle_int_t * extents,
-    cairo_operator_t op)
+static cairo_status_t _cairo_ps_surface_emit_surface_pattern(cairo_ps_surface_t * surface, cairo_pattern_t * pattern,
+    cairo_rectangle_int_t * extents, cairo_operator_t op)
 {
-	cairo_status_t status;
 	double xstep, ystep;
 	cairo_rectangle_int_t pattern_extents;
 	boolint bounded;
-	cairo_matrix_t cairo_p2d, ps_p2d;
+	cairo_matrix_t ps_p2d;
 	boolint old_paint_proc;
 	double x_offset, y_offset;
 	cairo_surface_t * source_surface;
@@ -3633,9 +3614,8 @@ static cairo_status_t _cairo_ps_surface_emit_surface_pattern(cairo_ps_surface_t 
 	cairo_rectangle_int_t src_op_extents;
 	cairo_emit_surface_params_t params;
 	cairo_extend_t extend = cairo_pattern_get_extend(pattern);
-
-	cairo_p2d = pattern->matrix;
-	status = cairo_matrix_invert(&cairo_p2d);
+	cairo_matrix_t cairo_p2d = pattern->matrix;
+	cairo_status_t status = cairo_matrix_invert(&cairo_p2d);
 	/* cairo_pattern_set_matrix ensures the matrix is invertible */
 	assert(status == CAIRO_STATUS_SUCCESS);
 

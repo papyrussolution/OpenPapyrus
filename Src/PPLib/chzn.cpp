@@ -372,6 +372,7 @@ public:
 		SString CliIdent;
 		SString Cn; // CN субъекта сертификата электронной подписи (PPTAG_GUA_CERTSUBJCN)
 		SString CryptoProPath;
+		SString EndPoint; // URL для запросов
 		//
 		SString Token;
 	};
@@ -469,10 +470,11 @@ public:
 		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
 		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
 	};
-	int    SLAPI SetupInitBlock(PPID guaID, InitBlock & rBlk);
+	int    SLAPI SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
 	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf) const;
 	SString & SLAPI MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	SString & SLAPI MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	SString & SLAPI MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	enum {
 		mhffTokenOnly = 0x0001
 	};
@@ -662,12 +664,13 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 	return ok;
 }
 
-int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, InitBlock & rBlk)
+int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk)
 {
 	int    ok = 1;
 	SString temp_buf;
 	PPObjGlobalUserAcc gua_obj;
 	THROW(gua_obj.GetPacket(guaID, &rBlk.GuaPack) > 0);
+	rBlk.EndPoint = pEndPoint;
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, rBlk.CliAccsKey);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_SECRET, rBlk.CliSecret);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, rBlk.CliIdent); // Отпечаток открытого ключа 
@@ -756,15 +759,25 @@ int SLAPI ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size
 	CATCHZOK
 	return ok;
 }
+
+SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
+{
+	return rResult;
+}
 	
 SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
 {
 	//rResult = "http://api.sb.mdlp.crpt.ru";
 	//(rResult = (oneof2(query, qAuth, qToken) ? "http" : "https")).Cat("://");
-	(rResult = (oneof2(query, qAuth, qToken) ? "http" : "http")).Cat("://").Cat("api").Dot();
-	if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
-		rResult.Cat("sb").Dot();
-	rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1").SetLastDSlash();
+	if(rIb.EndPoint.NotEmpty())
+		rResult = rIb.EndPoint;
+	else {
+		(rResult = (oneof2(query, qAuth, qToken) ? "http" : "http")).Cat("://").Cat("api").Dot();
+		if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+			rResult.Cat("sb").Dot();
+		rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1");
+	}
+	rResult.SetLastDSlash();
 	switch(query) {
 		case qAuth:  rResult.Cat("auth"); break;
 		case qToken: rResult.Cat("token"); break;
@@ -789,7 +802,9 @@ SString & SLAPI ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum,
 	//https://ismp.crpt.ru/api/v3/auth/cert/key
 	//https://demo.lp.crpt.tech
 	// /api/v3/facade/auth"
-	if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+	if(rIb.EndPoint.NotEmpty())
+		rResult = rIb.EndPoint;
+	else if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
 		(rResult = "https").Cat("://").Cat("demo").Dot().Cat("lp").Dot().Cat("crpt").Dot().Cat("tech");
 	else 
 		(rResult = "https").Cat("://").Cat("ismp").Dot().Cat("crpt").Dot().Cat("ru");
@@ -1862,7 +1877,7 @@ int SLAPI PPChZnPrcssr::InteractiveQuery()
 		if(oneof2(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo)) {
 			ChZnInterface ifc;
 			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
-			THROW(ifc.SetupInitBlock(_param.GuaID, *p_ib));
+			THROW(ifc.SetupInitBlock(_param.GuaID, 0, *p_ib));
 			if(ifc.Connect(*p_ib) > 0) {
 				//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
 				//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
@@ -1904,7 +1919,7 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 	TSCollection <ChZnInterface::Packet> pack_list;
 	ChZnInterface ifc;
 	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
-	THROW(ifc.SetupInitBlock(rP.GuaID, *p_ib));
+	THROW(ifc.SetupInitBlock(rP.GuaID, 0, *p_ib));
 	THROW(ifc.GetPendingIdentList(*p_ib, pending_list));
 	if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
@@ -1997,7 +2012,7 @@ int SLAPI PPChZnPrcssr::Test()
 	if(prcssr.EditParam(&param) > 0) {
 		ChZnInterface ifc;
 		ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
-		THROW(ifc.SetupInitBlock(param.GuaID, *p_ib));
+		THROW(ifc.SetupInitBlock(param.GuaID, "https://int.edo.crpt.tech", *p_ib));
 		{
 			//const CERT_CONTEXT * p_cert = ifc.GetClientSslCertificate(prcssr.Ib);
 			if(p_ib->ProtocolVer == 1) {

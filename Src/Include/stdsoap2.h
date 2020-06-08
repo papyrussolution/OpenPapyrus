@@ -1805,12 +1805,12 @@ struct SOAP_STD_API soap {
 	std::ostream * os;
 	std::istream * is;
 #else
-	void * os;      /* preserve struct size */
-	void * is;      /* preserve struct size */
+	void * os;      // preserve struct size 
+	void * is;      // preserve struct size 
 #endif
 #ifndef UNDER_CE
-	int sendfd;     /* WinCE FD to send */
-	int recvfd;     /* WinCE FD to receive */
+	int sendfd;     // WinCE FD to send 
+	int recvfd;     // WinCE FD to receive 
 #else
 	FILE * sendfd;
 	FILE * recvfd;

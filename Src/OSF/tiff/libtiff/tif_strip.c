@@ -35,7 +35,7 @@
  */
 uint32 TIFFComputeStrip(TIFF* tif, uint32 row, uint16 sample)
 {
-	static const char module[] = "TIFFComputeStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint32 strip = row / td->td_rowsperstrip;
 	if(td->td_planarconfig == PLANARCONFIG_SEPARATE) {
@@ -64,7 +64,7 @@ uint32 TIFFNumberOfStrips(TIFF* tif)
  */
 uint64 TIFFVStripSize64(TIFF* tif, uint32 nrows)
 {
-	static const char module[] = "TIFFVStripSize64";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	if(nrows==(uint32)(-1))
 		nrows = td->td_imagelength;
@@ -106,7 +106,7 @@ uint64 TIFFVStripSize64(TIFF* tif, uint32 nrows)
 
 tmsize_t TIFFVStripSize(TIFF* tif, uint32 nrows)
 {
-	static const char module[] = "TIFFVStripSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFVStripSize64(tif, nrows);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {
@@ -120,7 +120,7 @@ tmsize_t TIFFVStripSize(TIFF* tif, uint32 nrows)
  */
 uint64 TIFFRawStripSize64(TIFF* tif, uint32 strip)
 {
-	static const char module[] = "TIFFRawStripSize64";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory* td = &tif->tif_dir;
 	uint64 bytecount = td->td_stripbytecount[strip];
 	if(bytecount == 0) {
@@ -137,7 +137,7 @@ uint64 TIFFRawStripSize64(TIFF* tif, uint32 strip)
 
 tmsize_t TIFFRawStripSize(TIFF* tif, uint32 strip)
 {
-	static const char module[] = "TIFFRawStripSize";
+	static const char module[] = __FUNCTION__;
 	tmsize_t n;
 	uint64 m = TIFFRawStripSize64(tif, strip);
 	if(m == static_cast<uint64>(-1LL))
@@ -171,7 +171,7 @@ uint64 TIFFStripSize64(TIFF* tif)
 
 tmsize_t TIFFStripSize(TIFF* tif)
 {
-	static const char module[] = "TIFFStripSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFStripSize64(tif);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {
@@ -225,7 +225,7 @@ uint32 _TIFFDefaultStripSize(TIFF* tif, uint32 s)
  */
 uint64 TIFFScanlineSize64(TIFF* tif)
 {
-	static const char module[] = "TIFFScanlineSize64";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 scanline_size;
 	if(td->td_planarconfig==PLANARCONFIG_CONTIG) {
@@ -269,7 +269,7 @@ uint64 TIFFScanlineSize64(TIFF* tif)
 
 tmsize_t TIFFScanlineSize(TIFF* tif)
 {
-	static const char module[] = "TIFFScanlineSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFScanlineSize64(tif);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {
@@ -287,7 +287,7 @@ tmsize_t TIFFScanlineSize(TIFF* tif)
  */
 uint64 TIFFRasterScanlineSize64(TIFF* tif)
 {
-	static const char module[] = "TIFFRasterScanlineSize64";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 scanline = _TIFFMultiply64(tif, td->td_bitspersample, td->td_imagewidth, module);
 	if(td->td_planarconfig == PLANARCONFIG_CONTIG) {
@@ -300,7 +300,7 @@ uint64 TIFFRasterScanlineSize64(TIFF* tif)
 
 tmsize_t TIFFRasterScanlineSize(TIFF* tif)
 {
-	static const char module[] = "TIFFRasterScanlineSize";
+	static const char module[] = __FUNCTION__;
 	uint64 m = TIFFRasterScanlineSize64(tif);
 	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {

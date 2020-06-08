@@ -430,7 +430,7 @@ static int TIFFjpeg_tables_dest(JPEGState* sp, TIFF* tif)
 	sp->jpegtables = SAlloc::M((tmsize_t)sp->jpegtables_length);
 	if(sp->jpegtables == NULL) {
 		sp->jpegtables_length = 0;
-		TIFFErrorExt(sp->tif->tif_clientdata, "TIFFjpeg_tables_dest", "No space for JPEGTables");
+		TIFFErrorExt(sp->tif->tif_clientdata, __FUNCTION__, "No space for JPEGTables");
 		return 0;
 	}
 	sp->cinfo.c.dest = &sp->dest;
@@ -644,20 +644,15 @@ static void JPEGFixupTagsSubsampling(TIFF* tif)
 	 * Frank Warmerdam, July 2002
 	 * Joris Van Damme, May 2007
 	 */
-	static const char module[] = "JPEGFixupTagsSubsampling";
+	static const char module[] = __FUNCTION__;
 	struct JPEGFixupTagsSubsamplingData m;
-
 	_TIFFFillStriles(tif);
-
-	if(tif->tif_dir.td_stripbytecount == NULL
-	    || tif->tif_dir.td_stripoffset == NULL
-	    || tif->tif_dir.td_stripbytecount[0] == 0) {
+	if(tif->tif_dir.td_stripbytecount == NULL || tif->tif_dir.td_stripoffset == NULL || tif->tif_dir.td_stripbytecount[0] == 0) {
 		/* Do not even try to check if the first strip/tile does not
 		   yet exist, as occurs when GDAL has created a new NULL file
 		   for instance. */
 		return;
 	}
-
 	m.tif = tif;
 	m.buffersize = 2048;
 	m.buffer = SAlloc::M(m.buffersize);
@@ -679,7 +674,7 @@ static void JPEGFixupTagsSubsampling(TIFF* tif)
 
 static int JPEGFixupTagsSubsamplingSec(struct JPEGFixupTagsSubsamplingData* data)
 {
-	static const char module[] = "JPEGFixupTagsSubsamplingSec";
+	static const char module[] = __FUNCTION__;
 	uint8 m;
 	while(1) {
 		while(1) {
@@ -862,22 +857,18 @@ static int JPEGSetupDecode(TIFF* tif)
 {
 	JPEGState* sp = JState(tif);
 	TIFFDirectory * td = &tif->tif_dir;
-
 #if defined(JPEG_DUAL_MODE_8_12) && !defined(TIFFInitJPEG)
 	if(tif->tif_dir.td_bitspersample == 12)
 		return TIFFReInitJPEG_12(tif, COMPRESSION_JPEG, 0);
 #endif
-
 	JPEGInitializeLibJPEG(tif, TRUE);
-
 	assert(sp != NULL);
 	assert(sp->cinfo.comm.is_decompressor);
-
 	/* Read JPEGTables if it is present */
 	if(TIFFFieldSet(tif, FIELD_JPEGTABLES)) {
 		TIFFjpeg_tables_src(sp);
 		if(TIFFjpeg_read_header(sp, FALSE) != JPEG_HEADER_TABLES_ONLY) {
-			TIFFErrorExt(tif->tif_clientdata, "JPEGSetupDecode", "Bogus JPEGTables field");
+			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Bogus JPEGTables field");
 			return 0;
 		}
 	}
@@ -935,7 +926,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 {
 	JPEGState * sp = JState(tif);
 	TIFFDirectory * td = &tif->tif_dir;
-	static const char module[] = "JPEGPreDecode";
+	static const char module[] = __FUNCTION__;
 	uint32 segment_width, segment_height;
 	int downsampled_output;
 	int ci;
@@ -1294,7 +1285,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 			jpeg_component_info * compptr;
 			int ci, clumpoffset;
 			if(cc < sp->bytesperline) {
-				TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw", "application buffer not large enough for all data.");
+				TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "application buffer not large enough for all data.");
 				return 0;
 			}
 			/* Reload downsampled-data buffer if needed */
@@ -1323,7 +1314,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 #else
 					JSAMPLE * outptr = (JSAMPLE*)buf + clumpoffset;
 					if(cc < (tmsize_t)(clumpoffset + samples_per_clump*(clumps_per_line-1) + hsamp)) {
-						TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw", "application buffer not large enough for all data, possible subsampling issue");
+						TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "application buffer not large enough for all data, possible subsampling issue");
 						return 0;
 					}
 #endif
@@ -1450,7 +1441,7 @@ static int JPEGSetupEncode(TIFF* tif)
 {
 	JPEGState* sp = JState(tif);
 	TIFFDirectory * td = &tif->tif_dir;
-	static const char module[] = "JPEGSetupEncode";
+	static const char module[] = __FUNCTION__;
 #if defined(JPEG_DUAL_MODE_8_12) && !defined(TIFFInitJPEG)
 	if(tif->tif_dir.td_bitspersample == 12)
 		return TIFFReInitJPEG_12(tif, COMPRESSION_JPEG, 1);
@@ -1602,7 +1593,7 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 {
 	JPEGState * sp = JState(tif);
 	TIFFDirectory * td = &tif->tif_dir;
-	static const char module[] = "JPEGPreEncode";
+	static const char module[] = __FUNCTION__;
 	uint32 segment_width, segment_height;
 	int downsampled_input;
 	assert(sp != NULL);
@@ -1739,24 +1730,20 @@ static int JPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	JSAMPROW bufptr[1];
 	short * line16 = NULL;
 	int line16_count = 0;
-
 	(void)s;
 	assert(sp != NULL);
 	/* data is expected to be supplied in multiples of a scanline */
 	nrows = cc / sp->bytesperline;
 	if(cc % sp->bytesperline)
-		TIFFWarningExt(tif->tif_clientdata, tif->tif_name,
-		    "fractional scanline discarded");
-
+		TIFFWarningExt(tif->tif_clientdata, tif->tif_name, "fractional scanline discarded");
 	/* The last strip will be limited to image size */
 	if(!isTiled(tif) && tif->tif_row+nrows > tif->tif_dir.td_imagelength)
 		nrows = tif->tif_dir.td_imagelength - tif->tif_row;
-
 	if(sp->cinfo.c.data_precision == 12) {
 		line16_count = (int)((sp->bytesperline * 2) / 3);
 		line16 = (short*)SAlloc::M(sizeof(short) * line16_count);
 		if(!line16) {
-			TIFFErrorExt(tif->tif_clientdata, "JPEGEncode", "Failed to allocate memory");
+			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Failed to allocate memory");
 			return 0;
 		}
 	}
@@ -2152,7 +2139,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 	 * Merge codec-specific tag information.
 	 */
 	if(!_TIFFMergeFields(tif, jpegFields, SIZEOFARRAY(jpegFields))) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "Merging JPEG codec-specific tags failed");
+		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Merging JPEG codec-specific tags failed");
 		return 0;
 	}
 	/*
@@ -2160,13 +2147,12 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 	 */
 	tif->tif_data = static_cast<uint8 *>(SAlloc::M(sizeof(JPEGState)));
 	if(tif->tif_data == NULL) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "No space for JPEG state block");
+		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "No space for JPEG state block");
 		return 0;
 	}
 	memzero(tif->tif_data, sizeof(JPEGState));
 	sp = JState(tif);
 	sp->tif = tif;                          /* back link */
-
 	/*
 	 * Override parent get/set field methods.
 	 */
@@ -2231,7 +2217,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 			memzero(sp->jpegtables, SIZE_OF_JPEGTABLES);
 		}
 		else {
-			TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "Failed to allocate memory for JPEG tables");
+			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Failed to allocate memory for JPEG tables");
 			return 0;
 		}
 #undef SIZE_OF_JPEGTABLES

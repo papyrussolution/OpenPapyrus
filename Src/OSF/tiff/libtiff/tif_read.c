@@ -122,7 +122,7 @@ static int TIFFReadAndRealloc(TIFF* tif, tmsize_t size, tmsize_t rawdata_offset,
 
 static int TIFFFillStripPartial(TIFF * tif, int strip, tmsize_t read_ahead, int restart)
 {
-	static const char module[] = "TIFFFillStripPartial";
+	static const char module[] = __FUNCTION__;
 	register TIFFDirectory * td = &tif->tif_dir;
 	tmsize_t unused_data;
 	uint64 read_offset;
@@ -344,7 +344,7 @@ int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
  */
 static tmsize_t TIFFReadEncodedStripGetStripSize(TIFF* tif, uint32 strip, uint16* pplane)
 {
-	static const char module[] = "TIFFReadEncodedStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint32 rowsperstrip;
 	uint32 stripsperplane;
@@ -375,7 +375,7 @@ static tmsize_t TIFFReadEncodedStripGetStripSize(TIFF* tif, uint32 strip, uint16
  */
 tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size)
 {
-	static const char module[] = "TIFFReadEncodedStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	tmsize_t stripsize;
 	uint16 plane;
@@ -515,7 +515,7 @@ static tmsize_t TIFFReadRawStripOrTile2(TIFF* tif, uint32 strip_or_tile, int is_
  */
 tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size)
 {
-	static const char module[] = "TIFFReadRawStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 bytecount;
 	tmsize_t bytecountm;
@@ -553,7 +553,7 @@ tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size)
  */
 int TIFFFillStrip(TIFF* tif, uint32 strip)
 {
-	static const char module[] = "TIFFFillStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	if(!_TIFFFillStriles(tif) || !tif->tif_dir.td_stripbytecount)
 		return 0;
@@ -717,7 +717,7 @@ tmsize_t TIFFReadTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16
  */
 tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size)
 {
-	static const char module[] = "TIFFReadEncodedTile";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	tmsize_t tilesize = tif->tif_tilesize;
 	if(!TIFFCheckRead(tif, 1))
@@ -769,7 +769,7 @@ tmsize_t _TIFFReadTileAndAllocBuffer(TIFF* tif, void ** buf, tmsize_t bufsizetoa
  */
 tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void ** buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read)
 {
-	static const char module[] = "_TIFFReadEncodedTileAndAllocBuffer";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	tmsize_t tilesize = tif->tif_tilesize;
 	if(*buf != NULL) {
@@ -856,7 +856,7 @@ static tmsize_t TIFFReadRawTile1(TIFF* tif, uint32 tile, void* buf, tmsize_t siz
  */
 tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size)
 {
-	static const char module[] = "TIFFReadRawTile";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 bytecount64;
 	tmsize_t bytecountm;
@@ -887,12 +887,10 @@ tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size)
  */
 int TIFFFillTile(TIFF* tif, uint32 tile)
 {
-	static const char module[] = "TIFFFillTile";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
-
 	if(!_TIFFFillStriles(tif) || !tif->tif_dir.td_stripbytecount)
 		return 0;
-
 	if((tif->tif_flags&TIFF_NOREADRAW)==0) {
 		uint64 bytecount = td->td_stripbytecount[tile];
 		if((int64)bytecount <= 0) {
@@ -1023,7 +1021,7 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
  */
 int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 {
-	static const char module[] = "TIFFReadBufferSetup";
+	static const char module[] = __FUNCTION__;
 	assert((tif->tif_flags&TIFF_NOREADRAW)==0);
 	tif->tif_flags &= ~TIFF_BUFFERMMAP;
 	if(tif->tif_rawdata) {
@@ -1088,7 +1086,7 @@ static int TIFFStartStrip(TIFF* tif, uint32 strip)
  */
 static int TIFFStartTile(TIFF* tif, uint32 tile)
 {
-	static const char module[] = "TIFFStartTile";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint32 howmany32;
 	if(!_TIFFFillStriles(tif) || !tif->tif_dir.td_stripbytecount)

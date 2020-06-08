@@ -42,7 +42,7 @@ static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc);
 
 int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
 {
-	static const char module[] = "TIFFWriteScanline";
+	static const char module[] = __FUNCTION__;
 	register TIFFDirectory * td;
 	int status, imagegrew = 0;
 	uint32 strip;
@@ -176,10 +176,9 @@ int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
  */
 tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 {
-	static const char module[] = "TIFFWriteEncodedStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint16 sample;
-
 	if(!WRITECHECKSTRIPS(tif, module))
 		return ((tmsize_t)-1);
 	/*
@@ -269,7 +268,7 @@ tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
  */
 tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc)
 {
-	static const char module[] = "TIFFWriteRawStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	if(!WRITECHECKSTRIPS(tif, module))
 		return ((tmsize_t)-1);
@@ -337,11 +336,10 @@ tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint1
  */
 tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 {
-	static const char module[] = "TIFFWriteEncodedTile";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td;
 	uint16 sample;
 	uint32 howmany32;
-
 	if(!WRITECHECKTILES(tif, module))
 		return static_cast<tmsize_t>(-1);
 	td = &tif->tif_dir;
@@ -449,7 +447,7 @@ tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
  */
 tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc)
 {
-	static const char module[] = "TIFFWriteRawTile";
+	static const char module[] = __FUNCTION__;
 	if(!WRITECHECKTILES(tif, module))
 		return static_cast<tmsize_t>(-1);
 	if(tile >= tif->tif_dir.td_nstrips) {
@@ -559,8 +557,7 @@ int FASTCALL TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
  */
 int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 {
-	static const char module[] = "TIFFWriteBufferSetup";
-
+	static const char module[] = __FUNCTION__;
 	if(tif->tif_rawdata) {
 		if(tif->tif_flags & TIFF_MYBUFFER) {
 			SAlloc::F(tif->tif_rawdata);
@@ -605,8 +602,8 @@ static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
 	uint64* new_stripoffset;
 	uint64* new_stripbytecount;
 	assert(td->td_planarconfig == PLANARCONFIG_CONTIG);
-	new_stripoffset = (uint64 *)SAlloc::R(td->td_stripoffset, (td->td_nstrips + delta) * sizeof(uint64));
-	new_stripbytecount = (uint64 *)SAlloc::R(td->td_stripbytecount, (td->td_nstrips + delta) * sizeof(uint64));
+	new_stripoffset = static_cast<uint64 *>(SAlloc::R(td->td_stripoffset, (td->td_nstrips + delta) * sizeof(uint64)));
+	new_stripbytecount = static_cast<uint64 *>(SAlloc::R(td->td_stripbytecount, (td->td_nstrips + delta) * sizeof(uint64)));
 	if(new_stripoffset == NULL || new_stripbytecount == NULL) {
 		SAlloc::F(new_stripoffset);
 		SAlloc::F(new_stripbytecount);
@@ -628,7 +625,7 @@ static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
  */
 static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc)
 {
-	static const char module[] = "TIFFAppendToStrip";
+	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 m;
 	int64 old_byte_count = -1;
