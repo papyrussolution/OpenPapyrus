@@ -2659,10 +2659,10 @@ long SLAPI DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 		case S_DEC:
 			if(pFmtStr && !oneof3(first, '>', '|', '<'))
 				fs.flags = ALIGN_RIGHT;
-			fs.prec = (short)GETSPRECD(tp);
+			fs.prec = static_cast<short>(GETSPRECD(tp));
 			break;
 		case S_ZSTRING:
-			fs.len = (short)GETSSIZE(tp);
+			fs.len = static_cast<short>(GETSSIZE(tp));
 			break; // @v10.3.2 @fix (отсутствовал break)
 		case S_DATE:
 		case S_TIME:
@@ -2764,7 +2764,7 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 	FORMAT_FLAG(fStatic);
 #undef FORMAT_FLAG
 	if(temp_buf.Empty())
-		temp_buf.Cat((long)0L);
+		temp_buf.Cat(0L);
 	styp_buf.Cat(temp_buf.Quot('<', '>'));
 	if(t.Mod == STypEx::modPtr)
 		styp_buf.CatChar('*');

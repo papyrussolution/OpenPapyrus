@@ -1212,7 +1212,7 @@ int SLAPI PPObjLocation::SearchName(PPID locTyp, PPID parentID, const char * pNa
 	if(name_buf.NotEmptyS()) {
 		LocationTbl::Key2 k2;
 		MEMSZERO(k2);
-		k2.Type = (int16)locTyp;
+		k2.Type = static_cast<int16>(locTyp);
 		BExtQuery q(P_Tbl, 2);
 		q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->Name, 0L).where(P_Tbl->Type == locTyp);
 		for(q.initIteration(0, &k2, spGe); ok < 0 && q.nextIteration() > 0;) {
@@ -1421,7 +1421,8 @@ public:
 			CALLPTRMEMB(P_Box->def, SetOption(lbtFocNotify, 1));
 		PPPersonConfig psn_cfg;
 		PPObjPerson::ReadConfig(&psn_cfg);
-		FieldNames.copy(psn_cfg.DlvrAddrExtFldList);
+		// @v10.7.11 FieldNames.copy(psn_cfg.DlvrAddrExtFldList);
+		FieldNames = psn_cfg.DlvrAddrExtFldList; // @v10.7.11
 		showCtrl(STDCTL_INSBUTTON, 0);
 	}
 	DECL_DIALOG_SETDTS()
@@ -1452,12 +1453,14 @@ private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
-	int    Edit(TaggedString *);
+	// @v10.7.11 int    Edit(TaggedString *);
+	int    Edit(SStringTag *); // @v10.7.11
 
-	TaggedStringArray FieldNames;
-	StrAssocArray     Fields;
+	StrAssocArray FieldNames; // @v10.7.11 TaggedStringArray-->StrAssocArray
+	StrAssocArray Fields;
 };
 
+#if 0 // @v10.7.11 {
 static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedStringArray * pStrings, long initID, uint /*flags*/)
 {
 	int    ok = 1;
@@ -1475,61 +1478,64 @@ static int SLAPI SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedS
 	CATCHZOK
 	return ok;
 }
+#endif // } @v10.7.11
 
-int LocationExtFieldsDialog::Edit(TaggedString * pData)
+int LocationExtFieldsDialog::Edit(SStringTag * pData)
 {
 	class AddExtFldDialog : public TDialog {
-		DECL_DIALOG_DATA(TaggedString);
+		DECL_DIALOG_DATA(SStringTag); // @v10.7.11 TaggedString-->SStringTag
 	public:
-		explicit AddExtFldDialog(TaggedStringArray * pFieldNames) : TDialog(DLG_ADDEXTFLD)
+		explicit AddExtFldDialog(const StrAssocArray * pFieldNames) : TDialog(DLG_ADDEXTFLD) // @v10.7.11 TaggedStringArray-->StrAssocArray
 		{
-			if(pFieldNames)
-				FieldNames.copy(*pFieldNames);
+			RVALUEPTR(FieldNames, pFieldNames);
 			disableCtrl(CTLSEL_ADDEXTFLD_FLD, 1);
 		}
 		DECL_DIALOG_SETDTS()
 		{
-			if(!RVALUEPTR(Data, pData))
-				MEMSZERO(Data);
-			SetupTaggedStringCombo(this, CTLSEL_ADDEXTFLD_FLD, &FieldNames, Data.Id, 0);
-			setCtrlData(CTL_ADDEXTFLD_VAL, Data.Txt);
+			if(!RVALUEPTR(Data, pData)) {
+				//MEMSZERO(Data);
+				Data.Id = 0;
+				Data.Z();
+			}
+			// @v10.7.11 SetupTaggedStringCombo(this, CTLSEL_ADDEXTFLD_FLD, &FieldNames, Data.Id, 0);
+			SetupStrAssocCombo(this, CTLSEL_ADDEXTFLD_FLD, &FieldNames, Data.Id, 0); // @v10.7.11
+			setCtrlString(CTL_ADDEXTFLD_VAL, Data);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlData(CTLSEL_ADDEXTFLD_FLD, &Data.Id);
-			getCtrlData(CTL_ADDEXTFLD_VAL,     Data.Txt);
+			getCtrlString(CTL_ADDEXTFLD_VAL, Data);
 			THROW_PP(Data.Id, PPERR_USERINPUT);
 			ASSIGN_PTR(pData, Data);
 			CATCHZOK
 			return ok;
 		}
 	private:
-		TaggedStringArray FieldNames;
+		StrAssocArray FieldNames; // @v10.7.11 TaggedStringArray-->StrAssocArray
 	};
 	int    ok = -1;
 	SString prev_txt;
-	TaggedString data;
-	TaggedStringArray field_names;
+	SStringTag data; // @v10.7.11 TaggedString-->SStringTag
+	StrAssocArray field_names; // @v10.7.11 TaggedStringArray-->StrAssocArray
 	AddExtFldDialog * p_dlg = 0;
-	if(!RVALUEPTR(data, pData))
-		MEMSZERO(data);
-	prev_txt = data.Txt;
+	RVALUEPTR(data, pData);
+	prev_txt = data;
 	field_names = FieldNames;
 	for(uint i = 0; i < Fields.getCount(); i++) {
 		uint pos = 0;
 		long id = Fields.Get(i).Id;
 		if(id != data.Id && field_names.Search(id, &pos) > 0)
-			field_names.atFree(pos);
+			field_names.AtFree(pos);
 	}
 	if(CheckDialogPtrErr(&(p_dlg = new AddExtFldDialog(&field_names))) > 0) {
 		p_dlg->setDTS(&data);
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			if(!p_dlg->getDTS(&data))
 				PPError();
-			else if(sstrlen(Data.Tail) + sstrlen(data.Txt) - prev_txt.Len() < sizeof(Data.Tail)){
-				LocationCore::SetExField(&Data, data.Id, data.Txt);
+			else if(sstrlen(Data.Tail) + data.Len() - prev_txt.Len() < sizeof(Data.Tail)){
+				LocationCore::SetExField(&Data, data.Id, data);
 				ASSIGN_PTR(pData, data);
 				ok = valid_data = 1;
 			}
@@ -1545,14 +1551,14 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 int LocationExtFieldsDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)FieldNames.getCount()) {
+	if(pos >= 0 && pos < static_cast<long>(FieldNames.getCount())) {
 		SString      buf;
-		TaggedString item;
+		SStringTag item; // @v10.7.11 TaggedString-->SStringTag
 		item.Id = id;
 		Fields.GetText(id, buf);
-		buf.CopyTo(item.Txt, sizeof(item.Txt));
+		static_cast<SString &>(item) = buf;
 		if(Edit(&item) > 0) {
-			Fields.Add(item.Id, item.Txt);
+			Fields.Add(item.Id, item);
 			ok = 1;
 		}
 	}
@@ -1571,7 +1577,8 @@ int LocationExtFieldsDialog::setupList()
 	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < FieldNames.getCount(); i++) {
-		TaggedString item = FieldNames.at(i);
+		//TaggedString item = FieldNames.at(i);
+		StrAssocArray::Item item = FieldNames.Get(i);
 		ss.clear();
 		temp_buf.Z().Cat(item.Id);
 		ss.add(temp_buf);

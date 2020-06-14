@@ -249,7 +249,10 @@ static const char * illegalChars = ";,=+<>|\"[] \\";
 
 int SLAPI validFileName(const char * pFileName)
 {
-	char   path[MAXPATH], dir[MAXDIR], name[MAXFILE], ext[MAXEXT];
+	char   path[MAXPATH];
+	char   dir[MAXDIR];
+	char   name[MAXFILE];
+	char   ext[MAXEXT];
 	fnsplit(pFileName, path, dir, name, ext);
 	return ((*dir && !pathValid(strcat(path, dir), 1)) || strpbrk(name, illegalChars) ||
 		strpbrk(ext + 1, illegalChars) || sstrchr(ext + 1, '.')) ? 0 : 1;
@@ -631,8 +634,7 @@ int RemoveDir(const char * pDir)
 	return ok;
 }
 
-// static
-int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
+/*static*/int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = -1;
@@ -655,8 +657,7 @@ int SFileUtil::GetStat(const char * pFileName, Stat * pStat)
 	return ok;
 }
 
-// static
-int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
+/*static*/int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
 {
 	int    ok = 1;
 	ULARGE_INTEGER avail, total, total_free;

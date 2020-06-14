@@ -62,9 +62,7 @@ SLAPI PpyInetDataPrcssr::~PpyInetDataPrcssr()
 int SLAPI PpyInetDataPrcssr::Init()
 {
 	int    ok = 1;
-	//char   proxy[64];
 	ulong  access_type = 0;
-	//memzero(proxy, sizeof(proxy));
 	SString proxi;
 	Uninit();
 	THROW(GetCfg(&IConnCfg));
@@ -1044,56 +1042,51 @@ int WinInetFTP::CreateDir(const char * pDir)
 
 // @v8.6.1 #endif // __WIN32__
 
-class InetConnConfigDialog : public TDialog {
-public:
-	InetConnConfigDialog() : TDialog(DLG_ICONNCFG)
-	{
-		PPLoadText(PPTXT_INETCONNAGENTS, Agents);
-	}
-	int  setDTS(const PPInetConnConfig *);
-	int  getDTS(PPInetConnConfig *);
-private:
-	PPInetConnConfig Data;
-	SString Agents;
-};
-
-int InetConnConfigDialog::setDTS(const PPInetConnConfig * pCfg)
-{
-	int    ok = 1;
-	int v = 0;
-	if(!RVALUEPTR(Data, pCfg))
-		MEMSZERO(Data);
-	v = (PPSearchSubStr(Agents, &v, Data.Agent, 0) > 0) ? v : 0;
-	setCtrlData(CTL_ICONNCFG_AGENT,      &v);
-	setCtrlData(CTL_ICONNCFG_MAXTRIES,   &Data.MaxTries);
-	setCtrlData(CTL_ICONNCFG_PROXYHOST,  Data.ProxyHost);
-	setCtrlData(CTL_ICONNCFG_PROXYPORT,  &Data.ProxyPort);
-	setCtrlData(CTL_ICONNCFG_URLDIR,     Data.URLDir);
-	v = (Data.AccessType == PPINETCONN_DIRECT) ? 0 : ((Data.AccessType == PPINETCONN_PROXY) ? 1 : 2);
-	setCtrlData(CTL_ICONNCFG_ACCESSTYPE, &v);
-	return ok;
-}
-
-int InetConnConfigDialog::getDTS(PPInetConnConfig * pCfg)
-{
-	int    ok = -1;
-	uint v = 0;
-	getCtrlData(CTL_ICONNCFG_AGENT,      &v);
-	PPGetSubStr(PPTXT_INETCONNAGENTS, v, Data.Agent, sizeof(Data.Agent));
-	getCtrlData(CTL_ICONNCFG_MAXTRIES,   &Data.MaxTries);
-	getCtrlData(CTL_ICONNCFG_PROXYHOST,  Data.ProxyHost);
-	getCtrlData(CTL_ICONNCFG_PROXYPORT,  &Data.ProxyPort);
-	getCtrlData(CTL_ICONNCFG_URLDIR,     Data.URLDir);
-	getCtrlData(CTL_ICONNCFG_ACCESSTYPE, &v);
-	Data.AccessType  = (v == 0) ? PPINETCONN_DIRECT : ((v == 1) ? PPINETCONN_PROXY : PPINETCONN_PRECONFIG);
-	ASSIGN_PTR(pCfg, Data);
-	ok = 1;
-	return ok;
-}
-
 // static
 int SLAPI PpyInetDataPrcssr::EditCfg()
 {
+	class InetConnConfigDialog : public TDialog {
+		DECL_DIALOG_DATA(PPInetConnConfig);
+	public:
+		InetConnConfigDialog() : TDialog(DLG_ICONNCFG)
+		{
+			PPLoadText(PPTXT_INETCONNAGENTS, Agents);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			int v = 0;
+			if(!RVALUEPTR(Data, pData))
+				MEMSZERO(Data);
+			v = (PPSearchSubStr(Agents, &v, Data.Agent, 0) > 0) ? v : 0;
+			setCtrlData(CTL_ICONNCFG_AGENT,      &v);
+			setCtrlData(CTL_ICONNCFG_MAXTRIES,   &Data.MaxTries);
+			setCtrlData(CTL_ICONNCFG_PROXYHOST,  Data.ProxyHost);
+			setCtrlData(CTL_ICONNCFG_PROXYPORT,  &Data.ProxyPort);
+			setCtrlData(CTL_ICONNCFG_URLDIR,     Data.URLDir);
+			v = (Data.AccessType == PPINETCONN_DIRECT) ? 0 : ((Data.AccessType == PPINETCONN_PROXY) ? 1 : 2);
+			setCtrlData(CTL_ICONNCFG_ACCESSTYPE, &v);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = -1;
+			uint v = 0;
+			getCtrlData(CTL_ICONNCFG_AGENT,      &v);
+			PPGetSubStr(PPTXT_INETCONNAGENTS, v, Data.Agent, sizeof(Data.Agent));
+			getCtrlData(CTL_ICONNCFG_MAXTRIES,   &Data.MaxTries);
+			getCtrlData(CTL_ICONNCFG_PROXYHOST,  Data.ProxyHost);
+			getCtrlData(CTL_ICONNCFG_PROXYPORT,  &Data.ProxyPort);
+			getCtrlData(CTL_ICONNCFG_URLDIR,     Data.URLDir);
+			getCtrlData(CTL_ICONNCFG_ACCESSTYPE, &v);
+			Data.AccessType  = (v == 0) ? PPINETCONN_DIRECT : ((v == 1) ? PPINETCONN_PROXY : PPINETCONN_PRECONFIG);
+			ASSIGN_PTR(pData, Data);
+			ok = 1;
+			return ok;
+		}
+	private:
+		SString Agents;
+	};
 	int    ok = -1, valid_data = 0, is_new = 0;
 	InetConnConfigDialog * p_dlg = new InetConnConfigDialog();
 	PPInetConnConfig cfg;

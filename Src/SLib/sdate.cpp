@@ -1077,8 +1077,7 @@ LDATE WorkDate::InitDate = {0x07CB0C1FL}; // 31/12/1995
 
 int WorkDate::GetVal() const { return V; }
 
-// static
-int FASTCALL WorkDate::ShrinkDate(LDATE dt)
+/*static*/int FASTCALL WorkDate::ShrinkDate(LDATE dt)
 {
 	int16  diff;
 	if(dt == ZERODATE)
@@ -1090,8 +1089,7 @@ int FASTCALL WorkDate::ShrinkDate(LDATE dt)
 	return diff;
 }
 
-// static
-LDATE FASTCALL WorkDate::ExpandDate(int16 sdt)
+/*static*/LDATE FASTCALL WorkDate::ExpandDate(int16 sdt)
 {
 	LDATE  dt;
 	if(sdt <= 0)

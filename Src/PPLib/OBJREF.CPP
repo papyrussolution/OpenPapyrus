@@ -679,7 +679,7 @@ int SLAPI PPObjReference::ProcessReservedItem(TVRez & rez)
 	SString name;
 	PPID   id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
-	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.2.1
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	THROW(r = Search(id));
 	if(r < 0) {
 		ReferenceTbl::Rec rec;

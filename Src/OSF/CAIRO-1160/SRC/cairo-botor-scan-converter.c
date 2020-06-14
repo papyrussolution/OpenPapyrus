@@ -931,7 +931,6 @@ inline static struct cell * coverage_find(sweep_line_t * sweep_line, int x)
 			});
 		} while(TRUE);
 	}
-
 	if(cell->x != x)
 		cell = coverage_alloc(sweep_line, cell, x);
 	return sweep_line->coverage.cursor = cell;
@@ -1026,7 +1025,7 @@ inline static void full_inc_edge(edge_t * edge)
 	}
 }
 
-static void full_add_edge(sweep_line_t * sweep_line, edge_t * edge, int sign)
+static void FASTCALL full_add_edge(sweep_line_t * sweep_line, edge_t * edge, int sign)
 {
 	struct cell * cell;
 	cairo_fixed_t x1, x2;
@@ -1041,13 +1040,10 @@ static void full_add_edge(sweep_line_t * sweep_line, edge_t * edge, int sign)
 		cell->uncovered_area += sign * 2 * frac * STEP_Y;
 		return;
 	}
-
 	x1 = edge->x.quo;
 	full_inc_edge(edge);
 	x2 = edge->x.quo;
-
 	ix2 = _cairo_fixed_integer_part(edge->x.quo);
-
 	/* Edge is entirely within a column? */
 	if(likely(ix1 == ix2)) {
 		frac = _cairo_fixed_fractional_part(x1) + _cairo_fixed_fractional_part(x2);
@@ -1120,20 +1116,15 @@ static void full_evenodd(sweep_line_t * sweep_line)
 					break;
 				}
 			}
-
 			if(!right->vertical)
 				full_inc_edge(right);
 		} while(TRUE);
-
 		full_add_edge(sweep_line, left,  +1);
 		full_add_edge(sweep_line, right, -1);
 	} while(pos != &sweep_line->active);
 }
 
-static void render_rows(cairo_botor_scan_converter_t * self,
-    sweep_line_t * sweep_line,
-    int y, int height,
-    cairo_span_renderer_t * renderer)
+static void render_rows(cairo_botor_scan_converter_t * self, sweep_line_t * sweep_line, int y, int height, cairo_span_renderer_t * renderer)
 {
 	cairo_half_open_span_t spans_stack[CAIRO_STACK_ARRAY_LENGTH(cairo_half_open_span_t)];
 	cairo_half_open_span_t * spans = spans_stack;
@@ -1141,16 +1132,13 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 	int prev_x, cover;
 	int num_spans;
 	cairo_status_t status;
-
 	if(unlikely(sweep_line->coverage.count == 0)) {
 		status = renderer->render_rows(renderer, y, height, NULL, 0);
 		if(unlikely(status))
 			longjmp(sweep_line->unwind, status);
 		return;
 	}
-
 	/* Allocate enough spans for the row. */
-
 	num_spans = 2*sweep_line->coverage.count+2;
 	if(unlikely(num_spans > ARRAY_LENGTH(spans_stack))) {
 		spans = static_cast<cairo_half_open_span_t *>(_cairo_malloc_ab(num_spans, sizeof(cairo_half_open_span_t)));
@@ -1196,14 +1184,10 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 		spans[num_spans].coverage = 0;
 		++num_spans;
 	}
-
 	status = renderer->render_rows(renderer, y, height, spans, num_spans);
-
 	if(unlikely(spans != spans_stack))
 		SAlloc::F(spans);
-
 	coverage_reset(&sweep_line->coverage);
-
 	if(unlikely(status))
 		longjmp(sweep_line->unwind, status);
 }
@@ -1211,7 +1195,6 @@ static void render_rows(cairo_botor_scan_converter_t * self,
 static void full_repeat(sweep_line_t * sweep)
 {
 	edge_t * edge;
-
 	cairo_list_foreach_entry(edge, edge_t, &sweep->active, link) {
 		if(edge->current_sign)
 			full_add_edge(sweep, edge, edge->current_sign);
@@ -1223,7 +1206,6 @@ static void full_repeat(sweep_line_t * sweep)
 static void full_reset(sweep_line_t * sweep)
 {
 	edge_t * edge;
-
 	cairo_list_foreach_entry(edge, edge_t, &sweep->active, link)
 	edge->current_sign = 0;
 }
@@ -1389,67 +1371,48 @@ static void sub_evenodd(sweep_line_t * sweep_line)
 	} while(pos != &sweep_line->active);
 }
 
-cairo_always_inline static void sub_step(cairo_botor_scan_converter_t * self,
-    sweep_line_t * sweep_line)
+cairo_always_inline static void sub_step(cairo_botor_scan_converter_t * self, sweep_line_t * sweep_line)
 {
 	if(cairo_list_is_empty(&sweep_line->active))
 		return;
-
 	if(self->fill_rule == CAIRO_FILL_RULE_WINDING)
 		sub_nonzero(sweep_line);
 	else
 		sub_evenodd(sweep_line);
 }
 
-static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge,
-    cairo_fixed_t y1, cairo_fixed_t y2)
+static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge, cairo_fixed_t y1, cairo_fixed_t y2)
 {
 	struct run tail;
 	struct run * run = &tail;
-
 	tail.next = NULL;
 	tail.y = y2;
-
 	/* Order the runs top->bottom */
 	while(edge->runs) {
-		struct run * r;
-
-		r = edge->runs;
+		struct run * r = edge->runs;
 		edge->runs = r->next;
 		r->next = run;
 		run = r;
 	}
-
 	if(run->y > y1)
 		sub_inc_edge(edge, run->y - y1);
-
 	do {
 		cairo_fixed_t x1, x2;
-
 		y1 = run->y;
 		y2 = run->next->y;
-
 		x1 = edge->x.quo;
 		if(y2 - y1 == STEP_Y)
 			full_inc_edge(edge);
 		else
 			sub_inc_edge(edge, y2 - y1);
 		x2 = edge->x.quo;
-
 		if(run->sign) {
-			int ix1, ix2;
-
-			ix1 = _cairo_fixed_integer_part(x1);
-			ix2 = _cairo_fixed_integer_part(x2);
-
+			int ix1 = _cairo_fixed_integer_part(x1);
+			int ix2 = _cairo_fixed_integer_part(x2);
 			/* Edge is entirely within a column? */
 			if(likely(ix1 == ix2)) {
-				struct cell * cell;
-				int frac;
-
-				frac = _cairo_fixed_fractional_part(x1) +
-				    _cairo_fixed_fractional_part(x2);
-				cell = coverage_find(sweep, ix1);
+				int frac = _cairo_fixed_fractional_part(x1) + _cairo_fixed_fractional_part(x2);
+				struct cell * cell = coverage_find(sweep, ix1);
 				cell->covered_height += run->sign * (y2 - y1);
 				cell->uncovered_area += run->sign * (y2 - y1) * frac;
 			}
@@ -1457,7 +1420,6 @@ static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge,
 				coverage_render_cells(sweep, x1, x2, y1, y2, run->sign);
 			}
 		}
-
 		run = run->next;
 	} while(run->next != NULL);
 }
@@ -1465,30 +1427,22 @@ static void coverage_render_runs(sweep_line_t * sweep, edge_t * edge,
 static void coverage_render_vertical_runs(sweep_line_t * sweep, edge_t * edge, cairo_fixed_t y2)
 {
 	struct cell * cell;
-	struct run * run;
 	int height = 0;
-
-	for(run = edge->runs; run != NULL; run = run->next) {
+	for(struct run * run = edge->runs; run != NULL; run = run->next) {
 		if(run->sign)
 			height += run->sign * (y2 - run->y);
 		y2 = run->y;
 	}
-
 	cell = coverage_find(sweep, _cairo_fixed_integer_part(edge->x.quo));
 	cell->covered_height += height;
 	cell->uncovered_area += 2 * _cairo_fixed_fractional_part(edge->x.quo) * height;
 }
 
-cairo_always_inline static void sub_emit(cairo_botor_scan_converter_t * self,
-    sweep_line_t * sweep,
-    cairo_span_renderer_t * renderer)
+cairo_always_inline static void sub_emit(cairo_botor_scan_converter_t * self, sweep_line_t * sweep, cairo_span_renderer_t * renderer)
 {
 	edge_t * edge;
-
 	sub_step(self, sweep);
-
 	/* convert the runs into coverages */
-
 	cairo_list_foreach_entry(edge, edge_t, &sweep->active, link) {
 		if(edge->runs == NULL) {
 			if(!edge->vertical) {
@@ -1531,54 +1485,38 @@ cairo_always_inline static void sub_emit(cairo_botor_scan_converter_t * self,
 		}
 	}
 	cairo_list_init(&sweep->stopped);
-
 	_cairo_freepool_reset(&sweep->runs);
-
-	render_rows(self, sweep,
-	    _cairo_fixed_integer_part(sweep->current_row), 1,
-	    renderer);
+	render_rows(self, sweep, _cairo_fixed_integer_part(sweep->current_row), 1, renderer);
 }
 
-static void sweep_line_init(sweep_line_t * sweep_line,
-    event_t ** start_events,
-    int num_events)
+static void sweep_line_init(sweep_line_t * sweep_line, event_t ** start_events, int num_events)
 {
 	cairo_list_init(&sweep_line->active);
 	cairo_list_init(&sweep_line->stopped);
 	sweep_line->insert_cursor = &sweep_line->active;
-
 	sweep_line->current_row = INT32_MIN;
 	sweep_line->current_subrow = INT32_MIN;
-
 	coverage_init(&sweep_line->coverage);
 	_cairo_freepool_init(&sweep_line->runs, sizeof(struct run));
-
 	start_event_sort(start_events, num_events);
 	start_events[num_events] = NULL;
-
 	sweep_line->queue.start_events = start_events;
-
-	_cairo_freepool_init(&sweep_line->queue.pool,
-	    sizeof(queue_event_t));
+	_cairo_freepool_init(&sweep_line->queue.pool, sizeof(queue_event_t));
 	pqueue_init(&sweep_line->queue.pq);
 	sweep_line->queue.pq.elements[PQ_FIRST_ENTRY] = NULL;
 }
 
-static void sweep_line_delete(sweep_line_t * sweep_line,
-    edge_t * edge)
+static void sweep_line_delete(sweep_line_t * sweep_line, edge_t * edge)
 {
 	if(sweep_line->insert_cursor == &edge->link)
 		sweep_line->insert_cursor = edge->link.prev;
-
 	cairo_list_del(&edge->link);
 	if(edge->runs)
 		cairo_list_add_tail(&edge->link, &sweep_line->stopped);
 	edge->flags |= STOP;
 }
 
-static void sweep_line_swap(sweep_line_t * sweep_line,
-    edge_t * left,
-    edge_t * right)
+static void sweep_line_swap(sweep_line_t * sweep_line, edge_t * left, edge_t * right)
 {
 	right->link.prev = left->link.prev;
 	left->link.next = right->link.next;
@@ -1794,20 +1732,15 @@ static edge_t * botor_allocate_edge(cairo_botor_scan_converter_t * self)
 
 static cairo_status_t botor_add_edge(cairo_botor_scan_converter_t * self, const cairo_edge_t * edge)
 {
-	edge_t * e;
 	cairo_fixed_t dx, dy;
-
-	e = botor_allocate_edge(self);
+	edge_t * e = botor_allocate_edge(self);
 	if(unlikely(e == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	cairo_list_init(&e->link);
 	e->edge = *edge;
-
 	dx = edge->line.p2.x - edge->line.p1.x;
 	dy = edge->line.p2.y - edge->line.p1.y;
 	e->dy = dy;
-
 	if(dx == 0) {
 		e->vertical = TRUE;
 		e->x.quo = edge->line.p1.x;
@@ -1870,19 +1803,14 @@ static cairo_status_t _cairo_botor_scan_converter_add_edge(void * converter,
 
 #endif
 
-cairo_status_t _cairo_botor_scan_converter_add_polygon(cairo_botor_scan_converter_t * converter,
-    const cairo_polygon_t * polygon)
+cairo_status_t _cairo_botor_scan_converter_add_polygon(cairo_botor_scan_converter_t * converter, const cairo_polygon_t * polygon)
 {
 	cairo_botor_scan_converter_t * self = converter;
-	cairo_status_t status;
-	int i;
-
-	for(i = 0; i < polygon->num_edges; i++) {
-		status = botor_add_edge(self, &polygon->edges[i]);
+	for(int i = 0; i < polygon->num_edges; i++) {
+		cairo_status_t status = botor_add_edge(self, &polygon->edges[i]);
 		if(unlikely(status))
 			return status;
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

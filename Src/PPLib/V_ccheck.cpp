@@ -2991,8 +2991,10 @@ int SLAPI PPViewCCheck::ViewGraph()
 			param.Flags |= Generator_GnuPlot::PlotParam::fLines;
 		else
 			param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
-		param.Legend.Add(2, PPGetWord(PPWORD_SALES, 1, temp_buf));
-		param.Legend.Add(3, PPGetWord(PPWORD_DISCOUNT, 1, temp_buf));
+		// @v10.7.11 param.Legend.Add(2, PPGetWord(PPWORD_SALES, 1, temp_buf));
+		param.Legend.Add(2, PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER)); // @v10.7.11
+		// @v10.7.11 param.Legend.Add(3, PPGetWord(PPWORD_DISCOUNT, 1, temp_buf));
+		param.Legend.Add(3, PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER)); // @v10.7.11
 		plot.Preamble();
 		if(Filt.Grp == CCheckFilt::gDate)
 			plot.SetDateTimeFormat(Generator_GnuPlot::axX);
@@ -3005,7 +3007,8 @@ int SLAPI PPViewCCheck::ViewGraph()
 		plot.SetTics(Generator_GnuPlot::axX, &xtics);
 		if(Filt.Grp == CCheckFilt::gDate) {
 			{
-				PPGetWord(PPWORD_SALES, 1, temp_buf);
+				// @v10.7.11 PPGetWord(PPWORD_SALES, 1, temp_buf);
+				PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.11
 				PPGpPlotItem plot_item(plot.GetDataFileName(), temp_buf, PPGpPlotItem::sLines);
 				plot_item.Style.SetLine(RGB(0xFF, 0x8C, 0x69), 3);
 				plot_item.AddDataIndex(1);
@@ -3013,7 +3016,8 @@ int SLAPI PPViewCCheck::ViewGraph()
 				plot.AddPlotItem(plot_item);
 			}
 			{
-				PPGetWord(PPWORD_DISCOUNT, 1, temp_buf);
+				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 1, temp_buf);
+				PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.11
 				PPGpPlotItem plot_item(plot.GetDataFileName(), temp_buf, PPGpPlotItem::sLines);
 				plot_item.Style.SetLine(RGB(0x76, 0xEE, 0x00), 3);
 				plot_item.AddDataIndex(1);
@@ -3028,9 +3032,11 @@ int SLAPI PPViewCCheck::ViewGraph()
 			// Заголовки столбцов нужны только для гистрограмм
 			//
 			// @v10.7.10 plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
+			// @v10.7.11 plot.PutData(PPGetWord(PPWORD_SALES, 1, temp_buf), 1);
+			// @v10.7.11 plot.PutData(PPGetWord(PPWORD_DISCOUNT, 1, temp_buf), 1);
 			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.10
-			plot.PutData(PPGetWord(PPWORD_SALES, 1, temp_buf), 1);
-			plot.PutData(PPGetWord(PPWORD_DISCOUNT, 1, temp_buf), 1);
+			plot.PutData(PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.11
+			plot.PutData(PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.11
 			plot.PutEOR();
 		}
 		CCheckViewItem item;

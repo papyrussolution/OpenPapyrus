@@ -22,8 +22,7 @@ int CtrlGroup::getData(TDialog*, void*) { return -1; }
 ODC OwnerDrawCtrls[32]; // @global
 //
 //
-// static
-void TDialog::centerDlg(HWND hWnd)
+/*static*/void TDialog::centerDlg(HWND hWnd)
 {
 	const int sx = GetSystemMetrics(SM_CXSCREEN);
 	const int sy = GetSystemMetrics(SM_CYSCREEN);
@@ -255,8 +254,7 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	return ok;
 }
 
-// static
-int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags)
+/*static*/int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags)
 {
 	assert(dlg != 0);
 	if(rez == 0)

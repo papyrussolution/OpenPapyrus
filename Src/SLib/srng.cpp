@@ -458,8 +458,7 @@ ulong SRngRANLUX::Get()
 //
 //
 //
-// static
-SRng * SRng::CreateInstance(Algorithm alg, uint level)
+/*static*/SRng * SRng::CreateInstance(Algorithm alg, uint level)
 {
 	SRng * p_rng = 0;
 	if(oneof3(alg, algBSD, algLibC5, algGLibC2))

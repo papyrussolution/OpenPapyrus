@@ -427,7 +427,6 @@ int PPApp::processCommand(uint cmd)
 		case cmAction:               ShowObjects(PPOBJ_ACTION, 0);            break;
 		case cmViewQCert:            ShowObjects(PPOBJ_QCERT, 0);             break;
 		case cmBarCodeStruc:         ShowObjects(PPOBJ_BCODESTRUC, 0);        break;
-		case cmMailAccount:          ShowObjects(PPOBJ_INTERNETACCOUNT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/)); break;
 		case cmSmsAccount:           ShowObjects(PPOBJ_SMSPRVACCOUNT, 0);	  break;
 		case cmVATBook:              ShowObjects(PPOBJ_VATBOOK, 0);           break;
 		case cmFormula:              ShowObjects(PPOBJ_FORMULA, 0);           break;
@@ -471,8 +470,9 @@ int PPApp::processCommand(uint cmd)
 		case cmLocPrinter:           ShowObjects(PPOBJ_LOCPRINTER, 0);        break;
 		case cmSalCharge:            ShowObjects(PPOBJ_SALCHARGE, 0);         break;
 		case cmStaffCalendar:        ShowObjects(PPOBJ_STAFFCAL, 0);          break;
-		case cmFTPAcct:              ShowObjects(PPOBJ_INTERNETACCOUNT, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/)); break;
-		case cmMailAcct:             ShowObjects(PPOBJ_INTERNETACCOUNT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/)); break;
+		case cmFTPAcct:              ShowObjects(PPOBJ_INTERNETACCOUNT, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)); break;
+		case cmMailAcct:             ShowObjects(PPOBJ_INTERNETACCOUNT, 0/*interpret_cast<void *>(PPObjInternetAccount::filtfMail)*/); break;
+		case cmMailAccount:          ShowObjects(PPOBJ_INTERNETACCOUNT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)); break;
 		case cmProcessor:            ShowObjects(PPOBJ_PROCESSOR, 0);         break;
 		case cmNamedObjAssoc:        ShowObjects(PPOBJ_NAMEDOBJASSOC, 0);     break;
 		case cmBizScore:             ShowObjects(PPOBJ_BIZSCORE, 0);          break;

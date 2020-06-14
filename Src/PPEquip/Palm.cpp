@@ -3118,7 +3118,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 		p_reader = xmlReaderForFile(pXmlPath, NULL, XML_PARSE_NOENT);
 	if(p_reader) {
 		int r = 0;
-		xmlTextReaderPreservePattern(p_reader, (const xmlChar *)(const char *)p_tag, 0);
+		xmlTextReaderPreservePattern(p_reader, reinterpret_cast<const xmlChar *>(p_tag), 0);
 		r = xmlTextReaderRead(p_reader);
 		/*
 		while(r == 1)

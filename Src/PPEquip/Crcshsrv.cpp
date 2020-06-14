@@ -159,7 +159,7 @@ private:
 	int    SLAPI GetFilesLocal();
 	PPBillImpExpParam * SLAPI CreateImpExpParam(uint sdRecID);
 	void   SLAPI Backup(const char * pPrefix, const char * pPath);
-	int    SLAPI Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
+	int    SLAPI Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 		AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName);
 
 	class DeferredRemovingFileList : public SStrGroup {
@@ -565,7 +565,7 @@ struct _MinPriceEntry { // @flat
 	int16  Reserve; // @alignment
 };
 
-int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex, 
+int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName)
 {
 	assert(oneof3(mode, 0, 1, 2));
@@ -648,7 +648,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 			PPGoodsPacket goods_pack;
 			PPQuotKind qk_rec;
 			const long divn = (rCnData.Flags & CASHF_EXPDIVN) ? prev_gds_info.DivN : 1;
-			const int  is_deleted = BIN((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) || 
+			const int  is_deleted = BIN((prev_gds_info.Flags_ & AsyncCashGoodsInfo::fDeleted) ||
 				(prev_gds_info.GoodsFlags & GF_PASSIV && rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && prev_gds_info.Rest <= 0.0));
 			temp_buf.Z();
 			if(CConfig.Flags & CCFLG_DEBUG)
@@ -684,7 +684,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 				p_writer->EndElement();
 			}
 			else {
-			// } @v10.6.8 
+			// } @v10.6.8
 				p_writer->StartElement("good", "marking-of-the-good", prev_gds_info.PrefBarCode);
 				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
 					if(rStoreIndex.NotEmpty())
@@ -704,7 +704,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 								if(prev_gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
 									p_writer->AddAttrib("marked", "true");
 								}
-								// } @v10.4.11 
+								// } @v10.4.11
 								// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price));
 								// p_writer->PutElement("begin-date", beg_dtm);
 								// p_writer->PutElement("end-date", end_dtm);
@@ -737,7 +737,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 						p_writer->PutElement(temp_buf, "true");
 					}
-					// } @v10.4.12 
+					// } @v10.4.12
 				}
 				if(mode == 0) {
 					p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(prev_gds_info.Price, SFMT_MONEY));
@@ -897,7 +897,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 					mp_entry.Reserve = 0;
 					min_price_list.insert(&mp_entry);
 				}
-				// } @v10.6.4 
+				// } @v10.6.4
 			}
 			barcodes.clear();
 		}
@@ -949,7 +949,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 				// @v10.4.6 {
 				if(rStoreIndex.NotEmpty())
 					p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
-				// } @v10.4.6 
+				// } @v10.4.6
 				p_writer->EndElement(); // </max-discount-restriction>
 				PPWaitPercent(i + 1, max_dis_list.getCount(), iter_msg);
 			}
@@ -1035,7 +1035,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		if(tag_obj.FetchBySymb("setretail-prodtagb", &temp_tag_id) > 0)
 			sr_prodtagb_tag = temp_tag_id;
 	}*/
-	// } @v10.4.12 
+	// } @v10.4.12
 	// @v10.6.3 (moved to Helper_ExportGoods_V10()) rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
 	//const int check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	THROW(DistributeFile(0, 3, SUBDIR_PRODUCTS));
@@ -1079,7 +1079,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	}
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
 	PROFILE_START
-	/* @v10.6.3 (moved to Helper_ExportGoods_V10()) 
+	/* @v10.6.3 (moved to Helper_ExportGoods_V10())
 	alc_cls_id = p_gds_iter->GetAlcoGoodsCls(&alc_proof, &alc_vol);
 	if(!(alc_proof.Len() || alc_vol.Len()) || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
 		alc_cls_id = 0;
@@ -1166,7 +1166,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		PPLoadText(PPTXT_EXPSCARD, iter_msg);
-		PPGetWord(PPWORD_SERIES, 0, series_word);
+		// @v10.7.11 PPGetWord(PPWORD_SERIES, 0, series_word);
+		PPLoadString("series", series_word); // @v10.7.11
 		scard_quot_ary.clear();
 		sp.Split(path_cards);
 		getcurdatetime(&cur_dtm);
@@ -3277,7 +3278,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 		}
 		if(p_items) {
 			for(; p_items; p_items = p_items->next) {
-				if(p_items->type == XML_ELEMENT_NODE && p_items->properties) { 
+				if(p_items->type == XML_ELEMENT_NODE && p_items->properties) {
 					Item item;
 					MEMSZERO(item);
 					for(xmlAttr * p_fld = p_items->properties; p_fld; p_fld = p_fld->next) {
@@ -4251,7 +4252,7 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 						case 1: item.CashCode = val.ToLong(); break; // Номер кассы
 						case 2:  // Дата время чека
 							strtodatetime(val, &item.Start, DATF_ISO8601, TIMF_HMS); // @v10.1.1
-							/* @v10.1.1 
+							/* @v10.1.1
 							{
 								SString s_dt, s_tm;
 								val.Divide('T', s_dt, s_tm);
@@ -4478,7 +4479,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 				for(SDirec sd(data_path); sd.Next(&sd_entry) > 0;) {
 					(data_path = data_dir).Cat(sd_entry.FileName);
 					// @v10.1.1 Backup("chks", data_path);
-					DrfL.Add("chks", data_path); // @v10.1.1 
+					DrfL.Add("chks", data_path); // @v10.1.1
 					THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));
 					// @v10.1.1 SFile::Remove(data_path);
 				}

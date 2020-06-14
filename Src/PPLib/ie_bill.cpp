@@ -367,12 +367,10 @@ BillHdrImpExpDialog::BillHdrImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPBILH)
 IMPL_HANDLE_EVENT(BillHdrImpExpDialog)
 {
 	ImpExpParamDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_IMPEXP_DIR)) {
+	if(event.isClusterClk(CTL_IMPEXP_DIR))
 		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
-	}
-	else if(event.isClusterClk(CTL_IMPEXPBILH_FLAGS)) {
+	else if(event.isClusterClk(CTL_IMPEXPBILH_FLAGS))
 		GetClusterData(CTL_IMPEXPBILH_FLAGS, &Data.Flags);
-	}
 	else
 		return;
 	clearEvent(event);
@@ -380,9 +378,11 @@ IMPL_HANDLE_EVENT(BillHdrImpExpDialog)
 
 void BillHdrImpExpDialog::SetupCtrls(long direction)
 {
-	disableCtrls(direction == 0, CTL_IMPEXPBILH_FLAGS, CTLSEL_IMPEXPBILH_IMPOP, 0);
+	// @v10.7.11 disableCtrls(direction == 0, CTL_IMPEXPBILH_FLAGS, CTLSEL_IMPEXPBILH_IMPOP, 0);
+	// @v10.7.11 disableCtrl(CTL_IMPEXPBILH_FLAGS, direction == 0);
+	disableCtrl(CTLSEL_IMPEXPBILH_IMPOP, direction == 0);
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
-	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
+	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
 }
 

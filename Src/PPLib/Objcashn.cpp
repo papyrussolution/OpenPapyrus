@@ -1177,10 +1177,10 @@ private:
 					SArray temp_list(P_Data->dataPtr(), sizeof(int32)*2, temp_c, (O_ARRAY & ~aryDataOwner));
 					SArray new_list(sizeof(PPGenCashNode::DivGrpAssc));
 					for(uint i = 0; i < temp_c; i++) {
-						const LAssoc * p_temp_item = (LAssoc *)temp_list.at(i);
+						const LAssoc * p_temp_item = static_cast<const LAssoc *>(temp_list.at(i));
 						PPGenCashNode::DivGrpAssc new_item;
 						new_item.GrpID = p_temp_item->Key;
-						new_item.DivN = (short)p_temp_item->Val;
+						new_item.DivN = static_cast<short>(p_temp_item->Val);
 						new_list.insert(&new_item);
 					}
 					P_Data->copy(new_list);

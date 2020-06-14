@@ -3952,8 +3952,7 @@ SStringU & SLAPI SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) con
 // If presented with a length > 4, this returns false.
 // The Unicode definition of UTF-8 goes up to 4-byte sequences.
 //
-// static
-int FASTCALL SUnicode::IsLegalUtf8(const uint8 * pSource, size_t length)
+/*static*/int FASTCALL SUnicode::IsLegalUtf8(const uint8 * pSource, size_t length)
 {
 	uint8 a;
 	const uint8 * srcptr = pSource+length;
@@ -4635,8 +4634,7 @@ uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
 	return (uint)p;
 }
 
-// static
-int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
+/*static*/int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
 {
 	int    ok = -1;
 	rPath.Strip();

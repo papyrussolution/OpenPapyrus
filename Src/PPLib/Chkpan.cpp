@@ -661,7 +661,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 				n_item.PutInner("ID", temp_buf.Z().Cat(ctbl_id));
 				PPObjCashNode::GetCafeTableName(ctbl_id, temp_buf.Z());
 				n_item.PutInner("Name", temp_buf);
-				n_item.PutInner("State", temp_buf.Z().Cat(0L)); // @v10.3.11 @fix (temp_buf = (long)0)-->temp_buf.Z().Cat(0L)
+				n_item.PutInner("State", temp_buf.Z().Cat(0L)); // @v10.3.11 @fix (temp_buf = 0L)-->temp_buf.Z().Cat(0L)
 				{
 					int    cc_count = 0;
 					int    cc_guest_count = 0;
@@ -7759,7 +7759,8 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 					}
 				}
 				else {
-					buf.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp_buf)).Space();
+					// @v10.7.11 buf.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp_buf)).Space();
+					buf.Cat(PPLoadStringS("discount", temp_buf)).Space(); // @v10.7.11
 					buf.Cat(CSt.SettledDiscount, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 					if(Flags & (fBankingPayment|fSCardCredit|fSCardBonus)) { // @bank_or_scard
 						if(CSt.AdditionalPayment > 0.0 && !(Flags & fSCardBonus)) {
@@ -8164,8 +8165,10 @@ int CheckPaneDialog::RemoveRow()
 			CalcTotal(&total, &discount);
 			SString buf;
 			setStaticText(CTL_CHKPAN_TOTAL, buf.Cat(total, MKSFMTD(0, 2, NMBF_NOZERO)));
-			if(discount != 0.0)
-				PPGetWord(PPWORD_DISCOUNT, 0, buf).CatChar(':').Cat(discount, SFMT_MONEY);
+			if(discount != 0.0) {
+				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 0, buf).CatChar(':').Cat(discount, SFMT_MONEY);
+				PPLoadStringS("discount", buf).CatChar(':').Cat(discount, SFMT_MONEY); // @v10.7.11
+			}
 			else
 				buf.Z();
 			setStaticText(CTL_CHKPAN_DISCOUNT, buf);

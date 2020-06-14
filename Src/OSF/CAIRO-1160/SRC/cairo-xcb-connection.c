@@ -142,38 +142,26 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 	    xcb_render_pictforminfo_next(&i)) {
 		cairo_format_masks_t masks;
 		pixman_format_code_t pixman_format;
-
 		if(i.data->type != XCB_RENDER_PICT_TYPE_DIRECT)
 			continue;
-
-		masks.alpha_mask =
-		    (ulong)i.data->direct.alpha_mask << i.data->direct.alpha_shift;
-		masks.red_mask =
-		    (ulong)i.data->direct.red_mask << i.data->direct.red_shift;
-		masks.green_mask =
-		    (ulong)i.data->direct.green_mask << i.data->direct.green_shift;
-		masks.blue_mask =
-		    (ulong)i.data->direct.blue_mask << i.data->direct.blue_shift;
+		masks.alpha_mask = (ulong)i.data->direct.alpha_mask << i.data->direct.alpha_shift;
+		masks.red_mask = (ulong)i.data->direct.red_mask << i.data->direct.red_shift;
+		masks.green_mask = (ulong)i.data->direct.green_mask << i.data->direct.green_shift;
+		masks.blue_mask = (ulong)i.data->direct.blue_mask << i.data->direct.blue_shift;
 		masks.bpp = i.data->depth;
-
 		if(_pixman_format_from_masks(&masks, &pixman_format)) {
 			cairo_hash_entry_t key;
-
 			key.hash = pixman_format;
 			if(!_cairo_hash_table_lookup(connection->xrender_formats, &key)) {
-				cairo_xcb_xrender_format_t * f;
-
-				f = _cairo_malloc(sizeof(cairo_xcb_xrender_format_t));
+				cairo_xcb_xrender_format_t * f = _cairo_malloc(sizeof(cairo_xcb_xrender_format_t));
 				if(unlikely(f == NULL))
 					return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 				f->key.hash = pixman_format;
 				f->xrender_format = i.data->id;
 				status = _cairo_hash_table_insert(connection->xrender_formats,
 					&f->key);
 				if(unlikely(status))
 					return status;
-
 #if 0
 				printf("xrender %x -> (%lx, %lx, %lx, %lx, %d) %x [%d, %d]\n",
 				    i.data->id,
@@ -189,36 +177,19 @@ static cairo_status_t _cairo_xcb_connection_parse_xrender_formats(cairo_xcb_conn
 			}
 		}
 	}
-
 	status = _cairo_xcb_connection_find_visual_formats(connection, formats);
 	if(unlikely(status))
 		return status;
-
-	connection->standard_formats[CAIRO_FORMAT_A1] =
-	    _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a1);
-
-	connection->standard_formats[CAIRO_FORMAT_A8] =
-	    _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8);
-
-	connection->standard_formats[CAIRO_FORMAT_RGB24] =
-	    _cairo_xcb_connection_get_xrender_format(connection,
-		PIXMAN_FORMAT(24,
-		PIXMAN_TYPE_ARGB,
-		0, 8, 8, 8));
+	connection->standard_formats[CAIRO_FORMAT_A1] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a1);
+	connection->standard_formats[CAIRO_FORMAT_A8] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8);
+	connection->standard_formats[CAIRO_FORMAT_RGB24] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_FORMAT(24, PIXMAN_TYPE_ARGB, 0, 8, 8, 8));
 	if(connection->standard_formats[CAIRO_FORMAT_RGB24] == XCB_NONE) {
-		connection->standard_formats[CAIRO_FORMAT_RGB24] =
-		    _cairo_xcb_connection_get_xrender_format(connection,
-			PIXMAN_FORMAT(24, PIXMAN_TYPE_ABGR,
-			0, 8, 8, 8));
+		connection->standard_formats[CAIRO_FORMAT_RGB24] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_FORMAT(24, PIXMAN_TYPE_ABGR, 0, 8, 8, 8));
 	}
-
-	connection->standard_formats[CAIRO_FORMAT_ARGB32] =
-	    _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8r8g8b8);
+	connection->standard_formats[CAIRO_FORMAT_ARGB32] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8r8g8b8);
 	if(connection->standard_formats[CAIRO_FORMAT_ARGB32] == XCB_NONE) {
-		connection->standard_formats[CAIRO_FORMAT_ARGB32] =
-		    _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8b8g8r8);
+		connection->standard_formats[CAIRO_FORMAT_ARGB32] = _cairo_xcb_connection_get_xrender_format(connection, PIXMAN_a8b8g8r8);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -694,11 +665,8 @@ cairo_xcb_connection_t * _cairo_xcb_connection_get(xcb_connection_t * xcb_connec
 		connection->shm = ext;
 	}
 #endif
-
 	connection->original_flags = connection->flags;
-
 	CAIRO_MUTEX_UNLOCK(connection->device.mutex);
-
 	cairo_list_add(&connection->link, &connections);
 unlock:
 	CAIRO_MUTEX_UNLOCK(_cairo_xcb_connections_mutex);
@@ -706,12 +674,10 @@ unlock:
 	return connection;
 }
 
-xcb_render_pictformat_t _cairo_xcb_connection_get_xrender_format(cairo_xcb_connection_t * connection,
-    pixman_format_code_t pixman_format)
+xcb_render_pictformat_t _cairo_xcb_connection_get_xrender_format(cairo_xcb_connection_t * connection, pixman_format_code_t pixman_format)
 {
 	cairo_hash_entry_t key;
 	cairo_xcb_xrender_format_t * format;
-
 	key.hash = pixman_format;
 	format = _cairo_hash_table_lookup(connection->xrender_formats, &key);
 	return format ? format->xrender_format : XCB_NONE;

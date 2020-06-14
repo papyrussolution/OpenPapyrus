@@ -229,12 +229,12 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 			if(port)
 				url.SetPort_(port);
 			mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
-			enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
+			enc_buf.EncodeUrl(temp_buf, 0);
 			url.SetComponent(url.cUserName, enc_buf);
 			{
 				char pw[128];
 				mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
-				enc_buf.EncodeUrl(temp_buf = pw, 0); // @v9.8.12
+				enc_buf.EncodeUrl(temp_buf = pw, 0);
 				url.SetComponent(url.cPassword, enc_buf);
 				memzero(pw, sizeof(pw));
 				enc_buf.Obfuscate(); // @v9.8.12
@@ -383,7 +383,6 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	PPObjInternetAccount obj_acct;
 	PPInternetAccount acct;
 	WinInetFTP ftp;
-
 	PPWait(1);
 	if(ftp_acc_id == 0) {
 		PPEquipConfig eq_cfg;

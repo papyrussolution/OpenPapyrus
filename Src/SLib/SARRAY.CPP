@@ -1967,25 +1967,34 @@ int SLAPI UUIDAssocArray::GetMaxKey(long * pMaxKey, uint * pPos) const
 //
 //
 //
-/*static*/TYPEID SLAPI TaggedString::BufType() { return static_cast<TYPEID>(MKSTYPE(S_ZSTRING, TaggedString::BufSize())); }
-/*static*/size_t SLAPI TaggedString::BufSize() { return (sizeof(TaggedString)-sizeof(long)); }
+/*static*/TYPEID SLAPI TaggedString_obsolete::BufType() { return static_cast<TYPEID>(MKSTYPE(S_ZSTRING, TaggedString_obsolete::BufSize())); }
+/*static*/size_t SLAPI TaggedString_obsolete::BufSize() { return (sizeof(TaggedString_obsolete)-sizeof(long)); }
 
-SLAPI TaggedString::TaggedString() : Id(0)
+SLAPI TaggedString_obsolete::TaggedString_obsolete() : Id(0)
 {
 	PTR32(Txt)[0] = 0;
 }
 
-SLAPI TaggedStringArray::TaggedStringArray() : TSArray <TaggedString> ()
+SLAPI TaggedStringArray_obsolete::TaggedStringArray_obsolete() : TSArray <TaggedString_obsolete> ()
 {
 }
 
-TaggedStringArray & FASTCALL TaggedStringArray::operator = (const TaggedStringArray & rS)
+TaggedStringArray_obsolete & FASTCALL TaggedStringArray_obsolete::operator = (const TaggedStringArray_obsolete & rS)
 {
 	copy(rS);
 	return *this;
 }
 
-int SLAPI TaggedStringArray::Search(long id, uint * pPos, int binary) const
+int SLAPI TaggedStringArray_obsolete::Add(long id, const char * pStr)
+{
+	TaggedString_obsolete entry;
+	entry.Id = id;
+	STRNSCPY(entry.Txt, pStr);
+	return insert(&entry);
+}
+
+#if 0 // @v10.7.11 {
+int SLAPI TaggedStringArray_obsolete::Search(long id, uint * pPos, int binary) const
 {
 	uint   pos = 0;
 	int    ok = binary ? bsearch(&id, &pos, CMPF_LONG) : lsearch(&id, &pos, CMPF_LONG);
@@ -1993,10 +2002,10 @@ int SLAPI TaggedStringArray::Search(long id, uint * pPos, int binary) const
 	return ok;
 }
 
-int SLAPI TaggedStringArray::SearchByText(const char * pTxt, uint * pPos) const
+int SLAPI TaggedStringArray_obsolete::SearchByText(const char * pTxt, uint * pPos) const
 {
 	if(pTxt) {
-		TaggedString * p_item;
+		TaggedString_obsolete * p_item;
 		for(uint i = 0; enumItems(&i, (void **)&p_item);)
 			if(stricmp866(p_item->Txt, pTxt) == 0) {
 				ASSIGN_PTR(pPos, i-1);
@@ -2006,7 +2015,7 @@ int SLAPI TaggedStringArray::SearchByText(const char * pTxt, uint * pPos) const
 	return 0;
 }
 
-int SLAPI TaggedStringArray::Get(long id, SString & rBuf, int binary) const
+int SLAPI TaggedStringArray_obsolete::Get(long id, SString & rBuf, int binary) const
 {
 	uint   pos = 0;
 	int    ok = Search(id, &pos, binary);
@@ -2017,7 +2026,7 @@ int SLAPI TaggedStringArray::Get(long id, SString & rBuf, int binary) const
 	return ok;
 }
 
-int SLAPI TaggedStringArray::Get(long id, char * pBuf, size_t bufLen, int binary) const
+int SLAPI TaggedStringArray_obsolete::Get(long id, char * pBuf, size_t bufLen, int binary) const
 {
 	SString temp_buf;
 	int    r = Get(id, temp_buf, binary);
@@ -2025,25 +2034,11 @@ int SLAPI TaggedStringArray::Get(long id, char * pBuf, size_t bufLen, int binary
 	return r;
 }
 
-int SLAPI TaggedStringArray::Add(long id, const char * pStr)
-{
-	TaggedString entry;
-	entry.Id = id;
-	STRNSCPY(entry.Txt, pStr);
-	return insert(&entry);
-}
-
-void SLAPI TaggedStringArray::SortByID()
-{
-	SArray::sort(CMPF_LONG);
-}
-
 IMPL_CMPFUNC(TaggedStringByName, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
 
-void SLAPI TaggedStringArray::SortByText()
-{
-	SArray::sort(PTR_CMPFUNC(TaggedStringByName));
-}
+void SLAPI TaggedStringArray_obsolete::SortByText() { SArray::sort(PTR_CMPFUNC(TaggedStringByName)); }
+void SLAPI TaggedStringArray_obsolete::SortByID() { SArray::sort(CMPF_LONG); }
+#endif // } 0 @v10.7.11
 //
 //
 //
@@ -2727,8 +2722,7 @@ IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 	return cmp_ulong(sstrlen(p_str2), sstrlen(p_str1));
 }
 
-// static
-int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer)
+/*static*/int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer)
 {
 	long   id[2], par[2];
 	id[0] = p1->Key;
@@ -2866,14 +2860,14 @@ void SLAPI StrAssocArray::Reverse()
 	LAssocArray::reverse(0, LAssocArray::getCount());
 }
 
-int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos) const
+/* @v10.7.11 int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray_obsolete & rTsa, int * pNEqPos) const
 {
 	int    ok = 1;
 	int    neq_pos = -1;
 	uint   c = getCount(), i = 0;
 	THROW(rTsa.getCount() == c);
 	for(i = 0; i < c; i++) {
-		const TaggedString & r_ts = rTsa.at(i);
+		const TaggedString_obsolete & r_ts = rTsa.at(i);
 		Item sa = Get(i);
 		neq_pos = static_cast<int>(i);
 		THROW(sa.Id == r_ts.Id);
@@ -2887,7 +2881,7 @@ int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos)
 	CATCHZOK
 	ASSIGN_PTR(pNEqPos, neq_pos);
 	return ok;
-}
+}*/
 
 int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 {

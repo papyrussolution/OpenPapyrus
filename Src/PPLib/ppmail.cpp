@@ -16,20 +16,61 @@ int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
 	const  long extra_param = reinterpret_cast<const long>(extraPtr);
 	int    r = 0;
 	PPInternetAccount * p_acct = static_cast<PPInternetAccount *>(pData);
-	if(pData)
-		if(p_acct->Flags & PPInternetAccount::fFtpAccount) {
-			//r = BIN(extra_param == INETACCT_ONLYFTP);
+	if(pData) {
+		if(extra_param == 0)
+			r = 1;
+		else if(p_acct->Flags & PPInternetAccount::fFtpAccount)
 			r = BIN(extra_param & PPObjInternetAccount::filtfFtp);
-		}
-		//else if(extra_param == INETACCT_ONLYMAIL)
 		else if(extra_param & PPObjInternetAccount::filtfMail)
 			r = 1;
+	}
 	return r;
 }
 
 SLAPI PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPOBJ_INTERNETACCOUNT, extraPtr)
 {
+	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	FiltProc = InternetAccountFilter;
+}
+
+/*virtual*/ListBoxDef * SLAPI PPObjInternetAccount::Selector(void * extraPtr)
+{
+	ListBoxDef * p_def = PPObject::Selector(extraPtr);
+	AssignImages(p_def);
+	return p_def;
+}
+
+/*virtual*/int SLAPI PPObjInternetAccount::UpdateSelector(ListBoxDef * pDef, void * extraPtr)
+{
+	int    ok = PPObject::UpdateSelector(pDef, extraPtr);
+	if(ok > 0)
+		AssignImages(pDef);
+	return ok;
+}
+
+int SLAPI PPObjInternetAccount::AssignImages(ListBoxDef * pDef)
+{
+	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
+		LongArray list;
+		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
+		p_def->ClearImageAssocList();
+		if(p_def->getIdList(list) > 0) {
+			PPInternetAccount rec;
+			for(uint i = 0; i < list.getCount(); i++) {
+				PPID id = list.at(i);
+				if(Get(id, &rec) > 0) {
+					long   img_id = 0;
+					if(rec.Flags & PPInternetAccount::fFtpAccount)
+						img_id = PPDV_FTP01;
+					else 
+						img_id = PPDV_MAIL01;
+					if(img_id)
+						p_def->AddVecImageAssoc(id, img_id);
+				}
+			}
+		}
+	}
+	return 1;
 }
 
 int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
@@ -68,7 +109,7 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 	};
 	int    ok = -1;
 	const  long extra_param = reinterpret_cast<const long>(extraPtr);
-	if(extra_param == PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) {
+	// @v10.7.11 if(extra_param == PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) {
 		MailAcctsView * p_dlg = 0;
 		if(CheckRights(PPR_READ) && CheckDialogPtr(&(p_dlg = new MailAcctsView(this, extraPtr)))) {
 			ExecView(p_dlg);
@@ -77,9 +118,7 @@ int SLAPI PPObjInternetAccount::Browse(void * extraPtr)
 		}
 		else
 			ok = PPErrorZ();
-	}
-	else
-		ok = PPObjReference::Browse(extraPtr);
+	// @v10.7.11 } else ok = PPObjReference::Browse(extraPtr);
 	return ok;
 }
 
@@ -119,7 +158,7 @@ int MailAccCtrlGroup::getData(TDialog * dlg, void * pData)
 //
 //
 //
-SLAPI PPInternetAccount::PPInternetAccount2()
+SLAPI PPInternetAccount2::PPInternetAccount2()
 {
 	memzero(this, offsetof(PPInternetAccount, ExtStr)-0);
 }
@@ -437,7 +476,8 @@ public:
 int SLAPI PPObjInternetAccount::Edit(PPID * pID, void * extraPtr)
 {
 	long   extra_param = reinterpret_cast<long>(extraPtr);
-	int    r = cmCancel, ok = 1, valid_data = 0;
+	int    ok = 1;
+	int    r = cmCancel, valid_data = 0;
 	PPInternetAccount rec;
 	InetAcctDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));

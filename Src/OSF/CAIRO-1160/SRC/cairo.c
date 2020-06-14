@@ -3286,28 +3286,19 @@ void cairo_text_path(cairo_t * cr, const char * utf8)
 	cairo_scaled_font_t * scaled_font;
 	int num_glyphs;
 	double x, y;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(utf8 == NULL)
 		return;
-
 	glyphs = stack_glyphs;
 	num_glyphs = ARRAY_LENGTH(stack_glyphs);
-
 	scaled_font = cairo_get_scaled_font(cr);
 	if(unlikely(scaled_font->status)) {
 		_cairo_set_error(cr, scaled_font->status);
 		return;
 	}
-
 	cairo_get_current_point(cr, &x, &y);
-	status = cairo_scaled_font_text_to_glyphs(scaled_font,
-		x, y,
-		utf8, -1,
-		&glyphs, &num_glyphs,
-		NULL, NULL, NULL);
+	status = cairo_scaled_font_text_to_glyphs(scaled_font, x, y, utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
 	if(num_glyphs == 0)
 		return;
 	status = cr->backend->glyph_path(cr, glyphs, num_glyphs);
@@ -3326,7 +3317,6 @@ BAIL:
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_glyph_path:
  * @cr: a cairo context
@@ -3342,28 +3332,22 @@ BAIL:
 void cairo_glyph_path(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyphs)
 {
 	cairo_status_t status;
-
 	if(unlikely(cr->status))
 		return;
-
 	if(num_glyphs == 0)
 		return;
-
 	if(unlikely(num_glyphs < 0)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NEGATIVE_COUNT);
 		return;
 	}
-
 	if(unlikely(glyphs == NULL)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
-
 	status = cr->backend->glyph_path(cr, glyphs, num_glyphs);
 	if(unlikely(status))
 		_cairo_set_error(cr, status);
 }
-
 /**
  * cairo_get_operator:
  * @cr: a cairo context

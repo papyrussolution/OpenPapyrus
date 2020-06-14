@@ -334,8 +334,7 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 	return ok;
 }
 
-// static
-int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
+/*static*/int SUsbDevice::GetDeviceList(TSCollection <SUsbDevice> & rList)
 {
 	int    ok = 1, cur_dev_index = 0, end_while = 0;
 	size_t pos = 0;

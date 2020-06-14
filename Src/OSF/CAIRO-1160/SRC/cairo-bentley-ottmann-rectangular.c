@@ -556,46 +556,36 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t 
 	sweep_line_t sweep_line;
 	rectangle_t * rectangle;
 	cairo_status_t status;
-	boolint update;
+	boolint update = FALSE;
 	sweep_line_init(&sweep_line, rectangles, num_rectangles, fill_rule, do_traps, container);
 	if((status = (cairo_status_t)setjmp(sweep_line.unwind)))
 		return status;
-	update = FALSE;
 	rectangle = rectangle_pop_start(&sweep_line);
 	do {
 		if(rectangle->top != sweep_line.current_y) {
-			rectangle_t * stop;
-
-			stop = rectangle_peek_stop(&sweep_line);
+			rectangle_t * stop = rectangle_peek_stop(&sweep_line);
 			while(stop != NULL && stop->bottom < rectangle->top) {
 				if(stop->bottom != sweep_line.current_y) {
 					if(update) {
 						active_edges_to_traps(&sweep_line);
 						update = FALSE;
 					}
-
 					sweep_line.current_y = stop->bottom;
 				}
-
 				update |= sweep_line_delete(&sweep_line, stop);
 				stop = rectangle_peek_stop(&sweep_line);
 			}
-
 			if(update) {
 				active_edges_to_traps(&sweep_line);
 				update = FALSE;
 			}
-
 			sweep_line.current_y = rectangle->top;
 		}
-
 		do {
 			sweep_line_insert(&sweep_line, rectangle);
-		} while((rectangle = rectangle_pop_start(&sweep_line)) != NULL &&
-		    sweep_line.current_y == rectangle->top);
+		} while((rectangle = rectangle_pop_start(&sweep_line)) != NULL && sweep_line.current_y == rectangle->top);
 		update = TRUE;
 	} while(rectangle);
-
 	while((rectangle = rectangle_peek_stop(&sweep_line)) != NULL) {
 		if(rectangle->bottom != sweep_line.current_y) {
 			if(update) {
@@ -604,24 +594,19 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t 
 			}
 			sweep_line.current_y = rectangle->bottom;
 		}
-
 		update |= sweep_line_delete(&sweep_line, rectangle);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t * traps,
-    cairo_fill_rule_t fill_rule)
+cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t * traps, cairo_fill_rule_t fill_rule)
 {
 	rectangle_t stack_rectangles[CAIRO_STACK_ARRAY_LENGTH(rectangle_t)];
 	rectangle_t * stack_rectangles_ptrs[ARRAY_LENGTH(stack_rectangles) + 3];
 	rectangle_t * rectangles, ** rectangles_ptrs;
 	cairo_status_t status;
 	int i;
-
 	assert(traps->is_rectangular);
-
 	if(unlikely(traps->num_traps <= 1)) {
 		if(traps->num_traps == 1) {
 			cairo_trapezoid_t * trap = traps->traps;
@@ -633,9 +618,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t
 		}
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	dump_traps(traps, "bo-rects-traps-in.txt");
-
 	rectangles = stack_rectangles;
 	rectangles_ptrs = stack_rectangles_ptrs;
 	if(traps->num_traps > ARRAY_LENGTH(stack_rectangles)) {
@@ -648,33 +631,25 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular_traps(cairo_traps_t
 		if(traps->traps[i].left.p1.x < traps->traps[i].right.p1.x) {
 			rectangles[i].left.x = traps->traps[i].left.p1.x;
 			rectangles[i].left.dir = 1;
-
 			rectangles[i].right.x = traps->traps[i].right.p1.x;
 			rectangles[i].right.dir = -1;
 		}
 		else {
 			rectangles[i].right.x = traps->traps[i].left.p1.x;
 			rectangles[i].right.dir = 1;
-
 			rectangles[i].left.x = traps->traps[i].right.p1.x;
 			rectangles[i].left.dir = -1;
 		}
-
 		rectangles[i].left.right = NULL;
 		rectangles[i].right.right = NULL;
-
 		rectangles[i].top = traps->traps[i].top;
 		rectangles[i].bottom = traps->traps[i].bottom;
-
 		rectangles_ptrs[i+2] = &rectangles[i];
 	}
 	/* XXX incremental sort */
 	_rectangle_sort(rectangles_ptrs+2, i);
-
 	_cairo_traps_clear(traps);
-	status = _cairo_bentley_ottmann_tessellate_rectangular(rectangles_ptrs+2, i,
-		fill_rule,
-		TRUE, traps);
+	status = _cairo_bentley_ottmann_tessellate_rectangular(rectangles_ptrs+2, i, fill_rule, TRUE, traps);
 	traps->is_rectilinear = TRUE;
 	traps->is_rectangular = TRUE;
 	if(rectangles != stack_rectangles)

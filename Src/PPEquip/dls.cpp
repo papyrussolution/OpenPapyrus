@@ -457,7 +457,7 @@ int DLSFiltDialog::getDTS(DvcLoadingStatFilt * pData)
 	uint   sel = 0;
 	PPID   dvc_type, dvc_id;
 	GetDeviceData(&dvc_type, &dvc_id);
-	Data.DvcType = (short)dvc_type;
+	Data.DvcType = static_cast<short>(dvc_type);
 	Data.DvcID   = dvc_id;
 	sel = CTL_DLSFLT_DVCTYPE;
 	THROW_PP(Data.DvcType, PPERR_DVCTYPENEEDED);

@@ -3907,16 +3907,16 @@ int SLAPI PPObjBill::Helper_PutBillToMrpTab(PPID billID, MrpTabPacket * pMrpPack
 	const  PPID wroff_op_type_id = pWrOffParam ? GetOpType(pWrOffParam->WrOffOpID) : 0; // @v10.7.11 @fix (pWrOffParam ?)
 	{
 		THROW(Search(billID, &bill_rec) > 0);
-		THROW(mrp_obj.GetTabID(pMrpPack, bill_rec.LocID, bill_rec.Dt, &mrp_tab_id, use_ta)); // @v8.6.10 0-->use_ta
+		THROW(mrp_obj.GetTabID(pMrpPack, bill_rec.LocID, bill_rec.Dt, &mrp_tab_id, use_ta));
 		{
 			const PPID op_type_id = GetOpType(bill_rec.OpID);
 			switch(op_type_id) {
 				case PPOPT_DRAFTEXPEND:
 					if(oneof3(wroff_op_type_id, 0, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT)) { // @v8.6.2 PPOPT_DRAFTRECEIPT
 						if(IsIntrExpndOp(pWrOffParam->WrOffOpID)) {
-							PPID   dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
+							const PPID dest_loc_id = PPObjLocation::ObjToWarehouse(bill_rec.Object);
 							if(dest_loc_id)
-								THROW(mrp_obj.GetTabID(pMrpPack, dest_loc_id, bill_rec.Dt, &intr_tab_id, use_ta)); // @v8.6.10 0-->use_ta
+								THROW(mrp_obj.GetTabID(pMrpPack, dest_loc_id, bill_rec.Dt, &intr_tab_id, use_ta));
 						}
 						for(int rbybill = 0; P_CpTrfr->EnumItems(billID, &rbybill, &src_ti, &cpext) > 0;) {
 							const double req_qtty = fabs(src_ti.Quantity_);
@@ -4073,7 +4073,7 @@ int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 				}
 				if(oneof6(op_code, ASSTOPC_MOV, ASSTOPC_RCPT, ASSTOPC_RCPTEXPL, ASSTOPC_EXPEND, ASSTOPC_EXPL, ASSTOPC_EXPLOUT)) {
 					if(pCard->P_MovList == 0)
-						THROW_MEM(pCard->P_MovList = new SArray(sizeof(AssetCard::MovItem)));
+						THROW_MEM(pCard->P_MovList = new SVector(sizeof(AssetCard::MovItem))); // @v10.7.11 SArray-->SVector
 					AssetCard::MovItem item;
 					item.BillID    = rec.BillID;
 					item.LotID     = rec.LotID;

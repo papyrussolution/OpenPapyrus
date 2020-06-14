@@ -1,8 +1,8 @@
 // CLIBNK2.CPP
 // Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Модуль формирования данных для передачи в системы клиент-банк
+// РњРѕРґСѓР»СЊ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РґР°РЅРЅС‹С… РґР»СЏ РїРµСЂРµРґР°С‡Рё РІ СЃРёСЃС‚РµРјС‹ РєР»РёРµРЅС‚-Р±Р°РЅРє
 //
 #include <pp.h>
 #pragma hdrstop
@@ -40,13 +40,9 @@ PPCliBnkImpExpParam::PPCliBnkImpExpParam(uint recId, long flags) : PPImpExpParam
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
 			switch(item.Id) {
-				case PPCLBNKPAR_BANKCODE:
-					BnkCode = temp_buf;
-					break;
-				case PPCLBNKPAR_PAYMMETHODTRANSL:
-					PaymMethodTransl = temp_buf;
-					break;
-				case PPCLBNKPAR_FLAGS:
+				case PPCLBNKPAR_BANKCODE: BnkCode = temp_buf; break;
+				case PPCLBNKPAR_PAYMMETHODTRANSL: PaymMethodTransl = temp_buf; break;
+				case PPCLBNKPAR_FLAGS: 
 					flags = temp_buf.ToLong();
 					DefPayerByAmtSign = BIN(flags & 0x0001);
 					break;
@@ -115,8 +111,8 @@ int PPCliBnkImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 // ARG(kind IN):
 //   0 - all, 1 - export, 2 - import
 // ARG(pParam   OUT): @#{vptr0}
-// ARG(maxBackup IN): Максимальное количество копий, которые необходимо оставить при резервном
-//   копировании INI-файла. 0 - не делать копию.
+// ARG(maxBackup IN): РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРїРёР№, РєРѕС‚РѕСЂС‹Рµ РЅРµРѕР±С…РѕРґРёРјРѕ РѕСЃС‚Р°РІРёС‚СЊ РїСЂРё СЂРµР·РµСЂРІРЅРѕРј
+//   РєРѕРїРёСЂРѕРІР°РЅРёРё INI-С„Р°Р№Р»Р°. 0 - РЅРµ РґРµР»Р°С‚СЊ РєРѕРїРёСЋ.
 //
 int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup, PPLogger * pLogger)
 {
@@ -155,14 +151,14 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 	return ok;
 }
 //
-// Элемент ассоциации строки банковской выписки с видом операции.
-// Вид операции идентифицируется по таблице статей, к которой относится контрагент операции
-// и по знаку суммы операции.
+// Р­Р»РµРјРµРЅС‚ Р°СЃСЃРѕС†РёР°С†РёРё СЃС‚СЂРѕРєРё Р±Р°РЅРєРѕРІСЃРєРѕР№ РІС‹РїРёСЃРєРё СЃ РІРёРґРѕРј РѕРїРµСЂР°С†РёРё.
+// Р’РёРґ РѕРїРµСЂР°С†РёРё РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµС‚СЃСЏ РїРѕ С‚Р°Р±Р»РёС†Рµ СЃС‚Р°С‚РµР№, Рє РєРѕС‚РѕСЂРѕР№ РѕС‚РЅРѕСЃРёС‚СЃСЏ РєРѕРЅС‚СЂР°РіРµРЅС‚ РѕРїРµСЂР°С†РёРё
+// Рё РїРѕ Р·РЅР°РєСѓ СЃСѓРјРјС‹ РѕРїРµСЂР°С†РёРё.
 //
 struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array] @flat
 	PPID   AccSheetID;       //
 	int16  Sign;             // -1, 1, 0 (undefined)
-	int16  AddedTag;         // Дополнительный тег для установки соотвествия вида операции
+	int16  AddedTag;         // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ С‚РµРі РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё СЃРѕРѕС‚РІРµСЃС‚РІРёСЏ РІРёРґР° РѕРїРµСЂР°С†РёРё
 	PPID   OpID;             //
 };
 //
@@ -224,10 +220,10 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 	const char * SLAPI GetOurBIC() const { return WeArePayer ? PayerBankCode : ReceiverBankCode; }
 	SString & SLAPI MakeDescrText(SString &) const;
 
-	int    WeArePayer;              // !0 - главная организация является плательщиком
-	PPID   PayerPersonID;			// ИД персоналии плательщика //
-	PPID   ReceiverPersonID;		// ИД персоналии получателя  //
-	char   WhKPP[24];               // @v9.1.1 Кпп склада, к которому привязан документ
+	int    WeArePayer;              // !0 - РіР»Р°РІРЅР°СЏ РѕСЂРіР°РЅРёР·Р°С†РёСЏ СЏРІР»СЏРµС‚СЃСЏ РїР»Р°С‚РµР»СЊС‰РёРєРѕРј
+	PPID   PayerPersonID;			// РР” РїРµСЂСЃРѕРЅР°Р»РёРё РїР»Р°С‚РµР»СЊС‰РёРєР° //
+	PPID   ReceiverPersonID;		// РР” РїРµСЂСЃРѕРЅР°Р»РёРё РїРѕР»СѓС‡Р°С‚РµР»СЏ  //
+	char   WhKPP[24];               // @v9.1.1 РљРїРї СЃРєР»Р°РґР°, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅ РґРѕРєСѓРјРµРЅС‚
 };
 
 SString & SLAPI BankStmntItem::MakeDescrText(SString & rBuf) const
@@ -274,7 +270,7 @@ public:
 		else
 			ok = 0;
 		return ok;
-		// @v9.6.3 @fix (не понятная лишняя строка) return P_ImEx ? P_ImEx->OpenFileForWriting(0, 1) : 0;
+		// @v9.6.3 @fix (РЅРµ РїРѕРЅСЏС‚РЅР°СЏ Р»РёС€РЅСЏСЏ СЃС‚СЂРѕРєР°) return P_ImEx ? P_ImEx->OpenFileForWriting(0, 1) : 0;
 	}
 	int    SLAPI PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger);
 	int    SLAPI PutHeader()
@@ -476,7 +472,7 @@ static int SLAPI TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pIte
 	pack.Rec.Object2 = obj2ID;
 	pack.Ext.AgentID = agentID;
 	STRNSCPY(pack.Rec.Code, pItem->Code);
-	STRNSCPY(pack.Rec.Memo, pItem->Purpose);	
+	STRNSCPY(pack.Rec.Memo, pItem->Purpose);
 	const int sar = p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0);
 	THROW(sar);
 	if(sar > 0) {
@@ -494,8 +490,8 @@ static int SLAPI TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pIte
 			rLogger.Log(log_buf.Printf(msg_buf, temp_buf.cptr()));
 		if(pItem->DebtBillID || (!isempty(pItem->DebtBillCode) && checkdate(pItem->DebtBillDate))) {
 			//
-			// Если идент связанного документа не нулевой либо определены номер и дата связанного документа,
-			// то пытаемся зачесть принятый документ.
+			// Р•СЃР»Рё РёРґРµРЅС‚ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РЅРµ РЅСѓР»РµРІРѕР№ Р»РёР±Рѕ РѕРїСЂРµРґРµР»РµРЅС‹ РЅРѕРјРµСЂ Рё РґР°С‚Р° СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°,
+			// С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ Р·Р°С‡РµСЃС‚СЊ РїСЂРёРЅСЏС‚С‹Р№ РґРѕРєСѓРјРµРЅС‚.
 			//
 			msg_buf.Z().CatEq("ID", pItem->DebtBillID).CatDiv(';', 2).
 				CatEq("Date", pItem->DebtBillDate).CatDiv(';', 2).CatEq("Code", pItem->DebtBillCode);
@@ -581,7 +577,7 @@ int SLAPI ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta)
 		THROW(tra);
 		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, pList, 0));
 		if(pList) {
-			// Удаляем старую версию ассоциаций
+			// РЈРґР°Р»СЏРµРј СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ Р°СЃСЃРѕС†РёР°С†РёР№
 			THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG, 0, 0));
 		}
 		THROW(tra.Commit());
@@ -798,11 +794,8 @@ int SLAPI ClientBankExportDef::GetStat(long * pAcceptedCount, long * pRejectedCo
 //static
 SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & rBuf)
 {
-	// @v9.0.2 PPGetWord(PPWORD_VAT, 1, rBuf).Space();
-	// @v9.0.2 {
 	PPLoadString("vat", rBuf);
 	rBuf.Space();
-	// } @v9.0.2
 	if(pPack->P_PaymOrder->VATSum > 0) {
 		if(pPack->P_PaymOrder->VATRate)
 			rBuf.Space().Cat(pPack->P_PaymOrder->VATRate).CatChar('%').CatDiv('-', 1).Cat(pPack->P_PaymOrder->VATSum, SFMT_MONEY);
@@ -812,7 +805,6 @@ SString & Helper_ClientBank2::MakeVatText(const PPBillPacket * pPack, SString & 
 	else {
 		SString n;
 		rBuf.CatDiv('-', 1).Cat(PPGetWord(PPWORD_NOTAX_VERB, 0, n));
-		// @v10.3.12 (rBuf = "НДС - не облагается").Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	return rBuf;
 }
@@ -902,11 +894,8 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 			RegisterTbl::Rec reg_rec;
 			if(loc_obj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
 				STRNSCPY(data_buf.LocSymb, _EncodeStr(loc_rec.Code, temp_buf));
-				// @v9.1.1 {
-				if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0 && reg_rec.Num[0]) {
+				if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0 && reg_rec.Num[0])
 					STRNSCPY(data_buf.WhKPP, reg_rec.Num);
-				}
-				// } @v9.1.1
 			}
 		}
 		STRNSCPY(data_buf.TaxPayerKPP, _EncodeStr(payer_req.KPP, temp_buf));
@@ -933,6 +922,7 @@ int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBil
 			STRNSCPY(data_buf.DebtBillCode, debt_rec.Code);
 		}
 	}
+	data_buf.FormalPurpose = pPack->P_PaymOrder->FormalPurpose; // @v10.7.11
 	PPSetAddedMsgString(P.FileName);
 	THROW(P_ImEx->AppendRecord(&data_buf, sizeof(data_buf)));
 	AcceptedCount++;
@@ -974,8 +964,8 @@ int EditClientBankFormatDescription(const char * pIniSection)
 		PPCliBnkImpExpParam Data;
 	};
 	int    ok = -1;
-	int    undecorated = 0; // Ддя обратной совместимости со старыми настройками
-		// этот признак определяет, что в ini-файле имя секции задано без декорации
+	int    undecorated = 0; // Р”РґСЏ РѕР±СЂР°С‚РЅРѕР№ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃРѕ СЃС‚Р°СЂС‹РјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё
+		// СЌС‚РѕС‚ РїСЂРёР·РЅР°Рє РѕРїСЂРµРґРµР»СЏРµС‚, С‡С‚Рѕ РІ ini-С„Р°Р№Р»Рµ РёРјСЏ СЃРµРєС†РёРё Р·Р°РґР°РЅРѕ Р±РµР· РґРµРєРѕСЂР°С†РёРё
 	CliBnkImpExpDialog * dlg = 0;
 	PPCliBnkImpExpParam param, param1;
 	SString ini_file_name, sect;
@@ -1007,7 +997,7 @@ int EditClientBankFormatDescription(const char * pIniSection)
 						ini_file.ClearSection(sect);
 				if(is_new && ini_file.IsSectExists(param.Name))
 					PPError(PPERR_DUPOBJNAME);
-				else if(!param.WriteIni(&ini_file, param.Name)) 
+				else if(!param.WriteIni(&ini_file, param.Name))
 					PPError();
 				else if(!ini_file.FlashIniBuf())
 					PPError();
@@ -1251,8 +1241,8 @@ int SetupCliBnkAssocDialog::delItem(long pos, long id)
 	return ok;
 }
 //
-// @todo Сохранение конфигурации должно осуществляться единой транзакцией, а не отдельными
-//   методами диалога.
+// @todo РЎРѕС…СЂР°РЅРµРЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РґРѕР»Р¶РЅРѕ РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊСЃСЏ РµРґРёРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРµР№, Р° РЅРµ РѕС‚РґРµР»СЊРЅС‹РјРё
+//   РјРµС‚РѕРґР°РјРё РґРёР°Р»РѕРіР°.
 //
 int SLAPI SetupCliBnkAssoc()
 {
@@ -1340,11 +1330,11 @@ http://cbrates.rbc.ru/bnk/bnk.exe
 bnkseek.txt
 reg.txt
 
-30	КУРГАН	1	ФИЛИАЛ "КУРГАНСКИЙ" ЗАО АКБ "АЛЕФ-БАНК"		043735853	30101810800000000853
-23	МОСКВА	1	АКБ "ЗЕМСКИЙ ЗЕМЕЛЬНЫЙ БАНК" ЗАО		044579161	30101810800000000161
-36	ГОРНЯК	1	ОТД. "АГРОПРОМБАНКА"		040137701
-20	МОСКВА	1	ЗАО "НОВЫЙ ПРОМЫШЛЕННЫЙ БАНК"		044599749	30101810000000000749
-20	МОСКВА	1	АКБ "БАЛТИЙСКИЙ БАНК РАЗВИТИЯ" (ЗАО)		044579769	30101810600000000769
+30	РљРЈР Р“РђРќ	1	Р¤РР›РРђР› "РљРЈР Р“РђРќРЎРљРР™" Р—РђРћ РђРљР‘ "РђР›Р•Р¤-Р‘РђРќРљ"		043735853	30101810800000000853
+23	РњРћРЎРљР’Рђ	1	РђРљР‘ "Р—Р•РњРЎРљРР™ Р—Р•РњР•Р›Р¬РќР«Р™ Р‘РђРќРљ" Р—РђРћ		044579161	30101810800000000161
+36	Р“РћР РќРЇРљ	1	РћРўР”. "РђР“Р РћРџР РћРњР‘РђРќРљРђ"		040137701
+20	РњРћРЎРљР’Рђ	1	Р—РђРћ "РќРћР’Р«Р™ РџР РћРњР«РЁР›Р•РќРќР«Р™ Р‘РђРќРљ"		044599749	30101810000000000749
+20	РњРћРЎРљР’Рђ	1	РђРљР‘ "Р‘РђР›РўРР™РЎРљРР™ Р‘РђРќРљ Р РђР—Р’РРўРРЇ" (Р—РђРћ)		044579769	30101810600000000769
 */
 
 int SLAPI ConvertRbcBnk(const char * pPath)
@@ -1355,7 +1345,6 @@ int SLAPI ConvertRbcBnk(const char * pPath)
 	SString line_buf;
 	{
 		PPImpExpParam in_par, out_par;
-
 		in_par.Direction = 1;
 		in_par.DataFormat = PPImpExpParam::dfText;
 		in_par.TdfParam.FldDiv = "\t";
@@ -1421,9 +1410,9 @@ int SLAPI GenerateCliBnkImpData()
 {
 	struct BillEntry {
 		enum {
-			fDirty = 0x0001 // Элемент уже использован
+			fDirty = 0x0001 // Р­Р»РµРјРµРЅС‚ СѓР¶Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅ
 		};
-		LDATE  Dt;        // @anchor По этому полю элементы сортируются //
+		LDATE  Dt;        // @anchor РџРѕ СЌС‚РѕРјСѓ РїРѕР»СЋ СЌР»РµРјРµРЅС‚С‹ СЃРѕСЂС‚РёСЂСѓСЋС‚СЃСЏ //
 		PPID   ID;
 		PPID   ArID;
 		long   Flags;
@@ -1440,10 +1429,10 @@ int SLAPI GenerateCliBnkImpData()
 	double stddev = 0.0;
 	ClientBankExportDef cbed(0);
 	// CliBnkGenParam=cfg_name[,max_items[,mean[,stddev]]]
-	// cfg_name - наименование конфигурации импорта клиент-банка
-	// max_items - @def=10 максимальное количество генерируемых платежей
-	// mean - @def = 25 среднее значение задержки платежа (для генерации статистической задержки от даты документа до сегодня)
-	// stddev - @def = 50 стандартное отклонение значений задержки платежа (для генерации статистической задержки от даты документа до сегодня)
+	// cfg_name - РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РёРјРїРѕСЂС‚Р° РєР»РёРµРЅС‚-Р±Р°РЅРєР°
+	// max_items - @def=10 РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РіРµРЅРµСЂРёСЂСѓРµРјС‹С… РїР»Р°С‚РµР¶РµР№
+	// mean - @def = 25 СЃСЂРµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ Р·Р°РґРµСЂР¶РєРё РїР»Р°С‚РµР¶Р° (РґР»СЏ РіРµРЅРµСЂР°С†РёРё СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ Р·Р°РґРµСЂР¶РєРё РѕС‚ РґР°С‚С‹ РґРѕРєСѓРјРµРЅС‚Р° РґРѕ СЃРµРіРѕРґРЅСЏ)
+	// stddev - @def = 50 СЃС‚Р°РЅРґР°СЂС‚РЅРѕРµ РѕС‚РєР»РѕРЅРµРЅРёРµ Р·РЅР°С‡РµРЅРёР№ Р·Р°РґРµСЂР¶РєРё РїР»Р°С‚РµР¶Р° (РґР»СЏ РіРµРЅРµСЂР°С†РёРё СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРѕР№ Р·Р°РґРµСЂР¶РєРё РѕС‚ РґР°С‚С‹ РґРѕРєСѓРјРµРЅС‚Р° РґРѕ СЃРµРіРѕРґРЅСЏ)
 	PPObjOprKind op_obj;
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
@@ -1503,12 +1492,12 @@ int SLAPI GenerateCliBnkImpData()
 	}
 	bill_list.sort(CMPF_LONG);
 	//
-	// Список долговых документов составили.
-	// Теперь наша задача - сделать случайную выборку с гамма-распределением
-	// по периодам от текущего дня до даты документа.
+	// РЎРїРёСЃРѕРє РґРѕР»РіРѕРІС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРѕСЃС‚Р°РІРёР»Рё.
+	// РўРµРїРµСЂСЊ РЅР°С€Р° Р·Р°РґР°С‡Р° - СЃРґРµР»Р°С‚СЊ СЃР»СѓС‡Р°Р№РЅСѓСЋ РІС‹Р±РѕСЂРєСѓ СЃ РіР°РјРјР°-СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµРј
+	// РїРѕ РїРµСЂРёРѕРґР°Рј РѕС‚ С‚РµРєСѓС‰РµРіРѕ РґРЅСЏ РґРѕ РґР°С‚С‹ РґРѕРєСѓРјРµРЅС‚Р°.
 	//
 	{
-		uint   _count = bill_list.getCount(); // Количество оставшихся не обработанных долговых документов
+		uint   _count = bill_list.getCount(); // РљРѕР»РёС‡РµСЃС‚РІРѕ РѕСЃС‚Р°РІС€РёС…СЃСЏ РЅРµ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РґРѕР»РіРѕРІС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
 		PPGPaymentOrderList order_list;
 		PPIDArray in_paym_list;
 		PPIDArray out_paym_list;

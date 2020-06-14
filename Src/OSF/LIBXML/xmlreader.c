@@ -181,7 +181,6 @@ static int xmlTextReaderNextTree(xmlTextReader * reader);
 
 static void xmlTextReaderFreeNode(xmlTextReader * reader, xmlNode * cur);
 static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode * cur);
-
 /**
  * xmlFreeID:
  * @not:  A id
@@ -315,9 +314,8 @@ static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode *
 						reader->ctxt->freeElems = cur;
 						reader->ctxt->freeElemsNr++;
 					}
-					else {
+					else
 						SAlloc::F(cur);
-					}
 				}
 				cur = next;
 			}
@@ -521,7 +519,7 @@ static xmlNode * FASTCALL xmlTextReaderEntPop(xmlTextReader * reader)
 static void xmlTextReaderStartElement(void * ctx, const xmlChar * fullname, const xmlChar ** atts)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctxt->_private);
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderStartElement(%s)\n", fullname);
 #endif
@@ -544,7 +542,7 @@ static void xmlTextReaderStartElement(void * ctx, const xmlChar * fullname, cons
 static void xmlTextReaderEndElement(void * ctx, const xmlChar * fullname)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctxt->_private);
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderEndElement(%s)\n", fullname);
 #endif
@@ -573,7 +571,7 @@ static void xmlTextReaderStartElementNs(void * ctx, const xmlChar * localname,
     const xmlChar ** namespaces, int nb_attributes, int nb_defaulted, const xmlChar ** attributes)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctxt->_private);
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderStartElementNs(%s)\n", localname);
 #endif
@@ -598,7 +596,7 @@ static void xmlTextReaderStartElementNs(void * ctx, const xmlChar * localname,
 static void xmlTextReaderEndElementNs(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctxt->_private);
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderEndElementNs(%s)\n", localname);
 #endif
@@ -618,7 +616,7 @@ static void xmlTextReaderEndElementNs(void * ctx, const xmlChar * localname, con
 static void xmlTextReaderCharacters(void * ctx, const xmlChar * ch, int len)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctxt->_private);
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderCharacters()\n");
 #endif
@@ -638,13 +636,12 @@ static void xmlTextReaderCharacters(void * ctx, const xmlChar * ch, int len)
 static void xmlTextReaderCDataBlock(void * ctx, const xmlChar * ch, int len)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	xmlTextReader * reader = (xmlTextReader *)ctxt->_private;
+	xmlTextReader * reader = static_cast<xmlTextReader *>(ctxt->_private);
 #ifdef DEBUG_CALLBACKS
 	printf("xmlTextReaderCDataBlock()\n");
 #endif
-	if(reader && reader->cdataBlock) {
+	if(reader && reader->cdataBlock) 
 		reader->cdataBlock(ctx, ch, len);
-	}
 }
 /**
  * xmlTextReaderPushData:
@@ -687,7 +684,7 @@ static int FASTCALL xmlTextReaderPushData(xmlTextReader * reader)
 						return val;
 				}
 				else if(val == 0) {
-					/* mark the end of the stream and process the remains */
+					// mark the end of the stream and process the remains 
 					reader->mode = XML_TEXTREADER_MODE_EOF;
 					break;
 				}
@@ -700,7 +697,7 @@ static int FASTCALL xmlTextReaderPushData(xmlTextReader * reader)
 		// it's the best tradeoff at least on a 1.2GH Duron
 		//
 		if(xmlBufUse(inbuf) >= reader->cur + CHUNK_SIZE) {
-			val = xmlParseChunk(reader->ctxt, (const char *)xmlBufContent(inbuf) + reader->cur, CHUNK_SIZE, 0);
+			val = xmlParseChunk(reader->ctxt, PTRCHRC_(xmlBufContent(inbuf)) + reader->cur, CHUNK_SIZE, 0);
 			reader->cur += CHUNK_SIZE;
 			if(val)
 				reader->ctxt->wellFormed = 0;
@@ -709,7 +706,7 @@ static int FASTCALL xmlTextReaderPushData(xmlTextReader * reader)
 		}
 		else {
 			s = xmlBufUse(inbuf) - reader->cur;
-			val = xmlParseChunk(reader->ctxt, (const char *)xmlBufContent(inbuf) + reader->cur, s, 0);
+			val = xmlParseChunk(reader->ctxt, PTRCHRC_(xmlBufContent(inbuf)) + reader->cur, s, 0);
 			reader->cur += s;
 			if(val)
 				reader->ctxt->wellFormed = 0;
@@ -734,7 +731,7 @@ static int FASTCALL xmlTextReaderPushData(xmlTextReader * reader)
 	else if(reader->mode == XML_TEXTREADER_MODE_EOF) {
 		if(reader->state != XML_TEXTREADER_DONE) {
 			s = xmlBufUse(inbuf) - reader->cur;
-			val = xmlParseChunk(reader->ctxt, (const char *)xmlBufContent(inbuf) + reader->cur, s, 1);
+			val = xmlParseChunk(reader->ctxt, PTRCHRC_(xmlBufContent(inbuf)) + reader->cur, s, 1);
 			reader->cur = xmlBufUse(inbuf);
 			reader->state  = XML_TEXTREADER_DONE;
 			if(val) {
@@ -1793,8 +1790,7 @@ xmlTextReader * xmlNewTextReader(xmlParserInputBuffer * input, const char * URI)
 		xmlParserInputBufferRead(input, 4);
 	}
 	if(xmlBufUse(ret->input->buffer) >= 4) {
-		ret->ctxt = xmlCreatePushParserCtxt(ret->sax, NULL, (const char *)xmlBufContent(ret->input->buffer),
-		    4, URI);
+		ret->ctxt = xmlCreatePushParserCtxt(ret->sax, NULL, PTRCHRC_(xmlBufContent(ret->input->buffer)), 4, URI);
 		ret->base = 0;
 		ret->cur = 4;
 	}
@@ -4265,7 +4261,7 @@ else {
 		}
 		if(!reader->ctxt) {
 			if(xmlBufUse(reader->input->buffer) >= 4) {
-				reader->ctxt = xmlCreatePushParserCtxt(reader->sax, NULL, (const char *)xmlBufContent(reader->input->buffer), 4, URL);
+				reader->ctxt = xmlCreatePushParserCtxt(reader->sax, NULL, PTRCHRC_(xmlBufContent(reader->input->buffer)), 4, URL);
 				reader->base = 0;
 				reader->cur = 4;
 			}

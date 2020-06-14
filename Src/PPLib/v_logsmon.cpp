@@ -26,15 +26,24 @@ public:
 };
 //
 class LogsMonitorFiltDialog : public PPListDialog {
+	DECL_DIALOG_DATA(LogsMonitorFilt);
 public:
 	explicit LogsMonitorFiltDialog(uint resID);
-	int	setDTS(const LogsMonitorFilt *);
-	int	getDTS(LogsMonitorFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		Data.Selected = SelectedLogs;
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
 	//virtual int	actionList();
-	LogsMonitorFilt Filt;
 	LogsArray SelectedLogs;
 };
 //
@@ -136,19 +145,6 @@ int LogsMonitorFiltDialog::actionList()
 		return -1;
 }
 #endif // 0
-//
-int LogsMonitorFiltDialog::setDTS(const LogsMonitorFilt *pFilt)
-{
-	Filt = *pFilt;
-	return 1;
-}
-//
-int LogsMonitorFiltDialog::getDTS(LogsMonitorFilt *pFilt)
-{
-	Filt.Selected = SelectedLogs;
-	*pFilt = Filt;
-	return 1;
-}
 //
 // } @implement LogsMonitorFilt[Dialog]
 //

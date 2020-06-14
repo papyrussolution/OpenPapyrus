@@ -1782,11 +1782,8 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 	void * http_ctxt = NULL;
 	if(( ctxt == NULL ) || ( http_mthd == NULL ) )
 		return ( -1 );
-
 	/*  Retrieve the content from the appropriate buffer  */
-
 #ifdef HAVE_ZLIB_H
-
 	if(ctxt->compression > 0) {
 		content_lgth = xmlZMemBuffGetContent(ctxt->doc_buff, &http_content);
 		content_encoding = (char *)"Content-Encoding: gzip";
@@ -1795,19 +1792,15 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 #endif
 	{
 		/*  Pull the data out of the memory output buffer  */
-
 		xmlOutputBuffer * dctxt = (xmlOutputBuffer *)ctxt->doc_buff;
 		http_content = (char *)xmlBufContent(dctxt->buffer);
 		content_lgth = xmlBufUse(dctxt->buffer);
 	}
-
 	if(http_content == NULL) {
 		xmlChar msg[500];
-		xmlStrPrintf(msg, 500, (const xmlChar *)"xmlIOHTTPCloseWrite:  %s '%s' %s '%s'.\n",
-		    "Error retrieving content.\nUnable to", http_mthd, "data to URI", ctxt->uri);
+		xmlStrPrintf(msg, 500, (const xmlChar *)"xmlIOHTTPCloseWrite:  %s '%s' %s '%s'.\n", "Error retrieving content.\nUnable to", http_mthd, "data to URI", ctxt->uri);
 		xmlIOErr(XML_IO_WRITE, reinterpret_cast<const char *>(msg));
 	}
-
 	else {
 		http_ctxt = xmlNanoHTTPMethod(ctxt->uri, http_mthd, http_content, &content_type, content_encoding, content_lgth);
 		if(http_ctxt) {
@@ -3058,12 +3051,12 @@ int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * b
 			// second write the stuff to the I/O channel
 			//
 			if(out->encoder) {
-				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->conv), nbchars);
+				ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->conv)), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->conv, ret);
 			}
 			else {
-				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->buffer), nbchars);
+				ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->buffer)), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->buffer, ret);
 			}
@@ -3238,12 +3231,12 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 			 * second write the stuff to the I/O channel
 			 */
 			if(out->encoder) {
-				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->conv), nbchars);
+				ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->conv)), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->conv, ret);
 			}
 			else {
-				ret = out->writecallback(out->context, (const char *)xmlBufContent(out->buffer), nbchars);
+				ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->buffer)), nbchars);
 				if(ret >= 0)
 					xmlBufShrink(out->buffer, ret);
 			}
@@ -3321,12 +3314,12 @@ int xmlOutputBufferFlush(xmlOutputBuffer * out)
 	 * second flush the stuff to the I/O channel
 	 */
 	if(out->conv && out->encoder && out->writecallback) {
-		ret = out->writecallback(out->context, (const char *)xmlBufContent(out->conv), xmlBufUse(out->conv));
+		ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->conv)), xmlBufUse(out->conv));
 		if(ret >= 0)
 			xmlBufShrink(out->conv, ret);
 	}
 	else if(out->writecallback) {
-		ret = out->writecallback(out->context, (const char *)xmlBufContent(out->buffer), xmlBufUse(out->buffer));
+		ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->buffer)), xmlBufUse(out->buffer));
 		if(ret >= 0)
 			xmlBufShrink(out->buffer, ret);
 	}

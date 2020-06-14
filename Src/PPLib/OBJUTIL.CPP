@@ -250,15 +250,12 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return p;
 }
 
-//static
-void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID)
+/*static*/void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID)
 	{ DS.GetTLA().LastErrObj.Set(objType, objID); }
-//static
-int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID)
+/*static*/int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID)
 	{ return PPSetObjError(PPERR_REFSEXISTS, objType, objID); }
 
-// static
-SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf)
+/*static*/SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf)
 {
 	SString fmt_buf, obj_type_name, obj_name;
 	PPGetSubStr(PPTXT_OBJACCEPTED, upd ? PPOBJACCP_OBJUPDATED : PPOBJACCP_OBJCREATED, fmt_buf);
@@ -267,8 +264,7 @@ SString & SLAPI PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SStrin
 	return rBuf.Printf(fmt_buf, obj_type_name.cptr(), objID, obj_name.cptr());
 }
 
-//static
-int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, const void * pData, size_t sz, int use_ta)
+/*static*/int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew, const void * pData, size_t sz, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -286,8 +282,7 @@ int SLAPI PPObject::Helper_PutConfig(PPID cfgPropID, PPID cfgObjType, int isNew,
 	return ok;
 }
 
-//static
-int FASTCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
+/*static*/int FASTCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
 {
 	int    ok = 0;
 	if(stream)
@@ -295,8 +290,7 @@ int FASTCALL PPObject::ReadBlk(void * pBlk, size_t blkSize, void * stream)
 	return ok;
 }
 
-//static
-int FASTCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream)
+/*static*/int FASTCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream)
 {
 	int    ok = 0;
 	if(stream)
@@ -304,8 +298,7 @@ int FASTCALL PPObject::WriteBlk(const void * pBlk, size_t blkSize, void * stream
 	return ok;
 }
 
-//static
-int FASTCALL PPObject::ReadSBuffer(SBuffer & rBuf, void * stream)
+/*static*/int FASTCALL PPObject::ReadSBuffer(SBuffer & rBuf, void * stream)
 {
 	int    ok = 1;
 	uint32 sz = 0;
@@ -320,8 +313,7 @@ int FASTCALL PPObject::ReadSBuffer(SBuffer & rBuf, void * stream)
 	return ok;
 }
 
-//static
-int FASTCALL PPObject::WriteSBuffer(SBuffer & rBuf, void * stream)
+/*static*/int FASTCALL PPObject::WriteSBuffer(SBuffer & rBuf, void * stream)
 {
 	int    ok = 1;
 	THROW(stream);
@@ -336,8 +328,7 @@ int FASTCALL PPObject::WriteSBuffer(SBuffer & rBuf, void * stream)
 	return ok;
 }
 
-// static
-int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
+/*static*/int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
 {
 	int    ok = 1;
 	PPCommSyncID dest_comm_id;
@@ -366,8 +357,7 @@ int SLAPI PPObject::ReplaceObj(PPID objType, PPID dest, PPID src, uint options)
 	return ok;
 }
 
-// static
-int PPObject::ReplaceObjInteractive(PPID objTypeID, PPID srcID /*=0*/)
+/*static*/int PPObject::ReplaceObjInteractive(PPID objTypeID, PPID srcID /*=0*/)
 {
 	class ReplObjDialog : public TDialog {
 	public:
@@ -437,8 +427,7 @@ int PPObject::ReplaceObjInteractive(PPID objTypeID, PPID srcID /*=0*/)
 	return ok;
 }
 
-//static
-int SLAPI PPObject::IndexPhones()
+/*static*/int SLAPI PPObject::IndexPhones()
 {
 	int    ok = 1;
 	THROW_PP(CConfig.Flags2 & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
@@ -1007,8 +996,7 @@ int SLAPI PPObject::RemoveSync(PPID id)
 
 IMPL_CMPFUNC(PPObjID, i1, i2) { return memcmp(i1, i2, sizeof(PPObjID)); }
 
-// static
-int FASTCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
+/*static*/int FASTCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
 {
 	int    ok = -1;
 	if(objTypeID) {
@@ -1303,8 +1291,7 @@ PPID FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 	return DS.GetObjectTypeBySymb(pSymb, pExtraParam);
 }
 
-// static
-int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
+/*static*/int SLAPI PPObject::Identify(const char * pObjType, const char * pObjIdent, PPObjID * pIdent)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -1802,8 +1789,7 @@ void ObjLinkFiles::Fns::Reset()
 	Ext[0] = 0;
 }
 
-// static
-int SLAPI ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
+/*static*/int SLAPI ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
 {
 	int    ok = 0;
 	if(pFileName) {
@@ -2138,8 +2124,7 @@ PPGlobalAccRights::~PPGlobalAccRights()
 	Recs.freeAll();
 }
 
-// static
-int SLAPI PPGlobalAccRights::EditDialog(PPID tagID, SString & rLine)
+/*static*/int SLAPI PPGlobalAccRights::EditDialog(PPID tagID, SString & rLine)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_GUART);

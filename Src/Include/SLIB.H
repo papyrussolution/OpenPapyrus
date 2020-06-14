@@ -4267,7 +4267,10 @@ struct SPathStruc {
 		fExt = 0x0008, // Путь содержит расширение файла
 		fUNC = 0x0010  // Путь представлен в UNC-формате
 	};
-	SString Drv, Dir, Nam, Ext;
+	SString Drv;
+	SString Dir;
+	SString Nam;
+	SString Ext;
 	long   Flags;
 };
 //
@@ -4526,6 +4529,9 @@ int    FASTCALL _koi8_to_866(int);
 #endif // } 0 @v9.5.1
 char * FASTCALL SOemToChar(char * pStr);
 char * FASTCALL SCharToOem(char * pStr);
+//
+// Descr: Серия специальных функций и макросов для унификации компиляции UNICODE и multibyte версий.
+//
 const wchar_t * FASTCALL SUcSwitchW(const char * pStr);
 const char * FASTCALL SUcSwitchW(const wchar_t * pStr);
 inline const char * FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
@@ -5131,11 +5137,9 @@ struct SDirEntry {
 		attrOwpR   = 0x00010000, // unix owner permission Read
 		attrOwpW   = 0x00020000, // unix owner permission Write
 		attrOwpX   = 0x00040000, // unix owner permission Execute
-
 		attrGrpR   = 0x00080000, // unix group permission Read
 		attrGrpW   = 0x00100000, // unix group permission Write
 		attrGrpX   = 0x00200000, // unix group permission Execute
-
 		attrUsrR   = 0x00400000, // unix user permission Read
 		attrUsrW   = 0x00800000, // unix user permission Write
 		attrUsrX   = 0x01000000, // unix user permission Execute
@@ -5395,10 +5399,8 @@ public:
 	enum {
 		fFixedSize = 0x0001, // Буфер имеет фиксированный размер (не может увеличиваться сверх него)
 			// Этот размер должен быть передан буферу в конструкторе
-		fMovable   = 0x0002, // При записи в буфер можно считать, что все содержимое до RdOffs
-			// не нужно и его можно перезаписать
-		fError     = 0x8000  // Ошибка. Внутренний флаг. При попытке передать этот флаг в
-			// конструктор, он сбрасывается.
+		fMovable   = 0x0002, // При записи в буфер можно считать, что все содержимое до RdOffs не нужно и его можно перезаписать
+		fError     = 0x8000  // Ошибка. Внутренний флаг. При попытке передать этот флаг в конструктор, он сбрасывается.
 	};
 	//
 	// Descr: Опции сохранения/восстановления объектов
@@ -5408,7 +5410,6 @@ public:
 		ffAryForceEmpty = 0x0002  // Сохранить массив как имеющий 0 элементов, даже если он не пустой.
 	};
 	int    SLAPI InvariantC(SInvariantParam *) const;
-
 	SLAPI  SBuffer(size_t initSize = 0, long flags = fMovable);
 	SLAPI  SBuffer(const SBuffer &);
 	SLAPI ~SBuffer();
@@ -7217,24 +7218,23 @@ public:
 };
 #endif // } _WIN32_WCE
 //
+// @obsolete
 //
-//
-struct TaggedString {
+struct TaggedString_obsolete {
 	static TYPEID SLAPI BufType();
 	static size_t SLAPI BufSize();
-	SLAPI  TaggedString();
+	SLAPI  TaggedString_obsolete();
 
 	long   Id;
 	char   Txt[64];
 };
-//
-// @obsolete
-//
-class TaggedStringArray : public TSArray <TaggedString> {
+
+class TaggedStringArray_obsolete : public TSArray <TaggedString_obsolete> {
 public:
-	SLAPI  TaggedStringArray();
-	TaggedStringArray & FASTCALL operator = (const TaggedStringArray &);
-	int    SLAPI Search(long id, uint * pPos, int binary = 0) const;
+	SLAPI  TaggedStringArray_obsolete();
+	TaggedStringArray_obsolete & FASTCALL operator = (const TaggedStringArray_obsolete &);
+	int    SLAPI Add(long id, const char * pStr);
+	// @v10.7.11 int    SLAPI Search(long id, uint * pPos, int binary = 0) const;
 	//
 	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
 	//   поиск не чувствителен к регистру.
@@ -7244,12 +7244,11 @@ public:
 	//   !0 - элемент найден
 	//   0  - элемент не найден
 	//
-	int    SLAPI SearchByText(const char * pTxt, uint * pPos) const;
-	int    SLAPI Get(long id, char * pBuf, size_t bufLen, int binary = 0) const;
-	int    SLAPI Get(long id, SString & rBuf, int binary = 0) const;
-	int    SLAPI Add(long id, const char * pStr);
-	void   SLAPI SortByID();
-	void   SLAPI SortByText();
+	// @v10.7.11 int    SLAPI SearchByText(const char * pTxt, uint * pPos) const;
+	// @v10.7.11 int    SLAPI Get(long id, char * pBuf, size_t bufLen, int binary = 0) const;
+	// @v10.7.11 int    SLAPI Get(long id, SString & rBuf, int binary = 0) const;
+	// @v10.7.11 void   SLAPI SortByID();
+	// @v10.7.11 void   SLAPI SortByText();
 };
 //
 // Descr: Вспомогательный класс, управляющий набором строк, каждая из которых идентифицируется своей позицией
@@ -7505,7 +7504,7 @@ public:
 	int    SLAPI Read(SFile & rFile, long);
 #endif // } _WIN32_WCE
 
-	int    SLAPI Test_Cmp(const TaggedStringArray &, int * pNEqPos) const;
+	// @v10.7.11 int    SLAPI Test_Cmp(const TaggedStringArray_obsolete &, int * pNEqPos) const;
 	static int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
 	CompFunc TextCmpProc; // @v9.5.9

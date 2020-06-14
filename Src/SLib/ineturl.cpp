@@ -8,8 +8,7 @@
 #include <uri.h>
 #include <snet.h>
 
-// static
-ulong SLAPI InetAddr::IPToULong(const char * pIP)
+/*static*/ulong SLAPI InetAddr::IPToULong(const char * pIP)
 {
 	ulong  addr = 0;
 	SString buf;
@@ -26,8 +25,7 @@ ulong SLAPI InetAddr::IPToULong(const char * pIP)
 	return addr;
 }
 
-// static
-void SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
+/*static*/void SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
 {
 	rIP.Z();
 	for(uint i = 4; i > 0; i--) {
@@ -149,8 +147,7 @@ int SLAPI InetAddr::Set(ulong addr, int port)
 	return 1;
 }
 
-// static
-int SLAPI InetAddr::GetNameByAddr(const char * pIP, SString & aHost)
+/*static*/int SLAPI InetAddr::GetNameByAddr(const char * pIP, SString & aHost)
 {
 	int    ok = -1;
 	if(pIP) {

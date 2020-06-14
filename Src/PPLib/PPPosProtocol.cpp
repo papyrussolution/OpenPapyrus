@@ -5,9 +5,9 @@
 #include <pp.h>
 #pragma hdrstop
 
-static SString & FASTCALL MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
+static SString & FASTCALL MakeMsgByCheck(const LDATETIME & rDT, long cashCode, long chkNumber, SString & rBuf)
 {
-	return rBuf.Z().Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
+	return rBuf.Z().Cat(rDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
 }
 /*
 
@@ -195,7 +195,7 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 											while(SearchTempCheckByTime(local_pos_no, &cc_dtm) > 0) {
 												int    h, m, s, hs;
 												decodetime(&h, &m, &s, &hs, &cc_dtm.t);
-												THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(&cc_dtm, local_pos_no, p_ccb->Code, temp_buf));
+												THROW_PP_S(hs < 99, PPERR_DUPTEMPCHECK, MakeMsgByCheck(cc_dtm, local_pos_no, p_ccb->Code, temp_buf));
 												cc_dtm.t = encodetime(h, m, s, hs + 1);
 											}
 											// } @v10.1.10
@@ -208,7 +208,7 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 														const PPPosProtocol::CcLineBlock * p_clb = static_cast<const PPPosProtocol::CcLineBlock *>(p_ib->GetItem(cl_refi, &cl_type));
 														THROW(cl_type == PPPosProtocol::obCcLine);
 														if(p_clb->CCheckBlkP == cc_refi) {
-															short  div_n = (short)p_clb->DivN;
+															short  div_n = static_cast<short>(p_clb->DivN);
 															double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
 															double price = p_clb->Price;
 															double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / fabs(qtty)) : p_clb->Discount; // @v10.2.0
@@ -1317,7 +1317,6 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
 					if(p_cc->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 						const double cc_amount = MONEYTOLDBL(cc_pack.Rec.Amount);
 						const double cc_discount = MONEYTOLDBL(cc_pack.Rec.Discount);
-
 						SXml::WNode w_cc(rB.P_Xw, "cc");
                         w_cc.PutInner("id",   temp_buf.Z().Cat(cc_pack.Rec.ID));
                         w_cc.PutInner("code", temp_buf.Z().Cat(cc_pack.Rec.Code));
@@ -2477,12 +2476,10 @@ int PPPosProtocol::EndElement(const char * pName)
 				//
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obCCheck) {
+				if(type == obCCheck)
 					static_cast<CCheckBlock *>(p_item)->SCardBlkP = ref_pos;
-				}
-				else if(type == obPayment) {
+				else if(type == obPayment)
 					static_cast<CcPaymentBlock *>(p_item)->SCardBlkP = ref_pos;
-				}
 				break;
 			case PPHS_QUOTEKIND:
 			case PPHS_QUOTKIND:
@@ -2561,12 +2558,10 @@ int PPPosProtocol::EndElement(const char * pName)
 				RdB.RefPosStack.pop(ref_pos);
 				parent_ref_pos = PeekRefPos();
 				p_item = RdB.GetItem(parent_ref_pos, &type);
-				if(type == obGoods) {
+				if(type == obGoods)
 					static_cast<GoodsBlock *>(p_item)->ParentBlkP = ref_pos;
-				}
-				else if(type == obGoodsGroup) {
+				else if(type == obGoodsGroup)
 					static_cast<GoodsGroupBlock *>(p_item)->ParentBlkP = ref_pos;
-				}
 				break;
 			case PPHS_TYPE:
 				p_item = PeekRefItem(&ref_pos, &type);
@@ -3078,6 +3073,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_CC:
 			case PPHS_CCL:
 			case PPHS_PAYMENT:
+			case PPHS_ADDRESS: // @v10.7.11 @fix
 				RdB.RefPosStack.pop(ref_pos);
 				break;
 			case PPHS_RESTRICTION:
@@ -4870,8 +4866,45 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 	return ok;
 }
 
+int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs)
+{
+	int    ok = -1;
+	SString src_buf = pSrc;
+	InetUrl _url(src_buf.Strip());
+	const int _url_prot = _url.GetProtocol();
+	if(_url_prot == InetUrl::protFile) {
+		if(IsDirectory(src_buf.RmvLastSlash())) {
+			rSs.add(src_buf);
+			ok = 1;
+		}
+	}
+	else if(_url_prot == InetUrl::protFtp) {
+		if(cnID) {
+			PPObjInternetAccount ina_obj;
+			ObjTagList tag_list;
+			PPRef->Ot.GetList(PPOBJ_CASHNODE, cnID, &tag_list);
+			for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
+				const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
+				if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_INTERNETACCOUNT) {
+					PPID   temp_id = 0;
+					if(p_tag_item->GetInt(&temp_id) && temp_id) {
+						PPInternetAccount2 ina_rec;
+						if(ina_obj.Get(temp_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
+							ScURL c;
+							//_url.SetComponent(InetUrl::cUserName, temp_buf);
+							//_url.SetComponent(InetUrl::cPassword, temp_buf);
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 {
+	// InetUrl
 	int    ok = -1;
 	// @v10.3.0 (never used) Reference * p_ref = PPRef;
 	const char * p_base_name = "pppp";
@@ -4898,15 +4931,13 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					if(acn_pack.ImpFiles.NotEmptyS()) {
 						StringSet ss_row_paths(';', acn_pack.ImpFiles);
 						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
-							if(IsDirectory(temp_buf.RmvLastSlash()))
-								ss_paths.add(temp_buf);
+							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths);
 						}
 					}
 				}
 				else if(cn_rec.Flags & CASHF_SYNC && CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
 					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf)) {
-						if(IsDirectory(temp_buf.RmvLastSlash()))
-							ss_paths.add(temp_buf);
+						PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths);
 					}
 				}
 			}

@@ -58,8 +58,7 @@ int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase
 		return SUnit::Context::Describe(unitId, dir, pCls, pToBase, pName);
 }
 
-// static
-uint SDrawContext::CalcScreenFontSizePt(uint pt)
+/*static*/uint SDrawContext::CalcScreenFontSizePt(uint pt)
 {
 	uint   s = 0;
 	SDrawContext dctx(static_cast<cairo_t *>(0));
@@ -218,8 +217,7 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 	return p_dup;
 }
 
-// static
-int FASTCALL SDrawFigure::CheckKind(int kind)
+/*static*/int FASTCALL SDrawFigure::CheckKind(int kind)
 {
 	if(oneof6(kind, kShape, kPath, kGroup, kImage, kText, kRef)) // @v10.4.5 kRef
 		return 1;
@@ -1360,8 +1358,7 @@ uint FASTCALL SImageBuffer::PixF::GetStride(uint width) const
 		return 0;
 }
 
-// static
-uint32 FASTCALL SImageBuffer::PixF::UniformToGrayscale(uint32 u)
+/*static*/uint32 FASTCALL SImageBuffer::PixF::UniformToGrayscale(uint32 u)
 {
 	const uint32 _r = (u & 0x00ff0000) >> 16;
 	const uint32 _g = (u & 0x0000ff00) >> 8;
@@ -1369,8 +1366,7 @@ uint32 FASTCALL SImageBuffer::PixF::UniformToGrayscale(uint32 u)
 	return (_r == _g && _r == _b) ? _r : ((_r * 307 + _g * 604 + _b * 113) >> 10);
 }
 
-// static
-COLORREF FASTCALL SImageBuffer::PixF::UniformToRGB(uint32 u)
+/*static*/COLORREF FASTCALL SImageBuffer::PixF::UniformToRGB(uint32 u)
 {
 	//const uint32 _r = (u & 0x00ff0000) >> 16;
 	//const uint32 _g = (u & 0x0000ff00) >> 8;
@@ -2029,8 +2025,7 @@ int SImageBuffer::Load(int fm, SBuffer & rInBuf)
 	return ok;
 }
 
-// static
-int SImageBuffer::IsSupportedFormat(int fm)
+/*static*/int SImageBuffer::IsSupportedFormat(int fm)
 {
 	int    ok = 1;
 	switch(fm) {

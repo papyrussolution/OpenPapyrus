@@ -2339,7 +2339,7 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 									MEMSZERO(k1);
 									k1.ObjType = PPOBJ_GOODS;
 									k1.ObjID   = new_id;
-									k1.DBID    = (short)LConfig.DBDiv;
+									k1.DBID    = static_cast<short>(LConfig.DBDiv);
 									if(sync_tbl.searchForUpdate(1, &k1, spEq) > 0) {
 										sync_tbl.data.ObjID = 0;
 										sync_tbl.updateRec(); // @sfu

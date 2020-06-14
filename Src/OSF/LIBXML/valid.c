@@ -41,7 +41,7 @@ static void FASTCALL xmlVErrMemory(xmlValidCtxtPtr ctxt, const char * extra)
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxt *)ctxt->userData;
+				pctxt = static_cast<xmlParserCtxt *>(ctxt->userData);
 		}
 	}
 	if(extra)
@@ -62,7 +62,7 @@ static void FASTCALL xmlVErrMemory_MallocFailed(xmlValidCtxtPtr ctxt)
  *
  * Handle a validation error
  */
-static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char * msg, const char * extra)
+static void FASTCALL xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char * msg, const char * extra)
 {
 	xmlGenericErrorFunc channel = NULL;
 	xmlParserCtxt * pctxt = NULL;
@@ -74,7 +74,7 @@ static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char 
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char *)ctxt - (char *)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxt *)ctxt->userData;
+				pctxt = static_cast<xmlParserCtxt *>(ctxt->userData);
 		}
 	}
 	if(extra)
@@ -1146,7 +1146,7 @@ xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar
 	// 
 	// Create the Element table if needed.
 	// 
-	table = (xmlElementTable *)dtd->elements;
+	table = static_cast<xmlElementTable *>(dtd->elements);
 	if(table == NULL) {
 		xmlDict * dict = dtd->doc ? dtd->doc->dict : 0;
 		table = xmlHashCreateDict(0, dict);
@@ -2030,14 +2030,10 @@ void xmlDumpNotationTable(xmlBuffer * buf, xmlNotationTablePtr table)
 	if(buf && table)
 		xmlHashScan(table, (xmlHashScanner)xmlDumpNotationDeclScan, buf);
 }
-
 #endif /* LIBXML_OUTPUT_ENABLED */
-
-/************************************************************************
-*									*
-*				IDs					*
-*									*
-************************************************************************/
+//
+// IDs
+//
 /**
  * @str:  a string
  *
@@ -2059,7 +2055,6 @@ static void xmlFreeID(xmlID * pID)
 		SAlloc::F(pID);
 	}
 }
-
 /**
  * xmlAddID:
  * @ctxt:  the validation context
@@ -2184,7 +2179,6 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
 	}
 	return 0;
 }
-
 /**
  * xmlRemoveID:
  * @doc:  the document
@@ -2197,11 +2191,8 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
 int xmlRemoveID(xmlDoc * doc, xmlAttr * attr)
 {
 	xmlIDTable * table;
-	xmlID * id;
 	xmlChar * ID;
-	if(!doc)
-		return -1;
-	if(!attr)
+	if(!doc || !attr)
 		return -1;
 	table = static_cast<xmlIDTable *>(doc->ids);
 	if(table == NULL)
@@ -2209,14 +2200,16 @@ int xmlRemoveID(xmlDoc * doc, xmlAttr * attr)
 	ID = xmlNodeListGetString(doc, attr->children, 1);
 	if(ID == NULL)
 		return -1;
-	id = (xmlID *)xmlHashLookup(table, ID);
-	if(id == NULL || id->attr != attr) {
-		SAlloc::F(ID);
-		return -1;
+	{
+		xmlID * id = static_cast<xmlID *>(xmlHashLookup(table, ID));
+		if(id == NULL || id->attr != attr) {
+			SAlloc::F(ID);
+			return -1;
+		}
 	}
 	xmlHashRemoveEntry(table, ID, (xmlHashDeallocator)xmlFreeID);
 	SAlloc::F(ID);
-	attr->atype = (xmlAttributeType)0;
+	attr->atype = XML_ATTRIBUTE_UNDEF;
 	return 0;
 }
 /**
@@ -2668,7 +2661,6 @@ xmlAttribute * xmlGetDtdQAttrDesc(xmlDtd * dtd, const xmlChar * elem, const xmlC
 	table = (xmlAttributeTable *)dtd->attributes;
 	return (xmlAttribute *)xmlHashLookup3(table, name, prefix, elem);
 }
-
 /**
  * xmlGetDtdNotationDesc:
  * @dtd:  a pointer to the DtD to search
@@ -2705,9 +2697,9 @@ int xmlValidateNotationUse(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * n
 	if(!doc || (doc->intSubset == NULL) || (notationName == NULL)) 
 		return -1;
 	notaDecl = xmlGetDtdNotationDesc(doc->intSubset, notationName);
-	if((notaDecl == NULL) && doc->extSubset)
+	if(!notaDecl && doc->extSubset)
 		notaDecl = xmlGetDtdNotationDesc(doc->extSubset, notationName);
-	if((notaDecl == NULL) && (ctxt)) {
+	if(!notaDecl && (ctxt)) {
 		xmlErrValidNode(ctxt, (xmlNode *)doc, XML_DTD_UNKNOWN_NOTATION, "NOTATION %s is not declared\n", notationName, 0, 0);
 		return 0;
 	}
@@ -2753,12 +2745,10 @@ int FASTCALL xmlIsMixedElement(xmlDoc * doc, const xmlChar * name)
 
 #ifdef LIBXML_VALID_ENABLED
 
-static int xmlIsDocNameStartChar(xmlDoc * doc, int c) {
+static int xmlIsDocNameStartChar(xmlDoc * doc, int c) 
+{
 	if(!doc || (doc->properties & XML_DOC_OLD10) == 0) {
-		/*
-		 * Use the new checks of production [4] [4a] amd [5] of the
-		 * Update 5 of XML-1.0
-		 */
+		// Use the new checks of production [4] [4a] amd [5] of the Update 5 of XML-1.0
 		if(((c >= 'a') && (c <= 'z')) ||
 		    ((c >= 'A') && (c <= 'Z')) ||
 		    (c == '_') || (c == ':') ||
@@ -2831,11 +2821,12 @@ static int xmlIsDocNameChar(xmlDoc * doc, int c) {
  * returns 1 if valid or 0 otherwise
  */
 
-static int xmlValidateNameValueInternal(xmlDoc * doc, const xmlChar * value) {
+static int xmlValidateNameValueInternal(xmlDoc * doc, const xmlChar * value) 
+{
 	const xmlChar * cur;
 	int val, len;
-
-	if(!value) return 0;
+	if(!value) 
+		return 0;
 	cur = value;
 	val = xmlStringCurrentChar(NULL, cur, &len);
 	cur += len;
@@ -2848,9 +2839,8 @@ static int xmlValidateNameValueInternal(xmlDoc * doc, const xmlChar * value) {
 		val = xmlStringCurrentChar(NULL, cur, &len);
 		cur += len;
 	}
-
-	if(val) return 0;
-
+	if(val) 
+		return 0;
 	return 1;
 }
 
@@ -2862,10 +2852,7 @@ static int xmlValidateNameValueInternal(xmlDoc * doc, const xmlChar * value) {
  *
  * returns 1 if valid or 0 otherwise
  */
-
-int xmlValidateNameValue(const xmlChar * value) {
-	return (xmlValidateNameValueInternal(NULL, value));
-}
+int xmlValidateNameValue(const xmlChar * value) { return (xmlValidateNameValueInternal(NULL, value)); }
 
 /**
  * xmlValidateNamesValueInternal:
@@ -2876,48 +2863,39 @@ int xmlValidateNameValue(const xmlChar * value) {
  *
  * returns 1 if valid or 0 otherwise
  */
-
-static int xmlValidateNamesValueInternal(xmlDoc * doc, const xmlChar * value) {
+static int xmlValidateNamesValueInternal(xmlDoc * doc, const xmlChar * value) 
+{
 	const xmlChar * cur;
 	int val, len;
-
-	if(!value) return 0;
+	if(!value) 
+		return 0;
 	cur = value;
 	val = xmlStringCurrentChar(NULL, cur, &len);
 	cur += len;
-
 	if(!xmlIsDocNameStartChar(doc, val))
 		return 0;
-
 	val = xmlStringCurrentChar(NULL, cur, &len);
 	cur += len;
 	while(xmlIsDocNameChar(doc, val)) {
 		val = xmlStringCurrentChar(NULL, cur, &len);
 		cur += len;
 	}
-
-	/* Should not test IS_BLANK(val) here -- see erratum E20*/
+	// Should not test IS_BLANK(val) here -- see erratum E20
 	while(val == 0x20) {
 		while(val == 0x20) {
 			val = xmlStringCurrentChar(NULL, cur, &len);
 			cur += len;
 		}
-
 		if(!xmlIsDocNameStartChar(doc, val))
 			return 0;
-
 		val = xmlStringCurrentChar(NULL, cur, &len);
 		cur += len;
-
 		while(xmlIsDocNameChar(doc, val)) {
 			val = xmlStringCurrentChar(NULL, cur, &len);
 			cur += len;
 		}
 	}
-
-	if(val) return 0;
-
-	return 1;
+	return val ? 0 : 1;
 }
 
 /**

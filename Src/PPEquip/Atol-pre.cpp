@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -409,7 +409,8 @@ int SLAPI ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 						f_str.Z().Cat(ATOL_INNER_SCHEME).Semicol(); // #1 - код схемы внутренней авт.скидки
 						f_str.Cat(++dscnt_code).Semicol();      // #2 - код скидки
 						f_str.Cat(card_rec.Code).Semicol();     // #3 - наименование скидки (код карты)
-						f_str.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp)).CatChar(' ');
+						// @v10.7.11 f_str.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp)).CatChar(' ');
+						f_str.Cat(PPLoadStringS("discount", temp)).CatChar(' '); // @v10.7.11
 						temp.Z().Cat(fdiv100i(card_rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ));
 						f_str.Cat(temp).CatChar('%').Semicol(); // #4 - текст для чека
 						f_str.CatChar('0').Semicol();           // #5 - тип скидки (0 - процентная)
@@ -983,7 +984,7 @@ int SLAPI ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath
 					SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, 0, goods_id);
 					//@v10.7.3 SetTempCcLineValues(0, qtty, price, price - dscnt_price, 0/*pLnExtStrings*/);
 					//@v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, price - dscnt_price, 0/*pLnExtStrings*/)); //@v10.7.3 
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, price - dscnt_price, 0/*pLnExtStrings*/)); //@v10.7.3
 				}
 				line_amount = R2(qtty * dscnt_price);
 				dscnt       = R2(qtty * price - dscnt);

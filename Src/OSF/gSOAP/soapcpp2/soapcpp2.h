@@ -206,11 +206,11 @@ typedef enum Level { INTERNAL, GLOBAL, PARAM, LOCAL } Level;
 #define MINLONG64 (0x8000000000000000LL)
 #define MAXLONG64 (0x7FFFFFFFFFFFFFFFLL)
 
-typedef struct tagSymbol {       
+struct Symbol {
 	char * name;
 	Token token;
-	struct tagSymbol * next; 
-} Symbol;
+	Symbol * next; 
+};
 
 Symbol * install(const char *, Token);
 Symbol * lookup(const char *);

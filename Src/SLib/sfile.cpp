@@ -888,8 +888,7 @@ application:wps application/vnd.ms-works
 {"x-world/x-vrml", ".xof"},
 */
 
-// static
-int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
+/*static*/int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
 {
 	//
 	// Backtrack to previous * on mismatch and retry starting one
@@ -1031,8 +1030,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	LocalFileTimeToFileTime(wt, wt); // debug
 }
 
-// static
-int SLAPI SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
+/*static*/int SLAPI SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * pLastAccess, const LDATETIME * pLastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;
@@ -1057,8 +1055,7 @@ int SLAPI SFile::SetTime(int fh, const LDATETIME * pCreation, const LDATETIME * 
 #endif
 }
 
-// static
-int SLAPI SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
+/*static*/int SLAPI SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
 {
 	int    ok = 1;
 	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
@@ -1071,8 +1068,7 @@ int SLAPI SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIM
 	return ok;
 }
 
-// static
-int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif)
+/*static*/int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, LDATETIME * lastModif)
 {
 #ifdef __WIN32__
 	FILETIME w_cr_ft;

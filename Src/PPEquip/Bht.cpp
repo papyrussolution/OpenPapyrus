@@ -1,6 +1,6 @@
 // BHT.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -34,7 +34,7 @@ int StyloBhtIIConfig::ToDevice()
 int StyloBhtIIConfig::Save(const char * pPath)
 {
 	int ok = 0;
-	/* Класс SIniFile требует адаптации под WinCe
+	/* РљР»Р°СЃСЃ SIniFile С‚СЂРµР±СѓРµС‚ Р°РґР°РїС‚Р°С†РёРё РїРѕРґ WinCe
 	SString buf;
 	SIniFile file(path, 1, 1);
 	if(file.Valid()) {
@@ -91,10 +91,10 @@ void SBIIGoodsRec::Init()
 	memzero(Barcode, sizeof(Barcode));
 	memzero(Serial, sizeof(Serial));
 	memzero(Name, sizeof(Name));
-	Pack  = 0;
-	Price = 0;
-	Rest  = 0;
-	Cost  = 0;
+	Pack  = 0.0;
+	Price = 0.0;
+	Rest  = 0.0;
+	Cost  = 0.0;
 }
 
 int SBIIGoodsRec::FromDbfTbl(DbfTable * pTbl)
@@ -939,35 +939,133 @@ SLAPI PPObjBHT::PPObjBHT(void * extraPtr) : PPObjReference(PPOBJ_BHT, extraPtr),
 }
 
 class BhtDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBhtTerminalPacket);
 public:
 	BhtDialog() : TDialog(DLG_BHT)
 	{
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_BHT_IMPEXPPATH, CTL_BHT_IMPEXPPATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 	}
-	int    setDTS(const PPBhtTerminalPacket *);
-	int    getDTS(PPBhtTerminalPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		ushort v = 0;
+		setCtrlData(CTL_BHT_NAME, Data.Rec.Name);
+		setCtrlData(CTL_BHT_ID, &Data.Rec.ID);
+		AddClusterAssoc(CTL_BHT_TYPE,  0, PPObjBHT::btDenso);
+		AddClusterAssoc(CTL_BHT_TYPE,  1, PPObjBHT::btSyntech);
+		AddClusterAssoc(CTL_BHT_TYPE,  2, PPObjBHT::btPalm);
+		AddClusterAssoc(CTL_BHT_TYPE,  3, PPObjBHT::btWinCe);
+		AddClusterAssoc(CTL_BHT_TYPE,  4, PPObjBHT::btCom);
+		AddClusterAssocDef(CTL_BHT_TYPE, 5, PPObjBHT::btStyloBhtII);
+		SetClusterData(CTL_BHT_TYPE, Data.Rec.BhtTypeID);
+		if(!oneof4(Data.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII, PPObjBHT::btWinCe, PPObjBHT::btCom)) {
+			int    c = 0;
+			if(IsComDvcSymb(Data.Rec.Port, &c) == comdvcsCom) {
+				if(c == 1)
+					v = 0;
+				else if(c == 2)
+					v = 1;
+				else if(c == 3)
+					v = 2;
+				else
+					v = 0;
+			}
+			else
+				v = 0;
+			setCtrlData(CTL_BHT_COMPORT, &v);
+			if(Data.Rec.Cbr == cbr9600)
+				v = 0;
+			else if(Data.Rec.Cbr == cbr19200)
+				v = 1;
+			else
+				v = 1;
+			setCtrlData(CTL_BHT_BAUDRATE, &v);
+			setCtrlData(CTL_BHT_COMREADDELAY, &Data.Rec.ComGet_Delay);
+			setCtrlData(CTL_BHT_TIMEOUT,  &Data.Rec.BhtpTimeout);
+			setCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
+		}
+		else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
+			setCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
+		SetupLocationCombo(this, CTLSEL_BHT_LOC, Data.Rec.LocID, 0, LOCTYP_WAREHOUSE, 0);
+		SetupPPObjCombo(this, CTLSEL_BHT_INVENTOP, PPOBJ_OPRKIND, Data.Rec.InventOpID, 0, reinterpret_cast<void *>(PPOPT_INVENTORY));
+		PPIDArray op_type_list;
+		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, 0L);
+		SetupOprKindCombo(this, CTLSEL_BHT_EXPENDOP, Data.Rec.ExpendOpID,    0, &op_type_list, 0);
+		SetupOprKindCombo(this, CTLSEL_BHT_INTROP,   Data.Rec.IntrExpndOpID, 0, &op_type_list, 0);
+		v = (Data.Rec.ReceiptPlace == RCPTPLACE_ALTGROUP) ? 0 : 1;
+		setCtrlData(CTL_BHT_RCPTPLACE, &v);
+		AddClusterAssoc(CTL_BHT_FLAGS, 0, PPBhtTerminal::fDelAfterImport);
+		SetClusterData(CTL_BHT_FLAGS, Data.Rec.Flags);
+		DisableCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		ushort v = 0;
+		getCtrlData(CTL_BHT_NAME, Data.Rec.Name);
+		getCtrlData(CTL_BHT_ID, &Data.Rec.ID);
+		GetClusterData(CTL_BHT_TYPE, &Data.Rec.BhtTypeID);
+		if(!oneof4(Data.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btCom, PPObjBHT::btStyloBhtII)) {
+			SString temp_buf;
+			getCtrlData(CTL_BHT_COMPORT, &(v = 0));
+			int    c = 1;
+			if(v == 0)
+				c = 1;
+			else if(v == 1)
+				c = 2;
+			else if(v == 2)
+				c = 3;
+			GetComDvcSymb(comdvcsCom, c, 0, temp_buf).CopyTo(Data.Rec.Port, sizeof(Data.Rec.Port));
+			getCtrlData(CTL_BHT_BAUDRATE, &(v = 0));
+			if(v == 0)
+				Data.Rec.Cbr = cbr9600;
+			else if(v == 1)
+				Data.Rec.Cbr = cbr19200;
+			getCtrlData(CTL_BHT_COMREADDELAY, &Data.Rec.ComGet_Delay);
+			getCtrlData(CTL_BHT_TIMEOUT,  &Data.Rec.BhtpTimeout);
+			getCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
+		}
+		else if(Data.Rec.BhtTypeID != PPObjBHT::btCom) {
+			getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
+			if(Data.ImpExpPath_.NotEmptyS()) {
+				SPathStruc ps(Data.ImpExpPath_);
+				if(ps.Drv.Empty())
+					ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
+			}
+			else
+				ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
+		}
+		THROW_PP(Data.Rec.BhtTypeID != PPObjBHT::btStyloBhtII || Data.P_SBIICfg && Data.P_SBIICfg->IsValid(), PPERR_SBII_CFGNOTVALID);
+		getCtrlData(CTLSEL_BHT_LOC, &Data.Rec.LocID); // @v8.4.2
+		getCtrlData(CTLSEL_BHT_INVENTOP, &Data.Rec.InventOpID);
+		getCtrlData(CTLSEL_BHT_EXPENDOP, &Data.Rec.ExpendOpID);
+		getCtrlData(CTLSEL_BHT_INTROP,   &Data.Rec.IntrExpndOpID);
+		getCtrlData(CTL_BHT_RCPTPLACE, &v);
+		Data.Rec.ReceiptPlace = (v == 0) ? RCPTPLACE_ALTGROUP : RCPTPLACE_GBASKET;
+		GetClusterData(CTL_BHT_FLAGS, &Data.Rec.Flags);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOK
+		return ok;
+	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmBhtGoodsFilt))
+			editGoodsFilt();
+		else if(event.isCmd(cmaMore))
+			editMore();
+		else if(event.isClusterClk(CTL_BHT_TYPE))
+			DisableCtrls();
+		else
+			return;
+		clearEvent(event);
+	}
 	void   DisableCtrls();
 	void   editGoodsFilt();
 	void   editMore();
-
-	PPBhtTerminalPacket Data;
 };
-
-IMPL_HANDLE_EVENT(BhtDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmBhtGoodsFilt))
-		editGoodsFilt();
-	else if(event.isCmd(cmaMore))
-		editMore();
-	else if(event.isClusterClk(CTL_BHT_TYPE))
-		DisableCtrls();
-	else
-		return;
-	clearEvent(event);
-}
 
 void BhtDialog::DisableCtrls()
 {
@@ -987,111 +1085,6 @@ void BhtDialog::DisableCtrls()
 	disableCtrls(disable_coms, CTL_BHT_COMREADDELAY, CTL_BHT_COMPORT, CTL_BHT_BAUDRATE, CTL_BHT_TIMEOUT, CTL_BHT_MAXTRIES, 0L);
 	disableCtrls(disable_path, CTL_BHT_IMPEXPPATH, CTLBRW_BHT_IMPEXPPATH, 0);
 	enableCommand(cmaMore, v == PPObjBHT::btStyloBhtII);
-}
-
-int BhtDialog::setDTS(const PPBhtTerminalPacket * pData)
-{
-	Data = *pData;
-	ushort v = 0;
-	setCtrlData(CTL_BHT_NAME, Data.Rec.Name);
-	setCtrlData(CTL_BHT_ID, &Data.Rec.ID);
-	AddClusterAssoc(CTL_BHT_TYPE,  0, PPObjBHT::btDenso);
-	AddClusterAssoc(CTL_BHT_TYPE,  1, PPObjBHT::btSyntech);
-	AddClusterAssoc(CTL_BHT_TYPE,  2, PPObjBHT::btPalm);
-	AddClusterAssoc(CTL_BHT_TYPE,  3, PPObjBHT::btWinCe);
-	AddClusterAssoc(CTL_BHT_TYPE,  4, PPObjBHT::btCom);
-	AddClusterAssocDef(CTL_BHT_TYPE, 5, PPObjBHT::btStyloBhtII);
-	SetClusterData(CTL_BHT_TYPE, Data.Rec.BhtTypeID);
-	if(!oneof4(Data.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII, PPObjBHT::btWinCe, PPObjBHT::btCom)) {
-		int    c = 0;
-		if(IsComDvcSymb(Data.Rec.Port, &c) == comdvcsCom) {
-			if(c == 1)
-				v = 0;
-			else if(c == 2)
-				v = 1;
-			else if(c == 3)
-				v = 2;
-			else
-				v = 0;
-		}
-		else
-			v = 0;
-		setCtrlData(CTL_BHT_COMPORT, &v);
-		if(Data.Rec.Cbr == cbr9600)
-			v = 0;
-		else if(Data.Rec.Cbr == cbr19200)
-			v = 1;
-		else
-			v = 1;
-		setCtrlData(CTL_BHT_BAUDRATE, &v);
-		setCtrlData(CTL_BHT_COMREADDELAY, &Data.Rec.ComGet_Delay);
-		setCtrlData(CTL_BHT_TIMEOUT,  &Data.Rec.BhtpTimeout);
-		setCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
-	}
-	else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
-		setCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
-	SetupLocationCombo(this, CTLSEL_BHT_LOC, Data.Rec.LocID, 0, LOCTYP_WAREHOUSE, 0);
-	SetupPPObjCombo(this, CTLSEL_BHT_INVENTOP, PPOBJ_OPRKIND, Data.Rec.InventOpID, 0, reinterpret_cast<void *>(PPOPT_INVENTORY));
-	PPIDArray op_type_list;
-	op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, 0L);
-	SetupOprKindCombo(this, CTLSEL_BHT_EXPENDOP, Data.Rec.ExpendOpID,    0, &op_type_list, 0);
-	SetupOprKindCombo(this, CTLSEL_BHT_INTROP,   Data.Rec.IntrExpndOpID, 0, &op_type_list, 0);
-	v = (Data.Rec.ReceiptPlace == RCPTPLACE_ALTGROUP) ? 0 : 1;
-	setCtrlData(CTL_BHT_RCPTPLACE, &v);
-	AddClusterAssoc(CTL_BHT_FLAGS, 0, PPBhtTerminal::fDelAfterImport);
-	SetClusterData(CTL_BHT_FLAGS, Data.Rec.Flags);
-	DisableCtrls();
-	return 1;
-}
-
-int BhtDialog::getDTS(PPBhtTerminalPacket * pData)
-{
-	int    ok = 1;
-	ushort v = 0;
-	getCtrlData(CTL_BHT_NAME, Data.Rec.Name);
-	getCtrlData(CTL_BHT_ID, &Data.Rec.ID);
-	GetClusterData(CTL_BHT_TYPE, &Data.Rec.BhtTypeID);
-	if(!oneof4(Data.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btCom, PPObjBHT::btStyloBhtII)) {
-		SString temp_buf;
-		getCtrlData(CTL_BHT_COMPORT, &(v = 0));
-		int    c = 1;
-		if(v == 0)
-			c = 1;
-		else if(v == 1)
-			c = 2;
-		else if(v == 2)
-			c = 3;
-		GetComDvcSymb(comdvcsCom, c, 0, temp_buf).CopyTo(Data.Rec.Port, sizeof(Data.Rec.Port));
-		getCtrlData(CTL_BHT_BAUDRATE, &(v = 0));
-		if(v == 0)
-			Data.Rec.Cbr = cbr9600;
-		else if(v == 1)
-			Data.Rec.Cbr = cbr19200;
-		getCtrlData(CTL_BHT_COMREADDELAY, &Data.Rec.ComGet_Delay);
-		getCtrlData(CTL_BHT_TIMEOUT,  &Data.Rec.BhtpTimeout);
-		getCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
-	}
-	else if(Data.Rec.BhtTypeID != PPObjBHT::btCom) {
-		getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
-		if(Data.ImpExpPath_.NotEmptyS()) {
-			SPathStruc ps(Data.ImpExpPath_);
-			if(ps.Drv.Empty())
-				ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
-		}
-		else
-			ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
-	}
-	THROW_PP(Data.Rec.BhtTypeID != PPObjBHT::btStyloBhtII || Data.P_SBIICfg && Data.P_SBIICfg->IsValid(), PPERR_SBII_CFGNOTVALID);
-	getCtrlData(CTLSEL_BHT_LOC, &Data.Rec.LocID); // @v8.4.2
-	getCtrlData(CTLSEL_BHT_INVENTOP, &Data.Rec.InventOpID);
-	getCtrlData(CTLSEL_BHT_EXPENDOP, &Data.Rec.ExpendOpID);
-	getCtrlData(CTLSEL_BHT_INTROP,   &Data.Rec.IntrExpndOpID);
-	getCtrlData(CTL_BHT_RCPTPLACE, &v);
-	Data.Rec.ReceiptPlace = (v == 0) ? RCPTPLACE_ALTGROUP : RCPTPLACE_GBASKET;
-	GetClusterData(CTL_BHT_FLAGS, &Data.Rec.Flags);
-	*pData = Data;
-	CATCHZOK
-	return ok;
 }
 
 void BhtDialog::editGoodsFilt()
@@ -1225,6 +1218,7 @@ int StyloBhtIIOpInfoDlg::getDTS(SBIIOpInfo * pData)
 // StyloBhtIICfgDialog
 //
 class StyloBhtIICfgDialog : public PPListDialog {
+	DECL_DIALOG_DATA(StyloBhtIIOnHostCfg);
 public:
 	StyloBhtIICfgDialog() : PPListDialog(DLG_SBIICFG, CTL_SBIICFG_OPLIST)
 	{
@@ -1234,8 +1228,93 @@ public:
 		for(long id = 0; usr_obj.EnumItems(&id, &item) > 0;)
 			UserList.Add(item.ID, item.ParentID, item.Name);
 	}
-	int setDTS(const StyloBhtIIOnHostCfg * pData);
-	int getDTS(StyloBhtIIOnHostCfg * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		SString buf;
+		PPID   user_id = 0;
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		{
+			PPGoodsConfig goods_cfg;
+			PPObjGoods::ReadConfig(&goods_cfg);
+			Data.WeightPrefix     = goods_cfg.WghtPrefix;
+			Data.QttyWeightPrefix = goods_cfg.WghtCntPrefix;
+		}
+		setCtrlString(CTL_SBIICFG_DEVICENAME,  Data.DeviceName);
+		if(Data.UserName.Len()) {
+			uint pos = 0;
+			if(UserList.SearchByText(Data.UserName, 0, &pos) <= 0) {
+				PPSetAddedMsgString(Data.UserName);
+				PPError(PPERR_USERNOTFOUND);
+			}
+			else
+				user_id = UserList.Get(pos).Id;
+		}
+		SetupStrAssocCombo(this, CTLSEL_SBIICFG_USER, &UserList, user_id, 0, 0, 0);
+		InetAddr::ULongToIP(Data.ServerAddr, buf);
+		setCtrlString(CTL_SBIICFG_SERVADDR,    buf);
+		InetAddr::ULongToIP(Data.ServerMask, buf);
+		setCtrlString(CTL_SBIICFG_SERVMASK,    buf);
+		setCtrlData(CTL_SBIICFG_SERVPORT,    &Data.ServerPort);
+		setCtrlData(CTL_SBIICFG_DEFQTTY,     &Data.DefQtty);
+		setCtrlString(CTL_SBIICFG_WEIGHTPREFX, Data.WeightPrefix);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 0, StyloBhtIIConfig::fExitByEsc);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 1, StyloBhtIIConfig::fUseWiFi);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 2, StyloBhtIIConfig::fUseDefQtty);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 3, StyloBhtIIConfig::fCheckQtty);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 4, StyloBhtIIConfig::fCheckPrice);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 5, StyloBhtIIConfig::fCheckExpiry);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 6, StyloBhtIIConfig::fAllowUnknownGoods);
+		AddClusterAssoc(CTL_SBIICFG_FLAGS, 7, StyloBhtIIConfig::fInputBillRowNumber);
+		SetClusterData(CTL_SBIICFG_FLAGS, Data.Flags);
+		SetPeriodInput(this, CTL_SBIICFG_DOCPRD, &Data.ExportBillsPeriod);
+		SetupPPObjCombo(this, CTLSEL_SBIICFG_PRINTER, PPOBJ_BCODEPRINTER, Data.BcdPrinterID, OLW_CANEDIT);
+		disableCtrl(CTL_SBIICFG_WEIGHTPREFX, 1);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = -1;
+		uint   sel = 0;
+		PPID   user_id = 0;
+		SString buf;
+		getCtrlString(sel = CTL_SBIICFG_DEVICENAME,  Data.DeviceName);
+		THROW_PP(Data.DeviceName.Len(), PPERR_NAMENEEDED);
+		Data.UserName = 0;
+		Data.Password = 0;
+		getCtrlData(CTL_SBIICFG_USER, &user_id);
+		UserList.GetText(user_id, Data.UserName);
+		if(user_id) {
+			PPSecurPacket secur_pack;
+			PPRef->LoadSecur(PPOBJ_USR, user_id, &secur_pack);
+			Data.Password.CopyFrom(secur_pack.Secur.Password);
+		}
+		getCtrlString(CTL_SBIICFG_SERVADDR,    buf);
+		Data.ServerAddr = InetAddr::IPToULong(buf);
+		getCtrlString(CTL_SBIICFG_SERVMASK,    buf);
+		Data.ServerMask = InetAddr::IPToULong(buf);
+		getCtrlData(CTL_SBIICFG_SERVPORT,     &Data.ServerPort);
+		getCtrlData(CTL_SBIICFG_DEFQTTY,     &Data.DefQtty);
+		getCtrlString(CTL_SBIICFG_WEIGHTPREFX, Data.WeightPrefix);
+		GetClusterData(CTL_SBIICFG_FLAGS,     &Data.Flags);
+		if(Data.Flags & StyloBhtIIConfig::fUseWiFi) {
+			sel = CTL_SBIICFG_USER;
+			THROW_PP(Data.UserName.Len(), PPERR_INVUSERORPASSW);
+			THROW_PP(Data.Password.Len(), PPERR_INVUSERORPASSW);
+			sel = CTL_SBIICFG_SERVADDR;
+			THROW_PP(Data.ServerAddr > 0, PPERR_INVIP);
+		}
+		GetPeriodInput(this, CTL_SBIICFG_DOCPRD, &Data.ExportBillsPeriod);
+		getCtrlData(CTLSEL_SBIICFG_PRINTER, &Data.BcdPrinterID);
+		THROW(Data.IsValid());
+		ASSIGN_PTR(pData, Data);
+		ok = 1;
+		CATCH
+			ok = (selectCtrl(sel), 0);
+		ENDCATCH
+		return ok;
+	}
 private:
 	virtual int setupList();
 	virtual int addItem(long *pPos, long * pID);
@@ -1243,7 +1322,6 @@ private:
 	virtual int delItem(long pos, long id);
 
 	StrAssocArray UserList;
-	StyloBhtIIOnHostCfg Data;
 	PPObjOprKind OprkObj;
 };
 
@@ -1335,95 +1413,6 @@ private:
 		Data.P_OpList->atFree(pos);
 		ok = 1;
 	}
-	return ok;
-}
-
-int StyloBhtIICfgDialog::setDTS(const StyloBhtIIOnHostCfg * pData)
-{
-	SString buf;
-	PPID   user_id = 0;
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	{
-		PPGoodsConfig goods_cfg;
-		PPObjGoods::ReadConfig(&goods_cfg);
-		Data.WeightPrefix     = goods_cfg.WghtPrefix;
-		Data.QttyWeightPrefix = goods_cfg.WghtCntPrefix;
-	}
-	setCtrlString(CTL_SBIICFG_DEVICENAME,  Data.DeviceName);
-	if(Data.UserName.Len()) {
-		uint pos = 0;
-		if(UserList.SearchByText(Data.UserName, 0, &pos) <= 0) {
-			PPSetAddedMsgString(Data.UserName);
-			PPError(PPERR_USERNOTFOUND);
-		}
-		else
-			user_id = UserList.Get(pos).Id;
-	}
-	SetupStrAssocCombo(this, CTLSEL_SBIICFG_USER, &UserList, user_id, 0, 0, 0);
-	InetAddr::ULongToIP(Data.ServerAddr, buf);
-	setCtrlString(CTL_SBIICFG_SERVADDR,    buf);
-	InetAddr::ULongToIP(Data.ServerMask, buf);
-	setCtrlString(CTL_SBIICFG_SERVMASK,    buf);
-	setCtrlData(CTL_SBIICFG_SERVPORT,    &Data.ServerPort);
-	setCtrlData(CTL_SBIICFG_DEFQTTY,     &Data.DefQtty);
-	setCtrlString(CTL_SBIICFG_WEIGHTPREFX, Data.WeightPrefix);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 0, StyloBhtIIConfig::fExitByEsc);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 1, StyloBhtIIConfig::fUseWiFi);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 2, StyloBhtIIConfig::fUseDefQtty);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 3, StyloBhtIIConfig::fCheckQtty);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 4, StyloBhtIIConfig::fCheckPrice);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 5, StyloBhtIIConfig::fCheckExpiry);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 6, StyloBhtIIConfig::fAllowUnknownGoods);
-	AddClusterAssoc(CTL_SBIICFG_FLAGS, 7, StyloBhtIIConfig::fInputBillRowNumber);
-	SetClusterData(CTL_SBIICFG_FLAGS, Data.Flags);
-	SetPeriodInput(this, CTL_SBIICFG_DOCPRD, &Data.ExportBillsPeriod);
-	SetupPPObjCombo(this, CTLSEL_SBIICFG_PRINTER, PPOBJ_BCODEPRINTER, Data.BcdPrinterID, OLW_CANEDIT);
-	disableCtrl(CTL_SBIICFG_WEIGHTPREFX, 1);
-	updateList(-1);
-	return 1;
-}
-
-int StyloBhtIICfgDialog::getDTS(StyloBhtIIOnHostCfg * pData)
-{
-	int    ok = -1;
-	uint   sel = 0;
-	PPID   user_id = 0;
-	SString buf;
-	getCtrlString(sel = CTL_SBIICFG_DEVICENAME,  Data.DeviceName);
-	THROW_PP(Data.DeviceName.Len(), PPERR_NAMENEEDED);
-	Data.UserName = 0;
-	Data.Password = 0;
-	getCtrlData(CTL_SBIICFG_USER, &user_id);
-	UserList.GetText(user_id, Data.UserName);
-	if(user_id) {
-		PPSecurPacket secur_pack;
-		PPRef->LoadSecur(PPOBJ_USR, user_id, &secur_pack);
-		Data.Password.CopyFrom(secur_pack.Secur.Password);
-	}
-	getCtrlString(CTL_SBIICFG_SERVADDR,    buf);
-	Data.ServerAddr = InetAddr::IPToULong(buf);
-	getCtrlString(CTL_SBIICFG_SERVMASK,    buf);
-	Data.ServerMask = InetAddr::IPToULong(buf);
-	getCtrlData(CTL_SBIICFG_SERVPORT,     &Data.ServerPort);
-	getCtrlData(CTL_SBIICFG_DEFQTTY,     &Data.DefQtty);
-	getCtrlString(CTL_SBIICFG_WEIGHTPREFX, Data.WeightPrefix);
-	GetClusterData(CTL_SBIICFG_FLAGS,     &Data.Flags);
-	if(Data.Flags & StyloBhtIIConfig::fUseWiFi) {
-		sel = CTL_SBIICFG_USER;
-		THROW_PP(Data.UserName.Len(), PPERR_INVUSERORPASSW);
-		THROW_PP(Data.Password.Len(), PPERR_INVUSERORPASSW);
-		sel = CTL_SBIICFG_SERVADDR;
-		THROW_PP(Data.ServerAddr > 0, PPERR_INVIP);
-	}
-	GetPeriodInput(this, CTL_SBIICFG_DOCPRD, &Data.ExportBillsPeriod);
-	getCtrlData(CTLSEL_SBIICFG_PRINTER, &Data.BcdPrinterID);
-	THROW(Data.IsValid());
-	ASSIGN_PTR(pData, Data);
-	ok = 1;
-	CATCH
-		ok = (selectCtrl(sel), 0);
-	ENDCATCH
 	return ok;
 }
 
@@ -1521,7 +1510,7 @@ struct __StyloBhtIIConfig { // @persistent
 	DateRange ExportBillsPeriod;
 	double DefQtty;
 	PPID   BcdPrinterID;
-	char   QttyWeightPrefix[32];  // !!! Поле вставлено в persistent структуру без защиты
+	char   QttyWeightPrefix[32];  // !!! РџРѕР»Рµ РІСЃС‚Р°РІР»РµРЅРѕ РІ persistent СЃС‚СЂСѓРєС‚СѓСЂСѓ Р±РµР· Р·Р°С‰РёС‚С‹
 	char   Reserve[508];
 	// P_OpList
 };
@@ -1565,9 +1554,9 @@ struct __StyloBhtConfig2 {
 	uint32 ServerMask;
 	DateRange ExportBillsPeriod;
 	double DefQtty;
-	SVerT Ver;                  // Версия системы, занесшей запись в БД
-	uint32 OpItemsCount;         // Количество элементов описания операций
-	uint32 ExtStrLen;            // Длина строки, содержащей строковые компоненты структуры
+	SVerT Ver;                  // Р’РµСЂСЃРёСЏ СЃРёСЃС‚РµРјС‹, Р·Р°РЅРµСЃС€РµР№ Р·Р°РїРёСЃСЊ РІ Р‘Р”
+	uint32 OpItemsCount;         // РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РѕРїРёСЃР°РЅРёСЏ РѕРїРµСЂР°С†РёР№
+	uint32 ExtStrLen;            // Р”Р»РёРЅР° СЃС‚СЂРѕРєРё, СЃРѕРґРµСЂР¶Р°С‰РµР№ СЃС‚СЂРѕРєРѕРІС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹
 	uint8  Reserve[16];
 	PPID   BcdPrinterID;
 	long   Reserve2;
@@ -1586,7 +1575,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 		StyloBhtIIOnHostCfg * p_cfg = 0;
 		GoodsFilt flt;
 		size_t cfg_indb_size = 0;
-		int   _pre764 = 0; // 1 - pre764 без QttyWeightPrefix, 2 - pre764 с QttyWeightPrefix, -1 - не удалось идентифицировать
+		int   _pre764 = 0; // 1 - pre764 Р±РµР· QttyWeightPrefix, 2 - pre764 СЃ QttyWeightPrefix, -1 - РЅРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ
 		if(flt.ReadFromProp(PPOBJ_BHT, id, BHTPRP_GOODSFILT2, BHTPRP_GOODSFILT_) > 0) {
 			if(!flt.IsEmpty())
 				THROW_MEM(pPack->P_Filt = new GoodsFilt(flt));
@@ -1752,7 +1741,7 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 	else {
 		THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG2, 0));
 	}
-	THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
+	THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // РЈРґР°Р»СЏРµРј РїСЂРµР¶РЅСЋСЋ РІРµСЂСЃРёСЋ Р·Р°РїРёСЃРё
 	THROW(ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
 		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : static_cast<const char *>(0)));
 	THROW(tra.Commit());
@@ -2973,7 +2962,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 					RAssocArray list;
 					SString name;
 					//
-					// Вычисляем сколько данного товара уже отгружено
+					// Р’С‹С‡РёСЃР»СЏРµРј СЃРєРѕР»СЊРєРѕ РґР°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР° СѓР¶Рµ РѕС‚РіСЂСѓР¶РµРЅРѕ
 					//
 					{
 						LocTransfTbl::Rec loct_rec;
@@ -3000,8 +2989,8 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 						}
 					}
 					//
-					// Добавляем ячейки, в которых присутствует данный товар
-					// Только для товаров которые еще не отгружены полностью
+					// Р”РѕР±Р°РІР»СЏРµРј СЏС‡РµР№РєРё, РІ РєРѕС‚РѕСЂС‹С… РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚ РґР°РЅРЅС‹Р№ С‚РѕРІР°СЂ
+					// РўРѕР»СЊРєРѕ РґР»СЏ С‚РѕРІР°СЂРѕРІ РєРѕС‚РѕСЂС‹Рµ РµС‰Рµ РЅРµ РѕС‚РіСЂСѓР¶РµРЅС‹ РїРѕР»РЅРѕСЃС‚СЊСЋ
 					//
 					if(qtty > 0) {
 						sdr_brow.Expended = 0;
@@ -3077,7 +3066,7 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 	if(draft_op_list.getCount() || goods_op_list.getCount() || order_op_list.getCount()) {
 		PPIDArray bbt_list;
 		//
-		// Шапки документов
+		// РЁР°РїРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
 		//
 		{
 			PPImpExpParam ie_param_bill;
@@ -3087,7 +3076,7 @@ int SLAPI PPObjBHT::PrepareBillData(PPBhtTerminalPacket * pPack, int uniteGoods 
 			THROW(p_ie_bill->OpenFileForWriting(0, 1));
 		}
 		//
-		// Строки документов
+		// РЎС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
 		//
 		{
 			PPImpExpParam ie_param_brow;
@@ -3244,7 +3233,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 		if(bill_op_list.getCount()) {
 			PPIDArray bbt_list;
 			//
-			// Шапки документов
+			// РЁР°РїРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
 			//
 			{
 				PPImpExpParam ie_param_bill;
@@ -3255,7 +3244,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 				THROW(p_ie_bill->OpenFileForWriting(0, 1));
 			}
 			//
-			// Строки документов
+			// РЎС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ
 			//
 			{
 				PPImpExpParam ie_param_brow;
@@ -3626,7 +3615,7 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 		goods_id_list.sortAndUndup();
 		counter.Init(goods_id_list.getCount() * 2);
 		//
-		// Для терминала с программой StyloBhtII, ид товара будем формировать уникальным для каждого штрихкода. Добавляя номер с смещением bcode_uniq_bias.
+		// Р”Р»СЏ С‚РµСЂРјРёРЅР°Р»Р° СЃ РїСЂРѕРіСЂР°РјРјРѕР№ StyloBhtII, РёРґ С‚РѕРІР°СЂР° Р±СѓРґРµРј С„РѕСЂРјРёСЂРѕРІР°С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј РґР»СЏ РєР°Р¶РґРѕРіРѕ С€С‚СЂРёС…РєРѕРґР°. Р”РѕР±Р°РІР»СЏСЏ РЅРѕРјРµСЂ СЃ СЃРјРµС‰РµРЅРёРµРј bcode_uniq_bias.
 		//
 		const long bcode_uniq_bias = 26L;
 		//while(giter.Next(&goods_rec) > 0) {
@@ -3699,8 +3688,8 @@ int SLAPI PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char 
 					p_bht_rec->PutStr(1, barcode_buf);
 					//
 					// @v4.0.8 p_bht_rec->PutStr(2, price_buf);
-					// int на bht от -32xxx до 32767 -> при бин. поиске 32767 + 1 = -32xxx -> ошибки
-					// Поэтому загр. в терминал 32766 записей и добавочный (если записей > 32766)
+					// int РЅР° bht РѕС‚ -32xxx РґРѕ 32767 -> РїСЂРё Р±РёРЅ. РїРѕРёСЃРєРµ 32767 + 1 = -32xxx -> РѕС€РёР±РєРё
+					// РџРѕСЌС‚РѕРјСѓ Р·Р°РіСЂ. РІ С‚РµСЂРјРёРЅР°Р» 32766 Р·Р°РїРёСЃРµР№ Рё РґРѕР±Р°РІРѕС‡РЅС‹Р№ (РµСЃР»Рё Р·Р°РїРёСЃРµР№ > 32766)
 					//
 					if((rec_no < MAXBHTRECS - 1) || !stream2)
 						PutBhtRecToFile(p_bht_rec, stream);
@@ -3825,8 +3814,8 @@ int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_GOODS, path) > 0);
 	{
 		//
-		// Формирование имени дополнительного файла товаров на случай,
-		// если количество записей превышает 32K
+		// Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РёРјРµРЅРё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ С„Р°Р№Р»Р° С‚РѕРІР°СЂРѕРІ РЅР° СЃР»СѓС‡Р°Р№,
+		// РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№ РїСЂРµРІС‹С€Р°РµС‚ 32K
 		//
 		SPathStruc ps(path);
 		ps.Nam.Cat("2");
@@ -3977,7 +3966,7 @@ static int FASTCALL __RemoveUndupNameSuffix(SString & rBuf)
 				ok = 1;
 			}
 		}
-		else if(c >= '0' && c <= '9') {
+		else if(isdec(c)) {
 			nd++;
 		}
 		else
@@ -4004,7 +3993,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 			if(P_BObj->SearchByGuid(pRec->Uuid, &bill_rec) > 0) {
 				if(pLogger) {
 					SString fmt_buf, msg_buf, guid_buf;
-					// Найден дубликат импортируемой инвентаризации по GUID=%s. Новый документ создан не будет.
+					// РќР°Р№РґРµРЅ РґСѓР±Р»РёРєР°С‚ РёРјРїРѕСЂС‚РёСЂСѓРµРјРѕР№ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё РїРѕ GUID=%s. РќРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚ СЃРѕР·РґР°РЅ РЅРµ Р±СѓРґРµС‚.
 					pRec->Uuid.ToStr(S_GUID::fmtIDL, guid_buf);
 					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INFDUPGUIDFOUND, fmt_buf), guid_buf.cptr()));
 				}
@@ -4027,7 +4016,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 			} while(new_code);
 			if(uc) {
 				if(pLogger) {
-					// Найден дубликат импортируемой инвентаризации по дате и коду. Новый документ будет иметь код '%s'
+					// РќР°Р№РґРµРЅ РґСѓР±Р»РёРєР°С‚ РёРјРїРѕСЂС‚РёСЂСѓРµРјРѕР№ РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё РїРѕ РґР°С‚Рµ Рё РєРѕРґСѓ. РќРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚ Р±СѓРґРµС‚ РёРјРµС‚СЊ РєРѕРґ '%s'
 					SString fmt_buf, msg_buf;
 					pLogger->Log(msg_buf.Printf(PPLoadTextS(PPTXT_IMP_INVDUPFOUND, fmt_buf), bill_code.cptr()));
 				}
@@ -4415,7 +4404,7 @@ static int SLAPI GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * p
 			// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 			THROW(ie_brow.ReadRecord(&sdr_brow, sizeof(sdr_brow)));
 			//
-			// Поиск товара по серйному номеру, затем, если не найден, по штрихкоду
+			// РџРѕРёСЃРє С‚РѕРІР°СЂР° РїРѕ СЃРµСЂР№РЅРѕРјСѓ РЅРѕРјРµСЂСѓ, Р·Р°С‚РµРј, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ, РїРѕ С€С‚СЂРёС…РєРѕРґСѓ
 			//
 			(serial = sdr_brow.Serial).Strip();
 			if(gobj.Search(sdr_brow.GoodsID, 0) <= 0)
@@ -4485,11 +4474,11 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 	THROW_INVARG(pPack);
 	THROW_PP(pPack->Rec.BhtTypeID == PPObjBHT::btStyloBhtII && pPack->P_SBIICfg, PPERR_SBII_CFGNOTVALID);
 	//
-	// Считываем список строк документов и разрешаем неизвестные товары
+	// РЎС‡РёС‚С‹РІР°РµРј СЃРїРёСЃРѕРє СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ Рё СЂР°Р·СЂРµС€Р°РµРј РЅРµРёР·РІРµСЃС‚РЅС‹Рµ С‚РѕРІР°СЂС‹
 	//
 	THROW(GetBillRows(pLName, &bill_rows_list));
 	{
-		PPTransaction tra(0); // @v8.6.9 (1-->0) - no scope transaction. Каждая конкретная операция - в собственной транзакции.
+		PPTransaction tra(0); // @v8.6.9 (1-->0) - no scope transaction. РљР°Р¶РґР°СЏ РєРѕРЅРєСЂРµС‚РЅР°СЏ РѕРїРµСЂР°С†РёСЏ - РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё.
 		THROW(tra);
 		if(pPack->P_SBIICfg->Flags & StyloBhtIIConfig::fInputBillRowNumber)
 			bill_rows_list.sort(PTR_CMPFUNC(Sdr_SBIIBillRow));
@@ -4498,7 +4487,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 		for(long i = 0; i < count; i++) {
 			int    accept_doc = 0;
 			PPID   alt_grp_id = 0, op_id = 0, sign = 1;
-			PPID   draft_wroff_id = 0; // ИД драфт-документа, который списывается создаваемым документом.
+			PPID   draft_wroff_id = 0; // РР” РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚Р°, РєРѕС‚РѕСЂС‹Р№ СЃРїРёСЃС‹РІР°РµС‚СЃСЏ СЃРѕР·РґР°РІР°РµРјС‹Рј РґРѕРєСѓРјРµРЅС‚РѕРј.
 			LTIME  tm = ZEROTIME;
 			PPObjBHT::InventRec bht_inv_rec;
 			BillTbl::Rec bill_rec;
@@ -4554,7 +4543,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 									/*
 									if(sample_bill_rec.Flags & BILLF_WRITEDOFF) {
 										if(pLog) {
-											// Принятый с ТСД документ '@zstr' должен списать драфт-документ образца '@bill', но образец уже списан
+											// РџСЂРёРЅСЏС‚С‹Р№ СЃ РўРЎР” РґРѕРєСѓРјРµРЅС‚ '@zstr' РґРѕР»Р¶РµРЅ СЃРїРёСЃР°С‚СЊ РґСЂР°С„С‚-РґРѕРєСѓРјРµРЅС‚ РѕР±СЂР°Р·С†Р° '@bill', РЅРѕ РѕР±СЂР°Р·РµС† СѓР¶Рµ СЃРїРёСЃР°РЅ
 											PPLoadText(PPTXT_BHT_DRAFTWROFF, add_info);
 											PPObjBill::MakeCodeString(&pack.Rec, 0, temp_buf);
 											PPFormat(add_info, &buf, temp_buf.cptr(), sample_bill_rec.ID);
@@ -4653,7 +4642,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 								inv_item.Qtty = sdr_brow.Qtty;
 								inv_item.Cost = sdr_brow.Cost;
 								inv_item.Price = sdr_brow.Cost;
-								// Расчитаем цену реализации
+								// Р Р°СЃС‡РёС‚Р°РµРј С†РµРЅСѓ СЂРµР°Р»РёР·Р°С†РёРё
 								{
 									GoodsRestParam gr_param;
 									if(p_bobj->GetInventoryStockRest(inv_blk, &inv_item, &gr_param) > 0) {
@@ -4698,7 +4687,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 									ilti.Price = ti.Price;
 								}
 								//
-								// Сертификат извлекаем из предпоследнего лота
+								// РЎРµСЂС‚РёС„РёРєР°С‚ РёР·РІР»РµРєР°РµРј РёР· РїСЂРµРґРїРѕСЃР»РµРґРЅРµРіРѕ Р»РѕС‚Р°
 								//
 								{
 									ReceiptTbl::Rec last_lot;
@@ -4750,7 +4739,7 @@ int SLAPI PPObjBHT::AcceptBillsSBII(const PPBhtTerminalPacket * pPack, PPID dest
 			if(accept_doc) {
 				PPTransaction tra_inner(-1);
 				THROW(tra_inner);
-				// Пересчет суммы документа инвентаризации
+				// РџРµСЂРµСЃС‡РµС‚ СЃСѓРјРјС‹ РґРѕРєСѓРјРµРЅС‚Р° РёРЅРІРµРЅС‚Р°СЂРёР·Р°С†РёРё
 				if(sdr_bill.OpID == StyloBhtIIConfig::oprkInventory) {
 					if(bill_rec.ID) {
 						InventoryTotal total;
@@ -4829,8 +4818,8 @@ int SLAPI PPObjBHT::AddEBLineToPacket(PPBillPacket * pPack, const char * pBarcod
 			}
 			else {
 				THROW(ti.SetupLot(lot_rec.ID, 0, 0));
-				ti.Quantity_ = (qtty <= rest) ? -qtty : -rest;  // пока списываем все что есть,
-				// если qtty > rest. В дальнейшем более тонкая обработка.
+				ti.Quantity_ = (qtty <= rest) ? -qtty : -rest;  // РїРѕРєР° СЃРїРёСЃС‹РІР°РµРј РІСЃРµ С‡С‚Рѕ РµСЃС‚СЊ,
+				// РµСЃР»Рё qtty > rest. Р’ РґР°Р»СЊРЅРµР№С€РµРј Р±РѕР»РµРµ С‚РѕРЅРєР°СЏ РѕР±СЂР°Р±РѕС‚РєР°.
 				if(rest > 0.0) {
 					ti.Price = (price > 0) ? price : ti.Price;
 					THROW(pPack->LoadTItem(&ti, 0, 0));
@@ -5108,7 +5097,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 	THROW(bf_bill.InitRecord(&br_bill));
 	THROW(bf_line.InitRecord(&br_line));
 	//
-	// Загрузим строки документов в массив
+	// Р—Р°РіСЂСѓР·РёРј СЃС‚СЂРѕРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІ
 	//
 	for(li = 0; bf_line.EnumRecords(&li, &br_line) > 0;) {
 		char   lbid[12], gid[16], str_price[16], expiry[16];
@@ -5148,7 +5137,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 		}
 	}
 	//
-	// Разрешим неизвестные товары, если они есть
+	// Р Р°Р·СЂРµС€РёРј РЅРµРёР·РІРµСЃС‚РЅС‹Рµ С‚РѕРІР°СЂС‹, РµСЃР»Рё РѕРЅРё РµСЃС‚СЊ
 	//
 	PPWait(0);
 	if(goods_list.getCount() && (resume = ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG)) > 0) {
@@ -5206,7 +5195,7 @@ int SLAPI PPObjBHT::AcceptBillsToGBasket(const char * pHName, const char * pLNam
 				gb_packet.Head.SupplID = suppl_id;
 				STRNSCPY(gb_packet.Head.Name, basket_name);
 				gb_id = 0;
-				/* Удаление старой корзины.
+				/* РЈРґР°Р»РµРЅРёРµ СЃС‚Р°СЂРѕР№ РєРѕСЂР·РёРЅС‹.
 				THROW((r = gb_obj.SearchByName(&gb_id, temp_buf, &gb_packet)));
 				if(r > 0) {
 					if(PPObjGoodsBasket::IsLocked(gb_id))
@@ -5262,7 +5251,7 @@ int SLAPI PPObjBHT::AcceptInvent(const char * pHName, const char * pLName, PPID 
 	PPObjBill * p_bobj = BillObj;
 	uint   bi, li;
 	uint   line_counter = 0;
-	uint   nr_bill = 0, nr_line = 0; // Количество записей, соответственно, в файле документов и строк
+	uint   nr_bill = 0, nr_line = 0; // РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РїРёСЃРµР№, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ, РІ С„Р°Р№Р»Рµ РґРѕРєСѓРјРµРЅС‚РѕРІ Рё СЃС‚СЂРѕРє
 	SString msg_buf;
 	SString barcode;
 	PPBillPacket pack;
@@ -5572,7 +5561,7 @@ int SLAPI PPObjBHT::ReceiveData()
 	uint   i = 0;
 	PPObjBHT bht_obj;
 	PPID   bht_id = 0;
-	PPID   dest_intr_loc_id = 0; // Склад назначения для документов внутренней передачи
+	PPID   dest_intr_loc_id = 0; // РЎРєР»Р°Рґ РЅР°Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РґРѕРєСѓРјРµРЅС‚РѕРІ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРґР°С‡Рё
 	PPBhtTerminalPacket pack;
 	TDialog * dlg = new TDialog(DLG_BHTRCV);
 	THROW(CheckDialogPtr(&dlg));
@@ -5928,10 +5917,14 @@ int SLAPI PPObjBHT::TransmitData()
 			PPWait(0);
 		}
 		else if(rec.BhtTypeID == PPObjBHT::btPalm) {
-			SString goods_file, goods_path;
-			SString suppl_file, suppl_path;
-			SString loc_file, loc_path;
-			SString tsess_file, tsess_path;
+			SString goods_file;
+			SString goods_path;
+			SString suppl_file;
+			SString suppl_path;
+			SString loc_file;
+			SString loc_path;
+			SString tsess_file;
+			SString tsess_path;
 			PPBhtTerminalPacket pack;
 			THROW(bht_obj.GetPacket(bht_id, &pack));
 			PPGetFileName(PPFILNAM_BHTPALM_SUPPL,    suppl_file);

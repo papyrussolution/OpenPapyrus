@@ -8267,9 +8267,9 @@ int PPALDD_AdvanceRep::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
 int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 {
 	IterProlog(iterId, 0);
-	PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
+	const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 	if(H.nn < (int16)p_pack->AdvList.GetCount()) {
-		PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(H.nn);
+		const PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(H.nn);
 		STRNSCPY(I.AdvCode, r_item.AdvCode);
 		I.AdvDt = r_item.AdvDt;
 		I.AdvBillKindID = r_item.AdvBillKindID;

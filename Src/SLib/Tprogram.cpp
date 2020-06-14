@@ -791,8 +791,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 		return TRUE;
 }
 
-// static
-LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TProgram * p_pgm = 0;
 	switch(message) {
@@ -1149,14 +1148,12 @@ TView * TProgram::validView(TView * p)
 	return p;
 }
 
-//static
-HINSTANCE TProgram::GetInst()
+/*static*/HINSTANCE TProgram::GetInst()
 {
 	return TProgram::hInstance;
 }
 
-// static
-void TProgram::IdlePaint()
+/*static*/void TProgram::IdlePaint()
 {
 	MSG msg;
 	while(PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE)) { // @v9.9.5 (WM_PAINT, WM_PAINT)
@@ -1412,8 +1409,7 @@ int TProgram::InitUiToolBox()
 	return ok;
 }
 
-// static
-void TProgram::DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDestRect, long xOffs, long yOffs, COLORREF cTransparentColor, COLORREF newBkgndColor, long fmt, POINT * pBmpSize)
+/*static*/void TProgram::DrawTransparentBitmap(HDC hdc, HBITMAP hBitmap, const RECT & rDestRect, long xOffs, long yOffs, COLORREF cTransparentColor, COLORREF newBkgndColor, long fmt, POINT * pBmpSize)
 {
 	long   x_pos = 0, y_pos = 0;
 	BITMAP     bm;

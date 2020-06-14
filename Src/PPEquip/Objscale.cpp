@@ -1113,7 +1113,7 @@ int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
 			bcc ^= temp_buf[pos];
 		}
 		THROW_PP(bcc == buf[10], PPERR_SCALE_RCV); // Контрольный байт
-		sc_st.Sum = (long)round(temp_buf.ToReal() * 100.0, 0); // Стоимость
+		sc_st.Sum = R0i(temp_buf.ToReal() * 100.0); // Стоимость
 		buf.Sub(13, 10, temp_buf);
 		bcc = 0;
 		for(pos = 0; pos < temp_buf.Len(); pos++) {
@@ -1629,8 +1629,8 @@ private:
 	int    SLAPI GetNumber(long *, int numBytes);
 	int    SLAPI PutBuf(char *, size_t numBytes);
 	int    SLAPI PutNumber(long number, size_t numBytes);
-	int    SLAPI MakeNumber(long number, char * pBuf, size_t bufLen);
-	int    SLAPI MakeString(const char * pStr, char * pBuf, size_t bufLen);
+	void   SLAPI MakeNumber(long number, char * pBuf, size_t bufLen);
+	void   SLAPI MakeString(const char * pStr, char * pBuf, size_t bufLen);
 
 	int    Err;
 };
@@ -1645,7 +1645,7 @@ int SLAPI CommMassaK::SetConnection()
 int SLAPI CommMassaK::CheckAck(uchar ackCode)
 	{ return BIN(GetChr() == ackCode); }
 
-int SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
+void SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 {
 	union {
 		long  n;
@@ -1654,15 +1654,13 @@ int SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 	n = number;
 	for(uint i = 0; i < bufLen; i++)
 		pBuf[i] = c[i];
-	return 1;
 }
 
-int SLAPI CommMassaK::MakeString(const char * pStr, char * pBuf, size_t bufLen)
+void SLAPI CommMassaK::MakeString(const char * pStr, char * pBuf, size_t bufLen)
 {
-	size_t len = sstrlen(pStr);
+	const size_t len = sstrlen(pStr);
 	for(size_t i = 0; i < bufLen; i++)
 		pBuf[i] = (i < len) ? pStr[i] : ' ';
-	return 1;
 }
 
 int SLAPI CommMassaK::PutBuf(char * pBuf, size_t numBytes)
@@ -1777,12 +1775,9 @@ ComDispInterface * SLAPI COMMassaK::InitDriver()
 	return p_drv;
 }
 
-int SLAPI COMMassaK::SetMKProp(PPID id, long lVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
-int SLAPI COMMassaK::SetParam(long lVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
-int SLAPI COMMassaK::SetParam(const char * pStrVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
+int SLAPI COMMassaK::SetMKProp(PPID id, long lVal)  { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
+int SLAPI COMMassaK::SetParam(long lVal)            { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
+int SLAPI COMMassaK::SetParam(const char * pStrVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
 
 int SLAPI COMMassaK::ExecMKOper(PPID id)
 {
@@ -3997,7 +3992,7 @@ int SLAPI ShtrihCE::CloseConnection()
 					StrAssocArray::Item item = MsgResLines.Get(i);
 					line_buf.Z().Cat("<R").Space();
 					line_buf.Cat(item.Id).Semicol();
-					line_buf.Cat((long)1).Semicol();
+					line_buf.Cat(1L).Semicol();
 					line_buf.CatCharN(';', 19);          // #3-#21
 					line_buf.Cat(item.Txt);              // #22
 					line_buf.CR();

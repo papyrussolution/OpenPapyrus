@@ -813,7 +813,6 @@ int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PP
 
 int SLAPI PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 {
-	/* @construction */
 	if(pDef && pDef->valid() && (ImplementFlags & implTreeSelector)) {
 		LongArray list;
 		StdTreeListBoxDef * p_def = static_cast<StdTreeListBoxDef *>(pDef);
@@ -838,7 +837,6 @@ int SLAPI PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 			}
 		}
 	}
-	/**/
 	return 1;
 }
 

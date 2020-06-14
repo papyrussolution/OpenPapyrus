@@ -220,11 +220,9 @@ int STimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & 
 //
 //
 //
-// static
-const char * STimeChunkBrowser::WndClsName = "STimeChunkBrowser"; // @global
+/*static*/const char * STimeChunkBrowser::WndClsName = "STimeChunkBrowser"; // @global
 
-// static
-int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
+/*static*/int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	MEMSZERO(wc);
@@ -263,8 +261,7 @@ int FASTCALL STimeChunkBrowser::InvalidateChunk(long chunkId)
 	return ok;
 }
 
-// static
-LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TPoint p;
 	STimeChunkBrowser::Loc loc;

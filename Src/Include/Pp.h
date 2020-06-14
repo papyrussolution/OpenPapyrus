@@ -3078,7 +3078,7 @@ struct PPPrinterCfg { // @persistent @store(PropertyTbl)
 		fUseDuplexPrinting = 0x0001, // Использовать дуплексную печать (Win32).
 			// Этот флаг хранится в win-реестре по адресу HKEY_CURRENT_USER\\Software\\Papyrus\\System
 			// Parameter UseDuplexPrinting=(1|0)
-		fStoreLastSelPrn   = 0x0002  // @v10.7.10 Сохранять в реестре последний выбор принтера  
+		fStoreLastSelPrn   = 0x0002  // @v10.7.10 Сохранять в реестре последний выбор принтера
 	};
 	long   Tag;           // 0 || PPOBJ_CONFIG || PPOBJ_USRGRP || PPOBJ_USR
 	long   ObjID;         //
@@ -10034,18 +10034,18 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 struct PPTaxPeriod {       // @persistent @size=6
 	SString & SLAPI Format(SString & rBuf) const;
 	enum {
-		eEmpty = 0, 
-		eYear, 
-		eSemiyear1, 
-		eSemiyear2, 
-		eQuart1, 
-		eQuart2, 
-		eQuart3, 
+		eEmpty = 0,
+		eYear,
+		eSemiyear1,
+		eSemiyear2,
+		eQuart1,
+		eQuart2,
+		eQuart3,
 		eQuart4,
-		eMonth, 
-		eDec1, 
-		eDec2, 
-		eDec3, 
+		eMonth,
+		eDec1,
+		eDec2,
+		eDec3,
 		eDate
 	};
 	int16  Year;           //
@@ -16830,7 +16830,7 @@ public:
 			int16  LDMT_Factor;             // @v10.7.1 Фактор ограничения девиации при выставлении ставки: макс произведение
 				// локальной девиации на ошибку магистрального тренда в промилле.
 			//@v10.7.10 int32  ChaosFactor; // @v10.7.1
-			uint32 Reserve3;    // @v10.7.10   
+			uint32 Reserve3;    // @v10.7.10
 			float  MainTrendMaxErrRel; // @v10.7.2 Максимальная относительная ошибка магистрального тренда при выставлении ставки.
 			uint16 TestCount;   // @v10.7.7 Количество повторных тестов, выполняемых функцией TsSimulateStrategyContainer()
 			uint16 Reserve2;    // @v10.7.7 @alignment
@@ -16895,6 +16895,7 @@ public:
 		uint   LoPos;
 		uint   UpPos;
 		uint   GenSeq; // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
+		uint   GenPtCount; // @v10.7.11 Количество точек в выборке, по которой генерируются диапазоны
 	};
 	struct Strategy { // @flat @persistent // @v10.6.12 модифицирована структура; для обратной совместимости используется Ts_Strategy_Before10612
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant, double averageSpreadForAdjustment);
@@ -16907,6 +16908,7 @@ public:
 		double SLAPI CalcTP(double stakeBase, double averageSpreadForAdjustment) const;
 		double SLAPI CalcTP(double stakeBase, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI GetWinCountRate() const;
+		double SLAPI CalcConfidenceFactor() const;
 		//
 		// Descr: Возвращает средний катет (OptDeltaRange*InputFrameSize) / SpikeQuant
 		//
@@ -16944,7 +16946,8 @@ public:
 			// Соображение лежащее в основе предположения следующее: если этот фактор мал, то выигрыши лежат в плотной области и не
 			// могут быть спроецированы на будущее, если же значителен, то выигрыши достаточно равномерно распределены по области наблюдения
 			// и стратегия может рассматриваться для адекватной проекции на будущее.
-		uint32 Reserve3;         // @v10.7.9 double-->uint32
+		uint32 GenPtCount;       // @v10.7.11 Общее количество точек, по которым рассчитывалась стратегия. Может оказаться важным
+			// для оценки статистической значимости стратегии.
 		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
 		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
@@ -17056,8 +17059,12 @@ public:
 			scoreSeStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе отбора стратегий
 			scoreSeStakeCountVarCoeff   // Коэффициент вариации по количеству ставок на этапе отбора стратегий
 		};
-
-		double SLAPI EvaluateScore(int scoreId) const;
+		//
+		// Descr: Рассчитывает значение показателя контейнера стратегий.
+		//   Если аргумент pExceptIndices не равен 0, то из рассмотрения исключаются стратегии, находящиеся
+		//   в позициях, перечисленных в этом списке.
+		//
+		double SLAPI EvaluateScore(int scoreId, const LongArray * pExceptIndices) const;
 		const  Strategy * FASTCALL SearchByID(uint32 id) const;
 		int    SLAPI IsThereSimilStrategy(uint thisIdx, const LongArray & rSelectedIdxList, LongArray & rSimilIdxList) const;
 
@@ -17460,6 +17467,7 @@ private:
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    SLAPI FindStrategies(void * pBlk) const;
 	int    SLAPI FindStrategiesLoop(void * pBlk);
+	int    SLAPI FindResonanceCombination(const PPTssModelPacket & rTssModel, const STimeSeries & rTs, const LongArray & rFrameSizeList, const LAssocArray & rStakeBoundList);
 	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	uint   SLAPI CalcStakeDistanceMedian(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
@@ -18742,7 +18750,7 @@ struct PPGlobalUserAccConfig {
 };
 //
 // Descr: Идентификаторы глобальных сервисов, с которыми могут быть связаны глобальные учетные записи
-// All values ar @persistent
+// All values are @persistent
 //
 #define PPGLS_UNDEF         0
 #define PPGLS_TWITTER       1 //
@@ -19505,7 +19513,7 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 
 class PPGenCashNode {        // @transient
 public:
-	struct DivGrpAssc {
+	struct DivGrpAssc { // @flat
 		PPID   GrpID;        // ->Goods2.ID (GoodsGroup)
 		short  DivN;         // Номер отдела
 	};
@@ -21800,11 +21808,15 @@ public:
 		filtfFtp  = 0x0002,
 		filtfHttp = 0x0004
 	};
-	SLAPI  PPObjInternetAccount(void * extraPtr = 0);
+	explicit SLAPI PPObjInternetAccount(void * extraPtr = 0);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
+	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
+	virtual int SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
 	int    SLAPI Get(PPID id, PPInternetAccount * pPack);
 	int    SLAPI Put(PPID * pID, const PPInternetAccount * pPack, int use_ta);
+private:
+	int    SLAPI AssignImages(ListBoxDef * pDef);
 };
 //
 //
@@ -24884,7 +24896,7 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	TimeRange SmsProhibitedTr;    // @v10.2.3 Диапазон времени, в течении которого запрещено отсылать SMS-сообщения (ночь, очевидно)
 	SString TopFolder;            // @anchor
 	SString AddImageFolder;       // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
-	TaggedStringArray DlvrAddrExtFldList; // Наименования дополнительных полей для адресов доставки
+	StrAssocArray DlvrAddrExtFldList; // Наименования дополнительных полей для адресов доставки // @v10.7.11 TaggedStringArray-->StrAssocArray
 	TSVector <NewClientDetectionItem> NewClientDetectionList; // @v8.1.12 // @v9.8.4 TSArray-->TSVector
 };
 
@@ -31505,7 +31517,7 @@ struct CvtAt2Ab_Param {
 // Карточка объекта основных средств
 //
 struct AssetCard {
-	struct MovItem {
+	struct MovItem { // @flat
 		PPID   BillID;
 		PPID   LotID;
 		PPID   DestLocID;
@@ -31517,7 +31529,7 @@ struct AssetCard {
 	double OrgPrice;    // Начальная остаточная стоимость
 	AcctID AssetAcctID;
 	PPID   ExplBillID;
-	SArray * P_MovList;
+	SVector * P_MovList; // @v10.7.11 SArray-->SVector
 };
 //
 // @ModuleDecl(PPViewInventory)
@@ -34003,7 +34015,7 @@ struct TrnovrRngDis {      // @persistent @flat
 		fDiscountMultValue  = 0x0004  // Величина Value применяется как мультипликатор для величины скидки [0..10]
 	};
 	RealRange R;
-	double Value;          // 
+	double Value;          //
 	PPID   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES) Серия, в которую следует переместить карту, если обороты по ней попадают в интервал [Beg..End]
 	PPID   LocID;          // Локация, для которой применяется данный элемент правила.
 	long   Flags;          // @flags
@@ -34067,7 +34079,7 @@ struct PPSCardSerPacket {
 	PPSCardSeries2 Rec;
 	PPSCardSerRule Rule;
 	PPSCardSerRule CcAmtDisRule;
-	PPSCardSerRule BonusRule;    // 
+	PPSCardSerRule BonusRule;    //
 	PPIDArray QuotKindList_;     // Список видов котировок, применимых для карт этой серии.
 		// Конкретный вид котировки выбирается в соответствии с рангом и ограничениями.
 	struct Ext {
@@ -46349,6 +46361,7 @@ private:
 	int    SLAPI WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo);
 	int    SLAPI WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
 	int    SLAPI TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix);
+	int    SLAPI PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs);
 
 	SString EncBuf;
 	PPObjPerson PsnObj;
@@ -51159,12 +51172,10 @@ struct PosPaymentBlock {
 	PPID   ExclSCardID;    // ИД карты, которую нелья применять для приема платежа
 		// Причина - эта карта уже присвоена чеку. То есть, по ней уже основная часть
 		// платежа сделана (либо на нее начисляются средства).
-	long   DisabledKinds;  // Биты установлены в позициях со смещением, равным
-		// запрещенному виду оплаты.
-	int    AltCashReg;     // @v9.6.9 Признак использования альтернативного кассового регистратора.
-		// -1 - disabled, 0 - не использовать, 1 - использовать
+	long   DisabledKinds;  // Биты установлены в позициях со смещением, равным запрещенному виду оплаты.
+	int    AltCashReg;     // Признак использования альтернативного кассового регистратора: -1 - disabled, 0 - не использовать, 1 - использовать
 	//
-	// @v8.0.0 Следующие поля используются новой реализацией
+	// Следующие поля используются новой реализацией
 	//
 	double BonusMaxPart;
 	double AmtToPaym;      // Сумма к уплате (наличными или через банк). То есть, сумма чека за минусом доступных бонусов и остатка на кредитной карте.
@@ -53496,7 +53507,7 @@ int    SLAPI PPEditTextFile(const char * pFileName);
 int    SLAPI DoDbDump(PPDbEntrySet2 * pDbes);
 int    SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);
 
-//@erikTEMP v10.7.7 { 
+//@erikTEMP v10.7.7 {
 void GotoVK(PPPsnEventPacket &rPack);
 
 class SocialMediaViewObject {
@@ -53513,7 +53524,7 @@ public:
 	int TakeToken();
 	int CreateURLRequest(const char * pMethod, StringSet &rParams, SString & rResult);
 	int SendRequest(const char & pRequest);
-	
+
 	enum {
 		usrScopeNotify   = 0x00000001,
 		usrScopeFriends  = 0x00000002,
@@ -53538,15 +53549,15 @@ public:
 		usrScopeStats    = 0x00100000,
 		usrScopeNONE4    = 0x00200000,
 		usrScopeEmail    = 0x00400000,
-		usrScopeMarket   = 0x00800000 
+		usrScopeMarket   = 0x00800000
 	};
 
 	enum {
-		commScopeStories   = 0x00000001, 
-		commScopePhotos    = 0x00000004, 
-		commScopeAppWidget = 0x00000040, 
-		commScopeMessages  = 0x00001000, 
-		commScopeDocs      = 0x00020000, 
+		commScopeStories   = 0x00000001,
+		commScopePhotos    = 0x00000004,
+		commScopeAppWidget = 0x00000040,
+		commScopeMessages  = 0x00001000,
+		commScopeDocs      = 0x00020000,
 		commScopeManage    = 0x00040000,
 	};
 
@@ -53555,7 +53566,7 @@ public:
 	SString Token;
 
 };
-// } @erikTEMP 
+// } @erikTEMP
 
 struct ResolveGoodsItem {
 	explicit SLAPI ResolveGoodsItem(PPID goodsID = 0);

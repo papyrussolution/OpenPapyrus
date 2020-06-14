@@ -689,23 +689,6 @@ int SLAPI ACS_CRUKM::UpdateZReportData(Cr_ZReportTbl * pZReportTbl)
 	return 1;
 }
 
-/*
-static char * SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, char * pBuf)
-{
-	char * p = pBuf;
-	p += sstrlen(datefmt(&pDT->d, DATF_DMY, p));
-	p = catdiv(p, ':', 1);
-	if(pDT->t) {
-		p += sstrlen(timefmt(pDT->t, TIMF_HMS | TIMF_MSEC, p));
-		p = catdiv(p, ':', 1);
-	}
-	p += sstrlen(ltoa(cashCode, p, 10));
-	p = catdiv(p, ':', 1);
-	p += sstrlen(ltoa(chkNumber, p, 10));
-	return pBuf;
-}
-*/
-
 static SString & FASTCALL MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, SString & rBuf)
 {
 	return rBuf.Z().Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);

@@ -1,5 +1,5 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016, 2018, 2019
+// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
@@ -21,8 +21,7 @@ TreeWindow::ShortcutsWindow::~ShortcutsWindow()
 	Destroy();
 }
 
-// static
-INT_PTR CALLBACK TreeWindow::ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK TreeWindow::ShortcutsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TreeWindow::ShortcutsWindow * p_view = static_cast<TreeWindow::ShortcutsWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
@@ -335,8 +334,7 @@ TreeWindow::~TreeWindow()
 	DestroyWindow(Hwnd);
 }
 
-// static
-INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int    r = 1;
 	TreeWindow * p_view = static_cast<TreeWindow *>(TView::GetWindowUserData(hWnd));

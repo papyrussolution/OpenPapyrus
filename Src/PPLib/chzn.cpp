@@ -361,11 +361,20 @@ public:
 	};
 
 	struct InitBlock {
-		InitBlock() : GuaID(0), ProtocolVer(0)
+		InitBlock() : GuaID(0), ProtocolVer(0), ProtocolId(protidUnkn)
 		{
 		}
+		enum {
+			protidUnkn      = 0,
+			protidMdlp      = 1, // ИС Маркировка. МДЛП. Протокол обмена интерфейсного уровня
+			protidEdoLtMdlp = 2, // API ЭДО лайт МДЛП
+			protidEdoLtInt  = 3, // API ЭДО лайт Интеграционный стенд ГИС МТ
+			protidEdoLtElk  = 4, // API ЭДО лайт Продуктивый стенд ГИС МТ
+			protidGisMt     = 5, // API ГИС МТ
+		};
 		PPID   GuaID;
 		int    ProtocolVer;
+		int    ProtocolId;
 		PPGlobalUserAccPacket GuaPack;
 		SString CliAccsKey;
 		SString CliSecret;
@@ -472,8 +481,8 @@ public:
 	};
 	int    SLAPI SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
 	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf) const;
-	SString & SLAPI MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
-	SString & SLAPI MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	//SString & SLAPI MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	//SString & SLAPI MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	SString & SLAPI MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	enum {
 		mhffTokenOnly = 0x0001
@@ -762,9 +771,78 @@ int SLAPI ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size
 
 SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
 {
+	if(rIb.EndPoint.NotEmpty())
+		rResult = rIb.EndPoint;
+	else {
+		switch(rIb.ProtocolId) {
+			case InitBlock::protidMdlp:
+				(rResult = "http").Cat("://").Cat("api").Dot();
+				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+					rResult.Cat("sb").Dot();
+				rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1");
+				break;
+			case InitBlock::protidEdoLtMdlp:
+				(rResult = "https").Cat("://").Cat("mdlp").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
+				break;
+			case InitBlock::protidEdoLtInt:
+				(rResult = "https").Cat("://").Cat("int").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
+				break;
+			case InitBlock::protidEdoLtElk:
+				(rResult = "https").Cat("://").Cat("elk").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
+				break;
+			case InitBlock::protidGisMt:
+				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+					(rResult = "https").Cat("://").Cat("demo").Dot().Cat("lp").Dot().Cat("crpt").Dot().Cat("tech");
+				else 
+					(rResult = "https").Cat("://").Cat("ismp").Dot().Cat("crpt").Dot().Cat("ru");
+				break;
+		}
+	}
+	rResult.SetLastDSlash();
+	switch(query) {
+		case qAuth:  
+			if(rIb.ProtocolId == InitBlock::protidMdlp)
+				rResult.Cat("auth"); 
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
+				rResult.Cat("api/v3/auth/cert/key"); 
+			}
+			else {
+				rResult.Cat("api/v1/session");
+			}
+			break;
+		case qToken: 
+			if(rIb.ProtocolId == InitBlock::protidMdlp)
+				rResult.Cat("token"); 
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
+				rResult.Cat("api/v3/auth/cert/"/*"facade/auth"*/); 
+			}
+			else {
+				rResult.Cat("api/v1/session"); 
+			}
+			break;
+		case qDocOutcome: 
+			rResult.Cat("documents/outcome"); 
+			break;
+		case qCurrentUserInfo: 
+			rResult.Cat("users/current"); 
+			break;
+		case qGetIncomeDocList: 
+			rResult.Cat("documents/income"); 
+			break;
+		case qDocumentSend: 
+			rResult.Cat("documents/send"); 
+			break;
+		case qGetTicket: 
+			rResult.Cat("documents");
+			if(!isempty(pAddendum))
+				rResult.CatChar('/').Cat(pAddendum);
+			rResult.CatChar('/').Cat("ticket");
+			break;
+	}
 	return rResult;
 }
 	
+#if 0 // {
 SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const
 {
 	//rResult = "http://api.sb.mdlp.crpt.ru";
@@ -827,6 +905,7 @@ SString & SLAPI ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum,
 	}
 	return rResult;
 }
+#endif // } 0
 
 int SLAPI ChZnInterface::MakeAuthRequest2(InitBlock & rBlk, SString & rBuf)
 {
@@ -970,7 +1049,7 @@ int SLAPI ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * p
 	int    ok = -1;
 	SString temp_buf;
 	SString url_buf;
-	InetUrl url(MakeTargetUrl(qGetTicket, pDocIdent, rIb, url_buf));
+	InetUrl url(MakeTargetUrl_(qGetTicket, pDocIdent, rIb, url_buf));
 	{
 		ScURL c;
 		StrStrAssocArray hdr_flds;
@@ -1250,7 +1329,7 @@ int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInte
 					SString sign;
 					SString data_base64_buf;
 					S_GUID req_id;
-					InetUrl url(MakeTargetUrl(qDocumentSend, 0, rIb, url_buf));
+					InetUrl url(MakeTargetUrl_(qDocumentSend, 0, rIb, url_buf));
 					{
 						//temp_buf.Z().CatN(static_cast<const char *>(pData), dataLen);
 						LogTalking("req-rawdoc", data_buf);
@@ -1320,7 +1399,7 @@ int SLAPI ChZnInterface::GetUserInfo2(InitBlock & rIb)
 	HINTERNET h_req = 0;
 	SString temp_buf;
 	SString req_buf;
-	InetUrl url(MakeTargetUrl(qCurrentUserInfo, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qCurrentUserInfo, 0, rIb, temp_buf));
 	{
 		ulong access_type = /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT;
 		THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), access_type, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
@@ -1377,7 +1456,7 @@ int SLAPI ChZnInterface::GetToken2(const char * pAuthCode, InitBlock & rIb)
 	HINTERNET h_req = 0;
 	SString temp_buf;
 	SString req_buf;
-	InetUrl url(MakeTargetUrl(qToken, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qToken, 0, rIb, temp_buf));
 	THROW(MakeTokenRequest(rIb, pAuthCode, req_buf));
 	{
 		ulong access_type = INTERNET_OPEN_TYPE_PRECONFIG;
@@ -1448,7 +1527,7 @@ int SLAPI ChZnInterface::GetIncomeDocList_(InitBlock & rIb)
 	SString temp_buf;
 	SString req_buf;
 	SBuffer ack_buf;
-	InetUrl url(MakeTargetUrl(qGetIncomeDocList, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qGetIncomeDocList, 0, rIb, temp_buf));
 	{
 		req_buf.Z();
 		{
@@ -1501,7 +1580,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
 	HINTERNET h_req = 0;
 	SString temp_buf;
 	SString req_buf;
-	InetUrl url(MakeTargetUrl(qGetIncomeDocList, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qGetIncomeDocList, 0, rIb, temp_buf));
 	{
 		req_buf.Z();
 		{
@@ -1576,7 +1655,7 @@ int SLAPI ChZnInterface::Connect2(InitBlock & rIb)
 	SString temp_buf;
 	SString result_code;
 	SString req_buf;
-	InetUrl url(MakeTargetUrl(qAuth, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, temp_buf));
 	THROW(MakeAuthRequest(rIb, req_buf));
 	{
 		ulong access_type = INTERNET_OPEN_TYPE_PRECONFIG;
@@ -1648,7 +1727,7 @@ int SLAPI ChZnInterface::Connect3(InitBlock & rIb)
 	SString result_code;
 	SBuffer ack_buf;
 	{
-		InetUrl url(MakeTargetUrl2(qAuth, 0, rIb, url_buf));
+		InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
 		//THROW(MakeAuthRequest(rIb, req_buf));
 		{
 			ScURL c;
@@ -1703,10 +1782,11 @@ int SLAPI ChZnInterface::Connect3(InitBlock & rIb)
 			ZDELETE(p_json_req);
 		}
 		{
-			InetUrl url(MakeTargetUrl2(qToken, 0, rIb, url_buf));
+			InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
 			ScURL c;
 			StrStrAssocArray hdr_flds;
 			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
 			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(""));
 			{
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
@@ -1737,7 +1817,7 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 	SString result_code;
 	SBuffer ack_buf;
 	{
-		InetUrl url(MakeTargetUrl(qAuth, 0, rIb, url_buf));
+		InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
 		THROW(MakeAuthRequest(rIb, req_buf));
 		{
 			ScURL c;
@@ -1761,7 +1841,7 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 	}
 	if(ok > 0) {
 		ok = -1;
-		InetUrl url(MakeTargetUrl(qToken, 0, rIb, url_buf));
+		InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
 		THROW(MakeTokenRequest(rIb, result_code, req_buf));
 		{
 			ScURL c;
@@ -2012,7 +2092,8 @@ int SLAPI PPChZnPrcssr::Test()
 	if(prcssr.EditParam(&param) > 0) {
 		ChZnInterface ifc;
 		ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
-		THROW(ifc.SetupInitBlock(param.GuaID, "https://int.edo.crpt.tech", *p_ib));
+		THROW(ifc.SetupInitBlock(param.GuaID, 0, *p_ib));
+		p_ib->ProtocolId = ChZnInterface::InitBlock::protidGisMt;
 		{
 			//const CERT_CONTEXT * p_cert = ifc.GetClientSslCertificate(prcssr.Ib);
 			if(p_ib->ProtocolVer == 1) {

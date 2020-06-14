@@ -377,9 +377,11 @@ void * FASTCALL _cairo_user_data_array_get_data(cairo_user_data_array_t * array,
 cairo_status_t FASTCALL _cairo_user_data_array_set_data(cairo_user_data_array_t * array,
     const cairo_user_data_key_t * key, void * user_data, cairo_destroy_func_t destroy)
 {
-	cairo_status_t status;
-	int i, num_slots;
-	cairo_user_data_slot_t * slots, * slot, new_slot;
+	int i;
+	int num_slots = array->num_elements;
+	cairo_user_data_slot_t * slots = 0;
+	cairo_user_data_slot_t * slot = 0;
+	cairo_user_data_slot_t new_slot;
 	if(user_data) {
 		new_slot.key = key;
 		new_slot.user_data = user_data;
@@ -390,9 +392,7 @@ cairo_status_t FASTCALL _cairo_user_data_array_set_data(cairo_user_data_array_t 
 		new_slot.user_data = NULL;
 		new_slot.destroy = NULL;
 	}
-	slot = NULL;
-	num_slots = array->num_elements;
-	slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
+	slots = static_cast<cairo_user_data_slot_t *>(_cairo_array_index(array, 0));
 	for(i = 0; i < num_slots; i++) {
 		if(slots[i].key == key) {
 			slot = &slots[i];
@@ -408,12 +408,10 @@ cairo_status_t FASTCALL _cairo_user_data_array_set_data(cairo_user_data_array_t 
 		*slot = new_slot;
 		return CAIRO_STATUS_SUCCESS;
 	}
-	if(user_data == NULL)
+	else if(user_data == NULL)
 		return CAIRO_STATUS_SUCCESS;
-	status = _cairo_array_append(array, &new_slot);
-	if(unlikely(status))
-		return status;
-	return CAIRO_STATUS_SUCCESS;
+	else
+		return _cairo_array_append(array, &new_slot);
 }
 
 cairo_status_t _cairo_user_data_array_copy(cairo_user_data_array_t * dst, const cairo_user_data_array_t * src)
@@ -429,10 +427,9 @@ cairo_status_t _cairo_user_data_array_copy(cairo_user_data_array_t * dst, const 
 void _cairo_user_data_array_foreach(cairo_user_data_array_t * array,
     void (*func)(const void * key, void * elt, void * closure), void * closure)
 {
-	int i;
-	int num_slots = array->num_elements;
-	cairo_user_data_slot_t * slots = (cairo_user_data_slot_t *)_cairo_array_index(array, 0);
-	for(i = 0; i < num_slots; i++) {
+	const int num_slots = array->num_elements;
+	cairo_user_data_slot_t * slots = static_cast<cairo_user_data_slot_t *>(_cairo_array_index(array, 0));
+	for(int i = 0; i < num_slots; i++) {
 		if(slots[i].user_data != NULL)
 			func(slots[i].key, slots[i].user_data, closure);
 	}

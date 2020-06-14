@@ -253,10 +253,7 @@ typedef struct {
 
 intmax_t __cdecl imaxabs(intmax_t j);
 #ifndef __NO_INLINE__
-/*__CRT_INLINE*/ intmax_t __cdecl imaxabs(intmax_t j)
-{
-	return (j >= 0 ? j : -j);
-}
+// @v10.7.11 /*__CRT_INLINE*/ intmax_t __cdecl imaxabs(intmax_t j) { return (j >= 0 ? j : -j); }
 #endif
 imaxdiv_t __cdecl imaxdiv(intmax_t numer, intmax_t denom);
 //

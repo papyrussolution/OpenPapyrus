@@ -2257,15 +2257,12 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	{ SHttpProtocol::hdrAuthSecret, "authorization-secret" }
 };
 
-// static
-int FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)
+/*static*/int FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)
 	{ return SIntToSymbTab_GetSymb(HttpHeaderTitles, SIZEOFARRAY(HttpHeaderTitles), hdr, rTitle); }
-// static
-int FASTCALL SHttpProtocol::GetHeaderId(const char * pTitle)
+/*static*/int FASTCALL SHttpProtocol::GetHeaderId(const char * pTitle)
 	{ return SIntToSymbTab_GetId(HttpHeaderTitles, SIZEOFARRAY(HttpHeaderTitles), pTitle); }
 
-//static 
-int FASTCALL SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue)
+/*static*/int FASTCALL SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	int    ok = GetHeaderTitle(titleId, r_temp_buf);
@@ -2274,8 +2271,7 @@ int FASTCALL SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titl
 	return ok;
 }
 
-//static 
-uint FASTCALL SHttpProtocol::PutHeaderFieldsIntoString(const StrStrAssocArray & rFldList, SString & rBuf)
+/*static*/uint FASTCALL SHttpProtocol::PutHeaderFieldsIntoString(const StrStrAssocArray & rFldList, SString & rBuf)
 {
 	rBuf.Z();
 	uint   c = 0;
@@ -2292,8 +2288,7 @@ uint FASTCALL SHttpProtocol::PutHeaderFieldsIntoString(const StrStrAssocArray & 
 	return c;
 }
 
-//static 
-int FASTCALL SHttpProtocol::ParseAuth(const char * pAuthParam, SHttpProtocol::Auth & rResult)
+/*static*/int FASTCALL SHttpProtocol::ParseAuth(const char * pAuthParam, SHttpProtocol::Auth & rResult)
 {
 	int    ok = 0;
 	rResult.Type = authtUnkn;

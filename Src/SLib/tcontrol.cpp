@@ -299,8 +299,7 @@ void TButton::press(ushort item)
 //
 // TInputLine
 //
-// static
-LPCTSTR TInputLine::WndClsName = _T("Edit");
+/*static*/LPCTSTR TInputLine::WndClsName = _T("Edit");
 
 TInputLine::InputStat::InputStat()
 {
@@ -1485,8 +1484,7 @@ int ComboBox::setListWindow(ListWindow * pListWin, long dataVal)
 	return r;
 }
 
-// static
-LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK ComboBox::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ComboBox * p_view = static_cast<ComboBox *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
@@ -1778,8 +1776,7 @@ void ComboBox::freeAll()
 //
 //
 //
-// static
-LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TImageView * p_view = static_cast<TImageView *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {

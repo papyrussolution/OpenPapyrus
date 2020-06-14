@@ -1580,7 +1580,7 @@ int ImpExpParamDialog::setDTS(const PPImpExpParam * pData)
 	setCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
 		SetupPPObjCombo(this, CTLSEL_IMPEXP_FTPACC, PPOBJ_INTERNETACCOUNT, Data.InetAccID, OLW_CANINSERT,
-			reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp|PPObjInternetAccount::filtfMail)/*INETACCT_ONLYFTP*/);
+			reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp|PPObjInternetAccount::filtfMail));
 	}
 	name = Data.Name;
 	pData->ProcessName(2, name);

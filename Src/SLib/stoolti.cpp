@@ -1,5 +1,5 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -116,15 +116,13 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-//static
-void FASTCALL SMessageWindow::DestroyByParent(HWND parent)
+/*static*/void FASTCALL SMessageWindow::DestroyByParent(HWND parent)
 {
 	EnumWindows(CloseTooltipWnd, reinterpret_cast<LPARAM>(parent));
 	EnumChildWindows(parent, CloseTooltipWnd2, 0);
 }
 
-// static
-LRESULT CALLBACK ImgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK ImgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	SMessageWindow * p_wnd = static_cast<SMessageWindow *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
@@ -446,8 +444,7 @@ int SMessageWindow::DoCommand(TPoint p)
 	return ok;
 }
 
-// static
-INT_PTR CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/INT_PTR CALLBACK SMessageWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	SMessageWindow * p_win = static_cast<SMessageWindow *>(TView::GetWindowUserData(hWnd));
 	switch(message) {

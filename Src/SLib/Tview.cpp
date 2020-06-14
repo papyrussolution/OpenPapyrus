@@ -19,55 +19,8 @@ void FASTCALL ZDeleteWinGdiObject(void * pHandle)
 }
 //
 //
-// static
-/* @v9.5.5 void * TView::message(TView * pReceiver, uint what, uint command)
-{
-	void * p_ret = 0;
-	if(pReceiver) {
-		TEvent event;
-		event.what = what;
-		event.message.command = command;
-		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
-			p_ret = event.message.infoPtr;
-	}
-	return p_ret;
-}*/
-
-// static
-/* @v9.5.5 void * TView::message(TView * pReceiver, uint what, uint command, void * pInfoPtr)
-{
-	void * p_ret = 0;
-	if(pReceiver) {
-		TEvent event;
-		event.what = what;
-		event.message.command = command;
-		event.message.infoPtr = pInfoPtr;
-		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
-			p_ret = event.message.infoPtr;
-	}
-	return p_ret;
-}*/
-
-// static
-/* @v9.5.5 void * TView::message(TView * pReceiver, uint what, uint command, long infoVal)
-{
-	void * p_ret = 0;
-	if(pReceiver) {
-		TEvent event;
-		event.what = what;
-		event.message.command = command;
-		event.message.infoLong = infoVal;
-		pReceiver->handleEvent(event);
-		if(event.what == evNothing)
-			p_ret = event.message.infoPtr;
-	}
-	return p_ret;
-}*/
-
-//static 
-void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
+//
+/*static*/void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -81,8 +34,7 @@ void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
 	return p_ret;
 }
 
-//static 
-void * FASTCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
+/*static*/void * FASTCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -97,8 +49,7 @@ void * FASTCALL TView::messageCommand(TView * pReceiver, uint command, void * pI
 	return p_ret;
 }
 
-//static 
-void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
+/*static*/void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -112,8 +63,7 @@ void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
 	return p_ret;
 }
 
-//static 
-void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
+/*static*/void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -456,8 +406,7 @@ int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
     return (int)rBuf.Len();
 }
 
-//static
-int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
+/*static*/int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 {
 	int    ok = 1;
 #ifdef UNICODE
@@ -470,8 +419,7 @@ int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 	return ok;
 }
 
-//static
-void * TView::CreateFont(const SFontDescr & rFd)
+/*static*/void * TView::CreateFont(const SFontDescr & rFd)
 {
 	LOGFONT log_font;
  	MEMSZERO(log_font);
@@ -479,9 +427,8 @@ void * TView::CreateFont(const SFontDescr & rFd)
 	HFONT new_font = ::CreateFontIndirect(&log_font);
 	return new_font;
 }
-//
-// static
-HFONT TView::setFont(HWND hWnd, const char * pFontName, int height)
+
+/*static*/HFONT TView::setFont(HWND hWnd, const char * pFontName, int height)
 {
 	HFONT   new_font = 0;
 	LOGFONT log_font;
@@ -496,8 +443,7 @@ HFONT TView::setFont(HWND hWnd, const char * pFontName, int height)
 	return new_font;
 }
 
-//static 
-void SLAPI TView::CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG)
+/*static*/void SLAPI TView::CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG)
 {
 	if(pG) {
 		TView * p_temp = pG->GetLastView();

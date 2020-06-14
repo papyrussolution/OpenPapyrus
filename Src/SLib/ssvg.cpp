@@ -491,9 +491,9 @@ int SSvg::ParseStyle(xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk)
 int SSvg::_GetUSize(const char * pTxt, int dir, float & rR)
 {
 	USize usz;
-	double sz;
 	usz.Dir = dir;
 	if(usz.FromStr(pTxt, USize::fmtSVG)) {
+		double sz;
 		P_Result->ConvertCoord(usz, &sz);
 		rR = static_cast<float>(sz);
 		return 1;

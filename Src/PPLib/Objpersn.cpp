@@ -418,7 +418,24 @@ int FASTCALL PPObjPerson::WriteConfig(const PPPersonConfig * pCfg, int use_ta)
 			}
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
-		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, (pCfg ? &pCfg->DlvrAddrExtFldList : 0), 0));
+		{
+			// @v10.7.11 {
+			if(pCfg) {
+				TaggedStringArray_obsolete temp_list;
+				for(uint i = 0; i < pCfg->DlvrAddrExtFldList.getCount(); i++) {
+					StrAssocArray::Item item = pCfg->DlvrAddrExtFldList.Get(i);
+					if(item.Id && !isempty(item.Txt)) {
+						temp_list.Add(item.Id, item.Txt);
+					}
+				}
+				THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &temp_list, 0));
+			}
+			else {
+				THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, 0, 0));
+			}
+			// } @v10.7.11 
+			// @v10.7.11 THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, (pCfg ? &pCfg->DlvrAddrExtFldList : 0), 0));
+		}
 		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, (pCfg ? &pCfg->NewClientDetectionList : 0), 0)); // @vmiller
 		THROW(tra.Commit());
 	}
@@ -456,16 +473,12 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		else
 			pCfg->TopFolder = 0;
 		{
-			//char * p_buf = 0;
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
 			if(reg_key.GetRecSize(_PPConst.WrParam_PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
-				//p_buf = new char[buf_size + 1];
-				//memzero(p_buf, buf_size + 1);
 				SString temp_buf;
 				reg_key.GetString(_PPConst.WrParam_PersonAddImageFolder, temp_buf);
 				pCfg->AddImageFolder = temp_buf;
-				//ZDELETE(p_buf);
 			}
 		}
 		ok = 1;
@@ -489,7 +502,17 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 		pCfg->Flags |= PPPersonConfig::fSyncByName;
 		ok = -1;
 	}
-	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
+	{
+		// @v10.7.11 {
+		pCfg->DlvrAddrExtFldList.Z();
+		TaggedStringArray_obsolete temp_list;
+		THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &temp_list));
+		for(uint i = 0; i < temp_list.getCount(); i++) {
+			pCfg->DlvrAddrExtFldList.Add(temp_list.at(i).Id, temp_list.at(i).Txt);
+		}
+		// } @v10.7.11 
+		// @v10.7.11 THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
+	}
 	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, &pCfg->NewClientDetectionList)); // @vmiller
 	CATCHZOK
 	SAlloc::F(p_cfg);
@@ -497,7 +520,7 @@ int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 }
 
 class ExtFieldsDialog : public PPListDialog {
-	DECL_DIALOG_DATA(TaggedStringArray);
+	DECL_DIALOG_DATA(StrAssocArray); // @v10.7.11 TaggedStringArray-->StrAssocArray
 public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
@@ -508,14 +531,14 @@ public:
 	}
 	DECL_DIALOG_SETDTS()
 	{
-		Data.freeAll();
+		Data.Z();
 		RVALUEPTR(Data, pData);
 		updateList(-1);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
 	{
-		CALLPTRMEMB(pData, copy(Data));
+		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
 private:
@@ -523,43 +546,45 @@ private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
-	int    Edit(TaggedString * pItem);
+	//int    Edit(TaggedString * pItem);
+	int    Edit(SStringTag * pItem);
 };
 
-class ExtFldCfgDialog : public TDialog {
-	DECL_DIALOG_DATA(TaggedString);
-public:
-	explicit ExtFldCfgDialog(int isNew) : TDialog(DLG_EXTFLDCFG)
-	{
-		disableCtrl(CTL_EXTFLDCFG_ID, !isNew);
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
-		setCtrlData(CTL_EXTFLDCFG_ID,  &Data.Id);
-		setCtrlData(CTL_EXTFLDCFG_NAME, Data.Txt);
-		return 1;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		uint   sel = 0;
-		getCtrlData(sel = CTL_EXTFLDCFG_ID,  &Data.Id);
-		THROW_PP(Data.Id > LOCEXSTR_EXTFLDSOFFS && Data.Id <= LOCEXSTR_EXTFLDSOFFS + MAX_DLVRADDRFLDS, PPERR_INVEXTFLDIDRANGE);
-		getCtrlData(sel = CTL_EXTFLDCFG_NAME, Data.Txt);
-		THROW_PP(sstrlen(Data.Txt) > 0, PPERR_USERINPUT);
-		ASSIGN_PTR(pData, Data);
-		CATCH
-			ok = (selectCtrl(sel), 0);
-		ENDCATCH
-		return ok;
-	}
-};
-
-int ExtFieldsDialog::Edit(TaggedString * pItem)
+//int ExtFieldsDialog::Edit(TaggedString * pItem)
+int ExtFieldsDialog::Edit(SStringTag * pItem)
 {
-	int    ok = -1, is_new = BIN(Data.Search(pItem->Id, 0) <= 0);
+	class ExtFldCfgDialog : public TDialog {
+		DECL_DIALOG_DATA(SStringTag); // @v10.7.11 TaggedString-->SStringTag
+	public:
+		explicit ExtFldCfgDialog(int isNew) : TDialog(DLG_EXTFLDCFG)
+		{
+			disableCtrl(CTL_EXTFLDCFG_ID, !isNew);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			if(!RVALUEPTR(Data, pData))
+				MEMSZERO(Data);
+			setCtrlData(CTL_EXTFLDCFG_ID,  &Data.Id);
+			setCtrlString(CTL_EXTFLDCFG_NAME, Data);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			getCtrlData(sel = CTL_EXTFLDCFG_ID,  &Data.Id);
+			THROW_PP(Data.Id > LOCEXSTR_EXTFLDSOFFS && Data.Id <= LOCEXSTR_EXTFLDSOFFS + MAX_DLVRADDRFLDS, PPERR_INVEXTFLDIDRANGE);
+			getCtrlString(sel = CTL_EXTFLDCFG_NAME, Data);
+			THROW_PP(Data.Len(), PPERR_USERINPUT);
+			ASSIGN_PTR(pData, Data);
+			CATCH
+				ok = (selectCtrl(sel), 0);
+			ENDCATCH
+			return ok;
+		}
+	};
+	int    ok = -1;
+	const  int is_new = BIN(Data.Search(pItem->Id, 0) <= 0);
 	SString title;
 	ExtFldCfgDialog * p_dlg = new ExtFldCfgDialog(is_new);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {
@@ -570,7 +595,7 @@ int ExtFieldsDialog::Edit(TaggedString * pItem)
 				PPError();
 			else if(is_new && Data.Search(pItem->Id, &pos) > 0)
 				PPError(PPERR_DUPEXTID);
-			else if(Data.SearchByText(pItem->Txt, &(pos = 0)) > 0 && Data.at(pos).Id != pItem->Id)
+			else if(Data.SearchByText(*pItem, 1, &(pos = 0)) > 0 && Data.Get(pos).Id != pItem->Id)
 				PPError(PPERR_DUPEXTFLD);
 			else
 				valid_data = ok = 1;
@@ -584,16 +609,16 @@ int ExtFieldsDialog::Edit(TaggedString * pItem)
 int ExtFieldsDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
-	TaggedString item;
+	SStringTag item; // @v10.7.11 TaggedString-->SStringTag
 	// @v10.6.8 @ctr MEMSZERO(item);
 	item.Id = 1 + LOCEXSTR_EXTFLDSOFFS;
 	for(uint i = 0; i < Data.getCount(); i++)
-		if(Data.at(i).Id == item.Id)
-			item.Id = Data.at(i).Id + 1;
+		if(Data.Get(i).Id == item.Id)
+			item.Id = Data.Get(i).Id + 1;
 	if((item.Id - LOCEXSTR_EXTFLDSOFFS - 1) == MAX_DLVRADDRFLDS)
 		PPError(PPERR_MAXEXTFLDACHIEVED);
 	else if(Edit(&item) > 0) {
-		Data.Add(item.Id, item.Txt);
+		Data.Add(item.Id, item);
 		Data.SortByID();
 		ok = 1;
 	}
@@ -601,17 +626,33 @@ int ExtFieldsDialog::addItem(long * pPos, long * pID)
 }
 
 int ExtFieldsDialog::editItem(long pos, long id)
-	{ return (pos >= 0 && pos < (long)Data.getCount()) ? Edit(&Data.at(pos)) : -1; }
+{ 
+	int    ok = -1;
+	if(pos >= 0 && pos < static_cast<long>(Data.getCount())) {
+		StrAssocArray::Item li = Data.Get(pos);
+		SStringTag temp_item;
+		temp_item.Id = li.Id;
+		static_cast<SString &>(temp_item) = li.Txt;
+		ok = Edit(&temp_item);
+		if(ok > 0) {
+			Data.Add(temp_item.Id, temp_item, 1 /*replaceDup*/);
+		}
+	}
+	return ok;
+}
+
 int ExtFieldsDialog::delItem(long pos, long id)
-	{ return Data.atFree(pos); }
+	{ return Data.AtFree(pos); }
 
 int ExtFieldsDialog::setupList()
 {
 	int    ok = 1;
 	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.getCount(); i++) {
-		StringSet ss(SLBColumnDelim);
-		TaggedString item = Data.at(i);
+		ss.clear();
+		//TaggedString item = Data.at(i);
+		StrAssocArray::Item item = Data.Get(i);
 		ss.add(temp_buf.Z().Cat(item.Id));
 		ss.add(item.Txt);
 		if(!addStringToList(item.Id, ss.getBuf())) {
@@ -854,7 +895,8 @@ void SLAPI PPPersonConfig::Init()
 	memzero(this, offsetof(PPPersonConfig, TopFolder));
 	TopFolder.Z();
 	AddImageFolder.Z();
-	DlvrAddrExtFldList.freeAll();
+	// @v10.7.11 DlvrAddrExtFldList.freeAll();
+	DlvrAddrExtFldList.Z(); // @v10.7.11
 	NewClientDetectionList.freeAll();
 }
 

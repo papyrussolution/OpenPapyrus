@@ -433,8 +433,7 @@ SLAPI SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8
 {
 }
 
-// static
-int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, CompFunc fcmp, SFile::SortParam * pExtraParam)
+/*static*/int SLAPI SFile::Sort(const char * pSrcFileName_, const char * pOutFileName, CompFunc fcmp, SFile::SortParam * pExtraParam)
 {
 	int    ok = 1;
 	const  uint max_chunk_size = (pExtraParam && pExtraParam->MaxChunkSize >= (512*1024) && pExtraParam->MaxChunkSize <= 64*1024*1024) ? pExtraParam->MaxChunkSize : (8*1024*1024);

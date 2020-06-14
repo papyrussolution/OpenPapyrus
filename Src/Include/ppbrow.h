@@ -1923,6 +1923,7 @@ struct Sdr_ImpExpHeader {
 	#define PPFLD_CLIBNKDATA_DEBTBILLDATE                            48
 	#define PPFLD_CLIBNKDATA_DEBTBILLCODE                            49
 	#define PPFLD_CLIBNKDATA_UIN                                     50
+	#define PPFLD_CLIBNKDATA_FORMALPURPOSE                           51
 
 struct Sdr_CliBnkData {
 	Sdr_CliBnkData() { THISZERO(); }
@@ -1976,6 +1977,7 @@ struct Sdr_CliBnkData {
 	LDATE  DebtBillDate;
 	char   DebtBillCode[24];
 	char   UIN[24];
+	int32  FormalPurpose;
 };
 
 #define PPREC_SPECSERIES                               3
@@ -4879,5 +4881,14 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_GOODSREST                       32936
 #define PPDV_TEST01                          32937
 #define PPDV_TOGGLE01                        32938
-#define PPDV_LOGOPAPYRUS                     32939
+#define PPDV_ATURNLIST                       32939
+#define PPDV_ACCANLZ                         32940
+#define PPDV_PANE                            32941
+#define PPDV_PRICELIST01                     32942
+#define PPDV_FTP01                           32943
+#define PPDV_MAIL01                          32944
+#define PPDV_MAIL02                          32945
+#define PPDV_MAIL03                          32946
+#define PPDV_TRFRANLZ                        32947
+#define PPDV_LOGOPAPYRUS                     32948
 

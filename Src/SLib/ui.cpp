@@ -1,13 +1,11 @@
 // UI.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-//
-//
-// static
-int UiItemKind::GetTextList(StrAssocArray & rList)
+
+/*static*/int UiItemKind::GetTextList(StrAssocArray & rList)
 {
 	int    ok = 1;
 	rList.Z();
@@ -20,8 +18,7 @@ int UiItemKind::GetTextList(StrAssocArray & rList)
 	return ok;
 }
 
-//static
-int UiItemKind::GetIdBySymb(const char * pSymb)
+/*static*/int UiItemKind::GetIdBySymb(const char * pSymb)
 {
 	int    id = 0;
 	UiItemKind item;

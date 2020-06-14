@@ -1,5 +1,5 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -215,8 +215,7 @@ SLAPI SPrnCmdSet::~SPrnCmdSet()
 {
 }
 
-// static
-SPrnCmdSet * SLAPI SPrnCmdSet::CreateInstance(long id, long /* extra */)
+/*static*/SPrnCmdSet * SLAPI SPrnCmdSet::CreateInstance(long id, long /* extra */)
 {
 	if(id == SPCMDSET_PCL)
 		return new PCLCmdSet;

@@ -1,6 +1,6 @@
 // Toolbar.cpp
 // There's a mine born by Osolotkin, 2000, 2001
-// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019
+// Modified by A.Sobolev, 2002, 2003, 2005, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -841,8 +841,7 @@ int TuneToolsDialog::Accept()
 }
 //
 //
-// static
-LRESULT CALLBACK TuneToolsDialog::ListViewProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TuneToolsDialog::ListViewProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TuneToolsDialog * p_param = static_cast<TuneToolsDialog *>(TView::GetWindowUserData(hWnd));
 	switch(message) {

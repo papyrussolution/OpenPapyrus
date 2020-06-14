@@ -456,8 +456,9 @@
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_albatroscfg",					cmAlbatrosCfg
 			MENUITEM "@cmd_inetconncfg",					cmInetConnCfg
-			MENUITEM "@cmd_mailacct",						cmMailAcct
-			MENUITEM "@cmd_ftpacct",						cmFTPAcct
+			// @v10.7.11 MENUITEM "@cmd_mailacct",						cmMailAcct
+			// @v10.7.11 MENUITEM "@cmd_ftpacct",						cmFTPAcct
+			MENUITEM "@cmd_interchangeaccounts"             cmMailAcct // @v10.7.11
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_vatbooksellcfg",					cmVATBookSellCfg
 		   	MENUITEM "@cmd_vatbookbuycfg",					cmVATBookBuyCfg

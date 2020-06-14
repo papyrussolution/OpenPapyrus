@@ -1029,8 +1029,8 @@ int Lst2LstAryDialog::addItem()
 	SmartListBox * p_view = GetLeftList();
 	if(p_view && p_view->getCurID(&tmp) && tmp && !P_Right->lsearch(&tmp, &idx, CMPF_LONG, 0)) {
 		P_Left->lsearch(&tmp, &idx, CMPF_LONG, 0);
-		const TaggedString * current = static_cast<const TaggedString *>(P_Left->at(idx));
-		THROW(P_Right->insert(current));
+		const TaggedString_obsolete * p_current = static_cast<const TaggedString_obsolete *>(P_Left->at(idx));
+		THROW(P_Right->insert(p_current));
 		THROW(setupRightList());
 	}
 	CATCHZOKPPERR

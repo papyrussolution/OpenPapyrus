@@ -2733,7 +2733,7 @@ cairo_status_t _cairo_cff_subset_init(cairo_cff_subset_t * cff_subset,
 	else {
 		cff_subset->family_name_utf8 = NULL;
 	}
-	cff_subset->widths = (double *)SAlloc::C(sizeof(double), font->scaled_font_subset->num_glyphs);
+	cff_subset->widths = static_cast<double *>(SAlloc::C(sizeof(double), font->scaled_font_subset->num_glyphs));
 	if(unlikely(cff_subset->widths == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail3;
@@ -3068,18 +3068,14 @@ static cairo_int_status_t cairo_cff_font_fallback_generate(cairo_cff_font_t * fo
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t * cff_subset,
-    const char * subset_name,
-    cairo_scaled_font_subset_t * font_subset)
+cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t * cff_subset, const char * subset_name, cairo_scaled_font_subset_t * font_subset)
 {
 	cairo_cff_font_t * font = NULL; /* squelch bogus compiler warning */
-	cairo_status_t status;
 	const char * data = NULL; /* squelch bogus compiler warning */
 	ulong length = 0; /* squelch bogus compiler warning */
 	uint i;
 	cairo_type2_charstrings_t type2_subset;
-
-	status = _cairo_cff_font_fallback_create(font_subset, &font, subset_name);
+	cairo_status_t status = _cairo_cff_font_fallback_create(font_subset, &font, subset_name);
 	if(unlikely(status))
 		return status;
 
@@ -3097,36 +3093,29 @@ cairo_status_t _cairo_cff_fallback_init(cairo_cff_subset_t * cff_subset,
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail2;
 	}
-	cff_subset->widths = (double *)SAlloc::C(sizeof(double), font->scaled_font_subset->num_glyphs);
+	cff_subset->widths = static_cast<double *>(SAlloc::C(sizeof(double), font->scaled_font_subset->num_glyphs));
 	if(unlikely(cff_subset->widths == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail3;
 	}
-
 	for(i = 0; i < font->scaled_font_subset->num_glyphs; i++)
 		cff_subset->widths[i] = (double)type2_subset.widths[i]/1000;
-
 	cff_subset->x_min = (double)type2_subset.x_min/1000;
 	cff_subset->y_min = (double)type2_subset.y_min/1000;
 	cff_subset->x_max = (double)type2_subset.x_max/1000;
 	cff_subset->y_max = (double)type2_subset.y_max/1000;
 	cff_subset->ascent = (double)type2_subset.y_max/1000;
 	cff_subset->descent = (double)type2_subset.y_min/1000;
-
-	cff_subset->data = (char *)_cairo_malloc(length);
+	cff_subset->data = static_cast<char *>(_cairo_malloc(length));
 	if(unlikely(cff_subset->data == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto fail4;
 	}
-
 	memcpy(cff_subset->data, data, length);
 	cff_subset->data_length = length;
-
 	_cairo_type2_charstrings_fini(&type2_subset);
 	cairo_cff_font_destroy(font);
-
 	return CAIRO_STATUS_SUCCESS;
-
 fail4:
 	SAlloc::F(cff_subset->widths);
 fail3:
@@ -3135,7 +3124,6 @@ fail2:
 	_cairo_type2_charstrings_fini(&type2_subset);
 fail1:
 	cairo_cff_font_destroy(font);
-
 	return status;
 }
 

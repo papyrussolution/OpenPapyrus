@@ -134,13 +134,11 @@ struct SBhtIICmdBuf { // @persistent
 		cmCellListByGoods      = 18,
 		cmGoodsListByCell      = 19,
 		cmGetBillRowsWithCells = 20,
-
-		cmSearchGoodsByCode    = 21, // @v8.4.2 Возвращает ИД товара по заданному коду
-		cmGetGoodsInfo         = 22, // @v8.4.2 Возвращает информацию о товаре по ИД
-		cmGetGoodsRecord       = 23, // @v8.4.2 Возвращает запись товара по ИД
-		cmTestConnection       = 24, // @v8.4.2 Команда тестирования обмена между ТСД и сервером
+		cmSearchGoodsByCode    = 21, // Возвращает ИД товара по заданному коду
+		cmGetGoodsInfo         = 22, // Возвращает информацию о товаре по ИД
+		cmGetGoodsRecord       = 23, // Возвращает запись товара по ИД
+		cmTestConnection       = 24, // Команда тестирования обмена между ТСД и сервером
 			// (не путать с cmCheckConnection, используемой для регулярной проверки соединения)
-
 		cmNextTableChunkBias   = 1000 // Специальное смещение для команд, возвращающих таблицы - при таком смещении
 			// запрашивается следующая порция записей, начиная с параметра.
 	};

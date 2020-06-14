@@ -246,8 +246,7 @@ int ToolbarList::moveItem(uint pos, int up)
 //
 //
 //
-// static
-int TWindow::IsMDIClientWindow(HWND h)
+/*static*/int TWindow::IsMDIClientWindow(HWND h)
 {
 	SString cls_name;
 	TView::SGetWindowClassName(h, cls_name);
