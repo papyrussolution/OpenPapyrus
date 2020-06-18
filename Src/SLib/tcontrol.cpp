@@ -329,8 +329,7 @@ void TInputLine::InputStat::CheckIn()
 	}
 }
 
-//static
-LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TInputLine * p_view = static_cast<TInputLine *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {

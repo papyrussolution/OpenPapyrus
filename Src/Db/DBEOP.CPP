@@ -1,5 +1,5 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -722,9 +722,7 @@ IMPL_DBE_PROC(_max_v)
 //
 // DbqFuncTab
 //
-
-//static
-//DbqFuncTab DbqFuncTab::__Inst; // @global @threadsafe
+///*static*/DbqFuncTab DbqFuncTab::__Inst; // @global @threadsafe
 
 static DbqFuncTab * __GetRegFuncTab()
 {
@@ -737,8 +735,7 @@ static DbqFuncTab * __GetRegFuncTab()
 	return p__inst;
 }
 
-//static
-int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
+/*static*/int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
 {
 	int    ok = 0, func_id = 0;
 	ENTER_CRITICAL_SECTION
@@ -759,8 +756,7 @@ int SLAPIV DbqFuncTab::RegisterDyn(int * pFuncId, int retType, DBQProc pProc, in
 	return ok;
 }
 
-//static 
-int SLAPIV DbqFuncTab::RegisterDynR(int retType, DBQProc pProc, int paramCount, ...) // @cs
+/*static*/int SLAPIV DbqFuncTab::RegisterDynR(int retType, DBQProc pProc, int paramCount, ...) // @cs
 {
 	int    func_id = 0;
 	ENTER_CRITICAL_SECTION
@@ -776,8 +772,7 @@ int SLAPIV DbqFuncTab::RegisterDynR(int retType, DBQProc pProc, int paramCount, 
 	return func_id;
 }
 
-//static
-int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
+/*static*/int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc, int paramCount, ...)
 {
 	int    ok = 0, func_id = 0;
 	ENTER_CRITICAL_SECTION
@@ -800,8 +795,7 @@ int SLAPIV DbqFuncTab::RegisterDynAggr(int * pFuncId, int retType, DBQProc pProc
 	return ok;
 }
 
-//static
-DBFuncInfo * FASTCALL DbqFuncTab::Get(int funcId)
+/*static*/DBFuncInfo * FASTCALL DbqFuncTab::Get(int funcId)
 {
 	DbqFuncTab * p_tab = __GetRegFuncTab();
 	return p_tab ? p_tab->GetFuncPtr(funcId) : 0;

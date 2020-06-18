@@ -14,6 +14,30 @@
 using namespace Scintilla;
 #endif
 
+const char * _OptionSetBase::PropertyNames() const { return names.c_str(); }
+
+const char * _OptionSetBase::DescribeWordListSets() const { return wordLists.c_str(); }
+
+void _OptionSetBase::DefineWordListSets(const char * const wordListDescriptions[])
+{
+	if(wordListDescriptions) {
+		for(size_t wl = 0; wordListDescriptions[wl]; wl++) {
+			if(!wordLists.empty())
+				wordLists += "\n";
+			wordLists += wordListDescriptions[wl];
+		}
+	}
+}
+
+void _OptionSetBase::AppendName(const char * name)
+{
+	if(!names.empty())
+		names += "\n";
+	names += name;
+}
+//
+//
+//
 LexerManager * LexerManager::theInstance = NULL;
 //
 // ExternalLexerModule

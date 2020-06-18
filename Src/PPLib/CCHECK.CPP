@@ -892,8 +892,7 @@ int SLAPI CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return Helper_PackLineTextExt(rResult);
 }*/
 
-//static
-int SLAPI CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList)
+/*static*/int SLAPI CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList)
 {
 	int   ok = -1;
 	CALLPTRMEMB(pSc, SetBuffer(0));
@@ -924,7 +923,6 @@ int SLAPI CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrConta
 	return ok;
 }
 
-//static
 /* @v10.3.9 (replaced with Helper_UnpackTextExt) int SLAPI CCheckPacket::Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList)
 {
 	int   ok = 1;
@@ -950,8 +948,7 @@ int SLAPI CCheckPacket::Helper_UnpackTextExt(const SString & rBuf, PPExtStrConta
 
 // @v9.0.9 {
 
-//static
-int SLAPI CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText)
+/*static*/int SLAPI CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText)
 {
 	int    ok = 1;
 	SString common_buf;
@@ -962,8 +959,7 @@ int SLAPI CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, St
 	return ok;
 }
 
-//static
-int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf)
+/*static*/int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -1402,8 +1398,7 @@ int SLAPI CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
 const LocationTbl::Rec * SLAPI CCheckPacket::GetDlvrAddr() const { return P_DlvrAddr; }
 SString & SLAPI CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6); }
 
-//static
-int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult)
+/*static*/int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult)
 {
 	int    ok = 0;
 	const  size_t len = sstrlen(pIdent);
@@ -1463,8 +1458,7 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 //
 // CCheckCore
 //
-//static
-SString & FASTCALL CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString & rBuf)
+/*static*/SString & FASTCALL CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString & rBuf)
 {
 	rBuf.Z().Cat(pRec->Dt).CatDiv(':', 1);
 	if(pRec->Tm)
@@ -1658,8 +1652,7 @@ int SLAPI CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use
 	return ok;
 }
 
-//static
-int FASTCALL CCheckCore::IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckExtTbl::Rec & r2)
+/*static*/int FASTCALL CCheckCore::IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckExtTbl::Rec & r2)
 {
     int    eq = 1;
 	if(r1.CheckID != r2.CheckID)
@@ -2052,8 +2045,7 @@ int SLAPI CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack
 	return ok;
 }
 
-//static
-int SLAPI CCheckCore::Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList)
+/*static*/int SLAPI CCheckCore::Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList)
 {
 	int    ok = -1;
 	rList.Z();
@@ -5452,15 +5444,13 @@ int CCheckCache::RefreshCTableStatusList(int force)
 	return ok;
 }
 
-//static
-int FASTCALL CCheckCore::FetchCTableStatus(long tableNo, CTableStatus * pStatus)
+/*static*/int FASTCALL CCheckCore::FetchCTableStatus(long tableNo, CTableStatus * pStatus)
 {
 	CCheckCache * p_cache = GetDbLocalCachePtr <CCheckCache> (PPOBJ_CCHECK);
 	return p_cache ? p_cache->GetCTableStatus(tableNo, pStatus) : 0;
 }
 
-//static
-int FASTCALL CCheckCore::FetchCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector
+/*static*/int FASTCALL CCheckCore::FetchCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector
 {
 	CCheckCache * p_cache = GetDbLocalCachePtr <CCheckCache> (PPOBJ_CCHECK);
 	return p_cache ? p_cache->GetCTableOrderList(rList) : 0;

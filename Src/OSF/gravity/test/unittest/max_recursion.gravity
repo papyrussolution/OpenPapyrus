@@ -1,0 +1,14 @@
+#unittest {
+    name: "Max recursion";
+    error: RUNTIME;
+};
+
+func f(a) {
+    return f(a-1);
+}
+
+func main() {
+    //System.maxRecursionDepth = 1024;
+	System.maxRecursionDepth = 50;
+    return f(0);
+}

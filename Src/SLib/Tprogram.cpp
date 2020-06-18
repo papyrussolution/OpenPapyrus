@@ -635,8 +635,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	return 1;
 }
 
-//static
-BOOL CALLBACK TProgram::CloseWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/BOOL CALLBACK TProgram::CloseWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TProgram * p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 	switch(message) {
@@ -1225,8 +1224,7 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 	return r;
 }
 
-//static
-static LRESULT CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/static LRESULT CALLBACK SpecTitleWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	WNDPROC prev_wnd_proc = reinterpret_cast<WNDPROC>(TView::GetWindowUserData(hWnd));
 	switch(message) {
@@ -2553,8 +2551,7 @@ void TProgram::GotoSite()
 //
 static const char * UserInterfaceParamName  = "UserInterface";
 static const char * UserInterfaceParamName2 = "UserInterface2";
-//static
-const char * UserInterfaceSettings::SubKey  = "Software\\Papyrus\\UI";
+/*static*/const char * UserInterfaceSettings::SubKey  = "Software\\Papyrus\\UI";
 
 UserInterfaceSettings::UserInterfaceSettings() : TableFont(0, 0, 0), ListFont(0, 0, 0)
 {

@@ -1379,6 +1379,7 @@
     <ClCompile Include="..\PPLib\PPEXPR.CPP" />
     <ClCompile Include="..\PPLib\ppgeo.cpp" />
     <ClCompile Include="..\PPLib\ppgplot.cpp" />
+    <ClCompile Include="..\PPLib\ppgravity.cpp" />
     <ClCompile Include="..\PPLib\ppidata.cpp" />
     <ClCompile Include="..\PPLib\ppifcimp.cpp" />
     <ClCompile Include="..\PPLib\ppifclua.cpp" />
@@ -2075,6 +2076,9 @@
     </ProjectReference>
     <ProjectReference Include="cairo-1.16.0.vcxproj">
       <Project>{530693b1-8b95-4993-8bcf-c0d0e225f4df}</Project>
+    </ProjectReference>
+    <ProjectReference Include="gravity.vcxproj">
+      <Project>{ec12be0a-025e-4168-9d2d-419a18cb2ef5}</Project>
     </ProjectReference>
     <ProjectReference Include="libcurl.vcxproj">
       <Project>{da6f56b4-06a4-441d-ad70-ac5a7d51fadb}</Project>

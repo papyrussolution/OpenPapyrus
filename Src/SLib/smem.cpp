@@ -1,5 +1,5 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -348,8 +348,7 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 		memswap(pA, pB, sizeof(*pA));
 }
 
-//static
-void * FASTCALL SAlloc::M(size_t sz)
+/*static*/void * FASTCALL SAlloc::M(size_t sz)
 {
 	void * p_result = malloc(sz);
 	if(!p_result)
@@ -357,8 +356,7 @@ void * FASTCALL SAlloc::M(size_t sz)
 	return p_result;
 }
 
-//static
-void * FASTCALL SAlloc::C(size_t n, size_t sz)
+/*static*/void * FASTCALL SAlloc::C(size_t n, size_t sz)
 {
 	void * p_result = calloc(n, sz);
 	if(!p_result)
@@ -366,8 +364,7 @@ void * FASTCALL SAlloc::C(size_t n, size_t sz)
 	return p_result;
 }
 
-//static
-void * FASTCALL SAlloc::R(void * ptr, size_t sz)
+/*static*/void * FASTCALL SAlloc::R(void * ptr, size_t sz)
 {
 	void * p_result = realloc(ptr, sz);
 	if(!p_result)
@@ -375,8 +372,7 @@ void * FASTCALL SAlloc::R(void * ptr, size_t sz)
 	return p_result;
 }
 
-//static
-void FASTCALL SAlloc::F(void * ptr)
+/*static*/void FASTCALL SAlloc::F(void * ptr)
 {
 	free(ptr);
 }

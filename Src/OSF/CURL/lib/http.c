@@ -507,7 +507,6 @@ static CURLcode output_auth_headers(struct connectdata * conn,
 		   functions work that way */
 		authstatus->done = TRUE;
 	}
-
 	if(auth) {
 		infof(data, "%s auth using %s with user '%s'\n",
 		    proxy ? "Proxy" : "Server", auth, proxy ? (conn->http_proxy.user ? conn->http_proxy.user : "") : (conn->user ? conn->user : ""));
@@ -705,7 +704,6 @@ CURLcode Curl_http_input_auth(struct connectdata * conn, bool proxy, const char 
 				CURLcode result;
 				*availp |= CURLAUTH_DIGEST;
 				authp->avail |= CURLAUTH_DIGEST;
-
 				/* We call this function on input Digest headers even if Digest
 				 * authentication isn't activated yet, as we need to store the
 				 * incoming data from this header in case we are going to use
@@ -988,7 +986,6 @@ CURLcode Curl_add_buffer_send(Curl_send_buffer * in, struct connectdata * conn,
 	Curl_add_buffer_free(in);
 	return result;
 }
-
 /*
  * add_bufferf() add the formatted input to the buffer.
  */
@@ -1010,7 +1007,6 @@ CURLcode Curl_add_bufferf(Curl_send_buffer * in, const char * fmt, ...)
 	SAlloc::F(in);
 	return CURLE_OUT_OF_MEMORY;
 }
-
 /*
  * add_buffer() appends a memory chunk to the existing buffer
  */
@@ -1018,7 +1014,6 @@ CURLcode Curl_add_buffer(Curl_send_buffer * in, const void * inptr, size_t size)
 {
 	char * new_rb;
 	size_t new_size;
-
 	if(~size < in->size_used) {
 		/* If resulting used size of send buffer would wrap size_t, cleanup
 		   the whole buffer and return error. Otherwise the required buffer
@@ -1063,51 +1058,41 @@ CURLcode Curl_add_buffer(Curl_send_buffer * in, const void * inptr, size_t size)
  * Returns TRUE if 'headerline' contains the 'header' with given 'content'.
  * Pass headers WITH the colon.
  */
-bool Curl_compareheader(const char * headerline, /* line to check */
-    const char * header,                /* header keyword _with_ colon */
-    const char * content)               /* content string to find */
+bool Curl_compareheader(const char * headerline/* line to check */, const char * header/* header keyword _with_ colon */, const char * content/* content string to find */)
 {
 	/* RFC2616, section 4.2 says: "Each header field consists of a name followed
 	 * by a colon (":") and the field value. Field names are case-insensitive.
 	 * The field value MAY be preceded by any amount of LWS, though a single SP
 	 * is preferred." */
-
 	size_t hlen = sstrlen(header);
 	size_t clen;
 	size_t len;
 	const char * start;
 	const char * end;
-
 	if(!strncasecompare(headerline, header, hlen))
 		return FALSE;  /* doesn't start with header */
-
 	/* pass the header */
 	start = &headerline[hlen];
-
 	/* pass all white spaces */
 	while(*start && ISSPACE(*start))
 		start++;
-
 	/* find the end of the header line */
 	end = sstrchr(start, '\r'); /* lines end with CRLF */
 	if(!end) {
 		/* in case there's a non-standard compliant line here */
 		end = sstrchr(start, '\n');
-
-		if(!end)
-			/* hm, there's no line ending here, use the zero byte! */
-			end = sstrchr(start, '\0');
+		if(!end) {
+			end = start + sstrlen(start); // @v10.7.12 
+			// @v10.7.12 end = sstrchr(start, '\0'); // hm, there's no line ending here, use the zero byte! 
+		}
 	}
-
 	len = end-start; /* length of the content part of the input line */
 	clen = sstrlen(content); /* length of the word to find */
-
 	/* find the content string in the rest of the line */
 	for(; len>=clen; len--, start++) {
 		if(strncasecompare(start, content, clen))
 			return TRUE;  /* match! */
 	}
-
 	return FALSE; /* no match */
 }
 
@@ -1235,29 +1220,23 @@ CURLcode Curl_http_done(struct connectdata * conn, CURLcode status, bool prematu
  * - if any server previously contacted to handle this request only supports
  * 1.0.
  */
-static bool use_http_1_1plus(const struct Curl_easy * data,
-    const struct connectdata * conn)
+static bool use_http_1_1plus(const struct Curl_easy * data, const struct connectdata * conn)
 {
 	if((data->state.httpversion == 10) || (conn->httpversion == 10))
 		return FALSE;
-	if((data->set.httpversion == CURL_HTTP_VERSION_1_0) &&
-	    (conn->httpversion <= 10))
+	if((data->set.httpversion == CURL_HTTP_VERSION_1_0) && (conn->httpversion <= 10))
 		return FALSE;
-	return ((data->set.httpversion == CURL_HTTP_VERSION_NONE) ||
-	    (data->set.httpversion >= CURL_HTTP_VERSION_1_1));
+	return ((data->set.httpversion == CURL_HTTP_VERSION_NONE) || (data->set.httpversion >= CURL_HTTP_VERSION_1_1));
 }
 
-static const char * get_http_string(const struct Curl_easy * data,
-    const struct connectdata * conn)
+static const char * get_http_string(const struct Curl_easy * data, const struct connectdata * conn)
 {
 #ifdef USE_NGHTTP2
 	if(conn->proto.httpc.h2)
 		return "2";
 #endif
-
 	if(use_http_1_1plus(data, conn))
 		return "1.1";
-
 	return "1.0";
 }
 
@@ -2037,7 +2016,6 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 		    result = expect100(data, conn, req_buffer);
 		    if(result)
 			    return result;
-
 		    {
 			    /* Get Content-Type: line from Curl_formpostheader.
 			     */
@@ -2137,8 +2115,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 		       here. */
 		    ptr = Curl_checkheaders(conn, "Expect:");
 		    if(ptr) {
-			    data->state.expect100header =
-			    Curl_compareheader(ptr, "Expect:", "100-continue");
+			    data->state.expect100header = Curl_compareheader(ptr, "Expect:", "100-continue");
 		    }
 		    else if(postsize > TINY_INITIAL_POST_SIZE || postsize < 0) {
 			    result = expect100(data, conn, req_buffer);

@@ -109,8 +109,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 //
 //
 //
-//static 
-const SString & FASTCALL SXml::nst(const char * pNs, const char * pT)
+/*static*/const SString & FASTCALL SXml::nst(const char * pNs, const char * pT)
 {
 	assert(/*!isempty(pNs) &&*/ !isempty(pT));
 	SString & r_buf = SLS.AcquireRvlStr();
@@ -148,8 +147,7 @@ SXml::WDoc::~WDoc()
 	}
 }
 
-//static
-SString & FASTCALL SXml::WNode::CDATA(SString & rBuf)
+/*static*/SString & FASTCALL SXml::WNode::CDATA(SString & rBuf)
 {
 	SString temp_buf;
 	temp_buf.Cat("<![CDATA[").Cat(rBuf).Cat("]]>");
@@ -257,15 +255,12 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 	return ok;
 }
 
-//static
-int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
+/*static*/int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
 	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->name), pName)); }
-//static
-int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
+/*static*/int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
 	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->content), pText)); }
 
-//static
-int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
+/*static*/int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
 {
 	int    ok = 0;
 	rResult.Z();
@@ -285,8 +280,7 @@ int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
 	return ok;
 }
 
-//static
-int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult)
+/*static*/int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult)
 {
 	int    ok = 0;
 	if(IsName(pNode, pName)) {
@@ -296,8 +290,7 @@ int SLAPI SXml::GetContentByName(const xmlNode * pNode, const char * pName, SStr
 	return ok;
 }
 
-//static
-int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
+/*static*/int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
 {
 	int    ok = 0;
 	rResult.Z();
@@ -327,8 +320,7 @@ SLAPI SXmlWriter::~SXmlWriter()
 	xmlBufferFree(P_XmlBuf);
 }
 
-//static
-void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const char * pMsg, ...)
+/*static*/void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const char * pMsg, ...)
 {
 	SXmlValidationMessageList * p_this = static_cast<SXmlValidationMessageList *>(pCtx);
 	if(p_this) {
@@ -340,8 +332,7 @@ void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const c
 	}
 }
 
-//static
-void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const char * pMsg, ...)
+/*static*/void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const char * pMsg, ...)
 {
 	SXmlValidationMessageList * p_this = static_cast<SXmlValidationMessageList *>(pCtx);
 	if(p_this) {
@@ -388,8 +379,7 @@ int SLAPI SXmlValidationMessageList::GetMessageByIdx(uint idx, int * pType, SStr
 	return ok;
 }
 
-//static
-int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList)
+/*static*/int SLAPI SXml::Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList)
 {
 	int    ok = 1;
 	xmlDoc * doc = 0;

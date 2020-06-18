@@ -172,13 +172,16 @@ static inline uint32_t operator / (uint32_t x, div_u32 const & D);
 
 class div_i32 {                                                // Signed 32 bit integer division
 public:
-    div_i32() {                                                // Default constructor
+    div_i32() // Default constructor
+	{
         buffer[0] = buffer[1] = 0;
     }
-    div_i32(int d) {                                           // Constructor with divisor
+    div_i32(int d) // Constructor with divisor
+	{                                           
         setdivisor(d);
     }
-    void setdivisor(int d) {                                   // Set divisor
+    void setdivisor(int d) // Set divisor
+	{                                   
         setdivisori32(buffer, d);
     }
 protected:
@@ -186,13 +189,8 @@ protected:
     friend int32_t operator / (int32_t x, div_i32 const & D);
 };
 
-static inline int32_t operator / (int32_t x, div_i32 const &D){// Overloaded operator '/'
-    return dividefixedi32(D.buffer, x);
-}
-
-static inline int32_t operator /= (int32_t &x, div_i32 const &D){// Overloaded operator '/='
-    return x = x / D;
-}
+static inline int32_t operator / (int32_t x, div_i32 const &D) { return dividefixedi32(D.buffer, x); } // Overloaded operator '/'
+static inline int32_t operator /= (int32_t &x, div_i32 const &D) { return x = x / D; } // Overloaded operator '/='
 
 class div_u32 {                                                // Unsigned 32 bit integer division
 public:

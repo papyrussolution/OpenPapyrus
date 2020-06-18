@@ -1,5 +1,5 @@
 // BHISTCOR.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2020
 // @codepage windows-1251
 // @Kernel
 //
@@ -38,8 +38,7 @@ int SLAPI HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
 	return ok;
 }
 
-//static
-int SLAPI HistBillCore::HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec)
+/*static*/int SLAPI HistBillCore::HBRecToBRec(const HistBillTbl::Rec * pHBRec, BillTbl::Rec * pBRec)
 {
 	if(pHBRec && pBRec) {
 		pBRec->ID   = pHBRec->BillID;

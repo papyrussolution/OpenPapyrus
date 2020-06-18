@@ -1,5 +1,5 @@
 // BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // @Kernel
 //
@@ -11,8 +11,7 @@
 #define WHITE_LABEL_SIGN '!'
 #define BILLCODE_SIZ     sizeof(((BillTbl::Rec*)0)->Code)
 
-// static
-char * FASTCALL BillCore::SetCode(char * code, long f)
+/*static*/char * FASTCALL BillCore::SetCode(char * code, long f)
 {
 	char   temp[BILLCODE_SIZ];
 	strip(code);
@@ -28,15 +27,13 @@ char * FASTCALL BillCore::SetCode(char * code, long f)
 	return code;
 }
 
-//static
-double SLAPI BillCore::GetQttyEpsilon()
+/*static*/double SLAPI BillCore::GetQttyEpsilon()
 {
 	int    eps = CConfig.IltiCvtQttyEpsilon;
 	return (eps > 0 && eps <= 10000) ? (1.0E-7 * (double)eps) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
 }
 
-//static
-int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
+/*static*/int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
 {
 	int   recadv_status = PPEDI_RECADV_STATUS_UNDEF;
 	if(rRec.Flags2 & BILLF2_RECADV_ACCP)
@@ -46,8 +43,7 @@ int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
 	return recadv_status;
 }
 
-//static
-int FASTCALL BillCore::SetRecadvStatus(int recadvStatus, BillTbl::Rec & rRec)
+/*static*/int FASTCALL BillCore::SetRecadvStatus(int recadvStatus, BillTbl::Rec & rRec)
 {
 	int    ok = -1;
 	const  long preserve_flags2 = rRec.Flags2;
@@ -77,8 +73,7 @@ int FASTCALL BillCore::SetRecadvStatus(int recadvStatus, BillTbl::Rec & rRec)
 	return ok;
 }
 
-//static
-int FASTCALL BillCore::GetRecadvConfStatus(const BillTbl::Rec & rRec)
+/*static*/int FASTCALL BillCore::GetRecadvConfStatus(const BillTbl::Rec & rRec)
 {
 	int    recadv_conf_status = PPEDI_RECADVCONF_STATUS_UNDEF;
 	const  long _f = CHKXORFLAGS(rRec.Flags2, BILLF2_EDIAR_AGR, BILLF2_EDIAR_DISAGR);
@@ -89,8 +84,7 @@ int FASTCALL BillCore::GetRecadvConfStatus(const BillTbl::Rec & rRec)
 	return recadv_conf_status;
 }
 
-//static
-int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRec)
+/*static*/int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRec)
 {
 	int    ok = -1;
 	const  long preserve_flags2 = rRec.Flags2;
@@ -114,11 +108,9 @@ int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRe
 	return ok;
 }
 
-// static
-char * FASTCALL BillCore::GetCode(char * code)
+/*static*/char * FASTCALL BillCore::GetCode(char * code)
 	{ return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code; }
-//static
-SString & FASTCALL BillCore::GetCode(SString & rCode)
+/*static*/SString & FASTCALL BillCore::GetCode(SString & rCode)
 	{ return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN); }
 
 SLAPI BillCore::BillCore() : BillTbl()

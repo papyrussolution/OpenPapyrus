@@ -1442,7 +1442,7 @@ browser TRANSPORT north(100), 3, 0, "@{view_transport}", OWNER|GRID, 0
 	"@type",            2, notype, 0, 8
 	"Модель",           3, notype, 0, 10
 	"@owner",           4, notype, 0, 20
-	"Водитель/Капитан", 5, notype, 0, 20
+	"@{chauffeur}/@{captain}", 5, notype, 0, 20
 	"@country",         6, notype, 0, 15
 	"@number",          7, notype, 0, 15
 	"@transport_trailercode", 8, notype, 0, 15

@@ -2313,21 +2313,11 @@ UNLOCK:
  * See commits 5a9642c5746fd677aed35ce620ce90b1029b1a0c and
  * 1781e6018c17909311295a9cc74b70500c6b4d0a for the rationale.
  */
-cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    const char * utf8,
-    int utf8_len,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_text_cluster_t * clusters,
-    int num_clusters,
-    cairo_text_cluster_flags_t cluster_flags,
-    cairo_scaled_font_t * scaled_font,
-    const cairo_clip_t * clip)
+cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source,
+    const char * utf8, int utf8_len, cairo_glyph_t * glyphs, int num_glyphs, const cairo_text_cluster_t * clusters, int num_clusters,
+    cairo_text_cluster_flags_t cluster_flags, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
 	if(unlikely(surface->status))
 		return surface->status;
@@ -2339,29 +2329,18 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface,
 
 	if(_cairo_clip_is_all_clipped(clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	status = _pattern_has_error(source);
 	if(unlikely(status))
 		return status;
-
 	if(nothing_to_do(surface, op, source))
 		return CAIRO_STATUS_SUCCESS;
-
 	status = _cairo_surface_begin_modification(surface);
 	if(unlikely(status))
 		return status;
-
 	status = CAIRO_INT_STATUS_UNSUPPORTED;
-
 	if(_cairo_scaled_font_has_color_glyphs(scaled_font)) {
-		status = composite_color_glyphs(surface, op,
-			source,
-			(char *)utf8, &utf8_len,
-			glyphs, &num_glyphs,
-			(cairo_text_cluster_t*)clusters, &num_clusters, cluster_flags,
-			scaled_font,
-			clip);
-
+		status = composite_color_glyphs(surface, op, source, (char *)utf8, &utf8_len,
+			glyphs, &num_glyphs, (cairo_text_cluster_t*)clusters, &num_clusters, cluster_flags, scaled_font, clip);
 		if(unlikely(status && status != CAIRO_INT_STATUS_NOTHING_TO_DO))
 			goto DONE;
 

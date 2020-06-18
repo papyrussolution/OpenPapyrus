@@ -4866,34 +4866,152 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 	return ok;
 }
 
-int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs)
+static int GetInetAccByPosNodeID(PPID cnID, PPInternetAccount * pInaRec)
 {
 	int    ok = -1;
-	SString src_buf = pSrc;
-	InetUrl _url(src_buf.Strip());
-	const int _url_prot = _url.GetProtocol();
-	if(_url_prot == InetUrl::protFile) {
-		if(IsDirectory(src_buf.RmvLastSlash())) {
-			rSs.add(src_buf);
+	if(cnID) {
+		PPObjInternetAccount ina_obj;
+		ObjTagList tag_list;
+		PPRef->Ot.GetList(PPOBJ_CASHNODE, cnID, &tag_list);
+		for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
+			const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
+			if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_INTERNETACCOUNT) {
+				PPID   temp_id = 0;
+				if(p_tag_item->GetInt(&temp_id) && temp_id) {
+					PPInternetAccount ina_rec;
+					if(ina_obj.Get(temp_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
+						ASSIGN_PTR(pInaRec, ina_rec);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+static int GetInetAccBySymb(const char * pSymb, PPInternetAccount * pInaRec)
+{
+	int    ok = -1;
+	PPObjInternetAccount ina_obj;
+	PPInternetAccount ina_rec;
+	PPID   ina_id = 0;
+	if(ina_obj.SearchBySymb(pSymb, &ina_id, 0) > 0) {
+		if(ina_obj.Get(ina_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
+			ASSIGN_PTR(pInaRec, ina_rec);
 			ok = 1;
 		}
 	}
-	else if(_url_prot == InetUrl::protFtp) {
-		if(cnID) {
-			PPObjInternetAccount ina_obj;
-			ObjTagList tag_list;
-			PPRef->Ot.GetList(PPOBJ_CASHNODE, cnID, &tag_list);
-			for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
-				const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
-				if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_INTERNETACCOUNT) {
-					PPID   temp_id = 0;
-					if(p_tag_item->GetInt(&temp_id) && temp_id) {
-						PPInternetAccount2 ina_rec;
-						if(ina_obj.Get(temp_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
-							ScURL c;
-							//_url.SetComponent(InetUrl::cUserName, temp_buf);
-							//_url.SetComponent(InetUrl::cPassword, temp_buf);
-						}
+	return ok;
+}
+
+int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs)
+{
+	// #ftp[:inetaccsymb][/path]
+	// ftp://domain.zzz
+	// #mqb[:domain]
+	enum {
+		srctypeUnkn = 0,
+		srctypeFile,
+		srctypeFtp,
+		srctypeMqb
+	};
+	int    srctype = srctypeUnkn;
+	const char * p_ftp_prefix = "#ftp";
+	const char * p_mqb_prefix = "#mqb";
+	int    ok = -1;
+	PPInternetAccount ina_rec;
+	SString src_buf = pSrc;
+	SString ftp_ext_path;
+	SString url_buf;
+	SString temp_buf;
+	src_buf.Strip();
+	if(src_buf.HasPrefixIAscii(p_ftp_prefix)) {
+		SString inet_acc_symb;
+		PPID  inet_acc_id = 0;
+		size_t prefix_len = sstrlen(p_ftp_prefix);
+		if(src_buf.C(prefix_len) == ':') {
+			prefix_len++;
+			while(src_buf.C(prefix_len) != 0 && src_buf.C(prefix_len) != '/') {
+				inet_acc_symb.CatChar(src_buf.C(prefix_len));
+				prefix_len++;
+			}
+			if(src_buf.C(prefix_len) == '/') {
+				prefix_len++;
+				while(src_buf.C(prefix_len)) {
+					ftp_ext_path.CatChar(src_buf.C(prefix_len));
+					prefix_len++;
+				} 
+			}
+			if(GetInetAccBySymb(inet_acc_symb, &ina_rec) > 0) {
+				srctype = srctypeFtp;
+			}
+			else {
+				; // @error
+			}
+		}
+		else {
+			if(GetInetAccByPosNodeID(cnID, &ina_rec) > 0) {
+				srctype = srctypeFtp;
+			}
+			else {
+				; // @error
+			}
+		}
+	}
+	else if(src_buf.HasPrefixIAscii("#mqb")) {
+		srctype = srctypeMqb;
+	}
+	else {
+		InetUrl _url(src_buf.Strip());
+		const int _url_prot = _url.GetProtocol();
+		if(_url_prot == InetUrl::protFile) {
+			if(IsDirectory(src_buf.RmvLastSlash())) {
+				rSs.add(src_buf);
+				srctype = srctypeFile;
+				ok = 1;
+			}
+		}
+		else if(_url_prot == InetUrl::protFtp) {
+			if(GetInetAccByPosNodeID(cnID, &ina_rec) > 0)
+				srctype = srctypeFtp;
+			else {
+				; // @error
+			}
+		}
+	}
+	if(srctype == srctypeFtp) {
+		ScURL c;
+		SFileEntryPool ftp_file_list;
+		//_url.SetComponent(InetUrl::cUserName, temp_buf);
+		//_url.SetComponent(InetUrl::cPassword, temp_buf);
+		url_buf.Z();
+		ina_rec.GetExtField(FTPAEXSTR_HOST, temp_buf);
+		url_buf.Cat(temp_buf);
+		if(ftp_ext_path.NotEmpty()) {
+			url_buf.SetLastDSlash().Cat(ftp_ext_path);
+		}
+		InetUrl url(url_buf);
+		url.SetProtocol(InetUrl::protFtp);
+		if(ina_rec.GetExtField(FTPAEXSTR_PORT, temp_buf) && temp_buf.ToLong())
+			url.SetPort_(temp_buf.ToLong());
+		if(ina_rec.GetExtField(FTPAEXSTR_USER, temp_buf))
+			url.SetComponent(InetUrl::cUserName, temp_buf);
+		{
+			char    pw[128];
+			if(ina_rec.GetPassword(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
+				url.SetComponent(InetUrl::cPassword, pw);
+		}
+		url.Composite(InetUrl::stAll, url_buf);
+		if(c.FtpList(url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose, ftp_file_list)) {
+			SPathStruc ps;
+			SString filt_filename;
+			(filt_filename = "%").Dot().Cat("ppyp");
+			for(uint ffidx = 0; ffidx < ftp_file_list.GetCount(); ffidx++) {
+				SFileEntryPool::Entry fe;
+				if(ftp_file_list.Get(ffidx, &fe, 0)) {
+					if(fe.Size > 0 && SFile::WildcardMatch(filt_filename, fe.Name)) {
+						//c.FtpGet()
 					}
 				}
 			}

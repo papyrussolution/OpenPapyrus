@@ -669,7 +669,7 @@
 
 int Curl_strcasecompare(const char *first, const char *second);
 int Curl_safe_strcasecompare(const char *first, const char *second);
-int Curl_strncasecompare(const char *first, const char *second, size_t max);
+int FASTCALL Curl_strncasecompare(const char *first, const char *second, size_t max);
 
 char Curl_raw_toupper(char in);
 //

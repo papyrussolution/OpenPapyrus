@@ -1,5 +1,5 @@
 // EXECVDOS.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2020
 //
 #include <slib.h>
 
@@ -40,15 +40,15 @@ int main(int argc, char ** argv)
 		printf(temp_buf);
 		(temp_buf = "Copyright (c) A.Sobolev 2016").CR();
 		printf(temp_buf);
-		(temp_buf = 0).Tab().Cat("Usage").CatChar(':').CR();
+		temp_buf.Z().Tab().Cat("Usage").CatChar(':').CR();
 		printf(temp_buf);
-		(temp_buf = 0).Tab().Cat("-exe path").CatDiv(':', 2).Cat("path where vdos.exe").CR();
+		temp_buf.Z().Tab().Cat("-exe path").CatDiv(':', 2).Cat("path where vdos.exe").CR();
 		printf(temp_buf);
-		(temp_buf = 0).Tab().Cat("-start path").CatDiv(':', 2).Cat("path to root C:").CR();
+		temp_buf.Z().Tab().Cat("-start path").CatDiv(':', 2).Cat("path to root C:").CR();
 		printf(temp_buf);
-		(temp_buf = 0).Tab().Cat("-cmd \"cmdline\"").CatDiv(':', 2).Cat("optional command line").CR();
+		temp_buf.Z().Tab().Cat("-cmd \"cmdline\"").CatDiv(':', 2).Cat("optional command line").CR();
 		printf(temp_buf);
-		(temp_buf = 0).Tab().Cat("-exit").CatDiv(':', 2).Cat("close vdos after execution command line").CR();
+		temp_buf.Z().Tab().Cat("-exit").CatDiv(':', 2).Cat("close vdos after execution command line").CR();
 	}
 	//param.ExePath = "\\papyrus\\tools\\vdos";
 	//param.StartUpPath = "d:\\papyrus\\";

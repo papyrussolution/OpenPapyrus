@@ -1,5 +1,5 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -94,9 +94,7 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	{{512, 8}, {1024, 24}, {1536, 24}, {2048, 24}, {2560, 24}, {3072, 24}, {3584, 24}, {4096, 24}};
 #endif
 
-
-//static
-int FASTCALL Btrieve::StartTransaction(int concurrent, int lock)
+/*static*/int FASTCALL Btrieve::StartTransaction(int concurrent, int lock)
 {
 	int    op = B_BEGTRANSACTION + lock;
 	if(concurrent)
@@ -104,20 +102,17 @@ int FASTCALL Btrieve::StartTransaction(int concurrent, int lock)
 	return BRet(BTRV(op, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-//static
-int SLAPI Btrieve::RollbackWork()
+/*static*/int SLAPI Btrieve::RollbackWork()
 {
 	return BRet(BTRV(B_ABORTTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-//static
-int SLAPI Btrieve::CommitWork()
+/*static*/int SLAPI Btrieve::CommitWork()
 {
 	return BRet(BTRV(B_ENDTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-//static
-int SLAPI Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume:\path]*" */)
+/*static*/int SLAPI Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume:\path]*" */)
 {
 	int    index = 0;
 	const  size_t fnlen = sstrlen(pFileName);
@@ -128,8 +123,7 @@ int SLAPI Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume
 	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
 }
 
-//static
-int SLAPI Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then remove all files */)
+/*static*/int SLAPI Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then remove all files */)
 {
 	int    index;
 	uint16 bl;
@@ -147,8 +141,7 @@ int SLAPI Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then
 	return BRet(BTRV(B_CONTINUOUSOPR, 0, temp_buf, &bl, 0, WBTRVTAIL_Z));
 }
 
-//static
-int SLAPI Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)
+/*static*/int SLAPI Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)
 {
 	struct {
 		int16 major, minor;
@@ -167,8 +160,7 @@ int SLAPI Btrieve::GetVersion(int * pMajor, int * pMinor, int * pIsNet)
 	return ok;
 }
 
-//static
-int SLAPI Btrieve::Reset(int station)
+/*static*/int SLAPI Btrieve::Reset(int station)
 {
 	char   buf[256];
 	int    index;
@@ -181,8 +173,7 @@ int SLAPI Btrieve::Reset(int station)
 	return BRet(BTRV(B_RESET, buf, buf, reinterpret_cast<uint16 *>(buf), buf, WBTRVTAIL_Z));
 }
 
-//static
-int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, int createMode, const char * pAltCode)
+/*static*/int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, int createMode, const char * pAltCode)
 {
 	int    ok = 0;
 	char   fpb[256];

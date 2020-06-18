@@ -19035,7 +19035,7 @@ public:
 		fldControlRuTobacco       // Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
 	};
 	SLAPI  GtinStruc();
-	int    SLAPI AddSpecialFixedToken(int token, int fixedLen);
+	int    SLAPI SetSpecialFixedToken(int token, int fixedLen);
 	int    SLAPI AddOnlyToken(int token);
 	GtinStruc & SLAPI Z();
 	int    SLAPI Parse(const char * pCode);
@@ -19044,6 +19044,7 @@ public:
 	int    SLAPI Debug_Output(SString & rBuf) const;
 private:
 	uint   SLAPI SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId);
+	uint   SLAPI RecognizeFieldLen(const char * pSrc, int currentPrefixID) const;
 	//
 	// Descr: Флаги функции DetectPrefix
 	//
@@ -46856,7 +46857,6 @@ public:
 	int    SLAPI Run(const Param & rP);
 	static int SLAPI Test();
 private:
-	static int SLAPI Helper_ParseChZnCode(const char * pCode, GtinStruc & rS, int pass);
 	void * P_Ib; // Блок инициализации
 };
 //

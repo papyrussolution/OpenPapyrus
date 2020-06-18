@@ -1,5 +1,5 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020
 //
 #include <slib.h>
 
@@ -707,7 +707,7 @@ static int ProcessFileName(SString & rFileName, const SString & rInPath, const S
 		if(org_ext == "dlg") {
 			if(rDlgDsnExec.NotEmpty()) {
 				//..\..\tools\dlgdsn $(InputPath) /S$(OutDir)\$(InputName).scp
-				(temp_buf = 0).CatQStr(rDlgDsnExec).Space().Cat(file_name).Space().Cat("/S").Cat(temp_file_name);
+				temp_buf.Z().CatQStr(rDlgDsnExec).Space().Cat(file_name).Space().Cat("/S").Cat(temp_file_name);
 				uint   exit_code;
 				if(!__Execute(temp_buf, 0, 0, &exit_code)) {
 					error((msg_buf = "Fault execute command").Space().Cat(temp_buf));

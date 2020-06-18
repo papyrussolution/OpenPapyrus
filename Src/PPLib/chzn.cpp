@@ -122,58 +122,62 @@ int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const ch
 }
 
 //static 
-int SLAPI PPChZnPrcssr::Helper_ParseChZnCode(const char * pCode, GtinStruc & rS, int pass)
+int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 {
 	int    ok = 0;
-	SString raw_buf;
-	SString temp_buf;
 	rS.Z();
-	rS.AddOnlyToken(GtinStruc::fldSerial);
-	rS.AddOnlyToken(GtinStruc::fldPart);
-	rS.AddOnlyToken(GtinStruc::fldSscc18);
 	rS.AddOnlyToken(GtinStruc::fldGTIN14);
+	rS.AddOnlyToken(GtinStruc::fldSerial);
+	rS.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
+	rS.AddOnlyToken(GtinStruc::fldPart);
+	rS.AddOnlyToken(GtinStruc::fldAddendumId);
+	rS.AddOnlyToken(GtinStruc::fldUSPS);
+	rS.AddOnlyToken(GtinStruc::fldInner1);
+	rS.AddOnlyToken(GtinStruc::fldInner2);
+	rS.AddOnlyToken(GtinStruc::fldSscc18);
 	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-	if(pass == 2) { // @v10.7.5
-		rS.AddOnlyToken(GtinStruc::fldUSPS); // @v10.7.2
-		rS.AddOnlyToken(GtinStruc::fldInner1); // @v10.7.2
-	}
+	rS.AddOnlyToken(GtinStruc::fldVariant);
+	int   pr = 0;
 	{
-		temp_buf = pCode;
-		if(!temp_buf.IsAscii()) {
-			// Попытка транслировать латинский символ из локальной раскладки клавиатуры
-			SStringU temp_buf_u;
-			//temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-			temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
-			for(size_t i = 0; i < temp_buf_u.Len(); i++) {
-				const wchar_t c = temp_buf_u.C(i);
-				KeyDownCommand kd;
-				uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
-				raw_buf.CatChar(static_cast<char>(tc));
+		SString raw_buf;
+		SString temp_buf;
+		{
+			temp_buf = pCode;
+			if(!temp_buf.IsAscii()) {
+				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
+				SStringU temp_buf_u;
+				//temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
+				for(size_t i = 0; i < temp_buf_u.Len(); i++) {
+					const wchar_t c = temp_buf_u.C(i);
+					KeyDownCommand kd;
+					uint   tc = kd.SetCharU(c) ? kd.GetChar() : 0; 
+					raw_buf.CatChar(static_cast<char>(tc));
+				}
+				pCode = raw_buf.cptr();
 			}
-			pCode = raw_buf.cptr();
 		}
-	}
-	int pr = rS.Parse(pCode);
-	if(pr == 1) {
-		if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-			if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
-				ok = SNTOK_CHZN_CIGITEM;
-			else if(temp_buf.Len() == 13)
-				ok = SNTOK_CHZN_SIGN_SGTIN;
-			else
-				ok = SNTOK_CHZN_GS1_GTIN;
+		pr = rS.Parse(pCode);
+		if(pr == 0 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+			rS.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
+			pr = rS.Parse(pCode);
+			if(pr == 0 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+				rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
+				pr = rS.Parse(pCode);
+			}
+		}
+		if(pr == 1) {
+			if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+				if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
+					ok = SNTOK_CHZN_CIGITEM;
+				else if(temp_buf.Len() == 13)
+					ok = SNTOK_CHZN_SIGN_SGTIN;
+				else
+					ok = SNTOK_CHZN_GS1_GTIN;
+			}
 		}
 	}
 	return ok;
-}
-
-//static 
-int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
-{
-	int r = Helper_ParseChZnCode(pCode, rS, 1);
-	if(!r)
-		r = Helper_ParseChZnCode(pCode, rS, 2);
-	return r;
 }
 
 //static 
@@ -249,7 +253,7 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 					if(p_il) {
 						TInputLine::Statistics stat;
 						p_il->GetStatistics(&stat);
-						if(stat.Flags & stat.fSerialized && !(stat.Flags & stat.fPaste) && stat.SymbCount && stat.IntervalMean <= 50.0) // @v10.7.2 (<=5.0)-->(<=50.0)
+						if(stat.Flags & stat.fSerialized && !(stat.Flags & stat.fPaste) && stat.SymbCount && stat.IntervalMean <= 100.0) // @v10.7.2 (<=5.0)-->(<=50.0) // @v10.7.12 (<=50.0)-->(<=100.0)
 							is_auto_input = 1;
 					}
 					if(!is_auto_input) {
@@ -310,10 +314,8 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 		dlg->getCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
 		GtinStruc gts;
 		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
-		//if(PPChZnPrcssr::IsChZnCode(temp_buf) > 0) {
 		if(pczcr) {
-			gts.GetToken(GtinStruc::fldOriginalText, &rMark); // @v10.7.2 
-			// @v10.7.2 rMark = temp_buf;
+			gts.GetToken(GtinStruc::fldOriginalText, &rMark);
 			ok = 1;
 		}
 		else {
@@ -593,7 +595,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 								vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 							}
 							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-
+#if 0 // @v10.7.12 {
 							for(uint boxidx = 0; boxidx < lotxcode_set.GetCount(); boxidx++) {
 								if(lotxcode_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
 									//SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
@@ -619,18 +621,30 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 									un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
 								}
 							}
+#endif // } @v10.7.12
 							{
 								//
 								// В конце вставляем марки, не привязанные к боксам
 								//
 								lotxcode_set.GetByBoxID(0, ss);
 								if(ss.getCount()) {
+									SString mark_buf;
 									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::IsChZnCode(temp_buf) == SNTOK_CHZN_SIGN_SGTIN) {
-											SXml::WNode un(rX, "union");
-											un.PutInner("sgtin", temp_buf);
-											un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
-											un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+										GtinStruc gts;
+										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+										if(pczcr > 0) {
+										//if(PPChZnPrcssr::IsChZnCode(temp_buf) == SNTOK_CHZN_SIGN_SGTIN) {
+											mark_buf.Z();
+											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+												mark_buf.Cat(temp_buf);
+												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+													mark_buf.Cat(temp_buf);
+													SXml::WNode un(rX, "union");
+													un.PutInner("sgtin", mark_buf);
+													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
+													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+												}
+											}
 										}
 									}
 								}
@@ -650,9 +664,14 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 						GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
 					}
 					wd.PutInnerSkipEmpty("subject_id", subj_ident);
-					int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
-					SETIFZ(codetype, p_bp->CodeType);
-					if(codetype == SNTOK_CHZN_GS1_GTIN) {
+					//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
+					GtinStruc gts;
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts);
+					if(pczcr > 0) {
+						wd.PutInner("sgtin", p_bp->Code);
+					}
+					//SETIFZ(codetype, p_bp->CodeType);
+					/*if(codetype == SNTOK_CHZN_GS1_GTIN) {
 						wd.PutInner("sgtin", p_bp->Code);
 					}
 					else if(codetype == SNTOK_CHZN_SIGN_SGTIN) {
@@ -665,7 +684,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 							wd.PutInner("sscc_up", p_bp->Code);
 						else // default - down
 							wd.PutInner("sscc_down", p_bp->Code);
-					}
+					}*/
 				}
 			}
 		}
@@ -734,8 +753,10 @@ int SLAPI ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size
 					cn.Strip();
 				}
 				temp_buf.Space().Cat("-sfsign").Space().Cat("-sign").Space().Cat("-in").Space().Cat(in_file_name).Space().
-					Cat("-out").Space().Cat(out_file_name).Space().Cat("-my").Space().CatQStr(cn).Space().Cat("-detached").Space().
-					Cat("-base64").Space().Cat("-add");
+					Cat("-out").Space().Cat(out_file_name).Space().Cat("-my").Space().CatQStr(cn);
+				//temp_buf.Space().Cat("-detached");
+				temp_buf.Space();
+				temp_buf.Cat("-base64").Space().Cat("-add");
 				STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
 				STARTUPINFO si;
 				DWORD exit_code = 0;
@@ -775,12 +796,6 @@ SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum,
 		rResult = rIb.EndPoint;
 	else {
 		switch(rIb.ProtocolId) {
-			case InitBlock::protidMdlp:
-				(rResult = "http").Cat("://").Cat("api").Dot();
-				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
-					rResult.Cat("sb").Dot();
-				rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1");
-				break;
 			case InitBlock::protidEdoLtMdlp:
 				(rResult = "https").Cat("://").Cat("mdlp").Dot().Cat("edo").Dot().Cat("crpt").Dot().Cat("tech");
 				break;
@@ -795,6 +810,15 @@ SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum,
 					(rResult = "https").Cat("://").Cat("demo").Dot().Cat("lp").Dot().Cat("crpt").Dot().Cat("tech");
 				else 
 					(rResult = "https").Cat("://").Cat("ismp").Dot().Cat("crpt").Dot().Cat("ru");
+				break;
+			case InitBlock::protidMdlp:
+			default:
+				//rResult = (query == qDocumentSend) ? "https" : "http"; // @test
+				rResult = "http";
+				rResult.Cat("://").Cat("api").Dot();
+				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
+					rResult.Cat("sb").Dot();
+				rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1");
 				break;
 		}
 	}
@@ -1339,11 +1363,12 @@ int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInte
 						ScURL c;
 						StrStrAssocArray hdr_flds;
 						MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
+						SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrExpect, ""); // @v10.7.12
 						{
 							SBuffer ack_buf;
 							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 							LogTalking("req", req_buf);
-							THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
 							{
 								SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 								if(p_ack_buf) {
@@ -1957,6 +1982,7 @@ int SLAPI PPChZnPrcssr::InteractiveQuery()
 		if(oneof2(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo)) {
 			ChZnInterface ifc;
 			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
+			p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
 			THROW(ifc.SetupInitBlock(_param.GuaID, 0, *p_ib));
 			if(ifc.Connect(*p_ib) > 0) {
 				//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
@@ -1999,6 +2025,7 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 	TSCollection <ChZnInterface::Packet> pack_list;
 	ChZnInterface ifc;
 	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
+	p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
 	THROW(ifc.SetupInitBlock(rP.GuaID, 0, *p_ib));
 	THROW(ifc.GetPendingIdentList(*p_ib, pending_list));
 	if(PPObjOprKind::ExpandOpList(base_op_list, op_list) > 0) {
@@ -2027,7 +2054,10 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 									static_cast<PPBillPacket *>(p_pack->P_Data)->XcL.Get(tidx+1, 0, lotxcode_set);
 									for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
 										if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
-											if(PPChZnPrcssr::IsChZnCode(msentry.Num))
+											GtinStruc gts;
+											const int pczcr = PPChZnPrcssr::ParseChZnCode(msentry.Num, gts);
+											//if(PPChZnPrcssr::IsChZnCode(msentry.Num))
+											if(pczcr > 0)
 												suited = 1;
 										}
 									}

@@ -331,6 +331,7 @@
     <ClCompile Include="..\PPLib\v_qreq.cpp" />
     <ClCompile Include="..\PPLib\chzn.cpp" />
     <ClCompile Include="..\PPLib\Glblsrvs.cpp" />
+    <ClCompile Include="..\PPLib\ppgravity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

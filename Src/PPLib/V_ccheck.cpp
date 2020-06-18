@@ -2957,7 +2957,7 @@ int SLAPI PPViewCCheck::ToggleDlvrTag(PPID checkID)
 			SetupTimePicker(dlg, CTL_TOGGLECCDLVR_TM, CTLTM_TOGGLECCDLVR_TM);
 			CCheckCore::MakeCodeString(&cc_pack.Rec, temp_buf);
 			dlg->setStaticText(CTL_TOGGLECCDLVR_INFO, temp_buf);
-			dlg->setCtrlUInt16(CTL_TOGGLECCDLVR_FLAG, (cc_pack.Rec.Flags & CCHKF_CLOSEDORDER) ? 1 : 0);
+			dlg->setCtrlUInt16(CTL_TOGGLECCDLVR_FLAG, BIN(cc_pack.Rec.Flags & CCHKF_CLOSEDORDER));
 			dlg->setCtrlDatetime(CTL_TOGGLECCDLVR_DT, CTL_TOGGLECCDLVR_TM, cc_pack.Ext.EndOrdDtm);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				LDATETIME dtm;

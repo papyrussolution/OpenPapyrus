@@ -40,7 +40,7 @@ struct PrnLineStruc {
 	SlipLineParam Param;
 };
 
-typedef TSCollection<PrnLineStruc> PrnLinesArray;
+typedef TSCollection <PrnLineStruc> PrnLinesArray;
 
 static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
 {
@@ -200,7 +200,7 @@ private:
 			QueryDataProc(0), GetParamIntProc(0), GetParamDoubleProc(0), GetParamBoolProc(0), GetParamStrProc(0), GetParamDateTimeProc(0),
 			GetParamByteArrayProc(0), GetSingleSettingProc(0), SetSingleSettingProc(0), ApplySingleSettingsProc(0), OpenDrawerProc(0),
 			OperatorLoginProc(0), OpenReceiptProc(0), CancelReceiptProc(0), RegistrationProc(0), CloseReceiptProc(0), PrintBarcodeProc(0),
-			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0)
+			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0), UtilFormNomenclature(0)
 		{
 			SString dll_path;
 			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
@@ -246,6 +246,7 @@ private:
 			THROW_SL(GetParamStrProc       = reinterpret_cast<int (* cdecl)(void *, int, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_param_str")));
 			THROW_SL(GetParamDateTimeProc  = reinterpret_cast<void (* cdecl)(void *, int, int*, int*, int*, int*, int*, int*)>(Lib.GetProcAddr("libfptr_get_param_datetime")));
 			THROW_SL(GetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, uchar *, int)>(Lib.GetProcAddr("libfptr_get_param_bytearray")));
+			UtilFormNomenclature  = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature")); // @v10.7.12
 			THROW(CreateHandleProc(&Handler) == 0 && Handler);
 			{
 				SString work_path;
@@ -300,6 +301,8 @@ private:
 		double (* cdecl GetParamDoubleProc)(void *, int);
 		void   (* cdecl GetParamDateTimeProc)(void *, int, int * pYr, int * pMon, int * pDay, int * pHr, int * pMn, int * pSc);
 		int    (* cdecl GetParamByteArrayProc)(void *, int, uchar * pValue, int size);
+		//DTOX_SHARED_EXPORT int DTOX_SHARED_CCA libfptr_util_form_nomenclature(libfptr_handle handle);
+		int    (* cdecl UtilFormNomenclature)(void *);
 		int    (* cdecl OperatorLoginProc)(void *);
 		int    (* cdecl OpenReceiptProc)(void *);
 		int    (* cdecl CancelReceiptProc)(void *);
@@ -1274,6 +1277,51 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						const double pp = R2(_p);
 						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 						if(P_Fptr10) {
+							// @v10.7.12 {
+							uint8 fptr10_mark_buf[512];
+							int mark_buf_data_len = 0;
+							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
+								if(P_Fptr10->UtilFormNomenclature) {
+									int marking_type = -1;
+									if(sl_param.ChZnProductType == GTCHZNPT_FUR) {
+										marking_type = LIBFPTR_NT_FURS;
+									}
+									else if(sl_param.ChZnProductType == GTCHZNPT_TOBACCO) {
+										marking_type = LIBFPTR_NT_TOBACCO;
+									}
+									else if(sl_param.ChZnProductType == GTCHZNPT_SHOE) {
+										marking_type = LIBFPTR_NT_SHOES;
+									}
+									else if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+										marking_type = LIBFPTR_NT_MEDICINES;
+									}
+									if(marking_type >= 0) {
+										P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);
+										temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnGTIN, sl_param.ChZnGTIN.Len());
+										P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_GTIN, temp_buf_u);
+										temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnSerial, sl_param.ChZnSerial.Len());
+										P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_SERIAL_NUMBER, temp_buf_u);
+										mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
+										P_Fptr10->UtilFormNomenclature(fph);
+										/*
+										fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
+										fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
+										fptr.setParam(fptr.LIBFPTR_PARAM_SERIAL_NUMBER, 'ABC1234');
+										fptr.utilFormNomenclature;
+										nomenclatureCode := fptr.getParamByteArray(fptr.LIBFPTR_PARAM_TAG_VALUE);
+										fptr.setParam(fptr.LIBFPTR_PARAM_COMMODITY_NAME, 'товар1');
+										fptr.setParam(1212, 5);
+										fptr.setParam(fptr.LIBFPTR_PARAM_PRICE, pr);
+										fptr.setParam(fptr.LIBFPTR_PARAM_QUANTITY, 1);
+										fptr.setParam(fptr.LIBFPTR_PARAM_TAX_TYPE, fptr.LIBFPTR_TAX_VAT0);
+										fptr.setParam(fptr.LIBFPTR_PARAM_USE_ONLY_TAX_TYPE, True);
+										fptr.setParam(1162, nomenclatureCode);
+										fptr.registration; 
+										*/
+									}
+								}
+							}
+							// } @v10.7.12 
 							temp_buf_u.CopyFromMb_OUTER(goods_name, goods_name.Len());
 							P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
 							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
@@ -1295,6 +1343,11 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 							P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TAX_TYPE, tax_type_number);
 							P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : sl_param.DivID);
+							// @v10.7.12 {
+							if(mark_buf_data_len > 0) {
+								P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
+							}
+							// } @v10.7.12 
 							THROW(P_Fptr10->RegistrationProc(fph) == 0);
 						}
 						else if(P_Disp) {

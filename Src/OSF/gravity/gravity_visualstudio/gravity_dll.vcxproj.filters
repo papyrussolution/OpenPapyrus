@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{b0c80c0d-95af-4e26-9c3e-637541484df7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="unistd.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\debug_macros.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_ast.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_codegen.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_compiler.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_ircode.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_lexer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_optimizer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_parser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_semacheck1.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_semacheck2.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_symboltable.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_token.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\compiler\gravity_visitor.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\runtime\gravity_core.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\runtime\gravity_vm.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\runtime\gravity_vmmacros.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_array.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_delegate.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_hash.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_macros.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_memory.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_opcodes.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\gravity_value.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\utils\gravity_debug.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\utils\gravity_json.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\utils\gravity_utils.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dll.c" />
+  </ItemGroup>
+</Project>

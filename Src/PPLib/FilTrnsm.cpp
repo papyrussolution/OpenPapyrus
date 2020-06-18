@@ -237,8 +237,8 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 				enc_buf.EncodeUrl(temp_buf = pw, 0);
 				url.SetComponent(url.cPassword, enc_buf);
 				memzero(pw, sizeof(pw));
-				enc_buf.Obfuscate(); // @v9.8.12
-				temp_buf.Obfuscate(); // @v9.8.12
+				enc_buf.Obfuscate();
+				temp_buf.Obfuscate();
 			}
 		}
 		if(filtFlags & SMailMessage::fPpyObject) {
@@ -271,92 +271,6 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 	PPWait(0);
 	return ok;
 }
-
-/* @v9.9.0 (replaced with GetFilesFromMailServer2) {
-int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg)
-{
-	int    ok = 1;
-	uint   i;
-	PPID   mail_acc_id = mailAccID;
-	PPObjInternetAccount mac_obj;
-	PPInternetAccount mac_rec;
-	PPMailPop3 mail(0);
-	PPIDArray msg_list;
-	long   mailbox_count = 0, mailbox_size = 0;
-	int    msg_n = 0;
-	IterCounter msg_counter;
-	SString wait_msg;
-	SString temp_fname;
-	SString dest_fname;
-	SString temp_path;
-	PPWait(1);
-	PPGetPath(PPPATH_TEMP, temp_path);
-	if(mail_acc_id == 0) {
-		PPAlbatrossConfig cfg;
-		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
-		mail_acc_id = cfg.Hdr.MailAccID;
-	}
-	THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
-	THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
-	THROW(mail.Init(&mac_rec));
-	mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
-	PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);
-	THROW(mail.Connect());
-	THROW(mail.Login());
-	THROW(mail.GetStat(&mailbox_count, &mailbox_size));
-	PPLoadText(PPTXT_CHECKINMAILFORPPY, wait_msg);
-	for(msg_n = 1; msg_n <= mailbox_count; msg_n++) {
-		if(filtFlags) {
-			SMailMessage msg;
-			const int gmi_r = mail.GetMsgInfo(msg_n, &msg);
-			//THROW(mail.GetMsgInfo(msg_n, &msg));
-			//if(mail.GetMsgInfo(msg_n, &msg) > 0)
-			if(gmi_r > 0) {
-				if((filtFlags & SMailMessage::fPpyOrder && msg.Flags & SMailMessage::fPpyOrder) ||
-					(filtFlags & SMailMessage::fPpyObject && msg.Flags & SMailMessage::fPpyObject) ||
-					(filtFlags & SMailMessage::fPpyCharry && msg.Flags & SMailMessage::fPpyCharry))
-					msg_list.add(msg_n);
-			}
-			else {
-				THROW(gmi_r);
-			}
-			PPWaitPercent(msg_n, mailbox_count, wait_msg);
-		}
-		else
-			msg_list.add(msg_n);
-		assert(MemHeapTracer::Check()); // @debug
-	}
-	if(clean) {
-		if(filtFlags & SMailMessage::fPpyObject)
-			PPRemoveFilesByExt(pDestPath, PPSEXT, 0, 0);
-		if(filtFlags & SMailMessage::fPpyOrder)
-			PPRemoveFilesByExt(pDestPath, ORDEXT, 0, 0);
-		if(filtFlags & SMailMessage::fPpyCharry)
-			PPRemoveFilesByExt(pDestPath, CHARRYEXT, 0, 0);
-	}
-	msg_counter.Init(msg_list.getCount());
-	for(i = 0; i < msg_list.getCount(); i++) {
-		SMailMessage msg;
-		MakeTempFileName(temp_path, 0, "msg", 0, temp_fname.Z());
-		msg_counter.Increment();
-		THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
-		if(filtFlags & SMailMessage::fPpyObject && msg.Flags & SMailMessage::fPpyObject)
-			THROW(mail.SaveAttachment(temp_fname, 0, pDestPath));
-		if(filtFlags & SMailMessage::fPpyCharry && msg.Flags & SMailMessage::fPpyCharry)
-			THROW(mail.SaveAttachment(temp_fname, 0, pDestPath));
-		if(filtFlags & SMailMessage::fPpyOrder && msg.Flags & SMailMessage::fPpyOrder) {
-			SPathStruc::ReplacePath(dest_fname = temp_fname, pDestPath, 1);
-			SPathStruc::ReplaceExt(dest_fname, ORDEXT, 1);
-			THROW(mail.SaveOrder(temp_fname, dest_fname));
-		}
-		if(deleMsg)
-			THROW(mail.DeleteMsg(msg_list.at(i)));
-	}
-	PPWait(0);
-	CATCHZOK
-	return ok;
-}
-*/
 
 /* @v9.8.11 int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile)
 {

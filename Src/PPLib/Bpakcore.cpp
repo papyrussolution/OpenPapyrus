@@ -3105,8 +3105,7 @@ void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 	}
 }
 
-// static
-PPBillPacket::PoolKind SLAPI PPBillPacket::ObjAssocToPoolKind(PPID assocID)
+/*static*/PPBillPacket::PoolKind SLAPI PPBillPacket::ObjAssocToPoolKind(PPID assocID)
 {
 	switch(assocID) {
 		case PPASS_PAYMBILLPOOL:      return bpkReckon;
@@ -3122,8 +3121,7 @@ PPBillPacket::PoolKind SLAPI PPBillPacket::ObjAssocToPoolKind(PPID assocID)
 	return bpkNone;
 }
 
-//static
-PPID SLAPI PPBillPacket::PoolKindToObjAssoc(PPBillPacket::PoolKind kind)
+/*static*/PPID SLAPI PPBillPacket::PoolKindToObjAssoc(PPBillPacket::PoolKind kind)
 {
 	switch(kind) {
 		case bpkReckon:    return PPASS_PAYMBILLPOOL;

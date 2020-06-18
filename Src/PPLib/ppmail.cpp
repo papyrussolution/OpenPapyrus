@@ -367,6 +367,7 @@ public:
 		char   temp_buf[256];
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_MAILACC_NAME, Data.Name);
+		setCtrlData(CTL_MAILACC_SYMB, Data.Symb); // @v10.7.12
 		setCtrlData(CTL_MAILACC_ID,   &Data.ID);
 		disableCtrl(CTL_MAILACC_ID, (!PPMaster || Data.ID));
 		SetExtStrData(this, Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
@@ -391,6 +392,7 @@ public:
 		SString temp_buf;
 		getCtrlData(selctl = CTL_MAILACC_NAME, Data.Name);
 		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
+		getCtrlData(CTL_MAILACC_SYMB, Data.Symb); // @v10.7.12
 		GetExtStrData(this, &Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
 		GetExtStrData(this, &Data, CTL_MAILACC_SENDSRV,  MAEXSTR_SENDSERVER);
 		GetExtIntData(this, &Data, CTL_MAILACC_SENDPORT, MAEXSTR_SENDPORT);
@@ -423,6 +425,7 @@ public:
 		char temp_buf[64];
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_FTPACCT_NAME, Data.Name);
+		setCtrlData(CTL_FTPACCT_SYMB, Data.Symb); // @v10.7.12
 		setCtrlData(CTL_FTPACCT_ID,   &Data.ID);
 		disableCtrl(CTL_FTPACCT_ID, (!PPMaster || Data.ID));
 		SetExtStrData(this, Data, CTL_FTPACCT_HOST,      FTPAEXSTR_HOST);
@@ -449,6 +452,7 @@ public:
 		char   temp_buf[64];
 		getCtrlData(selctl = CTL_FTPACCT_NAME, Data.Name);
 		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
+		getCtrlData(CTL_FTPACCT_SYMB, Data.Symb); // @v10.7.12
 		GetExtStrData(this, &Data, CTL_FTPACCT_HOST,      FTPAEXSTR_HOST);
 		GetExtIntData(this, &Data, CTL_FTPACCT_PORT,      FTPAEXSTR_PORT);
 		GetExtStrData(this, &Data, CTL_FTPACCT_USER,      FTPAEXSTR_USER);
@@ -871,7 +875,6 @@ int SLAPI PPMailFile::SkipHeader()
 int SLAPI PPMailFile::ReadDisposition(SMailMessage & rMsg, SMailMessage::ContentDispositionBlock * pD)
 {
 	pD->Type = pD->tUnkn;
-
 	int    ok = 1;
 	SString disp_buf, temp_buf;
 	if(GetField(P_LineBuf, PPMAILFLD_CONTENTDISP, disp_buf) > 0) {
@@ -968,21 +971,6 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 						boundary = 0; // Если тип кодировки отличается от base64, то не принимаем эту полосу.
 				}
 				else {
-#if 0 // @v8.2.2 {
-					if(GetField(P_LineBuf, PPMAILFLD_CONTENTDISP, disp) > 0) {
-						if(GetField((temp_buf = disp).Strip(), PPMAILFLD_ATTACHMENT, disp) > 0) {
-							if(disp.C(0) == ';' && GetField((temp_buf = disp).ShiftLeft(1).Strip(), PPMAILFLD_FILENAME, disp) > 0) {
-								disp.StripQuotes();
-								if(disp.NotEmpty() && (pAttachName == 0 || disp.CmpNC(pAttachName) == 0)) {
-									this_attachment = 1;
-									SFile::ZClose(&p_out);
-									(file_name = pDestPath).Strip().SetLastSlash().Cat(disp);
-									THROW_PP_S(p_out = fopen(file_name, "wb"), PPERR_CANTOPENFILE, file_name);
-								}
-							}
-						}
-					}
-#else // }{ @v8.2.2
 					int rd = ReadDisposition(Msg, &disposition);
 					if(rd > 0) {
 						line_readed = 1;
@@ -996,7 +984,6 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 							}
 						}
 					}
-#endif // } @v8.2.2
 					else if(*strip(P_LineBuf) == 0) {
 						start_file = 1;
 					}

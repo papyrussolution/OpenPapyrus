@@ -1,5 +1,5 @@
 // SSYSTEM.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -15,8 +15,7 @@ static int is_bigendian_for_test()
 	return bint.c[0] == 1;
 }
 
-//static
-int SSystem::BigEndian()
+/*static*/int SSystem::BigEndian()
 {
     int yes = BIN((reinterpret_cast<const int *>("\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
 	assert(is_bigendian_for_test() == yes); // @v10.5.6
@@ -45,8 +44,7 @@ char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)
 	return a;
 }
 
-//static
-int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
+/*static*/int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
 {
 	rFileName.Z();
 	DWORD size = 0;
@@ -71,8 +69,7 @@ int SSystem::SGetModuleFileName(void * hModule, SString & rFileName)
 	return BIN(size > 0);
 }
 
-//static
-uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
+/*static*/uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
 {
 	rMsg.Z();
 	DWORD ret = 0;
@@ -97,8 +94,7 @@ uint SSystem::SFormatMessage(int sysErrCode, SString & rMsg)
 	return ret;
 }
 
-//static
-uint SSystem::SFormatMessage(SString & rMsg)
+/*static*/uint SSystem::SFormatMessage(SString & rMsg)
 {
 	return SFormatMessage(::GetLastError(), rMsg);
 }

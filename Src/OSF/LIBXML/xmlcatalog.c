@@ -290,8 +290,7 @@ static void usershell()
 static void usage(const char * name) 
 {
 	/* split into 2 printf's to avoid overly long string (gcc warning) */
-	printf(
-	    "\
+	printf("\
 Usage : %s [options] catalogfile entities...\n\
 \tParse the catalog file and query it for the entities\n\
 \t--sgml : handle SGML Super catalogs for --add and --del\n\
@@ -300,8 +299,7 @@ Usage : %s [options] catalogfile entities...\n\
 \t--add 'type' 'orig' 'replace' : add an XML entry\n\
 \t--add 'entry' : add an SGML entry\n"                                                                                                                                                                                                                                                                                                                                         ,
 	    name);
-	printf(
-	    "\
+	printf("\
 \t--del 'values' : remove values\n\
 \t--noout: avoid dumping the result on stdout\n\
 \t         used with --add or --del, it saves the catalog changes\n\
@@ -531,12 +529,12 @@ int main(int argc, char ** argv)
 						exit_value = 4;
 					}
 					else {
-						printf("%s\n", (char *)ans);
+						printf("%s\n", PTRCHRC_(ans));
 						SAlloc::F(ans);
 					}
 				}
 				else {
-					printf("%s\n", (char *)ans);
+					printf("%s\n", PTRCHRC_(ans));
 					SAlloc::F(ans);
 				}
 			}

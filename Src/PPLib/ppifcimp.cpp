@@ -83,7 +83,7 @@ static IUnknown * FASTCALL GetIStrAssocList(SCoClass * pCls, StrAssocArray * pLi
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("StrAssocList", "IStrAssocList", (void **)&p)) {
-		StrAssocArray * p_list_env = (StrAssocArray*)SCoClass::GetExtraPtrByInterface(p);
+		StrAssocArray * p_list_env = static_cast<StrAssocArray *>(SCoClass::GetExtraPtrByInterface(p));
 		if(p_list_env) {
 			*p_list_env = *pList;
 			p_list_env->setPointer(0);
@@ -100,7 +100,7 @@ static IUnknown * FASTCALL GetIPapyrusAmountList(SCoClass * pCls, AmtList * pLis
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("PPAmountList", "IPapyrusAmountList", (void **)&p)) {
-		AmtList * p_list_env = (AmtList*)SCoClass::GetExtraPtrByInterface(p);
+		AmtList * p_list_env = static_cast<AmtList *>(SCoClass::GetExtraPtrByInterface(p));
 		if(p_list_env)
 			*p_list_env = *pList;
 		else
@@ -115,7 +115,7 @@ static IUnknown * FASTCALL GetILotList(SCoClass * pCls, SVector * pList, int del
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("PPLotList", "ILotList", (void **)&p)) {
-		SArray * p_list_env = (SArray*)SCoClass::GetExtraPtrByInterface(p);
+		SArray * p_list_env = static_cast<SArray *>(SCoClass::GetExtraPtrByInterface(p));
 		if(p_list_env) {
 			*p_list_env = *pList;
 			p_list_env->setPointer(0);
@@ -8869,15 +8869,8 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltGoodsOpAnlz, DL6ICLS_PPFiltGoodsOpAnlz_VTab, Goo
 //
 // Interface IPpyFilt_GoodsOpAnlz implementation
 //
-void DL6ICLS_PPFiltGoodsOpAnlz::SetPeriod(LDATE low, LDATE upp)
-{
-	static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->Period.Set(low, upp);
-}
-
-void DL6ICLS_PPFiltGoodsOpAnlz::SetCmpPeriod(LDATE low, LDATE upp)
-{
-	static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->CmpPeriod.Set(low, upp);
-}
+void DL6ICLS_PPFiltGoodsOpAnlz::SetPeriod(LDATE low, LDATE upp) { static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->Period.Set(low, upp); }
+void DL6ICLS_PPFiltGoodsOpAnlz::SetCmpPeriod(LDATE low, LDATE upp) { static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->CmpPeriod.Set(low, upp); }
 
 void DL6ICLS_PPFiltGoodsOpAnlz::AddLocationID(int32 id)
 {
@@ -8907,13 +8900,8 @@ void DL6ICLS_PPFiltGoodsOpAnlz::FreeBillList()
 		p_filt->BillList.Z();
 }
 
-SDateRange DL6ICLS_PPFiltGoodsOpAnlz::get_Period()
-	{ return DateRangeToOleDateRange(static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->Period); }
-
-SDateRange DL6ICLS_PPFiltGoodsOpAnlz::get_CmpPeriod()
-	{ return DateRangeToOleDateRange(static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->CmpPeriod); }
-
-
+SDateRange DL6ICLS_PPFiltGoodsOpAnlz::get_Period() { return DateRangeToOleDateRange(static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->Period); }
+SDateRange DL6ICLS_PPFiltGoodsOpAnlz::get_CmpPeriod() { return DateRangeToOleDateRange(static_cast<GoodsOpAnalyzeFilt *>(ExtraPtr)->CmpPeriod); }
 LDATE DL6ICLS_PPFiltGoodsOpAnlz::get_CmpRestCalcDate() {IMPL_PPIFC_GETPROP(GoodsOpAnalyzeFilt, CmpRestCalcDate);}
 void  DL6ICLS_PPFiltGoodsOpAnlz::put_CmpRestCalcDate(LDATE value) {IMPL_PPIFC_PUTPROP(GoodsOpAnalyzeFilt, CmpRestCalcDate);}
 int32 DL6ICLS_PPFiltGoodsOpAnlz::get_OpID() {IMPL_PPIFC_GETPROP(GoodsOpAnalyzeFilt, OpID);}
@@ -8989,9 +8977,9 @@ int32 DL6ICLS_PPViewGoodsOpAnlz::NextIteration(PPYVIEWITEM item)
 {
 	int    ok = -1;
 	SString temp_buf;
-	SPpyVI_GoodsOpAnlz * p_item = (SPpyVI_GoodsOpAnlz *)item;
+	SPpyVI_GoodsOpAnlz * p_item = static_cast<SPpyVI_GoodsOpAnlz *>(item);
 	GoodsOpAnalyzeViewItem inner_item;
-	if(((PPViewGoodsOpAnalyze *)ExtraPtr)->NextIteration(&inner_item) > 0) {
+	if(static_cast<PPViewGoodsOpAnalyze *>(ExtraPtr)->NextIteration(&inner_item) > 0) {
 		SString temp_buf;
 		p_item->RecTag = PPVIEWITEM_GOODSOPANALYZE;
 #define FLD(f) p_item->f = inner_item.f
@@ -9040,8 +9028,8 @@ SIterCounter DL6ICLS_PPViewGoodsOpAnlz::GetIterCounter()
 int32 DL6ICLS_PPViewGoodsOpAnlz::GetTotal(PPYVIEWTOTAL total)
 {
 	GoodsOpAnalyzeTotal inner_total;
-	PPViewGoodsOpAnalyze * p_v = (PPViewGoodsOpAnalyze *)ExtraPtr;
-	SPpyVT_GoodsOpAnlz * p_total = (SPpyVT_GoodsOpAnlz*)total;
+	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(ExtraPtr);
+	SPpyVT_GoodsOpAnlz * p_total = static_cast<SPpyVT_GoodsOpAnlz *>(total);
 	if(p_v && p_total && p_v->CalcTotal(&inner_total) > 0) {
 		p_total->RecTag = 0; // @!
 #define FLD(f) p_total->f = inner_total.f
@@ -9499,22 +9487,14 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltPrjTask, DL6ICLS_PPFiltPrjTask_VTab, PrjTaskFilt
 //
 // Interface IPpyFilt_PrjTask implementation
 //
-void DL6ICLS_PPFiltPrjTask::SetPeriod(LDATE low, LDATE upp)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->Period.Set(low, upp); }
-void DL6ICLS_PPFiltPrjTask::SetStartPeriod(LDATE low, LDATE upp)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->StartPeriod.Set(low, upp); }
-void DL6ICLS_PPFiltPrjTask::SetEstFinishPeriod(LDATE low, LDATE upp)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->EstFinishPeriod.Set(low, upp); }
-void DL6ICLS_PPFiltPrjTask::SetFinishPeriod(LDATE low, LDATE upp)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->FinishPeriod.Set(low, upp); }
-void DL6ICLS_PPFiltPrjTask::IncludeStatus(PpyOPrjTaskStatus status)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->IncludeStatus((long)status); }
-void DL6ICLS_PPFiltPrjTask::ExcludeStatus(PpyOPrjTaskStatus status)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->ExcludeStatus((long)status); }
-void DL6ICLS_PPFiltPrjTask::IncludePriority(PpyOPrjTaskPriority priority)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->IncludePrior((long)priority); }
-void DL6ICLS_PPFiltPrjTask::ExcludePriority(PpyOPrjTaskPriority priority)
-	{ static_cast<PrjTaskFilt *>(ExtraPtr)->ExcludePrior((long)priority); }
+void DL6ICLS_PPFiltPrjTask::SetPeriod(LDATE low, LDATE upp) { static_cast<PrjTaskFilt *>(ExtraPtr)->Period.Set(low, upp); }
+void DL6ICLS_PPFiltPrjTask::SetStartPeriod(LDATE low, LDATE upp) { static_cast<PrjTaskFilt *>(ExtraPtr)->StartPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltPrjTask::SetEstFinishPeriod(LDATE low, LDATE upp) { static_cast<PrjTaskFilt *>(ExtraPtr)->EstFinishPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltPrjTask::SetFinishPeriod(LDATE low, LDATE upp) { static_cast<PrjTaskFilt *>(ExtraPtr)->FinishPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltPrjTask::IncludeStatus(PpyOPrjTaskStatus status) { static_cast<PrjTaskFilt *>(ExtraPtr)->IncludeStatus((long)status); }
+void DL6ICLS_PPFiltPrjTask::ExcludeStatus(PpyOPrjTaskStatus status) { static_cast<PrjTaskFilt *>(ExtraPtr)->ExcludeStatus((long)status); }
+void DL6ICLS_PPFiltPrjTask::IncludePriority(PpyOPrjTaskPriority priority) { static_cast<PrjTaskFilt *>(ExtraPtr)->IncludePrior((long)priority); }
+void DL6ICLS_PPFiltPrjTask::ExcludePriority(PpyOPrjTaskPriority priority) { static_cast<PrjTaskFilt *>(ExtraPtr)->ExcludePrior((long)priority); }
 PpyVPrjTaskTabType DL6ICLS_PPFiltPrjTask::get_TabType() { return (PpyVPrjTaskTabType)static_cast<PrjTaskFilt *>(ExtraPtr)->TabType; }
 void DL6ICLS_PPFiltPrjTask::put_TabType(PpyVPrjTaskTabType value) { IMPL_PPIFC_PUTPROP_CAST(PrjTaskFilt, TabType, PrjTaskFilt::EnumTabType); }
 PpyVPrjTaskTabParam DL6ICLS_PPFiltPrjTask::get_TabParam() { return (PpyVPrjTaskTabParam)static_cast<PrjTaskFilt *>(ExtraPtr)->TabParam; }
@@ -10294,7 +10274,7 @@ SString & DL6ICLS_PPObjDebtDim::GetName(int32 id)
 
 IStrAssocList * DL6ICLS_PPObjDebtDim::GetSelector(int32 extraParam)
 {
-	return (IStrAssocList *)RaiseAppErrorPtr();
+	return static_cast<IStrAssocList *>(RaiseAppErrorPtr());
 }
 
 int32 DL6ICLS_PPObjDebtDim::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec) { return FuncNotSupported(); }
@@ -10695,7 +10675,7 @@ ICCheckPacket* DL6ICLS_PPObjCCheck::CreatePacket()
 	CATCH
 		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
-	return (ICCheckPacket*)p_ifc;
+	return static_cast<ICCheckPacket *>(p_ifc);
 }
 
 int32 DL6ICLS_PPObjCCheck::GetPacket(int32 id, ICCheckPacket* pPack)
@@ -10703,7 +10683,7 @@ int32 DL6ICLS_PPObjCCheck::GetPacket(int32 id, ICCheckPacket* pPack)
 	int    ok = 0;
 	InnerCCheckExtra * p_e = static_cast<InnerCCheckExtra *>(ExtraPtr);
 	if(p_e) {
-		CCheckPacket * p_pack = (CCheckPacket *)SCoClass::GetExtraPtrByInterface(pPack);
+		CCheckPacket * p_pack = static_cast<CCheckPacket *>(SCoClass::GetExtraPtrByInterface(pPack));
 		if(p_pack)
 			ok = p_e->ScObj.P_CcTbl->LoadPacket(id, 0, p_pack);
 	}
@@ -10745,11 +10725,11 @@ static void FillSCardSeriesRec(const PPSCardSeries * pInner, SPpyO_SCardSeries *
 int32 DL6ICLS_PPObjSCardSeries::Search(int32 id, PPYOBJREC pOuterRec)
 {
 	int    ok = 0;
-	PPObjSCardSeries * p_obj = (PPObjSCardSeries *)ExtraPtr;
+	PPObjSCardSeries * p_obj = static_cast<PPObjSCardSeries *>(ExtraPtr);
 	if(p_obj) {
 		PPSCardSeries inner_rec;
 		ok = p_obj->Search(id, &inner_rec);
-		FillSCardSeriesRec(&inner_rec, (SPpyO_SCardSeries *)pOuterRec);
+		FillSCardSeriesRec(&inner_rec, static_cast<SPpyO_SCardSeries *>(pOuterRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -10758,7 +10738,7 @@ int32 DL6ICLS_PPObjSCardSeries::Search(int32 id, PPYOBJREC pOuterRec)
 int32 DL6ICLS_PPObjSCardSeries::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC pOuterRec)
 {
 	int    ok = 0;
-	PPObjSCardSeries * p_obj = (PPObjSCardSeries *)ExtraPtr;
+	PPObjSCardSeries * p_obj = static_cast<PPObjSCardSeries *>(ExtraPtr);
 	if(p_obj) {
 		PPSCardSeries inner_rec;
 		PPID id = 0;
@@ -10773,7 +10753,7 @@ int32 DL6ICLS_PPObjSCardSeries::SearchByName(SString & text, int32 kind, int32 e
 		else { // (kind == 0)
 			ok = p_obj->SearchByName(text, &id, &inner_rec);
 		}
-		FillSCardSeriesRec(&inner_rec, (SPpyO_SCardSeries*)pOuterRec);
+		FillSCardSeriesRec(&inner_rec, static_cast<SPpyO_SCardSeries *>(pOuterRec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -10781,7 +10761,7 @@ int32 DL6ICLS_PPObjSCardSeries::SearchByName(SString & text, int32 kind, int32 e
 
 SString & DL6ICLS_PPObjSCardSeries::GetName(int32 id)
 {
-	PPObjSCardSeries * p_obj = (PPObjSCardSeries *)ExtraPtr;
+	PPObjSCardSeries * p_obj = static_cast<PPObjSCardSeries *>(ExtraPtr);
 	if(p_obj) {
 		PPSCardSeries inner_rec;
 		if(p_obj->Fetch(id, &inner_rec) > 0)

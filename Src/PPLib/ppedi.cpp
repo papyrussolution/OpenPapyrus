@@ -293,10 +293,11 @@ int SLAPI GtinStruc::AddOnlyToken(int token)
 	return ok;
 }
 
-int SLAPI GtinStruc::AddSpecialFixedToken(int token, int fixedLen)
+int SLAPI GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 {
 	int    ok = 1;
 	if(fixedLen > 0 && fixedLen <= 30 && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) {
+		SpecialFixedTokens.Remove(token, 0); // @v10.7.12
 		SpecialFixedTokens.AddUnique(token, fixedLen, 0, 0);
 	}
 	else
@@ -339,7 +340,7 @@ int SLAPI GtinStruc::Debug_Output(SString & rBuf) const
 			SIntToSymbTab_GetSymb(GtinPrefix, SIZEOFARRAY(GtinPrefix), item.Id, temp_buf);
 			if(rBuf.NotEmpty())
 				rBuf.CR();
-			rBuf.Cat(item.Id).Space().CatChar('[').Cat(temp_buf).CatChar(']').Space().Cat(item.Txt);
+			rBuf.Cat(item.Id).Space().CatChar('[').Cat(temp_buf).CatChar(']').Space().Cat(item.Txt).Space().CatEq("len", sstrlen(item.Txt));
 		}
 	}
 	else
@@ -378,6 +379,23 @@ int SLAPI GtinStruc::GetToken(int tokenId, SString * pToken) const
 int SLAPI GtinStruc::GetSpecialNaturalToken() const
 {
 	return SpecialNaturalToken;
+}
+
+uint SLAPI GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
+{
+	uint   len = 0;
+	SString next_prefix_;
+	while(*pSrc) {
+		uint  next_prefix_len = 0;
+		int   next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len, next_prefix_);
+		if(next_prefix_id > 0)
+			break;
+		else {
+			pSrc++;
+			len++;
+		}
+	}
+	return len;
 }
 
 int SLAPI GtinStruc::Parse(const char * pCode)
@@ -426,8 +444,18 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 						p += prefix_len;
 						int   next_prefix_id = -1;
 						uint  next_prefix_len = 0;
-						while(*p && (next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len, next_prefix_)) <= 0) {
-							temp_buf.CatChar(*p++);
+						while(*p) {
+							next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len, next_prefix_);
+							if(next_prefix_id > 0) {
+								uint next_fld_len = RecognizeFieldLen(p+next_prefix_len, prefix_id);
+								if(next_fld_len == 0) {
+									temp_buf.CatChar(*p++);
+								}
+								else
+									break;
+							}
+							else
+								temp_buf.CatChar(*p++);
 						}
 						THROW(!StrAssocArray::Search(prefix_id));
 						StrAssocArray::Add(prefix_id, temp_buf);
@@ -460,17 +488,27 @@ int SLAPI TestGtinStruc()
 			while(f_in.ReadLine(temp_buf)) {
 				temp_buf.Chomp().Strip();
 				GtinStruc gts;
-				//gts.AddSpecialFixedToken(GtinStruc::fldSerial, 20);
-				//gts.AddSpecialFixedToken(GtinStruc::fldPart, 13);
-				gts.AddOnlyToken(GtinStruc::fldSerial);
-				gts.AddOnlyToken(GtinStruc::fldPart);
-				gts.AddOnlyToken(GtinStruc::fldSscc18);
 				gts.AddOnlyToken(GtinStruc::fldGTIN14);
+				gts.AddOnlyToken(GtinStruc::fldSerial);
+				gts.SetSpecialFixedToken(GtinStruc::fldSerial, 13);
+				gts.AddOnlyToken(GtinStruc::fldPart);
+				gts.AddOnlyToken(GtinStruc::fldAddendumId);
+				gts.AddOnlyToken(GtinStruc::fldUSPS);
+				gts.AddOnlyToken(GtinStruc::fldInner1);
+				gts.AddOnlyToken(GtinStruc::fldInner2);
+				gts.AddOnlyToken(GtinStruc::fldSscc18);
 				gts.AddOnlyToken(GtinStruc::fldExpiryDate);
-				gts.AddOnlyToken(GtinStruc::fldUSPS); // @v10.7.2
-				gts.AddOnlyToken(GtinStruc::fldInner1); // @v10.7.2
-				
+				gts.AddOnlyToken(GtinStruc::fldVariant);
+				gts.AddOnlyToken(GtinStruc::fldMutualCode);
 				int pr = gts.Parse(temp_buf);
+				if(pr == 0 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+					gts.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
+					pr = gts.Parse(temp_buf);
+					if(pr == 0 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+						gts.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
+						pr = gts.Parse(temp_buf);
+					}
+				}
 				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", static_cast<long>(pr));
 				gts.Debug_Output(temp_buf);
 				out_buf.CR().Cat(temp_buf);

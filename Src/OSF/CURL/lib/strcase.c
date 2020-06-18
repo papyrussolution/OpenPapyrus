@@ -102,20 +102,32 @@ int Curl_safe_strcasecompare(const char * first, const char * second)
 /*
  * @unittest: 1301
  */
-int Curl_strncasecompare(const char * first, const char * second, size_t max)
+int FASTCALL Curl_strncasecompare(const char * first, const char * second, size_t max)
 {
-	while(*first && *second && max) {
-		if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second)) {
-			break;
-		}
-		max--;
-		first++;
-		second++;
+	// @sobolev {
+	if(first == 0) {
+		if(second == 0)
+			return 1;
+		else
+			return 0;
 	}
-	if(0 == max)
-		return 1;  /* they are equal this far */
-
-	return Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
+	else if(second == 0)
+		return 0;
+	else if(max == 0)
+		return 1;
+	else { // } @sobolev 
+		while(*first && *second && max) {
+			if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second)) {
+				break;
+			}
+			max--;
+			first++;
+			second++;
+		}
+		if(max == 0)
+			return 1;  /* they are equal this far */
+		return Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
+	}
 }
 
 /* Copy an upper case version of the string from src to dest.  The

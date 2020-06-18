@@ -2324,10 +2324,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 												}
 											}
 											if(is_there_ext_codes) {
+												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo")); // @v10.7.12 #1
 												for(uint lpidx = 0; lpidx < local_pos_list.getCount(); lpidx++) {
 													const int row_idx = local_pos_list.get(lpidx);
 													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
-														SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
+														// @v10.7.12 (moved up to #1) SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
 														for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 															if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
 																SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));

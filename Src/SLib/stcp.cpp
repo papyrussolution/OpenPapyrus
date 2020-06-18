@@ -630,8 +630,7 @@ static const SIntToSymbTabEntry ContentDispositionTypeNameList_[] = { // @v10.7.
 	{ "recording-session", SMailMessage::ContentDispositionBlock::tRecordingSession }
 };*/
 
-//static
-int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString & rBuf)
+/*static*/int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString & rBuf)
 {
 	return SIntToSymbTab_GetSymb(ContentDispositionTypeNameList_, SIZEOFARRAY(ContentDispositionTypeNameList_), t, rBuf); // @v10.7.6
 	/* @v10.7.6 int    ok = 0;
@@ -645,8 +644,7 @@ int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString &
 	return ok;*/
 }
 
-//static
-int FASTCALL SMailMessage::ContentDispositionBlock::IdentifyType(const char * pTypeName)
+/*static*/int FASTCALL SMailMessage::ContentDispositionBlock::IdentifyType(const char * pTypeName)
 {
 	// SMailMessage::ContentDispositionBlock::tUnkn == 0
 	// @v10.7.6 {
@@ -951,8 +949,7 @@ SString & SLAPI SMailMessage::PutField(const char * pFld, const char * pVal, SSt
 	return rBuf;
 }
 
-//static
-int SLAPI SMailMessage::IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue)
+/*static*/int SLAPI SMailMessage::IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue)
 {
 	rValue.Z();
 	size_t hl = sstrlen(pHeader);
@@ -2507,11 +2504,9 @@ int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pConten
     return ok;
 }
 
-//static
-int ScURL::_GlobalInitDone = 0;
+/*static*/int ScURL::_GlobalInitDone = 0;
 
-//static
-size_t ScURL::CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra)
+/*static*/size_t ScURL::CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra)
 {
 	size_t ret = CURL_READFUNC_ABORT;
 	if(pExtra) {
@@ -2523,8 +2518,7 @@ size_t ScURL::CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra)
 	return ret;
 }
 
-//static
-size_t ScURL::CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra)
+/*static*/size_t ScURL::CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra)
 {
 	size_t ret = CURLE_WRITE_ERROR;
 	if(pExtra) {
@@ -2609,9 +2603,7 @@ int ScURL::SetupCbWrite(SFile * pF)
 	return ok;
 }
 
-
-//static
-int ScURL::CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow)
+/*static*/int ScURL::CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow)
 {
 	int    ret = 0;
 	SDataMoveProgressInfo * p_data = static_cast<SDataMoveProgressInfo *>(extraPtr);
@@ -2700,8 +2692,7 @@ int ScURL::Execute()
 	return SetError(curl_easy_perform(_CURLH));
 }
 
-//static
-int ScURL::ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount)
+/*static*/int ScURL::ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount)
 {
 	int    ok = -1;
 	uint   flds_count = 0;
@@ -2726,8 +2717,7 @@ int ScURL::ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, ui
 	return ok;
 }
 
-//static
-void * ScURL::ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields)
+/*static*/void * ScURL::ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields)
 {
 	int    ok = 1;
 	uint   flds_count = 0;
@@ -2745,8 +2735,9 @@ void * ScURL::ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields)
 					fld_buf.CatDiv(':', 2);
 					fld_buf.Cat(temp_buf);
 				}
-				else
+				else {
 					fld_buf.CatChar(':');
+				}
 				p_chunk = curl_slist_append(p_chunk, fld_buf.cptr());
                 flds_count++;
             }

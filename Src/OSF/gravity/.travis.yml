@@ -1,0 +1,8 @@
+language: c
+os:
+ - osx
+ - linux
+compiler:
+  - gcc
+  - clang
+script: make

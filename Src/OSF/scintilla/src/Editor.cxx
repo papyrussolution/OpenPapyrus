@@ -242,23 +242,30 @@ void Editor::WorkNeeded::Need(workItems items_, Position pos)
 //
 //
 //
-Editor::Editor() : EditModel(), DocWatcher()
+Editor::Editor() : EditModel(), DocWatcher(),
+	Flags(fMouseDownCaptures|fMouseWheelCaptures|fHorizontalScrollBarVisible|fVerticalScrollBarVisible|fEndAtLastLine|fConvertPastes),
+	ctrlID(0), technology(SC_TECHNOLOGY_DEFAULT), scaleRGBAImage(100.0f), cursorMode(SC_CURSORNORMAL), errorStatus(0), lastClickTime(0)
 {
-	Flags = (fMouseDownCaptures|fMouseWheelCaptures|fHorizontalScrollBarVisible|fVerticalScrollBarVisible|fEndAtLastLine|fConvertPastes);
-	ctrlID = 0;
 	//stylesValid = false;
-	technology = SC_TECHNOLOGY_DEFAULT;
-	scaleRGBAImage = 100.0f;
-	cursorMode = SC_CURSORNORMAL;
 	//hasFocus = false;
-	errorStatus = 0;
 	//mouseDownCaptures = true;
 	//mouseWheelCaptures = true;
-	lastClickTime = 0;
+	//horizontalScrollBarVisible = true;
+	//verticalScrollBarVisible = true;
+	//endAtLastLine = true;
+	//mouseSelectionRectangularSwitch = false;
+	//multipleSelection = false;
+	//additionalSelectionTyping = false;
+	//dwelling = false;
+	//paintAbandonedByStyling = false;
+	//paintingAllText = false;
+	//willRedrawAll = false;
+	//needIdleStyling = false;
+	//recordingMacro = false;
+	//convertPastes = true;
 	doubleClickCloseThreshold = Point(3, 3);
 	dwellDelay = SC_TIME_FOREVER;
 	ticksToDwell = SC_TIME_FOREVER;
-	//dwelling = false;
 	ptMouseLast.x = 0;
 	ptMouseLast.y = 0;
 	inDragDrop = ddNone;
@@ -272,54 +279,32 @@ Editor::Editor() : EditModel(), DocWatcher()
 	wordSelectAnchorStartPos = 0;
 	wordSelectAnchorEndPos = 0;
 	wordSelectInitialCaretPos = -1;
-
 	caretXPolicy = CARET_SLOP | CARET_EVEN;
 	caretXSlop = 50;
-
 	caretYPolicy = CARET_EVEN;
 	caretYSlop = 0;
-
 	visiblePolicy = 0;
 	visibleSlop = 0;
-
 	searchAnchor = 0;
-
 	xCaretMargin = 50;
-	//horizontalScrollBarVisible = true;
 	scrollWidth = 2000;
-	//verticalScrollBarVisible = true;
-	//endAtLastLine = true;
 	caretSticky = SC_CARETSTICKY_OFF;
 	marginOptions = SC_MARGINOPTION_NONE;
-	//mouseSelectionRectangularSwitch = false;
-	//multipleSelection = false;
-	//additionalSelectionTyping = false;
 	multiPasteMode = SC_MULTIPASTE_ONCE;
 	virtualSpaceOptions = SCVS_NONE;
-
 	targetStart = 0;
 	targetEnd = 0;
 	searchFlags = 0;
-
 	topLine = 0;
 	posTopLine = 0;
-
 	lengthForEncode = -1;
-
 	needUpdateUI = 0;
 	ContainerNeedsUpdate(SC_UPDATE_CONTENT);
-
 	paintState = notPainting;
-	//paintAbandonedByStyling = false;
-	//paintingAllText = false;
-	//willRedrawAll = false;
 	idleStyling = SC_IDLESTYLING_NONE;
-	//needIdleStyling = false;
 	modEventMask = SC_MODEVENTMASKALL;
 	pdoc->AddWatcher(this, 0);
-	//recordingMacro = false;
 	foldAutomatic = 0;
-	//convertPastes = true;
 	SetRepresentations();
 }
 
@@ -1720,9 +1705,8 @@ void Editor::LinesJoin()
 					targetEnd += lengthInserted;
 				}
 			}
-			else {
+			else
 				prevNonWS = pdoc->CharAt(pos) != ' ';
-			}
 		}
 	}
 }
@@ -1813,7 +1797,6 @@ void Editor::Paint(Surface * surfaceWindow, PRectangle rcArea)
 	//Platform::DebugPrintf("Paint:%1d (%3d,%3d) ... (%3d,%3d)\n",
 	//	paintingAllText, rcArea.left, rcArea.top, rcArea.right, rcArea.bottom);
 	AllocateGraphics();
-
 	RefreshStyleData();
 	if(paintState == paintAbandoned)
 		return;  // Scroll bars may have changed so need redraw

@@ -6203,6 +6203,7 @@
 	#define CTL_MAILACC_AUTHTYPE         (11 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MAILACC_AUTHTYPE      (12 + WINDOWS_ID_BIAS)
 	#define CTL_MAILACC_FLAGS            (13 + WINDOWS_ID_BIAS)
+	#define CTL_MAILACC_SYMB             (14 + WINDOWS_ID_BIAS)
 
 #define DLG_BACKUP		          601 // Резервное копирование
 	#define CTL_BACKUP_DB                (1 + WINDOWS_ID_BIAS)
@@ -7802,6 +7803,7 @@
 	#define CTL_FTPACCT_NAME           (10 + WINDOWS_ID_BIAS)
 	#define CTL_FTPACCT_ID             (11 + WINDOWS_ID_BIAS)
 	#define CTL_FTPACCT_FLAGS          (12 + WINDOWS_ID_BIAS)
+	#define CTL_FTPACCT_SYMB           (13 + WINDOWS_ID_BIAS)
 #define DLG_PRCFREELIST          873 // Список периодов доступности процессора
 	#define CTL_PRCFREELIST_LIST       (1 + WINDOWS_ID_BIAS)
 #define DLG_TAGFLT               874

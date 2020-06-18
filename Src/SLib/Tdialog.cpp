@@ -439,8 +439,7 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	return 1;
 }
 
-//static
-int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
+/*static*/int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
 {
 	int    ok = 1;
 	SString symb = pSymb;

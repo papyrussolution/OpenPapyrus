@@ -1,5 +1,5 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020
 // Compile-time DL600 modules
 //
 #include <pp.h>
@@ -122,10 +122,9 @@ int CtmDclr::Copy(const CtmDclr & rDclr)
 	return 1;
 }
 
-int CtmDclr::AddDim(uint dim)
+void CtmDclr::AddDim(uint dim)
 {
 	DimList.Add(dim);
-	return 1;
 }
 //
 //
@@ -167,17 +166,15 @@ int GetDecimalDim(uint32 dim, uint * pDec, uint * pPrec)
 		return 0;
 }
 
-int CtmDclr::AddDecimalDim(uint dec, uint precision)
+void CtmDclr::AddDecimalDim(uint dec, uint precision)
 {
 	uint   dim = SetDecimalDim(dec, precision);
 	DimList.Add(dim);
-	return 1;
 }
 
-int CtmDclr::AddPtrMod(uint ptrMod, uint modifier)
+void CtmDclr::AddPtrMod(uint ptrMod, uint modifier)
 {
 	PtrList.Add((uint32)MakeLong(ptrMod, modifier));
-	return 1;
 }
 //
 //
@@ -224,11 +221,10 @@ SLAPI DlMacro::DlMacro() : S(";")
 {
 }
 
-int SLAPI DlMacro::Add(const char * pSymb, const char * pResult)
+void SLAPI DlMacro::Add(const char * pSymb, const char * pResult)
 {
 	SString buf;
 	S.add(buf.Cat(pSymb).Comma().Cat(pResult));
-	return 1;
 }
 
 int SLAPI DlMacro::Subst(const char * pSymb, SString & rResult) const
@@ -240,16 +236,16 @@ int SLAPI DlMacro::Subst(const char * pSymb, SString & rResult) const
 			rResult.ShiftLeft(pat.Len());
 			return 1;
 		}
-	rResult = 0;
+	rResult.Z();
 	return 0;
 }
 //
 //
 //
-int DlContext::AddMacro(const char * pMacro, const char * pResult)
+void DlContext::AddMacro(const char * pMacro, const char * pResult)
 {
 	SETIFZ(P_M, new DlMacro);
-	return P_M->Add(pMacro, pResult);
+	P_M->Add(pMacro, pResult);
 }
 
 int DlContext::GetMacro(const char * pMacro, SString & rResult) const
@@ -259,10 +255,9 @@ int DlContext::GetMacro(const char * pMacro, SString & rResult) const
 //
 //
 //
-int DlContext::AddStrucDeclare(const char * pDecl)
+void DlContext::AddStrucDeclare(const char * pDecl)
 {
 	CurDeclList.add(pDecl);
-	return 1;
 }
 
 int SLAPI DlContext::AddType(const char * pName, TYPEID stypId, char mangleC)
@@ -506,12 +501,12 @@ DlScope * SLAPI DlContext::GetCurDialogScope()
 		else
 			p_scope = p_scope->GetOwner();
 	}
-	return (DlScope *)p_scope; // @badcast
+	return const_cast<DlScope *>(p_scope); // @badcast
 }
 
 int SLAPI DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId)
 {
-	rSerBuf = 0;
+	rSerBuf.Z();
 	int    ok = 0;
 	DLSYMBID symb_id = 0;
 	SString pfx, ser, sfx;
@@ -757,7 +752,7 @@ SString & SLAPI GetIdlTypeString(TYPEID typ, SString & rBuf, const char * pFldNa
 		case S_ZSTRING:
 		case S_NOTE:      type_text = "BSTR"; dim = sz; break;
 		case S_WCHAR:     type_text = "wchar_t"; dim = sz / 2; break;
-		case S_WZSTRING:  type_text = "wchar_t"; dim = sz / 2; break; // @v8.6.2
+		case S_WZSTRING:  type_text = "wchar_t"; dim = sz / 2; break;
 		case S_INTRANGE:  type_text = "IntRange";  break;
 		case S_REALRANGE: type_text = "RealRange"; break;
 		case S_DATERANGE: type_text = "DateRange"; break;
@@ -877,7 +872,7 @@ int SLAPI DlContext::GetFuncName(int, const CtmExpr * pExpr, SString & rBuf)
 {
 	int    ok = 1;
 	SString arg_buf, temp_buf;
-	rBuf = 0;
+	rBuf.Z();
 	if(pExpr->GetKind() == CtmExpr::kFuncName) {
 		rBuf = pExpr->U.S;
 	}
@@ -939,27 +934,27 @@ int SLAPI DlContext::Write_Scope(int indent, SFile & rOutFile, const DlScope & r
 	SString fld_buf;
 	SdbField fld;
 	for(i = 0; rScope.EnumFields(&i, &fld);) {
-		(fld_buf = 0).CatCharN('\t', indent+1).Cat(fld.Name).CatDiv(';', 2).CatEq("size", (long)fld.T.GetBinSize()).CR();
+		fld_buf.Z().CatCharN('\t', indent+1).Cat(fld.Name).CatDiv(';', 2).CatEq("size", (long)fld.T.GetBinSize()).CR();
 		rOutFile.WriteLine(fld_buf);
 	}
 	for(i = 0; rScope.EnumChilds(&i, &p_child);)
 		if(p_child)
 			Write_Scope(indent+1, rOutFile, *p_child); // @recursion
 		else
-			rOutFile.WriteLine((line = 0).CatCharN('\t', indent+1).Cat("null").CR());
+			rOutFile.WriteLine(line.Z().CatCharN('\t', indent+1).Cat("null").CR());
 	{
 		DlFunc func;
 		SString func_name;
 		for(i = 0; rScope.GetFuncByPos(i, &func); i++) {
 			Format_Func(func, 0, func_name);
-			(line = 0).CatCharN('\t', indent+1).Cat(func_name).CR();
+			line.Z().CatCharN('\t', indent+1).Cat(func_name).CR();
 			rOutFile.WriteLine(line);
 		}
 	}
 	return 1;
 }
 
-int SLAPI DlContext::Write_DebugListing()
+void SLAPI DlContext::Write_DebugListing()
 {
 	SFile out_file(LogFileName, SFile::mWrite);
 	SString line;
@@ -967,7 +962,6 @@ int SLAPI DlContext::Write_DebugListing()
 	out_file.WriteLine((line = "// Scope").CR());
 	out_file.WriteLine((line = "//").CR());
 	Write_Scope(0, out_file, Sc);
-
 	out_file.WriteLine((line = "//").CR());
 	out_file.WriteLine((line = "// Type").CR());
 	out_file.WriteLine((line = "//").CR());
@@ -975,9 +969,7 @@ int SLAPI DlContext::Write_DebugListing()
 		Format_TypeEntry(TypeList.at(i), line = 0);
 		out_file.WriteLine(line.CR());
 	}
-	return 1;
 }
-
 
 static SString & FASTCALL _RectToLine(const UiRelRect & rRect, SString & rBuf)
 {
@@ -1007,18 +999,18 @@ int SLAPI DlContext::Write_DialogReverse()
 		const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
 		if(p_scope) {
 			prop_list.Z();
-			(line_buf = 0).CR().Cat("dialog").Space().Cat(p_scope->Name);
+			line_buf.Z().CR().Cat("dialog").Space().Cat(p_scope->Name);
 			{
 				text_buf.Z();
 				if(GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
-					text_buf = (const char *)c_buf;
+					text_buf = c_buf;
 				line_buf.Space().CatQStr(text_buf);
 			}
 			if(GetConstData(p_scope->GetConst(DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
 				_RectToLine(*reinterpret_cast<const UiRelRect *>(c_buf), line_buf.Space());
 			if(GetConstData(p_scope->GetConst(DlScope::cuifFont), c_buf, sizeof(c_buf))) {
 				if(PTR8C(c_buf)[0]) {
-					(text_buf = 0).CatQStr((const char *)c_buf);
+					text_buf.Z().CatQStr(c_buf);
 					prop_list.Add(DlScope::cuifFont, text_buf);
 				}
 			}
@@ -1031,7 +1023,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				UiRelRect rect;
 				rect.Reset();
 				prop_list.Z();
-				(line_buf = 0).CatChar('\t');
+				line_buf.Z().CatChar('\t');
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlKind), c_buf, sizeof(c_buf)))
 					kind = *reinterpret_cast<const uint32 *>(c_buf);
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
@@ -1041,16 +1033,16 @@ int SLAPI DlContext::Write_DialogReverse()
 				//
 				text_buf.Z();
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
-					text_buf = (const char *)c_buf;
+					text_buf = c_buf;
 				//
 				// Формируем строку типа данных STypEx
 				//
-				type_buf = 0;
+				type_buf.Z();
 				GetBinaryTypeString(ctrl.T.Typ, 1, type_buf, "", 0);
 				if(type_buf.Cmp("unknown", 0) == 0)
 					(type_buf = "string").CatChar('[').Cat(48).CatChar(']');
 				//
-				cmd_buf = 0;
+				cmd_buf.Z();
 				UiItemKind uiik(kind);
 				if(uiik.Symb.NotEmpty())
 					line_buf.Cat(uiik.Symb);
@@ -1061,7 +1053,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifStaticEdge), c_buf, sizeof(c_buf)))
 					prop_list.Add(DlScope::cuifStaticEdge, "");
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifLabelRect), c_buf, sizeof(c_buf))) {
-					_RectToLine(*reinterpret_cast<const UiRelRect *>(c_buf), temp_buf = 0);
+					_RectToLine(*reinterpret_cast<const UiRelRect *>(c_buf), temp_buf.Z());
 					prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 				}
 				line_buf.Space().Cat(ctrl.Name).Space().CatQStr(text_buf);
@@ -1072,7 +1064,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				}
 				else if(kind == DlScope::ckPushbutton) {
 					if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlCmdSymb), c_buf, sizeof(c_buf))) {
-						temp_buf = (const char *)c_buf;
+						temp_buf = c_buf;
 						line_buf.Space().Cat(temp_buf);
 					}
 				}
@@ -1085,7 +1077,7 @@ int SLAPI DlContext::Write_DialogReverse()
 							line_buf.Space().CatChar('{').CR();
 							f_out.WriteLine(line_buf);
 							for(uint k = 0; p_inner_scope->EnumFields(&k, &ctrl_item);) {
-								(line_buf = 0).CatCharN('\t', 2);
+								line_buf.Z().CatCharN('\t', 2);
 								rect.Reset();
 								if(GetConstData(p_inner_scope->GetFldConst(ctrl_item.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
 									rect = *reinterpret_cast<const UiRelRect *>(c_buf);
@@ -1098,14 +1090,14 @@ int SLAPI DlContext::Write_DialogReverse()
 								line_buf.Semicol().CR();
 								f_out.WriteLine(line_buf);
 							}
-							(line_buf = 0).CatChar('\t').CatChar('}').CR();
+							line_buf.Z().CatChar('\t').CatChar('}').CR();
 							f_out.WriteLine(line_buf);
 						}
 					}
 				}
 				else if(kind == DlScope::ckListbox) {
 					if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifCtrlListboxColDescr), c_buf, sizeof(c_buf))) {
-						temp_buf = (const char *)c_buf;
+						temp_buf = c_buf;
 						line_buf.Space().Cat("columns").Space().CatQStr(temp_buf);
 					}
 				}
@@ -1116,7 +1108,7 @@ int SLAPI DlContext::Write_DialogReverse()
 				}
 			}
 			//
-			(line_buf = 0).CatChar('}').CR();
+			line_buf.Z().CatChar('}').CR();
 			f_out.WriteLine(line_buf);
 		}
 	}
@@ -1581,7 +1573,7 @@ int SLAPI DlContext::ResolveDbFileDefinition(const CtmToken & rSymb, const char 
 		THROW(AddConst((uint32)val, &c));
 		THROW(p_scope->AddConst(DlScope::cdbtPageSize, c, 1));
 		if(!ok)
-			Error(PPERR_DL6_INVDBFILEPAGE, (temp_buf = 0).Cat(constInt), erfLog);
+			Error(PPERR_DL6_INVDBFILEPAGE, temp_buf.Z().Cat(constInt), erfLog);
 		// @todo Надо еще проверить на максимальное количество сегментов
 	}
 	else if(sstreqi_ascii(rSymb.U.S, "prealloc")) {
@@ -2271,7 +2263,7 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 			THROW(gen.WriteLine(gen.CatIndent(arg_name = 0).CatChar('[').Cat(arg_buf).CatChar(']').CR()));
 	}
 	else if(!oneof4(format, ffCPP_VTbl, ffCPP_Iface, ffCPP_CallImp, ffCPP_Imp)) {
-		arg_buf = 0;
+		arg_buf.Z();
 		if(rFunc.Flags & DlFunc::fPropGet) {
 			(arg_buf = "get").CatChar('_').Cat(temp_buf);
 		}
@@ -2296,7 +2288,7 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 		THROW(gen.Wr_StartDeclFunc(0, 0, arg_buf, temp_buf, Generator_CPP::fcmDefault));
 	}
 	c = rFunc.GetArgCount();
-	temp_buf = 0;
+	temp_buf.Z();
 	if(c) {
 		for(uint i = 0; i < c; i++) {
 			DlFunc::Arg arg;
@@ -2395,7 +2387,7 @@ int DlContext::Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope)
 	gen.CatIndent(line_buf).Cat("uuid").CatParStr(temp_buf);
 	next = 1;
 	if(rScope.GetAttrib(DlScope::sfVersion, &attr)) {
-		(temp_buf = 0).Cat(LoWord(attr.Ver)).Dot().Cat(HiWord(attr.Ver));
+		temp_buf.Z().Cat(LoWord(attr.Ver)).Dot().Cat(HiWord(attr.Ver));
 		if(next)
 			line_buf.Comma().CR();
 		gen.CatIndent(line_buf).Cat("version").CatParStr(temp_buf);
@@ -2548,7 +2540,7 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 	return ok;
 }
 
-int SLAPI DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFileName)
+void SLAPI DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFileName)
 {
 	SString temp_buf;
 	SPathStruc ps;
@@ -2558,7 +2550,6 @@ int SLAPI DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFileN
 	temp_buf.Printf("This file was generated by DL600C.EXE from '%s'", InFileName.cptr());
 	gen.Wr_Comment(temp_buf);
 	gen.Wr_Comment(0);
-	return 1;
 }
 
 int SLAPI DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const
@@ -2873,7 +2864,7 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 		//
 		//  Property name modification
 		//
-		temp_buf = 0;
+		temp_buf.Z();
 		if(rFunc.Flags & DlFunc::fPropGet)
 			temp_buf = "get";
 		else if(rFunc.Flags & DlFunc::fPropPut)
@@ -3714,7 +3705,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 				for(i = 0; i < scope_id_list.getCount(); i++) {
 					const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
 					if(p_scope) {
-						(temp_buf = 0).Cat(p_scope->GetId());
+						temp_buf.Z().Cat(p_scope->GetId());
 						//
 						CtmExprConst c_ss;
 						if(p_scope->GetConst(DlScope::cuifSymbSeries, &c_ss)) {
@@ -3746,7 +3737,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 							gen.Wr_Comment(symb = 0);
 						}
 						if(GetSymb(r_assc.Val, symb, '$')) {
-							(temp_buf = 0).Cat(r_assc.Val).Align(max_len - symb.Len(), ADJ_RIGHT);
+							temp_buf.Z().Cat(r_assc.Val).Align(max_len - symb.Len(), ADJ_RIGHT);
 							gen.Wr_Define(symb, temp_buf);
 						}
 						ss_id = r_assc.Key;

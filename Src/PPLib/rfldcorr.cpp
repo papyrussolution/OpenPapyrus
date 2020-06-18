@@ -1,11 +1,12 @@
 // RFLDCORR.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 // @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
-// Сопоставление полей импорта/экспорта со структурой SdRecord
+// РЎРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ РїРѕР»РµР№ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° СЃРѕ СЃС‚СЂСѓРєС‚СѓСЂРѕР№ SdRecord
 //
 static int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec) // @v9.8.12 static
 {
@@ -38,13 +39,14 @@ static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.
 static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField) // @v9.8.12 static
 {
 	class SdFieldCorrDialog : public TDialog {
+		DECL_DIALOG_DATA(SdbField);
 	public:
 		SdFieldCorrDialog(const SdRecord * pInnerRec) : TDialog(DLG_FLDCORR), P_Rec(pInnerRec)
 		{
 		}
-		int    setDTS(const SdbField * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			SetupSdRecFieldCombo(this, CTLSEL_FLDCORR_INNERFLD, Data.ID, P_Rec);
 			if(Data.T.Typ)
@@ -59,9 +61,10 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 			setupOuterLen();
 			return 1;
 		}
-		int    getDTS(SdbField * pData)
+		DECL_DIALOG_GETDTS()
 		{
-			int16  sz = 0, prec = 0;
+			int16  sz = 0;
+			int16  prec = 0;
 			long   temp_long = getCtrlLong(CTLSEL_FLDCORR_INNERFLD);
 			ushort use_formula = getCtrlUInt16(CTL_FLDCORR_USEFORMULA);
 			SString temp_buf;
@@ -146,7 +149,6 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 			}
 			return 1;
 		}
-		SdbField Data;
 		const SdRecord * P_Rec;
 	};
 	DIALOG_PROC_BODY_P1(SdFieldCorrDialog, pInnerRec, pOuterField);
@@ -155,12 +157,22 @@ static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterFiel
 //
 //
 class SdFieldCorrListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(SdRecord);
 public:
 	SdFieldCorrListDialog(const SdRecord * pInnerRec) : PPListDialog(DLG_FLDCORRLIST, CTL_FLDCORRLIST_LIST), P_Rec(pInnerRec)
 	{
 	}
-	int    setDTS(const SdRecord * pData);
-	int    getDTS(SdRecord * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
@@ -168,21 +180,7 @@ private:
 	virtual int delItem(long pos, long id);
 	virtual int moveItem(long pos, long id, int up);
 	const SdRecord * P_Rec;
-	SdRecord Data;
 };
-
-int SdFieldCorrListDialog::setDTS(const SdRecord * pData)
-{
-	RVALUEPTR(Data, pData);
-	updateList(-1);
-	return 1;
-}
-
-int SdFieldCorrListDialog::getDTS(SdRecord * pData)
-{
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
 
 int SdFieldCorrListDialog::moveItem(long pos, long id, int up)
 {
@@ -275,12 +273,13 @@ int SLAPI EditFieldCorrList(const SdRecord * pInnerRec, SdRecord * pCorrRec) { D
 int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 {
 	class TextDbFileParamDialog : public TDialog {
+		DECL_DIALOG_DATA(TextDbFile::Param);
 	public:
 		TextDbFileParamDialog(PPImpExpParam * pParam) : TDialog(DLG_TXTDBPARAM), P_Param(pParam)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_TXTDBPARAM_FNAME, CTL_TXTDBPARAM_FILENAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 		}
-		int    setDTS(const TextDbFile::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			SString temp_buf;
@@ -298,7 +297,7 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			onOrientSelection();
 			return 1;
 		}
-		int    getDTS(TextDbFile::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlString(CTL_TXTDBPARAM_FILENAME, Data.DefFileName);
 			ushort orient = getCtrlUInt16(CTL_TXTDBPARAM_ORIENT);
@@ -352,7 +351,6 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			setCtrlString(CTL_TXTDBPARAM_DIV, label_text/*.Transf(CTRANSF_OUTER_TO_INNER)*/);
 			disableCtrl(CTL_TXTDBPARAM_FOOTER, orient != 1);
 		}
-		TextDbFile::Param Data;
 		PPImpExpParam * P_Param;
 	};
 	DIALOG_PROC_BODY_P1(TextDbFileParamDialog, pIeParam, &pIeParam->TdfParam);
@@ -361,11 +359,12 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 {
 	class XmlDbFileParamDialog : public TDialog {
+		DECL_DIALOG_DATA(XmlDbFile::Param);
 	public:
 		XmlDbFileParamDialog(PPImpExpParam * pParam) : TDialog(DLG_XMLDBPARAM), Data(0, 0, 0, 0), P_Param(pParam)
 		{
 		}
-		int    setDTS(const XmlDbFile::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData))
 				Data.Init(0, 0, 0, 0);
@@ -378,7 +377,7 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 			SetClusterData(CTL_XMLDBPARAM_FLAGS, Data.Flags);
 			return 1;
 		}
-		int    getDTS(XmlDbFile::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -408,7 +407,6 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 				clearEvent(event);
 			}
 		}
-		XmlDbFile::Param Data;
 		PPImpExpParam * P_Param;
 	};
 	DIALOG_PROC_BODY_P1(XmlDbFileParamDialog, pIeParam, &pIeParam->XdfParam);
@@ -419,13 +417,14 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 {
 	class XlsDbFileParamDialog : public TDialog {
+		DECL_DIALOG_DATA(ExcelDbFile::Param);
 	public:
 		XlsDbFileParamDialog() : TDialog(DLG_XLSDBPARAM)
 		{
 		}
-		int    setDTS(const ExcelDbFile::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 0, ExcelDbFile::fFldNameRec);
 			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 1, ExcelDbFile::fQuotText);
 			AddClusterAssoc(CTL_XLSDBPARAM_FLAGS, 2, ExcelDbFile::fOneRecPerFile);
@@ -440,7 +439,7 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 			setCtrlString(CTL_XLSDBPARAM_ENDSTR,    Data.EndStr_);
 			return 1;
 		}
-		int    getDTS(ExcelDbFile::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			long   orient = 0;
 			GetClusterData(CTL_XLSDBPARAM_FLAGS,  &Data.Flags);
@@ -460,8 +459,6 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
-	private:
-		ExcelDbFile::Param Data;
 	};
 	DIALOG_PROC_BODYERR(XlsDbFileParamDialog, pData);
 }
@@ -522,7 +519,6 @@ int PPImpExpParam::Init(int import)
 	int    ok = 1;
 	BaseFlags = 0;
 	Direction  = BIN(import);
-	// @v8.4.6 ImpExpByDll = 0; // @vmiller
 	DataFormat = 0;
 	InetAccID = 0;
 	Name.Z();
@@ -534,7 +530,7 @@ int PPImpExpParam::Init(int import)
 	TdfParam.Init();
 	XdfParam.Init(0, 0, 0, 0);
 	XlsdfParam.Init();
-	THROW(LoadSdRecord(PPREC_IMPEXPHEADER, &HdrInrRec)); // @v7.2.6
+	THROW(LoadSdRecord(PPREC_IMPEXPHEADER, &HdrInrRec));
 	CATCHZOK
 	return ok;
 }
@@ -545,7 +541,6 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 	//#define EXP_PREFX  "EXP"
 	const char * p_prefix_imp = "IMP";
 	const char * p_prefix_exp = "EXP";
-
 	int    ok = -1;
 	SString rec_prefx, temp_buf;
 	switch(op) {
@@ -646,14 +641,14 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 			if(overflow)
 				ok = PPSetError(PPERR_EXPFNTEMPLATEOVERFLOW, FileName);
 			else
-				ok = 100; // Имя создано по шаблону
+				ok = 100; // РРјСЏ СЃРѕР·РґР°РЅРѕ РїРѕ С€Р°Р±Р»РѕРЅСѓ
 		}
 		else {
 			if(use_ps)
 				ps.Merge(rResult);
 			else
 				rResult = _file_name;
-			ok = 1; // Имя файла осталось как есть
+			ok = 1; // РРјСЏ С„Р°Р№Р»Р° РѕСЃС‚Р°Р»РѕСЃСЊ РєР°Рє РµСЃС‚СЊ
 		}
 	}
 	return ok;
@@ -938,56 +933,56 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 }
 
 enum {
-	iefFileName=1,    // filename    Имя файла импорта/экспорта
+	iefFileName=1,    // filename    РРјСЏ С„Р°Р№Р»Р° РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
 	iefImpExp,        // impexp      (import,imp;export,exp)
-	iefFormat,        // format      Формат файла (txt,text,csv;dbf)
-	iefOrient,        // orient      Ориентация записей текстового файла (horizontal,horiz;vertical,vert)
-	iefCodepage,      // codepage    Кодовая страница
-	iefOemText,       // oemcoding   Текстовые поля в OEM-кодировке
-	iefQuotStr,       // quotstr     Текстовые поля обрамлены двойными кавычками
-	iefFieldDiv,      // fielddiv    Строка-разделитель полей
-	iefFixedFields,   // fixedfields Поля фиксированного размера
-	iefFieldEqVal,    // fieldeqval  Наименование поля и значение разделены символом '='
-	iefFormula,       // formula()   Значение поля рассчитывается по формуле
-	iefRootTag,       // roottag     Наименование корневого тега (XML)
-	iefRecTag,        // rectag      Наименование тега записи (XML)
-	iefFldNameRec,    // fldnamerec  fFldNameRec Строка наименований полей для текстового файла
-	iefUseDTD,        // fusedtd     Использовать DTD в xml файлах
-	iefUtf8Codepage,  // fuseutf8    Использовать кодировку UTF8 в xml файлах
-	iefSubRec,        // fsubrec     Данная запись является вложенной (подчиненной) по отношению к основной
-	iefHdrLinesCount, // hdrlinescount Количество незначащих строк в начале текстового файла
-	iefSheetNum,      // sheetnum    Номер листа excel
-	iefSheetName,     // sheetname   Наименование листа excel
-	iefXlsFldNameRec, // xlsfldnamerec fFldNameRec Строка наименований полей для текстового файла (excel)
-	iefXlsQuotStr,    // xlsquotstr   Текстовые поля обрамлены двойными кавычками (excel)
-	iefXlsOrient,     // xlsorient Ориентация записей в файле (horizontal,horiz;vertical,vert)
-	iefOneRecPerFile, // onerecperfile Одна запись в файле
-	iefEndStr,        // endstr Признак окончания данных
-	iefXlsHdrLinesCount, // xlshdrlinescount Количество незначащих строк в начале листа excel
-	iefColumnsCount,     // columnscount Количество незначащих столбцов в начале листа excel
-	iefHdrTag,           // hdrtag      Наименование тега заголовка (XML)
-	iefHdrFormula,       // hdrformula() Значение поля заголовка рассчитывается по формуле
-	iefFooterLine,        // footerline   Завершающая строка текстового файла с вертикальной раскладкой полей (TXT)
-	iedllDllPath,	  // dllpath	  Путь к dll-файлу импорта/экспорта
-	iedllReceiptTag,  // receipttag	  ИД тега, по которому в документ будет добавлена метка
-	iedllGlobalName,  // globalname	  Логин для входа в систему провайдера ЭДО
-	iedllBeerGrpId,	  // beergrpid	  ИД группы товаров "пиво"
-	iedllAlcoLicenseRegId,  // alcolicseregid   ИД регистра производителя с номером "лицензия на алкоголь"
-	iedllTTNTagId,    // ttntagid   ИД тега с номером ТТН
-	iedllManufTagId,  // manuftagid   ИД тега импортера/производител
-	iedllManufKPPRegTagId,  // manufkppregtagid   ИД регистра производителя с номером КПП
-	iedllManufRegionCode,  // manufregioncode   Код региона из адреса производителя/импортера
-	iedllIsManufTagId,	  // ismanuftagid   Если 1, то персоналия-производитель, 2 - персоналия-импортер
-	iedllGoodsKindSymb,  // goodskindsymb   По какому параметру искать вид товара: x, y, z, w
-	iedllXmlPrefix,   // xmlprefix   Префикс имени xml-документа
-	iedllAlcoGrpId,	  // alcogrpid	  ИД группы товаров "алкоголь"
-	iedllGoodsKindTagID, // goodskindtagid   ИД тега лота с инфой о виде товара
-	iedllOperType,   // opertype   Тип операции импорта/экспорта (ORDER, ORDRSP, APERAK, DESADV, RESADV)
-	iedllGoodsVolSymb, // goodsvolsymb   По какому параметру искать емкость товара: x, y, z ,w
-	iedllManufINNID,   // manufinnid   ИД тега лота с инфой об ИНН поставщика/импортера
-	iefBaseFlags,      // Флаг, предписывающий удалять исходные файлы после удачного импорта
-	iefFtpAccSymb,     // @v8.6.1 Символ FTP-аккаунта
-	iefFtpAccID        // @v8.6.1 Идентификатор FTP-аккаунта
+	iefFormat,        // format      Р¤РѕСЂРјР°С‚ С„Р°Р№Р»Р° (txt,text,csv;dbf)
+	iefOrient,        // orient      РћСЂРёРµРЅС‚Р°С†РёСЏ Р·Р°РїРёСЃРµР№ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р° (horizontal,horiz;vertical,vert)
+	iefCodepage,      // codepage    РљРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р°
+	iefOemText,       // oemcoding   РўРµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ РІ OEM-РєРѕРґРёСЂРѕРІРєРµ
+	iefQuotStr,       // quotstr     РўРµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ РѕР±СЂР°РјР»РµРЅС‹ РґРІРѕР№РЅС‹РјРё РєР°РІС‹С‡РєР°РјРё
+	iefFieldDiv,      // fielddiv    РЎС‚СЂРѕРєР°-СЂР°Р·РґРµР»РёС‚РµР»СЊ РїРѕР»РµР№
+	iefFixedFields,   // fixedfields РџРѕР»СЏ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР°
+	iefFieldEqVal,    // fieldeqval  РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕР»СЏ Рё Р·РЅР°С‡РµРЅРёРµ СЂР°Р·РґРµР»РµРЅС‹ СЃРёРјРІРѕР»РѕРј '='
+	iefFormula,       // formula()   Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РїРѕ С„РѕСЂРјСѓР»Рµ
+	iefRootTag,       // roottag     РќР°РёРјРµРЅРѕРІР°РЅРёРµ РєРѕСЂРЅРµРІРѕРіРѕ С‚РµРіР° (XML)
+	iefRecTag,        // rectag      РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РµРіР° Р·Р°РїРёСЃРё (XML)
+	iefFldNameRec,    // fldnamerec  fFldNameRec РЎС‚СЂРѕРєР° РЅР°РёРјРµРЅРѕРІР°РЅРёР№ РїРѕР»РµР№ РґР»СЏ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°
+	iefUseDTD,        // fusedtd     РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ DTD РІ xml С„Р°Р№Р»Р°С…
+	iefUtf8Codepage,  // fuseutf8    РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРґРёСЂРѕРІРєСѓ UTF8 РІ xml С„Р°Р№Р»Р°С…
+	iefSubRec,        // fsubrec     Р”Р°РЅРЅР°СЏ Р·Р°РїРёСЃСЊ СЏРІР»СЏРµС‚СЃСЏ РІР»РѕР¶РµРЅРЅРѕР№ (РїРѕРґС‡РёРЅРµРЅРЅРѕР№) РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє РѕСЃРЅРѕРІРЅРѕР№
+	iefHdrLinesCount, // hdrlinescount РљРѕР»РёС‡РµСЃС‚РІРѕ РЅРµР·РЅР°С‡Р°С‰РёС… СЃС‚СЂРѕРє РІ РЅР°С‡Р°Р»Рµ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°
+	iefSheetNum,      // sheetnum    РќРѕРјРµСЂ Р»РёСЃС‚Р° excel
+	iefSheetName,     // sheetname   РќР°РёРјРµРЅРѕРІР°РЅРёРµ Р»РёСЃС‚Р° excel
+	iefXlsFldNameRec, // xlsfldnamerec fFldNameRec РЎС‚СЂРѕРєР° РЅР°РёРјРµРЅРѕРІР°РЅРёР№ РїРѕР»РµР№ РґР»СЏ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р° (excel)
+	iefXlsQuotStr,    // xlsquotstr   РўРµРєСЃС‚РѕРІС‹Рµ РїРѕР»СЏ РѕР±СЂР°РјР»РµРЅС‹ РґРІРѕР№РЅС‹РјРё РєР°РІС‹С‡РєР°РјРё (excel)
+	iefXlsOrient,     // xlsorient РћСЂРёРµРЅС‚Р°С†РёСЏ Р·Р°РїРёСЃРµР№ РІ С„Р°Р№Р»Рµ (horizontal,horiz;vertical,vert)
+	iefOneRecPerFile, // onerecperfile РћРґРЅР° Р·Р°РїРёСЃСЊ РІ С„Р°Р№Р»Рµ
+	iefEndStr,        // endstr РџСЂРёР·РЅР°Рє РѕРєРѕРЅС‡Р°РЅРёСЏ РґР°РЅРЅС‹С…
+	iefXlsHdrLinesCount, // xlshdrlinescount РљРѕР»РёС‡РµСЃС‚РІРѕ РЅРµР·РЅР°С‡Р°С‰РёС… СЃС‚СЂРѕРє РІ РЅР°С‡Р°Р»Рµ Р»РёСЃС‚Р° excel
+	iefColumnsCount,     // columnscount РљРѕР»РёС‡РµСЃС‚РІРѕ РЅРµР·РЅР°С‡Р°С‰РёС… СЃС‚РѕР»Р±С†РѕРІ РІ РЅР°С‡Р°Р»Рµ Р»РёСЃС‚Р° excel
+	iefHdrTag,           // hdrtag      РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РµРіР° Р·Р°РіРѕР»РѕРІРєР° (XML)
+	iefHdrFormula,       // hdrformula() Р—РЅР°С‡РµРЅРёРµ РїРѕР»СЏ Р·Р°РіРѕР»РѕРІРєР° СЂР°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ РїРѕ С„РѕСЂРјСѓР»Рµ
+	iefFooterLine,        // footerline   Р—Р°РІРµСЂС€Р°СЋС‰Р°СЏ СЃС‚СЂРѕРєР° С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р° СЃ РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ СЂР°СЃРєР»Р°РґРєРѕР№ РїРѕР»РµР№ (TXT)
+	iedllDllPath,	  // dllpath	  РџСѓС‚СЊ Рє dll-С„Р°Р№Р»Сѓ РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р°
+	iedllReceiptTag,  // receipttag	  РР” С‚РµРіР°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РІ РґРѕРєСѓРјРµРЅС‚ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅР° РјРµС‚РєР°
+	iedllGlobalName,  // globalname	  Р›РѕРіРёРЅ РґР»СЏ РІС…РѕРґР° РІ СЃРёСЃС‚РµРјСѓ РїСЂРѕРІР°Р№РґРµСЂР° Р­Р”Рћ
+	iedllBeerGrpId,	  // beergrpid	  РР” РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ "РїРёРІРѕ"
+	iedllAlcoLicenseRegId,  // alcolicseregid   РР” СЂРµРіРёСЃС‚СЂР° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ СЃ РЅРѕРјРµСЂРѕРј "Р»РёС†РµРЅР·РёСЏ РЅР° Р°Р»РєРѕРіРѕР»СЊ"
+	iedllTTNTagId,    // ttntagid   РР” С‚РµРіР° СЃ РЅРѕРјРµСЂРѕРј РўРўРќ
+	iedllManufTagId,  // manuftagid   РР” С‚РµРіР° РёРјРїРѕСЂС‚РµСЂР°/РїСЂРѕРёР·РІРѕРґРёС‚РµР»
+	iedllManufKPPRegTagId,  // manufkppregtagid   РР” СЂРµРіРёСЃС‚СЂР° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ СЃ РЅРѕРјРµСЂРѕРј РљРџРџ
+	iedllManufRegionCode,  // manufregioncode   РљРѕРґ СЂРµРіРёРѕРЅР° РёР· Р°РґСЂРµСЃР° РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ/РёРјРїРѕСЂС‚РµСЂР°
+	iedllIsManufTagId,	  // ismanuftagid   Р•СЃР»Рё 1, С‚Рѕ РїРµСЂСЃРѕРЅР°Р»РёСЏ-РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ, 2 - РїРµСЂСЃРѕРЅР°Р»РёСЏ-РёРјРїРѕСЂС‚РµСЂ
+	iedllGoodsKindSymb,  // goodskindsymb   РџРѕ РєР°РєРѕРјСѓ РїР°СЂР°РјРµС‚СЂСѓ РёСЃРєР°С‚СЊ РІРёРґ С‚РѕРІР°СЂР°: x, y, z, w
+	iedllXmlPrefix,   // xmlprefix   РџСЂРµС„РёРєСЃ РёРјРµРЅРё xml-РґРѕРєСѓРјРµРЅС‚Р°
+	iedllAlcoGrpId,	  // alcogrpid	  РР” РіСЂСѓРїРїС‹ С‚РѕРІР°СЂРѕРІ "Р°Р»РєРѕРіРѕР»СЊ"
+	iedllGoodsKindTagID, // goodskindtagid   РР” С‚РµРіР° Р»РѕС‚Р° СЃ РёРЅС„РѕР№ Рѕ РІРёРґРµ С‚РѕРІР°СЂР°
+	iedllOperType,   // opertype   РўРёРї РѕРїРµСЂР°С†РёРё РёРјРїРѕСЂС‚Р°/СЌРєСЃРїРѕСЂС‚Р° (ORDER, ORDRSP, APERAK, DESADV, RESADV)
+	iedllGoodsVolSymb, // goodsvolsymb   РџРѕ РєР°РєРѕРјСѓ РїР°СЂР°РјРµС‚СЂСѓ РёСЃРєР°С‚СЊ РµРјРєРѕСЃС‚СЊ С‚РѕРІР°СЂР°: x, y, z ,w
+	iedllManufINNID,   // manufinnid   РР” С‚РµРіР° Р»РѕС‚Р° СЃ РёРЅС„РѕР№ РѕР± РРќРќ РїРѕСЃС‚Р°РІС‰РёРєР°/РёРјРїРѕСЂС‚РµСЂР°
+	iefBaseFlags,      // Р¤Р»Р°Рі, РїСЂРµРґРїРёСЃС‹РІР°СЋС‰РёР№ СѓРґР°Р»СЏС‚СЊ РёСЃС…РѕРґРЅС‹Рµ С„Р°Р№Р»С‹ РїРѕСЃР»Рµ СѓРґР°С‡РЅРѕРіРѕ РёРјРїРѕСЂС‚Р°
+	iefFtpAccSymb,     // @v8.6.1 РЎРёРјРІРѕР» FTP-Р°РєРєР°СѓРЅС‚Р°
+	iefFtpAccID        // @v8.6.1 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ FTP-Р°РєРєР°СѓРЅС‚Р°
 };
 
 /*virtual*/int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
@@ -1032,7 +1027,7 @@ enum {
 	THROW_SL(InrRec.Serialize(dir, rTail, pSCtx));
 	if(dir < 0) {
 		//
-		// Устанавливаем соответствие между полями внешних и внутренних структур по наименованиям.
+		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РјРµР¶РґСѓ РїРѕР»СЏРјРё РІРЅРµС€РЅРёС… Рё РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂ РїРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏРј.
 		//
 		uint i;
 		SdbField fld, inner_fld;
@@ -1099,7 +1094,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			temp_buf = ia_pack.Symb;
 			if(temp_buf.NotEmptyS()) {
 				THROW(tsl_par.Retranslate(iefFtpAccSymb, symb_buf));
-				// @v10.3.11 (SIniFile сам это делает) temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				// @v10.3.11 (SIniFile СЃР°Рј СЌС‚Рѕ РґРµР»Р°РµС‚) temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
 			}
 			else {
@@ -1109,7 +1104,7 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
         }
         else {
         	//
-        	// Вполне возможно, что идент аккаунта принадлежит другой базе данных, потому сохраняем его без изменений
+        	// Р’РїРѕР»РЅРµ РІРѕР·РјРѕР¶РЅРѕ, С‡С‚Рѕ РёРґРµРЅС‚ Р°РєРєР°СѓРЅС‚Р° РїСЂРёРЅР°РґР»РµР¶РёС‚ РґСЂСѓРіРѕР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…, РїРѕС‚РѕРјСѓ СЃРѕС…СЂР°РЅСЏРµРј РµРіРѕ Р±РµР· РёР·РјРµРЅРµРЅРёР№
         	//
 			THROW(tsl_par.Retranslate(iefFtpAccID, symb_buf));
 			THROW(pFile->AppendIntParam(pSect, symb_buf, InetAccID, 1));
@@ -1246,7 +1241,7 @@ int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & r
 	const char * p = rPar.SearchChar('(', &pos);
 	if(p) {
 		p++;
-		while(*p && *(p + 1) != 0) // Пропускаем последний символ ')'
+		while(*p && *(p + 1) != 0) // РџСЂРѕРїСѓСЃРєР°РµРј РїРѕСЃР»РµРґРЅРёР№ СЃРёРјРІРѕР» ')'
 			outer_fld.Formula.CatChar(*p++);
 	}
 	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.3.12
@@ -1376,7 +1371,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 				case iedllReceiptTag: ImpExpParamDll.RcptTagID = val.ToLong(); break;
 				case iedllGlobalName:
 					ImpExpParamDll.Login = val;
-					// Получим пароль
+					// РџРѕР»СѓС‡РёРј РїР°СЂРѕР»СЊ
 					{
 						PPObjGlobalUserAcc obj_user_acc;
 						PPGlobalUserAcc user_acc;
@@ -1431,12 +1426,12 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					else if(InrRec.GetFieldByName(par, &fld) > 0) {
 						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
 							val.Transf(CTRANSF_INNER_TO_OUTER);*/
-						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
+						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() СѓРјРµРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ С‚РѕР»СЊРєРѕ СЃ ANSI-СЃС‚СЂРѕРєР°РјРё
 						scan.Set(temp_buf, 0);
 						outer_fld.Init();
 						outer_fld.ID = fld.ID;
 						THROW_SL(outer_fld.TranslateString(scan));
-						//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
+						//outer_fld.Typ = fld.Typ; // ??? Р’РѕР·РјРѕР¶РЅРѕ, С‚РёРї РёСЃС…РѕРґСЏС‰РµРіРѕ РїРѕР»СЏ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ
 						if(GETSTYPE(outer_fld.T.Typ) == S_ZSTRING && GETSSIZE(outer_fld.T.Typ) == 0) {
 							size_t len = SFMTLEN(outer_fld.OuterFormat)+1;
 							if(len & 0x3)
@@ -1449,12 +1444,12 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					else if(HdrInrRec.GetFieldByName(par, &fld) > 0) {
 						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
 							val.Transf(CTRANSF_INNER_TO_OUTER);*/
-						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
+						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() СѓРјРµРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ С‚РѕР»СЊРєРѕ СЃ ANSI-СЃС‚СЂРѕРєР°РјРё
 						scan.Set(temp_buf, 0);
 						outer_fld.Init();
 						outer_fld.ID = fld.ID;
 						THROW_SL(outer_fld.TranslateString(scan));
-						//outer_fld.Typ = fld.Typ; // ??? Возможно, тип исходящего поля должен быть
+						//outer_fld.Typ = fld.Typ; // ??? Р’РѕР·РјРѕР¶РЅРѕ, С‚РёРї РёСЃС…РѕРґСЏС‰РµРіРѕ РїРѕР»СЏ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ
 						if(GETSTYPE(outer_fld.T.Typ) == S_ZSTRING && GETSSIZE(outer_fld.T.Typ) == 0) {
 							size_t len = SFMTLEN(outer_fld.OuterFormat)+1;
 							if(len & 0x3)
@@ -1538,7 +1533,7 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 			else if(event.isCtlEvent(CTL_IMPEXP_DIR)) {
 				GetClusterData(CTL_IMPEXP_DIR, &Data.Direction);
 				DisableClusterItem(CTL_IMPEXP_FLAGS, 1, Data.Direction == 0);
-				return; // Не следует здесь очищать событие поскольку порожденные классы тоже могут его обрабатывать
+				return; // РќРµ СЃР»РµРґСѓРµС‚ Р·РґРµСЃСЊ РѕС‡РёС‰Р°С‚СЊ СЃРѕР±С‹С‚РёРµ РїРѕСЃРєРѕР»СЊРєСѓ РїРѕСЂРѕР¶РґРµРЅРЅС‹Рµ РєР»Р°СЃСЃС‹ С‚РѕР¶Рµ РјРѕРіСѓС‚ РµРіРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ
 			}
 			else
 				return;
@@ -1602,7 +1597,7 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 		SETFLAG(Data.BaseFlags, PPImpExpParam::bfDeleteSrcFiles, _f & 0x0002);
 	}
 	getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
-	Data.InetAccID = 0; // @v9.8.12 @fix(не возможно было очистить это поле)
+	Data.InetAccID = 0; // @v9.8.12 @fix(РЅРµ РІРѕР·РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РѕС‡РёСЃС‚РёС‚СЊ СЌС‚Рѕ РїРѕР»Рµ)
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
 		PPID   acc_id = 0;
 		getCtrlData(CTLSEL_IMPEXP_FTPACC, &acc_id);
@@ -1965,7 +1960,7 @@ int SLAPI PPImpExp::Pop()
 {
 	if(ExtractSubChild) {
 		int    pos = 0;
-		// Вытаскиваем номер состояния из стека
+		// Р’С‹С‚Р°СЃРєРёРІР°РµРј РЅРѕРјРµСЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ РёР· СЃС‚РµРєР°
 		int    r_debug = StateStack.pop(pos);
 		assert(r_debug);
 		assert(pos >= 0 && pos < static_cast<int>(StateColl.getCount()));
@@ -2000,20 +1995,20 @@ const SString & SLAPI PPImpExp::GetPreservedOrgFileName() const
 }
 
 enum {
-	iefrmEmpty=1,        // empty       Пустая строка
-	iefrmRecNo,          // recno       Номер текущей записи
-	iefrmCurDate_German, // curdate     Текущая дата в формате dd.mm.yyyy
-	iefrmCurDate,        // curdate     Текущая дата в формате dd/mm/yyyy
-	iefrmCurTime,        // curtime     Текущее время //
-	iefrmCurYear,        // curyear     Текущий год
-	iefrmCurMonth,       // curmonth    Текущий месяц
-	iefrmCurDay,         // curday      Текущий день
-	iefrmPsnRegNum,      // personregnum(regtypesymb, person_id) Номер регистра по ид персоналии
-	iefrmArRegNum,       // arregnum(regtypesymb, article_id)    Номер регистра по ид аналитической статьи
-	iefrmObjTag,         // objtag(tagsymb, objtype, obj_id)     Текстовое значение тега объекта
-	iefrmArRegDate,      // @v8.1.1 arregdate(regtypesymb, article_id)   Дата регистра по ид аналитической статьи
-	iefrmCat,            // @v9.3.10 cat(...) Текстовая конкатенация списка аргументов (без вставки пробелов)
-	iefrmCats,           // @v9.3.10 cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
+	iefrmEmpty=1,        // empty       РџСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°
+	iefrmRecNo,          // recno       РќРѕРјРµСЂ С‚РµРєСѓС‰РµР№ Р·Р°РїРёСЃРё
+	iefrmCurDate_German, // curdate     РўРµРєСѓС‰Р°СЏ РґР°С‚Р° РІ С„РѕСЂРјР°С‚Рµ dd.mm.yyyy
+	iefrmCurDate,        // curdate     РўРµРєСѓС‰Р°СЏ РґР°С‚Р° РІ С„РѕСЂРјР°С‚Рµ dd/mm/yyyy
+	iefrmCurTime,        // curtime     РўРµРєСѓС‰РµРµ РІСЂРµРјСЏ //
+	iefrmCurYear,        // curyear     РўРµРєСѓС‰РёР№ РіРѕРґ
+	iefrmCurMonth,       // curmonth    РўРµРєСѓС‰РёР№ РјРµСЃСЏС†
+	iefrmCurDay,         // curday      РўРµРєСѓС‰РёР№ РґРµРЅСЊ
+	iefrmPsnRegNum,      // personregnum(regtypesymb, person_id) РќРѕРјРµСЂ СЂРµРіРёСЃС‚СЂР° РїРѕ РёРґ РїРµСЂСЃРѕРЅР°Р»РёРё
+	iefrmArRegNum,       // arregnum(regtypesymb, article_id)    РќРѕРјРµСЂ СЂРµРіРёСЃС‚СЂР° РїРѕ РёРґ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё
+	iefrmObjTag,         // objtag(tagsymb, objtype, obj_id)     РўРµРєСЃС‚РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РµРіР° РѕР±СЉРµРєС‚Р°
+	iefrmArRegDate,      // @v8.1.1 arregdate(regtypesymb, article_id)   Р”Р°С‚Р° СЂРµРіРёСЃС‚СЂР° РїРѕ РёРґ Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё
+	iefrmCat,            // @v9.3.10 cat(...) РўРµРєСЃС‚РѕРІР°СЏ РєРѕРЅРєР°С‚РµРЅР°С†РёСЏ СЃРїРёСЃРєР° Р°СЂРіСѓРјРµРЅС‚РѕРІ (Р±РµР· РІСЃС‚Р°РІРєРё РїСЂРѕР±РµР»РѕРІ)
+	iefrmCats,           // @v9.3.10 cats(...) РўРµРєСЃС‚РѕРІР°СЏ РєРѕРЅРєР°С‚РµРЅР°С†РёСЏ СЃРїРёСЃРєР° Р°СЂРіСѓРјРµРЅС‚РѕРІ (СЃРѕ РІСЃС‚Р°РІРєРѕР№ РїСЂРѕР±РµР»РѕРІ РјРµР¶РґСѓ РєР°Р¶РґРѕР№ РїР°СЂРѕР№)
 };
 
 // static
@@ -2102,7 +2097,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 	}
 	*/
 	rResult.Z();
-	if(PPExprParser::CalcExpression(pFormula, &dbl_val, 0, p_expr_ctx) > 0) // Разрешение выражений у которых аргументы - числа
+	if(PPExprParser::CalcExpression(pFormula, &dbl_val, 0, p_expr_ctx) > 0) // Р Р°Р·СЂРµС€РµРЅРёРµ РІС‹СЂР°Р¶РµРЅРёР№ Сѓ РєРѕС‚РѕСЂС‹С… Р°СЂРіСѓРјРµРЅС‚С‹ - С‡РёСЃР»Р°
 		rResult.Cat(dbl_val);
 	else {
 		SString temp_buf, reg_type_symb;
@@ -2336,10 +2331,10 @@ int PPImpExp::InitDynRec(SdRecord * pDynRec) const
 {
 	assert(pDynRec != 0);
 	int    ok = -1;
-	long   c = 0; // Счетчик номеров динамических полей
+	long   c = 0; // РЎС‡РµС‚С‡РёРє РЅРѕРјРµСЂРѕРІ РґРёРЅР°РјРёС‡РµСЃРєРёС… РїРѕР»РµР№
 	SdbField outer_fld;
-	SdbField dyn_fld; // Определение выносим за пределы цикла во избежании лишних распределений памяти
-		// (внутри этой структуры находятся элементы SString)
+	SdbField dyn_fld; // РћРїСЂРµРґРµР»РµРЅРёРµ РІС‹РЅРѕСЃРёРј Р·Р° РїСЂРµРґРµР»С‹ С†РёРєР»Р° РІРѕ РёР·Р±РµР¶Р°РЅРёРё Р»РёС€РЅРёС… СЂР°СЃРїСЂРµРґРµР»РµРЅРёР№ РїР°РјСЏС‚Рё
+		// (РІРЅСѓС‚СЂРё СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ РЅР°С…РѕРґСЏС‚СЃСЏ СЌР»РµРјРµРЅС‚С‹ SString)
 	for(uint i = 0; P.OtrRec.EnumFields(&i, &outer_fld);) {
 		if(outer_fld.T.Flags & STypEx::fFormula) {
 			dyn_fld.Init();
@@ -2365,8 +2360,8 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 	char   temp_cbuf[1024];
 	SdbField outer_fld;
 	SString formula_result;
-	SdbField inner_fld; // Определение выносим за пределы цикла во избежании лишних распределений памяти
-		// (внутри этой структуры находятся элементы SString)
+	SdbField inner_fld; // РћРїСЂРµРґРµР»РµРЅРёРµ РІС‹РЅРѕСЃРёРј Р·Р° РїСЂРµРґРµР»С‹ С†РёРєР»Р° РІРѕ РёР·Р±РµР¶Р°РЅРёРё Р»РёС€РЅРёС… СЂР°СЃРїСЂРµРґРµР»РµРЅРёР№ РїР°РјСЏС‚Рё
+		// (РІРЅСѓС‚СЂРё СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ РЅР°С…РѕРґСЏС‚СЃСЏ СЌР»РµРјРµРЅС‚С‹ SString)
 	if(P.OtrRec.GetDataC() == 0)
 		THROW_SL(P.OtrRec.AllocDataBuf());
 	for(uint i = 0; P.OtrRec.EnumFields(&i, &outer_fld);) {
@@ -2422,7 +2417,7 @@ int PPImpExp::AppendHdrRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
-	/* @v10.3.3 @fix (то же, что и выше да еще и без проверки P_XmlT) else if(P_SoapT) {
+	/* @v10.3.3 @fix (С‚Рѕ Р¶Рµ, С‡С‚Рѕ Рё РІС‹С€Рµ РґР° РµС‰Рµ Рё Р±РµР· РїСЂРѕРІРµСЂРєРё P_XmlT) else if(P_SoapT) {
 		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}*/
 	else if(P_XlsT) {
@@ -2451,7 +2446,7 @@ int PPImpExp::AppendRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}
-	/* @v10.3.3 @fix (то же, что и выше да еще и без проверки P_XmlT) else if(P_SoapT) {
+	/* @v10.3.3 @fix (С‚Рѕ Р¶Рµ, С‡С‚Рѕ Рё РІС‹С€Рµ РґР° РµС‰Рµ Рё Р±РµР· РїСЂРѕРІРµСЂРєРё P_XmlT) else if(P_SoapT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}*/
 	else if(P_XlsT) {
@@ -2556,7 +2551,7 @@ int SLAPI GetImpExpSections(uint fileNameId, uint sdRecID, PPImpExpParam * pPara
 	long   id = 0;
 	SString section, sect;
 	StringSet ss;
-	int direction = pParam->Direction; // @vmiller Надо запомнить и восстановить этот параметр, ибо он меняется в GetImpExpSections()
+	int direction = pParam->Direction; // @vmiller РќР°РґРѕ Р·Р°РїРѕРјРЅРёС‚СЊ Рё РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ, РёР±Рѕ РѕРЅ РјРµРЅСЏРµС‚СЃСЏ РІ GetImpExpSections()
 	THROW(GetImpExpSections(fileNameId, sdRecID, pParam, &ss, kind));
 	for(p = 0, id = 1; ss.get(&p, section); id++) {
 		pParam->ProcessName(2, sect = section);

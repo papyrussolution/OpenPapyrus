@@ -1869,9 +1869,12 @@ int PiritEquip::RunCheck(int opertype)
 					//str.Trim(32);
 					//(str = Check.ChZnCode).Trim(32); // [1..32]
 					CreateStr(str, in_data); // Код товарной номенклатуры
+					/*if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
+						CreateStr("mdlp", in_data); */
+					CreateStr("[M]", in_data); 
 					{
 						const int do_check_ret = 1;
-						OpLogBlock __oplb(LogFileName, "24", 0);
+						OpLogBlock __oplb(LogFileName, "24", str);
 						THROWERR(PutData("24", in_data), PIRIT_NOTSENT);
 						if(do_check_ret) {
 							THROW(GetWhile(out_data, r_error));

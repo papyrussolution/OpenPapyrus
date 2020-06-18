@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 
 //static
 int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)

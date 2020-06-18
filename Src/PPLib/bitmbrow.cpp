@@ -455,8 +455,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	return ok;
 }
 
-//static 
-int BillItemBrowser::SortFunc(const LongArray * pSortColIdxList, void * extraPtr)
+/*static*/int BillItemBrowser::SortFunc(const LongArray * pSortColIdxList, void * extraPtr)
 {
 	int    ok = -1;
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
@@ -465,8 +464,7 @@ int BillItemBrowser::SortFunc(const LongArray * pSortColIdxList, void * extraPtr
 	return ok;
 }
 
-//static 
-int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
@@ -1559,8 +1557,7 @@ double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
 double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) const
 	{ return (rTi.Flags & PPTFR_ONORDER) ? OrdQttyList.Get(rTi.OrdLotID, 0) : 0.0; }
 
-//static
-int FASTCALL BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(pBlk->ExtraPtr);
 	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
@@ -2958,11 +2955,8 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					// 080026600250673670340153552
 					SString mark_buf = temp_buf;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
-					// @v10.6.9 const int iczc = PPChZnPrcssr::IsChZnCode(mark_buf); // @v10.6.5 PPChZnPrcssr::IsChZnCode(mark_buf)
-					// @v10.6.9 {
 					GtinStruc gts;
 					const int pczcr = PPChZnPrcssr::ParseChZnCode(mark_buf, gts);
-					// } @v10.6.9 
 					if(!iemr && !pczcr) {
 						if(P_LotXcT) {
 							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
@@ -3959,8 +3953,7 @@ private:
 	int    SelectedPos;
 };
 
-//static
-int CompleteBrowser::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int CompleteBrowser::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	CompleteBrowser * p_brw = static_cast<CompleteBrowser *>(extraPtr);

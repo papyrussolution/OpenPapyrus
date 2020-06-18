@@ -1314,6 +1314,7 @@
     <ClCompile Include="..\PPLib\PPEXPR.CPP" />
     <ClCompile Include="..\PPLib\ppgeo.cpp" />
     <ClCompile Include="..\PPLib\ppgplot.cpp" />
+    <ClCompile Include="..\PPLib\ppgravity.cpp" />
     <ClCompile Include="..\PPLib\ppidata.cpp" />
     <ClCompile Include="..\PPLib\ppifcimp.cpp" />
     <ClCompile Include="..\PPLib\ppifclua.cpp" />

@@ -1,12 +1,11 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 
-//static
-uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)
+/*static*/uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)
 {
 	const uint32 xdw = (uint32)x;
 	const uint32 ydw = (uint32)y;
@@ -33,8 +32,7 @@ uint32 FASTCALL SZIndex2::Combine(uint16 x, uint16 y)
 	return result;
 }
 
-//static
-uint64 FASTCALL SZIndex2::Combine(uint32 x, uint32 y)
+/*static*/uint64 FASTCALL SZIndex2::Combine(uint32 x, uint32 y)
 {
 	const uint64 dw_lo =
 	((x & 0x0001))       | ((y & 0x0001) <<  1) |
@@ -602,10 +600,8 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
 //
 //
 //
-//static
-const double SGeo::A_WGS84 = 6378137.0; // Радиус Земли в метрах (согласно WGS84)
-//static
-const double SGeo::Flattening_WGS84 = 1.0 / 298.257223563; // Фактор приплюснотости Земли: ƒ = (a − b)/a (согласно WGS84).
+/*static*/const double SGeo::A_WGS84 = 6378137.0; // Радиус Земли в метрах (согласно WGS84)
+/*static*/const double SGeo::Flattening_WGS84 = 1.0 / 298.257223563; // Фактор приплюснотости Земли: ƒ = (a − b)/a (согласно WGS84).
 
 #define GEOGRAPHICLIB_GEODESIC_ORDER 6
 #define nA1   GEOGRAPHICLIB_GEODESIC_ORDER

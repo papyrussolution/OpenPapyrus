@@ -1,5 +1,5 @@
 // SUNIT.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -80,8 +80,7 @@ static UnitEntry __Units[] = {
 	{ UNIT_GR_DIALOG, SUnit::clsLength, "dlg", 0.0 }
 };
 
-//static
-const void * FASTCALL SUnit::SearchEntry(int unitId)
+/*static*/const void * FASTCALL SUnit::SearchEntry(int unitId)
 {
 	if(unitId)
 		for(uint i = 0; i < SIZEOFARRAY(__Units); i++) {
@@ -92,8 +91,7 @@ const void * FASTCALL SUnit::SearchEntry(int unitId)
 	return 0;
 }
 
-//static
-const void * FASTCALL SUnit::SearchClsEntry(int cls)
+/*static*/const void * FASTCALL SUnit::SearchClsEntry(int cls)
 {
 	if(cls)
 		for(uint i = 0; i < SIZEOFARRAY(__Cls); i++) {
@@ -129,8 +127,7 @@ int SUnit::Context::Describe(int unitId, int dir, int * pCls, double * pToBase, 
 	}
 }
 
-//static
-USize & SUnit::Convert(const USize & rUszFrom, USize & rUszTo, const SUnit::Context * pCtx)
+/*static*/USize & SUnit::Convert(const USize & rUszFrom, USize & rUszTo, const SUnit::Context * pCtx)
 {
 	int    ok = 0;
 	rUszTo.S = 0.0;

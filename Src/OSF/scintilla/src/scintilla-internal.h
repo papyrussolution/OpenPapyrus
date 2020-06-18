@@ -3175,6 +3175,7 @@ private:
 	void ChSetWithCase(uchar c, bool caseSensitive);
 	int GetBackslashExpression(const char *pattern, int &incr);
 	int PMatch(CharacterIndexer &ci, int lp, int endp, char *ap);
+	bool iswordc(uchar x) const { return charClass->IsWord(x); }
 
 	int bol;
 	int tagstk[MAXTAG];  /* subpat tag stack */
@@ -3183,10 +3184,6 @@ private:
 	uchar bittab[BITBLK]; /* bit table for CCL pre-set bits */
 	int failure;
 	CharClassify *charClass;
-	bool iswordc(uchar x) const 
-	{
-		return charClass->IsWord(x);
-	}
 };
 //
 //
@@ -3209,8 +3206,8 @@ protected:
 /// LexerMinder points to an ExternalLexerModule - so we don't leak them.
 class LexerMinder {
 public:
-	ExternalLexerModule *self;
-	LexerMinder *next;
+	ExternalLexerModule * self;
+	LexerMinder * next;
 };
 
 /// LexerLibrary exists for every External Lexer DLL, contains LexerMinders.
@@ -3251,7 +3248,18 @@ public:
 //
 //#include "OptionSet.h"
 //
-template <typename T> class OptionSet {
+class _OptionSetBase { // @sobolev
+public:
+	const char * PropertyNames() const;
+	const char * DescribeWordListSets() const;
+	void DefineWordListSets(const char * const wordListDescriptions[]);
+protected:
+	void AppendName(const char * name);
+	std::string names;
+	std::string wordLists;
+};
+
+template <typename T> class OptionSet : public _OptionSetBase { // @sobolev(public _OptionSetBase)
 	typedef T Target;
 	typedef bool T::* plcob;
 	typedef int T::* plcoi;
@@ -3310,15 +3318,6 @@ template <typename T> class OptionSet {
 
 	typedef std::map<std::string, Option> OptionMap;
 	OptionMap nameToDef;
-	std::string names;
-	std::string wordLists;
-
-	void AppendName(const char * name)
-	{
-		if(!names.empty())
-			names += "\n";
-		names += name;
-	}
 public:
 	virtual ~OptionSet()
 	{
@@ -3338,10 +3337,6 @@ public:
 		nameToDef[name] = Option(ps, description);
 		AppendName(name);
 	}
-	const char * PropertyNames() const
-	{
-		return names.c_str();
-	}
 	int PropertyType(const char * name)
 	{
 		typename OptionMap::iterator it = nameToDef.find(name);
@@ -3356,20 +3351,6 @@ public:
 	{
 		typename OptionMap::iterator it = nameToDef.find(name);
 		return (it != nameToDef.end()) ? it->second.Set(base, val) : false;
-	}
-	void DefineWordListSets(const char * const wordListDescriptions[])
-	{
-		if(wordListDescriptions) {
-			for(size_t wl = 0; wordListDescriptions[wl]; wl++) {
-				if(!wordLists.empty())
-					wordLists += "\n";
-				wordLists += wordListDescriptions[wl];
-			}
-		}
-	}
-	const char * DescribeWordListSets() const
-	{
-		return wordLists.c_str();
 	}
 };
 //

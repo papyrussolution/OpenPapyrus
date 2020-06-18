@@ -16,26 +16,11 @@
 using namespace Scintilla;
 #endif
 
-inline bool isTALoperator(char ch)
-{
-	return ch == '\'' || ch == '@' || ch == '#' || isoperator(ch);
-}
+inline bool isTALoperator(char ch) { return ch == '\'' || ch == '@' || ch == '#' || isoperator(ch); }
+inline bool isTALwordchar(char ch) { return ch == '$' || ch == '^' || iswordchar(ch); }
+inline bool isTALwordstart(char ch) { return ch == '$' || ch == '^' || iswordstart(ch); }
 
-inline bool isTALwordchar(char ch)
-{
-	return ch == '$' || ch == '^' || iswordchar(ch);
-}
-
-inline bool isTALwordstart(char ch)
-{
-	return ch == '$' || ch == '^' || iswordstart(ch);
-}
-
-static void getRange(Sci_PositionU start,
-    Sci_PositionU end,
-    Accessor & styler,
-    char * s,
-    Sci_PositionU len)
+static void getRange(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
@@ -52,30 +37,21 @@ static bool FASTCALL IsStreamCommentStyle(int style)
 
 static void ColourTo(Accessor & styler, Sci_PositionU end, uint attr, bool bInAsm)
 {
-	if((bInAsm) &&
-	    (attr == SCE_C_OPERATOR || attr == SCE_C_NUMBER || attr == SCE_C_DEFAULT || attr == SCE_C_WORD || attr == SCE_C_IDENTIFIER)) {
+	if(bInAsm && oneof5(attr, SCE_C_OPERATOR, SCE_C_NUMBER, SCE_C_DEFAULT, SCE_C_WORD, SCE_C_IDENTIFIER))
 		styler.ColourTo(end, SCE_C_REGEX);
-	}
 	else
 		styler.ColourTo(end, attr);
 }
 
 // returns 1 if the item starts a class definition, and -1 if the word is "end", and 2 if the word is "asm"
-static int classifyWordTAL(Sci_PositionU start,
-    Sci_PositionU end,
-    /*WordList &keywords*/ WordList * keywordlists[],
-    Accessor & styler,
-    bool bInAsm)
+static int classifyWordTAL(Sci_PositionU start, Sci_PositionU end, /*WordList &keywords*/ WordList * keywordlists[], Accessor & styler, bool bInAsm)
 {
 	int ret = 0;
-
 	WordList & keywords = *keywordlists[0];
 	WordList & builtins = *keywordlists[1];
 	WordList & nonreserved_keywords = *keywordlists[2];
-
 	char s[100];
 	getRange(start, end, styler, s, sizeof(s));
-
 	char chAttr = SCE_C_IDENTIFIER;
 	if(isdec(s[0]) || (s[0] == '.')) {
 		chAttr = SCE_C_NUMBER;
@@ -83,7 +59,6 @@ static int classifyWordTAL(Sci_PositionU start,
 	else {
 		if(keywords.InList(s)) {
 			chAttr = SCE_C_WORD;
-
 			if(strcmp(s, "asm") == 0) {
 				ret = 2;
 			}
@@ -106,22 +81,17 @@ static int classifyFoldPointTAL(const char* s)
 {
 	int lev = 0;
 	if(!(isdec(s[0]) || (s[0] == '.'))) {
-		if(strcmp(s, "begin") == 0 ||
-		    strcmp(s, "block") == 0) {
+		if(sstreq(s, "begin") || sstreq(s, "block"))
 			lev = 1;
-		}
-		else if(strcmp(s, "end") == 0) {
+		else if(sstreq(s, "end"))
 			lev = -1;
-		}
 	}
 	return lev;
 }
 
-static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor & styler)
+static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	styler.StartAt(startPos);
-
 	int state = initStyle;
 	if(state == SCE_C_CHARACTER)    // Does not leak onto next line
 		state = SCE_C_DEFAULT;
@@ -140,18 +110,14 @@ static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int ini
 		styler.SetLineState(currentLine, 0);
 		bInClassDefinition = false;
 	}
-
 	bool bInAsm = (state == SCE_C_REGEX);
 	if(bInAsm)
 		state = SCE_C_DEFAULT;
-
 	styler.StartSegment(startPos);
 	int visibleChars = 0;
 	for(Sci_PositionU i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
-
 		chNext = styler.SafeGetCharAt(i + 1);
-
 		if((ch == '\r' && chNext != '\n') || (ch == '\n')) {
 			// Trigger on CR only (Mac style) or either on LF from CR+LF (Dos/Win) or on LF alone (Unix)
 			// Avoid triggering two times on Dos/Win
@@ -282,8 +248,7 @@ static void ColouriseTALDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	ColourTo(styler, lengthDoc - 1, state, bInAsm);
 }
 
-static void FoldTALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[],
-    Accessor & styler)
+static void FoldTALDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;

@@ -110,28 +110,28 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 			case DP_S_FLAGS:
 			    switch(ch) {
 				    case '-':
-					flags |= DP_F_MINUS;
-					ch = *format++;
-					break;
+						flags |= DP_F_MINUS;
+						ch = *format++;
+						break;
 				    case '+':
-					flags |= DP_F_PLUS;
-					ch = *format++;
-					break;
+						flags |= DP_F_PLUS;
+						ch = *format++;
+						break;
 				    case ' ':
-					flags |= DP_F_SPACE;
-					ch = *format++;
-					break;
+						flags |= DP_F_SPACE;
+						ch = *format++;
+						break;
 				    case '#':
-					flags |= DP_F_NUM;
-					ch = *format++;
-					break;
+						flags |= DP_F_NUM;
+						ch = *format++;
+						break;
 				    case '0':
-					flags |= DP_F_ZERO;
-					ch = *format++;
-					break;
+						flags |= DP_F_ZERO;
+						ch = *format++;
+						break;
 				    default:
-					state = DP_S_MIN;
-					break;
+						state = DP_S_MIN;
+						break;
 			    }
 			    break;
 			case DP_S_MIN:

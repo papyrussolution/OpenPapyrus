@@ -673,8 +673,7 @@ static int tent_width(double r)
 	return (r < 1.0) ? 2 : static_cast<int>(ceil(2 * r));
 }
 
-static const filter_info_t filters[] =
-{
+static const filter_info_t filters[] = {
 	{ KERNEL_IMPULSE,           impulse_kernel,   impulse_width },
 	{ KERNEL_BOX,               box_kernel,       box_width },
 	{ KERNEL_LINEAR,            linear_kernel,    linear_width },
@@ -701,10 +700,10 @@ static void get_filter(kernel_t filter, double r, int width, int subsample, pixm
 		return;
 	}
 	for(i = 0; i < n_phases; ++i) {
-		double frac = (i + .5) * step;
+		double frac = (i + 0.5) * step;
 		/* Center of left-most pixel: */
 		double x1 = ceil(frac - width / 2.0 - 0.5) - frac + 0.5;
-		double total = 0;
+		double total = 0.0;
 		pixman_fixed_t new_total = 0;
 		int j;
 		for(j = 0; j < width; ++j) {

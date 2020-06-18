@@ -532,7 +532,6 @@ int XMLCDECL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg, ...)
 	buf[len-1] = 0; /* be safe ! */
 	return ret;
 }
-
 /**
  * xmlStrVPrintf:
  * @buf:   the result buffer.
@@ -546,12 +545,11 @@ int XMLCDECL xmlStrPrintf(xmlChar * buf, int len, const xmlChar * msg, ...)
  */
 int xmlStrVPrintf(xmlChar * buf, int len, const xmlChar * msg, va_list ap) 
 {
-	int ret;
-	if(!buf || (msg == NULL)) {
-		return -1;
+	int ret = -1;
+	if(buf && msg) {
+		ret = vsnprintf((char *)buf, len, reinterpret_cast<const char *>(msg), ap);
+		buf[len-1] = 0; /* be safe ! */
 	}
-	ret = vsnprintf((char *)buf, len, reinterpret_cast<const char *>(msg), ap);
-	buf[len-1] = 0; /* be safe ! */
 	return ret;
 }
 /************************************************************************
@@ -814,21 +812,19 @@ int xmlUTF8Strsize(const xmlChar * utf, int len)
  */
 xmlChar * xmlUTF8Strndup(const xmlChar * utf, int len) 
 {
-	xmlChar * ret;
-	int i;
-	if((utf == NULL) || (len < 0)) 
-		return 0;
-	i = xmlUTF8Strsize(utf, len);
-	ret = static_cast<xmlChar *>(SAlloc::M((i + 1) * sizeof(xmlChar)));
-	if(!ret) {
-		xmlGenericError(0, "malloc of %ld byte failed\n", (len+1) * (long)sizeof(xmlChar));
-		return 0;
+	xmlChar * ret = 0;
+	if(utf && len >= 0) {
+		int i = xmlUTF8Strsize(utf, len);
+		ret = static_cast<xmlChar *>(SAlloc::M((i + 1) * sizeof(xmlChar)));
+		if(!ret) {
+			xmlGenericError(0, "malloc of %ld byte failed\n", (len+1) * (long)sizeof(xmlChar));
+			return 0;
+		}
+		memcpy(ret, utf, i * sizeof(xmlChar));
+		ret[i] = 0;
 	}
-	memcpy(ret, utf, i * sizeof(xmlChar));
-	ret[i] = 0;
 	return ret;
 }
-
 /**
  * xmlUTF8Strpos:
  * @utf:  the input UTF8 *

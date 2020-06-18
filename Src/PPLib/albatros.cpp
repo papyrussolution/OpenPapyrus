@@ -1,5 +1,5 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -303,8 +303,7 @@ int SLAPI PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 	return ok;
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrossConfig & rCfg, SString & rBuf)
+/*static*/int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrossConfig & rCfg, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -362,8 +361,7 @@ int SLAPI PPAlbatrosCfgMngr::MakeCommonMqsConfigPacket(const PPAlbatrossConfig &
 	return ok;
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrossConfig * pCfg)
+/*static*/int SLAPI PPAlbatrosCfgMngr::ParseCommonMqsConfigPacket(const char * pBuf, PPAlbatrossConfig * pCfg)
 {
 	int    ok = -1;
 	xmlParserCtxt * p_ctx = 0;
@@ -436,8 +434,7 @@ static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN_unused, ALBATR
 	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY,
 	ALBATROSEXSTR_VETISDOCTUSER, ALBATROSEXSTR_VETISDOCTPASSW, ALBATROSEXSTR_MQC_HOST, ALBATROSEXSTR_MQC_USER, ALBATROSEXSTR_MQC_SECRET, ALBATROSEXSTR_MQC_DATADOMAIN };
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrossConfig * pCfg, int use_ta)
+/*static*/int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrossConfig * pCfg, int use_ta)
 {
 	int    ok = 1;
 	size_t p = 0;
@@ -469,8 +466,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrossConfig * pC
 	return ok;
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrossConfig * pCfg, int use_ta)
+/*static*/int SLAPI PPAlbatrosCfgMngr::Put(PPAlbatrossConfig * pCfg, int use_ta)
 {
 	return Helper_Put(PPRef, pCfg, use_ta);
 }
@@ -554,14 +550,12 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pC
 	return ok;
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg)
+/*static*/int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg)
 {
 	return Helper_Get(PPRef, pCfg);
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCfg)
+/*static*/int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCfg)
 {
 	int    ok = 1, r;
 	PPAlbatrosCfgHdr cfg;
@@ -622,14 +616,12 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCf
 	return ok;
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
+/*static*/int SLAPI PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
 {
 	return Helper_Get(PPRef, pCfg);
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Put(const PPAlbatrosCfgHdr * pCfg, int use_ta)
+/*static*/int SLAPI PPAlbatrosCfgMngr::Put(const PPAlbatrosCfgHdr * pCfg, int use_ta)
 {
 	int    ok = 1;
 	PPAlbatrosCfgHdr cfg = *pCfg;
@@ -638,8 +630,7 @@ int SLAPI PPAlbatrosCfgMngr::Put(const PPAlbatrosCfgHdr * pCfg, int use_ta)
 	return ok;
 }
 
-//static
-int SLAPI PPAlbatrosCfgMngr::Edit()
+/*static*/int SLAPI PPAlbatrosCfgMngr::Edit()
 {
 	int    ok = -1, valid_data = 0, is_new = 0;
 	AlbatrosConfigDialog * p_dlg = new AlbatrosConfigDialog();
@@ -764,8 +755,7 @@ int SLAPI AlbatrosTagParser::ResolveClientID(PPID inID, PPID opID, AlbatrosOrder
 	return ok;
 }
 
-//static
-int SLAPI AlbatrosTagParser::ResolveArticleByPerson(PPID psnID, PPID opID, PPID * pOutID, int use_ta)
+/*static*/int SLAPI AlbatrosTagParser::ResolveArticleByPerson(PPID psnID, PPID opID, PPID * pOutID, int use_ta)
 {
 	int    ok = -1;
 	if(psnID > 0) {
@@ -919,8 +909,7 @@ IMPL_HANDLE_EVENT(ClientAddDialog)
 	}
 }
 
-//static
-int SLAPI AlbatrosTagParser::ConfirmClientAdd(PPPersonPacket * pPack, const char * pClientINNInOrder, int add)
+/*static*/int SLAPI AlbatrosTagParser::ConfirmClientAdd(PPPersonPacket * pPack, const char * pClientINNInOrder, int add)
 {
 	int    ok = -1, valid_data = 0;
 	ClientAddDialog *p_dlg = new ClientAddDialog(add, pClientINNInOrder);

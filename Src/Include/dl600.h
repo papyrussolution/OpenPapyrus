@@ -155,7 +155,7 @@ struct DlFunc {
 		DlFuncImpl Impl;
 	};
 private:
-	SVector ArgList; // @v9.8.6 SArray-->SVector
+	SVector ArgList;
 	StringSet ArgNamList;
 };
 
@@ -436,7 +436,6 @@ public:
 	int    SLAPI IsPrototype() const;
 	void   SLAPI ResetPrototypeFlag();
 	int    SLAPI GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const;
-
 	int    SLAPI SetDeclList(const StringSet * pSet);
 	int    SLAPI SetInheritance(const DlScope * pBase, DlContext * pCtx);
 	//
@@ -453,10 +452,8 @@ public:
 	const  DlScope * SLAPI GetBase() const;
 	DLSYMBID SLAPI EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName);
 	int    SLAPI LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
-
 	int    FASTCALL SetRecord(const DlScope * pRec);
 	int    FASTCALL SetRecList(const DlScopeList * pList);
-
 	int    FASTCALL AddFunc(const DlFunc *);
 	int    SLAPI GetFuncListByName(const char * pName, LongArray * pList) const;
 	uint   SLAPI GetFuncCount() const;
@@ -491,9 +488,6 @@ public:
 	int    SLAPI AddConst(COption id, const CtmExprConst & rConst, int replace);
 	int    SLAPI GetConst(COption id, CtmExprConst * pConst) const;
 	CtmExprConst FASTCALL GetConst(COption id) const;
-	//
-	//
-	//
 	int    SLAPI AddFldConst(uint fldID, COption id, const CtmExprConst & rConst, int replace);
 	int    SLAPI GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const;
 	CtmExprConst SLAPI GetFldConst(uint fldID, COption id) const;
@@ -503,9 +497,6 @@ public:
 	int    SLAPI AddIfaceBase(const IfaceBase *);
 	uint   SLAPI GetIfaceBaseCount() const;
 	int    SLAPI GetIfaceBase(uint, IfaceBase *) const;
-	//
-	//
-	//
 	int    SLAPI AddDbIndexSegment(const char * pFieldName, long options);
 	long   SLAPI GetDbIndexSegOptions(uint pos) const;
 #ifdef DL600C // {
@@ -659,7 +650,7 @@ public:
 		CtmVar V;
 		uint   Op;
 		OpTypCvt Cvt;
-		OpRef  Ref; // @v7.1.10
+		OpRef  Ref;
 		char * S;
 	} U;
 	CtmExpr * P_Next;      // Следующий элемент (по горизонтали). Например, в списке
@@ -670,9 +661,9 @@ struct CtmDclr {
 	void   Init();
 	void   Destroy();
 	int    Copy(const CtmDclr & rDclr);
-	int    AddDim(uint dim);
-	int    AddPtrMod(uint ptrMod, uint modifier = 0);
-	int    AddDecimalDim(uint dec, uint precision);
+	void   AddDim(uint dim);
+	void   AddPtrMod(uint ptrMod, uint modifier = 0);
+	void   AddDecimalDim(uint dec, uint precision);
 
 	CtmToken Tok;
 	CtmToken Alias;        // Алиас для экспортных полей
@@ -703,7 +694,7 @@ struct CtmFuncDclr {
 class DlMacro {
 public:
 	SLAPI  DlMacro();
-	int    SLAPI Add(const char * pSymb, const char * pResult);
+	void   SLAPI Add(const char * pSymb, const char * pResult);
 	int    SLAPI Subst(const char * pSymb, SString & rResult) const;
 private:
 	StringSet S;
@@ -862,7 +853,7 @@ public:
 	int    SLAPI PushScope();
 	int    SLAPI PopScope();
 	int    SLAPI CompleteExportDataStruc();
-	int    SLAPI AddMacro(const char * pMacro, const char * pResult);
+	void   SLAPI AddMacro(const char * pMacro, const char * pResult);
 	int    SLAPI GetMacro(const char * pMacro, SString & rResult) const;
 	int    FASTCALL GetDotFunc(CtmFunc * pF);
 	int    FASTCALL GetRefFunc(CtmFunc * pF);
@@ -879,7 +870,7 @@ public:
 	int    SLAPI AddConst(double data, CtmExprConst * pResult);
 	int    SLAPI AddConst(LDATE data, CtmExprConst * pResult);
 	int    SLAPI AddConst(LTIME data, CtmExprConst * pResult);
-	int    SLAPI AddStrucDeclare(const char * pDecl);
+	void   SLAPI AddStrucDeclare(const char * pDecl);
 	int    SLAPI AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgList, int propDirParam = 0);
 	int    SLAPI AddPropDeclare(CtmDclr & rSymb, int propDirParam);
 	int    SLAPI AddEnumItem(const CtmToken & rSymb, int useExplVal, uint val);
@@ -997,7 +988,7 @@ private:
 		// @<<DlContext::ResolveFunc
 	int    SLAPI IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList);
 	int    SLAPI MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const;
-	int    SLAPI Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
+	void   SLAPI Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
 	int    SLAPI Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion
 	int    SLAPI Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion
 	int    SLAPI Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs); // @recursion
@@ -1019,7 +1010,7 @@ private:
 	int    SLAPI Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc);
 	int    SLAPI Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope);
 	int    SLAPI Write_IDL_File(Generator_CPP & gen, const DlScope & rScope); // @recursion
-	int    SLAPI Write_DebugListing();
+	void   SLAPI Write_DebugListing();
 	int    SLAPI Write_Scope(int indent, SFile & rOutFile, const DlScope & rScope); // @recursion
 	int    SLAPI Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf); // @recursion
 	int    SLAPI Format_Func(const DlFunc & rFunc, long options, SString & rBuf);
@@ -1408,20 +1399,16 @@ public:
 	static int SLAPI Helper_DllRegisterServer(int unreg);
 	static void * FASTCALL GetExtraPtrByInterface(const void * pIfc);
 	static int SLAPI SetExtraPtrByInterface(const void * pIfc, void * extraPtr);
-
 	SCoClass(const DlContext * pCtx, const DlScope * pScope, void * pVt);
     virtual ~SCoClass();
-
 	HRESULT __stdcall QueryInterface(REFIID, void **);
 	uint32  __stdcall AddRef();
 	uint32  __stdcall Release();
 	HRESULT __stdcall InterfaceSupportsErrorInfo(REFIID rIID); // ISupportErrorInfo method
-
 	HRESULT ImpQueryInterface(REFIID rIID, void ** ppObject);
 	uint32  ImpAddRef();
 	uint32  ImpRelease();
 	HRESULT ImpInterfaceSupportsErrorInfo(REFIID rIID) const;
-
 	int    SLAPI CreateInnerInstance(const char * pClsName, const char * pIfcName, void ** ppIfc);
 	int    SLAPI RaiseAppError();
 	void * SLAPI RaiseAppErrorPtr();
@@ -1445,8 +1432,7 @@ protected:
 	const  DlContext * P_Ctx;
 	const  DlScope * P_Scope;
 	void * ExtraPtr;
-	SString RetStrBuf; // Временный буфер, используемый только для возврата строковых значений.
-		// @!Больше ни для каких целей использовать нельзя.
+	SString RetStrBuf; // Временный буфер, используемый только для возврата строковых значений. // @!Больше ни для каких целей использовать нельзя.
 private:
 	int    FASTCALL InitVTable(void * pVt);
 	int    SLAPI ReleaseVTable();
@@ -1455,10 +1441,8 @@ private:
 	long   Flags;
 	void * P_Vt;       // Указатель на таблицу виртуальных функций, содержащую методы всех интерфейсов класса
 	uint   TabCount;   // Равно количеству интерфейсов, поддерживаемых классом
-	TabEntry * P_Tab;  // TabCount-размерная таблица, содержащая указатели на соответствующие интерфейсы,
-		// поддерживаемые классом
-	TabEntry StTab[MAX_COCLASS_STTAB]; // Если класс поддерживает менее MAX_COCLASS_STTAB интерфейсов,
-		// то P_Tab = StTab, в противном случае P_Tab распределяется динамически
+	TabEntry * P_Tab;  // TabCount-размерная таблица, содержащая указатели на соответствующие интерфейсы, поддерживаемые классом
+	TabEntry StTab[MAX_COCLASS_STTAB]; // Если класс поддерживает менее MAX_COCLASS_STTAB интерфейсов, то P_Tab = StTab, в противном случае P_Tab распределяется динамически
 };
 //
 // Макро-определение, используемое в автоматическом описании таблиц виртуальных функций

@@ -3998,8 +3998,7 @@ SStringU & SLAPI SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) con
 	return (*pSource > 0xF4) ? 0 : 1;
 }
 
-//static
-uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
+/*static*/uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
 {
 	if(u32 < UNI_SUPPL_PLANE_START) {
 		pU16Buf[0] = static_cast<wchar_t>(u32);
@@ -4012,8 +4011,7 @@ uint FASTCALL SUnicode::Utf32ToUtf16(uint32 u32, wchar_t * pU16Buf)
 	}
 }
 
-//static
-uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
+/*static*/uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
 {
 	uint    k = 0;
 	const uint16 u16l = static_cast<const uint16>(u32 & 0x0000ffff);
@@ -4044,8 +4042,7 @@ uint  FASTCALL SUnicode::Utf32ToUtf8(uint32 u32, char * pUtf8Buf)
 	return k;
 }
 
-//static
-uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
+/*static*/uint FASTCALL SUnicode::Utf8Length(const wchar_t * pUcBuf, uint tlen)
 {
 	uint len = 0;
 	for(uint i = 0; i < tlen && pUcBuf[i]; ) {
@@ -4610,8 +4607,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	}
 }
 
-//static
-uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
+/*static*/uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
 {
 	ASSIGN_PTR(pExt, 0);
 	size_t p = rPath.Len();
@@ -4674,8 +4670,7 @@ uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
 	*/
 }
 
-//static
-int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
+/*static*/int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
 {
 	int    ok = -1;
 	SPathStruc ps(rPath);
@@ -4782,8 +4777,7 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 		return 0;
 }
 
-//static
-SString & FASTCALL SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
+/*static*/SString & FASTCALL SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
 {
 	(rNormalizedPath = pPath).Strip();
 	if(flags & npfOEM)
@@ -4805,8 +4799,7 @@ SString & FASTCALL SPathStruc::NormalizePath(const char * pPath, long flags, SSt
 	return rNormalizedPath;
 }
 
-//static
-int SPathStruc::GetRelativePath(const char * lpszFrom, uint dwAttrFrom, const char * lpszTo, uint dwAttrTo, SString & rPath)
+/*static*/int SPathStruc::GetRelativePath(const char * lpszFrom, uint dwAttrFrom, const char * lpszTo, uint dwAttrTo, SString & rPath)
 {
 	static const char * szPrevDirSlash = "..\\";
 	static const char * szPrevDir = "..";
@@ -6630,8 +6623,7 @@ int SLAPI SNaturalTokenArray::Add(uint32 tok, float prob)
 	return insert(&item);
 }
 
-//static 
-int SLAPI STokenRecognizer::EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
+/*static*/int SLAPI STokenRecognizer::EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
 {
 	int   ret = 0;
 	uint8  _buf[256];
@@ -6669,8 +6661,7 @@ SLAPI STokenRecognizer::~STokenRecognizer()
 {
 }
 
-//static
-int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
+/*static*/int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 {
 	const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
 	return (extra == 0) ? 1 : ((restLen > extra && SUnicode::IsLegalUtf8(p, 2)) ? (extra+1) : 0);

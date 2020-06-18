@@ -20,8 +20,7 @@ static const char * p_base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv
 // The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5
 static const char * p_base64url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-//static
-const char * FASTCALL STextConst::Get(int c, uint idx)
+/*static*/const char * FASTCALL STextConst::Get(int c, uint idx)
 {
 	switch(c) {
 		case cMon_En_Sh: return (idx >= 0 && idx < SIZEOFARRAY(p_mon_en_sh)) ? p_mon_en_sh[idx] : "";
@@ -34,11 +33,9 @@ const char * FASTCALL STextConst::Get(int c, uint idx)
 	}
 }
 
-//static 
-const char * FASTCALL STextConst::GetBool(int b) { return b ? "true" : "false"; }
+/*static*/const char * FASTCALL STextConst::GetBool(int b) { return b ? "true" : "false"; }
 
-//static
-int FASTCALL STextConst::GetIdx(int c, const char * pText)
+/*static*/int FASTCALL STextConst::GetIdx(int c, const char * pText)
 {
 	uint i = 0;
 	switch(c) {
@@ -1315,14 +1312,12 @@ static const SCpEntry __SCpL[] = {
 	{ cpShiftJIS, "shift_jis", "shift_jis", "shift_jis", "Japanese (Shift-JIS)" },
 };
 
-//static
-uint SCodepageIdent::GetRegisteredCodepageCount()
+/*static*/uint SCodepageIdent::GetRegisteredCodepageCount()
 {
 	return SIZEOFARRAY(/*CodepageNames*/__SCpL);
 }
 
-//static
-int SCodepageIdent::GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & rName)
+/*static*/int SCodepageIdent::GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & rName)
 {
 	int    ok = 1;
 	if(idx < SIZEOFARRAY(/*CodepageNames*/__SCpL)) {

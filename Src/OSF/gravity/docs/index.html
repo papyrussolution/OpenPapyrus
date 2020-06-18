@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gravity Documentation</title>
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/docsify-themeable/dist/css/theme-simple.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+  <div id="app"></div>
+  
+  <script>
+    window.$docsify = {
+      coverpage: true,
+      auto2top: true,
+      loadNavbar: true,
+      loadSidebar: true,
+      externalLinkTarget: '_self',
+      themeColor: '#1096EE',
+      repo: 'https://github.com/marcobambini/gravity',
+      
+      plugins: [
+        function (hook, vm) {
+          hook.beforeEach(function (html) {
+        	let url = 'https://github.com/marcobambini/gravity/edit/master/docs/' + vm.route.file
+        	let rev = 'rev1'
+        	let version = '0.7.8'
+        	let edit = '<a href="' + url + '">Edit on GitHub</a>\n'
+
+        	return html
+          		+ '\n----\n'
+          		+ '<footer style="color:#999999; font-size:0.9em;">'
+          		+ '<span>Version ' + version + ' (' + rev + ') - </span>'
+          		+ edit
+          		+ '</footer>'
+          })
+        }
+      ]
+    }
+  </script>
+  
+  <script src="https://unpkg.com/docsify/lib/docsify.min.js"></script>
+  <script src="https://unpkg.com/docsify-themeable"></script>
+  <script src="https://unpkg.com/docsify/lib/plugins/search.js"></script>
+  <script src="https://unpkg.com/prismjs/components/prism-bash.min.js"></script>
+  <script src="https://unpkg.com/prismjs/components/prism-swift.min.js"></script>
+  <script src="https://unpkg.com/prismjs/components/prism-c.min.js"></script>
+  <script src="https://unpkg.com/prismjs/components/prism-objectivec.min.js"></script>
+  
+</body>
+</html>
