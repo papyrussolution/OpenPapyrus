@@ -514,7 +514,6 @@ int BudgetDialog::getDTS(PPBudgetPacket * pData)
 	uint   sel = 0;
 	CycleCtrlGroup::Rec cycle_rec;
 	DateRange period;
-
 	getCtrlData(CTL_BUDGET_CODE, Data.Rec.Code);
 	getCtrlData(sel = CTL_BUDGET_NAME, Data.Rec.Name);
 	getCtrlData(CTL_BUDGET_ID,  &Data.Rec.ID);

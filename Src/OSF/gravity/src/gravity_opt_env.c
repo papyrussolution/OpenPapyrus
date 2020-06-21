@@ -19,7 +19,7 @@ static uint32 refcount = 0;
  * Wraps `getenv()` to be used with Gravity.
  *
  */
-static bool gravity_env_get(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	if(!VALUE_ISA_STRING(args[1])) {
@@ -27,7 +27,7 @@ static bool gravity_env_get(gravity_vm * vm, gravity_value_t * args, uint16 narg
 	}
 	char * key = VALUE_AS_CSTRING(args[1]);
 	char * value = getenv(key);
-	gravity_value_t rt = VALUE_FROM_UNDEFINED;
+	GravityValue rt = VALUE_FROM_UNDEFINED;
 	// GRAVITY_DEBUG_PRINT("[ENV::GET args : %i] %s => %s\n", nargs, key, value);
 	if(value) {
 		rt = VALUE_FROM_STRING(vm, value, (uint32)strlen(value));
@@ -43,7 +43,7 @@ static bool gravity_env_get(gravity_vm * vm, gravity_value_t * args, uint16 narg
  * @param  rindex Slot-index for the return value to be stored in.
  * @retval  Weather this function was successful or not.
  */
-static bool gravity_env_set(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool gravity_env_set(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	if(!VALUE_ISA_STRING(args[1]) || (!VALUE_ISA_STRING(args[2]) && !VALUE_ISA_NULL(args[2]))) {
@@ -56,7 +56,7 @@ static bool gravity_env_set(gravity_vm * vm, gravity_value_t * args, uint16 narg
 	RETURN_VALUE(VALUE_FROM_INT(rt), rindex);
 }
 
-static bool gravity_env_keys(gravity_vm * vm, gravity_value_t * args, uint16 nparams, uint32 rindex) 
+static bool gravity_env_keys(gravity_vm * vm, GravityValue * args, uint16 nparams, uint32 rindex) 
 {
     #pragma unused(args, nparams)
 	extern char ** environ;
@@ -69,15 +69,15 @@ static bool gravity_env_keys(gravity_vm * vm, gravity_value_t * args, uint16 npa
 			if(entry[i] == '=') 
 				break;
 		}
-		gravity_value_t key = VALUE_FROM_STRING(vm, entry, len);
-		marray_push(gravity_value_t, keys->array, key);
+		GravityValue key = VALUE_FROM_STRING(vm, entry, len);
+		marray_push(GravityValue, keys->array, key);
 	}
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(keys)), rindex);
 }
 
 // MARK: - Internals -
 
-static void create_optional_class(void) 
+static void create_optional_class() 
 {
 	gravity_class_env = gravity_class_new_pair(NULL, GRAVITY_CLASS_ENV_NAME, NULL, 0, 0);
 	gravity_class_t * meta = gravity_class_get_meta(gravity_class_env);
@@ -104,7 +104,7 @@ void gravity_env_register(gravity_vm * vm)
 	gravity_vm_setvalue(vm, GRAVITY_CLASS_ENV_NAME, VALUE_FROM_OBJECT(gravity_class_env));
 }
 
-void gravity_env_free(void) 
+void gravity_env_free() 
 {
 	if(gravity_class_env) {
 		if(--refcount) 
@@ -119,4 +119,4 @@ void gravity_env_free(void)
 }
 
 bool gravity_isenv_class(const gravity_class_t * c) { return (c == gravity_class_env); }
-const char * gravity_env_name(void) { return GRAVITY_CLASS_ENV_NAME; }
+const char * gravity_env_name() { return GRAVITY_CLASS_ENV_NAME; }

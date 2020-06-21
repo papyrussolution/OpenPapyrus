@@ -13,7 +13,7 @@ const char * FASTCALL token_string(gtoken_s token, uint32 * len)
 	return token.value;
 }
 
-const char * token_name(gtoken_t token) 
+const char * FASTCALL token_name(gtoken_t token) 
 {
 	switch(token) {
 		case TOK_EOF: return "EOF";
@@ -201,7 +201,6 @@ gtoken_t token_keyword(const char * buffer, int32 len)
 		    if(string_casencmp(buffer, "_func", len) == 0) return TOK_KEY_CURRFUNC;
 		    if(string_casencmp(buffer, "_args", len) == 0) return TOK_KEY_CURRARGS;
 		    break;
-
 		case 6:
 		    if(string_casencmp(buffer, "struct", len) == 0) return TOK_KEY_STRUCT;
 		    if(string_casencmp(buffer, "repeat", len) == 0) return TOK_KEY_REPEAT;
@@ -213,22 +212,18 @@ gtoken_t token_keyword(const char * buffer, int32 len)
 		    if(string_casencmp(buffer, "import", len) == 0) return TOK_KEY_IMPORT;
 		    if(string_casencmp(buffer, "module", len) == 0) return TOK_KEY_MODULE;
 		    break;
-
 		case 7:
 		    if(string_casencmp(buffer, "default", len) == 0) return TOK_KEY_DEFAULT;
 		    if(string_casencmp(buffer, "private", len) == 0) return TOK_KEY_PRIVATE;
 		    break;
-
 		case 8:
 		    if(string_casencmp(buffer, "continue", len) == 0) return TOK_KEY_CONTINUE;
 		    if(string_casencmp(buffer, "internal", len) == 0) return TOK_KEY_INTERNAL;
 		    break;
-
 		case 9:
 		    if(string_casencmp(buffer, "undefined", len) == 0) return TOK_KEY_UNDEFINED;
 		    break;
 	}
-
 	return TOK_IDENTIFIER;
 }
 
@@ -239,22 +234,23 @@ const char * token_literal_name(gliteral_t value)
 	else if(value == LITERAL_INT) return "INTEGER";
 	else if(value == LITERAL_BOOL) return "BOOLEAN";
 	else if(value == LITERAL_STRING_INTERPOLATED) return "STRING INTERPOLATED";
+	// @sobolev @construction {
+	else if(value == LITERAL_DATE) return "DATE";
+	else if(value == LITERAL_TIME) return "TIME";
+	else if(value == LITERAL_TIMESTAMP) return "TIMESTAMP";
+	else if(value == LITERAL_GUID) return "GUID";
+	// } @sobolev @construction 
 	return "N/A";
 }
 
 // MARK: -
 
-bool token_isidentifier(gtoken_t token) {
-	return (token == TOK_IDENTIFIER);
-}
+bool token_isidentifier(gtoken_t token) { return (token == TOK_IDENTIFIER); }
+bool token_isvariable_declaration(gtoken_t token) { return ((token == TOK_KEY_CONST) || (token == TOK_KEY_VAR)); }
 
-bool token_isvariable_declaration(gtoken_t token) {
-	return ((token == TOK_KEY_CONST) || (token == TOK_KEY_VAR));
-}
-
-bool token_isstatement(gtoken_t token) {
+bool token_isstatement(gtoken_t token) 
+{
 	if(token == TOK_EOF) return false;
-
 	// label_statement (case, default)
 	// expression_statement ('+' | '-' | '!' | 'not' | new | raise | file | isPrimaryExpression)
 	// flow_statement (if, select)

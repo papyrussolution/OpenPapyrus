@@ -48,9 +48,9 @@ static uint32 refcount = 0;
 // MARK: - Implementation -
 
 // returns the absolute value of x
-static bool math_abs(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_abs(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -81,9 +81,9 @@ static bool math_abs(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the arccosine of x, in radians
-static bool math_acos(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_acos(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -104,10 +104,10 @@ static bool math_acos(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the arcsine of x, in radians
-static bool math_asin(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_asin(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	}
@@ -124,10 +124,10 @@ static bool math_asin(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the arctangent of x as a numeric value between -PI/2 and PI/2 radians
-static bool math_atan(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_atan(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	}
@@ -144,12 +144,12 @@ static bool math_atan(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the arctangent of the quotient of its arguments
-static bool math_atan2(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_atan2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm)
 	if(nargs != 3) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
-	gravity_value_t value = GET_VALUE(1);
-	gravity_value_t value2 = GET_VALUE(2);
+	GravityValue value = GET_VALUE(1);
+	GravityValue value2 = GET_VALUE(2);
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	}
@@ -173,9 +173,9 @@ static bool math_atan2(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
 }
 
-static bool math_cbrt(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_cbrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -195,11 +195,11 @@ static bool math_cbrt(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
 }
 
-static bool math_xrt(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_xrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs != 3) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
 
-	gravity_value_t base = GET_VALUE(1);
-	gravity_value_t value = GET_VALUE(2);
+	GravityValue base = GET_VALUE(1);
+	GravityValue value = GET_VALUE(2);
 
 	if(VALUE_ISA_NULL(value) || VALUE_ISA_NULL(base)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -230,9 +230,9 @@ static bool math_xrt(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns x, rounded upwards to the nearest integer
-static bool math_ceil(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_ceil(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -253,9 +253,9 @@ static bool math_ceil(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the cosine of x (x is in radians)
-static bool math_cos(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_cos(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -276,9 +276,9 @@ static bool math_cos(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the value of Ex
-static bool math_exp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_exp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -299,9 +299,9 @@ static bool math_exp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns x, rounded downwards to the nearest integer
-static bool math_floor(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_floor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -336,7 +336,7 @@ static int gcf(int x, int y) {
 	return x;
 }
 
-static bool math_gcf(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_gcf(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused (vm, rindex)
 	if(nargs < 3) 
@@ -356,7 +356,7 @@ static int lcm(int x, int y)
 	return x*y/gcf(x, y);
 }
 
-static bool math_lcm(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_lcm(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused (vm, rindex)
 	if(nargs < 3) RETURN_ERROR("2 or more arguments expected");
@@ -371,14 +371,14 @@ static bool math_lcm(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the linear interpolation from a to b of value t
-static bool math_lerp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_lerp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 #pragma unused(vm, nargs)
 	// three arguments are required
 	if(nargs < 4) 
 		RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
 	gravity_float_t a, b, t;
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(VALUE_ISA_INT(value)) {
 		a = (gravity_float_t)value.n;
 	}
@@ -419,10 +419,10 @@ static bool math_lerp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the natural logarithm (base E) of x
-static bool math_log(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_log(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	}
@@ -439,9 +439,9 @@ static bool math_log(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the base 10 logarithm of x
-static bool math_log10(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_log10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -462,10 +462,10 @@ static bool math_log10(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 }
 
 // returns the logarithm (base x) of y
-static bool math_logx(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_logx(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t base = GET_VALUE(1);
-	gravity_value_t value = GET_VALUE(2);
+	GravityValue base = GET_VALUE(1);
+	GravityValue value = GET_VALUE(2);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -500,7 +500,7 @@ static bool math_logx(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the number with the highest value
-static bool math_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs == 1) RETURN_VALUE(VALUE_FROM_NULL, rindex);
 
 	gravity_float_t n = -GRAVITY_FLOAT_MAX;
@@ -508,7 +508,7 @@ static bool math_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	bool found = false;
 
 	for(uint16 i = 1; i<nargs; ++i) {
-		gravity_value_t value = GET_VALUE(i);
+		GravityValue value = GET_VALUE(i);
 		if(VALUE_ISA_INT(value)) {
 			found = true;
 			if((gravity_float_t)value.n > n) {
@@ -534,7 +534,7 @@ static bool math_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the number with the lowest value
-static bool math_min(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs == 1) RETURN_VALUE(VALUE_FROM_NULL, rindex);
 
 	gravity_float_t n = GRAVITY_FLOAT_MAX;
@@ -542,7 +542,7 @@ static bool math_min(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	bool found = false;
 
 	for(uint16 i = 1; i<nargs; ++i) {
-		gravity_value_t value = GET_VALUE(i);
+		GravityValue value = GET_VALUE(i);
 		if(VALUE_ISA_INT(value)) {
 			found = true;
 			if((gravity_float_t)value.n < n) {
@@ -568,13 +568,13 @@ static bool math_min(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the value of x to the power of y
-static bool math_pow(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_pow(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm)
 
 	if(nargs != 3) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
 
-	gravity_value_t value = GET_VALUE(1);
-	gravity_value_t value2 = GET_VALUE(2);
+	GravityValue value = GET_VALUE(1);
+	GravityValue value2 = GET_VALUE(2);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -600,9 +600,9 @@ static bool math_pow(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // rounds x to the nearest integer
-static bool math_round(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_round(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -619,7 +619,7 @@ static bool math_round(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 		bool toString = false;
 
 		if(nargs >= 3 && VALUE_ISA_INT(GET_VALUE(2))) {
-			gravity_value_t extra = GET_VALUE(2);
+			GravityValue extra = GET_VALUE(2);
 			if(VALUE_AS_INT(extra) > 0) ndigits = VALUE_AS_INT(extra);
 			if(ndigits > FLOAT_MAX_DECIMALS) ndigits = FLOAT_MAX_DECIMALS;
 		}
@@ -671,9 +671,9 @@ static bool math_round(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 }
 
 // returns the sine of x (x is in radians)
-static bool math_sin(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_sin(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -694,9 +694,9 @@ static bool math_sin(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // returns the square root of x
-static bool math_sqrt(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_sqrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
@@ -717,10 +717,10 @@ static bool math_sqrt(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 }
 
 // returns the tangent of an angle
-static bool math_tan(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool math_tan(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(VALUE_ISA_NULL(value)) {
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	}
@@ -737,42 +737,42 @@ static bool math_tan(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 // CONSTANTS
-static bool math_PI(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_PI(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(3.141592653589793), rindex);
 }
 
-static bool math_E(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(2.718281828459045), rindex);
 }
 
-static bool math_LN2(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_LN2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(0.6931471805599453), rindex);
 }
 
-static bool math_LN10(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_LN10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(2.302585092994046), rindex);
 }
 
-static bool math_LOG2E(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_LOG2E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(1.4426950408889634), rindex);
 }
 
-static bool math_LOG10E(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_LOG10E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(0.4342944819032518), rindex);
 }
 
-static bool math_SQRT2(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_SQRT2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(1.4142135623730951), rindex);
 }
 
-static bool math_SQRT1_2(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_SQRT1_2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(0.7071067811865476), rindex);
 }
@@ -798,18 +798,20 @@ static bool math_SQRT1_2(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 
 static uint64_t lfsr258_y1 = LFSR_GERME, lfsr258_y2 = LFSR_GERME, lfsr258_y3 = LFSR_GERME, lfsr258_y4 = LFSR_GERME, lfsr258_y5 = LFSR_GERME;
 
-static void lfsr258_init(uint64_t n) {
+static void lfsr258_init(uint64_t n) 
+{
 	static int lfsr258_inited = 0;
-	if(lfsr258_inited) return;
+	if(lfsr258_inited) 
+		return;
 	lfsr258_inited = 1;
-	if(n == 0) n = LFSR_GERME;
-
+	if(n == 0) 
+		n = LFSR_GERME;
 	lfsr258_y1 = n; lfsr258_y2 = n; lfsr258_y3 = n; lfsr258_y4 = n; lfsr258_y5 = n;
 }
 
-static double lfsr258(void) {
+static double lfsr258() 
+{
 	uint64_t b;
-
 	b = ((lfsr258_y1 << 1) ^ lfsr258_y1) >> 53;
 	lfsr258_y1 = ((lfsr258_y1 & 18446744073709551614UL) << 10) ^ b;
 	b = ((lfsr258_y2 << 24) ^ lfsr258_y2) >> 50;
@@ -829,16 +831,17 @@ static double lfsr258(void) {
 
 static uint32 lfsr113_z1 = LFSR_SEED, lfsr113_z2 = LFSR_SEED, lfsr113_z3 = LFSR_SEED, lfsr113_z4 = LFSR_SEED;
 
-static void lfsr113_init(uint32 n) {
+static void lfsr113_init(uint32 n) 
+{
 	static int lfsr113_inited = 0;
 	if(lfsr113_inited) return;
 	lfsr113_inited = 1;
 	if(n == 0) n = LFSR_SEED;
-
 	lfsr113_z1 = n; lfsr113_z2 = n; lfsr113_z3 = n; lfsr113_z4 = n;
 }
 
-static double lfsr113(void) {
+static double lfsr113() 
+{
 	uint32 b;
 	b  = ((lfsr113_z1 << 6) ^ lfsr113_z1) >> 13;
 	lfsr113_z1 = ((lfsr113_z1 & 4294967294U) << 18) ^ b;
@@ -854,7 +857,7 @@ static double lfsr113(void) {
 #endif
 
 // returns a random number between 0 and 1
-static bool math_random(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool math_random(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm)
 
 	// generate a random number between 0.0 and 1.0
@@ -869,8 +872,8 @@ static bool math_random(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 
 	// if at least one parameter is passed
 	if(nargs > 1) {
-		gravity_value_t value1 = VALUE_FROM_UNDEFINED;
-		gravity_value_t value2 = VALUE_FROM_UNDEFINED;
+		GravityValue value1 = VALUE_FROM_UNDEFINED;
+		GravityValue value2 = VALUE_FROM_UNDEFINED;
 
 		// if one parameter is passed it must be Int or Float and a number between 0 and the parameter will be
 		// returned
@@ -922,7 +925,7 @@ static bool math_random(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 
 // MARK: - Internals -
 
-static void create_optional_class(void) 
+static void create_optional_class() 
 {
 	gravity_class_math = gravity_class_new_pair(NULL, GRAVITY_CLASS_MATH_NAME, NULL, 0, 0);
 	gravity_class_t * meta = gravity_class_get_meta(gravity_class_math);
@@ -975,7 +978,7 @@ static void create_optional_class(void)
 // MARK: - Commons -
 
 bool gravity_ismath_class(const gravity_class_t * c) { return (c == gravity_class_math); }
-const char * gravity_math_name(void) { return GRAVITY_CLASS_MATH_NAME; }
+const char * gravity_math_name() { return GRAVITY_CLASS_MATH_NAME; }
 
 void gravity_math_register(gravity_vm * vm) 
 {
@@ -987,7 +990,7 @@ void gravity_math_register(gravity_vm * vm)
 	gravity_vm_setvalue(vm, GRAVITY_CLASS_MATH_NAME, VALUE_FROM_OBJECT(gravity_class_math));
 }
 
-void gravity_math_free(void) 
+void gravity_math_free() 
 {
 	if(!gravity_class_math) 
 		return;

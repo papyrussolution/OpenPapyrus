@@ -7,69 +7,67 @@
 #include <gravity_.h>
 #pragma hdrstop
 
-#define REPORT_ERROR(node, ...)          {report_error(self, (gnode_t *)node, __VA_ARGS__); return;}
+#define REPORT_ERROR(node, ...)          { report_error(self, reinterpret_cast<const gnode_t *>(node), __VA_ARGS__); return; }
 
-#define DECLARE_SYMTABLE()              symboltable_t *symtable = (symboltable_t*)self->data
-#define SAVE_SYMTABLE()                 symboltable_t *saved = symtable
+#define DECLARE_SYMTABLE()              symboltable_t * symtable = (symboltable_t *)self->data
+#define SAVE_SYMTABLE()                 symboltable_t * saved = symtable
 #define CREATE_SYMTABLE(tag)            INC_IDENT; SAVE_SYMTABLE(); self->data = (void*)symboltable_create(tag);
 #define RESTORE_SYMTABLE()              DEC_IDENT; node->symtable = ((symboltable_t*)self->data); self->data = (void*)saved
 
 #if GRAVITY_SYMTABLE_DEBUG
-static int ident = 0;
-#define INC_IDENT        ++ident
-#define DEC_IDENT        --ident
+	static int ident = 0;
+	#define INC_IDENT        ++ident
+	#define DEC_IDENT        --ident
 #else
-#define INC_IDENT
-#define DEC_IDENT
+	#define INC_IDENT
+	#define DEC_IDENT
 #endif
 
 // MARK: -
 
-static void report_error(gvisitor_t * self, gnode_t * node, const char * format, ...) 
+static void report_error(gvisitor_t * self, const gnode_t * node, const char * format, ...) 
 {
 	// increment internal error counter
 	++self->nerr;
 	// sanity check
-	if(!node) return;
-	// get error callback (if any)
-	void * data = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->xdata : NULL;
-	gravity_error_callback error_fn = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->error_callback : NULL;
-
-	// build error message
-	char buffer[1024];
-	va_list arg;
-	if(format) {
-		va_start(arg, format);
-		vsnprintf(buffer, sizeof(buffer), format, arg);
-		va_end(arg);
+	if(node) {
+		// get error callback (if any)
+		void * data = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->xdata : NULL;
+		gravity_error_callback error_fn = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->error_callback : NULL;
+		// build error message
+		char buffer[1024];
+		va_list arg;
+		if(format) {
+			va_start(arg, format);
+			vsnprintf(buffer, sizeof(buffer), format, arg);
+			va_end(arg);
+		}
+		// setup error struct
+		GravityErrorDescription error_desc(node->token.lineno, node->token.colno, node->token.fileid, node->token.position);
+		// finally call error callback
+		if(error_fn) 
+			error_fn(NULL, GRAVITY_ERROR_SEMANTIC, buffer, &error_desc, data);
+		else 
+			printf("%s\n", buffer);
 	}
-
-	// setup error struct
-	GravityErrorDescription error_desc(node->token.lineno, node->token.colno, node->token.fileid, node->token.position);
-	// finally call error callback
-	if(error_fn) error_fn(NULL, GRAVITY_ERROR_SEMANTIC, buffer, &error_desc, data);
-	else printf("%s\n", buffer);
 }
 
 // MARK: - Declarations -
 
-static void visit_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) {
+static void visit_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) 
+{
 	DECLARE_SYMTABLE();
 	DEBUG_SYMTABLE("GLOBALS");
-
 	node->symtable = symtable; // GLOBALS
-	gnode_array_each(node->stmts, {
-		visit(val);
-	});
+	gnode_array_each(node->stmts, { visit(val); });
 }
 
-static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node) {
+static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node) 
+{
 	DECLARE_SYMTABLE();
 	DEBUG_SYMTABLE("function: %s", node->identifier);
-
 	// function identifier
 	const char * identifier = node->identifier;
-
 	// reserve a special name for static objects defined inside a class
 	// to avoid name collision between class ivar and meta-class ivar
 	char buffer[512];
@@ -77,12 +75,10 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 		snprintf(buffer, sizeof(buffer), "$%s", identifier);
 		identifier = (const char*)buffer;
 	}
-
 	// function identifier
 	if(!symboltable_insert(symtable, identifier, (gnode_t *)node)) {
 		REPORT_ERROR(node, "Identifier %s redeclared.", node->identifier);
 	}
-
 	// we are just interested in non-local declarations so don't further scan function node
 	// node->symtable is NULL here and it will be created in semacheck2
 }

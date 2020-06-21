@@ -1,0 +1,1745 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|Win32">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllDebug|x64">
+      <Configuration>MtDllDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|Win32">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MtDllRelease|x64">
+      <Configuration>MtDllRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|Win32">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerDebug|x64">
+      <Configuration>ServerDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|Win32">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ServerRelease|x64">
+      <Configuration>ServerRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>openssl-111-crypto</ProjectName>
+    <ProjectGuid>{26070AD0-2D76-41A2-AB8B-864EA198CC6F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName />
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\include\internal\crypto;..\OSF\OpenSSL-Supplement\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ShowIncludes>false</ShowIncludes>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+    <Midl>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <DllDataFileName>
+      </DllDataFileName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_cbc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_cfb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_core.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_ige.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_misc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_ofb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_wrap.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\aria\aria.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\ameth_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn1_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn1_gen.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn1_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn1_par.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn_mime.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn_moid.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn_mstbl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\asn_pack.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_bitstr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_d2i_fp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_digest.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_dup.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_gentm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_i2d_fp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_int.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_mbstr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_object.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_octet.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_print.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_strex.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_strnid.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_time.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_type.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_utctm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_utf8.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\a_verify.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\bio_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\bio_ndef.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\d2i_pr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\d2i_pu.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\evp_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\f_int.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\f_string.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\i2d_pr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\i2d_pu.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\nsseq.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\n_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\p5_pbe.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\p5_pbev2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\p5_scrypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\p8_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_dec.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_fre.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_new.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_scn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_typ.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\tasn_utl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\t_bitst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\t_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\t_spki.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_algor.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_bignum.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_info.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_int64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_long.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_sig.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_spki.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_val.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\async\arch\async_null.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\async\arch\async_posix.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\async\arch\async_win.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\async\async.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\async\async_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\async\async_wait.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bf\bf_cfb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bf\bf_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bf\bf_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bf\bf_ofb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bf\bf_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bf_buff.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bf_nbio.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bf_null.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bio_cb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bio_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bio_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bio_meth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_acpt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_bio.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_conn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_dgram.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_fd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_file.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_log.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_mem.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_null.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\bss_sock.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\b_addr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\b_dump.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\b_print.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\b_sock.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bio\b_sock2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\blake2\blake2b.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\blake2\blake2s.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\blake2\m_blake2b.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\blake2\m_blake2s.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_add.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_asm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_blind.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_const.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_ctx.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_depr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_dh.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_div.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_exp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_exp2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_gcd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_gf2m.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_intern.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_kron.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_mod.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_mont.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_mpi.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_mul.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_nist.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_prime.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_print.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_rand.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_recp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_shift.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_sqr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_sqrt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_srp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\bn\bn_word.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\buffer\buffer.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\buffer\buf_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\camellia.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\cmll_cbc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\cmll_cfb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\cmll_ctr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\cmll_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\cmll_misc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\camellia\cmll_ofb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cast\c_cfb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cast\c_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cast\c_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cast\c_ofb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cast\c_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\chacha\chacha_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cmac\cmac.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cmac\cm_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cmac\cm_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_att.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_cd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_dd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_env.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_ess.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_io.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_kari.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_pwri.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_sd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cms\cms_smime.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\comp\comp_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\comp\comp_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\comp\c_zlib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_api.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_def.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_mall.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_mod.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_sap.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\conf\conf_ssl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cpt_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cryptlib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ctype.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_b64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_log.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_oct.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_policy.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_sct.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_sct_ctx.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_vfy.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ct\ct_x509v3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\cversion.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\cbc_cksm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\cbc_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\cfb64ede.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\cfb64enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\cfb_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\des_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\ecb3_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\ecb_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\fcrypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\fcrypt_b.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\ofb64ede.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\ofb64enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\ofb_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\pcbc_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\qud_cksm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\rand_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\set_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\str2key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\des\xcbc_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_check.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_depr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_gen.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_kdf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_meth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_rfc5114.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_rfc7919.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_depr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_gen.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_meth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_ossl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_vrf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_dl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_dlfcn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_openssl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_vms.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dso\dso_win32.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ebcdic.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve25519.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve448\arch_32\f_impl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve448\curve448.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve448\curve448_tables.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve448\eddsa.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve448\f_generic.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\curve448\scalar.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec2_oct.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec2_smpl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecdh_kdf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecdh_ossl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecdsa_ossl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecdsa_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecdsa_vrf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\eck_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_mont.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_nist.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_nistp224.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_nistp256.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_nistp521.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_nistputil.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_nistz256.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_oct.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecp_smpl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ecx_meth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_check.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_curve.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_cvt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_kmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_mult.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_oct.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ec\ec_print.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_all.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_cnf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_ctrl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_devcrypto.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_dyn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_fat.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_list.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_openssl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_rdrand.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\eng_table.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_asnmth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_cipher.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_dh.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_digest.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_dsa.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_eckey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_pkmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_rand.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\engine\tb_rsa.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\err\err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\err\err_all.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\err\err_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\bio_b64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\bio_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\bio_md.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\bio_ok.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\cmeth_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\c_allc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\c_alld.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\digest.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\encode.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_cnf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_pbe.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\evp_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_aes.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_aes_cbc_hmac_sha1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_aes_cbc_hmac_sha256.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_aria.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_bf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_camellia.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_cast.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_chacha20_poly1305.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_des.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_des3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_idea.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_null.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_old.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_rc2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_rc4.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_rc4_hmac_md5.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_rc5.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_seed.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_sm4.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\e_xcbc_d.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_md2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_md4.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_md5.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_md5_sha1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_mdc2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_null.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_ripemd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_sha1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_sha3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_sigver.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\m_wp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\names.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p5_crpt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p5_crpt2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pbe_scrypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pmeth_fn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pmeth_gn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pmeth_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_dec.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_open.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_seal.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p_verify.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ex_data.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\getenv.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\hmac\hmac.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\hmac\hm_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\hmac\hm_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\idea\i_cbc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\idea\i_cfb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\idea\i_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\idea\i_ofb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\idea\i_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\hkdf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\kdf_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\scrypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\tls1_prf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\lhash\lhash.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\lhash\lh_stats.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\md4\md4_dgst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\md4\md4_one.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\md5\md5_dgst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\md5\md5_one.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\mdc2\mdc2dgst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\mdc2\mdc2_one.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\mem.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\mem_clr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\mem_dbg.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\mem_sec.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\cbc128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\ccm128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\cfb128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\ctr128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\cts128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\gcm128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\ocb128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\ofb128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\wrap128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\modes\xts128.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\objects\obj_dat.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\objects\obj_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\objects\obj_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\objects\obj_xref.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\objects\o_names.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_asn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_cl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_ext.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_ht.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_srv.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\ocsp_vfy.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ocsp\v3_ocsp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\openssl-crypto-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\o_dir.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\o_fips.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\o_fopen.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\o_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\o_str.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\o_time.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_all.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_info.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_oth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_pk8.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_pkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_x509.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pem_xaux.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pem\pvkfmt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_add.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_asn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_attr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_crpt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_crt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_decr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_key.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_kiss.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_mutl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_npas.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_p8d.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_p8e.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_sbag.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_utl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\pk12err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\bio_pk7.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_attr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_doit.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_mime.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_smime.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pkcs7err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\poly1305\poly1305.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\poly1305\poly1305_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\poly1305\poly1305_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\drbg_ctr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\drbg_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\randfile.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\rand_egd.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\rand_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\rand_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\rand_unix.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\rand_win.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc2\rc2cfb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc2\rc2ofb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc2\rc2_cbc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc2\rc2_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc2\rc2_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc4\rc4_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc4\rc4_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc5\rc5cfb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc5\rc5ofb64.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc5\rc5_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc5\rc5_enc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rc5\rc5_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ripemd\rmd_dgst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ripemd\rmd_one.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_chk.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_crpt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_depr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_gen.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_meth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_mp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_none.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_oaep.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_ossl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_pk1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_pss.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_saos.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_ssl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\rsa\rsa_x931.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_cbc.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_cfb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_ecb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_ofb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\keccak1600.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha1dgst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha1_one.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha256.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha512.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\siphash\siphash.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\siphash\siphash_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\siphash\siphash_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_crypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm3\m_sm3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm3\sm3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm4\sm4.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\srp\srp_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\srp\srp_vfy.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\stack\stack.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\loader_file.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_register.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_strings.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\threads_win.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_asn1.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_conf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_req_print.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_req_utils.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_rsp_print.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_rsp_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_rsp_utils.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_rsp_verify.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_verify_ctx.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\txt_db\txt_db.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\uid.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_null.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_openssl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_util.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\whrlpool\wp_block.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\whrlpool\wp_dgst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_cache.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_data.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_map.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_node.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_tree.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_addr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_admis.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_akey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_akeya.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_alt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_asid.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_bcons.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_bitst.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_conf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_cpols.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_crld.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_enum.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_extku.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_genn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_ia5.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_info.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_int.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_ncons.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_pci.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_pcia.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_pcons.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_pku.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_pmaps.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_prn.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_purp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_skey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_sxnet.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_tlsf.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_utl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\by_dir.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\by_file.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\t_x509.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509cset.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509name.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509rset.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509spki.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509type.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_att.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_cmp.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_d2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_def.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_ext.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_lu.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_obj.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_r2x.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_req.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_set.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_trs.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_txt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_v3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_vfy.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x509_vpm.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_all.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_attrib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_crl.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_exten.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_name.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_pubkey.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_req.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_x509.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_x509a.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\engines\e_capi.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\engines\e_padlock.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\bio.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\comp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\conf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\constant_time_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\cryptlib.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\aes_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\aria.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\arm_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\asn1_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\asn1_item_list.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\asn1_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\async.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\async_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\async_null.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\async_posix.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\async_win.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bf_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bf_pi.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bio_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\blake2_impl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\blake2_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bn_conf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bn_dh.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bn_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bn_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bn_prime.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\bn_srp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\cast_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\cast_s.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\chacha.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\charmap.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\cmll_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\cms_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\comp_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\conf_def.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\conf_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\cryptlib_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ct_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\curve448utils.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\curve448_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\des_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\dh_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\dsa_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\dso_conf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\dso_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ec_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ec_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ed448.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\engine.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\eng_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\err_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\evp_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\evp_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ext_dat.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\field.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\hmac_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\idea_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\lhash.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\lhash_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\md32_common.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\md4_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\md5_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\mips_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\modes_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\objects.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\obj_dat.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\obj_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\obj_xref.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ocsp_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\p12_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\pcy_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\point_448.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\poly1305.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\poly1305_local.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ppc_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rand_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rand_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rc2_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rc4_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rc5_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rmdconst.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rmd_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rsaz_exp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\rsa_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\s390x_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\seed_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sha.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sha_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\siphash.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\siphash_local.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sm2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sm2err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sm3.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sm3_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sm4.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\sparc_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\spr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ssl-crypto-ctype.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\standard_exts.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\standard_methods.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\store.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\store_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\store_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\tbl_standard.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ts_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\ui_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\v3_admis.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\vms_rms.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\word.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\wp_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\x509_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\x509_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\__DECC_INCLUDE_EPILOGUE.H" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\crypto\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\dane.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\dso.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\dsoerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\nelem.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\numbers.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\o_dir.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\o_str.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\refcount.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\sockets.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\sslconf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\thread_once.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\tsan_assist.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\__DECC_INCLUDE_EPILOGUE.H" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\internal\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\aes.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\asn1.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\asn1err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\asn1t.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\asn1_mac.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\async.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\asyncerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\bio.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\bioerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\blowfish.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\bn.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\bnerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\buffer.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\buffererr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\camellia.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\cast.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\cmac.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\cms.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\cmserr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\comp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\comperr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\conf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\conferr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\conf_api.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\crypto.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\cryptoerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ct.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\cterr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\des.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\dh.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\dherr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\dsa.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\dsaerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\dtls1.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ebcdic.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ec.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ecdh.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ecdsa.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ecerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\engine.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\engineerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\evp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\evperr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\e_os2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\hmac.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\idea.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\kdf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\kdferr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\lhash.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\md2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\md4.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\md5.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\mdc2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\modes.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\objects.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\objectserr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\obj_mac.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ocsp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ocsperr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\opensslconf.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\opensslv.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ossl_typ.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pem.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pem2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pemerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pkcs12.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pkcs12err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pkcs7.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\pkcs7err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rand.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\randerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rand_drbg.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rc2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rc4.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rc5.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ripemd.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rsa.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\rsaerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\safestack.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\seed.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\sha.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\srp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\srtp.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ssl.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ssl2.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ssl3.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\sslerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\stack.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\store.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\storeerr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\symhacks.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\tls1.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ts.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\tserr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\txt_db.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\ui.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\uierr.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\whrlpool.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\x509.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\x509err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\x509v3.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\x509v3err.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\x509_vfy.h" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
+    <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\__DECC_INCLUDE_PROLOGUE.H" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -85,25 +85,22 @@ static void memdebug_report(char * str, char ** stack, size_t nstack, memslot * 
 		if(_is_internal(stack[i])) continue;
 		printf("%s\n", stack[i]);
 	}
-
 	if(slot) {
 		printf("\nallocated:\n");
 		for(size_t i = 0; i<slot->nframe; ++i) {
 			if(_is_internal(slot->frames[i])) continue;
 			printf("%s\n", slot->frames[i]);
 		}
-
 		printf("\nfreed:\n");
 		for(size_t i = 0; i<slot->nframe2; ++i) {
 			if(_is_internal(slot->frames2[i])) continue;
 			printf("%s\n", slot->frames2[i]);
 		}
 	}
-
 	abort();
 }
 
-void memdebug_init(void) 
+void memdebug_init() 
 {
 	SAlloc::F(memdebug.slot);
 	bzero(&memdebug, sizeof(_memdebug));
@@ -195,14 +192,13 @@ bool memdebug_remove(void * ptr)
 
 void memdebug_free(void * ptr) 
 {
-	if(!memdebug_remove(ptr)) 
-		return;
-	SAlloc::F(ptr);
+	if(memdebug_remove(ptr)) 
+		SAlloc::F(ptr);
 }
 
 void memdebug_setcheck(bool flag) { check_flag = flag; }
 
-void memdebug_stat(void) 
+void memdebug_stat() 
 {
 	printf("\n========== MEMORY STATS ==========\n");
 	printf("Allocations count: %d\n", memdebug.nalloc);
@@ -229,8 +225,8 @@ void memdebug_stat(void)
 	}
 }
 
-size_t memdebug_status(void) { return memdebug.maxmem; }
-size_t memdebug_leaks(void) { return memdebug.currmem; }
+size_t memdebug_status() { return memdebug.maxmem; }
+size_t memdebug_leaks() { return memdebug.currmem; }
 
 // Internals
 void _ptr_add(void * ptr, size_t size) 

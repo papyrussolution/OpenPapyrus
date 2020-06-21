@@ -549,6 +549,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\asn1\ameth_lib.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\aria\aria.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\asn1\asn1_err.c">
 			</File>
 			<File
@@ -954,6 +957,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\conf\conf_sap.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\conf\conf_ssl.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\cpt_err.c">
 			</File>
 			<File
@@ -996,7 +1002,16 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\modes\cts128.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ctype.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\ec\curve25519.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ec\curve448\curve448.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ec\curve448\curve448_tables.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\cversion.c">
@@ -1050,7 +1065,16 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\dh\dh_rfc5114.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\dh\dh_rfc7919.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\digest.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\rand\drbg_ctr.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\rand\drbg_lib.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\dsa\dsa_ameth.c">
@@ -1122,6 +1146,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\e_aes_cbc_hmac_sha256.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\evp\e_aria.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\e_bf.c">
 			</File>
 			<File
@@ -1135,9 +1162,6 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\e_chacha20_poly1305.c">
-			</File>
-			<File
-				RelativePath="..\OSF\OpenSSL-111\engines\e_chil.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\e_des.c">
@@ -1173,13 +1197,13 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\e_seed.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\evp\e_sm4.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\e_xcbc_d.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\ebcdic.c">
-			</File>
-			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\ec\ec2_mult.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\ec\ec2_oct.c">
@@ -1281,6 +1305,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\ec\ecx_meth.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ec\curve448\eddsa.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\encode.c">
 			</File>
 			<File
@@ -1288,9 +1315,6 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\engine\eng_cnf.c">
-			</File>
-			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\engine\eng_cryptodev.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\engine\eng_ctrl.c">
@@ -1362,6 +1386,12 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\ex_data.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ec\curve448\f_generic.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ec\curve448\arch_32\f_impl.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\asn1\f_int.c">
 			</File>
 			<File
@@ -1375,6 +1405,9 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\modes\gcm128.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\getenv.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\kdf\hkdf.c">
@@ -1416,10 +1449,16 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\kdf\kdf_err.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sha\keccak1600.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\lhash\lh_stats.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\lhash\lhash.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\store\loader_file.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\blake2\m_blake2b.c">
@@ -1452,7 +1491,13 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\m_sha1.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\evp\m_sha3.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\m_sigver.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm3\m_sm3.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\m_wp.c">
@@ -1468,9 +1513,6 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\md5\md5_one.c">
-			</File>
-			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\rand\md_rand.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\mdc2\mdc2_one.c">
@@ -1653,6 +1695,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\pkcs12\p12_p8e.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\pkcs12\p12_sbag.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\pkcs12\p12_utl.c">
 			</File>
 			<File
@@ -1693,6 +1738,9 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\evp\p_verify.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\evp\pbe_scrypt.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\des\pcbc_enc.c">
@@ -1782,6 +1830,12 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\poly1305\poly1305.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\poly1305\poly1305_ameth.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\poly1305\poly1305_pmeth.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\pem\pvkfmt.c">
 			</File>
 			<File
@@ -1851,9 +1905,6 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\ripemd\rmd_one.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\des\rpc_enc.c">
-			</File>
-			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_ameth.c">
 			</File>
 			<File
@@ -1881,10 +1932,10 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_meth.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_none.c">
+				RelativePath="..\Osf\OpenSSL-111\crypto\rsa\rsa_mp.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_null.c">
+				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_none.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_oaep.c">
@@ -1917,7 +1968,10 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\rsa\rsa_x931.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\crypto\evp\scrypt.c">
+				RelativePath="..\Osf\OpenSSL-111\crypto\ec\curve448\scalar.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\kdf\scrypt.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\seed\seed.c">
@@ -1950,6 +2004,33 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\sha\sha512.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\siphash\siphash.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\siphash\siphash_ameth.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\siphash\siphash_pmeth.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm2\sm2_crypt.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm2\sm2_err.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm2\sm2_pmeth.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm2\sm2_sign.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm3\sm3.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\sm4\sm4.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\srp\srp_lib.c">
 			</File>
 			<File
@@ -1957,6 +2038,21 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\stack\stack.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\store\store_err.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\store\store_init.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\store\store_lib.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\store\store_register.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\store\store_strings.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\des\str2key.c">
@@ -2073,6 +2169,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\ui\ui_lib.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\ui\ui_null.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\ui\ui_openssl.c">
 			</File>
 			<File
@@ -2083,6 +2182,9 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\x509v3\v3_addr.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\x509v3\v3_admis.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\x509v3\v3_akey.c">
@@ -2268,6 +2370,9 @@
 				RelativePath="..\OSF\OpenSSL-111\crypto\asn1\x_info.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\crypto\asn1\x_int64.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\asn1\x_long.c">
 			</File>
 			<File
@@ -2303,89 +2408,10 @@
 			<File
 				RelativePath="..\OSF\OpenSSL-111\crypto\modes\xts128.c">
 			</File>
-			<Filter
-				Name="GOST"
-				Filter="">
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\e_gost_err.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost89.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_ameth.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_asn1.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_crypt.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_ctl.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_ec_keyx.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_ec_sign.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_eng.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_grasshopper_cipher.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_grasshopper_core.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_grasshopper_defines.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_grasshopper_galois_precompiled.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_grasshopper_precompiled.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_keyexpimp.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_keywrap.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_md.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_md2012.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_omac.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_omac_acpkm.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_params.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gost_pmeth.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gosthash.c">
-				</File>
-				<File
-					RelativePath="..\OSF\OpenSSL-111\crypto\gost\gosthash2012.c">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="">
-			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\__decc_include_epilogue.h">
-			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\__decc_include_epilogue.h">
 			</File>
@@ -2393,13 +2419,16 @@
 				RelativePath="..\Osf\OpenSSL-111\include\internal\__decc_include_epilogue.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\__decc_include_prologue.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\__decc_include_epilogue.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\__decc_include_prologue.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\internal\__decc_include_prologue.h">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\__decc_include_prologue.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\aes.h">
@@ -2435,10 +2464,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\asn1t.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\async.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\async.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\async.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\async_locl.h">
@@ -2462,10 +2491,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\bf_pi.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\bio_lcl.h">
@@ -2549,10 +2578,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\cmserr.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\comp.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\comp.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\comp.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\comp.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\comp_lcl.h">
@@ -2561,10 +2590,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\comperr.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\conf.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\conf.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\conf.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\conf.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\conf_api.h">
@@ -2681,10 +2710,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\eng_int.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\engine.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\engine.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\engine.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\engine.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\engineerr.h">
@@ -2798,10 +2827,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\obj_xref.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\objects.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\objects.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\objects.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\objects.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\objectserr.h">
@@ -2933,10 +2962,10 @@
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\seed_locl.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\sha.h">
+				RelativePath="..\Osf\OpenSSL-111\include\openssl\sha.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL-111\include\openssl\sha.h">
+				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\sha.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\internal\crypto\sha_locl.h">
@@ -3091,58 +3120,6 @@
 			<File
 				RelativePath="..\Osf\OpenSSL-111\include\openssl\x509v3err.h">
 			</File>
-			<Filter
-				Name="GOST"
-				Filter="">
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\e_gost_err.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost89.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_cipher.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_core.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_defines.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_math.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_grasshopper_precompiled.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_keywrap.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gost_lcl.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_const.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_precalc.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_ref.h">
-				</File>
-				<File
-					RelativePath="..\Osf\OpenSSL-Supplement\include\gosthash2012_sse2.h">
-				</File>
-			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

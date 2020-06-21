@@ -15,6 +15,20 @@ SLAPI SDataMoveProgressInfo::SDataMoveProgressInfo()
 
 int FASTCALL fileExists(const char * pFileName)
 {
+/* @snippet Пример определения существования файла посредством WINAPI (Shlwapi.h)
+#ifdef WIN32
+	const DWORD attributes = GetFileAttributesA(path);
+	// special directory case to drive the network path check
+	const BOOL is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : (FILE_ATTRIBUTE_DIRECTORY & attributes);
+	if(is_directory) {
+		if(PathIsNetworkPathA(path)) 
+			return true;
+		else if(PathIsUNCA(path)) 
+			return true;
+	}
+	if(PathFileExistsA(path) == 1) 
+		return true;
+#endif*/
 	return (!isempty(pFileName) && ::access(pFileName, 0) == 0) ? 1 : SLS.SetError(SLERR_FILENOTFOUND, pFileName);
 }
 

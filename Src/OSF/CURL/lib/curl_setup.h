@@ -36,6 +36,7 @@
 #define USE_LIBSSH2 // @sobolev
 #define HAVE_LIBSSH2_H
 // @sobolev #define LIBSSH2_VERSION_NUM 0x010801
+#define HAVE_ENGINE_LOAD_BUILTIN_ENGINES // @sobolev @v10.7.12
 #ifdef HAVE_CONFIG_H
 	#include "curl_config.h"
 #else /* HAVE_CONFIG_H */
@@ -509,7 +510,7 @@
 #define LIBIDN_REQUIRED_VERSION "0.4.1"
 #if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_NSS) || defined(USE_POLARSSL) || defined(USE_AXTLS) || defined(USE_MBEDTLS) || \
     defined(USE_CYASSL) || defined(USE_SCHANNEL) || defined(USE_DARWINSSL) || defined(USE_GSKIT)
-	#define USE_SSL    /* SSL support has been enabled */
+	#define USE_SSL // SSL support has been enabled 
 #endif
 // Single point where USE_SPNEGO definition might be defined 
 #if !defined(CURL_DISABLE_CRYPTO_AUTH) && (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))

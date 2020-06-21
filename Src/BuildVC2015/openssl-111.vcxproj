@@ -54,78 +54,78 @@
     <ProjectName>openssl-111-ssl</ProjectName>
     <ProjectGuid>{0796C89C-07E1-4BDA-BDAE-F023AEB5366C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -243,6 +243,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -292,6 +295,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -339,6 +345,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -388,6 +397,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <ClCompile>
@@ -435,6 +447,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
     <ClCompile>
@@ -484,6 +499,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <ClCompile>
@@ -531,6 +549,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
     <ClCompile>
@@ -580,6 +601,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
@@ -627,6 +651,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <ClCompile>
@@ -676,6 +703,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <ClCompile>
@@ -723,6 +753,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <ClCompile>
@@ -772,8 +805,12 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\OpenSSL-111\engines\e_capi.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\engines\e_padlock.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\ssl\bio_ssl.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\ssl\d1_lib.c" />

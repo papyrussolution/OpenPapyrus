@@ -895,30 +895,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\e_gost_err.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost89.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash2012.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ameth.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_asn1.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_crypt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ctl.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_keyx.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_sign.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_eng.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_cipher.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_core.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_defines.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_galois_precompiled.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_precompiled.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keyexpimp.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keywrap.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md2012.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac_acpkm.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_params.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_pmeth.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\aes\aes_cbc.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\aes\aes_cfb.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\aes\aes_core.c" />
@@ -1713,9 +1689,6 @@
     <ClInclude Include="..\Osf\OpenSSL\include\openssl\x509_vfy.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\__DECC_INCLUDE_PROLOGUE.H" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

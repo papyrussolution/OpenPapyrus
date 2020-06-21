@@ -228,13 +228,11 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 	 * of packet_read, then don't redirect, as that would be an infinite loop!
 	 */
 
-	if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
-	    !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
+	if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS && !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
 		/* Whoever wants a packet won't get anything until the key re-exchange
 		 * is done!
 		 */
-		_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-		    " key re-exchange from _libssh2_transport_read");
+		_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the key re-exchange from _libssh2_transport_read");
 		rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
 		if(rc)
 			return rc;

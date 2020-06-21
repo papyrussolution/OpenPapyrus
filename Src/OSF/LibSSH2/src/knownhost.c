@@ -567,11 +567,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS * hosts,
 		const char * hash = NULL;
 		size_t saltlen = p - salt;
 		if(saltlen >= (sizeof(saltbuf)-1)) /* weird length */
-			return _libssh2_error(hosts->session,
-			    LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-			    "Failed to parse known_hosts line "
-			    "(unexpectedly long salt)");
-
+			return _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Failed to parse known_hosts line (unexpectedly long salt)");
 		memcpy(saltbuf, salt, saltlen);
 		saltbuf[saltlen] = 0; /* zero terminate */
 		salt = saltbuf; /* point to the stack based buffer */
@@ -584,10 +580,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS * hosts,
 
 		/* check that the lengths seem sensible */
 		if(hostlen >= sizeof(hostbuf)-1)
-			return _libssh2_error(hosts->session,
-			    LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-			    "Failed to parse known_hosts line "
-			    "(unexpected length)");
+			return _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Failed to parse known_hosts line (unexpected length)");
 
 		memcpy(hostbuf, host, hostlen);
 		hostbuf[hostlen] = 0;
@@ -625,11 +618,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS * hosts,
 
 	/* make some checks that the lengths seem sensible */
 	if(keylen < 20)
-		return _libssh2_error(hosts->session,
-		    LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-		    "Failed to parse known_hosts line "
-		    "(key too short)");
-
+		return _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Failed to parse known_hosts line (key too short)");
 	switch(key[0]) {
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
@@ -737,8 +726,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS * hosts,
  * 'ssh-rsa' [base64-encoded-key]
  *
  */
-LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS * hosts,
-    const char * line, size_t len, int type)
+LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS * hosts, const char * line, size_t len, int type)
 {
 	const char * cp;
 	const char * hostp;
@@ -746,47 +734,32 @@ LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS * hosts,
 	size_t hostlen;
 	size_t keylen;
 	int rc;
-
 	if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
-		return _libssh2_error(hosts->session,
-		    LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-		    "Unsupported type of known-host information "
-		    "store");
-
+		return _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Unsupported type of known-host information store");
 	cp = line;
-
 	/* skip leading whitespaces */
 	while(len && ((*cp==' ') || (*cp == '\t'))) {
 		cp++;
 		len--;
 	}
-
 	if(!len || !*cp || (*cp == '#') || (*cp == '\n'))
 		/* comment or empty line */
 		return LIBSSH2_ERROR_NONE;
-
 	/* the host part starts here */
 	hostp = cp;
-
 	/* move over the host to the separator */
 	while(len && *cp && (*cp!=' ') && (*cp != '\t')) {
 		cp++;
 		len--;
 	}
-
 	hostlen = cp - hostp;
-
 	/* the key starts after the whitespaces */
 	while(len && *cp && ((*cp==' ') || (*cp == '\t'))) {
 		cp++;
 		len--;
 	}
-
 	if(!*cp || !len) /* illegal line */
-		return _libssh2_error(hosts->session,
-		    LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-		    "Failed to parse known_hosts line");
-
+		return _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Failed to parse known_hosts line");
 	keyp = cp; /* the key starts here */
 	keylen = len;
 

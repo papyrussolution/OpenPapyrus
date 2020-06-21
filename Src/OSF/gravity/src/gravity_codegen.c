@@ -136,7 +136,7 @@ static opcode_t token2opcode(gtoken_t op)
 	return NOT;
 }
 
-static gravity_value_t literal2value(gnode_literal_expr_t * node) {
+static GravityValue literal2value(gnode_literal_expr_t * node) {
 	if(node->type == LITERAL_STRING) return VALUE_FROM_STRING(NULL, node->value.str, node->len);
 	if(node->type == LITERAL_FLOAT) return VALUE_FROM_FLOAT(node->value.d);
 	if(node->type == LITERAL_INT) return VALUE_FROM_INT(node->value.n64);
@@ -150,8 +150,8 @@ static gravity_list_t * literals2list(gvisitor_t * self, gnode_r * r, uint32 sta
 
 	for(uint32 i = start; i<stop; ++i) {
 		gnode_literal_expr_t * node = (gnode_literal_expr_t *)marray_get(*r, i);
-		gravity_value_t value = literal2value(node);
-		marray_push(gravity_value_t, list->array, value);
+		GravityValue value = literal2value(node);
+		marray_push(GravityValue, list->array, value);
 	}
 
 	return list;
@@ -166,8 +166,8 @@ static gravity_map_t * literals2map(gvisitor_t * self, gnode_r * r1, gnode_r * r
 
 		// when here I am sure that both key and value are literals
 		// so they can be LITERAL_STRING, LITERAL_FLOAT, LITERAL_INT, LITERAL_BOOL
-		gravity_value_t key = literal2value(_key);
-		gravity_value_t value = literal2value(_value);
+		GravityValue key = literal2value(_key);
+		GravityValue value = literal2value(_value);
 		gravity_map_insert(NULL, map, key, value);
 	}
 
@@ -201,7 +201,7 @@ static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, boo
 	}
 
 	// emit optimized (cpoll based) version
-	gravity_value_t v;
+	GravityValue v;
 
 	if(ismap) {
 		gravity_map_t * map = literals2map(self, node->list1, node->list2, (uint32)idxstart, (uint32)idxend);
@@ -507,10 +507,10 @@ static void visit_loop_while_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	ircode_unsetlabel_check(code);
 }
 
-static void visit_loop_repeat_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) {
+static void visit_loop_repeat_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
+{
 	DEBUG_CODEGEN("visit_loop_repeat_stmt");
 	DECLARE_CODE();
-
 	/*
 	     $start:    <body>
 	     <expression>
@@ -530,18 +530,18 @@ static void visit_loop_repeat_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
 	visit(node->stmt);
 	visit(node->expr);
 	uint32 reg = ircode_register_pop(code);
-	if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid repeat condition expression.");
+	if(reg == REGISTER_ERROR) 
+		report_error(self, (gnode_t *)node, "Invalid repeat condition expression.");
 	ircode_add(code, JUMPF, reg, labelFalse, 0, LINE_NUMBER(node));
 	ircode_add(code, JUMP, labelTrue, 0, 0, LINE_NUMBER(node));
-
 	ircode_marklabel(code, labelFalse, LINE_NUMBER(node));
-
 	ircode_unsetlabel_true(code);
 	ircode_unsetlabel_false(code);
 	ircode_unsetlabel_check(code);
 }
 
-static void visit_loop_for_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) {
+static void visit_loop_for_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
+{
 	// https://www.natashatherobot.com/swift-alternatives-to-c-style-for-loops/
 
 	DEBUG_CODEGEN("visit_loop_for_stmt");
@@ -805,7 +805,7 @@ static void store_declaration(gvisitor_t * self, gravity_object_t * obj, bool is
 static gravity_function_t * class_lookup_nosuper(gravity_class_t * c, const char * name) 
 {
 	STATICVALUE_FROM_STRING(key, name, strlen(name));
-	gravity_value_t * v = gravity_hash_lookup(c->htable, key);
+	GravityValue * v = gravity_hash_lookup(c->htable, key);
 	return (v) ? (gravity_function_t *)v->p : NULL;
 }
 
@@ -973,16 +973,16 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	size_t len = gnode_array_size(node->params);
 	for(size_t i = 1; i<len; ++i) {
 		gnode_var_t * param = (gnode_var_t *)gnode_array_get(node->params, i);
-		gravity_value_t name = VALUE_FROM_CSTRING(NULL, param->identifier);
-		marray_push(gravity_value_t, f->pname, name);
+		GravityValue name = VALUE_FROM_CSTRING(NULL, param->identifier);
+		marray_push(GravityValue, f->pname, name);
 
 		if(node->has_defaults) {
-			// LOOP for each node->params[i]->expr and convert literal to gravity_value_t
+			// LOOP for each node->params[i]->expr and convert literal to GravityValue
 			// if expr is NULL then compute value as UNDEFINED (and add each one to f->defaults preserving
 			// the index)
 			gnode_literal_expr_t * literal = (gnode_literal_expr_t *)param->expr;
-			gravity_value_t value = (literal) ? literal2value(literal) : VALUE_FROM_UNDEFINED;
-			marray_push(gravity_value_t, f->pvalue, value);
+			GravityValue value = (literal) ? literal2value(literal) : VALUE_FROM_UNDEFINED;
+			marray_push(GravityValue, f->pvalue, value);
 		}
 	}
 
@@ -1626,20 +1626,17 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 	ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 1, LINE_NUMBER(node));
 }
 
-static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node) {
+static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node) 
+{
 	DEBUG_CODEGEN("visit_file_expr");
 	DECLARE_CODE();
-
 	CODEGEN_COUNT_REGISTERS(n1);
-
 	// check if the node is a left expression of an assignment
 	bool is_assignment = node->base.is_assignment;
-
 	size_t count = gnode_array_size(node->identifiers);
 	for(size_t i = 0; i<count; ++i) {
 		const char * identifier = gnode_array_get(node->identifiers, i);
 		uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, identifier));
-
 		if((is_assignment) && (IS_LAST_LOOP(i, count))) {
 			uint32 reg = ircode_register_pop(code);
 			if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid file expression.");
@@ -1654,85 +1651,69 @@ static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node) {
 	CODEGEN_ASSERT_REGISTERS(n1, n2, (is_assignment) ? -1 : 1);
 }
 
-static void visit_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) {
+static void visit_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) 
+{
 	/*
-
 	   NOTE:
-
 	   doubles and int64 should be added to the constant pool but I avoid
 	   adding them here so the optimizer has a way to perform better constant folding:
 	   http://en.wikipedia.org/wiki/Constant_folding
 	   http://www.compileroptimizations.com/category/constant_folding.htm
 
 	 */
-
 	DEBUG_CODEGEN("visit_literal_expr");
 	DECLARE_CODE();
-
 	CODEGEN_COUNT_REGISTERS(n1);
-
 	switch(node->type) {
-		case LITERAL_STRING: {
-		    // LOADK temp, s
-		    uint16 index =
-			gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_STRING(NULL, node->value.str, node->len));
-		    ircode_add_constant(code, index, LINE_NUMBER(node));
-		    DEBUG_CODEGEN("visit_literal_expr (string) %s", node->value.str);
-	    } break;
-
+		case LITERAL_STRING: 
+			{
+				// LOADK temp, s
+				uint16 index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_STRING(NULL, node->value.str, node->len));
+				ircode_add_constant(code, index, LINE_NUMBER(node));
+				DEBUG_CODEGEN("visit_literal_expr (string) %s", node->value.str);
+			} 
+			break;
 		case LITERAL_FLOAT:
 		    // LOADI temp, d
 		    ircode_add_double(code, node->value.d, LINE_NUMBER(node));
 		    DEBUG_CODEGEN("visit_literal_expr (float) %.5f", node->value.d);
 		    break;
-
 		case LITERAL_INT:
 		    // LOADI temp, n
 		    ircode_add_int(code, node->value.n64, LINE_NUMBER(node));
 		    DEBUG_CODEGEN("visit_literal_expr (int) %lld", node->value.n64);
 		    break;
-
-		case LITERAL_BOOL: {
-		    uint32 value = (node->value.n64 == 0) ? CPOOL_VALUE_FALSE : CPOOL_VALUE_TRUE;
-		    ircode_add_constant(code, value, LINE_NUMBER(node));
-		    DEBUG_CODEGEN("visit_literal_expr (bool) %lld", node->value.n64);
-	    } break;
-
+		case LITERAL_BOOL: 
+			{
+				uint32 value = (node->value.n64 == 0) ? CPOOL_VALUE_FALSE : CPOOL_VALUE_TRUE;
+				ircode_add_constant(code, value, LINE_NUMBER(node));
+				DEBUG_CODEGEN("visit_literal_expr (bool) %lld", node->value.n64);
+			} 
+			break;
 		case LITERAL_STRING_INTERPOLATED: {
 		    // codegen for string interpolation is like a list.join()
-
-		    gnode_list_expr_t * list = (gnode_list_expr_t*)gnode_list_expr_create(node->base.token, node->value.r, NULL,
-			    false, static_cast<gnode_t *>(node->base.decl));
+		    gnode_list_expr_t * list = (gnode_list_expr_t*)gnode_list_expr_create(node->base.token, node->value.r, NULL, false, static_cast<gnode_t *>(node->base.decl));
 		    visit((gnode_t *)list);
 		    // list
 		    uint32 listreg = ircode_register_last(code);
-		    if(listreg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid string interpolated expression.");
-
+		    if(listreg == REGISTER_ERROR) 
+				report_error(self, (gnode_t *)node, "Invalid string interpolated expression.");
 		    // LOADK
 		    uint16 index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, "join"));
 		    ircode_add_constant(code, index, LINE_NUMBER(node));
 		    uint32 temp1 = ircode_register_last(code);
 		    DEBUG_ASSERT(temp1 != REGISTER_ERROR, "Unexpected register error.");
-
-		    // LOAD
-		    ircode_add(code, LOAD, temp1, listreg, temp1, LINE_NUMBER(node));
-
+		    ircode_add(code, LOAD, temp1, listreg, temp1, LINE_NUMBER(node)); // LOAD
 		    // temp1+1 register used for parameter passing
 		    uint32 temp2 = ircode_register_push_temp(code);
-
-		    // MOVE
-		    ircode_add(code, MOVE, temp2, listreg, 0, LINE_NUMBER(node));
-
-		    // CALL
-		    ircode_add(code, CALL, listreg, temp1, 1, LINE_NUMBER(node));
-
+		    ircode_add(code, MOVE, temp2, listreg, 0, LINE_NUMBER(node)); // MOVE
+		    ircode_add(code, CALL, listreg, temp1, 1, LINE_NUMBER(node)); // CALL
 		    // cleanup
 		    mem_free(list);
 		    uint32 temp = ircode_register_pop(code); // temp2
 		    DEBUG_ASSERT(temp != REGISTER_ERROR, "Unexpected register error.");
 		    temp = ircode_register_pop(code);    // temp1
 		    DEBUG_ASSERT(temp != REGISTER_ERROR, "Unexpected register error.");
-
 		    /*
 
 		       00012    LOADK 6 4
@@ -1740,9 +1721,7 @@ static void visit_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) {
 		       00014    MOVE 7 6
 		       00015    MOVE 8 4
 		       00016    CALL 6 7 1
-
 		     */
-
 		    break;
 	    }
 
@@ -1753,26 +1732,24 @@ static void visit_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) {
 	CODEGEN_ASSERT_REGISTERS(n1, n2, 1);
 }
 
-static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * node) {
+static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * node) 
+{
 	DEBUG_CODEGEN("visit_identifier_expr %s", node->value);
 	DECLARE_CODE();
-
 	CODEGEN_COUNT_REGISTERS(n1);
-
 	// check if the node is a left expression of an assignment
 	bool is_assignment = node->base.is_assignment;
-
-	const char            * identifier = node->value;   // identifier as c string
+	const char * identifier = node->value;   // identifier as c string
 	gnode_location_type type = node->location.type;       // location type
 	uint16 index = node->location.index;           // symbol index
 	uint16 nup = node->location.nup;               // upvalue index or outer index
-
 	switch(type) {
 		// local variable
 		case LOCATION_LOCAL: {
 		    if(is_assignment) {
 			    uint32 reg = ircode_register_pop(code);
-			    if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+			    if(reg == REGISTER_ERROR) 
+					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
 			    ircode_add(code, MOVE, index, reg, 0, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1785,7 +1762,8 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 		    uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, identifier));
 		    if(is_assignment) {
 			    uint32 reg = ircode_register_pop(code);
-			    if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+			    if(reg == REGISTER_ERROR) 
+					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
 			    ircode_add(code, STOREG, reg, kindex, 0, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1798,7 +1776,8 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 		    gupvalue_t * upvalue = node->upvalue;
 		    if(is_assignment) {
 			    uint32 reg = ircode_register_pop(code);
-			    if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+			    if(reg == REGISTER_ERROR) 
+					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
 			    ircode_add(code, STOREU, reg, upvalue->selfindex, 0, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1845,7 +1824,8 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 		    if(is_assignment) {
 			    // should be prohibited by semantic to store something into a non ivar slot?
 			    dest = ircode_register_pop(code); // consume temp register
-			    if(dest == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+			    if(dest == REGISTER_ERROR) 
+					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
 			    ircode_add(code, STORE, dest, target, index_register, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1859,62 +1839,37 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 	CODEGEN_ASSERT_REGISTERS(n1, n2, (is_assignment) ? -1 : 1);
 }
 
-static void visit_keyword_expr(gvisitor_t * self, gnode_keyword_expr_t * node) {
+static void visit_keyword_expr(gvisitor_t * self, gnode_keyword_expr_t * node) 
+{
 	DEBUG_CODEGEN("visit_keyword_expr %s", token_name(node->base.token.type));
 	DECLARE_CODE();
-
 	CODEGEN_COUNT_REGISTERS(n1);
-
 	gtoken_t type = NODE_TOKEN_TYPE(node);
 	switch(type) {
-		case TOK_KEY_CURRFUNC:
-		    ircode_add_constant(code, CPOOL_VALUE_FUNC, LINE_NUMBER(node));
-		    break;
-
-		case TOK_KEY_NULL:
-		    ircode_add_constant(code, CPOOL_VALUE_NULL, LINE_NUMBER(node));
-		    break;
-
-		case TOK_KEY_SUPER:
-		    ircode_register_push(code, 0);
-		    break;
-
+		case TOK_KEY_CURRFUNC: ircode_add_constant(code, CPOOL_VALUE_FUNC, LINE_NUMBER(node)); break;
+		case TOK_KEY_NULL: ircode_add_constant(code, CPOOL_VALUE_NULL, LINE_NUMBER(node)); break;
+		case TOK_KEY_SUPER: ircode_register_push(code, 0); break;
 		case TOK_KEY_CURRARGS:
 		    // compiler can know in advance if arguments special array is used
 		    context_function->useargs = true;
 		    ircode_add_constant(code, CPOOL_VALUE_ARGUMENTS, LINE_NUMBER(node));
 		    break;
-
-		case TOK_KEY_UNDEFINED:
-		    ircode_add_constant(code, CPOOL_VALUE_UNDEFINED, LINE_NUMBER(node));
-		    break;
-
-		case TOK_KEY_TRUE:
-		    ircode_add_constant(code, CPOOL_VALUE_TRUE, LINE_NUMBER(node));
-		    break;
-
-		case TOK_KEY_FALSE:
-		    ircode_add_constant(code, CPOOL_VALUE_FALSE, LINE_NUMBER(node));
-		    break;
-
-		default:
-		    report_error(self, (gnode_t *)node, "Invalid keyword expression.");
-		    break;
+		case TOK_KEY_UNDEFINED: ircode_add_constant(code, CPOOL_VALUE_UNDEFINED, LINE_NUMBER(node)); break;
+		case TOK_KEY_TRUE: ircode_add_constant(code, CPOOL_VALUE_TRUE, LINE_NUMBER(node)); break;
+		case TOK_KEY_FALSE: ircode_add_constant(code, CPOOL_VALUE_FALSE, LINE_NUMBER(node)); break;
+		default: report_error(self, (gnode_t *)node, "Invalid keyword expression."); break;
 	}
-
 	CODEGEN_COUNT_REGISTERS(n2);
 	CODEGEN_ASSERT_REGISTERS(n1, n2, 1);
 }
 
-static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node) {
+static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node) 
+{
 	DEBUG_CODEGEN("visit_list_expr");
 	DECLARE_CODE();
-
 	CODEGEN_COUNT_REGISTERS(n1);
-
 	bool ismap = node->ismap;
 	uint32 n = (uint32)gnode_array_size(node->list1);
-
 	// a map requires twice registers than a list
 	uint32 max_fields = (ismap) ? MAX_FIELDSxFLUSH : MAX_FIELDSxFLUSH*2;
 
@@ -2097,7 +2052,8 @@ gravity_function_t * gravity_codegen(gnode_t * node, gravity_delegate_t * delega
 
 	// in case of codegen errors explicity free code and return NULL
 	if(visitor.nerr != 0) {
-		ircode_free(code); f->bytecode = NULL;
+		ircode_free(code); 
+		f->bytecode = NULL;
 	}
 	return (visitor.nerr == 0) ? f : NULL;
 }

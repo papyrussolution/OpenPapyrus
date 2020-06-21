@@ -852,6 +852,18 @@
       <Project>{813784d9-8b70-4880-91e7-51bb4265d187}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="zlib.vcxproj">
+      <Project>{c23c2b5b-224b-475d-8ae3-82289a87602c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\SOAP\CLIENT\UHTT2\iface.xml">

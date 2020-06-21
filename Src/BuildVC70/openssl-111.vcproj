@@ -27,7 +27,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\include\internal;..\OSF\OpenSSL-111\include\internal\crypto"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -102,7 +102,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\include\internal;..\OSF\OpenSSL-111\include\internal\crypto"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -174,7 +174,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\include\internal;..\OSF\OpenSSL-111\include\internal\crypto"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -249,7 +249,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\include\internal;..\OSF\OpenSSL-111\include\internal\crypto"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -321,7 +321,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\include\internal;..\OSF\OpenSSL-111\include\internal\crypto"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -396,7 +396,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1"
+				AdditionalIncludeDirectories="..\include;..\OSF\OpenSSL-111;..\OSF\OpenSSL-111\ssl;..\OSF\OpenSSL-111\include;..\OSF\OpenSSL-111\crypto;..\OSF\OpenSSL-111\crypto\modes;..\OSF\OpenSSL-111\crypto\evp;..\OSF\OpenSSL-111\crypto\asn1;..\OSF\OpenSSL-111\include\internal;..\OSF\OpenSSL-111\include\internal\crypto"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -474,6 +474,18 @@
 				RelativePath="..\OSF\OpenSSL-111\ssl\record\dtls1_bitmap.c">
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\ssl\statem\extensions.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\ssl\statem\extensions_clnt.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\ssl\statem\extensions_cust.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\ssl\statem\extensions_srvr.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\ssl\methods.c">
 			</File>
 			<File
@@ -516,6 +528,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\Osf\OpenSSL-111\ssl\packet.c">
+			</File>
+			<File
 				RelativePath="..\OSF\OpenSSL-111\ssl\pqueue.c">
 			</File>
 			<File
@@ -541,6 +556,9 @@
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\ssl\record\ssl3_record.c">
+			</File>
+			<File
+				RelativePath="..\Osf\OpenSSL-111\ssl\record\ssl3_record_tls13.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\ssl\ssl_asn1.c">
@@ -600,16 +618,13 @@
 				RelativePath="..\OSF\OpenSSL-111\ssl\t1_enc.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\ssl\t1_ext.c">
-			</File>
-			<File
 				RelativePath="..\OSF\OpenSSL-111\ssl\t1_lib.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\ssl\t1_reneg.c">
+				RelativePath="..\OSF\OpenSSL-111\ssl\t1_trce.c">
 			</File>
 			<File
-				RelativePath="..\OSF\OpenSSL-111\ssl\t1_trce.c">
+				RelativePath="..\Osf\OpenSSL-111\ssl\tls13_enc.c">
 			</File>
 			<File
 				RelativePath="..\OSF\OpenSSL-111\ssl\tls_srp.c">

@@ -9,7 +9,7 @@
 
 // Gravity base classes (the isa pointer in each object).
 // Null and Undefined points to same class (Null) and they
-// differs from the n field inside gravity_value_t.
+// differs from the n field inside GravityValue.
 // n == 0 means NULL while n == 1 means UNDEFINED so I can
 // reuse the same methods for both.
 //
@@ -90,16 +90,16 @@ typedef enum {
 } introspection_info_type;
 
 // MARK: - Utils -
-static void map_keys_array(gravity_hash_t * hashtable, gravity_value_t key, gravity_value_t value, void * data) 
+static void map_keys_array(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
 {
     #pragma unused (hashtable, value)
 	gravity_list_t * list = static_cast<gravity_list_t *>(data);
-	marray_push(gravity_value_t, list->array, key);
+	marray_push(GravityValue, list->array, key);
 }
 
 // MARK: - Conversions -
 
-static gravity_value_t convert_string2number(gravity_string_t * string, number_format_type number_format) 
+static GravityValue convert_string2number(gravity_string_t * string, number_format_type number_format) 
 {
 	// empty string case
 	if(string->len == 0) 
@@ -136,35 +136,35 @@ static gravity_value_t convert_string2number(gravity_string_t * string, number_f
 	       number_format_float) ? VALUE_FROM_FLOAT(strtod(string->s, NULL)) : VALUE_FROM_INT(strtoll(string->s, NULL, 0));
 }
 
-static bool convert_object_int(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool convert_object_int(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t v = convert_value2int(vm, GET_VALUE(0));
+	GravityValue v = convert_value2int(vm, GET_VALUE(0));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to Int.");
 	RETURN_VALUE(v, rindex);
 }
 
-static bool convert_object_float(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool convert_object_float(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t v = convert_value2float(vm, GET_VALUE(0));
+	GravityValue v = convert_value2float(vm, GET_VALUE(0));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to Float.");
 	RETURN_VALUE(v, rindex);
 }
 
-static bool convert_object_bool(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool convert_object_bool(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t v = convert_value2bool(vm, GET_VALUE(0));
+	GravityValue v = convert_value2bool(vm, GET_VALUE(0));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to Bool.");
 	RETURN_VALUE(v, rindex);
 }
 
-static bool convert_object_string(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool convert_object_string(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	gravity_value_t v = convert_value2string(vm, GET_VALUE(0));
+	GravityValue v = convert_value2string(vm, GET_VALUE(0));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to String.");
 	RETURN_VALUE(v, rindex);
 }
 
-static inline gravity_value_t convert_map2string(gravity_vm * vm, gravity_map_t * map) 
+static inline GravityValue convert_map2string(gravity_vm * vm, gravity_map_t * map) 
 {
 	// allocate initial memory to a 512 buffer
 	uint32 len = 512;
@@ -179,9 +179,9 @@ static inline gravity_value_t convert_map2string(gravity_vm * vm, gravity_map_t 
 
 	count = (uint32)marray_size(list->array);
 	for(uint32 i = 0; i<count; ++i) {
-		gravity_value_t key = marray_get(list->array, i);
-		gravity_value_t * valueptr = gravity_hash_lookup(map->hash, key);
-		gravity_value_t value = (valueptr) ? *valueptr : VALUE_FROM_NULL;
+		GravityValue key = marray_get(list->array, i);
+		GravityValue * valueptr = gravity_hash_lookup(map->hash, key);
+		GravityValue value = (valueptr) ? *valueptr : VALUE_FROM_NULL;
 
 		// key conversion
 		if(!VALUE_ISA_STRING(key)) {
@@ -232,12 +232,12 @@ static inline gravity_value_t convert_map2string(gravity_vm * vm, gravity_map_t 
 	memcpy(buffer+pos, "]", 1);
 	buffer[++pos] = 0;
 
-	gravity_value_t result = VALUE_FROM_STRING(vm, buffer, pos);
+	GravityValue result = VALUE_FROM_STRING(vm, buffer, pos);
 	mem_free(buffer);
 	return result;
 }
 
-static inline gravity_value_t convert_list2string(gravity_vm * vm, gravity_list_t * list) 
+static inline GravityValue convert_list2string(gravity_vm * vm, gravity_list_t * list) 
 {
 	// allocate initial memory to a 512 buffer
 	uint32 len = 512;
@@ -248,13 +248,13 @@ static inline gravity_value_t convert_list2string(gravity_vm * vm, gravity_list_
 	// loop to perform string concat
 	uint32 count = (uint32)marray_size(list->array);
 	for(uint32 i = 0; i<count; ++i) {
-		gravity_value_t value = marray_get(list->array, i);
+		GravityValue value = marray_get(list->array, i);
 		gravity_string_t * string;
 		if(VALUE_ISA_LIST(value) && (VALUE_AS_LIST(value) == list)) {
 			string = NULL;
 		}
 		else {
-			gravity_value_t value2 = convert_value2string(vm, value);
+			GravityValue value2 = convert_value2string(vm, value);
 			string = VALUE_ISA_VALID(value2) ? VALUE_AS_STRING(value2) : NULL;
 		}
 
@@ -282,12 +282,12 @@ static inline gravity_value_t convert_list2string(gravity_vm * vm, gravity_list_
 	memcpy(buffer+pos, "]", 1);
 	buffer[++pos] = 0;
 
-	gravity_value_t result = VALUE_FROM_STRING(vm, buffer, pos);
+	GravityValue result = VALUE_FROM_STRING(vm, buffer, pos);
 	mem_free(buffer);
 	return result;
 }
 
-inline gravity_value_t convert_value2int(gravity_vm * vm, gravity_value_t v) {
+inline GravityValue convert_value2int(gravity_vm * vm, GravityValue v) {
 	if(VALUE_ISA_INT(v)) return v;
 
 	// handle conversion for basic classes
@@ -310,7 +310,7 @@ inline gravity_value_t convert_value2int(gravity_vm * vm, gravity_value_t v) {
 	return VALUE_FROM_ERROR(NULL);
 }
 
-inline gravity_value_t convert_value2float(gravity_vm * vm, gravity_value_t v) {
+inline GravityValue convert_value2float(gravity_vm * vm, GravityValue v) {
 	if(VALUE_ISA_FLOAT(v)) return v;
 
 	// handle conversion for basic classes
@@ -333,7 +333,7 @@ inline gravity_value_t convert_value2float(gravity_vm * vm, gravity_value_t v) {
 	return VALUE_FROM_ERROR(NULL);
 }
 
-inline gravity_value_t convert_value2bool(gravity_vm * vm, gravity_value_t v) {
+inline GravityValue convert_value2bool(gravity_vm * vm, GravityValue v) {
 	if(VALUE_ISA_BOOL(v)) return v;
 
 	// handle conversion for basic classes
@@ -360,7 +360,7 @@ inline gravity_value_t convert_value2bool(gravity_vm * vm, gravity_value_t v) {
 	return VALUE_FROM_ERROR(NULL);
 }
 
-inline gravity_value_t convert_value2string(gravity_vm * vm, gravity_value_t v) {
+inline GravityValue convert_value2string(gravity_vm * vm, GravityValue v) {
 	if(VALUE_ISA_STRING(v)) return v;
 
 	// handle conversion for basic classes
@@ -453,7 +453,7 @@ inline gravity_value_t convert_value2string(gravity_vm * vm, gravity_value_t v) 
 
 	// execute closure and return its value
 	if(gravity_vm_runclosure(vm, closure, v, NULL, 0)) {
-		gravity_value_t result = gravity_vm_result(vm);
+		GravityValue result = gravity_vm_result(vm);
 		// sanity check closure return value because sometimes nil is returned by an objc instance (for example
 		// NSData String)
 		if(!VALUE_ISA_STRING(result)) return VALUE_FROM_CSTRING(vm, "null");
@@ -465,30 +465,30 @@ inline gravity_value_t convert_value2string(gravity_vm * vm, gravity_value_t v) 
 
 // MARK: - Object Introspection -
 
-static bool object_class(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool object_class(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_class_t * c = gravity_value_getclass(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_OBJECT(c), rindex);
 }
 
-static bool object_meta(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool object_meta(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_class_t * c = gravity_value_getclass(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_OBJECT(gravity_class_get_meta(c)), rindex);
 }
 
-static bool object_respond(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_respond(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_class_t * c = gravity_value_getclass(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue key = GET_VALUE(1);
 	bool result = false;
 	if(VALUE_ISA_STRING(key)) 
 		result = (gravity_class_lookup(c, key) != NULL);
 	RETURN_VALUE(VALUE_FROM_BOOL(result), rindex);
 }
 
-static void collect_introspection(gravity_hash_t * hashtable, gravity_value_t key, gravity_value_t value, void * data1, void * data2, void * data3) 
+static void collect_introspection(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data1, void * data2, void * data3) 
 {
     #pragma unused (hashtable, data3)
 	gravity_list_t * list = static_cast<gravity_list_t *>(data1);
@@ -501,11 +501,11 @@ static void collect_introspection(gravity_hash_t * hashtable, gravity_value_t ke
 	gravity_function_t * func = closure->f;
 	bool is_var = (func->tag == EXEC_TYPE_SPECIAL);
 	if((mask == introspection_info_all) || ((mask == introspection_info_variables) && (is_var)) || ((mask == introspection_info_methods) && (!is_var))) {
-		marray_push(gravity_value_t, list->array, key);
+		marray_push(GravityValue, list->array, key);
 	}
 }
 
-static void collect_introspection_extended(gravity_hash_t * hashtable, gravity_value_t key, gravity_value_t value, void * data1, void * data2, void * data3) 
+static void collect_introspection_extended(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data1, void * data2, void * data3) 
 {
     #pragma unused (hashtable)
 	if(!VALUE_ISA_CLOSURE(value)) 
@@ -548,13 +548,13 @@ static void collect_introspection_extended(gravity_hash_t * hashtable, gravity_v
 	}
 }
 
-static bool FASTCALL object_real_introspection(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex, introspection_info_type mask) 
+static bool FASTCALL object_real_introspection(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex, introspection_info_type mask) 
 {
 	bool extended = ((nargs >= 2) && (VALUE_ISA_BOOL(args[1]) && (VALUE_AS_BOOL(args[1]) == true)));
 	bool scan_super = ((nargs >= 3) && (VALUE_ISA_BOOL(args[2]) && (VALUE_AS_BOOL(args[2]) == true)));
 	gravity_hash_iterate3_fn callback = (extended) ? collect_introspection_extended : collect_introspection;
 	gravity_object_t * data = (extended) ? (gravity_object_t *)gravity_map_new(vm, 256) : (gravity_object_t *)gravity_list_new(vm, 256);
-	gravity_value_t value = GET_VALUE(0);
+	GravityValue value = GET_VALUE(0);
 	gravity_class_t * c = (VALUE_ISA_CLASS(value)) ? VALUE_AS_CLASS(value) : gravity_value_getclass(value);
 	while(c) {
 		gravity_hash_t * htable = c->htable;
@@ -564,24 +564,24 @@ static bool FASTCALL object_real_introspection(gravity_vm * vm, gravity_value_t 
 	RETURN_VALUE(VALUE_FROM_OBJECT(data), rindex);
 }
 
-static bool object_methods(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_methods(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 	{ return object_real_introspection(vm, args, nargs, rindex, introspection_info_methods); }
-static bool object_properties(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_properties(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 	{ return object_real_introspection(vm, args, nargs, rindex, introspection_info_variables); }
-static bool object_introspection(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_introspection(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 	{ return object_real_introspection(vm, args, nargs, rindex, introspection_info_all); }
 
 // MARK: - Object Class -
 
-static bool object_internal_size(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_internal_size(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_int_t size = gravity_value_size(vm, GET_VALUE(0));
-	if(size == 0) size = sizeof(gravity_value_t);
+	if(size == 0) size = sizeof(GravityValue);
 	RETURN_VALUE(VALUE_FROM_INT(size), rindex);
 }
 
-static bool object_is(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_is(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_class_t * c1 = gravity_value_getclass(GET_VALUE(0));
@@ -594,11 +594,11 @@ static bool object_is(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	RETURN_VALUE(VALUE_FROM_BOOL(c1 == c2), rindex);
 }
 
-static bool object_eqq(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_eqq(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	gravity_value_t v1 = GET_VALUE(0);
-	gravity_value_t v2 = GET_VALUE(1);
+	GravityValue v1 = GET_VALUE(0);
+	GravityValue v2 = GET_VALUE(1);
 	// compare class first
 	if(gravity_value_getclass(v1) != gravity_value_getclass(v2))
 		RETURN_VALUE(VALUE_FROM_FALSE, rindex);
@@ -606,24 +606,24 @@ static bool object_eqq(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(VALUE_FROM_BOOL(gravity_value_vm_equals(vm, v1, v2)), rindex);
 }
 
-static bool object_neqq(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_neqq(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	object_eqq(vm, args, nargs, rindex);
-	gravity_value_t value = GET_VALUE(rindex);
+	GravityValue value = GET_VALUE(rindex);
 	if(VALUE_ISA_BOOL(value)) {
 		RETURN_VALUE(VALUE_FROM_BOOL(!VALUE_AS_BOOL(value)), rindex);
 	}
 	return true;
 }
 
-static bool object_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_cmp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	if(gravity_value_vm_equals(vm, GET_VALUE(0), GET_VALUE(1))) RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	RETURN_VALUE(VALUE_FROM_INT(1), rindex);
 }
 
-static bool object_not(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_not(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	// !obj
@@ -632,13 +632,13 @@ static bool object_not(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(VALUE_FROM_BOOL(VALUE_ISA_NULLCLASS(GET_VALUE(0))), rindex);
 }
 
-static bool object_load(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_load(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	// if there is a possibility that gravity_vm_runclosure is called then it is MANDATORY to save arguments before
 	// the call
-	gravity_value_t target = GET_VALUE(0);
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue target = GET_VALUE(0);
+	GravityValue key = GET_VALUE(1);
 
 	// check if meta class needs to be initialized (it means if it contains valued static ivars)
 	// meta classes must be inited somewhere, this problem does not exist with instances since object creation
@@ -718,14 +718,14 @@ execute_notfound: {
 	}
 }
 
-static bool object_store(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool object_store(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs, rindex)
 
 	// if there is a possibility that gravity_vm_runfunc is called then it is MANDATORY to save arguments before the
 	// call
-	gravity_value_t target = GET_VALUE(0);
-	gravity_value_t key = GET_VALUE(1);
-	gravity_value_t value = GET_VALUE(2);
+	GravityValue target = GET_VALUE(0);
+	GravityValue key = GET_VALUE(1);
+	GravityValue value = GET_VALUE(2);
 
 	// check if meta class needs to be initialized (it means if it contains valued static ivars)
 	// meta classes must be inited somewhere, this problem does not exist with classes since object creation itself
@@ -751,26 +751,24 @@ static bool object_store(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 		// sanity check
 		uint32 nivar = c->nivars;
 		uint32 nindex = (uint32)key.n;
-		if(nindex >= nivar) RETURN_ERROR("Out of bounds ivar index in store operation (1).");
-
+		if(nindex >= nivar) 
+			RETURN_ERROR("Out of bounds ivar index in store operation (1).");
 		// check for struct
 		if(VALUE_ISA_INSTANCE(value) && (gravity_instance_isstruct(VALUE_AS_INSTANCE(value)))) {
 			gravity_instance_t * instance_copy = gravity_instance_clone(vm, VALUE_AS_INSTANCE(value));
 			value = VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(instance_copy));
 		}
-
-		if(instance) instance->ivars[nindex] = value;
-		else c->ivars[nindex] = value;
+		if(instance) 
+			instance->ivars[nindex] = value;
+		else 
+			c->ivars[nindex] = value;
 		RETURN_NOVALUE();
 	}
-
 	// key must be a string in this version
 	if(!VALUE_ISA_STRING(key)) {
 		RETURN_ERROR("Unable to lookup non string value into class %s", c->identifier);
 	}
-
-	// lookup key in class c
-	gravity_object_t * obj = gravity_class_lookup(c, key);
+	gravity_object_t * obj = gravity_class_lookup(c, key); // lookup key in class c
 	if(!obj) {
 		// not explicitly declared so check for dynamic property in bridge case
 		gravity_delegate_t * delegate = gravity_vm_delegate(vm);
@@ -778,13 +776,13 @@ static bool object_store(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 			if(delegate->bridge_setundef(vm, instance->xdata, target, VALUE_AS_CSTRING(key), value)) RETURN_NOVALUE();
 		}
 	}
-	if(!obj) goto execute_notfound;
-
+	if(!obj) 
+		goto execute_notfound;
 	gravity_closure_t * closure;
 	if(OBJECT_ISA_CLOSURE(obj)) {
 		closure = (gravity_closure_t *)obj;
-		if(!closure || !closure->f) goto execute_notfound;
-
+		if(!closure || !closure->f) 
+			goto execute_notfound;
 		// check for special functions case
 		if(FUNCTION_ISA_SPECIAL(closure->f)) {
 			// execute optimized default setter
@@ -822,14 +820,14 @@ execute_notfound:
 	RETURN_CLOSURE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(closure)), rindex);
 }
 
-static bool object_notfound(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool object_notfound(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(nargs,rindex)
 	gravity_class_t * c = gravity_value_getclass(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1); // vm_getslot(vm, rindex);
+	GravityValue key = GET_VALUE(1); // vm_getslot(vm, rindex);
 	RETURN_ERROR("Unable to find %s into class %s", VALUE_ISA_STRING(key) ? VALUE_AS_CSTRING(key) : "N/A", c->identifier);
 }
 
-static bool object_bind(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool object_bind(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(rindex)
 
 	// sanity check first
@@ -880,7 +878,7 @@ static bool object_bind(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	RETURN_NOVALUE();
 }
 
-static bool object_unbind(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_unbind(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(rindex)
 	// sanity check first
@@ -899,13 +897,13 @@ static bool object_unbind(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	RETURN_NOVALUE();
 }
 
-static bool object_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, args, nargs)
 	RETURN_ERROR("Forbidden Object execution.");
 }
 
-static bool object_clone(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool object_clone(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	if(VALUE_ISA_INSTANCE(GET_VALUE(0))) {
@@ -917,7 +915,7 @@ static bool object_clone(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_ERROR("Unable to clone non instance object.");
 }
 
-//static bool object_methods (gravity_vm *vm, gravity_value_t *args, uint16 nargs, uint32 rindex) {
+//static bool object_methods (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {
 //    #pragma unused(vm, nargs)
 //    gravity_class_t *c = gravity_value_getclass(GET_VALUE(0));
 //
@@ -926,19 +924,19 @@ static bool object_clone(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 
 // MARK: - List Class -
 
-static bool list_count(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_count(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_INT(marray_size(list->array)), rindex);
 }
 
-static bool list_contains(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_contains(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
-	gravity_value_t element = GET_VALUE(1);
-	gravity_value_t result = VALUE_FROM_FALSE;
+	GravityValue element = GET_VALUE(1);
+	GravityValue result = VALUE_FROM_FALSE;
 	uint32 count = (uint32)marray_size(list->array);
 	gravity_int_t i = 0;
 	while(i < count) {
@@ -951,12 +949,12 @@ static bool list_contains(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	RETURN_VALUE(result, rindex);
 }
 
-static bool list_indexOf(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_indexOf(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
-	gravity_value_t element = GET_VALUE(1);
-	gravity_value_t result = VALUE_FROM_INT(-1);
+	GravityValue element = GET_VALUE(1);
+	GravityValue result = VALUE_FROM_INT(-1);
 	uint32 count = (uint32)marray_size(list->array);
 	gravity_int_t i = 0;
 	while(i < count) {
@@ -969,11 +967,11 @@ static bool list_indexOf(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(result, rindex);
 }
 
-static bool list_loadat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_loadat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_list_t    * list = VALUE_AS_LIST(GET_VALUE(0));
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(!VALUE_ISA_INT(value)) 
 		RETURN_ERROR("An integer index is required to access a list item.");
 	int32 index = (int32)VALUE_AS_INT(value);
@@ -985,12 +983,12 @@ static bool list_loadat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	RETURN_VALUE(marray_get(list->array, index), rindex);
 }
 
-static bool list_storeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_storeat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs, rindex)
 	gravity_list_t    * list = VALUE_AS_LIST(GET_VALUE(0));
-	gravity_value_t idxvalue = GET_VALUE(1);
-	gravity_value_t value = GET_VALUE(2);
+	GravityValue idxvalue = GET_VALUE(1);
+	GravityValue value = GET_VALUE(2);
 	if(!VALUE_ISA_INT(idxvalue)) 
 		RETURN_ERROR("An integer index is required to access a list item.");
 	int32 index = (int32)VALUE_AS_INT(idxvalue);
@@ -1001,7 +999,7 @@ static bool list_storeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 		RETURN_ERROR("Out of bounds error: index %d beyond bounds 0...%d", index, count-1);
 	if((uint32)index >= count) {
 		// handle list resizing here
-		marray_resize(gravity_value_t, list->array, index-count+MIN_LIST_RESIZE);
+		marray_resize(GravityValue, list->array, index-count+MIN_LIST_RESIZE);
 		if(!list->array.p) RETURN_ERROR("Not enough memory to resize List.");
 		marray_nset(list->array, index+1);
 		for(int32 i = count; i<=(index+MIN_LIST_RESIZE); ++i) {
@@ -1013,26 +1011,26 @@ static bool list_storeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_NOVALUE();
 }
 
-static bool list_push(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_push(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
-	gravity_value_t value = GET_VALUE(1);
-	marray_push(gravity_value_t, list->array, value);
+	GravityValue value = GET_VALUE(1);
+	marray_push(GravityValue, list->array, value);
 	RETURN_VALUE(VALUE_FROM_INT(marray_size(list->array)), rindex);
 }
 
-static bool list_pop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_pop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
 	size_t count = marray_size(list->array);
 	if(count < 1) RETURN_ERROR("Unable to pop a value from an empty list.");
-	gravity_value_t value = marray_pop(list->array);
+	GravityValue value = marray_pop(list->array);
 	RETURN_VALUE(value, rindex);
 }
 
-static bool list_remove(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_remove(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
@@ -1043,12 +1041,12 @@ static bool list_remove(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	if((index < 0) || (index >= count)) 
 		RETURN_ERROR("Out of bounds index.");
 	// remove an item means move others down
-	memmove(&list->array.p[index], &list->array.p[index+1], static_cast<size_t>(((count-1)-index) * sizeof(gravity_value_t)));
+	memmove(&list->array.p[index], &list->array.p[index+1], static_cast<size_t>(((count-1)-index) * sizeof(GravityValue)));
 	list->array.n -= 1;
 	RETURN_VALUE(GET_VALUE(0), rindex);
 }
 
-static bool list_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_iterator(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
@@ -1060,7 +1058,7 @@ static bool list_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	if(VALUE_ISA_NULL(GET_VALUE(1))) 
 		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 	// extract value
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	// check error condition
 	if(!VALUE_ISA_INT(value)) 
 		RETURN_ERROR("Iterator expects a numeric value here.");
@@ -1076,7 +1074,7 @@ static bool list_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	RETURN_VALUE(VALUE_FROM_INT(n), rindex);
 }
 
-static bool list_iterator_next(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_iterator_next(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_list_t    * list = VALUE_AS_LIST(GET_VALUE(0));
@@ -1084,12 +1082,12 @@ static bool list_iterator_next(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(marray_get(list->array, index), rindex);
 }
 
-static bool list_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool list_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs < 2) RETURN_ERROR("Incorrect number of arguments.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("Argument must be a Closure.");
 
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(GET_VALUE(1)); // closure to execute
-	gravity_value_t value = GET_VALUE(0);                        // self parameter
+	GravityValue value = GET_VALUE(0);                        // self parameter
 	gravity_list_t * list = VALUE_AS_LIST(value);
 	gravity_int_t n = marray_size(list->array);        // times to execute the loop
 	gravity_int_t i = 0;
@@ -1102,16 +1100,16 @@ static bool list_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	RETURN_VALUE(VALUE_FROM_INT(t2-t1), rindex);
 }
 
-static bool list_reverse(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_reverse(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs > 1) RETURN_ERROR("Incorrect number of arguments.");
-	gravity_value_t value = GET_VALUE(0);                      // self parameter
+	GravityValue value = GET_VALUE(0);                      // self parameter
 	gravity_list_t * list = VALUE_AS_LIST(value);
 	uint32 count = (uint32)marray_size(list->array);
 	gravity_int_t i = 0;
 
 	while(i < count/2) {
-		gravity_value_t tmp = marray_get(list->array, count-i-1);
+		GravityValue tmp = marray_get(list->array, count-i-1);
 		marray_set(list->array, count-i-1,  marray_get(list->array, i));
 		marray_set(list->array, i,  tmp);
 		i++;
@@ -1119,7 +1117,7 @@ static bool list_reverse(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list)), rindex);
 }
 
-static bool list_reversed(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_reversed(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs > 1) RETURN_ERROR("Incorrect number of arguments.");
 	// self parameter
@@ -1128,59 +1126,59 @@ static bool list_reversed(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	uint32 count = (uint32)marray_size(list->array);
 	gravity_int_t i = 0;
 	while(i < count) {
-		marray_push(gravity_value_t, newlist->array, marray_get(list->array, count-i-1));
+		marray_push(GravityValue, newlist->array, marray_get(list->array, count-i-1));
 		++i;
 	}
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(newlist)), rindex);
 }
 
-typedef bool (list_comparison_callback) (gravity_vm * vm, gravity_value_t val1, gravity_value_t val2);
+typedef bool (list_comparison_callback) (gravity_vm * vm, GravityValue val1, GravityValue val2);
 
-static bool list_default_number_compare(gravity_vm * vm, gravity_value_t val1, gravity_value_t val2) {
+static bool list_default_number_compare(gravity_vm * vm, GravityValue val1, GravityValue val2) {
 	gravity_float_t n1 = convert_value2float(vm, val1).f;
 	gravity_float_t n2 = convert_value2float(vm, val2).f;
 	return n1 > n2;
 }
 
-static bool list_default_string_compare(gravity_vm * vm, gravity_value_t val1, gravity_value_t val2) {
+static bool list_default_string_compare(gravity_vm * vm, GravityValue val1, GravityValue val2) {
 	gravity_string_t * s1 = VALUE_AS_STRING(convert_value2string(vm, val1));
 	gravity_string_t * s2 = VALUE_AS_STRING(convert_value2string(vm, val2));
 	return (strcmp(s1->s, s2->s) > 0);
 }
 
-static bool compare_values(gravity_vm * vm, gravity_value_t selfvalue, gravity_value_t val1, gravity_value_t val2, gravity_closure_t * predicate) 
+static bool compare_values(gravity_vm * vm, GravityValue selfvalue, GravityValue val1, GravityValue val2, gravity_closure_t * predicate) 
 {
-	gravity_value_t params[2] = {val1, val2};
+	GravityValue params[2] = {val1, val2};
 	if(!gravity_vm_runclosure(vm, predicate, selfvalue, params, 2)) return false;
-	gravity_value_t result = gravity_vm_result(vm);
+	GravityValue result = gravity_vm_result(vm);
 	//the conversion will make sure that the comparison function only returns a
 	//truthy value that can be interpreted as the result of a comparison
 	//(i.e. only integer, bool, float, null, undefined, or string)
-	gravity_value_t truthy_value = convert_value2bool(vm, result);
+	GravityValue truthy_value = convert_value2bool(vm, result);
 	return LOGIC(truthy_value.n);
 }
 
-static uint32 partition(gravity_vm * vm, gravity_value_t * array, int32 low, int32 high,
-    gravity_value_t selfvalue, gravity_closure_t * predicate, list_comparison_callback * callback) 
+static uint32 partition(gravity_vm * vm, GravityValue * array, int32 low, int32 high,
+    GravityValue selfvalue, gravity_closure_t * predicate, list_comparison_callback * callback) 
 {
-	gravity_value_t pivot = array[high];
+	GravityValue pivot = array[high];
 	int32 i = low - 1;
 	for(int32 j = low; j <= high - 1; j++) {
 		if((predicate && !compare_values(vm, selfvalue, array[j], pivot, predicate)) || (callback && !callback(vm, array[j], pivot))) {
 			++i;
-			gravity_value_t temp = array[i]; //swap a[i], a[j]
+			GravityValue temp = array[i]; //swap a[i], a[j]
 			array[i] = array[j];
 			array[j] = temp;
 		}
 	}
-	gravity_value_t temp = array[i + 1];
+	GravityValue temp = array[i + 1];
 	array[i + 1] = array[high];
 	array[high] = temp;
 	return i + 1;
 }
 
-static void quicksort(gravity_vm * vm, gravity_value_t * array, int32 low, int32 high,
-    gravity_value_t selfvalue, gravity_closure_t * predicate, list_comparison_callback * callback) 
+static void quicksort(gravity_vm * vm, GravityValue * array, int32 low, int32 high,
+    GravityValue selfvalue, gravity_closure_t * predicate, list_comparison_callback * callback) 
 {
 	if(gravity_vm_isaborted(vm)) return;
 	if(low < high) {
@@ -1190,19 +1188,19 @@ static void quicksort(gravity_vm * vm, gravity_value_t * array, int32 low, int32
 	}
 }
 
-static bool list_sort(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool list_sort(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	//the predicate is the comparison function passed to list.sort() if any
 	gravity_closure_t * predicate = NULL;
 	list_comparison_callback * callback = NULL;
 	if(nargs >=2 && VALUE_ISA_CLOSURE(GET_VALUE(1))) predicate = VALUE_AS_CLOSURE(GET_VALUE(1));
 
-	gravity_value_t selfvalue = GET_VALUE(0); // self parameter
+	GravityValue selfvalue = GET_VALUE(0); // self parameter
 	gravity_list_t * list = VALUE_AS_LIST(selfvalue);
 
 	int32 count = (int32)marray_size(list->array);
 	if(count > 1) {
 		if(predicate == NULL) {
-			gravity_value_t first_value = marray_get(list->array, 0);
+			GravityValue first_value = marray_get(list->array, 0);
 			if(VALUE_ISA_INT(first_value) || (VALUE_ISA_FLOAT(first_value))) callback = list_default_number_compare;
 			else callback = list_default_string_compare;
 		}
@@ -1212,13 +1210,13 @@ static bool list_sort(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	RETURN_VALUE(VALUE_FROM_OBJECT((gravity_object_t *)list), rindex);
 }
 
-static bool list_sorted(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool list_sorted(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	//the predicate is the comparison function passed to list.sort() if any
 	gravity_closure_t * predicate = NULL;
 	list_comparison_callback * callback = NULL;
 	if(nargs >=2 && VALUE_ISA_CLOSURE(GET_VALUE(1))) predicate = VALUE_AS_CLOSURE(GET_VALUE(1));
 
-	gravity_value_t selfvalue = GET_VALUE(0); // self parameter
+	GravityValue selfvalue = GET_VALUE(0); // self parameter
 	gravity_list_t * list = VALUE_AS_LIST(selfvalue);
 
 	int32 count = (int32)marray_size(list->array);
@@ -1228,12 +1226,12 @@ static bool list_sorted(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	gravity_list_t * newlist = gravity_list_new(NULL, (uint32)count);
 
 	//memcpy should be faster than pushing element by element
-	memcpy(newlist->array.p, list->array.p, sizeof(gravity_value_t)*count);
+	memcpy(newlist->array.p, list->array.p, sizeof(GravityValue)*count);
 	newlist->array.m = list->array.m;
 	newlist->array.n = list->array.n;
 	if(count > 1) {
 		if(predicate == NULL) {
-			gravity_value_t first_value = marray_get(list->array, 0);
+			GravityValue first_value = marray_get(list->array, 0);
 			if(VALUE_ISA_INT(first_value) || (VALUE_ISA_FLOAT(first_value))) callback = list_default_number_compare;
 			else callback = list_default_string_compare;
 		}
@@ -1243,12 +1241,12 @@ static bool list_sorted(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(newlist)), rindex);
 }
 
-static bool list_map(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_map(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs != 2) RETURN_ERROR("One argument is needed by the map function.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("Argument must be a Closure.");
 
-	gravity_value_t selfvalue = GET_VALUE(0); // self parameter
+	GravityValue selfvalue = GET_VALUE(0); // self parameter
 	gravity_closure_t * predicate = VALUE_AS_CLOSURE(GET_VALUE(1));
 	gravity_list_t * list = VALUE_AS_LIST(selfvalue);
 	size_t count = marray_size(list->array);
@@ -1258,9 +1256,9 @@ static bool list_map(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	newlist->array.m = list->array.m;
 	newlist->array.n = list->array.n;
 	for(uint32 i = 0; i < count; i++) {
-		gravity_value_t * value = &marray_get(list->array, i);
+		GravityValue * value = &marray_get(list->array, i);
 		if(!gravity_vm_runclosure(vm, predicate, selfvalue, value, 1)) return false;
-		gravity_value_t result = gravity_vm_result(vm);
+		GravityValue result = gravity_vm_result(vm);
 		marray_set(newlist->array, i, result);
 	}
 
@@ -1268,23 +1266,23 @@ static bool list_map(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(newlist)), rindex);
 }
 
-static bool list_filter(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_filter(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs != 2) RETURN_ERROR("One argument is needed by the filter function.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("Argument must be a Closure.");
-	gravity_value_t selfvalue = GET_VALUE(0); // self parameter
+	GravityValue selfvalue = GET_VALUE(0); // self parameter
 	gravity_closure_t * predicate = VALUE_AS_CLOSURE(GET_VALUE(1));
 	gravity_list_t * list = VALUE_AS_LIST(selfvalue);
 	size_t count = marray_size(list->array);
 	// do not transfer newlist to GC because it could be freed during predicate closure execution
 	gravity_list_t * newlist = gravity_list_new(NULL, (uint32)count);
 	for(uint32 i = 0; i < count; i++) {
-		gravity_value_t * value = &marray_get(list->array, i);
+		GravityValue * value = &marray_get(list->array, i);
 		if(!gravity_vm_runclosure(vm, predicate, selfvalue, value, 1)) return false;
-		gravity_value_t result = gravity_vm_result(vm);
-		gravity_value_t truthy_value = convert_value2bool(vm, result);
+		GravityValue result = gravity_vm_result(vm);
+		GravityValue truthy_value = convert_value2bool(vm, result);
 		if(truthy_value.n) {
-			marray_push(gravity_value_t, newlist->array, *value);
+			marray_push(GravityValue, newlist->array, *value);
 		}
 	}
 
@@ -1292,24 +1290,24 @@ static bool list_filter(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(newlist)), rindex);
 }
 
-static bool list_reduce(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_reduce(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs != 3) RETURN_ERROR("Two arguments are needed by the reduce function.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(2))) RETURN_ERROR("Argument 2 must be a Closure.");
-	gravity_value_t selfvalue = GET_VALUE(0); // self parameter
-	gravity_value_t start = GET_VALUE(1); // start parameter
+	GravityValue selfvalue = GET_VALUE(0); // self parameter
+	GravityValue start = GET_VALUE(1); // start parameter
 	gravity_closure_t * predicate = VALUE_AS_CLOSURE(GET_VALUE(2));
 	gravity_list_t * list = VALUE_AS_LIST(selfvalue);
 	size_t count = marray_size(list->array);
 	for(uint32 i = 0; i < count; i++) {
-		gravity_value_t params[2] = {start, marray_get(list->array, i)};
+		GravityValue params[2] = {start, marray_get(list->array, i)};
 		if(!gravity_vm_runclosure(vm, predicate, selfvalue, params, 2)) return false;
 		start = gravity_vm_result(vm);
 	}
 	RETURN_VALUE(start, rindex);
 }
 
-static bool list_join(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool list_join(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(0));
 	const char * sep = NULL;
@@ -1325,7 +1323,7 @@ static bool list_join(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	gravity_int_t i = 0;
 	// traverse list and append each item
 	while(i < n) {
-		gravity_value_t value = convert_value2string(vm, marray_get(list->array, i));
+		GravityValue value = convert_value2string(vm, marray_get(list->array, i));
 		if(VALUE_ISA_ERROR(value)) {
 			mem_free(_buffer);
 			RETURN_VALUE(value, rindex);
@@ -1368,7 +1366,7 @@ static bool list_join(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(result)), rindex);
 }
 
-static bool list_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool list_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if((nargs != 2) || (!VALUE_ISA_INT(GET_VALUE(1)))) RETURN_ERROR("An Int value is expected as argument of list_exec.");
 
 	uint32 n = (uint32)VALUE_AS_INT(GET_VALUE(1));
@@ -1376,7 +1374,7 @@ static bool list_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	if(!list) RETURN_ERROR("Maximum List allocation size reached (%d).", MAX_ALLOCATION);
 
 	for(uint32 i = 0; i<n; ++i) {
-		marray_push(gravity_value_t, list->array, VALUE_FROM_NULL);
+		marray_push(GravityValue, list->array, VALUE_FROM_NULL);
 	}
 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list)), rindex);
@@ -1384,13 +1382,13 @@ static bool list_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 
 // MARK: - Map Class -
 
-static bool map_count(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool map_count(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_INT(gravity_hash_count(map->hash)), rindex);
 }
 
-static bool map_keys(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_keys(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
@@ -1401,7 +1399,7 @@ static bool map_keys(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 }
 
 #if GRAVITY_MAP_DOTSUGAR
-static bool map_load(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_load(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	// called when a map is accessed with dot notation
@@ -1411,7 +1409,7 @@ static bool map_load(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	// in this case (since we override object_load super) try to access
 	// class first and if nothing is found access its internal hash table
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue key = GET_VALUE(1);
 	if(VALUE_ISA_NOTVALID(key)) 
 		RETURN_ERROR("Invalid map key.");
 	// check class first (so user will not be able to break anything)
@@ -1433,13 +1431,13 @@ static bool map_load(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	}
 
 	// then check its internal hash
-	gravity_value_t * value = gravity_hash_lookup(map->hash, key);
+	GravityValue * value = gravity_hash_lookup(map->hash, key);
 	RETURN_VALUE((value) ? *value : VALUE_FROM_NULL, rindex);
 }
 
     #endif
 
-static bool map_loadat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool map_loadat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	// called when a map is accessed with [] notation
@@ -1449,47 +1447,47 @@ static bool map_loadat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	// in this case ALWAYS access its internal hash table
 
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue key = GET_VALUE(1);
 	if(VALUE_ISA_NOTVALID(key)) 
 		RETURN_ERROR("Invalid map key.");
-	gravity_value_t * value = gravity_hash_lookup(map->hash, key);
+	GravityValue * value = gravity_hash_lookup(map->hash, key);
 	RETURN_VALUE((value) ? *value : VALUE_FROM_NULL, rindex);
 }
 
-static bool map_haskey(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_haskey(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1);
-	gravity_value_t * value = gravity_hash_lookup(map->hash, key);
+	GravityValue key = GET_VALUE(1);
+	GravityValue * value = gravity_hash_lookup(map->hash, key);
 	RETURN_VALUE((value) ? VALUE_FROM_TRUE : VALUE_FROM_FALSE, rindex);
 }
 
-static bool map_storeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_storeat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs, rindex)
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1);
-	gravity_value_t value = GET_VALUE(2);
+	GravityValue key = GET_VALUE(1);
+	GravityValue value = GET_VALUE(2);
 	gravity_hash_insert(map->hash, key, value);
 	RETURN_NOVALUE();
 }
 
-static bool map_remove(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_remove(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue key = GET_VALUE(1);
 	bool existed = gravity_hash_remove(map->hash, key);
 	RETURN_VALUE(VALUE_FROM_BOOL(existed), rindex);
 }
 
-static bool map_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) RETURN_ERROR("Incorrect number of arguments.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("Argument must be a Closure.");
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(GET_VALUE(1)); // closure to execute
-	gravity_value_t value = GET_VALUE(0);                        // self parameter
+	GravityValue value = GET_VALUE(0);                        // self parameter
 	gravity_map_t * map = VALUE_AS_MAP(GET_VALUE(0));
 	gravity_int_t n = gravity_hash_count(map->hash);    // times to execute the loop
 	gravity_int_t i = 0;
@@ -1508,7 +1506,7 @@ static bool map_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	RETURN_VALUE(VALUE_FROM_INT(t2-t1), rindex);
 }
 
-static bool map_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool map_iterator(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, args, nargs)
 	// fix for a bug encountered in the following code
@@ -1522,7 +1520,7 @@ static bool map_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 
 // MARK: - Range Class -
 
-static bool range_count(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_count(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	gravity_range_t * range = VALUE_AS_RANGE(GET_VALUE(0));
@@ -1530,26 +1528,26 @@ static bool range_count(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	RETURN_VALUE(VALUE_FROM_INT(count+1), rindex);
 }
 
-static bool range_from(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_from(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	gravity_range_t * range = VALUE_AS_RANGE(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_INT(range->from), rindex);
 }
 
-static bool range_to(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_to(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	gravity_range_t * range = VALUE_AS_RANGE(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_INT(range->to), rindex);
 }
 
-static bool range_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs < 2) RETURN_ERROR("Incorrect number of arguments.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("Argument must be a Closure.");
 
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(GET_VALUE(1)); // closure to execute
-	gravity_value_t value = GET_VALUE(0);                       // self parameter
+	GravityValue value = GET_VALUE(0);                       // self parameter
 	gravity_range_t * range = VALUE_AS_RANGE(value);
 	bool is_forward = range->from < range->to;
 	nanotime_t t1 = nanotime();
@@ -1573,7 +1571,7 @@ static bool range_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(VALUE_FROM_INT(t2-t1), rindex);
 }
 
-static bool range_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_iterator(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_range_t * range = VALUE_AS_RANGE(GET_VALUE(0));
 
@@ -1584,7 +1582,7 @@ static bool range_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs
 	if(VALUE_ISA_NULL(GET_VALUE(1))) RETURN_VALUE(VALUE_FROM_INT(range->from), rindex);
 
 	// extract value
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	// check error condition
 	if(!VALUE_ISA_INT(value)) RETURN_ERROR("Iterator expects a numeric value here.");
@@ -1604,15 +1602,15 @@ static bool range_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs
 	RETURN_VALUE(VALUE_FROM_INT(n), rindex);
 }
 
-static bool range_iterator_next(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_iterator_next(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(GET_VALUE(1), rindex);
 }
 
-static bool range_contains(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_contains(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_range_t * range = VALUE_AS_RANGE(GET_VALUE(0));
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	// check error condition
 	if(!VALUE_ISA_INT(value)) RETURN_ERROR("A numeric value is expected.");
@@ -1620,7 +1618,7 @@ static bool range_contains(gravity_vm * vm, gravity_value_t * args, uint16 nargs
 	RETURN_VALUE(VALUE_FROM_BOOL((value.n >= range->from) && (value.n <= range->to)), rindex);
 }
 
-static bool range_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool range_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if((nargs != 3) || !VALUE_ISA_INT(GET_VALUE(1)) || !VALUE_ISA_INT(GET_VALUE(2))) RETURN_ERROR(
 			"Two Int values are expected as argument of Range creation.");
 
@@ -1633,13 +1631,13 @@ static bool range_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 
 // MARK: - Class Class -
 
-static bool class_name(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool class_name(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_class_t * c = (GET_VALUE(0).p);
 	RETURN_VALUE(VALUE_FROM_CSTRING(vm, c->identifier), rindex);
 }
 
-static bool class_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool class_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(VALUE_ISA_CLASS(GET_VALUE(0))) {
 		gravity_class_t * c = (gravity_class_t *)GET_VALUE(0).p;
@@ -1706,7 +1704,7 @@ static bool class_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 
 // MARK: - Closure Class -
 
-static bool closure_disassemble(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool closure_disassemble(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_closure_t * closure = (gravity_closure_t *)(GET_VALUE(0).p);
@@ -1716,22 +1714,22 @@ static bool closure_disassemble(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(gravity_string_to_value(vm, buffer, AUTOLENGTH), rindex);
 }
 
-static bool closure_apply(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool closure_apply(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs != 3) RETURN_ERROR("Two arguments are needed by the apply function.");
 	if(!VALUE_ISA_LIST(GET_VALUE(2))) RETURN_ERROR("A list of arguments is required in the apply function.");
 
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(GET_VALUE(0));
-	gravity_value_t self_value = GET_VALUE(1);
+	GravityValue self_value = GET_VALUE(1);
 	gravity_list_t * list = VALUE_AS_LIST(GET_VALUE(2));
 
 	if(!gravity_vm_runclosure(vm, closure, self_value, list->array.p, (uint16)marray_size(list->array))) return false;
-	gravity_value_t result = gravity_vm_result(vm);
+	GravityValue result = gravity_vm_result(vm);
 
 	RETURN_VALUE(result, rindex);
 }
 
-static bool closure_bind(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool closure_bind(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs != 2) 
 		RETURN_ERROR("An argument is required by the bind function.");
@@ -1751,7 +1749,7 @@ static bool closure_bind(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 
 // MARK: - Function Class -
 
-static bool function_closure(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool function_closure(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_function_t * func = VALUE_AS_FUNCTION(GET_VALUE(0));
@@ -1759,7 +1757,7 @@ static bool function_closure(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(closure)), rindex);
 }
 
-static bool function_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool function_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(!VALUE_ISA_FUNCTION(GET_VALUE(0))) RETURN_ERROR("Unable to convert Object to closure");
 
 	gravity_function_t * func = VALUE_AS_FUNCTION(GET_VALUE(0));
@@ -1784,7 +1782,7 @@ static bool function_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 
 // MARK: - Float Class -
 
-static bool operator_float_add(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_float_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1793,7 +1791,7 @@ static bool operator_float_add(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_FLOAT(v1.f + v2.f), rindex);
 }
 
-static bool operator_float_sub(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_sub(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1802,7 +1800,7 @@ static bool operator_float_sub(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_FLOAT(v1.f - v2.f), rindex);
 }
 
-static bool operator_float_div(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_div(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1812,7 +1810,7 @@ static bool operator_float_div(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_FLOAT(v1.f / v2.f), rindex);
 }
 
-static bool operator_float_mul(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_mul(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1821,7 +1819,7 @@ static bool operator_float_mul(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_FLOAT(v1.f * v2.f), rindex);
 }
 
-static bool operator_float_rem(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_rem(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1835,7 +1833,7 @@ static bool operator_float_rem(gravity_vm * vm, gravity_value_t * args, uint16 n
     #endif
 }
 
-static bool operator_float_and(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_and(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1844,7 +1842,7 @@ static bool operator_float_and(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n && v2.n), rindex);
 }
 
-static bool operator_float_or(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_or(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1853,18 +1851,18 @@ static bool operator_float_or(gravity_vm * vm, gravity_value_t * args, uint16 na
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n || v2.n), rindex);
 }
 
-static bool operator_float_neg(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_float_neg(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(-GET_VALUE(0).f), rindex);
 }
 
-static bool operator_float_not(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_float_not(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(VALUE_FROM_BOOL(!GET_VALUE(0).f), rindex);
 }
 
-static bool operator_float_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_float_cmp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1879,7 +1877,7 @@ static bool operator_float_cmp(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_INT(-1), rindex);
 }
 
-static bool function_float_round(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool function_float_round(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
     #if GRAVITY_ENABLE_DOUBLE
@@ -1889,7 +1887,7 @@ static bool function_float_round(gravity_vm * vm, gravity_value_t * args, uint16
     #endif
 }
 
-static bool function_float_floor(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool function_float_floor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
     #if GRAVITY_ENABLE_DOUBLE
@@ -1899,7 +1897,7 @@ static bool function_float_floor(gravity_vm * vm, gravity_value_t * args, uint16
     #endif
 }
 
-static bool function_float_ceil(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool function_float_ceil(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
     #if GRAVITY_ENABLE_DOUBLE
@@ -1909,27 +1907,27 @@ static bool function_float_ceil(gravity_vm * vm, gravity_value_t * args, uint16 
     #endif
 }
 
-static bool float_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool float_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs != 2) RETURN_ERROR("A single argument is expected in Float casting.");
 
-	gravity_value_t v = convert_value2float(vm, GET_VALUE(1));
+	GravityValue v = convert_value2float(vm, GET_VALUE(1));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to Float.");
 	RETURN_VALUE(v, rindex);
 }
 
-static bool float_degrees(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool float_degrees(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	// Convert the float from radians to degrees
 	RETURN_VALUE(VALUE_FROM_FLOAT(GET_VALUE(0).f*180/3.141592653589793), rindex);
 }
 
-static bool float_radians(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool float_radians(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	// Convert the float from degrees to radians
 	RETURN_VALUE(VALUE_FROM_FLOAT(GET_VALUE(0).f*3.141592653589793/180.0), rindex);
 }
 
-static bool float_isclose(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool float_isclose(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs < 2) RETURN_VALUE(VALUE_FROM_BOOL(true), rindex);
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1958,13 +1956,13 @@ static bool float_isclose(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	RETURN_VALUE(VALUE_FROM_BOOL(abs_diff <= result), rindex);
 }
 
-static bool float_min(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool float_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(GRAVITY_FLOAT_MIN), rindex);
 }
 
-static bool float_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool float_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FLOAT(GRAVITY_FLOAT_MAX), rindex);
@@ -1973,7 +1971,7 @@ static bool float_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 // MARK: - Int Class -
 
 // binary operators
-static bool operator_int_add(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_int_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -1981,14 +1979,14 @@ static bool operator_int_add(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_VALUE(VALUE_FROM_INT(v1.n + v2.n), rindex);
 }
 
-static bool operator_int_sub(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_sub(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_INT(v2, true);
 	RETURN_VALUE(VALUE_FROM_INT(v1.n - v2.n), rindex);
 }
 
-static bool operator_int_div(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_div(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_INT(v2, true);
@@ -1997,14 +1995,14 @@ static bool operator_int_div(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_VALUE(VALUE_FROM_INT(v1.n / v2.n), rindex);
 }
 
-static bool operator_int_mul(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_mul(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_INT(v2, true);
 	RETURN_VALUE(VALUE_FROM_INT(v1.n * v2.n), rindex);
 }
 
-static bool operator_int_rem(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_rem(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_INT(v2, true);
@@ -2013,7 +2011,7 @@ static bool operator_int_rem(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_VALUE(VALUE_FROM_INT(v1.n % v2.n), rindex);
 }
 
-static bool operator_int_and(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_and(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_BOOL(v1, true);
@@ -2021,7 +2019,7 @@ static bool operator_int_and(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n && v2.n), rindex);
 }
 
-static bool operator_int_or(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_or(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused (nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_BOOL(v1, true);
@@ -2029,17 +2027,17 @@ static bool operator_int_or(gravity_vm * vm, gravity_value_t * args, uint16 narg
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n || v2.n), rindex);
 }
 
-static bool operator_int_neg(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_neg(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(VALUE_FROM_INT(-GET_VALUE(0).n), rindex);
 }
 
-static bool operator_int_not(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_not(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(VALUE_FROM_BOOL(!GET_VALUE(0).n), rindex);
 }
 
-static bool operator_int_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_int_cmp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(VALUE_ISA_FLOAT(args[1])) {
 		// args[0] is INT and args[1] is FLOAT, in this case
 		// args[0] must be manually converted to FLOAT before the call
@@ -2058,14 +2056,14 @@ static bool operator_int_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_VALUE(VALUE_FROM_INT(-1), rindex);
 }
 
-static bool int_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
 		RETURN_ERROR("Incorrect number of arguments.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) 
 		RETURN_ERROR("Argument must be a Closure.");
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(GET_VALUE(1)); // closure to execute
-	gravity_value_t value = GET_VALUE(0);                       // self parameter
+	GravityValue value = GET_VALUE(0);                       // self parameter
 	gravity_int_t n = value.n;                         // times to execute the loop
 	gravity_int_t i = 0;
 	nanotime_t t1 = nanotime();
@@ -2077,7 +2075,7 @@ static bool int_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint
 	RETURN_VALUE(VALUE_FROM_INT(t2-t1), rindex);
 }
 
-static bool int_random(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_random(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(args)
 	if(nargs != 3) 
@@ -2107,37 +2105,37 @@ static bool int_random(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(VALUE_FROM_INT(r), rindex);
 }
 
-static bool int_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs != 2) 
 		RETURN_ERROR("A single argument is expected in Int casting.");
-	gravity_value_t v = convert_value2int(vm, GET_VALUE(1));
+	GravityValue v = convert_value2int(vm, GET_VALUE(1));
 	if(VALUE_ISA_NOTVALID(v)) 
 		RETURN_ERROR("Unable to convert object to Int.");
 	RETURN_VALUE(v, rindex);
 }
 
-static bool int_degrees(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_degrees(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	// Convert the int from radians to degrees
-	RETURN_VALUE(VALUE_FROM_FLOAT(GET_VALUE(0).n*180/3.141592653589793), rindex);
+	RETURN_VALUE(VALUE_FROM_FLOAT(GET_VALUE(0).n * 180.0 / SMathConst::Pi), rindex);
 }
 
-static bool int_radians(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_radians(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	// Convert the int from degrees to radians
-	RETURN_VALUE(VALUE_FROM_FLOAT(GET_VALUE(0).n*3.141592653589793/180), rindex);
+	RETURN_VALUE(VALUE_FROM_FLOAT(GET_VALUE(0).n * SMathConst::Pi / 180.0), rindex);
 }
 
-static bool int_min(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_INT(GRAVITY_INT_MIN), rindex);
 }
 
-static bool int_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool int_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_INT(GRAVITY_INT_MAX), rindex);
@@ -2145,44 +2143,29 @@ static bool int_max(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint3
 
 // MARK: - Bool Class -
 
-static bool operator_bool_add(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_bool_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex)  { return operator_int_add(vm, args, nargs, rindex); }
+static bool operator_bool_sub(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_sub(vm, args, nargs, rindex); }
+static bool operator_bool_div(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_div(vm, args, nargs, rindex); }
+static bool operator_bool_mul(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_mul(vm, args, nargs, rindex); }
+static bool operator_bool_rem(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) { return operator_int_rem(vm, args, nargs, rindex); }
+
+static bool operator_bool_and(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
-	return operator_int_add(vm, args, nargs, rindex);
-}
-
-static bool operator_bool_sub(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
-	return operator_int_sub(vm, args, nargs, rindex);
-}
-
-static bool operator_bool_div(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
-	return operator_int_div(vm, args, nargs, rindex);
-}
-
-static bool operator_bool_mul(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
-	return operator_int_mul(vm, args, nargs, rindex);
-}
-
-static bool operator_bool_rem(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
-	return operator_int_rem(vm, args, nargs, rindex);
-}
-
-static bool operator_bool_and(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_BOOL(v1, true);
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n && v2.n), rindex);
 }
 
-static bool operator_bool_or(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_or(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
 	INTERNAL_CONVERT_BOOL(v1, true);
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n || v2.n), rindex);
 }
 
-static bool operator_bool_bitor(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_bitor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2190,7 +2173,7 @@ static bool operator_bool_bitor(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n | v2.n), rindex);
 }
 
-static bool operator_bool_bitand(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_bitand(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2198,7 +2181,7 @@ static bool operator_bool_bitand(gravity_vm * vm, gravity_value_t * args, uint16
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n & v2.n), rindex);
 }
 
-static bool operator_bool_bitxor(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_bitxor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2206,32 +2189,32 @@ static bool operator_bool_bitxor(gravity_vm * vm, gravity_value_t * args, uint16
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n ^ v2.n), rindex);
 }
 
-static bool operator_bool_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_cmp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	return operator_int_cmp(vm, args, nargs, rindex);
 }
 
 // unary operators
-static bool operator_bool_neg(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_neg(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(VALUE_FROM_INT(-GET_VALUE(0).n), rindex);
 }
 
-static bool operator_bool_not(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_bool_not(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	RETURN_VALUE(VALUE_FROM_INT(!GET_VALUE(0).n), rindex);
 }
 
-static bool bool_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool bool_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs != 2) RETURN_ERROR("A single argument is expected in Bool casting.");
 
-	gravity_value_t v = convert_value2bool(vm, GET_VALUE(1));
+	GravityValue v = convert_value2bool(vm, GET_VALUE(1));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to Bool.");
 	RETURN_VALUE(v, rindex);
 }
 
 // MARK: - String Class -
 
-static bool operator_string_add(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_string_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2254,13 +2237,13 @@ static bool operator_string_add(gravity_vm * vm, gravity_value_t * args, uint16 
 	memcpy(s, s1->s, s1->len);
 	memcpy(s+s1->len, s2->s, s2->len);
 
-	gravity_value_t v = VALUE_FROM_STRING(vm, s, len);
+	GravityValue v = VALUE_FROM_STRING(vm, s, len);
 	if(s != NULL && s != buffer) mem_free(s);
 
 	RETURN_VALUE(v, rindex);
 }
 
-static bool operator_string_sub(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool operator_string_sub(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2297,7 +2280,7 @@ static bool operator_string_sub(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(string)), rindex);
 }
 
-static bool operator_string_and(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_string_and(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2307,7 +2290,7 @@ static bool operator_string_and(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n && v2.n), rindex);
 }
 
-static bool operator_string_or(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_string_or(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2317,7 +2300,7 @@ static bool operator_string_or(gravity_vm * vm, gravity_value_t * args, uint16 n
 	RETURN_VALUE(VALUE_FROM_BOOL(v1.n || v2.n), rindex);
 }
 
-static bool operator_string_neg(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_string_neg(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_1VARIABLE(v1, 0);
@@ -2331,7 +2314,7 @@ static bool operator_string_neg(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t*>(string)), rindex);
 }
 
-static bool operator_string_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_string_cmp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 
 	DECLARE_2VARIABLES(v1, v2, 0, 1);
@@ -2346,38 +2329,33 @@ static bool operator_string_cmp(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(VALUE_FROM_INT(-1), rindex);
 }
 
-static bool string_bytes(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_bytes(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-
 	DECLARE_1VARIABLE(v1, 0);
 	gravity_string_t * s1 = VALUE_AS_STRING(v1);
-
 	RETURN_VALUE(VALUE_FROM_INT(s1->len), rindex);
 }
 
-static bool string_length(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_length(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-
 	DECLARE_1VARIABLE(v1, 0);
 	gravity_string_t * s1 = VALUE_AS_STRING(v1);
 	uint32 length = (s1->len) ? utf8_len(s1->s, s1->len) : 0;
-
 	RETURN_VALUE(VALUE_FROM_INT(length), rindex);
 }
 
-static bool string_index(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_index(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm)
-
 	if((nargs != 2) || (!VALUE_ISA_STRING(GET_VALUE(1)))) {
 		RETURN_ERROR("String.index() expects a string as an argument");
 	}
-
 	gravity_string_t * main_str = VALUE_AS_STRING(GET_VALUE(0));
 	gravity_string_t * str_to_index = VALUE_AS_STRING(GET_VALUE(1));
-
 	// search for the string
 	char * ptr = string_strnstr(main_str->s, str_to_index->s, (size_t)main_str->len);
-
 	// if it doesn't exist, return null
 	if(ptr == NULL) {
 		RETURN_VALUE(VALUE_FROM_NULL, rindex);
@@ -2388,7 +2366,7 @@ static bool string_index(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	}
 }
 
-static bool string_contains(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_contains(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm)
 	// sanity check
@@ -2403,7 +2381,7 @@ static bool string_contains(gravity_vm * vm, gravity_value_t * args, uint16 narg
 	RETURN_VALUE(VALUE_FROM_BOOL(ptr != NULL), rindex);
 }
 
-static bool string_count(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_count(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm)
 	if((nargs != 2) || (!VALUE_ISA_STRING(GET_VALUE(1)))) {
@@ -2436,7 +2414,7 @@ static bool string_count(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_INT(count), rindex);
 }
 
-static bool string_repeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_repeat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if((nargs != 2) || (!VALUE_ISA_INT(GET_VALUE(1)))) {
 		RETURN_ERROR("String.repeat() expects an integer argument");
 	}
@@ -2462,14 +2440,14 @@ static bool string_repeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(s)), rindex);
 }
 
-static bool string_number(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_number(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
-	gravity_value_t value = convert_string2number(VALUE_AS_STRING(GET_VALUE(0)), number_format_any);
+	GravityValue value = convert_string2number(VALUE_AS_STRING(GET_VALUE(0)), number_format_any);
 	RETURN_VALUE(value, rindex);
 }
 
-static bool string_upper(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_upper(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	gravity_string_t * main_str = VALUE_AS_STRING(GET_VALUE(0));
 	char * ret = static_cast<char *>(mem_alloc(vm, main_str->len + 1));
@@ -2484,7 +2462,7 @@ static bool string_upper(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	// otherwise, evaluate all the arguments
 	else {
 		for(uint16 i = 1; i < nargs; ++i) {
-			gravity_value_t value = GET_VALUE(i);
+			GravityValue value = GET_VALUE(i);
 			if(VALUE_ISA_INT(value)) {
 				int32 index = (int32)VALUE_AS_INT(value);
 				if(index < 0) 
@@ -2506,7 +2484,7 @@ static bool string_upper(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(s)), rindex);
 }
 
-static bool string_lower(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_lower(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	gravity_string_t * main_str = VALUE_AS_STRING(GET_VALUE(0));
 	char * ret = static_cast<char *>(mem_alloc(vm, main_str->len + 1));
@@ -2521,7 +2499,7 @@ static bool string_lower(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	// otherwise, evaluate all the arguments
 	else {
 		for(uint16 i = 1; i < nargs; ++i) {
-			gravity_value_t value = GET_VALUE(i);
+			GravityValue value = GET_VALUE(i);
 			if(VALUE_ISA_INT(value)) {
 				int32 index = (int32)VALUE_AS_INT(value);
 				if(index < 0) index = main_str->len + index;
@@ -2542,11 +2520,11 @@ static bool string_lower(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(s)), rindex);
 }
 
-static bool string_loadat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_loadat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	gravity_string_t * string = VALUE_AS_STRING(GET_VALUE(0));
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	int32 first_index;
 	int32 second_index;
 	if(VALUE_ISA_INT(value)) {
@@ -2595,18 +2573,18 @@ static bool string_loadat(gravity_vm * vm, gravity_value_t * args, uint16 nargs,
 			--i;
 			++j;
 		}
-		gravity_value_t s = VALUE_FROM_STRING(vm, original + first_index, substr_len);
+		GravityValue s = VALUE_FROM_STRING(vm, original + first_index, substr_len);
 		mem_free(original);
 		RETURN_VALUE(s, rindex);
 	}
 	RETURN_VALUE(VALUE_FROM_STRING(vm, string->s + first_index, substr_len), rindex);
 }
 
-static bool string_storeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_storeat(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs, rindex)
 	gravity_string_t * string = VALUE_AS_STRING(GET_VALUE(0));
-	gravity_value_t idxvalue = GET_VALUE(1);
+	GravityValue idxvalue = GET_VALUE(1);
 	if(!VALUE_ISA_INT(idxvalue)) 
 		RETURN_ERROR("An integer index is required to access a string item.");
 	if(!VALUE_ISA_STRING(GET_VALUE(2))) 
@@ -2628,7 +2606,7 @@ static bool string_storeat(gravity_vm * vm, gravity_value_t * args, uint16 nargs
 	RETURN_NOVALUE();
 }
 
-static bool string_split(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool string_split(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	// sanity check
 	if((nargs != 2) || (!VALUE_ISA_STRING(GET_VALUE(1)))) RETURN_ERROR("String.split() expects 1 string separator.");
@@ -2657,7 +2635,7 @@ static bool string_split(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	if(seplen == 0) {
 		for(uint32 i = 0; i<slen;) {
 			uint32 n = utf8_charbytes(original, 0);
-			marray_push(gravity_value_t, list->array, VALUE_FROM_STRING(vm, original, n));
+			marray_push(GravityValue, list->array, VALUE_FROM_STRING(vm, original, n));
 			original += n;
 			i += n;
 		}
@@ -2669,11 +2647,11 @@ static bool string_split(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	while(1) {
 		char * p = string_strnstr(original, sep, (size_t)slen);
 		if(p == NULL) {
-			marray_push(gravity_value_t, list->array, VALUE_FROM_STRING(vm, original, slen));
+			marray_push(GravityValue, list->array, VALUE_FROM_STRING(vm, original, slen));
 			break;
 		}
 		uint32 vlen = (uint32)(p-original);
-		marray_push(gravity_value_t, list->array, VALUE_FROM_STRING(vm, original, vlen));
+		marray_push(GravityValue, list->array, VALUE_FROM_STRING(vm, original, vlen));
 
 		// update pointer and slen
 		original = p + seplen;
@@ -2684,7 +2662,7 @@ static bool string_split(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list)), rindex);
 }
 
-static bool string_find_replace(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_find_replace(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	// sanity check
 	if((nargs != 3) || (!VALUE_ISA_STRING(GET_VALUE(1))) || (!VALUE_ISA_STRING(GET_VALUE(2)))) RETURN_ERROR(
 			"String.replace() expects 2 string arguments.");
@@ -2703,19 +2681,19 @@ static bool string_find_replace(gravity_vm * vm, gravity_value_t * args, uint16 
 	RETURN_VALUE(VALUE_FROM_NULL, rindex);
 }
 
-static bool string_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_loop(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs < 2) RETURN_ERROR("Incorrect number of arguments.");
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("Argument must be a Closure.");
 
 	gravity_closure_t * closure = VALUE_AS_CLOSURE(GET_VALUE(1)); // closure to execute
-	gravity_value_t value = GET_VALUE(0);                        // self parameter
+	GravityValue value = GET_VALUE(0);                        // self parameter
 	gravity_string_t * string = VALUE_AS_STRING(value);
 	char * str = string->s;
 	gravity_int_t n = string->len; // Times to execute the loop
 	gravity_int_t i = 0;
 	nanotime_t t1 = nanotime();
 	while(i < n) {
-		gravity_value_t v_str = VALUE_FROM_STRING(vm, str + i, 1);
+		GravityValue v_str = VALUE_FROM_STRING(vm, str + i, 1);
 		if(!gravity_vm_runclosure(vm, closure, value, &v_str, 1)) return false;
 		++i;
 	}
@@ -2723,7 +2701,7 @@ static bool string_loop(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	RETURN_VALUE(VALUE_FROM_INT(t2-t1), rindex);
 }
 
-static bool string_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_iterator(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_string_t * string = VALUE_AS_STRING(GET_VALUE(0));
 
@@ -2734,7 +2712,7 @@ static bool string_iterator(gravity_vm * vm, gravity_value_t * args, uint16 narg
 	if(VALUE_ISA_NULL(GET_VALUE(1))) RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 
 	// extract value
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 
 	// check error condition
 	if(!VALUE_ISA_INT(value)) RETURN_ERROR("Iterator expects a numeric value here.");
@@ -2753,7 +2731,7 @@ static bool string_iterator(gravity_vm * vm, gravity_value_t * args, uint16 narg
 	RETURN_VALUE(VALUE_FROM_INT(index), rindex);
 }
 
-static bool string_iterator_next(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_iterator_next(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
 	gravity_string_t * string = VALUE_AS_STRING(GET_VALUE(0));
 	int32 index = (int32)VALUE_AS_INT(GET_VALUE(1));
@@ -2761,15 +2739,15 @@ static bool string_iterator_next(gravity_vm * vm, gravity_value_t * args, uint16
 	RETURN_VALUE(VALUE_FROM_STRING(vm, string->s + index, n), rindex);
 }
 
-static bool string_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	if(nargs != 2) RETURN_ERROR("A single argument is expected in String casting.");
 
-	gravity_value_t v = convert_value2string(vm, GET_VALUE(1));
+	GravityValue v = convert_value2string(vm, GET_VALUE(1));
 	if(VALUE_ISA_NOTVALID(v)) RETURN_ERROR("Unable to convert object to String.");
 	RETURN_VALUE(v, rindex);
 }
 
-static bool string_trim(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_trim(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	int32 direction = 0; // means trim both left and right
 
 	// optional second parameters to specify trim-left (1) or trim-right(2)
@@ -2802,35 +2780,35 @@ static bool string_trim(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 
 	// index_left and index_right now points to the right indexes
 	uint32 trim_len = (index_left - 0) + (src->len - index_right);
-	gravity_value_t value = VALUE_FROM_STRING(vm, (const char*)&s[index_left], src->len - trim_len);
+	GravityValue value = VALUE_FROM_STRING(vm, (const char*)&s[index_left], src->len - trim_len);
 	RETURN_VALUE(value, rindex);
 }
 
-static bool string_raw(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_raw(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
 	gravity_string_t * string = VALUE_AS_STRING(GET_VALUE(0));
-
 	uint32 ascii = 0;
 	uint32 n = utf8_charbytes(string->s, 0);
 	for(uint32 i = 0; i<n; ++i) {
 		// if (n > 1) {printf("%u (%d)\n", (uint8_t)string->s[i], (uint32)pow(10, n-(i+1)));}
 		ascii += (uint32)((uint8_t)string->s[i] * pow(10, n - (i + 1)));
 	}
-
 	RETURN_VALUE(VALUE_FROM_INT(ascii), rindex);
 }
 
-static bool string_toclass(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool string_toclass(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-	gravity_value_t result = gravity_vm_lookup(vm, GET_VALUE(0));
-
-	if(VALUE_ISA_CLASS(result)) RETURN_VALUE(result, rindex);
+	GravityValue result = gravity_vm_lookup(vm, GET_VALUE(0));
+	if(VALUE_ISA_CLASS(result)) 
+		RETURN_VALUE(result, rindex);
 	RETURN_VALUE(VALUE_FROM_NULL, rindex);
 }
 
 // MARK: - Fiber Class -
 
-static bool fiber_create(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool fiber_create(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
 	if(!VALUE_ISA_CLOSURE(GET_VALUE(1))) RETURN_ERROR("A function is expected as argument to Fiber.create.");
@@ -2838,7 +2816,7 @@ static bool fiber_create(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(fiber)), rindex);
 }
 
-static bool fiber_run(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex, bool is_trying) 
+static bool fiber_run(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex, bool is_trying) 
 {
     #pragma unused(nargs, rindex)
 	// set rindex slot to NULL in order to falsify the if closure check performed by the VM
@@ -2862,15 +2840,15 @@ static bool fiber_run(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uin
 	RETURN_FIBER();
 }
 
-static bool fiber_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	return fiber_run(vm, args, nargs, rindex, false);
 }
 
-static bool fiber_try(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_try(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	return fiber_run(vm, args, nargs, rindex, true);
 }
 
-static bool fiber_yield(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_yield(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(args, nargs, rindex)
 
 	// set rindex slot to NULL in order to falsify the if closure check performed by the VM
@@ -2898,7 +2876,7 @@ static bool fiber_yield(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 	}
 }
 
-static bool fiber_yield_time(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_yield_time(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(args, nargs, rindex)
 
 	// set rindex slot to NULL in order to falsify the if closure check performed by the VM
@@ -2933,7 +2911,7 @@ static bool fiber_yield_time(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	}
 }
 
-static bool fiber_done(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_done(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(nargs)
 
 	// returns true is the fiber has terminated execution
@@ -2941,7 +2919,7 @@ static bool fiber_done(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(VALUE_FROM_BOOL(fiber->nframes == 0 || fiber->error), rindex);
 }
 
-static bool fiber_status(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_status(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(nargs)
 
 	// status codes:
@@ -2957,15 +2935,15 @@ static bool fiber_status(gravity_vm * vm, gravity_value_t * args, uint16 nargs, 
 	RETURN_VALUE(VALUE_FROM_INT(fiber->status), rindex);
 }
 
-static bool fiber_elapsed_time(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool fiber_elapsed_time(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(nargs)
 
 	gravity_fiber_t * fiber = VALUE_AS_FIBER(GET_VALUE(0));
 	RETURN_VALUE(VALUE_FROM_FLOAT(fiber->elapsedtime), rindex);
 }
 
-static bool fiber_abort(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
-	gravity_value_t msg = (nargs > 0) ? GET_VALUE(1) : VALUE_FROM_NULL;
+static bool fiber_abort(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+	GravityValue msg = (nargs > 0) ? GET_VALUE(1) : VALUE_FROM_NULL;
 	if(!VALUE_ISA_STRING(msg)) RETURN_ERROR("Fiber.abort expects a string as argument.");
 
 	gravity_string_t * s = VALUE_AS_STRING(msg);
@@ -2974,42 +2952,42 @@ static bool fiber_abort(gravity_vm * vm, gravity_value_t * args, uint16 nargs, u
 
 // MARK: - Null Class -
 
-static bool operator_null_add(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_add(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,nargs)
 	// NULL + v2 = v2
 	RETURN_VALUE(args[1], rindex);
 }
 
-static bool operator_null_sub(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_sub(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
 	// NULL - v2 should be computed as -v2 in my opinion (since NULL is interpreted as zero)
 	args[0] = VALUE_FROM_INT(0);
 	return operator_int_sub(vm, args, nargs, rindex);
 }
 
-static bool operator_null_div(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_div(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
 	// NULL / v2 = 0
 	RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 }
 
-static bool operator_null_mul(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_mul(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
 	// NULL * v2 = 0
 	RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 }
 
-static bool operator_null_rem(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_rem(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
 	// NULL % v2 = 0
 	RETURN_VALUE(VALUE_FROM_INT(0), rindex);
 }
 
-static bool operator_null_and(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_and(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
 	RETURN_VALUE(VALUE_FROM_BOOL(0), rindex);
 }
 
-static bool operator_null_or(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_or(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,nargs)
 
 	DECLARE_1VARIABLE(v2, 1);
@@ -3018,21 +2996,21 @@ static bool operator_null_or(gravity_vm * vm, gravity_value_t * args, uint16 nar
 }
 
 // unary operators
-static bool operator_null_neg(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_neg(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
 	RETURN_VALUE(VALUE_FROM_BOOL(0), rindex);
 }
 
-static bool operator_null_not(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_not(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
 	// !null = true in all the tested programming languages
 	RETURN_VALUE(VALUE_FROM_BOOL(1), rindex);
 }
 
 #if GRAVITY_NULL_SILENT
-static bool operator_null_silent(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_silent(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs)
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue key = GET_VALUE(1);
 	if(VALUE_ISA_STRING(key)) {
 		gravity_object_t * obj = (gravity_object_t *)gravity_class_lookup(gravity_class_null, key);
 		if(obj) RETURN_VALUE(VALUE_FROM_OBJECT(obj), rindex);
@@ -3047,11 +3025,11 @@ static bool operator_null_silent(gravity_vm * vm, gravity_value_t * args, uint16
 	RETURN_VALUE(VALUE_FROM_NULL, rindex);
 }
 
-static bool operator_store_null_silent(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_store_null_silent(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,args,nargs,rindex)
 	gravity_delegate_t * delegate = gravity_vm_delegate(vm);
 	if(delegate->report_null_errors) {
-		gravity_value_t key = GET_VALUE(1);
+		GravityValue key = GET_VALUE(1);
 		RETURN_ERROR("Unable to find %s into null object", VALUE_ISA_STRING(key) ? VALUE_AS_CSTRING(key) : "N/A");
 	}
 
@@ -3061,7 +3039,7 @@ static bool operator_store_null_silent(gravity_vm * vm, gravity_value_t * args, 
 
 #endif
 
-static bool operator_null_cmp(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool operator_null_cmp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm,nargs)
 	if(VALUE_ISA_UNDEFINED(args[0])) {
 		// undefined case (undefined is equal ONLY to undefined)
@@ -3073,28 +3051,29 @@ static bool operator_null_cmp(gravity_vm * vm, gravity_value_t * args, uint16 na
 	return operator_int_cmp(vm, args, nargs, rindex);
 }
 
-static bool null_exec(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool null_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_NULL, rindex);
 }
 
-static bool null_iterator(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool null_iterator(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, args, nargs)
 	RETURN_VALUE(VALUE_FROM_FALSE, rindex);
 }
 
 // MARK: - System -
 
-static bool system_nanotime(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool system_nanotime(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(args,nargs)
 	nanotime_t t = nanotime();
 	RETURN_VALUE(VALUE_FROM_INT(t), rindex);
 }
 
-static bool system_realprint(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex, bool cr) {
+static bool system_realprint(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex, bool cr) 
+{
     #pragma unused (rindex)
-	for(uint16 i = 1; i<nargs; ++i) {
-		gravity_value_t v = GET_VALUE(i);
+	for(uint16 i = 1; i < nargs; ++i) {
+		GravityValue v = GET_VALUE(i);
 		INTERNAL_CONVERT_STRING(v, true);
 		gravity_string_t * s = VALUE_AS_STRING(v);
 		printf("%.*s", s->len, s->s);
@@ -3103,25 +3082,29 @@ static bool system_realprint(gravity_vm * vm, gravity_value_t * args, uint16 nar
 	RETURN_NOVALUE();
 }
 
-static bool system_put(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool system_put(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
 	return system_realprint(vm, args, nargs, rindex, false);
 }
 
-static bool system_print(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool system_print(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
 	return system_realprint(vm, args, nargs, rindex, true);
 }
 
-static bool system_get(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool system_get(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused (args, nargs)
-	gravity_value_t key = GET_VALUE(1);
+	GravityValue key = GET_VALUE(1);
 	if(!VALUE_ISA_STRING(key)) RETURN_VALUE(VALUE_FROM_NULL, rindex);
 	RETURN_VALUE(gravity_vm_get(vm, VALUE_AS_CSTRING(key)), rindex);
 }
 
-static bool system_set(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool system_set(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused (nargs, rindex)
-	gravity_value_t key = GET_VALUE(1);
-	gravity_value_t value = GET_VALUE(2);
+	GravityValue key = GET_VALUE(1);
+	GravityValue value = GET_VALUE(2);
 	if(!VALUE_ISA_STRING(key)) RETURN_NOVALUE();
 
 	bool result = gravity_vm_set(vm, VALUE_AS_CSTRING(key), value);
@@ -3129,7 +3112,8 @@ static bool system_set(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_NOVALUE();
 }
 
-static bool system_exit(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) {
+static bool system_exit(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused (vm, nargs, rindex)
 	int n = (VALUE_ISA_INT(GET_VALUE(1))) ? (int)GET_VALUE(1).n : 0;
 	exit(n);
@@ -3170,10 +3154,11 @@ void computed_property_free(gravity_class_t * c, const char * name, bool remove_
 	if(remove_flag) gravity_hash_remove(c->htable, key);
 }
 
-void gravity_core_init(void) 
+void gravity_core_init() 
 {
 	// this function must be executed ONCE
-	if(core_inited) return;
+	if(core_inited) 
+		return;
 	core_inited = true;
 	//mem_check(false);
 
@@ -3490,7 +3475,7 @@ void gravity_core_init(void)
 	gravity_class_bind(system_meta, "exit", NEW_CLOSURE_VALUE(system_exit));
 
 	closure = computed_property_create(NULL, NEW_FUNCTION(system_get), NEW_FUNCTION(system_set));
-	gravity_value_t value = VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(closure));
+	GravityValue value = VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(closure));
 	gravity_class_bind(system_meta, GRAVITY_VM_GCENABLED, value);
 	gravity_class_bind(system_meta, GRAVITY_VM_GCMINTHRESHOLD, value);
 	gravity_class_bind(system_meta, GRAVITY_VM_GCTHRESHOLD, value);
@@ -3521,7 +3506,7 @@ void gravity_core_init(void)
 	//mem_check(true);
 }
 
-void gravity_core_free(void) 
+void gravity_core_free() 
 {
 	// free optionals first
 	gravity_opt_free();
@@ -3606,7 +3591,7 @@ void gravity_core_free(void)
 	core_inited = false;
 }
 
-const char ** gravity_core_identifiers(void) 
+const char ** gravity_core_identifiers() 
 {
 	static const char * list[] = {GRAVITY_CLASS_OBJECT_NAME, GRAVITY_CLASS_CLASS_NAME, GRAVITY_CLASS_BOOL_NAME, GRAVITY_CLASS_NULL_NAME,
 		GRAVITY_CLASS_INT_NAME, GRAVITY_CLASS_FLOAT_NAME, GRAVITY_CLASS_FUNCTION_NAME,

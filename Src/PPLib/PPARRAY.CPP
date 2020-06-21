@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8 // @v10.4.5
 // @Kernel
 //
@@ -8,14 +8,21 @@
 //
 //
 //
-void SLAPI PPCycleFilt::Init()
+SLAPI PPCycleFilt::PPCycleFilt() : Cycle(0), NumCycles(0)
 {
-	*reinterpret_cast<uint32 *>(this) = 0;
 }
 
-int FASTCALL PPCycleFilt::operator == (const PPCycleFilt s) const
+PPCycleFilt & SLAPI PPCycleFilt::Z()
 {
-	return (*reinterpret_cast<const uint32 *>(this) == *reinterpret_cast<const uint32 *>(&s));
+	Cycle = 0;
+	NumCycles = 0;
+	return *this;
+	//*reinterpret_cast<uint32 *>(this) = 0;
+}
+
+int FASTCALL PPCycleFilt::operator == (const PPCycleFilt & rS) const
+{
+	return (Cycle == rS.Cycle && NumCycles == rS.NumCycles);
 }
 
 int SLAPI PPCycleFilt::operator !() const

@@ -167,9 +167,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 			 * sent by the server.  That guess turned out to be wrong so we
 			 * need to silently ignore it */
 			int burn_type;
-
-			_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-			    "Waiting for badly guessed KEX packet (to be ignored)");
+			_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Waiting for badly guessed KEX packet (to be ignored)");
 			burn_type =
 			    _libssh2_packet_burn(session, &exchange_state->burn_state);
 			if(burn_type == LIBSSH2_ERROR_EAGAIN) {
@@ -181,21 +179,13 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 				goto clean_exit;
 			}
 			session->burn_optimistic_kexinit = 0;
-
-			_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-			    "Burnt packet of type: %02x",
-			    (uint)burn_type);
+			_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Burnt packet of type: %02x", (uint)burn_type);
 		}
-
 		exchange_state->state = libssh2_NB_state_sent1;
 	}
-
 	if(exchange_state->state == libssh2_NB_state_sent1) {
 		/* Wait for KEX reply */
-		rc = _libssh2_packet_require(session, packet_type_reply,
-		    &exchange_state->s_packet,
-		    &exchange_state->s_packet_len, 0, NULL,
-		    0, &exchange_state->req_state);
+		rc = _libssh2_packet_require(session, packet_type_reply, &exchange_state->s_packet, &exchange_state->s_packet_len, 0, NULL, 0, &exchange_state->req_state);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
@@ -968,8 +958,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 				goto clean_exit;
 			}
 		}
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Client to Server compression initialized");
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Client to Server compression initialized");
 
 		if(session->remote.comp && session->remote.comp->dtor) {
 			session->remote.comp->dtor(session, 0,
@@ -983,8 +972,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 				goto clean_exit;
 			}
 		}
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Server to Client compression initialized");
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Server to Client compression initialized");
 	}
 
 clean_exit:
@@ -1055,15 +1043,10 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION * 
 		/* Initialize P and G */
 		_libssh2_bn_set_word(key_state->g, 2);
 		_libssh2_bn_from_bin(key_state->p, 128, p_value);
-
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Initiating Diffie-Hellman Group1 Key Exchange");
-
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Initiating Diffie-Hellman Group1 Key Exchange");
 		key_state->state = libssh2_NB_state_created;
 	}
-	ret = diffie_hellman_sha1(session, key_state->g, key_state->p, 128,
-	    SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-	    NULL, 0, &key_state->exchange_state);
+	ret = diffie_hellman_sha1(session, key_state->g, key_state->p, 128, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0, &key_state->exchange_state);
 	if(ret == LIBSSH2_ERROR_EAGAIN) {
 		return ret;
 	}
@@ -1128,15 +1111,10 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *
 		/* Initialize P and G */
 		_libssh2_bn_set_word(key_state->g, 2);
 		_libssh2_bn_from_bin(key_state->p, 256, p_value);
-
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Initiating Diffie-Hellman Group14 Key Exchange");
-
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Initiating Diffie-Hellman Group14 Key Exchange");
 		key_state->state = libssh2_NB_state_created;
 	}
-	ret = diffie_hellman_sha1(session, key_state->g, key_state->p,
-	    256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-	    NULL, 0, &key_state->exchange_state);
+	ret = diffie_hellman_sha1(session, key_state->g, key_state->p, 256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0, &key_state->exchange_state);
 	if(ret == LIBSSH2_ERROR_EAGAIN) {
 		return ret;
 	}
@@ -1170,8 +1148,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LIBSSH2_SE
 		_libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
 		_libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
 		key_state->request_len = 13;
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Initiating Diffie-Hellman Group-Exchange (New Method)");
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Initiating Diffie-Hellman Group-Exchange (New Method)");
 #else
 		key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
 		_libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
@@ -1247,8 +1224,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(LIBSSH2_
 		_libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
 		_libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
 		key_state->request_len = 13;
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Initiating Diffie-Hellman Group-Exchange (New Method SHA256)");
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Initiating Diffie-Hellman Group-Exchange (New Method SHA256)");
 #else
 		key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
 		_libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
@@ -1461,7 +1437,6 @@ static int kexinit(LIBSSH2_SESSION * session)
 		{
 			/* Funnily enough, they'll all "appear" to be '\0' terminated */
 			uchar * p = data + 21; /* type(1) + cookie(16) + len(4) */
-
 			_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Sent KEX: %s", p);
 			p += kex_len + 4;
 			_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Sent HOSTKEY: %s", p);

@@ -25,11 +25,12 @@ curl         7.54
 libzip       1.1.3
 zint         2.5.1 (have pulled from git-repository 2017/01/12)
 libjpeg-turbo 1.5.1 
-openssl      1.1.0e
+openssl      1.1.1d // @v10.7.12 1.1.0e-->1.1.1d
 nginx        1.13.4 (from original hg repo)
 pcre         8.41
 libssh2      1.8.1-dev (from original git repo) 
 7z           18.00-beta
 lua          5.3.4
 libarchive   
+gravity
 @v9.6.12 giflib encapsulated in slib

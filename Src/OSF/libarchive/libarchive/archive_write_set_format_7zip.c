@@ -1700,13 +1700,10 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	return ARCHIVE_OK;
 }
 
-static int compression_code_bzip2(struct archive * a,
-    struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_bzip2(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
-	bz_stream * strm;
 	int r;
-
-	strm = (bz_stream *)lastrm->real_stream;
+	bz_stream * strm = (bz_stream *)lastrm->real_stream;
 	/* bzlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
@@ -1718,18 +1715,13 @@ static int compression_code_bzip2(struct archive * a,
 	strm->avail_out = lastrm->avail_out;
 	strm->total_out_lo32 = (uint32_t)(lastrm->total_out & 0xffffffff);
 	strm->total_out_hi32 = (uint32_t)(lastrm->total_out >> 32);
-	r = BZ2_bzCompress(strm,
-		(action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
+	r = BZ2_bzCompress(strm, (action == ARCHIVE_Z_FINISH) ? BZ_FINISH : BZ_RUN);
 	lastrm->next_in = (const uchar *)strm->next_in;
 	lastrm->avail_in = strm->avail_in;
-	lastrm->total_in =
-	    (((uint64_t)(uint32_t)strm->total_in_hi32) << 32)
-	    + (uint64_t)(uint32_t)strm->total_in_lo32;
+	lastrm->total_in = (((uint64_t)(uint32_t)strm->total_in_hi32) << 32) + (uint64_t)(uint32_t)strm->total_in_lo32;
 	lastrm->next_out = (uchar *)strm->next_out;
 	lastrm->avail_out = strm->avail_out;
-	lastrm->total_out =
-	    (((uint64_t)(uint32_t)strm->total_out_hi32) << 32)
-	    + (uint64_t)(uint32_t)strm->total_out_lo32;
+	lastrm->total_out = (((uint64_t)(uint32_t)strm->total_out_hi32) << 32) + (uint64_t)(uint32_t)strm->total_out_lo32;
 	switch(r) {
 		case BZ_RUN_OK: /* Non-finishing */
 		case BZ_FINISH_OK: /* Finishing: There's more work to do */
@@ -1759,8 +1751,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 }
 
 #else
-static int compression_init_encoder_bzip2(struct archive * a,
-    struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
 {
 	(void)level;  /* UNUSED */
 	if(lastrm->valid)
@@ -1774,15 +1765,13 @@ static int compression_init_encoder_bzip2(struct archive * a,
  * _7_LZMA1, _7_LZMA2 compressor.
  */
 #if defined(HAVE_LZMA_H)
-static int compression_init_encoder_lzma(struct archive * a,
-    struct la_zstream * lastrm, int level, uint64_t filter_id)
+static int compression_init_encoder_lzma(struct archive * a, struct la_zstream * lastrm, int level, uint64_t filter_id)
 {
 	static const lzma_stream lzma_init_data = LZMA_STREAM_INIT;
 	lzma_stream * strm;
 	lzma_filter * lzmafilters;
 	lzma_options_lzma lzma_opt;
 	int r;
-
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	strm = SAlloc::C(1, sizeof(*strm) + sizeof(*lzmafilters) * 2);

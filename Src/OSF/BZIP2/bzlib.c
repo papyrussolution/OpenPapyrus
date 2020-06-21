@@ -34,22 +34,17 @@
 #ifndef BZ_NO_STDIO
 void BZ2_bz__AssertH__fail(int errcode)
 {
-	fprintf(stderr,
-	    "\n\nbzip2/libbzip2: internal error number %d.\n"
+	fprintf(stderr, "\n\nbzip2/libbzip2: internal error number %d.\n"
 	    "This is a bug in bzip2/libbzip2, %s.\n"
 	    "Please report it to me at: jseward@bzip.org.  If this happened\n"
 	    "when you were using some program which uses libbzip2 as a\n"
 	    "component, you should also report this bug to the author(s)\n"
 	    "of that program.  Please make an effort to report this bug;\n"
 	    "timely and accurate bug reports eventually lead to higher\n"
-	    "quality software.  Thanks.  Julian Seward, 10 December 2007.\n\n",
-	    errcode,
-	    BZ2_bzlibVersion()
-	    );
+	    "quality software.  Thanks.  Julian Seward, 10 December 2007.\n\n", errcode, BZ2_bzlibVersion());
 
 	if(errcode == 1007) {
-		fprintf(stderr,
-		    "\n*** A special note about internal error number 1007 ***\n"
+		fprintf(stderr, "\n*** A special note about internal error number 1007 ***\n"
 		    "\n"
 		    "Experience suggests that a common cause of i.e. 1007\n"
 		    "is unreliable memory or other hardware.  The 1007 assertion\n"
@@ -78,13 +73,13 @@ void BZ2_bz__AssertH__fail(int errcode)
 }
 #endif
 
-static int bz_config_ok(void)
+/* @v10.7.12 (tested at slsess) static int bz_config_ok(void)
 {
 	if(sizeof(int)   != 4) return 0;
 	if(sizeof(short) != 2) return 0;
 	if(sizeof(char)  != 1) return 0;
 	return 1;
-}
+}*/
 
 static void * default_bzalloc(void * opaque, size_t items, size_t size)
 {
@@ -124,8 +119,7 @@ int BZ2_bzCompressInit(bz_stream* strm, int blockSize100k, int verbosity, int wo
 {
 	int32 n;
 	EState* s;
-	if(!bz_config_ok()) 
-		return BZ_CONFIG_ERROR;
+	// @v10.7.12 (tested at slsess) if(!bz_config_ok()) return BZ_CONFIG_ERROR;
 	if(strm == NULL || blockSize100k < 1 || blockSize100k > 9 || workFactor < 0 || workFactor > 250)
 		return BZ_PARAM_ERROR;
 	if(workFactor == 0) workFactor = 30;
@@ -425,7 +419,7 @@ int BZ2_bzCompressEnd(bz_stream *strm)
 int BZ2_bzDecompressInit(bz_stream* strm, int verbosity, int small)
 {
 	DState* s;
-	if(!bz_config_ok()) return BZ_CONFIG_ERROR;
+	// @v10.7.12 (tested at slsess) if(!bz_config_ok()) return BZ_CONFIG_ERROR;
 	if(strm == NULL) return BZ_PARAM_ERROR;
 	if(small != 0 && small != 1) return BZ_PARAM_ERROR;
 	if(verbosity < 0 || verbosity > 4) return BZ_PARAM_ERROR;
@@ -786,7 +780,8 @@ int BZ2_bzDecompress(bz_stream *strm)
 	if(s->strm != strm) 
 		return BZ_PARAM_ERROR;
 	while(true) {
-		if(s->state == BZ_X_IDLE) return BZ_SEQUENCE_ERROR;
+		if(s->state == BZ_X_IDLE) 
+			return BZ_SEQUENCE_ERROR;
 		if(s->state == BZ_X_OUTPUT) {
 			if(s->smallDecompress)
 				corrupt = unRLE_obuf_to_output_SMALL(s); 
@@ -1122,8 +1117,7 @@ int BZ2_bzRead(int * bzerror, BZFILE* b, void*   buf, int len)
 		;
 
 		if(bzf->strm.avail_in == 0 && !myfeof(bzf->handle)) {
-			n = fread(bzf->buf, sizeof(uchar),
-			    BZ_MAX_UNUSED, bzf->handle);
+			n = fread(bzf->buf, sizeof(uchar), BZ_MAX_UNUSED, bzf->handle);
 			if(ferror(bzf->handle)) {
 				BZ_SETERR(BZ_IO_ERROR); return 0;
 			}
@@ -1443,7 +1437,7 @@ static const char * bzerrorstrings[] = {
 const char * BZ2_bzerror(BZFILE *b, int * errnum)
 {
 	int err = static_cast<bzFile *>(b)->lastErr;
-	if(err>0) 
+	if(err > 0) 
 		err = 0;
 	*errnum = err;
 	return bzerrorstrings[err* -1];

@@ -31,7 +31,7 @@ int PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
 	if(cargoUnit == CARGOUNIT_PCKG)
 		src_val = pDlg->getCtrlReal(CtlPckgCount);
 	else if(cargoUnit == CARGOUNIT_PALLET)
-		src_val = (double)pDlg->getCtrlUInt16(CtlPalletCount);
+		src_val = static_cast<double>(pDlg->getCtrlUInt16(CtlPalletCount));
 	else if(cargoUnit == CARGOUNIT_ITEM)
 		src_val = pDlg->getCtrlReal(CtlQtty);
 	if(src_val < 0.0)

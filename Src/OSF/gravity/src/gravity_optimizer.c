@@ -38,8 +38,8 @@
 
 // MARK: -
 
-static bool hash_isequal(gravity_value_t v1, gravity_value_t v2) { return (v1.n == v2.n); }
-static uint32 hash_compute(gravity_value_t v) { return gravity_hash_compute_int(v.n); }
+static bool hash_isequal(GravityValue v1, GravityValue v2) { return (v1.n == v2.n); }
+static uint32 hash_compute(GravityValue v) { return gravity_hash_compute_int(v.n); }
 
 static void finalize_function(gravity_function_t * f, bool add_debug)
 {
@@ -65,17 +65,20 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 
 	// +1 is just a trick so the VM switch loop terminates with an implicit RET0 instruction (RET0 has opcode 0)
 	f->ninsts = ninst;
-	bytecode = (uint32 *)mem_alloc(NULL, (ninst+1) * sizeof(uint32));
-	if(add_debug) lineno = (uint32 *)mem_alloc(NULL, (ninst+1) * sizeof(uint32));
+	bytecode = static_cast<uint32 *>(mem_alloc(NULL, (ninst+1) * sizeof(uint32)));
+	if(add_debug) 
+		lineno = static_cast<uint32 *>(mem_alloc(NULL, (ninst+1) * sizeof(uint32)));
 	assert(bytecode);
 
 	uint32 j = 0;
 	for(uint32 i = 0; i<count; ++i) {
 		inst_t * inst = ircode_get(code, i);
-		if(IS_SKIP(inst)) continue;
-		if(IS_LABEL(inst)) continue;
-		if(IS_PRAGMA_MOVE_OPT(inst)) continue;
-
+		if(IS_SKIP(inst)) 
+			continue;
+		if(IS_LABEL(inst)) 
+			continue;
+		if(IS_PRAGMA_MOVE_OPT(inst)) 
+			continue;
 		uint32 op = 0x0;
 		switch(inst->op) {
 			case HALT:
@@ -83,7 +86,6 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			case NOP:
 			    OPCODE_SET(op, inst->op);
 			    break;
-
 			case LOAD:
 			case STORE:
 			    ++notpure; // not sure here
@@ -122,7 +124,7 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			    break;
 			case JUMPF: 
 				{
-					gravity_value_t * v = gravity_hash_lookup(labels, VALUE_FROM_INT(inst->p2));
+					GravityValue * v = gravity_hash_lookup(labels, VALUE_FROM_INT(inst->p2));
 					assert(v); // key MUST exists!
 					uint32 njump = (uint32)v->n;
 					uint32 bflag = inst->p3;
@@ -134,7 +136,7 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			    OPCODE_SET_ONE8bit(op, inst->op, inst->p1);
 			    break;
 			case JUMP: {
-			    gravity_value_t * v = gravity_hash_lookup(labels, VALUE_FROM_INT(inst->p1));
+			    GravityValue * v = gravity_hash_lookup(labels, VALUE_FROM_INT(inst->p1));
 			    assert(v); // key MUST exists!
 			    uint32 njump = (uint32)v->n;
 			    OPCODE_SET_ONE26bit(op, inst->op, njump);
@@ -502,10 +504,12 @@ loop_move:
 	optimizer = true;
 	for(uint32 i = 0; i<count; ++i) {
 		inst_t * inst = current_instruction(code, i);
-		if(IS_PRAGMA_MOVE_OPT(inst)) optimizer = LOGIC(inst->p1);
+		if(IS_PRAGMA_MOVE_OPT(inst)) 
+			optimizer = LOGIC(inst->p1);
 		if(optimizer && IS_MOVE(inst)) {
 			bool b = optimize_move_instruction(code, inst, i);
-			if(b) goto loop_move;
+			if(b) 
+				goto loop_move;
 		}
 	}
 loop_ret:
@@ -513,7 +517,8 @@ loop_ret:
 		inst_t * inst = current_instruction(code, i);
 		if(IS_RET(inst)) {
 			bool b = optimize_return_instruction(code, inst, i);
-			if(b) goto loop_ret;
+			if(b) 
+				goto loop_ret;
 		}
 	}
 	for(uint32 i = 0; i<count; ++i) {

@@ -17,8 +17,8 @@
 
 typedef struct hash_node_s {
 	uint32 hash;
-	gravity_value_t key;
-	gravity_value_t value;
+	GravityValue key;
+	GravityValue value;
 	struct hash_node_s      * next;
 } hash_node_t;
 
@@ -156,7 +156,7 @@ static inline uint32 murmur3_32(const char * key, uint32 len, uint32 seed)
 	return hash;
 }
 
-static void table_dump(gravity_hash_t * hashtable, gravity_value_t key, gravity_value_t value, void * data) {
+static void table_dump(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) {
     #pragma unused (hashtable, data)
 	const char * k = ((gravity_string_t*)key.p)->s;
 	printf("%-20s=>\t", k);
@@ -239,7 +239,7 @@ static /*inline*/int gravity_hash_resize(gravity_hash_t * hashtable)
 	return 0;
 }
 
-bool gravity_hash_remove(gravity_hash_t * hashtable, gravity_value_t key) 
+bool gravity_hash_remove(gravity_hash_t * hashtable, GravityValue key) 
 {
 	uint32 hash = hashtable->compute_fn(key);
 	uint32 position = hash % hashtable->size;
@@ -261,7 +261,7 @@ bool gravity_hash_remove(gravity_hash_t * hashtable, gravity_value_t key)
 	return false;
 }
 
-bool FASTCALL gravity_hash_insert(gravity_hash_t * hashtable, gravity_value_t key, gravity_value_t value) 
+bool FASTCALL gravity_hash_insert(gravity_hash_t * hashtable, GravityValue key, GravityValue value) 
 {
 	if(hashtable->count >= GRAVITYHASH_MAXENTRIES) 
 		return false;
@@ -298,7 +298,7 @@ bool FASTCALL gravity_hash_insert(gravity_hash_t * hashtable, gravity_value_t ke
 	return true;
 }
 
-gravity_value_t * FASTCALL gravity_hash_lookup(gravity_hash_t * hashtable, gravity_value_t key) 
+GravityValue * FASTCALL gravity_hash_lookup(gravity_hash_t * hashtable, GravityValue key) 
 {
 	uint32 hash = hashtable->compute_fn(key);
 	uint32 position = hash % hashtable->size;
@@ -311,7 +311,7 @@ gravity_value_t * FASTCALL gravity_hash_lookup(gravity_hash_t * hashtable, gravi
 	return NULL;
 }
 
-gravity_value_t * gravity_hash_lookup_cstring(gravity_hash_t * hashtable, const char * ckey) 
+GravityValue * gravity_hash_lookup_cstring(gravity_hash_t * hashtable, const char * ckey) 
 {
 	STATICVALUE_FROM_STRING(key, ckey, strlen(ckey));
 	return gravity_hash_lookup(hashtable, key);
@@ -429,18 +429,18 @@ bool gravity_hash_compare(gravity_hash_t * hashtable1, gravity_hash_t * hashtabl
 	gravity_value_r keys2; gravity_value_r values2;
 	marray_init(keys1); marray_init(values1);
 	marray_init(keys2); marray_init(values2);
-	marray_resize(gravity_value_t, keys1, hashtable1->count + MARRAY_DEFAULT_SIZE);
-	marray_resize(gravity_value_t, keys2, hashtable1->count + MARRAY_DEFAULT_SIZE);
-	marray_resize(gravity_value_t, values1, hashtable1->count + MARRAY_DEFAULT_SIZE);
-	marray_resize(gravity_value_t, values2, hashtable1->count + MARRAY_DEFAULT_SIZE);
+	marray_resize(GravityValue, keys1, hashtable1->count + MARRAY_DEFAULT_SIZE);
+	marray_resize(GravityValue, keys2, hashtable1->count + MARRAY_DEFAULT_SIZE);
+	marray_resize(GravityValue, values1, hashtable1->count + MARRAY_DEFAULT_SIZE);
+	marray_resize(GravityValue, values2, hashtable1->count + MARRAY_DEFAULT_SIZE);
 
 	// 2. build arrays of keys and values for hashtable1
 	for(uint32 i = 0; i<hashtable1->size; ++i) {
 		hash_node_t * node = hashtable1->nodes[i];
 		if(!node) continue;
 		while(node) {
-			marray_push(gravity_value_t, keys1, node->key);
-			marray_push(gravity_value_t, values1, node->value);
+			marray_push(GravityValue, keys1, node->key);
+			marray_push(GravityValue, values1, node->value);
 			node = node->next;
 		}
 	}
@@ -450,8 +450,8 @@ bool gravity_hash_compare(gravity_hash_t * hashtable1, gravity_hash_t * hashtabl
 		hash_node_t * node = hashtable2->nodes[i];
 		if(!node) continue;
 		while(node) {
-			marray_push(gravity_value_t, keys2, node->key);
-			marray_push(gravity_value_t, values2, node->value);
+			marray_push(GravityValue, keys2, node->key);
+			marray_push(GravityValue, values2, node->value);
 			node = node->next;
 		}
 	}

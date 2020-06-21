@@ -807,8 +807,9 @@ private:
 //
 //
 struct PPCycleFilt { // @size=4
-	void   SLAPI Init();
-	int    FASTCALL operator == (const PPCycleFilt s) const;
+	SLAPI  PPCycleFilt();
+	PPCycleFilt & SLAPI Z();
+	int    FASTCALL operator == (const PPCycleFilt & rS) const;
 	int    SLAPI operator !() const;
 	int16  Cycle;
 	int16  NumCycles;
@@ -41083,6 +41084,7 @@ struct OpGroupingFilt : public PPBaseFilt {
 };
 
 struct OpGroupingViewItem { // @flat
+	SLAPI  OpGroupingViewItem();
 	LDATE  Dt;
 	PPID   ObjectID;
 	PPID   OpID;
@@ -41151,7 +41153,7 @@ private:
 	int    SLAPI CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList); // @v9.8.4 TSArray-->TSVector
 	int    SLAPI AddStatItem(PPID opID, int sign, double val, uint si, TSCollection <OpGroupingStatEntry> * pList);
 	double SLAPI GetStatItem(int stat, PPID opID, int sign, uint si, const TSCollection <OpGroupingStatEntry> * pList);
-	int    SLAPI RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec);
+	void   SLAPI RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec);
 	int    SLAPI GetRecSign(const TempOpGrpngTbl::Rec *, int * pSign) const;
 
 	OpGroupingFilt Filt;

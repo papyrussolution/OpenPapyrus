@@ -226,17 +226,17 @@ static bool parse_skip_until(gravity_parser_t * parser, gtoken_t token)
 	return false;
 }
 
-static bool parse_required(gravity_parser_t * parser, gtoken_t token) 
+static bool FASTCALL parse_required(gravity_parser_t * parser, gtoken_t token) 
 {
 	if(parse_optional(parser, token)) 
 		return true;
 	// token not found (and not consumed) so an error strategy must be implemented here
-
+	//
 	// simple (but not simpler) error recovery
 	// parser should keep track of what I am parsing
 	// so based on tok I could have a token list of terminal symbols
 	// call next until first sync symbol (or EOF or start of another terminal symbol is found)
-
+	//
 	// simple error recovery, just consume next and report error
 	DECLARE_LEXER;
 	gtoken_t next = gravity_lexer_next(lexer);
@@ -415,46 +415,37 @@ static gliteral_t decode_number_hex(gtoken_s token, int64_t * n, double * d)
 
 // MARK: - Expressions -
 
-static gnode_t * parse_ternary_expression(gravity_parser_t * parser) {
+static gnode_t * parse_ternary_expression(gravity_parser_t * parser) 
+{
 	DEBUG_PARSER("parse_ternary_expression");
 	DECLARE_LEXER;
-
 	// conditional expression already parsed
 	gnode_t * cond = parser->current_node;
-	if(!cond) return NULL;
-
+	if(!cond) 
+		return NULL;
 	// '?' expression ':' expression
-
 	// '?' already consumed
 	gtoken_s token = gravity_lexer_token(lexer);
-
 	// parse expression 1
 	gnode_t * expr1 = parse_expression(parser);
 	CHECK_NODE(expr1);
-
 	parse_required(parser, TOK_OP_COLON);
-
 	// parse expression 2
 	gnode_t * expr2 = parse_expression(parser);
 	CHECK_NODE(expr2);
-
 	// read current token to extract node total length
 	gtoken_s end_token = gravity_lexer_token(lexer);
-
-	return gnode_flow_stat_create(token, cond, expr1, expr2, LAST_DECLARATION(),
-		   end_token.position + end_token.length - token.position);
+	return gnode_flow_stat_create(token, cond, expr1, expr2, LAST_DECLARATION(), end_token.position + end_token.length - token.position);
 }
 
-static gnode_t * parse_file_expression(gravity_parser_t * parser) {
+static gnode_t * parse_file_expression(gravity_parser_t * parser) 
+{
 	DEBUG_PARSER("parse_file_expression");
 	DECLARE_LEXER;
-
 	// at least one identifier is mandatory
 	// 'file' ('.' IDENTIFIER)+
-
 	gravity_lexer_next(lexer);
 	gtoken_s token = gravity_lexer_token(lexer);
-
 	if(gravity_lexer_peek(lexer) != TOK_OP_DOT) {
 		REPORT_ERROR(token, "A .identifier list is expected here.");
 		return NULL;
@@ -505,36 +496,30 @@ static const char * parse_optional_type_annotation(gravity_parser_t * parser)
 	return type_annotation;
 }
 
-static gnode_t * parse_optional_default_value(gravity_parser_t * parser) {
+static gnode_t * parse_optional_default_value(gravity_parser_t * parser) 
+{
 	DECLARE_LEXER;
-	gnode_t     * default_value = NULL;
+	gnode_t * default_value = NULL;
 	gtoken_t peek = gravity_lexer_peek(lexer);
-
 	// optional literal default value
 	// function foo (a: string = "Hello", b: number = 3)
 	// type annotation not enforced here
-
 	// check for optional default value
 	if(peek == TOK_OP_ASSIGN) {
 		gravity_lexer_next(lexer); // consume TOK_OP_ASSIGN
-
 		// parse literal value
 		default_value = parse_literal_expression(parser);
 	}
-
 	return default_value;
 }
 
 static gnode_t * parse_parentheses_expression(gravity_parser_t * parser) 
 {
 	DEBUG_PARSER("parse_parentheses_expression");
-	// check and consume TOK_OP_OPEN_PARENTHESIS
-	parse_required(parser, TOK_OP_OPEN_PARENTHESIS);
-	// parse expression
-	gnode_t * expr = parse_expression(parser);
+	parse_required(parser, TOK_OP_OPEN_PARENTHESIS); // check and consume TOK_OP_OPEN_PARENTHESIS
+	gnode_t * expr = parse_expression(parser); // parse expression
 	CHECK_NODE(expr);
-	// check and consume TOK_OP_CLOSED_PARENTHESIS
-	parse_required(parser, TOK_OP_CLOSED_PARENTHESIS);
+	parse_required(parser, TOK_OP_CLOSED_PARENTHESIS); // check and consume TOK_OP_CLOSED_PARENTHESIS
 	return expr;
 }
 
@@ -575,44 +560,40 @@ static gnode_t * parse_list_expression(gravity_parser_t * parser)
 	// parse first expression (if any) outside of the list/map loop
 	// in order to check if it is a list or map expression
 	gnode_t * expr1 = parse_expression(parser);
-
 	// if next token is a colon then assume a map
 	bool ismap = (gravity_lexer_peek(lexer) == TOK_OP_COLON);
-
 	// a list expression can be an array [expr1, expr2] or a map [string1: expr1, string2: expr2]
 	// cannot be mixed so be very restrictive here
-
 	gnode_r * list1 = gnode_array_create();
 	gnode_r * list2 = (ismap) ? gnode_array_create() : NULL;
-	if(expr1) gnode_array_push(list1, expr1);
-
+	if(expr1) 
+		gnode_array_push(list1, expr1);
 	if(ismap) {
 		parse_required(parser, TOK_OP_COLON);
 		gnode_t * expr2 = parse_expression(parser);
-		if(expr2) gnode_array_push(list2, expr2);
+		if(expr2) 
+			gnode_array_push(list2, expr2);
 	}
-
 	while(gravity_lexer_peek(lexer) == TOK_OP_COMMA) {
 		gravity_lexer_next(lexer); // consume TOK_OP_COMMA
-
 		// parse first expression
 		expr1 = parse_expression(parser);
-		if(expr1) gnode_array_push(list1, expr1);
-
+		if(expr1) 
+			gnode_array_push(list1, expr1);
 		if(ismap) {
 			parse_required(parser, TOK_OP_COLON);
 			gnode_t * expr2 = parse_expression(parser);
-			if(expr2) gnode_array_push(list2, expr2);
+			if(expr2) 
+				gnode_array_push(list2, expr2);
 		}
 	}
-
 	parse_required(parser, TOK_OP_CLOSED_SQUAREBRACKET);
 	return gnode_list_expr_create(token, list1, list2, ismap, LAST_DECLARATION());
 }
 
-static gnode_t * parse_function_expression(gravity_parser_t * parser) {
+static gnode_t * parse_function_expression(gravity_parser_t * parser) 
+{
 	DEBUG_PARSER("parse_function_expression");
-
 	// 'func' '(' parameter_declaration_clause? ')' compound_statement
 	// or
 	// compound_statement (implicit func and implicit parameters)
@@ -643,7 +624,8 @@ static gnode_t * parse_identifier_expression(gravity_parser_t * parser)
 	DEBUG_PARSER("parse_identifier_expression");
 	DECLARE_LEXER;
 	const char * identifier = parse_identifier(parser);
-	if(!identifier) return NULL;
+	if(!identifier) 
+		return NULL;
 	DEBUG_PARSER("IDENTIFIER: %s", identifier);
 	gtoken_s token = gravity_lexer_token(lexer);
 	return gnode_identifier_expr_create(token, identifier, NULL, LAST_DECLARATION());
@@ -662,7 +644,7 @@ static gnode_t * parse_identifier_or_keyword_expression(gravity_parser_t * parse
 		gtoken_t keyword = gravity_lexer_next(lexer);
 		gtoken_s token = gravity_lexer_token(lexer);
 		// convert from keyword to identifier
-		const char    * identifier = string_dup(token_name(keyword));
+		const char * identifier = string_dup(token_name(keyword));
 		return gnode_identifier_expr_create(token, identifier, NULL, LAST_DECLARATION());
 	}
 	// default case
@@ -699,12 +681,14 @@ static gnode_t * parse_number_expression(gravity_parser_t * parser, gtoken_s tok
 	}
 	// number is decimal (check if it is float)
 	bool isfloat = false;
-	for(uint32 i = 0; i<token.bytes; ++i) {
+	for(uint32 i = 0; i < token.bytes; ++i) {
 		if(value[i] == '.') {
-			isfloat = true; break;
+			isfloat = true; 
+			break;
 		}
 		if(value[i] == 'e') {
-			isfloat = true; break;
+			isfloat = true; 
+			break;
 		}
 	}
 	STATIC_TOKEN_CSTRING(str, MAX_NUMBER_LENGTH, len, buffer, token);
@@ -723,9 +707,12 @@ static gnode_t * parse_number_expression(gravity_parser_t * parser, gtoken_s tok
 		DEBUG_PARSER("INT: %lld", n);
 	}
 report_node:
-	if(type == LITERAL_FLOAT) return gnode_literal_float_expr_create(token, (double)d, LAST_DECLARATION());
-	else if(type == LITERAL_INT) return gnode_literal_int_expr_create(token, n, LAST_DECLARATION());
-	else assert(0);
+	if(type == LITERAL_FLOAT) 
+		return gnode_literal_float_expr_create(token, (double)d, LAST_DECLARATION());
+	else if(type == LITERAL_INT) 
+		return gnode_literal_int_expr_create(token, n, LAST_DECLARATION());
+	else 
+		assert(0);
 	return NULL;
 }
 
@@ -756,7 +743,7 @@ static gnode_t * parse_analyze_literal_string(gravity_parser_t * parser, gtoken_
 	// analyze s (of length len) for escaped characters or for interpolations
 	char * buffer = static_cast<char *>(mem_alloc(NULL, len+1));
 	uint32 length = 0;
-	for(uint32 i = 0; i<len;) {
+	for(uint32 i = 0; i < len;) {
 		int c = s[i];
 		if(c == '\\') {
 			// handle escape sequence here
@@ -825,8 +812,10 @@ static gnode_t * parse_analyze_literal_string(gravity_parser_t * parser, gtoken_
 				    bool subfound = false;
 				    while(i<len) {
 					    if(s[i] == ')') {
-						    if(nesting_level == 0) subfound = true;
-						    else --nesting_level;
+						    if(nesting_level == 0) 
+								subfound = true;
+						    else 
+								--nesting_level;
 					    }
 					    else if(s[i] == '(') {
 						    ++nesting_level;
@@ -838,36 +827,28 @@ static gnode_t * parse_analyze_literal_string(gravity_parser_t * parser, gtoken_
 					    REPORT_ERROR(token, "Malformed interpolation string not closed by )");
 					    goto return_string;
 				    }
-
 				    uint32 sublen = i - j;
-
 				    // create a new temp lexer
-				    gravity_lexer_t    * sublexer = gravity_lexer_create(&s[j], sublen, 0, true);
+				    gravity_lexer_t * sublexer = gravity_lexer_create(&s[j], sublen, 0, true);
 				    marray_push(gravity_lexer_t*, *parser->lexer, sublexer);
-
 				    // parse interpolated expression
 				    gnode_t * subnode = parse_expression(parser);
-
 				    // add expression to r
 				    if(subnode) {
 					    // subnode contains information from a temp lexer so let's fix it
 					    patch_token_node(subnode, token);
-
-					    if(!r) r = gnode_array_create();
-					    if(length) gnode_array_push(r,
-							gnode_literal_string_expr_create(token, buffer, length, true,
-							LAST_DECLARATION()));
+						SETIFZ(r, gnode_array_create());
+					    if(length) 
+							gnode_array_push(r, gnode_literal_string_expr_create(token, buffer, length, true, LAST_DECLARATION()));
 					    gnode_array_push(r, subnode);
 				    }
-
 				    // free temp lexer
 				    marray_pop(*parser->lexer);
 				    gravity_lexer_free(sublexer);
-				    if(!subnode) goto return_string;
-
-				    buffer = (char *)mem_alloc(NULL, len+1);
+				    if(!subnode) 
+						goto return_string;
+				    buffer = static_cast<char *>(mem_alloc(NULL, len+1));
 				    length = 0;
-
 				    continue;
 			    }
 				default:
@@ -902,7 +883,7 @@ gnode_t * parse_literal_expression(gravity_parser_t * parser)
 		return parse_analyze_literal_string(parser, token, value, len);
 	}
 	if(oneof2(type, TOK_KEY_TRUE, TOK_KEY_FALSE)) {
-		return gnode_literal_bool_expr_create(token, (int32)(type == TOK_KEY_TRUE) ? 1 : 0, LAST_DECLARATION());
+		return gnode_literal_bool_expr_create(token, (int32)BIN(type == TOK_KEY_TRUE), LAST_DECLARATION());
 	}
 	if(type != TOK_NUMBER) {
 		REPORT_ERROR(token, "Expected literal expression but found %s.", token_name(type));
@@ -959,11 +940,10 @@ static gnode_r * parse_arguments_expression(gravity_parser_t * parser)
 				REPORT_ERROR(gravity_lexer_token_next(lexer), "Missing , in function call.");
 				return list;
 			}
-
 			// parse expression
 			gnode_t * expr = parse_expression(parser);
-			if(expr) gnode_array_push(list, expr);
-
+			if(expr) 
+				gnode_array_push(list, expr);
 			// consume next TOK_OP_COMMA and check for special ,) case
 			peek = gravity_lexer_peek(lexer);
 			if(peek == TOK_OP_COMMA) {
@@ -971,35 +951,29 @@ static gnode_r * parse_arguments_expression(gravity_parser_t * parser)
 				if(gravity_lexer_peek(lexer) == TOK_OP_CLOSED_PARENTHESIS)
 					gnode_array_push(list, gnode_keyword_expr_create(UNDEF_TOKEN, LAST_DECLARATION()));
 			}
-
 			// arg is expected only if a comma is consumed
 			// this fixes syntax errors like System.print("Hello" " World")
 			arg_expected = (peek == TOK_OP_COMMA);
 		}
-
 		++index;
 	}
-
 	return list;
 }
 
-static gnode_t * parse_postfix_expression(gravity_parser_t * parser, gtoken_t tok) {
+static gnode_t * parse_postfix_expression(gravity_parser_t * parser, gtoken_t tok) 
+{
 	DEBUG_PARSER("parse_postfix_expression");
 	DECLARE_LEXER;
-
 	// '[' assignment_expression ']' => Subscript operator
 	// '(' expression_list? ')' => Function call operator
 	// '.' IDENTIFIER => Member access operator
-
 	// tok already consumed and used to identify postfix sub-expression
 	gnode_t * lnode = parser->current_node;
 	gtoken_s token = gravity_lexer_token(lexer);
-
 	// a postfix expression is an expression followed by a list of other expressions (separated by specific tokens)
 	gnode_r * list = gnode_array_create();
 	while(1) {
 		gnode_t * node = NULL;
-
 		if(tok == TOK_OP_OPEN_SQUAREBRACKET) {
 			gnode_t * expr = parse_expression(parser);
 			gtoken_s subtoken = gravity_lexer_token(lexer);
@@ -1024,24 +998,21 @@ static gnode_t * parse_postfix_expression(gravity_parser_t * parser, gtoken_t to
 			// should never reach this point
 			assert(0);
 		}
-
 		// add subnode to list
 		gnode_array_push(list, node);
-
 		// check if postifx expression has more sub-nodes
 		gtoken_t peek = gravity_lexer_peek(lexer);
 		if((peek != TOK_OP_OPEN_SQUAREBRACKET) && (peek != TOK_OP_OPEN_PARENTHESIS) && (peek != TOK_OP_DOT)) break;
 		tok = gravity_lexer_next(lexer);
 	}
-
 	return gnode_postfix_expr_create(token, lnode, list, LAST_DECLARATION());
 }
 
-static gnode_t * parse_postfix_subscript(gravity_parser_t * parser) {
+static gnode_t * parse_postfix_subscript(gravity_parser_t * parser) 
+{
 	// NOTE:
 	// Gravity does not support a syntax like m[1,2] for matrix access (not m[1,2,3])
 	// but it supports a syntax like m[1][2] (or m[1][2][3])
-
 	DEBUG_PARSER("parse_postfix_subscript");
 	return parse_postfix_expression(parser, TOK_OP_OPEN_SQUAREBRACKET);
 }
@@ -1064,11 +1035,10 @@ static gnode_t * parse_precedence(gravity_parser_t * parser, prec_level preceden
 	DECLARE_LEXER;
 	// peek next and check for EOF
 	gtoken_t type = gravity_lexer_peek(lexer);
-	if(type == TOK_EOF) return NULL;
-
+	if(type == TOK_EOF) 
+		return NULL;
 	// execute prefix callback (if any)
 	parse_func prefix = rules[type].prefix;
-
 	// to protect stack from excessive recursion
 	if(prefix && (++parser->expr_depth > MAX_EXPRESSION_DEPTH)) {
 		// consume next token to avoid infinite loops
@@ -1077,33 +1047,30 @@ static gnode_t * parse_precedence(gravity_parser_t * parser, prec_level preceden
 		return NULL;
 	}
 	gnode_t * node = (prefix) ? prefix(parser) : NULL;
-	if(prefix) --parser->expr_depth;
-
+	if(prefix) 
+		--parser->expr_depth;
 	if(!prefix || !node) {
 		// we need to consume next token because error was triggered in peek
 		gravity_lexer_next(lexer);
 		REPORT_ERROR(gravity_lexer_token(lexer), "Expected expression but found %s.", token_name(type));
 		return NULL;
 	}
-
 	// peek next and check for EOF
 	gtoken_t peek = gravity_lexer_peek(lexer);
-	if(peek == TOK_EOF) return node;
-
-	while(precedence < rules[peek].precedence) {
-		gtoken_t tok = gravity_lexer_next(lexer);
-		grammar_rule * rule = &rules[tok];
-
-		// execute infix callback
-		parser->current_token = tok;
-		parser->current_node = node;
-		node = rule->infix(parser);
-
-		// peek next and check for EOF
-		peek = gravity_lexer_peek(lexer);
-		if(peek == TOK_EOF) break;
+	if(peek != TOK_EOF) {
+		while(precedence < rules[peek].precedence) {
+			gtoken_t tok = gravity_lexer_next(lexer);
+			grammar_rule * rule = &rules[tok];
+			// execute infix callback
+			parser->current_token = tok;
+			parser->current_node = node;
+			node = rule->infix(parser);
+			// peek next and check for EOF
+			peek = gravity_lexer_peek(lexer);
+			if(peek == TOK_EOF) 
+				break;
+		}
 	}
-
 	return node;
 }
 
@@ -1152,7 +1119,6 @@ static gnode_t * adjust_assignment_expression(gravity_parser_t * parser, gtoken_
 	// a &= 1    => a = a & 1
 	// a |= 1    => a = a | 1
 	// a ^= 1    => a = a ^ 1
-
 	gtoken_t t;
 	switch(tok) {
 		case TOK_OP_MUL_ASSIGN: t = TOK_OP_MUL; break;
@@ -1165,20 +1131,15 @@ static gnode_t * adjust_assignment_expression(gravity_parser_t * parser, gtoken_
 		case TOK_OP_BIT_AND_ASSIGN: t = TOK_OP_BIT_AND; break;
 		case TOK_OP_BIT_OR_ASSIGN: t = TOK_OP_BIT_OR; break;
 		case TOK_OP_BIT_XOR_ASSIGN: t = TOK_OP_BIT_XOR; break;
-
-		// should never reach this point
-		default: assert(0); break;
+		default: assert(0); break; // should never reach this point
 	}
-
-	// duplicate node is mandatory here, otherwise the deallocator will try to free memory occopied by the same node
-	// twice
+	// duplicate node is mandatory here, otherwise the deallocator will try to free memory occopied by the same node twice
 	gnode_t * duplicate = gnode_duplicate(lnode, true);
 	if(!duplicate) {
 		DECLARE_LEXER; REPORT_ERROR(gravity_lexer_token(lexer), "An unexpected error occurred in %s", token_name(tok)); return NULL;
 	}
 	rnode = gnode_binary_expr_create(t, duplicate, rnode, LAST_DECLARATION());
 	tok = TOK_OP_ASSIGN;
-
 	// its an assignment expression so switch the order
 	return gnode_binary_expr_create(tok, lnode, rnode, LAST_DECLARATION());
 }
@@ -1409,18 +1370,17 @@ loop:
 	// Aaron: I would keep it consistent, even if it's not strictly required.
 	// Otherwise we end up with all of JavaScript's terrible ideas. ;-)
 	// So I would require the semicolon at the end of any assignment statement.
-	if(isstatement) parse_semicolon(parser);
-
+	if(isstatement) 
+		parse_semicolon(parser);
 	// finish to setup declaration
 	node->decls = decls;
-
 	return (gnode_t *)node;
 }
 
-static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) {
+static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) 
+{
 	DEBUG_PARSER("parse_enum_declaration");
 	DECLARE_LEXER;
-
 	// enum is a bit different than the traditional C like enum statements
 	// in Gravity enum can contains String, Integer, Boolean and Float BUT cannot be mixed
 	// Integer case can also skip values and autoincrement will be applied
@@ -1447,32 +1407,21 @@ static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t acce
 	gtoken_t type = gravity_lexer_next(lexer);
 	gtoken_s token = gravity_lexer_token(lexer);
 	assert(type == TOK_KEY_ENUM);
-
 	// parse IDENTIFIER
 	const char * identifier = parse_identifier(parser);
 	DEBUG_PARSER("parse_enum_declaration %s", identifier);
-
 	// check and consume TOK_OP_OPEN_CURLYBRACE
 	parse_required(parser, TOK_OP_OPEN_CURLYBRACE);
-
-	symboltable_t   * symtable = symboltable_create(SYMTABLE_TAG_ENUM);// enum symbol table (symtable is OK because
-	                                                                  // order is not important inside an enum)
+	symboltable_t   * symtable = symboltable_create(SYMTABLE_TAG_ENUM);// enum symbol table (symtable is OK because order is not important inside an enum)
 	int64_t enum_autoint = 0;           // autoincrement value (in case of INT enum)
 	uint32 enum_counter = 0;          // enum internal counter (first value (if any) determines enum type)
 	gliteral_t enum_type = LITERAL_INT; // enum type (default to int)
-
 	// create enum node
-	gnode_enum_decl_t * node = (gnode_enum_decl_t*)gnode_enum_decl_create(token,
-		identifier,
-		access_specifier,
-		storage_specifier,
-		symtable,
-		LAST_DECLARATION());
-
+	gnode_enum_decl_t * node = (gnode_enum_decl_t*)gnode_enum_decl_create(token, identifier, access_specifier, storage_specifier, symtable, LAST_DECLARATION());
 	while(1) {
 		// check for empty enum
-		if(gravity_lexer_peek(lexer) == TOK_OP_CLOSED_CURLYBRACE) break;
-
+		if(gravity_lexer_peek(lexer) == TOK_OP_CLOSED_CURLYBRACE) 
+			break;
 		// identifier is mandatory here
 		const char * enum_id = NULL;
 		gtoken_t peek = gravity_lexer_peek(lexer);
@@ -1504,7 +1453,6 @@ static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t acce
 			gravity_lexer_next(lexer); // consume ASSIGNMENT
 			enum_value = (gnode_base_t *)parse_expression(parser);
 		}
-
 		if(enum_value) {
 			// make sure that value is a literal (or a unary expression like +num or -num)
 			gnode_literal_expr_t * enum_literal = NULL;
@@ -1514,18 +1462,15 @@ static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t acce
 			else if(enum_value->base.tag == NODE_UNARY_EXPR) {
 				gnode_unary_expr_t * unary = (gnode_unary_expr_t*)enum_value;
 				gnode_base_t * expr = (gnode_base_t *)unary->expr;
-
 				// sanity check on unary expression
 				if(expr->base.tag != NODE_LITERAL_EXPR) {
 					REPORT_ERROR(enum_token, "Literal value expected here.");
 					continue;
 				}
-
 				if((unary->op != TOK_OP_SUB) && (unary->op != TOK_OP_ADD)) {
 					REPORT_ERROR(enum_token, "Only + or - allowed in enum value definition.");
 					continue;
 				}
-
 				enum_literal = (gnode_literal_expr_t *)expr;
 				if((enum_literal->type != LITERAL_FLOAT) && (enum_literal->type != LITERAL_INT)) {
 					REPORT_ERROR(enum_token, "A number is expected after a + or - unary expression in an enum definition.");
@@ -1552,19 +1497,15 @@ static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t acce
 				REPORT_ERROR(enum_token, "Literal value expected here.");
 				continue;
 			}
-
 			// first assignment (if any) determines enum type, otherwise default INT case is assumed
 			if(enum_counter == 0) {
-				if(enum_literal->type == LITERAL_STRING) enum_type = LITERAL_STRING;
-				else if(enum_literal->type == LITERAL_FLOAT) enum_type = LITERAL_FLOAT;
-				else if(enum_literal->type == LITERAL_BOOL) enum_type = LITERAL_BOOL;
+				if(oneof3(enum_literal->type, LITERAL_STRING, LITERAL_FLOAT, LITERAL_BOOL))
+					enum_type = enum_literal->type;
 			}
-
 			// check if literal value conforms to enum type
 			if(enum_literal->type != enum_type) {
 				REPORT_ERROR(enum_token, "Literal value of type %s expected here.", token_literal_name(enum_type));
 			}
-
 			// update enum_autoint value to next value
 			if(enum_literal->type == LITERAL_INT) {
 				enum_autoint = enum_literal->value.n64 + 1;
@@ -1574,32 +1515,22 @@ static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t acce
 			enum_value = (gnode_base_t *)gnode_literal_int_expr_create(NO_TOKEN, enum_autoint, LAST_DECLARATION());
 			++enum_autoint;
 		}
-
-		// update internal enum counter
-		++enum_counter;
-
+		++enum_counter; // update internal enum counter
 		// enum identifier could be NULL due to an already reported error
 		if(enum_id) {
 			if(!symboltable_insert(symtable, enum_id, (gnode_t *)enum_value)) {
 				REPORT_ERROR(enumid_token, "Identifier %s redeclared.", enum_id);
-				gnode_free((gnode_t *)enum_value); // free value here because it has not beed saved into
-				                                  // symbol table
+				gnode_free((gnode_t *)enum_value); // free value here because it has not beed saved into symbol table
 			}
 			mem_free(enum_id); // because key is duplicated inside internal hash table
 		}
-
 		peek = gravity_lexer_peek(lexer);
-		if(peek != TOK_OP_COMMA) break;
-
-		// consume TOK_OP_COMMA and continue loop
-		gravity_lexer_next(lexer);
+		if(peek != TOK_OP_COMMA) 
+			break;
+		gravity_lexer_next(lexer); // consume TOK_OP_COMMA and continue loop
 	}
-
-	// check and consume TOK_OP_CLOSED_CURLYBRACE
-	parse_required(parser, TOK_OP_CLOSED_CURLYBRACE);
-
-	// consume semicolon
-	parse_semicolon(parser);
+	parse_required(parser, TOK_OP_CLOSED_CURLYBRACE); // check and consume TOK_OP_CLOSED_CURLYBRACE
+	parse_semicolon(parser); // consume semicolon
 
 	// check for empty enum (not allowed)
 	if(enum_counter == 0) {
@@ -1615,12 +1546,11 @@ static gnode_t * parse_enum_declaration(gravity_parser_t * parser, gtoken_t acce
 	return (gnode_t *)node;
 }
 
-static gnode_t * parse_module_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) {
+static gnode_t * parse_module_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) 
+{
 	DEBUG_PARSER("parse_module_declaration");
-
 	// module parsed but not yet supported
 	// 'module' IDENTIFIER '{' declaration_statement* '}' ';'
-
 	// optional scope already consumed
 	DECLARE_LEXER;
 	gtoken_t type = gravity_lexer_next(lexer);
@@ -1657,7 +1587,8 @@ static gnode_t * parse_module_declaration(gravity_parser_t * parser, gtoken_t ac
 	return node;
 }
 
-static gnode_t * parse_event_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) {
+static gnode_t * parse_event_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) 
+{
     #pragma unused(parser, access_specifier, storage_specifier)
 
 	// 'event' IDENTIFIER '(' parameter_declaration_clause? ')' ';'
@@ -1672,7 +1603,8 @@ static gnode_t * parse_event_declaration(gravity_parser_t * parser, gtoken_t acc
 	return NULL;
 }
 
-static gnode_t * parse_function_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) {
+static gnode_t * parse_function_declaration(gravity_parser_t * parser, gtoken_t access_specifier, gtoken_t storage_specifier) 
+{
 	// convert a function declaration within another function to a local variable assignment
 	// for example:
 	//
@@ -1699,58 +1631,52 @@ static gnode_t * parse_function_declaration(gravity_parser_t * parser, gtoken_t 
 	return node;
 }
 
-static gnode_t * parse_id(gravity_parser_t * parser) {
+static gnode_t * parse_id(gravity_parser_t * parser) 
+{
 	DECLARE_LEXER;
 	const char    * identifier1 = NULL;
 	const char    * identifier2 = NULL;
 	gtoken_t peek;
 	gtoken_s token;
-
 	// IDENTIFIER |    (IDENTIFIER)('.' IDENTIFIER)
-
 	DEBUG_PARSER("parse_id");
-
 	identifier1 = parse_identifier(parser);
-
 	token = gravity_lexer_token(lexer);
 	peek = gravity_lexer_peek(lexer);
 	if(peek == TOK_OP_DOT) {
 		gravity_lexer_next(lexer); // consume TOK_OP_DOT
 		identifier2 = parse_identifier(parser);
 	}
-
 	DEBUG_PARSER("ID: %s %s", identifier1, (identifier2) ? identifier2 : "");
 	return gnode_identifier_expr_create(token, identifier1, identifier2, LAST_DECLARATION());
 }
 
-static gnode_r * parse_protocols(gravity_parser_t * parser) {
+static gnode_r * parse_protocols(gravity_parser_t * parser) 
+{
 	DECLARE_LEXER;
 	gtoken_t peek;
 	gnode_t     * node = NULL;
 	gnode_r     * list = NULL;
-
 	// (id) (',' id)*
-
 	peek = gravity_lexer_peek(lexer);
-	if(peek == TOK_OP_GREATER) return NULL; // just an empty protocols implementation statement
-
+	if(peek == TOK_OP_GREATER) 
+		return NULL; // just an empty protocols implementation statement
 	list = gnode_array_create();
-
 loop:
-	if(!token_isidentifier(peek)) goto abort;
+	if(!token_isidentifier(peek)) 
+		goto abort;
 	node = parse_id(parser);
-	if(node) gnode_array_push(list, node);
-
+	if(node) 
+		gnode_array_push(list, node);
 	peek = gravity_lexer_peek(lexer);
 	if(peek == TOK_OP_COMMA) {
 		gravity_lexer_next(lexer); // consume TOK_OP_COMMA
 		goto loop;
 	}
-
 	return list;
-
 abort:
-	if(list) gnode_array_free(list);
+	if(list) 
+		gnode_array_free(list);
 	return NULL;
 }
 
@@ -1929,22 +1855,20 @@ static gnode_t * parse_unittest_macro(gravity_parser_t * parser)
 	//        result: LITERAL;
 	// '}' ';'?
 
-	gnode_literal_expr_t    * name_node = NULL;
-	gnode_literal_expr_t    * note_node = NULL;
-	gnode_identifier_expr_t    * err_node = NULL;
-	gnode_literal_expr_t    * row_node = NULL;
-	gnode_literal_expr_t    * col_node = NULL;
-	gnode_literal_expr_t    * value_node = NULL;
-
+	gnode_literal_expr_t * name_node = NULL;
+	gnode_literal_expr_t * note_node = NULL;
+	gnode_identifier_expr_t * err_node = NULL;
+	gnode_literal_expr_t * row_node = NULL;
+	gnode_literal_expr_t * col_node = NULL;
+	gnode_literal_expr_t * value_node = NULL;
 	parse_required(parser, TOK_OP_OPEN_CURLYBRACE);
 	while(gravity_lexer_peek(lexer) != TOK_OP_CLOSED_CURLYBRACE) {
 		const char    * id = parse_identifier(parser);
-		if(id == NULL) goto handle_error;
+		if(id == NULL) 
+			goto handle_error;
 		parse_required(parser, TOK_OP_COLON);
-
 		unittest_t type = parse_unittest_identifier(id);
 		mem_free(id);
-
 		if(type == UNITTEST_NAME) {
 			name_node = (gnode_literal_expr_t *)parse_literal_expression(parser);
 			if(name_node == NULL) goto handle_error;
@@ -1968,9 +1892,8 @@ static gnode_t * parse_unittest_macro(gravity_parser_t * parser)
 		else if(type == UNITTEST_RESULT) {
 			gtoken_t op = TOK_EOF;
 			gtoken_t peek = gravity_lexer_peek(lexer);
-
 			// check if peek is a + or - sign
-			if((peek == TOK_OP_SUB) || (peek == TOK_OP_ADD))
+			if(oneof2(peek, TOK_OP_SUB, TOK_OP_ADD))
 				op = gravity_lexer_next(lexer);
 			else if(peek == TOK_KEY_NULL) {
 				// an expected return value can now be keyword NULL
@@ -1978,15 +1901,16 @@ static gnode_t * parse_unittest_macro(gravity_parser_t * parser)
 				value_node = NULL;
 				goto handle_continue;
 			}
-
 			value_node = (gnode_literal_expr_t *)parse_literal_expression(parser);
-			if(value_node == NULL) goto handle_error;
-
+			if(value_node == NULL) 
+				goto handle_error;
 			// if a negative sign has been parsed then manually fix the literal expression (if it is a
 			// number)
 			if(op == TOK_OP_SUB) {
-				if(value_node->type == LITERAL_INT) value_node->value.n64 = -value_node->value.n64;
-				else if(value_node->type == LITERAL_FLOAT) value_node->value.d = -value_node->value.d;
+				if(value_node->type == LITERAL_INT) 
+					value_node->value.n64 = -value_node->value.n64;
+				else if(value_node->type == LITERAL_FLOAT) 
+					value_node->value.d = -value_node->value.d;
 			}
 		}
 		else {
@@ -2007,7 +1931,7 @@ handle_continue:
 		char buffer[1024];
 		char buffer2[1024];
 		GravityErrorType expected_error = GRAVITY_ERROR_NONE;
-		gravity_value_t expected_value = VALUE_FROM_NULL;
+		GravityValue expected_value = VALUE_FROM_NULL;
 		int32 expected_nrow = -1;
 		int32 expected_ncol = -1;
 		// unittest name should be a literal string

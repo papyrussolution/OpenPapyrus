@@ -1118,7 +1118,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		if(Filt.Period.low) {
 			PPViewAccAnlz temp_view;
 			AccAnlzFilt temp_filt = Filt;
-			temp_filt.Cycl.Init();
+			temp_filt.Cycl.Z();
 			temp_filt.Period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
 			temp_filt.Flags |= AccAnlzFilt::fTotalOnly;
 			THROW(temp_view.Init_(&temp_filt));
@@ -1230,7 +1230,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 				temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
 				temp_flt.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
 				temp_flt.Aco    = ACO_3;
-				temp_flt.Cycl.Init();
+				temp_flt.Cycl.Z();
 				if(IsGenAcc) {
 					temp_flt.AccID = Filt.AccID;
 					temp_flt.SingleArID = r_acr_rec.ArticleID;
@@ -1307,7 +1307,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		PPViewAccAnlz temp_view;
 		AccAnlzFilt   temp_flt = Filt;
 		temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
-		temp_flt.Cycl.Init();
+		temp_flt.Cycl.Z();
 		THROW(P_TmpATTbl = CreateTempATFile());
 		{
 			BExtInsert bei(P_TmpATTbl);
@@ -1429,7 +1429,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 				if(Filt.Period.low) {
 					PPIDArray loc_list;
 					AccAnlzFilt temp_filt = Filt;
-					temp_filt.Cycl.Init();
+					temp_filt.Cycl.Z();
 					temp_filt.Period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
 					temp_filt.Flags &= ~AccAnlzFilt::fGroupByCorAcc;
 					temp_filt.Flags |= AccAnlzFilt::fTotalOnly;
@@ -1904,7 +1904,7 @@ int SLAPI PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 						}
 						if(ok != 0) {
 							flt.Flags &= ~(AccAnlzFilt::fGroupByCorAcc | AccAnlzFilt::fTrnovrBySheet);
-							flt.Cycl.Init();
+							flt.Cycl.Z();
 							ok = ViewAccAnlz(&flt, aakndGeneric) ? -1 : 0;
 						}
 						else

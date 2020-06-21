@@ -31,8 +31,26 @@ static void FASTCALL xmlURIErrMemory(const char * extra)
 	else
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_URI, XML_ERR_NO_MEMORY, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "Memory allocation failed\n");
 }
-
-static void FASTCALL xmlCleanURI(xmlURI * uri);
+/**
+ * xmlCleanURI:
+ * @uri:  pointer to an xmlURI
+ *
+ * Make sure the xmlURI struct is free of content
+ */
+static void FASTCALL xmlCleanURI(xmlURI * uri)
+{
+	if(uri) {
+		ZFREE(uri->scheme);
+		ZFREE(uri->server);
+		ZFREE(uri->user);
+		ZFREE(uri->path);
+		ZFREE(uri->fragment);
+		ZFREE(uri->opaque);
+		ZFREE(uri->authority);
+		ZFREE(uri->query);
+		ZFREE(uri->query_raw);
+	}
+}
 /*
  * Old rule from 2396 used in legacy handling code
  * alpha    = lowalpha | upalpha
@@ -99,11 +117,8 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *  sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
  *                / "*" / "+" / "," / ";" / "="
  */
-#define ISA_SUB_DELIM(p)						\
-	(((*(p) == '!')) || ((*(p) == '$')) || ((*(p) == '&')) ||	  \
-	    ((*(p) == '(')) || ((*(p) == ')')) || ((*(p) == '*')) ||	     \
-	    ((*(p) == '+')) || ((*(p) == ',')) || ((*(p) == ';')) ||	     \
-	    ((*(p) == '=')) || ((*(p) == '\'')))
+#define ISA_SUB_DELIM(p) (((*(p) == '!')) || ((*(p) == '$')) || ((*(p) == '&')) ||	  \
+	    ((*(p) == '(')) || ((*(p) == ')')) || ((*(p) == '*')) || ((*(p) == '+')) || ((*(p) == ',')) || ((*(p) == ';')) || ((*(p) == '=')) || ((*(p) == '\'')))
 
 /*
  *  gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
@@ -138,21 +153,24 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  */
 static int xmlParse3986Scheme(xmlURI * uri, const char ** str)
 {
-	const char * cur;
 	if(!str)
 		return -1;
-	cur = *str;
-	if(!ISA_ALPHA(cur))
-		return (2);
-	cur++;
-	while(ISA_ALPHA(cur) || ISA_DIGIT(cur) || oneof3(*cur, '+', '-', '.'))
-		cur++;
-	if(uri) {
-		SAlloc::F(uri->scheme);
-		uri->scheme = STRNDUP(*str, cur - *str);
+	else {
+		const char * cur = *str;
+		if(!ISA_ALPHA(cur))
+			return (2);
+		else {
+			cur++;
+			while(ISA_ALPHA(cur) || ISA_DIGIT(cur) || oneof3(*cur, '+', '-', '.'))
+				cur++;
+			if(uri) {
+				SAlloc::F(uri->scheme);
+				uri->scheme = STRNDUP(*str, cur - *str);
+			}
+			*str = cur;
+			return 0;
+		}
 	}
-	*str = cur;
-	return 0;
 }
 /**
  * xmlParse3986Fragment:
@@ -209,10 +227,7 @@ static int xmlParse3986Query(xmlURI * uri, const char ** str)
 			NEXT(cur);
 		if(uri) {
 			SAlloc::F(uri->query);
-			if(uri->cleanup & 2)
-				uri->query = STRNDUP(*str, cur - *str);
-			else
-				uri->query = xmlURIUnescapeString(*str, cur - *str, 0);
+			uri->query = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
 			// Save the raw bytes of the query as well.
 			// See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
 			SAlloc::F(uri->query_raw);
@@ -817,9 +832,9 @@ xmlURI * xmlParseURI(const char * str)
  *
  * Returns 0 or the error code
  */
-int xmlParseURIReference(xmlURI * uri, const char * str)
+int FASTCALL xmlParseURIReference(xmlURI * uri, const char * str)
 {
-	return (xmlParse3986URIReference(uri, str));
+	return xmlParse3986URIReference(uri, str);
 }
 /**
  * xmlParseURIRaw:
@@ -1172,26 +1187,6 @@ void xmlPrintURI(FILE * stream, xmlURI * uri)
 	if(out) {
 		fprintf(stream, "%s", (char *)out);
 		SAlloc::F(out);
-	}
-}
-/**
- * xmlCleanURI:
- * @uri:  pointer to an xmlURI
- *
- * Make sure the xmlURI struct is free of content
- */
-static void FASTCALL xmlCleanURI(xmlURI * uri)
-{
-	if(uri) {
-		ZFREE(uri->scheme);
-		ZFREE(uri->server);
-		ZFREE(uri->user);
-		ZFREE(uri->path);
-		ZFREE(uri->fragment);
-		ZFREE(uri->opaque);
-		ZFREE(uri->authority);
-		ZFREE(uri->query);
-		ZFREE(uri->query_raw);
 	}
 }
 /**
@@ -1640,7 +1635,7 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
  *
  * Returns a new URI string (to be freed by the caller) or NULL in case of error.
  */
-xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
+xmlChar * FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 {
 	xmlChar * val = NULL;
 	int ret, len, indx, cur, out;

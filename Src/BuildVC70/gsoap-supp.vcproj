@@ -26,7 +26,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -83,7 +83,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -138,7 +138,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -195,7 +195,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -250,7 +250,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -307,7 +307,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WITH_OPENSSL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -354,7 +354,7 @@
 			ConfigurationType="4">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL\include"/>
+				AdditionalIncludeDirectories="..\include;..\osf\OpenSSL-111\include"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

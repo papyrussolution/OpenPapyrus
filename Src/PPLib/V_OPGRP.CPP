@@ -5,6 +5,11 @@
 #include <pp.h>
 #pragma hdrstop
 
+SLAPI OpGroupingViewItem::OpGroupingViewItem()
+{
+	THISZERO();
+}
+
 IMPLEMENT_PPFILT_FACTORY(OpGrouping); SLAPI OpGroupingFilt::OpGroupingFilt() : PPBaseFilt(PPFILT_OPGROUPING, 0, 1)
 {
 	SetFlatChunk(offsetof(OpGroupingFilt, ReserveStart),
@@ -228,7 +233,7 @@ int SLAPI PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 					TempOpGrpngTbl::Rec rec;
 					// @v10.6.4 MEMSZERO(rec);
 					OpGroupingViewItem item;
-					MEMSZERO(item);
+					// @v10.7.12 @ctr MEMSZERO(item);
 					rec.OpID = op_id;
 					rec.Sign = sign;
 					rec.Dt = Filt.Period.low;
@@ -341,14 +346,24 @@ int SLAPI PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * p
 	else if(op_id == 10000)
 		sign = -1;
 	else {
-		int    op_type = GetOpType(op_id);
+		PPOprKind op_rec;
+		int    op_type = GetOpType(op_id, &op_rec);
 		if(op_type == PPOPT_GOODSMODIF)
 			sign = NZOR(pRec->Sign, +1);
 		else {
-			int    intr = IsIntrOp(op_id);
-			if(oneof4(op_type, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL) || intr) {
-				sign = (IsExpendOp(op_id) > 0 || intr == INTREXPND) ? -1 : 1;
-				ok = 1;
+			// @v10.7.12 {
+			if(op_type == PPOPT_CORRECTION) {
+				if(op_rec.LinkOpID && GetOpType(op_rec.LinkOpID) == PPOPT_GOODSEXPEND)
+					sign = 1; // Корректировка расхода
+				else 
+					sign = -1; // Корректировка прихода
+			}
+			else { // } @v10.7.12 
+				const int intr = IsIntrOp(op_id);
+				if(oneof4(op_type, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL) || intr) {
+					sign = (IsExpendOp(op_id) > 0 || intr == INTREXPND) ? -1 : 1;
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -356,13 +371,13 @@ int SLAPI PPViewOpGrouping::GetRecSign(const TempOpGrpngTbl::Rec * pRec, int * p
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
+void SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 {
 	int    sign = 0;
 	int    r = GetRecSign(pRec, &sign);
 	pRec->TotalSign = static_cast<short>(sign);
 	TempOpGrpngTbl::Rec rec = *pRec;
-	//   Корректировка учета исходящих остатков в GdsOpTotal при использовании циклов в фильтре
+	// Корректировка учета исходящих остатков в GdsOpTotal при использовании циклов в фильтре
 	if(rec.OpID == 10000) {
 		rec.Qtty     -= LastOutRest.Qtty;
 		rec.PhQtty   -= LastOutRest.PhQtty;
@@ -386,7 +401,6 @@ int SLAPI PPViewOpGrouping::RecalcGdsOpTotal(TempOpGrpngTbl::Rec * pRec)
 	if(rec.OpID != -1 && rec.OpID != 10000)
 		GdsOpTotal.Count += rec.Count;
 	GdsOpTotal.Income += rec.Income;
-	return 1;
 }
 
 void SLAPI PPViewOpGrouping::GetGdsOpTotal(OpGroupingViewItem * pItem)
@@ -505,7 +519,7 @@ int SLAPI PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGr
 				}
 				if(!found) {
 					OpGroupingViewItem new_item;
-					MEMSZERO(new_item);
+					// @v10.7.12 @ctr MEMSZERO(new_item);
 					new_item.Dt = dt;
 					new_item.OpID = r_op.Key;
 					new_item.Sign = (short)r_op.Val;
@@ -599,7 +613,7 @@ public:
 		getCtrlData(CTLSEL_GTO_SUPPL,  &Data.SupplID);
 		getCtrlData(CTLSEL_GTO_OPR,    &Data.OpID);
 		getCtrlData(CTLSEL_GTO_OBJECT, &Data.ArID);
-		MEMSZERO(gf_rec);
+		// @v10.7.12 @ctr MEMSZERO(gf_rec);
 		THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 		Data.GoodsID    = gf_rec.GoodsID;
@@ -949,8 +963,8 @@ int SLAPI PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem
 {
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pPos);
-	OpGroupingViewItem  item;
-	MEMSZERO(item);
+	OpGroupingViewItem item;
+	// @v10.7.12 @ctr MEMSZERO(item);
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
 		TrfrAnlzViewItem  trf_item;
 		if(P_ViewTrfrAnlz && P_ViewTrfrAnlz->NextIteration(&trf_item) > 0) {
@@ -1144,9 +1158,7 @@ int SLAPI PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 		TSCollection <OpGroupingStatEntry> stat_list[siNumItems];
 		TSVector <OpGroupingViewItem> item_list; // @v9.8.4 TSArray-->TSVector
 		THROW(CreateStatList(&op_list, &item_list, stat_list));
-
 		plot.StartData(1);
-
 		double _min = GetStatItem(CYCLESTAT_MIN, cur_op_id, cur_sign, si, stat_list);
 		double _max = GetStatItem(CYCLESTAT_MAX, cur_op_id, cur_sign, si, stat_list);
 		double _avg = GetStatItem(CYCLESTAT_AVERAGE, cur_op_id, cur_sign, si, stat_list);
@@ -1260,7 +1272,7 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 	PPViewOpGrouping * p_v = static_cast<PPViewOpGrouping *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	OpGroupingViewItem item;
 	while(I.RecNo || p_v->NextIteration(&item) > 0) {
-		const OpGroupingFilt * p_filt = (const OpGroupingFilt *)p_v->GetBaseFilt();
+		const OpGroupingFilt * p_filt = static_cast<const OpGroupingFilt *>(p_v->GetBaseFilt());
 		if(!I.RecNo) {
 			I.GrpNo++;
 			I.Dt = item.Dt;
@@ -1270,7 +1282,7 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 			I.GoodsTaxGrpID = item.GoodsTaxGrpID;
 			I.LotTaxGrpID = item.LotTaxGrpID;
 			if(oneof2(item.OpID, -1, 10000) && p_filt->Flags & OpGroupingFilt::fPrnBillList)
-				I.OpName[0] = 0;
+				PTR32(I.OpName)[0] = 0;
 			else
 				STRNSCPY(I.OpName, item.OpName);
 			I.Sign     = item.Sign;

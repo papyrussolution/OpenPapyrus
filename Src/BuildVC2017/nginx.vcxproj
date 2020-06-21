@@ -234,7 +234,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -268,7 +268,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -303,7 +303,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -338,7 +338,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -372,7 +372,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -406,7 +406,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -439,7 +439,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -482,7 +482,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -526,7 +526,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -570,7 +570,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -613,7 +613,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -656,7 +656,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\nginx\src\include;..\OSF\nginx\src\os\win32;..\OSF\pcre-8.41;..\OSF\OpenSSL-111\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;PCRE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -3168,17 +3168,6 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">CompileAsCpp</CompileAs>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="openssl.vcxproj">
-      <Project>{1e4e6bbc-3e70-4f77-9f13-fd9b3242d11e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="pcre.vcxproj">
-      <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>
-    </ProjectReference>
-    <ProjectReference Include="slib.vcxproj">
-      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\nginx\src\include\nginx.h" />

@@ -814,11 +814,18 @@ SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum,
 			case InitBlock::protidMdlp:
 			default:
 				//rResult = (query == qDocumentSend) ? "https" : "http"; // @test
-				rResult = "http";
+				// https://api.mdlp.crpt.ru:443/api/v1/documents/send
+				if(query == qDocumentSend) 
+					rResult = "https";
+				else
+					rResult = "http";
 				rResult.Cat("://").Cat("api").Dot();
 				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
 					rResult.Cat("sb").Dot();
-				rResult.Cat("mdlp.crpt.ru").SetLastDSlash().Cat("api/v1");
+				rResult.Cat("mdlp.crpt.ru");
+				if(query == qDocumentSend) 
+					rResult.Cat(":443");
+				rResult.SetLastDSlash().Cat("api/v1");
 				break;
 		}
 	}
@@ -1058,6 +1065,7 @@ SString & SLAPI ChZnInterface::MakeHeaderFields(const char * pToken, uint flags,
 		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrCacheControl, "no-cache");
 		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAcceptLang, "ru");
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAccept, "application/json");
 	}
 	if(!isempty(pToken)) {
 		SString temp_buf;
@@ -1350,39 +1358,72 @@ int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInte
 					SString temp_buf;
 					SString url_buf;
 					SString req_buf;
+					SString reply_buf;
 					SString sign;
 					SString data_base64_buf;
 					S_GUID req_id;
+					StrStrAssocArray hdr_flds;
 					InetUrl url(MakeTargetUrl_(qDocumentSend, 0, rIb, url_buf));
 					{
 						//temp_buf.Z().CatN(static_cast<const char *>(pData), dataLen);
 						LogTalking("req-rawdoc", data_buf);
 					}
 					THROW(MakeDocumentRequest(rIb, data_buf.cptr(), data_buf.Len(), req_id, req_buf));
-					{
+					LogTalking("req", req_buf);
+					if(rIb.ProtocolId == rIb.protidMdlp) {
+						int    wininet_err = 0;
+						WinInternetHandleStack hstk;
+						HINTERNET h_inet_sess = 0;
+						HINTERNET h_connection = 0;
+						HINTERNET h_req = 0;
+						{
+							ulong access_type = INTERNET_OPEN_TYPE_PRECONFIG;
+							THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), access_type, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+						}
+						{
+							url.GetComponent(url.cHost, 0, temp_buf);
+							int   port = url.GetDefProtocolPort(url.GetProtocol());
+							THROW(h_connection = hstk.Push(InternetConnect(h_inet_sess, SUcSwitch(temp_buf), port, _T("")/*lpszUserName*/, _T("")/*lpszPassword*/, INTERNET_SERVICE_HTTP, 0, 0)));
+						}
+						{
+							const TCHAR * p_types[] = { _T("text/*"), _T("application/json"), 0 };
+							SString qbuf;
+							url.GetComponent(url.cPath, 0, temp_buf);
+							qbuf = temp_buf;
+							url.GetComponent(url.cQuery, 0, temp_buf);
+							if(temp_buf.NotEmptyS())
+								qbuf.CatChar('?').Cat(temp_buf);
+							THROW(hstk.Push(h_req = HttpOpenRequest(h_connection, _T("POST"), SUcSwitch(qbuf), _T("HTTP/1.1"), NULL, p_types, INTERNET_FLAG_KEEP_CONNECTION|INTERNET_FLAG_SECURE, 1)));
+							MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
+							if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+								SString wi_msg;
+								uint  wi_code = GetLastWinInternetResponse(wi_msg);
+								ReadReply(h_req, reply_buf);
+							}
+							else {
+								wininet_err = GetLastError();
+							}
+						}
+					}
+					else {
 						ScURL c;
-						StrStrAssocArray hdr_flds;
 						MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
-						SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrExpect, ""); // @v10.7.12
 						{
 							SBuffer ack_buf;
 							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-							LogTalking("req", req_buf);
 							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
 							{
 								SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-								if(p_ack_buf) {
-									temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-									LogTalking("rep", temp_buf);
-									if(ReadJsonReplyForSingleItem(temp_buf, "document_id", rReply) > 0) {
-										SString temp_path;
-										GetDebugPath(rIb, temp_path);
-										THROW(CreatePendingFile(temp_path, rReply))
-										ok = 1;
-									}
-								}
+								if(p_ack_buf)
+									reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 							}
 						}
+					}
+					LogTalking("rep", reply_buf);
+					if(ReadJsonReplyForSingleItem(reply_buf, "document_id", rReply) > 0) {
+						GetDebugPath(rIb, temp_buf);
+						THROW(CreatePendingFile(temp_buf, rReply))
+						ok = 1;
 					}
 				}
 				ok = 1;

@@ -310,8 +310,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 		    (char *)session->scpRecv_command,
 		    session->scpRecv_command_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
-			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-			    "Would block requesting SCP startup");
+			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block requesting SCP startup");
 			return NULL;
 		}
 		else if(rc) {
@@ -514,8 +513,7 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 				p = sstrchr(s, ' ');
 				if(!p || ((p - s) <= 0)) {
 					/* No spaces or space in the wrong spot */
-					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-					    "Invalid response from SCP server, malformed mode");
+					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid response from SCP server, malformed mode");
 					goto scp_recv_error;
 				}
 
@@ -524,16 +522,14 @@ static LIBSSH2_CHANNEL * scp_recv(LIBSSH2_SESSION * session, const char * path, 
 
 				session->scpRecv_mode = strtol(s, &e, 8);
 				if(e && *e) {
-					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-					    "Invalid response from SCP server, invalid mode");
+					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid response from SCP server, invalid mode");
 					goto scp_recv_error;
 				}
 
 				s = sstrchr(p, ' ');
 				if(!s || ((s - p) <= 0)) {
 					/* No spaces or space in the wrong spot */
-					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-					    "Invalid response from SCP server, too short or malformed");
+					_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid response from SCP server, too short or malformed");
 					goto scp_recv_error;
 				}
 
@@ -672,8 +668,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 				session->scpSend_state = libssh2_NB_state_idle;
 			}
 			else {
-				_libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-				    "Would block starting up channel");
+				_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block starting up channel");
 			}
 			return NULL;
 		}
@@ -688,8 +683,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 		    (char *)session->scpSend_command,
 		    session->scpSend_command_len);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
-			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-			    "Would block requesting SCP startup");
+			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block requesting SCP startup");
 			return NULL;
 		}
 		else if(rc) {
@@ -697,8 +691,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 			   through */
 			LIBSSH2_FREE(session, session->scpSend_command);
 			session->scpSend_command = NULL;
-			_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-			    "Unknown error while getting error string");
+			_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Unknown error while getting error string");
 			goto scp_send_error;
 		}
 		LIBSSH2_FREE(session, session->scpSend_command);
@@ -712,8 +705,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 		rc = _libssh2_channel_read(session->scpSend_channel, 0,
 		    (char *)session->scpSend_response, 1);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
-			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-			    "Would block waiting for response from remote");
+			_libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting for response from remote");
 			return NULL;
 		}
 		else if(rc < 0) {

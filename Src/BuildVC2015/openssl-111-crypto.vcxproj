@@ -54,78 +54,78 @@
     <ProjectName>openssl-111-crypto</ProjectName>
     <ProjectGuid>{26070AD0-2D76-41A2-AB8B-864EA198CC6F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -267,6 +267,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -317,6 +320,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -365,6 +371,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -415,6 +424,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
     <ClCompile>
@@ -463,6 +475,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
     <ClCompile>
@@ -513,6 +528,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
     <ClCompile>
@@ -561,6 +579,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
     <ClCompile>
@@ -611,6 +632,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <ClCompile>
@@ -659,6 +683,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
     <ClCompile>
@@ -709,6 +736,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
     <ClCompile>
@@ -757,6 +787,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
     <ClCompile>
@@ -807,6 +840,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\OSF\OpenSSL-111\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL-111\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL-111\.;D:\Papyrus\Src\OSF\OpenSSL-111\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\aes\aes_cbc.c" />
@@ -875,6 +911,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_algor.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_bignum.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_info.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_int64.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_long.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_pkey.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\asn1\x_sig.c" />
@@ -1036,6 +1073,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_pmeth.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_prn.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_rfc5114.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\dh\dh_rfc7919.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_ameth.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_asn1.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\dsa\dsa_depr.c" />
@@ -1171,6 +1209,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\names.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p5_crpt.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\p5_crpt2.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pbe_scrypt.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pmeth_fn.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pmeth_gn.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\evp\pmeth_lib.c" />
@@ -1194,6 +1233,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\init.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\hkdf.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\kdf_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\scrypt.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\kdf\tls1_prf.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\lhash\lhash.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\lhash\lh_stats.c" />
@@ -1276,6 +1316,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_npas.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_p8d.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_p8e.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_sbag.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\p12_utl.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs12\pk12err.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\bio_pk7.c" />
@@ -1287,6 +1328,8 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pk7_smime.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\pkcs7\pkcs7err.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\poly1305\poly1305.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\poly1305\poly1305_ameth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\poly1305\poly1305_pmeth.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\drbg_ctr.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\drbg_lib.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\rand\randfile.c" />
@@ -1335,6 +1378,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_cfb.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_ecb.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\seed\seed_ofb.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\keccak1600.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha1dgst.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha1_one.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\sha\sha256.c" />
@@ -1342,10 +1386,22 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\siphash\siphash.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\siphash\siphash_ameth.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\siphash\siphash_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_crypt.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_pmeth.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm2\sm2_sign.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm3\m_sm3.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm3\sm3.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\sm4\sm4.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\srp\srp_lib.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\srp\srp_vfy.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\stack\stack.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\loader_file.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_err.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_init.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_register.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\store\store_strings.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\threads_win.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_asn1.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\ts\ts_conf.c" />
@@ -1362,6 +1418,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\uid.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_err.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_lib.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_null.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_openssl.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\ui\ui_util.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\whrlpool\wp_block.c" />
@@ -1374,6 +1431,7 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\pcy_tree.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3err.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_addr.c" />
+    <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_admis.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_akey.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_akeya.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509v3\v3_alt.c" />
@@ -1437,30 +1495,6 @@
     <ClCompile Include="..\OSF\OpenSSL-111\crypto\x509\x_x509a.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\engines\e_capi.c" />
     <ClCompile Include="..\OSF\OpenSSL-111\engines\e_padlock.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\e_gost_err.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost89.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash2012.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ameth.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_asn1.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_crypt.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ctl.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_keyx.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_sign.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_eng.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_cipher.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_core.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_defines.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_galois_precompiled.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_precompiled.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keyexpimp.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keywrap.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md2012.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac_acpkm.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_params.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_pmeth.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\OpenSSL-111\include\internal\bio.h" />
@@ -1698,22 +1732,6 @@
     <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\x509_vfy.h" />
     <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
     <ClInclude Include="..\OSF\OpenSSL-111\include\openssl\__DECC_INCLUDE_PROLOGUE.H" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\e_gost_err.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost89.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_const.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_precalc.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_ref.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gosthash2012_sse2.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_cipher.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_core.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_defines.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_math.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_grasshopper_precompiled.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_keywrap.h" />
-    <ClInclude Include="..\OSF\OpenSSL-Supplement\include\gost_lcl.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="slib.vcxproj">

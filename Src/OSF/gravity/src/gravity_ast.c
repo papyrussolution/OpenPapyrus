@@ -13,21 +13,21 @@
 
 // MARK: -
 
-void_r * void_array_create(void) 
+void_r * void_array_create() 
 {
 	void_r * r = (void_r *)mem_alloc(NULL, sizeof(void_r));
 	marray_init(*r);
 	return r;
 }
 
-cstring_r * cstring_array_create(void) 
+cstring_r * cstring_array_create()
 {
 	cstring_r * r = (cstring_r *)mem_alloc(NULL, sizeof(cstring_r));
 	gnode_array_init(r);
 	return r;
 }
 
-gnode_r * gnode_array_create(void) 
+gnode_r * gnode_array_create() 
 {
 	gnode_r * r = (gnode_r *)mem_alloc(NULL, sizeof(gnode_r));
 	gnode_array_init(r);
@@ -298,7 +298,7 @@ bool gnode_is_expression(const gnode_t * node)
 	return ((_node->base.tag >= NODE_BINARY_EXPR) && (_node->base.tag <= NODE_KEYWORD_EXPR));
 }
 
-bool gnode_is_literal(const gnode_t * node) 
+bool FASTCALL gnode_is_literal(const gnode_t * node) 
 {
 	const gnode_base_t * _node = reinterpret_cast<const gnode_base_t *>(node);
 	return (_node->base.tag == NODE_LITERAL_EXPR);
@@ -322,7 +322,8 @@ bool gnode_is_literal_string(gnode_t * node)
 
 bool gnode_is_literal_number(gnode_t * node) 
 {
-	if(gnode_is_literal(node) == false) return false;
+	if(gnode_is_literal(node) == false) 
+		return false;
 	gnode_literal_expr_t * _node = (gnode_literal_expr_t *)node;
 	return (_node->type != LITERAL_STRING && _node->type != LITERAL_STRING_INTERPOLATED);
 }
@@ -330,7 +331,7 @@ bool gnode_is_literal_number(gnode_t * node)
 gnode_t * gnode_binary_expr_create(gtoken_t op, gnode_t * left, gnode_t * right, gnode_t * decl) 
 {
 	if(!left || !right) return NULL;
-	gnode_binary_expr_t    * node = (gnode_binary_expr_t*)mem_alloc(NULL, sizeof(gnode_binary_expr_t));
+	gnode_binary_expr_t * node = (gnode_binary_expr_t*)mem_alloc(NULL, sizeof(gnode_binary_expr_t));
 	SETBASE(node, NODE_BINARY_EXPR, left->token);
 	SETDECL(node, decl);
 	node->op = op;
@@ -341,12 +342,14 @@ gnode_t * gnode_binary_expr_create(gtoken_t op, gnode_t * left, gnode_t * right,
 
 gnode_t * gnode_unary_expr_create(gtoken_t op, gnode_t * expr, gnode_t * decl) 
 {
-	if(!expr) return NULL;
-	gnode_unary_expr_t * node = (gnode_unary_expr_t*)mem_alloc(NULL, sizeof(gnode_unary_expr_t));
-	SETBASE(node, NODE_UNARY_EXPR, expr->token);
-	SETDECL(node, decl);
-	node->op = op;
-	node->expr = expr;
+	gnode_unary_expr_t * node = 0;
+	if(expr) {
+		node = static_cast<gnode_unary_expr_t *>(mem_alloc(NULL, sizeof(gnode_unary_expr_t)));
+		SETBASE(node, NODE_UNARY_EXPR, expr->token);
+		SETDECL(node, decl);
+		node->op = op;
+		node->expr = expr;
+	}
 	return (gnode_t *)node;
 }
 
@@ -422,8 +425,8 @@ gnode_t * gnode_literal_string_expr_create(gtoken_s token, char * s, uint32 len,
 		node->value.str = s;
 	}
 	else {
-		node->value.str = (char *)mem_alloc(NULL, len+1);
-		memcpy((void*)node->value.str, (const void*)s, len);
+		node->value.str = static_cast<char *>(mem_alloc(NULL, len+1));
+		memcpy((void*)node->value.str, s, len);
 	}
 	return (gnode_t *)node;
 }
@@ -751,7 +754,7 @@ static void free_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 
 // MARK: -
 
-void gnode_free(gnode_t * ast) 
+void FASTCALL gnode_free(gnode_t * ast) 
 {
 	if(ast) {
 		gvisitor_t visitor(0, 0);

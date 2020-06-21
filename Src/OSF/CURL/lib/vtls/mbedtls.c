@@ -211,8 +211,7 @@ static CURLcode set_ssl_version_min_max(struct connectdata * conn, int sockindex
 	return result;
 }
 
-static CURLcode mbed_connect_step1(struct connectdata * conn,
-    int sockindex)
+static CURLcode mbed_connect_step1(struct connectdata * conn, int sockindex)
 {
 	struct Curl_easy * data = conn->data;
 	struct ssl_connect_data* connssl = &conn->ssl[sockindex];

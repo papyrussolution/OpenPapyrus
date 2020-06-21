@@ -106,13 +106,10 @@ static int banner_receive(LIBSSH2_SESSION * session)
 		if(ret < 0) {
 			if(session->api_block_mode || (ret != -EAGAIN))
 				/* ignore EAGAIN when non-blocking */
-				_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-				    "Error recving %d bytes: %d", 1, -ret);
+				_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Error recving %d bytes: %d", 1, -ret);
 		}
 		else
-			_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-			    "Recved %d bytes banner", ret);
-
+			_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Recved %d bytes banner", ret);
 		if(ret < 0) {
 			if(ret == -EAGAIN) {
 				session->socket_block_directions =
@@ -211,14 +208,9 @@ static int banner_send(LIBSSH2_SESSION * session)
 	    banner_len - session->banner_TxRx_total_send,
 	    LIBSSH2_SOCKET_SEND_FLAGS(session));
 	if(ret < 0)
-		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-		    "Error sending %d bytes: %d",
-		    banner_len - session->banner_TxRx_total_send, -ret);
+		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Error sending %d bytes: %d", banner_len - session->banner_TxRx_total_send, -ret);
 	else
-		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-		    "Sent %d/%d bytes at %p+%d", ret,
-		    banner_len - session->banner_TxRx_total_send,
-		    banner, session->banner_TxRx_total_send);
+		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p+%d", ret, banner_len - session->banner_TxRx_total_send, banner, session->banner_TxRx_total_send);
 
 	if(ret != (banner_len - session->banner_TxRx_total_send)) {
 		if(ret >= 0 || ret == -EAGAIN) {
@@ -528,15 +520,11 @@ int FASTCALL _libssh2_wait_socket(LIBSSH2_SESSION * session, time_t start_time)
 	rc = libssh2_keepalive_send(session, &seconds_to_next);
 	if(rc < 0)
 		return rc;
-
 	ms_to_next = seconds_to_next * 1000;
-
 	/* figure out what to wait for */
 	dir = libssh2_session_block_directions(session);
-
 	if(!dir) {
-		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-		    "Nothing to wait for in wait_socket");
+		_libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Nothing to wait for in wait_socket");
 		/* To avoid that we hang below just because there's nothing set to
 		   wait for, we timeout on 1 second to also avoid busy-looping
 		   during this condition */
@@ -546,8 +534,7 @@ int FASTCALL _libssh2_wait_socket(LIBSSH2_SESSION * session, time_t start_time)
 		time_t now = time(NULL);
 		elapsed_ms = (long)(1000*difftime(now, start_time));
 		if(elapsed_ms > session->api_timeout) {
-			return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
-			    "API timeout expired");
+			return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT, "API timeout expired");
 		}
 		ms_to_next = (session->api_timeout - elapsed_ms);
 		has_timeout = 1;
@@ -1161,7 +1148,6 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD * fds, uint nfds, long timeout)
 			    if(!session)
 				    session = fds[i].fd.channel->session;
 			    break;
-
 			case LIBSSH2_POLLFD_LISTENER:
 			    sockets[i].fd = fds[i].fd.listener->session->socket_fd;
 			    sockets[i].events = POLLIN;
@@ -1169,11 +1155,9 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD * fds, uint nfds, long timeout)
 			    if(!session)
 				    session = fds[i].fd.listener->session;
 			    break;
-
 			default:
 			    if(session)
-				    _libssh2_error(session, LIBSSH2_ERROR_INVALID_POLL_TYPE,
-				    "Invalid descriptor passed to libssh2_poll()");
+				    _libssh2_error(session, LIBSSH2_ERROR_INVALID_POLL_TYPE, "Invalid descriptor passed to libssh2_poll()");
 			    return -1;
 		}
 	}

@@ -1,4 +1,3 @@
-//
 //  compiler_test.c
 //  gravity
 //
@@ -20,7 +19,7 @@ struct unittest_data {
 	uint32 nsuccess;
 	uint32 nfailure;
 	GravityErrorType expected_error;
-	gravity_value_t expected_value;
+	GravityValue expected_value;
 	int32 expected_row;
 	int32 expected_col;
 };
@@ -85,7 +84,7 @@ static const char * load_file(const char * file, size_t * size, uint32 * fileid,
 	// please note than in this simple example the imported file must be
 	// in the same folder as the main input file
 	ASSIGN_PTR(is_static, false);
-	return file_exists(file) ? file_read(file, size) : 0;
+	return fileExists(file) ? file_read(file, size) : 0; // @sobolev file_exists-->fileExists
 }
 
 // MARK: - Unit Test -
@@ -102,8 +101,7 @@ static void unittest_cleanup(const char * target_file, unittest_data * data)
 	(void)target_file, (void)data;
 }
 
-static void unittest_callback(gravity_vm * vm, GravityErrorType error_type, const char * description, const char * notes,
-    gravity_value_t value, int32 row, int32 col, void * xdata) 
+static void unittest_callback(gravity_vm * vm, GravityErrorType error_type, const char * description, const char * notes, GravityValue value, int32 row, int32 col, void * xdata) 
 {
 	(void)vm;
 	unittest_data * data = (unittest_data*)xdata;
@@ -111,7 +109,8 @@ static void unittest_callback(gravity_vm * vm, GravityErrorType error_type, cons
 	data->expected_value = value;
 	data->expected_row = row;
 	data->expected_col = col;
-	if(notes) printf("\tNOTE: %s\n", notes);
+	if(notes) 
+		printf("\tNOTE: %s\n", notes);
 	printf("\t%s\n", description);
 }
 
@@ -157,11 +156,13 @@ static void unittest_error(gravity_vm * vm, GravityErrorType error_type, const c
 static const char * unittest_read(const char * path, size_t * size, uint32 * fileid, void * xdata, bool * is_static) 
 {
 	(void)fileid, (void)xdata;
-	if(is_static) *is_static = false;
-	if(file_exists(path)) return file_read(path, size);
+	ASSIGN_PTR(is_static, false);
+	if(fileExists(path)) // @sobolev file_exists-->fileExists
+		return file_read(path, size);
 	// this unittest is able to resolve path only next to main test folder (not in nested folders)
 	const char * newpath = file_buildpath(path, test_folder_path);
-	if(!newpath) return NULL;
+	if(!newpath) 
+		return NULL;
 	const char * buffer = file_read(newpath, size);
 	mem_free(newpath);
 	return buffer;
@@ -218,11 +219,10 @@ static void unittest_scan(const char * folder_path, unittest_data * data)
 		gravity_vm * vm = gravity_vm_new(&delegate);
 		gravity_compiler_transfer(compiler, vm);
 		gravity_compiler_free(compiler);
-
 		if(closure) {
 			if(gravity_vm_runmain(vm, closure)) {
 				data->processed = true;
-				gravity_value_t result = gravity_vm_result(vm);
+				GravityValue result = gravity_vm_result(vm);
 				if(data->is_fuzzy || gravity_value_equals(result, data->expected_value)) {
 					++data->nsuccess;
 					printf("\tSUCCESS\n");
@@ -460,7 +460,7 @@ int main(int argc, const char* argv[])
 	// sanity check
 	assert(closure);
 	if(gravity_vm_runmain(vm, closure)) {
-		gravity_value_t result = gravity_vm_result(vm);
+		GravityValue result = gravity_vm_result(vm);
 		double t = gravity_vm_time(vm);
 		char buffer[512];
 		gravity_value_dump(vm, result, buffer, sizeof(buffer));

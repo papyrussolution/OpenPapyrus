@@ -7,10 +7,6 @@
 #include <gravity_.h>
 #pragma hdrstop
 
-// Visit a node invoking the associated callback.
-
-#define VISIT(type) if(!self->visit_ ## type) return; self->visit_ ## type(self, (gnode_ ## type ## _t *)node); break;
-
 static void default_action(gnode_t * node) 
 {
 	printf("Visitor unhandled case: %d\n", node->tag);
@@ -25,6 +21,8 @@ void FASTCALL gvisit(gvisitor_t * self, gnode_t * node)
 		// pre-visit
 		if(self->visit_pre) 
 			self->visit_pre(self, node);
+// Visit a node invoking the associated callback.
+#define VISIT(type) if(!self->visit_ ## type) return; self->visit_ ## type(self, (gnode_ ## type ## _t *)node); break;
 		switch(node->tag) {
 			// statements (7)
 			case NODE_LIST_STAT: VISIT(list_stmt);
@@ -55,6 +53,7 @@ void FASTCALL gvisit(gvisitor_t * self, gnode_t * node)
 			// default assert
 			default: default_action(node);
 		}
+#undef VISIT
 		// post-visit
 		if(self->visit_post) 
 			self->visit_post(self, node);

@@ -37,7 +37,8 @@ int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, in
 	// } @construction
 	//
 	const  char * c = pBuf;
-	char   tmp[32], zero_buf[32];
+	char   tmp[32];
+	char   zero_buf[32];
 	int    i, cnt = 0, div;
 	int    ord; // 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd
 	int    not_empty_year = 0;
@@ -51,7 +52,7 @@ int FASTCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, in
 	long   ret_flags = 0;
 
 	if(c == 0) {
-		zero_buf[0] = 0;
+		PTR32(zero_buf)[0] = 0;
 		c = zero_buf;
 		ret_flags |= strtodatefZero;
 	}

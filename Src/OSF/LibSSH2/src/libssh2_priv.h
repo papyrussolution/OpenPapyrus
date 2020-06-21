@@ -1025,25 +1025,13 @@ struct _LIBSSH2_COMP_METHOD {
 	int compress; /* 1 if it does compress, 0 if it doesn't */
 	int use_in_auth; /* 1 if compression should be used in userauth */
 	int (* init)(LIBSSH2_SESSION * session, int compress, void ** abstract);
-	int (* comp)(LIBSSH2_SESSION * session,
-	    uchar * dest,
-	    size_t * dest_len,
-	    const uchar * src,
-	    size_t src_len,
-	    void ** abstract);
-	int (* decomp)(LIBSSH2_SESSION * session,
-	    uchar ** dest,
-	    size_t * dest_len,
-	    size_t payload_limit,
-	    const uchar * src,
-	    size_t src_len,
-	    void ** abstract);
+	int (* comp)(LIBSSH2_SESSION * session, uchar * dest, size_t * dest_len, const uchar * src, size_t src_len, void ** abstract);
+	int (* decomp)(LIBSSH2_SESSION * session, uchar ** dest, size_t * dest_len, size_t payload_limit, const uchar * src, size_t src_len, void ** abstract);
 	int (* dtor)(LIBSSH2_SESSION * session, int compress, void ** abstract);
 };
 
 #ifdef LIBSSH2DEBUG
-void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format,
-    ...);
+void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format, ...);
 #else
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__GNUC__)
 /* C99 supported and also by older GCC */

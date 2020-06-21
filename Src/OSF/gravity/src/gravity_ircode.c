@@ -11,43 +11,46 @@ typedef marray_t(inst_t *)      code_r;
 typedef marray_t(bool *)        context_r;
 
 struct ircode_t {
-	code_r      * list;                 // array of ircode instructions
-	uint32_r label_true;                // labels used in loops
+	code_r * list;        // array of ircode instructions
+	uint32_r label_true;  // labels used in loops
 	uint32_r label_false;
 	uint32_r label_check;
 	uint32 label_counter;
-	uint32 maxtemp;                   // maximum number of temp registers used in this ircode
-	uint32 ntemps;                    // current number of temp registers in use
-	uint16 nlocals;                   // number of local registers (params + local variables)
-	bool error;                         // error flag set when no more registers are availables
-	bool state[MAX_REGISTERS];          // registers mask
-	bool skipclear[MAX_REGISTERS];      // registers protection for temps used in for loop
+	uint32 maxtemp;       // maximum number of temp registers used in this ircode
+	uint32 ntemps;        // current number of temp registers in use
+	uint16 nlocals;       // number of local registers (params + local variables)
+	bool   error;         // error flag set when no more registers are availables
+	uint8  Reserve[1];    // @alignment
+	bool   state[MAX_REGISTERS];          // registers mask
+	bool   skipclear[MAX_REGISTERS];      // registers protection for temps used in for loop
 	uint32_r registers;                 // registers stack
 	context_r context;                  // context array
 };
 
 ircode_t * ircode_create(uint16 nlocals) 
 {
-	ircode_t * code = (ircode_t *)mem_alloc(NULL, sizeof(ircode_t));
-	if(!code) return NULL;
-	code->label_counter = 0;
-	code->nlocals = nlocals;
-	code->ntemps = 0;
-	code->maxtemp = 0;
-	code->error = false;
-	code->list = (code_r *)(mem_alloc(NULL, sizeof(code_r)));
-	if(!code->list) return NULL;
-	marray_init(*code->list);
-	marray_init(code->label_true);
-	marray_init(code->label_false);
-	marray_init(code->label_check);
-	marray_init(code->registers);
-	marray_init(code->context);
-	// init state array (register 0 is reserved)
-	memzero(code->state, MAX_REGISTERS * sizeof(bool));
-	code->state[0] = true;
-	for(uint32 i = 0; i<nlocals; ++i) {
-		code->state[i] = true;
+	ircode_t * code = static_cast<ircode_t *>(mem_alloc(NULL, sizeof(ircode_t)));
+	if(code) {
+		code->label_counter = 0;
+		code->nlocals = nlocals;
+		code->ntemps = 0;
+		code->maxtemp = 0;
+		code->error = false;
+		code->list = static_cast<code_r *>(mem_alloc(NULL, sizeof(code_r)));
+		if(!code->list) 
+			return NULL;
+		marray_init(*code->list);
+		marray_init(code->label_true);
+		marray_init(code->label_false);
+		marray_init(code->label_check);
+		marray_init(code->registers);
+		marray_init(code->context);
+		// init state array (register 0 is reserved)
+		memzero(code->state, MAX_REGISTERS * sizeof(bool));
+		code->state[0] = true;
+		for(uint32 i = 0; i < nlocals; ++i) {
+			code->state[i] = true;
+		}
 	}
 	return code;
 }
@@ -71,7 +74,7 @@ void ircode_free(ircode_t * code)
 
 uint32 ircode_ntemps(const ircode_t * code) { return code->ntemps; }
 uint32 ircode_count(const ircode_t * code) { return (uint32)marray_size(*code->list); }
-bool     ircode_iserror(const ircode_t * code) { return code->error; }
+bool   ircode_iserror(const ircode_t * code) { return code->error; }
 
 inst_t * ircode_get(ircode_t * code, uint32 index) 
 {
@@ -374,7 +377,7 @@ void ircode_add_double(ircode_t * code, double d, uint32 lineno)
 	marray_push(inst_t*, *code->list, inst);
 }
 
-void ircode_add_constant(ircode_t * code, uint32 index, uint32 lineno) 
+void FASTCALL ircode_add_constant(ircode_t * code, uint32 index, uint32 lineno) 
 {
 	uint32 regnum = ircode_register_push_temp(code);
 	inst_t * inst = inst_new(LOADK, regnum, index, 0, NO_TAG, 0, 0, lineno);

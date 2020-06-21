@@ -125,18 +125,20 @@ static bool init_ssl = FALSE; // @global
  */
 int Curl_ssl_init(void)
 {
-	/* make sure this is only done once */
+	// make sure this is only done once 
 	if(init_ssl)
 		return 1;
-	init_ssl = TRUE; /* never again */
-	return curlssl_init();
+	else {
+		init_ssl = TRUE; // never again 
+		return curlssl_init();
+	}
 }
 
 /* Global cleanup */
 void Curl_ssl_cleanup(void)
 {
 	if(init_ssl) {
-		/* only cleanup if we did a previous init */
+		// only cleanup if we did a previous init 
 		curlssl_cleanup();
 		init_ssl = FALSE;
 	}

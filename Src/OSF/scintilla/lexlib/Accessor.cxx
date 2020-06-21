@@ -82,16 +82,6 @@ char FASTCALL LexAccessor::SafeGetCharAt(Sci_Position position)
 	return buf[position - startPos];
 }
 
-bool FASTCALL LexAccessor::IsLeadByte(char ch) const
-{
-	return pAccess->IsDBCSLeadByte(ch);
-}
-
-EncodingType LexAccessor::Encoding() const
-{
-	return encodingType;
-}
-
 bool LexAccessor::Match(Sci_Position pos, const char * s)
 {
 	for(int i = 0; *s; i++) {
@@ -102,20 +92,17 @@ bool LexAccessor::Match(Sci_Position pos, const char * s)
 	return true;
 }
 
-char FASTCALL LexAccessor::StyleAt(Sci_Position position) const
-{
-	return static_cast<char>(pAccess->StyleAt(position));
-}
-
-Sci_Position FASTCALL LexAccessor::GetLine(Sci_Position position) const
-{
-	return pAccess->LineFromPosition(position);
-}
-
-Sci_Position FASTCALL LexAccessor::LineStart(Sci_Position line) const
-{
-	return pAccess->LineStart(line);
-}
+bool FASTCALL LexAccessor::IsLeadByte(char ch) const { return pAccess->IsDBCSLeadByte(ch); }
+EncodingType LexAccessor::Encoding() const { return encodingType; }
+char FASTCALL LexAccessor::StyleAt(Sci_Position position) const { return static_cast<char>(pAccess->StyleAt(position)); }
+Sci_Position FASTCALL LexAccessor::GetLine(Sci_Position position) const { return pAccess->LineFromPosition(position); }
+Sci_Position FASTCALL LexAccessor::LineStart(Sci_Position line) const { return pAccess->LineStart(line); }
+int FASTCALL LexAccessor::LevelAt(Sci_Position line) const { return pAccess->GetLevel(line); }
+Sci_Position LexAccessor::Length() const { return lenDoc; }
+int FASTCALL LexAccessor::GetLineState(Sci_Position line) const { return pAccess->GetLineState(line); }
+int LexAccessor::SetLineState(Sci_Position line, int state) { return pAccess->SetLineState(line, state); }
+Sci_PositionU LexAccessor::GetStartSegment() const { return startSeg; }
+void FASTCALL LexAccessor::StartSegment(Sci_PositionU pos) { startSeg = pos; }
 
 Sci_Position FASTCALL LexAccessor::LineEnd(Sci_Position line)
 {
@@ -130,16 +117,6 @@ Sci_Position FASTCALL LexAccessor::LineEnd(Sci_Position line)
 	}
 }
 
-int FASTCALL LexAccessor::LevelAt(Sci_Position line) const
-{
-	return pAccess->GetLevel(line);
-}
-
-Sci_Position LexAccessor::Length() const
-{
-	return lenDoc;
-}
-
 void LexAccessor::Flush()
 {
 	if(validLen > 0) {
@@ -149,31 +126,11 @@ void LexAccessor::Flush()
 	}
 }
 
-int FASTCALL LexAccessor::GetLineState(Sci_Position line) const
-{
-	return pAccess->GetLineState(line);
-}
-
-int LexAccessor::SetLineState(Sci_Position line, int state)
-{
-	return pAccess->SetLineState(line, state);
-}
-
 // Style setting
 void FASTCALL LexAccessor::StartAt(Sci_PositionU start)
 {
 	pAccess->StartStyling(start, '\377');
 	startPosStyling = start;
-}
-
-Sci_PositionU LexAccessor::GetStartSegment() const
-{
-	return startSeg;
-}
-
-void FASTCALL LexAccessor::StartSegment(Sci_PositionU pos)
-{
-	startSeg = pos;
 }
 
 void LexAccessor::ColourTo(Sci_PositionU pos, int chAttr)

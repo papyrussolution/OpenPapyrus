@@ -26,7 +26,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				PreprocessorDefinitions="WIN32,_PAPYRUS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -112,7 +112,7 @@
 				EnableFiberSafeOptimizations="FALSE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_PAPYRUS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -193,7 +193,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				PreprocessorDefinitions="WIN32,_PAPYRUS,_PPSERVER"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -278,7 +278,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_PAPYRUS,_PPSERVER"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -360,7 +360,7 @@
 				FavorSizeOrSpeed="0"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				PreprocessorDefinitions="WIN32,_PAPYRUS,_PPDLL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -447,7 +447,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				PreprocessorDefinitions="WIN32,NDEBUG,_PAPYRUS,_PPDLL"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -524,7 +524,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
+				AdditionalIncludeDirectories="..\include;..\osf\CSOAP;..\osf\scintilla\include;&quot;..\osf\OpenSSL-111\include&quot;;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;&quot;..\osf\pcre-8.41&quot;"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
@@ -4034,10 +4034,10 @@
 				RelativePath="..\Rsrc\Bitmap\banking.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
+				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\barcodeprinter.bmp">
@@ -4664,10 +4664,10 @@
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\mark.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\membership.bmp">

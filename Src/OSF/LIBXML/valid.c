@@ -4608,7 +4608,6 @@ fail:
 		if(ctxt) {
 			char expr[5000];
 			char list[5000];
-
 			expr[0] = 0;
 			xmlSnprintfElementContent(&expr[0], 5000, cont, 1);
 			list[0] = 0;

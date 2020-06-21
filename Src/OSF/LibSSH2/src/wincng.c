@@ -1108,10 +1108,7 @@ int _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx ** dsa,
 	(void)dsa;
 	(void)filename;
 	(void)passphrase;
-
-	return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-	    "Unable to load DSA key from private key file: "
-	    "Method unsupported in Windows CNG backend");
+	return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to load DSA key from private key file: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
 
@@ -1141,9 +1138,7 @@ int _libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 	(void)filedata_len;
 	(void)passphrase;
 
-	return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-	    "Unable to extract private key from memory: "
-	    "Method unsupported in Windows CNG backend");
+	return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Unable to extract private key from memory: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
 
@@ -1348,9 +1343,7 @@ int _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION * session,
 	(void)privatekey;
 	(void)passphrase;
 
-	return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-	    "Unable to load public key from private key file: "
-	    "Method unsupported in Windows CNG backend");
+	return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to load public key from private key file: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
 
@@ -1387,9 +1380,7 @@ int _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION * session,
 	(void)privatekeydata_len;
 	(void)passphrase;
 
-	return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-	    "Unable to extract public key from private key in memory: "
-	    "Method unsupported in Windows CNG backend");
+	return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Unable to extract public key from private key in memory: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
 

@@ -149,7 +149,7 @@ static void xmlWriterErrMsgInt(xmlTextWriter * ctxt, xmlParserErrors error, cons
  */
 xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 {
-	const char * _p_func_name = "xmlNewTextWriter";
+	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = (xmlTextWriterPtr)SAlloc::M(sizeof(xmlTextWriter));
 	if(!ret) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, _p_func_name, "out of memory!");
@@ -191,7 +191,7 @@ xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 // 
 xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 {
-	const char * _p_func_name = "xmlNewTextWriterFilename";
+	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = 0;
 	xmlOutputBuffer * out = xmlOutputBufferCreateFilename(uri, NULL, compression);
 	if(out == NULL) {
@@ -219,7 +219,7 @@ xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 // 
 xmlTextWriter * xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUTE_UNUSED)
 {
-	const char * _p_func_name = "xmlNewTextWriterMemory";
+	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = 0;
 	//::todo handle compression 
 	xmlOutputBuffer * out = xmlOutputBufferCreateBuffer(buf, 0);
@@ -248,7 +248,7 @@ xmlTextWriter * xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUT
  */
 xmlTextWriter * xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression ATTRIBUTE_UNUSED)
 {
-	const char * _p_func_name = "xmlNewTextWriterPushParser";
+	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret;
 	xmlOutputBuffer * out;
 	if(!ctxt) {
@@ -280,7 +280,7 @@ xmlTextWriter * xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression
  */
 xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression)
 {
-	const char * _p_func_name = "xmlNewTextWriterDoc";
+	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret;
 	xmlSAXHandler saxHandler;
 	xmlParserCtxt * ctxt;
@@ -331,7 +331,7 @@ xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression)
  */
 xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNode * pNode, int compression)
 {
-	const char * _p_func_name = "xmlNewTextWriterTree";
+	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = 0;
 	xmlSAXHandler saxHandler;
 	if(!doc) {
@@ -402,7 +402,7 @@ void FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter)
  */
 int FASTCALL xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, const char * encoding, const char * standalone)
 {
-	const char * _p_func_name = "xmlTextWriterStartDocument";
+	const char * _p_func_name = __FUNCTION__;
 	int    sum = 0;
 	int    count;
 	int    _cp1251 = 0;
@@ -516,7 +516,7 @@ int FASTCALL xmlTextWriterStartDocument(xmlTextWriter * writer, const char * ver
  */
 int FASTCALL xmlTextWriterEndDocument(xmlTextWriter * writer)
 {
-	const char * _p_func_name = "xmlTextWriterEndDocument";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum;
 	xmlLink * lk;
@@ -595,7 +595,7 @@ int FASTCALL xmlTextWriterEndDocument(xmlTextWriter * writer)
  */
 int xmlTextWriterStartComment(xmlTextWriter * writer)
 {
-	const char * _p_func_name = "xmlTextWriterStartComment";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum;
 	xmlLink * lk;
@@ -667,7 +667,7 @@ int xmlTextWriterStartComment(xmlTextWriter * writer)
  */
 int xmlTextWriterEndComment(xmlTextWriter * writer)
 {
-	const char * _p_func_name = "xmlTextWriterEndComment";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum;
 	xmlLink * lk;
@@ -735,7 +735,7 @@ int XMLCDECL xmlTextWriterWriteFormatComment(xmlTextWriter * writer, const char 
  */
 int xmlTextWriterWriteVFormatComment(xmlTextWriter * writer, const char * format, va_list argptr)
 {
-	const char * _p_func_name = "xmlTextWriterWriteVFormatComment";
+	const char * _p_func_name = __FUNCTION__;
 	int rc;
 	xmlChar * buf;
 	if(writer == NULL) {
@@ -786,7 +786,7 @@ int xmlTextWriterWriteComment(xmlTextWriter * writer, const xmlChar * content)
  */
 int FASTCALL xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * name)
 {
-	const char * _p_func_name = "xmlTextWriterStartElement";
+	const char * _p_func_name = __FUNCTION__;
 	int sum = 0;
 	int count;
 	xmlTextWriterStackEntry * p;
@@ -869,7 +869,7 @@ int FASTCALL xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * n
  */
 int xmlTextWriterStartElementNS(xmlTextWriter * writer, const xmlChar * prefix, const xmlChar * name, const xmlChar * namespaceURI)
 {
-	const char * _p_func_name = "xmlTextWriterStartElementNS";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum = 0;
 	xmlChar * buf;
@@ -1120,7 +1120,7 @@ int xmlTextWriterWriteVFormatRaw(xmlTextWriter * writer, const char * format, va
  */
 int FASTCALL xmlTextWriterWriteRawLen(xmlTextWriter * writer, const xmlChar * content, int len)
 {
-	const char * _p_func_name = "xmlTextWriterWriteRawLen";
+	const char * _p_func_name = __FUNCTION__;
 	int    sum  = 0;
 	if(!writer) {
 		xmlWriterErrMsg(writer, XML_ERR_INTERNAL_ERROR, _p_func_name, "invalid writer!");
@@ -1497,7 +1497,7 @@ int FASTCALL xmlTextWriterStartAttribute(xmlTextWriter * writer, const xmlChar *
  */
 int xmlTextWriterStartAttributeNS(xmlTextWriter * writer, const xmlChar * prefix, const xmlChar * name, const xmlChar * namespaceURI)
 {
-	const char * _p_func_name = "xmlTextWriterStartAttributeNS";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum;
 	xmlChar * buf;
@@ -1909,7 +1909,7 @@ int xmlTextWriterWriteElementNS(xmlTextWriter * writer, const xmlChar * prefix, 
  */
 int xmlTextWriterStartPI(xmlTextWriter * writer, const xmlChar * target)
 {
-	const char * _p_func_name = "xmlTextWriterStartPI";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum;
 	xmlLink * lk;
@@ -2106,7 +2106,7 @@ int xmlTextWriterWritePI(xmlTextWriter * writer, const xmlChar * target, const x
  */
 int xmlTextWriterStartCDATA(xmlTextWriter * writer)
 {
-	const char * _p_func_name = "xmlTextWriterStartCDATA";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum;
 	xmlLink * lk;
@@ -2283,7 +2283,7 @@ int xmlTextWriterWriteCDATA(xmlTextWriter * writer, const xmlChar * content)
  */
 int xmlTextWriterStartDTD(xmlTextWriter * writer, const xmlChar * name, const xmlChar * pubid, const xmlChar * sysid)
 {
-	const char * _p_func_name = "xmlTextWriterStartDTD";
+	const char * _p_func_name = __FUNCTION__;
 	int    count = 0;
 	int    sum = 0;
 	xmlLink * lk;
@@ -2522,7 +2522,7 @@ int xmlTextWriterWriteDTD(xmlTextWriter * writer, const xmlChar * name, const xm
  */
 int xmlTextWriterStartDTDElement(xmlTextWriter * writer, const xmlChar * name)
 {
-	const char * _p_func_name = "xmlTextWriterStartDTDElement";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum = 0;
 	xmlLink * lk;
@@ -2713,7 +2713,7 @@ int xmlTextWriterWriteDTDElement(xmlTextWriter * writer, const xmlChar * name, c
  */
 int xmlTextWriterStartDTDAttlist(xmlTextWriter * writer, const xmlChar * name)
 {
-	const char * _p_func_name = "xmlTextWriterStartDTDAttlist";
+	const char * _p_func_name = __FUNCTION__;
 	int sum = 0;
 	int count;
 	xmlLink * lk;
@@ -2903,7 +2903,7 @@ int xmlTextWriterWriteDTDAttlist(xmlTextWriter * writer, const xmlChar * name, c
  */
 int xmlTextWriterStartDTDEntity(xmlTextWriter * writer, int pe, const xmlChar * name)
 {
-	const char * _p_func_name = "xmlTextWriterStartDTDEntity";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum = 0;
 	xmlLink * lk;
@@ -3167,7 +3167,7 @@ int xmlTextWriterWriteDTDExternalEntity(xmlTextWriter * writer, int pe,
  */
 int xmlTextWriterWriteDTDExternalEntityContents(xmlTextWriter * writer, const xmlChar * pubid, const xmlChar * sysid, const xmlChar * ndataid)
 {
-	const char * _p_func_name = "xmlTextWriterWriteDTDExternalEntityContents";
+	const char * _p_func_name = __FUNCTION__;
 	int count;
 	int sum = 0;
 	xmlLink * lk;
@@ -3474,7 +3474,7 @@ static int xmlTextWriterWriteDocCallback(void * context, const xmlChar * str, in
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(context);
 	int rc;
 	if((rc = xmlParseChunk(ctxt, (const char *)str, len, 0)) != 0) {
-		xmlWriterErrMsgInt(NULL, XML_ERR_INTERNAL_ERROR, "xmlTextWriterWriteDocCallback : XML error %d !\n", rc);
+		xmlWriterErrMsgInt(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ " : XML error %d !\n", rc);
 		return -1;
 	}
 	return len;
@@ -3492,7 +3492,7 @@ static int xmlTextWriterCloseDocCallback(void * context)
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(context);
 	int rc = xmlParseChunk(ctxt, NULL, 0, 1);
 	if(rc) {
-		xmlWriterErrMsgInt(NULL, XML_ERR_INTERNAL_ERROR, "xmlTextWriterWriteDocCallback : XML error %d !\n", rc);
+		xmlWriterErrMsgInt(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ " : XML error %d !\n", rc);
 		return -1;
 	}
 	else
@@ -3509,7 +3509,7 @@ static int xmlTextWriterCloseDocCallback(void * context)
  */
 static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr)
 {
-	const char * _p_func_name = "xmlTextWriterVSprintf";
+	const char * _p_func_name = __FUNCTION__;
 	int size = BUFSIZ;
 	xmlChar * buf = static_cast<xmlChar *>(SAlloc::M(size));
 	if(!buf) {

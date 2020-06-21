@@ -7,10 +7,10 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\ppy\bin</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommand>$(MSBuildProjectDirectory)\..\..\ppy\bin\ppw.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>master</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>$(MSBuildProjectDirectory)\..\..\ppy\bin</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\ppy\bin</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <LocalDebuggerCommand>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
@@ -52,5 +52,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <ShowAllFiles>false</ShowAllFiles>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommand>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</LocalDebuggerCommand>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\ppy\bin</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

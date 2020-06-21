@@ -383,8 +383,7 @@ static int file_read_publickey(LIBSSH2_SESSION * session, uchar ** method, size_
 	/* Read Public Key */
 	fd = fopen(pubkeyfile, "r");
 	if(!fd) {
-		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-		    "Unable to open public key file");
+		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to open public key file");
 	}
 	while(!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n') {
 		pubkey_len++;
@@ -442,16 +441,10 @@ static int file_read_publickey(LIBSSH2_SESSION * session, uchar ** method, size_
 	return 0;
 }
 
-static int memory_read_privatekey(LIBSSH2_SESSION * session,
-    const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
-    void ** hostkey_abstract,
-    const uchar * method, int method_len,
-    const char * privkeyfiledata, size_t privkeyfiledata_len,
-    const char * passphrase)
+static int memory_read_privatekey(LIBSSH2_SESSION * session, const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+    void ** hostkey_abstract, const uchar * method, int method_len, const char * privkeyfiledata, size_t privkeyfiledata_len, const char * passphrase)
 {
-	const LIBSSH2_HOSTKEY_METHOD ** hostkey_methods_avail =
-	    libssh2_hostkey_methods();
-
+	const LIBSSH2_HOSTKEY_METHOD ** hostkey_methods_avail = libssh2_hostkey_methods();
 	*hostkey_method = NULL;
 	*hostkey_abstract = NULL;
 	while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
@@ -464,18 +457,12 @@ static int memory_read_privatekey(LIBSSH2_SESSION * session,
 		hostkey_methods_avail++;
 	}
 	if(!*hostkey_method) {
-		return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE,
-		    "No handler for specified private key");
+		return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE, "No handler for specified private key");
 	}
-
 	if((*hostkey_method)->
-	    initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
-		    (uchar *)passphrase,
-		    hostkey_abstract)) {
-		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-		    "Unable to initialize private key from file");
+	    initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len, (uchar *)passphrase, hostkey_abstract)) {
+		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to initialize private key from file");
 	}
-
 	return 0;
 }
 
@@ -496,8 +483,7 @@ static int file_read_privatekey(LIBSSH2_SESSION * session,
 	*hostkey_method = NULL;
 	*hostkey_abstract = NULL;
 	while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-		if((*hostkey_methods_avail)->initPEM
-		    && strncmp((*hostkey_methods_avail)->name, (const char *)method,
+		if((*hostkey_methods_avail)->initPEM && strncmp((*hostkey_methods_avail)->name, (const char *)method,
 			    method_len) == 0) {
 			*hostkey_method = *hostkey_methods_avail;
 			break;
@@ -505,17 +491,12 @@ static int file_read_privatekey(LIBSSH2_SESSION * session,
 		hostkey_methods_avail++;
 	}
 	if(!*hostkey_method) {
-		return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE,
-		    "No handler for specified private key");
+		return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE, "No handler for specified private key");
 	}
 
-	if((*hostkey_method)->
-	    initPEM(session, privkeyfile, (uchar *)passphrase,
-		    hostkey_abstract)) {
-		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-		    "Unable to initialize private key from file");
+	if((*hostkey_method)->initPEM(session, privkeyfile, (uchar *)passphrase, hostkey_abstract)) {
+		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to initialize private key from file");
 	}
-
 	return 0;
 }
 
@@ -816,21 +797,14 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 		session->userauth_pblc_b = s;
 		/* Not sending signature with *this* packet */
 		*s++ = 0;
-
-		_libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
-		    session->userauth_pblc_method_len);
+		_libssh2_store_str(&s, (const char *)session->userauth_pblc_method, session->userauth_pblc_method_len);
 		_libssh2_store_str(&s, (const char *)pubkeydata, pubkeydata_len);
-
-		_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-		    "Attempting publickey authentication");
-
+		_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Attempting publickey authentication");
 		session->userauth_pblc_state = libssh2_NB_state_created;
 	}
 
 	if(session->userauth_pblc_state == libssh2_NB_state_created) {
-		rc = _libssh2_transport_send(session, session->userauth_pblc_packet,
-		    session->userauth_pblc_packet_len,
-		    NULL, 0);
+		rc = _libssh2_transport_send(session, session->userauth_pblc_packet, session->userauth_pblc_packet_len, NULL, 0);
 		if(rc == LIBSSH2_ERROR_EAGAIN)
 			return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
 		else if(rc) {
@@ -839,8 +813,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 			LIBSSH2_FREE(session, session->userauth_pblc_method);
 			session->userauth_pblc_method = NULL;
 			session->userauth_pblc_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "Unable to send userauth-publickey request");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-publickey request");
 		}
 
 		session->userauth_pblc_state = libssh2_NB_state_sent;
@@ -862,13 +835,11 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 			LIBSSH2_FREE(session, session->userauth_pblc_method);
 			session->userauth_pblc_method = NULL;
 			session->userauth_pblc_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-			    "Waiting for USERAUTH response");
+			return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Waiting for USERAUTH response");
 		}
 
 		if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-			_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-			    "Pubkey authentication prematurely successful");
+			_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Pubkey authentication prematurely successful");
 			/*
 			 * God help any SSH server that allows an UNVERIFIED
 			 * public key to validate the user
@@ -965,10 +936,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 
 		_libssh2_store_str(&s, (const char *)sig, sig_len);
 		LIBSSH2_FREE(session, sig);
-
-		_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-		    "Attempting publickey authentication -- phase 2");
-
+		_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Attempting publickey authentication -- phase 2");
 		session->userauth_pblc_s = s;
 		session->userauth_pblc_state = libssh2_NB_state_sent2;
 	}
@@ -985,8 +953,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 			LIBSSH2_FREE(session, session->userauth_pblc_packet);
 			session->userauth_pblc_packet = NULL;
 			session->userauth_pblc_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "Unable to send userauth-publickey request");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-publickey request");
 		}
 		LIBSSH2_FREE(session, session->userauth_pblc_packet);
 		session->userauth_pblc_packet = NULL;
@@ -1002,18 +969,14 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 	    &session->userauth_pblc_data_len, 0, NULL, 0,
 	    &session->userauth_pblc_packet_requirev_state);
 	if(rc == LIBSSH2_ERROR_EAGAIN) {
-		return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-		    "Would block requesting userauth list");
+		return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block requesting userauth list");
 	}
 	else if(rc) {
 		session->userauth_pblc_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-		    "Waiting for publickey USERAUTH response");
+		return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Waiting for publickey USERAUTH response");
 	}
-
 	if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-		_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-		    "Publickey authentication successful");
+		_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Publickey authentication successful");
 		/* We are us and we've proved it. */
 		LIBSSH2_FREE(session, session->userauth_pblc_data);
 		session->userauth_pblc_data = NULL;
@@ -1026,9 +989,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 	LIBSSH2_FREE(session, session->userauth_pblc_data);
 	session->userauth_pblc_data = NULL;
 	session->userauth_pblc_state = libssh2_NB_state_idle;
-	return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-	    "Invalid signature for supplied public key, or bad "
-	    "username/public key combination");
+	return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Invalid signature for supplied public key, or bad username/public key combination");
 }
 
 /*
@@ -1071,13 +1032,10 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION * session,
 				    &pubkeydata, &pubkeydata_len,
 				    privatekeydata, privatekeydata_len,
 				    passphrase))
-				return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-				    "Unable to extract public key "
-				    "from private key.");
+				return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to extract public key from private key.");
 		}
 		else {
-			return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-			    "Invalid data in public and private key.");
+			return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid data in public and private key.");
 		}
 	}
 
@@ -1121,12 +1079,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION * session,
 		}
 		else {
 			/* Compute public key from private key. */
-			rc = _libssh2_pub_priv_keyfile(session,
-			    &session->userauth_pblc_method,
-			    &session->userauth_pblc_method_len,
-			    &pubkeydata, &pubkeydata_len,
-			    privatekey, passphrase);
-
+			rc = _libssh2_pub_priv_keyfile(session, &session->userauth_pblc_method, &session->userauth_pblc_method_len, &pubkeydata, &pubkeydata_len, privatekey, passphrase);
 			/* _libssh2_pub_priv_keyfile calls _libssh2_error() */
 			if(rc)
 				return rc;
@@ -1241,8 +1194,7 @@ static int userauth_keyboard_interactive(LIBSSH2_SESSION * session, const char *
 			LIBSSH2_FREE(session, session->userauth_kybd_data);
 			session->userauth_kybd_data = NULL;
 			session->userauth_kybd_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "Unable to send keyboard-interactive request");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send keyboard-interactive request");
 		}
 		LIBSSH2_FREE(session, session->userauth_kybd_data);
 		session->userauth_kybd_data = NULL;
@@ -1259,19 +1211,15 @@ static int userauth_keyboard_interactive(LIBSSH2_SESSION * session, const char *
 			    &session->
 			    userauth_kybd_packet_requirev_state);
 			if(rc == LIBSSH2_ERROR_EAGAIN) {
-				return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-				    "Would block");
+				return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
 			}
 			else if(rc) {
 				session->userauth_kybd_state = libssh2_NB_state_idle;
-				return _libssh2_error(session,
-				    LIBSSH2_ERROR_AUTHENTICATION_FAILED,
-				    "Waiting for keyboard USERAUTH response");
+				return _libssh2_error(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED, "Waiting for keyboard USERAUTH response");
 			}
 
 			if(session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-				_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-				    "Keyboard-interactive authentication successful");
+				_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Keyboard-interactive authentication successful");
 				LIBSSH2_FREE(session, session->userauth_kybd_data);
 				session->userauth_kybd_data = NULL;
 				session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -1280,15 +1228,11 @@ static int userauth_keyboard_interactive(LIBSSH2_SESSION * session, const char *
 			}
 
 			if(session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_FAILURE) {
-				_libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-				    "Keyboard-interactive authentication failed");
+				_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Keyboard-interactive authentication failed");
 				LIBSSH2_FREE(session, session->userauth_kybd_data);
 				session->userauth_kybd_data = NULL;
 				session->userauth_kybd_state = libssh2_NB_state_idle;
-				return _libssh2_error(session,
-				    LIBSSH2_ERROR_AUTHENTICATION_FAILED,
-				    "Authentication failed "
-				    "(keyboard-interactive)");
+				return _libssh2_error(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED, "Authentication failed (keyboard-interactive)");
 			}
 
 			/* server requested PAM-like conversation */

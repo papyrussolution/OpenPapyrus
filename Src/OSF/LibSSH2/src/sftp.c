@@ -619,19 +619,13 @@ static LIBSSH2_SFTP * sftp_init(LIBSSH2_SESSION * session)
 		}
 		sftp_handle->channel = session->sftpInit_channel;
 		sftp_handle->request_id = 0;
-
 		_libssh2_htonu32(session->sftpInit_buffer, 5);
 		session->sftpInit_buffer[4] = SSH_FXP_INIT;
 		_libssh2_htonu32(session->sftpInit_buffer + 5, LIBSSH2_SFTP_VERSION);
 		session->sftpInit_sent = 0; /* nothing's sent yet */
-
-		_libssh2_debug(session, LIBSSH2_TRACE_SFTP,
-		    "Sending FXP_INIT packet advertising version %d support",
-		    (int)LIBSSH2_SFTP_VERSION);
-
+		_libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Sending FXP_INIT packet advertising version %d support", (int)LIBSSH2_SFTP_VERSION);
 		session->sftpInit_state = libssh2_NB_state_sent2;
 	}
-
 	if(session->sftpInit_state == libssh2_NB_state_sent2) {
 		/* sent off what's left of the init buffer to send */
 		rc = _libssh2_channel_write(session->sftpInit_channel, 0, session->sftpInit_buffer + session->sftpInit_sent, 9 - session->sftpInit_sent);
@@ -1173,8 +1167,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 				    }
 				    else {
 					    /* we should never reach this point */
-					    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-					    "sftp_read() internal error");
+					    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "sftp_read() internal error");
 				    }
 			    }
 
@@ -1224,21 +1217,18 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 						   https://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
 						   #section-6.4
 						 */
-						return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-					    "Read Packet At Unexpected Offset");
+						return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Read Packet At Unexpected Offset");
 					}
 
 					rc32 = _libssh2_ntohu32(data + 5);
 					if(rc32 > (data_len - 9))
-						return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-					    "SFTP Protocol badness");
+						return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol badness");
 
 					if(rc32 > chunk->len) {
 						/* A chunk larger than we requested was returned to us.
 						   This is a protocol violation and we don't know how to
 						   deal with it. Bail out! */
-						return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-					    "FXP_READ response too big");
+						return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "FXP_READ response too big");
 					}
 
 					if(rc32 != chunk->len) {
@@ -1292,17 +1282,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char * buffer, size_t buf
 
 					break;
 				    default:
-					return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-				    "SFTP Protocol badness: unrecognised "
-				    "read request response");
+					return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol badness: unrecognised read request response");
 			    }
 		    }
-
 		    if(bytes_in_buffer > 0)
 			    return bytes_in_buffer;
-
 		    break;
-
 		default:
 		    assert(!"State machine error; unrecognised read state");
 	}
@@ -1404,27 +1389,19 @@ end:
 			LIBSSH2_FREE(session, sftp->readdir_packet);
 			sftp->readdir_packet = NULL;
 			sftp->readdir_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "_libssh2_channel_write() failed");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "_libssh2_channel_write() failed");
 		}
-
 		LIBSSH2_FREE(session, sftp->readdir_packet);
 		sftp->readdir_packet = NULL;
-
 		sftp->readdir_state = libssh2_NB_state_sent;
 	}
-
-	retcode = sftp_packet_requirev(sftp, 2, read_responses,
-	    sftp->readdir_request_id, &data,
-	    &data_len);
+	retcode = sftp_packet_requirev(sftp, 2, read_responses, sftp->readdir_request_id, &data, &data_len);
 	if(retcode == LIBSSH2_ERROR_EAGAIN)
 		return retcode;
 	else if(retcode) {
 		sftp->readdir_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, retcode,
-		    "Timeout waiting for status message");
+		return _libssh2_error(session, retcode, "Timeout waiting for status message");
 	}
-
 	if(data[0] == SSH_FXP_STATUS) {
 		retcode = _libssh2_ntohu32(data + 5);
 		LIBSSH2_FREE(session, data);
@@ -1643,23 +1620,17 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char * buffer,
 			    else {
 				    /* flush all pending packets from the outgoing list */
 				    sftp_packetlist_flush(handle);
-
 				    /* since we return error now, the application will not get any
 				       outstanding data acked, so we need to rewind the offset to
 				       where the application knows it has reached with acked data */
 				    handle->u.file.offset -= handle->u.file.acked;
-
 				    /* then reset the offset_sent to be the same as the offset */
 				    handle->u.file.offset_sent = handle->u.file.offset;
-
-				    /* clear the acked counter since we can have no pending data to
-				       ack after an error */
+				    /* clear the acked counter since we can have no pending data to ack after an error */
 				    handle->u.file.acked = 0;
-
 				    /* the server returned an error for that written chunk, propagate
 				       this back to our parent function */
-				    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-				    "FXP write failed");
+				    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "FXP write failed");
 			    }
 		    }
 		    break;
@@ -1743,8 +1714,7 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE * handle)
 
 		if(rc < 0) {
 			sftp->fsync_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "_libssh2_channel_write() failed");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "_libssh2_channel_write() failed");
 		}
 		sftp->fsync_state = libssh2_NB_state_sent;
 	}
@@ -1756,19 +1726,15 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE * handle)
 	}
 	else if(rc) {
 		sftp->fsync_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, rc,
-		    "Error waiting for FXP EXTENDED REPLY");
+		return _libssh2_error(session, rc, "Error waiting for FXP EXTENDED REPLY");
 	}
-
 	sftp->fsync_state = libssh2_NB_state_idle;
-
 	retcode = _libssh2_ntohu32(data + 5);
 	LIBSSH2_FREE(session, data);
 
 	if(retcode != LIBSSH2_FX_OK) {
 		sftp->last_errno = retcode;
-		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "fsync failed");
+		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "fsync failed");
 	}
 
 	return 0;
@@ -1828,9 +1794,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
 			LIBSSH2_FREE(session, sftp->fstat_packet);
 			sftp->fstat_packet = NULL;
 			sftp->fstat_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    (setstat ? "Unable to send FXP_FSETSTAT"
-				    : "Unable to send FXP_FSTAT command"));
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, (setstat ? "Unable to send FXP_FSETSTAT" : "Unable to send FXP_FSTAT command"));
 		}
 		LIBSSH2_FREE(session, sftp->fstat_packet);
 		sftp->fstat_packet = NULL;
@@ -1845,8 +1809,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
 		return rc;
 	else if(rc) {
 		sftp->fstat_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, rc,
-		    "Timeout waiting for status message");
+		return _libssh2_error(session, rc, "Timeout waiting for status message");
 	}
 
 	sftp->fstat_state = libssh2_NB_state_idle;
@@ -1861,8 +1824,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE * handle,
 		}
 		else {
 			sftp->last_errno = retcode;
-			return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-			    "SFTP Protocol Error");
+			return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error");
 		}
 	}
 
@@ -2200,8 +2162,7 @@ static int sftp_rename(LIBSSH2_SFTP * sftp, const char * source_filename,
 			LIBSSH2_FREE(session, sftp->rename_packet);
 			sftp->rename_packet = NULL;
 			sftp->rename_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "Unable to send FXP_RENAME command");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_RENAME command");
 		}
 		LIBSSH2_FREE(session, sftp->rename_packet);
 		sftp->rename_packet = NULL;
@@ -2217,41 +2178,28 @@ static int sftp_rename(LIBSSH2_SFTP * sftp, const char * source_filename,
 	}
 	else if(rc) {
 		sftp->rename_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, rc,
-		    "Error waiting for FXP STATUS");
+		return _libssh2_error(session, rc, "Error waiting for FXP STATUS");
 	}
-
 	sftp->rename_state = libssh2_NB_state_idle;
-
 	retcode = _libssh2_ntohu32(data + 5);
 	LIBSSH2_FREE(session, data);
-
 	sftp->last_errno = retcode;
-
 	/* now convert the SFTP error code to libssh2 return code or error
 	   message */
 	switch(retcode) {
 		case LIBSSH2_FX_OK:
 		    retcode = LIBSSH2_ERROR_NONE;
 		    break;
-
 		case LIBSSH2_FX_FILE_ALREADY_EXISTS:
-		    retcode = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "File already exists and "
-		    "SSH_FXP_RENAME_OVERWRITE not specified");
+		    retcode = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "File already exists and SSH_FXP_RENAME_OVERWRITE not specified");
 		    break;
-
 		case LIBSSH2_FX_OP_UNSUPPORTED:
-		    retcode = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "Operation Not Supported");
+		    retcode = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Operation Not Supported");
 		    break;
-
 		default:
-		    retcode = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "SFTP Protocol Error");
+		    retcode = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error");
 		    break;
 	}
-
 	return retcode;
 }
 
@@ -2319,8 +2267,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE * handle, LIBSSH2_SFTP_STATVFS * st
 
 		if(rc < 0) {
 			sftp->fstatvfs_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "_libssh2_channel_write() failed");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "_libssh2_channel_write() failed");
 		}
 		sftp->fstatvfs_state = libssh2_NB_state_sent;
 	}
@@ -2333,8 +2280,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE * handle, LIBSSH2_SFTP_STATVFS * st
 	}
 	else if(rc) {
 		sftp->fstatvfs_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, rc,
-		    "Error waiting for FXP EXTENDED REPLY");
+		return _libssh2_error(session, rc, "Error waiting for FXP EXTENDED REPLY");
 	}
 
 	if(data[0] == SSH_FXP_STATUS) {
@@ -2342,15 +2288,13 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE * handle, LIBSSH2_SFTP_STATVFS * st
 		sftp->fstatvfs_state = libssh2_NB_state_idle;
 		LIBSSH2_FREE(session, data);
 		sftp->last_errno = retcode;
-		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "SFTP Protocol Error");
+		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error");
 	}
 
 	if(data_len < 93) {
 		LIBSSH2_FREE(session, data);
 		sftp->fstatvfs_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "SFTP Protocol Error: short response");
+		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error: short response");
 	}
 
 	sftp->fstatvfs_state = libssh2_NB_state_idle;
@@ -2438,8 +2382,7 @@ static int sftp_statvfs(LIBSSH2_SFTP * sftp, const char * path,
 
 		if(rc < 0) {
 			sftp->statvfs_state = libssh2_NB_state_idle;
-			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-			    "_libssh2_channel_write() failed");
+			return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "_libssh2_channel_write() failed");
 		}
 		sftp->statvfs_state = libssh2_NB_state_sent;
 	}
@@ -2451,8 +2394,7 @@ static int sftp_statvfs(LIBSSH2_SFTP * sftp, const char * path,
 	}
 	else if(rc) {
 		sftp->statvfs_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, rc,
-		    "Error waiting for FXP EXTENDED REPLY");
+		return _libssh2_error(session, rc, "Error waiting for FXP EXTENDED REPLY");
 	}
 
 	if(data[0] == SSH_FXP_STATUS) {
@@ -2460,15 +2402,13 @@ static int sftp_statvfs(LIBSSH2_SFTP * sftp, const char * path,
 		sftp->statvfs_state = libssh2_NB_state_idle;
 		LIBSSH2_FREE(session, data);
 		sftp->last_errno = retcode;
-		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "SFTP Protocol Error");
+		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error");
 	}
 
 	if(data_len < 93) {
 		LIBSSH2_FREE(session, data);
 		sftp->statvfs_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-		    "SFTP Protocol Error: short response");
+		return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error: short response");
 	}
 
 	sftp->statvfs_state = libssh2_NB_state_idle;

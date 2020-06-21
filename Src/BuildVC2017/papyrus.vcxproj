@@ -199,6 +199,7 @@
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppw</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
@@ -212,6 +213,7 @@
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
+    <TargetName>ppw</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
     <OutDir>$(ProjectDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
@@ -280,7 +282,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -350,7 +352,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -423,7 +425,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -494,7 +496,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -561,7 +563,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -626,7 +628,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -693,7 +695,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -759,7 +761,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -825,7 +827,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -890,7 +892,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -956,7 +958,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -1024,7 +1026,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_PAPYRUS;_PPDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -1088,7 +1090,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -1133,7 +1135,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\CSOAP;..\osf\scintilla\include;..\osf\OpenSSL-111\include;..\osf\nginx\src\include;..\osf\nginx\src\os\win32;..\osf\pcre-8.41;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -2110,8 +2112,14 @@
     <ProjectReference Include="nginx.vcxproj">
       <Project>{7e739c8a-b894-4f22-90ac-8b224ffa76a4}</Project>
     </ProjectReference>
-    <ProjectReference Include="openssl.vcxproj">
-      <Project>{1e4e6bbc-3e70-4f77-9f13-fd9b3242d11e}</Project>
+    <ProjectReference Include="openssl-111-crypto.vcxproj">
+      <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="openssl-111.vcxproj">
+      <Project>{0796c89c-07e1-4bda-bdae-f023aeb5366c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="pcre.vcxproj">
+      <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>
     </ProjectReference>
     <ProjectReference Include="ppres.vcxproj">
       <Project>{696dfcc9-ea0f-4232-83b5-21d0657a61c7}</Project>

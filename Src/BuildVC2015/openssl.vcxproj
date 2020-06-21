@@ -880,11 +880,6 @@
     <ClInclude Include="..\OSF\OpenSSL\ssl\statem\statem_locl.h" />
     <ClInclude Include="..\OSF\OpenSSL\ssl\tls1.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="openssl-crypto.vcxproj">
-      <Project>{519272d1-6ac2-4b29-badf-9f9a7af3383c}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

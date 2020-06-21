@@ -74,7 +74,7 @@ struct GravityJson {
 	JSON_CONTEXT_R context;
 };
 
-GravityJson * json_new(void) 
+GravityJson * json_new() 
 {
 	GravityJson * json = static_cast<GravityJson *>(mem_alloc(NULL, sizeof(GravityJson)));
 	assert(json);

@@ -299,33 +299,42 @@ static gnode_t * lookup_symtable_id(gvisitor_t * self, gnode_identifier_expr_t *
 
 // MARK: -
 
-static bool is_expression(gnode_t * node) {
+static bool FASTCALL is_expression(const gnode_t * node) 
+{
 	gnode_n tag = NODE_TAG(node);
 	return ((tag >= NODE_BINARY_EXPR) && (tag <= NODE_ACCESS_EXPR));
 }
 
-static bool is_expression_assignment(gnode_t * node) {
-	if(!node) return false;
-	gnode_n tag = NODE_TAG(node);
-	if(tag == NODE_BINARY_EXPR) {
-		gnode_binary_expr_t * expr = (gnode_binary_expr_t*)node;
-		return (expr->op == TOK_OP_ASSIGN);
+static bool FASTCALL is_expression_assignment(const gnode_t * node) 
+{
+	if(!node) 
+		return false;
+	else {
+		gnode_n tag = NODE_TAG(node);
+		if(tag == NODE_BINARY_EXPR) {
+			const gnode_binary_expr_t * expr = reinterpret_cast<const gnode_binary_expr_t *>(node);
+			return (expr->op == TOK_OP_ASSIGN);
+		}
+		else
+			return false;
 	}
-	return false;
 }
 
-static bool is_expression_range(gnode_t * node) {
+static bool FASTCALL is_expression_range(const gnode_t * node) 
+{
 	gnode_n tag = NODE_TAG(node);
 	if(tag == NODE_BINARY_EXPR) {
-		gnode_binary_expr_t * expr = (gnode_binary_expr_t*)node;
+		const gnode_binary_expr_t * expr = reinterpret_cast<const gnode_binary_expr_t *>(node);
 		return ((expr->op == TOK_OP_RANGE_INCLUDED) || (expr->op == TOK_OP_RANGE_EXCLUDED));
 	}
-	return false;
+	else
+		return false;
 }
 
-static bool is_expression_valid(gnode_t * node) {
-	if(!node) return false;
-
+static bool is_expression_valid(gnode_t * node) 
+{
+	if(!node) 
+		return false;
 	/*
 	    From: http://c2.com/cgi/wiki?FirstClass
 
@@ -363,7 +372,6 @@ static bool is_expression_valid(gnode_t * node) {
 		case NODE_UNARY_EXPR: {
 		    return is_expression_valid(((gnode_unary_expr_t*)node)->expr);
 	    }
-
 		case NODE_BINARY_EXPR: {
 		    gnode_binary_expr_t * expr = (gnode_binary_expr_t*)node;
 		    if(expr->op == TOK_OP_ASSIGN) return false;
@@ -538,12 +546,12 @@ static bool check_class_ivar(gvisitor_t * self, gnode_class_decl_t * classnode, 
 	return true;
 }
 
-static void free_postfix_subexpr(gnode_postfix_subexpr_t * subnode) {
+static void free_postfix_subexpr(gnode_postfix_subexpr_t * subnode) 
+{
 	// check refcount
 	if(subnode->base.refcount > 0) {
 		--subnode->base.refcount; return;
 	}
-
 	// manually free postfix subnode
 	gnode_n tag = subnode->base.tag;
 	if(tag == NODE_CALL_EXPR) {
@@ -555,42 +563,39 @@ static void free_postfix_subexpr(gnode_postfix_subexpr_t * subnode) {
 	else {
 		gnode_free(subnode->expr);
 	}
-
 	mem_free((gnode_t *)subnode);
 }
 
 // MARK: - Statements -
 
-static void visit_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) {
+static void visit_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) 
+{
 	DEBUG_SEMA2("visit_list_stmt");
-
 	PUSH_DECLARATION(node);
 	gnode_array_each(node->stmts, {visit(val);});
 	POP_DECLARATION();
 }
 
-static void visit_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) {
+static void visit_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) 
+{
 	DEBUG_SEMA2("visit_compound_stmt");
-
 	gnode_t            * top = TOP_DECLARATION();
 	symboltable_t    * symtable = symtable_from_node(top);
-
-	if(!symtable) return;
-	symboltable_enter_scope(symtable);
-	gnode_array_each(node->stmts, {visit(val);});
-
-	symboltable_exit_scope(symtable, &node->nclose);
+	if(symtable) {
+		symboltable_enter_scope(symtable);
+		gnode_array_each(node->stmts, {visit(val);});
+		symboltable_exit_scope(symtable, &node->nclose);
+	}
 }
 
-static void visit_label_stmt(gvisitor_t * self, gnode_label_stmt_t * node) {
+static void visit_label_stmt(gvisitor_t * self, gnode_label_stmt_t * node) 
+{
 	DEBUG_SEMA2("visit_label_stmt");
-
 	gtoken_t type = NODE_TOKEN_TYPE(node);
 	if(!TOP_STATEMENT_ISA_SWITCH()) {
 		if(type == TOK_KEY_DEFAULT) REPORT_ERROR(node, "'default' statement not in switch statement.");
 		if(type == TOK_KEY_CASE) REPORT_ERROR(node, "'case' statement not in switch statement.");
 	}
-
 	if(type == TOK_KEY_DEFAULT) {
 		visit(node->stmt);
 	}
@@ -599,12 +604,12 @@ static void visit_label_stmt(gvisitor_t * self, gnode_label_stmt_t * node) {
 	}
 }
 
-static void visit_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node) {
+static void visit_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node) 
+{
 	DEBUG_SEMA2("visit_flow_stmt");
-
 	// assignment has no side effect so report error in case of assignment
-	if(is_expression_assignment(node->cond)) REPORT_ERROR(node->cond, "Assignment not allowed here");
-
+	if(is_expression_assignment(node->cond)) 
+		REPORT_ERROR(node->cond, "Assignment not allowed here");
 	gtoken_t type = NODE_TOKEN_TYPE(node);
 	if(type == TOK_KEY_IF) {
 		visit(node->cond);
@@ -624,9 +629,9 @@ static void visit_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node) {
 	}
 }
 
-static void visit_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) {
+static void visit_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
+{
 	DEBUG_SEMA2("visit_loop_stmt");
-
 	gtoken_t type = NODE_TOKEN_TYPE(node);
 	PUSH_STATEMENT(type);
 
@@ -747,13 +752,13 @@ static void visit_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node)
 	}
 }
 
-static void visit_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node) {
+static void visit_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node) 
+{
 	DEBUG_SEMA2("visit_empty_stmt");
-
 	// get top declaration
 	gnode_t * top = TOP_DECLARATION();
-	if(!NODE_ISA_FUNCTION(top)) REPORT_ERROR(node, "Extraneous semicolon error.");
-
+	if(!NODE_ISA_FUNCTION(top)) 
+		REPORT_ERROR(node, "Extraneous semicolon error.");
 	return;
 }
 
@@ -987,23 +992,26 @@ static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node) {
 
 // MARK: - Expressions -
 
-static void visit_binary_expr(gvisitor_t * self, gnode_binary_expr_t * node) {
+static void visit_binary_expr(gvisitor_t * self, gnode_binary_expr_t * node) 
+{
 	DEBUG_SEMA2("visit_binary_expr %s", token_name(node->op));
-
 	// sanity check
-	if(!is_expression(node->left)) REPORT_ERROR(node->left, "LValue must be an expression.");
-	if(!is_expression(node->right)) REPORT_ERROR(node->right, "RValue must be an expression.");
-
+	if(!is_expression(node->left)) 
+		REPORT_ERROR(node->left, "LValue must be an expression.");
+	if(!is_expression(node->right)) 
+		REPORT_ERROR(node->right, "RValue must be an expression.");
 	// fill missing symbols
 	visit(node->left);
 	visit(node->right);
-
-	if(!is_expression_valid(node->left)) REPORT_ERROR(node->left, "Invalid left expression.");
-	if(!is_expression_valid(node->right)) REPORT_ERROR(node->right, "Invalid right expression.");
-
+	if(!is_expression_valid(node->left)) 
+		REPORT_ERROR(node->left, "Invalid left expression.");
+	if(!is_expression_valid(node->right)) 
+		REPORT_ERROR(node->right, "Invalid right expression.");
 	// sanity check binary expressions
-	if(is_expression_assignment((gnode_t *)node)) check_assignment_expression(self, node);
-	else if(is_expression_range((gnode_t *)node)) check_range_expression(self, node);
+	if(is_expression_assignment(reinterpret_cast<const gnode_t *>(node))) 
+		check_assignment_expression(self, node);
+	else if(is_expression_range(reinterpret_cast<const gnode_t *>(node))) 
+		check_range_expression(self, node);
 }
 
 static void visit_unary_expr(gvisitor_t * self, gnode_unary_expr_t * node) {
@@ -1115,21 +1123,14 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) {
 			REPORT_ERROR(node, "Infinite loop detected in init func.");
 		}
 	}
-
 	bool is_super = (NODE_ISA(node->id, NODE_KEYWORD_EXPR) && (((gnode_keyword_expr_t*)node->id)->base.token.type == TOK_KEY_SUPER));
 	bool is_assignment = node->base.is_assignment;
-
 	// process each subnode
 	size_t count = gnode_array_size(node->list);
 	for(size_t i = 0; i<count; ++i) {
 		gnode_postfix_subexpr_t * subnode = (gnode_postfix_subexpr_t*)gnode_array_get(node->list, i);
-
-		// identify postfix type: NODE_CALL_EXPR, NODE_ACCESS_EXPR, NODE_SUBSCRIPT_EXPR
-		gnode_n tag = subnode->base.tag;
-
-		// check assignment flag
-		bool is_real_assigment = (is_assignment && (i+1 == count));
-
+		gnode_n tag = subnode->base.tag; // identify postfix type: NODE_CALL_EXPR, NODE_ACCESS_EXPR, NODE_SUBSCRIPT_EXPR
+		bool is_real_assigment = (is_assignment && (i+1 == count)); // check assignment flag
 		// assignment sanity check
 		if(is_real_assigment) {
 			if(tag == NODE_CALL_EXPR) {
@@ -1139,11 +1140,10 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) {
 				REPORT_ERROR((gnode_t *)subnode, "Unable to explicitly modify super."); return;
 			}
 		}
-
 		// for a function/method call visit each argument
 		if(tag == NODE_CALL_EXPR) {
-			size_t n = gnode_array_size(subnode->args);
-			for(size_t j = 0; j<n; ++j) {
+			const size_t n = gnode_array_size(subnode->args);
+			for(size_t j = 0; j < n; ++j) {
 				gnode_t * val = (gnode_t *)gnode_array_get(subnode->args, j);
 				if(is_expression_assignment(val)) {
 					REPORT_ERROR(val, "Assignment does not have side effects and so cannot be used as function argument."); return;

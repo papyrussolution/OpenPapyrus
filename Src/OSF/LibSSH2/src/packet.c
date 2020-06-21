@@ -97,32 +97,21 @@ static inline int packet_queue_listener(LIBSSH2_SESSION * session, uchar * data,
 		listen_state->shost = s;
 		s += listen_state->shost_len;
 		listen_state->sport = _libssh2_ntohu32(s);
-
-		_libssh2_debug(session, LIBSSH2_TRACE_CONN,
-		    "Remote received connection from %s:%ld to %s:%ld",
-		    listen_state->shost, listen_state->sport,
-		    listen_state->host, listen_state->port);
-
+		_libssh2_debug(session, LIBSSH2_TRACE_CONN, "Remote received connection from %s:%ld to %s:%ld",
+		    listen_state->shost, listen_state->sport, listen_state->host, listen_state->port);
 		listen_state->state = libssh2_NB_state_allocated;
 	}
-
 	if(listen_state->state != libssh2_NB_state_sent) {
 		while(listn) {
-			if((listn->port == (int)listen_state->port) &&
-			    (strlen(listn->host) == listen_state->host_len) &&
-			    (memcmp(listn->host, listen_state->host,
-					    listen_state->host_len) == 0)) {
+			if((listn->port == (int)listen_state->port) && (strlen(listn->host) == listen_state->host_len) && (memcmp(listn->host, listen_state->host, listen_state->host_len) == 0)) {
 				/* This is our listener */
 				LIBSSH2_CHANNEL * channel = NULL;
 				listen_state->channel = NULL;
-
 				if(listen_state->state == libssh2_NB_state_allocated) {
-					if(listn->queue_maxsize &&
-					    (listn->queue_maxsize <= listn->queue_size)) {
+					if(listn->queue_maxsize && (listn->queue_maxsize <= listn->queue_size)) {
 						/* Queue is full */
 						failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
-						_libssh2_debug(session, LIBSSH2_TRACE_CONN,
-						    "Listener queue full, ignoring");
+						_libssh2_debug(session, LIBSSH2_TRACE_CONN, "Listener queue full, ignoring");
 						listen_state->state = libssh2_NB_state_sent;
 						break;
 					}
@@ -592,11 +581,7 @@ libssh2_packet_add_jump_point1:
 				    /* We may have freed already, just quietly ignore this... */
 				    ;
 			    else {
-				    _libssh2_debug(session,
-				    LIBSSH2_TRACE_CONN,
-				    "EOF received for channel %lu/%lu",
-				    channelp->local.id,
-				    channelp->remote.id);
+				    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "EOF received for channel %lu/%lu", channelp->local.id, channelp->remote.id);
 				    channelp->remote.eof = 1;
 			    }
 			    LIBSSH2_FREE(session, data);
@@ -616,18 +601,10 @@ libssh2_packet_add_jump_point1:
 				    uint32 channel = _libssh2_ntohu32(data + 1);
 				    uint32 len = _libssh2_ntohu32(data + 5);
 				    uchar want_reply = 1;
-
 				    if(len < (datalen - 10))
 					    want_reply = data[9 + len];
-
-				    _libssh2_debug(session,
-				    LIBSSH2_TRACE_CONN,
-				    "Channel %d received request type %.*s (wr %X)",
-				    channel, len, data + 9, want_reply);
-
-				    if(len == sizeof("exit-status") - 1
-				    && !memcmp("exit-status", data + 9,
-					    sizeof("exit-status") - 1)) {
+				    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Channel %d received request type %.*s (wr %X)", channel, len, data + 9, want_reply);
+				    if(len == sizeof("exit-status") - 1 && !memcmp("exit-status", data + 9, sizeof("exit-status") - 1)) {
 					    /* we've got "exit-status" packet. Set the session value */
 					    if(datalen >= 20)
 						    channelp =
@@ -636,12 +613,7 @@ libssh2_packet_add_jump_point1:
 					    if(channelp) {
 						    channelp->exit_status =
 						    _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
-						    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-						    "Exit status %lu received for "
-						    "channel %lu/%lu",
-						    channelp->exit_status,
-						    channelp->local.id,
-						    channelp->remote.id);
+						    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit status %lu received for channel %lu/%lu", channelp->exit_status, channelp->local.id, channelp->remote.id);
 					    }
 				    }
 				    else if(len == sizeof("exit-signal") - 1
@@ -663,8 +635,7 @@ libssh2_packet_add_jump_point1:
 							    data + 13 + sizeof("exit_signal"), namelen);
 							    channelp->exit_signal[namelen] = '\0';
 							    /* TODO: save error message and language tag */
-							    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit signal %s received for channel %lu/%lu",
-									channelp->exit_signal, channelp->local.id, channelp->remote.id);
+							    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Exit signal %s received for channel %lu/%lu", channelp->exit_signal, channelp->local.id, channelp->remote.id);
 						    }
 					    }
 				    }
@@ -700,14 +671,9 @@ libssh2_packet_add_jump_point4:
 				    session->packAdd_state = libssh2_NB_state_idle;
 				    return 0;
 			    }
-			    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-			    "Close received for channel %lu/%lu",
-			    channelp->local.id,
-			    channelp->remote.id);
-
+			    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Close received for channel %lu/%lu", channelp->local.id, channelp->remote.id);
 			    channelp->remote.close = 1;
 			    channelp->remote.eof = 1;
-
 			    LIBSSH2_FREE(session, data);
 			    session->packAdd_state = libssh2_NB_state_idle;
 			    return 0;
@@ -760,19 +726,11 @@ libssh2_packet_add_jump_point3:
 				    ;
 			    else {
 				    uint32 bytestoadd = _libssh2_ntohu32(data + 5);
-				    channelp =
-				    _libssh2_channel_locate(session,
-				    _libssh2_ntohu32(data + 1));
+				    channelp = _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
 				    if(channelp) {
 					    channelp->local.window_size += bytestoadd;
-
-					    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-					    "Window adjust for channel %lu/%lu, "
-					    "adding %lu bytes, new window_size=%lu",
-					    channelp->local.id,
-					    channelp->remote.id,
-					    bytestoadd,
-					    channelp->local.window_size);
+					    _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Window adjust for channel %lu/%lu, adding %lu bytes, new window_size=%lu", 
+							channelp->local.id, channelp->remote.id, bytestoadd, channelp->local.window_size);
 				    }
 			    }
 			    LIBSSH2_FREE(session, data);
@@ -801,10 +759,7 @@ libssh2_packet_add_jump_point3:
 
 		session->packAdd_state = libssh2_NB_state_sent1;
 	}
-
-	if((msg == SSH_MSG_KEXINIT &&
-		    !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
-	    (session->packAdd_state == libssh2_NB_state_sent2)) {
+	if((msg == SSH_MSG_KEXINIT && !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) || (session->packAdd_state == libssh2_NB_state_sent2)) {
 		if(session->packAdd_state == libssh2_NB_state_sent1) {
 			/*
 			 * Remote wants new keys
@@ -812,10 +767,8 @@ libssh2_packet_add_jump_point3:
 			 * let's just call back into ourselves
 			 */
 			_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Renegotiating Keys");
-
 			session->packAdd_state = libssh2_NB_state_sent2;
 		}
-
 		/*
 		 * The KEXINIT message has been added to the queue.  The packAdd and
 		 * readPack states need to be reset because _libssh2_kex_exchange

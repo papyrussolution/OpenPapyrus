@@ -10,16 +10,17 @@
 #pragma hdrstop
 
 struct gravity_lexer_t {
-	const char * buffer;   // buffer
-	uint32 offset;                        // current buffer offset (in bytes)
-	uint32 position;                      // current buffer position (in characters)
-	uint32 length;                        // buffer length (in bytes)
-	uint32 lineno;                        // line counter
-	uint32 colno;                         // column counter
-	uint32 fileid;                        // current file id
-	gtoken_s token;                         // current token
-	bool peeking;                           // flag to check if a peek operation is in progress
-	bool is_static;                         // flag to check if buffer is static and must not be freed
+	const char * buffer; // buffer
+	uint32 offset;     // current buffer offset (in bytes)
+	uint32 position;   // current buffer position (in characters)
+	uint32 length;     // buffer length (in bytes)
+	uint32 lineno;     // line counter
+	uint32 colno;      // column counter
+	uint32 fileid;     // current file id
+	gtoken_s token;    // current token
+	bool   peeking;    // flag to check if a peek operation is in progress
+	bool   is_static;  // flag to check if buffer is static and must not be freed
+	uint8  Reserve[2]; // @alignment
 	gravity_delegate_t * delegate; // delegate (if any)
 	gtoken_t cache;
 };
@@ -635,7 +636,8 @@ return_result:
 
 void gravity_lexer_free(gravity_lexer_t * lexer) 
 {
-	if((!lexer->is_static) && (lexer->buffer)) mem_free(lexer->buffer);
+	if(!lexer->is_static && lexer->buffer) 
+		mem_free(lexer->buffer);
 	mem_free(lexer);
 }
 

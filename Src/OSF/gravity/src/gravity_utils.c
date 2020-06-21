@@ -11,7 +11,7 @@
 
 // MARK: Timer -
 
-nanotime_t nanotime(void) 
+nanotime_t nanotime() 
 {
 	nanotime_t value;
     #if defined(_WIN32)
@@ -130,29 +130,26 @@ abort_read:
 	return NULL;
 }
 
-bool file_exists(const char * path) 
+/* @sobolev (replaced with SLIB fileExists(const char *)) bool file_exists(const char * path) 
 {
-    #ifdef WIN32
-	BOOL isDirectory;
-	DWORD attributes = GetFileAttributesA(path);
+#ifdef WIN32
+	const DWORD attributes = GetFileAttributesA(path);
 	// special directory case to drive the network path check
-	if(attributes == INVALID_FILE_ATTRIBUTES)
-		isDirectory = (GetLastError() == ERROR_BAD_NETPATH);
-	else
-		isDirectory = (FILE_ATTRIBUTE_DIRECTORY & attributes);
-
-	if(isDirectory) {
-		if(PathIsNetworkPathA(path)) return true;
-		if(PathIsUNCA(path)) return true;
+	const BOOL is_directory = (attributes == INVALID_FILE_ATTRIBUTES) ? (GetLastError() == ERROR_BAD_NETPATH) : (FILE_ATTRIBUTE_DIRECTORY & attributes);
+	if(is_directory) {
+		if(PathIsNetworkPathA(path)) 
+			return true;
+		else if(PathIsUNCA(path)) 
+			return true;
 	}
-
-	if(PathFileExistsA(path) == 1) return true;
-    #else
-	if(access(path, F_OK)==0) return true;
-    #endif
-
+	if(PathFileExistsA(path) == 1) 
+		return true;
+#else
+	if(access(path, F_OK)==0) 
+		return true;
+#endif
 	return false;
-}
+}*/
 
 const char * file_buildpath(const char * filename, const char * dirpath) 
 {

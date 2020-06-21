@@ -61,24 +61,15 @@ struct ngx_ssl_ocsp_ctx_s {
 	ngx_log_t * log;
 };
 
-static ngx_int_t ngx_ssl_stapling_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl,
-    X509 * cert, ngx_str_t * file, ngx_str_t * responder, ngx_uint_t verify);
-static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl,
-    ngx_ssl_stapling_t * staple, ngx_str_t * file);
-static ngx_int_t ngx_ssl_stapling_issuer(ngx_conf_t * cf, ngx_ssl_t * ssl,
-    ngx_ssl_stapling_t * staple);
-static ngx_int_t ngx_ssl_stapling_responder(ngx_conf_t * cf, ngx_ssl_t * ssl,
-    ngx_ssl_stapling_t * staple, ngx_str_t * responder);
-
-static int ngx_ssl_certificate_status_callback(ngx_ssl_conn_t * ssl_conn,
-    void * data);
+static ngx_int_t ngx_ssl_stapling_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, X509 * cert, ngx_str_t * file, ngx_str_t * responder, ngx_uint_t verify);
+static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_ssl_stapling_t * staple, ngx_str_t * file);
+static ngx_int_t ngx_ssl_stapling_issuer(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_ssl_stapling_t * staple);
+static ngx_int_t ngx_ssl_stapling_responder(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_ssl_stapling_t * staple, ngx_str_t * responder);
+static int ngx_ssl_certificate_status_callback(ngx_ssl_conn_t * ssl_conn, void * data);
 static void ngx_ssl_stapling_update(ngx_ssl_stapling_t * staple);
 static void ngx_ssl_stapling_ocsp_handler(ngx_ssl_ocsp_ctx_t * ctx);
-
 static time_t ngx_ssl_stapling_time(ASN1_GENERALIZEDTIME * asn1time);
-
 static void ngx_ssl_stapling_cleanup(void * data);
-
 static ngx_ssl_ocsp_ctx_t * ngx_ssl_ocsp_start(void);
 static void ngx_ssl_ocsp_done(ngx_ssl_ocsp_ctx_t * ctx);
 static void ngx_ssl_ocsp_request(ngx_ssl_ocsp_ctx_t * ctx);
@@ -87,14 +78,12 @@ static void ngx_ssl_ocsp_connect(ngx_ssl_ocsp_ctx_t * ctx);
 static void ngx_ssl_ocsp_write_handler(ngx_event_t * wev);
 static void ngx_ssl_ocsp_read_handler(ngx_event_t * rev);
 static void ngx_ssl_ocsp_dummy_handler(ngx_event_t * ev);
-
 static ngx_int_t ngx_ssl_ocsp_create_request(ngx_ssl_ocsp_ctx_t * ctx);
 static ngx_int_t ngx_ssl_ocsp_process_status_line(ngx_ssl_ocsp_ctx_t * ctx);
 static ngx_int_t ngx_ssl_ocsp_parse_status_line(ngx_ssl_ocsp_ctx_t * ctx);
 static ngx_int_t ngx_ssl_ocsp_process_headers(ngx_ssl_ocsp_ctx_t * ctx);
 static ngx_int_t ngx_ssl_ocsp_parse_header_line(ngx_ssl_ocsp_ctx_t * ctx);
 static ngx_int_t ngx_ssl_ocsp_process_body(ngx_ssl_ocsp_ctx_t * ctx);
-
 static u_char * ngx_ssl_ocsp_log_error(ngx_log_t * log, u_char * buf, size_t len);
 
 ngx_int_t ngx_ssl_stapling(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * file, ngx_str_t * responder, ngx_uint_t verify)
@@ -213,12 +202,10 @@ static ngx_int_t ngx_ssl_stapling_issuer(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_s
 	STACK_OF(X509) * chain;
 	X509  * cert = staple->cert;
 #ifdef SSL_CTRL_SELECT_CURRENT_CERT
-	/* OpenSSL 1.0.2+ */
-	SSL_CTX_select_current_cert(ssl->ctx, cert);
+	SSL_CTX_select_current_cert(ssl->ctx, cert); /* OpenSSL 1.0.2+ */
 #endif
 #ifdef SSL_CTRL_GET_EXTRA_CHAIN_CERTS
-	/* OpenSSL 1.0.1+ */
-	SSL_CTX_get_extra_chain_certs(ssl->ctx, &chain);
+	SSL_CTX_get_extra_chain_certs(ssl->ctx, &chain); /* OpenSSL 1.0.1+ */
 #else
 	chain = ssl->ctx->extra_certs;
 #endif
@@ -232,7 +219,6 @@ static ngx_int_t ngx_ssl_stapling_issuer(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_s
 #else
 			CRYPTO_add(&issuer->references, 1, CRYPTO_LOCK_X509);
 #endif
-
 			ngx_log_debug1(NGX_LOG_DEBUG_EVENT, ssl->log, 0, "SSL get issuer: found %p in extra certs", issuer);
 			staple->issuer = issuer;
 			return NGX_OK;

@@ -193,13 +193,9 @@ static void xmlAddEntityReference(xmlEntity * ent, xmlNode * firstNode, xmlNode 
 #endif /* LIBXML_LEGACY_ENABLED */
 static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst);
 static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntity * entity);
-
-/************************************************************************
-*									*
-*		Some factorized error routines				*
-*									*
-************************************************************************/
-
+//
+// Some factorized error routines
+//
 /**
  * xmlErrAttributeDup:
  * @ctxt:  an XML parser context
@@ -2582,19 +2578,13 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 	}
 	return ret;
 }
-
-/************************************************************************
-*									*
-*			The parser itself				*
-*	Relates to http://www.w3.org/TR/REC-xml				*
-*									*
-************************************************************************/
-
-/************************************************************************
-*									*
-*	Routines to parse Name, NCName and NmToken			*
-*									*
-************************************************************************/
+//
+// The parser itself				
+// Relates to http://www.w3.org/TR/REC-xml
+//
+//
+// Routines to parse Name, NCName and NmToken
+//
 #ifdef DEBUG
 	static ulong nbParseName = 0;
 	static ulong nbParseNmToken = 0;
@@ -2708,8 +2698,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 		NEXTL(l);
 		c = CUR_CHAR(l);
 		while((c != ' ') && (c != '>') && (c != '/') && /* accelerators */
-		    (IsLetterASCII(c) || isdec(c) || /* !start */
-			    (c == '_') || (c == ':') || (c == '-') || (c == '.') || (c == 0xB7) || /* !start */
+		    (IsLetterASCII(c) || isdec(c) || /* !start */ oneof4(c, '_', ':', '-', '.') || (c == 0xB7) || /* !start */
 			    ((c >= 0xC0) && (c <= 0xD6)) ||
 			    ((c >= 0xD8) && (c <= 0xF6)) ||
 			    ((c >= 0xF8) && (c <= 0x2FF)) ||
@@ -2937,7 +2926,6 @@ static const xmlChar * FASTCALL xmlParseNCName(xmlParserCtxt * ctxt)
  * Returns NULL for an illegal name, (xmlChar *) 1 for success
  * and the name for mismatch
  */
-
 static const xmlChar * xmlParseNameAndCompare(xmlParserCtxt * ctxt, xmlChar const * other)
 {
 	const xmlChar * cmp = other;
@@ -3049,7 +3037,6 @@ static xmlChar * FASTCALL xmlParseStringName(xmlParserCtxt * ctxt, const xmlChar
 		return xmlStrndup(buf, len);
 	}
 }
-
 /**
  * xmlParseNmtoken:
  * @ctxt:  an XML parser context
@@ -3062,7 +3049,6 @@ static xmlChar * FASTCALL xmlParseStringName(xmlParserCtxt * ctxt, const xmlChar
  *
  * Returns the Nmtoken parsed or NULL
  */
-
 xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 {
 	xmlChar buf[XML_MAX_NAMELEN + 5];

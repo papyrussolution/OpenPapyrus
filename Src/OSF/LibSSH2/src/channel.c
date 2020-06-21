@@ -1329,13 +1329,8 @@ ssize_t FASTCALL _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id,
 				bytes_want = readpkt->data_len - readpkt->data_head;
 				unlink_packet = TRUE;
 			}
-
-			_libssh2_debug(session, LIBSSH2_TRACE_CONN,
-			    "channel_read() got %d of data from %lu/%lu/%d%s",
-			    bytes_want, channel->local.id,
-			    channel->remote.id, stream_id,
-			    unlink_packet ? " [ul]" : "");
-
+			_libssh2_debug(session, LIBSSH2_TRACE_CONN, "channel_read() got %d of data from %lu/%lu/%d%s", bytes_want, channel->local.id,
+			    channel->remote.id, stream_id, unlink_packet ? " [ul]" : "");
 			/* copy data from this struct to the target buffer */
 			memcpy(&buf[bytes_read],
 			    &readpkt->data[readpkt->data_head], bytes_want);

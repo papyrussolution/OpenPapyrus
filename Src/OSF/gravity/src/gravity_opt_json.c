@@ -16,12 +16,12 @@ static uint32 refcount = 0;
 
 // MARK: - Implementation -
 
-static bool JSON_stringify(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
 		RETURN_VALUE(VALUE_FROM_NULL, rindex);
 	// extract value
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	// special case for string because it can be huge (and must be quoted)
 	if(VALUE_ISA_STRING(value)) {
 		const int nchars = 5;
@@ -73,7 +73,7 @@ static bool JSON_stringify(gravity_vm * vm, gravity_value_t * args, uint16 nargs
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(s)), rindex);
 }
 
-static gravity_value_t JSON_value(gravity_vm * vm, json_value * json) 
+static GravityValue JSON_value(gravity_vm * vm, json_value * json) 
 {
 	switch(json->type) {
 		case json_none:
@@ -81,7 +81,7 @@ static gravity_value_t JSON_value(gravity_vm * vm, json_value * json)
 		case json_object: 
 			{
 				gravity_object_t * obj = gravity_object_deserialize(vm, json);
-				gravity_value_t objv = (obj) ? VALUE_FROM_OBJECT(obj) : VALUE_FROM_NULL;
+				GravityValue objv = (obj) ? VALUE_FROM_OBJECT(obj) : VALUE_FROM_NULL;
 				return objv;
 			}
 		case json_array: 
@@ -89,8 +89,8 @@ static gravity_value_t JSON_value(gravity_vm * vm, json_value * json)
 				uint length = json->u.array.length;
 				gravity_list_t * list = gravity_list_new(vm, length);
 				for(uint i = 0; i < length; ++i) {
-					gravity_value_t value = JSON_value(vm, json->u.array.values[i]);
-					marray_push(gravity_value_t, list->array, value);
+					GravityValue value = JSON_value(vm, json->u.array.values[i]);
+					marray_push(GravityValue, list->array, value);
 				}
 				return VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list));
 			}
@@ -102,12 +102,12 @@ static gravity_value_t JSON_value(gravity_vm * vm, json_value * json)
 	return VALUE_FROM_NULL;
 }
 
-static bool JSON_parse(gravity_vm * vm, gravity_value_t * args, uint16 nargs, uint32 rindex) 
+static bool JSON_parse(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
 		RETURN_VALUE(VALUE_FROM_NULL, rindex);
 	// value to parse
-	gravity_value_t value = GET_VALUE(1);
+	GravityValue value = GET_VALUE(1);
 	if(!VALUE_ISA_STRING(value)) 
 		RETURN_VALUE(VALUE_FROM_NULL, rindex);
 	gravity_string_t * string = VALUE_AS_STRING(value);
@@ -117,15 +117,15 @@ static bool JSON_parse(gravity_vm * vm, gravity_value_t * args, uint16 nargs, ui
 	RETURN_VALUE(JSON_value(vm, json), rindex);
 }
 
-//static bool JSON_begin_object (gravity_vm *vm, gravity_value_t *args, uint16 nargs, uint32 rindex) { return false; }
-//static bool json_end_object (gravity_vm *vm, gravity_value_t *args, uint16 nargs, uint32 rindex) {}
-//static bool json_begin_array (gravity_vm *vm, gravity_value_t *args, uint16 nargs, uint32 rindex) {}
-//static bool json_end_array (gravity_vm *vm, gravity_value_t *args, uint16 nargs, uint32 rindex) {}
-//static bool json_add_object (gravity_vm *vm, gravity_value_t *args, uint16 nargs, uint32 rindex) {}
+//static bool JSON_begin_object (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) { return false; }
+//static bool json_end_object (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {}
+//static bool json_begin_array (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {}
+//static bool json_end_array (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {}
+//static bool json_add_object (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {}
 
 // MARK: - Internals -
 
-static void create_optional_class(void) 
+static void create_optional_class() 
 {
 	gravity_class_json = gravity_class_new_pair(NULL, GRAVITY_CLASS_JSON_NAME, NULL, 0, 0);
 	gravity_class_t * json_meta = gravity_class_get_meta(gravity_class_json);
@@ -139,7 +139,7 @@ static void create_optional_class(void)
 // MARK: - Commons -
 
 bool gravity_isjson_class(const gravity_class_t * c) { return (c == gravity_class_json); }
-const char * gravity_json_name(void) { return GRAVITY_CLASS_JSON_NAME; }
+const char * gravity_json_name() { return GRAVITY_CLASS_JSON_NAME; }
 
 void gravity_json_register(gravity_vm * vm) 
 {
@@ -152,7 +152,7 @@ void gravity_json_register(gravity_vm * vm)
 	gravity_vm_setvalue(vm, GRAVITY_CLASS_JSON_NAME, VALUE_FROM_OBJECT(gravity_class_json));
 }
 
-void gravity_json_free(void) 
+void gravity_json_free() 
 {
 	if(gravity_class_json) {
 		if(--refcount) 

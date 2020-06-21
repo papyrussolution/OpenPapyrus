@@ -602,78 +602,6 @@
     <ClCompile Include="..\OSF\OpenSSL\engines\e_capi.c" />
     <ClCompile Include="..\OSF\OpenSSL\engines\e_chil.c" />
     <ClCompile Include="..\OSF\OpenSSL\engines\e_padlock.c" />
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\e_gost_err.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ameth.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_asn1.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_crypt.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ctl.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_keyx.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_ec_sign.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_eng.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_cipher.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_core.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_defines.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_galois_precompiled.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_grasshopper_precompiled.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keyexpimp.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_keywrap.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_md2012.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_omac_acpkm.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_params.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost_pmeth.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost89.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash.c">
-      <Filter>gost</Filter>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenSSL-Supplement\crypto\gost\gosthash2012.c">
-      <Filter>gost</Filter>
-    </ClCompile>
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\t_req.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\pkcs12\p12_sbag.c" />
     <ClCompile Include="..\OSF\OpenSSL\crypto\x509\t_crl.c" />
@@ -1166,16 +1094,8 @@
     <Filter Include="Header">
       <UniqueIdentifier>{c680c542-2db5-4b53-a772-4b6dc36a9793}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gost">
-      <UniqueIdentifier>{c91514f9-6ba8-4cd3-9ffd-638826e4fc8a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header\gost">
       <UniqueIdentifier>{2ab69e3d-a8c6-489c-80d2-828cd65cab82}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\OSF\OpenSSL-Supplement\crypto\gost\gost.txt">
-      <Filter>gost</Filter>
-    </Text>
   </ItemGroup>
 </Project>

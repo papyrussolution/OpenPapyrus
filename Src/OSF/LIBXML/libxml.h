@@ -2480,11 +2480,11 @@ int xmlNop(void);
 	// xmlChar * xmlNodeGetBase(xmlDoc * doc, xmlNode * cur);
 	// 
 	XMLPUBFUN xmlURI * XMLCALL xmlCreateURI();
-	XMLPUBFUN xmlChar * XMLCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
+	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
 	XMLPUBFUN xmlChar * XMLCALL xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base);
 	XMLPUBFUN xmlURI * XMLCALL xmlParseURI(const char * str);
 	XMLPUBFUN xmlURI * XMLCALL xmlParseURIRaw(const char * str, int raw);
-	XMLPUBFUN int XMLCALL xmlParseURIReference(xmlURI * uri, const char * str);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlParseURIReference(xmlURI * uri, const char * str);
 	XMLPUBFUN xmlChar * XMLCALL xmlSaveUri(xmlURI * uri);
 	XMLPUBFUN void XMLCALL xmlPrintURI(FILE * stream, xmlURI * uri);
 	XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list);

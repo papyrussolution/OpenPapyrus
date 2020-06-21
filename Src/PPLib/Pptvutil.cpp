@@ -1784,7 +1784,7 @@ int CycleCtrlGroup::Recalc(TDialog * pDlg, uint leaderCtl)
 	int    ok = 1;
 	int    enable_pdc = 0;
 	PPCycleFilt cf;
-	cf.Init();
+	// @v10.7.12 @ctr cf.Init();
 	DateRange prd, prev_prd;
 	PPCycleArray ca;
 	long   c = pDlg->getCtrlLong(CtlSelCycle);
@@ -1863,7 +1863,7 @@ void CycleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			if(event.isCbSelected(CtlSelCycle)) {
 				int    enable_pdc = 0;
 				PPCycleFilt cf;
-				cf.Init();
+				// @v10.7.12 @ctr cf.Init();
 				long   c = pDlg->getCtrlLong(CtlSelCycle);
 				cf.Cycle = (int16)c;
 				if((cf.Cycle & PRD_PRECDAYSMASK) == PRD_PRECDAYSMASK) {
@@ -1882,8 +1882,7 @@ int CycleCtrlGroup::setData(TDialog * pDlg, void * pData)
 	Rec    rec;
 	if(pData)
 		rec = *static_cast<Rec *>(pData);
-	else
-		rec.C.Init();
+	// @v10.7.12 @ctr else rec.C.Init();
 	if(setupCycleCombo(pDlg, rec.C.Cycle)) {
 		pDlg->setCtrlData(CtlNumCycles, &rec.C.NumCycles);
 		return 1;
@@ -1897,7 +1896,7 @@ int CycleCtrlGroup::getData(TDialog * pDlg, void * pData)
 	int    ok = 1;
 	long   c = 0;
 	Rec    rec;
-	rec.C.Init();
+	// @v10.7.12 @ctr rec.C.Init();
 	pDlg->getCtrlData(CtlSelCycle, &c/*rec.Cycle*/);
 	rec.C.Cycle = (int16)c;
     if(c == PRD_PRECDAYSMASK) {

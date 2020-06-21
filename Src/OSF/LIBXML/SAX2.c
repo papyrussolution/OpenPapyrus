@@ -531,43 +531,38 @@ xmlEntity * xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
  */
 void xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content)
 {
-	xmlEntity * ent;
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	if(!ctx) 
-		return;
-#ifdef DEBUG_SAX
-	xmlGenericError(0, "SAX.xmlSAX2EntityDecl(%s, %d, %s, %s, %s)\n", name, type, publicId, systemId, content);
-#endif
-	if(ctxt->inSubset == 1) {
-		ent = xmlAddDocEntity(ctxt->myDoc, name, type, publicId, systemId, content);
-		if(!ent && (ctxt->pedantic))
-			xmlWarnMsg(ctxt, XML_WAR_ENTITY_REDEFINED, "Entity(%s) already defined in the internal subset\n", name);
-		if(ent && !ent->URI && systemId) {
-			xmlChar * URI;
-			const char * base = NULL;
-			if(ctxt->input)
-				base = ctxt->input->filename;
-			SETIFZ(base, ctxt->directory);
-			URI = xmlBuildURI(systemId, (const xmlChar *)base);
-			ent->URI = URI;
+	if(ctx) {
+	#ifdef DEBUG_SAX
+		xmlGenericError(0, "SAX.xmlSAX2EntityDecl(%s, %d, %s, %s, %s)\n", name, type, publicId, systemId, content);
+	#endif
+		if(ctxt->inSubset == 1) {
+			xmlEntity * ent = xmlAddDocEntity(ctxt->myDoc, name, type, publicId, systemId, content);
+			if(!ent && (ctxt->pedantic))
+				xmlWarnMsg(ctxt, XML_WAR_ENTITY_REDEFINED, "Entity(%s) already defined in the internal subset\n", name);
+			if(ent && !ent->URI && systemId) {
+				const char * base = NULL;
+				if(ctxt->input)
+					base = ctxt->input->filename;
+				SETIFZ(base, ctxt->directory);
+				xmlChar * p_uri = xmlBuildURI(systemId, (const xmlChar *)base);
+				ent->URI = p_uri;
+			}
 		}
-	}
-	else if(ctxt->inSubset == 2) {
-		ent = xmlAddDtdEntity(ctxt->myDoc, name, type, publicId, systemId, content);
-		if(!ent && ctxt->pedantic && ctxt->sax && ctxt->sax->warning)
-			ctxt->sax->warning(ctxt->userData, "Entity(%s) already defined in the external subset\n", name);
-		if(ent && !ent->URI && systemId) {
-			xmlChar * URI;
-			const char * base = NULL;
-			if(ctxt->input)
-				base = ctxt->input->filename;
-			SETIFZ(base, ctxt->directory);
-			URI = xmlBuildURI(systemId, (const xmlChar *)base);
-			ent->URI = URI;
+		else if(ctxt->inSubset == 2) {
+			xmlEntity * ent = xmlAddDtdEntity(ctxt->myDoc, name, type, publicId, systemId, content);
+			if(!ent && ctxt->pedantic && ctxt->sax && ctxt->sax->warning)
+				ctxt->sax->warning(ctxt->userData, "Entity(%s) already defined in the external subset\n", name);
+			if(ent && !ent->URI && systemId) {
+				const char * base = ctxt->input ? ctxt->input->filename : 0;
+				SETIFZ(base, ctxt->directory);
+				xmlChar * p_uri = xmlBuildURI(systemId, (const xmlChar *)base);
+				ent->URI = p_uri;
+			}
 		}
-	}
-	else {
-		xmlFatalErrMsg(ctxt, XML_ERR_ENTITY_PROCESSING, "SAX.xmlSAX2EntityDecl(%s) called while not in subset\n", name, 0);
+		else {
+			xmlFatalErrMsg(ctxt, XML_ERR_ENTITY_PROCESSING, "SAX.xmlSAX2EntityDecl(%s) called while not in subset\n", name, 0);
+		}
 	}
 }
 /**

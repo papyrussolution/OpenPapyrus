@@ -807,8 +807,7 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION * session, uchar ** method, size_t
 	pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
 	BIO_free(bp);
 	if(pk == NULL) {
-		return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-		    "Unable to extract public key from private key file: Wrong passphrase or invalid/unrecognized private key file format");
+		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Unable to extract public key from private key file: Wrong passphrase or invalid/unrecognized private key file format");
 	}
 #ifdef HAVE_OPAQUE_STRUCTS
 	pktype = EVP_PKEY_id(pk);
