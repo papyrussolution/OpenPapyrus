@@ -6005,32 +6005,35 @@ int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName)
 	SString output;
 	SString line_name;
 	SString name_buf;
+	//SString lot_text;
+	LongArray idx_list;
 	PPObjBill::MakeCodeString(&rBp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName,temp_buf);
 	output.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CR();
 	uint item_count = rBp.GetTCount();
 	for(uint tidx = 0; tidx < item_count; tidx++) {
 		const PPTransferItem & r_ti = rBp.ConstTI(tidx);
 		GetGoodsName(r_ti.GoodsID, name_buf);
-		output.Tab(1).Cat("[").Cat(r_ti.RByBill).Cat("]").Space().Cat(name_buf.Transf(CTRANSF_INNER_TO_OUTER)).Cat(", кол-во: ").Cat(r_ti.Qtty()).CR();
-		SString ref_a;
-		SString ref_b;
-		SString ref_code;
-		SString lot_text;
-		THROW_PP_S(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFA, temp_buf.Z())>0, PPERR_EGAIS_NOINFAIDINLOT, lot_text);
-		ref_a.Cat("FSRARINFA: ").Cat(temp_buf).Cat(";");
-		THROW_PP_S(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFB, temp_buf.Z())>0, PPERR_EGAIS_NOINFBIDINLOT, lot_text);
-		ref_b.Cat("FSRARINFB: ").Cat(temp_buf).Cat(";");
-		THROW_PP_S(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf.Z())>0, PPERR_EGAIS_NOINFBIDINLOT, lot_text);
-		ref_code.Cat("FSRARLOTGOODSCODE: ").Cat(temp_buf).Cat(";");
-		output.Tab(2).Cat(ref_a).Tab().Cat(ref_b).Tab().Cat(ref_code).CR();
-
+		output.Tab(1).CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(name_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv(',', 2).Cat("Qtty").CatDiv(':', 2).Cat(r_ti.Qtty()).CR();
+		output.Tab(2).Cat("FSRARINFA").CatDiv(':', 2);
+		if(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFA, temp_buf.Z()) <= 0)
+			temp_buf = "none";
+		output.Cat(temp_buf).Semicol();
+		output.Tab().Cat("FSRARINFB").CatDiv(':', 2);
+		if(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFB, temp_buf.Z()) <= 0)
+			temp_buf = "none";
+		output.Cat(temp_buf).Semicol();
+		output.Tab().Cat("FSRARLOTGOODSCODE").CatDiv(':', 2);
+		if(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARLOTGOODSCODE, temp_buf.Z()) <= 0)
+			temp_buf = "none";
+		output.Cat(temp_buf).CR();
+		//
 		PPLotExtCodeContainer marks = rBp.XcL;
 		StringSet ss;
 		PPLotExtCodeContainer::MarkSet ms;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
-		LongArray idx_list;
+		idx_list.clear();
 		marks.Get(tidx, &idx_list, ms);
-		for(uint boxidx = 0; boxidx<ms.GetCount(); boxidx++) {
+		for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
 			if(ms.GetByIdx(boxidx, msentry)) {
 				if(msentry.Flags & PPLotExtCodeContainer::fBox) {
 					ms.GetByBoxID(msentry.BoxID, ss);
@@ -6045,10 +6048,10 @@ int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName)
 			output.Tab(2).Cat(temp_buf).CR();
 		}	
 	}
-	if(fileExists(rFileName)) {
-		SFile f_out(rFileName, SFile::mAppend);
-		f_out.WriteLine(output);
+	{
+		SFile f_out(rFileName, fileExists(rFileName) ? SFile::mAppend : SFile::mWrite);
+		if(f_out.IsValid())
+			f_out.WriteLine(output);
 	}
-	CATCHZOK					   
 	return ok;
 }

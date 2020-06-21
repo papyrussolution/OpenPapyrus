@@ -135,15 +135,17 @@ public:
 		if(pSs) {
 			SString temp_buf;
 			if(P_Fptr10) {
-				pSs->add("DLL-mode");
+				pSs->add("fptr10 mode");
 				if(P_Fptr10->GetVersionString) {
 					temp_buf = P_Fptr10->GetVersionString();
 					if(temp_buf.NotEmptyS())
 						pSs->add(temp_buf);
 				}
+				temp_buf.Z().Cat("libfptr_util_form_nomenclature").Space().Cat(P_Fptr10->UtilFormNomenclature ? "defined" : "undefined");
+				pSs->add(temp_buf);
 			}
 			else if(P_Disp) {
-				pSs->add("COM-mode");
+				pSs->add("dispatch mode");
 			}
 		}
 		return 1; 
@@ -709,12 +711,20 @@ REGISTER_CMT(ATOLDRV,1,0);
 SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : 
 	PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR), ErrCode(0), CheckStrLen(0)
 {
+	SString temp_buf;
 	if(!P_Fptr10) {
 		P_Fptr10 = new AtolFptr10();
 		if(P_Fptr10 && P_Fptr10->IsValid()) {
 			SString settings_buf;
-			SString temp_buf;
+			{
+				temp_buf.Z().Cat("atol-driver").CatDiv(':', 2).Cat("mode").Space().Cat("fptr10");
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
 			ReadSettingsBulk(settings_buf);
+			if(settings_buf.NotEmpty()) {
+				temp_buf.Z().Cat("atol-driver-settings").CatDiv(':', 2).Cat(settings_buf);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
 			{
 				json_t * p_json_doc = 0;
 				if(json_parse_document(&p_json_doc, settings_buf.cptr()) == JSON_OK) {
@@ -748,8 +758,13 @@ SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 	else {
 		// @v10.7.8 RefToIntrf++; 
 		SETIFZ(P_Disp, InitDisp());
-		if(P_Disp)
+		if(P_Disp) {
 			RefToIntrf++; // @v10.7.8
+			{
+				temp_buf.Z().Cat("atol-driver").CatDiv(':', 2).Cat("mode").Space().Cat("dispatch-interface");
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
+		}
 	}
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;

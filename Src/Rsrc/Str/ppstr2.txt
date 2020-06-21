@@ -3043,6 +3043,7 @@ PPFILNAM_DEBUG_AEQ_LOG         "debug-aeq.log"
 PPFILNAM_TEST_LOG              "test.log"
 PPFILNAM_CHZNTALK_LOG          "chzn-talk.log"
 PPFILNAM_MENUDESKLOCK          "menudesklock.lck"
+PPFILNAM_ATOLDRV_LOG           "atoldrv.log" // @v10.7.12
 
 #!} // dont_translate
 

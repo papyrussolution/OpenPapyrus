@@ -31734,7 +31734,8 @@ public:
 		pfUndef = 0,
 		pfNalogR_Invoice   = 1, //
 		pfNalogR_REZRUISP  = 2, //
-		pfNalogR_SCHFDOPPR = 3  // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+		pfNalogR_SCHFDOPPR = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+		pfExport_Marks     = 4  // @v10.7.12
 	};
 	PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
