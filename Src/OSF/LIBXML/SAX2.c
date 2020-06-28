@@ -69,20 +69,20 @@ static void FASTCALL xmlSAX2ErrMemory(xmlParserCtxt * ctxt, const char * msg)
  */
 static void FASTCALL xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const char * str1, const char * str2)
 {
-	xmlStructuredErrorFunc schannel = NULL;
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt) {
-		ctxt->errNo = error;
-		if(ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC))
-			schannel = ctxt->sax->serror;
-		__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_DTD, error,
-		    XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
-		ctxt->valid = 0;
-	}
-	else {
-		__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_DTD, error,
-		    XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		xmlStructuredErrorFunc schannel = NULL;
+		if(ctxt) {
+			ctxt->errNo = error;
+			if(ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC))
+				schannel = ctxt->sax->serror;
+			__xmlRaiseError(schannel, ctxt->vctxt.error, ctxt->vctxt.userData, ctxt, NULL, XML_FROM_DTD, error,
+				XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
+			ctxt->valid = 0;
+		}
+		else {
+			__xmlRaiseError(schannel, 0, 0, ctxt, NULL, XML_FROM_DTD, error,
+				XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, PTRCHRC_(str1), PTRCHRC_(str2));
+		}
 	}
 }
 
@@ -98,16 +98,16 @@ static void FASTCALL xmlErrValid(xmlParserCtxt * ctxt, xmlParserErrors error, co
  */
 static void FASTCALL xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
-	if(ctxt) {
-		ctxt->wellFormed = 0;
-		ctxt->valid = 0;
-		if(ctxt->recovery == 0)
-			ctxt->disableSAX = 1;
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = error;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
+		if(ctxt) {
+			ctxt->wellFormed = 0;
+			ctxt->valid = 0;
+			if(ctxt->recovery == 0)
+				ctxt->disableSAX = 1;
+		}
 	}
 }
 /**
@@ -122,11 +122,11 @@ static void FASTCALL xmlFatalErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error,
  */
 static void xmlWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), NULL, NULL, 0, 0, msg, str1);
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = error;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), NULL, NULL, 0, 0, msg, str1);
+	}
 }
 /**
  * xmlNsErrMsg:
@@ -140,11 +140,11 @@ static void xmlWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char *
  */
 static void FASTCALL xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = error;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_ERROR, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
+	}
 }
 
 /**
@@ -158,11 +158,11 @@ static void FASTCALL xmlNsErrMsg(xmlParserCtxt * ctxt, xmlParserErrors error, co
  */
 static void FASTCALL xmlNsWarnMsg(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = error;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_NAMESPACE, error, XML_ERR_WARNING, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
+	}
 }
 /**
  * xmlSAX2GetPublicId:

@@ -23,20 +23,9 @@ using namespace Scintilla;
 #define IN_FLAGS 0xF
 #define NOT_HEADER 0x10
 
-inline bool isCOBOLoperator(char ch)
-{
-	return isoperator(ch);
-}
-
-inline bool isCOBOLwordchar(char ch)
-{
-	return IsASCII(ch) && (isalnum(ch) || ch == '-');
-}
-
-inline bool isCOBOLwordstart(char ch)
-{
-	return IsASCII(ch) && isalnum(ch);
-}
+inline bool isCOBOLoperator(char ch) { return isoperator(ch); }
+inline bool isCOBOLwordchar(char ch) { return IsASCII(ch) && (isalnum(ch) || ch == '-'); }
+inline bool isCOBOLwordstart(char ch) { return IsASCII(ch) && isalnum(ch); }
 
 static int CountBits(int nBits)
 {

@@ -15,16 +15,15 @@
 	#define INC_RESIZE(tbl)
 #endif
 
-typedef struct hash_node_s {
+struct hash_node_t {
 	uint32 hash;
 	GravityValue key;
 	GravityValue value;
-	struct hash_node_s      * next;
-} hash_node_t;
+	hash_node_t * next;
+};
 
 struct gravity_hash_t {
-	gravity_hash_t() :
-		size(0), count(0), isequal_fn(0), compute_fn(0), nodes(0), free_fn(0)
+	gravity_hash_t() : size(0), count(0), isequal_fn(0), compute_fn(0), nodes(0), free_fn(0)
 #if GRAVITYHASH_ENABLE_STATS
 		,ncollision(0), nresize(0)
 #endif
@@ -40,16 +39,15 @@ struct gravity_hash_t {
 	// internals
 	uint32 size;
 	uint32 count;
-	hash_node_t             ** nodes;
+	hash_node_t ** nodes;
 	gravity_hash_compute_fn compute_fn;
 	gravity_hash_isequal_fn isequal_fn;
 	gravity_hash_iterate_fn free_fn;
-	void                    * data;
-
+	void * data;
 	// stats
     #if GRAVITYHASH_ENABLE_STATS
-	uint32 ncollision;
-	uint32 nresize;
+		uint32 ncollision;
+		uint32 nresize;
     #endif
 };
 
@@ -152,7 +150,6 @@ static inline uint32 murmur3_32(const char * key, uint32 len, uint32 seed)
 	hash ^= (hash >> 13);
 	hash *= 0xc2b2ae35;
 	hash ^= (hash >> 16);
-
 	return hash;
 }
 
@@ -421,26 +418,31 @@ void gravity_hash_resetfree(gravity_hash_t * hashtable) { hashtable->free_fn = N
 
 bool gravity_hash_compare(gravity_hash_t * hashtable1, gravity_hash_t * hashtable2, gravity_hash_compare_fn compare, void * data) 
 {
-	if(hashtable1->count != hashtable2->count) return false;
-	if(!compare) return false;
-
+	if(hashtable1->count != hashtable2->count) 
+		return false;
+	if(!compare) 
+		return false;
 	// 1. allocate arrays of keys and values
-	gravity_value_r keys1; gravity_value_r values1;
-	gravity_value_r keys2; gravity_value_r values2;
-	marray_init(keys1); marray_init(values1);
-	marray_init(keys2); marray_init(values2);
-	marray_resize(GravityValue, keys1, hashtable1->count + MARRAY_DEFAULT_SIZE);
-	marray_resize(GravityValue, keys2, hashtable1->count + MARRAY_DEFAULT_SIZE);
-	marray_resize(GravityValue, values1, hashtable1->count + MARRAY_DEFAULT_SIZE);
-	marray_resize(GravityValue, values2, hashtable1->count + MARRAY_DEFAULT_SIZE);
-
+	gravity_value_r keys1; 
+	gravity_value_r values1;
+	gravity_value_r keys2; 
+	gravity_value_r values2;
+	// @ctr marray_init(keys1); 
+	// @ctr marray_init(values1);
+	// @ctr marray_init(keys2); 
+	// @ctr marray_init(values2);
+	keys1.resize(hashtable1->count + MARRAY_DEFAULT_SIZE);
+	keys2.resize(hashtable1->count + MARRAY_DEFAULT_SIZE);
+	values1.resize(hashtable1->count + MARRAY_DEFAULT_SIZE);
+	values2.resize(hashtable1->count + MARRAY_DEFAULT_SIZE);
 	// 2. build arrays of keys and values for hashtable1
 	for(uint32 i = 0; i<hashtable1->size; ++i) {
 		hash_node_t * node = hashtable1->nodes[i];
-		if(!node) continue;
+		if(!node) 
+			continue;
 		while(node) {
-			marray_push(GravityValue, keys1, node->key);
-			marray_push(GravityValue, values1, node->value);
+			keys1.insert(node->key);
+			values1.insert(node->value);
 			node = node->next;
 		}
 	}
@@ -448,31 +450,31 @@ bool gravity_hash_compare(gravity_hash_t * hashtable1, gravity_hash_t * hashtabl
 	// 3. build arrays of keys and values for hashtable2
 	for(uint32 i = 0; i<hashtable2->size; ++i) {
 		hash_node_t * node = hashtable2->nodes[i];
-		if(!node) continue;
+		if(!node) 
+			continue;
 		while(node) {
-			marray_push(GravityValue, keys2, node->key);
-			marray_push(GravityValue, values2, node->value);
+			keys2.insert(node->key);
+			values2.insert(node->value);
 			node = node->next;
 		}
 	}
-
 	// sanity check
 	bool result = false;
-	uint32 count = (uint32)marray_size(keys1);
-	if(count != (uint32)marray_size(keys2)) goto cleanup;
-
+	uint32 count = keys1.getCount();
+	if(count != keys2.getCount()) 
+		goto cleanup;
 	// 4. compare keys and values
 	for(uint32 i = 0; i<count; ++i) {
-		if(!compare(marray_get(keys1, i), marray_get(keys2, i), data)) goto cleanup;
-		if(!compare(marray_get(values1, i), marray_get(values2, i), data)) goto cleanup;
+		if(!compare(keys1.at(i), keys2.at(i), data)) 
+			goto cleanup;
+		if(!compare(values1.at(i), values2.at(i), data)) 
+			goto cleanup;
 	}
-
 	result = true;
-
 cleanup:
-	marray_destroy(keys1);
-	marray_destroy(keys2);
-	marray_destroy(values1);
-	marray_destroy(values2);
+	keys1.Z();
+	keys2.Z();
+	values1.Z();
+	values2.Z();
 	return result;
 }

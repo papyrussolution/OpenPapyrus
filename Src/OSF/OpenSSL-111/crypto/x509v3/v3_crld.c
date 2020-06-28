@@ -377,23 +377,23 @@ static void * v2i_idp(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx,
 			continue;
 		if(ret < 0)
 			goto err;
-		if(strcmp(name, "onlyuser") == 0) {
+		if(sstreq(name, "onlyuser")) {
 			if(!X509V3_get_value_bool(cnf, &idp->onlyuser))
 				goto err;
 		}
-		else if(strcmp(name, "onlyCA") == 0) {
+		else if(sstreq(name, "onlyCA")) {
 			if(!X509V3_get_value_bool(cnf, &idp->onlyCA))
 				goto err;
 		}
-		else if(strcmp(name, "onlyAA") == 0) {
+		else if(sstreq(name, "onlyAA")) {
 			if(!X509V3_get_value_bool(cnf, &idp->onlyattr))
 				goto err;
 		}
-		else if(strcmp(name, "indirectCRL") == 0) {
+		else if(sstreq(name, "indirectCRL")) {
 			if(!X509V3_get_value_bool(cnf, &idp->indirectCRL))
 				goto err;
 		}
-		else if(strcmp(name, "onlysomereasons") == 0) {
+		else if(sstreq(name, "onlysomereasons")) {
 			if(!set_reasons(&idp->onlysomereasons, val))
 				goto err;
 		}

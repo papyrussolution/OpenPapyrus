@@ -52,7 +52,7 @@ typedef enum {
 // TOKEN macros
 #define TOKEN_RESET             lexer->token = NO_TOKEN; lexer->token.position = lexer->position; \
 	lexer->token.value = lexer->buffer + lexer->offset;    \
-	lexer->token.lineno = lexer->lineno; lexer->token.colno = lexer->colno; lexer->token.builtin = BUILTIN_NONE
+	lexer->token.lineno = lexer->lineno; lexer->token.colno = lexer->colno; lexer->token.builtin = gtoken_s::BUILTIN_NONE
 #define TOKEN_FINALIZE(t)       lexer->token.type = t; lexer->token.fileid = lexer->fileid
 #define INC_TOKBYTES            ++lexer->token.bytes
 #define INC_TOKUTF8LEN          ++lexer->token.length
@@ -212,7 +212,7 @@ static gtoken_t lexer_scan_comment(gravity_lexer_t * lexer)
 	// comment is from buffer->[nseek] and it is nlen length
 	TOKEN_FINALIZE(TOK_COMMENT);
 	// comments callback is called directly from the scan function and not from the main scan loop
-	if((lexer->delegate) && (lexer->delegate->parser_callback)) {
+	if(lexer->delegate && lexer->delegate->parser_callback) {
 		lexer->delegate->parser_callback(&lexer->token, lexer->delegate->xdata);
 	}
 	DEBUG_LEXEM("Found comment");

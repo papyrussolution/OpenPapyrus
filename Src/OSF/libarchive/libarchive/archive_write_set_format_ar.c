@@ -169,22 +169,22 @@ static int archive_write_ar_header(struct archive_write * a, struct archive_entr
 	memset(buff, ' ', 60);
 	memcpy(&buff[AR_fmag_offset], "`\n", 2);
 
-	if(strcmp(pathname, "/") == 0) {
+	if(sstreq(pathname, "/")) {
 		/* Entry is archive symbol table in GNU format */
 		buff[AR_name_offset] = '/';
 		goto stat;
 	}
-	if(strcmp(pathname, "/SYM64/") == 0) {
+	if(sstreq(pathname, "/SYM64/")) {
 		/* Entry is archive symbol table in GNU 64-bit format */
 		memcpy(buff + AR_name_offset, "/SYM64/", 7);
 		goto stat;
 	}
-	if(strcmp(pathname, "__.SYMDEF") == 0) {
+	if(sstreq(pathname, "__.SYMDEF")) {
 		/* Entry is archive symbol table in BSD format */
 		memcpy(buff + AR_name_offset, "__.SYMDEF", 9);
 		goto stat;
 	}
-	if(strcmp(pathname, "//") == 0) {
+	if(sstreq(pathname, "//")) {
 		/*
 		 * Entry is archive filename table, inform that we should
 		 * collect strtab in next _data call.

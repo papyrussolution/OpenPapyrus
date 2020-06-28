@@ -2916,14 +2916,16 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		}
 		int    SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
 		{
+			PPObjBill * p_bobj = BillObj;
 			int    ok = -1;
 			uint   sel = 0;
 			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
 			SString temp_buf, info_buf;
 			ReceiptTbl::Rec lot_rec;
-			ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
+			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
+			const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
 			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= (int)P_Pack->GetTCount()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
-			const int  do_check = (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT)) ? 0 : 1;
+			const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
 			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 			THROW(CheckDialogPtr(&dlg));
@@ -2980,7 +2982,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					else {
 						/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
 							rSet.AddBox(0, mark_buf, 1);*/
-						if(oneof4(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
+						if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
 							long last_box_id = rSet.SearchLastBox(-1);
 							rSet.AddNum(last_box_id, mark_buf, 1);
 						}

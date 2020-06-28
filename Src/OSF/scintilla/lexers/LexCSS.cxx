@@ -48,10 +48,9 @@ inline bool IsCssOperator(const int ch)
 // look behind (from start of document to our start position) to determine current nesting level
 inline int NestingLevelLookBehind(Sci_PositionU startPos, Accessor & styler) 
 {
-	int ch;
 	int nestingLevel = 0;
 	for(Sci_PositionU i = 0; i < startPos; i++) {
-		ch = styler.SafeGetCharAt(i);
+		const int ch = styler.SafeGetCharAt(i);
 		if(ch == '{')
 			nestingLevel++;
 		else if(ch == '}')
@@ -265,17 +264,11 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    }
 				    break;
 				case '.':
-				    if(lastState == SCE_CSS_TAG || lastState == SCE_CSS_DEFAULT || lastState == SCE_CSS_CLASS ||
-				    lastState == SCE_CSS_ID ||
-				    lastState == SCE_CSS_PSEUDOCLASS || lastState == SCE_CSS_EXTENDED_PSEUDOCLASS || lastState ==
-				    SCE_CSS_UNKNOWN_PSEUDOCLASS)
+				    if(oneof7(lastState, SCE_CSS_TAG, SCE_CSS_DEFAULT, SCE_CSS_CLASS, SCE_CSS_ID, SCE_CSS_PSEUDOCLASS, SCE_CSS_EXTENDED_PSEUDOCLASS, SCE_CSS_UNKNOWN_PSEUDOCLASS))
 					    sc.SetState(SCE_CSS_CLASS);
 				    break;
 				case '#':
-				    if(lastState == SCE_CSS_TAG || lastState == SCE_CSS_DEFAULT || lastState == SCE_CSS_CLASS ||
-				    lastState == SCE_CSS_ID ||
-				    lastState == SCE_CSS_PSEUDOCLASS || lastState == SCE_CSS_EXTENDED_PSEUDOCLASS || lastState ==
-				    SCE_CSS_UNKNOWN_PSEUDOCLASS)
+				    if(oneof7(lastState, SCE_CSS_TAG, SCE_CSS_DEFAULT, SCE_CSS_CLASS, SCE_CSS_ID, SCE_CSS_PSEUDOCLASS, SCE_CSS_EXTENDED_PSEUDOCLASS, SCE_CSS_UNKNOWN_PSEUDOCLASS))
 					    sc.SetState(SCE_CSS_ID);
 				    break;
 				case ',':
@@ -298,28 +291,16 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 					    case SCE_CSS_IMPORTANT:
 						// data URLs can have semicolons; simplistically check for wrapping
 						// parentheses and move along
-						if(insideParentheses) {
+						if(insideParentheses)
 							sc.SetState(lastState);
-						}
-						else {
-							if(lastStateVal == SCE_CSS_VARIABLE) {
-								sc.SetState(SCE_CSS_DEFAULT);
-							}
-							else {
-								sc.SetState(SCE_CSS_IDENTIFIER);
-							}
-						}
+						else
+							sc.SetState((lastStateVal == SCE_CSS_VARIABLE) ? SCE_CSS_DEFAULT : SCE_CSS_IDENTIFIER);
 						break;
 					    case SCE_CSS_VARIABLE:
 						if(lastStateVar == SCE_CSS_VALUE) {
 							// data URLs can have semicolons; simplistically check for
 							// wrapping parentheses and move along
-							if(insideParentheses) {
-								sc.SetState(SCE_CSS_VALUE);
-							}
-							else {
-								sc.SetState(SCE_CSS_IDENTIFIER);
-							}
+							sc.SetState(insideParentheses ? SCE_CSS_VALUE : SCE_CSS_IDENTIFIER);
 						}
 						else {
 							sc.SetState(SCE_CSS_DEFAULT);
@@ -386,11 +367,9 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			// check for nested rule selector
 			if(sc.state == SCE_CSS_IDENTIFIER && (IsAWordChar(sc.ch) || sc.ch == ':' || sc.ch == '.' || sc.ch == '#')) {
 				// look ahead to see whether { comes before next ; and }
-				Sci_PositionU endPos = startPos + length;
-				int ch;
-
+				const Sci_PositionU endPos = startPos + length;
 				for(Sci_PositionU i = sc.currentPos; i < endPos; i++) {
-					ch = styler.SafeGetCharAt(i);
+					const int ch = styler.SafeGetCharAt(i);
 					if(ch == ';' || ch == '}')
 						break;
 					if(ch == '{') {
@@ -407,16 +386,9 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			continue;
 		}
 
-		if(IsAWordChar(sc.chPrev) && (
-			    sc.state == SCE_CSS_IDENTIFIER || sc.state == SCE_CSS_IDENTIFIER2 ||
-			    sc.state == SCE_CSS_IDENTIFIER3 || sc.state == SCE_CSS_EXTENDED_IDENTIFIER ||
-			    sc.state == SCE_CSS_UNKNOWN_IDENTIFIER ||
-			    sc.state == SCE_CSS_PSEUDOCLASS || sc.state == SCE_CSS_PSEUDOELEMENT ||
-			    sc.state == SCE_CSS_EXTENDED_PSEUDOCLASS || sc.state == SCE_CSS_EXTENDED_PSEUDOELEMENT ||
-			    sc.state == SCE_CSS_UNKNOWN_PSEUDOCLASS ||
-			    sc.state == SCE_CSS_IMPORTANT ||
-			    sc.state == SCE_CSS_DIRECTIVE
-			    )) {
+		if(IsAWordChar(sc.chPrev) && (oneof12(sc.state, SCE_CSS_IDENTIFIER, SCE_CSS_IDENTIFIER2, SCE_CSS_IDENTIFIER3, SCE_CSS_EXTENDED_IDENTIFIER,
+			SCE_CSS_UNKNOWN_IDENTIFIER, SCE_CSS_PSEUDOCLASS, SCE_CSS_PSEUDOELEMENT, SCE_CSS_EXTENDED_PSEUDOCLASS, SCE_CSS_EXTENDED_PSEUDOELEMENT,
+			SCE_CSS_UNKNOWN_PSEUDOCLASS, SCE_CSS_IMPORTANT, SCE_CSS_DIRECTIVE))) {
 			char s[100];
 			sc.GetCurrentLowered(s, sizeof(s));
 			char * s2 = s;
@@ -448,8 +420,7 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 					    sc.ChangeState(SCE_CSS_PSEUDOCLASS);
 				    else if(opPrev == ':' && pseudoElements.InList(s2))
 					    sc.ChangeState(SCE_CSS_PSEUDOELEMENT);
-				    else if((op == ':' || (op == '(' && lastState == SCE_CSS_EXTENDED_PSEUDOCLASS)) && opPrev != ':' &&
-				    exPseudoClasses.InList(s2))
+				    else if((op == ':' || (op == '(' && lastState == SCE_CSS_EXTENDED_PSEUDOCLASS)) && opPrev != ':' && exPseudoClasses.InList(s2))
 					    sc.ChangeState(SCE_CSS_EXTENDED_PSEUDOCLASS);
 				    else if(opPrev == ':' && exPseudoElements.InList(s2))
 					    sc.ChangeState(SCE_CSS_EXTENDED_PSEUDOELEMENT);
@@ -457,11 +428,11 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 					    sc.ChangeState(SCE_CSS_UNKNOWN_PSEUDOCLASS);
 				    break;
 				case SCE_CSS_IMPORTANT:
-				    if(strcmp(s2, "important") != 0)
+				    if(!sstreq(s2, "important"))
 					    sc.ChangeState(SCE_CSS_VALUE);
 				    break;
 				case SCE_CSS_DIRECTIVE:
-				    if(op == '@' && strcmp(s2, "media") == 0)
+				    if(op == '@' && sstreq(s2, "media"))
 					    sc.ChangeState(SCE_CSS_MEDIA);
 				    break;
 			}

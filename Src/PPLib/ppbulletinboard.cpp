@@ -908,17 +908,7 @@ int FASTCALL TimeSeriesCache::IsStrategySuited(const PPObjTimeSeries::Strategy &
 {
 	int    yes = 0;
 	if(rS.V.GetResultPerDay() >= Cfg.MinPerDayPotential) {
-		/*
-		if(Cfg.Flags & (Cfg.fUseStakeMode2|Cfg.fUseStakeMode3)) {
-			if(rS.StakeMode == 2 && Cfg.Flags & Cfg.fUseStakeMode2)
-				yes = 1;
-			else if(rS.StakeMode == 3 && Cfg.Flags & Cfg.fUseStakeMode3)
-				yes = 1;
-		}
-		else if(rS.StakeMode == 3)
-			yes = 1;
-		*/
-		if(oneof3(rS.StakeMode, 1, 2, 3)) // @v10.3.9 (4) // @v10.4.5 -(4)
+		if(oneof3(rS.StakeMode, 1, 2, 3))
 			yes = 1;
 	}
 	return yes;

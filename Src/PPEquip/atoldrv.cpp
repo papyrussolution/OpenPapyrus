@@ -46,7 +46,7 @@ static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
 {
 	SString msg_fmt, msg;
 	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
-	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+	PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 }
 
 class SCS_ATOLDRV : public PPSyncCashSession {
@@ -1022,7 +1022,7 @@ void SLAPI SCS_ATOLDRV::WriteLogFile(PPID id)
 			err_msg.Trim(pos);
 		GetProp(AdvancedMode, &adv_mode);
 		msg.Printf(msg_fmt, oper_name.cptr(), err_msg.cptr(), mode_descr.cptr(), adv_mode);
-		PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 }
 
@@ -1296,19 +1296,17 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							uint8 fptr10_mark_buf[512];
 							int mark_buf_data_len = 0;
 							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
+								{
+									temp_buf.Z().Cat("chzn-mark").CatDiv(':', 2).Cat(sl_param.ChZnProductType).CatChar('-').Cat(sl_param.ChZnGTIN).CatChar('-').Cat(sl_param.ChZnSerial);
+									PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+								}
 								if(P_Fptr10->UtilFormNomenclature) {
 									int marking_type = -1;
-									if(sl_param.ChZnProductType == GTCHZNPT_FUR) {
-										marking_type = LIBFPTR_NT_FURS;
-									}
-									else if(sl_param.ChZnProductType == GTCHZNPT_TOBACCO) {
-										marking_type = LIBFPTR_NT_TOBACCO;
-									}
-									else if(sl_param.ChZnProductType == GTCHZNPT_SHOE) {
-										marking_type = LIBFPTR_NT_SHOES;
-									}
-									else if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
-										marking_type = LIBFPTR_NT_MEDICINES;
+									switch(sl_param.ChZnProductType) {
+										case GTCHZNPT_FUR: marking_type = LIBFPTR_NT_FURS; break;
+										case GTCHZNPT_TOBACCO: marking_type = LIBFPTR_NT_TOBACCO; break;
+										case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
+										case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
 									}
 									if(marking_type >= 0) {
 										P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);
@@ -1316,8 +1314,10 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_GTIN, temp_buf_u);
 										temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnSerial, sl_param.ChZnSerial.Len());
 										P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_SERIAL_NUMBER, temp_buf_u);
-										mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
 										P_Fptr10->UtilFormNomenclature(fph);
+										mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
+										temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
+										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
 										/*
 										fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
 										fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
@@ -1325,7 +1325,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										fptr.utilFormNomenclature;
 										nomenclatureCode := fptr.getParamByteArray(fptr.LIBFPTR_PARAM_TAG_VALUE);
 										fptr.setParam(fptr.LIBFPTR_PARAM_COMMODITY_NAME, 'товар1');
-										fptr.setParam(1212, 5);
+										fptr.setParam(1212, 5); // признак предмета расчета
 										fptr.setParam(fptr.LIBFPTR_PARAM_PRICE, pr);
 										fptr.setParam(fptr.LIBFPTR_PARAM_QUANTITY, 1);
 										fptr.setParam(fptr.LIBFPTR_PARAM_TAX_TYPE, fptr.LIBFPTR_TAX_VAT0);
@@ -1558,7 +1558,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					SString fmt_buf, msg_buf, added_buf;
 					added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
 					msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
-					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 				}
 				debug_log_buf.CatChar('}');
 			}
@@ -1661,7 +1661,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
 				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				PPLogMessage(PPFILNAM_SHTRIH_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ATOLDRV_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
 		}
@@ -1670,7 +1670,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			DoBeep();
 			if(Flags & sfOpenCheck)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			PPLogMessage(PPFILNAM_SHTRIH_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_ATOLDRV_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
 			ok = 0;
 		}
 		if(P_Fptr10) {

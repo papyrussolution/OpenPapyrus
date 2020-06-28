@@ -493,14 +493,14 @@ static int archive_read_format_iso9660_bid(struct archive_read * a, int best_bid
 static int archive_read_format_iso9660_options(struct archive_read * a, const char * key, const char * val)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format->data);
-	if(strcmp(key, "joliet") == 0) {
-		if(val == NULL || strcmp(val, "off") == 0 || strcmp(val, "ignore") == 0 || strcmp(val, "disable") == 0 || strcmp(val, "0") == 0)
+	if(sstreq(key, "joliet")) {
+		if(val == NULL || sstreq(val, "off") || sstreq(val, "ignore") || sstreq(val, "disable") || sstreq(val, "0"))
 			iso9660->opt_support_joliet = 0;
 		else
 			iso9660->opt_support_joliet = 1;
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "rockridge") == 0 || strcmp(key, "Rockridge") == 0) {
+	if(sstreq(key, "rockridge") || sstreq(key, "Rockridge")) {
 		iso9660->opt_support_rockridge = val != NULL;
 		return ARCHIVE_OK;
 	}

@@ -9704,8 +9704,7 @@ public:
 	// ARG(pResult   OUT): @#{vptr0}
 	// Returns:
 	//   >0 - значение цены реализации успешно рассчитано.
-	//   <0 - для товара не определена котировка либо значение цены получилось меньше или
-	//     равное нулю.
+	//   <0 - для товара не определена котировка либо значение цены получилось меньше или равное нулю.
 	//   0  - ошибка
 	//
 	int    SLAPI Valuation(const PPBillConfig & rCfg, int calcOnly, double * pResult);
@@ -9717,7 +9716,7 @@ public:
 	LDATE  Date;
 	PPID   BillID;
 	int16  RByBill;
-	int16  SrcIltiPos; // @v7.6.1 Номер позиции в пакете ILBillPacket, из которого была создана данная строка.
+	int16  SrcIltiPos; // Номер позиции в пакете ILBillPacket, из которого была создана данная строка.
 		// Необходим для трансляции идентификаторов лотов при синхронизации между разделами.
 	PPID   CurID;      // ->Ref(PPOBJ_CURRENCY).ID Валюта @v7.6.1 int16-->PPID
 	PPID   LocID;      // ->Location.ID Для складских операций - ИД ячейки
@@ -14513,6 +14512,7 @@ private:
 };
 
 struct DraftRcptItem { // @flat
+	SLAPI  DraftRcptItem();
 	PPID   GoodsID;
 	PPID   LocID;
 	double Qtty;
@@ -16789,12 +16789,12 @@ public:
 	struct Config { // @persistent
 		enum {
 			fTestMode            = 0x0001,
-			fUseStakeMode2       = 0x0002, // @v10.3.3
-			fUseStakeMode3       = 0x0004, // @v10.3.3
-			fAllowReverse        = 0x0008, // @v10.4.2 Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
-			fVerifMode           = 0x0010, // @v10.4.7 Режим верификации данных
-			fIgnoreStrangeStakes = 0x0020, // @v10.6.3 При расчете ставок игнорировать установленные ставки, сделанные не нами (то есть ручные или сделанные другим роботом)
-			fLogStakeEvaluation  = 0x0040  // @v10.6.8 Выводить в журнал информацию о расчете ставок
+			// @v10.8.0 fUseStakeMode2       = 0x0002, // @v10.3.3
+			// @v10.8.0 fUseStakeMode3       = 0x0004, // @v10.3.3
+			fAllowReverse        = 0x0008, // Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
+			fVerifMode           = 0x0010, // Режим верификации данных
+			fIgnoreStrangeStakes = 0x0020, // При расчете ставок игнорировать установленные ставки, сделанные не нами (то есть ручные или сделанные другим роботом)
+			fLogStakeEvaluation  = 0x0040  // Выводить в журнал информацию о расчете ставок
 		};
 		enum {
 			efLong         = 0x0001,
@@ -16925,7 +16925,7 @@ public:
 		};
 		uint32 ID;
 		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
-		uint32 MainFrameSize;    // @v10.4.9 Длина периода магистрального тренда
+		uint32 MainFrameSize;    // Длина периода магистрального тренда
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
 		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
 		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
@@ -16942,7 +16942,6 @@ public:
 		double Margin;           // Маржа
 		double SpikeQuant_s;     // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
-		// @v10.7.4 double StakeThreshold;   // Пороговое значение для назначения ставки (result > StakeThreshold)
 		uint32 StakeDistMedian;  // @v10.7.9 Медианное растояние между ставками. Предположительно важный фактор для оценки адекватности стратегии.
 			// Соображение лежащее в основе предположения следующее: если этот фактор мал, то выигрыши лежат в плотной области и не
 			// могут быть спроецированы на будущее, если же значителен, то выигрыши достаточно равномерно распределены по области наблюдения
@@ -16957,9 +16956,8 @@ public:
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
-		double MainTrendErrLim;  // @v10.7.0 Ограничение для ошибки регрессии магистрального тренда
-		uint   StakeCountAtFinalSimulation; // @v10.7.7
-		// @v10.7.7 uint8  Reserve2[4];      // @v10.6.12 @reserve // @10.7.0 [12]-->[4]
+		double MainTrendErrLim;  // Ограничение для ошибки регрессии магистрального тренда
+		uint   StakeCountAtFinalSimulation;
 	};
 	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
@@ -16974,11 +16972,7 @@ public:
 		};
 		const  SString Symb;     // Символ временной серии
 		long   ActionFlags;      // @flags
-		// @v10.7.4 uint   ForwardFrameSize; // Количество периодов с отсчетом вперед, после которых принимется решение о выходе
-		// @v10.7.4 uint   HiddenLayerDim;   // Количество нейронов в скрытом слое
-		// @v10.7.4 uint   EpochCount;       // Количество эпох обучения каждого паттерна
-		// @v10.7.4 float  LearningRate;     // Фактор скорости обучения
-		uint   Reserve4[4];      // @v10.7.4
+		uint   Reserve4[4];      // 
 	};
 	struct StrategyResultEntry : public Strategy { // @flat
 		SLAPI  StrategyResultEntry();
@@ -16994,10 +16988,10 @@ public:
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
 			// (далее ряд обрывается раньше, чем можно оценить результат ставки).
-		double SumPeak;          // @v10.3.3
-		double SumBottom;        // @v10.3.3
-		double MaxPeak;          // @v10.3.3
-		uint64 TotalSec;         // @v10.3.4 Общее время тесте (для симуляции контейнеров стратегий)
+		double SumPeak;          // 
+		double SumBottom;        // 
+		double MaxPeak;          // 
+		uint64 TotalSec;         // Общее время теста (для симуляции контейнеров стратегий)
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -17084,8 +17078,8 @@ public:
 			gbsfLong               = 0x0001,
 			gbsfShort              = 0x0002,
 			gbsfStakeMode1         = 0x0004,
-			gbsfStakeMode2         = 0x0008,
-			gbsfStakeMode3         = 0x0010,
+			// @v10.8.0 gbsfStakeMode2         = 0x0008,
+			// @v10.8.0 gbsfStakeMode3         = 0x0010,
 			// @v10.4.5 gbsfStakeMode4         = 0x0020,
 			gbsfCritProfitMultProb = 0x0040, // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
 				// Если флаг не установлен, то - доходность.
@@ -17464,11 +17458,21 @@ public:
 	//
 	long   SLAPI GetNewStrategyId() const;
 private:
+	struct TsMainFrameRange {
+		uint   MainFrameSize;
+		RealRange R;
+	};
 	// @v10.7.2 int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    SLAPI FindStrategies(void * pBlk) const;
 	int    SLAPI FindStrategiesLoop(void * pBlk);
-	int    SLAPI FindResonanceCombination(const PPTssModelPacket & rTssModel, const STimeSeries & rTs, const LongArray & rFrameSizeList, const LAssocArray & rStakeBoundList);
+	struct ResonanceCombination {
+		uint   MaxDuckQuant;
+		uint   TargetQuant;
+		uint   FrameSize;
+	};
+	int    SLAPI FindResonanceCombination(void * pBlk, const LongArray & rFrameSizeList, const LAssocArray & rStakeBoundList, uint mainFrameRangeIdx, 
+		const TsMainFrameRange * pMainFrameRange, int stakeSide, ResonanceCombination & rResult);
 	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	uint   SLAPI CalcStakeDistanceMedian(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
@@ -31436,6 +31440,7 @@ struct CfmReckoningParam {
 #define BCF_RETINHERITFREIGHT      0x02000000L  // Связанный документ возврата наследует фрахт от основного документа
 #define BCF_PICKLOTS               0x04000000L  // В товарных документах на расход предпочтение - подбору лота, а не товара
 #define BCF_INHSERIAL              0x08000000L  // Наследовать в приходах серийный номер от последнего лота
+#define BCF_DONTVERIFEXTCODECHAIN  0x10000000L  // @v10.8.0 Не проверять цепочки кодов расширения лотов при расходе
 
 struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	SLAPI  PPBillConfig();
@@ -31732,10 +31737,12 @@ public:
 	//
 	enum { // @persistent
 		pfUndef = 0,
-		pfNalogR_Invoice   = 1, //
-		pfNalogR_REZRUISP  = 2, //
-		pfNalogR_SCHFDOPPR = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
-		pfExport_Marks     = 4  // @v10.7.12
+		pfNalogR_Invoice           = 1, //
+		pfNalogR_REZRUISP          = 2, //
+		pfNalogR_SCHFDOPPR         = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+		pfExport_Marks             = 4, // @v10.7.12
+		pfNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
+		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками 
 	};
 	PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);

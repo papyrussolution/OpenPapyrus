@@ -153,7 +153,7 @@ static const cairo_device_backend_t _cairo_gl_device_backend = {
 static boolint _cairo_gl_msaa_compositor_enabled(void)
 {
 	const char * env = getenv("CAIRO_GL_COMPOSITOR");
-	return env && strcmp(env, "msaa") == 0;
+	return env && sstreq(env, "msaa");
 }
 
 static boolint test_can_read_bgra(cairo_gl_flavor_t gl_flavor)

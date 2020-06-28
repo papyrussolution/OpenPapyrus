@@ -1921,16 +1921,16 @@ typedef struct {
 
 static void get_sigorhash(int * psig, int * phash, const char * str)
 {
-	if(strcmp(str, "RSA") == 0) {
+	if(sstreq(str, "RSA")) {
 		*psig = EVP_PKEY_RSA;
 	}
-	else if(strcmp(str, "RSA-PSS") == 0 || strcmp(str, "PSS") == 0) {
+	else if(sstreq(str, "RSA-PSS") || sstreq(str, "PSS")) {
 		*psig = EVP_PKEY_RSA_PSS;
 	}
-	else if(strcmp(str, "DSA") == 0) {
+	else if(sstreq(str, "DSA")) {
 		*psig = EVP_PKEY_DSA;
 	}
-	else if(strcmp(str, "ECDSA") == 0) {
+	else if(sstreq(str, "ECDSA")) {
 		*psig = EVP_PKEY_EC;
 	}
 	else {

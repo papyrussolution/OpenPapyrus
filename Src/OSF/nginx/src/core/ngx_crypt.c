@@ -13,7 +13,16 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
 static ngx_int_t ngx_crypt_ssha(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
 static ngx_int_t ngx_crypt_sha(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted);
-static u_char * ngx_crypt_to64(u_char * p, uint32_t v, size_t n);
+
+static u_char * FASTCALL ngx_crypt_to64(u_char * p, uint32_t v, size_t n)
+{
+	static u_char itoa64[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	while(n--) {
+		*p++ = itoa64[v & 0x3f];
+		v >>= 6;
+	}
+	return p;
+}
 
 ngx_int_t ngx_crypt(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)
 {
@@ -109,16 +118,6 @@ static ngx_int_t ngx_crypt_apr1(ngx_pool_t * pool, u_char * key, u_char * salt, 
 	p = ngx_crypt_to64(p, final[11], 2);
 	*p = '\0';
 	return NGX_OK;
-}
-
-static u_char * ngx_crypt_to64(u_char * p, uint32_t v, size_t n)
-{
-	static u_char itoa64[] = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	while(n--) {
-		*p++ = itoa64[v & 0x3f];
-		v >>= 6;
-	}
-	return p;
 }
 
 static ngx_int_t ngx_crypt_plain(ngx_pool_t * pool, u_char * key, u_char * salt, u_char ** encrypted)

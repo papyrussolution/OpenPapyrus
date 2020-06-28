@@ -402,7 +402,7 @@ int EVP_PKEY_CTX_ctrl_str(EVP_PKEY_CTX * ctx,
 		EVPerr(EVP_F_EVP_PKEY_CTX_CTRL_STR, EVP_R_COMMAND_NOT_SUPPORTED);
 		return -2;
 	}
-	if(strcmp(name, "digest") == 0)
+	if(sstreq(name, "digest"))
 		return EVP_PKEY_CTX_md(ctx, EVP_PKEY_OP_TYPE_SIG, EVP_PKEY_CTRL_MD,
 			   value);
 	return ctx->pmeth->ctrl_str(ctx, name, value);

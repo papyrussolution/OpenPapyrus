@@ -3463,6 +3463,7 @@ int SLAPI PPObjBill::EditConfig()
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  6, BCF_RETINHERITFREIGHT);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  7, BCF_PICKLOTS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  8, BCF_INHSERIAL);
+	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  9, BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
 	dlg->SetClusterData(CTL_BILLCFG_FLAGS2, cfg.Flags);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 0, BCF_SHOWBARCODESINGBLINES);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 1, BCF_SHOWSERIALSINGBLINES);
@@ -3632,10 +3633,14 @@ int PPObjBill::GetDeficitList(const DateRange * pPeriod, const PPIDArray * pLocL
 }
 // } AHTOXA
 
+SLAPI DraftRcptItem::DraftRcptItem() : GoodsID(0), LocID(0), Qtty(0.0)
+{
+}
+
 IMPL_CMPFUNC(DraftRcptItem, _i1, _i2)
 {
-	int    r = cmp_long(((DraftRcptItem*)_i1)->GoodsID, ((DraftRcptItem*)_i2)->GoodsID);
-	return NZOR(r, cmp_long(((DraftRcptItem*)_i1)->LocID, ((DraftRcptItem*)_i2)->LocID));
+	int    r = cmp_long(static_cast<const DraftRcptItem *>(_i1)->GoodsID, static_cast<const DraftRcptItem *>(_i2)->GoodsID);
+	return NZOR(r, cmp_long(static_cast<const DraftRcptItem *>(_i1)->LocID, static_cast<const DraftRcptItem *>(_i2)->LocID));
 }
 
 int PPObjBill::GetDraftRcptList(const DateRange * pPeriod, const PPIDArray * pLocList, DraftRcptArray * pList)

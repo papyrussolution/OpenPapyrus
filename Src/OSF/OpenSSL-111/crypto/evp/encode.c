@@ -40,12 +40,9 @@ static int evp_decodeblock_int(EVP_ENCODE_CTX * ctx, unsigned char * t, const un
 #define CHUNKS_PER_LINE (64/4)
 #define CHAR_PER_LINE   (64+1)
 
-static const unsigned char data_bin2ascii[65] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
+static const unsigned char data_bin2ascii[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 /* SRP uses a different base64 alphabet */
-static const unsigned char srpdata_bin2ascii[65] =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz./";
+static const unsigned char srpdata_bin2ascii[65] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz./";
 
 /*-
  * 0xF0 is a EOLN

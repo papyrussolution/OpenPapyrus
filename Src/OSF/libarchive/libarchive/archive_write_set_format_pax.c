@@ -144,7 +144,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 		 */
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: hdrcharset option needs a character-set name");
-		else if(strcmp(val, "BINARY") == 0 || strcmp(val, "binary") == 0) {
+		else if(sstreq(val, "BINARY") || sstreq(val, "binary")) {
 			/*
 			 * Specify binary mode. We will not convert
 			 * filenames, uname and gname to any charsets.
@@ -152,7 +152,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 			pax->opt_binary = 1;
 			ret = ARCHIVE_OK;
 		}
-		else if(strcmp(val, "UTF-8") == 0) {
+		else if(sstreq(val, "UTF-8")) {
 			/*
 			 * Specify UTF-8 character-set to be used for
 			 * filenames. This is almost the test that

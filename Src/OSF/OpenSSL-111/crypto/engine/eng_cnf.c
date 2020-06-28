@@ -73,12 +73,12 @@ static int int_engine_configure(const char * name, const char * value, const CON
 		/* First handle some special pseudo ctrls */
 
 		/* Override engine name to use */
-		if(strcmp(ctrlname, "engine_id") == 0)
+		if(sstreq(ctrlname, "engine_id"))
 			name = ctrlvalue;
-		else if(strcmp(ctrlname, "soft_load") == 0)
+		else if(sstreq(ctrlname, "soft_load"))
 			soft = 1;
 		/* Load a dynamic ENGINE */
-		else if(strcmp(ctrlname, "dynamic_path") == 0) {
+		else if(sstreq(ctrlname, "dynamic_path")) {
 			e = ENGINE_by_id("dynamic");
 			if(!e)
 				goto err;
@@ -108,9 +108,9 @@ static int int_engine_configure(const char * name, const char * value, const CON
 			 * Allow "EMPTY" to mean no value: this allows a valid "value" to
 			 * be passed to ctrls of type NO_INPUT
 			 */
-			if(strcmp(ctrlvalue, "EMPTY") == 0)
+			if(sstreq(ctrlvalue, "EMPTY"))
 				ctrlvalue = NULL;
-			if(strcmp(ctrlname, "init") == 0) {
+			if(sstreq(ctrlname, "init")) {
 				if(!NCONF_get_number_e(cnf, value, "init", &do_init))
 					goto err;
 				if(do_init == 1) {
@@ -122,7 +122,7 @@ static int int_engine_configure(const char * name, const char * value, const CON
 					goto err;
 				}
 			}
-			else if(strcmp(ctrlname, "default_algorithms") == 0) {
+			else if(sstreq(ctrlname, "default_algorithms")) {
 				if(!ENGINE_set_default_string(e, ctrlvalue))
 					goto err;
 			}

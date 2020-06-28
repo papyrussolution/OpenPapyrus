@@ -4246,10 +4246,8 @@ int FiasImporter::SaxParseFile(xmlSAXHandler *sax, const char * pFileName)
 		ret = P_SaxCtx->wellFormed ? 0 : NZOR(P_SaxCtx->errNo, -1);
 		if(sax)
 			P_SaxCtx->sax = 0;
-		if(P_SaxCtx->myDoc) {
-			xmlFreeDoc(P_SaxCtx->myDoc);
-			P_SaxCtx->myDoc = NULL;
-		}
+		xmlFreeDoc(P_SaxCtx->myDoc);
+		P_SaxCtx->myDoc = NULL;
 		xmlFreeParserCtxt(P_SaxCtx);
 		P_SaxCtx = 0;
 	}
@@ -5217,10 +5215,8 @@ int PrcssrOsm::SaxParseFile(xmlSAXHandler * sax, const char * pFileName)
 		ret = P_SaxCtx->wellFormed ? 0 : NZOR(P_SaxCtx->errNo, -1);
 		if(sax)
 			P_SaxCtx->sax = 0;
-		if(P_SaxCtx->myDoc) {
-			xmlFreeDoc(P_SaxCtx->myDoc);
-			P_SaxCtx->myDoc = NULL;
-		}
+		xmlFreeDoc(P_SaxCtx->myDoc);
+		P_SaxCtx->myDoc = NULL;
 		xmlFreeParserCtxt(P_SaxCtx);
 		P_SaxCtx = 0;
 	}

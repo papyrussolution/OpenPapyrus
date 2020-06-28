@@ -92,19 +92,15 @@ int SLAPI Transfer::CorrectIntrUnite()
 							}
 						}
 						else {
-							// PPTXT_CORINTRUN_ERRPARLOTNFOUND "Не найден родительский лот id=@int"
-							PPFormatT(PPTXT_CORINTRUN_ERRPARLOTNFOUND, &msg_buf, prev_lot_id);
+							PPFormatT(PPTXT_CORINTRUN_ERRPARLOTNFOUND, &msg_buf, prev_lot_id); // "Не найден родительский лот id=@int"
 							logger.Log(msg_buf);
 						}
 					}
 					else {
-						// PPTXT_CORINTRUN_ERRTRFRNFOUND   "Не найдена запись Transfer, сгегерировшая лот"
-						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_ERRTRFRNFOUND, fmt_buf));
+						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_ERRTRFRNFOUND, fmt_buf)); // "Не найдена запись Transfer, сгегерировшая лот"
 					}
 					if(!corrected) {
-						// PPTXT_CORINTRUN_NOTCORRECTED    "Ошибка НЕ исправлена"
-						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_NOTCORRECTED, fmt_buf));
-						//
+						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_NOTCORRECTED, fmt_buf)); // "Ошибка НЕ исправлена"
 					}
 				}
 			}
@@ -663,6 +659,7 @@ int SLAPI CorrectLotSuppl()
 	PPOprKind op_rec;
 	BillTbl::Rec bill_rec;
 	SString msg_buf, log_fname;
+	SString out_buf, bill_code;
 	PPGetFileName(PPFILNAM_LOTSUPPL_ERR, log_fname);
 	PPLogger logger;
 	PPWait(1);
@@ -674,16 +671,19 @@ int SLAPI CorrectLotSuppl()
 			PPBillPacket pack;
 			PPTransferItem * pti;
 			uint i = 0;
-			THROW(p_bobj->ExtractPacket(bill_rec.ID, &pack));
-			while(!err && pack.EnumTItems(&i, &pti))
-				if(pti->Suppl != pack.Rec.Object && !(pti->Flags & PPTFR_FORCESUPPL))
-					err = 1;
-			if(err) {
-				SString out_buf, bill_code;
-				GetArticleName(pack.Rec.Object, out_buf);
-				out_buf.CatDivIfNotEmpty('-', 1).Cat(PPObjBill::MakeCodeString(&pack.Rec, 0, bill_code));
-				logger.Log(out_buf);
-				THROW(p_bobj->UpdatePacket(&pack, 1));
+			if(!p_bobj->ExtractPacket(bill_rec.ID, &pack))
+				logger.LogLastError();
+			else {
+				while(!err && pack.EnumTItems(&i, &pti))
+					if(pti->Suppl != pack.Rec.Object && !(pti->Flags & PPTFR_FORCESUPPL))
+						err = 1;
+				if(err) {
+					GetArticleName(pack.Rec.Object, out_buf);
+					out_buf.CatDivIfNotEmpty('-', 1).Cat(PPObjBill::MakeCodeString(&pack.Rec, 0, bill_code));
+					logger.Log(out_buf);
+					if(!p_bobj->UpdatePacket(&pack, 1))
+						logger.LogLastError();
+				}
 			}
 		}
 	}

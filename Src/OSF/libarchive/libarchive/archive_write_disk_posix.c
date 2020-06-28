@@ -563,7 +563,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			int i = archive_entry_xattr_reset(a->entry);
 			while(i--) {
 				archive_entry_xattr_next(a->entry, &attr_name, &attr_value, &attr_size);
-				if(attr_name != NULL && attr_value != NULL && attr_size > 0 && strcmp(attr_name, "trusted.richacl") == 0) {
+				if(attr_name != NULL && attr_value != NULL && attr_size > 0 && sstreq(attr_name, "trusted.richacl")) {
 					extract_acls = 0;
 					break;
 				}

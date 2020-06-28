@@ -226,7 +226,7 @@ void SCI_METHOD LexerDMIS::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, i
 					    scCTX.ChangeState(SCE_DMIS_MINORWORD);
 				    }
 				    if(this->m_majorWords.InList(tmpStr)) {
-					    isIFLine = (strcmp(tmpStr, "IF") == 0);
+					    isIFLine = (sstreq(tmpStr, "IF"));
 					    scCTX.ChangeState(SCE_DMIS_MAJORWORD);
 				    }
 				    if(this->m_unsupportedMajor.InList(tmpStr)) {

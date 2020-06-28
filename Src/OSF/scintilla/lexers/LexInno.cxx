@@ -152,11 +152,10 @@ static void ColouriseInnoDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			    if(ch == ']') {
 				    state = SCE_INNO_DEFAULT;
 				    buffer[bufferCount] = '\0';
-
 				    // Check if the buffer contains a section name
 				    if(sectionKeywords.InList(buffer)) {
 					    styler.ColourTo(i, SCE_INNO_SECTION);
-					    isCode = !CompareCaseInsensitive(buffer, "code");
+					    isCode = sstreqi_ascii(buffer, "code");
 				    }
 				    else {
 					    styler.ColourTo(i, SCE_INNO_DEFAULT);

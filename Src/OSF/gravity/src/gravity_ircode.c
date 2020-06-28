@@ -7,8 +7,10 @@
 #include <gravity_.h>
 #pragma hdrstop
 
-typedef marray_t(inst_t *)      code_r;
-typedef marray_t(bool *)        context_r;
+//typedef marray_t(inst_t *)      code_r;
+//typedef marray_t(bool *)        context_r;
+typedef GravityArray <inst_t *> code_r;
+typedef GravityArray <bool *>   context_r;
 
 struct ircode_t {
 	code_r * list;        // array of ircode instructions
@@ -57,29 +59,31 @@ ircode_t * ircode_create(uint16 nlocals)
 
 void ircode_free(ircode_t * code) 
 {
-	uint32 count = ircode_count(code);
-	for(uint32 i = 0; i<count; ++i) {
-		inst_t * inst = marray_get(*code->list, i);
-		mem_free(inst);
+	if(code) {
+		uint32 count = ircode_count(code);
+		for(uint32 i = 0; i<count; ++i) {
+			inst_t * inst = code->list->at(i);
+			mem_free(inst);
+		}
+		code->list->Z();
+		code->context.Z();
+		code->registers.Z();
+		code->label_true.Z();
+		code->label_false.Z();
+		code->label_check.Z();
+		mem_free(code->list);
+		mem_free(code);
 	}
-	marray_destroy(*code->list);
-	marray_destroy(code->context);
-	marray_destroy(code->registers);
-	marray_destroy(code->label_true);
-	marray_destroy(code->label_false);
-	marray_destroy(code->label_check);
-	mem_free(code->list);
-	mem_free(code);
 }
 
 uint32 ircode_ntemps(const ircode_t * code) { return code->ntemps; }
-uint32 ircode_count(const ircode_t * code) { return (uint32)marray_size(*code->list); }
+uint32 ircode_count(const ircode_t * code) { return code->list->getCount(); }
 bool   ircode_iserror(const ircode_t * code) { return code->error; }
 
 inst_t * ircode_get(ircode_t * code, uint32 index) 
 {
-	uint32 n = (uint32)marray_size(*code->list);
-	return (index >= n) ? NULL : marray_get(*code->list, index);
+	uint32 n = code->list->getCount();
+	return (index >= n) ? NULL : code->list->at(index);
 }
 
 // MARK: -
@@ -157,19 +161,19 @@ void ircode_patch_init(ircode_t * code, uint16 index)
 	code_r * list = (code_r *)(mem_alloc(NULL, sizeof(code_r)));
 	marray_init(*list);
 	// add newly create instructions
-	marray_push(inst_t*, *list, inst1);
-	marray_push(inst_t*, *list, inst2);
-	marray_push(inst_t*, *list, inst3);
-	marray_push(inst_t*, *list, inst4);
+	list->insert(inst1);
+	list->insert(inst2);
+	list->insert(inst3);
+	list->insert(inst4);
 	// then copy original instructions
 	code_r * orig_list = code->list;
-	uint32 count = ircode_count(code);
-	for(uint32 i = 0; i<count; ++i) {
-		inst_t * inst = marray_get(*orig_list, i);
-		marray_push(inst_t*, *list, inst);
+	const uint32 count = ircode_count(code);
+	for(uint32 i = 0; i < count; ++i) {
+		inst_t * inst = orig_list->at(i);
+		list->insert(inst);
 	}
 	// free dest list
-	marray_destroy(*orig_list);
+	orig_list->Z();
 	mem_free(code->list);
 	// replace dest list with the newly created list
 	code->list = list;
@@ -240,17 +244,17 @@ uint8_t FASTCALL opcode_numop(opcode_t op)
 	return 0;
 }
 
-void ircode_dump(void * _code) 
+void ircode_dump(const void * _code) // code_dump_function
 {
-	ircode_t    * code = (ircode_t *)_code;
-	code_r      * list = code->list;
+	const ircode_t * code = static_cast<const ircode_t *>(_code);
+	const code_r * list = code->list;
 	uint32 count = ircode_count(code);
 	if(count == 0) {
 		printf("NONE\n");
 		return;
 	}
 	for(uint32 i = 0, line = 0; i<count; ++i) {
-		inst_t      * inst = marray_get(*list, i);
+		const inst_t * inst = list->at(i);
 		opcode_t op = inst->op;
 		int32 p1 = inst->p1;
 		int32 p2 = inst->p2;
@@ -260,7 +264,6 @@ void ircode_dump(void * _code)
 		if(inst->tag == LABEL_TAG) {
 			printf("LABEL %d:\n", p1); continue;
 		}
-
 		uint8_t n = opcode_numop(op);
 		if((op == SETLIST) && (p2 == 0)) n = 2;
 
@@ -307,38 +310,38 @@ void ircode_dump(void * _code)
 // MARK: -
 
 uint32 FASTCALL ircode_newlabel(ircode_t * code) { return ++code->label_counter; }
-void ircode_setlabel_true(ircode_t * code, uint32 nlabel) { marray_push(uint32, code->label_true, nlabel); }
-void ircode_setlabel_false(ircode_t * code, uint32 nlabel) { marray_push(uint32, code->label_false, nlabel); }
-void ircode_setlabel_check(ircode_t * code, uint32 nlabel) { marray_push(uint32, code->label_check, nlabel); }
-void ircode_unsetlabel_true(ircode_t * code) { marray_pop(code->label_true); }
-void ircode_unsetlabel_false(ircode_t * code) { marray_pop(code->label_false); }
-void ircode_unsetlabel_check(ircode_t * code) { marray_pop(code->label_check); }
+void ircode_setlabel_true(ircode_t * code, uint32 nlabel) { code->label_true.insert(nlabel); }
+void ircode_setlabel_false(ircode_t * code, uint32 nlabel) { code->label_false.insert(nlabel); }
+void ircode_setlabel_check(ircode_t * code, uint32 nlabel) { code->label_check.insert(nlabel); }
+void ircode_unsetlabel_true(ircode_t * code) { code->label_true.pop(); }
+void ircode_unsetlabel_false(ircode_t * code) { code->label_false.pop(); }
+void ircode_unsetlabel_check(ircode_t * code) { code->label_check.pop(); }
 
 uint32 ircode_getlabel_true(ircode_t * code) 
 {
-	size_t n = marray_size(code->label_true);
-	uint32 v = marray_get(code->label_true, n-1);
+	size_t n = code->label_true.getCount();
+	uint32 v = code->label_true.at(n-1);
 	return v;
 }
 
 uint32 ircode_getlabel_false(ircode_t * code) 
 {
-	size_t n = marray_size(code->label_false);
-	uint32 v = marray_get(code->label_false, n-1);
+	size_t n = code->label_false.getCount();
+	uint32 v = code->label_false.at(n-1);
 	return v;
 }
 
 uint32 ircode_getlabel_check(ircode_t * code) 
 {
-	size_t n = marray_size(code->label_check);
-	uint32 v = marray_get(code->label_check, n-1);
+	size_t n = code->label_check.getCount();
+	uint32 v = code->label_check.at(n-1);
 	return v;
 }
 
 void ircode_marklabel(ircode_t * code, uint32 nlabel, uint32 lineno) 
 {
 	inst_t * inst = inst_new(RET0, nlabel, 0, 0, LABEL_TAG, 0, 0.0, lineno);
-	marray_push(inst_t*, *code->list, inst);
+	code->list->insert(inst);
 }
 
 // MARK: -
@@ -351,7 +354,7 @@ void ircode_pragma(ircode_t * code, optag_t tag, uint32 value, uint32 lineno)
 
 void ircode_set_index(uint32 index, ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3) 
 {
-	inst_t * inst = marray_get(*code->list, index);
+	inst_t * inst = code->list->at(index);
 	inst->op = op;
 	inst->p1 = p1;
 	inst->p2 = p2;
@@ -359,51 +362,51 @@ void ircode_set_index(uint32 index, ircode_t * code, opcode_t op, uint32 p1, uin
 	inst->tag = NO_TAG;
 }
 
-void ircode_add(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, uint32 lineno) 
+void FASTCALL ircode_add(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, uint32 lineno) 
 {
 	ircode_add_tag(code, op, p1, p2, p3, NO_TAG, lineno);
 }
 
-void ircode_add_tag(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, optag_t tag, uint32 lineno) 
+void FASTCALL ircode_add_tag(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, optag_t tag, uint32 lineno) 
 {
 	inst_t * inst = inst_new(op, p1, p2, p3, tag, 0, 0.0, lineno);
-	marray_push(inst_t*, *code->list, inst);
+	code->list->insert(inst);
 }
 
 void ircode_add_double(ircode_t * code, double d, uint32 lineno) 
 {
 	uint32 regnum = ircode_register_push_temp(code);
 	inst_t * inst = inst_new(LOADI, regnum, 0, 0, DOUBLE_TAG, 0, d, lineno);
-	marray_push(inst_t*, *code->list, inst);
+	code->list->insert(inst);
 }
 
 void FASTCALL ircode_add_constant(ircode_t * code, uint32 index, uint32 lineno) 
 {
 	uint32 regnum = ircode_register_push_temp(code);
 	inst_t * inst = inst_new(LOADK, regnum, index, 0, NO_TAG, 0, 0, lineno);
-	marray_push(inst_t*, *code->list, inst);
+	code->list->insert(inst);
 }
 
 void ircode_add_int(ircode_t * code, int64_t n, uint32 lineno) 
 {
 	uint32 regnum = ircode_register_push_temp(code);
 	inst_t * inst = inst_new(LOADI, regnum, 0, 0, INT_TAG, n, 0, lineno);
-	marray_push(inst_t*, *code->list, inst);
+	code->list->insert(inst);
 }
 
 void ircode_add_skip(ircode_t * code, uint32 lineno) 
 {
 	inst_t * inst = inst_new(RET0, 0, 0, 0, NO_TAG, 0, 0, lineno);
 	inst_setskip(inst);
-	marray_push(inst_t*, *code->list, inst);
+	code->list->insert(inst);
 }
 
 void ircode_add_check(ircode_t * code) 
 {
-	inst_t * inst = marray_last(*code->list);
+	inst_t * inst = code->list->getLast();
 	if((inst) && (inst->op == MOVE)) {
 		inst_t * newinst = inst_new(CHECK, inst->p1, 0, 0, NO_TAG, 0, 0, inst->lineno);
-		marray_push(inst_t*, *code->list, newinst);
+		code->list->insert(newinst);
 	}
 }
 
@@ -421,30 +424,31 @@ void ircode_add_check(ircode_t * code)
 void ircode_push_context(ircode_t * code) 
 {
 	bool * context = static_cast<bool *>(mem_alloc(NULL, sizeof(bool) * MAX_REGISTERS));
-	marray_push(bool *, code->context, context);
+	code->context.insert(context);
 }
 
 void ircode_pop_context(ircode_t * code) 
 {
-	bool * context = marray_pop(code->context);
+	bool * context = code->context.pop();
 	// apply context mask
-	for(uint32 i = 0; i<MAX_REGISTERS; ++i) {
-		if(context[i]) code->state[i] = false;
+	for(uint32 i = 0; i < MAX_REGISTERS; ++i) {
+		if(context[i]) 
+			code->state[i] = false;
 	}
 	mem_free(context);
 }
 
 uint32 ircode_register_pop_context_protect(ircode_t * code, bool protect) 
 {
-	if(marray_size(code->registers) == 0) 
+	if(code->registers.getCount() == 0) 
 		return REGISTER_ERROR;
-	uint32 value = (uint32)marray_pop(code->registers);
+	uint32 value = code->registers.pop();
 	if(protect) 
 		code->state[value] = true;
 	else if(value >= code->nlocals) 
 		code->state[value] = false;
 	if(protect && value >= code->nlocals) {
-		bool * context = marray_last(code->context);
+		bool * context = code->context.getLast();
 		context[value] = true;
 	}
 	DEBUG_REGISTER("POP REGISTER %d", value);
@@ -457,7 +461,7 @@ bool ircode_register_protect_outside_context(ircode_t * code, uint32 nreg)
 		return true;
 	if(!code->state[nreg]) 
 		return false;
-	bool * context = marray_last(code->context);
+	bool * context = code->context.getLast();
 	context[nreg] = false;
 	return true;
 }
@@ -465,7 +469,7 @@ bool ircode_register_protect_outside_context(ircode_t * code, uint32 nreg)
 void ircode_register_protect_in_context(ircode_t * code, uint32 nreg) 
 {
 	assert(code->state[nreg]);
-	bool * context = marray_last(code->context);
+	bool * context = code->context.getLast();
 	context[nreg] = true;
 }
 
@@ -486,7 +490,7 @@ static uint32 ircode_register_new(ircode_t * code)
 
 uint32 ircode_register_push(ircode_t * code, uint32 nreg) 
 {
-	marray_push(uint32, code->registers, nreg);
+	code->registers.insert(nreg);
 	if(ircode_register_istemp(code, nreg)) 
 		++code->ntemps;
 	DEBUG_REGISTER("PUSH REGISTER %d", nreg);
@@ -515,7 +519,7 @@ uint32 ircode_register_push_temp_protected(ircode_t * code)
 uint32 FASTCALL ircode_register_push_temp(ircode_t * code) 
 {
 	uint32 value = ircode_register_new(code);
-	marray_push(uint32, code->registers, value);
+	code->registers.insert(value);
 	if(value > code->maxtemp) {
 		code->maxtemp = value; ++code->ntemps;
 	}
@@ -541,23 +545,25 @@ void ircode_register_set(ircode_t * code, uint32 nreg)
 
 uint32 ircode_register_last(ircode_t * code) 
 {
-	if(marray_size(code->registers) == 0) return REGISTER_ERROR;
-	return (uint32)marray_last(code->registers);
+	if(code->registers.getCount() == 0) 
+		return REGISTER_ERROR;
+	return code->registers.getLast();
 }
 
 bool ircode_register_istemp(const ircode_t * code, uint32 nreg) { return (nreg >= (uint32)code->nlocals); }
 
 void ircode_register_dump(ircode_t * code) 
 {
-	uint32 n = (uint32)marray_size(code->registers);
-	if(n == 0) printf("EMPTY\n");
+	uint32 n = code->registers.getCount();
+	if(n == 0) 
+		printf("EMPTY\n");
 	for(uint32 i = 0; i<n; ++i) {
-		uint32 value = marray_get(code->registers, i);
+		uint32 value = code->registers.at(i);
 		printf("[%d]\t%d\n", i, value);
 	}
 }
 
-uint32 ircode_register_count(const ircode_t * code) { return (uint32)marray_size(code->registers); }
+uint32 ircode_register_count(const ircode_t * code) { return code->registers.getCount(); }
 
 // MARK: -
 

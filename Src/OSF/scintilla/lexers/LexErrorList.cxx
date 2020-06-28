@@ -14,30 +14,11 @@
 using namespace Scintilla;
 #endif
 
-static bool strstart(const char * haystack, const char * needle)
-{
-	return strncmp(haystack, needle, sstrlen(needle)) == 0;
-}
-
-static bool Is0To9(char ch)
-{
-	return (ch >= '0') && (ch <= '9');
-}
-
-static bool Is1To9(char ch)
-{
-	return (ch >= '1') && (ch <= '9');
-}
-
-static bool IsAlphabetic(int ch)
-{
-	return IsASCII(ch) && isalpha(ch);
-}
-
-static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i)
-{
-	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
-}
+static bool strstart(const char * haystack, const char * needle) { return strncmp(haystack, needle, sstrlen(needle)) == 0; }
+static bool Is0To9(char ch) { return (ch >= '0') && (ch <= '9'); }
+static bool Is1To9(char ch) { return (ch >= '1') && (ch <= '9'); }
+static bool IsAlphabetic(int ch) { return IsASCII(ch) && isalpha(ch); }
+static bool FASTCALL AtEOL(Accessor & styler, Sci_PositionU i) { return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n')); }
 
 static int RecogniseErrorListLine(const char * lineBuffer, Sci_PositionU lengthLine, Sci_Position &startValue)
 {
@@ -244,9 +225,8 @@ static int RecogniseErrorListLine(const char * lineBuffer, Sci_PositionU lengthL
 					for(j = i + numstep; j < lengthLine && IsAlphabetic(lineBuffer[j]) && chPos < sizeof(word) - 1; j++)
 						word[chPos++] = lineBuffer[j];
 					word[chPos] = 0;
-					if(!CompareCaseInsensitive(word, "error") || !CompareCaseInsensitive(word, "warning") ||
-					    !CompareCaseInsensitive(word, "fatal") || !CompareCaseInsensitive(word, "catastrophic") ||
-					    !CompareCaseInsensitive(word, "note") || !CompareCaseInsensitive(word, "remark")) {
+					if(sstreqi_ascii(word, "error") || sstreqi_ascii(word, "warning") || sstreqi_ascii(word, "fatal") || sstreqi_ascii(word, "catastrophic") ||
+					    sstreqi_ascii(word, "note") || sstreqi_ascii(word, "remark")) {
 						state = stMsVc;
 					}
 					else {

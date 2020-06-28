@@ -2481,11 +2481,12 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Bmp,    mtImage, "bmp", "bmp", "424D");                // BMP
 	Register(Ico,    mtImage, "x-icon", "ico", "0001");             // ICO
 	Register(Cur,    mtApplication, "octet-stream", "cur", "0002"); // CUR
-	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");                 // XML
+	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");        // XML
+	Register(Xsd,    mtApplication, "xml", "xsd", "T<?xml");        // XSD @v10.8.0
 	Register(Svg,    mtImage, "svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
 	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML
 	Register(Ini,    mtText,  "plain", "ini", static_cast<const char *>(0));  // INI
-
+	Register(Csv,    mtText,  "csv",   "csv", 0); // @v10.8.0
 	Register(Latex,            mtApplication, "x-latex", "tex", static_cast<const char *>(0));  // LATEX
 	Register(Latex,            "latex", static_cast<const char *>(0));         // LATEX
 	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");
@@ -2502,9 +2503,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(TxtBomSCSU,       "txt;csv", "OEFEFF");
 	Register(TxtBomBOCU1,      "txt;csv", "FBEE28");
 	Register(TxtBomGB18030,    "txt;csv", "84319533");
-
 	Register(Pdf, mtApplication, "pdf", "pdf", "25504446");
-
 	Register(Rtf,        "rtf",     "7B5C72746631");
 	Register(Mdb,        "mdb",     "000100005374616E64617264204A6574204442");
 	Register(AccDb,      "accdb",   "000100005374616E6461726420414345204442");
@@ -2518,7 +2517,6 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Mat,        "mat",     "4D41544C4142");
 	Register(Pdb,        "pdb",     "4D6963726F736F667420432F432B2B20");
 	Register(WcbffOld,   "",        "0E11fC0DD0CF11E0");
-
 	Register(Zip,    mtApplication, "zip",    "zip", "504B0304");
 	Register(Zip,        "zip", "504B0506");
 	Register(Zip,        "zip", "504B0708");
@@ -2548,7 +2546,6 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Mar,        "mar", "4D41523100");
 	Register(Tar,        "tar", "257:7573746172"/*ustar*/); // начиная с 257 байта
 	//Register(Iso,  "iso", "32769:4344303031"); // начиная с 32769 байта (пока не поддерживаем)
-
 	Register(Mkv,        "mkv", "1A45DFA3934282886D6174726F736B61");
 	Register(Avi,        "avi", "52494646 8:415649204C495354");
 	Register(Mp4,        "mp4", "0000002066747970");
@@ -2558,7 +2555,6 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Flv,        "flv", "464C5601");
 	Register(Mov,        "mov", "4:6D6F6F76");
 	Register(F4f,        "f4f", "4:61667261");
-
 	Register(Class,      "class", "CAFEBABE"); // @v9.0.9 binary:class 0:CAFEBABE
 	Register(Exe,   mtApplication, "octet-stream", "exe",   "4D5A"); // @v9.0.9 binary:exe   0:4D5A
 	Register(Dll,   mtApplication, "x-msdownload", "dll",   "4D5A"); // @v9.0.9 binary:dll   0:4D5A
@@ -2611,7 +2607,6 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Java,       "java", "Timport"); // @v9.1.2
 	Register(Java,       "java", "T/*"); // @v9.1.2
 	Register(Py,         "py", 0); // @v9.1.2
-
 	Register(UnixShell,  "sh",   "T#!/bin/sh"); // @v9.1.2
 	Register(Msi,        mtApplication, "x-ole-storage", "msi",  "D0CF11E0A1B11AE1"); // @v9.1.2
 	Register(Log,        "log", 0); // @v9.7.1

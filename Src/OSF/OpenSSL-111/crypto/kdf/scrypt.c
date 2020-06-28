@@ -170,24 +170,24 @@ static int pkey_scrypt_ctrl_str(EVP_PKEY_CTX * ctx, const char * type,
 		return 0;
 	}
 
-	if(strcmp(type, "pass") == 0)
+	if(sstreq(type, "pass"))
 		return EVP_PKEY_CTX_str2ctrl(ctx, EVP_PKEY_CTRL_PASS, value);
 
-	if(strcmp(type, "hexpass") == 0)
+	if(sstreq(type, "hexpass"))
 		return EVP_PKEY_CTX_hex2ctrl(ctx, EVP_PKEY_CTRL_PASS, value);
 
-	if(strcmp(type, "salt") == 0)
+	if(sstreq(type, "salt"))
 		return EVP_PKEY_CTX_str2ctrl(ctx, EVP_PKEY_CTRL_SCRYPT_SALT, value);
 
-	if(strcmp(type, "hexsalt") == 0)
+	if(sstreq(type, "hexsalt"))
 		return EVP_PKEY_CTX_hex2ctrl(ctx, EVP_PKEY_CTRL_SCRYPT_SALT, value);
-	if(strcmp(type, "N") == 0)
+	if(sstreq(type, "N"))
 		return pkey_scrypt_ctrl_uint64(ctx, EVP_PKEY_CTRL_SCRYPT_N, value);
-	if(strcmp(type, "r") == 0)
+	if(sstreq(type, "r"))
 		return pkey_scrypt_ctrl_uint64(ctx, EVP_PKEY_CTRL_SCRYPT_R, value);
-	if(strcmp(type, "p") == 0)
+	if(sstreq(type, "p"))
 		return pkey_scrypt_ctrl_uint64(ctx, EVP_PKEY_CTRL_SCRYPT_P, value);
-	if(strcmp(type, "maxmem_bytes") == 0)
+	if(sstreq(type, "maxmem_bytes"))
 		return pkey_scrypt_ctrl_uint64(ctx, EVP_PKEY_CTRL_SCRYPT_MAXMEM_BYTES, value);
 	KDFerr(KDF_F_PKEY_SCRYPT_CTRL_STR, KDF_R_UNKNOWN_PARAMETER_TYPE);
 	return -2;

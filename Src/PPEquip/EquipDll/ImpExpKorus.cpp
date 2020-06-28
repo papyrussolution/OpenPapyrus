@@ -589,19 +589,19 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 					if(strcmp(p_nn, ELEMENT_NAME_PARTNER_ILN) == 0) {
 						p_rln_cfg->SuppGLN.Set(p_node->children->content);
 					}
-					else if(strcmp(p_nn, "direction") == 0) { // Входящий или исходящий документ
+					else if(sstreq(p_nn, "direction")) { // Входящий или исходящий документ
 						p_rln_cfg->Direction.Set(p_node->children->content);
 					}
-					else if(strcmp(p_nn, "document-type") == 0) { // Тип документа
+					else if(sstreq(p_nn, "document-type")) { // Тип документа
 						GetMsgTypeBySymb(PTRCHRC_(p_node->children->content), p_rln_cfg->EdiDocType);
 					}
-					else if(strcmp(p_nn, "document-version") == 0) { // Версия спецификации
+					else if(sstreq(p_nn, "document-version")) { // Версия спецификации
 						p_rln_cfg->DocVersion.Set(p_node->children->content);
 					}
-					else if(strcmp(p_nn, "document-standard") == 0) { // Стандарт документа
+					else if(sstreq(p_nn, "document-standard")) { // Стандарт документа
 						p_rln_cfg->DocStandard.Set(p_node->children->content);
 					}
-					else if(strcmp(p_nn, "document-test") == 0) { // Статус документа
+					else if(sstreq(p_nn, "document-test")) { // Статус документа
 						p_rln_cfg->DocTest.Set(p_node->children->content);
 					}
 				}

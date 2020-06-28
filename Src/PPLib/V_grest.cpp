@@ -626,19 +626,6 @@ void GoodsRestFiltDlg::SetupCtrls()
 IMPL_HANDLE_EVENT(GoodsRestFiltDlg)
 {
 	WLDialog::handleEvent(event);
-	/* @v9.5.8
-	if(event.isClusterClk(CTL_GOODSREST_BYQUOT)) {
-		GetClusterData(CTL_GOODSREST_BYQUOT, &Data.Flags);
-		if(Data.Flags & GoodsRestFilt::fPriceByQuot) {
-			if(Data.QuotKindID < 0)
-				Data.QuotKindID = 0L;
-		}
-		else if(Data.QuotKindID >= 0)
-			Data.QuotKindID = -1L;
-		disableCtrl(CTLSEL_GOODSREST_QUOTK, (Data.Flags & GoodsRestFilt::fPriceByQuot) ? 0 : 1);
-	}
-	*/
-	// @v9.5.8 {
 	if(event.isClusterClk(CTL_GOODSREST_BYQUOT2)) {
 		Data.SetQuotUsage(GetClusterData(CTL_GOODSREST_BYQUOT2));
 		const long quot_usage = Data.GetQuotUsage();
@@ -665,19 +652,16 @@ IMPL_HANDLE_EVENT(GoodsRestFiltDlg)
 		else
 			DisableClusterItem(CTL_GOODSREST_BYQUOT2, 1, (Data.Flags2 & Data.f2RetailPrice));
 	}
-	// } @v9.5.8
 	else if(event.isClusterClk(CTL_GOODSREST_FLAGS))
 		SetupCtrls();
 	else if(event.isClusterClk(CTL_GOODSREST_DIFFBYLOC)) {
 		GetClusterData(CTL_GOODSREST_DIFFBYLOC, &Data.Flags);
 		SetupCrosstab();
 	}
-	// @v9.7.11 {
 	else if(event.isClusterClk(CTL_GOODSREST_SPLIT)) {
 		Data.DiffParam = GetClusterData(CTL_GOODSREST_SPLIT);
 		disableCtrl(CTLSEL_GOODSREST_LOTTAG, Data.DiffParam != GoodsRestParam::_diffLotTag);
 	}
-	// } @v9.7.11
 	else if(event.isCmd(cmAdvOptions))
 		editAdvOptions();
 	else
@@ -916,7 +900,7 @@ double SLAPI PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcpt
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
-	MEMSZERO(item);
+	// @v10.8.0 @ctr MEMSZERO(item);
 	for(; ok < 0 && DraftRcptList.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
 		item = DraftRcptList.at(pos);
 		if(ExclDraftRcptList.lsearch(&item, 0, PTR_CMPFUNC(_2long)) <= 0) {
@@ -934,7 +918,7 @@ double SLAPI PPViewGoodsRest::GetDraftReceipt(PPID goodsID, PPID locID, int addT
 	double rest = 0.0;
 	if(goodsID && (Filt.Flags & GoodsRestFilt::fShowDraftReceipt)) {
 		DraftRcptItem srch_item;
-		MEMSZERO(srch_item);
+		// @v10.8.0 @ctr MEMSZERO(srch_item);
 		srch_item.GoodsID = goodsID;
 		srch_item.LocID   = locID;
 		if(!ExclDraftRcptList.lsearch(&srch_item, 0, PTR_CMPFUNC(_2long))) {
@@ -966,7 +950,7 @@ double SLAPI PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, 
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
-	MEMSZERO(item);
+	// @v10.8.0 @ctr MEMSZERO(item);
 	for(; ok < 0 && UncompleteSessQttyList.lsearch(&goodsID, &pos, PTR_CMPFUNC(long)) > 0; pos++) {
 		item = DraftRcptList.at(pos);
 		if(ExclUncompleteSessQttyList.lsearch(&item, 0, PTR_CMPFUNC(_2long)) <= 0) {
@@ -984,7 +968,7 @@ double SLAPI PPViewGoodsRest::GetUncompleteSessQtty(PPID goodsID, PPID locID, in
 	double rest = 0.0;
 	if(goodsID && (Filt.Flags & GoodsRestFilt::fCalcUncompleteSess)) {
 		DraftRcptItem srch_item;
-		MEMSZERO(srch_item);
+		// @v10.8.0 @ctr MEMSZERO(srch_item);
 		srch_item.GoodsID = goodsID;
 		srch_item.LocID   = locID;
 		if(!ExclUncompleteSessQttyList.lsearch(&srch_item, 0, PTR_CMPFUNC(_2long))) {
@@ -1300,10 +1284,8 @@ int FASTCALL PPViewGoodsRest::AddCacheItem(PPViewGoodsRest::CacheItem & rItem)
 		CacheStat.SearchCount++;
 		CompFunc cf = (Filt.Flags & GoodsRestFilt::fEachLocation) ? PTR_CMPFUNC(_2long) : CMPF_LONG;
 		CacheBuf.GetCacheItemSerial(rItem, serial);
-		// @v9.7.11 {
 		if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID)
 			CacheBuf.GetCacheItemLotTag(rItem, tag_val);
-		// } @v9.7.11
 		if(CacheBuf.bsearch(&rItem.GoodsID, &pos_, cf)) {
 			for(i = pos_; i > 0 && CompareNthCacheItem(i-1, &rItem);)
 				i--;
@@ -1316,22 +1298,18 @@ int FASTCALL PPViewGoodsRest::AddCacheItem(PPViewGoodsRest::CacheItem & rItem)
 					_eq = 0;
 				else if(Filt.DiffParam & GoodsRestParam::_diffPack && r_grci.UnitPerPack != rItem.UnitPerPack)
 					_eq = 0;
-				// @v9.7.11 {
 				else if(Filt.DiffParam & GoodsRestParam::_diffExpiry && r_grci.Expiry != rItem.Expiry)
 					_eq = 0;
-				// } @v9.7.11
 				else if(Filt.DiffParam & GoodsRestParam::_diffSerial) {
 					CacheBuf.GetCacheItemSerial(r_grci, serial2);
 					if(serial != serial2)
 						_eq = 0;
 				}
-				// @v9.7.11 {
 				else if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID) {
 					CacheBuf.GetCacheItemLotTag(r_grci, tag_val2);
 					if(tag_val != tag_val2)
 						_eq = 0;
 				}
-				// } @v9.7.11
 				if(_eq)
 					p_item = &r_grci;
 				else
@@ -1703,7 +1681,7 @@ int SLAPI PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const P
 			}
 			else if((draft_rcpt || calc_uncompl_sess) && each_loc) {
 				DraftRcptItem item;
-				MEMSZERO(item);
+				// @v10.8.0 @ctr MEMSZERO(item);
 				if(draft_rcpt) {
 					for(uint pos = 0; EnumDraftRcpt(goods_id, &pos, &item) > 0;) {
 						if(item.LocID != 0) {

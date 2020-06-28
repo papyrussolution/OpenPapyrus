@@ -934,7 +934,7 @@ static int xmlDocContentDumpOutput(xmlSaveCtxt * ctxt, xmlDoc * cur)
 	xmlCharEncoding enc;
 	int switched_encoding = 0;
 	xmlInitParser();
-	if((cur->type != XML_HTML_DOCUMENT_NODE) && (cur->type != XML_DOCUMENT_NODE))
+	if(!oneof2(cur->type, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE))
 		return -1;
 	if(ctxt->encoding) {
 		cur->encoding = ctxt->encoding;
@@ -2086,15 +2086,15 @@ void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * d
 	else {
 		*doc_txt_ptr = NULL;
 		*doc_txt_len = 0;
-		if(out_doc) { /*  No document, no output  */
-			/*
-			*  Validate the encoding value, if provided.
-			*  This logic is copied from xmlSaveFileEnc.
-			*/
+		if(out_doc) { // No document, no output 
+			//
+			// Validate the encoding value, if provided.
+			// This logic is copied from xmlSaveFileEnc.
+			//
 			SETIFZ(txt_encoding, reinterpret_cast<const char *>(out_doc->encoding));
-			if(txt_encoding != NULL) {
+			if(txt_encoding) {
 				conv_hdlr = xmlFindCharEncodingHandler(txt_encoding);
-				if(conv_hdlr == NULL) {
+				if(!conv_hdlr) {
 					xmlSaveErr(XML_SAVE_UNKNOWN_ENCODING, (xmlNode *)out_doc, txt_encoding);
 					return;
 				}
@@ -2108,13 +2108,13 @@ void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * d
 				ctxt.doc = out_doc;
 				ctxt.buf = out_buff;
 				ctxt.level = 0;
-				ctxt.format = format ? 1 : 0;
+				ctxt.format = BIN(format);
 				ctxt.encoding = reinterpret_cast<const xmlChar *>(txt_encoding);
 				xmlSaveCtxtInit(&ctxt);
 				ctxt.options |= XML_SAVE_AS_XML;
 				xmlDocContentDumpOutput(&ctxt, out_doc);
 				xmlOutputBufferFlush(out_buff);
-				if(out_buff->conv != NULL) {
+				if(out_buff->conv) {
 					*doc_txt_len = xmlBufUse(out_buff->conv);
 					*doc_txt_ptr = xmlStrndup(xmlBufContent(out_buff->conv), *doc_txt_len);
 				}

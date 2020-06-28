@@ -216,12 +216,12 @@ static void ColouriseMETAPOSTDoc(Sci_PositionU startPos,
 			if((!isMETAPOSTidentifier(sc.ch)) && (sc.LengthCurrent() > 0)) {
 				if(sc.state == SCE_METAPOST_COMMAND) {
 					sc.GetCurrent(key, sizeof(key));
-					if((strcmp(key, "btex") == 0) || (strcmp(key, "verbatimtex") == 0)) {
+					if((sstreq(key, "btex")) || (sstreq(key, "verbatimtex"))) {
 						sc.ChangeState(SCE_METAPOST_GROUP);
 						inTeX = true;
 					}
 					else if(inTeX) {
-						if(strcmp(key, "etex") == 0) {
+						if(sstreq(key, "etex")) {
 							sc.ChangeState(SCE_METAPOST_GROUP);
 							inTeX = false;
 						}

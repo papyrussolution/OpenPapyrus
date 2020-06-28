@@ -216,6 +216,93 @@ int HashTableBase::Entry::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 //
 //
+/*class TokenSymbHashTable : public HashTableBase, private SStrGroup {
+public:
+	explicit TokenSymbHashTable(size_t sz);
+	TokenSymbHashTable(TokenSymbHashTable & rS);
+	TokenSymbHashTable & FASTCALL operator = (const TokenSymbHashTable &);
+	int    Put(long token, const char * pSymb);
+	int    Get(long token, SString * pSymb) const;
+private:
+	size_t FASTCALL Hash(long key) const;
+};*/
+
+size_t FASTCALL TokenSymbHashTable::Hash(long key) const
+{
+	uint32 __h = SlHash::XX32(&key, sizeof(key), 0x7e3f5a9c);
+	return (size_t)(__h % Size);
+}
+
+TokenSymbHashTable::TokenSymbHashTable(size_t sz) : HashTableBase(sz), SStrGroup()
+{
+}
+
+TokenSymbHashTable::TokenSymbHashTable(TokenSymbHashTable & rS) : HashTableBase(rS), SStrGroup(rS)
+{
+}
+
+TokenSymbHashTable & FASTCALL TokenSymbHashTable::operator = (const TokenSymbHashTable & rS)
+{
+	HashTableBase::Copy(rS);
+	SStrGroup::CopyS(rS);
+	return *this;
+}
+
+int TokenSymbHashTable::Put(long token, const char * pSymb)
+{
+	int    c = 1;
+	uint   pos = 0;
+	if(!Get(token, 0)) {
+		THROW(InitTab());
+		THROW(AddS(pSymb, &pos));
+		size_t h = Hash(token);
+		c = P_Tab[h].SetVal(token, pos);
+		AddCount++;
+		if(c > 1) {
+			CollCount++;
+			if((c-1) > MaxTail)
+				MaxTail = c-1;
+		}
+	}
+	CATCH
+		c = 0;
+	ENDCATCH
+	return c;
+}
+
+int TokenSymbHashTable::Get(long token, SString * pSymb) const
+{
+	int    ok = 0;
+	CALLPTRMEMB(pSymb, Z());
+	if(P_Tab) {
+		size_t h  = Hash(token);
+		const  Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			long key = r_entry.Val.Key;
+			long pos = 0;
+			if(key == token) {
+				pos = r_entry.Val.Val;
+				ok = 1;
+			}
+			else {
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					key = r_entry.P_Ext[i-1].Key;
+					if(key == token) {
+						pos = r_entry.P_Ext[i-1].Val;
+						ok = 1;
+					}
+				}
+			}
+			if(ok && pSymb) {
+				GetS(pos, *pSymb);
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 SymbHashTable::SymbHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 {
 	NamePool.add("$");
@@ -1345,6 +1432,46 @@ SLTEST_R(HASHTAB)
 					else {
 						SLTEST_CHECK_Z(ht.Search(p_str, &val, &pos));
 					}
+				}
+			}
+		}
+	}
+	{
+		//
+		// 
+		//
+		const size_t ht_size_tab[] = { 10, 100, 1000, 100000 };
+		for(uint hts_idx = 0; hts_idx < SIZEOFARRAY(ht_size_tab); hts_idx++) {
+			size_t ht_size = ht_size_tab[hts_idx];
+			uint   _count = 0;
+			SStrCollection ptr_collection;
+			TokenSymbHashTable tsht(ht_size);
+
+			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
+			SFile inf(in_buf, SFile::mRead);
+			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
+			while(inf.ReadLine(line_buf)) {
+				line_buf.Chomp();
+				char * p_str = newStr(line_buf);
+				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
+				_count++;
+			}
+			THROW(SLTEST_CHECK_EQ(ptr_collection.getCount(), _count));
+			{
+				for(long key = 1; key < ptr_collection.getCountI(); key++) {
+					SLTEST_CHECK_Z(tsht.Get(key, 0));
+					SLTEST_CHECK_NZ(tsht.Put(key, ptr_collection.at(key-1)));
+				}
+			}
+			{
+				for(long key = 1; key < ptr_collection.getCountI(); key++) {
+					SLTEST_CHECK_EQ(tsht.Put(key, ptr_collection.at(key-1)), 1L);
+				}
+			}
+			{
+				for(long key = 1; key < ptr_collection.getCountI(); key++) {
+					SLTEST_CHECK_NZ(tsht.Get(key, &line_buf));
+					SLTEST_CHECK_EQ(line_buf, ptr_collection.at(key-1));
 				}
 			}
 		}

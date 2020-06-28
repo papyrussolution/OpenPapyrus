@@ -134,7 +134,7 @@ static int archive_compressor_zstd_free(struct archive_write_filter * f)
 static int archive_compressor_zstd_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = static_cast<struct private_data *>(f->data);
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		int level = atoi(value);
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 		if(level < 1 || level > ZSTD_maxCLevel()) {

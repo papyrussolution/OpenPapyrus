@@ -385,11 +385,11 @@ static int archive_read_format_tar_options(struct archive_read * a, const char *
 		}
 		return ret;
 	}
-	else if(strcmp(key, "mac-ext") == 0) {
+	else if(sstreq(key, "mac-ext")) {
 		tar->process_mac_extensions = (val != NULL && val[0] != 0);
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "read_concatenated_archives") == 0) {
+	else if(sstreq(key, "read_concatenated_archives")) {
 		tar->read_concatenated_archives = (val != NULL && val[0] != 0);
 		return ARCHIVE_OK;
 	}
@@ -1636,13 +1636,13 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 			    return ARCHIVE_FATAL;
 		    }
 		    /* GNU "0.0" sparse pax format. */
-		    if(strcmp(key, "GNU.sparse.numblocks") == 0) {
+		    if(sstreq(key, "GNU.sparse.numblocks")) {
 			    tar->sparse_offset = -1;
 			    tar->sparse_numbytes = -1;
 			    tar->sparse_gnu_major = 0;
 			    tar->sparse_gnu_minor = 0;
 		    }
-		    if(strcmp(key, "GNU.sparse.offset") == 0) {
+		    if(sstreq(key, "GNU.sparse.offset")) {
 			    tar->sparse_offset = tar_atol10(value, strlen(value));
 			    if(tar->sparse_numbytes != -1) {
 				    if(gnu_add_sparse_entry(a, tar,
@@ -1653,25 +1653,23 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 				    tar->sparse_numbytes = -1;
 			    }
 		    }
-		    if(strcmp(key, "GNU.sparse.numbytes") == 0) {
+		    if(sstreq(key, "GNU.sparse.numbytes")) {
 			    tar->sparse_numbytes = tar_atol10(value, strlen(value));
 			    if(tar->sparse_numbytes != -1) {
-				    if(gnu_add_sparse_entry(a, tar,
-					tar->sparse_offset, tar->sparse_numbytes)
-					!= ARCHIVE_OK)
+				    if(gnu_add_sparse_entry(a, tar, tar->sparse_offset, tar->sparse_numbytes) != ARCHIVE_OK)
 					    return ARCHIVE_FATAL;
 				    tar->sparse_offset = -1;
 				    tar->sparse_numbytes = -1;
 			    }
 		    }
-		    if(strcmp(key, "GNU.sparse.size") == 0) {
+		    if(sstreq(key, "GNU.sparse.size")) {
 			    tar->realsize = tar_atol10(value, strlen(value));
 			    archive_entry_set_size(entry, tar->realsize);
 			    tar->realsize_override = 1;
 		    }
 
 		    /* GNU "0.1" sparse pax format. */
-		    if(strcmp(key, "GNU.sparse.map") == 0) {
+		    if(sstreq(key, "GNU.sparse.map")) {
 			    tar->sparse_gnu_major = 0;
 			    tar->sparse_gnu_minor = 1;
 			    if(gnu_sparse_01_parse(a, tar, value) != ARCHIVE_OK)
@@ -1679,15 +1677,15 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    }
 
 		    /* GNU "1.0" sparse pax format */
-		    if(strcmp(key, "GNU.sparse.major") == 0) {
+		    if(sstreq(key, "GNU.sparse.major")) {
 			    tar->sparse_gnu_major = (int)tar_atol10(value, strlen(value));
 			    tar->sparse_gnu_pending = 1;
 		    }
-		    if(strcmp(key, "GNU.sparse.minor") == 0) {
+		    if(sstreq(key, "GNU.sparse.minor")) {
 			    tar->sparse_gnu_minor = (int)tar_atol10(value, strlen(value));
 			    tar->sparse_gnu_pending = 1;
 		    }
-		    if(strcmp(key, "GNU.sparse.name") == 0) {
+		    if(sstreq(key, "GNU.sparse.name")) {
 			    /*
 			 * The real filename; when storing sparse
 			 * files, GNU tar puts a synthesized name into
@@ -1696,7 +1694,7 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 			     */
 			    archive_strcpy(&(tar->entry_pathname_override), value);
 		    }
-		    if(strcmp(key, "GNU.sparse.realsize") == 0) {
+		    if(sstreq(key, "GNU.sparse.realsize")) {
 			    tar->realsize = tar_atol10(value, strlen(value));
 			    archive_entry_set_size(entry, tar->realsize);
 			    tar->realsize_override = 1;
@@ -1706,10 +1704,10 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    /* Our extensions */
 /* TODO: Handle arbitrary extended attributes... */
 /*
-                if (strcmp(key, "LIBARCHIVE.xxxxxxx") == 0)
+                if (sstreq(key, "LIBARCHIVE.xxxxxxx"))
                         archive_entry_set_xxxxxx(entry, value);
  */
-		    if(strcmp(key, "LIBARCHIVE.creationtime") == 0) {
+		    if(sstreq(key, "LIBARCHIVE.creationtime")) {
 			    pax_time(value, &s, &n);
 			    archive_entry_set_birthtime(entry, s, n);
 		    }
@@ -1718,48 +1716,48 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    break;
 		case 'S':
 		    /* We support some keys used by the "star" archiver */
-		    if(strcmp(key, "SCHILY.acl.access") == 0) {
+		    if(sstreq(key, "SCHILY.acl.access")) {
 			    r = pax_attribute_acl(a, tar, entry, value,
 				    ARCHIVE_ENTRY_ACL_TYPE_ACCESS);
 			    if(r == ARCHIVE_FATAL)
 				    return r;
 		    }
-		    else if(strcmp(key, "SCHILY.acl.default") == 0) {
+		    else if(sstreq(key, "SCHILY.acl.default")) {
 			    r = pax_attribute_acl(a, tar, entry, value,
 				    ARCHIVE_ENTRY_ACL_TYPE_DEFAULT);
 			    if(r == ARCHIVE_FATAL)
 				    return r;
 		    }
-		    else if(strcmp(key, "SCHILY.acl.ace") == 0) {
+		    else if(sstreq(key, "SCHILY.acl.ace")) {
 			    r = pax_attribute_acl(a, tar, entry, value,
 				    ARCHIVE_ENTRY_ACL_TYPE_NFS4);
 			    if(r == ARCHIVE_FATAL)
 				    return r;
 		    }
-		    else if(strcmp(key, "SCHILY.devmajor") == 0) {
+		    else if(sstreq(key, "SCHILY.devmajor")) {
 			    archive_entry_set_rdevmajor(entry,
 				(dev_t)tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "SCHILY.devminor") == 0) {
+		    else if(sstreq(key, "SCHILY.devminor")) {
 			    archive_entry_set_rdevminor(entry,
 				(dev_t)tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "SCHILY.fflags") == 0) {
+		    else if(sstreq(key, "SCHILY.fflags")) {
 			    archive_entry_copy_fflags_text(entry, value);
 		    }
-		    else if(strcmp(key, "SCHILY.dev") == 0) {
+		    else if(sstreq(key, "SCHILY.dev")) {
 			    archive_entry_set_dev(entry,
 				(dev_t)tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "SCHILY.ino") == 0) {
+		    else if(sstreq(key, "SCHILY.ino")) {
 			    archive_entry_set_ino(entry,
 				tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "SCHILY.nlink") == 0) {
+		    else if(sstreq(key, "SCHILY.nlink")) {
 			    archive_entry_set_nlink(entry, (unsigned)
 				tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "SCHILY.realsize") == 0) {
+		    else if(sstreq(key, "SCHILY.realsize")) {
 			    tar->realsize = tar_atol10(value, strlen(value));
 			    tar->realsize_override = 1;
 			    archive_entry_set_size(entry, tar->realsize);
@@ -1768,7 +1766,7 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 			    pax_attribute_schily_xattr(entry, key, value,
 				value_length);
 		    }
-		    else if(strcmp(key, "SUN.holesdata") == 0) {
+		    else if(sstreq(key, "SUN.holesdata")) {
 			    /* A Solaris extension for sparse. */
 			    r = solaris_sparse_parse(a, tar, entry, value);
 			    if(r < err) {
@@ -1780,55 +1778,55 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    }
 		    break;
 		case 'a':
-		    if(strcmp(key, "atime") == 0) {
+		    if(sstreq(key, "atime")) {
 			    pax_time(value, &s, &n);
 			    archive_entry_set_atime(entry, s, n);
 		    }
 		    break;
 		case 'c':
-		    if(strcmp(key, "ctime") == 0) {
+		    if(sstreq(key, "ctime")) {
 			    pax_time(value, &s, &n);
 			    archive_entry_set_ctime(entry, s, n);
 		    }
-		    else if(strcmp(key, "charset") == 0) {
+		    else if(sstreq(key, "charset")) {
 			    /* TODO: Publish charset information in entry. */
 		    }
-		    else if(strcmp(key, "comment") == 0) {
+		    else if(sstreq(key, "comment")) {
 			    /* TODO: Publish comment in entry. */
 		    }
 		    break;
 		case 'g':
-		    if(strcmp(key, "gid") == 0) {
+		    if(sstreq(key, "gid")) {
 			    archive_entry_set_gid(entry,
 				tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "gname") == 0) {
+		    else if(sstreq(key, "gname")) {
 			    archive_strcpy(&(tar->entry_gname), value);
 		    }
 		    break;
 		case 'h':
-		    if(strcmp(key, "hdrcharset") == 0) {
-			    if(strcmp(value, "BINARY") == 0)
+		    if(sstreq(key, "hdrcharset")) {
+			    if(sstreq(value, "BINARY"))
 				    /* Binary  mode. */
 				    tar->pax_hdrcharset_binary = 1;
-			    else if(strcmp(value, "ISO-IR 10646 2000 UTF-8") == 0)
+			    else if(sstreq(value, "ISO-IR 10646 2000 UTF-8"))
 				    tar->pax_hdrcharset_binary = 0;
 		    }
 		    break;
 		case 'l':
 		    /* pax interchange doesn't distinguish hardlink vs. symlink. */
-		    if(strcmp(key, "linkpath") == 0) {
+		    if(sstreq(key, "linkpath")) {
 			    archive_strcpy(&(tar->entry_linkpath), value);
 		    }
 		    break;
 		case 'm':
-		    if(strcmp(key, "mtime") == 0) {
+		    if(sstreq(key, "mtime")) {
 			    pax_time(value, &s, &n);
 			    archive_entry_set_mtime(entry, s, n);
 		    }
 		    break;
 		case 'p':
-		    if(strcmp(key, "path") == 0) {
+		    if(sstreq(key, "path")) {
 			    archive_strcpy(&(tar->entry_pathname), value);
 		    }
 		    break;
@@ -1837,8 +1835,8 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    break;
 		case 's':
 		    /* POSIX has reserved 'security.*' */
-		    /* Someday: if (strcmp(key, "security.acl") == 0) { ... } */
-		    if(strcmp(key, "size") == 0) {
+		    /* Someday: if (sstreq(key, "security.acl")) { ... } */
+		    if(sstreq(key, "size")) {
 			    /* "size" is the size of the data in the entry. */
 			    tar->entry_bytes_remaining
 				    = tar_atol10(value, strlen(value));
@@ -1857,10 +1855,10 @@ static int pax_attribute(struct archive_read * a, struct tar * tar,
 		    }
 		    break;
 		case 'u':
-		    if(strcmp(key, "uid") == 0) {
+		    if(sstreq(key, "uid")) {
 			    archive_entry_set_uid(entry, tar_atol10(value, strlen(value)));
 		    }
-		    else if(strcmp(key, "uname") == 0) {
+		    else if(sstreq(key, "uname")) {
 			    archive_strcpy(&(tar->entry_uname), value);
 		    }
 		    break;

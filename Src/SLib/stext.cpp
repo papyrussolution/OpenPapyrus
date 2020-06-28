@@ -19,6 +19,8 @@ static const char * p_asciictrl[] = {
 static const char * p_base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5
 static const char * p_base64url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+static const char * p_alphabet_eng_l = "abcdefghijklmnopqrstuvwxyz";
+static const char * p_alphabet_eng_u = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*static*/const char * FASTCALL STextConst::Get(int c, uint idx)
 {
@@ -29,6 +31,8 @@ static const char * p_base64url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs
 		case cAsciiCtrl: return (idx >= 0 && idx < SIZEOFARRAY(p_asciictrl)) ? p_asciictrl[idx] : "";
 		case cBasis64: return p_base64;
 		case cBasis64Url: return p_base64url;
+		case cAlphabetEngL: return p_alphabet_eng_l;
+		case cAlphabetEngU: return p_alphabet_eng_u;
 		default: return "";
 	}
 }

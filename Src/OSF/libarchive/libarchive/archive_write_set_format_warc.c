@@ -121,8 +121,8 @@ int archive_write_set_format_warc(struct archive * _a)
 static int _warc_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct warc_s * w = (struct warc_s *)a->format_data;
-	if(strcmp(key, "omit-warcinfo") == 0) {
-		if(val == NULL || strcmp(val, "true") == 0) {
+	if(sstreq(key, "omit-warcinfo")) {
+		if(val == NULL || sstreq(val, "true")) {
 			/* great */
 			w->omit_warcinfo = 1U;
 			return ARCHIVE_OK;

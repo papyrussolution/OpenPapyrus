@@ -58,7 +58,8 @@ gnode_r * gnode_array_remove_byindex(gnode_r * old_list, size_t index)
 		return NULL;
 	gnode_r * new_list = gnode_array_create();
 	for(size_t i = 0; i<list_size; ++i) {
-		if(i == index) continue;
+		if(i == index) 
+			continue;
 		gnode_t * node = gnode_array_get(old_list, i);
 		gnode_array_push(new_list, node);
 	}
@@ -66,7 +67,8 @@ gnode_r * gnode_array_remove_byindex(gnode_r * old_list, size_t index)
 	return new_list;
 }
 
-gupvalue_t * gnode_function_add_upvalue(gnode_function_decl_t * f, gnode_var_t * symbol, uint16 n) {
+gupvalue_t * gnode_function_add_upvalue(gnode_function_decl_t * f, gnode_var_t * symbol, uint16 n) 
+{
 	// create uplist if necessary
 	if(!f->uplist) {
 		f->uplist = (gupvalue_r *)mem_alloc(NULL, sizeof(gupvalue_r));
@@ -77,7 +79,8 @@ gupvalue_t * gnode_function_add_upvalue(gnode_function_decl_t * f, gnode_var_t *
 	gtype_array_each(f->uplist, {
 		// symbol already found in uplist so return its index
 		gnode_var_t * node = (gnode_var_t *)val->node;
-		if(strcmp(node->identifier, symbol->identifier) == 0) return val;
+		if(strcmp(node->identifier, symbol->identifier) == 0) 
+			return val;
 	}, gupvalue_t *);
 
 	// symbol not found in uplist so add it
@@ -86,8 +89,7 @@ gupvalue_t * gnode_function_add_upvalue(gnode_function_decl_t * f, gnode_var_t *
 	upvalue->index = (n == 1) ? symbol->index : (uint32)gnode_array_size(f->uplist);
 	upvalue->selfindex = (uint32)gnode_array_size(f->uplist);
 	upvalue->is_direct = (n == 1);
-	marray_push(gupvalue_t*, *f->uplist, upvalue);
-
+	f->uplist->insert(upvalue);
 	// return symbol position in uplist
 	return upvalue;
 }
@@ -102,8 +104,8 @@ gnode_t * gnode2class(gnode_t * node, bool * isextern)
 	}
 	else if(NODE_ISA(node, NODE_VARIABLE)) {
 		gnode_var_t * var = (gnode_var_t *)node;
-		const char * class_manifest_type = gravity_class_class->identifier;
-		if((var->annotation_type) && (string_cmp(var->annotation_type, class_manifest_type) == 0) && (NODE_ISA_CLASS(var->expr))) 
+		const char * class_manifest_type = GravityEnv.P_ClsClass->identifier;
+		if(var->annotation_type && sstreq(var->annotation_type, class_manifest_type) && (NODE_ISA_CLASS(var->expr))) 
 			return var->expr;
 		gnode_variable_decl_t * vdecl = var->vdecl;
 		if(vdecl && isextern && (vdecl->storage == TOK_KEY_EXTERN)) {
@@ -493,8 +495,8 @@ gnode_t * gnode_duplicate(gnode_t * node, bool deep)
 		// node can be: identifier, file or postfix
 		if(NODE_ISA(node, NODE_IDENTIFIER_EXPR)) {
 			gnode_identifier_expr_t * expr = (gnode_identifier_expr_t*)node;
-			return gnode_identifier_expr_create(expr->base.token, string_dup(expr->value),
-				   (expr->value2) ? string_dup(expr->value2) : NULL, static_cast<gnode_t *>(expr->base.decl));
+			return gnode_identifier_expr_create(expr->base.token, sstrdup(expr->value),
+				   (expr->value2) ? sstrdup(expr->value2) : NULL, static_cast<gnode_t *>(expr->base.decl));
 		}
 		else if(NODE_ISA(node, NODE_FILE_EXPR)) {
 			gnode_file_expr_t * expr = (gnode_file_expr_t*)node;
@@ -502,7 +504,7 @@ gnode_t * gnode_duplicate(gnode_t * node, bool deep)
 			size_t count = gnode_array_size(expr->identifiers);
 			for(size_t i = 0; i<count; ++i) {
 				const char * identifier = gnode_array_get(expr->identifiers, i);
-				cstring_array_push(list, string_dup(identifier));
+				cstring_array_push(list, sstrdup(identifier));
 			}
 			return gnode_file_expr_create(expr->base.token, list, static_cast<gnode_t *>(expr->base.decl));
 		}
@@ -533,7 +535,7 @@ gnode_t * gnode_duplicate(gnode_t * node, bool deep)
 static void free_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	gnode_array_each(node->stmts, {visit(val);});
+	gnode_array_each(node->stmts, { gvisit(self, val); });
 	if(node->stmts) 
 		gnode_array_free(node->stmts);
 	symboltable_free(node->symtable);
@@ -543,7 +545,7 @@ static void free_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 static void free_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	gnode_array_each(node->stmts, {visit(val);});
+	gnode_array_each(node->stmts, { gvisit(self, val); });
 	if(node->stmts) 
 		gnode_array_free(node->stmts);
 	symboltable_free(node->symtable);
@@ -553,35 +555,39 @@ static void free_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 static void free_label_stmt(gvisitor_t * self, gnode_label_stmt_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	if(node->expr) visit(node->expr);
-	if(node->stmt) visit(node->stmt);
+	gvisit(self, node->expr);
+	gvisit(self, node->stmt);
 	mem_free((gnode_t *)node);
 }
 
-static void free_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node) {
+static void free_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node) 
+{
 	CHECK_REFCOUNT(node);
-	if(node->cond) visit(node->cond);
-	if(node->stmt) visit(node->stmt);
-	if(node->elsestmt) visit(node->elsestmt);
+	gvisit(self, node->cond);
+	gvisit(self, node->stmt);
+	gvisit(self, node->elsestmt);
 	mem_free((gnode_t *)node);
 }
 
-static void free_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) {
+static void free_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
+{
 	CHECK_REFCOUNT(node);
-	if(node->stmt) visit(node->stmt);
-	if(node->cond) visit(node->cond);
-	if(node->expr) visit(node->expr);
+	gvisit(self, node->stmt);
+	gvisit(self, node->cond);
+	gvisit(self, node->expr);
 	mem_free((gnode_t *)node);
 }
 
-static void free_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node) {
+static void free_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node) 
+{
 	CHECK_REFCOUNT(node);
-	if(node->expr) visit(node->expr);
+	gvisit(self, node->expr);
 	mem_free((gnode_t *)node);
 }
 
-static void free_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node) {
-    #pragma unused(self)
+static void free_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node) 
+{
+    //#pragma unused(self)
 	CHECK_REFCOUNT(node);
 	mem_free((gnode_t *)node);
 }
@@ -591,7 +597,7 @@ static void free_variable(gvisitor_t * self, gnode_var_t * p)
 	CHECK_REFCOUNT(p);
 	mem_free((void*)p->identifier);
 	mem_free((void*)p->annotation_type);
-	if(p->expr) visit(p->expr);
+	gvisit(self, p->expr);
 	mem_free((void*)p);
 }
 
@@ -604,8 +610,7 @@ static void free_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 		gnode_array_each(node->params, {free_variable(self, (gnode_var_t *)val);});
 		gnode_array_free(node->params);
 	}
-
-	if(node->block) visit((gnode_t *)node->block);
+	gvisit(self, (gnode_t *)node->block);
 	if(node->uplist) {
 		gtype_array_each(node->uplist, {mem_free(val);}, gupvalue_t*);
 		gnode_array_free(node->uplist);
@@ -613,7 +618,8 @@ static void free_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	mem_free((gnode_t *)node);
 }
 
-static void free_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node) {
+static void free_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node) 
+{
 	CHECK_REFCOUNT(node);
 	if(node->decls) {
 		gnode_array_each(node->decls, {free_variable(self, (gnode_var_t *)val);});
@@ -624,7 +630,7 @@ static void free_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node) 
 
 static void free_enum_decl(gvisitor_t * self, gnode_enum_decl_t * node) 
 {
-    #pragma unused(self)
+    //#pragma unused(self)
 	CHECK_REFCOUNT(node);
 	mem_free((void*)node->identifier);
 	symboltable_free(node->symtable);
@@ -636,7 +642,7 @@ static void free_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 	CHECK_REFCOUNT(node);
 	mem_free((void*)node->identifier);
 	if(node->decls) {
-		gnode_array_each(node->decls, {visit(val);});
+		gnode_array_each(node->decls, { gvisit(self, val); });
 		gnode_array_free(node->decls);
 	}
 	symboltable_free(node->symtable);
@@ -648,7 +654,7 @@ static void free_module_decl(gvisitor_t * self, gnode_module_decl_t * node)
 	CHECK_REFCOUNT(node);
 	mem_free((void*)node->identifier);
 	if(node->decls) {
-		gnode_array_each(node->decls, {visit(val);});
+		gnode_array_each(node->decls, {gvisit(self, val);});
 		gnode_array_free(node->decls);
 	}
 	symboltable_free(node->symtable);
@@ -658,29 +664,30 @@ static void free_module_decl(gvisitor_t * self, gnode_module_decl_t * node)
 static void free_binary_expr(gvisitor_t * self, gnode_binary_expr_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	if(node->left) visit(node->left);
-	if(node->right) visit(node->right);
+	gvisit(self, node->left);
+	gvisit(self, node->right);
 	mem_free((gnode_t *)node);
 }
 
-static void free_unary_expr(gvisitor_t * self, gnode_unary_expr_t * node) {
+static void free_unary_expr(gvisitor_t * self, gnode_unary_expr_t * node) 
+{
 	CHECK_REFCOUNT(node);
-	if(node->expr) visit(node->expr);
+	gvisit(self, node->expr);
 	mem_free((gnode_t *)node);
 }
 
-static void free_postfix_subexpr(gvisitor_t * self, gnode_postfix_subexpr_t * subnode) {
+static void free_postfix_subexpr(gvisitor_t * self, gnode_postfix_subexpr_t * subnode) 
+{
 	CHECK_REFCOUNT(subnode);
-
 	gnode_n tag = subnode->base.tag;
 	if(tag == NODE_CALL_EXPR) {
 		if(subnode->args) {
-			gnode_array_each(subnode->args, visit(val); );
+			gnode_array_each(subnode->args, gvisit(self, val); );
 			gnode_array_free(subnode->args);
 		}
 	}
 	else {
-		visit(subnode->expr);
+		gvisit(self, subnode->expr);
 	}
 
 	mem_free((gnode_t *)subnode);
@@ -689,7 +696,7 @@ static void free_postfix_subexpr(gvisitor_t * self, gnode_postfix_subexpr_t * su
 static void free_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) 
 {
 	CHECK_REFCOUNT(node);
-	visit(node->id);
+	gvisit(self, node->id);
 	// node->list can be NULL due to enum static conversion
 	size_t count = gnode_array_size(node->list);
 	for(size_t i = 0; i<count; ++i) {
@@ -716,7 +723,7 @@ static void free_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) {
 	CHECK_REFCOUNT(node);
 	if(node->type == LITERAL_STRING) mem_free((void*)node->value.str);
 	else if(node->type == LITERAL_STRING_INTERPOLATED) {
-		gnode_array_each(node->value.r, {visit(val);})
+		gnode_array_each(node->value.r, {gvisit(self, val);})
 		gnode_array_free(node->value.r);
 	}
 	mem_free((void*)node);
@@ -742,11 +749,11 @@ static void free_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 {
 	CHECK_REFCOUNT(node);
 	if(node->list1) {
-		gnode_array_each(node->list1, {visit(val);});
+		gnode_array_each(node->list1, {gvisit(self, val);});
 		gnode_array_free(node->list1);
 	}
 	if(node->list2) {
-		gnode_array_each(node->list2, {visit(val);});
+		gnode_array_each(node->list2, {gvisit(self, val);});
 		gnode_array_free(node->list2);
 	}
 	mem_free((gnode_t *)node);

@@ -334,7 +334,7 @@ err:
  */
 static int __rep_is_replicated_db(const char * name, const char * dir)
 {
-	if(strcmp(name, "DB_CONFIG") == 0 || strcmp(name, "pragma") == 0)
+	if(sstreq(name, "DB_CONFIG") || sstreq(name, "pragma"))
 		return 0;
 	if(strncmp(name, LFPREFIX, sizeof(LFPREFIX)-1) == 0)
 		return 0;

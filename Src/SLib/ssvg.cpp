@@ -1099,8 +1099,7 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 		}
 	}
 	CATCHZOK
-	if(p_doc)
-		xmlFreeDoc(p_doc);
+	xmlFreeDoc(p_doc);
 	P_Result = 0;
 	return ok;
 }

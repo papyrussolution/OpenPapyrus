@@ -2679,7 +2679,7 @@ end_comment:
 static void MapStr(ctmbstr str, uint code)
 {
 	while(*str) {
-		uint i = (byte) *str++;
+		uint i = (byte)*str++;
 		lexmap[i] |= code;
 	}
 }
@@ -2690,8 +2690,8 @@ void TY_(InitMap) (void)
 	MapStr(" \t", white);
 	MapStr("-.:_", namechar);
 	MapStr("0123456789", digit|digithex|namechar);
-	MapStr("abcdefghijklmnopqrstuvwxyz", lowercase|letter|namechar);
-	MapStr("ABCDEFGHIJKLMNOPQRSTUVWXYZ", uppercase|letter|namechar);
+	MapStr(STextConst::Get(STextConst::cAlphabetEngL, 0), lowercase|letter|namechar);
+	MapStr(STextConst::Get(STextConst::cAlphabetEngU, 0), uppercase|letter|namechar);
 	MapStr("abcdefABCDEF", digithex);
 }
 

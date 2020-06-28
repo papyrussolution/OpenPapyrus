@@ -117,7 +117,7 @@ static STACK_OF(POLICYINFO) *r2i_certpol(X509V3_EXT_METHOD *method,
 			goto err;
 		}
 		pstr = cnf->name;
-		if(strcmp(pstr, "ia5org") == 0) {
+		if(sstreq(pstr, "ia5org")) {
 			ia5org = 1;
 			continue;
 		}

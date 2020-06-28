@@ -8,11 +8,11 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
+#if 0 // @sobolev (moved to bn_prime.c) {
 
 typedef unsigned short prime_t;
-#define NUMPRIMES 2048
 
-static const prime_t primes[2048] = {
+static const prime_t __OpenSsl_Crypto_Primes/*primes*/[2048] = {
         2,     3,     5,     7,    11,    13,    17,    19,
        23,    29,    31,    37,    41,    43,    47,    53,
        59,    61,    67,    71,    73,    79,    83,    89,
@@ -270,3 +270,6 @@ static const prime_t primes[2048] = {
     17707, 17713, 17729, 17737, 17747, 17749, 17761, 17783,
     17789, 17791, 17807, 17827, 17837, 17839, 17851, 17863,
 };
+
+#define NUMPRIMES SIZEOFARRAY(__OpenSsl_Crypto_Primes)//2048
+#endif // } 0 @sobolev (moved to bn_prime.c)

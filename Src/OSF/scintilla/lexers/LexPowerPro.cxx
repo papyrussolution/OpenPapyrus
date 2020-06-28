@@ -480,12 +480,12 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 			// collect each letter and put it into a buffer 2 chars long
 			// if we end up with "do" in the buffer when we reach the end of
 			// the line, "do" was the last word on the line
-			if((ch > 0) && isFirstWordEnded && strcmp(szFirstWord, "if") == 0) {
+			if((ch > 0) && isFirstWordEnded && sstreq(szFirstWord, "if")) {
 				if(szDolen == 2) {
 					szDo[0] = szDo[1];
 					szDo[1] = static_cast<char>(tolower(ch));
 					szDo[2] = '\0';
-					if(strcmp(szDo, "do") == 0)
+					if(sstreq(szDo, "do"))
 						isDoLastWord = true;
 				}
 				else if(szDolen < 2) {
@@ -505,22 +505,20 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 
 			// if a keyword is found on the current line and the line doesn't end with ;;+ (continuation)
 			//    and we are not inside a commentblock.
-			if(firstWordLen > 0
-			    && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';'
-			    && (!IsStreamCommentStyle(style) || foldInComment) ) {
+			if(firstWordLen > 0 && chPrev != '+' && chPrevPrev != ';' && chPrevPrevPrev !=';' && (!IsStreamCommentStyle(style) || foldInComment) ) {
 				// only fold "if" last keyword is "then"  (else its a one line if)
-				if(strcmp(szFirstWord, "if") == 0  && isDoLastWord)
+				if(sstreq(szFirstWord, "if")  && isDoLastWord)
 					levelNext++;
 
 				// create new fold for these words
-				if(strcmp(szFirstWord, "for") == 0)
+				if(sstreq(szFirstWord, "for"))
 					levelNext++;
 
 				//handle folding for functions/labels
 				//Note: Functions and labels don't have an explicit end like [end function]
 				//	1. functions/labels end at the start of another function
 				//	2. functions/labels end at the end of the file
-				if((strcmp(szFirstWord, "function") == 0) || (firstWordLen > 0 && szFirstWord[0] == '@')) {
+				if((sstreq(szFirstWord, "function")) || (firstWordLen > 0 && szFirstWord[0] == '@')) {
 					if(isFoldingAll) {  //if we're folding the whole document (recursivly by lua script)
 						if(functionCount > 0) {
 							levelCurrent--;
@@ -536,13 +534,13 @@ static void FoldPowerProDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 				}
 
 				// end the fold for these words before the current line
-				if(strcmp(szFirstWord, "endif") == 0 || strcmp(szFirstWord, "endfor") == 0) {
+				if(sstreq(szFirstWord, "endif") || sstreq(szFirstWord, "endfor")) {
 					levelNext--;
 					levelCurrent--;
 				}
 
 				// end the fold for these words before the current line and Start new fold
-				if(strcmp(szFirstWord, "else") == 0 || strcmp(szFirstWord, "elseif") == 0)
+				if(sstreq(szFirstWord, "else") || sstreq(szFirstWord, "elseif"))
 					levelCurrent--;
 			}
 			// Preprocessor and Comment folding

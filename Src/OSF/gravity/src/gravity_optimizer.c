@@ -57,7 +57,7 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 		if(IS_PRAGMA_MOVE_OPT(inst)) continue;
 		if(IS_LABEL(inst)) {
 			// insert key inst->p1 into hash table labels with value ninst (next instruction)
-			gravity_hash_insert(labels, VALUE_FROM_INT(inst->p1), VALUE_FROM_INT(ninst));
+			gravity_hash_insert(labels, GravityValue::from_int(inst->p1), GravityValue::from_int(ninst));
 			continue;
 		}
 		++ninst;
@@ -124,7 +124,7 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			    break;
 			case JUMPF: 
 				{
-					GravityValue * v = gravity_hash_lookup(labels, VALUE_FROM_INT(inst->p2));
+					GravityValue * v = gravity_hash_lookup(labels, GravityValue::from_int(inst->p2));
 					assert(v); // key MUST exists!
 					uint32 njump = (uint32)v->n;
 					uint32 bflag = inst->p3;
@@ -136,7 +136,7 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			    OPCODE_SET_ONE8bit(op, inst->op, inst->p1);
 			    break;
 			case JUMP: {
-			    GravityValue * v = gravity_hash_lookup(labels, VALUE_FROM_INT(inst->p1));
+			    GravityValue * v = gravity_hash_lookup(labels, GravityValue::from_int(inst->p1));
 			    assert(v); // key MUST exists!
 			    uint32 njump = (uint32)v->n;
 			    OPCODE_SET_ONE26bit(op, inst->op, njump);
@@ -459,12 +459,12 @@ static bool optimize_num_instruction(inst_t * inst, gravity_function_t * f)
 		uint16 index = 0;
 		if(inst->tag == INT_TAG) {
 			int64_t n = inst->n;
-			index = gravity_function_cpool_add(NULL, f, VALUE_FROM_INT(n));
+			index = gravity_function_cpool_add(NULL, f, GravityValue::from_int(n));
 		}
 		else {
 			// always add floating point values as double in constant pool (then VM will be configured to
 			// interpret it as float or double)
-			index = gravity_function_cpool_add(NULL, f, VALUE_FROM_FLOAT(inst->d));
+			index = gravity_function_cpool_add(NULL, f, GravityValue::from_float(inst->d));
 		}
 		// replace LOADI with a LOADK instruction
 		inst->op = LOADK;

@@ -186,7 +186,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr,
 {
 	X509_ATTRIBUTE * ret;
 
-	if((attr == NULL) || (*attr == NULL)) {
+	if(!attr || (*attr == NULL)) {
 		if((ret = X509_ATTRIBUTE_new()) == NULL) {
 			X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_OBJ,
 			    ERR_R_MALLOC_FAILURE);
@@ -205,7 +205,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr,
 		*attr = ret;
 	return ret;
 err:
-	if((attr == NULL) || (ret != *attr))
+	if(!attr || (ret != *attr))
 		X509_ATTRIBUTE_free(ret);
 	return NULL;
 }
@@ -232,7 +232,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr,
 
 int X509_ATTRIBUTE_set1_object(X509_ATTRIBUTE * attr, const ASN1_OBJECT * obj)
 {
-	if((attr == NULL) || (obj == NULL))
+	if(!attr || !obj)
 		return 0;
 	ASN1_OBJECT_free(attr->object);
 	attr->object = OBJ_dup(obj);
@@ -292,28 +292,20 @@ err:
 
 int X509_ATTRIBUTE_count(const X509_ATTRIBUTE * attr)
 {
-	if(attr == NULL)
-		return 0;
-	return sk_ASN1_TYPE_num(attr->set);
+	return attr ? sk_ASN1_TYPE_num(attr->set) : 0;
 }
 
 ASN1_OBJECT * X509_ATTRIBUTE_get0_object(X509_ATTRIBUTE * attr)
 {
-	if(attr == NULL)
-		return NULL;
-	return attr->object;
+	return attr ? attr->object : 0;
 }
 
-void * X509_ATTRIBUTE_get0_data(X509_ATTRIBUTE * attr, int idx,
-    int atrtype, void * data)
+void * X509_ATTRIBUTE_get0_data(X509_ATTRIBUTE * attr, int idx, int atrtype, void * data)
 {
-	ASN1_TYPE * ttmp;
-	ttmp = X509_ATTRIBUTE_get0_type(attr, idx);
+	ASN1_TYPE * ttmp = X509_ATTRIBUTE_get0_type(attr, idx);
 	if(!ttmp)
 		return NULL;
-	if(atrtype == V_ASN1_BOOLEAN
-	    || atrtype == V_ASN1_NULL
-	    || atrtype != ASN1_TYPE_get(ttmp)) {
+	if(atrtype == V_ASN1_BOOLEAN || atrtype == V_ASN1_NULL || atrtype != ASN1_TYPE_get(ttmp)) {
 		X509err(X509_F_X509_ATTRIBUTE_GET0_DATA, X509_R_WRONG_TYPE);
 		return NULL;
 	}
@@ -322,7 +314,5 @@ void * X509_ATTRIBUTE_get0_data(X509_ATTRIBUTE * attr, int idx,
 
 ASN1_TYPE * X509_ATTRIBUTE_get0_type(X509_ATTRIBUTE * attr, int idx)
 {
-	if(attr == NULL)
-		return NULL;
-	return sk_ASN1_TYPE_value(attr->set, idx);
+	return attr ? sk_ASN1_TYPE_value(attr->set, idx) : 0;
 }

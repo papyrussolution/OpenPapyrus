@@ -80,7 +80,7 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 			v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 			if(v != NULL)
 				return v->value;
-			if(strcmp(section, "ENV") == 0) {
+			if(sstreq(section, "ENV")) {
 				p = ossl_safe_getenv(name);
 				if(p != NULL)
 					return p;

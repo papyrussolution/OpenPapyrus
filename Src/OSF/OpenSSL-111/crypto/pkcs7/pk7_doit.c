@@ -1159,14 +1159,12 @@ new_attrib:
 		}
 	}
 	else {
-		int i;
-
-		for(i = 0; i < sk_X509_ATTRIBUTE_num(*sk); i++) {
+		for(int i = 0; i < sk_X509_ATTRIBUTE_num(*sk); i++) {
 			attr = sk_X509_ATTRIBUTE_value(*sk, i);
 			if(OBJ_obj2nid(X509_ATTRIBUTE_get0_object(attr)) == nid) {
 				X509_ATTRIBUTE_free(attr);
 				attr = X509_ATTRIBUTE_create(nid, atrtype, value);
-				if(attr == NULL)
+				if(!attr)
 					return 0;
 				if(!sk_X509_ATTRIBUTE_set(*sk, i, attr)) {
 					X509_ATTRIBUTE_free(attr);

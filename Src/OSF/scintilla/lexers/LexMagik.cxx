@@ -42,10 +42,7 @@ static bool FASTCALL IsAlpha(int ch)
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static bool FASTCALL IsAlphaSym(int ch)
-{
-	return (IsAlpha(ch) || ch == ':');
-}
+static bool FASTCALL IsAlphaSym(int ch) { return (IsAlpha(ch) || ch == ':'); }
 
 /**
  * Is it a numerical character (IsAlpha() and 0 - 9)
@@ -53,21 +50,14 @@ static bool FASTCALL IsAlphaSym(int ch)
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static bool FASTCALL IsAlNum(int ch)
-{
-	return ((ch >= '0' && ch <= '9') || IsAlpha(ch));
-}
-
+static bool FASTCALL IsAlNum(int ch) { return ((ch >= '0' && ch <= '9') || IsAlpha(ch)); }
 /**
  * Is it a symbolic numerical character (IsAlNum() and colon)
  *
  * \param  ch The character
  * \return True if ch is a character, False otherwise
  */
-static bool FASTCALL IsAlNumSym(int ch)
-{
-	return (IsAlNum(ch) || ch == ':');
-}
+static bool FASTCALL IsAlNumSym(int ch) { return (IsAlNum(ch) || ch == ':'); }
 
 /**
  * The lexer function

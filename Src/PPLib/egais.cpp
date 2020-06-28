@@ -62,7 +62,7 @@ void PPEgaisProcessor::Ack::Clear()
 {
 	Ver = 0;
 	SignSize = 0;
-	Sign[0] = 0;
+	PTR32(Sign)[0] = 0;
 	Id.Z();
 	Status = 0;
 	Url.Z();
@@ -179,7 +179,7 @@ void PPEgaisProcessor::InformB::Clear()
 
 PPEgaisProcessor::ActInformItem::ActInformItem() : P(0)
 {
-	AIdent[0] = 0;
+	PTR32(AIdent)[0] = 0;
 }
 
 PPEgaisProcessor::RepealWb::RepealWb() : BillID(0), ReqTime(ZERODATETIME), Confirm(0)
@@ -262,21 +262,21 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_REPLYAP: delete static_cast<TSCollection <PPGoodsPacket> *>(P_Data); break;
 		case PPEDIOP_EGAIS_REPLYFORMA: delete static_cast<EgaisRefATbl::Rec *>(P_Data); break;
 		case PPEDIOP_EGAIS_WAYBILL:
-		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
+		case PPEDIOP_EGAIS_WAYBILL_V2:
 		case PPEDIOP_EGAIS_WAYBILL_V3: // @v9.9.5
 		case PPEDIOP_EGAIS_WAYBILLACT:
-		case PPEDIOP_EGAIS_WAYBILLACT_V2: // @v9.5.8
+		case PPEDIOP_EGAIS_WAYBILLACT_V2:
 		case PPEDIOP_EGAIS_WAYBILLACT_V3: // @v10.0.0
 		case PPEDIOP_EGAIS_ACTCHARGEON:
-		case PPEDIOP_EGAIS_ACTCHARGEON_V2: // @v9.3.12
-		case PPEDIOP_EGAIS_ACTCHARGEONSHOP: // @v9.2.11
+		case PPEDIOP_EGAIS_ACTCHARGEON_V2:
+		case PPEDIOP_EGAIS_ACTCHARGEONSHOP:
 		case PPEDIOP_EGAIS_REPLYRESTS:
-		case PPEDIOP_EGAIS_REPLYRESTS_V2: // @v9.7.5
+		case PPEDIOP_EGAIS_REPLYRESTS_V2:
 		case PPEDIOP_EGAIS_REPLYRESTSSHOP:
 		case PPEDIOP_EGAIS_ACTWRITEOFF:
-		case PPEDIOP_EGAIS_ACTWRITEOFF_V2: // @v9.3.12
+		case PPEDIOP_EGAIS_ACTWRITEOFF_V2:
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V3: // @v9.9.5
-		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP: // @v9.4.0
+		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
 		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: delete static_cast<PPBillPacket *>(P_Data); break;
 		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: delete static_cast<ActInform *>(P_Data); break;
@@ -321,7 +321,7 @@ int PPEgaisProcessor::LogSended(const Packet & rPack)
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILL, msg_buf);
 			// @fallthrough
 		case PPEDIOP_EGAIS_WAYBILLACT:
-		case PPEDIOP_EGAIS_WAYBILLACT_V2: // @v9.5.8
+		case PPEDIOP_EGAIS_WAYBILLACT_V2:
 			if(msg_buf.Empty())
 				PPLoadText(PPTXT_EGAIS_QS_WAYBILLACT, msg_buf);
 			// @fallthrough
@@ -429,7 +429,7 @@ int SLAPI PPEgaisProcessor::GetTemporaryFileName(const char * pPath, const char 
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
 	THROW_SL(::createDir(temp_path));
-	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "XML", 0, rFn);
+	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
 	CATCHZOK
 	return ok;
 }
@@ -528,7 +528,7 @@ int SLAPI PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack 
 				}
 				else if(SXml::GetContentByName(p_c, "url", temp_buf)) {
 					size_t id_pos = 0;
-					rAck.Url = temp_buf; // @v9.1.8
+					rAck.Url = temp_buf;
 					if(rAck.Id.FromStr(temp_buf))
 						rAck.Status &= ~Ack::stError;
 					else if(temp_buf.Search("id=", 0, 1, &id_pos) && rAck.Id.FromStr(temp_buf+id_pos+3))
@@ -2732,7 +2732,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_c(_doc, SXml::nst("ainp", "Content"));
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) { // @v9.4.7 && PreprocessGoodsItem>0
+								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
 									double _qtty = fabs(r_ti.Quantity_);
 									long   _fmt = 0;
 									if(agi.UnpackedVolume > 0.0) {
@@ -2752,7 +2752,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							}
 						}
 					}
-					else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFFSHOP) { // @v9.4.0
+					else if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFFSHOP) {
 						const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						n_dt.PutInner(SXml::nst("awr", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
 						{
@@ -2769,7 +2769,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							SXml::WNode n_c(_doc, SXml::nst("awr", "Content"));
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) { // @v9.4.7 && PreprocessGoodsItem>0
+								if(IsAlcGoods(r_ti.GoodsID) && PreprocessGoodsItem(r_ti.GoodsID, 0, 0, 0, agi) > 0) {
 									double qtty = fabs(r_ti.Quantity_);
 									long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
 									if(agi.UnpackedVolume > 0.0) {
@@ -2810,16 +2810,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							temp_buf.Z();
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
-								// @v9.7.5 (temp_buf = "Пересортица").Transf(CTRANSF_OUTER_TO_INNER);
-								PPLoadText(PPTXT_EGAIS_REGRADING, temp_buf); // @v9.7.5
+								PPLoadText(PPTXT_EGAIS_REGRADING, temp_buf);
 							}
 							// regrading
 							n_h.PutInner(SXml::nst("ainp", "TypeChargeOn"), EncText(temp_buf));
-							// @v9.8.0 {
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_COMPLEMENTARY, temp_buf) > 0) {
 								n_h.PutInner(SXml::nst("ainp", "ActWriteOff"), EncText(temp_buf));
 							}
-							// } @v9.8.0
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
 						{
@@ -2829,7 +2826,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							StringSet ss_ext_codes;
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
-								const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice); // @v9.7.9 @fix r_ti.LotID-->r_ti.QuotPrice
+								const PPID lot_id = static_cast<PPID>(r_ti.QuotPrice);
 								if(lot_id && IsAlcGoods(r_ti.GoodsID)) {
 									ObjTagList tag_list;
 									p_ref->Ot.GetList(PPOBJ_LOT, lot_id, &tag_list);

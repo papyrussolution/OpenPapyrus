@@ -3151,10 +3151,7 @@ SLAPI XmlReader::~XmlReader()
 		xmlFreeTextReader(P_Reader);
 		P_Reader = 0;
 	}
-	if(P_Doc) {
-		xmlFreeDoc(P_Doc);
-		P_Doc = 0;
-	}
+	xmlFreeDoc(P_Doc);
 }
 
 int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isPaym)
@@ -4227,10 +4224,7 @@ SLAPI XmlZRepReader::~XmlZRepReader()
 		xmlFreeTextReader(P_Reader);
 		P_Reader = 0;
 	}
-	if(P_Doc) {
-		xmlFreeDoc(P_Doc);
-		P_Doc = 0;
-	}
+	xmlFreeDoc(P_Doc);
 }
 
 int SLAPI XmlZRepReader::Next(ZRep * pItem)

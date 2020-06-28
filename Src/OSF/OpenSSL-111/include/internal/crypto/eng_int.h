@@ -71,22 +71,17 @@ DEFINE_STACK_OF(ENGINE)
  * it as a (ENGINE_TABLE *) pointer value set initially to NULL.
  */
 typedef struct st_engine_table ENGINE_TABLE;
-int engine_table_register(ENGINE_TABLE ** table, ENGINE_CLEANUP_CB * cleanup,
-    ENGINE * e, const int * nids, int num_nids,
-    int setdefault);
+int engine_table_register(ENGINE_TABLE ** table, ENGINE_CLEANUP_CB * cleanup, ENGINE * e, const int * nids, int num_nids, int setdefault);
 void engine_table_unregister(ENGINE_TABLE ** table, ENGINE * e);
 void engine_table_cleanup(ENGINE_TABLE ** table);
 #ifndef ENGINE_TABLE_DEBUG
-ENGINE * engine_table_select(ENGINE_TABLE ** table, int nid);
+	ENGINE * engine_table_select(ENGINE_TABLE ** table, int nid);
 #else
-ENGINE * engine_table_select_tmp(ENGINE_TABLE ** table, int nid, const char * f,
-    int l);
-#define engine_table_select(t, n) engine_table_select_tmp(t, n, OPENSSL_FILE, OPENSSL_LINE)
+	ENGINE * engine_table_select_tmp(ENGINE_TABLE ** table, int nid, const char * f, int l);
+	#define engine_table_select(t, n) engine_table_select_tmp(t, n, OPENSSL_FILE, OPENSSL_LINE)
 #endif
-typedef void (engine_table_doall_cb) (int nid, STACK_OF (ENGINE) * sk,
-    ENGINE * def, void * arg);
-void engine_table_doall(ENGINE_TABLE * table, engine_table_doall_cb * cb,
-    void * arg);
+typedef void (engine_table_doall_cb) (int nid, STACK_OF (ENGINE) * sk, ENGINE * def, void * arg);
+void engine_table_doall(ENGINE_TABLE * table, engine_table_doall_cb * cb, void * arg);
 
 /*
  * Internal versions of API functions that have control over locking. These

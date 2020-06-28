@@ -1404,25 +1404,21 @@ static int parse_device(dev_t * pdev, struct archive * a, char * val)
 /*
  * Parse a single keyword and its value.
  */
-static int parse_keyword(struct archive_read * a, struct mtree * mtree,
-    struct archive_entry * entry, struct mtree_option * opt, int * parsed_kws)
+static int parse_keyword(struct archive_read * a, struct mtree * mtree, struct archive_entry * entry, struct mtree_option * opt, int * parsed_kws)
 {
-	char * val, * key;
-
-	key = opt->value;
-
+	char * val;
+	char * key = opt->value;
 	if(*key == '\0')
 		return ARCHIVE_OK;
-
-	if(strcmp(key, "nochange") == 0) {
+	if(sstreq(key, "nochange")) {
 		*parsed_kws |= MTREE_HAS_NOCHANGE;
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "optional") == 0) {
+	if(sstreq(key, "optional")) {
 		*parsed_kws |= MTREE_HAS_OPTIONAL;
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "ignore") == 0) {
+	if(sstreq(key, "ignore")) {
 		/*
 		 * The mtree processing is not recursive, so
 		 * recursion will only happen for explicitly listed
@@ -1440,18 +1436,17 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 
 	switch(key[0]) {
 		case 'c':
-		    if(strcmp(key, "content") == 0 || strcmp(key, "contents") == 0) {
+		    if(sstreq(key, "content") || sstreq(key, "contents")) {
 			    parse_escapes(val, NULL);
 			    archive_strcpy(&mtree->contents_name, val);
 			    break;
 		    }
-		    if(strcmp(key, "cksum") == 0)
+		    if(sstreq(key, "cksum"))
 			    break;
 		    __LA_FALLTHROUGH;
 		case 'd':
-		    if(strcmp(key, "device") == 0) {
-			    /* stat(2) st_rdev field, e.g. the major/minor IDs
-			 * of a char/block special file */
+		    if(sstreq(key, "device")) {
+			    // stat(2) st_rdev field, e.g. the major/minor IDs of a char/block special file 
 			    int r;
 			    dev_t dev;
 			    *parsed_kws |= MTREE_HAS_DEVICE;
@@ -1462,40 +1457,40 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    }
 		    __LA_FALLTHROUGH;
 		case 'f':
-		    if(strcmp(key, "flags") == 0) {
+		    if(sstreq(key, "flags")) {
 			    *parsed_kws |= MTREE_HAS_FFLAGS;
 			    archive_entry_copy_fflags_text(entry, val);
 			    break;
 		    }
 		    __LA_FALLTHROUGH;
 		case 'g':
-		    if(strcmp(key, "gid") == 0) {
+		    if(sstreq(key, "gid")) {
 			    *parsed_kws |= MTREE_HAS_GID;
 			    archive_entry_set_gid(entry, mtree_atol(&val, 10));
 			    break;
 		    }
-		    if(strcmp(key, "gname") == 0) {
+		    if(sstreq(key, "gname")) {
 			    *parsed_kws |= MTREE_HAS_GNAME;
 			    archive_entry_copy_gname(entry, val);
 			    break;
 		    }
 		    __LA_FALLTHROUGH;
 		case 'i':
-		    if(strcmp(key, "inode") == 0) {
+		    if(sstreq(key, "inode")) {
 			    archive_entry_set_ino(entry, mtree_atol(&val, 10));
 			    break;
 		    }
 		    __LA_FALLTHROUGH;
 		case 'l':
-		    if(strcmp(key, "link") == 0) {
+		    if(sstreq(key, "link")) {
 			    archive_entry_copy_symlink(entry, val);
 			    break;
 		    }
 		    __LA_FALLTHROUGH;
 		case 'm':
-		    if(strcmp(key, "md5") == 0 || strcmp(key, "md5digest") == 0)
+		    if(sstreq(key, "md5") || sstreq(key, "md5digest"))
 			    break;
-		    if(strcmp(key, "mode") == 0) {
+		    if(sstreq(key, "mode")) {
 			    if(val[0] >= '0' && val[0] <= '7') {
 				    *parsed_kws |= MTREE_HAS_PERM;
 				    archive_entry_set_perm(entry,
@@ -1509,7 +1504,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    }
 		    __LA_FALLTHROUGH;
 		case 'n':
-		    if(strcmp(key, "nlink") == 0) {
+		    if(sstreq(key, "nlink")) {
 			    *parsed_kws |= MTREE_HAS_NLINK;
 			    archive_entry_set_nlink(entry,
 				(uint)mtree_atol(&val, 10));
@@ -1517,7 +1512,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    }
 		    __LA_FALLTHROUGH;
 		case 'r':
-		    if(strcmp(key, "resdevice") == 0) {
+		    if(sstreq(key, "resdevice")) {
 			    // stat(2) st_dev field, e.g. the device ID where the inode resides 
 			    dev_t dev;
 			    int r = parse_device(&dev, &a->archive, val);
@@ -1525,25 +1520,25 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 				    archive_entry_set_dev(entry, dev);
 			    return r;
 		    }
-		    if(strcmp(key, "rmd160") == 0 || strcmp(key, "rmd160digest") == 0)
+		    if(sstreq(key, "rmd160") || sstreq(key, "rmd160digest"))
 			    break;
 		    __LA_FALLTHROUGH;
 		case 's':
-		    if(strcmp(key, "sha1") == 0 || strcmp(key, "sha1digest") == 0)
+		    if(sstreq(key, "sha1") || sstreq(key, "sha1digest"))
 			    break;
-		    if(strcmp(key, "sha256") == 0 || strcmp(key, "sha256digest") == 0)
+		    if(sstreq(key, "sha256") || sstreq(key, "sha256digest"))
 			    break;
-		    if(strcmp(key, "sha384") == 0 || strcmp(key, "sha384digest") == 0)
+		    if(sstreq(key, "sha384") || sstreq(key, "sha384digest"))
 			    break;
-		    if(strcmp(key, "sha512") == 0 || strcmp(key, "sha512digest") == 0)
+		    if(sstreq(key, "sha512") || sstreq(key, "sha512digest"))
 			    break;
-		    if(strcmp(key, "size") == 0) {
+		    if(sstreq(key, "size")) {
 			    archive_entry_set_size(entry, mtree_atol(&val, 10));
 			    break;
 		    }
 		    __LA_FALLTHROUGH;
 		case 't':
-		    if(strcmp(key, "tags") == 0) {
+		    if(sstreq(key, "tags")) {
 			    /*
 			 * Comma delimited list of tags.
 			 * Ignore the tags for now, but the interface
@@ -1551,7 +1546,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			     */
 			    break;
 		    }
-		    if(strcmp(key, "time") == 0) {
+		    if(sstreq(key, "time")) {
 			    int64_t m;
 			    int64_t my_time_t_max = get_time_t_max();
 			    int64_t my_time_t_min = get_time_t_min();
@@ -1577,44 +1572,40 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			    archive_entry_set_mtime(entry, (time_t)m, ns);
 			    break;
 		    }
-		    if(strcmp(key, "type") == 0) {
+		    if(sstreq(key, "type")) {
 			    switch(val[0]) {
 				    case 'b':
-					if(strcmp(val, "block") == 0) {
+					if(sstreq(val, "block")) {
 						archive_entry_set_filetype(entry, AE_IFBLK);
 						break;
 					}
 					__LA_FALLTHROUGH;
 				    case 'c':
-					if(strcmp(val, "char") == 0) {
+					if(sstreq(val, "char")) {
 						archive_entry_set_filetype(entry,
 						    AE_IFCHR);
 						break;
 					}
 					__LA_FALLTHROUGH;
 				    case 'd':
-					if(strcmp(val, "dir") == 0) {
-						archive_entry_set_filetype(entry,
-						    AE_IFDIR);
+					if(sstreq(val, "dir")) {
+						archive_entry_set_filetype(entry, AE_IFDIR);
 						break;
 					}
 					__LA_FALLTHROUGH;
 				    case 'f':
-					if(strcmp(val, "fifo") == 0) {
-						archive_entry_set_filetype(entry,
-						    AE_IFIFO);
+					if(sstreq(val, "fifo")) {
+						archive_entry_set_filetype(entry, AE_IFIFO);
 						break;
 					}
-					if(strcmp(val, "file") == 0) {
-						archive_entry_set_filetype(entry,
-						    AE_IFREG);
+					if(sstreq(val, "file")) {
+						archive_entry_set_filetype(entry, AE_IFREG);
 						break;
 					}
 					__LA_FALLTHROUGH;
 				    case 'l':
-					if(strcmp(val, "link") == 0) {
-						archive_entry_set_filetype(entry,
-						    AE_IFLNK);
+					if(sstreq(val, "link")) {
+						archive_entry_set_filetype(entry, AE_IFLNK);
 						break;
 					}
 					__LA_FALLTHROUGH;
@@ -1628,12 +1619,12 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    }
 		    __LA_FALLTHROUGH;
 		case 'u':
-		    if(strcmp(key, "uid") == 0) {
+		    if(sstreq(key, "uid")) {
 			    *parsed_kws |= MTREE_HAS_UID;
 			    archive_entry_set_uid(entry, mtree_atol(&val, 10));
 			    break;
 		    }
-		    if(strcmp(key, "uname") == 0) {
+		    if(sstreq(key, "uname")) {
 			    *parsed_kws |= MTREE_HAS_UNAME;
 			    archive_entry_copy_uname(entry, val);
 			    break;
@@ -1711,7 +1702,7 @@ static void parse_escapes(char * src, struct mtree_entry * mentry)
 	char * dest = src;
 	char c;
 
-	if(mentry != NULL && strcmp(src, ".") == 0)
+	if(mentry != NULL && sstreq(src, "."))
 		mentry->full = 1;
 
 	while(*src != '\0') {

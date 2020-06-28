@@ -87,12 +87,11 @@
 #define mp_uintmax_t ulong
 #endif
 
-#define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
-	                fit negative DBL_MAX (317 letters) */
-#define MAX_PARAMETERS 128 /* lame static limit */
+#define BUFFSIZE 326 // buffer for long-to-str and float-to-str calcs, should fit negative DBL_MAX (317 letters) 
+#define MAX_PARAMETERS 128 // lame static limit 
 
 #ifdef __AMIGA__
-# undef FORMAT_INT
+	#undef FORMAT_INT
 #endif
 
 // Lower-case digits
@@ -396,18 +395,11 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 				case 'S':
 				    flags |= FLAGS_ALT;
 				// @fallthrough
-				case 's':
-				    vto[i].type = FORMAT_STRING;
-				    break;
-				case 'n':
-				    vto[i].type = FORMAT_INTPTR;
-				    break;
-				case 'p':
-				    vto[i].type = FORMAT_PTR;
-				    break;
-				case 'd': case 'i':
-				    vto[i].type = FORMAT_INT;
-				    break;
+				case 's': vto[i].type = FORMAT_STRING; break;
+				case 'n': vto[i].type = FORMAT_INTPTR; break;
+				case 'p': vto[i].type = FORMAT_PTR; break;
+				case 'd': 
+				case 'i': vto[i].type = FORMAT_INT; break;
 				case 'u':
 				    vto[i].type = FORMAT_INT;
 				    flags |= FLAGS_UNSIGNED;
@@ -428,9 +420,7 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 				    vto[i].type = FORMAT_INT;
 				    flags |= FLAGS_CHAR;
 				    break;
-				case 'f':
-				    vto[i].type = FORMAT_DOUBLE;
-				    break;
+				case 'f': vto[i].type = FORMAT_DOUBLE; break;
 				case 'e':
 				    vto[i].type = FORMAT_DOUBLE;
 				    flags |= FLAGS_FLOATE;
@@ -447,9 +437,7 @@ static int dprintf_Pass1(const char * format, va_stack_t * vto, char ** endpos,
 				    vto[i].type = FORMAT_DOUBLE;
 				    flags |= FLAGS_FLOATG|FLAGS_UPPER;
 				    break;
-				default:
-				    vto[i].type = FORMAT_UNKNOWN;
-				    break;
+				default: vto[i].type = FORMAT_UNKNOWN; break;
 			} /* switch */
 
 			vto[i].flags = flags;

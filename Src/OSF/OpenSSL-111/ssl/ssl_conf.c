@@ -228,7 +228,7 @@ static int cmd_ECDHParameters(SSL_CONF_CTX * cctx, const char * value)
 	/* Ignore values supported by 1.0.2 for the automatic selection */
 	if((cctx->flags & SSL_CONF_FLAG_FILE) && (sstreqi_ascii(value, "+automatic") || sstreqi_ascii(value, "automatic")))
 		return 1;
-	if((cctx->flags & SSL_CONF_FLAG_CMDLINE) && strcmp(value, "auto") == 0)
+	if((cctx->flags & SSL_CONF_FLAG_CMDLINE) && sstreq(value, "auto"))
 		return 1;
 	nid = EC_curve_nist2nid(value);
 	if(nid == NID_undef)

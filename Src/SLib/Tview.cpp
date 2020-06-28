@@ -1131,9 +1131,26 @@ uint SLAPI KeyDownCommand::GetChar() const
 		case VK_DIVIDE:     c = '/'; break;
 		case VK_RETURN:     c = '\x0D'; break;
 		case VK_OEM_1:      c = (State & stateShift) ? ':' : ';'; break;
+		case VK_OEM_2:      c = (State & stateShift) ? '?' : '/'; break; // @v10.8.0
 		default:
-			if(Code >= '0' && Code <= '9')
-				c = Code;
+			if(Code >= '0' && Code <= '9') {
+				if(State & stateShift) {
+					switch(Code) {
+						case '0': c = ')'; break;
+						case '1': c = '!'; break;
+						case '2': c = '@'; break;
+						case '3': c = '#'; break;
+						case '4': c = '$'; break;
+						case '5': c = '%'; break;
+						case '6': c = '^'; break;
+						case '7': c = '&'; break;
+						case '8': c = '*'; break;
+						case '9': c = '('; break;
+					}
+				}
+				else
+					c = Code;
+			}
 			else if(Code >= 'A' && Code <= 'Z') {
 				c = (State & stateShift) ? Code : (Code + ('a'-'A'));
 			}

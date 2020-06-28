@@ -148,7 +148,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 		case AE_IFDIR:
 		    archive_entry_set_size(entry, 0);
 		    /* Don't bother trying to recreate '.' */
-		    if(strcmp(name, ".") == 0  ||  strcmp(name, "./") == 0)
+		    if(sstreq(name, ".")  ||  sstreq(name, "./"))
 			    return ARCHIVE_OK;
 		    break;
 		case AE_IFIFO:

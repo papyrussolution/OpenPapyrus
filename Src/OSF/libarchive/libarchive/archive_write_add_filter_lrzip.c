@@ -92,24 +92,24 @@ int archive_write_add_filter_lrzip(struct archive * _a)
 static int archive_write_lrzip_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct write_lrzip * data = static_cast<struct write_lrzip *>(f->data);
-	if(strcmp(key, "compression") == 0) {
+	if(sstreq(key, "compression")) {
 		if(value == NULL)
 			return (ARCHIVE_WARN);
-		else if(strcmp(value, "bzip2") == 0)
+		else if(sstreq(value, "bzip2"))
 			data->compression = write_lrzip::bzip2;
-		else if(strcmp(value, "gzip") == 0)
+		else if(sstreq(value, "gzip"))
 			data->compression = write_lrzip::gzip;
-		else if(strcmp(value, "lzo") == 0)
+		else if(sstreq(value, "lzo"))
 			data->compression = write_lrzip::lzo;
-		else if(strcmp(value, "none") == 0)
+		else if(sstreq(value, "none"))
 			data->compression = write_lrzip::none;
-		else if(strcmp(value, "zpaq") == 0)
+		else if(sstreq(value, "zpaq"))
 			data->compression = write_lrzip::zpaq;
 		else
 			return (ARCHIVE_WARN);
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "compression-level") == 0) {
+	else if(sstreq(key, "compression-level")) {
 		if(value == NULL || !(value[0] >= '1' && value[0] <= '9') || value[1] != '\0')
 			return (ARCHIVE_WARN);
 		data->compression_level = value[0] - '0';

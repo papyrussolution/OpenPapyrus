@@ -980,13 +980,13 @@ static const char * canonical_charset_name(const char * charset)
 		*p++ = c;
 	}
 	*p++ = '\0';
-	if(strcmp(cs, "UTF-8") == 0 || strcmp(cs, "UTF8") == 0)
+	if(sstreq(cs, "UTF-8") || sstreq(cs, "UTF8"))
 		return ("UTF-8");
-	if(strcmp(cs, "UTF-16BE") == 0 || strcmp(cs, "UTF16BE") == 0)
+	if(sstreq(cs, "UTF-16BE") || sstreq(cs, "UTF16BE"))
 		return ("UTF-16BE");
-	if(strcmp(cs, "UTF-16LE") == 0 || strcmp(cs, "UTF16LE") == 0)
+	if(sstreq(cs, "UTF-16LE") || sstreq(cs, "UTF16LE"))
 		return ("UTF-16LE");
-	if(strcmp(cs, "CP932") == 0) 
+	if(sstreq(cs, "CP932")) 
 		return ("CP932");
 	return (charset);
 }
@@ -1047,17 +1047,17 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 	/*
 	 * Mark if "from charset" or "to charset" are UTF-8 or UTF-16BE/LE.
 	 */
-	if(strcmp(tc, "UTF-8") == 0)
+	if(sstreq(tc, "UTF-8"))
 		flag |= SCONV_TO_UTF8;
-	else if(strcmp(tc, "UTF-16BE") == 0)
+	else if(sstreq(tc, "UTF-16BE"))
 		flag |= SCONV_TO_UTF16BE;
-	else if(strcmp(tc, "UTF-16LE") == 0)
+	else if(sstreq(tc, "UTF-16LE"))
 		flag |= SCONV_TO_UTF16LE;
-	if(strcmp(fc, "UTF-8") == 0)
+	if(sstreq(fc, "UTF-8"))
 		flag |= SCONV_FROM_UTF8;
-	else if(strcmp(fc, "UTF-16BE") == 0)
+	else if(sstreq(fc, "UTF-16BE"))
 		flag |= SCONV_FROM_UTF16BE;
-	else if(strcmp(fc, "UTF-16LE") == 0)
+	else if(sstreq(fc, "UTF-16LE"))
 		flag |= SCONV_FROM_UTF16LE;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	if(sc->to_cp == CP_UTF8)
@@ -1137,9 +1137,9 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 			 * "CP932" character-set, so we should use "SJIS"
 			 * instead if iconv_open failed.
 			 */
-			if(strcmp(tc, "CP932") == 0)
+			if(sstreq(tc, "CP932"))
 				sc->cd = iconv_open("SJIS", fc);
-			else if(strcmp(fc, "CP932") == 0)
+			else if(sstreq(fc, "CP932"))
 				sc->cd = iconv_open(tc, "SJIS");
 		}
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -1153,7 +1153,7 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 			sc->cd_w = iconv_open("UTF-8", fc);
 			if(sc->cd_w == (iconv_t)-1 &&
 			    (sc->flag & SCONV_BEST_EFFORT)) {
-				if(strcmp(fc, "CP932") == 0)
+				if(sstreq(fc, "CP932"))
 					sc->cd_w = iconv_open("UTF-8", "SJIS");
 			}
 		}
@@ -1348,9 +1348,9 @@ static unsigned make_codepage_from_charset(const char * charset)
 		    if(cs[1] == 'P' && cs[2] >= '0' && cs[2] <= '9') {
 			    cp = my_atoi(cs + 2);
 		    }
-		    else if(strcmp(cs, "CP_ACP") == 0)
+		    else if(sstreq(cs, "CP_ACP"))
 			    cp = get_current_codepage();
-		    else if(strcmp(cs, "CP_OEMCP") == 0)
+		    else if(sstreq(cs, "CP_OEMCP"))
 			    cp = get_current_oemcp();
 		    break;
 		case 'I':
@@ -3936,13 +3936,10 @@ int archive_mstring_update_utf8(struct archive * a, struct archive_mstring * aes
 	if(r != 0)
 		return -1;
 	aes->aes_set = AES_SET_UTF8 | AES_SET_MBS; /* Both UTF8 and MBS set. */
-
 	/* Try converting MBS to WCS, return false on failure. */
-	if(archive_wstring_append_from_mbs(&(aes->aes_wcs), aes->aes_mbs.s,
-	    aes->aes_mbs.length))
+	if(archive_wstring_append_from_mbs(&(aes->aes_wcs), aes->aes_mbs.s, aes->aes_mbs.length))
 		return -1;
 	aes->aes_set = AES_SET_UTF8 | AES_SET_WCS | AES_SET_MBS;
-
 	/* All conversions succeeded. */
 	return 0;
 }

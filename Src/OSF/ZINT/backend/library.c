@@ -729,76 +729,42 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
 	// symbol->symbologys 1 to 86 are defined by tbarcode
-	if(symbol->Std == 5) {
-		symbol->Std = BARCODE_C25MATRIX;
-	}
-	if((symbol->Std >= 10) && (symbol->Std <= 12)) {
-		symbol->Std = BARCODE_EANX;
-	}
-	if(symbol->Std == 15) {
-		symbol->Std = BARCODE_EANX;
-	}
-	if(symbol->Std == 17) {
-		symbol->Std = BARCODE_UPCA;
-	}
+	if(symbol->Std == 5) { symbol->Std = BARCODE_C25MATRIX; }
+	if((symbol->Std >= 10) && (symbol->Std <= 12)) { symbol->Std = BARCODE_EANX; }
+	if(symbol->Std == 15) { symbol->Std = BARCODE_EANX; }
+	if(symbol->Std == 17) { symbol->Std = BARCODE_UPCA; }
 	if(symbol->Std == 19) {
 		sstrcpy(symbol->errtxt, "Codabar 18 not supported, using Codabar (B07)");
 		symbol->Std = BARCODE_CODABAR;
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
-	if(symbol->Std == 26) {
-		symbol->Std = BARCODE_UPCA;
-	}
+	if(symbol->Std == 26) { symbol->Std = BARCODE_UPCA; }
 	if(symbol->Std == 27) {
 		sstrcpy(symbol->errtxt, "UPCD1 not supported (B08)");
 		error_number = ZINT_ERROR_INVALID_OPTION;
 	}
-	if(symbol->Std == 33) {
-		symbol->Std = BARCODE_EAN128;
-	}
-	if(symbol->Std == 36) {
-		symbol->Std = BARCODE_UPCA;
-	}
-	if(symbol->Std == 38) {
-		symbol->Std = BARCODE_UPCE;
-	}
-	if((symbol->Std >= 41) && (symbol->Std <= 45)) {
-		symbol->Std = BARCODE_POSTNET;
-	}
-	if(symbol->Std == 46) {
-		symbol->Std = BARCODE_PLESSEY;
-	}
-	if(symbol->Std == 48) {
-		symbol->Std = BARCODE_NVE18;
-	}
+	if(symbol->Std == 33) { symbol->Std = BARCODE_EAN128; }
+	if(symbol->Std == 36) { symbol->Std = BARCODE_UPCA; }
+	if(symbol->Std == 38) { symbol->Std = BARCODE_UPCE; }
+	if((symbol->Std >= 41) && (symbol->Std <= 45)) { symbol->Std = BARCODE_POSTNET; }
+	if(symbol->Std == 46) { symbol->Std = BARCODE_PLESSEY; }
+	if(symbol->Std == 48) { symbol->Std = BARCODE_NVE18; }
 	if(symbol->Std == 54) {
 		sstrcpy(symbol->errtxt, "General Parcel Code not supported, using Code 128 (B10)");
 		symbol->Std = BARCODE_CODE128;
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
-	if(oneof2(symbol->Std, 59, 61)) {
-		symbol->Std = BARCODE_CODE128;
-	}
-	if(symbol->Std == 62) {
-		symbol->Std = BARCODE_CODE93;
-	}
-	if(oneof2(symbol->Std, 64, 65)) {
-		symbol->Std = BARCODE_AUSPOST;
-	}
+	if(oneof2(symbol->Std, 59, 61)) { symbol->Std = BARCODE_CODE128; }
+	if(symbol->Std == 62) { symbol->Std = BARCODE_CODE93; }
+	if(oneof2(symbol->Std, 64, 65)) { symbol->Std = BARCODE_AUSPOST; }
 	if(symbol->Std == 73) {
 		sstrcpy(symbol->errtxt, "Symbology out of range, using Code 128 (B11)");
 		symbol->Std = BARCODE_CODE128;
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
-	if(symbol->Std == 78) {
-		symbol->Std = BARCODE_RSS14;
-	}
-	if(symbol->Std == 83) {
-		symbol->Std = BARCODE_PLANET;
-	}
-	if(symbol->Std == 88) {
-		symbol->Std = BARCODE_EAN128;
-	}
+	if(symbol->Std == 78) { symbol->Std = BARCODE_RSS14; }
+	if(symbol->Std == 83) { symbol->Std = BARCODE_PLANET; }
+	if(symbol->Std == 88) { symbol->Std = BARCODE_EAN128; }
 	if(symbol->Std == 91) {
 		sstrcpy(symbol->errtxt, "Symbology out of range, using Code 128 (B12)");
 		symbol->Std = BARCODE_CODE128;
@@ -809,35 +775,19 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 		symbol->Std = BARCODE_CODE128;
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
-	if(symbol->Std == 100) {
-		symbol->Std = BARCODE_HIBC_128;
-	}
-	if(symbol->Std == 101) {
-		symbol->Std = BARCODE_HIBC_39;
-	}
-	if(symbol->Std == 103) {
-		symbol->Std = BARCODE_HIBC_DM;
-	}
-	if(symbol->Std == 105) {
-		symbol->Std = BARCODE_HIBC_QR;
-	}
-	if(symbol->Std == 107) {
-		symbol->Std = BARCODE_HIBC_PDF;
-	}
-	if(symbol->Std == 109) {
-		symbol->Std = BARCODE_HIBC_MICPDF;
-	}
-	if(symbol->Std == 111) {
-		symbol->Std = BARCODE_HIBC_BLOCKF;
-	}
-	if((symbol->Std == 113) || (symbol->Std == 114)) {
+	if(symbol->Std == 100) { symbol->Std = BARCODE_HIBC_128; }
+	if(symbol->Std == 101) { symbol->Std = BARCODE_HIBC_39; }
+	if(symbol->Std == 103) { symbol->Std = BARCODE_HIBC_DM; }
+	if(symbol->Std == 105) { symbol->Std = BARCODE_HIBC_QR; }
+	if(symbol->Std == 107) { symbol->Std = BARCODE_HIBC_PDF; }
+	if(symbol->Std == 109) { symbol->Std = BARCODE_HIBC_MICPDF; }
+	if(symbol->Std == 111) { symbol->Std = BARCODE_HIBC_BLOCKF; }
+	if(oneof2(symbol->Std, 113, 114)) {
 		sstrcpy(symbol->errtxt, "Symbology out of range, using Code 128 (B14)");
 		symbol->Std = BARCODE_CODE128;
 		error_number = ZINT_WARN_INVALID_OPTION;
 	}
-	if(symbol->Std == 115) {
-		symbol->Std = BARCODE_DOTCODE;
-	}
+	if(symbol->Std == 115) { symbol->Std = BARCODE_DOTCODE; }
 	if((symbol->Std >= 117) && (symbol->Std <= 127)) {
 		sstrcpy(symbol->errtxt, "Symbology out of range, using Code 128 (B15)");
 		symbol->Std = BARCODE_CODE128;
@@ -961,37 +911,37 @@ int ZBarcode_Print(struct ZintSymbol * symbol, int rotate_angle)
 		output[2] = symbol->outfile[strlen(symbol->outfile) - 1];
 		output[3] = '\0';
 		to_upper((uchar *)output);
-		if(!(strcmp(output, "PNG"))) {
+		if(sstreqi_ascii(output, "PNG")) {
 			if(symbol->scale < 1.0) {
 				symbol->text[0] = '\0';
 			}
 			error_number = plot_raster(symbol, rotate_angle, OUT_PNG_FILE);
 		}
-		else if(!(strcmp(output, "BMP")))    {
+		else if(sstreqi_ascii(output, "BMP")) {
 			if(symbol->scale < 1.0) {
 				symbol->text[0] = '\0';
 			}
 			error_number = plot_raster(symbol, rotate_angle, OUT_BMP_FILE);
 		}
-		else if(!(strcmp(output, "PCX")))    {
+		else if(sstreqi_ascii(output, "PCX")) {
 			if(symbol->scale < 1.0) {
 				symbol->text[0] = '\0';
 			}
 			error_number = plot_raster(symbol, rotate_angle, OUT_PCX_FILE);
 		}
-		else if(!(strcmp(output, "GIF")))    {
+		else if(sstreqi_ascii(output, "GIF")) {
 			if(symbol->scale < 1.0) {
 				symbol->text[0] = '\0';
 			}
 			error_number = plot_raster(symbol, rotate_angle, OUT_GIF_FILE);
 		}
-		else if(!(strcmp(output, "TXT")))    {
+		else if(sstreqi_ascii(output, "TXT")) {
 			error_number = dump_plot(symbol);
 		}
-		else if(!(strcmp(output, "EPS")))    {
+		else if(sstreqi_ascii(output, "EPS")) {
 			error_number = ps_plot(symbol);
 		}
-		else if(!(strcmp(output, "SVG")))    {
+		else if(sstreqi_ascii(output, "SVG")) {
 			error_number = svg_plot(symbol);
 		}
 		else {

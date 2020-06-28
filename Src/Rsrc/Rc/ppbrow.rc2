@@ -44,6 +44,9 @@
 // @v10.7.11 TBBM_PANE-->PPDV_PANE
 // @v10.7.11 TBBM_PRICELIST-->PPDV_PRICELIST01
 // @v10.7.11 TBBM_TRFRANLZ-->PPDV_TRFRANLZ
+// @v10.8.0  TBBM_SAVEAS-->PPDV_SAVEAS03
+// @v10.8.0  TBBM_SAVE-->PPDV_SAVE03
+// @v10.8.0  TBBM_OPEN-->PPDV_OPEN03
 //
 declare command DEFAULT     // kbEnter
 declare command ADDITEM     // kbInsert
@@ -928,24 +931,24 @@ toolbar export ACCANLZ2 TB_FIRST_TOOLBAR {
 }
 
 toolbar export LOGVIEW TB_FIRST_TOOLBAR {
-	SAVEAS      : kbCtrlS,   TBBM_SAVEAS,        "@{saveas}...\tCtlr-S"
+	SAVEAS      : kbCtrlS,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
 	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
 	PRINT       : kbF7,      PPDV_PRINTER01,     "@{print}\tF7"
 }
 
 toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
-	OPEN        : kbCtrlO,   TBBM_OPEN,          "Открыть...\tCtlr-O"
-	SAVE        : kbCtrlS,   TBBM_SAVE,          "@{save}\tCtlr-S"
-	SAVEAS      : kbCtrlA,   TBBM_SAVEAS,        "@{saveas}...\tCtlr-S"
+	OPEN        : kbCtrlO,   PPDV_OPEN03,        "Открыть...\tCtlr-O"
+	SAVE        : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
+	SAVEAS      : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
 	SELCODEPAGE : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
 	CVTCODEPAGE : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
 	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
 }
 
 toolbar export TEXTBROWSER_WB_HTML TB_FIRST_TOOLBAR {
-	OPEN         : kbCtrlO,   TBBM_OPEN,          "Открыть...\tCtlr-O"
-	SAVE         : kbCtrlS,   TBBM_SAVE,          "@{save}\tCtlr-S"
-	SAVEAS       : kbCtrlA,   TBBM_SAVEAS,        "@{saveas}...\tCtlr-S"
+	OPEN         : kbCtrlO,   PPDV_OPEN03,        "Открыть...\tCtlr-O"
+	SAVE         : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
+	SAVEAS       : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
 	SELCODEPAGE  : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
 	CVTCODEPAGE  : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
 	SEARCH       : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
@@ -6337,7 +6340,7 @@ browser JOB north(100), 1, 0, "@{jobtask_pl}", OWNER|GRID, 0
 		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2" // @v10.4.3
 		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "Удалить задачу\tDelete"
 		PRINT            :  kbF7,       PPDV_PRINTER01,         "Печать списка задач\tF7"
-		SAVE             :  kbCtrlS,    TBBM_SAVE,              "@{save}\tCtrlS"
+		SAVE             :  kbCtrlS,    PPDV_SAVE03,            "@{save}\tCtrlS"
 		CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,          "@{filter}\tCtrl-V"
 	}
 }
@@ -8781,7 +8784,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_GOODSGROUP01
 	PPDV_CATEGORY01
 	PPDV_CATEGORYHEART01
-	PPDV_CATEGORY02 #010002
+	PPDV_CATEGORY02    #010002
 	PPDV_CATEGORYFAW02 #010002
 	PPDV_GUESTCOUNT01
 	PPDV_DELIVERY01
@@ -8804,7 +8807,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_LINS02
 	PPDV_FILTER01
 	PPDV_DIAMOND01 #010002
-	PPDV_NOICON #010002
+	PPDV_NOICON    #010002
 	PPDV_VETISREFRESH
 	PPDV_VETISWAREHOUSE
 	PPDV_SHOPPINGCART01
@@ -8854,6 +8857,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_MAIL02
 	PPDV_MAIL03
 	PPDV_TRFRANLZ
+	PPDV_SAVE03   #4D4D4D
+	PPDV_SAVEAS03 #4D4D4D
+	PPDV_OPEN03   #4D4D4D
 }
 //
 // Следующие изображения используются без замещения цвета

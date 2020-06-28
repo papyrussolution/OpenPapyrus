@@ -327,10 +327,8 @@ static ssize_t archive_write_newc_data(struct archive_write * a, const void * bu
  */
 static int format_hex(int64_t v, void * p, int digits)
 {
-	int64_t max;
 	int ret;
-
-	max = (((int64_t)1) << (digits * 4)) - 1;
+	int64_t max = (((int64_t)1) << (digits * 4)) - 1;
 	if(v >= 0  &&  v <= max) {
 		format_hex_recursive(v, (char *)p, digits);
 		ret = 0;
@@ -354,8 +352,7 @@ static int64_t format_hex_recursive(int64_t v, char * p, int s)
 static int archive_write_newc_close(struct archive_write * a)
 {
 	int er;
-	struct archive_entry * trailer;
-	trailer = archive_entry_new();
+	struct archive_entry * trailer = archive_entry_new();
 	archive_entry_set_nlink(trailer, 1);
 	archive_entry_set_size(trailer, 0);
 	archive_entry_set_pathname(trailer, "TRAILER!!!");

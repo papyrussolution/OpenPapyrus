@@ -217,7 +217,7 @@ static int pkey_sm2_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 static int pkey_sm2_ctrl_str(EVP_PKEY_CTX * ctx,
     const char * type, const char * value)
 {
-	if(strcmp(type, "ec_paramgen_curve") == 0) {
+	if(sstreq(type, "ec_paramgen_curve")) {
 		int nid = NID_undef;
 
 		if(((nid = EC_curve_nist2nid(value)) == NID_undef)
@@ -228,12 +228,12 @@ static int pkey_sm2_ctrl_str(EVP_PKEY_CTX * ctx,
 		}
 		return EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, nid);
 	}
-	else if(strcmp(type, "ec_param_enc") == 0) {
+	else if(sstreq(type, "ec_param_enc")) {
 		int param_enc;
 
-		if(strcmp(value, "explicit") == 0)
+		if(sstreq(value, "explicit"))
 			param_enc = 0;
-		else if(strcmp(value, "named_curve") == 0)
+		else if(sstreq(value, "named_curve"))
 			param_enc = OPENSSL_EC_NAMED_CURVE;
 		else
 			return -2;

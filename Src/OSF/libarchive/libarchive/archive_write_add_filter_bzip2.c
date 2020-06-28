@@ -101,7 +101,7 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 static int archive_compressor_bzip2_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = static_cast<struct private_data *>(f->data);
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0')
 			return (ARCHIVE_WARN);
 		data->compression_level = value[0] - '0';

@@ -1106,9 +1106,8 @@ int SLAPI PPObjStyloPalm::ReadInputDebtMemo(PPStyloPalm * pRec, const char * pPa
 
 class AndroidReader {
 public:
-	SLAPI AndroidReader(const char * pPath, PPStyloPalm * pRec)
+	SLAPI AndroidReader(const char * pPath, PPStyloPalm * pRec) : P_Doc(0)
 	{
-		P_Doc = 0;
 		if(!RVALUEPTR(PalmRec, pRec))
 			MEMSZERO(PalmRec);
 		if(pPath) {
@@ -1117,10 +1116,7 @@ public:
 	}
 	SLAPI ~AndroidReader()
 	{
-		if(P_Doc) {
-			xmlFreeDoc(P_Doc);
-			P_Doc = 0;
-		}
+		xmlFreeDoc(P_Doc);
 	}
 	xmlNode * FindFirstRec(xmlNode * pChild, const char * pTag)
 	{
@@ -3142,15 +3138,10 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 			}
 		}
 	}
-	if(p_reader) {
-		xmlFreeTextReader(p_reader);
-		p_reader = 0;
-	}
-	if(p_doc) {
-		xmlFreeDoc(p_doc);
-		p_doc = 0;
-		// @v8.7.10 xmlCleanupParser();
-	}
+	xmlFreeTextReader(p_reader);
+	p_reader = 0;
+	xmlFreeDoc(p_doc);
+	p_doc = 0;
 	if(dt < dtm.d)
 		r = -1;
 	else if(dt > dtm.d)

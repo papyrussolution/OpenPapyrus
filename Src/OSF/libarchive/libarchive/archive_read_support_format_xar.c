@@ -1523,7 +1523,7 @@ static int file_new(struct archive_read * a, struct xar * xar, struct xmlattr_li
 	xar->file = file;
 	xar->xattr = NULL;
 	for(attr = list->first; attr != NULL; attr = attr->next) {
-		if(strcmp(attr->name, "id") == 0)
+		if(sstreq(attr->name, "id"))
 			file->id = atol10(attr->value, strlen(attr->value));
 	}
 	file->nlink = 1;
@@ -1564,7 +1564,7 @@ static int xattr_new(struct archive_read * a, struct xar * xar, struct xmlattr_l
 	}
 	xar->xattr = xattr;
 	for(attr = list->first; attr != NULL; attr = attr->next) {
-		if(strcmp(attr->name, "id") == 0)
+		if(sstreq(attr->name, "id"))
 			xattr->id = atol10(attr->value, strlen(attr->value));
 	}
 	/* Chain to xattr list. */
@@ -1589,18 +1589,17 @@ static int getencoding(struct xmlattr_list * list)
 {
 	struct xmlattr * attr;
 	enum enctype encoding = NONE;
-
 	for(attr = list->first; attr != NULL; attr = attr->next) {
-		if(strcmp(attr->name, "style") == 0) {
-			if(strcmp(attr->value, "application/octet-stream") == 0)
+		if(sstreq(attr->name, "style")) {
+			if(sstreq(attr->value, "application/octet-stream"))
 				encoding = NONE;
-			else if(strcmp(attr->value, "application/x-gzip") == 0)
+			else if(sstreq(attr->value, "application/x-gzip"))
 				encoding = GZIP;
-			else if(strcmp(attr->value, "application/x-bzip2") == 0)
+			else if(sstreq(attr->value, "application/x-bzip2"))
 				encoding = BZIP2;
-			else if(strcmp(attr->value, "application/x-lzma") == 0)
+			else if(sstreq(attr->value, "application/x-lzma"))
 				encoding = LZMA;
-			else if(strcmp(attr->value, "application/x-xz") == 0)
+			else if(sstreq(attr->value, "application/x-xz"))
 				encoding = XZ;
 		}
 	}
@@ -1611,18 +1610,12 @@ static int getsumalgorithm(struct xmlattr_list * list)
 {
 	struct xmlattr * attr;
 	int alg = CKSUM_NONE;
-
 	for(attr = list->first; attr != NULL; attr = attr->next) {
-		if(strcmp(attr->name, "style") == 0) {
+		if(sstreq(attr->name, "style")) {
 			const char * v = attr->value;
-			if((v[0] == 'S' || v[0] == 's') &&
-			    (v[1] == 'H' || v[1] == 'h') &&
-			    (v[2] == 'A' || v[2] == 'a') &&
-			    v[3] == '1' && v[4] == '\0')
+			if((v[0] == 'S' || v[0] == 's') && (v[1] == 'H' || v[1] == 'h') && (v[2] == 'A' || v[2] == 'a') && v[3] == '1' && v[4] == '\0')
 				alg = CKSUM_SHA1;
-			if((v[0] == 'M' || v[0] == 'm') &&
-			    (v[1] == 'D' || v[1] == 'd') &&
-			    v[2] == '5' && v[3] == '\0')
+			if((v[0] == 'M' || v[0] == 'm') && (v[1] == 'D' || v[1] == 'd') && v[2] == '5' && v[3] == '\0')
 				alg = CKSUM_MD5;
 		}
 	}
@@ -1652,9 +1645,7 @@ static int unknowntag_start(struct archive_read * a, struct xar * xar, const cha
 
 static void unknowntag_end(struct xar * xar, const char * name)
 {
-	struct unknown_tag * tag;
-
-	tag = xar->unknowntags;
+	struct unknown_tag * tag = xar->unknowntags;
 	if(tag == NULL || name == NULL)
 		return;
 	if(strcmp(tag->name.s, name) == 0) {
@@ -1682,23 +1673,23 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 	xar->base64text = 0;
 	switch(xar->xmlsts) {
 		case INIT:
-		    if(strcmp(name, "xar") == 0)
+		    if(sstreq(name, "xar"))
 			    xar->xmlsts = XAR;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
 		    break;
 		case XAR:
-		    if(strcmp(name, "toc") == 0)
+		    if(sstreq(name, "toc"))
 			    xar->xmlsts = TOC;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
 		    break;
 		case TOC:
-		    if(strcmp(name, "creation-time") == 0)
+		    if(sstreq(name, "creation-time"))
 			    xar->xmlsts = TOC_CREATION_TIME;
-		    else if(strcmp(name, "checksum") == 0)
+		    else if(sstreq(name, "checksum"))
 			    xar->xmlsts = TOC_CHECKSUM;
-		    else if(strcmp(name, "file") == 0) {
+		    else if(sstreq(name, "file")) {
 			    if(file_new(a, xar, list) != ARCHIVE_OK)
 				    return ARCHIVE_FATAL;
 			    xar->xmlsts = TOC_FILE;
@@ -1707,56 +1698,55 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 			    return ARCHIVE_FATAL;
 		    break;
 		case TOC_CHECKSUM:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = TOC_CHECKSUM_OFFSET;
-		    else if(strcmp(name, "size") == 0)
+		    else if(sstreq(name, "size"))
 			    xar->xmlsts = TOC_CHECKSUM_SIZE;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
 		    break;
 		case TOC_FILE:
-		    if(strcmp(name, "file") == 0) {
+		    if(sstreq(name, "file")) {
 			    if(file_new(a, xar, list) != ARCHIVE_OK)
 				    return ARCHIVE_FATAL;
 		    }
-		    else if(strcmp(name, "data") == 0)
+		    else if(sstreq(name, "data"))
 			    xar->xmlsts = FILE_DATA;
-		    else if(strcmp(name, "ea") == 0) {
+		    else if(sstreq(name, "ea")) {
 			    if(xattr_new(a, xar, list) != ARCHIVE_OK)
 				    return ARCHIVE_FATAL;
 			    xar->xmlsts = FILE_EA;
 		    }
-		    else if(strcmp(name, "ctime") == 0)
+		    else if(sstreq(name, "ctime"))
 			    xar->xmlsts = FILE_CTIME;
-		    else if(strcmp(name, "mtime") == 0)
+		    else if(sstreq(name, "mtime"))
 			    xar->xmlsts = FILE_MTIME;
-		    else if(strcmp(name, "atime") == 0)
+		    else if(sstreq(name, "atime"))
 			    xar->xmlsts = FILE_ATIME;
-		    else if(strcmp(name, "group") == 0)
+		    else if(sstreq(name, "group"))
 			    xar->xmlsts = FILE_GROUP;
-		    else if(strcmp(name, "gid") == 0)
+		    else if(sstreq(name, "gid"))
 			    xar->xmlsts = FILE_GID;
-		    else if(strcmp(name, "user") == 0)
+		    else if(sstreq(name, "user"))
 			    xar->xmlsts = FILE_USER;
-		    else if(strcmp(name, "uid") == 0)
+		    else if(sstreq(name, "uid"))
 			    xar->xmlsts = FILE_UID;
-		    else if(strcmp(name, "mode") == 0)
+		    else if(sstreq(name, "mode"))
 			    xar->xmlsts = FILE_MODE;
-		    else if(strcmp(name, "device") == 0)
+		    else if(sstreq(name, "device"))
 			    xar->xmlsts = FILE_DEVICE;
-		    else if(strcmp(name, "deviceno") == 0)
+		    else if(sstreq(name, "deviceno"))
 			    xar->xmlsts = FILE_DEVICENO;
-		    else if(strcmp(name, "inode") == 0)
+		    else if(sstreq(name, "inode"))
 			    xar->xmlsts = FILE_INODE;
-		    else if(strcmp(name, "link") == 0)
+		    else if(sstreq(name, "link"))
 			    xar->xmlsts = FILE_LINK;
-		    else if(strcmp(name, "type") == 0) {
+		    else if(sstreq(name, "type")) {
 			    xar->xmlsts = FILE_TYPE;
-			    for(attr = list->first; attr != NULL;
-				attr = attr->next) {
-				    if(strcmp(attr->name, "link") != 0)
+			    for(attr = list->first; attr != NULL; attr = attr->next) {
+				    if(!sstreq(attr->name, "link"))
 					    continue;
-				    if(strcmp(attr->value, "original") == 0) {
+				    if(sstreq(attr->value, "original")) {
 					    xar->file->hdnext = xar->hdlink_orgs;
 					    xar->hdlink_orgs = xar->file;
 				    }
@@ -1770,51 +1760,51 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 				    }
 			    }
 		    }
-		    else if(strcmp(name, "name") == 0) {
+		    else if(sstreq(name, "name")) {
 			    xar->xmlsts = FILE_NAME;
 			    for(attr = list->first; attr != NULL;
 				attr = attr->next) {
-				    if(strcmp(attr->name, "enctype") == 0 && strcmp(attr->value, "base64") == 0)
+				    if(sstreq(attr->name, "enctype") && sstreq(attr->value, "base64"))
 					    xar->base64text = 1;
 			    }
 		    }
-		    else if(strcmp(name, "acl") == 0)
+		    else if(sstreq(name, "acl"))
 			    xar->xmlsts = FILE_ACL;
-		    else if(strcmp(name, "flags") == 0)
+		    else if(sstreq(name, "flags"))
 			    xar->xmlsts = FILE_FLAGS;
-		    else if(strcmp(name, "ext2") == 0)
+		    else if(sstreq(name, "ext2"))
 			    xar->xmlsts = FILE_EXT2;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_DATA:
-		    if(strcmp(name, "length") == 0)
+		    if(sstreq(name, "length"))
 			    xar->xmlsts = FILE_DATA_LENGTH;
-		    else if(strcmp(name, "offset") == 0)
+		    else if(sstreq(name, "offset"))
 			    xar->xmlsts = FILE_DATA_OFFSET;
-		    else if(strcmp(name, "size") == 0)
+		    else if(sstreq(name, "size"))
 			    xar->xmlsts = FILE_DATA_SIZE;
-		    else if(strcmp(name, "encoding") == 0) {
+		    else if(sstreq(name, "encoding")) {
 			    xar->xmlsts = FILE_DATA_ENCODING;
 			    xar->file->encoding = (enctype)getencoding(list);
 		    }
-		    else if(strcmp(name, "archived-checksum") == 0) {
+		    else if(sstreq(name, "archived-checksum")) {
 			    xar->xmlsts = FILE_DATA_A_CHECKSUM;
 			    xar->file->a_sum.alg = getsumalgorithm(list);
 		    }
-		    else if(strcmp(name, "extracted-checksum") == 0) {
+		    else if(sstreq(name, "extracted-checksum")) {
 			    xar->xmlsts = FILE_DATA_E_CHECKSUM;
 			    xar->file->e_sum.alg = getsumalgorithm(list);
 		    }
-		    else if(strcmp(name, "content") == 0)
+		    else if(sstreq(name, "content"))
 			    xar->xmlsts = FILE_DATA_CONTENT;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_DEVICE:
-		    if(strcmp(name, "major") == 0)
+		    if(sstreq(name, "major"))
 			    xar->xmlsts = FILE_DEVICE_MAJOR;
-		    else if(strcmp(name, "minor") == 0)
+		    else if(sstreq(name, "minor"))
 			    xar->xmlsts = FILE_DEVICE_MINOR;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
@@ -1824,33 +1814,33 @@ static int xml_start(struct archive_read * a, const char * name, struct xmlattr_
 			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_EA:
-		    if(strcmp(name, "length") == 0)
+		    if(sstreq(name, "length"))
 			    xar->xmlsts = FILE_EA_LENGTH;
-		    else if(strcmp(name, "offset") == 0)
+		    else if(sstreq(name, "offset"))
 			    xar->xmlsts = FILE_EA_OFFSET;
-		    else if(strcmp(name, "size") == 0)
+		    else if(sstreq(name, "size"))
 			    xar->xmlsts = FILE_EA_SIZE;
-		    else if(strcmp(name, "encoding") == 0) {
+		    else if(sstreq(name, "encoding")) {
 			    xar->xmlsts = FILE_EA_ENCODING;
 			    xar->xattr->encoding = (enctype)getencoding(list);
 		    }
-		    else if(strcmp(name, "archived-checksum") == 0)
+		    else if(sstreq(name, "archived-checksum"))
 			    xar->xmlsts = FILE_EA_A_CHECKSUM;
-		    else if(strcmp(name, "extracted-checksum") == 0)
+		    else if(sstreq(name, "extracted-checksum"))
 			    xar->xmlsts = FILE_EA_E_CHECKSUM;
-		    else if(strcmp(name, "name") == 0)
+		    else if(sstreq(name, "name"))
 			    xar->xmlsts = FILE_EA_NAME;
-		    else if(strcmp(name, "fstype") == 0)
+		    else if(sstreq(name, "fstype"))
 			    xar->xmlsts = FILE_EA_FSTYPE;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
 		    break;
 		case FILE_ACL:
-		    if(strcmp(name, "appleextended") == 0)
+		    if(sstreq(name, "appleextended"))
 			    xar->xmlsts = FILE_ACL_APPLEEXTENDED;
-		    else if(strcmp(name, "default") == 0)
+		    else if(sstreq(name, "default"))
 			    xar->xmlsts = FILE_ACL_DEFAULT;
-		    else if(strcmp(name, "access") == 0)
+		    else if(sstreq(name, "access"))
 			    xar->xmlsts = FILE_ACL_ACCESS;
 		    else if(unknowntag_start(a, xar, name) != ARCHIVE_OK)
 			    return ARCHIVE_FATAL;
@@ -1949,31 +1939,31 @@ static void xml_end(void * userData, const char * name)
 		case INIT:
 		    break;
 		case XAR:
-		    if(strcmp(name, "xar") == 0)
+		    if(sstreq(name, "xar"))
 			    xar->xmlsts = INIT;
 		    break;
 		case TOC:
-		    if(strcmp(name, "toc") == 0)
+		    if(sstreq(name, "toc"))
 			    xar->xmlsts = XAR;
 		    break;
 		case TOC_CREATION_TIME:
-		    if(strcmp(name, "creation-time") == 0)
+		    if(sstreq(name, "creation-time"))
 			    xar->xmlsts = TOC;
 		    break;
 		case TOC_CHECKSUM:
-		    if(strcmp(name, "checksum") == 0)
+		    if(sstreq(name, "checksum"))
 			    xar->xmlsts = TOC;
 		    break;
 		case TOC_CHECKSUM_OFFSET:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = TOC_CHECKSUM;
 		    break;
 		case TOC_CHECKSUM_SIZE:
-		    if(strcmp(name, "size") == 0)
+		    if(sstreq(name, "size"))
 			    xar->xmlsts = TOC_CHECKSUM;
 		    break;
 		case TOC_FILE:
-		    if(strcmp(name, "file") == 0) {
+		    if(sstreq(name, "file")) {
 			    if(xar->file->parent != NULL && ((xar->file->mode & AE_IFMT) == AE_IFDIR))
 				    xar->file->parent->subdirs++;
 			    xar->file = xar->file->parent;
@@ -1982,281 +1972,281 @@ static void xml_end(void * userData, const char * name)
 		    }
 		    break;
 		case FILE_DATA:
-		    if(strcmp(name, "data") == 0)
+		    if(sstreq(name, "data"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_DATA_LENGTH:
-		    if(strcmp(name, "length") == 0)
+		    if(sstreq(name, "length"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_OFFSET:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_SIZE:
-		    if(strcmp(name, "size") == 0)
+		    if(sstreq(name, "size"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_ENCODING:
-		    if(strcmp(name, "encoding") == 0)
+		    if(sstreq(name, "encoding"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_A_CHECKSUM:
-		    if(strcmp(name, "archived-checksum") == 0)
+		    if(sstreq(name, "archived-checksum"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_E_CHECKSUM:
-		    if(strcmp(name, "extracted-checksum") == 0)
+		    if(sstreq(name, "extracted-checksum"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_DATA_CONTENT:
-		    if(strcmp(name, "content") == 0)
+		    if(sstreq(name, "content"))
 			    xar->xmlsts = FILE_DATA;
 		    break;
 		case FILE_EA:
-		    if(strcmp(name, "ea") == 0) {
+		    if(sstreq(name, "ea")) {
 			    xar->xmlsts = TOC_FILE;
 			    xar->xattr = NULL;
 		    }
 		    break;
 		case FILE_EA_LENGTH:
-		    if(strcmp(name, "length") == 0)
+		    if(sstreq(name, "length"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_OFFSET:
-		    if(strcmp(name, "offset") == 0)
+		    if(sstreq(name, "offset"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_SIZE:
-		    if(strcmp(name, "size") == 0)
+		    if(sstreq(name, "size"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_ENCODING:
-		    if(strcmp(name, "encoding") == 0)
+		    if(sstreq(name, "encoding"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_A_CHECKSUM:
-		    if(strcmp(name, "archived-checksum") == 0)
+		    if(sstreq(name, "archived-checksum"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_E_CHECKSUM:
-		    if(strcmp(name, "extracted-checksum") == 0)
+		    if(sstreq(name, "extracted-checksum"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_NAME:
-		    if(strcmp(name, "name") == 0)
+		    if(sstreq(name, "name"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_EA_FSTYPE:
-		    if(strcmp(name, "fstype") == 0)
+		    if(sstreq(name, "fstype"))
 			    xar->xmlsts = FILE_EA;
 		    break;
 		case FILE_CTIME:
-		    if(strcmp(name, "ctime") == 0)
+		    if(sstreq(name, "ctime"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_MTIME:
-		    if(strcmp(name, "mtime") == 0)
+		    if(sstreq(name, "mtime"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_ATIME:
-		    if(strcmp(name, "atime") == 0)
+		    if(sstreq(name, "atime"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_GROUP:
-		    if(strcmp(name, "group") == 0)
+		    if(sstreq(name, "group"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_GID:
-		    if(strcmp(name, "gid") == 0)
+		    if(sstreq(name, "gid"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_USER:
-		    if(strcmp(name, "user") == 0)
+		    if(sstreq(name, "user"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_UID:
-		    if(strcmp(name, "uid") == 0)
+		    if(sstreq(name, "uid"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_MODE:
-		    if(strcmp(name, "mode") == 0)
+		    if(sstreq(name, "mode"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_DEVICE:
-		    if(strcmp(name, "device") == 0)
+		    if(sstreq(name, "device"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_DEVICE_MAJOR:
-		    if(strcmp(name, "major") == 0)
+		    if(sstreq(name, "major"))
 			    xar->xmlsts = FILE_DEVICE;
 		    break;
 		case FILE_DEVICE_MINOR:
-		    if(strcmp(name, "minor") == 0)
+		    if(sstreq(name, "minor"))
 			    xar->xmlsts = FILE_DEVICE;
 		    break;
 		case FILE_DEVICENO:
-		    if(strcmp(name, "deviceno") == 0)
+		    if(sstreq(name, "deviceno"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_INODE:
-		    if(strcmp(name, "inode") == 0)
+		    if(sstreq(name, "inode"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_LINK:
-		    if(strcmp(name, "link") == 0)
+		    if(sstreq(name, "link"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_TYPE:
-		    if(strcmp(name, "type") == 0)
+		    if(sstreq(name, "type"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_NAME:
-		    if(strcmp(name, "name") == 0)
+		    if(sstreq(name, "name"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_ACL:
-		    if(strcmp(name, "acl") == 0)
+		    if(sstreq(name, "acl"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_ACL_DEFAULT:
-		    if(strcmp(name, "default") == 0)
+		    if(sstreq(name, "default"))
 			    xar->xmlsts = FILE_ACL;
 		    break;
 		case FILE_ACL_ACCESS:
-		    if(strcmp(name, "access") == 0)
+		    if(sstreq(name, "access"))
 			    xar->xmlsts = FILE_ACL;
 		    break;
 		case FILE_ACL_APPLEEXTENDED:
-		    if(strcmp(name, "appleextended") == 0)
+		    if(sstreq(name, "appleextended"))
 			    xar->xmlsts = FILE_ACL;
 		    break;
 		case FILE_FLAGS:
-		    if(strcmp(name, "flags") == 0)
+		    if(sstreq(name, "flags"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_FLAGS_USER_NODUMP:
-		    if(strcmp(name, "UserNoDump") == 0)
+		    if(sstreq(name, "UserNoDump"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_IMMUTABLE:
-		    if(strcmp(name, "UserImmutable") == 0)
+		    if(sstreq(name, "UserImmutable"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_APPEND:
-		    if(strcmp(name, "UserAppend") == 0)
+		    if(sstreq(name, "UserAppend"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_OPAQUE:
-		    if(strcmp(name, "UserOpaque") == 0)
+		    if(sstreq(name, "UserOpaque"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_USER_NOUNLINK:
-		    if(strcmp(name, "UserNoUnlink") == 0)
+		    if(sstreq(name, "UserNoUnlink"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_ARCHIVED:
-		    if(strcmp(name, "SystemArchived") == 0)
+		    if(sstreq(name, "SystemArchived"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_IMMUTABLE:
-		    if(strcmp(name, "SystemImmutable") == 0)
+		    if(sstreq(name, "SystemImmutable"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_APPEND:
-		    if(strcmp(name, "SystemAppend") == 0)
+		    if(sstreq(name, "SystemAppend"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_NOUNLINK:
-		    if(strcmp(name, "SystemNoUnlink") == 0)
+		    if(sstreq(name, "SystemNoUnlink"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_FLAGS_SYS_SNAPSHOT:
-		    if(strcmp(name, "SystemSnapshot") == 0)
+		    if(sstreq(name, "SystemSnapshot"))
 			    xar->xmlsts = FILE_FLAGS;
 		    break;
 		case FILE_EXT2:
-		    if(strcmp(name, "ext2") == 0)
+		    if(sstreq(name, "ext2"))
 			    xar->xmlsts = TOC_FILE;
 		    break;
 		case FILE_EXT2_SecureDeletion:
-		    if(strcmp(name, "SecureDeletion") == 0)
+		    if(sstreq(name, "SecureDeletion"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Undelete:
-		    if(strcmp(name, "Undelete") == 0)
+		    if(sstreq(name, "Undelete"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Compress:
-		    if(strcmp(name, "Compress") == 0)
+		    if(sstreq(name, "Compress"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Synchronous:
-		    if(strcmp(name, "Synchronous") == 0)
+		    if(sstreq(name, "Synchronous"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Immutable:
-		    if(strcmp(name, "Immutable") == 0)
+		    if(sstreq(name, "Immutable"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_AppendOnly:
-		    if(strcmp(name, "AppendOnly") == 0)
+		    if(sstreq(name, "AppendOnly"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoDump:
-		    if(strcmp(name, "NoDump") == 0)
+		    if(sstreq(name, "NoDump"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoAtime:
-		    if(strcmp(name, "NoAtime") == 0)
+		    if(sstreq(name, "NoAtime"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_CompDirty:
-		    if(strcmp(name, "CompDirty") == 0)
+		    if(sstreq(name, "CompDirty"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_CompBlock:
-		    if(strcmp(name, "CompBlock") == 0)
+		    if(sstreq(name, "CompBlock"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoCompBlock:
-		    if(strcmp(name, "NoCompBlock") == 0)
+		    if(sstreq(name, "NoCompBlock"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_CompError:
-		    if(strcmp(name, "CompError") == 0)
+		    if(sstreq(name, "CompError"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_BTree:
-		    if(strcmp(name, "BTree") == 0)
+		    if(sstreq(name, "BTree"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_HashIndexed:
-		    if(strcmp(name, "HashIndexed") == 0)
+		    if(sstreq(name, "HashIndexed"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_iMagic:
-		    if(strcmp(name, "iMagic") == 0)
+		    if(sstreq(name, "iMagic"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Journaled:
-		    if(strcmp(name, "Journaled") == 0)
+		    if(sstreq(name, "Journaled"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_NoTail:
-		    if(strcmp(name, "NoTail") == 0)
+		    if(sstreq(name, "NoTail"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_DirSync:
-		    if(strcmp(name, "DirSync") == 0)
+		    if(sstreq(name, "DirSync"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_TopDir:
-		    if(strcmp(name, "TopDir") == 0)
+		    if(sstreq(name, "TopDir"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case FILE_EXT2_Reserved:
-		    if(strcmp(name, "Reserved") == 0)
+		    if(sstreq(name, "Reserved"))
 			    xar->xmlsts = FILE_EXT2;
 		    break;
 		case UNKNOWN:
@@ -2566,43 +2556,43 @@ static void xml_data(void * userData, const char * s, int len)
 static int xml_parse_file_flags(struct xar * xar, const char * name)
 {
 	const char * flag = NULL;
-	if(strcmp(name, "UserNoDump") == 0) {
+	if(sstreq(name, "UserNoDump")) {
 		xar->xmlsts = FILE_FLAGS_USER_NODUMP;
 		flag = "nodump";
 	}
-	else if(strcmp(name, "UserImmutable") == 0) {
+	else if(sstreq(name, "UserImmutable")) {
 		xar->xmlsts = FILE_FLAGS_USER_IMMUTABLE;
 		flag = "uimmutable";
 	}
-	else if(strcmp(name, "UserAppend") == 0) {
+	else if(sstreq(name, "UserAppend")) {
 		xar->xmlsts = FILE_FLAGS_USER_APPEND;
 		flag = "uappend";
 	}
-	else if(strcmp(name, "UserOpaque") == 0) {
+	else if(sstreq(name, "UserOpaque")) {
 		xar->xmlsts = FILE_FLAGS_USER_OPAQUE;
 		flag = "opaque";
 	}
-	else if(strcmp(name, "UserNoUnlink") == 0) {
+	else if(sstreq(name, "UserNoUnlink")) {
 		xar->xmlsts = FILE_FLAGS_USER_NOUNLINK;
 		flag = "nouunlink";
 	}
-	else if(strcmp(name, "SystemArchived") == 0) {
+	else if(sstreq(name, "SystemArchived")) {
 		xar->xmlsts = FILE_FLAGS_SYS_ARCHIVED;
 		flag = "archived";
 	}
-	else if(strcmp(name, "SystemImmutable") == 0) {
+	else if(sstreq(name, "SystemImmutable")) {
 		xar->xmlsts = FILE_FLAGS_SYS_IMMUTABLE;
 		flag = "simmutable";
 	}
-	else if(strcmp(name, "SystemAppend") == 0) {
+	else if(sstreq(name, "SystemAppend")) {
 		xar->xmlsts = FILE_FLAGS_SYS_APPEND;
 		flag = "sappend";
 	}
-	else if(strcmp(name, "SystemNoUnlink") == 0) {
+	else if(sstreq(name, "SystemNoUnlink")) {
 		xar->xmlsts = FILE_FLAGS_SYS_NOUNLINK;
 		flag = "nosunlink";
 	}
-	else if(strcmp(name, "SystemSnapshot") == 0) {
+	else if(sstreq(name, "SystemSnapshot")) {
 		xar->xmlsts = FILE_FLAGS_SYS_SNAPSHOT;
 		flag = "snapshot";
 	}
@@ -2620,83 +2610,83 @@ static int xml_parse_file_flags(struct xar * xar, const char * name)
 static int xml_parse_file_ext2(struct xar * xar, const char * name)
 {
 	const char * flag = NULL;
-	if(strcmp(name, "SecureDeletion") == 0) {
+	if(sstreq(name, "SecureDeletion")) {
 		xar->xmlsts = FILE_EXT2_SecureDeletion;
 		flag = "securedeletion";
 	}
-	else if(strcmp(name, "Undelete") == 0) {
+	else if(sstreq(name, "Undelete")) {
 		xar->xmlsts = FILE_EXT2_Undelete;
 		flag = "nouunlink";
 	}
-	else if(strcmp(name, "Compress") == 0) {
+	else if(sstreq(name, "Compress")) {
 		xar->xmlsts = FILE_EXT2_Compress;
 		flag = "compress";
 	}
-	else if(strcmp(name, "Synchronous") == 0) {
+	else if(sstreq(name, "Synchronous")) {
 		xar->xmlsts = FILE_EXT2_Synchronous;
 		flag = "sync";
 	}
-	else if(strcmp(name, "Immutable") == 0) {
+	else if(sstreq(name, "Immutable")) {
 		xar->xmlsts = FILE_EXT2_Immutable;
 		flag = "simmutable";
 	}
-	else if(strcmp(name, "AppendOnly") == 0) {
+	else if(sstreq(name, "AppendOnly")) {
 		xar->xmlsts = FILE_EXT2_AppendOnly;
 		flag = "sappend";
 	}
-	else if(strcmp(name, "NoDump") == 0) {
+	else if(sstreq(name, "NoDump")) {
 		xar->xmlsts = FILE_EXT2_NoDump;
 		flag = "nodump";
 	}
-	else if(strcmp(name, "NoAtime") == 0) {
+	else if(sstreq(name, "NoAtime")) {
 		xar->xmlsts = FILE_EXT2_NoAtime;
 		flag = "noatime";
 	}
-	else if(strcmp(name, "CompDirty") == 0) {
+	else if(sstreq(name, "CompDirty")) {
 		xar->xmlsts = FILE_EXT2_CompDirty;
 		flag = "compdirty";
 	}
-	else if(strcmp(name, "CompBlock") == 0) {
+	else if(sstreq(name, "CompBlock")) {
 		xar->xmlsts = FILE_EXT2_CompBlock;
 		flag = "comprblk";
 	}
-	else if(strcmp(name, "NoCompBlock") == 0) {
+	else if(sstreq(name, "NoCompBlock")) {
 		xar->xmlsts = FILE_EXT2_NoCompBlock;
 		flag = "nocomprblk";
 	}
-	else if(strcmp(name, "CompError") == 0) {
+	else if(sstreq(name, "CompError")) {
 		xar->xmlsts = FILE_EXT2_CompError;
 		flag = "comperr";
 	}
-	else if(strcmp(name, "BTree") == 0) {
+	else if(sstreq(name, "BTree")) {
 		xar->xmlsts = FILE_EXT2_BTree;
 		flag = "btree";
 	}
-	else if(strcmp(name, "HashIndexed") == 0) {
+	else if(sstreq(name, "HashIndexed")) {
 		xar->xmlsts = FILE_EXT2_HashIndexed;
 		flag = "hashidx";
 	}
-	else if(strcmp(name, "iMagic") == 0) {
+	else if(sstreq(name, "iMagic")) {
 		xar->xmlsts = FILE_EXT2_iMagic;
 		flag = "imagic";
 	}
-	else if(strcmp(name, "Journaled") == 0) {
+	else if(sstreq(name, "Journaled")) {
 		xar->xmlsts = FILE_EXT2_Journaled;
 		flag = "journal";
 	}
-	else if(strcmp(name, "NoTail") == 0) {
+	else if(sstreq(name, "NoTail")) {
 		xar->xmlsts = FILE_EXT2_NoTail;
 		flag = "notail";
 	}
-	else if(strcmp(name, "DirSync") == 0) {
+	else if(sstreq(name, "DirSync")) {
 		xar->xmlsts = FILE_EXT2_DirSync;
 		flag = "dirsync";
 	}
-	else if(strcmp(name, "TopDir") == 0) {
+	else if(sstreq(name, "TopDir")) {
 		xar->xmlsts = FILE_EXT2_TopDir;
 		flag = "topdir";
 	}
-	else if(strcmp(name, "Reserved") == 0) {
+	else if(sstreq(name, "Reserved")) {
 		xar->xmlsts = FILE_EXT2_Reserved;
 		flag = "reserved";
 	}
@@ -2719,7 +2709,7 @@ static int xml2_xmlattr_setup(struct archive_read * a, struct xmlattr_list * lis
 	r = xmlTextReaderMoveToFirstAttribute(reader);
 	while(r == 1) {
 		attr = static_cast<struct xmlattr *>(SAlloc::M(sizeof *(attr)));
-		if(attr == NULL) {
+		if(!attr) {
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}

@@ -3194,10 +3194,10 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 	for(int do_process = 1; do_process && (r = P_Tbl->SearchByBarcode(bc, pBcRec, b)) < 0;) {
 		do_process = 0;
 		if(adoptSearching) {
-			//
-			// Пытаемся приклеить в конце кода контрольную цифру
-			//
 			if(oneof3(init_len, 12, 11, 7)) {
+				//
+				// Пытаемся приклеить в конце кода контрольную цифру
+				//
 				int    cd = CalcBarcodeCheckDigit(org_bc);
 				(temp_buf = org_bc).CatChar('0'+cd);
 				if(!processed_list.search(temp_buf, 0, 0)) {

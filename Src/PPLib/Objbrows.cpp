@@ -232,7 +232,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 				if(Flags & OLW_CANEDIT && getResult(&id) && id) {
 					preserve_focus_id = id;
 					if(p_obj->Edit(&id, ExtraPtr) == cmOK) {
-						if(!(Flags & OWL_OUTERLIST)) // @v9.0.1
+						if(!(Flags & OWL_OUTERLIST))
 							update = 2;
 						else {
 							// @todo Необходимо изменить строку, если текст объекта изменился
@@ -247,7 +247,7 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 			else if(TVKEY == kbAltF2) {
 				if(Flags & OLW_CANINSERT && p_obj->Obj == PPOBJ_GOODS && getResult(&id) && id) {
 					PPID   new_id = 0;
-					if(((PPObjGoods*)p_obj)->AddBySample(&new_id, id) == cmOK) {
+					if(static_cast<PPObjGoods *>(p_obj)->AddBySample(&new_id, id) == cmOK) {
 						preserve_focus_id = new_id;
 						update = 2;
 					}
@@ -310,10 +310,8 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 	if(!SetupStrListBox(P_Box))
 		PPError();
 	else {
-		// @v9.8.11 {
 		if(flags & fOmitSearchByFirstChar)
 			P_Box->SetOmitSearchByFirstChar();
-		// } @v9.8.11 
 		// @v10.3.0 {
 		if(flags & fOwnerDraw)
 			P_Box->SetOwnerDrawState();
@@ -526,18 +524,18 @@ IMPL_HANDLE_EVENT(ObjRestrictListDialog)
 	ObjRestrictArray * p_orlist = P_ORList;
 	long   p, i;
 	PPListDialog::handleEvent(event);
-	if(TVCOMMAND && p_orlist) {
-		if(TVCMD == cmaLevelUp || TVCMD == cmUp) {
-			if(getCurItem(&p, &i) && p > 0) {
-				p_orlist->swap(p, p-1);
-				updateList(p-1);
-			}
+	if(event.isCmd(cmaLevelUp) || event.isCmd(cmUp)) {
+		if(p_orlist && getCurItem(&p, &i) && p > 0) {
+			p_orlist->swap(p, p-1);
+			updateList(p-1);
 		}
-		else if(TVCMD == cmaLevelDown || TVCMD == cmDown) {
-			if(getCurItem(&p, &i) && p < (long)p_orlist->getCount()-1) {
-				p_orlist->swap(p, p+1);
-				updateList(p+1);
-			}
+		else
+			return;
+	}
+	else if(event.isCmd(cmaLevelDown) || event.isCmd(cmDown)) {
+		if(p_orlist && getCurItem(&p, &i) && p < p_orlist->getCountI()-1) {
+			p_orlist->swap(p, p+1);
+			updateList(p+1);
 		}
 		else
 			return;

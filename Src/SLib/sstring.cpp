@@ -1083,7 +1083,7 @@ int SLAPI SString::Wrap(uint maxLen, SString & rHead, SString & rTail) const
 //
 size_t FASTCALL SnapUpSize(size_t i)
 {
-	if(i < 12)
+	if(i <= 12) // @v10.8.0 (i < 12)-->(i <= 12)
 		i = 12;
 	else {
 		size_t j = i;
@@ -1108,20 +1108,25 @@ int FASTCALL SString::Alloc(size_t sz)
 	else if(sz > Size) {
 		size_t new_size = SnapUpSize(sz);
 		char * p = 0;
-		if((7 * Size) < (8 * L)) { // Assume probability of a non-moving realloc is 0.125
-			// If L is close to Size in size then use realloc to reduce the memory defragmentation
-			p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
+		if(!P_Buf) {
+			p = static_cast<char *>(SAlloc::M(new_size));
 		}
 		else {
-			// If L is not close to Size then avoid the penalty of copying
-			// the extra bytes that are allocated, but not considered part of the string
-			p = static_cast<char *>(SAlloc::M(new_size));
-			if(!p)
+			if((7 * Size) < (8 * L)) { // Assume probability of a non-moving realloc is 0.125
+				// If L is close to Size in size then use realloc to reduce the memory defragmentation
 				p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
+			}
 			else {
-				if(L)
-					memcpy(p, P_Buf, L);
-				SAlloc::F(P_Buf);
+				// If L is not close to Size then avoid the penalty of copying
+				// the extra bytes that are allocated, but not considered part of the string
+				p = static_cast<char *>(SAlloc::M(new_size));
+				if(!p)
+					p = static_cast<char *>(SAlloc::R(P_Buf, new_size));
+				else {
+					if(L)
+						memcpy(p, P_Buf, L);
+					SAlloc::F(P_Buf);
+				}
 			}
 		}
 		if(p) {
@@ -7189,6 +7194,19 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						}
 						if(is_chzn_cigitem)
 							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
+					}
+				}
+				else if(oneof2(stat.Len, 52, 35)) {
+					size_t _offs = 0;
+					if(pToken[_offs++] == '0') {
+						int    is_chzn_cigblock = 1;
+						while(_offs < 14) {
+							if(!isdec(pToken[_offs]))
+								is_chzn_cigblock = 0;
+							_offs++;
+						}
+						if(is_chzn_cigblock)
+							rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
 					}
 				}
 			}

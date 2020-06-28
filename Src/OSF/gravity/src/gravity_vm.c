@@ -16,43 +16,46 @@ static void gravity_gc_transform(gravity_hash_t * hashtable, GravityValue key, G
 // Internal cache to speed up common operations lookup
 static uint32 cache_refcount = 0;
 static GravityValue cache[GRAVITY_VTABLE_SIZE];
-
-// Used in order to guarantee a NON NULL delegate (so I can speedup comparisons)
-static gravity_delegate_t empty_delegate(0);
+static gravity_delegate_t empty_delegate(0); // Used in order to guarantee a NON NULL delegate (so I can speedup comparisons)
 
 // Opaque VM struct
 struct gravity_vm {
-	gravity_hash_t      * context;                  // context hash table
-	gravity_delegate_t  * delegate;                 // registered runtime delegate
-	gravity_fiber_t     * fiber;                    // current fiber
-	void                * data;                     // custom data optionally set by the user
-	uint32 pc;                                    // program counter
-	double time;                                    // useful timer for the main function
-	bool aborted;                                   // set when VM has generated a runtime error
-	uint32 maxccalls;                             // maximum number of nested c calls
-	uint32 nccalls;                               // current number of nested c calls
+	/*gravity_vm() : context(0), delegate(0), fiber(0), data(0), pc(0), time(0.0), aborted(false), maxccalls(0), nccalls(0),
+		maxrecursion(0), recursioncount(0), nanon(0)
+	{
+	}*/
+	gravity_hash_t      * context;   // context hash table
+	gravity_delegate_t  * delegate;  // registered runtime delegate
+	gravity_fiber_t     * fiber;     // current fiber
+	void   * data;                   // custom data optionally set by the user
+	uint32 pc;                       // program counter
+	double time;                     // useful timer for the main function
+	bool   aborted;                  // set when VM has generated a runtime error
+	uint8  Reserve[3]; // @alignment               
+	uint32 maxccalls;                // maximum number of nested c calls
+	uint32 nccalls;                  // current number of nested c calls
 	// recursion
-	gravity_int_t maxrecursion;                     // maximum recursive depth
-	gravity_int_t recursioncount;                   // recursion counter
+	/*gravity_int_t*/uint32 maxrecursion;   // maximum recursive depth
+	/*gravity_int_t*/uint32 recursioncount; // recursion counter
 	// anonymous names
-	uint32 nanon;                                 // counter for anonymous classes (used in object_bind)
-	char temp[64];                                  // temporary buffer used for anonymous names generator
+	uint32 nanon;                    // counter for anonymous classes (used in object_bind)
+	char temp[64];                   // temporary buffer used for anonymous names generator
 	// callbacks
-	vm_transfer_cb transfer;                        // function called each time a gravity_object_t is allocated
-	vm_cleanup_cb cleanup;                          // function called when VM must be cleaned-up
-	vm_filter_cb filter;                            // function called to filter objects in the cleanup process
+	vm_transfer_cb transfer;         // function called each time a gravity_object_t is allocated
+	vm_cleanup_cb cleanup;           // function called when VM must be cleaned-up
+	vm_filter_cb filter;             // function called to filter objects in the cleanup process
 	// garbage collector
-	int32 gcenabled;                              // flag to enable/disable garbage collector (was bool but it is now reference counted)
-	gravity_int_t memallocated;                     // total number of allocated memory
-	gravity_int_t maxmemblock;                      // maximum block memory size allowed to allocate
-	gravity_object_t    * gchead;                   // head of garbage collected objects
-	gravity_int_t gcminthreshold;                   // minimum GC threshold size to avoid spending too much time in GC
-	gravity_int_t gcthreshold;                      // memory required to trigger a GC
-	gravity_int_t gcthreshold_original;             // gcthreshold is dynamically re-computed so I msut save the original value somewhere
-	gravity_float_t gcratio;                        // ratio used in automatic recomputation of the new gcthreshold value
-	gravity_int_t gccount;                          // number of objects into GC
-	gravity_object_r graylist;                      // array of collected objects while GC is in process (gray list)
-	gravity_object_r gctemp;                        // array of temp objects that need to be saved from GC
+	int32 gcenabled;                 // flag to enable/disable garbage collector (was bool but it is now reference counted)
+	gravity_int_t memallocated;      // total number of allocated memory
+	gravity_int_t maxmemblock;       // maximum block memory size allowed to allocate
+	gravity_object_t * gchead;       // head of garbage collected objects
+	gravity_int_t gcminthreshold;    // minimum GC threshold size to avoid spending too much time in GC
+	gravity_int_t gcthreshold;       // memory required to trigger a GC
+	gravity_int_t gcthreshold_original; // gcthreshold is dynamically re-computed so I msut save the original value somewhere
+	gravity_float_t gcratio;            // ratio used in automatic recomputation of the new gcthreshold value
+	gravity_int_t gccount;              // number of objects into GC
+	gravity_object_r graylist;          // array of collected objects while GC is in process (gray list)
+	gravity_object_r gctemp;            // array of temp objects that need to be saved from GC
 	// internal stats fields
     #if GRAVITY_VM_STATS
 	uint32 nfrealloc;                             // to check how many frames reallocation occurred
@@ -62,6 +65,17 @@ struct gravity_vm {
 	nanotime_t t;                                   // internal timer
     #endif
 };
+
+#define USE_ARGS(_c)                (_c->f->tag == EXEC_TYPE_NATIVE && _c->f->useargs)
+#define PUSH_FRAME(_c,_s,_r,_n)     gravity_callframe_t * cframe = gravity_new_callframe(vm, fiber); \
+                                    if(!cframe) return false;                \
+                                    cframe->closure = _c;                    \
+                                    cframe->stackstart = _s;                 \
+                                    cframe->ip = _c->f->bytecode;            \
+                                    cframe->dest = _r;                       \
+                                    cframe->nargs = static_cast<uint16>(_n); \
+                                    cframe->outloop = false;                 \
+                                    cframe->args = (USE_ARGS(_c)) ? gravity_list_from_array(vm, _n-1, _s+1) : NULL
 
 // MARK: - Debug -
 
@@ -202,7 +216,7 @@ GravityValue gravity_vm_keyindex(gravity_vm * vm, uint32 index)
 	return cache[index];
 }
 
-static inline gravity_callframe_t * gravity_new_callframe(gravity_vm * vm, gravity_fiber_t * fiber) 
+static /*inline*/gravity_callframe_t * gravity_new_callframe(gravity_vm * vm, gravity_fiber_t * fiber) 
 {
     #pragma unused(vm)
 	// check if there are enough slots in the call frame and optionally create new cframes
@@ -233,7 +247,7 @@ static /*inline*/ bool FASTCALL gravity_check_stack(gravity_vm * vm, gravity_fib
 	fiber->stacktop += stacktopdelta;
 	// check stack size
 	uint32 stack_size = (uint32)(fiber->stacktop - fiber->stack);
-	uint32 stack_needed = MAXNUM(stack_size, DEFAULT_MINSTACK_SIZE);
+	uint32 stack_needed = MAX(stack_size, DEFAULT_MINSTACK_SIZE);
 	if(fiber->stackalloc >= stack_needed) return true;
 	GravityValue * old_stack = fiber->stack;
 
@@ -348,19 +362,19 @@ bool gravity_isopt_class(const gravity_class_t * c) { return (GRAVITY_ISMATH_CLA
 static bool gravity_vm_exec(gravity_vm * vm) 
 {
 	DECLARE_DISPATCH_TABLE;
-	gravity_fiber_t         * fiber = vm->fiber;    // current fiber
-	gravity_delegate_t      * delegate = vm->delegate;// current delegate
-	gravity_callframe_t     * frame;                // current executing frame
-	gravity_function_t      * func;                 // current executing function
-	GravityValue         * stackstart;           // SP => stack pointer
-	uint32       * ip;                   // IP => instruction pointer
+	gravity_fiber_t     * fiber = vm->fiber;    // current fiber
+	gravity_delegate_t  * delegate = vm->delegate;// current delegate
+	gravity_callframe_t * frame;                // current executing frame
+	gravity_function_t * func;                 // current executing function
+	GravityValue       * stackstart;           // SP => stack pointer
+	uint32 * ip;                   // IP => instruction pointer
 	uint32 inst;                         // IR => instruction register
 	opcode_t op;                           // OP => opcode register
 	// load current callframe
 	LOAD_FRAME();
 	DEBUG_CALL("Executing", func);
 	// sanity check
-	if((ip == NULL) || (!func->bytecode) || (func->ninsts == 0)) 
+	if(!ip || !func->bytecode || !func->ninsts) 
 		return true;
 	DEBUG_STACK();
 	while(1) {
@@ -388,13 +402,13 @@ static bool gravity_vm_exec(gravity_vm * vm)
 				DEFINE_STACK_VARIABLE(v2, r2);
 				DEFINE_INDEX_VARIABLE(v3, r3);
 				GravityValue target = STACK_GET(0);
-				gravity_class_t * target_class = gravity_value_getclass(target);
-				gravity_class_t * super_target = gravity_class_lookup_class_identifier(target_class, VALUE_AS_CSTRING(v2));
+				gravity_class_t * target_class = target.GetClass();
+				gravity_class_t * super_target = gravity_class_lookup_class_identifier(target_class, v2.GetZString());
 				if(!super_target) 
-					RUNTIME_ERROR("Unable to find superclass %s in self object", VALUE_AS_CSTRING(v2));
+					RUNTIME_ERROR("Unable to find superclass %s in self object", v2.GetZString());
 				gravity_object_t * result = gravity_class_lookup(super_target, v3);
 				if(!result) 
-					RUNTIME_ERROR("Unable to find %s in superclass %s", VALUE_AS_CSTRING(v3), (super_target->identifier) ? super_target->identifier : "N/A");
+					RUNTIME_ERROR("Unable to find %s in superclass %s", v3.GetZString(), (super_target->identifier) ? super_target->identifier : "N/A");
 				SETVALUE(r1, VALUE_FROM_OBJECT(result));
 				DISPATCH();
 			}
@@ -424,61 +438,63 @@ static bool gravity_vm_exec(gravity_vm * vm)
 				STORE_FRAME();
 execute_load_function:
 				switch(closure->f->tag) {
-					case EXEC_TYPE_NATIVE: {
-					    // invalidate current_fiber because it does not need to be in sync in this
-					    // case
-					    current_fiber = NULL;
-					    PUSH_FRAME(closure, &stackstart[rwin], r1, 2);
-				    } break;
+					case EXEC_TYPE_NATIVE: 
+						{
+							// invalidate current_fiber because it does not need to be in sync in this
+							// case
+							current_fiber = NULL;
+							PUSH_FRAME(closure, &stackstart[rwin], r1, 2);
+						} 
+						break;
+					case EXEC_TYPE_INTERNAL: 
+						{
+							// backup register r1 because it can be overwrite to return a closure
+							GravityValue r1copy = STACK_GET(r1);
+							BEGIN_TRUST_USERCODE(vm);
+							bool result = closure->f->internal(vm, &stackstart[rwin], 2, r1);
+							END_TRUST_USERCODE(vm);
+							if(!result) {
+								if(vm->aborted) 
+									return false;
+								// check for special getter trick
+								if(STACK_GET(r1).IsClosure()) {
+									closure = VALUE_AS_CLOSURE(STACK_GET(r1));
+									SETVALUE(r1, r1copy);
+									goto execute_load_function;
+								}
 
-					case EXEC_TYPE_INTERNAL: {
-					    // backup register r1 because it can be overwrite to return a closure
-					    GravityValue r1copy = STACK_GET(r1);
-					    BEGIN_TRUST_USERCODE(vm);
-					    bool result = closure->f->internal(vm, &stackstart[rwin], 2, r1);
-					    END_TRUST_USERCODE(vm);
-					    if(!result) {
-						    if(vm->aborted) return false;
-
-						    // check for special getter trick
-						    if(VALUE_ISA_CLOSURE(STACK_GET(r1))) {
-							    closure = VALUE_AS_CLOSURE(STACK_GET(r1));
-							    SETVALUE(r1, r1copy);
-							    goto execute_load_function;
-						    }
-
-						    // check for special fiber error
-						    fiber = vm->fiber;
-						    if(fiber == NULL) return true;
-						    if(fiber->error) RUNTIME_FIBER_ERROR(fiber->error);
-					    }
-				    } break;
-
-					case EXEC_TYPE_BRIDGED: {
-					    DEBUG_ASSERT(delegate->bridge_getvalue, "bridge_getvalue delegate callback is mandatory");
-					    BEGIN_TRUST_USERCODE(vm);
-					    bool result = delegate->bridge_getvalue(vm, closure->f->xdata, v2, VALUE_AS_CSTRING(v3), r1);
-					    END_TRUST_USERCODE(vm);
-					    if(!result) {
-						    if(fiber->error) RUNTIME_FIBER_ERROR(fiber->error);
-					    }
-				    } break;
-
-					case EXEC_TYPE_SPECIAL: {
-					    if(!closure->f->special[EXEC_TYPE_SPECIAL_GETTER]) RUNTIME_ERROR(
-							    "Missing special getter function for property %s",
-							    VALUE_AS_CSTRING(v3));
-					    closure = static_cast<gravity_closure_t *>(closure->f->special[EXEC_TYPE_SPECIAL_GETTER]);
-					    goto execute_load_function;
-				    } break;
+								// check for special fiber error
+								fiber = vm->fiber;
+								if(fiber == NULL) return true;
+								if(fiber->error) RUNTIME_FIBER_ERROR(fiber->error);
+							}
+						} 
+						break;
+					case EXEC_TYPE_BRIDGED: 
+						{
+							DEBUG_ASSERT(delegate->bridge_getvalue, "bridge_getvalue delegate callback is mandatory");
+							BEGIN_TRUST_USERCODE(vm);
+							bool result = delegate->bridge_getvalue(vm, closure->f->xdata, v2, v3.GetZString(), r1);
+							END_TRUST_USERCODE(vm);
+							if(!result) {
+								if(fiber->error) 
+									RUNTIME_FIBER_ERROR(fiber->error);
+							}
+						} 
+						break;
+					case EXEC_TYPE_SPECIAL: 
+						{
+							if(!closure->f->special[EXEC_TYPE_SPECIAL_GETTER]) 
+								RUNTIME_ERROR("Missing special getter function for property %s", v3.GetZString());
+							closure = static_cast<gravity_closure_t *>(closure->f->special[EXEC_TYPE_SPECIAL_GETTER]);
+							goto execute_load_function;
+						} 
+						break;
 				}
 				LOAD_FRAME();
 				SYNC_STACKTOP(current_fiber, fiber, stacktopdelta);
-
-				// continue execution
-				DISPATCH();
+				DISPATCH(); // continue execution
 			}
-
 			// MARK: LOADI
 			CASE_CODE(LOADI) : {
 				OPCODE_GET_ONE8bit_SIGN_ONE17bit(inst, const uint32 r1, const int32 value);
@@ -494,7 +510,7 @@ execute_load_function:
 				DEBUG_VM("LOADK %d %d", r1, index);
 
 				// constant pool case
-				if(index < marray_size(func->cpool)) {
+				if(index < func->cpool.getCount()) {
 					GravityValue v = gravity_function_cpool_get(func, static_cast<uint16>(index));
 					SETVALUE(r1, v);
 					DISPATCH();
@@ -505,11 +521,11 @@ execute_load_function:
 					case CPOOL_VALUE_SUPER: {
 					    // get super class from STACK_GET(0) which is self
 					    gravity_class_t * super = gravity_value_getsuper(STACK_GET(0));
-					    SETVALUE(r1, (super) ? VALUE_FROM_OBJECT(super) : VALUE_FROM_NULL);
+					    SETVALUE(r1, (super) ? VALUE_FROM_OBJECT(super) : GravityValue::from_null());
 				    } break;
-					case CPOOL_VALUE_ARGUMENTS: SETVALUE(r1, (frame->args) ? VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(frame->args)) : VALUE_FROM_NULL); break;
-					case CPOOL_VALUE_NULL: SETVALUE(r1, VALUE_FROM_NULL); break;
-					case CPOOL_VALUE_UNDEFINED: SETVALUE(r1, VALUE_FROM_UNDEFINED); break;
+					case CPOOL_VALUE_ARGUMENTS: SETVALUE(r1, (frame->args) ? VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(frame->args)) : GravityValue::from_null()); break;
+					case CPOOL_VALUE_NULL: SETVALUE(r1, GravityValue::from_null()); break;
+					case CPOOL_VALUE_UNDEFINED: SETVALUE(r1, GravityValue::from_undefined()); break;
 					case CPOOL_VALUE_TRUE: SETVALUE(r1, VALUE_FROM_TRUE); break;
 					case CPOOL_VALUE_FALSE: SETVALUE(r1, VALUE_FROM_FALSE); break;
 					case CPOOL_VALUE_FUNC: SETVALUE(r1, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(frame->closure))); break;
@@ -522,11 +538,10 @@ execute_load_function:
 			CASE_CODE(LOADG) : {
 				OPCODE_GET_ONE8bit_ONE18bit(inst, uint32 r1, int32 index);
 				DEBUG_VM("LOADG %d %d", r1, index);
-
 				GravityValue key = gravity_function_cpool_get(func, static_cast<uint16>(index));
 				GravityValue * v = gravity_hash_lookup(vm->context, key);
-				if(!v) RUNTIME_ERROR("Unable to find object %s", VALUE_AS_CSTRING(key));
-
+				if(!v) 
+					RUNTIME_ERROR("Unable to find object %s", key.GetZString());
 				SETVALUE(r1, *v);
 				DISPATCH();
 			}
@@ -595,10 +610,10 @@ execute_store_function:
 					    bool result = closure->f->internal(vm, &stackstart[rwin], 2, r1);
 					    END_TRUST_USERCODE(vm);
 					    if(!result) {
-						    if(vm->aborted) return false;
-
+						    if(vm->aborted) 
+								return false;
 						    // check for special getter trick
-						    if(VALUE_ISA_CLOSURE(STACK_GET(r1))) {
+						    if(STACK_GET(r1).IsClosure()) {
 							    closure = VALUE_AS_CLOSURE(STACK_GET(r1));
 							    SETVALUE(r1, r1copy);
 							    reset_r1 = true;
@@ -615,7 +630,7 @@ execute_store_function:
 					case EXEC_TYPE_BRIDGED: {
 					    DEBUG_ASSERT(delegate->bridge_setvalue, "bridge_setvalue delegate callback is mandatory");
 					    BEGIN_TRUST_USERCODE(vm);
-					    bool result = delegate->bridge_setvalue(vm, closure->f->xdata, v2, VALUE_AS_CSTRING(v3), v1);
+					    bool result = delegate->bridge_setvalue(vm, closure->f->xdata, v2, v3.GetZString(), v1);
 					    END_TRUST_USERCODE(vm);
 					    if(!result) {
 						    if(fiber->error) RUNTIME_FIBER_ERROR(fiber->error);
@@ -624,7 +639,7 @@ execute_store_function:
 
 					case EXEC_TYPE_SPECIAL: {
 					    if(!closure->f->special[EXEC_TYPE_SPECIAL_SETTER]) 
-							RUNTIME_ERROR("Missing special setter function for property %s", VALUE_AS_CSTRING(v3));
+							RUNTIME_ERROR("Missing special setter function for property %s", v3.GetZString());
 					    closure = static_cast<gravity_closure_t *>(closure->f->special[EXEC_TYPE_SPECIAL_SETTER]);
 					    goto execute_store_function;
 				    } break;
@@ -703,15 +718,15 @@ execute_store_function:
 				// check fast comparison only if both values are boolean OR if one of them is undefined
 				DEFINE_STACK_VARIABLE(v2, r2);
 				DEFINE_STACK_VARIABLE(v3, r3);
-				if((VALUE_ISA_BOOL(v2) && (VALUE_ISA_BOOL(v3))) || (VALUE_ISA_UNDEFINED(v2) || (VALUE_ISA_UNDEFINED(v3)))) {
+				if((v2.IsBool() && v3.IsBool()) || (VALUE_ISA_UNDEFINED(v2) || (VALUE_ISA_UNDEFINED(v3)))) {
 					gravity_int_t eq_result = (v2.isa == v3.isa) && (v2.n == v3.n);
 					SETVALUE(r1, VALUE_FROM_BOOL((op == EQ) ? eq_result : !eq_result));
 					DISPATCH();
 				}
-				else if(VALUE_ISA_INT(v2) && VALUE_ISA_INT(v3)) {
+				else if(v2.IsInt() && v3.IsInt()) {
 					// INT optimization especially useful in loops
-					if(v2.n == v3.n) SETVALUE(r1, VALUE_FROM_INT(0));
-					else SETVALUE(r1, VALUE_FROM_INT((v2.n > v3.n) ? 1 : -1));
+					if(v2.n == v3.n) SETVALUE(r1, GravityValue::from_int(0));
+					else SETVALUE(r1, GravityValue::from_int((v2.n > v3.n) ? 1 : -1));
 				}
 				else {
 					// prepare function call for binary operation
@@ -770,97 +785,54 @@ execute_store_function:
 
 			// MARK: RSHIFT
 			CASE_CODE(RSHIFT) : {
-				// decode operation
-				DECODE_BINARY_OPERATION(r1, r2, r3);
-
-				// check fast bit math operation first (only if both v2 and v3 are int)
-				CHECK_FAST_BINARY_BIT(r1, r2, r3, v2, v3, >>);
-
-				// prepare function call for binary operation
-				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_RSHIFT_INDEX, rwin);
-
-				// call function f
-				CALL_FUNC(RSHIFT, closure, r1, 2, rwin);
-
-				// continue execution
-				DISPATCH();
+				DECODE_BINARY_OPERATION(r1, r2, r3); // decode operation
+				CHECK_FAST_BINARY_BIT(r1, r2, r3, v2, v3, >>); // check fast bit math operation first (only if both v2 and v3 are int)
+				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_RSHIFT_INDEX, rwin); // prepare function call for binary operation
+				CALL_FUNC(RSHIFT, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
-
 			// MARK: BAND
 			CASE_CODE(BAND) : {
-				// decode operation
-				DECODE_BINARY_OPERATION(r1, r2, r3);
-
+				DECODE_BINARY_OPERATION(r1, r2, r3); // decode operation
 				// check fast bit math operation first (only if both v2 and v3 are int)
 				CHECK_FAST_BINARY_BIT(r1, r2, r3, v2, v3, &);
 				CHECK_FAST_BINBOOL_BIT(r1, v2, v3, &);
-
-				// prepare function call for binary operation
-				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_BAND_INDEX, rwin);
-
-				// call function f
-				CALL_FUNC(BAND, closure, r1, 2, rwin);
-
-				// continue execution
-				DISPATCH();
+				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_BAND_INDEX, rwin); // prepare function call for binary operation
+				CALL_FUNC(BAND, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
-
 			// MARK: BOR
 			CASE_CODE(BOR) : {
 				// decode operation
 				DECODE_BINARY_OPERATION(r1, r2, r3);
-
 				// check fast bit math operation first (only if both v2 and v3 are int)
 				CHECK_FAST_BINARY_BIT(r1, r2, r3, v2, v3, |);
 				CHECK_FAST_BINBOOL_BIT(r1, v2, v3, |);
-
-				// prepare function call for binary operation
-				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_BOR_INDEX, rwin);
-
-				// call function f
-				CALL_FUNC(BOR, closure, r1, 2, rwin);
-
-				// continue execution
-				DISPATCH();
+				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_BOR_INDEX, rwin); // prepare function call for binary operation
+				CALL_FUNC(BOR, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
-
 			// MARK: BXOR
 			CASE_CODE(BXOR) : {
-				// decode operation
-				DECODE_BINARY_OPERATION(r1, r2, r3);
-
+				DECODE_BINARY_OPERATION(r1, r2, r3); // decode operation
 				// check fast bit math operation first (only if both v2 and v3 are int)
 				CHECK_FAST_BINARY_BIT(r1, r2, r3, v2, v3, ^);
 				CHECK_FAST_BINBOOL_BIT(r1, v2, v3, ^);
-
-				// prepare function call for binary operation
-				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_BXOR_INDEX, rwin);
-
-				// call function f
-				CALL_FUNC(BXOR, closure, r1, 2, rwin);
-
-				// continue execution
-				DISPATCH();
+				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_BXOR_INDEX, rwin); // prepare function call for binary operation
+				CALL_FUNC(BXOR, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
 
 			// MARK: - BINARY OPERATORS -
 			// MARK: ADD
 			CASE_CODE(ADD) : {
-				// decode operation
-				DECODE_BINARY_OPERATION(r1, r2, r3);
-
-				// check fast math operation first (only in case of int and float)
-				CHECK_FAST_BINARY_MATH(r1, r2, r3, v2, v3, +, NO_CHECK);
-
+				DECODE_BINARY_OPERATION(r1, r2, r3); // decode operation
+				CHECK_FAST_BINARY_MATH(r1, r2, r3, v2, v3, +, NO_CHECK); // check fast math operation first (only in case of int and float)
 				// fast math operation cannot be performed so let's try with a regular call
 				// prepare function call for binary operation
 				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_ADD_INDEX, rwin);
-
-				// call function f
-				CALL_FUNC(ADD, closure, r1, 2, rwin);
-
-				// continue execution
-				DISPATCH();
+				CALL_FUNC(ADD, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
 
 			// MARK: SUB
@@ -917,29 +889,19 @@ execute_store_function:
 			}
 			// MARK: AND
 			CASE_CODE(AND) : {
-				// decode operation
-				DECODE_BINARY_OPERATION(r1, r2, r3);
-				// check fast bool operation first (only if both are bool)
-				CHECK_FAST_BINARY_BOOL(r1, r2, r3, v2, v3, &&);
-				// prepare function call for binary operation
-				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_AND_INDEX, rwin);
-				// call function f
-				CALL_FUNC(AND, closure, r1, 2, rwin);
-				// continue execution
-				DISPATCH();
+				DECODE_BINARY_OPERATION(r1, r2, r3); // decode operation
+				CHECK_FAST_BINARY_BOOL(r1, r2, r3, v2, v3, &&); // check fast bool operation first (only if both are bool)
+				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_AND_INDEX, rwin); // prepare function call for binary operation
+				CALL_FUNC(AND, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
 			// MARK: OR
 			CASE_CODE(OR) : {
-				// decode operation
-				DECODE_BINARY_OPERATION(r1, r2, r3);
-				// check fast bool operation first (only if both are bool)
-				CHECK_FAST_BINARY_BOOL(r1, r2, r3, v2, v3, ||);
-				// prepare function call for binary operation
-				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_OR_INDEX, rwin);
-				// call function f
-				CALL_FUNC(OR, closure, r1, 2, rwin);
-				// continue execution
-				DISPATCH();
+				DECODE_BINARY_OPERATION(r1, r2, r3); // decode operation
+				CHECK_FAST_BINARY_BOOL(r1, r2, r3, v2, v3, ||); // check fast bool operation first (only if both are bool)
+				PREPARE_FUNC_CALL2(closure, v2, v3, GRAVITY_OR_INDEX, rwin); // prepare function call for binary operation
+				CALL_FUNC(OR, closure, r1, 2, rwin); // call function f
+				DISPATCH(); // continue execution
 			}
 			// MARK: - UNARY OPERATORS -
 			// MARK: NEG
@@ -967,8 +929,8 @@ execute_store_function:
 		#pragma unused(r3)
 				DEFINE_STACK_VARIABLE(v2, r2); // check fast int operation first
 				// ~v2.n == -v2.n-1
-				if(VALUE_ISA_INT(v2)) {
-					SETVALUE(r1, VALUE_FROM_INT(~v2.n)); DISPATCH();
+				if(v2.IsInt()) {
+					SETVALUE(r1, GravityValue::from_int(~v2.n)); DISPATCH();
 				}
 				PREPARE_FUNC_CALL1(closure, v2, GRAVITY_BNOT_INDEX, rwin); // prepare function call for binary operation
 				CALL_FUNC(BNOT, closure, r1, 1, rwin); // call function f
@@ -988,7 +950,8 @@ execute_store_function:
 					// this is necessary in a FOR loop over numeric values (with an iterator) where
 					// otherwise number 0
 					// could be computed as a false condition
-					if((VALUE_ISA_BOOL(STACK_GET(r1))) && (GETVALUE_INT(STACK_GET(r1)) == 0)) ip = COMPUTE_JUMP(value);
+					if(STACK_GET(r1).IsBool() && (GETVALUE_INT(STACK_GET(r1)) == 0)) 
+						ip = COMPUTE_JUMP(value);
 					DISPATCH();
 				}
 
@@ -1003,24 +966,27 @@ execute_store_function:
 				if(VALUE_ISA_NULL(v1) || (VALUE_ISA_UNDEFINED(v1))) {
 					ip = COMPUTE_JUMP(value);
 				}
-				else if(VALUE_ISA_BOOL(v1) || (VALUE_ISA_INT(v1))) {
-					if(GETVALUE_INT(v1) == 0) ip = COMPUTE_JUMP(value);
+				else if(v1.IsBool() || v1.IsInt()) {
+					if(GETVALUE_INT(v1) == 0) 
+						ip = COMPUTE_JUMP(value);
 				}
-				else if(VALUE_ISA_FLOAT(v1)) {
-					if(GETVALUE_FLOAT(v1) == 0.0) ip = COMPUTE_JUMP(value);
+				else if(v1.IsFloat()) {
+					if(GETVALUE_FLOAT(v1) == 0.0) 
+						ip = COMPUTE_JUMP(value);
 				}
-				else if(VALUE_ISA_STRING(v1)) {
-					if(VALUE_AS_STRING(v1)->len == 0) ip = COMPUTE_JUMP(value);
+				else if(v1.IsString()) {
+					if(static_cast<gravity_string_t *>(v1)->len == 0) 
+						ip = COMPUTE_JUMP(value);
 				}
 				else {
 					// no common case so check if it implements the Bool command
-					gravity_closure_t * closure = (gravity_closure_t *)gravity_class_lookup_closure(gravity_value_getclass(v1), cache[GRAVITY_BOOL_INDEX]);
+					gravity_closure_t * closure = gravity_class_lookup_closure(v1.GetClass(), cache[GRAVITY_BOOL_INDEX]);
 					// if no closure is found then object is considered TRUE
 					if(closure) {
 						// prepare func call
 						uint32 rwin = FN_COUNTREG(func, frame->nargs);
 						uint32 _rneed = FN_COUNTREG(closure->f, 1);
-						uint32 stacktopdelta = (uint32)MAXNUM(stackstart + rwin + _rneed - fiber->stacktop, 0);
+						uint32 stacktopdelta = (uint32)MAX(stackstart + rwin + _rneed - fiber->stacktop, 0);
 						if(!gravity_check_stack(vm, fiber, stacktopdelta, &stackstart)) {
 							RUNTIME_ERROR("Infinite loop detected. Current execution must be aborted.");
 						}
@@ -1063,25 +1029,25 @@ execute_store_function:
 				const uint32 rwin = r2 + 1;
 				GravityValue v = STACK_GET(r2); // object to call
 				gravity_closure_t * closure = NULL; // closure to call
-				if(VALUE_ISA_CLOSURE(v)) {
+				if(v.IsClosure()) {
 					closure = VALUE_AS_CLOSURE(v);
 				}
 				else {
 					// check for exec closure inside object
-					closure = (gravity_closure_t *)gravity_class_lookup_closure(gravity_value_getclass(v), cache[GRAVITY_EXEC_INDEX]);
+					closure = gravity_class_lookup_closure(v.GetClass(), cache[GRAVITY_EXEC_INDEX]);
 				}
 				// sanity check
 				if(!closure) 
 					RUNTIME_ERROR("Unable to call object (in function %s)", func->identifier);
 				// check stack size
 				uint32 _rneed = FN_COUNTREG(closure->f, r3);
-				uint32 stacktopdelta = (uint32)MAXNUM(stackstart + rwin + _rneed - fiber->stacktop, 0);
+				uint32 stacktopdelta = (uint32)MAX(stackstart + rwin + _rneed - fiber->stacktop, 0);
 				if(!gravity_check_stack(vm, fiber, stacktopdelta, &stackstart)) {
 					RUNTIME_ERROR("Infinite loop detected. Current execution must be aborted.");
 				}
 				// if less arguments are passed then fill the holes with UNDEFINED values
 				while(r3 < closure->f->nparams) {
-					SETVALUE(rwin+r3, VALUE_FROM_UNDEFINED);
+					SETVALUE(rwin+r3, GravityValue::from_undefined());
 					++r3;
 				}
 				// check for closure autocaptured self context (or custom self set by the user)
@@ -1099,11 +1065,11 @@ execute_call_function:
 							// invalidate current_fiber because it does not need to be synced in this case
 							current_fiber = NULL;
 							// support for default arg values
-							if(marray_size(closure->f->pvalue)) {
+							if(closure->f->pvalue.getCount()) {
 								uint32 n = 1; // from 1 in order to skip self implicit argument
 								while(n < closure->f->nparams) {
-									if(VALUE_ISA_UNDEFINED(STACK_GET(rwin+n))) SETVALUE(rwin+n,
-										marray_get(closure->f->pvalue, n-1));
+									if(VALUE_ISA_UNDEFINED(STACK_GET(rwin+n))) 
+										SETVALUE(rwin+n, closure->f->pvalue.at(n-1));
 									++n;
 								}
 							}
@@ -1130,7 +1096,7 @@ execute_call_function:
 						    if(vm->aborted) 
 								return false;
 						    // check for special getter trick
-						    if(VALUE_ISA_CLOSURE(STACK_GET(r1))) {
+						    if(STACK_GET(r1).IsClosure()) {
 							    closure = VALUE_AS_CLOSURE(STACK_GET(r1));
 							    SETVALUE(r1, r1copy);
 							    goto execute_call_function;
@@ -1148,7 +1114,7 @@ execute_call_function:
 					case EXEC_TYPE_BRIDGED: {
 					    bool result;
 					    BEGIN_TRUST_USERCODE(vm);
-					    if(VALUE_ISA_CLASS(v)) {
+					    if(v.IsClass()) {
 						    DEBUG_ASSERT(delegate->bridge_initinstance, "bridge_initinstance delegate callback is mandatory");
 						    gravity_instance_t * instance = (gravity_instance_t*)VALUE_AS_OBJECT(stackstart[rwin]);
 						    result = delegate->bridge_initinstance(vm, closure->f->xdata, STACK_GET(0), instance, &stackstart[rwin], r3);
@@ -1185,7 +1151,7 @@ execute_call_function:
 
 				if(op == RET0) {
 					DEBUG_VM("RET0");
-					result = VALUE_FROM_NULL;
+					result = GravityValue::from_null();
 				}
 				else {
 					OPCODE_GET_ONE8bit(inst, const uint32 r1);
@@ -1266,9 +1232,9 @@ execute_call_function:
 				OPCODE_GET_THREE8bit_ONE2bit(inst, const uint32 r1, const uint32 r2, const uint32 r3, const bool flag);
 				DEBUG_VM("RANGENEW %d %d %d (flag %d)", r1, r2, r3, flag);
 				// sanity check
-				if((!VALUE_ISA_INT(STACK_GET(r2))) || (!VALUE_ISA_INT(STACK_GET(r3))))
+				if(!STACK_GET(r2).IsInt() || !STACK_GET(r3).IsInt())
 					RUNTIME_ERROR("Unable to build Range from a non Int value");
-				gravity_range_t * range = gravity_range_new(vm, VALUE_AS_INT(STACK_GET(r2)), VALUE_AS_INT(STACK_GET(r3)), !flag);
+				gravity_range_t * range = gravity_range_new(vm, STACK_GET(r2).GetInt(), STACK_GET(r3).GetInt(), !flag);
 				SETVALUE(r1, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(range)));
 				DISPATCH();
 			}
@@ -1282,8 +1248,7 @@ execute_call_function:
 				// map
 				// then it is an array and nothing else
 				GravityValue v1 = STACK_GET(r1);
-				bool v1_is_map = VALUE_ISA_MAP(v1);
-
+				bool v1_is_map = v1.IsMap();
 				// r2 == 0 is an optimization, it means that list/map is composed all of literals
 				// and can be filled using the constant pool (r3 in this case represents an index inside
 				// cpool)
@@ -1294,8 +1259,8 @@ execute_call_function:
 						gravity_map_append_map(vm, map, VALUE_AS_MAP(v2));
 					}
 					else {
-						gravity_list_t * list = VALUE_AS_LIST(v1);
-						gravity_list_append_list(vm, list, VALUE_AS_LIST(v2));
+						gravity_list_t * list = static_cast<gravity_list_t *>(v1);
+						gravity_list_append_list(vm, list, static_cast<gravity_list_t *>(v2));
 					}
 					DISPATCH();
 				}
@@ -1304,16 +1269,16 @@ execute_call_function:
 					gravity_map_t * map = VALUE_AS_MAP(v1);
 					while(r2) {
 						GravityValue key = STACK_GET(++r1);
-						if(!VALUE_ISA_STRING(key)) RUNTIME_ERROR("Unable to build Map from a non String key");
+						if(!key.IsString()) RUNTIME_ERROR("Unable to build Map from a non String key");
 						GravityValue value = STACK_GET(++r1);
 						gravity_hash_insert(map->hash, key, value);
 						--r2;
 					}
 				}
 				else {
-					gravity_list_t * list = VALUE_AS_LIST(v1);
+					gravity_list_t * list = static_cast<gravity_list_t *>(v1);
 					while(r2) {
-						marray_push(GravityValue, list->array, STACK_GET(++r1));
+						list->array.insert(STACK_GET(++r1));
 						--r2;
 					}
 				}
@@ -1327,13 +1292,14 @@ execute_call_function:
 				DEBUG_VM("CLOSURE %d %d", r1, index);
 				// get function prototype from cpool
 				GravityValue v = gravity_function_cpool_get(func, static_cast<uint16>(index));
-				if(!VALUE_ISA_FUNCTION(v)) RUNTIME_ERROR("Unable to create a closure from a non function object.");
+				if(!v.IsFunction()) 
+					RUNTIME_ERROR("Unable to create a closure from a non function object.");
 				gravity_function_t * f = VALUE_AS_FUNCTION(v);
 				gravity_gc_setenabled(vm, false);
 				// create closure (outside GC)
 				gravity_closure_t * closure = gravity_closure_new(vm, f);
 				// save current context (only if class or instance)
-				if((VALUE_ISA_CLASS(STACK_GET(0))) || (VALUE_ISA_INSTANCE(STACK_GET(0))))
+				if(STACK_GET(0).IsClass() || STACK_GET(0).IsInstance())
 					closure->context = VALUE_AS_OBJECT(STACK_GET(0));
 
 				// loop for each upvalue setup instruction
@@ -1369,7 +1335,7 @@ execute_call_function:
 				DEBUG_VM("CHECK %d", r1);
 
 				GravityValue value = STACK_GET(r1);
-				if(VALUE_ISA_INSTANCE(value) && (gravity_instance_isstruct(VALUE_AS_INSTANCE(value)))) {
+				if(value.IsInstance() && (gravity_instance_isstruct(VALUE_AS_INSTANCE(value)))) {
 					gravity_instance_t * instance = gravity_instance_clone(vm, VALUE_AS_INSTANCE(value));
 					SETVALUE(r1, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(instance)));
 				}
@@ -1398,29 +1364,29 @@ gravity_vm * gravity_vm_new(gravity_delegate_t * delegate)
 {
 	gravity_core_init();
 	gravity_vm * vm = static_cast<gravity_vm *>(mem_alloc(NULL, sizeof(gravity_vm)));
-	if(!vm) 
-		return NULL;
-	// setup default callbacks
-	vm->transfer = gravity_gc_transfer;
-	vm->cleanup = gravity_gc_cleanup;
-	// allocate default fiber
-	vm->fiber = gravity_fiber_new(vm, NULL, 0, 0);
-	vm->maxccalls = MAX_CCALLS;
-	vm->maxrecursion = 0; // default is no limit
-	vm->pc = 0;
-	vm->delegate = (delegate) ? delegate : &empty_delegate;
-	vm->context = gravity_hash_create(DEFAULT_CONTEXT_SIZE, gravity_value_hash, gravity_value_equals, NULL, NULL);
-	// garbage collector
-	gravity_gc_setenabled(vm, true);
-	gravity_gc_setvalues(vm, DEFAULT_CG_THRESHOLD, DEFAULT_CG_MINTHRESHOLD, DEFAULT_CG_RATIO);
-	vm->memallocated = 0;
-	vm->maxmemblock = MAX_MEMORY_BLOCK;
-	marray_init(vm->graylist);
-	marray_init(vm->gctemp);
-	// init base and core
-	gravity_core_register(vm);
-	gravity_cache_setup();
-	RESET_STATS(vm);
+	if(vm) {
+		// setup default callbacks
+		vm->transfer = gravity_gc_transfer;
+		vm->cleanup = gravity_gc_cleanup;
+		// allocate default fiber
+		vm->fiber = gravity_fiber_new(vm, NULL, 0, 0);
+		vm->maxccalls = MAX_CCALLS;
+		vm->maxrecursion = 0; // default is no limit
+		vm->pc = 0;
+		vm->delegate = (delegate) ? delegate : &empty_delegate;
+		vm->context = gravity_hash_create(DEFAULT_CONTEXT_SIZE, gravity_value_hash, gravity_value_equals, NULL, NULL);
+		// garbage collector
+		gravity_gc_setenabled(vm, true);
+		gravity_gc_setvalues(vm, DEFAULT_CG_THRESHOLD, DEFAULT_CG_MINTHRESHOLD, DEFAULT_CG_RATIO);
+		vm->memallocated = 0;
+		vm->maxmemblock = MAX_MEMORY_BLOCK;
+		marray_init(vm->graylist);
+		marray_init(vm->gctemp);
+		// init base and core
+		gravity_core_register(vm);
+		gravity_cache_setup();
+		RESET_STATS(vm);
+	}
 	return vm;
 }
 
@@ -1438,8 +1404,8 @@ void gravity_vm_free(gravity_vm * vm)
 			gravity_cache_free();
 		gravity_vm_cleanup(vm);
 		gravity_hash_free(vm->context);
-		marray_destroy(vm->gctemp);
-		marray_destroy(vm->graylist);
+		vm->gctemp.Z();
+		vm->graylist.Z();
 		mem_free(vm);
 	}
 }
@@ -1452,8 +1418,8 @@ void gravity_vm_free(gravity_vm * vm)
 
 /*inline*/gravity_closure_t * gravity_vm_fastlookup(gravity_vm * vm, gravity_class_t * c, int index) 
 {
-    #pragma unused(vm)
-	return (gravity_closure_t *)gravity_class_lookup_closure(c, cache[index]);
+    //#pragma unused(vm)
+	return gravity_class_lookup_closure(c, cache[index]);
 }
 
 /*inline*/GravityValue gravity_vm_getvalue(gravity_vm * vm, const char * key, uint32 keylen) 
@@ -1462,34 +1428,19 @@ void gravity_vm_free(gravity_vm * vm)
 	return gravity_vm_lookup(vm, k);
 }
 
-/*inline*/void gravity_vm_setvalue(gravity_vm * vm, const char * key, GravityValue value) 
-{
-	gravity_hash_insert(vm->context, VALUE_FROM_CSTRING(vm, key), value);
-}
-
+/*inline*/void gravity_vm_setvalue(gravity_vm * vm, const char * key, GravityValue value) { gravity_hash_insert(vm->context, VALUE_FROM_CSTRING(vm, key), value); }
 double gravity_vm_time(const gravity_vm * vm) { return vm->time; }
 
 GravityValue gravity_vm_result(gravity_vm * vm) 
 {
 	GravityValue result = vm->fiber->result;
-	vm->fiber->result = VALUE_FROM_NULL;
+	vm->fiber->result = GravityValue::from_null();
 	return result;
 }
 
-gravity_delegate_t * gravity_vm_delegate(gravity_vm * vm) 
-{
-	return vm->delegate;
-}
-
-gravity_fiber_t * gravity_vm_fiber(gravity_vm* vm) 
-{
-	return vm->fiber;
-}
-
-void gravity_vm_setfiber(gravity_vm* vm, gravity_fiber_t * fiber) 
-{
-	vm->fiber = fiber;
-}
+gravity_delegate_t * gravity_vm_delegate(gravity_vm * vm) { return vm->delegate; }
+gravity_fiber_t * gravity_vm_fiber(gravity_vm * vm) { return vm->fiber; }
+void gravity_vm_setfiber(gravity_vm* vm, gravity_fiber_t * fiber) { vm->fiber = fiber; }
 
 void gravity_vm_seterror(gravity_vm* vm, const char * format, ...) 
 {
@@ -1507,7 +1458,7 @@ void gravity_vm_seterror_string(gravity_vm* vm, const char * s)
 {
 	gravity_fiber_t * fiber = vm->fiber;
 	mem_free(fiber->error);
-	fiber->error = (char *)string_dup(s);
+	fiber->error = (char *)sstrdup(s);
 }
 
 #if GRAVITY_VM_STATS
@@ -1545,12 +1496,12 @@ static void gravity_vm_stats(gravity_vm * vm) {
 void gravity_vm_loadclosure(gravity_vm * vm, gravity_closure_t * closure) 
 {
 	// closure MUST BE $moduleinit so sanity check here
-	if(string_cmp(closure->f->identifier, INITMODULE_NAME) != 0) 
-		return;
-	// re-use main fiber
-	gravity_fiber_reassign(vm->fiber, closure, 0);
-	// execute $moduleinit in order to initialize VM
-	gravity_vm_exec(vm);
+	if(sstreq(closure->f->identifier, INITMODULE_NAME)) {
+		// re-use main fiber
+		gravity_fiber_reassign(vm->fiber, closure, 0);
+		// execute $moduleinit in order to initialize VM
+		gravity_vm_exec(vm);
+	}
 }
 
 bool gravity_vm_runclosure(gravity_vm * vm, gravity_closure_t * closure, GravityValue sender, GravityValue params[], uint16 nparams) 
@@ -1588,7 +1539,7 @@ bool gravity_vm_runclosure(gravity_vm * vm, gravity_closure_t * closure, Gravity
 		rwin = FN_COUNTREG(frame->closure->f, frame->nargs); // compute register window
 		// check stack size
 		uint32 _rneed = FN_COUNTREG(f, nparams+1);
-		stacktopdelta = (uint32)MAXNUM(stackstart + rwin + _rneed - vm->fiber->stacktop, 0);
+		stacktopdelta = (uint32)MAX(stackstart + rwin + _rneed - vm->fiber->stacktop, 0);
 		if(!gravity_check_stack(vm, vm->fiber, stacktopdelta, &stackstart)) {
 			RUNTIME_ERROR("Infinite loop detected. Current execution must be aborted.");
 		}
@@ -1669,7 +1620,7 @@ bool gravity_vm_runmain(gravity_vm * vm, gravity_closure_t * closure)
 		gravity_vm_loadclosure(vm, closure);
 	// lookup main function
 	GravityValue main = gravity_vm_getvalue(vm, MAIN_FUNCTION, (uint32)strlen(MAIN_FUNCTION));
-	if(!VALUE_ISA_CLOSURE(main)) {
+	if(!main.IsClosure()) {
 		report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "%s", "Unable to find main function.");
 		return false;
 	}
@@ -1746,47 +1697,53 @@ char * gravity_vm_anonymous(gravity_vm * vm)
 }
 
 void gravity_vm_memupdate(gravity_vm * vm, gravity_int_t value) { vm->memallocated += value; }
-gravity_int_t gravity_vm_maxmemblock(const gravity_vm * vm) { return vm->maxmemblock; }
+gravity_int_t FASTCALL gravity_vm_maxmemblock(const gravity_vm * vm) { return vm->maxmemblock; }
 
 // MARK: - Get/Set Internal Settings -
 
 GravityValue gravity_vm_get(gravity_vm * vm, const char * key) 
 {
 	if(key) {
-		if(strcmp(key, GRAVITY_VM_GCENABLED) == 0) return VALUE_FROM_INT(vm->gcenabled);
-		if(strcmp(key, GRAVITY_VM_GCMINTHRESHOLD) == 0) return VALUE_FROM_INT(vm->gcminthreshold);
-		if(strcmp(key, GRAVITY_VM_GCTHRESHOLD) == 0) return VALUE_FROM_INT(vm->gcthreshold);
-		if(strcmp(key, GRAVITY_VM_GCRATIO) == 0) return VALUE_FROM_FLOAT(vm->gcratio);
-		if(strcmp(key, GRAVITY_VM_MAXCALLS) == 0) return VALUE_FROM_INT(vm->maxccalls);
-		if(strcmp(key, GRAVITY_VM_MAXBLOCK) == 0) return VALUE_FROM_INT(vm->maxmemblock);
-		if(strcmp(key, GRAVITY_VM_MAXRECURSION) == 0) return VALUE_FROM_INT(vm->maxrecursion);
+		if(sstreq(key, GRAVITY_VM_GCENABLED)) return GravityValue::from_int(vm->gcenabled);
+		if(sstreq(key, GRAVITY_VM_GCMINTHRESHOLD)) return GravityValue::from_int(vm->gcminthreshold);
+		if(sstreq(key, GRAVITY_VM_GCTHRESHOLD)) return GravityValue::from_int(vm->gcthreshold);
+		if(sstreq(key, GRAVITY_VM_GCRATIO)) return GravityValue::from_float(vm->gcratio);
+		if(sstreq(key, GRAVITY_VM_MAXCALLS)) return GravityValue::from_int(vm->maxccalls);
+		if(sstreq(key, GRAVITY_VM_MAXBLOCK)) return GravityValue::from_int(vm->maxmemblock);
+		if(sstreq(key, GRAVITY_VM_MAXRECURSION)) return GravityValue::from_int(vm->maxrecursion);
 	}
-	return VALUE_FROM_NULL;
+	return GravityValue::from_null();
 }
 
 bool gravity_vm_set(gravity_vm * vm, const char * key, GravityValue value) 
 {
 	if(key) {
-		if((strcmp(key, GRAVITY_VM_GCENABLED) == 0) && VALUE_ISA_BOOL(value)) {
+		if(sstreq(key, GRAVITY_VM_GCENABLED) && value.IsBool()) {
 			VALUE_AS_BOOL(value) ? ++vm->gcenabled : --vm->gcenabled; return true;
 		}
-		if((strcmp(key, GRAVITY_VM_GCMINTHRESHOLD) == 0) && VALUE_ISA_INT(value)) {
-			vm->gcminthreshold = VALUE_AS_INT(value); return true;
+		if(sstreq(key, GRAVITY_VM_GCMINTHRESHOLD) && value.IsInt()) {
+			vm->gcminthreshold = value.GetInt(); 
+			return true;
 		}
-		if((strcmp(key, GRAVITY_VM_GCTHRESHOLD) == 0) && VALUE_ISA_INT(value)) {
-			vm->gcthreshold = VALUE_AS_INT(value); return true;
+		if(sstreq(key, GRAVITY_VM_GCTHRESHOLD) && value.IsInt()) {
+			vm->gcthreshold = value.GetInt(); 
+			return true;
 		}
-		if((strcmp(key, GRAVITY_VM_GCRATIO) == 0) && VALUE_ISA_FLOAT(value)) {
-			vm->gcratio = VALUE_AS_FLOAT(value); return true;
+		if(sstreq(key, GRAVITY_VM_GCRATIO) && value.IsFloat()) {
+			vm->gcratio = value.GetFloat();
+			return true;
 		}
-		if((strcmp(key, GRAVITY_VM_MAXCALLS) == 0) && VALUE_ISA_INT(value)) {
-			vm->maxccalls = (uint32)VALUE_AS_INT(value); return true;
+		if(sstreq(key, GRAVITY_VM_MAXCALLS) && value.IsInt()) {
+			vm->maxccalls = (uint32)value.GetInt(); 
+			return true;
 		}
-		if((strcmp(key, GRAVITY_VM_MAXBLOCK) == 0) && VALUE_ISA_INT(value)) {
-			vm->maxmemblock = (uint32)VALUE_AS_INT(value); return true;
+		if(sstreq(key, GRAVITY_VM_MAXBLOCK) && value.IsInt()) {
+			vm->maxmemblock = (uint32)value.GetInt(); 
+			return true;
 		}
-		if((strcmp(key, GRAVITY_VM_MAXRECURSION) == 0) && VALUE_ISA_INT(value)) {
-			vm->maxrecursion = (uint32)VALUE_AS_INT(value); return true;
+		if(sstreq(key, GRAVITY_VM_MAXRECURSION) && value.IsInt()) {
+			vm->maxrecursion = (uint32)value.GetInt(); 
+			return true;
 		}
 	}
 	return false;
@@ -1799,27 +1756,28 @@ static bool real_set_superclass(gravity_vm * vm, gravity_class_t * c, GravityVal
 	// 1. LOOKUP in current stack hierarchy
 	STATICVALUE_FROM_STRING(superkey, supername, strlen(supername));
 	void_r * stack = (void_r*)vm->data;
-	size_t n = marray_size(*stack);
+	size_t n = stack->getCount();
 	for(size_t i = 0; i<n; i++) {
-		gravity_object_t * obj = static_cast<gravity_object_t *>(marray_get(*stack, i));
+		gravity_object_t * obj = static_cast<gravity_object_t *>(stack->at(i));
 		// if object is a CLASS then lookup hash table
-		if(OBJECT_ISA_CLASS(obj)) {
+		if(obj->IsClass()) {
 			gravity_class_t * c2 = (gravity_class_t *)gravity_class_lookup((gravity_class_t *)obj, superkey);
-			if((c2) && (OBJECT_ISA_CLASS(c2))) {
+			if(c2 && c2->IsClass()) {
 				mem_free(supername);
-				if(!gravity_class_setsuper(c, c2)) goto error_max_ivar;
+				if(!gravity_class_setsuper(c, c2)) 
+					goto error_max_ivar;
 				return true;
 			}
 		}
 		// if object is a FUNCTION then iterate the constant pool
-		else if(OBJECT_ISA_FUNCTION(obj)) {
+		else if(obj->IsFunction()) {
 			gravity_function_t * f = (gravity_function_t *)obj;
 			if(f->tag == EXEC_TYPE_NATIVE) {
-				size_t count = marray_size(f->cpool);
+				size_t count = f->cpool.getCount();
 				for(size_t j = 0; j<count; j++) {
-					GravityValue v = marray_get(f->cpool, j);
-					if(VALUE_ISA_CLASS(v)) {
-						gravity_class_t * c2 = VALUE_AS_CLASS(v);
+					GravityValue v = f->cpool.at(j);
+					if(v.IsClass()) {
+						gravity_class_t * c2 = static_cast<gravity_class_t *>(v);
 						if(strcmp(c2->identifier, supername) == 0) {
 							mem_free(supername);
 							if(!gravity_class_setsuper(c, c2)) goto error_max_ivar;
@@ -1833,43 +1791,46 @@ static bool real_set_superclass(gravity_vm * vm, gravity_class_t * c, GravityVal
 	{
 		// 2. not found in stack hierarchy so LOOKUP in VM
 		GravityValue v = gravity_vm_lookup(vm, superkey);
-		if(VALUE_ISA_CLASS(v)) {
+		if(v.IsClass()) {
 			mem_free(supername);
-			if(!gravity_class_setsuper(c, VALUE_AS_CLASS(v))) 
+			if(!gravity_class_setsuper(c, static_cast<gravity_class_t *>(v))) 
 				goto error_max_ivar;
 			return true;
 		}
 	}
-	report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "Unable to find superclass %s of class %s.", supername, VALUE_AS_CSTRING(key));
+	report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "Unable to find superclass %s of class %s.", supername, key.GetZString());
 	mem_free(supername);
 	return false;
 error_max_ivar:
-	report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "Maximum number of allowed ivars (%d) reached for class %s.", MAX_IVARS, VALUE_AS_CSTRING(key));
+	report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "Maximum number of allowed ivars (%d) reached for class %s.", MAX_IVARS, key.GetZString());
 	return false;
 }
 
 static void vm_set_superclass_callback(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
 {
     #pragma unused(hashtable)
-	gravity_vm * vm = (gravity_vm*)data;
-	if(VALUE_ISA_FUNCTION(value)) vm_set_superclass(vm, VALUE_AS_OBJECT(value));
-	if(!VALUE_ISA_CLASS(value)) return;
-	// process class
-	gravity_class_t * c = VALUE_AS_CLASS(value);
-	DEBUG_DESERIALIZE("set_superclass_callback for class %s", c->identifier);
-	const char * supername = static_cast<const char *>(c->xdata);
-	c->xdata = NULL;
-	if(supername) {
-		if(!real_set_superclass(vm, c, key, supername)) return;
+	gravity_vm * vm = (gravity_vm *)data;
+	if(value.IsFunction()) 
+		vm_set_superclass(vm, VALUE_AS_OBJECT(value));
+	if(value.IsClass()) {
+		// process class
+		gravity_class_t * c = static_cast<gravity_class_t *>(value);
+		DEBUG_DESERIALIZE("set_superclass_callback for class %s", c->identifier);
+		const char * supername = static_cast<const char *>(c->xdata);
+		c->xdata = NULL;
+		if(supername) {
+			if(!real_set_superclass(vm, c, key, supername)) 
+				return;
+		}
+		gravity_hash_iterate(c->htable, vm_set_superclass_callback, vm);
 	}
-	gravity_hash_iterate(c->htable, vm_set_superclass_callback, vm);
 }
 
 static bool vm_set_superclass(gravity_vm * vm, gravity_object_t * obj) 
 {
 	void_r * stack = (void_r*)vm->data;
-	marray_push(void*, *stack, obj);
-	if(OBJECT_ISA_CLASS(obj)) {
+	stack->insert(obj);
+	if(obj->IsClass()) {
 		// CLASS case: process class and its hash table
 		gravity_class_t * c = (gravity_class_t *)obj;
 		DEBUG_DESERIALIZE("set_superclass for class %s", c->identifier);
@@ -1879,15 +1840,17 @@ static bool vm_set_superclass(gravity_vm * vm, gravity_object_t * obj)
 		if(supername) real_set_superclass(vm, c, key, supername);
 		gravity_hash_iterate(c->htable, vm_set_superclass_callback, vm);
 	}
-	else if(OBJECT_ISA_FUNCTION(obj)) {
+	else if(obj->IsFunction()) {
 		// FUNCTION case: scan constant pool and recursively call fixsuper
 		gravity_function_t * f = (gravity_function_t *)obj;
 		if(f->tag == EXEC_TYPE_NATIVE) {
-			size_t n = marray_size(f->cpool);
+			size_t n = f->cpool.getCount();
 			for(size_t i = 0; i<n; i++) {
-				GravityValue v = marray_get(f->cpool, i);
-				if(VALUE_ISA_FUNCTION(v)) vm_set_superclass(vm, (gravity_object_t *)VALUE_AS_FUNCTION(v));
-				else if(VALUE_ISA_CLASS(v)) vm_set_superclass(vm, (gravity_object_t *)VALUE_AS_CLASS(v));
+				GravityValue v = f->cpool.at(i);
+				if(v.IsFunction()) 
+					vm_set_superclass(vm, (gravity_object_t *)VALUE_AS_FUNCTION(v));
+				else if(v.IsClass()) 
+					vm_set_superclass(vm, (gravity_object_t *)static_cast<gravity_class_t *>(v));
 			}
 		}
 	}
@@ -1895,7 +1858,7 @@ static bool vm_set_superclass(gravity_vm * vm, gravity_object_t * obj)
 		report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "%s", "Unable to recognize object type.");
 		return false;
 	}
-	marray_pop(*stack);
+	stack->pop();
 	return true;
 }
 
@@ -1915,7 +1878,7 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 {
 	// state buffer for further processing super classes
 	void_r objects;
-	marray_init(objects);
+	// @ctr marray_init(objects);
 	// start json parsing
 	json_value * json = json_parse(buffer, len);
 	if(!json) 
@@ -1936,14 +1899,11 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 		gravity_object_t * obj = gravity_object_deserialize(vm, entry);
 		if(!obj) 
 			goto abort_load;
-
 		// save object for further processing
-		marray_push(void*, objects, obj);
-
+		objects.insert(obj);
 		// add a sanity check here: obj can be a function or a class, nothing else
-
 		// transform every function to a closure
-		if(OBJECT_ISA_FUNCTION(obj)) {
+		if(obj->IsFunction()) {
 			gravity_function_t * f = (gravity_function_t *)obj;
 			const char * identifier = f->identifier;
 			gravity_closure_t * cl = gravity_closure_new(vm, f);
@@ -1959,26 +1919,23 @@ gravity_closure_t * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, 
 	json = NULL;
 
 	// fix superclass(es)
-	size_t count = marray_size(objects);
+	size_t count = objects.getCount();
 	if(count) {
 		void * saved = vm->data;
-
 		// prepare stack to help resolve nested super classes
 		void_r stack;
-		marray_init(stack);
+		// @ctr marray_init(stack);
 		vm->data = (void*)&stack;
-
 		// loop of each processed object
 		for(size_t i = 0; i<count; ++i) {
-			gravity_object_t * obj = (gravity_object_t *)marray_get(objects, i);
-			if(!vm_set_superclass(vm, obj)) goto abort_super;
+			gravity_object_t * obj = (gravity_object_t *)objects.at(i);
+			if(!vm_set_superclass(vm, obj)) 
+				goto abort_super;
 		}
-
-		marray_destroy(stack);
-		marray_destroy(objects);
+		stack.Z();
+		objects.Z();
 		vm->data = saved;
 	}
-
 	gravity_gc_setenabled(vm, true);
 	return closure;
 
@@ -1986,8 +1943,8 @@ abort_load:
 	report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, "%s", "Unable to parse JSON executable file.");
 
 abort_super:
-	marray_destroy(objects);
-	if(json) json_value_free(json);
+	objects.Z();
+	json_value_free(json);
 	gravity_gc_setenabled(vm, true);
 	return NULL;
 }
@@ -1997,33 +1954,34 @@ void FASTCALL gravity_gray_object(gravity_vm * vm, gravity_object_t * obj)
 {
 	if(obj) {
 		// avoid recursion if object has already been visited
-		if(obj->gc.isdark) 
+		if(obj->GcIsDark) 
 			return;
-		DEBUG_GC("GRAY %s", gravity_object_debug(obj, false));
+		DebugGc("GRAY %s", obj); //DEBUG_GC("GRAY %s", gravity_object_debug(obj, false));
 		// object has been reached
-		obj->gc.isdark = true;
+		obj->GcIsDark = true;
 		// add to marked array
-		marray_push(gravity_object_t *, vm->graylist, obj);
+		vm->graylist.insert(obj);
 	}
 }
 
 void FASTCALL gravity_gray_value(gravity_vm * vm, GravityValue v) 
 {
-	if(gravity_value_isobject(v)) 
+	if(v.IsObject()) 
 		gravity_gray_object(vm, (gravity_object_t *)v.p);
 }
 
 static void gravity_gray_hash(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
 {
     #pragma unused (hashtable)
-	gravity_vm * vm = (gravity_vm*)data;
+	gravity_vm * vm = (gravity_vm *)data;
 	gravity_gray_value(vm, key);
 	gravity_gray_value(vm, value);
 }
 
 // MARK: -
 
-void gravity_gc_setvalues(gravity_vm * vm, gravity_int_t threshold, gravity_int_t minthreshold, gravity_float_t ratio) {
+void gravity_gc_setvalues(gravity_vm * vm, gravity_int_t threshold, gravity_int_t minthreshold, gravity_float_t ratio) 
+{
 	vm->gcminthreshold = (minthreshold) ? minthreshold : DEFAULT_CG_MINTHRESHOLD;
 	vm->gcthreshold = (threshold) ? threshold : DEFAULT_CG_THRESHOLD;
 	vm->gcratio = (ratio) ? ratio : DEFAULT_CG_RATIO;
@@ -2033,9 +1991,9 @@ void gravity_gc_setvalues(gravity_vm * vm, gravity_int_t threshold, gravity_int_
 static void gravity_gc_transform(gravity_hash_t * hashtable, GravityValue key, GravityValue * value, void * data) 
 {
     #pragma unused (hashtable)
-	gravity_vm * vm = (gravity_vm*)data;
+	gravity_vm * vm = (gravity_vm *)data;
 	gravity_object_t * obj = VALUE_AS_OBJECT(*value);
-	if(OBJECT_ISA_FUNCTION(obj)) {
+	if(obj->IsFunction()) {
 		gravity_function_t * f = (gravity_function_t *)obj;
 		if(f->tag == EXEC_TYPE_SPECIAL) {
 			if(f->special[0]) {
@@ -2051,8 +2009,8 @@ static void gravity_gc_transform(gravity_hash_t * hashtable, GravityValue key, G
 			gravity_vm_initmodule(vm, f);
 		}
 		bool is_super_function = false;
-		if(VALUE_ISA_STRING(key)) {
-			gravity_string_t * s = VALUE_AS_STRING(key);
+		if(key.IsString()) {
+			gravity_string_t * s = static_cast<gravity_string_t *>(key);
 			// looking for a string that begins with $init AND it is longer than strlen($init)
 			is_super_function = ((s->len > 5) && (string_casencmp(s->s, CLASS_INTERNAL_INIT_NAME, 5) == 0));
 		}
@@ -2061,7 +2019,7 @@ static void gravity_gc_transform(gravity_hash_t * hashtable, GravityValue key, G
 		*value = VALUE_FROM_OBJECT((gravity_object_t *)closure);
 		if(!is_super_function) gravity_gc_transfer(vm, obj);
 	}
-	else if(OBJECT_ISA_CLASS(obj)) {
+	else if(obj->IsClass()) {
 		gravity_class_t * c = (gravity_class_t *)obj;
 		gravity_vm_loadclass(vm, c);
 	}
@@ -2071,32 +2029,37 @@ static void gravity_gc_transform(gravity_hash_t * hashtable, GravityValue key, G
 	}
 }
 
-void gravity_vm_initmodule(gravity_vm * vm, gravity_function_t * f) {
-	size_t n = marray_size(f->cpool);
+void gravity_vm_initmodule(gravity_vm * vm, gravity_function_t * f) 
+{
+	size_t n = f->cpool.getCount();
 	for(size_t i = 0; i<n; i++) {
-		GravityValue v = marray_get(f->cpool, i);
-		if(VALUE_ISA_CLASS(v)) {
-			gravity_class_t * c =  VALUE_AS_CLASS(v);
+		GravityValue v = f->cpool.at(i);
+		if(v.IsClass()) {
+			gravity_class_t * c =  static_cast<gravity_class_t *>(v);
 			gravity_vm_loadclass(vm, c);
 		}
-		else if(VALUE_ISA_FUNCTION(v)) {
+		else if(v.IsFunction()) {
 			gravity_vm_initmodule(vm, VALUE_AS_FUNCTION(v));
 		}
 	}
 }
 
-static void gravity_gc_transfer_object(gravity_vm * vm, gravity_object_t * obj) {
-	DEBUG_GC("GC TRANSFER %s", gravity_object_debug(obj, false));
+static void gravity_gc_transfer_object(gravity_vm * vm, gravity_object_t * obj) 
+{
+	DebugGc("GC TRANSFER %s", obj);  // DEBUG_GC("GC TRANSFER %s", gravity_object_debug(obj, false));
 	++vm->gccount;
-	obj->gc.next = vm->gchead;
+	obj->P_GcNext = vm->gchead;
 	vm->gchead = obj;
 }
 
-static void gravity_gc_check(gravity_vm * vm) {
-	if(vm->memallocated >= vm->gcthreshold) gravity_gc_start(vm);
+static void gravity_gc_check(gravity_vm * vm) 
+{
+	if(vm->memallocated >= vm->gcthreshold) 
+		gravity_gc_start(vm);
 }
 
-static void gravity_gc_transfer(gravity_vm * vm, gravity_object_t * obj) {
+static void gravity_gc_transfer(gravity_vm * vm, gravity_object_t * obj) 
+{
 	if(vm->gcenabled > 0) {
 	#if GRAVITY_GC_STRESSTEST
 	#if 0
@@ -2112,128 +2075,126 @@ static void gravity_gc_transfer(gravity_vm * vm, gravity_object_t * obj) {
 	#endif
 		gravity_gc_start(vm);
 	#else
-		if(vm->memallocated >= vm->gcthreshold) gravity_gc_start(vm);
+		if(vm->memallocated >= vm->gcthreshold) 
+			gravity_gc_start(vm);
 	#endif
 	}
-
 	gravity_gc_transfer_object(vm, obj);
 	gravity_vm_memupdate(vm, gravity_object_size(vm, obj));
 }
 
-static void gravity_gc_sweep(gravity_vm * vm) {
+static void gravity_gc_sweep(gravity_vm * vm) 
+{
 	gravity_object_t ** obj = &vm->gchead;
 	while(*obj) {
-		if(!(*obj)->gc.isdark) {
+		if(!(*obj)->GcIsDark) {
 			// object is unreachable so remove from the list and free it
 			gravity_object_t * unreached = *obj;
-			*obj = unreached->gc.next;
+			*obj = unreached->P_GcNext;
 			gravity_object_free(vm, unreached);
 			--vm->gccount;
 		}
 		else {
 			// object was reached so unmark it for the next GC and move on to the next
-			(*obj)->gc.isdark = false;
-			obj = &(*obj)->gc.next;
+			(*obj)->GcIsDark = false;
+			obj = &(*obj)->P_GcNext;
 		}
 	}
 }
 
 void gravity_gc_start(gravity_vm * vm) 
 {
-	if(!vm->fiber) return;
-    #if GRAVITY_GC_STATS
-		gravity_int_t membefore = vm->memallocated;
-		nanotime_t tstart = nanotime();
-    #endif
-	vm->memallocated = 0; // reset memory counter
-	// mark GC saved temp objects
-	for(uint32 i = 0; i<marray_size(vm->gctemp); ++i) {
-		gravity_object_t * obj = marray_get(vm->gctemp, i);
-		gravity_gray_object(vm, obj);
+	if(vm->fiber) {
+		#if GRAVITY_GC_STATS
+			gravity_int_t membefore = vm->memallocated;
+			nanotime_t tstart = nanotime();
+		#endif
+		vm->memallocated = 0; // reset memory counter
+		// mark GC saved temp objects
+		for(uint32 i = 0; i < vm->gctemp.getCount(); ++i) {
+			gravity_object_t * obj = vm->gctemp.at(i);
+			gravity_gray_object(vm, obj);
+		}
+		gravity_gray_object(vm, (gravity_object_t *)vm->fiber); // mark all reachable objects starting from current fiber
+		gravity_hash_iterate(vm->context, gravity_gray_hash, (void*)vm); // mark globals
+		// root has been grayed so recursively scan reachable objects
+		while(vm->graylist.getCount()) {
+			gravity_object_t * obj = vm->graylist.pop();
+			gravity_object_blacken(vm, obj);
+		}
+		gravity_gc_sweep(vm); // check unreachable objects (collect white objects)
+		// dynamically update gcthreshold
+		vm->gcthreshold = (gravity_int_t)(vm->memallocated + (vm->memallocated * vm->gcratio / 100));
+		if(vm->gcthreshold < vm->gcminthreshold) 
+			vm->gcthreshold = vm->gcminthreshold;
+		// this line prevents GC to run more than needed
+		if(vm->gcthreshold < vm->gcthreshold_original) 
+			vm->gcthreshold = vm->gcthreshold_original;
+		#if GRAVITY_GC_STATS
+		nanotime_t tend = nanotime();
+		double gctime = millitime(tstart, tend);
+		printf("GC %lu before, %lu after (%lu collected - %lu objects), next at %lu. Took %.2fms.\n",
+			(unsigned long)membefore,
+			(unsigned long)vm->memallocated,
+			(membefore > vm->memallocated) ? (unsigned long)(membefore - vm->memallocated) : 0,
+			(unsigned long)vm->gccount,
+			(unsigned long)vm->gcthreshold,
+			gctime);
+		#endif
 	}
-	gravity_gray_object(vm, (gravity_object_t *)vm->fiber); // mark all reachable objects starting from current fiber
-	gravity_hash_iterate(vm->context, gravity_gray_hash, (void*)vm); // mark globals
-	// root has been grayed so recursively scan reachable objects
-	while(marray_size(vm->graylist)) {
-		gravity_object_t * obj = marray_pop(vm->graylist);
-		gravity_object_blacken(vm, obj);
-	}
-	gravity_gc_sweep(vm); // check unreachable objects (collect white objects)
-	// dynamically update gcthreshold
-	vm->gcthreshold = (gravity_int_t)(vm->memallocated + (vm->memallocated * vm->gcratio / 100));
-	if(vm->gcthreshold < vm->gcminthreshold) vm->gcthreshold = vm->gcminthreshold;
-
-	// this line prevents GC to run more than needed
-	if(vm->gcthreshold < vm->gcthreshold_original) 
-		vm->gcthreshold = vm->gcthreshold_original;
-    #if GRAVITY_GC_STATS
-	nanotime_t tend = nanotime();
-	double gctime = millitime(tstart, tend);
-	printf("GC %lu before, %lu after (%lu collected - %lu objects), next at %lu. Took %.2fms.\n",
-	    (unsigned long)membefore,
-	    (unsigned long)vm->memallocated,
-	    (membefore > vm->memallocated) ? (unsigned long)(membefore - vm->memallocated) : 0,
-	    (unsigned long)vm->gccount,
-	    (unsigned long)vm->gcthreshold,
-	    gctime);
-    #endif
 }
 
 static void gravity_gc_cleanup(gravity_vm * vm) 
 {
-	if(!vm->gchead) 
-		return;
-	if(vm->filter) {
-		// filter case
-		vm_filter_cb filter = vm->filter;
+	if(vm->gchead) {
+		if(vm->filter) {
+			// filter case
+			vm_filter_cb filter = vm->filter;
 
-		// we need to remove freed objects from the linked list
-		// so we need a pointer to the previous object in order
-		// to be able to point it to obj's next ptr
-		//
-		//         +--------+      +--------+      +--------+
-		//     --> |  prev  |  --> |   obj  |  --> |  next  |  -->
-		//         +--------+      +--------+      +--------+
-		//             |                               ^
-		//             |                               |
-		//             +-------------------------------+
-
-		gravity_object_t * obj = vm->gchead;
-		gravity_object_t * prev = NULL;
-
-		while(obj) {
-			if(!filter(obj)) {
-				prev = obj;
-				obj = obj->gc.next;
-				continue;
+			// we need to remove freed objects from the linked list
+			// so we need a pointer to the previous object in order
+			// to be able to point it to obj's next ptr
+			//
+			//         +--------+      +--------+      +--------+
+			//     --> |  prev  |  --> |   obj  |  --> |  next  |  -->
+			//         +--------+      +--------+      +--------+
+			//             |                               ^
+			//             |                               |
+			//             +-------------------------------+
+			gravity_object_t * prev = NULL;
+			for(gravity_object_t * obj = vm->gchead; obj;) {
+				if(!filter(obj)) {
+					prev = obj;
+					obj = obj->P_GcNext;
+					continue;
+				}
+				// REMOVE obj from the linked list
+				gravity_object_t * next = obj->P_GcNext;
+				if(!prev) 
+					vm->gchead = next;
+				else 
+					prev->P_GcNext = next;
+				gravity_object_free(vm, obj);
+				--vm->gccount;
+				obj = next;
 			}
-			// REMOVE obj from the linked list
-			gravity_object_t * next = obj->gc.next;
-			if(!prev) 
-				vm->gchead = next;
-			else 
-				prev->gc.next = next;
-			gravity_object_free(vm, obj);
-			--vm->gccount;
-			obj = next;
+			//return;
 		}
-		return;
-	}
-
-	// no filter so free all GC objects
-	gravity_object_t * obj = vm->gchead;
-	while(obj) {
-		gravity_object_t * next = obj->gc.next;
-		gravity_object_free(vm, obj);
-		--vm->gccount;
-		obj = next;
-	}
-	vm->gchead = NULL;
-
-	// free all temporary allocated objects
-	while(marray_size(vm->gctemp)) {
-		gravity_object_t * tobj = marray_pop(vm->gctemp);
-		gravity_object_free(vm, tobj);
+		else {
+			// no filter so free all GC objects
+			for(gravity_object_t * obj = vm->gchead; obj;) {
+				gravity_object_t * next = obj->P_GcNext;
+				gravity_object_free(vm, obj);
+				--vm->gccount;
+				obj = next;
+			}
+			vm->gchead = NULL;
+			// free all temporary allocated objects
+			while(vm->gctemp.getCount()) {
+				gravity_object_t * tobj = vm->gctemp.pop();
+				gravity_object_free(vm, tobj);
+			}
+		}
 	}
 }
 
@@ -2246,13 +2207,13 @@ void FASTCALL gravity_gc_setenabled(gravity_vm * vm, bool enabled)
 	}
 }
 
-void gravity_gc_temppush(gravity_vm * vm, gravity_object_t * obj) { marray_push(gravity_object_t *, vm->gctemp, obj); }
-void gravity_gc_temppop(gravity_vm * vm) { marray_pop(vm->gctemp); }
+void gravity_gc_temppush(gravity_vm * vm, gravity_object_t * obj) { vm->gctemp.insert(obj); }
+void gravity_gc_temppop(gravity_vm * vm) { vm->gctemp.pop(); }
 
 void gravity_gc_tempnull(gravity_vm * vm, gravity_object_t * obj) 
 {
-	for(uint32 i = 0; i < marray_size(vm->gctemp); ++i) {
-		gravity_object_t * tobj = marray_get(vm->gctemp, i);
+	for(uint32 i = 0; i < vm->gctemp.getCount(); ++i) {
+		gravity_object_t * tobj = vm->gctemp.at(i);
 		if(tobj == obj) {
 			marray_setnull(vm->gctemp, i);
 			break;

@@ -78,17 +78,16 @@ static AUTHORITY_KEYID * v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD * method,
 	X509_EXTENSION * ext;
 	X509 * cert;
 	AUTHORITY_KEYID * akeyid;
-
 	for(i = 0; i < sk_CONF_VALUE_num(values); i++) {
 		cnf = sk_CONF_VALUE_value(values, i);
-		if(strcmp(cnf->name, "keyid") == 0) {
+		if(sstreq(cnf->name, "keyid")) {
 			keyid = 1;
-			if(cnf->value && strcmp(cnf->value, "always") == 0)
+			if(cnf->value && sstreq(cnf->value, "always"))
 				keyid = 2;
 		}
-		else if(strcmp(cnf->name, "issuer") == 0) {
+		else if(sstreq(cnf->name, "issuer")) {
 			issuer = 1;
-			if(cnf->value && strcmp(cnf->value, "always") == 0)
+			if(cnf->value && sstreq(cnf->value, "always"))
 				issuer = 2;
 		}
 		else {

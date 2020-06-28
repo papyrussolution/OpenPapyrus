@@ -68,9 +68,6 @@ enum xmlRelaxNGContentType {
 	XML_RELAXNG_CONTENT_COMPLEX
 };
 
-//typedef struct _xmlRelaxNGGrammar xmlRelaxNGGrammar;
-//typedef xmlRelaxNGGrammar * xmlRelaxNGGrammarPtr;
-
 struct xmlRelaxNGGrammar {
 	xmlRelaxNGGrammar * parent;    /* the parent grammar if any */
 	xmlRelaxNGGrammar * children;  /* the children grammar if any */
@@ -221,9 +218,6 @@ struct xmlRelaxNGInterleaveGroup {
 	xmlRelaxNGDefinePtr * attrs; /* the array of attributes definitions */
 };
 
-//typedef struct _xmlRelaxNGInterleaveGroup xmlRelaxNGInterleaveGroup;
-//typedef xmlRelaxNGInterleaveGroup * xmlRelaxNGInterleaveGroupPtr;
-
 #define IS_DETERMINIST          1
 #define IS_NEEDCHECK            2
 /**
@@ -231,8 +225,6 @@ struct xmlRelaxNGInterleaveGroup {
  *
  * A RelaxNGs partition associated to an interleave group
  */
-//typedef struct _xmlRelaxNGPartition xmlRelaxNGPartition;
-//typedef xmlRelaxNGPartition * xmlRelaxNGPartitionPtr;
 struct xmlRelaxNGPartition {
 	int    nbgroups;       // number of groups in the partitions 
 	xmlHashTable * triage; // hash table used to direct nodes to the right group when possible 
@@ -245,41 +237,35 @@ struct xmlRelaxNGPartition {
  * A RelaxNGs validation state
  */
 #define MAX_ATTR 20
-typedef struct _xmlRelaxNGValidState xmlRelaxNGValidState;
-typedef xmlRelaxNGValidState * xmlRelaxNGValidStatePtr;
-struct _xmlRelaxNGValidState {
-	xmlNode * P_Node;        /* the current node */
-	xmlNode * seq;         /* the sequence of children left to validate */
-	int nbAttrs;            /* the number of attributes */
-	int maxAttrs;           /* the size of attrs */
-	int nbAttrLeft;         /* the number of attributes left to validate */
-	xmlChar * value;        /* the value when operating on string */
-	xmlChar * endvalue;     /* the end value when operating on string */
-	xmlAttr ** attrs;     /* the array of attributes */
+
+struct xmlRelaxNGValidState {
+	xmlNode * P_Node;   // the current node 
+	xmlNode * seq;      // the sequence of children left to validate 
+	int    nbAttrs;     // the number of attributes 
+	int    maxAttrs;    // the size of attrs 
+	int    nbAttrLeft;  // the number of attributes left to validate 
+	xmlChar * value;    // the value when operating on string 
+	xmlChar * endvalue; // the end value when operating on string 
+	xmlAttr ** attrs;   // the array of attributes 
 };
 /**
  * xmlRelaxNGStates:
  *
  * A RelaxNGs container for validation state
  */
-typedef struct _xmlRelaxNGStates xmlRelaxNGStates;
-//typedef xmlRelaxNGStates * xmlRelaxNGStatesPtr;
-struct _xmlRelaxNGStates {
+struct xmlRelaxNGStates {
 	int nbState;            /* the number of states */
 	int maxState;           /* the size of the array */
-	xmlRelaxNGValidStatePtr * tabState;
+	xmlRelaxNGValidState ** tabState;
 };
 
 #define ERROR_IS_DUP    1
-
 /**
  * xmlRelaxNGValidError:
  *
  * A RelaxNGs validation error
  */
-typedef struct _xmlRelaxNGValidError xmlRelaxNGValidError;
-//typedef xmlRelaxNGValidError * xmlRelaxNGValidErrorPtr;
-struct _xmlRelaxNGValidError {
+struct xmlRelaxNGValidError {
 	xmlRelaxNGValidErr err; /* the error number */
 	int flags;              /* flags */
 	xmlNode * P_Node;        /* the current node */
@@ -287,6 +273,13 @@ struct _xmlRelaxNGValidError {
 	const xmlChar * arg1;   /* first arg */
 	const xmlChar * arg2;   /* second arg */
 };
+
+//typedef xmlRelaxNGGrammar * xmlRelaxNGGrammarPtr;
+//typedef xmlRelaxNGInterleaveGroup * xmlRelaxNGInterleaveGroupPtr;
+//typedef xmlRelaxNGPartition * xmlRelaxNGPartitionPtr;
+//typedef xmlRelaxNGValidState * xmlRelaxNGValidStatePtr;
+//typedef xmlRelaxNGStates * xmlRelaxNGStatesPtr;
+//typedef xmlRelaxNGValidError * xmlRelaxNGValidErrorPtr;
 
 /**
  * xmlRelaxNGValidCtxt:
@@ -300,7 +293,6 @@ struct _xmlRelaxNGValidCtxt {
 	xmlRelaxNGValidityWarningFunc warning;  /* the callback in case of warning */
 	xmlStructuredErrorFunc serror;
 	int nbErrors;           /* number of errors in validation */
-
 	xmlRelaxNGPtr schema;   /* The schema in use */
 	xmlDoc * doc;          /* the document being validated */
 	int flags;              /* validation flags */
@@ -315,7 +307,7 @@ struct _xmlRelaxNGValidCtxt {
 	int errNr;              /* Depth of the error stack */
 	int errMax;             /* Max depth of the error stack */
 	xmlRelaxNGValidError * errTab; /* stack of errors */
-	xmlRelaxNGValidStatePtr state;  /* the current validation state */
+	xmlRelaxNGValidState * state;  /* the current validation state */
 	xmlRelaxNGStates * states; /* the accumulated state list */
 	xmlRelaxNGStates * freeState;  /* the pool of free valid states */
 	int freeStatesNr;
@@ -360,13 +352,9 @@ struct _xmlRelaxNGDocument {
 	xmlRelaxNGPtr schema;   /* the schema */
 	int externalRef;        /* 1 if an external ref */
 };
-
-/************************************************************************
-*									*
-*		Some factorized error routines				*
-*									*
-************************************************************************/
-
+// 
+// Some factorized error routines
+// 
 /**
  * xmlRngPErrMemory:
  * @ctxt:  an Relax-NG parser context
@@ -474,12 +462,9 @@ static void xmlRngVErr(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node, int error,
 	__xmlRaiseError(schannel, channel, data, NULL, P_Node, XML_FROM_RELAXNGV, error, XML_ERR_ERROR, NULL, 0,
 	    PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
 }
-/************************************************************************
-*									*
-*		Preliminary type checking interfaces			*
-*									*
-************************************************************************/
-
+// 
+// Preliminary type checking interfaces
+//
 /**
  * xmlRelaxNGTypeHave:
  * @data:  data needed for the library
@@ -491,7 +476,6 @@ static void xmlRngVErr(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node, int error,
  * Returns 1 if yes, 0 if no and -1 in case of error.
  */
 typedef int (*xmlRelaxNGTypeHave)(void * data, const xmlChar * type);
-
 /**
  * xmlRelaxNGTypeCheck:
  * @data:  data needed for the library
@@ -558,7 +542,7 @@ static void xmlRelaxNGFreeGrammar(xmlRelaxNGGrammar * grammar);
 static void xmlRelaxNGFreeDefine(xmlRelaxNGDefinePtr define);
 static void xmlRelaxNGNormExtSpace(xmlChar * value);
 static void xmlRelaxNGFreeInnerSchema(xmlRelaxNG * schema);
-static int xmlRelaxNGEqualValidState(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlRelaxNGValidStatePtr state1, xmlRelaxNGValidStatePtr state2);
+static int xmlRelaxNGEqualValidState(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlRelaxNGValidState * state1, xmlRelaxNGValidState * state2);
 static void FASTCALL xmlRelaxNGFreeValidState(xmlRelaxNGValidCtxt * ctxt, xmlRelaxNGValidState * state);
 /**
  * xmlRelaxNGFreeDocument:
@@ -819,13 +803,13 @@ static xmlRelaxNGStates * xmlRelaxNGNewStates(xmlRelaxNGValidCtxtPtr ctxt, int s
 	}
 	else {
 		SETMAX(size, 16);
-		ret = static_cast<xmlRelaxNGStates *>(SAlloc::M(sizeof(xmlRelaxNGStates) + (size - 1) * sizeof(xmlRelaxNGValidStatePtr)));
+		ret = static_cast<xmlRelaxNGStates *>(SAlloc::M(sizeof(xmlRelaxNGStates) + (size - 1) * sizeof(xmlRelaxNGValidState *)));
 		if(!ret)
 			xmlRngVErrMemory(ctxt, "allocating states\n");
 		else {
 			ret->nbState = 0;
 			ret->maxState = size;
-			ret->tabState = static_cast<xmlRelaxNGValidStatePtr *>(SAlloc::M((size) * sizeof(xmlRelaxNGValidStatePtr)));
+			ret->tabState = static_cast<xmlRelaxNGValidState **>(SAlloc::M((size) * sizeof(xmlRelaxNGValidState *)));
 			if(ret->tabState == NULL) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				SAlloc::F(ret);
@@ -847,7 +831,7 @@ static xmlRelaxNGStates * xmlRelaxNGNewStates(xmlRelaxNGValidCtxtPtr ctxt, int s
  *
  * Return 1 in case of success and 0 if this is a duplicate and -1 on error
  */
-static int xmlRelaxNGAddStatesUniq(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates * states, xmlRelaxNGValidStatePtr state)
+static int xmlRelaxNGAddStatesUniq(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates * states, xmlRelaxNGValidState * state)
 {
 	if(!state) {
 		return -1;
@@ -855,7 +839,7 @@ static int xmlRelaxNGAddStatesUniq(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates
 	else {
 		if(states->nbState >= states->maxState) {
 			int size = states->maxState * 2;
-			xmlRelaxNGValidStatePtr * tmp = static_cast<xmlRelaxNGValidStatePtr *>(SAlloc::R(states->tabState, (size) * sizeof(xmlRelaxNGValidStatePtr)));
+			xmlRelaxNGValidState ** tmp = static_cast<xmlRelaxNGValidState **>(SAlloc::R(states->tabState, (size) * sizeof(xmlRelaxNGValidState *)));
 			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "adding states\n");
 				return -1;
@@ -879,7 +863,7 @@ static int xmlRelaxNGAddStatesUniq(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates
  *
  * Return 1 in case of success and 0 if this is a duplicate and -1 on error
  */
-static int xmlRelaxNGAddStates(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates * states, xmlRelaxNGValidStatePtr state)
+static int xmlRelaxNGAddStates(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates * states, xmlRelaxNGValidState * state)
 {
 	if(state == NULL || states == NULL) {
 		return -1;
@@ -887,7 +871,7 @@ static int xmlRelaxNGAddStates(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGStates * s
 	else {
 		if(states->nbState >= states->maxState) {
 			int size = states->maxState * 2;
-			xmlRelaxNGValidStatePtr * tmp = static_cast<xmlRelaxNGValidStatePtr *>(SAlloc::R(states->tabState, (size) * sizeof(xmlRelaxNGValidStatePtr)));
+			xmlRelaxNGValidState ** tmp = static_cast<xmlRelaxNGValidState **>(SAlloc::R(states->tabState, (size) * sizeof(xmlRelaxNGValidState *)));
 			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "adding states\n");
 				return -1;
@@ -954,9 +938,9 @@ static void FASTCALL xmlRelaxNGFreeStates(xmlRelaxNGValidCtxt * ctxt, xmlRelaxNG
  *
  * Returns the newly allocated structure or NULL in case or error
  */
-static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node)
+static xmlRelaxNGValidState * xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ctxt, xmlNode * P_Node)
 {
-	xmlRelaxNGValidStatePtr ret;
+	xmlRelaxNGValidState * ret;
 	xmlAttr * attr;
 	xmlAttr * attrs[MAX_ATTR];
 	int nbAttrs = 0;
@@ -981,7 +965,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 		ret = ctxt->freeState->tabState[ctxt->freeState->nbState];
 	}
 	else {
-		ret = static_cast<xmlRelaxNGValidStatePtr>(SAlloc::M(sizeof(xmlRelaxNGValidState)));
+		ret = static_cast<xmlRelaxNGValidState *>(SAlloc::M(sizeof(xmlRelaxNGValidState)));
 		if(!ret) {
 			xmlRngVErrMemory(ctxt, "allocating states\n");
 			return 0;
@@ -1045,9 +1029,9 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
  *
  * Returns the newly allocated structure or NULL in case or error
  */
-static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValidStatePtr state)
+static xmlRelaxNGValidState * xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValidState * state)
 {
-	xmlRelaxNGValidStatePtr ret;
+	xmlRelaxNGValidState * ret;
 	uint maxAttrs;
 	xmlAttr ** attrs;
 	if(!state)
@@ -1057,7 +1041,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 		ret = ctxt->freeState->tabState[ctxt->freeState->nbState];
 	}
 	else {
-		ret = static_cast<xmlRelaxNGValidStatePtr>(SAlloc::M(sizeof(xmlRelaxNGValidState)));
+		ret = static_cast<xmlRelaxNGValidState *>(SAlloc::M(sizeof(xmlRelaxNGValidState)));
 		if(!ret) {
 			xmlRngVErrMemory(ctxt, "allocating states\n");
 			return 0;
@@ -1103,7 +1087,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
  *
  * Returns 1 if equald, 0 otherwise
  */
-static int xmlRelaxNGEqualValidState(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlRelaxNGValidStatePtr state1, xmlRelaxNGValidStatePtr state2)
+static int xmlRelaxNGEqualValidState(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlRelaxNGValidState * state1, xmlRelaxNGValidState * state2)
 {
 	int i;
 	if((state1 == NULL) || (state2 == NULL))
@@ -1137,10 +1121,10 @@ static int xmlRelaxNGEqualValidState(xmlRelaxNGValidCtxtPtr ctxt ATTRIBUTE_UNUSE
 static void FASTCALL xmlRelaxNGFreeValidState(xmlRelaxNGValidCtxt * ctxt, xmlRelaxNGValidState * state)
 {
 	if(state) {
-		if(ctxt && (ctxt->freeState == NULL)) {
+		if(ctxt && !ctxt->freeState) {
 			ctxt->freeState = xmlRelaxNGNewStates(ctxt, 40);
 		}
-		if(!ctxt || (ctxt->freeState == NULL)) {
+		if(!ctxt || !ctxt->freeState) {
 			SAlloc::F(state->attrs);
 			SAlloc::F(state);
 		}
@@ -6627,7 +6611,8 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
 {
 	xmlRelaxNGValidCtxtPtr ctxt = (xmlRelaxNGValidCtxtPtr)inputdata;
 	xmlRelaxNGDefinePtr define = (xmlRelaxNGDefinePtr)transdata;
-	xmlRelaxNGValidStatePtr state, oldstate;
+	xmlRelaxNGValidState * state;
+	xmlRelaxNGValidState * oldstate;
 	xmlNode * P_Node;
 	int ret = 0, oldflags;
 #ifdef DEBUG_PROGRESSIVE
@@ -6909,7 +6894,7 @@ int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRI
 int xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem)
 {
 	int ret;
-	xmlRelaxNGValidStatePtr state;
+	xmlRelaxNGValidState * state;
 	if(!ctxt || !ctxt->pdef || !elem)
 		return -1;
 #ifdef DEBUG_PROGRESSIVE
@@ -7618,7 +7603,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 	int ret = 0, i, nbgroups;
 	int errNr = ctxt->errNr;
 	int oldflags;
-	xmlRelaxNGValidStatePtr oldstate;
+	xmlRelaxNGValidState * oldstate;
 	xmlRelaxNGPartition * partitions;
 	xmlRelaxNGInterleaveGroup * group = NULL;
 	xmlNode * cur;
@@ -8118,7 +8103,8 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 {
 	xmlNode * P_Node;
 	int ret = 0, i, tmp, oldflags, errNr;
-	xmlRelaxNGValidStatePtr oldstate = NULL, state;
+	xmlRelaxNGValidState * oldstate = NULL;
+	xmlRelaxNGValidState * state;
 	if(define == NULL) {
 		VALID_ERR(XML_RELAXNG_ERR_NODEFINE);
 		return -1;
@@ -8911,7 +8897,7 @@ static int xmlRelaxNGValidateDocument(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 	int ret;
 	xmlRelaxNGPtr schema;
 	xmlRelaxNGGrammar * grammar;
-	xmlRelaxNGValidStatePtr state;
+	xmlRelaxNGValidState * state;
 	xmlNode * P_Node;
 	if(!ctxt || (ctxt->schema == NULL) || (doc == NULL))
 		return -1;

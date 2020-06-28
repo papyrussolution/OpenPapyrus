@@ -4890,5 +4890,8 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_MAIL02                          32945
 #define PPDV_MAIL03                          32946
 #define PPDV_TRFRANLZ                        32947
-#define PPDV_LOGOPAPYRUS                     32948
+#define PPDV_SAVE03                          32948
+#define PPDV_SAVEAS03                        32949
+#define PPDV_OPEN03                          32950
+#define PPDV_LOGOPAPYRUS                     32951
 

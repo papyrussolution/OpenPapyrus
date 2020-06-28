@@ -19,14 +19,14 @@ static uint32 refcount = 0;
 static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
-		RETURN_VALUE(VALUE_FROM_NULL, rindex);
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	// extract value
-	GravityValue value = GET_VALUE(1);
+	GravityValue value = args[1];
 	// special case for string because it can be huge (and must be quoted)
-	if(VALUE_ISA_STRING(value)) {
+	if(value.IsString()) {
 		const int nchars = 5;
-		const char * v = VALUE_AS_STRING(value)->s;
-		size_t vlen = VALUE_AS_STRING(value)->len;
+		const char * v = static_cast<gravity_string_t *>(value)->s;
+		size_t vlen = static_cast<gravity_string_t *>(value)->len;
 		// string must be quoted
 		if(vlen < 4096-nchars) {
 			char vbuffer2[4096];
@@ -44,12 +44,12 @@ static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, u
 	const char * v = NULL;
 	if(VALUE_ISA_NULL(value) || (VALUE_ISA_UNDEFINED(value))) v = "null";
 	// was %g but we don't like scientific notation nor the missing .0 in case of float number with no decimals
-	else if(VALUE_ISA_FLOAT(value)) {
+	else if(value.IsFloat()) {
 		snprintf(vbuffer, sizeof(vbuffer), "%f", value.f); v = vbuffer;
 	}
-	else if(VALUE_ISA_BOOL(value)) 
+	else if(value.IsBool()) 
 		v = (value.n) ? "true" : "false";
-	else if(VALUE_ISA_INT(value)) {
+	else if(value.IsInt()) {
 	#if GRAVITY_ENABLE_INT64
 		snprintf(vbuffer, sizeof(vbuffer), "%" PRId64 "", value.n);
 	#else
@@ -77,11 +77,11 @@ static GravityValue JSON_value(gravity_vm * vm, json_value * json)
 {
 	switch(json->type) {
 		case json_none:
-		case json_null: return VALUE_FROM_NULL;
+		case json_null: return GravityValue::from_null();
 		case json_object: 
 			{
 				gravity_object_t * obj = gravity_object_deserialize(vm, json);
-				GravityValue objv = (obj) ? VALUE_FROM_OBJECT(obj) : VALUE_FROM_NULL;
+				GravityValue objv = (obj) ? VALUE_FROM_OBJECT(obj) : GravityValue::from_null();
 				return objv;
 			}
 		case json_array: 
@@ -90,30 +90,30 @@ static GravityValue JSON_value(gravity_vm * vm, json_value * json)
 				gravity_list_t * list = gravity_list_new(vm, length);
 				for(uint i = 0; i < length; ++i) {
 					GravityValue value = JSON_value(vm, json->u.array.values[i]);
-					marray_push(GravityValue, list->array, value);
+					list->array.insert(value);
 				}
 				return VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list));
 			}
-		case json_integer: return VALUE_FROM_INT(json->u.integer);
-		case json_double: return VALUE_FROM_FLOAT(json->u.dbl);
+		case json_integer: return GravityValue::from_int(json->u.integer);
+		case json_double: return GravityValue::from_float(json->u.dbl);
 		case json_string: return VALUE_FROM_STRING(vm, json->u.string.ptr, json->u.string.length);
 		case json_boolean: return VALUE_FROM_BOOL(json->u.boolean);
 	}
-	return VALUE_FROM_NULL;
+	return GravityValue::from_null();
 }
 
 static bool JSON_parse(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
-		RETURN_VALUE(VALUE_FROM_NULL, rindex);
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	// value to parse
-	GravityValue value = GET_VALUE(1);
-	if(!VALUE_ISA_STRING(value)) 
-		RETURN_VALUE(VALUE_FROM_NULL, rindex);
-	gravity_string_t * string = VALUE_AS_STRING(value);
+	GravityValue value = args[1];
+	if(!value.IsString()) 
+		RETURN_VALUE(GravityValue::from_null(), rindex);
+	gravity_string_t * string = static_cast<gravity_string_t *>(value);
 	json_value * json = json_parse(string->s, string->len);
 	if(!json) 
-		RETURN_VALUE(VALUE_FROM_NULL, rindex);
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	RETURN_VALUE(JSON_value(vm, json), rindex);
 }
 

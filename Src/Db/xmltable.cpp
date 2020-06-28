@@ -336,12 +336,9 @@ int XmlDbFile::Close()
 	if(!Helper_CloseWriter() && P_Doc) {
 		xmlFreeDoc(P_Doc);
 		P_Doc = 0;
-		// @v8.7.10 xmlCleanupParser();
 	}
-	// @v8.6.8 {
 	xmlBufferFree(P_Buffer);
 	P_Buffer = 0;
-	// } @v8.6.8
 	St.Reset();
 	PreserveSt.Reset();
 	return 1;

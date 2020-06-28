@@ -321,7 +321,7 @@ static uint32 FASTCALL XXH32_avalanche(uint32 h32)
 
 static uint32 XXH32_finalize(uint32 h32, const void* ptr, size_t len, XXH_alignment align)
 {
-	const BYTE * p = (const BYTE *)ptr;
+	const BYTE * p = static_cast<const BYTE *>(ptr);
 #define PROCESS1               \
 	h32 += (*p++) * PRIME32_5; \
 	h32 = XXH_rotl32(h32, 11) * PRIME32_1;

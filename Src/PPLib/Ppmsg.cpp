@@ -1,5 +1,6 @@
 // PPMSG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -48,7 +49,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 					}
 				}
 			}
-			file_lang_list.Add(0, name); // Áàçîâûé ôàéë äîëæåí èäòè ïîñëåäíèì â ñïèñêå ÿçûêîâ
+			file_lang_list.Add(0, name); // Ð‘Ð°Ð·Ð¾Ð²Ñ‹Ð¹ Ñ„Ð°Ð¹Ð» Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð¸Ð´Ñ‚Ð¸ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½Ð¸Ð¼ Ð² ÑÐ¿Ð¸ÑÐºÐµ ÑÐ·Ñ‹ÐºÐ¾Ð²
         }
 		_PPStrStore = new StringStore2();
 		{
@@ -76,7 +77,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 				_PPStrStore->GetDescription(PPSTR_TEXT, PPTXT_TESTSTRING, temp_buf);
 				assert(temp_buf == "description for teststring");
 			}
-			/* @v9.1.2 Ïåðåíåñåíî â PPSession::Init
+			/* @v9.1.2 ÐŸÐµÑ€ÐµÐ½ÐµÑÐµÐ½Ð¾ Ð² PPSession::Init
 			if(_done) {
 				SLS.SetLoadStringFunc(PPLoadStringFunc);
 				SLS.SetExpandStringFunc(PPExpandStringFunc); // @v9.0.11
@@ -102,7 +103,7 @@ const SymbHashTable * FASTCALL PPGetStringHash(int group)
 int FASTCALL PPLoadString(int group, int code, SString & s)
 {
 	//
-	// Ýòà ôóíêöèÿ @threadsafe ïîñêîëüêó StrStore2::GetString ÿâëÿåòñÿ const-ôóíêöèåé
+	// Ð­Ñ‚Ð° Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ @threadsafe Ð¿Ð¾ÑÐºÐ¾Ð»ÑŒÐºÑƒ StrStore2::GetString ÑÐ²Ð»ÑÐµÑ‚ÑÑ const-Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹
 	//
 	int    ok = 1;
 	s.Z();
@@ -132,7 +133,7 @@ int FASTCALL PPExpandString(SString & rS, int ctransf)
 int FASTCALL PPLoadString(const char * pSignature, SString & rBuf)
 {
 	//
-	// Ýòà ôóíêöèÿ @threadsafe ïîñêîëüêó StrStore2::GetString ÿâëÿåòñÿ const-ôóíêöèåé
+	// Ð­Ñ‚Ð° Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ @threadsafe Ð¿Ð¾ÑÐºÐ¾Ð»ÑŒÐºÑƒ StrStore2::GetString ÑÐ²Ð»ÑÐµÑ‚ÑÑ const-Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹
 	//
 	int    ok = 1;
 	rBuf.Z();
@@ -154,14 +155,6 @@ SString & FASTCALL PPLoadStringS(const char * pSignature, SString & rBuf)
 	PPLoadString(pSignature, rBuf);
 	return rBuf;
 }
-
-/* // @v9.5.0 int SLAPI PPLoadString(int group, int code, char * buf, size_t bufLen)
-{
-	SString temp_buf;
-	int    ok = PPLoadString(group, code, temp_buf);
-	temp_buf.CopyTo(buf, bufLen);
-	return ok;
-} */
 
 int FASTCALL PPLoadText(int code, SString & s)
 {
@@ -299,7 +292,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 						const int _btr_err_code = BtrError;
 						if(_btr_err_code) {
 							if(_btr_err_code == BE_SLIB) {
-								; // @fallthrough : óïðàâëåíèå ïåðåäàåòñÿ âåòêå {case PPERR_SLIB}
+								; // @fallthrough : ÑƒÐ¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿ÐµÑ€ÐµÐ´Ð°ÐµÑ‚ÑÑ Ð²ÐµÑ‚ÐºÐµ {case PPERR_SLIB}
 							}
 							else {
 								group   = addcode = PPSTR_DBENGINE; // @v9.6.5 msgcode-->PPSTR_DBENGINE
@@ -316,7 +309,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 					}
 				case PPERR_SLIB:
 					{
-						const int _sl_err_code = SLibError; // Îáðàùåíèå ê SLibError äîâîëüíî äîðîãîå
+						const int _sl_err_code = SLibError; // ÐžÐ±Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ðµ Ðº SLibError Ð´Ð¾Ð²Ð¾Ð»ÑŒÐ½Ð¾ Ð´Ð¾Ñ€Ð¾Ð³Ð¾Ðµ
 						if(_sl_err_code) {
 							if(_sl_err_code == SLERR_WINDOWS)
 								is_win_msg = 1;
@@ -455,8 +448,8 @@ static int FASTCALL Helper_PPError(int errcode, const char * pAddInfo, uint extr
 {
 	int    r = 0;
 	//
-	// Òàê êàê ôóíêöèÿ PPMessage ìîæåò èçìåíèòü êîíòåêñò îøèáêè, ñîõðàíÿåì åãî
-	// äëÿ âûâîäà â æóðíàë ïîñëåäíåé îòîáðàæåííîé îøèáêè
+	// Ð¢Ð°Ðº ÐºÐ°Ðº Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ PPMessage Ð¼Ð¾Ð¶ÐµÑ‚ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚ Ð¾ÑˆÐ¸Ð±ÐºÐ¸, ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ ÐµÐ³Ð¾
+	// Ð´Ð»Ñ Ð²Ñ‹Ð²Ð¾Ð´Ð° Ð² Ð¶ÑƒÑ€Ð½Ð°Ð» Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ¹ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð½Ð¾Ð¹ Ð¾ÑˆÐ¸Ð±ÐºÐ¸
 	//
 	PPSaveErrContext();
 	int    ok = PPMessage(mfError|mfOK|extraMfOptions, ((errcode >= 0) ? errcode : PPErrCode), pAddInfo);
@@ -485,8 +478,8 @@ int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 {
 	int    ok = 0, r = 0;
 	//
-	// Òàê êàê ôóíêöèÿ PPMessage ìîæåò èçìåíèòü êîíòåêñò îøèáêè, ñîõðàíÿåì åãî
-	// äëÿ âûâîäà â æóðíàë ïîñëåäíåé îòîáðàæåííîé îøèáêè
+	// Ð¢Ð°Ðº ÐºÐ°Ðº Ñ„ÑƒÐ½ÐºÑ†Ð¸Ñ PPMessage Ð¼Ð¾Ð¶ÐµÑ‚ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚ Ð¾ÑˆÐ¸Ð±ÐºÐ¸, ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ ÐµÐ³Ð¾
+	// Ð´Ð»Ñ Ð²Ñ‹Ð²Ð¾Ð´Ð° Ð² Ð¶ÑƒÑ€Ð½Ð°Ð» Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ¹ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð½Ð¾Ð¹ Ð¾ÑˆÐ¸Ð±ÐºÐ¸
 	//
 	PPSaveErrContext();
 	ok = PPTooltipMessage(mfError|mfOK, ((errcode >= 0) ? errcode : PPErrCode), pAddInfo);

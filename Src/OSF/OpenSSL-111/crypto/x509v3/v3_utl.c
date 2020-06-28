@@ -239,24 +239,13 @@ int X509V3_add_value_int(const char * name, const ASN1_INTEGER * aint,
 int X509V3_get_value_bool(const CONF_VALUE * value, int * asn1_bool)
 {
 	const char * btmp;
-
 	if((btmp = value->value) == NULL)
 		goto err;
-	if(strcmp(btmp, "TRUE") == 0
-	    || strcmp(btmp, "true") == 0
-	    || strcmp(btmp, "Y") == 0
-	    || strcmp(btmp, "y") == 0
-	    || strcmp(btmp, "YES") == 0
-	    || strcmp(btmp, "yes") == 0) {
+	if(sstreq(btmp, "TRUE") || sstreq(btmp, "true") || sstreq(btmp, "Y") || sstreq(btmp, "y") || sstreq(btmp, "YES") || sstreq(btmp, "yes")) {
 		*asn1_bool = 0xff;
 		return 1;
 	}
-	if(strcmp(btmp, "FALSE") == 0
-	    || strcmp(btmp, "false") == 0
-	    || strcmp(btmp, "N") == 0
-	    || strcmp(btmp, "n") == 0
-	    || strcmp(btmp, "NO") == 0
-	    || strcmp(btmp, "no") == 0) {
+	if(sstreq(btmp, "FALSE") || sstreq(btmp, "false") || sstreq(btmp, "N") || sstreq(btmp, "n") || sstreq(btmp, "NO") || sstreq(btmp, "no")) {
 		*asn1_bool = 0;
 		return 1;
 	}

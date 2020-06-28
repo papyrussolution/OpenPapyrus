@@ -178,13 +178,11 @@ static void FoldCsoundInstruments(Sci_PositionU startPos, Sci_Position length, i
 				j++;
 			}
 			s[j] = '\0';
-
-			if(strcmp(s, "instr") == 0)
+			if(sstreq(s, "instr"))
 				levelCurrent++;
-			if(strcmp(s, "endin") == 0)
+			if(sstreq(s, "endin"))
 				levelCurrent--;
 		}
-
 		if(atEOL) {
 			int lev = levelPrev;
 			if(visibleChars == 0)

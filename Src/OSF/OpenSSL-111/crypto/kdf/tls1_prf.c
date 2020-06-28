@@ -93,7 +93,7 @@ static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx,
 		KDFerr(KDF_F_PKEY_TLS1_PRF_CTRL_STR, KDF_R_VALUE_MISSING);
 		return 0;
 	}
-	if(strcmp(type, "md") == 0) {
+	if(sstreq(type, "md")) {
 		TLS1_PRF_PKEY_CTX * kctx = static_cast<TLS1_PRF_PKEY_CTX *>(ctx->data);
 		const EVP_MD * md = EVP_get_digestbyname(value);
 		if(md == NULL) {
@@ -103,13 +103,13 @@ static int pkey_tls1_prf_ctrl_str(EVP_PKEY_CTX * ctx,
 		kctx->md = md;
 		return 1;
 	}
-	if(strcmp(type, "secret") == 0)
+	if(sstreq(type, "secret"))
 		return EVP_PKEY_CTX_str2ctrl(ctx, EVP_PKEY_CTRL_TLS_SECRET, value);
-	if(strcmp(type, "hexsecret") == 0)
+	if(sstreq(type, "hexsecret"))
 		return EVP_PKEY_CTX_hex2ctrl(ctx, EVP_PKEY_CTRL_TLS_SECRET, value);
-	if(strcmp(type, "seed") == 0)
+	if(sstreq(type, "seed"))
 		return EVP_PKEY_CTX_str2ctrl(ctx, EVP_PKEY_CTRL_TLS_SEED, value);
-	if(strcmp(type, "hexseed") == 0)
+	if(sstreq(type, "hexseed"))
 		return EVP_PKEY_CTX_hex2ctrl(ctx, EVP_PKEY_CTRL_TLS_SEED, value);
 
 	KDFerr(KDF_F_PKEY_TLS1_PRF_CTRL_STR, KDF_R_UNKNOWN_PARAMETER_TYPE);

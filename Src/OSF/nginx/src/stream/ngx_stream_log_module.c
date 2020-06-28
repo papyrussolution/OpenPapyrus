@@ -870,7 +870,7 @@ static char * ngx_stream_log_compile_format(ngx_conf_t * cf, ngx_array_t * flush
 	ngx_str_t * value = (ngx_str_t *)args->elts;
 	if(s < args->nelts && ngx_strncmp(value[s].data, "escape=", 7) == 0) {
 		data = value[s].data + 7;
-		if(ngx_strcmp(data, "json") == 0) {
+		if(sstreq(data, "json")) {
 			json = 1;
 		}
 		else if(ngx_strcmp(data, "default") != 0) {

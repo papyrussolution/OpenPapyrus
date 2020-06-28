@@ -40,20 +40,9 @@ using namespace Scintilla;
    #define SCE_NSIS_COMMENTBOX 18
  */
 
-static bool isNsisNumber(char ch)
-{
-	return (ch >= '0' && ch <= '9');
-}
-
-static bool isNsisChar(char ch)
-{
-	return (ch == '.' ) || (ch == '_' ) || isNsisNumber(ch) || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
-
-static bool isNsisLetter(char ch)
-{
-	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
+//static bool isNsisNumber(char ch) { return (ch >= '0' && ch <= '9'); }
+static bool isNsisChar(char ch) { return (ch == '.' ) || (ch == '_' ) || isdec(ch) || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
+static bool isNsisLetter(char ch) { return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
 
 static bool NsisNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor & styler)
 {
@@ -65,10 +54,8 @@ static bool NsisNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor
 			break;
 		}
 	}
-
 	if(nNextLine == -1) // We never found the next line...
 		return false;
-
 	for(Sci_PositionU firstChar = nNextLine; firstChar < end; firstChar++) {
 		char cNext = styler.SafeGetCharAt(firstChar);
 		if(cNext == ' ')
@@ -252,19 +239,17 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 	}
 
 	// To check for numbers
-	if(isNsisNumber(s[0]) ) {
+	if(isdec(s[0]) ) {
 		bool bHasSimpleNsisNumber = true;
 		for(Sci_PositionU j = 1; j < end - start + 1 && j < 99; j++) {
-			if(!isNsisNumber(s[j]) ) {
+			if(!isdec(s[j]) ) {
 				bHasSimpleNsisNumber = false;
 				break;
 			}
 		}
-
 		if(bHasSimpleNsisNumber)
 			return SCE_NSIS_NUMBER;
 	}
-
 	return SCE_NSIS_DEFAULT;
 }
 
@@ -324,15 +309,11 @@ static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			    if(cCurrChar == '$' || isNsisChar(cCurrChar) || cCurrChar == '!') {
 				    styler.ColourTo(i-1, state);
 				    state = SCE_NSIS_FUNCTION;
-
 				    // If it is a number, we must check and set style here first...
-				    if(isNsisNumber(cCurrChar) &&
-				    (cNextChar == '\t' || cNextChar == ' ' || cNextChar == '\r' || cNextChar == '\n' ) )
+				    if(isdec(cCurrChar) && (cNextChar == '\t' || cNextChar == ' ' || cNextChar == '\r' || cNextChar == '\n' ))
 					    styler.ColourTo(i, SCE_NSIS_NUMBER);
-
 				    break;
 			    }
-
 			    if(cCurrChar == '/' && cNextChar == '*') {
 				    styler.ColourTo(i-1, state);
 				    state = SCE_NSIS_COMMENTBOX;

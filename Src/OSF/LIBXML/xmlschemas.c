@@ -248,14 +248,15 @@ struct _xmlSchemaItemList {
 #define XML_SCHEMA_CTXT_PARSER 1
 #define XML_SCHEMA_CTXT_VALIDATOR 2
 
-typedef struct _xmlSchemaAbstractCtxt xmlSchemaAbstractCtxt;
-typedef xmlSchemaAbstractCtxt * xmlSchemaAbstractCtxtPtr;
-struct _xmlSchemaAbstractCtxt {
+//typedef struct _xmlSchemaAbstractCtxt xmlSchemaAbstractCtxt;
+//typedef xmlSchemaAbstractCtxt * xmlSchemaAbstractCtxtPtr;
+struct xmlSchemaAbstractCtxt {
 	int type; /* E.g. XML_SCHEMA_CTXT_VALIDATOR */
 };
 
-typedef struct _xmlSchemaBucket xmlSchemaBucket;
-typedef xmlSchemaBucket * xmlSchemaBucketPtr;
+//typedef struct _xmlSchemaBucket xmlSchemaBucket;
+struct xmlSchemaBucket;
+//typedef xmlSchemaBucket * xmlSchemaBucketPtr;
 
 #define XML_SCHEMA_SCHEMA_MAIN 0
 #define XML_SCHEMA_SCHEMA_IMPORT 1
@@ -267,26 +268,26 @@ typedef xmlSchemaBucket * xmlSchemaBucketPtr;
  *
  * Used to create a graph of schema relationships.
  */
-typedef struct _xmlSchemaSchemaRelation xmlSchemaSchemaRelation;
-typedef xmlSchemaSchemaRelation * xmlSchemaSchemaRelationPtr;
-struct _xmlSchemaSchemaRelation {
-	xmlSchemaSchemaRelationPtr next;
+//typedef struct _xmlSchemaSchemaRelation xmlSchemaSchemaRelation;
+//typedef xmlSchemaSchemaRelation * xmlSchemaSchemaRelationPtr;
+struct xmlSchemaSchemaRelation {
+	xmlSchemaSchemaRelation * next;
 	int type; /* E.g. XML_SCHEMA_SCHEMA_IMPORT */
 	const xmlChar * importNamespace;
-	xmlSchemaBucketPtr bucket;
+	xmlSchemaBucket * bucket;
 };
 
 #define XML_SCHEMA_BUCKET_MARKED 1<<0
 #define XML_SCHEMA_BUCKET_COMPS_ADDED 1<<1
 
-struct _xmlSchemaBucket {
+struct xmlSchemaBucket {
 	int type;
 	int flags;
 	const xmlChar * schemaLocation;
 	const xmlChar * origTargetNamespace;
 	const xmlChar * targetNamespace;
 	xmlDoc * doc;
-	xmlSchemaSchemaRelationPtr relations;
+	xmlSchemaSchemaRelation * relations;
 	int located;
 	int parsed;
 	int imported;
@@ -316,7 +317,7 @@ struct xmlSchemaImport {
 	 */
 	const xmlChar * targetNamespace;
 	xmlDoc * doc; /* The schema node-tree. */
-	xmlSchemaSchemaRelationPtr relations; // @relations will hold any included/imported/redefined schemas
+	xmlSchemaSchemaRelation * relations; // @relations will hold any included/imported/redefined schemas
 	int located;
 	int parsed;
 	int imported;
@@ -339,7 +340,7 @@ struct xmlSchemaInclude {
 	const  xmlChar * origTargetNamespace;
 	const  xmlChar * targetNamespace;
 	xmlDoc * doc;
-	xmlSchemaSchemaRelationPtr relations;
+	xmlSchemaSchemaRelation * relations;
 	int    located;
 	int    parsed;
 	int    imported;
@@ -455,11 +456,11 @@ typedef struct _xmlSchemaConstructionCtxt xmlSchemaConstructionCtxt;
 typedef xmlSchemaConstructionCtxt * xmlSchemaConstructionCtxtPtr;
 struct _xmlSchemaConstructionCtxt {
 	xmlSchemaPtr mainSchema; /* The main schema. */
-	xmlSchemaBucketPtr mainBucket; /* The main schema bucket */
+	xmlSchemaBucket * mainBucket; /* The main schema bucket */
 	xmlDict * dict;
 	xmlSchemaItemListPtr buckets; /* List of schema buckets. */
 	/* xmlSchemaItemListPtr relations; */ /* List of schema relations. */
-	xmlSchemaBucketPtr bucket; /* The current schema bucket */
+	xmlSchemaBucket * bucket; /* The current schema bucket */
 	xmlSchemaItemListPtr pending; // All Components of all schemas that need to be fixed. 
 	xmlHashTable * substGroups;
 	xmlSchemaRedefPtr redefs;
@@ -504,7 +505,7 @@ struct _xmlSchemaParserCtxt {
 	int    xsiAssemble;
 	int    stop; /* If the parser should stop; i.e. a critical error. */
 	const  xmlChar * targetNamespace;
-	xmlSchemaBucketPtr redefined; /* The schema to be redefined. */
+	xmlSchemaBucket * redefined; /* The schema to be redefined. */
 	xmlSchemaRedefPtr redef; /* Used for redefinitions. */
 	int    redefCounter; /* Used for redefinitions. */
 	xmlSchemaItemListPtr attrProhibs;
@@ -906,7 +907,7 @@ struct xmlSchemaSubstGroup {
 //
 static int xmlSchemaParseInclude(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node);
 static int xmlSchemaParseRedefine(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node);
-static int FASTCALL xmlSchemaTypeFixup(xmlSchemaType * type, xmlSchemaAbstractCtxtPtr ctxt);
+static int FASTCALL xmlSchemaTypeFixup(xmlSchemaType * type, xmlSchemaAbstractCtxt * ctxt);
 static const xmlChar * xmlSchemaFacetTypeToString(xmlSchemaTypeType type);
 static int xmlSchemaParseImport(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node);
 static int xmlSchemaCheckFacetValues(xmlSchemaType * typeDecl, xmlSchemaParserCtxtPtr ctxt);
@@ -915,8 +916,8 @@ static xmlSchemaWhitespaceValueType xmlSchemaGetWhiteSpaceFacetValue(xmlSchemaTy
 static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node, xmlSchemaTypeType type, int withParticle);
 static const xmlChar * xmlSchemaGetComponentTypeStr(xmlSchemaBasicItem * item);
 static xmlSchemaTypeLink * xmlSchemaGetUnionSimpleTypeMemberTypes(xmlSchemaType * type);
-static void xmlSchemaInternalErr(xmlSchemaAbstractCtxtPtr actxt, const char * funcName, const char * message);
-static int xmlSchemaCheckCOSSTDerivedOK(xmlSchemaAbstractCtxtPtr ctxt, xmlSchemaType * type, xmlSchemaType * baseType, int subset);
+static void xmlSchemaInternalErr(xmlSchemaAbstractCtxt * actxt, const char * funcName, const char * message);
+static int xmlSchemaCheckCOSSTDerivedOK(xmlSchemaAbstractCtxt * ctxt, xmlSchemaType * type, xmlSchemaType * baseType, int subset);
 static void xmlSchemaCheckElementDeclComponent(xmlSchemaElementPtr elemDecl, xmlSchemaParserCtxtPtr ctxt);
 static void FASTCALL xmlSchemaComponentListFree(xmlSchemaItemListPtr list);
 static xmlSchemaQNameRefPtr xmlSchemaParseAttributeGroupRef(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schema, xmlNode * P_Node);
@@ -1481,7 +1482,7 @@ static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * ite
  *
  * Returns a string of all enumeration elements.
  */
-static const xmlChar * xmlSchemaFormatFacetEnumSet(xmlSchemaAbstractCtxtPtr actxt, xmlChar ** buf, xmlSchemaType * type)
+static const xmlChar * xmlSchemaFormatFacetEnumSet(xmlSchemaAbstractCtxt * actxt, xmlChar ** buf, xmlSchemaType * type)
 {
 	xmlSchemaFacet * facet;
 	xmlSchemaWhitespaceValueType ws;
@@ -1674,7 +1675,7 @@ static void xmlSchemaPSimpleInternalErr(xmlNode * P_Node, const char * msg, cons
  *
  * Handle a validation error
  */
-static void xmlSchemaErr4Line(xmlSchemaAbstractCtxtPtr ctxt, xmlErrorLevel errorLevel,
+static void xmlSchemaErr4Line(xmlSchemaAbstractCtxt * ctxt, xmlErrorLevel errorLevel,
     int error, xmlNode * P_Node, int line, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3, const xmlChar * str4)
 {
 	xmlStructuredErrorFunc schannel = NULL;
@@ -1772,22 +1773,22 @@ static void xmlSchemaErr4Line(xmlSchemaAbstractCtxtPtr ctxt, xmlErrorLevel error
  *
  * Handle a validation error
  */
-static void xmlSchemaErr3(xmlSchemaAbstractCtxtPtr actxt, int error, xmlNode * P_Node, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
+static void xmlSchemaErr3(xmlSchemaAbstractCtxt * actxt, int error, xmlNode * P_Node, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
 	xmlSchemaErr4Line(actxt, XML_ERR_ERROR, error, P_Node, 0, msg, str1, str2, str3, 0);
 }
 
-static void xmlSchemaErr4(xmlSchemaAbstractCtxtPtr actxt, int error, xmlNode * P_Node, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3, const xmlChar * str4)
+static void xmlSchemaErr4(xmlSchemaAbstractCtxt * actxt, int error, xmlNode * P_Node, const char * msg, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3, const xmlChar * str4)
 {
 	xmlSchemaErr4Line(actxt, XML_ERR_ERROR, error, P_Node, 0, msg, str1, str2, str3, str4);
 }
 
-static void xmlSchemaErr(xmlSchemaAbstractCtxtPtr actxt, int error, xmlNode * P_Node, const char * msg, const xmlChar * str1, const xmlChar * str2)
+static void xmlSchemaErr(xmlSchemaAbstractCtxt * actxt, int error, xmlNode * P_Node, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlSchemaErr4(actxt, error, P_Node, msg, str1, str2, 0, 0);
 }
 
-static xmlChar * xmlSchemaFormatNodeForError(xmlChar ** msg, xmlSchemaAbstractCtxtPtr actxt, xmlNode * P_Node)
+static xmlChar * xmlSchemaFormatNodeForError(xmlChar ** msg, xmlSchemaAbstractCtxt * actxt, xmlNode * P_Node)
 {
 	xmlChar * str = NULL;
 	*msg = NULL;
@@ -1871,8 +1872,7 @@ static xmlChar * xmlSchemaFormatNodeForError(xmlChar ** msg, xmlSchemaAbstractCt
 	return (*msg);
 }
 
-static void xmlSchemaInternalErr2(xmlSchemaAbstractCtxtPtr actxt,
-    const char * funcName, const char * message, const xmlChar * str1, const xmlChar * str2)
+static void xmlSchemaInternalErr2(xmlSchemaAbstractCtxt * actxt, const char * funcName, const char * message, const xmlChar * str1, const xmlChar * str2)
 {
 	if(actxt) {
 		xmlChar * msg = sstrdup(reinterpret_cast<const xmlChar *>("Internal error: "));
@@ -1888,7 +1888,7 @@ static void xmlSchemaInternalErr2(xmlSchemaAbstractCtxtPtr actxt,
 	}
 }
 
-static void xmlSchemaInternalErr(xmlSchemaAbstractCtxtPtr actxt, const char * funcName, const char * message)
+static void xmlSchemaInternalErr(xmlSchemaAbstractCtxt * actxt, const char * funcName, const char * message)
 {
 	xmlSchemaInternalErr2(actxt, funcName, message, 0, 0);
 }
@@ -1905,7 +1905,7 @@ static void xmlSchemaPInternalErr(xmlSchemaParserCtxtPtr pctxt,
 
 #endif
 
-static void xmlSchemaCustomErr4(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error,
+static void xmlSchemaCustomErr4(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error,
     xmlNode * pNode, xmlSchemaBasicItem * item, const char * message, const xmlChar * str1, const xmlChar * str2, const xmlChar * str3, const xmlChar * str4)
 {
 	xmlChar * msg = NULL;
@@ -1922,13 +1922,13 @@ static void xmlSchemaCustomErr4(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors 
 	ZFREE(msg);
 }
 
-static void xmlSchemaCustomErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlNode * pNode,
+static void xmlSchemaCustomErr(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error, xmlNode * pNode,
     xmlSchemaBasicItem * item, const char * message, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlSchemaCustomErr4(actxt, error, pNode, item, message, str1, str2, 0, 0);
 }
 
-static void xmlSchemaCustomWarning(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error,
+static void xmlSchemaCustomWarning(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error,
     xmlNode * pNode, xmlSchemaType * type ATTRIBUTE_UNUSED, const char * message,
     const xmlChar * str1, const xmlChar * str2, const xmlChar * str3)
 {
@@ -1955,7 +1955,7 @@ static void xmlSchemaKeyrefErr(xmlSchemaValidCtxt * vctxt, xmlParserErrors error
 	ZFREE(msg);
 }
 
-static int xmlSchemaEvalErrorNodeType(xmlSchemaAbstractCtxtPtr actxt, const xmlNode * pNode)
+static int xmlSchemaEvalErrorNodeType(xmlSchemaAbstractCtxt * actxt, const xmlNode * pNode)
 {
 	if(pNode)
 		return (pNode->type);
@@ -1989,8 +1989,7 @@ static int xmlSchemaIsGlobalItem(xmlSchemaType * item)
 	return 0;
 }
 
-static void xmlSchemaSimpleTypeErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlNode * P_Node,
-    const xmlChar * value, xmlSchemaType * type, int displayValue)
+static void xmlSchemaSimpleTypeErr(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error, xmlNode * P_Node, const xmlChar * value, xmlSchemaType * type, int displayValue)
 {
 	xmlChar * msg = NULL;
 	xmlSchemaFormatNodeForError(&msg, actxt, P_Node);
@@ -2041,7 +2040,7 @@ static const xmlChar * xmlSchemaFormatErrorNodeQName(xmlChar ** str, const xmlSc
 	return 0;
 }
 
-static void xmlSchemaIllegalAttrErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlSchemaAttrInfo * ni, xmlNode * P_Node)
+static void xmlSchemaIllegalAttrErr(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error, xmlSchemaAttrInfo * ni, xmlNode * P_Node)
 {
 	xmlChar * msg = NULL, * str = NULL;
 	xmlSchemaFormatNodeForError(&msg, actxt, P_Node);
@@ -2051,7 +2050,7 @@ static void xmlSchemaIllegalAttrErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErr
 	ZFREE(msg);
 }
 
-static void xmlSchemaComplexTypeErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlNode * P_Node,
+static void xmlSchemaComplexTypeErr(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error, xmlNode * P_Node,
     xmlSchemaType * type ATTRIBUTE_UNUSED, const char * message, int nbval, int nbneg, xmlChar ** values)
 {
 	xmlChar * str = NULL, * msg = NULL;
@@ -2141,7 +2140,7 @@ static void xmlSchemaComplexTypeErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErr
 	SAlloc::F(msg);
 }
 
-static void xmlSchemaFacetErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlNode * P_Node, const xmlChar * value,
+static void xmlSchemaFacetErr(xmlSchemaAbstractCtxt * actxt, xmlParserErrors error, xmlNode * P_Node, const xmlChar * value,
     unsigned long length, xmlSchemaType * type, xmlSchemaFacet * facet, const char * message, const xmlChar * str1, const xmlChar * str2)
 {
 	xmlChar * str = NULL, * msg = NULL;
@@ -2866,19 +2865,19 @@ static void FASTCALL xmlSchemaBucketFree(xmlSchemaBucket * pBucket)
 	}
 }
 
-static xmlSchemaBucketPtr xmlSchemaBucketCreate(xmlSchemaParserCtxtPtr pctxt, int type, const xmlChar * targetNamespace)
+static xmlSchemaBucket * xmlSchemaBucketCreate(xmlSchemaParserCtxtPtr pctxt, int type, const xmlChar * targetNamespace)
 {
-	xmlSchemaBucketPtr ret;
+	xmlSchemaBucket * ret;
 	int size;
 	xmlSchemaPtr mainSchema;
 	if(WXS_CONSTRUCTOR(pctxt)->mainSchema == NULL) {
-		PERROR_INT("xmlSchemaBucketCreate", "no main schema on constructor");
+		PERROR_INT(__FUNCTION__, "no main schema on constructor");
 		return 0;
 	}
 	mainSchema = WXS_CONSTRUCTOR(pctxt)->mainSchema;
 	/* Create the schema bucket. */
 	size = WXS_IS_BUCKET_INCREDEF(type) ? sizeof(xmlSchemaInclude) : sizeof(xmlSchemaImport);
-	ret = (xmlSchemaBucketPtr)SAlloc::M(size);
+	ret = (xmlSchemaBucket *)SAlloc::M(size);
 	if(!ret) {
 		xmlSchemaPErrMemory(NULL, "allocating schema bucket", 0);
 		return 0;
@@ -2905,7 +2904,7 @@ static xmlSchemaBucketPtr xmlSchemaBucketCreate(xmlSchemaParserCtxtPtr pctxt, in
 	 */
 	if(!WXS_HAS_BUCKETS(pctxt)) {
 		if(WXS_IS_BUCKET_INCREDEF(type)) {
-			PERROR_INT("xmlSchemaBucketCreate", "first bucket but it's an include or redefine");
+			PERROR_INT(__FUNCTION__, "first bucket but it's an include or redefine");
 			xmlSchemaBucketFree(ret);
 			return 0;
 		}
@@ -2921,7 +2920,7 @@ static xmlSchemaBucketPtr xmlSchemaBucketCreate(xmlSchemaParserCtxtPtr pctxt, in
 	}
 	else {
 		if(type == XML_SCHEMA_SCHEMA_MAIN) {
-			PERROR_INT("xmlSchemaBucketCreate", "main bucket but it's not the first one");
+			PERROR_INT(__FUNCTION__, "main bucket but it's not the first one");
 			xmlSchemaBucketFree(ret);
 			return 0;
 		}
@@ -2956,7 +2955,7 @@ static xmlSchemaBucketPtr xmlSchemaBucketCreate(xmlSchemaParserCtxtPtr pctxt, in
 		else
 			res = xmlHashAddEntry(mainSchema->schemasImports, targetNamespace, ret);
 		if(res != 0) {
-			PERROR_INT("xmlSchemaBucketCreate", "failed to add the schema bucket to the hash");
+			PERROR_INT(__FUNCTION__, "failed to add the schema bucket to the hash");
 			xmlSchemaBucketFree(ret);
 			return 0;
 		}
@@ -3332,7 +3331,7 @@ void FASTCALL xmlSchemaFree(xmlSchema * schema)
 		if(schema->includes) {
 			xmlSchemaItemListPtr list = (xmlSchemaItemListPtr)schema->includes;
 			for(int i = 0; i < list->nbItems; i++) {
-				xmlSchemaBucketFree((xmlSchemaBucketPtr)list->items[i]);
+				xmlSchemaBucketFree((xmlSchemaBucket *)list->items[i]);
 			}
 			xmlSchemaItemListFree(list);
 		}
@@ -3767,10 +3766,10 @@ static void xmlSchemaDebugDumpIDCTable(FILE * output,
  *
  * Returns the attribute or NULL if not present.
  */
-static xmlAttr * FASTCALL xmlSchemaGetPropNode(xmlNode * P_Node, const char * name)
+static xmlAttr * FASTCALL xmlSchemaGetPropNode(xmlNode * pNode, const char * name)
 {
-	if(P_Node && name) {
-		for(xmlAttr * prop = P_Node->properties; prop; prop = prop->next)
+	if(pNode && name) {
+		for(xmlAttr * prop = pNode->properties; prop; prop = prop->next)
 			if(!prop->ns && sstreq(prop->name, BAD_CAST name))
 				return prop;
 	}
@@ -4088,7 +4087,7 @@ static int FASTCALL xmlSchemaIsBlank(const xmlChar * str, int len)
  * xmlSchemaFindRedefCompInGraph:
  * ATTENTION TODO: This uses pointer comp. for strings.
  */
-static xmlSchemaBasicItem * xmlSchemaFindRedefCompInGraph(xmlSchemaBucketPtr bucket, xmlSchemaTypeType type, const xmlChar * name, const xmlChar * nsName)
+static xmlSchemaBasicItem * xmlSchemaFindRedefCompInGraph(xmlSchemaBucket * bucket, xmlSchemaTypeType type, const xmlChar * name, const xmlChar * nsName)
 {
 	xmlSchemaBasicItem * ret;
 	int i;
@@ -4130,7 +4129,7 @@ subschemas:
 	 * Process imported/included schemas.
 	 */
 	if(bucket->relations) {
-		xmlSchemaSchemaRelationPtr rel = bucket->relations;
+		xmlSchemaSchemaRelation * rel = bucket->relations;
 		/*
 		 * @todo Marking the bucket will not avoid multiple searches
 		 * in the same schema, but avoids at least circularity.
@@ -4247,7 +4246,7 @@ static xmlSchemaAttributeUsePtr xmlSchemaAddAttributeUse(xmlSchemaParserCtxtPtr 
  * Adds a redefinition information. This is used at a later stage to:
  * resolve references to the redefined components and to check constraints.
  */
-static xmlSchemaRedefPtr xmlSchemaAddRedef(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketPtr targetBucket, void * item, const xmlChar * refName, const xmlChar * refTargetNs)
+static xmlSchemaRedefPtr xmlSchemaAddRedef(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucket * targetBucket, void * item, const xmlChar * refName, const xmlChar * refTargetNs)
 {
 	xmlSchemaRedefPtr ret = (xmlSchemaRedefPtr)SAlloc::M(sizeof(xmlSchemaRedef));
 	if(!ret) {
@@ -4639,7 +4638,7 @@ static xmlSchemaSubstGroup * xmlSchemaSubstGroupAdd(xmlSchemaParserCtxtPtr pctxt
 	}
 	/* Add subst group to hash. */
 	if(xmlHashAddEntry2(WXS_SUBST_GROUPS(pctxt), head->name, head->targetNamespace, ret) != 0) {
-		PERROR_INT("xmlSchemaSubstGroupAdd", "failed to add a new substitution container");
+		PERROR_INT(__FUNCTION__, "failed to add a new substitution container");
 		xmlSchemaSubstGroupFree(ret);
 		return 0;
 	}
@@ -5059,7 +5058,7 @@ static int xmlSchemaPValAttrNodeValue(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBas
 	if(!pctxt || !type || !attr)
 		return -1;
 	if(type->type != XML_SCHEMA_TYPE_BASIC) {
-		PERROR_INT("xmlSchemaPValAttrNodeValue", "the given type is not a built-in type");
+		PERROR_INT(__FUNCTION__, "the given type is not a built-in type");
 		return -1;
 	}
 	switch(type->builtInType) {
@@ -5071,7 +5070,7 @@ static int xmlSchemaPValAttrNodeValue(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBas
 		    ret = xmlSchemaValPredefTypeNode(type, value, NULL, (xmlNode *)attr);
 		    break;
 		default: {
-		    PERROR_INT("xmlSchemaPValAttrNodeValue", "validation using the given type is not supported while parsing a schema");
+		    PERROR_INT(__FUNCTION__, "validation using the given type is not supported while parsing a schema");
 		    return -1;
 	    }
 	}
@@ -5079,7 +5078,7 @@ static int xmlSchemaPValAttrNodeValue(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBas
 	 * @todo Should we use the S4S error codes instead?
 	 */
 	if(ret < 0) {
-		PERROR_INT("xmlSchemaPValAttrNodeValue", "failed to validate a schema attribute value");
+		PERROR_INT(__FUNCTION__, "failed to validate a schema attribute value");
 		return -1;
 	}
 	else if(ret > 0) {
@@ -5172,7 +5171,7 @@ static int xmlSchemaCheckReference(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr sc
 	 * Check if the referenced namespace was <import>ed.
 	 */
 	if(WXS_BUCKET(pctxt)->relations) {
-		xmlSchemaSchemaRelationPtr rel = WXS_BUCKET(pctxt)->relations;
+		xmlSchemaSchemaRelation * rel = WXS_BUCKET(pctxt)->relations;
 		do {
 			if(WXS_IS_BUCKET_IMPMAIN(rel->type) && sstreq(namespaceName, rel->importNamespace))
 				return 0;
@@ -6480,9 +6479,7 @@ static int xmlSchemaCheckCSelectorXPath(xmlSchemaParserCtxtPtr ctxt, xmlSchemaID
 	}
 	P_Node = attr ? (xmlNode *)attr : idc->P_Node;
 	if(selector->xpath == NULL) {
-		xmlSchemaPCustomErr(ctxt,
-		    /* @todo Adjust error code. */
-		    XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, NULL, P_Node, "The XPath expression of the selector is not valid", 0);
+		xmlSchemaPCustomErr(ctxt, /* @todo Adjust error code. */ XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, NULL, P_Node, "The XPath expression of the selector is not valid", 0);
 		return (XML_SCHEMAP_S4S_ATTR_INVALID_VALUE);
 	}
 	else {
@@ -6852,8 +6849,8 @@ static xmlSchemaBasicItem * xmlSchemaParseElement(xmlSchemaParserCtxtPtr ctxt, x
 	 */
 	nameAttr = xmlSchemaGetPropNode(P_Node, "name");
 	attr = xmlSchemaGetPropNode(P_Node, "ref");
-	if((topLevel) || (attr == NULL)) {
-		if(nameAttr == NULL) {
+	if((topLevel) || !attr) {
+		if(!nameAttr) {
 			xmlSchemaPMissingAttrErr(ctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "name", 0);
 			return 0;
 		}
@@ -7293,17 +7290,14 @@ static int xmlSchemaParseUnion(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema,
 	if(child) {
 		xmlSchemaPContentErr(ctxt, XML_SCHEMAP_S4S_ELEM_NOT_ALLOWED, NULL, P_Node, child, NULL, "(annotation?, simpleType*)");
 	}
-	if((attr == NULL) && (type->subtypes == NULL)) {
+	if(!attr && !type->subtypes) {
 		/*
 		 * src-union-memberTypes-or-simpleTypes
 		 * Either the memberTypes [attribute] of the <union> element must
 		 * be non-empty or there must be at least one simpleType [child].
 		 */
-		xmlSchemaPCustomErr(ctxt,
-		    XML_SCHEMAP_SRC_UNION_MEMBERTYPES_OR_SIMPLETYPES,
-		    NULL, P_Node,
-		    "Either the attribute 'memberTypes' or "
-		    "at least one <simpleType> child must be present", 0);
+		xmlSchemaPCustomErr(ctxt, XML_SCHEMAP_SRC_UNION_MEMBERTYPES_OR_SIMPLETYPES, NULL, P_Node,
+		    "Either the attribute 'memberTypes' or at least one <simpleType> child must be present", 0);
 	}
 	return 0;
 }
@@ -7810,7 +7804,16 @@ static void xmlSchemaCleanupDoc(xmlSchemaParserCtxtPtr ctxt, xmlNode * root)
 
 static void xmlSchemaClearSchemaDefaults(xmlSchemaPtr schema)
 {
-	if(schema->flags & XML_SCHEMAS_QUALIF_ELEM)
+	// @v10.8.0 {
+	static const int16 _flags[] = {XML_SCHEMAS_QUALIF_ELEM, XML_SCHEMAS_QUALIF_ATTR, XML_SCHEMAS_FINAL_DEFAULT_EXTENSION, 
+		XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION, XML_SCHEMAS_FINAL_DEFAULT_LIST, XML_SCHEMAS_FINAL_DEFAULT_UNION, 
+		XML_SCHEMAS_BLOCK_DEFAULT_EXTENSION, XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION, XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION };
+	for(size_t i = 0; i < SIZEOFARRAY(_flags); i++) {
+		if(schema->flags & _flags[i])
+			schema->flags ^= _flags[i];
+	}
+	// } @v10.8.0 
+	/* @v10.8.0 if(schema->flags & XML_SCHEMAS_QUALIF_ELEM)
 		schema->flags ^= XML_SCHEMAS_QUALIF_ELEM;
 	if(schema->flags & XML_SCHEMAS_QUALIF_ATTR)
 		schema->flags ^= XML_SCHEMAS_QUALIF_ATTR;
@@ -7827,20 +7830,20 @@ static void xmlSchemaClearSchemaDefaults(xmlSchemaPtr schema)
 	if(schema->flags & XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION)
 		schema->flags ^= XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION;
 	if(schema->flags & XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION)
-		schema->flags ^= XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION;
+		schema->flags ^= XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION;*/
 }
 
-static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * P_Node)
+static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema, xmlNode * pNode)
 {
 	xmlAttr * attr;
 	const xmlChar * val;
-	int res = 0, oldErrs = ctxt->nberrors;
+	int oldErrs = ctxt->nberrors;
 	/*
 	 * Those flags should be moved to the parser context flags,
 	 * since they are not visible at the component level. I.e.
 	 * they are used if processing schema *documents* only.
 	 */
-	res = xmlSchemaPValAttrID(ctxt, P_Node, reinterpret_cast<const xmlChar *>("id"));
+	int res = xmlSchemaPValAttrID(ctxt, pNode, reinterpret_cast<const xmlChar *>("id"));
 	HFAILURE;
 	/*
 	 * Since the version is of type xs:token, we won't bother to
@@ -7853,7 +7856,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 	    HFAILURE;
 	   }
 	 */
-	attr = xmlSchemaGetPropNode(P_Node, "targetNamespace");
+	attr = xmlSchemaGetPropNode(pNode, "targetNamespace");
 	if(attr) {
 		res = xmlSchemaPValAttrNode(ctxt, NULL, attr, xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYURI), 0);
 		HFAILURE;
@@ -7862,7 +7865,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 			goto exit;
 		}
 	}
-	attr = xmlSchemaGetPropNode(P_Node, "elementFormDefault");
+	attr = xmlSchemaGetPropNode(pNode, "elementFormDefault");
 	if(attr) {
 		val = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
 		res = xmlSchemaPValAttrFormDefault(val, &schema->flags, XML_SCHEMAS_QUALIF_ELEM);
@@ -7871,7 +7874,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 			xmlSchemaPSimpleTypeErr(ctxt, XML_SCHEMAP_ELEMFORMDEFAULT_VALUE, NULL, (xmlNode *)attr, NULL, "(qualified | unqualified)", val, NULL, 0, 0);
 		}
 	}
-	attr = xmlSchemaGetPropNode(P_Node, "attributeFormDefault");
+	attr = xmlSchemaGetPropNode(pNode, "attributeFormDefault");
 	if(attr) {
 		val = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
 		res = xmlSchemaPValAttrFormDefault(val, &schema->flags, XML_SCHEMAS_QUALIF_ATTR);
@@ -7880,7 +7883,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 			xmlSchemaPSimpleTypeErr(ctxt, XML_SCHEMAP_ATTRFORMDEFAULT_VALUE, NULL, (xmlNode *)attr, NULL, "(qualified | unqualified)", val, NULL, 0, 0);
 		}
 	}
-	attr = xmlSchemaGetPropNode(P_Node, "finalDefault");
+	attr = xmlSchemaGetPropNode(pNode, "finalDefault");
 	if(attr) {
 		val = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
 		res = xmlSchemaPValAttrBlockFinal(val, &(schema->flags), -1, XML_SCHEMAS_FINAL_DEFAULT_EXTENSION,
@@ -7891,7 +7894,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 			    "(#all | List of (extension | restriction | list | union))", val, NULL, 0, 0);
 		}
 	}
-	attr = xmlSchemaGetPropNode(P_Node, "blockDefault");
+	attr = xmlSchemaGetPropNode(pNode, "blockDefault");
 	if(attr) {
 		val = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
 		res = xmlSchemaPValAttrBlockFinal(val, &(schema->flags), -1, XML_SCHEMAS_BLOCK_DEFAULT_EXTENSION,
@@ -7909,7 +7912,6 @@ exit:
 exit_failure:
 	return -1;
 }
-
 /**
  * xmlSchemaParseSchemaTopLevel:
  * @ctxt:  a schema validation context
@@ -7924,10 +7926,8 @@ static int xmlSchemaParseSchemaTopLevel(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPt
 	xmlNode * child;
 	xmlSchemaAnnotPtr annot;
 	int res = 0, oldErrs, tmpOldErrs;
-
 	if(!ctxt || (schema == NULL) || (nodes == NULL))
 		return -1;
-
 	oldErrs = ctxt->nberrors;
 	child = nodes;
 	while((IS_SCHEMA(child, "include")) || (IS_SCHEMA(child, "import")) || (IS_SCHEMA(child, "redefine")) || (IS_SCHEMA(child, "annotation"))) {
@@ -8023,12 +8023,9 @@ exit_failure:
 	return -1;
 }
 
-static xmlSchemaSchemaRelationPtr xmlSchemaSchemaRelationCreate()
+static xmlSchemaSchemaRelation * xmlSchemaSchemaRelationCreate()
 {
-	xmlSchemaSchemaRelationPtr ret;
-
-	ret = (xmlSchemaSchemaRelationPtr)
-	    SAlloc::M(sizeof(xmlSchemaSchemaRelation));
+	xmlSchemaSchemaRelation * ret = static_cast<xmlSchemaSchemaRelation *>(SAlloc::M(sizeof(xmlSchemaSchemaRelation)));
 	if(!ret) {
 		xmlSchemaPErrMemory(NULL, "allocating schema relation", 0);
 		return 0;
@@ -8038,11 +8035,7 @@ static xmlSchemaSchemaRelationPtr xmlSchemaSchemaRelationCreate()
 }
 
 #if 0
-static void xmlSchemaSchemaRelationFree(xmlSchemaSchemaRelationPtr rel)
-{
-	SAlloc::F(rel);
-}
-
+static void xmlSchemaSchemaRelationFree(xmlSchemaSchemaRelation * rel) { SAlloc::F(rel); }
 #endif
 
 static void xmlSchemaRedefListFree(xmlSchemaRedefPtr redef)
@@ -8161,15 +8154,15 @@ static int xmlSchemaCreatePCtxtOnVCtxt(xmlSchemaValidCtxt * vctxt)
  * Returns a schema bucket if it was already parsed from
  *    @schemaLocation, NULL otherwise.
  */
-static xmlSchemaBucketPtr xmlSchemaGetSchemaBucket(xmlSchemaParserCtxtPtr pctxt, const xmlChar * schemaLocation)
+static xmlSchemaBucket * xmlSchemaGetSchemaBucket(xmlSchemaParserCtxtPtr pctxt, const xmlChar * schemaLocation)
 {
-	xmlSchemaBucketPtr cur;
+	xmlSchemaBucket * cur;
 	xmlSchemaItemListPtr list = pctxt->constructor->buckets;
 	if(list->nbItems == 0)
 		return 0;
 	else {
 		for(int i = 0; i < list->nbItems; i++) {
-			cur = (xmlSchemaBucketPtr)list->items[i];
+			cur = (xmlSchemaBucket *)list->items[i];
 			/* Pointer comparison! */
 			if(cur->schemaLocation == schemaLocation)
 				return cur;
@@ -8178,15 +8171,15 @@ static xmlSchemaBucketPtr xmlSchemaGetSchemaBucket(xmlSchemaParserCtxtPtr pctxt,
 	return 0;
 }
 
-static xmlSchemaBucketPtr xmlSchemaGetChameleonSchemaBucket(xmlSchemaParserCtxtPtr pctxt, const xmlChar * schemaLocation, const xmlChar * targetNamespace)
+static xmlSchemaBucket * xmlSchemaGetChameleonSchemaBucket(xmlSchemaParserCtxtPtr pctxt, const xmlChar * schemaLocation, const xmlChar * targetNamespace)
 {
-	xmlSchemaBucketPtr cur;
+	xmlSchemaBucket * cur;
 	xmlSchemaItemListPtr list = pctxt->constructor->buckets;
 	if(list->nbItems == 0)
 		return 0;
 	else {
 		for(int i = 0; i < list->nbItems; i++) {
-			cur = (xmlSchemaBucketPtr)list->items[i];
+			cur = (xmlSchemaBucket *)list->items[i];
 			/* Pointer comparison! */
 			if((cur->origTargetNamespace == NULL) && (cur->schemaLocation == schemaLocation) && (cur->targetNamespace == targetNamespace))
 				return cur;
@@ -8197,15 +8190,15 @@ static xmlSchemaBucketPtr xmlSchemaGetChameleonSchemaBucket(xmlSchemaParserCtxtP
 
 #define IS_BAD_SCHEMA_DOC(b) (((b)->doc == NULL) && ((b)->schemaLocation != NULL))
 
-static xmlSchemaBucketPtr xmlSchemaGetSchemaBucketByTNS(xmlSchemaParserCtxtPtr pctxt, const xmlChar * targetNamespace, int imported)
+static xmlSchemaBucket * xmlSchemaGetSchemaBucketByTNS(xmlSchemaParserCtxtPtr pctxt, const xmlChar * targetNamespace, int imported)
 {
-	xmlSchemaBucketPtr cur;
+	xmlSchemaBucket * cur;
 	xmlSchemaItemListPtr list = pctxt->constructor->buckets;
 	if(list->nbItems == 0)
 		return 0;
 	else {
 		for(int i = 0; i < list->nbItems; i++) {
-			cur = (xmlSchemaBucketPtr)list->items[i];
+			cur = (xmlSchemaBucket *)list->items[i];
 			if((!IS_BAD_SCHEMA_DOC(cur)) && (cur->origTargetNamespace == targetNamespace) && ((imported && cur->imported) || ((!imported) && (!cur->imported))))
 				return cur;
 		}
@@ -8213,13 +8206,13 @@ static xmlSchemaBucketPtr xmlSchemaGetSchemaBucketByTNS(xmlSchemaParserCtxtPtr p
 	return 0;
 }
 
-static int xmlSchemaParseNewDocWithContext(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schema, xmlSchemaBucketPtr bucket)
+static int xmlSchemaParseNewDocWithContext(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schema, xmlSchemaBucket * bucket)
 {
 	int oldFlags;
 	xmlDoc * oldDoc;
 	xmlNode * P_Node;
 	int ret, oldErrs;
-	xmlSchemaBucketPtr oldbucket = pctxt->constructor->bucket;
+	xmlSchemaBucket * oldbucket = pctxt->constructor->bucket;
 	/*
 	 * Save old values; reset the *main* schema.
 	 * URGENT TODO: This is not good; move the per-document information
@@ -8273,22 +8266,22 @@ exit:
 	return ret;
 }
 
-static int xmlSchemaParseNewDoc(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schema, xmlSchemaBucketPtr bucket)
+static int xmlSchemaParseNewDoc(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schema, xmlSchemaBucket * bucket)
 {
 	xmlSchemaParserCtxtPtr newpctxt;
 	int res = 0;
 	if(bucket == NULL)
 		return 0;
 	if(bucket->parsed) {
-		PERROR_INT("xmlSchemaParseNewDoc", "reparsing a schema doc");
+		PERROR_INT(__FUNCTION__, "reparsing a schema doc");
 		return -1;
 	}
 	if(bucket->doc == NULL) {
-		PERROR_INT("xmlSchemaParseNewDoc", "parsing a schema doc, but there's no doc");
+		PERROR_INT(__FUNCTION__, "parsing a schema doc, but there's no doc");
 		return -1;
 	}
 	if(pctxt->constructor == NULL) {
-		PERROR_INT("xmlSchemaParseNewDoc", "no constructor");
+		PERROR_INT(__FUNCTION__, "no constructor");
 		return -1;
 	}
 	/* Create and init the temporary parser context. */
@@ -8316,7 +8309,7 @@ static int xmlSchemaParseNewDoc(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schem
 	return res;
 }
 
-static void xmlSchemaSchemaRelationAddChild(xmlSchemaBucketPtr bucket, xmlSchemaSchemaRelationPtr rel)
+static void xmlSchemaSchemaRelationAddChild(xmlSchemaBucket * bucket, xmlSchemaSchemaRelation * rel)
 {
 	xmlSchemaSchemaRelation * cur = bucket->relations;
 	if(!cur) {
@@ -8369,13 +8362,12 @@ static const xmlChar * xmlSchemaBuildAbsoluteURI(xmlDict * dict, const xmlChar* 
  * Returns 0 on success, a positive error code on errors and
  *    -1 in case of an internal or API error.
  */
-
 static int xmlSchemaAddSchemaDoc(xmlSchemaParserCtxtPtr pctxt, int type/* import or include or redefine */,
     const xmlChar * schemaLocation, xmlDoc * schemaDoc, const char * schemaBuffer, int schemaBufferLen, xmlNode * invokingNode,
-    const xmlChar * sourceTargetNamespace, const xmlChar * importNamespace, xmlSchemaBucketPtr * bucket)
+    const xmlChar * sourceTargetNamespace, const xmlChar * importNamespace, xmlSchemaBucket ** bucket)
 {
 	const xmlChar * targetNamespace = NULL;
-	xmlSchemaSchemaRelationPtr relation = NULL;
+	xmlSchemaSchemaRelation * relation = NULL;
 	xmlDoc * doc = NULL;
 	int res = 0, err = 0, located = 0, preserveDoc = 0;
 	xmlSchemaBucket * bkt = NULL;
@@ -8541,7 +8533,7 @@ static int xmlSchemaAddSchemaDoc(xmlSchemaParserCtxtPtr pctxt, int type/* import
 		}
 	}
 	if(bkt && bkt->doc) {
-		PERROR_INT("xmlSchemaAddSchemaDoc", "trying to load a schema doc, but a doc is already assigned to the schema bucket");
+		PERROR_INT(__FUNCTION__, "trying to load a schema doc, but a doc is already assigned to the schema bucket");
 		goto exit_failure;
 	}
 doc_load:
@@ -8704,7 +8696,7 @@ static int xmlSchemaParseImport(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPtr schem
 	const xmlChar * thisTargetNamespace;
 	xmlAttr * attr;
 	int ret = 0;
-	xmlSchemaBucketPtr bucket = NULL;
+	xmlSchemaBucket * bucket = NULL;
 	if(!pctxt || !schema || !P_Node)
 		return -1;
 	/*
@@ -8851,7 +8843,7 @@ static int xmlSchemaParseIncludeOrRedefineAttrs(xmlSchemaParserCtxtPtr pctxt, xm
 			SAlloc::F(base);
 		}
 		if(!uri) {
-			PERROR_INT("xmlSchemaParseIncludeOrRedefine", "could not build an URI from the schemaLocation")
+			PERROR_INT(__FUNCTION__, "could not build an URI from the schemaLocation")
 			goto exit_failure;
 		}
 		(*schemaLocation) = (xmlChar *)xmlDictLookupSL(pctxt->dict, uri);
@@ -8886,7 +8878,7 @@ static int xmlSchemaParseIncludeOrRedefine(xmlSchemaParserCtxtPtr pctxt, xmlSche
 	const xmlChar * schemaLocation = NULL;
 	int res = 0; /* hasRedefinitions = 0 */
 	int isChameleon = 0, wasChameleon = 0;
-	xmlSchemaBucketPtr bucket = NULL;
+	xmlSchemaBucket * bucket = NULL;
 	if(!pctxt || !schema || !P_Node)
 		return -1;
 	/*
@@ -10374,7 +10366,7 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 {
 	int ret = 0, tmp2;
 	if(particle == NULL) {
-		PERROR_INT("xmlSchemaBuildAContentModel", "particle is NULL");
+		PERROR_INT(__FUNCTION__, "particle is NULL");
 		return 1;
 	}
 	if(particle->children == NULL) {
@@ -10637,7 +10629,7 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 			    pctxt->state = tmp;
 			    elemDecl = (xmlSchemaElementPtr)sub->children;
 			    if(elemDecl == NULL) {
-				    PERROR_INT("xmlSchemaBuildAContentModel", "<element> particle has no term");
+				    PERROR_INT(__FUNCTION__, "<element> particle has no term");
 				    return ret;
 			    }
 			    ;
@@ -10684,10 +10676,7 @@ static int xmlSchemaBuildAContentModel(xmlSchemaParserCtxtPtr pctxt, xmlSchemaPa
 		    ret = 1;
 		    break;
 		default:
-		    xmlSchemaInternalErr2(ACTXT_CAST pctxt,
-		    "xmlSchemaBuildAContentModel",
-		    "found unexpected term of type '%s' in content model",
-		    WXS_ITEM_TYPE_NAME(particle->children), 0);
+		    xmlSchemaInternalErr2(ACTXT_CAST pctxt, __FUNCTION__, "found unexpected term of type '%s' in content model", WXS_ITEM_TYPE_NAME(particle->children), 0);
 		    return ret;
 	}
 	return ret;
@@ -10722,17 +10711,10 @@ static void xmlSchemaBuildContentModel(xmlSchemaType * type, xmlSchemaParserCtxt
 	xmlAutomataSetFinalState(ctxt->am, ctxt->state);
 	type->contModel = xmlAutomataCompile(ctxt->am);
 	if(type->contModel == NULL) {
-		xmlSchemaPCustomErr(ctxt,
-		    XML_SCHEMAP_INTERNAL,
-		    WXS_BASIC_CAST type, type->P_Node,
-		    "Failed to compile the content model", 0);
+		xmlSchemaPCustomErr(ctxt, XML_SCHEMAP_INTERNAL, WXS_BASIC_CAST type, type->P_Node, "Failed to compile the content model", 0);
 	}
 	else if(xmlRegexpIsDeterminist(type->contModel) != 1) {
-		xmlSchemaPCustomErr(ctxt,
-		    XML_SCHEMAP_NOT_DETERMINISTIC,
-		    /* XML_SCHEMAS_ERR_NOTDETERMINIST, */
-		    WXS_BASIC_CAST type, type->P_Node,
-		    "The content model is not determinist", 0);
+		xmlSchemaPCustomErr(ctxt, XML_SCHEMAP_NOT_DETERMINISTIC, /* XML_SCHEMAS_ERR_NOTDETERMINIST, */WXS_BASIC_CAST type, type->P_Node, "The content model is not determinist", 0);
 	}
 	else {
 #ifdef DEBUG_CONTENT_REGEXP
@@ -10878,7 +10860,6 @@ static int xmlSchemaResolveUnionMemberTypes(xmlSchemaParserCtxtPtr ctxt, xmlSche
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaIsDerivedFromBuiltInType:
  * @ctxt:  the schema parser context
@@ -10898,12 +10879,11 @@ static int xmlSchemaIsDerivedFromBuiltInType(xmlSchemaType * type, int valType)
 	if(type->type == XML_SCHEMA_TYPE_BASIC) {
 		if(type->builtInType == valType)
 			return 1;
-		if((type->builtInType == XML_SCHEMAS_ANYSIMPLETYPE) ||
-		    (type->builtInType == XML_SCHEMAS_ANYTYPE))
+		if(oneof2(type->builtInType, XML_SCHEMAS_ANYSIMPLETYPE, XML_SCHEMAS_ANYTYPE))
 			return 0;
-		return (xmlSchemaIsDerivedFromBuiltInType(type->subtypes, valType));
+		return xmlSchemaIsDerivedFromBuiltInType(type->subtypes, valType);
 	}
-	return (xmlSchemaIsDerivedFromBuiltInType(type->subtypes, valType));
+	return xmlSchemaIsDerivedFromBuiltInType(type->subtypes, valType);
 }
 
 #if 0
@@ -10930,7 +10910,6 @@ static int xmlSchemaIsUserDerivedFromBuiltInType(xmlSchemaType * type, int valTy
 	}
 	else
 		return (xmlSchemaIsDerivedFromBuiltInType(type->subtypes, valType));
-
 	return 0;
 }
 
@@ -10944,7 +10923,6 @@ static xmlSchemaType * xmlSchemaQueryBuiltInType(xmlSchemaType * type)
 		return (type);
 	return (xmlSchemaQueryBuiltInType(type->subtypes));
 }
-
 #endif
 
 /**
@@ -10954,7 +10932,7 @@ static xmlSchemaType * xmlSchemaQueryBuiltInType(xmlSchemaType * type)
  * Returns the primitive type of the given type or
  * NULL in case of error.
  */
-static xmlSchemaType * xmlSchemaGetPrimitiveType(xmlSchemaType * type)
+static xmlSchemaType * FASTCALL xmlSchemaGetPrimitiveType(xmlSchemaType * type)
 {
 	while(type) {
 		/*
@@ -11791,7 +11769,7 @@ static int xmlSchemaFixupTypeAttributeUses(xmlSchemaParserCtxtPtr pctxt, xmlSche
 	xmlSchemaAttributeUsePtr use;
 	xmlSchemaItemListPtr uses, baseUses, prohibs = NULL;
 	if(type->baseType == NULL) {
-		PERROR_INT("xmlSchemaFixupTypeAttributeUses", "no base type");
+		PERROR_INT(__FUNCTION__, "no base type");
 		return -1;
 	}
 	baseType = type->baseType;
@@ -11812,14 +11790,14 @@ static int xmlSchemaFixupTypeAttributeUses(xmlSchemaParserCtxtPtr pctxt, xmlSche
 			 * into pctxt->attrProhibs.
 			 */
 			if(xmlSchemaExpandAttributeGroupRefs(pctxt, WXS_BASIC_CAST type, &(type->attributeWildcard), uses, pctxt->attrProhibs) == -1) {
-				PERROR_INT("xmlSchemaFixupTypeAttributeUses", "failed to expand attributes");
+				PERROR_INT(__FUNCTION__, "failed to expand attributes");
 			}
 			if(pctxt->attrProhibs->nbItems != 0)
 				prohibs = pctxt->attrProhibs;
 		}
 		else {
 			if(xmlSchemaExpandAttributeGroupRefs(pctxt, WXS_BASIC_CAST type, &(type->attributeWildcard), uses, NULL) == -1) {
-				PERROR_INT("xmlSchemaFixupTypeAttributeUses", "failed to expand attributes");
+				PERROR_INT(__FUNCTION__, "failed to expand attributes");
 			}
 		}
 	}
@@ -12142,7 +12120,7 @@ static int xmlSchemaIsParticleEmptiable(xmlSchemaParticlePtr particle)
  *
  * Returns 0 on success, an positive error code otherwise.
  */
-static int xmlSchemaCheckCOSSTDerivedOK(xmlSchemaAbstractCtxtPtr actxt, xmlSchemaType * type, xmlSchemaType * baseType, int subset)
+static int xmlSchemaCheckCOSSTDerivedOK(xmlSchemaAbstractCtxt * actxt, xmlSchemaType * type, xmlSchemaType * baseType, int subset)
 {
 	/*
 	 * 1 They are the same type definition.
@@ -12496,7 +12474,6 @@ static int xmlSchemaCheckSTPropsCorrect(xmlSchemaParserCtxtPtr ctxt, xmlSchemaTy
 	 */
 	return 0;
 }
-
 /**
  * xmlSchemaCheckCOSSTRestricts:
  * @ctxt:  the schema parser context
@@ -12515,7 +12492,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 {
 	xmlChar * str = NULL;
 	if(type->type != XML_SCHEMA_TYPE_SIMPLE) {
-		PERROR_INT("xmlSchemaCheckCOSSTRestricts", "given type is not a user-derived simpleType");
+		PERROR_INT(__FUNCTION__, "given type is not a user-derived simpleType");
 		return -1;
 	}
 	if(WXS_IS_ATOMIC(type)) {
@@ -12550,7 +12527,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 			int    ok = 1;
 			primitive = xmlSchemaGetPrimitiveType(type);
 			if(primitive == NULL) {
-				PERROR_INT("xmlSchemaCheckCOSSTRestricts", "failed to get primitive type");
+				PERROR_INT(__FUNCTION__, "failed to get primitive type");
 				return -1;
 			}
 			facet = type->facets;
@@ -12578,7 +12555,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 		xmlSchemaType * itemType = NULL;
 		itemType = type->subtypes;
 		if((itemType == NULL) || (!WXS_IS_SIMPLE(itemType))) {
-			PERROR_INT("xmlSchemaCheckCOSSTRestricts", "failed to evaluate the item type");
+			PERROR_INT(__FUNCTION__, "failed to evaluate the item type");
 			return -1;
 		}
 		if(WXS_IS_TYPE_NOT_FIXED(itemType))
@@ -12680,7 +12657,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 			{
 				xmlSchemaType * baseItemType = type->baseType->subtypes;
 				if((baseItemType == NULL) || (!WXS_IS_SIMPLE(baseItemType))) {
-					PERROR_INT("xmlSchemaCheckCOSSTRestricts", "failed to eval the item type of a base type");
+					PERROR_INT(__FUNCTION__, "failed to eval the item type of a base type");
 					return -1;
 				}
 				if((itemType != baseItemType) && (xmlSchemaCheckCOSSTDerivedOK(ACTXT_CAST pctxt, itemType, baseItemType, 0) != 0)) {
@@ -12827,11 +12804,11 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 					member = type->memberTypes;
 					baseMember = xmlSchemaGetUnionSimpleTypeMemberTypes(type->baseType);
 					if((member == NULL) && baseMember) {
-						PERROR_INT("xmlSchemaCheckCOSSTRestricts", "different number of member types in base");
+						PERROR_INT(__FUNCTION__, "different number of member types in base");
 					}
 					while(member) {
 						if(baseMember == NULL) {
-							PERROR_INT("xmlSchemaCheckCOSSTRestricts", "different number of member types in base");
+							PERROR_INT(__FUNCTION__, "different number of member types in base");
 						}
 						else if((member->type != baseMember->type) && (xmlSchemaCheckCOSSTDerivedOK(ACTXT_CAST pctxt, member->type, baseMember->type, 0) != 0)) {
 							xmlChar * strBMT = NULL, * strBT = NULL;
@@ -12944,7 +12921,7 @@ static int xmlSchemaCreateVCtxtOnPCtxt(xmlSchemaParserCtxtPtr ctxt)
 	return 0;
 }
 
-static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxtPtr actxt,
+static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt,
 	xmlNode * P_Node, xmlSchemaType * type, const xmlChar * value, xmlSchemaVal ** retVal, int fireErrors, int normalize, int isNormalized);
 /**
  * xmlSchemaParseCheckCOSValidDefault:
@@ -13145,7 +13122,7 @@ static int xmlSchemaAreEqualTypes(xmlSchemaType * typeA, xmlSchemaType * typeB)
  * Returns 0 if the constraints are satisfied, or 1
  * if not.
  */
-static int xmlSchemaCheckCOSCTDerivedOK(xmlSchemaAbstractCtxtPtr actxt, xmlSchemaType * type, xmlSchemaType * baseType, int set)
+static int xmlSchemaCheckCOSCTDerivedOK(xmlSchemaAbstractCtxt * actxt, xmlSchemaType * type, xmlSchemaType * baseType, int set)
 {
 	int equal = xmlSchemaAreEqualTypes(type, baseType);
 	/* @todo Error codes. */
@@ -13212,7 +13189,7 @@ static int xmlSchemaCheckCOSCTDerivedOK(xmlSchemaAbstractCtxtPtr actxt, xmlSchem
  *
  * Returns 0 on success, an positive error code otherwise.
  */
-static int xmlSchemaCheckCOSDerivedOK(xmlSchemaAbstractCtxtPtr actxt, xmlSchemaType * type, xmlSchemaType * baseType, int set)
+static int xmlSchemaCheckCOSDerivedOK(xmlSchemaAbstractCtxt * actxt, xmlSchemaType * type, xmlSchemaType * baseType, int set)
 {
 	if(WXS_IS_SIMPLE(type))
 		return (xmlSchemaCheckCOSSTDerivedOK(actxt, type, baseType, set));
@@ -14838,7 +14815,7 @@ static int xmlSchemaFixupSimpleTypeStageOne(xmlSchemaParserCtxtPtr pctxt, xmlSch
 			/*
 			 * This one is really needed, so get out.
 			 */
-			PERROR_INT("xmlSchemaFixupSimpleTypeStageOne", "list type has no item-type assigned");
+			PERROR_INT(__FUNCTION__, "list type has no item-type assigned");
 			return -1;
 		}
 	}
@@ -14850,7 +14827,7 @@ static int xmlSchemaFixupSimpleTypeStageOne(xmlSchemaParserCtxtPtr pctxt, xmlSch
 			/*
 			 * This one is really needed, so get out.
 			 */
-			PERROR_INT("xmlSchemaFixupSimpleTypeStageOne", "union type has no member-types assigned");
+			PERROR_INT(__FUNCTION__, "union type has no member-types assigned");
 			return -1;
 		}
 	}
@@ -14859,7 +14836,7 @@ static int xmlSchemaFixupSimpleTypeStageOne(xmlSchemaParserCtxtPtr pctxt, xmlSch
 		 * Corresponds to <simpleType><restriction>...
 		 */
 		if(type->baseType == NULL) {
-			PERROR_INT("xmlSchemaFixupSimpleTypeStageOne", "type has no base-type assigned");
+			PERROR_INT(__FUNCTION__, "type has no base-type assigned");
 			return -1;
 		}
 		if(WXS_IS_TYPE_NOT_FIXED_1(type->baseType))
@@ -15419,7 +15396,7 @@ exit_failure:
  * Fixes the content model of the type.
  * URGENT TODO: We need an int result!
  */
-static int FASTCALL xmlSchemaTypeFixup(xmlSchemaType * type, xmlSchemaAbstractCtxtPtr actxt)
+static int FASTCALL xmlSchemaTypeFixup(xmlSchemaType * type, xmlSchemaAbstractCtxt * actxt)
 {
 	if(type) {
 		if(actxt->type != XML_SCHEMA_CTXT_PARSER) {
@@ -15486,13 +15463,12 @@ int xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSch
 		    if(typeDecl->type != XML_SCHEMA_TYPE_BASIC) {
 			    base = typeDecl->baseType;
 			    if(base == NULL) {
-				    PERROR_INT("xmlSchemaCheckFacet", "a type user derived type has no base type");
+				    PERROR_INT(__FUNCTION__, "a type user derived type has no base type");
 				    return -1;
 			    }
 		    }
 		    else
 			    base = typeDecl;
-
 		    if(!ctxtGiven) {
 				// A context is needed if called from RelaxNG.
 			    pctxt = xmlSchemaNewParserCtxt("*");
@@ -15512,7 +15488,7 @@ int xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSch
 				    /* No error message for RelaxNG. */
 				    if(ctxtGiven) {
 					    xmlSchemaCustomErr(ACTXT_CAST pctxt, XML_SCHEMAP_INTERNAL, facet->P_Node, NULL,
-						    "Internal error: xmlSchemaCheckFacet, failed to validate the value '%s' of the facet '%s' against the base type",
+						    "Internal error: " __FUNCTION__ ", failed to validate the value '%s' of the facet '%s' against the base type",
 						    facet->value, xmlSchemaFacetTypeToString(facet->type));
 				    }
 				    goto internal_error;
@@ -15530,7 +15506,7 @@ int xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSch
 		    }
 		    else if(facet->val == NULL) {
 			    if(ctxtGiven) {
-				    PERROR_INT("xmlSchemaCheckFacet", "value was not computed");
+				    PERROR_INT(__FUNCTION__, "value was not computed");
 			    }
 			    TODO
 		    }
@@ -15562,7 +15538,7 @@ int xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSch
 			    if(ret < 0) {
 				    /* No error message for RelaxNG. */
 				    if(ctxtGiven) {
-					    PERROR_INT("xmlSchemaCheckFacet", "validating facet value");
+					    PERROR_INT(__FUNCTION__, "validating facet value");
 				    }
 				    goto internal_error;
 			    }
@@ -15896,7 +15872,7 @@ static int xmlSchemaExpandAttributeGroupRefs(xmlSchemaParserCtxtPtr pctxt, xmlSc
 		use = (xmlSchemaAttributeUse *)list->items[i];
 		if(use->type == XML_SCHEMA_EXTRA_ATTR_USE_PROHIB) {
 			if(prohibs == NULL) {
-				PERROR_INT("xmlSchemaExpandAttributeGroupRefs", "unexpected attr prohibition found");
+				PERROR_INT(__FUNCTION__, "unexpected attr prohibition found");
 				return -1;
 			}
 			/*
@@ -16172,7 +16148,7 @@ static int xmlSchemaCheckAttrPropsCorrect(xmlSchemaParserCtxtPtr pctxt, xmlSchem
 			ret = xmlSchemaVCheckCVCSimpleType(ACTXT_CAST pctxt, attr->P_Node, WXS_ATTR_TYPEDEF(attr), attr->defValue, &(attr->defVal), 1, 1, 0);
 			if(ret != 0) {
 				if(ret < 0) {
-					PERROR_INT("xmlSchemaCheckAttrPropsCorrect", "calling xmlSchemaVCheckCVCSimpleType()");
+					PERROR_INT(__FUNCTION__, "calling xmlSchemaVCheckCVCSimpleType()");
 					return -1;
 				}
 				xmlSchemaCustomErr(ACTXT_CAST pctxt, XML_SCHEMAP_A_PROPS_CORRECT_2,
@@ -16713,13 +16689,9 @@ static int xmlSchemaResolveAttrUseReferences(xmlSchemaAttributeUsePtr ause,
 
 	{
 		xmlSchemaQNameRefPtr ref = WXS_QNAME_CAST ause->attrDecl;
-
-		/*
-		 * @todo Evaluate, what errors could occur if the declaration is not
-		 * found.
-		 */
+		// @todo Evaluate, what errors could occur if the declaration is not found.
 		ause->attrDecl = xmlSchemaGetAttributeDecl(ctxt->schema, ref->name, ref->targetNamespace);
-		if(ause->attrDecl == NULL) {
+		if(!ause->attrDecl) {
 			xmlSchemaPResCompAttrErr(ctxt, XML_SCHEMAP_SRC_RESOLVE,
 			    WXS_BASIC_CAST ause, ause->P_Node, "ref", ref->name, ref->targetNamespace, XML_SCHEMA_TYPE_ATTRIBUTE, 0);
 			return (ctxt->err);
@@ -16727,7 +16699,6 @@ static int xmlSchemaResolveAttrUseReferences(xmlSchemaAttributeUsePtr ause,
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaCheckAttrUsePropsCorrect:
  * @ctxt:  a parser context
@@ -16739,7 +16710,7 @@ static int xmlSchemaResolveAttrUseReferences(xmlSchemaAttributeUsePtr ause,
  */
 static int xmlSchemaCheckAttrUsePropsCorrect(xmlSchemaParserCtxtPtr ctxt, xmlSchemaAttributeUsePtr use)
 {
-	if(!ctxt || (use == NULL))
+	if(!ctxt || !use)
 		return -1;
 	if((use->defValue == NULL) || (WXS_ATTRUSE_DECL(use) == NULL) || ((WXS_ATTRUSE_DECL(use))->type != XML_SCHEMA_TYPE_ATTRIBUTE))
 		return 0;
@@ -16824,7 +16795,7 @@ static int xmlSchemaResolveAttrTypeReferences(xmlSchemaAttribute * item, xmlSche
 		return 0;
 	if(item->typeName) {
 		xmlSchemaType * type = xmlSchemaGetType(ctxt->schema, item->typeName, item->typeNs);
-		if((type == NULL) || (!WXS_IS_SIMPLE(type))) {
+		if(!type || !WXS_IS_SIMPLE(type)) {
 			xmlSchemaPResCompAttrErr(ctxt, XML_SCHEMAP_SRC_RESOLVE, WXS_BASIC_CAST item, item->P_Node,
 			    "type", item->typeName, item->typeNs, XML_SCHEMA_TYPE_SIMPLE, 0);
 			return (ctxt->err);
@@ -16870,11 +16841,7 @@ static int xmlSchemaResolveIDCKeyReferences(xmlSchemaIDC * idc, xmlSchemaParserC
 			/*
 			 * SPEC c-props-correct (1)
 			 */
-			xmlSchemaCustomErr(ACTXT_CAST pctxt,
-			    XML_SCHEMAP_C_PROPS_CORRECT,
-			    NULL, WXS_BASIC_CAST idc,
-			    "The keyref references a keyref",
-			    NULL, 0);
+			xmlSchemaCustomErr(ACTXT_CAST pctxt, XML_SCHEMAP_C_PROPS_CORRECT, NULL, WXS_BASIC_CAST idc, "The keyref references a keyref", NULL, 0);
 			idc->ref->item = NULL;
 			return pctxt->err;
 		}
@@ -16940,7 +16907,7 @@ static int xmlSchemaCheckSRCRedefineFirst(xmlSchemaParserCtxtPtr pctxt)
 		prev = xmlSchemaFindRedefCompInGraph(redef->targetBucket, item->type, redef->refName, redef->refTargetNs);
 		if(prev == NULL) {
 			xmlChar * str = NULL;
-			xmlNode * P_Node;
+			xmlNode * p_node;
 			/*
 			 * SPEC src-redefine:
 			 * (6.2.1) "The `actual value` of its own name attribute plus
@@ -16957,16 +16924,16 @@ static int xmlSchemaCheckSRCRedefineFirst(xmlSchemaParserCtxtPtr pctxt)
 			 * redefined schema.
 			 */
 			if(redef->reference)
-				P_Node = WXS_ITEM_NODE(redef->reference);
+				p_node = WXS_ITEM_NODE(redef->reference);
 			else
-				P_Node = WXS_ITEM_NODE(item);
+				p_node = WXS_ITEM_NODE(item);
 			xmlSchemaCustomErr(ACTXT_CAST pctxt,
 			    /*
 			 * @todo error code.
 			 * Probably XML_SCHEMAP_SRC_RESOLVE, if this is using the
 			 * reference kind.
 			     */
-			    XML_SCHEMAP_SRC_REDEFINE, P_Node, NULL, "The %s '%s' to be redefined could not be found in the redefined schema",
+			    XML_SCHEMAP_SRC_REDEFINE, p_node, NULL, "The %s '%s' to be redefined could not be found in the redefined schema",
 					WXS_ITEM_TYPE_NAME(item), xmlSchemaFormatQName(&str, redef->refTargetNs, redef->refName));
 			ZFREE(str);
 			err = pctxt->err;
@@ -17127,7 +17094,7 @@ static int xmlSchemaCheckSRCRedefineSecond(xmlSchemaParserCtxtPtr pctxt)
 	return 0;
 }
 
-static int xmlSchemaAddComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketPtr bucket)
+static int xmlSchemaAddComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucket * bucket)
 {
 	xmlSchemaBasicItem * item;
 	int err;
@@ -17194,13 +17161,13 @@ static int xmlSchemaAddComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketP
 			    WXS_GET_GLOBAL_HASH(bucket, notaDecl)
 			    break;
 			default:
-			    PERROR_INT("xmlSchemaAddComponents", "Unexpected global component type");
+			    PERROR_INT(__FUNCTION__, "Unexpected global component type");
 			    continue;
 		}
 		if(*table == NULL) {
 			*table = xmlHashCreateDict(10, pctxt->dict);
 			if(*table == NULL) {
-				PERROR_INT("xmlSchemaAddComponents", "failed to create a component hash table");
+				PERROR_INT(__FUNCTION__, "failed to create a component hash table");
 				return -1;
 			}
 		}
@@ -17217,7 +17184,7 @@ static int xmlSchemaAddComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketP
 	 * Process imported/included schemas.
 	 */
 	if(bucket->relations != NULL) {
-		xmlSchemaSchemaRelationPtr rel = bucket->relations;
+		xmlSchemaSchemaRelation * rel = bucket->relations;
 		do {
 			if(rel->bucket && ((rel->bucket->flags & XML_SCHEMA_BUCKET_COMPS_ADDED) == 0)) {
 				if(xmlSchemaAddComponents(pctxt, rel->bucket) == -1)
@@ -17229,13 +17196,13 @@ static int xmlSchemaAddComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketP
 	return 0;
 }
 
-static int xmlSchemaFixupComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucketPtr rootBucket)
+static int xmlSchemaFixupComponents(xmlSchemaParserCtxtPtr pctxt, xmlSchemaBucket * rootBucket)
 {
 	xmlSchemaConstructionCtxtPtr con = pctxt->constructor;
 	xmlSchemaTreeItem * item;
 	xmlSchemaTreeItem ** items;
 	int nbItems, i, ret = 0;
-	xmlSchemaBucketPtr oldbucket = con->bucket;
+	xmlSchemaBucket * oldbucket = con->bucket;
 	xmlSchemaElementPtr elemDecl;
 #define FIXHFAILURE if(pctxt->err == XML_SCHEMAP_INTERNAL) goto exit_failure;
 	if(!con->pending || !con->pending->nbItems)
@@ -17640,7 +17607,7 @@ exit:
 xmlSchemaPtr xmlSchemaParse(xmlSchemaParserCtxtPtr ctxt)
 {
 	xmlSchemaPtr mainSchema = NULL;
-	xmlSchemaBucketPtr bucket = NULL;
+	xmlSchemaBucket * bucket = NULL;
 	int res;
 	// 
 	// This one is used if the schema to be parsed was specified via
@@ -17886,16 +17853,16 @@ static int xmlSchemaAssembleByLocation(xmlSchemaValidCtxt * vctxt, xmlSchemaPtr 
 {
 	int ret = 0;
 	xmlSchemaParserCtxtPtr pctxt;
-	xmlSchemaBucketPtr bucket = NULL;
+	xmlSchemaBucket * bucket = NULL;
 	if((vctxt == NULL) || (schema == NULL))
 		return -1;
 	if(vctxt->pctxt == NULL) {
-		VERROR_INT("xmlSchemaAssembleByLocation", "no parser context available");
+		VERROR_INT(__FUNCTION__, "no parser context available");
 		return -1;
 	}
 	pctxt = vctxt->pctxt;
 	if(pctxt->constructor == NULL) {
-		PERROR_INT("xmlSchemaAssembleByLocation", "no constructor");
+		PERROR_INT(__FUNCTION__, "no constructor");
 		return -1;
 	}
 	/*
@@ -20114,7 +20081,7 @@ static xmlSchemaNodeInfo * xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxt * vctxt)
 #define ACTIVATE_ELEM vctxt->inode = vctxt->elemInfos[vctxt->depth];
 #define ACTIVATE_PARENT_ELEM vctxt->inode = vctxt->elemInfos[vctxt->depth -1];
 
-static int xmlSchemaValidateFacets(xmlSchemaAbstractCtxtPtr actxt, xmlNode * P_Node, xmlSchemaType * type,
+static int xmlSchemaValidateFacets(xmlSchemaAbstractCtxt * actxt, xmlNode * P_Node, xmlSchemaType * type,
     xmlSchemaValType valType, const xmlChar * value, xmlSchemaVal * val, unsigned long length, int fireErrors)
 {
 	int ret, error = 0;
@@ -20373,7 +20340,7 @@ static int xmlSchemaValidateQName(xmlSchemaValidCtxt * vctxt, const xmlChar * va
 /*
  * cvc-simple-type
  */
-static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxtPtr actxt, xmlNode * P_Node, xmlSchemaType * type,
+static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode * P_Node, xmlSchemaType * type,
     const xmlChar * value, xmlSchemaVal ** retVal, int fireErrors, int normalize, int isNormalized)
 {
 	int ret = 0;
@@ -23986,7 +23953,7 @@ int xmlSchemaValidateStream(xmlSchemaValidCtxt * ctxt, xmlParserInputBuffer * in
 	ctxt->sax = pctxt->sax;
 	ctxt->flags |= XML_SCHEMA_VALID_CTXT_FLAG_STREAM;
 	ret = xmlSchemaVStart(ctxt);
-	if((ret == 0) && (!ctxt->parserCtxt->wellFormed)) {
+	if(!ret && !ctxt->parserCtxt->wellFormed) {
 		ret = ctxt->parserCtxt->errNo;
 		if(!ret)
 			ret = 1;

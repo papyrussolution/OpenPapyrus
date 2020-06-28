@@ -946,20 +946,14 @@ void FASTCALL xmlFreeDtd(xmlDtd * pCur)
 		SAlloc::F(pCur);
 	}
 }
-/**
- * xmlNewDoc:
- * @version:  xmlChar string giving the version of XML "1.0"
- *
- * Creates a new XML document
- *
- * Returns a new document
- */
+// 
+// @version:  xmlChar string giving the version of XML "1.0"
+// Descr: Creates a new XML document
+// Returns: a new document
+// 
 xmlDoc * xmlNewDoc(const xmlChar * version)
 {
 	SETIFZ(version, reinterpret_cast<const xmlChar *>("1.0"));
-	/*
-	 * Allocate a new document and fill the fields.
-	 */
 	xmlDoc * cur = static_cast<xmlDoc *>(SAlloc::M(sizeof(xmlDoc)));
 	if(!cur) {
 		xmlTreeErrMemory("building doc");
@@ -978,10 +972,10 @@ xmlDoc * xmlNewDoc(const xmlChar * version)
 			cur->doc = cur;
 			cur->parseFlags = 0;
 			cur->properties = XML_DOC_USERBUILT;
-			/*
-			 * The in memory encoding is always UTF8
-			 * This field will never change and would be obsolete if not for binary compatibility.
-			 */
+			// 
+			// The in memory encoding is always UTF8
+			// This field will never change and would be obsolete if not for binary compatibility.
+			// 
 			cur->charset = XML_CHAR_ENCODING_UTF8;
 			if((__xmlRegisterCallbacks) && (xmlRegisterNodeDefaultValue))
 				xmlRegisterNodeDefaultValue((xmlNode *)cur);

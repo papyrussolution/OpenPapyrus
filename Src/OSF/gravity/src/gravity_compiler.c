@@ -19,16 +19,16 @@ struct gravity_compiler_t {
 static void internal_vm_transfer(gravity_vm * vm, gravity_object_t * obj) 
 {
 	gravity_compiler_t * compiler = static_cast<gravity_compiler_t *>(gravity_vm_getdata(vm));
-	marray_push(void*, *compiler->objects, obj);
+	compiler->objects->insert(obj);
 }
 
 static void internal_free_class(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
 {
-    #pragma unused (hashtable, data)
+    //#pragma unused (hashtable, data)
 	// sanity checks
-	if(!VALUE_ISA_FUNCTION(value)) 
+	if(!value.IsFunction()) 
 		return;
-	if(!VALUE_ISA_STRING(key)) 
+	if(!key.IsString()) 
 		return;
 	// check for special function
 	gravity_function_t * f = VALUE_AS_FUNCTION(value);
@@ -37,7 +37,7 @@ static void internal_free_class(gravity_hash_t * hashtable, GravityValue key, Gr
 		gravity_function_free(NULL, (gravity_function_t *)f->special[1]);
 	}
 	// a super special init constructor is a string that begins with $init AND it is longer than strlen($init)
-	gravity_string_t * s = VALUE_AS_STRING(key);
+	gravity_string_t * s = static_cast<gravity_string_t *>(key);
 	bool is_super_function = ((s->len > 5) && (string_casencmp(s->s, CLASS_INTERNAL_INIT_NAME, 5) == 0));
 	if(!is_super_function) 
 		gravity_function_free(NULL, VALUE_AS_FUNCTION(value));
@@ -46,10 +46,10 @@ static void internal_free_class(gravity_hash_t * hashtable, GravityValue key, Gr
 static void internal_vm_cleanup(gravity_vm * vm) 
 {
 	gravity_compiler_t * compiler = static_cast<gravity_compiler_t *>(gravity_vm_getdata(vm));
-	size_t count = marray_size(*compiler->objects);
+	size_t count = compiler->objects->getCount();
 	for(size_t i = 0; i<count; ++i) {
-		gravity_object_t * obj = static_cast<gravity_object_t *>(marray_pop(*compiler->objects));
-		if(OBJECT_ISA_CLASS(obj)) {
+		gravity_object_t * obj = static_cast<gravity_object_t *>(compiler->objects->pop());
+		if(obj->IsClass()) {
 			gravity_class_t * c = (gravity_class_t *)obj;
 			gravity_hash_iterate(c->htable, internal_free_class, NULL);
 		}
@@ -84,7 +84,7 @@ static void gravity_compiler_reset(gravity_compiler_t * compiler, bool free_core
 	// at the end free mini VM and objects array
 	gravity_vm_free(compiler->vm);
 	if(compiler->objects) {
-		marray_destroy(*compiler->objects);
+		compiler->objects->Z();
 		mem_free((void*)compiler->objects);
 	}
 	// feel free to free core if someone requires it
@@ -116,15 +116,15 @@ void gravity_compiler_transfer(gravity_compiler_t * compiler, gravity_vm * vm)
 	if(compiler->objects) {
 		// transfer each object from compiler mini VM to exec VM
 		gravity_gc_setenabled(vm, false);
-		size_t count = marray_size(*compiler->objects);
-		for(size_t i = 0; i < count; ++i) {
-			gravity_object_t * obj = static_cast<gravity_object_t *>(marray_pop(*compiler->objects));
+		uint count = compiler->objects->getCount();
+		for(uint i = 0; i < count; ++i) {
+			gravity_object_t * obj = static_cast<gravity_object_t *>(compiler->objects->pop());
 			gravity_vm_transfer(vm, obj);
-			if(!OBJECT_ISA_CLOSURE(obj)) 
+			if(!obj->IsClosure()) 
 				continue;
 			// $moduleinit closure needs to be explicitly initialized
 			gravity_closure_t * closure = (gravity_closure_t *)obj;
-			if(closure->f->identifier && strcmp(closure->f->identifier, INITMODULE_NAME) == 0) {
+			if(closure->f->identifier && sstreq(closure->f->identifier, INITMODULE_NAME)) {
 				// code is here because it does not make sense to add this overhead (that needs to be executed
 				// only once)
 				// inside the gravity_vm_transfer callback which is called for each allocated object inside the VM

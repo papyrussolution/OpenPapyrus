@@ -122,9 +122,8 @@ static void ColouriseBatchLine(char * lineBuffer,
 		}
 		wordBuffer[wbl] = '\0';
 		wbo = 0;
-
 		// Check for Comment - return if found
-		if(CompareCaseInsensitive(wordBuffer, "rem") == 0) {
+		if(sstreqi_ascii(wordBuffer, "rem")) {
 			styler.ColourTo(endPos, SCE_BAT_COMMENT);
 			return;
 		}
@@ -207,7 +206,7 @@ static void ColouriseBatchLine(char * lineBuffer,
 				if((keywords.InList(sKeywordBuffer)) && ((IsBOperator(wordBuffer[wbo])) || (IsBSeparator(wordBuffer[wbo])))) {
 					sKeywordFound = true;
 					// ECHO requires no further Regular Keyword Checking
-					if(CompareCaseInsensitive(sKeywordBuffer, "echo") == 0) {
+					if(sstreqi_ascii(sKeywordBuffer, "echo")) {
 						continueProcessing = false;
 					}
 					// Colorize Special Keyword as Regular Keyword
@@ -230,12 +229,12 @@ static void ColouriseBatchLine(char * lineBuffer,
 					// Reset Offset to re-process remainder of word
 					offset -= (wbl - wbo);
 					// CHOICE requires no further Regular Keyword Checking
-					if(CompareCaseInsensitive(wordBuffer, "choice") == 0) {
+					if(sstreqi_ascii(wordBuffer, "choice")) {
 						continueProcessing = false;
 					}
 					// Check for START (and its switches) - What follows is External Command \
 					// Program
-					if(CompareCaseInsensitive(wordBuffer, "start") == 0) {
+					if(sstreqi_ascii(wordBuffer, "start")) {
 						// Reset External Command / Program Location
 						cmdLoc = offset;
 						// Skip next spaces

@@ -15,20 +15,9 @@
 using namespace Scintilla;
 #endif
 
-static bool isCmakeNumber(char ch)
-{
-	return (ch >= '0' && ch <= '9');
-}
-
-static bool isCmakeChar(char ch)
-{
-	return (ch == '.' ) || (ch == '_' ) || isCmakeNumber(ch) || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
-
-static bool isCmakeLetter(char ch)
-{
-	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
+//static bool isCmakeNumber(char ch) { return (ch >= '0' && ch <= '9'); }
+static bool isCmakeChar(char ch) { return (ch == '.' ) || (ch == '_' ) || isdec(ch) || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
+static bool isCmakeLetter(char ch) { return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
 
 static bool CmakeNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor & styler)
 {
@@ -65,18 +54,14 @@ static int calculateFoldCmake(Sci_PositionU start, Sci_PositionU end, int foldle
 		s[i] = static_cast<char>( styler[ start + i ] );
 		s[i + 1] = '\0';
 	}
-	if(CompareCaseInsensitive(s, "IF") == 0 || CompareCaseInsensitive(s, "WHILE") == 0
-	    || CompareCaseInsensitive(s, "MACRO") == 0 || CompareCaseInsensitive(s, "FOREACH") == 0
-	    || CompareCaseInsensitive(s, "ELSEIF") == 0)
+	if(sstreqi_ascii(s, "IF") || sstreqi_ascii(s, "WHILE") || sstreqi_ascii(s, "MACRO") || sstreqi_ascii(s, "FOREACH") || sstreqi_ascii(s, "ELSEIF"))
 		newFoldlevel++;
-	else if(CompareCaseInsensitive(s, "ENDIF") == 0 || CompareCaseInsensitive(s, "ENDWHILE") == 0
-	    || CompareCaseInsensitive(s, "ENDMACRO") == 0 || CompareCaseInsensitive(s, "ENDFOREACH") == 0)
+	else if(sstreqi_ascii(s, "ENDIF") || sstreqi_ascii(s, "ENDWHILE") || sstreqi_ascii(s, "ENDMACRO") || sstreqi_ascii(s, "ENDFOREACH"))
 		newFoldlevel--;
-	else if(bElse && CompareCaseInsensitive(s, "ELSEIF") == 0)
+	else if(bElse && sstreqi_ascii(s, "ELSEIF"))
 		newFoldlevel++;
-	else if(bElse && CompareCaseInsensitive(s, "ELSE") == 0)
+	else if(bElse && sstreqi_ascii(s, "ELSE"))
 		newFoldlevel++;
-
 	return newFoldlevel;
 }
 
@@ -92,15 +77,15 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 		lowercaseWord[i] = static_cast<char>(tolower(word[i]));
 	}
 	// Check for special words...
-	if(CompareCaseInsensitive(word, "MACRO") == 0 || CompareCaseInsensitive(word, "ENDMACRO") == 0)
+	if(sstreqi_ascii(word, "MACRO") || sstreqi_ascii(word, "ENDMACRO"))
 		return SCE_CMAKE_MACRODEF;
-	if(CompareCaseInsensitive(word, "IF") == 0 ||  CompareCaseInsensitive(word, "ENDIF") == 0)
+	if(sstreqi_ascii(word, "IF") ||  sstreqi_ascii(word, "ENDIF"))
 		return SCE_CMAKE_IFDEFINEDEF;
-	if(CompareCaseInsensitive(word, "ELSEIF") == 0  || CompareCaseInsensitive(word, "ELSE") == 0)
+	if(sstreqi_ascii(word, "ELSEIF")  || sstreqi_ascii(word, "ELSE"))
 		return SCE_CMAKE_IFDEFINEDEF;
-	if(CompareCaseInsensitive(word, "WHILE") == 0 || CompareCaseInsensitive(word, "ENDWHILE") == 0)
+	if(sstreqi_ascii(word, "WHILE") || sstreqi_ascii(word, "ENDWHILE"))
 		return SCE_CMAKE_WHILEDEF;
-	if(CompareCaseInsensitive(word, "FOREACH") == 0 || CompareCaseInsensitive(word, "ENDFOREACH") == 0)
+	if(sstreqi_ascii(word, "FOREACH") || sstreqi_ascii(word, "ENDFOREACH"))
 		return SCE_CMAKE_FOREACHDEF;
 	if(Commands.InList(lowercaseWord) )
 		return SCE_CMAKE_COMMANDS;
@@ -113,10 +98,10 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 			return SCE_CMAKE_VARIABLE;
 	}
 	// To check for numbers
-	if(isCmakeNumber(word[0]) ) {
+	if(isdec(word[0]) ) {
 		bool bHasSimpleCmakeNumber = true;
 		for(uint j = 1; j < end - start + 1 && j < 99; j++) {
-			if(!isCmakeNumber(word[j]) ) {
+			if(!isdec(word[j]) ) {
 				bHasSimpleCmakeNumber = false;
 				break;
 			}
@@ -177,7 +162,7 @@ static void ColouriseCmakeDoc(Sci_PositionU startPos, Sci_Position length, int, 
 				    styler.ColourTo(i-1, state);
 				    state = SCE_CMAKE_VARIABLE;
 				    // If it is a number, we must check and set style here first...
-				    if(isCmakeNumber(cCurrChar) && oneof4(cNextChar, ' ', '\t', '\r', '\n' ))
+				    if(isdec(cCurrChar) && oneof4(cNextChar, ' ', '\t', '\r', '\n' ))
 					    styler.ColourTo(i, SCE_CMAKE_NUMBER);
 				    break;
 			    }

@@ -407,7 +407,7 @@ int main(int argc, char ** argv)
 				 */
 				xmlCatalogPtr super = NULL;
 				xmlCatalogPtr catal = xmlLoadSGMLSuperCatalog(argv[i + 1]);
-				if((!strcmp(argv[i], "-add")) || (!strcmp(argv[i], "--add"))) {
+				if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 					if(catal == NULL)
 						catal = xmlNewCatalog(1);
 					xmlACatalogAdd(catal, reinterpret_cast<const xmlChar *>("CATALOG"), BAD_CAST argv[i + 2], 0);
@@ -478,7 +478,7 @@ int main(int argc, char ** argv)
 				i += 2;
 			}
 			else {
-				if((!strcmp(argv[i], "-add")) || (!strcmp(argv[i], "--add"))) {
+				if(sstreq(argv[i], "-add") || sstreq(argv[i], "--add")) {
 					if((argv[i + 3] == NULL) || (argv[i + 3][0] == 0))
 						ret = xmlCatalogAdd(BAD_CAST argv[i + 1], NULL, BAD_CAST argv[i + 2]);
 					else
@@ -489,7 +489,7 @@ int main(int argc, char ** argv)
 					}
 					i += 3;
 				}
-				else if((!strcmp(argv[i], "-del")) || (!strcmp(argv[i], "--del"))) {
+				else if(sstreq(argv[i], "-del") || sstreq(argv[i], "--del")) {
 					ret = xmlCatalogRemove(BAD_CAST argv[i + 1]);
 					if(ret < 0) {
 						fprintf(stderr, "Failed to remove entry %s\n", argv[i + 1]);

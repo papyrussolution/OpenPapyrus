@@ -1002,7 +1002,7 @@ static int FASTCALL xmlTextReaderDoExpand(xmlTextReader * reader)
 		return -1;
 	else {
 		do {
-			if(reader->ctxt->instate == XML_PARSER_EOF)
+			if(reader->ctxt->IsEof())
 				return 1;
 			else if(xmlTextReaderGetSuccessor(reader->P_Node))
 				return 1;
@@ -1137,7 +1137,7 @@ get_next_node:
 	    ((oldstate == XML_TEXTREADER_BACKTRACK) || !reader->P_Node->children || (reader->P_Node->type == XML_ENTITY_REF_NODE) ||
 		    (reader->P_Node->children && (reader->P_Node->children->type == XML_TEXT_NODE) && !reader->P_Node->children->next) ||
 		    oneof3(reader->P_Node->type, XML_DTD_NODE, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) && (!reader->ctxt->P_Node ||
-		    (reader->ctxt->P_Node == reader->P_Node) || (reader->ctxt->P_Node == reader->P_Node->P_ParentNode)) && (reader->ctxt->instate != XML_PARSER_EOF)) {
+		    (reader->ctxt->P_Node == reader->P_Node) || (reader->ctxt->P_Node == reader->P_Node->P_ParentNode)) && !reader->ctxt->IsEof()) {
 		val = xmlTextReaderPushData(reader);
 		if(val < 0) {
 			reader->mode = XML_TEXTREADER_MODE_ERROR;

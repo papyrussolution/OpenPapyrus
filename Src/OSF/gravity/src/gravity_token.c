@@ -24,7 +24,6 @@ const char * FASTCALL token_name(gtoken_t token)
 		case TOK_IDENTIFIER: return "IDENTIFIER";
 		case TOK_SPECIAL: return "SPECIAL";
 		case TOK_MACRO: return "MACRO";
-
 		// keywords
 		case TOK_KEY_FILE: return "file";
 		case TOK_KEY_FUNC: return "func";
@@ -101,7 +100,6 @@ const char * FASTCALL token_name(gtoken_t token)
 		case TOK_OP_BIT_AND_ASSIGN: return "&=";
 		case TOK_OP_BIT_OR_ASSIGN: return "|=";
 		case TOK_OP_BIT_XOR_ASSIGN: return "^=";
-
 		case TOK_OP_OPEN_PARENTHESIS: return "(";
 		case TOK_OP_CLOSED_PARENTHESIS: return ")";
 		case TOK_OP_OPEN_SQUAREBRACKET: return "[";
@@ -131,29 +129,29 @@ gtoken_t token_special_builtin(gtoken_s * token)
 	switch(len) {
 		case 8:
 		    if(string_casencmp(buffer, "__LINE__", len) == 0) {
-			    token->builtin = BUILTIN_LINE;
+			    token->builtin = gtoken_s::BUILTIN_LINE;
 			    return TOK_NUMBER;
 		    }
 		    if(string_casencmp(buffer, "__FILE__", len) == 0) {
-			    token->builtin = BUILTIN_FILE;
+			    token->builtin = gtoken_s::BUILTIN_FILE;
 			    return TOK_STRING;
 		    }
 		    break;
 		case 9:
 		    if(string_casencmp(buffer, "__CLASS__", len) == 0) {
-			    token->builtin = BUILTIN_CLASS;
+			    token->builtin = gtoken_s::BUILTIN_CLASS;
 			    return TOK_STRING;
 		    }
 		    break;
 		case 10:
 		    if(string_casencmp(buffer, "__COLUMN__", len) == 0) {
-			    token->builtin = BUILTIN_COLUMN;
+			    token->builtin = gtoken_s::BUILTIN_COLUMN;
 			    return TOK_NUMBER;
 		    }
 		    break;
 		case 12:
 		    if(string_casencmp(buffer, "__FUNCTION__", len) == 0) {
-			    token->builtin = BUILTIN_FUNC;
+			    token->builtin = gtoken_s::BUILTIN_FUNC;
 			    return TOK_STRING;
 		    }
 		    break;

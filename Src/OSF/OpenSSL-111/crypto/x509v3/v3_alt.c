@@ -217,15 +217,12 @@ static GENERAL_NAMES * v2i_issuer_alt(X509V3_EXT_METHOD * method,
 	}
 	for(i = 0; i < num; i++) {
 		CONF_VALUE * cnf = sk_CONF_VALUE_value(nval, i);
-
-		if(!name_cmp(cnf->name, "issuer")
-		    && cnf->value && strcmp(cnf->value, "copy") == 0) {
+		if(!name_cmp(cnf->name, "issuer") && cnf->value && sstreq(cnf->value, "copy")) {
 			if(!copy_issuer(ctx, gens))
 				goto err;
 		}
 		else {
 			GENERAL_NAME * gen = v2i_GENERAL_NAME(method, ctx, cnf);
-
 			if(gen == NULL)
 				goto err;
 			sk_GENERAL_NAME_push(gens, gen); /* no failure as it was reserved */
@@ -278,31 +275,24 @@ err:
 	return 0;
 }
 
-static GENERAL_NAMES * v2i_subject_alt(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * nval)
+static GENERAL_NAMES * v2i_subject_alt(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval)
 {
-	GENERAL_NAMES * gens;
 	CONF_VALUE * cnf;
 	const int num = sk_CONF_VALUE_num(nval);
 	int i;
-
-	gens = sk_GENERAL_NAME_new_reserve(NULL, num);
+	GENERAL_NAMES * gens = sk_GENERAL_NAME_new_reserve(NULL, num);
 	if(gens == NULL) {
 		X509V3err(X509V3_F_V2I_SUBJECT_ALT, ERR_R_MALLOC_FAILURE);
 		sk_GENERAL_NAME_free(gens);
 		return NULL;
 	}
-
 	for(i = 0; i < num; i++) {
 		cnf = sk_CONF_VALUE_value(nval, i);
-		if(!name_cmp(cnf->name, "email")
-		    && cnf->value && strcmp(cnf->value, "copy") == 0) {
+		if(!name_cmp(cnf->name, "email") && cnf->value && sstreq(cnf->value, "copy")) {
 			if(!copy_email(ctx, gens, 0))
 				goto err;
 		}
-		else if(!name_cmp(cnf->name, "email")
-		    && cnf->value && strcmp(cnf->value, "move") == 0) {
+		else if(!name_cmp(cnf->name, "email") && cnf->value && sstreq(cnf->value, "move")) {
 			if(!copy_email(ctx, gens, 1))
 				goto err;
 		}
@@ -330,11 +320,9 @@ static int copy_email(X509V3_CTX * ctx, GENERAL_NAMES * gens, int move_p)
 	X509_NAME_ENTRY * ne;
 	GENERAL_NAME * gen = NULL;
 	int i = -1;
-
 	if(ctx != NULL && ctx->flags == CTX_TEST)
 		return 1;
-	if(ctx == NULL
-	    || (ctx->subject_cert == NULL && ctx->subject_req == NULL)) {
+	if(ctx == NULL || (ctx->subject_cert == NULL && ctx->subject_req == NULL)) {
 		X509V3err(X509V3_F_COPY_EMAIL, X509V3_R_NO_SUBJECT_DETAILS);
 		goto err;
 	}

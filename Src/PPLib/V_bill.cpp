@@ -4452,6 +4452,7 @@ struct PrvdrDllLink {
 };
 
 int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileName); // @prototype
+int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString & rFileName); // @prototype
 int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFileName); // @prototype
 int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName); // @prototype
 int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName); // @prototype
@@ -4508,7 +4509,8 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
-				if(oneof4(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, PPBillImpExpParam::pfNalogR_REZRUISP, PPBillImpExpParam::pfNalogR_SCHFDOPPR, PPBillImpExpParam::pfExport_Marks)) {
+				if(oneof5(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, 
+					PPBillImpExpParam::pfNalogR_REZRUISP, PPBillImpExpParam::pfNalogR_SCHFDOPPR, PPBillImpExpParam::pfExport_Marks, PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK)) {
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 						const  PPID bill_id = bill_id_list.get(_idx);
@@ -4524,6 +4526,9 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 							}
 							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_SCHFDOPPR) {
 								r = WriteBill_NalogRu2_UPD(pack, b_e.BillParam.FileName);
+							}
+							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK) {
+								r = WriteBill_NalogRu2_InvoiceWithMarks(pack, b_e.BillParam.FileName);
 							}
 							//@erik {
 							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfExport_Marks) {

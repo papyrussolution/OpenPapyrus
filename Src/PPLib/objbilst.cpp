@@ -103,7 +103,7 @@ int SLAPI PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 				ColorCtrlGroup::Rec color_rec;
 				dlg->getGroupData(ctlgroupColor, &color_rec);
 				if(color_rec.C == 0)
-					rec.IndColor.SetEmpty();
+					rec.IndColor.Z();
 				else
 					rec.IndColor = SColor((COLORREF)color_rec.C);
 			}

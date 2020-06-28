@@ -61,9 +61,9 @@
 /* #define DEBUG_EXTERNAL_ENTITIES */
 /* #define DEBUG_INPUT */
 #ifdef DEBUG_INPUT
-	#define MINLEN 40
+	#define MINLEN 64 // @v10.8.0 40-->64
 #else
-	#define MINLEN 4000
+	#define MINLEN 8192 // @v10.8.0 4000-->8192
 #endif
 /*
  * Input I/O callback sets
@@ -397,7 +397,7 @@ static void FASTCALL xmlIOErr(int code, const char * extra)
 void __xmlLoaderErr(void * ctx, const char * msg, const char * filename)
 {
 	xmlParserCtxt * ctxt = static_cast<xmlParserCtxt *>(ctx);
-	if(!ctxt || !ctxt->disableSAX || ctxt->instate != XML_PARSER_EOF) {
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
 		xmlStructuredErrorFunc schannel = NULL;
 		xmlGenericErrorFunc channel = NULL;
 		void * data = NULL;
@@ -3001,17 +3001,14 @@ int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * b
 	int nbchars = 0; /* number of chars to output to I/O */
 	int ret;     /* return from function call */
 	int written = 0; /* number of char written to I/O so far */
-	int chunk;   /* number of byte curreent processed from buf */
-	if((out == NULL) || (out->error))
+	if(!out || out->error)
 		return -1;
 	if(len < 0)
 		return 0;
-	if(out->error)
-		return -1;
 	do {
-		chunk = len;
-		if(chunk > 4 * MINLEN)
-			chunk = 4 * MINLEN;
+		int chunk = len; // number of byte curreent processed from buf 
+		//if(chunk > 4 * MINLEN)
+		SETMIN(chunk, 4 * MINLEN);
 		// 
 		// first handle encoding stuff.
 		// 
@@ -3023,7 +3020,7 @@ int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * b
 			ret = xmlBufAdd(out->buffer, (const xmlChar *)buf, chunk);
 			if(ret != 0)
 				return -1;
-			if((xmlBufUse(out->buffer) < MINLEN) && (chunk == len))
+			if(xmlBufUse(out->buffer) < MINLEN && chunk == len)
 				goto done;
 			/*
 			 * convert as much as possible to the parser reading buffer.
@@ -3093,8 +3090,7 @@ static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * i
 	uchar* outstart = out;
 	const uchar* base = in;
 	uchar* outend = out + *outlen;
-	const uchar* inend;
-	inend = in + (*inlen);
+	const uchar * inend = in + (*inlen);
 	while((in < inend) && (out < outend)) {
 		if(*in == '<') {
 			if(outend - out < 4)
@@ -3139,7 +3135,6 @@ static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * i
 	*inlen = in - base;
 	return 0;
 }
-
 /**
  * xmlOutputBufferWriteEscape:
  * @out:  a buffered parser output
@@ -3174,36 +3169,35 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 	SETIFZ(escaping, xmlEscapeContent);
 	do {
 		oldwritten = written;
-		/*
-		 * how many bytes to consume and how many bytes to store.
-		 */
+		// 
+		// how many bytes to consume and how many bytes to store.
+		// 
 		cons = len;
 		chunk = xmlBufAvail(out->buffer) - 1;
-		/*
-		 * make sure we have enough room to save first, if this is
-		 * not the case force a flush, but make sure we stay in the loop
-		 */
+		// 
+		// make sure we have enough room to save first, if this is
+		// not the case force a flush, but make sure we stay in the loop
+		// 
 		if(chunk < 40) {
 			if(xmlBufGrow(out->buffer, 100) < 0)
 				return -1;
 			oldwritten = -1;
 			continue;
 		}
-		/*
-		 * first handle encoding stuff.
-		 */
+		// 
+		// first handle encoding stuff.
+		// 
 		if(out->encoder) {
-			/*
-			 * Store the data in the incoming raw buffer
-			 */
+			// 
+			// Store the data in the incoming raw buffer
+			// 
 			SETIFZ(out->conv, xmlBufCreate());
 			ret = escaping(xmlBufEnd(out->buffer), &chunk, str, &cons);
-			if((ret < 0) || (chunk == 0)) /* chunk==0 => nothing done */
+			if(ret < 0 || chunk == 0) /* chunk==0 => nothing done */
 				return -1;
 			xmlBufAddLen(out->buffer, chunk);
-			if((xmlBufUse(out->buffer) < MINLEN) && (cons == len))
+			if(xmlBufUse(out->buffer) < MINLEN && cons == len)
 				goto done;
-
 			/*
 			 * convert as much as possible to the output buffer.
 			 */
@@ -3294,13 +3288,13 @@ int xmlOutputBufferFlush(xmlOutputBuffer * out)
 	int nbchars = 0, ret = 0;
 	if(!out || out->error)
 		return -1;
-	/*
-	 * first handle encoding stuff.
-	 */
+	// 
+	// first handle encoding stuff.
+	// 
 	if(out->conv && out->encoder) {
-		/*
-		 * convert as much as possible to the parser output buffer.
-		 */
+		// 
+		// convert as much as possible to the parser output buffer.
+		// 
 		do {
 			nbchars = xmlCharEncOutput(out, 0);
 			if(nbchars < 0) {
@@ -3310,9 +3304,9 @@ int xmlOutputBufferFlush(xmlOutputBuffer * out)
 			}
 		} while(nbchars);
 	}
-	/*
-	 * second flush the stuff to the I/O channel
-	 */
+	// 
+	// second flush the stuff to the I/O channel
+	// 
 	if(out->conv && out->encoder && out->writecallback) {
 		ret = out->writecallback(out->context, PTRCHRC_(xmlBufContent(out->conv)), xmlBufUse(out->conv));
 		if(ret >= 0)
@@ -3334,7 +3328,6 @@ int xmlOutputBufferFlush(xmlOutputBuffer * out)
 #endif
 	return ret;
 }
-
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /**
@@ -3520,12 +3513,10 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 		 */
 		if(resource && !xmlNoNetExists((const char *)resource)) {
 			xmlChar * tmp = NULL;
-			if(ctxt && ctxt->catalogs && ((pref == XML_CATA_ALLOW_ALL) || (pref == XML_CATA_ALLOW_DOCUMENT))) {
+			if(ctxt && ctxt->catalogs && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_DOCUMENT))
 				tmp = xmlCatalogLocalResolveURI(ctxt->catalogs, resource);
-			}
-			if((tmp == NULL) && ((pref == XML_CATA_ALLOW_ALL) || (pref == XML_CATA_ALLOW_GLOBAL))) {
+			if(!tmp && oneof2(pref, XML_CATA_ALLOW_ALL, XML_CATA_ALLOW_GLOBAL))
 				tmp = xmlCatalogResolveURI(resource);
-			}
 			if(tmp) {
 				SAlloc::F(resource);
 				resource = tmp;

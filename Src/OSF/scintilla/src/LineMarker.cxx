@@ -225,8 +225,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		rcSmall.bottom = rc.bottom - 2;
 		surface->RectangleDraw(rcSmall, fore, back);
 	}
-	else if(markType == SC_MARK_EMPTY || markType == SC_MARK_BACKGROUND ||
-	    markType == SC_MARK_UNDERLINE || markType == SC_MARK_AVAILABLE) {
+	else if(oneof4(markType, SC_MARK_EMPTY, SC_MARK_BACKGROUND, SC_MARK_UNDERLINE, SC_MARK_AVAILABLE)) {
 		// An invisible marker so don't draw anything
 	}
 	else if(markType == SC_MARK_VLINE) {
@@ -273,13 +272,9 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		DrawPlus(surface, centreX, centreY, blobSize, colourTail);
 	}
 	else if(markType == SC_MARK_BOXPLUSCONNECTED) {
-		if(tFold == LineMarker::headWithTail)
-			surface->PenColour(colourTail);
-		else
-			surface->PenColour(colourBody);
+		surface->PenColour((tFold == LineMarker::headWithTail) ? colourTail : colourBody);
 		surface->MoveTo(centreX, centreY + blobSize);
 		surface->LineTo(centreX, static_cast<int>(rcWhole.bottom));
-
 		surface->PenColour(colourBody);
 		surface->MoveTo(centreX, static_cast<int>(rcWhole.top));
 		surface->LineTo(centreX, centreY - blobSize);
@@ -336,17 +331,12 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		DrawPlus(surface, centreX, centreY, blobSize, colourTail);
 	}
 	else if(markType == SC_MARK_CIRCLEPLUSCONNECTED) {
-		if(tFold == LineMarker::headWithTail)
-			surface->PenColour(colourTail);
-		else
-			surface->PenColour(colourBody);
+		surface->PenColour((tFold == LineMarker::headWithTail) ? colourTail : colourBody);
 		surface->MoveTo(centreX, centreY + blobSize);
 		surface->LineTo(centreX, static_cast<int>(rcWhole.bottom));
-
 		surface->PenColour(colourBody);
 		surface->MoveTo(centreX, static_cast<int>(rcWhole.top));
 		surface->LineTo(centreX, centreY - blobSize);
-
 		DrawCircle(surface, centreX, centreY, blobSize, fore, colourHead);
 		DrawPlus(surface, centreX, centreY, blobSize, colourTail);
 	}
@@ -376,8 +366,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 		XYPOSITION width = surface->WidthText(fontForCharacter, character, 1);
 		rc.left += (rc.Width() - width) / 2;
 		rc.right = rc.left + width;
-		surface->DrawTextClipped(rc, fontForCharacter, rc.bottom - 2,
-		    character, 1, fore, back);
+		surface->DrawTextClipped(rc, fontForCharacter, rc.bottom - 2, character, 1, fore, back);
 	}
 	else if(markType == SC_MARK_DOTDOTDOT) {
 		XYPOSITION right = static_cast<XYPOSITION>(centreX - 6);

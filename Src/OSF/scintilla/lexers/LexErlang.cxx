@@ -120,9 +120,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    // Search for comment documentation
 					    if(sc.chNext == '@') {
 						    old_parse_state = parse_state;
-						    parse_state = ('{' == sc.ch)
-							    ? COMMENT_DOC_MACRO
-							    : COMMENT_DOC;
+						    parse_state = ('{' == sc.ch) ? COMMENT_DOC_MACRO : COMMENT_DOC;
 						    sc.ForwardSetState(sc.state);
 					    }
 				    }
@@ -141,9 +139,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 				    if(!isalnum(sc.ch)) {
 					    // Try to match documentation comment
 					    sc.GetCurrent(cur, sizeof(cur));
-
-					    if(parse_state == COMMENT_DOC_MACRO
-						    && erlangDocMacro.InList(cur)) {
+					    if(parse_state == COMMENT_DOC_MACRO && erlangDocMacro.InList(cur)) {
 						    sc.ChangeState(SCE_ERLANG_COMMENT_DOC_MACRO);
 						    while(sc.ch != '}' && !sc.atLineEnd)
 							    sc.Forward();
@@ -370,8 +366,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 
 				/* Exponent, either integer or float (xEyy, x.yyEzzz) */
 				case NUMERAL_EXPONENT: {
-				    if(('-' == sc.ch || '+' == sc.ch)
-					    && (isdec(sc.chNext))) {
+				    if(('-' == sc.ch || '+' == sc.ch) && (isdec(sc.chNext))) {
 					    sc.Forward();
 				    }
 				    else if(!isdec(sc.ch)) {
@@ -428,8 +423,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    } break;
 				case SCE_ERLANG_OPERATOR: {
 				    if(sc.chPrev == '.') {
-					    if(sc.ch == '*' || sc.ch == '/' || sc.ch == '\\'
-						    || sc.ch == '^') {
+					    if(sc.ch == '*' || sc.ch == '/' || sc.ch == '\\' || sc.ch == '^') {
 						    sc.ForwardSetState(SCE_ERLANG_DEFAULT);
 					    }
 					    else if(sc.ch == '\'') {
@@ -448,7 +442,6 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 
 		if(sc.state == SCE_ERLANG_DEFAULT) {
 			bool no_new_state = false;
-
 			switch(sc.ch) {
 				case '\"': sc.SetState(SCE_ERLANG_STRING); break;
 				case '$': sc.SetState(SCE_ERLANG_CHARACTER); break;
@@ -506,33 +499,20 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 	sc.Complete();
 }
 
-static int ClassifyErlangFoldPoint(Accessor & styler,
-    int styleNext,
-    Sci_Position keyword_start
-    )
+static int ClassifyErlangFoldPoint(Accessor & styler, int styleNext, Sci_Position keyword_start)
 {
 	int lev = 0;
-	if(styler.Match(keyword_start, "case")
-	    || (
-		    styler.Match(keyword_start, "fun")
-		    && (SCE_ERLANG_FUNCTION_NAME != styleNext)
-		    )
-	    || styler.Match(keyword_start, "if")
-	    || styler.Match(keyword_start, "query")
-	    || styler.Match(keyword_start, "receive")
-	    ) {
+	if(styler.Match(keyword_start, "case") || (styler.Match(keyword_start, "fun") && (SCE_ERLANG_FUNCTION_NAME != styleNext)) || 
+		styler.Match(keyword_start, "if") || styler.Match(keyword_start, "query") || styler.Match(keyword_start, "receive")) {
 		++lev;
 	}
 	else if(styler.Match(keyword_start, "end")) {
 		--lev;
 	}
-
 	return lev;
 }
 
-static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList** /*keywordlists*/, Accessor & styler
-    )
+static void FoldErlangDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList** /*keywordlists*/, Accessor & styler)
 {
 	Sci_PositionU endPos = startPos + length;
 	Sci_Position currentLine = styler.GetLine(startPos);

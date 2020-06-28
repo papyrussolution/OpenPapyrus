@@ -414,15 +414,44 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 		tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
 		if(nta.Has(SNTOK_CHZN_CIGITEM)) {
 			assert(code_buf.Len() == 29);
-			temp_buf.Z().CatN(code_buf, 14);
+			size_t offs = 0; 
+			temp_buf.Z().CatN(code_buf+offs, 14); offs += 14;
 			StrAssocArray::Add(fldGTIN14, temp_buf);
-			temp_buf.Z().CatN(code_buf+14, 7);
+			temp_buf.Z().CatN(code_buf+offs, 7); offs += 7;
 			StrAssocArray::Add(fldSerial, temp_buf);
-			temp_buf.Z().CatN(code_buf+21, 4);
+			temp_buf.Z().CatN(code_buf+offs, 4); offs += 4;
 			StrAssocArray::Add(fldPriceRuTobacco, temp_buf);
-			temp_buf.Z().CatN(code_buf+25, 4);
+			temp_buf.Z().CatN(code_buf+offs, 4); offs += 4;
 			StrAssocArray::Add(fldControlRuTobacco, temp_buf);
 			SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
+		}
+		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
+			// 0104600818007879 21t"XzgHU 8005095000 930p2J24014518552
+			//assert(oneof2(code_buf.Len(), 52, 35));
+			if(code_buf.HasPrefix("01")) {
+				code_buf.ShiftLeft(2);
+				temp_buf.Z().CatN(code_buf, 14);
+				StrAssocArray::Add(fldGTIN14, temp_buf);
+				code_buf.ShiftLeft(14);
+				if(code_buf.HasPrefix("21")) {
+					code_buf.ShiftLeft(2);
+					temp_buf.Z().CatN(code_buf, 7);
+					StrAssocArray::Add(fldSerial, temp_buf);
+					code_buf.ShiftLeft(7);
+					if(code_buf.HasPrefix("8005")) {
+						code_buf.ShiftLeft(4);
+						temp_buf.Z().CatN(code_buf, 6);
+						StrAssocArray::Add(fldPrice, temp_buf);
+						code_buf.ShiftLeft(6);
+						if(code_buf.HasPrefix("93")) {
+							code_buf.ShiftLeft(2);
+							temp_buf.Z().Cat(code_buf);
+							StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+							SpecialNaturalToken = SNTOK_CHZN_CIGBLOCK;
+						}
+					}
+				}
+			}
 		}
 		else {
 			const char * p = code_buf.cptr();
@@ -500,11 +529,13 @@ int SLAPI TestGtinStruc()
 				gts.AddOnlyToken(GtinStruc::fldExpiryDate);
 				gts.AddOnlyToken(GtinStruc::fldVariant);
 				gts.AddOnlyToken(GtinStruc::fldMutualCode);
+				//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+				//gts.AddOnlyToken(GtinStruc::fldPrice);
 				int pr = gts.Parse(temp_buf);
-				if(pr == 0 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+				if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
 					gts.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
 					pr = gts.Parse(temp_buf);
-					if(pr == 0 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+					if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
 						gts.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
 						pr = gts.Parse(temp_buf);
 					}

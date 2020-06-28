@@ -17,25 +17,10 @@ using namespace Scintilla;
 #endif
 
 namespace {
-bool IsAlphabetic(uint ch)
-{
-	return IsASCII(ch) && std::isalpha(ch) != 0;
-}
-
-bool IsAlphaNumeric(char ch)
-{
-	return IsASCII(ch) && std::isalnum(ch);
-}
-
-bool EqualCaseInsensitive(const char* a, const char* b)
-{
-	return CompareCaseInsensitive(a, b) == 0;
-}
-
-bool EntryWithoutKey(const char* name)
-{
-	return EqualCaseInsensitive(name, "string");
-}
+bool IsAlphabetic(uint ch) { return IsASCII(ch) && std::isalpha(ch) != 0; }
+bool IsAlphaNumeric(char ch) { return IsASCII(ch) && std::isalnum(ch); }
+//bool EqualCaseInsensitive(const char* a, const char* b) { return CompareCaseInsensitive(a, b) == 0; }
+bool EntryWithoutKey(const char* name) { return sstreqi_ascii(name, "string"); }
 
 char GetClosingBrace(char openbrace)
 {
@@ -47,15 +32,8 @@ char GetClosingBrace(char openbrace)
 	return result;
 }
 
-bool IsEntryStart(char prev, char ch)
-{
-	return prev != '\\' && ch == '@';
-}
-
-bool IsEntryStart(const StyleContext& sc)
-{
-	return IsEntryStart(sc.chPrev, sc.ch);
-}
+bool IsEntryStart(char prev, char ch) { return prev != '\\' && ch == '@'; }
+bool IsEntryStart(const StyleContext& sc) { return IsEntryStart(sc.chPrev, sc.ch); }
 
 void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_style*/, WordList* keywordlists[], Accessor & styler)
 {
@@ -256,10 +234,8 @@ void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_sty
 	styler.SetLevel(current_line, prev_level | flagsNext);
 }
 }
-static const char * const BibTeXWordLists[] = {
-	"Entry Names",
-	0,
-};
+
+static const char * const BibTeXWordLists[] = { "Entry Names", 0, };
 
 LexerModule lmBibTeX(SCLEX_BIBTEX, ColorizeBibTeX, "bib", 0, BibTeXWordLists);
 

@@ -3921,8 +3921,39 @@ int SLAPI PPObjTSession::EditWrOffOrder()
 			return 1;
 		}
 	private:
+		/*DECL_HANDLE_EVENT
+		{
+			ObjRestrictListDialog::handleEvent(event);
+			long   p, i;
+			if(event.isCmd(cmUp)) {
+				if(getCurItem(&p, &i) && p > 0) {
+					Data.swap(p, p-1);
+					updateList(p-1);
+				}
+			}
+			else if(event.isCmd(cmDown)) {
+				if(getCurItem(&p, &i) && p < Data.getCountI()-1) {
+					Data.swap(p, p+1);
+					updateList(p+1);
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}*/
 		//virtual int getObjName(PPID objID, long objFlags, SString &);
 		//virtual int getExtText(PPID objID, long objFlags, SString &);
+		virtual int moveItem(long pos, long id, int up)
+		{
+			int    ok = 1;
+			if(up && pos > 0)
+				Data.swap(pos, pos-1);
+			else if(!up && pos < (Data.getCountI()-1))
+				Data.swap(pos, pos+1);
+			else
+				ok = -1;
+			return ok;
+		}
 		virtual int editItemDialog(ObjRestrictItem * pItem)
 		{
 			const  int prc_ctrl_group = 1;

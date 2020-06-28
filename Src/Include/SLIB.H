@@ -3380,12 +3380,14 @@ int  SLAPI XMLWriteSpecSymbEntities(void * pWriter);
 class STextConst {
 public:
 	enum {
-        cMon_En_Sh  = 1, // [12] Наименования месяцев (en сокращенные)
-        cDow_En_Sh  = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
-		cDow_En     = 3, // [7]  Наименования дней недели (en полные) [0] = "Mon", [6] = "Sun"
-		cAsciiCtrl  = 4, // [32] Мнемоники управляющих символов ASCII кодировки [0..31] "NUL", "SOH", "STX", "ETX", "EOT", "ENQ" eg.
-		cBasis64    = 5, // [1] Таблица кодировки base64
-		cBasis64Url = 6  // [1] Таблица кодировки base64-url (в отличии от cBase64 последние два байта "-_")
+        cMon_En_Sh    = 1, // [12] Наименования месяцев (en сокращенные)
+        cDow_En_Sh    = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
+		cDow_En       = 3, // [7]  Наименования дней недели (en полные) [0] = "Mon", [6] = "Sun"
+		cAsciiCtrl    = 4, // [32] Мнемоники управляющих символов ASCII кодировки [0..31] "NUL", "SOH", "STX", "ETX", "EOT", "ENQ" eg.
+		cBasis64      = 5, // [1] Таблица кодировки base64
+		cBasis64Url   = 6, // [1] Таблица кодировки base64-url (в отличии от cBase64 последние два байта "-_")
+		cAlphabetEngL = 7, // Английский алфавит в нижнем регистре
+		cAlphabetEngU = 8, // Английский алфавит в верхнем регистре
 	};
 	//
 	// Descr: Возвращает текст группы c с индексом idx.
@@ -7924,6 +7926,20 @@ protected:
 	LAssocArray Assoc;
 };
 //
+// Descr: Хэш-таблица ассоциирующая целочисленные идентификаторы (token) со строковыми значениями.
+//   Обратная ассоциация (строка->токен) не предусмотрена.
+//
+class TokenSymbHashTable : public HashTableBase, private SStrGroup {
+public:
+	explicit TokenSymbHashTable(size_t sz);
+	TokenSymbHashTable(TokenSymbHashTable & rS);
+	TokenSymbHashTable & FASTCALL operator = (const TokenSymbHashTable &);
+	int    Put(long token, const char * pSymb);
+	int    Get(long token, SString * pSymb) const;
+private:
+	size_t FASTCALL Hash(long key) const;
+};
+//
 // Descr: строковая хэш-таблица. Реализует хранение ассоциаций строковых символов
 //   с 4-байтовыми значениями.
 //
@@ -8270,35 +8286,6 @@ public:
 	int    FASTCALL Read(SBuffer & rBuf);
 
 	uint32 * P_Data;
-};
-//
-//
-//
-class SAlloc {
-public:
-	class Stat { // @v10.5.12 @construction
-	public:
-		struct AllocEntry {
-			uint   Size;
-			uint64 Count;
-		};
-		struct ReallocEntry {
-			uint   FromSize;
-			uint   ToSize;
-			uint64 Count;
-		};
-		Stat();
-		void    RegisterAlloc(uint size);
-		void    RegisterRealloc(uint fromSize, uint toSize);
-		void    Merge(const Stat & rS);
-	private:
-		TSVector <AllocEntry> AL;
-		TSVector <ReallocEntry> RL;
-	};
-	static void * FASTCALL M(size_t sz);
-	static void * FASTCALL C(size_t n, size_t sz);
-	static void * FASTCALL R(void * ptr, size_t sz);
-	static void   FASTCALL F(void * ptr);
 };
 //
 // Descr: Класс для разбора сложных текстов.
@@ -9178,6 +9165,8 @@ public:
 		Json             = 116, // @v9.7.2
 		Pbxproj          = 117, // @v9.8.1 Файл проекта xcode
 		PapyruDbDivXchg  = 118, // @v9.8.11 Приватный формат проекта Papyrus: файл обмена данными между разделами
+		Csv              = 119, // @v10.8.0 comma-separated-values
+		Xsd              = 120, // @v10.8.0 xml-schema-documentation
 
 		FirstUser        = 10000
 	};
@@ -10114,6 +10103,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_CHZN_SIGN_SGTIN  29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
 #define SNTOK_CHZN_SSCC        30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
 #define SNTOK_CHZN_CIGITEM     31 // честный знак Маркировка пачки сигарет
+#define SNTOK_CHZN_CIGBLOCK    32 // честный знак Маркировка блока сигарет
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -10961,6 +10951,11 @@ ulong  FASTCALL Lcm(ulong a, ulong b);
 //
 int    FASTCALL IsPrime(ulong val);
 //
+// Descr: Возвращает указатель на таблицу простых чисел. Количество элементов в таблице
+//   возвращается по указателю pCount.
+//
+const  ushort * FASTCALL GetPrimeTab(size_t * pCount);
+//
 // Descr: Специальная функция, сжимающая 64-битное целое число до минимально возможного
 //   размера (кратного байту), убирая ведущие нули.
 // Note: Функция используется для компактного хранения целого числа если одновременно
@@ -11644,7 +11639,7 @@ struct SColorBase { // @persistent
 	operator COLORREF() const;
 	operator RGBQUAD() const;
 	int    IsEmpty() const { return (!B && !G && !R && !Alpha); }
-	SColorBase SetEmpty();
+	SColorBase Z();
 	SColorBase Set(uint r, uint g, uint b);
 	SColorBase FASTCALL Set(uint v);
 	SColorBase PremultiplyAlpha();
@@ -12772,6 +12767,39 @@ private:
 	#define SRWLOCKER_TOGGLE(typ)          SRWLOCKERVAR__.Toggle((typ))
 #endif
 //
+//
+//
+class SAlloc {
+public:
+	class Stat { // @v10.5.12 @construction
+	public:
+		struct AllocEntry {
+			uint   Size;
+			uint64 Count;
+		};
+		struct ReallocEntry {
+			uint   FromSize;
+			uint   ToSize;
+			uint64 Count;
+		};
+		Stat();
+		void    FASTCALL RegisterAlloc(uint size);
+		void    RegisterRealloc(uint fromSize, uint toSize);
+		void    FASTCALL Merge(const Stat & rS);
+		void    Shrink();
+		int     Output(SString & rBuf);
+	private:
+		TSVector <AllocEntry> AL;
+		TSVector <ReallocEntry> RL;
+		SMtLock Lck_A; // AL-vector lock
+		SMtLock Lck_R; // RL-vector lock
+	};
+	static void * FASTCALL M(size_t sz);
+	static void * FASTCALL C(size_t n, size_t sz);
+	static void * FASTCALL R(void * ptr, size_t sz);
+	static void   FASTCALL F(void * ptr);
+};
+//
 // Descr: Канал (pipe) позволяющий писать с одного конца и читать с другого.
 //   Допускается не более одного читателя и не более одного писателя одновременно.
 //   Естественно, читать и писать одновременно нельзя. Запрет реализуется простой
@@ -13317,6 +13345,7 @@ public:
 	void   SLAPI LockPop();
 	SString  & SLAPI AcquireRvlStr();
 	SStringU & SLAPI AcquireRvlStrU();
+	SAlloc::Stat & SLAPI GetAllocStat() { return AllocStat; }
 private:
 	long   TlsIdx;          // @firstmember
 	const  SSystem SSys;    //
@@ -13352,6 +13381,7 @@ private:
 
 	GlobalObjectArray GlobObjList;
 	SymbHashTable GlobSymbList;
+	SAlloc::Stat AllocStat;
 	// @v9.8.1 (теперь используется SeqValue) ACount LastGlobSymbId;
 };
 

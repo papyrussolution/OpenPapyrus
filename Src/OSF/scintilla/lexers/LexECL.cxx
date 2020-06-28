@@ -17,9 +17,9 @@
 #pragma option -w-ccc -w-rch
 #endif
 
-#define SET_LOWER "abcdefghijklmnopqrstuvwxyz"
-#define SET_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#define SET_DIGITS "0123456789"
+//#define SET_LOWER "abcdefghijklmnopqrstuvwxyz"
+//#define SET_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+//#define SET_DIGITS "0123456789"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;

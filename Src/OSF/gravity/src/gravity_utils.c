@@ -259,7 +259,8 @@ const char * directory_read(DIRREF ref, char * out)
 int string_nocasencmp(const char * s1, const char * s2, size_t n) 
 {
 	while(n > 0 && tolower((uchar)*s1) == tolower((uchar)*s2)) {
-		if(*s1 == '\0') return 0;
+		if(*s1 == '\0') 
+			return 0;
 		s1++;
 		s2++;
 		n--;
@@ -281,20 +282,19 @@ int FASTCALL string_casencmp(const char * s1, const char * s2, size_t n)
 	return ((uchar)*s1) - ((uchar)*s2);
 }
 
-int FASTCALL string_cmp(const char * s1, const char * s2) 
+/*int FASTCALL string_cmp(const char * s1, const char * s2) 
 {
 	if(!s1) return 1;
 	return strcmp(s1, s2);
-}
-
-const char * string_dup(const char * s1) 
+}*/
+/*const char * string_dup_(const char * s1) 
 {
 	size_t len = (size_t)strlen(s1);
 	char    * s = (char *)mem_alloc(NULL, len + 1);
 	if(!s) return NULL;
 	memcpy(s, s1, len);
 	return s;
-}
+}*/
 
 const char * string_ndup(const char * s1, size_t n) 
 {
@@ -500,15 +500,16 @@ uint32 utf8_encode(char * buffer, uint32 value)
 
 uint32 FASTCALL utf8_len(const char * s, uint32 nbytes) 
 {
-	if(nbytes == 0) 
-		nbytes = (uint32)strlen(s);
-	uint32 pos = 0;
 	uint32 len = 0;
-	while(pos < nbytes) {
-		++len;
-		uint32 n = utf8_charbytes(s, pos);
-		if(n == 0) return 0; // means error
-		pos += n;
+	if(s) {
+		SETIFZ(nbytes, (uint32)strlen(s));
+		uint32 pos = 0;
+		while(pos < nbytes) {
+			++len;
+			uint32 n = utf8_charbytes(s, pos);
+			if(n == 0) return 0; // means error
+			pos += n;
+		}
 	}
 	return len;
 }

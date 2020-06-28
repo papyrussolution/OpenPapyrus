@@ -1343,7 +1343,7 @@ static int png_image_write_init(png_imagep image)
 		}
 		png_destroy_write_struct(&png_ptr, 0);
 	}
-	return png_image_error(image, "png_image_write_: out of memory");
+	return png_image_error(image, __FUNCTION__ ": out of memory");
 }
 
 /* Arguments to png_image_write_main: */

@@ -9,14 +9,15 @@
 #pragma hdrstop
 
 // symbol table implementation using a stack of hash tables
-typedef marray_t (gravity_hash_t*)       ghash_r;
+//typedef marray_t (gravity_hash_t*)       ghash_r;
+typedef GravityArray <gravity_hash_t *> ghash_r;
 
 #define scope_stack_init(r)             marray_init(*r)
-#define scope_stack_size(r)             marray_size(*r)
-#define scope_stack_get(r, n)            marray_get(*r, n)
-#define scope_stack_free(r)             marray_destroy(*r)
-#define scope_stack_push(r, hash)        marray_push(gravity_hash_t*, *r, hash)
-#define scope_stack_pop(r)              (marray_size(*r) ? marray_pop(*r) : NULL)
+#define scope_stack_size(r)             (r)->getCount()
+#define scope_stack_get(r, n)            (r)->at(n)
+#define scope_stack_free(r)             (r)->Z()
+#define scope_stack_push(r, hash)        (r)->insert(hash)
+#define scope_stack_pop(r)              ((r)->getCount() ? (r)->pop() : NULL)
 
 //#define VALUE_FROM_NODE(x)              ((GravityValue){.isa = NULL, .p = (gravity_object_t *)(x)})
 #define VALUE_FROM_NODE(x)              (GravityValue::from_node(x))

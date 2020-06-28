@@ -492,7 +492,7 @@ static xmlGlobalState * xmlNewGlobalState()
 {
 	xmlGlobalState * gs = static_cast<xmlGlobalState *>(malloc(sizeof(xmlGlobalState)));
 	if(gs == NULL)
-		xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
+		xmlGenericError(0, __FUNCTION__ ": out of memory\n");
 	else {
 		memzero(gs, sizeof(xmlGlobalState));
 		xmlInitializeGlobalState(gs);
@@ -594,7 +594,7 @@ xmlGlobalState * xmlGetGlobalState()
 			return 0;
 		p = static_cast<xmlGlobalStateCleanupHelperParams *>(malloc(sizeof(xmlGlobalStateCleanupHelperParams)));
 		if(!p) {
-			xmlGenericError(0, "xmlGetGlobalState: out of memory\n");
+			xmlGenericError(0, __FUNCTION__ ": out of memory\n");
 			xmlFreeGlobalState(tsd);
 			return 0;
 		}

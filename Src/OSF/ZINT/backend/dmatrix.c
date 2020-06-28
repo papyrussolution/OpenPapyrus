@@ -64,28 +64,28 @@ extern int data_matrix_200(struct ZintSymbol *symbol, const uchar source[], cons
 #define DM_EDIFACT	5
 #define DM_BASE256	6
 
-static const int c40_shift[] = {
+static const int8 c40_shift[] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
 };
 
-static const int c40_value[] = {
+static const int8 c40_value[] = { // @sobolev int-->int8
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
     3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
     15, 16, 17, 18, 19, 20, 21, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
     22, 23, 24, 25, 26, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
 };
 
-static const int text_shift[] = {
+static const int8 text_shift[] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
     2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3
 };
 
-static const int text_value[] = {
+static const int8 text_value[] = { // @sobolev int-->int8
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
     3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
     15, 16, 17, 18, 19, 20, 21, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
@@ -95,7 +95,7 @@ static const int text_value[] = {
 // Position in option array [symbol option value - 1]
 // The position in the option array is by increasing total data codewords with square first
 
-static const int intsymbol[] = {
+static const int8 intsymbol[] = { // @sobolev int-->int8
     0, /*  1: 10x10 ,  3*/ 1, /*  2: 12x12 ,  5*/ 3, /*  3: 14x14 ,  8*/ 5, /*  4: 16x16 , 12*/
     7, /*  5: 18x18 , 18*/ 9, /*  6: 20x20 , 22*/ 12, /*  7: 22x22 , 30*/ 14, /*  8: 24x24 , 36*/
     16, /*  9: 26x26 , 44*/ 21, /* 10: 32x32 , 62*/ 25, /* 11: 36x36 , 86*/ 28, /* 12: 40x40 ,114*/
@@ -116,7 +116,7 @@ static const int intsymbol[] = {
 // Is the current code a DMRE code ?
 // This is the case, if intsymbol index >= 30
 
-static const int isDMRE[] = {
+static const int8 isDMRE[] = { // @sobolev int-->int8
     /*0*/ 0, /* 10x10 ,3 */ 0, /* 12x12 ,5 */ 0, /*  8x18 ,5 */ 0, /* 14x14 , 8 */
     /*4*/ 0, /*  8x32 ,10 */ 0, /* 16x16 ,12 */ 0, /* 12x26 ,16 */ 0, /* 18x18 ,18 */
     /*8*/ 1, /*  8x48 ,18 */ 0, /* 20x20 ,22 */ 0, /* 12x36 ,22 */ 1, /*  8x64 ,24 */
@@ -132,7 +132,7 @@ static const int isDMRE[] = {
 
 // Horizontal matrix size
 
-static const int matrixH[] = {
+static const int16 matrixH[] = { // @sobolev int-->int16
     /*0*/ 10, /* 10x10 ,3 */ 12, /* 12x12 ,5 */ 8, /*  8x18 ,5 */ 14, /* 14x14 , 8 */
     /*4*/ 8, /*  8x32 ,10 */ 16, /* 16x16 ,12 */ 12, /* 12x26 ,16 */ 18, /* 18x18 ,18 */
     /*8*/ 8, /*  8x48 ,18 */ 20, /* 20x20 ,22 */ 12, /* 12x36 ,22 */ 8, /*  8x64 ,24 */
@@ -148,7 +148,7 @@ static const int matrixH[] = {
 
 // Vertical matrix sizes
 
-static const int matrixW[] = {
+static const int16 matrixW[] = { // @sobolev int-->int16
     /*0*/ 10, /* 10x10 */ 12, /* 12x12 */ 18, /*  8x18 */ 14, /* 14x14 */
     /*4*/ 32, /*  8x32 */ 16, /* 16x16 */ 26, /* 12x26 */ 18, /* 18x18 */
     /*8*/ 48, /*  8x48 */ 20, /* 20x20 */ 36, /* 12x36 */ 64, /*  8x64 */
@@ -164,7 +164,7 @@ static const int matrixW[] = {
 
 // Horizontal submodule size (including subfinder)
 
-static const int matrixFH[] = {
+static const int8 matrixFH[] = { // @sobolev int-->int8
     /*0*/ 10, /* 10x10 */ 12, /* 12x12 */ 8, /*  8x18 */ 14, /* 14x14 */
     /*4*/ 8, /*  8x32 */ 16, /* 16x16 */ 12, /* 12x26 */ 18, /* 18x18 */
     /*8*/ 8, /*  8x48 */ 20, /* 20x20 */ 12, /* 12x36 */ 8, /*  8x64 */
@@ -180,7 +180,7 @@ static const int matrixFH[] = {
 
 // Vertical submodule size (including subfinder)
 
-static const int matrixFW[] = {
+static const int8 matrixFW[] = { // @sobolev int-->int8
     /*0*/ 10, /* 10x10 */ 12, /* 12x12 */ 18, /*  8x18 */ 14, /* 14x14 */
     /*4*/ 16, /*  8x32 */ 16, /* 16x16 */ 26, /* 12x26 */ 18, /* 18x18 */
     /*8*/ 24, /*  8x48 */ 20, /* 20x20 */ 18, /* 12x36 */ 16, /*  8x64 */
@@ -196,7 +196,7 @@ static const int matrixFW[] = {
 
 // Total Data Codewords
 
-static const int matrixbytes[] = {
+static const int16 matrixbytes[] = { // @sobolev int-->int16
     /*0*/ 3, /* 10x10 */ 5, /* 12x12 */ 5, /* 8x18 */ 8, /* 14x14 */
     /*4*/ 10, /* 8x32 */ 12, /* 16x16 */ 16, /* 12x26 */ 18, /* 18x18 */
     /*8*/ 18, /* 8x48 */ 22, /* 20x20 */ 22, /* 12x36 */ 24, /* 8x64 */
@@ -212,7 +212,7 @@ static const int matrixbytes[] = {
 
 // Data Codewords per RS-Block
 
-static const int matrixdatablock[] = {
+static const int16 matrixdatablock[] = { // @sobolev int-->int16
     /*0*/ 3, /* 10x10 */ 5, /* 12x12 */ 5, /* 8x18 */ 8, /* 14x14 */
     /*4*/ 10, /* 8x32 */ 12, /* 16x16 */ 16, /* 12x26 */ 18, /* 18x18 */
     /*8*/ 18, /* 8x48 */ 22, /* 20x20 */ 22, /* 12x36 */ 24, /* 8x64 */
@@ -228,7 +228,7 @@ static const int matrixdatablock[] = {
 
 // ECC Codewords per RS-Block
 
-static const int matrixrsblock[] = {
+static const int8 matrixrsblock[] = { // @sobolev int-->int8
     /*0*/ 5, /* 10x10 */ 7, /* 12x12 */ 7, /*  8x18 */ 10, /* 14x14 */
     /*4*/ 11, /*  8x32 */ 12, /* 16x16 */ 14, /* 12x26 */ 14, /* 18x18 */
     /*8*/ 15, /*  8x48 */ 18, /* 20x20 */ 18, /* 12x36 */ 18, /*  8x64 */

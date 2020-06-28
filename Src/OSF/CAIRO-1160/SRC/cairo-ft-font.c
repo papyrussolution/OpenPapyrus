@@ -2719,20 +2719,14 @@ static boolint _ft_is_type1(FT_Face face)
 {
 #if HAVE_FT_GET_X11_FONT_FORMAT
 	const char * font_format = FT_Get_X11_Font_Format(face);
-	if(font_format &&
-	    (strcmp(font_format, "Type 1") == 0 ||
-	    strcmp(font_format, "CFF") == 0)) {
+	if(font_format && (sstreq(font_format, "Type 1") || sstreq(font_format, "CFF"))) {
 		return TRUE;
 	}
 #endif
-
 	return FALSE;
 }
 
-static cairo_int_status_t _cairo_ft_load_type1_data(void * abstract_font,
-    long offset,
-    uchar * buffer,
-    ulong * length)
+static cairo_int_status_t _cairo_ft_load_type1_data(void * abstract_font, long offset, uchar * buffer, ulong * length)
 {
 	cairo_ft_scaled_font_t * scaled_font = abstract_font;
 	cairo_ft_unscaled_font_t * unscaled = scaled_font->unscaled;

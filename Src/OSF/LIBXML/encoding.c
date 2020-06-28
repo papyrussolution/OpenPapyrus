@@ -272,13 +272,9 @@ static void closeIcuConverter(uconv_t * conv)
 }
 
 #endif /* LIBXML_ICU_ENABLED */
-
-/************************************************************************
-*									*
-*		Conversions To/From UTF8 encoding			*
-*									*
-************************************************************************/
-
+//
+// Conversions To/From UTF8 encoding
+//
 /**
  * asciiToUTF8:
  * @out:  a pointer to an array of bytes to store the result
@@ -1132,9 +1128,9 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	int i;
 	if(!name)
 		return (XML_CHAR_ENCODING_NONE);
-	/*
-	 * Do the alias resolution
-	 */
+	// 
+	// Do the alias resolution
+	// 
 	alias = xmlGetEncodingAlias(name);
 	if(alias)
 		name = alias;
@@ -1254,7 +1250,7 @@ xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char * name, xmlCharEnc
 	 * Keep only the uppercase version of the encoding.
 	 */
 	if(!name) {
-		xmlEncodingErr(XML_I18N_NO_NAME, "xmlNewCharEncodingHandler : no name !\n", 0);
+		xmlEncodingErr(XML_I18N_NO_NAME, __FUNCTION__ ": no name !\n", 0);
 	}
 	else {
 		for(i = 0; i < sizeof(upper)-1; i++) {
@@ -1265,7 +1261,7 @@ xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char * name, xmlCharEnc
 		upper[i] = 0;
 		up = sstrdup(upper);
 		if(up == NULL) {
-			xmlEncodingErrMemory("xmlNewCharEncodingHandler : out of memory !\n");
+			xmlEncodingErrMemory(__FUNCTION__ ": out of memory !\n");
 		}
 		else {
 			//
@@ -1274,7 +1270,7 @@ xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char * name, xmlCharEnc
 			handler = (xmlCharEncodingHandler *)SAlloc::M(sizeof(xmlCharEncodingHandler));
 			if(handler == NULL) {
 				SAlloc::F(up);
-				xmlEncodingErrMemory("xmlNewCharEncodingHandler : out of memory !\n");
+				xmlEncodingErrMemory(__FUNCTION__ ": out of memory !\n");
 			}
 			else {
 				memzero(handler, sizeof(xmlCharEncodingHandler));
@@ -2042,10 +2038,10 @@ retry:
 		    xmlChar * content = xmlBufContent(in);
 		    int cur = xmlGetUTF8Char(content, &len);
 		    if(charref_len && c_out < charref_len) {
-			    /*
-			 * We attempted to insert a character reference and failed.
-			 * Undo what was written and skip the remaining charref.
-			     */
+			    // 
+			    // We attempted to insert a character reference and failed.
+			    // Undo what was written and skip the remaining charref.
+			    // 
 			    xmlBufErase(out, c_out);
 			    writtentot -= c_out;
 			    xmlBufShrink(in, charref_len - c_out);
@@ -2059,11 +2055,11 @@ retry:
 			    xmlGenericError(0, "handling output conversion error\n");
 			    xmlGenericError(0, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", content[0], content[1], content[2], content[3]);
 #endif
-			    /*
-			 * Removes the UTF8 sequence, and replace it by a charref
-			 * and continue the transcoding phase, hoping the error
-			 * did not mangle the encoder state.
-			     */
+			    // 
+			    // Removes the UTF8 sequence, and replace it by a charref
+			    // and continue the transcoding phase, hoping the error
+			    // did not mangle the encoder state.
+			    // 
 			    charref_len = snprintf((char *)&charref[0], sizeof(charref), "&#%d;", cur);
 			    xmlBufShrink(in, len);
 			    xmlBufAddHead(in, charref, -1);
@@ -2391,10 +2387,10 @@ long xmlByteConsumed(xmlParserCtxt * ctxt)
  */
 static int UTF8ToISO8859x(uchar* out, int * outlen, const uchar* in, int * inlen, uchar const * xlattable)
 {
-	const uchar* outstart = out;
-	const uchar* inend;
-	const uchar* instart = in;
-	const uchar* processed = in;
+	const uchar * outstart = out;
+	const uchar * inend;
+	const uchar * instart = in;
+	const uchar * processed = in;
 	if(!out || !outlen || !inlen || !xlattable)
 		return -1;
 	if(!in) {
@@ -2515,7 +2511,7 @@ static int ISO8859xToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen
 		const uchar * instop = inend;
 		while((in < inend) && (out < outend - 2)) {
 			if(*in >= 0x80) {
-				uint c = unicodetable [*in - 0x80];
+				uint c = unicodetable[*in - 0x80];
 				if(c == 0) {
 					// undefined code point
 					*outlen = out - outstart;
@@ -3428,7 +3424,7 @@ static uchar const xmltranscodetable_ISO8859_9 [] /* @sobolev 48 + 5 * 64*/  = {
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 };
 
-static ushort const xmlunicodetable_ISO8859_10 [128] = {
+static ushort const xmlunicodetable_ISO8859_10[128] = {
 	0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
 	0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
 	0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -3447,7 +3443,7 @@ static ushort const xmlunicodetable_ISO8859_10 [128] = {
 	0x00f8, 0x0173, 0x00fa, 0x00fb, 0x00fc, 0x00fd, 0x00fe, 0x0138,
 };
 
-static uchar const xmltranscodetable_ISO8859_10 [] /* @sobolev 48 + 7 * 64*/  = {
+static uchar const xmltranscodetable_ISO8859_10[] /* @sobolev 48 + 7 * 64*/ = {
 	"\x00\x00\x01\x06\x02\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -3481,7 +3477,7 @@ static uchar const xmltranscodetable_ISO8859_10 [] /* @sobolev 48 + 7 * 64*/  = 
 	"\xf0\x00\x00\xf3\xf4\xf5\xf6\x00\xf8\x00\xfa\xfb\xfc\xfd\xfe\x00"
 };
 
-static ushort const xmlunicodetable_ISO8859_11 [128] = {
+static ushort const xmlunicodetable_ISO8859_11[128] = {
 	0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
 	0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
 	0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -3500,7 +3496,7 @@ static ushort const xmlunicodetable_ISO8859_11 [128] = {
 	0x0e58, 0x0e59, 0x0e5a, 0x0e5b, 0x0000, 0x0000, 0x0000, 0x0000,
 };
 
-static uchar const xmltranscodetable_ISO8859_11 [] /* @sobolev 48 + 6 * 64*/  = {
+static uchar const xmltranscodetable_ISO8859_11[] /* @sobolev 48 + 6 * 64*/  = {
 	"\x04\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -3530,7 +3526,7 @@ static uchar const xmltranscodetable_ISO8859_11 [] /* @sobolev 48 + 6 * 64*/  = 
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 };
 
-static ushort const xmlunicodetable_ISO8859_13 [128] = {
+static ushort const xmlunicodetable_ISO8859_13[128] = {
 	0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
 	0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
 	0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -3549,7 +3545,7 @@ static ushort const xmlunicodetable_ISO8859_13 [128] = {
 	0x0173, 0x0142, 0x015b, 0x016b, 0x00fc, 0x017c, 0x017e, 0x2019,
 };
 
-static uchar const xmltranscodetable_ISO8859_13 [] /* @sobolev 48 + 7 * 64*/  = {
+static uchar const xmltranscodetable_ISO8859_13[] /* @sobolev 48 + 7 * 64*/  = {
 	"\x00\x00\x01\x04\x06\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 	"\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -3583,7 +3579,7 @@ static uchar const xmltranscodetable_ISO8859_13 [] /* @sobolev 48 + 7 * 64*/  = 
 	"\x00\x00\x00\x00\x00\x00\xcd\xed\x00\x00\x00\xcf\xef\x00\x00\x00"
 };
 
-static ushort const xmlunicodetable_ISO8859_14 [128] = {
+static ushort const xmlunicodetable_ISO8859_14[128] = {
 	0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
 	0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
 	0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -3788,21 +3784,62 @@ static int ISO8859_15ToUTF8(uchar* out, int * outlen, const uchar* in, int * inl
 static int UTF8ToISO8859_15(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_15); }
 static int ISO8859_16ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_16); }
 static int UTF8ToISO8859_16(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_16); }
-
-/* @construction class LibXml_CpHandler_1251 {
+//
+//
+//
+// Note: Это класс реализует 2 функции конвертации между кодовой страницей 1251 и UTF8.
+//   Увы, работает это не правильно. Тем не менее, хандлер для этой кодовой страницы создается
+//   для того чтобы парсер не пытался завершить работу из-за неизвестной кодовой страницы (WINDOWS-1251).
+//   На вход парсеру все равно надо подавать уже отконвертированные в utf8 данные.
+//
+class LibXml_CpHandler_1251 {
 public:
 	static int _ToUTF8(uchar * out, int * outlen, const uchar * in, int * inlen)
 	{
-		SString temp_buf;
-		temp_buf.CatN((const char *)in, *inlen);
-		temp_buf.Helper_MbToMb(cp1251, cpUTF8);
-		//return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_16);
+		if(!out || !outlen || !inlen || !in)
+			return -1;
+		else if(!in || !*inlen) {
+			// initialization nothing to do
+			*outlen = 0;
+			*inlen = 0;
+			return 0;
+		}
+		else {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.CatN((const char *)in, *inlen);
+			*inlen = r_temp_buf.Len();
+			r_temp_buf.Helper_MbToMb(cp1251, cpUTF8);
+			assert(r_temp_buf.IsLegalUtf8()); // @debug
+			if(*outlen > 0)
+				r_temp_buf.Trim(*outlen);
+			r_temp_buf.CopyTo(reinterpret_cast<char *>(out), r_temp_buf.Len());
+			*outlen = r_temp_buf.Len();
+			return *outlen;
+		}
 	}
 	static int UTF8To_(uchar * out, int * outlen, const uchar * in, int * inlen)
 	{
-		return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_16);
+		if(!out || !outlen || !inlen)
+			return -1;
+		else if(!in || !*inlen) {
+			// initialization nothing to do
+			*outlen = 0;
+			*inlen = 0;
+			return 0;
+		}
+		else {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.CatN((const char *)in, *inlen);
+			*inlen = r_temp_buf.Len();
+			r_temp_buf.Helper_MbToMb(cp1251, cpUTF8);
+			if(*outlen > 0)
+				r_temp_buf.Trim(*outlen);
+			r_temp_buf.CopyTo(reinterpret_cast<char *>(out), r_temp_buf.Len());
+			*outlen = r_temp_buf.Len();
+			return *outlen;
+		}
 	}
-};*/
+};
 
 static void xmlRegisterCharEncodingHandlersISO8859x()
 {
@@ -3820,6 +3857,7 @@ static void xmlRegisterCharEncodingHandlersISO8859x()
 	xmlNewCharEncodingHandler("ISO-8859-14", ISO8859_14ToUTF8, UTF8ToISO8859_14);
 	xmlNewCharEncodingHandler("ISO-8859-15", ISO8859_15ToUTF8, UTF8ToISO8859_15);
 	xmlNewCharEncodingHandler("ISO-8859-16", ISO8859_16ToUTF8, UTF8ToISO8859_16);
+	xmlNewCharEncodingHandler("WINDOWS-1251", LibXml_CpHandler_1251::_ToUTF8, LibXml_CpHandler_1251::UTF8To_); // @v10.8.0
 }
 
 #endif

@@ -104,9 +104,9 @@ CharacterSet::CharacterSet(setBase base /*= setNone*/, const char * initialSet /
 		bset[i] = false;
 	AddString(initialSet);
 	if(base & setLower)
-		AddString("abcdefghijklmnopqrstuvwxyz");
+		AddString(STextConst::Get(STextConst::cAlphabetEngL, 0));
 	if(base & setUpper)
-		AddString("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		AddString(STextConst::Get(STextConst::cAlphabetEngU, 0));
 	if(base & setDigits)
 		AddString("0123456789");
 }

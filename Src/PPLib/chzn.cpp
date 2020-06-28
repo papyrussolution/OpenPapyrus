@@ -137,6 +137,8 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 	rS.AddOnlyToken(GtinStruc::fldSscc18);
 	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
 	rS.AddOnlyToken(GtinStruc::fldVariant);
+	//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
+	//rS.AddOnlyToken(GtinStruc::fldPrice);
 	int   pr = 0;
 	{
 		SString raw_buf;
@@ -158,10 +160,10 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 			}
 		}
 		pr = rS.Parse(pCode);
-		if(pr == 0 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+		if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 			rS.SetSpecialFixedToken(GtinStruc::fldSerial, 12);
 			pr = rS.Parse(pCode);
-			if(pr == 0 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+			if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 				rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
 				pr = rS.Parse(pCode);
 			}
@@ -170,6 +172,8 @@ int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 			if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 				if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGITEM)
 					ok = SNTOK_CHZN_CIGITEM;
+				else if(rS.GetSpecialNaturalToken() == SNTOK_CHZN_CIGBLOCK)
+					ok = SNTOK_CHZN_CIGBLOCK;
 				else if(temp_buf.Len() == 13)
 					ok = SNTOK_CHZN_SIGN_SGTIN;
 				else
@@ -347,7 +351,10 @@ public:
 		qToken,
 		qDocOutcome,
 		qCurrentUserInfo,
-		qGetIncomeDocList,
+		qGetDocList,
+		qGetIncomingDocList,
+		qGetOutcomingDocList,
+		qGetDoc,
 		qDocumentSend,
 		qGetTicket
 	};
@@ -474,20 +481,80 @@ public:
 		long   Flags;
 		void * P_Data;
 	};
+	enum {
+		doctypUnkn = 0,
+		doctOstDescription,
+		doctAggregation,
+		doctDisaggregation,
+		doctReaggregation,
+		doctLpIntroduceGoods,
+		doctLkIndiCommissioning,
+		doctLpGoodsImport,
+		doctCrossborder,
+		doctLpIntroduceGoodsCrossborderCSD,
+		doctIntroduceOST,
+		doctLkContractCommissioning,
+		doctLpReturn,
+		doctLpShipGoods,
+		doctLpShipReceipt,
+		doctLpCancelShipment,
+		doctLpAcceptGoods,
+		doctLkReceipt,
+		doctLkRemark,
+		doctKmCancellation,
+		doctAppliedKmCancellation
+	};
+	//
+	// Descr: Статус документа
+	//
+	enum {
+		docstUnkn = 0,
+		docstInProgress, // IN_PROGRESS – Проверяется
+		docstCheckedOk,  // CHECKED_OK – Обработан
+		docstCheckedNoOk, // CHECKED_NOT_OK – Обработан с ошибками
+		docstProcessingError, // PROCESSING_ERROR – Техническая ошибка
+		docstUndefined, // UNDEFINED – не определен
+		docstCancelled, // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
+		docstAccepted, // ACCEPTED – Принят. Только для документа 'Отгрузка'
+		docstWaitAcceptance, // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
+		docstParticipantRegistration // WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
+	};
 	class Document {
 	public:
-		SLAPI  Document();
+		SLAPI  Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
+			Format(SFileFormat::Unkn), Status(docstUnkn), DownloadStatus(0), Flags(0)
+		{
+		}
 		int    SLAPI Parse();
 		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
 		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
+
+		enum {
+			fInput = 0x0001 // Входящий документ. Иначе - исходящий
+		};
+		S_GUID Uuid;
+		LDATETIME Dtm;
+		LDATETIME ReceivedDtm;
+		int  Type;
+		int  Format; // SFileFormat::xxx
+		int  Status;
+		int  DownloadStatus;
+		int  Flags;
+		SString SenderName;
+		SString ReceiverName;
+		SString Body;
+		SString Content;
 	};
+	int    SLAPI ParseDocument(const json_t * pJsonObj, Document & rItem);
+	int    SLAPI ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
 	int    SLAPI SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
 	int    SLAPI GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf) const;
 	//SString & SLAPI MakeTargetUrl(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	//SString & SLAPI MakeTargetUrl2(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	SString & SLAPI MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
 	enum {
-		mhffTokenOnly = 0x0001
+		mhffTokenOnly  = 0x0001,
+		mhffAuthBearer = 0x0002 // auth: Bearer else auth: Token
 	};
 	SString & SLAPI MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf);
 	const CERT_CONTEXT * SLAPI GetClientSslCertificate(InitBlock & rIb);
@@ -499,14 +566,36 @@ public:
 	uint   SLAPI GetLastWinInternetResponse(SString & rMsgBuf);
 	uint   SLAPI ReadReply(HINTERNET hReq, SString & rBuf);
 	int    SLAPI GetUserInfo2(InitBlock & rIb);
-	int    SLAPI GetIncomeDocList2(InitBlock & rIb);
+	int    SLAPI GetIncomeDocList2_temp(InitBlock & rIb);
+	enum {
+		docfoldDocs     = 0,
+		docfoldArc      = 1,
+		docfoldBin      = 2,
+		docfoldToSign   = 3,
+		docfoldRejected = 4
+	};
+	struct DocumentFilt {
+		SLAPI  DocumentFilt() : Flags(0), Folder(docfoldDocs), CountLimit(0), CountOffset(0)
+		{
+			Period.Z();
+		}
+		enum {
+			fIncoming  = 0x0001,
+			fOutcoming = 0x0002
+		};
+		int    Flags;
+		int    Folder;
+		uint   CountOffset;
+		uint   CountLimit;
+		DateRange Period;
+	};
+	int    SLAPI GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList);
+	int    SLAPI GetDocument(InitBlock & rIb, const S_GUID & rUuid, Document & rList);
 	int    SLAPI ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
 	int    SLAPI TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
 	int    SLAPI GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
-	int    SLAPI GetIncomeDocList_(InitBlock & rIb);
 	int    SLAPI Connect(InitBlock & rIb);
-	int    SLAPI Connect2(InitBlock & rIb);
-	int    SLAPI Connect3(InitBlock & rIb);
+	// @v10.8.0 int    SLAPI Connect2(InitBlock & rIb);
 	int    SLAPI GetToken2(const char * pAuthCode, InitBlock & rIb);
 	int    SLAPI GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
 	int    SLAPI CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
@@ -518,8 +607,201 @@ private:
 	int    SLAPI CreatePendingFile(const char * pPath, const char * pIdent);
 };
 
-SLAPI ChZnInterface::Document::Document()
+static const SIntToSymbTabEntry ChZnDocStatusList[] = {
+	{ ChZnInterface::docstInProgress, "IN_PROGRESS" },// IN_PROGRESS – Проверяется
+	{ ChZnInterface::docstCheckedOk, "CHECKED_OK" }, // CHECKED_OK – Обработан
+	{ ChZnInterface::docstCheckedNoOk, "CHECKED_NOT_OK" },// CHECKED_NOT_OK – Обработан с ошибками
+	{ ChZnInterface::docstProcessingError, "PROCESSING_ERROR" }, // PROCESSING_ERROR – Техническая ошибка
+	{ ChZnInterface::docstUndefined, "UNDEFINED" },// UNDEFINED – не определен
+	{ ChZnInterface::docstCancelled, "CANCELLED" },// CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
+	{ ChZnInterface::docstAccepted, "ACCEPTED" },// ACCEPTED – Принят. Только для документа 'Отгрузка'
+	{ ChZnInterface::docstWaitAcceptance, "WAIT_ACCEPTANCE" },// WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
+	{ ChZnInterface::docstParticipantRegistration,  "WAIT_PARTICIPANT_REGISTRATION" }// WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
+};
+
+static const SIntToSymbTabEntry ChZnDocTypeList[] = {
+	{ ChZnInterface::doctOstDescription, "OST_DESCRIPTION" }, // OST_DESCRIPTION; Описание остатков товара;json;Описание остатков товара - JSON
+		//OST_DESCRIPTION_CSV;csv;Описание остатков товара - CSV
+		//OST_DESCRIPTION_XML;xml;Описание остатков товара - XML
+	{ ChZnInterface::doctAggregation, "AGGREGATION_DOCUMENT" },//AGGREGATION_DOCUMENT;Агрегация;json;Агрегация - JSON
+		//AGGREGATION_DOCUMENT_CSV;csv;Агрегация - CSV
+		//AGGREGATION_DOCUMENT_XML;xml;Агрегация - XML
+	{ ChZnInterface::doctDisaggregation, "DISAGGREGATION_DOCUMENT" }, //DISAGGREGATION_DOCUMENT;Расформирование агрегата;json;Расформирование агрегата - JSON
+		//DISAGGREGATION_DOCUMENT_CSV;csv;Расформирование агрегата - CSV
+		//DISAGGREGATION_DOCUMENT_XML;xml;Расформирование агрегата - XML
+	{ ChZnInterface::doctReaggregation, "REAGGREGATION_DOCUMENT" }, //REAGGREGATION_DOCUMENT;Трансформация агрегата;json;Трансформация агрегата - JSON
+		//REAGGREGATION_DOCUMENT_XML;xml;Трансформация агрегата - XML
+		//REAGGREGATION_DOCUMENT_CSV;csv;Трансформация агрегата - CSV
+	{ ChZnInterface::doctLpIntroduceGoods, "LP_INTRODUCE_GOODS" }, //LP_INTRODUCE_GOODS;Ввод в оборот. Производство РФ;json;Ввод в оборот. Производство РФ - JSON
+		//LP_INTRODUCE_GOODS_CSV;csv;Ввод в оборот. Производство РФ - CSV
+		//LP_INTRODUCE_GOODS_XML;xml;Ввод в оборот. Производство РФ - XML
+	{ ChZnInterface::doctLkIndiCommissioning, "LK_INDI_COMMISSIONING" }, //LK_INDI_COMMISSIONING;Ввод в оборот. Полученных от физических лиц;json;Ввод в оборот. Полученных от физических лиц - JSON
+		//LK_INDI_COMMISSIONING_CSV;csv;Ввод в оборот. Полученных от физических лиц - CSV
+		//LK_INDI_COMMISSIONING_XML;xml;Ввод в оборот. Полученных от физических лиц - XML
+	{ ChZnInterface::doctLpGoodsImport, "LP_GOODS_IMPORT" }, //LP_GOODS_IMPORT;json;Ввод в оборот. Производство вне ЕАЭС - JSON
+		//LP_GOODS_IMPORT_CSV;Ввод в оборот. Производство вне ЕАЭС;csv;Ввод в оборот. Производство вне ЕАЭС - CSV
+		//LP_GOODS_IMPORT_XML;xml;Ввод в оборот. Производство вне ЕАЭС - XML
+	{ ChZnInterface::doctCrossborder, "CROSSBORDER" }, //CROSSBORDER;Ввод в оборот. Трансграничная торговля.;json;Ввод в оборот. Трансграничная торговля. JSON (MANUAL)
+		//CROSSBORDER_CSV;csv;Ввод в оборот. Трансграничная торговля. CSV
+		//CROSSBORDER_XML;xml;Ввод в оборот. Трансграничная торговля. XML
+	{ ChZnInterface::doctLpIntroduceGoodsCrossborderCSD, "LP_INTRODUCE_GOODS_CROSSBORDER_CSD" }, //LP_INTRODUCE_GOODS_CROSSBORDER_CSD_JSON;Ввод в оборот. На территории стран ЕАЭС (контрактное производство);json;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). JSON (MANUAL)
+		//LP_INTRODUCE_GOODS_CROSSBORDER_CSD_XML;xml;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). CSV
+		//LP_INTRODUCE_GOODS_CROSSBORDER_CSD_CSV;csv;Ввод в оборот. На территории стран ЕАЭС (контрактное производство). XML
+	{ ChZnInterface::doctIntroduceOST, "LP_INTRODUCE_OST" }, //LP_INTRODUCE_OST;Ввод в оборот. Маркировка остатков;json;Ввод в оборот. Маркировка остатков - JSON
+		//LP_INTRODUCE_OST_CSV;csv;Ввод в оборот. Маркировка остатков - CSV
+		//LP_INTRODUCE_OST_XML;xml;Ввод в оборот. Маркировка остатков - XML
+	{ ChZnInterface::doctLkContractCommissioning, "LK_CONTRACT_COMMISSIONING" }, //LK_CONTRACT_COMMISSIONING;Ввод в оборот. Контрактное производство РФ;json;Ввод в оборот. Контрактное производство РФ - JSON
+		//LK_CONTRACT_COMMISSIONING_CSV;csv;Ввод в оборот. Контрактное производство РФ - CSV
+		//LK_CONTRACT_COMMISSIONING_XML;xml;Ввод в оборот. Контрактное производство РФ - XML
+	{ ChZnInterface::doctLpReturn, "LP_RETURN" }, //LP_RETURN;Возврат в оборот;json;Возврат в оборот. JSON (MANUAL)
+		//LP_RETURN_CSV;xml;Возврат в оборот. CSV
+		//LP_RETURN_XML;csv;Возврат в оборот. XML
+	{ ChZnInterface::doctLpShipGoods, "LP_SHIP_GOODS" }, //LP_SHIP_GOODS;Отгрузка;json;Отгрузка - JSON
+		//LP_SHIP_GOODS_CSV;csv;Отгрузка - CSV
+		//LP_SHIP_GOODS_XML;xml;Отгрузка - XML
+	{ ChZnInterface::doctLpShipReceipt, "LP_SHIP_RECEIPT" }, //LP_SHIP_RECEIPT;Отгрузка с выводом из оборота.;json;Отгрузка с выводом из оборота. JSON (MANUAL)
+		//LP_SHIP_RECEIPT_CSV;csv;Отгрузка с выводом из оборота. CSV
+		//LP_SHIP_RECEIPT_XML;xml;Отгрузка с выводом из оборота. XML
+	{ ChZnInterface::doctLpCancelShipment, "LP_CANCEL_SHIPMENT" }, //LP_CANCEL_SHIPMENT;Отмена отгрузки;json;Отмена отгрузки. JSON (MANUAL)
+	{ ChZnInterface::doctLpAcceptGoods, "LP_ACCEPT_GOODS" }, //LP_ACCEPT_GOODS;Приемка;json;Приемка - JSON
+		//LP_ACCEPT_GOODS_XML;xml;Приемка - XML
+	{ ChZnInterface::doctLkReceipt, "LK_RECEIPT" }, //LK_RECEIPT;Вывод товара из оборота;json;Вывод товара из оборота - JSON
+		//LK_RECEIPT_CSV;csv;Вывод товара из оборота - CSV
+		//LK_RECEIPT_XML;xml;Вывод товара из оборота - XML
+	{ ChZnInterface::doctLkRemark, "LK_REMARK" }, //LK_REMARK;Перемаркировка;json;Перемаркировка - JSON
+		//LK_REMARK_CSV;csv;Перемаркировка - CSV
+		//LK_REMARK_XML;xml;Перемаркировка - XML
+	{ ChZnInterface::doctKmCancellation, "LK_KM_CANCELLATION" }, //LK_KM_CANCELLATION;Списание ненанесенных КМ;json;Списание ненанесенных КМ - JSON
+		//LK_KM_CANCELLATION_XML;xml;Списание ненанесенных КМ - XML
+		//LK_KM_CANCELLATION_XSD;xsd;Списание ненанесенных КМ - XSD
+	{ ChZnInterface::doctAppliedKmCancellation, "LK_APPLIED_KM_CANCELLATION" },//LK_APPLIED_KM_CANCELLATION;Списание нанесенных КМ;json;Списание нанесенных КМ - JSON
+		//LK_APPLIED_KM_CANCELLATION_XML;xml;Списание нанесенных КМ - XML
+		//LK_APPLIED_KM_CANCELLATION_XSD;xsd;Списание нанесенных КМ - XSD
+};
+
+static int ChZnDocStatusFromStr(const char * pText)
 {
+	return SIntToSymbTab_GetId(ChZnDocStatusList, SIZEOFARRAY(ChZnDocStatusList), pText);
+}
+
+static int ChZnDocTypeFromStr(const char * pText, int * pType, int * pFormat)
+{
+	SString temp_buf = pText;
+	int    format = 0;
+	if(temp_buf.CmpSuffix("_CSV", 1) == 0) {
+		format = SFileFormat::Csv;
+		temp_buf.Trim(temp_buf.Len()-4);
+	}
+	else if(temp_buf.CmpSuffix("_XML", 1) == 0) {
+		format = SFileFormat::Xml;
+		temp_buf.Trim(temp_buf.Len()-4);
+	}
+	else if(temp_buf.CmpSuffix("_XSD", 1) == 0) {
+		format = SFileFormat::Xsd;
+		temp_buf.Trim(temp_buf.Len()-4);
+	}
+	int type = SIntToSymbTab_GetId(ChZnDocTypeList, SIZEOFARRAY(ChZnDocTypeList), temp_buf);
+	ASSIGN_PTR(pType, type);
+	ASSIGN_PTR(pFormat, format);
+	return BIN(type);
+}
+
+int SLAPI ChZnInterface::ParseDocument(const json_t * pJsonObj, Document & rItem)
+{
+	int    ok = -1;
+	if(pJsonObj && pJsonObj->Type == json_t::tOBJECT) {
+		const json_t * p_next = pJsonObj->P_Next;
+		const json_t * p_fld_next = 0;
+		for(const json_t * p_fld = pJsonObj->P_Child; p_fld; p_fld = p_fld_next) {
+			p_fld_next = p_fld->P_Next;
+			if(p_fld->P_Child) {
+				ok = 1;
+				if(sstreqi_ascii(p_fld->Text, "number")) {
+					rItem.Uuid.FromStr(p_fld->P_Child->Text);
+				}
+				else if(sstreqi_ascii(p_fld->Text, "docDate")) {
+					strtodatetime(p_fld->P_Child->Text, &rItem.Dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+				}
+				else if(sstreqi_ascii(p_fld->Text, "receivedAt")) {
+					strtodatetime(p_fld->P_Child->Text, &rItem.ReceivedDtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+				}
+				else if(sstreqi_ascii(p_fld->Text, "type")) {
+					ChZnDocTypeFromStr(p_fld->P_Child->Text, &rItem.Type, &rItem.Format);
+				}
+				else if(sstreqi_ascii(p_fld->Text, "status")) {
+					rItem.Status = ChZnDocStatusFromStr(p_fld->P_Child->Text);
+				}
+				else if(sstreqi_ascii(p_fld->Text, "senderName")) {
+					rItem.SenderName = p_fld->P_Child->Text;
+				}
+				else if(sstreqi_ascii(p_fld->Text, "receiverName")) {
+					rItem.ReceiverName = p_fld->P_Child->Text;
+				}
+				else if(sstreqi_ascii(p_fld->Text, "downloadStatus")) {
+					rItem.DownloadStatus = ChZnDocStatusFromStr(p_fld->P_Child->Text);
+				}
+				else if(sstreqi_ascii(p_fld->Text, "downloadDesc")) {
+				}
+				else if(sstreqi_ascii(p_fld->Text, "input")) { // bool
+					if(p_fld->P_Child->Type == json_t::tTRUE)
+						rItem.Flags |= rItem.fInput;
+					else
+						rItem.Flags &= ~rItem.fInput;
+				}
+				else if(sstreqi_ascii(p_fld->Text, "pdfFile")) { 
+				}
+				else if(sstreqi_ascii(p_fld->Text, "docErrors")) { // []
+				}
+				else if(sstreqi_ascii(p_fld->Text, "pdfFile")) { 
+				}
+				else if(sstreqi_ascii(p_fld->Text, "documentDataDto")) { 
+				}
+				else if(sstreqi_ascii(p_fld->Text, "body")) { 
+					rItem.Body = p_fld->P_Child->Text;
+				}
+				else if(sstreqi_ascii(p_fld->Text, "content")) { 
+					rItem.Content = p_fld->P_Child->Text;
+				}
+				/*else if(sstreqi_ascii(p_fld->Text, "total")) { 
+				}*/
+			}
+		}
+	}
+	return ok;
+}
+
+int  SLAPI ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList)
+{
+	int    ok = -1;
+	json_t * p_json_doc = 0;
+	if(json_parse_document(&p_json_doc, pJsonInput) == JSON_OK) {
+		SString temp_buf;
+		json_t * p_next = 0;
+		json_t * p_fld_next = 0;
+		if(p_json_doc) {
+			if(p_json_doc->Type == json_t::tOBJECT) {
+				json_t * p_child = p_json_doc->P_Child;
+				if(p_child && p_child->Type == json_t::tSTRING && sstreqi_ascii(p_child->Text, "results")) {
+					ok = 1;
+					p_child = p_child->P_Child;
+					if(p_child && p_child->Type == json_t::tARRAY) {
+						for(json_t * p_cur = p_child->P_Child; p_cur; p_cur = p_next) {
+							if(p_cur->Type == json_t::tOBJECT) {
+								p_next = p_cur->P_Next;
+								Document * p_new_entry = rList.CreateNewItem();
+								ParseDocument(p_cur, *p_new_entry);
+							}
+							else
+								break;
+						}
+					}
+				}
+
+			}
+		}
+	}
+	delete p_json_doc;
+	return ok;
 }
 
 int SLAPI ChZnInterface::Document::Parse()
@@ -711,10 +993,29 @@ int SLAPI ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, Init
 		rBlk.Cn.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	if(rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_PROTOCOL, temp_buf) > 0) {
-		if(temp_buf.IsEqiAscii("v1") || temp_buf == "1")
-			rBlk.ProtocolVer = 1;
-		else if(temp_buf.IsEqiAscii("v3") || temp_buf == "3")
-			rBlk.ProtocolVer = 3;
+		StringSet ss;
+		temp_buf.Tokenize(" ,;", ss);
+		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+			temp_buf.Strip();
+			if(temp_buf.IsEqiAscii("v1") || temp_buf == "1") {
+				if(!rBlk.ProtocolVer)
+					rBlk.ProtocolVer = 1;
+			}
+			else if(temp_buf.IsEqiAscii("v3") || temp_buf == "3") {
+				if(!rBlk.ProtocolVer)
+					rBlk.ProtocolVer = 3;
+			}
+			else if(temp_buf.IsEqiAscii("mdlp"))
+				rBlk.ProtocolId = InitBlock::protidMdlp;
+			else if(temp_buf.IsEqiAscii("gismt") || temp_buf.IsEqiAscii("gis-mt"))
+				rBlk.ProtocolId = InitBlock::protidGisMt;
+			else if(temp_buf.IsEqiAscii("edoltmdlp") || temp_buf.IsEqiAscii("edo-lite-mdlp"))
+				rBlk.ProtocolId = InitBlock::protidEdoLtMdlp;
+			else if(temp_buf.IsEqiAscii("edoltint") || temp_buf.IsEqiAscii("edo-lite-int"))
+				rBlk.ProtocolId = InitBlock::protidEdoLtInt;
+			else if(temp_buf.IsEqiAscii("edoltelk") || temp_buf.IsEqiAscii("edo-lite-elk"))
+				rBlk.ProtocolId = InitBlock::protidEdoLtElk;
+		}
 	}
 	rBlk.GuaID = guaID;
 	{
@@ -837,8 +1138,8 @@ SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum,
 			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 				rResult.Cat("api/v3/auth/cert/key"); 
 			}
-			else {
-				rResult.Cat("api/v1/session");
+			else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
+				rResult.Cat("api/v1/session"); 
 			}
 			break;
 		case qToken: 
@@ -847,18 +1148,49 @@ SString & SLAPI ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum,
 			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 				rResult.Cat("api/v3/auth/cert/"/*"facade/auth"*/); 
 			}
-			else {
+			else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
 				rResult.Cat("api/v1/session"); 
 			}
 			break;
 		case qDocOutcome: 
-			rResult.Cat("documents/outcome"); 
+			if(rIb.ProtocolId == InitBlock::protidMdlp)
+				rResult.Cat("documents/outcome"); 
+			else {
+			}
 			break;
 		case qCurrentUserInfo: 
 			rResult.Cat("users/current"); 
 			break;
-		case qGetIncomeDocList: 
-			rResult.Cat("documents/income"); 
+		case qGetDoc: 
+			if(rIb.ProtocolId == InitBlock::protidGisMt) {
+				//api/v3/facade/doc/{docId}/body
+				rResult.Cat("api/v3/facade/doc/");
+				if(pAddendum) {
+					rResult.Cat(pAddendum).CatChar('/');
+				}
+				rResult.Cat("body");
+			}
+			break;
+		case qGetDocList: 
+		case qGetIncomingDocList: 
+			if(rIb.ProtocolId == InitBlock::protidMdlp)
+				rResult.Cat("documents/income"); 
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
+				rResult.Cat("api/v3/facade/doc/listV2");
+			}
+			else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
+				rResult.Cat("api/v1/incoming-documents");
+			}
+			break;
+		case qGetOutcomingDocList: 
+			if(rIb.ProtocolId == InitBlock::protidMdlp)
+				rResult.Cat("documents/income"); 
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
+				rResult.Cat("api/v3/facade/doc/listV2");
+			}
+			else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
+				rResult.Cat("api/v1/outgoing-documents");
+			}
 			break;
 		case qDocumentSend: 
 			rResult.Cat("documents/send"); 
@@ -892,7 +1224,7 @@ SString & SLAPI ChZnInterface::MakeTargetUrl(int query, const char * pAddendum, 
 		case qToken: rResult.Cat("token"); break;
 		case qDocOutcome: rResult.Cat("documents/outcome"); break;
 		case qCurrentUserInfo: rResult.Cat("users/current"); break;
-		case qGetIncomeDocList: rResult.Cat("documents/income"); break;
+		case qGetDocList: rResult.Cat("documents/income"); break;
 		case qDocumentSend: rResult.Cat("documents/send"); break;
 		case qGetTicket: 
 			rResult.Cat("documents");
@@ -924,7 +1256,7 @@ SString & SLAPI ChZnInterface::MakeTargetUrl2(int query, const char * pAddendum,
 		/*
 		case qDocOutcome: rResult.Cat("documents/outcome"); break;
 		case qCurrentUserInfo: rResult.Cat("users/current"); break;
-		case qGetIncomeDocList: rResult.Cat("documents/income"); break;
+		case qGetDocList: rResult.Cat("documents/income"); break;
 		case qDocumentSend: rResult.Cat("documents/send"); break;
 		case qGetTicket: 
 			rResult.Cat("documents");
@@ -1069,7 +1401,11 @@ SString & SLAPI ChZnInterface::MakeHeaderFields(const char * pToken, uint flags,
 	}
 	if(!isempty(pToken)) {
 		SString temp_buf;
-		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAuthorization, (temp_buf = "token").Space().Cat(pToken));
+		if(flags & mhffAuthBearer)
+			(temp_buf = "Bearer").Space().Cat(pToken);
+		else
+			(temp_buf = "token").Space().Cat(pToken);
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAuthorization, temp_buf);
 	}
 	SHttpProtocol::PutHeaderFieldsIntoString(*pHdrFlds, rBuf);
 	return rBuf;
@@ -1160,7 +1496,7 @@ int SLAPI ChZnInterface::GetTemporaryFileName(const char * pPath, const char * p
 		temp_path.SetLastSlash().Cat(pSubPath);
 	temp_path.RmvLastSlash();
 	THROW_SL(::createDir(temp_path));
-	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "XML", 0, rFn);
+	MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
 	CATCHZOK
 	return ok;
 }
@@ -1180,7 +1516,7 @@ int SLAPI ChZnInterface::CreatePendingFile(const char * pPath, const char * pIde
 		SFile f(temp_path, SFile::mWrite|SFile::mBinary);
 		THROW_SL(f.IsValid());
 	}
-	//MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "XML", 0, rFn);
+	//MakeTempFileName(temp_path.SetLastSlash(), pPrefix, "xml", 0, rFn);
 	CATCHZOK
 	return ok;
 }
@@ -1586,14 +1922,55 @@ int SLAPI ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const c
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetIncomeDocList_(InitBlock & rIb)
+int SLAPI ChZnInterface::GetDocument(InitBlock & rIb, const S_GUID & rUuid, Document & rDoc)
+{
+	int    ok = -1;
+	json_t * p_json_req = 0;
+	json_t * p_json_doc = 0;
+	SString temp_buf;
+	SString req_buf;
+	SString uuid_buf;
+	SBuffer ack_buf;
+	if(!!rUuid) {
+		uuid_buf.Z().Cat(rUuid, S_GUID::fmtLower|S_GUID::fmtIDL);
+		InetUrl url(MakeTargetUrl_(qGetDoc, uuid_buf.cptr(), rIb, temp_buf));
+		{
+			ScURL c;
+			StrStrAssocArray hdr_flds;
+			if(rIb.ProtocolId == InitBlock::protidGisMt) {
+				MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf);
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				LogTalking("req", req_buf);
+				THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						LogTalking("rep", temp_buf);
+						{
+							if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
+								if(ParseDocument(p_json_doc, rDoc) > 0)
+									ok = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_json_doc;
+	return ok;
+}
+
+int SLAPI ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList)
 {
 	int    ok = -1;
 	json_t * p_json_req = 0;
 	SString temp_buf;
 	SString req_buf;
 	SBuffer ack_buf;
-	InetUrl url(MakeTargetUrl_(qGetIncomeDocList, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qGetDocList, 0, rIb, temp_buf));
 	{
 		req_buf.Z();
 		{
@@ -1613,18 +1990,50 @@ int SLAPI ChZnInterface::GetIncomeDocList_(InitBlock & rIb)
 	{
 		ScURL c;
 		StrStrAssocArray hdr_flds;
-		MakeHeaderFields(rIb.Token, 0, &hdr_flds, temp_buf);
-		{
+		if(rIb.ProtocolId == InitBlock::protidGisMt || oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
+			if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidEdoLtMdlp)) {
+				long   doc_fold_id = 0;
+				long   count_offset = 0;
+				long   count_limit = 100;
+				int64  created_from = 0; // time_t
+				int64  created_to = 0; // time_t
+				if(pFilt) {
+					//url.
+					switch(pFilt->Folder) {
+						case docfoldDocs: doc_fold_id = 0; break;
+						case docfoldArc: doc_fold_id = 1; break;
+						case docfoldBin: doc_fold_id = 2; break;
+						case docfoldToSign: doc_fold_id = 3; break;
+						case docfoldRejected: doc_fold_id = 4; break;
+						default: doc_fold_id = 0; break;
+					}
+					if(pFilt->CountLimit > 0)
+						count_limit = pFilt->CountLimit;
+					count_offset = pFilt->CountOffset;
+				}
+				created_from = (pFilt && pFilt->Period.low) ? pFilt->Period.low.GetTimeT() : encodedate(1, 1, 2020).GetTimeT();
+				created_to = (pFilt && pFilt->Period.upp) ? pFilt->Period.upp.GetTimeT() : getcurdate_().GetTimeT();
+				temp_buf.Z();
+				temp_buf.CatEq("limit", count_limit);
+				temp_buf.CatChar('&').CatEq("offset", count_offset);
+				temp_buf.CatChar('&').CatEq("folder", doc_fold_id);
+				temp_buf.CatChar('&').CatEq("created_from", created_from);
+				temp_buf.CatChar('&').CatEq("created_to", created_to);
+				//temp_buf.CatChar('&').CatEq("partner_inn", "5003052454"); // @debug
+				url.SetComponent(InetUrl::cQuery, temp_buf);
+			}
+			MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf);
 			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			PPGetFilePath(PPPATH_BIN, "cacerts-mcs.pem", temp_buf);
-			THROW_SL(c.SetupDefaultSslOptions(temp_buf, SSystem::sslTLS_v10, 0)); //CURLOPT_SSLVERSION значением CURL_SSLVERSION_TLSv1_0
+			//PPGetFilePath(PPPATH_BIN, "cacerts-mcs.pem", temp_buf);
+			//THROW_SL(c.SetupDefaultSslOptions(temp_buf, SSystem::sslTLS_v10, 0)); //CURLOPT_SSLVERSION значением CURL_SSLVERSION_TLSv1_0
 			LogTalking("req", req_buf);
-			THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+			THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 			{
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					LogTalking("rep", temp_buf);
+					ParseDocumentList(temp_buf, rList);
 				}
 			}
 		}
@@ -1634,7 +2043,7 @@ int SLAPI ChZnInterface::GetIncomeDocList_(InitBlock & rIb)
 	return ok;
 }
 
-int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
+int SLAPI ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 {
 	int    ok = -1;
 	int    wininet_err = 0;
@@ -1646,7 +2055,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
 	HINTERNET h_req = 0;
 	SString temp_buf;
 	SString req_buf;
-	InetUrl url(MakeTargetUrl_(qGetIncomeDocList, 0, rIb, temp_buf));
+	InetUrl url(MakeTargetUrl_(qGetDocList, 0, rIb, temp_buf));
 	{
 		req_buf.Z();
 		{
@@ -1710,6 +2119,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2(InitBlock & rIb)
 	return ok;
 }
 
+#if 0 // @v10.8.0 {
 int SLAPI ChZnInterface::Connect2(InitBlock & rIb)
 {
 	int    ok = -1;
@@ -1761,6 +2171,7 @@ int SLAPI ChZnInterface::Connect2(InitBlock & rIb)
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v10.8.0
 
 int SLAPI ChZnInterface::LogTalking(const char * pPrefix, const SString & rMsg)
 {
@@ -1782,98 +2193,6 @@ int SLAPI ChZnInterface::LogTalking(const char * pPrefix, const SString & rMsg)
 	return ok;
 }
 
-int SLAPI ChZnInterface::Connect3(InitBlock & rIb)
-{
-	int    ok = -1;
-	S_GUID result_uuid;
-	SString result_data;
-	SString temp_buf;
-	SString url_buf;
-	SString req_buf;
-	SString result_code;
-	SBuffer ack_buf;
-	{
-		InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
-		//THROW(MakeAuthRequest(rIb, req_buf));
-		{
-			ScURL c;
-			StrStrAssocArray hdr_flds;
-			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
-			{
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				LogTalking("req", req_buf);
-				THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &wr_stream));
-				{
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						LogTalking("rep", temp_buf);
-						{
-							json_t * p_json_doc = 0;
-							if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
-								SString temp_buf;
-								json_t * p_next = 0;
-								for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
-									p_next = p_cur->P_Next;
-									switch(p_cur->Type) {
-										case json_t::tOBJECT: p_next = p_cur->P_Child; break;
-										case json_t::tSTRING:
-											if(p_cur->P_Child) {
-												if(sstreqi_ascii(p_cur->Text, "uuid"))
-													result_uuid.FromStr((temp_buf = p_cur->P_Child->Text).Unescape());
-												else if(sstreqi_ascii(p_cur->Text, "data"))
-													(result_data = p_cur->P_Child->Text).Unescape();
-											}
-											break;
-									}
-								}
-							}
-							ZDELETE(p_json_doc);
-						}
-					}
-				}
-			}
-		}
-	}
-	if(!!result_uuid && result_data.NotEmpty()) {
-		req_buf.Z();
-		SString signed_data;
-		GetSign(rIb, result_data.cptr(), result_data.Len(), signed_data);
-		{
-			json_t * p_json_req = new json_t(json_t::tOBJECT);
-			temp_buf.Z().Cat(result_uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
-			p_json_req->Insert("uuid", json_new_string(temp_buf));
-			p_json_req->Insert("data", json_new_string(signed_data));
-			THROW_SL(json_tree_to_string(p_json_req, req_buf));
-			ZDELETE(p_json_req);
-		}
-		{
-			InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
-			ScURL c;
-			StrStrAssocArray hdr_flds;
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
-			//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(""));
-			{
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				LogTalking("req", req_buf);
-				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
-				{
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						LogTalking("rep", temp_buf);
-						if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
-							ok = 1;
-					}
-				}
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
 int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 {
 	int    ok = -1;
@@ -1882,48 +2201,130 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 	SString req_buf;
 	SString result_code;
 	SBuffer ack_buf;
-	{
-		InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
-		THROW(MakeAuthRequest(rIb, req_buf));
+	if(rIb.ProtocolId == InitBlock::protidMdlp) {
 		{
-			ScURL c;
-			StrStrAssocArray hdr_flds;
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
+			THROW(MakeAuthRequest(rIb, req_buf));
 			{
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				LogTalking("req", req_buf);
-				THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				ScURL c;
+				StrStrAssocArray hdr_flds;
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 				{
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						LogTalking("rep", temp_buf);
-						if(ReadJsonReplyForSingleItem(temp_buf, "code", result_code) > 0)
-							ok = 1;
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					LogTalking("req", req_buf);
+					THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							LogTalking("rep", temp_buf);
+							if(ReadJsonReplyForSingleItem(temp_buf, "code", result_code) > 0)
+								ok = 1;
+						}
+					}
+				}
+			}
+		}
+		if(ok > 0) {
+			ok = -1;
+			InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
+			THROW(MakeTokenRequest(rIb, result_code, req_buf));
+			{
+				ScURL c;
+				StrStrAssocArray hdr_flds;
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+				{
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					LogTalking("req", req_buf);
+					THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							LogTalking("rep", temp_buf);
+							if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+								ok = 1;
+						}
 					}
 				}
 			}
 		}
 	}
-	if(ok > 0) {
-		ok = -1;
-		InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
-		THROW(MakeTokenRequest(rIb, result_code, req_buf));
+	else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidGisMt)) {
+		S_GUID result_uuid;
+		SString result_data;
 		{
-			ScURL c;
-			StrStrAssocArray hdr_flds;
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+			InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
 			{
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				LogTalking("req", req_buf);
-				THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+				ScURL c;
+				StrStrAssocArray hdr_flds;
 				{
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						LogTalking("rep", temp_buf);
-						if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
-							ok = 1;
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					LogTalking("req", req_buf);
+					THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							LogTalking("rep", temp_buf);
+							{
+								json_t * p_json_doc = 0;
+								if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
+									SString temp_buf;
+									json_t * p_next = 0;
+									for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_next) {
+										p_next = p_cur->P_Next;
+										switch(p_cur->Type) {
+											case json_t::tOBJECT: p_next = p_cur->P_Child; break;
+											case json_t::tSTRING:
+												if(p_cur->P_Child) {
+													if(sstreqi_ascii(p_cur->Text, "uuid"))
+														result_uuid.FromStr((temp_buf = p_cur->P_Child->Text).Unescape());
+													else if(sstreqi_ascii(p_cur->Text, "data"))
+														(result_data = p_cur->P_Child->Text).Unescape();
+												}
+												break;
+										}
+									}
+								}
+								ZDELETE(p_json_doc);
+							}
+						}
+					}
+				}
+			}
+		}
+		if(!!result_uuid && result_data.NotEmpty()) {
+			req_buf.Z();
+			SString signed_data;
+			GetSign(rIb, result_data.cptr(), result_data.Len(), signed_data);
+			{
+				json_t * p_json_req = new json_t(json_t::tOBJECT);
+				temp_buf.Z().Cat(result_uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
+				p_json_req->Insert("uuid", json_new_string(temp_buf));
+				p_json_req->Insert("data", json_new_string(signed_data));
+				THROW_SL(json_tree_to_string(p_json_req, req_buf));
+				ZDELETE(p_json_req);
+			}
+			{
+				InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
+				ScURL c;
+				StrStrAssocArray hdr_flds;
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
+				//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(""));
+				{
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					LogTalking("req", req_buf);
+					THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							LogTalking("rep", temp_buf);
+							if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+								ok = 1;
+						}
 					}
 				}
 			}
@@ -2160,30 +2561,49 @@ int SLAPI PPChZnPrcssr::Test()
 	SString temp_buf;
 	PPChZnPrcssr prcssr(0);
 	PPChZnPrcssr::Param param;
+	TSCollection <ChZnInterface::Document> doc_list;
+	ChZnInterface::Document single_doc;
 	if(prcssr.EditParam(&param) > 0) {
 		ChZnInterface ifc;
 		ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
 		THROW(ifc.SetupInitBlock(param.GuaID, 0, *p_ib));
-		p_ib->ProtocolId = ChZnInterface::InitBlock::protidGisMt;
+		//SETIFZ(p_ib->ProtocolId = ChZnInterface::InitBlock::protidGisMt;
 		{
 			//const CERT_CONTEXT * p_cert = ifc.GetClientSslCertificate(prcssr.Ib);
-			if(p_ib->ProtocolVer == 1) {
-				if(ifc.Connect(*p_ib) > 0) {
+			if(ifc.Connect(*p_ib) > 0) {
+				if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp) {
 					//ifc.GetUserInfo2(prcssr.Ib);
 					//ifc.GetIncomeDocList2(*p_ib);
 				}
-			}
-			else if(oneof2(p_ib->ProtocolVer, 0, 3)) {
-				if(ifc.Connect3(*p_ib) > 0) {
-					SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
-					ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
-					ifc.GetIncomeDocList_(*p_ib);
+				else if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidGisMt) {
+					//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
+					//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
+					ChZnInterface::DocumentFilt df;
+					df.Flags |= df.fIncoming;
+					df.Folder = ChZnInterface::docfoldDocs;
+					ifc.GetDocumentList(*p_ib, &df, doc_list);
+					for(uint i = 0; i < doc_list.getCount(); i++) {
+						if(doc_list.at(i)) {
+							const S_GUID doc_uuid = doc_list.at(i)->Uuid;
+							ifc.GetDocument(*p_ib, doc_uuid, single_doc);
+						}
+					}
+				}
+				else if(oneof3(p_ib->ProtocolId, ChZnInterface::InitBlock::protidEdoLtElk, ChZnInterface::InitBlock::protidEdoLtInt, ChZnInterface::InitBlock::protidEdoLtMdlp)) {
+					//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
+					//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
+					ChZnInterface::DocumentFilt df;
+					df.Flags |= df.fIncoming;
+					df.Folder = ChZnInterface::docfoldDocs;
+					ifc.GetDocumentList(*p_ib, &df, doc_list);
+					for(uint i = 0; i < doc_list.getCount(); i++) {
+						if(doc_list.at(i)) {
+							const S_GUID doc_uuid = doc_list.at(i)->Uuid;
+							ifc.GetDocument(*p_ib, doc_uuid, single_doc);
+						}
+					}
 				}
 			}
-			/*if(ifc.Connect2(prcssr.Ib) > 0) {
-				//ifc.GetUserInfo2(prcssr.Ib);
-				ifc.GetIncomeDocList2(prcssr.Ib);
-			}*/
 		}
 	}
 	CATCHZOKPPERR

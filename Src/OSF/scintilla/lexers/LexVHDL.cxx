@@ -277,7 +277,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 		char ch       = styler.SafeGetCharAt(j);
 		int style     = styler.StyleAt(j);
 		if((!IsCommentStyle(style)) && (style != SCE_VHDL_STRING)) {
-			if((ch == ';') && (strcmp(prevWord, "end") == 0)) {
+			if((ch == ';') && (sstreq(prevWord, "end"))) {
 				strcpy(prevWord, ";");
 			}
 		}
@@ -333,7 +333,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 		}
 
 		if((!IsCommentStyle(style)) && (style != SCE_VHDL_STRING)) {
-			if((ch == ';') && (strcmp(prevWord, "end") == 0)) {
+			if((ch == ';') && (sstreq(prevWord, "end"))) {
 				strcpy(prevWord, ";");
 			}
 
@@ -418,9 +418,9 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 							                                     // min level
 						}
 					}
-					else if(((strcmp(s, "begin") == 0) && (strcmp(prevWord, "architecture") == 0)) ||
-					    ((strcmp(s, "begin") == 0) && (strcmp(prevWord, "function") == 0)) ||
-					    ((strcmp(s, "begin") == 0) && (strcmp(prevWord, "procedure") == 0))) {
+					else if(((strcmp(s, "begin") == 0) && (sstreq(prevWord, "architecture"))) ||
+					    ((strcmp(s, "begin") == 0) && (sstreq(prevWord, "function"))) ||
+					    ((strcmp(s, "begin") == 0) && (sstreq(prevWord, "procedure")))) {
 						levelMinCurrentBegin = levelNext - 1;
 					}
 					//Platform::DebugPrintf("Line[%04d] Prev[%20s] Cur[%20s] Level[%x]\n", lineCurrent+1, prevWord, s,

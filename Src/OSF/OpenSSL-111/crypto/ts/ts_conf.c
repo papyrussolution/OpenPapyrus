@@ -161,12 +161,12 @@ int TS_CONF_set_default_engine(const char * name)
 	ENGINE * e = NULL;
 	int ret = 0;
 
-	if(strcmp(name, "builtin") == 0)
+	if(sstreq(name, "builtin"))
 		return 1;
 
 	if((e = ENGINE_by_id(name)) == NULL)
 		goto err;
-	if(strcmp(name, "chil") == 0)
+	if(sstreq(name, "chil"))
 		ENGINE_ctrl(e, ENGINE_CTRL_CHIL_SET_FORKCHECK, 1, 0, 0);
 	if(!ENGINE_set_default(e, ENGINE_METHOD_ALL))
 		goto err;

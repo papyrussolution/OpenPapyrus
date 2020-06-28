@@ -10,111 +10,106 @@
 //
 //
 //
-struct SScLangEntry {
-	const char * P_LangName;
-	int    ScModuleId;
-};
-
-static const SScLangEntry SScLangEntryList[] = {
-	{ "normal",         SCLEX_NULL },
-	{ "php",            SCLEX_HTML },
-	{ "c",              SCLEX_CPP },
-	{ "cpp",            SCLEX_CPP },
-	{ "cs",             SCLEX_CPP },
-	{ "objc",           SCLEX_CPP },
-	{ "java",           SCLEX_CPP },
-	{ "rc",             SCLEX_CPP },
-	{ "html",           SCLEX_HTML },
-	{ "xml",            SCLEX_XML },
-	{ "makefile",       SCLEX_MAKEFILE },
-	{ "pascal",         SCLEX_PASCAL },
-	{ "batch",          SCLEX_BATCH },
-	{ "ini",            SCLEX_PROPERTIES },
-	{ "nfo",            SCLEX_NULL },
-	{ "udf",            SCLEX_USER },
-	{ "asp",            SCLEX_HTML },
-	{ "sql",            SCLEX_SQL },
-	{ "vb",             SCLEX_VB },
-	{ "javascript",     SCLEX_CPP },
-	{ "css",            SCLEX_CSS },
-	{ "perl",           SCLEX_PERL },
-	{ "python",         SCLEX_PYTHON },
-	{ "lua",            SCLEX_LUA },
-	{ "tex",            SCLEX_TEX },
-	{ "fortran",        SCLEX_FORTRAN },
-	{ "bash",           SCLEX_BASH },
-	{ "actionscript",   SCLEX_CPP },
-	{ "nsis",           SCLEX_NSIS },
-	{ "tcl",            SCLEX_TCL },
-	{ "lisp",           SCLEX_LISP },
-	{ "scheme",         SCLEX_LISP },
-	{ "asm",            SCLEX_ASM },
-	{ "diff",           SCLEX_DIFF },
-	{ "props",          SCLEX_PROPERTIES },
-	{ "postscript",     SCLEX_PS },
-	{ "ruby",           SCLEX_RUBY },
-	{ "smalltalk",      SCLEX_SMALLTALK },
-	{ "vhdl",           SCLEX_VHDL },
-	{ "kix",            SCLEX_KIX },
-	{ "autoit",         SCLEX_AU3 },
-	{ "caml",           SCLEX_CAML },
-	{ "ada",            SCLEX_ADA },
-	{ "verilog",        SCLEX_VERILOG },
-	{ "matlab",         SCLEX_MATLAB },
-	{ "haskell",        SCLEX_HASKELL },
-	{ "inno",           SCLEX_INNOSETUP },
-	{ "searchResult",   SCLEX_SEARCHRESULT },
-	{ "cmake",          SCLEX_CMAKE },
-	{ "yaml",           SCLEX_YAML },
-	{ "cobol",          SCLEX_COBOL },
-	{ "gui4cli",        SCLEX_GUI4CLI },
-	{ "d",              SCLEX_D },
-	{ "powershell",     SCLEX_POWERSHELL },
-	{ "r",              SCLEX_R },
-	{ "jsp",            SCLEX_HTML },
-	{ "coffeescript",   SCLEX_COFFEESCRIPT },
-	{ "json",           SCLEX_CPP },
-	{ "javascript.js",  SCLEX_CPP },
-	{ "fortran77",      SCLEX_F77 },
-	{ "baanc",          SCLEX_BAAN },
-	{ "srec",           SCLEX_SREC },
-	{ "ihex",           SCLEX_IHEX },
-	{ "tehex",          SCLEX_TEHEX },
-	{ "swift",          SCLEX_CPP },
-	{ "asn1",           SCLEX_ASN1 },
-	{ "avs",            SCLEX_AVS },
-	{ "blitzbasic",     SCLEX_BLITZBASIC },
-	{ "purebasic",      SCLEX_PUREBASIC },
-	{ "freebasic",      SCLEX_FREEBASIC },
-	{ "csound",         SCLEX_CSOUND },
-	{ "erlang",         SCLEX_ERLANG },
-	{ "escript",        SCLEX_ESCRIPT },
-	{ "forth",          SCLEX_FORTH },
-	{ "latex",          SCLEX_LATEX },
-	{ "mmixal",         SCLEX_MMIXAL },
-	{ "nimrod",         SCLEX_NIMROD },
-	{ "nncrontab",      SCLEX_NNCRONTAB },
-	{ "oscript",        SCLEX_OSCRIPT },
-	{ "rebol",          SCLEX_REBOL },
-	{ "registry",       SCLEX_REGISTRY },
-	{ "rust",           SCLEX_RUST },
-	{ "spice",          SCLEX_SPICE },
-	{ "txt2tags",       SCLEX_TXT2TAGS },
-	{ "ext",            SCLEX_NULL }
+static const SIntToSymbTabEntry SScLangEntryList[] = {
+	{   SCLEX_NULL,         "normal"       },
+	{   SCLEX_HTML,         "php"          },
+	{   SCLEX_CPP,          "c"            },
+	{   SCLEX_CPP,          "cpp"          },
+	{   SCLEX_CPP,          "cs"           },
+	{   SCLEX_CPP,          "objc"         },
+	{   SCLEX_CPP,          "java"         },
+	{   SCLEX_CPP,          "rc"           },
+	{   SCLEX_HTML,         "html"         },
+	{   SCLEX_XML,          "xml"          },
+	{   SCLEX_MAKEFILE,     "makefile"     },
+	{   SCLEX_PASCAL,       "pascal"       },
+	{   SCLEX_BATCH,        "batch"        },
+	{   SCLEX_PROPERTIES,   "ini"          },
+	{   SCLEX_NULL,         "nfo"          },
+	{   SCLEX_USER,         "udf"          },
+	{   SCLEX_HTML,         "asp"          },
+	{   SCLEX_SQL,          "sql"          },
+	{   SCLEX_VB,           "vb"           },
+	{   SCLEX_CPP,          "javascript"   },
+	{   SCLEX_CSS,          "css"          },
+	{   SCLEX_PERL,         "perl"         },
+	{   SCLEX_PYTHON,       "python"       },
+	{   SCLEX_LUA,          "lua"          },
+	{   SCLEX_TEX,          "tex"          },
+	{   SCLEX_FORTRAN,      "fortran"      },
+	{   SCLEX_BASH,         "bash"         },
+	{   SCLEX_CPP,          "actionscript" },
+	{   SCLEX_NSIS,         "nsis"         },
+	{   SCLEX_TCL,          "tcl"          },
+	{   SCLEX_LISP,         "lisp"         },
+	{   SCLEX_LISP,         "scheme"       },
+	{   SCLEX_ASM,          "asm"          },
+	{   SCLEX_DIFF,         "diff"         },
+	{   SCLEX_PROPERTIES,   "props"        },
+	{   SCLEX_PS,           "postscript"   },
+	{   SCLEX_RUBY,         "ruby"         },
+	{   SCLEX_SMALLTALK,    "smalltalk"    },
+	{   SCLEX_VHDL,         "vhdl"         },
+	{   SCLEX_KIX,          "kix"          },
+	{   SCLEX_AU3,          "autoit"       },
+	{   SCLEX_CAML,         "caml"         },
+	{   SCLEX_ADA,          "ada"          },
+	{   SCLEX_VERILOG,      "verilog"      },
+	{   SCLEX_MATLAB,       "matlab"       },
+	{   SCLEX_HASKELL,      "haskell"      },
+	{   SCLEX_INNOSETUP,    "inno"         },
+	{   SCLEX_SEARCHRESULT, "searchResult" },
+	{   SCLEX_CMAKE,        "cmake"        },
+	{   SCLEX_YAML,         "yaml"         },
+	{   SCLEX_COBOL,        "cobol"        },
+	{   SCLEX_GUI4CLI,      "gui4cli"      },
+	{   SCLEX_D,            "d"            },
+	{   SCLEX_POWERSHELL,   "powershell"   },
+	{   SCLEX_R,            "r"            },
+	{   SCLEX_HTML,         "jsp"          },
+	{   SCLEX_COFFEESCRIPT, "coffeescript" },
+	{   SCLEX_CPP,          "json"         },
+	{   SCLEX_CPP,          "javascript.js"},
+	{   SCLEX_F77,          "fortran77"    },
+	{   SCLEX_BAAN,         "baanc"        },
+	{   SCLEX_SREC,         "srec"         },
+	{   SCLEX_IHEX,         "ihex"         },
+	{   SCLEX_TEHEX,        "tehex"        },
+	{   SCLEX_CPP,          "swift"        },
+	{   SCLEX_ASN1,         "asn1"         },
+	{   SCLEX_AVS,          "avs"          },
+	{   SCLEX_BLITZBASIC,   "blitzbasic"   },
+	{   SCLEX_PUREBASIC,    "purebasic"    },
+	{   SCLEX_FREEBASIC,    "freebasic"    },
+	{   SCLEX_CSOUND,       "csound"       },
+	{   SCLEX_ERLANG,       "erlang"       },
+	{   SCLEX_ESCRIPT,      "escript"      },
+	{   SCLEX_FORTH,        "forth"        },
+	{   SCLEX_LATEX,        "latex"        },
+	{   SCLEX_MMIXAL,       "mmixal"       },
+	{   SCLEX_NIMROD,       "nimrod"       },
+	{   SCLEX_NNCRONTAB,    "nncrontab"    },
+	{   SCLEX_OSCRIPT,      "oscript"      },
+	{   SCLEX_REBOL,        "rebol"        },
+	{   SCLEX_REGISTRY,     "registry"     },
+	{   SCLEX_RUST,         "rust"         },
+	{   SCLEX_SPICE,        "spice"        },
+	{   SCLEX_TXT2TAGS,     "txt2tags"     },
+	{   SCLEX_NULL,         "ext"          }
 };
 
 static int FASTCALL SScGetLexerIdByName(const char * pName)
 {
     for(uint i = 0; i < SIZEOFARRAY(SScLangEntryList); i++) {
-		const SScLangEntry & r_entry = SScLangEntryList[i];
-		if(sstreqi_ascii(r_entry.P_LangName, pName))
+		const SIntToSymbTabEntry & r_entry = SScLangEntryList[i];
+		if(sstreqi_ascii(r_entry.P_Symb, pName))
 			return i+1;
     }
     return 0;
 }
 
-static const char * FASTCALL SScGetLexerNameById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].P_LangName : 0; }
-static int FASTCALL SScGetLexerModelById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].ScModuleId : 0; }
+//static const char * FASTCALL SScGetLexerNameById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].P_Symb : 0; }
+static int FASTCALL SScGetLexerModelById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].Id : 0; }
 
 SLAPI SScEditorStyleSet::SScEditorStyleSet()
 {
@@ -248,6 +243,40 @@ int SLAPI SScEditorStyleSet::GetStyle(int group, int lexerId, int styleId, Style
     return ok;
 }
 
+int SLAPI SScEditorStyleSet::ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS) 
+{
+	int    ok = 1;
+	SString temp_buf;
+	rS.FgC.Z();
+	rS.BgC.Z();
+	rS.FontStyle = -1;
+	if(SXml::GetAttrib(pNode, "name", temp_buf) > 0)
+		AddS(temp_buf, &rS.StyleNameP);
+	if(SXml::GetAttrib(pNode, "styleID", temp_buf) > 0)
+		rS.StyleId = (uint)temp_buf.ToLong();
+	if(SXml::GetAttrib(pNode, "fgColor", temp_buf) > 0) {
+		if(temp_buf.Len() == 6) {
+			temp_buf.Insert(0, "#");
+			rS.FgC.FromStr(temp_buf);
+		}
+	}
+	if(SXml::GetAttrib(pNode, "bgColor", temp_buf) > 0) {
+		if(temp_buf.Len() == 6) {
+			temp_buf.Insert(0, "#");
+			rS.BgC.FromStr(temp_buf);
+		}
+	}
+	if(SXml::GetAttrib(pNode, "fontName", temp_buf) > 0)
+		AddS(temp_buf, &rS.FontFaceP);
+	if(SXml::GetAttrib(pNode, "fontStyle", temp_buf) > 0)
+		rS.FontStyle = temp_buf.ToLong();
+	if(SXml::GetAttrib(pNode, "fontSize", temp_buf) > 0)
+		rS.FontSize = (uint)temp_buf.ToLong();
+	if(SXml::GetAttrib(pNode, "keywordClass", temp_buf) > 0)
+		AddS(temp_buf, &rS.KeywordClassP);
+	return ok;
+}
+
 int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 {
 	int    ok = 1;
@@ -279,7 +308,8 @@ int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 										st.Group = sgLexer;
 										st.LexerId = lexer_id;
 										st.LexerDescrP = lexer_descr_p;
-										st.FgC.SetEmpty();
+										ReadStyleAttributes(p_e, st); // @v10.8.0
+										/* @v10.8.0 st.FgC.SetEmpty();
 										st.BgC.SetEmpty();
 										st.FontStyle = -1;
 										if(SXml::GetAttrib(p_e, "name", temp_buf) > 0)
@@ -305,7 +335,7 @@ int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 										if(SXml::GetAttrib(p_e, "fontSize", temp_buf) > 0)
 											st.FontSize = (uint)temp_buf.ToLong();
 										if(SXml::GetAttrib(p_e, "keywordClass", temp_buf) > 0)
-											AddS(temp_buf, &st.KeywordClassP);
+											AddS(temp_buf, &st.KeywordClassP);*/
 										THROW_SL(L.insert(&st));
 									}
 								}
@@ -320,7 +350,8 @@ int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 						InnerStyle st;
 						MEMSZERO(st);
 						st.Group = sgGlobal;
-						st.FgC.SetEmpty();
+						ReadStyleAttributes(p_s, st); // @v10.8.0
+						/* @v10.8.0 st.FgC.SetEmpty();
 						st.BgC.SetEmpty();
 						if(SXml::GetAttrib(p_s, "name", temp_buf) > 0)
 							AddS(temp_buf, &st.StyleNameP);
@@ -345,7 +376,7 @@ int SLAPI SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 						if(SXml::GetAttrib(p_s, "fontSize", temp_buf) > 0)
 							st.FontSize = (uint)temp_buf.ToLong();
 						if(SXml::GetAttrib(p_s, "keywordClass", temp_buf) > 0)
-							AddS(temp_buf, &st.KeywordClassP);
+							AddS(temp_buf, &st.KeywordClassP);*/
 						THROW_SL(L.insert(&st));
 					}
 				}

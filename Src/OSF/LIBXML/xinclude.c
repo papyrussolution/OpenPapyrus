@@ -1450,7 +1450,6 @@ loaded:
 	 * Do the xml:base fixup if needed
 	 */
 	if(doc && URL && (!(ctxt->parseFlags & XML_PARSE_NOBASEFIX)) && (!(doc->parseFlags & XML_PARSE_NOBASEFIX))) {
-		xmlNode * P_Node;
 		xmlChar * curBase;
 		/*
 		 * The base is only adjusted if "necessary", i.e. if the xinclude node
@@ -1475,14 +1474,13 @@ loaded:
 			}
 		}
 		if(base) { // Adjustment may be needed 
-			P_Node = ctxt->incTab[nr]->inc;
-			while(P_Node) {
-				/* Only work on element nodes */
-				if(P_Node->type == XML_ELEMENT_NODE) {
-					curBase = xmlNodeGetBase(P_Node->doc, P_Node);
+			for(xmlNode * p_node = ctxt->incTab[nr]->inc; p_node; p_node = p_node->next) {
+				// Only work on element nodes 
+				if(p_node->type == XML_ELEMENT_NODE) {
+					curBase = xmlNodeGetBase(p_node->doc, p_node);
 					// If no current base, set it 
 					if(!curBase) {
-						xmlNodeSetBase(P_Node, base);
+						xmlNodeSetBase(p_node, base);
 					}
 					else {
 						/*
@@ -1490,18 +1488,18 @@ loaded:
 						 * URL of the document, then reset it to be
 						 * the specified xml:base or the relative URI
 						 */
-						if(sstreq(curBase, P_Node->doc->URL)) {
-							xmlNodeSetBase(P_Node, base);
+						if(sstreq(curBase, p_node->doc->URL)) {
+							xmlNodeSetBase(p_node, base);
 						}
 						else {
 							// If the element already has an xml:base set, then relativise it if necessary
-							xmlChar * xmlBase = xmlGetNsProp(P_Node, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE);
+							xmlChar * xmlBase = xmlGetNsProp(p_node, reinterpret_cast<const xmlChar *>("base"), XML_XML_NAMESPACE);
 							if(xmlBase) {
 								xmlChar * relBase = xmlBuildURI(xmlBase, base);
 								if(!relBase) // error 
 									xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "trying to rebuild base from %s\n", xmlBase);
 								else {
-									xmlNodeSetBase(P_Node, relBase);
+									xmlNodeSetBase(p_node, relBase);
 									SAlloc::F(relBase);
 								}
 								SAlloc::F(xmlBase);
@@ -1510,7 +1508,6 @@ loaded:
 						SAlloc::F(curBase);
 					}
 				}
-				P_Node = P_Node->next;
 			}
 			SAlloc::F(base);
 		}

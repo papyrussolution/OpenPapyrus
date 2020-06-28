@@ -166,6 +166,9 @@ enum xmlParserMode {
 //   to a state based parser for progressive parsing shouldn't be too hard.
 //   
 struct xmlParserCtxt {
+	static bool FASTCALL IsEofInNonSaxMode(const xmlParserCtxt * pCtx) { return (pCtx && pCtx->disableSAX && pCtx->IsEof()); }
+	bool   IsEof() const { return instate == XML_PARSER_EOF; }
+	bool   IsSaxInUse() const { return (sax && !disableSAX); }
 	xmlParserInput * input;          // Current input stream
 	struct xmlSAXHandler * sax;      // The SAX handler
 	void * userData;                 // For SAX interface only, used by DOM build

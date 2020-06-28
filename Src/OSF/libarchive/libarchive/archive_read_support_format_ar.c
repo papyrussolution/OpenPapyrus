@@ -197,7 +197,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 	 * '//' is the GNU filename table.
 	 * Later entries can refer to names in this table.
 	 */
-	if(strcmp(filename, "//") == 0) {
+	if(sstreq(filename, "//")) {
 		/* This must come before any call to _read_ahead. */
 		ar_parse_common_header(ar, entry, h);
 		archive_entry_copy_pathname(entry, filename);
@@ -324,7 +324,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 	 * "/" is the SVR4/GNU archive symbol table.
 	 * "/SYM64/" is the SVR4/GNU 64-bit variant archive symbol table.
 	 */
-	if(strcmp(filename, "/") == 0 || strcmp(filename, "/SYM64/") == 0) {
+	if(sstreq(filename, "/") || sstreq(filename, "/SYM64/")) {
 		archive_entry_copy_pathname(entry, filename);
 		/* Parse the time, owner, mode, size fields. */
 		r = ar_parse_common_header(ar, entry, h);
@@ -336,7 +336,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 	/*
 	 * "__.SYMDEF" is a BSD archive symbol table.
 	 */
-	if(strcmp(filename, "__.SYMDEF") == 0) {
+	if(sstreq(filename, "__.SYMDEF")) {
 		archive_entry_copy_pathname(entry, filename);
 		/* Parse the time, owner, mode, size fields. */
 		return (ar_parse_common_header(ar, entry, h));

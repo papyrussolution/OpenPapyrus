@@ -2506,7 +2506,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 		else {
 			zip->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
 			if(zip->sconv != NULL) {
-				if(strcmp(val, "UTF-8") == 0)
+				if(sstreq(val, "UTF-8"))
 					zip->sconv_utf8 = zip->sconv;
 				ret = ARCHIVE_OK;
 			}
@@ -2515,7 +2515,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 		}
 		return ret;
 	}
-	else if(strcmp(key, "ignorecrc32") == 0) {
+	else if(sstreq(key, "ignorecrc32")) {
 		/* Mostly useful for testing. */
 		if(val == NULL || val[0] == 0) {
 			zip->crc32func = real_crc32;
@@ -2527,7 +2527,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 		}
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "mac-ext") == 0) {
+	else if(sstreq(key, "mac-ext")) {
 		zip->process_mac_extensions = (val != NULL && val[0] != 0);
 		return ARCHIVE_OK;
 	}

@@ -60,7 +60,7 @@ int pthread_attr_init(pthread_attr_t * attr)
 {
 	pthread_attr_t attr_result;
 	cpu_set_t cpuset;
-	if(attr == NULL) {
+	if(!attr) {
 		return EINVAL; // This is disallowed. 
 	}
 	attr_result = (pthread_attr_t)SAlloc::M(sizeof(*attr_result));

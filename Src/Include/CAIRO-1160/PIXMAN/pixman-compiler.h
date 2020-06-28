@@ -86,16 +86,14 @@
 #endif
 
 /* member offsets */
-#define CONTAINER_OF(type, member, data)                                \
-	((type*)(((uint8_t *)data) - offsetof(type, member)))
+#define CONTAINER_OF(type, member, data) ((type*)(((uint8_t *)data) - offsetof(type, member)))
 
 /* TLS */
 #if defined(PIXMAN_NO_TLS)
 
-#   define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
+#define PIXMAN_DEFINE_THREAD_LOCAL(type, name)                       \
 	static type name
-#   define PIXMAN_GET_THREAD_LOCAL(name)                                \
-	(&name)
+#define PIXMAN_GET_THREAD_LOCAL(name) (&name)
 
 #elif defined(TLS)
 
@@ -178,12 +176,10 @@
 		return value;                                                   \
 	}                                                                   \
                                                                         \
-	static force_inline type *               \
-	    tls_ ## name ## _get(void)                                         \
+	static force_inline type * tls_ ## name ## _get(void) \
 	{                                                                   \
 		type * value = NULL;                                             \
-		if(pthread_once(&tls_ ## name ## _once_control,               \
-		    tls_ ## name ## _make_key) == 0)              \
+		if(pthread_once(&tls_ ## name ## _once_control, tls_ ## name ## _make_key) == 0) \
 		{                                                               \
 			value = pthread_getspecific(tls_ ## name ## _key);         \
 			if(!value)                                                 \

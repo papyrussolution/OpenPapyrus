@@ -34,12 +34,13 @@ WHITE       [ \t]([ \t])*
 STRING      \"[^"\n]*["\n]
 REAL		[0-9]+([.][0-9]*)([Ee][+-]?[0-9]+)?
 DIGIT       [0-9]
+HEXDIGIT    [0-9AaBbCcDdEeFf]
 INTEGER     ("-"|{DIGIT})*{DIGIT}+
 HEXINT      0[xX][0-9AaBbCcDdEeFf]+
 NDIGIT      [A-Z_a-z@]
 IDENT       {NDIGIT}({NDIGIT}|{DIGIT})*
 COMMENT     "//"(.)*"\n"
-COLOR       "#"[0-9][0-9][0-9][0-9][0-9][0-9]
+COLOR       "#"{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}{HEXDIGIT}
 
 R_BROWSER	"browser"
 R_GROUP		"group"

@@ -151,18 +151,18 @@ static void ColouriseDMAPDoc(Sci_PositionU startPos, Sci_Position length, int in
 // To determine the folding level depending on keywords
 static int classifyFoldPointDMAP(const char* s, const char* prevWord) {
 	int lev = 0;
-	if((strcmp(prevWord, "else") == 0 && strcmp(s, "if") == 0) || strcmp(s, "enddo") == 0 || strcmp(s, "endif") == 0) {
+	if((sstreq(prevWord, "else") && sstreq(s, "if")) || sstreq(s, "enddo") || sstreq(s, "endif")) {
 		lev = -1;
 	}
-	else if((strcmp(prevWord, "do") == 0 && strcmp(s, "while") == 0) || strcmp(s, "then") == 0) {
+	else if((sstreq(prevWord, "do") && sstreq(s, "while")) || sstreq(s, "then")) {
 		lev = 1;
 	}
 	return lev;
 }
 
 // Folding the code
-static void FoldDMAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor & styler) {
+static void FoldDMAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler) 
+{
 	//
 	// bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	// Do not know how to fold the comment at the moment.

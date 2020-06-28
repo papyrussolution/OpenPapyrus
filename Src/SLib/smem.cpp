@@ -347,9 +347,145 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 	if(*pA > *pB)
 		memswap(pA, pB, sizeof(*pA));
 }
+//
+//
+// @costruction {
+SAlloc::Stat::Stat()
+{
+}
+
+void FASTCALL SAlloc::Stat::RegisterAlloc(uint size)
+{
+	int do_shrink = 0;
+	Lck_A.Lock();
+	AllocEntry entry;
+	entry.Size = size;
+	entry.Count = 1;
+	AL.insert(&entry);
+	if((AL.getCount() & 0xfff) == 0)
+		do_shrink = 1;
+	Lck_A.Unlock();
+	if(do_shrink)
+		Shrink();
+}
+
+void SAlloc::Stat::RegisterRealloc(uint fromSize, uint toSize)
+{
+	int do_shrink = 0;
+	Lck_R.Lock();
+	ReallocEntry entry;
+	entry.FromSize = fromSize;
+	entry.ToSize = toSize;
+	entry.Count = 1;
+	RL.insert(&entry);
+	if((RL.getCount() & 0xfff) == 0)
+		do_shrink = 1;
+	Lck_R.Unlock();
+	if(do_shrink)
+		Shrink();
+}
+
+void SAlloc::Stat::Shrink()
+{
+	{
+		Lck_A.Lock();
+		uint i = AL.getCount();
+		if(i) do {
+			const AllocEntry & r_entry = AL.at(--i);
+			for(uint j = 0; j < i; j++) {
+				if(AL.at(j).Size == r_entry.Size) {
+					AL.at(j).Count += r_entry.Count;
+					AL.atFree(i);
+					break;
+				}
+			}
+		} while(i);
+		Lck_A.Unlock();
+	}
+	{
+		Lck_R.Lock();
+		uint i = RL.getCount();
+		if(i) do {
+			const ReallocEntry & r_entry = RL.at(--i);
+			for(uint j = 0; j < i; j++) {
+				const ReallocEntry & r_entry2 = RL.at(j);
+				if(r_entry2.FromSize == r_entry.FromSize && r_entry2.ToSize == r_entry.ToSize) {
+					RL.at(j).Count += r_entry.Count;
+					RL.atFree(i);
+					break;
+				}
+			}
+		} while(i);
+		Lck_R.Unlock();
+	}
+}
+
+void FASTCALL SAlloc::Stat::Merge(const Stat & rS)
+{
+	{
+		Lck_A.Lock();
+		for(uint i = 0; i < rS.AL.getCount(); i++) {
+			const AllocEntry & r_entry = rS.AL.at(i);
+			uint pos = 0;
+			if(AL.lsearch(&r_entry.Size, &pos, CMPF_LONG)) {
+				AL.at(pos).Count += r_entry.Count;
+			}
+		}
+		Lck_A.Unlock();
+	}
+	{
+		Lck_R.Lock();
+		for(uint i = 0; i < rS.RL.getCount(); i++) {
+			const ReallocEntry & r_entry = rS.RL.at(i);
+			uint pos = 0;
+			if(RL.lsearch(&r_entry.FromSize, &pos, PTR_CMPFUNC(_2long))) {
+				RL.at(pos).Count += r_entry.Count;
+			}
+		}
+		Lck_R.Unlock();
+	}
+}
+
+int SAlloc::Stat::Output(SString & rBuf)
+{
+	int    ok = -1;
+	rBuf.Z();
+	if(AL.getCount() || RL.getCount()) {
+		Shrink();
+		{
+			Lck_A.Lock();
+			if(AL.getCount()) {
+				AL.sort(CMPF_LONG);
+				rBuf.Cat("alloc-stat").CR();
+				for(uint i = 0; i < AL.getCount(); i++) {
+					const AllocEntry & r_entry = AL.at(i);
+					rBuf.Cat(r_entry.Size).Tab().Cat(r_entry.Count).CR();
+				}
+			}
+			Lck_A.Unlock();
+		}
+		{
+			Lck_R.Lock();
+			if(RL.getCount()) {
+				RL.sort(PTR_CMPFUNC(_2long));
+				rBuf.Cat("realloc-stat").CR();
+				for(uint i = 0; i < RL.getCount(); i++) {
+					const ReallocEntry & r_entry = RL.at(i);
+					rBuf.Cat(r_entry.FromSize).Tab().Cat(r_entry.ToSize).Tab().Cat(r_entry.Count).CR();
+				}
+			}
+			Lck_R.Unlock();
+		}
+	}
+	return ok;
+}
+// } @costruction 
 
 /*static*/void * FASTCALL SAlloc::M(size_t sz)
 {
+#if SLGATHERALLOCSTATISTICS
+	SLS.GetAllocStat().RegisterAlloc(sz);
+#endif
 	void * p_result = malloc(sz);
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
@@ -358,6 +494,9 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 
 /*static*/void * FASTCALL SAlloc::C(size_t n, size_t sz)
 {
+#if SLGATHERALLOCSTATISTICS
+	SLS.GetAllocStat().RegisterAlloc(n * sz);
+#endif
 	void * p_result = calloc(n, sz);
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
@@ -366,6 +505,11 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 
 /*static*/void * FASTCALL SAlloc::R(void * ptr, size_t sz)
 {
+#if SLGATHERALLOCSTATISTICS
+	// На предварительном этапе будем realloc регистрировать как Alloc поскольку я пока не разобрался как получить размер
+	// перераспределяемого блока
+	SLS.GetAllocStat().RegisterAlloc(sz);
+#endif
 	void * p_result = realloc(ptr, sz);
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
@@ -379,6 +523,9 @@ void FASTCALL ExchangeToOrder(double * pA, double * pB)
 
 void * operator new(size_t sz)
 {
+#if SLGATHERALLOCSTATISTICS
+	SLS.GetAllocStat().RegisterAlloc(sz);
+#endif
 	void * p_result = malloc(sz);
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);

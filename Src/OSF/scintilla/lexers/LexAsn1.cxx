@@ -16,21 +16,9 @@ using namespace Scintilla;
 #endif
 
 // Some char test functions
-static bool isAsn1Number(int ch)
-{
-	return (ch >= '0' && ch <= '9');
-}
-
-static bool isAsn1Letter(int ch)
-{
-	return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
-
-static bool isAsn1Char(int ch)
-{
-	return (ch == '-' ) || isAsn1Number(ch) || isAsn1Letter(ch);
-}
-
+//static bool isAsn1Number(int ch) { return (ch >= '0' && ch <= '9'); }
+static bool isAsn1Letter(int ch) { return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
+static bool isAsn1Char(int ch) { return (ch == '-' ) || isdec(ch) || isAsn1Letter(ch); }
 //
 //	Function determining the color of a given code portion
 //	Based on a "state"
@@ -57,7 +45,7 @@ asn1_default:
 			    else if(sc.ch == '"')
 				    // A string begins here
 				    sc.SetState(SCE_ASN1_STRING);
-			    else if(isAsn1Number(sc.ch))
+			    else if(isdec(sc.ch))
 				    // A number starts here (identifier should start with a letter in ASN.1)
 				    sc.SetState(SCE_ASN1_SCALAR);
 			    else if(isAsn1Char(sc.ch))
@@ -105,7 +93,7 @@ asn1_default:
 			    }
 			    break;
 			case SCE_ASN1_SCALAR:   // A plain number
-			    if(!isAsn1Number(sc.ch))
+			    if(!isdec(sc.ch))
 				    // A number ends here
 				    sc.SetState(SCE_ASN1_DEFAULT);
 			    break;
@@ -114,7 +102,7 @@ asn1_default:
 			    if(sc.ch == '{') {
 				    // An OID definition starts here: enter the sub loop
 				    for(; sc.More(); sc.Forward()) {
-					    if(isAsn1Number(sc.ch) && (!isAsn1Char(sc.chPrev) || isAsn1Number(sc.chPrev)))
+					    if(isdec(sc.ch) && (!isAsn1Char(sc.chPrev) || isdec(sc.chPrev)))
 						    // The OID number is highlighted
 						    sc.SetState(SCE_ASN1_OID);
 					    else if(isAsn1Char(sc.ch))
@@ -127,10 +115,10 @@ asn1_default:
 						    break;
 				    }
 			    }
-			    else if(isAsn1Number(sc.ch)) {
+			    else if(isdec(sc.ch)) {
 				    // A trap number definition starts here: enter the sub loop
 				    for(; sc.More(); sc.Forward()) {
-					    if(isAsn1Number(sc.ch))
+					    if(isdec(sc.ch))
 						    // The trap number is highlighted
 						    sc.SetState(SCE_ASN1_OID);
 					    else {

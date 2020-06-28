@@ -638,9 +638,9 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 				sc.Forward(2);
 				dot = false;
 			}
-			else if((base == 10) && (sc.ch == 'e' || sc.ch == 'E') && (IsADigit(sc.chNext) || sc.chNext == '+' || sc.chNext == '-')) {
+			else if((base == 10) && oneof2(sc.ch, 'e', 'E') && (IsADigit(sc.chNext) || sc.chNext == '+' || sc.chNext == '-')) {
 				sc.Forward();
-				if(sc.ch == '+' || sc.ch == '-')
+				if(oneof2(sc.ch, '+', '-'))
 					sc.Forward();
 			}
 			else {
@@ -697,25 +697,25 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 					style = SCE_HA_MODULE;
 				}
 			}
-			else if(hs.mode == HA_MODE_IMPORT1 && strcmp(s, "qualified") == 0) {
+			else if(hs.mode == HA_MODE_IMPORT1 && sstreq(s, "qualified")) {
 				style    = SCE_HA_KEYWORD;
 				new_mode = HA_MODE_IMPORT1;
 			}
-			else if(options.highlightSafe && hs.mode == HA_MODE_IMPORT1 && strcmp(s, "safe") == 0) {
+			else if(options.highlightSafe && hs.mode == HA_MODE_IMPORT1 && sstreq(s, "safe")) {
 				style    = SCE_HA_KEYWORD;
 				new_mode = HA_MODE_IMPORT1;
 			}
 			else if(hs.mode == HA_MODE_IMPORT2) {
-				if(strcmp(s, "as") == 0) {
+				if(sstreq(s, "as")) {
 					style    = SCE_HA_KEYWORD;
 					new_mode = HA_MODE_IMPORT3;
 				}
-				else if(strcmp(s, "hiding") == 0) {
+				else if(sstreq(s, "hiding")) {
 					style     = SCE_HA_KEYWORD;
 				}
 			}
 			else if(hs.mode == HA_MODE_TYPE) {
-				if(strcmp(s, "family") == 0)
+				if(sstreq(s, "family"))
 					style    = SCE_HA_KEYWORD;
 			}
 
@@ -725,18 +725,15 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 					new_mode = HA_MODE_FFI;
 				}
 			}
-
 			sc.ChangeState(style);
 			sc.SetState(SCE_HA_DEFAULT);
-
-			if(strcmp(s, "import") == 0 && hs.mode != HA_MODE_FFI)
+			if(sstreq(s, "import") && hs.mode != HA_MODE_FFI)
 				new_mode = HA_MODE_IMPORT1;
-			else if(strcmp(s, "module") == 0)
+			else if(sstreq(s, "module"))
 				new_mode = HA_MODE_MODULE;
-			else if(strcmp(s, "foreign") == 0)
+			else if(sstreq(s, "foreign"))
 				new_mode = HA_MODE_FFI;
-			else if(strcmp(s, "type") == 0
-			    || strcmp(s, "data") == 0)
+			else if(sstreq(s, "type") || sstreq(s, "data"))
 				new_mode = HA_MODE_TYPE;
 
 			hs.mode = new_mode;

@@ -4087,7 +4087,7 @@ int SLAPI PPSession::Logout()
 	PPThreadLocalArea & r_tla = GetTLA();
 	if(r_tla.State & PPThreadLocalArea::stAuth) { // @v9.2.1
 		const SString active_user = r_tla.UserName;
-		SString pn;
+		SString temp_buf;
 		r_tla.ReleaseEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1
 		r_tla.ReleaseEventResponder(r_tla.eventresponderPhoneService); // @v9.8.12
 		r_tla.ReleaseEventResponder(r_tla.eventresponderMqb); // @v10.5.7
@@ -4095,10 +4095,10 @@ int SLAPI PPSession::Logout()
 		//
 		// Удаляем временный каталог для отчетных данных
 		//
-		GetPath(PPPATH_TEMP, pn);
-		pn.SetLastSlash().CatLongZ(r_tla.PrnDirId, 8);
-		PPRemoveFilesByExt(pn, "*", 0, 0);
-		::RemoveDirectory(SUcSwitch(pn));
+		GetPath(PPPATH_TEMP, temp_buf);
+		temp_buf.SetLastSlash().CatLongZ(r_tla.PrnDirId, 8);
+		PPRemoveFilesByExt(temp_buf, "*", 0, 0);
+		::RemoveDirectory(SUcSwitch(temp_buf));
 		//
 		if(CCfg().Flags & CCFLG_DEBUG)
 			CMng.LogCacheStat();
@@ -4111,6 +4111,15 @@ int SLAPI PPSession::Logout()
 			CreateBackupCopy(active_user, 0);
 		GetSync().Release(); // @todo ReleaseSync()
 		GPrf.Output(0, 0);
+		// @v10.8.0 {
+		{
+			if(SLS.GetAllocStat().Output(temp_buf) > 0) {
+				SString path;
+				PPGetFilePath(PPPATH_LOG, "allocstat.log", path);
+				PPLogMessage(path, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
+		}
+		// } @v10.8.0 
 		// @v8.6.7 {
 		// @todo Аккуратно остановить поток PPAdviseEventCollectorSjSession
 		// } @v8.6.7

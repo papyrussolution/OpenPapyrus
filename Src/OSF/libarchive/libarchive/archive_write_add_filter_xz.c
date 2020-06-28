@@ -348,7 +348,7 @@ static int archive_compressor_xz_options(struct archive_write_filter * f,
     const char * key, const char * value)
 {
 	struct private_data * data = static_cast<struct private_data *>(f->data);
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') ||
 		    value[1] != '\0')
 			return (ARCHIVE_WARN);
@@ -357,7 +357,7 @@ static int archive_compressor_xz_options(struct archive_write_filter * f,
 			data->compression_level = 6;
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "threads") == 0) {
+	else if(sstreq(key, "threads")) {
 		if(value == NULL)
 			return (ARCHIVE_WARN);
 		data->threads = (int)strtoul(value, NULL, 10);

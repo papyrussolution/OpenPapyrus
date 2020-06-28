@@ -13,9 +13,9 @@ DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds);
 int FASTCALL dbl_cmp(double v1, double v2)
 {
 	const double diff = R6(v1 - v2);
-	if(diff < 0)
+	if(diff < 0.0)
 		return -1;
-	else if(diff > 0)
+	else if(diff > 0.0)
 		return 1;
 	else
 		return 0;
@@ -4614,3 +4614,16 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 	}
 	return ok;
 }
+//
+//
+//
+class PPTokenSymbHash : public SymbHashTable {
+public:
+	PPTokenSymbHash() : SymbHashTable(1024)
+	{
+	}
+	int   Get(int tokenId, SString & rToken)
+	{
+
+	}
+};

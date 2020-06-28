@@ -351,9 +351,7 @@ int archive_write_set_format_xar(struct archive * _a)
 	xar->opt_compression = GZIP;
 	xar->opt_compression_level = 6;
 	xar->opt_threads = 1;
-
 	a->format_data = xar;
-
 	a->format_name = "xar";
 	a->format_options = xar_options;
 	a->format_write_header = xar_write_header;
@@ -369,12 +367,12 @@ int archive_write_set_format_xar(struct archive * _a)
 static int xar_options(struct archive_write * a, const char * key, const char * value)
 {
 	struct xar * xar = static_cast<struct xar *>(a->format_data);
-	if(strcmp(key, "checksum") == 0) {
+	if(sstreq(key, "checksum")) {
 		if(value == NULL)
 			xar->opt_sumalg = CKSUM_NONE;
-		else if(strcmp(value, "sha1") == 0)
+		else if(sstreq(value, "sha1"))
 			xar->opt_sumalg = CKSUM_SHA1;
-		else if(strcmp(value, "md5") == 0)
+		else if(sstreq(value, "md5"))
 			xar->opt_sumalg = CKSUM_MD5;
 		else {
 			archive_set_error(&(a->archive),
@@ -385,67 +383,54 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "compression") == 0) {
+	if(sstreq(key, "compression")) {
 		const char * name = NULL;
-
 		if(value == NULL)
 			xar->opt_compression = NONE;
-		else if(strcmp(value, "gzip") == 0)
+		else if(sstreq(value, "gzip"))
 			xar->opt_compression = GZIP;
-		else if(strcmp(value, "bzip2") == 0)
+		else if(sstreq(value, "bzip2"))
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 			xar->opt_compression = BZIP2;
 #else
 			name = "bzip2";
 #endif
-		else if(strcmp(value, "lzma") == 0)
+		else if(sstreq(value, "lzma"))
 #if HAVE_LZMA_H
 			xar->opt_compression = LZMA;
 #else
 			name = "lzma";
 #endif
-		else if(strcmp(value, "xz") == 0)
+		else if(sstreq(value, "xz"))
 #if HAVE_LZMA_H
 			xar->opt_compression = XZ;
 #else
 			name = "xz";
 #endif
 		else {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Unknown compression name: `%s'",
-			    value);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown compression name: `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		if(name != NULL) {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "`%s' compression not supported "
-			    "on this platform",
-			    name);
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "`%s' compression not supported on this platform", name);
 			return ARCHIVE_FAILED;
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "compression-level") == 0) {
-		if(value == NULL ||
-		    !(value[0] >= '0' && value[0] <= '9') ||
-		    value[1] != '\0') {
-			archive_set_error(&(a->archive),
-			    ARCHIVE_ERRNO_MISC,
-			    "Illegal value `%s'",
-			    value);
+	if(sstreq(key, "compression-level")) {
+		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0') {
+			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Illegal value `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		xar->opt_compression_level = value[0] - '0';
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "toc-checksum") == 0) {
+	if(sstreq(key, "toc-checksum")) {
 		if(value == NULL)
 			xar->opt_toc_sumalg = CKSUM_NONE;
-		else if(strcmp(value, "sha1") == 0)
+		else if(sstreq(value, "sha1"))
 			xar->opt_toc_sumalg = CKSUM_SHA1;
-		else if(strcmp(value, "md5") == 0)
+		else if(sstreq(value, "md5"))
 			xar->opt_toc_sumalg = CKSUM_MD5;
 		else {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown checksum name: `%s'", value);
@@ -453,7 +438,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "threads") == 0) {
+	if(sstreq(key, "threads")) {
 		if(value == NULL)
 			return ARCHIVE_FAILED;
 		xar->opt_threads = (int)strtoul(value, NULL, 10);
@@ -822,7 +807,6 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const
 	char * p;
 	uchar * s;
 	int i, r;
-
 	if(sum->len > 0) {
 		algname = getalgname(sum->alg);
 		algsize = getalgsize(sum->alg);
@@ -836,9 +820,7 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const
 				s++;
 			}
 			*p = '\0';
-			r = xmlwrite_string_attr(a, writer,
-				key, buff,
-				"style", algname);
+			r = xmlwrite_string_attr(a, writer, key, buff, "style", algname);
 			if(r < 0)
 				return ARCHIVE_FATAL;
 		}
@@ -956,7 +938,7 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
 	const char * p;
 	int i, n, r;
 
-	if(strcmp(element, "ext2") == 0)
+	if(sstreq(element, "ext2"))
 		flagentry = flagext2;
 	else
 		flagentry = flagbsd;

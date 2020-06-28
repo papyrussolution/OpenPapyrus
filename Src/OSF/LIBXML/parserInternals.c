@@ -54,17 +54,17 @@ void xmlCheckVersion(int version)
  */
 void FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt) {
-		ctxt->errNo = XML_ERR_NO_MEMORY;
-		ctxt->instate = XML_PARSER_EOF;
-		ctxt->disableSAX = 1;
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt) {
+			ctxt->errNo = XML_ERR_NO_MEMORY;
+			ctxt->instate = XML_PARSER_EOF;
+			ctxt->disableSAX = 1;
+		}
+		if(extra)
+			__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, NULL, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
+		else
+			__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, 0, 0, "Memory allocation failed\n");
 	}
-	if(extra)
-		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, extra, NULL, NULL, 0, 0, "Memory allocation failed : %s\n", extra);
-	else
-		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_NO_MEMORY, XML_ERR_FATAL, NULL, 0, NULL, NULL, NULL, 0, 0, "Memory allocation failed\n");
 }
 /**
  * __xmlErrEncoding:
@@ -78,15 +78,15 @@ void FASTCALL xmlErrMemory(xmlParserCtxt * ctxt, const char * extra)
  */
 void FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlParserErrors xmlerr, const char * msg, const xmlChar * str1, const xmlChar * str2)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = xmlerr;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
-	if(ctxt) {
-		ctxt->wellFormed = 0;
-		if(ctxt->recovery == 0)
-			ctxt->disableSAX = 1;
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = xmlerr;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, xmlerr, XML_ERR_FATAL, NULL, 0, PTRCHRC_(str1), PTRCHRC_(str2), NULL, 0, 0, msg, str1, str2);
+		if(ctxt) {
+			ctxt->wellFormed = 0;
+			if(ctxt->recovery == 0)
+				ctxt->disableSAX = 1;
+		}
 	}
 }
 
@@ -104,15 +104,15 @@ static void FASTCALL __xmlErrEncodingNotSupported(xmlParserCtxt * ctxt, const xm
  */
 static void FASTCALL xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, const xmlChar * str)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = XML_ERR_INTERNAL_ERROR;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_INTERNAL_ERROR, XML_ERR_FATAL, NULL, 0, (const char *)str, NULL, NULL, 0, 0, msg, str);
-	if(ctxt) {
-		ctxt->wellFormed = 0;
-		if(ctxt->recovery == 0)
-			ctxt->disableSAX = 1;
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = XML_ERR_INTERNAL_ERROR;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, XML_ERR_INTERNAL_ERROR, XML_ERR_FATAL, NULL, 0, (const char *)str, NULL, NULL, 0, 0, msg, str);
+		if(ctxt) {
+			ctxt->wellFormed = 0;
+			if(ctxt->recovery == 0)
+				ctxt->disableSAX = 1;
+		}
 	}
 }
 /**
@@ -126,15 +126,15 @@ static void FASTCALL xmlErrInternal(xmlParserCtxt * ctxt, const char * msg, cons
  */
 static void FASTCALL xmlErrEncodingInt(xmlParserCtxt * ctxt, xmlParserErrors error, const char * msg, int val)
 {
-	if(ctxt && ctxt->disableSAX && (ctxt->instate == XML_PARSER_EOF))
-		return;
-	if(ctxt)
-		ctxt->errNo = error;
-	__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
-	if(ctxt) {
-		ctxt->wellFormed = 0;
-		if(ctxt->recovery == 0)
-			ctxt->disableSAX = 1;
+	if(!xmlParserCtxt::IsEofInNonSaxMode(ctxt)) {
+		if(ctxt)
+			ctxt->errNo = error;
+		__xmlRaiseError(0, 0, 0, ctxt, 0, XML_FROM_PARSER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
+		if(ctxt) {
+			ctxt->wellFormed = 0;
+			if(ctxt->recovery == 0)
+				ctxt->disableSAX = 1;
+		}
 	}
 }
 /**
@@ -296,7 +296,7 @@ void FASTCALL xmlParserInputShrink(xmlParserInput * in)
  */
 void FASTCALL xmlNextChar(xmlParserCtxt * ctxt)
 {
-	if(!ctxt || (ctxt->instate == XML_PARSER_EOF) || !ctxt->input)
+	if(!ctxt || ctxt->IsEof() || !ctxt->input)
 		return;
 	if(ctxt->charset == XML_CHAR_ENCODING_UTF8) {
 		if((*ctxt->input->cur == 0) && (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0) && (ctxt->instate != XML_PARSER_COMMENT)) {
@@ -446,9 +446,9 @@ encoding_error:
  */
 int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len) 
 {
-	if(!ctxt || (len == NULL) || (ctxt->input == NULL)) 
+	if(!ctxt || !len || !ctxt->input) 
 		return 0;
-	if(ctxt->instate == XML_PARSER_EOF)
+	if(ctxt->IsEof())
 		return 0;
 	if((*ctxt->input->cur >= 0x20) && (*ctxt->input->cur <= 0x7F)) {
 		*len = 1;
@@ -525,11 +525,11 @@ int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 			return val;
 		}
 		else {
-			/* 1-byte code */
+			// 1-byte code 
 			*len = 1;
 			if(*ctxt->input->cur == 0)
 				xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
-			if((*ctxt->input->cur == 0) && (ctxt->input->end > ctxt->input->cur)) {
+			if(*ctxt->input->cur == 0 && ctxt->input->end > ctxt->input->cur) {
 				xmlErrEncodingInt(ctxt, XML_ERR_INVALID_CHAR, "Char 0x0 out of allowed range\n", 0);
 			}
 			if(*ctxt->input->cur == 0xD) {
@@ -542,11 +542,11 @@ int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 			return static_cast<int>(*ctxt->input->cur);
 		}
 	}
-	/*
-	 * Assume it's a fixed length encoding (1) with
-	 * a compatible encoding for the ASCII set, since
-	 * XML constructs only use < 128 chars
-	 */
+	// 
+	// Assume it's a fixed length encoding (1) with
+	// a compatible encoding for the ASCII set, since
+	// XML constructs only use < 128 chars
+	// 
 	*len = 1;
 	if(*ctxt->input->cur == 0xD) {
 		if(ctxt->input->cur[1] == 0xA) {
@@ -557,21 +557,21 @@ int FASTCALL xmlCurrentChar(xmlParserCtxt * ctxt, int * len)
 	}
 	return static_cast<int>(*ctxt->input->cur);
 encoding_error:
-	/*
-	 * An encoding problem may arise from a truncated input buffer
-	 * splitting a character in the middle. In that case do not raise
-	 * an error but return 0 to endicate an end of stream problem
-	 */
+	// 
+	// An encoding problem may arise from a truncated input buffer
+	// splitting a character in the middle. In that case do not raise
+	// an error but return 0 to endicate an end of stream problem
+	// 
 	if(ctxt->input->end - ctxt->input->cur < 4) {
 		*len = 0;
 		return 0;
 	}
-	/*
-	 * If we detect an UTF8 error that probably mean that the
-	 * input encoding didn't get properly advertised in the
-	 * declaration header. Report the error and switch the encoding
-	 * to ISO-Latin-1 (if you don't like this policy, just declare the encoding !)
-	 */
+	// 
+	// If we detect an UTF8 error that probably mean that the
+	// input encoding didn't get properly advertised in the
+	// declaration header. Report the error and switch the encoding
+	// to ISO-Latin-1 (if you don't like this policy, just declare the encoding !)
+	// 
 	{
 		char buffer[150];
 		snprintf(&buffer[0], 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
@@ -776,15 +776,15 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 		    __xmlErrEncoding(ctxt, XML_ERR_UNKNOWN_ENCODING, "encoding unknown\n", 0, 0);
 		    return -1;
 		case XML_CHAR_ENCODING_NONE:
-		    /* let's assume it's UTF-8 without the XML decl */
+		    // let's assume it's UTF-8 without the XML decl 
 		    ctxt->charset = XML_CHAR_ENCODING_UTF8;
 		    return 0;
 		case XML_CHAR_ENCODING_UTF8:
-		    /* default encoding, no conversion should be needed */
+		    // default encoding, no conversion should be needed 
 		    ctxt->charset = XML_CHAR_ENCODING_UTF8;
 		    /*
-		 * Errata on XML-1.0 June 20 2001
-		 * Specific handling of the Byte Order Mark for UTF-8
+			Errata on XML-1.0 June 20 2001
+			Specific handling of the Byte Order Mark for UTF-8
 		     */
 		    if(ctxt->input && (ctxt->input->cur[0] == 0xEF) && (ctxt->input->cur[1] == 0xBB) && (ctxt->input->cur[2] == 0xBF)) {
 			    ctxt->input->cur += 3;
@@ -911,41 +911,40 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * inpu
 			   return 0;
 			   }
 			 */
-			/*
-			 * Note: this is a bit dangerous, but that's what it
-			 * takes to use nearly compatible signature for different encodings.
-			 */
+			// 
+			// Note: this is a bit dangerous, but that's what it
+			// takes to use nearly compatible signature for different encodings.
+			// 
 			xmlCharEncCloseFunc(input->buf->encoder);
 			input->buf->encoder = handler;
 			return 0;
 		}
 		input->buf->encoder = handler;
-		/*
-		 * Is there already some content down the pipe to convert ?
-		 */
+		// 
+		// Is there already some content down the pipe to convert ?
+		// 
 		if(xmlBufIsEmpty(input->buf->buffer) == 0) {
 			int processed;
 			uint use;
-			/*
-			 * Specific handling of the Byte Order Mark for UTF-16
-			 */
-			if(handler->name && (sstreq(handler->name, "UTF-16LE") || sstreq(handler->name, "UTF-16")) && (input->cur[0] == 0xFF) && (input->cur[1] == 0xFE)) {
-				input->cur += 2;
+			//
+			// Specific handling of the Byte Order Mark for UTF-16
+			// 
+			if(handler->name) {
+				if((sstreq(handler->name, "UTF-16LE") || sstreq(handler->name, "UTF-16")) && (input->cur[0] == 0xFF) && (input->cur[1] == 0xFE))
+					input->cur += 2;
+				if(sstreq(handler->name, "UTF-16BE") && (input->cur[0] == 0xFE) && (input->cur[1] == 0xFF))
+					input->cur += 2;
+				// 
+				// Errata on XML-1.0 June 20 2001
+				// Specific handling of the Byte Order Mark for UTF-8
+				// 
+				if(sstreq(handler->name, "UTF-8") && (input->cur[0] == 0xEF) && (input->cur[1] == 0xBB) && (input->cur[2] == 0xBF))
+					input->cur += 3;
 			}
-			if(handler->name && sstreq(handler->name, "UTF-16BE") && (input->cur[0] == 0xFE) && (input->cur[1] == 0xFF)) {
-				input->cur += 2;
-			}
-			/*
-			 * Errata on XML-1.0 June 20 2001
-			 * Specific handling of the Byte Order Mark for UTF-8
-			 */
-			if(handler->name && sstreq(handler->name, "UTF-8") && (input->cur[0] == 0xEF) && (input->cur[1] == 0xBB) && (input->cur[2] == 0xBF)) {
-				input->cur += 3;
-			}
-			/*
-			 * Shrink the current input buffer.
-			 * Move it as the raw buffer and create a new input buffer
-			 */
+			// 
+			// Shrink the current input buffer.
+			// Move it as the raw buffer and create a new input buffer
+			// 
 			processed = input->cur - input->base;
 			xmlBufShrink(input->buf->buffer, processed);
 			input->buf->raw = input->buf->buffer;
@@ -1610,7 +1609,7 @@ ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode
 void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
 {
 	if(ctxt && info) {
-		/* Find pos and check to see if node is already in the sequence */
+		// Find pos and check to see if node is already in the sequence 
 		ulong pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNode *)info->P_Node);
 		if((pos < ctxt->node_seq.length) && (ctxt->node_seq.buffer != NULL) && (ctxt->node_seq.buffer[pos].P_Node == info->P_Node)) {
 			ctxt->node_seq.buffer[pos] = *info;

@@ -1459,7 +1459,7 @@ float SColorBase::BlueF() const { return (B / 255.0f); }
 float SColorBase::AlphaF() const { return (Alpha / 255.0f); }
 float SColorBase::OpacityF() const { return (1.0f - (Alpha / 255.0f)); }
 
-SColorBase SColorBase::SetEmpty()
+SColorBase SColorBase::Z()
 {
 	R = 0;
 	G = 0;

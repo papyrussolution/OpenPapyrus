@@ -111,15 +111,15 @@ static boolint resource_parse_line(char * name, cairo_xcb_resources_t * resource
 	*value++ = 0;
 	name = skip_spaces(name);
 	value = skip_spaces(value);
-	if(strcmp(name, "Xft.antialias") == 0)
+	if(sstreq(name, "Xft.antialias"))
 		parse_boolean(value, &(resources->xft_antialias));
-	else if(strcmp(name, "Xft.lcdfilter") == 0)
+	else if(sstreq(name, "Xft.lcdfilter"))
 		parse_integer(value, &(resources->xft_lcdfilter));
-	else if(strcmp(name, "Xft.rgba") == 0)
+	else if(sstreq(name, "Xft.rgba"))
 		parse_integer(value, &(resources->xft_rgba));
-	else if(strcmp(name, "Xft.hinting") == 0)
+	else if(sstreq(name, "Xft.hinting"))
 		parse_boolean(value, &(resources->xft_hinting));
-	else if(strcmp(name, "Xft.hintstyle") == 0)
+	else if(sstreq(name, "Xft.hintstyle"))
 		parse_integer(value, &(resources->xft_hintstyle));
 
 	return TRUE;

@@ -172,7 +172,7 @@ static cpu_features_t detect_cpu_features(void)
 		memcpy(vendor + 0, &b, 4);
 		memcpy(vendor + 4, &d, 4);
 		memcpy(vendor + 8, &c, 4);
-		if(strcmp(vendor, "AuthenticAMD") == 0 || strcmp(vendor, "Geode by NSC") == 0) {
+		if(sstreq(vendor, "AuthenticAMD") || sstreq(vendor, "Geode by NSC")) {
 			pixman_cpuid(0x80000000, &a, &b, &c, &d);
 			if(a >= 0x80000001) {
 				pixman_cpuid(0x80000001, &a, &b, &c, &d);
@@ -212,7 +212,7 @@ static cpu_features_t detect_cpu_features(void)
 		memcpy(vendor + 0, &b, 4);
 		memcpy(vendor + 4, &d, 4);
 		memcpy(vendor + 8, &c, 4);
-		if(strcmp(vendor, "AuthenticAMD") == 0 || strcmp(vendor, "Geode by NSC") == 0) {
+		if(sstreq(vendor, "AuthenticAMD") || sstreq(vendor, "Geode by NSC")) {
 			/*pixman_cpuid*/SLS.GetSSys().CpuId(0x80000000, &a, &b, &c, &d);
 			if(a >= 0x80000001) {
 				/*pixman_cpuid*/SLS.GetSSys().CpuId(0x80000001, &a, &b, &c, &d);

@@ -34,67 +34,67 @@
 //#include "large.h"
 //#include "code1.h"
 
-static const int c40_shift[] = {
+static const int8 c40_shift[] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
 };
 
-static const int c40_value[] = {
+static const int8 c40_value[] = { // @sobolev int-->int8
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
     3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
     15, 16, 17, 18, 19, 20, 21, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
     22, 23, 24, 25, 26, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
 };
 
-static const int text_shift[] = {
+static const int8 text_shift[] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
     2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3
 };
 
-static const int text_value[] = {
+static const int8 text_value[] = { // @sobolev int-->int8
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
     3, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
     15, 16, 17, 18, 19, 20, 21, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
     22, 23, 24, 25, 26, 0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 27, 28, 29, 30, 31
 };
 
-static const int c1_height[] = {
+static const int16 c1_height[] = { // @sobolev int-->int16
     16, 22, 28, 40, 52, 70, 104, 148
 };
 
-static const int c1_width[] = {
+static const int16 c1_width[] = { // @sobolev int-->int16
     18, 22, 32, 42, 54, 76, 98, 134
 };
 
-static const int c1_data_length[] = {
+static const int16 c1_data_length[] = { // @sobolev int-->int16
     10, 19, 44, 91, 182, 370, 732, 1480
 };
 
-static const int c1_ecc_length[] = {
+static const int16 c1_ecc_length[] = { // @sobolev int-->int16
     10, 16, 26, 44, 70, 140, 280, 560
 };
 
-static const int c1_blocks[] = {
+static const int8 c1_blocks[] = { // @sobolev int-->int8
     1, 1, 1, 1, 1, 2, 4, 8
 };
 
-static const int c1_data_blocks[] = {
+static const int16 c1_data_blocks[] = { // @sobolev int-->int16
     10, 19, 44, 91, 182, 185, 183, 185
 };
 
-static const int c1_ecc_blocks[] = {
+static const int8 c1_ecc_blocks[] = { // @sobolev int-->int8
     10, 16, 26, 44, 70, 70, 70, 70
 };
 
-static const int c1_grid_width[] = {
+static const int8 c1_grid_width[] = { // @sobolev int-->int8
     4, 5, 7, 9, 12, 17, 22, 30
 };
 
-static const int c1_grid_height[] = {
+static const int8 c1_grid_height[] = { // @sobolev int-->int8
     5, 7, 10, 15, 21, 30, 46, 68
 };
 

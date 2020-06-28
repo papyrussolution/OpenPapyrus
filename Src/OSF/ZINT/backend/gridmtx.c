@@ -951,22 +951,23 @@ int gm_encode(int gbdata[], int length, char binary[], int reader, int eci)
 			return ZINT_ERROR_TOO_LONG;
 		}
 	} while(sp < length);
-
 	if(current_mode == GM_NUMBER) {
 		/* add numeric block padding value */
 		switch(p) {
-			case 1: binary[number_pad_posn] = '1';
+			case 1: 
+				binary[number_pad_posn] = '1';
 			    binary[number_pad_posn + 1] = '0';
 			    break; // 2 pad digits
-			case 2: binary[number_pad_posn] = '0';
+			case 2: 
+				binary[number_pad_posn] = '0';
 			    binary[number_pad_posn + 1] = '1';
 			    break; // 1 pad digit
-			case 3: binary[number_pad_posn] = '0';
+			case 3: 
+				binary[number_pad_posn] = '0';
 			    binary[number_pad_posn + 1] = '0';
 			    break; // 0 pad digits
 		}
 	}
-
 	if(current_mode == GM_BYTE) {
 		/* Add byte block length indicator */
 		add_byte_count(binary, byte_count_posn, byte_count);

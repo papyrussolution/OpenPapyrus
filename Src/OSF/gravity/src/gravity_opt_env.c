@@ -22,12 +22,12 @@ static uint32 refcount = 0;
 static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
-	if(!VALUE_ISA_STRING(args[1])) {
+	if(!args[1].IsString()) {
 		RETURN_ERROR("Environment variable key must be a string.");
 	}
-	char * key = VALUE_AS_CSTRING(args[1]);
+	char * key = args[1].GetZString();
 	char * value = getenv(key);
-	GravityValue rt = VALUE_FROM_UNDEFINED;
+	GravityValue rt = GravityValue::from_undefined();
 	// GRAVITY_DEBUG_PRINT("[ENV::GET args : %i] %s => %s\n", nargs, key, value);
 	if(value) {
 		rt = VALUE_FROM_STRING(vm, value, (uint32)strlen(value));
@@ -46,14 +46,14 @@ static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, 
 static bool gravity_env_set(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(nargs)
-	if(!VALUE_ISA_STRING(args[1]) || (!VALUE_ISA_STRING(args[2]) && !VALUE_ISA_NULL(args[2]))) {
+	if(!args[1].IsString() || (!args[2].IsString() && !VALUE_ISA_NULL(args[2]))) {
 		RETURN_ERROR("Environment variable key and value must both be strings.");
 	}
-	gravity_string_t * key = VALUE_AS_STRING(args[1]);
-	gravity_string_t * value = (VALUE_ISA_STRING(args[2])) ? VALUE_AS_STRING(args[2]) : NULL;
+	gravity_string_t * key = static_cast<gravity_string_t *>(args[1]);
+	gravity_string_t * value = args[2].IsString() ? static_cast<gravity_string_t *>(args[2]) : NULL;
 	// GRAVITY_DEBUG_PRINT("[ENV::SET args : %i] %s => %s\n", nargs, key, value);
 	int rt = (value) ? setenv(key->s, value->s, 1) : unsetenv(key->s);
-	RETURN_VALUE(VALUE_FROM_INT(rt), rindex);
+	RETURN_VALUE(GravityValue::from_int(rt), rindex);
 }
 
 static bool gravity_env_keys(gravity_vm * vm, GravityValue * args, uint16 nparams, uint32 rindex) 
@@ -70,7 +70,7 @@ static bool gravity_env_keys(gravity_vm * vm, GravityValue * args, uint16 nparam
 				break;
 		}
 		GravityValue key = VALUE_FROM_STRING(vm, entry, len);
-		marray_push(GravityValue, keys->array, key);
+		keys->array.insert(key);
 	}
 	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(keys)), rindex);
 }

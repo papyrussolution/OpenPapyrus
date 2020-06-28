@@ -540,7 +540,7 @@ public:
 Sci_Position SCI_METHOD LexerCPP::PropertySet(const char * key, const char * val)
 {
 	if(osCPP.PropertySet(&options, key, val)) {
-		if(strcmp(key, "lexer.cpp.allow.dollars") == 0) {
+		if(sstreq(key, "lexer.cpp.allow.dollars")) {
 			setWord = CharacterSet(CharacterSet::setAlphaNum, "._", 0x80, true);
 			if(options.identifiersAllowDollars) {
 				setWord.Add('$');

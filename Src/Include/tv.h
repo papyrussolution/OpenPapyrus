@@ -1849,8 +1849,7 @@ public:
 	//
 	enum {
 		dfAbs     = 0x0001, // Координата задана в абсолютных единицах
-		dfRel     = 0x0002, // Координата задана в долях от общего размера контейнера.
-			// Значение кодируется как число с фиксированной точкой (4 знака)
+		dfRel     = 0x0002, // Координата задана в долях от общего размера контейнера. Значение кодируется как число с фиксированной точкой (4 знака)
 		dfGravity = 0x0004, // Координата притягивается к соответствующей границе контейнера.
 		dfOpp     = 0x0008  // Координата отсчитывается от противоположной стороны контейнера.
 	};
@@ -5173,7 +5172,6 @@ public:
 	int    SLAPI GetStyles(int group, int lexerId, TSCollection <Style> * pList) const;
 	int    SLAPI GetModel(int lexerId, LangModel * pModel) const;
 	int    SLAPI GetModelKeywords(int lexerId, TSCollection <LangModelKeywords> * pList) const;
-
 	int    SLAPI ParseStylesXml(const char * pFileName);
 	int    SLAPI ParseModelXml(const char * pFileName);
 private:
@@ -5205,6 +5203,7 @@ private:
 	void   FASTCALL InnerToOuter(const InnerStyle & rS, Style & rD) const;
 	void   FASTCALL InnerToOuter(const InnerLangModel & rS, LangModel & rD) const;
 	void   FASTCALL InnerToOuter(const InnerLangModelKeywords & rS, LangModelKeywords & rD) const;
+	int    SLAPI ReadStyleAttributes(const xmlNode * pNode, InnerStyle & rS);
 
 	TSVector <InnerLangModel> ML; // @v9.8.4 TSArray-->TSVector
 	TSVector <InnerLangModelKeywords> KwL; // @v9.8.4 TSArray-->TSVector

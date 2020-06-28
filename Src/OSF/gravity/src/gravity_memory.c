@@ -52,17 +52,15 @@ static bool _is_internal(const char * s);
 
 typedef struct {
 	bool deleted;
-	void                    * ptr;
+	void * ptr;
 	size_t size;
 	size_t nrealloc;
-
 	// record where it has been allocated/reallocated
 	size_t nframe;
-	char                    ** frames;
-
+	char ** frames;
 	// record where is has been freed
 	size_t nframe2;
-	char                    ** frames2;
+	char ** frames2;
 } memslot;
 
 typedef struct {
@@ -79,7 +77,8 @@ typedef struct {
 static _memdebug memdebug;
 static bool check_flag = true;
 
-static void memdebug_report(char * str, char ** stack, size_t nstack, memslot * slot) {
+static void memdebug_report(char * str, char ** stack, size_t nstack, memslot * slot) 
+{
 	printf("%s\n", str);
 	for(size_t i = 0; i<nstack; ++i) {
 		if(_is_internal(stack[i])) continue;

@@ -698,7 +698,6 @@ void xmlFreeValidCtxt(xmlValidCtxtPtr cur)
 }
 
 #endif /* LIBXML_VALID_ENABLED */
-
 /**
  * xmlNewDocElementContent:
  * @doc:  the document
@@ -718,14 +717,14 @@ xmlElementContent * xmlNewDocElementContent(xmlDoc * doc, const xmlChar * name, 
 	switch(type) {
 		case XML_ELEMENT_CONTENT_ELEMENT:
 		    if(!name) {
-			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewElementContent : name == NULL !\n", 0);
+			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": name == NULL !\n", 0);
 		    }
 		    break;
 		case XML_ELEMENT_CONTENT_PCDATA:
 		case XML_ELEMENT_CONTENT_SEQ:
 		case XML_ELEMENT_CONTENT_OR:
 		    if(name) {
-			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewElementContent : name != NULL !\n", 0);
+			    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": name != NULL !\n", 0);
 		    }
 		    break;
 		default:
@@ -1111,25 +1110,25 @@ xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar
 	switch(type) {
 		case XML_ELEMENT_TYPE_EMPTY:
 		    if(content) {
-			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlAddElementDecl: content != NULL for EMPTY\n", 0);
+			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": content != NULL for EMPTY\n", 0);
 			    return 0;
 		    }
 		    break;
 		case XML_ELEMENT_TYPE_ANY:
 		    if(content) {
-			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlAddElementDecl: content != NULL for ANY\n", 0);
+			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": content != NULL for ANY\n", 0);
 			    return 0;
 		    }
 		    break;
 		case XML_ELEMENT_TYPE_MIXED:
 		    if(content == NULL) {
-			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlAddElementDecl: content == NULL for MIXED\n", 0);
+			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": content == NULL for MIXED\n", 0);
 			    return 0;
 		    }
 		    break;
 		case XML_ELEMENT_TYPE_ELEMENT:
 		    if(content == NULL) {
-			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlAddElementDecl: content == NULL for ELEMENT\n", 0);
+			    xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": content == NULL for ELEMENT\n", 0);
 			    return 0;
 		    }
 		    break;
@@ -1150,10 +1149,10 @@ xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlChar
 	if(table == NULL) {
 		xmlDict * dict = dtd->doc ? dtd->doc->dict : 0;
 		table = xmlHashCreateDict(0, dict);
-		dtd->elements = (void *)table;
+		dtd->elements = table;
 	}
 	if(table == NULL) {
-		xmlVErrMemory(ctxt, "xmlAddElementDecl: Table creation failed!\n");
+		xmlVErrMemory(ctxt, __FUNCTION__ ": Table creation failed!\n");
 		SAlloc::F(uqname);
 		SAlloc::F(ns);
 		return 0;
@@ -1615,7 +1614,7 @@ xmlAttribute * xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xml
 		dtd->attributes = (void *)table;
 	}
 	if(table == NULL) {
-		xmlVErrMemory(ctxt, "xmlAddAttributeDecl: Table creation failed!\n");
+		xmlVErrMemory(ctxt, __FUNCTION__ ": Table creation failed!\n");
 		xmlFreeEnumeration(tree);
 		return 0;
 	}
@@ -1779,7 +1778,7 @@ xmlAttributeTable * xmlCopyAttributeTable(xmlAttributeTable * table)
  */
 void xmlDumpAttributeDecl(xmlBuffer * buf, xmlAttribute * attr) 
 {
-	if(!buf || (attr == NULL))
+	if(!buf || !attr)
 		return;
 	xmlBufferWriteChar(buf, "<!ATTLIST ");
 	xmlBufferWriteCHAR(buf, attr->elem);
@@ -1901,7 +1900,7 @@ xmlNotation * xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlCh
 		dtd->notations = table = xmlHashCreateDict(0, dict);
 	}
 	if(table == NULL) {
-		xmlVErrMemory(ctxt, "xmlAddNotationDecl: Table creation failed!\n");
+		xmlVErrMemory(ctxt, __FUNCTION__ ": Table creation failed!\n");
 		return 0;
 	}
 	ret = static_cast<xmlNotation *>(SAlloc::M(sizeof(xmlNotation)));
@@ -1922,7 +1921,7 @@ xmlNotation * xmlAddNotationDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xmlCh
 	 */
 	if(xmlHashAddEntry(table, name, ret)) {
 #ifdef LIBXML_VALID_ENABLED
-		xmlErrValid(NULL, XML_DTD_NOTATION_REDEFINED, "xmlAddNotationDecl: %s already defined\n", (const char *)name);
+		xmlErrValid(NULL, XML_DTD_NOTATION_REDEFINED, __FUNCTION__ ": %s already defined\n", (const char *)name);
 #endif /* LIBXML_VALID_ENABLED */
 		xmlFreeNotation(ret);
 		return 0;
@@ -2078,7 +2077,7 @@ xmlID * xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlA
 			doc->ids = table = xmlHashCreateDict(0, doc->dict);
 		}
 		if(table == NULL) {
-			xmlVErrMemory(ctxt, "xmlAddID: Table creation failed!\n");
+			xmlVErrMemory(ctxt, __FUNCTION__ ": Table creation failed!\n");
 			return 0;
 		}
 		ret = static_cast<xmlID *>(SAlloc::M(sizeof(xmlID)));
@@ -2336,11 +2335,10 @@ xmlRef * xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xm
 		 * Create the Ref table if needed.
 		 */
 		xmlRefTable * table = static_cast<xmlRefTable *>(doc->refs);
-		if(table == NULL) {
+		if(!table)
 			doc->refs = table = xmlHashCreateDict(0, doc->dict);
-		}
-		if(table == NULL) {
-			xmlVErrMemory(ctxt, "xmlAddRef: Table creation failed!\n");
+		if(!table) {
+			xmlVErrMemory(ctxt, __FUNCTION__ ": Table creation failed!\n");
 			return 0;
 		}
 		ret = static_cast<xmlRef *>(SAlloc::M(sizeof(xmlRef)));
@@ -2352,7 +2350,7 @@ xmlRef * xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xm
 		 * fill the structure.
 		 */
 		ret->value = sstrdup(value);
-		if(ctxt && (ctxt->vstateNr != 0)) {
+		if(ctxt && ctxt->vstateNr) {
 			/*
 			 * Operating in streaming mode, attr is gonna disapear
 			 */
@@ -2373,17 +2371,17 @@ xmlRef * xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xm
 		 */
 		if(NULL == (ref_list = (xmlList *)xmlHashLookup(table, value))) {
 			if(NULL == (ref_list = xmlListCreate(xmlFreeRef, xmlDummyCompare))) {
-				xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlAddRef: Reference list creation failed!\n", 0);
+				xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": Reference list creation failed!\n", 0);
 				goto failed;
 			}
 			if(xmlHashAddEntry(table, value, ref_list) < 0) {
 				xmlListDelete(ref_list);
-				xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlAddRef: Reference list insertion failed!\n", 0);
+				xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": Reference list insertion failed!\n", 0);
 				goto failed;
 			}
 		}
 		if(xmlListAppend(ref_list, ret) != 0) {
-			xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "xmlAddRef: Reference list insertion failed!\n", 0);
+			xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, __FUNCTION__ ": Reference list insertion failed!\n", 0);
 			goto failed;
 		}
 	}
@@ -5576,7 +5574,7 @@ int xmlValidateDocumentFinal(xmlValidCtxtPtr ctxt, xmlDoc * doc)
 	if(!ctxt)
 		return 0;
 	if(!doc) {
-		xmlErrValid(ctxt, XML_DTD_NO_DOC, "xmlValidateDocumentFinal: doc == NULL\n", 0);
+		xmlErrValid(ctxt, XML_DTD_NO_DOC, __FUNCTION__ ": doc == NULL\n", 0);
 		return 0;
 	}
 	/* trick to get correct line id report */
@@ -5697,7 +5695,7 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
 		if(cur->atype == XML_ATTRIBUTE_NOTATION) {
 			doc = cur->doc;
 			if(!cur->elem) {
-				xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, "xmlValidateAttributeCallback(%s): internal error\n", reinterpret_cast<const char *>(cur->name));
+				xmlErrValid(ctxt, XML_ERR_INTERNAL_ERROR, __FUNCTION__ "(%s): internal error\n", reinterpret_cast<const char *>(cur->name));
 			}
 			else {
 				if(doc)

@@ -48,280 +48,260 @@ static uint32 refcount = 0;
 // MARK: - Implementation -
 
 // returns the absolute value of x
-static bool math_abs(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_abs(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_int_t computed_value;
 	#if GRAVITY_ENABLE_INT64
 		computed_value = (gravity_int_t)llabs((long long)value.n);
 	#else
 		computed_value = (gravity_int_t)labs((long)value.n);
 	#endif
-		RETURN_VALUE(VALUE_FROM_INT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_int(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value;
 	#if GRAVITY_ENABLE_DOUBLE
 		computed_value = (gravity_float_t)fabs((double)value.f);
 	#else
 		computed_value = (gravity_float_t)fabsf((float)value.f);
 	#endif
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the arccosine of x, in radians
-static bool math_acos(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_acos(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)ACOS((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)ACOS((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the arcsine of x, in radians
 static bool math_asin(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)ASIN((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)ASIN((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the arctangent of x as a numeric value between -PI/2 and PI/2 radians
 static bool math_atan(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)ATAN((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)ATAN((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the arctangent of the quotient of its arguments
 static bool math_atan2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm)
-	if(nargs != 3) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
-	GravityValue value = GET_VALUE(1);
-	GravityValue value2 = GET_VALUE(2);
+	if(nargs != 3) RETURN_VALUE(GravityValue::from_undefined(), rindex);
+	GravityValue value = args[1];
+	GravityValue value2 = args[2];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
 	gravity_float_t n2;
-	if(VALUE_ISA_INT(value2)) n2 = (gravity_float_t)value2.n;
-	else if(VALUE_ISA_FLOAT(value2)) n2 = (gravity_float_t)value2.f;
-	else RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
-
-	if(VALUE_ISA_INT(value)) {
+	if(value2.IsInt()) 
+		n2 = (gravity_float_t)value2.n;
+	else if(value2.IsFloat()) 
+		n2 = (gravity_float_t)value2.f;
+	else 
+		RETURN_VALUE(GravityValue::from_undefined(), rindex);
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)ATAN2((gravity_float_t)value.n, n2);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)ATAN2((gravity_float_t)value.f, n2);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 static bool math_cbrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
+	GravityValue value = args[1];
 
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
 
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)CBRT((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)CBRT((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
-static bool math_xrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-	if(nargs != 3) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
-
-	GravityValue base = GET_VALUE(1);
-	GravityValue value = GET_VALUE(2);
-
+static bool math_xrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+	if(nargs != 3) 
+		RETURN_VALUE(GravityValue::from_undefined(), rindex);
+	GravityValue base = args[1];
+	GravityValue value = args[2];
 	if(VALUE_ISA_NULL(value) || VALUE_ISA_NULL(base)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value) && VALUE_ISA_INT(base)) {
+	if(value.IsInt() && base.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)pow((gravity_float_t)value.n, 1.0/base.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_INT(value) && VALUE_ISA_FLOAT(base)) {
+	if(value.IsInt() && base.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)pow((gravity_float_t)value.n, 1.0/base.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
-	if(VALUE_ISA_FLOAT(value) && VALUE_ISA_INT(base)) {
+	if(value.IsFloat() && base.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)pow((gravity_float_t)value.f, 1.0/base.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
-	if(VALUE_ISA_FLOAT(value) && VALUE_ISA_INT(base)) {
+	if(value.IsFloat() && base.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)pow((gravity_float_t)value.f, 1.0/base.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns x, rounded upwards to the nearest integer
-static bool math_ceil(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+static bool math_ceil(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm, nargs)
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)CEIL((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)CEIL((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the cosine of x (x is in radians)
-static bool math_cos(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+static bool math_cos(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm, nargs)
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)COS((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)COS((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the value of Ex
-static bool math_exp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+static bool math_exp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm, nargs)
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)EXP((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)EXP((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns x, rounded downwards to the nearest integer
-static bool math_floor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+static bool math_floor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm, nargs)
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)FLOOR((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)FLOOR((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
-static int gcf(int x, int y) {
+static int gcf(int x, int y) 
+{
 	if(x == 0) {
 		return y;
 	}
@@ -338,17 +318,18 @@ static int gcf(int x, int y) {
 
 static bool math_gcf(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
-    #pragma unused (vm, rindex)
+    //#pragma unused (vm, rindex)
 	if(nargs < 3) 
-		RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+		RETURN_VALUE(GravityValue::from_undefined(), rindex);
 	for(int i = 1; i < nargs; ++i) {
-		if(!VALUE_ISA_INT(GET_VALUE(i))) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+		if(!args[i].IsInt()) 
+			RETURN_VALUE(GravityValue::from_undefined(), rindex);
 	}
-	int gcf_value = (int)GET_VALUE(1).n;
+	int gcf_value = (int)args[1].n;
 	for(int i = 1; i < nargs-1; ++i) {
-		gcf_value = gcf(gcf_value, (int)GET_VALUE(i+1).n);
+		gcf_value = gcf(gcf_value, (int)args[i+1].n);
 	}
-	RETURN_VALUE(VALUE_FROM_INT(gcf_value), rindex);
+	RETURN_VALUE(GravityValue::from_int(gcf_value), rindex);
 }
 
 static int lcm(int x, int y) 
@@ -358,16 +339,18 @@ static int lcm(int x, int y)
 
 static bool math_lcm(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
-    #pragma unused (vm, rindex)
-	if(nargs < 3) RETURN_ERROR("2 or more arguments expected");
+    //#pragma unused (vm, rindex)
+	if(nargs < 3) 
+		RETURN_ERROR("2 or more arguments expected");
 	for(int i = 1; i < nargs; ++i) {
-		if(!VALUE_ISA_INT(GET_VALUE(i))) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+		if(!args[i].IsInt()) 
+			RETURN_VALUE(GravityValue::from_undefined(), rindex);
 	}
-	int lcm_value = (int)GET_VALUE(1).n;
+	int lcm_value = (int)args[1].n;
 	for(int i = 1; i < nargs-1; ++i) {
-		lcm_value = lcm(lcm_value, (int)GET_VALUE(i+1).n);
+		lcm_value = lcm(lcm_value, (int)args[i+1].n);
 	}
-	RETURN_VALUE(VALUE_FROM_INT(lcm_value), rindex);
+	RETURN_VALUE(GravityValue::from_int(lcm_value), rindex);
 }
 
 // returns the linear interpolation from a to b of value t
@@ -376,147 +359,135 @@ static bool math_lerp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32
 #pragma unused(vm, nargs)
 	// three arguments are required
 	if(nargs < 4) 
-		RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+		RETURN_VALUE(GravityValue::from_undefined(), rindex);
 	gravity_float_t a, b, t;
-	GravityValue value = GET_VALUE(1);
-	if(VALUE_ISA_INT(value)) {
+	GravityValue value = args[1];
+	if(value.IsInt()) {
 		a = (gravity_float_t)value.n;
 	}
 	else {
-		if(VALUE_ISA_FLOAT(value)) {
+		if(value.IsFloat()) {
 			a = value.f;
 		}
 		else {
-			RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+			RETURN_VALUE(GravityValue::from_undefined(), rindex);
 		}
 	}
-	value = GET_VALUE(2);
-	if(VALUE_ISA_INT(value)) {
+	value = args[2];
+	if(value.IsInt()) {
 		b = (gravity_float_t)value.n;
 	}
 	else {
-		if(VALUE_ISA_FLOAT(value)) {
+		if(value.IsFloat()) {
 			b = value.f;
 		}
 		else {
-			RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+			RETURN_VALUE(GravityValue::from_undefined(), rindex);
 		}
 	}
-	value = GET_VALUE(3);
-	if(VALUE_ISA_INT(value)) {
+	value = args[3];
+	if(value.IsInt()) {
 		t = (gravity_float_t)value.n;
 	}
 	else {
-		if(VALUE_ISA_FLOAT(value)) {
+		if(value.IsFloat()) {
 			t = value.f;
 		}
 		else {
-			RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+			RETURN_VALUE(GravityValue::from_undefined(), rindex);
 		}
 	}
 	gravity_float_t lerp = a+(b-a)*t;
-	RETURN_VALUE(VALUE_FROM_FLOAT(lerp), rindex);
+	RETURN_VALUE(GravityValue::from_float(lerp), rindex);
 }
 
 // returns the natural logarithm (base E) of x
 static bool math_log(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
-    #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
+    //#pragma unused(vm, nargs)
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the base 10 logarithm of x
-static bool math_log10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+static bool math_log10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm, nargs)
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.n)/(gravity_float_t)LOG((gravity_float_t)10);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.f)/(gravity_float_t)LOG((gravity_float_t)10);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the logarithm (base x) of y
-static bool math_logx(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm, nargs)
-	GravityValue base = GET_VALUE(1);
-	GravityValue value = GET_VALUE(2);
-
+static bool math_logx(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm, nargs)
+	GravityValue base = args[1];
+	GravityValue value = args[2];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value) && VALUE_ISA_INT(base)) {
-		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.n)/
-		    (gravity_float_t)LOG((gravity_float_t)base.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+	if(value.IsInt() && base.IsInt()) {
+		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.n)/(gravity_float_t)LOG((gravity_float_t)base.n);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_INT(value) && VALUE_ISA_FLOAT(base)) {
-		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.n)/
-		    (gravity_float_t)LOG((gravity_float_t)base.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+	if(value.IsInt() && base.IsFloat()) {
+		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.n)/(gravity_float_t)LOG((gravity_float_t)base.f);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value) && VALUE_ISA_INT(base)) {
-		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.f)/
-		    (gravity_float_t)LOG((gravity_float_t)base.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+	if(value.IsFloat() && base.IsInt()) {
+		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.f)/(gravity_float_t)LOG((gravity_float_t)base.n);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value) && VALUE_ISA_FLOAT(base)) {
-		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.f)/
-		    (gravity_float_t)LOG((gravity_float_t)base.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+	if(value.IsFloat() && base.IsFloat()) {
+		gravity_float_t computed_value = (gravity_float_t)LOG((gravity_float_t)value.f)/(gravity_float_t)LOG((gravity_float_t)base.f);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the number with the highest value
-static bool math_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-	if(nargs == 1) RETURN_VALUE(VALUE_FROM_NULL, rindex);
-
+static bool math_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+	if(nargs == 1) 
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	gravity_float_t n = -GRAVITY_FLOAT_MAX;
 	uint16 maxindex = 1;
 	bool found = false;
-
 	for(uint16 i = 1; i<nargs; ++i) {
-		GravityValue value = GET_VALUE(i);
-		if(VALUE_ISA_INT(value)) {
+		GravityValue value = args[i];
+		if(value.IsInt()) {
 			found = true;
 			if((gravity_float_t)value.n > n) {
 				n = (gravity_float_t)value.n;
 				maxindex = i;
 			}
 		}
-		else if(VALUE_ISA_FLOAT(value)) {
+		else if(value.IsFloat()) {
 			found = true;
 			if(value.f > n) {
 				n = value.f;
@@ -525,32 +496,30 @@ static bool math_max(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 
 		}
 		else continue;
 	}
-
 	if(!found) {
-		RETURN_VALUE(VALUE_FROM_NULL, rindex);
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	}
-
-	RETURN_VALUE(GET_VALUE(maxindex), rindex);
+	RETURN_VALUE(args[maxindex], rindex);
 }
 
 // returns the number with the lowest value
-static bool math_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-	if(nargs == 1) RETURN_VALUE(VALUE_FROM_NULL, rindex);
-
+static bool math_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+	if(nargs == 1) 
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	gravity_float_t n = GRAVITY_FLOAT_MAX;
 	uint16 minindex = 1;
 	bool found = false;
-
 	for(uint16 i = 1; i<nargs; ++i) {
-		GravityValue value = GET_VALUE(i);
-		if(VALUE_ISA_INT(value)) {
+		GravityValue value = args[i];
+		if(value.IsInt()) {
 			found = true;
 			if((gravity_float_t)value.n < n) {
 				n = (gravity_float_t)value.n;
 				minindex = i;
 			}
 		}
-		else if(VALUE_ISA_FLOAT(value)) {
+		else if(value.IsFloat()) {
 			found = true;
 			if(value.f < n) {
 				n = value.f;
@@ -559,79 +528,73 @@ static bool math_min(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 
 		}
 		else continue;
 	}
-
 	if(!found) {
-		RETURN_VALUE(VALUE_FROM_NULL, rindex);
+		RETURN_VALUE(GravityValue::from_null(), rindex);
 	}
-
-	RETURN_VALUE(GET_VALUE(minindex), rindex);
+	RETURN_VALUE(args[minindex], rindex);
 }
 
 // returns the value of x to the power of y
-static bool math_pow(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
-    #pragma unused(vm)
-
-	if(nargs != 3) RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
-
-	GravityValue value = GET_VALUE(1);
-	GravityValue value2 = GET_VALUE(2);
-
+static bool math_pow(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+    //#pragma unused(vm)
+	if(nargs != 3) 
+		RETURN_VALUE(GravityValue::from_undefined(), rindex);
+	GravityValue value = args[1];
+	GravityValue value2 = args[2];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
 	gravity_float_t n2;
-	if(VALUE_ISA_INT(value2)) n2 = (gravity_float_t)value2.n;
-	else if(VALUE_ISA_FLOAT(value2)) n2 = (gravity_float_t)value2.f;
-	else RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
-
-	if(VALUE_ISA_INT(value)) {
+	if(value2.IsInt()) 
+		n2 = (gravity_float_t)value2.n;
+	else if(value2.IsFloat()) 
+		n2 = (gravity_float_t)value2.f;
+	else 
+		RETURN_VALUE(GravityValue::from_undefined(), rindex);
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)POW((gravity_float_t)value.n, n2);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)POW((gravity_float_t)value.f, n2);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // rounds x to the nearest integer
-static bool math_round(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_round(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)ROUND((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		// check for extra parameters
 		gravity_int_t ndigits = 0;
 		bool toString = false;
-
-		if(nargs >= 3 && VALUE_ISA_INT(GET_VALUE(2))) {
-			GravityValue extra = GET_VALUE(2);
-			if(VALUE_AS_INT(extra) > 0) ndigits = VALUE_AS_INT(extra);
-			if(ndigits > FLOAT_MAX_DECIMALS) ndigits = FLOAT_MAX_DECIMALS;
+		if(nargs >= 3 && args[2].IsInt()) {
+			GravityValue extra = args[2];
+			if(extra.GetInt() > 0) 
+				ndigits = extra.GetInt();
+			if(ndigits > FLOAT_MAX_DECIMALS) 
+				ndigits = FLOAT_MAX_DECIMALS;
 		}
-
-		if(nargs >= 4 && VALUE_ISA_BOOL(GET_VALUE(3))) {
-			toString = VALUE_AS_BOOL(GET_VALUE(3));
+		if(nargs >= 4 && args[3].IsBool()) {
+			toString = VALUE_AS_BOOL(args[3]);
 		}
-
 		if(ndigits) {
 			double d = pow(10.0, (double)ndigits);
 			gravity_float_t f = (gravity_float_t)(ROUND((gravity_float_t)value.f * (gravity_float_t)d)) / (gravity_float_t)d;
-
 			// convert f to string
 			char buffer[512];
 			snprintf(buffer, sizeof(buffer), "%f", f);
@@ -656,125 +619,126 @@ static bool math_round(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 				// force string value
 				RETURN_VALUE(VALUE_FROM_CSTRING(vm, buffer), rindex);
 			}
-
 			// default case is to re-convert string to float value
-			RETURN_VALUE(VALUE_FROM_FLOAT(strtod(buffer, NULL)), rindex);
+			RETURN_VALUE(GravityValue::from_float(strtod(buffer, NULL)), rindex);
 		}
-
 		// simpler round case
 		gravity_float_t computed_value = (gravity_float_t)ROUND((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the sine of x (x is in radians)
-static bool math_sin(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_sin(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)SIN((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)SIN((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the square root of x
-static bool math_sqrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_sqrt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
-
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)SQRT((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)SQRT((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // returns the tangent of an angle
 static bool math_tan(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
     #pragma unused(vm, nargs)
-	GravityValue value = GET_VALUE(1);
+	GravityValue value = args[1];
 	if(VALUE_ISA_NULL(value)) {
-		RETURN_VALUE(VALUE_FROM_INT(0), rindex);
+		RETURN_VALUE(GravityValue::from_int(0), rindex);
 	}
-	if(VALUE_ISA_INT(value)) {
+	if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)TAN((gravity_float_t)value.n);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
-	if(VALUE_ISA_FLOAT(value)) {
+	if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)TAN((gravity_float_t)value.f);
-		RETURN_VALUE(VALUE_FROM_FLOAT(computed_value), rindex);
+		RETURN_VALUE(GravityValue::from_float(computed_value), rindex);
 	}
 	// should be NaN
-	RETURN_VALUE(VALUE_FROM_UNDEFINED, rindex);
+	RETURN_VALUE(GravityValue::from_undefined(), rindex);
 }
 
 // CONSTANTS
-static bool math_PI(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_PI(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(3.141592653589793), rindex);
+	RETURN_VALUE(GravityValue::from_float(/*3.141592653589793*/SMathConst::Pi), rindex);
 }
 
-static bool math_E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(2.718281828459045), rindex);
+	RETURN_VALUE(GravityValue::from_float(/*2.718281828459045*/SMathConst::E), rindex);
 }
 
-static bool math_LN2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_LN2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(0.6931471805599453), rindex);
+	RETURN_VALUE(GravityValue::from_float(0.6931471805599453), rindex);
 }
 
-static bool math_LN10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_LN10(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(2.302585092994046), rindex);
+	RETURN_VALUE(GravityValue::from_float(2.302585092994046), rindex);
 }
 
-static bool math_LOG2E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_LOG2E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(1.4426950408889634), rindex);
+	RETURN_VALUE(GravityValue::from_float(1.4426950408889634), rindex);
 }
 
-static bool math_LOG10E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_LOG10E(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(0.4342944819032518), rindex);
+	RETURN_VALUE(GravityValue::from_float(0.4342944819032518), rindex);
 }
 
-static bool math_SQRT2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_SQRT2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(1.4142135623730951), rindex);
+	RETURN_VALUE(GravityValue::from_float(1.4142135623730951), rindex);
 }
 
-static bool math_SQRT1_2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) {
+static bool math_SQRT1_2(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
     #pragma unused(vm, args, nargs)
-	RETURN_VALUE(VALUE_FROM_FLOAT(0.7071067811865476), rindex);
+	RETURN_VALUE(GravityValue::from_float(0.7071067811865476), rindex);
 }
 
 // MARK: - Random -
@@ -869,58 +833,55 @@ static bool math_random(gravity_vm * vm, GravityValue * args, uint16 nargs, uint
 	lfsr113_init((uint32)time(NULL));
 	gravity_float_t rnd = lfsr113();
     #endif
-
 	// if at least one parameter is passed
 	if(nargs > 1) {
-		GravityValue value1 = VALUE_FROM_UNDEFINED;
-		GravityValue value2 = VALUE_FROM_UNDEFINED;
-
+		GravityValue value1 = GravityValue::from_undefined();
+		GravityValue value2 = GravityValue::from_undefined();
 		// if one parameter is passed it must be Int or Float and a number between 0 and the parameter will be
 		// returned
 		if(nargs == 2) {
-			value2 = GET_VALUE(1);
-			if(VALUE_ISA_INT(value2)) value1 = VALUE_FROM_INT(0);
-			if(VALUE_ISA_FLOAT(value2)) value1 = VALUE_FROM_FLOAT(0.0);
+			value2 = args[1];
+			if(value2.IsInt()) 
+				value1 = GravityValue::from_int(0);
+			if(value2.IsFloat()) 
+				value1 = GravityValue::from_float(0.0);
 		}
-
 		// if two parameters are passed they must be both Int or Float and a number between parameter1 and
 		// parameter2 will be returned
 		if(nargs == 3) {
-			value1 = GET_VALUE(1);
-			value2 = GET_VALUE(2);
+			value1 = args[1];
+			value2 = args[2];
 		}
-
 		// at this point I should have 2 values of the same type, if not continue with the default case (and
 		// ignore any extra parameter)
-		if((value1.isa == value2.isa) && (VALUE_ISA_INT(value1))) {
-			gravity_int_t n1 = VALUE_AS_INT(value1); // min
-			gravity_int_t n2 = VALUE_AS_INT(value2); // max
-			if(n1 == n2) RETURN_VALUE(VALUE_FROM_INT(n1), rindex);
+		if((value1.isa == value2.isa) && value1.IsInt()) {
+			gravity_int_t n1 = value1.GetInt(); // min
+			gravity_int_t n2 = value2.GetInt(); // max
+			if(n1 == n2) RETURN_VALUE(GravityValue::from_int(n1), rindex);
 
 			gravity_int_t n0 = (gravity_int_t)(rnd * GRAVITY_INT_MAX);
 			if(n1 > n2) {
 				gravity_int_t temp = n1; n1 = n2; n2 = temp;
 			}                                               // swap numbers if min > max
 			gravity_int_t n = (gravity_int_t)(n0 % (n2 + 1 - n1) + n1);
-			RETURN_VALUE(VALUE_FROM_INT(n), rindex);
+			RETURN_VALUE(GravityValue::from_int(n), rindex);
 		}
-
-		if((value1.isa == value2.isa) && (VALUE_ISA_FLOAT(value1))) {
-			gravity_float_t n1 = VALUE_AS_FLOAT(value1); // min
-			gravity_float_t n2 = VALUE_AS_FLOAT(value2); // max
-			if(n1 == n2) RETURN_VALUE(VALUE_FROM_FLOAT(n1), rindex);
-
+		if(value1.isa == value2.isa && value1.IsFloat()) {
+			gravity_float_t n1 = value1.GetFloat(); // min
+			gravity_float_t n2 = value2.GetFloat(); // max
+			if(n1 == n2) 
+				RETURN_VALUE(GravityValue::from_float(n1), rindex);
 			if(n1 > n2) {
 				gravity_float_t temp = n1; n1 = n2; n2 = temp;
 			}                                                  // swap numbers if min > max
 			gravity_float_t diff = n2 - n1;
 			gravity_float_t r = rnd * diff;
-			RETURN_VALUE(VALUE_FROM_FLOAT(r + n1), rindex);
+			RETURN_VALUE(GravityValue::from_float(r + n1), rindex);
 		}
 	}
 
 	// default case is to return a float number between 0.0 and 1.0
-	RETURN_VALUE(VALUE_FROM_FLOAT(rnd), rindex);
+	RETURN_VALUE(GravityValue::from_float(rnd), rindex);
 }
 
 // MARK: - Internals -

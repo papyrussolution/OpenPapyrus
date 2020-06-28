@@ -97,7 +97,7 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 static int archive_filter_uuencode_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_uuencode * state = static_cast<struct private_uuencode *>(f->data);
-	if(strcmp(key, "mode") == 0) {
+	if(sstreq(key, "mode")) {
 		if(value == NULL) {
 			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "mode option requires octal digits");
 			return ARCHIVE_FAILED;
@@ -105,7 +105,7 @@ static int archive_filter_uuencode_options(struct archive_write_filter * f, cons
 		state->mode = (int)atol8(value, strlen(value)) & 0777;
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "name") == 0) {
+	else if(sstreq(key, "name")) {
 		if(value == NULL) {
 			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "name option requires a string");
 			return ARCHIVE_FAILED;

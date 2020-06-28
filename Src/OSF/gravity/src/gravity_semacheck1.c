@@ -59,7 +59,7 @@ static void visit_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 	DECLARE_SYMTABLE();
 	DEBUG_SYMTABLE("GLOBALS");
 	node->symtable = symtable; // GLOBALS
-	gnode_array_each(node->stmts, { visit(val); });
+	gnode_array_each(node->stmts, { gvisit(self, val); });
 }
 
 static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node) 
@@ -142,7 +142,7 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 	}
 
 	CREATE_SYMTABLE(SYMTABLE_TAG_CLASS);
-	gnode_array_each(node->decls, { visit(val); });
+	gnode_array_each(node->decls, { gvisit(self, val); });
 	RESTORE_SYMTABLE();
 }
 
@@ -155,7 +155,7 @@ static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node)
 		REPORT_ERROR(node, "Identifier %s redeclared.", node->identifier);
 	}
 	CREATE_SYMTABLE(SYMTABLE_TAG_MODULE);
-	gnode_array_each(node->decls, { visit(val); });
+	gnode_array_each(node->decls, { gvisit(self, val); });
 	RESTORE_SYMTABLE();
 }
 

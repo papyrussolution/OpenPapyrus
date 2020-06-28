@@ -212,23 +212,16 @@ static void ColouriseTCMDLine(char * lineBuffer,
 				// Colorize Symbol
 				styler.ColourTo(startLine + offset - 1 - (wbl - 1), SCE_TCMD_DEFAULT);
 			}
-
 			// Reset Offset to re-process remainder of word
 			offset -= (wbl - wbo);
-
 			// Check for Regular Keyword in list
 		}
 		else if((keywords.InList(wordBuffer)) &&     (!inString) && (continueProcessing)) {
 			// ECHO, PATH, and PROMPT require no further Regular Keyword Checking
-			if((CompareCaseInsensitive(wordBuffer, "echo") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "echos") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "echoerr") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "echoserr") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "path") == 0) ||
-			    (CompareCaseInsensitive(wordBuffer, "prompt") == 0)) {
+			if(sstreqi_ascii(wordBuffer, "echo") || sstreqi_ascii(sKeywordBuffer, "echos") || sstreqi_ascii(sKeywordBuffer, "echoerr") || sstreqi_ascii(sKeywordBuffer, "echoserr") ||
+			    sstreqi_ascii(wordBuffer, "path") || sstreqi_ascii(wordBuffer, "prompt")) {
 				continueProcessing = false;
 			}
-
 			// Colorize Regular keyword
 			styler.ColourTo(startLine + offset - 1, SCE_TCMD_WORD);
 			// No need to Reset Offset
@@ -238,25 +231,17 @@ static void ColouriseTCMDLine(char * lineBuffer,
 			// a few commands accept "illegal" syntax -- cd\, echo., etc.
 			sscanf(wordBuffer, "%[^.<>|&=\\/]", sKeywordBuffer);
 			sKeywordFound = false;
-
-			if((CompareCaseInsensitive(sKeywordBuffer, "echo") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "echos") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "echoerr") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "echoserr") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "cd") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "path") == 0) ||
-			    (CompareCaseInsensitive(sKeywordBuffer, "prompt") == 0)) {
+			if(sstreqi_ascii(sKeywordBuffer, "echo") || sstreqi_ascii(sKeywordBuffer, "echos") || sstreqi_ascii(sKeywordBuffer, "echoerr") ||
+			    sstreqi_ascii(sKeywordBuffer, "echoserr") || sstreqi_ascii(sKeywordBuffer, "cd") || sstreqi_ascii(sKeywordBuffer, "path") || sstreqi_ascii(sKeywordBuffer, "prompt")) {
 				// no further Regular Keyword Checking
 				continueProcessing = false;
 				sKeywordFound = true;
 				wbo = (Sci_PositionU)sstrlen(sKeywordBuffer);
-
 				// Colorize Special Keyword as Regular Keyword
 				styler.ColourTo(startLine + offset - 1 - (wbl - wbo), SCE_TCMD_WORD);
 				// Reset Offset to re-process remainder of word
 				offset -= (wbl - wbo);
 			}
-
 			// Check for Default Text
 			if(!sKeywordFound) {
 				wbo = 0;

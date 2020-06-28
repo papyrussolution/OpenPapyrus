@@ -11,9 +11,9 @@
 struct semacheck_t {
 	semacheck_t() : lasterror(0), declarations(gnode_array_create())
 	{
-		statements.m = 0;
-		statements.n = 0;
-		statements.p = 0;
+		//statements.m = 0;
+		//statements.n = 0;
+		//statements.p = 0;
 	}
 	gnode_r * declarations; // declarations stack
 	uint16_r statements;            // statements stack
@@ -25,15 +25,13 @@ typedef struct semacheck_t semacheck_t;
 #define REPORT_ERROR(node, ...)          report_error(self, GRAVITY_ERROR_SEMANTIC, (gnode_t *)node, __VA_ARGS__);
 #define REPORT_WARNING(node, ...)        report_error(self, GRAVITY_WARNING, (gnode_t *)node, __VA_ARGS__)
 
-#define STATEMENTS                      ((semacheck_t*)self->data)->statements
-#define PUSH_STATEMENT(stat)            marray_push(uint16, STATEMENTS, (uint16)stat)
-#define POP_STATEMENT()                 marray_pop(STATEMENTS)
-#define TOP_STATEMENT()                 (marray_size(STATEMENTS) ? marray_last(STATEMENTS) : 0)
+#define STATEMENTS                      (static_cast<semacheck_t *>(self->data)->statements)
+#define PUSH_STATEMENT(stat)            STATEMENTS.insert((uint16)stat)
+#define POP_STATEMENT()                 STATEMENTS.pop()
+#define TOP_STATEMENT()                 (STATEMENTS.getCount() ? (STATEMENTS).getLast() : 0)
 #define TOP_STATEMENT_ISA(stat)         (TOP_STATEMENT() == stat)
 #define TOP_STATEMENT_ISA_SWITCH()      (TOP_STATEMENT_ISA(TOK_KEY_SWITCH))
-#define TOP_STATEMENT_ISA_LOOP()        ((TOP_STATEMENT_ISA(TOK_KEY_WHILE))        ||        \
-	(TOP_STATEMENT_ISA(TOK_KEY_REPEAT))        ||        \
-	(TOP_STATEMENT_ISA(TOK_KEY_FOR)))
+#define TOP_STATEMENT_ISA_LOOP()        ((TOP_STATEMENT_ISA(TOK_KEY_WHILE)) || (TOP_STATEMENT_ISA(TOK_KEY_REPEAT)) || (TOP_STATEMENT_ISA(TOK_KEY_FOR)))
 
 #define PUSH_DECLARATION(node)          gnode_array_push(((semacheck_t*)self->data)->declarations, (gnode_t *)node)
 #define POP_DECLARATION()               gnode_array_pop(((semacheck_t*)self->data)->declarations)
@@ -365,40 +363,35 @@ static bool is_expression_valid(gnode_t * node)
 	   NODE_CALL, NODE_SUBSCRIPT
 
 	 */
-
 	// fixme
 	gnode_n tag = NODE_TAG(node);
 	switch(tag) {
-		case NODE_UNARY_EXPR: {
+		case NODE_UNARY_EXPR:
 		    return is_expression_valid(((gnode_unary_expr_t*)node)->expr);
-	    }
-		case NODE_BINARY_EXPR: {
-		    gnode_binary_expr_t * expr = (gnode_binary_expr_t*)node;
-		    if(expr->op == TOK_OP_ASSIGN) return false;
-		    if(!is_expression_valid(expr->left)) return false;
-		    return is_expression_valid(expr->right);
-	    }
-
-		case NODE_IDENTIFIER_EXPR: {
+		case NODE_BINARY_EXPR: 
+			{
+				gnode_binary_expr_t * expr = (gnode_binary_expr_t*)node;
+				if(expr->op == TOK_OP_ASSIGN) return false;
+				if(!is_expression_valid(expr->left)) return false;
+				return is_expression_valid(expr->right);
+			}
+		case NODE_IDENTIFIER_EXPR:
 		    return true;
-	    }
-
 		case NODE_MODULE_DECL:
-		case NODE_ENUM_DECL: {
+		case NODE_ENUM_DECL:
 		    return false;
-	    }
-
 		default: break;
 	}
-
 	return true;
 }
 
-static bool is_init_function(gnode_t * node) {
+static bool is_init_function(gnode_t * node) 
+{
 	if(ISA(node, NODE_FUNCTION_DECL)) {
 		gnode_function_decl_t * f = (gnode_function_decl_t*)node;
-		if(!f->identifier) return false;
-		return (strcmp(f->identifier, CLASS_CONSTRUCTOR_NAME) == 0);
+		if(!f->identifier) 
+			return false;
+		return LOGIC(sstreq(f->identifier, CLASS_CONSTRUCTOR_NAME));
 	}
 	return false;
 }
@@ -429,7 +422,7 @@ static bool is_init_infinite_loop(gvisitor_t * self, gnode_identifier_expr_t * i
 	// 4. identifier is self OR identifier->symbol points to target_node
 	bool continue_check = false;
 	if(identifier->symbol) continue_check = target_node == identifier->symbol;
-	else continue_check = ((identifier->value) && (strcmp(identifier->value, SELF_PARAMETER_NAME) == 0));
+	else continue_check = ((identifier->value) && sstreq(identifier->value, SELF_PARAMETER_NAME));
 	if(!continue_check) return false;
 
 	// 5. check if next node is a call
@@ -439,7 +432,8 @@ static bool is_init_infinite_loop(gvisitor_t * self, gnode_identifier_expr_t * i
 	return (subnode->base.tag == NODE_CALL_EXPR);
 }
 
-static void check_access_storage_specifiers(gvisitor_t * self, gnode_t * node, gnode_n env, gtoken_t access, gtoken_t storage) {
+static void check_access_storage_specifiers(gvisitor_t * self, gnode_t * node, gnode_n env, gtoken_t access, gtoken_t storage) 
+{
 	// check for module node
 	if(NODE_TAG(node) == NODE_MODULE_DECL) {
 		if(access != 0) REPORT_ERROR(node, "Access specifier cannot be used for module.");
@@ -511,34 +505,31 @@ static bool check_range_expression(gvisitor_t * self, gnode_binary_expr_t * node
 	return true;
 }
 
-static bool check_class_ivar(gvisitor_t * self, gnode_class_decl_t * classnode, gnode_variable_decl_t * node) {
+static bool check_class_ivar(gvisitor_t * self, gnode_class_decl_t * classnode, gnode_variable_decl_t * node) 
+{
 	size_t count = gnode_array_size(node->decls);
-
 	gnode_class_decl_t * supernode = (gnode_class_decl_t *)classnode->superclass;
 	if(!NODE_ISA(supernode, NODE_CLASS_DECL)) return false;
-
 	for(size_t i = 0; i<count; ++i) {
 		gnode_var_t * p = (gnode_var_t *)gnode_array_get(node->decls, i);
-		if(!p) continue;
+		if(!p) 
+			continue;
 		DEBUG_SEMA2("check_ivar %s", p->identifier);
-
 		// do not check internal outer var
-		if(string_cmp(p->identifier, OUTER_IVAR_NAME) == 0) continue;
-
+		if(sstreq(p->identifier, OUTER_IVAR_NAME)) 
+			continue;
 		while(supernode) {
 			symboltable_t * symtable = supernode->symtable;
 			if(symboltable_lookup(symtable, p->identifier) != NULL) {
 				REPORT_WARNING((gnode_t *)node, "Property '%s' defined in class '%s' already defined in its superclass %s.",
 				    p->identifier, classnode->identifier, supernode->identifier);
 			}
-
 			if(supernode->superclass && !NODE_ISA(supernode->superclass, NODE_CLASS_DECL)) {
 				REPORT_ERROR(supernode, "Unable to find superclass %s for class %s.", supernode->identifier,
 				    ((gnode_identifier_expr_t*)supernode->superclass)->value);
 				supernode->superclass = NULL;
 				return false;
 			}
-
 			supernode = (gnode_class_decl_t *)supernode->superclass;
 		}
 	}
@@ -572,7 +563,7 @@ static void visit_list_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 {
 	DEBUG_SEMA2("visit_list_stmt");
 	PUSH_DECLARATION(node);
-	gnode_array_each(node->stmts, {visit(val);});
+	gnode_array_each(node->stmts, {gvisit(self, val);});
 	POP_DECLARATION();
 }
 
@@ -583,7 +574,7 @@ static void visit_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 	symboltable_t    * symtable = symtable_from_node(top);
 	if(symtable) {
 		symboltable_enter_scope(symtable);
-		gnode_array_each(node->stmts, {visit(val);});
+		gnode_array_each(node->stmts, {gvisit(self, val);});
 		symboltable_exit_scope(symtable, &node->nclose);
 	}
 }
@@ -597,10 +588,10 @@ static void visit_label_stmt(gvisitor_t * self, gnode_label_stmt_t * node)
 		if(type == TOK_KEY_CASE) REPORT_ERROR(node, "'case' statement not in switch statement.");
 	}
 	if(type == TOK_KEY_DEFAULT) {
-		visit(node->stmt);
+		gvisit(self, node->stmt);
 	}
 	else if(type == TOK_KEY_CASE) {
-		visit(node->expr); visit(node->stmt);
+		gvisit(self, node->expr); gvisit(self, node->stmt);
 	}
 }
 
@@ -612,20 +603,20 @@ static void visit_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node)
 		REPORT_ERROR(node->cond, "Assignment not allowed here");
 	gtoken_t type = NODE_TOKEN_TYPE(node);
 	if(type == TOK_KEY_IF) {
-		visit(node->cond);
-		visit(node->stmt);
-		if(node->elsestmt) visit(node->elsestmt);
+		gvisit(self, node->cond);
+		gvisit(self, node->stmt);
+		gvisit(self, node->elsestmt);
 	}
 	else if(type == TOK_KEY_SWITCH) {
 		PUSH_STATEMENT(type);
-		visit(node->cond);
-		visit(node->stmt);
+		gvisit(self, node->cond);
+		gvisit(self, node->stmt);
 		POP_STATEMENT();
 	}
 	else if(type == TOK_OP_TERNARY) {
-		visit(node->cond);
-		visit(node->stmt);
-		visit(node->elsestmt);
+		gvisit(self, node->cond);
+		gvisit(self, node->stmt);
+		gvisit(self, node->elsestmt);
 	}
 }
 
@@ -700,25 +691,25 @@ static void visit_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	}
 
 	if(type == TOK_KEY_WHILE) {
-		visit(node->cond);
-		visit(node->stmt);
+		gvisit(self, node->cond);
+		gvisit(self, node->stmt);
 	}
 	else if(type == TOK_KEY_REPEAT) {
-		visit(node->stmt);
-		visit(node->expr);
+		gvisit(self, node->stmt);
+		gvisit(self, node->expr);
 	}
 	else if(type == TOK_KEY_FOR) {
 		symboltable_t * symtable = symtable_from_node(TOP_DECLARATION());
 		symboltable_enter_scope(symtable);
-		visit(node->cond);
+		gvisit(self, node->cond);
 		if(NODE_ISA(node->cond, NODE_IDENTIFIER_EXPR)) {
 			//if cond is not a var declaration then it must be a local identifier
 			gnode_identifier_expr_t * expr = (gnode_identifier_expr_t*)node->cond;
 			if(expr->location.type != LOCATION_LOCAL) 
 				REPORT_ERROR(cond, "FOR declaration must be a variable declaration or a local identifier.");
 		}
-		visit(node->expr);
-		visit(node->stmt);
+		gvisit(self, node->expr);
+		gvisit(self, node->stmt);
 		symboltable_exit_scope(symtable, &node->nclose);
 	}
 	POP_STATEMENT();
@@ -740,7 +731,7 @@ static void visit_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node)
 		if(!ISA(n1, NODE_FUNCTION_DECL)) REPORT_ERROR(node, "'return' statement not in a function definition.");
 
 		if(node->expr) {
-			visit(node->expr);
+			gvisit(self, node->expr);
 			if(!is_expression_valid(node->expr)) {
 				REPORT_ERROR(node->expr, "Invalid expression.");
 				return;
@@ -792,10 +783,10 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	// process inner block
 	gnode_compound_stmt_t * block = node->block;
 	if(block) {
-		gnode_array_each(block->stmts, {visit(val);});
+		gnode_array_each(block->stmts, {gvisit(self, val);});
 	}
 	// exit function scope
-	uint16 nparams = (node->params) ? (uint16)marray_size(*node->params) : 0;
+	uint16 nparams = (node->params) ? (uint16)node->params->getCount() : 0;
 	uint32 nlocals = symboltable_exit_scope(symtable, NULL);
 	if(nlocals > MAX_LOCALS) {
 		REPORT_ERROR(node, "Maximum number of local variables reached in function %s (max:%d found:%d).",
@@ -806,7 +797,7 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 		node->nparams = nparams;
 	}
 	// check upvalue limit
-	uint32 nupvalues = (node->uplist) ? (uint32)marray_size(*node->uplist) : 0;
+	uint32 nupvalues = (node->uplist) ? node->uplist->getCount() : 0;
 	if(nupvalues > MAX_UPVALUES) REPORT_ERROR(node, "Maximum number of upvalues reached in function %s (max:%d found:%d).",
 		    node->identifier, MAX_LOCALS, nupvalues);
 
@@ -815,27 +806,24 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	DEBUG_SEMA2("MAX LOCALS for function %s: %d", node->identifier, node->nlocals);
 }
 
-static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node) {
+static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node) 
+{
 	gnode_t         * top = TOP_DECLARATION();
 	symboltable_t   * symtable = symtable_from_node(top);
 	size_t count = gnode_array_size(node->decls);
 	gnode_n env = NODE_TAG(top);
 	bool env_is_function = (env == NODE_FUNCTION_DECL);
-
 	// check if optional access and storage specifiers make sense in current context
 	check_access_storage_specifiers(self, (gnode_t *)node, env, node->access, node->storage);
-
 	// loop to check each individual declaration
 	for(size_t i = 0; i<count; ++i) {
 		gnode_var_t * p = (gnode_var_t *)gnode_array_get(node->decls, i);
 		DEBUG_SEMA2("visit_variable_decl %s", p->identifier);
-
 		// set enclosing environment
 		p->env = top;
-
 		// visit expression first in order to prevent var a = a
 		// variable with a initial value (or with a getter/setter)
-		if(p->expr) visit(p->expr);
+		gvisit(self, p->expr);
 		if(NODE_ISA(p->expr, NODE_ENUM_DECL)) continue;
 
 //        // check for manifest type
@@ -901,39 +889,32 @@ static void visit_enum_decl(gvisitor_t * self, gnode_enum_decl_t * node)
 	}
 }
 
-static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node) {
+static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node) 
+{
 	DEBUG_SEMA2("visit_class_decl %s", node->identifier);
-
 	gnode_t * top = TOP_DECLARATION();
-
 	// check if optional access and storage specifiers make sense in current context
 	check_access_storage_specifiers(self, (gnode_t *)node, NODE_TAG(top), node->access, node->storage);
-
 	// set class enclosing (can be globals, a class or a function)
 	node->env = top;
-
 	// sanity check on class name
-	if(string_cmp(node->identifier, CLASS_CONSTRUCTOR_NAME) == 0) {
+	if(sstreq(node->identifier, CLASS_CONSTRUCTOR_NAME)) {
 		REPORT_ERROR(node, "%s is a special name and cannot be used as class identifier.", CLASS_CONSTRUCTOR_NAME);
 		return;
 	}
-
 	// check superclass
 	if(node->superclass) {
 		// get super class identifier and reset the field (so in case of error it cannot be accessed)
 		gnode_identifier_expr_t * id = (gnode_identifier_expr_t*)node->superclass;
 		node->superclass = NULL;
-
 		// sanity check
 		if(gravity_core_class_from_name(id->value)) {
 			REPORT_ERROR(id, "Unable to subclass built-in core class %s.", id->value);
 			return;
 		}
-
 		// lookup super node
 		gnode_t * target = lookup_symtable_id(self, id, true);
 		node->superclass = target;
-
 		if(!target) {
 			REPORT_ERROR(id, "Unable to find superclass %s for class %s.", id->value, node->identifier);
 		}
@@ -948,7 +929,6 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node) {
 				return;
 			}
 		}
-
 		gnode_free((gnode_t *)id);
 	}
 
@@ -968,25 +948,23 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node) {
 		        // check for redeclared ivar and if found report a warning
 			check_class_ivar(self, (gnode_class_decl_t *)node, (gnode_variable_decl_t*)val);
 		}
-		visit(val);
+		gvisit(self, val);
 	});
 	POP_DECLARATION();
 }
 
-static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node) {
+static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node) 
+{
 	DEBUG_SEMA2("visit_module_decl %s", node->identifier);
-
 	gnode_t * top = TOP_DECLARATION();
-
 	// set and check module enclosing (only in file)
 	node->env = top;
-	if(NODE_TAG(top) != NODE_LIST_STAT) REPORT_ERROR(node, "Module %s cannot be declared here.", node->identifier);
-
+	if(NODE_TAG(top) != NODE_LIST_STAT) 
+		REPORT_ERROR(node, "Module %s cannot be declared here.", node->identifier);
 	// check if optional access and storage specifiers make sense in current context
 	check_access_storage_specifiers(self, (gnode_t *)node, NODE_TAG(top), node->access, node->storage);
-
 	PUSH_DECLARATION(node);
-	gnode_array_each(node->decls, {visit(val);});
+	gnode_array_each(node->decls, {gvisit(self, val);});
 	POP_DECLARATION();
 }
 
@@ -1001,8 +979,8 @@ static void visit_binary_expr(gvisitor_t * self, gnode_binary_expr_t * node)
 	if(!is_expression(node->right)) 
 		REPORT_ERROR(node->right, "RValue must be an expression.");
 	// fill missing symbols
-	visit(node->left);
-	visit(node->right);
+	gvisit(self, node->left);
+	gvisit(self, node->right);
 	if(!is_expression_valid(node->left)) 
 		REPORT_ERROR(node->left, "Invalid left expression.");
 	if(!is_expression_valid(node->right)) 
@@ -1014,20 +992,20 @@ static void visit_binary_expr(gvisitor_t * self, gnode_binary_expr_t * node)
 		check_range_expression(self, node);
 }
 
-static void visit_unary_expr(gvisitor_t * self, gnode_unary_expr_t * node) {
+static void visit_unary_expr(gvisitor_t * self, gnode_unary_expr_t * node) 
+{
 	DEBUG_SEMA2("visit_unary_expr %s", token_name(node->op));
-	visit(node->expr);
+	gvisit(self, node->expr);
 	if(!is_expression_valid(node->expr)) REPORT_ERROR(node->expr, "Invalid expression.");
 }
 
-static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) {
+static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) 
+{
 	DEBUG_SEMA2("visit_postfix_expr");
-
 	// sanity check
 	if(!node->id) {
 		REPORT_ERROR(node, "Invalid postfix expression."); return;
 	}
-
 	// a postfix expression is an expression that requires an in-context lookup that depends on id
 	// in a statically typed language the loop should check every member of the postfix expression
 	// usign the context of the previous lookup, for example:
@@ -1049,7 +1027,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) {
 
 	// lookup common part (and generate an error if id cannot be found)
 	// id can be a primary expression
-	visit(node->id);
+	gvisit(self, node->id);
 
 	// try to obtain symbol table from id (if any)
 	gnode_t * target = NULL;
@@ -1148,14 +1126,14 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node) {
 				if(is_expression_assignment(val)) {
 					REPORT_ERROR(val, "Assignment does not have side effects and so cannot be used as function argument."); return;
 				}
-				visit(val);
+				gvisit(self, val);
 			}
 			continue;
 		}
 
 		// for a subscript just visit its index expression
 		if(tag == NODE_SUBSCRIPT_EXPR) {
-			if(subnode->expr) visit(subnode->expr);
+			if(subnode->expr) gvisit(self, subnode->expr);
 			continue;
 		}
 
@@ -1207,7 +1185,7 @@ static void visit_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node) {
 
 	if(node->type == LITERAL_STRING_INTERPOLATED) {
 		gnode_array_each(node->value.r, {
-			visit(val);
+			gvisit(self, val);
 		});
 	}
 }
@@ -1232,7 +1210,7 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 	DEBUG_SEMA2("visit_list_expr (n: %zu ismap: %d)", n, ismap);
 	for(size_t j = 0; j<n; ++j) {
 		gnode_t * e = gnode_array_get(node->list1, j);
-		visit(e);
+		gvisit(self, e);
 		if(ismap) {
 			// key must be unique
 			for(size_t k = 0; k<n; ++k) {
@@ -1248,7 +1226,7 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 			}
 
 			e = gnode_array_get(node->list2, j);
-			visit(e);
+			gvisit(self, e);
 		}
 	}
 }
@@ -1258,7 +1236,7 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 bool gravity_semacheck2(gnode_t * node, gravity_delegate_t * delegate) 
 {
 	semacheck_t data; //= {.declarations = gnode_array_create(), .lasterror = 0};
-	marray_init(data.statements);
+	// @ctr marray_init(data.statements);
 	gvisitor_t visitor(&data, delegate);
 	visitor.visit_list_stmt = visit_list_stmt;
 	visitor.visit_compound_stmt = visit_compound_stmt;
@@ -1321,8 +1299,7 @@ bool gravity_semacheck2(gnode_t * node, gravity_delegate_t * delegate)
 	DEBUG_SEMA2("=== SEMANTIC CHECK STEP 2 ===");
 	gvisit(&visitor, node);
 	DEBUG_SEMA2("\n");
-
-	marray_destroy(data.statements);
+	data.statements.Z();
 	gnode_array_free(data.declarations);
 	return (visitor.nerr == 0);
 }

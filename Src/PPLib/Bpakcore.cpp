@@ -1192,7 +1192,7 @@ int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
 			else {
 				SVector::atFree(itemIdx);
 				if(item.BoxId) {
-					uint i;
+					uint  i;
 					int   is_other_by_box = 0;
 					int   box_pos = -1;
 					for(i = 0; i < SVector::getCount(); i++) {
@@ -5440,7 +5440,6 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 			}
 		}
 		else {
-			// @v9.4.3 {
 			if(pTI->Flags & PPTFR_CORRECTION) {
 				qtty = fabs(pTI->Quantity_);
 				const double q = fabs(pTI->Quantity_);
@@ -5449,7 +5448,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				pq = R2(pTI->NetPrice() * q - pTI->RevalCost * q_pre);
 				dq = 0;
 			}
-			else { // } @v9.4.3
+			else {
 				if(OpID && GetOpType(OpID) == PPOPT_GOODSMODIF) {
 					qtty = pTI->SQtty(OpID);
 					if(pTI->Flags & PPTFR_MINUS) {
