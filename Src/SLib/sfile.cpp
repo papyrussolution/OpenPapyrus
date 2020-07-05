@@ -1039,7 +1039,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	ldatetime_to_wftime(pCreation,   &w_cr_ft);
 	ldatetime_to_wftime(pLastAccess, &w_la_ft);
 	ldatetime_to_wftime(pLastModif,  &w_lm_ft);
-	return ::SetFileTime(reinterpret_cast<HANDLE>(fh), &w_cr_ft, &w_la_ft, &w_lm_ft) ? 1 : 0;
+	return BIN(::SetFileTime(reinterpret_cast<HANDLE>(fh), &w_cr_ft, &w_la_ft, &w_lm_ft));
 #else
 	struct ftime ftm;
 	int d, m, y, h, s, hs;
@@ -1051,7 +1051,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 	ftm.ft_hour = h;
 	ftm.ft_min  = m;
 	ftm.ft_tsec = s / 2;
-	return (setftime(fh, &ftm) == 0) ? 1 : 0;
+	return BIN(setftime(fh, &ftm) == 0);
 #endif
 }
 

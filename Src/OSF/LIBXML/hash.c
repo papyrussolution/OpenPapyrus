@@ -106,7 +106,7 @@ static ulong xmlHashComputeQKey(xmlHashTable * table, const xmlChar * prefix, co
 		while((ch = *prefix++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
-		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
+		value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(':'));
 	}
 	if(name) {
 		while((ch = *name++) != 0) {
@@ -114,23 +114,23 @@ static ulong xmlHashComputeQKey(xmlHashTable * table, const xmlChar * prefix, co
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
-	if(prefix2 != NULL) {
+	if(prefix2) {
 		while((ch = *prefix2++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
-		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
+		value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(':'));
 	}
-	if(name2 != NULL) {
+	if(name2) {
 		while((ch = *name2++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
 	}
 	value = value ^ ((value << 5) + (value >> 3));
-	if(prefix3 != NULL) {
+	if(prefix3) {
 		while((ch = *prefix3++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
-		value = value ^ ((value << 5) + (value >> 3) + (ulong)':');
+		value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(':'));
 	}
 	if(name3) {
 		while((ch = *name3++) != 0) {

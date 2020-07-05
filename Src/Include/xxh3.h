@@ -613,7 +613,7 @@ XXH_FORCE_INLINE void XXH3_accumulate_512(void* XXH_RESTRICT acc, const void* XX
 
 #else   /* scalar variant of Accumulator - universal */
 
-	XXH_ALIGN(XXH_ACC_ALIGN) uint64* const xacc = (uint64*)acc; /* presumed aligned on 32-bytes boundaries, little hint
+	XXH_ALIGN(XXH_ACC_ALIGN) uint64* const xacc = (uint64 *)acc; /* presumed aligned on 32-bytes boundaries, little hint
 	                                                         for the auto-vectorizer */
 	const char* const xdata = (const char *)data; /* no alignment restriction */
 	const char* const xkey  = (const char *)key;/* no alignment restriction */
@@ -747,7 +747,7 @@ XXH_FORCE_INLINE void XXH3_scrambleAcc(void* XXH_RESTRICT acc, const void* XXH_R
 		xacc[i] = prod_odd + (prod_even << v32);
 	}
 #else   /* scalar variant of Scrambler - universal */
-	XXH_ALIGN(XXH_ACC_ALIGN) uint64* const xacc = (uint64*)acc; // presumed aligned on 32-bytes boundaries, little hint for the auto-vectorizer 
+	XXH_ALIGN(XXH_ACC_ALIGN) uint64* const xacc = (uint64 *)acc; // presumed aligned on 32-bytes boundaries, little hint for the auto-vectorizer 
 	const char* const xkey = (const char *)key; /* no alignment restriction */
 	int i;
 	XXH_ASSERT((((size_t)acc) & (XXH_ACC_ALIGN-1)) == 0);

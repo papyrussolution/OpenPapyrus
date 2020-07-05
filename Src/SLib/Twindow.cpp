@@ -1149,11 +1149,9 @@ int TScrollBlock::SetupWindow(HWND hWnd) const
 //
 //
 //
-//static
 static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 
-//static
-int TWindowBase::RegWindowClass(int iconId)
+/*static*/int TWindowBase::RegWindowClass(int iconId)
 {
 	WNDCLASSEX wc;
 	const HINSTANCE h_inst = TProgram::GetInst();
@@ -1403,8 +1401,7 @@ SLAPI PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 	Rect.Z();
 }
 
-//static
-LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TWindowBase * p_view = static_cast<TWindowBase *>(TView::GetWindowUserData(hWnd));
 	LPCREATESTRUCT p_init_data;

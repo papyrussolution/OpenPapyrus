@@ -741,7 +741,7 @@ retry:
 #endif
 		static const struct hostent he_fallback =
 		{ NULL, NULL, AF_INET, sizeof(he_fallback_address),
-		  (char**)&he_fallback_addresses };
+		  (char **)&he_fallback_addresses };
 #if defined(OPENSSL_SYS_VMS) && defined(__DECC)
 # pragma pointer_size restore
 #endif

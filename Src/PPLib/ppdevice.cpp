@@ -217,8 +217,7 @@ int PPAbstractDevice::IdentBlock::Set(SDynLibrary * pLib, int setOwnership)
 //
 //
 //
-//static
-int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserveTypesStrId, SString * pSectName)
+/*static*/int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserveTypesStrId, SString * pSectName)
 {
 	int    sect_id = 0;
 	int    rts_id = 0;
@@ -287,8 +286,7 @@ int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, 
 	return ok;
 }
 
-//static
-int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol, SString & rDrvName, SString & rDrvPath, int * pDrvImpl)
+/*static*/int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol, SString & rDrvName, SString & rDrvPath, int * pDrvImpl)
 {
 	// Shtrih-DPD201=DRV:Shtrih-DPD201 (Петроглиф),dll,ppdrv-cd-Shtrih-DPD201.dll
 
@@ -613,8 +611,7 @@ private:
 
 IMPLEMENT_PPDEVICE_FACTORY(PPDevice_Leader);
 
-//static
-const size_t PPDevice_Leader::DispLineSize = 16;
+/*static*/const size_t PPDevice_Leader::DispLineSize = 16;
 
 PPDevice_Leader::PPDevice_Leader() : PPAbstractDevice("Leader Controller"), P_Cp(0)
 {

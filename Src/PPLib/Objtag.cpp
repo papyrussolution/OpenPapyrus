@@ -13,8 +13,7 @@ const char * P_EmptyTagValRestrict = "#EMPTY";
 const char * P_ExistTagValRestrict = "#EXIST";
 const char * P_ListTagValRestrict = "#LIST";
 
-//static
-int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
+/*static*/int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
 {
 	int    ok = 0;
 	const  char * p = 0;
@@ -34,8 +33,7 @@ int SLAPI TagFilt::ParseString(const char * pItemString, SString & rRestrictionB
 	return ok;
 }
 
-//static
-int FASTCALL TagFilt::SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList)
+/*static*/int FASTCALL TagFilt::SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList)
 {
 	int    ok = -1;
 	rRestrictionBuf.Z();
@@ -56,8 +54,7 @@ int FASTCALL TagFilt::SetRestrictionIdList(SString & rRestrictionBuf, const PPID
 	return ok;
 }
 
-//static
-int FASTCALL TagFilt::GetRestrictionIdList(const SString & rRestrictionBuf, PPIDArray * pList)
+/*static*/int FASTCALL TagFilt::GetRestrictionIdList(const SString & rRestrictionBuf, PPIDArray * pList)
 {
 	int    ok = -1;
 	CALLPTRMEMB(pList, clear());
@@ -95,16 +92,14 @@ int SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pCo
 	return 1;
 }
 
-//static
-void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
+/*static*/void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
 {
 	SString rbuf, cbuf;
 	ParseString(rItemBuf, rbuf, cbuf);
 	MergeString(pRestrictionString, cbuf, rItemBuf);
 }
 
-//static
-void FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
+/*static*/void FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
 {
 	SString rbuf, cbuf;
 	ParseString(rItemBuf, rbuf, cbuf);
@@ -115,15 +110,13 @@ void FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
 	MergeString(rbuf, cbuf, rItemBuf);
 }
 
-//static
-int FASTCALL TagFilt::GetRestriction(const char * pItemString, SString & rRestrictionBuf)
+/*static*/int FASTCALL TagFilt::GetRestriction(const char * pItemString, SString & rRestrictionBuf)
 {
 	SString cbuf;
 	return ParseString(pItemString, rRestrictionBuf, cbuf);
 }
 
-//static
-int FASTCALL TagFilt::GetColor(const char * pItemString, SColor & rClr)
+/*static*/int FASTCALL TagFilt::GetColor(const char * pItemString, SColor & rClr)
 {
 	int    ok = 0;
 	SString rbuf, cbuf;
@@ -680,14 +673,12 @@ int FASTCALL SetupObjTagCombo(TDialog * dlg, uint ctl, PPID id, uint flags, ObjT
 //
 //
 //
-//static
-long FASTCALL ObjTagFilt::MakeObjTypeRootIdent(PPID objType)
+/*static*/long FASTCALL ObjTagFilt::MakeObjTypeRootIdent(PPID objType)
 {
 	return objType ? (objType * TAG_OBJTYPEROOT_MULT) : TAG_OBJTYPEROOT_MULT;
 }
 
-//static
-int FASTCALL ObjTagFilt::ObjTypeRootIdentToObjType(long rootIdent, PPID * pObjType)
+/*static*/int FASTCALL ObjTagFilt::ObjTypeRootIdentToObjType(long rootIdent, PPID * pObjType)
 {
 	int    yes = 0;
 	PPID   obj_type = 0;
@@ -1453,8 +1444,7 @@ int SLAPI PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 	return ok;
 }
 
-//static
-int SLAPI PPObjTag::RecoverLostUnifiedLinks()
+/*static*/int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -2718,8 +2708,7 @@ private:
 	ReadWriteLock RwL;
 };
 
-//static
-int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {

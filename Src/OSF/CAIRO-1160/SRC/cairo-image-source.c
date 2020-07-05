@@ -68,7 +68,7 @@ static pixman_image_t * _pixman_transparent_image(void)
 {
 	pixman_image_t * image;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	image = __pixman_transparent_image;
 	if(unlikely(image == NULL)) {
@@ -99,7 +99,7 @@ static pixman_image_t * _pixman_black_image(void)
 {
 	pixman_image_t * image;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	image = __pixman_black_image;
 	if(unlikely(image == NULL)) {
@@ -130,7 +130,7 @@ static pixman_image_t * _pixman_white_image(void)
 {
 	pixman_image_t * image;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	image = __pixman_white_image;
 	if(unlikely(image == NULL)) {
@@ -175,19 +175,19 @@ static int n_cached;
 #else  /* !PIXMAN_HAS_ATOMIC_OPS */
 static pixman_image_t * _pixman_transparent_image(void)
 {
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return _pixman_image_for_color(CAIRO_COLOR_TRANSPARENT);
 }
 
 static pixman_image_t * _pixman_black_image(void)
 {
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return _pixman_image_for_color(CAIRO_COLOR_BLACK);
 }
 
 static pixman_image_t * _pixman_white_image(void)
 {
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return _pixman_image_for_color(CAIRO_COLOR_WHITE);
 }
 
@@ -274,7 +274,7 @@ static pixman_image_t * _pixman_image_for_gradient(const cairo_gradient_pattern_
 	pixman_point_fixed_t p1, p2;
 	uint i;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(pattern->n_stops > ARRAY_LENGTH(pixman_stops_static)) {
 		pixman_stops = static_cast<pixman_gradient_stop_t *>(_cairo_malloc_ab(pattern->n_stops, sizeof(pixman_gradient_stop_t)));
 		if(unlikely(pixman_stops == NULL))
@@ -339,7 +339,7 @@ static pixman_image_t * _pixman_image_for_mesh(const cairo_mesh_pattern_t * patt
 {
 	pixman_image_t * image;
 	int width, height;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	*tx = -extents->x;
 	*ty = -extents->y;
 	width = extents->width;
@@ -383,7 +383,7 @@ static pixman_image_t * _pixel_to_solid(cairo_image_surface_t * image, int x, in
 {
 	uint32_t pixel;
 	pixman_color_t color;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	switch(image->format) {
 		default:
 		case CAIRO_FORMAT_INVALID:
@@ -943,7 +943,7 @@ static pixman_image_t * _pixman_image_for_recording(cairo_image_surface_t * dst,
 	double sx = 1.0, sy = 1.0;
 	int tx = 0, ty = 0;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	*ix = *iy = 0;
 
@@ -1064,7 +1064,7 @@ static pixman_image_t * _pixman_image_for_surface(cairo_image_surface_t * dst,
 	cairo_extend_t extend = pattern->base.extend;
 	pixman_image_t * pixman_image;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	*ix = *iy = 0;
 	pixman_image = NULL;
@@ -1246,7 +1246,7 @@ static pixman_image_t * _pixman_image_for_raster(cairo_image_surface_t * dst, co
 	void * extra;
 	cairo_status_t status;
 	cairo_surface_t * surface;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	*ix = *iy = 0;
 	surface = _cairo_raster_source_pattern_acquire(&pattern->base, &dst->base, NULL);
 	if(unlikely(surface == NULL || surface->status))
@@ -1299,7 +1299,7 @@ pixman_image_t * _pixman_image_for_pattern(cairo_image_surface_t * dst, const ca
     boolint is_mask, const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * tx, int * ty)
 {
 	*tx = *ty = 0;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(pattern == NULL)
 		return _pixman_white_image();
 	switch(pattern->type) {
@@ -1335,7 +1335,7 @@ const cairo_surface_backend_t _cairo_image_source_backend = {
 cairo_surface_t * _cairo_image_source_create_for_pattern(cairo_surface_t * dst, const cairo_pattern_t * pattern, boolint is_mask,
     const cairo_rectangle_int_t * extents, const cairo_rectangle_int_t * sample, int * src_x, int * src_y)
 {
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	cairo_image_source_t * source = (cairo_image_source_t *)_cairo_malloc(sizeof(cairo_image_source_t));
 	if(unlikely(source == NULL))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));

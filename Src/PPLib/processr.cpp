@@ -435,8 +435,7 @@ PPProcessorPacket & PPProcessorPacket::destroy()
 
 TLP_IMPL(PPObjProcessor, ProcessorTbl, P_Tbl);
 
-//static
-int FASTCALL PPObjProcessor::ReadConfig(PPProcessorConfig * pCfg)
+/*static*/int FASTCALL PPObjProcessor::ReadConfig(PPProcessorConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_PRCCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)

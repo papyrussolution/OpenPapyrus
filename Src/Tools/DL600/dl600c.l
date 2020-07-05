@@ -1,6 +1,6 @@
 /*
 	DL600C.L
-	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016
+	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020
 	Part of project Papyrus
 	Lexer of DL600 language
 */
@@ -68,49 +68,49 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 		}
 	}
 }
-{WHITE}     { ; }
-{STRING}    { yytext[yyleng-1] = 0; return TOKEN.Create(T_CONST_STR, yytext+1); }
-{DECINT}    { return TOKEN.Create(T_CONST_INT, yytext);  }
-{HEXINT}    { return TOKEN.Create(T_CONST_INT, yytext);  }
-{REAL}      { return TOKEN.Create(T_CONST_REAL, yytext); }
-{UUID}      { return TOKEN.Create(T_CONST_UUID, yytext); }
-{R_FMT}     { return TOKEN.Create(T_FMT, yytext+1); }
-"["         { return '['; }
-"]"         { return ']'; }
-"&&"        { return T_AND; }
-"||"        { return T_OR;  }
-"=="        { return T_EQ;  }
-"!="        { return T_NEQ; }
-">="        { return T_GE;  }
-"<="        { return T_LE;  }
-"{"         { yybrak++; return T_LBR; }
-"}"         { yybrak--; return T_RBR; }
-"IMPORT"    BEGIN(incl);
-"import"    BEGIN(incl);
-"data"      { return TOKEN.Create(T_EXPORTSTR); }
-"interface" { return TOKEN.Create(T_INTERFACE); }
-"struct"    { return TOKEN.Create(T_ISTRUCT);   }
-"enum"      { return TOKEN.Create(T_ENUM);      }
-"iclass"    { return TOKEN.Create(T_ICLASS);    }
-"declare"   { return TOKEN.Create(T_DECLARE);   }
-"iteration" { return TOKEN.Create(T_ITERATION); }
-"link"      { return TOKEN.Create(T_LINK);      }
-"if"        { return TOKEN.Create(T_IF);        }
-"else"      { return TOKEN.Create(T_ELSE);      }
-"format"    { return TOKEN.Create(T_FORMAT_FUNC); }
-"in"        { return TOKEN.Create(T_IN);        }
-"out"       { return TOKEN.Create(T_OUT);       }
-"inout"     { return TOKEN.Create(T_INOUT);     }
-"default"   { return TOKEN.Create(T_DEFAULT);   }
-"version"   { return TOKEN.Create(T_VERSION);   }
-"library"   { return TOKEN.Create(T_LIBRARY);   }
-"uuid"      { return TOKEN.Create(T_UUID);      }
-"abstract"  { return TOKEN.Create(T_ABSTRACT);  }
-"property"  { return TOKEN.Create(T_PROPERTY);  }
-"table"     { return TOKEN.Create(T_TABLE);     }
-"index"     { return TOKEN.Create(T_INDEX);     }
-"file"      { return TOKEN.Create(T_FILE);      }
-"handler"   { return TOKEN.Create(T_HANDLER);   } // @v8.9.0
+{WHITE}           { ; }
+{STRING}          { yytext[yyleng-1] = 0; return TOKEN.Create(T_CONST_STR, yytext+1); }
+{DECINT}          { return TOKEN.Create(T_CONST_INT, yytext);  }
+{HEXINT}          { return TOKEN.Create(T_CONST_INT, yytext);  }
+{REAL}            { return TOKEN.Create(T_CONST_REAL, yytext); }
+{UUID}            { return TOKEN.Create(T_CONST_UUID, yytext); }
+{R_FMT}           { return TOKEN.Create(T_FMT, yytext+1); }
+"["               { return '['; }
+"]"               { return ']'; }
+"&&"              { return T_AND; }
+"||"              { return T_OR;  }
+"=="              { return T_EQ;  }
+"!="              { return T_NEQ; }
+">="              { return T_GE;  }
+"<="              { return T_LE;  }
+"{"               { yybrak++; return T_LBR; }
+"}"               { yybrak--; return T_RBR; }
+"IMPORT"          BEGIN(incl);
+"import"          BEGIN(incl);
+"data"            { return TOKEN.Create(T_EXPORTSTR); }
+"interface"       { return TOKEN.Create(T_INTERFACE); }
+"struct"          { return TOKEN.Create(T_ISTRUCT);   }
+"enum"            { return TOKEN.Create(T_ENUM);      }
+"iclass"          { return TOKEN.Create(T_ICLASS);    }
+"declare"         { return TOKEN.Create(T_DECLARE);   }
+"iteration"       { return TOKEN.Create(T_ITERATION); }
+"link"            { return TOKEN.Create(T_LINK);      }
+"if"              { return TOKEN.Create(T_IF);        }
+"else"            { return TOKEN.Create(T_ELSE);      }
+"format"          { return TOKEN.Create(T_FORMAT_FUNC); }
+"in"              { return TOKEN.Create(T_IN);        }
+"out"             { return TOKEN.Create(T_OUT);       }
+"inout"           { return TOKEN.Create(T_INOUT);     }
+"default"         { return TOKEN.Create(T_DEFAULT);   }
+"version"         { return TOKEN.Create(T_VERSION);   }
+"library"         { return TOKEN.Create(T_LIBRARY);   }
+"uuid"            { return TOKEN.Create(T_UUID);      }
+"abstract"        { return TOKEN.Create(T_ABSTRACT);  }
+"property"        { return TOKEN.Create(T_PROPERTY);  }
+"table"           { return TOKEN.Create(T_TABLE);     }
+"index"           { return TOKEN.Create(T_INDEX);     }
+"file"            { return TOKEN.Create(T_FILE);      }
+"handler"         { return TOKEN.Create(T_HANDLER);   }
 "dialog"          { return TOKEN.Create(T_DIALOG); }
 "input"           { return TOKEN.Create(T_INPUT); }
 "statictext"      { return TOKEN.Create(T_STATICTEXT); }

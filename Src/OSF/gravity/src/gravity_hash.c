@@ -8,8 +8,8 @@
 #pragma hdrstop
 
 #if GRAVITYHASH_ENABLE_STATS
-	#define INC_COLLISION(tbl)      ++ tbl->ncollision
-	#define INC_RESIZE(tbl)         ++ tbl->nresize
+	#define INC_COLLISION(tbl) ++tbl->ncollision
+	#define INC_RESIZE(tbl)    ++tbl->nresize
 #else
 	#define INC_COLLISION(tbl)
 	#define INC_RESIZE(tbl)
@@ -103,13 +103,16 @@ struct gravity_hash_t {
     strings of different lengths.
  */
 
-#define HASH_SEED_VALUE                     5381
-#define ROT32(x, y)                         ((x << y) | (x >> (32 - y)))
-#define COMPUTE_HASH(tbl, key, hash)          register uint32 hash = murmur3_32(key, len, HASH_SEED_VALUE); hash = hash % tbl->size
-#define COMPUTE_HASH_NOMODULO(key, hash)     register uint32 hash = murmur3_32(key, len, HASH_SEED_VALUE)
-#define RECOMPUTE_HASH(tbl, key, hash)        hash = murmur3_32(key, len, HASH_SEED_VALUE); hash = hash % tbl->size
+#define HASH_SEED_VALUE                  5381
 
-static inline uint32 murmur3_32(const char * key, uint32 len, uint32 seed) 
+#if 0 // (Эта реализация заменена на эквивалентную SlHash::Murmur3_32 @testpassed) {
+
+#define ROT32(x, y)                      ((x << y) | (x >> (32 - y)))
+#define COMPUTE_HASH(tbl, key, hash)     uint32 hash = murmur3_32(key, len, HASH_SEED_VALUE); hash = hash % tbl->size
+#define COMPUTE_HASH_NOMODULO(key, hash) uint32 hash = murmur3_32(key, len, HASH_SEED_VALUE)
+#define RECOMPUTE_HASH(tbl, key, hash)   hash = murmur3_32(key, len, HASH_SEED_VALUE); hash = hash % tbl->size
+
+static /*inline*/ uint32 murmur3_32(const char * key, uint32 len, uint32 seed) 
 {
 	static const uint32 c1 = 0xcc9e2d51;
 	static const uint32 c2 = 0x1b873593;
@@ -137,13 +140,11 @@ static inline uint32 murmur3_32(const char * key, uint32 len, uint32 seed)
 		    k1 ^= tail[1] << 8;
 		case 1:
 		    k1 ^= tail[0];
-
 		    k1 *= c1;
 		    k1 = ROT32(k1, r1);
 		    k1 *= c2;
 		    hash ^= k1;
 	}
-
 	hash ^= len;
 	hash ^= (hash >> 16);
 	hash *= 0x85ebca6b;
@@ -152,10 +153,11 @@ static inline uint32 murmur3_32(const char * key, uint32 len, uint32 seed)
 	hash ^= (hash >> 16);
 	return hash;
 }
+#endif // } 0
 
-static void table_dump(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) {
-    #pragma unused (hashtable, data)
-	const char * k = ((gravity_string_t*)key.p)->s;
+static void table_dump(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
+{
+	const char * k = reinterpret_cast<gravity_string_t *>(key.Ptr)->cptr();
 	printf("%-20s=>\t", k);
 	gravity_value_dump(NULL, value, NULL, 0);
 }
@@ -164,19 +166,22 @@ static void table_dump(gravity_hash_t * hashtable, GravityValue key, GravityValu
 
 gravity_hash_t * gravity_hash_create(uint32 size, gravity_hash_compute_fn compute, gravity_hash_isequal_fn isequal, gravity_hash_iterate_fn free_fn, void * data) 
 {
-	if((!compute) || (!isequal)) return NULL;
-	if(size < GRAVITYHASH_DEFAULT_SIZE) size = GRAVITYHASH_DEFAULT_SIZE;
-
-	gravity_hash_t * hashtable = (gravity_hash_t*)mem_alloc(NULL, sizeof(gravity_hash_t));
-	if(!hashtable) return NULL;
-	if(!(hashtable->nodes = static_cast<hash_node_t **>(mem_calloc(NULL, size, sizeof(hash_node_t*))))) {
-		mem_free(hashtable); return NULL;
+	gravity_hash_t * hashtable = 0;
+	if(compute && isequal) {
+		if(size < GRAVITYHASH_DEFAULT_SIZE) 
+			size = GRAVITYHASH_DEFAULT_SIZE;
+		hashtable = (gravity_hash_t *)mem_alloc(NULL, sizeof(gravity_hash_t));
+		if(hashtable) {
+			if(!(hashtable->nodes = static_cast<hash_node_t **>(mem_calloc(NULL, size, sizeof(hash_node_t*))))) {
+				mem_free(hashtable); return NULL;
+			}
+			hashtable->compute_fn = compute;
+			hashtable->isequal_fn = isequal;
+			hashtable->free_fn = free_fn;
+			hashtable->data = data;
+			hashtable->size = size;
+		}
 	}
-	hashtable->compute_fn = compute;
-	hashtable->isequal_fn = isequal;
-	hashtable->free_fn = free_fn;
-	hashtable->data = data;
-	hashtable->size = size;
 	return hashtable;
 }
 
@@ -188,7 +193,8 @@ void gravity_hash_free(gravity_hash_t * hashtable)
 			hash_node_t * node = hashtable->nodes[n];
 			hashtable->nodes[n] = NULL;
 			while(node) {
-				if(free_fn) free_fn(hashtable, node->key, node->value, hashtable->data);
+				if(free_fn) 
+					free_fn(hashtable, node->key, node->value, hashtable->data);
 				hash_node_t * old_node = node;
 				node = node->next;
 				mem_free(old_node);
@@ -202,8 +208,7 @@ void gravity_hash_free(gravity_hash_t * hashtable)
 
 uint32 gravity_hash_memsize(const gravity_hash_t * hashtable) 
 {
-	uint32 size = sizeof(gravity_hash_t);
-	size += hashtable->size * sizeof(hash_node_t);
+	uint32 size = sizeof(gravity_hash_t) + hashtable->size * sizeof(hash_node_t);
 	return size;
 }
 
@@ -215,25 +220,27 @@ static /*inline*/int gravity_hash_resize(gravity_hash_t * hashtable)
 	gravity_hash_t newtbl(size, 0, hashtable->isequal_fn, hashtable->compute_fn);
 	if(!(newtbl.nodes = static_cast<hash_node_t **>(mem_calloc(NULL, size, sizeof(hash_node_t*))))) 
 		return -1;
-	hash_node_t * node, * next;
-	for(uint32 n = 0; n < hashtable->size; ++n) {
-		for(node = hashtable->nodes[n]; node; node = next) {
-			next = node->next;
-			gravity_hash_insert(&newtbl, node->key, node->value);
-			// temporary disable free callback registered in hashtable
-			// because both key and values are reused in the new table
-			gravity_hash_iterate_fn free_fn = hashtable->free_fn;
-			hashtable->free_fn = NULL;
-			gravity_hash_remove(hashtable, node->key);
-			hashtable->free_fn = free_fn;
+	else {
+		for(uint32 n = 0; n < hashtable->size; ++n) {
+			hash_node_t * next;
+			for(hash_node_t * node = hashtable->nodes[n]; node; node = next) {
+				next = node->next;
+				gravity_hash_insert(&newtbl, node->key, node->value);
+				// temporary disable free callback registered in hashtable
+				// because both key and values are reused in the new table
+				gravity_hash_iterate_fn free_fn = hashtable->free_fn;
+				hashtable->free_fn = NULL;
+				gravity_hash_remove(hashtable, node->key);
+				hashtable->free_fn = free_fn;
+			}
 		}
+		mem_free(hashtable->nodes);
+		hashtable->size = newtbl.size;
+		hashtable->count = newtbl.count;
+		hashtable->nodes = newtbl.nodes;
+		INC_RESIZE(hashtable);
+		return 0;
 	}
-	mem_free(hashtable->nodes);
-	hashtable->size = newtbl.size;
-	hashtable->count = newtbl.count;
-	hashtable->nodes = newtbl.nodes;
-	INC_RESIZE(hashtable);
-	return 0;
 }
 
 bool gravity_hash_remove(gravity_hash_t * hashtable, GravityValue key) 
@@ -245,9 +252,12 @@ bool gravity_hash_remove(gravity_hash_t * hashtable, GravityValue key)
 	hash_node_t * prevnode = NULL;
 	while(node) {
 		if((node->hash == hash) && (hashtable->isequal_fn(key, node->key))) {
-			if(free_fn) free_fn(hashtable, node->key, node->value, hashtable->data);
-			if(prevnode) prevnode->next = node->next;
-			else hashtable->nodes[position] = node->next;
+			if(free_fn) 
+				free_fn(hashtable, node->key, node->value, hashtable->data);
+			if(prevnode) 
+				prevnode->next = node->next;
+			else 
+				hashtable->nodes[position] = node->next;
 			mem_free(node);
 			hashtable->count--;
 			return true;
@@ -316,16 +326,16 @@ GravityValue * gravity_hash_lookup_cstring(gravity_hash_t * hashtable, const cha
 
 uint32 FASTCALL gravity_hash_count(const gravity_hash_t * hashtable) { return hashtable->count; }
 
-uint32 gravity_hash_compute_buffer(const char * key, uint32 len) 
+uint32 FASTCALL gravity_hash_compute_buffer(const char * key, uint32 len) 
 {
-	return murmur3_32(key, len, HASH_SEED_VALUE);
+	return SlHash::Murmur3_32(key, len, HASH_SEED_VALUE);
 }
 
 uint32 gravity_hash_compute_int(gravity_int_t n) 
 {
 	char buffer[24];
 	snprintf(buffer, sizeof(buffer), "%" PRId64, n);
-	return murmur3_32(buffer, (uint32)strlen(buffer), HASH_SEED_VALUE);
+	return SlHash::Murmur3_32(buffer, (uint32)strlen(buffer), HASH_SEED_VALUE);
 }
 
 uint32 gravity_hash_compute_float(gravity_float_t f) 
@@ -333,7 +343,7 @@ uint32 gravity_hash_compute_float(gravity_float_t f)
 	char buffer[24];
 	// was %g but we don't like scientific notation nor the missing .0 in case of float number with no decimals
 	snprintf(buffer, sizeof(buffer), "%f", f);
-	return murmur3_32(buffer, (uint32)strlen(buffer), HASH_SEED_VALUE);
+	return SlHash::Murmur3_32(buffer, (uint32)strlen(buffer), HASH_SEED_VALUE);
 }
 
 void gravity_hash_stat(gravity_hash_t * hashtable) 

@@ -6,8 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-//static
-int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
+/*static*/int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -26,8 +25,7 @@ int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw,
 	return ok;
 }
 
-//static
-int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
+/*static*/int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw, size_t pwBufSize, SString & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
@@ -61,8 +59,7 @@ int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw,
 	return ok;
 }
 
-//static
-int SLAPI Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen)
+/*static*/int SLAPI Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const char * pText, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	if(cryptMethod == crymRef2) {
@@ -91,8 +88,7 @@ int SLAPI Reference::Helper_Encrypt_(int cryptMethod, const char * pEncPw, const
 	return ok;
 }
 
-//static
-int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText)
+/*static*/int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const char * pBuf, size_t bufLen, SString & rText)
 {
 	int    ok = 1;
 	char   pw_buf[128];
@@ -117,15 +113,12 @@ int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const
 	return ok;
 }
 
-//static
-int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
+/*static*/int SLAPI Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
 	{ return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen); }
-//static
-int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
+/*static*/int SLAPI Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
 	{ return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText); }
 
-//static
-int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen)
+/*static*/int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen)
 {
 	int    ok = 1;
 	if(pSecur) {
@@ -139,8 +132,7 @@ int SLAPI Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t buf
 	return ok;
 }
 
-//static
-int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
+/*static*/int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 {
 	int    ok = 1;
 	SCRC32 c;
@@ -185,8 +177,7 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 	return ok;
 }
 
-//static
-int SLAPI Reference::GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf)
+/*static*/int SLAPI Reference::GetExField(const PPConfigPrivate * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -197,8 +188,7 @@ int SLAPI Reference::GetExField(const PPConfigPrivate * pRec, int fldId, SString
 	return ok;
 }
 
-//static
-int SLAPI Reference::SetExField(PPConfigPrivate * pRec, int fldId, const char * pBuf)
+/*static*/int SLAPI Reference::SetExField(PPConfigPrivate * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(fldId == PCFGEXSTR_DESKTOPNAME) {
@@ -1953,8 +1943,7 @@ int SLAPI PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 //
 
 #if 0 // {
-//static
-int FASTCALL UuidRefCore::TextToUuid(const char * pText, S_GUID & rUuid)
+/*static*/int FASTCALL UuidRefCore::TextToUuid(const char * pText, S_GUID & rUuid)
 {
 	int    ok = 1;
     if(isempty(pText)) {
@@ -1966,8 +1955,7 @@ int FASTCALL UuidRefCore::TextToUuid(const char * pText, S_GUID & rUuid)
 	return ok;
 }
 
-//static
-int FASTCALL UuidRefCore::UuidToText(const S_GUID & rUuid, SString & rText)
+/*static*/int FASTCALL UuidRefCore::UuidToText(const S_GUID & rUuid, SString & rText)
 {
 	int    ok = 1;
 	if(rUuid.IsZero()) {

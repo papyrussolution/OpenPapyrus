@@ -39,13 +39,13 @@ IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 
 IMPL_CMPFUNC(ILTIGOODS, i1, i2)
 {
-	int    cmp = 0;
 	PPObjGoods goods_obj;
 	SString name1, name2;
 	Goods2Tbl::Rec rec1, rec2;
 	goods_obj.Fetch(static_cast<const ILTI *>(i1)->GoodsID, &rec1);
 	goods_obj.Fetch(static_cast<const ILTI *>(i2)->GoodsID, &rec2);
-	if((cmp = stricmp866(rec1.Name, rec2.Name)) > 0)
+	int    cmp = stricmp866(rec1.Name, rec2.Name);
+	if(cmp > 0)
 		return 1;
 	else if(cmp < 0)
 		return -1;
@@ -1217,7 +1217,7 @@ int SLAPI PPViewGoodsBasket::CreateOrderTable()
 			if(Order == PPObjGoodsBasket::ordByGoods)
 				temp_buf = goods_name;
 			else if(Order == PPObjGoodsBasket::ordByGroup) {
-				grp_name = (goods_obj.Fetch(goods_rec.ParentID, &grp_rec) > 0) ? grp_rec.Name : 0;
+				grp_name = (goods_obj.Fetch(goods_rec.ParentID, &grp_rec) > 0) ? grp_rec.Name : static_cast<const char *>(0);
 				grp_name.Cat(goods_name);
 			}
 		}
@@ -1244,9 +1244,11 @@ int SLAPI PPObjGoodsBasket::Print(PPBasketPacket * pData)
 //
 // GBItemDialog
 //
-#define GRP_GOODS 1
-
 class GBItemDialog : public TDialog {
+	DECL_DIALOG_DATA(ILTI);
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	enum {
 		fEnableChangeBasket = 0x0001,
@@ -1265,8 +1267,77 @@ public:
 		// @v10.7.3 @ctr MEMSZERO(Item);
 		SetupCalDate(CTLCAL_GBITEM_EXPIRY, CTL_GBITEM_EXPIRY);
 	}
-	int    setDTS(const ILTI * pItem);
-	int    getDTS(ILTI * pData);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		int    ok = 1;
+		LDATE  expiry;
+		ReceiptTbl::Rec lot_rec;
+		GoodsCtrlGroup::Rec rec(0, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel | GoodsCtrlGroup::disableEmptyGoods);
+		enableCommand(cmShowBasket, BIN(Flags & fEnableChangeBasket));
+		disableCtrls(1, CTL_GBITEM_LINESCOUNT, CTL_GBITEM_AMOUNT, CTL_GBITEM_BRUTTO, 0);
+		disableCtrls(!(Flags & fEnableChangeBasket), CTLSEL_GBITEM_BASKET, CTLSEL_GBITEM_SUPPL, CTL_GBITEM_PRIVATE, 0);
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GBITEM_GGRP, CTLSEL_GBITEM_GOODS));
+		getLotInfo(Data.GoodsID, &lot_rec);
+		SetupPPObjCombo(this, CTLSEL_GBITEM_BASKET, PPOBJ_GOODSBASKET, R_Cart.Pack.Head.ID, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0);
+		SetupArCombo(this, CTLSEL_GBITEM_SUPPL, R_Cart.Pack.Head.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
+		setCtrlUInt16(CTL_GBITEM_PRIVATE, BIN(R_Cart.Pack.Head.Flags & GBASKF_PRIVATE));
+		setGroupData(ctlgroupGoods, &rec);
+		setCtrlData(CTL_GBITEM_VALUE, &Data.Quantity);
+		SETIFZ(Data.UnitPerPack, lot_rec.UnitPerPack);
+		if(Data.UnitPerPack > 0)
+			setCtrlReal(CTL_GBITEM_QTTYPACK, Data.Quantity / Data.UnitPerPack);
+		setCtrlData(CTL_GBITEM_UPPACK, &Data.UnitPerPack);
+		if(!checkdate(Data.Expiry))
+			Data.Expiry = lot_rec.Expiry;
+		expiry = Data.Expiry;
+		setCtrlData(CTL_GBITEM_EXPIRY, &expiry);
+		if(Data.Price == 0.0 && Data.GoodsID)
+			Data.Price = R5(BillObj->CheckRights(BILLRT_ACCSCOST) ? lot_rec.Cost : lot_rec.Price);
+		setCtrlReal(CTL_GBITEM_PRICE, Data.Price);
+		setupAmount(0);
+		setupPalette(Data.GoodsID);
+		if(Data.GoodsID) {
+			if(Data.UnitPerPack != 0.0 && Flags & fFocusOnPckg)
+				selectCtrl(CTL_GBITEM_QTTYPACK);
+			else
+				selectCtrl(CTL_GBITEM_VALUE);
+		}
+		else
+			selectCtrl(CTLSEL_GBITEM_GGRP);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = -1, sel = 0;
+		double qtty_pack = 0.0;
+		PPID   inner_basket_id = 0;
+		PPID   inner_suppl_id = 0;
+		GoodsCtrlGroup::Rec rec;
+		if(Flags & fEnableChangeBasket) {
+			getCtrlData(CTLSEL_GBITEM_BASKET, &inner_basket_id);
+			getCtrlData(CTLSEL_GBITEM_SUPPL,  &inner_suppl_id);
+		}
+		ushort v = getCtrlUInt16(CTL_GBITEM_PRIVATE);
+		SETFLAG(R_Cart.Pack.Head.Flags, GBASKF_PRIVATE, v);
+		THROW(getGroupData(ctlgroupGoods, &rec));
+		getCtrlData(CTL_GBITEM_UPPACK,   &Data.UnitPerPack);
+		getCtrlData(CTL_GBITEM_QTTYPACK, &qtty_pack);
+		getCtrlData((sel = CTL_GBITEM_VALUE), &Data.Quantity);
+		if(Data.UnitPerPack > 0.0 && qtty_pack > 0.0 && Data.Quantity == 0.0)
+			Data.Quantity = qtty_pack * Data.UnitPerPack;
+		THROW_PP(Data.Quantity >= 0.0, PPERR_INVQTTY);
+		Data.Rest = Data.Quantity;
+		getCtrlData((sel = CTL_GBITEM_PRICE), &Data.Price);
+		THROW_PP(Data.Price >= 0.0, PPERR_INVAMOUNT);
+		getCtrlData(sel = CTL_GBITEM_EXPIRY, &Data.Expiry);
+		THROW_SL(checkdate(Data.Expiry, 1));
+		Data.GoodsID = rec.GoodsID;
+		ok = 1;
+		CATCHZOKPPERRBYDLG
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 	int    getLotInfo(PPID goodsID, ReceiptTbl::Rec * pRec)
 	{
 		memzero(pRec, sizeof(*pRec));
@@ -1290,82 +1361,8 @@ private:
 	PPObjGoods GObj;
 	PPBasketCombine & R_Cart;
 	long   Flags;
-	ILTI   Item;
 	PPID   DefLocID; // Склад, используемый для нахождения последнего лота
 };
-
-int GBItemDialog::setDTS(const ILTI * pItem)
-{
-	Item = *pItem;
-	int    ok = 1;
-	LDATE  expiry;
-	ReceiptTbl::Rec lot_rec;
-	GoodsCtrlGroup::Rec rec(0, Item.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel | GoodsCtrlGroup::disableEmptyGoods);
-	enableCommand(cmShowBasket, BIN(Flags & fEnableChangeBasket));
-	disableCtrls(1, CTL_GBITEM_LINESCOUNT, CTL_GBITEM_AMOUNT, CTL_GBITEM_BRUTTO, 0);
-	disableCtrls(!(Flags & fEnableChangeBasket), CTLSEL_GBITEM_BASKET, CTLSEL_GBITEM_SUPPL, CTL_GBITEM_PRIVATE, 0);
-	addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_GBITEM_GGRP, CTLSEL_GBITEM_GOODS));
-	getLotInfo(Item.GoodsID, &lot_rec);
-	SetupPPObjCombo(this, CTLSEL_GBITEM_BASKET, PPOBJ_GOODSBASKET, R_Cart.Pack.Head.ID, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0);
-	SetupArCombo(this, CTLSEL_GBITEM_SUPPL, R_Cart.Pack.Head.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
-	setCtrlUInt16(CTL_GBITEM_PRIVATE, BIN(R_Cart.Pack.Head.Flags & GBASKF_PRIVATE));
-	setGroupData(GRP_GOODS, &rec);
-	setCtrlData(CTL_GBITEM_VALUE, &Item.Quantity);
-	SETIFZ(Item.UnitPerPack, lot_rec.UnitPerPack);
-	if(Item.UnitPerPack > 0)
-		setCtrlReal(CTL_GBITEM_QTTYPACK, Item.Quantity / Item.UnitPerPack);
-	setCtrlData(CTL_GBITEM_UPPACK, &Item.UnitPerPack);
-	if(Item.Expiry)
-		expiry = Item.Expiry;
-	else
-		Item.Expiry = expiry = lot_rec.Expiry;
-	setCtrlData(CTL_GBITEM_EXPIRY, &expiry);
-	if(Item.Price == 0.0 && Item.GoodsID)
-		Item.Price = R5(BillObj->CheckRights(BILLRT_ACCSCOST) ? lot_rec.Cost : lot_rec.Price);
-	setCtrlReal(CTL_GBITEM_PRICE, Item.Price);
-	setupAmount(0);
-	setupPalette(Item.GoodsID);
-	if(Item.GoodsID) {
-		if(Item.UnitPerPack != 0.0 && Flags & fFocusOnPckg)
-			selectCtrl(CTL_GBITEM_QTTYPACK);
-		else
-			selectCtrl(CTL_GBITEM_VALUE);
-	}
-	else
-		selectCtrl(CTLSEL_GBITEM_GGRP);
-	return ok;
-}
-
-int GBItemDialog::getDTS(ILTI * pData)
-{
-	int    ok = -1, sel = 0;
-	double qtty_pack = 0.0;
-	PPID   inner_basket_id = 0, inner_suppl_id = 0;
-	GoodsCtrlGroup::Rec rec;
-	if(Flags & fEnableChangeBasket) {
-		getCtrlData(CTLSEL_GBITEM_BASKET, &inner_basket_id);
-		getCtrlData(CTLSEL_GBITEM_SUPPL,  &inner_suppl_id);
-	}
-	ushort v = getCtrlUInt16(CTL_GBITEM_PRIVATE);
-	SETFLAG(R_Cart.Pack.Head.Flags, GBASKF_PRIVATE, v);
-	THROW(getGroupData(GRP_GOODS, &rec));
-	getCtrlData(CTL_GBITEM_UPPACK,   &Item.UnitPerPack);
-	getCtrlData(CTL_GBITEM_QTTYPACK, &qtty_pack);
-	getCtrlData((sel = CTL_GBITEM_VALUE), &Item.Quantity);
-	if(Item.UnitPerPack > 0.0 && qtty_pack > 0.0 && Item.Quantity == 0.0)
-		Item.Quantity = qtty_pack * Item.UnitPerPack;
-	THROW_PP(Item.Quantity >= 0.0, PPERR_INVQTTY);
-	Item.Rest = Item.Quantity;
-	getCtrlData((sel = CTL_GBITEM_PRICE), &Item.Price);
-	THROW_PP(Item.Price >= 0.0, PPERR_INVAMOUNT);
-	getCtrlData(sel = CTL_GBITEM_EXPIRY, &Item.Expiry);
-	THROW_SL(checkdate(Item.Expiry, 1));
-	Item.GoodsID = rec.GoodsID;
-	ok = 1;
-	CATCHZOKPPERRBYDLG
-	ASSIGN_PTR(pData, Item);
-	return ok;
-}
 
 int GBItemDialog::setupAmount(double * pAmount, int recalcQttyPack /*=1*/)
 {
@@ -1399,22 +1396,22 @@ void GBItemDialog::setupQuantity(uint master, int readFlds)
 {
 	double numpacks = 0.0;
 	if(readFlds && (
-		!readQttyFld(master, CTL_GBITEM_UPPACK,   &Item.UnitPerPack) ||
+		!readQttyFld(master, CTL_GBITEM_UPPACK,   &Data.UnitPerPack) ||
 		!readQttyFld(master, CTL_GBITEM_QTTYPACK, &numpacks) ||
-		!readQttyFld(master, CTL_GBITEM_VALUE,    &Item.Quantity)))
+		!readQttyFld(master, CTL_GBITEM_VALUE,    &Data.Quantity)))
 		return;
-	if(Item.UnitPerPack == 0.0)
+	if(Data.UnitPerPack == 0.0)
 		numpacks = 0.0;
 	else if(oneof3(master, 0, CTL_GBITEM_QTTYPACK, CTL_GBITEM_UPPACK) && numpacks > 0.0)
-		Item.Quantity = Item.UnitPerPack * numpacks;
+		Data.Quantity = Data.UnitPerPack * numpacks;
 	else if(oneof2(master, 0, CTL_GBITEM_VALUE))
-		numpacks = Item.Quantity / Item.UnitPerPack;
+		numpacks = Data.Quantity / Data.UnitPerPack;
 	if(master != CTL_GBITEM_UPPACK)
-		setCtrlData(CTL_GBITEM_UPPACK,   &Item.UnitPerPack);
+		setCtrlData(CTL_GBITEM_UPPACK,   &Data.UnitPerPack);
 	if(master != CTL_GBITEM_QTTYPACK)
 		setCtrlData(CTL_GBITEM_QTTYPACK, &numpacks);
 	if(master != CTL_GBITEM_VALUE)
-		setCtrlData(CTL_GBITEM_VALUE,    &Item.Quantity);
+		setCtrlData(CTL_GBITEM_VALUE,    &Data.Quantity);
 }
 
 IMPL_HANDLE_EVENT(GBItemDialog)
@@ -1991,6 +1988,9 @@ int SLAPI AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double pric
 //
 //
 struct Basket2BillParam {
+	Basket2BillParam() : BasketID(0), QuotKindID(0), RuleCost(0), RulePrice(0), Flags(0)
+	{
+	}
 	enum {
 		costFromBasket  = 1,  // из корзины
 		costFromLastLot = 2   // из последнего лота
@@ -2018,14 +2018,14 @@ struct Basket2BillParam {
 static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 {
 	class Basket2BillDialog : public TDialog {
+		DECL_DIALOG_DATA(Basket2BillParam);
 	public:
 		Basket2BillDialog() : TDialog(DLG_BSKT2BILL)
 		{
 		}
-		int setDTS(const Basket2BillParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
-
+			RVALUEPTR(Data, pData);
 			int    ok = 1;
 			AddClusterAssocDef(CTL_BSKT2BILL_RULECOST,  0, Basket2BillParam::costFromBasket);
 			AddClusterAssoc(CTL_BSKT2BILL_RULECOST,  1, Basket2BillParam::costFromLastLot);
@@ -2042,7 +2042,7 @@ static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 			DisableClusterItem(CTL_BSKT2BILL_USELINK, 0, (Data.Flags & Basket2BillParam::fLinkBillExists) ? 0 : 1);
 			return ok;
 		}
-		int getDTS(Basket2BillParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -2067,7 +2067,6 @@ static int SLAPI EditBasket2BillParam(Basket2BillParam * pParam)
 				clearEvent(event);
 			}
 		}
-		Basket2BillParam Data;
 	};
 	DIALOG_PROC_BODY(Basket2BillDialog, pParam);
 }
@@ -2082,7 +2081,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 	BillTbl::Rec link_rec;
 	LongArray all_rows, one_goods_rows;
 	Basket2BillParam param;
-	MEMSZERO(param);
+	// @v10.8.0 @ctr MEMSZERO(param);
 	param.Flags |= Basket2BillParam::fSilentOnDeficit;
 	if(pPack->Rec.LinkBillID && Search(pPack->Rec.LinkBillID, &link_rec) > 0 && IsDraftOp(link_rec.OpID)) {
 		param.Flags |= Basket2BillParam::fLinkBillExists;
@@ -2097,10 +2096,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 	else if(oneof3(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER)) {
 		param.RuleCost  = Basket2BillParam::costFromLastLot;
 		param.RulePrice = Basket2BillParam::priceFromBasket;
-		if(oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER))
-			is_expend = 2;
-		else
-			is_expend = 1;
+		is_expend = (oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER)) ? 2 : 1;
 	}
 	else if(op_type_id == PPOPT_GOODSACK) {
 		param.RuleCost  = Basket2BillParam::costFromLastLot;
@@ -2168,9 +2164,9 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 			ilti.Cost  = 0.0;
 			ilti.Price = 0.0;
 			if(p_link_ti)
-				ilti.Cost = R2(p_link_ti->Cost);
+				ilti.Cost = R5(p_link_ti->Cost); // @v10.8.0 R2-->R5
 			else if(param.RuleCost == Basket2BillParam::costFromBasket)
-				ilti.Cost = R2(p_item->Price);
+				ilti.Cost = R5(p_item->Price); // @v10.8.0 R2-->R5
 			else if(param.RuleCost == Basket2BillParam::costFromLastLot)
 				ilti.Cost = R5(lot_rec.Cost);
 
@@ -2182,8 +2178,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				ilti.Price = R5(lot_rec.Price);
 			else if(param.RulePrice == Basket2BillParam::priceFromQuot) {
 				double price = 0.0;
-				const QuotIdent qi(pPack->Rec.LocID, param.QuotKindID, pPack->Rec.CurID, pPack->Rec.Object);
-				if(GObj.GetQuotExt(p_item->GoodsID, qi, ilti.Cost, last_price, &price, 1) > 0) {
+				if(GObj.GetQuotExt(p_item->GoodsID, QuotIdent(pPack->Rec.LocID, param.QuotKindID, pPack->Rec.CurID, pPack->Rec.Object), ilti.Cost, last_price, &price, 1) > 0) {
 					cvt_ilti_flags |= CILTIF_QUOT;
 					if(pPack->Rec.CurID)
 						ilti.CurPrice = price;
@@ -2208,14 +2203,11 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				continue;
 			}
 			else if(ilti.HasDeficit()) {
-				// @v9.1.11 PPGetWord(PPWORD_DEFICIT, 0, msg_buf);
-				PPLoadString("deficit", msg_buf); // @v9.1.11
+				PPLoadString("deficit", msg_buf);
 				msg_buf.CatDiv(':', 2);
-				// @v9.3.6 {
 				GObj.GetSingleBarcode(goods_rec.ID, temp_buf.Z());
 				if(temp_buf.NotEmptyS())
 					msg_buf.Cat(temp_buf).CatDiv('-', 1);
-				// } @v9.3.6
 				msg_buf.Cat(goods_rec.Name).CatDiv('=', 1).Cat(ilti.Rest, MKSFMTD(0, 6, 0));
 				logger.Log(msg_buf);
 			}
@@ -2223,7 +2215,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				r = -1;
 			else
 				r = (fabs(ilti.Rest) > 0.0) ? ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance) : -1;
-			if(r == PCUG_ASGOODAS || r == -1) {
+			if(oneof2(r, PCUG_ASGOODAS, -1)) {
 				int * p_i;
 				for(uint j = 0; one_goods_rows.enumItems(&j, (void **)&p_i);) {
 					PPTransferItem & r_ti = pPack->TI(static_cast<uint>(*p_i));

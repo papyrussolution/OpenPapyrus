@@ -143,7 +143,8 @@ private:
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
-		sfKeepAlive     = 0x0080  // @v10.0.12 Держать установленное соединение с аппаратом
+		sfKeepAlive     = 0x0080, // @v10.0.12 Держать установленное соединение с аппаратом
+		sfSkipAfVerif   = 0x0100  // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков 
 	};
 	static int RefToIntrf;
 	int	   Port;            // Номер порта
@@ -278,6 +279,12 @@ int SLAPI SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 				Flags |= sfKeepAlive;
 		}
 		// } @v10.0.12
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_POSREGISTERSKIPAFVERIF, temp_buf.Z()) > 0) {
+			if(temp_buf == "0" || temp_buf.IsEqiAscii("false") || temp_buf.IsEqiAscii("no"))
+				Flags &= ~sfSkipAfVerif;
+			else if(temp_buf == "1" || temp_buf.IsEqiAscii("true") || temp_buf.IsEqiAscii("yes"))
+				Flags |= sfSkipAfVerif;
+		}
 		if(Flags & sfConnected) {
 			THROW(ExecOper(DVCCMD_DISCONNECT, Arr_In.Z(), Arr_Out));
 			Flags &= ~sfConnected;
@@ -603,16 +610,16 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						const double _p = sl_param.Price;
 						running_total += (_q * _p);
 						PROFILE_START_S("DVCCMD_PRINTFISCAL")
-						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text)); // @v9.5.7
-						THROW(ArrAdd(Arr_In, DVCPARAM_CODE, sl_param.Code)); // @v9.5.7
+						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text));
+						THROW(ArrAdd(Arr_In, DVCPARAM_CODE, sl_param.Code));
 						THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
 						THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
 						THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						if(is_vat_free) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1)); // @v9.7.1
+							THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
 						}
 						else {
-							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
+							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate)));
 						}
 						if(sl_param.ChZnCode.NotEmptyS()) { // @v10.7.0
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode)); // @v10.6.12
@@ -1519,9 +1526,14 @@ int SLAPI SCS_SYNCCASH::ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAss
 			break;
 		}
 		// @v10.1.2 r = AllowPrintOper();
-		r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : AllowPrintOper(); // @v10.1.2
+		// @v10.8.0 {
+		if(Flags & sfSkipAfVerif)
+			r = 1;
+		else 
+			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : AllowPrintOper(); // @v10.1.2
+		// } @v10.8.0 
 		//
-		// Если выдана ошибка, не описанная в простоколе, то выходим для получения текста ошибки
+		// Если выдана ошибка, не описанная в протоколе, то выходим для получения текста ошибки
 		//
 		/*
 		if((ResCode != RESCODE_NO_ERROR) && (ResCode != RESCODE_UNKNOWNCOMMAND) && (ResCode != RESCODE_NO_CONNECTION) && (ResCode != RESCODE_SLIP_IS_EMPTY) &&

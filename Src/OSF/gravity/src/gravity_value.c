@@ -8,9 +8,10 @@
 #pragma hdrstop
 
 // mark object visited to avoid infinite loop
-#define SET_OBJECT_VISITED_FLAG(_obj, _flag)    (reinterpret_cast<gravity_object_t *>(_obj)->GcVisited = _flag)
+//#define SET_OBJECT_VISITED_FLAG(_obj, _flag)    (reinterpret_cast<gravity_class_t *>(_obj)->GcVisited = _flag)
+#define SET_OBJECT_VISITED_FLAG(_obj, _flag)      SETFLAG(/*reinterpret_cast<gravity_class_t *>*/(_obj)->Flags, GravityObjectBase::fGcVisited, _flag)
 
-char * GravityValue::GetZString() { return reinterpret_cast<gravity_string_t *>(p)->s; }
+const char * GravityValue::GetZString() { return reinterpret_cast<gravity_string_t *>(Ptr)->cptr(); }
 
 // MARK: -
 
@@ -19,10 +20,9 @@ static gravity_map_t * gravity_map_deserialize(gravity_vm * vm, json_value * jso
 
 static void gravity_hash_serialize(gravity_hash_t * table, GravityValue key, GravityValue value, void * data) 
 {
-    #pragma unused(table)
 	GravityJson * json = (GravityJson*)data;
 	if(value.IsClosure()) 
-		value = VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(VALUE_AS_CLOSURE(value)->f));
+		value = GravityValue::from_object(reinterpret_cast<gravity_class_t *>(VALUE_AS_CLOSURE(value)->f));
 	if(value.IsFunction()) {
 		gravity_function_t * f = VALUE_AS_FUNCTION(value);
 		if(f->tag == EXEC_TYPE_SPECIAL) gravity_function_special_serialize(f, key.GetZString(), json);
@@ -32,9 +32,10 @@ static void gravity_hash_serialize(gravity_hash_t * table, GravityValue key, Gra
 			// internally it has a unique name (key) but f->identifier continue to be called $init
 			// without this fix the subclass would continue to have 2 or more $init functions
 			gravity_string_t * s = static_cast<gravity_string_t *>(key);
-			bool is_super_function = ((s->len > 5) && (string_casencmp(s->s, CLASS_INTERNAL_INIT_NAME, 5) == 0));
+			bool is_super_function = ((s->len > 5) && (string_casencmp(s->cptr(), CLASS_INTERNAL_INIT_NAME, 5) == 0));
 			const char * saved = f->identifier;
-			if(is_super_function) f->identifier = s->s;
+			if(is_super_function) 
+				f->identifier = s->cptr();
 			gravity_function_serialize(f, json);
 			if(is_super_function) f->identifier = saved;
 		}
@@ -48,7 +49,6 @@ static void gravity_hash_serialize(gravity_hash_t * table, GravityValue key, Gra
 
 void gravity_hash_keyvaluefree(gravity_hash_t * table, GravityValue key, GravityValue value, void * data) 
 {
-    //#pragma unused(table)
 	gravity_vm * vm = (gravity_vm *)data;
 	gravity_value_free(vm, key);
 	gravity_value_free(vm, value);
@@ -56,16 +56,14 @@ void gravity_hash_keyvaluefree(gravity_hash_t * table, GravityValue key, Gravity
 
 void gravity_hash_keyfree(gravity_hash_t * table, GravityValue key, GravityValue value, void * data) 
 {
-    //#pragma unused(table, value)
 	gravity_vm * vm = (gravity_vm *)data;
 	gravity_value_free(vm, key);
 }
 
 void gravity_hash_finteralfree(gravity_hash_t * table, GravityValue key, GravityValue value, void * data) 
 {
-    //#pragma unused(table, key, data)
 	if(value.IsObject()) {
-		gravity_object_t * obj = VALUE_AS_OBJECT(value);
+		gravity_class_t * obj = VALUE_AS_OBJECT(value);
 		if(obj->IsClosure()) {
 			gravity_closure_t * closure = (gravity_closure_t *)obj;
 			if(closure->f && closure->f->tag == EXEC_TYPE_INTERNAL) 
@@ -76,14 +74,12 @@ void gravity_hash_finteralfree(gravity_hash_t * table, GravityValue key, Gravity
 
 void gravity_hash_valuefree(gravity_hash_t * table, GravityValue key, GravityValue value, void * data) 
 {
-    //#pragma unused(table, key)
 	gravity_vm * vm = (gravity_vm *)data;
 	gravity_value_free(vm, value);
 }
 
 static void gravity_hash_internalsize(gravity_hash_t * table, GravityValue key, GravityValue value, void * data1, void * data2) 
 {
-    //#pragma unused(table)
 	uint32 * size = (uint32 *)data1;
 	gravity_vm * vm = (gravity_vm *)data2;
 	*size = gravity_value_size(vm, key);
@@ -92,7 +88,6 @@ static void gravity_hash_internalsize(gravity_hash_t * table, GravityValue key, 
 
 static void gravity_hash_gray(gravity_hash_t * table, GravityValue key, GravityValue value, void * data1) 
 {
-    //#pragma unused(table)
 	gravity_vm * vm = (gravity_vm *)data1;
 	gravity_gray_value(vm, key);
 	gravity_gray_value(vm, value);
@@ -107,13 +102,12 @@ gravity_module_t * gravity_module_new(gravity_vm * vm, const char * identifier)
 	m->isa = GravityEnv.P_ClsModule;
 	m->identifier = sstrdup(identifier);
 	m->htable = gravity_hash_create(0, gravity_value_hash, gravity_value_equals, gravity_hash_keyvaluefree, (void*)vm);
-	gravity_vm_transfer(vm, (gravity_object_t *)m);
+	gravity_vm_transfer(vm, (gravity_class_t *)m);
 	return m;
 }
 
 void gravity_module_free(gravity_vm * vm, gravity_module_t * m) 
 {
-    //#pragma unused(vm)
 	if(m) {
 		mem_free(m->identifier);
 		gravity_hash_free(m->htable);
@@ -144,9 +138,20 @@ void FASTCALL gravity_class_bind(gravity_class_t * c, const char * key, GravityV
 	if(value.IsClass()) {
 		// set has_outer when bind a class inside another class
 		gravity_class_t * obj = static_cast<gravity_class_t *>(value);
-		obj->has_outer = true;
+		obj->Flags |= GravityObjectBase::fHasOuter; //obj->has_outer = true;
 	}
-	gravity_hash_insert(c->htable, VALUE_FROM_CSTRING(NULL, key), value);
+	gravity_hash_insert(c->htable, gravity_zstring_to_value(NULL, key), value);
+}
+
+void FASTCALL gravity_class_bind_outerproc(gravity_class_t * c, const char * key, gravity_c_internal proc)
+{
+	gravity_class_bind(c, key, NEW_CLOSURE_VALUE(proc));
+}
+
+void FASTCALL gravity_class_bind_property_outerproc(gravity_class_t * c, const char * key, gravity_c_internal getProc, gravity_c_internal setProc)
+{
+	gravity_closure_t * p_closure = computed_property_create(NULL, (getProc ? NEW_FUNCTION(getProc) : 0), (setProc ? NEW_FUNCTION(setProc) : 0));
+	gravity_class_bind(c, key, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(p_closure)));
 }
 
 gravity_class_t * gravity_class_getsuper(gravity_class_t * c) { return c->superclass; }
@@ -169,14 +174,16 @@ bool gravity_class_setsuper(gravity_class_t * baseclass, gravity_class_t * super
 		return true;
 	baseclass->superclass = superclass;
 	// check meta class first
-	gravity_class_t * supermeta = (superclass) ? gravity_class_get_meta(superclass) : NULL;
-	uint32 n1 = (supermeta) ? supermeta->nivars : 0;
-	if(n1) if(!gravity_class_grow(gravity_class_get_meta(baseclass), n1)) return false;
-
+	gravity_class_t * supermeta = superclass ? gravity_class_get_meta(superclass) : NULL;
+	uint32 n1 = supermeta ? supermeta->nivars : 0;
+	if(n1) 
+		if(!gravity_class_grow(gravity_class_get_meta(baseclass), n1)) 
+			return false;
 	// then check real class
 	uint32 n2 = (superclass) ? superclass->nivars : 0;
-	if(n2) if(!gravity_class_grow(baseclass, n2)) return false;
-
+	if(n2) 
+		if(!gravity_class_grow(baseclass, n2)) 
+			return false;
 	return true;
 }
 
@@ -201,7 +208,7 @@ gravity_class_t * FASTCALL gravity_class_new_single(gravity_vm * vm, const char 
 		for(uint32 i = 0; i < nivar; ++i) 
 			c->ivars[i] = GravityValue::from_null();
 	}
-	gravity_vm_transfer(vm, (gravity_object_t *)c);
+	gravity_vm_transfer(vm, c);
 	return c;
 }
 
@@ -230,6 +237,12 @@ gravity_class_t * FASTCALL gravity_class_get_meta(gravity_class_t * c)
 	return (c->objclass == GravityEnv.P_ClsObj) ? c : c->objclass;
 }
 
+const gravity_class_t * FASTCALL gravity_class_get_meta_const(const gravity_class_t * c) 
+{
+	// meta classes have objclass set to class object
+	return (c->objclass == GravityEnv.P_ClsObj) ? c : c->objclass;
+}
+
 bool gravity_class_is_meta(const gravity_class_t * c) 
 {
 	// meta classes have objclass set to class object
@@ -248,7 +261,6 @@ uint32 gravity_class_count_ivars(const gravity_class_t * c)
 
 int16 gravity_class_add_ivar(gravity_class_t * c, const char * identifier) 
 {
-    #pragma unused(identifier)
 	// TODO: add identifier in array (for easier debugging)
 	++c->nivars;
 	return static_cast<int16>(c->nivars-1); // its a C array so index is 0 based
@@ -271,7 +283,7 @@ void gravity_class_serialize(gravity_class_t * c, GravityJson * json)
 	json_add_cstring(json, GRAVITY_JSON_LABELTYPE, GRAVITY_JSON_CLASS); // MANDATORY 1st FIELD
 	json_add_cstring(json, GRAVITY_JSON_LABELIDENTIFIER, c->identifier); // MANDATORY 2nd FIELD
 	// avoid write superclass name if it is the default Object one
-	if((c->superclass) && (c->superclass->identifier) && (strcmp(c->superclass->identifier, GRAVITY_CLASS_OBJECT_NAME) != 0)) {
+	if(c->superclass && c->superclass->identifier && strcmp(c->superclass->identifier, GRAVITY_CLASS_OBJECT_NAME) != 0) {
 		json_add_cstring(json, GRAVITY_JSON_LABELSUPER, c->superclass->identifier);
 	}
 	else if(c->superlook) {
@@ -283,7 +295,8 @@ void gravity_class_serialize(gravity_class_t * c, GravityJson * json)
 	json_add_int(json, GRAVITY_JSON_LABELNIVAR, c->nivars);
 	if((c != meta) && (meta->nivars > 0)) json_add_int(json, GRAVITY_JSON_LABELSIVAR, meta->nivars);
 	// struct flag
-	if(c->is_struct) json_add_bool(json, GRAVITY_JSON_LABELSTRUCT, true);
+	if(c->Flags & GravityObjectBase::fIsStruct/*c->is_struct*/) 
+		json_add_bool(json, GRAVITY_JSON_LABELSTRUCT, true);
 	// serialize htable
 	if(c->htable) {
 		gravity_hash_iterate(c->htable, gravity_hash_serialize, (void*)json);
@@ -297,15 +310,16 @@ void gravity_class_serialize(gravity_class_t * c, GravityJson * json)
 			json_end_array(json);
 		}
 	}
-
 	json_end_object(json);
 }
 
 gravity_class_t * gravity_class_deserialize(gravity_vm * vm, json_value * json) 
 {
 	// sanity check
-	if(json->type != json_object) return NULL;
-	if(json->u.object.length < 3) return NULL;
+	if(json->type != json_object) 
+		return NULL;
+	if(json->u.object.length < 3) 
+		return NULL;
 	// scan identifier
 	json_value * value = json->u.object.values[1].value;
 	const char * key = json->u.object.values[1].name;
@@ -345,7 +359,7 @@ gravity_class_t * gravity_class_deserialize(gravity_vm * vm, json_value * json)
 			}
 			// struct
 			if(string_casencmp(key, GRAVITY_JSON_LABELSTRUCT, strlen(key)) == 0) {
-				c->is_struct = true;
+				c->Flags |= GravityObjectBase::fIsStruct;//c->is_struct = true;
 				continue;
 			}
 			// meta
@@ -353,15 +367,16 @@ gravity_class_t * gravity_class_deserialize(gravity_vm * vm, json_value * json)
 				uint32 m = value->u.array.length;
 				for(uint32 j = 0; j<m; ++j) {
 					json_value * r = value->u.array.values[j];
-					if(r->type != json_object) continue;
-					gravity_object_t * obj = gravity_object_deserialize(vm, r);
+					if(r->type != json_object) 
+						continue;
+					gravity_class_t * obj = gravity_object_deserialize(vm, r);
 					if(!obj) 
 						goto abort_load;
 					const char * identifier = obj->identifier;
 					if(obj->IsFunction()) 
-						obj = (gravity_object_t *)gravity_closure_new(vm, (gravity_function_t *)obj);
+						obj = (gravity_class_t *)gravity_closure_new(vm, (gravity_function_t *)obj);
 					if(obj) 
-						gravity_class_bind(meta, identifier, VALUE_FROM_OBJECT(obj));
+						gravity_class_bind(meta, identifier, GravityValue::from_object(obj));
 					else goto abort_load;
 				}
 				continue;
@@ -370,13 +385,13 @@ gravity_class_t * gravity_class_deserialize(gravity_vm * vm, json_value * json)
 			goto abort_load;
 		}
 		if(value->type == json_object) {
-			gravity_object_t * obj = gravity_object_deserialize(vm, value);
+			gravity_class_t * obj = gravity_object_deserialize(vm, value);
 			if(!obj) 
 				goto abort_load;
 			const char * identifier = obj->identifier;
 			if(obj->IsFunction()) 
-				obj = (gravity_object_t *)gravity_closure_new(vm, (gravity_function_t *)obj);
-			gravity_class_bind(c, identifier, VALUE_FROM_OBJECT(obj));
+				obj = (gravity_class_t *)gravity_closure_new(vm, (gravity_function_t *)obj);
+			gravity_class_bind(c, identifier, GravityValue::from_object(obj));
 		}
 	}
 	return c;
@@ -387,34 +402,36 @@ abort_load:
 
 static void gravity_class_free_internal(gravity_vm * vm, gravity_class_t * c, bool skip_base) 
 {
-	if(skip_base && (gravity_iscore_class(c) || gravity_isopt_class(c))) return;
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)c, true));
-	// check if bridged data needs to be freed too
-	if(c->xdata && vm) {
-		gravity_delegate_t * delegate = gravity_vm_delegate(vm);
-		if(delegate->bridge_free) delegate->bridge_free(vm, (gravity_object_t *)c);
+	if(!skip_base || (!gravity_iscore_class(c) && !gravity_isopt_class(c))) {
+		DEBUG_FREE("FREE %s", gravity_object_debug(c, true));
+		// check if bridged data needs to be freed too
+		if(c->xdata && vm) {
+			gravity_delegate_t * p_delegate = gravity_vm_delegate(vm);
+			if(p_delegate->bridge_free) 
+				p_delegate->bridge_free(vm, c);
+		}
+		mem_free((void*)c->identifier);
+		mem_free((void*)c->superlook);
+		if(!skip_base) {
+			// base classes have functions not registered inside VM so manually free all of them
+			gravity_hash_iterate(c->htable, gravity_hash_finteralfree, NULL);
+			gravity_hash_iterate(c->htable, gravity_hash_valuefree, NULL);
+		}
+		gravity_hash_free(c->htable);
+		mem_free((void*)c->ivars);
+		mem_free((void*)c);
 	}
-	mem_free((void*)c->identifier);
-	mem_free((void*)c->superlook);
-	if(!skip_base) {
-		// base classes have functions not registered inside VM so manually free all of them
-		gravity_hash_iterate(c->htable, gravity_hash_finteralfree, NULL);
-		gravity_hash_iterate(c->htable, gravity_hash_valuefree, NULL);
-	}
-	gravity_hash_free(c->htable);
-	mem_free((void*)c->ivars);
-	mem_free((void*)c);
 }
 
 void gravity_class_free_core(gravity_vm * vm, gravity_class_t * c) { gravity_class_free_internal(vm, c, false); }
 void gravity_class_free(gravity_vm * vm, gravity_class_t * c) { gravity_class_free_internal(vm, c, true); }
 
-/*inline*/gravity_object_t * FASTCALL gravity_class_lookup(gravity_class_t * c, GravityValue key) 
+/*inline*/gravity_class_t * FASTCALL gravity_class_lookup(gravity_class_t * c, GravityValue key) 
 {
 	while(c) {
 		GravityValue * v = gravity_hash_lookup(c->htable, key);
 		if(v) 
-			return (gravity_object_t *)v->p;
+			return v->Ptr;
 		c = c->superclass;
 	}
 	return NULL;
@@ -432,7 +449,7 @@ gravity_class_t * gravity_class_lookup_class_identifier(gravity_class_t * c, con
 
 /*inline*/gravity_closure_t * FASTCALL gravity_class_lookup_closure(gravity_class_t * c, GravityValue key) 
 {
-	gravity_object_t * obj = gravity_class_lookup(c, key);
+	gravity_class_t * obj = gravity_class_lookup(c, key);
 	return (obj && obj->IsClosure()) ? (gravity_closure_t *)obj : NULL;
 }
 
@@ -444,15 +461,20 @@ gravity_class_t * gravity_class_lookup_class_identifier(gravity_class_t * c, con
 			STATICVALUE_FROM_STRING(key, CLASS_INTERNAL_INIT_NAME, strlen(CLASS_INTERNAL_INIT_NAME));
 			return (gravity_closure_t *)gravity_class_lookup(c, key);
 		}
-		// for bridged classed (which can have more than one init constructor like in objc) the convention is
-		// to map each bridged init with a special $initN function (where N>0 is num params)
-		char name[256]; snprintf(name, sizeof(name), "%s%d", CLASS_INTERNAL_INIT_NAME, nparams);
-		STATICVALUE_FROM_STRING(key, name, strlen(name));
+		else {
+			// for bridged classed (which can have more than one init constructor like in objc) the convention is
+			// to map each bridged init with a special $initN function (where N>0 is num params)
+			char name[256]; 
+			snprintf(name, sizeof(name), "%s%d", CLASS_INTERNAL_INIT_NAME, nparams);
+			STATICVALUE_FROM_STRING(key, name, strlen(name));
+			return (gravity_closure_t *)gravity_class_lookup(c, key);
+		}
+	}
+	else {
+		// for non bridge classes just check for constructor
+		STATICVALUE_FROM_STRING(key, CLASS_CONSTRUCTOR_NAME, strlen(CLASS_CONSTRUCTOR_NAME));
 		return (gravity_closure_t *)gravity_class_lookup(c, key);
 	}
-	// for non bridge classes just check for constructor
-	STATICVALUE_FROM_STRING(key, CLASS_CONSTRUCTOR_NAME, strlen(CLASS_CONSTRUCTOR_NAME));
-	return (gravity_closure_t *)gravity_class_lookup(c, key);
 }
 
 uint32 gravity_class_size(gravity_vm * vm, gravity_class_t * c) 
@@ -464,7 +486,7 @@ uint32 gravity_class_size(gravity_vm * vm, gravity_class_t * c)
 	hash_size += gravity_hash_memsize(c->htable);
 	gravity_delegate_t * delegate = gravity_vm_delegate(vm);
 	if(c->xdata && delegate->bridge_size)
-		class_size += delegate->bridge_size(vm, reinterpret_cast<gravity_object_t *>(c->xdata));
+		class_size += delegate->bridge_size(vm, reinterpret_cast<gravity_class_t *>(c->xdata));
 	SET_OBJECT_VISITED_FLAG(c, false);
 	return class_size;
 }
@@ -472,12 +494,9 @@ uint32 gravity_class_size(gravity_vm * vm, gravity_class_t * c)
 void gravity_class_blacken(gravity_vm * vm, gravity_class_t * c) 
 {
 	gravity_vm_memupdate(vm, gravity_class_size(vm, c));
-	// metaclass
-	gravity_gray_object(vm, (gravity_object_t *)c->objclass);
-	// superclass
-	gravity_gray_object(vm, (gravity_object_t *)c->superclass);
-	// internals
-	gravity_hash_iterate(c->htable, gravity_hash_gray, (void*)vm);
+	gravity_gray_object(vm, c->objclass); // metaclass
+	gravity_gray_object(vm, c->superclass); // superclass
+	gravity_hash_iterate(c->htable, gravity_hash_gray, (void*)vm); // internals
 	// ivars
 	for(uint32 i = 0; i<c->nivars; ++i) {
 		gravity_gray_value(vm, c->ivars[i]);
@@ -488,25 +507,25 @@ void gravity_class_blacken(gravity_vm * vm, gravity_class_t * c)
 
 gravity_function_t * gravity_function_new(gravity_vm * vm, const char * identifier, uint16 nparams, uint16 nlocals, uint16 ntemps, void * code) 
 {
-	gravity_function_t * f = (gravity_function_t *)mem_alloc(NULL, sizeof(gravity_function_t));
+	gravity_function_t * f = new gravity_function_t(nparams, nlocals, ntemps);//(gravity_function_t *)mem_alloc(NULL, sizeof(gravity_function_t));
 	assert(f);
-	f->isa = GravityEnv.P_ClsFunc;
-	f->identifier = (identifier) ? sstrdup(identifier) : NULL;
-	f->tag = EXEC_TYPE_NATIVE;
-	f->nparams = nparams;
-	f->nlocals = nlocals;
-	f->ntemps = ntemps;
-	f->nupvalues = 0;
+	// @ctr f->isa = GravityEnv.P_ClsFunc;
+	f->identifier = sstrdup(identifier);
+	// @ctr f->tag = EXEC_TYPE_NATIVE;
+	// @ctr f->nparams = nparams;
+	// @ctr f->nlocals = nlocals;
+	// @ctr f->ntemps = ntemps;
+	// @ctr f->nupvalues = 0;
 	// only available in EXEC_TYPE_NATIVE case
 	// code is != NULL when EXEC_TYPE_NATIVE
-	if(code != NULL) {
-		f->useargs = false;
-		f->bytecode = (uint32 *)code;
-		marray_init(f->cpool);
-		marray_init(f->pvalue);
-		marray_init(f->pname);
+	if(code) {
+		f->U.Nf.useargs = false;
+		f->U.Nf.bytecode = (uint32 *)code;
+		marray_init(f->U.Nf.cpool);
+		marray_init(f->U.Nf.pvalue);
+		marray_init(f->U.Nf.pname);
 	}
-	gravity_vm_transfer(vm, (gravity_object_t *)f);
+	gravity_vm_transfer(vm, (gravity_class_t *)f);
 	return f;
 }
 
@@ -514,7 +533,7 @@ gravity_function_t * gravity_function_new_internal(gravity_vm * vm, const char *
 {
 	gravity_function_t * f = gravity_function_new(vm, identifier, nparams, 0, 0, NULL);
 	f->tag = EXEC_TYPE_INTERNAL;
-	f->internal = exec;
+	f->U.internal = exec;
 	return f;
 }
 
@@ -522,9 +541,9 @@ gravity_function_t * gravity_function_new_special(gravity_vm * vm, const char * 
 {
 	gravity_function_t * f = gravity_function_new(vm, identifier, 0, 0, 0, NULL);
 	f->tag = EXEC_TYPE_SPECIAL;
-	f->index = index;
-	f->special[0] = getter;
-	f->special[1] = setter;
+	f->U.Sf.index = index;
+	f->U.Sf.special[0] = getter;
+	f->U.Sf.special[1] = setter;
 	return f;
 }
 
@@ -536,12 +555,12 @@ gravity_function_t * gravity_function_new_bridged(gravity_vm * vm, const char * 
 	return f;
 }
 
-uint16 gravity_function_cpool_add(gravity_vm * vm, gravity_function_t * f, GravityValue v) 
+uint16 FASTCALL gravity_function_cpool_add(gravity_vm * vm, gravity_function_t * f, GravityValue v) 
 {
 	assert(f->tag == EXEC_TYPE_NATIVE);
-	size_t n = f->cpool.getCount();
-	for(size_t i = 0; i<n; i++) {
-		GravityValue v2 = f->cpool.at(i);
+	size_t n = f->U.Nf.cpool.getCount();
+	for(size_t i = 0; i < n; i++) {
+		GravityValue v2 = f->U.Nf.cpool.at(i);
 		if(gravity_value_equals(v, v2)) {
 			gravity_value_free(NULL, v);
 			return (uint16)i;
@@ -551,19 +570,18 @@ uint16 gravity_function_cpool_add(gravity_vm * vm, gravity_function_t * f, Gravi
 	// and value object v must be added to the VM only once
 	if(vm && v.IsObject()) 
 		gravity_vm_transfer(vm, VALUE_AS_OBJECT(v));
-	f->cpool.insert(v);
-	return (uint16)f->cpool.getCount()-1;
+	f->U.Nf.cpool.insert(v);
+	return (uint16)f->U.Nf.cpool.getCount()-1;
 }
 
 GravityValue gravity_function_cpool_get(gravity_function_t * f, uint16 i) 
 {
 	assert(f->tag == EXEC_TYPE_NATIVE);
-	return f->cpool.at(i);
+	return f->U.Nf.cpool.at(i);
 }
 
 gravity_list_t * gravity_function_params_get(gravity_vm * vm, gravity_function_t * f) 
 {
-    #pragma unused(vm)
 	gravity_list_t * list = NULL;
 	if(f->tag == EXEC_TYPE_NATIVE) {
 		// written by user in Gravity
@@ -582,8 +600,8 @@ void gravity_function_setxdata(gravity_function_t * f, void * xdata) { f->xdata 
 static void gravity_function_array_serialize(gravity_function_t * f, GravityJson * json, gravity_value_r r) 
 {
 	assert(f->tag == EXEC_TYPE_NATIVE);
-	size_t n = r.getCount();
-	for(size_t i = 0; i<n; i++) {
+	const size_t n = r.getCount();
+	for(size_t i = 0; i < n; i++) {
 		GravityValue v = r.at(i);
 		gravity_value_serialize(NULL, v, json);
 	}
@@ -595,12 +613,11 @@ static void gravity_function_array_dump(gravity_function_t * f, gravity_value_r 
 	size_t n = r.getCount();
 	for(size_t i = 0; i<n; i++) {
 		GravityValue v = r.at(i);
-		if(VALUE_ISA_NULL(v)) {
+		if(v.IsNull()) {
 			printf("%05zu\tNULL\n", i);
 			continue;
 		}
-
-		if(VALUE_ISA_UNDEFINED(v)) {
+		if(v.IsUndefined()) {
 			printf("%05zu\tUNDEFINED\n", i);
 			continue;
 		}
@@ -648,34 +665,31 @@ static void gravity_function_array_dump(gravity_function_t * f, gravity_value_r 
 
 static void gravity_function_bytecode_serialize(gravity_function_t * f, GravityJson * json) 
 {
-	if(!f->bytecode || !f->ninsts) {
+	if(!f->U.Nf.bytecode || !f->U.Nf.ninsts) {
 		json_add_null(json, GRAVITY_JSON_LABELBYTECODE);
 		return;
 	}
 	// bytecode
-	uint32 ninst = f->ninsts;
+	uint32 ninst = f->U.Nf.ninsts;
 	uint32 length = ninst * 2 * sizeof(uint32);
 	uint8_t * hexchar = (uint8_t*)mem_alloc(NULL, sizeof(uint8_t) * length);
 	for(uint32 k = 0, i = 0; i < ninst; ++i) {
-		uint32 value = f->bytecode[i];
+		uint32 value = f->U.Nf.bytecode[i];
 		for(int32 j = 2*sizeof(value)-1; j>=0; --j) {
 			uint8_t c = "0123456789ABCDEF"[((value >> (j*4)) & 0xF)];
 			hexchar[k++] = c;
 		}
 	}
-
-	json_add_string(json, GRAVITY_JSON_LABELBYTECODE, (const char*)hexchar, length);
+	json_add_string(json, GRAVITY_JSON_LABELBYTECODE, PTRCHRC_(hexchar), length);
 	mem_free(hexchar);
-
 	// debug lineno
-	if(!f->lineno) return;
-
-	ninst = f->ninsts;
+	if(!f->U.Nf.lineno) 
+		return;
+	ninst = f->U.Nf.ninsts;
 	length = ninst * 2 * sizeof(uint32);
 	hexchar = (uint8_t*)mem_alloc(NULL, sizeof(uint8_t) * length);
-
 	for(uint32 k = 0, i = 0; i < ninst; ++i) {
-		uint32 value = f->lineno[i];
+		uint32 value = f->U.Nf.lineno[i];
 		for(int32 j = 2*sizeof(value)-1; j>=0; --j) {
 			uint8_t c = "0123456789ABCDEF"[((value >> (j*4)) & 0xF)];
 			hexchar[k++] = c;
@@ -729,18 +743,18 @@ void gravity_function_dump(gravity_function_t * f, code_dump_function codef)
 	printf("Function: %s\n", (f->identifier) ? f->identifier : "$anon");
 	printf("Params:%d Locals:%d Temp:%d Upvalues:%d Tag:%d xdata:%p\n", f->nparams, f->nlocals, f->ntemps, f->nupvalues, f->tag, f->xdata);
 	if(f->tag == EXEC_TYPE_NATIVE) {
-		if(f->cpool.getCount()) 
+		if(f->U.Nf.cpool.getCount()) 
 			printf("======= CONST POOL =======\n");
-		gravity_function_array_dump(f, f->cpool);
-		if(f->pname.getCount()) 
+		gravity_function_array_dump(f, f->U.Nf.cpool);
+		if(f->U.Nf.pname.getCount()) 
 			printf("======= PARAM NAMES =======\n");
-		gravity_function_array_dump(f, f->pname);
-		if(f->pvalue.getCount()) 
+		gravity_function_array_dump(f, f->U.Nf.pname);
+		if(f->U.Nf.pvalue.getCount()) 
 			printf("======= PARAM VALUES =======\n");
-		gravity_function_array_dump(f, f->pvalue);
+		gravity_function_array_dump(f, f->U.Nf.pvalue);
 		printf("======= BYTECODE =======\n");
-		if((f->bytecode) && (codef)) 
-			codef(f->bytecode);
+		if((f->U.Nf.bytecode) && (codef)) 
+			codef(f->U.Nf.bytecode);
 	}
 	printf("\n");
 }
@@ -755,75 +769,72 @@ void gravity_function_special_serialize(gravity_function_t * f, const char * key
 
 	// common fields
 	json_add_int(json, GRAVITY_JSON_LABELNPARAM, f->nparams);
-	json_add_bool(json, GRAVITY_JSON_LABELARGS, f->useargs);
-	json_add_int(json, GRAVITY_JSON_LABELINDEX, f->index);
-
-	if(f->special[0]) {
-		gravity_function_t * f2 = (gravity_function_t *)f->special[0];
+	json_add_bool(json, GRAVITY_JSON_LABELARGS, f->U.Nf.useargs);
+	json_add_int(json, GRAVITY_JSON_LABELINDEX, f->U.Sf.index);
+	if(f->U.Sf.special[0]) {
+		gravity_function_t * f2 = (gravity_function_t *)f->U.Sf.special[0];
 		f2->identifier = GRAVITY_JSON_GETTER;
 		gravity_function_serialize(f2, json);
 		f2->identifier = NULL;
 	}
-	if(f->special[1]) {
-		gravity_function_t * f2 = (gravity_function_t *)f->special[1];
+	if(f->U.Sf.special[1]) {
+		gravity_function_t * f2 = (gravity_function_t *)f->U.Sf.special[1];
 		f2->identifier = GRAVITY_JSON_SETTER;
 		gravity_function_serialize(f2, json);
 		f2->identifier = NULL;
 	}
-
 	json_end_object(json);
 }
 
-void gravity_function_serialize(gravity_function_t * f, GravityJson * json) {
+void gravity_function_serialize(gravity_function_t * f, GravityJson * json) 
+{
 	// special functions need a special serialization
 	if(f->tag == EXEC_TYPE_SPECIAL) {
 		gravity_function_special_serialize(f, f->identifier, json);
-		return;
 	}
-	// compute identifier (cannot be NULL)
-	const char * identifier = f->identifier;
-	char temp[256];
-	if(!identifier) {
-		snprintf(temp, sizeof(temp), "$anon_%p", f); identifier = temp;
-	}
-	const char * label = json_get_label(json, identifier);
-	json_begin_object(json, label);
-	json_add_cstring(json, GRAVITY_JSON_LABELTYPE, GRAVITY_JSON_FUNCTION); // MANDATORY 1st FIELD
-	json_add_cstring(json, GRAVITY_JSON_LABELIDENTIFIER, identifier);   // MANDATORY 2nd FIELD (not for getter/setter)
-	json_add_int(json, GRAVITY_JSON_LABELTAG, f->tag);
-	// common fields
-	json_add_int(json, GRAVITY_JSON_LABELNPARAM, f->nparams);
-	json_add_bool(json, GRAVITY_JSON_LABELARGS, f->useargs);
-	if(f->tag == EXEC_TYPE_NATIVE) {
-		// native only fields
-		json_add_int(json, GRAVITY_JSON_LABELNLOCAL, f->nlocals);
-		json_add_int(json, GRAVITY_JSON_LABELNTEMP, f->ntemps);
-		json_add_int(json, GRAVITY_JSON_LABELNUPV, f->nupvalues);
-		json_add_double(json, GRAVITY_JSON_LABELPURITY, f->purity);
-
-		// bytecode
-		gravity_function_bytecode_serialize(f, json);
-
-		// constant pool
-		json_begin_array(json, GRAVITY_JSON_LABELPOOL);
-		gravity_function_array_serialize(f, json, f->cpool);
-		json_end_array(json);
-
-		// default values (if any)
-		if(f->pvalue.getCount()) {
-			json_begin_array(json, GRAVITY_JSON_LABELPVALUES);
-			gravity_function_array_serialize(f, json, f->pvalue);
-			json_end_array(json);
+	else {
+		// compute identifier (cannot be NULL)
+		const char * identifier = f->identifier;
+		char temp[256];
+		if(!identifier) {
+			snprintf(temp, sizeof(temp), "$anon_%p", f); 
+			identifier = temp;
 		}
-		// arg names (if any)
-		if(f->pname.getCount()) {
-			json_begin_array(json, GRAVITY_JSON_LABELPNAMES);
-			gravity_function_array_serialize(f, json, f->pname);
+		const char * label = json_get_label(json, identifier);
+		json_begin_object(json, label);
+		json_add_cstring(json, GRAVITY_JSON_LABELTYPE, GRAVITY_JSON_FUNCTION); // MANDATORY 1st FIELD
+		json_add_cstring(json, GRAVITY_JSON_LABELIDENTIFIER, identifier);   // MANDATORY 2nd FIELD (not for getter/setter)
+		json_add_int(json, GRAVITY_JSON_LABELTAG, f->tag);
+		// common fields
+		json_add_int(json, GRAVITY_JSON_LABELNPARAM, f->nparams);
+		json_add_bool(json, GRAVITY_JSON_LABELARGS, f->U.Nf.useargs);
+		if(f->tag == EXEC_TYPE_NATIVE) {
+			// native only fields
+			json_add_int(json, GRAVITY_JSON_LABELNLOCAL, f->nlocals);
+			json_add_int(json, GRAVITY_JSON_LABELNTEMP, f->ntemps);
+			json_add_int(json, GRAVITY_JSON_LABELNUPV, f->nupvalues);
+			json_add_double(json, GRAVITY_JSON_LABELPURITY, f->U.Nf.purity);
+			// bytecode
+			gravity_function_bytecode_serialize(f, json);
+			// constant pool
+			json_begin_array(json, GRAVITY_JSON_LABELPOOL);
+			gravity_function_array_serialize(f, json, f->U.Nf.cpool);
 			json_end_array(json);
+			// default values (if any)
+			if(f->U.Nf.pvalue.getCount()) {
+				json_begin_array(json, GRAVITY_JSON_LABELPVALUES);
+				gravity_function_array_serialize(f, json, f->U.Nf.pvalue);
+				json_end_array(json);
+			}
+			// arg names (if any)
+			if(f->U.Nf.pname.getCount()) {
+				json_begin_array(json, GRAVITY_JSON_LABELPNAMES);
+				gravity_function_array_serialize(f, json, f->U.Nf.pname);
+				json_end_array(json);
+			}
 		}
+		json_end_object(json);
 	}
-
-	json_end_object(json);
 }
 
 gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * json) 
@@ -842,7 +853,6 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 	bool nupvalues_parsed = false;
 	bool nargs_parsed = false;
 	bool tag_parsed = false;
-
 	uint32 n = json->u.object.length;
 	for(uint32 i = 1; i<n; ++i) { // from 1 to skip type
 		const char * label = json->u.object.values[i].name;
@@ -862,41 +872,47 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 
 		// tag
 		if(string_casencmp(label, GRAVITY_JSON_LABELTAG, label_size) == 0) {
-			if(value->type != json_integer) goto abort_load;
-			if(tag_parsed) goto abort_load;
+			if(value->type != json_integer) 
+				goto abort_load;
+			if(tag_parsed) 
+				goto abort_load;
 			f->tag = /*(uint16)*/static_cast<gravity_exec_type>(value->u.integer);
 			tag_parsed = true;
 			continue;
 		}
-
 		// index (only in special functions)
 		if(string_casencmp(label, GRAVITY_JSON_LABELINDEX, label_size) == 0) {
-			if(value->type != json_integer) goto abort_load;
-			if(f->tag != EXEC_TYPE_SPECIAL) goto abort_load;
-			if(index_parsed) goto abort_load;
-			f->index = (uint16)value->u.integer;
+			if(value->type != json_integer) 
+				goto abort_load;
+			if(f->tag != EXEC_TYPE_SPECIAL) 
+				goto abort_load;
+			if(index_parsed) 
+				goto abort_load;
+			f->U.Sf.index = (uint16)value->u.integer;
 			index_parsed = true;
 			continue;
 		}
-
 		// getter (only in special functions)
 		if(string_casencmp(label, GRAVITY_JSON_GETTER, strlen(GRAVITY_JSON_GETTER)) == 0) {
 			if(f->tag != EXEC_TYPE_SPECIAL) goto abort_load;
 			if(getter_parsed) goto abort_load;
 			gravity_function_t * getter = gravity_function_deserialize(vm, value);
-			if(!getter) goto abort_load;
-			f->special[0] = gravity_closure_new(vm, getter);
+			if(!getter) 
+				goto abort_load;
+			f->U.Sf.special[0] = gravity_closure_new(vm, getter);
 			getter_parsed = true;
 			continue;
 		}
 
 		// setter (only in special functions)
 		if(string_casencmp(label, GRAVITY_JSON_SETTER, strlen(GRAVITY_JSON_SETTER)) == 0) {
-			if(f->tag != EXEC_TYPE_SPECIAL) goto abort_load;
-			if(setter_parsed) goto abort_load;
+			if(f->tag != EXEC_TYPE_SPECIAL) 
+				goto abort_load;
+			if(setter_parsed) 
+				goto abort_load;
 			gravity_function_t * setter = gravity_function_deserialize(vm, value);
 			if(!setter) goto abort_load;
-			f->special[1] = gravity_closure_new(vm, setter);
+			f->U.Sf.special[1] = gravity_closure_new(vm, setter);
 			setter_parsed = true;
 			continue;
 		}
@@ -939,9 +955,11 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 
 		// args
 		if(string_casencmp(label, GRAVITY_JSON_LABELARGS, label_size) == 0) {
-			if(value->type != json_boolean) goto abort_load;
-			if(nargs_parsed) goto abort_load;
-			f->useargs = LOGIC(value->u.boolean);
+			if(value->type != json_boolean) 
+				goto abort_load;
+			if(nargs_parsed) 
+				goto abort_load;
+			f->U.Nf.useargs = LOGIC(value->u.boolean);
 			nargs_parsed = true;
 			continue;
 		}
@@ -951,13 +969,15 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 			if(bytecode_parsed) goto abort_load;
 			if(value->type == json_null) {
 				// if function is empty then just one RET0 implicit bytecode instruction
-				f->ninsts = 0;
-				f->bytecode = (uint32 *)mem_alloc(NULL, sizeof(uint32) * (f->ninsts + 1));
+				f->U.Nf.ninsts = 0;
+				f->U.Nf.bytecode = (uint32 *)mem_alloc(NULL, sizeof(uint32) * (f->U.Nf.ninsts + 1));
 			}
 			else {
-				if(value->type != json_string) goto abort_load;
-				if(f->tag != EXEC_TYPE_NATIVE) goto abort_load;
-				f->bytecode = gravity_bytecode_deserialize(value->u.string.ptr, value->u.string.length, &f->ninsts);
+				if(value->type != json_string) 
+					goto abort_load;
+				if(f->tag != EXEC_TYPE_NATIVE) 
+					goto abort_load;
+				f->U.Nf.bytecode = gravity_bytecode_deserialize(value->u.string.ptr, value->u.string.length, &f->U.Nf.ninsts);
 			}
 			bytecode_parsed = true;
 			continue;
@@ -966,18 +986,21 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 		// lineno debug info
 		if(string_casencmp(label, GRAVITY_JSON_LABELLINENO, label_size) == 0) {
 			if(value->type == json_string) 
-				f->lineno = gravity_bytecode_deserialize(value->u.string.ptr, value->u.string.length, &f->ninsts);
+				f->U.Nf.lineno = gravity_bytecode_deserialize(value->u.string.ptr, value->u.string.length, &f->U.Nf.ninsts);
 		}
 
 		// arguments names
 		if(string_casencmp(label, GRAVITY_JSON_LABELPNAMES, label_size) == 0) {
-			if(value->type != json_array) goto abort_load;
-			if(f->tag != EXEC_TYPE_NATIVE) goto abort_load;
+			if(value->type != json_array) 
+				goto abort_load;
+			if(f->tag != EXEC_TYPE_NATIVE) 
+				goto abort_load;
 			uint32 m = value->u.array.length;
 			for(uint32 j = 0; j<m; ++j) {
 				json_value * r = value->u.array.values[j];
-				if(r->type != json_string) goto abort_load;
-				f->pname.insert(VALUE_FROM_STRING(NULL, r->u.string.ptr, r->u.string.length));
+				if(r->type != json_string) 
+					goto abort_load;
+				f->U.Nf.pname.insert(VALUE_FROM_STRING(NULL, r->u.string.ptr, r->u.string.length));
 			}
 		}
 
@@ -992,37 +1015,39 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 				json_value * r = value->u.array.values[j];
 				switch(r->type) {
 					case json_integer:
-					    f->pvalue.insert(GravityValue::from_int((gravity_int_t)r->u.integer));
+					    f->U.Nf.pvalue.insert(GravityValue::from_int((gravity_int_t)r->u.integer));
 					    break;
 					case json_double:
-					    f->pvalue.insert(GravityValue::from_float((gravity_float_t)r->u.dbl));
+					    f->U.Nf.pvalue.insert(GravityValue::from_float((gravity_float_t)r->u.dbl));
 					    break;
 					case json_boolean:
-					    f->pvalue.insert(VALUE_FROM_BOOL(r->u.boolean));
+					    f->U.Nf.pvalue.insert(GravityValue::from_bool(r->u.boolean));
 					    break;
 					case json_string:
-					    f->pvalue.insert(VALUE_FROM_STRING(NULL, r->u.string.ptr, r->u.string.length));
+					    f->U.Nf.pvalue.insert(VALUE_FROM_STRING(NULL, r->u.string.ptr, r->u.string.length));
 					    break;
 					case json_object:
-					    f->pvalue.insert(GravityValue::from_undefined());
+					    f->U.Nf.pvalue.insert(GravityValue::from_undefined());
 					    break;
 					case json_null:
-					    f->pvalue.insert(GravityValue::from_null());
+					    f->U.Nf.pvalue.insert(GravityValue::from_null());
 					    break;
 					case json_none:
 					case json_array:
-					    f->pvalue.insert(GravityValue::from_null());
+					    f->U.Nf.pvalue.insert(GravityValue::from_null());
 					    break;
 				}
 			}
 		}
 		// cpool
 		if(string_casencmp(label, GRAVITY_JSON_LABELPOOL, label_size) == 0) {
-			if(value->type != json_array) goto abort_load;
-			if(f->tag != EXEC_TYPE_NATIVE) goto abort_load;
-			if(cpool_parsed) goto abort_load;
+			if(value->type != json_array) 
+				goto abort_load;
+			if(f->tag != EXEC_TYPE_NATIVE) 
+				goto abort_load;
+			if(cpool_parsed) 
+				goto abort_load;
 			cpool_parsed = true;
-
 			uint32 m = value->u.array.length;
 			for(uint32 j = 0; j<m; ++j) {
 				json_value * r = value->u.array.values[j];
@@ -1034,16 +1059,16 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 					    gravity_function_cpool_add(NULL, f, GravityValue::from_float((gravity_float_t)r->u.dbl));
 					    break;
 					case json_boolean:
-					    gravity_function_cpool_add(NULL, f, VALUE_FROM_BOOL(r->u.boolean));
+					    gravity_function_cpool_add(NULL, f, GravityValue::from_bool(r->u.boolean));
 					    break;
 					case json_string:
 					    gravity_function_cpool_add(vm, f, VALUE_FROM_STRING(NULL, r->u.string.ptr, r->u.string.length));
 					    break;
 					case json_object: {
-					    gravity_object_t * obj = gravity_object_deserialize(vm, r);
+					    gravity_class_t * obj = gravity_object_deserialize(vm, r);
 					    if(!obj) 
 							goto abort_load;
-					    gravity_function_cpool_add(NULL, f, VALUE_FROM_OBJECT(obj));
+					    gravity_function_cpool_add(NULL, f, GravityValue::from_object(obj));
 					    break;
 				    }
 
@@ -1059,13 +1084,13 @@ gravity_function_t * gravity_function_deserialize(gravity_vm * vm, json_value * 
 						    switch(jsonv->type) {
 							    case json_integer: v = GravityValue::from_int((gravity_int_t)jsonv->u.integer); break;
 							    case json_double: v = GravityValue::from_float((gravity_float_t)jsonv->u.dbl); break;
-							    case json_boolean: v = VALUE_FROM_BOOL(jsonv->u.boolean); break;
+							    case json_boolean: v = GravityValue::from_bool(jsonv->u.boolean); break;
 							    case json_string: v = VALUE_FROM_STRING(vm, jsonv->u.string.ptr, jsonv->u.string.length); break;
 							    default: goto abort_load;
 						    }
 						    list->array.insert(v);
 					    }
-					    gravity_function_cpool_add(vm, f, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list)));
+					    gravity_function_cpool_add(vm, f, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(list)));
 					    break;
 				    }
 					case json_none:
@@ -1085,34 +1110,35 @@ abort_load:
 void gravity_function_free(gravity_vm * vm, gravity_function_t * f) 
 {
 	if(f) {
-		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)f, true));
+		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)f, true));
 		// check if bridged data needs to be freed too
 		if(f->xdata && vm) {
-			gravity_delegate_t * delegate = gravity_vm_delegate(vm);
-			if(delegate->bridge_free) delegate->bridge_free(vm, (gravity_object_t *)f);
+			gravity_delegate_t * p_delegate = gravity_vm_delegate(vm);
+			if(p_delegate->bridge_free) 
+				p_delegate->bridge_free(vm, (gravity_class_t *)f);
 		}
 		mem_free((void*)f->identifier);
 		if(f->tag == EXEC_TYPE_NATIVE) {
-			mem_free((void*)f->bytecode);
-			mem_free((void*)f->lineno);
+			mem_free((void*)f->U.Nf.bytecode);
+			mem_free((void*)f->U.Nf.lineno);
 			// FREE EACH DEFAULT value
-			size_t n = f->pvalue.getCount();
+			size_t n = f->U.Nf.pvalue.getCount();
 			for(size_t i = 0; i<n; i++) {
-				GravityValue v = f->pvalue.at(i);
+				GravityValue v = f->U.Nf.pvalue.at(i);
 				gravity_value_free(NULL, v);
 			}
-			f->pvalue.Z();
+			f->U.Nf.pvalue.Z();
 			// FREE EACH PARAM name
-			n = f->pname.getCount();
+			n = f->U.Nf.pname.getCount();
 			for(size_t i = 0; i<n; i++) {
-				GravityValue v = f->pname.at(i);
+				GravityValue v = f->U.Nf.pname.at(i);
 				gravity_value_free(NULL, v);
 			}
-			f->pname.Z();
+			f->U.Nf.pname.Z();
 			// DO NOT FREE EACH INDIVIDUAL CPOOL ITEM HERE
-			f->cpool.Z();
+			f->U.Nf.cpool.Z();
 		}
-		mem_free((void*)f);
+		delete f;//mem_free((void*)f);
 	}
 }
 
@@ -1121,24 +1147,25 @@ uint32 gravity_function_size(gravity_vm * vm, gravity_function_t * f)
 	SET_OBJECT_VISITED_FLAG(f, true);
 	uint32 func_size = sizeof(gravity_function_t) + sstrlen(f->identifier);
 	if(f->tag == EXEC_TYPE_NATIVE) {
-		if(f->bytecode) func_size += f->ninsts * sizeof(uint32);
+		if(f->U.Nf.bytecode) 
+			func_size += f->U.Nf.ninsts * sizeof(uint32);
 		// cpool size
-		size_t n = f->cpool.getCount();
+		size_t n = f->U.Nf.cpool.getCount();
 		for(size_t i = 0; i<n; i++) {
-			GravityValue v = f->cpool.at(i);
+			GravityValue v = f->U.Nf.cpool.at(i);
 			func_size += gravity_value_size(vm, v);
 		}
 	}
 	else if(f->tag == EXEC_TYPE_SPECIAL) {
-		if(f->special[0]) 
-			func_size += gravity_closure_size(vm, (gravity_closure_t *)f->special[0]);
-		if((f->special[1]) && (f->special[0] != f->special[1])) 
-			func_size += gravity_closure_size(vm, (gravity_closure_t *)f->special[1]);
+		if(f->U.Sf.special[0]) 
+			func_size += gravity_closure_size(vm, (gravity_closure_t *)f->U.Sf.special[0]);
+		if((f->U.Sf.special[1]) && (f->U.Sf.special[0] != f->U.Sf.special[1])) 
+			func_size += gravity_closure_size(vm, (gravity_closure_t *)f->U.Sf.special[1]);
 	}
 	else if(f->tag == EXEC_TYPE_BRIDGED) {
 		gravity_delegate_t * delegate = gravity_vm_delegate(vm);
 		if(f->xdata && delegate->bridge_size)
-			func_size += delegate->bridge_size(vm, reinterpret_cast<gravity_object_t *>(f->xdata));
+			func_size += delegate->bridge_size(vm, reinterpret_cast<gravity_class_t *>(f->xdata));
 	}
 	SET_OBJECT_VISITED_FLAG(f, false);
 	return func_size;
@@ -1148,15 +1175,16 @@ void gravity_function_blacken(gravity_vm * vm, gravity_function_t * f)
 {
 	gravity_vm_memupdate(vm, gravity_function_size(vm, f));
 	if(f->tag == EXEC_TYPE_SPECIAL) {
-		if(f->special[0]) gravity_gray_object(vm, (gravity_object_t *)f->special[0]);
-		if(f->special[1]) gravity_gray_object(vm, (gravity_object_t *)f->special[1]);
+		if(f->U.Sf.special[0]) 
+			gravity_gray_object(vm, (gravity_class_t *)f->U.Sf.special[0]);
+		if(f->U.Sf.special[1]) 
+			gravity_gray_object(vm, (gravity_class_t *)f->U.Sf.special[1]);
 	}
-
 	if(f->tag == EXEC_TYPE_NATIVE) {
 		// constant pool
-		size_t n = f->cpool.getCount();
-		for(size_t i = 0; i<n; i++) {
-			GravityValue v = f->cpool.at(i);
+		uint n = f->U.Nf.cpool.getCount();
+		for(uint i = 0; i < n; i++) {
+			GravityValue v = f->U.Nf.cpool.at(i);
 			gravity_gray_value(vm, v);
 		}
 	}
@@ -1165,30 +1193,28 @@ void gravity_function_blacken(gravity_vm * vm, gravity_function_t * f)
 // MARK: -
 gravity_closure_t * FASTCALL gravity_closure_new(gravity_vm * vm, gravity_function_t * f) 
 {
-	gravity_closure_t * closure = (gravity_closure_t *)mem_alloc(NULL, sizeof(gravity_closure_t));
+	gravity_closure_t * closure = new gravity_closure_t; // (gravity_closure_t *)mem_alloc(NULL, sizeof(gravity_closure_t));
 	assert(closure);
-	closure->isa = GravityEnv.P_ClsClosure;
+	//closure->isa = GravityEnv.P_ClsClosure;
 	closure->f = f;
 	// allocate upvalue array (+1 so I can simplify the iterator without the needs to access closure->f->nupvalues)
 	uint16 nupvalues = (f) ? f->nupvalues : 0;
 	closure->upvalue = (nupvalues) ? (gravity_upvalue_t**)mem_alloc(NULL, sizeof(gravity_upvalue_t*) * (f->nupvalues + 1)) : NULL;
-	gravity_vm_transfer(vm, (gravity_object_t *)closure);
+	gravity_vm_transfer(vm, (gravity_class_t *)closure);
 	return closure;
 }
 
 void FASTCALL gravity_closure_free(gravity_vm * vm, gravity_closure_t * closure) 
 {
-    #pragma unused(vm)
 	if(closure && closure->refcount <= 0) {
-		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)closure, true));
+		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)closure, true));
 		mem_free(closure->upvalue);
-		mem_free(closure);
+		delete closure; // mem_free(closure);
 	}
 }
 
 uint32 gravity_closure_size(gravity_vm * vm, gravity_closure_t * closure) 
 {
-    #pragma unused(vm)
 	SET_OBJECT_VISITED_FLAG(closure, true);
 	uint32 closure_size = sizeof(gravity_closure_t);
 	gravity_upvalue_t ** upvalue = closure->upvalue;
@@ -1203,14 +1229,14 @@ uint32 gravity_closure_size(gravity_vm * vm, gravity_closure_t * closure)
 void gravity_closure_inc_refcount(gravity_vm * vm, gravity_closure_t * closure) 
 {
 	if(closure->refcount == 0) 
-		gravity_gc_temppush(vm, (gravity_object_t *)closure);
+		gravity_gc_temppush(vm, (gravity_class_t *)closure);
 	++closure->refcount;
 }
 
 void gravity_closure_dec_refcount(gravity_vm * vm, gravity_closure_t * closure) 
 {
 	if(closure->refcount == 1) 
-		gravity_gc_tempnull(vm, (gravity_object_t *)closure);
+		gravity_gc_tempnull(vm, (gravity_class_t *)closure);
 	if(closure->refcount >= 1) 
 		--closure->refcount;
 }
@@ -1219,11 +1245,11 @@ void gravity_closure_blacken(gravity_vm * vm, gravity_closure_t * closure)
 {
 	gravity_vm_memupdate(vm, gravity_closure_size(vm, closure));
 	// mark function
-	gravity_gray_object(vm, (gravity_object_t *)closure->f);
+	gravity_gray_object(vm, (gravity_class_t *)closure->f);
 	// mark each upvalue
 	gravity_upvalue_t ** upvalue = closure->upvalue;
 	while(upvalue && upvalue[0]) {
-		gravity_gray_object(vm, (gravity_object_t *)upvalue[0]);
+		gravity_gray_object(vm, (gravity_class_t *)upvalue[0]);
 		++upvalue;
 	}
 	// mark context (if any)
@@ -1235,25 +1261,25 @@ void gravity_closure_blacken(gravity_vm * vm, gravity_closure_t * closure)
 
 gravity_upvalue_t * gravity_upvalue_new(gravity_vm * vm, GravityValue * value) 
 {
-	gravity_upvalue_t * upvalue = (gravity_upvalue_t*)mem_alloc(NULL, sizeof(gravity_upvalue_t));
-	upvalue->isa = GravityEnv.P_ClsUpValue;
-	upvalue->value = value;
-	upvalue->closed = GravityValue::from_null();
-	upvalue->next = NULL;
-	gravity_vm_transfer(vm, (gravity_object_t *)upvalue);
+	gravity_upvalue_t * upvalue = new gravity_upvalue_t(value);
+	//upvalue->isa = GravityEnv.P_ClsUpValue;
+	//upvalue->value = value;
+	//upvalue->closed = GravityValue::from_null();
+	//upvalue->next = NULL;
+	gravity_vm_transfer(vm, (gravity_class_t *)upvalue);
 	return upvalue;
 }
 
 void gravity_upvalue_free(gravity_vm * vm, gravity_upvalue_t * upvalue) 
 {
-    #pragma unused(vm)
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)upvalue, true));
-	mem_free(upvalue);
+	if(upvalue) {
+		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)upvalue, true));
+		delete upvalue; //mem_free(upvalue);
+	}
 }
 
 uint32 gravity_upvalue_size(gravity_vm * vm, gravity_upvalue_t * upvalue) 
 {
-    #pragma unused(vm, upvalue)
 	SET_OBJECT_VISITED_FLAG(upvalue, true);
 	uint32 upvalue_size = sizeof(gravity_upvalue_t);
 	SET_OBJECT_VISITED_FLAG(upvalue, false);
@@ -1272,48 +1298,53 @@ void gravity_upvalue_blacken(gravity_vm * vm, gravity_upvalue_t * upvalue)
 
 gravity_fiber_t * gravity_fiber_new(gravity_vm * vm, gravity_closure_t * closure, uint32 nstack, uint32 nframes) 
 {
-	gravity_fiber_t * fiber = (gravity_fiber_t*)mem_alloc(NULL, sizeof(gravity_fiber_t));
+	//gravity_fiber_t * fiber = (gravity_fiber_t *)mem_alloc(NULL, sizeof(gravity_fiber_t));
+	gravity_fiber_t * fiber = new gravity_fiber_t;
 	assert(fiber);
-	fiber->isa = GravityEnv.P_ClsFiber;
-	fiber->caller = NULL;
-	fiber->result = GravityValue::from_null();
-	if(nstack < DEFAULT_MINSTACK_SIZE) nstack = DEFAULT_MINSTACK_SIZE;
+	//fiber->isa = GravityEnv.P_ClsFiber;
+	//fiber->caller = NULL;
+	//fiber->result = GravityValue::from_null();
+	if(nstack < DEFAULT_MINSTACK_SIZE) 
+		nstack = DEFAULT_MINSTACK_SIZE;
 	fiber->stack = static_cast<GravityValue *>(mem_alloc(NULL, sizeof(GravityValue) * nstack));
 	fiber->stacktop = fiber->stack;
 	fiber->stackalloc = nstack;
-	if(nframes < DEFAULT_MINCFRAME_SIZE) nframes = DEFAULT_MINCFRAME_SIZE;
+	if(nframes < DEFAULT_MINCFRAME_SIZE) 
+		nframes = DEFAULT_MINCFRAME_SIZE;
 	fiber->frames = (gravity_callframe_t*)mem_alloc(NULL, sizeof(gravity_callframe_t) * nframes);
 	fiber->framesalloc = nframes;
 	fiber->nframes = 1;
-	fiber->upvalues = NULL;
+	//fiber->upvalues = NULL;
 	gravity_callframe_t * frame = &fiber->frames[0];
 	if(closure) {
 		frame->closure = closure;
-		frame->ip = (closure->f->tag == EXEC_TYPE_NATIVE) ? closure->f->bytecode : NULL;
+		frame->ip = (closure->f->tag == EXEC_TYPE_NATIVE) ? closure->f->U.Nf.bytecode : NULL;
 	}
 	frame->dest = 0;
 	frame->stackstart = fiber->stack;
 	// replace self with fiber instance
-	frame->stackstart[0] = VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(fiber));
-	gravity_vm_transfer(vm, (gravity_object_t *)fiber);
+	frame->stackstart[0] = GravityValue::from_object(reinterpret_cast<gravity_class_t *>(fiber));
+	gravity_vm_transfer(vm, (gravity_class_t *)fiber);
 	return fiber;
 }
 
 void gravity_fiber_free(gravity_vm * vm, gravity_fiber_t * fiber) 
 {
-    #pragma unused(vm)
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)fiber, true));
-	mem_free(fiber->error);
-	mem_free(fiber->stack);
-	mem_free(fiber->frames);
-	mem_free(fiber);
+	if(fiber) {
+		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)fiber, true));
+		delete fiber;
+		//mem_free(fiber->error);
+		//mem_free(fiber->stack);
+		//mem_free(fiber->frames);
+		//mem_free(fiber);
+	}
 }
 
 void gravity_fiber_reassign(gravity_fiber_t * fiber, gravity_closure_t * closure, uint16 nargs) 
 {
 	gravity_callframe_t * frame = &fiber->frames[0];
 	frame->closure = closure;
-	frame->ip = (closure->f->tag == EXEC_TYPE_NATIVE) ? closure->f->bytecode : NULL;
+	frame->ip = (closure->f->tag == EXEC_TYPE_NATIVE) ? closure->f->U.Nf.bytecode : NULL;
 	frame->dest = 0;
 	frame->stackstart = fiber->stack;
 	fiber->nframes = 1;
@@ -1322,14 +1353,14 @@ void gravity_fiber_reassign(gravity_fiber_t * fiber, gravity_closure_t * closure
 	fiber->stacktop += FN_COUNTREG(closure->f, nargs);
 }
 
-void gravity_fiber_reset(gravity_fiber_t * fiber) 
+/*void gravity_fiber_reset(gravity_fiber_t * fiber) 
 {
 	fiber->caller = NULL;
 	fiber->result = GravityValue::from_null();
 	fiber->nframes = 0;
 	fiber->upvalues = NULL;
 	fiber->stacktop = fiber->stack;
-}
+}*/
 
 void FASTCALL gravity_fiber_seterror(gravity_fiber_t * fiber, const char * error) 
 {
@@ -1349,7 +1380,7 @@ uint32 gravity_fiber_size(gravity_vm * vm, gravity_fiber_t * fiber)
 		fiber_size += gravity_value_size(vm, *slot);
 	}
 	fiber_size += sstrlen(fiber->error);
-	fiber_size += gravity_object_size(vm, (gravity_object_t *)fiber->caller);
+	fiber_size += gravity_object_size(vm, (gravity_class_t *)fiber->caller);
 	SET_OBJECT_VISITED_FLAG(fiber, false);
 	return fiber_size;
 }
@@ -1359,8 +1390,8 @@ void gravity_fiber_blacken(gravity_vm * vm, gravity_fiber_t * fiber)
 	gravity_vm_memupdate(vm, gravity_fiber_size(vm, fiber));
 	// gray call frame functions
 	for(uint32 i = 0; i < fiber->nframes; ++i) {
-		gravity_gray_object(vm, (gravity_object_t *)fiber->frames[i].closure);
-		gravity_gray_object(vm, (gravity_object_t *)fiber->frames[i].args);
+		gravity_gray_object(vm, (gravity_class_t *)fiber->frames[i].closure);
+		gravity_gray_object(vm, (gravity_class_t *)fiber->frames[i].args);
 	}
 	// gray stack variables
 	for(GravityValue * slot = fiber->stack; slot < fiber->stacktop; ++slot) {
@@ -1369,24 +1400,24 @@ void gravity_fiber_blacken(gravity_vm * vm, gravity_fiber_t * fiber)
 	// gray upvalues
 	gravity_upvalue_t * upvalue = fiber->upvalues;
 	while(upvalue) {
-		gravity_gray_object(vm, (gravity_object_t *)upvalue);
+		gravity_gray_object(vm, (gravity_class_t *)upvalue);
 		upvalue = upvalue->next;
 	}
-	gravity_gray_object(vm, (gravity_object_t *)fiber->caller);
+	gravity_gray_object(vm, (gravity_class_t *)fiber->caller);
 }
 
 // MARK: -
 
-void gravity_object_serialize(gravity_object_t * obj, GravityJson * json) 
+void gravity_object_serialize(gravity_class_t * obj, GravityJson * json) 
 {
 	if(obj->isa == GravityEnv.P_ClsFunc)
 		gravity_function_serialize((gravity_function_t *)obj, json);
 	else if(obj->isa == GravityEnv.P_ClsClass)
-		gravity_class_serialize((gravity_class_t *)obj, json);
+		gravity_class_serialize(obj, json);
 	else assert(0);
 }
 
-gravity_object_t * gravity_object_deserialize(gravity_vm * vm, json_value * entry) 
+gravity_class_t * gravity_object_deserialize(gravity_vm * vm, json_value * entry) 
 {
 	// this function is able to deserialize ONLY objects with a type label
 	// sanity check
@@ -1398,7 +1429,7 @@ gravity_object_t * gravity_object_deserialize(gravity_vm * vm, json_value * entr
 	if(string_casencmp(label, GRAVITY_JSON_LABELTYPE, 4) != 0) {
 		// if no label type found then assume it is a map object
 		gravity_map_t * m = gravity_map_deserialize(vm, entry);
-		return (gravity_object_t *)m;
+		return (gravity_class_t *)m;
 	}
 	// sanity check
 	if(value->type != json_string) 
@@ -1406,23 +1437,23 @@ gravity_object_t * gravity_object_deserialize(gravity_vm * vm, json_value * entr
 	// FUNCTION case
 	if(string_casencmp(value->u.string.ptr, GRAVITY_JSON_FUNCTION, value->u.string.length) == 0) {
 		gravity_function_t * f = gravity_function_deserialize(vm, entry);
-		return (gravity_object_t *)f;
+		return (gravity_class_t *)f;
 	}
 	// CLASS case
 	if(string_casencmp(value->u.string.ptr, GRAVITY_JSON_CLASS, value->u.string.length) == 0) {
 		gravity_class_t * c = gravity_class_deserialize(vm, entry);
-		return (gravity_object_t *)c;
+		return c;
 	}
 	// MAP/ENUM case
 	if((string_casencmp(value->u.string.ptr, GRAVITY_JSON_MAP, value->u.string.length) == 0) ||
 	    (string_casencmp(value->u.string.ptr, GRAVITY_JSON_ENUM, value->u.string.length) == 0)) {
 		gravity_map_t * m = gravity_map_deserialize(vm, entry);
-		return (gravity_object_t *)m;
+		return (gravity_class_t *)m;
 	}
 	// RANGE case
 	if(string_casencmp(value->u.string.ptr, GRAVITY_JSON_RANGE, value->u.string.length) == 0) {
 		gravity_range_t * range = gravity_range_deserialize(vm, entry);
-		return (gravity_object_t *)range;
+		return (gravity_class_t *)range;
 	}
 	// unhandled case
 	DEBUG_DESERIALIZE("gravity_object_deserialize unknown type");
@@ -1431,7 +1462,7 @@ gravity_object_t * gravity_object_deserialize(gravity_vm * vm, json_value * entr
 
 #undef REPORT_JSON_ERROR
 
-const char * gravity_object_debug(gravity_object_t * obj, bool is_free) 
+const char * gravity_object_debug(gravity_class_t * obj, bool is_free) 
 {
 	if(!obj || !*obj) 
 		return "";
@@ -1441,7 +1472,7 @@ const char * gravity_object_debug(gravity_object_t * obj, bool is_free)
 		return "FLOAT";
 	if(obj->IsBool()) 
 		return "BOOL";
-	if(OBJECT_ISA_NULL(obj)) 
+	if(obj->IsNullClass()) 
 		return "NULL";
 	static char buffer[512];
 	if(obj->IsFunction()) {
@@ -1458,13 +1489,13 @@ const char * gravity_object_debug(gravity_object_t * obj, bool is_free)
 		return buffer;
 	}
 	if(obj->IsClass()) {
-		const char * name = ((gravity_class_t *)obj)->identifier;
+		const char * name = obj->identifier;
 		SETIFZ(name, "ANONYMOUS");
 		snprintf(buffer, sizeof(buffer), "CLASS %p %s", obj, name);
 		return buffer;
 	}
 	if(obj->IsString()) {
-		snprintf(buffer, sizeof(buffer), "STRING %p %s", obj, ((gravity_string_t*)obj)->s);
+		snprintf(buffer, sizeof(buffer), "STRING %p %s", obj, reinterpret_cast<const gravity_string_t *>(obj)->cptr());
 		return buffer;
 	}
 	if(obj->IsInstance()) {
@@ -1490,18 +1521,18 @@ const char * gravity_object_debug(gravity_object_t * obj, bool is_free)
 		snprintf(buffer, sizeof(buffer), "FIBER %p", obj);
 		return buffer;
 	}
-	if(OBJECT_ISA_UPVALUE(obj)) {
+	if(obj->IsUpValue()) {
 		snprintf(buffer, sizeof(buffer), "UPVALUE %p", obj);
 		return buffer;
 	}
 	return "N/A";
 }
 
-void gravity_object_free(gravity_vm * vm, gravity_object_t * obj) 
+void gravity_object_free(gravity_vm * vm, gravity_class_t * obj) 
 {
 	if(obj && !!(*obj)) {
 		if(obj->IsClass()) 
-			gravity_class_free(vm, (gravity_class_t *)obj);
+			gravity_class_free(vm, obj);
 		else if(obj->IsFunction()) 
 			gravity_function_free(vm, (gravity_function_t *)obj);
 		else if(obj->IsClosure()) 
@@ -1511,78 +1542,78 @@ void gravity_object_free(gravity_vm * vm, gravity_object_t * obj)
 		else if(obj->IsList()) 
 			gravity_list_free(vm, (gravity_list_t *)obj);
 		else if(obj->IsMap()) 
-			gravity_map_free(vm, (gravity_map_t*)obj);
+			gravity_map_free(vm, (gravity_map_t *)obj);
 		else if(obj->IsFiber()) 
-			gravity_fiber_free(vm, (gravity_fiber_t*)obj);
+			gravity_fiber_free(vm, (gravity_fiber_t *)obj);
 		else if(obj->IsRange()) 
-			gravity_range_free(vm, (gravity_range_t*)obj);
-		else if(OBJECT_ISA_MODULE(obj)) 
-			gravity_module_free(vm, (gravity_module_t*)obj);
+			gravity_range_free(vm, (gravity_range_t *)obj);
+		else if(obj->IsModule()) 
+			gravity_module_free(vm, (gravity_module_t *)obj);
 		else if(obj->IsString()) 
-			gravity_string_free(vm, (gravity_string_t*)obj);
-		else if(OBJECT_ISA_UPVALUE(obj)) 
-			gravity_upvalue_free(vm, (gravity_upvalue_t*)obj);
+			gravity_string_free(vm, (gravity_string_t *)obj);
+		else if(obj->IsUpValue()) 
+			gravity_upvalue_free(vm, (gravity_upvalue_t *)obj);
 		else 
 			assert(0); // should never reach this point
 	}
 }
 
-uint32 gravity_object_size(gravity_vm * vm, gravity_object_t * obj) 
+uint32 gravity_object_size(gravity_vm * vm, gravity_class_t * obj) 
 {
 	if(obj && !!(*obj)) {
-		if(!obj->GcVisited) { // check if object has already been visited (to avoid infinite loop)
+		if(!(obj->Flags & GravityObjectBase::fGcVisited)/*!obj->GcVisited*/) { // check if object has already been visited (to avoid infinite loop)
 			if(obj->IsClass()) 
-				return gravity_class_size(vm, (gravity_class_t *)obj);
+				return gravity_class_size(vm, obj);
 			else if(obj->IsFunction()) 
 				return gravity_function_size(vm, (gravity_function_t *)obj);
 			else if(obj->IsClosure()) 
 				return gravity_closure_size(vm, (gravity_closure_t *)obj);
 			else if(obj->IsInstance()) 
-				return gravity_instance_size(vm, (gravity_instance_t*)obj);
+				return gravity_instance_size(vm, (gravity_instance_t *)obj);
 			else if(obj->IsList()) 
 				return gravity_list_size(vm, (gravity_list_t *)obj);
 			else if(obj->IsMap()) 
-				return gravity_map_size(vm, (gravity_map_t*)obj);
+				return gravity_map_size(vm, (gravity_map_t *)obj);
 			else if(obj->IsFiber()) 
-				return gravity_fiber_size(vm, (gravity_fiber_t*)obj);
+				return gravity_fiber_size(vm, (gravity_fiber_t *)obj);
 			else if(obj->IsRange()) 
-				return gravity_range_size(vm, (gravity_range_t*)obj);
-			else if(OBJECT_ISA_MODULE(obj)) 
-				return gravity_module_size(vm, (gravity_module_t*)obj);
+				return gravity_range_size(vm, (gravity_range_t *)obj);
+			else if(obj->IsModule()) 
+				return gravity_module_size(vm, (gravity_module_t *)obj);
 			else if(obj->IsString()) 
-				return gravity_string_size(vm, (gravity_string_t*)obj);
-			else if(OBJECT_ISA_UPVALUE(obj)) 
-				return gravity_upvalue_size(vm, (gravity_upvalue_t*)obj);
+				return gravity_string_size(vm, (gravity_string_t *)obj);
+			else if(obj->IsUpValue()) 
+				return gravity_upvalue_size(vm, (gravity_upvalue_t *)obj);
 		}
 	}
 	return 0;
 }
 
-void gravity_object_blacken(gravity_vm * vm, gravity_object_t * obj) 
+void gravity_object_blacken(gravity_vm * vm, gravity_class_t * obj) 
 {
 	if(obj && !!*obj) {
 		if(obj->IsClass()) 
-			gravity_class_blacken(vm, (gravity_class_t *)obj);
+			gravity_class_blacken(vm, obj);
 		else if(obj->IsFunction()) 
 			gravity_function_blacken(vm, (gravity_function_t *)obj);
 		else if(obj->IsClosure()) 
 			gravity_closure_blacken(vm, (gravity_closure_t *)obj);
 		else if(obj->IsInstance()) 
-			gravity_instance_blacken(vm, (gravity_instance_t*)obj);
+			gravity_instance_blacken(vm, (gravity_instance_t *)obj);
 		else if(obj->IsList()) 
 			gravity_list_blacken(vm, reinterpret_cast<gravity_list_t *>(obj));
 		else if(obj->IsMap()) 
-			gravity_map_blacken(vm, (gravity_map_t*)obj);
+			gravity_map_blacken(vm, (gravity_map_t *)obj);
 		else if(obj->IsFiber()) 
-			gravity_fiber_blacken(vm, (gravity_fiber_t*)obj);
+			gravity_fiber_blacken(vm, (gravity_fiber_t *)obj);
 		else if(obj->IsRange()) 
-			gravity_range_blacken(vm, (gravity_range_t*)obj);
-		else if(OBJECT_ISA_MODULE(obj)) 
-			gravity_module_blacken(vm, (gravity_module_t*)obj);
+			gravity_range_blacken(vm, (gravity_range_t *)obj);
+		else if(obj->IsModule()) 
+			gravity_module_blacken(vm, (gravity_module_t *)obj);
 		else if(obj->IsString()) 
-			gravity_string_blacken(vm, (gravity_string_t*)obj);
-		else if(OBJECT_ISA_UPVALUE(obj)) 
-			gravity_upvalue_blacken(vm, (gravity_upvalue_t*)obj);
+			gravity_string_blacken(vm, (gravity_string_t *)obj);
+		else if(obj->IsUpValue()) 
+			gravity_upvalue_blacken(vm, (gravity_upvalue_t *)obj);
 		//else assert(0); // should never reach this point
 	}
 }
@@ -1598,7 +1629,7 @@ gravity_instance_t * gravity_instance_new(gravity_vm * vm, gravity_class_t * c)
 		instance->ivars = static_cast<GravityValue *>(mem_alloc(NULL, c->nivars * sizeof(GravityValue)));
 	for(uint32 i = 0; i<c->nivars; ++i) 
 		instance->ivars[i] = GravityValue::from_null();
-	gravity_vm_transfer(vm, (gravity_object_t *)instance);
+	gravity_vm_transfer(vm, (gravity_class_t *)instance);
 	return instance;
 }
 
@@ -1618,7 +1649,7 @@ gravity_instance_t * gravity_instance_clone(gravity_vm * vm, gravity_instance_t 
 		instance->ivars = static_cast<GravityValue *>(mem_alloc(NULL, c->nivars * sizeof(GravityValue)));
 	for(uint32 i = 0; i<c->nivars; ++i) 
 		instance->ivars[i] = src_instance->ivars[i];
-	gravity_vm_transfer(vm, (gravity_object_t *)instance);
+	gravity_vm_transfer(vm, (gravity_class_t *)instance);
 	return instance;
 }
 
@@ -1635,11 +1666,12 @@ void gravity_instance_setxdata(gravity_instance_t * i, void * xdata)
 
 void gravity_instance_free(gravity_vm * vm, gravity_instance_t * i) 
 {
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)i, true));
+	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)i, true));
 	// check if bridged data needs to be freed too
 	if(i->xdata && vm) {
 		gravity_delegate_t * delegate = gravity_vm_delegate(vm);
-		if(delegate->bridge_free) delegate->bridge_free(vm, (gravity_object_t *)i);
+		if(delegate->bridge_free) 
+			delegate->bridge_free(vm, (gravity_class_t *)i);
 	}
 	mem_free(i->ivars);
 	mem_free((void*)i);
@@ -1654,8 +1686,8 @@ gravity_closure_t * gravity_instance_lookup_event(gravity_instance_t * i, const 
 		GravityValue * v = gravity_hash_lookup(c->htable, key);
 		// NOTE: there could be events (like InitContainer) which are empty (bytecode NULL) should I handle them
 		// here?
-		if((v) && (v->p->IsClosure())) 
-			return (gravity_closure_t *)v->p;
+		if(v && v->Ptr->IsClosure()) 
+			return reinterpret_cast<gravity_closure_t *>(v->Ptr);
 		c = c->superclass;
 	}
 	return NULL;
@@ -1667,8 +1699,7 @@ uint32 gravity_instance_size(gravity_vm * vm, gravity_instance_t * i)
 	uint32 instance_size = sizeof(gravity_instance_t) + (i->objclass->nivars * sizeof(GravityValue));
 	gravity_delegate_t * delegate = gravity_vm_delegate(vm);
 	if(i->xdata && delegate->bridge_size)
-		instance_size += delegate->bridge_size(vm, reinterpret_cast<gravity_object_t *>(i->xdata));
-
+		instance_size += delegate->bridge_size(vm, reinterpret_cast<gravity_class_t *>(i->xdata));
 	SET_OBJECT_VISITED_FLAG(i, false);
 	return instance_size;
 }
@@ -1677,7 +1708,7 @@ void gravity_instance_blacken(gravity_vm * vm, gravity_instance_t * i)
 {
 	gravity_vm_memupdate(vm, gravity_instance_size(vm, i));
 	// instance class
-	gravity_gray_object(vm, (gravity_object_t *)i->objclass);
+	gravity_gray_object(vm, i->objclass);
 	// ivars
 	for(uint32 j = 0; j<i->objclass->nivars; ++j) {
 		gravity_gray_value(vm, i->ivars[j]);
@@ -1685,7 +1716,8 @@ void gravity_instance_blacken(gravity_vm * vm, gravity_instance_t * i)
 	// xdata
 	if(i->xdata) {
 		gravity_delegate_t * delegate = gravity_vm_delegate(vm);
-		if(delegate->bridge_blacken) delegate->bridge_blacken(vm, i->xdata);
+		if(delegate->bridge_blacken) 
+			delegate->bridge_blacken(vm, i->xdata);
 	}
 }
 
@@ -1707,12 +1739,11 @@ void gravity_instance_serialize(gravity_instance_t * instance, GravityJson * jso
 	json_end_object(json);
 }
 
-bool FASTCALL gravity_instance_isstruct(const gravity_instance_t * i) { return i->objclass->is_struct; }
+bool FASTCALL gravity_instance_isstruct(const gravity_instance_t * i) { return LOGIC(i->objclass->Flags & GravityObjectBase::fIsStruct)/*i->objclass->is_struct*/; }
 
 // MARK: -
 static bool hash_value_compare_cb(GravityValue v1, GravityValue v2, void * data) 
 {
-    #pragma unused (data)
 	return gravity_value_equals(v1, v2);
 }
 
@@ -1759,7 +1790,7 @@ bool gravity_value_equals(GravityValue v1, GravityValue v2)
 			return false;
 		else {
 			// same hash and same len so let's compare bytes
-			return (memcmp(s1->s, s2->s, s1->len) == 0);
+			return (memcmp(s1->cptr(), s2->cptr(), s1->len) == 0);
 		}
 	}
 	else if(v1.isa == GravityEnv.P_ClsRange) {
@@ -1787,8 +1818,8 @@ bool gravity_value_equals(GravityValue v1, GravityValue v2)
 		return gravity_hash_compare(map1->hash, map2->hash, hash_value_compare_cb, NULL);
 	}
 	// if here means that they are two heap allocated objects
-	const gravity_object_t * obj1 = VALUE_AS_OBJECT(v1);
-	const gravity_object_t * obj2 = VALUE_AS_OBJECT(v2);
+	const gravity_class_t * obj1 = VALUE_AS_OBJECT(v1);
+	const gravity_class_t * obj2 = VALUE_AS_OBJECT(v2);
 	return (obj1->isa != obj2->isa) ? false : (obj1 == obj2);
 }
 
@@ -1801,7 +1832,7 @@ uint32 gravity_value_hash(GravityValue value)
 	else if(value.isa == GravityEnv.P_ClsFloat)
 		return gravity_hash_compute_float(value.f);
 	else
-		return gravity_hash_compute_buffer((const char*)value.p, sizeof(gravity_object_t *));
+		return gravity_hash_compute_buffer(reinterpret_cast<const char *>(value.Ptr), sizeof(gravity_class_t *));
 }
 
 /* @sobolev replaced with GetClass()
@@ -1827,22 +1858,21 @@ void gravity_value_free(gravity_vm * vm, GravityValue v)
 
 static void gravity_map_serialize_iterator(gravity_hash_t * hashtable, GravityValue key, GravityValue v, void * data) 
 {
-    #pragma unused(hashtable)
 	assert(key.isa == GravityEnv.P_ClsString);
 	GravityJson * json = static_cast<GravityJson *>(data);
-	const char * key_value = static_cast<gravity_string_t *>(key)->s;
+	const char * key_value = static_cast<gravity_string_t *>(key)->cptr();
 	gravity_value_serialize(key_value, v, json);
 }
 
 void gravity_value_serialize(const char * key, GravityValue v, GravityJson * json) 
 {
 	// NULL
-	if(VALUE_ISA_NULL(v)) {
+	if(v.IsNull()) {
 		json_add_null(json, key);
 		return;
 	}
 	// UNDEFINED (convention used to represent an UNDEFINED value)
-	if(VALUE_ISA_UNDEFINED(v)) {
+	if(v.IsUndefined()) {
 		if(json_option_isset(json, json_opt_no_undef)) {
 			json_add_null(json, key);
 		}
@@ -1888,7 +1918,7 @@ void gravity_value_serialize(const char * key, GravityValue v, GravityJson * jso
 	// STRING
 	if(v.IsString()) {
 		gravity_string_t * value = static_cast<gravity_string_t *>(v);
-		json_add_string(json, key, value->s, value->len);
+		json_add_string(json, key, value->cptr(), value->len);
 		return;
 	}
 	// LIST (ARRAY)
@@ -1957,7 +1987,7 @@ void gravity_value_serialize(const char * key, GravityValue v, GravityJson * jso
 
 uint32 gravity_value_size(gravity_vm * vm, GravityValue v) 
 {
-	return v.IsObject() ? gravity_object_size(vm, (gravity_object_t *)v.p) : 0;
+	return v.IsObject() ? gravity_object_size(vm, v.Ptr) : 0;
 }
 
 void * gravity_value_xdata(GravityValue value) 
@@ -2041,7 +2071,7 @@ void gravity_value_dump(gravity_vm * vm, GravityValue v, char * buffer, uint16 l
 	else if(v.isa == GravityEnv.P_ClsString) {
 		type = "STRING";
 		gravity_string_t * s = static_cast<gravity_string_t *>(v);
-		snprintf(buffer, len, "(%s) %.*s (%p)", type, s->len, s->s, s);
+		snprintf(buffer, len, "(%s) %.*s (%p)", type, s->len, s->cptr(), s);
 		value = buffer;
 	}
 	else if(v.isa == GravityEnv.P_ClsInstance) {
@@ -2056,14 +2086,14 @@ void gravity_value_dump(gravity_vm * vm, GravityValue v, char * buffer, uint16 l
 		type = "LIST";
 		GravityValue sval = convert_value2string(vm, v);
 		gravity_string_t * s = static_cast<gravity_string_t *>(sval);
-		snprintf(buffer, len, "(%s) %.*s (%p)", type, s->len, s->s, s);
+		snprintf(buffer, len, "(%s) %.*s (%p)", type, s->len, s->cptr(), s);
 		value = buffer;
 	}
 	else if(v.isa == GravityEnv.P_ClsMap) {
 		type = "MAP";
 		GravityValue sval = convert_value2string(vm, v);
 		gravity_string_t * s = static_cast<gravity_string_t *>(sval);
-		snprintf(buffer, len, "(%s) %.*s (%p)", type, s->len, s->s, s);
+		snprintf(buffer, len, "(%s) %.*s (%p)", type, s->len, s->cptr(), s);
 		value = buffer;
 	}
 	else if(v.isa == GravityEnv.P_ClsRange) {
@@ -2080,7 +2110,7 @@ void gravity_value_dump(gravity_vm * vm, GravityValue v, char * buffer, uint16 l
 	}
 	else if(v.isa == GravityEnv.P_ClsFiber) {
 		type = "FIBER";
-		snprintf(buffer, len, "(%s) %p", type, v.p);
+		snprintf(buffer, len, "(%s) %p", type, v.Ptr);
 		value = buffer;
 	}
 	else {
@@ -2101,7 +2131,7 @@ gravity_list_t * FASTCALL gravity_list_new(gravity_vm * vm, uint32 n)
 		list->isa = GravityEnv.P_ClsList;
 		marray_init(list->array);
 		list->array.resize(n + MARRAY_DEFAULT_SIZE);
-		gravity_vm_transfer(vm, (gravity_object_t *)list);
+		gravity_vm_transfer(vm, (gravity_class_t *)list);
 	}
 	return list;
 }
@@ -2115,15 +2145,14 @@ gravity_list_t * gravity_list_from_array(gravity_vm * vm, uint32 n, GravityValue
 	// and could be reused by other successive operations
 	for(size_t i = 0; i<n; ++i) 
 		list->array.insert(p[i]);
-	gravity_vm_transfer(vm, (gravity_object_t *)list);
+	gravity_vm_transfer(vm, (gravity_class_t *)list);
 	return list;
 }
 
 void gravity_list_free(gravity_vm * vm, gravity_list_t * list) 
 {
-	//#pragma unused(vm)
 	if(list) {
-		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)list, true));
+		DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)list, true));
 		list->array.Z();
 		mem_free((void*)list);
 	}
@@ -2131,7 +2160,6 @@ void gravity_list_free(gravity_vm * vm, gravity_list_t * list)
 
 void gravity_list_append_list(gravity_vm * vm, gravity_list_t * list1, gravity_list_t * list2) 
 {
-    //#pragma unused(vm)
 	// append list2 to list1
 	size_t count = list2->array.getCount();
 	for(size_t i = 0; i<count; ++i) {
@@ -2167,28 +2195,25 @@ gravity_map_t * gravity_map_new(gravity_vm * vm, uint32 n)
 	gravity_map_t * map = (gravity_map_t*)mem_alloc(NULL, sizeof(gravity_map_t));
 	map->isa = GravityEnv.P_ClsMap;
 	map->hash = gravity_hash_create(n, gravity_value_hash, gravity_value_equals, NULL, NULL);
-	gravity_vm_transfer(vm, (gravity_object_t *)map);
+	gravity_vm_transfer(vm, (gravity_class_t *)map);
 	return map;
 }
 
 void gravity_map_free(gravity_vm * vm, gravity_map_t * map) 
 {
-    //#pragma unused(vm)
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)map, true));
+	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)map, true));
 	gravity_hash_free(map->hash);
 	mem_free((void*)map);
 }
 
 void gravity_map_append_map(gravity_vm * vm, gravity_map_t * map1, gravity_map_t * map2) 
 {
-    //#pragma unused(vm)
 	// append map2 to map1
 	gravity_hash_append(map1->hash, map2->hash);
 }
 
 void gravity_map_insert(gravity_vm * vm, gravity_map_t * map, GravityValue key, GravityValue value) 
 {
-    //#pragma unused(vm)
 	gravity_hash_insert(map->hash, key, value);
 }
 
@@ -2200,18 +2225,18 @@ static gravity_map_t * gravity_map_deserialize(gravity_vm * vm, json_value * jso
 	for(uint32 i = 0; i<n; ++i) { // from 1 to skip type
 		const char * label = json->u.object.values[i].name;
 		json_value * jsonv = json->u.object.values[i].value;
-		GravityValue key = VALUE_FROM_CSTRING(vm, label);
+		GravityValue key = gravity_zstring_to_value(vm, label);
 		GravityValue value;
 		switch(jsonv->type) {
 			case json_integer: value = GravityValue::from_int((gravity_int_t)jsonv->u.integer); break;
 			case json_double: value = GravityValue::from_float((gravity_float_t)jsonv->u.dbl); break;
-			case json_boolean: value = VALUE_FROM_BOOL(jsonv->u.boolean); break;
+			case json_boolean: value = GravityValue::from_bool(jsonv->u.boolean); break;
 			case json_string: value = VALUE_FROM_STRING(vm, jsonv->u.string.ptr, jsonv->u.string.length); break;
 			case json_null: value = GravityValue::from_null(); break;
 			case json_object: 
 				{
-					gravity_object_t * obj = gravity_object_deserialize(vm, jsonv);
-					value = (obj) ? VALUE_FROM_OBJECT(obj) : GravityValue::from_null();
+					gravity_class_t * obj = gravity_object_deserialize(vm, jsonv);
+					value = (obj) ? GravityValue::from_object(obj) : GravityValue::from_null();
 				}
 			    break;
 			case json_array: 
@@ -2253,20 +2278,18 @@ gravity_range_t * gravity_range_new(gravity_vm * vm, gravity_int_t from_range, g
 	range->isa = GravityEnv.P_ClsRange;
 	range->from = from_range;
 	range->to = (inclusive) ? to_range : --to_range;
-	gravity_vm_transfer(vm, (gravity_object_t *)range);
+	gravity_vm_transfer(vm, (gravity_class_t *)range);
 	return range;
 }
 
 void gravity_range_free(gravity_vm * vm, gravity_range_t * range) 
 {
-    #pragma unused(vm)
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)range, true));
+	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)range, true));
 	mem_free((void*)range);
 }
 
 uint32 gravity_range_size(gravity_vm * vm, gravity_range_t * range) 
 {
-    #pragma unused(vm, range)
 	SET_OBJECT_VISITED_FLAG(range, true);
 	uint32 range_size = sizeof(gravity_range_t);
 	SET_OBJECT_VISITED_FLAG(range, false);
@@ -2277,7 +2300,7 @@ void gravity_range_serialize(gravity_range_t * r, GravityJson * json)
 {
 	const char * label = json_get_label(json, NULL);
 	json_begin_object(json, label);
-	json_add_cstring(json, GRAVITY_JSON_LABELTYPE, GRAVITY_JSON_RANGE);                // MANDATORY 1st FIELD
+	json_add_cstring(json, GRAVITY_JSON_LABELTYPE, GRAVITY_JSON_RANGE); // MANDATORY 1st FIELD
 	json_add_int(json, GRAVITY_JSON_LABELFROM, r->from);
 	json_add_int(json, GRAVITY_JSON_LABELTO, r->to);
 	json_end_object(json);
@@ -2317,60 +2340,80 @@ void gravity_range_blacken(gravity_vm * vm, gravity_range_t * range)
 
 // MARK: -
 
-/*inline*/GravityValue gravity_string_to_value(gravity_vm * vm, const char * s, uint32 len) 
+
+GravityValue FASTCALL gravity_zstring_to_value(gravity_vm * vm, const char * s)
 {
-	gravity_string_t * obj = static_cast<gravity_string_t *>(mem_alloc(NULL, sizeof(gravity_string_t)));
-	if(len == AUTOLENGTH) 
-		len = (uint32)strlen(s);
+	gravity_string_t * obj = new gravity_string_t;
+	uint32 len = (uint32)sstrlen(s);
 	uint32 alloc = MAX(len+1, DEFAULT_MINSTRING_SIZE);
 	char * ptr = static_cast<char *>(mem_alloc(NULL, alloc));
 	memcpy(ptr, s, len);
-	obj->isa = GravityEnv.P_ClsString;
-	obj->s = ptr;
+	//obj->isa = GravityEnv.P_ClsString;
+	obj->P_StrBuf = ptr;
 	obj->len = len;
 	obj->alloc = alloc;
 	obj->hash = gravity_hash_compute_buffer((const char*)ptr, len);
 	GravityValue value;
 	value.isa = GravityEnv.P_ClsString;
-	value.p = (gravity_object_t *)obj;
-	gravity_vm_transfer(vm, (gravity_object_t *)obj);
+	value.Ptr = reinterpret_cast<gravity_class_t *>(obj);
+	gravity_vm_transfer(vm, reinterpret_cast<gravity_class_t *>(obj));
 	return value;
 }
 
-/*inline*/gravity_string_t * gravity_string_new(gravity_vm * vm, char * s, uint32 len, uint32 alloc) 
+/*inline*/GravityValue gravity_string_to_value(gravity_vm * vm, const char * s, uint32 len) 
 {
-	gravity_string_t * obj = static_cast<gravity_string_t *>(mem_alloc(NULL, sizeof(gravity_string_t)));
+	gravity_string_t * obj = new gravity_string_t;
 	if(len == AUTOLENGTH) 
-		len = (uint32)strlen(s);
-	obj->isa = GravityEnv.P_ClsString;
-	obj->s = (char *)s;
+		len = (uint32)sstrlen(s);
+	uint32 alloc = MAX(len+1, DEFAULT_MINSTRING_SIZE);
+	char * ptr = static_cast<char *>(mem_alloc(NULL, alloc));
+	memcpy(ptr, s, len);
+	//obj->isa = GravityEnv.P_ClsString;
+	obj->P_StrBuf = ptr;
 	obj->len = len;
-	obj->alloc = (alloc) ? alloc : len;
-	if(s && len) 
-		obj->hash = gravity_hash_compute_buffer((const char*)s, len);
-	gravity_vm_transfer(vm, (gravity_object_t *)obj);
+	obj->alloc = alloc;
+	obj->hash = gravity_hash_compute_buffer((const char*)ptr, len);
+	GravityValue value;
+	value.isa = GravityEnv.P_ClsString;
+	value.Ptr = reinterpret_cast<gravity_class_t *>(obj);
+	gravity_vm_transfer(vm, reinterpret_cast<gravity_class_t *>(obj));
+	return value;
+}
+
+/*inline*/gravity_string_t * gravity_string_new(gravity_vm * vm, char * pS, uint32 len, uint32 alloc) 
+{
+	gravity_string_t * obj = new gravity_string_t;
+	if(len == AUTOLENGTH) 
+		len = (uint32)sstrlen(pS);
+	//obj->isa = GravityEnv.P_ClsString;
+	obj->P_StrBuf = (char *)pS;
+	obj->len = len;
+	obj->alloc = NZOR(alloc, len);
+	if(pS && len) 
+		obj->hash = gravity_hash_compute_buffer((const char *)pS, len);
+	gravity_vm_transfer(vm, reinterpret_cast<gravity_class_t *>(obj));
 	return obj;
 }
 
-/*inline*/void gravity_string_set(gravity_string_t * obj, char * s, uint32 len) 
+/*inline*//*void gravity_string_set(gravity_string_t * obj, char * s, uint32 len) 
 {
-	obj->s = (char *)s;
+	obj->P_StrBuf = (char *)s;
 	obj->len = len;
 	obj->hash = gravity_hash_compute_buffer((const char*)s, len);
-}
+}*/
 
 /*inline*/void gravity_string_free(gravity_vm * vm, gravity_string_t * value) 
 {
-    #pragma unused(vm)
-	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_object_t *)value, true));
-	if(value->alloc) 
-		mem_free(value->s);
-	mem_free(value);
+	DEBUG_FREE("FREE %s", gravity_object_debug((gravity_class_t *)value, true));
+	if(value) {
+		if(value->alloc) 
+			mem_free(value->P_StrBuf);
+		delete value;
+	}
 }
 
 uint32 gravity_string_size(gravity_vm * vm, gravity_string_t * string) 
 {
-    #pragma unused(vm)
 	SET_OBJECT_VISITED_FLAG(string, true);
 	uint32 string_size = (sizeof(gravity_string_t)) + string->alloc;
 	SET_OBJECT_VISITED_FLAG(string, false);

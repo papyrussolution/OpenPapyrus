@@ -346,7 +346,7 @@ static cairo_int_status_t render_glyphs_via_mask(cairo_gl_surface_t * dst,
 	cairo_status_t status;
 	boolint has_component_alpha;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	/* XXX: For non-CA, this should be CAIRO_CONTENT_ALPHA to save memory */
 	mask = cairo_gl_surface_create(dst->base.device,
@@ -419,7 +419,7 @@ cairo_int_status_t _cairo_gl_composite_glyphs_with_clip(void * _dst, cairo_opera
 {
 	cairo_gl_surface_t * dst = _dst;
 	boolint has_component_alpha;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	/* If any of the glyphs require component alpha, we have to go through
 	 * a mask, since only _cairo_gl_surface_composite() currently supports
 	 * component alpha.

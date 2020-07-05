@@ -814,7 +814,7 @@ int ExportCls::RecadvHeader()
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_C106); // Идентификация документа/сообщения
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E1004); // Номер доукмента о приемке
 					str = Bill.Code;
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)(const char *)str.ToUtf8()); // Должно быть максимум 17 символов
+					xmlTextWriterWriteString(P_XmlWriter, str.ToUtf8().ucptr()); // Должно быть максимум 17 символов
 				xmlTextWriterEndElement(P_XmlWriter); //E1004
 			xmlTextWriterEndElement(P_XmlWriter); //С106
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E1225); // Код функции сообщения
@@ -887,7 +887,7 @@ int ExportCls::RecadvHeader()
 						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E1153_AAK); // Квалификатор - связанное уведомление об отгрузке
 					xmlTextWriterEndElement(P_XmlWriter); //E1153
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E1154); // Номер документа заказа
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)(const char *)TTN.ToChar().ToUtf8());
+						xmlTextWriterWriteString(P_XmlWriter, TTN.ToChar().ToUtf8().ucptr());
 					xmlTextWriterEndElement(P_XmlWriter); //E1154
 				xmlTextWriterEndElement(P_XmlWriter); //C506
             xmlTextWriterEndElement(P_XmlWriter); //RFF

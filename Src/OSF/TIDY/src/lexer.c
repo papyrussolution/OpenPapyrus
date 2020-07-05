@@ -1470,18 +1470,14 @@ bool TY_(SetXHTMLDocType) (TidyDocImpl* doc)
 	TidyDoctypeModes dtmode = (TidyDoctypeModes)cfg(doc, TidyDoctypeMode);
 	ctmbstr pub = "PUBLIC";
 	ctmbstr sys = "SYSTEM";
-
 	lexer->versionEmitted = TY_(ApparentVersion) (doc);
-
 	if(dtmode == TidyDoctypeOmit) {
 		if(doctype)
 			TY_(DiscardElement) (doc, doctype);
 		return true;
 	}
-
 	if(dtmode == TidyDoctypeUser && !cfgStr(doc, TidyDoctype))
 		return false;
-
 	if(!doctype) {
 		doctype = NewDocTypeNode(doc);
 		doctype->element = TY_(tmbstrdup) (doc->allocator, "html");
@@ -1489,9 +1485,7 @@ bool TY_(SetXHTMLDocType) (TidyDocImpl* doc)
 	else {
 		doctype->element = TY_(tmbstrtolower) (doctype->element);
 	}
-
-	switch(dtmode)
-	{
+	switch(dtmode) {
 		case TidyDoctypeStrict:
 		    /* XHTML 1.0 Strict */
 		    TY_(RepairAttrValue) (doc, doctype, pub, GetFPIFromVers(X10S));

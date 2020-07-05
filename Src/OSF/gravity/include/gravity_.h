@@ -22,6 +22,14 @@
 	typedef int mode_t; // MSVC doesn't have mode_t 
 	typedef SSIZE_T ssize_t;
 #endif
+struct GravityValue;
+struct gravity_class_t;
+struct gravity_closure_t;
+struct gravity_hash_t;
+struct gravity_string_t;
+struct gravity_list_t;
+struct ircode_t;
+struct gravity_vm;
 
 #define GRAVITY_VERSION                     "0.7.8"     // git tag 0.7.8
 #define GRAVITY_VERSION_NUMBER              0x000708    // git push --tags
@@ -211,7 +219,7 @@
 #define GRAVITY_MEMORY_DEBUG            0 // memory debugger must be turned on ONLY with Xcode GuardMalloc ON
 #ifndef GRAVITY_VM_DEFINED
 	#define GRAVITY_VM_DEFINED
-	typedef struct gravity_vm                gravity_vm;
+	//typedef struct gravity_vm                gravity_vm;
 #endif
 #if GRAVITY_MEMORY_DEBUG
 	#define mem_init()                      memdebug_init()
@@ -288,22 +296,24 @@ int         FASTCALL string_casencmp(const char * s1, const char * s2, size_t n)
 //int         FASTCALL string_cmp(const char * s1, const char * s2);
 //const char  * string_dup_(const char * s1);
 const char  * string_ndup(const char * s1, size_t n);
-void        string_reverse(char * p);
+void    string_reverse(char * p);
 // @sobolev (replaced with sstrlen) uint32    string_size(const char * p);
-char        * string_strnstr(const char * s, const char * find, size_t slen);
-char        * string_replace(const char * str, const char * from, const char * to, size_t * rlen);
+char * string_strnstr(const char * s, const char * find, size_t slen);
+char * string_replace(const char * str, const char * from, const char * to, size_t * rlen);
 // UTF-8
-uint32    FASTCALL utf8_charbytes(const char * s, uint32 i);
-uint32    utf8_nbytes(uint32 n);
-uint32    utf8_encode(char * buffer, uint32 value);
-uint32    FASTCALL utf8_len(const char * s, uint32 nbytes);
-bool      utf8_reverse(char * p);
+uint32  FASTCALL utf8_charbytes(const char * s, uint32 i);
+uint32  utf8_nbytes(uint32 n);
+uint32  utf8_encode(char * buffer, uint32 value);
+uint32  FASTCALL utf8_len(const char * s, uint32 nbytes);
+bool    utf8_reverse(char * p);
 
 // MATH and NUMBERS
-uint32    power_of2_ceil(uint32 n);
-int64_t     number_from_hex(const char * s, uint32 len);
-int64_t     number_from_oct(const char * s, uint32 len);
-int64_t     number_from_bin(const char * s, uint32 len);
+uint32  power_of2_ceil(uint32 n);
+int64_t number_from_hex(const char * s, uint32 len);
+int64_t number_from_oct(const char * s, uint32 len);
+int64_t number_from_bin(const char * s, uint32 len);
+//
+void Gravity_Implement_DebugAssert(const char * pFile, int line, const char * pFunc, const char * pMessage);
 //
 //#include <gravity_array.h>
 // Inspired by https://github.com/attractivechaos/klib/blob/master/kvec.h
@@ -334,6 +344,13 @@ public:
 		}
 	}
 	T    & at(uint idx) const { assert(idx < n); return p[idx]; }
+	void   FillUnusedEntries(const T & rValue)
+	{
+		for(uint i = n; i < m; i++) {
+			assert(p);
+			p[i] = rValue;
+		}
+	}
 	T    & getLast() const { assert(n); return p[n-1]; }
 	T    & pop()
 	{ 
@@ -360,34 +377,34 @@ public:
 
 // @sobolev (replaced with GravityArray <type>) #define marray_t(type)              struct {uint32 n, m; type *p;} // @sobolev size_t-->uint32
 #define marray_init(v)              ((v).n = (v).m = 0, (v).p = 0)
+//#define marray_setnull(v, i)        ((v).p[(i)] = NULL)
+//#define marray_nset(v,N)            ((v).n = N)
 //#define marray_decl_init(_t,_v)     _t _v; marray_init(_v)
 //#define marray_destroy(v)           if((v).p) SAlloc::F((v).p)
 //#define marray_get(v, i)            ((v).p[(i)])
-#define marray_setnull(v, i)        ((v).p[(i)] = NULL)
 //#define marray_pop(v)               ((v).p[--(v).n])
 //#define marray_last(v)              ((v).p[(v).n-1])
 //#define marray_size(v)              ((v).n)
 //#define marray_max(v)               ((v).m)
 //#define marray_inc(v)               (++(v).n)
 //#define marray_dec(v)               (--(v).n)
-#define marray_nset(v,N)            ((v).n = N)
 //#define marray_push(type, v, x)     { if((v).n == (v).m) { (v).m = (v).m ? (v).m<<1 : MARRAY_DEFAULT_SIZE; (v).p = (type *)SAlloc::R((v).p, sizeof(type) * (v).m);} (v).p[(v).n++] = (x); }
 //#define marray_resize(type, v, n)   (v).m += n; (v).p = (type *)SAlloc::R((v).p, sizeof(type) * (v).m)
 //#define marray_resize0(type, v, n)  (v).p = (type *)SAlloc::R((v).p, sizeof(type) * ((v).m+n)); (v).m ? memzero((v).p+(sizeof(type) * n), (sizeof(type) * n)) : memzero((v).p, (sizeof(type) * n)); (v).m += n
-#define marray_npop(v,k)            ((v).n -= k)
+//#define marray_npop(v,k)            ((v).n -= k)
 //#define marray_reset(v,k)           ((v).n = k)
 //#define marray_reset0(v)            marray_reset(v, 0)
-#define marray_set(v,i,x)           (v).p[i] = (x)
+//#define marray_set(v,i,x)           (v).p[i] = (x)
 
 // commonly used arrays
 //typedef marray_t(uint16)       uint16_r;
 //typedef marray_t(uint32)       uint32_r;
 //typedef marray_t(void *)       void_r;
 //typedef marray_t(const char *) cstring_r;
-typedef GravityArray<uint16> uint16_r;
-typedef GravityArray<uint32> uint32_r;
-typedef GravityArray<void *> void_r;
-typedef GravityArray<const char *> cstring_r;
+//typedef GravityArray <uint16> uint16_r;
+//typedef GravityArray <uint32> uint32_r;
+//typedef GravityArray <void *> void_r;
+//typedef GravityArray <const char *> cstring_r;
 //
 //#include <gravity_json.h>
 #ifndef __GRAVITY_JSON_SERIALIZER__
@@ -673,35 +690,6 @@ void json_value_free_ex(json_settings * settings, json_value *);
 //extern "C" {
 //#endif
 
-struct GravityValue;
-struct gravity_class_t;
-struct gravity_hash_t;
-struct gravity_string_t;
-struct gravity_list_t;
-struct ircode_t;
-
-// Forward references (an object ptr is just its isa pointer)
-//typedef struct gravity_class_s gravity_class_t;
-//typedef struct gravity_class_s gravity_object_t;
-typedef struct gravity_class_t gravity_object_t;
-
-//extern gravity_class_t * GravityEnv.P_ClsObj;
-//extern gravity_class_t * GravityEnv.P_ClsBool;
-//extern gravity_class_t * GravityEnv.P_ClsNull;
-//extern gravity_class_t * GravityEnv.P_ClsInt;
-//extern gravity_class_t * GravityEnv.P_ClsFloat;
-//extern gravity_class_t * GravityEnv.P_ClsFunc;
-//extern gravity_class_t * GravityEnv.P_ClsClosure;
-//extern gravity_class_t * GravityEnv.P_ClsFiber;
-//extern gravity_class_t * GravityEnv.P_ClsClass;
-//extern gravity_class_t * GravityEnv.P_ClsString;
-//extern gravity_class_t * GravityEnv.P_ClsInstance;
-//extern gravity_class_t * GravityEnv.P_ClsList;
-//extern gravity_class_t * GravityEnv.P_ClsMap;
-//extern gravity_class_t * GravityEnv.P_ClsModule;
-//extern gravity_class_t * GravityEnv.P_ClsRange;
-//extern gravity_class_t * GravityEnv.P_ClsUpValue;
-
 class GravityGlobals {
 public:
 	GravityGlobals()
@@ -752,6 +740,9 @@ struct GravityValueBase {
 	bool   IsMap() const { return (isa == GravityEnv.P_ClsMap); }
 	bool   IsList() const { return (isa == GravityEnv.P_ClsList); }
 	bool   IsInstance() const { return (isa == GravityEnv.P_ClsInstance); }
+	bool   IsUpValue() const { return (isa == GravityEnv.P_ClsUpValue); }
+	bool   IsModule() const { return (isa == GravityEnv.P_ClsModule); }
+	bool   IsNullClass() const { return (isa == GravityEnv.P_ClsNull); }
 	gravity_class_t * isa;    // EVERY object must have an ISA pointer (8 bytes on a 64bit system)
 };
 
@@ -767,26 +758,35 @@ struct GravityValueBase {
 
 class GravityObjectBase : public GravityValueBase /*to be an object*/ { // @construction
 public:
-	GravityObjectBase() : GcIsDark(false), GcVisited(false), P_GcNext(0)
+	GravityObjectBase() : Flags(0) /*GcIsDark(false), GcVisited(false)*/, P_GcNext(0)
 	{
 	}
-	GravityObjectBase(gravity_class_t * pIsA) : GravityValueBase(pIsA), GcIsDark(false), GcVisited(false), P_GcNext(0)
+	GravityObjectBase(gravity_class_t * pIsA) : GravityValueBase(pIsA), Flags(0)/*GcIsDark(false), GcVisited(false)*/, P_GcNext(0)
 	{
 	}
+	enum {
+		fGcIsDark         = 0x0001, // flag to check if object is reachable
+		fGcVisited        = 0x0002, // flag to check if object has already been counted in memory size
+		fHasOuter         = 0x0004, // flag used to automatically set ivar 0 to outer class (if any)
+		fIsStruct         = 0x0008, // flag to mark class as a struct
+		fIsInited         = 0x0010, // flag used to mark already init meta-classes (to be improved)
+		fFiberTrying      = 0x0020  // set when the try flag is set by the user
+	};
 	//gravity_gc_t gc; // to be collectable by the garbage collector
-	bool   GcIsDark;  // flag to check if object is reachable
-	bool   GcVisited; // flag to check if object has already been counted in memory size
-	uint8  GcReserve[2]; // @alignment
+	//bool   GcIsDark;  // flag to check if object is reachable
+	//bool   GcVisited; // flag to check if object has already been counted in memory size
+	//uint8  GcReserve[2]; // @alignment
+	uint32 Flags;
 	gravity_class_t * P_GcNext; // to track next object in the linked list
 };
 
 struct gravity_class_t : public GravityObjectBase {
 	gravity_class_t * objclass; // meta class
 	const char * identifier; // class name
-	bool has_outer; // flag used to automatically set ivar 0 to outer class (if any)
-	bool is_struct; // flag to mark class as a struct
-	bool is_inited; // flag used to mark already init meta-classes (to be improved)
-	bool unused;    // unused padding byte
+	//bool has_outer; // flag used to automatically set ivar 0 to outer class (if any)
+	//bool is_struct; // flag to mark class as a struct
+	//bool is_inited; // flag used to mark already init meta-classes (to be improved)
+	//bool unused;    // unused padding byte
 	void * xdata;   // extra bridged data
 	gravity_class_t * superclass;// reference to the super class
 	const char * superlook;// when a superclass is set to extern a runtime lookup must be performed
@@ -804,7 +804,7 @@ struct GravityValue : public GravityValueBase {
 	GravityValue(gravity_int_t x) : GravityValueBase(GravityEnv.P_ClsInt) { n = x; }
 	GravityValue(gravity_float_t x) : GravityValueBase(GravityEnv.P_ClsFloat) { f = x; }
 	GravityValue(gravity_class_t * pCls, gravity_int_t x) : GravityValueBase(pCls) { n = x; }
-	GravityValue(gravity_class_t * pCls, gravity_object_t * pObj) : GravityValueBase(pCls) { p = pObj; }
+	GravityValue(gravity_class_t * pCls, gravity_class_t * pObj) : GravityValueBase(pCls) { Ptr = pObj; }
 	bool   IsObject() const
 	{
 		// was:
@@ -815,7 +815,7 @@ struct GravityValue : public GravityValueBase {
 		// if (VALUE_ISA_NULL(v)) return false;
 		// if (VALUE_ISA_UNDEFINED(v)) return false;
 		// return true;
-		if(!isa || oneof4(isa, GravityEnv.P_ClsInt, GravityEnv.P_ClsFloat, GravityEnv.P_ClsBool, GravityEnv.P_ClsNull) || !p) 
+		if(!isa || oneof4(isa, GravityEnv.P_ClsInt, GravityEnv.P_ClsFloat, GravityEnv.P_ClsBool, GravityEnv.P_ClsNull) || !Ptr) 
 			return false;
 		// extra check to allow ONLY known objects
 		else if(oneof12(isa, GravityEnv.P_ClsString, GravityEnv.P_ClsObj, GravityEnv.P_ClsFunc, GravityEnv.P_ClsClosure,
@@ -825,55 +825,44 @@ struct GravityValue : public GravityValueBase {
 		else
 			return false;
 	}
+	bool   IsNull() const { return (IsNullClass() && (n == 0)); }
+	bool   IsUndefined() const { return (IsNullClass() && (n == 1)); }
+	//#define VALUE_ISA_NULL(v)                   ((v.isa == GravityEnv.P_ClsNull) && (v.n == 0))
+	//#define VALUE_ISA_UNDEFINED(v)              ((v.isa == GravityEnv.P_ClsNull) && (v.n == 1))
 	gravity_class_t * GetClass() 
 	{
-		if((isa == GravityEnv.P_ClsClass) && (p->objclass == GravityEnv.P_ClsObj)) 
-			return (gravity_class_t *)p;
-		else if(isa == GravityEnv.P_ClsInstance || isa == GravityEnv.P_ClsClass) 
-			return p ? p->objclass : NULL;
+		if((isa == GravityEnv.P_ClsClass) && (Ptr->objclass == GravityEnv.P_ClsObj)) 
+			return static_cast<gravity_class_t *>(Ptr);
+		else if(oneof2(isa, GravityEnv.P_ClsInstance, GravityEnv.P_ClsClass)) 
+			return Ptr ? Ptr->objclass : NULL;
 		else
 			return isa;
 	}
 
-	static GravityValue FASTCALL from_error(gravity_object_t * pMsg) { return GravityValue(static_cast<gravity_class_t *>(0), pMsg); }
-	static GravityValue FASTCALL from_object(gravity_object_t * pObj) { return GravityValue(pObj->isa, pObj); }
+	static GravityValue FASTCALL from_error(gravity_class_t * pMsg) { return GravityValue(static_cast<gravity_class_t *>(0), pMsg); }
+	static GravityValue FASTCALL from_object(gravity_class_t * pObj) { return GravityValue(pObj->isa, pObj); }
+	static GravityValue FASTCALL from_closure(gravity_closure_t * pClosure) { return from_object(reinterpret_cast<gravity_class_t *>(pClosure)); }
 	static GravityValue FASTCALL from_int(gravity_int_t x) { return GravityValue(x); }
 	static GravityValue FASTCALL from_float(gravity_float_t x) { return GravityValue(x); }
 	static GravityValue from_null() { return GravityValue(GravityEnv.P_ClsNull, static_cast<gravity_int_t>(0)); }
 	static GravityValue from_undefined() { return GravityValue(GravityEnv.P_ClsNull, 1); }
 	static GravityValue FASTCALL from_bool(gravity_int_t x) { return GravityValue(GravityEnv.P_ClsBool, (x) ? 1 : 0); }
-	static GravityValue FASTCALL from_node(gravity_object_t * x) { return GravityValue(static_cast<gravity_class_t *>(0), x); }
+	static GravityValue FASTCALL from_node(gravity_class_t * x) { return GravityValue(static_cast<gravity_class_t *>(0), x); }
 	// @sobolev(moved to GravityValueBase) gravity_class_t * isa;    // EVERY object must have an ISA pointer (8 bytes on a 64bit system)
-	operator gravity_string_t * () { return reinterpret_cast<gravity_string_t *>(p); }
-	operator gravity_class_t  * () { return reinterpret_cast<gravity_class_t *>(p); }
-	operator gravity_list_t  * () { return reinterpret_cast<gravity_list_t *>(p); }
-	char * GetZString();
+	operator gravity_string_t * () { return reinterpret_cast<gravity_string_t *>(Ptr); }
+	operator gravity_class_t  * () { return reinterpret_cast<gravity_class_t *>(Ptr); }
+	operator gravity_list_t  * () { return reinterpret_cast<gravity_list_t *>(Ptr); }
+	const char * GetZString();
 	gravity_int_t GetInt() const { return n; }
 	gravity_float_t GetFloat() const { return f; }
 	union {                   // union takes 8 bytes on a 64bit system
 		gravity_int_t n;      // integer slot
 		gravity_float_t f;    // float/double slot
-		gravity_object_t * p; // ptr to object slot
+		gravity_class_t * Ptr; // ptr to object slot
 	};
 };
 
 // All VM shares the same foundation classes
-//extern gravity_class_t * GravityEnv.P_ClsObj;
-//extern gravity_class_t * GravityEnv.P_ClsBool;
-//extern gravity_class_t * GravityEnv.P_ClsNull;
-//extern gravity_class_t * GravityEnv.P_ClsInt;
-//extern gravity_class_t * GravityEnv.P_ClsFloat;
-//extern gravity_class_t * GravityEnv.P_ClsFunc;
-//extern gravity_class_t * GravityEnv.P_ClsClosure;
-//extern gravity_class_t * GravityEnv.P_ClsFiber;
-//extern gravity_class_t * GravityEnv.P_ClsClass;
-//extern gravity_class_t * GravityEnv.P_ClsString;
-//extern gravity_class_t * GravityEnv.P_ClsInstance;
-//extern gravity_class_t * GravityEnv.P_ClsList;
-//extern gravity_class_t * GravityEnv.P_ClsMap;
-//extern gravity_class_t * GravityEnv.P_ClsModule;
-//extern gravity_class_t * GravityEnv.P_ClsRange;
-//extern gravity_class_t * GravityEnv.P_ClsUpValue;
 
 //typedef marray_t(GravityValue)        gravity_value_r;   // array of values
 typedef GravityArray <GravityValue> gravity_value_r; // array of values
@@ -902,6 +891,12 @@ enum gravity_exec_type {
 };
 
 struct gravity_function_t : public GravityObjectBase {
+	gravity_function_t(uint16 paramCount, uint16 localCount, uint16 tempCount) : 
+		GravityObjectBase(GravityEnv.P_ClsFunc), xdata(0), identifier(0), nparams(paramCount), nlocals(localCount), ntemps(tempCount),
+		nupvalues(0), tag(EXEC_TYPE_NATIVE)
+	{
+		MEMSZERO(U);
+	}
 	void * xdata; // extra bridged data
 	const char * identifier;// function name
 	uint16 nparams;                   // number of formal parameters
@@ -909,39 +904,57 @@ struct gravity_function_t : public GravityObjectBase {
 	uint16 ntemps;                    // number of temporary values used
 	uint16 nupvalues;                 // number of up values (if any)
 	gravity_exec_type tag;              // can be EXEC_TYPE_NATIVE (default), EXEC_TYPE_INTERNAL, EXEC_TYPE_BRIDGED or EXEC_TYPE_SPECIAL
-	union {
-		// tag == EXEC_TYPE_NATIVE
-		struct {
-			gravity_value_r cpool; // constant pool
-			gravity_value_r pvalue; // default param value
-			gravity_value_r pname; // param names
-			uint32 ninsts;      // number of instructions in the bytecode
-			uint32 * bytecode;  // bytecode as array of 32bit values
-			uint32 * lineno;    // debug: line number <-> current instruction relation
-			float  purity;      // experimental value
-			bool   useargs;     // flag set by the compiler to optimize the creation of the arguments array only if needed
-			uint8  Reserve[3];  // @alignment
-		};
-		// tag == EXEC_TYPE_INTERNAL
-		gravity_c_internal internal; // function callback
-		// tag == EXEC_TYPE_SPECIAL
-		struct {
-			uint16 index;      // property index to speed-up default getter and setter
-			uint16 Reserve2;   // @alignment
-			void * special[2]; // getter/setter functions
-		};
+	// tag == EXEC_TYPE_NATIVE
+	struct NativeFunc {
+		NativeFunc() : ninsts(0), bytecode(0), lineno(0), purity(0.0f), useargs(false)
+		{
+		}
+		gravity_value_r cpool; // constant pool
+		gravity_value_r pvalue; // default param value
+		gravity_value_r pname; // param names
+		uint32 ninsts;      // number of instructions in the bytecode
+		uint32 * bytecode;  // bytecode as array of 32bit values
+		uint32 * lineno;    // debug: line number <-> current instruction relation
+		float  purity;      // experimental value
+		bool   useargs;     // flag set by the compiler to optimize the creation of the arguments array only if needed
+		uint8  Reserve[3];  // @alignment
 	};
+	// tag == EXEC_TYPE_SPECIAL
+	struct SpecialFunc {
+		SpecialFunc() : index(0)
+		{
+			special[0] = 0;
+			special[1] = 0;
+		}
+		uint16 index;      // property index to speed-up default getter and setter
+		uint16 Reserve2;   // @alignment
+		void * special[2]; // getter/setter functions
+	};
+	union tagU {
+		tagU() : internal(0)
+		{
+		}
+		NativeFunc Nf; // tag == EXEC_TYPE_NATIVE
+		gravity_c_internal internal; // function callback // tag == EXEC_TYPE_INTERNAL
+		SpecialFunc Sf; // tag == EXEC_TYPE_SPECIAL
+	} U;
 };
 
 struct gravity_upvalue_t : public GravityObjectBase {
-	GravityValue * value;    // ptr to open value on the stack or to closed value on this struct
-	GravityValue closed;             // copy of the value once has been closed
+	gravity_upvalue_t(GravityValue * pValue) : GravityObjectBase(GravityEnv.P_ClsUpValue), value(pValue), closed(GravityValue::from_null()), next(0)
+	{
+	}
+	GravityValue * value;     // ptr to open value on the stack or to closed value on this struct
+	GravityValue closed;      // copy of the value once has been closed
 	gravity_upvalue_t * next; // ptr to the next open upvalue
 };
 
 struct gravity_closure_t : public GravityObjectBase {
+	gravity_closure_t() : GravityObjectBase(GravityEnv.P_ClsClosure), f(0), context(0), upvalue(0), refcount(0)
+	{
+	}
 	gravity_function_t * f;        // function prototype
-	gravity_object_t  * context;  // context where the closure has been created (or object bound by the user)
+	gravity_class_t  * context;  // context where the closure has been created (or object bound by the user)
 	gravity_upvalue_t ** upvalue; // upvalue array
 	uint32 refcount;                  // bridge language sometimes needs to protect closures from GC
 };
@@ -977,6 +990,26 @@ enum gravity_fiber_status {
 // Fiber is the core executable model
 //
 struct gravity_fiber_t : public GravityObjectBase {
+	gravity_fiber_t() : GravityObjectBase(GravityEnv.P_ClsFiber), stack(0), stacktop(0), stackalloc(0), frames(0), nframes(0), framesalloc(0),
+		upvalues(0), error(0), /*trying(0),*/ caller(0), status(FIBER_NEVER_EXECUTED), lasttime(0), timewait(0), elapsedtime(0),
+		result(GravityValue::from_null())
+	{
+	}
+	~gravity_fiber_t()
+	{
+		mem_free(error);
+		mem_free(stack);
+		mem_free(frames);
+	}
+	gravity_fiber_t & Z()
+	{
+		caller = NULL;
+		result = GravityValue::from_null();
+		nframes = 0;
+		upvalues = NULL;
+		stacktop = stack;
+		return *this;
+	}
 	GravityValue * stack;    // stack buffer (grown as needed and it holds locals and temps)
 	GravityValue * stacktop; // current stack ptr
 	uint32 stackalloc;                // number of allocated values
@@ -985,8 +1018,8 @@ struct gravity_fiber_t : public GravityObjectBase {
 	uint32 framesalloc;               // number of allocated frames
 	gravity_upvalue_t * upvalues; // linked list used to keep track of open upvalues
 	char * error;    // runtime error message
-	bool   trying;              // set when the try flag is set by the user
-	uint8  Reserve[3];          // @alignment
+	//bool   trying;              // set when the try flag is set by the user
+	//uint8  Reserve[3];          // @alignment
 	gravity_fiber_t * caller;   // optional caller fiber
 	GravityValue result;        // end result of the fiber
 	gravity_fiber_status status;        // Fiber status (see enum)
@@ -1007,13 +1040,14 @@ struct gravity_instance_t : public GravityObjectBase {
 };
 
 struct gravity_string_t : public GravityObjectBase {
-	gravity_string_t() : GravityObjectBase() /*isa(0)*/, s(0), hash(0), len(0), alloc(0)
+	gravity_string_t() : GravityObjectBase(GravityEnv.P_ClsString), P_StrBuf(0), hash(0), len(0), alloc(0)
 	{
 	}
-	gravity_string_t(char * pS, uint32 l) : GravityObjectBase(GravityEnv.P_ClsString), s(pS), hash(0), len(l), alloc(0)
+	gravity_string_t(char * pS, uint32 l) : GravityObjectBase(GravityEnv.P_ClsString), P_StrBuf(pS), hash(0), len(l), alloc(0)
 	{
 	}
-	char * s;        // pointer to NULL terminated string
+	const char * cptr() const { return P_StrBuf; }
+	char * P_StrBuf/*s*/;        // pointer to NULL terminated string
 	uint32 hash;     // string hash (type to be keept in sync with gravity_hash_size_t)
 	uint32 len;      // actual string length
 	uint32 alloc;    // bytes allocated for string
@@ -1025,12 +1059,12 @@ struct gravity_range_t : public GravityObjectBase {
 };
 
 typedef void (* code_dump_function)(const void * code);
-//typedef marray_t(gravity_function_t *)   gravity_function_r;     // array of functions
-//typedef marray_t(gravity_class_t *)      gravity_class_r;        // array of classes
-//typedef marray_t(gravity_object_t *)     gravity_object_r;       // array of objects
-typedef GravityArray<gravity_function_t *> gravity_function_r;     // array of functions
-typedef GravityArray<gravity_class_t *>    gravity_class_r;        // array of classes
-typedef GravityArray<gravity_object_t *>   gravity_object_r;       // array of objects
+// 
+// Returns: 
+//   ALLWAYS false
+//
+//bool gravity_return_error(gravity_vm * vm, uint32 rindex, const char * pMessage);
+bool gravity_return_errorv(gravity_vm * vm, uint32 rindex, const char * pFormat, ...);
 
 // MARK: - MODULE -
 GRAVITY_API gravity_module_t * gravity_module_new(gravity_vm * vm, const char * identifier);
@@ -1043,12 +1077,12 @@ GRAVITY_API gravity_function_t  * gravity_function_new(gravity_vm * vm, const ch
 GRAVITY_API gravity_function_t  * gravity_function_new_internal(gravity_vm * vm, const char * identifier, gravity_c_internal exec, uint16 nparams);
 GRAVITY_API gravity_function_t  * gravity_function_new_special(gravity_vm * vm, const char * identifier, uint16 index, void * getter, void * setter);
 GRAVITY_API gravity_function_t  * gravity_function_new_bridged(gravity_vm * vm, const char * identifier, void * xdata);
-GRAVITY_API uint16 gravity_function_cpool_add(gravity_vm * vm, gravity_function_t * f, GravityValue v);
+GRAVITY_API uint16 FASTCALL gravity_function_cpool_add(gravity_vm * vm, gravity_function_t * f, GravityValue v);
 GRAVITY_API GravityValue     gravity_function_cpool_get(gravity_function_t * f, uint16 i);
 GRAVITY_API void   gravity_function_dump(gravity_function_t * f, code_dump_function codef);
-GRAVITY_API void   gravity_function_setouter(gravity_function_t * f, gravity_object_t * outer);
+GRAVITY_API void   gravity_function_setouter(gravity_function_t * f, gravity_class_t * outer);
 GRAVITY_API void   gravity_function_setxdata(gravity_function_t * f, void * xdata);
-GRAVITY_API gravity_list_t      * gravity_function_params_get(gravity_vm * vm, gravity_function_t * f);
+GRAVITY_API gravity_list_t * gravity_function_params_get(gravity_vm * vm, gravity_function_t * f);
 GRAVITY_API void   gravity_function_serialize(gravity_function_t * f, GravityJson * json);
 GRAVITY_API uint32 * gravity_bytecode_deserialize(const char * buffer, size_t len, uint32 * ninst);
 GRAVITY_API gravity_function_t  * gravity_function_deserialize(gravity_vm * vm, json_value * json);
@@ -1065,19 +1099,22 @@ GRAVITY_API void   gravity_closure_dec_refcount(gravity_vm * vm, gravity_closure
 GRAVITY_API void   gravity_closure_blacken(gravity_vm * vm, gravity_closure_t * closure);
 
 // MARK: - UPVALUE -
-GRAVITY_API gravity_upvalue_t   * gravity_upvalue_new(gravity_vm * vm, GravityValue * value);
+GRAVITY_API gravity_upvalue_t * gravity_upvalue_new(gravity_vm * vm, GravityValue * value);
 GRAVITY_API uint32 gravity_upvalue_size(gravity_vm * vm, gravity_upvalue_t * upvalue);
 GRAVITY_API void   gravity_upvalue_blacken(gravity_vm * vm, gravity_upvalue_t * upvalue);
 GRAVITY_API void   gravity_upvalue_free(gravity_vm * vm, gravity_upvalue_t * upvalue);
 
 // MARK: - CLASS -
 GRAVITY_API void FASTCALL gravity_class_bind(gravity_class_t * c, const char * key, GravityValue value);
-GRAVITY_API gravity_class_t     * gravity_class_getsuper(gravity_class_t * c);
+GRAVITY_API void FASTCALL gravity_class_bind_outerproc(gravity_class_t * c, const char * key, gravity_c_internal proc);
+GRAVITY_API void FASTCALL gravity_class_bind_property_outerproc(gravity_class_t * c, const char * key, gravity_c_internal getProc, gravity_c_internal setProc);
+GRAVITY_API gravity_class_t * gravity_class_getsuper(gravity_class_t * c);
 GRAVITY_API bool   gravity_class_grow(gravity_class_t * c, uint32 n);
 GRAVITY_API bool   gravity_class_setsuper(gravity_class_t * subclass, gravity_class_t * superclass);
 GRAVITY_API bool   gravity_class_setsuper_extern(gravity_class_t * baseclass, const char * identifier);
 GRAVITY_API gravity_class_t * FASTCALL gravity_class_new_single(gravity_vm * vm, const char * identifier, uint32 nfields);
 GRAVITY_API gravity_class_t * FASTCALL gravity_class_new_pair(gravity_vm * vm, const char * identifier, gravity_class_t * superclass, uint32 nivar, uint32 nsvar);
+GRAVITY_API const  gravity_class_t * FASTCALL gravity_class_get_meta_const(const gravity_class_t * c);
 GRAVITY_API gravity_class_t * FASTCALL gravity_class_get_meta(gravity_class_t * c);
 GRAVITY_API bool   gravity_class_is_meta(const gravity_class_t * c);
 GRAVITY_API bool   gravity_class_is_anon(const gravity_class_t * c);
@@ -1089,7 +1126,7 @@ GRAVITY_API void   gravity_class_serialize(gravity_class_t * c, GravityJson * js
 GRAVITY_API gravity_class_t     * gravity_class_deserialize(gravity_vm * vm, json_value * json);
 GRAVITY_API void   gravity_class_free(gravity_vm * vm, gravity_class_t * c);
 GRAVITY_API void   gravity_class_free_core(gravity_vm * vm, gravity_class_t * c);
-GRAVITY_API gravity_object_t  * FASTCALL gravity_class_lookup(gravity_class_t * c, GravityValue key);
+GRAVITY_API gravity_class_t  * FASTCALL gravity_class_lookup(gravity_class_t * c, GravityValue key);
 GRAVITY_API gravity_closure_t * FASTCALL gravity_class_lookup_closure(gravity_class_t * c, GravityValue key);
 GRAVITY_API gravity_closure_t * gravity_class_lookup_constructor(gravity_class_t * c, uint32 nparams);
 GRAVITY_API gravity_class_t   * gravity_class_lookup_class_identifier(gravity_class_t * c, const char * identifier);
@@ -1100,7 +1137,7 @@ GRAVITY_API uint32 gravity_class_size(gravity_vm * vm, gravity_class_t * c);
 GRAVITY_API gravity_fiber_t     * gravity_fiber_new(gravity_vm * vm, gravity_closure_t * closure, uint32 nstack, uint32 nframes);
 GRAVITY_API void gravity_fiber_reassign(gravity_fiber_t * fiber, gravity_closure_t * closure, uint16 nargs);
 GRAVITY_API void FASTCALL gravity_fiber_seterror(gravity_fiber_t * fiber, const char * error);
-GRAVITY_API void gravity_fiber_reset(gravity_fiber_t * fiber);
+//GRAVITY_API void gravity_fiber_reset(gravity_fiber_t * fiber);
 GRAVITY_API void gravity_fiber_free(gravity_vm * vm, gravity_fiber_t * fiber);
 GRAVITY_API void gravity_fiber_blacken(gravity_vm * vm, gravity_fiber_t * fiber);
 GRAVITY_API uint32 gravity_fiber_size(gravity_vm * vm, gravity_fiber_t * fiber);
@@ -1133,12 +1170,12 @@ GRAVITY_API void   gravity_value_blacken(gravity_vm * vm, GravityValue v);
 GRAVITY_API uint32 gravity_value_size(gravity_vm * vm, GravityValue v);
 
 // MARK: - OBJECT -
-GRAVITY_API void   gravity_object_serialize(gravity_object_t * obj, GravityJson * json);
-GRAVITY_API gravity_object_t * gravity_object_deserialize(gravity_vm * vm, json_value * entry);
-GRAVITY_API void   gravity_object_free(gravity_vm * vm, gravity_object_t * obj);
-GRAVITY_API void   gravity_object_blacken(gravity_vm * vm, gravity_object_t * obj);
-GRAVITY_API uint32 gravity_object_size(gravity_vm * vm, gravity_object_t * obj);
-GRAVITY_API const char * gravity_object_debug(gravity_object_t * obj, bool is_free);
+GRAVITY_API void   gravity_object_serialize(gravity_class_t * obj, GravityJson * json);
+GRAVITY_API gravity_class_t * gravity_object_deserialize(gravity_vm * vm, json_value * entry);
+GRAVITY_API void   gravity_object_free(gravity_vm * vm, gravity_class_t * obj);
+GRAVITY_API void   gravity_object_blacken(gravity_vm * vm, gravity_class_t * obj);
+GRAVITY_API uint32 gravity_object_size(gravity_vm * vm, gravity_class_t * obj);
+GRAVITY_API const char * gravity_object_debug(gravity_class_t * obj, bool is_free);
 
 // MARK: - LIST -
 GRAVITY_API gravity_list_t * FASTCALL gravity_list_new(gravity_vm * vm, uint32 n);
@@ -1165,9 +1202,10 @@ GRAVITY_API void   gravity_range_serialize(gravity_range_t * r, GravityJson * js
 GRAVITY_API gravity_range_t * gravity_range_deserialize(gravity_vm * vm, json_value * json);
 
 /// MARK: - STRING -
-GRAVITY_API GravityValue     gravity_string_to_value(gravity_vm * vm, const char * s, uint32 len);
-GRAVITY_API gravity_string_t    * gravity_string_new(gravity_vm * vm, char * s, uint32 len, uint32 alloc);
-GRAVITY_API void   gravity_string_set(gravity_string_t * obj, char * s, uint32 len);
+GRAVITY_API GravityValue gravity_string_to_value(gravity_vm * vm, const char * s, uint32 len);
+GRAVITY_API GravityValue FASTCALL gravity_zstring_to_value(gravity_vm * vm, const char * s);
+GRAVITY_API gravity_string_t * gravity_string_new(gravity_vm * vm, char * s, uint32 len, uint32 alloc);
+//GRAVITY_API void   gravity_string_set(gravity_string_t * obj, char * s, uint32 len);
 GRAVITY_API void   gravity_string_free(gravity_vm * vm, gravity_string_t * value);
 GRAVITY_API void   gravity_string_blacken(gravity_vm * vm, gravity_string_t * string);
 GRAVITY_API uint32 gravity_string_size(gravity_vm * vm, gravity_string_t * string);
@@ -1229,8 +1267,8 @@ typedef bool (* gravity_bridge_execute)(gravity_vm * vm, void * xdata, GravityVa
 typedef bool (* gravity_bridge_equals)(gravity_vm * vm, void * obj1, void * obj2);
 typedef const char * (* gravity_bridge_string)(gravity_vm * vm, void * xdata, uint32 * len);
 typedef void * (* gravity_bridge_clone)(gravity_vm * vm, void * xdata);
-typedef uint32 (* gravity_bridge_size)(gravity_vm * vm, gravity_object_t * obj);
-typedef void (* gravity_bridge_free)(gravity_vm * vm, gravity_object_t * obj);
+typedef uint32 (* gravity_bridge_size)(gravity_vm * vm, gravity_class_t * obj);
+typedef void (* gravity_bridge_free)(gravity_vm * vm, gravity_class_t * obj);
 typedef void (* gravity_bridge_blacken)(gravity_vm * vm, void * xdata);
 
 struct gravity_delegate_t {
@@ -1280,9 +1318,98 @@ struct gravity_delegate_t {
 #define GRAVITY_VM_MAXBLOCK             "maxBlock"
 #define GRAVITY_VM_MAXRECURSION         "maxRecursionDepth"
 
-typedef bool (* vm_filter_cb) (gravity_object_t * obj);
-typedef void (* vm_transfer_cb) (gravity_vm * vm, gravity_object_t * obj);
+typedef bool (* vm_filter_cb) (gravity_class_t * obj);
+typedef void (* vm_transfer_cb) (gravity_vm * vm, gravity_class_t * obj);
 typedef void (* vm_cleanup_cb) (gravity_vm * vm);
+//
+// Opaque VM struct
+//
+struct gravity_vm {
+	gravity_vm();
+	//gravity_fiber_t * gravity_vm_fiber(gravity_vm * vm) { return vm->fiber; }
+	gravity_fiber_t * GetFiber() { return fiber; }
+	void FASTCALL SetSlot(const GravityValue & rValue, uint32 index);
+	bool FASTCALL ReturnValue(const GravityValue & rValue, uint32 index)
+	{
+		SetSlot(rValue, index);
+		return true;
+	}
+	//bool gravity_return_error(gravity_vm * vm, uint32 rindex, const char * pMessage)
+	bool FASTCALL ReturnError(uint32 index, const char * pMessage)
+	{
+		gravity_fiber_seterror(GetFiber(), pMessage);
+		SetSlot(GravityValue::from_null(), index);
+		return false;
+	}
+	bool FASTCALL ReturnErrorSimple(uint32 index)
+	{
+		SetSlot(GravityValue::from_null(), index);
+		return false;
+	}
+	bool FASTCALL ReturnNull(uint32 index)
+	{
+		SetSlot(GravityValue::from_null(), index);
+		return true;
+	}
+	bool FASTCALL ReturnUndefined(uint32 index)
+	{
+		SetSlot(GravityValue::from_undefined(), index);
+		return true;
+	}
+	bool FASTCALL ReturnClosure(const GravityValue & rValue, uint32 index)
+	{
+		SetSlot(rValue, index);
+		return false;
+	}
+	bool FASTCALL ReturnFiber()
+	{
+		return false;
+	}
+	bool FASTCALL ReturnNoValue()
+	{
+		return true;
+	}
+	gravity_hash_t      * context;   // context hash table
+	gravity_delegate_t  * delegate;  // registered runtime delegate
+	gravity_fiber_t     * fiber;     // current fiber
+	void   * data;                   // custom data optionally set by the user
+	uint32 pc;                       // program counter
+	double time;                     // useful timer for the main function
+	bool   aborted;                  // set when VM has generated a runtime error
+	uint8  Reserve[3]; // @alignment               
+	uint32 maxccalls;                // maximum number of nested c calls
+	uint32 nccalls;                  // current number of nested c calls
+	// recursion
+	uint32 maxrecursion;   // maximum recursive depth
+	uint32 recursioncount; // recursion counter
+	// anonymous names
+	uint32 nanon;                    // counter for anonymous classes (used in object_bind)
+	char temp[64];                   // temporary buffer used for anonymous names generator
+	// callbacks
+	vm_transfer_cb transfer;         // function called each time a gravity_class_t is allocated
+	vm_cleanup_cb cleanup;           // function called when VM must be cleaned-up
+	vm_filter_cb filter;             // function called to filter objects in the cleanup process
+	// garbage collector
+	int32 gcenabled;                 // flag to enable/disable garbage collector (was bool but it is now reference counted)
+	gravity_int_t memallocated;      // total number of allocated memory
+	gravity_int_t maxmemblock;       // maximum block memory size allowed to allocate
+	gravity_class_t * gchead;       // head of garbage collected objects
+	gravity_int_t gcminthreshold;    // minimum GC threshold size to avoid spending too much time in GC
+	gravity_int_t gcthreshold;       // memory required to trigger a GC
+	gravity_int_t gcthreshold_original; // gcthreshold is dynamically re-computed so I msut save the original value somewhere
+	gravity_float_t gcratio;            // ratio used in automatic recomputation of the new gcthreshold value
+	gravity_int_t gccount;              // number of objects into GC
+	GravityArray <gravity_class_t *> graylist; // array of collected objects while GC is in process (gray list)
+	GravityArray <gravity_class_t *> gctemp;   // array of temp objects that need to be saved from GC
+	// internal stats fields
+#if GRAVITY_VM_STATS
+	uint32 nfrealloc;                             // to check how many frames reallocation occurred
+	uint32 nsrealloc;                             // to check how many stack reallocation occurred
+	uint32 nstat[GRAVITY_LATEST_OPCODE];          // internal used to collect opcode usage stats
+	double tstat[GRAVITY_LATEST_OPCODE];            // internal used to collect microbenchmarks
+	nanotime_t t;                                   // internal timer
+#endif
+};
 
 GRAVITY_API gravity_vm * gravity_vm_new(gravity_delegate_t * delegate);
 GRAVITY_API gravity_vm * gravity_vm_newmini();
@@ -1298,7 +1425,7 @@ GRAVITY_API GravityValue gravity_vm_getvalue(gravity_vm * vm, const char * key, 
 GRAVITY_API double gravity_vm_time(const gravity_vm * vm);
 GRAVITY_API GravityValue gravity_vm_result(gravity_vm * vm);
 GRAVITY_API gravity_delegate_t  * gravity_vm_delegate(gravity_vm * vm);
-GRAVITY_API gravity_fiber_t     * gravity_vm_fiber(gravity_vm * vm);
+//GRAVITY_API gravity_fiber_t     * gravity_vm_fiber(gravity_vm * vm);
 GRAVITY_API void  gravity_vm_setfiber(gravity_vm* vm, gravity_fiber_t * fiber);
 GRAVITY_API void  gravity_vm_seterror(gravity_vm * vm, const char * format, ...);
 GRAVITY_API void  gravity_vm_seterror_string(gravity_vm* vm, const char * s);
@@ -1308,21 +1435,21 @@ GRAVITY_API bool  gravity_vm_isaborted(const gravity_vm * vm);
 GRAVITY_API void  gravity_vm_setaborted(gravity_vm * vm);
 GRAVITY_API gravity_closure_t   * gravity_vm_getclosure(gravity_vm * vm);
 GRAVITY_API void FASTCALL gravity_gray_value(gravity_vm* vm, GravityValue v);
-GRAVITY_API void FASTCALL gravity_gray_object(gravity_vm* vm, gravity_object_t * obj);
+GRAVITY_API void FASTCALL gravity_gray_object(gravity_vm* vm, gravity_class_t * obj);
 GRAVITY_API void gravity_gc_start(gravity_vm* vm);
 GRAVITY_API void FASTCALL gravity_gc_setenabled(gravity_vm* vm, bool enabled);
-GRAVITY_API void gravity_gc_temppush(gravity_vm * vm, gravity_object_t * obj);
+GRAVITY_API void gravity_gc_temppush(gravity_vm * vm, gravity_class_t * obj);
 GRAVITY_API void gravity_gc_temppop(gravity_vm * vm);
-GRAVITY_API void gravity_gc_tempnull(gravity_vm * vm, gravity_object_t * obj);
+GRAVITY_API void gravity_gc_tempnull(gravity_vm * vm, gravity_class_t * obj);
 GRAVITY_API void gravity_gc_setvalues(gravity_vm * vm, gravity_int_t threshold, gravity_int_t minthreshold, gravity_float_t ratio);
-GRAVITY_API void FASTCALL gravity_vm_transfer(gravity_vm* vm, gravity_object_t * obj);
+GRAVITY_API void FASTCALL gravity_vm_transfer(gravity_vm* vm, gravity_class_t * obj);
 GRAVITY_API void gravity_vm_cleanup(gravity_vm* vm);
 GRAVITY_API void gravity_vm_filter(gravity_vm* vm, vm_filter_cb cleanup_filter);
 GRAVITY_API gravity_closure_t   * gravity_vm_loadfile(gravity_vm * vm, const char * path);
 GRAVITY_API gravity_closure_t   * gravity_vm_loadbuffer(gravity_vm * vm, const char * buffer, size_t len);
 GRAVITY_API void gravity_vm_initmodule(gravity_vm * vm, gravity_function_t * f);
 GRAVITY_API gravity_closure_t   * gravity_vm_fastlookup(gravity_vm * vm, gravity_class_t * c, int index);
-GRAVITY_API void FASTCALL gravity_vm_setslot(gravity_vm * vm, GravityValue value, uint32 index);
+//GRAVITY_API void FASTCALL gravity_vm_setslot(gravity_vm * vm, GravityValue value, uint32 index);
 GRAVITY_API GravityValue     gravity_vm_getslot(gravity_vm * vm, uint32 index);
 GRAVITY_API void gravity_vm_setdata(gravity_vm * vm, void * data);
 GRAVITY_API void * gravity_vm_getdata(gravity_vm * vm);
@@ -1385,7 +1512,7 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 	GRAVITY_API GravityValue * gravity_hash_lookup_cstring(gravity_hash_t * hashtable, const char * key);
 	GRAVITY_API uint32 gravity_hash_memsize(const gravity_hash_t * hashtable);
 	GRAVITY_API uint32 FASTCALL gravity_hash_count(const gravity_hash_t * hashtable);
-	GRAVITY_API uint32 gravity_hash_compute_buffer(const char * key, uint32 len);
+	GRAVITY_API uint32 FASTCALL gravity_hash_compute_buffer(const char * key, uint32 len);
 	GRAVITY_API uint32 gravity_hash_compute_int(gravity_int_t n);
 	GRAVITY_API uint32 gravity_hash_compute_float(gravity_float_t f);
 	GRAVITY_API void  gravity_hash_stat(gravity_hash_t * hashtable);
@@ -1411,7 +1538,7 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 #define UNUSED_PARAM3(_x,_y,_z)             UNUSED_PARAM(_x),UNUSED_PARAM(_y),UNUSED_PARAM(_z)
 
 // MARK: -
-#define VALUE_AS_OBJECT(x)                  ((x).p)
+#define VALUE_AS_OBJECT(x)                  ((x).Ptr)
 #define VALUE_AS_FIBER(x)                   (reinterpret_cast<gravity_fiber_t *>(VALUE_AS_OBJECT(x)))
 #define VALUE_AS_FUNCTION(x)                (reinterpret_cast<gravity_function_t *>(VALUE_AS_OBJECT(x)))
 #define VALUE_AS_PROPERTY(x)                (reinterpret_cast<gravity_property_t *>(VALUE_AS_OBJECT(x)))
@@ -1419,7 +1546,7 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 #define VALUE_AS_INSTANCE(x)                (reinterpret_cast<gravity_instance_t *>(VALUE_AS_OBJECT(x)))
 #define VALUE_AS_MAP(x)                     (reinterpret_cast<gravity_map_t *>(VALUE_AS_OBJECT(x)))
 #define VALUE_AS_RANGE(x)                   (reinterpret_cast<gravity_range_t *>(VALUE_AS_OBJECT(x)))
-#define VALUE_AS_ERROR(x)                   ((const char *)(x).p)
+#define VALUE_AS_ERROR(x)                   (static_cast<const char *>((x).Ptr))
 #define VALUE_AS_BOOL(x)                    LOGIC((x).n) // @sobolev LOGIC
 //#define VALUE_AS_STRING(x)                  (reinterpret_cast<gravity_string_t *>(VALUE_AS_OBJECT(x)))
 //#define VALUE_AS_CLASS(x)                   (reinterpret_cast<gravity_class_t *>(VALUE_AS_OBJECT(x)))
@@ -1429,44 +1556,32 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 //#define VALUE_AS_INT(x)                     ((x).n)
 
 // MARK: -
-#define VALUE_FROM_STRING(_vm,_s,_len)      (gravity_string_to_value(_vm, _s, _len))
-#define VALUE_FROM_CSTRING(_vm,_s)          (gravity_string_to_value(_vm, _s, AUTOLENGTH))
-#ifdef __cplusplus
-	#define VALUE_FROM_ERROR(msg)               GravityValue::from_error(msg)
-	#define VALUE_FROM_OBJECT(obj)              GravityValue::from_object(obj)
-	#define VALUE_FROM_BOOL(x)                  GravityValue::from_bool(x)
-	#define VALUE_FROM_FALSE                    GravityValue::from_bool(0)
-	#define VALUE_FROM_TRUE                     GravityValue::from_bool(1)
-	//#define VALUE_FROM_INT(x)                   GravityValue::from_int(x)
-	//#define VALUE_FROM_FLOAT(x)                 GravityValue::from_float(x)
-	//#define VALUE_FROM_NULL                     GravityValue::from_null()
-	//#define VALUE_FROM_UNDEFINED                GravityValue::from_undefined()
-#else
-	#define VALUE_FROM_ERROR(msg)               ((GravityValue){.isa = NULL, .p = ((gravity_object_t *)msg)})
-	#define VALUE_FROM_OBJECT(obj)              ((GravityValue){.isa = ((gravity_object_t *)(obj)->isa), .p = (gravity_object_t *)(obj)})
-	//#define VALUE_FROM_INT(x)                   ((GravityValue){.isa = GravityEnv.P_ClsInt, .n = (x)})
-	//#define VALUE_FROM_FLOAT(x)                 ((GravityValue){.isa = GravityEnv.P_ClsFloat, .f = (x)})
-	//#define VALUE_FROM_NULL                     ((GravityValue){.isa = GravityEnv.P_ClsNull, .n = 0})
-	//#define VALUE_FROM_UNDEFINED                ((GravityValue){.isa = GravityEnv.P_ClsNull, .n = 1})
-	#define VALUE_FROM_BOOL(x)                  ((GravityValue){.isa = GravityEnv.P_ClsBool, .n = (x)})
-	#define VALUE_FROM_FALSE                    VALUE_FROM_BOOL(0)
-	#define VALUE_FROM_TRUE                     VALUE_FROM_BOOL(1)
-#endif
-#define VALUE_NOT_VALID                     VALUE_FROM_ERROR(NULL)
+#define VALUE_FROM_STRING(_vm,_s,_len)       (gravity_string_to_value(_vm, _s, _len))
+//#define VALUE_FROM_CSTRING(_vm,_s)          (gravity_string_to_value(_vm, _s, AUTOLENGTH))
+//#define VALUE_FROM_ERROR(msg)               GravityValue::from_error(msg)
+//#define VALUE_FROM_OBJECT(obj)              GravityValue::from_object(obj)
+//#define VALUE_FROM_BOOL(x)                  GravityValue::from_bool(x)
+//#define VALUE_FROM_FALSE                    GravityValue::from_bool(false)
+//#define VALUE_FROM_TRUE                     GravityValue::from_bool(true)
+//#define VALUE_FROM_INT(x)                   GravityValue::from_int(x)
+//#define VALUE_FROM_FLOAT(x)                 GravityValue::from_float(x)
+//#define VALUE_FROM_NULL                     GravityValue::from_null()
+//#define VALUE_FROM_UNDEFINED                GravityValue::from_undefined()
+#define VALUE_NOT_VALID                     GravityValue::from_error(NULL)
 //#define STATICVALUE_FROM_STRING(_v,_s,_l)   gravity_string_t __temp = {.isa = GravityEnv.P_ClsString, .s = (char *)_s, .len = (uint32)_l, }; \
 //                                            __temp.hash = gravity_hash_compute_buffer(__temp.s, __temp.len); \
-//                                            GravityValue _v = {.isa = GravityEnv.P_ClsString, .p = (gravity_object_t *)&__temp };
+//                                            GravityValue _v = {.isa = GravityEnv.P_ClsString, .p = (gravity_class_t *)&__temp };
 #define STATICVALUE_FROM_STRING(_v,_s,_l)   gravity_string_t __temp((char *)_s, (uint32)_l); \
-                                            __temp.hash = gravity_hash_compute_buffer(__temp.s, __temp.len); \
-                                            GravityValue _v(GravityEnv.P_ClsString, (gravity_object_t *)&__temp);
+                                            __temp.hash = gravity_hash_compute_buffer(__temp.cptr(), __temp.len); \
+                                            GravityValue _v(GravityEnv.P_ClsString, (gravity_class_t *)&__temp);
 // MARK: -
-#define VALUE_ISA_FUNCTION(v)               (v.isa == GravityEnv.P_ClsFunc)
-#define VALUE_ISA_NULLCLASS(v)              (v.isa == GravityEnv.P_ClsNull)
-#define VALUE_ISA_NULL(v)                   ((v.isa == GravityEnv.P_ClsNull) && (v.n == 0))
-#define VALUE_ISA_UNDEFINED(v)              ((v.isa == GravityEnv.P_ClsNull) && (v.n == 1))
-#define OBJECT_ISA_NULL(obj)                (obj->isa == GravityEnv.P_ClsNull)
-#define OBJECT_ISA_UPVALUE(obj)             (obj->isa == GravityEnv.P_ClsUpValue)
-#define OBJECT_ISA_MODULE(obj)              (obj->isa == GravityEnv.P_ClsModule)
+//#define VALUE_ISA_FUNCTION(v)               (v.isa == GravityEnv.P_ClsFunc)
+//#define VALUE_ISA_NULLCLASS(v)              (v.isa == GravityEnv.P_ClsNull)
+//#define VALUE_ISA_NULL(v)                   ((v.isa == GravityEnv.P_ClsNull) && (v.n == 0))
+//#define VALUE_ISA_UNDEFINED(v)              ((v.isa == GravityEnv.P_ClsNull) && (v.n == 1))
+//#define OBJECT_ISA_NULL(obj)                (obj->isa == GravityEnv.P_ClsNull)
+//#define OBJECT_ISA_UPVALUE(obj)             (obj->isa == GravityEnv.P_ClsUpValue)
+//#define OBJECT_ISA_MODULE(obj)              (obj->isa == GravityEnv.P_ClsModule)
 //#define VALUE_ISA_INSTANCE(v)               (v.isa == GravityEnv.P_ClsInstance)
 //#define VALUE_ISA_CLOSURE(v)                (v.isa == GravityEnv.P_ClsClosure)
 //#define VALUE_ISA_FIBER(v)                  (v.isa == GravityEnv.P_ClsFiber)
@@ -1499,8 +1614,8 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 //#define OBJECT_IS_VALID(obj)                (obj->isa != NULL)
 
 // MARK: -
-#define LIST_COUNT(v)                       (static_cast<gravity_list_t *>(v)->array.getCount())
-#define LIST_VALUE_AT_INDEX(v, idx)         (static_cast<gravity_list_t *>(v)->array.at(idx))
+//#define LIST_COUNT(v)                       (static_cast<gravity_list_t *>(v)->array.getCount())
+//#define LIST_VALUE_AT_INDEX(v, idx)         (static_cast<gravity_list_t *>(v)->array.at(idx))
 
 // MARK: -
 #define GRAVITY_JSON_FUNCTION               "function"
@@ -1546,12 +1661,7 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 #define GRAVITY_VM_ANONYMOUS_PREFIX         "$$"
 // MARK: -
 #if 1
-#define DEBUG_ASSERT(condition, message)    do { \
-                                                if(!(condition)) { \
-                                                    fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", __FILE__, __LINE__, __func__, message); \
-                                                    abort(); \
-                                                } \
-                                            } while(0)
+#define DEBUG_ASSERT(condition, message)    do { if(!(condition)) { Gravity_Implement_DebugAssert(__FILE__, __LINE__, __func__, message); } } while(0)
 #else
 	#define DEBUG_ASSERT(condition, message)
 #endif
@@ -1613,7 +1723,7 @@ void computed_property_free(gravity_class_t *c, const char *name, bool remove_fl
 	#define INC_PC
 #endif
 
-inline void DebugGc(const char * pMsg, gravity_object_t * pObj)
+inline void DebugGc(const char * pMsg, gravity_class_t * pObj)
 {
 #if GRAVITY_GC_DEBUG
 	printf(pMsg, gravity_object_debug(pObj, false));
@@ -1659,7 +1769,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 #define RUNTIME_ERROR(...) do { STORE_FRAME(); report_runtime_error(vm, GRAVITY_ERROR_RUNTIME, __VA_ARGS__); return false; } while (0)
 #define RUNTIME_FIBER_ERROR(_err)       RUNTIME_ERROR("%s",_err)
 #define RUNTIME_WARNING(...) do { report_runtime_error(vm, GRAVITY_WARNING, __VA_ARGS__); } while (0)
-#define SETVALUE_BOOL(idx, x)           stackstart[idx]=VALUE_FROM_BOOL(x)
+#define SETVALUE_BOOL(idx, x)           stackstart[idx]=GravityValue::from_bool(x)
 #define SETVALUE_INT(idx, x)            stackstart[idx]=GravityValue::from_int(x)
 #define SETVALUE_FLOAT(idx, x)          stackstart[idx]=GravityValue::from_float(x)
 #define SETVALUE_NULL(idx)              stackstart[idx]=GravityValue::from_null()
@@ -1670,7 +1780,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 // macro the count number of registers needed by the _f function which is the sum of local variables, temp variables and formal parameters
 #define FN_COUNTREG(_f,_nargs)          (MAX(_f->nparams,_nargs) + _f->nlocals + _f->ntemps)
 
-#if GRAVITY_COMPUTED_GOTO
+/* @sobolev #if GRAVITY_COMPUTED_GOTO
 #define DECLARE_DISPATCH_TABLE      static void* dispatchTable[] = {                                \
                                     &&RET0,         &&HALT,         &&NOP,          &&RET,          \
                                     &&CALL,         &&LOAD,         &&LOADS,        &&LOADAT,       \
@@ -1694,12 +1804,12 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 #else
 	#define DISPATCH()                  DEBUG_STACK();INC_PC;inst = *ip++;goto *dispatchTable[op = (opcode_t)OPCODE_GET_OPCODE(inst)];
 #endif
-#else
+#else*/
 	#define DECLARE_DISPATCH_TABLE
 	#define INTERPRET_LOOP              inst = *ip++;op = (opcode_t)OPCODE_GET_OPCODE(inst);UPDATE_STATS(wm, op);switch (op) // @sobolev UPDATE_STATS(op)-->UPDATE_STATS(wm, op)
 	#define CASE_CODE(name)             case name
 	#define DISPATCH()                  break
-#endif
+// @sobolev #endif
 #define INIT_PARAMS(n)              for(uint32 i=n; i<func->nparams; ++i) stackstart[i] = GravityValue::from_undefined();
 #define STORE_FRAME()               frame->ip = ip
 
@@ -1715,15 +1825,15 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 // stack must be trashed ONLY in the fiber remains the same otherwise GC will collect stack values from a still active Fiber
 #define SYNC_STACKTOP(_fiber_saved, _fiber,_n)      if (_fiber_saved && (_fiber_saved == _fiber)) _fiber_saved->stacktop -= _n
 #define SETFRAME_OUTLOOP(cframe)                    (cframe)->outloop = true
-#define COMPUTE_JUMP(value)                         (func->bytecode + (value))
+#define COMPUTE_JUMP(value)                         (func->U.Nf.bytecode + (value))
 // FAST MATH MACROS
 #define FMATH_BIN_INT(_r1,_v2,_v3,_OP)              do {SETVALUE(_r1, GravityValue::from_int(_v2 _OP _v3)); DISPATCH();} while(0)
 #define FMATH_BIN_FLOAT(_r1,_v2,_v3,_OP)            do {SETVALUE(_r1, GravityValue::from_float(_v2 _OP _v3)); DISPATCH();} while(0)
-#define FMATH_BIN_BOOL(_r1,_v2,_v3,_OP)             do {SETVALUE(_r1, VALUE_FROM_BOOL(_v2 _OP _v3)); DISPATCH();} while(0)
+#define FMATH_BIN_BOOL(_r1,_v2,_v3,_OP)             do {SETVALUE(_r1, GravityValue::from_bool(_v2 _OP _v3)); DISPATCH();} while(0)
 #define DEFINE_STACK_VARIABLE(_v,_r)                GravityValue _v = STACK_GET(_r)
 #define DEFINE_INDEX_VARIABLE(_v,_r)                GravityValue _v = (_r < MAX_REGISTERS) ? STACK_GET(_r) : GravityValue::from_int(_r-MAX_REGISTERS)
 #define NO_CHECK
-#define CHECK_ZERO(_v)                              if((_v.IsInt() && (_v.n == 0)) || (_v.IsFloat() && (_v.f == 0.0)) || (VALUE_ISA_NULL(_v))) \
+#define CHECK_ZERO(_v)                              if((_v.IsInt() && (_v.n == 0)) || (_v.IsFloat() && (_v.f == 0.0)) || (_v.IsNull())) \
                                                     RUNTIME_ERROR("Division by 0 error.")
 
 #define CHECK_FAST_BINARY_BOOL(r1,r2,r3,v2,v3,OP)   DEFINE_STACK_VARIABLE(v2,r2);                                                           \
@@ -1731,7 +1841,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
                                                     if(v2.IsBool() && v3.IsBool()) FMATH_BIN_BOOL(r1, v2.n, v3.n, OP)
 
 #define CHECK_FAST_UNARY_BOOL(r1,r2,v2,OP)          DEFINE_STACK_VARIABLE(v2,r2);                                                           \
-                                                    if(v2.IsBool()) {SETVALUE(r1, VALUE_FROM_BOOL(OP v2.n)); DISPATCH();}
+                                                    if(v2.IsBool()) {SETVALUE(r1, GravityValue::from_bool(OP v2.n)); DISPATCH();}
 
 // fast math only for INT and FLOAT
 #define CHECK_FAST_BINARY_MATH(r1,r2,r3,v2,v3,OP,_CHECK)                                                                                                        \
@@ -1741,12 +1851,12 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
                                                     if(v2.IsInt()) {                                                                                    \
                                                         if(v3.IsInt()) FMATH_BIN_INT(r1, v2.n, v3.n, OP);                                               \
                                                         if(v3.IsFloat()) FMATH_BIN_FLOAT(r1, v2.n, v3.f, OP);                                           \
-                                                        if(VALUE_ISA_NULL(v3)) FMATH_BIN_INT(r1, v2.n, 0, OP);                                                 \
+                                                        if(v3.IsNull()) FMATH_BIN_INT(r1, v2.n, 0, OP);                                                 \
                                                         if(v3.IsString()) RUNTIME_ERROR("Right operand must be a number (use the number() method).");   \
                                                     } else if(v2.IsFloat()) {                                                                           \
                                                         if(v3.IsFloat()) FMATH_BIN_FLOAT(r1, v2.f, v3.f, OP);                                           \
                                                         if(v3.IsInt()) FMATH_BIN_FLOAT(r1, v2.f, v3.n, OP);                                             \
-                                                        if(VALUE_ISA_NULL(v3)) FMATH_BIN_FLOAT(r1, v2.f, 0, OP);                                               \
+                                                        if(v3.IsNull()) FMATH_BIN_FLOAT(r1, v2.f, 0, OP);                                               \
                                                         if(v3.IsString()) RUNTIME_ERROR("Right operand must be a number (use the number() method).");   \
                                                     }
 
@@ -1779,7 +1889,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
 #define PREPARE_FUNC_CALL3(_c,_v1,_v2,_v3,_i,_w)    PREPARE_FUNC_CALLN(_c,_i,_w,3); SETVALUE(_w, _v1); SETVALUE(_w+1, _v2); SETVALUE(_w+2, _v3)
 
 
-#define CALL_FUNC(_name,_c,r1,nargs,rwin)           gravity_fiber_t *current_fiber = fiber;                             \
+#define CALL_FUNC(_name,_c,r1,nargs,rwin)           gravity_fiber_t * current_fiber = fiber; \
                                                     STORE_FRAME();                                                      \
                                                     execute_op_##_name:                                                 \
                                                     switch(_c->f->tag) {                                                \
@@ -1789,7 +1899,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
                                                     } break;                                                            \
                                                     case EXEC_TYPE_INTERNAL: {                                          \
                                                         BEGIN_TRUST_USERCODE(vm);                                       \
-                                                        bool result = _c->f->internal(vm, &stackstart[rwin], nargs, r1);\
+                                                        bool result = _c->f->U.internal(vm, &stackstart[rwin], nargs, r1);\
                                                         END_TRUST_USERCODE(vm);                                         \
                                                         if(!result) {       \
                                                             if(vm->aborted) return false;                              \
@@ -1799,8 +1909,7 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
                                                                 goto execute_op_##_name;                                \
                                                             }                                                           \
                                                             fiber = vm->fiber;                                          \
-                                                            if (fiber == NULL) return true;                             \
-                                                            if (fiber->error) RUNTIME_FIBER_ERROR(fiber->error);        \
+                                                            if(!fiber) return true; else if(fiber->error) RUNTIME_FIBER_ERROR(fiber->error); \
                                                         }                                                               \
                                                     } break;                                                            \
                                                     case EXEC_TYPE_BRIDGED:    {                                        \
@@ -1820,33 +1929,35 @@ inline void DebugVmRaw(gravity_function_t * pFunc)
                                                     SYNC_STACKTOP(current_fiber, fiber, stacktopdelta)
 
 // MACROS used in core and optionals
-#define SETMETA_INITED(c)                           gravity_class_get_meta(c)->is_inited = true
-#define GET_VALUE(_idx)                             args[_idx]
-#define RETURN_VALUE(_v,_i)                         do {gravity_vm_setslot(vm, _v, _i); return true;} while(0)
-#define RETURN_CLOSURE(_v,_i)                       do {gravity_vm_setslot(vm, _v, _i); return false;} while(0)
-#define RETURN_FIBER()                              return false
-#define RETURN_NOVALUE()                            return true
+//#define SETMETA_INITED(c)                           gravity_class_get_meta(c)->is_inited = true
+#define SETMETA_INITED(c)                           (gravity_class_get_meta(c)->Flags |= GravityObjectBase::fIsInited)
+//#define GET_VALUE(_idx)                             args[_idx]
+// (replaced with gravity_vm::ReturnValue) #define RETURN_VALUE(_v,_i)                         do { vm->SetSlot(_v, _i); return true; } while(0)
+// (replaced with gravity_vm::ReturnClosure) #define RETURN_CLOSURE(_v,_i)                       do { vm->SetSlot(_v, _i); return false; } while(0)
+// (replaced with gravity_vm::ReturnFiber) #define RETURN_FIBER()                              return false
+// (replaced with gravity_vm::ReturnNoValue()) #define RETURN_NOVALUE()                            return true
+/* replaced with gravity_return_error and gravity_return_errorv
 #define RETURN_ERROR(...)                           do {                                                           \
                                                         char buffer[4096];                                         \
                                                         snprintf(buffer, sizeof(buffer), __VA_ARGS__);             \
-                                                        gravity_fiber_seterror(gravity_vm_fiber(vm), buffer);      \
-                                                        gravity_vm_setslot(vm, GravityValue::from_null(), rindex); \
+                                                        gravity_fiber_seterror(vm->GetFiber(), buffer);      \
+                                                        vm->SetSlot(GravityValue::from_null(), rindex); \
                                                         return false;                                              \
-                                                    } while(0)
-#define RETURN_ERROR_SIMPLE() do { gravity_vm_setslot(vm, GravityValue::from_null(), rindex); return false; } while(0)
-#define CHECK_MEM_ALLOC(_ptr)                       if(!_ptr) RETURN_ERROR_SIMPLE();
+                                                    } while(0)*/
+//#define RETURN_ERROR_SIMPLE() do { vm->SetSlot(GravityValue::from_null(), rindex); return false; } while(0)
+//#define CHECK_MEM_ALLOC(_ptr)                       if(!_ptr) return vm->ReturnErrorSimple(rindex);
 //#define DECLARE_1VARIABLE(_v,_idx)                  GravityValue _v = GET_VALUE(_idx)
 //#define DECLARE_2VARIABLES(_v1,_v2,_idx1,_idx2)     DECLARE_1VARIABLE(_v1,_idx1);DECLARE_1VARIABLE(_v2,_idx2)
 
 #define NEW_FUNCTION(_fptr)                         (gravity_function_new_internal(NULL, NULL, _fptr, 0))
-//#define NEW_CLOSURE_VALUE(_fptr)                    ((GravityValue){.isa = GravityEnv.P_ClsClosure,.p = (gravity_object_t *)gravity_closure_new(NULL, NEW_FUNCTION(_fptr))})
-#define NEW_CLOSURE_VALUE(_fptr)                    (GravityValue(GravityEnv.P_ClsClosure, (gravity_object_t *)gravity_closure_new(NULL, NEW_FUNCTION(_fptr))))
+//#define NEW_CLOSURE_VALUE(_fptr)                    ((GravityValue){.isa = GravityEnv.P_ClsClosure,.p = (gravity_class_t *)gravity_closure_new(NULL, NEW_FUNCTION(_fptr))})
+#define NEW_CLOSURE_VALUE(_fptr)                    (GravityValue(GravityEnv.P_ClsClosure, reinterpret_cast<gravity_class_t *>(gravity_closure_new(NULL, NEW_FUNCTION(_fptr)))))
 
 #define FUNCTION_ISA_SPECIAL(_f)                    (_f->IsFunction() && (_f->tag == EXEC_TYPE_SPECIAL))
-#define FUNCTION_ISA_DEFAULT_GETTER(_f)             ((_f->index < GRAVITY_COMPUTED_INDEX) && (_f->special[EXEC_TYPE_SPECIAL_GETTER] == NULL))
-#define FUNCTION_ISA_DEFAULT_SETTER(_f)             ((_f->index < GRAVITY_COMPUTED_INDEX) && (_f->special[EXEC_TYPE_SPECIAL_SETTER] == NULL))
-#define FUNCTION_ISA_GETTER(_f)                     (_f->special[EXEC_TYPE_SPECIAL_GETTER] != NULL)
-#define FUNCTION_ISA_SETTER(_f)                     (_f->special[EXEC_TYPE_SPECIAL_SETTER] != NULL)
+#define FUNCTION_ISA_DEFAULT_GETTER(_f)             ((_f->U.Sf.index < GRAVITY_COMPUTED_INDEX) && (_f->U.Sf.special[EXEC_TYPE_SPECIAL_GETTER] == NULL))
+#define FUNCTION_ISA_DEFAULT_SETTER(_f)             ((_f->U.Sf.index < GRAVITY_COMPUTED_INDEX) && (_f->U.Sf.special[EXEC_TYPE_SPECIAL_SETTER] == NULL))
+#define FUNCTION_ISA_GETTER(_f)                     (_f->U.Sf.special[EXEC_TYPE_SPECIAL_GETTER] != NULL)
+#define FUNCTION_ISA_SETTER(_f)                     (_f->U.Sf.special[EXEC_TYPE_SPECIAL_SETTER] != NULL)
 #define FUNCTION_ISA_BRIDGED(_f)                    (_f->index == GRAVITY_BRIDGE_INDEX)
 //
 //#include <gravity_opcodes.h>
@@ -1980,8 +2091,8 @@ typedef enum {
 
 #define GRAVITY_LATEST_OPCODE           RESERVED6    // used in some debug code so it is very useful to define the latest opcode here
 
-typedef enum {
-    GRAVITY_NOTFOUND_INDEX              = 0,
+enum GRAVITY_VTABLE_INDEX {
+    GRAVITY_NOTFOUND_INDEX = 0,
     GRAVITY_ADD_INDEX,
     GRAVITY_SUB_INDEX,
     GRAVITY_DIV_INDEX,
@@ -2011,8 +2122,8 @@ typedef enum {
     GRAVITY_BOOL_INDEX,
     GRAVITY_STRING_INDEX,
     GRAVITY_EXEC_INDEX,
-    GRAVITY_VTABLE_SIZE                 // MUST BE LAST ENTRY IN THIS ENUM
-} GRAVITY_VTABLE_INDEX;
+    GRAVITY_VTABLE_SIZE // MUST BE LAST ENTRY IN THIS ENUM
+};
 
 #define GRAVITY_OPERATOR_ADD_NAME       "+"
 #define GRAVITY_OPERATOR_SUB_NAME       "-"
@@ -2350,13 +2461,29 @@ enum gnode_location_type {
 
 // BASE NODE
 struct gnode_t {
-	gnode_n tag;           // node type from gnode_n enum
-	uint32 refcount;     // reference count to manage duplicated nodes
-	uint32 block_length; // total length in bytes of the block (used in autocompletion)
-	gtoken_s token;        // token type and location
-	bool   is_assignment;    // flag to check if it is an assignment node
+	//#define ISA(n1, _tag)                    ((n1) ? ((n1)->Tag == _tag) : 0)
+	static bool IsA(const gnode_t * pN, gnode_n tag) { return pN ? (pN->Tag == tag) : false; }
+	gnode_t() : Tag(static_cast<gnode_n>(0)), RefCount(0), BlockLength(0), IsAssignment(false), P_Decl(0)
+	{
+	}
+	gnode_t(gnode_n tag, gtoken_s tok, void * pDecl) : Tag(tag), Token(tok), P_Decl(pDecl), RefCount(0), BlockLength(0), IsAssignment(false)
+	{
+	}
+	gnode_n GetTag() const { return Tag; }
+	gtoken_t GetTokenType() const { return Token.type; }
+	void Setup(gnode_n _tag, gtoken_s _token, void * pDecl)
+	{
+		Tag = _tag;
+		Token = _token;
+		P_Decl = pDecl;
+	}
+	gnode_n Tag;           // node type from gnode_n enum
+	uint32 RefCount;     // reference count to manage duplicated nodes
+	uint32 BlockLength; // total length in bytes of the block (used in autocompletion)
+	gtoken_s Token;        // token type and location
+	bool   IsAssignment;    // flag to check if it is an assignment node
 	uint8  Reserve[3];      // @alignment 
-	void * decl;           // enclosing declaration node
+	void * P_Decl;           // enclosing declaration node
 };
 
 // UPVALUE STRUCT
@@ -2371,8 +2498,8 @@ struct gupvalue_t {
 // shortcut for array of common structs
 //typedef marray_t(gnode_t *)                 gnode_r;
 //typedef marray_t(gupvalue_t *)              gupvalue_r;
-typedef GravityArray <gnode_t *>    gnode_r;
-typedef GravityArray <gupvalue_t *> gupvalue_r;
+//typedef GravityArray <gnode_t *> gnode_r;
+//typedef GravityArray <gupvalue_t *> gupvalue_r;
 
 #ifndef GRAVITY_SYMBOLTABLE_DEFINED
 	#define GRAVITY_SYMBOLTABLE_DEFINED
@@ -2387,71 +2514,74 @@ struct gnode_location_t {
 };
 
 // STATEMENTS
-struct gnode_compound_stmt_t {
-	gnode_t base;                       // NODE_LIST_STAT | NODE_COMPOUND_STAT
-	symboltable_t * symtable;     // node internal symbol table
-	gnode_r * stmts;        // array of statements node
+struct gnode_compound_stmt_t : public gnode_t {
+	//gnode_t base;                     // NODE_LIST_STAT | NODE_COMPOUND_STAT
+	symboltable_t * symtable;         // node internal symbol table
+	GravityArray <gnode_t *> * stmts; // array of statements node
 	uint32 nclose;                    // initialized to UINT32_MAX
 };
 
 typedef gnode_compound_stmt_t gnode_list_stmt_t;
 
-struct gnode_label_stmt_t {
-	gnode_t base;                       // CASE or DEFAULT
+struct gnode_label_stmt_t : public gnode_t {
+	//gnode_t base;                       // CASE or DEFAULT
 	gnode_t * expr;         // expression in case of CASE
 	gnode_t * stmt;         // common statement
 };
 
-struct gnode_flow_stmt_t {
-	gnode_t base;                       // IF, SWITCH, TOK_OP_TERNARY
+struct gnode_flow_stmt_t : public gnode_t {
+	//gnode_t base;                       // IF, SWITCH, TOK_OP_TERNARY
 	gnode_t * cond;         // common condition (it's an expression)
 	gnode_t * stmt;         // common statement
 	gnode_t * elsestmt;     // optional else statement in case of IF
 };
 
-struct gnode_loop_stmt_t {
-	gnode_t base;                       // WHILE, REPEAT or FOR
+struct gnode_loop_stmt_t : public gnode_t {
+	//gnode_t base;                       // WHILE, REPEAT or FOR
 	gnode_t * cond;         // used in WHILE and FOR
 	gnode_t * stmt;         // common statement
 	gnode_t * expr;         // used in REPEAT and FOR
 	uint32 nclose;                    // initialized to UINT32_MAX
 };
 
-struct gnode_jump_stmt_t {
-	gnode_t base;                       // BREAK, CONTINUE or RETURN
+struct gnode_jump_stmt_t : public gnode_t {
+	gnode_jump_stmt_t(gtoken_s tok, void * pDecl, gnode_t * pExpr) : gnode_t(NODE_JUMP_STAT, tok, pDecl), expr(pExpr)
+	{
+	}
+	//gnode_t base;                       // BREAK, CONTINUE or RETURN
 	gnode_t * expr;         // optional expression in case of RETURN
 };
 
 // DECLARATIONS
-struct gnode_function_decl_t {
-	gnode_t base;                       // FUNCTION_DECL or FUNCTION_EXPR
+struct gnode_function_decl_t : public gnode_t {
+	//gnode_t base;                       // FUNCTION_DECL or FUNCTION_EXPR
 	gnode_t * env;          // shortcut to node where function is declared
 	gtoken_t access;                    // TOK_KEY_PRIVATE | TOK_KEY_INTERNAL | TOK_KEY_PUBLIC
 	gtoken_t storage;                   // TOK_KEY_STATIC | TOK_KEY_EXTERN
 	symboltable_t * symtable;     // function internal symbol table
 	const char    * identifier;   // function name
-	gnode_r       * params;       // function params
+	GravityArray <gnode_t *> * params;  // function params
 	gnode_compound_stmt_t * block;      // internal function statements
-	uint16 nlocals;                   // locals counter
-	uint16 nparams;                   // formal parameters counter
+	uint16 nlocals;                     // locals counter
+	uint16 nparams;                     // formal parameters counter
 	bool has_defaults;                  // flag set if parmas has default values
 	bool is_closure;                    // flag to check if function is a closure
 	uint8 Reserve[2];          // @alignment
-	gupvalue_r * uplist;       // list of upvalues used in function (can be empty)
+	GravityArray <gupvalue_t *> * uplist;       // list of upvalues used in function (can be empty)
 };
 
 typedef gnode_function_decl_t gnode_function_expr_t;
 
-struct gnode_variable_decl_t {
-	gnode_t base;     // VARIABLE_DECL
+struct gnode_variable_decl_t : public gnode_t {
+	//gnode_t base;     // VARIABLE_DECL
 	gtoken_t type;    // TOK_KEY_VAR | TOK_KEY_CONST
 	gtoken_t access;  // TOK_KEY_PRIVATE | TOK_KEY_INTERNAL | TOK_KEY_PUBLIC
 	gtoken_t storage; // TOK_KEY_STATIC | TOK_KEY_EXTERN
-	gnode_r * decls;  // variable declarations list (gnode_var_t)
+	GravityArray <gnode_t *> * decls;  // variable declarations list (gnode_var_t)
 };
 
-struct gnode_var_t {
-	gnode_t base;                       // VARIABLE
+struct gnode_var_t : public gnode_t {
+	//gnode_t base;                       // VARIABLE
 	gnode_t * env;          // shortcut to node where variable is declared
 	const char * identifier;   // variable name
 	const char * annotation_type;// optional annotation type
@@ -2463,8 +2593,8 @@ struct gnode_var_t {
 	gnode_variable_decl_t   * vdecl;    // reference to enclosing variable declaration (in order to be able to have access to storage and access fields)
 };
 
-struct gnode_enum_decl_t {
-	gnode_t base;                       // ENUM_DECL
+struct gnode_enum_decl_t : public gnode_t {
+	//gnode_t base;                       // ENUM_DECL
 	gnode_t * env;          // shortcut to node where enum is declared
 	gtoken_t access;                    // TOK_KEY_PRIVATE | TOK_KEY_INTERNAL | TOK_KEY_PUBLIC
 	gtoken_t storage;                   // TOK_KEY_STATIC | TOK_KEY_EXTERN
@@ -2472,8 +2602,8 @@ struct gnode_enum_decl_t {
 	const char * identifier;   // enum name
 };
 
-struct gnode_class_decl_t {
-	gnode_t base;              // CLASS_DECL
+struct gnode_class_decl_t : public gnode_t {
+	//gnode_t base;              // CLASS_DECL
 	bool   bridge;             // flag to check of a bridged class
 	bool   is_struct;          // flag to mark the class as a struct
 	bool   super_extern;       // flag set when a superclass is declared as extern
@@ -2483,126 +2613,126 @@ struct gnode_class_decl_t {
 	gtoken_t storage;          // TOK_KEY_STATIC | TOK_KEY_EXTERN
 	const char * identifier;   // class name
 	gnode_t    * superclass;   // super class ptr
-	gnode_r    * protocols;    // array of protocols (currently unused)
-	gnode_r    * decls;        // class declarations list
+	GravityArray <gnode_t *> * protocols; // array of protocols (currently unused)
+	GravityArray <gnode_t *> * decls;     // class declarations list
 	symboltable_t * symtable;  // class internal symbol table
 	void * data;               // used to keep track of super classes
 	uint32 nivar;              // instance variables counter
 	uint32 nsvar;              // static variables counter
 };
 
-struct gnode_module_decl_t {
-	gnode_t base;                       // MODULE_DECL
+struct gnode_module_decl_t : public gnode_t {
+	//gnode_t base;                       // MODULE_DECL
 	gnode_t * env;          // shortcut to node where module is declared
 	gtoken_t access;                    // TOK_KEY_PRIVATE | TOK_KEY_INTERNAL | TOK_KEY_PUBLIC
 	gtoken_t storage;                   // TOK_KEY_STATIC | TOK_KEY_EXTERN
 	const char * identifier;   // module name
-	gnode_r * decls;        // module declarations list
+	GravityArray <gnode_t *> * decls; // module declarations list
 	symboltable_t * symtable;     // module internal symbol table
 };
 
 // EXPRESSIONS
-struct gnode_binary_expr_t {
-	gnode_t base;                       // BINARY_EXPR
+struct gnode_binary_expr_t : public gnode_t {
+	//gnode_t base;                       // BINARY_EXPR
 	gtoken_t op;                        // operation
 	gnode_t * left;         // left node
 	gnode_t * right;        // right node
 };
 
-struct gnode_unary_expr_t {
-	gnode_t base;                       // UNARY_EXPR
+struct gnode_unary_expr_t : public gnode_t {
+	//gnode_t base;                       // UNARY_EXPR
 	gtoken_t op;                        // operation
 	gnode_t * expr;         // node
 };
 
-struct gnode_file_expr_t {
-	gnode_t base;                       // FILE
-	cstring_r * identifiers;  // identifier name
+struct gnode_file_expr_t : public gnode_t {
+	//gnode_t base;                       // FILE
+	GravityArray <const char *> * identifiers;  // identifier name
 	gnode_location_t location;          // identifier location
 };
 
-struct gnode_literal_expr_t {
-	gnode_t base;    // LITERAL
+struct gnode_literal_expr_t : public gnode_t {
+	//gnode_t base;    // LITERAL
 	gliteral_t type; // LITERAL_STRING, LITERAL_FLOAT, LITERAL_INT, LITERAL_BOOL, LITERAL_INTERPOLATION
 	uint32 len;      // used only for TYPE_STRING
 	union {
 		char * str;  // LITERAL_STRING
 		double d;    // LITERAL_FLOAT
 		int64_t n64; // LITERAL_INT or LITERAL_BOOL
-		gnode_r * r; // LITERAL_STRING_INTERPOLATED
+		GravityArray <gnode_t *> * r; // LITERAL_STRING_INTERPOLATED
 	} value;
 };
 
-struct gnode_identifier_expr_t {
-	gnode_t base;                       // IDENTIFIER or ID
-	const char          * value;        // identifier name
-	const char          * value2;       // NULL for IDENTIFIER (check if just one value or an array)
-	gnode_t             * symbol;       // pointer to identifier declaration (if any)
+struct gnode_identifier_expr_t : public gnode_t {
+	//gnode_t base;                       // IDENTIFIER or ID
+	const char * value;        // identifier name
+	const char * value2;       // NULL for IDENTIFIER (check if just one value or an array)
+	gnode_t    * symbol;       // pointer to identifier declaration (if any)
 	gnode_location_t location;          // location coordinates
-	gupvalue_t          * upvalue;      // upvalue location reference
+	gupvalue_t * upvalue;      // upvalue location reference
 };
 
-struct gnode_keyword_expr_t {
-	gnode_t base; // KEYWORD token
+struct gnode_keyword_expr_t : public gnode_t {
+	//gnode_t base; // KEYWORD token
 };
 
 typedef gnode_keyword_expr_t gnode_empty_stmt_t;
 typedef gnode_keyword_expr_t gnode_base_t;
 
-struct gnode_postfix_expr_t {
-	gnode_t base;                       // NODE_CALLFUNC_EXPR, NODE_SUBSCRIPT_EXPR, NODE_ACCESS_EXPR
-	gnode_t             * id;           // id(...) or id[...] or id.
-	gnode_r             * list;         // list of postfix_subexpr
+struct gnode_postfix_expr_t : public gnode_t {
+	//gnode_t base;                    // NODE_CALLFUNC_EXPR, NODE_SUBSCRIPT_EXPR, NODE_ACCESS_EXPR
+	gnode_t * id;                    // id(...) or id[...] or id.
+	GravityArray <gnode_t *> * list; // list of postfix_subexpr
 };
 
-struct gnode_postfix_subexpr_t {
-	gnode_t base;                       // NODE_CALLFUNC_EXPR, NODE_SUBSCRIPT_EXPR, NODE_ACCESS_EXPR
+struct gnode_postfix_subexpr_t : public gnode_t {
+	//gnode_t base;                       // NODE_CALLFUNC_EXPR, NODE_SUBSCRIPT_EXPR, NODE_ACCESS_EXPR
 	union {
-		gnode_t * expr;     // used in case of NODE_SUBSCRIPT_EXPR or NODE_ACCESS_EXPR
-		gnode_r * args;     // used in case of NODE_CALLFUNC_EXPR
+		gnode_t * expr;                  // used in case of NODE_SUBSCRIPT_EXPR or NODE_ACCESS_EXPR
+		GravityArray <gnode_t *> * args; // used in case of NODE_CALLFUNC_EXPR
 	};
 };
 
-struct gnode_list_expr_t {
-	gnode_t base;           // LIST_EXPR
+struct gnode_list_expr_t : public gnode_t {
+	//gnode_t base;           // LIST_EXPR
 	bool   ismap;           // flag to check if the node represents a map (otherwise it is a list)
 	uint8  Reserve[3];      // @alignment
-	gnode_r * list1;        // node items (cannot use a symtable here because order is mandatory in array)
-	gnode_r * list2;        // used only in case of map
+	GravityArray <gnode_t *> * list1; // node items (cannot use a symtable here because order is mandatory in array)
+	GravityArray <gnode_t *> * list2; // used only in case of map
 };
 
-gnode_t * gnode_jump_stat_create(gtoken_s token, gnode_t * expr, gnode_t * decl);
+//gnode_t * gnode_jump_stat_create(gtoken_s token, gnode_t * expr, gnode_t * decl);
 gnode_t * gnode_label_stat_create(gtoken_s token, gnode_t * expr, gnode_t * stmt, gnode_t * decl);
 gnode_t * gnode_flow_stat_create(gtoken_s token, gnode_t * cond, gnode_t * stmt1, gnode_t * stmt2, gnode_t * decl, uint32 block_length);
 gnode_t * gnode_loop_stat_create(gtoken_s token, gnode_t * cond, gnode_t * stmt, gnode_t * expr, gnode_t * decl, uint32 block_length);
-gnode_t * gnode_block_stat_create(gnode_n type, gtoken_s token, gnode_r * stmts, gnode_t * decl, uint32 block_length);
+gnode_t * gnode_block_stat_create(gnode_n type, gtoken_s token, GravityArray <gnode_t *> * stmts, gnode_t * decl, uint32 block_length);
 gnode_t * gnode_empty_stat_create(gtoken_s token, gnode_t * decl);
 gnode_t * gnode_enum_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, symboltable_t * symtable, gnode_t * decl);
-gnode_t * gnode_class_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, gnode_t * superclass, gnode_r * protocols, gnode_r * declarations, bool is_struct, gnode_t * decl);
-gnode_t * gnode_module_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, gnode_r * declarations, gnode_t * decl);
-gnode_t * gnode_variable_decl_create(gtoken_s token, gtoken_t type, gtoken_t access_specifier, gtoken_t storage_specifier, gnode_r * declarations, gnode_t * decl);
+gnode_t * gnode_class_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, gnode_t * superclass, GravityArray <gnode_t *> * protocols, GravityArray <gnode_t *> * declarations, bool is_struct, gnode_t * decl);
+gnode_t * gnode_module_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, GravityArray <gnode_t *> * declarations, gnode_t * decl);
+gnode_t * gnode_variable_decl_create(gtoken_s token, gtoken_t type, gtoken_t access_specifier, gtoken_t storage_specifier, GravityArray <gnode_t *> * declarations, gnode_t * decl);
 gnode_t * gnode_variable_create(gtoken_s token, const char * identifier, const char * annotation_type, gnode_t * expr, gnode_t * decl, gnode_variable_decl_t * vdecl);
-gnode_t * gnode_function_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, gnode_r * params, gnode_compound_stmt_t * block, gnode_t * decl);
+gnode_t * gnode_function_decl_create(gtoken_s token, const char * identifier, gtoken_t access_specifier, gtoken_t storage_specifier, GravityArray <gnode_t *> * params, gnode_compound_stmt_t * block, gnode_t * decl);
 gnode_t * gnode_binary_expr_create(gtoken_t op, gnode_t * left, gnode_t * right, gnode_t * decl);
 gnode_t * gnode_unary_expr_create(gtoken_t op, gnode_t * expr, gnode_t * decl);
-gnode_t * gnode_file_expr_create(gtoken_s token, cstring_r * list, gnode_t * decl);
+gnode_t * gnode_file_expr_create(gtoken_s token, GravityArray <const char *> * list, gnode_t * decl);
 gnode_t * gnode_identifier_expr_create(gtoken_s token, const char * identifier, const char * identifier2, gnode_t * decl);
-gnode_t * gnode_string_interpolation_create(gtoken_s token, gnode_r * r, gnode_t * decl);
+gnode_t * gnode_string_interpolation_create(gtoken_s token, GravityArray <gnode_t *> * r, gnode_t * decl);
 gnode_t * gnode_literal_string_expr_create(gtoken_s token, char * s, uint32 len, bool allocated, gnode_t * decl);
 gnode_t * gnode_literal_float_expr_create(gtoken_s token, double f, gnode_t * decl);
 gnode_t * gnode_literal_int_expr_create(gtoken_s token, int64_t n, gnode_t * decl);
 gnode_t * gnode_literal_bool_expr_create(gtoken_s token, int32 n, gnode_t * decl);
 gnode_t * gnode_keyword_expr_create(gtoken_s token, gnode_t * decl);
-gnode_t * gnode_postfix_subexpr_create(gtoken_s token, gnode_n type, gnode_t * expr, gnode_r * list, gnode_t * decl);
-gnode_t * gnode_postfix_expr_create(gtoken_s token, gnode_t * id, gnode_r * list, gnode_t * decl);
-gnode_t * gnode_list_expr_create(gtoken_s token, gnode_r * list1, gnode_r * list2, bool ismap, gnode_t * decl);
+gnode_t * gnode_postfix_subexpr_create(gtoken_s token, gnode_n type, gnode_t * expr, GravityArray <gnode_t *> * list, gnode_t * decl);
+gnode_t * gnode_postfix_expr_create(gtoken_s token, gnode_t * id, GravityArray <gnode_t *> * list, gnode_t * decl);
+gnode_t * gnode_list_expr_create(gtoken_s token, GravityArray <gnode_t *> * list1, GravityArray <gnode_t *> * list2, bool ismap, gnode_t * decl);
 gnode_t * gnode_duplicate(gnode_t * node, bool deep);
-gnode_r * gnode_array_create();
-gnode_r * gnode_array_remove_byindex(gnode_r * list, size_t index);
+GravityArray <gnode_t *> * gnode_array_create();
+GravityArray <gnode_t *> * gnode_array_remove_byindex(GravityArray <gnode_t *> * list, size_t index);
 gupvalue_t * gnode_function_add_upvalue(gnode_function_decl_t * f, gnode_var_t * symbol, uint16 n);
-cstring_r  * cstring_array_create();
-void_r  * void_array_create();
-void    gnode_array_sethead(gnode_r * list, gnode_t * node);
+GravityArray <const char *> * cstring_array_create();
+GravityArray <void *> * void_array_create();
+void    gnode_array_sethead(GravityArray <gnode_t *> * list, gnode_t * node);
 gnode_t * gnode2class(gnode_t * node, bool * isextern);
 bool    gnode_is_equal(const gnode_t * node1, const gnode_t * node2);
 bool    gnode_is_expression(const gnode_t * node);
@@ -2614,7 +2744,7 @@ void    gnode_literal_dump(gnode_literal_expr_t * node, char * buffer, int buffe
 void    FASTCALL gnode_free(gnode_t * node);
 
 // MARK: -
-#define gnode_array_init(r)                 marray_init(*r)
+//#define gnode_array_init(r)                 marray_init(*r)
 #define gnode_array_size(r)                 ((r) ? (r)->getCount() : 0)
 #define gnode_array_push(r, node)           (r)->insert(node)
 #define gnode_array_pop(r)                  ((r)->getCount() ? r->pop() : NULL)
@@ -2626,13 +2756,13 @@ void    FASTCALL gnode_free(gnode_t * node);
 #define cstring_array_free(r)               (r)->Z()
 #define cstring_array_push(r, s)            (r)->insert(s)
 #define cstring_array_each(r, block)        gtype_array_each(r, block, const char*)
-#define NODE_TOKEN_TYPE(_node)              _node->base.token.type
-#define NODE_TAG(_node)                     reinterpret_cast<const gnode_base_t *>(_node)->base.tag
-#define NODE_ISA(_node, _tag)                ((_node) && NODE_TAG(_node) == _tag)
-#define NODE_ISA_FUNCTION(_node)            (NODE_ISA(_node, NODE_FUNCTION_DECL))
-#define NODE_ISA_CLASS(_node)               (NODE_ISA(_node, NODE_CLASS_DECL))
-#define NODE_SET_ENCLOSING(_node, _enc)      (((gnode_base_t *)_node)->base.enclosing = _enc)
-#define NODE_GET_ENCLOSING(_node)           ((gnode_base_t *)_node)->base.enclosing
+//#define NODE_TOKEN_TYPE(_node)              _node->Token.type
+//#define NODE_TAG(_node)                     (_node)->Tag
+//#define NODE_ISA(_node, _tag)               ((_node) && (_node)->GetTag() == _tag)
+//#define NODE_ISA_FUNCTION(_node)            gnode_t::IsA(_node, NODE_FUNCTION_DECL)
+//#define NODE_ISA_CLASS(_node)               gnode_t::IsA(_node, NODE_CLASS_DECL)
+//#define NODE_SET_ENCLOSING(_node, _enc)      (((gnode_base_t *)_node)->base.enclosing = _enc)
+//#define NODE_GET_ENCLOSING(_node)           ((gnode_base_t *)_node)->base.enclosing
 //
 //#include <gravity_visitor.h>
 
@@ -2698,7 +2828,7 @@ enum symtable_tag {
 };
 
 symboltable_t * symboltable_create(symtable_tag tag);
-gnode_t * symboltable_lookup(symboltable_t * table, const char * identifier);
+gnode_t * symboltable_lookup(const symboltable_t * table, const char * identifier);
 gnode_t * symboltable_global_lookup(symboltable_t * table, const char * identifier);
 bool     symboltable_insert(symboltable_t * table, const char * identifier, gnode_t * node);
 uint32 symboltable_count(symboltable_t * table, uint32 index);
@@ -2707,7 +2837,7 @@ uint16 symboltable_setivar(symboltable_t * table, bool is_static);
 void     symboltable_enter_scope(symboltable_t * table);
 uint32 symboltable_exit_scope(symboltable_t * table, uint32 * nlevel);
 uint32 symboltable_local_index(const symboltable_t * table);
-void symboltable_free(symboltable_t * table);
+void FASTCALL symboltable_free(symboltable_t * table);
 void symboltable_dump(symboltable_t * table);
 void * symboltable_hash_atindex(symboltable_t * table, size_t n);
 //
@@ -2752,6 +2882,10 @@ enum optag_t {
 };
 
 struct inst_t {
+	inst_t(opcode_t aOp, optag_t aTag, int32 _p1, int32 _p2, int32 _p3, uint32 ln) : op(aOp), tag(aTag), p1(_p1), p2(_p2), p3(_p3), lineno(ln)
+	{
+		n = 0;
+	}
 	opcode_t op;
 	optag_t tag;
 	int32 p1;
@@ -2790,7 +2924,7 @@ uint8_t FASTCALL opcode_numop(opcode_t op);
 void ircode_pragma(ircode_t * code, optag_t tag, uint32 value, uint32 lineno);
 void FASTCALL ircode_add(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, uint32 lineno);
 void FASTCALL ircode_add_tag(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, optag_t tag, uint32 lineno);
-void ircode_add_array(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, uint32_r r, uint32 lineno);
+//void ircode_add_array(ircode_t * code, opcode_t op, uint32 p1, uint32 p2, uint32 p3, GravityArray <uint32> r, uint32 lineno);
 void ircode_add_double(ircode_t * code, double d, uint32 lineno);
 void ircode_add_int(ircode_t * code, int64_t n, uint32 lineno);
 void FASTCALL ircode_add_constant(ircode_t * code, uint32 index, uint32 lineno);
@@ -3100,15 +3234,74 @@ INLINE static const char ** gravity_optional_identifiers()
 	};
     return list;
 }
+
 // @construction {
-class GravityObjectImplementation {
+class GravityClassImplementation {
 public:
-	GravityObjectImplementation(const char * pObjName) : P_ObjName(pObjName)
+	GravityClassImplementation(const char * pName, long flags) : P_Name(pName), P_Cls(0), RefCount(0), Flags(flags)
 	{
 	}
-	//static bool convert_object_string(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
-	//typedef bool (* gravity_c_internal)(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
-private:
-	const char * P_ObjName;
+	virtual int Bind(gravity_class_t * pMeta)
+	{
+		int    ok = 1;
+		/*
+		// .get(key) and .set(key, value)
+		gravity_class_bind(pMeta, "get", NEW_CLOSURE_VALUE(gravity_env_get));
+		gravity_class_bind(pMeta, "set", NEW_CLOSURE_VALUE(gravity_env_set));
+		gravity_class_bind(pMeta, "keys", NEW_CLOSURE_VALUE(gravity_env_keys));
+		// Allow map-access
+		gravity_class_bind(pMeta, GRAVITY_INTERNAL_LOADAT_NAME, NEW_CLOSURE_VALUE(gravity_env_get));
+		gravity_class_bind(pMeta, GRAVITY_INTERNAL_STOREAT_NAME, NEW_CLOSURE_VALUE(gravity_env_set));
+		*/
+		return ok;
+	}
+	virtual void DestroyMeta(gravity_class_t * pMeta)
+	{
+	}
+	int    Register(gravity_vm * pVm)
+	{
+		int    ok = -1;
+		if(!P_Cls) {
+			P_Cls = gravity_class_new_pair(NULL, GRAVITY_CLASS_ENV_NAME, NULL, 0, 0);
+			gravity_class_t * p_meta = gravity_class_get_meta(P_Cls);
+			{
+				Bind(p_meta); //create_optional_class();
+			}
+			SETMETA_INITED(P_Cls);
+			ok = 1;
+		}
+		++RefCount;
+		if(pVm && !gravity_vm_ismini(pVm)) 
+			gravity_vm_setvalue(pVm, P_Name, GravityValue::from_object(P_Cls));
+		return ok;
+	}
+	int    UnRegister()
+	{
+		int    ok = -1;
+		if(P_Cls) {
+			if((--RefCount) == 0) {
+				gravity_class_t * p_meta = gravity_class_get_meta(P_Cls);
+				DestroyMeta(p_meta);
+				if(Flags & fCore) {
+					gravity_class_free_core(NULL, p_meta);
+					gravity_class_free_core(NULL, P_Cls);
+				}
+				else {
+					gravity_class_free(NULL, p_meta);
+					gravity_class_free(NULL, P_Cls);
+				}
+				P_Cls = 0;
+				ok = 1;
+			}
+		}
+		return ok;
+	}
+	enum {
+		fCore = 0x0001
+	};
+	const  char * P_Name;
+	const  long   Flags;
+	gravity_class_t * P_Cls;
+	uint32 RefCount;
 };
 // } @construction 

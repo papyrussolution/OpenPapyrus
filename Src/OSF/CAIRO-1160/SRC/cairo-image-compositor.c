@@ -186,7 +186,7 @@ static cairo_int_status_t fill_rectangles(void * _dst, cairo_operator_t op, cons
 	cairo_image_surface_t * dst = (cairo_image_surface_t *)_dst;
 	uint32_t pixel;
 	int i;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(fill_reduces_to_source(op, color, dst, &pixel)) {
 		for(i = 0; i < num_rects; i++) {
 			pixman_fill((uint32_t *)dst->data, dst->stride / sizeof(uint32_t),
@@ -248,7 +248,7 @@ static cairo_int_status_t composite(void * _dst, cairo_operator_t op, cairo_surf
 {
 	cairo_image_source_t * src = (cairo_image_source_t *)abstract_src;
 	cairo_image_source_t * mask = (cairo_image_source_t *)abstract_mask;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(mask) {
 		pixman_image_composite32(_pixman_operator(op), src->pixman_image, mask->pixman_image, to_pixman_image(static_cast<cairo_surface_t *>(_dst)),
 		    src_x, src_y, mask_x, mask_y, dst_x, dst_y, width, height);
@@ -266,7 +266,7 @@ static cairo_int_status_t lerp(void * _dst, cairo_surface_t * abstract_src, cair
 	cairo_image_surface_t * dst = (cairo_image_surface_t *)_dst;
 	cairo_image_source_t * src = (cairo_image_source_t *)abstract_src;
 	cairo_image_source_t * mask = (cairo_image_source_t *)abstract_mask;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 #if PIXMAN_HAS_OP_LERP
 	pixman_image_composite32(PIXMAN_OP_LERP_SRC, src->pixman_image, mask->pixman_image, dst->pixman_image,
 	    src_x,  src_y, mask_x, mask_y, dst_x,  dst_y, width,  height);
@@ -441,7 +441,7 @@ static cairo_int_status_t composite_traps(void * _dst,
 	pixman_image_t * mask;
 	pixman_format_code_t format;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	/* pixman doesn't eliminate self-intersecting trapezoids/edges */
 	status = _cairo_bentley_ottmann_tessellate_traps(traps,
@@ -524,7 +524,7 @@ static cairo_int_status_t composite_tristrip(void * _dst,
 	pixman_image_t * mask;
 	pixman_format_code_t format;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	if(strip->num_points < 3)
 		return CAIRO_STATUS_SUCCESS;
@@ -627,7 +627,7 @@ static cairo_int_status_t composite_glyphs(void * _dst,
 	pixman_glyph_t * pg;
 	int i;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	CAIRO_MUTEX_LOCK(_cairo_glyph_cache_mutex);
 
@@ -733,7 +733,7 @@ static cairo_int_status_t composite_one_glyph(void * _dst, cairo_operator_t op, 
 	cairo_scaled_glyph_t * scaled_glyph;
 	cairo_status_t status;
 	int x, y;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_scaled_glyph_lookup(info->font, info->glyphs[0].index, CAIRO_SCALED_GLYPH_INFO_SURFACE, &scaled_glyph);
 	if(unlikely(status))
 		return status;
@@ -761,7 +761,7 @@ static cairo_int_status_t composite_glyphs_via_mask(void * _dst, cairo_operator_
 	pixman_format_code_t format;
 	cairo_status_t status;
 	int i;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(white == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	/* XXX convert the glyphs to common formats a8/a8r8g8b8 to hit
@@ -855,7 +855,7 @@ static cairo_int_status_t composite_glyphs(void * _dst, cairo_operator_t op, cai
 	pixman_image_t * dst, * src;
 	cairo_status_t status;
 	int i;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(info->num_glyphs == 1)
 		return composite_one_glyph(_dst, op, _src, src_x, src_y, dst_x, dst_y, info);
 	if(info->use_mask)
@@ -1116,7 +1116,7 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r
 	int src_x, src_y;
 	int mask_x, mask_y;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	if(op == CAIRO_OPERATOR_CLEAR) {
 		op = PIXMAN_OP_LERP_CLEAR;
@@ -1206,7 +1206,7 @@ static void span_renderer_fini(cairo_abstract_span_renderer_t * _r,
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	if(status == CAIRO_INT_STATUS_SUCCESS && r->base.finish)
 		r->base.finish(r);
@@ -2604,7 +2604,7 @@ static void span_renderer_fini(cairo_abstract_span_renderer_t * _r,
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	if(likely(status == CAIRO_INT_STATUS_SUCCESS)) {
 		if(r->base.finish)

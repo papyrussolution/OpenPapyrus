@@ -1007,7 +1007,7 @@ ngx_int_t ngx_crc32_table_init(void);
 //
 //#include <ngx_murmurhash.h>
 //
-uint32_t ngx_murmur_hash2(u_char *data, size_t len);
+// @v10.8.0 (replaced with SlHash::Murmur2_32(a, b, 0)) uint32_t ngx_murmur_hash2(u_char *data, size_t len);
 //
 #if (NGX_PCRE)
 	//

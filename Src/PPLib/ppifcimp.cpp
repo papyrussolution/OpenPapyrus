@@ -228,7 +228,7 @@ DL6_IC_CONSTRUCTOR(PapyrusTextAnalyzer, DL6ICLS_PapyrusTextAnalyzer_VTab)
 
 DL6_IC_DESTRUCTOR(PapyrusTextAnalyzer)
 {
-	delete (PPTextAnalyzerWrapper *)ExtraPtr;
+	delete static_cast<PPTextAnalyzerWrapper *>(ExtraPtr);
 }
 //
 // Interface IPapyrusTextAnalyzer implementation
@@ -287,7 +287,7 @@ DL6_IC_DESTRUCTOR(LongList) { delete static_cast<LongArray *>(ExtraPtr); }
 int32 DL6ICLS_LongList::GetCount()
 {
 	LongArray * p_data = static_cast<LongArray *>(ExtraPtr);
-	return p_data ? (int32)p_data->getCount() : RaiseAppError();
+	return p_data ? p_data->getCountI() : RaiseAppError();
 }
 
 void DL6ICLS_LongList::Clear()
@@ -299,7 +299,7 @@ void DL6ICLS_LongList::Clear()
 int32 DL6ICLS_LongList::Get(int32 idx)
 {
 	LongArray * p_data = static_cast<LongArray *>(ExtraPtr);
-	return (p_data && idx < (int32)p_data->getCount()) ? (int32)p_data->get(idx) : RaiseAppError();
+	return (p_data && idx < p_data->getCountI()) ? (int32)p_data->get(idx) : RaiseAppError();
 }
 
 int32 DL6ICLS_LongList::Search(int32 val)
@@ -331,7 +331,7 @@ int32 DL6ICLS_LongList::AddUnique(int32 val)
 int32 DL6ICLS_LongList::Remove(int32 idx)
 {
 	LongArray * p_data = static_cast<LongArray *>(ExtraPtr);
-	return (p_data && idx < (int32)p_data->getCount()) ? (int32)p_data->atFree(idx) : RaiseAppError();
+	return (p_data && idx < p_data->getCountI()) ? (int32)p_data->atFree(idx) : RaiseAppError();
 }
 
 int32 DL6ICLS_LongList::RemoveByVal(int32 val)

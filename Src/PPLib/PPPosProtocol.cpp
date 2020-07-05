@@ -1856,16 +1856,11 @@ int SLAPI PPPosProtocol::FinishWriting(PPPosProtocol::WriteBlock & rB)
 	return 1;
 }
 
-//static
-void PPPosProtocol::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartDocument()); }
-//static
-void PPPosProtocol::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndDocument()); }
-//static
-void PPPosProtocol::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
-//static
-void PPPosProtocol::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndElement((const char *)pName)); }
-//static
-void PPPosProtocol::Scb_Characters(void * ptr, const uchar * pC, int len) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, Characters((const char *)pC, len)); }
+/*static*/void PPPosProtocol::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartDocument()); }
+/*static*/void PPPosProtocol::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndDocument()); }
+/*static*/void PPPosProtocol::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
+/*static*/void PPPosProtocol::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, EndElement((const char *)pName)); }
+/*static*/void PPPosProtocol::Scb_Characters(void * ptr, const uchar * pC, int len) { CALLTYPEPTRMEMB(PPPosProtocol, ptr, Characters((const char *)pC, len)); }
 
 int PPPosProtocol::StartDocument()
 {
@@ -5491,8 +5486,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	return ok;
 }
 
-//static
-int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList) // @v9.8.4 TSArray-->TSVector
+/*static*/int SLAPI PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList) // @v9.8.4 TSArray-->TSVector
 {
 	enum {
 		qvLastSession = 1,

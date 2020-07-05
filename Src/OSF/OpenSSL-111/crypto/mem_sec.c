@@ -345,7 +345,7 @@ static void sh_add_to_list(char ** list, char * ptr)
 	temp->p_next = (SH_LIST**)list;
 
 	if(temp->next != NULL) {
-		OPENSSL_assert((char**)temp->next->p_next == list);
+		OPENSSL_assert((char **)temp->next->p_next == list);
 		temp->next->p_next = &(temp->next);
 	}
 

@@ -990,7 +990,7 @@ public:
 	void SLAPI Init()
 	{
 		DBSymb.Z();
-		MEMSZERO(BuScen);
+		BuScen.Z();
 	}
 	int SLAPI Read(SBuffer & rBuf, long)
 	{

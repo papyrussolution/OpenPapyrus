@@ -338,15 +338,13 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return ok;
 }
 
-//static
-void FASTCALL TView::PreprocessWindowCtrlText(HWND hWnd)
+/*static*/void FASTCALL TView::PreprocessWindowCtrlText(HWND hWnd)
 {
 	SetupWindowCtrlTextProc(hWnd, 0); // @v10.7.10
 	::EnumChildWindows(hWnd, SetupWindowCtrlTextProc, 0);
 }
 
-//static
-int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
+/*static*/int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -371,8 +369,7 @@ int FASTCALL TView::SGetWindowClassName(HWND hWnd, SString & rBuf)
 	return ok;
 }
 
-//static
-int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
+/*static*/int FASTCALL TView::SGetWindowText(HWND hWnd, SString & rBuf)
 {
 	rBuf.Z();
     long  text_len = ::SendMessage(hWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -1132,6 +1129,9 @@ uint SLAPI KeyDownCommand::GetChar() const
 		case VK_RETURN:     c = '\x0D'; break;
 		case VK_OEM_1:      c = (State & stateShift) ? ':' : ';'; break;
 		case VK_OEM_2:      c = (State & stateShift) ? '?' : '/'; break; // @v10.8.0
+		case VK_OEM_4:      c = (State & stateShift) ? '{' : '['; break; // @v10.8.0
+		case VK_OEM_6:      c = (State & stateShift) ? '}' : ']'; break; // @v10.8.0
+		case VK_OEM_7:      c = (State & stateShift) ? '\"' : '\''; break; // @v10.8.0
 		default:
 			if(Code >= '0' && Code <= '9') {
 				if(State & stateShift) {

@@ -1,5 +1,5 @@
 // BITSTR.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995-2001, 2004, 2005, 2006, 2008, 2010, 2013, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -157,7 +157,7 @@ void SLAPI insbit(void * pBuf, size_t len, size_t pos)
 		const size_t num_blk = (int)(len>>2);
 		for(size_t i = firstword + 1; i < num_blk; i++) {
 			blk = PTR32(pBuf)[i];
-			uint32 carry1 = (blk & HIBIT) ? 1 : 0;
+			uint32 carry1 = BIN(blk & HIBIT);
 			blk <<= 1;
 			blk |= carry;
 			carry = carry1;

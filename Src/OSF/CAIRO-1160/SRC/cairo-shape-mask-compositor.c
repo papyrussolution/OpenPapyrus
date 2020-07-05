@@ -57,7 +57,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_stroke(const cairo_compos
 	cairo_clip_t * clip;
 	if(!extents->is_bounded)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	mask = _cairo_surface_create_scratch(extents->surface, CAIRO_CONTENT_ALPHA, extents->bounded.width, extents->bounded.height, NULL);
 	if(unlikely(mask->status))
 		return mask->status;
@@ -136,7 +136,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_fill(const cairo_composit
 	cairo_int_status_t status;
 	cairo_clip_t * clip;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	if(!extents->is_bounded)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -233,7 +233,7 @@ static cairo_int_status_t _cairo_shape_mask_compositor_glyphs(const cairo_compos
 	if(!extents->is_bounded)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	mask = _cairo_surface_create_scratch(extents->surface,
 		CAIRO_CONTENT_ALPHA,
 		extents->bounded.width,

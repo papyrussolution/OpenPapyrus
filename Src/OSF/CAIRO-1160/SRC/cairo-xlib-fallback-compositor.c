@@ -73,7 +73,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_paint(const cairo_composito
 	cairo_surface_t * shm;
 	boolint overwrite;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	overwrite =
 	    extents->op <= CAIRO_OPERATOR_SOURCE && unclipped(xlib, extents->clip);
@@ -103,7 +103,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_mask(const cairo_compositor
 	cairo_int_status_t status;
 	cairo_surface_t * shm;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	shm = _cairo_xlib_surface_get_shm(xlib, FALSE);
 	if(shm == NULL)
@@ -136,7 +136,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_stroke(const cairo_composit
 	cairo_int_status_t status;
 	cairo_surface_t * shm;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	shm = _cairo_xlib_surface_get_shm(xlib, FALSE);
 	if(shm == NULL)
@@ -170,7 +170,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_fill(const cairo_compositor
 	cairo_int_status_t status;
 	cairo_surface_t * shm;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	shm = _cairo_xlib_surface_get_shm(xlib, FALSE);
 	if(shm == NULL)
@@ -201,7 +201,7 @@ static cairo_int_status_t _cairo_xlib_shm_compositor_glyphs(const cairo_composit
 	cairo_xlib_surface_t * xlib = (cairo_xlib_surface_t*)extents->surface;
 	cairo_int_status_t status;
 	cairo_surface_t * shm;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	shm = _cairo_xlib_surface_get_shm(xlib, FALSE);
 	if(shm == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;

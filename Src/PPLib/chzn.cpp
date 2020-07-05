@@ -106,8 +106,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 }
 #endif // } 0 @v10.6.9
 
-//static 
-int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
+/*static*/int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
 {
 	uint16 product_type_bytes = 0;
 	if(productType == ptFur)
@@ -121,8 +120,7 @@ int SLAPI PPChZnPrcssr::Encode1162(int productType, const char * pGTIN, const ch
 	return product_type_bytes ? STokenRecognizer::EncodeChZn1162(product_type_bytes, pGTIN, pSerial, pResultBuf, resultBufSize) : 0;
 }
 
-//static 
-int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
+/*static*/int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
 {
 	int    ok = 0;
 	rS.Z();
@@ -247,6 +245,7 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
+			/* @v10.8.0
 			if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CHZNMARK_INPUT)) {
 				static int __lock = 0;
 				if(!__lock) {
@@ -290,7 +289,7 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
 					}
 					__lock = 0;
 				}
-			}
+			}*/
 		}
 		SString CodeBuf;
 	};
@@ -1291,10 +1290,10 @@ int SLAPI ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 	json_t * p_json_req = 0;
 	{
 		p_json_req = new json_t(json_t::tOBJECT);
-		p_json_req->Insert("client_id", json_new_string(rBlk.CliAccsKey));
-		p_json_req->Insert("client_secret", json_new_string(rBlk.CliSecret));
-		p_json_req->Insert("user_id", json_new_string(rBlk.CliIdent));
-		p_json_req->Insert("auth_type", json_new_string("SIGNED_CODE"));
+		p_json_req->InsertString("client_id", rBlk.CliAccsKey);
+		p_json_req->InsertString("client_secret", rBlk.CliSecret);
+		p_json_req->InsertString("user_id", rBlk.CliIdent);
+		p_json_req->InsertString("auth_type", "SIGNED_CODE");
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
 	}
 	CATCHZOK
@@ -1311,8 +1310,8 @@ int SLAPI ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCod
 	THROW(GetSign(rIb, pAuthCode, sstrlen(pAuthCode), code_sign));
 	{
 		p_json_req = new json_t(json_t::tOBJECT);
-		p_json_req->Insert("code", json_new_string(pAuthCode));
-		p_json_req->Insert("signature", json_new_string(code_sign));
+		p_json_req->InsertString("code", pAuthCode);
+		p_json_req->InsertString("signature", code_sign);
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
 	}
 	CATCHZOK
@@ -1332,11 +1331,11 @@ int SLAPI ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const void *
 	data_base64_buf.EncodeMime64(pData, dataLen);
 	{
 		p_json_req = new json_t(json_t::tOBJECT);
-		p_json_req->Insert("document", json_new_string(data_base64_buf));
-		p_json_req->Insert("sign", json_new_string(code_sign));
+		p_json_req->InsertString("document", data_base64_buf);
+		p_json_req->InsertString("sign", code_sign);
 		rReqId.Generate();
 		rReqId.ToStr(S_GUID::fmtIDL, temp_buf);
-		p_json_req->Insert("request_id", json_new_string(temp_buf));
+		p_json_req->InsertString("request_id", temp_buf);
 		THROW_SL(json_tree_to_string(p_json_req, rBuf));
 	}
 	CATCHZOK
@@ -1756,7 +1755,7 @@ int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInte
 						}
 					}
 					LogTalking("rep", reply_buf);
-					if(ReadJsonReplyForSingleItem(reply_buf, "document_id", rReply) > 0) {
+					if(reply_buf.NotEmpty() && ReadJsonReplyForSingleItem(reply_buf, "document_id", rReply) > 0) {
 						GetDebugPath(rIb, temp_buf);
 						THROW(CreatePendingFile(temp_buf, rReply))
 						ok = 1;
@@ -1978,7 +1977,7 @@ int SLAPI ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * p
 			p_json_req = new json_t(json_t::tOBJECT);
 			{
 				json_t * p_json_filt = new json_t(json_t::tOBJECT);
-				p_json_filt->Insert("doc_status", json_new_string("PROCESSED_DOCUMENT"));
+				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
 				p_json_req->Insert("filter", p_json_filt);
 			}
 			p_json_req->Insert("start_from", json_new_number("0"));
@@ -2063,7 +2062,7 @@ int SLAPI ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 			p_json_req = new json_t(json_t::tOBJECT);
 			{
 				json_t * p_json_filt = new json_t(json_t::tOBJECT);
-				p_json_filt->Insert("doc_status", json_new_string("PROCESSED_DOCUMENT"));
+				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
 				p_json_req->Insert("filter", p_json_filt);
 			}
 			p_json_req->Insert("start_from", json_new_number("0"));
@@ -2301,8 +2300,8 @@ int SLAPI ChZnInterface::Connect(InitBlock & rIb)
 			{
 				json_t * p_json_req = new json_t(json_t::tOBJECT);
 				temp_buf.Z().Cat(result_uuid, S_GUID::fmtIDL|S_GUID::fmtLower);
-				p_json_req->Insert("uuid", json_new_string(temp_buf));
-				p_json_req->Insert("data", json_new_string(signed_data));
+				p_json_req->InsertString("uuid", temp_buf);
+				p_json_req->InsertString("data", signed_data);
 				THROW_SL(json_tree_to_string(p_json_req, req_buf));
 				ZDELETE(p_json_req);
 			}

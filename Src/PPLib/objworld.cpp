@@ -35,7 +35,8 @@ int SLAPI PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PP
 
 int SLAPI PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	PPWorldObjStatus rec;
 	TDialog * dlg = new TDialog(DLG_WOBJSTATUS);
 	THROW(CheckDialogPtr(&dlg));
@@ -120,7 +121,7 @@ int SLAPI PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const c
 //
 SLAPI PPWorldPacket::PPWorldPacket()
 {
-	Init();
+	// @v10.8.0 (ctr of WorldTbl::Rec will do everything) Init();
 }
 
 void SLAPI PPWorldPacket::Init()
@@ -1000,7 +1001,7 @@ int SLAPI PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 					action = PPACN_OBJRMV;
 				}
 				else if(memcmp(&pPack->Rec, &rec, sizeof(rec)) != 0) {
-					THROW(CheckRights(PPR_MOD)); // @v8.1.2
+					THROW(CheckRights(PPR_MOD));
 					THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 					action = PPACN_OBJUPD;
 				}
@@ -1008,7 +1009,7 @@ int SLAPI PPObjWorld::PutPacket(PPID * pID, PPWorldPacket * pPack, int useTa)
 					ok = -1;
 			}
 			else if(pPack) {
-				THROW(CheckRights(PPR_INS)); // @v8.1.2
+				THROW(CheckRights(PPR_INS));
 				THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 				action = PPACN_OBJADD;
 			}
@@ -1462,10 +1463,131 @@ const char * SLAPI PPObjWorld::GetNamePtr()
 //
 // @todo Срочно!!!
 //
+int SLAPI PPObjWorld::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
+{
+	int    ok = -1;
+	PPWorldPacket pack;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(GetPacket(id, &pack) > 0 ) {
+			int    r;
+			PPID   parent_id = 0;
+			PPID   country_id = 0;
+			SString added_msg;
+			PPIDArray cycle_list_by_parent;
+			PPIDArray cycle_list_by_country;
+			cycle_list_by_parent.add(id);
+			cycle_list_by_country.add(id);
+			do {
+				parent_id = pack.Rec.ParentID;
+				// 0x0001 - selfref with parent
+				// 0x0002 - cycle by parent
+				// 0x0004 - selfref by country
+				// 0x0008 - cycle by country
+				int    f = 0;
+				if(parent_id && pack.Rec.ID == parent_id) {
+					f |= 0x0001;
+				}
+				if(cycle_list_by_parent.lsearch(parent_id)) {
+					f |= 0x0002;
+				}
+				if(country_id && pack.Rec.ID == country_id) {
+					f |= 0x0004;
+				}
+				if(cycle_list_by_country.lsearch(country_id)) {
+					f |= 0x0008;
+				}
+				if(f) {
+					added_msg.Z().CatChar('#').Cat(pack.Rec.ID).Space().Cat(pack.Rec.Name);
+					if(f & (0x0001|0x0002))
+						pack.Rec.ParentID = 0;
+					if(f & (0x0004|0x0008))
+						pack.Rec.CountryID = 0;
+					r = PutPacket(&pack.Rec.ID, &pack, 0);
+					if(r != 0)
+						added_msg.Space().Cat("CORRECTED");
+					if(f & 0x0001) {
+						PPSetError(PPERR_WORLDOBJSELFPAR, added_msg);
+						if(pLogger)
+							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
+						else
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					if(f & 0x0002) {
+						PPSetError(PPERR_CYCLELINKWORLDOBJ, added_msg);
+						if(pLogger)
+							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
+						else
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					if(f & 0x0004) {
+						PPSetError(PPERR_WORLDOBJSELFCOUNTRY, added_msg);
+						if(pLogger)
+							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
+						else
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					if(f & 0x0008) {
+						PPSetError(PPERR_CYCLELINKWORLDOBJ_COUNTRY, added_msg);
+						if(pLogger)
+							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
+						else
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					THROW(r);
+					ok = 1;
+					break;
+				}
+				else {
+					cycle_list_by_parent.add(parent_id);
+					cycle_list_by_country.add(country_id);
+				}
+			} while(parent_id && GetPacket(parent_id, &pack) > 0);
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjWorld::Recover(PPLogger * pLogger)
 {
     int    ok = -1;
+	int    outer_logger = 0;
+	PPLogger _logger;
+	if(pLogger)
+		outer_logger = 1;
+	else {
+		pLogger = &_logger;
+		outer_logger = 0;
+	}
+	{
+		PPIDArray id_list;
+		WorldTbl::Key0 k0;
+		BExtQuery q(P_Tbl, 0);
+		MEMSZERO(k0);
+		q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->ParentID, P_Tbl->CountryID, 0L);
+		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
+			id_list.add(P_Tbl->data.ID);
+		}
+		if(id_list.getCount()) {
+			id_list.sortAndUndup();
+			for(uint i = 0; i < id_list.getCount(); i++) {
+				if(!CorrectCycleLink(id_list.get(i), pLogger, 1))
+					pLogger->LogLastError();
+			}
+		}
+	}
+	/*if(!outer_logger)
+		pLogger->Save(param.LogFileName, 0);*/
     return ok;
+}
+
+/*static*/int SLAPI PPObjWorld::Recover()
+{
+	PPObjWorld wobj;
+	return wobj.Recover(0);
 }
 //
 //

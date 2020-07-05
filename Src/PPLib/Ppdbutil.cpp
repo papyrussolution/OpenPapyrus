@@ -157,15 +157,29 @@ static int SLAPI _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecov
 //
 //
 //
-PPBackupScen::PPBackupScen()
+PPBackupScen::PPBackupScen() : ID(0), Period(1), Flags(0), NumCopies(1)
 {
-	THISZERO();
+	PTR32(Name)[0] = 0;
+	PTR32(DBName)[0] = 0;
+	PTR32(BackupPath)[0] = 0;
+}
+
+PPBackupScen & SLAPI PPBackupScen::Z()
+{
+	ID = 0;
+	Name[0] = 0;
+	DBName[0] = 0;
+	BackupPath[0] = 0;
+	Period = 1;
+	Flags = 0;
+	NumCopies = 1;
+	return *this;
 }
 
 int SLAPI PPBackupScen::ToStr(SString & rBuf) const
 {
 	rBuf.Z().Cat(DBName).CatDiv(',', 0).Cat(BackupPath).CatDiv(',', 0).
-		Cat(Period).CatDiv(',', 0).Cat(Flags).CatDiv(',', 0).Cat(numCopies);
+		Cat(Period).CatDiv(',', 0).Cat(Flags).CatDiv(',', 0).Cat(NumCopies);
 	return 1;
 }
 
@@ -279,12 +293,11 @@ int SLAPI PPBackup::GetDefaultScen(PPBackupScen * pScen)
 {
 	int    ok = 1;
 	if(pScen) {
-		memzero(pScen, sizeof(PPBackupScen));
-		pScen->ID = 0;
+		pScen->Z();
 		STRNSCPY(pScen->Name, DefaultScenName);
 		STRNSCPY(pScen->DBName, DBName);
-		pScen->Period = 1;
-		pScen->numCopies = 1;
+		//pScen->Period = 1;
+		//pScen->NumCopies = 1;
 		GetDefaultBackupPath(pScen->BackupPath);
 	}
 	else
@@ -331,12 +344,12 @@ int SLAPI PPBackup::GetScenList(SArray * pScenList)
 					else
 						entry.Flags = 0;
 					if(ss.get(&i, buf)) {
-						entry.numCopies = buf.ToLong();
-						if(entry.numCopies <= 0)
-							entry.numCopies = 1;
+						entry.NumCopies = buf.ToLong();
+						if(entry.NumCopies <= 0)
+							entry.NumCopies = 1;
 					}
 					else
-						entry.numCopies = 1;
+						entry.NumCopies = 1;
 				}
 				THROW_SL(pScenList->insert(&entry));
 			}
@@ -425,12 +438,12 @@ int SLAPI getScenList(SArray * scenList)
 			else
 				entry.Flags = 0;
 			if(ss.get(&i, buf)) {
-				entry.numCopies = buf.ToLong();
-				if(entry.numCopies <= 0)
-					entry.numCopies = 1;
+				entry.NumCopies = buf.ToLong();
+				if(entry.NumCopies <= 0)
+					entry.NumCopies = 1;
 			}
 			else
-				entry.numCopies = 1;
+				entry.NumCopies = 1;
 		}
 		THROW_SL(scenList->insert(&entry));
 	}
@@ -477,7 +490,7 @@ private:
 	PPDbEntrySet2 DBES;
 	SmartListBox * P_List;
 	SArray  * P_ScenList;
-	PPIniFile    * P_IniFile;
+	PPIniFile * P_IniFile;
 };
 
 int ConfigBackupDialog::updateList()
@@ -489,7 +502,7 @@ int ConfigBackupDialog::updateList()
 		for(uint i = 0; i < P_ScenList->getCount(); i++) {
 			char sub[128];
 			StringSet ss(SLBColumnDelim);
-			PPBackupScen * p_entry = (PPBackupScen *)P_ScenList->at(i);
+			PPBackupScen * p_entry = static_cast<PPBackupScen *>(P_ScenList->at(i));
 			ss.add(strip(strcpy(sub, p_entry->Name)));
 			DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbSymb, n);
 			DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbFriendlyName, pn);
@@ -511,7 +524,7 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlData(CTL_BUCFG_CFGNAME,  entry.Name);
 	dlg->setCtrlData(CTL_BUCFG_PERIOD,   &(entry.Period));
-	dlg->setCtrlData(CTL_BUCFG_COPIES,   &(entry.numCopies));
+	dlg->setCtrlData(CTL_BUCFG_COPIES,   &(entry.NumCopies));
 	dlg->setCtrlData(CTL_BUCFG_COMPRESS, &(entry.Flags));
 	dlg->setCtrlData(CTL_BUCFG_PATH,     entry.BackupPath);
 	SetupDBEntryComboBox(dlg, CTLSEL_BUCFG_DBNAME, &DBES);
@@ -527,10 +540,10 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 		STRNSCPY(entry.DBName, cc.Strip());
 		dlg->getCtrlData(CTL_BUCFG_CFGNAME, temp_scen_name);
 		dlg->getCtrlData(CTL_BUCFG_PERIOD, &(entry.Period));
-		dlg->getCtrlData(CTL_BUCFG_COPIES, &(entry.numCopies));
+		dlg->getCtrlData(CTL_BUCFG_COPIES, &(entry.NumCopies));
 		dlg->getCtrlData(CTL_BUCFG_COMPRESS, &(entry.Flags));
 		dlg->getCtrlData(CTL_BUCFG_PATH, entry.BackupPath);
-		if(entry.numCopies <= 0 || entry.numCopies > 99) {
+		if(entry.NumCopies <= 0 || entry.NumCopies > 99) {
 			sel = CTL_BUCFG_COPIES;
 			err_text = PPINF_BADCOPYNO;
 		}
@@ -582,7 +595,7 @@ int ConfigBackupDialog::addEntry()
 	int    ok = -1;
 	PPBackupScen entry;
 	entry.Period = 1;
-	entry.numCopies = 3;
+	entry.NumCopies = 3;
 	if(editEntry(1, &entry) > 0) {
 		SString temp_buf;
 		entry.ToStr(temp_buf);
@@ -601,7 +614,7 @@ int ConfigBackupDialog::updateEntry()
 		SString org_entry_name, buf;
 		getCtrlData(CTL_BUCFG_SCNAME, &ssid);
 		if(ssid) {
-			PPBackupScen * p_entry = (PPBackupScen *)P_ScenList->at((int)ssid-1);
+			PPBackupScen * p_entry = static_cast<PPBackupScen *>(P_ScenList->at((int)ssid-1));
 			org_entry_name = p_entry->Name;
 			DBES.SetSelection(DBES.GetBySymb(p_entry->DBName, 0));
 			if(editEntry(1, p_entry) > 0) {
@@ -1771,65 +1784,58 @@ int SLAPI UseCopyContinouos(PPDbEntrySet2 * pDbes)
 #define CTLGRP_FBRW 1
 
 class BackupParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBackupScen);
 public:
 	BackupParamDialog() : TDialog(DLG_BUPARAM)
 	{
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_BUPARAM_PATH, CTL_BUPARAM_PATH, CTLGRP_FBRW, PPTXT_TITLE_SELBACKUPPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
 	}
-	int setDTS(const PPBackupScen * pScen);
-	int getDTS(SString & rDBSymb, PPBackupScen * pScen);
-private:
-	DECL_HANDLE_EVENT;
-
-	PPBackupScen Scen;
-};
-
-IMPL_HANDLE_EVENT(BackupParamDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isKeyDown(kbF2)) {
-		SString path;
-		DBS.GetDbPath(DBS.GetDbPathID(), path);
-		setCtrlString(CTL_BUPARAM_PATH, path.SetLastSlash().Cat("backup"));
-		clearEvent(event);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Z();
+		Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
+		setCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
+		setCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
+		AddClusterAssoc(CTL_BUPARAM_FLAGS, 0x01, BCOPYDF_USECOMPRESS);
+		SetClusterData(CTL_BUPARAM_FLAGS, Data.Flags);
+		return 1;
 	}
-}
-
-int BackupParamDialog::setDTS(const PPBackupScen * pScen)
-{
-	if(!RVALUEPTR(Scen, pScen))
-		MEMSZERO(Scen);
-	Scen.numCopies = (Scen.numCopies <= 0) ? 1 : Scen.numCopies;
-	setCtrlData(CTL_BUPARAM_PATH, Scen.BackupPath);
-	setCtrlData(CTL_BUPARAM_MAXCOPIES, &Scen.numCopies);
-	AddClusterAssoc(CTL_BUPARAM_FLAGS, 0x01, BCOPYDF_USECOMPRESS);
-	SetClusterData(CTL_BUPARAM_FLAGS, Scen.Flags);
-	return 1;
-}
-
-int BackupParamDialog::getDTS(SString & rDBSymb, PPBackupScen * pScen)
-{
-	int    ok = 1;
-	DbProvider * p_dict = CurDict;
-	SString dbname;
-	PPIniFile ini_file;
-	PPDbEntrySet2 dbes;
-	dbes.ReadFromProfile(&ini_file);
-	getCtrlData(CTL_BUPARAM_PATH, Scen.BackupPath);
-	getCtrlData(CTL_BUPARAM_MAXCOPIES, &Scen.numCopies);
-	GetClusterData(CTL_BUPARAM_FLAGS, &Scen.Flags);
-	PPSetAddedMsgString(setLastSlash(Scen.BackupPath));
-	THROW_PP(pathValid(Scen.BackupPath, 0), PPERR_NEXISTPATH);
-	Scen.numCopies = (Scen.numCopies <= 0) ? 1 : Scen.numCopies;
-	p_dict->GetDbSymb(rDBSymb);
-	Scen.ID = dbes.GetBySymb(rDBSymb, 0);
-	rDBSymb.CopyTo(Scen.Name, sizeof(Scen.Name));
-	p_dict->GetDbName(dbname);
-	dbname.CopyTo(Scen.DBName, sizeof(Scen.DBName));
-	ASSIGN_PTR(pScen, Scen);
-	CATCHZOKPPERR
-	return ok;
-}
+	int getDTS(SString & rDBSymb, PPBackupScen * pData)
+	{
+		int    ok = 1;
+		DbProvider * p_dict = CurDict;
+		SString dbname;
+		PPIniFile ini_file;
+		PPDbEntrySet2 dbes;
+		dbes.ReadFromProfile(&ini_file);
+		getCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
+		getCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
+		GetClusterData(CTL_BUPARAM_FLAGS, &Data.Flags);
+		PPSetAddedMsgString(setLastSlash(Data.BackupPath));
+		THROW_PP(pathValid(Data.BackupPath, 0), PPERR_NEXISTPATH);
+		Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
+		p_dict->GetDbSymb(rDBSymb);
+		Data.ID = dbes.GetBySymb(rDBSymb, 0);
+		rDBSymb.CopyTo(Data.Name, sizeof(Data.Name));
+		p_dict->GetDbName(dbname);
+		dbname.CopyTo(Data.DBName, sizeof(Data.DBName));
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isKeyDown(kbF2)) {
+			SString path;
+			DBS.GetDbPath(DBS.GetDbPathID(), path);
+			setCtrlString(CTL_BUPARAM_PATH, path.SetLastSlash().Cat("backup"));
+			clearEvent(event);
+		}
+	}
+};
 
 int SLAPI EditBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 {
@@ -1900,7 +1906,7 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 		count = bcset.getCount();
 		{
 			BCopyData * p_bcd = 0;
-			for(i = 0; count > (uint)pScen->numCopies; count--)
+			for(i = 0; count > (uint)pScen->NumCopies; count--)
 				if(bcset.enumItems(&i, (void **)&p_bcd) > 0)
 					THROW_PP(p_bu->RemoveCopy(p_bcd, CallbackBuLog, 0), PPERR_DBLIB);
 			ok = 1;
@@ -1958,7 +1964,7 @@ static int SLAPI _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopy
 	i = bcset.getCount();
 	{
 		BCopyData * p_bcd = 0;
-		for(j = 0; i > (uint)pScen->numCopies; i--)
+		for(j = 0; i > (uint)pScen->NumCopies; i--)
 			if(bcset.enumItems(&j, (void **)&p_bcd) > 0)
 				THROW_PP(pBu->RemoveCopy(p_bcd, CallbackBuLog, 0), PPERR_DBLIB);
 	}
@@ -2599,7 +2605,9 @@ int SLAPI PPLicUpdate()
 int SLAPI PPLicRegister()
 {
 	int    ok = -1;
-	char   name[64], regkey[32], path[MAXPATH];
+	char   name[64];
+	char   regkey[32];
+	char   path[MAXPATH];
 	TDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_REGISTRATION)))) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_REGISTRAT_LICFILE, CTL_REGISTRATION_LICFILE, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
@@ -2635,28 +2643,55 @@ int DBMaintainParam::Write(SBuffer & rBuf, long) const
 }
 
 class DBMaintainDlg : public TDialog {
+	DECL_DIALOG_DATA(DBMaintainParam);
 public:
 	DBMaintainDlg() : TDialog(DLG_DBMAINTAIN)
 	{
 	}
-	int    setDTS(const DBMaintainParam *);
-	int    getDTS(DBMaintainParam *);
-private:
-	DECL_HANDLE_EVENT;
-	void   SetCtrls(long tables);
-	DBMaintainParam Data;
-};
-
-IMPL_HANDLE_EVENT(DBMaintainDlg)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmClusterClk)) {
-		long   tables = 0;
-		GetClusterData(CTL_DBMAINTAIN_TABLES, &tables);
-		SetCtrls(tables);
-		clearEvent(event);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 0, DBMaintainParam::tblDLS);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 1, DBMaintainParam::tblMRP);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 2, DBMaintainParam::tblSJ);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 3, DBMaintainParam::tblRsrvSj);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 4, DBMaintainParam::tblXBill);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 5, DBMaintainParam::tblXBillRecover);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 6, DBMaintainParam::tblTempAltGGrp);
+		AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 7, DBMaintainParam::tblMoveObsolete);
+		SetClusterData(CTL_DBMAINTAIN_TABLES,  Data.Tables);
+		setCtrlData(CTL_DBMAINTAIN_DLSDAYS,   &Data.DLSDays);
+		setCtrlData(CTL_DBMAINTAIN_MRPDAYS,   &Data.MRPDays);
+		setCtrlData(CTL_DBMAINTAIN_SJDAYS,    &Data.SJDays);
+		setCtrlData(CTL_DBMAINTAIN_XBILDAYS,  &Data.XBillDays);
+		SetCtrls(Data.Tables);
+		DisableClusterItem(CTL_DBMAINTAIN_TABLES, 3, !(CConfig.Flags & CCFLG_RSRVSJ));
+		return 1;
 	}
-}
+	DECL_DIALOG_GETDTS()
+	{
+		GetClusterData(CTL_DBMAINTAIN_TABLES, &Data.Tables);
+		getCtrlData(CTL_DBMAINTAIN_DLSDAYS,   &Data.DLSDays);
+		getCtrlData(CTL_DBMAINTAIN_MRPDAYS,   &Data.MRPDays);
+		getCtrlData(CTL_DBMAINTAIN_SJDAYS,    &Data.SJDays);
+		getCtrlData(CTL_DBMAINTAIN_XBILDAYS,  &Data.XBillDays);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmClusterClk)) {
+			long   tables = 0;
+			GetClusterData(CTL_DBMAINTAIN_TABLES, &tables);
+			SetCtrls(tables);
+			clearEvent(event);
+		}
+	}
+	void   SetCtrls(long tables);
+};
 
 void DBMaintainDlg::SetCtrls(long tables)
 {
@@ -2668,39 +2703,6 @@ void DBMaintainDlg::SetCtrls(long tables)
 		}
 		disableCtrl(ctl, !(tables & tbl));
 	}
-}
-
-int DBMaintainDlg::setDTS(const DBMaintainParam * pParam)
-{
-	if(!RVALUEPTR(Data, pParam))
-		MEMSZERO(Data);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 0, DBMaintainParam::tblDLS);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 1, DBMaintainParam::tblMRP);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 2, DBMaintainParam::tblSJ);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 3, DBMaintainParam::tblRsrvSj);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 4, DBMaintainParam::tblXBill);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 5, DBMaintainParam::tblXBillRecover);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 6, DBMaintainParam::tblTempAltGGrp);
-	AddClusterAssoc(CTL_DBMAINTAIN_TABLES, 7, DBMaintainParam::tblMoveObsolete); // @v9.0.3
-	SetClusterData(CTL_DBMAINTAIN_TABLES,  Data.Tables);
-	setCtrlData(CTL_DBMAINTAIN_DLSDAYS,   &Data.DLSDays);
-	setCtrlData(CTL_DBMAINTAIN_MRPDAYS,   &Data.MRPDays);
-	setCtrlData(CTL_DBMAINTAIN_SJDAYS,    &Data.SJDays);
-	setCtrlData(CTL_DBMAINTAIN_XBILDAYS,  &Data.XBillDays);
-	SetCtrls(Data.Tables);
-	DisableClusterItem(CTL_DBMAINTAIN_TABLES, 3, !(CConfig.Flags & CCFLG_RSRVSJ));
-	return 1;
-}
-
-int DBMaintainDlg::getDTS(DBMaintainParam * pParam)
-{
-	GetClusterData(CTL_DBMAINTAIN_TABLES, &Data.Tables);
-	getCtrlData(CTL_DBMAINTAIN_DLSDAYS,   &Data.DLSDays);
-	getCtrlData(CTL_DBMAINTAIN_MRPDAYS,   &Data.MRPDays);
-	getCtrlData(CTL_DBMAINTAIN_SJDAYS,    &Data.SJDays);
-	getCtrlData(CTL_DBMAINTAIN_XBILDAYS,  &Data.XBillDays);
-	ASSIGN_PTR(pParam, Data);
-	return 1;
 }
 
 int SLAPI DBMaintainDialog(DBMaintainParam * pParam) { DIALOG_PROC_BODY(DBMaintainDlg, pParam); }
@@ -2754,11 +2756,9 @@ int SLAPI DoDBMaintain(const DBMaintainParam * pParam)
 			THROW(gg_obj.Recover(&ggr_param, &logger));
 			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_ENDRMVTEMPALTGGRP);
 		}
-		// @v9.0.3 {
 		if(param.Tables & DBMaintainParam::tblMoveObsolete) {
 			// @todo
 		}
-		// } @v9.0.3
 	}
 	CATCH
 		ok = PPErrorZ();
@@ -2838,7 +2838,6 @@ int SLAPI TestLargeVlrInputOutput()
     int    ok = 1;
 	Reference * p_ref = PPRef;
 	SBuffer src_buf, dest_buf;
-	PropertyTbl::Rec rec;
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -2847,7 +2846,7 @@ int SLAPI TestLargeVlrInputOutput()
 			// Создание новой записи
 			//
 			src_buf.Z();
-			MEMSZERO(rec);
+			PropertyTbl::Rec rec;
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
 			rec.Prop = test_prop_id;
@@ -2868,7 +2867,7 @@ int SLAPI TestLargeVlrInputOutput()
 			// Изменение записи на буфер большего размера
 			//
 			src_buf.Z();
-			MEMSZERO(rec);
+			PropertyTbl::Rec rec;
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
 			rec.Prop = test_prop_id;
@@ -2889,7 +2888,7 @@ int SLAPI TestLargeVlrInputOutput()
 			// Изменение записи на буфер меньшего размера
 			//
 			src_buf.Z();
-			MEMSZERO(rec);
+			PropertyTbl::Rec rec;
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
 			rec.Prop = test_prop_id;
@@ -2910,7 +2909,7 @@ int SLAPI TestLargeVlrInputOutput()
 			// Изменение записи на буфер совсем маленького размера (без необходимости считывать отдельными отрезками)
 			//
 			src_buf.Z();
-			MEMSZERO(rec);
+			PropertyTbl::Rec rec;
 			rec.ObjType = test_obj_type;
 			rec.ObjID = test_obj_id;
 			rec.Prop = test_prop_id;

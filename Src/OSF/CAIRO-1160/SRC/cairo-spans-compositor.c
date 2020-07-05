@@ -242,7 +242,7 @@ static cairo_int_status_t fixup_unbounded_mask(const cairo_spans_compositor_t * 
 	cairo_surface_t * clip;
 	cairo_int_status_t status;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	clip = get_clip_surface(compositor, extents->surface, extents->clip,
 		&extents->unbounded);
@@ -283,7 +283,7 @@ static cairo_int_status_t fixup_unbounded_polygon(const cairo_spans_compositor_t
 	cairo_fill_rule_t fill_rule;
 	cairo_antialias_t antialias;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	/* Can we treat the clip as a regular clear-polygon and use it to fill? */
 	status = _cairo_clip_get_polygon(extents->clip, &polygon, &fill_rule, &antialias);
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED)
@@ -316,7 +316,7 @@ static cairo_int_status_t fixup_unbounded_boxes(const cairo_spans_compositor_t *
 	cairo_box_t box;
 	cairo_int_status_t status;
 	assert(boxes->is_pixel_aligned);
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(extents->bounded.width  == extents->unbounded.width && extents->bounded.height == extents->unbounded.height) {
 		return CAIRO_STATUS_SUCCESS;
 	}
@@ -440,7 +440,7 @@ static cairo_status_t upload_boxes(const cairo_spans_compositor_t * compositor,
 	cairo_int_status_t status;
 	int tx, ty;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	src = _cairo_pattern_get_source(source, &limit);
 	if(!(src->type == CAIRO_SURFACE_TYPE_IMAGE || src->type == dst->type))
@@ -661,7 +661,7 @@ static cairo_int_status_t composite_boxes(const cairo_spans_compositor_t * compo
 	const struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	cairo_int_status_t status;
 	cairo_box_t box;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	_cairo_box_from_rectangle(&box, &extents->unbounded);
 	if(composite_needs_clip(extents, &box)) {
 		TRACE((stderr, "%s: unsupported clip\n", __FUNCTION__));
@@ -764,7 +764,7 @@ static cairo_int_status_t FASTCALL clip_and_composite_boxes(const cairo_spans_co
 {
 	cairo_int_status_t status;
 	cairo_polygon_t polygon;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = trim_extents_to_boxes(extents, boxes);
 	if(unlikely(status))
 		return status;
@@ -837,7 +837,7 @@ static cairo_int_status_t clip_and_composite_polygon(const cairo_spans_composito
 {
 	cairo_int_status_t status;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	/* XXX simply uses polygon limits.point extemities, tessellation? */
 	status = trim_extents_to_polygon(extents, polygon);
@@ -906,7 +906,7 @@ static cairo_int_status_t _cairo_spans_compositor_paint(const cairo_compositor_t
 	cairo_boxes_t boxes;
 	cairo_int_status_t status;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
 	status = clip_and_composite_boxes(compositor, extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
@@ -921,7 +921,7 @@ static cairo_int_status_t _cairo_spans_compositor_mask(const cairo_compositor_t 
 	cairo_int_status_t status;
 	cairo_boxes_t boxes;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	_cairo_clip_steal_boxes(extents->clip, &boxes);
 	status = clip_and_composite_boxes(compositor, extents, &boxes);
 	_cairo_clip_unsteal_boxes(extents->clip, &boxes);
@@ -940,7 +940,7 @@ static cairo_int_status_t _cairo_spans_compositor_stroke(const cairo_compositor_
 {
 	const cairo_spans_compositor_t * compositor = (cairo_spans_compositor_t*)_compositor;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	TRACE_(_cairo_debug_print_path(stderr, path));
 	TRACE_(_cairo_debug_print_clip(stderr, extents->clip));
 	status = CAIRO_INT_STATUS_UNSUPPORTED;

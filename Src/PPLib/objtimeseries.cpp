@@ -2639,7 +2639,8 @@ struct TestStrategyRawResult {
 	};
 	TestStrategyRawResult() : TotalResult(0.0), TotalProb(0.0), BaseFlags(0), InputFrameSize(0), MainFrameSize(0), MainFrameRangeIdx(0),
 		TargetQuant(0), MaxDuckQuant(0), StakeMode(0), Reserve(0),
-		BestStep(0), BestStepBarCount(0), BestStepResult(0.0), BestStepProb(0.0), DoCalcResonanceMeasure(false), ResonanceMeasure(0.0)
+		BestStep(0), BestStepBarCount(0), BestStepResult(0.0), BestStepProb(0.0), DoCalcResonanceMeasure(false), ResonanceMeasure(0.0),
+		ResonanceProb(0.0), ResonanceBarCount(0), ResonanceWidth(0)
 	{
 		FactorR.Z();
 	}
@@ -2654,7 +2655,10 @@ struct TestStrategyRawResult {
 	uint   BestStepBarCount;
 	double BestStepResult;
 	double BestStepProb;
-	double ResonanceMeasure;
+	uint   ResonanceBarCount; // Количество положительных баров при расчете резонансного фактора
+	uint   ResonanceWidth;    // Суммарная ширина положительных баров при расчете резонансного фактора  
+	double ResonanceProb;     // Суммарная вероятность положительных баров при расчете резонансного фактора
+	double ResonanceMeasure;  // Итоговый оптимизируемый резонансный фактор
 	//
 	// Параметры стратегии
 	//
@@ -4138,6 +4142,112 @@ int SLAPI PPObjTimeSeries::StrategyContainer::AddStrategyToOrderIndex(uint pos, 
 	return ok;
 }
 
+int SLAPI PPObjTimeSeries::StrategyContainer::MakeConfidenceEliminationIndex(const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const
+{
+	// Будем вырезать стратегии, у которых количество ставок меньше, чем среднее по всей выборке, попавшей 
+	// в изначальный набор. Это, в общем, улучшает результат по сравнению с удалением только 100%-ных стратегий.
+	int    ok = 1;
+	const  uint _c = pSrcIdxList ? pSrcIdxList->getCount() : getCount();
+	if(_c <= 3) {
+		// Если стратегий 3 или меньше, то оставляем только те, у которых максимальное количество ставок 
+		uint max_stake_count = 0;
+		{
+			for(uint _i_ = 0; _i_ < _c; _i_++) {
+				const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
+				const Strategy & r_item = at(idx);
+				SETMAX(max_stake_count, r_item.StakeCount);
+			}
+		}
+		if(max_stake_count) {
+			for(uint _i_ = 0; _i_ < _c; _i_++) {
+				const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
+				const Strategy & r_item = at(idx);
+				if(r_item.StakeCount < max_stake_count)
+					rToRemoveIdxList.add(static_cast<long>(idx));
+			}
+		}
+	}
+	else {
+		const double max_vc = 0.0;//0.12;
+		// @v10.7.11 Экспериментальная попытка улучшить результат посредством ограничения фактора доверия CalcConfidenceFactor(). 
+		// Вердикт: успеха не принесла.
+		const double min_confidence_factor = 0.0/*500.0*/; 
+		if(max_vc > 0.0) {
+			if(min_confidence_factor > 0.0) {
+				for(uint _i_ = 0; _i_ < _c; _i_++) {
+					const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
+					const Strategy & r_item = at(idx);
+					if(r_item.CalcConfidenceFactor() < min_confidence_factor)
+						rToRemoveIdxList.add(static_cast<long>(idx));
+				}
+			}
+			double vc = EvaluateScore(scoreEvStakeCountVarCoeff, &rToRemoveIdxList);
+			while(vc > max_vc) {
+				uint min_stake_count = UINT_MAX;
+				uint min_stake_count_pos = 0;
+				for(uint _i_ = 0; _i_ < _c; _i_++) {
+					const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
+					if(!rToRemoveIdxList.lsearch(idx)) {
+						const Strategy & r_item = at(idx);
+						if(min_stake_count > r_item.StakeCount) {
+							min_stake_count = r_item.StakeCount;
+							min_stake_count_pos = idx;
+						}
+					}
+				}
+				if(min_stake_count < UINT_MAX) {
+					rToRemoveIdxList.add(static_cast<long>(min_stake_count_pos));
+					vc = EvaluateScore(scoreEvStakeCountVarCoeff, &rToRemoveIdxList);
+				}
+				else
+					break;
+			}
+		}
+		else {
+			StatBase sb;
+			{
+				for(uint _i_ = 0; _i_ < _c; _i_++) {
+					const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
+					sb.Step(static_cast<double>(at(idx).StakeCount));
+				}
+			}
+			sb.Finish();
+			const double avg_stk_cnt = sb.GetExp();
+			{
+				for(uint _i_ = 0; _i_ < _c; _i_++) {
+					const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
+					const Strategy & r_item = at(idx);
+					if(static_cast<double>(r_item.StakeCount) < (avg_stk_cnt * 2)) {
+						rToRemoveIdxList.add(static_cast<long>(idx));
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+struct StrategyContainerChunk {
+	StrategyContainerChunk() : StakeSide(0), MainFrameSize(0)
+	{
+	}
+	int    IsFactorsEq(const PPObjTimeSeries::Strategy & rS) const
+	{
+		if(rS.BaseFlags & rS.bfShort && StakeSide == 0)
+			return 0;
+		else if(rS.MainFrameSize != MainFrameSize)
+			return 0;
+		else if(MainFrameSize && !static_cast<RealRange>(MainFrameRange).IsEqual(rS.OptDelta2Range))
+			return 0;
+		else
+			return 1;
+	}
+	int    StakeSide; // 0 - LONG, 1 - SHORT
+	uint32 MainFrameSize;
+	PPObjTimeSeries::OptimalFactorRange MainFrameRange;
+	LongArray ScIdxList;
+};
+
 int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPacket & rTssPacket, 
 	StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList, LongArray * pHaveAnalogPosList) const
 {
@@ -4163,7 +4273,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPac
 			case PPTssModel::sppsShuffle:    _ssflags |= gbsfShuffle; break;
 			case PPTssModel::sppsStakeCount: _ssflags |= gbsfCritStakeCount; break; // @v10.7.9
 		}
-		_ssflags |= gbsfEliminate100prob; // @v10.7.9
+		// @20200703 _ssflags |= gbsfEliminate100prob; // @v10.7.9
 	}
 	TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> range_list_;
 	TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> range_list_cqa;
@@ -4193,78 +4303,37 @@ int SLAPI PPObjTimeSeries::StrategyContainer::GetBestSubset2(const PPTssModelPac
 	// } @v10.7.8 
 	// @v10.7.9 {
 	if(_ssflags & gbsfEliminate100prob) {
-		// @20200528 {
-		// Будем вырезать стратегии, у которых количество ставок меньше, чем среднее по всей выборке, попавшей 
-		// в изначальный набор. Это, в общем, улучшает результат по сравнению с удалением только 100%-ных стратегий.
-		uint i;
-		if(_c <= 3) {
-			// Если стратегий 3 или меньше, то оставляем только те, у которых максимальное количество ставок 
-			uint max_stake_count = 0;
-			for(i = 1; i < _c; i++) {
+		const int do_confidence_eliminamtion_by_chunks = 1;
+		if(do_confidence_eliminamtion_by_chunks) {
+			TSCollection <StrategyContainerChunk> strategy_chunk_list;
+			for(uint i = 0; i < _c; i++) {
 				const Strategy & r_item = at(i);
-				SETMAX(max_stake_count, r_item.StakeCount);
-				//pos_to_remove.add(static_cast<long>(i));
+				int    found = 0;
+				for(uint j = 0; !found && j < strategy_chunk_list.getCount(); j++) {
+					StrategyContainerChunk * p_chunk = strategy_chunk_list.at(j);
+					if(p_chunk->IsFactorsEq(r_item)) {
+						p_chunk->ScIdxList.add(static_cast<long>(i));
+						found = 1;
+					}
+				}
+				if(!found) {
+					StrategyContainerChunk * p_new_chunk = strategy_chunk_list.CreateNewItem();
+					p_new_chunk->StakeSide = (r_item.BaseFlags & Strategy::bfShort) ? 1 : 0;
+					p_new_chunk->MainFrameSize = r_item.MainFrameSize;
+					p_new_chunk->MainFrameRange = r_item.OptDelta2Range;
+					p_new_chunk->ScIdxList.add(static_cast<long>(i));
+				}
 			}
-			if(max_stake_count) {
-				for(i = 1; i < _c; i++) {
-					const Strategy & r_item = at(i);
-					if(r_item.StakeCount < max_stake_count)
-						pos_to_remove.add(static_cast<long>(i));
+			{
+				for(uint chunkidx = 0; chunkidx < strategy_chunk_list.getCount(); chunkidx++) {
+					const StrategyContainerChunk * p_chunk = strategy_chunk_list.at(chunkidx);
+					MakeConfidenceEliminationIndex(&p_chunk->ScIdxList, pos_to_remove);
 				}
 			}
 		}
 		else {
-			const double max_vc = 0.12;
-			// @v10.7.11 Экспериментальная попытка улучшить результат посредством ограничения фактора доверия CalcConfidenceFactor(). 
-			// Вердикт: успеха не принесла.
-			const double min_confidence_factor = 0.0/*500.0*/; 
-			if(max_vc > 0.0) {
-				// @v10.7.11 {
-				if(min_confidence_factor > 0.0) {
-					for(i = 0; i < _c; i++) {
-						const Strategy & r_item = at(i);
-						if(r_item.CalcConfidenceFactor() < min_confidence_factor)
-							pos_to_remove.add(static_cast<long>(i));
-					}
-				}
-				// } @v10.7.11 
-				double vc = EvaluateScore(scoreEvStakeCountVarCoeff, &pos_to_remove);
-				while(vc > max_vc) {
-					uint min_stake_count = UINT_MAX;
-					uint min_stake_count_pos = 0;
-					for(i = 0; i < _c; i++) {
-						if(!pos_to_remove.lsearch(i)) {
-							const Strategy & r_item = at(i);
-							if(min_stake_count > r_item.StakeCount) {
-								min_stake_count = r_item.StakeCount;
-								min_stake_count_pos = i;
-							}
-						}
-					}
-					if(min_stake_count < UINT_MAX) {
-						pos_to_remove.add(static_cast<long>(min_stake_count_pos));
-						vc = EvaluateScore(scoreEvStakeCountVarCoeff, &pos_to_remove);
-					}
-					else
-						break;
-				}
-			}
-			else {
-				StatBase sb;
-				for(i = 0; i < _c; i++) {
-					sb.Step(static_cast<double>(at(i).StakeCount));
-				}
-				sb.Finish();
-				const double avg_stk_cnt = sb.GetExp();
-				for(i = 0; i < _c; i++) {
-					const Strategy & r_item = at(i);
-					if(static_cast<double>(r_item.StakeCount) < (avg_stk_cnt * 2)) {
-						pos_to_remove.add(static_cast<long>(i));
-					}
-				}
-			}
+			MakeConfidenceEliminationIndex(0, pos_to_remove);
 		}
-		// } @20200528 
 	}
 	// } @v10.7.9 
 	if(_ssflags & gbsfEliminateCQADups) {
@@ -5958,10 +6027,10 @@ struct TsFindStrategiesBlock {
 						if(pRawResult->DoCalcResonanceMeasure) {
 							uint   lo_idx = 0;
 							uint   up_idx = _c-1;
-							const uint sfidx_increment = 1;
 							double total_win = 0.0;
 							double total_pt = 0;
-							for(uint sfidx = _first_idx; sfidx < _last_idx; sfidx += sfidx_increment) { 
+							uint   total_count = 0;
+							for(uint sfidx = _first_idx; sfidx < _last_idx;) { 
 								uint sfidx_up = 0;
 								if(use_radial_partitioning) {
 									assert(sf_step_angle > 0.0);
@@ -5978,14 +6047,19 @@ struct TsFindStrategiesBlock {
 										double s2 = rList.sumDouble(offsetof(StrategyOptEntry, Result2), work_range.low, work_range.upp);
 										double c = static_cast<double>(work_range.upp - work_range.low + 1);
 										const double _prob = fdivnz(s2, c);
+										total_count++;
 										total_win += s2;
 										total_pt += c;
 									}
+									sfidx = sfidx_up+1;
 								}
 								else
 									break;
 							}
-							pRawResult->ResonanceMeasure = fdivnz(total_win, total_pt);
+							pRawResult->ResonanceProb = fdivnz(total_win, total_pt);
+							pRawResult->ResonanceBarCount = total_count;
+							pRawResult->ResonanceWidth = static_cast<uint>(total_pt);
+							pRawResult->ResonanceMeasure = pRawResult->ResonanceProb;
 						}
 						else {
 							const double win_prob_threshould = 0.8;
@@ -6132,6 +6206,43 @@ struct TsFindStrategiesBlock {
 				// (must be done by caller) rList.sort(PTR_CMPFUNC(double));
 				const uint sf_step_count = (r_tssm.OptRangeStepCount > 0) ? r_tssm.OptRangeStepCount : PPTssModel::Default_OptRangeStepCount;
 				const uint max_range_count = (r_tssm.OptRangeMultiLimit > 0) ? r_tssm.OptRangeMultiLimit : PPTssModel::Default_OptRangeMultiLimit;
+				// @v20200704 {
+				/* @construction RAssocArray result_cache;
+				{
+					FindOptimalFactorRangeExtrEntry _sfd_extr_entry;
+					for(uint sfdelta = 1; sfdelta <= sf_step_count; sfdelta++) {
+						double prev_result = 0.0; // @v20200405 total_sum-->-1000000000.0-->0.0
+						uint   lo_idx = 0;
+						uint   up_idx = _c-1;
+						uint   iter_no = 0;
+						FindOptimalFactorRangeExtrEntry _extr_entry;
+						const uint sfidx_increment = 1;
+						for(uint sfidx = _first_idx; sfidx < _last_idx; sfidx += sfidx_increment) { 
+							uint sfidx_up = 0;
+							// Пока результат начальных точек отрицательный можно смело двигаться вперед 
+							while(sfidx < _last_idx && rList.at(sfidx).Result1 < 0.0)
+								sfidx++;
+							if(use_radial_partitioning) {
+								assert(sf_step_angle > 0.0);
+								sfidx_up = RadialIncrement(rList, sfidx, _last_idx, sf_step_angle*sfdelta);
+								assert(sfidx_up <= _last_idx);
+							}
+							else {
+								sfidx_up = smin(sfidx+(sf_step+(sf_step_increment*(sfdelta-1)))-1, _last_idx);
+							}
+							// Пытаемся расширить номинальных диапазон за счет сдвига вправо до тех пор пока по точкам результат положительный
+							while(sfidx_up < _last_idx && rList.at(sfidx_up).Result1 > 0.0)
+								sfidx_up++;
+							if(sfidx_up > sfidx) {
+								const double _result = cfrrFunc(rList, work_range.Set(sfidx, sfidx_up));
+								result_cache.Add(static_cast<long>(sfidx), _result, 0, 0);
+							}
+							else
+								break;
+						}
+					}
+				}*/
+				// } @v20200704 
 				for(int do_next_iter = 1; do_next_iter;) {
 					do_next_iter = 0;
 					FindOptimalFactorRangeExtrEntry _sfd_extr_entry;
@@ -6675,10 +6786,12 @@ int SLAPI PrcssrTsStrategyAnalyze::FindResonanceCombination(void * pBlk, const L
 		tstso |= TsFindStrategiesBlock::tstsofroTotalOnly;*/
 	TSCollection <TestStrategyRawResult> local_tsrr_list;
 	SString out_buf;
-	if(p_blk->P_FOut) {
-		out_buf.Z().Cat("FindResonanceCombination").Space().Cat(is_short ? "SHORT" : "LONG").CatDiv('{', 1).CR();
-		p_blk->P_FOut->WriteLine(out_buf);
-	}
+	SString out_file_name;
+	PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy-FindResonanceCombination.txt", out_file_name);
+	const int is_out_file_exists = fileExists(out_file_name);
+	SFile f_out(out_file_name, SFile::mAppend);
+	out_buf.Z().Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS).Space().Cat(p_blk->R_TsPack.Rec.Symb).Space().Cat(is_short ? "SHORT" : "LONG").CR();
+	f_out.WriteLine(out_buf);
 	for(uint ifsidx = 0; ifsidx < rFrameSizeList.getCount(); ifsidx++) {
 		const uint input_frame_size = static_cast<uint>(rFrameSizeList.get(ifsidx));
 		const PPObjTimeSeries::TrendEntry * p_trend_entry = PPObjTimeSeries::SearchTrendEntry(p_blk->R_TrendList, input_frame_size);
@@ -6727,10 +6840,14 @@ int SLAPI PrcssrTsStrategyAnalyze::FindResonanceCombination(void * pBlk, const L
 			p_tsrr->DoCalcResonanceMeasure = true; // !
 			PPObjTimeSeries::StrategyResultEntry sre(tnnp2, 0);
 			THROW(fsblk.TestStrategy(*p_trend_entry, p_main_trend_entry, fsblk.R_Tnnp2, tstso, sre, &sr_raw_list, p_tsrr));
-			if(p_blk->P_FOut) {
-				out_buf.Z().Tab().Cat(p_tsrr->InputFrameSize).Space().Cat(p_tsrr->TargetQuant).CatChar('/').Cat(p_tsrr->MaxDuckQuant).
-					Space().CatEq("ResonanceMeasure", p_tsrr->ResonanceMeasure).CR();
-				p_blk->P_FOut->WriteLine(out_buf);
+			{
+				out_buf.Z().Tab().CatLongZ(p_tsrr->InputFrameSize, 4).Space().CatLongZ(p_tsrr->TargetQuant, 3).CatChar('/').CatLongZ(p_tsrr->MaxDuckQuant, 3).
+					Space().CatEq("ResonanceBarCount", p_tsrr->ResonanceBarCount).
+					Space().CatEq("ResonanceWidth", p_tsrr->ResonanceWidth).
+					Space().CatEq("ResonanceProb", p_tsrr->ResonanceProb).
+					Space().CatEq("ResonanceMeasure", p_tsrr->ResonanceMeasure).
+					CR();
+				f_out.WriteLine(out_buf);
 			}
 		}
 	}
@@ -6751,16 +6868,21 @@ int SLAPI PrcssrTsStrategyAnalyze::FindResonanceCombination(void * pBlk, const L
 			rResult.FrameSize = p_tsrr->InputFrameSize;
 			rResult.MaxDuckQuant = p_tsrr->MaxDuckQuant;
 			rResult.TargetQuant = p_tsrr->TargetQuant;
-			if(p_blk->P_FOut) {
-				out_buf.Z().Tab().Cat("The best").CatDiv(':', 2).Cat(p_tsrr->InputFrameSize).Space().Cat(p_tsrr->TargetQuant).CatChar('/').Cat(p_tsrr->MaxDuckQuant).
-					Space().CatEq("ResonanceMeasure", p_tsrr->ResonanceMeasure).CR();
-				p_blk->P_FOut->WriteLine(out_buf);
+			{
+				out_buf.Z().Tab().Cat("The best").CatDiv(':', 2).CatLongZ(p_tsrr->InputFrameSize, 4).Space().
+					CatLongZ(p_tsrr->TargetQuant, 3).CatChar('/').CatLongZ(p_tsrr->MaxDuckQuant, 3).
+					Space().CatEq("ResonanceBarCount", p_tsrr->ResonanceBarCount).
+					Space().CatEq("ResonanceWidth", p_tsrr->ResonanceWidth).
+					Space().CatEq("ResonanceProb", p_tsrr->ResonanceProb).
+					Space().CatEq("ResonanceMeasure", p_tsrr->ResonanceMeasure).
+					CR();
+				f_out.WriteLine(out_buf);
 			}
 			ok = 1;
 		}
-		if(p_blk->P_FOut) {
-			p_blk->P_FOut->WriteLine(out_buf.Z().CatDiv('}', 1).Cat("FindResonanceCombination").CR());
-			p_blk->P_FOut->Flush();
+		{
+			f_out.WriteLine(out_buf.Z().Cat("---").Space().Cat(getcurdatetime_(), DATF_YMD|DATF_CENTURY, TIMF_HMS).CR());
+			f_out.Flush();
 		}
 	}
 	CATCHZOK
@@ -6884,8 +7006,9 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 					}
 					if(do_find_resonance) {
 						ResonanceCombination resonance_result;
-						if(FindResonanceCombination(p_blk, r_tss_model.InputFrameSizeList, stake_bound_list, 
-							mfrlidx, p_main_frame_range, stake_side, resonance_result) > 0) {
+						int frcr = FindResonanceCombination(p_blk, r_tss_model.InputFrameSizeList, stake_bound_list, mfrlidx, p_main_frame_range, stake_side, resonance_result);
+						THROW(frcr);
+						if(frcr > 0) {
 							effective_input_frame_size_list.add(resonance_result.FrameSize);
 							effective_stake_bound_list.Add(resonance_result.TargetQuant, resonance_result.MaxDuckQuant);
 						}
@@ -6971,7 +7094,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 								}
 								TsFindStrategiesBlock * p_fsblk = new TsFindStrategiesBlock(r_tss_model, p_blk->R_Cfg, p_blk->R_TsPack, p_blk->R_TsTmList, p_blk->R_TsValList, 
 									p_blk->R_TrendList, *p_tnnp2, opt_factor_side, stake_side, p_sc, p_tsrr);
-								p_fsblk->P_FOut = p_blk->P_FOut; // @v10.8.0 0-->p_blk->P_FOut
+								p_fsblk->P_FOut = 0; 
 								thread_blk_list.insert(p_fsblk);
 								{
 									FindStrategiesTask * p_thread = new FindStrategiesTask(this, *p_fsblk);

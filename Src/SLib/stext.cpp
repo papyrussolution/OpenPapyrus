@@ -1407,7 +1407,7 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 			}
 		}
 	}
-	return rBuf.NotEmpty() ? 1 : 0;
+	return rBuf.NotEmpty();
 }
 //
 //
@@ -2485,7 +2485,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 #endif // } _WIN32_WCE
 		dots_size = size.cx * 3;
 		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
-			int    is_last_str = (strs_count >= maxStrsCount - 1) ? 1 : 0;
+			int    is_last_str = BIN(strs_count >= maxStrsCount - 1);
 			int    src_spc_pos = 0, dest_spc_pos = 0;
 			size_t word_size = 0;
 			for(; word_size < maxStrSize && aBuf.C(src_pos);) {
@@ -2921,7 +2921,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 						ok = 1;
 					else {
 						const int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
-						ok = r2 ? 1 : 0;
+						ok = BIN(r2);
 					}
 				}
 				else if(div == 2) { // AND
@@ -2929,7 +2929,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 						ok = 0;
 					else {
 						const int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
-						ok = r2 ? 1 : 0;
+						ok = BIN(r2);
 					}
 				}
 				else
@@ -2974,10 +2974,10 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 					const size_t prefix_len = strlen(p_srch_str);
 					if(prefix_len) {
 						if(flags & essfCaseSensitive) {
-							ok = (strncmp(pBuffer, p_srch_str, prefix_len) == 0) ? 1 : 0;
+							ok = BIN(strncmp(pBuffer, p_srch_str, prefix_len) == 0);
 						}
 						else {
-							ok = (strnicmp866(pBuffer, p_srch_str, prefix_len) == 0) ? 1 : 0;
+							ok = BIN(strnicmp866(pBuffer, p_srch_str, prefix_len) == 0);
 						}
 					}
 					else

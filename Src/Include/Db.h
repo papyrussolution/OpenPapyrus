@@ -519,7 +519,7 @@ public:
 			fUseDTD         = 0x00000001L,
 			fUtf8Codepage   = 0x00000002L,
 			fHaveSubRec     = 0x00000004L,
-			fSkipEntityList = 0x00000008L  // @v8.6.8 Не выводить в выходном файле список сущностей
+			fSkipEntityList = 0x00000008L  // Не выводить в выходном файле список сущностей
 		};
 		Param(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags);
 		void   Init(const char * pRootTag, const char * pHdrTag, const char * pRecTag, long flags);
@@ -711,8 +711,6 @@ int btrnfound__();
 #define BTRIEVE_VER    0x0500 // 0x0600 || 0x0610
 #define NUMPGSIZES          8 // Number of Btrieve page sizes
 #define MAXKEYLEN         255
-// @v8.6.10 #define IDXSEG(_S,_M,_F,_T)   *new DBIdxSpec(offsetof(_S,_M),sizeof((((_S SFAR*)0)->_M)),_F,_T)
-// @v8.6.10 #define FILEDEF(_S,_F,_PS,_A) *new DBFileSpec(sizeof(_S),_F,_PS,_A)
 #define BTRNFOUND         btrnfound__() //(BtrError==BE_EOF || BtrError==BE_KEYNFOUND)
 //#define BTROKORNFOUND     oneof3(BtrError, 0, BE_EOF, BE_KEYNFOUND)
 #define BTROKORNFOUND     btrokornfound()
@@ -1009,7 +1007,7 @@ int btrnfound__();
 #define XTF_MANUALKEYNUMBER   0x00000400 // v6.x
 #define XTF_VAT               0x00000800 // v6.x
 #define XTF_TEMP              0x00010000 // temporary table
-#define XTF_DISABLEOUTOFTAMSG 0x10000000 // @v8.9.10
+#define XTF_DISABLEOUTOFTAMSG 0x10000000 // 
 //
 // Index flags
 // Note:
@@ -1840,12 +1838,12 @@ private:
 	int    handle;
 	int    flags;
 	long   State;
-	DbProvider * P_Db;     // @notowned Указатель на провайдера БД
-	SelectStmt * P_Stmt;   // Последний SQL-оператор, использовавшийся для поиска
+	DbProvider * P_Db;      // @notowned Указатель на провайдера БД
+	SelectStmt * P_Stmt;    // Последний SQL-оператор, использовавшийся для поиска
 	SelectStmt * P_OppStmt; // SQL-оператор, сохраняемый при переключении направления выборки.
-	DBRowId CurRowId;      // Текущая позиция записи (используется для SQL-серверов)
-	DBRowId LastLockedRow; // @v8.1.4 Позиция последней заблокированной записи. Используется для разблокировки, если не было изменения.
-	BTBLID tableID;        // X$FILE.XfId
+	DBRowId CurRowId;       // Текущая позиция записи (используется для SQL-серверов)
+	DBRowId LastLockedRow;  // Позиция последней заблокированной записи. Используется для разблокировки, если не было изменения.
+	BTBLID tableID;         // X$FILE.XfId
 	int16  ownrLvl;
 	int16  index;
 	RECORDSIZE bufLen;
@@ -2445,8 +2443,7 @@ protected:
 	// Function CBP_CopyProgress must return one of SPRGRS_XXX value
 	// (see file SLIB.H for explain that constants)
 	//
-	virtual int SLAPI CBP_CopyProcess(const char * pSrcFile, const char * pDestFile,
-		int64 totalSize, int64 fileSize, int64 totalBytesReady, int64 fileBytesReady);
+	virtual int SLAPI CBP_CopyProcess(const char * pSrcFile, const char * pDestFile, int64 totalSize, int64 fileSize, int64 totalBytesReady, int64 fileBytesReady);
 	DbProvider * P_Db;
 	uint   SpaceSafetyFactor; // space_needed = actual * SpaceSafetyFactor / 1000
 	int    AbortProcessFlag;
@@ -2471,7 +2468,6 @@ private:
 	struct CopyParams {
 		SString Path;
 		SString TempPath;
-		//SStrCollection FileList;
 		StringSet SsFiles;
 		int64  TotalSize;
 		ulong  CheckSum;

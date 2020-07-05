@@ -432,7 +432,14 @@ class  SoapPacket;
 class  SoapPacketStruc;
 class  SoapPacketArray;
 class  DBTable;
+struct SDataMoveProgressInfo;
 struct _finddatai64_t;
+struct _cairo;
+struct cairo_pattern_t;
+struct cairo_surface_t;
+typedef struct _cairo cairo_t;
+typedef struct _cairo_font_face cairo_font_face_t;
+typedef struct _cairo_scaled_font cairo_scaled_font_t;
 // @construction struct archive; // @v10.4.4
 //
 //
@@ -545,7 +552,7 @@ extern "C" {
 	#define memcpy   A_memcpy
 	#define memmove  A_memmove
 	#define memset   A_memset
-	#define memcmp   A_memcmp // @v8.7.7
+	#define memcmp   A_memcmp
 	//#define strcat   A_strcat
 	//#define strlen   A_strlen
 	//#define strcmp   A_strcmp
@@ -2087,7 +2094,17 @@ public:
     //   indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent
 	//
 	int    FASTCALL Set(const LDATETIME & rD, uint signature);
+	//
+	// Descr: Устанавливает время согласно rD с явным указанием часового пояса и с точностью, заданной сигнатурой signature.
+	// ARG(rD        IN): Дата/время, которые следует установить
+	// ARG(signature IN): Требуемая точность установки.
+	// ARG(timezone  IN): Часовой пояс (-12..+14).
+	//   Допускаются только следующие значения параметра:
+	//   indMSecTz, indCSecTz, indSecTz, indMinTz, indHrTz
+	//
+	int    FASTCALL Set(const LDATETIME & rD, uint signature, int timezone);
 	int    FASTCALL Set(time_t t);
+	int    FASTCALL Set(time_t t, int timezone);
 	int    FASTCALL Set(const FILETIME & rD);
 	//
 	// Descr: Устанавливает время с точность до года year (н.э.)
@@ -5053,8 +5070,6 @@ long   SLAPI SearchStrInFile(FILE *, long startOffset, const char * pStr, int ig
 #define SPRGRS_STOP      2 // for WIN32 eq PROGRESS_STOP
 #define SPRGRS_QUITE     3 // for WIN32 eq PROGRESS_QUITE
 
-struct SDataMoveProgressInfo;
-
 typedef int (* SDataMoveProgressProc)(const SDataMoveProgressInfo *);
 //
 // Descr: Структура данных, информирующая о ходе выполнения процесса передачи данных.
@@ -5083,8 +5098,7 @@ struct SDataMoveProgressInfo {
 typedef int (* PercentFunc)(long, long, const char *, int);
 
 int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc, long shareMode, void * pExtra);
-int compress(char *, char *, int, PercentFunc, ulong*);
-// @v9.4.8 int SLAPI PKUnzip(const char * pSrc, const char * pDest, const char * pZipFile);
+// @v10.8.0 int compress(char *, char *, int, PercentFunc, ulong*);
 int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir);
 int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int compress, PercentFunc pf);
 //
@@ -5106,7 +5120,7 @@ int SLAPI ExecVDos(const ExecVDosParam & rParam);
 //
 //
 //
-struct SDirEntry {
+struct SDirEntry { // @flat
 	SDirEntry & FASTCALL operator = (const _finddatai64_t & rS);
 	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAA & rS);
 	SDirEntry & FASTCALL operator = (const WIN32_FIND_DATAW & rS);
@@ -5168,7 +5182,7 @@ private:
 	int    SLAPI FindNext();
 	int    SLAPI FindClose();
 
-	char   InitPath[MAXPATH];
+	char   InitPath[ALIGNSIZE(MAXPATH, 2)]; // @v10.8.0 MAXPATH-->ALIGNSIZE(MAXPATH, 2)
 	int    InitFlag;
 	int    EnumDir;
 	long   lPosData;
@@ -5655,6 +5669,11 @@ public:
 	static uint32 FASTCALL AP(const void * pData, size_t len);
 	static uint32 FASTCALL XX32(const void * pData, size_t len, uint seed);
 	static uint64 FASTCALL XX64(const void * pData, size_t len, uint64 seed);
+	static uint32 FASTCALL Murmur2_32(const void * pData, size_t len, uint32 seed);
+	static uint64 FASTCALL Murmur2_64(const void * pData, size_t len, uint64 seed);
+	static uint32 FASTCALL Murmur3_32(const void * pData, size_t len, uint32 seed);
+	static void   FASTCALL Murmur3_128x32(const void * pData, size_t len, uint32 seed, void * pResult/* @#128 bytes */);
+	static void   FASTCALL Murmur3_128x64(const void * pData, size_t len, uint32 seed, void * pResult/* @#128 bytes */);
 
 	class State {
 	public:
@@ -12794,9 +12813,21 @@ public:
 		SMtLock Lck_A; // AL-vector lock
 		SMtLock Lck_R; // RL-vector lock
 	};
+	//
+	// Descr: Функция, замещающая malloc.
+	//
 	static void * FASTCALL M(size_t sz);
+	//
+	// Descr: Функция, замещающая calloc.
+	//
 	static void * FASTCALL C(size_t n, size_t sz);
+	//
+	// Descr: Функция, замещающая realloc.
+	//
 	static void * FASTCALL R(void * ptr, size_t sz);
+	//
+	// Descr: Функция, замещающая free.
+	//
 	static void   FASTCALL F(void * ptr);
 };
 //
@@ -13421,17 +13452,6 @@ private:
 	SString FileName;
 	void * P_Image;
 };
-//
-//
-//
-struct _cairo;
-//struct _cairo_pattern;
-struct cairo_pattern_t;
-typedef struct _cairo cairo_t;
-struct cairo_surface_t;
-//typedef struct _cairo_pattern cairo_pattern_t;
-typedef struct _cairo_font_face cairo_font_face_t;
-typedef struct _cairo_scaled_font cairo_scaled_font_t;
 //
 // Утилитные функции
 //

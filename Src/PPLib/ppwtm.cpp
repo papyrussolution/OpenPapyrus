@@ -748,8 +748,7 @@ WhatmanObjectProcessor::~WhatmanObjectProcessor()
 	DS.Unadvise(AdvCookie);
 }
 
-//static
-int WhatmanObjectProcessor::Refresh(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int WhatmanObjectProcessor::Refresh(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
@@ -1153,8 +1152,7 @@ private:
 	CTableOrder * P_Cto;
 };
 
-//static
-int WhatmanObjectCafeTable::Refresh(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int WhatmanObjectCafeTable::Refresh(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
@@ -2680,8 +2678,7 @@ protected:
 	}
 };
 
-//static
-int TestFrameWindow::Run()
+/*static*/int TestFrameWindow::Run()
 {
 	int    ok = 1;
 	TestFrameWindow * p_win = new TestFrameWindow();

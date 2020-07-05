@@ -60,7 +60,7 @@ void LexInterface::Colourise(int start, int end)
 int LexInterface::LineEndTypesSupported()
 {
 	if(instance) {
-		int interfaceVersion = instance->Version();
+		const int interfaceVersion = instance->Version();
 		if(interfaceVersion >= lvSubStyles) {
 			ILexerWithSubStyles * ssinstance = static_cast<ILexerWithSubStyles *>(instance);
 			return ssinstance->LineEndTypesSupported();
@@ -87,30 +87,14 @@ bool UndoGroup::Needed() const
 }
 
 DocModification::DocModification(int modificationType_, int position_ /*= 0*/, int length_ /*= 0*/, int linesAdded_ /*= 0*/, const char * text_ /*= 0*/, int line_ /*= 0*/) :
-	modificationType(modificationType_),
-	position(position_),
-	length(length_),
-	linesAdded(linesAdded_),
-	text(text_),
-	line(line_),
-	foldLevelNow(0),
-	foldLevelPrev(0),
-	annotationLinesAdded(0),
-	token(0)
+	modificationType(modificationType_), position(position_), length(length_), linesAdded(linesAdded_), text(text_),
+	line(line_), foldLevelNow(0), foldLevelPrev(0), annotationLinesAdded(0), token(0)
 {
 }
 
 DocModification::DocModification(int modificationType_, const UndoHistory::Action & act, int linesAdded_ /*= 0*/) :
-	modificationType(modificationType_),
-	position(act.position),
-	length(act.lenData),
-	linesAdded(linesAdded_),
-	text(act.data),
-	line(0),
-	foldLevelNow(0),
-	foldLevelPrev(0),
-	annotationLinesAdded(0),
-	token(0)
+	modificationType(modificationType_), position(act.position), length(act.lenData), linesAdded(linesAdded_),
+	text(act.data), line(0), foldLevelNow(0), foldLevelPrev(0), annotationLinesAdded(0), token(0)
 {
 }
 
@@ -201,28 +185,24 @@ bool Document::SetLineEndTypesAllowed(int lineEndBitSet_)
 			cb.SetLineEndTypes(lineEndBitSetActive);
 			return true;
 		}
-		else {
+		else
 			return false;
-		}
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 void Document::InsertLine(int line)
 {
-	for(int j = 0; j<ldSize; j++) {
-		if(perLineData[j])
-			perLineData[j]->InsertLine(line);
+	for(int j = 0; j < ldSize; j++) {
+		CALLPTRMEMB(perLineData[j], InsertLine(line));
 	}
 }
 
 void Document::RemoveLine(int line)
 {
-	for(int j = 0; j<ldSize; j++) {
-		if(perLineData[j])
-			perLineData[j]->RemoveLine(line);
+	for(int j = 0; j < ldSize; j++) {
+		CALLPTRMEMB(perLineData[j], RemoveLine(line));
 	}
 }
 

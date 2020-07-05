@@ -35,13 +35,6 @@
 //
 //
 //
-struct PrnLineStruc {
-	SString PrnBuf;
-	SlipLineParam Param;
-};
-
-typedef TSCollection <PrnLineStruc> PrnLinesArray;
-
 static void SLAPI WriteLogFile_PageWidthOver(const char * pFormatName)
 {
 	SString msg_fmt, msg;

@@ -3,7 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 //
 //
 //
@@ -759,8 +758,7 @@ SLAPI DL2_GroupStack::DL2_GroupStack() : SStack(sizeof(void *), /*3,*/aryDataOwn
 //
 //
 //
-//static
-DL2_CI * SLAPI DL2_CI::Copy(const DL2_CI * s)
+/*static*/DL2_CI * SLAPI DL2_CI::Copy(const DL2_CI * s)
 {
 	DL2_CI * n = 0;
 	if(s->CiType == DL2CIT_STRING)
@@ -772,8 +770,7 @@ DL2_CI * SLAPI DL2_CI::Copy(const DL2_CI * s)
 	return n;
 }
 
-// static
-DL2_CI * SLAPI DL2_CI::MakeStr(const char * pStr)
+/*static*/DL2_CI * SLAPI DL2_CI::MakeStr(const char * pStr)
 {
 	uint16 len = static_cast<uint16>(pStr ? sstrlen(pStr)+1 : 0);
 	DL2_CI * p_str = new(pStr) DL2_CI;
@@ -788,8 +785,7 @@ DL2_CI * SLAPI DL2_CI::MakeStr(const char * pStr)
 	return p_str;
 }
 
-//static
-void DL2_CI::Destroy(DL2_CI * p)
+/*static*/void DL2_CI::Destroy(DL2_CI * p)
 {
 	delete p;
 }
@@ -1041,8 +1037,7 @@ int SLAPI DL2_ObjList::Set(PPID objType, const StringSet * pSs, int32 * pId)
 	return ok;
 }
 
-//static
-int FASTCALL DL2_ObjList::GetObjToken(PPID objType, SString & rToken)
+/*static*/int FASTCALL DL2_ObjList::GetObjToken(PPID objType, SString & rToken)
 {
 	int    ok = 1;
 	if(objType == PPOBJ_LOCATION)
@@ -1598,8 +1593,7 @@ IMPL_CMPFUNC(DL2_IndexItem, i1, i2)
 }
 
 #ifndef DL200C // {
-//static
-int SLAPI DL2_Storage::IsDL200File(const char * pFileName)
+/*static*/int SLAPI DL2_Storage::IsDL200File(const char * pFileName)
 {
 	int    ok = -1;
 	Header hdr;

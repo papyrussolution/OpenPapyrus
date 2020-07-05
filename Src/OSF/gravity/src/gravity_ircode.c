@@ -9,24 +9,24 @@
 
 //typedef marray_t(inst_t *)      code_r;
 //typedef marray_t(bool *)        context_r;
-typedef GravityArray <inst_t *> code_r;
-typedef GravityArray <bool *>   context_r;
+//typedef GravityArray <inst_t *> code_r;
+//typedef GravityArray <bool *>   context_r;
 
 struct ircode_t {
-	code_r * list;        // array of ircode instructions
-	uint32_r label_true;  // labels used in loops
-	uint32_r label_false;
-	uint32_r label_check;
+	GravityArray <inst_t *> * list;    // array of ircode instructions
+	GravityArray <uint32> label_true;  // labels used in loops
+	GravityArray <uint32> label_false;
+	GravityArray <uint32> label_check;
 	uint32 label_counter;
 	uint32 maxtemp;       // maximum number of temp registers used in this ircode
 	uint32 ntemps;        // current number of temp registers in use
 	uint16 nlocals;       // number of local registers (params + local variables)
 	bool   error;         // error flag set when no more registers are availables
 	uint8  Reserve[1];    // @alignment
-	bool   state[MAX_REGISTERS];          // registers mask
-	bool   skipclear[MAX_REGISTERS];      // registers protection for temps used in for loop
-	uint32_r registers;                 // registers stack
-	context_r context;                  // context array
+	bool   state[MAX_REGISTERS];      // registers mask
+	bool   skipclear[MAX_REGISTERS];  // registers protection for temps used in for loop
+	GravityArray <uint32> registers;  // registers stack
+	GravityArray <bool *> context;    // context array
 };
 
 ircode_t * ircode_create(uint16 nlocals) 
@@ -38,15 +38,15 @@ ircode_t * ircode_create(uint16 nlocals)
 		code->ntemps = 0;
 		code->maxtemp = 0;
 		code->error = false;
-		code->list = static_cast<code_r *>(mem_alloc(NULL, sizeof(code_r)));
+		code->list = new GravityArray <inst_t *>;
 		if(!code->list) 
 			return NULL;
-		marray_init(*code->list);
-		marray_init(code->label_true);
-		marray_init(code->label_false);
-		marray_init(code->label_check);
-		marray_init(code->registers);
-		marray_init(code->context);
+		// @ctr marray_init(*code->list);
+		// @ctr marray_init(code->label_true);
+		// @ctr marray_init(code->label_false);
+		// @ctr marray_init(code->label_check);
+		// @ctr marray_init(code->registers);
+		// @ctr marray_init(code->context);
 		// init state array (register 0 is reserved)
 		memzero(code->state, MAX_REGISTERS * sizeof(bool));
 		code->state[0] = true;
@@ -120,19 +120,20 @@ static inst_t * FASTCALL inst_new(opcode_t op, uint32 p1, uint32 p2, uint32 p3, 
 		}
 	}
     #endif
-	inst_t * inst = static_cast<inst_t *>(mem_alloc(NULL, sizeof(inst_t)));
-	inst->op = op;
-	inst->tag = tag;
-	inst->p1 = p1;
-	inst->p2 = p2;
-	inst->p3 = p3;
-	inst->lineno = lineno;
+	//inst_t * inst = static_cast<inst_t *>(mem_alloc(NULL, sizeof(inst_t)));
+	inst_t * p_inst = new inst_t(op, tag, p1, p2, p3, lineno);
+	//inst->op = op;
+	//inst->tag = tag;
+	//inst->p1 = p1;
+	//inst->p2 = p2;
+	//inst->p3 = p3;
+	//inst->lineno = lineno;
 	if(tag == DOUBLE_TAG) 
-		inst->d = d;
+		p_inst->d = d;
 	else if(tag == INT_TAG) 
-		inst->n = n;
-	assert(inst);
-	return inst;
+		p_inst->n = n;
+	assert(p_inst);
+	return p_inst;
 }
 
 void FASTCALL inst_setskip(inst_t * inst) { inst->tag = SKIP_TAG; }
@@ -158,15 +159,15 @@ void ircode_patch_init(ircode_t * code, uint16 index)
 	// pop temps used
 	ircode_register_pop(code);
 	// create new instruction list
-	code_r * list = (code_r *)(mem_alloc(NULL, sizeof(code_r)));
-	marray_init(*list);
+	GravityArray <inst_t *> * list = new GravityArray <inst_t *>;
+	// @ctr marray_init(*list);
 	// add newly create instructions
 	list->insert(inst1);
 	list->insert(inst2);
 	list->insert(inst3);
 	list->insert(inst4);
 	// then copy original instructions
-	code_r * orig_list = code->list;
+	GravityArray <inst_t *> * orig_list = code->list;
 	const uint32 count = ircode_count(code);
 	for(uint32 i = 0; i < count; ++i) {
 		inst_t * inst = orig_list->at(i);
@@ -247,7 +248,7 @@ uint8_t FASTCALL opcode_numop(opcode_t op)
 void ircode_dump(const void * _code) // code_dump_function
 {
 	const ircode_t * code = static_cast<const ircode_t *>(_code);
-	const code_r * list = code->list;
+	const GravityArray <inst_t *> * list = code->list;
 	uint32 count = ircode_count(code);
 	if(count == 0) {
 		printf("NONE\n");
@@ -404,7 +405,7 @@ void ircode_add_skip(ircode_t * code, uint32 lineno)
 void ircode_add_check(ircode_t * code) 
 {
 	inst_t * inst = code->list->getLast();
-	if((inst) && (inst->op == MOVE)) {
+	if(inst && (inst->op == MOVE)) {
 		inst_t * newinst = inst_new(CHECK, inst->p1, 0, 0, NO_TAG, 0, 0, inst->lineno);
 		code->list->insert(newinst);
 	}
@@ -459,11 +460,13 @@ bool ircode_register_protect_outside_context(ircode_t * code, uint32 nreg)
 {
 	if(nreg < code->nlocals) 
 		return true;
-	if(!code->state[nreg]) 
+	else if(!code->state[nreg]) 
 		return false;
-	bool * context = code->context.getLast();
-	context[nreg] = false;
-	return true;
+	else {
+		bool * context = code->context.getLast();
+		context[nreg] = false;
+		return true;
+	}
 }
 
 void ircode_register_protect_in_context(ircode_t * code, uint32 nreg) 
@@ -499,7 +502,7 @@ uint32 ircode_register_push(ircode_t * code, uint32 nreg)
 
 uint32 ircode_register_first_temp_available(ircode_t * code) 
 {
-	for(uint32 i = 0; i<MAX_REGISTERS; ++i) {
+	for(uint32 i = 0; i < MAX_REGISTERS; ++i) {
 		if(code->state[i] == false) {
 			return i;
 		}
@@ -531,23 +534,25 @@ uint32 FASTCALL ircode_register_pop(ircode_t * code) { return ircode_register_po
 
 void ircode_register_clear(ircode_t * code, uint32 nreg) 
 {
-	if(nreg == REGISTER_ERROR) return;
-	// cleanup busy mask only if it is a temp register
-	if(nreg >= code->nlocals) code->state[nreg] = false;
+	if(nreg != REGISTER_ERROR) {
+		// cleanup busy mask only if it is a temp register
+		if(nreg >= code->nlocals) 
+			code->state[nreg] = false;
+	}
 }
 
 void ircode_register_set(ircode_t * code, uint32 nreg) 
 {
-	if(nreg == REGISTER_ERROR) return;
-	// set busy mask only if it is a temp register
-	if(nreg >= code->nlocals) code->state[nreg] = true;
+	if(nreg != REGISTER_ERROR) {
+		// set busy mask only if it is a temp register
+		if(nreg >= code->nlocals) 
+			code->state[nreg] = true;
+	}
 }
 
 uint32 ircode_register_last(ircode_t * code) 
 {
-	if(code->registers.getCount() == 0) 
-		return REGISTER_ERROR;
-	return code->registers.getLast();
+	return code->registers.getCount() ? code->registers.getLast() : REGISTER_ERROR;
 }
 
 bool ircode_register_istemp(const ircode_t * code, uint32 nreg) { return (nreg >= (uint32)code->nlocals); }
@@ -579,9 +584,10 @@ void ircode_register_temp_unprotect(ircode_t * code, uint32 nreg)
 	DEBUG_REGISTER("UNSET SKIP REGISTER %d", nreg);
 }
 
-void ircode_register_temps_clear(ircode_t * code) {
+void ircode_register_temps_clear(ircode_t * code) 
+{
 	// clear all temporary registers (if not protected)
-	for(uint32 i = code->nlocals; i<=code->maxtemp; ++i) {
+	for(uint32 i = code->nlocals; i <= code->maxtemp; ++i) {
 		if(!code->skipclear[i]) {
 			code->state[i] = false;
 			DEBUG_REGISTER("CLEAR TEMP REGISTER %d", i);

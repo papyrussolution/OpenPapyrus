@@ -158,10 +158,7 @@ cairo_hash_table_t * FASTCALL _cairo_hash_table_create(cairo_hash_keys_equal_fun
 		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 		return NULL;
 	}
-	if(keys_equal == NULL)
-		hash_table->keys_equal = _cairo_hash_table_uid_keys_equal;
-	else
-		hash_table->keys_equal = keys_equal;
+	hash_table->keys_equal = NZOR(keys_equal, _cairo_hash_table_uid_keys_equal);
 	memzero(&hash_table->cache, sizeof(hash_table->cache));
 	hash_table->table_size = &hash_table_sizes[0];
 	hash_table->entries = static_cast<cairo_hash_entry_t **>(SAlloc::C(*hash_table->table_size, sizeof(cairo_hash_entry_t *)));

@@ -1682,9 +1682,8 @@ SLAPI STimeSeries::AnalyzeFitParam::AnalyzeFitParam(uint distance, uint firstIdx
 {
 }
 
-//static 
-int SLAPI STimeSeries::AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
-		RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11)
+/*static*/int SLAPI STimeSeries::AnalyzeFit(const RealArray & rData, const AnalyzeFitParam & rP, RealArray * pTrendList,
+	RealArray * pSumSqList, RealArray * pCov00, RealArray * pCov01, RealArray * pCov11)
 {
 	CALLPTRMEMB(pTrendList, clear());
 	CALLPTRMEMB(pSumSqList, clear());

@@ -1356,7 +1356,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 							else
 								recalc = 0;
 							if(recalc) {
-								recalc_param = (rpe.Left >= 0) ? 1 : 0;
+								recalc_param = BIN(rpe.Left >= 0);
 								if(rpe.Right >= 0)
 									recalc_param += 2;
 								if(recalc_param == 3 && rpe.Flags & crfResizeable)
@@ -1426,7 +1426,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 							else
 								recalc = 0;
 							if(recalc) {
-								recalc_param = (rpe.Top >= 0) ? 1 : 0;
+								recalc_param = BIN(rpe.Top >= 0);
 								if(rpe.Bottom >= 0)
 									recalc_param += 2;
 								if(recalc_param == 3 && p_coord->Flags & crfResizeable)

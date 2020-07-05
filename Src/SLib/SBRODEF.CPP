@@ -547,17 +547,16 @@ int SLAPI BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMo
 	char   str[256];
 	const  char * p = static_cast<const char *>(pPattern);
 	int    r = (srchMode == srchFirst) ? top() : step(1);
-	if(r)
-		do {
-			getText(_curItem(), srchCol, str);
-			strip(str);
-			if(p[0] != '*') {
-			   	str[sstrlen(p)] = 0;
-			   	r = stricmp866(str, p) ? 0 : 1;
-			}
-			else
-				r = stristr866(str, p + 1) ? 1 : 0;
-		} while(!r && step(1) > 0);
+	if(r) do {
+		getText(_curItem(), srchCol, str);
+		strip(str);
+		if(p[0] != '*') {
+			str[sstrlen(p)] = 0;
+			r = stricmp866(str, p) ? 0 : 1;
+		}
+		else
+			r = BIN(stristr866(str, p + 1));
+	} while(!r && step(1) > 0);
 	return r;
 }
 //

@@ -14,8 +14,7 @@ int dummy_ppserver() { return 0; }
 //
 //
 //
-//static
-int FASTCALL PPThread::GetKindText(int kind, SString & rBuf) { return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf); }
+/*static*/int FASTCALL PPThread::GetKindText(int kind, SString & rBuf) { return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf); }
 
 SLAPI PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData), Kind(kind), JobID(0), Text(pText), StartMoment(ZERODATETIME)
 {
@@ -1397,8 +1396,7 @@ SLAPI CPosNodeBlock::~CPosNodeBlock()
 	ZDELETE(P_Prcssr);
 }
 
-//static
-Sdr_CPosCheckRow & SLAPI CPosNodeBlock::MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow)
+/*static*/Sdr_CPosCheckRow & SLAPI CPosNodeBlock::MakeCPosCheckRow(long idx, PPID ccID, const CCheckItem & rCcItem, Sdr_CPosCheckRow & rRow)
 {
 	rRow._id     = idx;
 	rRow.CheckId = ccID;
@@ -3431,8 +3429,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::SetTimeSeries(PPJobSrvReply & rRe
 
 static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 
-//static
-int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
+/*static*/int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 {
 	int    ok = 1;
 	size_t actual_size;
@@ -3507,8 +3504,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 	return ok;
 }
 
-//static
-int PPServerSession::TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, size_t * pActualSize)
+/*static*/int PPServerSession::TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, size_t * pActualSize)
 {
 	int    ok = 1;
 	size_t actual_size;
@@ -3527,8 +3523,7 @@ int PPServerSession::TestSend(TcpSocket & rSo, const void * pBuf, size_t sz, siz
 	return ok;
 }
 
-//static
-int PPServerSession::TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize)
+/*static*/int PPServerSession::TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize)
 {
 	int    ok = 1;
 	size_t actual_size;
@@ -3547,8 +3542,7 @@ int PPServerSession::TestRecv(TcpSocket & rSo, void * pBuf, size_t sz, size_t * 
 	return ok;
 }
 
-//static
-int PPServerSession::TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize)
+/*static*/int PPServerSession::TestRecvBlock(TcpSocket & rSo, void * pBuf, size_t sz, size_t * pActualSize)
 {
 	int    ok = 1;
 	size_t actual_size;

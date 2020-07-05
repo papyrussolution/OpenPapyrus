@@ -82,8 +82,7 @@ static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int func
 	return 0;
 }
 
-//static
-uint16 FASTCALL PPUserProfileFuncEntry::FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
+/*static*/uint16 FASTCALL PPUserProfileFuncEntry::FromLoggedFuncId(long logFuncId, uint16 * pFuncVer)
 {
 	ASSIGN_PTR(pFuncVer, static_cast<uint16>(logFuncId%1000));
 	return static_cast<uint16>(logFuncId/1000);
@@ -595,8 +594,7 @@ SString & SLAPI Profile::GetUserProfileFileName(int fk, SString & rBuf)
 //
 //
 //
-//static
-int SLAPI PPUserFuncProfiler::Init()
+/*static*/int SLAPI PPUserFuncProfiler::Init()
 {
 	return DS.GetTLA().Prf.InitUserProfile(0);
 }
@@ -970,14 +968,13 @@ PPUserProfileCore::UfpLine & PPUserProfileCore::UfpLine::Z()
 {
 	Kind = 0;
 	memzero(this, offsetof(UfpLine, DbSymb));
-	DbSymb = 0;
-	UserName = 0;
-	MachineName = 0;
+	DbSymb.Z();
+	UserName.Z();
+	MachineName.Z();
 	return *this;
 }
 
-//static
-int SLAPI PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, int kind, PPUserProfileCore::UfpLine & rItem)
+/*static*/int SLAPI PPUserProfileCore::ParseUfpLine(StringSet & rSs, SString & rTempBuf, int kind, PPUserProfileCore::UfpLine & rItem)
 {
 	assert(oneof3(kind, Profile::fkSession, Profile::fkStart, Profile::fkFinish));
 	int    ok = 1;

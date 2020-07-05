@@ -46,7 +46,7 @@ static cairo_status_t _cairo_surface_snapshot_finish(void * abstract_surface)
 {
 	cairo_surface_snapshot_t * surface = static_cast<cairo_surface_snapshot_t *>(abstract_surface);
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(surface->clone != NULL) {
 		cairo_surface_finish(surface->clone);
 		status = surface->clone->status;

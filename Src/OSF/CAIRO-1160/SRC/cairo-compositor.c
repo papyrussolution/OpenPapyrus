@@ -45,7 +45,7 @@ cairo_int_status_t _cairo_compositor_paint(const cairo_compositor_t * compositor
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_composite_rectangles_init_for_paint(&extents, surface, op, source, clip);
 	if(unlikely(status))
 		return status;
@@ -69,7 +69,7 @@ cairo_int_status_t _cairo_compositor_mask(const cairo_compositor_t * compositor,
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_composite_rectangles_init_for_mask(&extents, surface, op, source, mask, clip);
 	if(unlikely(status))
 		return status;
@@ -94,7 +94,7 @@ cairo_int_status_t _cairo_compositor_stroke(const cairo_compositor_t * composito
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(_cairo_pen_vertices_needed(tolerance, style->line_width/2, ctm) <= 1)
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
 	status = _cairo_composite_rectangles_init_for_stroke(&extents, surface, op, source, path, style, ctm, clip);
@@ -121,7 +121,7 @@ cairo_int_status_t _cairo_compositor_fill(const cairo_compositor_t * compositor,
 {
 	cairo_composite_rectangles_t extents;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_composite_rectangles_init_for_fill(&extents, surface, op, source, path, clip);
 	if(unlikely(status))
 		return status;
@@ -146,7 +146,7 @@ cairo_int_status_t _cairo_compositor_glyphs(const cairo_compositor_t * composito
 	cairo_composite_rectangles_t extents;
 	boolint overlap;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_composite_rectangles_init_for_glyphs(&extents, surface, op, source, scaled_font,
 		glyphs, num_glyphs, clip, &overlap);
 	if(unlikely(status))

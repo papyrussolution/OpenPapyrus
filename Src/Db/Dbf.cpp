@@ -291,7 +291,7 @@ char * FASTCALL DbfRecord::getFldBuf(int fldN, char * buf) const
 
 int SLAPI DbfRecord::get(int fldN, char * data, int skipEmpty) const
 {
-	int    ok = getFldBuf(fldN, data) ? 1 : 0;
+	int    ok = BIN(getFldBuf(fldN, data));
 	if(ok && skipEmpty) {
 		if(*strip(data) == 0)
 			ok = 0;
@@ -302,7 +302,7 @@ int SLAPI DbfRecord::get(int fldN, char * data, int skipEmpty) const
 int SLAPI DbfRecord::get(int fldN, SString & rBuf, int skipEmpty) const
 {
 	char   temp_buf[1024];
-	int    ok = getFldBuf(fldN, temp_buf) ? 1 : 0;
+	int    ok = BIN(getFldBuf(fldN, temp_buf));
 	rBuf = temp_buf;
 	if(ok && skipEmpty) {
 		if(!rBuf.NotEmptyS())

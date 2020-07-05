@@ -131,8 +131,7 @@ int SLAPI SDirec::FindNext()
 	return (_findnexti64(lPosData, static_cast<FFIND_DATA *>(vPosData)) == 0) ? 1 : -1;
 }
 
-//static 
-int SLAPI SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
+/*static*/int SLAPI SDirec::GetSingle(const char * pPath, SDirEntry * pEntry)
 {
 	int    ok = 0;
 	if(!isempty(pPath)) {

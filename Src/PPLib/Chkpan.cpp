@@ -4791,7 +4791,7 @@ private:
 					ChkList.clear(); // @v10.6.11 freeAll()-->clear()
 					for(i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
 						CCheckViewItem item;
-						MEMSZERO(item);
+						// @v10.8.0 @ctr MEMSZERO(item);
 						*static_cast<CCheckTbl::Rec *>(&item) = *p_rec;
 						if(item.Flags & CCHKF_EXT) {
 							CCheckExtTbl::Rec ext_rec;
@@ -5201,7 +5201,7 @@ int SelCheckListDialog::SplitCheck()
 					if(ChkList.getCount()) {
 						uint pos = 0;
 						CCheckViewItem v_item;
-						MEMSZERO(v_item);
+						// @v10.8.0 @ctr MEMSZERO(v_item);
 						*static_cast<CCheckTbl::Rec *>(&v_item) = pack.Rec;
 						v_item.TableCode = pack.Ext.TableNo;
 						v_item.AgentID   = pack.Ext.SalerID;
@@ -5270,7 +5270,7 @@ int SelCheckListDialog::UniteChecks()
 				if(ChkList.getCount()) {
 					uint   new_pos = 0;
 					CCheckViewItem v_item;
-					MEMSZERO(v_item);
+					// @v10.8.0 @ctr MEMSZERO(v_item);
 					*static_cast<CCheckTbl::Rec *>(&v_item) = pack1.Rec;
 					v_item.TableCode = pack1.Ext.TableNo;
 					v_item.AgentID   = pack1.Ext.SalerID;
@@ -8415,7 +8415,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 				ok = MessageError(PPERR_INVGENGOODSCCOP, 0, eomBeep | eomStatusLine);
 			}
 			else {
-				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1);
+				ok = CheckPaneDialog::VerifyQuantity(goodsID, rBlk.Qtty, 1, 0);
 				if(ok > 0) {
 					if(Flags & fSelSerial && rBlk.Serial.Empty()) {
 						const int r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
@@ -8604,6 +8604,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									else
 										ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
 								}
+								// @v10.8.0 {
+								else
+									ok = -1;
+								// } @v10.8.0 
 								if(imr != -1000)
 									selectCtrl(CTL_CHKPAN_INPUT); // @v10.6.12
 							}
@@ -8837,7 +8841,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		SetupInfo(0);
 }
 
-int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty)
+int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem)
 {
 	int    ok = 1;
 	if(goodsID) {
@@ -8847,7 +8851,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 		if(rQtty != 0.0) {
 			SString temp_buf;
 			//
-			// Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+			// Маркированная алкогольная продукция - строго по одной штуке на строку чека
 			//
 			if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
 				PrcssrAlcReport::GoodsItem agi;
@@ -8860,6 +8864,16 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 					}
 				}
 			}
+			// @v10.8.0 {
+			if(pCurItem && !isempty(pCurItem->ChZnMark)) {
+				if(rQtty != 1.0) {
+					if(adjustQtty)
+						rQtty = 1.0;
+					else
+						ok = MessageError(PPERR_CHZN_MARKEDQTTY, 0, eomBeep|eomStatusLine);
+				}
+			}
+			// } @v10.8.0 
 			//
 			// Проверка на непревышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
 			//
@@ -8981,7 +8995,7 @@ void CheckPaneDialog::AcceptQuantity()
 						qtty = R6(qtty / phuperu);
 					}
 				}
-				ok = VerifyQuantity(goods_id, qtty, 0);
+				ok = VerifyQuantity(goods_id, qtty, 0, &r_cur);
 				if(ok) {
 					r_cur.Quantity = (goods_id == GetChargeGoodsID(CSt.GetID())) ? fabs(R3(qtty)) : qtty;
 					//
@@ -9488,12 +9502,10 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		}
 		// } @v10.1.9
 	}
-	// @v9.8.9 {
 	{
 		const PPID charge_goods_id = (SCardID && (LocalState & stAsSelector)) ? ScObj.GetChargeGoodsID(SCardID) : 0;
 		showButton(cmCharge, charge_goods_id);
 	}
-	// } @v9.8.9
 	setCtrlReal(CTL_SCARDVIEW_SALDO, (uhtt_error == 0) ? uhtt_saldo : local_saldo); // @v10.6.6  (sc_pack.Rec.Rest)-->((uhtt_error == 0) ? uhtt_saldo : local_saldo)
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
 	setCtrlString(CTL_SCARDVIEW_CARD, card);

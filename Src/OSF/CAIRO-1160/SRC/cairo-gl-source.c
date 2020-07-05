@@ -57,7 +57,7 @@ cairo_surface_t * _cairo_gl_pattern_to_source(cairo_surface_t * dst, const cairo
 {
 	cairo_gl_source_t * source;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(pattern == NULL)
 		return _cairo_gl_white_source();
 	source = _cairo_malloc(sizeof(*source));

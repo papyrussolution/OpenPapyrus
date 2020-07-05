@@ -25,16 +25,16 @@ struct gravity_lexer_t {
 	gtoken_t cache;
 };
 
-typedef enum {
+enum gravity_number_type {
 	NUMBER_INTEGER,
 	NUMBER_HEX,
 	NUMBER_BIN,
 	NUMBER_OCT
-} gravity_number_type;
+};
 
 // LEXER macros
 #define NEXT                    lexer->buffer[lexer->offset++]; ++lexer->position; INC_COL
-#define PEEK_CURRENT            lexer->buffer[lexer->offset]
+#define PEEK_CURRENT            static_cast<int>(lexer->buffer[lexer->offset])
 #define PEEK_NEXT               ((lexer->offset < lexer->length) ? lexer->buffer[lexer->offset+1] : 0)
 #define PEEK_NEXT2              ((lexer->offset+1 < lexer->length) ? lexer->buffer[lexer->offset+2] : 0)
 #define INC_LINE                ++lexer->lineno; RESET_COL
@@ -79,7 +79,8 @@ static inline bool is_newline(gravity_lexer_t * lexer, int c)
 	// CR+LF or CR
 	if(c == 0x0D) {
 		if(PEEK_NEXT == 0x0A) {
-			NEXT; return true;
+			NEXT; 
+			return true;
 		}
 		return true;
 	}
@@ -91,7 +92,8 @@ static inline bool is_newline(gravity_lexer_t * lexer, int c)
 	}
 	// LS: Line Separator, U+2028 (UTF-8 in hex: E280A8)
 	if((c == 0xE2) && (PEEK_NEXT == 0x80) && (PEEK_NEXT2 == 0xA8)) {
-		NEXT; NEXT;
+		NEXT; 
+		NEXT;
 		return true;
 	}
 	// and probably more not handled here
@@ -104,10 +106,14 @@ static inline bool is_alpha(int c) { return (c == '_') ? true : LOGIC(isalpha(c)
 
 static inline bool is_digit(int c, gravity_number_type ntype) 
 {
-	if(ntype == NUMBER_BIN) return (c == '0' || (c == '1'));
-	if(ntype == NUMBER_OCT) return (c >= '0' && (c <= '7'));
-	if((ntype == NUMBER_HEX) && ((toupper(c) >= 'A' && toupper(c) <= 'F'))) return true;
-	return LOGIC(isdigit(c));
+	if(ntype == NUMBER_BIN) 
+		return (c == '0' || (c == '1'));
+	else if(ntype == NUMBER_OCT) 
+		return (c >= '0' && (c <= '7'));
+	else if((ntype == NUMBER_HEX) && ((toupper(c) >= 'A' && toupper(c) <= 'F'))) 
+		return true;
+	else
+		return LOGIC(isdigit(c));
 }
 
 static inline bool is_string(int c) { return ((c == '"') || (c == '\'')); }
@@ -121,12 +127,10 @@ static inline bool is_builtin_operator(int c)
 	// . ; : ? ,
 	// OPERATORS
 	// + - * / < > ! = | & ^ % ~
-	return ((c == '+') || (c == '-') || (c == '*') || (c == '/') ||
-	       (c == '<') || (c == '>') || (c == '!') || (c == '=') ||
-	       (c == '|') || (c == '&') || (c == '^') || (c == '%') ||
-	       (c == '~') || (c == '.') || (c == ';') || (c == ':') ||
-	       (c == '?') || (c == ',') || (c == '{') || (c == '}') ||
-	       (c == '[') || (c == ']') || (c == '(') || (c == ')') );
+	/*return ((c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '<') || (c == '>') || (c == '!') || (c == '=') ||
+	       (c == '|') || (c == '&') || (c == '^') || (c == '%') || (c == '~') || (c == '.') || (c == ';') || (c == ':') ||
+	       (c == '?') || (c == ',') || (c == '{') || (c == '}') || (c == '[') || (c == ']') || (c == '(') || (c == ')'));*/
+	return (oneof12(c, '+', '-', '*', '/', '<', '>', '!', '=', '|', '&', '^', '%') || oneof12(c, '~', '.', ';', ':', '?', ',', '{', '}', '[', ']', '(', ')'));
 }
 
 static inline bool is_preprocessor(int c) { return (c == '#'); }

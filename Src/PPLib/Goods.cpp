@@ -3898,7 +3898,8 @@ int SLAPI GoodsCore::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 				if(f) {
 					added_msg = rec.Name;
 					rec.ParentID = 0;
-					if((r = Update(&rec.ID, &rec, 0)) != 0)
+					r = Update(&rec.ID, &rec, 0);
+					if(r != 0)
 						added_msg.Space().Cat("CORRECTED");
 					if(f == 1)
 						PPSetError(PPERR_GOODSGRPSELFPAR, added_msg);

@@ -204,6 +204,27 @@ int SLAPI PPGravityModule::RunFile(const char * pFileName, GravityValue * pResul
 	return ok;
 }
 
+/*
+class PapyrusGravityTestIfc {
+	double Foo(int a, int b);
+	prop X;
+	prop Y;
+	prop Z;
+};
+*/
+
+static bool GravityProc_PapyrusGravityTestIfc_Foo(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+}
+
+static bool GravityProc_PapyrusGravityTestIfc_GetProp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+}
+
+static bool GravityProc_PapyrusGravityTestIfc_SetProp(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+{
+}
+
 void SLAPI TestGravity()
 {
 	int    ok = 1;

@@ -1491,7 +1491,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 	uint   i = 0;
 	SDirEntry * p_fb = 0;
 	SetField(SMailMessage::fldBoundary, MakeBoundaryCode(temp_buf));
-	is_attach = (Flags & SMailMessage::fMultipart) ? 1 : 0;
+	is_attach = BIN(Flags & SMailMessage::fMultipart);
 	{
 		char   sd_buf[256];
 		datetimefmt(getcurdatetime_(), DATF_INTERNET, TIMF_HMS|TIMF_TIMEZONE, sd_buf, sizeof(sd_buf));

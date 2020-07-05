@@ -70,8 +70,7 @@ int SLAPI ExprEvalContext::ResolveFunc(int funcId, FC & rFc)
 	return 0;
 }
 
-//static
-int FASTCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
+/*static*/int FASTCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
 {
 	PPExprParser parser(pStr, pCFL, pCtx);
 	return parser.CalcExpr(pResult);

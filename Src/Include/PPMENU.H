@@ -528,6 +528,7 @@
 #define cmQueryCHZN                    634 // @v10.6.5 Интерактивный запрос к серверу чесный знак
 #define cmConvert10703                 635 // @10.7.3 Конвертация рабочих столов в xml @erik
 #define cmTssModel                     636 // @v10.7.4 Модели построения стратегий на временных сериях
-#define cmGotoVK                       637 // @v10.7.7  Перейти на сайт VK.com в форму авторизации  //@erikTEMP v10.7.7 
+#define cmGotoVK                       637 // @v10.7.7  Перейти на сайт VK.com в форму авторизации  //@erikTEMP v10.7.7
+#define cmCorrectWorldObjNIA           638 // @v10.8.0 Корректировка географических объектов (не интерактивная)
 
 #endif /* __PPMENU_H */

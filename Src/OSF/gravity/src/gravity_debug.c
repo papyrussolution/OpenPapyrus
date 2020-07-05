@@ -39,8 +39,22 @@ const char * opcode_name(opcode_t op)
 	bindex += snprintf(&buffer[bindex], balloc-bindex, __VA_ARGS__);        \
 	bindex += snprintf(&buffer[bindex], balloc-bindex, "\n");
 
-#define DUMP_VM_NOCR(buffer, bindex, ...)               bindex += snprintf(&buffer[bindex], balloc-bindex, "%06u\t", pc);    \
-	bindex += snprintf(&buffer[bindex], balloc-bindex, __VA_ARGS__);
+
+static void DumpVm(char * pBuffer, uint32 bufferSize, uint32 * pBufferIndex, uint32 pc, const char * pFmt, ...)
+{
+//#define DUMP_VM(buffer, bindex, ...)                  
+	va_list arg;
+	va_start(arg, pFmt);
+	uint32 bindex = *pBufferIndex;
+	bindex += snprintf(&pBuffer[bindex], bufferSize-bindex, "%06u\t", pc);
+	bindex += vsnprintf(&pBuffer[bindex], bufferSize-bindex, pFmt, arg);
+	bindex += snprintf(&pBuffer[bindex], bufferSize-bindex, "\n");
+	*pBufferIndex = bindex;
+	va_end(arg);
+}
+
+//#define DUMP_VM_NOCR(buffer, bindex, ...)               bindex += snprintf(&buffer[bindex], balloc-bindex, "%06u\t", pc);    \
+	//bindex += snprintf(&buffer[bindex], balloc-bindex, __VA_ARGS__);
 
 #define DUMP_VM_RAW(buffer, bindex, ...)                bindex += snprintf(&buffer[bindex], balloc-bindex, __VA_ARGS__);
 
@@ -155,37 +169,40 @@ const char * gravity_disassemble(gravity_vm * vm, gravity_function_t * f, const 
 			case MUL:
 			case REM:
 			case AND:
-			case OR: {
-			    OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, const uint32 r2, const uint32 r3);
-			    DUMP_VM(buffer, bindex, "%s %d %d %d", opcode_name(op), r1, r2, r3);
-			    break;
-		    }
+			case OR: 
+				{
+					OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, const uint32 r2, const uint32 r3);
+					DUMP_VM(buffer, bindex, "%s %d %d %d", opcode_name(op), r1, r2, r3);
+				}
+				break;
 			// unary operators
 			case BNOT:
 			case NEG:
-			case NOT: {
-			    OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, const uint32 r2, const uint32 r3);
-		#pragma unused(r3)
-			    DUMP_VM(buffer, bindex, "%s %d %d", opcode_name(op), r1, r2);
-			    break;
-		    }
-			case RANGENEW: {
-			    OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, const uint32 r2, const uint32 r3);
-			    DUMP_VM(buffer, bindex, "%s %d %d %d", opcode_name(op), r1, r2, r3);
-			    break;
-		    }
-			case JUMP: {
-			    OPCODE_GET_ONE26bit(inst, const uint32 value);
-			    DUMP_VM(buffer, bindex, "%s %d", opcode_name(op), value);
-			    break;
-		    }
-			case CALL: {
-			    // CALL A B C => R(A) = B(C0... CN)
-			    OPCODE_GET_THREE8bit(inst, const uint32 r1, const uint32 r2, uint32 r3);
-			    DUMP_VM(buffer, bindex, "%s %d %d %d", opcode_name(op), r1, r2, r3);
-			    break;
-		    }
-
+			case NOT: 
+				{
+					OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, const uint32 r2, const uint32 r3);
+					DUMP_VM(buffer, bindex, "%s %d %d", opcode_name(op), r1, r2);
+				}
+				break;
+			case RANGENEW: 
+				{
+					OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, const uint32 r2, const uint32 r3);
+					DUMP_VM(buffer, bindex, "%s %d %d %d", opcode_name(op), r1, r2, r3);
+				}
+				break;
+			case JUMP: 
+				{
+					OPCODE_GET_ONE26bit(inst, const uint32 value);
+					DUMP_VM(buffer, bindex, "%s %d", opcode_name(op), value);
+				}
+				break;
+			case CALL: 
+				{
+					// CALL A B C => R(A) = B(C0... CN)
+					OPCODE_GET_THREE8bit(inst, const uint32 r1, const uint32 r2, uint32 r3);
+					DUMP_VM(buffer, bindex, "%s %d %d %d", opcode_name(op), r1, r2, r3);
+				}
+				break;
 			case RET0:
 			case RET: 
 				{
@@ -208,35 +225,33 @@ const char * gravity_disassemble(gravity_vm * vm, gravity_function_t * f, const 
 					DUMP_VM(buffer, bindex, "SWITCH instruction not yet implemented");
 				}
 				break;
-			case SETLIST: {
-			    OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, uint32 r2, const uint32 r3);
-		#pragma unused(r3)
-			    DUMP_VM(buffer, bindex, "%s %d %d", opcode_name(op), r1, r2);
-			    break;
-		    }
-
-			case CLOSE: {
-			    OPCODE_GET_ONE8bit_ONE18bit(inst, const uint32 r1, const uint32 r2);
-		#pragma unused(r2)
-			    DUMP_VM(buffer, bindex, "%s %d", opcode_name(op), r1);
-			    break;
-		    }
-
-			case CHECK: {
-			    OPCODE_GET_ONE8bit_ONE18bit(inst, const uint32 r1, const uint32 r2);
-		#pragma unused(r2)
-			    DUMP_VM(buffer, bindex, "%s %d", opcode_name(op), r1);
-			    break;
-		    }
-
+			case SETLIST: 
+				{
+					OPCODE_GET_TWO8bit_ONE10bit(inst, const uint32 r1, uint32 r2, const uint32 r3);
+					DUMP_VM(buffer, bindex, "%s %d %d", opcode_name(op), r1, r2);
+				}
+				break;
+			case CLOSE: 
+				{
+					OPCODE_GET_ONE8bit_ONE18bit(inst, const uint32 r1, const uint32 r2);
+					DUMP_VM(buffer, bindex, "%s %d", opcode_name(op), r1);
+				}
+				break;
+			case CHECK: 
+				{
+					OPCODE_GET_ONE8bit_ONE18bit(inst, const uint32 r1, const uint32 r2);
+					DUMP_VM(buffer, bindex, "%s %d", opcode_name(op), r1);
+				}
+				break;
 			case RESERVED2:
 			case RESERVED3:
 			case RESERVED4:
 			case RESERVED5:
-			case RESERVED6: {
-			    DUMP_VM(buffer, bindex, "RESERVED");
-			    break;
-		    }
+			case RESERVED6: 
+				{
+					DUMP_VM(buffer, bindex, "RESERVED");
+				}
+				break;
 		}
 		++pc;
 	}

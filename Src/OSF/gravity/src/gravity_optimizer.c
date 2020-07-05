@@ -21,20 +21,16 @@
 
 // http://www.mathsisfun.com/binary-decimal-hexadecimal-converter.html
 #define OPCODE_SET(op, code)                             op = (code & 0x3F) << 26
-#define OPCODE_SET_TWO8bit_ONE10bit(op, code, a, b, c)      op = (code & 0x3F) << 26; op += (a & 0xFF) << 18; op += (b & 0xFF) << 10; \
-	op += (c & 0x3FF)
-#define OPCODE_SET_FOUR8bit(op, a, b, c, d)                 op = (a & 0xFF) << 24; op += (b & 0xFF) << 16; op += (c & 0xFF) << 8; \
-	op += (d & 0xFF)
-#define OPCODE_SET_ONE8bit_SIGN_ONE17bit(op, code, a, s, n) op = (code & 0x3F) << 26; op += (a & 0xFF) << 18; op += (s & 0x01) << 17; \
-	op += (n & 0x1FFFF)
+#define OPCODE_SET_TWO8bit_ONE10bit(op, code, a, b, c) op = (code & 0x3F) << 26; op += (a & 0xFF) << 18; op += (b & 0xFF) << 10; op += (c & 0x3FF)
+#define OPCODE_SET_FOUR8bit(op, a, b, c, d)            op = (a & 0xFF) << 24; op += (b & 0xFF) << 16; op += (c & 0xFF) << 8; op += (d & 0xFF)
+#define OPCODE_SET_ONE8bit_SIGN_ONE17bit(op, code, a, s, n) op = (code & 0x3F) << 26; op += (a & 0xFF) << 18; op += (s & 0x01) << 17; op += (n & 0x1FFFF)
 #define OPCODE_SET_SIGN_ONE25bit(op, code, s, a)           op = (code & 0x3F) << 26; op += (s & 0x01) << 25; op += (a & 0x1FFFFFF)
 #define OPCODE_SET_ONE8bit_ONE18bit(op, code, a, n)        op = (code & 0x3F) << 26; op += (a & 0xFF) << 18; op += (n & 0x3FFFF)
 #define OPCODE_SET_ONE26bit(op, code, a)                  op = (code & 0x3F) << 26; op += (a & 0x3FFFFFF)
 #define OPCODE_SET_THREE8bit(op, code, a, b, c)             OPCODE_SET_TWO8bit_ONE10bit(op, code, a, b, c)
 #define OPCODE_SET_ONE8bit_ONE10bit(op, code, a, b)        OPCODE_SET_TWO8bit_ONE10bit(op, code, a, 0, b)
 #define OPCODE_SET_ONE8bit(op, code, a)                   OPCODE_SET_TWO8bit_ONE10bit(op, code, a, 0, 0)
-#define OPCODE_SET_THREE8bit_ONE2bit(op, code, a, b, c, f)   op = (code & 0x3F)<<26; op += (a & 0xFF)<<18; op += (b & 0xFF)<<10; \
-	op += (c & 0xFF)<<2; op += (f & 0x03)
+#define OPCODE_SET_THREE8bit_ONE2bit(op, code, a, b, c, f)   op = (code & 0x3F)<<26; op += (a & 0xFF)<<18; op += (b & 0xFF)<<10; op += (c & 0xFF)<<2; op += (f & 0x03)
 
 // MARK: -
 
@@ -43,18 +39,20 @@ static uint32 hash_compute(GravityValue v) { return gravity_hash_compute_int(v.n
 
 static void finalize_function(gravity_function_t * f, bool add_debug)
 {
-	ircode_t        * code = (ircode_t *)f->bytecode;
+	ircode_t * code = (ircode_t *)f->U.Nf.bytecode;
 	uint32 ninst = 0, count = ircode_count(code);
 	uint32 notpure = 0;
-	uint32        * bytecode = NULL;
-	uint32        * lineno = NULL;
-	gravity_hash_t    * labels = gravity_hash_create(0, hash_compute, hash_isequal, NULL, NULL);
+	uint32 * bytecode = NULL;
+	uint32 * lineno = NULL;
+	gravity_hash_t * labels = gravity_hash_create(0, hash_compute, hash_isequal, NULL, NULL);
 	// determine how big bytecode buffer must be
 	// and collect all LABEL instructions
 	for(uint32 i = 0; i<count; ++i) {
 		inst_t * inst = ircode_get(code, i);
-		if(IS_SKIP(inst)) continue;
-		if(IS_PRAGMA_MOVE_OPT(inst)) continue;
+		if(IS_SKIP(inst)) 
+			continue;
+		if(IS_PRAGMA_MOVE_OPT(inst)) 
+			continue;
 		if(IS_LABEL(inst)) {
 			// insert key inst->p1 into hash table labels with value ninst (next instruction)
 			gravity_hash_insert(labels, GravityValue::from_int(inst->p1), GravityValue::from_int(ninst));
@@ -62,17 +60,15 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 		}
 		++ninst;
 	}
-
 	// +1 is just a trick so the VM switch loop terminates with an implicit RET0 instruction (RET0 has opcode 0)
-	f->ninsts = ninst;
+	f->U.Nf.ninsts = ninst;
 	bytecode = static_cast<uint32 *>(mem_alloc(NULL, (ninst+1) * sizeof(uint32)));
 	if(add_debug) 
 		lineno = static_cast<uint32 *>(mem_alloc(NULL, (ninst+1) * sizeof(uint32)));
 	assert(bytecode);
-
 	uint32 j = 0;
-	for(uint32 i = 0; i<count; ++i) {
-		inst_t * inst = ircode_get(code, i);
+	for(uint32 i = 0; i < count; ++i) {
+		const inst_t * inst = ircode_get(code, i);
 		if(IS_SKIP(inst)) 
 			continue;
 		if(IS_LABEL(inst)) 
@@ -135,14 +131,14 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			case RET:
 			    OPCODE_SET_ONE8bit(op, inst->op, inst->p1);
 			    break;
-			case JUMP: {
-			    GravityValue * v = gravity_hash_lookup(labels, GravityValue::from_int(inst->p1));
-			    assert(v); // key MUST exists!
-			    uint32 njump = (uint32)v->n;
-			    OPCODE_SET_ONE26bit(op, inst->op, njump);
-			    break;
-		    }
-
+			case JUMP: 
+				{
+					GravityValue * v = gravity_hash_lookup(labels, GravityValue::from_int(inst->p1));
+					assert(v); // key MUST exists!
+					uint32 njump = (uint32)v->n;
+					OPCODE_SET_ONE26bit(op, inst->op, njump);
+				}
+				break;
 			case LOADG:
 			case STOREG:
 			    ++notpure;
@@ -150,44 +146,37 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			case LOADK:
 			    OPCODE_SET_ONE8bit_ONE18bit(op, inst->op, inst->p1, inst->p2);
 			    break;
-
 			case CALL:
 			    OPCODE_SET_TWO8bit_ONE10bit(op, inst->op, inst->p1, inst->p2, inst->p3);
 			    break;
-
 			case SETLIST:
 			    OPCODE_SET_TWO8bit_ONE10bit(op, inst->op, inst->p1, inst->p2, inst->p3);
 			    break;
-
 			case LOADU:
 			case STOREU:
 			    ++notpure;
 			    OPCODE_SET_ONE8bit_ONE18bit(op, inst->op, inst->p1, inst->p2);
 			    break;
-
-			case RANGENEW: {
-			    uint8_t flag = (inst->tag == RANGE_INCLUDE_TAG) ? 0 : 1;
-			    OPCODE_SET_THREE8bit_ONE2bit(op, inst->op, inst->p1, inst->p2, inst->p3, flag);
-			    break;
-		    }
+			case RANGENEW: 
+				{
+					uint8_t flag = (inst->tag == RANGE_INCLUDE_TAG) ? 0 : 1;
+					OPCODE_SET_THREE8bit_ONE2bit(op, inst->op, inst->p1, inst->p2, inst->p3, flag);
+				}
+				break;
 			case MAPNEW:
 			case LISTNEW:
 			    OPCODE_SET_ONE8bit_ONE18bit(op, inst->op, inst->p1, inst->p2);
 			    break;
-
 			case SWITCH:
 			    assert(0);
 			    break;
-
 			case CLOSURE:
 			case CLOSE:
 			    OPCODE_SET_ONE8bit_ONE18bit(op, inst->op, inst->p1, inst->p2);
 			    break;
-
 			case CHECK:
 			    OPCODE_SET_ONE8bit_ONE18bit(op, inst->op, inst->p1, inst->p2);
 			    break;
-
 			case RESERVED2:
 			case RESERVED3:
 			case RESERVED4:
@@ -196,18 +185,17 @@ static void finalize_function(gravity_function_t * f, bool add_debug)
 			    assert(0);
 			    break;
 		}
-
 		// add debug information
-		if(add_debug) lineno[j] = inst->lineno;
-
+		if(add_debug) 
+			lineno[j] = inst->lineno;
 		// store encoded instruction
 		bytecode[j++] = op;
 	}
 	ircode_free(code);
 	gravity_hash_free(labels);
-	f->bytecode = bytecode;
-	f->lineno = lineno;
-	f->purity = (notpure == 0) ? 1.0f : ((float)(notpure * 100) / (float)ninst) / 100.0f;
+	f->U.Nf.bytecode = bytecode;
+	f->U.Nf.lineno = lineno;
+	f->U.Nf.purity = (notpure == 0) ? 1.0f : ((float)(notpure * 100) / (float)ninst) / 100.0f;
 }
 
 // MARK: -
@@ -478,9 +466,9 @@ static bool optimize_num_instruction(inst_t * inst, gravity_function_t * f)
 
 gravity_function_t * gravity_optimizer(gravity_function_t * f, bool add_debug) 
 {
-	if(f->bytecode == NULL) 
+	if(f->U.Nf.bytecode == NULL) 
 		return f;
-	ircode_t    * code = (ircode_t *)f->bytecode;
+	ircode_t * code = (ircode_t *)f->U.Nf.bytecode;
 	uint32 count = ircode_count(code);
 	bool optimizer = true;
 	f->ntemps = static_cast<uint16>(ircode_ntemps(code));

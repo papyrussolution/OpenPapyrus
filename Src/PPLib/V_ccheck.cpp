@@ -141,6 +141,17 @@ int SLAPI CCheckFilt::SetLocList(const PPIDArray * pLocList)
 //
 //
 //
+SLAPI CCheckViewItem::CCheckViewItem() : CCheckTbl::Rec(), TableCode(0), Div(0), GuestCount(0), AgentID(0), AddrID(0), BnkAmt(0.0),
+	CrdCardAmt(0.0), G_GoodsID(0), G_Goods2ID(0), G_Count(0), G_Amount(0.0), G_Price(0.0), G_Discount(0.0),
+	G_PctPart(0.0), G_Qtty(0.0), G_SkuCount(0), G_LinesCount(0), CashNodeID(0), LinesCount(0), LinkCheckID(0),
+	RByCheck(0), LineFlags(0), LineQueue(0), CreationDtm(ZERODATETIME), CreationUserID(0)
+{
+	PTR32(G_Text_)[0] = 0;
+	PTR32(Serial)[0] = 0;
+}
+//
+//
+//
 int SLAPI PPViewCCheck::Helper_Construct()
 {
 	ImplementFlags |= (implDontSetupCtColumnsOnChgFilt|implUseServer);

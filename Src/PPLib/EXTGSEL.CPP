@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -29,8 +29,7 @@ private:
 };
 //
 //
-//static
-SArray * SLAPI PickLotBrowser::CreateArray()
+/*static*/SArray * SLAPI PickLotBrowser::CreateArray()
 {
 	SArray * p_ary = new SArray(sizeof(Entry));
 	if(!p_ary)
@@ -38,8 +37,7 @@ SArray * SLAPI PickLotBrowser::CreateArray()
 	return p_ary;
 }
 
-//static
-int FASTCALL PickLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest)
+/*static*/int FASTCALL PickLotBrowser::AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest)
 {
 	int    ok = 1;
 	if(!pAry->lsearch(&pRec->ID, 0, CMPF_LONG, offsetof(Entry, LotID))) {
@@ -81,8 +79,7 @@ IMPL_CMPFUNC(PickLotBrowser_Entry_GoodsName, i1, i2)
 	return stricmp866(e1->GoodsName, e2->GoodsName);
 }
 
-//static
-int SLAPI PickLotBrowser::SortArray(SArray * pAry, int f)
+/*static*/int SLAPI PickLotBrowser::SortArray(SArray * pAry, int f)
 {
 	return pAry ? (pAry->sort(PTR_CMPFUNC(PickLotBrowser_Entry_GoodsName)), 1) : 0;
 }
@@ -257,8 +254,7 @@ int TIDlgInitData::GetTiSign() const
 #define MAX_GOODS_RECS   50000
 #define MIN_WORDSEL_SYMB 4
 
-//static 
-long ExtGoodsSelDialog::GetDefaultFlags()
+/*static*/long ExtGoodsSelDialog::GetDefaultFlags()
 {
 	long   f = 0;
 	UserInterfaceSettings uiset;

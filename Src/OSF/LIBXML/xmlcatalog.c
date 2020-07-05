@@ -172,7 +172,7 @@ static void usershell()
 				if(!ans)
 					printf("No entry for PUBLIC %s\n", argv[0]);
 				else {
-					printf("%s\n", (char *)ans);
+					printf("%s\n", PTRCHRC_(ans));
 					SAlloc::F(ans);
 				}
 			}
@@ -185,7 +185,7 @@ static void usershell()
 				if(!ans)
 					printf("No entry for SYSTEM %s\n", argv[0]);
 				else {
-					printf("%s\n", (char *)ans);
+					printf("%s\n", PTRCHRC_(ans));
 					SAlloc::F(ans);
 				}
 			}
@@ -234,7 +234,7 @@ static void usershell()
 				if(!ans)
 					printf("Resolver failed to find an answer\n");
 				else {
-					printf("%s\n", (char *)ans);
+					printf("%s\n", PTRCHRC_(ans));
 					SAlloc::F(ans);
 				}
 			}
@@ -514,7 +514,7 @@ int main(int argc, char ** argv)
 					exit_value = 4;
 				}
 				else {
-					printf("%s\n", (char *)ans);
+					printf("%s\n", PTRCHRC_(ans));
 					SAlloc::F(ans);
 				}
 			}

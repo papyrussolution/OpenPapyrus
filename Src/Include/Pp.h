@@ -1644,16 +1644,17 @@ private:
 //
 // Backing up
 //
-struct PPBackupScen {
+struct PPBackupScen { // @flat
 	SLAPI  PPBackupScen();
+	PPBackupScen & SLAPI Z();
 	int    SLAPI ToStr(SString & rBuf) const;
 	long   ID;
+	long   Period;     // Backup period (days)
+	long   Flags;      // Reserved
+	long   NumCopies;  // Max number of copies
 	char   Name[64];
 	char   DBName[64];
 	char   BackupPath[MAXPATH];
-	long   Period;     // Backup period (days)
-	long   Flags;      // Reserved
-	long   numCopies;  // Max number of copies
 };
 
 //void TestMonitor();
@@ -17146,6 +17147,7 @@ public:
 		int    SLAPI SelectS2(SelectBlock & rBlk) const;
 	private:
 		int    SLAPI AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
+		int    SLAPI MakeConfidenceEliminationIndex(const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
@@ -20963,12 +20965,11 @@ struct PPBarcodePrinter2 { // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   LabelName[20];  //
 	char   Reserve[28];    // @reserve
-	int16  BcNarrowPt;     // @v8.0.9 Толщина узких полос штрихкода (точек)
-	int16  BcWidePt;       // @v8.0.9 Толщина широких полос штрихкода (точек)
+	int16  BcNarrowPt;     // Толщина узких полос штрихкода (точек)
+	int16  BcWidePt;       // Толщина широких полос штрихкода (точек)
 	char   Port[20];       //
 	CommPortParams Cpp;    // Size=6
-	int16  Cp;             // @v9.2.7 Кодовая страница при выводе текста
-	// @v9.2.7 int16  Reserve2;       // @alignment
+	int16  Cp;             // Кодовая страница при выводе текста
 	long   Flags;          //
 	PPID   PrinterType;    // PPBCPT_ZEBRA | PPBCPT_DATAMAX
 	long   Reserve3;       // @reserve
@@ -23891,7 +23892,7 @@ public:
 	static int  SLAPI ConvertExtraParam(void * extraPtr, SelFilt * pFilt);
 	static int  SLAPI UniteMaxLike();
 	static SString & SLAPI GetNativeCountryName(SString & rBuf);
-
+	static int  SLAPI Recover();
 	explicit SLAPI  PPObjWorld(void * extraPtr = 0);
 	SLAPI ~PPObjWorld();
 	virtual int    SLAPI Browse(void * extraPtr);
@@ -23934,12 +23935,9 @@ public:
 		smlDefault      = 0,             // smlCode|smlName|smlCheckCountry
 		smlCode         = 0x0001,        // Поиск по коду
 		smlName         = 0x0002,        // Поиск по наименованию
-		smlCheckCountry = 0x0004,        // Если код или наименование дали совпадение,
-			// то проверить эквивалентность государства
-		smlCheckParent  = 0x0008,        // Если код или наименование дали совпадение,
-			// то проверить эквивалентность родительского объекта
-		smlCheckCountryOrParent = 0x0010 // Если код или наименование дали совпадение,
-			// то проверить эквивалентность по правилу:
+		smlCheckCountry = 0x0004,        // Если код или наименование дали совпадение, то проверить эквивалентность государства
+		smlCheckParent  = 0x0008,        // Если код или наименование дали совпадение, то проверить эквивалентность родительского объекта
+		smlCheckCountryOrParent = 0x0010 // Если код или наименование дали совпадение, то проверить эквивалентность по правилу:
 			// NZOR(ParentID, CountryID) == NZOR(candidate.ParentID, candidate.CountryID))
 	};
 	int    SLAPI SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pID);
@@ -23994,7 +23992,7 @@ private:
 	int    SLAPI AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack); // @recursion
 	int    SLAPI GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack); // @recursion
 	int    SLAPI Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrace); // @recursion
-
+	int    SLAPI CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta);
 	int    SLAPI Recover(PPLogger * pLogger); // @todo Срочно!!!
 public:
 	static int SLAPI Convert();
@@ -31319,8 +31317,8 @@ public:
 #define BILLOPRT_MODTRANSM         0x0080 // Право на изменение компонентов товарных документов, которые уже были переданы
 	// в другой раздел при том, что вносимые изменения не смогут быть изменены в разделе-получателе.
 #define BILLOPRT_ACCSSUPPL         0x0100 // Доступ к информации о поставщике лота
-#define BILLOPRT_REJECT            0x0200 // @v9.0.1 Право на установку признака 'Отклонен' на документе (если вид операции допускает такое действие)
-#define BILLOPRT_EMPTY             0x0400 // @v9.3.1 Право на сохранение пустого документа
+#define BILLOPRT_REJECT            0x0200 // Право на установку признака 'Отклонен' на документе (если вид операции допускает такое действие)
+#define BILLOPRT_EMPTY             0x0400 // Право на сохранение пустого документа
 //
 // Флаги функции PPObjBill::ConvertILTI
 //
@@ -31351,7 +31349,7 @@ public:
 	// документа из другого раздела. В этом случае ее поведение немного отличается.
 #define CILTIF_MOD                 0x1000 // Функция ConvertILTI должна изменить (удалить,добавить) строку в существующем документе
 #define CILTIF_REPFULLSYNCPROBLEM  0x2000 // Выводить в журнал synclot.log информацию о проблемах подстановки синхронизированного лота
-#define CILTIF_CAREFULLYALIGNPRICE 0x4000 // @9.2.7   Выравнивать цену реализации результирующих строк по исходной сумме в ценах реализации
+#define CILTIF_CAREFULLYALIGNPRICE 0x4000 // Выравнивать цену реализации результирующих строк по исходной сумме в ценах реализации
 #define CILTIF_CUTRESTTOZERO       0x8000 // @v10.7.4 Остатки по лотам срезать до нуля
 //
 // Опции выбора даты зачетной оплаты (PPObjBill::Reckon())
@@ -40499,7 +40497,6 @@ public:
 	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI Init_(const PPBaseFilt * pBaseFilt);
-
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ShipmAnalyzeViewItem *);
 protected:
@@ -40573,7 +40570,6 @@ public:
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	static void FASTCALL MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry);
-
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void * SLAPI GetEditExtraParam();
@@ -40584,7 +40580,6 @@ private:
 	static int DynFuncCheckRights;
 
 	TSArray <BrwEntry> Data;
-
 	AccountFilt Filt;
 	PPObjAccount AccObj;
 	AccAnlzFilt * P_AnlzFilt;
@@ -41738,6 +41733,7 @@ struct CCheckTotal {
 };
 
 struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
+	SLAPI  CCheckViewItem();
 	long   TableCode;      // Номер стола
 	int16  Div;            // Номер отдела (по строкам)
 	int16  GuestCount;     // Количество гостей за столом
@@ -41754,7 +41750,7 @@ struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
 	double G_PctPart;      // Процентаня доля группировке в общей выборке по сумме чеков
 	double G_Qtty;         // Суммарное количество торговых единиц товаров в группировке
 	long   G_SkuCount;     // Суммарное количество (различных) товаров в группировке
-	double G_LinesCount;   // Суммарное количество чековых строк в группировке
+	long   G_LinesCount;   // Суммарное количество чековых строк в группировке // @v10.8.0 double->long
 	long   CashNodeID;     //
 	long   LinesCount;     // Количество строк в чеке (инициализируется только если в фильтре установлен флаг fInitLinesCount
 	long   LinkCheckID;    // Связанный чек (обычно, чек заказа)
@@ -51766,7 +51762,7 @@ private:
 	void   FASTCALL SelectGoods__(int mode);
 	void   AddFromBasket();
 	void   AcceptQuantity();
-	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty);
+	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem);
 	void   AcceptSCard(int fromInput, PPID scardID, int ignoreRights = 0);
 	int    LoadCheck(const CCheckPacket *, int makeRetCheck, int notShow = 0);
 	int    SetupOrder(PPID ordCheckID);

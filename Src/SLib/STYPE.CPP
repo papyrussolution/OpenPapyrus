@@ -136,19 +136,19 @@ int FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f)
 			int    cvt = 1;
 			if(sbt == BTS_INT) {
 				stype(st, &_t).tobase(sd, &int_base);
-				int_base = int_base ? 1 : 0;
+				int_base = BIN(int_base);
 			}
 			else if(sbt == BTS_REAL) {
 				stype(st, &_t).tobase(sd, &real_base);
-				int_base = real_base ? 1 : 0;
+				int_base = BIN(real_base);
 			}
 			else if(sbt == BTS_DATE) {
 				stype(st, &_t).tobase(sd, &date_base);
-				int_base = date_base ? 1 : 0;
+				int_base = BIN(date_base);
 			}
 			else if(sbt == BTS_TIME) {
 				stype(st, &_t).tobase(sd, &time_base);
-				int_base = time_base ? 1 : 0;
+				int_base = BIN(time_base);
 			}
 			else if(sbt == BTS_STRING) {
 				stype(st, &_t).tobase(sd, &str_base);

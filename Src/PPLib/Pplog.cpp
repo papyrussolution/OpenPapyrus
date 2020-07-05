@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -460,8 +460,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-//static
-LRESULT CALLBACK LogListWindowSCI::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+/*static*/LRESULT CALLBACK LogListWindowSCI::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	LogListWindowSCI * p_this = reinterpret_cast<LogListWindowSCI *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if(p_this) {
@@ -1316,8 +1315,7 @@ SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThre
 	*/
 }
 
-//static
-int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb)
+/*static*/int SLAPI PPSession::Helper_Log(PPLogMsgItem & rMsgItem, PPSession::LoggerIntermediateBlock & rLb)
 {
 	const long max_file_size = (rMsgItem.Options & LOGMSGF_UNLIMITSIZE) ? 0 : rLb.CfgMaxFileSize;
 	int   ok = 1;

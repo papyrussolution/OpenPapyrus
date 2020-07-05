@@ -1071,7 +1071,7 @@ int SetupCliBnkFormatsDialog::addItem(long * pPos, long * pID)
 int SetupCliBnkFormatsDialog::editItem(long pos, long id)
 {
 	SString section;
-	return Sections.get((uint *)&id, section) ? EditClientBankFormatDescription(section) : -1;
+	return Sections.get(reinterpret_cast<uint *>(&id), section) ? EditClientBankFormatDescription(section) : -1;
 }
 
 int SetupCliBnkFormatsDialog::delItem(long pos, long id)

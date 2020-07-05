@@ -482,7 +482,7 @@ int FASTCALL SBuffer::Read(SVector * pAry, long options)
 int FASTCALL SBuffer::Write(const SString & rBuf)
 {
 	uint16 sz = (uint16)rBuf.Len();
-	return (Write(&sz, sizeof(sz)) && Write(rBuf.cptr(), sz)) ? 1 : 0;
+	return BIN(Write(&sz, sizeof(sz)) && Write(rBuf.cptr(), sz));
 }
 
 int FASTCALL SBuffer::Read(SString & rBuf)

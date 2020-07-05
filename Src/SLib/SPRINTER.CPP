@@ -136,8 +136,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 	return ok;
 }
 
-//static
-int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.4 TSArray-->TSVector
+/*static*/int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 0;
 	STempBuffer info_buf(32*1024);

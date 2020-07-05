@@ -344,28 +344,18 @@ static boolint can_reduce_alpha_op(cairo_operator_t op)
 	}
 }
 
-static boolint reduce_alpha_op(cairo_surface_t * dst,
-    cairo_operator_t op,
-    const cairo_pattern_t * pattern)
+static boolint reduce_alpha_op(cairo_surface_t * dst, cairo_operator_t op, const cairo_pattern_t * pattern)
 {
-	return dst->is_clear &&
-	       dst->content == CAIRO_CONTENT_ALPHA &&
-	       _cairo_pattern_is_opaque_solid(pattern) &&
-	       can_reduce_alpha_op(op);
+	return dst->is_clear && dst->content == CAIRO_CONTENT_ALPHA && _cairo_pattern_is_opaque_solid(pattern) && can_reduce_alpha_op(op);
 }
 
-static cairo_status_t fixup_unbounded(const cairo_mask_compositor_t * compositor,
-    cairo_surface_t * dst,
-    const cairo_composite_rectangles_t * extents)
+static cairo_status_t fixup_unbounded(const cairo_mask_compositor_t * compositor, cairo_surface_t * dst, const cairo_composite_rectangles_t * extents)
 {
 	cairo_rectangle_int_t rects[4];
 	int n;
-
-	if(extents->bounded.width  == extents->unbounded.width &&
-	    extents->bounded.height == extents->unbounded.height) {
+	if(extents->bounded.width  == extents->unbounded.width && extents->bounded.height == extents->unbounded.height) {
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	n = 0;
 	if(extents->bounded.width == 0 || extents->bounded.height == 0) {
 		rects[n].x = extents->unbounded.x;
@@ -431,40 +421,23 @@ static cairo_status_t fixup_unbounded_with_mask(const cairo_mask_compositor_t * 
 		int y = extents->bounded.y;
 		int width = extents->bounded.x - x;
 		int height = extents->bounded.height;
-
-		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL,
-		    x + mask_x, y + mask_y,
-		    0, 0,
-		    x, y,
-		    width, height);
+		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL, x + mask_x, y + mask_y, 0, 0, x, y, width, height);
 	}
-
 	/* right */
 	if(extents->bounded.x + extents->bounded.width != extents->unbounded.x + extents->unbounded.width) {
 		int x = extents->bounded.x + extents->bounded.width;
 		int y = extents->bounded.y;
 		int width = extents->unbounded.x + extents->unbounded.width - x;
 		int height = extents->bounded.height;
-
-		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL,
-		    x + mask_x, y + mask_y,
-		    0, 0,
-		    x, y,
-		    width, height);
+		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL, x + mask_x, y + mask_y, 0, 0, x, y, width, height);
 	}
-
 	/* bottom */
 	if(extents->bounded.y + extents->bounded.height != extents->unbounded.y + extents->unbounded.height) {
 		int x = extents->unbounded.x;
 		int y = extents->bounded.y + extents->bounded.height;
 		int width = extents->unbounded.width;
 		int height = extents->unbounded.y + extents->unbounded.height - y;
-
-		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL,
-		    x + mask_x, y + mask_y,
-		    0, 0,
-		    x, y,
-		    width, height);
+		compositor->composite(dst, CAIRO_OPERATOR_DEST_OUT, mask, NULL, x + mask_x, y + mask_y, 0, 0, x, y, width, height);
 	}
 	cairo_surface_destroy(mask);
 	return CAIRO_STATUS_SUCCESS;
@@ -515,21 +488,12 @@ static cairo_status_t fixup_unbounded_boxes(const cairo_mask_compositor_t * comp
 				}
 			}
 		}
-
-		status = _cairo_bentley_ottmann_tessellate_boxes(&clear,
-			CAIRO_FILL_RULE_WINDING,
-			&clear);
+		status = _cairo_bentley_ottmann_tessellate_boxes(&clear, CAIRO_FILL_RULE_WINDING, &clear);
 	}
-
 	if(likely(status == CAIRO_STATUS_SUCCESS)) {
-		status = compositor->fill_boxes(dst,
-			CAIRO_OPERATOR_CLEAR,
-			CAIRO_COLOR_TRANSPARENT,
-			&clear);
+		status = compositor->fill_boxes(dst, CAIRO_OPERATOR_CLEAR, CAIRO_COLOR_TRANSPARENT, &clear);
 	}
-
 	_cairo_boxes_fini(&clear);
-
 	return status;
 }
 
@@ -555,7 +519,7 @@ static boolint need_unbounded_clip(cairo_composite_rectangles_t * extents)
 		if(!_cairo_clip_is_region(extents->clip))
 			flags |= NEED_CLIP_SURFACE;
 	}
-	if(extents->clip->path != NULL)
+	if(extents->clip->path)
 		flags |= NEED_CLIP_SURFACE;
 	return flags;
 }

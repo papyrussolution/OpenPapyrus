@@ -526,8 +526,9 @@
 			MENUITEM "@cmd_correctbalance",					cmCorrectBalance
 			MENUITEM "@cmd_correctgoodsgroupsnia",			cmCorrectGoodsGroupsNIA
 			MENUITEM "@cmd_correctgoodsgroups",				cmCorrectGoodsGroups
-			MENUITEM "@cmd_checkgstrucrecursion"			cmCheckGStrucRecursion
-			MENUITEM "@cmd_correctcurrest"					cmCorrectCurRest
+			MENUITEM "@cmd_checkgstrucrecursion",           cmCheckGStrucRecursion
+			MENUITEM "@cmd_correctcurrest",                 cmCorrectCurRest
+			MENUITEM "@cmd_correctworldobj",                cmCorrectWorldObjNIA
 		}
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_jobpool"								cmJobPool

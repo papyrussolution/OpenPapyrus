@@ -285,7 +285,7 @@ int PriceChecker::ConcoleMessage(const char * pMsg, ...)
 		pp_msg++;
 	}
 	str.ToOem();
-	printf("%s\n", (const char *)str);
+	printf("%s\n", str.cptr());
 	return 1;
 }
 

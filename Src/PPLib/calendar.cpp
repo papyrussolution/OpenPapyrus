@@ -525,18 +525,18 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	y_bl = Left;
 	GetClientRect(c_hWnd, &c_r);
 	y_br = c_r.right - y_bl;
-	::GetTextExtentPoint32(hdc, _T("<<"), 2, &ts); // @unicodeproblem
+	::GetTextExtentPoint32(hdc, _T("<<"), 2, &ts);
 	y_bw = ts.cx;
 	y_th = ts.cy;
 	y_t  = IsLarge ? 14 : 10;
 	y_w  = (y_br - y_bl - y_bw * 2) / 5;
-	::TextOut(hdc, y_bl, y_t, _T("<<"), 2); // @unicodeproblem
-	::TextOut(hdc, y_br - y_bw, y_t, _T(">>"), 2); // @unicodeproblem
+	::TextOut(hdc, y_bl, y_t, _T("<<"), 2);
+	::TextOut(hdc, y_br - y_bw, y_t, _T(">>"), 2);
 
 	pen = CreatePen(PS_NULL, 1, 0);
 	oldpen = (HPEN)SelectObject(hdc, pen);
 	for(i = y_firstyear; (int)i <= y_firstyear + 4; i++) {
-		int is_year = (D1.year() >= 1970 || D2.year() < 2500) ? 1 : 0;
+		int is_year = BIN(D1.year() >= 1970 || D2.year() < 2500);
 		if(PeriodSelect && is_year && ((D1.year() <= D2.year() && i >= D1.year() && i <= D2.year()) ||
 			(D2.year() < D1.year() && i >= D2.year() && i <= D1.year()))) {
 			SetTextColor(hdc, C_TEXT2COL);
@@ -551,14 +551,14 @@ void TDateCalendar::OnPaint(HWND hWnd)
 			SetTextColor(hdc, RGB(255, 255, 255));
 		}
 		s.Z().Cat(i);
-		::GetTextExtentPoint32(hdc, SUcSwitch(s), s.Len(), &ts); // @unicodeproblem
-		::TextOut(hdc, Left + (y_br - y_bl - y_w) / 2 + (i - y_firstyear - 2) * y_w + (y_w - ts.cx) / 2, y_t, SUcSwitch(s), s.Len()); // @unicodeproblem
+		::GetTextExtentPoint32(hdc, SUcSwitch(s), s.Len(), &ts);
+		::TextOut(hdc, Left + (y_br - y_bl - y_w) / 2 + (i - y_firstyear - 2) * y_w + (y_w - ts.cx) / 2, y_t, SUcSwitch(s), s.Len());
 	}
 	SelectObject(hdc, oldpen);
 	ZDeleteWinGdiObject(&pen);
 	{
 		HPEN   bg_pen = CreatePen(PS_SOLID, 1, RGB(127, 127, 127));
-		HPEN   old_bg_pen = (HPEN)SelectObject(hdc, bg_pen);
+		HPEN   old_bg_pen = static_cast<HPEN>(::SelectObject(hdc, bg_pen));
 		HBRUSH bg_br = CreateSolidBrush(C_BACKCOL);
 		HBRUSH old_bg_br = static_cast<HBRUSH>(::SelectObject(hdc, bg_br));
 		Rectangle(hdc, Left - 2, Top - 1, Left + (y_br - y_bl), Top + C_CELLH * y_th / 13 * 7);

@@ -1490,7 +1490,7 @@ static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangle
 	cairo_xlib_display_t * display = dst->display;
 	int max_request_size, size;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 
 	if(!CAIRO_RENDER_SUPPORTS_OPERATOR(display, extents->op))
 		return CAIRO_INT_STATUS_UNSUPPORTED;

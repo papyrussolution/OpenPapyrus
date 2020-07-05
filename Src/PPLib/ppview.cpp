@@ -4,13 +4,11 @@
 #include <pp.h>
 #pragma hdrstop
 
-//static
-DBQuery * PPView::CrosstabDbQueryStub = reinterpret_cast<DBQuery *>(0x0001);
+/*static*/DBQuery * PPView::CrosstabDbQueryStub = reinterpret_cast<DBQuery *>(0x0001);
 //
 //
 //
-//static
-int SLAPI PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
+/*static*/int SLAPI PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
@@ -36,8 +34,7 @@ int SLAPI PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
 	return ok;
 }
 
-//static
-int FASTCALL PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
+/*static*/int FASTCALL PPView::CreateFiltInstance(int filtID, PPBaseFilt ** ppF)
 {
 	ASSIGN_PTR(ppF, 0);
 	Rc     rc;
@@ -65,11 +62,9 @@ int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** 
 	return ok;
 }
 
-//static
-int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV) { return CreateInstance(viewID, 0, ppV); }
+/*static*/int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV) { return CreateInstance(viewID, 0, ppV); }
 
-//static
-int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
+/*static*/int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
 {
 	int    ok = 1;
 	PPView * p_v = 0;
@@ -197,8 +192,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 	return ok;
 }
 
-//static
-int FASTCALL PPView::Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr)
+/*static*/int FASTCALL PPView::Helper_Execute(int viewID, const PPBaseFilt * pFilt, int flags, PPView ** ppResult, void * extraPtr)
 {
 	int    ok = 1;
 	int    view_in_use = 0;
@@ -237,11 +231,9 @@ int FASTCALL PPView::Helper_Execute(int viewID, const PPBaseFilt * pFilt, int fl
 	return ok;
 }
 
-//static
-int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, PPView ** ppResult, void * extraPtr)
+/*static*/int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, PPView ** ppResult, void * extraPtr)
 	{ return Helper_Execute(viewID, pFilt, flags, ppResult, extraPtr); }
-//static
-int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
+/*static*/int FASTCALL PPView::Execute(int viewID, const PPBaseFilt * pFilt, int flags, void * extraPtr)
 	{ return Helper_Execute(viewID, pFilt, flags, 0, extraPtr); }
 
 PPObject * PPView::GetObj() const
@@ -424,8 +416,7 @@ IMPL_INVARIANT_C(PPBaseFilt)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-//static
-const char * PPBaseFilt::P_TextSignature = "#TFD";
+/*static*/const char * PPBaseFilt::P_TextSignature = "#TFD";
 
 SLAPI PPBaseFilt::PPBaseFilt(long signature, long capability, int32 ver) : BranchList(sizeof(Branch)),
 	Signature(signature), Capability(capability), Ver(ver), FlatOffs(0), FlatSize(0)
@@ -453,8 +444,7 @@ int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
 	return 1;
 }
 
-//static
-void FASTCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
 {
 	if(objID) {
 		SString & r_obj_name = SLS.AcquireRvlStr(); // @v10.5.4 SLS.AcquireRvlStr()
@@ -463,8 +453,7 @@ void FASTCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char *
 	}
 }
 
-//static
-void FASTCALL PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf)
 {
 	if(pList && !pList->IsEmpty()) {
 		const PPIDArray & r_list = pList->Get();
@@ -500,22 +489,19 @@ void FASTCALL PPBaseFilt::PutFlagsMembToBuf(const StrAssocArray * pFlagList, con
 	}
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(const SString & rParam, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const SString & rParam, const char * pMembName, SString & rBuf)
 {
 	if(rParam.Len() && !isempty(pMembName))
 		rBuf.Cat(pMembName).Eq().Cat(rParam).Semicol();
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf)
 {
 	if(!isempty(pMembName) && !isempty(pParam))
 		rBuf.Cat(pMembName).Eq().Cat(pParam).Semicol();
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
 {
 	if(param != ZERODATE) {
 		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
@@ -523,8 +509,7 @@ void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SStr
 	}
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
 {
 	if(pParam && pParam->IsZero() == 0) {
 		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
@@ -532,8 +517,7 @@ void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pM
 	}
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
 {
 	if(pParam && !pParam->IsZero()) {
 		SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
@@ -541,15 +525,13 @@ void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * p
 	}
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
 {
 	SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 
-//static
-void FASTCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
+/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
 {
 	SString & r_buf = SLS.AcquireRvlStr(); // @v10.0.1
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
@@ -735,8 +717,7 @@ int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 
 static const char * P_FiltTag = "PPFILT";
 
-//static
-int FASTCALL PPView::WriteFiltPtr(SBuffer & rBuf, const PPBaseFilt * pFilt)
+/*static*/int FASTCALL PPView::WriteFiltPtr(SBuffer & rBuf, const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -754,8 +735,7 @@ int FASTCALL PPView::WriteFiltPtr(SBuffer & rBuf, const PPBaseFilt * pFilt)
 	return ok;
 }
 
-//static
-int FASTCALL PPView::ReadFiltPtr(SBuffer & rBuf, PPBaseFilt ** ppFilt)
+/*static*/int FASTCALL PPView::ReadFiltPtr(SBuffer & rBuf, PPBaseFilt ** ppFilt)
 {
 	int    ok = -1;
 	int    tag_kind = 0;
@@ -1315,8 +1295,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	return ok;
 }
 
-//static
-int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
+/*static*/int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
 {
 	rResultFileName.Z();
 	int    ok = 1;
@@ -1415,8 +1394,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 	return ok;
 }
 
-//static
-int SLAPI PPView::EditExecNfViewParam(ExecNfViewParam & rData)
+/*static*/int SLAPI PPView::EditExecNfViewParam(ExecNfViewParam & rData)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;

@@ -1323,9 +1323,9 @@ browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 	"@manufacturer", 3, notype, 0, 20
 	"@brand",       15, notype, 0, 20
 	group "@munits" {
-		"Торговая",       4, notype, 0, 6
-		"Физическая",     5, notype, 0, 6
-		"@ratio",         6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+		"@munit_trade_sl",  4, notype, 0, 6
+		"@munit_ph_sl",     5, notype, 0, 6
+		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	}
 	toolbar GOODS
 }
@@ -1337,9 +1337,9 @@ browser GOODSBARCODE north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 	"@manufacturer", 3, notype, 0, 20
 	"@brand",       15, notype, 0, 20
 	group "@munits" {
-		"Торговая",       4, notype, 0, 6
-		"Физическая",     5, notype, 0, 6
-		"@ratio",         6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+		"@munit_trade_sl",  4, notype, 0, 6
+		"@munit_ph_sl",     5, notype, 0, 6
+		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	}
 	"@barcode",     7, notype, 0, 14
 	toolbar GOODS
@@ -1352,11 +1352,11 @@ browser GOODSCARGO north(100), 3, 0, "Товары {%s} с грузовыми параметрами", OWNE
 	"@manufacturer", 3, notype, 0, 15
 	"@brand",       15, notype, 0, 15
 	group "@munits" {
-		"Торговая",       4, notype, 0, 6
-		"Физическая",     5, notype, 0, 6
-		"@ratio",         6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+		"@munit_trade_sl",  4, notype, 0, 6
+		"@munit_ph_sl",     5, notype, 0, 6
+		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	}
-	"Брутто",          10, notype, NMBF_NOZERO, 8
+	"@cargobrutto",    10, notype, NMBF_NOZERO, 8
 	"Габариты",        11, notype, NMBF_NOZERO, 8
 	"Мин. количество", 12, notype, NMBF_NOZERO, 8
 	"@cargopckg",      13, notype, NMBF_NOZERO, 8
@@ -1370,15 +1370,15 @@ browser GOODSCARGOBARCODE north(100), 3, 0, "Товары {%s} с грузовыми параметрами
 	"@manufacturer", 3, notype, 0, 15
 	"@brand",       15, notype, 0, 15
 	group "@munits" {
-		"Торговая",       4, notype, 0, 6
-		"Физическая",     5, notype, 0, 6
-		"@ratio",         6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
+		"@munit_trade_sl",  4, notype, 0, 6
+		"@munit_ph_sl",     5, notype, 0, 6
+		"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	}
-	"@barcode",     7, notype, 0, 14
-	"Брутто",      10, notype, NMBF_NOZERO, 8
-	"Габариты",    11, notype, NMBF_NOZERO, 8
+	"@barcode",      7, notype, 0, 14
+	"@cargobrutto", 10, notype, NMBF_NOZERO, 8
+	"Габариты",     11, notype, NMBF_NOZERO, 8
 	"Мин. количество", 12, notype, NMBF_NOZERO, 8
-	"@cargopckg",  13, notype, NMBF_NOZERO, 8
+	"@cargopckg",   13, notype, NMBF_NOZERO, 8
 	toolbar GOODS
 }
 
@@ -1512,14 +1512,14 @@ browser ATURNLIST north(100), 1, 0, "Опись проводок {%s}", OWNER|GRID, 0
 
 browser ATURNGRPNG north(100), 2, 0, "Группировка проводок {%s}", OWNER|GRID, 0
 {
-	//"@date",                1, notype, DATF_DMY, 8
-	"@debit",                 4, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 7
-	"@credit",                7, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 7
+	//"@date",               1, notype, DATF_DMY, 8
+	"@debit",                4, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 7
+	"@credit",               7, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 7
 	"Количество\nпроводок", 13, notype, 0, 6
-	"@amount",                14, notype, NMBF_DELCOMMA, 12.2
-	"@currency",               10, notype, 0, 6
-	"Наименование\nсчета дебета",  11, notype, 0, 20
-	"Наименование\nсчета кредита", 12, notype, 0, 20
+	"@amount",              14, notype, NMBF_DELCOMMA, 12.2
+	"@currency",            10, notype, 0, 6
+	"@accnamedbt",          11, notype, 0, 20
+	"@accnamecrd",          12, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL : kbEnter, PPDV_EDITFILE02,         "@{detail}\tEnter"
 		PRINT  : kbF7,    PPDV_PRINTER01,        "@{print}\tF7"
@@ -1537,8 +1537,8 @@ browser ATURNGRPNG_CYCLE north(100), 2, 0, "Группировка проводок по периодам {%s
 	"Количество\nпроводок",   13, notype, 0, 6
 	"@amount",                14, notype, NMBF_DELCOMMA, 12.2
 	"@currency",              10, notype, 0, 6
-	"Наименование\nсчета дебета",  11, notype, 0, 20
-	"Наименование\nсчета кредита", 12, notype, 0, 20
+	"@accnamedbt",            11, notype, 0, 20
+	"@accnamecrd",            12, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL : kbEnter, PPDV_EDITFILE02,         "@{detail}\tEnter"
 		PRINT  : kbF7,    PPDV_PRINTER01,        "@{print}\tF7"
@@ -1566,23 +1566,23 @@ browser BALANCE north(100), 3, 1, "Баланс (%s)", OWNER|GRID, 0
 		"@credit", 10, double, NMBF_DELCOMMA | NMBF_NOZERO, 14.2, BCO_USERPROC
 	}
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL      : kbEnter, PPDV_LINS01,  "@{detail}\tEnter"
+		DETAIL      : kbEnter, PPDV_LINS01,      "@{detail}\tEnter"
 		VIEWACCOUNT : kbF2,    PPDV_EDITFILE02,  "@{account}\tF2"
-		PRINT       : kbF7,    PPDV_PRINTER01, "@{print}\tF7"
-		TOTAL       : kbF9,    PPDV_SIGMA02,  "@{totals}\tF9"
+		PRINT       : kbF7,    PPDV_PRINTER01,   "@{print}\tF7"
+		TOTAL       : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
 	}
 }
 
 toolbar export DEBTTRNOVR TB_FIRST_TOOLBAR {
 	DETAIL     : kbEnter, PPDV_LINS01,        "@{detail}\tEnter"
-	VIEWBILLS  : kbF5,    PPDV_DOCUMENT_PL02,       "Долговые документы\tF5"
-	EDITARTICLE: kbF2,    PPDV_LINS02,      "Аналитическая статья\tF2"
-	EDITPERSON : kbF4,    TBBM_PERSONS,     "@{person}\tF4"
-	DEBTCARD   : kbF3,    TBBM_DEBTCARD,    "Долговая карточка клиента\tF3"
-	RECKONBILLS: kbF6,    TBBM_RECKONBILLS, "Зачетные документы\tF6"
+	VIEWBILLS  : kbF5,    PPDV_DOCUMENT_PL02, "Долговые документы\tF5"
+	EDITARTICLE: kbF2,    PPDV_LINS02,        "Аналитическая статья\tF2"
+	EDITPERSON : kbF4,    TBBM_PERSONS,       "@{person}\tF4"
+	DEBTCARD   : kbF3,    TBBM_DEBTCARD,      "Долговая карточка клиента\tF3"
+	RECKONBILLS: kbF6,    TBBM_RECKONBILLS,   "Зачетные документы\tF6"
 	separator
-	PRINT      : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
-	TOTAL      : kbF9,    PPDV_SIGMA02,        "@{totals}\tF9"
+	PRINT      : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
+	TOTAL      : kbF9,    PPDV_SIGMA02,       "@{totals}\tF9"
 	CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
 }
 
@@ -1665,11 +1665,11 @@ browser ACCREGISTEROPS north(100), 1, 0, "Операции по бухгалтерскому регистру {%
 	"@memo",        10, notype, 0, 32
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM     :  kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
-		ADDITEM      :  kbIns,   PPDV_ADDFILE02, "@{add}\tInsert"
+		ADDITEM      :  kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
 		DELETEITEM   :  kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
-		PRINT        :  kbF7,    PPDV_PRINTER01,  "@{print}\tF7"
-		TOTAL        :  kbF9,    PPDV_SIGMA02,   "@{totals}\tF9"
-		REFRESH      :  kbCtrlV, PPDV_REFRESH01, "@{refresh}\tCtrl-V"
+		PRINT        :  kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
+		TOTAL        :  kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		REFRESH      :  kbCtrlV, PPDV_REFRESH01,    "@{refresh}\tCtrl-V"
 	}
 }
 
@@ -1807,15 +1807,15 @@ browser SUPPLTRNOVR north(100), 3, 1, "Обороты по поставщикам {%s}", OWNER|GRID,
 	}
 	"Остаток\nтоваров", 12, notype, NMBF_NOZERO, 12.2
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL     :  kbEnter, PPDV_LINS02,      "@{analysis}\tEnter"
-		VIEWLOTS   :  kbF3,    PPDV_LOTS,        "@{lots}\tF3"
-		VIEWBILLS  :  kbF4,    PPDV_DOCUMENT_PL02,       "@{documents}\tF4"
-		GOODSREST  :  kbF5,    PPDV_GOODSREST,   "@{view_goodsrest}\tF5"
-		PRINT      :  kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
-		TOTAL      :  kbF9,    PPDV_SIGMA02,        "@{totals}\tF9"
+		DETAIL     :  kbEnter, PPDV_LINS02,        "@{analysis}\tEnter"
+		VIEWLOTS   :  kbF3,    PPDV_LOTS,          "@{lots}\tF3"
+		VIEWBILLS  :  kbF4,    PPDV_DOCUMENT_PL02, "@{documents}\tF4"
+		GOODSREST  :  kbF5,    PPDV_GOODSREST,     "@{view_goodsrest}\tF5"
+		PRINT      :  kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
+		TOTAL      :  kbF9,    PPDV_SIGMA02,       "@{totals}\tF9"
 		separator
 		CHANGEFILT :  kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
-		REFRESH    :  kbCtrlZ, PPDV_REFRESH01, "@{refresh}\tCtrl-Z"
+		REFRESH    :  kbCtrlZ, PPDV_REFRESH01,     "@{refresh}\tCtrl-Z"
 	}
 }
 
@@ -1990,7 +1990,7 @@ browser GOODSITEM_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER|G
 	"@ware",            1, zstring(128), 0, 25, BCO_USERPROC
 	"@qtty",            2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@price",           3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
-	"Валютная\nцена",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
+	"@trfr_curprice",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	"Валютная\nсумма", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
 }
@@ -2002,7 +2002,7 @@ browser GOODSITEMPH_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER
 	"@qtty",            2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
 	"@phqtty",          7, double, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3, BCO_USERPROC
 	"@price",           3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
-	"Валютная\nцена",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
+	"@trfr_curprice",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	"Валютная\nсумма", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
 }
@@ -2343,21 +2343,21 @@ browser CHARGES south(73), 1, 0, "Начисления по документу (%s)", OWNER|GRID, 0
 	"@status",    3, zstring(48),  0, 12, BCO_USERPROC
 	"@oprkind",   4, zstring(48),  0, 12, BCO_USERPROC
 	"@amount",    5, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
-	"Начислено",  6, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
+	"@credited",  6, double,       NMBF_NOZERO, 10.2, BCO_USERPROC
 	"@debt",      7, double,       0, 10.2, BCO_USERPROC
 	"@memo",      8, zstring(256), 0, 60, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,      "@{doeditdocument}\tEnter"
-		ADDITEM          :  kbIns,      PPDV_ADDFILE02,       "@{doadddocument}\tInsert"
-		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01,    "@{doaddbysample}\tAlt-F2"
-		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
-		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,          "@{dochangebillstatus}\tCtrl-F6"
-		SETWLABEL        :  kbF8,       TBBM_MARK,            "@{dowhitelabel}\tF8"
+		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "@{doeditdocument}\tEnter"
+		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
+		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
+		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+		SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
 		separator
 		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,        "Переключить отображение\tCtrl-T"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
-		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{doclink_payment}\tF5"
 		CHARGE           :  kbF6,       TBBM_CHARGE,          "Автоначисление\tF6"
 		PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
 		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
@@ -2382,7 +2382,7 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		SETWLABEL        :  kbF8,       TBBM_MARK,            "@{dowhitelabel}\tF8"
 		separator
 		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,  "@{accturnsbybill}\tCtrl-A"
-		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+		PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{doclink_payment}\tF5"
 		WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,          "Списание драфт-документа\tCtrl-W"
 		COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
 		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,          "@{oprkind}\tCtrl-Q"
@@ -2452,13 +2452,13 @@ browser PSALESGOODS north(100), 3, 1, "@{view_predictsales} (%s)", OWNER|GRID, 0
 	"@date", 0, notype, DATF_DMY, 8
 	group "@byqtty" {
 		"@shipment",  2, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.6
-		"Прогноз",    3, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.6
+		"@forecast",  3, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.6
 		"Ошибка абс", 4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.6
 		"Ошибка %%",  5, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.6
 	}
 	group "По сумме" {
 		"@shipment",  6, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.2
-		"Прогноз",    7, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.2
+		"@forecast",  7, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.2
 		"Ошибка абс", 8, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.2
 		"Ошибка %%",  9, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 12.2
 	}
@@ -3431,7 +3431,7 @@ browser LOGSMON north(100), 1, 1, "@{view_logsmonitor}", OWNER|GRID, 0
 browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 {
 	"@ware",               3, notype, 0, 25
-	"Ед.изм.",             4, notype, 0, 4
+	"@munit",              4, notype, 0, 4
 	"@cargopckg",          5, notype, NMBF_NOZERO, 6
 	"@price",              6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
 	"@{addendumprice} 1",  7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 8.2
@@ -3463,7 +3463,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 {
 	"@ware",               3, notype, 0, 25
-	"Ед.изм.",             4, notype, 0,  4
+	"@munit",              4, notype, 0,  4
 	"@quote",             12, notype, 0, 10
 	"@cargopckg",          5, notype, NMBF_NOZERO, 6
 	"@priceofunit",        6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
@@ -4487,7 +4487,7 @@ browser ADVANCEREPITEM south(73), 1, 1, "Строки авансового отчета {%s}", OWNER|G
 browser WARRANTITEM south(56), 1, 1, "Строки доверенности {%s}", OWNER|GRID, 0
 {
 	"Материальные ценности", 132, zstring(64), 0, 48
-	"Ед.изм",                  4, zstring(24), 0, 10
+	"@munit",                  4, zstring(24), 0, 10
 	"@qtty",                 124, double, NMBF_NOZERO, 8.3
 	toolbar TB_FIRST_TOOLBAR {
 		kbEnter, "@{doeditrow}",         PPDV_EDITFILE02
@@ -4628,16 +4628,16 @@ browser SSTAT north(100), 3, 1, "Статистика по продажам товаров {%s}", OWNER|GRI
 	"@ware",                 2, notype, 0, 25
 	"@itemcount",            3, notype, NMBF_NOTRAILZ, 10
 	group "По реализованному количеству" {
-		"@average",          4, notype, NMBF_NOTRAILZ, 10.4
-		"@stat_stddev",      5, notype, NMBF_NOTRAILZ, 10.4
-		"Вариация",          6, notype, NMBF_NOTRAILZ, 10.4
-		"@turnaround",       7, notype, NMBF_NOTRAILZ, 10.4
+		"@average",               4, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",           5, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_variationcoeff_s", 6, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",            7, notype, NMBF_NOTRAILZ, 10.4
 	}
 	group "По сумме реализации" {
-		"@average",          8, notype, NMBF_NOTRAILZ, 10.4
-		"@stat_stddev",      9, notype, NMBF_NOTRAILZ, 10.4
-		"Вариация",         10, notype, NMBF_NOTRAILZ, 10.4
-		"@turnaround",      11, notype, NMBF_NOTRAILZ, 10.4
+		"@average",                8, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",            9, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_variationcoeff_s", 10, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",            11, notype, NMBF_NOTRAILZ, 10.4
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
@@ -4662,16 +4662,16 @@ browser SSTAT_CYCLE north(100), 3, 1, "Статистика по продажам товаров {%s}", OWN
 	"@cycle",                1, notype, 0,  8
 	"@itemcount",            3, notype, NMBF_NOTRAILZ, 10
 	group "По реализованному количеству" {
-		"@average",         4, notype, NMBF_NOTRAILZ, 10.4
-		"@stat_stddev",     5, notype, NMBF_NOTRAILZ, 10.4
-		"Вариация",         6, notype, NMBF_NOTRAILZ, 10.4
-		"@turnaround",      7, notype, NMBF_NOTRAILZ, 10.4
+		"@average",               4, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",           5, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_variationcoeff_s", 6, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",            7, notype, NMBF_NOTRAILZ, 10.4
 	}
 	group "По сумме реализации" {
-		"@average",         8, notype, NMBF_NOTRAILZ, 10.4
-		"@stat_stddev",     9, notype, NMBF_NOTRAILZ, 10.4
-		"Вариация",        10, notype, NMBF_NOTRAILZ, 10.4
-		"@turnaround",     11, notype, NMBF_NOTRAILZ, 10.4
+		"@average",                8, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_stddev",            9, notype, NMBF_NOTRAILZ, 10.4
+		"@stat_variationcoeff_s", 10, notype, NMBF_NOTRAILZ, 10.4
+		"@turnaround",            11, notype, NMBF_NOTRAILZ, 10.4
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL        : kbEnter,  TBBM_SELLTAB,        "@{waresalestable}\tEnter"
@@ -4805,7 +4805,7 @@ browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 	"Город назначения", 6, notype, 0, 20
 	"@daddress",        7, notype, 0, 30
 	"@amount",          8, notype, 0, 10.2
-	"Брутто",           9, notype, NMBF_NOTRAILZ, 8.3
+	"@cargobrutto",     9, notype, NMBF_NOTRAILZ, 8.3
 	"@volume",         10, notype, NMBF_NOTRAILZ, 8.3
 	"Мест",            11, notype, 0, 8
 	"@memo",           15, notype, 0, 60

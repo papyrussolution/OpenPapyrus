@@ -11,28 +11,23 @@
 	#define setenv(_key, _value_, _unused)      _putenv_s(_key, _value_)
 	#define unsetenv(_key)                      _putenv_s(_key, "")
 #endif
-
-static gravity_class_t * gravity_class_env = NULL;
-static uint32 refcount = 0;
-
 /**
  * Wraps `getenv()` to be used with Gravity.
  *
  */
 static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
-    #pragma unused(nargs)
 	if(!args[1].IsString()) {
-		RETURN_ERROR("Environment variable key must be a string.");
+		return vm->ReturnError(rindex, "Environment variable key must be a string.");
 	}
-	char * key = args[1].GetZString();
-	char * value = getenv(key);
+	const char * key = args[1].GetZString();
+	const char * value = getenv(key);
 	GravityValue rt = GravityValue::from_undefined();
 	// GRAVITY_DEBUG_PRINT("[ENV::GET args : %i] %s => %s\n", nargs, key, value);
 	if(value) {
 		rt = VALUE_FROM_STRING(vm, value, (uint32)strlen(value));
 	}
-	RETURN_VALUE(rt, rindex);
+	return vm->ReturnValue(rt, rindex);
 }
 
 /**
@@ -45,20 +40,18 @@ static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, 
  */
 static bool gravity_env_set(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
-    #pragma unused(nargs)
-	if(!args[1].IsString() || (!args[2].IsString() && !VALUE_ISA_NULL(args[2]))) {
-		RETURN_ERROR("Environment variable key and value must both be strings.");
+	if(!args[1].IsString() || (!args[2].IsString() && !args[2].IsNull())) {
+		return vm->ReturnError(rindex, "Environment variable key and value must both be strings.");
 	}
 	gravity_string_t * key = static_cast<gravity_string_t *>(args[1]);
 	gravity_string_t * value = args[2].IsString() ? static_cast<gravity_string_t *>(args[2]) : NULL;
 	// GRAVITY_DEBUG_PRINT("[ENV::SET args : %i] %s => %s\n", nargs, key, value);
-	int rt = (value) ? setenv(key->s, value->s, 1) : unsetenv(key->s);
-	RETURN_VALUE(GravityValue::from_int(rt), rindex);
+	int rt = (value) ? setenv(key->cptr(), value->cptr(), 1) : unsetenv(key->cptr());
+	return vm->ReturnValue(GravityValue::from_int(rt), rindex);
 }
 
 static bool gravity_env_keys(gravity_vm * vm, GravityValue * args, uint16 nparams, uint32 rindex) 
 {
-    #pragma unused(args, nparams)
 	extern char ** environ;
 	gravity_list_t * keys = gravity_list_new(vm, 16);
 	for(char ** env = environ; *env; ++env) {
@@ -72,10 +65,43 @@ static bool gravity_env_keys(gravity_vm * vm, GravityValue * args, uint16 nparam
 		GravityValue key = VALUE_FROM_STRING(vm, entry, len);
 		keys->array.insert(key);
 	}
-	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(keys)), rindex);
+	return vm->ReturnValue(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(keys)), rindex);
 }
 
+class GravityClassImplementation_Env : public GravityClassImplementation {
+public:
+	GravityClassImplementation_Env() : GravityClassImplementation(GRAVITY_CLASS_ENV_NAME, fCore)
+	{
+	}
+	virtual int Bind(gravity_class_t * pMeta)
+	{
+		int    ok = 1;
+		// .get(key) and .set(key, value)
+		gravity_class_bind_outerproc(pMeta, "get", gravity_env_get);
+		gravity_class_bind_outerproc(pMeta, "set", gravity_env_set);
+		gravity_class_bind_outerproc(pMeta, "keys", gravity_env_keys);
+		// Allow map-access
+		gravity_class_bind_outerproc(pMeta, GRAVITY_INTERNAL_LOADAT_NAME, gravity_env_get);
+		gravity_class_bind_outerproc(pMeta, GRAVITY_INTERNAL_STOREAT_NAME, gravity_env_set);
+		return ok;
+	}
+	virtual void DestroyMeta(gravity_class_t * pMeta)
+	{
+	}
+};
+
+static GravityClassImplementation_Env gravity_clsimp_env;
+
+bool gravity_isenv_class(const gravity_class_t * c) { return (c && c == gravity_clsimp_env.P_Cls); }
+const char * gravity_env_name() { return /*GRAVITY_CLASS_ENV_NAME*/gravity_clsimp_env.P_Name; }
+
+void gravity_env_register(gravity_vm * vm) { gravity_clsimp_env.Register(vm); }
+void gravity_env_free() { gravity_clsimp_env.UnRegister(); }
+
+#if 0 // {
 // MARK: - Internals -
+static gravity_class_t * gravity_class_env = NULL;
+static uint32 refcount = 0;
 
 static void create_optional_class() 
 {
@@ -101,7 +127,7 @@ void gravity_env_register(gravity_vm * vm)
 	++refcount;
 	if(!vm || gravity_vm_ismini(vm)) 
 		return;
-	gravity_vm_setvalue(vm, GRAVITY_CLASS_ENV_NAME, VALUE_FROM_OBJECT(gravity_class_env));
+	gravity_vm_setvalue(vm, GRAVITY_CLASS_ENV_NAME, GravityValue::from_object(gravity_class_env));
 }
 
 void gravity_env_free() 
@@ -120,3 +146,4 @@ void gravity_env_free()
 
 bool gravity_isenv_class(const gravity_class_t * c) { return (c == gravity_class_env); }
 const char * gravity_env_name() { return GRAVITY_CLASS_ENV_NAME; }
+#endif // } 0

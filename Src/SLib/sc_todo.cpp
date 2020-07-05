@@ -1,5 +1,5 @@
 // SC_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2016, 2019, 2020
 // Part of StyloConduit project
 // Экспорт/Импорт задач
 //
@@ -143,7 +143,7 @@ int SCDBObjToDo::RecPalmToHost(PalmRec * pPalmRec, HostRec * pHostRec)
 	if(d != 0xffffU)
 		pHostRec->DueDate = encodedate(d & 0x1f, (d & 0x1e0) >> 5, ((d & 0xfe00) >> 9) + 1904);
 	pHostRec->Priority = (pPalmRec->Priority & 0x7f);
-	pHostRec->Completed = (pPalmRec->Priority & 0x80) ? 1 : 0;
+	pHostRec->Completed = BIN(pPalmRec->Priority & 0x80);
 	const char * p_palm_descr = reinterpret_cast<const char *>(pPalmRec+1);
 	STRNSCPY(pHostRec->Descr, p_palm_descr);
 	size_t offs = sizeof(*pPalmRec) + strlen(p_palm_descr)+1;

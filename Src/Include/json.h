@@ -28,15 +28,11 @@
 #ifndef JSON_H
 #define JSON_H
 
-//#include <stdio.h>
-//#include <stdlib.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// @v8.4.6 #define SIZE_MAX 16386
-#define JSON_MAX_STRING_LENGTH (16386-1) // @v8.4.6 (SIZE_MAX-1)-->(16386-1)
+#define JSON_MAX_STRING_LENGTH (16386-1)
 //
 // Descr: String implementation
 //
@@ -62,7 +58,8 @@ enum json_error {
 	JSON_ILLEGAL_CHARACTER,   // the currently parsed character does not belong here
 	JSON_BAD_TREE_STRUCTURE,  // the document tree structure is malformed
 	JSON_MAXIMUM_LENGTH,      // the parsed string reached the maximum allowed size
-	JSON_UNKNOWN_PROBLEM      // some random, unaccounted problem occurred
+	JSON_UNKNOWN_PROBLEM,     // some random, unaccounted problem occurred
+	JSON_EMPTY_DOCUMENT,      // @v10.8.0 the parsed document is empty
 };
 //
 // The JSON document tree node, which is a basic JSON type
@@ -83,13 +80,12 @@ struct json_t {
 	};
 	explicit json_t(int aType);
 	~json_t();
-	//void   FASTCALL AssignAllocatedText(RcString * pRcs);
 	void   FASTCALL AssignText(const SString & rT);
 	int    FASTCALL Insert(const char * pTextLabel, json_t * pValue);
+	int    FASTCALL InsertString(const char * pTextLabel, const char * pStr);
 
 	int    Type; // the type of node
-	//char * P_Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
-	SString Text;
+	SString Text; // The text stored by the node. It stores UTF-8 strings and is used exclusively by the json_t::tSTRING and JSON_NUMBER node types
 	//
 	// FIFO queue data
 	//
@@ -97,7 +93,7 @@ struct json_t {
 	json_t * P_Previous;  // The pointer pointing to the previous element in the FIFO sibling list
 	json_t * P_Parent;    // The pointer pointing to the parent node in the document tree
 	json_t * P_Child;     // The pointer pointing to the first child node in the document tree
-	json_t * P_ChildEnd; // The pointer pointing to the last child node in the document tree
+	json_t * P_ChildEnd;  // The pointer pointing to the last child node in the document tree
 };
 //
 // The structure holding all information needed to resume parsing
@@ -111,7 +107,6 @@ struct json_parsing_info {
 	}
 	uint   state; // the state where the parsing was left on the last parser run
 	uint   lex_state;
-	//RcString * lex_text;
 	SString Text;
 	char * p;
 	int    string_length_limit_reached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached
@@ -137,9 +132,14 @@ struct json_saxy_functions {
 // The structure holding the information needed for json_saxy_parse to resume parsing
 //
 struct json_saxy_parser_status {
-	uint   state; // current parser state
-	int    string_length_limit_reached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached
-	RcString * temp; // temporary string which will be used to build up parsed strings between parser runs.
+	json_saxy_parser_status() : State(0), StringLengthLimitReached(0), P_Temp(0)
+	{
+	}
+	int    StoreCharInTempString(char c);
+	void   FreeTempString();
+	uint   State; // current parser state
+	int    StringLengthLimitReached; // flag informing if the string limit length defined by JSON_MAX_STRING_LENGTH was reached
+	RcString * P_Temp; // temporary string which will be used to build up parsed strings between parser runs.
 };
 //
 // Buils a json_t document by parsing an open file
@@ -148,12 +148,6 @@ struct json_saxy_parser_status {
 // @return a json_error error code according to how the parsing operation went.
 //
 enum json_error json_stream_parse(FILE * file, json_t ** document);
-//
-// Creates a new JSON value and defines it's type
-// @param type the value's type
-// @return a pointer to the newly created value structure
-//
-// json_t * FASTCALL json_new_value(/*json_value_type*/int type);
 //
 // Creates a new JSON string and defines it's text
 // @param text the value's text
@@ -167,31 +161,6 @@ json_t * FASTCALL json_new_string(const char *text);
 //
 json_t * json_new_number(const char *text);
 //
-// Creates a new JSON object
-// @return a pointer to the newly created JSON object value
-//
-//json_t * json_new_object();
-//
-// Creates a new JSON array
-// @return a pointer to the newly created JSON array value
-//
-//json_t * json_new_array();
-//
-// Creates a new JSON null
-// @return a pointer to the newly created JSON null value
-//
-//json_t * json_new_null();
-//
-// Creates a new JSON true
-// @return a pointer to the newly created JSON true value
-//
-//json_t * json_new_true();
-//
-// Creates a new JSON false
-// @return a pointer to the newly created JSON false value
-//
-//json_t * json_new_false();
-//
 // Frees the memory appointed to the value fed as the parameter, as well as all the child nodes
 // @param value the root node of the tree being freed
 //
@@ -203,14 +172,6 @@ void FASTCALL json_free_value(json_t ** value);
 // @return /*the error code corresponding to the operation result*/
 //
 /*enum json_error*/int FASTCALL json_insert_child(json_t * parent, json_t * child);
-//
-// Inserts a label:value pair into a parent node, as well as performs some document tree integrity checks.
-// @param parent the parent node
-// @param text_label a char string which serves as the label in the label:value pair
-// @param value the value in the label:value pair
-// @return /*the error code corresponding to the operation result*/
-//
-// /*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * parent, const char * text_label, json_t * value);
 //
 // Produces a JSON markup text document from a document tree
 // @param root The document's root node

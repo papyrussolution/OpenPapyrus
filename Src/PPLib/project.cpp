@@ -16,8 +16,7 @@ PPProjectConfig & PPProjectConfig::Z()
 	return *this;
 }
 
-//static
-int FASTCALL PPObjProject::ReadConfig(PPProjectConfig * pCfg)
+/*static*/int FASTCALL PPObjProject::ReadConfig(PPProjectConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg));
 	if(r <= 0)
@@ -60,8 +59,7 @@ static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPac
 	return ok;
 }
 
-//static
-int SLAPI PPObjProject::EditConfig()
+/*static*/int SLAPI PPObjProject::EditConfig()
 {
 	class ProjectCfgDialog : public TDialog {
 	public:
@@ -190,8 +188,7 @@ int SLAPI PPObjProject::EditConfig()
 	return ok;
 }
 
-//static
-SString & FASTCALL PPObjProject::MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf)
+/*static*/SString & FASTCALL PPObjProject::MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf)
 {
 	return rBuf.Z().Cat(pRec->Code).CatDiv('-', 1).Cat(pRec->Name);
 }
@@ -888,10 +885,8 @@ int SLAPI PPViewProject::Export()
 //
 // PrjTaskCore
 //
-//static
-int FASTCALL PrjTaskCore::IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
-//static
-int FASTCALL PrjTaskCore::IsValidPrior(int p) { return (p >= 1 && p <= 5); }
+/*static*/int FASTCALL PrjTaskCore::IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
+/*static*/int FASTCALL PrjTaskCore::IsValidPrior(int p) { return (p >= 1 && p <= 5); }
 
 SLAPI PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 {

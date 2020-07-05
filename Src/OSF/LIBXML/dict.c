@@ -440,7 +440,7 @@ static ulong FASTCALL xmlDictComputeFastQKey(const xmlChar * prefix, int plen, c
 	}
 	len -= plen;
 	if(len > 0) {
-		value += (ulong)':';
+		value += static_cast<ulong>(':');
 		len--;
 	}
 	switch(len) {

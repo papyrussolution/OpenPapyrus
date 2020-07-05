@@ -5,6 +5,7 @@
 #include <ngx_core.h>
 #pragma hdrstop
 
+/* @v10.8.0 (replaced with SlHash::Murmur2_32(a, b, 0)) 
 uint32_t ngx_murmur_hash2(u_char * data, size_t len)
 {
 	uint32_t k;
@@ -23,11 +24,9 @@ uint32_t ngx_murmur_hash2(u_char * data, size_t len)
 		len -= 4;
 	}
 	switch(len) {
-		case 3:
-		    h ^= data[2] << 16;
+		case 3: h ^= data[2] << 16;
 		// @fallthrough
-		case 2:
-		    h ^= data[1] << 8;
+		case 2: h ^= data[1] << 8;
 		// @fallthrough
 		case 1:
 		    h ^= data[0];
@@ -37,5 +36,4 @@ uint32_t ngx_murmur_hash2(u_char * data, size_t len)
 	h *= 0x5bd1e995;
 	h ^= h >> 15;
 	return h;
-}
-
+}*/

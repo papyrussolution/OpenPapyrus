@@ -1,5 +1,5 @@
 // TPROGRAM_EXP.CPP
-// Copyright (c) A.Sobolev 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020
 //
 //
 #include <slib.h>
@@ -38,7 +38,7 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 			if(brw) {
 				const long _r = brw->GetResID();
 				if(kind == 3 && _r >= TBaseBrowserWindow::IdBiasTextBrowser) {
-					if(((STextBrowser*)brw)->CmpFileName(pFileName) == 0)
+					if(static_cast<STextBrowser *>(brw)->CmpFileName(pFileName) == 0)
 						return static_cast<TBaseBrowserWindow *>(brw);
 				}
 				else if(_r == res_id /*|| _r == (res_id - res_offs)*/)

@@ -140,7 +140,7 @@ cairo_damage_t * _cairo_damage_add_region(cairo_damage_t * damage, const cairo_r
 {
 	cairo_box_t * boxes;
 	int nbox;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	boxes = _cairo_region_get_boxes(region, &nbox);
 	return _cairo_damage_add_boxes(damage, boxes, nbox);
 }

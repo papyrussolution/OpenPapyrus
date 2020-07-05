@@ -109,7 +109,6 @@ void memdebug_init()
 
 void * memdebug_malloc(gravity_vm * vm, size_t size) 
 {
-    #pragma unused(vm)
 	void * ptr = SAlloc::M(size);
 	if(!ptr) {
 		BUILD_ERROR("Unable to allocated a block of %zu bytes", size);
@@ -123,13 +122,11 @@ void * memdebug_malloc(gravity_vm * vm, size_t size)
 
 void * memdebug_malloc0(gravity_vm * vm, size_t size) 
 {
-    #pragma unused(vm)
 	return memdebug_calloc(vm, 1, size);
 }
 
 void * memdebug_calloc(gravity_vm * vm, size_t num, size_t size) 
 {
-    #pragma unused(vm)
 	void * ptr = SAlloc::C(num, size);
 	if(!ptr) {
 		BUILD_ERROR("Unable to allocated a block of %zu bytes", size);
@@ -143,7 +140,6 @@ void * memdebug_calloc(gravity_vm * vm, size_t num, size_t size)
 
 void * memdebug_realloc(gravity_vm * vm, void * ptr, size_t new_size) 
 {
-    #pragma unused(vm)
 	// ensure ptr has been previously allocated by malloc, calloc or realloc and not yet freed with free
 	uint32 index = _ptr_lookup(ptr);
 	if(index == SLOT_NOTFOUND) {

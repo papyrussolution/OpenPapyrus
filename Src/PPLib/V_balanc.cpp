@@ -1,6 +1,6 @@
 // V_BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -30,7 +30,7 @@ struct Balance_AccItem {
 	int16  Kind;
 };
 
-IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2((const Balance_AccItem *)p1, (const Balance_AccItem *)p2, Ac, Sb); }
+IMPL_CMPCFUNC(Balance_AccItem_AcSb, p1, p2) { RET_CMPCASCADE2(static_cast<const Balance_AccItem *>(p1), static_cast<const Balance_AccItem *>(p2), Ac, Sb); }
 
 int SLAPI PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 {
@@ -110,7 +110,7 @@ int SLAPI PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 				}
 				else if(p_aci->Kind == ACT_AP) {
 					//
-					// Ñâåðòêà îñòàòêîâ ïî àêòèâíî-ïàññèâíûì ñ÷åòàì
+					// Ð¡Ð²ÐµÑ€Ñ‚ÐºÐ° Ð¾ÑÑ‚Ð°Ñ‚ÐºÐ¾Ð² Ð¿Ð¾ Ð°ÐºÑ‚Ð¸Ð²Ð½Ð¾-Ð¿Ð°ÑÑÐ¸Ð²Ð½Ñ‹Ð¼ ÑÑ‡ÐµÑ‚Ð°Ð¼
 					//
 					if(entry.OutDbtRest >= entry.OutCrdRest) {
 						entry.OutDbtRest -= entry.OutCrdRest;
@@ -211,76 +211,75 @@ PPBaseFilt * SLAPI PPViewBalance::CreateFilt(void * extraPtr) const
 }
 
 class BalanceFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(BalanceFilt);
 public:
 	BalanceFiltDialog() : TDialog(DLG_BALFORM)
 	{
 		SetupCalCtrl(CTLCAL_BALFORM_PERIOD, this, CTL_BALFORM_PERIOD, 1);
 		setDTS(0);
 	}
-	int    setDTS(const BalanceFilt * pFilt)
+	DECL_DIALOG_SETDTS()
 	{
-		if(!RVALUEPTR(Filt, pFilt)) {
-			Filt.Init(1, 0);
-			Filt.AccType = ACY_BAL;
+		if(!RVALUEPTR(Data, pData)) {
+			Data.Init(1, 0);
+			Data.AccType = ACY_BAL;
 		}
-		PPID   cur_id = Filt.CurID;
-		SetPeriodInput(this, CTL_BALFORM_PERIOD, &Filt.Period);
+		PPID   cur_id = Data.CurID;
+		SetPeriodInput(this, CTL_BALFORM_PERIOD, &Data.Period);
 		::SetupCurrencyCombo(this, CTLSEL_BALFORM_CUR, cur_id, 0, 1, 0);
 		ushort v = 0;
 		AddClusterAssoc(CTL_BALFORM_OPTIONS, 0, BALFORM_IGNOREZERO);
 		AddClusterAssoc(CTL_BALFORM_OPTIONS, 1, BALFORM_THOUSAND);
 		AddClusterAssoc(CTL_BALFORM_OPTIONS, 2, BALFORM_ACO1GROUPING);
-		SetClusterData(CTL_BALFORM_OPTIONS, Filt.Flags);
-		if(Filt.Flags & BALFORM_SPREADBYSUBACC)
+		SetClusterData(CTL_BALFORM_OPTIONS, Data.Flags);
+		if(Data.Flags & BALFORM_SPREADBYSUBACC)
 			v = 1;
-		else if(Filt.Flags & BALFORM_SPREADBYARTICLE)
+		else if(Data.Flags & BALFORM_SPREADBYARTICLE)
 			v = 2;
 		else
 			v = 0;
 		setCtrlData(CTL_BALFORM_SPREAD, &v);
 		AddClusterAssoc(CTL_BALFORM_ALLCUR, 0, BALFORM_ALLCUR);
-		SetClusterData(CTL_BALFORM_ALLCUR, Filt.Flags);
-		if(Filt.AccType == ACY_BAL)
+		SetClusterData(CTL_BALFORM_ALLCUR, Data.Flags);
+		if(Data.AccType == ACY_BAL)
 			v = 0;
-		else if(Filt.AccType == ACY_OBAL)
+		else if(Data.AccType == ACY_OBAL)
 			v = 1;
-		else if(Filt.AccType == ACY_REGISTER)
+		else if(Data.AccType == ACY_REGISTER)
 			v = 2;
 		else
 			v = 0;
 		setCtrlData(CTL_BALFORM_ACCTYPE, &v);
 		return 1;
 	}
-	int    getDTS(BalanceFilt * pFilt)
+	DECL_DIALOG_GETDTS()
 	{
 		ushort v = 0;
 		PPID   cur_id = 0;
-		if(!GetPeriodInput(this, CTL_BALFORM_PERIOD, &Filt.Period) || !AdjustPeriodToRights(Filt.Period, 1))
+		if(!GetPeriodInput(this, CTL_BALFORM_PERIOD, &Data.Period) || !AdjustPeriodToRights(Data.Period, 1))
 			return PPErrorZ();
 		getCtrlData(CTLSEL_BALFORM_CUR, &cur_id);
-		GetClusterData(CTL_BALFORM_OPTIONS, &Filt.Flags);
+		GetClusterData(CTL_BALFORM_OPTIONS, &Data.Flags);
 		getCtrlData(CTL_BALFORM_SPREAD, &(v = 0));
-		Filt.Flags &= ~(BALFORM_SPREADBYSUBACC|BALFORM_SPREADBYARTICLE);
+		Data.Flags &= ~(BALFORM_SPREADBYSUBACC|BALFORM_SPREADBYARTICLE);
 		switch(v) {
-			case 1: Filt.Flags |= BALFORM_SPREADBYSUBACC;  break;
-			case 2: Filt.Flags |= BALFORM_SPREADBYARTICLE; break;
+			case 1: Data.Flags |= BALFORM_SPREADBYSUBACC;  break;
+			case 2: Data.Flags |= BALFORM_SPREADBYARTICLE; break;
 		}
-		GetClusterData(CTL_BALFORM_ALLCUR, &Filt.Flags);
+		GetClusterData(CTL_BALFORM_ALLCUR, &Data.Flags);
 		getCtrlData(CTL_BALFORM_ACCTYPE, &(v = 0));
 		if(v == 0)
-			Filt.AccType = ACY_BAL;
+			Data.AccType = ACY_BAL;
 		else if(v == 1)
-			Filt.AccType = ACY_OBAL;
+			Data.AccType = ACY_OBAL;
 		else if(v == 2)
-			Filt.AccType = ACY_REGISTER;
+			Data.AccType = ACY_REGISTER;
 		else
-			Filt.AccType = ACY_BAL;
-		Filt.CurID = (Filt.Flags & BALFORM_ALLCUR) ? -1 : cur_id;
-		*pFilt = Filt;
+			Data.AccType = ACY_BAL;
+		Data.CurID = (Data.Flags & BALFORM_ALLCUR) ? -1 : cur_id;
+		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-private:
-	BalanceFilt Filt;
 };
 
 
@@ -330,8 +329,8 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		SString temp_buf;
 		const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
-			case 3: *static_cast<Acct *>(pBlk->P_DestData) = *reinterpret_cast<const Acct *>(&p_item->Ac); break; // Íîìåð ñ÷åòà
-			case 4: // Ñèìâîë âàëþòû
+			case 3: *static_cast<Acct *>(pBlk->P_DestData) = *reinterpret_cast<const Acct *>(&p_item->Ac); break; // ÐÐ¾Ð¼ÐµÑ€ ÑÑ‡ÐµÑ‚Ð°
+			case 4: // Ð¡Ð¸Ð¼Ð²Ð¾Ð» Ð²Ð°Ð»ÑŽÑ‚Ñ‹
 				if(p_item->CurID > 0) {
 					PPCurrency cur_rec;
 					if(CurObj.Fetch(p_item->CurID, &cur_rec) > 0)
@@ -342,13 +341,13 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				else
 					pBlk->SetZero();
 				break;
-			case 5: pBlk->Set(p_item->InDbtRest); break; // Âõîäÿùèé äåáåò
-			case 6: pBlk->Set(p_item->InCrdRest); break; // Âõîäÿùèé êðåäèò
-			case 7: pBlk->Set(p_item->DbtTrnovr); break; // Îáîðîòû äåáåò
-			case 8: pBlk->Set(p_item->CrdTrnovr); break; // Îáîðîòû êðåäèò
-			case 9: pBlk->Set(p_item->OutDbtRest); break; // Èñõîäÿùèé äåáåò
-			case 10: pBlk->Set(p_item->OutCrdRest); break; // Èñõîäÿùèé êðåäèò
-			case 11: // Íàèìåíîâàíèå ñ÷åòà
+			case 5: pBlk->Set(p_item->InDbtRest); break; // Ð’Ñ…Ð¾Ð´ÑÑ‰Ð¸Ð¹ Ð´ÐµÐ±ÐµÑ‚
+			case 6: pBlk->Set(p_item->InCrdRest); break; // Ð’Ñ…Ð¾Ð´ÑÑ‰Ð¸Ð¹ ÐºÑ€ÐµÐ´Ð¸Ñ‚
+			case 7: pBlk->Set(p_item->DbtTrnovr); break; // ÐžÐ±Ð¾Ñ€Ð¾Ñ‚Ñ‹ Ð´ÐµÐ±ÐµÑ‚
+			case 8: pBlk->Set(p_item->CrdTrnovr); break; // ÐžÐ±Ð¾Ñ€Ð¾Ñ‚Ñ‹ ÐºÑ€ÐµÐ´Ð¸Ñ‚
+			case 9: pBlk->Set(p_item->OutDbtRest); break; // Ð˜ÑÑ…Ð¾Ð´ÑÑ‰Ð¸Ð¹ Ð´ÐµÐ±ÐµÑ‚
+			case 10: pBlk->Set(p_item->OutCrdRest); break; // Ð˜ÑÑ…Ð¾Ð´ÑÑ‰Ð¸Ð¹ ÐºÑ€ÐµÐ´Ð¸Ñ‚
+			case 11: // ÐÐ°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ ÑÑ‡ÐµÑ‚Ð°
 				if(p_item->AccID > 0) {
 					PPAccount acc_rec;
 					if(AccObj.Fetch(p_item->AccID, &acc_rec) > 0)

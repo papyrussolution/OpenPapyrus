@@ -19,9 +19,9 @@ typedef GravityArray <gravity_hash_t *> ghash_r;
 #define scope_stack_push(r, hash)        (r)->insert(hash)
 #define scope_stack_pop(r)              ((r)->getCount() ? (r)->pop() : NULL)
 
-//#define VALUE_FROM_NODE(x)              ((GravityValue){.isa = NULL, .p = (gravity_object_t *)(x)})
-#define VALUE_FROM_NODE(x)              (GravityValue::from_node(x))
-#define VALUE_AS_NODE(x)                ((gnode_t *)VALUE_AS_OBJECT(x))
+//#define VALUE_FROM_NODE(x)              ((GravityValue){.isa = NULL, .p = (gravity_class_t *)(x)})
+//#define VALUE_FROM_NODE(x)              (GravityValue::from_node(x))
+#define VALUE_AS_NODE(x)                (reinterpret_cast<gnode_t *>(VALUE_AS_OBJECT(x)))
 
 // MARK: -
 
@@ -36,29 +36,29 @@ struct symboltable_t {
 
 // MARK: -
 
-static void check_upvalue_inscope(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) {
-    #pragma unused(hashtable, key)
-
+static void check_upvalue_inscope(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
+{
 	uint32 index = *(uint32 *)data;
 	gnode_t * node = VALUE_AS_NODE(value);
-	if(NODE_ISA(node, NODE_VARIABLE)) {
+	if(gnode_t::IsA(node, NODE_VARIABLE)) {
 		gnode_var_t * var = (gnode_var_t *)node;
 		if(var->upvalue) {
-			if((index == UINT32_MAX) || (var->index < index)) *(uint32 *)data = var->index;
+			if((index == UINT32_MAX) || (var->index < index)) 
+				*(uint32 *)data = var->index;
 		}
 	}
 }
 
 // MARK: -
 
-static void symboltable_hash_free(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) {
-    #pragma unused(hashtable, value, data)
+static void symboltable_hash_free(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
+{
 	// free key only because node is usually retained by other objects and freed in other points
 	gravity_value_free(NULL, key);
 }
 
-static void symboltable_keyvalue_free(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) {
-    #pragma unused(hashtable, data)
+static void symboltable_keyvalue_free(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
+{
 	// in enum nodes are retained by the symboltable
 	gnode_t * node = VALUE_AS_NODE(value);
 	gnode_free(node);
@@ -70,21 +70,20 @@ symboltable_t * symboltable_create(symtable_tag tag)
 	bool is_enum = (tag == SYMTABLE_TAG_ENUM);
 	symboltable_t * table = static_cast<symboltable_t *>(mem_alloc(NULL, sizeof(symboltable_t)));
 	gravity_hash_t * hash = gravity_hash_create(0, gravity_value_hash, gravity_value_equals, (is_enum) ? symboltable_keyvalue_free : symboltable_hash_free, NULL);
-	if(!table) 
-		return NULL;
-	// init symbol table
-	table->tag = tag;
-	table->count1 = 0;
-	table->count2 = 0;
-	table->count3 = 0;
-	table->stack = static_cast<ghash_r *>(mem_alloc(NULL, sizeof(ghash_r)));
-	scope_stack_init(table->stack);
-	scope_stack_push(table->stack, hash);
-
+	if(table) {
+		// init symbol table
+		table->tag = tag;
+		table->count1 = 0;
+		table->count2 = 0;
+		table->count3 = 0;
+		table->stack = static_cast<ghash_r *>(mem_alloc(NULL, sizeof(ghash_r)));
+		scope_stack_init(table->stack);
+		scope_stack_push(table->stack, hash);
+	}
 	return table;
 }
 
-void symboltable_free(symboltable_t * table) 
+void FASTCALL symboltable_free(symboltable_t * table) 
 {
 	if(table) {
 		const size_t n = scope_stack_size(table->stack);
@@ -102,32 +101,31 @@ void symboltable_free(symboltable_t * table)
 
 bool symboltable_insert(symboltable_t * table, const char * identifier, gnode_t * node) 
 {
-	if(!identifier) return false;
+	if(!identifier) 
+		return false;
 	size_t n = scope_stack_size(table->stack);
-	gravity_hash_t    * h = scope_stack_get(table->stack, n-1);
-
+	gravity_hash_t * h = scope_stack_get(table->stack, n-1);
 	// insert node with key identifier into hash table (and check if already exists in current scope)
-	GravityValue key = VALUE_FROM_CSTRING(NULL, identifier);
+	GravityValue key = gravity_zstring_to_value(NULL, identifier);
 	if(gravity_hash_lookup(h, key) != NULL) {
 		gravity_value_free(NULL, key);
 		return false;
 	}
-	gravity_hash_insert(h, key, VALUE_FROM_NODE(reinterpret_cast<gravity_object_t *>(node)));
-
+	gravity_hash_insert(h, key, GravityValue::from_node(reinterpret_cast<gravity_class_t *>(node)));
 	++table->count1;
 	return true;
 }
 
-gnode_t * symboltable_lookup(symboltable_t * table, const char * identifier) 
+gnode_t * symboltable_lookup(const symboltable_t * table, const char * identifier) 
 {
 	STATICVALUE_FROM_STRING(key, identifier, strlen(identifier));
 	size_t n = scope_stack_size(table->stack);
 	for(int i = (int)n-1; i>=0; --i) {
 		gravity_hash_t * h = scope_stack_get(table->stack, i);
 		GravityValue * v = gravity_hash_lookup(h, key);
-		if(v) return VALUE_AS_NODE(*v);
+		if(v) 
+			return VALUE_AS_NODE(*v);
 	}
-
 	return NULL;
 }
 

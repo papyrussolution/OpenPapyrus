@@ -334,9 +334,9 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 			{
 				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
 				THROW_SL(p_iter_obj);
-				THROW_SL(p_iter_obj->Insert("id", json_new_string(temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL))));
-				THROW_SL(p_iter_obj->Insert("name", json_new_string(temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8))));
-				THROW_SL(p_iter_obj->Insert("type", json_new_string("COUNTABLE")));
+				THROW_SL(p_iter_obj->InsertString("id", temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL)));
+				THROW_SL(p_iter_obj->InsertString("name", temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8)));
+				THROW_SL(p_iter_obj->InsertString("type", "COUNTABLE"));
 				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new json_t(json_t::tNULL)));
 				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
 				THROW_SL(p_iter_obj->Insert("price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));

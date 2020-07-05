@@ -210,8 +210,7 @@ FILETIME QuadWordToFileTime(__int64 src)
 
 #define FILE_TIME_TO_QWORD(ft) (Int64ShllMod32(ft.dwHighDateTime, 32) | ft.dwLowDateTime)
 
-//static
-__int64 SLAPI SProfile::NSec100Clock()
+/*static*/__int64 SLAPI SProfile::NSec100Clock()
 {
 	FILETIME ct_tm, end_tm, k_tm, user_tm;
 	GetThreadTimes(GetCurrentThread(), &ct_tm, &end_tm, &k_tm, &user_tm);

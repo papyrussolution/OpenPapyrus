@@ -50,11 +50,7 @@
 #define JSON_PUSH_CTX(j, x)     (j)->context.insert(x);
 #define JSON_CURR_CTX(j)        ((j)->context.getLast())
 
-#define JSON_ESCAPE(c)          do {        \
-		new_buffer[j] = '\\';     \
-		new_buffer[j+1] = (c);    \
-		j += 2;                     \
-} while(0);                   \
+#define JSON_ESCAPE(c)          do { new_buffer[j] = '\\'; new_buffer[j+1] = (c); j += 2; } while(0);
 
 enum JSON_CONTEXT {
 	JSON_CONTEXT_ROOT = 0,
@@ -63,7 +59,7 @@ enum JSON_CONTEXT {
 };
 
 //typedef marray_t(JSON_CONTEXT)    JSON_CONTEXT_R;
-typedef GravityArray <JSON_CONTEXT> JSON_CONTEXT_R;
+//typedef GravityArray <JSON_CONTEXT> JSON_CONTEXT_R;
 
 // MARK: -
 
@@ -73,7 +69,7 @@ struct GravityJson {
 	size_t bused;
 	const char * label;
 	uint32 options;
-	JSON_CONTEXT_R context;
+	GravityArray <JSON_CONTEXT> context;
 };
 
 GravityJson * json_new() 
@@ -400,19 +396,17 @@ struct json_state {
 
 static void * default_alloc(size_t size, int zero, void * user_data)
 {
-    #pragma unused(zero, user_data)
 	return mem_alloc(NULL, size);
 	//return zero ? calloc (1, size) : malloc (size);
 }
 
 static void default_free(void * ptr, void * user_data)
 {
-    #pragma unused(user_data)
 	mem_free(ptr);
 	//free (ptr);
 }
 
-static void * json_alloc(json_state * state, unsigned long size, int zero)
+static void * FASTCALL json_alloc(json_state * state, ulong size, int zero)
 {
 	if((state->ulong_max - state->used_memory) < size)
 		return 0;
@@ -422,7 +416,7 @@ static void * json_alloc(json_state * state, unsigned long size, int zero)
 	return state->settings.memory_alloc(size, zero, state->settings.user_data);
 }
 
-static int new_value(json_state * state, json_value ** top, json_value ** root, json_value ** alloc, json_type type)
+static int FASTCALL new_value(json_state * state, json_value ** top, json_value ** root, json_value ** alloc, json_type type)
 {
 	json_value * value;
 	int values_size;
@@ -435,8 +429,7 @@ static int new_value(json_state * state, json_value ** top, json_value ** root, 
 			case json_array:
 			    if(value->u.array.length == 0)
 				    break;
-			    if(!(value->u.array.values = (json_value**)json_alloc
-					(state, value->u.array.length * sizeof(json_value *), 0)) ) {
+			    if(!(value->u.array.values = (json_value **)json_alloc(state, value->u.array.length * sizeof(json_value *), 0)) ) {
 				    return 0;
 			    }
 			    value->u.array.length = 0;
@@ -445,17 +438,15 @@ static int new_value(json_state * state, json_value ** top, json_value ** root, 
 			    if(value->u.object.length == 0)
 				    break;
 			    values_size = sizeof(*value->u.object.values) * value->u.object.length;
-			    if(!(value->u.object.values = (json_object_entry*)json_alloc
-					(state, values_size + ((unsigned long)value->u.object.values), 0)) ) {
+			    if(!(value->u.object.values = (json_object_entry *)json_alloc(state, values_size + ((ulong)value->u.object.values), 0)) ) {
 				    return 0;
 			    }
-			    value->_reserved.object_mem = (*(char**)&value->u.object.values) + values_size;
+			    value->_reserved.object_mem = (*(char **)&value->u.object.values) + values_size;
 			    value->u.object.length = 0;
 			    break;
 
 			case json_string:
-			    if(!(value->u.string.ptr = (json_char*)json_alloc
-					(state, (value->u.string.length + 1) * sizeof(json_char), 0)) ) {
+			    if(!(value->u.string.ptr = (json_char *)json_alloc(state, (value->u.string.length + 1) * sizeof(json_char), 0)) ) {
 				    return 0;
 			    }
 			    value->u.string.length = 0;
@@ -465,15 +456,13 @@ static int new_value(json_state * state, json_value ** top, json_value ** root, 
 		};
 		return 1;
 	}
-	if(!(value = (json_value*)json_alloc(state, (unsigned long)(sizeof(json_value) + state->settings.value_extra), 1))) {
+	if(!(value = (json_value *)json_alloc(state, (ulong)(sizeof(json_value) + state->settings.value_extra), 1))) {
 		return 0;
 	}
 	if(!*root)
 		*root = value;
-
 	value->type = type;
 	value->parent = *top;
-
    #ifdef JSON_TRACK_SOURCE
 	value->line = state->cur_line;
 	value->col = state->cur_col;
@@ -597,19 +586,19 @@ json_value * json_parse_ex(json_settings * settings, const json_char * json, siz
 							    if(state.first_pass)
 								    string_length += 3;
 							    else {
-								    string [string_length++] = 0xE0 | (uch_ >> 12);
-								    string [string_length++] = 0x80 | ((uch_ >> 6) & 0x3F);
-								    string [string_length++] = 0x80 | (uch_ & 0x3F);
+								    string[string_length++] = 0xE0 | (uch_ >> 12);
+								    string[string_length++] = 0x80 | ((uch_ >> 6) & 0x3F);
+								    string[string_length++] = 0x80 | (uch_ & 0x3F);
 							    }
 							    break;
 						    }
 						    if(state.first_pass)
 							    string_length += 4;
 						    else {
-							    string [string_length++] = 0xF0 | (uch_ >> 18);
-							    string [string_length++] = 0x80 | ((uch_ >> 12) & 0x3F);
-							    string [string_length++] = 0x80 | ((uch_ >> 6) & 0x3F);
-							    string [string_length++] = 0x80 | (uch_ & 0x3F);
+							    string[string_length++] = 0xF0 | (uch_ >> 18);
+							    string[string_length++] = 0x80 | ((uch_ >> 12) & 0x3F);
+							    string[string_length++] = 0x80 | ((uch_ >> 6) & 0x3F);
+							    string[string_length++] = 0x80 | (uch_ & 0x3F);
 						    }
 						    break;
 						default:
@@ -929,15 +918,12 @@ whitespace:
 
 						    if(b == 'e' || b == 'E') {
 							    flags |= flag_num_e;
-
 							    if(top->type == json_integer) {
 								    top->type = json_double;
 								    top->u.dbl = (double)top->u.integer;
 							    }
-
 							    num_digits = 0;
 							    flags &= ~flag_num_zero;
-
 							    continue;
 						    }
 					    }
@@ -946,9 +932,7 @@ whitespace:
 							    sprintf(error, "%d:%d: Expected digit after `e`", line_and_col);
 							    goto e_failed;
 						    }
-
-						    top->u.dbl *= pow(10.0, (double)
-							    (flags & flag_num_e_negative ? -num_e : num_e));
+						    top->u.dbl *= pow(10.0, (double)(flags & flag_num_e_negative ? -num_e : num_e));
 					    }
 
 					    if(flags & flag_num_negative) {
@@ -957,15 +941,12 @@ whitespace:
 						    else
 							    top->u.dbl = -top->u.dbl;
 					    }
-
 					    flags |= flag_next | flag_reproc;
 					    break;
-
 					default:
 					    break;
 				};
 			}
-
 			if(flags & flag_reproc) {
 				flags &= ~flag_reproc;
 				--state.ptr;

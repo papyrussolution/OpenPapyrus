@@ -36,8 +36,6 @@ enum LEX_VALUE {
 	LEX_MEMORY
 };
 
-/* rc_string part */
-
 #define RSTRING_INCSTEP 5
 #define RSTRING_DEFAULT 8
 
@@ -89,20 +87,6 @@ static rstring_code FASTCALL rcs_resize(RcString * rcs, size_t length)
 	}
 }
 
-static rstring_code FASTCALL rcs_catcs(RcString * pre, const char * pos, const size_t length)
-{
-	assert(pre);
-	assert(pos);
-	if(pre->max < (pre->length + length))
-		if(rcs_resize(pre, pre->length + length + RSTRING_INCSTEP) != RS_OK)
-			return RS_MEMORY;
-	// @v10.5.7 strncpy(pre->P_Text + pre->length, pos, length);
-	// @v10.5.7 pre->P_Text[pre->length + length] = '\0';
-	strnzcpy(pre->P_Text + pre->length, pos, length); // @v10.5.7
-	pre->length += length;
-	return RS_OK;
-}
-
 static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 {
 	assert(pre);
@@ -115,17 +99,7 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 	return RS_OK;
 }
 
-/*static char * FASTCALL rcs_unwrap(RcString * rcs)
-{
-	assert(rcs);
-	char * out = rcs->P_Text ? (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (sstrlen(rcs->P_Text) + 1)) : 0;
-	SAlloc::F(rcs);
-	return out;
-}*/
-
-// end of rc_string part
-
-json_t::json_t(/*enum json_value_type*/int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0)
+json_t::json_t(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0)
 {
 }
 
@@ -154,16 +128,6 @@ json_t::~json_t()
 		P_Child = 0;
 	}
 }
-
-/*void FASTCALL json_t::AssignAllocatedText(RcString * pRcs)
-{
-	assert(pRcs);
-	if(pRcs) {
-		Text = pRcs->P_Text;
-		SAlloc::F(pRcs->P_Text); // @v10.0.05 @fix
-		SAlloc::F(pRcs);
-	}
-}*/
 
 void FASTCALL json_t::AssignText(const SString & rT)
 {
@@ -206,14 +170,6 @@ enum json_error json_stream_parse(FILE * file, json_t ** document)
 	return error;
 }
 
-#if 0 // {
-json_t * FASTCALL json_new_value(/*json_value_type*/int type)
-{
-	//json_t * p_new_object = (json_t *)SAlloc::M(sizeof(json_t));
-	return new json_t(type);
-}
-#endif // } 0
-
 json_t * FASTCALL json_new_string(const char * pText)
 {
 	assert(pText);
@@ -231,50 +187,6 @@ json_t * json_new_number(const char * pText)
 		p_new_object->Text = pText;
 	return p_new_object;
 }
-
-// json_t * json_new_object() { return new json_t(json_t::tOBJECT); }
-// json_t * json_new_array() { return new json_t(json_t::tARRAY); }
-// json_t * json_new_null() { return new json_t(json_t::tNULL); }
-// json_t * json_new_true() { return new json_t(json_t::tTRUE); }
-// json_t * json_new_false() { return new json_t(json_t::tFALSE); }
-
-/*static void FASTCALL intern_json_free_value(json_t ** ppValue)
-{
-	assert(ppValue);
-	assert((*ppValue));
-	assert((*ppValue)->P_Child == NULL);
-	// fixing sibling linked list connections
-	if((*ppValue)->P_Previous && (*ppValue)->P_Next) {
-		(*ppValue)->P_Previous->P_Next = (*ppValue)->P_Next;
-		(*ppValue)->P_Next->P_Previous = (*ppValue)->P_Previous;
-	}
-	else {
-		if((*ppValue)->P_Previous)
-			(*ppValue)->P_Previous->P_Next = NULL;
-		if((*ppValue)->P_Next)
-			(*ppValue)->P_Next->P_Previous = NULL;
-	}
-	// fixing parent node connections
-	if((*ppValue)->P_Parent) {
-		// fix the tree connection to the first node in the children's list
-		if((*ppValue)->P_Parent->P_Child == (*ppValue)) {
-			if((*ppValue)->P_Next)
-				(*ppValue)->P_Parent->P_Child = (*ppValue)->P_Next; // the parent node always points to the first node in the children linked list
-			else
-				(*ppValue)->P_Parent->P_Child = NULL;
-		}
-		// fix the tree connection to the last node in the children's list
-		if((*ppValue)->P_Parent->P_ChildEnd == (*ppValue)) {
-			if((*ppValue)->P_Previous)
-				(*ppValue)->P_Parent->P_ChildEnd = (*ppValue)->P_Previous; // the parent node always points to the last node in the children linked list
-			else
-				(*ppValue)->P_Parent->P_ChildEnd = NULL;
-		}
-	}
-	// finally, freeing the memory allocated for this value
-	SAlloc::F((*ppValue)->P_Text);
-	ZFREE(*ppValue); // the json value
-}*/
 
 void FASTCALL json_free_value(json_t ** ppValue)
 {
@@ -371,147 +283,10 @@ int FASTCALL json_t::Insert(const char * pTextLabel, json_t * pValue)
 	return ok;
 }
 
-#if 0 // {
-/*enum json_error*/int FASTCALL json_insert_pair_into_object(json_t * pParent, const char * pTextLabel, json_t * pValue)
+int FASTCALL json_t::InsertString(const char * pTextLabel, const char * pStr)
 {
-	//enum     json_error error;
-	int    ok = 1;
-	// verify if the parameters are valid
-	assert(pParent);
-	assert(pTextLabel);
-	assert(pValue);
-	assert(pParent != pValue);
-	// enforce type coherence
-	assert(pParent->Type == json_t::tOBJECT);
-	// create label json_value
-	json_t * label = json_new_string(pTextLabel);
-	THROW(label);
-	// insert value and check for error
-	THROW(json_insert_child(label, pValue));
-	THROW(json_insert_child(pParent, label)); // insert value and check for error
-	CATCHZOK
-	//return error;
-	return ok;
+	return Insert(pTextLabel, json_new_string(pStr));
 }
-#endif
-
-#if 0 // {
-enum json_error json_tree_to_string(json_t * pRoot, char ** ppText)
-{
-	assert(pRoot);
-	assert(ppText);
-	json_t * cursor = pRoot;
-	// set up the output and temporary rwstrings
-	RcString * output = rcs_create(RSTRING_DEFAULT);
-	// start the convoluted fun
-state1: // open value
-	if(cursor->P_Previous && cursor != pRoot) { // if cursor is children and not root than it is a followup sibling
-		rcs_catc(output, ','); // append comma
-	}
-	switch(cursor->Type) {
-		case json_t::tSTRING:
-			// append the "text"\0, which means 1 + wcslen(cursor->text) + 1 + 1
-			// set the new output size
-			rcs_catc(output, '\"');
-			rcs_catcs(output, cursor->Text, cursor->Text.Len());
-			rcs_catc(output, '\"');
-			if(cursor->P_Parent) {
-				if(cursor->P_Parent->Type == json_t::tOBJECT)	{ // cursor is label in label:value pair
-					// error checking: if parent is object and cursor is string then cursor must have a single child
-					if(cursor->P_Child)
-						rcs_catc(output, ':');
-					else {
-						// malformed document tree: label without value in label:value pair
-						rcs_free(&output);
-						ppText = NULL;
-						return JSON_BAD_TREE_STRUCTURE;
-					}
-				}
-			}
-			else {	// does not have a parent
-				if(cursor->P_Child) // is root label in label:value pair
-					rcs_catc(output, ':');
-				else {
-					// malformed document tree: label without value in label:value pair
-					rcs_free(&output);
-					ppText = NULL;
-					return JSON_BAD_TREE_STRUCTURE;
-				}
-			}
-			break;
-		case json_t::tNUMBER: // must not have any children
-			// set the new size
-			rcs_catcs(output, cursor->Text, cursor->Text.Len());
-			goto state2; // close value
-			break;
-		case json_t::tOBJECT:
-			rcs_catc(output, '{');
-			if(cursor->P_Child) {
-				cursor = cursor->P_Child;
-				goto state1; // open value
-			}
-			else
-				goto state2; // close value
-			break;
-		case json_t::tARRAY:
-			rcs_catc(output, '[');
-			if(cursor->P_Child) {
-				cursor = cursor->P_Child;
-				goto state1;
-			}
-			else
-				goto state2; // close value
-			break;
-		case json_t::tTRUE: // must not have any children
-			rcs_catcs(output, "true", 4);
-			goto state2; // close value
-			break;
-		case json_t::tFALSE: // must not have any children
-			rcs_catcs(output, "false", 5);
-			goto state2; // close value
-			break;
-		case json_t::tNULL: // must not have any children
-			rcs_catcs(output, "null", 4);
-			goto state2; // close value
-			break;
-		default:
-			goto error;
-	}
-	if(cursor->P_Child) {
-		cursor = cursor->P_Child;
-		goto state1; // open value */
-	}
-	else // does not have any children
-		goto state2; // close value
-state2: // close value
-	switch(cursor->Type) {
-		case json_t::tOBJECT: rcs_catc(output, '}'); break;
-		case json_t::tARRAY:  rcs_catc(output, ']'); break;
-		case json_t::tSTRING: break;
-		case json_t::tNUMBER: break;
-		case json_t::tTRUE:   break;
-		case json_t::tFALSE:  break;
-		case json_t::tNULL:   break;
-		default: goto error;
-	}
-	if(!cursor->P_Parent || cursor == pRoot)
-		goto end;
-	else if(cursor->P_Next) {
-		cursor = cursor->P_Next;
-		goto state1; // open value
-	}
-	else {
-		cursor = cursor->P_Parent;
-		goto state2; // close value
-	}
-error:
-	rcs_free(&output);
-	return JSON_UNKNOWN_PROBLEM;
-end:
-	*ppText = rcs_unwrap(output);
-	return JSON_OK;
-}
-#endif
 
 int FASTCALL json_tree_to_string(const json_t * pRoot, SString & rBuf)
 {
@@ -519,7 +294,6 @@ int FASTCALL json_tree_to_string(const json_t * pRoot, SString & rBuf)
 	assert(pRoot);
 	rBuf.Z();
 	const json_t * cursor = pRoot;
-	//RcString * output = rcs_create(RSTRING_DEFAULT); // set up the output and temporary rwstrings
 	// start the convoluted fun
 state1: // open value
 	if(cursor->P_Previous && cursor != pRoot) { // if cursor is children and not root than it is a followup sibling
@@ -610,7 +384,6 @@ state2: // close value
 		goto state2; // close value
 	}
 end:
-	//*ppText = rcs_unwrap(output);
 	CATCHZOK
 	return ok;
 }
@@ -768,7 +541,6 @@ int json_format_string(const char * pText, SString & rBuf)
 	uint   line_no = 0;
 	char   loop;
 	size_t text_length = sstrlen(pText);
-	//RcString * p_output = rcs_create(text_length);
 	rBuf.Z();
 	while(pos < text_length) {
 		switch(pText[pos]) {
@@ -825,450 +597,6 @@ int json_format_string(const char * pText, SString & rBuf)
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // {
-static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcString ** text)
-{
-	assert(pBuffer);
-	assert(p);
-	assert(state);
-	assert(text);
-	if(*p == NULL)
-		*p = (char *)pBuffer;
-	while(**p != '\0') {
-		switch(*state) {
-			case 0:	/* Root document */
-				switch(*(*p)++) {
-					case '\x20':	/* space */
-					case '\x09':	/* horizontal tab */
-					case '\x0A':	/* line feed or new line */
-					case '\x0D':	/* Carriage return */
-						break;
-					case '{': return LEX_BEGIN_OBJECT;
-					case '}': return LEX_END_OBJECT;
-					case '[': return LEX_BEGIN_ARRAY;
-					case ']': return LEX_END_ARRAY;
-					case ':': return LEX_NAME_SEPARATOR;
-					case ',': return LEX_VALUE_SEPARATOR;
-					case '\"':
-						*text = rcs_create(RSTRING_DEFAULT);
-						if(*text == NULL)
-							return LEX_MEMORY;
-						*state = 1;	/* inside a JSON string */
-						break;
-					case 't': *state =  7; break; // true: 1
-					case 'f': *state = 10; break; // false: 1
-					case 'n': *state = 14; break; // false: 1
-					case '-':
-						*text = rcs_create(RSTRING_DEFAULT);
-						if(*text == NULL)
-							return LEX_MEMORY;
-						rcs_catc(*text, '-');
-						*state = 17;	/* number: '0' */
-						break;
-					case '0':
-						*text = rcs_create(RSTRING_DEFAULT);
-						if(*text == NULL)
-							return LEX_MEMORY;
-						rcs_catc(*text, '0');
-						*state = 18;	/* number: '0' */
-						break;
-					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						*text = rcs_create(RSTRING_DEFAULT);
-						if(*text == NULL)
-							return LEX_MEMORY;
-						rcs_catc(*text, *(*p - 1));
-						*state = 19; // number: decimal followup
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 1:	// inside a JSON string
-				assert(*text);
-				switch(**p) {
-					case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-					case 10: // line feed
-					case 11: case 12:
-					case 13: // carriage return
-					case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22:
-					case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31:
-						// ASCII control characters can only be present in a JSON string if they are escaped. If not then the document is invalid
-						return LEX_INVALID_CHARACTER;
-						break;
-					case '\"':	// close JSON string
-						// it is expected that, in the routine that calls this function, text is set to NULL
-						*state = 0;
-						++*p;
-						return LEX_STRING;
-						break;
-					case '\\':
-						rcs_catc(*text, '\\');
-						*state = 2;	// inside a JSON string: start escape sequence
-						break;
-					default:
-						rcs_catc(*text, **p);
-						break;
-				}
-				++*p;
-				break;
-			case 2: // inside a JSON string: start escape sequence
-				assert(*text);
-				switch(**p) {
-					case '\\':
-					case '\"':
-					case '/':
-					case 'b':
-					case 'f':
-					case 'n':
-					case 'r':
-					case 't':
-						rcs_catc(*text, **p);
-						*state = 1;	// inside a JSON string
-						break;
-					case 'u':
-						rcs_catc(*text, **p);
-						*state = 3;	// inside a JSON string: escape unicode
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-				}
-				++*p;
-				break;
-			case 3: // inside a JSON string: escape unicode
-				assert(*text);
-				if((**p >= 'a') && (**p <= 'f')) {
-					rcs_catc(*text, **p);
-					*state = 4; // inside a JSON string: escape unicode
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rcs_catc(*text, **p);
-					*state = 4;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rcs_catc(*text, **p);
-					*state = 4;	// inside a JSON string: escape unicode
-				}
-				else
-					return LEX_INVALID_CHARACTER;
-				++*p;
-				break;
-			case 4:	// inside a JSON string: escape unicode
-				assert(*text);
-				if((**p >= 'a') && (**p <= 'f')) {
-					rcs_catc(*text, **p);
-					*state = 5;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rcs_catc(*text, **p);
-					*state = 5;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rcs_catc(*text, **p);
-					*state = 5;	// inside a JSON string: escape unicode
-				}
-				else
-					return LEX_INVALID_CHARACTER;
-				++*p;
-				break;
-			case 5:	// inside a JSON string: escape unicode
-				assert(*text);
-				if((**p >= 'a') && (**p <= 'f')) {
-					rcs_catc(*text, **p);
-					*state = 6;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rcs_catc(*text, **p);
-					*state = 6;	// inside a JSON string: escape unicode
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rcs_catc(*text, **p);
-					*state = 6;	// inside a JSON string: escape unicode
-				}
-				else
-					return LEX_INVALID_CHARACTER;
-				++*p;
-				break;
-			case 6:	// inside a JSON string: escape unicode
-				assert(*text);
-				if((**p >= 'a') && (**p <= 'f')) {
-					rcs_catc(*text, **p);
-					*state = 1;	/* inside a JSON string: escape unicode */
-				}
-				else if((**p >= 'A') && (**p <= 'F')) {
-					rcs_catc(*text, **p);
-					*state = 1;	/* inside a JSON string: escape unicode */
-				}
-				else if((**p >= '0') && (**p <= '9')) {
-					rcs_catc(*text, **p);
-					*state = 1;	/* inside a JSON string: escape unicode */
-				}
-				else
-					return LEX_INVALID_CHARACTER;
-				++*p;
-				break;
-			case 7:	/* true: 1 */
-				switch(*(*p)++) {
-					case 'r':
-						*state = 8;
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-						break;
-				}
-				break;
-			case 8:	/* true: 2 */
-				switch(*(*p)++) {
-					case 'u':
-						*state = 9;
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-						break;
-				}
-				break;
-			case 9:	/* true: 3 */
-				switch(*(*p)++) {
-					case 'e':
-						*state = 0;
-						return LEX_TRUE;
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-						break;
-				}
-				break;
-			case 10:	/* false: 1 */
-				switch(*(*p)++) {
-					case 'a':
-						*state = 11;
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-						break;
-				}
-				break;
-			case 11:	/* false: 2 */
-				switch(*(*p)++) {
-					case 'l':
-						*state = 12;
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-						break;
-				}
-				break;
-			case 12:	/* false: 3 */
-				switch(*(*p)++) {
-					case 's':
-						*state = 13;
-						break;
-					default:
-						return LEX_INVALID_CHARACTER;
-						break;
-				}
-				break;
-			case 13:	/* false: 4 */
-				switch(*(*p)++) {
-					case 'e':
-						*state = 0;
-						return LEX_FALSE;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 14:	/* null: 1 */
-				switch(*(*p)++) {
-					case 'u':
-						*state = 15;
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 15:	/* null: 2 */
-				switch(*(*p)++) {
-					case 'l':
-						*state = 16;
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 16:	/* null: 3 */
-				switch(*(*p)++) {
-				case 'l':
-					*state = 0;
-					return LEX_NULL;
-				default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 17: // number: minus sign
-				assert(*text);
-				switch(**p) {
-					case '0':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 18; // number: '0'
-						break;
-					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 19;	/* number: decimal followup */
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 18:	/* number: '0' */
-				assert(*text);
-				switch(**p) {
-					case '\x20':	/* space */
-					case '\x09':	/* horizontal tab */
-					case '\x0A':	/* line feed or new line */
-					case '\x0D':	/* Carriage return */
-						++*p;
-					case ']':
-					case '}':
-					case ',':
-						*state = 0;
-						return LEX_NUMBER;
-					case '.':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 20;	/* number: frac start */
-						break;
-					case 'e':
-					case 'E':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 22;	/* number: exp start */
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 19: // number: int followup
-				assert(*text);
-				switch(**p) {
-					case '\x20': // space
-					case '\x09': // horizontal tab
-					case '\x0A': // line feed or new line
-					case '\x0D': // Carriage return
-						++*p;
-					case ']':
-					case '}':
-					case ',':
-						*state = 0;
-						return LEX_NUMBER;
-					case '.':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 20; // number: frac start
-						break;
-					case 'e':
-					case 'E':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 22; // number: exp start
-						break;
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						rcs_catc(*text, **p);
-						++*p;
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 20: // number: frac start
-				{
-					assert(*text);
-					switch(**p) {
-						case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-							rcs_catc(*text, **p);
-							++*p;
-							*state = 21;	/* number: frac continue */
-							break;
-						default: return LEX_INVALID_CHARACTER;
-					}
-				}
-				break;
-			case 21: // number: frac continue
-				assert(*text);
-				switch(**p) {
-					case '\x20': // space
-					case '\x09': // horizontal tab
-					case '\x0A': // line feed or new line
-					case '\x0D': // Carriage return
-						++*p;
-					case ']':
-					case '}':
-					case ',':
-						*state = 0;
-						return LEX_NUMBER;
-					case 'e':
-					case 'E':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 22;	/* number: exp start */
-						break;
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						rcs_catc(*text, **p);
-						++*p;
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 22: // number: exp start
-				assert(*text);
-				switch(**p) {
-					case '-':
-					case '+':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 23;	/* number: exp continue */
-						break;
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 24;	/* number: exp end */
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 23: // number: exp continue
-				assert(*text);
-				switch(**p) {
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						rcs_catc(*text, **p);
-						++*p;
-						*state = 24;	/* number: exp end */
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			case 24: // number: exp end
-				assert(*text);
-				switch(**p) {
-					case '\x20': // space
-					case '\x09': // horizontal tab
-					case '\x0A': // line feed or new line
-					case '\x0D': // Carriage return
-						++*p;
-					case ']':
-					case '}':
-					case ',':
-						*state = 0;
-						return LEX_NUMBER;
-						break;
-					case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-						rcs_catc(*text, **p);
-						++*p;
-						break;
-					default: return LEX_INVALID_CHARACTER;
-				}
-				break;
-			default: return LEX_INVALID_CHARACTER;
-		}
-	}
-	*p = NULL;
-	return LEX_MORE;
-}
-#endif // } 0
 
 static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString & rText)
 {
@@ -1981,31 +1309,52 @@ static int FASTCALL Lexer(const char * pBuffer, char ** p, uint * state, SString
 	return ok;
 }
 
-enum json_error json_parse_document(json_t ** root, const char *text)
+enum json_error json_parse_document(json_t ** root, const char * pText)
 {
 	enum json_error error = JSON_OK;
-	assert(root);
-	assert(*root == NULL);
-	assert(text);
-	// initialize the parsing structure
-	json_parsing_info jpi;
-	error = json_parse_fragment(&jpi, text) ? JSON_OK : (enum json_error)SLibError;
-	if(oneof3(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, JSON_OK)) {
-		*root = jpi.cursor;
-		error = JSON_OK;
+	if(!isempty(pText)) {
+		assert(root);
+		assert(*root == NULL);
+		assert(pText);
+		// initialize the parsing structure
+		json_parsing_info jpi;
+		error = json_parse_fragment(&jpi, pText) ? JSON_OK : (enum json_error)SLibError;
+		if(oneof3(error, SLERR_JSON_WAITING_FOR_EOF, JSON_WAITING_FOR_EOF, JSON_OK)) {
+			*root = jpi.cursor;
+			error = JSON_OK;
+		}
 	}
+	else
+		error = JSON_EMPTY_DOCUMENT;
 	return error;
+}
+
+int json_saxy_parser_status::StoreCharInTempString(char c)
+{
+	int    ok = 1;
+	P_Temp = rcs_create(12);
+	if(P_Temp) {
+		if(rcs_catc(P_Temp, c) != RS_OK)
+			ok = 0;
+	}
+	else
+		ok = 0/*JSON_MEMORY*/;
+	return ok;
+}
+
+void json_saxy_parser_status::FreeTempString()
+{
+	rcs_free(&P_Temp);
 }
 
 enum json_error json_saxy_parse(json_saxy_parser_status * jsps, json_saxy_functions * jsf, char c)
 {
 	// @todo handle a string instead of a single char
-	//RcString * temp = 0;
 	// make sure everything is in it's place
 	assert(jsps);
 	assert(jsf);
 	// goto where we left off
-	switch(jsps->state) {
+	switch(jsps->State) {
 		case 0:  goto state0;  break; // general state. everything goes.
 		case 1:  goto state1;  break; // parse string
 		case 2:  goto state2;  break; // parse string: escaped character
@@ -2045,63 +1394,60 @@ enum json_error json_saxy_parse(json_saxy_parser_status * jsps, json_saxy_functi
 			case '\x0D':	/* JSON insignificant white spaces */
 				break;
 			case '\"':	/* starting a string */
-				jsps->string_length_limit_reached = 0;
-				jsps->state = 1;
+				jsps->StringLengthLimitReached = 0;
+				jsps->State = 1;
 				break;
 			case '{':
 				if(jsf->open_object)
 					jsf->open_object();
-				jsps->state = 25;	/*open object */
+				jsps->State = 25;	/*open object */
 				break;
 			case '}':
 				if(jsf->close_object)
 					jsf->close_object();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
 			case '[':
 				if(jsf->open_array)
 					jsf->open_array();
-				// jsps->state = 0; // redundant
+				// jsps->State = 0; // redundant
 				break;
 			case ']':
 				if(jsf->close_array)
 					jsf->close_array();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
-			case 't': jsps->state = 7; break; // parse true: tr
-			case 'f': jsps->state = 10; break; // parse false: fa
-			case 'n': jsps->state = 14; break; // parse null: nu
+			case 't': jsps->State = 7; break; // parse true: tr
+			case 'f': jsps->State = 10; break; // parse false: fa
+			case 'n': jsps->State = 14; break; // parse null: nu
 			case ':':
 				if(jsf->label_value_separator)
 					jsf->label_value_separator();
-				// jsps->state = 0; // redundant
+				// jsps->State = 0; // redundant
 				break;
 			case ',':
 				if(jsf->sibling_separator)
 					jsf->sibling_separator();
-				jsps->state = 27;	/* sibling followup */
+				jsps->State = 27;	/* sibling followup */
 				break;
 			case '0':
-				jsps->string_length_limit_reached = 0;
-				jsps->state = 17;	/* parse number: 0 */
-				if((jsps->temp = rcs_create(5)) == NULL)
+				jsps->StringLengthLimitReached = 0;
+				jsps->State = 17;	/* parse number: 0 */
+				if(!jsps->StoreCharInTempString('0'))
 					return JSON_MEMORY;
-				rcs_catc((jsps->temp), '0');
 				break;
 			case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				jsps->string_length_limit_reached = 0;
-				jsps->state = 24;	/* parse number: decimal */
-				if((jsps->temp = rcs_create(5)) == NULL)
+				jsps->StringLengthLimitReached = 0;
+				jsps->State = 24;	/* parse number: decimal */
+				if(!jsps->StoreCharInTempString(c))
 					return JSON_MEMORY;
-				rcs_catc((jsps->temp), c);
 				break;
 			case '-':
-				jsps->string_length_limit_reached = 0;
-				jsps->state = 23;	/* number: */
-				jsps->temp = NULL;
-				if((jsps->temp = rcs_create(5)) == NULL)
+				jsps->StringLengthLimitReached = 0;
+				jsps->State = 23;	/* number: */
+				jsps->P_Temp = NULL;
+				if(!jsps->StoreCharInTempString('-'))
 					return JSON_MEMORY;
-				rcs_catc((jsps->temp), '-');
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2113,30 +1459,30 @@ state1: // parse string
 	{
 		switch(c) {
 			case '\\':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH-1)) // check if there is space for a two character escape sequence
-						rcs_catc((jsps->temp), '\\');
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH-1)) // check if there is space for a two character escape sequence
+						rcs_catc((jsps->P_Temp), '\\');
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
-				jsps->state = 2;	/* parse string: escaped character */
+				jsps->State = 2;	/* parse string: escaped character */
 				break;
 			case '\"':	/* end of string */
-				if(jsps->temp) {
-					jsps->state = 0;	/* starting point */
+				if(jsps->P_Temp) {
+					jsps->State = 0;	/* starting point */
 					if(jsf->new_string)
-						jsf->new_string(jsps->temp->P_Text); /*copied or integral? */
-					rcs_free(&jsps->temp);
+						jsf->new_string(jsps->P_Temp->P_Text); /*copied or integral? */
+					jsps->FreeTempString();
 				}
 				else
 					return JSON_UNKNOWN_PROBLEM;
 				break;
 			default:
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH) // check if there is space for a two character escape sequence
-						rcs_catc((jsps->temp), c);
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH) // check if there is space for a two character escape sequence
+						rcs_catc((jsps->P_Temp), c);
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
 				break;
 		}
@@ -2152,21 +1498,21 @@ state2: // parse string: escaped character
 			case 'n':
 			case 'r':
 			case 't':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH)
-						rcs_catc((jsps->temp), c);
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH)
+						rcs_catc((jsps->P_Temp), c);
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
 				break;
 			case 'u':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH - 4))
-						rcs_catc((jsps->temp), 'u');
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH - 4))
+						rcs_catc((jsps->P_Temp), 'u');
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
-				jsps->state = 3;	/* parse string: escaped unicode 1; */
+				jsps->State = 3;	/* parse string: escaped unicode 1; */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2175,52 +1521,52 @@ state2: // parse string: escaped character
 		return JSON_OK;
 state3: // parse string: escaped unicode 1
 		if(ishex(c)) {
-			if(!jsps->string_length_limit_reached) {
-				if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH - 3))
-					rcs_catc((jsps->temp), 'u');
+			if(!jsps->StringLengthLimitReached) {
+				if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH - 3))
+					rcs_catc((jsps->P_Temp), 'u');
 				else
-					jsps->string_length_limit_reached = 1;
+					jsps->StringLengthLimitReached = 1;
 			}
-			jsps->state = 4; // parse string. escaped unicode 2
+			jsps->State = 4; // parse string. escaped unicode 2
 			return JSON_OK;
 		}
 		else
 			return JSON_ILLEGAL_CHARACTER;
 state4: // parse string: escaped unicode 2
 		if(ishex(c)) {
-			if(!jsps->string_length_limit_reached) {
-				if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH - 2)
-					rcs_catc((jsps->temp), c);
+			if(!jsps->StringLengthLimitReached) {
+				if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH - 2)
+					rcs_catc((jsps->P_Temp), c);
 				else
-					jsps->string_length_limit_reached = 1;
+					jsps->StringLengthLimitReached = 1;
 			}
-			jsps->state = 5;	/* parse string. escaped unicode 3 */
+			jsps->State = 5;	/* parse string. escaped unicode 3 */
 			return JSON_OK;
 		}
 		else
 			return JSON_ILLEGAL_CHARACTER;
 state5: // parse string: escaped unicode 3
 		if(ishex(c)) {
-			if(!jsps->string_length_limit_reached) {
-				if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH-1))
-					rcs_catc((jsps->temp), c);
+			if(!jsps->StringLengthLimitReached) {
+				if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH-1))
+					rcs_catc((jsps->P_Temp), c);
 				else
-					jsps->string_length_limit_reached = 1;
+					jsps->StringLengthLimitReached = 1;
 			}
-			jsps->state = 6; // parse string. escaped unicode 4
+			jsps->State = 6; // parse string. escaped unicode 4
 			return JSON_OK;
 		}
 		else
 			return JSON_ILLEGAL_CHARACTER;
 state6: // parse string: escaped unicode 4
 		if(ishex(c)) {
-			if(!jsps->string_length_limit_reached) {
-				if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH)
-					rcs_catc((jsps->temp), c);
+			if(!jsps->StringLengthLimitReached) {
+				if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH)
+					rcs_catc((jsps->P_Temp), c);
 				else
-					jsps->string_length_limit_reached = 1;
+					jsps->StringLengthLimitReached = 1;
 			}
-			jsps->state = 1;	/* parse string */
+			jsps->State = 1;	/* parse string */
 			return JSON_OK;
 		}
 		else
@@ -2230,21 +1576,21 @@ state7: // parse true: tr
 			return JSON_ILLEGAL_CHARACTER;
 		}
 		else {
-			jsps->state = 8; // parse true: tru
+			jsps->State = 8; // parse true: tru
 			return JSON_OK;
 		}
 state8: // parse true: tru
 		if(c != 'u')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 9;	/* parse true: true */
+			jsps->State = 9;	/* parse true: true */
 			return JSON_OK;
 		}
 state9: // parse true: true
 		if(c != 'e')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 0;	/* back to general state. */
+			jsps->State = 0;	/* back to general state. */
 			if(jsf->new_true)
 				jsf->new_true();
 			return JSON_OK;
@@ -2253,28 +1599,28 @@ state10: // parse false: fa
 		if(c != 'a')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 11;	/* parse true: fal */
+			jsps->State = 11;	/* parse true: fal */
 			return JSON_OK;
 		}
 state11: // parse false: fal
 		if(c != 'l')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 12;	/* parse true: fals */
+			jsps->State = 12;	/* parse true: fals */
 			return JSON_OK;
 		}
 state12: // parse false: fals
 		if(c != 's')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 13;	/* parse true: false */
+			jsps->State = 13;	/* parse true: false */
 			return JSON_OK;
 		}
 state13: // parse false: false
 		if(c != 'e')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 0;	/* general state. everything goes. */
+			jsps->State = 0;	/* general state. everything goes. */
 			if(jsf->new_false)
 				jsf->new_false();
 			return JSON_OK;
@@ -2283,21 +1629,21 @@ state14: // parse null: nu
 		if(c != 'u')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 15;	/* parse null: nul */
+			jsps->State = 15;	/* parse null: nul */
 			return JSON_OK;
 		}
 state15: // parse null: nul
 		if(c != 'l')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 16;	/* parse null: null */
+			jsps->State = 16;	/* parse null: null */
 			return JSON_OK;
 		}
 state16: // parse null: null
 		if(c != 'l')
 			return JSON_ILLEGAL_CHARACTER;
 		else {
-			jsps->state = 0;	/* general state. everything goes. */
+			jsps->State = 0;	/* general state. everything goes. */
 			if(jsf->new_null)
 				jsf->new_null();
 			return JSON_OK;
@@ -2306,52 +1652,50 @@ state17: // parse number: 0
 	{
 		switch(c) {
 		case '.':
-			if((jsps->temp = rcs_create(5)) == NULL) {
+			if(!jsps->StoreCharInTempString('.'))
 				return JSON_MEMORY;
-			}
-			rcs_catc((jsps->temp), '.');
-			jsps->state = 18;	/* parse number: fraccional part */
+			jsps->State = 18;	/* parse number: fraccional part */
 			break;
 		case '\x20':
 		case '\x09':
 		case '\x0A':
 		case '\x0D':	/* JSON insignificant white spaces */
-			if(!jsps->temp)
+			if(!jsps->P_Temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
-				jsf->new_number((jsps->temp)->P_Text);
-			rcs_free(&jsps->temp);
-			jsps->state = 0;
+				jsf->new_number((jsps->P_Temp)->P_Text);
+			jsps->FreeTempString();
+			jsps->State = 0;
 			break;
 		case '}':
-			if(!jsps->temp)
+			if(!jsps->P_Temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
-				jsf->new_number((jsps->temp)->P_Text);
-			rcs_free(&jsps->temp);
+				jsf->new_number((jsps->P_Temp)->P_Text);
+			jsps->FreeTempString();
 			if(jsf->open_object)
 				jsf->close_object();
-			jsps->state = 26;	/* close object/array */
+			jsps->State = 26;	/* close object/array */
 			break;
 		case ']':
-			if(!jsps->temp)
+			if(!jsps->P_Temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
-				jsf->new_number((jsps->temp)->P_Text);
-			rcs_free(&jsps->temp);
+				jsf->new_number((jsps->P_Temp)->P_Text);
+			jsps->FreeTempString();
 			if(jsf->open_object)
 				jsf->close_array();
-			jsps->state = 26; // close object/array
+			jsps->State = 26; // close object/array
 			break;
 		case ',':
-			if(!jsps->temp)
+			if(!jsps->P_Temp)
 				return JSON_MEMORY;
 			if(jsf->new_number)
-				jsf->new_number((jsps->temp)->P_Text);
-			rcs_free(&jsps->temp);
+				jsf->new_number((jsps->P_Temp)->P_Text);
+			jsps->FreeTempString();
 			if(jsf->open_object)
 				jsf->label_value_separator();
-			jsps->state = 27;	/* sibling followup */
+			jsps->State = 27;	/* sibling followup */
 			break;
 		default:
 			return JSON_ILLEGAL_CHARACTER;
@@ -2361,13 +1705,13 @@ state17: // parse number: 0
 	}
 state18: // parse number: start fraccional part
       	if(isdec(c)) {
-			if(!jsps->string_length_limit_reached) {
-				if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH / 2))
-					rcs_catc((jsps->temp), c);
+			if(!jsps->StringLengthLimitReached) {
+				if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH / 2))
+					rcs_catc((jsps->P_Temp), c);
 				else
-					jsps->string_length_limit_reached = 1;
+					jsps->StringLengthLimitReached = 1;
 			}
-			jsps->state = 19;	/* parse number: fractional part */
+			jsps->State = 19;	/* parse number: fractional part */
 			return JSON_OK;
       	}
       	else
@@ -2376,64 +1720,64 @@ state19: // parse number: fraccional part
 	{
 		switch(c) {
 			case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH/2))
-						rcs_catc((jsps->temp), c);
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH/2))
+						rcs_catc((jsps->P_Temp), c);
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
-				// jsps->state = 19; // parse number: fractional part
+				// jsps->State = 19; // parse number: fractional part
 				break;
 			case 'e':
 			case 'E':
-				rcs_catc((jsps->temp), c);
-				jsps->state = 20;	/* parse number: start exponent part */
+				rcs_catc((jsps->P_Temp), c);
+				jsps->State = 20;	/* parse number: start exponent part */
 				break;
 			case '\x20':
 			case '\x09':
 			case '\x0A':
 			case '\x0D':	/* JSON insignificant white spaces */
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
-				jsps->state = 0;
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
+				jsps->State = 0;
 				break;
 			case '}':
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
 				if(jsf->open_object)
 					jsf->close_object();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
 			case ']':
 				if(jsf->new_number) {
-					if(!jsps->temp)
+					if(!jsps->P_Temp)
 						return JSON_MEMORY;
-					jsf->new_number((jsps->temp)->P_Text);
-					rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+					jsps->FreeTempString();
 				}
 				else {
-					rcs_free(&jsps->temp);
-					jsps->temp = NULL;
+					jsps->FreeTempString();
+					jsps->P_Temp = NULL;
 				}
 				if(jsf->open_object)
 					jsf->close_array();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
 			case ',':
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
 				if(jsf->label_value_separator)
 					jsf->label_value_separator();
-				jsps->state = 27;	/* sibling followup */
+				jsps->State = 27;	/* sibling followup */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2446,18 +1790,18 @@ state19: // parse number: fraccional part
 		switch(c) {
 			case '+':
 			case '-':
-				jsps->string_length_limit_reached = 0;
-				rcs_catc((jsps->temp), c);
-				jsps->state = 22;	/* parse number: exponent sign part */
+				jsps->StringLengthLimitReached = 0;
+				rcs_catc((jsps->P_Temp), c);
+				jsps->State = 22;	/* parse number: exponent sign part */
 				break;
 			case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH)
-						rcs_catc((jsps->temp), c);
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH)
+						rcs_catc((jsps->P_Temp), c);
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
-				jsps->state = 21;	/* parse number: exponent part */
+				jsps->State = 21;	/* parse number: exponent part */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2469,62 +1813,62 @@ state21: // parse number: exponent part
 	{
 		switch(c) {
 			case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH)
-						rcs_catc((jsps->temp), c);
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH)
+						rcs_catc((jsps->P_Temp), c);
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
-				// jsps->state = 21; // parse number: exponent part
+				// jsps->State = 21; // parse number: exponent part
 				break;
 			case '\x20':
 			case '\x09':
 			case '\x0A':
 			case '\x0D':	/* JSON insignificant white spaces */
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
-				jsps->state = 0;
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
+				jsps->State = 0;
 				break;
 			case '}':
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
 				if(jsf->open_object)
 					jsf->close_object();
-				jsps->state = 26;	/* close object */
+				jsps->State = 26;	/* close object */
 				break;
 			case ']':
 				if(jsf->new_number) {
-					if(!jsps->temp)
+					if(!jsps->P_Temp)
 						return JSON_MEMORY;
-					jsf->new_number((jsps->temp)->P_Text);
-					ZFREE(jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+					ZFREE(jsps->P_Temp);
 				}
 				else {
-					ZFREE(jsps->temp);
+					ZFREE(jsps->P_Temp);
 				}
 				if(jsf->open_object)
 					jsf->close_array();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
 			case ',':
 				if(jsf->new_number) {
-					if(!jsps->temp)
+					if(!jsps->P_Temp)
 						return JSON_MEMORY;
-					jsf->new_number((jsps->temp)->P_Text);
-					ZFREE(jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+					ZFREE(jsps->P_Temp);
 				}
 				else {
-					ZFREE(jsps->temp);
+					ZFREE(jsps->P_Temp);
 				}
 				if(jsf->label_value_separator)
 					jsf->label_value_separator();
-				jsps->state = 27;	/* sibling followup */
+				jsps->State = 27;	/* sibling followup */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2534,13 +1878,13 @@ state21: // parse number: exponent part
 	}
 state22: // parse number: start exponent part
 		if(isdec(c)) {
-			if(!jsps->string_length_limit_reached) {
-				if(jsps->temp->Len() < JSON_MAX_STRING_LENGTH)
-					rcs_catc((jsps->temp), c);
+			if(!jsps->StringLengthLimitReached) {
+				if(jsps->P_Temp->Len() < JSON_MAX_STRING_LENGTH)
+					rcs_catc((jsps->P_Temp), c);
 				else
-					jsps->string_length_limit_reached = 1;
+					jsps->StringLengthLimitReached = 1;
 			}
-			jsps->state = 21;	/* parse number: exponent part */
+			jsps->State = 21;	/* parse number: exponent part */
 			return JSON_OK;
 		}
 		else
@@ -2549,20 +1893,19 @@ state23: // parse number: start negative
 	{
 		switch(c) {
 			case '0':
-				rcs_catc((jsps->temp), c);
-				jsps->state = 17;	/* parse number: 0 */
+				rcs_catc((jsps->P_Temp), c);
+				jsps->State = 17;	/* parse number: 0 */
 				break;
 			case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH / 2)) {
-						if((jsps->temp = rcs_create(5)) == NULL) {
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH / 2)) {
+						if(!jsps->StoreCharInTempString(c))
 							return JSON_MEMORY;
-						}
-						rcs_catc((jsps->temp), c);
-						jsps->string_length_limit_reached = 1;
 					}
+					else
+						jsps->StringLengthLimitReached = 1;
 				}
-				jsps->state = 24;	/* parse number: start decimal part */
+				jsps->State = 24;	/* parse number: start decimal part */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2574,74 +1917,68 @@ state24: // parse number: decimal part
 	{
 		switch(c) {
 			case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				if(!jsps->string_length_limit_reached) {
-					if(jsps->temp->Len() < (JSON_MAX_STRING_LENGTH / 2)) {
-						if((jsps->temp = rcs_create(5)) == NULL) {
+				if(!jsps->StringLengthLimitReached) {
+					if(jsps->P_Temp->Len() < (JSON_MAX_STRING_LENGTH / 2)) {
+						if(!jsps->StoreCharInTempString(c))
 							return JSON_MEMORY;
-						}
-						rcs_catc((jsps->temp), c);
 					}
 					else
-						jsps->string_length_limit_reached = 1;
+						jsps->StringLengthLimitReached = 1;
 				}
-				/* jsps->state = 24; // parse number: decimal part*/
+				/* jsps->State = 24; // parse number: decimal part*/
 				break;
 			case '.':
-				if((jsps->temp = rcs_create(5)) == NULL) {
+				if(!jsps->StoreCharInTempString('.'))
 					return JSON_MEMORY;
-				}
-				rcs_catc((jsps->temp), '.');
-				jsps->state = 18;	/* parse number: start exponent part */
+				jsps->State = 18;	/* parse number: start exponent part */
 				break;
 			case 'e':
 			case 'E':
-				if((jsps->temp = rcs_create(5)) == NULL) {
+				if(!jsps->StoreCharInTempString(c))
 					return JSON_MEMORY;
-				}
-				rcs_catc((jsps->temp), c);
-				jsps->string_length_limit_reached = 0;	/* reset to accept the exponential part */
-				jsps->state = 20;	/* parse number: start exponent part */
+				jsps->StringLengthLimitReached = 0;	/* reset to accept the exponential part */
+				jsps->State = 20;	/* parse number: start exponent part */
 				break;
 			case '\x20':
 			case '\x09':
 			case '\x0A':
 			case '\x0D':	/* JSON insignificant white spaces */
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
-				jsps->state = 0;
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
+				jsps->State = 0;
 				break;
 			case '}':
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
 				if(jsf->open_object)
 					jsf->close_object();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
 			case ']':
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
 				if(jsf->open_object)
 					jsf->close_array();
-				jsps->state = 26;	/* close object/array */
+				jsps->State = 26;	/* close object/array */
 				break;
 			case ',':
-				if(!jsps->temp)
+				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
-					jsf->new_number((jsps->temp)->P_Text);
-				rcs_free(&jsps->temp);
+					jsf->new_number((jsps->P_Temp)->P_Text);
+				jsps->FreeTempString();
 				if(jsf->label_value_separator)
 					jsf->label_value_separator();
-				jsps->state = 27;	/* sibling followup */
+				jsps->State = 27;	/* sibling followup */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2658,13 +1995,13 @@ state25:			/* open object */
 			case '\x0D':	/* JSON insignificant white spaces */
 				break;
 			case '\"':
-				jsps->temp = NULL;
-				jsps->state = 1;
+				jsps->P_Temp = NULL;
+				jsps->State = 1;
 				break;
 			case '}':
 				if(jsf->close_object)
 					jsf->close_object();
-				jsps->state = 26;	/* close object */
+				jsps->State = 26;	/* close object */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2688,12 +2025,12 @@ state26: // close object/array
 			case ']':
 				if(jsf->close_array)
 					jsf->close_array();
-				// jsps->state = 26;       // close object/array
+				// jsps->State = 26;       // close object/array
 				break;
 			case ',':
 				if(jsf->sibling_separator)
 					jsf->sibling_separator();
-				jsps->state = 27;	/* sibling followup */
+				jsps->State = 27;	/* sibling followup */
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;
@@ -2710,42 +2047,36 @@ state27: // sibling followup
 			case '\x0D': // JSON insignificant white spaces
 				break;
 			case '\"':
-				jsps->state = 1;
-				jsps->temp = NULL;
+				jsps->State = 1;
+				jsps->P_Temp = NULL;
 				break;
 			case '{':
 				if(jsf->open_object)
 					jsf->open_object();
-				jsps->state = 25;	/*open object */
+				jsps->State = 25;	/*open object */
 				break;
 			case '[':
 				if(jsf->open_array)
 					jsf->open_array();
-				// jsps->state = 0; // redundant
+				// jsps->State = 0; // redundant
 				break;
-			case 't': jsps->state = 7; break; // parse true: tr
-			case 'f': jsps->state = 10; break; // parse false: fa
-			case 'n': jsps->state = 14; break; // parse null: nu
+			case 't': jsps->State = 7; break; // parse true: tr
+			case 'f': jsps->State = 10; break; // parse false: fa
+			case 'n': jsps->State = 14; break; // parse null: nu
 			case '0':
-				jsps->state = 17; // parse number: 0
-				if((jsps->temp = rcs_create(5)) == NULL) {
+				jsps->State = 17; // parse number: 0
+				if(!jsps->StoreCharInTempString('0'))
 					return JSON_MEMORY;
-				}
-				rcs_catc((jsps->temp), '0');
 				break;
 			case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-				jsps->state = 24;	/* parse number: decimal */
-				if((jsps->temp = rcs_create(5)) == NULL) {
+				jsps->State = 24;	/* parse number: decimal */
+				if(!jsps->StoreCharInTempString(c))
 					return JSON_MEMORY;
-				}
-				rcs_catc((jsps->temp), c);
 				break;
 			case '-':
-				jsps->state = 23;	/* number: */
-				if((jsps->temp = rcs_create(RSTRING_DEFAULT)) == NULL) {
+				jsps->State = 23;	/* number: */
+				if(!jsps->StoreCharInTempString('-'))
 					return JSON_MEMORY;
-				}
-				rcs_catc((jsps->temp), '-');
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;

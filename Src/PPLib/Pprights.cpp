@@ -11,8 +11,7 @@ SLAPI ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRigh
 {
 }
 
-//static
-ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
+/*static*/ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
 {
 	const size_t hdr_size = sizeof(ObjRights);
 	const size_t total_size = (totalSize < hdr_size) ? hdr_size : totalSize;
@@ -27,8 +26,8 @@ ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
 		PPSetErrorNoMem();
 	return ptr;
 }
-//static
-void FASTCALL ObjRights::Destroy(ObjRights * pObj)
+
+/*static*/void FASTCALL ObjRights::Destroy(ObjRights * pObj)
 {
     if(pObj)
 		::delete [] reinterpret_cast<uint8 *>(pObj);

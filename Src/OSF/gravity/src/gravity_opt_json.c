@@ -11,38 +11,36 @@
 #define GRAVITY_JSON_PARSE_NAME         "parse"
 #define STATIC_BUFFER_SIZE              8192
 
-static gravity_class_t * gravity_class_json = NULL;
-static uint32 refcount = 0;
-
 // MARK: - Implementation -
 
 static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
-		RETURN_VALUE(GravityValue::from_null(), rindex);
+		return vm->ReturnNull(rindex);
 	// extract value
 	GravityValue value = args[1];
 	// special case for string because it can be huge (and must be quoted)
 	if(value.IsString()) {
 		const int nchars = 5;
-		const char * v = static_cast<gravity_string_t *>(value)->s;
+		const char * v = static_cast<gravity_string_t *>(value)->cptr();
 		size_t vlen = static_cast<gravity_string_t *>(value)->len;
 		// string must be quoted
 		if(vlen < 4096-nchars) {
 			char vbuffer2[4096];
 			vlen = snprintf(vbuffer2, sizeof(vbuffer2), "\"%s\"", v);
-			RETURN_VALUE(VALUE_FROM_STRING(vm, vbuffer2, (uint32)vlen), rindex);
+			return vm->ReturnValue(VALUE_FROM_STRING(vm, vbuffer2, (uint32)vlen), rindex);
 		}
 		else {
 			char * vbuffer2 = static_cast<char *>(mem_alloc(NULL, vlen + nchars));
 			vlen = snprintf(vbuffer2, vlen + nchars, "\"%s\"", v);
-			RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(gravity_string_new(vm, vbuffer2, (uint32)vlen, 0))), rindex);
+			return vm->ReturnValue(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(gravity_string_new(vm, vbuffer2, (uint32)vlen, 0))), rindex);
 		}
 	}
 	// primitive cases supported by JSON (true, false, null, number)
 	char vbuffer[512];
 	const char * v = NULL;
-	if(VALUE_ISA_NULL(value) || (VALUE_ISA_UNDEFINED(value))) v = "null";
+	if(value.IsNull() || value.IsUndefined()) 
+		v = "null";
 	// was %g but we don't like scientific notation nor the missing .0 in case of float number with no decimals
 	else if(value.IsFloat()) {
 		snprintf(vbuffer, sizeof(vbuffer), "%f", value.f); v = vbuffer;
@@ -57,7 +55,7 @@ static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, u
 	#endif
 		v = vbuffer;
 	}
-	if(v) RETURN_VALUE(VALUE_FROM_CSTRING(vm, v), rindex);
+	if(v) return vm->ReturnValue(gravity_zstring_to_value(vm, v), rindex);
 
 	// more complex object case (list, map, class, closure, instance/object)
 	GravityJson * json = json_new();
@@ -70,7 +68,7 @@ static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, u
 	const char * buffer = string_ndup(jbuffer, len);
 	gravity_string_t * s = gravity_string_new(vm, (char *)buffer, (uint32)len, 0);
 	json_free(json);
-	RETURN_VALUE(VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(s)), rindex);
+	return vm->ReturnValue(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(s)), rindex);
 }
 
 static GravityValue JSON_value(gravity_vm * vm, json_value * json) 
@@ -80,8 +78,8 @@ static GravityValue JSON_value(gravity_vm * vm, json_value * json)
 		case json_null: return GravityValue::from_null();
 		case json_object: 
 			{
-				gravity_object_t * obj = gravity_object_deserialize(vm, json);
-				GravityValue objv = (obj) ? VALUE_FROM_OBJECT(obj) : GravityValue::from_null();
+				gravity_class_t * obj = gravity_object_deserialize(vm, json);
+				GravityValue objv = (obj) ? GravityValue::from_object(obj) : GravityValue::from_null();
 				return objv;
 			}
 		case json_array: 
@@ -92,12 +90,12 @@ static GravityValue JSON_value(gravity_vm * vm, json_value * json)
 					GravityValue value = JSON_value(vm, json->u.array.values[i]);
 					list->array.insert(value);
 				}
-				return VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(list));
+				return GravityValue::from_object(reinterpret_cast<gravity_class_t *>(list));
 			}
 		case json_integer: return GravityValue::from_int(json->u.integer);
 		case json_double: return GravityValue::from_float(json->u.dbl);
 		case json_string: return VALUE_FROM_STRING(vm, json->u.string.ptr, json->u.string.length);
-		case json_boolean: return VALUE_FROM_BOOL(json->u.boolean);
+		case json_boolean: return GravityValue::from_bool(json->u.boolean);
 	}
 	return GravityValue::from_null();
 }
@@ -105,16 +103,16 @@ static GravityValue JSON_value(gravity_vm * vm, json_value * json)
 static bool JSON_parse(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
 {
 	if(nargs < 2) 
-		RETURN_VALUE(GravityValue::from_null(), rindex);
+		return vm->ReturnNull(rindex);
 	// value to parse
 	GravityValue value = args[1];
 	if(!value.IsString()) 
-		RETURN_VALUE(GravityValue::from_null(), rindex);
+		return vm->ReturnNull(rindex);
 	gravity_string_t * string = static_cast<gravity_string_t *>(value);
-	json_value * json = json_parse(string->s, string->len);
+	json_value * json = json_parse(string->cptr(), string->len);
 	if(!json) 
-		RETURN_VALUE(GravityValue::from_null(), rindex);
-	RETURN_VALUE(JSON_value(vm, json), rindex);
+		return vm->ReturnNull(rindex);
+	return vm->ReturnValue(JSON_value(vm, json), rindex);
 }
 
 //static bool JSON_begin_object (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) { return false; }
@@ -123,8 +121,38 @@ static bool JSON_parse(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 //static bool json_end_array (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {}
 //static bool json_add_object (gravity_vm *vm, GravityValue *args, uint16 nargs, uint32 rindex) {}
 
-// MARK: - Internals -
+class GravityClassImplementation_Json : public GravityClassImplementation {
+public:
+	GravityClassImplementation_Json() : GravityClassImplementation(GRAVITY_CLASS_JSON_NAME, fCore)
+	{
+	}
+	virtual int Bind(gravity_class_t * pMeta)
+	{
+		int    ok = 1;
+		//gravity_class_bind(pMeta, GRAVITY_INTERNAL_EXEC_NAME, NEW_CLOSURE_VALUE(JSON_exec));
+		gravity_class_bind(pMeta, GRAVITY_JSON_STRINGIFY_NAME, NEW_CLOSURE_VALUE(JSON_stringify));
+		gravity_class_bind(pMeta, GRAVITY_JSON_PARSE_NAME, NEW_CLOSURE_VALUE(JSON_parse));
+		//gravity_class_bind(gravity_class_json, "begin", NEW_CLOSURE_VALUE(JSON_begin_object));
+		return ok;
+	}
+	virtual void DestroyMeta(gravity_class_t * pMeta)
+	{
+	}
+};
 
+static GravityClassImplementation_Json gravity_clsimp_json;
+
+bool gravity_isjson_class(const gravity_class_t * c) { return (c && c == gravity_clsimp_json.P_Cls); }
+const char * gravity_json_name() { return gravity_clsimp_json.P_Name/*GRAVITY_CLASS_JSON_NAME*/; }
+void gravity_json_register(gravity_vm * vm) { gravity_clsimp_json.Register(vm); }
+void gravity_json_free() { gravity_clsimp_json.UnRegister(); }
+
+#if 0 // {
+
+static gravity_class_t * gravity_class_json = NULL;
+static uint32 refcount = 0;
+
+// MARK: - Internals -
 static void create_optional_class() 
 {
 	gravity_class_json = gravity_class_new_pair(NULL, GRAVITY_CLASS_JSON_NAME, NULL, 0, 0);
@@ -149,7 +177,7 @@ void gravity_json_register(gravity_vm * vm)
 	++refcount;
 	if(!vm || gravity_vm_ismini(vm)) 
 		return;
-	gravity_vm_setvalue(vm, GRAVITY_CLASS_JSON_NAME, VALUE_FROM_OBJECT(gravity_class_json));
+	gravity_vm_setvalue(vm, GRAVITY_CLASS_JSON_NAME, GravityValue::from_object(gravity_class_json));
 }
 
 void gravity_json_free() 
@@ -164,3 +192,4 @@ void gravity_json_free()
 		}
 	}
 }
+#endif

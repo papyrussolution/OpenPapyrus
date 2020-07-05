@@ -1,5 +1,5 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -750,8 +750,7 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 	{ DlScope::cuifStaticEdge, "staticedge" }
 };
 
-//static
-int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
+/*static*/int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
 {
 	return SIntToSymbTab_GetSymb(DlScopePropIdAssocList, SIZEOFARRAY(DlScopePropIdAssocList), propId, rSymb); // @v10.6.7
 	/* @v10.6.7 int    ok = 0;
@@ -764,8 +763,7 @@ int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
 	return ok;*/
 }
 
-//static
-int FASTCALL DlScope::ResolvePropName(const char * pName)
+/*static*/int FASTCALL DlScope::ResolvePropName(const char * pName)
 {
 	// @v10.6.7 {
 	int    id = SIntToSymbTab_GetId(DlScopePropIdAssocList, SIZEOFARRAY(DlScopePropIdAssocList), pName);
@@ -786,8 +784,7 @@ int FASTCALL DlScope::ResolvePropName(const char * pName)
 	return id;
 }
 
-//static
-SString & DlScope::PropListToLine(const StrAssocArray & rPropList, uint tabCount, SString & rBuf)
+/*static*/SString & DlScope::PropListToLine(const StrAssocArray & rPropList, uint tabCount, SString & rBuf)
 {
 	if(rPropList.getCount()) {
 		SString prop_symb, prop_val;

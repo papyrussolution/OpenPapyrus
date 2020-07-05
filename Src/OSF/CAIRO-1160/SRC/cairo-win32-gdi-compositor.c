@@ -87,7 +87,7 @@ static boolint fill_box(cairo_box_t * box, void * closure)
 	rect.top = _cairo_fixed_integer_part(box->p1.y);
 	rect.right = _cairo_fixed_integer_part(box->p2.x);
 	rect.bottom = _cairo_fixed_integer_part(box->p2.y);
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return FillRect(fb->dc, &rect, fb->brush);
 }
 
@@ -114,7 +114,7 @@ static boolint copy_box(cairo_box_t * box, void * closure)
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
 	int height = _cairo_fixed_integer_part(box->p2.y - box->p1.y);
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return BitBlt(cb->dst, x, y, width, height, cb->src, x + cb->tx, y + cb->ty, SRCCOPY);
 }
 
@@ -125,7 +125,7 @@ static boolint alpha_box(cairo_box_t * box, void * closure)
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
 	int height = _cairo_fixed_integer_part(box->p2.y - box->p1.y);
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return cb->alpha_blend(cb->dst, x, y, width, height, cb->src, x + cb->tx, y + cb->ty, width, height, cb->bf);
 }
 
@@ -145,7 +145,7 @@ static boolint upload_box(cairo_box_t * box, void * closure)
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
 	int height = _cairo_fixed_integer_part(box->p2.y - box->p1.y);
 	int src_height = -cb->bi.bmiHeader.biHeight;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	return StretchDIBits(cb->dst, x, y + height - 1, width, -height, x + cb->tx,  src_height - (y + cb->ty - 1),
 		   width, -height, cb->data, &cb->bi, DIB_RGB_COLORS, SRCCOPY);
 }
@@ -162,7 +162,7 @@ static cairo_int_status_t fill_boxes(cairo_win32_display_surface_t * dst, const 
 	const cairo_color_t * color = &(reinterpret_cast<const cairo_solid_pattern_t *>(src)->color);
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	struct fill_box fb;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if((dst->win32.flags & CAIRO_WIN32_SURFACE_CAN_RGB_BRUSH) == 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	fb.dc = dst->win32.dc;
@@ -193,7 +193,7 @@ static cairo_status_t copy_boxes(cairo_win32_display_surface_t * dst, const cair
 	cairo_surface_t * surface;
 	cairo_status_t status;
 	cairo_win32_surface_t * src;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	pattern = reinterpret_cast<const cairo_surface_pattern_t *>(source);
 	surface = _cairo_surface_get_source(pattern->surface, &cb.limit);
 	if(surface->type == CAIRO_SURFACE_TYPE_IMAGE) {
@@ -235,7 +235,7 @@ static cairo_status_t upload_boxes(cairo_win32_display_surface_t * dst, const ca
 	cairo_image_surface_t * image;
 	void * image_extra;
 	cairo_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if((dst->win32.flags & CAIRO_WIN32_SURFACE_CAN_STRETCHDIB) == 0)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	if(!_cairo_matrix_is_integer_translation(&source->matrix,
@@ -290,7 +290,7 @@ static cairo_status_t alpha_blend_boxes(cairo_win32_display_surface_t * dst, con
 	cairo_surface_t * surface;
 	cairo_win32_display_surface_t * src;
 	cairo_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(source->type != CAIRO_PATTERN_TYPE_SURFACE)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	pattern = (const cairo_surface_pattern_t*)source;
@@ -340,7 +340,7 @@ static cairo_status_t draw_boxes(cairo_composite_rectangles_t * composite, cairo
 	cairo_operator_t op = composite->op;
 	const cairo_pattern_t * src = &composite->source_pattern.base;
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(boxes->num_boxes == 0 && composite->is_bounded)
 		return CAIRO_STATUS_SUCCESS;
 	if(!boxes->is_pixel_aligned)
@@ -373,7 +373,7 @@ static cairo_status_t opacity_boxes(cairo_composite_rectangles_t * composite, ca
 	cairo_win32_display_surface_t * dst = to_win32_display_surface(composite->surface);
 	cairo_operator_t op = composite->op;
 	const cairo_pattern_t * src = &composite->source_pattern.base;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(composite->mask_pattern.base.type != CAIRO_PATTERN_TYPE_SOLID)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	if(boxes->num_boxes == 0 && composite->is_bounded)
@@ -409,7 +409,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_paint(const cairo_composit
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(check_blit(composite)) {
 		cairo_boxes_t boxes;
-		TRACE((stderr, "%s\n", __FUNCTION__));
+		TRACE_FUNCTION_SIMPLE();
 		_cairo_clip_steal_boxes(composite->clip, &boxes);
 		status = draw_boxes(composite, &boxes);
 		_cairo_clip_unsteal_boxes(composite->clip, &boxes);
@@ -422,7 +422,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_mask(const cairo_composito
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(check_blit(composite)) {
 		cairo_boxes_t boxes;
-		TRACE((stderr, "%s\n", __FUNCTION__));
+		TRACE_FUNCTION_SIMPLE();
 		_cairo_clip_steal_boxes(composite->clip, &boxes);
 		status = opacity_boxes(composite, &boxes);
 		_cairo_clip_unsteal_boxes(composite->clip, &boxes);
@@ -437,7 +437,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_stroke(const cairo_composi
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(check_blit(composite) && _cairo_path_fixed_stroke_is_rectilinear(path)) {
 		cairo_boxes_t boxes;
-		TRACE((stderr, "%s\n", __FUNCTION__));
+		TRACE_FUNCTION_SIMPLE();
 		_cairo_boxes_init_with_clip(&boxes, composite->clip);
 		status = _cairo_path_fixed_stroke_rectilinear_to_boxes(path, style, ctm, antialias, &boxes);
 		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
@@ -454,7 +454,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_fill(const cairo_composito
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(check_blit(composite) && _cairo_path_fixed_fill_is_rectilinear(path)) {
 		cairo_boxes_t boxes;
-		TRACE((stderr, "%s\n", __FUNCTION__));
+		TRACE_FUNCTION_SIMPLE();
 		_cairo_boxes_init_with_clip(&boxes, composite->clip);
 		status = _cairo_path_fixed_fill_rectilinear_to_boxes(path, fill_rule, antialias, &boxes);
 		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
@@ -481,7 +481,7 @@ static cairo_int_status_t _cairo_win32_gdi_compositor_glyphs(const cairo_composi
 	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
 	if(check_blit(composite) && check_glyphs(composite, scaled_font)) {
 		const cairo_win32_display_surface_t * dst = to_win32_display_surface(composite->surface);
-		TRACE((stderr, "%s\n", __FUNCTION__));
+		TRACE_FUNCTION_SIMPLE();
 		if((dst->win32.flags & CAIRO_WIN32_SURFACE_CAN_RGB_BRUSH) == 0)
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 		status = _cairo_win32_display_surface_set_clip(dst, composite->clip);

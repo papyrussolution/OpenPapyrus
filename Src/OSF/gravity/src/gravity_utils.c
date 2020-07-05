@@ -91,15 +91,15 @@ char * readline(char * prompt, int * length)
 
 uint64_t file_size(const char * path) 
 {
-    #ifdef WIN32
+#ifdef WIN32
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo;
 	if(GetFileAttributesExA(path, GetFileExInfoStandard, (void*)&fileInfo) == 0) return -1;
-	return (uint64_t)(((__int64)fileInfo.nFileSizeHigh) << 32 ) + fileInfo.nFileSizeLow;
-    #else
+		return (uint64_t)(((__int64)fileInfo.nFileSizeHigh) << 32 ) + fileInfo.nFileSizeLow;
+#else
 	struct stat sb;
 	if(stat(path, &sb) > 0) return -1;
-	return (uint64_t)sb.st_size;
-    #endif
+		return (uint64_t)sb.st_size;
+#endif
 }
 
 const char * file_read(const char * path, size_t * len) 
@@ -224,8 +224,8 @@ DIRREF directory_init(const char * dirpath)
 
 const char * directory_read(DIRREF ref, char * out) 
 {
-    #pragma unused (out)
-	if(ref == NULL) return NULL;
+	if(ref == NULL) 
+		return NULL;
 	while(1) {
 		#ifdef WIN32
 		WIN32_FIND_DATAA findData;
@@ -557,7 +557,6 @@ uint32 power_of2_ceil(uint32 n)
 	n |= n >> 8;
 	n |= n >> 16;
 	n++;
-
 	return n;
 }
 
@@ -568,8 +567,7 @@ int64_t number_from_hex(const char * s, uint32 len)
 	// HEX(9223372036854775808) = 346DC5D638865
 
 	// sanity check on len in order to workaround an address sanityzer error
-	if(len > 24) return 0;
-	return (int64_t)strtoll(s, NULL, 16);
+	return (len > 24) ? 0 : (int64_t)strtoll(s, NULL, 16);
 }
 
 int64_t number_from_oct(const char * s, uint32 len) 
@@ -579,8 +577,7 @@ int64_t number_from_oct(const char * s, uint32 len)
 	// OCT(9223372036854775808) = 32155613530704145
 
 	// sanity check on len in order to workaround an address sanityzer error
-	if(len > 24) return 0;
-	return (int64_t)strtoll(s, NULL, 8);
+	return (len > 24) ? 0 : (int64_t)strtoll(s, NULL, 8);
 }
 
 int64_t number_from_bin(const char * s, uint32 len) 
@@ -590,11 +587,24 @@ int64_t number_from_bin(const char * s, uint32 len)
 	// BIN(9223372036854775808) = 11010001101101110001011101011000111000100001100101
 
 	// sanity check on len
-	if(len > 64) return 0;
+	if(len > 64) 
+		return 0;
 	int64_t value = 0;
 	for(uint32 i = 0; i<len; ++i) {
 		int c = s[i];
 		value = (value << 1) + (c - '0');
 	}
 	return value;
+}
+
+/*
+        if(!(condition)) { \
+            fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", __FILE__, __LINE__, __func__, message); \
+            abort(); \
+        } \
+*/
+void Gravity_Implement_DebugAssert(const char * pFile, int line, const char * pFunc, const char * pMessage)
+{
+    fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", pFile, line, pFunc, pMessage);
+    abort();
 }

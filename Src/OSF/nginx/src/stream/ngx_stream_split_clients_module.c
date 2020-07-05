@@ -63,7 +63,7 @@ static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s, ngx
 	if(ngx_stream_complex_value(s, &ctx->value, &val) != NGX_OK) {
 		return NGX_OK;
 	}
-	hash = ngx_murmur_hash2(val.data, val.len);
+	hash = SlHash::Murmur2_32(val.data, val.len, 0); // @v10.8.0 ngx_murmur_hash2(a, b)-->SlHash::Murmur2_32(a, b, 0)
 	part = static_cast<ngx_stream_split_clients_part_t *>(ctx->parts.elts);
 	for(i = 0; i < ctx->parts.nelts; i++) {
 		ngx_log_debug2(NGX_LOG_DEBUG_STREAM, s->connection->log, 0, "stream split: %uD %uD", hash, part[i].percent);

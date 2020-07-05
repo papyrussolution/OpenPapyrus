@@ -405,8 +405,7 @@ static SString & FASTCALL _SfSortMakeFinishEvntName(const char * pSrcFileName, S
 IMPL_CMPFUNC(SfSortStringPool, i1, i2) 
 	{ return SfSortStringPool::Helper_CmpFunc_ByText(static_cast<const uint *>(i1), static_cast<const uint *>(i2), static_cast<SfSortStringPool *>(pExtraData)); }
 
-//static
-int SLAPI SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray)
+/*static*/int SLAPI SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray)
 {
 	uint   pos1 = *p1;
 	uint   pos2 = *p2;

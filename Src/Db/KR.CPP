@@ -1,5 +1,5 @@
 // KR.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -273,7 +273,7 @@ int SLAPI KR::conjunction(void * d, int assign, int * comp, int * eq)
 			return remove() ? -1 : 0;
 		char buf[sizeof(I) + 2 * MAXKEYLEN];
 		rangeToBuf(A, buf, *eq);
-		return (remove() && add(buf)) ? 1 : 0;
+		return BIN(remove() && add(buf));
 	}
 	return (empty ? -1 : 1);
 }
@@ -357,7 +357,7 @@ int SLAPI KR::link(int logic, KR kr)
 				}
 				else {
 					temp.destroy();
-					return copy(kr) ? 1 : 0;
+					return BIN(copy(kr));
 				}
 			} while(++kr);
 			int r = copy(temp);

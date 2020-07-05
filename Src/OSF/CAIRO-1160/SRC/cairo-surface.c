@@ -1836,7 +1836,7 @@ static boolint FASTCALL nothing_to_do(const cairo_surface_t * surface, cairo_ope
 cairo_status_t FASTCALL _cairo_surface_paint(cairo_surface_t * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
@@ -1863,7 +1863,7 @@ cairo_status_t _cairo_surface_mask(cairo_surface_t * surface, cairo_operator_t o
     const cairo_pattern_t * mask, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
@@ -1901,7 +1901,7 @@ cairo_status_t _cairo_surface_fill_stroke(cairo_surface_t * surface, cairo_opera
     cairo_antialias_t stroke_antialias, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
@@ -1948,7 +1948,7 @@ cairo_status_t _cairo_surface_stroke(cairo_surface_t * surface, cairo_operator_t
     const cairo_matrix_t * ctm_inverse, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
@@ -1975,7 +1975,7 @@ cairo_status_t _cairo_surface_fill(cairo_surface_t * surface, cairo_operator_t o
     const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
@@ -2318,7 +2318,7 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface, cairo_
     cairo_text_cluster_flags_t cluster_flags, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))
@@ -2403,7 +2403,7 @@ cairo_status_t _cairo_surface_tag(cairo_surface_t * surface, boolint begin, cons
     const cairo_matrix_t * ctm_inverse, const cairo_clip_t * clip)
 {
 	cairo_int_status_t status;
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(unlikely(surface->status))
 		return surface->status;
 	if(unlikely(surface->finished))

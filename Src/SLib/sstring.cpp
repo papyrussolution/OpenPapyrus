@@ -444,9 +444,9 @@ uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
 	const char c = P_Buf[Offs];
 	if(oneof2(c, '\xA', '\xD')) {
 		if(eolf == eolUnix)
-			return (c == '\xA') ? 1 : 0;
+			return BIN(c == '\xA');
 		else if(eolf == eolMac)
-			return (c == '\xD') ? 1 : 0;
+			return BIN(c == '\xD');
 		else if(eolf == eolWindows)
 			return (c == '\xD' && (P_Buf[Offs+1] == '\xA')) ? 2 : 0;
 		else if(eolf == eolUndef)
@@ -4697,7 +4697,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 //
 static int FASTCALL SPathIsUNC(const char * pPath)
 {
-	return (pPath && (pPath[0]=='\\') && (pPath[1]=='\\') && (pPath[2] != '?')) ? 1 : 0;
+	return BIN(pPath && (pPath[0]=='\\') && (pPath[1]=='\\') && (pPath[2] != '?'));
 }
 
 static int SPathCommonPrefix(const char * pFile1, const char * pFile2, char * achPath)

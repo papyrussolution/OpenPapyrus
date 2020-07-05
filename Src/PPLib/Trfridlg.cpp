@@ -1881,7 +1881,6 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		setCtrlReal(CTL_LOT_OLDPRICE, Item.Discount);
 	}
 	else {
-		// @v9.4.3 {
 		if(P_Pack->OpTypeID == PPOPT_CORRECTION) {
 			/*
 			if(P_Pack->P_LinkPack) {
@@ -1898,7 +1897,6 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 			setCtrlReal(CTL_LOT_ORGQTTY, OrgQtty);
 			setCtrlReal(CTL_LOT_OLDPRICE, OrgPrice);
 		}
-		// } @v9.4.3
 		if(isDiscountInSum()) {
 			Item.Price   -= Item.Discount;
 			Item.Discount = 0.0;
@@ -1962,11 +1960,9 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	}
 	if(P_Pack) {
 		if(ItemNo >= 0) {
-			// @v9.8.11 if(P_Pack->ClbL.GetNumber(ItemNo, &temp_buf) > 0)
-			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0) // @v9.8.11
+			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0)
 				setCtrlString(CTL_LOT_CLB, temp_buf);
-			// @v9.8.11 if(P_Pack->SnL.GetNumber(ItemNo, &temp_buf) > 0)
-			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, temp_buf) > 0) // @v9.8.11
+			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, temp_buf) > 0)
 				setCtrlString(CTL_LOT_SERIAL, temp_buf);
 		}
 		else if(IsTaggedItem() && P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
@@ -1977,7 +1973,6 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 			SetupInheritedSerial();
 		}
 	}
-	// @v9.3.6 {
 	if(IsSourceSerialUsed()) {
 		temp_buf.Z();
 		if(ItemNo >= 0)
@@ -1990,7 +1985,6 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		showCtrl(CTL_LOT_SOURCESERIAL, 0);
 		showButton(cmSourceSerial, 0);
 	}
-	// } @v9.3.6
 	// @v10.5.8 {
 	if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
 		long   seqqrack = CHKXORFLAGS(Item.TFlags, PPTransferItem::tfQrSeqAccepted, PPTransferItem::tfQrSeqRejected);
@@ -2510,7 +2504,7 @@ int TrfrItemDialog::setupLot()
 {
 	int    ok = 1;
 	uint   fl = 0;
-	if(Item.Flags & PPTFR_CORRECTION && Item.Flags & PPTFR_REVAL) { // @v9.4.3
+	if(Item.Flags & PPTFR_CORRECTION && Item.Flags & PPTFR_REVAL) {
 		OrgQtty = 0.0;
 	}
 	SString temp_buf;
@@ -3236,7 +3230,6 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 			else
 				s = 0;
 		}
-		// @v9.4.5 {
 		if(!s && rParam.RetLotSerial.NotEmpty()) {
 			for(uint i = 0; !s && i < p_ary->getCount(); i++) {
 				const SelLotBrowser::Entry * p_entry = static_cast<const SelLotBrowser::Entry *>(p_ary->at(i));
@@ -3244,7 +3237,6 @@ int SLAPI PPObjBill::SelectLot2(SelectLotParam & rParam)
 					s = i+1;
 			}
 		}
-		// } @v9.4.5
 		if(s)
 			s--;
 		long   slb_flags = 0;

@@ -1,5 +1,5 @@
 // SDEBUG.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -21,8 +21,7 @@ SLAPI MemLeakTracer::~MemLeakTracer()
 //
 //
 //
-//static 
-int MemHeapTracer::Check()
+/*static*/int MemHeapTracer::Check()
 {
 	MemHeapTracer mht;
 	MemHeapTracer::Stat mht_stat;

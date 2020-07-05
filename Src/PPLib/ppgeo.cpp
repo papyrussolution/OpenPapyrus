@@ -31,8 +31,7 @@ size_t SLAPI PPOsm::NodeCluster::GetSize() const
 	return GetAvailableSize();
 }
 
-//static
-uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic)
+/*static*/uint SLAPI PPOsm::NodeCluster::GetPossiblePackCount(const Node * pN, size_t count, uint * pPossibleCountLogic)
 {
 	static const uint __row[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
 	uint   possible_count = 0;
@@ -1053,8 +1052,7 @@ SLAPI PPOsm::Tag::Tag() : KeySymbID(0), ValID(0)
 {
 }
 
-//static
-int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSVector <NodeClusterStatEntry> & rStat)
+/*static*/int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSVector <NodeClusterStatEntry> & rStat)
 {
 	int    ok = 1;
 	int    found = 0;
@@ -1076,8 +1074,7 @@ int FASTCALL PPOsm::SetProcessedNodeStat(uint logicalCount, uint qtty, TSVector 
 	return ok;
 }
 
-//static
-int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSVector <WayStatEntry> & rStat)
+/*static*/int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSVector <WayStatEntry> & rStat)
 {
 	int    ok = 1;
 	int    found = 0;
@@ -1099,8 +1096,7 @@ int FASTCALL PPOsm::SetProcessedWayStat(uint refCount, uint qtty, TSVector <WayS
 	return ok;
 }
 
-//static
-int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSVector <WayStatEntry> & rStat)
+/*static*/int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSVector <WayStatEntry> & rStat)
 {
     int    ok = 1;
     Way    way;
@@ -1130,8 +1126,7 @@ int FASTCALL PPOsm::SetWayStat(WayBuffer & rWayBuf, TSVector <WayStatEntry> & rS
     return ok;
 }
 
-//static
-int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSVector <NodeClusterStatEntry> & rStat)
+/*static*/int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSVector <NodeClusterStatEntry> & rStat)
 {
 	int    ok = 1;
 	uint   count_logic = 0;
@@ -1295,14 +1290,12 @@ int FASTCALL PPGeoTrackItem::Get(GeoTrackTbl::Rec & rD) const
 	return 1;
 }
 
-//static
-LDATE FASTCALL GeoTrackCore::ConvertStorageDate(int16 sd)
+/*static*/LDATE FASTCALL GeoTrackCore::ConvertStorageDate(int16 sd)
 {
 	return (sd == 0) ? ZERODATE : plusdate(encodedate(1, 1, 2010), sd);
 }
 
-//static
-int16 FASTCALL GeoTrackCore::GetStorageDate(LDATE dt)
+/*static*/int16 FASTCALL GeoTrackCore::GetStorageDate(LDATE dt)
 {
 	int16  result = 0;
 	if(dt) {

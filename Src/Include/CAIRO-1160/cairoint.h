@@ -1253,8 +1253,10 @@ cairo_private void _cairo_debug_print_clip(FILE * stream, const cairo_clip_t * c
 #if 0
 	#define TRACE(x) fprintf(stderr, "%s: ", __FILE__), fprintf x
 	#define TRACE_(x) x
+	#define TRACE_FUNCTION_SIMPLE() fprintf(stderr, "%s: ", __FILE__), fprintf(stderr, "%s\n", __FUNCTION__) // @sobolev
 #else
 	#define TRACE(x)
 	#define TRACE_(x)
+	#define TRACE_FUNCTION_SIMPLE() // @sobolev
 #endif
 #endif

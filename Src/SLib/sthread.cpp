@@ -798,8 +798,7 @@ void SLAPI SlThread::Run()
 }
 //
 // This is each thread's thread proc
-//static
-ThreadProcReturn THREADPROCCALL SlThread::_Exec(void * pThis)
+/*static*/ThreadProcReturn THREADPROCCALL SlThread::_Exec(void * pThis)
 {
 	SlThread * p_this = static_cast<SlThread *>(pThis);
 	if(p_this->P_Creation) {
@@ -830,8 +829,7 @@ SLAPI SlThread_WithStartupSignal::SlThread_WithStartupSignal(void * pInitData, l
 //
 //
 //
-//static 
-uint FASTCALL SLockStack::WRLT_to_LSLT(SReadWriteLocker::Type wrlt)
+/*static*/uint FASTCALL SLockStack::WRLT_to_LSLT(SReadWriteLocker::Type wrlt)
 {
 	switch(wrlt) {
 		case SReadWriteLocker::Read: return ltRW_R;

@@ -1296,9 +1296,8 @@ int PPThreadLocalArea::PrivateCart::Set(const PPBasketPacket * pPack, int use_ta
 //
 //
 //
-//static
-const char * PPSession::P_JobLogin = "$SYSSERVICE$"; // @global
-const char * PPSession::P_EmptyBaseCreationLogin = "$EMPTYBASECREATION$"; // @global
+/*static*/const char * PPSession::P_JobLogin = "$SYSSERVICE$"; // @global
+/*static*/const char * PPSession::P_EmptyBaseCreationLogin = "$EMPTYBASECREATION$"; // @global
 
 PPSession::ThreadCollection::ThreadCollection() : TSCollection <PPThread> ()
 {
@@ -1978,8 +1977,7 @@ static int PPGetDefaultEncrKey(SString & rBuf)
     return vi.GetDefaultEncrKey(rBuf);
 }
 
-//static
-int FASTCALL PPSession::GetStartUpOption(int o, SString & rArgBuf)
+/*static*/int FASTCALL PPSession::GetStartUpOption(int o, SString & rArgBuf)
 {
 	static const char * p_cmdl_symbols = "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,"
 		"TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,"
@@ -5472,8 +5470,7 @@ SLAPI SysMaintenanceEventResponder::~SysMaintenanceEventResponder()
 int SLAPI SysMaintenanceEventResponder::IsConsistent() const
 	{ return (Signature == _PPConst.Signature_SysMaintenanceEventResponder); }
 
-//static
-int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
@@ -5549,8 +5546,7 @@ int SysMaintenanceEventResponder::AdviseCallback(int kind, const PPNotifyEvent *
 	return ok;
 }
 
-//static
-int SysMaintenanceEventResponder::ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, SysMaintenanceEventResponder * pSelf, SString &rDomainBuf)
+/*static*/int SysMaintenanceEventResponder::ResponseByAdviseCallback(const SString & rResponseMsg, const PPMqbClient::Envelope * pEnv, SysMaintenanceEventResponder * pSelf, SString &rDomainBuf)
 {
 	return -1;
 }

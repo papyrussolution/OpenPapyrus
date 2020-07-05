@@ -257,7 +257,7 @@ static cairo_int_status_t fill_boxes(void * _dst,
 	cairo_gl_context_t * ctx;
 	cairo_int_status_t status;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
 	if(unlikely(status))
 		goto FAIL;
@@ -309,7 +309,7 @@ static cairo_int_status_t copy_boxes(void * _dst,
 	cairo_gl_context_t * ctx;
 	cairo_int_status_t status;
 
-	TRACE((stderr, "%s\n", __FUNCTION__));
+	TRACE_FUNCTION_SIMPLE();
 	if(!_cairo_gl_surface_is_texture(src))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 

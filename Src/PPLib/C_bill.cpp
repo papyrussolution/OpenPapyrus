@@ -559,7 +559,7 @@ int SLAPI PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 		if(dlg->getDTS(&rabd))
 			valid_data = 1;
-	stop = dlg->getCtrlUInt16(CTL_ABSBILL_STOP) ? 1 : 0;
+	stop = BIN(dlg->getCtrlUInt16(CTL_ABSBILL_STOP));
 	delete dlg;
 	dlg = 0;
 	if(valid_data) {

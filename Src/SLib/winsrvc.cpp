@@ -1,5 +1,5 @@
 // WINSRVC.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -28,24 +28,21 @@ private:
 //
 //
 //
-//static
-int SLAPI WinService::Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPassword)
+/*static*/int SLAPI WinService::Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPassword)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName);
 	return s.Create(pDisplayName, pModuleName, pLogin, pPassword);
 }
 
-//static
-int SLAPI WinService::Uninstall(const char * pServiceName)
+/*static*/int SLAPI WinService::Uninstall(const char * pServiceName)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName, DELETE);
 	return s.Delete();
 }
 
-//static
-int SLAPI WinService::Start(const char * pServiceName, int stop)
+/*static*/int SLAPI WinService::Start(const char * pServiceName, int stop)
 {
 	WinServiceMngr sm;
 	WinService s(sm, pServiceName, stop ? SERVICE_STOP : SERVICE_START);

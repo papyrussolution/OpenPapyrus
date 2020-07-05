@@ -998,13 +998,13 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 	STextBrowser * p_view = 0;
 	switch(message) {
 		case WM_CREATE:
-			p_init_data = (CREATESTRUCT *)lParam;
+			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
 			if(TWindow::IsMDIClientWindow(p_init_data->hwndParent)) {
-				p_view = (STextBrowser *)((LPMDICREATESTRUCT)(p_init_data->lpCreateParams))->lParam;
+				p_view = reinterpret_cast<STextBrowser *>(static_cast<LPMDICREATESTRUCT>(p_init_data->lpCreateParams)->lParam);
 				p_view->BbState |= bbsIsMDI;
 			}
 			else {
-				p_view = (STextBrowser *)p_init_data->lpCreateParams;
+				p_view = static_cast<STextBrowser *>(p_init_data->lpCreateParams);
 				p_view->BbState &= ~bbsIsMDI;
 			}
 			if(p_view) {
@@ -1016,7 +1016,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				PostMessage(hWnd, WM_PAINT, 0, 0);
 				{
 					SString temp_buf;
-					TView::SGetWindowText(hWnd, temp_buf); // @v9.1.5
+					TView::SGetWindowText(hWnd, temp_buf);
 					APPL->AddItemToMenu(temp_buf, p_view);
 				}
 				::SetFocus(p_view->HwndSci);
@@ -1608,18 +1608,12 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 			{
 				SString file_name = Doc.FileName;
 				if(PPOpenFile(PPTXT_TEXTBROWSER_FILETYPES, file_name, 0, H()) > 0)
-					ok = FileLoad(file_name, /*cpANSI*/cpUTF8, 0); // @v9.9.9 cpANSI-->cpUTF8
+					ok = FileLoad(file_name, cpUTF8, 0);
 			}
 			break;
-		case PPVCMD_SAVE:
-			ok = FileSave(0, 0);
-			break;
-		case PPVCMD_SAVEAS:
-			ok = FileSave(0, ofInteractiveSaveAs);
-			break;
-		case PPVCMD_SELCODEPAGE:
-			ok = SetEncoding(cpUndef);
-			break;
+		case PPVCMD_SAVE: ok = FileSave(0, 0); break;
+		case PPVCMD_SAVEAS: ok = FileSave(0, ofInteractiveSaveAs); break;
+		case PPVCMD_SELCODEPAGE: ok = SetEncoding(cpUndef); break;
 		case PPVCMD_PROCESSTEXT:
 			{
 				uint8 * p_buf = (uint8 *)CallFunc(SCI_GETCHARACTERPOINTER, 0, 0);
@@ -1639,21 +1633,11 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 				}
 			}
 			break;
-		case PPVCMD_SEARCH:
-			SearchAndReplace(srfUseDialog);
-			break;
-		case PPVCMD_SEARCHNEXT:
-			SearchAndReplace(0);
-			break;
-		case PPVCMD_INSERTLINK:
-			InsertWorkbookLink();
-			break;
-		case PPVCMD_BRACEHTMLTAG:
-			BraceHtmlTag();
-			break;
-		case PPVCMD_SETUPSARTREINDICATORS:
-			UpdateIndicators();
-			break;
+		case PPVCMD_SEARCH: SearchAndReplace(srfUseDialog); break;
+		case PPVCMD_SEARCHNEXT: SearchAndReplace(0); break;
+		case PPVCMD_INSERTLINK: InsertWorkbookLink(); break;
+		case PPVCMD_BRACEHTMLTAG: BraceHtmlTag(); break;
+		case PPVCMD_SETUPSARTREINDICATORS: UpdateIndicators(); break;
 	}
 	return ok;
 }
@@ -1684,7 +1668,6 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 	{
 		SFileFormat ff;
 		const int fir = ff.Identify(file_name);
-
 		size_t block_size = 8 * 1024 * 1024;
 		int64  _fsize = 0;
 		SFile _f(file_name, SFile::mRead|SFile::mBinary);
@@ -1720,9 +1703,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						SetLexer("cpp");
 					}
 				}
-				// @v9.9.9 if(orgCp != cpANSI) {
-					CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
-				// @v9.9.9 }
+				CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
 				CallFunc(SCI_ALLOCATE, static_cast<WPARAM>(bufsize_req), 0);
 				THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
 				{

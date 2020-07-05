@@ -290,8 +290,7 @@ int SLAPI PPMqbClient::Disconnect()
 	return ok;
 }
 
-//static
-int FASTCALL PPMqbClient::ProcessAmqpRpcReply(const amqp_rpc_reply_t & rR)
+/*static*/int FASTCALL PPMqbClient::ProcessAmqpRpcReply(const amqp_rpc_reply_t & rR)
 {
 	int    ok = 1;
 	switch(rR.reply_type) {
@@ -658,8 +657,7 @@ int SLAPI PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, 
 	return ok;
 }
 
-//static 
-int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP)
+/*static*/int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam & rP)
 {
 	int    ok = 1;
 	THROW(rC.Connect(rP.Host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));
@@ -676,8 +674,7 @@ int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, const PPMqbClient::InitParam
 	return ok;
 }
 
-//static 
-int SLAPI PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain)
+/*static*/int SLAPI PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDomain)
 {
 	int    ok = 1;
 	SString data_domain;
@@ -700,8 +697,7 @@ int SLAPI PPMqbClient::SetupInitParam(PPMqbClient::InitParam & rP, SString * pDo
 	return ok;
 }
 
-//static 
-int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
+/*static*/int SLAPI PPMqbClient::InitClient(PPMqbClient & rC, SString * pDomain)
 {
 	int    ok = 1;
 	PPMqbClient::InitParam lp;
@@ -771,8 +767,7 @@ int SLAPI MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd)
 	return ok;
 }
 
-//static 
-int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int MqbEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = 1;
 	SString temp_buf;

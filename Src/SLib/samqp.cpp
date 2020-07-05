@@ -1138,7 +1138,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->insist = (bit_buffer & (1 << 0)) ? 1 : 0;
+		    m->insist = BIN(bit_buffer & (1 << 0));
 		    *decoded = m;
 		    return 0;
 	    }
@@ -1238,7 +1238,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_NO_MEMORY;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->active = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->active = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1249,7 +1249,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_NO_MEMORY;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->active = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->active = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1371,8 +1371,8 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->if_unused = (bit_buffer & (1 << 0)) ? 1 : 0;
-				m->nowait = (bit_buffer & (1 << 1)) ? 1 : 0;
+				m->if_unused = BIN(bit_buffer & (1 << 0));
+				m->nowait = BIN(bit_buffer & (1 << 1));
 				*decoded = m;
 				return 0;
 			}
@@ -1411,7 +1411,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					}
 					if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 						return AMQP_STATUS_BAD_AMQP_DATA;
-					m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+					m->nowait = BIN(bit_buffer & (1 << 0));
 					{
 						int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
 						if(res < 0) return res;
@@ -1453,7 +1453,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 		    }
 		    if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 			    return AMQP_STATUS_BAD_AMQP_DATA;
-		    m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+		    m->nowait = BIN(bit_buffer & (1 << 0));
 		    {
 			    int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
 			    if(res < 0) return res;
@@ -1541,7 +1541,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->nowait = BIN(bit_buffer & (1 << 0));
 				{
 					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
 					if(res < 0) 
@@ -1574,7 +1574,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->nowait = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1604,9 +1604,9 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->if_unused = (bit_buffer & (1 << 0)) ? 1 : 0;
-				m->if_empty = (bit_buffer & (1 << 1)) ? 1 : 0;
-				m->nowait = (bit_buffer & (1 << 2)) ? 1 : 0;
+				m->if_unused = BIN(bit_buffer & (1 << 0));
+				m->if_empty = BIN(bit_buffer & (1 << 1));
+				m->nowait = BIN(bit_buffer & (1 << 2));
 				*decoded = m;
 				return 0;
 			}
@@ -1673,7 +1673,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->global = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->global = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1706,10 +1706,10 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->no_local = (bit_buffer & (1 << 0)) ? 1 : 0;
-				m->no_ack = (bit_buffer & (1 << 1)) ? 1 : 0;
-				m->exclusive = (bit_buffer & (1 << 2)) ? 1 : 0;
-				m->nowait = (bit_buffer & (1 << 3)) ? 1 : 0;
+				m->no_local  = BIN(bit_buffer & (1 << 0));
+				m->no_ack    = BIN(bit_buffer & (1 << 1));
+				m->exclusive = BIN(bit_buffer & (1 << 2));
+				m->nowait    = BIN(bit_buffer & (1 << 3));
 				{
 					int res = amqp_decode_table(encoded, pool, &(m->arguments), &offset);
 					if(res < 0) return res;
@@ -1745,7 +1745,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->nowait = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1783,8 +1783,8 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->mandatory = (bit_buffer & (1 << 0)) ? 1 : 0;
-				m->immediate = (bit_buffer & (1 << 1)) ? 1 : 0;
+				m->mandatory = BIN(bit_buffer & (1 << 0));
+				m->immediate = BIN(bit_buffer & (1 << 1));
 				*decoded = m;
 				return 0;
 			}
@@ -1829,7 +1829,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->redelivered = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->redelivered = BIN(bit_buffer & (1 << 0));
 				{
 					uint8 len;
 					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
@@ -1858,7 +1858,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->no_ack = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->no_ack = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1872,7 +1872,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->redelivered = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->redelivered = BIN(bit_buffer & (1 << 0));
 				{
 					uint8 len;
 					if(!amqp_decode_8(encoded, &offset, &len) || !amqp_decode_bytes(encoded, &offset, &m->exchange, len))
@@ -1912,7 +1912,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->multiple = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->multiple = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1926,7 +1926,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->requeue = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1938,7 +1938,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->requeue = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1950,7 +1950,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->requeue = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->requeue = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -1973,8 +1973,8 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 					return AMQP_STATUS_BAD_AMQP_DATA;
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->multiple = (bit_buffer & (1 << 0)) ? 1 : 0;
-				m->requeue = (bit_buffer & (1 << 1)) ? 1 : 0;
+				m->multiple = BIN(bit_buffer & (1 << 0));
+				m->requeue = BIN(bit_buffer & (1 << 1));
 				*decoded = m;
 				return 0;
 			}
@@ -2040,7 +2040,7 @@ int amqp_decode_method(amqp_method_number_t methodNumber, amqp_pool_t * pool, am
 				}
 				if(!amqp_decode_8(encoded, &offset, &bit_buffer))
 					return AMQP_STATUS_BAD_AMQP_DATA;
-				m->nowait = (bit_buffer & (1 << 0)) ? 1 : 0;
+				m->nowait = BIN(bit_buffer & (1 << 0));
 				*decoded = m;
 				return 0;
 			}
@@ -3909,7 +3909,7 @@ static amqp_pool_t * amqp_get_channel_pool(amqp_connection_state_t state, amqp_c
 
 int amqp_bytes_equal(const amqp_bytes_t r, const amqp_bytes_t l) 
 {
-	return (r.len == l.len && (r.bytes == l.bytes || 0 == memcmp(r.bytes, l.bytes, r.len))) ? 1 : 0;
+	return BIN(r.len == l.len && (r.bytes == l.bytes || 0 == memcmp(r.bytes, l.bytes, r.len)));
 }
 // } AMQP_MEM
 //
@@ -5046,7 +5046,7 @@ static amqp_bytes_t sasl_method_name(amqp_sasl_method_enum method)
 
 static int bytes_equal(amqp_bytes_t l, amqp_bytes_t r) 
 {
-	return (l.len == r.len && l.bytes && r.bytes && memcmp(l.bytes, r.bytes, l.len) == 0) ? 1 : 0;
+	return BIN(l.len == r.len && l.bytes && r.bytes && memcmp(l.bytes, r.bytes, l.len) == 0);
 }
 
 int sasl_mechanism_in_list(amqp_bytes_t mechanisms, amqp_sasl_method_enum method) 

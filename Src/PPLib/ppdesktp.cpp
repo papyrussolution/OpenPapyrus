@@ -822,8 +822,7 @@ int PPDesktop::DrawIcon(TCanvas & rC, long id, TPoint coord, const SString & rTe
 	return 1;
 }
 
-//static
-COLORREF PPDesktop::GetDefaultBgColor()
+/*static*/COLORREF PPDesktop::GetDefaultBgColor()
 {
 	return GetColorRef(SClrSteelblue4);
 }

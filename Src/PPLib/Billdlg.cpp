@@ -4050,7 +4050,7 @@ int SLAPI PPObjBill::EditLotSystemInfo(PPID lotID)
 	ReceiptTbl::Rec lot_rec;
 	LotInfoDialog * dlg = 0;
 	if(lotID && trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-		const int can_edit = PPMaster ? 1 : 0;
+		const int can_edit = BIN(PPMaster);
 		if(CheckDialogPtrErr(&(dlg = new LotInfoDialog(&lot_rec, can_edit)))) {
 			if(ExecView(dlg) == cmOK && can_edit) {
 				//THROW(P_Tbl->Update(lot_id, &rec, 1));

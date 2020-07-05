@@ -1196,8 +1196,7 @@ static const SIntToSymbTabEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_REPLYRESTBCODE,   "ReplyRestBCode" }  // @v10.5.8
 };
 
-//static
-int FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType, SString & rTag)
+/*static*/int FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType, SString & rTag)
 {
 	return SIntToSymbTab_GetSymb(_EgaisDocTypes, SIZEOFARRAY(_EgaisDocTypes), docType, rTag);
 }
@@ -1246,8 +1245,7 @@ static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 	{ PPEgaisProcessor::wbtRetToMe, "WBReturnToMe" }
 };
 
-//static
-int FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf) // @v10.0.05
+/*static*/int FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf) // @v10.0.05
 	{ return SIntToSymbTab_GetSymb(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), wbType, rBuf); }
 int FASTCALL PPEgaisProcessor::RecognizeWayBillTypeText(const char * pText)
 	{ return SIntToSymbTab_GetId(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), pText); }
@@ -9670,8 +9668,7 @@ int SLAPI EgaisProductCore::Export(long fmt, const char * pFileName)
 	return ok;
 }
 
-//static
-int FASTCALL EgaisRefACore::IsRecEq(const EgaisRefATbl::Rec & rR1, const EgaisRefATbl::Rec & rR2)
+/*static*/int FASTCALL EgaisRefACore::IsRecEq(const EgaisRefATbl::Rec & rR1, const EgaisRefATbl::Rec & rR2)
 {
 #define CMP_MEMB(m)  if(rR1.m != rR2.m) return 0;
 #define CMP_MEMBS(m) if(!sstreq(rR1.m, rR2.m)) return 0;

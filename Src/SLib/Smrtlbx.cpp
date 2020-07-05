@@ -1192,8 +1192,7 @@ UiSearchTextBlock::~UiSearchTextBlock()
 {
 }
 
-//static
-int UiSearchTextBlock::ExecDialog(HWND hWnd, uint ctlId, SString & rText, int isFirstLetter, WordSel_ExtraBlock * pBlk, int linkToList)
+/*static*/int UiSearchTextBlock::ExecDialog(HWND hWnd, uint ctlId, SString & rText, int isFirstLetter, WordSel_ExtraBlock * pBlk, int linkToList)
 {
 	int    r = cmCancel;
 	long   id = 0;

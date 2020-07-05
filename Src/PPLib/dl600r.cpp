@@ -1389,7 +1389,7 @@ int SLAPI DlRtm::Helper_PutScopeToJson(const DlScope * pScope, json_t * pJsonObj
 			if(fld.T.IsZStr(0))
 				buf.Transf(CTRANSF_INNER_TO_OUTER);
 			buf.Escape();
-			pJsonObj->Insert(fld.Name.cptr(), json_new_string(buf));
+			pJsonObj->InsertString(fld.Name.cptr(), buf);
 		}
 	}
 	CATCHZOK

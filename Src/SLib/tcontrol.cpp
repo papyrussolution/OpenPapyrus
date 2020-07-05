@@ -758,7 +758,7 @@ void TInputLine::Implement_Draw()
 {
 	//SString text_buf;
 	//(text_buf = Data).Transf(CTRANSF_INNER_TO_OUTER);
-	TView::SSetWindowText(GetDlgItem(Parent, Id), /*text_buf*//*SString(Data).Transf(CTRANSF_INNER_TO_OUTER)*/(SLS.AcquireRvlStr() = Data).Transf(CTRANSF_INNER_TO_OUTER));
+	TView::SSetWindowText(GetDlgItem(Parent, Id), SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
 	if(IsInState(sfSelected))
 		::SendDlgItemMessage(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
 	if(InlSt & stDisableDelSel)

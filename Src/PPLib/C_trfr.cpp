@@ -535,7 +535,7 @@ int SLAPI CorrectCurRest()
 	if(ExecView(dlg) == cmOK) {
 		dlg->getCtrlString(CTL_CORCREST_LOG, log_fname);
 		dlg->getCtrlData(CTL_CORCREST_FLAGS, &correct);
-		correct = correct ? 1 : 0;
+		correct = BIN(correct);
 		THROW(BillObj->trfr->CorrectCurRest(log_fname.Strip(), correct));
 		ok = 1;
 	}
@@ -1889,7 +1889,7 @@ int SLAPI PPObjBill::CorrectPckgCloseTag()
 				ReceiptTbl::Rec lot_rec;
 				P_PckgT->copyBufTo(&pckg_rec);
 				if(trfr->Rcpt.Search(pckg_rec.ID, &lot_rec) > 0) {
-					int16 old_val = pckg_rec.Closed ? 1 : 0;
+					int16 old_val = BIN(pckg_rec.Closed);
 					pckg_rec.Closed = (lot_rec.Rest > 0) ? 0 : 1;
 					P_PckgT->copyBufFrom(&pckg_rec);
 					if(old_val != pckg_rec.Closed)

@@ -906,8 +906,7 @@ private:
 	static const uint8 GapData[9];
 };
 
-//static
-const uint8 TestMemBuffer::GapData[9] = { 1, 3, 7, 9, 2, 4, 8, 10, 11 };
+/*static*/const uint8 TestMemBuffer::GapData[9] = { 1, 3, 7, 9, 2, 4, 8, 10, 11 };
 
 int STestCase::TestMemTransform(TestMemParam & rParam, STestMemTransformFunc func, void * pExtra)
 {

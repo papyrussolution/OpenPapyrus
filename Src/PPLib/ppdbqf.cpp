@@ -5,8 +5,7 @@
 #pragma hdrstop
 
 #if 0 // {
-//static
-PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNameBuf)
+/*static*/PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNameBuf)
 {
 	PPID   id = 0;
 	if(params[0].tag == DBConst::lv)
@@ -1501,8 +1500,7 @@ void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & r
 	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
-// static
-void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache)
+/*static*/void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache)
 {
 	rDbe.init();
 	rDbe.push(dbconst(tagID));
@@ -1510,16 +1508,14 @@ void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField 
 	rDbe.push(static_cast<DBFunc>(dontUseCache ? PPDbqFuncPool::IdObjTagText_NoCache : PPDbqFuncPool::IdObjTagText));
 }
 
-//static
-void FASTCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
+/*static*/void FASTCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
 {
 	rDbe.init();
 	rDbe.push(rFld);
 	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
-//static
-void FASTCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
+/*static*/void FASTCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
 {
 	rDbe.init();
 	rDbe.push(rA1);
@@ -1527,8 +1523,7 @@ void FASTCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, 
 	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
-//static
-void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
+/*static*/void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
 {
 	rDbe.init();
 	rDbe.push(rFld1);
@@ -1541,8 +1536,7 @@ void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & 
 		rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 }
 
-//static
-void FASTCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg)
+/*static*/void FASTCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg)
 {
 	rDbe.init();
 	rDbe.push(rFld);
@@ -1554,8 +1548,7 @@ void FASTCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStr
 	rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdStrByStrGroupPos));
 }
 
-//static
-PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNameBuf)
+/*static*/PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNameBuf)
 {
 	PPID   id = 0;
 	if(params[0].Tag == DBConst::lv)

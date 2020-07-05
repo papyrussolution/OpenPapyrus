@@ -342,9 +342,9 @@ uint32 FASTCALL SlHash::FNV(const void * pData, size_t len)
 
 uint32 FASTCALL SlHash::AP(const void * pData, size_t len)
 {
-	uint32 hash = 0xAAAAAAAA;
+	uint32 hash = 0xAAAAAAAAU;
 	for(uint i = 0; i < len; i++) {
-		hash ^= ((i & 1) == 0) ? ((hash <<  7) ^ PTR8C(pData)[i] * (hash >> 3)) : (~((hash << 11) + (PTR8C(pData)[i] ^ (hash >> 5))));
+		hash ^= ((i & 1) == 0) ? ((hash << 7) ^ PTR8C(pData)[i] * (hash >> 3)) : (~((hash << 11) + (PTR8C(pData)[i] ^ (hash >> 5))));
 	}
 	return hash;
 }
@@ -382,7 +382,7 @@ uint32 FASTCALL SlHash::AP(const void * pData, size_t len)
    mixing with 12*3 instructions on 3 integers than you can with 3 instructions
    on 1 byte), but shoehorning those bytes into integers efficiently is messy.
 */
-#define rot(x, k) (((x)<<(k)) | ((x)>>(32-(k))))
+// @v10.8.0 (replaced with _rotl) #define rot(x, k)   (((x) << (k)) | ((x) >> (32-(k))))
 /*
    BobJencHash_Mix -- mix 3 32-bit values reversibly.
 
@@ -426,12 +426,12 @@ uint32 FASTCALL SlHash::AP(const void * pData, size_t len)
    rotates.
 */
 #define BobJencHash_Mix(a, b, c) { \
-	a -= c;  a ^= rot(c, 4);  c += b; \
-	b -= a;  b ^= rot(a, 6);  a += c; \
-	c -= b;  c ^= rot(b, 8);  b += a; \
-	a -= c;  a ^= rot(c, 16);  c += b; \
-	b -= a;  b ^= rot(a, 19);  a += c; \
-	c -= b;  c ^= rot(b, 4);  b += a; \
+	a -= c;  a ^= _rotl(c, 4);  c += b; \
+	b -= a;  b ^= _rotl(a, 6);  a += c; \
+	c -= b;  c ^= _rotl(b, 8);  b += a; \
+	a -= c;  a ^= _rotl(c, 16);  c += b; \
+	b -= a;  b ^= _rotl(a, 19);  a += c; \
+	c -= b;  c ^= _rotl(b, 4);  b += a; \
 }
 /*
    BobJencHash_Final -- final mixing of 3 32-bit values (a,b,c) into c
@@ -455,13 +455,13 @@ uint32 FASTCALL SlHash::AP(const void * pData, size_t len)
    11  8 15 26 3 22 24
 */
 #define BobJencHash_Final(a, b, c) { \
-	c ^= b; c -= rot(b, 14); \
-	a ^= c; a -= rot(c, 11); \
-	b ^= a; b -= rot(a, 25); \
-	c ^= b; c -= rot(b, 16); \
-	a ^= c; a -= rot(c, 4);	 \
-	b ^= a; b -= rot(a, 14); \
-	c ^= b; c -= rot(b, 24); \
+	c ^= b; c -= _rotl(b, 14); \
+	a ^= c; a -= _rotl(c, 11); \
+	b ^= a; b -= _rotl(a, 25); \
+	c ^= b; c -= _rotl(b, 16); \
+	a ^= c; a -= _rotl(c, 4);	 \
+	b ^= a; b -= _rotl(a, 14); \
+	c ^= b; c -= _rotl(b, 24); \
 }
 //
 // This works on all machines.  To be useful, it requires
@@ -731,7 +731,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 // lookup with 2^^64 buckets, or if you want a second hash if you're not
 // happy with the first, or if you want a probably-unique 64-bit ID for
 // the key.  *pc is better mixed than *pb, so use *pc first.  If you want
-// a 64-bit value do something like "*pc + (((uint64_t)*pb)<<32)".
+// a 64-bit value do something like "*pc + (((uint64)*pb)<<32)".
 //
 // ARG(key    IN) the key to hash
 // ARG(length IN) length of the key
@@ -984,6 +984,534 @@ uint32 FASTCALL SlHash::XX32(const void * pData, size_t len, uint seed)
 uint64 FASTCALL SlHash::XX64(const void * pData, size_t len, uint64 seed)
 {
 	return XXH64(pData, len, seed);
+}
+//
+// MurmurHash2, by Austin Appleby
+// Note - This code makes a few assumptions about how your machine behaves -
+// 1. We can read a 4-byte value from any address without crashing
+// 2. sizeof(int) == 4
+//
+// And it has a few limitations -
+//
+// 1. It will not work incrementally.
+// 2. It will not produce the same results on little-endian and big-endian machines.
+//
+static uint32 MurmurHash2(const void * key, int len, uint32 seed)
+{
+	// 'm' and 'r' are mixing constants generated offline.
+	// They're not really 'magic', they just happen to work well. 
+	const uint32 m = 0x5bd1e995;
+	const int r = 24;
+	// Initialize the hash to a 'random' value 
+	uint32 h = seed ^ len;
+	// Mix 4 bytes at a time into the hash 
+	const uchar * p_data = (const uchar *)key;
+	while(len >= 4) {
+		uint32 k = *(uint32 *)p_data;
+		k *= m;
+		k ^= k >> r;
+		k *= m;
+		h *= m;
+		h ^= k;
+		p_data += 4;
+		len -= 4;
+	}
+	// Handle the last few bytes of the input array
+	switch(len) {
+		case 3: h ^= p_data[2] << 16;
+		case 2: h ^= p_data[1] << 8;
+		case 1: h ^= p_data[0];
+		h *= m;
+	};
+	// Do a few final mixes of the hash to ensure the last few bytes are well-incorporated. 
+	h ^= h >> 13;
+	h *= m;
+	h ^= h >> 15;
+	return h;
+} 
+//
+// MurmurHash2A, by Austin Appleby
+//
+// This is a variant of MurmurHash2 modified to use the Merkle-Damgard 
+// construction. Bulk speed should be identical to Murmur2, small-key speed 
+// will be 10%-20% slower due to the added overhead at the end of the hash.
+//
+// This variant fixes a minor issue where null keys were more likely to
+// collide with each other than expected, and also makes the function
+// more amenable to incremental implementations.
+//
+#define mmix(h, k)   { k *= m; k ^= k >> r; k *= m; h *= m; h ^= k; }
+#define MIX(h, k ,m) { k *= m; k ^= k >> r; k *= m; h *= m; h ^= k; }
+
+static uint32 MurmurHash2A(const void * key, int len, uint32 seed)
+{
+	const uint32 m = 0x5bd1e995;
+	const int r = 24;
+	uint32 l = len;
+	const uchar * data = (const uchar *)key;
+	uint32 h = seed;
+	while(len >= 4) {
+		uint32 k = *(uint32 *)data;
+		mmix(h, k);
+		data += 4;
+		len -= 4;
+	}
+	uint32 t = 0;
+	switch(len) {
+		case 3: t ^= data[2] << 16;
+		case 2: t ^= data[1] << 8;
+		case 1: t ^= data[0];
+	};
+	mmix(h, t);
+	mmix(h, l);
+	h ^= h >> 13;
+	h *= m;
+	h ^= h >> 15;
+	return h;
+}
+//
+// MurmurHashNeutral2, by Austin Appleby
+//
+// Same as MurmurHash2, but endian- and alignment-neutral.
+// Half the speed though, alas.
+//
+static uint32 MurmurHashNeutral2(const void * key, int len, uint32 seed)
+{
+	const uint32 m = 0x5bd1e995;
+	const int r = 24;
+	uint32 h = seed ^ len;
+	const uchar * data = (const uchar *)key;
+	while(len >= 4) {
+		uint32 k;
+		k  = data[0];
+		k |= data[1] << 8;
+		k |= data[2] << 16;
+		k |= data[3] << 24;
+		k *= m; 
+		k ^= k >> r; 
+		k *= m;
+		h *= m;
+		h ^= k;
+		data += 4;
+		len -= 4;
+	}
+	switch(len) {
+		case 3: h ^= data[2] << 16;
+		case 2: h ^= data[1] << 8;
+		case 1: h ^= data[0];
+		h *= m;
+	};
+	h ^= h >> 13;
+	h *= m;
+	h ^= h >> 15;
+	return h;
+} 
+//
+// MurmurHashAligned2, by Austin Appleby
+//
+// Same algorithm as MurmurHash2, but only does aligned reads - should be safer on certain platforms. 
+//
+// Performance will be lower than MurmurHash2
+//
+static uint32 MurmurHashAligned2(const void * key, int len, uint32 seed)
+{
+	const uint32 m = 0x5bd1e995;
+	const int r = 24;
+	const uchar * data = (const uchar *)key;
+	uint32 h = seed ^ len;
+	int align = static_cast<int>(reinterpret_cast<uint64>(data) & 3);
+	if(align && (len >= 4)) {
+		// Pre-load the temp registers 
+		uint32 t = 0, d = 0;
+		switch(align) {
+			case 1: t |= data[2] << 16;
+			case 2: t |= data[1] << 8;
+			case 3: t |= data[0];
+		}
+		t <<= (8 * align);
+		data += 4-align;
+		len -= 4-align;
+		int sl = 8 * (4-align);
+		int sr = 8 * align;
+		// Mix 
+		while(len >= 4) {
+			d = *(uint32 *)data;
+			t = (t >> sr) | (d << sl);
+			uint32 k = t;
+			MIX(h,k,m);
+			t = d;
+			data += 4;
+			len -= 4;
+		}
+		/* Handle leftover data in temp registers  */
+		d = 0;
+		if(len >= align) {
+			switch(align) {
+				case 3: d |= data[2] << 16;
+				case 2: d |= data[1] << 8;
+				case 1: d |= data[0];
+			}
+			uint32 k = (t >> sr) | (d << sl);
+			MIX(h, k, m);
+			data += align;
+			len -= align;
+			// Handle tail bytes
+			switch(len) {
+				case 3: h ^= data[2] << 16;
+				case 2: h ^= data[1] << 8;
+				case 1: h ^= data[0];
+				h *= m;
+			};
+		}
+		else {
+			switch(len) {
+				case 3: d |= data[2] << 16;
+				case 2: d |= data[1] << 8;
+				case 1: d |= data[0];
+				case 0: h ^= (t >> sr) | (d << sl);
+				h *= m;
+			}
+		}
+		h ^= h >> 13;
+		h *= m;
+		h ^= h >> 15;
+		return h;
+	}
+	else {
+		while(len >= 4) {
+			uint32 k = *(uint32 *)data;
+			MIX(h,k,m);
+			data += 4;
+			len -= 4;
+		}
+		// Handle tail bytes 
+		switch(len) {
+			case 3: h ^= data[2] << 16;
+			case 2: h ^= data[1] << 8;
+			case 1: h ^= data[0];
+			h *= m;
+		};
+		h ^= h >> 13;
+		h *= m;
+		h ^= h >> 15;
+		return h;
+	}
+}
+
+/*static*/uint32 FASTCALL SlHash::Murmur2_32(const void * pData, size_t len, uint32 seed)
+{
+	//
+	// MurmurHash2, by Austin Appleby
+	// Note - This code makes a few assumptions about how your machine behaves -
+	// 1. We can read a 4-byte value from any address without crashing
+	// 2. sizeof(int) == 4
+	//
+	// And it has a few limitations -
+	//
+	// 1. It will not work incrementally.
+	// 2. It will not produce the same results on little-endian and big-endian machines.
+	//
+	//static uint32 MurmurHash2(const void * key, int len, uint32 seed)
+	//
+	// 'm' and 'r' are mixing constants generated offline.
+	// They're not really 'magic', they just happen to work well. 
+	const uint32 m = 0x5bd1e995;
+	const int r = 24;
+	// Initialize the hash to a 'random' value 
+	uint32 hash = seed ^ len;
+	// Mix 4 bytes at a time into the hash 
+	const uchar * p_data = static_cast<const uchar *>(pData);
+	while(len >= 4) {
+		uint32 k = *reinterpret_cast<const uint32 *>(p_data);
+		k *= m;
+		k ^= k >> r;
+		k *= m;
+		hash *= m;
+		hash ^= k;
+		p_data += 4;
+		len -= 4;
+	}
+	// Handle the last few bytes of the input array
+	switch(len) {
+		case 3: hash ^= p_data[2] << 16;
+		case 2: hash ^= p_data[1] << 8;
+		case 1: hash ^= p_data[0];
+		hash *= m;
+	};
+	// Do a few final mixes of the hash to ensure the last few bytes are well-incorporated. 
+	hash ^= hash >> 13;
+	hash *= m;
+	hash ^= hash >> 15;
+	return hash;
+}
+
+/*static*/uint64 FASTCALL SlHash::Murmur2_64(const void * pData, size_t len, uint64 seed)
+{
+	uint64 hash = 0;
+	if(sizeof(void *) == 8) {
+		//
+		// MurmurHash2, 64-bit versions, by Austin Appleby
+		//
+		// The same caveats as 32-bit MurmurHash2 apply here - beware of alignment 
+		// and endian-ness issues if used across multiple platforms.
+		//
+		// 64-bit hash for 64-bit platforms
+		//
+		const uint64 m = 0xc6a4a7935bd1e995ULL;
+		const int r = 47;
+		hash = seed ^ (len * m);
+		const uint64 * data = static_cast<const uint64 *>(pData);
+		const uint64 * end = data + (len/8);
+		while(data != end) {
+			uint64 k = *data++;
+			k *= m; 
+			k ^= k >> r; 
+			k *= m; 
+			hash ^= k;
+			hash *= m; 
+		}
+		const uchar * data2 = (const uchar *)data;
+		switch(len & 7) {
+			case 7: hash ^= ((uint64)data2[6]) << 48;
+			case 6: hash ^= ((uint64)data2[5]) << 40;
+			case 5: hash ^= ((uint64)data2[4]) << 32;
+			case 4: hash ^= ((uint64)data2[3]) << 24;
+			case 3: hash ^= ((uint64)data2[2]) << 16;
+			case 2: hash ^= ((uint64)data2[1]) << 8;
+			case 1: hash ^= ((uint64)data2[0]);
+			hash *= m;
+		};
+		hash ^= hash >> r;
+		hash *= m;
+		hash ^= hash >> r;
+	}
+	else {
+		//
+		// 64-bit hash for 32-bit platforms 
+		//
+		const uint32 m = 0x5bd1e995;
+		const int r = 24;
+		uint32 h1 = ((uint32)seed) ^ len;
+		uint32 h2 = ((uint32)(seed >> 32));
+		const uint32 * data = static_cast<const uint32 *>(pData);
+		while(len >= 8) {
+			uint32 k1 = *data++;
+			k1 *= m; k1 ^= k1 >> r; k1 *= m;
+			h1 *= m; h1 ^= k1;
+			len -= 4;
+
+			uint32 k2 = *data++;
+			k2 *= m; k2 ^= k2 >> r; k2 *= m;
+			h2 *= m; h2 ^= k2;
+			len -= 4;
+		}
+		if(len >= 4) {
+			uint32 k1 = *data++;
+			k1 *= m; k1 ^= k1 >> r; k1 *= m;
+			h1 *= m; h1 ^= k1;
+			len -= 4;
+		}
+		switch(len) {
+			case 3: h2 ^= ((uchar *)data)[2] << 16;
+			case 2: h2 ^= ((uchar *)data)[1] << 8;
+			case 1: h2 ^= ((uchar *)data)[0];
+			h2 *= m;
+		};
+		h1 ^= h2 >> 18; h1 *= m;
+		h2 ^= h1 >> 22; h2 *= m;
+		h1 ^= h2 >> 17; h1 *= m;
+		h2 ^= h1 >> 19; h2 *= m;
+		hash = h1;
+		hash = (hash << 32) | h2;
+	}
+	return hash;
+}
+//
+//
+//
+//-----------------------------------------------------------------------------
+// Block read - if your platform needs to do endian-swapping or can only
+// handle aligned reads, do the conversion here
+
+#define getblock(p, i) (p[i])
+
+//-----------------------------------------------------------------------------
+// Finalization mix - force all bits of a hash block to avalanche
+
+static FORCEINLINE uint32 fmix32(uint32 h) { h ^= h >> 16; h *= 0x85ebca6b;            h ^= h >> 13; h *= 0xc2b2ae35;            h ^= h >> 16; return h; }
+static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558ccdULL; h ^= h >> 33; h *= 0xc4ceb9fe1a85ec53ULL; h ^= h >> 33; return h; }
+
+/*static*/uint32 FASTCALL SlHash::Murmur3_32(const void * pData, size_t len, uint32 seed)
+{
+	const uint8 * data = static_cast<const uint8 *>(pData);
+	const int nblocks = len / 4;
+	int i;
+	uint32 h1 = seed;
+	uint32 c1 = 0xcc9e2d51;
+	uint32 c2 = 0x1b873593;
+	// body
+	const uint32 * p_blocks = (const uint32 *)(data + nblocks*4);
+	for(i = -nblocks; i; i++) {
+		uint32 k1 = getblock(p_blocks, i);
+		k1 *= c1;
+		k1 = _rotl(k1, 15);
+		k1 *= c2;
+    
+		h1 ^= k1;
+		h1 = _rotl(h1, 13); 
+		h1 = h1*5+0xe6546b64;
+	}
+	// tail
+	const uint8 * p_tail = (const uint8 *)(data + nblocks*4);
+	uint32 k1 = 0;
+	switch(len & 3) {
+		case 3: k1 ^= p_tail[2] << 16;
+		case 2: k1 ^= p_tail[1] << 8;
+		case 1: 
+			k1 ^= p_tail[0];
+			k1 *= c1; 
+			k1 = _rotl(k1, 15); 
+			k1 *= c2; 
+			h1 ^= k1;
+	};
+	// finalization
+	h1 ^= len;
+	h1 = fmix32(h1);
+	return h1;
+}
+
+/*static*/void FASTCALL SlHash::Murmur3_128x32(const void * pData, size_t len, uint32 seed, void * pResult)
+{
+	const uint8 * p_data = (const uint8 *)pData;
+	const int nblocks = len / 16;
+	int i;
+	uint32 h1 = seed;
+	uint32 h2 = seed;
+	uint32 h3 = seed;
+	uint32 h4 = seed;
+	uint32 c1 = 0x239b961b; 
+	uint32 c2 = 0xab0e9789;
+	uint32 c3 = 0x38b34ae5; 
+	uint32 c4 = 0xa1e38b93;
+	//----------
+	// body
+	const uint32 * blocks = (const uint32 *)(p_data + nblocks*16);
+	for(i = -nblocks; i; i++) {
+		uint32 k1 = getblock(blocks,i*4+0);
+		uint32 k2 = getblock(blocks,i*4+1);
+		uint32 k3 = getblock(blocks,i*4+2);
+		uint32 k4 = getblock(blocks,i*4+3);
+		k1 *= c1; k1  = _rotl(k1,15); k1 *= c2; h1 ^= k1;
+		h1 = _rotl(h1,19); h1 += h2; h1 = h1*5+0x561ccd1b;
+		k2 *= c2; k2  = _rotl(k2,16); k2 *= c3; h2 ^= k2;
+		h2 = _rotl(h2,17); h2 += h3; h2 = h2*5+0x0bcaa747;
+		k3 *= c3; k3  = _rotl(k3,17); k3 *= c4; h3 ^= k3;
+		h3 = _rotl(h3,15); h3 += h4; h3 = h3*5+0x96cd1c35;
+		k4 *= c4; k4  = _rotl(k4,18); k4 *= c1; h4 ^= k4;
+		h4 = _rotl(h4,13); h4 += h1; h4 = h4*5+0x32ac3b17;
+	}
+	//----------
+	// tail
+	const uint8 * p_tail = (const uint8 *)(p_data + nblocks*16);
+	uint32 k1 = 0;
+	uint32 k2 = 0;
+	uint32 k3 = 0;
+	uint32 k4 = 0;
+	switch(len & 15) {
+		case 15: k4 ^= p_tail[14] << 16;
+		case 14: k4 ^= p_tail[13] << 8;
+		case 13: k4 ^= p_tail[12] << 0; k4 *= c4; k4  = _rotl(k4,18); k4 *= c1; h4 ^= k4;
+		case 12: k3 ^= p_tail[11] << 24;
+		case 11: k3 ^= p_tail[10] << 16;
+		case 10: k3 ^= p_tail[ 9] << 8;
+		case  9: k3 ^= p_tail[ 8] << 0; k3 *= c3; k3  = _rotl(k3,17); k3 *= c4; h3 ^= k3;
+		case  8: k2 ^= p_tail[ 7] << 24;
+		case  7: k2 ^= p_tail[ 6] << 16;
+		case  6: k2 ^= p_tail[ 5] << 8;
+		case  5: k2 ^= p_tail[ 4] << 0; k2 *= c2; k2  = _rotl(k2,16); k2 *= c3; h2 ^= k2;
+		case  4: k1 ^= p_tail[ 3] << 24;
+		case  3: k1 ^= p_tail[ 2] << 16;
+		case  2: k1 ^= p_tail[ 1] << 8;
+		case  1: k1 ^= p_tail[ 0] << 0; k1 *= c1; k1  = _rotl(k1,15); k1 *= c2; h1 ^= k1;
+	};
+	//----------
+	// finalization
+
+	h1 ^= len; h2 ^= len; h3 ^= len; h4 ^= len;
+
+	h1 += h2; h1 += h3; h1 += h4;
+	h2 += h1; h3 += h1; h4 += h1;
+
+	h1 = fmix32(h1);
+	h2 = fmix32(h2);
+	h3 = fmix32(h3);
+	h4 = fmix32(h4);
+
+	h1 += h2; 
+	h1 += h3; 
+	h1 += h4;
+	h2 += h1; 
+	h3 += h1; 
+	h4 += h1;
+	static_cast<uint32 *>(pResult)[0] = h1;
+	static_cast<uint32 *>(pResult)[1] = h2;
+	static_cast<uint32 *>(pResult)[2] = h3;
+	static_cast<uint32 *>(pResult)[3] = h4;
+}
+
+/*static*/void FASTCALL SlHash::Murmur3_128x64(const void * pData, size_t len, uint32 seed, void * pResult)
+{
+	const uint8 * p_data = (const uint8 *)pData;
+	const int nblocks = len / 16;
+	int i;
+	uint64 h1 = seed;
+	uint64 h2 = seed;
+	uint64 c1 = 0x87c37b91114253d5ULL;
+	uint64 c2 = 0x4cf5ad432745937fULL;
+	//----------
+	// body
+	const uint64 * blocks = reinterpret_cast<const uint64 *>(p_data);
+	for(i = 0; i < nblocks; i++) {
+		uint64 k1 = getblock(blocks,i*2+0);
+		uint64 k2 = getblock(blocks,i*2+1);
+		k1 *= c1; k1  = _rotl64(k1,31); k1 *= c2; h1 ^= k1;
+		h1 = _rotl64(h1,27); h1 += h2; h1 = h1*5+0x52dce729;
+		k2 *= c2; k2  = _rotl64(k2,33); k2 *= c1; h2 ^= k2;
+		h2 = _rotl64(h2,31); h2 += h1; h2 = h2*5+0x38495ab5;
+	}
+	//----------
+	// tail
+	const uint8 * p_tail = (const uint8 *)(p_data + nblocks*16);
+	uint64 k1 = 0;
+	uint64 k2 = 0;
+	switch(len & 15) {
+		case 15: k2 ^= (uint64)(p_tail[14]) << 48;
+		case 14: k2 ^= (uint64)(p_tail[13]) << 40;
+		case 13: k2 ^= (uint64)(p_tail[12]) << 32;
+		case 12: k2 ^= (uint64)(p_tail[11]) << 24;
+		case 11: k2 ^= (uint64)(p_tail[10]) << 16;
+		case 10: k2 ^= (uint64)(p_tail[ 9]) << 8;
+		case  9: k2 ^= (uint64)(p_tail[ 8]) << 0; k2 *= c2; k2  = _rotl64(k2,33); k2 *= c1; h2 ^= k2;
+
+		case  8: k1 ^= (uint64)(p_tail[ 7]) << 56;
+		case  7: k1 ^= (uint64)(p_tail[ 6]) << 48;
+		case  6: k1 ^= (uint64)(p_tail[ 5]) << 40;
+		case  5: k1 ^= (uint64)(p_tail[ 4]) << 32;
+		case  4: k1 ^= (uint64)(p_tail[ 3]) << 24;
+		case  3: k1 ^= (uint64)(p_tail[ 2]) << 16;
+		case  2: k1 ^= (uint64)(p_tail[ 1]) << 8;
+		case  1: k1 ^= (uint64)(p_tail[ 0]) << 0; k1 *= c1; k1  = _rotl64(k1, 31); k1 *= c2; h1 ^= k1;
+	};
+	// finalization
+	h1 ^= len; h2 ^= len;
+	h1 += h2;
+	h2 += h1;
+	h1 = fmix64(h1);
+	h2 = fmix64(h2);
+	h1 += h2;
+	h2 += h1;
+	static_cast<uint64 *>(pResult)[0] = h1;
+	static_cast<uint64 *>(pResult)[1] = h2;
 }
 
 SLAPI SlHash::State::State() : Flags(fEmpty)
@@ -1600,7 +2128,7 @@ SLAPI SCRC32::~SCRC32()
 		uint32 temp;
 		// Load data block into the words array 
 		// 
-		// GET() reads 4 input bytes in big-endian byte order and returns them as uint32_t.
+		// GET() reads 4 input bytes in big-endian byte order and returns them as uint32.
 		// 
 		#define SHA1_GET(n) ((uint32)p[n * 4 + 3] | ((uint32)p[n * 4 + 2] << 8) | ((uint32)p[n * 4 + 1] << 16) | ((uint32)p[n * 4] << 24))
 		for(i = 0; i < 16; i++) {
@@ -3674,6 +4202,85 @@ public:
 		//DISPLAYLEVEL(3, "Sanity check -- all tests ok\n");
 	}
 };
+//
+// Descr: Реализация 32-разрядного murmur2 из nginx (seed assumed 0)
+//
+static uint32 SlEqualityTest_ngx_murmur_hash2(const uchar * data, size_t len)
+{
+	uint32 k;
+	uint32 h = 0 ^ len;
+	while(len >= 4) {
+		k  = data[0];
+		k |= data[1] << 8;
+		k |= data[2] << 16;
+		k |= data[3] << 24;
+		k *= 0x5bd1e995;
+		k ^= k >> 24;
+		k *= 0x5bd1e995;
+		h *= 0x5bd1e995;
+		h ^= k;
+		data += 4;
+		len -= 4;
+	}
+	switch(len) {
+		case 3: h ^= data[2] << 16;
+		// @fallthrough
+		case 2: h ^= data[1] << 8;
+		// @fallthrough
+		case 1:
+		    h ^= data[0];
+		    h *= 0x5bd1e995;
+	}
+	h ^= h >> 13;
+	h *= 0x5bd1e995;
+	h ^= h >> 15;
+	return h;
+}
+//
+// Descr: Реализация 32-разрядного murmur3 из языка Gravity.
+//   Приведена для сравнения, поскольку реализация аналогичного SlHash::Murmur3_32 взята из иного источника.
+//
+static uint32 SlEqualityTest_gravity_murmur3_32(const char * key, uint32 len, uint32 seed) 
+{
+	static const uint32 c1 = 0xcc9e2d51;
+	static const uint32 c2 = 0x1b873593;
+	static const uint32 r1 = 15;
+	static const uint32 r2 = 13;
+	static const uint32 m = 5;
+	static const uint32 n = 0xe6546b64;
+	uint32 hash = seed;
+	const int nblocks = len / 4;
+	const uint32 * blocks = (const uint32 *)key;
+	for(int i = 0; i < nblocks; i++) {
+		uint32 k = blocks[i];
+		k *= c1;
+		k = _rotl(k, r1);
+		k *= c2;
+		hash ^= k;
+		hash = _rotl(hash, r2) * m + n;
+	}
+	const uint8_t * tail = (const uint8 *)(key + nblocks * 4);
+	uint32 k1 = 0;
+	switch(len & 3) {
+		case 3:
+			k1 ^= tail[2] << 16;
+		case 2:
+			k1 ^= tail[1] << 8;
+		case 1:
+			k1 ^= tail[0];
+			k1 *= c1;
+			k1 = _rotl(k1, r1);
+			k1 *= c2;
+			hash ^= k1;
+	}
+	hash ^= len;
+	hash ^= (hash >> 16);
+	hash *= 0x85ebca6b;
+	hash ^= (hash >> 13);
+	hash *= 0xc2b2ae35;
+	hash ^= (hash >> 16);
+	return hash;
+}
 
 SLTEST_R(HashFunction)
 {
@@ -3890,7 +4497,81 @@ SLTEST_R(HashFunction)
 			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 0), 0x17770551UL);
 			SLTEST_CHECK_EQ(BobJencHash_Little("Four score and seven years ago", 30, 1), 0xcd628161UL);
 		}
-		return CurrentStatus;
+	}
+	{
+		const char * p_data = "Hello, world!";
+		SLTEST_CHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
+		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+		SLTEST_CHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
+		p_data = "";
+		SLTEST_CHECK_EQ(SlEqualityTest_ngx_murmur_hash2(reinterpret_cast<const uchar *>(p_data), sstrlen(p_data)), SlHash::Murmur2_32(p_data, sstrlen(p_data), 0));
+	}
+	{
+		//
+		// murmur3 test
+		//
+		const char * p_data = "Hello, world!";
+		uint32 rh;
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0xfaf6cdb3UL);
+		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 4321)), 0xbf505788UL);
+		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 4321), rh);
+		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0x8905ac28UL);
+		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		p_data = "";
+		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0x0f2cc00bUL);
+		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		//
+		uint32 h128[4];
+		p_data = "Hello, world!";
+		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123, h128);
+		SLTEST_CHECK_EQ(h128[0], 0x61c9129eUL);
+		SLTEST_CHECK_EQ(h128[1], 0x5a1aacd7UL);
+		SLTEST_CHECK_EQ(h128[2], 0xa4162162UL);
+		SLTEST_CHECK_EQ(h128[3], 0x9e37c886UL);
+		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 321, h128);
+		SLTEST_CHECK_EQ(h128[0], 0xd5fbdcb3UL);
+		SLTEST_CHECK_EQ(h128[1], 0xc26c4193UL);
+		SLTEST_CHECK_EQ(h128[2], 0x045880c5UL);
+		SLTEST_CHECK_EQ(h128[3], 0xa7170f0fUL);
+		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123, h128);
+		SLTEST_CHECK_EQ(h128[0], 0x5e40bab2UL);
+		SLTEST_CHECK_EQ(h128[1], 0x78825a16UL);
+		SLTEST_CHECK_EQ(h128[2], 0x4cf929d3UL);
+		SLTEST_CHECK_EQ(h128[3], 0x1fec6047UL);
+		p_data = "";
+		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123, h128);
+		SLTEST_CHECK_EQ(h128[0], 0xfedc5245UL);
+		SLTEST_CHECK_EQ(h128[1], 0x26f3e799UL);
+		SLTEST_CHECK_EQ(h128[2], 0x26f3e799UL);
+		SLTEST_CHECK_EQ(h128[3], 0x26f3e799UL);
+
+		p_data = "Hello, world!";
+		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123, h128);
+		SLTEST_CHECK_EQ(h128[0], 0x8743acadUL);
+		SLTEST_CHECK_EQ(h128[1], 0x421c8c73UL);
+		SLTEST_CHECK_EQ(h128[2], 0xd373c3f5UL);
+		SLTEST_CHECK_EQ(h128[3], 0xf19732fdUL);
+		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 321, h128);
+		SLTEST_CHECK_EQ(h128[0], 0xf86d4004UL);
+		SLTEST_CHECK_EQ(h128[1], 0xca47f42bUL);
+		SLTEST_CHECK_EQ(h128[2], 0xb9546c79UL);
+		SLTEST_CHECK_EQ(h128[3], 0x79200aeeUL);
+		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123, h128);
+		SLTEST_CHECK_EQ(h128[0], 0xbecf7e04UL);
+		SLTEST_CHECK_EQ(h128[1], 0xdbcf7463UL);
+		SLTEST_CHECK_EQ(h128[2], 0x7751664eUL);
+		SLTEST_CHECK_EQ(h128[3], 0xf66e73e0UL);
+		p_data = "";
+		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123, h128);
+		SLTEST_CHECK_EQ(h128[0], 0x4cd95970UL);
+		SLTEST_CHECK_EQ(h128[1], 0x81679d1aUL);
+		SLTEST_CHECK_EQ(h128[2], 0xbd92f878UL);
+		SLTEST_CHECK_EQ(h128[3], 0x4bace33dUL);
 	}
 	CATCH
 		CurrentStatus = 0;
@@ -3925,11 +4606,11 @@ static void HashFunc_BobJenkins_driver2()
 							a[l] = b[l] = (uint8)0;
 						}
 						/* have a and b be two keys differing in only one bit */
-						a[i] ^= (k<<j);
-						a[i] ^= (k>>(8-j));
+						a[i] ^= (k << j);
+						a[i] ^= (k >> (8-j));
 						c[0] = BobJencHash_Little(a, hlen, m);
-						b[i] ^= ((k+1)<<j);
-						b[i] ^= ((k+1)>>(8-j));
+						b[i] ^= ((k+1) << j);
+						b[i] ^= ((k+1) >> (8-j));
 						d[0] = BobJencHash_Little(b, hlen, m);
 						/* check every bit is 1, 0, set, and not set at least once */
 						for(l = 0; l < BOBJEN_HASHSTATE; ++l) {

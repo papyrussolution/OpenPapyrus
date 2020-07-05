@@ -7,15 +7,19 @@
 //
 // @ModuleDef(PPObjBarcodePrinter)
 //
-SLAPI PPBarcodePrinter2::PPBarcodePrinter2()
+SLAPI PPBarcodePrinter2::PPBarcodePrinter2() : Tag(PPOBJ_BCODEPRINTER), ID(0), BcNarrowPt(0), BcWidePt(0), Cp(0), Flags(0), 
+	PrinterType(0), Reserve3(0)
 {
-	THISZERO();
+	PTR32(Name)[0] = 0;
+	PTR32(LabelName)[0] = 0;
+	PTR32(Port)[0] = 0;
+	MEMSZERO(Reserve);
 }
 
 void SLAPI PPBarcodePrinter2::Normalyze()
 {
 	PortEx.CopyTo(Port, sizeof(Port));
-	SETFLAG(Flags, fPortEx, (PortEx.Len() >= sizeof(Port)));
+	SETFLAG(Flags, fPortEx, (PortEx.Len() >= (sizeof(Port)-1))); // @v10.8.0 @fix (sizeof(Port))-->(sizeof(Port)-1)
 }
 
 SLAPI PPObjBarcodePrinter::PPObjBarcodePrinter(void * extraPtr) : PPObjReference(PPOBJ_BCODEPRINTER, extraPtr)
@@ -57,7 +61,7 @@ int SLAPI PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pP
 			THROW(ref->AddItem(Obj, pID, pPack, 0));
 		}
 		if(*pID) {
-			const char * p = (pPack && pPack->Flags & PPBarcodePrinter::fPortEx) ? pPack->PortEx : 0;
+			const char * p = (pPack && pPack->Flags & PPBarcodePrinter::fPortEx) ? pPack->PortEx.cptr() : 0; // @v10.8.0 pPack->PortEx-->pPack->PortEx.cptr()
 			THROW(ref->PutPropVlrString(Obj, *pID, BCPPRP_PORTEX, p));
 		}
 		THROW(tra.Commit());
@@ -88,10 +92,13 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 			}
 		}
 	};
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
-	BarcodePrinterDialog * dlg = 0;
-	PPBarcodePrinter rec;
-	THROW(CheckDialogPtr(&(dlg = new BarcodePrinterDialog())));
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
+	BarcodePrinterDialog * dlg = new BarcodePrinterDialog();
+	PPBarcodePrinter2 rec;
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new)
 		THROW(GetPacket(*pID, &rec) > 0);
@@ -112,14 +119,12 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 	dlg->SetClusterData (CTL_BCPRT_DATA,    rec.Cpp.ByteSize);
 	dlg->setCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt);
 	dlg->setCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);
-	// @v9.2.7 {
 	{
 		ushort cpv = 0;
 		if(rec.Cp == cpOEM)
 			cpv = 1;
 		dlg->setCtrlUInt16(CTL_BCPRT_CP, cpv);
 	}
-	// } @v9.2.7
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		long   temp_long;
 		dlg->getCtrlData(CTL_BCPRT_NAME,   rec.Name);
@@ -133,7 +138,6 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 		rec.Cpp.ByteSize = static_cast<int8>(temp_long);
 		dlg->getCtrlData(CTL_BCPRT_NARROWPT, &rec.BcNarrowPt);
 		dlg->getCtrlData(CTL_BCPRT_WIDEPT,   &rec.BcWidePt);
-		// @v9.2.7 {
 		{
 			const ushort cpv = dlg->getCtrlUInt16(CTL_BCPRT_CP);
 			if(cpv == 1)
@@ -141,7 +145,6 @@ int SLAPI PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 			else
 				rec.Cp = cpANSI;
 		}
-		// } @v9.2.7
 		if(*pID)
 			*pID = rec.ID;
 		rec.Normalyze();
@@ -250,9 +253,7 @@ struct UsbOpt {
 };
 
 // @vmiller
-UsbOpt EltronUsbOpt[] = {
-	{"Vid_1203",	"Pid_0160"} // TSC TDP-225
-};
+UsbOpt EltronUsbOpt[] = { {"Vid_1203",	"Pid_0160"} };// TSC TDP-225
 
 struct BarcodeLabelParam {
 	char   Name[64];
@@ -263,9 +264,8 @@ struct BarcodeLabelParam {
 	int    HomeY;         // Начальная позиция этикетки по высоте
 	char   MemModule[32]; // Наименование модуля памяти
 	char   Codepage[32];  // Кодовая страница (windows-1251 | cp866)
-	//
-	int    BcNarrowPt;    // @v8.0.9
-	int    BcWidePt;      // @v8.0.9
+	int    BcNarrowPt;    // 
+	int    BcWidePt;      // 
 };
 
 struct BarcodeLabelEntry {

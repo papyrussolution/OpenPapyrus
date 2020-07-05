@@ -32,8 +32,8 @@ static void report_error(gvisitor_t * self, const gnode_t * node, const char * f
 	// sanity check
 	if(node) {
 		// get error callback (if any)
-		void * data = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->xdata : NULL;
-		gravity_error_callback error_fn = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->error_callback : NULL;
+		void * data = (self->delegate) ? ((gravity_delegate_t *)self->delegate)->xdata : NULL;
+		gravity_error_callback error_fn = (self->delegate) ? ((gravity_delegate_t *)self->delegate)->error_callback : NULL;
 		// build error message
 		char buffer[1024];
 		va_list arg;
@@ -43,7 +43,7 @@ static void report_error(gvisitor_t * self, const gnode_t * node, const char * f
 			va_end(arg);
 		}
 		// setup error struct
-		GravityErrorDescription error_desc(node->token.lineno, node->token.colno, node->token.fileid, node->token.position);
+		GravityErrorDescription error_desc(node->Token.lineno, node->Token.colno, node->Token.fileid, node->Token.position);
 		// finally call error callback
 		if(error_fn) 
 			error_fn(NULL, GRAVITY_ERROR_SEMANTIC, buffer, &error_desc, data);
@@ -76,7 +76,7 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 		identifier = (const char*)buffer;
 	}
 	// function identifier
-	if(!symboltable_insert(symtable, identifier, (gnode_t *)node)) {
+	if(!symboltable_insert(symtable, identifier, node)) {
 		REPORT_ERROR(node, "Identifier %s redeclared.", node->identifier);
 	}
 	// we are just interested in non-local declarations so don't further scan function node
@@ -98,7 +98,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			snprintf(buffer, sizeof(buffer), "$%s", identifier);
 			identifier = (const char*)buffer;
 		}
-		if(!symboltable_insert(symtable, identifier, (gnode_t *)p)) {
+		if(!symboltable_insert(symtable, identifier, p)) {
 			REPORT_ERROR(p, "Identifier %s redeclared.", p->identifier);
 		}
 
@@ -118,7 +118,7 @@ static void visit_enum_decl(gvisitor_t * self, gnode_enum_decl_t * node)
 	DECLARE_SYMTABLE();
 	DEBUG_SYMTABLE("enum: %s", node->identifier);
 	// check enum identifier uniqueness in current symbol table
-	if(!symboltable_insert(symtable, node->identifier, (gnode_t *)node)) {
+	if(!symboltable_insert(symtable, node->identifier, node)) {
 		REPORT_ERROR(node, "Identifier %s redeclared.", node->identifier);
 	}
 }
@@ -137,10 +137,9 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 		identifier = (const char*)buffer;
 	}
 	// class identifier
-	if(!symboltable_insert(symtable, identifier, (gnode_t *)node)) {
+	if(!symboltable_insert(symtable, identifier, node)) {
 		REPORT_ERROR(node, "Identifier %s redeclared.", node->identifier);
 	}
-
 	CREATE_SYMTABLE(SYMTABLE_TAG_CLASS);
 	gnode_array_each(node->decls, { gvisit(self, val); });
 	RESTORE_SYMTABLE();
@@ -151,7 +150,7 @@ static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node)
 	DECLARE_SYMTABLE();
 	DEBUG_SYMTABLE("module: %s", node->identifier);
 	// module identifier
-	if(!symboltable_insert(symtable, node->identifier, (gnode_t *)node)) {
+	if(!symboltable_insert(symtable, node->identifier, node)) {
 		REPORT_ERROR(node, "Identifier %s redeclared.", node->identifier);
 	}
 	CREATE_SYMTABLE(SYMTABLE_TAG_MODULE);

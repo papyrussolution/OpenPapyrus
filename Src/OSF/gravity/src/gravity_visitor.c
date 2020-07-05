@@ -9,7 +9,7 @@
 
 static void default_action(gnode_t * node) 
 {
-	printf("Visitor unhandled case: %d\n", node->tag);
+	printf("Visitor unhandled case: %d\n", node->Tag);
 	assert(0);
 }
 
@@ -23,7 +23,7 @@ void FASTCALL gvisit(gvisitor_t * self, gnode_t * node)
 			self->visit_pre(self, node);
 // Visit a node invoking the associated callback.
 #define VISIT(type) if(!self->visit_ ## type) return; self->visit_ ## type(self, (gnode_ ## type ## _t *)node); break;
-		switch(node->tag) {
+		switch(node->Tag) {
 			// statements (7)
 			case NODE_LIST_STAT: VISIT(list_stmt);
 			case NODE_COMPOUND_STAT: VISIT(compound_stmt);

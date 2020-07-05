@@ -1193,8 +1193,7 @@ private:
 	PPEdiProcessor::ProviderImplementation * P_Pi;
 };
 
-//static
-int FASTCALL PPEdiProcessor::GetEdiMsgTypeByText(const char * pSymb)
+/*static*/int FASTCALL PPEdiProcessor::GetEdiMsgTypeByText(const char * pSymb)
 {
 	int    edi_msg_type = PPEanComDocument::GetMsgTypeBySymb(pSymb);
 	if(!edi_msg_type) {
@@ -2987,11 +2986,9 @@ static const SIntToSymbTabEntry EdiMsgTypeSymbols_EanCom[] = {
 	{ PPEDIOP_INVOIC,       "INVOIC" },
 };
 
-//static
-int FASTCALL PPEanComDocument::GetMsgSymbByType(int msgType, SString & rSymb)
+/*static*/int FASTCALL PPEanComDocument::GetMsgSymbByType(int msgType, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EdiMsgTypeSymbols_EanCom, SIZEOFARRAY(EdiMsgTypeSymbols_EanCom), msgType, rSymb); }
-//static
-int FASTCALL PPEanComDocument::GetMsgTypeBySymb(const char * pSymb)
+/*static*/int FASTCALL PPEanComDocument::GetMsgTypeBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EdiMsgTypeSymbols_EanCom, SIZEOFARRAY(EdiMsgTypeSymbols_EanCom), pSymb); }
 
 static const SIntToSymbTabEntry EanComRefQSymbList[] = {
@@ -3028,11 +3025,9 @@ static const SIntToSymbTabEntry EanComRefQSymbList[] = {
 	{ PPEanComDocument::refqXA,  "XA"  },
 };
 
-//static
-int FASTCALL PPEanComDocument::GetRefqSymb(int refq, SString & rSymb)
+/*static*/int FASTCALL PPEanComDocument::GetRefqSymb(int refq, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EanComRefQSymbList, SIZEOFARRAY(EanComRefQSymbList), refq, rSymb); }
-//static
-int FASTCALL PPEanComDocument::GetRefqBySymb(const char * pSymb)
+/*static*/int FASTCALL PPEanComDocument::GetRefqBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EanComRefQSymbList, SIZEOFARRAY(EanComRefQSymbList), pSymb); }
 
 static const SIntToSymbTabEntry EanComPartyQSymbList[] = {
@@ -3058,11 +3053,9 @@ static const SIntToSymbTabEntry EanComPartyQSymbList[] = {
 	//LC 		= 	Party declaring the Value Added Tax (VAT)
 };
 
-//static
-int FASTCALL PPEanComDocument::GetPartyqSymb(int refq, SString & rSymb)
+/*static*/int FASTCALL PPEanComDocument::GetPartyqSymb(int refq, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EanComPartyQSymbList, SIZEOFARRAY(EanComPartyQSymbList), refq, rSymb); }
-//static
-int FASTCALL PPEanComDocument::GetPartyqBySymb(const char * pSymb)
+/*static*/int FASTCALL PPEanComDocument::GetPartyqBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EanComPartyQSymbList, SIZEOFARRAY(EanComPartyQSymbList), pSymb); }
 
 static const SIntToSymbTabEntry EanComIticSymbList[] = {
@@ -3176,11 +3169,9 @@ static const SIntToSymbTabEntry EanComIticSymbList[] = {
 	{ PPEanComDocument::iticZZZ, "ZZZ" }, // Mutually defined. A code assigned within a code list to be used on an interim basis and as defined among trading partners until a precise code can be assigned to the code list.
 };
 
-//static
-int FASTCALL PPEanComDocument::GetIticSymb(int refq, SString & rSymb)
+/*static*/int FASTCALL PPEanComDocument::GetIticSymb(int refq, SString & rSymb)
 	{ return SIntToSymbTab_GetSymb(EanComIticSymbList, SIZEOFARRAY(EanComIticSymbList), refq, rSymb); }
-//static
-int FASTCALL PPEanComDocument::GetIticBySymb(const char * pSymb)
+/*static*/int FASTCALL PPEanComDocument::GetIticBySymb(const char * pSymb)
 	{ return SIntToSymbTab_GetId(EanComIticSymbList, SIZEOFARRAY(EanComIticSymbList), pSymb); }
 
 class EdiProviderImplementation_Kontur : public PPEdiProcessor::ProviderImplementation {
@@ -4408,8 +4399,7 @@ PPEdiProcessor::Packet::~Packet()
 	P_ExtData = 0;
 }
 
-//static
-PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags)
+/*static*/PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags)
 {
 	ProviderImplementation * p_imp = 0;
 	PPObjEdiProvider ep_obj;
@@ -5696,14 +5686,14 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 		StrStrAssocArray hdr_flds;
 		url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocs");
 		THROW_SL(p_query = new json_t(json_t::tOBJECT));
-		THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
+		THROW_SL(p_query->InsertString("varToken", AT.Token));
 		{
 			if(checkdate(rP.Period.low)) {
 				temp_buf.Z().Cat(rP.Period.low, DATF_ISO8601|DATF_CENTURY);
-				THROW_SL(p_query->Insert("timefrom", json_new_string(temp_buf)));
+				THROW_SL(p_query->InsertString("timefrom", temp_buf));
 				if(checkdate(rP.Period.upp)) {
 					temp_buf.Z().Cat(rP.Period.upp, DATF_ISO8601|DATF_CENTURY);
-					THROW_SL(p_query->Insert("timeto", json_new_string(temp_buf)));
+					THROW_SL(p_query->InsertString("timeto", temp_buf));
 				}
 			}
 		}
@@ -5714,7 +5704,7 @@ int SLAPI EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchang
 		// limit : лимит на отображение документов (=1000 по умолчанию)
 		// page : страница
 
-		//THROW_SL(p_query->Insert("doc_type", json_new_string(pDocType)));
+		//THROW_SL(p_query->InsertString("doc_type", pDocType));
 		url.Composite(0, temp_buf);
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		THROW_SL(json_tree_to_string(p_query, temp_buf));
@@ -5816,10 +5806,10 @@ int SLAPI EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 	url.SetComponent(url.cPath, "Api/V1/Edo/Index/Authorize");
 	THROW_SL(p_query = new json_t(json_t::tOBJECT));
 	url.GetComponent(url.cUserName, 0, temp_buf);
-	THROW_SL(p_query->Insert("varLogin", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
+	THROW_SL(p_query->InsertString("varLogin", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)));
 	url.SetComponent(url.cUserName, 0);
 	url.GetComponent(url.cPassword, 0, temp_buf);
-	THROW_SL(p_query->Insert("varPassword", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_UTF8))));
+	THROW_SL(p_query->InsertString("varPassword", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)));
 	url.SetComponent(url.cPassword, 0);
 	url.Composite(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
@@ -5885,10 +5875,10 @@ int SLAPI EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDoc
 	THROW(Auth());
 	url.SetComponent(url.cPath, "Api/V1/Edo/Document/Send");
 	THROW_SL(p_query = new json_t(json_t::tOBJECT));
-	THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
-	THROW_SL(p_query->Insert("doc_type", json_new_string(pDocType)));
-	THROW_SL(p_query->Insert("document_name", json_new_string(pDocName)));
-	THROW_SL(p_query->Insert("body", json_new_string(pDocMime64)));
+	THROW_SL(p_query->InsertString("varToken", AT.Token));
+	THROW_SL(p_query->InsertString("doc_type", pDocType));
+	THROW_SL(p_query->InsertString("document_name", pDocName));
+	THROW_SL(p_query->InsertString("body", pDocMime64));
 	THROW_SL(p_query->Insert("return_id", json_new_number(temp_buf.Z().Cat(1))));
 	url.Composite(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
@@ -6188,8 +6178,8 @@ int SLAPI EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor:
 	THROW(Auth());
 	url.SetComponent(url.cPath, "Api/V1/Edo/Document/GetEdiDocBody");
 	THROW_SL(p_query = new json_t(json_t::tOBJECT));
-	THROW_SL(p_query->Insert("varToken", json_new_string(AT.Token)));
-	THROW_SL(p_query->Insert("intDocID", json_new_string(pIdent->SId)));
+	THROW_SL(p_query->InsertString("varToken", AT.Token));
+	THROW_SL(p_query->InsertString("intDocID", pIdent->SId));
 	url.Composite(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 	THROW_SL(json_tree_to_string(p_query, temp_buf));

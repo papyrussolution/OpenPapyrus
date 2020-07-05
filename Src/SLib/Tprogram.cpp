@@ -673,7 +673,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		HWND hwnd_tw = GetTopWindow(hWnd);
 		if(hwnd_tw == h_close_wnd)
 			hwnd_tw = GetNextWindow(hwnd_tw, GW_HWNDNEXT);
-		is_desktop = (hwnd_tw == APPL->H_Desktop) ? 1 : 0;
+		is_desktop = BIN(hwnd_tw == APPL->H_Desktop);
 	}
 	switch(message) {
 		case WM_SIZE:
@@ -2287,7 +2287,7 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	int    ok = 0;
 	if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
 		int    focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
-		int    disabled = (pDi->itemState & ODS_DISABLED) ? 1 : 0;
+		int    disabled = BIN(pDi->itemState & ODS_DISABLED);
 		COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
 		COLORREF pen_color = focused ? _GetAssetColor(_assetCtrlFocusedBorderColor) : _GetAssetColor(_assetCtrlBorderColor);
 		HPEN   pen   = CreatePen(PS_SOLID, 1, pen_color);

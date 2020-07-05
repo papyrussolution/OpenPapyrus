@@ -227,8 +227,7 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 	}
 }
 
-//static
-SDrawFigure * SDrawFigure::CreateFromFile(const char * pFileName, const char * pSid)
+/*static*/SDrawFigure * SDrawFigure::CreateFromFile(const char * pFileName, const char * pSid)
 {
 	SDrawFigure * p_fig = 0;
 	SFileFormat fmt;
@@ -267,8 +266,7 @@ SDrawFigure::~SDrawFigure()
 {
 }
 
-//static
-SDrawFigure * SDrawFigure::Unserialize(SBuffer & rBuf, SSerializeContext * pCtx)
+/*static*/SDrawFigure * SDrawFigure::Unserialize(SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	SDrawFigure * p_instance = 0;
 	int32  kind;
@@ -2468,7 +2466,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 		total_rc_size += sizeof(bm_hdr);
 		{
 			const uint bit_count = bm_hdr.biBitCount;
-			const int  revert = (bm_hdr.biWidth > 0) ? 1 : 0;
+			const int  revert = BIN(bm_hdr.biWidth > 0);
 			const uint width  = abs(bm_hdr.biWidth);
 			const uint height = abs(bm_hdr.biHeight/2);   // height == xor + and mask
 			const uint line_size = (((width*bit_count)+7)/8 + 3) & ~3;

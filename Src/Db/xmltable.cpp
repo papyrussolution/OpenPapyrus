@@ -436,8 +436,7 @@ int XmlDbFile::Push(const Param * pParam)
 	return 1;
 }
 
-//static
-int XmlDbFile::CheckParam(const Param & rParam)
+/*static*/int XmlDbFile::CheckParam(const Param & rParam)
 {
 	//SLibError = SLERR_XMLDB_INVRECORROOTTAG;
 	//return ((__EnableEmptyRoot || St.P.RootTag.Len()) && St.P.RootTag.IsLatin() && St.P.RecTag.Len() && St.P.RecTag.IsLatin()) ? 1 : 0;

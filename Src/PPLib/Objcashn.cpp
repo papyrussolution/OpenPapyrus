@@ -1290,7 +1290,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 	int    ok = 1;
 	long   sel_prn_id = 0, def_prn_id = 0;
 	SString prn_port, temp_buf;
-	TSVector <SPrinting::PrnInfo> prn_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <SPrinting::PrnInfo> prn_list;
 	StrAssocArray * p_list = new StrAssocArray;
 	ListWindow * p_lw = 0;
 	THROW_MEM(p_list);
@@ -1321,7 +1321,7 @@ int SLAPI SelectPrinterFromWinPool(SString & rPrinter)
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&sel_prn_id);
-			if(sel_prn_id && sel_prn_id <= (long)prn_list.getCount())
+			if(sel_prn_id && sel_prn_id <= prn_list.getCountI())
 				prn_port = prn_list.at(sel_prn_id - 1).PrinterName;
 			valid_data = 1;
 		}
@@ -1339,7 +1339,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 		ExtDevicesDialog() : TDialog(DLG_EXTDEV)
 		{
 			PPSetupCtrlMenu(this, CTL_EXTDEV_PRINTER, CTLMNU_EXTDEV_PRINTER, CTRLMENU_SELPRINTER);
-			PPSetupCtrlMenu(this, CTL_EXTDEV_RPTPRNPORT, CTLMNU_EXTDEV_RPTPRNPORT, CTRLMENU_SELPRINTER); // @v8.8.3
+			PPSetupCtrlMenu(this, CTL_EXTDEV_RPTPRNPORT, CTLMNU_EXTDEV_RPTPRNPORT, CTRLMENU_SELPRINTER);
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_EXTDEV_HOSTICURL, CTL_EXTDEV_HOSTICURL, 1, 0, 0,
 				FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfPath);
 		}
@@ -1361,10 +1361,8 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_SCALE,     PPOBJ_SCALE, Data.ScaleID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_EXTDEV_PHNSVC,    PPOBJ_PHONESERVICE, Data.PhnSvcID, 0, 0);
 			setCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
-			// @v8.8.3 {
 			Data.GetPropString(SCN_RPTPRNPORT, temp_buf);
 			setCtrlString(CTL_EXTDEV_RPTPRNPORT, temp_buf);
-			// } @v8.8.3
 			Data.GetPropString(SCN_CASHDRAWER_PORT, temp_buf);
 			setCtrlString(CTL_EXTDEV_DRAWERPORT, temp_buf);
 			Data.GetPropString(SCN_CASHDRAWER_CMD, temp_buf);
@@ -1374,23 +1372,17 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			setCtrlString(CTL_EXTDEV_KBELLPORT, temp_buf);
 			Data.GetPropString(SCN_KITCHENBELL_CMD, temp_buf);
 			setCtrlString(CTL_EXTDEV_KBELLCMD, temp_buf);
-			// @v9.0.11 {
 			Data.GetPropString(SCN_MANUFSERIAL, temp_buf);
 			setCtrlString(CTL_EXTDEV_MANUFSERIAL, temp_buf);
-			// } @v9.0.11
-			// @v9.0.9 {
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  0, 1);
 			AddClusterAssocDef(CTL_EXTDEV_EGAISMODE, 1, 0);
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  2, 2);
-			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  3, 3); // @v9.8.12
+			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  3, 3);
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
-			// } @v9.0.9
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ); // @v10.1.1
 			SetClusterData(CTL_EXTDEV_CHKEGMUNIQ, Data.ExtFlags); // @v10.1.1
-			// @v9.8.3 {
 			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
-			// } @v9.8.3
 			Data.DrvVerToStr(temp_buf); // @v10.0.03
 			setCtrlString(CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
 			return 1;
@@ -1406,32 +1398,20 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			getCtrlData(CTLSEL_EXTDEV_LOCTCHSCR, &Data.LocalTouchScrID);
 			getCtrlData(CTLSEL_EXTDEV_CASHNODE,  &Data.ExtCashNodeID);
 			getCtrlData(CTLSEL_EXTDEV_ALTREG,    &Data.AlternateRegID); // @v9.7.10
-			// @v9.6.9 {
 			if(Data.ExtCashNodeID && !Data.AlternateRegID)
 				GetClusterData(CTL_EXTDEV_EXTNODEASALT, &Data.ExtFlags);
 			else
 				Data.ExtFlags &= ~CASHFX_EXTNODEASALT;
-			// } @v9.6.9
-			// @v9.6.9 getCtrlData(CTLSEL_EXTDEV_PAPYRUS,   &Data.PapyrusNodeID);
 			getCtrlData(CTLSEL_EXTDEV_SCALE,     &Data.ScaleID);
 			getCtrlData(CTLSEL_EXTDEV_PHNSVC,    &Data.PhnSvcID);
 			getCtrlString(CTL_EXTDEV_PRINTER, Data.PrinterPort);
-			// @v8.8.3 {
 			getCtrlString(CTL_EXTDEV_RPTPRNPORT, temp_buf);
 			Data.SetPropString(SCN_RPTPRNPORT, temp_buf);
-			// } @v8.8.3
 			if(Data.ExtCashNodeID) {
 				THROW(cn_obj.Search(Data.ExtCashNodeID, &cn_rec) > 0);
 				sel = CTL_EXTDEV_CASHNODE;
 				THROW_PP(Data.ID != Data.ExtCashNodeID && PPCashMachine::IsSyncCMT(cn_rec.CashType), PPERR_INVCMT);
 			}
-			/* @v9.6.9
-			if(Data.PapyrusNodeID) {
-				THROW(cn_obj.Search(Data.PapyrusNodeID, &cn_rec) > 0);
-				sel = CTL_EXTDEV_PAPYRUS;
-				THROW_PP(Data.ID != Data.PapyrusNodeID && cn_rec.CashType == PPCMT_PAPYRUS, PPERR_INVCMT);
-			}
-			*/
 			getCtrlString(CTL_EXTDEV_DRAWERPORT, temp_buf);
 			Data.SetPropString(SCN_CASHDRAWER_PORT, temp_buf);
 			getCtrlString(CTL_EXTDEV_DRAWERCMD, temp_buf);
@@ -1441,15 +1421,11 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			Data.SetPropString(SCN_KITCHENBELL_PORT, temp_buf);
 			getCtrlString(CTL_EXTDEV_KBELLCMD, temp_buf);
 			Data.SetPropString(SCN_KITCHENBELL_CMD, temp_buf);
-			// @v9.0.11 {
 			getCtrlString(CTL_EXTDEV_MANUFSERIAL, temp_buf);
 			Data.SetPropString(SCN_MANUFSERIAL, temp_buf);
-			// } @v9.0.11
-			// @v9.8.3 {
 			getCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
 			Data.SetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
-			// } @v9.8.3
-			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE); // @v9.0.9
+			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE);
 			GetClusterData(CTL_EXTDEV_CHKEGMUNIQ, &Data.ExtFlags); // @v10.1.1
 			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
 			THROW(Data.DrvVerFromStr(temp_buf)); // @v10.0.03

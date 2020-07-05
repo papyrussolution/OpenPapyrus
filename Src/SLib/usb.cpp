@@ -782,8 +782,7 @@ int SRawInputInitArray::Add(uint16 usagePage, uint16 usage, uint flags, HWND tar
 	return insert(&rid);
 }
 
-//static
-int SRawInputData::Register(SRawInputInitArray * pRiia)
+/*static*/int SRawInputData::Register(SRawInputInitArray * pRiia)
 {
 	int    ok = 0;
 	if(InitRawInputProc(0) > 0) {

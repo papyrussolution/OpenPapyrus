@@ -14,11 +14,11 @@ typedef GravityArray<gnode_class_decl_t *>  gnode_class_r;
 struct codegen_t {
 	codegen_t(gravity_vm * pVm) : vm(pVm), lasterror(0)
 	{
-		context.m = 0;
-		context.n = 0;
-		context.p = 0;
+		// @ctr context.m = 0;
+		// @ctr context.n = 0;
+		// @ctr context.p = 0;
 	}
-	gravity_object_r context;
+	GravityArray <gravity_class_t *> context;
 	gnode_class_r superfix;
 	uint32 lasterror;
 	gravity_vm * vm;
@@ -26,30 +26,29 @@ struct codegen_t {
 
 typedef struct codegen_t codegen_t;
 
-#define CONTEXT_PUSH(x)                 ((codegen_t *)self->data)->context.insert(reinterpret_cast<gravity_object_t *>(x))
+#define CONTEXT_PUSH(x)                 ((codegen_t *)self->data)->context.insert(reinterpret_cast<gravity_class_t *>(x))
 #define CONTEXT_POP()                   (static_cast<codegen_t *>(self->data)->context.pop())
 #define CONTEXT_GET()                   (static_cast<codegen_t *>(self->data)->context.getLast())
 #define CONTEXT_IS_MODULE(x)            ((x)->IsFunction() && sstreq(((gravity_function_t *)x)->identifier, INITMODULE_NAME))
 
-#define DECLARE_CONTEXT()               gravity_object_t *context_object = CONTEXT_GET();
+#define DECLARE_CONTEXT()               gravity_class_t * context_object = CONTEXT_GET();
 #define DECLARE_FUNCTION_CONTEXT()      DECLARE_CONTEXT();                                                                      \
-	if(!context_object || !context_object->IsFunction()) {                        \
-		report_error(self, (gnode_t *)node, "Invalid code context."); return;}                  \
-	gravity_function_t * context_function = (gravity_function_t *)context_object;
+	if(!context_object || !context_object->IsFunction()) { report_error(self, node, "Invalid code context."); return;} \
+	gravity_function_t * context_function = reinterpret_cast<gravity_function_t *>(context_object);
 #define DECLARE_CLASS_CONTEXT()         DECLARE_CONTEXT();                                                                      \
 	assert(context_object->IsClass());                                               \
-	gravity_class_t * context_class = (gravity_class_t *)context_object;
-#define DECLARE_CODE()                  DECLARE_FUNCTION_CONTEXT(); ircode_t * code = (ircode_t *)context_function->bytecode;
+	gravity_class_t * context_class = reinterpret_cast<gravity_class_t *>(context_object);
+#define DECLARE_CODE()                  DECLARE_FUNCTION_CONTEXT(); ircode_t * code = (ircode_t *)context_function->U.Nf.bytecode;
 
-#define IS_IMPLICIT_SELF(_expr)         (NODE_ISA(_expr, NODE_IDENTIFIER_EXPR) &&                                               \
+#define IS_IMPLICIT_SELF(_expr)         (gnode_t::IsA(_expr, NODE_IDENTIFIER_EXPR) &&                                               \
 	(((gnode_identifier_expr_t*)_expr)->location.type == LOCATION_CLASS_IVAR_SAME) &&      \
 	(((gnode_identifier_expr_t*)_expr)->location.nup == 0) &&                              \
 	(((gnode_identifier_expr_t*)_expr)->location.index == UINT16_MAX))
 
-#define IS_SUPER(_expr)                 (NODE_ISA(_expr, NODE_KEYWORD_EXPR) && (((gnode_keyword_expr_t*)_expr)->base.token.type == TOK_KEY_SUPER))
-#define GET_VM()                        ((codegen_t *)self->data)->vm
+#define IS_SUPER(_expr)                 (gnode_t::IsA(_expr, NODE_KEYWORD_EXPR) && (((gnode_keyword_expr_t*)_expr)->Token.type == TOK_KEY_SUPER))
+#define GET_VM()                        (static_cast<codegen_t *>(self->data)->vm)
 #define IS_LAST_LOOP(n1, n2)             (n1+1==n2)
-#define LINE_NUMBER(__node)             ((node) ? ((gnode_t *)__node)->token.lineno : 0)
+#define LINE_NUMBER(__node)             ((node) ? (__node)->Token.lineno : 0)
 
 #if 0
 	#define CODEGEN_COUNT_REGISTERS(_n)                     uint32 _n = ircode_register_count(code)
@@ -60,33 +59,33 @@ typedef struct codegen_t codegen_t;
 #endif
 
 // MARK: -
-static void report_error(gvisitor_t * self, gnode_t * node, const char * format, ...) 
+static void report_error(gvisitor_t * self, const gnode_t * node, const char * format, ...) 
 {
 	// increment internal error counter
 	++self->nerr;
 	// check last error line in order to prevent to emit multiple errors for the same row
 	codegen_t * current = (codegen_t *)self->data;
-	if(!node || node->token.lineno == current->lasterror) 
-		return;
-	current->lasterror = node->token.lineno;
-	// get error callback (if any)
-	void * data = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->xdata : NULL;
-	gravity_error_callback error_fn = (self->delegate) ? ((gravity_delegate_t*)self->delegate)->error_callback : NULL;
-	// build error message
-	char buffer[1024];
-	va_list arg;
-	if(format) {
-		va_start(arg, format);
-		vsnprintf(buffer, sizeof(buffer), format, arg);
-		va_end(arg);
+	if(node && node->Token.lineno != current->lasterror) {
+		current->lasterror = node->Token.lineno;
+		// get error callback (if any)
+		void * data = (self->delegate) ? ((gravity_delegate_t *)self->delegate)->xdata : NULL;
+		gravity_error_callback error_fn = (self->delegate) ? ((gravity_delegate_t *)self->delegate)->error_callback : NULL;
+		// build error message
+		char buffer[1024];
+		va_list arg;
+		if(format) {
+			va_start(arg, format);
+			vsnprintf(buffer, sizeof(buffer), format, arg);
+			va_end(arg);
+		}
+		// setup error struct
+		GravityErrorDescription error_desc((node) ? node->Token.lineno : 0, (node) ? node->Token.colno : 0, (node) ? node->Token.fileid : 0, (node) ? node->Token.position : 0);
+		// finally call error callback
+		if(error_fn) 
+			error_fn(NULL, GRAVITY_ERROR_SEMANTIC, buffer, &error_desc, data);
+		else 
+			printf("%s\n", buffer);
 	}
-	// setup error struct
-	GravityErrorDescription error_desc((node) ? node->token.lineno : 0, (node) ? node->token.colno : 0, (node) ? node->token.fileid : 0, (node) ? node->token.position : 0);
-	// finally call error callback
-	if(error_fn) 
-		error_fn(NULL, GRAVITY_ERROR_SEMANTIC, buffer, &error_desc, data);
-	else 
-		printf("%s\n", buffer);
 }
 
 // MARK: -
@@ -143,13 +142,13 @@ static GravityValue literal2value(gnode_literal_expr_t * node)
 	else if(node->type == LITERAL_INT) 
 		return GravityValue::from_int(node->value.n64);
 	else if(node->type == LITERAL_BOOL) 
-		return VALUE_FROM_BOOL(node->value.n64);
+		return GravityValue::from_bool(node->value.n64);
 	else
 		return GravityValue::from_null();
 }
 
 #if 0
-static gravity_list_t * literals2list(gvisitor_t * self, gnode_r * r, uint32 start, uint32 stop) 
+static gravity_list_t * literals2list(gvisitor_t * self, GravityArray <gnode_t *> * r, uint32 start, uint32 stop) 
 {
 	gravity_list_t * list = gravity_list_new(GET_VM(), stop-start);
 	for(uint32 i = start; i<stop; ++i) {
@@ -160,7 +159,7 @@ static gravity_list_t * literals2list(gvisitor_t * self, gnode_r * r, uint32 sta
 	return list;
 }
 
-static gravity_map_t * literals2map(gvisitor_t * self, gnode_r * r1, gnode_r * r2, uint32 start, uint32 stop) 
+static gravity_map_t * literals2map(gvisitor_t * self, GravityArray <gnode_t *> * r1, GravityArray <gnode_t *> * r2, uint32 start, uint32 stop) 
 {
 	gravity_map_t * map = gravity_map_new(GET_VM(), stop-start);
 	for(uint32 i = start; i<stop; ++i) {
@@ -176,19 +175,18 @@ static gravity_map_t * literals2map(gvisitor_t * self, gnode_r * r1, gnode_r * r
 	return map;
 }
 
-static gravity_map_t * enum2map(gvisitor_t * self, gnode_enum_decl_t * node) {
+static gravity_map_t * enum2map(gvisitor_t * self, gnode_enum_decl_t * node) 
+{
 	uint32 count = symboltable_count(node->symtable, 0);
 	gravity_map_t * map = gravity_map_new(GET_VM(), count);
-
 	// FixMe
-
 	return map;
 }
 
-static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, bool ismap, size_t idxstart, size_t idxend, uint32 dest) {
+static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, bool ismap, size_t idxstart, size_t idxend, uint32 dest) 
+{
 	DEBUG_CODEGEN("check_literal_list_expr");
 	DECLARE_CODE();
-
 	// first check if all nodes inside this chuck are all literals
 	// and in this case apply a more efficient SETLIST variant
 	for(size_t j = idxstart; j < idxend; ++j) {
@@ -207,11 +205,11 @@ static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, boo
 
 	if(ismap) {
 		gravity_map_t * map = literals2map(self, node->list1, node->list2, (uint32)idxstart, (uint32)idxend);
-		v = VALUE_FROM_OBJECT(map);
+		v = GravityValue::from_object(map);
 	}
 	else {
 		gravity_list_t * list = literals2list(self, node->list1, (uint32)idxstart, (uint32)idxend);
-		v = VALUE_FROM_OBJECT(list);
+		v = GravityValue::from_object(list);
 	}
 	uint16 index = gravity_function_cpool_add(GET_VM(), context_function, v);
 	ircode_add(code, SETLIST, dest, 0, index);
@@ -224,13 +222,13 @@ static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, boo
 static uint32 node2index(gnode_t * node) 
 {
 	// node can be a VARIABLE declaration or a local IDENTIFIER
-	if(NODE_ISA(node, NODE_VARIABLE_DECL)) {
+	if(gnode_t::IsA(node, NODE_VARIABLE_DECL)) {
 		gnode_variable_decl_t * expr = (gnode_variable_decl_t*)node;
 		assert(gnode_array_size(expr->decls) == 1);
 		gnode_var_t * var = (gnode_var_t *)gnode_array_get(expr->decls, 0);
 		return var->index;
 	}
-	if(NODE_ISA(node, NODE_IDENTIFIER_EXPR)) {
+	if(gnode_t::IsA(node, NODE_IDENTIFIER_EXPR)) {
 		gnode_identifier_expr_t * expr = (gnode_identifier_expr_t*)node;
 		assert(expr->location.type == LOCATION_LOCAL);
 		return expr->location.index;
@@ -242,29 +240,26 @@ static uint32 node2index(gnode_t * node)
 
 static void fix_superclasses(gvisitor_t * self) 
 {
-	// this function cannot fail because superclasses was already checked in samecheck2 so I am sure that they exist
-	// somewhere
-	codegen_t        * data = (codegen_t *)self->data;
-	gnode_class_r    * superfix = &data->superfix;
-
+	// this function cannot fail because superclasses was already checked in samecheck2 so I am sure that they exist somewhere
+	codegen_t * data = (codegen_t *)self->data;
+	gnode_class_r * superfix = &data->superfix;
 	size_t count = gnode_array_size(superfix);
 	for(size_t i = 0; i<count; ++i) {
 		gnode_class_decl_t * node = (gnode_class_decl_t *)gnode_array_get(superfix, i);
 		gnode_class_decl_t * super = (gnode_class_decl_t *)node->superclass;
-
-		gravity_class_t * c = (gravity_class_t *)node->data;
-		gravity_class_setsuper(c, (gravity_class_t *)super->data);
+		gravity_class_t * c = static_cast<gravity_class_t *>(node->data);
+		gravity_class_setsuper(c, static_cast<gravity_class_t *>(super->data));
 	}
 }
 
 static const char * lookup_superclass_identifier(gvisitor_t * self, gravity_class_t * c) 
 {
-	codegen_t     * data = (codegen_t *)self->data;
+	codegen_t * data = (codegen_t *)self->data;
 	gnode_class_r * superfix = &data->superfix;
 	size_t count = gnode_array_size(superfix);
 	for(size_t i = 0; i<count; ++i) {
 		gnode_class_decl_t * node = (gnode_class_decl_t *)gnode_array_get(superfix, i);
-		gravity_class_t * target = (gravity_class_t *)node->data;
+		gravity_class_t * target = static_cast<gravity_class_t *>(node->data);
 		if(target == c) {
 			gnode_class_decl_t * super = (gnode_class_decl_t *)node->superclass;
 			return (super) ? super->identifier : NULL;
@@ -275,12 +270,12 @@ static const char * lookup_superclass_identifier(gvisitor_t * self, gravity_clas
 
 static gravity_class_t * context_get_class(gvisitor_t * self) 
 {
-	gravity_object_r ctx = ((codegen_t *)self->data)->context;
+	GravityArray <gravity_class_t *> ctx = ((codegen_t *)self->data)->context;
 	size_t len = ctx.getCount();
 	for(int i = (int)len-1; i>=0; --i) {
-		gravity_object_t * context_object = (gravity_object_t *)ctx.at(i);
+		gravity_class_t * context_object = ctx.at(i);
 		if(context_object->IsClass()) 
-			return (gravity_class_t *)context_object;
+			return context_object;
 	}
 	return NULL;
 }
@@ -290,16 +285,16 @@ static bool node_is_closure(gnode_t * node, uint16 * local_index)
 	DEBUG_CODEGEN("node_is_closure");
 	// init local_index to 0 (means not a local index)
 	ASSIGN_PTR(local_index, 0);
-	if(node && NODE_ISA(node, NODE_IDENTIFIER_EXPR)) {
+	if(node && gnode_t::IsA(node, NODE_IDENTIFIER_EXPR)) {
 		gnode_identifier_expr_t * identifier = (gnode_identifier_expr_t*)node;
 		node = identifier->symbol;
 	}
-	if(node && NODE_ISA(node, NODE_VARIABLE)) {
+	if(node && gnode_t::IsA(node, NODE_VARIABLE)) {
 		gnode_var_t * var = (gnode_var_t *)node;
 		ASSIGN_PTR(local_index, var->index);
 		node = var->expr;
 	}
-	if(node && NODE_ISA(node, NODE_FUNCTION_DECL)) {
+	if(node && gnode_t::IsA(node, NODE_FUNCTION_DECL)) {
 		gnode_function_decl_t * f = (gnode_function_decl_t*)node;
 		return f->is_closure;
 	}
@@ -307,7 +302,7 @@ static bool node_is_closure(gnode_t * node, uint16 * local_index)
 }
 
 // this function can be called ONLY from visit_postfix_expr where a context has been pushed
-static uint32 compute_self_register(gvisitor_t * self, ircode_t * code, gnode_t * node, uint32 target_register, gnode_r * list) 
+static uint32 compute_self_register(gvisitor_t * self, ircode_t * code, gnode_t * node, uint32 target_register, GravityArray <gnode_t *> * list) 
 {
 	DEBUG_CODEGEN("compute_self_register");
 	// check for special implicit self slot
@@ -318,9 +313,9 @@ static uint32 compute_self_register(gvisitor_t * self, ircode_t * code, gnode_t 
 		return 0;
 	// examine next node in list
 	gnode_postfix_subexpr_t * next = (gnode_array_size(list) > 0) ? (gnode_postfix_subexpr_t*)gnode_array_get(list, 0) : NULL;
-	bool next_is_access = (next && next->base.tag == NODE_ACCESS_EXPR);
+	bool next_is_access = (next && next->Tag == NODE_ACCESS_EXPR);
 	// if node refers to an outer class then load outer class from hidden _outer ivar and return its register
-	if((NODE_ISA(node, NODE_IDENTIFIER_EXPR) && ((gnode_identifier_expr_t*)node)->location.type == LOCATION_CLASS_IVAR_OUTER) && !next_is_access) {
+	if((gnode_t::IsA(node, NODE_IDENTIFIER_EXPR) && ((gnode_identifier_expr_t*)node)->location.type == LOCATION_CLASS_IVAR_OUTER) && !next_is_access) {
 		gnode_identifier_expr_t * expr = (gnode_identifier_expr_t*)node;
 		uint32 dest = ircode_register_push_temp(code);
 		uint32 target = 0;
@@ -333,7 +328,8 @@ static uint32 compute_self_register(gvisitor_t * self, ircode_t * code, gnode_t 
 			report_error(self, node, "Unexpected register error.");
 			return UINT32_MAX;
 		}
-		return reg;
+		else
+			return reg;
 	}
 	// no special register found
 	// check if node is a closure defined inside a class context (so self is needed)
@@ -368,7 +364,7 @@ static void visit_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 			continue;
 		// in case of function context cleanup temporary registers
 		gravity_function_t * f = (gravity_function_t *)context_object;
-		ircode_t * code = (ircode_t *)f->bytecode;
+		ircode_t * code = (ircode_t *)f->U.Nf.bytecode;
 		ircode_register_temps_clear(code);
 	});
 
@@ -381,7 +377,7 @@ static void visit_compound_stmt(gvisitor_t * self, gnode_compound_stmt_t * node)
 static void visit_label_stmt(gvisitor_t * self, gnode_label_stmt_t * node) 
 {
 	DEBUG_CODEGEN("visit_label_stmt");
-	gtoken_t type = NODE_TOKEN_TYPE(node);
+	gtoken_t type = node->GetTokenType();
 	assert(oneof2(type, TOK_KEY_DEFAULT, TOK_KEY_CASE));
 	if(type == TOK_KEY_DEFAULT) {
 		gvisit(self, node->stmt);
@@ -418,7 +414,8 @@ static void visit_flow_if_stmt(gvisitor_t * self, gnode_flow_stmt_t * node)
 	uint32 labelFalse = ircode_newlabel(code);
 	gvisit(self, node->cond);
 	uint32 reg = ircode_register_pop(code);
-	if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid if condition expression.");
+	if(reg == REGISTER_ERROR) 
+		report_error(self, node, "Invalid if condition expression.");
 	ircode_add(code, JUMPF, reg, labelFalse, 0, LINE_NUMBER(node));
 	gvisit(self, node->stmt);
 	if(node->elsestmt) ircode_add(code, JUMP, labelTrue, 0, 0, LINE_NUMBER(node));
@@ -440,17 +437,14 @@ static void visit_flow_switch_stmt(gvisitor_t * self, gnode_flow_stmt_t * node)
 static void visit_flow_stmt(gvisitor_t * self, gnode_flow_stmt_t * node) 
 {
 	DEBUG_CODEGEN("visit_flow_stmt");
-	gtoken_t type = NODE_TOKEN_TYPE(node);
+	gtoken_t type = node->GetTokenType();
 	assert((type == TOK_KEY_IF) || (type == TOK_KEY_SWITCH) || (type == TOK_OP_TERNARY));
-	if(type == TOK_KEY_IF) {
+	if(type == TOK_KEY_IF)
 		visit_flow_if_stmt(self, node);
-	}
-	else if(type == TOK_KEY_SWITCH) {
+	else if(type == TOK_KEY_SWITCH)
 		visit_flow_switch_stmt(self, node);
-	}
-	else if(type == TOK_OP_TERNARY) {
-		report_error(self, (gnode_t *)node, "Ternary operator not yet supported.");
-	}
+	else if(type == TOK_OP_TERNARY)
+		report_error(self, node, "Ternary operator not yet supported.");
 }
 
 static void visit_loop_while_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
@@ -473,26 +467,22 @@ static void visit_loop_while_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	     emit goto START
 	     emit END
 	 */
-
 	uint32 labelTrue  = ircode_newlabel(code);
 	uint32 labelFalse = ircode_newlabel(code);
 	uint32 labelCheck = ircode_newlabel(code);
 	ircode_setlabel_true(code, labelTrue);
 	ircode_setlabel_false(code, labelFalse);
 	ircode_setlabel_check(code, labelCheck);
-
 	ircode_marklabel(code, labelTrue, LINE_NUMBER(node));
 	ircode_marklabel(code, labelCheck, LINE_NUMBER(node));
 	gvisit(self, node->cond);
 	uint32 reg = ircode_register_pop(code);
-	if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid while condition expression.");
+	if(reg == REGISTER_ERROR) 
+		report_error(self, node, "Invalid while condition expression.");
 	ircode_add(code, JUMPF, reg, labelFalse, 0, LINE_NUMBER(node));
-
 	gvisit(self, node->stmt);
 	ircode_add(code, JUMP, labelTrue, 0, 0, LINE_NUMBER(node));
-
 	ircode_marklabel(code, labelFalse, LINE_NUMBER(node));
-
 	ircode_unsetlabel_true(code);
 	ircode_unsetlabel_false(code);
 	ircode_unsetlabel_check(code);
@@ -522,7 +512,7 @@ static void visit_loop_repeat_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	gvisit(self, node->expr);
 	uint32 reg = ircode_register_pop(code);
 	if(reg == REGISTER_ERROR) 
-		report_error(self, (gnode_t *)node, "Invalid repeat condition expression.");
+		report_error(self, node, "Invalid repeat condition expression.");
 	ircode_add(code, JUMPF, reg, labelFalse, 0, LINE_NUMBER(node));
 	ircode_add(code, JUMP, labelTrue, 0, 0, LINE_NUMBER(node));
 	ircode_marklabel(code, labelFalse, LINE_NUMBER(node));
@@ -562,14 +552,15 @@ static void visit_loop_for_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	uint32 $value = ircode_register_push_temp_protected(code); // ++TEMP => 2
 
 	// get cpool index for the required methods
-	uint16 iterate_idx = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, ITERATOR_INIT_FUNCTION));
-	uint16 next_idx = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, ITERATOR_NEXT_FUNCTION));
+	uint16 iterate_idx = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, ITERATOR_INIT_FUNCTION));
+	uint16 next_idx = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, ITERATOR_NEXT_FUNCTION));
 	uint32 cond_idx = node2index(node->cond);
 
 	// generate code for $expr = expr (so expr is only evaluated once)
 	gvisit(self, node->expr);
 	uint32 once_expr = ircode_register_pop(code);
-	if(once_expr == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid for expression.");
+	if(once_expr == REGISTER_ERROR) 
+		report_error(self, node, "Invalid for expression.");
 	ircode_add(code, MOVE, $expr, once_expr, 0, LINE_NUMBER(node));
 
 	// generate code for $value = $expr.iterate(null);
@@ -604,10 +595,7 @@ static void visit_loop_for_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	ircode_setlabel_check(code, labelCheck);
 
 	ircode_marklabel(code, labelTrue, LINE_NUMBER(node));
-	ircode_add(code, JUMPF, $value, labelFalse, 1, LINE_NUMBER(node));                              // flag JUMPF
-	                                                                                                // instruction
-	                                                                                                // to check ONLY
-	                                                                                                // BOOL values
+	ircode_add(code, JUMPF, $value, labelFalse, 1, LINE_NUMBER(node)); // flag JUMPF instruction to check ONLY BOOL values
 
 	// cond = $expr.next($value);
 	// cond is a local variable
@@ -683,7 +671,7 @@ static void visit_loop_for_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 static void visit_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node) 
 {
 	DEBUG_CODEGEN("visit_loop_stmt");
-	gtoken_t type = NODE_TOKEN_TYPE(node);
+	gtoken_t type = node->GetTokenType();
 	assert((type == TOK_KEY_WHILE) || (type == TOK_KEY_REPEAT) || (type == TOK_KEY_FOR));
 	if(type == TOK_KEY_WHILE) {
 		visit_loop_while_stmt(self, node);
@@ -700,7 +688,7 @@ static void visit_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node)
 {
 	DEBUG_CODEGEN("visit_jump_stmt");
 	DECLARE_CODE();
-	gtoken_t type = NODE_TOKEN_TYPE(node);
+	gtoken_t type = node->GetTokenType();
 	assert((type == TOK_KEY_BREAK) || (type == TOK_KEY_CONTINUE) || (type == TOK_KEY_RETURN));
 	if(type == TOK_KEY_BREAK) {
 		uint32 label = ircode_getlabel_false(code);
@@ -714,7 +702,8 @@ static void visit_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node)
 		if(node->expr) {
 			gvisit(self, node->expr);
 			uint32 reg = ircode_register_pop(code);
-			if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid return expression.");
+			if(reg == REGISTER_ERROR) 
+				report_error(self, node, "Invalid return expression.");
 			ircode_add(code, RET, reg, 0, 0, LINE_NUMBER(node));
 		}
 		else {
@@ -725,7 +714,6 @@ static void visit_jump_stmt(gvisitor_t * self, gnode_jump_stmt_t * node)
 
 static void visit_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node) 
 {
-    #pragma unused(self, node)
 	DEBUG_CODEGEN("visit_empty_stmt");
 	DECLARE_CODE();
 	ircode_add(code, NOP, 0, 0, 0, LINE_NUMBER(node));
@@ -733,24 +721,24 @@ static void visit_empty_stmt(gvisitor_t * self, gnode_empty_stmt_t * node)
 
 // MARK: - Declarations -
 
-static void store_declaration(gvisitor_t * self, gravity_object_t * obj, bool is_static, gnode_function_decl_t * node) 
+static void store_declaration(gvisitor_t * self, gravity_class_t * obj, bool is_static, gnode_function_decl_t * node) 
 {
 	DEBUG_CODEGEN("store_object_declaration");
 	assert(obj);
 	DECLARE_CONTEXT();
 	bool is_module = CONTEXT_IS_MODULE(context_object);
 	bool is_class = context_object->IsClass();
-	bool is_local = ((is_module == false) && (is_class == false));
+	bool is_local = (!is_module && !is_class);
 	if(is_static && !is_class) {
 		// static makes sense only for class objects
-		report_error(self, (gnode_t *)node, "Static storage specifier does not make sense in non class context.");
+		report_error(self, node, "Static storage specifier does not make sense in non class context.");
 		return;
 	}
-	if(is_local || is_module) {
+	else if(is_local || is_module) {
 		gravity_function_t * context_function = (gravity_function_t *)context_object;
-		ircode_t * code = (ircode_t *)context_function->bytecode;
+		ircode_t * code = (ircode_t *)context_function->U.Nf.bytecode;
 		// add object to cpool and get its index
-		uint16 index = gravity_function_cpool_add(NULL, context_function, VALUE_FROM_OBJECT(obj));
+		uint16 index = gravity_function_cpool_add(NULL, context_function, GravityValue::from_object(obj));
 		// if it is a function then generate a CLOSURE opcode instead of LOADK
 		if(obj->IsFunction()) {
 			assert(node);
@@ -767,26 +755,25 @@ static void store_declaration(gvisitor_t * self, gravity_object_t * obj, bool is
 		else {
 			ircode_add_constant(code, index, LINE_NUMBER(node));
 		}
-
 		if(is_module && obj->identifier) {
-			index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, obj->identifier));
+			index = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, obj->identifier));
 			uint32 reg = ircode_register_pop(code);
-			if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid declaration expression.");
+			if(reg == REGISTER_ERROR) 
+				report_error(self, node, "Invalid declaration expression.");
 			ircode_add(code, STOREG, reg, index, 0, LINE_NUMBER(node));
 		}
-
 		return;
 	}
-
-	if(is_class) {
-		gravity_class_t * context_class = (gravity_class_t *)context_object;
+	else if(is_class) {
+		gravity_class_t * context_class = context_object;
 		context_class = (is_static) ? context_class->objclass : context_class;
-		gravity_class_bind(context_class, obj->identifier, VALUE_FROM_OBJECT(obj));
+		gravity_class_bind(context_class, obj->identifier, GravityValue::from_object(obj));
 		return;
 	}
-
-	// should never reach this point
-	assert(0);
+	else {
+		// should never reach this point
+		assert(0);
+	}
 }
 
 // used ONLY by CODEGEN
@@ -794,7 +781,7 @@ static gravity_function_t * class_lookup_nosuper(gravity_class_t * c, const char
 {
 	STATICVALUE_FROM_STRING(key, name, strlen(name));
 	GravityValue * v = gravity_hash_lookup(c->htable, key);
-	return (v) ? (gravity_function_t *)v->p : NULL;
+	return v ? reinterpret_cast<gravity_function_t *>(v->Ptr) : NULL;
 }
 
 static void process_constructor(gvisitor_t * self, gravity_class_t * c, gnode_t * node) 
@@ -806,10 +793,8 @@ static void process_constructor(gvisitor_t * self, gravity_class_t * c, gnode_t 
 
 	// check internal $init function
 	gravity_function_t * internal_init_function = class_lookup_nosuper(c, CLASS_INTERNAL_INIT_NAME);
-
 	// check for user constructor function
 	gravity_function_t * constructor_function = class_lookup_nosuper(c, CLASS_CONSTRUCTOR_NAME);
-
 	// build appropriate $init function
 	gravity_class_t * super = c->superclass;
 	uint32 ninit = 2;
@@ -817,32 +802,24 @@ static void process_constructor(gvisitor_t * self, gravity_class_t * c, gnode_t 
 		gravity_function_t * super_init = class_lookup_nosuper(super, CLASS_INTERNAL_INIT_NAME);
 		if(super_init) {
 			// copy super init code to internal_init code
-			if(!internal_init_function) internal_init_function = gravity_function_new(NULL,
-					CLASS_INTERNAL_INIT_NAME,
-					1,
-					0,
-					0,
-					ircode_create(1));
-
+			SETIFZ(internal_init_function, gravity_function_new(NULL, CLASS_INTERNAL_INIT_NAME, 1, 0, 0, ircode_create(1)));
 			// build unique internal init name ($init2, $init3 and so on)
 			char name[256];
 			snprintf(name, sizeof(name), "%s%d", CLASS_INTERNAL_INIT_NAME, ninit++);
-
 			// add new internal init to class and call it from main $init function
 			// super_init should not be duplicated here because class hash table values are not freed (only
 			// keys are freed)
-			gravity_class_bind(c, name, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(super_init)));
-			uint16 index = gravity_function_cpool_add(NULL, internal_init_function, VALUE_FROM_CSTRING(GET_VM(), name));
-			ircode_patch_init((ircode_t *)internal_init_function->bytecode, index);
+			gravity_class_bind(c, name, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(super_init)));
+			uint16 index = gravity_function_cpool_add(NULL, internal_init_function, gravity_zstring_to_value(GET_VM(), name));
+			ircode_patch_init((ircode_t *)internal_init_function->U.Nf.bytecode, index);
 		}
 		super = super->superclass;
 	}
-
 	// 4 cases to handle:
 
 	// 1. internal_init and constuctor are not present, so nothing to do here
-	if((!internal_init_function) && (!constructor_function)) goto check_meta;
-
+	if((!internal_init_function) && (!constructor_function)) 
+		goto check_meta;
 //    // 2. internal init is present and constructor is not used
 //    if ((internal_init_function) && (!constructor_function)) {
 //        // add a RET0 command
@@ -850,42 +827,41 @@ static void process_constructor(gvisitor_t * self, gravity_class_t * c, gnode_t 
 //        ircode_add(code, RET0, 0, 0, 0);
 //
 //        // bind internal init as constructor
-//        gravity_class_bind(c, CLASS_CONSTRUCTOR_NAME, VALUE_FROM_OBJECT(internal_init_function));
-//        gravity_object_setenclosing((gravity_object_t *)internal_init_function, (gravity_object_t *)c);
+//        gravity_class_bind(c, CLASS_CONSTRUCTOR_NAME, GravityValue::from_object(internal_init_function));
+//        gravity_object_setenclosing((gravity_class_t *)internal_init_function, (gravity_class_t *)c);
 //        goto process_funcs;
 //    }
 
 	// 3. internal init is present so constructor is mandatory
 	if(internal_init_function) {
 		// convert ircode to bytecode for $init special function and add a RET0 command
-		ircode_t * code = (ircode_t *)internal_init_function->bytecode;
+		ircode_t * code = (ircode_t *)internal_init_function->U.Nf.bytecode;
 		if(!code) {
 			report_error(self, node, "Invalid code context."); return;
 		}
 		ircode_add(code, RET0, 0, 0, 0, LINE_NUMBER(node));
-
 		if(constructor_function == NULL) {
 			constructor_function = gravity_function_new(NULL, CLASS_CONSTRUCTOR_NAME, 1, 0, 2, ircode_create(1));
-			ircode_t * code2 = (ircode_t *)constructor_function->bytecode;
+			ircode_t * code2 = (ircode_t *)constructor_function->U.Nf.bytecode;
 			ircode_add_skip(code2, LINE_NUMBER(node));      // LOADK
 			ircode_add_skip(code2, LINE_NUMBER(node));      // LOAD
 			ircode_add_skip(code2, LINE_NUMBER(node));      // MOVE
 			ircode_add_skip(code2, LINE_NUMBER(node));      // CALL
-			gravity_class_bind(c, CLASS_CONSTRUCTOR_NAME, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(constructor_function)));
+			gravity_class_bind(c, CLASS_CONSTRUCTOR_NAME, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(constructor_function)));
 		}
 	}
 
 	// 4. constructor is present so internal init is optional
 	if(constructor_function) {
 		// add an implicit RET 0 (RET self) to the end of the constructor
-		ircode_t * code = (ircode_t *)constructor_function->bytecode;
+		ircode_t * code = (ircode_t *)constructor_function->U.Nf.bytecode;
 		if(!code) {
 			report_error(self, node, "Invalid code context."); return;
 		}
 		ircode_add(code, RET, 0, 0, 0, LINE_NUMBER(node));
 		if(internal_init_function) {
 			// if an internal init function is present ($init) then add a call to it as a first instruction
-			uint16 index = gravity_function_cpool_add(GET_VM(), constructor_function, VALUE_FROM_CSTRING(NULL, CLASS_INTERNAL_INIT_NAME));
+			uint16 index = gravity_function_cpool_add(GET_VM(), constructor_function, gravity_zstring_to_value(NULL, CLASS_INTERNAL_INIT_NAME));
 			// load constant
 			uint32 dest = ircode_register_push_temp(code);
 			ircode_set_index(0, code, LOADK, dest, index, 0);
@@ -900,24 +876,25 @@ static void process_constructor(gvisitor_t * self, gravity_class_t * c, gnode_t 
 			ircode_set_index(3, code, CALL, dest, dest, 1);
 		}
 	}
-
-	if(internal_init_function) gravity_optimizer(internal_init_function, false);
-	if(constructor_function) gravity_optimizer(constructor_function, false);
-
+	if(internal_init_function) 
+		gravity_optimizer(internal_init_function, false);
+	if(constructor_function) 
+		gravity_optimizer(constructor_function, false);
 check_meta:
 	// recursively process constructor but stop when object or class class is found, otherwise an infinite loop is
 	// triggered
-	if((c->objclass) && (c->objclass->isa) && (c->objclass->isa != c->objclass->objclass)) process_constructor(self, c->objclass, node);
+	if((c->objclass) && (c->objclass->isa) && (c->objclass->isa != c->objclass->objclass)) 
+		process_constructor(self, c->objclass, node);
 }
 
 static void process_getter_setter(gvisitor_t * self, gnode_var_t * p, gravity_class_t * c) 
 {
-	gnode_compound_stmt_t    * expr = (gnode_compound_stmt_t*)p->expr;
-	gnode_function_decl_t    * getter = (gnode_function_decl_t*)gnode_array_get(expr->stmts, 0);
-	gnode_function_decl_t    * setter = (gnode_function_decl_t*)gnode_array_get(expr->stmts, 1);
-	gnode_function_decl_t    * f1[2] = {getter, setter};
-	gravity_function_t        * f2[2] = {NULL, NULL};
-	for(uint16 i = 0; i<2; ++i) {
+	gnode_compound_stmt_t * expr = (gnode_compound_stmt_t*)p->expr;
+	gnode_function_decl_t * getter = (gnode_function_decl_t*)gnode_array_get(expr->stmts, 0);
+	gnode_function_decl_t * setter = (gnode_function_decl_t*)gnode_array_get(expr->stmts, 1);
+	gnode_function_decl_t * f1[2] = {getter, setter};
+	gravity_function_t * f2[2] = {NULL, NULL};
+	for(uint16 i = 0; i < 2; ++i) {
 		gnode_function_decl_t * node = f1[i];
 		if(!node) 
 			continue;
@@ -936,7 +913,7 @@ static void process_getter_setter(gvisitor_t * self, gnode_var_t * p, gravity_cl
 	// getter and setter NULL means default
 	// since getter and setter are methods and not simple functions, do not transfer to VM
 	gravity_function_t * f = gravity_function_new_special(NULL, NULL, GRAVITY_COMPUTED_INDEX, f2[0], f2[1]);
-	gravity_class_bind(c, p->identifier, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(f)));
+	gravity_class_bind(c, p->identifier, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(f)));
 }
 
 static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node) 
@@ -948,27 +925,24 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	bool is_class_ctx = context_object->IsClass();
 	// create new function object
 	uint16 nparams = (node->params) ? (uint16)node->params->getCount() : 0;
-	gravity_function_t * f = gravity_function_new((is_class_ctx) ? NULL : GET_VM(), node->identifier,
-		nparams, node->nlocals, 0, (void*)ircode_create(node->nlocals+nparams));
-
+	gravity_function_t * f = gravity_function_new((is_class_ctx) ? NULL : GET_VM(), node->identifier, nparams, node->nlocals, 0, (void*)ircode_create(node->nlocals+nparams));
 	// check if f is a special constructor function (init)
 	// name must be CLASS_CONSTRUCTOR_NAME and context_object must be a class
 	bool is_constructor = (sstreq(node->identifier, CLASS_CONSTRUCTOR_NAME) && is_class_ctx);
-
 	// loop at each param to save name and check for default values
 	// loop from 1 in order to skip implicit self argument
 	size_t len = gnode_array_size(node->params);
-	for(size_t i = 1; i<len; ++i) {
+	for(size_t i = 1; i < len; ++i) {
 		gnode_var_t * param = (gnode_var_t *)gnode_array_get(node->params, i);
-		GravityValue name = VALUE_FROM_CSTRING(NULL, param->identifier);
-		f->pname.insert(name);
+		GravityValue name = gravity_zstring_to_value(NULL, param->identifier);
+		f->U.Nf.pname.insert(name);
 		if(node->has_defaults) {
 			// LOOP for each node->params[i]->expr and convert literal to GravityValue
 			// if expr is NULL then compute value as UNDEFINED (and add each one to f->defaults preserving
 			// the index)
 			gnode_literal_expr_t * literal = (gnode_literal_expr_t *)param->expr;
 			GravityValue value = (literal) ? literal2value(literal) : GravityValue::from_undefined();
-			f->pvalue.insert(value);
+			f->U.Nf.pvalue.insert(value);
 		}
 	}
 
@@ -977,9 +951,9 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	if(is_constructor) {
 		// reserve first four instructions that could be later filled with a CALL to $init
 		// see process_constructor for more information
-		ircode_t * code = (ircode_t *)f->bytecode;
+		ircode_t * code = (ircode_t *)f->U.Nf.bytecode;
 		if(!code) {
-			report_error(self, (gnode_t *)node, "Invalid code context."); return;
+			report_error(self, node, "Invalid code context."); return;
 		}
 		ircode_add_skip(code, LINE_NUMBER(node));
 		ircode_add_skip(code, LINE_NUMBER(node));
@@ -987,7 +961,7 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 		ircode_add_skip(code, LINE_NUMBER(node));
 	}
 	// process inner block
-	ircode_t * code = (ircode_t *)f->bytecode;
+	ircode_t * code = (ircode_t *)f->U.Nf.bytecode;
 	if(node->block) {
 		gnode_array_each(node->block->stmts, {
 			// process node
@@ -1002,10 +976,10 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 	// remove current function
 	CONTEXT_POP();
 	// check for ircode errors
-	if(ircode_iserror((ircode_t *)f->bytecode))
-		report_error(self, (gnode_t *)node, "Maximum number of available registers used in function %s.", f->identifier);
+	if(ircode_iserror((ircode_t *)f->U.Nf.bytecode))
+		report_error(self, node, "Maximum number of available registers used in function %s.", f->identifier);
 	// store function in current context
-	store_declaration(self, (gravity_object_t *)f, (node->storage == TOK_KEY_STATIC), node);
+	store_declaration(self, (gravity_class_t *)f, (node->storage == TOK_KEY_STATIC), node);
 	// convert ircode to bytecode (postpone optimization of the constructor)
 	if(!is_constructor) 
 		gravity_optimizer(f, self->bflag);
@@ -1044,17 +1018,17 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			//    MOVE    0 1        ; move register 1 into register 0
 			//
 			// generate expression code (if it is not a local enum)
-			if(NODE_ISA(p->expr, NODE_ENUM_DECL)) 
+			if(gnode_t::IsA(p->expr, NODE_ENUM_DECL)) 
 				continue;
 			if(p->expr) 
 				gvisit(self, p->expr); // context is a function
 			gravity_function_t * context_function = (gravity_function_t *)context_object;
-			ircode_t * code = (ircode_t *)context_function->bytecode;
+			ircode_t * code = (ircode_t *)context_function->U.Nf.bytecode;
 			if(p->expr) {
 				// assign to variable result of the expression
 				uint32 reg = ircode_register_pop(code);
 				if(reg == REGISTER_ERROR) 
-					report_error(self, (gnode_t *)node, "Invalid var expression.");
+					report_error(self, node, "Invalid var expression.");
 				ircode_add(code, MOVE, p->index, reg, 0, LINE_NUMBER(node));
 				// Checkpoint added to support STRUCT
 				ircode_add_check(code);
@@ -1083,8 +1057,8 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			//    STOREG    0 0     ; move register 0 into hash(constant_pool(0))
 			//
 			gravity_function_t * context_function = (gravity_function_t *)context_object;
-			ircode_t * code = (ircode_t *)context_function->bytecode;
-			uint16 index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, p->identifier));
+			ircode_t * code = (ircode_t *)context_function->U.Nf.bytecode;
+			uint16 index = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, p->identifier));
 			if(p->expr) {
 				gvisit(self, p->expr); // context is a function
 			}
@@ -1093,7 +1067,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			}
 			uint32 reg = ircode_register_pop(code);
 			if(reg == REGISTER_ERROR) 
-				report_error(self, (gnode_t *)node, "Invalid var expression.");
+				report_error(self, node, "Invalid var expression.");
 			ircode_add(code, STOREG, reg, index, 0, LINE_NUMBER(node));
 			continue;
 		}
@@ -1114,7 +1088,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			if(node->access == TOK_KEY_PUBLIC) {
 				// since getter and setter are methods and not simple functions, do not transfer to VM
 				gravity_function_t * f = gravity_function_new_special(NULL, NULL, ivar_index, NULL, NULL); // getter and setter NULL means default
-				gravity_class_bind(context_class, p->identifier, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(f)));
+				gravity_class_bind(context_class, p->identifier, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(f)));
 			}
 			DEBUG_CODEGEN("Class: %s (static: %d) property: %s index: %d", context_class->identifier, is_static, p->identifier, ivar_index);
 			// it is a property (default initialized to null)
@@ -1140,17 +1114,17 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 				if(init_function == NULL) {
 					// no $init method found so create a new one
 					init_function = gravity_function_new(NULL, CLASS_INTERNAL_INIT_NAME, 1, 0, 0, ircode_create(1));
-					gravity_class_bind(context_class, CLASS_INTERNAL_INIT_NAME, VALUE_FROM_OBJECT(reinterpret_cast<gravity_object_t *>(init_function)));
+					gravity_class_bind(context_class, CLASS_INTERNAL_INIT_NAME, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(init_function)));
 				}
 				CONTEXT_PUSH(init_function);
-				ircode_t * code = (ircode_t *)init_function->bytecode;
+				ircode_t * code = (ircode_t *)init_function->U.Nf.bytecode;
 				gvisit(self, p->expr);
 				uint32 reg = ircode_register_pop(code);
-				if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid var expression.");
+				if(reg == REGISTER_ERROR) 
+					report_error(self, node, "Invalid var expression.");
 				ircode_add(code, STORE, reg, 0, p->index + MAX_REGISTERS, LINE_NUMBER(node));
 				CONTEXT_POP();
 			}
-
 			continue;
 		}
 
@@ -1161,9 +1135,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 
 static void visit_enum_decl(gvisitor_t * self, gnode_enum_decl_t * node) 
 {
-    #pragma unused(self,node)
 	DEBUG_CODEGEN("visit_enum_decl %s", node->identifier);
-
 	// enum is a map at runtime
 	// enum foo {a=1,b=2,...}
 	// is translated to
@@ -1179,16 +1151,17 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 	// create a new pair of classes (class itself and its meta)
 	gravity_class_t * c = gravity_class_new_pair(GET_VM(), node->identifier, NULL, node->nivar, node->nsvar);
 	// mark the class as a struct
-	c->is_struct = node->is_struct;
+	SETFLAG(c->Flags, GravityObjectBase::fIsStruct, node->is_struct); //c->is_struct = node->is_struct;
 	// check if class has a declared superclass
 	if(node->superclass) {
 		// node->superclass should be a gnode_class_decl_t at this point
-		if(NODE_ISA_CLASS(node->superclass)) {
+		if(gnode_t::IsA(node->superclass, NODE_CLASS_DECL)) {
 			node->super_extern = (((gnode_class_decl_t *)node->superclass)->storage == TOK_KEY_EXTERN);
 		}
 		else {
-			node->superclass = gnode2class((gnode_t *)node->superclass, &node->super_extern);
-			if(!node->superclass) report_error(self, (gnode_t *)node, "Unable to set superclass to non class object.");
+			node->superclass = gnode2class(node->superclass, &node->super_extern);
+			if(!node->superclass) 
+				report_error(self, node, "Unable to set superclass to non class object.");
 		}
 		gnode_class_decl_t * super = (gnode_class_decl_t *)node->superclass;
 		if(node->super_extern) {
@@ -1215,9 +1188,9 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 	// adjust declaration stack
 	CONTEXT_POP();
 	// fix constructor chain
-	process_constructor(self, c, (gnode_t *)node);
+	process_constructor(self, c, node);
 	// store class declaration in current context
-	store_declaration(self, (gravity_object_t *)c, (node->storage == TOK_KEY_STATIC), NULL);
+	store_declaration(self, (gravity_class_t *)c, (node->storage == TOK_KEY_STATIC), NULL);
 	// save runtime representation
 	// since this class could be a superclass of another class
 	// then save opaque gravity_class_t pointer to node->data
@@ -1226,7 +1199,6 @@ static void visit_class_decl(gvisitor_t * self, gnode_class_decl_t * node)
 
 static void visit_module_decl(gvisitor_t * self, gnode_module_decl_t * node) 
 {
-    #pragma unused(self, node)
 	DEBUG_CODEGEN("visit_module_decl %s", node->identifier);
 	// a module should be like a class with static entries
 	// instantiated with import
@@ -1272,10 +1244,10 @@ static void visit_binary_expr(gvisitor_t * self, gnode_binary_expr_t * node)
 	gvisit(self, node->right);
 	uint32 r3 = ircode_register_pop(code);
 	if(r3 == REGISTER_ERROR) 
-		report_error(self, (gnode_t *)node->right, "Invalid right expression.");
+		report_error(self, node->right, "Invalid right expression.");
 	uint32 r2 = ircode_register_pop(code);
 	if(r2 == REGISTER_ERROR) 
-		report_error(self, (gnode_t *)node->left, "Invalid left expression.");
+		report_error(self, node->left, "Invalid left expression.");
 	uint32 r1 = ircode_register_push_temp(code);
 	// a special instruction needs to be generated for a binary expression of type RANGE
 	if((node->op == TOK_OP_RANGE_INCLUDED) || (node->op == TOK_OP_RANGE_EXCLUDED)) {
@@ -1309,7 +1281,8 @@ static void visit_unary_expr(gvisitor_t * self, gnode_unary_expr_t * node) {
 		return;
 	}
 	uint32 r2 = ircode_register_pop(code);
-	if(r2 == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid unary expression.");
+	if(r2 == REGISTER_ERROR) 
+		report_error(self, node, "Invalid unary expression.");
 	uint32 r1 = ircode_register_push_temp(code);
 	opcode_t op = (node->op == TOK_OP_SUB) ? NEG : token2opcode(node->op);
 	ircode_add(code, op, r1, r2, 0, LINE_NUMBER(node));
@@ -1341,21 +1314,20 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 	// register that contains callable object
 	uint32 target_register = ircode_register_pop_context_protect(code, true);
 	if(target_register == REGISTER_ERROR) {
-		report_error(self, (gnode_t *)node->id, "Invalid postfix expression.");
+		report_error(self, node->id, "Invalid postfix expression.");
 		return;
 	}
-
 	// register where to store final result
 	uint32 dest_register = target_register;
-
 	// mandatory self register (initialized to 0 in case of implicit self or explicit super)
-	uint32_r self_list; marray_init(self_list);
+	GravityArray <uint32> self_list; 
+	// @ctr marray_init(self_list);
 	uint32 first_self_register = compute_self_register(self, code, node->id, target_register, node->list);
 	if(first_self_register == UINT32_MAX) return;
 	self_list.insert(first_self_register);
 
 	// process each subnode and set is_assignment flag
-	bool is_assignment = node->base.is_assignment;
+	bool is_assignment = node->IsAssignment;
 	size_t count = gnode_array_size(node->list);
 
 	for(size_t i = 0; i<count; ++i) {
@@ -1364,13 +1336,10 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 		// a NODE_SUBSCRIPT_EXPR            => id[]
 		// or ANY combination of the them!  => id.id2.id3()[24]().id5()
 		gnode_postfix_subexpr_t * subnode = (gnode_postfix_subexpr_t*)gnode_array_get(node->list, i);
-
 		// identify postfix type: NODE_CALL_EXPR, NODE_ACCESS_EXPR, NODE_SUBSCRIPT_EXPR
-		gnode_n tag = subnode->base.tag;
-
+		gnode_n tag = subnode->Tag;
 		// check assignment flag
 		bool is_real_assigment = (is_assignment && IS_LAST_LOOP(i, count));
-
 		if(tag == NODE_CALL_EXPR) {
 			// a CALL instruction needs to properly prepare stack before execution
 			// format is CALL A B C
@@ -1394,7 +1363,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 			ircode_add(code, MOVE, temp_target_register, target_register, 0, LINE_NUMBER(node));
 			uint32 treg = ircode_register_pop_context_protect(code, true);
 			if(treg == REGISTER_ERROR) {
-				report_error(self, (gnode_t *)subnode, "Unexpected register error.");
+				report_error(self, subnode, "Unexpected register error.");
 				return;
 			}
 
@@ -1404,22 +1373,22 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 			ircode_add(code, MOVE, temp_self_register, self_register, 0, LINE_NUMBER(node));
 			treg = ircode_register_pop_context_protect(code, true);
 			if(treg == REGISTER_ERROR) {
-				report_error(self, (gnode_t *)subnode, "Unexpected register error.");
+				report_error(self, subnode, "Unexpected register error.");
 				return;
 			}
 
 			// process each parameter (each must be temp+2 ... temp+n)
-			uint32_r args;
+			GravityArray <uint32> args;
 			size_t n = gnode_array_size(subnode->args);
 			for(size_t j = 0; j<n; ++j) {
 				// process each argument
-				gnode_t * arg = (gnode_t *)gnode_array_get(subnode->args, j);
+				gnode_t * arg = gnode_array_get(subnode->args, j);
 				ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 1, LINE_NUMBER(node));
 				gvisit(self, arg);
 				ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 0, LINE_NUMBER(node));
 				uint32 nreg = ircode_register_pop_context_protect(code, true);
 				if(nreg == REGISTER_ERROR) {
-					report_error(self, (gnode_t *)arg, "Invalid argument expression at index %d.", j+1);
+					report_error(self, arg, "Invalid argument expression at index %d.", j+1);
 					return;
 				}
 
@@ -1433,12 +1402,12 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 					ircode_register_clear(code, nreg);
 					nreg = ircode_register_pop_context_protect(code, true);
 					if(nreg == REGISTER_ERROR) {
-						report_error(self, (gnode_t *)arg, "Invalid argument expression");
+						report_error(self, arg, "Invalid argument expression");
 						return;
 					}
 				}
 				if(nreg != temp_target_register + j + 2) {
-					report_error(self, (gnode_t *)arg, "Invalid register computation in call expression.");
+					report_error(self, arg, "Invalid register computation in call expression.");
 					return;
 				}
 
@@ -1470,14 +1439,16 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 					// of code like: f(20)(30)
 					uint32 last_register = ircode_register_last(code);
 					if(last_register == REGISTER_ERROR) {
-						report_error(self, (gnode_t *)subnode, "Invalid call expression.");
+						report_error(self, subnode, "Invalid call expression.");
 						return;
 					}
-					if(dest_is_temp && last_register == dest_register) dest_is_temp = false;
+					if(dest_is_temp && last_register == dest_register) 
+						dest_is_temp = false;
 				}
-				if(dest_is_temp) ircode_register_push(code, dest_register);
+				if(dest_is_temp) 
+					ircode_register_push(code, dest_register);
 				if(!ircode_register_protect_outside_context(code, dest_register)) {
-					report_error(self, (gnode_t *)subnode, "Invalid register access.");
+					report_error(self, subnode, "Invalid register access.");
 					return;
 				}
 			}
@@ -1486,25 +1457,25 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 		else if(tag == NODE_ACCESS_EXPR) {
 			// process identifier node (semantic check assures that each node is an identifier)
 			gnode_identifier_expr_t * expr = (gnode_identifier_expr_t*)subnode->expr;
-			uint32 index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, expr->value));
+			uint32 index = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, expr->value));
 			uint32 index_register = ircode_register_push_temp(code);
 			ircode_add(code, LOADK, index_register, index, 0, LINE_NUMBER(expr));
 			uint32 temp = ircode_register_pop(code);
 			if(temp == REGISTER_ERROR) {
-				report_error(self, (gnode_t *)expr, "Invalid access expression.");
+				report_error(self, expr, "Invalid access expression.");
 				return;
 			}
 
 			// generate LOAD/STORE instruction
 			dest_register = (is_real_assigment) ? ircode_register_pop(code) : ircode_register_push_temp(code);
 			if(dest_register == REGISTER_ERROR) {
-				report_error(self, (gnode_t *)expr, "Invalid access expression.");
+				report_error(self, expr, "Invalid access expression.");
 				return;
 			}
 			if(is_super) {
 				gravity_class_t * p_class = context_get_class(self);
 				if(!p_class) {
-					report_error(self, (gnode_t *)node, "Unable to use super keyword in a non class context.");
+					report_error(self, node, "Unable to use super keyword in a non class context.");
 					return;
 				}
 				// check if class has a superclass not yet processed
@@ -1514,7 +1485,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 					p_class = p_class->superclass;
 					identifier = (p_class) ? p_class->identifier : GRAVITY_CLASS_OBJECT_NAME;
 				}
-				uint32 cpool_index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, identifier));
+				uint32 cpool_index = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, identifier));
 				ircode_add_constant(code, cpool_index, LINE_NUMBER(node));
 				uint32 temp_reg = ircode_register_pop(code);
 				ircode_add(code, LOADS, dest_register, temp_reg, index_register, LINE_NUMBER(node));
@@ -1527,7 +1498,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 				if(i+1<count) {
 					uint32 rtemp = ircode_register_pop_context_protect(code, true);
 					if(rtemp == REGISTER_ERROR) {
-						report_error(self, (gnode_t *)expr, "Unexpected register error.");
+						report_error(self, expr, "Unexpected register error.");
 						return;
 					}
 				}
@@ -1542,7 +1513,7 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 			// this was added in order to properly emit instructions for nested_class.gravity unit test
 			if(!IS_LAST_LOOP(i, count)) {
 				gnode_postfix_subexpr_t * nextnode = (gnode_postfix_subexpr_t*)gnode_array_get(node->list, i+1);
-				if(nextnode->base.tag != NODE_CALL_EXPR) 
+				if(nextnode->Tag != NODE_CALL_EXPR) 
 					self_list.insert(dest_register);
 			}
 		}
@@ -1553,21 +1524,21 @@ static void visit_postfix_expr(gvisitor_t * self, gnode_postfix_expr_t * node)
 			ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 0, LINE_NUMBER(node));
 			uint32 index = ircode_register_pop(code);
 			if(index == REGISTER_ERROR) {
-				report_error(self, (gnode_t *)subnode->expr, "Invalid subscript expression.");
+				report_error(self, subnode->expr, "Invalid subscript expression.");
 				return;
 			}
 
 			// generate LOADAT/STOREAT instruction
 			dest_register = (is_real_assigment) ? ircode_register_pop(code) : ircode_register_push_temp(code);
 			if(dest_register == REGISTER_ERROR) {
-				report_error(self, (gnode_t *)subnode->expr, "Invalid subscript expression.");
+				report_error(self, subnode->expr, "Invalid subscript expression.");
 				return;
 			}
 			ircode_add(code, (is_real_assigment) ? STOREAT : LOADAT, dest_register, target_register, index, LINE_NUMBER(node));
 			if((!is_real_assigment) && (i+1<count)) {
 				uint32 rtemp = ircode_register_pop_context_protect(code, true);
 				if(rtemp == REGISTER_ERROR) {
-					report_error(self, (gnode_t *)subnode->expr, "Unexpected register error.");
+					report_error(self, subnode->expr, "Unexpected register error.");
 					return;
 				}
 				self_list.insert(rtemp);
@@ -1602,14 +1573,15 @@ static void visit_file_expr(gvisitor_t * self, gnode_file_expr_t * node)
 	DECLARE_CODE();
 	CODEGEN_COUNT_REGISTERS(n1);
 	// check if the node is a left expression of an assignment
-	bool is_assignment = node->base.is_assignment;
+	bool is_assignment = node->IsAssignment;
 	size_t count = gnode_array_size(node->identifiers);
 	for(size_t i = 0; i<count; ++i) {
 		const char * identifier = gnode_array_get(node->identifiers, i);
-		uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, identifier));
+		uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, identifier));
 		if((is_assignment) && (IS_LAST_LOOP(i, count))) {
 			uint32 reg = ircode_register_pop(code);
-			if(reg == REGISTER_ERROR) report_error(self, (gnode_t *)node, "Invalid file expression.");
+			if(reg == REGISTER_ERROR) 
+				report_error(self, node, "Invalid file expression.");
 			ircode_add(code, STOREG, reg, kindex, 0, LINE_NUMBER(node));
 		}
 		else {
@@ -1662,14 +1634,14 @@ static void visit_literal_expr(gvisitor_t * self, gnode_literal_expr_t * node)
 			break;
 		case LITERAL_STRING_INTERPOLATED: {
 		    // codegen for string interpolation is like a list.join()
-		    gnode_list_expr_t * list = (gnode_list_expr_t*)gnode_list_expr_create(node->base.token, node->value.r, NULL, false, static_cast<gnode_t *>(node->base.decl));
-		    gvisit(self, (gnode_t *)list);
+		    gnode_list_expr_t * list = (gnode_list_expr_t*)gnode_list_expr_create(node->Token, node->value.r, NULL, false, static_cast<gnode_t *>(node->P_Decl));
+		    gvisit(self, list);
 		    // list
 		    uint32 listreg = ircode_register_last(code);
 		    if(listreg == REGISTER_ERROR) 
-				report_error(self, (gnode_t *)node, "Invalid string interpolated expression.");
+				report_error(self, node, "Invalid string interpolated expression.");
 		    // LOADK
-		    uint16 index = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, "join"));
+		    uint16 index = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, "join"));
 		    ircode_add_constant(code, index, LINE_NUMBER(node));
 		    uint32 temp1 = ircode_register_last(code);
 		    DEBUG_ASSERT(temp1 != REGISTER_ERROR, "Unexpected register error.");
@@ -1708,7 +1680,7 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 	DECLARE_CODE();
 	CODEGEN_COUNT_REGISTERS(n1);
 	// check if the node is a left expression of an assignment
-	bool is_assignment = node->base.is_assignment;
+	bool is_assignment = node->IsAssignment;
 	const char * identifier = node->value;   // identifier as c string
 	gnode_location_type type = node->location.type;       // location type
 	uint16 index = node->location.index;           // symbol index
@@ -1719,7 +1691,7 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 		    if(is_assignment) {
 			    uint32 reg = ircode_register_pop(code);
 			    if(reg == REGISTER_ERROR) 
-					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+					report_error(self, node, "Invalid identifier expression.");
 			    ircode_add(code, MOVE, index, reg, 0, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1729,11 +1701,11 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 
 		// module (global) variable
 		case LOCATION_GLOBAL: {
-		    uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, identifier));
+		    uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, identifier));
 		    if(is_assignment) {
 			    uint32 reg = ircode_register_pop(code);
 			    if(reg == REGISTER_ERROR) 
-					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+					report_error(self, node, "Invalid identifier expression.");
 			    ircode_add(code, STOREG, reg, kindex, 0, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1747,7 +1719,7 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 		    if(is_assignment) {
 			    uint32 reg = ircode_register_pop(code);
 			    if(reg == REGISTER_ERROR) 
-					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+					report_error(self, node, "Invalid identifier expression.");
 			    ircode_add(code, STOREU, reg, upvalue->selfindex, 0, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1784,7 +1756,7 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 			    // not an ivar so it could be another class declaration like a func, a class or an enum
 			    // use lookup in order to retrieve it (assignment is handled here so you can change a
 			    // first class citizen at runtime too)
-			    uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, VALUE_FROM_CSTRING(NULL, identifier));
+			    uint16 kindex = gravity_function_cpool_add(GET_VM(), context_function, gravity_zstring_to_value(NULL, identifier));
 			    index_register = ircode_register_push_temp(code);
 			    ircode_add(code, LOADK, index_register, kindex, 0, LINE_NUMBER(node));
 			    uint32 temp = ircode_register_pop(code);
@@ -1795,7 +1767,7 @@ static void visit_identifier_expr(gvisitor_t * self, gnode_identifier_expr_t * n
 			    // should be prohibited by semantic to store something into a non ivar slot?
 			    dest = ircode_register_pop(code); // consume temp register
 			    if(dest == REGISTER_ERROR) 
-					report_error(self, (gnode_t *)node, "Invalid identifier expression.");
+					report_error(self, node, "Invalid identifier expression.");
 			    ircode_add(code, STORE, dest, target, index_register, LINE_NUMBER(node));
 		    }
 		    else {
@@ -1814,20 +1786,20 @@ static void visit_keyword_expr(gvisitor_t * self, gnode_keyword_expr_t * node)
 	DEBUG_CODEGEN("visit_keyword_expr %s", token_name(node->base.token.type));
 	DECLARE_CODE();
 	CODEGEN_COUNT_REGISTERS(n1);
-	gtoken_t type = NODE_TOKEN_TYPE(node);
+	gtoken_t type = node->GetTokenType();
 	switch(type) {
 		case TOK_KEY_CURRFUNC: ircode_add_constant(code, CPOOL_VALUE_FUNC, LINE_NUMBER(node)); break;
 		case TOK_KEY_NULL: ircode_add_constant(code, CPOOL_VALUE_NULL, LINE_NUMBER(node)); break;
 		case TOK_KEY_SUPER: ircode_register_push(code, 0); break;
 		case TOK_KEY_CURRARGS:
 		    // compiler can know in advance if arguments special array is used
-		    context_function->useargs = true;
+		    context_function->U.Nf.useargs = true;
 		    ircode_add_constant(code, CPOOL_VALUE_ARGUMENTS, LINE_NUMBER(node));
 		    break;
 		case TOK_KEY_UNDEFINED: ircode_add_constant(code, CPOOL_VALUE_UNDEFINED, LINE_NUMBER(node)); break;
 		case TOK_KEY_TRUE: ircode_add_constant(code, CPOOL_VALUE_TRUE, LINE_NUMBER(node)); break;
 		case TOK_KEY_FALSE: ircode_add_constant(code, CPOOL_VALUE_FALSE, LINE_NUMBER(node)); break;
-		default: report_error(self, (gnode_t *)node, "Invalid keyword expression."); break;
+		default: report_error(self, node, "Invalid keyword expression."); break;
 	}
 	CODEGEN_COUNT_REGISTERS(n2);
 	CODEGEN_ASSERT_REGISTERS(n1, n2, 1);
@@ -1875,20 +1847,19 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 			gvisit(self, e);
 			uint32 nreg = ircode_register_pop_context_protect(code, true);
 			if((nreg == REGISTER_ERROR) || ((nreg <= dest) && (ircode_register_istemp(code, nreg)))) {
-				report_error(self, (gnode_t *)e, "Invalid list expression.");
+				report_error(self, e, "Invalid list expression.");
 				continue;
 			}
-
 			if(nreg != dest + i) {
 				uint32 temp_register = ircode_register_push_temp(code);
 				ircode_add(code, MOVE, temp_register, nreg, 0, LINE_NUMBER(node));
 				ircode_register_clear(code, nreg);
 				uint32 temp = ircode_register_pop_context_protect(code, true);
 				if(temp == REGISTER_ERROR) {
-					report_error(self, (gnode_t *)e, "Unexpected register error."); continue;
+					report_error(self, e, "Unexpected register error."); continue;
 				}
 				if(temp_register != dest + i) {
-					report_error(self, (gnode_t *)e, "Unexpected register computation."); continue;
+					report_error(self, e, "Unexpected register computation."); continue;
 				}
 			}
 
@@ -1899,20 +1870,19 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 				ircode_pragma(code, PRAGMA_MOVE_OPTIMIZATION, 0, LINE_NUMBER(node));
 				nreg = ircode_register_pop_context_protect(code, true);
 				if((nreg == REGISTER_ERROR) || ((nreg <= dest) && (ircode_register_istemp(code, nreg)))) {
-					report_error(self, (gnode_t *)e, "Invalid map expression.");
+					report_error(self, e, "Invalid map expression.");
 					continue;
 				}
-
 				if(nreg != dest + i + 1) {
 					uint32 temp_register = ircode_register_push_temp(code);
 					ircode_add(code, MOVE, temp_register, nreg, 0, LINE_NUMBER(node));
 					ircode_register_clear(code, nreg);
 					uint32 temp = ircode_register_pop_context_protect(code, true);
 					if(temp == REGISTER_ERROR) {
-						report_error(self, (gnode_t *)e, "Unexpected register error."); continue;
+						report_error(self, e, "Unexpected register error."); continue;
 					}
 					if(temp_register != dest + i + 1) {
-						report_error(self, (gnode_t *)e, "Unexpected register computation."); continue;
+						report_error(self, e, "Unexpected register computation."); continue;
 					}
 				}
 			}
@@ -1943,7 +1913,7 @@ gravity_function_t * gravity_codegen(gnode_t * node, gravity_delegate_t * delega
 	// @ctr marray_init(data.superfix);
 	ircode_t * code = ircode_create(0);
 	gravity_function_t * f = gravity_function_new(vm, INITMODULE_NAME, 0, 0, 0, code);
-	data.context.insert((gravity_object_t *)f);
+	data.context.insert((gravity_class_t *)f);
 	gvisitor_t visitor(&data, delegate);
 	visitor.bflag = add_debug;
 	visitor.visit_list_stmt = visit_list_stmt;
@@ -2020,7 +1990,7 @@ gravity_function_t * gravity_codegen(gnode_t * node, gravity_delegate_t * delega
 	// in case of codegen errors explicity free code and return NULL
 	if(visitor.nerr != 0) {
 		ircode_free(code); 
-		f->bytecode = NULL;
+		f->U.Nf.bytecode = NULL;
 	}
 	return (visitor.nerr == 0) ? f : NULL;
 }

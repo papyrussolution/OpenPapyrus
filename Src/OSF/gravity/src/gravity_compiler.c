@@ -8,15 +8,18 @@
 #pragma hdrstop
 
 struct gravity_compiler_t {
+	gravity_compiler_t() : parser(0), P_Delegate(0), storage(0), vm(0), ast(0), objects(0)
+	{
+	}
 	gravity_parser_t   * parser;
 	gravity_delegate_t * P_Delegate;
-	cstring_r  * storage;
+	GravityArray <const char *> * storage;
 	gravity_vm * vm;
 	gnode_t    * ast;
-	void_r     * objects;
+	GravityArray <void *> * objects;
 };
 
-static void internal_vm_transfer(gravity_vm * vm, gravity_object_t * obj) 
+static void internal_vm_transfer(gravity_vm * vm, gravity_class_t * obj) 
 {
 	gravity_compiler_t * compiler = static_cast<gravity_compiler_t *>(gravity_vm_getdata(vm));
 	compiler->objects->insert(obj);
@@ -24,31 +27,28 @@ static void internal_vm_transfer(gravity_vm * vm, gravity_object_t * obj)
 
 static void internal_free_class(gravity_hash_t * hashtable, GravityValue key, GravityValue value, void * data) 
 {
-    //#pragma unused (hashtable, data)
 	// sanity checks
-	if(!value.IsFunction()) 
-		return;
-	if(!key.IsString()) 
-		return;
-	// check for special function
-	gravity_function_t * f = VALUE_AS_FUNCTION(value);
-	if(f->tag == EXEC_TYPE_SPECIAL) {
-		gravity_function_free(NULL, (gravity_function_t *)f->special[0]);
-		gravity_function_free(NULL, (gravity_function_t *)f->special[1]);
+	if(value.IsFunction() && key.IsString()) {
+		// check for special function
+		gravity_function_t * f = VALUE_AS_FUNCTION(value);
+		if(f->tag == EXEC_TYPE_SPECIAL) {
+			gravity_function_free(NULL, static_cast<gravity_function_t *>(f->U.Sf.special[0]));
+			gravity_function_free(NULL, static_cast<gravity_function_t *>(f->U.Sf.special[1]));
+		}
+		// a super special init constructor is a string that begins with $init AND it is longer than strlen($init)
+		gravity_string_t * s = static_cast<gravity_string_t *>(key);
+		bool is_super_function = ((s->len > 5) && (string_casencmp(s->cptr(), CLASS_INTERNAL_INIT_NAME, 5) == 0));
+		if(!is_super_function) 
+			gravity_function_free(NULL, VALUE_AS_FUNCTION(value));
 	}
-	// a super special init constructor is a string that begins with $init AND it is longer than strlen($init)
-	gravity_string_t * s = static_cast<gravity_string_t *>(key);
-	bool is_super_function = ((s->len > 5) && (string_casencmp(s->s, CLASS_INTERNAL_INIT_NAME, 5) == 0));
-	if(!is_super_function) 
-		gravity_function_free(NULL, VALUE_AS_FUNCTION(value));
 }
 
 static void internal_vm_cleanup(gravity_vm * vm) 
 {
 	gravity_compiler_t * compiler = static_cast<gravity_compiler_t *>(gravity_vm_getdata(vm));
 	size_t count = compiler->objects->getCount();
-	for(size_t i = 0; i<count; ++i) {
-		gravity_object_t * obj = static_cast<gravity_object_t *>(compiler->objects->pop());
+	for(size_t i = 0; i < count; ++i) {
+		gravity_class_t * obj = static_cast<gravity_class_t *>(compiler->objects->pop());
 		if(obj->IsClass()) {
 			gravity_class_t * c = (gravity_class_t *)obj;
 			gravity_hash_iterate(c->htable, internal_free_class, NULL);
@@ -61,9 +61,9 @@ static void internal_vm_cleanup(gravity_vm * vm)
 
 gravity_compiler_t * gravity_compiler_create(gravity_delegate_t * delegate) 
 {
-	gravity_compiler_t * compiler = static_cast<gravity_compiler_t *>(mem_alloc(NULL, sizeof(gravity_compiler_t)));
+	gravity_compiler_t * compiler = new gravity_compiler_t;
 	if(compiler) {
-		compiler->ast = NULL;
+		//compiler->ast = NULL;
 		compiler->objects = void_array_create();
 		compiler->P_Delegate = delegate;
 	}
@@ -102,7 +102,8 @@ void gravity_compiler_free(gravity_compiler_t * pCompiler)
 {
 	if(pCompiler) {
 		gravity_compiler_reset(pCompiler, true);
-		mem_free(pCompiler);
+		//mem_free(pCompiler);
+		delete pCompiler;
 	}
 }
 
@@ -118,7 +119,7 @@ void gravity_compiler_transfer(gravity_compiler_t * compiler, gravity_vm * vm)
 		gravity_gc_setenabled(vm, false);
 		uint count = compiler->objects->getCount();
 		for(uint i = 0; i < count; ++i) {
-			gravity_object_t * obj = static_cast<gravity_object_t *>(compiler->objects->pop());
+			gravity_class_t * obj = static_cast<gravity_class_t *>(compiler->objects->pop());
 			gravity_vm_transfer(vm, obj);
 			if(!obj->IsClosure()) 
 				continue;
@@ -182,7 +183,6 @@ abort_compilation:
 
 GravityJson * gravity_compiler_serialize(gravity_compiler_t * compiler, gravity_closure_t * closure) 
 {
-	#pragma unused(compiler)
 	if(!closure) 
 		return NULL;
 	GravityJson * json = json_new();

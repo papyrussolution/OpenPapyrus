@@ -1,5 +1,5 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -566,7 +566,7 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 		for(File.Seek(0); ok < 0 && File.ReadLine(line_buf);) {
 			int    r = IsSection(line_buf, sect, 0);
 			if(r > 0)
-				this_sect = (r == 2) ? 1 : 0;
+				this_sect = BIN(r == 2);
 			else if(this_sect || isempty(pSect)) {
 				Scan.Set(line_buf.Chomp().Strip(), 0);
 				Scan.Skip();
@@ -708,7 +708,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 					THROW(out_file.WriteLine(temp_buf.Z().CatEq(param, pVal).CR().CR()));
 					param_added = 1;
 				}
-				this_sect = (r == 2) ? 1 : 0;
+				this_sect = BIN(r == 2);
 				if(this_sect) {
 					is_sect_founded = 1;
 					if(!pParam)

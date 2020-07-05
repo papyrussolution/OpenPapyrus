@@ -821,7 +821,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOption
 /*virtual*/TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasBrowser;
-	rBlk.ClsName = SUcSwitch(BrowserWindow::WndClsName); // @unicodeproblem
+	rBlk.ClsName = SUcSwitch(BrowserWindow::WndClsName);
 	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
@@ -2452,7 +2452,7 @@ static int IsBrowserWindow(HWND hWnd)
 	SString cls_name;
 	TView::SGetWindowClassName(hWnd, cls_name);
 	return BIN(cls_name == SUcSwitch(BrowserWindow::WndClsName) || cls_name == STimeChunkBrowser::WndClsName ||
-		cls_name == /*STextBrowser::WndClsName*/"STextBrowser" || cls_name == CLASSNAME_DESKTOPWINDOW); // @unicodeproblem
+		cls_name == /*STextBrowser::WndClsName*/"STextBrowser" || cls_name == CLASSNAME_DESKTOPWINDOW);
 }
 
 HWND FASTCALL GetNextBrowser(HWND hw, int reverse)

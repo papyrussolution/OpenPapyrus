@@ -359,8 +359,7 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 	return 1;
 }
 
-//static
-SString & PPQuot::PutValToStr(double val, long flags, SString & rBuf)
+/*static*/SString & PPQuot::PutValToStr(double val, long flags, SString & rBuf)
 {
 	rBuf.Z();
 	if(flags & PPQuot::fZero)
@@ -388,8 +387,7 @@ SString & PPQuot::PutValToStr(double val, long flags, SString & rBuf)
 	return rBuf;
 }
 
-//static
-SString & PPQuot::PutValToStr(double val, long flags, const DateRange & rPeriod, double minQtty, SString & rBuf)
+/*static*/SString & PPQuot::PutValToStr(double val, long flags, const DateRange & rPeriod, double minQtty, SString & rBuf)
 {
 	PPQuot::PutValToStr(val, flags, rBuf);
 	if(rBuf.NotEmpty() && (!rPeriod.IsZero() || minQtty > 0.0)) {
@@ -1408,8 +1406,7 @@ int SLAPI QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWrit
 	return ok;
 }
 
-//static
-int FASTCALL QuotCacheBase::Helper_CallDirtyMatrix(PPIDArray * pMtxGoodsList)
+/*static*/int FASTCALL QuotCacheBase::Helper_CallDirtyMatrix(PPIDArray * pMtxGoodsList)
 {
 	int    ok = -1;
 	if(pMtxGoodsList) {
@@ -1798,8 +1795,7 @@ IMPL_CMPFUNC(GoodsQuotCacheEntry_UseCountDesc, i1, i2)
 	{ return cmp_long(static_cast<const QuotCache::CacheEntry *>(i2)->UseCount, static_cast<const QuotCache::CacheEntry *>(i1)->UseCount); }
 
 // typedef int (*PPAdviseProc)(int kind, const PPNotifyEvent * pEv, long procExtVal);
-//static
-int QuotCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int QuotCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {
@@ -2142,8 +2138,7 @@ int SLAPI QuotationCore::DirtyMatrix(const PPIDArray * pGoodsList, PPIDArray * p
 //
 const LDATE QIISuppDate = {0x07CB0C1F}; // 31/12/1995
 
-//static
-int FASTCALL Quotation2Core::PeriodToPeriodIdx(const DateRange * pPeriod, int32 * pPeriodIdx)
+/*static*/int FASTCALL Quotation2Core::PeriodToPeriodIdx(const DateRange * pPeriod, int32 * pPeriodIdx)
 {
 	int    ok = 0;
 	int32  idx = 0;
@@ -2170,8 +2165,7 @@ int FASTCALL Quotation2Core::PeriodToPeriodIdx(const DateRange * pPeriod, int32 
 	return ok;
 }
 
-//static
-int FASTCALL Quotation2Core::PeriodIdxToPeriod(int32 periodIdx, DateRange * pPeriod)
+/*static*/int FASTCALL Quotation2Core::PeriodIdxToPeriod(int32 periodIdx, DateRange * pPeriod)
 {
 	int    ok = 0;
 	DateRange period;
@@ -3582,8 +3576,7 @@ IMPL_CMPFUNC(GoodsQuot2CacheEntry_UseCountDesc, i1, i2)
 	return cmp_long(static_cast<const Quot2Cache::CacheEntry *>(i2)->UseCount, static_cast<const Quot2Cache::CacheEntry *>(i1)->UseCount);
 }
 
-//static
-int Quot2Cache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
+/*static*/int Quot2Cache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evDirtyCacheBySysJ) {

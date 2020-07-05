@@ -936,31 +936,25 @@ void SLAPI TCanvas2::SetBkTranparent()
 
 int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 {
-	int    len;
 	char   zero[16];
-	if(pText)
-		len = sstrlen(pText);
-	else {
-		len = 0;
-		memzero(zero, sizeof(zero));
+	const  int len = sstrlen(pText);
+	if(!len) {
+		PTR32(zero)[0] = 0;
 		pText = zero;
 	}
 	RECT   rect = rRect;
-	return ::DrawText(static_cast<HDC>(S.HCtx), SUcSwitch(pText), len, &rect, options) ? 1 : 0; // @unicodeproblem
+	return BIN(::DrawText(static_cast<HDC>(S.HCtx), SUcSwitch(pText), len, &rect, options));
 }
 
 int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
 {
-	int    len;
 	char   zero[16];
-	if(pText)
-		len = sstrlen(pText);
-	else {
-		len = 0;
-		memzero(zero, sizeof(zero));
+	const  int len = sstrlen(pText);
+	if(!len) {
+		PTR32(zero)[0] = 0;
 		pText = zero;
 	}
-	return ::TextOut(static_cast<HDC>(S.HCtx), p.x, p.y, SUcSwitch(pText), len) ? 1 : 0; // @unicodeproblem
+	return BIN(::TextOut(static_cast<HDC>(S.HCtx), p.x, p.y, SUcSwitch(pText), len));
 }
 
 TCanvas2::DrawingProcFrame::DrawingProcFrame(TCanvas2 * pCanv, const SDrawFigure * pFig) : P_Canv(pCanv), P_Fig(pFig), MtxAppl(0)
@@ -3588,7 +3582,7 @@ int FASTCALL _SetPaintObjInnerHandle(SPaintObj::Base * pBase, SDrawSystem sys, /
 	if(pBase) {
 		pBase->Handle = h;
 		pBase->Sys = sys;
-		return h ? 1 : 0;
+		return BIN(h);
 	}
 	else
 		return 0;
