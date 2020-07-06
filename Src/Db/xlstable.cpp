@@ -191,12 +191,17 @@ int ExcelDbFile::Scan()
 		while(!stop) {
 			temp_buf.Z();
 			if(P_Sheet->GetValue(row, col, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-				max_row = is_vert ? row : 0;
-				max_col = is_vert ? 0 : col;
+				// @v10.8.0 max_row = is_vert ? row : 0;
+				// @v10.8.0 max_col = is_vert ? 0 : col;
+				max_row = is_vert ? 0 : row; // @v10.8.0 
+				max_col = is_vert ? col : 0; // @v10.8.0 
 			}
-			row = is_vert ? row + 1 : row;
-			col = is_vert ? col : col + 1;
-			stop = is_vert ? BIN(row >= MAX_COLUMN) : BIN(col >= MAX_COLUMN);
+			// @v10.8.1 row = is_vert ? row + 1 : row;
+			// @v10.8.1 col = is_vert ? col : col + 1;
+			row = is_vert ? row : row + 1; // @v10.8.1 
+			col = is_vert ? col + 1 : col; // @v10.8.1 
+			// @v10.8.1 stop = is_vert ? BIN(row >= MAX_COLUMN) : BIN(col >= MAX_COLUMN);
+			stop = is_vert ? BIN(col >= MAX_COLUMN) : BIN(row >= MAX_COLUMN); // @v10.8.1 
 			if(is_vert && stop == 0)
 				stop = BIN(temp_buf.Empty());
 		}
@@ -382,7 +387,6 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 			}
 		}
 		else {
-			//SString fn;
 			cur_rec++; // Пропустим наименования столбцов/строк
 			for(uint p = 0, fld_pos = 0; FldNames.get(&p, temp_buf) > 0; fld_pos++) {
 				if(rRec.GetFieldByName(temp_buf, &fld) > 0) {

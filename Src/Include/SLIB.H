@@ -4005,6 +4005,8 @@ private:
 	size_t Size;  // Размер распределенного буфера
 	char * P_Buf; // Буфер, в котором хранится строка. @# if(P_Buf) then P_Buf[Len] == 0
 };
+
+int cdecl slprintf(SString & rBuf, const char * pFormat, ...);
 //
 //
 //
@@ -14690,7 +14692,7 @@ public:
 	int    ReadBotanTestSequence(int formatVer, const char * pFileName, const char * pZone);
 private:
 	const  Item EmptyItem;
-	TSVector <Item> L; // @v9.8.4 TSArray-->TSVector
+	TSVector <Item> L;
 	StringSet HexPool;
 };
 //

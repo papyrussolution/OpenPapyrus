@@ -1514,15 +1514,15 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 void CPosProcessor::CalcTotal(double * pTotal, double * pDiscount) const
 {
 	double total = 0.0, discount = 0.0;
-	CCheckItem * p_item;
-	for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
-		if(p_item->Flags & cifGift) {
-			total = R2(total - p_item->Quantity * p_item->Discount);
-			discount = R2(discount + p_item->Quantity * p_item->Discount);
+	SForEachVectorItem(P, i) {
+		const CCheckItem & r_item = P.at(i);
+		if(r_item.Flags & cifGift) {
+			total = R2(total - r_item.Quantity * r_item.Discount);
+			discount = R2(discount + r_item.Quantity * r_item.Discount);
 		}
 		else {
-			total    = R2(total + p_item->GetAmount()); // @R2
-			discount = R2(discount + p_item->Quantity * p_item->Discount); // @R2
+			total    = R2(total + r_item.GetAmount()); // @R2
+			discount = R2(discount + r_item.Quantity * r_item.Discount); // @R2
 		}
 	}
 	ASSIGN_PTR(pTotal, R2(total));
@@ -8605,7 +8605,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 										ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
 								}
 								// @v10.8.0 {
-								else
+								else if(CnSpeciality != PPCashNode::spApteka)
 									ok = -1;
 								// } @v10.8.0 
 								if(imr != -1000)
@@ -8797,15 +8797,10 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 					StrAssocArray goods_list;
 					if(temp_buf.Len() >= INSTVSRCH_THRESHOLD && temp_buf.C(0) != '!')
 						temp_buf.Insert(0, "!");
-					/* @v9.6.1
-					if(GObj.P_Tbl->GetListBySubstring(temp_buf, &goods_list, -1, 1))
-						P_EGSDlg->setSelectionByGoodsList(&goods_list);
-					*/
-					// @v9.6.1 {
 					{
 						GoodsFilt gf;
 						gf.PutExtssData(GoodsFilt::extssNameText, temp_buf);
-						if(temp_buf.Empty() || mode != sgmAllByName) { // @v9.6.3
+						if(temp_buf.Empty() || mode != sgmAllByName) {
 							if(!(CnFlags & CASHF_SELALLGOODS) && (temp_buf.NotEmpty() && mode != sgmAllByName)) {
 								gf.Flags |= GoodsFilt::fActualOnly;
 								gf.LocList.Add(CnLocID);
@@ -8815,7 +8810,6 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 						if(goods_list.getCount())
 							P_EGSDlg->setSelectionByGoodsList(&goods_list);
 					}
-					// } @v9.6.1
 				}
 				ClearInput(0);
 			}
@@ -8865,7 +8859,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 				}
 			}
 			// @v10.8.0 {
-			if(pCurItem && !isempty(pCurItem->ChZnMark)) {
+			if(pCurItem && !isempty(pCurItem->ChZnMark) && CnSpeciality != PPCashNode::spApteka) {
 				if(rQtty != 1.0) {
 					if(adjustQtty)
 						rQtty = 1.0;
@@ -11547,15 +11541,15 @@ int CPosProcessor::MakeDbgPrintLogList(int event, const SString & rFmtBuf, const
 {
 	int    ok = -1;
 	if((CConfig.Flags & CCFLG_DEBUG) && oneof3(event, 0, 1, 2)) {
-		CCheckItem * p_item = 0;
 		SString msg_buf;
-		for(uint j = 0; P.enumItems(&j, (void **)&p_item);) {
+		SForEachVectorItem(P, j) {
+			const CCheckItem & r_item = P.at(j);
 			if(event == 0)
-				PPFormat(rFmtBuf, &msg_buf, rChkBuf.cptr(), rPrnName.cptr(), p_item->GoodsID, p_item->Quantity);
+				PPFormat(rFmtBuf, &msg_buf, rChkBuf.cptr(), rPrnName.cptr(), r_item.GoodsID, r_item.Quantity);
 			else if(event == 1)
-				PPFormat(rFmtBuf, &msg_buf, rChkBuf.cptr(), p_item->GoodsID, p_item->Quantity);
+				PPFormat(rFmtBuf, &msg_buf, rChkBuf.cptr(), r_item.GoodsID, r_item.Quantity);
 			else if(event == 2)
-				PPFormat(rFmtBuf, &msg_buf, rChkBuf.cptr(), rPrnName.cptr(), p_item->GoodsID, p_item->Quantity);
+				PPFormat(rFmtBuf, &msg_buf, rChkBuf.cptr(), rPrnName.cptr(), r_item.GoodsID, r_item.Quantity);
 			rList.insert(newStr(msg_buf));
 			ok = 1;
 		}

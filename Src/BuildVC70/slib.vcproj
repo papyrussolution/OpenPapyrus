@@ -1000,6 +1000,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\SLib\slprintf.c">
+			</File>
+			<File
 				RelativePath="..\SLib\slsess.cpp">
 			</File>
 			<File

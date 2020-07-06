@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 // Test Suits
 //
@@ -521,7 +521,7 @@ int STestCase::TabEnum::Next(void * pData)
 	if(!(State & stError)) {
 		if(RowIdx < Tab.GetCount()) {
 			if(pData) {
-				STab::Row * p_row = (STab::Row *)pData;
+				STab::Row * p_row = static_cast<STab::Row *>(pData);
 				assert(p_row->IsConsistent());
 				if(p_row->IsConsistent())
 					ok = Tab.GetRow(RowIdx++, *p_row);
@@ -743,6 +743,12 @@ const STestSuite::Entry * STestSuite::GetCurEntry() const
 int STestSuite::Run(const char * pIniFileName)
 {
 	int    ok = 1;
+	// @v10.8.1 @linkage {
+	{
+		SString temp_sbuf;
+		slprintf(temp_sbuf, "% d", 4232);
+	}
+	// }
 	if(LoadTestList(pIniFileName)) {
 		const HANDLE thr_id = GetCurrentThread();
 		if(LogFileName.NotEmpty() && !fileExists(LogFileName))

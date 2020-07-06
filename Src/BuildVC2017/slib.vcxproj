@@ -1594,6 +1594,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\SLib\slprintf.c" />
     <ClCompile Include="..\SLib\slsess.cpp" />
     <ClCompile Include="..\SLib\sltest.cpp" />
     <ClCompile Include="..\SLib\slutil.cpp" />

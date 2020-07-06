@@ -36,8 +36,8 @@
 // 2^63 < binary_mantissa < 2^64, mantissa has been rounded to nearest integer.
 // Covers entire range of IEEE 754 double, including denormals, plus small spare.
 struct power_of_ten {
-	int32  decimal_exponent;
-	int32  binary_exponent;
+	int16  decimal_exponent; // @v10.8.1 int32-->int16
+	int16  binary_exponent;  // @v10.8.1 int32-->int16
 	uint64 binary_mantissa;
 };
 
@@ -369,8 +369,8 @@ static const struct power_of_ten powers_of_ten_[] = {
 // Covers entire range of IEEE 754 double, including denormals, plus small spare.
 //
 struct power_of_two {
-	int32  binary_exponent;
-	int32  decimal_exponent;
+	int16  binary_exponent;  // @v10.8.1 int32-->int16
+	int16  decimal_exponent; // @v10.8.1 int32-->int16
 	uint64 decimal_mantissa;
 };
 
@@ -1967,7 +1967,7 @@ static int FASTCALL format_pad(char ** outbuf, int * outbuf_size, int n)
 		return 0;
 	else {
 		*outbuf_size -= n;
-		char*  p = *outbuf;
+		char * p = *outbuf;
 		while(n-- > 0)
 			*p++ = ' ';
 		*outbuf = p;
@@ -2022,7 +2022,7 @@ static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_upper
 	else
 		*buffer++ = '+';
 	int i = 0;
-	while(( exponent > 0 )&&( i < 12 )) {
+	while(exponent > 0 && i < 12) {
 		tmp_buffer[i++] = ((char)( (exponent % 10) + '0' ));
 		exponent /= 10;
 	}
@@ -2041,16 +2041,14 @@ static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_upper
 //   On entry, this variable is initialized by caller to maximum allowed size.
 //   On exit, this variable contains size of unused portion of the output buffer.
 // @param  value             Input value (IEEE 754 floating-point double precision).
-// @param  format_char       Format char. Either 'e', or 'f', or 'g'. Refer to printf(3) manual for details.
-// @param  format_flags      Any combination of the above (DCONVSTR_FLAG_*).
-// @param  format_width      Format width. Used only if DCONVSTR_FLAG_HAVE_WIDTH bit is set in flags.
-//   Refer to printf(3) manual for details.
-// @param  format_precision  Format precision. Set it to DCONVSTR_DEFAULT_PRECISION if unsure.
-//   Refer to printf(3) manual for details.
+// @param  formatChar       Format char. Either 'e', or 'f', or 'g'. Refer to printf(3) manual for details.
+// @param  formatFlags      Any combination of the above (DCONVSTR_FLAG_*).
+// @param  formatWidth      Format width. Used only if DCONVSTR_FLAG_HAVE_WIDTH bit is set in flags. Refer to printf(3) manual for details.
+// @param  formatPrecision  Format precision. Set it to DCONVSTR_DEFAULT_PRECISION if unsure. Refer to printf(3) manual for details.
 // @returns  1  if value was successfully converted to string.
 //   0  if there is not enough room in buffer or internal error happened during conversion.
 // 
-int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int format_char, uint format_flags, int format_width, int format_precision)
+int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
 {
 	// 1. Unpack double precision value
 	int    is_nan      = 0;
@@ -2061,11 +2059,11 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 	unpack_ieee754_double(&value, &is_nan, &is_negative, &mantissa, &exponent, &is_infinity);
 	// 2. Handle special cases
 	if(is_nan)
-		return format_copystr(outbuf, outbuf_size, (format_flags & DCONVSTR_FLAG_UPPERCASE) ? "NAN" : "nan", 3);
+		return format_copystr(ppOutBuf, pOutBufSize, (formatFlags & DCONVSTR_FLAG_UPPERCASE) ? "NAN" : "nan", 3);
 	else if(is_infinity && !is_negative)
-		return format_copystr(outbuf, outbuf_size, (format_flags & DCONVSTR_FLAG_UPPERCASE) ? "INF" : "inf", 3);
+		return format_copystr(ppOutBuf, pOutBufSize, (formatFlags & DCONVSTR_FLAG_UPPERCASE) ? "INF" : "inf", 3);
 	else if(is_infinity && is_negative)
-		return format_copystr(outbuf, outbuf_size, (format_flags & DCONVSTR_FLAG_UPPERCASE) ? "-INF" : "-inf", 4);
+		return format_copystr(ppOutBuf, pOutBufSize, (formatFlags & DCONVSTR_FLAG_UPPERCASE) ? "-INF" : "-inf", 4);
 	else {
 		// 3. Get exact decimal representation.
 		//    Decimal point is located on the right side of decimal mantissa
@@ -2094,36 +2092,36 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 		int    ndigits = 19;    // initially we have 19 digits (most significant zero digit is ignored)
 		char   suffix[16];
 		int    suffix_width = 0;
-		int    original_format_char = format_char;
-		if(format_char == 'g') {
+		int    original_format_char = formatChar;
+		if(formatChar == 'g') {
 			// get rid of excess precision
-			if(format_precision == 0)
-				format_precision = 1;
-			if(format_precision < ndigits) {
-				exponent += (ndigits - format_precision); // retain invariant "point after mantissa"
-				ndigits = bcd_round(format_precision, decimal_mantissa, &exponent);
+			if(formatPrecision == 0)
+				formatPrecision = 1;
+			if(formatPrecision < ndigits) {
+				exponent += (ndigits - formatPrecision); // retain invariant "point after mantissa"
+				ndigits = bcd_round(formatPrecision, decimal_mantissa, &exponent);
 			}
 			// choose format: e or f
 			int e = exponent + (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
-			if((e >= -4) && (e < format_precision)) { // so printf(3) rules say
-				format_char = 'f';
+			if(e >= -4 && e < formatPrecision) { // so printf(3) rules say
+				formatChar = 'f';
 			}
 			else {
-				format_char = 'e';
-				--format_precision; // one digit before the point, rest after
+				formatChar = 'e';
+				--formatPrecision; // one digit before the point, rest after
 			}
 		}
-		if(format_char == 'e') {
+		if(formatChar == 'e') {
 			exponent += (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
 			// compute trailing zero padding or truncate digits
-			if(1 + format_precision >= ndigits)
-				z2 = 1 + format_precision - ndigits;
+			if(1 + formatPrecision >= ndigits)
+				z2 = 1 + formatPrecision - ndigits;
 			else
-				ndigits = bcd_round(1 + format_precision, decimal_mantissa, &exponent);
-			format_exponent(suffix, exponent, format_flags & DCONVSTR_FLAG_UPPERCASE);
+				ndigits = bcd_round(1 + formatPrecision, decimal_mantissa, &exponent);
+			format_exponent(suffix, exponent, formatFlags & DCONVSTR_FLAG_UPPERCASE);
 			suffix_width = ((int)(strlen(suffix)));
 		}
-		else if(format_char == 'f') {
+		else if(formatChar == 'f') {
 			// determine where digits go with respect to decimal point
 			if(ndigits + exponent > 0) {
 				point = ndigits + exponent;
@@ -2136,12 +2134,12 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 			// %g specifies prec = number of significant digits
 			// convert to number of digits after decimal point
 			if(original_format_char == 'g')
-				format_precision += (z1 - point);
+				formatPrecision += (z1 - point);
 			// compute trailing zero padding or truncate digits
-			if(point + format_precision >= z1 + ndigits)
-				z2 = point + format_precision - (z1 + ndigits);
+			if(point + formatPrecision >= z1 + ndigits)
+				z2 = point + formatPrecision - (z1 + ndigits);
 			else {
-				int new_ndigits = point + format_precision - z1;
+				int new_ndigits = point + formatPrecision - z1;
 				if(new_ndigits < 0) {
 					z1 += new_ndigits;
 					ndigits = 0;
@@ -2175,7 +2173,7 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 		// 5. If %g is given without DCONVSTR_FLAG_SHARP, remove trailing zeros.
 		//    Must do after truncation, so that e.g. print %.3g 1.001 produces 1, not 1.00.
 		//    Sorry, but them's the rules.
-		if(original_format_char == 'g' && (!(format_flags & DCONVSTR_FLAG_SHARP)) && (z1 + ndigits + z2 >= point)) {
+		if(original_format_char == 'g' && (!(formatFlags & DCONVSTR_FLAG_SHARP)) && (z1 + ndigits + z2 >= point)) {
 			if(z1 + ndigits < point)
 				z2 = point - (z1 + ndigits);
 			else {
@@ -2189,7 +2187,7 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 		if(total_width > point)
 			total_width += 1;
 		else if(total_width == point) {
-			if(format_flags & DCONVSTR_FLAG_SHARP)
+			if(formatFlags & DCONVSTR_FLAG_SHARP)
 				total_width += 1;
 			else
 				++point; // point is not printed at the end
@@ -2200,29 +2198,29 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 		if(is_negative)
 			sign = '-';
 		else {
-			if(format_flags & DCONVSTR_FLAG_PRINT_PLUS)
+			if(formatFlags & DCONVSTR_FLAG_PRINT_PLUS)
 				sign = '+';
-			if(format_flags & DCONVSTR_FLAG_SPACE_IF_PLUS)
+			if(formatFlags & DCONVSTR_FLAG_SPACE_IF_PLUS)
 				sign = ' ';
 		}
 		if(sign)
 			++total_width;
 		// 8. Compute padding
 		int padding = 0;
-		if((format_flags & DCONVSTR_FLAG_HAVE_WIDTH) && format_width > total_width)
-			padding = format_width - total_width;
-		if(padding && (!(format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY)) && (format_flags & DCONVSTR_FLAG_PAD_WITH_ZERO)) {
+		if((formatFlags & DCONVSTR_FLAG_HAVE_WIDTH) && formatWidth > total_width)
+			padding = formatWidth - total_width;
+		if(padding && (!(formatFlags & DCONVSTR_FLAG_LEFT_JUSTIFY)) && (formatFlags & DCONVSTR_FLAG_PAD_WITH_ZERO)) {
 			z1     += padding;
 			point  += padding;
 			padding = 0;
 		}
 		// 9. Collect everything together and dump to output buffer
-		if(padding && !(format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY) && !format_pad(outbuf, outbuf_size, padding))
+		if(padding && !(formatFlags & DCONVSTR_FLAG_LEFT_JUSTIFY) && !format_pad(ppOutBuf, pOutBufSize, padding))
 			return 0;
-		if(sign && !format_onechar(outbuf, outbuf_size, sign))
+		if(sign && !format_onechar(ppOutBuf, pOutBufSize, sign))
 			return 0;
 		const uchar * digits = decimal_mantissa + 1;
-		while((z1 > 0) || (ndigits > 0) || (z2 > 0)) {
+		while(z1 > 0 || ndigits > 0 || z2 > 0) {
 			int c = '0';
 			if(z1 > 0)
 				z1--;
@@ -2232,14 +2230,14 @@ int FASTCALL dconvstr_print(char ** outbuf, int * outbuf_size, double value, int
 			}
 			else
 				z2--;
-			if(!format_onechar(outbuf, outbuf_size, c) )
+			if(!format_onechar(ppOutBuf, pOutBufSize, c) )
 				return 0;
-			if((--point == 0) && !format_onechar(outbuf, outbuf_size, '.'))
+			if((--point == 0) && !format_onechar(ppOutBuf, pOutBufSize, '.'))
 				return 0;
 		}
-		if(suffix_width && !format_copystr(outbuf, outbuf_size, suffix, suffix_width))
+		if(suffix_width && !format_copystr(ppOutBuf, pOutBufSize, suffix, suffix_width))
 			return 0;
-		else if(padding && (format_flags & DCONVSTR_FLAG_LEFT_JUSTIFY) && (!format_pad(outbuf, outbuf_size, padding)))
+		else if(padding && (formatFlags & DCONVSTR_FLAG_LEFT_JUSTIFY) && (!format_pad(ppOutBuf, pOutBufSize, padding)))
 			return 0;
 		else
 			return 1;
