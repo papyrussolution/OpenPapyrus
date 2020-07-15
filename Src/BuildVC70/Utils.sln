@@ -1,7 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rc2", "rc2.vcproj", "{CD03FA59-7CB8-419E-8272-D8B56CDEE667}"
 	ProjectSection(ProjectDependencies) = postProject
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184} = {F4E0FD0F-6237-49D3-822E-B228D12EA184}
 		{C23C2B5B-224B-475D-8AE3-82289A87602C} = {C23C2B5B-224B-475D-8AE3-82289A87602C}
 		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
 		{04AA636D-9D3E-4E79-9C2E-B8D0470719DA} = {04AA636D-9D3E-4E79-9C2E-B8D0470719DA}
@@ -163,10 +162,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib.vcproj", "{C23
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "libxml.vcproj", "{82523A80-856A-4957-BCEA-1A5738139141}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "giflib", "giflib.vcproj", "{F4E0FD0F-6237-49D3-822E-B228D12EA184}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -729,28 +724,6 @@ Global
 		{82523A80-856A-4957-BCEA-1A5738139141}.ServerRelease.Build.0 = ServerRelease|Win32
 		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT.ActiveCfg = Universe-HTT|Win32
 		{82523A80-856A-4957-BCEA-1A5738139141}.Universe-HTT.Build.0 = Universe-HTT|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Debug.ActiveCfg = Debug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Debug.Build.0 = Debug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Debug Multithreaded.ActiveCfg = Debug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Debug Multithreaded.Build.0 = Debug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Debug Singlethreaded.ActiveCfg = Debug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Debug Singlethreaded.Build.0 = Debug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.MtDllDebug.ActiveCfg = MtDllDebug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.MtDllDebug.Build.0 = MtDllDebug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.MtDllRelease.ActiveCfg = MtDllRelease|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.MtDllRelease.Build.0 = MtDllRelease|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Release.ActiveCfg = Release|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Release.Build.0 = Release|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Release Multithreaded.ActiveCfg = Release|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Release Multithreaded.Build.0 = Release|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Release Singlethreaded.ActiveCfg = Release|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Release Singlethreaded.Build.0 = Release|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.ServerDebug.ActiveCfg = ServerDebug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.ServerDebug.Build.0 = ServerDebug|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.ServerRelease.ActiveCfg = ServerRelease|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.ServerRelease.Build.0 = ServerRelease|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Universe-HTT.ActiveCfg = Universe-HTT|Win32
-		{F4E0FD0F-6237-49D3-822E-B228D12EA184}.Universe-HTT.Build.0 = Universe-HTT|Win32
 		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Debug.ActiveCfg = Debug|Win32
 		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Debug.Build.0 = Debug|Win32
 		{5A3D1652-14C5-4A48-993B-3013FE362BF3}.Debug Multithreaded.ActiveCfg = Debug|Win32

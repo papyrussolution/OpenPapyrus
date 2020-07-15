@@ -181,10 +181,6 @@
     <ClInclude Include="..\Tools\Rc2\rc2.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="giflib.vcxproj">
-      <Project>{f4e0fd0f-6237-49d3-822e-b228d12ea184}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="libjpeg.vcxproj">
       <Project>{270b7cae-41a6-43ae-a53d-d06dd9ee84e9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
