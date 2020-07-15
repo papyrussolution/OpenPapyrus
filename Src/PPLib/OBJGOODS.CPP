@@ -3181,6 +3181,71 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 	return ok;
 }
 
+//
+// mode: 
+//   1 - add check digit
+//   2 - remove check digit
+//   3 - remove leading zero
+// Returns:
+//   >0 - после модификации код найден
+//   0  - после модификации код не найден
+//   <0 - не удалось модифицировать код
+//
+int SLAPI PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec)
+{
+	int    ok = -1;
+	const  SString org_bc = pCode;
+	const size_t init_len = org_bc.Len();
+	SString temp_buf;
+	if(init_len == 0)
+		ok = -1;
+	else {
+		switch(mode) {
+			case 1: // add check digit
+				if(oneof3(init_len, 12, 11, 7)) {
+					int    cd = CalcBarcodeCheckDigit(org_bc);
+					(temp_buf = org_bc).CatChar('0'+cd);
+					ok = -2; 
+				}
+				break;
+			case 2: // remove check digit
+				if(oneof3(init_len, 13, 12, 8)) {
+					(temp_buf = org_bc).TrimRight();
+					if(CalcBarcodeCheckDigit(temp_buf) == (org_bc.Last()-'0'))
+						ok = -2; 
+				}
+				break;
+			case 3: // remove leading zero
+				if(org_bc.C(0) == '0') {
+					temp_buf = org_bc;
+					do {
+						temp_buf.ShiftLeft();
+						if(!rProcessedList.search(temp_buf, 0, 0)) {
+							rProcessedList.add(temp_buf);
+							if(P_Tbl->SearchByBarcode(temp_buf, pBcRec, pGoodsRec) > 0)
+								ok = 1;
+							else
+								ok = 0;
+						}
+					} while(ok <= 0 && temp_buf.C(0) == '0');
+				}
+				break;
+		}
+		if(ok == -2) {
+			if(!rProcessedList.search(temp_buf, 0, 0)) {
+				rProcessedList.add(temp_buf);
+				if(P_Tbl->SearchByBarcode(temp_buf, pBcRec, pGoodsRec) > 0)
+					ok = 1;
+				else
+					ok = 0;
+			}
+			else
+				ok = -1;
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * b, int adoptSearching)
 {
 	int    r = 1;
@@ -3191,56 +3256,33 @@ int SLAPI PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcR
 	bc = org_bc;
 	StringSet processed_list;
 	processed_list.add(bc);
-	for(int do_process = 1; do_process && (r = P_Tbl->SearchByBarcode(bc, pBcRec, b)) < 0;) {
-		do_process = 0;
-		if(adoptSearching) {
-			if(oneof3(init_len, 12, 11, 7)) {
-				//
-				// Пытаемся приклеить в конце кода контрольную цифру
-				//
-				int    cd = CalcBarcodeCheckDigit(org_bc);
-				(temp_buf = org_bc).CatChar('0'+cd);
-				if(!processed_list.search(temp_buf, 0, 0)) {
-					processed_list.add(bc = temp_buf);
-					do_process = 1;
-				}
-			}
-			if(!do_process) {
-				//
-				// Пытаемся убрать контрольную цифру
-				//
-				if(oneof3(init_len, 13, 12, 8)) {
-					(temp_buf = org_bc).TrimRight();
-					if(CalcBarcodeCheckDigit(temp_buf) == (org_bc.Last()-'0')) {
-						if(!processed_list.search(temp_buf, 0, 0)) {
-							processed_list.add(bc = temp_buf);
-							do_process = 1;
-						}
-					}
-				}
-				//
-				// Убираем по-одному ведущие нули
-				//
-				while(!do_process && bc.C(0) == '0') {
-					bc.ShiftLeft();
-					if(!processed_list.search(bc, 0, 0)) {
-						processed_list.add(bc);
-						do_process = 1;
-					}
-				}
+	r = P_Tbl->SearchByBarcode(bc, pBcRec, b);
+	if(r < 0 && adoptSearching) {
+		// mode: 1, 2, 3
+		int hasr = Helper_SearchByBarcodeAdopt(pCode, 1, processed_list, pBcRec, b);
+		if(hasr > 0)
+			r = 1;
+		else {
+			hasr = Helper_SearchByBarcodeAdopt(pCode, 2, processed_list, pBcRec, b);
+			if(hasr > 0)
+				r = 1;
+			else {
+				hasr = Helper_SearchByBarcodeAdopt(pCode, 3, processed_list, pBcRec, b);
+				if(hasr > 0)
+					r = 1;
 			}
 		}
-	}
-	if(adoptSearching && CConfig.Flags & CCFLG_DEBUG) {
-		temp_buf.Z().Cat("SearchByBarcode");
-		if(r > 0)
-			temp_buf.Eq().Cat(bc);
-		else
-			temp_buf.Cat("=#0");
-		temp_buf.CatDiv(':', 0);
-		for(uint ssp = 0; processed_list.get(&ssp, bc);)
-			temp_buf.Space().Cat(bc);
-		PPLogMessage(PPFILNAM_DEBUG_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		if(CConfig.Flags & CCFLG_DEBUG) {
+			temp_buf.Z().Cat("SearchByBarcode");
+			if(r > 0)
+				temp_buf.Eq().Cat(bc);
+			else
+				temp_buf.Cat("=#0");
+			temp_buf.CatDiv(':', 0);
+			for(uint ssp = 0; processed_list.get(&ssp, bc);)
+				temp_buf.Space().Cat(bc);
+			PPLogMessage(PPFILNAM_DEBUG_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		}
 	}
 	return r;
 }

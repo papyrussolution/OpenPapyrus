@@ -2772,13 +2772,9 @@ int SLAPI PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 int SLAPI PPObjPerson::GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkAcctID, /*BankAccountTbl::Rec*/PPBankAccount * pRec)
 {
 	int    ok = -1;
-	//BnkAcctArray bacc_list;
-	//BankAccountTbl::Rec pref_rec;
 	PPID   single_bacc_id = 0;
-	//MEMSZERO(pref_rec);
-	TSVector <PPBankAccount> bacc_list; // @v9.8.6 TSArray-->TSVector
+	TSVector <PPBankAccount> bacc_list;
 	PPBankAccount pref_ba_rec;
-	//BaObj.FetchList(personID, &bacc_list);
 	RegObj.GetBankAccountList(personID, &bacc_list);
 	if(bacc_list.getCount()) {
 		int    found = 0, pref_found = 0;
@@ -2790,7 +2786,7 @@ int SLAPI PPObjPerson::GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkA
 				found = 1;
 			}
 			else if(!bankID || r_rec.BankID == bankID) {
-				if(!pref_found && r_rec.Flags & BACCTF_PREFERRED) {
+				if(!pref_found && r_rec.Flags & /*BACCTF_PREFERRED*/PREGF_BACC_PREFERRED) {
 					pref_idx = static_cast<int>(i);
 					pref_found = 1;
 				}
@@ -5057,13 +5053,13 @@ int MainOrg2Dialog::setDTS()
 						bnk_id = ba.BankID;
 						STRNSCPY(buf, ba.Acct);
 						pos = i;
-						if(ba.Flags & BACCTF_PREFERRED)
+						if(ba.Flags & /*BACCTF_PREFERRED*/PREGF_BACC_PREFERRED)
 							ba_done = 1; // @exit
 					}
 				}
 			} while(!ba_done && i);
 			if(bnk_id) {
-				P_Pack->Regs.at(pos).Flags |= BACCTF_PREFERRED;
+				P_Pack->Regs.at(pos).Flags |= /*BACCTF_PREFERRED*/PREGF_BACC_PREFERRED;
 				PrefPos = pos;
 			}
 		}
@@ -5158,15 +5154,15 @@ int MainOrg2Dialog::getDTS()
 		} while(!ba_done && i);
 		if(bnk_id) {
 			if(PrefPos > -1)
-				P_Pack->Regs.at(PrefPos).Flags &= ~BACCTF_PREFERRED;
+				P_Pack->Regs.at(PrefPos).Flags &= ~PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
 			if(find_acc && strcmp(P_Pack->Regs.at(bnk_pos).Num, buf) == 0)
-				P_Pack->Regs.at(bnk_pos).Flags |= BACCTF_PREFERRED;
+				P_Pack->Regs.at(bnk_pos).Flags |= PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
 			else {
 				PPBankAccount bnk_rec;
 				bnk_rec.BankID = bnk_id;
 				STRNSCPY(bnk_rec.Acct, buf);
 				bnk_rec.AccType = PPBAC_CURRENT;
-				bnk_rec.Flags |= BACCTF_PREFERRED;
+				bnk_rec.Flags |= PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
 				if(find_acc) {
 					if(PPMessage(mfConf|mfYesNo, PPCFM_ADDACC) == cmNo) {
 						THROW(P_Pack->Regs.atFree(bnk_pos));
@@ -5347,7 +5343,7 @@ IMPL_HANDLE_EVENT(MainOrg2Dialog)
 						PPBankAccount ba(r_reg_rec);
 						if(ba.AccType == PPBAC_CURRENT && ba.BankID == bnk_id) {
 							pos = i;
-							if(ba.Flags & BACCTF_PREFERRED)
+							if(ba.Flags & PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/)
 								ba_done = 1; // @exit
 						}
 					}
@@ -6662,7 +6658,7 @@ int PPALDD_BankAccount::InitData(PPFilt & rFilt, long rsrv)
 			H.BankID   = rec.BankID;
 			H.AccType  = rec.AccType;
 			H.Flags    = rec.Flags;
-			H.fPreferable = BIN(rec.Flags & BACCTF_PREFERRED);
+			H.fPreferable = BIN(rec.Flags & PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/);
 			STRNSCPY(H.Code, rec.Acct);
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}

@@ -388,16 +388,17 @@ zip_buffer_t * FASTCALL _zip_buffer_new(uint8 * data, size_t size)
 
 zip_buffer_t * _zip_buffer_new_from_source(zip_source_t * src, size_t size, uint8 * buf, zip_error_t * error)
 {
-	zip_buffer_t * buffer;
-	if((buffer = _zip_buffer_new(buf, size)) == NULL) {
+	zip_buffer_t * buffer = _zip_buffer_new(buf, size);
+	if(!buffer) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return NULL;
 	}
-	if(_zip_read(src, buffer->data, size, error) < 0) {
+	else if(_zip_read(src, buffer->data, size, error) < 0) {
 		_zip_buffer_free(buffer);
 		return NULL;
 	}
-	return buffer;
+	else
+		return buffer;
 }
 
 static uint64 FASTCALL _zip_buffer_offset(const zip_buffer_t * buffer) { return buffer->ok ? buffer->offset : 0; }
@@ -600,6 +601,22 @@ void zip_discard(zip_t * za)
 //
 // ZIPENTRY
 //
+static void _zip_unchange_data(zip_entry_t * ze)
+{
+	if(ze->source) {
+		zip_source_free(ze->source);
+		ze->source = NULL;
+	}
+	if(ze->changes && (ze->changes->changed & ZIP_DIRENT_COMP_METHOD) && ze->changes->comp_method == ZIP_CM_REPLACED_DEFAULT) {
+		ze->changes->changed &= ~ZIP_DIRENT_COMP_METHOD;
+		if(ze->changes->changed == 0) {
+			_zip_dirent_free(ze->changes);
+			ze->changes = NULL;
+		}
+	}
+	ze->deleted = 0;
+}
+
 void _zip_entry_finalize(zip_entry_t * e)
 {
 	_zip_unchange_data(e);
@@ -655,7 +672,7 @@ ZIP_EXTERN int zip_get_num_files(zip_t * za)
 		return (int)za->nentry;
 }
 
-void * _zip_memdup(const void * mem, size_t len, zip_error_t * error)
+static void * _zip_memdup(const void * mem, size_t len, zip_error_t * error)
 {
 	void * ret = 0;
 	if(len) {
@@ -684,7 +701,7 @@ ZIP_EXTERN void zip_stat_init(zip_stat_t * st)
 	st->encryption_method = ZIP_EM_NONE;
 }
 
-int _zip_stat_merge(zip_stat_t * dst, const zip_stat_t * src, zip_error_t * error)
+static int _zip_stat_merge(zip_stat_t * dst, const zip_stat_t * src, zip_error_t * error)
 {
 	// name is not merged, since zip_stat_t doesn't own it, and src may not be valid as long as dst 
 	if(src->valid & ZIP_STAT_INDEX) {
@@ -2602,21 +2619,15 @@ ZIP_EXTERN int zip_unchange_archive(zip_t * za)
 	za->ch_flags = za->flags;
 	return 0;
 }
-
-void _zip_unchange_data(zip_entry_t * ze)
+//
+static void FASTCALL _zip_ef_free(zip_extra_field_t * ef)
 {
-	if(ze->source) {
-		zip_source_free(ze->source);
-		ze->source = NULL;
+	while(ef) {
+		zip_extra_field_t * ef2 = ef->next;
+		SAlloc::F(ef->data);
+		SAlloc::F(ef);
+		ef = ef2;
 	}
-	if(ze->changes && (ze->changes->changed & ZIP_DIRENT_COMP_METHOD) && ze->changes->comp_method == ZIP_CM_REPLACED_DEFAULT) {
-		ze->changes->changed &= ~ZIP_DIRENT_COMP_METHOD;
-		if(ze->changes->changed == 0) {
-			_zip_dirent_free(ze->changes);
-			ze->changes = NULL;
-		}
-	}
-	ze->deleted = 0;
 }
 //
 // DIRENT
@@ -4676,16 +4687,6 @@ zip_extra_field_t * _zip_ef_delete_by_id(zip_extra_field_t * ef, uint16 id, uint
 		prev = ef;
 	}
 	return head;
-}
-
-void FASTCALL _zip_ef_free(zip_extra_field_t * ef)
-{
-	while(ef) {
-		zip_extra_field_t * ef2 = ef->next;
-		SAlloc::F(ef->data);
-		SAlloc::F(ef);
-		ef = ef2;
-	}
 }
 
 const uint8 * _zip_ef_get_by_id(const zip_extra_field_t * ef, uint16 * lenp, uint16 id, uint16 id_idx, zip_flags_t flags, zip_error_t * error)

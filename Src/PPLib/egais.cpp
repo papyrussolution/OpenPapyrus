@@ -3334,7 +3334,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 		STRNSCPY(pi.CategoryCode, alc_goods_item.CategoryCode);
 		pi.Proof = alc_goods_item.Proof;
 		pi.Volume = alc_goods_item.Volume;
-		pi.Flags  = EgaisProductCore::fVerified; // @v9.2.14
+		pi.Flags  = EgaisProductCore::fVerified;
 		(pi.Name = short_name).Transf(CTRANSF_OUTER_TO_INNER);
 		(pi.FullName = full_name).Transf(CTRANSF_OUTER_TO_INNER);
 		if(pRefC) {
@@ -3364,7 +3364,7 @@ int SLAPI PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket
 			pExt->Proof = pi.Proof;
 			pExt->Volume = pi.Volume;
 			pExt->CountryCode = country_code;
-			pExt->OuterUnpackedTag = is_unpacked; // @v9.5.10
+			pExt->OuterUnpackedTag = is_unpacked;
 		}
 		if(pPack) {
 			pPack->destroy();
@@ -3926,7 +3926,9 @@ int SLAPI PPEgaisProcessor::Read_OrgInfo(xmlNode * pFirstNode, PPID personKindID
 			THROW(PsnObj.PutPacket(&psn_id, pPack, 1));
 		}
 	}
-	CATCHZOK
+	CATCH
+		LogLastError(); // @v10.8.1
+	ENDCATCH
 	return ok;
 }
 
@@ -4593,10 +4595,8 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 								PPGoodsPacket goods_pack;
 								// pRefC-->0: Считанные из накладной данные о товаре не вносим во внутреннюю БД (они могут быть не достоверны)
 								THROW(rs = Read_ProductInfo(p_pos->children, p_bp ? &goods_pack : 0, &alc_ext, /*pRefC*/0, 0));
-								// @v9.5.10 {
 								if(alc_ext.OuterUnpackedTag)
 									local_unpacket_tag = 1;
-								// } @v9.5.10
 								if(pRefC && pRefC->LastProductP > 0) {
                                     product_refc_pos = pRefC->LastProductP;
 								}

@@ -1631,7 +1631,7 @@ void GoodsDialog::printInfoLabel()
 					dlg->setCtrlData(CTL_PRNGLABEL_COUNT, &num_copies);
 					for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 						dlg->getCtrlData(CTL_PRNGLABEL_COUNT, &num_copies);
-						if(num_copies > 0 && num_copies <= 1000)
+						if(checkirange(num_copies, 1, 1000))
 							ok = valid_data = 1;
 						else
 							PPError(PPERR_USERINPUT, 0);

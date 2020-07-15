@@ -20,14 +20,16 @@ static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, 
 	if(!args[1].IsString()) {
 		return vm->ReturnError(rindex, "Environment variable key must be a string.");
 	}
-	const char * key = args[1].GetZString();
-	const char * value = getenv(key);
-	GravityValue rt = GravityValue::from_undefined();
-	// GRAVITY_DEBUG_PRINT("[ENV::GET args : %i] %s => %s\n", nargs, key, value);
-	if(value) {
-		rt = VALUE_FROM_STRING(vm, value, (uint32)strlen(value));
+	else {
+		const char * key = args[1].GetZString();
+		const char * value = getenv(key);
+		GravityValue rt = GravityValue::from_undefined();
+		// GRAVITY_DEBUG_PRINT("[ENV::GET args : %i] %s => %s\n", nargs, key, value);
+		if(value) {
+			rt = VALUE_FROM_STRING(vm, value, (uint32)strlen(value));
+		}
+		return vm->ReturnValue(rt, rindex);
 	}
-	return vm->ReturnValue(rt, rindex);
 }
 
 /**

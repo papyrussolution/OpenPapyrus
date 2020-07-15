@@ -519,7 +519,7 @@ int SLAPI PPServerCmd::ParseLine(const SString & rLine, long flags)
 			if(GetWord(rLine, &p)) {
 				int    fld_n = 0;
 				PutParam(++fld_n, Term);
-				if(Term.CmpNC("INLINE") == 0) {
+				if(Term.IsEqiAscii("INLINE")) {
 					// inline код
 					(temp_buf = rLine).ShiftLeft(p);
 					PutParam(++fld_n, temp_buf);
@@ -2820,7 +2820,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			{
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				if(temp_buf.NotEmptyS()) {
-					if(temp_buf.CmpNC("TERM") == 0) {
+					if(temp_buf.IsEqiAscii("TERM")) {
 						pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
 						SString terminal;
 						if(temp_buf.NotEmptyS())
@@ -3722,7 +3722,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			case PPSCMD_SUSPEND:
 				if(pEv->GetParam(1, name) > 0) { //if(PPGetExtStrData(1, pEv->Params, name) > 0) {
 					const long timeout = name.ToLong();
-					if(timeout > 0 && timeout <= 1000000)
+					if(checkirange(timeout, 1, 1000000))
 						SuspendTimeout = timeout * 1000;
 				}
 				rReply.SetString(temp_buf.Z().Cat(DS.GetTLA().GetId()));

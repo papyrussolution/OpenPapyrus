@@ -8,9 +8,13 @@
 #pragma hdrstop
 
 //typedef marray_t (gravity_lexer_t*)      lexer_r;
-typedef GravityArray <gravity_lexer_t *> lexer_r;
+//typedef GravityArray <gravity_lexer_t *> lexer_r;
 
 struct gravity_parser_t {
+	gravity_parser_t() : lexer(0), declarations(0), statements(0), delegate(0), time(0.0), nerrors(0), unique_id(0), last_error_lineno(UINT32_MAX),
+		depth(0), expr_depth(0), current_token(TOK_EOF), current_node(0)
+	{
+	}
 	//#define CURRENT_LEXER                           (static_cast<gravity_lexer_t *>(parser->lexer->getLast()))
 	gravity_lexer_t * GetCurrentLexer()
 	{
@@ -24,7 +28,7 @@ struct gravity_parser_t {
 		DEBUG_LEXER(p_lexer);
 		return p_lexer;
 	}
-	lexer_r * lexer;        // stack of lexers (stack used in #include statements)
+	GravityArray <gravity_lexer_t *> * lexer;        // stack of lexers (stack used in #include statements)
 	GravityArray <gnode_t *> * declarations; // used to keep track of nodes hierarchy
 	GravityArray <gnode_t *> * statements;   // used to build AST
 	gravity_delegate_t * delegate;     // compiler delegate
@@ -995,8 +999,7 @@ static gnode_t * parse_postfix_expression(gravity_parser_t * parser, gtoken_t to
 			node = gnode_postfix_subexpr_create(subtoken, NODE_ACCESS_EXPR, expr, NULL, LAST_DECLARATION());
 		}
 		else {
-			// should never reach this point
-			assert(0);
+			assert(0); // should never reach this point
 		}
 		// add subnode to list
 		gnode_array_push(list, node);
@@ -1136,7 +1139,9 @@ static gnode_t * adjust_assignment_expression(gravity_parser_t * parser, gtoken_
 	// duplicate node is mandatory here, otherwise the deallocator will try to free memory occopied by the same node twice
 	gnode_t * duplicate = gnode_duplicate(lnode, true);
 	if(!duplicate) {
-		gravity_lexer_t * lexer = parser->GetCurrentLexerAndDebug(); REPORT_ERROR(gravity_lexer_token(lexer), "An unexpected error occurred in %s", token_name(tok)); return NULL;
+		gravity_lexer_t * lexer = parser->GetCurrentLexerAndDebug(); 
+		REPORT_ERROR(gravity_lexer_token(lexer), "An unexpected error occurred in %s", token_name(tok)); 
+		return NULL;
 	}
 	rnode = gnode_binary_expr_create(t, duplicate, rnode, LAST_DECLARATION());
 	tok = TOK_OP_ASSIGN;
@@ -1957,7 +1962,7 @@ handle_continue:
 				expected_value = GravityValue::from_bool(LOGIC((value_node->value.n64)));
 		}
 		// report unittest to delegate
-		if((parser->delegate) && (parser->delegate->unittest_callback)) {
+		if(parser->delegate && parser->delegate->unittest_callback) {
 			gravity_unittest_callback unittest_cb = parser->delegate->unittest_callback;
 			unittest_cb(NULL, expected_error, description, note, expected_value, expected_nrow, expected_ncol, parser->delegate->xdata);
 		}
@@ -2273,9 +2278,7 @@ static gnode_t * parse_declaration_statement(gravity_parser_t * parser)
 		case TOK_KEY_CONST: return parse_variable_declaration(parser, true, access_specifier, storage_specifier);
 		default: REPORT_ERROR(gravity_lexer_token(lexer), "Unrecognized token %s.", token_name(peek)); return NULL;
 	}
-
-	// should never reach this point
-	assert(0);
+	assert(0); // should never reach this point
 	return NULL;
 }
 
@@ -2484,17 +2487,20 @@ static void parser_cleanup(gravity_parser_t * parser)
 
 static void parser_appendcode(const char * source, gravity_parser_t * parser) 
 {
-	if(source == NULL) return;
-	size_t len = strlen(source);
-	if(len <= 0) return;
-	// build a new lexer based on source code to prepend
-	gravity_lexer_t * lexer1 = gravity_lexer_create(source, len, 0, true);
-	if(!lexer1) return;
-	// pop current lexer
-	gravity_lexer_t * lexer2 = POP_LEXER;
-	// swap lexer2 with lexer1
-	parser->lexer->insert(lexer1);
-	parser->lexer->insert(lexer2);
+	if(source) {
+		size_t len = strlen(source);
+		if(len > 0) {
+			// build a new lexer based on source code to prepend
+			gravity_lexer_t * lexer1 = gravity_lexer_create(source, len, 0, true);
+			if(lexer1) {
+				// pop current lexer
+				gravity_lexer_t * lexer2 = POP_LEXER;
+				// swap lexer2 with lexer1
+				parser->lexer->insert(lexer1);
+				parser->lexer->insert(lexer2);
+			}
+		}
+	}
 }
 
 // MARK: - Public functions -
@@ -2502,21 +2508,23 @@ static void parser_appendcode(const char * source, gravity_parser_t * parser)
 gravity_parser_t * gravity_parser_create(const char * source, size_t len, uint32 fileid, bool is_static) 
 {
 	init_grammer_rules();
-	gravity_parser_t * parser = static_cast<gravity_parser_t *>(mem_alloc(NULL, sizeof(gravity_parser_t)));
-	if(!parser) 
-		return NULL;
-	gravity_lexer_t * lexer = gravity_lexer_create(source, len, fileid, is_static);
-	if(!lexer) 
-		goto abort_init;
-	parser->lexer = static_cast<lexer_r *>(mem_alloc(NULL, sizeof(lexer_r)));
-	marray_init(*parser->lexer);
-	parser->lexer->insert(lexer);
-	parser->statements = gnode_array_create();
-	if(!parser->statements) goto abort_init;
-	parser->declarations = gnode_array_create();
-	if(!parser->declarations) goto abort_init;
-	marray_init(parser->vdecl);
-	parser->last_error_lineno = UINT32_MAX;
+	gravity_parser_t * parser = new gravity_parser_t; //static_cast<gravity_parser_t *>(mem_alloc(NULL, sizeof(gravity_parser_t)));
+	if(parser) {
+		gravity_lexer_t * lexer = gravity_lexer_create(source, len, fileid, is_static);
+		if(!lexer) 
+			goto abort_init;
+		parser->lexer = new GravityArray <gravity_lexer_t *>;
+		// @ctr marray_init(*parser->lexer);
+		parser->lexer->insert(lexer);
+		parser->statements = gnode_array_create();
+		if(!parser->statements) 
+			goto abort_init;
+		parser->declarations = gnode_array_create();
+		if(!parser->declarations) 
+			goto abort_init;
+		// @ctr marray_init(parser->vdecl);
+		// @ctr parser->last_error_lineno = UINT32_MAX;
+	}
 	return parser;
 abort_init:
 	gravity_parser_free(parser);
@@ -2565,6 +2573,6 @@ void gravity_parser_free(gravity_parser_t * parser)
 		// parser->statements is returned from gravity_parser_run
 		// and must be deallocated using gnode_free
 		parser->vdecl.Z();
-		mem_free(parser);
+		delete parser; //mem_free(parser);
 	}
 }

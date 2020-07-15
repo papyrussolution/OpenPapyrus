@@ -2454,6 +2454,12 @@ public:
 	ValidateLotXCodeListDialog(const PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
 		FontId(0), CStyleId(0), ViewFlags(0)
 	{
+		// @v10.8.1 {
+		{
+			long   exstyle = TView::GetWindowExStyle(H());
+			TView::SetWindowProp(H(), GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
+		}
+		// } @v10.8.1 
 		AddClusterAssoc(CTL_LOTXCCKLIST_FLAGS, 0, vfShowUncheckedItems);
 		SetClusterData(CTL_LOTXCCKLIST_FLAGS, 0);
 	}
@@ -2501,7 +2507,7 @@ private:
 						p_lbx->getText(static_cast<long>(p_draw_item->ItemData), code_buf);
 						int    err = 0;
 						int    row_idx = -1;
-						int    brush_id = TProgram::tbiListBkgBrush;
+						int    brush_id = 0; //TProgram::tbiListBkgBrush;
 						if(code_buf.NotEmpty()) {
 							uint  inner_idx = 0;
 							if(!(ViewFlags & vfShowUncheckedItems) || Data.Search(code_buf, &row_idx, &inner_idx)) {
@@ -2694,22 +2700,29 @@ private:
 				PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rRec.Code)-1));
 				PPErrorByDialog(dlg, sel);
 			}
-			else if(!PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf)) {
-				if(P_LotXcT) {
-					//if(P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0)
-						ok = 1;
-					//else
-						//PPErrorByDialog(dlg, sel);
+			else {
+				GtinStruc gts;
+				const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+				const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+				if(pczcr)
+					gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+				if(!iemr && !pczcr) {
+					if(P_LotXcT) {
+						//if(P_LotXcT->FindMarkToTransfer(temp_buf, goods_id, lot_id, rSet) > 0)
+							ok = 1;
+						//else
+							//PPErrorByDialog(dlg, sel);
+					}
+					else {
+						PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
+						PPErrorByDialog(dlg, sel);
+					}
 				}
 				else {
-					PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
-					PPErrorByDialog(dlg, sel);
+					rSet.AddNum(0, mark_buf, 1);
+					STRNSCPY(rRec.Code, mark_buf);
+					ok = 1;
 				}
-			}
-			else {
-				rSet.AddNum(0, mark_buf, 1);
-				STRNSCPY(rRec.Code, mark_buf);
-				ok = 1;
 			}
 		}
 		CATCHZOKPPERR
@@ -2751,9 +2764,13 @@ private:
 					continue;
 				}
 				else {
-					SString mark_buf = temp_buf;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
-					if(!iemr) {
+					SString mark_buf;
+					GtinStruc gts;
+					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+					if(pczcr)
+						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+					if(!iemr && !pczcr) {
 						if(P_LotXcT) {
 							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) <= 0) {
 								//PPErrorByDialog(dlg, sel);
@@ -2950,15 +2967,17 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 				if(!temp_buf.NotEmptyS())
 					PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
 				else if(temp_buf.Len() >= sizeof(rRec.Code)) {
-					PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rRec.Code)-1));
+					PPSetError(PPERR_CODETOOLONG, static_cast<long>(sizeof(rRec.Code)-1));
 					PPErrorByDialog(dlg, sel);
 				}
 				else {
 					// 080026600250673670340153552
-					SString mark_buf = temp_buf;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
+					SString mark_buf;
 					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(mark_buf, gts);
+					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+					if(pczcr)
+						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && !pczcr) {
 						if(P_LotXcT) {
 							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
@@ -2971,25 +2990,27 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 							PPErrorByDialog(dlg, sel);
 						}
 					}
-					else if(do_check && P_LotXcT) {
-						if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0) {
+					else {
+						if(do_check && P_LotXcT) {
+							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0) {
+								STRNSCPY(rRec.Code, mark_buf);
+								ok = 1;
+							}
+							else
+								PPErrorByDialog(dlg, sel);
+						}
+						else {
+							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
+								rSet.AddBox(0, mark_buf, 1);*/
+							if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
+								long last_box_id = rSet.SearchLastBox(-1);
+								rSet.AddNum(last_box_id, mark_buf, 1);
+							}
+							else
+								rSet.AddNum(0, mark_buf, 1);
 							STRNSCPY(rRec.Code, mark_buf);
 							ok = 1;
 						}
-						else
-							PPErrorByDialog(dlg, sel);
-					}
-					else {
-						/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
-							rSet.AddBox(0, mark_buf, 1);*/
-						if(oneof5(pczcr, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) {
-							long last_box_id = rSet.SearchLastBox(-1);
-							rSet.AddNum(last_box_id, mark_buf, 1);
-						}
-						else
-							rSet.AddNum(0, mark_buf, 1);
-						STRNSCPY(rRec.Code, mark_buf);
-						ok = 1;
 					}
 				}
 			}
@@ -3033,9 +3054,13 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 						continue;
 					}
 					else {
-						SString mark_buf = temp_buf;
-						const int iemr = PrcssrAlcReport::IsEgaisMark(mark_buf, 0);
-						if(!iemr) {
+						SString mark_buf;
+						GtinStruc gts;
+						const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+						if(pczcr)
+							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+						if(!iemr && !pczcr) {
 							if(P_LotXcT) {
 								if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) <= 0) {
 									//PPErrorByDialog(dlg, sel);

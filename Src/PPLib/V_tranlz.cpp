@@ -4423,7 +4423,7 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 {
 	int    yes = 0;
 	const  size_t len = sstrlen(pMark);
-	ASSIGN_PTR(pProcessedMark, 0);
+	CALLPTRMEMB(pProcessedMark, Z());
 	if(len == 68 || len == 150) { // @v10.0.12 (|| len == 150)
 		yes = 1;
 		SString temp_buf;
@@ -4448,7 +4448,7 @@ int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcess
 	}
 	if(pProcessedMark) {
 		if(!yes)
-			*pProcessedMark = 0;
+			pProcessedMark->Z();
 		else
 			assert(PrcssrAlcReport::IsEgaisMark(*pProcessedMark, 0)); // @recursion: sure this works right!
 	}

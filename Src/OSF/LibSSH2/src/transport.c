@@ -493,7 +493,6 @@ static int send_existing(LIBSSH2_SESSION * session, const uchar * data, size_t d
 		*ret = 0;
 		return LIBSSH2_ERROR_NONE;
 	}
-
 	/* send as much as possible of the existing packet */
 	if((data != p->odata) || (data_len != p->olen)) {
 		/* When we are about to complete the sending of a packet, it is vital

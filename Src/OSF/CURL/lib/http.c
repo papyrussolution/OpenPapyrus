@@ -2403,14 +2403,10 @@ static void print_http_error(struct Curl_easy * data)
 /*
  * Read any HTTP header lines from the server and pass them to the client app.
  */
-CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
-    struct connectdata * conn,
-    ssize_t * nread,
-    bool * stop_reading)
+CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata * conn, ssize_t * nread, bool * stop_reading)
 {
 	CURLcode result;
 	struct SingleRequest * k = &data->req;
-
 	/* header line within buffer loop */
 	do {
 		size_t rest_length;

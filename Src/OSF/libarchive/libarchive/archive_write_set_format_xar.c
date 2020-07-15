@@ -697,22 +697,15 @@ static int xar_finish_entry(struct archive_write * a)
 	return ARCHIVE_OK;
 }
 
-static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, const char * value,
-    const char * attrkey, const char * attrvalue)
+static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr writer, const char * key, const char * value, const char * attrkey, const char * attrvalue)
 {
-	int r;
-
-	r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(key));
+	int r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(key));
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterStartElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
 	if(attrkey != NULL && attrvalue != NULL) {
-		r = xmlTextWriterWriteAttribute(writer,
-			BAD_CAST_CONST(attrkey), BAD_CAST_CONST(attrvalue));
+		r = xmlTextWriterWriteAttribute(writer, BAD_CAST_CONST(attrkey), BAD_CAST_CONST(attrvalue));
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return ARCHIVE_FATAL;
@@ -743,7 +736,7 @@ static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer, co
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
-	if(value != NULL) {
+	if(value) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
@@ -810,7 +803,7 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const
 	if(sum->len > 0) {
 		algname = getalgname(sum->alg);
 		algsize = getalgsize(sum->alg);
-		if(algname != NULL) {
+		if(algname) {
 			const char * hex = "0123456789abcdef";
 			p = buff;
 			s = sum->val;

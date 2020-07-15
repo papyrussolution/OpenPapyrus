@@ -469,9 +469,9 @@ int FASTCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
 				y = temp_dt.Y;
 				break;
 			case TOK_NUMBER:
-				if(d == 0 && number > 0 && number <= 31)
+				if(d == 0 && checkirange(number, 1, 31))
 					d = number;
-				else if(m == 0 && number > 0 && number <= 12)
+				else if(m == 0 && checkirange(number, 1, 12))
 					m = number;
 				else if(y == 0) {
 					y = NZOR(number, 2000);
@@ -485,7 +485,7 @@ int FASTCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
 						else
 							y += 2000;
 					}
-					else if(y >= 200 && y <= 299)
+					else if(checkirange(y, 200, 299))
 						y = 2000 + (y - 200);
 				}
 				else

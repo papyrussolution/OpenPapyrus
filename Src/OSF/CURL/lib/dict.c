@@ -110,12 +110,9 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
-
 	char * path = data->state.path;
 	curl_off_t * bytecount = &data->req.bytecount;
-
 	*done = TRUE; /* unconditionally */
-
 	if(conn->bits.user_passwd) {
 		/* AUTH is missing */
 	}
@@ -136,15 +133,14 @@ static CURLcode dict_do(struct connectdata * conn, bool * done)
 				}
 			}
 		}
-
-		if((word == NULL) || (*word == (char)0)) {
+		if(isempty(word)) {
 			infof(data, "lookup word is missing\n");
 			word = (char *)"default";
 		}
-		if((database == NULL) || (*database == (char)0)) {
+		if(isempty(database)) {
 			database = (char *)"!";
 		}
-		if((strategy == NULL) || (*strategy == (char)0)) {
+		if(isempty(strategy)) {
 			strategy = (char *)".";
 		}
 		eword = unescape_word(data, word);

@@ -121,7 +121,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 	StringSet all_sections;
 	PPCliBnkImpExpParam param;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_CLIBNK_INI, ini_file_name));
-	THROW_SL(fileExists(ini_file_name)); // @v9.2.10
+	THROW_SL(fileExists(ini_file_name));
 	THROW(PPLoadText(PPTXT_CLIBNK_SECTION_WITHNAMES, all_fields_name));
 	THROW(LoadSdRecord(PPREC_CLIBNKDATA, &param.InrRec));
 	{
@@ -151,9 +151,9 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 	return ok;
 }
 //
-// Элемент ассоциации строки банковской выписки с видом операции.
-// Вид операции идентифицируется по таблице статей, к которой относится контрагент операции
-// и по знаку суммы операции.
+// Descr: Элемент ассоциации строки банковской выписки с видом операции.
+//   Вид операции идентифицируется по таблице статей, к которой относится контрагент операции
+//   и по знаку суммы операции.
 //
 struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array] @flat
 	PPID   AccSheetID;       //
@@ -165,9 +165,9 @@ struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array
 //
 //
 struct BankStmntItem : public Sdr_CliBnkData { // @flat
-	BankStmntItem()
+	BankStmntItem() : Sdr_CliBnkData(), WeArePayer(0), PayerPersonID(0), ReceiverPersonID(0)
 	{
-		THISZERO();
+		PTR32(WhKPP)[0] = 0;
 	}
 	void PutPayerRcvrInfo(const BankStmntItem * pItem)
 	{
@@ -176,8 +176,8 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 		if(!WeArePayer) {
 			STRNSCPY(PayerINN, temp.PayerINN[0] ? temp.PayerINN : temp.ReceiverINN);
 			STRNSCPY(ReceiverINN, pItem->PayerINN);
-			STRNSCPY(PayerKPP, temp.PayerKPP[0] ? temp.PayerKPP : temp.ReceiverKPP); // @v7.4.5
-			STRNSCPY(ReceiverKPP, pItem->PayerKPP);                                  // @v7.4.5
+			STRNSCPY(PayerKPP, temp.PayerKPP[0] ? temp.PayerKPP : temp.ReceiverKPP);
+			STRNSCPY(ReceiverKPP, pItem->PayerKPP);
 			STRNSCPY(PayerName, temp.PayerName[0] ? temp.PayerName : temp.ReceiverName);
 			STRNSCPY(ReceiverName, pItem->PayerName);
 			STRNSCPY(PayerBankCode, temp.PayerBankCode[0] ? temp.PayerBankCode : temp.ReceiverBankCode);
@@ -196,8 +196,8 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 		else {
 			STRNSCPY(ReceiverINN, temp.ReceiverINN[0] ? temp.ReceiverINN : temp.PayerINN);
 			STRNSCPY(PayerINN, pItem->PayerINN);
-			STRNSCPY(ReceiverKPP, temp.ReceiverKPP[0] ? temp.ReceiverKPP : temp.PayerKPP); // @v7.4.5
-			STRNSCPY(PayerKPP, pItem->PayerKPP);                                           // @v7.4.5
+			STRNSCPY(ReceiverKPP, temp.ReceiverKPP[0] ? temp.ReceiverKPP : temp.PayerKPP);
+			STRNSCPY(PayerKPP, pItem->PayerKPP);
 			STRNSCPY(ReceiverName, temp.ReceiverName[0] ? temp.ReceiverName : temp.PayerName);
 			STRNSCPY(PayerName, pItem->PayerName);
 			STRNSCPY(ReceiverBankCode, temp.ReceiverBankCode[0] ? temp.ReceiverBankCode : temp.PayerBankCode);

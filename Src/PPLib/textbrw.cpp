@@ -457,7 +457,7 @@ void SScEditorBase::SetSpecialStyle(const SScEditorStyleSet::Style & rStyle)
 	if(!rStyle.BgC.IsEmpty())
 		CallFunc(SCI_STYLESETBACK, styleID, rStyle.BgC);
 	if(rStyle.FontFace.NotEmpty()) {
-		CallFunc(SCI_STYLESETFONT, styleID, reinterpret_cast<LPARAM>(rStyle.FontFace.cptr()));
+		CallFunc(SCI_STYLESETFONT, styleID, reinterpret_cast<intptr_t>(rStyle.FontFace.cptr()));
 	}
 	int font_style = rStyle.FontStyle;
 	if(font_style != -1/*STYLE_NOT_USED*/) {
@@ -566,7 +566,7 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 							if(p_kw && p_kw->KeywordClass.CmpNC(p_style->KeywordClass) == 0) {
 								int kw_n = GetKwClassFromName(p_kw->KeywordClass, pLexerName);
 								if(kw_n >= 0 && kw_n <= 8) {
-									CallFunc(SCI_SETKEYWORDS, kw_n, reinterpret_cast<LPARAM>(p_kw->KeywordList.cptr()));
+									CallFunc(SCI_SETKEYWORDS, kw_n, reinterpret_cast<intptr_t>(p_kw->KeywordList.cptr()));
 									break;
 								}
 							}
@@ -578,13 +578,13 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 			if(sstreq(pLexerName, "cpp")) {
 				//width = NppParameters::getInstance()->_dpiManager.scaleX(100) >= 150 ? 18 : 14;
 				//CallFunc(SCI_SETMARGINWIDTHN, 2/*folding*/, 14); // @v10.2.0
-				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), reinterpret_cast<LPARAM>("1"));
-				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.compact"), reinterpret_cast<LPARAM>("0"));
-				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.comment"), reinterpret_cast<LPARAM>("1"));
-				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.preprocessor"), reinterpret_cast<LPARAM>("1"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), reinterpret_cast<intptr_t>("1"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.compact"), reinterpret_cast<intptr_t>("0"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.comment"), reinterpret_cast<intptr_t>("1"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.preprocessor"), reinterpret_cast<intptr_t>("1"));
 				// Disable track preprocessor to avoid incorrect detection.
 				// In the most of cases, the symbols are defined outside of file.
-				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("lexer.cpp.track.preprocessor"), reinterpret_cast<LPARAM>("0"));
+				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("lexer.cpp.track.preprocessor"), reinterpret_cast<intptr_t>("0"));
 			}
 			ok = 1;
 		}
@@ -673,7 +673,7 @@ void SScEditorBase::Init(HWND hScW, int preserveFileName)
 	P_SciPtr = 0;
 	Doc.Reset(preserveFileName);
 	if(hScW) {
-		P_SciFn  = reinterpret_cast<int (__cdecl *)(void *, int, int, int)>(::SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0));
+		P_SciFn  = reinterpret_cast<intptr_t (__cdecl *)(void *, uint, uintptr_t, intptr_t)>(::SendMessage(hScW, SCI_GETDIRECTFUNCTION, 0, 0));
 		P_SciPtr = reinterpret_cast<void *>(SendMessage(hScW, SCI_GETDIRECTPOINTER, 0, 0));
 		CallFunc(SCI_INDICSETSTYLE, indicUnknWord, /*INDIC_SQUIGGLE*/INDIC_COMPOSITIONTHICK);
 		CallFunc(SCI_INDICSETFORE, indicUnknWord, GetColorRef(SClrRed));
@@ -687,16 +687,16 @@ int SScEditorBase::Release()
 	int    ok = -1;
 	if(Doc.SciDoc) {
 		CallFunc(SCI_CLEARALL);
-		CallFunc(SCI_RELEASEDOCUMENT, 0, (int)Doc.SciDoc);
+		CallFunc(SCI_RELEASEDOCUMENT, 0, reinterpret_cast<intptr_t>(Doc.SciDoc));
 		Doc.Reset(0);
 		ok = 1;
 	}
 	return ok;
 }
 
-int SScEditorBase::CallFunc(int msg) { return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, 0, 0) : 0; }
-int SScEditorBase::CallFunc(int msg, int param1) { return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, 0) : 0; }
-int SScEditorBase::CallFunc(int msg, int param1, int param2) { return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, param2) : 0; }
+intptr_t SScEditorBase::CallFunc(uint msg) { return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, 0, 0) : 0; }
+intptr_t SScEditorBase::CallFunc(uint msg, uintptr_t param1) { return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, 0) : 0; }
+intptr_t SScEditorBase::CallFunc(uint msg, uintptr_t param1, intptr_t param2) { return (P_SciFn && P_SciPtr) ? P_SciFn(P_SciPtr, msg, param1, param2) : 0; }
 
 int SScEditorBase::SetKeybAccelerator(KeyDownCommand & rK, int cmd)
 {
@@ -745,7 +745,7 @@ int FASTCALL SScEditorBase::GetSelectionText(SString & rBuf)
 	if(sz > 0) {
 		STempBuffer temp_b(sz);
 		if(temp_b.IsValid()) {
-			sz = CallFunc(SCI_GETSELTEXT, 0, reinterpret_cast<LPARAM>((char *)temp_b));
+			sz = CallFunc(SCI_GETSELTEXT, 0, reinterpret_cast<intptr_t>((char *)temp_b));
 			rBuf = temp_b;
 		}
 		else
@@ -787,7 +787,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 				SetSelection(&sel);
 			}
 			CallFunc(SCI_SEARCHANCHOR);
-			int    result = CallFunc(_func, sci_srch_flags, reinterpret_cast<int>(pattern.cptr()));
+			int    result = CallFunc(_func, sci_srch_flags, reinterpret_cast<intptr_t>(pattern.cptr()));
 			if(result >= 0) {
 				ok = 1;
 				int selend = CallFunc(SCI_GETSELECTIONEND);
@@ -988,7 +988,7 @@ int STextBrowser::RegWindowClass(HINSTANCE hInst)
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 	Scintilla_RegisterClasses(hInst);
 #endif
-	return RegisterClassEx(&wc); // @unicodeproblem
+	return RegisterClassEx(&wc);
 }
 
 // static
@@ -1112,7 +1112,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			{
 				//LPNMHDR lpnmhdr = (LPNMHDR)lParam;
 				const SCNotification * p_scn = (const SCNotification *)lParam;
-				p_view = (STextBrowser*)TView::GetWindowUserData(hWnd);
+				p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(hWnd));
 				if(p_view && p_scn->nmhdr.hwndFrom == p_view->GetSciWnd()) {
 					int    test_value = 0; // @debug
 					switch(p_scn->nmhdr.code) {
@@ -1158,7 +1158,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 										//SCI_CALLTIPSHOW(int posStart, const char *definition)
 										if(left.getCount()) {
                                     		SString src_text, text_to_show;
-                                    		TSVector <SrWordInfo> info_list; // @v9.8.4 TSArray-->TSVector
+                                    		TSVector <SrWordInfo> info_list;
 											for(uint ti = 0; ti < left.getCount(); ti++)
 												src_text.CatChar((char)left.at(ti));
 											if(p_srdb->GetWordInfo(src_text, 0, info_list) > 0) {
@@ -1171,7 +1171,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 												}
 											}
 											if(text_to_show.Len())
-												p_view->CallFunc(SCI_CALLTIPSHOW, _start_pos, (int)text_to_show.cptr());
+												p_view->CallFunc(SCI_CALLTIPSHOW, _start_pos, reinterpret_cast<intptr_t>(text_to_show.cptr()));
 										}
 									}
 								}
@@ -1204,7 +1204,7 @@ int STextBrowser::UpdateIndicators()
 				tp.Flags |= STokenizer::fRawOrgOffs;
 				P_Tknzr->SetParam(&tp);
 				ClearIndicator(indicUnknWord);
-				const  uint8 * p_buf = (const uint8 *)CallFunc(SCI_GETCHARACTERPOINTER); // to get characters directly from Scintilla buffer;
+				const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER)); // to get characters directly from Scintilla buffer;
 				//int    start_pos = MIN(0, p_scn->position-64);
                 SString src_text, text_to_show;
 				SString temp_buf;
@@ -1258,6 +1258,13 @@ int STextBrowser::UpdateIndicators()
 			}
 		}
 	}
+	return ok;
+}
+
+int STextBrowser::Run()
+{
+	int    ok = -1;
+
 	return ok;
 }
 
@@ -1517,17 +1524,17 @@ int STextBrowser::InsertWorkbookLink()
 				if(link.Type == link.ltImage) {
 					(text = "#IMAGE").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 					text.Transf(CTRANSF_INNER_TO_UTF8);
-					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+					CallFunc(SCI_INSERTTEXT, -1, reinterpret_cast<intptr_t>(text.cptr()));
 				}
 				else if(link.Type == link.ltRef) {
 					(text = "#REF").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 					text.Transf(CTRANSF_INNER_TO_UTF8);
-					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+					CallFunc(SCI_INSERTTEXT, -1, reinterpret_cast<intptr_t>(text.cptr()));
 				}
 				else if(link.Type == link.ltLink) {
 					(text = "#LINK").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 					text.Transf(CTRANSF_INNER_TO_UTF8);
-					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+					CallFunc(SCI_INSERTTEXT, -1, reinterpret_cast<intptr_t>(text.cptr()));
 				}
 				else if(link.Type == link.ltAnnot) {
 					if(link.AddendumID && wb_obj.Fetch(link.AddendumID, &addendum_rec) > 0) {
@@ -1539,7 +1546,7 @@ int STextBrowser::InsertWorkbookLink()
 						(text = "#ANNOT").CatChar('(').CatChar('\'').Cat(rec.Symb).CatChar('\'').CatChar(')');
 					}
 					text.Transf(CTRANSF_INNER_TO_UTF8);
-					CallFunc(SCI_INSERTTEXT, -1, (int)text.cptr());
+					CallFunc(SCI_INSERTTEXT, -1, reinterpret_cast<intptr_t>(text.cptr()));
 				}
 			}
 		}
@@ -1616,7 +1623,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 		case PPVCMD_SELCODEPAGE: ok = SetEncoding(cpUndef); break;
 		case PPVCMD_PROCESSTEXT:
 			{
-				uint8 * p_buf = (uint8 *)CallFunc(SCI_GETCHARACTERPOINTER, 0, 0);
+				uint8 * p_buf = reinterpret_cast<uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0));
 				const size_t len = (size_t)CallFunc(SCI_GETLENGTH);
 				TidyProcessBlock blk;
 				blk.InputBuffer.Set(p_buf, len);
@@ -1628,7 +1635,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 				blk.TidyOptions.Add(TidyBodyOnly, "yes");
 				if(TidyProcessText(blk) > 0) {
 					CallFunc(SCI_CLEARALL, 0, 0);
-					CallFunc(SCI_APPENDTEXT, (int)blk.Output.Len(), (int)(const char *)blk.Output);
+					CallFunc(SCI_APPENDTEXT, (int)blk.Output.Len(), reinterpret_cast<intptr_t>(blk.Output.cptr()));
 					ok = 1;
 				}
 			}
@@ -1638,6 +1645,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 		case PPVCMD_INSERTLINK: InsertWorkbookLink(); break;
 		case PPVCMD_BRACEHTMLTAG: BraceHtmlTag(); break;
 		case PPVCMD_SETUPSARTREINDICATORS: UpdateIndicators(); break;
+		case PPVCMD_RUN: Run(); break;
 	}
 	return ok;
 }
@@ -1768,12 +1776,12 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						}
 						if(Doc.OrgCp == cpUTF8) {
 							// Pass through UTF-8 (this does not check validity of characters, thus inserting a multi-byte character in two halfs is working)
-							CallFunc(SCI_APPENDTEXT, actual_size, reinterpret_cast<LPARAM>(buffer.cptr()));
+							CallFunc(SCI_APPENDTEXT, actual_size, reinterpret_cast<intptr_t>(buffer.cptr()));
 						}
 						else {
 							ubuf.CopyFromMb(Doc.OrgCp, buffer, actual_size);
 							ubuf.CopyToUtf8(utfbuf, 0);
-							CallFunc(SCI_APPENDTEXT, utfbuf.Len(), reinterpret_cast<LPARAM>(utfbuf.cptr()));
+							CallFunc(SCI_APPENDTEXT, utfbuf.Len(), reinterpret_cast<intptr_t>(utfbuf.cptr()));
 						}
 						THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
 					}
@@ -1807,7 +1815,7 @@ int STextBrowser::FileSave(const char * pFileName, long flags)
 			skip = 1;
 	}
 	if(!skip) {
-		const  uint8 * p_buf = (const uint8 *)CallFunc(SCI_GETCHARACTERPOINTER, 0, 0); // to get characters directly from Scintilla buffer;
+		const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0)); // to get characters directly from Scintilla buffer;
 		const  size_t len = (size_t)CallFunc(SCI_GETLENGTH);
 		SFile file;
 		THROW_SL(file.Open(path, SFile::mWrite|SFile::mBinary));
@@ -1816,7 +1824,7 @@ int STextBrowser::FileSave(const char * pFileName, long flags)
 		}
 		else if(Doc.Cp == cpUTF8) {
 			SString temp_buf;
-			temp_buf.CatN((char *)p_buf, len);
+			temp_buf.CatN(reinterpret_cast<const char *>(p_buf), len);
 			temp_buf.Utf8ToCp(Doc.OrgCp);
 			THROW_SL(file.Write(temp_buf, temp_buf.Len()));
 		}
@@ -1851,15 +1859,15 @@ int STextBrowser::BraceHtmlTag()
 				if(sel_range.low >= 0 && sel_range.upp >= 0) {
 					if(tag == "*") { // comment
 						text.Z().Cat("-->");
-						CallFunc(SCI_INSERTTEXT, sel_range.upp, (int)text.cptr());
+						CallFunc(SCI_INSERTTEXT, sel_range.upp, reinterpret_cast<intptr_t>(text.cptr()));
 						text.Z().Cat("<!--");
-						CallFunc(SCI_INSERTTEXT, sel_range.low, (int)text.cptr());
+						CallFunc(SCI_INSERTTEXT, sel_range.low, reinterpret_cast<intptr_t>(text.cptr()));
 					}
 					else {
 						text.Z().CatChar('<').CatChar('/').Cat(tag).CatChar('>');
-						CallFunc(SCI_INSERTTEXT, sel_range.upp, (int)text.cptr());
+						CallFunc(SCI_INSERTTEXT, sel_range.upp, reinterpret_cast<intptr_t>(text.cptr()));
 						text.Z().CatChar('<').Cat(tag).CatChar('>');
-						CallFunc(SCI_INSERTTEXT, sel_range.low, (int)text.cptr());
+						CallFunc(SCI_INSERTTEXT, sel_range.low, reinterpret_cast<intptr_t>(text.cptr()));
 					}
 					ok = 1;
 				}

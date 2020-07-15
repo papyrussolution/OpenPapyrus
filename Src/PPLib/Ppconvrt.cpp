@@ -6042,7 +6042,7 @@ int SLAPI ConvertWorkbook813()
 				temp_file_name = 0;
 				if(pack_pre.F.At(0, file_name) > 0) {
 					pack.F.Init(PPOBJ_WORKBOOK);
-					ps.Clear().Split(file_name);
+					ps.Z().Split(file_name);
 					PPMakeTempFileName("wbc813", ps.Ext, 0, temp_file_name);
 					THROW_SL(SCopyFile(file_name, temp_file_name, 0, FILE_SHARE_READ, 0));
 					pack.F.Replace(0, temp_file_name);

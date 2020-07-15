@@ -5,6 +5,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <ppsoapclient.h>
 // @v9.6.3 #include <idea.h>
 
 // Prototype
@@ -735,7 +736,7 @@ DBQ * FASTCALL ppcheckweekday(DBQ * pDbq, DBItem & rDbi, int dayOfWeek)
 		p_dbe->init();
 		p_dbe->push(rDbi);
 		p_dbe->push(dbq_weekday);
-		pDbq = &(*pDbq && *p_dbe == (long)dayOfWeek);
+		pDbq = &(*pDbq && *p_dbe == static_cast<long>(dayOfWeek));
 		delete p_dbe;
 	}
 	return pDbq;
@@ -779,14 +780,16 @@ int SLAPI PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
 {
 	int    ok = 1;
 	long   handle = -1;
-	for(uint i = 0; handle < 0 && i < Tab.getCount(); i++)
+	for(uint i = 0; handle < 0 && i < Tab.getCount(); i++) {
 		if(Tab.at(i) == 0) {
 			Tab.at(i) = pQ;
-			handle = (long)i;
+			handle = static_cast<long>(i);
 		}
+	}
 	if(handle < 0) {
 		Tab.insert(&pQ);
-		handle = (long)(Tab.getCount()-1);
+		assert(Tab.getCount());
+		handle = Tab.getCountI()-1;
 	}
 	ASSIGN_PTR(pHandle, handle);
 	return ok;
@@ -797,7 +800,7 @@ int SLAPI PPTblEnumList::DestroyIterHandler(long handle)
 	int    ok = -1;
 	uint   pos = (uint)handle;
 	if(pos < Tab.getCount()) {
-		BExtQuery * p_q = (BExtQuery *)Tab.at(pos);
+		BExtQuery * p_q = static_cast<BExtQuery *>(Tab.at(pos));
 		if(p_q) {
 			delete p_q;
 			Tab.at(pos) = 0;
@@ -814,7 +817,7 @@ int FASTCALL PPTblEnumList::NextIter(long handle)
 	int    ok = 0;
 	uint   pos = (uint)handle;
 	if(pos < Tab.getCount()) {
-		BExtQuery * p_q = (BExtQuery *)Tab.at(pos);
+		BExtQuery * p_q = static_cast<BExtQuery *>(Tab.at(pos));
 		if(p_q)
 			if(p_q->nextIteration() > 0)
 				ok = 1;
@@ -1004,19 +1007,6 @@ int FASTCALL CheckFiltID(PPID flt, PPID id)
 {
 	return (!flt || flt == id);
 }
-
-/* @v6.0.1 @unused
-int SLAPI BarCodeCheckDigit(char * bc)
-{
-	int    p, c = 0, len = sstrlen(bc);
-	for(p = 0; p < len; p += 2)
-		c += bc[p] - '0';
-	c *= 3;
-	for(p = 1; p < len; p += 2)
-		c += bc[p] - '0';
-	return (10 - c % 10) % 10;
-}
-*/
 
 char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noabs)
 {
@@ -1349,7 +1339,7 @@ int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 			uint ff_ = p_rez->getUINT();
 			fld.OuterFormat = fp_ ? MKSFMTD(fl_, fp_, ff_) : MKSFMT(fl_, ff_);
 			p_rez->getString(fld.Descr, 0);
-			SLS.ExpandString(fld.Descr, CTRANSF_UTF8_TO_OUTER); // @v9.1.4
+			SLS.ExpandString(fld.Descr, CTRANSF_UTF8_TO_OUTER);
 			THROW_SL(pRec->AddField(&fld_id, &fld));
 		}
 	}
@@ -2505,7 +2495,6 @@ int SLAPI XMLFillDTDEntitys(void * pWriter)
 	return ok;
 }
 #endif // } 0
-
 //
 //
 //
@@ -2520,15 +2509,15 @@ int SLAPI XMLFillDTDEntitys(void * pWriter)
 
 */
 // not implemented yet
-/*
-	Проверка правильности указания корреспондентского счёта:
-
-	Алгоритм проверки корреспондентского счёта с помощью БИКа банка:
-	1. Для проверки контрольной суммы перед корреспондентским счётом добавляются "0" и два знака БИКа банка, начиная с пятого знака.
-	2. Вычисляется контрольная сумма со следующими весовыми коэффициентами: (7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1)
-	3. Вычисляется контрольное число как остаток от деления контрольной суммы на 10
-	4. Контрольное число сравнивается с нулём. В случае их равенства корреспондентский счёт считается правильным.
-*/
+// 
+// Проверка правильности указания корреспондентского счёта:
+// 
+// Алгоритм проверки корреспондентского счёта с помощью БИКа банка:
+// 1. Для проверки контрольной суммы перед корреспондентским счётом добавляются "0" и два знака БИКа банка, начиная с пятого знака.
+// 2. Вычисляется контрольная сумма со следующими весовыми коэффициентами: (7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1)
+// 3. Вычисляется контрольное число как остаток от деления контрольной суммы на 10
+// 4. Контрольное число сравнивается с нулём. В случае их равенства корреспондентский счёт считается правильным.
+// 
 int CheckCorrAcc(const char * pCode, const char * pBic)
 {
 	int    ok = 0;
@@ -2555,15 +2544,15 @@ int CheckCorrAcc(const char * pCode, const char * pBic)
 	}
 	return ok;
 }
-/*
-	Проверка правильности указания расчётного счёта:
-
-	Алгоритм проверки расчётного счёта с помощью БИКа банка:
-	1. Для проверки контрольной суммы перед расчётным счётом добавляются три последние цифры БИКа банка.
-	2. Вычисляется контрольная сумма со следующими весовыми коэффициентами: (7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1)
-	3. Вычисляется контрольное число как остаток от деления контрольной суммы на 10
-	4. Контрольное число сравнивается с нулём. В случае их равенства расчётного счёт считается правильным.
-*/
+// 
+// Проверка правильности указания расчётного счёта:
+// 
+// Алгоритм проверки расчётного счёта с помощью БИКа банка:
+// 1. Для проверки контрольной суммы перед расчётным счётом добавляются три последние цифры БИКа банка.
+// 2. Вычисляется контрольная сумма со следующими весовыми коэффициентами: (7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1,3,7,1)
+// 3. Вычисляется контрольное число как остаток от деления контрольной суммы на 10
+// 4. Контрольное число сравнивается с нулём. В случае их равенства расчётного счёт считается правильным.
+// 
 int CheckBnkAcc(const char * pCode, const char * pBic)
 {
 	int    ok = 0;
@@ -2590,6 +2579,7 @@ int CheckBnkAcc(const char * pCode, const char * pBic)
 	}
 	return ok;
 }
+#if 0 // @v10.8.1 (replaced with STokenRecognizer) {
 /*
 	Проверка правильности указания ОКПО:
 
@@ -2610,7 +2600,7 @@ int CheckOKPO(const char * pCode)
 	if(len == 8) {
 		int    r = 1;
 		for(i = 0; r && i < len; i++) {
-			if(pCode[i] < '0' || pCode[i] > '9')
+			if(!isdec(pCode[i]))
 				r = 0;
 		}
 		if(r) {
@@ -2635,6 +2625,7 @@ int CheckOKPO(const char * pCode)
 	}
 	return ok;
 }
+#endif // } 0 @v10.8.1 (replaced with STokenRecognizer)
 /*
 	Проверка правильности указания ИНН:
 
@@ -2705,7 +2696,6 @@ int CheckINN(const char * pCode)
 //
 //
 #if 0 // {
-
 extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, long flags)
 {
 	int    ok = -1;
@@ -2771,14 +2761,10 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 	ENDCATCH
 	return ok;
 }
-
 #endif // } 0
-
 //
 //
 //
-#include <ppsoapclient.h>
-
 SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 {
 	SString temp_buf;

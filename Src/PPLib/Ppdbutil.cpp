@@ -380,7 +380,7 @@ int SLAPI PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 int SLAPI PPBackup::GetScen(long id, PPBackupScen * pScen)
 {
 	int    ok = 1;
-	if(P_ScenList && id > 0 && id <= (long)P_ScenList->getCount())
+	if(P_ScenList && id > 0 && id <= P_ScenList->getCountI())
 		*pScen = *static_cast<const PPBackupScen *>(P_ScenList->at((uint)(id - 1)));
 	else
 		ok = 0;

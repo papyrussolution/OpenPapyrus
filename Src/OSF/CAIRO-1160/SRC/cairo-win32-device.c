@@ -50,8 +50,6 @@
 //#include "cairo-atomic-private.h"
 //#include "cairo-device-private.h"
 #include "cairo-win32-private.h"
-//#include <wchar.h>
-//#include <windows.h>
 
 static cairo_device_t * __cairo_win32_device;
 

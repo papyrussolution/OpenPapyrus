@@ -168,9 +168,7 @@ public:
 	{
 		Data = *pData;
 		Buf_Data = *pData;
-
 		setCtrlString(CTL_BIZPRCRT_PRMTVNAME, BizScoreName);
-
 		// Выбор примитива
 		long id = 0;
 		uint pos = 0;
@@ -194,7 +192,6 @@ public:
 		//
 		id = (Primitiv_List.SearchByText(Primitiv_List.Get(Data.Kind-1).Txt, 1, &(pos = 0)) > 0) ? (uint)Primitiv_List.Get(pos).Id : 0;
 		SetupStrAssocCombo(this, CTLSEL_BIZPRCRT_PRIMITIV, &Primitiv_List, (long)id, 0);
-
 		// В зависимости от выбранного примитива активируем/блокируем остальные параметры
 		DisableControls(id);
 		//

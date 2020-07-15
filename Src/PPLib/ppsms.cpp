@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <pp.h>
@@ -1684,19 +1684,19 @@ void SmsClient::DecodeDeliverSm(int sequenceNumber, void * pPduBody, size_t body
 	while(pos < (end_pos - 1)) {
 		error.CatChar(message[pos++]);
 	}
-	if(status.CmpNC("DELIVRD") == 0)  // Сообщение доставлено адресату
+	if(status.IsEqiAscii("DELIVRD"))  // Сообщение доставлено адресату
 		AddStatusCode(dest_addr, SMS_DELIVERED, error);
-	else if(status.CmpNC("EXPIRED") == 0) // Период допустимости сообщения истек.
+	else if(status.IsEqiAscii("EXPIRED")) // Период допустимости сообщения истек.
 		AddStatusCode(dest_addr, SMS_EXPIRED, error);
-	else if(status.CmpNC("DELETED") == 0) // Сообщение было удалено.
+	else if(status.IsEqiAscii("DELETED")) // Сообщение было удалено.
 		AddStatusCode(dest_addr, SMS_DELETED, error);
-	else if(status.CmpNC("UNDELIV") == 0) // Сообщение является недоставляемым.
+	else if(status.IsEqiAscii("UNDELIV")) // Сообщение является недоставляемым.
 		AddStatusCode(dest_addr, SMS_UNDELIVERABLE, error);
-	else if(status.CmpNC("ACCEPTD") == 0) // Сообщение находится в принятом состоянии (то есть, прочитано вручную от имени абонента клиентской службы).
+	else if(status.IsEqiAscii("ACCEPTD")) // Сообщение находится в принятом состоянии (то есть, прочитано вручную от имени абонента клиентской службы).
 		AddStatusCode(dest_addr, SMS_ACCEPTED, error);
-	else if(status.CmpNC("UNKNOWN") == 0)  // Сообщение находится в ошибочном состоянии.
+	else if(status.IsEqiAscii("UNKNOWN"))  // Сообщение находится в ошибочном состоянии.
 		AddStatusCode(dest_addr, SMS_UNKNOWN, error);
-	else if(status.CmpNC("REJECTD") == 0) // Сообщение находится в отклоненном состоянии.
+	else if(status.IsEqiAscii("REJECTD")) // Сообщение находится в отклоненном состоянии.
 		AddStatusCode(dest_addr, SMS_REJECTED, error);
 }
 

@@ -38,9 +38,9 @@ SImage::~SImage()
 	delete static_cast<Gdiplus::Image *>(P_Image);
 }
 
-int SImage::Init() { return SLS.InitGdiplus(); }
-void SImage::SetClearColor(COLORREF color) { ClearColor = color; }
-int SImage::IsValid() const { return BIN(P_Image); }
+int    SImage::Init() { return SLS.InitGdiplus(); }
+void   SImage::SetClearColor(COLORREF color) { ClearColor = color; }
+int    SImage::IsValid() const { return BIN(P_Image); }
 double SImage::GetWidth() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetWidth() : 0.0; }
 double SImage::GetHeight() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetHeight() : 0.0; }
 double SImage::GetHRes() { return P_Image ? static_cast<Gdiplus::Image *>(P_Image)->GetHorizontalResolution() : 0.0; }

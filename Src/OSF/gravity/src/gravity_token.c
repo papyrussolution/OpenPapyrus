@@ -112,8 +112,7 @@ const char * FASTCALL token_name(gtoken_t token)
 		case TOK_OP_DOT: return ".";
 		case TOK_END: return "";
 	}
-	// should never reach this point
-	return "UNRECOGNIZED TOKEN";
+	return "UNRECOGNIZED TOKEN"; // should never reach this point
 }
 
 void token_keywords_indexes(uint32 * idx_start, uint32 * idx_end) 

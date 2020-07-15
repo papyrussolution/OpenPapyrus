@@ -325,22 +325,23 @@ PPDraftOpEx & FASTCALL PPDraftOpEx::operator = (const PPDraftOpEx & s)
 //
 //
 //
-struct OpkListEntry {
-	PPID   id;
-	char   name[48];
-	int16  rank;
+struct OpkListEntry { // @flat
+	PPID   ID;
+	char   Name[48];
+	int16  Rank;
+	uint16 Reserve; // @alignment
 };
 
 static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 {
 	const OpkListEntry * p_i1 = static_cast<const OpkListEntry *>(i1);
 	const OpkListEntry * p_i2 = static_cast<const OpkListEntry *>(i2);
-	if(p_i1->rank > p_i2->rank)
+	if(p_i1->Rank > p_i2->Rank)
 		return -1;
-	else if(p_i1->rank < p_i2->rank)
+	else if(p_i1->Rank < p_i2->Rank)
 		return 1;
 	else
-		return stricmp866(p_i1->name, p_i2->name);
+		return stricmp866(p_i1->Name, p_i2->Name);
 }
 
 // static
@@ -349,7 +350,7 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 	int    r;
 	PPID   id = 0;
 	PPOprKind opk;
-	SArray temp_list(sizeof(OpkListEntry));
+	SVector temp_list(sizeof(OpkListEntry)); // @v10.8.1 SArray-->SVector
 	StrAssocArray * p_list = 0;
 	while((r = EnumOperations(0, &id, &opk)) > 0) {
 		int    suit = 0;
@@ -362,9 +363,9 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 			if(PPMaster || !oneof3(id, _PPOPK_SUPPLRET, _PPOPK_SELLRET, _PPOPK_RETAILRET)) {
 				OpkListEntry entry;
 				MEMSZERO(entry);
-				entry.id = opk.ID;
-				entry.rank = opk.Rank;
-				STRNSCPY(entry.name, opk.Name);
+				entry.ID = opk.ID;
+				entry.Rank = opk.Rank;
+				STRNSCPY(entry.Name, opk.Name);
 				THROW_SL(temp_list.ordInsert(&entry, 0, PTR_CMPFUNC(OpkListEntry)));
 			}
 		}
@@ -374,7 +375,7 @@ StrAssocArray * SLAPI PPObjOprKind::MakeOprKindList(PPID linkOprKind, const PPID
 		THROW_MEM(p_list = new StrAssocArray);
 		for(uint i = 0; i < temp_list.getCount(); i++) {
 			const OpkListEntry * p_entry = static_cast<const OpkListEntry *>(temp_list.at(i));
-			THROW_SL(p_list->Add(p_entry->id, p_entry->name));
+			THROW_SL(p_list->Add(p_entry->ID, p_entry->Name));
 		}
 	}
 	CATCH

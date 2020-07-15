@@ -83,7 +83,7 @@ int SLAPI PPCommandDescr::LoadResource(long cmdDescrID)
 		CmdID = cmdDescrID;
 		p_rez->getString(Symb, 2);
 		p_rez->getString(Text, 2);
-		SLS.ExpandString(Text, CTRANSF_UTF8_TO_INNER); // @v9.0.11
+		SLS.ExpandString(Text, CTRANSF_UTF8_TO_INNER);
 		IconId    = static_cast<long>(p_rez->getUINT());
 		ToolbarId = static_cast<long>(p_rez->getUINT());
 		MenuCm    = static_cast<long>(p_rez->getUINT());
@@ -141,7 +141,7 @@ PPCommandHandler * SLAPI PPCommandDescr::CreateInstance(long cmdDescrID)
 	if(!f && MenuCm) {
 		SString def_factory_name;
 		def_factory_name = P_FactoryPrfx;
-		def_factory_name.Cat("DEFAULT").ToUpper();
+		def_factory_name.Cat("default").ToUpper();
 		f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), def_factory_name));
 	}
 	THROW(f);
@@ -465,6 +465,7 @@ int SLAPI PPCommand::Write2(void * pHandler, const long rwFlag) const
 	CATCHZOK
 	return ok;
 }
+
 int SLAPI PPCommand::Read2(void * pHandler, const long rwFlag)
 {
 	int    ok = 1;
@@ -858,7 +859,7 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 	int    ok = 1;
 	SString db_symb;
 	const PPCommandItem * p_item = 0;
-	PPCommandGroup * p_desk = 0, grp;
+	PPCommandGroup grp;
 	const PPCommandGroup * p_grp = 0;
 	PPCommandMngr * p_mgr = 0;
 	if(pGrp)
@@ -876,16 +877,15 @@ int SLAPI PPCommandFolder::GetMenuList(const PPCommandGroup * pGrp, StrAssocArra
 	}
 	CurDict->GetDbSymb(db_symb);
 	for(uint i = 0; p_item = p_grp->Next(&i);) {
-		if(isDesktop)
-			p_desk = (p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
+		PPCommandGroup * p_desk = (isDesktop && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(p_item->Dup()) : 0;
 		//if((!isDesktop && p_item->Kind == PPCommandItem::kFolder) || (p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
-		if((!isDesktop && p_item->Kind==PPCommandItem::kGroup)||(p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
+		if((!isDesktop && p_item->Kind == PPCommandItem::kGroup) || (p_desk && p_desk->IsDbSymbEq(db_symb))) //@erik v10.7.6
 			pAry->Add(p_item->ID, p_item->Name);
 		ZDELETE(p_desk);
 	}
 	CATCHZOK
 	ZDELETE(p_mgr);
-	ZDELETE(p_desk);
+	//ZDELETE(p_desk);
 	return ok;
 }
 
@@ -1196,13 +1196,12 @@ int FASTCALL PPCommandGroup::IsDbSymbEq(const PPCommandGroup & rGrp) const
 	return BIN(DbSymb.CmpNC(rGrp.DbSymb) == 0);
 }
 
-int SLAPI PPCommandGroup::GenerateGuid()
+void SLAPI PPCommandGroup::GenerateGuid()
 {
 	DeskGuid.Generate();
-	return 1;
 }
 
-const S_GUID FASTCALL PPCommandGroup::GetDeskGuid() const
+const S_GUID & FASTCALL PPCommandGroup::GetGuid() const
 {
 	return DeskGuid;
 }
@@ -4467,3 +4466,61 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(EXPORTVIEW);
+//
+//
+//
+static int EditTextFileParamDialog(EditTextFileParam * pData)
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_EDITTEXTPARAM);
+	if(CheckDialogPtrErr(&dlg)) {
+		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_EDITTEXTPARAM_PAT, CTL_EDITTEXTPARAM_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
+		dlg->setCtrlString(CTL_EDITTEXTPARAM_PATH, pData->FileName);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_EDITTEXTPARAM_PATH, pData->FileName);
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
+
+class CMD_HDL_CLS(OPENTEXTFILE) : public PPCommandHandler {
+public:
+	SLAPI  CMD_HDL_CLS(OPENTEXTFILE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			EditTextFileParam filt;
+			filt.Read(*pParam, 0);
+			if(EditTextFileParamDialog(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = 1;
+		EditTextFileParam filt;
+		if(!pParam || pParam->GetAvailableSize() == 0)
+			PPEditTextFile(0);
+		else {
+			if(filt.Read(*pParam, 0)) 
+				PPEditTextFile(&filt);
+			else
+				PPEditTextFile(0);
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(OPENTEXTFILE);

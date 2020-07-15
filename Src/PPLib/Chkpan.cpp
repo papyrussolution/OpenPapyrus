@@ -954,17 +954,15 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			Scf      = cn_pack.Scf;
 			cn_pack.GetPropString(SCN_RPTPRNPORT, RptPrnPort);
 			RptPrnPort.Strip();
-			// @v9.0.9 {
-			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) { // @v9.8.12 (3)
+			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) {
 				EgaisMode = cn_pack.EgaisMode;
-				if(oneof3(EgaisMode, 1, 2, 3) && !(Flags & fNoEdit)) { // @v9.8.12 oneof2(EgaisMode, 1, 2)-->oneof3(EgaisMode, 1, 2, 3)
+				if(oneof3(EgaisMode, 1, 2, 3) && !(Flags & fNoEdit)) {
 					long   egcf = PPEgaisProcessor::cfDirectFileLogging|PPEgaisProcessor::cfUseVerByConfig;
 					if(EgaisMode == 2)
 						egcf |= PPEgaisProcessor::cfDebugMode;
 					P_EgPrc = new PPEgaisProcessor(egcf, 0, 0);
 				}
 			}
-			// } @v9.0.9
 		}
 	}
 	CnName = cn_rec.Name;
@@ -983,14 +981,12 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	SETFLAG(Flags, fAsSelector, (P_ChkPack && !CashNodeID && !CheckID));
 	SETFLAG(Flags, fTouchScreen, isTouchScreen);
 	SETFLAG(Flags, fCashNodeIsLocked, CnObj.IsLocked(CashNodeID) > 0);
-	// @v9.5.10 {
 	if(CnExtFlags & CASHFX_ABSTRGOODSALLOWED) {
 		const PPID def_goods_id = GObj.GetConfig().DefGoodsID;
 		Goods2Tbl::Rec goods_rec;
 		if(def_goods_id && GObj.Fetch(def_goods_id, &goods_rec) > 0)
 			AbstractGoodsID = def_goods_id;
 	}
-	// } @v9.5.10
 	//
 	PPObjLocPrinter lp_obj;
 	SETFLAG(Flags, fLocPrinters, lp_obj.IsPrinter());
@@ -1034,7 +1030,7 @@ CPosProcessor::~CPosProcessor()
 	delete P_DivGrpList;
 	delete P_TSesObj;
 	delete P_CcView;
-	delete P_EgPrc; // @v9.0.9
+	delete P_EgPrc;
 }
 
 int CPosProcessor::InitCashMachine()
@@ -3162,7 +3158,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				if(!GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath, &P_BNKTERM))
 					Flags |= fLockBankPaym; // @v10.0.10
 				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
-				AltRegisterID   = scn.AlternateRegID; // @v9.7.10
+				AltRegisterID   = scn.AlternateRegID;
 				CnPhnSvcID      = scn.PhnSvcID; // @v9.9.10
 				if(scn.ExtCashNodeID) {
 					if(scn.ExtFlags & CASHFX_EXTNODEASALT && !AltRegisterID)
@@ -3171,16 +3167,13 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 						ExtCashNodeID = scn.ExtCashNodeID;
 				}
 				else {
-					// @v9.7.10 AltRegisterID = 0;
 					ExtCashNodeID = 0;
 				}
-				// @v9.7.10 {
 				if(AltRegisterID) {
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
 					if(!temp_buf.IsEqiAscii("yes"))
 						AltRegisterID = 0;
 				}
-				// } @v9.7.10
 				ScaleID         = scn.ScaleID;
 				BonusMaxPart    = (scn.BonusMaxPart > 0 && scn.BonusMaxPart <= 1000) ? R3(((double)scn.BonusMaxPart) / 1000.0) : 1.0;
 				scn.GetRoundParam(&R);
@@ -3230,14 +3223,14 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 						P_UhttImporter = new PPBillImporter;
 					}
 				}
-				RunInputProcessThread(CashNodeID); // @v9.6.7
+				RunInputProcessThread(CashNodeID);
 			}
 			CDispCommand(cdispcmdText, cdisptxtOpened, 0.0, 0.0);
 			if(Flags & fTouchScreen && TouchScreenID) {
 				PPTouchScreenPacket ts_pack;
 				PPObjTouchScreen    ts_obj;
 				if(ts_obj.GetPacket(TouchScreenID, &ts_pack) > 0) {
-					LOGFONT log_font; // @unicodeproblem
+					LOGFONT log_font;
 					int    r = 1; // 0-->1
 					ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_TSGOODSGROUPSASBUTTONS, &r);
 					SETFLAG(UiFlags, uifTSGGroupsAsButtons, r);
@@ -3313,14 +3306,12 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	else if(CnSpeciality == PPCashNode::spDelivery) {
 		setButtonBitmap(cmChkPanF1, IDB_DELIVERY);
 	}
-	// @v9.6.0 {
 	else if(oneof2(CnSpeciality, PPCashNode::spApteka, PPCashNode::spShop)) {
 		showButton(cmSelTable, 0);
-		if(!(Flags & fNoEdit)) // @v9.6.4
+		if(!(Flags & fNoEdit))
 			showButton(cmChkPanPrint, 0);
 		showButton(cmToLocPrinters, 0);
 	}
-	// } @v9.6.0
 	// @v10.0.10 {
 	if(Flags & fLockBankPaym || !(OperRightsFlags & orfBanking)) {
 		setButtonBitmap(cmBanking, IDB_BANKINGDISABLED);
@@ -3894,7 +3885,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			const int auto_input = BIN(UiFlags & uifAutoInput);
 			SString ss_code;
 			CCheckPacket::BarcodeIdentStruc bis;
-			if(Input.CmpPrefix("TBL", 1) == 0) {
+			if(Input.HasPrefixIAscii("TBL")) {
 				int    table_no = Input.ShiftLeft(3).ToLong();
 				long   guest_count = 0;
 				if(CnExtFlags & CASHFX_INPGUESTCFTBL)
@@ -3915,7 +3906,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							uint   candid_count = 0;
 							LDATETIME max_dtm = ZERODATETIME;
 							uint   _pos = 0;
-							TSVector <CCheckTbl::Rec> cc_list; // @v9.8.5 TSArray-->TSVector
+							TSVector <CCheckTbl::Rec> cc_list;
 							if(GetCc().GetListByCode(bis.PosId, bis.CcCode, &cc_list) > 0) {
                                 for(uint i = 0; i < cc_list.getCount(); i++) {
                                 	const CCheckTbl::Rec & r_rec = cc_list.at(i);
@@ -3954,7 +3945,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				else
 					MessageError(PPERR_CHKPAN_CANTRESTORESUSPNE, 0, eomBeep|eomStatusLine);
 			}
-			else if(Input.CmpPrefix("DIV", 1) == 0) {
+			else if(Input.HasPrefixIAscii("DIV")) {
 				int    div = Input.ShiftLeft(3).ToLong();
 				if(P.HasCur() && P.GetCur().GoodsID && (div > 0 && div < 1000)) {
 					P.GetCur().Division = static_cast<int16>(div);
@@ -3962,12 +3953,12 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				}
 				ClearInput(0);
 			}
-			else if(Input.CmpPrefix("TSN", 1) == 0) {
+			else if(Input.HasPrefixIAscii("TSN")) {
 				PPID   sess_id = Input.ShiftLeft(3).ToLong();
 				LoadTSession(sess_id);
 				ClearInput(0);
 			}
-			else if(Input.CmpPrefix("CHKINP", 1) == 0) {
+			else if(Input.HasPrefixIAscii("CHKINP")) {
 				PPID   cip_id = 0;
 				PPID   goods_id = 0;
 				double qtty = 0.0;
@@ -3990,7 +3981,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				}
 				ClearInput(0);
 			}
-			else if(Input.Cmp("99999", 0) == 0) {
+			else if(Input == "99999") {
 				Sleep();
 				ClearInput(0);
 			}
@@ -4012,7 +4003,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 				else {
 					int    r = -1; // r == 1000 - операци€ невозможна из-за несоблюдени€ какого-то услови€ //
-					char   code[128];
+					char   code[256]; // @v10.8.1 [128]-->[256]
 					int    is_serial = 0; // !0 если code €вл€етс€ подход€щим серийным номером
 					double qtty = 1.0;
 					double price = 0.0;
@@ -4021,7 +4012,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					GoodsCodeSrchBlock gcsb;
 					Input.CopyTo(gcsb.Code, sizeof(gcsb.Code));
 					Input.CopyTo(code, sizeof(code));
-					gcsb.Flags |= (GoodsCodeSrchBlock::fAdoptSearch | GoodsCodeSrchBlock::fUse2dTempl);
+					gcsb.Flags |= (GoodsCodeSrchBlock::fAdoptSearch|GoodsCodeSrchBlock::fUse2dTempl);
 					if(GObj.SearchByCodeExt(&gcsb) > 0) {
 						if(CnFlags & CASHF_DISABLEZEROAGENT && !P.GetAgentID()) {
 							r = 1000;
@@ -5438,20 +5429,16 @@ public:
 		}
 		if(Data.Flags & Data.fDelivery)
 			selectCtrl(CTL_CCHKDLVR_ADDR);
-		// @v9.4.5 {
 		{
 			SCardCtrlGroup::Rec screc;
 			screc.SCardID = Data.SCardID_;
 			setGroupData(ctlgrouSCard, &screc);
 		}
-		// } @v9.4.5
-		// @v9.4.11 {
 		{
 			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 0, Data.fAttachPhoneToSCard);
 			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 1, Data.fCreateCardByPhone); // @v10.2.7
 			SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
 		}
-		// } @v9.4.11
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -6188,6 +6175,27 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	if(TVCOMMAND) {
 		if(TVCMD == cmInputUpdated)
 			IdleClock = clock(); // Ќе обрабатываем это сообщение, а лишь прерываем таймаут засыпани€ //
+		// @v10.8.1 {
+		else if(TVCMD == cmModalPostCreate) {
+			if(!(Flags & fNoEdit) && CnExtFlags & CASHFX_NOTIFYEQPTIMEMISM) {
+				if(InitCashMachine() && P_CM) {
+					PPSyncCashSession * p_ifc = P_CM->SyncInterface();
+					LDATETIME device_dtm = ZERODATETIME;
+					if(p_ifc->GetDeviceTime(&device_dtm) > 0) {
+						const LDATETIME now_dtm = getcurdatetime_();							
+						if(checkdate(device_dtm.d) && labs(diffdatetimesec(now_dtm, device_dtm)) >= 60) {
+							SString fmt_buf;
+							SString msg_buf;
+							PPLoadText(PPTXT_DEVICETIMEDIFFROMSYS, fmt_buf);
+							PPFormat(fmt_buf, &msg_buf, device_dtm);
+							PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrTomato),
+								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+						}
+					}
+				}
+			}
+		}
+		// } @v10.8.1 
 		else if(TVCMD == cmCtlColor) {
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
@@ -7808,7 +7816,6 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 	}
 	// } @v10.3.9
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
-	// @v9.9.0 {
 	if(Flags & fNoEdit) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 		const long cur = (p_list && p_list->def) ? p_list->def->_curItem() : -1;
@@ -7820,7 +7827,6 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 				setCtrlString(CTL_CHKPAN_INFO, buf = r_item.ChZnMark);
 		}
 	}
-	// } @v9.9.0
 }
 
 int CPosProcessor::PreprocessRowBeforeRemoving(/*IN*/long rowNo, /*OUT*/double * pResultQtty)
@@ -8561,6 +8567,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						}
 						if(!is_mark_processed) {
 							if(gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) {
+								const int disable_chzn_mark_backtest = 1; // @v10.8.1 ѕроблемы с сигаретами - слишком много продаж и идентификаци€ дубликатов занимает много времени
 								rBlk.Qtty = 1.0; // ћаркированна€ продукции€ - строго по одной штуке на строку чека
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
@@ -8573,7 +8580,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									if(!dup_mark && chzn_mark.IsEqual(P.GetCur().ChZnMark))
 										dup_mark = 1;
 									if(!dup_mark) {
-										if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
+										if(!disable_chzn_mark_backtest && CnExtFlags & CASHFX_CHECKEGAISMUNIQ) { // @v10.8.1 !disable_chzn_mark_backtest
 											PPIDArray cc_list;
 											CCheckCore & r_cc = GetCc();
 											int    cc_even = 0;
@@ -11300,7 +11307,6 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 {
 	int    ok = 1;
 	CCheckCore & r_cc = GetCc();
-	/* @v9.6.11 {*/
 	if(rB.Flags & rB.fAltReg && P_CM_ALT) {
 		if(rB.Flags & rB.fIsPack) {
 			rB.Pack.Rec.SessID = P_CM->GetCurSessID();
@@ -11312,7 +11318,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 			r_cc.WriteCCheckLogFile(&rB.Pack, 0, CCheckCore::logPrinted, 1);
 		}
 	}
-	else /* }@v9.6.11 */ {
+	else {
 		if(pPl && pPl->Get(CCAMTTYP_CASH) != 0.0) {
 			if(P_CM->GetNodeData().Flags & CASHF_OPENBOX)
 				P_CM->SyncOpenBox();

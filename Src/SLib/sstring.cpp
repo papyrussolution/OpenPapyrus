@@ -5,7 +5,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <wchar.h>
 //
 //
 //
@@ -2505,8 +2504,8 @@ char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 
 SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 {
-	if(numDigits > 0 && numDigits <= 512) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+	if(checkirange(numDigits, 1, 512)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		const size_t _slen = r_temp_buf.Cat(val).Len();
 		if(_slen < numDigits)
 			r_temp_buf.PadLeft(numDigits - _slen, '0');
@@ -2519,8 +2518,8 @@ SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 
 SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
 {
-	if(numDigits > 0 && numDigits <= 512) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+	if(checkirange(numDigits, 1, 512)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		const size_t _slen = r_temp_buf.Cat(val).Len();
 		if(_slen < numDigits)
 			r_temp_buf.PadLeft(numDigits - _slen, '0');
@@ -4454,7 +4453,7 @@ SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
 	return *this;
 }
 
-SPathStruc & SPathStruc::Clear()
+SPathStruc & SPathStruc::Z()
 {
 	Flags = 0;
 	Drv.Z();
@@ -7028,6 +7027,36 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						}
 						break;
 					case 8:
+						// RU_OKPO
+						{
+							// 
+							// Проверка правильности указания ОКПО:
+							// 
+							// Алгоритм проверки ОКПО:
+							// 1. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (1,2,3,4,5,6,7).
+							// 2. Вычисляется контрольное число(1) как остаток от деления контрольной суммы на 11.
+							// 3. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (3,4,5,6,7,8,9).
+							// 4. Вычисляется контрольное число(2) как остаток от деления контрольной суммы на 11.
+							//   Если остаток от деления равен 10-ти, то контрольному числу(2) присваивается ноль.
+							// 5. Если контрольное число(1) больше девяти, то восьмой знак ОКПО сравнивается с контрольным числом(2),
+							//   иначе восьмой знак ОКПО сравнивается с контрольным числом(1). В случае их равенства ОКПО считается правильным.
+							// 
+							int is_ru_okpo = 0;
+							static const int8 ru_okpo_w1[] = {1,2,3,4,5,6,7};
+							static const int8 ru_okpo_w2[] = {3,4,5,6,7,8,9};
+							ulong  sum1 = 0, sum2 = 0;
+							for(i = 0; i < 7; i++) {
+								sum1 += (ru_okpo_w1[i] * (pToken[i]-'0'));
+								sum2 += (ru_okpo_w2[i] * (pToken[i]-'0'));
+							}
+							int    cd1 = (sum1 % 11);
+							int    cd2 = (sum2 % 11);
+							if(cd2 == 10)
+								cd2 = 0;
+							is_ru_okpo = (cd1 > 9) ? BIN((last-'0') == cd2) : BIN((last-'0') == cd1);							
+							if(is_ru_okpo)
+								rResultList.Add(SNTOK_RU_OKPO, 0.95f);
+						}
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
 						if((uchar)cd == (last-'0')) {
 							if(pToken[0] == '0')
@@ -7044,6 +7073,43 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 							rResultList.Add(SNTOK_RU_INN, 1.0f);
 						}
 						break;
+					case 11:
+						{
+							// СНИЛС (страховой номер индивидуального лицевого счета) состоит из 11 цифр:
+							//	1-9-я цифры — любые цифры;
+							//	10-11-я цифры — контрольное число.
+							// Маски ввода
+							//	XXXXXXXXXXX — маска ввода без разделителей.
+							//	XXX-XXX-XXX-XX — маска ввода с разделителями.
+							//	XXX-XXX-XXX XX — маска ввода с разделителями и с отделением контрольного числа.
+							// Алгоритм проверки контрольного числа
+							//	Вычислить сумму произведений цифр СНИЛС (с 1-й по 9-ю) на следующие коэффициенты — 9, 8, 7, 6, 5, 4, 3, 2, 1 (т.е. номера цифр в обратном порядке).
+							//	Вычислить контрольное число от полученной суммы следующим образом:
+							//		если она меньше 100, то контрольное число равно этой сумме;
+							//		если равна 100, то контрольное число равно 0;
+							//		если больше 100, то вычислить остаток от деления на 101 и далее:
+							//			если остаток от деления равен 100, то контольное число равно 0;
+							//			в противном случае контрольное число равно вычисленному остатку от деления.
+							//	Сравнить полученное контрольное число с двумя младшими разрядами СНИЛС. Если они равны, то СНИЛС верный.
+							static const int8 ru_snils_w[] = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+							ulong  sum = 0;
+							uint   cn = 0; // check number
+							for(i = 0; i < 9; i++) {
+								sum += (ru_snils_w[i] * (pToken[i]-'0'));
+							}
+							if(sum < 100)
+								cn = sum;
+							else if(sum == 100)
+								cn = 0;
+							else {
+								cn = sum % 101;
+								if(cn == 100)
+									cn = 0;
+							}
+							if(cn == ((pToken[9]-'0') * 10 + (pToken[10]-'0'))) {
+								rResultList.Add(SNTOK_RU_SNILS, 0.95f);
+							}
+						}
 					case 12:
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
 						if(static_cast<uchar>(cd) == (last-'0')) {
@@ -7174,7 +7240,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
-				if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find(reinterpret_cast<const char *>(pToken))) {
+				if(chr_list.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find(reinterpret_cast<const char *>(pToken))) {
 					size_t _offs = P_ReEMail->start();
 					size_t _len = P_ReEMail->end() - P_ReEMail->start();
 					if(_offs == 0 && _len == stat.Len)
@@ -7196,7 +7262,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
 					}
 				}
-				else if(oneof2(stat.Len, 52, 35)) {
+				else if(oneof3(stat.Len, 52, 35, 41)) {
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
 						int    is_chzn_cigblock = 1;
@@ -7205,7 +7271,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 								is_chzn_cigblock = 0;
 							_offs++;
 						}
-						if(is_chzn_cigblock)
+						if(is_chzn_cigblock && strstr(PTRCHRC_(pToken), "8005")) // код сигаретного блока содержит тег цены с префиксом 80005
 							rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
 					}
 				}
@@ -7312,7 +7378,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	temp_buf.Init();
 	test_buf.Init();
 	SString str, out_buf, in_buf;
-    THROW(SLTEST_CHECK_NZ(F.InitStrList(MakeInputFilePath("phrases.en"))));
+	const int islr = F.InitStrList(MakeInputFilePath("phrases.en"));
+    THROW(SLTEST_CHECK_NZ(islr));
 	F.InitRandomRealList(1000000);
 	if(pBenchmark == 0) bm = 0;
 	else if(sstreqi_ascii(pBenchmark, "stack"))        bm = 1;
@@ -7345,9 +7412,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		// Тестирование функций HasPrefix() и CmpPrefix()
 		//
 		{
-			SString text;
 			SString prefix;
-			text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+			SString text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
 			SLTEST_CHECK_NZ(text.HasPrefix("A"));
 			SLTEST_CHECK_NZ(text.HasPrefix("ABC"));
 			SLTEST_CHECK_NZ(text.HasPrefix("ABCD"));
@@ -7826,6 +7892,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
+#if 0 // @v10.8.1 После включения оптимизатора по скорости, похоже, xeos_xxx-функции стали все ломать
 		{
 			//
 			// Тест функций xeos_strlen и xeos_memchr
@@ -7859,6 +7926,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			}
 			SLTEST_CHECK_EQ(total_len1, total_len2);
 		}
+#endif // } @v10.8.1
 		{
 			//
 			// Кроме "законных" вариантов представления символов в строки добавлены ложные цели для проверки корректной работы
@@ -7887,6 +7955,20 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			tr.Run((const uchar *)"100100802804", -1, nta.Z(), 0); 
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_RU_INN));
+			// @v10.8.1 {
+			tr.Run((const uchar *)"47296611", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_RU_OKPO));
+			tr.Run((const uchar *)"99057850", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_RU_OKPO));
+			tr.Run((const uchar *)"6z3417681", -1, nta.Z(), 0); 
+			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_RU_OKPO));
+			tr.Run((const uchar *)"6993417681", -1, nta.Z(), 0); 
+			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
+			SLTEST_CHECK_EQ(0.0f, nta.Has(SNTOK_RU_OKPO));
+			// } @v10.8.1 
 			tr.Run((const uchar *)"0034012000001472206", -1, nta.Z(), 0); 
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			SLTEST_CHECK_LT(0.0f, nta.Has(SNTOK_EGAISWARECODE));

@@ -368,15 +368,11 @@ int tls1_setup_key_block(SSL * s)
 	s->s3->tmp.new_mac_secret_size = mac_secret_size;
 	num = EVP_CIPHER_key_length(c) + mac_secret_size + EVP_CIPHER_iv_length(c);
 	num *= 2;
-
 	ssl3_cleanup_key_block(s);
-
 	if((p = static_cast<uchar *>(OPENSSL_malloc(num))) == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_SETUP_KEY_BLOCK,
-		    ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_SETUP_KEY_BLOCK, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	s->s3->tmp.key_block_length = num;
 	s->s3->tmp.key_block = p;
 
@@ -385,22 +381,19 @@ int tls1_setup_key_block(SSL * s)
 	{
 		int z;
 		for(z = 0; z < SSL3_RANDOM_SIZE; z++)
-			printf("%02X%c", s->s3->client_random[z],
-			    ((z + 1) % 16) ? ' ' : '\n');
+			printf("%02X%c", s->s3->client_random[z], ((z + 1) % 16) ? ' ' : '\n');
 	}
 	printf("server random\n");
 	{
 		int z;
 		for(z = 0; z < SSL3_RANDOM_SIZE; z++)
-			printf("%02X%c", s->s3->server_random[z],
-			    ((z + 1) % 16) ? ' ' : '\n');
+			printf("%02X%c", s->s3->server_random[z], ((z + 1) % 16) ? ' ' : '\n');
 	}
 	printf("master key\n");
 	{
 		size_t z;
 		for(z = 0; z < s->session->master_key_length; z++)
-			printf("%02X%c", s->session->master_key[z],
-			    ((z + 1) % 16) ? ' ' : '\n');
+			printf("%02X%c", s->session->master_key[z], ((z + 1) % 16) ? ' ' : '\n');
 	}
 #endif
 	if(!tls1_generate_key_block(s, p, num)) {

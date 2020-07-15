@@ -1044,14 +1044,14 @@ static int qr_line_fit_finder_edge(qr_line _l, const qr_finder * _f, int _e, int
 {
 	qr_finder_edge_pt * edge_pts;
 	qr_point * pts;
-	int npts;
 	int i;
-	npts = _f->ninliers[_e];
-	if(npts<2) return -1;
+	int npts = _f->ninliers[_e];
+	if(npts < 2) 
+		return -1;
 	/*We could write a custom version of qr_line_fit_points that accesses
 	   edge_pts directly, but this saves on code size and doesn't measurably slow
 	   things down.*/
-	pts = (qr_point*)SAlloc::M(npts*sizeof(*pts));
+	pts = (qr_point *)SAlloc::M(npts*sizeof(*pts));
 	edge_pts = _f->edge_pts[_e];
 	for(i = 0; i<npts; i++) {
 		pts[i][0] = edge_pts[i].pos[0];
@@ -1072,8 +1072,6 @@ static int qr_line_fit_finder_edge(qr_line _l, const qr_finder * _f, int _e, int
    inliers.*/
 static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_finder * _f0, const qr_finder * _f1, int _e)
 {
-	qr_point * pts;
-	int npts;
 	qr_finder_edge_pt * edge_pts;
 	qr_point q;
 	int i;
@@ -1082,8 +1080,8 @@ static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_fi
 	/*We could write a custom version of qr_line_fit_points that accesses
 	   edge_pts directly, but this saves on code size and doesn't measurably slow
 	   things down.*/
-	npts = QR_MAXI(n0, 1)+QR_MAXI(n1, 1);
-	pts = (qr_point*)SAlloc::M(npts*sizeof(*pts));
+	int npts = QR_MAXI(n0, 1)+QR_MAXI(n1, 1);
+	qr_point * pts = (qr_point *)SAlloc::M(npts*sizeof(*pts));
 	if(n0>0) {
 		edge_pts = _f0->edge_pts[_e];
 		for(i = 0; i<n0; i++) {
@@ -1118,8 +1116,7 @@ static void qr_line_fit_finder_pair(qr_line _l, const qr_aff * _aff, const qr_fi
 	SAlloc::F(pts);
 }
 
-static int qr_finder_quick_crossing_check(const uchar * _img,
-    int _width, int _height, int _x0, int _y0, int _x1, int _y1, int _v)
+static int qr_finder_quick_crossing_check(const uchar * _img, int _width, int _height, int _x0, int _y0, int _x1, int _y1, int _v)
 {
 	/*The points must be inside the image, and have a !_v:_v:!_v pattern.
 	   We don't scan the whole line initially, but quickly reject if the endpoints
@@ -1949,13 +1946,13 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 	/*Set up the initial point lists.*/
 	nr = rlastfit = _ur->ninliers[1];
 	cr = nr+(_dl->o[1]-rv+drv-1)/drv;
-	r = (qr_point*)SAlloc::M(cr*sizeof(*r));
+	r = static_cast<qr_point *>(SAlloc::M(cr*sizeof(*r)));
 	for(i = 0; i<_ur->ninliers[1]; i++) {
 		memcpy(r[i], _ur->edge_pts[1][i].pos, sizeof(r[i]));
 	}
 	nb = blastfit = _dl->ninliers[3];
 	cb = nb+(_ur->o[0]-bu+dbu-1)/dbu;
-	b = (qr_point*)SAlloc::M(cb*sizeof(*b));
+	b = (qr_point *)SAlloc::M(cb*sizeof(*b));
 	for(i = 0; i<_dl->ninliers[3]; i++) {
 		memcpy(b[i], _dl->edge_pts[3][i].pos, sizeof(b[i]));
 	}
@@ -1999,7 +1996,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 			y1 = (ry-dryj) >> (_aff->res+QR_FINDER_SUBPREC);
 			if(nr>=cr) {
 				cr = cr<<1|1;
-				r = (qr_point*)SAlloc::R(r, cr*sizeof(*r));
+				r = static_cast<qr_point *>(SAlloc::R(r, cr*sizeof(*r)));
 			}
 			ret = qr_finder_quick_crossing_check(_img, _width, _height, x0, y0, x1, y1, 1);
 			if(!ret) {
@@ -2029,7 +2026,8 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 				}
 				nrempty = 0;
 			}
-			else nrempty++;
+			else 
+				nrempty++;
 			ru += dru;
 			/*Our final defense: if we overflow, stop.*/
 			if(rv+drv>rv) 
@@ -2046,7 +2044,7 @@ static int qr_hom_fit(qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
 			y1 = (by-dbyj) >> (_aff->res+QR_FINDER_SUBPREC);
 			if(nb>=cb) {
 				cb = cb<<1|1;
-				b = (qr_point*)SAlloc::R(b, cb*sizeof(*b));
+				b = (qr_point *)SAlloc::R(b, cb*sizeof(*b));
 			}
 			ret = qr_finder_quick_crossing_check(_img, _width, _height, x0, y0, x1, y1, 1);
 			if(!ret) {
@@ -2488,13 +2486,10 @@ static const uchar QR_ALIGNMENT_SPACING[34] = {
 	24, 26, 26, 26, 28, 28
 };
 
-static inline void qr_svg_points(const char * cls,
-    qr_point * p,
-    int n)
+static inline void qr_svg_points(const char * cls, qr_point * p, int n)
 {
-	int i;
 	svg_path_start(cls, 1, 0, 0);
-	for(i = 0; i < n; i++, p++)
+	for(int i = 0; i < n; i++, p++)
 		svg_path_moveto(SVG_ABS, p[0][0], p[0][1]);
 	svg_path_end();
 }
@@ -2548,8 +2543,8 @@ static void qr_sampling_grid_init(qr_sampling_grid * _grid, int _version,
 	else {
 		int j;
 		int k;
-		qr_point * q = (qr_point*)SAlloc::M(nalign*nalign*sizeof(*q));
-		qr_point * p = (qr_point*)SAlloc::M(nalign*nalign*sizeof(*p));
+		qr_point * q = static_cast<qr_point *>(SAlloc::M(nalign*nalign*sizeof(*q)));
+		qr_point * p = static_cast<qr_point *>(SAlloc::M(nalign*nalign*sizeof(*p)));
 		//
 		// Initialize the alignment pattern position list.
 		//

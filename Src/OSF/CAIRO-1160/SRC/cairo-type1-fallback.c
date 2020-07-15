@@ -347,16 +347,11 @@ static cairo_int_status_t cairo_type1_font_write_charstrings(cairo_type1_font_t 
 	cairo_array_t data;
 	uint i;
 	int length;
-
 	_cairo_array_init(&data, sizeof(uchar));
 	status = _cairo_array_grow_by(&data, 1024);
 	if(unlikely(status))
 		goto fail;
-
-	_cairo_output_stream_printf(encrypted_output,
-	    "2 index /CharStrings %d dict dup begin\n",
-	    font->scaled_font_subset->num_glyphs + 1);
-
+	_cairo_output_stream_printf(encrypted_output, "2 index /CharStrings %d dict dup begin\n", font->scaled_font_subset->num_glyphs + 1);
 	_cairo_scaled_font_freeze_cache(font->type1_scaled_font);
 	for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 		_cairo_array_truncate(&data, 0);
@@ -364,20 +359,14 @@ static cairo_int_status_t cairo_type1_font_write_charstrings(cairo_type1_font_t 
 		status = _cairo_array_append_multiple(&data, zeros, 4);
 		if(unlikely(status))
 			break;
-
-		status = cairo_type1_font_create_charstring(font, i,
-			font->scaled_font_subset->glyphs[i],
-			CAIRO_CHARSTRING_TYPE1,
-			&data);
+		status = cairo_type1_font_create_charstring(font, i, font->scaled_font_subset->glyphs[i], CAIRO_CHARSTRING_TYPE1, &data);
 		if(unlikely(status))
 			break;
 
 		charstring_encrypt(&data);
 		length = _cairo_array_num_elements(&data);
 		if(font->scaled_font_subset->glyph_names != NULL) {
-			_cairo_output_stream_printf(encrypted_output, "/%s %d RD ",
-			    font->scaled_font_subset->glyph_names[i],
-			    length);
+			_cairo_output_stream_printf(encrypted_output, "/%s %d RD ", font->scaled_font_subset->glyph_names[i], length);
 		}
 		else if(i == 0) {
 			_cairo_output_stream_printf(encrypted_output, "/.notdef %d RD ", length);
@@ -385,13 +374,10 @@ static cairo_int_status_t cairo_type1_font_write_charstrings(cairo_type1_font_t 
 		else {
 			_cairo_output_stream_printf(encrypted_output, "/g%d %d RD ", i, length);
 		}
-		_cairo_output_stream_write(encrypted_output,
-		    _cairo_array_index(&data, 0),
-		    length);
+		_cairo_output_stream_write(encrypted_output, _cairo_array_index(&data, 0), length);
 		_cairo_output_stream_printf(encrypted_output, " ND\n");
 	}
 	_cairo_scaled_font_thaw_cache(font->type1_scaled_font);
-
 fail:
 	_cairo_array_fini(&data);
 	return status;
@@ -420,10 +406,7 @@ static void cairo_type1_font_write_header(cairo_type1_font_t * font, const char 
 	_cairo_output_stream_printf(font->output, "/FontBBox {");
 	font->bbox_position = _cairo_output_stream_get_position(font->output);
 	_cairo_output_stream_write(font->output, spaces, font->bbox_max_chars);
-	_cairo_output_stream_printf(font->output,
-	    "} readonly def\n"
-	    "/Encoding 256 array\n"
-	    "0 1 255 {1 index exch /.notdef put} for\n");
+	_cairo_output_stream_printf(font->output, "} readonly def\n/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
 	if(font->scaled_font_subset->is_latin) {
 		for(i = 1; i < 256; i++) {
 			int subset_glyph = font->scaled_font_subset->latin_to_subset_glyph_index[i];

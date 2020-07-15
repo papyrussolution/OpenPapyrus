@@ -267,9 +267,18 @@ typedef struct zip_cdir zip_cdir_t;
 typedef struct zip_dirent zip_dirent_t;
 typedef struct zip_entry zip_entry_t;
 typedef struct zip_extra_field zip_extra_field_t;
-typedef struct zip_string zip_string_t;
-typedef struct zip_buffer zip_buffer_t;
 typedef struct zip_hash zip_hash_t;
+//
+// Descr: file or archive comment, or filename 
+//
+struct zip_string_t {
+    uint8 * raw;    // raw string 
+    uint16 length;  // length of raw string 
+	uint16 Reserve; // @alignment
+    enum zip_encoding_type encoding; // autorecognized encoding 
+    uint8 * converted;       // autoconverted string 
+    uint32 converted_length; // length of converted 
+};
 //
 // zip archive, part of API 
 //
@@ -283,6 +292,7 @@ struct zip_t {
     zip_string_t * comment_orig;    // archive comment 
     zip_string_t * comment_changes; // changed archive comment 
     bool   comment_changed;  // whether archive comment was changed 
+	uint8  Reserve[3];       // @alignment
     uint64 nentry;           // number of entries 
     uint64 nentry_alloc;     // number of entries allocated 
     zip_entry_t * entry;     // entries 
@@ -299,6 +309,7 @@ struct zip_file_t {
     zip_t * za;		/* zip archive containing this file */
     zip_error_t error;	/* error information */
     bool   eof;
+	uint8  Reserve[3];  // @alignment
     zip_source_t * src;	/* data source */
 };
 //
@@ -314,8 +325,8 @@ struct zip_file_t {
 
 struct zip_dirent {
     uint32 changed;
-    bool local_extra_fields_read;	/*      whether we already read in local header extra fields */
-    bool cloned;                        /*      whether this instance is cloned, and thus shares non-changed strings */
+    bool local_extra_fields_read; // whether we already read in local header extra fields 
+    bool cloned;                  // whether this instance is cloned, and thus shares non-changed strings 
     uint16 version_madeby;	/* (c)  version of creator */
     uint16 version_needed;	/* (cl) version needed to extract */
     uint16 bitflags;		/* (cl) general purpose bit flag */
@@ -389,22 +400,13 @@ struct zip_entry {
     zip_source_t *source;
     bool deleted;
 };
-
-/* file or archive comment, or filename */
-
-struct zip_string {
-    uint8 *raw;			/* raw string */
-    uint16 length;		/* length of raw string */
-    enum zip_encoding_type encoding; 	/* autorecognized encoding */
-    uint8 *converted;     	/* autoconverted string */
-    uint32 converted_length;	/* length of converted */
-};
 //
 // bounds checked access to memory buffer 
 //
-struct zip_buffer {
+struct zip_buffer_t {
     bool   ok;
     bool   free_data;
+	uint8  Reserve[2]; // @alignment
     uint8 * data;
     uint64 size;
     uint64 offset;
@@ -466,7 +468,7 @@ int    _zip_dirent_write(zip_t *za, zip_dirent_t *dirent, zip_flags_t flags);
 
 zip_extra_field_t *_zip_ef_clone(const zip_extra_field_t *, zip_error_t *);
 zip_extra_field_t *_zip_ef_delete_by_id(zip_extra_field_t *, uint16, uint16, zip_flags_t);
-void   FASTCALL _zip_ef_free(zip_extra_field_t *);
+// static void   FASTCALL _zip_ef_free(zip_extra_field_t *);
 const uint8 *_zip_ef_get_by_id(const zip_extra_field_t *, uint16 *, uint16, uint16, zip_flags_t, zip_error_t *);
 zip_extra_field_t *_zip_ef_merge(zip_extra_field_t *, zip_extra_field_t *);
 zip_extra_field_t *_zip_ef_new(uint16, uint16, const uint8 *, zip_flags_t);
@@ -509,7 +511,7 @@ zip_source_t *_zip_source_new(zip_error_t *error);
 int    _zip_source_set_source_archive(zip_source_t *, zip_t *);
 zip_source_t *_zip_source_window_new(zip_source_t *src, uint64 start, uint64 length, zip_stat_t *st, zip_error_t *error);
 zip_source_t *_zip_source_zip_new(zip_t *, zip_t *, uint64, zip_flags_t, uint64, uint64, const char *);
-int    _zip_stat_merge(zip_stat_t *dst, const zip_stat_t *src, zip_error_t *error);
+//static int    _zip_stat_merge(zip_stat_t *dst, const zip_stat_t *src, zip_error_t *error);
 int    _zip_string_equal(const zip_string_t *, const zip_string_t *);
 void   FASTCALL _zip_string_free(zip_string_t *);
 uint32 _zip_string_crc32(const zip_string_t *);
@@ -520,14 +522,14 @@ int    _zip_string_write(zip_t *za, const zip_string_t *string);
 int    _zip_changed(const zip_t *, uint64 *);
 const char *_zip_get_name(zip_t *, uint64, zip_flags_t, zip_error_t *);
 int    _zip_local_header_read(zip_t *, int);
-void *_zip_memdup(const void *, size_t, zip_error_t *);
+//static void *_zip_memdup(const void *, size_t, zip_error_t *);
 int64 _zip_name_locate(zip_t *, const char *, zip_flags_t, zip_error_t *);
 zip_t *_zip_new(zip_error_t *);
 int64 _zip_file_replace(zip_t *, uint64, const char *, zip_source_t *, zip_flags_t);
 int    _zip_set_name(zip_t *, uint64, const char *, zip_flags_t);
 void   _zip_u2d_time(time_t, uint16 *, uint16 *);
 int    _zip_unchange(zip_t *, uint64, int);
-void   _zip_unchange_data(zip_entry_t *);
+//static void   _zip_unchange_data(zip_entry_t *);
 int    FASTCALL _zip_write(zip_t *za, const void *data, uint64 length);
 
 #endif /* zipint.h */

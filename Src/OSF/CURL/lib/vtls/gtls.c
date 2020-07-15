@@ -1389,65 +1389,43 @@ static CURLcode gtls_connect_common(struct connectdata * conn,
 		if(rc)
 			return rc;
 	}
-
 	*done = ssl_connect_1==connssl->connecting_state;
-
 	return CURLE_OK;
 }
 
-CURLcode Curl_gtls_connect_nonblocking(struct connectdata * conn,
-    int sockindex,
-    bool * done)
+CURLcode Curl_gtls_connect_nonblocking(struct connectdata * conn, int sockindex, bool * done)
 {
 	return gtls_connect_common(conn, sockindex, TRUE, done);
 }
 
-CURLcode Curl_gtls_connect(struct connectdata * conn,
-    int sockindex)
-
+CURLcode Curl_gtls_connect(struct connectdata * conn, int sockindex)
 {
 	CURLcode result;
 	bool done = FALSE;
-
 	result = gtls_connect_common(conn, sockindex, FALSE, &done);
 	if(result)
 		return result;
-
 	DEBUGASSERT(done);
-
 	return CURLE_OK;
 }
 
 bool Curl_gtls_data_pending(const struct connectdata * conn, int connindex)
 {
 	bool res = FALSE;
-	if(conn->ssl[connindex].session &&
-	    0 != gnutls_record_check_pending(conn->ssl[connindex].session))
+	if(conn->ssl[connindex].session && 0 != gnutls_record_check_pending(conn->ssl[connindex].session))
 		res = TRUE;
-
-	if(conn->proxy_ssl[connindex].session &&
-	    0 != gnutls_record_check_pending(conn->proxy_ssl[connindex].session))
+	if(conn->proxy_ssl[connindex].session && 0 != gnutls_record_check_pending(conn->proxy_ssl[connindex].session))
 		res = TRUE;
-
 	return res;
 }
 
-static ssize_t gtls_send(struct connectdata * conn,
-    int sockindex,
-    const void * mem,
-    size_t len,
-    CURLcode * curlcode)
+static ssize_t gtls_send(struct connectdata * conn, int sockindex, const void * mem, size_t len, CURLcode * curlcode)
 {
 	ssize_t rc = gnutls_record_send(conn->ssl[sockindex].session, mem, len);
-
 	if(rc < 0) {
-		*curlcode = (rc == GNUTLS_E_AGAIN)
-		    ? CURLE_AGAIN
-		    : CURLE_SEND_ERROR;
-
+		*curlcode = (rc == GNUTLS_E_AGAIN) ? CURLE_AGAIN : CURLE_SEND_ERROR;
 		rc = -1;
 	}
-
 	return rc;
 }
 

@@ -14,6 +14,8 @@
 //  The CRegExp class is defined in the CRegExp.h (slib.h) header file. More
 //  documentation is also available in that file. A significant part of this
 //  file is derived directly from other work done on regular expressions. That part is so marked.
+// -----------------------
+// Adopted to slib by Anton Sobolev
 //
 #include <slib.h>
 #include <tv.h>
@@ -423,17 +425,17 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 //
 // Descr: set the next-pointer at the end of a node chain
 //
-void FASTCALL CRegExp::regtail(char * p, const char * val)
+void FASTCALL CRegExp::regtail(char * p, const char * pVal)
 {
 	if(p != &RegDummy) {
 		// Find last node.
-		char * scan = p;
-		char * temp;
-		while((temp = regnext(scan)) != 0)
-			scan = temp;
-		size_t offset = (OP(scan) == BACK) ? ((const char *)scan - val) : (val - scan);
-		*(scan + 1) = (offset >> 8) & 0377;
-		*(scan + 2) = offset & 0377;
+		char * p_scan = p;
+		char * p_temp;
+		while((p_temp = regnext(p_scan)) != 0)
+			p_scan = p_temp;
+		size_t offset = (OP(p_scan) == BACK) ? (p_scan - pVal) : (pVal - p_scan);
+		*(p_scan + 1) = (offset >> 8) & 0377;
+		*(p_scan + 2) = offset & 0377;
 	}
 }
 //

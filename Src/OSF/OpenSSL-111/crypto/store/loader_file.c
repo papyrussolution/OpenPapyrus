@@ -730,7 +730,6 @@ struct ossl_store_loader_ctx_st {
 			int last_errno;
 		} dir;
 	} _;
-
 	/* Expected object type.  May be unspecified */
 	int expected_type;
 };
@@ -750,10 +749,7 @@ static void OSSL_STORE_LOADER_CTX_free(OSSL_STORE_LOADER_CTX * ctx)
 	OPENSSL_free(ctx);
 }
 
-static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader,
-    const char * uri,
-    const UI_METHOD * ui_method,
-    void * ui_data)
+static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader, const char * uri, const UI_METHOD * ui_method, void * ui_data)
 {
 	OSSL_STORE_LOADER_CTX * ctx = NULL;
 	struct stat st;
@@ -761,16 +757,13 @@ static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader,
 		const char * path;
 		unsigned int check_absolute : 1;
 	} path_data[2];
-
 	size_t path_data_n = 0, i;
 	const char * path;
-
 	/*
 	 * First step, just take the URI as is.
 	 */
 	path_data[path_data_n].check_absolute = 0;
 	path_data[path_data_n++].path = uri;
-
 	/*
 	 * Second step, if the URI appears to start with the 'file' scheme,
 	 * extract the path and make that the second path to check.
@@ -779,7 +772,6 @@ static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader,
 	 */
 	if(strncasecmp(uri, "file:", 5) == 0) {
 		const char * p = &uri[5];
-
 		if(strncmp(&uri[5], "//", 2) == 0) {
 			path_data_n--; /* Invalidate using the full URI */
 			if(strncasecmp(&uri[7], "localhost/", 10) == 0) {
@@ -789,28 +781,24 @@ static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader,
 				p = &uri[7];
 			}
 			else {
-				OSSL_STOREerr(OSSL_STORE_F_FILE_OPEN,
-				    OSSL_STORE_R_URI_AUTHORITY_UNSUPPORTED);
+				OSSL_STOREerr(OSSL_STORE_F_FILE_OPEN, OSSL_STORE_R_URI_AUTHORITY_UNSUPPORTED);
 				return NULL;
 			}
 		}
-
 		path_data[path_data_n].check_absolute = 1;
 #ifdef _WIN32
-		/* Windows file: URIs with a drive letter start with a / */
+		// Windows file: URIs with a drive letter start with a / 
 		if(p[0] == '/' && p[2] == ':' && p[3] == '/') {
 			char c = ossl_tolower(p[1]);
 
 			if(c >= 'a' && c <= 'z') {
 				p++;
-				/* We know it's absolute, so no need to check */
-				path_data[path_data_n].check_absolute = 0;
+				path_data[path_data_n].check_absolute = 0; // We know it's absolute, so no need to check 
 			}
 		}
 #endif
 		path_data[path_data_n++].path = p;
 	}
-
 	for(i = 0, path = NULL; path == NULL && i < path_data_n; i++) {
 		/*
 		 * If the scheme "file" was an explicit part of the URI, the path must

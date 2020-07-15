@@ -6,7 +6,6 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <wchar.h>
 #include <uchardet.h>
 
 static const char * p_dow_en_sh[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
@@ -1879,8 +1878,8 @@ char * FASTCALL SCharToOem(char * pStr)
 	}
 	return ok;
 }*/
-static FORCEINLINE size_t FASTCALL implement_sstrlen(const char * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; }
-static FORCEINLINE size_t FASTCALL implement_sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? /*xeos_*/strlen(reinterpret_cast<const char *>(pStr)) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const char * pStr) { return (pStr && pStr[0]) ? strlen(pStr) : 0; }
+static FORCEINLINE size_t FASTCALL implement_sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 static FORCEINLINE size_t FASTCALL implement_sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 //
 // Descr: копирует сроку from в буфер to и возвращает указатель на
@@ -3093,7 +3092,7 @@ int SLAPI STextEncodingStat::Add(const void * pData, size_t size)
 		for(size_t i = 0; i < size; i++) {
 			const uint8 c = p[i];
 			ChrFreq[c]++;
-			if(c > 0 && c <= 127) {
+			if(checkirange(c, 1, 127)) {
 				if(c == '\xD') {
 					skip_eolf_pos = i+1;
 					if((i+1) < size && p[i+1] == '\xA') {

@@ -224,32 +224,36 @@ DIRREF directory_init(const char * dirpath)
 
 const char * directory_read(DIRREF ref, char * out) 
 {
-	if(ref == NULL) 
-		return NULL;
-	while(1) {
-		#ifdef WIN32
-		WIN32_FIND_DATAA findData;
-
-		if(FindNextFileA(ref, &findData) == 0) {
-			FindClose(ref);
-			return NULL;
+	if(ref) {
+		while(1) {
+			#ifdef WIN32
+				WIN32_FIND_DATAA findData;
+				if(FindNextFileA(ref, &findData) == 0) {
+					FindClose(ref);
+					return NULL;
+				}
+				if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
+					continue;
+				if(findData.cFileName[0] == '\0') 
+					continue;
+				if(findData.cFileName[0] == '.') 
+					continue;
+				// cFileName from WIN32_FIND_DATAA is a fixed size array, and findData is local
+				// This line of code is under the assumption that `out` is at least MAX_PATH in size!
+				return !out ? NULL : static_cast<char *>(memcpy(out, findData.cFileName, sizeof(findData.cFileName)));
+			#else
+				struct dirent * d;
+				if((d = readdir(ref)) == NULL) {
+					closedir(ref);
+					return NULL;
+				}
+				if(d->d_name[0] == '\0') 
+					continue;
+				if(d->d_name[0] == '.') 
+					continue;
+				return (const char*)d->d_name;
+			#endif
 		}
-		if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
-		if(findData.cFileName[0] == '\0') continue;
-		if(findData.cFileName[0] == '.') continue;
-		// cFileName from WIN32_FIND_DATAA is a fixed size array, and findData is local
-		// This line of code is under the assumption that `out` is at least MAX_PATH in size!
-		return !out ? NULL : static_cast<char *>(memcpy(out, findData.cFileName, sizeof(findData.cFileName)));
-		#else
-		struct dirent * d;
-		if((d = readdir(ref)) == NULL) {
-			closedir(ref);
-			return NULL;
-		}
-		if(d->d_name[0] == '\0') continue;
-		if(d->d_name[0] == '.') continue;
-		return (const char*)d->d_name;
-		#endif
 	}
 	return NULL;
 }
@@ -273,12 +277,14 @@ int string_nocasencmp(const char * s1, const char * s2, size_t n)
 int FASTCALL string_casencmp(const char * s1, const char * s2, size_t n) 
 {
 	while(n > 0 && ((uchar)*s1) == ((uchar)*s2)) {
-		if(*s1 == '\0') return 0;
+		if(*s1 == '\0') 
+			return 0;
 		s1++;
 		s2++;
 		n--;
 	}
-	if(n == 0) return 0;
+	if(n == 0) 
+		return 0;
 	return ((uchar)*s1) - ((uchar)*s2);
 }
 
@@ -298,9 +304,9 @@ int FASTCALL string_casencmp(const char * s1, const char * s2, size_t n)
 
 const char * string_ndup(const char * s1, size_t n) 
 {
-	char * s = (char *)mem_alloc(NULL, n + 1);
-	if(!s) return NULL;
-	memcpy(s, s1, n);
+	char * s = static_cast<char *>(mem_alloc(NULL, n + 1));
+	if(s)
+		memcpy(s, s1, n);
 	return s;
 }
 
@@ -308,8 +314,10 @@ const char * string_ndup(const char * s1, size_t n)
 void string_reverse(char * p) 
 {
 	char * q = p;
-	while(q && *q) ++q; /* find eos */
-	for(--q; p < q; ++p, --q) SWP(*p, *q);
+	while(q && *q) 
+		++q; /* find eos */
+	for(--q; p < q; ++p, --q) 
+		SWP(*p, *q);
 }
 
 // @sobolev (replaced with sstrlen) uint32 string_size(const char * p) { return p ? (uint32)strlen(p) : 0; }
@@ -341,19 +349,16 @@ char * string_replace(const char * str, const char * from, const char * to, size
 	size_t cache_sz_inc = 16;
 	const size_t cache_sz_inc_factor = 3;
 	const size_t cache_sz_inc_max = 1048576;
-
 	char * pret, * ret = NULL;
 	const char * pstr2, * pstr = str;
 	size_t i, count = 0;
 	uintptr_t * pos_cache_tmp, * pos_cache = NULL;
 	size_t cache_sz = 0;
 	size_t cpylen, orglen, retlen = 0, tolen = 0, fromlen = strlen(from);
-	if(rlen) *rlen = 0;
-
+	ASSIGN_PTR(rlen, 0);
 	// find all matches and cache their positions
 	while((pstr2 = strstr(pstr, from)) != NULL) {
 		++count;
-
 		// Increase the cache size when necessary
 		if(cache_sz < count) {
 			cache_sz += cache_sz_inc;
@@ -364,19 +369,15 @@ char * string_replace(const char * str, const char * from, const char * to, size
 			else {
 				pos_cache = pos_cache_tmp;
 			}
-
 			cache_sz_inc *= cache_sz_inc_factor;
 			if(cache_sz_inc > cache_sz_inc_max) {
 				cache_sz_inc = cache_sz_inc_max;
 			}
 		}
-
 		pos_cache[count-1] = pstr2 - str;
 		pstr = pstr2 + fromlen;
 	}
-
 	orglen = pstr - str + strlen(pstr);
-
 	// allocate memory for the post-replacement string
 	if(count > 0) {
 		tolen = strlen(to);
@@ -413,7 +414,8 @@ char * string_replace(const char * str, const char * from, const char * to, size
 end_repl_str:
 	// free the cache and return the post-replacement string which will be NULL in the event of an error
 	mem_free(pos_cache);
-	if(rlen && ret) *rlen = retlen;
+	if(rlen && ret) 
+		*rlen = retlen;
 	return ret;
 }
 
@@ -503,11 +505,11 @@ uint32 FASTCALL utf8_len(const char * s, uint32 nbytes)
 	uint32 len = 0;
 	if(s) {
 		SETIFZ(nbytes, (uint32)strlen(s));
-		uint32 pos = 0;
-		while(pos < nbytes) {
+		for(uint32 pos = 0; pos < nbytes;) {
 			++len;
 			uint32 n = utf8_charbytes(s, pos);
-			if(n == 0) return 0; // means error
+			if(n == 0) 
+				return 0; // means error
 			pos += n;
 		}
 	}

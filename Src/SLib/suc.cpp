@@ -83,7 +83,7 @@ uint32 FASTCALL SUnicodeTable::ToCapital(uint32 u) const
 int SLAPI SUnicodeTable::ParseDescription(SString & rDescr, SUnicodeTable::Item32 & rD)
 {
     int    ok = 1; // 0 - error, 1 - normal, 2 - lower range bound, 3 - upper range bound
-    if(rDescr.CmpNC("<control>") == 0) {
+    if(rDescr.IsEqiAscii("<control>")) {
 		rDescr.Z();
     }
     else {

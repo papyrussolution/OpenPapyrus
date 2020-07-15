@@ -11,7 +11,8 @@ int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
 //
 //
 //#define GRP_FBG 1
-#define USEDEFICON 0x01L
+#define USEDEFICON         0x01L
+#define DEFAULT_MENUS_OFFS 100000L
 //
 //
 //
@@ -176,16 +177,13 @@ int SLAPI EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDeks
 //
 // CommandsDialog
 //
-#define DEFAULT_MENUS_OFFS 100000L
-
 class CommandsDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPCommandGroup); // @v10.7.6 PPCommandFolder-->PPCommandGroup
 public:
 	CommandsDialog(PPCommandGroup * pMenus, int isDesktop) : PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST), P_Menus_(pMenus), IsDesktop(isDesktop)
 	{
 		SString title;
-		PPLoadText(PPTXT_EDITCMDLIST, title);
-		setTitle(title);
+		setTitle(PPLoadTextS(PPTXT_EDITCMDLIST, title));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -207,7 +205,7 @@ private:
 		if(P_Box) {
 			THROW_MEM(p_list = new StrAssocArray);
 			THROW(Data.GetCommandList(p_list, 0));
-			THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify, 0));
+			THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify, 0));
 			P_Box->setDef(p_def);
 			P_Box->Draw_();
 			ok = 1;
@@ -456,7 +454,6 @@ public:
 		THROW_PP(Data.Code.Len(), PPERR_INVSPECCODE);
 		getCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
 		getCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
-		// @v7.8.2 THROW_PP(!P_CmdList || (!P_CmdList->GetByCode(Data.Code, &pos, 0) || Pos == static_cast<long>(pos)), PPERR_CMDASSCEXISTS);
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			sel = (sel == CTL_DESKCMDAI_CODE && !(Data.Flags & PPDesktopAssocCmd::fSpecCode)) ? CTL_DESKCMDAI_COMMAND : sel;
@@ -630,7 +627,6 @@ int SLAPI EditName(SString & rName)
 	SString org_name = name;
 	PPInputStringDialogParam isd_param;
 	PPLoadText(PPTXT_NEWLABEL, isd_param.InputTitle);
-	// @v9.2.8 {
 	if(name.C(0) == '@') {
 		SString temp_buf;
 		if(PPLoadString(name.ShiftLeft(), temp_buf) > 0) {
@@ -638,7 +634,6 @@ int SLAPI EditName(SString & rName)
 			org_name = name;
 		}
 	}
-	// } @v9.2.8
 	if(InputStringDialog(&isd_param, name) > 0 && name.Len()) {
 		if(name != org_name) {
 			rName = name;
@@ -648,11 +643,12 @@ int SLAPI EditName(SString & rName)
 	return ok;
 }
 
-#define GRP_IMG   1
-#define GRP_BKGND 2
-
 class EditMenusDlg : public PPListDialog {
 	DECL_DIALOG_DATA(PPCommandGroup);
+	enum {
+		ctlgroupImg   = 1,
+		ctlgroupBkgnd = 2
+	};
 public:
 	EditMenusDlg(int isDesktop, long initID) : PPListDialog(DLG_MENULIST, CTL_MENULIST_LIST), IsMaster(PPMaster), IsDesktop(isDesktop)
 	{
@@ -663,8 +659,8 @@ public:
 			showCtrl(CTL_MENULIST_EDMBTN, 0);
 			title_id = PPTXT_EDITDESKTOP;
 			setSmartListBoxOption(CTL_MENULIST_LIST, lbtSelNotify);
-			addGroup(GRP_IMG,   new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
-			addGroup(GRP_BKGND, new ColorCtrlGroup(CTL_MENULIST_BKGND, CTLSEL_MENULIST_BKGND, cmSelBkgnd, CTL_MENULIST_SELBKGND));
+			addGroup(ctlgroupImg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
+			addGroup(ctlgroupBkgnd, new ColorCtrlGroup(CTL_MENULIST_BKGND, CTLSEL_MENULIST_BKGND, cmSelBkgnd, CTL_MENULIST_SELBKGND));
 			disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
 		}
 		else {
@@ -765,9 +761,9 @@ int EditMenusDlg::LoadCfg(long id)
 			if(p_desk) {
 				GetClusterData(CTL_MENULIST_FLAGS, &flags);
 				p_desk->Flags = static_cast<uint16>(flags);
-				getGroupData(GRP_BKGND, &color_rec);
+				getGroupData(ctlgroupBkgnd, &color_rec);
 				p_desk->Icon.Z().Cat(color_rec.C);
-				getGroupData(GRP_IMG, &rec);
+				getGroupData(ctlgroupImg, &rec);
 				p_desk->SetLogo(rec.Path);
 			}
 		}
@@ -781,12 +777,12 @@ int EditMenusDlg::LoadCfg(long id)
 			flags    = static_cast<long>(p_desk->Flags);
 			color_rec.C = p_desk->Icon.ToLong();
 		}
-		setGroupData(GRP_IMG, &rec);
+		setGroupData(ctlgroupImg, &rec);
 		SetClusterData(CTL_MENULIST_FLAGS, flags);
 		{
 			color_rec.SetupStdColorList();
  			color_rec.C = (color_rec.C == 0) ? static_cast<long>(PPDesktop::GetDefaultBgColor()) : color_rec.C;
-			setGroupData(GRP_BKGND, &color_rec);
+			setGroupData(ctlgroupBkgnd, &color_rec);
 		}
 	}
 	{
@@ -821,7 +817,8 @@ int EditMenusDlg::addItem(long * pPos, long * pID)
 		long   parent_id = 0;
 		SString name;
 		while(ok < 0 && SelectMenu(&parent_id, &name, IsDesktop ? SELTYPE_DESKTOPTEMPL : SELTYPE_MENUTEMPL, &Data) > 0) {
-			long   id = 0;
+			// @v10.8.1 Блок скорректирован - были дефекты в обработке рабочих столов
+			// @v10.8.1 long   id = 0;
 			const  PPCommandItem * p_item = Data.SearchByID(parent_id, 0);
 			PPCommandGroup new_desk;
 			PPCommandGroup new_menu2;
@@ -831,7 +828,9 @@ int EditMenusDlg::addItem(long * pPos, long * pID)
 					new_desk = *static_cast<const PPCommandGroup *>(p_item);
 					new_desk.SetLogo(0);
 				}
+				new_desk.Type = PPCommandGroup::tDesk;
 				new_desk.SetDbSymb(DbSymb);
+				new_desk.GetUniqueID(&new_desk.ID); // @v10.8.1 
 				p_new_group = &new_desk;
 			}
 			else {
@@ -850,18 +849,20 @@ int EditMenusDlg::addItem(long * pPos, long * pID)
 					new_menu2.Flags = new_menu_folder.Flags;
 					new_menu2.Icon = new_menu_folder.Icon;
 				}
-				new_menu2.Name = name;
 				new_menu2.Type = PPCommandGroup::tMenu;
 				Data.GetUniqueID(&new_menu2.ID);
-				new_menu2.GenerateGuid();
 				new_menu2.DbSymb = "undefined";
 				p_new_group = &new_menu2;
 			}
-			p_new_group->SetUniqueID(&(id = p_new_group->ID));
-			if(Data.Add(-1, p_new_group))
-				ok = 1;
-			else
-				PPErrorZ();
+			assert(p_new_group);
+			if(p_new_group) {
+				p_new_group->Name = name;
+				p_new_group->GenerateGuid();
+				if(Data.Add(-1, p_new_group))
+					ok = 1;
+				else
+					PPErrorZ();
+			}
 		}
 	}
 	else
@@ -895,7 +896,6 @@ int EditMenusDlg::delItem(long pos, long id)
 {
 	int    ok = -1;
 	uint   ipos = 0;
-	S_GUID guid;
 	SString str_guid;
 	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
@@ -910,8 +910,7 @@ int EditMenusDlg::delItem(long pos, long id)
 					// 
 					const PPCommandGroup * p_cgroup = Data.GetDesktop(id);
 					if(p_cgroup > 0) {
-						guid = p_cgroup->GetDeskGuid();
-						if(guid.ToStr(S_GUID::fmtIDL, str_guid)>0) {
+						if(p_cgroup->GetGuid().ToStr(S_GUID::fmtIDL, str_guid)>0) {
 							PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
 							if(p_mgr->DeleteDesktopByGUID(str_guid, PPCommandMngr::fRWByXml))
 								ok = Data.Remove(ipos);
@@ -1093,11 +1092,13 @@ static int SLAPI readMIT(TVRez & rez, MIT & mit, long ofs)
 {
 	if(rez.getStreamPos() >= ofs)
 		return 0;
-	mit.mtOption = rez.getUINT();
-	if(!(mit.mtOption & MF_POPUP))
-		mit.mtID = rez.getUINT();
-	rez.getString(mit.mtString, 1);
-	return 1;
+	else {
+		mit.mtOption = rez.getUINT();
+		if(!(mit.mtOption & MF_POPUP))
+			mit.mtID = rez.getUINT();
+		rez.getString(mit.mtString, 1);
+		return 1;
+	}
 }
 
 void readMenuRez(HMENU hm, TVRez * rez, long length)
@@ -1116,11 +1117,11 @@ void readMenuRez(HMENU hm, TVRez * rez, long length)
 			}
 			if(mit.mtOption & MF_POPUP) {
 				HMENU hPopMenu = CreateMenu();
-				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, reinterpret_cast<UINT_PTR>(hPopMenu), SUcSwitch(menu_text)); // @unicodeproblem
+				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, reinterpret_cast<UINT_PTR>(hPopMenu), SUcSwitch(menu_text));
 				readMenuRez(hPopMenu, rez, length);
 			}
 			else {
-				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, mit.mtID, SUcSwitch(menu_text)); // @unicodeproblem
+				AppendMenu(hm, (mit.mtOption | MF_STRING) & ~MF_END, mit.mtID, SUcSwitch(menu_text));
 				if(mit.mtOption & MF_END)
 					return;
 			}
@@ -1201,18 +1202,14 @@ HMENU SLAPI PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 	if(m) {
 		HMENU  h_popup = CreateMenu();
 		SString temp_buf;
-		PPLoadString("cmd_window", temp_buf);
-		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		AppendMenu(m, MF_POPUP | MF_STRING, (UINT)h_popup, /*_T("О&кно")*/SUcSwitch(temp_buf));
+		PPLoadStringS("cmd_window", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
+		AppendMenu(m, MF_POPUP | MF_STRING, (UINT)h_popup, SUcSwitch(temp_buf));
 		UserInterfaceSettings uiset;
 		uiset.Restore();
-		PPLoadString("cmd_menutree", temp_buf);
-		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, 
-			cmShowTree, /*_T("&Дерево меню")*/SUcSwitch(temp_buf)); // @unicodeproblem
-		PPLoadString("cmd_toolpane", temp_buf);
-		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		::AppendMenu(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, /*_T("&Панель инструментов")*/SUcSwitch(temp_buf)); // @unicodeproblem
+		PPLoadStringS("cmd_menutree", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
+		::AppendMenu(h_popup, ((uiset.Flags & uiset.fShowLeftTree) ? MF_UNCHECKED : MF_CHECKED)|MF_STRING, cmShowTree, SUcSwitch(temp_buf));
+		PPLoadStringS("cmd_toolpane", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
+		::AppendMenu(h_popup, MF_CHECKED | MF_STRING, cmShowToolbar, SUcSwitch(temp_buf));
 	}
 	ASSIGN_PTR(pNotFound, not_found);
 	ZDELETE(p_items);

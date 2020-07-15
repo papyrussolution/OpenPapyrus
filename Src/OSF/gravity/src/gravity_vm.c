@@ -173,7 +173,7 @@ static void gravity_cache_free()
 	if(cache_refcount > 0) 
 		return;
 	mem_check(false);
-	for(uint32 index = 0; index <GRAVITY_VTABLE_SIZE; ++index) {
+	for(uint32 index = 0; index < GRAVITY_VTABLE_SIZE; ++index) {
 		gravity_value_free(NULL, cache[index]);
 	}
 	mem_check(true);
@@ -1302,8 +1302,8 @@ gravity_vm * gravity_vm_new(gravity_delegate_t * delegate)
 		gravity_gc_setvalues(vm, DEFAULT_CG_THRESHOLD, DEFAULT_CG_MINTHRESHOLD, DEFAULT_CG_RATIO);
 		vm->memallocated = 0;
 		vm->maxmemblock = MAX_MEMORY_BLOCK;
-		marray_init(vm->graylist);
-		marray_init(vm->gctemp);
+		// @ctr marray_init(vm->graylist);
+		// @ctr marray_init(vm->gctemp);
 		// init base and core
 		gravity_core_register(vm);
 		gravity_cache_setup();

@@ -40,7 +40,6 @@ int docbEncodeEntities(uchar * out ATTRIBUTE_UNUSED, int * outlen ATTRIBUTE_UNUS
 	}
 	return -1;
 }
-
 /**
  * docbParseDocument:
  * @ctxt:  an SGML parser context
@@ -51,7 +50,6 @@ int docbEncodeEntities(uchar * out ATTRIBUTE_UNUSED, int * outlen ATTRIBUTE_UNUS
  * Returns 0, -1 in case of error. the parser context is augmented
  *           as a result of the parsing.
  */
-
 int docbParseDocument(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
@@ -61,7 +59,6 @@ int docbParseDocument(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
 	}
 	return (xmlParseDocument(ctxt));
 }
-
 /**
  * docbFreeParserCtxt:
  * @ctxt:  an SGML parser context
@@ -69,7 +66,6 @@ int docbParseDocument(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
  * Free all the memory used by a parser context. However the parsed
  * document in ctxt->myDoc is not freed.
  */
-
 void docbFreeParserCtxt(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
@@ -79,7 +75,6 @@ void docbFreeParserCtxt(docbParserCtxtPtr ctxt ATTRIBUTE_UNUSED)
 	}
 	xmlFreeParserCtxt(ctxt);
 }
-
 /**
  * docbParseChunk:
  * @ctxt:  an XML parser context
@@ -146,11 +141,7 @@ docbParserCtxtPtr docbCreatePushParserCtxt(docbSAXHandlerPtr sax ATTRIBUTE_UNUSE
  *
  * Returns the resulting document tree
  */
-
-docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED,
-    const char * encoding ATTRIBUTE_UNUSED,
-    docbSAXHandlerPtr sax ATTRIBUTE_UNUSED,
-    void * userData ATTRIBUTE_UNUSED)
+docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED, const char * encoding ATTRIBUTE_UNUSED, docbSAXHandlerPtr sax ATTRIBUTE_UNUSED, void * userData ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
 	if(!deprecated) {
@@ -159,7 +150,6 @@ docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED,
 	}
 	return (xmlSAXParseMemoryWithData(sax, (const char *)cur, sstrlen((const xmlChar *)cur), 0,  userData));
 }
-
 /**
  * docbParseDoc:
  * @cur:  a pointer to an array of xmlChar
@@ -169,7 +159,6 @@ docbDocPtr docbSAXParseDoc(xmlChar * cur ATTRIBUTE_UNUSED,
  *
  * Returns the resulting document tree
  */
-
 docbDocPtr docbParseDoc(xmlChar * cur ATTRIBUTE_UNUSED, const char * encoding ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
@@ -179,7 +168,6 @@ docbDocPtr docbParseDoc(xmlChar * cur ATTRIBUTE_UNUSED, const char * encoding AT
 	}
 	return (xmlParseDoc(cur));
 }
-
 /**
  * docbCreateFileParserCtxt:
  * @filename:  the filename
@@ -215,11 +203,7 @@ docbParserCtxtPtr docbCreateFileParserCtxt(const char * filename ATTRIBUTE_UNUSE
  *
  * Returns the resulting document tree
  */
-
-docbDocPtr docbSAXParseFile(const char * filename ATTRIBUTE_UNUSED,
-    const char * encoding ATTRIBUTE_UNUSED,
-    docbSAXHandlerPtr sax ATTRIBUTE_UNUSED,
-    void * userData ATTRIBUTE_UNUSED)
+docbDocPtr docbSAXParseFile(const char * filename ATTRIBUTE_UNUSED, const char * encoding ATTRIBUTE_UNUSED, docbSAXHandlerPtr sax ATTRIBUTE_UNUSED, void * userData ATTRIBUTE_UNUSED)
 {
 	static int deprecated = 0;
 	if(!deprecated) {
@@ -228,7 +212,6 @@ docbDocPtr docbSAXParseFile(const char * filename ATTRIBUTE_UNUSED,
 	}
 	return (xmlSAXParseFileWithData(sax, filename, 0, userData));
 }
-
 /**
  * docbParseFile:
  * @filename:  the filename

@@ -2,8 +2,7 @@
 #define ATOL_DTOX_FPTR_H
 
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64) || \
-	defined(__WIN32__) || defined(__TOS_WIN__) || defined(__WINDOWS__) || \
-	defined(_WINDOWS) || defined(_WIN32_WINCE)
+	defined(__WIN32__) || defined(__TOS_WIN__) || defined(__WINDOWS__) || defined(_WINDOWS) || defined(_WIN32_WINCE)
 #  if defined(DTOX_LIBRARY)
 #    define DTOX_SHARED_EXPORT __declspec(dllexport)
 #  else

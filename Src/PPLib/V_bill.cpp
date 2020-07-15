@@ -1876,93 +1876,18 @@ int SLAPI PPViewBill::WriteOffDraft(PPID id)
 				PPWait(0);
 			}
 			else if(s == 2) { // Перенести теги с драфт-документа на документ списания
-				if(P_BObj->Search(id, &bill_rec) > 0) {
-					if(!(bill_rec.Flags & BILLF_WRITEDOFF)) {
-						PPMessage(mfInfo|mfOK, PPINF_DRAFTNOTWROFF);
-					}
-					else {
-						PPIDArray wroff_bill_list;
-						BillTbl::Rec wroff_bill_rec;
-						for(DateIter diter; P_BObj->P_Tbl->EnumLinks(bill_rec.ID, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;)
-							wroff_bill_list.add(wroff_bill_rec.ID);
-						if(wroff_bill_list.getCount() == 1) {
-							SString temp_buf;
-							SString bill_text;
-							PPBillPacket _this_bp;
-							PPBillPacket _link_bp;
-							const PPID   _link_id = wroff_bill_list.get(0);
-							// @v10.2.9 StringSet _this_lxc_ss;
-							// @v10.2.9 StringSet _link_lxc_ss;
-							PPLotExtCodeContainer::MarkSet _this_lxc_set; // @v10.2.9
-							PPLotExtCodeContainer::MarkSet _link_lxc_set; // @v10.2.9
-							int    do_update = 0;
-							THROW(P_BObj->ExtractPacketWithFlags(id, &_this_bp, BPLD_FORCESERIALS) > 0);
-							THROW(P_BObj->ExtractPacketWithFlags(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
-							PPObjBill::MakeCodeString(&_link_bp.Rec, PPObjBill::mcsAddOpName, bill_text);
-							for(uint tbpi = 0; tbpi < _this_bp.GetTCount(); tbpi++) {
-								const PPTransferItem & r_ti = _this_bp.ConstTI(tbpi);
-								if(r_ti.RByBill > 0) {
-									const ObjTagList * p_tl = _this_bp.LTagL.Get(tbpi);
-									uint  _lp = 0;
-									if(p_tl && p_tl->GetCount() && _link_bp.SearchTI(r_ti.RByBill, &_lp)) {
-										int    do_update_local = 0;
-										const  PPTransferItem & r_link_ti = _link_bp.ConstTI(_lp);
-										ObjTagList * p_link_tl = _link_bp.LTagL.Get(_lp);
-										ObjTagList _link_tl;
-										RVALUEPTR(_link_tl, p_link_tl);
-										for(uint tli = 0; tli < p_tl->GetCount(); tli++) {
-											const ObjTagItem * p_tag = p_tl->GetItemByPos(tli);
-											if(p_tag && !p_tag->IsZeroVal()) {
-												const PPID tag_id = p_tag->TagID;
-												if(tag_id) {
-													const ObjTagItem * p_ex_link_tag = _link_tl.GetItem(tag_id);
-													if(!p_ex_link_tag || *p_ex_link_tag != *p_tag) {
-														_link_tl.PutItem(p_tag->TagID, p_tag);
-														do_update_local = 1;
-													}
-												}
-											}
-										}
-										if(do_update_local) {
-											_link_bp.LTagL.Set(_lp, &_link_tl);
-											do_update = 1;
-										}
-									}
-									// @v10.2.7 {
-									if(_this_bp.XcL.Get(tbpi+1, 0, _this_lxc_set) > 0) {
-										_link_bp.XcL.Get(_lp+1, 0, _link_lxc_set);
-										if(_link_lxc_set.GetCount() == 0) {
-											/* @v10.2.9 for(uint thislxcssp = 0; _this_lxc_ss.get(&thislxcssp, temp_buf);) {
-												_link_bp.XcL.Add(_lp+1, temp_buf, 0);
-												do_update = 1;
-											}*/
-											// @v10.2.9 {
-											PPLotExtCodeContainer::MarkSet::Entry lxentry;
-											for(uint thislxidx = 0; thislxidx < _this_lxc_set.GetCount(); thislxidx++) {
-												if(_this_lxc_set.GetByIdx(thislxidx, lxentry)) {
-													_link_bp.XcL.Add(_lp+1, lxentry.BoxID, static_cast<int16>(lxentry.Flags), lxentry.Num, 0);
-													do_update = 1; // @v10.2.10 @fix
-												}
-											}
-											// } @v10.2.9
-										}
-									}
-									// } @v10.2.7
-								}
-							}
-							if(do_update) {
-								THROW(P_BObj->UpdatePacket(&_link_bp, 1));
-								PPMessage(mfInfo|mfOK, PPINF_TAGSINWROFFBILLUPD, bill_text);
-							}
-							else {
-								PPMessage(mfInfo|mfOK, PPINF_TAGSINWROFFBILLNUPD, bill_text);
-							}
-						}
-						else if(wroff_bill_list.getCount() > 1) {
-							; // Не понятно что делать - не делаем ничего
-						}
-					}
+				THROW(P_BObj->MoveLotTagsFromDraftBillToWrOffBill(id, 0, 1));
+			}
+			else if(s == 3) { // @v10.8.1 Перенести теги со строк всех драфт-документов на документы списания
+				PPLogger logger;
+				PPIDArray idlist;
+				PPWait(1);
+				THROW(GetBillIDList(&idlist));
+				for(uint i = 0; i < idlist.getCount(); i++) {
+					const PPID bill_id = idlist.at(i);
+					P_BObj->MoveLotTagsFromDraftBillToWrOffBill(bill_id, 0, 1);
 				}
+				PPWait(0);
 			}
 			try_again = 0;
 			if(is_deficit) {

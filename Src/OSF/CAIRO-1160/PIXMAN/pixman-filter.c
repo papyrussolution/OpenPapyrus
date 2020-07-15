@@ -354,19 +354,13 @@ static void gnuplot_filter(int width, int n_phases, const pixman_fixed_t* p)
 		for(i = 0; i < n_phases; ++i) {
 			int phase = first - i;
 			double frac, pos;
-
 			if(phase < 0)
 				phase = n_phases + phase;
-
 			frac = step / 2.0 + phase * step;
 			pos = ceil(frac - width / 2.0 - 0.5) + 0.5 - frac + j;
-
-			printf("%g %g\n",
-			    pos,
-			    pixman_fixed_to_double(*(p + phase * width + j)));
+			printf("%g %g\n", pos, pixman_fixed_to_double(*(p + phase * width + j)));
 		}
 	}
-
 	printf("e\n");
 	fflush(stdout);
 }

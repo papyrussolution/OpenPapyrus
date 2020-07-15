@@ -1467,7 +1467,7 @@ int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 				}
 				if(tec_struc_id && tec_goods_id) {
 					PPGoodsStrucHeader gs_rec;
-					if(gs_obj.Fetch(tec_struc_id, &gs_rec) > 0 && gs_rec.Flags & GSF_PARTITIAL) {
+					if(gs_obj.Fetch(tec_struc_id, &gs_rec) > 0 && (gs_rec.Flags & (GSF_PARTITIAL/*|GSF_COMPL|GSF_DECOMPL*/))) {
 						const double qtty = (tses_rec.ActQtty != 0.0) ? tses_rec.ActQtty : tses_rec.PlannedQtty;
 						//
 						// Функция CompleteStruc изменяет знак в количестве. Поэтому здесь умножает количество на -1
@@ -1503,7 +1503,7 @@ int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 					if(goods_id == tec_goods_id) {
 						THROW(r = GetPrevSession(tses_rec, &prev_sess_rec));
 						if(r > 0 && TecObj.Fetch(prev_sess_rec.TechID, &tec_rec2) > 0 && goods_id != tec_rec2.GoodsID) {
-							TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
+							TSVector <TechTbl::Rec> t_list;
 							THROW(r = TecObj.SelectTooling(tses_rec.PrcID, goods_id, tec_rec2.GoodsID, &t_list));
 							if(r > 0)
 								for(i = 0; i < t_list.getCount(); i++) {

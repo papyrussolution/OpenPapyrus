@@ -155,7 +155,6 @@ void * memdebug_realloc(gravity_vm * vm, void * ptr, size_t new_size)
 		memdebug_report(current_error, stack, n, &memdebug.slot[index]);
 		return NULL;
 	}
-
 	_ptr_replace(ptr, new_ptr, new_size);
 	return new_ptr;
 }
@@ -171,7 +170,6 @@ bool memdebug_remove(void * ptr)
 			memdebug_report(current_error, stack, n, NULL);
 			return false;
 		}
-
 		memslot m = memdebug.slot[index];
 		if(m.deleted) {
 			BUILD_ERROR("Pointer already freed");
@@ -206,13 +204,14 @@ void memdebug_stat()
 		printf("\n");
 		for(uint32 i = 0; i<memdebug.nslot; ++i) {
 			memslot m = memdebug.slot[i];
-			if((!m.ptr) || (m.deleted)) continue;
-
+			if((!m.ptr) || (m.deleted)) 
+				continue;
 			printf("Block %p size: %zu (reallocated %zu)\n", m.ptr, m.size, m.nrealloc);
 			printf("Call stack:\n");
 			printf("===========\n");
 			for(size_t j = 0; j<m.nframe; ++j) {
-				if(_is_internal(m.frames[j])) continue;
+				if(_is_internal(m.frames[j])) 
+					continue;
 				printf("%s\n", m.frames[j]);
 			}
 			printf("===========\n\n");
@@ -286,39 +285,37 @@ void _ptr_replace(void * old_ptr, void * new_ptr, size_t new_size)
 		memdebug.maxmem = memdebug.currmem;
 }
 
-void _ptr_remove(void * ptr) {
+void _ptr_remove(void * ptr) 
+{
 	CHECK_FLAG();
-
 	uint32 index = _ptr_lookup(ptr);
-
 	if(index == SLOT_NOTFOUND) {
 		BUILD_ERROR("Unable to find old pointer to realloc");
 		memdebug_report(current_error, NULL, 0, NULL);
 	}
-
 	memslot slot = memdebug.slot[index];
 	if(slot.deleted) {
 		BUILD_ERROR("Pointer already freed");
 		BUILD_STACK(n, stack);
 		memdebug_report(current_error, stack, n, &slot);
 	}
-
 	size_t old_size = memdebug.slot[index].size;
 	memdebug.slot[index].deleted = true;
 	memdebug.slot[index].frames2 = _ptr_stacktrace(&memdebug.slot[index].nframe2);
-
 	++memdebug.nfree;
 	memdebug.currmem -= old_size;
 }
 
-uint32 _ptr_lookup(void * ptr) {
+uint32 _ptr_lookup(void * ptr) 
+{
 	for(uint32 i = 0; i<memdebug.nslot; ++i) {
 		if(memdebug.slot[i].ptr == ptr) return i;
 	}
 	return SLOT_NOTFOUND;
 }
 
-char ** _ptr_stacktrace(size_t * nframes) {
+char ** _ptr_stacktrace(size_t * nframes) 
+{
     #if _WIN32
 	// http://www.codeproject.com/Articles/11132/Walking-the-callstack
 	// https://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/
@@ -332,12 +329,13 @@ char ** _ptr_stacktrace(size_t * nframes) {
 }
 
 // Default callback
-bool _is_internal(const char * s) {
+bool _is_internal(const char * s) 
+{
 	static const char * reserved[] = {"??? ", "libdyld.dylib ", "memdebug_", "_ptr_", NULL};
-
 	const char ** r = reserved;
 	while(*r) {
-		if(strstr(s, *r)) return true;
+		if(strstr(s, *r)) 
+			return true;
 		++r;
 	}
 	return false;

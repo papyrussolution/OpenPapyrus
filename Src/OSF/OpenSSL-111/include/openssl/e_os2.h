@@ -236,25 +236,23 @@ typedef INT32 int32_t;
 typedef UINT32 uint32_t;
 typedef INT64 int64_t;
 typedef UINT64 uint64_t;
-# elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
-     defined(__osf__) || defined(__sgi) || defined(__hpux) || \
-     defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
-#include <inttypes.h>
-# elif defined(_MSC_VER) && _MSC_VER<=1500
-/*
- * minimally required typdefs for systems not supporting inttypes.h or
- * stdint.h: currently just older VC++
- */
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef short int16_t;
-typedef unsigned short uint16_t;
-typedef int int32_t;
-typedef unsigned int uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-# else
-#include <stdint.h>
+# elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || defined(__osf__) || defined(__sgi) || defined(__hpux) || defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
+	#include <inttypes.h>
+#elif defined(_MSC_VER) && _MSC_VER<=1500
+	/*
+	* minimally required typdefs for systems not supporting inttypes.h or
+	* stdint.h: currently just older VC++
+	*/
+	typedef signed char int8_t;
+	typedef unsigned char uint8_t;
+	typedef short int16_t;
+	typedef unsigned short uint16_t;
+	typedef int int32_t;
+	typedef unsigned int uint32_t;
+	typedef __int64 int64_t;
+	typedef unsigned __int64 uint64_t;
+#else
+	#include <stdint.h>
 #endif
 
 /* ossl_inline: portable inline definition usable in public headers */

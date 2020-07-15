@@ -11,7 +11,6 @@
 #define HEADER_CRYPTLIB_H
 
 #include <slib.h>
-#include <stdint.h> // @v10.6.3
 
 // @v10.7.12 #define OPENSSL_NO_DYNAMIC_ENGINE // @sobolev
 #define OPENSSL_NO_HW_PADLOCK // @sobolev @v10.7.12

@@ -4961,23 +4961,18 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
 		    else {
 			    /* 3 is sign, decimal point, and terminating zero */
 			    char work[DBL_DIG + EXPONENT_DIGITS + 3];
-			    int integer_place, fraction_place;
 			    char * ptr;
 			    char * after_fraction;
-			    double absolute_value;
 			    int size;
-
-			    absolute_value = fabs(number);
-
+			    double absolute_value = fabs(number);
 			    /*
 			 * Result is in work, and after_fraction points
 			 * just past the fractional part.
 			 * Use scientific notation
 			     */
-			    integer_place = DBL_DIG + EXPONENT_DIGITS + 1;
-			    fraction_place = DBL_DIG - 1;
-			    snprintf(work, sizeof(work), "%*.*e",
-			    integer_place, fraction_place, number);
+			    int integer_place = DBL_DIG + EXPONENT_DIGITS + 1;
+			    int fraction_place = DBL_DIG - 1;
+			    snprintf(work, sizeof(work), "%*.*e", integer_place, fraction_place, number);
 			    after_fraction = sstrchr(work + DBL_DIG, 'e');
 			    /* Remove fractional trailing zeroes */
 			    ptr = after_fraction;
@@ -5021,7 +5016,7 @@ static void xmlSchemaFormatFloat(double number, char buffer[], int buffersize)
  */
 int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 {
-	if((retValue == NULL) || (val == NULL))
+	if(!retValue || !val)
 		return -1;
 	*retValue = NULL;
 	switch(val->type) {
@@ -5079,10 +5074,9 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    }
 		    else {
 			    xmlSchemaValDecimal dec = val->value.decimal;
-			    int bufsize;
 			    char * buf = NULL, * offs;
 			    /* Add room for the decimal point as well. */
-			    bufsize = dec.total + 2;
+			    int bufsize = dec.total + 2;
 			    if(dec.sign)
 				    bufsize++;
 			    /* Add room for leading/trailing zero. */
@@ -5107,17 +5101,13 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    if(dec.frac != 0) {
 				    if(dec.frac != dec.total) {
 					    int diff = dec.total - dec.frac;
-					    /*
-					 * Insert the decimal point.
-					     */
+						// Insert the decimal point.
 					    memmove(offs + diff + 1, offs + diff, dec.frac +1);
 					    offs[diff] = '.';
 				    }
 				    else {
 					    uint i = 0;
-					    /*
-					 * Insert missing zeroes behind the decimal point.
-					     */
+						// Insert missing zeroes behind the decimal point.
 					    while(*(offs + i) != 0)
 						    i++;
 					    if(i < dec.total) {
@@ -5127,9 +5117,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 				    }
 			    }
 			    else {
-				    /*
-				 * Append decimal point and zero.
-				     */
+					// Append decimal point and zero.
 				    offs = buf + bufsize - 1;
 				    *offs-- = 0;
 				    *offs-- = '0';
@@ -5309,9 +5297,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    xmlSchemaVal * norm = xmlSchemaDateNormalize(val, 0);
 			    if(norm == NULL)
 				    return -1;
-			    /*
-			 * @todo Check if "%.14g" is portable.
-			     */
+				// @todo Check if "%.14g" is portable.
 			    snprintf(buf, 50, "%04ld:%02u:%02uT%02u:%02u:%02.14gZ",
 				    norm->value.date.year, norm->value.date.mon, norm->value.date.day, norm->value.date.hour, norm->value.date.min, norm->value.date.sec);
 			    xmlSchemaFreeValue(norm);

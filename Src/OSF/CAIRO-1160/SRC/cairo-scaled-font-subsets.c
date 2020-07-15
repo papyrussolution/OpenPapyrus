@@ -634,20 +634,9 @@ static cairo_scaled_font_subsets_t * FASTCALL _cairo_scaled_font_subsets_create_
 	return subsets;
 }
 
-cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_scaled(void)
-{
-	return _cairo_scaled_font_subsets_create_internal(CAIRO_SUBSETS_SCALED);
-}
-
-cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_simple(void)
-{
-	return _cairo_scaled_font_subsets_create_internal(CAIRO_SUBSETS_SIMPLE);
-}
-
-cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_composite(void)
-{
-	return _cairo_scaled_font_subsets_create_internal(CAIRO_SUBSETS_COMPOSITE);
-}
+cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_scaled(void) { return _cairo_scaled_font_subsets_create_internal(CAIRO_SUBSETS_SCALED); }
+cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_simple(void) { return _cairo_scaled_font_subsets_create_internal(CAIRO_SUBSETS_SIMPLE); }
+cairo_scaled_font_subsets_t * _cairo_scaled_font_subsets_create_composite(void) { return _cairo_scaled_font_subsets_create_internal(CAIRO_SUBSETS_COMPOSITE); }
 
 void _cairo_scaled_font_subsets_destroy(cairo_scaled_font_subsets_t * subsets)
 {
@@ -658,18 +647,13 @@ void _cairo_scaled_font_subsets_destroy(cairo_scaled_font_subsets_t * subsets)
 	SAlloc::F(subsets);
 }
 
-void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_font_subsets_t * font_subsets,
-    boolint use_latin)
+void _cairo_scaled_font_subsets_enable_latin_subset(cairo_scaled_font_subsets_t * font_subsets, boolint use_latin)
 {
 	font_subsets->use_latin_subset = use_latin;
 }
 
-cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t * subsets,
-    cairo_scaled_font_t * scaled_font,
-    ulong scaled_font_glyph_index,
-    const char *   utf8,
-    int utf8_len,
-    cairo_scaled_font_subsets_glyph_t * subset_glyph)
+cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t * subsets, cairo_scaled_font_t * scaled_font,
+    ulong scaled_font_glyph_index, const char *   utf8, int utf8_len, cairo_scaled_font_subsets_glyph_t * subset_glyph)
 {
 	cairo_sub_font_t key, * sub_font;
 	cairo_scaled_glyph_t * scaled_glyph;
@@ -708,38 +692,28 @@ cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t 
 	 * _scaled_glyph_lookup(_GLYPH_INFO_PATH). Type1-fallback creates
 	 * empty glyphs in this case so we can put the glyph in a unscaled
 	 * subset. */
-	if(scaled_font_glyph_index == 0 ||
-	    _cairo_font_face_is_user(scaled_font->font_face)) {
+	if(scaled_font_glyph_index == 0 || _cairo_font_face_is_user(scaled_font->font_face)) {
 		status = CAIRO_STATUS_SUCCESS;
 	}
 	else {
 		_cairo_scaled_font_freeze_cache(scaled_font);
-		status = _cairo_scaled_glyph_lookup(scaled_font,
-			scaled_font_glyph_index,
-			CAIRO_SCALED_GLYPH_INFO_PATH,
-			&scaled_glyph);
+		status = _cairo_scaled_glyph_lookup(scaled_font, scaled_font_glyph_index, CAIRO_SCALED_GLYPH_INFO_PATH, &scaled_glyph);
 		_cairo_scaled_font_thaw_cache(scaled_font);
 	}
 	if(_cairo_int_status_is_error(status))
 		return status;
-
-	if(status == CAIRO_INT_STATUS_SUCCESS &&
-	    subsets->type != CAIRO_SUBSETS_SCALED &&
-	    !_cairo_font_face_is_user(scaled_font->font_face)) {
+	if(status == CAIRO_INT_STATUS_SUCCESS && subsets->type != CAIRO_SUBSETS_SCALED && !_cairo_font_face_is_user(scaled_font->font_face)) {
 		/* Path available. Add to unscaled subset. */
 		key.is_scaled = FALSE;
 		_cairo_sub_font_init_key(&key, scaled_font);
-		sub_font = (cairo_sub_font_t *)_cairo_hash_table_lookup(subsets->unscaled_sub_fonts, &key.base);
+		sub_font = static_cast<cairo_sub_font_t *>(_cairo_hash_table_lookup(subsets->unscaled_sub_fonts, &key.base));
 		if(sub_font == NULL) {
 			font_face = cairo_scaled_font_get_font_face(scaled_font);
 			cairo_matrix_init_identity(&identity);
 			_cairo_font_options_init_default(&font_options);
 			cairo_font_options_set_hint_style(&font_options, CAIRO_HINT_STYLE_NONE);
 			cairo_font_options_set_hint_metrics(&font_options, CAIRO_HINT_METRICS_OFF);
-			unscaled_font = cairo_scaled_font_create(font_face,
-				&identity,
-				&identity,
-				&font_options);
+			unscaled_font = cairo_scaled_font_create(font_face, &identity, &identity, &font_options);
 			if(unlikely(unscaled_font->status))
 				return unscaled_font->status;
 
@@ -753,23 +727,13 @@ cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t 
 				max_glyphs = MAX_GLYPHS_PER_SIMPLE_FONT;
 				subset_glyph->is_composite = FALSE;
 			}
-
-			status = _cairo_sub_font_create(subsets,
-				unscaled_font,
-				subsets->num_sub_fonts,
-				max_glyphs,
-				subset_glyph->is_scaled,
-				subset_glyph->is_composite,
-				&sub_font);
-
+			status = _cairo_sub_font_create(subsets, unscaled_font, subsets->num_sub_fonts, max_glyphs,
+				subset_glyph->is_scaled, subset_glyph->is_composite, &sub_font);
 			if(unlikely(status)) {
 				cairo_scaled_font_destroy(unscaled_font);
 				return status;
 			}
-
-			status = _cairo_hash_table_insert(subsets->unscaled_sub_fonts,
-				&sub_font->base);
-
+			status = _cairo_hash_table_insert(subsets->unscaled_sub_fonts, &sub_font->base);
 			if(unlikely(status)) {
 				_cairo_sub_font_destroy(sub_font);
 				return status;
@@ -794,21 +758,13 @@ cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t 
 				max_glyphs = INT_MAX;
 			else
 				max_glyphs = MAX_GLYPHS_PER_SIMPLE_FONT;
-
-			status = _cairo_sub_font_create(subsets,
-				cairo_scaled_font_reference(scaled_font),
-				subsets->num_sub_fonts,
-				max_glyphs,
-				subset_glyph->is_scaled,
-				subset_glyph->is_composite,
-				&sub_font);
+			status = _cairo_sub_font_create(subsets, cairo_scaled_font_reference(scaled_font), subsets->num_sub_fonts,
+				max_glyphs, subset_glyph->is_scaled, subset_glyph->is_composite, &sub_font);
 			if(unlikely(status)) {
 				cairo_scaled_font_destroy(scaled_font);
 				return status;
 			}
-
-			status = _cairo_hash_table_insert(subsets->scaled_sub_fonts,
-				&sub_font->base);
+			status = _cairo_hash_table_insert(subsets->scaled_sub_fonts, &sub_font->base);
 			if(unlikely(status)) {
 				_cairo_sub_font_destroy(sub_font);
 				return status;
@@ -821,11 +777,7 @@ cairo_status_t _cairo_scaled_font_subsets_map_glyph(cairo_scaled_font_subsets_t 
 			subsets->num_sub_fonts++;
 		}
 	}
-
-	return _cairo_sub_font_map_glyph(sub_font,
-		   scaled_font_glyph_index,
-		   utf8, utf8_len,
-		   subset_glyph);
+	return _cairo_sub_font_map_glyph(sub_font, scaled_font_glyph_index, utf8, utf8_len, subset_glyph);
 }
 
 static cairo_status_t _cairo_scaled_font_subsets_foreach_internal(cairo_scaled_font_subsets_t * font_subsets,
@@ -944,9 +896,7 @@ static void dump_subfont(cairo_sub_font_t * sub_font)
 		printf("    num_glyphs_in_current_subset: %d\n", sub_font->num_glyphs_in_current_subset);
 		printf("    num_glyphs_in_latin_subset: %d\n", sub_font->num_glyphs_in_latin_subset);
 		printf("    max_glyphs_per_subset: %d\n\n", sub_font->max_glyphs_per_subset);
-
 		_cairo_hash_table_foreach(sub_font->sub_font_glyphs, dump_glyph, NULL);
-
 		printf("\n");
 		sub_font = sub_font->next;
 	}
@@ -955,17 +905,10 @@ static void dump_subfont(cairo_sub_font_t * sub_font)
 void dump_scaled_font_subsets(cairo_scaled_font_subsets_t * font_subsets)
 {
 	printf("font subsets\n");
-	switch(font_subsets->type)
-	{
-		case CAIRO_SUBSETS_SCALED:
-		    printf("  type: CAIRO_SUBSETS_SCALED\n");
-		    break;
-		case CAIRO_SUBSETS_SIMPLE:
-		    printf("  type: CAIRO_SUBSETS_SIMPLE\n");
-		    break;
-		case CAIRO_SUBSETS_COMPOSITE:
-		    printf("  type: CAIRO_SUBSETS_COMPOSITE\n");
-		    break;
+	switch(font_subsets->type) {
+		case CAIRO_SUBSETS_SCALED: printf("  type: CAIRO_SUBSETS_SCALED\n"); break;
+		case CAIRO_SUBSETS_SIMPLE: printf("  type: CAIRO_SUBSETS_SIMPLE\n"); break;
+		case CAIRO_SUBSETS_COMPOSITE: printf("  type: CAIRO_SUBSETS_COMPOSITE\n"); break;
 	}
 	printf("  use_latin_subset: %d\n", font_subsets->use_latin_subset);
 	printf("  max_glyphs_per_unscaled_subset_used: %d\n", font_subsets->max_glyphs_per_unscaled_subset_used);
@@ -982,8 +925,8 @@ void dump_scaled_font_subsets(cairo_scaled_font_subsets_t * font_subsets)
 static void _cairo_string_init_key(cairo_string_entry_t * key, char * s)
 {
 	ulong sum = 0;
-	uint i;
-	for(i = 0; i < strlen(s); i++)
+	const uint len = sstrlen(s);
+	for(uint i = 0; i < len; i++)
 		sum += s[i];
 	key->base.hash = sum;
 	key->string = s;
@@ -991,7 +934,7 @@ static void _cairo_string_init_key(cairo_string_entry_t * key, char * s)
 
 static cairo_status_t create_string_entry(char * s, cairo_string_entry_t ** entry)
 {
-	*entry = (cairo_string_entry_t *)_cairo_malloc(sizeof(cairo_string_entry_t));
+	*entry = static_cast<cairo_string_entry_t *>(_cairo_malloc(sizeof(cairo_string_entry_t)));
 	if(unlikely(*entry == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_string_init_key(*entry, s);
@@ -1062,8 +1005,8 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 				snprintf(buf, sizeof(buf), "uni%04X", (int)utf16[0]);
 			}
 			_cairo_string_init_key(&key, buf);
-			entry = (cairo_string_entry_t *)_cairo_hash_table_lookup(names, &key.base);
-			if(entry != NULL)
+			entry = static_cast<cairo_string_entry_t *>(_cairo_hash_table_lookup(names, &key.base));
+			if(entry)
 				snprintf(buf, sizeof(buf), "g%d", i);
 		}
 		else {
@@ -1084,30 +1027,24 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 			goto CLEANUP_HASH;
 		}
 	}
-
 CLEANUP_HASH:
 	_cairo_hash_table_foreach(names, _pluck_entry, names);
 	_cairo_hash_table_destroy(names);
-
 	if(likely(status == CAIRO_STATUS_SUCCESS))
 		return CAIRO_STATUS_SUCCESS;
-
 	if(subset->glyph_names != NULL) {
 		for(i = 0; i < subset->num_glyphs; i++) {
 			SAlloc::F(subset->glyph_names[i]);
 		}
-
 		SAlloc::F(subset->glyph_names);
 		subset->glyph_names = NULL;
 	}
-
 	return status;
 }
 
 cairo_int_status_t _cairo_escape_ps_name(char ** ps_name)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-
 	/* Ensure PS name is a valid PDF/PS name object. In PDF names are
 	 * treated as UTF8 and non ASCII bytes, ' ', and '#' are encoded
 	 * as '#' followed by 2 hex digits that encode the byte. By also
@@ -1140,7 +1077,6 @@ cairo_int_status_t _cairo_escape_ps_name(char ** ps_name)
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 	}
-
 	return status;
 }
 

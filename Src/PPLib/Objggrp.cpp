@@ -11,6 +11,10 @@ SLAPI GoodsGroupRecoverParam::GoodsGroupRecoverParam() : EgaFolderID(0), Ega(ega
 {
 }
 
+SLAPI GoodsGroupTotal::GoodsGroupTotal() : MaxLevel(0), Count(0), AltCount(0), FoldCount(0), GrpCount(0)
+{
+}
+
 SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODSGROUP, PPGDSK_GROUP, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
@@ -77,7 +81,7 @@ int SLAPI PPObjGoodsGroup::GetLevel(PPID grpID, long * pLevel)
 int SLAPI PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 {
 	GoodsGroupTotal total;
-	MEMSZERO(total);
+	// @v10.8.1 @ctr MEMSZERO(total);
 	PPIDArray id_list;
 	Goods2Tbl::Key1 k1;
 	BExtQuery q(P_Tbl, 1);

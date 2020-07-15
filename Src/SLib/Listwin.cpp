@@ -248,15 +248,15 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 	uint   list_ctl = isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
 	RECT   link_rect, list_rect;
+	::GetWindowRect(H(), &list_rect);
 	if(linkHwnd) {
-		GetWindowRect(linkHwnd, &link_rect);
+		::GetWindowRect(linkHwnd, &link_rect);
 		link_rect.right = (right) ? right : link_rect.right;
 	}
 	else {
-		GetWindowRect(H(), &link_rect);
+		link_rect = list_rect;
 		link_rect.bottom = link_rect.top;
 	}
-	GetWindowRect(H(), &list_rect);
 	long   item_height = isTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
 	int    h = 	P_Def ? ((P_Def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;

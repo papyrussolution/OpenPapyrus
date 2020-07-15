@@ -492,7 +492,7 @@ long FASTCALL TWindow::getCtrlLong(uint ctlID)
 
 int FASTCALL TWindow::setCtrlUInt16(uint ctlID, int s)
 {
-	uint16 val = (uint16)s;
+	uint16 val = static_cast<uint16>(s);
 	return setCtrlData(ctlID, &val);
 }
 
@@ -1222,14 +1222,6 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 		y   = border_y + cap_y + menu_y + par_rect.top;
 		cx  = par_wd - border_x * 2 - tree_width - x;
 		cy  = par_ht - border_y * 2 - cap_y - menu_y - status_height - y;
-		/*
-		r.left   = par_wd * origin.x / 80 + tree_width;
-		r.right  = par_wd * size.x / 80 - border_x * 2 - tree_width;
-		r.top    = par_ht * origin.y / 23;
-		r.bottom = par_ht * size.y / 23 - border_y * 2 - cap_y - menu_y - status_height;
-		r.left += border_x + parent.left;
-		r.top  += border_y + cap_y + menu_y + parent.top;
-		*/
 	}
 	else {
 
@@ -1242,8 +1234,8 @@ int TWindowBase::Create(void * hParentWnd, long createOptions)
 		style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_VISIBLE;
 		if(createOptions & coMDI) {
 			MDICREATESTRUCT child;
-			child.szClass = P_SLibWindowBaseClsName; // @unicodeproblem
-			child.szTitle = SUcSwitch(title_buf); // @unicodeproblem
+			child.szClass = P_SLibWindowBaseClsName;
+			child.szTitle = SUcSwitch(title_buf);
 			child.hOwner = h_inst;
 			child.x  = CW_USEDEFAULT;
 			child.y  = CW_USEDEFAULT;

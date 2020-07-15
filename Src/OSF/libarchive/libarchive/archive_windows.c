@@ -49,27 +49,17 @@
 #if defined(_WIN32) && !defined(__CYGWIN__)
 //#include "archive_private.h"
 //#include "archive_entry.h"
-//#include <ctype.h>
-//#include <errno.h>
 #include <stddef.h>
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif
-//#include <sys/stat.h>
-//#include <locale.h>
 #include <process.h>
-//#include <stdlib.h>
-//#include <wchar.h>
-//#include <windows.h>
 #include <share.h>
 
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 
 #if defined(__LA_LSEEK_NEEDED)
-static BOOL SetFilePointerEx_perso(HANDLE hFile,
-    LARGE_INTEGER liDistanceToMove,
-    PLARGE_INTEGER lpNewFilePointer,
-    DWORD dwMoveMethod)
+static BOOL SetFilePointerEx_perso(HANDLE hFile, LARGE_INTEGER liDistanceToMove, PLARGE_INTEGER lpNewFilePointer, DWORD dwMoveMethod)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = liDistanceToMove.QuadPart;

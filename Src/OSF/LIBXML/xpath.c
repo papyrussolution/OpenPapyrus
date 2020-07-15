@@ -438,7 +438,7 @@ void xmlXPathInit()
  */
 int xmlXPathIsNaN(double val)
 {
-	return (trio_isnan(val));
+	return fisnan(val); // @v10.8.1 trio_isnan-->fisnan
 }
 /**
  * xmlXPathIsInf:
@@ -452,7 +452,7 @@ int xmlXPathIsNaN(double val)
  */
 int FASTCALL xmlXPathIsInf(double val)
 {
-	return trio_isinf(val);
+	return fisinf(val); // @v10.8.1 trio_isinf-->fisinf
 }
 
 #endif /* SCHEMAS or XPATH */
@@ -1046,7 +1046,7 @@ static void xmlXPathDebugDumpNode(FILE * output, xmlNode * cur, int depth)
 	shift[2 * i] = shift[2 * i + 1] = 0;
 	if(!cur) {
 		fprintf(output, "%s", shift);
-		fprintf(output, "Node is NULL !\n");
+		fprintf(output, "Node is NULL!\n");
 		return;
 	}
 	if(oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE)) {
@@ -1069,7 +1069,7 @@ static void xmlXPathDebugDumpNodeList(FILE * output, xmlNode * cur, int depth)
 	shift[2 * i] = shift[2 * i + 1] = 0;
 	if(!cur) {
 		fprintf(output, "%s", shift);
-		fprintf(output, "Node is NULL !\n");
+		fprintf(output, "Node is NULL!\n");
 		return;
 	}
 	while(cur) {
@@ -1088,7 +1088,7 @@ static void xmlXPathDebugDumpNodeSet(FILE * output, xmlNodeSet * cur, int depth)
 	shift[2 * i] = shift[2 * i + 1] = 0;
 	if(!cur) {
 		fprintf(output, "%s", shift);
-		fprintf(output, "NodeSet is NULL !\n");
+		fprintf(output, "NodeSet is NULL!\n");
 		return;
 	}
 	if(cur) {
@@ -1110,7 +1110,7 @@ static void xmlXPathDebugDumpValueTree(FILE * output, xmlNodeSet * cur, int dept
 	shift[2 * i] = shift[2 * i + 1] = 0;
 	if(!cur || (cur->nodeNr == 0) || (cur->PP_NodeTab[0] == NULL)) {
 		fprintf(output, "%s", shift);
-		fprintf(output, "Value Tree is NULL !\n");
+		fprintf(output, "Value Tree is NULL!\n");
 		return;
 	}
 	fprintf(output, "%s", shift);
@@ -1128,7 +1128,7 @@ static void xmlXPathDebugDumpLocationSet(FILE * output, xmlLocationSet * cur, in
 	shift[2 * i] = shift[2 * i + 1] = 0;
 	if(!cur) {
 		fprintf(output, "%s", shift);
-		fprintf(output, "LocationSet is NULL !\n");
+		fprintf(output, "LocationSet is NULL!\n");
 		return;
 	}
 	for(i = 0; i < cur->locNr; i++) {
@@ -1174,27 +1174,29 @@ void xmlXPathDebugDumpObject(FILE * output, xmlXPathObject * cur, int depth)
 					break;
 				case XPATH_BOOLEAN:
 					fprintf(output, "Object is a Boolean : ");
-					if(cur->boolval) fprintf(output, "true\n");
-					else fprintf(output, "false\n");
+					if(cur->boolval) 
+						fprintf(output, "true\n");
+					else 
+						fprintf(output, "false\n");
 					break;
 				case XPATH_NUMBER:
 					switch(xmlXPathIsInf(cur->floatval)) {
 						case 1:
-						fprintf(output, "Object is a number : Infinity\n");
-						break;
+							fprintf(output, "Object is a number : Infinity\n");
+							break;
 						case -1:
-						fprintf(output, "Object is a number : -Infinity\n");
-						break;
+							fprintf(output, "Object is a number : -Infinity\n");
+							break;
 						default:
-						if(xmlXPathIsNaN(cur->floatval)) {
-							fprintf(output, "Object is a number : NaN\n");
-						}
-						else if(cur->floatval == 0 && xmlXPathGetSign(cur->floatval) != 0) {
-							fprintf(output, "Object is a number : 0\n");
-						}
-						else {
-							fprintf(output, "Object is a number : %0g\n", cur->floatval);
-						}
+							if(xmlXPathIsNaN(cur->floatval)) {
+								fprintf(output, "Object is a number : NaN\n");
+							}
+							else if(cur->floatval == 0 && xmlXPathGetSign(cur->floatval) != 0) {
+								fprintf(output, "Object is a number : 0\n");
+							}
+							else {
+								fprintf(output, "Object is a number : %0g\n", cur->floatval);
+							}
 					}
 					break;
 				case XPATH_STRING:
@@ -8639,19 +8641,12 @@ void xmlXPathRoundFunction(xmlXPathParserContextPtr ctxt, int nargs)
 		return;
 	XTRUNC(f, ctxt->value->floatval);
 	if(ctxt->value->floatval < 0) {
-		if(ctxt->value->floatval < f - 0.5)
-			ctxt->value->floatval = f - 1;
-		else
-			ctxt->value->floatval = f;
+		ctxt->value->floatval = (ctxt->value->floatval < f - 0.5) ? (f - 1) : f;
 		if(ctxt->value->floatval == 0)
 			ctxt->value->floatval = xmlXPathNZERO;
 	}
-	else {
-		if(ctxt->value->floatval < f + 0.5)
-			ctxt->value->floatval = f;
-		else
-			ctxt->value->floatval = f + 1;
-	}
+	else
+		ctxt->value->floatval = (ctxt->value->floatval < f + 0.5) ? f : (f + 1);
 }
 // 
 // The Parser
@@ -8703,8 +8698,7 @@ static int FASTCALL xmlXPathCurrentChar(xmlXPathParserContextPtr ctxt, int * len
 			if((cur[2] & 0xc0) != 0x80)
 				goto encoding_error;
 			if((c & 0xf0) == 0xf0) {
-				if(((c & 0xf8) != 0xf0) ||
-				    ((cur[3] & 0xc0) != 0x80))
+				if(((c & 0xf8) != 0xf0) || ((cur[3] & 0xc0) != 0x80))
 					goto encoding_error;
 				/* 4-byte code */
 				*len = 4;
@@ -8786,7 +8780,7 @@ xmlChar * xmlXPathParseNCName(xmlXPathParserContextPtr ctxt)
 			return ret;
 		}
 	}
-	return (xmlXPathParseNameComplex(ctxt, 0));
+	return xmlXPathParseNameComplex(ctxt, 0);
 }
 /**
  * xmlXPathParseQName:
@@ -8806,9 +8800,8 @@ xmlChar * xmlXPathParseNCName(xmlXPathParserContextPtr ctxt)
  */
 static xmlChar * xmlXPathParseQName(xmlXPathParserContextPtr ctxt, xmlChar ** prefix) 
 {
-	xmlChar * ret = NULL;
 	*prefix = NULL;
-	ret = xmlXPathParseNCName(ctxt);
+	xmlChar * ret = xmlXPathParseNCName(ctxt);
 	if(ret && CUR == ':') {
 		*prefix = ret;
 		NEXT;
@@ -8834,7 +8827,8 @@ xmlChar * xmlXPathParseName(xmlXPathParserContextPtr ctxt)
 	const xmlChar * in;
 	xmlChar * ret;
 	size_t count = 0;
-	if(!ctxt || (ctxt->cur == NULL)) return 0;
+	if(!ctxt || !ctxt->cur) 
+		return 0;
 	/*
 	 * Accelerator for simple ASCII names
 	 */
@@ -8862,24 +8856,16 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
 {
 	xmlChar buf[XML_MAX_NAMELEN + 5];
 	int len = 0, l;
-	int c;
 	/*
 	 * Handler for more complex cases
 	 */
-	c = CUR_CHAR(l);
-	if((c == ' ') || (c == '>') || (c == '/') || /* accelerators */
-	    (c == '[') || (c == ']') || (c == '@') || /* accelerators */
-	    (c == '*') || /* accelerators */
+	int c = CUR_CHAR(l);
+	if(oneof3(c, ' ', '>', '/') || /* accelerators */ oneof3(c, '[', ']', '@') || /* accelerators */ (c == '*') || /* accelerators */
 	    (!IS_LETTER(c) && (c != '_') && ((qualified) && (c != ':')))) {
 		return 0;
 	}
-
-	while((c != ' ') && (c != '>') && (c != '/') && /* test bigname.xml */
-	    ((IS_LETTER(c)) || (IS_DIGIT(c)) ||
-		    (c == '.') || (c == '-') ||
-		    (c == '_') || ((qualified) && (c == ':')) ||
-		    (IS_COMBINING(c)) ||
-		    (IS_EXTENDER(c)))) {
+	while(!oneof3(c, ' ', '>', '/') && /* test bigname.xml */
+	    ((IS_LETTER(c)) || (IS_DIGIT(c)) || (c == '.') || (c == '-') || (c == '_') || ((qualified) && (c == ':')) || (IS_COMBINING(c)) || (IS_EXTENDER(c)))) {
 		COPY_BUF(l, buf, len, c);
 		NEXTL(l);
 		c = CUR_CHAR(l);
@@ -8890,7 +8876,6 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
 			 */
 			xmlChar * buffer;
 			int max = len * 2;
-
 			if(len > XML_MAX_NAME_LENGTH) {
 				XP_ERRORNULL(XPATH_EXPR_ERROR);
 			}
@@ -8919,9 +8904,7 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
 			return (buffer);
 		}
 	}
-	if(len == 0)
-		return 0;
-	return xmlStrndup(buf, len);
+	return len ? xmlStrndup(buf, len) : 0;
 }
 
 #define MAX_FRAC 20

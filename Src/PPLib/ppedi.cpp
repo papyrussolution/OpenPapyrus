@@ -12,7 +12,7 @@ SLAPI GtinStruc::GtinStruc() : StrAssocArray(), SpecialNaturalToken(0)
 }
 
 struct GtinFixedLengthToken {
-	int    Id;
+	int16  Id;
 	uint8  FxLen;
 };
 
@@ -296,7 +296,7 @@ int SLAPI GtinStruc::AddOnlyToken(int token)
 int SLAPI GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 {
 	int    ok = 1;
-	if(fixedLen > 0 && fixedLen <= 30 && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) {
+	if(checkirange(fixedLen, 1, 30) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) {
 		SpecialFixedTokens.Remove(token, 0); // @v10.7.12
 		SpecialFixedTokens.AddUnique(token, fixedLen, 0, 0);
 	}
@@ -398,6 +398,81 @@ uint SLAPI GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) 
 	return len;
 }
 
+// dosn't work :(
+static int FASTCALL Base80ToTobaccoPrice(const SString & rS, SString & rBuf)
+{
+	/*
+		«Алгоритм кодирования-декодирования МРЦ основан на переводе МРЦ в копейках в 80-чную систему счисления,
+
+		используя следующий алфавит: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!"%&'*+-./_,:;=<>?
+
+		Пример кода для 1С:
+
+		Функция МРЦКодаМаркировкиТабачнойПачки(КодМаркировки) Экспорт
+
+			ДлинаКода = СтрДлина(КодМаркировки);
+			Если ДлинаКода <> 29 Тогда
+				Возврат Неопределено;
+			КонецЕсли;
+			СтрокаМРЦ = Сред(КодМаркировки, 22, 4);
+			Алфавит = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456­789!\"%&'*+-./_,:;=<>?";
+			МРЦ    = 0;
+			Индекс = 1;
+			Пока Индекс <= 4 Цикл
+				Символ = Сред(СтрокаМРЦ, Индекс, 1);
+				ИндексСимвола = СтрНайти(Алфавит, Символ) - 1;
+				Если ИндексСимвола < 0 Тогда
+					Возврат Неопределено;
+				КонецЕсли;
+				МРЦ = МРЦ + Pow(80, 4 - Индекс) * ИндексСимвола;
+				Индекс = Индекс + 1;
+			КонецЦикла;
+			// Если цена <= 5000 и нет копеек, то высокая вероятность, что это реальное МРЦ.
+			Если МРЦ <= 500000
+				И МРЦ%100 = 0 Тогда
+				Возврат МРЦ / 100;
+			Иначе
+				Возврат Неопределено;
+			КонецЕсли;
+		КонецФункции
+	*/
+	const char * p_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456­789!""%&'*+-./_,:;=<>?";
+	int    ok = 1;
+	rBuf.Z();
+	uint64 result = 0;
+	{
+		const uint len = rS.Len();
+		for(uint i = 0; ok && i < len; i++) {
+			const  char c = rS.C(i);
+			const  char * p_idxpos = strchr(p_alphabet, c);
+			if(p_idxpos) {
+				const uint64 m = ui64pow(80, len-i-1);
+				result += m * (p_idxpos - p_alphabet);
+			}
+			else
+				ok = 0;
+		}
+	}
+	/*{
+		SString temp_buf = rS;
+		temp_buf.ShiftLeft();
+		const uint len = temp_buf.Len();
+		for(uint i = 0; ok && i < len; i++) {
+			const  char c = temp_buf.C(i);
+			const  char * p_idxpos = strchr(p_alphabet, c);
+			if(p_idxpos) {
+				const uint64 m = ui64pow(80, len-i-1);
+				result2 += m * (p_idxpos - p_alphabet);
+			}
+			else
+				ok = 0;
+		}
+	}*/
+	if(ok)
+		rBuf.Cat(result);
+	return ok;
+}
+
 int SLAPI GtinStruc::Parse(const char * pCode)
 {
 	int    ok = 1;
@@ -422,7 +497,11 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 			temp_buf.Z().CatN(code_buf+offs, 4); offs += 4;
 			StrAssocArray::Add(fldPriceRuTobacco, temp_buf);
 			temp_buf.Z().CatN(code_buf+offs, 4); offs += 4;
-			StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+			{
+				//SString price_buf;
+				//Base80ToTobaccoPrice(temp_buf, price_buf);
+				StrAssocArray::Add(fldControlRuTobacco, temp_buf);
+			}
 			SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
 		}
 		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
@@ -506,6 +585,7 @@ int SLAPI TestGtinStruc()
 	int    ok = 1;
 	SString temp_buf;
 	SString out_buf;
+	PPLogger logger;
 	PPGetPath(PPPATH_TESTROOT, temp_buf);
 	temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("chzn-marks.txt");
 	SFile f_in(temp_buf, SFile::mRead);
@@ -544,6 +624,7 @@ int SLAPI TestGtinStruc()
 				gts.Debug_Output(temp_buf);
 				out_buf.CR().Cat(temp_buf);
 				f_out.WriteLine(out_buf);
+				logger.Log(out_buf);
 			}
 		}
 	}
@@ -3943,17 +4024,17 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter
 				}
 				if(checkdate(r_ti.Expiry, 0))
 					n_item.PutInner("expireDate", temp_buf.Z().Cat(r_ti.Expiry, DATF_ISO8601|DATF_CENTURY));
-				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции без НДС
-				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции с НДС
-				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции без НДС
-				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции с НДС
-				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // ставка НДС
+				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции без НДС
+				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции с НДС
+				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // сумма по позиции без НДС
+				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // сумма по позиции с НДС
+				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // ставка НДС
 				total_amount_with_vat += amount_with_vat;
 				total_amount_without_vat += amount_without_vat;
 			}
-			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма отгруженных товарных позиций без НДС
+			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Общая сумма отгруженных товарных позиций без НДС
 			//n_dtl.PutInner("totalVATAmount", ""); //  Общая сумма НДС по всему документу
-			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма с НДС по документу
+			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Общая сумма с НДС по документу
 		}
 	}
 	CATCHZOK
@@ -4279,12 +4360,12 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 					n_q.PutAttrib("unitOfMeasure", "PCE");
 					n_q.SetValue(temp_buf.Z().Cat(fabs(r_ti.UnitPerPack), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 				}
-				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции без НДС
-				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // цена по позиции с НДС
-				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции без НДС
-				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма по позиции с НДС
-				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // ставка НДС
-				n_item.PutInner("vATAmount", temp_buf.Z().Cat(vat_amount, MKSFMTD(0, 1, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // сумма НДС
+				n_item.PutInner("netPrice", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции без НДС
+				n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(price_with_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // цена по позиции с НДС
+				n_item.PutInner("netAmount", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // сумма по позиции без НДС
+				n_item.PutInner("amount", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // сумма по позиции с НДС
+				n_item.PutInner("vATRate", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // ставка НДС
+				n_item.PutInner("vATAmount", temp_buf.Z().Cat(vat_amount, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // сумма НДС
 				total_amount_with_vat += amount_with_vat;
 				total_amount_without_vat += amount_without_vat;
 				total_vat_amount += vat_amount;
@@ -4292,9 +4373,9 @@ int SLAPI EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter
 					n_item.PutInner("customsDeclarationNumber", temp_buf); // ГТД
 				}
 			}
-			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма отгруженных товарных позиций без НДС
-			n_dtl.PutInner("totalVATAmount", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); //  Общая сумма НДС по всему документу
-			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_vat_amount, MKSFMTD(0, 5, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)))); // Общая сумма с НДС по документу
+			n_dtl.PutInner("totalSumExcludingTaxes", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Общая сумма отгруженных товарных позиций без НДС
+			n_dtl.PutInner("totalVATAmount", temp_buf.Z().Cat(total_amount_without_vat, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); //  Общая сумма НДС по всему документу
+			n_dtl.PutInner("totalAmount", temp_buf.Z().Cat(total_vat_amount, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS))); // Общая сумма с НДС по документу
 		}
 	}
 	CATCHZOK

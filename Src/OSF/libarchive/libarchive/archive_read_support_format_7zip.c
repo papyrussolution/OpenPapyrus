@@ -675,8 +675,7 @@ static int archive_read_format_7zip_read_header(struct archive_read * a, struct 
 		}
 		else {
 			symname[symsize] = '\0';
-			archive_entry_copy_symlink(entry,
-			    (const char *)symname);
+			archive_entry_copy_symlink(entry, (const char *)symname);
 		}
 		SAlloc::F(symname);
 		archive_entry_set_size(entry, 0);

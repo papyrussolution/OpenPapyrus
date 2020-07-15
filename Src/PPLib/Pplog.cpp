@@ -269,10 +269,10 @@ int LogListWindowSCI::WMHCreate()
 		KeyAccel.Sort();
 	}
 	{
-		Doc.SciDoc = (SScEditorBase::SciDocument)CallFunc(SCI_CREATEDOCUMENT);
+		Doc.SciDoc = reinterpret_cast<SScEditorBase::SciDocument>(CallFunc(SCI_CREATEDOCUMENT));
 		//Setup scratchtilla for new filedata
 		CallFunc(SCI_SETSTATUS, SC_STATUS_OK); // reset error status
-		CallFunc(SCI_SETDOCPOINTER, 0, (int)Doc.SciDoc);
+		CallFunc(SCI_SETDOCPOINTER, 0, reinterpret_cast<intptr_t>(Doc.SciDoc));
 		CallFunc(SCI_CLEARALL);
 		CallFunc(SCI_ALLOCATE, (WPARAM)128*1024);
 		int sci_status = CallFunc(SCI_GETSTATUS);

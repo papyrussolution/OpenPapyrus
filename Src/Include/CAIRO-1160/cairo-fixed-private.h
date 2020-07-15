@@ -44,16 +44,13 @@
 /* Implementation */
 
 #if (CAIRO_FIXED_BITS != 32)
-# error CAIRO_FIXED_BITS must be 32, and the type must be a 32-bit type.
-# error To remove this limitation, you will have to fix the tessellator.
+	#error CAIRO_FIXED_BITS must be 32, and the type must be a 32-bit type.
+	#error To remove this limitation, you will have to fix the tessellator.
 #endif
-
 #define CAIRO_FIXED_ONE        ((cairo_fixed_t)(1 << CAIRO_FIXED_FRAC_BITS))
 #define CAIRO_FIXED_ONE_DOUBLE ((double)(1 << CAIRO_FIXED_FRAC_BITS))
 #define CAIRO_FIXED_EPSILON    ((cairo_fixed_t)(1))
-
 #define CAIRO_FIXED_ERROR_DOUBLE (1. / (2 * CAIRO_FIXED_ONE_DOUBLE))
-
 #define CAIRO_FIXED_FRAC_MASK  ((cairo_fixed_t)(((cairo_fixed_unsigned_t)(-1)) >> (CAIRO_FIXED_BITS - CAIRO_FIXED_FRAC_BITS)))
 #define CAIRO_FIXED_WHOLE_MASK (~CAIRO_FIXED_FRAC_MASK)
 

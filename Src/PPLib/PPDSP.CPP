@@ -125,9 +125,9 @@ int SLAPI PPDeclStrucProcessor::GetTerm(int * pTerm)
 				UngetChar();
 				SavePos(&p);
 				if(GetWord())
-					if(WordBuf.CmpNC("data") == 0)
+					if(WordBuf.IsEqiAscii("data"))
 						term = ppdsData;
-					else if(WordBuf.CmpNC("declare") == 0)
+					else if(WordBuf.IsEqiAscii("declare"))
 						term = ppdsDeclare;
 					else
 						RestorePos(&p);
@@ -194,7 +194,7 @@ PPDeclStruc * SLAPI PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, 
 	while(GetTerm(&term) != ppdsRightBrace && term != 0) {
 		int    private_field = 0;
 		THROW_PP(GetWord(), PPERR_DS_UNEXPEOF);
-		if(WordBuf.CmpNC("UpdateProtocol") == 0) {
+		if(WordBuf.IsEqiAscii("UpdateProtocol")) {
 			private_field = 1;
 		}
 		else if(p_decl->SearchItem(WordBuf, &item) <= 0) {
@@ -205,9 +205,9 @@ PPDeclStruc * SLAPI PPDeclStrucProcessor::GetData(long typeID, void * extraPtr, 
 		if(private_field) {
 			THROW(GetValue(value));
 			if(private_field == 1) {
-				if(value.CmpNC("none") == 0)
+				if(value.IsEqiAscii("none"))
 					p_decl->UpdateProtocol = PPDeclStruc::updNone;
-				else if(value.CmpNC("force") == 0)
+				else if(value.IsEqiAscii("force"))
 					p_decl->UpdateProtocol = PPDeclStruc::updForce;
 				else {
 					long u = value.ToLong();

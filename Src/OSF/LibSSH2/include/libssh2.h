@@ -125,9 +125,9 @@ extern "C" {
 	//typedef unsigned int uint32_t_Removed;
 	//typedef unsigned __int64 libssh2_uint64_t_Removed;
 	//typedef __int64 libssh2_int64_t_Removed;
-	#ifndef ssize_t
+	/* @v10.8.1 #ifndef ssize_t
 		typedef SSIZE_T ssize_t;
-	#endif
+	#endif*/
 #else
 	typedef unsigned long long libssh2_uint64_t_Removed;
 	typedef long long libssh2_int64_t_Removed;

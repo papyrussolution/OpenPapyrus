@@ -119,17 +119,13 @@ static opcode_t token2opcode(gtoken_t op)
 		case TOK_OP_ISIDENTICAL: return EQQ;
 		case TOK_OP_ISNOTIDENTICAL: return NEQQ;
 		case TOK_OP_PATTERN_MATCH: return MATCH;
-
 		// LOGICAL
 		case TOK_OP_AND: return AND;
 		case TOK_OP_NOT: return NOT;
 		case TOK_OP_OR: return OR;
-
 		default: assert(0); break; // should never reach this point
 	}
-
-	// should never reach this point
-	assert(0);
+	assert(0); // should never reach this point
 	return NOT;
 }
 
@@ -194,9 +190,11 @@ static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, boo
 		if(!gnode_is_literal(e)) return false;
 		if(ismap) {
 			// additional check on key that must be a string literal in case of a map
-			if(!gnode_is_literal_string(e)) return false;
+			if(!gnode_is_literal_string(e)) 
+				return false;
 			e = gnode_array_get(node->list2, j);
-			if(!gnode_is_literal(e)) return false;
+			if(!gnode_is_literal(e)) 
+				return false;
 		}
 	}
 
@@ -216,7 +214,6 @@ static bool check_literals_list(gvisitor_t * self, gnode_list_expr_t * node, boo
 
 	return true;
 }
-
 #endif
 
 static uint32 node2index(gnode_t * node) 
@@ -233,8 +230,7 @@ static uint32 node2index(gnode_t * node)
 		assert(expr->location.type == LOCATION_LOCAL);
 		return expr->location.index;
 	}
-	// should never reach this point because semacheck2 should take care of the check
-	assert(0);
+	assert(0); // should never reach this point because semacheck2 should take care of the check
 	return UINT32_MAX;
 }
 
@@ -747,7 +743,7 @@ static void store_declaration(gvisitor_t * self, gravity_class_t * obj, bool is_
 			ircode_add(code, CLOSURE, regnum, index, 0, LINE_NUMBER(node));
 			uint32 upindex = 0;
 			for(uint16 i = 0; i<f->nupvalues; ++i) {
-				gupvalue_t * upvalue = (gupvalue_t*)gnode_array_get(node->uplist, i);
+				gupvalue_t * upvalue = gnode_array_get(node->uplist, i);
 				uint32 opindex = (upvalue->is_direct) ? upvalue->index : upindex++;
 				ircode_add(code, MOVE, opindex, (upvalue->is_direct) ? 1 : 0, 0, LINE_NUMBER(node));
 			}
@@ -771,8 +767,7 @@ static void store_declaration(gvisitor_t * self, gravity_class_t * obj, bool is_
 		return;
 	}
 	else {
-		// should never reach this point
-		assert(0);
+		assert(0); // should never reach this point
 	}
 }
 
@@ -896,19 +891,19 @@ static void process_getter_setter(gvisitor_t * self, gnode_var_t * p, gravity_cl
 	gravity_function_t * f2[2] = {NULL, NULL};
 	for(uint16 i = 0; i < 2; ++i) {
 		gnode_function_decl_t * node = f1[i];
-		if(!node) 
-			continue;
-		// create gravity function
-		uint16 nparams = (node->params) ? (uint16)node->params->getCount() : 0;
-		f2[i] = gravity_function_new(NULL, NULL, nparams, node->nlocals, 0, ircode_create(node->nlocals+nparams));
-		// process inner block
-		CONTEXT_PUSH(f2[i]);
-		gnode_compound_stmt_t * block = node->block;
-		if(block) {
-			gnode_array_each(block->stmts, {gvisit(self, val);});
+		if(node) {
+			// create gravity function
+			uint16 nparams = (node->params) ? (uint16)node->params->getCount() : 0;
+			f2[i] = gravity_function_new(NULL, NULL, nparams, node->nlocals, 0, ircode_create(node->nlocals+nparams));
+			// process inner block
+			CONTEXT_PUSH(f2[i]);
+			gnode_compound_stmt_t * block = node->block;
+			if(block) {
+				gnode_array_each(block->stmts, {gvisit(self, val);});
+			}
+			CONTEXT_POP();
+			gravity_optimizer(f2[i], self->bflag);
 		}
-		CONTEXT_POP();
-		gravity_optimizer(f2[i], self->bflag);
 	}
 	// getter and setter NULL means default
 	// since getter and setter are methods and not simple functions, do not transfer to VM
@@ -945,15 +940,14 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 			f->U.Nf.pvalue.insert(value);
 		}
 	}
-
 	CONTEXT_PUSH(f);
-
 	if(is_constructor) {
 		// reserve first four instructions that could be later filled with a CALL to $init
 		// see process_constructor for more information
 		ircode_t * code = (ircode_t *)f->U.Nf.bytecode;
 		if(!code) {
-			report_error(self, node, "Invalid code context."); return;
+			report_error(self, node, "Invalid code context."); 
+			return;
 		}
 		ircode_add_skip(code, LINE_NUMBER(node));
 		ircode_add_skip(code, LINE_NUMBER(node));
@@ -1127,9 +1121,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			}
 			continue;
 		}
-
-		// should never reach this point
-		assert(0);
+		assert(0); // should never reach this point
 	}
 }
 

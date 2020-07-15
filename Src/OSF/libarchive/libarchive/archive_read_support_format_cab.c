@@ -901,21 +901,16 @@ static int archive_read_format_cab_read_header(struct archive_read * a, struct a
 	/* We don't need compress data. */
 	if(file->uncompressed_size == 0)
 		cab->end_of_entry_cleanup = cab->end_of_entry = 1;
-
 	/* Set up a more descriptive format name. */
-	sprintf(cab->format_name, "CAB %d.%d (%s)",
-	    hd->major, hd->minor, cab->entry_cffolder->compname);
+	sprintf(cab->format_name, "CAB %d.%d (%s)", hd->major, hd->minor, cab->entry_cffolder->compname);
 	a->archive.archive_format_name = cab->format_name;
-
 	return (err);
 }
 
-static int archive_read_format_cab_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64_t * offset)
+static int archive_read_format_cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64_t * offset)
 {
 	struct cab * cab = static_cast<struct cab *>(a->format->data);
 	int r;
-
 	switch(cab->entry_cffile->folder) {
 		case iFoldCONTINUED_FROM_PREV:
 		case iFoldCONTINUED_TO_NEXT:

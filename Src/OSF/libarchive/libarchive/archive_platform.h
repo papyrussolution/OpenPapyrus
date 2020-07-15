@@ -38,7 +38,7 @@
 #define	ARCHIVE_PLATFORM_H_INCLUDED
 
 #include <slib.h>
-/* archive.h and archive_entry.h require this. */
+// archive.h and archive_entry.h require this. 
 #define	__LIBARCHIVE_BUILD 1
 #if defined(PLATFORM_CONFIG_H)
 	#include PLATFORM_CONFIG_H // Use hand-built config.h in environments that need it. 
@@ -84,9 +84,9 @@
 #if HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif
-#if HAVE_STDINT_H
-	#include <stdint.h>
-#endif
+//#if HAVE_STDINT_H
+	//#include <stdint.h>
+//#endif
 /* Borland warns about its own constants!  */
 #if defined(__BORLANDC__)
 # if HAVE_DECL_UINT64_MAX
@@ -221,9 +221,6 @@
 #include "archive_hmac_private.h"
 #include "archive_random_private.h"
 #include "archive_options_private.h"
-#ifdef HAVE_WCHAR_H
-	#include <wchar.h>
-#endif
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	//#include <windows.h>
 	#include <locale.h>

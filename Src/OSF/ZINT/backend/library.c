@@ -231,7 +231,7 @@ int dump_plot(struct ZintSymbol * symbol)
 {
 	FILE * f;
 	int i, r;
-	char hex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+	const char hex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 	int space = 0;
 	if(symbol->output_options & BARCODE_STDOUT) {
 		f = stdout;
@@ -702,9 +702,7 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 	uchar * local_source;
 #endif
 	error_number = 0;
-	if(length == 0) {
-		length = sstrleni(source);
-	}
+	SETIFZ(length, sstrleni(source));
 	if(length == 0) {
 		sstrcpy(symbol->errtxt, "No input data (B05)");
 		error_tag(symbol->errtxt, ZINT_ERROR_INVALID_DATA);
@@ -875,9 +873,7 @@ int ZBarcode_Encode(struct ZintSymbol * symbol, const uchar * source, int length
 			symbol->text[i] = (local_source[i] == '\0') ? ' ' : local_source[i];
 		}
 	}
-	if(error_number == 0) {
-		error_number = error_buffer;
-	}
+	SETIFZ(error_number, error_buffer);
 	error_tag(symbol->errtxt, error_number);
 	if(error_number <= 5) {
 		check_row_heights(symbol);
@@ -984,16 +980,14 @@ int ZBarcode_Buffer(struct ZintSymbol * symbol, int rotate_angle)
 int ZBarcode_Encode_and_Print(struct ZintSymbol * symbol, const uchar * input, int length, int rotate_angle)
 {
 	int error_number = ZBarcode_Encode(symbol, input, length);
-	if(error_number == 0) 
-		error_number = ZBarcode_Print(symbol, rotate_angle);
+	SETIFZ(error_number, ZBarcode_Print(symbol, rotate_angle));
 	return error_number;
 }
 
 int ZBarcode_Encode_and_Buffer(struct ZintSymbol * symbol, const uchar * input, int length, int rotate_angle)
 {
 	int error_number = ZBarcode_Encode(symbol, input, length);
-	if(error_number == 0)
-		error_number = ZBarcode_Buffer(symbol, rotate_angle);
+	SETIFZ(error_number, ZBarcode_Buffer(symbol, rotate_angle));
 	return error_number;
 }
 
@@ -1001,7 +995,7 @@ int ZBarcode_Encode_File(struct ZintSymbol * symbol, char * filename)
 {
 	FILE * file;
 	uchar * buffer;
-	unsigned long fileLen;
+	ulong fileLen;
 	uint nRead = 0, n = 0;
 	int ret;
 	if(!strcmp(filename, "-")) {

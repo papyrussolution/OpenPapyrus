@@ -390,7 +390,7 @@ private:
 	long   SLAPI GetFlashTimeout() const
 	{
 		const long cfg_tmr = Cfg.E.TsFlashTimer;
-		return (cfg_tmr > 0 && cfg_tmr <= (24*3600)) ? cfg_tmr : 600;
+		return checkirange(cfg_tmr, 1, (24*3600)) ? cfg_tmr : 600;
 	}
 	int    FASTCALL IsStrategySuited(const PPObjTimeSeries::Strategy & rS) const;
 

@@ -920,16 +920,16 @@ static int SLAPI ParseUfpFileName(const char * pFileName, S_GUID & rDbUuid, SStr
 	SString temp_buf;
 	StringSet ss('_', pFileName);
 	uint p = 0;
-	if(ss.get(&p, temp_buf) && temp_buf.CmpNC("up") == 0) {
+	if(ss.get(&p, temp_buf) && temp_buf.IsEqiAscii("up")) {
 		if(ss.get(&p, temp_buf) && rDbUuid.FromStr(temp_buf)) {
 			while(!kind && ss.get(&p, temp_buf)) {
-				if(temp_buf.CmpNC("sess.log") == 0) {
+				if(temp_buf.IsEqiAscii("sess.log")) {
 					kind = Profile::fkSession;
 				}
-				else if(temp_buf.CmpNC("start.log") == 0) {
+				else if(temp_buf.IsEqiAscii("start.log")) {
 					kind = Profile::fkStart;
 				}
-				else if(temp_buf.CmpNC("finish.log") == 0) {
+				else if(temp_buf.IsEqiAscii("finish.log")) {
 					kind = Profile::fkFinish;
 				}
 				else {

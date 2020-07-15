@@ -2949,20 +2949,22 @@ bool ScintillaWin::Register(HINSTANCE hInstance_)
 	bool result;
 	// Register the Scintilla class
 	// Register Scintilla as a wide character window
-	WNDCLASSEXW wndclass;
-	wndclass.cbSize = sizeof(wndclass);
-	wndclass.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
-	wndclass.lpfnWndProc = ScintillaWin::SWndProc;
-	wndclass.cbClsExtra = 0;
-	wndclass.cbWndExtra = sizeof(ScintillaWin *);
-	wndclass.hInstance = hInstance;
-	wndclass.hIcon = NULL;
-	wndclass.hCursor = NULL;
-	wndclass.hbrBackground = NULL;
-	wndclass.lpszMenuName = NULL;
-	wndclass.lpszClassName = L"Scintilla";
-	wndclass.hIconSm = 0;
-	scintillaClassAtom = ::RegisterClassExW(&wndclass);
+	{
+		WNDCLASSEXW wndclass;
+		wndclass.cbSize = sizeof(wndclass);
+		wndclass.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
+		wndclass.lpfnWndProc = ScintillaWin::SWndProc;
+		wndclass.cbClsExtra = 0;
+		wndclass.cbWndExtra = sizeof(ScintillaWin *);
+		wndclass.hInstance = hInstance;
+		wndclass.hIcon = NULL;
+		wndclass.hCursor = NULL;
+		wndclass.hbrBackground = NULL;
+		wndclass.lpszMenuName = NULL;
+		wndclass.lpszClassName = L"Scintilla";
+		wndclass.hIconSm = 0;
+		scintillaClassAtom = ::RegisterClassExW(&wndclass);
+	}
 	result = (0 != scintillaClassAtom);
 	if(result) {
 		// Register the CallTip class

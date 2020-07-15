@@ -681,9 +681,9 @@ int PPDesktop::Destroy(int dontAssignToDb)
 	return ok;
 }
 
-int PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
+void PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 {
-	TCHAR  tooltip[512]; // @v9.0.11 [256]-->[512]
+	TCHAR  tooltip[512];
 	memzero(tooltip, sizeof(tooltip));
 	STRNSCPY(tooltip, SUcSwitch(pText));
 	TOOLINFOA t_i;
@@ -698,7 +698,6 @@ int PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	t_i.lpszText = const_cast<char *>(pText);//tooltip; // @unicodeproblem
 	::SendMessage(HwndTT, TTM_DELTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
 	::SendMessage(HwndTT, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&t_i)); // @unicodeproblem
-	return 1;
 }
 
 int PPDesktop::DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char * pText)
@@ -851,7 +850,7 @@ int PPDesktop::Paint()
 			SColor bkg_color = Ptb.GetColor(colorBkg);
 			Graphics graphics(canv);
 			if(P_ActiveDesktop->Flags & PPCommandItem::fBkgndGradient) {
-				Color color1, color2; // 0.65..0.3
+				Gdiplus::Color color1, color2; // 0.65..0.3
 				color1.SetFromCOLORREF(bkg_color.Lighten(0.8f));
 				color2.SetFromCOLORREF(bkg_color);
 				LinearGradientBrush gr_brush(Point(cli_rect.a.x, cli_rect.a.y), Point(cli_rect.b.x, cli_rect.b.y), color1, color2);
@@ -866,7 +865,8 @@ int PPDesktop::Paint()
 				int    h  = static_cast<int>(Logotype.GetHeight());
 				for(int x = cli_rect.a.x - cli_rect.a.x % w; x < cli_rect.b.x; x+= w) {
 					for(int y = cli_rect.a.y - cli_rect.a.y % h; y < cli_rect.b.y; y += h) {
-						RECT image_rect, dest_rect;
+						RECT image_rect;
+						RECT dest_rect;
 						image_rect.top    = y;
 						image_rect.left   = x;
 						image_rect.right  = image_rect.left + w;
@@ -893,7 +893,7 @@ int PPDesktop::Paint()
 					DrawIcon(canv, ico_id, 0);
 			}
 			if(Selected > 0) {
-				if(/*IsIconMove*/State & stIconMove) {
+				if(State & stIconMove) {
 					const PPCommandItem * p_item = P_ActiveDesktop->SearchByID(Selected, 0);
 					const PPCommand * p_cmd = (p_item && p_item->Kind == PPCommandItem::kCommand) ? static_cast<const PPCommand *>(p_item) : 0;
 					if(p_cmd)
@@ -2200,11 +2200,11 @@ int PPDesktop::CreateDefault(long * pID)
 // } @erik
 	THROW(p_mgr);
 	if(!(desktop_list.Flags & PPCommandItem::fNotUseDefDesktop)) {
-		const PPCommandItem * p_item = 0;
 		SString def_desk_name;
 		CurDict->GetDbSymb(db_symb);
 		(def_desk_name = "def").CatChar('-').Cat(DS.GetTLA().UserName).CatChar('-').Cat("desktop");
-		if((p_item = desktop_list.SearchByName(def_desk_name, db_symb, 0)) && p_item->Kind == PPCommandItem::kGroup)
+		const PPCommandItem * p_item = desktop_list.SearchByName(def_desk_name, db_symb, 0);
+		if(p_item && p_item->Kind == PPCommandItem::kGroup)
 			desk_id = p_item->ID;
 		else {
 			long   id = 0;

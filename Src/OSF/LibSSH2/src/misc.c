@@ -151,8 +151,8 @@ uint FASTCALL _libssh2_ntohu32(const uchar * buf)
  */
 uint64 FASTCALL _libssh2_ntohu64(const uchar * buf)
 {
-	ulong msl = ((uint64)buf[0] << 24) | ((uint64)buf[1] << 16) | ((uint64)buf[2] << 8) | (uint64)buf[3];
-	ulong lsl = ((uint64)buf[4] << 24) | ((uint64)buf[5] << 16) | ((uint64)buf[6] << 8) | (uint64)buf[7];
+	ulong msl = static_cast<ulong>(((uint64)buf[0] << 24) | ((uint64)buf[1] << 16) | ((uint64)buf[2] << 8) | (uint64)buf[3]);
+	ulong lsl = static_cast<ulong>(((uint64)buf[4] << 24) | ((uint64)buf[5] << 16) | ((uint64)buf[6] << 8) | (uint64)buf[7]);
 	return ((uint64)msl <<32) | lsl;
 }
 //

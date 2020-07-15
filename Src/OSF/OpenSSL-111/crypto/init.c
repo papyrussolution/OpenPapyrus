@@ -165,8 +165,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_crypto_nodelete)
 		/* We don't use the DSO route for WIN32 because there is a better way */
 		BOOL ret = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN, (LPCWSTR)&base_inited, &handle);
 #  ifdef OPENSSL_INIT_DEBUG
-		fprintf(stderr, "OPENSSL_INIT: obtained DSO reference? %s\n",
-		    (ret == TRUE ? "No!" : "Yes."));
+		fprintf(stderr, "OPENSSL_INIT: obtained DSO reference? %s\n", (ret == TRUE ? "No!" : "Yes."));
 #  endif
 		return (ret == TRUE) ? 1 : 0;
 	}
@@ -178,14 +177,11 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_crypto_nodelete)
 	{
 		DSO * dso;
 		void * err;
-
 		if(!err_shelve_state(&err))
 			return 0;
-
 		dso = DSO_dsobyaddr(&base_inited, DSO_FLAG_NO_UNLOAD_ON_FREE);
 #  ifdef OPENSSL_INIT_DEBUG
-		fprintf(stderr, "OPENSSL_INIT: obtained DSO reference? %s\n",
-		    (dso == NULL ? "No!" : "Yes."));
+		fprintf(stderr, "OPENSSL_INIT: obtained DSO reference? %s\n", (dso == NULL ? "No!" : "Yes."));
 		/*
 		 * In case of No!, it is uncertain our exit()-handlers can still be
 		 * called. After dlclose() the whole library might have been unloaded
@@ -212,8 +208,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_load_crypto_strings)
 	 */
 #if !defined(OPENSSL_NO_ERR) && !defined(OPENSSL_NO_AUTOERRINIT)
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_load_crypto_strings: "
-	    "err_load_crypto_strings_int()\n");
+	fprintf(stderr, "OPENSSL_INIT: ossl_init_load_crypto_strings: err_load_crypto_strings_int()\n");
 #endif
 	ret = err_load_crypto_strings_int();
 	load_crypto_strings_inited = 1;
@@ -237,8 +232,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_add_all_ciphers)
 	 */
 #ifndef OPENSSL_NO_AUTOALGINIT
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_add_all_ciphers: "
-	    "openssl_add_all_ciphers_int()\n");
+	fprintf(stderr, "OPENSSL_INIT: ossl_init_add_all_ciphers: openssl_add_all_ciphers_int()\n");
 #endif
 	openssl_add_all_ciphers_int();
 #endif
@@ -261,8 +255,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_add_all_digests)
 	 */
 #ifndef OPENSSL_NO_AUTOALGINIT
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr, "OPENSSL_INIT: ossl_init_add_all_digests: "
-	    "openssl_add_all_digests()\n");
+	fprintf(stderr, "OPENSSL_INIT: ossl_init_add_all_digests: openssl_add_all_digests()\n");
 #endif
 	openssl_add_all_digests_int();
 #endif
@@ -288,8 +281,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_config)
 DEFINE_RUN_ONCE_STATIC_ALT(ossl_init_no_config, ossl_init_config)
 {
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr,
-	    "OPENSSL_INIT: ossl_init_config: openssl_no_config_int()\n");
+	fprintf(stderr, "OPENSSL_INIT: ossl_init_config: openssl_no_config_int()\n");
 #endif
 	openssl_no_config_int();
 	config_inited = 1;

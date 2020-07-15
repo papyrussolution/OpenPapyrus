@@ -53,7 +53,6 @@ void BIO_ADDR_clear(BIO_ADDR * ap)
 	memzero(ap, sizeof(*ap));
 	ap->sa.sa_family = AF_UNSPEC;
 }
-
 /*
  * BIO_ADDR_make - non-public routine to fill a BIO_ADDR with the contents
  * of a struct sockaddr.
@@ -76,13 +75,10 @@ int BIO_ADDR_make(BIO_ADDR * ap, const struct sockaddr * sa)
 		return 1;
 	}
 #endif
-
 	return 0;
 }
 
-int BIO_ADDR_rawmake(BIO_ADDR * ap, int family,
-    const void * where, size_t wherelen,
-    unsigned short port)
+int BIO_ADDR_rawmake(BIO_ADDR * ap, int family, const void * where, size_t wherelen, unsigned short port)
 {
 #ifdef AF_UNIX
 	if(family == AF_UNIX) {
@@ -221,28 +217,21 @@ static int addr_strings(const BIO_ADDR * ap, int numeric,
 		 * didn't go the way one might expect.
 		 */
 		if(serv[0] == '\0') {
-			BIO_snprintf(serv, sizeof(serv), "%d",
-			    ntohs(BIO_ADDR_rawport(ap)));
+			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(BIO_ADDR_rawport(ap)));
 		}
-
-		if(hostname != NULL)
-			*hostname = OPENSSL_strdup(host);
-		if(service != NULL)
-			*service = OPENSSL_strdup(serv);
+		ASSIGN_PTR(hostname, OPENSSL_strdup(host));
+		ASSIGN_PTR(service, OPENSSL_strdup(serv));
 	}
 	else {
 #endif
-		if(hostname != NULL)
-			*hostname = OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr));
+		ASSIGN_PTR(hostname, OPENSSL_strdup(inet_ntoa(ap->s_in.sin_addr)));
 		if(service != NULL) {
 			char serv[6]; /* port is 16 bits => max 5 decimal digits */
 			BIO_snprintf(serv, sizeof(serv), "%d", ntohs(ap->s_in.sin_port));
 			*service = OPENSSL_strdup(serv);
 		}
 	}
-
-	if((hostname != NULL && *hostname == NULL)
-	    || (service != NULL && *service == NULL)) {
+	if((hostname != NULL && *hostname == NULL) || (service != NULL && *service == NULL)) {
 		if(hostname != NULL) {
 			OPENSSL_free(*hostname);
 			*hostname = NULL;
@@ -254,7 +243,6 @@ static int addr_strings(const BIO_ADDR * ap, int numeric,
 		BIOerr(BIO_F_ADDR_STRINGS, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
-
 	return 1;
 }
 

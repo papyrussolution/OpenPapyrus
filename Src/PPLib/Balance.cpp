@@ -1,6 +1,6 @@
 // BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -21,7 +21,7 @@ void SLAPI Balance::_SetRest(int side, double val)
 		LDBLTOMONEY(val, data.CrdRest);
 }
 //
-// Ôëàãè äëÿ ôóíêöèè Balance::_Turn
+// Ð¤Ð»Ð°Ð³Ð¸ Ð´Ð»Ñ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Balance::_Turn
 //
 #define USE_TRANSACTION 0x0001
 #define TURN_ROLLBACK   0x0002
@@ -47,7 +47,7 @@ int SLAPI Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 {
 	int    ok = 1;
 	int    r, rollback = BIN(flags & TURN_ROLLBACK);
-	// Ïîëó÷àåì îðèãèíàëüíóþ ñóììó ïðîâîäêè
+	// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð¾Ñ€Ð¸Ð³Ð¸Ð½Ð°Ð»ÑŒÐ½ÑƒÑŽ ÑÑƒÐ¼Ð¼Ñƒ Ð¿Ñ€Ð¾Ð²Ð¾Ð´ÐºÐ¸
 	double abs_amt = (param->Side == PPCREDIT) ? -param->Amt : param->Amt;
 	double new_rest;
 	BalanceTbl::Key1 k1;

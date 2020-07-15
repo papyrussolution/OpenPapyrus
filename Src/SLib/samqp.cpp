@@ -30,7 +30,7 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include <stdint.h>
+//#include <stdint.h>
 #include <amqp.h>
 #include <openssl/ssl.h>
 #include <openssl/engine.h>
@@ -4866,13 +4866,12 @@ int amqp_open_socket_noblock(char const * hostname, int portnumber, struct timev
 static int connect_socket(struct addrinfo * addr, amqp_time_t deadline) 
 {
 	int one = 1;
-	SOCKET sockfd;
 	int last_error;
 	/*
 	 * This cast is to squash warnings on Win64, see:
 	 * http://stackoverflow.com/questions/1953639/is-it-safe-to-cast-socket-to-int-under-win64
 	 */
-	sockfd = (int)socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+	SOCKET sockfd = (int)socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
 	if(INVALID_SOCKET == sockfd) {
 		return AMQP_STATUS_SOCKET_ERROR;
 	}

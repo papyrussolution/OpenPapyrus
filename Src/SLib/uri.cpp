@@ -905,45 +905,45 @@ int UriDissectQueryMalloc(UriQueryList ** dest, int * itemCount, const char * pF
 	return UriDissectQueryMallocEx(dest, itemCount, pFirst, afterLast, plusToSpace, breakConversion);
 }
 
-int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * pFirst, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion) 
+int UriDissectQueryMallocEx(UriQueryList ** ppDest, int * pItemCount, const char * pFirst, const char * pAfterLast, int plusToSpace, UriBreakConversion breakConversion) 
 {
 	int    ok = 1;
-	const char * walk = pFirst;
-	const char * keyFirst = pFirst;
-	const char * keyAfter = NULL;
-	const char * valueFirst = NULL;
-	const char * valueAfter = NULL;
-	UriQueryList ** prevNext = dest;
+	const char * p_walk = pFirst;
+	const char * p_key_first = pFirst;
+	const char * p_key_after = NULL;
+	const char * p_value_first = NULL;
+	const char * p_value_after = NULL;
+	UriQueryList ** pp_prev_next = ppDest;
 	int   nullCounter;
-	int * itemsAppended = NZOR(itemCount, &nullCounter);
-	ASSIGN_PTR(dest, 0);
-	*itemsAppended = 0;
-	THROW_S(dest && pFirst && afterLast, SLERR_URI_NULL);
-	THROW_S(pFirst <= afterLast, SLERR_URI_RANGE_INVALID);
+	int * p_items_appended = NZOR(pItemCount, &nullCounter);
+	ASSIGN_PTR(ppDest, 0);
+	*p_items_appended = 0;
+	THROW_S(ppDest && pFirst && pAfterLast, SLERR_URI_NULL);
+	THROW_S(pFirst <= pAfterLast, SLERR_URI_RANGE_INVALID);
 	// Parse query string 
-	for(; walk < afterLast; walk++) {
-		switch(*walk) {
+	for(; p_walk < pAfterLast; p_walk++) {
+		switch(*p_walk) {
 		    case _UT('&'):
-				if(valueFirst)
-					valueAfter = walk;
+				if(p_value_first)
+					p_value_after = p_walk;
 				else
-					keyAfter = walk;
-				THROW(UriAppendQueryItem(prevNext, itemsAppended, keyFirst, keyAfter, valueFirst, valueAfter, plusToSpace, breakConversion));
+					p_key_after = p_walk;
+				THROW(UriAppendQueryItem(pp_prev_next, p_items_appended, p_key_first, p_key_after, p_value_first, p_value_after, plusToSpace, breakConversion));
 				// Make future items children of the current 
-				if(prevNext && *prevNext) {
-					prevNext = &((*prevNext)->next);
+				if(pp_prev_next && *pp_prev_next) {
+					pp_prev_next = &((*pp_prev_next)->next);
 				}
-				keyFirst = (walk+1 < afterLast) ? (walk+1) : NULL;
-				keyAfter = NULL;
-				valueFirst = NULL;
-				valueAfter = NULL;
+				p_key_first = (p_walk+1 < pAfterLast) ? (p_walk+1) : NULL;
+				p_key_after = NULL;
+				p_value_first = NULL;
+				p_value_after = NULL;
 				break;
 		    case _UT('='): // NOTE: WE treat the first '=' as a separator,  all following go into the value part 
-				if(keyAfter == NULL) {
-					keyAfter = walk;
-					if(walk+1 < afterLast) {
-						valueFirst = walk+1;
-						valueAfter = walk+1;
+				if(!p_key_after) {
+					p_key_after = p_walk;
+					if(p_walk+1 < pAfterLast) {
+						p_value_first = p_walk+1;
+						p_value_after = p_walk+1;
 					}
 				}
 				break;
@@ -951,15 +951,15 @@ int UriDissectQueryMallocEx(UriQueryList ** dest, int * itemCount, const char * 
 				break;
 		}
 	}
-	if(valueFirst)
-		valueAfter = walk; // Must be key/value pair 
+	if(p_value_first)
+		p_value_after = p_walk; // Must be key/value pair 
 	else
-		keyAfter = walk; // Must be key only 
-	THROW(UriAppendQueryItem(prevNext, itemsAppended, keyFirst, keyAfter, valueFirst, valueAfter, plusToSpace, breakConversion));
+		p_key_after = p_walk; // Must be key only 
+	THROW(UriAppendQueryItem(pp_prev_next, p_items_appended, p_key_first, p_key_after, p_value_first, p_value_after, plusToSpace, breakConversion));
 	CATCH
 		// Free list we built 
-		*itemsAppended = 0;
-		UriFreeQueryList(*dest);
+		*p_items_appended = 0;
+		UriFreeQueryList(*ppDest);
 		ok = 0;
 	ENDCATCH
 	return ok;

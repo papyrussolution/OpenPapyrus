@@ -48,22 +48,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string.c 201095 2009-12-28 02:33
 #ifdef HAVE_LOCALCHARSET_H
 	#include <localcharset.h>
 #endif
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
-//#ifdef HAVE_WCHAR_H
-	//#include <wchar.h>
-//#endif
-//#if defined(_WIN32) && !defined(__CYGWIN__)
-	//#include <windows.h>
-	//#include <locale.h>
-//#endif
-//#include "archive_endian.h"
-//#include "archive_private.h"
-//#include "archive_string.h"
 #include "archive_string_composition.h"
 
 #if !defined(HAVE_WMEMCPY) && !defined(wmemcpy)
@@ -1449,15 +1433,13 @@ static struct {
 static unsigned get_current_oemcp(void)
 {
 	int i;
-	char * locale, * p;
+	char * p;
 	size_t len;
-
-	locale = setlocale(LC_CTYPE, NULL);
+	char * locale = setlocale(LC_CTYPE, NULL);
 	if(locale == NULL)
 		return (GetOEMCP());
 	if(locale[0] == 'C' && locale[1] == '\0')
 		return (CP_C_LOCALE);
-
 	p = strrchr(locale, '.');
 	if(p == NULL)
 		return (GetOEMCP());

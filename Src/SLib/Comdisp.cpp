@@ -687,9 +687,9 @@ int SLAPI ComExcelRange::SetFormat(const char * pFormat) { return SetProperty(Nu
 
 int SLAPI ComExcelRange::GetValue(SString & rValue)
 {
-	int    ok = 0;
 	char   buf[2048];
-	if((ok = GetProperty(Value, buf, sizeof(buf))) > 0)
+	int    ok = GetProperty(Value, buf, sizeof(buf));
+	if(ok > 0)
 		rValue = buf;
 	return ok;
 }
@@ -778,7 +778,7 @@ int SLAPI ComExcelWorksheet::Init(IDispatch * pIDisp)
 	THROW(ASSIGN_ID_BY_NAME(this, Delete) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Columns) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Rows) > 0);
-	THROW(ASSIGN_ID_BY_NAME(this, Range) > 0); // @v9.8.7
+	THROW(ASSIGN_ID_BY_NAME(this, Range) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, Shapes) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, PrintOut) > 0);
 	THROW(ASSIGN_ID_BY_NAME(this, PrintPreview) > 0);
@@ -793,9 +793,9 @@ int SLAPI ComExcelWorksheet::SetName(const char * pName) { return pName ? SetPro
 
 int SLAPI ComExcelWorksheet::GetName(SString & rName)
 {
-	int    ok = 0;
 	char   buf[2048];
-	if((ok = GetProperty(Name, buf, sizeof(buf))) > 0)
+	int    ok = GetProperty(Name, buf, sizeof(buf));
+	if(ok > 0)
 		rName = buf;
 	return ok;
 }
@@ -1315,9 +1315,8 @@ ComExcelWorkbooks * SLAPI ComExcelApp::Get()
 ComExcelWorkbook * SLAPI ComExcelApp::OpenWkBook(const char * pFileName)
 {
 	int    ok = 1;
-	ComExcelWorkbook  * p_wkbook  = 0;
 	ComExcelWorkbooks * p_wkbooks = Get();
-	p_wkbook = p_wkbooks ? p_wkbooks->_Open(pFileName) : 0;
+	ComExcelWorkbook  * p_wkbook = p_wkbooks ? p_wkbooks->_Open(pFileName) : 0;
 	ZDELETE(p_wkbooks);
 	return p_wkbook;
 }
@@ -1325,9 +1324,8 @@ ComExcelWorkbook * SLAPI ComExcelApp::OpenWkBook(const char * pFileName)
 ComExcelWorkbook * SLAPI ComExcelApp::AddWkbook()
 {
 	int    ok = 1;
-	ComExcelWorkbook  * p_wkbook  = 0;
 	ComExcelWorkbooks * p_wkbooks = Get();
-	p_wkbook = p_wkbooks ? p_wkbooks->_Add() : 0;
+	ComExcelWorkbook  * p_wkbook = p_wkbooks ? p_wkbooks->_Add() : 0;
 	ZDELETE(p_wkbooks);
 	return p_wkbook;
 }

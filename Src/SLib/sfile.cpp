@@ -4,9 +4,7 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-//#include <fcntl.h>
 #include <share.h>
-//#include <sys\stat.h>
 #include <sys\locking.h>
 
 #if 0 // @construction {
@@ -1757,7 +1755,7 @@ int SFile::AcquireLckDescriptor(int64 offs, int32 size)
 const SFile::LckChunk * FASTCALL SFile::GetLckDescriptor(int h) const
 {
 	const LckChunk * p_ret = 0;
-	if(h > 0 && h <= (int)LckList.getCount()) {
+	if(h > 0 && h <= LckList.getCountI()) {
 		const LckChunk & r_item = LckList.at(h-1);
 		assert(r_item.Size >= 0);
 		if(r_item.Size > 0) {
@@ -1770,7 +1768,7 @@ const SFile::LckChunk * FASTCALL SFile::GetLckDescriptor(int h) const
 int FASTCALL SFile::ReleaseLckDescriptor(int h)
 {
 	int    ok = 1;
-	if(h > 0 && h <= (int)LckList.getCount()) {
+	if(h > 0 && h <= LckList.getCountI()) {
 		LckChunk & r_item = LckList.at(h-1);
 		assert(r_item.Size >= 0);
 		r_item.Size = 0;
@@ -2247,7 +2245,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 									SETMAX(total_len, local_len);
 								}
 							}
-							if(total_len > 0 && total_len <= 512) {
+							if(checkirange(total_len, 1, 512)) {
 								const size_t len = total_len;
 								size_t actual_size = 0;
 								THROW(sign_buf.Alloc(len));
@@ -2521,10 +2519,10 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Zip,        "zip", "504B0506");
 	Register(Zip,        "zip", "504B0708");
 	Register(Rar,        "rar", "52617221");
-	Register(Gz,     mtApplication, "x-gzip", "gz",  "1F8B08");
-	Register(Bz2,    mtApplication, "octet-stream", "bz2", "425A68");
-	Register(SevenZ, mtApplication, "octet-stream", "7z",  "377ABCAF");
-	Register(Xz,         "xz",  "FD377A585A");
+	Register(Gz,     mtApplication, "x-gzip",  "gz",  "1F8B08");
+	Register(Bz2,    mtApplication, "x-bzip2", "bz2", "425A68");
+	Register(SevenZ, mtApplication, "x-lzma",  "7z",  "377ABCAF");
+	Register(Xz,     mtApplication, "x-xz",    "xz",  "FD377A585A");
 	Register(Z,          "z",   "1F9D90");
 	Register(Cab,        "cab", "49536328");
 	Register(Cab,        "cab", "4D534346");
@@ -2590,33 +2588,33 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Sln,        "sln",  "TMicrosoft Visual Studio Solution File"); // @v9.1.2
 	Register(VCProj,     mtApplication, "xml", "vcproj", "T<?xml"); // @v9.1.2
 	Register(VCProj,     "vcxproj", "T<?xml");
-	Register(Asm,        "asm", 0); // @v9.1.2
-	Register(C,          "c",   0); // @v9.1.2
-	Register(C,          "c",   "T/*"); // @v9.1.2
-	Register(CPP,        "cpp;cxx;cc", 0); // @v9.1.2
-	Register(CPP,        "cpp;cxx;cc", "T/*"); // @v9.1.2
-	Register(CPP,        "cpp;cxx;cc", "T//"); // @v9.1.2
-	Register(H,          "h;hpp", 0); // @v9.1.2
-	Register(H,          "h;hpp", "T/*"); // @v9.1.2
-	Register(H,          "h;hpp", "T//"); // @v9.1.2
-	Register(Perl,       "pl",   "T#!perl"); // @v9.1.2
-	Register(Perl,       "pm",   "Tpackage"); // @v9.1.2
-	Register(Php,        "php",  "T<?php"); // @v9.1.2
-	Register(Java,       "java", 0); // @v9.1.2
-	Register(Java,       "java", "Tpackage"); // @v9.1.2
-	Register(Java,       "java", "Timport"); // @v9.1.2
-	Register(Java,       "java", "T/*"); // @v9.1.2
-	Register(Py,         "py", 0); // @v9.1.2
-	Register(UnixShell,  "sh",   "T#!/bin/sh"); // @v9.1.2
-	Register(Msi,        mtApplication, "x-ole-storage", "msi",  "D0CF11E0A1B11AE1"); // @v9.1.2
-	Register(Log,        "log", 0); // @v9.7.1
-	Register(Properties, "properties", 0); // @v9.7.1
-	Register(Css,        "css", 0); // @v9.7.1
-	Register(JavaScript, "js",  0); // @v9.7.1
-	Register(Json,       mtApplication, "json", "json", "T{"); // @v9.7.2
-	Register(Json,       "json", "T["); // @v9.7.2
-	Register(Pbxproj,    "pbxproj", 0); // @v9.8.1
-	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53"); // @v9.8.11
+	Register(Asm,        "asm", 0);
+	Register(C,          "c",   0);
+	Register(C,          "c",   "T/*");
+	Register(CPP,        "cpp;cxx;cc", 0);
+	Register(CPP,        "cpp;cxx;cc", "T/*");
+	Register(CPP,        "cpp;cxx;cc", "T//");
+	Register(H,          "h;hpp", 0);
+	Register(H,          "h;hpp", "T/*");
+	Register(H,          "h;hpp", "T//");
+	Register(Perl,       "pl",   "T#!perl");
+	Register(Perl,       "pm",   "Tpackage");
+	Register(Php,        "php",  "T<?php");
+	Register(Java,       "java", 0);
+	Register(Java,       "java", "Tpackage");
+	Register(Java,       "java", "Timport");
+	Register(Java,       "java", "T/*");
+	Register(Py,         "py", 0);
+	Register(UnixShell,  "sh",   "T#!/bin/sh");
+	Register(Msi,        mtApplication, "x-ole-storage", "msi",  "D0CF11E0A1B11AE1");
+	Register(Log,        "log", 0);
+	Register(Properties, "properties", 0);
+	Register(Css,        "css", 0);
+	Register(JavaScript, "js",  0);
+	Register(Json,       mtApplication, "json", "json", "T{");
+	Register(Json,       "json", "T[");
+	Register(Pbxproj,    "pbxproj", 0);
+	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
 	return ok;
 }
 //

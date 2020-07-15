@@ -1,5 +1,5 @@
 // PPDRVAPI.CPP
-// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <ppdrvapi.h>
@@ -228,7 +228,7 @@ int PPDrvSession::Helper_ProcessCommand(const char * pCmd, const char * pInputDa
 			else if(cmd_buf == "SETFINISHEVENT") {
 				PPDrvInputParamBlock ipb(pInputData);
 				ZDELETE(r_tla.P_FinishEvnt);
-				if(ipb.Get("NAME", name_buf) > 0 && name_buf.CmpNC("NULL") != 0) {
+				if(ipb.Get("NAME", name_buf) > 0 && !name_buf.IsEqiAscii("NULL")) {
 					r_tla.P_FinishEvnt = new Evnt(name_buf, Evnt::modeOpen);
 				}
 			}

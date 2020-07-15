@@ -11,28 +11,27 @@
 #ifndef _GNU_SOURCE
 	#define _GNU_SOURCE
 #endif
-////#include "e_os.h"
+//#include "e_os.h"
 #include <openssl/rand.h>
 //#include <openssl/crypto.h>
 #include "rand_lcl.h"
 #include <rand_int.h>
 #include "internal/dso.h"
 #ifdef __linux
-#include <sys/syscall.h>
-#ifdef DEVRANDOM_WAIT
-#include <sys/shm.h>
-#include <sys/utsname.h>
-#endif
+	#include <sys/syscall.h>
+	#ifdef DEVRANDOM_WAIT
+		#include <sys/shm.h>
+		#include <sys/utsname.h>
+	#endif
 #endif
 #if defined(__FreeBSD__) && !defined(OPENSSL_SYS_UEFI)
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <sys/param.h>
+	#include <sys/types.h>
+	#include <sys/sysctl.h>
+	#include <sys/param.h>
 #endif
 #if defined(__OpenBSD__) || defined(__NetBSD__)
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
-
 #if defined(OPENSSL_SYS_UNIX) || defined(__DJGPP__)
 #include <sys/types.h>
 #include <sys/stat.h>

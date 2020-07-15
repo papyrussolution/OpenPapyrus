@@ -25,17 +25,18 @@
 #define TOOLBAR_LOGVIEW                       21
 #define TOOLBAR_TEXTBROWSER                   22
 #define TOOLBAR_TEXTBROWSER_WB_HTML           23
-#define TOOLBAR_LIST_DEFAULT                  24
-#define TOOLBAR_LIST_BRAND                    25
-#define TOOLBAR_LIST_WORLD                    26
-#define TOOLBAR_LIST_TAG                      27
-#define TOOLBAR_LIST_ACCSHEET                 28
-#define TOOLBAR_LIST_GOODSBASKET              29
-#define TOOLBAR_LIST_GRPNUSR                  30
-#define TOOLBAR_LIST_BILLSTATUS               31
-#define TOOLBAR_LIST_PSNOPKIND                32
-#define TOOLBAR_LIST_SCARDSERIES              33
-#define TOOLBAR_LIST_WORKBOOK                 34
+#define TOOLBAR_TEXTBROWSER_GRAVITY           24
+#define TOOLBAR_LIST_DEFAULT                  25
+#define TOOLBAR_LIST_BRAND                    26
+#define TOOLBAR_LIST_WORLD                    27
+#define TOOLBAR_LIST_TAG                      28
+#define TOOLBAR_LIST_ACCSHEET                 29
+#define TOOLBAR_LIST_GOODSBASKET              30
+#define TOOLBAR_LIST_GRPNUSR                  31
+#define TOOLBAR_LIST_BILLSTATUS               32
+#define TOOLBAR_LIST_PSNOPKIND                33
+#define TOOLBAR_LIST_SCARDSERIES              34
+#define TOOLBAR_LIST_WORKBOOK                 35
 #define BROWSER_PERSON                                   1 // @{person_pl} {%s}
 	#define HELP_BROWSER_PERSON                                   1
 #define BROWSER_PERSONCT                                 2 // @{person_pl} {%s}
@@ -92,7 +93,7 @@
 	#define HELP_BROWSER_ATURNGRPNG_CYCLE                        27
 #define BROWSER_BALANCE                                 28 // Баланс (%s)
 	#define HELP_BROWSER_BALANCE                                 28
-#define TOOLBAR_DEBTTRNOVR                    35
+#define TOOLBAR_DEBTTRNOVR                    36
 #define BROWSER_SELLTRNOVR_CT                           29 // @{view_debttrnovr} {%s}
 	#define HELP_BROWSER_SELLTRNOVR_CT                           29
 #define BROWSER_SELLTRNOVR_CT_PAYM                      30 // @{view_debttrnovr} {%s}
@@ -199,7 +200,7 @@
 	#define HELP_BROWSER_SHIPMANLZBYBILL                         80
 #define BROWSER_PSALESGOODS                             81 // @{view_predictsales} (%s)
 	#define HELP_BROWSER_PSALESGOODS                             81
-#define TOOLBAR_TRFRANLZ                      36
+#define TOOLBAR_TRFRANLZ                      37
 #define BROWSER_GOODSCARD                               82 // Карточка товара {%s}
 	#define HELP_BROWSER_GOODSCARD                               82
 #define BROWSER_TRFRANLZ                                83 // @{view_trfranlz}
@@ -318,7 +319,7 @@
 	#define HELP_BROWSER_PLINES_BYALLQUOTS                      139
 #define BROWSER_QCERT                                  140 // @{qcert}
 	#define HELP_BROWSER_QCERT                                  140
-#define TOOLBAR_VATBOOK                       37
+#define TOOLBAR_VATBOOK                       38
 #define BROWSER_VATSELL                                141 // @{salesledger}
 	#define HELP_BROWSER_VATSELL                                141
 #define BROWSER_VATBUY                                 142 // @{purchaseledger}
@@ -337,7 +338,7 @@
 	#define HELP_BROWSER_QUOT_SER                               148
 #define BROWSER_CCHECK                                 149 // @{poscheck_pl}
 	#define HELP_BROWSER_CCHECK                                 149
-#define TOOLBAR_CCHECKGRP                     38
+#define TOOLBAR_CCHECKGRP                     39
 #define BROWSER_CCHECKGRP_TM                           150 // Кассовые чеки по часам
 	#define HELP_BROWSER_CCHECKGRP_TM                           150
 #define BROWSER_CCHECKGRP_DT                           151 // Кассовые чеки по дням
@@ -404,7 +405,7 @@
 	#define HELP_BROWSER_STAFFCAL_DTGRP                         181
 #define BROWSER_CURRATE                                182 // @{view_currate}
 	#define HELP_BROWSER_CURRATE                                182
-#define TOOLBAR_CSESS                         39
+#define TOOLBAR_CSESS                         40
 #define BROWSER_CSESS                                  183 // @{csession_pl} {%s}
 	#define HELP_BROWSER_CSESS                                  183
 #define BROWSER_CSESS_EXT                              184 // Расширенная ведомость кассовых сессий
@@ -415,12 +416,12 @@
 	#define HELP_BROWSER_OBJSYNC                                186
 #define BROWSER_OBJSYNCQUEUE                           187 // Очередь синхронизации
 	#define HELP_BROWSER_OBJSYNCQUEUE                           187
-#define TOOLBAR_SCARD                         40
+#define TOOLBAR_SCARD                         41
 #define BROWSER_SCARD                                  188 // @{scard_pl} {%s}
 	#define HELP_BROWSER_SCARD                                  188
-#define BROWSER_SCARDCRD                               189 // Кредитные карты {%s}
+#define BROWSER_SCARDCRD                               189 // @{crdcard_pl} {%s}
 	#define HELP_BROWSER_SCARDCRD                               189
-#define BROWSER_SCARDCRD_TRNOVR                        190 // Кредитные карты {%s}
+#define BROWSER_SCARDCRD_TRNOVR                        190 // @{crdcard_pl} {%s}
 	#define HELP_BROWSER_SCARDCRD_TRNOVR                        190
 #define BROWSER_PAYMPLAN                               191 // @{paymplan}
 	#define HELP_BROWSER_PAYMPLAN                               191
@@ -986,144 +987,145 @@
 #define PPVCMD_PROCESSTEXT                            142
 #define PPVCMD_INSERTLINK                             143
 #define PPVCMD_BRACEHTMLTAG                           144
-#define PPVCMD_VIEWCCHECKS                            145
-#define PPVCMD_ADDREVERSEITEM                         146
-#define PPVCMD_REVERSE                                147
-#define PPVCMD_EDITITEMGOODS                          148
-#define PPVCMD_VIEWGOODSOPANLZ                        149
-#define PPVCMD_NEXTPROBLEM                            150
-#define PPVCMD_PREVPROBLEM                            151
-#define PPVCMD_ALTPRINT                               152
-#define PPVCMD_CVTGENATURNTOEXTACCBILL                153
-#define PPVCMD_EDITBILLINFO                           154
-#define PPVCMD_VIEWACCOUNT                            155
-#define PPVCMD_EDITARTICLE                            156
-#define PPVCMD_DEBTCARD                               157
-#define PPVCMD_RECKONBILLS                            158
-#define PPVCMD_GOODSREST                              159
-#define PPVCMD_ADDITEMEXT                             160
-#define PPVCMD_SELECTBYCODE                           161
-#define PPVCMD_SELECTBYNAME                           162
-#define PPVCMD_BUILD                                  163
-#define PPVCMD_RECALCREST                             164
-#define PPVCMD_RECALCPRICE                            165
-#define PPVCMD_RECALCDFCT                             166
-#define PPVCMD_CHECKSTAT                              167
-#define PPVCMD_TOGGLE                                 168
-#define PPVCMD_REBUILD                                169
-#define PPVCMD_TEST                                   170
-#define PPVCMD_ADDTOALTGRP                            171
-#define PPVCMD_VIEWHISTORY                            172
-#define PPVCMD_RESTOREGOODS                           173
-#define PPVCMD_SPCFUNC                                174
-#define PPVCMD_IMPORT                                 175
-#define PPVCMD_SETPASSIVTAG                           176
-#define PPVCMD_EDITITEMSIMPLE                         177
-#define PPVCMD_EDITQUOTKIND                           178
-#define PPVCMD_VIEWMTXBYGGRP                          179
-#define PPVCMD_VIEWSERIES                             180
-#define PPVCMD_GOODSCORR                              181
-#define PPVCMD_EDITPSNOPKIND                          182
-#define PPVCMD_STAFFPOST                              183
-#define PPVCMD_SALARY                                 184
-#define PPVCMD_EDIT                                   185
-#define PPVCMD_TIMEGRAPH                              186
-#define PPVCMD_EDITITEMSPC                            187
-#define PPVCMD_VIEWDEFICIT                            188
-#define PPVCMD_VIEWGOODSTAXANLZ                       189
-#define PPVCMD_CCHECKS                                190
-#define PPVCMD_WROFFBILLS                             191
-#define PPVCMD_WROFFBILLSALL                          192
-#define PPVCMD_DFCTBILLS                              193
-#define PPVCMD_DETACH                                 194
-#define PPVCMD_CLOSESESS                              195
-#define PPVCMD_WROFFSESS                              196
-#define PPVCMD_CREATEDRAFT                            197
-#define PPVCMD_PRINTITEM                              198
-#define PPVCMD_PRINTCHECK                             199
-#define PPVCMD_SETALTGOODS                            200
-#define PPVCMD_EDITOBJ                                201
-#define PPVCMD_RECEIVE                                202
-#define PPVCMD_FINDANDEDIT                            203
-#define PPVCMD_OPERATIONS                             204
-#define PPVCMD_CHNGDSCNT                              205
-#define PPVCMD_CALCTRNOVR                             206
-#define PPVCMD_AUTOFILL                               207
-#define PPVCMD_REPLACECARD                            208
-#define PPVCMD_AFILLDEFPSN                            209
-#define PPVCMD_RENAMEDUP                              210
-#define PPVCMD_PROCESSSELECTION                       211
-#define PPVCMD_PRINTDETAIL                            212
-#define PPVCMD_ADDFREEZING                            213
-#define PPVCMD_EDITSCARD                              214
-#define PPVCMD_VIEWPREDICTCOEFF                       215
-#define PPVCMD_EDITVAL                                216
-#define PPVCMD_MAKEPURCHASEBILL                       217
-#define PPVCMD_PRINTBILL                              218
-#define PPVCMD_PRINTBILLLIST                          219
-#define PPVCMD_PRINTBILLINFOLIST                      220
-#define PPVCMD_VIEWPRJPHASE                           221
-#define PPVCMD_EDITBILLPOOL                           222
-#define PPVCMD_PRNPRJTASKS                            223
-#define PPVCMD_LINKTASKS                              224
-#define PPVCMD_EDITLINKTASK                           225
-#define PPVCMD_EXPORTVCAL                             226
-#define PPVCMD_VIEWLINKOPS                            227
-#define PPVCMD_EDITITEM2                              228
-#define PPVCMD_MOVEUP                                 229
-#define PPVCMD_MOVEDOWN                               230
-#define PPVCMD_EDITPRC                                231
-#define PPVCMD_VIEWSUBSESS                            232
-#define PPVCMD_EDITTECH                               233
-#define PPVCMD_TSESSANLZ                              234
-#define PPVCMD_COMPLETE                               235
-#define PPVCMD_CHECKPAN                               236
-#define PPVCMD_EXTADDGOODSITEM                        237
-#define PPVCMD_EDITTSESS                              238
-#define PPVCMD_SCARDS                                 239
-#define PPVCMD_EDITDEVICE                             240
-#define PPVCMD_EXPORTREDOSINCE                        241
-#define PPVCMD_QUOTS                                  242
-#define PPVCMD_VERIFY                                 243
-#define PPVCMD_MAILRPT                                244
-#define PPVCMD_CALLCRR                                245
-#define PPVCMD_VIEWTSESSLINES                         246
-#define PPVCMD_EDITITEM1                              247
-#define PPVCMD_UNITE                                  248
-#define PPVCMD_PREPAREDATA                            249
-#define PPVCMD_LOADDATA                               250
-#define PPVCMD_LOADSTAT                               251
-#define PPVCMD_CHECKSTATUS                            252
-#define PPVCMD_CSESSIONS                              253
-#define PPVCMD_OPPANEL                                254
-#define PPVCMD_PRINTZEROCHECK                         255
-#define PPVCMD_BIZSCOREVAL                            256
-#define PPVCMD_VIEWBIZSCORE                           257
-#define PPVCMD_CONFIG                                 258
-#define PPVCMD_EDITWHCELL                             259
-#define PPVCMD_RMVBILL                                260
-#define PPVCMD_DISPOSE                                261
-#define PPVCMD_RESETCACHE                             262
-#define PPVCMD_LOGLOCKSTACK                           263
-#define PPVCMD_VIEWPERSONS                            264
-#define PPVCMD_VIEWACC                                265
-#define PPVCMD_CALCVALUES                             266
-#define PPVCMD_VIEWTEMPLATE                           267
-#define PPVCMD_VIEWCHECK                              268
-#define PPVCMD_IMPORTUHTT                             269
-#define PPVCMD_TRANSACTJ                              270
-#define PPVCMD_OPTENTRYGRAPH                          271
-#define PPVCMD_UPDATEITEMS                            272
-#define PPVCMD_LOTOPS                                 273
-#define PPVCMD_VIEWLINKREST                           274
-#define PPVCMD_MATCHPERSON                            275
-#define PPVCMD_UTILIZEDVDOC                           276
-#define PPVCMD_SETUPOUTGOING                          277
-#define PPVCMD_SENDOUTGOING                           278
-#define PPVCMD_VETISWAREHOUSE                         279
-#define PPVCMD_VETISPRODUCT                           280
-#define PPVCMD_EDITLINKQR                             281
-#define PPVCMD_CREATELINKQR                           282
+#define PPVCMD_RUN                                    145
+#define PPVCMD_VIEWCCHECKS                            146
+#define PPVCMD_ADDREVERSEITEM                         147
+#define PPVCMD_REVERSE                                148
+#define PPVCMD_EDITITEMGOODS                          149
+#define PPVCMD_VIEWGOODSOPANLZ                        150
+#define PPVCMD_NEXTPROBLEM                            151
+#define PPVCMD_PREVPROBLEM                            152
+#define PPVCMD_ALTPRINT                               153
+#define PPVCMD_CVTGENATURNTOEXTACCBILL                154
+#define PPVCMD_EDITBILLINFO                           155
+#define PPVCMD_VIEWACCOUNT                            156
+#define PPVCMD_EDITARTICLE                            157
+#define PPVCMD_DEBTCARD                               158
+#define PPVCMD_RECKONBILLS                            159
+#define PPVCMD_GOODSREST                              160
+#define PPVCMD_ADDITEMEXT                             161
+#define PPVCMD_SELECTBYCODE                           162
+#define PPVCMD_SELECTBYNAME                           163
+#define PPVCMD_BUILD                                  164
+#define PPVCMD_RECALCREST                             165
+#define PPVCMD_RECALCPRICE                            166
+#define PPVCMD_RECALCDFCT                             167
+#define PPVCMD_CHECKSTAT                              168
+#define PPVCMD_TOGGLE                                 169
+#define PPVCMD_REBUILD                                170
+#define PPVCMD_TEST                                   171
+#define PPVCMD_ADDTOALTGRP                            172
+#define PPVCMD_VIEWHISTORY                            173
+#define PPVCMD_RESTOREGOODS                           174
+#define PPVCMD_SPCFUNC                                175
+#define PPVCMD_IMPORT                                 176
+#define PPVCMD_SETPASSIVTAG                           177
+#define PPVCMD_EDITITEMSIMPLE                         178
+#define PPVCMD_EDITQUOTKIND                           179
+#define PPVCMD_VIEWMTXBYGGRP                          180
+#define PPVCMD_VIEWSERIES                             181
+#define PPVCMD_GOODSCORR                              182
+#define PPVCMD_EDITPSNOPKIND                          183
+#define PPVCMD_STAFFPOST                              184
+#define PPVCMD_SALARY                                 185
+#define PPVCMD_EDIT                                   186
+#define PPVCMD_TIMEGRAPH                              187
+#define PPVCMD_EDITITEMSPC                            188
+#define PPVCMD_VIEWDEFICIT                            189
+#define PPVCMD_VIEWGOODSTAXANLZ                       190
+#define PPVCMD_CCHECKS                                191
+#define PPVCMD_WROFFBILLS                             192
+#define PPVCMD_WROFFBILLSALL                          193
+#define PPVCMD_DFCTBILLS                              194
+#define PPVCMD_DETACH                                 195
+#define PPVCMD_CLOSESESS                              196
+#define PPVCMD_WROFFSESS                              197
+#define PPVCMD_CREATEDRAFT                            198
+#define PPVCMD_PRINTITEM                              199
+#define PPVCMD_PRINTCHECK                             200
+#define PPVCMD_SETALTGOODS                            201
+#define PPVCMD_EDITOBJ                                202
+#define PPVCMD_RECEIVE                                203
+#define PPVCMD_FINDANDEDIT                            204
+#define PPVCMD_OPERATIONS                             205
+#define PPVCMD_CHNGDSCNT                              206
+#define PPVCMD_CALCTRNOVR                             207
+#define PPVCMD_AUTOFILL                               208
+#define PPVCMD_REPLACECARD                            209
+#define PPVCMD_AFILLDEFPSN                            210
+#define PPVCMD_RENAMEDUP                              211
+#define PPVCMD_PROCESSSELECTION                       212
+#define PPVCMD_PRINTDETAIL                            213
+#define PPVCMD_ADDFREEZING                            214
+#define PPVCMD_EDITSCARD                              215
+#define PPVCMD_VIEWPREDICTCOEFF                       216
+#define PPVCMD_EDITVAL                                217
+#define PPVCMD_MAKEPURCHASEBILL                       218
+#define PPVCMD_PRINTBILL                              219
+#define PPVCMD_PRINTBILLLIST                          220
+#define PPVCMD_PRINTBILLINFOLIST                      221
+#define PPVCMD_VIEWPRJPHASE                           222
+#define PPVCMD_EDITBILLPOOL                           223
+#define PPVCMD_PRNPRJTASKS                            224
+#define PPVCMD_LINKTASKS                              225
+#define PPVCMD_EDITLINKTASK                           226
+#define PPVCMD_EXPORTVCAL                             227
+#define PPVCMD_VIEWLINKOPS                            228
+#define PPVCMD_EDITITEM2                              229
+#define PPVCMD_MOVEUP                                 230
+#define PPVCMD_MOVEDOWN                               231
+#define PPVCMD_EDITPRC                                232
+#define PPVCMD_VIEWSUBSESS                            233
+#define PPVCMD_EDITTECH                               234
+#define PPVCMD_TSESSANLZ                              235
+#define PPVCMD_COMPLETE                               236
+#define PPVCMD_CHECKPAN                               237
+#define PPVCMD_EXTADDGOODSITEM                        238
+#define PPVCMD_EDITTSESS                              239
+#define PPVCMD_SCARDS                                 240
+#define PPVCMD_EDITDEVICE                             241
+#define PPVCMD_EXPORTREDOSINCE                        242
+#define PPVCMD_QUOTS                                  243
+#define PPVCMD_VERIFY                                 244
+#define PPVCMD_MAILRPT                                245
+#define PPVCMD_CALLCRR                                246
+#define PPVCMD_VIEWTSESSLINES                         247
+#define PPVCMD_EDITITEM1                              248
+#define PPVCMD_UNITE                                  249
+#define PPVCMD_PREPAREDATA                            250
+#define PPVCMD_LOADDATA                               251
+#define PPVCMD_LOADSTAT                               252
+#define PPVCMD_CHECKSTATUS                            253
+#define PPVCMD_CSESSIONS                              254
+#define PPVCMD_OPPANEL                                255
+#define PPVCMD_PRINTZEROCHECK                         256
+#define PPVCMD_BIZSCOREVAL                            257
+#define PPVCMD_VIEWBIZSCORE                           258
+#define PPVCMD_CONFIG                                 259
+#define PPVCMD_EDITWHCELL                             260
+#define PPVCMD_RMVBILL                                261
+#define PPVCMD_DISPOSE                                262
+#define PPVCMD_RESETCACHE                             263
+#define PPVCMD_LOGLOCKSTACK                           264
+#define PPVCMD_VIEWPERSONS                            265
+#define PPVCMD_VIEWACC                                266
+#define PPVCMD_CALCVALUES                             267
+#define PPVCMD_VIEWTEMPLATE                           268
+#define PPVCMD_VIEWCHECK                              269
+#define PPVCMD_IMPORTUHTT                             270
+#define PPVCMD_TRANSACTJ                              271
+#define PPVCMD_OPTENTRYGRAPH                          272
+#define PPVCMD_UPDATEITEMS                            273
+#define PPVCMD_LOTOPS                                 274
+#define PPVCMD_VIEWLINKREST                           275
+#define PPVCMD_MATCHPERSON                            276
+#define PPVCMD_UTILIZEDVDOC                           277
+#define PPVCMD_SETUPOUTGOING                          278
+#define PPVCMD_SENDOUTGOING                           279
+#define PPVCMD_VETISWAREHOUSE                         280
+#define PPVCMD_VETISPRODUCT                           281
+#define PPVCMD_EDITLINKQR                             282
+#define PPVCMD_CREATELINKQR                           283
 //
 // PPCMD definitions
 //
@@ -1845,6 +1847,7 @@
 #define PPVIEW_TIMSERSTRATEGYCONTAINER               1200
 	#define PPFILT_TIMSERSTRATEGYCONTAINER               1201
 	#define PPVIEWITEM_TIMSERSTRATEGYCONTAINER               1202
+#define PPFILT_EDITTEXTFILEPARAM                     1211
 //
 // RECORD definitions
 //
@@ -4893,5 +4896,7 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_SAVE03                          32948
 #define PPDV_SAVEAS03                        32949
 #define PPDV_OPEN03                          32950
-#define PPDV_LOGOPAPYRUS                     32951
+#define PPDV_UNIFYPRICE01                    32951
+#define PPDV_UNIFYPRICE02                    32952
+#define PPDV_LOGOPAPYRUS                     32953
 

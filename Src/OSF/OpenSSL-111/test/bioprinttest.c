@@ -159,9 +159,8 @@ static int test_j(int i)
 {
     const j_data *data = &jf_data[i];
     char bio_buf[80];
-
     BIO_snprintf(bio_buf, sizeof(bio_buf) - 1, data->format, data->value);
-    if (!TEST_str_eq(bio_buf, data->expected))
+    if(!TEST_str_eq(bio_buf, data->expected))
         return 0;
     return 1;
 }

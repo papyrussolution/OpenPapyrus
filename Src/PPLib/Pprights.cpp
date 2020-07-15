@@ -13,8 +13,7 @@ SLAPI ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRigh
 
 /*static*/ObjRights * SLAPI ObjRights::Create(PPID objType, size_t totalSize)
 {
-	const size_t hdr_size = sizeof(ObjRights);
-	const size_t total_size = (totalSize < hdr_size) ? hdr_size : totalSize;
+	const size_t total_size = MAX(totalSize, sizeof(ObjRights));
 	ObjRights * ptr = reinterpret_cast<ObjRights *>(::new uint8[total_size]);
 	if(ptr) {
 		ptr->ObjType = objType;
@@ -56,10 +55,8 @@ public:
 		setCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
 		accsr.SetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
 		accsr.SetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
-		// @v9.2.11 {
 		AddClusterAssoc(CTL_RTCOMM_PRDFORCSESS, 0, PPAccessRestriction::cfApplyBillPeriodsToCSess);
 		SetClusterData(CTL_RTCOMM_PRDFORCSESS, accsr.CFlags);
-		// } @v9.2.11
 		/*
 		AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 0, PPR_INS);
 		AddClusterAssoc(CTL_RTCOMM_RTDESKTOP, 1, PPR_MOD);
@@ -294,7 +291,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 				if(op_id == Data.ObjID || !P_List || !P_List->SearchItemByID(op_id, 0))
 					op_list.add(op_id);
 			}
-			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, 1);
+			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, OPKLF_OPLIST|OPKLF_SHOWPASSIVE); // @v10.8.1 OPKLF_SHOWPASSIVE
 			{
 				const long comm = (Data.Flags & 0x80000000) ? 0 : 1;
 				{
@@ -317,14 +314,13 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 			getCtrlData(sel = CTLSEL_RTOPLI_OPRKIND, &Data.ObjID);
 			THROW_PP(Data.ObjID, PPERR_OPRKINDNEEDED);
 			{
-				long   comm = GetClusterData(CTL_RTOPLI_COMMRT);
+				const long comm = GetClusterData(CTL_RTOPLI_COMMRT);
 				if(!comm) {
 					Data.Flags |= 0x80000000;
 					GetClusterData(CTL_RTOPLI_FLAGS, &Data.Flags);
 				}
-				else {
+				else
 					Data.Flags = 0;
-				}
 				ASSIGN_PTR(pData, Data);
 			}
 			CATCHZOKPPERRBYDLG

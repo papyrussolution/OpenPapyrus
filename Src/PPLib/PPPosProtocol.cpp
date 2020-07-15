@@ -1598,21 +1598,16 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 					use_lookbackprices = 1;
 				}
 				// @v10.7.3 {
-				if(gt_rec.Flags & GTF_GMARKED) {
+				if(gt_rec.Flags & GTF_GMARKED)
 					w_s.PutInner("marked", 0);
-				}
-				if(gt_rec.ChZnProdType == GTCHZNPT_FUR) {
+				if(gt_rec.ChZnProdType == GTCHZNPT_FUR)
 					w_s.PutInner("chznprodtype", "fur");
-				}
-				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) {
+				else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO)
 					w_s.PutInner("chznprodtype", "tobacco");
-				}
-				else if(gt_rec.ChZnProdType == GTCHZNPT_SHOE) {
+				else if(gt_rec.ChZnProdType == GTCHZNPT_SHOE)
 					w_s.PutInner("chznprodtype", "shoe");
-				}
-				else if(gt_rec.ChZnProdType == GTCHZNPT_MEDICINE) {
+				else if(gt_rec.ChZnProdType == GTCHZNPT_MEDICINE)
 					w_s.PutInner("chznprodtype", "medicine");
-				}
 				// } @v10.7.3 
 			}
 		}
@@ -2561,11 +2556,11 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_TYPE:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obPayment) {
-					if(RdB.TagValue.CmpNC("cash") == 0)
+					if(RdB.TagValue.IsEqiAscii("cash"))
 						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_CASH;
-					else if(RdB.TagValue.CmpNC("bank") == 0)
+					else if(RdB.TagValue.IsEqiAscii("bank"))
 						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_BANK;
-					else if(RdB.TagValue.CmpNC("card") == 0)
+					else if(RdB.TagValue.IsEqiAscii("card"))
 						static_cast<CcPaymentBlock *>(p_item)->PaymType = CCAMTTYP_CRDCARD;
 				}
 				break;
@@ -4058,9 +4053,8 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			rgp.DefParentID = 0;
 			def_parent_name = "default";
 			while(!rgp.DefParentID && GgObj.SearchByName(def_parent_name, 0, &parent_rec) > 0) {
-				if(parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
+				if(parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER)))
 					rgp.DefParentID = parent_rec.ID;
-				}
 				else
 					(def_parent_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
 			}

@@ -2086,18 +2086,26 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 			/* @v9.8.4 @todo Из-за замены текстовых полей во временной таблице на ссылки в StrPool следующий блок надо переделать
 			else if((is_register && col == 3) || (is_bank_acct && col == 5)) {
 				int is_valid = 0;
-				SString code, bic;
-				code = (is_bank_acct) ? ((BnkAcct_*)pData)->BnkAcct : ((Register_*)pData)->RegNumber;
-				bic  = (is_bank_acct) ? ((BnkAcct_*)pData)->BIC     : ((Register_*)pData)->RegSerial;
+				// @v10.8.1 {
+				STokenRecognizer tr;
+				SNaturalTokenStat nts;
+				SNaturalTokenArray nta;
+				tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
+				// } @v10.8.1 
+				SString code = is_bank_acct ? ((BnkAcct_*)pData)->BnkAcct : ((Register_*)pData)->RegNumber;
+				SString bic  = is_bank_acct ? ((BnkAcct_*)pData)->BIC     : ((Register_*)pData)->RegSerial;
 				if(code.Strip().Len()) {
 					if(is_bank_acct)
 						is_valid = CheckBnkAcc(code, bic.Strip());
 					else {
-						if(p_filt->RegTypeID == PPREGT_OKPO)
-							is_valid = CheckOKPO(code);
+						if(p_filt->RegTypeID == PPREGT_OKPO) {
+							// @v10.8.1 is_valid = CheckOKPO(code);
+							is_valid = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+						}
 						else if(p_filt->RegTypeID == PPREGT_TPID) {
 							// @v8.7.4 is_valid = CheckINN(code);
-							is_valid = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, code, code.Len()); // @v8.7.4
+							// @v10.8.1 is_valid = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, code, code.Len()); // @v8.7.4
+							is_valid = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
 						}
 						else
 							is_valid = CheckCorrAcc(code, bic);

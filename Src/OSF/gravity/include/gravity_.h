@@ -18,10 +18,10 @@
 	#include <Shlwapi.h>
 	//#include <tchar.h>
 #endif
-#ifdef _MSC_VER
+/* @v10.8.1 #ifdef _MSC_VER
 	typedef int mode_t; // MSVC doesn't have mode_t 
 	typedef SSIZE_T ssize_t;
-#endif
+#endif*/
 struct GravityValue;
 struct gravity_class_t;
 struct gravity_closure_t;
@@ -102,9 +102,9 @@ struct gravity_vm;
 #define GRAVITY_COMPUTED_INDEX              UINT16_MAX-1
 //DLL export/import support for Windows
 #if !defined(GRAVITY_API) && defined(_WIN32) && defined(BUILD_GRAVITY_API)
-  #define GRAVITY_API __declspec(dllexport)
+	#define GRAVITY_API __declspec(dllexport)
 #else
-  #define GRAVITY_API
+	#define GRAVITY_API
 #endif
 // MARK: - STRUCT -
 // FLOAT_MAX_DECIMALS FROM
@@ -276,7 +276,6 @@ typedef uint64_t nanotime_t;
 nanotime_t  nanotime();
 double      microtime(nanotime_t tstart, nanotime_t tend);
 double      millitime(nanotime_t tstart, nanotime_t tend);
-
 // CONSOLE
 char        * readline(char * prompt, int * length);
 // FILE
@@ -960,6 +959,9 @@ struct gravity_closure_t : public GravityObjectBase {
 };
 
 struct gravity_list_t : public GravityObjectBase {
+	gravity_list_t() : GravityObjectBase(GravityEnv.P_ClsList)
+	{
+	}
 	gravity_value_r array;      // dynamic array of values
 };
 
@@ -1160,7 +1162,7 @@ GRAVITY_API bool   gravity_value_vm_equals(gravity_vm * vm, GravityValue v1, Gra
 GRAVITY_API uint32 gravity_value_hash(GravityValue value);
 // @sobolev replaced with GetClass() GRAVITY_API gravity_class_t * gravity_value_getclass(GravityValue v);
 GRAVITY_API gravity_class_t * gravity_value_getsuper(GravityValue v);
-GRAVITY_API void   gravity_value_free(gravity_vm * vm, GravityValue v);
+GRAVITY_API void   FASTCALL gravity_value_free(gravity_vm * vm, GravityValue & rV);
 GRAVITY_API void   gravity_value_serialize(const char * key, GravityValue v, GravityJson * json);
 GRAVITY_API void   gravity_value_dump(gravity_vm * vm, GravityValue v, char * buffer, uint16 len);
 // @sobolev replaced with GravityValue::IsObject() GRAVITY_API bool FASTCALL gravity_value_isobject(const GravityValue v);
@@ -2739,7 +2741,7 @@ bool    gnode_is_expression(const gnode_t * node);
 bool    FASTCALL gnode_is_literal(const gnode_t * node);
 bool    gnode_is_literal_int(const gnode_t * node);
 bool    gnode_is_literal_number(gnode_t * node);
-bool    gnode_is_literal_string(gnode_t * node);
+bool    gnode_is_literal_string(const gnode_t * node);
 void    gnode_literal_dump(gnode_literal_expr_t * node, char * buffer, int buffersize);
 void    FASTCALL gnode_free(gnode_t * node);
 
@@ -2775,10 +2777,11 @@ struct gvisitor_t {
 		visit_identifier_expr(0), visit_keyword_expr(0), visit_list_expr(0), visit_postfix_expr(0)
 	{
 	}
-	uint32 nerr;          // to store err counter state
-	void * data;     // to store a ptr state
-	bool bflag;             // to store a bool flag
-	void * delegate; // delegate callback
+	uint32 nerr;       // to store err counter state
+	void * data;       // to store a ptr state
+	bool   bflag;      // to store a bool flag
+	uint8  Reserve[3]; // @alignment
+	void * delegate;   // delegate callback
 	// COMMON
 	void (* visit_pre)(gvisitor_t * self, gnode_t * node);
 	void (* visit_post)(gvisitor_t * self, gnode_t * node);

@@ -19,13 +19,6 @@
  */
 #ifndef _DB_H_
 #define _DB_H_
-
-#ifndef __NO_SYSTEM_INCLUDES
-	//#include <sys/types.h>
-	//#include <stddef.h>
-	//#include <stdio.h>
-#endif
-
 /*
  * Turn off inappropriate compiler warnings
  */
@@ -74,22 +67,21 @@ extern "C" {
  * We also provide the standard uint, ulong etc., if they're not provided
  * by the system.
  */
-#ifndef __BIT_TYPES_DEFINED__
-	#define __BIT_TYPES_DEFINED__
-	typedef unsigned char uint8;
-	typedef short int16;
-	typedef unsigned short uint16;
+//#ifndef __BIT_TYPES_DEFINED__
+	//#define __BIT_TYPES_DEFINED__
+	//typedef unsigned char uint8;
+	//typedef short int16;
+	//typedef unsigned short uint16;
 	//typedef int int32;
-	typedef __int64 int64;
-	typedef unsigned __int64 uint64;
-#endif
-#ifndef _WINSOCKAPI_
+	//typedef __int64 int64;
+	//typedef unsigned __int64 uint64;
+//#endif
+//#ifndef _WINSOCKAPI_
 	// @sobolev typedef unsigned char u_char;
 	// @sobolev typedef unsigned int u_int;
 	// @sobolev typedef unsigned long u_long;
-#endif
+//#endif
 typedef unsigned short u_short;
-
 /*
  * Missing ANSI types.
  *
@@ -113,12 +105,11 @@ typedef unsigned short u_short;
 #else
 	typedef uint64 uintmax_t;
 #endif
-#ifdef _WIN64
-	typedef uint64 uintptr_t;
-#else
-	typedef unsigned int uintptr_t;
-#endif
-
+//#ifdef _WIN64
+	//typedef uint64 uintptr_t;
+//#else
+	//typedef unsigned int uintptr_t;
+//#endif
 /*
  * Windows defines off_t to long (i.e., 32 bits).  We need to pass 64-bit
  * file offsets, so we declare our own.
@@ -131,17 +122,16 @@ typedef int32 pid_t;
 #else
 	typedef size_t db_size_t;
 #endif
-#ifdef _WIN64
+/* @v10.8.1 #ifdef _WIN64
 	typedef int64 ssize_t;
 #else
 	typedef int32 ssize_t;
-#endif
+#endif*/
 #ifdef HAVE_MIXED_SIZE_ADDRESSING
 	typedef int32 db_ssize_t;
 #else
 	typedef ssize_t db_ssize_t;
 #endif
-
 typedef int64   db_seq_t;      /* Sequences are only available on machines with 64-bit integral types. */
 typedef uint32 db_threadid_t; /* Thread and process identification. */
 // Basic types that are exported or quasi-exported.
@@ -298,15 +288,14 @@ struct __db_mutex_stat { /* SHARED */
 
 #define DB_THREADID_STRLEN      128 /* This is the length of the buffer passed to DB_ENV->thread_id_string() */
 
-/*******************************************************
-* Locking.
-*******************************************************/
+//
+// Locking.
+//
 #define DB_LOCKVERSION  1
 #define DB_FILE_ID_LEN          20     /* Unique file ID length. */
-/*
- * Deadlock detector modes; used in the DB_ENV structure to configure the
- * locking subsystem.
- */
+//
+// Deadlock detector modes; used in the DB_ENV structure to configure the locking subsystem.
+//
  #define DB_LOCK_NORUN           0
  #define DB_LOCK_DEFAULT         1      /* Default policy. */
  #define DB_LOCK_EXPIRE          2      /* Only expire locks, no detection. */
@@ -354,7 +343,6 @@ typedef enum {
 	DB_LOCK_TRADE = 9,                /* Trade locker ids on a lock. */
 	DB_LOCK_UPGRADE_WRITE = 10        /* Upgrade writes for dirty reads. */
 } db_lockop_t;
-
 /*
  * Status of a lock.
  */

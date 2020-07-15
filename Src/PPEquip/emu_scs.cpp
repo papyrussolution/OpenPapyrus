@@ -166,7 +166,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				di.lpszOutput = 0;
 				di.lpszDatatype = 0;
 				di.fwType = 0;
-				THROW(StartDoc(PrinterDC, &di) != SP_ERROR); // @unicodeproblem
+				THROW(StartDoc(PrinterDC, &di) != SP_ERROR);
 				{
 					const  int w = GetDeviceCaps(PrinterDC, HORZRES);
 					const  int h = GetDeviceCaps(PrinterDC, VERTRES);
@@ -525,7 +525,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 
 int SLAPI SCS_SYNCSYM::GetSummator(double * val)
 {
-	*val = -1;
+	ASSIGN_PTR(val, -1.0);
 	return 1;
 }
 
@@ -539,29 +539,12 @@ int SLAPI SCS_SYNCSYM::OpenBox()
 	DWORD  sz = 0;
 	HANDLE h_port = INVALID_HANDLE_VALUE;
 	if(PrinterPort.Len() && SCn.Flags & CASHF_OPENBOX){
-		// @v7.8.1 {
 		SCn.GetPropString(SCN_CASHDRAWER_CMD, drawer_cmd);
 		if(!drawer_cmd.NotEmptyS())
 			drawer_cmd = "1B70001015";
 		SCn.GetPropString(SCN_CASHDRAWER_PORT, drawer_port);
 		if(!drawer_port.NotEmptyS())
 			drawer_port = "com1";
-		// } @v7.8.1
-		//
-		// @v7.8.1
-		// @v7.8.1 PPIniFile ini_file;
-		// @v7.8.1 THROW(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_OPENDRAWERCMD, drawer_line));
-		// @v7.8.1 if(drawer_line.Divide(':', drawer_port, drawer_cmd) > 0) {
-		// @v7.8.1 	if(drawer_port.Empty())
-		// @v7.8.1 		drawer_port = "com1";
-		// @v7.8.1 	if(drawer_cmd.Empty())
-		// @v7.8.1 		drawer_cmd = "1B70001015";
-		// @v7.8.1 }
-		// @v7.8.1 else {
-		// @v7.8.1 	drawer_cmd = drawer_port;
-		// @v7.8.1 	drawer_port = "com1";
-		// @v7.8.1 }
-		//
 		GetPort(drawer_port, &port_no);
 		name.Z().CatCharN('\\', 2).Dot().CatChar('\\').Cat((char *)&s_com).Cat(port_no+1);
 		if(h_port != INVALID_HANDLE_VALUE) {

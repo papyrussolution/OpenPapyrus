@@ -4,7 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-//int    modeless = GetModelessStatus();
 int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
 TView * SLAPI ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; } // @v9.0.4 TView-->TWindow
@@ -1012,7 +1011,7 @@ int    Lst2LstAryDialog::setupLeftList() { return SetupList(P_Left, GetLeftList(
 int Lst2LstAryDialog::SetupList(SArray *pA, SmartListBox * pL)
 {
 	if(pL) {
-		long pos = pL->def ? pL->def->_curItem() : 0L;
+		const long pos = pL->def ? pL->def->_curItem() : 0L;
 		StdListBoxDef * def = new StdListBoxDef(pA, lbtFocNotify | lbtDblClkNotify, MKSTYPE(S_ZSTRING, 64));
 		pL->setDef(def);
 		pL->def->go(pos);
@@ -1097,7 +1096,6 @@ ListToListData::ListToListData(const StrAssocArray * pSrcList, PPID objType, PPI
 
 Lst2LstObjDialog::Lst2LstObjDialog(uint rezID, ListToListData * aData) : Lst2LstDialogUI(rezID, aData), Data(*aData), P_Object(0)
 {
-	//Data = *aData;
 	Data.P_List = new PPIDArray(*aData->P_List);
 	setup();
 }
@@ -1144,12 +1142,7 @@ int Lst2LstObjDialog::setupRightTList()
 		long   parent_id = 0;
 		p_l_def->GetParent(id, &parent_id);
 		parent_id = (parent_id && Data.P_List->lsearch(parent_id)) ? parent_id : 0;
-		/* @v9.2.1
-		THROW(P_Object->GetName(id, &name_buf));
-		if(name_buf.Empty())
-			ideqvalstr(id, name_buf);
-		*/
-		GetItemText(id, name_buf); // @v9.2.1
+		GetItemText(id, name_buf);
 		THROW_SL(p_list->Add(id, parent_id, name_buf));
 	}
 	p_list->SortByText();
@@ -1184,12 +1177,7 @@ int Lst2LstObjDialog::setupRightList()
 			const long pos = p_lb->def ? p_lb->def->_curItem() : 0L;
 			THROW_MEM(p_ary = new StrAssocArray);
 			for(uint i = 0; Data.P_List->enumItems(&i, (void **)&p_id);) {
-				/* @v9.2.1
-				P_Object->GetName(*p_id, &name_buf);
-				if(name_buf.Empty())
-					name_buf.Cat(*p_id);
-				*/
-				GetItemText(*p_id, name_buf); // @v9.2.1
+				GetItemText(*p_id, name_buf);
 				THROW_SL(p_ary->Add(*p_id, name_buf));
 			}
 			p_ary->SortByText();
@@ -1519,14 +1507,12 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 				}
 				THROW_SL(p_list->Add(id, txt_buf));
 			}
-			// @v9.5.0 {
 			if(pAddendumList && pAddendumList->getCount()) {
 				for(uint i = 0; i < pAddendumList->getCount(); i++) {
 					StrAssocArray::Item ai = pAddendumList->Get(i);
 					THROW_SL(p_list->Add(ai.Id, ai.Txt, 0));
 				}
 			}
-			// } @v9.5.0
 			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify), initID);
 		}
 	}
@@ -1686,7 +1672,7 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			long   count = 0;
 			GoodsGroupTotal ggrp_total;
 			PPObjGoodsGroup ggobj;
-			MEMSZERO(ggrp_total);
+			// @v10.8.1 @ctr MEMSZERO(ggrp_total);
 			ggobj.CalcTotal(&ggrp_total);
 			count = ggrp_total.MaxLevel + sggGroupSecondLvl - 1;
 			PPLoadText(PPTXT_GROUPLEVELX, item_buf);
@@ -1938,8 +1924,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 //
 //
 // static
-int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID,
-	int titleTextId, int patternId, long flags)
+int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID, int titleTextId, int patternId, long flags)
 {
 	int    ok = 1;
 	if(dlg) {
@@ -1950,12 +1935,10 @@ int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtl
 		if(p_fbb) {
 			p_fbb->addPattern(patternId);
 			dlg->addGroup(grpID, p_fbb);
-			// @v9.2.5 {
 			if(btnCtlID) {
 				TButton * p_btn = static_cast<TButton *>(dlg->getCtrlView(btnCtlID));
 				CALLPTRMEMB(p_btn, SetBitmap(IDB_FILEBROWSE));
 			}
-			// } @v9.2.5
 		}
 		else
 			ok = PPSetErrorNoMem();
@@ -1965,6 +1948,11 @@ int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtl
 	return ok;
 }
 
+SLAPI FileBrowseCtrlGroup::Rec::Rec()
+{
+	PTR32(FilePath)[0] = 0;
+}
+
 FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char * pTitle, long flags) :
 	ButtonCtlId(buttonId), InputCtlId(inputId), Flags(flags), Title(pTitle)
 {
@@ -1972,7 +1960,7 @@ FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char
 		PPGetSubStr(PPTXT_FILE_OR_PATH_SELECTION, (Flags & fbcgfPath) ? PPFOPS_PATH : PPFOPS_FILE, Title);
 		Title.Transf(CTRANSF_INNER_TO_OUTER);
 	}
-	MEMSZERO(Data);
+	// @v10.8.1 @ctr MEMSZERO(Data);
 }
 
 int FileBrowseCtrlGroup::addPattern(uint strID)
@@ -1993,42 +1981,51 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 {
 	int      not_exist = 1;
 	SString  dir, fname;
-	if(!isempty(pInitPath)) {
-		not_exist = access(pInitPath, 0);
-		if(not_exist) {
-			SplitPath(pInitPath, dir, fname);
-			not_exist = access(dir, 0);
-			fname.Z();
-		}
-		else if(Flags & fbcgfPath) {
-			dir = pInitPath;
-			fname.Z();
-		}
-		else
-			SplitPath(pInitPath, dir, fname);
+	const    int is_wild = IsWild(pInitPath);
+	if(is_wild) {
+		SplitPath(pInitPath, dir, fname);
+		InitDir = dir;
+		InitFile = fname;
 	}
-	if(not_exist && Data.FilePath[0]) {
-		not_exist = access(Data.FilePath, 0);
+	else {
+		if(!isempty(pInitPath)) {
+			not_exist = access(pInitPath, 0);
+			if(not_exist) {
+				SplitPath(pInitPath, dir, fname);
+				not_exist = access(dir, 0);
+				fname.Z();
+			}
+			else if(Flags & fbcgfPath) {
+				dir = pInitPath;
+				fname.Z();
+			}
+			else
+				SplitPath(pInitPath, dir, fname);
+		}
+		if(not_exist && Data.FilePath[0]) {
+			not_exist = access(Data.FilePath, 0);
+			if(not_exist) {
+				SplitPath(Data.FilePath, dir, fname);
+				not_exist = access(dir, 0);
+				fname.Z();
+			}
+			else if(Flags & fbcgfPath) {
+				dir = Data.FilePath;
+				fname.Z();
+			}
+			else
+				SplitPath(Data.FilePath, dir, fname);
+		}
 		if(not_exist) {
-			SplitPath(Data.FilePath, dir, fname);
-			not_exist = access(dir, 0);
-			fname.Z();
+			if(Flags)
+				PPGetPath((Flags & fbcgfLogFile) ? PPPATH_LOG : PPPATH_SYSROOT, dir);
+			else
+				dir.Z();
 		}
-		else if(Flags & fbcgfPath) {
-			dir = Data.FilePath;
-			fname.Z();
-		}
-		else
-			SplitPath(Data.FilePath, dir, fname);
+		InitDir  = dir;
+		fname.ShiftLeftChr('\\').ShiftLeftChr('\\');
+		InitFile = (Flags & fbcgfPath) ? "*.*" : fname;
 	}
-	if(not_exist)
-		if(Flags)
-			PPGetPath((Flags & fbcgfLogFile) ? PPPATH_LOG : PPPATH_SYSROOT, dir);
-		else
-			dir.Z();
-	InitDir  = dir;
-	fname.ShiftLeftChr('\\').ShiftLeftChr('\\');
-	InitFile = (Flags & fbcgfPath) ? "*.*" : fname;
 }
 
 static const TCHAR * MakeOpenFileInitPattern(const StringSet & rPattern, STempBuffer & rResult)
@@ -2074,11 +2071,10 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = pDlg->H();
-	// @v10.4.0 sofn.lpstrFilter = SUcSwitch(Patterns.getBuf()); // @unicodeproblem
-	sofn.lpstrFilter = MakeOpenFileInitPattern(Patterns, filter_buf); // @v10.4.0
-	sofn.lpstrFile   = file_name; // @unicodeproblem
+	sofn.lpstrFilter = IsWild(InitFile) ? SUcSwitch(InitFile) : MakeOpenFileInitPattern(Patterns, filter_buf);
+	sofn.lpstrFile   = file_name;
 	sofn.nMaxFile    = SIZEOFARRAY(file_name);
-	sofn.lpstrTitle  = SUcSwitch(Title); // @unicodeproblem
+	sofn.lpstrTitle  = SUcSwitch(Title);
 	sofn.Flags       = (OFN_EXPLORER|OFN_HIDEREADONLY|OFN_LONGNAMES|OFN_NOCHANGEDIR);
 	if(!(Flags & fbcgfAllowNExists))
 		sofn.Flags |= OFN_FILEMUSTEXIST;
@@ -6990,14 +6986,27 @@ int SLAPI RecentItemsStorage::GetList(StringSet & rSs)
 	return ok;
 }
 
-int SLAPI PPEditTextFile(const char * pFileName)
+SLAPI EditTextFileParam::EditTextFileParam() : PPBaseFilt(PPFILT_EDITTEXTFILEPARAM, 0, 0)
+{
+	SetFlatChunk(offsetof(EditTextFileParam, ReserveStart),
+		offsetof(EditTextFileParam, ReserveEnd)-offsetof(EditTextFileParam, ReserveStart)+sizeof(ReserveEnd));
+	SetBranchSString(offsetof(EditTextFileParam, FileName));
+	Init(1, 0);
+}
+
+int SLAPI PPEditTextFile(const EditTextFileParam * pParam)
 {
 	class OpenEditFileDialog : public TDialog {
 	public:
-		explicit OpenEditFileDialog(RecentItemsStorage * pRis) : TDialog(DLG_OPENEDFILE), FileID(0), P_Ris(pRis)
+		explicit OpenEditFileDialog(RecentItemsStorage * pRis, const char * pPredefinedWildcard) : TDialog(DLG_OPENEDFILE), FileID(0), P_Ris(pRis),
+			PredefinedWildcard(pPredefinedWildcard)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_OPENEDFILE_SELECT, CTL_OPENEDFILE_SELECT, 1, 0,
 				PPTXT_FILPAT_PPYTEXT, FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
+			if(PredefinedWildcard.NotEmpty()) {
+				FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(1));
+				CALLPTRMEMB(p_fbg, setInitPath(PredefinedWildcard));
+			}
 			SetupStrListBox(this, CTL_OPENEDFILE_RESERV);
 			SetupStrListBox(this, CTL_OPENEDFILE_RECENT);
 			SetupReservList();
@@ -7144,15 +7153,25 @@ int SLAPI PPEditTextFile(const char * pFileName)
 		}
 		PPID   FileID;
 		SString FileName;
+		SString PredefinedWildcard;
 		StrAssocArray RecentItems;
 		RecentItemsStorage * P_Ris;
 	};
 	int    ok = -1;
 	RecentItemsStorage ris("PPViewTextBrowser", 20, PTR_CMPFUNC(FilePathUtf8));
 	OpenEditFileDialog * dlg = 0;
-	SString file_name = pFileName;
-	if(!file_name.NotEmptyS() || !fileExists(file_name)) {
-		THROW(CheckDialogPtr(&(dlg = new OpenEditFileDialog(&ris))));
+	SString file_name;
+	if(pParam)
+		file_name = pParam->FileName;
+	if(!file_name.NotEmptyS() || IsWild(file_name) || IsDirectory(file_name) || !fileExists(file_name)) {
+		const char * p_predefined_wildcard = 0;
+		if(IsWild(file_name))
+			p_predefined_wildcard = file_name;
+		else if(IsDirectory(file_name)) {
+			file_name.SetLastSlash().Cat("*.*");
+			p_predefined_wildcard = file_name;
+		}
+		THROW(CheckDialogPtr(&(dlg = new OpenEditFileDialog(&ris, p_predefined_wildcard))));
 		dlg->setCtrlString(CTL_OPENEDFILE_SELECT, file_name);
 		if(ExecView(dlg) == cmOK) {
 			dlg->GetFileName(file_name);
@@ -7186,10 +7205,10 @@ int SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
 		int   setMaxLen(size_t maxLen)
 		{
 			int    ok = 1;
-			if(maxLen > 0 && maxLen <= 4000)
+			if(checkirange(maxLen, 1, 4000))
 				SetupInputLine(CTL_BIGTXTEDIT_TEXT, MKSTYPE(S_ZSTRING, maxLen), MKSFMT(maxLen, 0));
 			else
-				ok = 0;
+				ok = PPSetErrorSLib();
 			return ok;
 		}
 		int   setDTS(const SString * pText)

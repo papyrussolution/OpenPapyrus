@@ -4065,7 +4065,7 @@ $$$RPL
 		line_buf.Cat(pScalePLU->Price, MKSFMTD(0, 2, 0)).Semicol();    // #5
 		line_buf.CatCharN(';', 6);                                        // #6-#11
 		const long   numdays = diffdate(pScalePLU->Expiry, getcurdate_());
-		if(numdays > 0 && numdays <= 366)
+		if(checkirange(numdays, 1, 366))
 			line_buf.Cat(numdays);
 		line_buf.Semicol();                                            // #12
 		line_buf.Semicol();                                            // #13 Дата реализации

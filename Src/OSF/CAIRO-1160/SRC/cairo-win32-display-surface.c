@@ -60,8 +60,6 @@
 //#include "cairo-scaled-font-subsets-private.h"
 //#include "cairo-surface-fallback-private.h"
 //#include "cairo-surface-backend-private.h"
-//#include <wchar.h>
-//#include <windows.h>
 
 #if defined(__MINGW32__) && !defined(ETO_PDY)
 	#define ETO_PDY 0x2000

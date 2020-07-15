@@ -252,7 +252,7 @@ int SLAPI PPAsyncCashSession::IsCheckExistence(PPID cashID, long code, const LDA
 			LDATETIME ccdtm;
 			ccdtm.Set(CC.data.Dt, CC.data.Tm);
 			const long diffsec = diffdatetimesec(*pDT, ccdtm);
-			if(diffsec > 0 && diffsec <= (10*60)) {
+			if(checkirange(diffsec, 1, (10*60))) {
 				SString msg_buf, fmt_buf, cc_text_buf, time_buf;
 				CCheckCore::MakeCodeString(&CC.data, cc_text_buf);
 				time_buf.Cat(*pDT, DATF_DMY, TIMF_HMS|TIMF_MSEC);
@@ -1455,7 +1455,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf.Z());
 		GcObj.SearchBySymb(temp_buf, &GiftCardGoodsClsID);
 		//
-		if(eq_cfg.LookBackPricePeriod > 0 && eq_cfg.LookBackPricePeriod < 365*2) { // @v9.8.5
+		if(eq_cfg.LookBackPricePeriod > 0 && eq_cfg.LookBackPricePeriod <= 365*2) { // @v9.8.5
 			PricesLookBackPeriod = eq_cfg.LookBackPricePeriod;
 		}
 		else {

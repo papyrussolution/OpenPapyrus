@@ -50,7 +50,7 @@
  * platform macros.
  */
 #if defined(__BORLANDC__) && __BORLANDC__ >= 0x560
-	#include <stdint.h>
+	//#include <stdint.h>
 #elif !defined(__WATCOMC__) && !defined(_MSC_VER) && !defined(__INTERIX) && !defined(__BORLANDC__) && !defined(_SCO_DS) && !defined(__osf__)
 	#include <inttypes.h>
 #endif
@@ -80,13 +80,14 @@
 	#endif
 	#define __LA_SSIZE_T_DEFINED
 	#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WATCOMC__)
-		#if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
+		/* @v10.8.1 #if defined(_SSIZE_T_DEFINED) || defined(_SSIZE_T_)
 			typedef ssize_t la_ssize_t;
 		#elif defined(_WIN64)
 			typedef __int64 la_ssize_t;
 		#else
 			typedef long la_ssize_t;
-		#endif
+		#endif */
+		typedef ssize_t la_ssize_t; // @v10.8.1
 	#else
 		#include <unistd.h>  /* ssize_t */
 		typedef ssize_t la_ssize_t;

@@ -36,13 +36,13 @@ typedef struct semacheck_t semacheck_t;
 #define PUSH_DECLARATION(node)          gnode_array_push(((semacheck_t*)self->data)->declarations, node)
 #define POP_DECLARATION()               gnode_array_pop(((semacheck_t*)self->data)->declarations)
 #define TOP_DECLARATION()               gnode_array_get(((semacheck_t*)self->data)->declarations, gnode_array_size(((semacheck_t*)self->data)->declarations)-1)
-//#define ISA(n1, _tag)                    ((n1) ? ((n1)->Tag == _tag) : 0)
-#define ISA_CLASS(n1)                   ((n1)->Tag == NODE_CLASS_DECL)
 #define ISA_VAR_DECLARATION(n1)         ((n1)->Tag == NODE_VARIABLE_DECL)
-#define ISA_VARIABLE(n1)                ((n1)->Tag == NODE_VARIABLE)
 #define ISA_LITERAL(n1)                 ((n1)->Tag == NODE_LITERAL_EXPR)
-#define ISA_IDENTIFIER(n1)              ((n1)->Tag == NODE_IDENTIFIER_EXPR)
-#define ISA_ID(n1)                      ((n1)->Tag == NODE_ID_EXPR)
+//#define ISA(n1, _tag)                    ((n1) ? ((n1)->Tag == _tag) : 0)
+//#define ISA_CLASS(n1)                   ((n1)->Tag == NODE_CLASS_DECL)
+//#define ISA_VARIABLE(n1)                ((n1)->Tag == NODE_VARIABLE)
+//#define ISA_IDENTIFIER(n1)              ((n1)->Tag == NODE_IDENTIFIER_EXPR)
+//#define ISA_ID(n1)                      ((n1)->Tag == NODE_ID_EXPR)
 
 #define SET_LOCAL_INDEX(var, symtable)  var->index = (uint16)symboltable_local_index(symtable)
 #define SET_NODE_LOCATION(_node, _type, _idx, _nup) _node->location.type = _type; _node->location.index = _idx; _node->location.nup = _nup;
@@ -386,7 +386,8 @@ static bool is_init_function(gnode_t * node)
 	return false;
 }
 
-static bool is_init_infinite_loop(gvisitor_t * self, gnode_identifier_expr_t * identifier, GravityArray <gnode_t *> * list) {
+static bool is_init_infinite_loop(gvisitor_t * self, gnode_identifier_expr_t * identifier, GravityArray <gnode_t *> * list) 
+{
 	// for example:
 	// class c1 {
 	//     func init() {
@@ -400,11 +401,11 @@ static bool is_init_infinite_loop(gvisitor_t * self, gnode_identifier_expr_t * i
 	// 1. there should be at least 2 declarations in the stack
 	GravityArray <gnode_t *> * decls = ((semacheck_t*)self->data)->declarations;
 	size_t len = gnode_array_size(decls);
-	if(len < 2) return false;
-
+	if(len < 2) 
+		return false;
 	// 2. current function is init
-	if(!is_init_function(gnode_array_get(decls, len-1))) return false;
-
+	if(!is_init_function(gnode_array_get(decls, len-1))) 
+		return false;
 	// 3. outer declaration is a class
 	gnode_t    * target_node = gnode_array_get(decls, len-2);
 	if(!gnode_t::IsA(target_node, NODE_CLASS_DECL)) 
@@ -429,17 +430,17 @@ static void check_access_storage_specifiers(gvisitor_t * self, gnode_t * node, g
 {
 	// check for module node
 	if(node->GetTag() == NODE_MODULE_DECL) {
-		if(access != 0) REPORT_ERROR(node, "Access specifier cannot be used for module.");
-		if(storage != 0) REPORT_ERROR(node, "Storage specifier cannot be used for module.");
+		if(access != 0) 
+			REPORT_ERROR(node, "Access specifier cannot be used for module.");
+		if(storage != 0) 
+			REPORT_ERROR(node, "Storage specifier cannot be used for module.");
 	}
-
 	// check fo access specifiers here
 	// access specifier does make sense only inside module or class declaration
 	// in any other enclosing environment must be considered a semantic error
 	if((access != 0) && (env != NODE_CLASS_DECL) && (env != NODE_MODULE_DECL)) {
 		REPORT_ERROR(node, "Access specifier does not make sense here.");
 	}
-
 	// storage specifier (STATIC) makes sense only inside a class declaration
 	if((storage == TOK_KEY_STATIC) && (env != NODE_CLASS_DECL)) {
 		REPORT_ERROR(node, "Static storage specifier does not make sense outside a class declaration.");
@@ -628,40 +629,50 @@ static void visit_loop_stmt(gvisitor_t * self, gnode_loop_stmt_t * node)
 	const char * LOOP_NAME = 0;
 	gnode_t * cond = NULL;
 	if(type == TOK_KEY_WHILE) {
-		LOOP_NAME = "WHILE"; cond = node->cond;
+		LOOP_NAME = "WHILE"; 
+		cond = node->cond;
 	}
 	else if(type == TOK_KEY_REPEAT) {
-		LOOP_NAME = "REPEAT"; cond = node->expr;
+		LOOP_NAME = "REPEAT"; 
+		cond = node->expr;
 	}
 	else if(type == TOK_KEY_FOR) {
-		LOOP_NAME = "FOR"; cond = node->cond;
+		LOOP_NAME = "FOR"; 
+		cond = node->cond;
 	}
 	// sanity check
 	if(type == TOK_KEY_WHILE) {
 		if(!node->cond) {
-			REPORT_ERROR(node, "Missing %s condition.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s condition.", LOOP_NAME); 
+			return;
 		}
 		if(!node->stmt) {
-			REPORT_ERROR(node, "Missing %s statement.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s statement.", LOOP_NAME); 
+			return;
 		}
 	}
 	else if(type == TOK_KEY_REPEAT) {
 		if(!node->stmt) {
-			REPORT_ERROR(node, "Missing %s statement.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s statement.", LOOP_NAME); 
+			return;
 		}
 		if(!node->expr) {
-			REPORT_ERROR(node, "Missing %s expression.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s expression.", LOOP_NAME); 
+			return;
 		}
 	}
 	else if(type == TOK_KEY_FOR) {
 		if(!node->cond) {
-			REPORT_ERROR(node, "Missing %s condition.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s condition.", LOOP_NAME); 
+			return;
 		}
 		if(!node->expr) {
-			REPORT_ERROR(node, "Missing %s expression.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s expression.", LOOP_NAME); 
+			return;
 		}
 		if(!node->stmt) {
-			REPORT_ERROR(node, "Missing %s statement.", LOOP_NAME); return;
+			REPORT_ERROR(node, "Missing %s statement.", LOOP_NAME); 
+			return;
 		}
 	}
 	if(is_expression_assignment(cond)) {
@@ -1199,23 +1210,24 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 	size_t n = gnode_array_size(node->list1);
 	bool ismap = (node->list2 != NULL);
 	DEBUG_SEMA2("visit_list_expr (n: %zu ismap: %d)", n, ismap);
-	for(size_t j = 0; j<n; ++j) {
+	for(size_t j = 0; j < n; ++j) {
 		gnode_t * e = gnode_array_get(node->list1, j);
 		gvisit(self, e);
 		if(ismap) {
 			// key must be unique
-			for(size_t k = 0; k<n; ++k) {
-				if(k == j) continue; // do not check itself
-				gnode_t * key = gnode_array_get(node->list1, k);
-				if(gnode_is_equal(e, key)) {
-					if(gnode_is_literal_string(key)) {
-						gnode_literal_expr_t * v = (gnode_literal_expr_t *)key;
-						REPORT_ERROR(key, "Duplicated key %s in map.", v->value.str);
+			for(size_t k = 0; k < n; ++k) {
+				if(k != j) { // do not check itself
+					const gnode_t * key = gnode_array_get(node->list1, k);
+					if(gnode_is_equal(e, key)) {
+						if(gnode_is_literal_string(key)) {
+							const gnode_literal_expr_t * v = static_cast<const gnode_literal_expr_t *>(key);
+							REPORT_ERROR(key, "Duplicated key %s in map.", v->value.str);
+						}
+						else 
+							REPORT_ERROR(key, "Duplicated key in map.");
 					}
-					else REPORT_ERROR(key, "Duplicated key in map.");
 				}
 			}
-
 			e = gnode_array_get(node->list2, j);
 			gvisit(self, e);
 		}

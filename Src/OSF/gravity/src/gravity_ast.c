@@ -311,7 +311,7 @@ bool gnode_is_literal_int(const gnode_t * node)
 	}
 }
 
-bool gnode_is_literal_string(gnode_t * node) 
+bool gnode_is_literal_string(const gnode_t * node) 
 {
 	if(gnode_is_literal(node) == false) 
 		return false;

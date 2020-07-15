@@ -244,7 +244,7 @@ int SLAPI EpsonCmdSet::ResetPrinter(char * b)
 
 int SLAPI EpsonCmdSet::SetPageLength(int l, char * b)
 {
-	if(l > 0 && l <= 127) {
+	if(checkirange(l, 1, 127)) {
 		b[0] = ESC;
 		b[1] = 'C';
 		b[2] = (char)l;
@@ -343,7 +343,7 @@ int SLAPI PCLCmdSet::SetPageLength(int l, char * b)
 {
 	// Esc&l#P
 	int i = 0;
-	if(l > 0 && l <= 127) {
+	if(checkirange(l, 1, 127)) {
 		b[i++] = ESC;
 		b[i++] = '&';
 		b[i++] = 'l';

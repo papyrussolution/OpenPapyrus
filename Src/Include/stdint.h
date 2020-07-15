@@ -63,7 +63,6 @@ extern "C" {
 	#endif
 #endif
 
-
 // 7.18.1 Integer types
 
 // 7.18.1.1 Exact-width integer types
@@ -169,7 +168,6 @@ typedef uint64_t  uintmax_t;
 #define UINT_FAST16_MAX  UINT16_MAX
 #define UINT_FAST32_MAX  UINT32_MAX
 #define UINT_FAST64_MAX  UINT64_MAX
-
 // 7.18.2.4 Limits of integer types capable of holding object pointers
 #ifdef _WIN64 // [
 	#define INTPTR_MIN   INT64_MIN
@@ -180,14 +178,11 @@ typedef uint64_t  uintmax_t;
 	#define INTPTR_MAX   INT32_MAX
 	#define UINTPTR_MAX  UINT32_MAX
 #endif // _WIN64 ]
-
 // 7.18.2.5 Limits of greatest-width integer types
 #define INTMAX_MIN   INT64_MIN
 #define INTMAX_MAX   INT64_MAX
 #define UINTMAX_MAX  UINT64_MAX
-
 // 7.18.3 Limits of other integer types
-
 #ifdef _WIN64 // [
 	#define PTRDIFF_MIN  _I64_MIN
 	#define PTRDIFF_MAX  _I64_MAX
@@ -195,10 +190,8 @@ typedef uint64_t  uintmax_t;
 	#define PTRDIFF_MIN  _I32_MIN
 	#define PTRDIFF_MAX  _I32_MAX
 #endif  // _WIN64 ]
-
 #define SIG_ATOMIC_MIN  INT_MIN
 #define SIG_ATOMIC_MAX  INT_MAX
-
 #ifndef SIZE_MAX // [
 	#ifdef _WIN64 // [
 		#define SIZE_MAX  _UI64_MAX
@@ -206,7 +199,6 @@ typedef uint64_t  uintmax_t;
 		#define SIZE_MAX  _UI32_MAX
 	#endif // _WIN64 ]
 #endif // SIZE_MAX ]
-
 // WCHAR_MIN and WCHAR_MAX are also defined in <wchar.h>
 #ifndef WCHAR_MIN // [
 	#define WCHAR_MIN  0
@@ -214,34 +206,30 @@ typedef uint64_t  uintmax_t;
 #ifndef WCHAR_MAX // [
 	#define WCHAR_MAX  _UI16_MAX
 #endif  // WCHAR_MAX ]
-
 #define WINT_MIN  0
 #define WINT_MAX  _UI16_MAX
-
 #endif // __STDC_LIMIT_MACROS ]
 
-
 // 7.18.4 Limits of other integer types
-
 #if !defined(__cplusplus) || defined(__STDC_CONSTANT_MACROS) // [   See footnote 224 at page 260
-
-// 7.18.4.1 Macros for minimum-width integer constants
-
-#define INT8_C(val)  val##i8
-#define INT16_C(val) val##i16
-#define INT32_C(val) val##i32
-#define INT64_C(val) val##i64
-
-#define UINT8_C(val)  val##ui8
-#define UINT16_C(val) val##ui16
-#define UINT32_C(val) val##ui32
-#define UINT64_C(val) val##ui64
-
-// 7.18.4.2 Macros for greatest-width integer constants
-#define INTMAX_C   INT64_C
-#define UINTMAX_C  UINT64_C
-
+	// 7.18.4.1 Macros for minimum-width integer constants
+	#define INT8_C(val)  val##i8
+	#define INT16_C(val) val##i16
+	#define INT32_C(val) val##i32
+	#define INT64_C(val) val##i64
+	#define UINT8_C(val)  val##ui8
+	#define UINT16_C(val) val##ui16
+	#define UINT32_C(val) val##ui32
+	#define UINT64_C(val) val##ui64
+	// 7.18.4.2 Macros for greatest-width integer constants
+	#define INTMAX_C   INT64_C
+	#define UINTMAX_C  UINT64_C
 #endif // __STDC_CONSTANT_MACROS ]
-
+// @v10.8.1 {
+#ifdef _MSC_VER
+	typedef int mode_t; // MSVC doesn't have mode_t 
+	typedef intptr_t ssize_t;
+#endif
+// } @v10.8.1
 
 #endif // _MSC_STDINT_H_ ]

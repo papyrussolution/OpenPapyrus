@@ -329,11 +329,11 @@ int SLAPI RegisterArray::SetBankAccount(const PPBankAccount * pRec, uint pos)
 			ok = 1;
 		}
     }
-    if(ok > 0 && pRec && pRec->Flags & BACCTF_PREFERRED) {
+    if(ok > 0 && pRec && pRec->Flags & PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/) {
 		for(uint i = 0; i < getCount(); i++) {
 			RegisterTbl::Rec & r_rec = at(i);
-            if(i != pos && r_rec.RegTypeID == PPREGT_BANKACCOUNT && r_rec.Flags & BACCTF_PREFERRED) {
-				r_rec.Flags &= ~BACCTF_PREFERRED;
+            if(i != pos && r_rec.RegTypeID == PPREGT_BANKACCOUNT && r_rec.Flags & PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/) {
+				r_rec.Flags &= ~PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
             }
 		}
     }

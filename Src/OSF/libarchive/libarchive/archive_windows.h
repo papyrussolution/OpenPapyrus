@@ -52,9 +52,9 @@
 #define	set_errno(val)	((errno)=val)
 //#include <io.h>
 //#include <stdlib.h>   //brings in NULL
-#if defined(HAVE_STDINT_H)
-	#include <stdint.h>
-#endif
+//#if defined(HAVE_STDINT_H)
+	//#include <stdint.h>
+//#endif
 //#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>

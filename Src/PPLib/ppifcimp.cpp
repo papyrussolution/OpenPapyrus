@@ -1618,7 +1618,7 @@ int32 DL6ICLS_PPUtil::SetConfigParam(SString & param, SString & value)
     PPThreadLocalArea & r_tla = DS.GetTLA();
     r_tla.SetIfcConfigParam(param, value);
 	/*
-	if(param.CmpNC("GTaxVect_Prec") == 0) {
+	if(param.IsEqiAscii("GTaxVect_Prec")) {
         long prec = value.ToLong();
         if(prec)
 	}

@@ -52,14 +52,14 @@
 #include "cairo-spans-compositor-private.h"
 
 #if CAIRO_HAS_GLESV3_SURFACE
-#include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
+	#include <GLES3/gl3.h>
+	#include <GLES3/gl3ext.h>
 #elif CAIRO_HAS_GLESV2_SURFACE
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+	#include <GLES2/gl2.h>
+	#include <GLES2/gl2ext.h>
 #elif CAIRO_HAS_GL_SURFACE
-#include <GL/gl.h>
-#include <GL/glext.h>
+	#include <GL/gl.h>
+	#include <GL/glext.h>
 #endif
 #include "cairo-gl-ext-def-private.h"
 
@@ -226,20 +226,9 @@ typedef enum cairo_gl_primitive_type {
 	CAIRO_GL_PRIMITIVE_TYPE_TRISTRIPS
 } cairo_gl_primitive_type_t;
 
-typedef void (* cairo_gl_emit_rect_t) (cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2);
-
-typedef void (* cairo_gl_emit_span_t) (cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2,
-    uint8_t alpha);
-
-typedef void (* cairo_gl_emit_glyph_t) (cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2,
-    GLfloat glyph_x1, GLfloat glyph_y1,
-    GLfloat glyph_x2, GLfloat glyph_y2);
+typedef void (* cairo_gl_emit_rect_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+typedef void (* cairo_gl_emit_span_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, uint8_t alpha);
+typedef void (* cairo_gl_emit_glyph_t) (cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLfloat glyph_x1, GLfloat glyph_y1, GLfloat glyph_x2, GLfloat glyph_y2);
 
 #define cairo_gl_var_type_hash(src, mask, spans, dest) ((spans) << 5) | ((mask) << 3 | (src << 1) | (dest))
 #define CAIRO_GL_VAR_TYPE_MAX (1 << 6)

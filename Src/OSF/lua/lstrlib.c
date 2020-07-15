@@ -1109,7 +1109,8 @@ static int digit(int c) {
 	return '0' <= c && c <= '9';
 }
 
-static int getnum(const char ** fmt, int df) {
+static int getnum(const char ** fmt, int df) 
+{
 	if(!digit(**fmt)) /* no number? */
 		return df; /* return default value */
 	else {

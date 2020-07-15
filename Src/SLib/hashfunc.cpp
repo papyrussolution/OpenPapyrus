@@ -3797,14 +3797,14 @@ SLTEST_R(CalcCheckDigit)
 		line_buf.Chomp();
 		if(line_buf.Divide(':', left, right) > 0) {
 			right.Strip();
-			if(left.CmpNC("upc") == 0 || left.CmpNC("ean") == 0) {
+			if(left.IsEqiAscii("upc") || left.IsEqiAscii("ean")) {
 				SLTEST_CHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_BARCODE, right, right.Len()-1)));
 				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_BARCODE|SCHKDIGALG_TEST, right, right.Len()), 1L);
 			}
-			else if(left.CmpNC("inn") == 0) {
+			else if(left.IsEqiAscii("inn")) {
 				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, right, right.Len()), 1L);
 			}
-			else if(left.CmpNC("luhn") == 0) {
+			else if(left.IsEqiAscii("luhn")) {
 				SLTEST_CHECK_NZ(isdec(SCalcCheckDigit(SCHKDIGALG_LUHN, right, right.Len()-1)));
 				SLTEST_CHECK_EQ(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, right, right.Len()), 1L);
 			}
@@ -4259,7 +4259,7 @@ static uint32 SlEqualityTest_gravity_murmur3_32(const char * key, uint32 len, ui
 		hash ^= k;
 		hash = _rotl(hash, r2) * m + n;
 	}
-	const uint8_t * tail = (const uint8 *)(key + nblocks * 4);
+	const uint8 * tail = (const uint8 *)(key + nblocks * 4);
 	uint32 k1 = 0;
 	switch(len & 3) {
 		case 3:

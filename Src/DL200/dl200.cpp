@@ -1092,10 +1092,10 @@ int SLAPI DL2_ObjList::FromString(const char * pStr, PPID & rObjType, int32 * pI
 	if(scan[0] == '@') {
 		scan.Incr();
 		THROW_PP_S(scan.GetIdent(temp_buf), PPERR_DL200_OBJSYMBPFXEXPECTED, scan);
-		if(temp_buf.CmpNC("loc") == 0 || temp_buf.CmpNC("loclist") == 0) {
+		if(temp_buf.IsEqiAscii("loc") || temp_buf.IsEqiAscii("loclist")) {
 			obj_type = PPOBJ_LOCATION;
 		}
-		else if(temp_buf.CmpNC("goodsgroup") == 0) {
+		else if(temp_buf.IsEqiAscii("goodsgroup")) {
 			obj_type = PPOBJ_GOODSGROUP;
 		}
 		else {
@@ -1262,25 +1262,25 @@ int SLAPI DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 		scan.Incr();
 		SString temp_buf;
 		if(scan.GetIdent(temp_buf)) {
-			if(temp_buf.CmpNC("bill") == 0) {
+			if(temp_buf.IsEqiAscii("bill")) {
 				Kind = kBill;
 			}
-			else if(temp_buf.CmpNC("paym") == 0) {
+			else if(temp_buf.IsEqiAscii("paym")) {
 				Kind = kPaym;
 			}
-			else if(temp_buf.CmpNC("ccheck") == 0) {
+			else if(temp_buf.IsEqiAscii("ccheck")) {
 				Kind = kCCheck;
 			}
-			else if(temp_buf.CmpNC("goodsrest") == 0) {
+			else if(temp_buf.IsEqiAscii("goodsrest")) {
 				Kind = kGoodsRest;
 			}
-			else if(temp_buf.CmpNC("personevent") == 0) {
+			else if(temp_buf.IsEqiAscii("personevent")) {
 				Kind = kPersonEvent;
 			}
-			else if(temp_buf.CmpNC("debt") == 0) {
+			else if(temp_buf.IsEqiAscii("debt")) {
 				Kind = kDebt;
 			}
-			else if(temp_buf.CmpNC("bizscore") == 0) {
+			else if(temp_buf.IsEqiAscii("bizscore")) {
 				Kind = kBizScore;
 			}
 			else {
@@ -1290,34 +1290,34 @@ int SLAPI DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 			if(scan[0] == '.') {
 				scan.Incr();
 				THROW(scan.GetIdent(temp_buf.Z()));
-				if(temp_buf.CmpNC("amount") == 0) {
+				if(temp_buf.IsEqiAscii("amount")) {
 					Sub = subAmount;
 				}
-				else if(temp_buf.CmpNC("cost") == 0) {
+				else if(temp_buf.IsEqiAscii("cost")) {
 					Sub = subCost;
 				}
-				else if(temp_buf.CmpNC("price") == 0) {
+				else if(temp_buf.IsEqiAscii("price")) {
 					Sub = subPrice;
 				}
-				else if(temp_buf.CmpNC("discount") == 0) {
+				else if(temp_buf.IsEqiAscii("discount")) {
 					Sub = subDiscount;
 				}
-				else if(temp_buf.CmpNC("netprice") == 0) {
+				else if(temp_buf.IsEqiAscii("netprice")) {
 					Sub = subNetPrice;
 				}
-				else if(temp_buf.CmpNC("margin") == 0) {
+				else if(temp_buf.IsEqiAscii("margin")) {
 					Sub = subMargin;
 				}
-				else if(temp_buf.CmpNC("pctincome") == 0) {
+				else if(temp_buf.IsEqiAscii("pctincome")) {
 					Sub = subPctIncome;
 				}
-				else if(temp_buf.CmpNC("pctmargin") == 0) {
+				else if(temp_buf.IsEqiAscii("pctmargin")) {
 					Sub = subPctMargin;
 				}
-				else if(temp_buf.CmpNC("count") == 0) {
+				else if(temp_buf.IsEqiAscii("count")) {
 					Sub = subCount;
 				}
-				else if(temp_buf.CmpNC("average") == 0) {
+				else if(temp_buf.IsEqiAscii("average")) {
 					Sub = subAverage;
 				}
 				else {

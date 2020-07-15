@@ -1171,7 +1171,6 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    if(sstreq(key, "boot-load-seg")) {
 			    uint32_t seg;
-
 			    iso9660->opt.boot_load_seg = 0;
 			    if(value == NULL)
 				    goto invalid_value;

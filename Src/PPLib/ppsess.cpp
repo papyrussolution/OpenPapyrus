@@ -2093,7 +2093,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 					SetExtFlag(ECF_DETECTCRDBTEXISTBYOPEN, 1);
 			}
 			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BTRNWLOCK, temp_buf) > 0) {
-				if(temp_buf.CmpNC("disable") == 0) {
+				if(temp_buf.IsEqiAscii("disable")) {
 					dbcfg.NWaitLockTries = BTR_RECLOCKDISABLE;
 					dbcfg.NWaitLockTryTimeout = 0;
 				}
@@ -2113,7 +2113,7 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 			{
 				int    max_log_file_size = 0;
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_MAXLOGFILESIZE, &max_log_file_size) > 0) {
-					if(max_log_file_size > 0 && max_log_file_size <= (1024*1024)) {
+					if(checkirange(max_log_file_size, 1, SKILOBYTE(1024))) {
 						MaxLogFileSize = max_log_file_size;
 					}
 				}
@@ -2147,21 +2147,16 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					Helper_SetPath(PPPATH_SPII, path);
 				}
-				// @v9.7.8 {
 				{
 					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					Helper_SetPath(PPPATH_SARTREDB, path);
 				}
-				// } @v9.7.8
-				// @v9.8.2 {
 				{
 					path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_WORKSPACE, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					if(!path.NotEmptyS())
 						(path = root_path).SetLastSlash().Cat("WORKSPACE");
 					Helper_SetPath(PPPATH_WORKSPACE, path);
 				}
-				// } @v9.8.2
-				// @v9.8.9 {
 				{
 					path = (ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
 					if(!path.NotEmptyS()) {
@@ -2171,7 +2166,6 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 					}
 					Helper_SetPath(PPPATH_REPORTDATA, path);
 				}
-				// } @v9.8.9
 				LoadDriveMapping(&ini_file);
 			}
 		}
@@ -2552,7 +2546,7 @@ int SLAPI PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	{
 		DbProvider * p_db = 0;
 		pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
-		if(temp_buf.CmpNC("ORACLE") == 0) {
+		if(temp_buf.IsEqiAscii("ORACLE")) {
 			// @todo SOraDbProvider должен инициализировать DbPathID
 			THROW_MEM(p_db = new SOraDbProvider(data_path));
 		}

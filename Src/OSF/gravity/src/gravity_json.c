@@ -39,18 +39,15 @@
 // Written by Marco Bambini
 
 #define JSON_MINSIZE            4096
-#define JSON_NEWLINE            "\n"
-#define JSON_NEWLINE_CHAR       '\n'
+//#define JSON_NEWLINE            "\n"
+//#define JSON_NEWLINE_CHAR       '\n'
 #define JSON_PRETTYLINE         "    "
 #define JSON_PRETTYSIZE         4
-#define JSON_WRITE_COLUMN       json_write_raw(json, ":", 1, false, false)
-#define JSON_WRITE_COMMA        json_write_raw(json, ",", 1, false, false);
-
+//#define JSON_WRITE_COLUMN       json_write_char(json, ':', false, false)
+//#define JSON_WRITE_COMMA        json_write_char(json, ',', false, false);
 #define JSON_POP_CTX(j)         (j)->context.pop()
 #define JSON_PUSH_CTX(j, x)     (j)->context.insert(x);
 #define JSON_CURR_CTX(j)        ((j)->context.getLast())
-
-#define JSON_ESCAPE(c)          do { new_buffer[j] = '\\'; new_buffer[j+1] = (c); j += 2; } while(0);
 
 enum JSON_CONTEXT {
 	JSON_CONTEXT_ROOT = 0,
@@ -64,6 +61,9 @@ enum JSON_CONTEXT {
 // MARK: -
 
 struct GravityJson {
+	GravityJson() : buffer(0), blen(0), bused(0), label(0), options(json_opt_none)
+	{
+	}
 	char * buffer;
 	size_t blen;
 	size_t bused;
@@ -74,14 +74,14 @@ struct GravityJson {
 
 GravityJson * json_new() 
 {
-	GravityJson * json = static_cast<GravityJson *>(mem_alloc(NULL, sizeof(GravityJson)));
+	GravityJson * json = new GravityJson;
 	assert(json);
 	json->buffer = static_cast<char *>(mem_alloc(NULL, JSON_MINSIZE));
 	assert(json->buffer);
 	json->blen = JSON_MINSIZE;
-	json->bused = 0;
-	json->options = json_opt_none;
-	marray_init(json->context);
+	// @ctr json->bused = 0;
+	// @ctr json->options = json_opt_none;
+	// @ctr marray_init(json->context);
 	json->context.insert(JSON_CONTEXT_ROOT);
 	return json;
 }
@@ -93,7 +93,7 @@ void json_free(GravityJson * json)
 		assert(context == JSON_CONTEXT_ROOT);
 		json->context.Z();
 		mem_free(json->buffer);
-		mem_free(json);
+		delete json; //mem_free(json);
 	}
 }
 
@@ -103,19 +103,19 @@ static void json_write_raw(GravityJson * json, const char * buffer, size_t len, 
 {
 	// pretty output disabled in this version
 	is_pretty = false;
-	bool pretty_mask = json_option_isset(json, json_opt_prettify);
-	uint32 ident_count = json->context.getCount() - 1;
-	size_t prettylen = (is_pretty && pretty_mask) ? (ident_count * JSON_PRETTYSIZE) : 0;
-	size_t escapelen = (escape) ? 2 : 0;
+	const bool pretty_mask = json_option_isset(json, json_opt_prettify);
+	const uint32 ident_count = json->context.getCount() - 1;
+	const size_t prettylen = (is_pretty && pretty_mask) ? (ident_count * JSON_PRETTYSIZE) : 0;
+	const size_t escapelen = (escape) ? 2 : 0;
 	// check buffer reallocation
-	size_t reqlen = json->bused + len + prettylen + escapelen + JSON_MINSIZE;
+	const size_t reqlen = json->bused + len + prettylen + escapelen + JSON_MINSIZE;
 	if(reqlen >= json->blen) {
 		json->buffer = static_cast<char *>(mem_realloc(NULL, json->buffer, json->blen + reqlen));
 		assert(json->buffer);
 		json->blen += reqlen;
 	}
 	if(is_pretty && pretty_mask) {
-		for(uint32 i = 0; i<ident_count; ++i) {
+		for(uint32 i = 0; i < ident_count; ++i) {
 			memcpy(json->buffer+json->bused, JSON_PRETTYLINE, JSON_PRETTYSIZE);
 			json->bused += JSON_PRETTYSIZE;
 		}
@@ -132,41 +132,62 @@ static void json_write_raw(GravityJson * json, const char * buffer, size_t len, 
 	}
 }
 
+static void json_write_char(GravityJson * json, char c, bool escape, bool is_pretty) 
+{
+	char temp_str[16];
+	temp_str[0] = c;
+	temp_str[0] = 0;
+	json_write_raw(json, temp_str, 1, escape, is_pretty);
+}
+
+static void json_write_zstr(GravityJson * json, const char * pStr, bool escape, bool is_pretty) 
+{
+	json_write_raw(json, pStr, sstrlen(pStr), escape, is_pretty);
+}
+
+static void json_write_key(GravityJson * json, const char * pKey) 
+{
+	if(pKey) {
+		json_write_zstr(json, pKey, true, true);
+		json_write_char(json, ':', false, false);
+	}
+}
+
 static void json_write_escaped(GravityJson * json, const char * buffer, size_t len, bool escape, bool is_pretty)
 {
 	if(!len) {
-		json_write_raw(json, "", 0, escape, is_pretty);
-		return;
+		json_write_zstr(json, 0, escape, is_pretty);
 	}
-	char * new_buffer = static_cast<char *>(mem_alloc(NULL, len*2));
-	size_t j = 0;
-	assert(new_buffer);
-	for(size_t i = 0; i<len; ++i) {
-		char c = buffer[i];
-		switch(c) {
-			case '"': JSON_ESCAPE('\"');  continue;
-			case '\\': JSON_ESCAPE('\\');  continue;
-			case '\b': JSON_ESCAPE('b');   continue;
-			case '\f': JSON_ESCAPE('f');   continue;
-			case '\n': JSON_ESCAPE('n');   continue;
-			case '\r': JSON_ESCAPE('r');   continue;
-			case '\t': JSON_ESCAPE('t');   continue;
-
-			default: new_buffer[j] = c; ++j; break;
-		};
+	else {
+		char * new_buffer = static_cast<char *>(mem_alloc(NULL, len*2));
+		size_t j = 0;
+		assert(new_buffer);
+#define JSON_ESCAPE(c)          do { new_buffer[j] = '\\'; new_buffer[j+1] = (c); j += 2; } while(0);
+		for(size_t i = 0; i < len; ++i) {
+			char c = buffer[i];
+			switch(c) {
+				case '"': JSON_ESCAPE('\"');  continue;
+				case '\\': JSON_ESCAPE('\\');  continue;
+				case '\b': JSON_ESCAPE('b');   continue;
+				case '\f': JSON_ESCAPE('f');   continue;
+				case '\n': JSON_ESCAPE('n');   continue;
+				case '\r': JSON_ESCAPE('r');   continue;
+				case '\t': JSON_ESCAPE('t');   continue;
+				default: new_buffer[j] = c; ++j; break;
+			};
+		}
+#undef JSON_ESCAPE
+		json_write_raw(json, new_buffer, j, escape, is_pretty);
+		mem_free(new_buffer);
 	}
-	json_write_raw(json, new_buffer, j, escape, is_pretty);
-	mem_free(new_buffer);
 }
 
 static void json_check_comma(GravityJson * json) 
 {
-	if(json_option_isset(json, json_opt_need_comma)) {
-		JSON_WRITE_COMMA;
-	}
-	else {
+	if(json_option_isset(json, json_opt_need_comma))
+		json_write_char(json, ',', false, false);
+	else
 		json_set_option(json, json_opt_need_comma);
-	}
 }
 
 // MARK: - Public
@@ -178,23 +199,17 @@ void json_begin_object(GravityJson * json, const char * key)
 	if(JSON_CURR_CTX(json) != JSON_CONTEXT_OBJECT) {
 		key = NULL;
 	}
-
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
-
+	json_write_key(json, key);
 	JSON_PUSH_CTX(json, JSON_CONTEXT_OBJECT);
-	json_write_raw(json, "{", 1, false, (key == NULL));
-
+	json_write_char(json, '{', false, (key == NULL));
 	json_clear_option(json, json_opt_need_comma);
 }
 
-void json_end_object(GravityJson * json) {
+void json_end_object(GravityJson * json) 
+{
 	JSON_POP_CTX(json);
-
 	json_set_option(json, json_opt_need_comma);
-	json_write_raw(json, "}", 1, false, true);
+	json_write_char(json, '}', false, true);
 }
 
 void json_begin_array(GravityJson * json, const char * key) 
@@ -204,12 +219,9 @@ void json_begin_array(GravityJson * json, const char * key)
 	if(JSON_CURR_CTX(json) != JSON_CONTEXT_OBJECT) {
 		key = NULL;
 	}
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
+	json_write_key(json, key);
 	JSON_PUSH_CTX(json, JSON_CONTEXT_ARRAY);
-	json_write_raw(json, "[", 1, false, (key == NULL));
+	json_write_char(json, '[', false, (key == NULL));
 	json_clear_option(json, json_opt_need_comma);
 }
 
@@ -217,32 +229,29 @@ void json_end_array(GravityJson * json)
 {
 	JSON_POP_CTX(json);
 	json_set_option(json, json_opt_need_comma);
-	json_write_raw(json, "]", 1, false, true);
+	json_write_char(json, ']', false, true);
 }
 
 void json_add_string(GravityJson * json, const char * key, const char * value, size_t len) 
 {
 	json_check_comma(json);
-	if(!value) {
+	if(!value)
 		json_add_null(json, key);
-		return;
-	}
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
-	// check if string value needs to be escaped
-	bool write_escaped = false;
-	for(size_t i = 0; i<len; ++i) {
-		if(value[i] == '"') {
-			write_escaped = true; break;
+	else {
+		json_write_key(json, key);
+		// check if string value needs to be escaped
+		bool write_escaped = false;
+		for(size_t i = 0; i<len; ++i) {
+			if(value[i] == '"') {
+				write_escaped = true; break;
+			}
 		}
+		if(len == 0) write_escaped = true;
+		if(write_escaped)
+			json_write_escaped(json, value, len, true, (key == NULL));
+		else
+			json_write_raw(json, value, len, true, (key == NULL));
 	}
-	if(len == 0) write_escaped = true;
-	if(write_escaped)
-		json_write_escaped(json, value, len, true, (key == NULL));
-	else
-		json_write_raw(json, value, len, true, (key == NULL));
 }
 
 void json_add_cstring(GravityJson * json, const char * key, const char * value) 
@@ -255,10 +264,7 @@ void json_add_int(GravityJson * json, const char * key, int64_t value)
 	json_check_comma(json);
 	char buffer[512];
 	size_t len = snprintf(buffer, sizeof(buffer), "%" PRId64, value);
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
+	json_write_key(json, key);
 	json_write_raw(json, buffer, len, false, (key == NULL));
 }
 
@@ -268,10 +274,7 @@ void json_add_double(GravityJson * json, const char * key, double value)
 	char buffer[512];
 	// was %g but we don't like scientific notation nor the missing .0 in case of float number with no decimals
 	size_t len = snprintf(buffer, sizeof(buffer), "%f", value);
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
+	json_write_key(json, key);
 	json_write_raw(json, buffer, len, false, (key == NULL));
 }
 
@@ -279,79 +282,59 @@ void json_add_bool(GravityJson * json, const char * key, bool bvalue)
 {
 	json_check_comma(json);
 	const char * value = (bvalue) ? "true" : "false";
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
-	json_write_raw(json, value, strlen(value), false, (key == NULL));
+	json_write_key(json, key);
+	json_write_zstr(json, value, false, (key == NULL));
 }
 
 void json_add_null(GravityJson * json, const char * key) 
 {
 	json_check_comma(json);
-	if(key) {
-		json_write_raw(json, key, strlen(key), true, true);
-		JSON_WRITE_COLUMN;
-	}
-	json_write_raw(json, "null", 4, false, (key == NULL));
+	json_write_key(json, key);
+	json_write_zstr(json, "null", false, (key == NULL));
 }
 
 void json_set_label(GravityJson * json, const char * key) 
 {
-	if(JSON_CURR_CTX(json) != JSON_CONTEXT_OBJECT) return;
+	if(JSON_CURR_CTX(json) != JSON_CONTEXT_OBJECT) 
+		return;
 	json->label = key;
 }
 
 const char * json_get_label(GravityJson * json, const char * key) 
 {
-	if(JSON_CURR_CTX(json) != JSON_CONTEXT_OBJECT) return NULL;
-	if(json->label) {
+	if(JSON_CURR_CTX(json) != JSON_CONTEXT_OBJECT) 
+		return NULL;
+	else if(json->label) {
 		const char * result = json->label;
 		json->label = NULL;
 		return result;
 	}
-
-	if(key) return key;
-	assert(0);
-	return NULL;
+	else if(key) 
+		return key;
+	else {
+		assert(0);
+		return NULL;
+	}
 }
 
 // MARK: - Buffer
-
 char * json_buffer(GravityJson * json, size_t * len) 
 {
 	assert(json->buffer);
-	if(len) *len = json->bused;
+	ASSIGN_PTR(len, json->bused);
 	return json->buffer;
 }
 
-bool json_write_file(GravityJson * json, const char * path) 
-{
-	return file_write(path, json->buffer, json->bused);
-}
-
+bool json_write_file(GravityJson * json, const char * path) { return file_write(path, json->buffer, json->bused); }
 // MARK: - Options
-
-uint32 json_get_options(const GravityJson * json) 
-{
-	return json->options;
-}
-
-void json_set_option(GravityJson * json, json_opt_mask option_value) 
-{
-	json->options |= option_value;
-}
-
-bool json_option_isset(const GravityJson * json, json_opt_mask option_value) 
-{
-	return LOGIC(json->options & option_value);
-}
-
+uint32 json_get_options(const GravityJson * json) { return json->options; }
+void json_set_option(GravityJson * json, json_opt_mask option_value) { json->options |= option_value; }
+bool json_option_isset(const GravityJson * json, json_opt_mask option_value) { return LOGIC(json->options & option_value); }
 void json_clear_option(GravityJson * json, json_opt_mask option_value) { json->options &= ~option_value; }
 
 #undef JSON_MINSIZE
-#undef JSON_NEWLINE
-#undef JSON_NEWLINE_CHAR
+//#undef JSON_NEWLINE
+//#undef JSON_NEWLINE_CHAR
 #undef JSON_PRETTYLINE
 #undef JSON_PRETTYSIZE
 #undef JSON_WRITE_SEP

@@ -822,6 +822,9 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 int SLAPI PPCashMachine::SyncGetSummator(double * pSum)
 	{ return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
 
+int SLAPI PPCashMachine::SyncGetDeviceTime(LDATETIME * pDtm)
+	{ return (GetSyncIntrf() && P_SyncIntrf->GetDeviceTime(pDtm)); }
+
 int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {
 	SyncPrintErrCode = 0;

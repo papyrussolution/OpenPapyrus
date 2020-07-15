@@ -175,9 +175,11 @@ int SViewPort::FromStr(const char * pStr, int fmt)
 	if(scan.GetNumber(temp_buf)) {
 		Flags &= ~fEmpty;
 		a.X = temp_buf.ToFloat();
+		SETMAX(a.X, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
 		a.Y = temp_buf.ToFloat();
+		SETMAX(a.Y, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
 		b.X = a.X + temp_buf.ToFloat();
@@ -904,11 +906,11 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				//	}
 				//	break;
 				case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
-					for (int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
+					for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
 						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
-						if (first)
+						if(first)
 							Move(cur + pnt);
 						else
 							Line(cur + pnt);

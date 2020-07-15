@@ -36,8 +36,6 @@ extern "C" {
 }
 
 #define USB_GUID					"A5DCBF10L-6530-11D2-901F-00C04FB951ED"
-#define HID_SUBSTR					"hid"
-#define USB_SUBSTR					"usb"
 #define OUTPUT_REPORT_BYTE_LENGTH	65 // Значение для высокоскоростных USB-устройств
 #define INTPUT_REPORT_BYTE_LENGTH	65 // Значение для высокоскоростных USB-устройств
 #define TIME_WAIT					1000 // Время ожидания (в миллисекундах)
@@ -544,11 +542,11 @@ int SUsbDevice::Open()
 		THROW_S((Handle = ::CreateFile(SUcSwitch(Description.Path), GENERIC_READ, 
 			FILE_SHARE_READ, NULL, OPEN_EXISTING, /*0*/FILE_FLAG_OVERLAPPED, 0)) != INVALID_HANDLE_VALUE, SLERR_USB);
 	}
-	if(!Description.Class.CmpNC(HID_SUBSTR)) {
+	if(Description.Class.IsEqiAscii("hid")) {
 		DevClass = clsHid;
 		THROW(SetConfig()); // У него своя специфика кодов ошибок
 	}
-	else if(!Description.Class.CmpNC(USB_SUBSTR)) {
+	else if(Description.Class.IsEqiAscii("usb")) {
 		DevClass = clsUsb;
 		OutputReportByteLength = OUTPUT_REPORT_BYTE_LENGTH;
 		IntputReportByteLength = INTPUT_REPORT_BYTE_LENGTH;

@@ -847,12 +847,10 @@ private:
 				PPUhttClient uhtt_cli;
 				if(uhtt_cli.Auth()) {
 					UhttWorkbookItemPacket uhtt_wb_pack;
-					if(uhtt_cli.GetWorkbookItemByCode(code, uhtt_wb_pack) > 0) {
+					if(uhtt_cli.GetWorkbookItemByCode(code, uhtt_wb_pack) > 0)
 						debug_buf = "OK";
-					}
-					else {
+					else
 						debug_buf = "ER";
-					}
 				}
 			}
 		}
@@ -2557,7 +2555,7 @@ int SLAPI PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * p
 			SPathStruc ps(pParam->Wildcard);
 			SString base_path, naked_wildcard;
 			ps_.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, base_path);
-			ps_.Clear().Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, naked_wildcard);
+			ps_.Z().Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, naked_wildcard);
 			if(!naked_wildcard.NotEmptyS())
 				naked_wildcard = "*.*";
 			{

@@ -50,12 +50,12 @@ TRIO_PUBLIC double trio_nzero();
 /*
  * If number is a NaN return non-zero, otherwise return zero.
  */
-TRIO_PUBLIC int trio_isnan(double number);
+// @v10.8.1 TRIO_PUBLIC int trio_isnan(double number);
 /*
  * If number is positive infinity return 1, if number is negative
  * infinity return -1, otherwise return 0.
  */
-TRIO_PUBLIC int trio_isinf(double number);
+// @v10.8.1 TRIO_PUBLIC int trio_isinf(double number);
 /*
  * If number is finite return non-zero, otherwise return zero.
  */

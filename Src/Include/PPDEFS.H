@@ -10915,6 +10915,9 @@
 #define DLG_VK_POST               1387
     #define cmSendVkPost              101
     #define CTL_VK_POST_TEXT          (1 + IMPEXP_CTL_BIAS)//
+#define DLG_EDITTEXTPARAM         1388
+	#define CTL_EDITTEXTPARAM_PATH    (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_EDITTEXTPARAM_PAT  (2 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

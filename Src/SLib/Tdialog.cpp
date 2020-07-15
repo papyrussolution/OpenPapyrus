@@ -600,7 +600,15 @@ IMPL_HANDLE_EVENT(TDialog)
 					is_list_win = TRUE;
 					::EnableWindow(GetParent(PrevInStack), 0);
 				}
-				// @v9.6.2 DlgFlags |= fInitModal; // @debug @v7.7.6
+				// @v10.8.1 {
+				if(HW) {
+					TEvent event;
+					event.what = TEvent::evCommand;
+					event.message.command = cmModalPostCreate;
+					event.message.infoPtr = this;
+					this->handleEvent(event); // @recursion
+				}
+				// } @v10.8.1 
 				MSG msg;
 				do {
 					GetMessage(&msg, 0, 0, 0);

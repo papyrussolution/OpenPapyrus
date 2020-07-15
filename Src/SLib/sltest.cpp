@@ -885,7 +885,7 @@ public:
 	{
 		NomSize = sz;
 		GapSize = SLS.GetTLA().Rg.GetUniformInt(sizeof(GapData))+1;
-		assert(GapSize > 0 && GapSize <= sizeof(GapData));
+		assert(checkirange(GapSize, 1, sizeof(GapData)));
 		Alloc(sz+GapSize*2);
 		memcpy(P_Buf, GapData, GapSize);
 		memcpy(P_Buf+GapSize+NomSize, GapData, GapSize);

@@ -1626,7 +1626,6 @@ int SyncCashNodeCfgDialog::editRoundParam()
 			else
 				param.AmtRoundDir = 0;
 			param.IgnPennyFromBCardFlag = dlg->getCtrlUInt16(CTL_IGNPANNYFROMBCARD); //@erik v10.6.13
-
 			if(Data.SetRoundParam(&param))
 				ok = 1;
 			else
@@ -1655,16 +1654,12 @@ int SyncCashNodeCfgDialog::editExt()
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 1, +1);
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_SCF_DLVRT, 2, -1);
 		dlg->SetClusterData(CTL_CASHNSEXT_SCF_DLVRT, dlvr_items_show_tag);
-
 		dlg->AddClusterAssoc(CTL_CASHNSEXT_NOTSF, 0, Data.Scf.fNotSpFinished); // @v9.7.5
 		dlg->SetClusterData(CTL_CASHNSEXT_NOTSF, Data.Scf.Flags); // @v9.7.5
-
 		dlg->setCtrlReal(CTL_CASHNSEXT_BONUSMAX, (double)Data.BonusMaxPart / 10.0);
 		dlg->setCtrlString(CTL_CASHNSEXT_CTBLLIST, Data.CTblListToString(ctbl_list_buf));
-
-		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL); // @v8.0.12
-		dlg->SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags); // @v8.0.12
-
+		dlg->AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL);
+		dlg->SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			long   days_period = dlg->getCtrlLong(CTL_CASHNSEXT_SCF_DAYS);
 			if(days_period < 0 || days_period > 1000) {
@@ -1681,8 +1676,8 @@ int SyncCashNodeCfgDialog::editExt()
 						Data.BonusMaxPart = 0;
 					Data.Scf.DaysPeriod = (uint16)days_period;
 					Data.Scf.DlvrItemsShowTag = (int16)dlg->GetClusterData(CTL_CASHNSEXT_SCF_DLVRT);
-					dlg->GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags); // @v8.0.12
-					dlg->GetClusterData(CTL_CASHNSEXT_NOTSF, &Data.Scf.Flags); // @v9.7.5
+					dlg->GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags);
+					dlg->GetClusterData(CTL_CASHNSEXT_NOTSF, &Data.Scf.Flags);
 					ok = 1;
 				}
 			}
@@ -1744,6 +1739,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  8, 0x0100);
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  9, 0x0200);
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 10, 0x0400); // @v9.5.10
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 11, 0x0800); // @v10.8.1 CASHFX_NOTIFYEQPTIMEMISM
 
 		long   ef = 0;
 		SETFLAG(ef, 0x0001, Data.Flags & CASHF_UNIFYGDSATCHECK);
@@ -1754,9 +1750,10 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		SETFLAG(ef, 0x0020, Data.Flags & CASHF_ABOVEZEROSALE);
 		SETFLAG(ef, 0x0040, Data.ExtFlags & CASHFX_EXTSCARDSEL);
 		SETFLAG(ef, 0x0080, Data.ExtFlags & CASHFX_KEEPORGCCUSER);
-		SETFLAG(ef, 0x0100, Data.ExtFlags & CASHFX_DISABLEZEROSCARD); // @v8.3.2
-		SETFLAG(ef, 0x0200, Data.ExtFlags & CASHFX_UHTTORDIMPORT); // @v8.3.2
+		SETFLAG(ef, 0x0100, Data.ExtFlags & CASHFX_DISABLEZEROSCARD);
+		SETFLAG(ef, 0x0200, Data.ExtFlags & CASHFX_UHTTORDIMPORT);
 		SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED); // @v9.5.10
+		SETFLAG(ef, 0x0800, Data.ExtFlags & CASHFX_NOTIFYEQPTIMEMISM); // @v10.8.1
 		SetClusterData(CTL_CASHN_EXTFLAGS, ef);
 		{
 			PPAlbatrossConfig acfg;
@@ -1833,9 +1830,10 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 		SETFLAG(Data.Flags,    CASHF_ABOVEZEROSALE,      ef & 0x0020);
 		SETFLAG(Data.ExtFlags, CASHFX_EXTSCARDSEL,       ef & 0x0040);
 		SETFLAG(Data.ExtFlags, CASHFX_KEEPORGCCUSER,     ef & 0x0080);
-		SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD,  ef & 0x0100); // @v8.3.2
-		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200); // @v8.3.2
+		SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD,  ef & 0x0100);
+		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200);
 		SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400); // @v9.5.10
+		SETFLAG(Data.ExtFlags, CASHFX_NOTIFYEQPTIMEMISM, ef & 0x0800); // @v10.8.1
 	}
 	GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags);
 	getCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
@@ -2117,7 +2115,7 @@ private:
 	virtual int editItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)Data.ApnCorrList.getCount()) {
+		if(id > 0 && id <= Data.ApnCorrList.getCountI()) {
 			PPGenCashNode::PosIdentEntry * p_entry = Data.ApnCorrList.at(id-1);
 			if(p_entry) {
 				PPGenCashNode::PosIdentEntry temp_entry = *p_entry;
@@ -2135,7 +2133,7 @@ private:
 	virtual int delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)Data.ApnCorrList.getCount()) {
+		if(id > 0 && id <= Data.ApnCorrList.getCountI()) {
 			Data.ApnCorrList.atFree((uint)(id-1));
 			ok = 1;
 		}
@@ -2354,7 +2352,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHFX_RMVPASSIVEGOODS);
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHFX_CREATEOBJSONIMP);
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHFX_SEPARATERCPPRN);
-	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHFX_IGNLOOKBACKPRICES); // @v8.9.10
+	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHFX_IGNLOOKBACKPRICES);
 	dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHFX_IGNCONDQUOTS); // @v10.0.03
 	dlg->SetClusterData(CTL_CASHN_FLAGS, temp_flags);
 	dlg->enableCommand(cmDivGrpAssc, BIN(pACN->Flags & CASHF_EXPDIVN));
@@ -2445,7 +2443,7 @@ int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_RMVPASSIVEGOODS, temp_flags);
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_CREATEOBJSONIMP, temp_flags);
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_SEPARATERCPPRN,  temp_flags);
-								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNLOOKBACKPRICES, temp_flags); // @v8.9.10
+								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNLOOKBACKPRICES, temp_flags);
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNCONDQUOTS, temp_flags); // @v10.0.03
 								dlg->GetClusterData(CTL_CASHN_PASSIVE, &pACN->ExtFlags);
 								ok = valid_data = 1;
@@ -2767,9 +2765,9 @@ int EquipConfigDialog::EditExtParams()
 				SetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &(subst_range = Data.DeficitSubstPriceDevRange).Scale(0.1), 1);
 			}
 			{
-				double rng_lim = ((double)Data.BHTRngLimWgtGoods) / 100;
+				double rng_lim = fdiv100i(Data.BHTRngLimWgtGoods);
 				setCtrlData(CTL_EQCFG_RNGLIMGOODSBHT, &rng_lim);
-				rng_lim = ((double)Data.BHTRngLimPrice) / 100;
+				rng_lim = fdiv100i(Data.BHTRngLimPrice);
 				setCtrlData(CTL_EQCFG_RNGLIMPRICEBHT, &rng_lim);
 			}
 			setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod);
@@ -2817,7 +2815,7 @@ int EquipConfigDialog::EditExtParams()
 			}
 			{
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
-				THROW_PP(Data.LookBackPricePeriod >= 0 && Data.LookBackPricePeriod <= 365, PPERR_USERINPUT);
+				THROW_PP(checkirange(Data.LookBackPricePeriod, 0, (365*2)), PPERR_USERINPUT); // @v10.8.1 365-->(365*2)
 			}
 			const int prefix_len = sstrlen(Data.AgentPrefix);
 			THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
@@ -2836,7 +2834,6 @@ int EquipConfigDialog::setDTS(const PPEquipConfig * pData)
 		MEMSZERO(Data);
 	SetupPPObjCombo(this, CTLSEL_EQCFG_PSNKNDCSHRS, PPOBJ_PRSNKIND, Data.CshrsPsnKindID, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_EQCFG_DEFCASHNODE, PPOBJ_CASHNODE, Data.DefCashNodeID, 0, 0);
-	// @v9.0.4 SetupPPObjCombo(this, CTLSEL_EQCFG_SCALE,       PPOBJ_SCALE,    Data.ScaleID,       0, 0);
 	//
 	op_type_list.addzlist(PPOPT_ACCTURN, 0L);
 	SetupOprKindCombo(this, CTLSEL_EQCFG_WROFFACCOP, Data.WrOffAccOpID, 0, &op_type_list, 0);
@@ -2852,7 +2849,7 @@ int EquipConfigDialog::setDTS(const PPEquipConfig * pData)
 	//SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
 	//setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 	//setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
-	//setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix); // @v8.1.9
+	//setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  0, PPEquipConfig::fCheckScaleInput);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  1, PPEquipConfig::fComplDeficit);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  2, PPEquipConfig::fCloseSessTo10Level);
@@ -2901,7 +2898,6 @@ int EquipConfigDialog::getDTS(PPEquipConfig * pData)
 	getCtrlData(CTLSEL_EQCFG_WROFFACCOP,  &Data.WrOffAccOpID);
 	getCtrlData(CTLSEL_EQCFG_PSNKNDCSHRS, &Data.CshrsPsnKindID);
 	getCtrlData(CTLSEL_EQCFG_DEFCASHNODE, &Data.DefCashNodeID);
-	// @v9.0.4 getCtrlData(CTLSEL_EQCFG_SCALE,       &Data.ScaleID);
 	getCtrlData(CTLSEL_EQCFG_OPDTHISLOC,  &Data.OpOnDfctThisLoc);
 	getCtrlData(CTLSEL_EQCFG_OPDOTHRLOC,  &Data.OpOnDfctOthrLoc);
 	getCtrlData(CTLSEL_EQCFG_TEMPSESSOP,  &Data.OpOnTempSess);
@@ -2911,7 +2907,7 @@ int EquipConfigDialog::getDTS(PPEquipConfig * pData)
 	//getCtrlData(CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
 	//getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
 	//getCtrlData(sel = CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
-	//getCtrlData(sel = CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix); // @v8.1.9
+	//getCtrlData(sel = CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
 	/*
 	if(Data.SalesGoodsGrp) {
 		Goods2Tbl::Rec ggrec;
@@ -3238,12 +3234,13 @@ int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int
 /*virtual*/int SLAPI PPObjLocPrinter::Edit(PPID * pID, void * extraPtr)
 {
 	class LocPrinterDialog : public TDialog {
+		DECL_DIALOG_DATA(PPLocPrinter);
 	public:
 		LocPrinterDialog() : TDialog(DLG_LOCPRN)
 		{
 			PPSetupCtrlMenu(this, CTL_LOCPRN_PORT, CTLMNU_LOCPRN_PORT, CTRLMENU_SELPRINTER);
 		}
-		int    setDTS(const PPLocPrinter * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_LOCPRN_NAME, Data.Name);
@@ -3255,7 +3252,7 @@ int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int
 			SetClusterData(CTL_LOCPRN_FLAGS, Data.Flags);
 			return 1;
 		}
-		int    getDTS(PPLocPrinter * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTL_LOCPRN_NAME, Data.Name);
 			getCtrlData(CTL_LOCPRN_SYMB, Data.Symb);
@@ -3278,7 +3275,6 @@ int SLAPI PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int
 				}
 			}
 		}
-		PPLocPrinter Data;
 	};
 	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
 	ushort v = 0;
@@ -3316,7 +3312,7 @@ int PPALDD_LocPrnTest::InitData(PPFilt & rFilt, long rsrv)
 	int    ok = 1;
 	PPLocPrinter * p_locprn = 0;
 	if(rsrv)
-		Extra[1].Ptr = p_locprn = (PPLocPrinter *)rFilt.Ptr;
+		Extra[1].Ptr = p_locprn = static_cast<PPLocPrinter *>(rFilt.Ptr);
 	if(p_locprn) {
 		H.LocID = p_locprn->LocID;
 		STRNSCPY(H.Name, p_locprn->Name);

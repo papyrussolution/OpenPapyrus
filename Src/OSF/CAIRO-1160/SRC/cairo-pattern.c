@@ -2085,7 +2085,6 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	/* we dont' allow negative radiuses, so we will be checking that
 	 * t*dr >= mindr to consider t valid */
 	mindr = -(cr + DBL_EPSILON);
-
 	/*
 	 * After the previous transformations, the start circle is
 	 * centered in the origin and has radius cr. A 1-unit change in
@@ -2096,7 +2095,6 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	 * pattern, we start with an empty range and extend it to include
 	 * the circles touching the bounding box or within it.
 	 */
-
 	/*
 	 * Focus, the point where the circle has radius == 0.
 	 *
@@ -2108,12 +2106,10 @@ static void _cairo_radial_pattern_box_to_parameter(const cairo_radial_pattern_t 
 	 */
 	if(fabs(dr) >= DBL_EPSILON) {
 		double t_focus;
-
 		t_focus = -cr / dr;
 		x_focus = t_focus * dx;
 		y_focus = t_focus * dy;
-		if(minx <= x_focus && x_focus <= maxx &&
-		    miny <= y_focus && y_focus <= maxy) {
+		if(minx <= x_focus && x_focus <= maxx && miny <= y_focus && y_focus <= maxy) {
 			valid = _extend_range(range, t_focus, valid);
 		}
 	}

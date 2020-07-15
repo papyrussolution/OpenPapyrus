@@ -217,11 +217,20 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 			SString temp_buf;
 			getCtrlString(CTL_REG_NUMBER, temp_buf);
 			int    prev = ValidCode;
+			//
+			STokenRecognizer tr;
+			SNaturalTokenStat nts;
+			SNaturalTokenArray nta;
+			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
+			//
 			if(Data.RegTypeID == PPREGT_TPID) {
-				ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len());
+				// @v10.8.1 ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len());
+				ValidCode = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
 			}
-			else if(Data.RegTypeID == PPREGT_OKPO)
-				ValidCode = CheckOKPO(temp_buf);
+			else if(Data.RegTypeID == PPREGT_OKPO) {
+				// @v10.8.1 ValidCode = CheckOKPO(temp_buf);
+				ValidCode = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+			}
 			else if(Data.RegTypeID == PPREGT_BNKCORRACC) {
 				SString bic;
 				if(P_RegAry)
@@ -587,14 +596,14 @@ private:
 	virtual int editItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)P_Data->getCount())
+		if(id > 0 && id <= P_Data->getCountI())
 			ok = Helper_EditItem(P_Data->at((uint)(id-1)));
 		return ok;
 	}
 	virtual int delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)P_Data->getCount()) {
+		if(id > 0 && id <= P_Data->getCountI()) {
 			THROW(!P_Data->at((uint)(id-1)).ID || RObj.CheckRights(PPR_DEL));
 			if(CONFIRM(PPCFM_DELETE)) {
 				P_Data->atFree((uint)(id-1));
@@ -703,7 +712,7 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 		SetupPPObjCombo(dlg, CTLSEL_BACCT_ACCTYPE, PPOBJ_BNKACCTYPE, rec.AccType, OLW_CANINSERT, 0);
 		dlg->setCtrlData(CTL_BACCT_ACCT,     rec.Acct);
 		dlg->setCtrlData(CTL_BACCT_OPENDATE, &rec.OpenDate);
-		dlg->AddClusterAssoc(CTL_BACCT_FLAGS, 0, BACCTF_PREFERRED);
+		dlg->AddClusterAssoc(CTL_BACCT_FLAGS, 0, PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/);
 		dlg->SetClusterData(CTL_BACCT_FLAGS, rec.Flags);
 		dlg->SetupBIC();
 		{
@@ -819,7 +828,7 @@ private:
 	virtual int  delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(id > 0 && id <= (long)P_Data->getCount()) {
+		if(id > 0 && id <= P_Data->getCountI()) {
 			RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
 			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
                 PPBankAccount ba_rec(r_reg_rec);
@@ -864,7 +873,7 @@ int SLAPI PPObjRegister::GetBankAccountList(PPID personID, TSVector <PPBankAccou
 				PPBankAccount ba(r_reg_rec);
 				ok = 1;
 				if(pList) {
-					if(ba.Flags & BACCTF_PREFERRED) {
+					if(ba.Flags & PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/) {
 						THROW_SL(pList->atInsert(0, &ba));
 					}
 					else {

@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -308,14 +308,14 @@ int SLAPI STabFile::GetTabList(StringSet * pResult)
 		line_buf.Chomp();
 		scan.Set(line_buf, 0);
 		if(scan.Skip().GetIdent(temp_buf)) {
-			if(start_tab == 0 && temp_buf.CmpNC("BEGIN") == 0) {
+			if(start_tab == 0 && temp_buf.IsEqiAscii("BEGIN")) {
 				if(scan.Skip().GetIdent(temp_buf)) {
 					if(pResult)
 						pResult->add(temp_buf);
 				}
 				start_tab = -1;
 			}
-			else if(start_tab && temp_buf.CmpNC("END") == 0) {
+			else if(start_tab && temp_buf.IsEqiAscii("END")) {
 				start_tab = 0;
 			}
 		}
@@ -339,14 +339,14 @@ int SLAPI STabFile::LoadTab(const char * pTabName, STab & rTab)
 		line_buf.Chomp();
 		scan.Set(line_buf, 0);
 		if(scan.Skip().GetIdent(temp_buf)) {
-			if(temp_buf.CmpNC("BEGIN") == 0) {
+			if(temp_buf.IsEqiAscii("BEGIN")) {
 				if(scan.Skip().GetIdent(temp_buf) && temp_buf.CmpNC(pTabName) == 0)
 					start_tab = 1;
 				else
 					start_tab = -1;
 				continue;
 			}
-			else if(temp_buf.CmpNC("END") == 0) {
+			else if(temp_buf.IsEqiAscii("END")) {
 				if(start_tab == 1) {
 					start_tab = 0;
 					break;
@@ -459,7 +459,7 @@ int SLAPI STabFile::WriteTab(const char * pTabName, const STab * pTab)
 				line_buf.Chomp();
 				scan.Set(line_buf, 0);
 				if(scan.Skip().GetIdent(temp_buf)) {
-					if(temp_buf.CmpNC("BEGIN") == 0) {
+					if(temp_buf.IsEqiAscii("BEGIN")) {
 						if(scan.Skip().GetIdent(temp_buf) && temp_buf.CmpNC(pTabName) == 0) {
 							THROW(Helper_WriteTab(pTabName, pTab, temp_file));
 							found = 1;
@@ -469,7 +469,7 @@ int SLAPI STabFile::WriteTab(const char * pTabName, const STab * pTab)
 						else
 							start_tab = -1;
 					}
-					else if(temp_buf.CmpNC("END") == 0) {
+					else if(temp_buf.IsEqiAscii("END")) {
 						if(start_tab == 1) {
 							start_tab = 0;
 							continue;
@@ -542,22 +542,22 @@ SLTEST_R(STab)
 				exist_tab_flags |= (1 << j);
 			}
 		}
-		if(tab_name.CmpNC("colors") == 0) {
+		if(tab_name.IsEqiAscii("colors")) {
 			THROW(SLTEST_CHECK_NZ(tab.Find(1, "Coral", &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.Find(1, "Darkslateblue", &(pos = 0))));
 			//
 			THROW(SLTEST_CHECK_NZ(tab.Find(0, 0x009932ccL, &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
 			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, temp_buf)));
-			THROW(SLTEST_CHECK_Z(temp_buf.CmpNC("Darkorchid")));
+			THROW(SLTEST_CHECK_NZ(temp_buf.IsEqiAscii("Darkorchid")));
 			//
 			THROW(SLTEST_CHECK_NZ(tab.Find(0, 0x009acd32L, &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));
 			THROW(SLTEST_CHECK_NZ(tab_row.Get(1, temp_buf)));
-			THROW(SLTEST_CHECK_Z(temp_buf.CmpNC("Yellowgreen")));
+			THROW(SLTEST_CHECK_NZ(temp_buf.IsEqiAscii("Yellowgreen")));
 			//
 		}
-		else if(tab_name.CmpNC("MathConst") == 0) {
+		else if(tab_name.IsEqiAscii("MathConst")) {
 			double val;
 			THROW(SLTEST_CHECK_NZ(tab.Find(0, "SMathConst::Pi", &(pos = 0))));
 			THROW(SLTEST_CHECK_NZ(tab.GetRow(pos, tab_row)));

@@ -210,9 +210,7 @@ static cairo_gl_var_type_t cairo_gl_operand_get_var_type(cairo_gl_operand_t * op
 	}
 }
 
-static void cairo_gl_shader_emit_variable(cairo_output_stream_t * stream,
-    cairo_gl_var_type_t type,
-    cairo_gl_tex_t name)
+static void cairo_gl_shader_emit_variable(cairo_output_stream_t * stream, cairo_gl_var_type_t type, cairo_gl_tex_t name)
 {
 	switch(type) {
 		default:
@@ -220,25 +218,15 @@ static void cairo_gl_shader_emit_variable(cairo_output_stream_t * stream,
 		case CAIRO_GL_VAR_NONE:
 		    break;
 		case CAIRO_GL_VAR_TEXCOORDS:
-		    _cairo_output_stream_printf(stream,
-			"attribute vec4 MultiTexCoord%d;\n"
-			"varying vec2 %s_texcoords;\n",
-			name,
-			operand_names[name]);
+		    _cairo_output_stream_printf(stream, "attribute vec4 MultiTexCoord%d;\nvarying vec2 %s_texcoords;\n", name, operand_names[name]);
 		    break;
 		case CAIRO_GL_VAR_TEXGEN:
-		    _cairo_output_stream_printf(stream,
-			"uniform mat3 %s_texgen;\n"
-			"varying vec2 %s_texcoords;\n",
-			operand_names[name],
-			operand_names[name]);
+		    _cairo_output_stream_printf(stream, "uniform mat3 %s_texgen;\nvarying vec2 %s_texcoords;\n", operand_names[name], operand_names[name]);
 		    break;
 	}
 }
 
-static void cairo_gl_shader_emit_vertex(cairo_output_stream_t * stream,
-    cairo_gl_var_type_t type,
-    cairo_gl_tex_t name)
+static void cairo_gl_shader_emit_vertex(cairo_output_stream_t * stream, cairo_gl_var_type_t type, cairo_gl_tex_t name)
 {
 	switch(type) {
 		default:
@@ -246,15 +234,10 @@ static void cairo_gl_shader_emit_vertex(cairo_output_stream_t * stream,
 		case CAIRO_GL_VAR_NONE:
 		    break;
 		case CAIRO_GL_VAR_TEXCOORDS:
-		    _cairo_output_stream_printf(stream,
-			"    %s_texcoords = MultiTexCoord%d.xy;\n",
-			operand_names[name], name);
+		    _cairo_output_stream_printf(stream, "    %s_texcoords = MultiTexCoord%d.xy;\n", operand_names[name], name);
 		    break;
-
 		case CAIRO_GL_VAR_TEXGEN:
-		    _cairo_output_stream_printf(stream,
-			"    %s_texcoords = (%s_texgen * Vertex.xyw).xy;\n",
-			operand_names[name], operand_names[name]);
+		    _cairo_output_stream_printf(stream, "    %s_texcoords = (%s_texgen * Vertex.xyw).xy;\n", operand_names[name], operand_names[name]);
 		    break;
 	}
 }
@@ -269,30 +252,18 @@ static void cairo_gl_shader_def_coverage(cairo_output_stream_t * stream)
 	_cairo_output_stream_printf(stream, "    coverage = Color.a;\n");
 }
 
-static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src,
-    cairo_gl_var_type_t mask,
-    boolint use_coverage,
-    cairo_gl_var_type_t dest,
-    char ** out)
+static cairo_status_t cairo_gl_shader_get_vertex_source(cairo_gl_var_type_t src, cairo_gl_var_type_t mask,
+    boolint use_coverage, cairo_gl_var_type_t dest, char ** out)
 {
 	cairo_output_stream_t * stream = _cairo_memory_stream_create();
 	uchar * source;
 	ulong length;
 	cairo_status_t status;
-
 	cairo_gl_shader_emit_variable(stream, src, CAIRO_GL_TEX_SOURCE);
 	cairo_gl_shader_emit_variable(stream, mask, CAIRO_GL_TEX_MASK);
 	if(use_coverage)
 		cairo_gl_shader_dcl_coverage(stream);
-
-	_cairo_output_stream_printf(stream,
-	    "attribute vec4 Vertex;\n"
-	    "attribute vec4 Color;\n"
-	    "uniform mat4 ModelViewProjectionMatrix;\n"
-	    "void main()\n"
-	    "{\n"
-	    "    gl_Position = ModelViewProjectionMatrix * Vertex;\n");
-
+	_cairo_output_stream_printf(stream, "attribute vec4 Vertex;\nattribute vec4 Color;\nuniform mat4 ModelViewProjectionMatrix;\nvoid main()\n{\n    gl_Position = ModelViewProjectionMatrix * Vertex;\n");
 	cairo_gl_shader_emit_vertex(stream, src, CAIRO_GL_TEX_SOURCE);
 	cairo_gl_shader_emit_vertex(stream, mask, CAIRO_GL_TEX_MASK);
 	if(use_coverage)
@@ -334,33 +305,14 @@ static void cairo_gl_shader_emit_color(cairo_output_stream_t * stream,
 		    ASSERT_NOT_REACHED;
 		    break;
 		case CAIRO_GL_OPERAND_NONE:
-		    _cairo_output_stream_printf(stream,
-			"vec4 get_%s()\n"
-			"{\n"
-			"    return vec4 (0, 0, 0, 1);\n"
-			"}\n",
-			namestr);
+		    _cairo_output_stream_printf(stream, "vec4 get_%s()\n{\n    return vec4 (0, 0, 0, 1);\n}\n", namestr);
 		    break;
 		case CAIRO_GL_OPERAND_CONSTANT:
-		    _cairo_output_stream_printf(stream,
-			"uniform vec4 %s_constant;\n"
-			"vec4 get_%s()\n"
-			"{\n"
-			"    return %s_constant;\n"
-			"}\n",
-			namestr, namestr, namestr);
+		    _cairo_output_stream_printf(stream, "uniform vec4 %s_constant;\nvec4 get_%s()\n{\n    return %s_constant;\n}\n", namestr, namestr, namestr);
 		    break;
 		case CAIRO_GL_OPERAND_TEXTURE:
-		    _cairo_output_stream_printf(stream,
-			"uniform sampler2D%s %s_sampler;\n"
-			"uniform vec2 %s_texdims;\n"
-			"varying vec2 %s_texcoords;\n"
-			"vec4 get_%s()\n"
-			"{\n",
-			rectstr, namestr, namestr, namestr, namestr);
-		    if((ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 ||
-			ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) &&
-			_cairo_gl_shader_needs_border_fade(op)) {
+		    _cairo_output_stream_printf(stream, "uniform sampler2D%s %s_sampler;\nuniform vec2 %s_texdims;\nvarying vec2 %s_texcoords;\nvec4 get_%s()\n{\n", rectstr, namestr, namestr, namestr, namestr);
+		    if((ctx->gl_flavor == CAIRO_GL_FLAVOR_ES3 || ctx->gl_flavor == CAIRO_GL_FLAVOR_ES2) && _cairo_gl_shader_needs_border_fade(op)) {
 			    _cairo_output_stream_printf(stream,
 				"    vec2 border_fade = %s_border_fade (%s_texcoords, %s_texdims);\n"
 				"    vec4 texel = texture2D%s (%s_sampler, %s_texcoords);\n"
@@ -369,10 +321,7 @@ static void cairo_gl_shader_emit_color(cairo_output_stream_t * stream,
 				namestr, namestr, namestr, rectstr, namestr, namestr);
 		    }
 		    else {
-			    _cairo_output_stream_printf(stream,
-				"    return texture2D%s (%s_sampler, %s_wrap (%s_texcoords));\n"
-				"}\n",
-				rectstr, namestr, namestr, namestr);
+			    _cairo_output_stream_printf(stream, "    return texture2D%s (%s_sampler, %s_wrap (%s_texcoords));\n}\n", rectstr, namestr, namestr, namestr);
 		    }
 		    break;
 		case CAIRO_GL_OPERAND_LINEAR_GRADIENT:
@@ -759,60 +708,32 @@ static cairo_status_t _cairo_gl_shader_compile_and_link(cairo_gl_context_t * ctx
 	uint vertex_shader;
 	cairo_status_t status;
 	int i;
-
 	assert(shader->program == 0);
-
-	vertex_shader = cairo_gl_var_type_hash(src, mask, use_coverage,
-		CAIRO_GL_VAR_NONE);
+	vertex_shader = cairo_gl_var_type_hash(src, mask, use_coverage, CAIRO_GL_VAR_NONE);
 	if(ctx->vertex_shaders[vertex_shader] == 0) {
 		char * source;
-
-		status = cairo_gl_shader_get_vertex_source(src,
-			mask,
-			use_coverage,
-			CAIRO_GL_VAR_NONE,
-			&source);
+		status = cairo_gl_shader_get_vertex_source(src, mask, use_coverage, CAIRO_GL_VAR_NONE, &source);
 		if(unlikely(status))
 			goto FAILURE;
-
-		compile_shader(ctx, &ctx->vertex_shaders[vertex_shader],
-		    GL_VERTEX_SHADER, source);
+		compile_shader(ctx, &ctx->vertex_shaders[vertex_shader], GL_VERTEX_SHADER, source);
 		SAlloc::F(source);
 	}
-
-	compile_shader(ctx, &shader->fragment_shader,
-	    GL_FRAGMENT_SHADER, fragment_text);
-
-	link_shader_program(ctx, &shader->program,
-	    ctx->vertex_shaders[vertex_shader],
-	    shader->fragment_shader);
-
-	shader->mvp_location =
-	    dispatch->GetUniformLocation(shader->program,
-		"ModelViewProjectionMatrix");
-
+	compile_shader(ctx, &shader->fragment_shader, GL_FRAGMENT_SHADER, fragment_text);
+	link_shader_program(ctx, &shader->program, ctx->vertex_shaders[vertex_shader], shader->fragment_shader);
+	shader->mvp_location = dispatch->GetUniformLocation(shader->program, "ModelViewProjectionMatrix");
 	for(i = 0; i < 2; i++) {
-		shader->constant_location[i] =
-		    _cairo_gl_get_op_uniform_location(ctx, shader, i, "constant");
-		shader->a_location[i] =
-		    _cairo_gl_get_op_uniform_location(ctx, shader, i, "a");
-		shader->circle_d_location[i] =
-		    _cairo_gl_get_op_uniform_location(ctx, shader, i, "circle_d");
-		shader->radius_0_location[i] =
-		    _cairo_gl_get_op_uniform_location(ctx, shader, i, "radius_0");
-		shader->texdims_location[i] =
-		    _cairo_gl_get_op_uniform_location(ctx, shader, i, "texdims");
-		shader->texgen_location[i] =
-		    _cairo_gl_get_op_uniform_location(ctx, shader, i, "texgen");
+		shader->constant_location[i] = _cairo_gl_get_op_uniform_location(ctx, shader, i, "constant");
+		shader->a_location[i] = _cairo_gl_get_op_uniform_location(ctx, shader, i, "a");
+		shader->circle_d_location[i] = _cairo_gl_get_op_uniform_location(ctx, shader, i, "circle_d");
+		shader->radius_0_location[i] = _cairo_gl_get_op_uniform_location(ctx, shader, i, "radius_0");
+		shader->texdims_location[i] = _cairo_gl_get_op_uniform_location(ctx, shader, i, "texdims");
+		shader->texgen_location[i] = _cairo_gl_get_op_uniform_location(ctx, shader, i, "texgen");
 	}
-
 	return CAIRO_STATUS_SUCCESS;
-
 FAILURE:
 	_cairo_gl_shader_fini(ctx, shader);
 	shader->fragment_shader = 0;
 	shader->program = 0;
-
 	return status;
 }
 

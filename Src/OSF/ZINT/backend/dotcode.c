@@ -37,7 +37,7 @@
 #pragma hdrstop
 //#include "gs1.h"
 #ifndef _MSC_VER
-	#include <stdint.h>
+	//#include <stdint.h>
 #else
 	//#include "ms_stdint.h"
 	//#include <SAlloc::M.h>

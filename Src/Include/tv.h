@@ -5222,9 +5222,9 @@ public:
 protected:
 	void   Init(HWND hScW, int preserveFileName);
 	int    Release();
-	int    CallFunc(int msg);
-	int    CallFunc(int msg, int param1);
-	int    CallFunc(int msg, int param1, int param2);
+	intptr_t CallFunc(uint msg);
+	intptr_t CallFunc(uint msg, uintptr_t param1);
+	intptr_t CallFunc(uint msg, uintptr_t param1, intptr_t param2);
 	int    SetLexer(const char * pLexerName);
 	void   SetSpecialStyle(const SScEditorStyleSet::Style & rStyle);
 	void   ClearIndicator(int indicatorNumber);
@@ -5263,7 +5263,7 @@ protected:
 	};
 	SKeyAccelerator KeyAccel; // Ассоциации клавиатурных кодов с командами. {KeyDownCommand Key, long Val}
 	SKeyAccelerator OuterKeyAccel; // Ассоциации клавиатурных кодов с командами, заданные из-вне: вливаются в KeyAccel
-	int    (*P_SciFn)(void *, int, int, int);
+	intptr_t (*P_SciFn)(void * ptr, uint msg, uintptr_t wParam, intptr_t lParam);
 	void * P_SciPtr;
 	SSearchReplaceParam LastSrParam;
 	Document Doc;
@@ -5323,12 +5323,13 @@ private:
 	int    InsertWorkbookLink();
 	int    BraceHtmlTag();
 	int    UpdateIndicators();
+	int    Run();
 
 	enum {
 		sstLastKeyDownConsumed = 0x0001
 	};
 	long   SysState;
-	int    SpcMode; // @v9.2.0
+	int    SpcMode;
 	HWND   HwndSci;
 	TToolbar * P_Toolbar;
 	long   ToolBarWidth;

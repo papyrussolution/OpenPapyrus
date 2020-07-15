@@ -3120,7 +3120,7 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 			SString temp_buf, left, right;
 			for(uint p = 0; pss.get(&p, temp_buf);) {
 				if(temp_buf.Divide('=', left, right) > 0) {
-					if(left.CmpNC("kwid") == 0) {
+					if(left.IsEqiAscii("kwid")) {
 						if(!wb_pack.Rec.ID) {
 							SETIFZ(DS.GetTLA().P_WbObj, new PPObjWorkbook);
 							PPObjWorkbook * p_wb_obj = DS.GetTLA().P_WbObj;
@@ -3129,7 +3129,7 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 							}
 						}
 					}
-					else if(left.CmpNC("kws") == 0) {
+					else if(left.IsEqiAscii("kws")) {
 						if(!wb_pack.Rec.ID) {
 							SETIFZ(DS.GetTLA().P_WbObj, new PPObjWorkbook);
 							PPObjWorkbook * p_wb_obj = DS.GetTLA().P_WbObj;
@@ -3141,11 +3141,11 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 							}
 						}
 					}
-					else if(left.CmpNC("locn") == 0) {
+					else if(left.IsEqiAscii("locn")) {
 						if(loctext.Empty() && right.NotEmptyS())
 							loctext = right.Strip();
 					}
-					else if(left.CmpNC("locs") == 0) {
+					else if(left.IsEqiAscii("locs")) {
 						if(loctext.Empty() && right.NotEmptyS()) {
 							SETIFZ(DS.GetTLA().P_WObj, new PPObjWorld);
 							PPObjWorld * p_w_obj = DS.GetTLA().P_WObj;
@@ -3154,7 +3154,7 @@ int SLAPI PPKeywordListGenerator::Run(const char * pContext, SString & rResult, 
 								(loctext = w_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 						}
 					}
-					else if(left.CmpNC("goods") == 0) {
+					else if(left.IsEqiAscii("goods")) {
 						const PPID goods_id = right.ToLong();
 						PPObjGoods goods_obj;
 						Goods2Tbl::Rec goods_rec;
@@ -3381,9 +3381,9 @@ int SLAPI PPKeywordListGenerator::ReadData(const char * pFileName)
 						temp_buf = line_buf;
 					if(temp_buf.NotEmptyS()) {
 						Group * p_group = List.at(cur_grp_pos);
-						if(temp_buf.CmpNC("#wordlimit") == 0)
+						if(temp_buf.IsEqiAscii("#wordlimit"))
 							p_group->WordsLimit = (uint)new_item.Prob;
-						else if(temp_buf.CmpNC("#itemlimit") == 0)
+						else if(temp_buf.IsEqiAscii("#itemlimit"))
 							p_group->ItemsLimit = (uint)new_item.Prob;
 						else {
 							temp_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);

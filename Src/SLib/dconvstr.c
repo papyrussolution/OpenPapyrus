@@ -24,7 +24,8 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-#include "dconvstr.h"
+
+const int SRealConversion::DefaultPrecision = 6; // DCONVSTR_DEFAULT_PRECISION
 //
 // TYPES AND CONSTANTS
 //
@@ -1720,9 +1721,9 @@ static int FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint64
 	// 5. Compute new decimal mantissa within range of attraction: digit after digit, most significant first
 	uint64 new_mantissa = 0;
 	for(uint64 current_scale = POW10_18; current_scale != 0; current_scale /= 10ULL) {
-		uint64 next_digit = ((base_c + positive_extent) / current_scale) % 10ULL;
+		const uint64 next_digit = ((base_c + positive_extent) / current_scale) % 10ULL;
 		new_mantissa += (current_scale * next_digit);
-		if(( base_c - negative_extent <= new_mantissa )&&( new_mantissa <= base_c + positive_extent ))
+		if(((base_c - negative_extent) <= new_mantissa) && (new_mantissa <= (base_c + positive_extent)))
 			break;
 	}
 	// 6. Perform final normalization and offload results
@@ -1764,7 +1765,7 @@ static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_na
 		else {
 			*out_is_infinity = 0;
 			// 4. Handle special case: +0/-0
-			if((input_exponent == 0) && (input_mantissa == 0)) {
+			if(input_exponent == 0 && input_mantissa == 0) {
 				*out_binary_exponent = 0;
 				*out_binary_mantissa = 0;
 			}
@@ -1895,20 +1896,20 @@ static void  FASTCALL bcd_decompress(uint64 compressed_bcd, uint8 * decompressed
 // 
 // Descr: Compress four-digit BCD representation to small integer in range 0..9999
 // 
-static inline uint32 bcd_compress_small(const uint8*  decompressed_bcd)
+static inline uint32 bcd_compress_small(const uint8 * pDecompressedBcd)
 {
-	uint32 high_pair = 10 * decompressed_bcd[0] + decompressed_bcd[1];
-	uint32 low_pair  = 10 * decompressed_bcd[2] + decompressed_bcd[3];
-	return 100 * high_pair + low_pair;
+	uint32 high_pair = 10 * pDecompressedBcd[0] + pDecompressedBcd[1];
+	uint32 low_pair  = 10 * pDecompressedBcd[2] + pDecompressedBcd[3];
+	return (100 * high_pair + low_pair);
 }
 // 
 // Descr: Compress twenty-digit BCD representation to full range unsigned 64-bit integer
 // 
-static uint64 FASTCALL bcd_compress(const uint8 * decompressed_bcd)
+static uint64 FASTCALL bcd_compress(const uint8 * pDecompressedBcd)
 {
-	uint64 d2 = bcd_compress_small(decompressed_bcd);
-	uint64 d1 = 10000 * bcd_compress_small(decompressed_bcd + 4) + bcd_compress_small(decompressed_bcd + 8);
-	uint64 d0 = 10000 * bcd_compress_small(decompressed_bcd + 12) + bcd_compress_small(decompressed_bcd + 16);
+	uint64 d2 = bcd_compress_small(pDecompressedBcd);
+	uint64 d1 = 10000 * bcd_compress_small(pDecompressedBcd + 4) + bcd_compress_small(pDecompressedBcd + 8);
+	uint64 d0 = 10000 * bcd_compress_small(pDecompressedBcd + 12) + bcd_compress_small(pDecompressedBcd + 16);
 	return ((d2 * (10000ULL * 10000ULL) + d1) * (10000ULL * 10000ULL)) + d0;
 }
 // 
@@ -1917,60 +1918,59 @@ static uint64 FASTCALL bcd_compress(const uint8 * decompressed_bcd)
 // Therefore, number of significant digits can be in range from 1 to 19.
 // @returns  Adjusted number of significant decimal digits
 // 
-static int FASTCALL bcd_round(int new_ndigits, uint8 * decimal_mantissa, int32 * exponent)
+static int FASTCALL bcd_round(int _newNDigits, uint8 * pDecimalMantissa, int32 * pExponent)
 {
 	// 1. Bounds check and adjustment
-	if(new_ndigits < 1)
-		new_ndigits = 1;
-	else if(new_ndigits > 19)
-		new_ndigits = 19;
-	if(new_ndigits < 19) {
+	const int newndigits = (_newNDigits < 1) ? 1 : ((_newNDigits > 19) ? 19 : _newNDigits);
+	if(newndigits < 19) {
 		for(;;) {
 			// 2. Compute round-up flag
-			int round_up = ( decimal_mantissa[1 + new_ndigits] >= 5 );
+			const int round_up = (pDecimalMantissa[1+newndigits] >= 5);
 			// 3. Zero out the tail
-			for(int i = 1 + new_ndigits; i < 20; ++i)
-				decimal_mantissa[i] = 0;
+			//for(int i = 1+newndigits; i < 20; ++i) decimal_mantissa[i] = 0;
+			memzero(pDecimalMantissa+1+newndigits, 20-(1+newndigits));
 			// 4. Make round-up if necessary
 			if(!round_up)
 				break;
-			for(int i = new_ndigits; i >= 0; --i) {
-				uint8 new_value = decimal_mantissa[i] + 1;
-				if(new_value < 10) {
-					decimal_mantissa[i] = new_value;
-					break;
-				}
-				decimal_mantissa[i] = 0;
-			}
-			// 5. Handle overflow
-			if(decimal_mantissa[0] == 0)
-				break; // no overflow
 			else {
-				memmove(decimal_mantissa + 1, decimal_mantissa, 19);
-				decimal_mantissa[0] = 0;
-				++(*exponent);
-				// if there was an overflow, then make one more iteration
+				for(int i = newndigits; i >= 0; --i) {
+					uint8 new_value = pDecimalMantissa[i] + 1;
+					if(new_value < 10) {
+						pDecimalMantissa[i] = new_value;
+						break;
+					}
+					pDecimalMantissa[i] = 0;
+				}
+				// 5. Handle overflow
+				if(pDecimalMantissa[0] == 0)
+					break; // no overflow
+				else {
+					memmove(pDecimalMantissa + 1, pDecimalMantissa, 19);
+					pDecimalMantissa[0] = 0;
+					++(*pExponent);
+					// if there was an overflow, then make one more iteration
+				}
 			}
 		}
 	}
 	// 6. Return adjusted number of significant decimal digits to the caller
-	return new_ndigits;
+	return newndigits;
 }
 // 
 // Descr: Helper formatting function: Print given number of whitespaces to output buffer
 // @returns  1  Exited normally, no errors.
 //   0  Overflow in the output buffer.
 // 
-static int FASTCALL format_pad(char ** outbuf, int * outbuf_size, int n)
+static int FASTCALL format_pad(char ** ppOutBuf, int * pOutBufSize, int n)
 {
-	if(*outbuf_size < n)
+	if(*pOutBufSize < n)
 		return 0;
 	else {
-		*outbuf_size -= n;
-		char * p = *outbuf;
+		*pOutBufSize -= n;
+		char * p = *ppOutBuf;
 		while(n-- > 0)
 			*p++ = ' ';
-		*outbuf = p;
+		*ppOutBuf = p;
 		return 1;
 	}
 }
@@ -1979,13 +1979,13 @@ static int FASTCALL format_pad(char ** outbuf, int * outbuf_size, int n)
 // @returns  1  Exited normally, no errors.
 //   0  Overflow in the output buffer.
 // 
-static int FASTCALL format_onechar(char ** outbuf, int * outbuf_size, int c)
+static int FASTCALL format_onechar(char ** ppOutBuf, int * pOutBufSize, int c)
 {
-	if(*outbuf_size <= 0)
+	if(*pOutBufSize <= 0)
 		return 0;
 	else {
-		*((*outbuf)++) = ((char)c);
-		--(*outbuf_size);
+		*((*ppOutBuf)++) = static_cast<char>(c);
+		--(*pOutBufSize);
 		return 1;
 	}
 }
@@ -1994,16 +1994,16 @@ static int FASTCALL format_onechar(char ** outbuf, int * outbuf_size, int c)
 // @returns  1  Exited normally, no errors.
 //   0  Overflow in the output buffer.
 // 
-static int FASTCALL format_copystr(char ** outbuf, int * outbuf_size, const char * str, int str_size)
+static int FASTCALL format_copystr(char ** ppOutBuf, int * pOutBufSize, const char * pStr, int strSize)
 {
-	if(*outbuf_size < str_size)
+	if(*pOutBufSize < strSize)
 		return 0;
 	else {
-		*outbuf_size -= str_size;
-		char *  p = *outbuf;
-		while(str_size-- > 0)
-			*p++ = *str++;
-		*outbuf = p;
+		*pOutBufSize -= strSize;
+		char * p = *ppOutBuf;
+		while(strSize-- > 0)
+			*p++ = *pStr++;
+		*ppOutBuf = p;
 		return 1;
 	}
 }
@@ -2011,26 +2011,26 @@ static int FASTCALL format_copystr(char ** outbuf, int * outbuf_size, const char
 // Descr: Helper formatting function: Print exponent like sprintf( p, "e%+02d", e )
 // There must be at least 16 bytes in the output buffer.
 // 
-static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_uppercase)
+static void FASTCALL format_exponent(char * pBuffer, int32 exponent, int isUppercase)
 {
-	char tmp_buffer[12];
-	*buffer++ = (is_uppercase ? 'E' : 'e');
+	char tmp_buffer[16];
+	*pBuffer++ = isUppercase ? 'E' : 'e';
 	if(exponent < 0) {
-		*buffer++ = '-';
+		*pBuffer++ = '-';
 		exponent = -exponent;
 	}
 	else
-		*buffer++ = '+';
-	int i = 0;
+		*pBuffer++ = '+';
+	uint i = 0;
 	while(exponent > 0 && i < 12) {
-		tmp_buffer[i++] = ((char)( (exponent % 10) + '0' ));
+		tmp_buffer[i++] = static_cast<char>((exponent % 10) + '0');
 		exponent /= 10;
 	}
 	while(i < 2)
 		tmp_buffer[i++] = '0';
 	while(i > 0)
-		*buffer++ = tmp_buffer[--i];
-	*buffer = 0;
+		*pBuffer++ = tmp_buffer[--i];
+	*pBuffer = 0;
 }
 // 
 // Descr: Print IEEE 754 floating-point double precision value to string
@@ -2048,7 +2048,7 @@ static void FASTCALL format_exponent(char * buffer, int32 exponent, int is_upper
 // @returns  1  if value was successfully converted to string.
 //   0  if there is not enough room in buffer or internal error happened during conversion.
 // 
-int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
+int FASTCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
 {
 	// 1. Unpack double precision value
 	int    is_nan      = 0;
@@ -2058,12 +2058,42 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 	int32  exponent    = 0;
 	unpack_ieee754_double(&value, &is_nan, &is_negative, &mantissa, &exponent, &is_infinity);
 	// 2. Handle special cases
-	if(is_nan)
-		return format_copystr(ppOutBuf, pOutBufSize, (formatFlags & DCONVSTR_FLAG_UPPERCASE) ? "NAN" : "nan", 3);
-	else if(is_infinity && !is_negative)
-		return format_copystr(ppOutBuf, pOutBufSize, (formatFlags & DCONVSTR_FLAG_UPPERCASE) ? "INF" : "inf", 3);
-	else if(is_infinity && is_negative)
-		return format_copystr(ppOutBuf, pOutBufSize, (formatFlags & DCONVSTR_FLAG_UPPERCASE) ? "-INF" : "-inf", 4);
+	if(is_nan || is_infinity) {
+		const  char * p_spc = 0;
+		int    spc_len = 0;
+		if(is_nan) {
+			p_spc = (formatFlags & fUppercase) ? "NAN" : "nan";
+			spc_len = 3;
+		}
+		else if(is_infinity) {
+			if(!is_negative) {
+				if(formatFlags & fPrintPlus) {
+					p_spc = (formatFlags & fUppercase) ? "+INF" : "+inf";
+					spc_len = 4;
+				}
+				else {
+					p_spc = (formatFlags & fUppercase) ? "INF" : "inf";
+					spc_len = 3;
+				}
+			}
+			else {
+				assert(is_negative);
+				p_spc = (formatFlags & fUppercase) ? "-INF" : "-inf";
+				spc_len = 4;
+				
+			}
+		}
+		assert(p_spc && spc_len > 0);
+		int result = 0;
+		const int padding = (formatFlags & fHaveWidth && formatWidth > spc_len) ? (formatWidth - spc_len) : 0;
+		if(padding && !(formatFlags & fLeftJustify) && !format_pad(ppOutBuf, pOutBufSize, padding))
+			result = 0;
+		else
+			result = format_copystr(ppOutBuf, pOutBufSize, p_spc, spc_len);
+		if(padding && (formatFlags & fLeftJustify) && !format_pad(ppOutBuf, pOutBufSize, padding))
+			result = 0;
+		return result;
+	}
 	else {
 		// 3. Get exact decimal representation.
 		//    Decimal point is located on the right side of decimal mantissa
@@ -2095,17 +2125,15 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		int    original_format_char = formatChar;
 		if(formatChar == 'g') {
 			// get rid of excess precision
-			if(formatPrecision == 0)
-				formatPrecision = 1;
+			SETIFZ(formatPrecision, 1);
 			if(formatPrecision < ndigits) {
 				exponent += (ndigits - formatPrecision); // retain invariant "point after mantissa"
 				ndigits = bcd_round(formatPrecision, decimal_mantissa, &exponent);
 			}
 			// choose format: e or f
 			int e = exponent + (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
-			if(e >= -4 && e < formatPrecision) { // so printf(3) rules say
+			if(e >= -4 && e < formatPrecision) // so printf(3) rules say
 				formatChar = 'f';
-			}
 			else {
 				formatChar = 'e';
 				--formatPrecision; // one digit before the point, rest after
@@ -2114,16 +2142,16 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		if(formatChar == 'e') {
 			exponent += (ndigits - 1); // now point is after mantissa, move to the left (after 1st digit)
 			// compute trailing zero padding or truncate digits
-			if(1 + formatPrecision >= ndigits)
+			if((1 + formatPrecision) >= ndigits)
 				z2 = 1 + formatPrecision - ndigits;
 			else
 				ndigits = bcd_round(1 + formatPrecision, decimal_mantissa, &exponent);
-			format_exponent(suffix, exponent, formatFlags & DCONVSTR_FLAG_UPPERCASE);
-			suffix_width = ((int)(strlen(suffix)));
+			format_exponent(suffix, exponent, formatFlags & fUppercase);
+			suffix_width = static_cast<int>(strlen(suffix));
 		}
 		else if(formatChar == 'f') {
 			// determine where digits go with respect to decimal point
-			if(ndigits + exponent > 0) {
+			if((ndigits + exponent) > 0) {
 				point = ndigits + exponent;
 				z1    = 0;
 			}
@@ -2170,11 +2198,11 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		}
 		else
 			return 0;
-		// 5. If %g is given without DCONVSTR_FLAG_SHARP, remove trailing zeros.
+		// 5. If %g is given without fSharp, remove trailing zeros.
 		//    Must do after truncation, so that e.g. print %.3g 1.001 produces 1, not 1.00.
 		//    Sorry, but them's the rules.
-		if(original_format_char == 'g' && (!(formatFlags & DCONVSTR_FLAG_SHARP)) && (z1 + ndigits + z2 >= point)) {
-			if(z1 + ndigits < point)
+		if(original_format_char == 'g' && (!(formatFlags & fSharp)) && (z1 + ndigits + z2 >= point)) {
+			if((z1 + ndigits) < point)
 				z2 = point - (z1 + ndigits);
 			else {
 				z2 = 0;
@@ -2187,7 +2215,7 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		if(total_width > point)
 			total_width += 1;
 		else if(total_width == point) {
-			if(formatFlags & DCONVSTR_FLAG_SHARP)
+			if(formatFlags & fSharp)
 				total_width += 1;
 			else
 				++point; // point is not printed at the end
@@ -2198,24 +2226,24 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		if(is_negative)
 			sign = '-';
 		else {
-			if(formatFlags & DCONVSTR_FLAG_PRINT_PLUS)
+			if(formatFlags & fPrintPlus)
 				sign = '+';
-			if(formatFlags & DCONVSTR_FLAG_SPACE_IF_PLUS)
+			if(formatFlags & fSpaceIfPlus)
 				sign = ' ';
 		}
 		if(sign)
 			++total_width;
 		// 8. Compute padding
 		int padding = 0;
-		if((formatFlags & DCONVSTR_FLAG_HAVE_WIDTH) && formatWidth > total_width)
+		if(formatFlags & fHaveWidth && formatWidth > total_width)
 			padding = formatWidth - total_width;
-		if(padding && (!(formatFlags & DCONVSTR_FLAG_LEFT_JUSTIFY)) && (formatFlags & DCONVSTR_FLAG_PAD_WITH_ZERO)) {
+		if(padding && (!(formatFlags & fLeftJustify)) && (formatFlags & fPadWithZero)) {
 			z1     += padding;
 			point  += padding;
 			padding = 0;
 		}
 		// 9. Collect everything together and dump to output buffer
-		if(padding && !(formatFlags & DCONVSTR_FLAG_LEFT_JUSTIFY) && !format_pad(ppOutBuf, pOutBufSize, padding))
+		if(padding && !(formatFlags & fLeftJustify) && !format_pad(ppOutBuf, pOutBufSize, padding))
 			return 0;
 		if(sign && !format_onechar(ppOutBuf, pOutBufSize, sign))
 			return 0;
@@ -2237,7 +2265,7 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 		}
 		if(suffix_width && !format_copystr(ppOutBuf, pOutBufSize, suffix, suffix_width))
 			return 0;
-		else if(padding && (formatFlags & DCONVSTR_FLAG_LEFT_JUSTIFY) && (!format_pad(ppOutBuf, pOutBufSize, padding)))
+		else if(padding && (formatFlags & fLeftJustify) && !format_pad(ppOutBuf, pOutBufSize, padding))
 			return 0;
 		else
 			return 1;
@@ -2260,7 +2288,7 @@ int FASTCALL dconvstr_print(char ** ppOutBuf, int * pOutBufSize, double value, i
 // error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
 // condition as an indication of successful conversion.
 // 
-int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
+int FASTCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
 {
 	int    ok = 1;
 	int    output_erange = 0;
@@ -2316,9 +2344,8 @@ int FASTCALL dconvstr_scan(const char * pInput, const char ** ppInputEnd, double
 						++s;
 						state = S1;
 					}
-					else if(ch >= '0' && ch <= '9') {
+					else if(ch >= '0' && ch <= '9')
 						state = S2;
-					}
 					else if(ch == '.') {
 						++s;
 						state = S3;

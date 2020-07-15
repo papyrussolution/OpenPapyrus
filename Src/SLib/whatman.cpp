@@ -1954,7 +1954,7 @@ int TWhatmanToolArray::GetParam(Param & rP) const
 
 uint TWhatmanToolArray::GetCount() const
 {
-	return SVector::getCount(); // @v9.8.5 SArray-->SVector
+	return SVector::getCount();
 }
 
 SString & TWhatmanToolArray::MakeUniqueSymb(SString & rBuf) const

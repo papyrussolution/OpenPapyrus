@@ -267,47 +267,6 @@ int ExcelDbFile::Scan()
 	return ok;
 }
 
-/*
-int ExcelDbFile::Scan()
-{
-	int ok = 1, is_vert = BIN(P.Flags & fVerticalRec);
-	long max_col = 0, max_row = 0, row = (is_vert) ? 1 + P.HdrLinesCount : 1, col = (is_vert) ? 1 + P.HdrLinesCount : 1;
-	SString temp_buf;
-	if(P.Flags & fFldNameRec) {
-		GetFldNames();
-	 	row++;
-	}
-	if(P.Flags & fOneRecPerFile)
-		RecCount = 1;
-	else {
-		if(!FldNames.getCount()) {
-			for(col; col < MAX_COLUMN; col++)
-				if(P_Sheet->GetValue((is_vert) ? col : row, (is_vert) ? row : col, temp_buf) > 0 && temp_buf.Strip().Len())
-					max_col = col;
-		}
-		else {
-			max_col = (is_vert) ? P.HdrLinesCount + FldNames.getCount() : FldNames.getCount();
-			SString end_str;
-			end_str = P.EndStr;
-			for(row; row < MAX_ROW; row++) {
-				int found_data = 0;
-				for(col = (is_vert) ? 1 + P.HdrLinesCount : 1; !found_data && col < max_col; col++)
-					if(P_Sheet->GetValue((is_vert) ? col : row, (is_vert) ? row : col, temp_buf.Z()) > 0 && temp_buf.Strip().Len() > 0 && (end_str.Len() == 0 || temp_buf.Cmp(end_str, 0) != 0)) {
-						max_row = row;
-						found_data = 1;
-					}
-				if(!found_data)
-					break;
-			}
-		}
-		RecCount = max_row - BIN(FldNames.getCount());
-		if(!is_vert)
-			RecCount -= P.HdrLinesCount;
-	}
-	return ok;
-}
-*/
-
 ulong ExcelDbFile::GetNumRecords() const
 {
 	return RecCount;
@@ -381,7 +340,7 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 					}
 					SETIFZ(row, is_vert ? (1 + fld_pos + P.HdrLinesCount) : cur_rec);
 					SETIFZ(col, is_vert ? cur_rec : (1 + fld_pos + P.ColumnsCount));
-					THROW(P_Sheet->GetValue(row, col, field_buf));
+					THROW(P_Sheet->GetValue(row, col, field_buf.Z()));
 					PutFieldDataToBuf(fld, field_buf.Strip(), pDataBuf);
 				}
 			}

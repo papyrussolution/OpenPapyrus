@@ -25,9 +25,7 @@ IMPLEMENT_ASN1_FUNCTIONS(ASN1_TIME)
 
 static int is_utc(const int year)
 {
-	if(50 <= year && year <= 149)
-		return 1;
-	return 0;
+	return BIN(checkirange(year, 50, 149));
 }
 
 static int leap_year(const int year)

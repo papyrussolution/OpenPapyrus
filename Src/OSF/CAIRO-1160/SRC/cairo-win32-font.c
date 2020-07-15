@@ -48,7 +48,6 @@
 //#include "cairo-image-surface-private.h"
 //#include "cairo-pattern-private.h"
 //#include "cairo-scaled-font-subsets-private.h"
-#include <wchar.h>
 #ifndef SPI_GETFONTSMOOTHINGTYPE
 	#define SPI_GETFONTSMOOTHINGTYPE 0x200a
 #endif

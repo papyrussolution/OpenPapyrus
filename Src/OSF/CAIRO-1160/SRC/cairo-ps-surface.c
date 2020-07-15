@@ -290,64 +290,39 @@ static void _cairo_ps_surface_emit_header(cairo_ps_surface_t * surface)
 	    ctime_r(&now, ctime_buf),
 	    surface->num_pages);
 
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%DocumentData: Clean7Bit\n"
-	    "%%%%LanguageLevel: %d\n",
-	    level);
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%DocumentData: Clean7Bit\n%%%%LanguageLevel: %d\n", level);
 	if(!cairo_list_is_empty(&surface->document_media)) {
 		cairo_page_media_t * page;
 		boolint first = TRUE;
-
 		cairo_list_foreach_entry(page, cairo_page_media_t, &surface->document_media, link) {
 			if(first) {
-				_cairo_output_stream_printf(surface->final_stream,
-				    "%%%%DocumentMedia: ");
+				_cairo_output_stream_printf(surface->final_stream, "%%%%DocumentMedia: ");
 				first = FALSE;
 			}
 			else {
-				_cairo_output_stream_printf(surface->final_stream,
-				    "%%%%+ ");
+				_cairo_output_stream_printf(surface->final_stream, "%%%%+ ");
 			}
-			_cairo_output_stream_printf(surface->final_stream,
-			    "%s %d %d 0 () ()\n",
-			    page->name,
-			    page->width,
-			    page->height);
+			_cairo_output_stream_printf(surface->final_stream, "%s %d %d 0 () ()\n", page->name, page->width, page->height);
 		}
 	}
-
 	has_bbox = FALSE;
 	num_comments = _cairo_array_num_elements(&surface->dsc_header_comments);
 	comments = (char **)_cairo_array_index(&surface->dsc_header_comments, 0);
 	for(i = 0; i < num_comments; i++) {
-		_cairo_output_stream_printf(surface->final_stream,
-		    "%s\n", comments[i]);
+		_cairo_output_stream_printf(surface->final_stream, "%s\n", comments[i]);
 		if(strncmp(comments[i], "%%BoundingBox:", 14) == 0)
 			has_bbox = TRUE;
-
 		SAlloc::F(comments[i]);
 		comments[i] = NULL;
 	}
-
 	if(!has_bbox) {
-		_cairo_output_stream_printf(surface->final_stream,
-		    "%%%%BoundingBox: %d %d %d %d\n",
-		    surface->document_bbox_p1.x,
-		    surface->document_bbox_p1.y,
-		    surface->document_bbox_p2.x,
-		    surface->document_bbox_p2.y);
+		_cairo_output_stream_printf(surface->final_stream, "%%%%BoundingBox: %d %d %d %d\n",
+		    surface->document_bbox_p1.x, surface->document_bbox_p1.y, surface->document_bbox_p2.x, surface->document_bbox_p2.y);
 	}
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EndComments\n");
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%BeginProlog\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EndComments\n");
+	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginProlog\n");
 	if(surface->eps) {
-		_cairo_output_stream_printf(surface->final_stream,
-		    "50 dict begin\n");
+		_cairo_output_stream_printf(surface->final_stream, "50 dict begin\n");
 	}
 	else {
 		_cairo_output_stream_printf(surface->final_stream,
@@ -466,16 +441,12 @@ static void _cairo_ps_surface_emit_header(cairo_ps_surface_t * surface)
 		    "  cairo_save_state restore\n"
 		    "} bind def\n");
 	}
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EndProlog\n");
-
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EndProlog\n");
 	num_comments = _cairo_array_num_elements(&surface->dsc_setup_comments);
 	if(num_comments) {
 		comments = (char **)_cairo_array_index(&surface->dsc_setup_comments, 0);
 		for(i = 0; i < num_comments; i++) {
-			_cairo_output_stream_printf(surface->final_stream,
-			    "%s\n", comments[i]);
+			_cairo_output_stream_printf(surface->final_stream, "%s\n", comments[i]);
 			SAlloc::F(comments[i]);
 			comments[i] = NULL;
 		}
@@ -510,15 +481,12 @@ static cairo_status_t _cairo_ps_surface_emit_type1_font_fallback(cairo_ps_surfac
 	cairo_status_t status;
 	int length;
 	char name[64];
-	snprintf(name, sizeof(name), "f-%d-%d",
-	    font_subset->font_id, font_subset->subset_id);
+	snprintf(name, sizeof(name), "f-%d-%d", font_subset->font_id, font_subset->subset_id);
 	status = _cairo_type1_fallback_init_hex(&subset, name, font_subset);
 	if(unlikely(status))
 		return status;
-
 #if DEBUG_PS
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%% _cairo_ps_surface_emit_type1_font_fallback\n");
+	_cairo_output_stream_printf(surface->final_stream, "%% _cairo_ps_surface_emit_type1_font_fallback\n");
 #endif
 	_cairo_output_stream_printf(surface->final_stream, "%%%%BeginResource: font %s\n", subset.base_font);
 	length = subset.header_length + subset.data_length + subset.trailer_length;
@@ -557,13 +525,10 @@ static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surfa
 		for(i = 1; i < 256; i++) {
 			if(font_subset->latin_to_subset_glyph_index[i] > 0) {
 				if(font_subset->glyph_names != NULL) {
-					_cairo_output_stream_printf(surface->final_stream,
-					    "Encoding %d /%s put\n",
-					    i, font_subset->glyph_names[font_subset->latin_to_subset_glyph_index[i]]);
+					_cairo_output_stream_printf(surface->final_stream, "Encoding %d /%s put\n", i, font_subset->glyph_names[font_subset->latin_to_subset_glyph_index[i]]);
 				}
 				else {
-					_cairo_output_stream_printf(surface->final_stream,
-					    "Encoding %d /g%ld put\n", i, font_subset->latin_to_subset_glyph_index[i]);
+					_cairo_output_stream_printf(surface->final_stream, "Encoding %d /g%ld put\n", i, font_subset->latin_to_subset_glyph_index[i]);
 				}
 			}
 		}
@@ -571,65 +536,45 @@ static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surfa
 	else {
 		for(i = 1; i < font_subset->num_glyphs; i++) {
 			if(font_subset->glyph_names != NULL) {
-				_cairo_output_stream_printf(surface->final_stream,
-				    "Encoding %d /%s put\n",
-				    i, font_subset->glyph_names[i]);
+				_cairo_output_stream_printf(surface->final_stream, "Encoding %d /%s put\n", i, font_subset->glyph_names[i]);
 			}
 			else {
-				_cairo_output_stream_printf(surface->final_stream,
-				    "Encoding %d /g%d put\n", i, i);
+				_cairo_output_stream_printf(surface->final_stream, "Encoding %d /g%d put\n", i, i);
 			}
 		}
 	}
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "/CharStrings %d dict dup begin\n"
-	    "/.notdef 0 def\n",
-	    font_subset->num_glyphs);
-
+	_cairo_output_stream_printf(surface->final_stream, "/CharStrings %d dict dup begin\n/.notdef 0 def\n", font_subset->num_glyphs);
 	for(i = 1; i < font_subset->num_glyphs; i++) {
 		if(font_subset->glyph_names != NULL) {
-			_cairo_output_stream_printf(surface->final_stream,
-			    "/%s %d def\n",
-			    font_subset->glyph_names[i], i);
+			_cairo_output_stream_printf(surface->final_stream, "/%s %d def\n", font_subset->glyph_names[i], i);
 		}
 		else {
-			_cairo_output_stream_printf(surface->final_stream,
-			    "/g%d %d def\n", i, i);
+			_cairo_output_stream_printf(surface->final_stream, "/g%d %d def\n", i, i);
 		}
 	}
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "end readonly def\n");
-
-	_cairo_output_stream_printf(surface->final_stream,
-	    "/sfnts [\n");
+	_cairo_output_stream_printf(surface->final_stream, "end readonly def\n");
+	_cairo_output_stream_printf(surface->final_stream, "/sfnts [\n");
 	begin = 0;
 	end = 0;
 	for(i = 0; i < subset.num_string_offsets; i++) {
 		end = subset.string_offsets[i];
 		_cairo_output_stream_printf(surface->final_stream, "<");
-		_cairo_output_stream_write_hex_string(surface->final_stream,
-		    subset.data + begin, end - begin);
+		_cairo_output_stream_write_hex_string(surface->final_stream, subset.data + begin, end - begin);
 		_cairo_output_stream_printf(surface->final_stream, "00>\n");
 		begin = end;
 	}
 	if(subset.data_length > end) {
 		_cairo_output_stream_printf(surface->final_stream, "<");
-		_cairo_output_stream_write_hex_string(surface->final_stream,
-		    subset.data + end, subset.data_length - end);
+		_cairo_output_stream_write_hex_string(surface->final_stream, subset.data + end, subset.data_length - end);
 		_cairo_output_stream_printf(surface->final_stream, "00>\n");
 	}
-
 	_cairo_output_stream_printf(surface->final_stream,
 	    "] def\n"
 	    "/f-%d-%d currentdict end definefont pop\n",
 	    font_subset->font_id,
 	    font_subset->subset_id);
-	_cairo_output_stream_printf(surface->final_stream,
-	    "%%%%EndResource\n");
+	_cairo_output_stream_printf(surface->final_stream, "%%%%EndResource\n");
 	_cairo_truetype_subset_fini(&subset);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2511,13 +2456,10 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		compress_filter = "FlateDecode";
 		surface->ps_level_used = CAIRO_PS_LEVEL_3;
 	}
-
 	if(surface->paint_proc) {
 		/* Emit the image data as a base85-encoded string which will
 		 * be used as the data source for the image operator later. */
-		_cairo_output_stream_printf(surface->stream,
-		    "/CairoData [\n");
-
+		_cairo_output_stream_printf(surface->stream, "/CairoData [\n");
 		status = _cairo_ps_surface_emit_base85_string(surface,
 			data,
 			data_size,
@@ -2525,15 +2467,11 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 			TRUE);
 		if(unlikely(status))
 			goto bail2;
-
-		_cairo_output_stream_printf(surface->stream,
-		    "] def\n");
-		_cairo_output_stream_printf(surface->stream,
-		    "/CairoDataIndex 0 def\n");
+		_cairo_output_stream_printf(surface->stream, "] def\n");
+		_cairo_output_stream_printf(surface->stream, "/CairoDataIndex 0 def\n");
 	}
 	else {
-		_cairo_output_stream_printf(surface->stream,
-		    "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
+		_cairo_output_stream_printf(surface->stream, "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
 	}
 
 	if(use_mask) {
@@ -2557,14 +2495,10 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		    color == CAIRO_IMAGE_IS_COLOR ? "0 1 0 1 0 1" : "0 1");
 
 		if(surface->paint_proc) {
-			_cairo_output_stream_printf(surface->stream,
-			    "    /DataSource { cairo_data_source } /%s filter\n",
-			    compress_filter);
+			_cairo_output_stream_printf(surface->stream, "    /DataSource { cairo_data_source } /%s filter\n", compress_filter);
 		}
 		else {
-			_cairo_output_stream_printf(surface->stream,
-			    "    /DataSource cairo_ascii85_file /%s filter\n",
-			    compress_filter);
+			_cairo_output_stream_printf(surface->stream, "    /DataSource cairo_ascii85_file /%s filter\n", compress_filter);
 		}
 
 		_cairo_output_stream_printf(surface->stream,
@@ -2595,9 +2529,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		const char * decode;
 
 		if(!params->stencil_mask) {
-			_cairo_output_stream_printf(surface->stream,
-			    "%s setcolorspace\n",
-			    color == CAIRO_IMAGE_IS_COLOR ? "/DeviceRGB" : "/DeviceGray");
+			_cairo_output_stream_printf(surface->stream, "%s setcolorspace\n", color == CAIRO_IMAGE_IS_COLOR ? "/DeviceRGB" : "/DeviceGray");
 		}
 		if(params->stencil_mask)
 			decode = "1 0";
@@ -2620,16 +2552,11 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		    color == CAIRO_IMAGE_IS_MONOCHROME ? 1 : 8,
 		    decode);
 		if(surface->paint_proc) {
-			_cairo_output_stream_printf(surface->stream,
-			    "  /DataSource { cairo_data_source } /%s filter\n",
-			    compress_filter);
+			_cairo_output_stream_printf(surface->stream, "  /DataSource { cairo_data_source } /%s filter\n", compress_filter);
 		}
 		else {
-			_cairo_output_stream_printf(surface->stream,
-			    "  /DataSource cairo_ascii85_file /%s filter\n",
-			    compress_filter);
+			_cairo_output_stream_printf(surface->stream, "  /DataSource cairo_ascii85_file /%s filter\n", compress_filter);
 		}
-
 		_cairo_output_stream_printf(surface->stream,
 		    "  /ImageMatrix [ %d 0 0 %d 0 %d ]\n"
 		    ">>\n"
@@ -2654,20 +2581,16 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	else {
 		status = CAIRO_STATUS_SUCCESS;
 	}
-
 bail2:
 	SAlloc::F(data);
 
 bail1:
 	if(!use_mask && ps_image != image)
 		cairo_surface_destroy(&ps_image->base);
-
 bail0:
 	if(image != image_surf)
 		cairo_surface_destroy(&image->base);
-
 	_cairo_surface_release_source_image(params->src_surface, image_surf, image_extra);
-
 	return status;
 }
 
@@ -2721,27 +2644,16 @@ static cairo_int_status_t _cairo_ps_surface_emit_jpeg_image(cairo_ps_surface_t *
 	if(surface->paint_proc) {
 		/* Emit the image data as a base85-encoded string which will
 		 * be used as the data source for the image operator later. */
-		_cairo_output_stream_printf(surface->stream,
-		    "/CairoData [\n");
-
-		status = _cairo_ps_surface_emit_base85_string(surface,
-			mime_data,
-			mime_data_length,
-			CAIRO_PS_COMPRESS_NONE,
-			TRUE);
+		_cairo_output_stream_printf(surface->stream, "/CairoData [\n");
+		status = _cairo_ps_surface_emit_base85_string(surface, mime_data, mime_data_length, CAIRO_PS_COMPRESS_NONE, TRUE);
 		if(unlikely(status))
 			return status;
-
-		_cairo_output_stream_printf(surface->stream,
-		    "] def\n");
-		_cairo_output_stream_printf(surface->stream,
-		    "/CairoDataIndex 0 def\n");
+		_cairo_output_stream_printf(surface->stream, "] def\n");
+		_cairo_output_stream_printf(surface->stream, "/CairoDataIndex 0 def\n");
 	}
 	else {
-		_cairo_output_stream_printf(surface->stream,
-		    "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
+		_cairo_output_stream_printf(surface->stream, "/cairo_ascii85_file currentfile /ASCII85Decode filter def\n");
 	}
-
 	_cairo_output_stream_printf(surface->stream,
 	    "%s setcolorspace\n"
 	    "<<\n"
@@ -2759,14 +2671,11 @@ static cairo_int_status_t _cairo_ps_surface_emit_jpeg_image(cairo_ps_surface_t *
 	    decode);
 
 	if(surface->paint_proc) {
-		_cairo_output_stream_printf(surface->stream,
-		    "  /DataSource { cairo_data_source } /DCTDecode filter\n");
+		_cairo_output_stream_printf(surface->stream, "  /DataSource { cairo_data_source } /DCTDecode filter\n");
 	}
 	else {
-		_cairo_output_stream_printf(surface->stream,
-		    "  /DataSource cairo_ascii85_file /DCTDecode filter\n");
+		_cairo_output_stream_printf(surface->stream, "  /DataSource cairo_ascii85_file /DCTDecode filter\n");
 	}
-
 	_cairo_output_stream_printf(surface->stream,
 	    "  /ImageMatrix [ %d 0 0 %d 0 %d ]\n"
 	    ">>\n"

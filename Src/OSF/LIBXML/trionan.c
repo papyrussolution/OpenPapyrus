@@ -126,18 +126,12 @@ static const char rcsid[] = "@(#)$Id$";
 #else
 	static const double internalEndianMagic = 7.949928895127363e-275;
 #endif
-/* Mask for the exponent */
-static const uchar ieee_754_exponent_mask[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/* Mask for the mantissa */
-static const uchar ieee_754_mantissa_mask[] = { 0x00, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-/* Mask for the sign bit */
-static const uchar ieee_754_sign_mask[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/* Bit-pattern for negative zero */
-static const uchar ieee_754_negzero_array[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/* Bit-pattern for infinity */
-static const uchar ieee_754_infinity_array[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/* Bit-pattern for quiet NaN */
-static const uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static const uchar ieee_754_exponent_mask[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Mask for the exponent 
+static const uchar ieee_754_mantissa_mask[] = { 0x00, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }; // Mask for the mantissa 
+static const uchar ieee_754_sign_mask[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Mask for the sign bit 
+static const uchar ieee_754_negzero_array[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Bit-pattern for negative zero 
+static const uchar ieee_754_infinity_array[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Bit-pattern for infinity 
+static const uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; // Bit-pattern for quiet NaN 
 
 /*************************************************************************
  * Functions
@@ -293,6 +287,7 @@ TRIO_PUBLIC double trio_nan()
    @param number An arbitrary floating-point number.
    @return Boolean value indicating whether or not the number is a NaN.
  */
+#if 0 // @v10.8.1 {
 TRIO_PUBLIC int trio_isnan(double number)
 {
 #if (defined(TRIO_COMPILER_SUPPORTS_C99) && defined(isnan)) || defined(TRIO_COMPILER_SUPPORTS_UNIX95)
@@ -326,13 +321,9 @@ TRIO_PUBLIC int trio_isnan(double number)
 # if defined(TRIO_PLATFORM_UNIX)
 	void (* signal_handler)(int) = signal(SIGFPE, SIG_IGN);
 # endif
-	status = ( /*
-	 * NaN is the only number which does not compare to itself
-	            */
+	status = ( // NaN is the only number which does not compare to itself
 	    ((TRIO_VOLATILE double)number != (TRIO_VOLATILE double)number) ||
-	    /*
-	 * Fallback solution if NaN compares to NaN
-	     */
+	    // Fallback solution if NaN compares to NaN
 	    ((number != 0.0) && (fraction = modf(number, &integral), integral == fraction)));
 
 # if defined(TRIO_PLATFORM_UNIX)
@@ -341,6 +332,7 @@ TRIO_PUBLIC int trio_isnan(double number)
 	return status;
 #endif
 }
+#endif // } 0 @v10.8.1
 
 /**
    Check for infinity.
@@ -348,6 +340,7 @@ TRIO_PUBLIC int trio_isnan(double number)
    @param number An arbitrary floating-point number.
    @return 1 if positive infinity, -1 if negative infinity, 0 otherwise.
  */
+#if 0 // @v10.8.1 {
 TRIO_PUBLIC int trio_isinf(double number)
 {
 #if defined(TRIO_COMPILER_DECC) && !defined(__linux__)
@@ -389,9 +382,9 @@ TRIO_PUBLIC int trio_isinf(double number)
 	signal(SIGFPE, signal_handler);
 # endif
 	return status;
-
 #endif
 }
+#endif // } 0 @v10.8.1
 
 #if 0
 /* Temporary fix - this routine is not used anywhere */

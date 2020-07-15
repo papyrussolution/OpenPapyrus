@@ -150,7 +150,7 @@ private:
 		SString addr_buf;
 		SStrCollection sc;
 		ToCollection(sc);
-		if(id > 0 && id <= (long)sc.getCount()) {
+		if(id > 0 && id <= sc.getCountI()) {
 			addr_buf = sc.at(id-1);
 			PPInputStringDialogParam isd_param;
 			PPLoadString("addrdbdiv", isd_param.Title);
@@ -171,7 +171,7 @@ private:
 		int    ok = -1;
 		SStrCollection sc;
 		ToCollection(sc);
-		if(id > 0 && id <= (long)sc.getCount()) {
+		if(id > 0 && id <= sc.getCountI()) {
 			sc.atFree(id-1);
 			FromCollection(sc);
 			ok = 1;

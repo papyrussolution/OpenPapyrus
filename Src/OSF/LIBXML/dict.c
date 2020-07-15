@@ -33,18 +33,16 @@
 	#define DICT_RANDOMIZATION
 #endif
 #ifdef HAVE_STDINT_H
-	#include <stdint.h>
+	//#include <stdint.h>
 #else
-#ifdef HAVE_INTTYPES_H
-	#include <inttypes.h>
-#elif defined(WIN32)
-//typedef unsigned __int32 uint32_t;
+	#ifdef HAVE_INTTYPES_H
+		#include <inttypes.h>
+	#elif defined(WIN32)
+	//typedef unsigned __int32 uint32_t;
+	#endif
 #endif
-#endif
-
 /* #define DEBUG_GROW */
 /* #define DICT_DEBUG_PATTERNS */
-
 #define MAX_HASH_LEN 3
 #define MIN_DICT_SIZE 128
 #define MAX_DICT_HASH 8 * 2048

@@ -34,7 +34,6 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 	size_t i;
 	const char * s;
 	int istls13;
-
 	if(x == NULL)
 		goto err;
 	istls13 = (x->ssl_version == TLS1_3_VERSION);
@@ -46,20 +45,16 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 
 	if(x->cipher == NULL) {
 		if(((x->cipher_id) & 0xff000000) == 0x02000000) {
-			if(BIO_printf(bp, "    Cipher    : %06lX\n",
-			    x->cipher_id & 0xffffff) <= 0)
+			if(BIO_printf(bp, "    Cipher    : %06lX\n", x->cipher_id & 0xffffff) <= 0)
 				goto err;
 		}
 		else {
-			if(BIO_printf(bp, "    Cipher    : %04lX\n",
-			    x->cipher_id & 0xffff) <= 0)
+			if(BIO_printf(bp, "    Cipher    : %04lX\n", x->cipher_id & 0xffff) <= 0)
 				goto err;
 		}
 	}
 	else {
-		if(BIO_printf(bp, "    Cipher    : %s\n",
-		    ((x->cipher->name == NULL) ? "unknown"
-		    : x->cipher->name)) <= 0)
+		if(BIO_printf(bp, "    Cipher    : %s\n", ((x->cipher->name == NULL) ? "unknown" : x->cipher->name)) <= 0)
 			goto err;
 	}
 	if(BIO_puts(bp, "    Session-ID: ") <= 0)
@@ -91,8 +86,7 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 		goto err;
 	if(BIO_puts(bp, "\n    PSK identity hint: ") <= 0)
 		goto err;
-	if(BIO_printf
-		    (bp, "%s", x->psk_identity_hint ? x->psk_identity_hint : "None") <= 0)
+	if(BIO_printf(bp, "%s", x->psk_identity_hint ? x->psk_identity_hint : "None") <= 0)
 		goto err;
 #endif
 #ifndef OPENSSL_NO_SRP
@@ -102,24 +96,19 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 		goto err;
 #endif
 	if(x->ext.tick_lifetime_hint) {
-		if(BIO_printf(bp,
-		    "\n    TLS session ticket lifetime hint: %ld (seconds)",
-		    x->ext.tick_lifetime_hint) <= 0)
+		if(BIO_printf(bp, "\n    TLS session ticket lifetime hint: %ld (seconds)", x->ext.tick_lifetime_hint) <= 0)
 			goto err;
 	}
 	if(x->ext.tick) {
 		if(BIO_puts(bp, "\n    TLS session ticket:\n") <= 0)
 			goto err;
 		/* TODO(size_t): Convert this call */
-		if(BIO_dump_indent
-			    (bp, (const char*)x->ext.tick, (int)x->ext.ticklen, 4)
-		    <= 0)
+		if(BIO_dump_indent(bp, (const char*)x->ext.tick, (int)x->ext.ticklen, 4) <= 0)
 			goto err;
 	}
 #ifndef OPENSSL_NO_COMP
 	if(x->compress_meth != 0) {
 		SSL_COMP * comp = NULL;
-
 		if(!ssl_cipher_get_evp(x, NULL, NULL, NULL, NULL, &comp, 0))
 			goto err;
 		if(comp == NULL) {
@@ -127,8 +116,7 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 				goto err;
 		}
 		else {
-			if(BIO_printf(bp, "\n    Compression: %d (%s)", comp->id,
-			    comp->name) <= 0)
+			if(BIO_printf(bp, "\n    Compression: %d (%s)", comp->id, comp->name) <= 0)
 				goto err;
 		}
 	}
@@ -143,23 +131,16 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 	}
 	if(BIO_puts(bp, "\n") <= 0)
 		goto err;
-
 	if(BIO_puts(bp, "    Verify return code: ") <= 0)
 		goto err;
-	if(BIO_printf(bp, "%ld (%s)\n", x->verify_result,
-	    X509_verify_cert_error_string(x->verify_result)) <= 0)
+	if(BIO_printf(bp, "%ld (%s)\n", x->verify_result, X509_verify_cert_error_string(x->verify_result)) <= 0)
 		goto err;
-
-	if(BIO_printf(bp, "    Extended master secret: %s\n",
-	    x->flags & SSL_SESS_FLAG_EXTMS ? "yes" : "no") <= 0)
+	if(BIO_printf(bp, "    Extended master secret: %s\n", x->flags & SSL_SESS_FLAG_EXTMS ? "yes" : "no") <= 0)
 		goto err;
-
 	if(istls13) {
-		if(BIO_printf(bp, "    Max Early Data: %u\n",
-		    x->ext.max_early_data) <= 0)
+		if(BIO_printf(bp, "    Max Early Data: %u\n", x->ext.max_early_data) <= 0)
 			goto err;
 	}
-
 	return 1;
 err:
 	return 0;

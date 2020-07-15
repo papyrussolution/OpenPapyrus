@@ -1807,13 +1807,11 @@ void ComboBox::freeAll()
 					TCanvas2 canv(r_tb, ps.hdc);
 					LMatrix2D mtx;
 					SViewPort vp;
-					// @v9.6.5 {
 					if(!p_view->ReplacedColor.IsEmpty()) {
 						SColor replacement_color;
 						replacement_color = r_tb.GetColor(TProgram::tbiIconRegColor);
 						canv.SetColorReplacement(p_view->ReplacedColor, replacement_color);
 					}
-					// } @v9.6.5
 					canv.PushTransform();
 					p_view->P_Fig->GetViewPort(&vp);
 					{
@@ -1864,8 +1862,8 @@ TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBo
 #endif
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW;
-	ReplacedColor.Set(0); // @v9.6.5
-	ReplacedColor.Alpha = 0; // @v9.6.5
+	ReplacedColor.Set(0);
+	ReplacedColor.Alpha = 0;
 	if(FigSymb.NotEmpty()) {
 		TWhatmanToolArray::Item tool_item;
 		const SDrawFigure * p_fig = APPL->LoadDrawFigureBySymb(FigSymb, &tool_item);

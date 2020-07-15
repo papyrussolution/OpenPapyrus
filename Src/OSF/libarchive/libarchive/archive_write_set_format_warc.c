@@ -298,9 +298,7 @@ static void xstrftime(struct archive_string * as, const char * fmt, time_t t)
 static ssize_t _popul_ehdr(struct archive_string * tgt, size_t tsz, warc_essential_hdr_t hdr)
 {
 	static const char _ver[] = "WARC/1.0\r\n";
-	static const char * const _typ[LAST_WT] = {
-		NULL, "warcinfo", "metadata", "resource", NULL
-	};
+	static const char * const _typ[LAST_WT] = { NULL, "warcinfo", "metadata", "resource", NULL };
 	char std_uuid[48U];
 	if(hdr.type == WT_NONE || hdr.type > WT_RSRC) {
 		/* brilliant, how exactly did we get here? */
@@ -341,13 +339,8 @@ static ssize_t _popul_ehdr(struct archive_string * tgt, size_t tsz, warc_essenti
 #if defined(_WIN32) && !defined(__CYGWIN__) && !( defined(_MSC_VER) && _MSC_VER >= 1900)
 #define snprintf _snprintf
 #endif
-		snprintf(
-			std_uuid, sizeof(std_uuid),
-			"<urn:uuid:%08x-%04x-%04x-%04x-%04x%08x>",
-			u.u[0U],
-			u.u[1U] >> 16U, u.u[1U] & 0xffffU,
-			u.u[2U] >> 16U, u.u[2U] & 0xffffU,
-			u.u[3U]);
+		snprintf(std_uuid, sizeof(std_uuid), "<urn:uuid:%08x-%04x-%04x-%04x-%04x%08x>",
+			u.u[0U], u.u[1U] >> 16U, u.u[1U] & 0xffffU, u.u[2U] >> 16U, u.u[2U] & 0xffffU, u.u[3U]);
 		hdr.recid = std_uuid;
 	}
 

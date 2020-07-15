@@ -329,9 +329,9 @@ int SLAPI createDir(const char * pPath)
 	return ok;
 }
 
-int SLAPI isWild(const char * f)
+int FASTCALL IsWild(const char * f)
 {
-	return (strpbrk(f, "*?") != 0);
+	return BIN(f && strpbrk(f, "*?") != 0);
 }
 
 SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath)

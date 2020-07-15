@@ -283,7 +283,7 @@ int SLAPI PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 		ZDELETE(P_Predictor);
 		ZDELETE(P_Rpe); // @v10.3.2
 		GoodsIDs.Clear();
-		StrPool.ClearS(); // @v9.8.3
+		StrPool.ClearS();
 		if(Filt.Flags & GoodsRestFilt::fNullRestsOnly)
 			Filt.Flags |= GoodsRestFilt::fNullRest;
 		if(Filt.Flags & GoodsRestFilt::fNoZeroOrderOnly)
@@ -379,11 +379,9 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 			LotFilt lot_flt;
 			lot_flt.GoodsID = goods_id;
 			PPID   temp_loc_id = 0;
-			// @v9.7.11 {
 			if(Filt.DiffParam & GoodsRestParam::_diffExpiry && item.Expiry) {
 				lot_flt.ExpiryPrd.SetDate(item.Expiry);
 			}
-			// } @v9.7.11
 			if(orderLots) {
 				lot_flt.Flags |= LotFilt::fOrders;
 				if(Filt.Flags & GoodsRestFilt::fEachLocation)

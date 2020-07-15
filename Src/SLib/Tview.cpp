@@ -295,7 +295,6 @@ void TView::Draw_()
 	TView::messageCommand(this, cmDraw);
 }
 
-/* @v9.1.3 int TView::Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return -1; }*/
 /*static*/void * TView::SetWindowProp(HWND hWnd, int propIndex, void * ptr)
 	{ return reinterpret_cast<void *>(::SetWindowLongPtr(hWnd, propIndex, reinterpret_cast<LONG_PTR>(ptr))); }
 /*static*/void * FASTCALL TView::SetWindowUserData(HWND hWnd, void * ptr)

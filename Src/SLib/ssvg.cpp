@@ -583,7 +583,7 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 			if(rA.Flags & StyleBlock::fHasFill) {
 				if(rA.Brush.S == SPaintObj::bsNull) {
 					rA.IdBrush = 0;
-					style_flags |= SDrawFigure::fNullBrush; // @v9.7.10
+					style_flags |= SDrawFigure::fNullBrush;
 				}
 				else if(rA.Brush.IsSimple() && (color_id = p_tb->SearchColor(rA.Brush.C)) != 0) {
 					rA.IdBrush = color_id;
@@ -597,17 +597,14 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 			}
 			else if(pParent) {
 				rA.IdBrush = pParent->GetBrush();
-				// @v9.7.10 {
 				if(pParent->GetFlags() & SDrawFigure::fNullBrush) {
 					rA.IdBrush = 0;
 					style_flags |= SDrawFigure::fNullBrush; 
 				}
-				else { // } @v9.7.10 
-					if(!rA.IdBrush) {
-						color_id = p_tb->CreateColor(0, SColor(SClrBlack)); // @v9.1.9 SClrBlack-->SColor(SClrBlack)
-						if(color_id != 0)
-							rA.IdBrush = color_id;
-					}
+				else if(!rA.IdBrush) {
+					color_id = p_tb->CreateColor(0, SColor(SClrBlack));
+					if(color_id != 0)
+						rA.IdBrush = color_id;
 				}
 			}
 			CALLPTRMEMB(pFig, SetStyle(rA.IdPen, rA.IdBrush, style_flags));

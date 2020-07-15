@@ -77,40 +77,29 @@ static int i2r_NAMING_AUTHORITY(const struct v3_ext_method * method, void * in,
 
 	if(BIO_printf(bp, "%*snamingAuthority: ", ind, "") <= 0)
 		goto err;
-
 	if(namingAuthority->namingAuthorityId != NULL) {
 		char objbuf[128];
 		const char * ln = OBJ_nid2ln(OBJ_obj2nid(namingAuthority->namingAuthorityId));
-
 		if(BIO_printf(bp, "%*s  admissionAuthorityId: ", ind, "") <= 0)
 			goto err;
-
 		OBJ_obj2txt(objbuf, sizeof(objbuf), namingAuthority->namingAuthorityId, 1);
-
-		if(BIO_printf(bp, "%s%s%s%s\n", ln ? ln : "",
-		    ln ? " (" : "", objbuf, ln ? ")" : "") <= 0)
+		if(BIO_printf(bp, "%s%s%s%s\n", ln ? ln : "", ln ? " (" : "", objbuf, ln ? ")" : "") <= 0)
 			goto err;
 	}
 	if(namingAuthority->namingAuthorityText != NULL) {
-		if(BIO_printf(bp, "%*s  namingAuthorityText: ", ind, "") <= 0
-		    || ASN1_STRING_print(bp, namingAuthority->namingAuthorityText) <= 0
-		    || BIO_printf(bp, "\n") <= 0)
+		if(BIO_printf(bp, "%*s  namingAuthorityText: ", ind, "") <= 0 || ASN1_STRING_print(bp, namingAuthority->namingAuthorityText) <= 0 || BIO_printf(bp, "\n") <= 0)
 			goto err;
 	}
 	if(namingAuthority->namingAuthorityUrl != NULL) {
-		if(BIO_printf(bp, "%*s  namingAuthorityUrl: ", ind, "") <= 0
-		    || ASN1_STRING_print(bp, namingAuthority->namingAuthorityUrl) <= 0
-		    || BIO_printf(bp, "\n") <= 0)
+		if(BIO_printf(bp, "%*s  namingAuthorityUrl: ", ind, "") <= 0 || ASN1_STRING_print(bp, namingAuthority->namingAuthorityUrl) <= 0 || BIO_printf(bp, "\n") <= 0)
 			goto err;
 	}
 	return 1;
-
 err:
 	return 0;
 }
 
-static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in,
-    BIO * bp, int ind)
+static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in, BIO * bp, int ind)
 {
 	ADMISSION_SYNTAX * admission = (ADMISSION_SYNTAX*)in;
 	int i, j, k;
@@ -179,11 +168,8 @@ static int i2r_ADMISSION_SYNTAX(const struct v3_ext_method * method, void * in,
 					ASN1_OBJECT* obj = sk_ASN1_OBJECT_value(pinfo->professionOIDs, k);
 					const char * ln = OBJ_nid2ln(OBJ_obj2nid(obj));
 					char objbuf[128];
-
 					OBJ_obj2txt(objbuf, sizeof(objbuf), obj, 1);
-					if(BIO_printf(bp, "%*s      %s%s%s%s\n", ind, "",
-					    ln ? ln : "", ln ? " (" : "",
-					    objbuf, ln ? ")" : "") <= 0)
+					if(BIO_printf(bp, "%*s      %s%s%s%s\n", ind, "", ln ? ln : "", ln ? " (" : "", objbuf, ln ? ")" : "") <= 0)
 						goto err;
 				}
 			}

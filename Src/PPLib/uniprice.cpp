@@ -388,7 +388,6 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID
 	LotArray lot_list, unify_lot_list;
 	PPIDArray pos_to_del;
 	ReceiptCore & rcpt = P_BObj->trfr->Rcpt;
-	PPTransferItem    ti;
 	int    count = 0, diff = 0;
 	double last_price = 0.0, price = 0.0, cost = 0.0;
 	for(DateIter diter; (r = rcpt.EnumLots(pGoodsRec->ID, P.LocID, &diter)) > 0;) {
@@ -424,8 +423,7 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID
 						if(dbl_cmp(lot_price, new_price) != 0) {
 							THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
 							if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
-								MEMSZERO(ti);
-								THROW(ti.Init(&BPack.Rec));
+								PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
 								THROW(ti.SetupGoods(pGoodsRec->ID));
 								THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
 								ti.Suppl    = r_lot_rec.SupplID;
@@ -445,8 +443,7 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID
 						if(CalcNewPrice(r_lot_rec, &new_price) > 0) {
 							THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
 							if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
-								MEMSZERO(ti);
-								THROW(ti.Init(&BPack.Rec));
+								PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
 								THROW(ti.SetupGoods(pGoodsRec->ID));
 								THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
 								ti.Suppl    = r_lot_rec.SupplID;
@@ -466,8 +463,7 @@ int SLAPI PrcssrUnifyPrice::ProcessGoods2(const Goods2Tbl::Rec * pGoodsRec, PPID
 						new_price = new_last_price;
 						THROW(ir = GetNewPrice(&P, pGoodsRec, &new_price));
 						if(ir == cmOK && dbl_cmp(lot_price, new_price) != 0) {
-							MEMSZERO(ti);
-							THROW(ti.Init(&BPack.Rec));
+							PPTransferItem ti(&BPack.Rec, TISIGN_UNDEF);
 							THROW(ti.SetupGoods(pGoodsRec->ID));
 							THROW(ti.SetupLot(r_lot_rec.ID, 0, 0));
 							ti.Suppl    = r_lot_rec.SupplID;

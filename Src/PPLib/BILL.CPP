@@ -30,7 +30,7 @@
 /*static*/double SLAPI BillCore::GetQttyEpsilon()
 {
 	int    eps = CConfig.IltiCvtQttyEpsilon;
-	return (eps > 0 && eps <= 10000) ? (1.0E-7 * (double)eps) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
+	return checkirange(eps, 1, 10000) ? (1.0E-7 * (double)eps) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
 }
 
 /*static*/int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)

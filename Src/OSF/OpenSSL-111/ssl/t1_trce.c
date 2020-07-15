@@ -998,12 +998,10 @@ static int dtls_print_hello_vfyrequest(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_server_hello(BIO * bio, int indent,
-    const unsigned char * msg, size_t msglen)
+static int ssl_print_server_hello(BIO * bio, int indent, const unsigned char * msg, size_t msglen)
 {
 	unsigned int cs;
 	unsigned int vers;
-
 	if(!ssl_print_version(bio, indent, "server_version", &msg, &msglen, &vers))
 		return 0;
 	if(!ssl_print_random(bio, indent, &msg, &msglen))
@@ -1015,21 +1013,18 @@ static int ssl_print_server_hello(BIO * bio, int indent,
 		return 0;
 	cs = (msg[0] << 8) | msg[1];
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "cipher_suite {0x%02X, 0x%02X} %s\n",
-	    msg[0], msg[1], ssl_trace_str(cs, ssl_ciphers_tbl));
+	BIO_printf(bio, "cipher_suite {0x%02X, 0x%02X} %s\n", msg[0], msg[1], ssl_trace_str(cs, ssl_ciphers_tbl));
 	msg += 2;
 	msglen -= 2;
 	if(vers != TLS1_3_VERSION) {
 		if(msglen < 1)
 			return 0;
 		BIO_indent(bio, indent, 80);
-		BIO_printf(bio, "compression_method: %s (0x%02X)\n",
-		    ssl_trace_str(msg[0], ssl_comp_tbl), msg[0]);
+		BIO_printf(bio, "compression_method: %s (0x%02X)\n", ssl_trace_str(msg[0], ssl_comp_tbl), msg[0]);
 		msg++;
 		msglen--;
 	}
-	if(!ssl_print_extensions(bio, indent, 1, SSL3_MT_SERVER_HELLO, &msg,
-	    &msglen))
+	if(!ssl_print_extensions(bio, indent, 1, SSL3_MT_SERVER_HELLO, &msg, &msglen))
 		return 0;
 	return 1;
 }
@@ -1037,7 +1032,6 @@ static int ssl_print_server_hello(BIO * bio, int indent,
 static int ssl_get_keyex(const char ** pname, const SSL * ssl)
 {
 	unsigned long alg_k = ssl->s3->tmp.new_cipher->algorithm_mkey;
-
 	if(alg_k & SSL_kRSA) {
 		*pname = "rsa";
 		return SSL_kRSA;
@@ -1521,27 +1515,18 @@ void SSL_trace(int write_p, int version, int content_type,
 		    BIO_printf(bio, " Record\nHeader:\n  Version = %s (0x%x)\n",
 			ssl_trace_str(hvers, ssl_version_tbl), hvers);
 		    if(SSL_IS_DTLS(ssl)) {
-			    BIO_printf(bio,
-				"  epoch=%d, sequence_number=%04x%04x%04x\n",
-				(msg[3] << 8 | msg[4]),
-				(msg[5] << 8 | msg[6]),
-				(msg[7] << 8 | msg[8]), (msg[9] << 8 | msg[10]));
+			    BIO_printf(bio, "  epoch=%d, sequence_number=%04x%04x%04x\n", (msg[3] << 8 | msg[4]), (msg[5] << 8 | msg[6]), (msg[7] << 8 | msg[8]), (msg[9] << 8 | msg[10]));
 		    }
-
-		    BIO_printf(bio, "  Content Type = %s (%d)\n  Length = %d",
-			ssl_trace_str(msg[0], ssl_content_tbl), msg[0],
-			msg[msglen - 2] << 8 | msg[msglen - 1]);
+		    BIO_printf(bio, "  Content Type = %s (%d)\n  Length = %d", ssl_trace_str(msg[0], ssl_content_tbl), msg[0], msg[msglen - 2] << 8 | msg[msglen - 1]);
 	    }
 	    break;
 
 		case SSL3_RT_INNER_CONTENT_TYPE:
-		    BIO_printf(bio, "  Inner Content Type = %s (%d)",
-			ssl_trace_str(msg[0], ssl_content_tbl), msg[0]);
+		    BIO_printf(bio, "  Inner Content Type = %s (%d)", ssl_trace_str(msg[0], ssl_content_tbl), msg[0]);
 		    break;
 
 		case SSL3_RT_HANDSHAKE:
-		    if(!ssl_print_handshake(bio, ssl, ssl->server ? write_p : !write_p,
-			msg, msglen, 4))
+		    if(!ssl_print_handshake(bio, ssl, ssl->server ? write_p : !write_p, msg, msglen, 4))
 			    BIO_printf(bio, "Message length parse error!\n");
 		    break;
 
@@ -1556,12 +1541,9 @@ void SSL_trace(int write_p, int version, int content_type,
 		    if(msglen != 2)
 			    BIO_puts(bio, "    Illegal Alert Length\n");
 		    else {
-			    BIO_printf(bio, "    Level=%s(%d), description=%s(%d)\n",
-				SSL_alert_type_string_long(msg[0] << 8),
-				msg[0], SSL_alert_desc_string_long(msg[1]), msg[1]);
+			    BIO_printf(bio, "    Level=%s(%d), description=%s(%d)\n", SSL_alert_type_string_long(msg[0] << 8), msg[0], SSL_alert_desc_string_long(msg[1]), msg[1]);
 		    }
 	}
-
 	BIO_puts(bio, "\n");
 }
 

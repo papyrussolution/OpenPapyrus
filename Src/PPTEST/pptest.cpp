@@ -1000,7 +1000,7 @@ static int _StringFuncSS(const char * pStr)
 {
 	SString buf;
 	(buf = pStr).Cat("abcdefg-012345");
-	return (buf.CmpNC("xyz") != 0);
+	return (!buf.IsEqiAscii("xyz"));
 }
 
 static int _StringFuncSP(const char * pStr, SStringPool * pSp)
@@ -1008,7 +1008,7 @@ static int _StringFuncSP(const char * pStr, SStringPool * pSp)
 	uint   spp = 0;
 	SString & buf = *pSp->Alloc(&spp);
 	(buf = pStr).Cat("abcdefg-012345");
-	int ret = (buf.CmpNC("xyz") != 0);
+	int ret = (!buf.IsEqiAscii("xyz"));
 	pSp->Free(spp);
 	return ret;
 }
@@ -1050,7 +1050,6 @@ int TestSStringPerf()
 //
 //
 #if 0 // @v10.2.4 {
-
 #include <fann.h>
 
 int TestFann()
@@ -1152,3 +1151,220 @@ int TestFann()
     return ok;
 }
 #endif // } @v10.2.4
+//
+// Construction tests
+// Ситуативные тесты, доступные через команду рабочего стола
+//
+#ifndef NDEBUG // @construction {
+//
+//
+//
+class TestFrameWindow : public TWindowBase {
+public:
+	static int Run();
+
+	enum {
+		zoneLeft = 1,
+		zoneTop,
+		zoneRight,
+		zoneBottom,
+		zoneCenter
+	};
+	TestFrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
+	{
+		SRectLayout::Item li;
+		Layout.Add(zoneTop, li.SetTop(40, 0));
+		Layout.Add(zoneBottom, li.SetBottom(10, 0));
+		Layout.Add(zoneLeft, li.SetLeft(20, 1));
+		Layout.Add(zoneRight, li.SetRight(20, 1));
+		Layout.Add(zoneCenter, li.SetCenter());
+	}
+protected:
+	DECL_HANDLE_EVENT
+	{
+		TWindowBase::handleEvent(event);
+	}
+};
+
+class TestInnerWindow : public TWindowBase {
+public:
+	enum {
+		penMain = 1,
+		brBackg,
+		brForeg,
+		fontMain
+	};
+	TestInnerWindow(const char * pText, SColor backgClr) : TWindowBase(_T("SLibWindowBase"), 0)
+	{
+		setTitle(pText);
+		Tb.CreatePen(penMain, SPaintObj::psSolid, 1, SColor(SClrBlack));
+		Tb.CreateBrush(brBackg, SPaintObj::bsSolid, backgClr, 0);
+		Tb.CreateBrush(brForeg, SPaintObj::bsSolid, SColor(SClrBlack), 0);
+		//Tb.CreateFont(fontMain, "Arial Cyr", 9, 0);
+	}
+protected:
+	DECL_HANDLE_EVENT
+	{
+		TWindowBase::handleEvent(event);
+		if(event.isCmd(cmPaint)) {
+			const PaintEvent * p_pe = static_cast<const PaintEvent *>(TVINFOPTR);
+			if(p_pe->PaintType == PaintEvent::tPaint) {
+				TCanvas2 canv(Tb, (HDC)p_pe->H_DeviceContext);
+				TRect rect_cli = getClientRect();
+				SString msg_buf;
+				//TPoint p;
+				canv.Rect(rect_cli, 0, brBackg);
+				//canv.Rect(rect_cli.grow(-1, -1), penMain, 0);
+				TRect sq(1, 1, 3, 3);
+				canv.Rect(sq, 0, brForeg);
+				/*
+				canv.MoveTo(p.set(5, 10));
+				canv.Text(msg_buf = getTitle(), fontMain);
+				*/
+			}
+			else if(p_pe->PaintType == PaintEvent::tEraseBackground) {
+				;
+			}
+			else
+				return;
+		}
+	}
+};
+
+/*static*/int TestFrameWindow::Run()
+{
+	int    ok = 1;
+	TestFrameWindow * p_win = new TestFrameWindow();
+	p_win->changeBounds(TRect(10, 10, 900, 900));
+	p_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
+	{
+		TWindowBase * p_child = 0;
+		{
+			p_child = new PPWhatmanWindow(PPWhatmanWindow::modeToolbox);
+			p_win->AddChild(p_child, TWindowBase::coChild, zoneLeft);
+		}
+		{
+			p_child = new TestInnerWindow("Top Window", SClrAzure);
+			p_win->AddChild(p_child, TWindowBase::coChild, zoneTop);
+		}
+		{
+			p_child = new TestInnerWindow("Bottom Window", SClrBlue);
+			p_win->AddChild(p_child, TWindowBase::coChild, zoneBottom);
+		}
+		{
+			p_child = new TestInnerWindow("Right Window", SClrCoral);
+			p_win->AddChild(p_child, TWindowBase::coChild, zoneRight);
+		}
+		{
+			PPWhatmanWindow * p_child = new PPWhatmanWindow(PPWhatmanWindow::modeEdit);
+			p_win->AddChild(p_child, TWindowBase::coChild, zoneCenter);
+			{
+				TArrangeParam ap;
+				ap.Dir = DIREC_VERT;
+				ap.RowSize = 2;
+				ap.UlGap.Set(30, 30);
+				p_child->ArrangeObjects(0, ap);
+			}
+		}
+	}
+	ShowWindow(p_win->H(), SW_SHOWNORMAL);
+	UpdateWindow(p_win->H());
+	return ok;
+}
+//
+//
+//
+int SLAPI TestSuffixTree(); //
+// @v10.2.4 int TestFann();
+int  TestFann2();
+int  SLAPI LuaTest();
+int  SLAPI CollectLldFileStat();
+int  SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
+void SLAPI TestSArchive();
+int  SLAPI TestLargeVlrInputOutput();
+void SLAPI Test_MailMsg_ReadFromFile();
+void SLAPI Test_MakeEmailMessage();
+int  SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
+void SLAPI TestCRC();
+int  SLAPI TestUhttClient();
+int  SLAPI TestReadXmlMem_EgaisAck();
+int  SLAPI TestGtinStruc();
+int  SLAPI TestConfigDatabase_StringHistory();
+int  SLAPI TestConfigDatabase_StringHistory_Interactive();
+void SLAPI TestGravity();
+
+/*static int SLAPI TestWorkspacePath()
+{
+	SString path;
+	PPGetPath(PPPATH_WORKSPACE, path);
+	return BIN(path.NotEmpty());
+}*/
+
+int SLAPI DoConstructionTest()
+{
+	int    ok = -1;
+#ifndef NDEBUG
+	TestGtinStruc();
+	TestGravity();
+	//PPChZnPrcssr::Test();
+	//TestConfigDatabase_StringHistory();
+	//TestConfigDatabase_StringHistory_Interactive();
+	//TestWorkspacePath();
+	//TestReadXmlMem_EgaisAck();
+	//TestMqc();
+	//TestUhttClient();
+	//TestCRC();
+	//Test_MailMsg_ReadFromFile();
+	//TestSArchive();
+	//LuaTest();
+	//TestFann2();
+	//Test_MakeEmailMessage();
+	//CollectLldFileStat();
+#endif
+	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
+	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
+	//TestFrameWindow::Run();
+	//TestSuffixTree();
+	//TestFann();
+	{
+		//TSCollection <PPBarcode::Entry> bc_list;
+		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);
+		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/040-69911566-57N00001CPQ0LN0GLBP1O9R30603031000007FB116511C6E341B4AB38FB95E24B46D.png", bc_list);
+		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
+	}
+#if 0 // {
+	{
+		SString map_pool_file_name;
+		SString map_transl_file_name;
+		PPGetFilePath(PPPATH_OUT, "SCodepageMapPool.txt", map_pool_file_name);
+		PPGetFilePath(PPPATH_OUT, "SCodepageMapTransl.txt", map_transl_file_name);
+		//
+		SUnicodeTable ut;
+		ut.ParseSource("d:/Papyrus/Src/Rsrc/unicodedata");
+		ParseCpEncodingTables("d:/papyrus/src/rsrc/data/cp", &ut);
+
+		SUnicodeBlock ub;
+		//ub.ReadRaw("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp");
+		PPReadUnicodeBlockRawData("d:/Papyrus/Src/Rsrc/unicodedata", "d:/papyrus/src/rsrc/data/cp", ub);
+		ub.Cpmp.Test(&ub.Ut, map_pool_file_name, map_transl_file_name);
+		ub.Write("d:/papyrus/__temp__/ub.bin");
+		{
+			SUnicodeBlock ub2;
+			ub2.Read("d:/papyrus/__temp__/ub.bin");
+			ub2.Cpmp.Test(&ub2.Ut, map_pool_file_name, map_transl_file_name);
+		}
+	}
+#endif // } 0
+	//TestLargeVlrInputOutput();
+	return ok;
+}
+
+#else // }{
+
+int SLAPI DoConstructionTest()
+{
+	int    ok = -1;
+	return ok;
+}
+
+#endif // } 0 @construction

@@ -564,7 +564,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	int    _is_subst = 0;
 	SString _file_name = FileName;
 	_file_name.Transf(CTRANSF_INNER_TO_OUTER);
-	if(_file_name.IsEqNC(":buffer:")) {
+	if(_file_name.IsEqiAscii(":buffer:")) {
 		rResult = _file_name;
 	}
 	else {
@@ -1981,7 +1981,7 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 		PPID   tag_id = 0;
 		scan.Set(dyn_fld.Formula, 0);
 		if(scan.GetIdent(temp_buf.Z())) {
-			if(temp_buf.IsEqNC("lottag")) {
+			if(temp_buf.IsEqiAscii("lottag")) {
 				scan.Skip();
 				if(scan[0] == '.') {
 					scan.Incr(1);
@@ -2028,7 +2028,7 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 					}
 				}
 			}
-			else if(temp_buf.IsEqNC("costformula")) {
+			else if(temp_buf.IsEqiAscii("costformula")) {
 				scan.Skip();
 				if(scan[0] == '.') {
 					scan.Incr(1);
@@ -2049,7 +2049,7 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 						Logger.LogString(PPTXT_BROWCOSTFORMINV, temp_buf);
 				}
 			}
-			else if(temp_buf.IsEqNC("priceformula")) {
+			else if(temp_buf.IsEqiAscii("priceformula")) {
 				scan.Skip();
 				if(scan[0] == '.') {
 					scan.Incr(1);
@@ -2071,7 +2071,7 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 				}
 			}
 			// @erik v10.5.2 {
-			else if(temp_buf.IsEqNC("qttyformula")){
+			else if(temp_buf.IsEqiAscii("qttyformula")){
 				scan.Skip();
 				if(scan[0] == '.') {
 					scan.Incr(1);
@@ -2099,8 +2099,8 @@ int SLAPI PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN
 					dfkToken,       // token[inner_field].outer_field divisor number (token[CntragID].CLIENTID_DISTRIB _ 1)
 					dfkIdentByTag   // identbytag[inner_field].outer_field tag_symbol
 				};
-				const int dfk = (temp_buf.IsEqNC("formula") ? dfkFormula :
-					(temp_buf.IsEqNC("token") ? dfkToken : (temp_buf.IsEqNC("identbytag") ? dfkIdentByTag : 0)));
+				const int dfk = (temp_buf.IsEqiAscii("formula") ? dfkFormula :
+					(temp_buf.IsEqiAscii("token") ? dfkToken : (temp_buf.IsEqiAscii("identbytag") ? dfkIdentByTag : 0)));
 				if(dfk && scan.Skip()[0] == '[') {
 					scan.Incr(1);
 					if(scan.Skip().GetIdent(temp_buf) && scan.Skip()[0] == ']' && scan.Skip()[1] == '.') {
@@ -2593,7 +2593,7 @@ int SLAPI PPBillImporter::ReadData()
 				SString ordresp_cmd, desadv_cmd;
 				THROW(PPLoadString(PPSTR_IMPEXPCMD, IMPEXPCMD_ORDRSP, ordresp_cmd));
 				THROW(PPLoadString(PPSTR_IMPEXPCMD, IMPEXPCMD_DESADV, desadv_cmd));
-				if(BillParam.ImpExpParamDll.OperType.IsEqNC("ALCODESADV"))
+				if(BillParam.ImpExpParamDll.OperType.IsEqiAscii("ALCODESADV"))
 					edi_op = PPEDIOP_ALCODESADV;
 				else if(ordresp_cmd.IsEqNC(BillParam.ImpExpParamDll.OperType))
 					edi_op = PPEDIOP_ORDERRSP;
@@ -3714,8 +3714,11 @@ int SLAPI PPBillImporter::CheckBill(const Sdr_Bill * pBill)
 		if(BillToBillRec(pBill, &pack) && Period.CheckDate(pack.Rec.Dt)) {
 			if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) <= 0) // 5121033726
 				ok = 1;
-			else
-				Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, pBill->ID);
+			else {
+				SString msg_buf;
+				PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName, msg_buf);
+				Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, msg_buf.cptr());
+			}
 		}
 	}
 	return ok;
@@ -4274,7 +4277,7 @@ int SLAPI PPBillImporter::Run()
 		param.GuaID = GuaID;
 		param.LocID = LocID;
 		param.Period = Period;
-		prcssr.Run(param);
+		THROW(prcssr.Run(param));
 	}
 	if(oneof2(BillParam.PredefFormat, PPBillImpExpParam::pfNalogR, PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK)) {
 		DocNalogRu_Reader reader;
@@ -4452,7 +4455,7 @@ int SLAPI PPBillImporter::Run()
 										GTaxVect vect;
 										PPGoodsTaxEntry gtx;
 										if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
-											vect.Calc_(&gtx, p_item->PriceSumWoVat, p_item->Qtty, GTAXVF_AFTERTAXES, 0);
+											vect.Calc_(&gtx, p_item->PriceWoVat, 1.0, GTAXVF_AFTERTAXES, 0); // @v10.8.1 @fix (p_item->PriceSumWoVat, p_item->Qtty)-->(p_item->PriceWoVat, 1.0)
 											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 										}
 									}
@@ -4684,10 +4687,10 @@ int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBil
 				}
 				// Если имя файла задано шаблоном, то оно могло измениться { //
 				BillParam.FileName = P_IEBill->GetParamConst().FileName;
-				if(P_IEBRow) // @v9.7.8
+				if(P_IEBRow)
 					BRowParam.FileName = P_IEBRow->GetParamConst().FileName;
 				// }
-				if(!BillParam.PredefFormat) // @v9.8.0
+				if(!BillParam.PredefFormat)
 					THROW(P_IEBill->OpenFileForWriting(0, 1, pResultFileList));
 			}
 		}
@@ -4733,9 +4736,9 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 		}
 		if(sessId && pImpExpDll) {
             int    edi_op = 0;
-            if(edi_op_symb.IsEqNC("RECADV"))
+            if(edi_op_symb.IsEqiAscii("RECADV"))
 				edi_op = PPEDIOP_RECADV;
-			else if(edi_op_symb.IsEqNC("ORDER"))
+			else if(edi_op_symb.IsEqiAscii("ORDER"))
 				edi_op = PPEDIOP_ORDER;
 			PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, temp_buf.Z());
             pPack->Rec.EdiOp = edi_op;
@@ -4944,13 +4947,13 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 						if(goods_kind_symb.NotEmpty()) {
 							GoodsExtTbl::Rec goods_ext_rec;
 							if(GObj.P_Tbl->GetExt(goods_rec.ID, &goods_ext_rec)) {
-								if(goods_kind_symb.IsEqNC("X"))
+								if(goods_kind_symb.IsEqiAscii("X"))
 									brow.GoodKindCode = goods_ext_rec.X;
-								else if(goods_kind_symb.IsEqNC("Y"))
+								else if(goods_kind_symb.IsEqiAscii("Y"))
 									brow.GoodKindCode = goods_ext_rec.Y;
-								else if(goods_kind_symb.IsEqNC("Z"))
+								else if(goods_kind_symb.IsEqiAscii("Z"))
 									brow.GoodKindCode = goods_ext_rec.Z;
-								else if(goods_kind_symb.IsEqNC("W"))
+								else if(goods_kind_symb.IsEqiAscii("W"))
 									brow.GoodKindCode = goods_ext_rec.W;
 							}
 						}
@@ -5028,13 +5031,13 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							GObj.FetchCls(goods_rec.ID, 0, &gds_cls_pack);
 							if(GObj.P_Tbl->GetExt(goods_rec.ID, &goods_ext_rec)) {
 								int    dim = 0;
-								if(goods_vol_symb.IsEqNC("X"))
+								if(goods_vol_symb.IsEqiAscii("X"))
 									dim = PPGdsCls::eX;
-								else if(goods_vol_symb.IsEqNC("Y"))
+								else if(goods_vol_symb.IsEqiAscii("Y"))
 									dim = PPGdsCls::eY;
-								else if(goods_vol_symb.IsEqNC("Z"))
+								else if(goods_vol_symb.IsEqiAscii("Z"))
 									dim = PPGdsCls::eZ;
-								else if(goods_vol_symb.IsEqNC("W"))
+								else if(goods_vol_symb.IsEqiAscii("W"))
 									dim = PPGdsCls::eW;
 								if(dim)
 									gds_cls_pack.GetExtDim(&goods_ext_rec, dim, &phuperu);
@@ -5064,11 +5067,9 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				brow.CVatSum  = vect.GetValue(GTAXVF_VAT);
 			}
 			brow.Expiry = p_ti->Expiry;
-			// @v9.8.11 pPack->SnL.GetNumber(i-1, &temp_buf);
-			pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11
+			pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf);
 			STRNSCPY(brow.Serial, temp_buf);
-			// @v9.8.11 pPack->ClbL.GetNumber(i-1, &temp_buf);
-			pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, temp_buf); // @v9.8.11
+			pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, temp_buf);
 			STRNSCPY(brow.CLB, temp_buf);
 			if(p_ti->QCert) {
 				QualityCertTbl::Rec qc_rec;
@@ -5434,7 +5435,7 @@ int SLAPI DocNalogRu_Generator::MakeOutFileName(const char * pFileIdent, SString
 {
 	int    ok = 1;
 	SPathStruc ps(rFileName);
-	ps.Ext = "xml";
+	SFileFormat::GetExt(SFileFormat::Xml, ps.Ext);
 	ps.Nam = pFileIdent;
 	ps.Merge(rFileName);
 	return ok;
@@ -5540,7 +5541,6 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 	}
 }
 
-//DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const char * pK, const char * pSubj, const char * pSubjReason) :
 DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo) :
 	N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_DOCUMENT))
 {
@@ -5892,7 +5892,8 @@ int SLAPI DocNalogRu_Generator::Underwriter(PPID psnID)
 			else {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JUR_S));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), inn);
-				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_STAFFPOSITION), GetToken_Ansi(PPHSC_RU_DIRECTOR));
+				temp_buf = GetToken_Ansi(PPHSC_RU_DIRECTOR);
+				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_STAFFPOSITION), temp_buf);
 				WriteFIO(psn_rec.Name);
 			}
 		}
@@ -6085,10 +6086,11 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 				// Сведения документа кроме сведений о передаче результатов работ (о предъявлении оказанных услуг)
 				SXml::WNode n_(g.P_X, "СвДокПРУ");
 				{
-					SXml::WNode n_2(g.P_X, "НаимДок");
-					n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC2), "Документ о передаче результатов работ (Документ об оказании услуг)");
+					SXml::WNode n_2(g.P_X, g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC_S));
+					temp_buf = g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC_S_SRVC);
+					n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC2), temp_buf);
 					n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC), g.EncText(temp_buf = op_rec.Name));
-					SXml::WNode n_3(g.P_X, "ИдентДок");
+					SXml::WNode n_3(g.P_X, g.GetToken_Ansi(PPHSC_RU_DOCIDENT));
 					BillCore::GetCode(temp_buf = rBp.Rec.Code);
 					n_3.PutAttrib("НомДокПРУ", g.EncText(temp_buf));
 					n_3.PutAttrib("ДатаДокПРУ", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
@@ -6100,7 +6102,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 							//SXml::WNode n_41(g.P_X, "ЗагСодОпер"); // @optional
                             g.WriteParticipant(g.GetToken_Ansi(PPHSC_RU_EXECUTOR), main_org_id);
                             g.WriteParticipant(g.GetToken_Ansi(PPHSC_RU_CUSTOMER),  ObjectToPerson(rBp.Rec.Object));
-							SXml::WNode n_44(g.P_X, "Основание");
+							SXml::WNode n_44(g.P_X, g.GetToken_Ansi(PPHSC_RU_FOUNDATION));
 							if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
 								SXml::WNode n_45(g.P_X, g.GetToken_Ansi(PPHSC_RU_STATECONTRID), g.EncText(temp_buf));
 							SXml::WNode n_46(g.P_X, "ВидОперации", g.EncText(temp_buf = op_rec.Name));
@@ -6133,7 +6135,8 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 													n_471.PutAttrib(g.GetToken_Ansi(PPHSC_RU_OKEI), "0000");
 											}
 											else {
-												n_471.PutAttrib(g.GetToken_Ansi(PPHSC_RU_UNITNAME), "Час");
+												temp_buf = g.GetToken_Ansi(PPHSC_RU_UNITNAME_HOUR);
+												n_471.PutAttrib(g.GetToken_Ansi(PPHSC_RU_UNITNAME), temp_buf);
 												n_471.PutAttrib(g.GetToken_Ansi(PPHSC_RU_OKEI), "356");
 											}
 										}
@@ -6482,123 +6485,6 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 //
 int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 {
-	/*
-<?xml version="1.0" encoding="windows-1251"?>
-<Файл ИдФайл="ON_SCHFDOPPR__2BEf246d3a04afa11e3a1e8005056917125_20200124_A2ACC689-3BBC-48FF-92CE-9B62738F8DC3" ВерсПрог="Papyrus 10.6.9" ВерсФорм="5.01">
-	<СвУчДокОбор ИдОтпр="2BEf246d3a04afa11e3a1e8005056917125" ИдПол=""/>
-	<Документ КНД="1115125" НаимЭконСубСост="ООО &quot;Петроглиф&quot;" Функция="ДОП" ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)" НаимДокОпр="Оказание услуг (ЦТО)" ДатаИнфПр="24.01.2020" ВремИнфПр="11.33.21">
-		<СвСчФакт НомерСчФ="25" ДатаСчФ="24.01.2020" КодОКВ="643">
-			<СвПрод>
-				<ИдСв>
-					<СвЮЛУч НаимОрг="Общество с ограниченной ответственностью &quot;Петроглиф&quot;" ИННЮЛ="1001088480" КПП="100101001"/>
-				</ИдСв>
-				<Адрес>
-					<АдрРФ Индекс="185014" КодРегион="10" Город="Петрозаводск" Улица="Попова" Дом="12" Кварт="8"/>
-				</Адрес>
-			</СвПрод>
-			<СвПокуп>
-				<ИдСв>
-					<СвЮЛУч НаимОрг="ООО &quot;ТД &quot;Ярви&quot;" ИННЮЛ="1001220360" КПП="100101001"/>
-				</ИдСв>
-				<Адрес>
-					<АдрРФ Индекс="185014" КодРегион="10" Город="Петрозаводск" Улица="Сыктывкарская" Дом="27" Кварт="46"/>
-				</Адрес>
-			</СвПокуп>
-			<ДопСвФХЖ1 НаимОКВ="Российский рубль"/>
-			<ИнфПолФХЖ1>
-				<ТекстИнф Идентиф="Договор" Значен="СО/27"/>
-				<ТекстИнф Идентиф="ДатаДоговора" Значен="01.05.2017"/>
-			</ИнфПолФХЖ1>
-		</СвСчФакт>
-		<ТаблСчФакт>
-			<СведТов НомСтр="1" КолТов="1.1" НаимТов="Работы по настройке оборудования" ОКЕИ_Тов="356" НалСт="без НДС" ЦенаТов="1000" СтТовБезНДС="1100.00" СтТовУчНал="1100.00">
-				<Акциз>
-					<БезАкциз>без акциза</БезАкциз>
-				</Акциз>
-				<СумНал>
-					<БезНДС>без НДС</БезНДС>
-				</СумНал>
-			</СведТов>
-			<ВсегоОпл СтТовБезНДСВсего="1100.00" СтТовУчНалВсего="1100.00">
-				<СумНалВсего>
-					<БезНДС>без НДС</БезНДС>
-				</СумНалВсего>
-			</ВсегоОпл>
-		</ТаблСчФакт>
-		<СвПродПер>
-			<СвПер СодОпер="Товары переданы и услуги оказаны в полном объеме">
-				<ОснПер НаимОсн="Договор" НомОсн="СО/27" ДатаОсн="01.05.2017"/>
-			</СвПер>
-		</СвПродПер>
-		<Подписант ОблПолн="0" Статус="1" ОснПолн="Должностные обязанности">
-			<ЮЛ ИННЮЛ="1001088480" Должн="Директор"/>
-			<ФИО Фамилия="Соболев" Имя="Антон" Отчество="Иосифович"/>
-		</Подписант>
-	</Документ>
-</Файл>
-
-
-<?xml version="1.0" encoding="windows-1251" standalone="no"?>
-<Файл ИдФайл="ON_NSCHFDOPPR___20200124_003e9d3d-ec94-49c4-96c8-b692603b1e69" ВерсФорм="5.01" ВерсПрог="СБиС3">
-	<СвУчДокОбор ИдОтпр="" ИдПол="">
-		<СвОЭДОтпр НаимОрг="ООО &quot;Компания &quot;Тензор&quot;" ИННЮЛ="7605016030" ИдЭДО="2ВЕ"/>
-	</СвУчДокОбор>
-	<Документ КНД="1115131" Функция="СЧФДОП" ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)" НаимДокОпр="Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)" ДатаИнфПр="04.03.2014" ВремИнфПр="14.13.49" НаимЭконСубСост="ООО &quot;Поставщик&quot;">
-		<СвСчФакт НомерСчФ="2" ДатаСчФ="04.03.2014" КодОКВ="643">
-			<СвПрод>
-				<ИдСв>
-					<СвЮЛУч НаимОрг="ООО &quot;Поставщик&quot;" ИННЮЛ="6000000001" КПП="600101001"/>
-				</ИдСв>
-				<Адрес>
-					<АдрРФ Индекс="150000" КодРегион="76" Город="Ярославль" Улица="Свободы" Дом="12" Кварт="4"/>
-				</Адрес>
-				<Контакт Тлф="251115"/>
-			</СвПрод>
-			<СвПокуп>
-				<ИдСв>
-					<СвЮЛУч НаимОрг="ООО &quot;Покупатель&quot;" ИННЮЛ="6000000114" КПП="600101001"/>
-				</ИдСв>
-				<Адрес>
-					<АдрРФ Индекс="150000" КодРегион="50" Город="Видное" Улица="Клубный пер., д.7, стр.1, секция 4, пом. 2"/>
-				</Адрес>
-			</СвПокуп>
-			<ИнфПолФХЖ1>
-				<ТекстИнф Идентиф="ОснованиеДата" Значен="04.03.2014"/>
-				<ТекстИнф Идентиф="ОснованиеНомер" Значен="3"/>
-				<ТекстИнф Идентиф="ДоговорДата" Значен="25.06.2015"/>
-			</ИнфПолФХЖ1>
-		</СвСчФакт>
-		<ТаблСчФакт>
-			<СведТов НомСтр="1" НаимТов="Услуги по предоставлению разнорабочего" ОКЕИ_Тов="796" КолТов="3.000" ЦенаТов="1500.00" СтТовБезНДС="4500.00" НалСт="18%" СтТовУчНал="5310.00">
-				<Акциз>
-					<БезАкциз>без акциза</БезАкциз>
-				</Акциз>
-				<СумНал>
-					<СумНал>810.00</СумНал>
-				</СумНал>
-				<ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
-				<ИнфПолФХЖ2 Идентиф="ИД" Значен="00000000027"/>
-				<ИнфПолФХЖ2 Идентиф="Цена1С" Значен="1500.00"/>
-			</СведТов>
-			<ВсегоОпл СтТовБезНДСВсего="4500.00" СтТовУчНалВсего="5310.00">
-				<СумНалВсего>
-					<СумНал>810.00</СумНал>
-				</СумНалВсего>
-			</ВсегоОпл>
-		</ТаблСчФакт>
-		<СвПродПер>
-			<СвПер СодОпер="Реализация">
-				<ОснПер НаимОсн="Договор №15 от 15.06.19" ДатаОсн="25.06.2015"/>
-			</СвПер>
-		</СвПродПер>
-		<Подписант ОблПолн="5" Статус="1" ОснПолн="Должностные обязанности">
-			<ЮЛ ИННЮЛ="" НаимОрг="" Должн="">
-				<ФИО Фамилия="" Имя="" Отчество=""/>
-			</ЮЛ>
-		</Подписант>
-	</Документ>
-</Файл>
-	*/
 	int    ok = 1;
 	DocNalogRu_Generator g;
 	{
@@ -6713,7 +6599,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENTEX1));
 					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
 						n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_STATECONTRID), temp_buf);
-					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME), g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME_RUB));
+					temp_buf = g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME_RUB);
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CURRENCYNAME), temp_buf);
 				}
 				{
 					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_EXTRA1));

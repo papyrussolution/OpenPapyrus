@@ -283,7 +283,7 @@ private:
 	int    FormatPaym(double paym, SString & rStr);
 	int    SetLogotype(SString & rPath, size_t size, uint height, uint width);
 	int    PrintLogo(int print);
-	int    GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt); // dt = 0 - возвращает форматировнную дату, dt = 1 - время //
+	void   GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt); // dt = 0 - возвращает форматировнную дату, dt = 1 - время //
 	//
 	// Descr: Получает таблицу налогов из настроек аппарата (DvcTaxArray)
 	//
@@ -1196,6 +1196,20 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(0, 0);
 			THROW(OpenBox());
 		}
+		// @v10.8.1 {
+		else if(cmd.IsEqiAscii("GETDEVICETIME")) {
+			SString date_buf, time_buf;
+			SString in_data, out_data, r_error;
+			THROW(ExecCmd("13", in_data, out_data, r_error)); // Смотрим текщую дату/время на ККМ
+			out_data.Divide(FS, date_buf, time_buf);
+			LDATETIME dtm = ZERODATETIME;
+			strtodate(date_buf, DATF_DMY|DATF_NODIV, &dtm.d);
+			strtotime(time_buf, TIMF_HMS|TIMF_NODIV, &dtm.t);
+			str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+			memcpy(pOutputData, str, outSize);
+			//CashDateTime.Z().Cat("Текущая дата на ККМ").CatDiv(':', 2).Cat(date).Space().Cat("Текущее время на ККМ").CatDiv(':', 2).Cat(time);
+		}
+		// } @v10.8.1 
 		else if(cmd.IsEqiAscii("GETECRSTATUS")) {
 			THROW(GetStatus(str));
 			if(outSize < str.BufSize()) {
@@ -2478,11 +2492,10 @@ int PiritEquip::PrintLogo(int print)
 	return ok;
 }
 
-int PiritEquip::GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt)
+void PiritEquip::GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt)
 {
 	switch(dt) {
 		case 0: rDateTime.Z().CatLongZ(sysDtTm.wDay, 2).CatLongZ(sysDtTm.wMonth, 2).Cat(sysDtTm.wYear % 100); break;
 		case 1: rDateTime.Z().CatLongZ(sysDtTm.wHour, 2).CatLongZ(sysDtTm.wMinute, 2).CatLongZ(sysDtTm.wSecond, 2); break;
 	}
-	return 1;
 }

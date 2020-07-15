@@ -1568,7 +1568,7 @@ int SLAPI PPObjPerson::Import(int specKind, int use_ta)
 							pack.Rec.Status = NZOR(status_id, PPPRS_LEGAL);
 						pack.Kinds.copy(kind_list);
 						if(rec.get(fldn_vatfree, temp_buf, 1))
-							if(temp_buf.ToLong() == 1 || temp_buf.CmpNC("Yes") == 0 || temp_buf.CmpNC("Y") == 0)
+							if(temp_buf.ToLong() == 1 || temp_buf.IsEqiAscii("Yes") || temp_buf.IsEqiAscii("Y"))
 								pack.Rec.Flags |= PSNF_NOVATAX;
 						rec.get(fldn_memo, temp_buf);
 						temp_buf.Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
@@ -3750,7 +3750,7 @@ int FASTCALL ReadDBSR25::NextIteration(PPSuprWareAssoc & rGoodComp)
 		Cntr.Increment();
 		food_nutr.Clear();
 		for(uint pos = 0; (pos < 3) && (str.Divide('^', left, right) > 0);) {
-			if(left.Len() && left.CmpNC("~~") != 0) {
+			if(left.Len() && !left.IsEqiAscii("~~")) {
 				// Обрезаем символ ~ с правой и с левой стороны строки, если он есть
 				left.ShiftLeftChr('~');
 				left.TrimRightChr('~');
@@ -3906,7 +3906,7 @@ int SLAPI ImportSR25()
 							sw_item.UnitID = unit_id;
 						}
 						// если единица измерения энергии - kcal, то не сохраняем. Для всех продуктов есть и kcal и kJ. Записывать будем kJ
-						if(unit_abbr.CmpNC("kcal") != 0 && sw_item.Qtty != 0.0) {
+						if(!unit_abbr.IsEqiAscii("kcal") && sw_item.Qtty != 0.0) {
 							sw_item.GoodsID = sw_id;
 							sw_item.CompID = sw_comp_id;
 							THROW(sw_obj.PutAssoc(sw_item, 0));
@@ -4268,17 +4268,17 @@ int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, 
 	rDt = ZERODATE;
 	rUuid.Z();
 	SPathStruc ps(pFileName);
-	if(ps.Ext.CmpNC("xml") == 0) {
+	if(ps.Ext.IsEqiAscii("xml")) {
 		StringSet ss('_', ps.Nam);
 		SString temp_buf;
 		uint   n = 0;
 		for(uint p = 0; ok && ss.get(&p, temp_buf); n++) {
 			if(n == 0) {
-				if(temp_buf.Strip().CmpNC("AS") != 0)
+				if(!temp_buf.Strip().IsEqiAscii("AS"))
 					ok = 0;
 			}
 			else if(n == 1) {
-				if(temp_buf.Strip().CmpNC("DEL") == 0) {
+				if(temp_buf.Strip().IsEqiAscii("DEL")) {
 					status |= 0x0001;
 					ok |= 0x08000000;
 					n--; // DEL - дополнительный компонент
@@ -6270,13 +6270,13 @@ int SLAPI PrcssrOsm::Run()
 								if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
 									key_buf.Strip();
 									val_buf.Strip();
-									if(key_buf.CmpNC("NodeCount") == 0)
+									if(key_buf.IsEqiAscii("NodeCount"))
 										RestoredStat.NodeCount = val_buf.ToInt64();
-									else if(key_buf.CmpNC("NakedNodeCount") == 0)
+									else if(key_buf.IsEqiAscii("NakedNodeCount"))
 										RestoredStat.NakedNodeCount = val_buf.ToInt64();
-									else if(key_buf.CmpNC("WayCount") == 0)
+									else if(key_buf.IsEqiAscii("WayCount"))
 										RestoredStat.WayCount = val_buf.ToInt64();
-									else if(key_buf.CmpNC("RelationCount") == 0)
+									else if(key_buf.IsEqiAscii("RelationCount"))
 										RestoredStat.RelationCount = val_buf.ToInt64();
 								}
 							}
@@ -6287,13 +6287,13 @@ int SLAPI PrcssrOsm::Run()
 						if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
 							key_buf.Strip();
 							val_buf.Strip();
-							if(key_buf.CmpNC("NodeCount") == 0)
+							if(key_buf.IsEqiAscii("NodeCount"))
 								RestoredStat.NodeCount = val_buf.ToInt64();
-							else if(key_buf.CmpNC("NakedNodeCount") == 0)
+							else if(key_buf.IsEqiAscii("NakedNodeCount"))
 								RestoredStat.NakedNodeCount = val_buf.ToInt64();
-							else if(key_buf.CmpNC("WayCount") == 0)
+							else if(key_buf.IsEqiAscii("WayCount"))
 								RestoredStat.WayCount = val_buf.ToInt64();
-							else if(key_buf.CmpNC("RelationCount") == 0)
+							else if(key_buf.IsEqiAscii("RelationCount"))
 								RestoredStat.RelationCount = val_buf.ToInt64();
 						}
 					}

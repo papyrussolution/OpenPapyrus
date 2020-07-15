@@ -384,7 +384,7 @@ static XXH64_hash_t XXH3_avalanche(uint64 h64)
 XXH_FORCE_INLINE XXH64_hash_t XXH3_len_1to3_64b(const void* data, size_t len, const void* keyPtr, XXH64_hash_t seed)
 {
 	XXH_ASSERT(data != NULL);
-	XXH_ASSERT(1 <= len && len <= 3);
+	XXH_ASSERT(checkirange(len, 1, 3));
 	XXH_ASSERT(keyPtr != NULL);
 	{   
 		BYTE const c1 = ((const BYTE *)data)[0];
@@ -401,7 +401,7 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_4to8_64b(const void* data, size_t len, co
 {
 	XXH_ASSERT(data != NULL);
 	XXH_ASSERT(keyPtr != NULL);
-	XXH_ASSERT(4 <= len && len <= 8);
+	XXH_ASSERT(checkirange(len, 4, 8));
 	{   
 		uint32 const in1 = XXH_readLE32(data);
 	    uint32 const in2 = XXH_readLE32((const BYTE *)data + len - 4);
@@ -416,7 +416,7 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_9to16_64b(const void* data, size_t len, c
 {
 	XXH_ASSERT(data != NULL);
 	XXH_ASSERT(keyPtr != NULL);
-	XXH_ASSERT(9 <= len && len <= 16);
+	XXH_ASSERT(checkirange(len, 9, 16));
 	{   
 		const uint64* const key64 = (const uint64*)keyPtr;
 	    uint64 const ll1 = XXH_readLE64(data) ^ (XXH_readLE64(key64) + seed);
@@ -1167,7 +1167,7 @@ XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_digest(const XXH3_state_t* state)
 XXH_FORCE_INLINE XXH128_hash_t XXH3_len_1to3_128b(const void* data, size_t len, const void* keyPtr, XXH64_hash_t seed)
 {
 	XXH_ASSERT(data != NULL);
-	XXH_ASSERT(1 <= len && len <= 3);
+	XXH_ASSERT(checkirange(len, 1, 3));
 	XXH_ASSERT(keyPtr != NULL);
 	{   
 		const uint32* const key32 = (const uint32*)keyPtr;
@@ -1188,7 +1188,7 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_4to8_128b(const void* data, size_t len, 
 {
 	XXH_ASSERT(data != NULL);
 	XXH_ASSERT(keyPtr != NULL);
-	XXH_ASSERT(4 <= len && len <= 8);
+	XXH_ASSERT(checkirange(len, 4, 8));
 	{   
 		uint32 const in1 = XXH_readLE32(data);
 	    uint32 const in2 = XXH_readLE32((const BYTE *)data + len - 4);
@@ -1211,7 +1211,7 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_9to16_128b(const void* data, size_t len,
 {
 	XXH_ASSERT(data != NULL);
 	XXH_ASSERT(keyPtr != NULL);
-	XXH_ASSERT(9 <= len && len <= 16);
+	XXH_ASSERT(checkirange(len, 9, 16));
 	{   const uint64* const key64 = (const uint64*)keyPtr;
 	    uint64 const ll1 = XXH_readLE64(data) ^ (XXH_readLE64(key64) + seed);
 	    uint64 const ll2 = XXH_readLE64((const BYTE *)data + len - 8) ^ (XXH_readLE64(key64+1) - seed);

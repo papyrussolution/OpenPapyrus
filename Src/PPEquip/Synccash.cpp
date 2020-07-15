@@ -101,6 +101,7 @@ public:
 	virtual int SLAPI PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int SLAPI GetSummator(double * val);
+	virtual int SLAPI GetDeviceTime(LDATETIME * pDtm);
 	virtual int SLAPI CloseSession(PPID sessID);
 	virtual int SLAPI PrintXReport(const CSessInfo *);
 	virtual int SLAPI PrintZReportCopy(const CSessInfo *);
@@ -842,7 +843,7 @@ int SLAPI SCS_SYNCCASH::GetSummator(double * val)
 	if(Arr_Out.getCount()) {
 		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
-			if(param_name.CmpNC("CASHAMOUNT") == 0)
+			if(param_name.IsEqiAscii("CASHAMOUNT"))
 				cash_amt = param_val.ToReal();
 		}
 	}
@@ -850,6 +851,41 @@ int SLAPI SCS_SYNCCASH::GetSummator(double * val)
 		ok = (SetErrorMessage(), 0);
 	ENDCATCH
 	ASSIGN_PTR(val, cash_amt);
+	return ok;
+}
+
+/*virtual*/int SLAPI SCS_SYNCCASH::GetDeviceTime(LDATETIME * pDtm)
+{
+	int    ok = -1;
+	LDATETIME dtm = ZERODATETIME;
+	ResCode = RESCODE_NO_ERROR;
+	SString input, buf, param_name, param_val;
+	THROW(Connect(1));
+	Arr_In.Z();
+	THROW(ExecPrintOper(DVCCMD_GETDEVICETIME, Arr_In, Arr_Out));
+	if(Arr_Out.getCount()) {
+		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
+			strtodatetime(buf, &dtm, DATF_ISO8601, 0);
+			if(checkdate(dtm.d)) {
+				ok = 1;
+				break;
+			}
+			else {
+				DestrStr(buf, param_name, param_val);
+				if(param_name.IsEqiAscii("DEVICETIME")) {
+					strtodatetime(param_val, &dtm, DATF_ISO8601, TIMF_HMS);
+					if(checkdate(dtm.d)) {
+						ok = 1;
+						break;
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		ok = (SetErrorMessage(), 0);
+	ENDCATCH
+	ASSIGN_PTR(pDtm, dtm);
 	return ok;
 }
 

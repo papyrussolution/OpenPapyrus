@@ -159,10 +159,8 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 		    break;
 		default:
 		    archive_entry_set_size(entry, 0);
-		    if(archive_entry_hardlink(entry) == NULL &&
-			archive_entry_symlink(entry) == NULL) {
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"shar format cannot archive this");
+		    if(archive_entry_hardlink(entry) == NULL && archive_entry_symlink(entry) == NULL) {
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "shar format cannot archive this");
 			    return (ARCHIVE_WARN);
 		    }
 	}
@@ -260,9 +258,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			    }
 			    break;
 			case AE_IFDIR:
-			    archive_string_sprintf(&shar->work,
-				"mkdir -p %s > /dev/null 2>&1\n",
-				shar->quoted_name.s);
+			    archive_string_sprintf(&shar->work, "mkdir -p %s > /dev/null 2>&1\n", shar->quoted_name.s);
 			    /* Record that we just created this directory. */
 			    if(shar->last_dir != NULL)
 				    SAlloc::F(shar->last_dir);
@@ -278,20 +274,15 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			     */
 			    break;
 			case AE_IFIFO:
-			    archive_string_sprintf(&shar->work,
-				"mkfifo %s\n", shar->quoted_name.s);
+			    archive_string_sprintf(&shar->work, "mkfifo %s\n", shar->quoted_name.s);
 			    break;
 			case AE_IFCHR:
-			    archive_string_sprintf(&shar->work,
-				"mknod %s c %ju %ju\n", shar->quoted_name.s,
-				(uintmax_t)archive_entry_rdevmajor(entry),
-				(uintmax_t)archive_entry_rdevminor(entry));
+			    archive_string_sprintf(&shar->work, "mknod %s c %ju %ju\n", shar->quoted_name.s,
+					(uintmax_t)archive_entry_rdevmajor(entry), (uintmax_t)archive_entry_rdevminor(entry));
 			    break;
 			case AE_IFBLK:
-			    archive_string_sprintf(&shar->work,
-				"mknod %s b %ju %ju\n", shar->quoted_name.s,
-				(uintmax_t)archive_entry_rdevmajor(entry),
-				(uintmax_t)archive_entry_rdevminor(entry));
+			    archive_string_sprintf(&shar->work, "mknod %s b %ju %ju\n", shar->quoted_name.s,
+					(uintmax_t)archive_entry_rdevmajor(entry), (uintmax_t)archive_entry_rdevminor(entry));
 			    break;
 			default:
 			    return (ARCHIVE_WARN);
@@ -503,8 +494,7 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 		 * TODO: Don't immediately restore mode for
 		 * directories; defer that to end of script.
 		 */
-		archive_string_sprintf(&shar->work, "chmod %o ",
-		    (uint)(archive_entry_mode(shar->entry) & 07777));
+		archive_string_sprintf(&shar->work, "chmod %o ", (uint)(archive_entry_mode(shar->entry) & 07777));
 		shar_quote(&shar->work, archive_entry_pathname(shar->entry), 1);
 		archive_strcat(&shar->work, "\n");
 
@@ -526,8 +516,7 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 
 		if((p = archive_entry_fflags_text(shar->entry)) != NULL) {
 			archive_string_sprintf(&shar->work, "chflags %s ", p);
-			shar_quote(&shar->work,
-			    archive_entry_pathname(shar->entry), 1);
+			shar_quote(&shar->work, archive_entry_pathname(shar->entry), 1);
 			archive_strcat(&shar->work, "\n");
 		}
 

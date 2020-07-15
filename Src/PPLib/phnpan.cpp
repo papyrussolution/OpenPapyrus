@@ -1217,7 +1217,7 @@ void PhonePaneDialog::OnContactSelection(int onInit)
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
 	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
 	PPObjID oid;
-	if(item_id && item_id > 0 && item_id <= (long)OidList.getCount())
+	if(item_id && item_id > 0 && item_id <= OidList.getCountI())
 		oid = OidList.at(item_id-1);
 	else
 		oid.Z();

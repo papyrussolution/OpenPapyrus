@@ -503,10 +503,7 @@ static void _cairo_xml_emit_gradient(cairo_xml_t * xml, const cairo_gradient_pat
 
 static cairo_status_t _cairo_xml_emit_linear(cairo_xml_t * xml, const cairo_linear_pattern_t * linear)
 {
-	_cairo_xml_printf(xml,
-	    "<linear x1='%f' y1='%f' x2='%f' y2='%f'>",
-	    linear->pd1.x, linear->pd1.y,
-	    linear->pd2.x, linear->pd2.y);
+	_cairo_xml_printf(xml, "<linear x1='%f' y1='%f' x2='%f' y2='%f'>", linear->pd1.x, linear->pd1.y, linear->pd2.x, linear->pd2.y);
 	_cairo_xml_indent(xml, 2);
 	_cairo_xml_emit_gradient(xml, &linear->base);
 	_cairo_xml_indent(xml, -2);

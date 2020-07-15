@@ -58,7 +58,7 @@
 */
 //#include <zipconf.h>
 #if defined(HAVE_STDINT_H_LIBZIP)
-	#include <stdint.h>
+	//#include <stdint.h>
 #elif defined(HAVE_INTTYPES_H_LIBZIP)
 	#include <inttypes.h>
 #elif defined(HAVE_SYS_TYPES_H_LIBZIP)

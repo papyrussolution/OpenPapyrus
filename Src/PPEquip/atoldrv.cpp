@@ -100,6 +100,26 @@ public:
 		ASSIGN_PTR(pVal, stb.Summator);
 		return ok;
 	}
+	virtual int SLAPI GetDeviceTime(LDATETIME * pDtm) 
+	{ 
+		int    ok = -1;
+		ASSIGN_PTR(pDtm, ZERODATETIME); 
+		if(P_Fptr10) {
+			int   yr = 0;
+			int   mn = 0;
+			int   d = 0;
+			int   h = 0;
+			int   m = 0;
+			int   s = 0;
+			P_Fptr10->GetParamDateTimeProc(P_Fptr10->Handler, LIBFPTR_PARAM_DATE_TIME, &yr, &mn, &d, &h, &m, &s);
+			if(checkirange(yr, 1996, 2200) && checkirange(mn, 1, 12) && checkirange(d, 1, 31) && checkirange(h, 0, 24) && checkirange(m, 0, 60) && checkirange(s, 0, 60)) {
+				pDtm->d = encodedate(yr, mn, d);
+				pDtm->t = encodetime(h, m, s, 0);
+				ok = 1;
+			}
+		}
+		return ok; 
+	}
 	virtual int SLAPI EditParam(void *);
 	virtual int SLAPI CheckForSessionOver()
 	{

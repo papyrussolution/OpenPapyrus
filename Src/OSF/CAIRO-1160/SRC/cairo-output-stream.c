@@ -217,16 +217,16 @@ void _cairo_output_stream_write_hex_string(cairo_output_stream_t * stream, const
 	const char hex_chars[] = "0123456789abcdef";
 	char buffer[2];
 	uint i, column;
-	if(stream->status)
-		return;
-	for(i = 0, column = 0; i < length; i++, column++) {
-		if(column == 38) {
-			_cairo_output_stream_write(stream, "\n", 1);
-			column = 0;
+	if(stream->status == 0) {
+		for(i = 0, column = 0; i < length; i++, column++) {
+			if(column == 38) {
+				_cairo_output_stream_write(stream, "\n", 1);
+				column = 0;
+			}
+			buffer[0] = hex_chars[(data[i] >> 4) & 0x0f];
+			buffer[1] = hex_chars[data[i] & 0x0f];
+			_cairo_output_stream_write(stream, buffer, 2);
 		}
-		buffer[0] = hex_chars[(data[i] >> 4) & 0x0f];
-		buffer[1] = hex_chars[data[i] & 0x0f];
-		_cairo_output_stream_write(stream, buffer, 2);
 	}
 }
 
@@ -245,16 +245,12 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 	char * p;
 	int decimal_len;
 	int num_zeros, decimal_digits;
-
 	/* Omit the minus sign from negative zero. */
 	if(d == 0.0)
 		d = 0.0;
-
 	decimal_point = _cairo_get_locale_decimal_point();
 	decimal_point_len = strlen(decimal_point);
-
 	assert(decimal_point_len != 0);
-
 	if(limited_precision) {
 		snprintf(buffer, size, "%.*f", FIXED_POINT_DECIMAL_DIGITS, d);
 	}
@@ -282,7 +278,6 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 				p++;
 			if(strncmp(p, decimal_point, decimal_point_len) == 0)
 				p += decimal_point_len;
-
 			num_zeros = 0;
 			while(*p++ == '0')
 				num_zeros++;
@@ -294,20 +289,16 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, boolint limited_
 	p = buffer;
 	if(*p == '+' || *p == '-')
 		p++;
-
 	while(_cairo_isdigit(*p))
 		p++;
-
 	if(strncmp(p, decimal_point, decimal_point_len) == 0) {
 		*p = '.';
 		decimal_len = strlen(p + decimal_point_len);
 		memmove(p + 1, p + decimal_point_len, decimal_len);
 		p[1 + decimal_len] = 0;
-
 		/* Remove trailing zeros and decimal point if possible. */
 		for(p = p + decimal_len; *p == '0'; p--)
 			*p = 0;
-
 		if(*p == '.') {
 			*p = 0;
 			p--;
@@ -327,8 +318,7 @@ enum {
  * formatting.  This functionality is only for internal use and we
  * only implement the formats we actually use.
  */
-void _cairo_output_stream_vprintf(cairo_output_stream_t * stream,
-    const char * fmt, va_list ap)
+void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * fmt, va_list ap)
 {
 #define SINGLE_FMT_BUFFER_SIZE 32
 	char buffer[512], single_fmt[SINGLE_FMT_BUFFER_SIZE];
@@ -337,10 +327,8 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream,
 	const char * f, * start;
 	int length_modifier, width;
 	boolint var_width;
-
 	if(stream->status)
 		return;
-
 	f = fmt;
 	p = buffer;
 	while(*f != '\0') {
@@ -348,18 +336,14 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream,
 			_cairo_output_stream_write(stream, buffer, sizeof(buffer));
 			p = buffer;
 		}
-
 		if(*f != '%') {
 			*p++ = *f++;
 			continue;
 		}
-
 		start = f;
 		f++;
-
 		if(*f == '0')
 			f++;
-
 		var_width = FALSE;
 		if(*f == '*') {
 			var_width = TRUE;
@@ -509,23 +493,18 @@ typedef struct _stdio_stream {
 	FILE * file;
 } stdio_stream_t;
 
-static cairo_status_t stdio_write(cairo_output_stream_t * base,
-    const uchar * data, uint length)
+static cairo_status_t stdio_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	stdio_stream_t * stream = (stdio_stream_t*)base;
-
 	if(fwrite(data, 1, length, stream->file) != length)
 		return _cairo_error(CAIRO_STATUS_WRITE_ERROR);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t stdio_flush(cairo_output_stream_t * base)
 {
 	stdio_stream_t * stream = (stdio_stream_t*)base;
-
 	fflush(stream->file);
-
 	if(ferror(stream->file))
 		return _cairo_error(CAIRO_STATUS_WRITE_ERROR);
 	else
@@ -640,13 +619,12 @@ cairo_status_t _cairo_memory_stream_destroy(cairo_output_stream_t * abstract_str
 void _cairo_memory_stream_copy(cairo_output_stream_t * base, cairo_output_stream_t * dest)
 {
 	memory_stream_t * stream = (memory_stream_t*)base;
-	if(dest->status)
-		return;
-	if(base->status) {
-		dest->status = base->status;
-		return;
+	if(dest->status == 0) {
+		if(base->status)
+			dest->status = base->status;
+		else
+			_cairo_output_stream_write(dest, _cairo_array_index(&stream->array, 0), _cairo_array_num_elements(&stream->array));
 	}
-	_cairo_output_stream_write(dest, _cairo_array_index(&stream->array, 0), _cairo_array_num_elements(&stream->array));
 }
 
 int _cairo_memory_stream_length(cairo_output_stream_t * base)

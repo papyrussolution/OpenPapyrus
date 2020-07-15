@@ -1495,10 +1495,8 @@ static void checksum_cleanup(struct archive_read * a)
 
 static void xmlattr_cleanup(struct xmlattr_list * list)
 {
-	struct xmlattr * attr, * next;
-	attr = list->first;
-	while(attr != NULL) {
-		next = attr->next;
+	for(struct xmlattr * attr = list->first; attr;) {
+		struct xmlattr * next = attr->next;
 		SAlloc::F(attr->name);
 		SAlloc::F(attr->value);
 		SAlloc::F(attr);
@@ -1534,22 +1532,16 @@ static int file_new(struct archive_read * a, struct xar * xar, struct xmlattr_li
 
 static void file_free(struct xar_file * file)
 {
-	struct xattr * xattr;
-
 	archive_string_free(&(file->pathname));
 	archive_string_free(&(file->symlink));
 	archive_string_free(&(file->uname));
 	archive_string_free(&(file->gname));
 	archive_string_free(&(file->hardlink));
-	xattr = file->xattr_list;
-	while(xattr != NULL) {
-		struct xattr * next;
-
-		next = xattr->next;
+	for(struct xattr * xattr = file->xattr_list; xattr;) {
+		struct xattr * next = xattr->next;
 		xattr_free(xattr);
 		xattr = next;
 	}
-
 	SAlloc::F(file);
 }
 

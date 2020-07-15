@@ -10,9 +10,9 @@
 
 // symbol table implementation using a stack of hash tables
 //typedef marray_t (gravity_hash_t*)       ghash_r;
-typedef GravityArray <gravity_hash_t *> ghash_r;
+//typedef GravityArray <gravity_hash_t *> ghash_r;
 
-#define scope_stack_init(r)             marray_init(*r)
+//#define scope_stack_init(r)             marray_init(*r)
 #define scope_stack_size(r)             (r)->getCount()
 #define scope_stack_get(r, n)            (r)->at(n)
 #define scope_stack_free(r)             (r)->Z()
@@ -26,7 +26,7 @@ typedef GravityArray <gravity_hash_t *> ghash_r;
 // MARK: -
 
 struct symboltable_t {
-	ghash_r * stack;
+	GravityArray <gravity_hash_t *> * stack;
 	uint16 count1;        // used for local var
 	uint16 count2;        // used for ivar
 	uint16 count3;        // used for static ivar
@@ -76,8 +76,8 @@ symboltable_t * symboltable_create(symtable_tag tag)
 		table->count1 = 0;
 		table->count2 = 0;
 		table->count3 = 0;
-		table->stack = static_cast<ghash_r *>(mem_alloc(NULL, sizeof(ghash_r)));
-		scope_stack_init(table->stack);
+		table->stack = new GravityArray <gravity_hash_t *>; //static_cast<ghash_r *>(mem_alloc(NULL, sizeof(ghash_r)));
+		// @ctr scope_stack_init(table->stack);
 		scope_stack_push(table->stack, hash);
 	}
 	return table;

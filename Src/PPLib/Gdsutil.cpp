@@ -477,7 +477,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 {
 	int    ok = -1;
 	if(pBlk) {
-		pBlk->RetCode[0] = 0;
+		PTR32(pBlk->RetCode)[0] = 0;
 		pBlk->GoodsID = 0;
 		pBlk->ScaleID = 0;
 		pBlk->Qtty = 0.0;
@@ -1486,7 +1486,7 @@ int QuotListDialog::editItem(long pos, long id)
 			ok = 1;
 		}
 	}
-	else if(id > 0 && id <= (long)P_Data->getCount()) {
+	else if(id > 0 && id <= P_Data->getCountI()) {
 		PPQuot quot = P_Data->at(id-1);
 		if(EditQuotVal(&quot, PPQuot::clsGeneral) > 0) {
 			QuotIdent qi;
@@ -1504,7 +1504,7 @@ int QuotListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	HWND   b_wnd = GetFocus();
-	if(id > 0 && id <= (long)P_Data->getCount()) {
+	if(id > 0 && id <= P_Data->getCountI()) {
 		P_Data->atFree(id-1);
 		ok = 1;
 	}
@@ -1974,7 +1974,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 			if(event.isCmd(cmaEdit) || event.isCtlEvent(CTL_GQUOT_PRDLIST)) {
 				long   i = 0;
 				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
-				if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= (long)Data.getCount()) {
+				if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= Data.getCountI()) {
 					PPQuot quot = Data.at(i-1); // @copy
 					if(quot.Kind == Spc.PredictCoeffID && EditQuotVal(&quot, Cls) > 0) {
 						const QuotIdent qident(quot.LocID, Spc.PredictCoeffID, 0, quot.ArID);
@@ -2009,7 +2009,7 @@ IMPL_HANDLE_EVENT(QuotationDialog)
 		if(Cls == PPQuot::clsPredictCoeff) {
 			long   i = 0;
 			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
-			if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= (long)Data.getCount()) {
+			if(p_box && p_box->def && p_box->getCurID(&i) && i > 0 && i <= Data.getCountI()) {
 				const PPQuot & r_q = Data.at(i-1);
 				if(r_q.Kind == Spc.PredictCoeffID) {
 					Data.atFree(i-1);

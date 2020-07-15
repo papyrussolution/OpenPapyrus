@@ -195,7 +195,7 @@ int _zbar_processor_enable(zbar_processor_t * proc)
 	return 0;
 }
 
-static inline ATOM win_register_class(HINSTANCE hmod)
+static /*inline*/ATOM win_register_class(HINSTANCE hmod)
 {
 	BYTE and_mask[1] = { 0xff };
 	BYTE xor_mask[1] = { 0x00 };

@@ -31,8 +31,7 @@
  * assembly.
  */
 
-#include <stdint.h>
-
+//#include <stdint.h>
 /* vectors are stored in 64-bit floating-point registers */
 typedef double __m64;
 /* having a 32-bit datatype allows us to use 32-bit loads in places like load8888 */

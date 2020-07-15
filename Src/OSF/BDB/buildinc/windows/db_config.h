@@ -225,7 +225,6 @@
 #else
 	#define SIZEOF_CHAR_P 4
 #endif
-
 // #undef SIZEOF_INT // The size of a `int', as computed by sizeof.
 // #undef SIZEOF_LONG // The size of a `long', as computed by sizeof.
 // #undef SIZEOF_LONG_LONG // The size of a `long long', as computed by sizeof.

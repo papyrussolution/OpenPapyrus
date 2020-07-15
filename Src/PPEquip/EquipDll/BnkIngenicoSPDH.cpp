@@ -181,13 +181,13 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 EXPORT int RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
 	int    ok = 0;
-	THROW((pCmd != NULL) && (pOutputData != NULL) && (outSize != NULL));
+	THROW(pCmd && pOutputData && outSize);
 	if(sstreqi_ascii(pCmd, "INIT")) {
 		StringSet pairs(';', pInputData);
 		SString s_pair, s_param, param_val;
 		for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 			s_pair.Divide('=', s_param, param_val);
-			if(s_param.CmpNC("DLLPATH"))
+			if(!s_param.IsEqiAscii("DLLPATH"))
 				break;
 		}
 		THROWERR(Init(param_val), INGVTB_NOTINITED);
@@ -216,7 +216,7 @@ int BnkIngVTB::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	if(sstreqi_ascii(pCmd, "CONNECT")) {
 		for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 			s_pair.Divide('=', s_param, param_val);
-			if(s_param.CmpNC("PORT") == 0)
+			if(s_param.IsEqiAscii("PORT"))
 				Port = param_val.ToLong();
 		}
 		THROWERR(Connect(), INGVTB_NOTCONNECTED);
@@ -227,7 +227,7 @@ int BnkIngVTB::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	else if(sstreqi_ascii(pCmd, "SETCONFIG")) {
 		for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 			s_pair.Divide('=', s_param, param_val);
-			if(s_param.CmpNC("LOGNUM") == 0)
+			if(s_param.IsEqiAscii("LOGNUM"))
 				LogNum = param_val;
 		}
 		THROW(SetCfg());
@@ -238,7 +238,7 @@ int BnkIngVTB::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	else if(sstreqi_ascii(pCmd, "PAY")) {
 		for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 			s_pair.Divide('=', s_param, param_val);
-			if(s_param.CmpNC("AMOUNT") == 0)
+			if(s_param.IsEqiAscii("AMOUNT"))
 				Amount = param_val;
 		}
 		THROW(Pay());
@@ -246,7 +246,7 @@ int BnkIngVTB::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	else if(sstreqi_ascii(pCmd, "REFUND")) {
 		for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 			s_pair.Divide('=', s_param, param_val);
-			if(s_param.CmpNC("AMOUNT") == 0)
+			if(s_param.IsEqiAscii("AMOUNT"))
 				Amount = param_val;
 		}
 		THROW(Refund());

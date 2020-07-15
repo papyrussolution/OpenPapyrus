@@ -321,11 +321,11 @@ int SLAPI SMailClient::Connect(InetUrl & rUrl, int timeout)
 									scan.Skip();
 									while(scan.GetWord(0, word_buf)) {
                                         scan.Skip();
-										if(word_buf.CmpNC("PLAIN") == 0)
+										if(word_buf.IsEqiAscii("PLAIN"))
 											C.SmtpAuthTypeList.add(authtPlain);
-										else if(word_buf.CmpNC("LOGIN") == 0)
+										else if(word_buf.IsEqiAscii("LOGIN"))
 											C.SmtpAuthTypeList.add(authtLogin);
-										else if(word_buf.CmpNC("CRAM-MD5") == 0)
+										else if(word_buf.IsEqiAscii("CRAM-MD5"))
 											C.SmtpAuthTypeList.add(authtCramMD5);
 									}
 								}

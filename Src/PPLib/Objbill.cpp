@@ -1403,6 +1403,16 @@ int SLAPI PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const
 						pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, clb);
 					// } @v9.8.11
 				}
+				// @v10.8.1 {
+				// Если приходная операция превращается в расходную и количество единиц в строке расхода точно равно
+				// количеству единиц в приходе, то мы имеем право перенести все марки из прихода в расход
+				if(ti.Flags & PPTFR_MINUS && fabs(down) == fabs(p_ti->Quantity_) && rows.getCount() == 1) {
+					PPLotExtCodeContainer::MarkSet lotxcode_set;
+					sample_pack.XcL.Get(i, 0, lotxcode_set);
+					if(lotxcode_set.GetCount())
+						pack.XcL.Set_2(rows.at(0)+1, &lotxcode_set);
+				}
+				// } @v10.8.1
 			}
 		}
 	}
@@ -1420,8 +1430,8 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 	int    ok = 1;
 	int    r = 1;
 	int    res = cmCancel;
-	const  PPID preserve_loc = LConfig.Location;
-	PPID   loc_id = preserve_loc;
+	const  PPID preserve_cfg_loc = LConfig.Location;
+	PPID   loc_id = preserve_cfg_loc;
 	PPID   op_type = 0;
 	SString temp_buf;
 	PPOprKind    op_rec;
@@ -1600,7 +1610,7 @@ int SLAPI PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const S
 	CATCH
 		ok = (pParam->Flags & pParam->fNonInteractive) ? 0 : PPErrorZ();
 	ENDCATCH
-	DS.SetLocation(preserve_loc);
+	DS.SetLocation(preserve_cfg_loc);
 	return ok ? res : 0;
 }
 
@@ -3759,6 +3769,109 @@ int SLAPI PPObjBill::CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID go
 	return ok;
 }
 
+int SLAPI PPObjBill::MoveLotTagsFromDraftBillToWrOffBill(PPID billID, PPLogger * pLogger, int use_ta)
+{
+	int    ok = -1;
+	BillTbl::Rec bill_rec;
+	SString bill_text;
+	THROW(Search(billID, &bill_rec) > 0);
+	if(!(bill_rec.Flags & BILLF_WRITEDOFF)) {
+		PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
+		if(pLogger)
+			pLogger->LogMsgCode(mfInfo, PPINF_DRAFTNOTWROFF, bill_text);
+		else
+			PPMessage(mfInfo|mfOK, PPINF_DRAFTNOTWROFF, bill_text);
+	}
+	else {
+		PPIDArray wroff_bill_list;
+		BillTbl::Rec wroff_bill_rec;
+		for(DateIter diter; P_Tbl->EnumLinks(bill_rec.ID, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;)
+			wroff_bill_list.add(wroff_bill_rec.ID);
+		if(wroff_bill_list.getCount() == 1) {
+			SString temp_buf;
+			PPBillPacket _this_bp;
+			PPBillPacket _link_bp;
+			const PPID   _link_id = wroff_bill_list.get(0);
+			PPLotExtCodeContainer::MarkSet _this_lxc_set;
+			PPLotExtCodeContainer::MarkSet _link_lxc_set;
+			int    do_update = 0;
+			THROW(ExtractPacketWithFlags(billID, &_this_bp, BPLD_FORCESERIALS) > 0);
+			THROW(ExtractPacketWithFlags(_link_id, &_link_bp, BPLD_FORCESERIALS) > 0);
+			PPObjBill::MakeCodeString(&_link_bp.Rec, PPObjBill::mcsAddOpName, bill_text);
+			for(uint tbpi = 0; tbpi < _this_bp.GetTCount(); tbpi++) {
+				const PPTransferItem & r_ti = _this_bp.ConstTI(tbpi);
+				if(r_ti.RByBill > 0) {
+					const ObjTagList * p_tl = _this_bp.LTagL.Get(tbpi);
+					uint  _lp = 0;
+					if(p_tl && p_tl->GetCount() && _link_bp.SearchTI(r_ti.RByBill, &_lp)) {
+						int    do_update_local = 0;
+						const  PPTransferItem & r_link_ti = _link_bp.ConstTI(_lp);
+						ObjTagList * p_link_tl = _link_bp.LTagL.Get(_lp);
+						ObjTagList _link_tl;
+						RVALUEPTR(_link_tl, p_link_tl);
+						for(uint tli = 0; tli < p_tl->GetCount(); tli++) {
+							const ObjTagItem * p_tag = p_tl->GetItemByPos(tli);
+							if(p_tag && !p_tag->IsZeroVal()) {
+								const PPID tag_id = p_tag->TagID;
+								if(tag_id) {
+									const ObjTagItem * p_ex_link_tag = _link_tl.GetItem(tag_id);
+									if(!p_ex_link_tag || *p_ex_link_tag != *p_tag) {
+										_link_tl.PutItem(p_tag->TagID, p_tag);
+										do_update_local = 1;
+									}
+								}
+							}
+						}
+						if(do_update_local) {
+							_link_bp.LTagL.Set(_lp, &_link_tl);
+							do_update = 1;
+						}
+					}
+					if(_this_bp.XcL.Get(tbpi+1, 0, _this_lxc_set) > 0) {
+						_link_bp.XcL.Get(_lp+1, 0, _link_lxc_set);
+						if(_link_lxc_set.GetCount() == 0) {
+							PPLotExtCodeContainer::MarkSet::Entry lxentry;
+							for(uint thislxidx = 0; thislxidx < _this_lxc_set.GetCount(); thislxidx++) {
+								if(_this_lxc_set.GetByIdx(thislxidx, lxentry)) {
+									_link_bp.XcL.Add(_lp+1, lxentry.BoxID, static_cast<int16>(lxentry.Flags), lxentry.Num, 0);
+									do_update = 1;
+								}
+							}
+						}
+					}
+				}
+			}
+			if(do_update) {
+				THROW(UpdatePacket(&_link_bp, use_ta));
+				if(pLogger)
+					pLogger->LogMsgCode(mfInfo, PPINF_TAGSINWROFFBILLUPD, bill_text);
+				else
+					PPMessage(mfInfo|mfOK, PPINF_TAGSINWROFFBILLUPD, bill_text);
+				ok = 1;
+			}
+			else {
+				if(pLogger)
+					pLogger->LogMsgCode(mfInfo, PPINF_TAGSINWROFFBILLNUPD, bill_text);
+				else
+					PPMessage(mfInfo|mfOK, PPINF_TAGSINWROFFBILLNUPD, bill_text);
+			}
+		}
+		else if(wroff_bill_list.getCount() > 1) {
+			; // Не понятно что делать - не делаем ничего
+			PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
+			if(pLogger)
+				pLogger->LogMsgCode(mfInfo, PPINF_DRAFTHASGT1WROFFBILL, bill_text);
+			else
+				PPMessage(mfInfo|mfOK, PPINF_DRAFTHASGT1WROFFBILL, bill_text);
+		}
+	}
+	CATCH
+		CALLPTRMEMB(pLogger, LogLastError());
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 int SLAPI PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLink> & rList)
 {
 	int    ok = -1;
@@ -4445,7 +4558,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 		virtual int delItem(long pos, long id)
 		{
 			int    ok = -1;
-			if(id > 0 && id <= static_cast<long>(Data.getCount())) {
+			if(id > 0 && id <= Data.getCountI()) {
 				Data.at(id-1).Val = 0;
 				ok = 1;
 			}

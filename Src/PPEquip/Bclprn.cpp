@@ -2319,7 +2319,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		strnzcpy(p_temp_str, pEntry->Text, buf_size);
 		PutDataEntryPrefix('B', pEntry);
 		char * p_std = 0;
-		for(int j = 0; j < sizeof(_E_BarCStdTab) / sizeof(BarCStdToEltronEntry); j++)
+		for(int j = 0; j < SIZEOFARRAY(_E_BarCStdTab); j++)
 			if(_E_BarCStdTab[j].Std == pEntry->BarcodeStd) {
 				p_std = _E_BarCStdTab[j].P_Str;
 				break;
@@ -2329,7 +2329,7 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		PutStr(p_std);
 		PutChr(',');
 		// Narrow bar width in dots {
-		if(BcNarrowPt > 0 && BcNarrowPt <= 30)
+		if(checkirange(BcNarrowPt, 1, 30))
 			PutInt(BcNarrowPt, 0);
 		else
 			PutInt(2, 0);

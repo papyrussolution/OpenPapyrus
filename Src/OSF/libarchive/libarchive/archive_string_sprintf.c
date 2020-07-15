@@ -70,13 +70,10 @@ void archive_string_sprintf(struct archive_string * as, const char * fmt, ...)
 	archive_string_vsprintf(as, fmt, ap);
 	va_end(ap);
 }
-
 /*
- * Like 'vsprintf', but ensures the target is big enough, resizing if
- * necessary.
+ * Like 'vsprintf', but ensures the target is big enough, resizing if necessary.
  */
-void archive_string_vsprintf(struct archive_string * as, const char * fmt,
-    va_list ap)
+void archive_string_vsprintf(struct archive_string * as, const char * fmt, va_list ap)
 {
 	char long_flag;
 	intmax_t s; /* Signed integer temp. */
@@ -105,7 +102,6 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 			    p++;
 			    break;
 		}
-
 		switch(*p) {
 			case '%':
 			    archive_strappend_char(as, '%');
@@ -126,27 +122,25 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 			case 's':
 			    switch(long_flag) {
 				    case 'l':
-					pw = va_arg(ap, wchar_t *);
-					if(pw == NULL)
-						pw = L"(null)";
-					if(archive_string_append_from_wcs(as, pw,
-					    wcslen(pw)) != 0 && errno == ENOMEM)
-						__archive_errx_nomem(1);
-					break;
+						pw = va_arg(ap, wchar_t *);
+						if(!pw)
+							pw = L"(null)";
+						if(archive_string_append_from_wcs(as, pw, wcslen(pw)) != 0 && errno == ENOMEM)
+							__archive_errx_nomem(1);
+						break;
 				    default:
-					p2 = va_arg(ap, char *);
-					if(p2 == NULL)
-						p2 = "(null)";
-					archive_strcat(as, p2);
-					break;
+						p2 = va_arg(ap, char *);
+						if(!p2)
+							p2 = "(null)";
+						archive_strcat(as, p2);
+						break;
 			    }
 			    break;
 			case 'S':
 			    pw = va_arg(ap, wchar_t *);
-			    if(pw == NULL)
-				    pw = L"(null)";
-			    if(archive_string_append_from_wcs(as, pw,
-				wcslen(pw)) != 0 && errno == ENOMEM)
+				if(!pw)
+					pw = L"(null)";
+			    if(archive_string_append_from_wcs(as, pw, wcslen(pw)) != 0 && errno == ENOMEM)
 				    __archive_errx_nomem(1);
 			    break;
 			case 'o': case 'u': case 'x': case 'X':

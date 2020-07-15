@@ -1683,57 +1683,57 @@ int SLAPI PrcssrSalary::ParseFunc(const char * pText)
 	SString temp_buf;
 	SStrScan scan(pText);
 	if(scan.Skip().GetIdent(temp_buf)) {
-		if(temp_buf.IsEqNC("cday"))
+		if(temp_buf.IsEqiAscii("cday"))
 			descr.FuncId = PrcssrSalary::funcCalDay;
-		else if(temp_buf.IsEqNC("chour"))
+		else if(temp_buf.IsEqiAscii("chour"))
 			descr.FuncId = PrcssrSalary::funcCalHour;
 		//
-		else if(temp_buf.IsEqNC("diffd"))
+		else if(temp_buf.IsEqiAscii("diffd"))
 			descr.FuncId = PrcssrSalary::funcDiffDays;
-		else if(temp_buf.IsEqNC("diffm"))
+		else if(temp_buf.IsEqiAscii("diffm"))
 			descr.FuncId = PrcssrSalary::funcDiffMonths;
-		else if(temp_buf.IsEqNC("diffy"))
+		else if(temp_buf.IsEqiAscii("diffy"))
 			descr.FuncId = PrcssrSalary::funcDiffYears;
 		//
-		else if(temp_buf.IsEqNC("charge"))
+		else if(temp_buf.IsEqiAscii("charge"))
 			descr.FuncId = PrcssrSalary::funcCharge;
-		else if(temp_buf.IsEqNC("avgcharge"))
+		else if(temp_buf.IsEqiAscii("avgcharge"))
 			descr.FuncId = PrcssrSalary::funcAvgCharge;
-		else if(temp_buf.IsEqNC("bill"))
+		else if(temp_buf.IsEqiAscii("bill"))
 			descr.FuncId = PrcssrSalary::funcBill;
-		else if(temp_buf.IsEqNC("paym"))
+		else if(temp_buf.IsEqiAscii("paym"))
 			descr.FuncId = PrcssrSalary::funcPaym;
-		else if(temp_buf.IsEqNC("evcday"))
+		else if(temp_buf.IsEqiAscii("evcday"))
 			descr.FuncId = PrcssrSalary::funcEvCalDay;
-		else if(temp_buf.IsEqNC("evchour"))
+		else if(temp_buf.IsEqiAscii("evchour"))
 			descr.FuncId = PrcssrSalary::funcEvCalHour;
-		else if(temp_buf.IsEqNC("evcount"))
+		else if(temp_buf.IsEqiAscii("evcount"))
 			descr.FuncId = PrcssrSalary::funcEvCount;
-		else if(temp_buf.IsEqNC("thisevcday")) {
+		else if(temp_buf.IsEqiAscii("thisevcday")) {
 			THROW_PP_S(P_CurEv, PPERR_PRCSALEVONNONEVCHARGE, temp_buf);
 			descr.FuncId = PrcssrSalary::funcThisEvCalDay;
 		}
-		else if(temp_buf.IsEqNC("thisevchour")) {
+		else if(temp_buf.IsEqiAscii("thisevchour")) {
 			THROW_PP_S(P_CurEv, PPERR_PRCSALEVONNONEVCHARGE, temp_buf);
 			descr.FuncId = PrcssrSalary::funcThisEvCalHour;
 		}
-		else if(temp_buf.IsEqNC("LastMonth"))
+		else if(temp_buf.IsEqiAscii("LastMonth"))
 			descr.FuncId = PrcssrSalary::funcLastMonth;
-		else if(temp_buf.IsEqNC("LastQuart"))
+		else if(temp_buf.IsEqiAscii("LastQuart"))
 			descr.FuncId = PrcssrSalary::funcLastQuart;
-		else if(temp_buf.IsEqNC("LastYear"))
+		else if(temp_buf.IsEqiAscii("LastYear"))
 			descr.FuncId = PrcssrSalary::funcLastYear;
-		else if(temp_buf.IsEqNC("NextMonth"))
+		else if(temp_buf.IsEqiAscii("NextMonth"))
 			descr.FuncId = PrcssrSalary::funcNextMonth;
-		else if(temp_buf.IsEqNC("NextQuart"))
+		else if(temp_buf.IsEqiAscii("NextQuart"))
 			descr.FuncId = PrcssrSalary::funcNextQuart;
-		else if(temp_buf.IsEqNC("NextYear"))
+		else if(temp_buf.IsEqiAscii("NextYear"))
 			descr.FuncId = PrcssrSalary::funcNextYear;
-		else if(temp_buf.IsEqNC("ThisMonth"))
+		else if(temp_buf.IsEqiAscii("ThisMonth"))
 			descr.FuncId = PrcssrSalary::funcThisMonth;
-		else if(temp_buf.IsEqNC("ThisQuart"))
+		else if(temp_buf.IsEqiAscii("ThisQuart"))
 			descr.FuncId = PrcssrSalary::funcThisQuart;
-		else if(temp_buf.IsEqNC("ThisYear"))
+		else if(temp_buf.IsEqiAscii("ThisYear"))
 			descr.FuncId = PrcssrSalary::funcThisYear;
 		else {
 			CALLEXCEPT_PP_S(PPERR_UNDEFSALARYFUNC, pText);
@@ -1741,7 +1741,7 @@ int SLAPI PrcssrSalary::ParseFunc(const char * pText)
 		if(scan.Skip()[0] == '.') {
 			scan.Incr();
 			THROW_PP_S(scan.GetIdent(temp_buf), PPERR_SALCHARGEFORM_WANTIDENT, pText);
-			if(temp_buf.IsEqNC("link")) {
+			if(temp_buf.IsEqiAscii("link")) {
 				descr.Flags |= FuncDescr::fLink;
 				if(scan.Skip()[0] == '.') {
 					scan.Incr();

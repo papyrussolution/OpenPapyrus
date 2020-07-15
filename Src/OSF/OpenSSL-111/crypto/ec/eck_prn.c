@@ -93,10 +93,8 @@ int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
 		/* the curve parameter are given by an asn1 OID */
 		int nid;
 		const char * nname;
-
 		if(!BIO_indent(bp, off, 128))
 			goto err;
-
 		nid = EC_GROUP_get_curve_name(x);
 		if(nid == 0)
 			goto err;
@@ -117,7 +115,6 @@ int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
 		int is_char_two = 0;
 		point_conversion_form_t form;
 		int tmp_nid = EC_METHOD_get_field_type(EC_GROUP_method_of(x));
-
 		if(tmp_nid == NID_X9_62_characteristic_two_field)
 			is_char_two = 1;
 

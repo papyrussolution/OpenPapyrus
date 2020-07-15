@@ -309,7 +309,7 @@ int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, 
 	if(ss.get(&pos, temp_buf)) {
 		rDrvName = temp_buf.Strip();
 		if(ss.get(&pos, temp_buf)) {
-			if(temp_buf.Strip().CmpNC("dll") == 0) {
+			if(temp_buf.Strip().IsEqiAscii("dll")) {
 				drv_impl = DVCDRVIMPL_DLL;
 			}
 			if(ss.get(&pos, temp_buf)) {
@@ -954,7 +954,7 @@ int DvcDriver::RunOneCommand(const char * pCmd, const char * pInputData, char * 
 	StringSet set(';', pInputData);
 	for(uint i = 0; set.get(&i, str) > 0;) {
 		str.Divide('=', param_name, param_val);
-		if(param_name.CmpNC("TEXT") == 0)
+		if(param_name.IsEqiAscii("TEXT"))
 			Text = param_val;
 	}
 	if(sstreqi_ascii(pCmd,"TEST")) {

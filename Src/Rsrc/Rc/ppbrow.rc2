@@ -47,6 +47,8 @@
 // @v10.8.0  TBBM_SAVEAS-->PPDV_SAVEAS03
 // @v10.8.0  TBBM_SAVE-->PPDV_SAVE03
 // @v10.8.0  TBBM_OPEN-->PPDV_OPEN03
+// @v10.8.1  TBBM_UNIFYPRICE-->PPDV_UNIFYPRICE02
+// @v10.8.1  ICON_UNIFYGOODSPRICE-->PPDV_UNIFYPRICE02
 //
 declare command DEFAULT     // kbEnter
 declare command ADDITEM     // kbInsert
@@ -335,7 +337,7 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsOrder,       "@{cmd_goodsorder}",        PPDV_DOCUMENTS_ORDER
 	cmInventory,        "@{inventorydocument_pl}",  PPDV_DOCUMENTS_INVENTORY
 	cmDraftBillList,    "@{draftdocument_pl}",      PPDV_DOCUMENTS_DRAFT
-	cmUnifyGoodsPrice,  "@{cmd_unifygoodsprice}",   TBBM_UNIFYPRICE
+	cmUnifyGoodsPrice,  "@{cmd_unifygoodsprice}",   PPDV_UNIFYPRICE02
 	cmVATBook,          "@{view_vatbook}",          TBBM_VATBOOK
 	separator
 	cmAccAnalyze,       "@{cmd_accanalyze}",        PPDV_ACCANLZ
@@ -348,9 +350,9 @@ toolbar MAIN TB_GLOBAL {
 	cmViewOrdLots,      "@{cmd_viewordlots}",       PPDV_ORDLOTS
 	cmGoodsOprGrouping, "@{cmd_goodsoprgrouping}",  TBBM_OPGRPNG
 	cmGoodsOper,        "@{cmd_goodsoper}",         TBBM_GOODSANLZ
-	cmTrfrAnalyze,      "@{view_trfranlz}", PPDV_TRFRANLZ
+	cmTrfrAnalyze,      "@{view_trfranlz}",         PPDV_TRFRANLZ
 	separator
-	cmOpenTextFile,     "Открыть текстовый файл",   TBBM_OPENTEXTFILE
+	cmOpenTextFile,     "@{cmd_opentextfile}",      TBBM_OPENTEXTFILE
 }
 
 toolbar export ACCBILL TB_FIRST_TOOLBAR {
@@ -937,7 +939,7 @@ toolbar export LOGVIEW TB_FIRST_TOOLBAR {
 }
 
 toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
-	OPEN        : kbCtrlO,   PPDV_OPEN03,        "Открыть...\tCtlr-O"
+	OPEN        : kbCtrlO,   PPDV_OPEN03,        "@{fileopen}...\tCtlr-O"
 	SAVE        : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
 	SAVEAS      : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
 	SELCODEPAGE : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
@@ -946,7 +948,7 @@ toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
 }
 
 toolbar export TEXTBROWSER_WB_HTML TB_FIRST_TOOLBAR {
-	OPEN         : kbCtrlO,   PPDV_OPEN03,        "Открыть...\tCtlr-O"
+	OPEN         : kbCtrlO,   PPDV_OPEN03,        "@{fileopen}...\tCtlr-O"
 	SAVE         : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
 	SAVEAS       : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
 	SELCODEPAGE  : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
@@ -955,6 +957,14 @@ toolbar export TEXTBROWSER_WB_HTML TB_FIRST_TOOLBAR {
 	PROCESSTEXT  : kbCtrlF6,  PPDV_NOICON,        "Форматирование HTML\tCtrl-F6"
 	INSERTLINK   : kbCtrlX,   PPDV_NOICON,        "Вставить ссылку\tCtrl-X"
 	BRACEHTMLTAG : kbCtrlT,   PPDV_NOICON,        "Вставить HTML-tag\tCtrl-T"
+}
+
+toolbar export TEXTBROWSER_GRAVITY TB_FIRST_TOOLBAR {
+	OPEN         : kbCtrlO,   PPDV_OPEN03,        "@{fileopen}...\tCtlr-O"
+	SAVE         : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
+	SAVEAS       : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
+	SEARCH       : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
+	RUN          : kbCtrlR,   PPDV_NOICON,        "Выполнить программу\tCtrl-R"
 }
 
 toolbar export LIST_DEFAULT TB_FIRST_TOOLBAR {
@@ -4243,8 +4253,8 @@ browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
 	"Завершенность",      4, notype, 0, 9
 	"Сумма\nчеков",       5, notype, NMBF_NOZERO, 10.2
 	group "В том числе" {
-		"Безналичн оплата",      9, notype, NMBF_NOZERO, 10.2
-		"Корп кредитные карты", 11, notype, NMBF_NOZERO, 10.2
+		"@cashlesspayment",      9, notype, NMBF_NOZERO, 10.2
+		"@crdcard_pl",          11, notype, NMBF_NOZERO, 10.2
 	}
 	"@discount",             6, notype, NMBF_NOZERO, 10.2
 	"Списанная\nсумма",   7, notype, NMBF_NOZERO, 10.2
@@ -4267,8 +4277,8 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 		"@total",      5, notype, NMBF_NOZERO, 10.2
 	}
 	group "В том числе" {
-		"Безналичн оплата",     11, notype, NMBF_NOZERO, 10.2
-		"Корп кредитные карты", 17, notype, NMBF_NOZERO, 10.2
+		"@cashlesspayment",     11, notype, NMBF_NOZERO, 10.2
+		"@crdcard_pl",          17, notype, NMBF_NOZERO, 10.2
 	}
 	"@discount",              6, notype, 0, 8.2
 	group "Результаты списания" {
@@ -4312,13 +4322,13 @@ browser CSESSEXC north(100), 3, 1, "Дефицит по кассовым сессиям", OWNER|GRID, 0
 
 browser OBJSYNC north(100), 1, 1, "@{view_objsync} {%s}", OWNER|GRID, 0
 {
-	"@objtype",      8, notype, 0,           12
-	"@objid",        1, notype, 0,           10
-	"Общий ИД",      7, notype, ALIGN_RIGHT, 10
-	"@dbdiv_s",      4, notype, 0,            9
-	"@modifdate",    5, notype, 0,            8
-	"Время мод",     6, notype, 0,            8
-	"@flags",        9, notype, NMBF_NOZERO,  4
+	"@objtype",             8, notype, 0,           12
+	"@objid",               1, notype, 0,           10
+	"@objsyncentry_commid", 7, notype, ALIGN_RIGHT, 10
+	"@dbdiv_s",             4, notype, 0,            9
+	"@objsyncentry_dt",     5, notype, 0,            8
+	"@objsyncentry_tm",     6, notype, 0,            8
+	"@objsyncentry_flags",  9, notype, NMBF_NOZERO,  4
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   :  kbEnter,    PPDV_EDITFILE02,        "@{edit}\tEnter"
 		ADDITEM    :  kbIns,      PPDV_ADDFILE02,         "Добавить запись\tInsert"
@@ -4337,7 +4347,7 @@ browser OBJSYNCQUEUE north(100), 1, 1, "Очередь синхронизации", OWNER|GRID, 0
 	"Время мод",             8, notype, 0,            8
 	"@objtype",             13, notype, 0,           12
 	"@objid",                3, notype, 0,           10
-	"Общий ИД",             12, notype, ALIGN_RIGHT, 10
+	"@objsyncentry_commid", 12, notype, ALIGN_RIGHT, 10
 	"@dbdiv_s",              1, notype, 0,            9
 	"Наименование объекта", 11, notype, 0,           20
 	"@flags",               10, notype, NMBF_NOZERO,  4
@@ -4392,7 +4402,7 @@ browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
 	toolbar SCARD
 }
 
-browser SCARDCRD north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
+browser SCARDCRD north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",                 0, notype, 0, 5
 	"@code",               1, notype, 0, 20
@@ -4409,7 +4419,7 @@ browser SCARDCRD north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
 	toolbar SCARD
 }
 
-browser SCARDCRD_TRNOVR north(100), 1, 1, "Кредитные карты {%s}", OWNER|GRID, 0
+browser SCARDCRD_TRNOVR north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",                 0, notype, 0, 5
 	"@code",               1, notype, 0, 20
@@ -4538,14 +4548,14 @@ browser SCARDOP north(100), 1, 1, "@{view_scardop} {%s}", OWNER|GRID, 0
 
 browser SYNCCMP north(100), 3, 1, "Сравнение синхронизации объектов", OWNER|GRID, 0
 {
-	"@objtype",           0, notype, 0, 7
-	"Общий ИД",           9, notype, ALIGN_RIGHT, 9
-	"Чужой ИД",           4, notype, NMBF_NOZERO, 8
-	"Чужое наименование", 5, notype, 0, 40
-	"Свой ИД",            1, notype, NMBF_NOZERO, 8
-	"Свое наименование",  6, notype, 0, 40
-	"@error",             7, notype, NMBF_NOZERO, 6
-	"Сравнение",          8, notype, NMBF_NOZERO, 8.4
+	"@objtype",             0, notype, 0, 7
+	"@objsyncentry_commid", 9, notype, ALIGN_RIGHT, 9
+	"Чужой ИД",             4, notype, NMBF_NOZERO, 8
+	"Чужое наименование",   5, notype, 0, 40
+	"Свой ИД",              1, notype, NMBF_NOZERO, 8
+	"Свое наименование",    6, notype, 0, 40
+	"@error",               7, notype, NMBF_NOZERO, 6
+	"Сравнение",            8, notype, NMBF_NOZERO, 8.4
 	group "Чужая модификация" {
 		"@date",          10, notype, DATF_DMY, 8
 		"@time",         11, notype, TIMF_HMS, 8
@@ -6461,7 +6471,7 @@ cmd Inventory             { "@{cmd_inventory}"                             PPDV_
 cmd PoolBillList          { "@{cmd_poolbilllist}"                          ICON_POOLBILLLIST     none              cmPoolBillList  view = Bill(BBT_POOLBILLS) }
 cmd DraftBillList         { "@{cmd_draftbilllist}"                         PPDV_DOCUMENTS_DRAFT  PPDV_DOCUMENTS_DRAFT     cmDraftBillList view = Bill(BBT_DRAFTBILLS) }
 cmd VATBook               { "@{cmd_vatbook}"                               ICON_VATBOOK          TBBM_VATBOOK      cmVATBook       view = VatBook }
-cmd UnifyGoodsPrice       { "@{cmd_unifygoodsprice}"                       ICON_UNIFYGOODSPRICE  TBBM_UNIFYPRICE   cmUnifyGoodsPrice }
+cmd UnifyGoodsPrice       { "@{cmd_unifygoodsprice}"                       PPDV_UNIFYPRICE02     PPDV_UNIFYPRICE02 cmUnifyGoodsPrice }
 cmd UpdateQuots           { "@{cmd_updatequots}"                           ICON_UPDATEQUOTS      none              cmUpdateQuots }
 cmd AutoCharge            { "@{cmd_autocharge}"                            ICON_AUTOCHARGE       none              cmAutoCharge }
 cmd WriteOffDrafts        { "@{cmd_writeoffdrafts}"                        ICON_WROFFDRAFTS      none              cmWriteOffDrafts }
@@ -6973,6 +6983,7 @@ view   TimSerDetail            { "@{view_timserdetail}" } // @v10.5.4
 view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
 //view   VetisDocument           {"@{view_vetisdocument}"} // @v10.5.8 @erik
 view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" } // @v10.7.8
+filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -8860,6 +8871,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_SAVE03   #4D4D4D
 	PPDV_SAVEAS03 #4D4D4D
 	PPDV_OPEN03   #4D4D4D
+	PPDV_UNIFYPRICE01
+	PPDV_UNIFYPRICE02
 }
 //
 // Следующие изображения используются без замещения цвета

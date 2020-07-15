@@ -28,6 +28,7 @@
 	#include <sys\stat.h> // @v9.8.2
 	#include <tchar.h>
 	#include <wchar.h>
+	#include <stdint.h> // @v10.8.1
 	// @v10.4.3
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
@@ -2561,8 +2562,7 @@ private:
 // Система динамических типов. Дескриптор типа является 4-байтовым
 // значение, хранящим идентификатор типа и размер.
 // Таким образом, максимальный размер одного поля данных составляет 0xffff байт.
-// Для очень больших данных может быть использован S_BLOB или S_CLOB (управление этими типами
-// достаточно сложное).
+// Для очень больших данных может быть использован S_BLOB или S_CLOB (управление этими типами достаточно сложное).
 //
 // @v9.8.6 #define STYPE_SIZE_4 // @v8.9.12 Удалены все ссылки на этот макрос. Теперь безусловно sizeof(TYPEID)==4
 #define INVALID_DATA_SIZE 0
@@ -2570,62 +2570,62 @@ typedef int32 TYPEID;
 //
 // Base types. Базовые типы, используемые для приведения и преобразования разных типов.
 //
-#define BTS_VOID         0
-#define BTS_STRING       1    // ASCIIZ
-#define BTS_INT          2    // 4 byte
-#define BTS_REAL         3    // 8 byte IEEE float
-#define BTS_DATE         4    // 4 byte LDATE
-#define BTS_TIME         5    // 4 byte LTIME
-#define BTS_DATETIME     6    // 8 byte LDATETIME
-#define BTS_POINT2       7    // 16 byte RPoint
-#define BTS_BOOL         8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но испольузется в локальных ситуациях.
-#define BTS_PTR          9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
-#define BTS_INT64_      10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
+#define BTS_VOID             0
+#define BTS_STRING           1    // ASCIIZ
+#define BTS_INT              2    // 4 byte
+#define BTS_REAL             3    // 8 byte IEEE float
+#define BTS_DATE             4    // 4 byte LDATE
+#define BTS_TIME             5    // 4 byte LTIME
+#define BTS_DATETIME         6    // 8 byte LDATETIME
+#define BTS_POINT2           7    // 16 byte RPoint
+#define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но испольузется в локальных ситуациях.
+#define BTS_PTR              9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
+#define BTS_INT64_          10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
 //
 // Data types
 //
-#define S_VOID           0
-#define S_CHAR           1
-#define S_INT            2
-#define S_FLOAT          3
-#define S_DATE           4
-#define S_TIME           5
-#define S_DEC            6
-#define S_MONEY          7
-#define S_LOGICAL        8
-#define S_BOOL           S_LOGICAL
-#define S_NUMERIC        9
-#define S_BFLOAT        10
-#define S_LSTRING       11
-#define S_ZSTRING       12
-#define S_NOTE          13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
-#define S_LVAR          14
-#define S_UBINARY       15
-#define S_UINT          S_UBINARY
-#define S_AUTOINC       16
-#define S_BIT           17
-#define S_STS           18
+#define S_VOID               0
+#define S_CHAR               1
+#define S_INT                2
+#define S_FLOAT              3
+#define S_DATE               4
+#define S_TIME               5
+#define S_DEC                6
+#define S_MONEY              7
+#define S_LOGICAL            8
+#define S_BOOL               S_LOGICAL
+#define S_NUMERIC            9
+#define S_BFLOAT            10
+#define S_LSTRING           11
+#define S_ZSTRING           12
+#define S_NOTE              13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
+#define S_LVAR              14
+#define S_UBINARY           15
+#define S_UINT              S_UBINARY
+#define S_AUTOINC           16
+#define S_BIT               17
+#define S_STS               18
 
-#define S_INTRANGE      19		// int2 range only
-#define S_REALRANGE     20		// double range only
-#define S_DATERANGE     21      //
-#define S_DATETIME	    22      //
-#define S_ARRAY		    23		// not real STYPE, only ID
-#define S_STRUCT	    24		//--//--
-#define S_VARIANT       25      //
-#define S_WCHAR         26      // wide char-строка (оканчивается 0). Размер данных указывается в байтах.
-#define S_BLOB          27      // BLOB (для SQL-таблиц)
-#define S_CLOB          28      // CLOB (для SQL-таблиц)
-#define S_RAW           29      // RAW-data бинарное поле с произвольным содержимым
-#define S_ROWID         30      // ROWID (для SQL-таблиц)
-#define S_IPOINT2       31      // Целочисленная двумерная точка (x, y)
-#define S_FPOINT2       32      // Вещественная двумерная точка (x, y)
-#define S_WZSTRING      33      // Unicode-zstring
-#define S_UUID_         34      // @v8.0.9 (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
-#define S_INT64         35      // @v10.6.3
-#define S_UINT64        36      // @v10.6.3
+#define S_INTRANGE          19		// int2 range only
+#define S_REALRANGE         20		// double range only
+#define S_DATERANGE         21      //
+#define S_DATETIME	        22      //
+#define S_ARRAY		        23		// not real STYPE, only ID. Массив, состоящий из данных одного типа
+#define S_STRUCT	        24		//--//--
+#define S_VARIANT           25      //
+#define S_WCHAR             26      // wide char-строка (оканчивается 0). Размер данных указывается в байтах.
+#define S_BLOB              27      // BLOB (для SQL-таблиц)
+#define S_CLOB              28      // CLOB (для SQL-таблиц)
+#define S_RAW               29      // RAW-data бинарное поле с произвольным содержимым
+#define S_ROWID             30      // ROWID (для SQL-таблиц)
+#define S_IPOINT2           31      // Целочисленная двумерная точка (x, y)
+#define S_FPOINT2           32      // Вещественная двумерная точка (x, y)
+#define S_WZSTRING          33      // Unicode-zstring
+#define S_UUID_             34      // @v8.0.9 (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
+#define S_INT64             35      // @v10.6.3
+#define S_UINT64            36      // @v10.6.3
 //
-#define S_FIRSTUSERTYPE 50
+#define S_FIRSTUSERTYPE     50
 //
 // Максимальное количество типов в таблице
 //
@@ -2669,7 +2669,7 @@ typedef int32 TYPEID;
 #define T_GUID             MKSTYPE(S_UUID_, 16)
 // @v9.8.12 #endif
 
-#if /* @v8.7.2 defined(__cplusplus) &&*/ !defined(RC_INVOKED) /* { */
+#if !defined(RC_INVOKED) /* { */
 
 struct STypEx { // @persistent @size=16
 	DECL_INVARIANT_C();
@@ -4229,7 +4229,8 @@ struct SSearchReplaceParam {
 	SString Replacer;
 };
 //
-//
+// Descr: Класс, обеспечивающий функционал разбора и сборки текстовых представлений путей в файловой системе.
+//   Несколько статических функций обеспечивают сервисные потребности.
 //
 struct SPathStruc {
 	//
@@ -4268,7 +4269,7 @@ struct SPathStruc {
 	//   обнуляются.
 	//
 	SPathStruc & Copy(const SPathStruc * pS, long flags);
-	SPathStruc & Clear();
+	SPathStruc & Z();
 	void   FASTCALL Split(const char * pPath);
 	//
 	// Descr: Комбинирует компоненты экземпляра в текстовое представление пути.
@@ -4757,6 +4758,62 @@ LDATE  FASTCALL plusdate(LDATE d, long a);
 long   FASTCALL diffdate(LDATE d, LDATE s);
 char * FASTCALL _commfmt(long fmt, char * pBuf);
 SString & FASTCALL _commfmt(long fmt, SString & rBuf);
+//
+// Descr: Реализация преобразования double-->string и string-->double.
+// Позаимствована с модификациями у Mikhail Kupchik <Mikhail.Kupchik@prime-expert.com>. See copyright notice at dconvstr.c
+//
+class SRealConversion {
+public:
+	enum {
+		fHaveWidth   = 0x0001, // DCONVSTR_FLAG_HAVE_WIDTH
+		fLeftJustify = 0x0002, // DCONVSTR_FLAG_LEFT_JUSTIFY
+		fSharp       = 0x0004, // DCONVSTR_FLAG_SHARP
+		fPrintPlus   = 0x0008, // DCONVSTR_FLAG_PRINT_PLUS
+		fSpaceIfPlus = 0x0010, // DCONVSTR_FLAG_SPACE_IF_PLUS
+		fPadWithZero = 0x0020, // DCONVSTR_FLAG_PAD_WITH_ZERO
+		fUppercase   = 0x0040  // DCONVSTR_FLAG_UPPERCASE
+	};
+	static const int DefaultPrecision; // DCONVSTR_DEFAULT_PRECISION
+	// 
+	// Descr: Print IEEE 754 floating-point double precision value to string
+	// @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
+	//   On entry, this variable is initialized by caller.
+	//   On exit, this variable points to the end of printed string.
+	// @param  outbuf_size       Size of output buffer filled by the function.
+	//   On entry, this variable is initialized by caller to maximum allowed size.
+	//   On exit, this variable contains size of unused portion of the output buffer.
+	// @param  value             Input value (IEEE 754 floating-point double precision).
+	// @param  format_char       Format char. Either 'e', or 'f', or 'g'. Refer to printf(3) manual for details.
+	// @param  format_flags      Any combination of the above (DCONVSTR_FLAG_*).
+	// @param  format_width      Format width. Used only if DCONVSTR_FLAG_HAVE_WIDTH bit is set in flags.
+	//   Refer to printf(3) manual for details.
+	// @param  format_precision  Format precision. Set it to DCONVSTR_DEFAULT_PRECISION if unsure.
+	//   Refer to printf(3) manual for details.
+	// @returns  1  if value was successfully converted to string.
+	//   0  if there is not enough room in buffer or internal error happened during conversion.
+	// 
+	static int FASTCALL Print(char ** outbuf, int * outbuf_size, double value, int format_char, uint  format_flags, int format_width, int format_precision);
+	// 
+	// Descr: Convert string to IEEE 754 floating-point double precision value
+	// @param  input          Input buffer, C-style string. Filled by caller.
+	// @param  input_end      Address of pointer to end of scanned value in input buffer.
+	//   Filled by function if address is not NULL.
+	// @param  output         Conversion result (IEEE 754 floating-point double precision).
+	//   Set to 0.0 if string in input buffer has syntax errors.
+	// @param  output_erange  Address of overflow/underflow flag variable, filled by function.
+	//   0  if there is no overflow/underflow condition
+	//   1  if there is overflow/underflow condition: strtod(3) would set errno = ERANGE
+	// @returns  1  if there were no internal errors
+	//   0  if there was internal error during conversion.
+	// 
+	// In general, interface of this function is similar to strtod(3), except for returning overflow
+	// condition instead of setting errno. If you want just to convert C-style string to double with
+	// error checking, then set input_end != NULL and use ( ret_value != 0 )&&( **input_end == 0 )
+	// condition as an indication of successful conversion.
+	// 
+	static int FASTCALL Scan(const char * input, const char ** input_end, double * output, int * output_erange);
+};
+
 char * FASTCALL realfmt(double val, long fmt, char * pBuf);
 char * FASTCALL intfmt(long val, long fmt, char * pBuf);
 char * FASTCALL int64fmt(int64 val, long fmt, char * pBuf);
@@ -5028,7 +5085,7 @@ int    SLAPI validFileName(const char * pFileName);
 //   @# &rPath != 0
 //
 SString & SLAPI makeExecPathFileName(const char * pName, const char * pExt, SString & rPath);
-int    SLAPI isWild(const char * pFileName);
+int    FASTCALL IsWild(const char * pFileName);
 int    SLAPI createDir(const char * pPath);
 int    SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName);
 //
@@ -8599,9 +8656,7 @@ public:
 		mShrRead          = 0x00000008,
 		mShrWrite         = 0x00000010,
 		mShrDelete        = 0x00000020,
-
 		mCreationMask     = 0x00000040|0x00000080|0x00000100,
-
 		mAttrArch         = 0x00000200,
 		mAttrEncrypt      = 0x00000400,
 		mAttrHidden       = 0x00000800,
@@ -8611,7 +8666,6 @@ public:
 		mAttrRO           = 0x00008000,
 		mAttrSys          = 0x00010000,
 		mAttrTemp         = 0x00020000,
-
 		mFBackupSemantics = 0x00040000,
 		mFPosixSemantics  = 0x00080000,
 		mFDelOnClose      = 0x00100000,
@@ -8719,16 +8773,13 @@ public:
 		mReadWrite,      // "r+"
 		mReadWriteTrunc, // "w+"
 		mAppendRead,     // "a+"
-
 		mBinary    = 0x0100, // "..b"
 		mDenyRead  = 0x0200,
 		mDenyWrite = 0x0400,
-
 		mNoStd     = 0x0800, // Файл открывается в низкоуровневом (небуферизованном) режиме (open).
-			// Если размер файла может превышать 2G, то обязательно использовать этот флаг.
-		mNullWrite = 0x1000, // @v8.2.5 Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает,
-			// а чтение возвращает ошибку
-		mBuffRd    = 0x2000  // @v9.5.9 При установленном mNoStd чтение из файла буферизуется.
+			// Если размер файла может превышать 2G, то использовать этот флаг обязательно!
+		mNullWrite = 0x1000, // Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает, а чтение возвращает ошибку
+		mBuffRd    = 0x2000  // При установленном mNoStd чтение из файла буферизуется.
 	};
 	SLAPI  SFile();
 	SLAPI  SFile(const char * pName, long mode);
@@ -9781,7 +9832,6 @@ private:
 	char * FASTCALL regnode(char op);
 	void   FASTCALL regc(char b);
 	void   FASTCALL reginsert(char op, char * opnd);
-
 	const  char * FASTCALL regnext(const char * p) const;
 	char * FASTCALL regnext(char * p) const;
 	void   FASTCALL regtail(char * p, const char * val);
@@ -9793,12 +9843,10 @@ private:
 	const  char * startp[NSUBEXP];
 	const  char * endp[NSUBEXP];
 	int    ErrCode;                  // Last error code (SLERR_XXX)
-	//
 	char   RegStart;                 // Internal use only
 	char   RegAnch;                  // Internal use only
 	char   RegDummy;                 //
 	char   Reserve;                  // @alignment
-	//
 	const  char * P_RegMust;         // @*compile Internal use only
 	const  char * P_RegParse;        // @*compile Input-scan pointer.
 	char * P_RegCode;                // @*compile Code-emit  * pointer;  * &RegDummy = don't.
@@ -10125,6 +10173,8 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_CHZN_SSCC        30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
 #define SNTOK_CHZN_CIGITEM     31 // честный знак Маркировка пачки сигарет
 #define SNTOK_CHZN_CIGBLOCK    32 // честный знак Маркировка блока сигарет
+#define SNTOK_RU_OKPO          33 // @v10.8.1 Российский код ОКПО
+#define SNTOK_RU_SNILS         34 // @v10.8.1 Российский код СНИЛС
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -14459,7 +14509,6 @@ public:
 class SRawInputData {
 public:
 	static int Register(SRawInputInitArray * pRiia);
-
 	SRawInputData();
 	~SRawInputData();
 	operator RAWINPUT * ();
@@ -14473,13 +14522,12 @@ public:
 	//
 	int    FASTCALL GetDeviceName(SString & rBuf);
 private:
+	static int InitRawInputProc(int unreg);
 	void   Reset();
 
 	size_t AllocatedSize;
 	void * P_Buf;
 	uint8  FixedBuffer[256];
-
-	static int InitRawInputProc(int unreg);
 };
 //
 // Descr: Класс для работы с устройствами через USB
@@ -14595,9 +14643,6 @@ private:
 //
 // Debug
 //
-//
-//
-//
 class MemLeakTracer {
 public:
 	SLAPI  MemLeakTracer();
@@ -14656,8 +14701,6 @@ template <class C> int TestInvariant(C * p, SInvariantParam * pParam) { return p
 //
 // Descr: Класс, управляющий наборами тестовых данных.
 //
-#define STEST_DATA_MAXVAL 12
-
 class STestDataArray {
 public:
 	//
@@ -14672,7 +14715,7 @@ public:
 	struct Item {
 		Item();
 		uint   Count;
-		uint   ValPos[STEST_DATA_MAXVAL];
+		uint   ValPos[12];
 	};
 	STestDataArray();
 	const  Item & Get(uint idx) const;
@@ -14942,7 +14985,7 @@ extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 #define DECL_SLTEST(test)                 class SLTEST_CLS(test) : public STestCase { \
 	public: SLTEST_CLS(test)(STestSuite * pS) : STestCase(pS) {} virtual int Run(const char * pBenchmark);};
 #define DECL_SLTEST_FIXTURE(test,fixture) class SLTEST_CLS(test) : public STestCase { \
-	fixture F; public: SLTEST_CLS(test)(STestSuite * pS) : STestCase(pS) {} virtual int Run(const char * pBenchmark);};
+	fixture F; public: SLTEST_CLS(test)(STestSuite * pS) : STestCase(pS), F() {} virtual int Run(const char * pBenchmark);};
 
 #define SLTEST_R(test)                 \
 	DECL_SLTEST(test)                  \

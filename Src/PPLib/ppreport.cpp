@@ -2368,7 +2368,7 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 				StringSet ss;
 				SStrCollection ss_col;
 				SString data_path;
-				if(rpt_name.CmpNC("ALL") == 0) {
+				if(rpt_name.IsEqiAscii("ALL")) {
 					PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
 					PPIniFile std_ini_file(fname);
 					THROW_SL(std_ini_file.IsValid());
@@ -2499,7 +2499,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
                 	ps.Drv.Z();
                 	ps.Dir.Z();
 					const SString nam = ps.Nam;
-					if(p_sel_entry->OutputFormat.CmpNC("html") == 0) {
+					if(p_sel_entry->OutputFormat.IsEqiAscii("html")) {
 						ps.Ext.Z();
                 		ps.Merge(inner_fn);
 						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);
@@ -2509,7 +2509,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						ep.OutputFormat = SFileFormat(SFileFormat::Html);
 						out_file_name.SetLastSlash().Cat("index.html");
 					}
-					else if(p_sel_entry->OutputFormat.CmpNC("latex") == 0) {
+					else if(p_sel_entry->OutputFormat.IsEqiAscii("latex")) {
 						ps.Ext.Z();
                 		ps.Merge(inner_fn);
 						PPGetFilePath(PPPATH_OUT, inner_fn, out_file_name);

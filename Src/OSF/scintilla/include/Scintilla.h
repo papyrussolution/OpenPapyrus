@@ -1078,13 +1078,11 @@ int Scintilla_LinkLexers(void);
 #ifdef __cplusplus
 }
 #endif
-
 // Include header that defines basic numeric types.
 #if defined(_MSC_VER)
-	// Older releases of MSVC did not have stdint.h.
-	#include <stddef.h>
+	#include <stddef.h> // Older releases of MSVC did not have stdint.h.
 #else
-	#include <stdint.h>
+	//#include <stdint.h>
 #endif
 typedef uintptr_t uptr_t; // Define uptr_t, an unsigned integer type large enough to hold a pointer.
 typedef intptr_t  sptr_t; // Define sptr_t, a signed integer large enough to hold a pointer.

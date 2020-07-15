@@ -11,53 +11,70 @@
 
 #if 1 // {
 
-class PPGravityModule {
-public:
-	SLAPI  PPGravityModule();
-	int    SLAPI RunFile(const char * pFileName, GravityValue * pResult);
+struct PPGravityUnitTestData {
+	PPGravityUnitTestData();
+	PPGravityUnitTestData & Z();
 
-	static void CbError(void * pVm, int errorType, const char * pMsg, GravityErrorDescription * pErrorDesc, void * xdata);
-	//typedef const char * (* gravity_loadfile_callback)(const char * file, size_t * size, uint32 * fileid, void * xdata, bool * is_static);
-	static const char * CbLoadFile(const char * pFileName, size_t * pSize, uint32 * pFileId, void * pExtra, bool * pIsStatic);
-	//typedef void (* gravity_unittest_callback)(gravity_vm * vm, GravityErrorType error_type, const char * desc, const char * note, GravityValue value, int32 row, int32 col, void * xdata);
-	static void CbUnitTest(gravity_vm * pVm, GravityErrorType error_type, const char * pDescr, const char * pNote, GravityValue value, int32 row, int32 col, void * pExtra);
-protected:
-	int    SLAPI LoadFile(const char * pFileName, SBuffer & rBuffer);
-
-	struct UnitTestData {
-		UnitTestData() : Processed(false), IsFuzzy(false), NCount(0), NSuccess(0), NFailure(0), ExpectedErr(GRAVITY_ERROR_NONE),
-			ExpectedRow(0), ExpectedCol(0)
-		{
-		}
-		UnitTestData & Z()
-		{
-			Processed = false;
-			IsFuzzy = false;
-			NCount = 0;
-			NSuccess = 0;
-			NFailure = 0;
-			ExpectedErr = GRAVITY_ERROR_NONE;
-			ExpectedValue.from_null();
-			ExpectedRow = 0;
-			ExpectedCol = 0;
-			return *this;
-		}
-		bool   Processed;
-		bool   IsFuzzy;
-		uint8  Reserve[2]; // @alignment
-		uint32 NCount;
-		uint32 NSuccess;
-		uint32 NFailure;
-		GravityErrorType ExpectedErr;
-		GravityValue ExpectedValue;
-		int32 ExpectedRow;
-		int32 ExpectedCol;
-	};
-	UnitTestData Utd;
+	bool   Processed;
+	bool   IsFuzzy;
+	uint8  Reserve[2]; // @alignment
+	uint32 NCount;
+	uint32 NSuccess;
+	uint32 NFailure;
+	GravityErrorType ExpectedErr;
+	GravityValue ExpectedValue;
+	int32 ExpectedRow;
+	int32 ExpectedCol;
 };
 
-SLAPI PPGravityModule::PPGravityModule()
+PPGravityUnitTestData::PPGravityUnitTestData() : Processed(false), IsFuzzy(false), NCount(0), NSuccess(0), NFailure(0), ExpectedErr(GRAVITY_ERROR_NONE),
+	ExpectedRow(0), ExpectedCol(0)
 {
+}
+
+PPGravityUnitTestData & PPGravityUnitTestData::Z()
+{
+	Processed = false;
+	IsFuzzy = false;
+	NCount = 0;
+	NSuccess = 0;
+	NFailure = 0;
+	ExpectedErr = GRAVITY_ERROR_NONE;
+	ExpectedValue.from_null();
+	ExpectedRow = 0;
+	ExpectedCol = 0;
+	return *this;
+}
+
+SLAPI PPGravityModule::PPGravityModule() : P_OuterLogger(0), P_Utd(0)
+{
+}
+
+SLAPI PPGravityModule::~PPGravityModule()
+{
+	if(P_Utd) {
+		delete static_cast<PPGravityUnitTestData *>(P_Utd);
+	}
+}
+
+//typedef void (* gravity_log_callback)(gravity_vm * vm, const char * message, void * xdata);
+
+/*static*/void PPGravityModule::CbLog(void * pVm, const char * pMsg, void * pExtra)
+{
+	PPGravityModule * p_this = static_cast<PPGravityModule *>(pExtra);
+	SString msg_buf;
+	if(!isempty(pMsg))
+		msg_buf.CatDiv(':', 2).Cat(pMsg);
+	if(p_this->P_OuterLogger)
+		p_this->P_OuterLogger->Log(msg_buf);
+	PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+}
+
+/*static*/void PPGravityModule::CbLogClear(void * pVm, void * pExtra)
+{
+	PPGravityModule * p_this = static_cast<PPGravityModule *>(pExtra);
+	if(p_this->P_OuterLogger)
+		p_this->P_OuterLogger->Clear();
 }
 
 /*static*/void PPGravityModule::CbError(void * pVm, int errorType, const char * pMsg, GravityErrorDescription * pErrorDesc, void * pExtra)
@@ -81,8 +98,9 @@ SLAPI PPGravityModule::PPGravityModule()
 	}
 	if(!isempty(pMsg))
 		msg_buf.CatDiv(':', 2).Cat(pMsg);
+	if(p_this->P_OuterLogger)
+		p_this->P_OuterLogger->Log(msg_buf);
 	PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
-	//printf("%s\n", pMsg);
 }
 
 int SLAPI PPGravityModule::LoadFile(const char * pFileName, SBuffer & rBuffer)
@@ -136,32 +154,101 @@ int SLAPI PPGravityModule::LoadFile(const char * pFileName, SBuffer & rBuffer)
 	return p_ret; 
 }
 
-/*static*/void PPGravityModule::CbUnitTest(gravity_vm * pVm, GravityErrorType errorType, const char * pDescr, const char * pNote, GravityValue value, int32 row, int32 col, void * pExtra)
+static void CbUnitTest(void * pVm, GravityErrorType errorType, const char * pDescr, const char * pNote, GravityValue value, int32 row, int32 col, void * pExtra)
 {
 	PPGravityModule * p_this = static_cast<PPGravityModule *>(pExtra);
 	if(p_this) {
-		p_this->Utd.ExpectedErr = errorType;
-		p_this->Utd.ExpectedValue = value;
-		p_this->Utd.ExpectedRow = row;
-		p_this->Utd.ExpectedCol = col;
+		if(!p_this->P_Utd)
+			p_this->P_Utd = new PPGravityUnitTestData;
+		static_cast<PPGravityUnitTestData *>(p_this->P_Utd)->ExpectedErr = errorType;
+		static_cast<PPGravityUnitTestData *>(p_this->P_Utd)->ExpectedValue = value;
+		static_cast<PPGravityUnitTestData *>(p_this->P_Utd)->ExpectedRow = row;
+		static_cast<PPGravityUnitTestData *>(p_this->P_Utd)->ExpectedCol = col;
 		SString msg_buf;
 		if(!isempty(pNote)) {
 			msg_buf.Tab().Cat("NOTE").CatDiv(':', 2).Cat(pNote);
+			p_this->LogToOuterLogger(msg_buf);
 			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
 		}
 		msg_buf.Z().Tab().Cat(pDescr);
+		p_this->LogToOuterLogger(msg_buf);
 		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
 	}
 }
 
-int SLAPI PPGravityModule::RunFile(const char * pFileName, GravityValue * pResult)
+void SLAPI PPGravityModule::LogToOuterLogger(const char * pMsg) // @temporary
+{
+	if(P_OuterLogger)
+		P_OuterLogger->Log(pMsg);
+}
+
+int SLAPI PPGravityModule::RunBuffer(const char * pText, PPLogger * pOuterLogger, GravityValue * pResult)
 {
 	int    ok = 1;
 	SString msg_buf;
 	SBuffer buffer;
+	P_OuterLogger = pOuterLogger;
+	gravity_delegate_t delegate(this);
+	delegate.log_callback = reinterpret_cast<gravity_log_callback>(PPGravityModule::CbLog);
+	//typedef void (* gravity_log_clear)(gravity_vm * vm, void * xdata);
+	delegate.log_clear = reinterpret_cast<gravity_log_clear>(PPGravityModule::CbLogClear);
+	delegate.error_callback = reinterpret_cast<gravity_error_callback>(PPGravityModule::CbError);
+	delegate.unittest_callback = reinterpret_cast<gravity_unittest_callback>(CbUnitTest);
+	delegate.loadfile_callback = PPGravityModule::CbLoadFile/*unittest_read*/;
+	gravity_vm * p_vm = 0;
+	gravity_closure_t * p_closure = 0;
+	gravity_compiler_t * p_compiler = gravity_compiler_create(&delegate);
+	THROW(p_compiler);
+	p_closure = gravity_compiler_run(p_compiler, pText, sstrlen(pText), 0/*fileId*/, true/*isStatic*/, false/*addDebug*/);
+	THROW(p_closure);
+	THROW(p_vm = gravity_vm_new(&delegate));
+	gravity_compiler_transfer(p_compiler, p_vm);
+	gravity_compiler_free(p_compiler);
+	p_compiler = 0;
+	THROW(gravity_vm_runmain(p_vm, p_closure));
+	{
+		GravityValue result = gravity_vm_result(p_vm);
+		ASSIGN_PTR(pResult, result);
+		if(P_Utd) {
+			static_cast<PPGravityUnitTestData *>(P_Utd)->Processed = true;
+			if(static_cast<PPGravityUnitTestData *>(P_Utd)->IsFuzzy || gravity_value_equals(result, static_cast<PPGravityUnitTestData *>(P_Utd)->ExpectedValue)) {
+				static_cast<PPGravityUnitTestData *>(P_Utd)->NSuccess++;
+				msg_buf.Cat("SUCCESS");
+				LogToOuterLogger(msg_buf);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+			else {
+				static_cast<PPGravityUnitTestData *>(P_Utd)->NFailure++;
+				msg_buf.Cat("FAILURE");
+				LogToOuterLogger(msg_buf);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+			gravity_value_free(0, static_cast<PPGravityUnitTestData *>(P_Utd)->ExpectedValue);
+			// case for empty files or simple declarations test
+			if(!static_cast<PPGravityUnitTestData *>(P_Utd)->Processed) {
+				static_cast<PPGravityUnitTestData *>(P_Utd)->NSuccess++;
+				msg_buf.Cat("SUCCESS");
+				LogToOuterLogger(msg_buf);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+		}
+	}
+	CATCHZOK
+	gravity_vm_free(p_vm);
+	gravity_compiler_free(p_compiler);
+	P_OuterLogger = 0;
+	return ok;
+}
+
+int SLAPI PPGravityModule::RunFile(const char * pFileName, PPLogger * pOuterLogger, GravityValue * pResult)
+{
+	int    ok = 1;
+	SString msg_buf;
+	SBuffer buffer;
+	P_OuterLogger = pOuterLogger;
 	gravity_delegate_t delegate(this);
 	delegate.error_callback = reinterpret_cast<gravity_error_callback>(PPGravityModule::CbError)/*unittest_error*/;
-	delegate.unittest_callback = PPGravityModule::CbUnitTest/*unittest_callback*/;
+	delegate.unittest_callback = reinterpret_cast<gravity_unittest_callback>(CbUnitTest);
 	delegate.loadfile_callback = PPGravityModule::CbLoadFile/*unittest_read*/;
 	gravity_vm * p_vm = 0;
 	gravity_closure_t * p_closure = 0;
@@ -176,27 +263,32 @@ int SLAPI PPGravityModule::RunFile(const char * pFileName, GravityValue * pResul
 	gravity_compiler_free(p_compiler);
 	p_compiler = 0;
 	THROW(gravity_vm_runmain(p_vm, p_closure));
-	Utd.Processed = true;
 	{
 		GravityValue result = gravity_vm_result(p_vm);
 		ASSIGN_PTR(pResult, result);
-		if(Utd.IsFuzzy || gravity_value_equals(result, Utd.ExpectedValue)) {
-			Utd.NSuccess++;
-			msg_buf.Cat("SUCCESS");
-			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+		if(P_Utd) {
+			static_cast<PPGravityUnitTestData *>(P_Utd)->Processed = true;
+			if(static_cast<PPGravityUnitTestData *>(P_Utd)->IsFuzzy || gravity_value_equals(result, static_cast<PPGravityUnitTestData *>(P_Utd)->ExpectedValue)) {
+				static_cast<PPGravityUnitTestData *>(P_Utd)->NSuccess++;
+				msg_buf.Cat("SUCCESS");
+				LogToOuterLogger(msg_buf);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+			else {
+				static_cast<PPGravityUnitTestData *>(P_Utd)->NFailure++;
+				msg_buf.Cat("FAILURE");
+				LogToOuterLogger(msg_buf);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+			gravity_value_free(0, static_cast<PPGravityUnitTestData *>(P_Utd)->ExpectedValue);
+			// case for empty files or simple declarations test
+			if(!static_cast<PPGravityUnitTestData *>(P_Utd)->Processed) {
+				static_cast<PPGravityUnitTestData *>(P_Utd)->NSuccess++;
+				msg_buf.Cat("SUCCESS");
+				LogToOuterLogger(msg_buf);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
 		}
-		else {
-			Utd.NFailure++;
-			msg_buf.Cat("FAILURE");
-			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-		}
-		gravity_value_free(0, Utd.ExpectedValue);
-	}
-	// case for empty files or simple declarations test
-	if(!Utd.Processed) {
-		Utd.NSuccess++;
-		msg_buf.Cat("SUCCESS");
-		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 	CATCHZOK
 	gravity_vm_free(p_vm);
@@ -228,6 +320,7 @@ static bool GravityProc_PapyrusGravityTestIfc_SetProp(gravity_vm * vm, GravityVa
 void SLAPI TestGravity()
 {
 	int    ok = 1;
+	PPLogger logger;
 	PPGravityModule gm;
 	SString temp_buf;
 	const char * p_path = "D:/Papyrus/Src/OSF/gravity/test/unittest";
@@ -237,11 +330,15 @@ void SLAPI TestGravity()
 		if(de.IsFile()) {
 			(temp_buf = p_path).SetLastDSlash().Cat(de.FileName);
 			GravityValue result;
-			gm.RunFile(temp_buf, &result);
+			gm.RunFile(temp_buf, &logger, &result);
 		}
 	}
 	CATCHZOK
 }
 
 #endif // } 0
+#else
+void SLAPI TestGravity()
+{
+}
 #endif // } _MSC_VER >= 1600

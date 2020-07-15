@@ -19,39 +19,33 @@
 #ifndef OPENSSL_NO_STDIO
 void OPENSSL_LH_stats(const OPENSSL_LHASH * lh, FILE * fp)
 {
-	BIO * bp;
-	bp = BIO_new(BIO_s_file());
-	if(bp == NULL)
-		return;
-	BIO_set_fp(bp, fp, BIO_NOCLOSE);
-	OPENSSL_LH_stats_bio(lh, bp);
-	BIO_free(bp);
+	BIO * bp = BIO_new(BIO_s_file());
+	if(bp) {
+		BIO_set_fp(bp, fp, BIO_NOCLOSE);
+		OPENSSL_LH_stats_bio(lh, bp);
+		BIO_free(bp);
+	}
 }
 
 void OPENSSL_LH_node_stats(const OPENSSL_LHASH * lh, FILE * fp)
 {
-	BIO * bp;
-
-	bp = BIO_new(BIO_s_file());
-	if(bp == NULL)
-		return;
-	BIO_set_fp(bp, fp, BIO_NOCLOSE);
-	OPENSSL_LH_node_stats_bio(lh, bp);
-	BIO_free(bp);
+	BIO * bp = BIO_new(BIO_s_file());
+	if(bp) {
+		BIO_set_fp(bp, fp, BIO_NOCLOSE);
+		OPENSSL_LH_node_stats_bio(lh, bp);
+		BIO_free(bp);
+	}
 }
 
 void OPENSSL_LH_node_usage_stats(const OPENSSL_LHASH * lh, FILE * fp)
 {
-	BIO * bp;
-
-	bp = BIO_new(BIO_s_file());
-	if(bp == NULL)
-		return;
-	BIO_set_fp(bp, fp, BIO_NOCLOSE);
-	OPENSSL_LH_node_usage_stats_bio(lh, bp);
-	BIO_free(bp);
+	BIO * bp = BIO_new(BIO_s_file());
+	if(bp) {
+		BIO_set_fp(bp, fp, BIO_NOCLOSE);
+		OPENSSL_LH_node_usage_stats_bio(lh, bp);
+		BIO_free(bp);
+	}
 }
-
 #endif
 
 void OPENSSL_LH_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
@@ -76,10 +70,9 @@ void OPENSSL_LH_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 
 void OPENSSL_LH_node_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 {
-	OPENSSL_LH_NODE * n;
-	unsigned int i, num;
-
-	for(i = 0; i < lh->num_nodes; i++) {
+	for(uint i = 0; i < lh->num_nodes; i++) {
+		OPENSSL_LH_NODE * n;
+		uint num;
 		for(n = lh->b[i], num = 0; n != NULL; n = n->next)
 			num++;
 		BIO_printf(out, "node %6u -> %3u\n", i, num);
