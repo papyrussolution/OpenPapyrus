@@ -3529,7 +3529,6 @@ char * getLeptonicaVersion()
 #include <sys/resource.h>
 
 static struct rusage rusage_before;
-
 static struct rusage rusage_after;
 
 /*!

@@ -5664,6 +5664,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @maximum                             "Максимум"
 @minimum                             "Минимум"
 @average                             "Среднее"
+@position_left                       "Слева"
+@position_right                      "Справа"
 @direction_left                      "Налево"
 @direction_right                     "Направо"
 @direction_up                        "Вверх"
@@ -8357,6 +8359,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_agreementbill                       "Договор"
 @bill_outerdocument                       "Внешний документ" // generic
 @bill_ediackresp                          "Ответ на EDI-подтверждение" // generic
+@bill_taxes                               "Налоги по документу" // generic
+@bill_taxes_dorecalc                      "Пересчитать"
 
 @billprelude                              "Выберите вид операции нового документа" // Заголовок диалога, предшествующего вводу нового документа
 @billupdattributes                        "Изменение атрибутов документа" // Операция массового изменения некоторых атрибутов документов
@@ -8712,6 +8716,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_dlvraddr                          "@{daddress}"
 @ccheck_doattachphonetocard               "Привязать телефон к карте" // command
 @ccheck_docreatecardbyphone               "Создать новую карту, привязанную к телефону" // command
+
+@pospan                                   "Кассовая панель"
+@pospanlocking                            "Блокировка кассовой панели"
+@pospanlocking_hint                       "Для выхода из режима блокировки просканируйте код карты доступа"
 
 @timeseries_name                          "@{appellation}"
 @timeseries_symb                          "@{symbol}"
@@ -11462,6 +11470,15 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @transport_trtype                         "Тип транспорта"
 @transport_vantyp                         "Тип фургона"
 
+@transportfilt                            "Фильтр по транспортным средствам"
+@transportfilt_trtype                     "Тип транспортного средства"
+@transportfilt_model                      "@{transport_trmodel}"
+@transportfilt_owner                      "@{transport_owner}"
+@transportfilt_captain                    "@{chauffeur}/@{captain}"
+@transportfilt_country                    "@{country}"
+@transportfilt_code                       ""
+@transportfilt_trailcode                  ""
+
 @trfr_k_assetrcv                          "Поступление объекта основных средств"  // generic
 @trfr_k_intrexpend                        "Перемещение товара между складами"
 @trfr_k_assetexpl                         "Ввод в эксплуатацию объекта основных средств"
@@ -13288,6 +13305,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cvtcipher_inidest                        "Путь к файлу новых ключей"
 
 @wtmtoolitem                              "Элемент панели инструментов"
+@wtmtoolitembkg                           "Фоновый инструмент"
 @wtmtoolitem_id                           "@{id}"
 @wtmtoolitem_symb                         "@{symbol}"
 @wtmtoolitem_text                         "@{appellation}"
@@ -14631,6 +14649,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @stylobhtiionhostcfg_oplist               ""
 
 @backupscen                               "Конфигурация резервного копирования"
+@backupparam                              "Параметры резервного копирования"
 @backupscen_id                            ""
 @backupscen_period                        "Периодичность, @{days}"
 @backupscen_flags                         "@{flags}"
@@ -14717,6 +14736,20 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ctableorder_param_flags                      "@{flags}"
 @ctableorder_param_fshowtimegraph             "@{toshowtimegraph}"
 @ctableorder_param_tableno                    ""
+
+@prcssrimportkladrparam                       "Импорт классификатора адресов"
+@prcssrimportkladrparam_flags                 "@{flags}"
+@prcssrimportkladrparam_fskipsmallitems       "Не импортировать подчиненные населенные пункты"
+@prcssrimportkladrparam_fstreet               "Импортировать улицы"
+@prcssrimportkladrparam_parentcodestring      "Родительские объекты (коды через запятую)"
+
+@vetisdocumentupdateselector                  "Обновление документов ВЕТИС"
+@vetisdocumentupdateselector_action           ""
+@vetisdocumentupdateselector_agetforperiod    "Получить обновления за период фильтрации"
+@vetisdocumentupdateselector_agetall          "Получить все документы (длительная операция)"
+@vetisdocumentupdateselector_agetcurrest      "Получить текущие остатки"
+@vetisdocumentupdateselector_aactualize       "Актуализировать текущие данные"
+@vetisdocumentupdateselector_period           "@{daterange}"
 
 [121]
 1   "Вход"

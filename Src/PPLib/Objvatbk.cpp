@@ -556,17 +556,17 @@ private:
 int SimpleLedgerDialog::setDTS(const VATBookTbl::Rec * pRec)
 {
 	ushort v = 0;
-	PPID   sheet = 0;
+	PPID   acs_id = 0;
 	Data = *pRec;
 	if(Data.Object) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
 		if(ar_obj.Fetch(Data.Object, &ar_rec) > 0)
-			sheet = ar_rec.AccSheetID;
+			acs_id = ar_rec.AccSheetID;
 	}
-	if(sheet == 0 && ppobj->IsValidKind(Data.LineType_))
-		sheet = ppobj->GetConfig(Data.LineType_).AccSheetID;
-	SetupArCombo(this, CTLSEL_SMPLLEDG_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, sheet, 0);
+	if(acs_id == 0 && ppobj->IsValidKind(Data.LineType_))
+		acs_id = ppobj->GetConfig(Data.LineType_).AccSheetID;
+	SetupArCombo(this, CTLSEL_SMPLLEDG_OBJ, Data.Object, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, 0);
 	enableCommand(cmVATBookLink, (int)Data.Link);
 	setCtrlData(CTL_SMPLLEDG_DT,     &Data.Dt);
 	setCtrlData(CTL_SMPLLEDG_CODE,   Data.Code);

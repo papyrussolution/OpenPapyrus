@@ -1624,18 +1624,18 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 							ObjTagTbl::Key2 k2;
 							k2.TagID = tag_id;
 							k2.IntVal = _id;
-							if(ref->Ot.search(2, &k2, spEq)) {
-								do {
-									if(!ref->Ot.rereadForUpdate(2, &k2)) {
+							while(ref->Ot.search(2, &k2, spEq)) {
+								if(!ref->Ot.rereadForUpdate(2, &k2)) {
+									ok = PPSetErrorDB();
+								}
+								else {
+									ref->Ot.data.IntVal = reinterpret_cast<long>(extraPtr);
+									if(!ref->Ot.updateRec()) {
 										ok = PPSetErrorDB();
 									}
-									else {
-										ref->Ot.data.IntVal = reinterpret_cast<long>(extraPtr);
-										if(!ref->Ot.updateRec()) {
-											ok = PPSetErrorDB();
-										}
-									}
-								} while(ok == DBRPL_OK && ref->Ot.search(2, &k2, spNext) && ref->Ot.data.TagID == tag_id && ref->Ot.data.IntVal == _id);
+								}
+								k2.TagID = tag_id;
+								k2.IntVal = _id;
 							}
 						}
 					}

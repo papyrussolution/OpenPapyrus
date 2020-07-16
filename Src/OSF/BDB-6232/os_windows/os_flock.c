@@ -25,10 +25,9 @@ int __os_fdlock(ENV *env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 	return (EFAULT);
 #else
 	DWORD low, high;
-	DB_ENV * dbenv;
 	OVERLAPPED over;
 	int ret;
-	dbenv = env == NULL ? NULL : env->dbenv;
+	DB_ENV * dbenv = env ? env->dbenv : NULL;
 	DB_ASSERT(env, F_ISSET(fhp, DB_FH_OPENED) && fhp->handle != INVALID_HANDLE_VALUE);
 	if(dbenv != NULL && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0020", "fileops: flock %s %s offset %lu", "%s %s %lu"), fhp->name,
@@ -41,7 +40,6 @@ int __os_fdlock(ENV *env, DB_FH * fhp, off_t offset, int acquire, int nowait)
 	offset = UINT64_MAX - offset;
 	low = (DWORD)offset;
 	high = (DWORD)(offset >> 32);
-
 	if(acquire) {
 		if(nowait)
 			RETRY_CHK_EINTR_ONLY(!LockFile(fhp->handle, low, high, 1, 0), ret);

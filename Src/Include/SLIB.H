@@ -10175,6 +10175,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_CHZN_CIGBLOCK    32 // честный знак Маркировка блока сигарет
 #define SNTOK_RU_OKPO          33 // @v10.8.1 Российский код ОКПО
 #define SNTOK_RU_SNILS         34 // @v10.8.1 Российский код СНИЛС
+#define SNTOK_RU_BIC           35 // @v10.8.1 Российский банковский идентификационный код (БИК)
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z

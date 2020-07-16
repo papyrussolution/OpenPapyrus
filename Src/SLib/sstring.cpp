@@ -7058,7 +7058,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 								rResultList.Add(SNTOK_RU_OKPO, 0.95f);
 						}
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), stat.Len-1);
-						if((uchar)cd == (last-'0')) {
+						if(static_cast<uchar>(cd) == (last-'0')) {
 							if(pToken[0] == '0')
 								rResultList.Add(SNTOK_UPCE, 0.9f);
 							else
@@ -7066,6 +7066,13 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						}
 						if(_ProbeDate(temp_buf.Z().CatN(reinterpret_cast<const char *>(pToken), stat.Len))) {
 							rResultList.Add(SNTOK_DATE, 0.8f);
+						}
+						break;
+					case 9:
+						{
+							if(pToken[0] == '0' && pToken[1] == '4') {
+								rResultList.Add(SNTOK_RU_BIC, 0.6f);
+							}
 						}
 						break;
 					case 10:

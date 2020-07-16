@@ -497,16 +497,16 @@ void BillTaxesDialog::calcTax(int taxN)
 void BillTaxesDialog::calcTotal()
 {
 	double amt = 0.0;
-	AmtEntry * p_ae;
-	PPAmountType amtt_rec;
 	getDTS(0);
 	int    tag_stax = 0;
-	for(uint i = 0; Data.enumItems(&i, (void **)&p_ae);) {
-		if(p_ae->Amt != 0.0 && AmtObj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
+	for(uint i = 0; i < Data.getCount(); i++) {
+		const AmtEntry & r_ae = Data.at(i);
+		PPAmountType amtt_rec;
+		if(r_ae.Amt != 0.0 && AmtObj.Fetch(r_ae.AmtTypeID, &amtt_rec) > 0)
 			if(amtt_rec.IsTax(GTAX_VAT))
-				amt += p_ae->Amt / SalesTaxMult(fdiv100i(amtt_rec.TaxRate));
+				amt += r_ae.Amt / SalesTaxMult(fdiv100i(amtt_rec.TaxRate));
 			else if(!tag_stax && amtt_rec.IsTax(GTAX_SALES)) {
-				amt += p_ae->Amt;
+				amt += r_ae.Amt;
 				tag_stax = 1;
 			}
 	}

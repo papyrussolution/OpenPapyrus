@@ -5046,36 +5046,36 @@ browser GBILLCMP north(100), 3, 1, "@{docomparedocuments} %s", OWNER|GRID, 0
 	"@ware",      1, notype, 0, 20
 	"@barcode",   2, notype, 0, 12
 	group "@qtty" {
-		"Слева",  3, notype, NMBF_NOTRAILZ, 10.3
-		"Справа", 4, notype, NMBF_NOTRAILZ, 10.3
-		"+",      5, notype, NMBF_NOZERO|NMBF_NOTRAILZ|NMBF_NONEG, 10.3
-		"-",      6, notype, NMBF_NOZERO|NMBF_NOTRAILZ|NMBF_NONEG, 10.3
+		"@position_left",  3, notype, NMBF_NOTRAILZ, 10.3
+		"@position_right", 4, notype, NMBF_NOTRAILZ, 10.3
+		"+",               5, notype, NMBF_NOZERO|NMBF_NOTRAILZ|NMBF_NONEG, 10.3
+		"-",               6, notype, NMBF_NOZERO|NMBF_NOTRAILZ|NMBF_NONEG, 10.3
 	}
 	group "@price" {
-		"Слева",  7, notype, 0, 8.2
-		"Справа", 8, notype, 0, 8.2
-		"+",      9, notype, NMBF_NOZERO|NMBF_NONEG, 8.2
-		"-",     10, notype, NMBF_NOZERO|NMBF_NONEG, 8.2
+		"@position_left",  7, notype, 0, 8.2
+		"@position_right", 8, notype, 0, 8.2
+		"+",               9, notype, NMBF_NOZERO|NMBF_NONEG, 8.2
+		"-",              10, notype, NMBF_NOZERO|NMBF_NONEG, 8.2
 	}
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS      : kbF2,     TBBM_GOODS,          "@{ware}\tF2"
-		PUTTOBASKET    : kbSpace,  PPDV_SHOPPINGCART01,         "@{doputtobasket}\tПробел"
+		PUTTOBASKET    : kbSpace,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tПробел"
 		PUTTOBASKETALL : kbCtrlF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F4"
-		PRINT          : kbF7,     PPDV_PRINTER01,          "@{print}\tF7"
-		TOTAL          : kbF9,     PPDV_SIGMA02,           "@{totals}\tF9"
+		PRINT          : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
+		TOTAL          : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
-		CHANGEFILT     : kbCtrlV,  PPDV_FILTER01,         "@{filter}\tCtrl-V"
+		CHANGEFILT     : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
 
 browser OPRKIND north(100), 1, 1, "@{view_oprkind}", OWNER|GRID, 0
 {
-	"@id",              -1, long, 0, 6
-	"@appellation",     -1, zstring(48), 0, 20
-	"@symbol",          -1, zstring(20), 0, 10
-	"Таблица объектов", -1, zstring(48), 0, 20
-	"@oprtype",         -1, zstring(48), 0, 20
-	"@flags",           -1, zstring(24), 0, 10
+	"@id",               -1, long, 0, 6
+	"@appellation",      -1, zstring(48), 0, 20
+	"@symbol",           -1, zstring(20), 0, 10
+	"@oprkind_accsheet", -1, zstring(48), 0, 20
+	"@oprtype",          -1, zstring(48), 0, 20
+	"@flags",            -1, zstring(24), 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM       : kbEnter, PPDV_EDITFILE02,        "@{edit}\tEnter"
 		ADDITEM        : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
@@ -5271,7 +5271,7 @@ browser TSESSION north(100), 3, 1, "@{tsession_pl} {%s}", OWNER|GRID, 0
 	"@id",                    0, notype, 0,  3
 	"@number",                1, notype, 0,  5
 	"@status",                2, notype, 0,  5
-	"Завершенность",         12, notype, 0,  3
+	"@tsession_incomplete",  12, notype, 0,  3
 	"@processor",             3, notype, 0, 20
 	"@tech",                  4, notype, 0,  6
 	"Основной товар",        15, notype, 0, 20
@@ -5328,7 +5328,7 @@ browser TSUBSESSION north(100), 3, 1, "Технологические субсессии {%s}", OWNER|GR
 	"@id",                    0, notype, 0,  3
 	"@number",                1, notype, 0,  5
 	"@status",                2, notype, 0,  5
-	"Завершенность",         12, notype, 0,  3
+	"@tsession_incomplete",  12, notype, 0,  3
 	"@processor",             3, notype, 0, 20
 	"@tech",                  4, notype, 0,  6
 	"Основной товар",        15, notype, 0, 20

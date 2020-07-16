@@ -32,8 +32,8 @@ IMPLEMENT_PPFILT_FACTORY(Transport); SLAPI TransportFilt::TransportFilt() : PPBa
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		if(TrType == PPTRTYP_CAR)         flag_list.Add(id++, STRINGIZE(PPTRTYPE_CAR));
-		else if(TrType == PPTRTYP_SHIP)   flag_list.Add(id++, STRINGIZE(PPTRTYPE_SHIP));
+		if(TrType == PPTRTYP_CAR)       flag_list.Add(id++, STRINGIZE(PPTRTYPE_CAR));
+		else if(TrType == PPTRTYP_SHIP) flag_list.Add(id++, STRINGIZE(PPTRTYPE_SHIP));
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(TrType), rBuf);
 	}
 	return 1;
@@ -66,17 +66,46 @@ PPBaseFilt * SLAPI PPViewTransport::CreateFilt(void * extraPtr) const
 }
 
 class TransportFilterDlg : public TDialog {
+	DECL_DIALOG_DATA(TransportFilt);
 public:
 	TransportFilterDlg() : TDialog(DLG_FLTTRANSP)
 	{
 		PPObjTransport::ReadConfig(&Cfg);
 	}
-	int    setDTS(const TransportFilt *);
-	int    getDTS(TransportFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		PPID   owner_kind_id = NZOR(Cfg.OwnerKindID, PPPRK_SHIPOWNER);
+		PPID   captain_kind_id = NZOR(Cfg.CaptainKindID, PPPRK_CAPTAIN);
+		setCtrlString(CTL_FLTTRANSP_CODE,      Data.Code);
+		setCtrlString(CTL_FLTTRANSP_TRAILCODE, Data.TrailCode);
+		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_MODEL,   PPOBJ_TRANSPMODEL, Data.ModelID,   OLW_CANINSERT);
+		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_OWNER,   PPOBJ_PERSON,      Data.OwnerID,   OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
+		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CAPTAIN, PPOBJ_PERSON,      Data.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
+		SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY,   PPOBJ_COUNTRY,     Data.CountryID, OLW_CANINSERT);
+		AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 0, 0);
+		AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 1, PPTRTYP_CAR);
+		AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 2, PPTRTYP_SHIP);
+		SetClusterData(CTL_FLTTRANSP_TRTYPE, Data.TrType);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlString(CTL_FLTTRANSP_CODE,        Data.Code);
+		getCtrlString(CTL_FLTTRANSP_TRAILCODE,   Data.TrailCode);
+		getCtrlData(CTLSEL_FLTTRANSP_MODEL,   &Data.ModelID);
+		getCtrlData(CTLSEL_FLTTRANSP_OWNER,   &Data.OwnerID);
+		getCtrlData(CTLSEL_FLTTRANSP_CAPTAIN, &Data.CaptainID);
+		getCtrlData(CTLSEL_FLTTRANSP_CNTRY,   &Data.CountryID);
+		GetClusterData(CTL_FLTTRANSP_TRTYPE,  &Data.TrType);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
-	TransportFilt Data;
 	PPTransportConfig Cfg;
 };
 
@@ -114,39 +143,6 @@ void TransportFilterDlg::SetupCtrls()
 	setCtrlString(CTL_FLTTRANSP_TRAILCODE, trail_code);
 }
 
-int TransportFilterDlg::setDTS(const TransportFilt * pData)
-{
-	RVALUEPTR(Data, pData);
-	PPID   owner_kind_id = NZOR(Cfg.OwnerKindID, PPPRK_SHIPOWNER);
-	PPID   captain_kind_id = NZOR(Cfg.CaptainKindID, PPPRK_CAPTAIN);
-	setCtrlString(CTL_FLTTRANSP_CODE,      Data.Code);
-	setCtrlString(CTL_FLTTRANSP_TRAILCODE, Data.TrailCode);
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_MODEL,   PPOBJ_TRANSPMODEL, Data.ModelID,   OLW_CANINSERT);
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_OWNER,   PPOBJ_PERSON,      Data.OwnerID,   OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CAPTAIN, PPOBJ_PERSON,      Data.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
-	SetupPPObjCombo(this, CTLSEL_FLTTRANSP_CNTRY,   PPOBJ_COUNTRY,     Data.CountryID, OLW_CANINSERT);
-	AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 0, 0);
-	AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 1, PPTRTYP_CAR);
-	AddClusterAssoc(CTL_FLTTRANSP_TRTYPE, 2, PPTRTYP_SHIP);
-	SetClusterData(CTL_FLTTRANSP_TRTYPE, Data.TrType);
-	SetupCtrls();
-	return 1;
-}
-
-int TransportFilterDlg::getDTS(TransportFilt * pData)
-{
-	int    ok = 1;
-	getCtrlString(CTL_FLTTRANSP_CODE,        Data.Code);
-	getCtrlString(CTL_FLTTRANSP_TRAILCODE,   Data.TrailCode);
-	getCtrlData(CTLSEL_FLTTRANSP_MODEL,   &Data.ModelID);
-	getCtrlData(CTLSEL_FLTTRANSP_OWNER,   &Data.OwnerID);
-	getCtrlData(CTLSEL_FLTTRANSP_CAPTAIN, &Data.CaptainID);
-	getCtrlData(CTLSEL_FLTTRANSP_CNTRY,   &Data.CountryID);
-	GetClusterData(CTL_FLTTRANSP_TRTYPE,  &Data.TrType);
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
-
 int SLAPI PPViewTransport::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	if(Filt.IsA(pBaseFilt)) {
@@ -163,7 +159,6 @@ DBQuery * SLAPI PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	DBQ  * dbq = 0;
 	TempTransportTbl * p_tmp_t = 0;
 	uint   brw_id = BROWSER_TRANSPORT;
-
 	THROW(P_TempTbl);
 	THROW(CheckTblPtr(p_tmp_t = new TempTransportTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_owner,   PPDbqFuncPool::IdObjNamePerson,  p_tmp_t->OwnerID);
