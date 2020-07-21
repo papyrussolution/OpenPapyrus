@@ -1164,7 +1164,7 @@ void SGeo::SinCosPair::Norm2()
 }
 
 SGeo::SGeo() :
-	_RealMin(MINDOUBLE),
+	_RealMin(SMathConst::Min),
 	_Tiny(sqrt(_RealMin)),
 	_Tol0(SMathConst::Epsilon),
 	_Tol1(200.0 * _Tol0),

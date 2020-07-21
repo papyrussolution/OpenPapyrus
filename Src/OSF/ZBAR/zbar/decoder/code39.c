@@ -26,7 +26,6 @@
 #ifdef DEBUG_CODE39
 	#define DEBUG_LEVEL (DEBUG_CODE39)
 #endif
-#include "decoder.h"
 //
 // reset Code 39 specific state 
 //

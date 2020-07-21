@@ -26,7 +26,6 @@
 #ifdef DEBUG_CODE93
 	#define DEBUG_LEVEL (DEBUG_CODE93)
 #endif
-#include "decoder.h"
 //
 // reset Code 93 specific state 
 //

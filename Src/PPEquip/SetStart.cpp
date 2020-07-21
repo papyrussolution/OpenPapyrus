@@ -381,26 +381,27 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 						// Формирование массива скидок по котировкам
 						//
 						{
-							AtolGoodsDiscountEntry ent;
 							for(i = 0; i < retail_quot_list.getCount(); i++) {
 								const  PPID qk_id = retail_quot_list.get(i);
 								if(qk_id) {
 									double quot = gds_info.QuotList.Get(qk_id);
 									if(quot > 0.0 && quot != gds_info.Price) {
-										MEMSZERO(ent);
-										ent.GoodsID = gds_info.ID;
-										ent.QuotKindID = qk_id;
+										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot); // @v10.8.2
+										// @v10.8.2 MEMSZERO(ent);
+										// @v10.8.2 ent.GoodsID = gds_info.ID;
+										// @v10.8.2 ent.QuotKindID = qk_id;
 										//ent.SCardSerID = scard_quot_list.at(i).Key;
-										ent.AbsDiscount = gds_info.Price - quot;
+										// @v10.8.2 ent.AbsDiscount = gds_info.Price - quot;
 										goods_dis_list.insert(&ent);
 										used_retail_quot.set(i, 1);
 									}
 								}
 							}
 							if(gds_info.ExtQuot > 0.0) {
-								MEMSZERO(ent);
-								ent.GoodsID = gds_info.ID;
-								ent.AbsDiscount = gds_info.Price - gds_info.ExtQuot;
+								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot); // @v10.8.2
+								// @v10.8.2 MEMSZERO(ent);
+								// @v10.8.2 ent.GoodsID = gds_info.ID;
+								// @v10.8.2 ent.AbsDiscount = gds_info.Price - gds_info.ExtQuot;
 								goods_dis_list.insert(&ent);
 							}
 						}
@@ -1040,10 +1041,10 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 					THROW(CS.CreateSess(&sess_id, NodeID, cash_no, nsmena, dtm, 0));
 				SessAry.addUnique(sess_id);
 				{
-					_FrontolZRepEntry z_entry;
-					z_entry.PosN = cash_no;
-					z_entry.ZRepN = nsmena;
-					z_entry.SessID = sess_id;
+					const _FrontolZRepEntry z_entry(cash_no, nsmena, sess_id);
+					// @v10.8.2 z_entry.PosN = cash_no; 
+					// @v10.8.2 z_entry.ZRepN = nsmena;
+					// @v10.8.2 z_entry.SessID = sess_id;
 					zrep_list.insert(&z_entry);
 				}
 			}

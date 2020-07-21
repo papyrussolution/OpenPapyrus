@@ -853,124 +853,6 @@ int TechDialog::getDTS(PPTechPacket * pData)
 //
 //
 //
-class ToolingDialog : public TDialog {
-public:
-	ToolingDialog() : TDialog(DLG_TOOLING), WasNewStrucCreated(0)
-	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
-		addGroup(GRP_PREVGOODS, new GoodsCtrlGroup(CTLSEL_TECH_PREVGGRP, CTLSEL_TECH_PREVGOODS));
-		addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_TECH_PRC));
-	}
-	int    setDTS(const PPTechPacket *);
-	int    getDTS(PPTechPacket *);
-private:
-	DECL_HANDLE_EVENT;
-
-	PPTechPacket Data;
-	PPObjProcessor PrcObj;
-	int    WasNewStrucCreated;
-};
-
-IMPL_HANDLE_EVENT(ToolingDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmGoodsStruc)) {
-		PPObjGoodsStruc gs_obj;
-		PPID   org_struc_id = Data.Rec.GStrucID;
-		gs_obj.Edit(&Data.Rec.GStrucID, 0);
-		if(org_struc_id == 0 && Data.Rec.GStrucID)
-			WasNewStrucCreated = 1;
-	}
-	else if(event.isCmd(cmToolingTransGcMask)) {
-		GdsClsParamMask gcpm;
-		gcpm.ClsID = Data.Rec.TransClsID;
-		gcpm.Mask  = Data.Rec.TransMask;
-		if(gcpm.Edit(0) > 0) {
-			Data.Rec.TransClsID = gcpm.ClsID;
-			Data.Rec.TransMask  = gcpm.Mask;
-		}
-	}
-	else
-		return;
-	clearEvent(event);
-}
-
-int ToolingDialog::setDTS(const PPTechPacket * pData)
-{
-	Data = *pData;
-	setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
-	setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
-	disableCtrl(CTL_TECH_ID, 1);
-	PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
-	setGroupData(GRP_PRC, &prc_grp_rec);
-	SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
-	setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
-	{
-		GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
-		setGroupData(GRP_GOODS, &rec);
-	}
-	{
-		GoodsCtrlGroup::Rec rec(0, Data.Rec.PrevGoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
-		setGroupData(GRP_PREVGOODS, &rec);
-	}
-	{
-		LTIME tm;
-		tm.settotalsec(Data.Rec.Duration);
-		setCtrlData(CTL_TECH_TIME, &tm);
-	}
-	SString form_cond;
-	PPGetExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond);
-	setCtrlString(CTL_TECH_TRANSCOND, form_cond);
-	setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-	return 1;
-}
-
-int ToolingDialog::getDTS(PPTechPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	TechTbl::Rec tec_rec;
-	PPObjTech tec_obj;
-	PrcCtrlGroup::Rec prc_grp_rec;
-
-	getCtrlData(sel = CTL_TECH_CODE, Data.Rec.Code);
-	THROW_PP(*strip(Data.Rec.Code), PPERR_CODENEEDED);
-	if(tec_obj.SearchByCode(Data.Rec.Code, &tec_rec) > 0 && tec_rec.ID != Data.Rec.ID) {
-		PPObject::SetLastErrObj(PPOBJ_TECH, tec_rec.ID);
-		CALLEXCEPT_PP(PPERR_DUPSYMB);
-	}
-	getGroupData(GRP_PRC, &prc_grp_rec);
-	Data.Rec.PrcID = prc_grp_rec.PrcID;
-	sel = CTLSEL_TECH_PRC;
-	THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
-	getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
-	sel = CTLSEL_TECH_GOODS;
-	{
-		GoodsCtrlGroup::Rec rec;
-		THROW(getGroupData(GRP_GOODS, &rec));
-		Data.Rec.GoodsID = NZOR(rec.GoodsID, rec.GrpID);
-	}
-	{
-		GoodsCtrlGroup::Rec rec;
-		THROW(getGroupData(GRP_PREVGOODS, &rec));
-		Data.Rec.PrevGoodsID = NZOR(rec.GoodsID, rec.GrpID);
-	}
-	{
-		LTIME tm;
-		getCtrlData(CTL_TECH_TIME, &tm);
-		Data.Rec.Duration = tm.totalsec();
-	}
-	{
-		SString form_cond;
-		getCtrlString(CTL_TECH_TRANSCOND, form_cond);
-		PPPutExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond.Strip());
-	}
-	getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 int SLAPI PPObjTech::EditDialog(PPTechPacket * pData)
 {
 	if(pData) {
@@ -978,6 +860,115 @@ int SLAPI PPObjTech::EditDialog(PPTechPacket * pData)
 			DIALOG_PROC_BODY_P1(TechDialog, ((pData->Rec.Kind == 0) ? DLG_TECH : DLG_TECHAUTO), pData);
 		}
 		else if(pData->Rec.Kind == 1) {
+			class ToolingDialog : public TDialog {
+				DECL_DIALOG_DATA(PPTechPacket);
+			public:
+				ToolingDialog() : TDialog(DLG_TOOLING), WasNewStrucCreated(0)
+				{
+					addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
+					addGroup(GRP_PREVGOODS, new GoodsCtrlGroup(CTLSEL_TECH_PREVGGRP, CTLSEL_TECH_PREVGOODS));
+					addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_TECH_PRC));
+				}
+				DECL_DIALOG_SETDTS()
+				{
+					RVALUEPTR(Data, pData);
+					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
+					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
+					disableCtrl(CTL_TECH_ID, 1);
+					PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
+					setGroupData(GRP_PRC, &prc_grp_rec);
+					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);
+					setCtrlLong(CTL_TECH_ORDERN, Data.Rec.OrderN);
+					{
+						GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
+						setGroupData(GRP_GOODS, &rec);
+					}
+					{
+						GoodsCtrlGroup::Rec rec(0, Data.Rec.PrevGoodsID, 0, GoodsCtrlGroup::enableInsertGoods);
+						setGroupData(GRP_PREVGOODS, &rec);
+					}
+					{
+						LTIME tm;
+						tm.settotalsec(Data.Rec.Duration);
+						setCtrlData(CTL_TECH_TIME, &tm);
+					}
+					SString form_cond;
+					PPGetExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond);
+					setCtrlString(CTL_TECH_TRANSCOND, form_cond);
+					setCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					return 1;
+				}
+				DECL_DIALOG_GETDTS()
+				{
+					int    ok = 1;
+					uint   sel = 0;
+					TechTbl::Rec tec_rec;
+					PPObjTech tec_obj;
+					PrcCtrlGroup::Rec prc_grp_rec;
+					getCtrlData(sel = CTL_TECH_CODE, Data.Rec.Code);
+					THROW_PP(*strip(Data.Rec.Code), PPERR_CODENEEDED);
+					if(tec_obj.SearchByCode(Data.Rec.Code, &tec_rec) > 0 && tec_rec.ID != Data.Rec.ID) {
+						PPObject::SetLastErrObj(PPOBJ_TECH, tec_rec.ID);
+						CALLEXCEPT_PP(PPERR_DUPSYMB);
+					}
+					getGroupData(GRP_PRC, &prc_grp_rec);
+					Data.Rec.PrcID = prc_grp_rec.PrcID;
+					sel = CTLSEL_TECH_PRC;
+					THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
+					getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+					sel = CTLSEL_TECH_GOODS;
+					{
+						GoodsCtrlGroup::Rec rec;
+						THROW(getGroupData(GRP_GOODS, &rec));
+						Data.Rec.GoodsID = NZOR(rec.GoodsID, rec.GrpID);
+					}
+					{
+						GoodsCtrlGroup::Rec rec;
+						THROW(getGroupData(GRP_PREVGOODS, &rec));
+						Data.Rec.PrevGoodsID = NZOR(rec.GoodsID, rec.GrpID);
+					}
+					{
+						LTIME tm;
+						getCtrlData(CTL_TECH_TIME, &tm);
+						Data.Rec.Duration = tm.totalsec();
+					}
+					{
+						SString form_cond;
+						getCtrlString(CTL_TECH_TRANSCOND, form_cond);
+						PPPutExtStrData(TECEXSTR_TLNGCOND, Data.ExtString, form_cond.Strip());
+					}
+					getCtrlData(CTL_TECH_MEMO, Data.Rec.Memo);
+					ASSIGN_PTR(pData, Data);
+					CATCHZOKPPERRBYDLG
+					return ok;
+				}
+			private:
+				DECL_HANDLE_EVENT
+				{
+					TDialog::handleEvent(event);
+					if(event.isCmd(cmGoodsStruc)) {
+						PPObjGoodsStruc gs_obj;
+						PPID   org_struc_id = Data.Rec.GStrucID;
+						gs_obj.Edit(&Data.Rec.GStrucID, 0);
+						if(org_struc_id == 0 && Data.Rec.GStrucID)
+							WasNewStrucCreated = 1;
+					}
+					else if(event.isCmd(cmToolingTransGcMask)) {
+						GdsClsParamMask gcpm;
+						gcpm.ClsID = Data.Rec.TransClsID;
+						gcpm.Mask  = Data.Rec.TransMask;
+						if(gcpm.Edit(0) > 0) {
+							Data.Rec.TransClsID = gcpm.ClsID;
+							Data.Rec.TransMask  = gcpm.Mask;
+						}
+					}
+					else
+						return;
+					clearEvent(event);
+				}
+				PPObjProcessor PrcObj;
+				int    WasNewStrucCreated;
+			};
 			DIALOG_PROC_BODY(ToolingDialog, pData);
 		}
 	}

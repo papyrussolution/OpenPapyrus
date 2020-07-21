@@ -26,7 +26,6 @@
 #ifdef DEBUG_QR_FINDER
 	#define DEBUG_LEVEL (DEBUG_QR_FINDER)
 #endif
-#include "decoder.h"
 //
 // reset QR finder specific state 
 //

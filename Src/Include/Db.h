@@ -5,7 +5,6 @@
 #ifndef __DB_H
 #define __DB_H
 
-//#include <stddef.h>
 #include <slib.h>
 #include <sxml.h>
 #include <dboci.h>
@@ -710,12 +709,12 @@ int btrnfound__();
 
 #define BTRIEVE_VER    0x0500 // 0x0600 || 0x0610
 #define NUMPGSIZES          8 // Number of Btrieve page sizes
-#define MAXKEYLEN         255
+#define BTRMAXKEYLEN      255 // @v10.8.2 MAXKEYLEN-->BTRMAXKEYLEN
 #define BTRNFOUND         btrnfound__() //(BtrError==BE_EOF || BtrError==BE_KEYNFOUND)
 //#define BTROKORNFOUND     oneof3(BtrError, 0, BE_EOF, BE_KEYNFOUND)
 #define BTROKORNFOUND     btrokornfound()
 #if defined(_Windows) || defined(__WIN32__) || defined(_WIN32)
-	#define WBTRVTAIL MAXKEYLEN,index
+	#define WBTRVTAIL         BTRMAXKEYLEN,index
 	#define WBTRVTAIL_Z       0,index
 	#define WBTRVTAIL_ZZ          0,0
 #else
@@ -935,8 +934,7 @@ int btrnfound__();
 //
 #define BE_BDB_UNKN                       10000 // Неизвестная ошибка BDB
 #define BE_BDB_INVAL                      10001 // (EINVAL) Недопустимое значение параметра вызова функции
-#define BE_BDB_LOCKDEADLOCK               10002 // (DB_LOCK_DEADLOCK) A transactional database environment operation
-	// was selected to resolve a deadlock.
+#define BE_BDB_LOCKDEADLOCK               10002 // (DB_LOCK_DEADLOCK) A transactional database environment operation was selected to resolve a deadlock.
 #define BE_BDB_LOCKNOTGRANTED             10003 // (DB_LOCK_NOTGRANTED) A Berkeley DB Concurrent Data Store database
 	// environment configured for lock timeouts was unable to grant a lock in the allowed time.
 #define BE_BDB_OLDVERSION                 10004 // (DB_OLD_VERSION) The database cannot be opened without being first upgraded.
@@ -1048,7 +1046,7 @@ public:
 	BtrDbKey();
 	operator void * () { return static_cast<void *>(K); }
 
-	uint8  K[ALIGNSIZE(MAXKEYLEN, 2)];
+	uint8  K[ALIGNSIZE(BTRMAXKEYLEN, 2)];
 };
 //
 //
@@ -2367,7 +2365,7 @@ public:
 //
 // callback function ptr
 //
-typedef int (*BackupLogFunc)(int, const char *, long initParam);
+typedef int (*BackupLogFunc)(int, const char *, void * extraPtr); // @v10.8.2 long initParam-->void * extraPtr
 //
 //
 //
@@ -2431,9 +2429,9 @@ public:
 	SLAPI  DBBackup();
 	SLAPI ~DBBackup();
 	int    SLAPI SetDictionary(DbProvider * pDb);
-	int    SLAPI Backup(BCopyData *, BackupLogFunc, long initParam);
-	int    SLAPI Restore(const BCopyData *, BackupLogFunc, long initParam);
-	int    SLAPI RemoveCopy(const BCopyData *, BackupLogFunc, long initParam);
+	int    SLAPI Backup(BCopyData *, BackupLogFunc, void * extraPtr);
+	int    SLAPI Restore(const BCopyData *, BackupLogFunc, void * extraPtr);
+	int    SLAPI RemoveCopy(const BCopyData *, BackupLogFunc, void * extraPtr);
 	int    SLAPI GetCopySet(BCopySet *);
 	int    SLAPI GetCopyData(long copyID, BCopyData *);
 	uint   SLAPI GetSpaceSafetyFactor();
@@ -2478,13 +2476,13 @@ private:
 	int    SLAPI MakeCopyPath(BCopyData * data, SString & rDestPath);
 	int    SLAPI CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
 	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
-	int    SLAPI DoCopy(DBBackup::CopyParams *, long, BackupLogFunc, long initParam);
-	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, long initParam);
+	int    SLAPI DoCopy(DBBackup::CopyParams *, long, BackupLogFunc, void * extraPtr);
+	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr);
 	int    SLAPI RemoveDatabase(int safe);
 	int    SLAPI RestoreRemovedDB(int restoreFiles);
 	static int   CopyProgressProc(const SDataMoveProgressInfo *);
-	int    SLAPI CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, long initParam);
-	int    SLAPI CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, long initParam);
+	int    SLAPI CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupLogFunc fnLog, void * extraPtr);
+	int    SLAPI CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, void * extraPtr);
 
 	int64  TotalCopySize;
 	int64  TotalCopyReady;

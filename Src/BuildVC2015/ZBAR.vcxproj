@@ -1071,7 +1071,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Osf\Zbar\include\config.h" />
     <ClInclude Include="..\Osf\Zbar\include\zbar.h" />
     <ClInclude Include="..\Osf\Zbar\include\zbar\Decoder.h" />
     <ClInclude Include="..\Osf\Zbar\include\zbar\Exception.h" />
@@ -1085,40 +1084,20 @@
     <ClInclude Include="..\Osf\Zbar\include\zbar\Video.h" />
     <ClInclude Include="..\Osf\Zbar\include\zbar\Window.h" />
     <ClInclude Include="..\Osf\Zbar\include\zbar\zbargtk.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\debug.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\codabar.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\code128.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\code39.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\code93.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\databar.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\ean.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\i25.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\pdf417.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\pdf417_hash.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\qr_finder.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\error.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\event.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\image.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\img_scanner.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\mutex.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\processor.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\processor\posix.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\qrcode.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\bch15_5.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\binarize.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\isaac.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\qrdec.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\rs.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\util.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\refcnt.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\svg.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\symbol.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\thread.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\timer.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\video.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\window.h" />
-    <ClInclude Include="..\Osf\Zbar\zbar\window\win.h" />
     <ClInclude Include="..\Osf\Zbar\zbar\window\x.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

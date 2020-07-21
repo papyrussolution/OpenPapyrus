@@ -1547,7 +1547,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
 							if(temp_buf.NotEmptyS()) {
 								GtinStruc gts;
-								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts) > 0) {
+								if(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0) > 0) {
 									SString result_chzn_code;
 									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 										STRNSCPY(pIter->ChZnGTIN, temp_buf); // @v10.7.2
@@ -1660,7 +1660,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							bip.OutputFormat = SFileFormat::Png;
 							PPMakeTempFileName("fccqr", "png", 0, bip.OutputFileName);
 							if(PPBarcode::CreateImage(bip)) {
-								SLS.RegisterTempFileName(bip.OutputFileName); // @v9.8.2
+								SLS.RegisterTempFileName(bip.OutputFileName);
 								STRNSCPY(r_pb.Path, bip.OutputFileName);
 								ok = 1;
 							}

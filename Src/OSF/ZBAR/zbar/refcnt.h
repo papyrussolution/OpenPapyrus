@@ -27,8 +27,7 @@
 //#include <assert.h>
 
 #if defined(_WIN32)
-	#include <windows.h>
-
+	//#include <windows.h>
 	typedef LONG refcnt_t;
 
 	static inline int _zbar_refcnt(refcnt_t * cnt, int delta)

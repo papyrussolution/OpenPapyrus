@@ -69,7 +69,6 @@
 	// @v10.3.10 #define pow10l(x) pow(10,(x))
 	// @v10.3.10 #define pow10(x)  pow(10,(x))
 	// @v9.6.4 #define delay(n) ::Sleep(n)
-
 	#define MAXDRIVE 3
 	#define MAXFILE 257
 	#define MAXEXT 5
@@ -112,22 +111,12 @@
 	#define MAXPATH 261
 #endif
 // } @v5.0.4 AHTOXA
-#ifdef __WATCOMC__
-	#define MAXDRIVE _MAX_DRIVE
-	#define MAXPATH  _MAX_PATH
-	#define MAXDIR   _MAX_DIR
-	#define MAXFILE  _MAX_FNAME
-	#define MAXEXT   _MAX_EXT
-
-	#define _argc __argc
-	#define _argv __argv
-#endif
 #undef min // @v9.8.11
 #undef max // @v9.8.11
 
-#define FNF_WILDCARDS 0x01
-#define FNF_EXTENSION 0x02
-#define FNF_FILENAME  0x04
+// @v10.8.2 #define FNF_WILDCARDS 0x01
+// @v10.8.2 #define FNF_EXTENSION 0x02
+// @v10.8.2 #define FNF_FILENAME  0x04
 #define FNF_DIRECTORY 0x08
 #define FNF_DRIVE     0x10
 
@@ -136,9 +125,9 @@
 #define DMINEXP     -307
 #define FMINEXP     -37
 #if (__BORLANDC__ < 0x500)
-	#define MAXDOUBLE   1.797693E+308
+	// @v10.8.2 (replaced with SMathConst::Max) #define MAXDOUBLE   1.797693E+308
+	// @v10.8.2 (replaced with SMathConst::Min) #define MINDOUBLE   2.225074E-308
 	#define MAXFLOAT    3.37E+38f
-	#define MINDOUBLE   2.225074E-308
 	#define MINFLOAT    8.43E-37
 #endif
 #define DSIGNIF     53
@@ -151,8 +140,8 @@
 #define _IEEE       1
 #define _LENBASE    1
 #define HIDDENBIT   1
-#define LN_MAXDOUBLE    7.0978E+2
-#define LN_MINDOUBLE    -7.0840E+2
+// @v10.8.2 (use SMathConst::LogMax insted) #define LN_MAXDOUBLE    7.0978E+2
+// @v10.8.2 (use SMathConst::LogMin insted) #define LN_MINDOUBLE    -7.0840E+2
 #ifdef _MSC_VER
 	#define _argc __argc
 	#define _argv __argv
@@ -5074,7 +5063,7 @@ int    FASTCALL fileExists(const char * pFileName);
 int    SLAPI driveValid(const char * path);
 int    FASTCALL IsDirectory(const char * pStr);
 int    SLAPI pathValid(const char * pPath, int existOnly);
-int    SLAPI validFileName(const char * pFileName);
+// @v10.8.2 (unused) int    SLAPI validFileName(const char * pFileName);
 //
 // Descr: формирует полное имя файла, состоящее из пути
 //   до исполняемого файла и имени pName с расширением pExt.
@@ -5634,6 +5623,30 @@ private:
 	void * P_Buf;
 };
 //
+//
+//
+template <size_t BYTESIZE> class TSBinary {
+public:
+	TSBinary()
+	{
+		memzero(D, sizeof(D));
+	}
+	TSBinary(TSBinary <BYTESIZE> & rS)
+	{
+		memcpy(D, rS.D, sizeof(D));
+	}
+	TSBinary <BYTESIZE> & FASTCALL operator = (const TSBinary <BYTESIZE> & rS)
+	{
+		memcpy(D, rS.D, sizeof(D));
+		return *this;
+	}
+	uint8  D[BYTESIZE];
+};
+
+typedef TSBinary <16> binary128;
+typedef TSBinary <20> binary160;
+typedef TSBinary <32> binary256;
+//
 // CRC32 functions
 //
 class SCRC32 {
@@ -5731,8 +5744,8 @@ public:
 	static uint32 FASTCALL Murmur2_32(const void * pData, size_t len, uint32 seed);
 	static uint64 FASTCALL Murmur2_64(const void * pData, size_t len, uint64 seed);
 	static uint32 FASTCALL Murmur3_32(const void * pData, size_t len, uint32 seed);
-	static void   FASTCALL Murmur3_128x32(const void * pData, size_t len, uint32 seed, void * pResult/* @#128 bytes */);
-	static void   FASTCALL Murmur3_128x64(const void * pData, size_t len, uint32 seed, void * pResult/* @#128 bytes */);
+	static binary128 FASTCALL Murmur3_128x32(const void * pData, size_t len, uint32 seed);
+	static binary128 FASTCALL Murmur3_128x64(const void * pData, size_t len, uint32 seed);
 
 	class State {
 	public:
@@ -5786,8 +5799,8 @@ public:
 	static uint32 FASTCALL CRC24(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL CRC32(State * pS, const void * pData, size_t len);
 	static uint32 FASTCALL Adler32(State * pS, const void * pData, size_t len);
-	static int    FASTCALL Sha1(State * pS, const void * pData, size_t len, void * pResult, size_t resultBufLen);
-	static int    FASTCALL Sha256(State * pS, const void * pData, size_t len, void * pResult, size_t resultBufLen);
+	static binary160 FASTCALL Sha1(State * pS, const void * pData, size_t len);
+	static binary256 FASTCALL Sha256(State * pS, const void * pData, size_t len);
 private:
 	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
 };
@@ -7624,7 +7637,7 @@ public:
 	friend DECL_CMPCFUNC(SFileEntryPool_Entry);
 	struct Entry {
 		SLAPI  Entry();
-		void   SLAPI Clear();
+		Entry & SLAPI Z();
 
 		uint32 Attr; // SDirEntry::attrXXX
 		LDATETIME CreateTime;
@@ -7633,9 +7646,18 @@ public:
 		int64  Size;
 		SString Name;
 		SString Path;
+		SString RemoteUrl; // @v10.8.2 Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
 	};
 	SLAPI  SFileEntryPool();
-	void   SLAPI Clear();
+	SFileEntryPool & SLAPI Z();
+	//
+	// Descr: Ищет в коллекции имя файла (без пути) pFileName. Если такое имя найдено,
+	//   то возвращает >0 и, если pEntry != 0, то присваивает по этому указателю полную структуру найденного элемента.
+	// Returns:
+	//   >0 - искомое имя найдено
+	//    0 - имя не найдено (по указателю pEntry ничего не присваивается)
+	//
+	int    FASTCALL SearchName(const char * pFileName, Entry * pEntry) const;
 	void   FASTCALL SetInitPath(const char * pPath);
 	int    FASTCALL GetInitPath(SString & rPath) const;
 	//
@@ -7655,6 +7677,7 @@ public:
 	//    0 - ошибка (в том числе если файл не найден)
 	//
 	int    SLAPI Add(const char * pPath);
+	int    SLAPI Add(const char * pPath, const char * pRemoteUrl);
 	int    SLAPI Add(SFileEntryPool::Entry & rDe);
     uint   SLAPI GetCount() const;
     int    SLAPI Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
@@ -7685,9 +7708,11 @@ private:
 		int64  Size;
 		uint   NameP;
 		uint   PathP;
+		uint   RemoteUrlP; // @v10.8.2
 	};
 
 	void   SLAPI ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
+	int    SLAPI Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl);
 
     TSVector <InnerEntry> L; // @v9.8.4 TSArray-->TSVector
     long   State;
@@ -9239,6 +9264,7 @@ public:
 		PapyruDbDivXchg  = 118, // @v9.8.11 Приватный формат проекта Papyrus: файл обмена данными между разделами
 		Csv              = 119, // @v10.8.0 comma-separated-values
 		Xsd              = 120, // @v10.8.0 xml-schema-documentation
+		Gravity          = 121, // @v10.8.2 gravity-source (язык gravity)
 
 		FirstUser        = 10000
 	};
@@ -9907,7 +9933,7 @@ struct SStrScan : public SRegExpSet {
 	const char * GetBuf(size_t offs) const { return P_Buf ? (P_Buf + offs) : 0; }
 	size_t GetOffs() const { return Offs; }
 	size_t GetLen() const { return Len; }
-	int    FASTCALL Push(uint * pPrevPos = 0);
+	void   FASTCALL Push(uint * pPrevPos = 0);
 	int    FASTCALL Pop();
 	int    FASTCALL Pop(uint prevPos);
 	int    IsEnd() const;
@@ -10176,6 +10202,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_RU_OKPO          33 // @v10.8.1 Российский код ОКПО
 #define SNTOK_RU_SNILS         34 // @v10.8.1 Российский код СНИЛС
 #define SNTOK_RU_BIC           35 // @v10.8.1 Российский банковский идентификационный код (БИК)
+#define SNTOK_RU_KPP           36 // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -10256,8 +10283,8 @@ public:
 	static const double SqrtMax; // 1.3407807929942596e+154
 	static const double LogMin;  // -7.0839641853226408e+02
 	static const double LogMax;  // 7.0978271289338397e+02
-	static const double Min;     // 2.2250738585072014e-308
-	static const double Max;     // 1.7976931348623158e+308          max value
+	static const double Min;     // 2.2250738585072014e-308          min double value
+	static const double Max;     // 1.7976931348623158e+308          max double value
 	static const double Euler;   // 0.57721566490153286060651209008  Euler constant
 	static const double Sqrt2;   // 1.41421356237309504880168872421      sqrt(2)
 	static const double SqrtPi;  // 1.77245385090551602729816748334      sqrt(pi)

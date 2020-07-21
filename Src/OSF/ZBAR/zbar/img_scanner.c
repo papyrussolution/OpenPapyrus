@@ -29,46 +29,26 @@
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif
-#include "error.h"
-#include "symbol.h"
 #include "timer.h"
-//#include "img_scanner.h"
 #include "svg.h"
-
 #if 1
-#define ASSERT_POS \
-	assert(p == data + x + y * (intptr_t)w)
+	#define ASSERT_POS assert(p == data + x + y * static_cast<intptr_t>(w))
 #else
-#define ASSERT_POS
+	#define ASSERT_POS
 #endif
-
 /* FIXME cache setting configurability */
-
-/* time interval for which two images are considered "nearby"
- */
-#define CACHE_PROXIMITY   1000 /* ms */
-
-/* time that a result must *not* be detected before
- * it will be reported again
- */
-#define CACHE_HYSTERESIS  2000 /* ms */
-
-/* time after which cache entries are invalidated
- */
-#define CACHE_TIMEOUT     (CACHE_HYSTERESIS * 2) /* ms */
-
+#define CACHE_PROXIMITY   1000 // time interval for which two images are considered "nearby", ms
+#define CACHE_HYSTERESIS  2000 // time that a result must *not* be detected before it will be reported again, ms
+#define CACHE_TIMEOUT     (CACHE_HYSTERESIS * 2) // time after which cache entries are invalidated, ms
 #define NUM_SCN_CFGS (ZBAR_CFG_Y_DENSITY - ZBAR_CFG_X_DENSITY + 1)
-
 #define CFG(iscn, cfg) ((iscn)->configs[(cfg) - ZBAR_CFG_X_DENSITY])
 #define TEST_CFG(iscn, cfg) (((iscn)->config >> ((cfg) - ZBAR_CFG_POSITION)) & 1)
-
 #ifndef NO_STATS
-#define STAT(x) iscn->stat_ ## x++
+	#define STAT(x) iscn->stat_ ## x++
 #else
-#define STAT(...)
-#define dump_stats(...)
+	#define STAT(...)
+	#define dump_stats(...)
 #endif
-
 #define RECYCLE_BUCKETS     5
 
 typedef struct recycle_bucket_s {
@@ -630,7 +610,7 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 		movedelta(img->crop_x, border);
 		iscn->v = y;
 		while(y < (int)cy1) {
-			int cx0 = img->crop_x;;
+			int cx0 = img->crop_x;
 			zprintf(128, "img_x+: %04d,%04d @%p\n", x, y, p);
 			svg_path_start("vedge", 1. / 32, 0, y + 0.5);
 			iscn->dx = iscn->du = 1;

@@ -2136,7 +2136,7 @@ int SLAPI SReport::printTitle(int kind)
 			if(f->type == 0) {
 				const char * p, * t;
 				p = t = P_Text+f->offs;
-				while((p = sstrchr(p, '\n')) != 0)
+				while((p = sstrchr(p, '\n')) != 0) {
 					if(P_Prn->pgl == 0 || line < P_Prn->pgl) {
 						p++;
 						line++;
@@ -2147,6 +2147,7 @@ int SLAPI SReport::printTitle(int kind)
 						line = 1;
 						page++;
 					}
+				}
 				THROW(P_Prn->printLine(t, 0));
 			}
 			else
@@ -2177,77 +2178,73 @@ int SLAPI SReport::getFieldName(int i, char * buf, size_t buflen)
 struct SvdtStrDlgAns {
 	int   SvDt;
 	int   EdRep;
-	char  SvDtPath[MAXPATH];
-	char  EdRepPath[MAXPATH];
+	// @v10.8.2 char  SvDtPath[MAXPATH];
+	// @v10.8.2 char  EdRepPath[MAXPATH];
+	SString SvDtPath_;  // @v10.8.12
+	SString EdRepPath_; // @v10.8.12
 };
 
-#define FBB_GROUP1	1
-#define FBB_GROUP2	2
-
-class SvdtStrDialog : public TDialog {
-public:
-	explicit SvdtStrDialog(uint dlgID) : TDialog(dlgID)
-	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, FBB_GROUP1,
-			PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, FBB_GROUP2,
-			0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
-	}
-	int   setDTS(const SvdtStrDlgAns *);
-	int   getDTS(SvdtStrDlgAns *);
-	SvdtStrDlgAns Ssda;
-};
-
-int SvdtStrDialog::setDTS(const SvdtStrDlgAns *pSsda)
-{
-	Ssda = *pSsda;
-	setCtrlData(CTL_SAVEDATA_SVDT, &Ssda.SvDt);
-	setCtrlData(CTL_SAVEDATA_SVDTPATH, Ssda.SvDtPath);
-	setCtrlData(CTL_SAVEDATA_EDREPPATH, Ssda.EdRepPath);
-	if(Ssda.EdRep)
-		setCtrlData(CTL_SAVEDATA_EDREP, &Ssda.EdRep);
-	else {
-		disableCtrl(CTL_SAVEDATA_EDREP, 1);
-		disableCtrl(CTL_SAVEDATA_EDREPPATH, 1);
-		showCtrl(CTLBRW_SAVEDATA_EDREPPTH, 0);
-	}
-	return 1;
+static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda) 
+{ 
+	class SvdtStrDialog : public TDialog {
+		DECL_DIALOG_DATA(SvdtStrDlgAns);
+		enum {
+			ctlgroupFbb1 = 1,
+			ctlgroupFbb2 = 2
+		};
+	public:
+		explicit SvdtStrDialog(uint dlgID) : TDialog(dlgID)
+		{
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_SVDTPATH, CTL_SAVEDATA_SVDTPATH, ctlgroupFbb1,
+				PPTXT_TITLE_DATASTRUCSAVING, PPTXT_FILPAT_DDFBTR, FileBrowseCtrlGroup::fbcgfPath);
+			FileBrowseCtrlGroup::Setup(this, CTLBRW_SAVEDATA_EDREPPTH, CTL_SAVEDATA_EDREPPATH, ctlgroupFbb2,
+				0, PPTXT_FILPAT_REPORT, FileBrowseCtrlGroup::fbcgfFile);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			setCtrlData(CTL_SAVEDATA_SVDT, &Data.SvDt);
+			setCtrlString(CTL_SAVEDATA_SVDTPATH, Data.SvDtPath_);
+			setCtrlString(CTL_SAVEDATA_EDREPPATH, Data.EdRepPath_);
+			if(Data.EdRep)
+				setCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
+			else {
+				disableCtrl(CTL_SAVEDATA_EDREP, 1);
+				disableCtrl(CTL_SAVEDATA_EDREPPATH, 1);
+				showCtrl(CTLBRW_SAVEDATA_EDREPPTH, 0);
+			}
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			getCtrlData(CTL_SAVEDATA_SVDT, &Data.SvDt);
+			getCtrlString(CTL_SAVEDATA_SVDTPATH, Data.SvDtPath_);
+			getCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
+			getCtrlString(CTL_SAVEDATA_EDREPPATH, Data.EdRepPath_);
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	};
+	DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda); 
 }
-
-int SvdtStrDialog::getDTS(SvdtStrDlgAns *pSsda)
-{
-	getCtrlData(CTL_SAVEDATA_SVDT, &Ssda.SvDt);
-	getCtrlData(CTL_SAVEDATA_SVDTPATH, Ssda.SvDtPath);
-	getCtrlData(CTL_SAVEDATA_EDREP, &Ssda.EdRep);
-	getCtrlData(CTL_SAVEDATA_EDREPPATH, Ssda.EdRepPath);
-	ASSIGN_PTR(pSsda, Ssda);
-	return 1;
-}
-
-static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda) { DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda); }
 
 int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName)
 {
 	int    ok = -1;
 	SString path, fname;
-	//char   cr_path[MAXPATH];
 	SString cr_path_;
 	SvdtStrDlgAns * p_ssda = 0;
-	// @v9.8.9 PPIniFile ini_file;
-	// @v9.8.9 if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path) > 0 && (CrwError == PE_ERR_ERRORINDATABASEDLL)) {
-	// @v9.8.9 {
 	PPGetPath(PPPATH_REPORTDATA, path);
 	if(path.NotEmptyS() && CrwError == PE_ERR_ERRORINDATABASEDLL) {
-	// } @v9.8.9
 		path.SetLastSlash().Cat(pDataName);
 		THROW_MEM(p_ssda = new SvdtStrDlgAns);
 		p_ssda->SvDt = 1;
-		strnzcpy(p_ssda->SvDtPath, path, MAXPATH);
+		p_ssda->SvDtPath_ = path;
 		p_ssda->EdRep = FindExeByExt2(sstrchr(pRepFileName, '.'), cr_path_, "CrystalReports.9.1");
-		strnzcpy(p_ssda->EdRepPath, pRepFileName, MAXPATH);
+		p_ssda->EdRepPath_ = pRepFileName;
 		if(GetSvdtStrOpt(p_ssda) > 0) {
 			if(p_ssda->SvDt) {
-				path = p_ssda->SvDtPath;
+				path = p_ssda->SvDtPath_;
 				if(!fileExists(path))
 					THROW_SL(::createDir(path));
 				CopyDataStruct(pTempPath, path, BDictionary::DdfTableFileName);
@@ -2257,7 +2254,7 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 				CopyDataStruct(pTempPath, path, PPGetFileName(PPFILNAM_ITER_BTR, fname));
 			}
 			if(p_ssda->EdRep)
-				spawnl(_P_NOWAIT, cr_path_, cr_path_, p_ssda->EdRepPath, 0);
+				spawnl(_P_NOWAIT, cr_path_, cr_path_, p_ssda->EdRepPath_, 0);
 		}
 		ok = 1;
 	}

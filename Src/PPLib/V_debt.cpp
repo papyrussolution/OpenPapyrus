@@ -1920,13 +1920,14 @@ int DebtTrnovrFiltDialog::editCycles() { DIALOG_PROC_BODY(DebtTrnovrCycleDialog,
 int DebtTrnovrFiltDialog::editExt()
 {
 	class DebtTrnovrExtFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(DebtTrnovrFilt);
 	public:
 		DebtTrnovrExtFiltDialog() : TDialog(DLG_DEBTTEXT)
 		{
 		}
-		int    setDTS(const DebtTrnovrFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_DEBTTEXT_KIND, 0, DebtTrnovrFilt::ekNone);
 			AddClusterAssoc(CTL_DEBTTEXT_KIND, 1, DebtTrnovrFilt::ekExpiryPart);
 			AddClusterAssoc(CTL_DEBTTEXT_KIND, 2, DebtTrnovrFilt::ekTurnover);
@@ -1937,7 +1938,7 @@ int DebtTrnovrFiltDialog::editExt()
 			showCtrl(CTL_DEBTTEXT_MINDEBTPART, Data.ExtKind == DebtTrnovrFilt::ekExpiryPart);
 			return 1;
 		}
-		int    getDTS(DebtTrnovrFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			GetClusterData(CTL_DEBTTEXT_KIND, &Data.ExtKind);
 			if(Data.ExtKind == DebtTrnovrFilt::ekExpiryPart) {
@@ -1962,7 +1963,6 @@ int DebtTrnovrFiltDialog::editExt()
 				clearEvent(event);
 			}
 		}
-		DebtTrnovrFilt Data;
 	};
 	DIALOG_PROC_BODY(DebtTrnovrExtFiltDialog, &Data);
 }

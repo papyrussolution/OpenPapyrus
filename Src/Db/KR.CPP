@@ -271,7 +271,7 @@ int SLAPI KR::conjunction(void * d, int assign, int * comp, int * eq)
 	if(assign) {
 		if(empty)
 			return remove() ? -1 : 0;
-		char buf[sizeof(I) + 2 * MAXKEYLEN];
+		char buf[sizeof(I) + 2 * BTRMAXKEYLEN];
 		rangeToBuf(A, buf, *eq);
 		return BIN(remove() && add(buf));
 	}
@@ -280,7 +280,7 @@ int SLAPI KR::conjunction(void * d, int assign, int * comp, int * eq)
 
 int SLAPI KR::disjunction(void * d)
 {
-	char    buf[sizeof(I) + 2 * MAXKEYLEN];
+	char    buf[sizeof(I) + 2 * BTRMAXKEYLEN];
 	int     c, tc, eq;
 	int     next;
 	const BNKeyList * keyList = &_GetTable(P_h->hdlTable)->GetIndices();
@@ -339,7 +339,7 @@ int SLAPI KR::link(int logic, KR kr)
 			int    eq, empty = 1;
 			KR     temp; 
 			temp.copy(*this, 1);
-			char   buf[sizeof(I) + 2 * MAXKEYLEN];
+			char   buf[sizeof(I) + 2 * BTRMAXKEYLEN];
 			do {
 				__range A;
 				makeRange(kr.P_b+kr.P_h->current, A);

@@ -607,6 +607,7 @@ int SLAPI TestGtinStruc()
 				gts.AddOnlyToken(GtinStruc::fldInner2);
 				gts.AddOnlyToken(GtinStruc::fldSscc18);
 				gts.AddOnlyToken(GtinStruc::fldExpiryDate);
+				gts.AddOnlyToken(GtinStruc::fldManufDate);
 				gts.AddOnlyToken(GtinStruc::fldVariant);
 				gts.AddOnlyToken(GtinStruc::fldMutualCode);
 				//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
@@ -618,6 +619,12 @@ int SLAPI TestGtinStruc()
 					if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
 						gts.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
 						pr = gts.Parse(temp_buf);
+						// @v10.8.2 {
+						/*if(pr != 1 && gts.GetToken(GtinStruc::fldGTIN14, 0)) {
+							gts.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
+							pr = gts.Parse(temp_buf);
+						}*/
+						// } @v10.8.2 
 					}
 				}
 				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", static_cast<long>(pr));
@@ -5718,7 +5725,7 @@ int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::Documen
 				ScURL curl;
 				const char * p_box_name = "Outbox";
 				url.SetComponent(url.cPath, p_box_name);
-				THROW(curl.FtpPut(url, ScURL::mfVerbose, path, 0));
+				THROW(curl.FtpPut(url, ScURL::mfVerbose, path, 0, 0));
 				pIdent->EdiOp = rPack.DocType;
 				pIdent->Uuid = msg_uuid;
 				pIdent->Box = p_box_name;

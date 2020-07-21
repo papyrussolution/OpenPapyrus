@@ -775,7 +775,7 @@ int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 	int    cmp = items[itm].cmp;
 	int    seg;
 	int    keyPos;
-	char   val[MAXKEYLEN];
+	char   val[BTRMAXKEYLEN];
 	TYPEID t;
 	BNKey  key;
 	DBField f;
@@ -797,7 +797,7 @@ int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 				if(seg == segment) {
 					s->getValue(t, val);
 					DBTable * tbl = f.getTable();
-					char   dest[2 * MAXKEYLEN + sizeof(KR::I)];
+					char   dest[2 * BTRMAXKEYLEN + sizeof(KR::I)];
 					if(seg > 0) {
 						if(kr->first())
 							do {

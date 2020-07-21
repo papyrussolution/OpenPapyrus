@@ -187,7 +187,11 @@ FunctionEnd
 ;
 ; License page
 ;
-!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\LicenseAgreement.rtf"
+!ifdef OPENSOURCE
+	!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\license-gnu-affero.txt" ; @v10.8.2
+!else
+	!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\LicenseAgreement.rtf"
+!endif
 ;
 ; Components page
 ;

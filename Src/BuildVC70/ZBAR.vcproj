@@ -1770,34 +1770,7 @@
 				RelativePath="..\Osf\Zbar\zbar\decoder\codabar.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\code128.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\code39.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\code93.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\include\config.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\databar.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\debug.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\include\zbar\Decoder.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\ean.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\error.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\event.h">
@@ -1806,28 +1779,13 @@
 				RelativePath="..\Osf\Zbar\include\zbar\Exception.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\i25.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\include\zbar\Image.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\image.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\include\zbar\ImageScanner.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\img_scanner.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\zbar\qrcode\isaac.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\mutex.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\pdf417.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\decoder\pdf417_hash.h">
@@ -1836,16 +1794,10 @@
 				RelativePath="..\Osf\Zbar\zbar\processor\posix.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\processor.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\include\zbar\Processor.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\decoder\qr_finder.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\qrcode.h">
+				RelativePath="..\Osf\Zbar\zbar\processor.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\qrcode\qrdec.h">
@@ -1869,9 +1821,6 @@
 				RelativePath="..\Osf\Zbar\zbar\svg.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\symbol.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\include\zbar\Symbol.h">
 			</File>
 			<File
@@ -1881,22 +1830,10 @@
 				RelativePath="..\Osf\Zbar\zbar\timer.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\qrcode\util.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\include\zbar\Video.h">
 			</File>
 			<File
-				RelativePath="..\Osf\Zbar\zbar\video.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\window\win.h">
-			</File>
-			<File
 				RelativePath="..\Osf\Zbar\include\zbar\Window.h">
-			</File>
-			<File
-				RelativePath="..\Osf\Zbar\zbar\window.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Zbar\zbar\window\x.h">

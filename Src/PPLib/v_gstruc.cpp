@@ -176,26 +176,7 @@ SLAPI PPViewGoodsStruc::~PPViewGoodsStruc()
 
 int SLAPI PPViewGoodsStruc::CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewGoodsStruc::ItemEntry * pItem1, const PPViewGoodsStruc::ItemEntry * pItem2)
 {
-	int    sn = 0;
-	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
-	if(p_def) {
-		for(uint i = 0; !sn && i < pBrw->GetSettledOrderList().getCount(); i++) {
-			int    col = pBrw->GetSettledOrderList().get(i);
-			TYPEID typ1 = 0;
-			TYPEID typ2 = 0;
-			uint8  dest_data1[512];
-			uint8  dest_data2[512];
-			if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
-				assert(typ1 == typ2);
-				if(typ1 == typ2) {
-					sn = stcomp(typ1, dest_data1, dest_data2);
-					if(sn && col < 0)
-						sn = -sn;
-				}
-			}
-		}
-	}
-	return sn;
+	return Implement_CmpSortIndexItems_OnArray(pBrw, pItem1, pItem2);
 }
 
 static IMPL_CMPFUNC(ViewGoodsStruc_ItemEntry, i1, i2)
@@ -230,7 +211,7 @@ int SLAPI PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	ItemList.clear();
 	StrPool.ClearS();
 	int    ok = 1;
-	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
+	// @v10.8.2 const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
 	Goods2Tbl::Rec grec;
 	if(Filt.PrmrGoodsID) {
 		if(GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
@@ -271,10 +252,7 @@ int SLAPI PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 	// @v10.7.5 {
 	if(pBrw) {
-		BrowserDef * p_def = pBrw->getDef();
-		for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
-			p_def->at(cidx).Options |= BCO_SORTABLE;
-		}
+		pBrw->Helper_SetAllColumnsSortable();
 		SortList(pBrw);
 	}
 	// } @v10.7.5 
@@ -553,14 +531,7 @@ void SLAPI PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewGoodsStruc::GetDataForBrowser, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-		// @v10.7.5 {
-		BrowserDef * p_def = pBrw->getDef();
-		if(p_def) {
-			for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
-				p_def->at(cidx).Options |= BCO_SORTABLE;
-			}
-		}
-		// } @v10.7.5 
+		pBrw->Helper_SetAllColumnsSortable(); // @v10.7.5
 	}
 }
 

@@ -22,11 +22,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/***********************************************************************
+//
 // UCL requires a conforming <limits.h>
-************************************************************************/
-
+//
 #if !defined(CHAR_BIT) || (CHAR_BIT != 8)
 	#error "invalid CHAR_BIT"
 #endif
@@ -48,21 +46,19 @@ extern "C" {
 		#define UCL_UINT32_C(c)     ((c) + 0U)
 	#endif
 #endif
-
-/***********************************************************************
+//
 // architecture defines
-************************************************************************/
-
+//
 #if (defined(__CYGWIN__) || defined(__CYGWIN32__)) && defined(__GNUC__)
-#  define UCL_OS_CYGWIN         1
+	#define UCL_OS_CYGWIN         1
 #elif defined(__EMX__) && defined(__GNUC__)
-#  define UCL_OS_EMX            1
+	#define UCL_OS_EMX            1
 #elif defined(__BORLANDC__) && defined(__DPMI32__) && (__BORLANDC__ >= 0x0460)
-#  define UCL_OS_DOS32          1
+	#define UCL_OS_DOS32          1
 #elif defined(__BORLANDC__) && defined(__DPMI16__)
-#  define UCL_OS_DOS16          1
+	#define UCL_OS_DOS16          1
 #elif defined(__ZTC__) && defined(DOS386)
-#  define UCL_OS_DOS32          1
+	#define UCL_OS_DOS32          1
 #elif defined(__OS2__) || defined(__OS2V2__)
 #  if (UINT_MAX == UCL_0xffffL)
 #    define UCL_OS_OS216        1
@@ -118,7 +114,6 @@ extern "C" {
 #else
 #  define UCL_OS_POSIX          1
 #endif
-
 /* memory checkers */
 #if !defined(__UCL_CHECKER)
 #  if defined(__BOUNDS_CHECKING_ON)
@@ -131,7 +126,6 @@ extern "C" {
 #    define __UCL_CHECKER       1
 #  endif
 #endif
-
 /* fix ancient compiler versions */
 #if (UINT_MAX == UCL_0xffffL)
 #if (defined(__MSDOS__) && defined(__TURBOC__) && (__TURBOC__ < 0x0410)) || (defined(MSDOS) && defined(_MSC_VER) && (_MSC_VER < 700))
@@ -149,11 +143,9 @@ extern "C" {
 #  endif
 #endif
 #endif
-
-/***********************************************************************
+//
 // integral and pointer types
-************************************************************************/
-
+//
 /* Integral types with 32 bits or more */
 #if !defined(UCL_UINT32_MAX)
 #  if (UINT_MAX >= UCL_0xffffffffL)
@@ -191,20 +183,18 @@ extern "C" {
 #    error "ucl_uint"
 #  endif
 #endif
-
 /* Memory model that allows to access memory at offsets of ucl_uint. */
 #if !defined(__UCL_MMODEL)
-#  if (UCL_UINT_MAX <= UINT_MAX)
-#    define __UCL_MMODEL
-#  elif defined(UCL_OS_DOS16) || defined(UCL_OS_OS216) || defined(UCL_OS_WIN16)
-#    define __UCL_MMODEL_HUGE   1
-#    define __UCL_MMODEL        __huge
-#    define ucl_uintptr_t       unsigned long
-#  else
-#    define __UCL_MMODEL
-#  endif
+	#if (UCL_UINT_MAX <= UINT_MAX)
+		#define __UCL_MMODEL
+	#elif defined(UCL_OS_DOS16) || defined(UCL_OS_OS216) || defined(UCL_OS_WIN16)
+		#define __UCL_MMODEL_HUGE   1
+		#define __UCL_MMODEL        __huge
+		#define ucl_uintptr_t       unsigned long
+	#else
+		#define __UCL_MMODEL
+	#endif
 #endif
-
 /* no typedef here because of const-pointer issues */
 #define ucl_bytep               unsigned char __UCL_MMODEL *
 #define ucl_charp               char __UCL_MMODEL *
@@ -221,11 +211,9 @@ extern "C" {
 #define ucl_byte                unsigned char __UCL_MMODEL
 
 typedef int ucl_bool;
-
-/***********************************************************************
+//
 // function types
-************************************************************************/
-
+//
 /* name mangling */
 #if !defined(__UCL_EXTERN_C)
 #  ifdef __cplusplus
@@ -234,7 +222,6 @@ typedef int ucl_bool;
 #    define __UCL_EXTERN_C      extern
 #  endif
 #endif
-
 /* calling convention */
 #if !defined(__UCL_CDECL)
 #  if defined(__GNUC__) || defined(__HIGHC__) || defined(__NDPC__)
@@ -247,15 +234,13 @@ typedef int ucl_bool;
 #    define __UCL_CDECL
 #  endif
 #endif
-
 /* DLL export information */
 #if !defined(__UCL_EXPORT1)
-#  define __UCL_EXPORT1
+	#define __UCL_EXPORT1
 #endif
 #if !defined(__UCL_EXPORT2)
-#  define __UCL_EXPORT2
+	#define __UCL_EXPORT2
 #endif
-
 /* __cdecl calling convention for public C and assembly functions */
 #if !defined(UCL_PUBLIC)
 #  define UCL_PUBLIC(_rettype)  __UCL_EXPORT1 _rettype __UCL_EXPORT2 __UCL_CDECL

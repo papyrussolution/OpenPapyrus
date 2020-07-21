@@ -198,12 +198,11 @@ int FASTCALL SDirec::Next(SDirEntry * pEntry)
 //
 //
 //
-SLAPI SFileEntryPool::Entry::Entry()
+SLAPI SFileEntryPool::Entry::Entry() : Attr(0), CreateTime(ZERODATETIME), AccessTime(ZERODATETIME), WriteTime(ZERODATETIME), Size(0)
 {
-	Clear();
 }
 
-void SLAPI SFileEntryPool::Entry::Clear()
+SFileEntryPool::Entry & SLAPI SFileEntryPool::Entry::Z()
 {
 	Attr = 0;
 	CreateTime.Z();
@@ -212,18 +211,39 @@ void SLAPI SFileEntryPool::Entry::Clear()
 	Size = 0;
 	Name.Z();
 	Path.Z();
+	RemoteUrl.Z(); // @v10.8.2
+	return *this;
 }
 
 SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0), InitPathP(0)
 {
 }
 
-void SLAPI SFileEntryPool::Clear()
+SFileEntryPool & SLAPI SFileEntryPool::Z()
 {
 	ClearS();
 	L.clear();
 	State = 0;
 	InitPathP = 0;
+	return *this;
+}
+
+int FASTCALL SFileEntryPool::SearchName(const char * pFileName, Entry * pEntry) const
+{
+	int    ok = 0;
+	if(!isempty(pFileName)) {
+		SString temp_buf;
+		for(uint i = 0; i < L.getCount(); i++) {
+			const InnerEntry & r_ie = L.at(i);
+			if(GetS(r_ie.NameP, temp_buf) && temp_buf.IsEqNC(pFileName)) {
+				if(pEntry) {
+					ConvertEntry(r_ie, *pEntry);
+				}
+				ok = 1;
+			}
+		}
+	}
+	return ok;
 }
 
 void FASTCALL SFileEntryPool::SetInitPath(const char * pPath)
@@ -244,13 +264,18 @@ int FASTCALL SFileEntryPool::GetInitPath(SString & rPath) const
 
 int SLAPI SFileEntryPool::Add(const char * pPath)
 {
+	return Add(pPath, 0/*pRemoteUrl*/);
+}
+
+int SLAPI SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
+{
 	int    ok = 0;
 	SDirEntry de;
 	if(SDirec::GetSingle(pPath, &de) > 0) {
 		SString temp_buf;
 		SPathStruc ps(pPath);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
-		ok = Add(temp_buf, de);
+		ok = Implement_Add(temp_buf, de, pRemoteUrl);
 	}
 	return ok;
 }
@@ -258,7 +283,7 @@ int SLAPI SFileEntryPool::Add(const char * pPath)
 int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 {
 	int    ok = -1;
-	Clear();
+	Z();
 	if(!isempty(pPath)) {
 		SDirEntry fb;
 		SString srch_path = pPath;
@@ -343,6 +368,11 @@ int SLAPI SFileEntryPool::Add(SFileEntryPool::Entry & rDe)
 
 int SLAPI SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe)
 {
+	return Implement_Add(pPath, rDe, 0);
+}
+
+int SLAPI SFileEntryPool::Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl)
+{
 	int    ok = 1;
     InnerEntry new_entry;
     MEMSZERO(new_entry);
@@ -351,10 +381,13 @@ int SLAPI SFileEntryPool::Add(const char * pPath, const SDirEntry & rDe)
     new_entry.AccessTime = rDe.AccessTime;
     new_entry.WriteTime = rDe.WriteTime;
     new_entry.Size = rDe.Size;
-    if(pPath) {
+    if(!isempty(pPath)) {
 		SString & r_temp_path = SLS.AcquireRvlStr();
 		THROW(AddS(SPathStruc::NormalizePath(pPath, 0, r_temp_path), &new_entry.PathP));
     }
+	if(!isempty(pRemoteUrl)) {
+		THROW(AddS(pRemoteUrl, &new_entry.RemoteUrlP));
+	}
     THROW(AddS(rDe.FileName, &new_entry.NameP));
     THROW(L.insert(&new_entry));
     CATCHZOK
@@ -370,6 +403,7 @@ void SLAPI SFileEntryPool::ConvertEntry(const InnerEntry & rIEntry, Entry & rEnt
 	rEntry.Size = rIEntry.Size;
     GetS(rIEntry.PathP, rEntry.Path);
     GetS(rIEntry.NameP, rEntry.Name);
+	GetS(rIEntry.RemoteUrlP, rEntry.RemoteUrl); // @v10.8.2
 }
 
 struct SFileEntryPool_SortExtraBlock {

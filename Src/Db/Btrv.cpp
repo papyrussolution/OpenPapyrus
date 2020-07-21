@@ -535,7 +535,7 @@ int SLAPI DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) c
 int SLAPI DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat)
 {
 	int    ok = 0;
-	char   key[MAXKEYLEN];
+	char   key[BTRMAXKEYLEN];
 	if(IsValid()) {
 		size_t len = sstrlen(STRNSCPY(key, pTblName));
 		memset(key + len, ' ', sizeof(fileBuf.XfName) - len);

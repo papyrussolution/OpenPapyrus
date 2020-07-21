@@ -7115,7 +7115,7 @@ record Bill {
 	DlvrAddrID    long         "@{daddressid}";
 	DlvrAddrCode  zstring(16)  "@{daddresscode}";
 	DlvrAddr      zstring(255) "@{daddress}";
-	AgentName     zstring(128) "Имя агента";
+	AgentName     zstring(128) "@{agentname}";
 	AgentINN      zstring(32)  "@{agentinn}";
 	AgentGLN      zstring(16)  "GLN агента";          // @v7.1.12
 	AgentPersonID long         "ИД персоналии агента"; // @v9.8.7
@@ -7206,7 +7206,7 @@ record BRow {
 	DlvrAddrID    long            "@{daddressid}";
 	DlvrAddrCode  zstring(16)     "@{daddresscode}";
 	DlvrAddr      zstring(255)    "@{daddress}";
-	AgentName     zstring(128)    "Имя агента";
+	AgentName     zstring(128)    "@{agentname}";
 	AgentINN      zstring(32)     "@{agentinn}";
 	AgentPersonID long            "ИД персоналии агента"; // @v9.8.7
 	CostWithSTax  int16 format(4) "Цены документа включают налог с продаж";
@@ -7981,7 +7981,7 @@ record PalmQuot {
 
 record PalmCliDebt {
 	ClientID      long           "@{clientid}";
-	AgentID       long           "Ид агента";
+	AgentID       long           "@{agentid}";
 	BillID        long           "@{billid}";
 	BillDt        date           "@{billdate}";
 	BillCode      zstring(16)    "@{billno}";
@@ -8197,8 +8197,8 @@ record Baltika_RestPartLine {
 
 record CPosAuth {
 	_id        long         "@{id}";
-	AgentID    long         "Ид агента";
-	AgentName  zstring(64)  "Имя агента";
+	AgentID    long         "@{agentid}";
+	AgentName  zstring(64)  "@{agentname}";
 	DbSymb     zstring(64)  "@{dbsymb}";
 	DbUUID     zstring(40)  "GUID базы данных";
 	UserName   zstring(64)  "@{username}";

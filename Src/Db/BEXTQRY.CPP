@@ -202,7 +202,7 @@ int SLAPI BExtQuery::initIteration(int reverse, const void * pInitKey, int initS
 	InitSpMode = initSpMode;
 	if(pInitKey) {
 		// @v10.6.8 memcpy(InitKey, pInitKey, MAXKEYLEN);
-		memcpy(InitKey_, pInitKey, MAXKEYLEN); // @v10.6.8 
+		memcpy(InitKey_, pInitKey, BTRMAXKEYLEN); // @v10.6.8 
 	}
 	else
 		State |= stUndefInitKey;
@@ -355,7 +355,7 @@ int SLAPI BExtQuery::search_first(const char * pInitKey, int initSpMode, int spM
 		memcpy(P_QBuf + TailOfs, p_tail, tailLen);
 		P_QHead->bufLen += tailLen;
 		if(pInitKey) {
-			memcpy(_Key_, pInitKey, MAXKEYLEN);
+			memcpy(_Key_, pInitKey, BTRMAXKEYLEN);
 			sp = initSpMode;
 		}
 		else

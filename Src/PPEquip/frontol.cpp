@@ -496,26 +496,28 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						// Формирование массива скидок по котировкам
 						//
 						{
-							AtolGoodsDiscountEntry ent;
+							// @v10.8.2 AtolGoodsDiscountEntry ent;
 							for(i = 0; i < retail_quot_list.getCount(); i++) {
 								const  PPID qk_id = retail_quot_list.get(i);
 								if(qk_id) {
-									double quot = gds_info.QuotList.Get(qk_id);
+									const double quot = gds_info.QuotList.Get(qk_id);
 									if(quot > 0.0 && quot != gds_info.Price) {
-										MEMSZERO(ent);
-										ent.GoodsID = gds_info.ID;
-										ent.QuotKindID = qk_id;
-										//ent.SCardSerID = scard_quot_list.at(i).Key;
-										ent.AbsDiscount = gds_info.Price - quot;
+										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot); // @v10.8.2 
+										// @v10.8.2 MEMSZERO(ent);
+										// @v10.8.2 ent.GoodsID = gds_info.ID;
+										// @v10.8.2 ent.QuotKindID = qk_id;
+										// @v10.8.2 ent.SCardSerID = scard_quot_list.at(i).Key;
+										// @v10.8.2 ent.AbsDiscount = gds_info.Price - quot;
 										goods_dis_list.insert(&ent);
 										used_retail_quot.set(i, 1);
 									}
 								}
 							}
 							if(gds_info.ExtQuot > 0.0) {
-								MEMSZERO(ent);
-								ent.GoodsID = gds_info.ID;
-								ent.AbsDiscount = gds_info.Price - gds_info.ExtQuot;
+								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot); // @v10.8.2
+								// @v10.8.2 MEMSZERO(ent);
+								// @v10.8.2 ent.GoodsID = gds_info.ID;
+								// @v10.8.2 ent.AbsDiscount = gds_info.Price - gds_info.ExtQuot;
 								goods_dis_list.insert(&ent);
 							}
 						}
@@ -550,7 +552,6 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							tail.Cat(gds_info.Price, SFMT_MONEY);       // #9 - Min цена товара
 						tail.Semicol();
 						tail.CatCharN(';', 3);                          // #10-#12 - Не используем
-						// @v9.6.8 {
 						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 16)) {
 							// Номер поля - 13; Обязательное - нет; Тип поля - целое;
 							// Признак предмета расчёта: 0 – товар, кроме подакцизного; 1 – подакцизный товар; 2 – работа;
@@ -562,7 +563,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							else // } @v9.9.12
 								tail.CatChar('0');                              // #13 - Признак предмета расчёта
 						}
-						else /* } @v9.6.8 */ {
+						else {
 							if(gds_info.NoDis <= 0)                         // 
 								tail.Cat(ATOL_OUTER_SCHEME);                // #13 - Код схемы внешней автоматической скидки
 						}
@@ -602,11 +603,9 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}
-						// @v9.9.12 {
 						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20)) {
 							tail.CatChar('2').Semicol();        // #58 Признак способа расчета
 						}
-						// } @v9.9.12
 					}
 					bclen = sstrlen(gds_info.BarCode);
 					if(bclen) {
@@ -1090,10 +1089,10 @@ int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRep
 				SessAry.addUnique(sess_id);
 				//zrep_ary.Add(cash_no, nsmena, &(pos = 0));
 				{
-					_FrontolZRepEntry z_entry;
-					z_entry.PosN = cash_no;
-					z_entry.ZRepN = nsmena;
-					z_entry.SessID = sess_id;
+					const _FrontolZRepEntry z_entry(cash_no, nsmena, sess_id);
+					// @v10.8.2 z_entry.PosN = cash_no;
+					// @v10.8.2 z_entry.ZRepN = nsmena;
+					// @v10.8.2 z_entry.SessID = sess_id;
 					zrep_list.insert(&z_entry);
 				}
 			}
@@ -1431,6 +1430,7 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 {
 	int    ok = 1, notify_timeout = NZOR(ImpExpTimeout, 5000);
+	const  int is_xpos = IsXPos(Acn); // @v10.8.2
 	SString imp_path = pImpPath, exp_path;
 	SString path_rpt;
 	SString path_flag;
@@ -1455,19 +1455,21 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 			SPathStruc::ReplacePath(path_flag, exp_path, 1);
 			THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 			if(ok > 0) {
-				int     y, m, d;
-				SString buf, tmp_buf, tmp_name;
-				SString date_mask = "%02d.%02d.%04d";
+				// @v10.8.2 int     y, m, d;
+				// @v10.8.2 SString date_mask = "%02d.%02d.%04d";
+				SString tmp_buf;
 				SFile::Remove(path_rpt);
-				tmp_name = path_flag;
+				SString tmp_name = path_flag;
 				SPathStruc::ReplaceExt(tmp_name, "tmp", 1);
 				SFile  query_file(tmp_name, SFile::mWrite);
-				buf = "$$$TRANSACTIONSBYDATETIMERANGE";
+				SString buf = is_xpos ? "$$$TRANSACTIONSBYDATERANGE" : "$$$TRANSACTIONSBYDATETIMERANGE"; // @v10.8.2 (is_xpos ? "$$$TRANSACTIONSBYDATERANGE")
 				query_file.WriteLine(buf.CR());
-				decodedate(&d, &m, &y, &first_date);
-				buf.Z().Printf(date_mask, d, m, y).Semicol();
-				decodedate(&d, &m, &y, &last_date);
-				buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR();
+				// @v10.8.2 decodedate(&d, &m, &y, &first_date);
+				// @v10.8.2 buf.Z().Printf(date_mask, d, m, y).Semicol();
+				buf.Z().Cat(first_date, DATF_GERMAN|DATF_CENTURY).Semicol(); // @v10.8.2
+				// @v10.8.2 decodedate(&d, &m, &y, &last_date);
+				// @v10.8.2 buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR(); 
+				buf.Cat(last_date, DATF_GERMAN|DATF_CENTURY).CR(); // @v10.8.2
 				query_file.WriteLine(buf);
 				query_file.Close();
 				//

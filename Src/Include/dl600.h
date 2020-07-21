@@ -828,7 +828,8 @@ public:
 		cfDebug   = 0x0001, // Отладочный режим компиляции
 		cfBinOnly = 0x0002, // Создавать только бинарные файлы (не генерировать .H, .CPP и прочие файлы для разработки)
 		cfSQL     = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
-		cfOracle  = 0x0008  // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
+		cfOracle  = 0x0008, // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
+		cfGravity = 0x0010  // @v10.8.2 Генерировать gravity интерфейсы
 	};
 	int    SLAPI Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
 	int    SLAPI FindImportFile(const char * pFileName, SString & rPath);

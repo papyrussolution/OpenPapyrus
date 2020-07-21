@@ -3522,8 +3522,7 @@ int SLAPI PPBillPacket::InsertRow(const PPTransferItem * pTI, LongArray * pRows,
 	uint   pos = Lots.getCount();
 	if(pTI->IsRecomplete()) {
 		//
-		// Нельзя добавляеть строку рекомплектации в документ, который уже содержит
-		// независимый выход
+		// Нельзя добавляеть строку рекомплектации в документ, который уже содержит независимый выход
 		//
 		THROW_PP(!HasIndepModifPlus(), PPERR_LOTGENONRECOMPL);
 		THROW_PP(!(Rec.Flags & BILLF_RECOMPLETE), PPERR_DUPRECOMPLETE);

@@ -2614,6 +2614,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Json,       mtApplication, "json", "json", "T{");
 	Register(Json,       "json", "T[");
 	Register(Pbxproj,    "pbxproj", 0);
+	Register(Gravity,    "gravity", 0); // @v10.8.2
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
 	return ok;
 }

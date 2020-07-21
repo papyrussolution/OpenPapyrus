@@ -1240,7 +1240,7 @@ int SLAPI PPViewVatBook::InitIteration()
 	int    idx = (Filt.Flags & VatBookFilt::fPaymPeriod) ? 5 : 3;
 	long   f;
 	union {
-		char _k[MAXKEYLEN];
+		char _k[BTRMAXKEYLEN];
 		VATBookTbl::Key3 k3;
 		VATBookTbl::Key5 k5;
 	} k, k_;

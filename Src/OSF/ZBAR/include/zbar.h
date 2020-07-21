@@ -264,14 +264,8 @@ typedef enum zbar_modifier_e {
 	 * data may be parsed as a sequence of GS1 AIs
 	 */
 	ZBAR_MOD_GS1 = 0,
-
-	/** barcode tagged as AIM reserved
-	 * (eg, FNC1 after first character or digit pair)
-	 */
-	ZBAR_MOD_AIM,
-
-	/** number of modifiers */
-	ZBAR_MOD_NUM,
+	ZBAR_MOD_AIM, // barcode tagged as AIM reserved (eg, FNC1 after first character or digit pair)
+	ZBAR_MOD_NUM, // number of modifiers 
 } zbar_modifier_t;
 //
 //
@@ -303,17 +297,10 @@ void cdecl dbprintf(int level, const char * pFormat, ...);
  * FIXME don't we need varargs hacks here?
  */
 #ifndef NDEBUG
-	#if __STDC_VERSION__ < 199901L && !defined(__func__)
-		#if __GNUC__ >= 2
-			#define __func__ __FUNCTION__
-		#else
-			#define __func__ "<unknown>"
-		#endif
-	#endif
 	/*
 	#define zassert__(condition, retval, format, ...) do {                   \
         if(!(condition)) {                                              \
-            fprintf(stderr, "WARNING: %s:%d: %s: Assertion \"%s\" failed.\n\t" format, __FILE__, __LINE__, __func__, #condition , ##__VA_ARGS__);                                     \
+            fprintf(stderr, "WARNING: %s:%d: %s: Assertion \"%s\" failed.\n\t" format, __FILE__, __LINE__, __FUNCTION__, #condition , ##__VA_ARGS__);                                     \
             return (retval);                                             \
         }                                                               \
     } while(0)
@@ -356,13 +343,6 @@ struct errinfo_t {
 #else
 	#define ZFLUSH
 #endif
-#if __STDC_VERSION__ < 199901L
-	#if __GNUC__ >= 2
-		#define __func__ __FUNCTION__
-	#else
-		#define __func__ "<unknown>"
-	#endif
-#endif
 
 extern int _zbar_verbosity;
 
@@ -375,14 +355,9 @@ int err_capture_num(const void * container, errsev_t sev, zbar_error_t type, con
 void err_init(errinfo_t * err, errmodule_t module);
 void err_cleanup(errinfo_t * err);
 //
-//
-//
-//
 // simple platform mutex abstraction
 //
 #if defined(_WIN32)
-
-//#include <windows.h>
 
 #define DEBUG_LOCKS
 #ifdef DEBUG_LOCKS
@@ -481,7 +456,7 @@ static inline int _zbar_mutex_lock(zbar_mutex_t * lock)
 	assert(!rc);
 #endif
 	/* FIXME save system code */
-	/*rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_LOCKING, __func__, "unable to lock processor");*/
+	/*rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_LOCKING, __FUNCTION__, "unable to lock processor");*/
 	return (rc);
 }
 
@@ -587,20 +562,15 @@ static inline ulong zbar_fourcc_parse(const char * format)
 }
 
 /** @internal type unsafe error API (don't use) */
-extern int _zbar_error_spew(const void * object,
-    int verbosity);
-extern const char * _zbar_error_string(const void * object,
-    int verbosity);
+extern int _zbar_error_spew(const void * object, int verbosity);
+extern const char * _zbar_error_string(const void * object, int verbosity);
 extern zbar_error_t _zbar_get_error_code(const void * object);
 
 /*@}*/
 
 struct zbar_symbol_s;
-
 typedef struct zbar_symbol_s zbar_symbol_t;
-
 struct zbar_symbol_set_s;
-
 typedef struct zbar_symbol_set_s zbar_symbol_set_t;
 
 /*------------------------------------------------------------*/
@@ -1332,16 +1302,13 @@ extern int zbar_video_get_fd(const zbar_video_t * video);
  * initialized
  * @since 0.6
  */
-extern int zbar_video_request_size(zbar_video_t * video,
-    uint width,
-    uint height);
+extern int zbar_video_request_size(zbar_video_t * video, uint width, uint height);
 
 /** request a preferred driver interface version for debug/testing.
  * @note must be called before zbar_video_open()
  * @since 0.6
  */
-extern int zbar_video_request_interface(zbar_video_t * video,
-    int version);
+extern int zbar_video_request_interface(zbar_video_t * video, int version);
 
 /** request a preferred I/O mode for debug/testing.  You will get
  * errors if the driver does not support the specified mode.
@@ -1354,8 +1321,7 @@ extern int zbar_video_request_interface(zbar_video_t * video,
  * @note must be called before zbar_video_open()
  * @since 0.7
  */
-extern int zbar_video_request_iomode(zbar_video_t * video,
-    int iomode);
+extern int zbar_video_request_iomode(zbar_video_t * video, int iomode);
 
 /** retrieve current output image width.
  * @returns the width or 0 if the video device is not open
@@ -1371,15 +1337,13 @@ extern int zbar_video_get_height(const zbar_video_t * video);
  * use zbar_negotiate_format() to automatically select and initialize
  * the best available format
  */
-extern int zbar_video_init(zbar_video_t * video,
-    ulong format);
+extern int zbar_video_init(zbar_video_t * video, ulong format);
 
 /** start/stop video capture.
  * all buffered images are retired when capture is disabled.
  * @returns 0 if successful or -1 if an error occurs
  */
-extern int zbar_video_enable(zbar_video_t * video,
-    int enable);
+extern int zbar_video_enable(zbar_video_t * video, int enable);
 
 /** retrieve next captured image.  blocks until an image is available.
  * @returns NULL if video is not enabled or an error occurs
@@ -2142,5 +2106,289 @@ extern void _zbar_image_scanner_recycle_syms(zbar_image_scanner_t*, zbar_symbol_
 	#include "zbar/Processor.h"
 */
 #endif
+//#include "decoder.h"
+#ifdef ENABLE_QRCODE
+	//#include "decoder/qr_finder.h"
+#endif
+#ifndef BUFFER_MIN
+	#define BUFFER_MIN   0x20 // initial data buffer allocation
+#endif
+#ifndef BUFFER_MAX
+	#define BUFFER_MAX  0x100 // maximum data buffer allocation (longer symbols are rejected)
+#endif
+#ifndef BUFFER_INCR
+	#define BUFFER_INCR  0x10 // buffer allocation increment 
+#endif
+#define CFG(dcode, cfg) ((dcode).configs[(cfg) - ZBAR_CFG_MIN_LEN])
+#define TEST_CFG(config, cfg) (((config) >> (cfg)) & 1)
+#define MOD(mod) (1 << (mod))
+//
+// return current element color 
+//
+char FASTCALL get_color(const zbar_decoder_t * dcode);
+//
+// retrieve i-th previous element width 
+//
+uint FASTCALL get_width(const zbar_decoder_t * dcode, uchar offset);
+//
+// retrieve bar+space pair width starting at offset i 
+//
+uint FASTCALL pair_width(const zbar_decoder_t * dcode, uchar offset);
+// 
+// calculate total character width "s"
+//   - start of character identified by context sensitive offset (<= DECODE_WINDOW - n)
+//   - size of character is n elements
+// 
+uint calc_s(const zbar_decoder_t * dcode, uchar offset, uchar n);
+// 
+// fixed character width decode assist
+// bar+space width are compared as a fraction of the reference dimension "x"
+//   - +/- 1/2 x tolerance
+//   - measured total character width (s) compared to symbology baseline (n)
+//     (n = 7 for EAN/UPC, 11 for Code 128)
+//   - bar+space *pair width* "e" is used to factor out bad "exposures" ("blooming" or "swelling" of dark or light areas)
+//     => using like-edge measurements avoids these issues
+// - n should be > 3
+// 
+int FASTCALL decode_e(uint e, uint s, uint n);
+// 
+// sort three like-colored elements and return ordering
+// 
+uint FASTCALL decode_sort3(const zbar_decoder_t * dcode, int i0);
+//
+// sort N like-colored elements and return ordering
+//
+uint FASTCALL decode_sortn(const zbar_decoder_t * dcode, int n, int i0);
+//
+// acquire shared state lock 
+//
+char FASTCALL acquire_lock(zbar_decoder_t * dcode, zbar_symbol_type_t req);
+//
+// check and release shared state lock 
+//
+char FASTCALL release_lock(zbar_decoder_t * dcode, zbar_symbol_type_t req);
+//
+// ensure output buffer has sufficient allocation for request 
+//
+char FASTCALL size_buf(zbar_decoder_t * dcode, uint len);
+extern const char * _zbar_decoder_buf_dump(uchar * buf, uint buflen);
+//
+//#include "error.h"
 
+extern int _zbar_verbosity;
+
+// FIXME don't we need varargs hacks here? 
+
+#ifdef _WIN32
+	#define ZFLUSH fflush(stderr);
+#else
+	#define ZFLUSH
+#endif
+void cdecl zprintf(int level, const char * pFormat, ...);
+int err_copy(void * dst_c, void * src_c);
+int err_capture(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail);
+int err_capture_str(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, const char * arg);
+int err_capture_int(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, int arg);
+int err_capture_num(const void * container, errsev_t sev, zbar_error_t type, const char * func, const char * detail, int num);
+void err_init(errinfo_t * err, errmodule_t module);
+void err_cleanup(errinfo_t * err);
+//
+//#include "qrcode\util.h"
+#define QR_MAXI(_a,_b)      ((_a)-((_a)-(_b)&-((_b)>(_a))))
+#define QR_MINI(_a,_b)      ((_a)+((_b)-(_a)&-((_b)<(_a))))
+#define QR_SIGNI(_x)        (((_x)>0)-((_x)<0))
+#define QR_SIGNMASK(_x)     (-((_x)<0))
+// Unlike copysign(), simply inverts the sign of _a if _b is negative.
+#define QR_FLIPSIGNI(_a,_b) ((_a)+QR_SIGNMASK(_b)^QR_SIGNMASK(_b))
+#define QR_COPYSIGNI(_a,_b) QR_FLIPSIGNI(abs(_a),_b)
+// Divides a signed integer by a positive value with exact rounding.
+#define QR_DIVROUND(_x,_y)  (((_x)+QR_FLIPSIGNI(_y>>1,_x))/(_y))
+#define QR_CLAMPI(_a,_b,_c) (QR_MAXI(_a,QR_MINI(_b,_c)))
+#define QR_CLAMP255(_x)     ((uchar)((((_x)<0)-1)&((_x)|-((_x)>255))))
+#define QR_SWAP2I(_a,_b)   do { int t__=(_a); (_a)=(_b); (_b)=t__; } while(0)
+/*Swaps two integers _a and _b if _a>_b.*/
+#define QR_SORT2I(_a,_b)   do { int t__=QR_MINI(_a,_b)^(_a); (_a)^=t__; (_b)^=t__; } while(0)
+#define QR_ILOG0(_v) (!!((_v)&0x2))
+#define QR_ILOG1(_v) (((_v)&0xC)?2+QR_ILOG0((_v)>>2):QR_ILOG0(_v))
+#define QR_ILOG2(_v) (((_v)&0xF0)?4+QR_ILOG1((_v)>>4):QR_ILOG1(_v))
+#define QR_ILOG3(_v) (((_v)&0xFF00)?8+QR_ILOG2((_v)>>8):QR_ILOG2(_v))
+#define QR_ILOG4(_v) (((_v)&0xFFFF0000)?16+QR_ILOG3((_v)>>16):QR_ILOG3(_v))
+#define QR_ILOG(_v) ((int)QR_ILOG4((uint)(_v))) // Computes the integer logarithm of a (positive, 32-bit) constant.
+// Multiplies 32-bit numbers _a and _b, adds (possibly 64-bit) number _r, and takes bits [_s,_s+31] of the result.
+#define QR_FIXMUL(_a,_b,_r,_s) ((int)((_a) * (long long)((_b)+(_r)) >> (_s)))
+// Multiplies 32-bit numbers _a and _b, adds (possibly 64-bit) number _r, and gives all 64 bits of the result.
+#define QR_EXTMUL(_a,_b,_r)    ((_a)*(long long)(_b)+(_r))
+
+uint   qr_isqrt(uint _val);
+uint   qr_ihypot(int _x,int _y);
+int    qr_ilog(uint _val);
+//
+//#include "symbol.h"
+#define NUM_SYMS  20
+
+struct point_t {
+	int    x;
+	int    y;
+};
+
+struct zbar_symbol_set_s {
+	refcnt_t refcnt;
+	int    nsyms;         // number of filtered symbols
+	zbar_symbol_t * head; // first of decoded symbol results 
+	zbar_symbol_t * tail; // last of unfiltered symbol results 
+};
+
+struct zbar_symbol_s {
+	zbar_symbol_type_t type;   // symbol type
+	uint   configs;            // symbology boolean config bitmask 
+	uint   modifiers;          // symbology modifier bitmask 
+	uint   data_alloc;         // allocation size of data 
+	uint   datalen;            // length of binary symbol data 
+	char * P_Data_;            // symbol data 
+	uint   pts_alloc;          // allocation size of pts 
+	uint   npts;               // number of points in location polygon 
+	point_t * pts;             // list of points in location polygon 
+	zbar_orientation_t orient; // coarse orientation 
+	refcnt_t refcnt;           // reference count 
+	zbar_symbol_t * next;      // linked list of results (or siblings) 
+	zbar_symbol_set_t * syms;  // components of composite result 
+	ulong  time;               // relative symbol capture time 
+	int    cache_count;        // cache state 
+	int    quality;            // relative symbol reliability metric 
+};
+
+extern int _zbar_get_symbol_hash(zbar_symbol_type_t);
+extern void _zbar_symbol_free(zbar_symbol_t*);
+extern zbar_symbol_set_t * _zbar_symbol_set_create(void);
+extern void _zbar_symbol_set_free(zbar_symbol_set_t*);
+void FASTCALL sym_add_point(zbar_symbol_t * sym, int x, int y);
+/*static inline void sym_add_point(zbar_symbol_t * sym, int x, int y)
+{
+	int i = sym->npts;
+	if(++sym->npts >= sym->pts_alloc)
+		sym->pts = static_cast<point_t *>(SAlloc::R(sym->pts, ++sym->pts_alloc * sizeof(point_t)));
+	sym->pts[i].x = x;
+	sym->pts[i].y = y;
+}*/
+
+static inline void _zbar_symbol_refcnt(zbar_symbol_t * sym, int delta)
+{
+	if(!_zbar_refcnt(&sym->refcnt, delta) && delta <= 0)
+		_zbar_symbol_free(sym);
+}
+
+static inline void _zbar_symbol_set_add(zbar_symbol_set_t * syms, zbar_symbol_t * sym)
+{
+	sym->next = syms->head;
+	syms->head = sym;
+	syms->nsyms++;
+	_zbar_symbol_refcnt(sym, 1);
+}
+//
+//#include "window.h"
+typedef struct window_state_s window_state_t;
+
+struct zbar_window_s {
+	errinfo_t err;          /* error reporting */
+	zbar_image_t * image;   /* last displayed image NB image access must be locked! */
+	uint overlay;       /* user set overlay level */
+	uint32 format;        /* output format */
+	uint width, height; /* current output size */
+	uint max_width, max_height;
+	uint32 src_format;    /* current input format */
+	uint src_width;     /* last displayed image size */
+	uint src_height;
+	uint dst_width;     /* conversion target */
+	uint dst_height;
+	uint scale_num;     /* output scaling */
+	uint scale_den;
+	point_t scaled_offset;  /* output position and size */
+	point_t scaled_size;
+	uint32 * formats;     /* supported formats (zero terminated) */
+	zbar_mutex_t imglock;   /* lock displayed image */
+	void * display;
+	ulong xwin;
+	ulong time;     /* last image display in milliseconds */
+	ulong time_avg; /* average of inter-frame times */
+	window_state_t * state; /* platform/interface specific state */
+	/* interface dependent methods */
+	int (* init)(zbar_window_t*, zbar_image_t*, int);
+	int (* draw_image)(zbar_window_t*, zbar_image_t*);
+	int (* cleanup)(zbar_window_t*);
+};
+
+/* window.draw has to be thread safe wrt/other apis
+ * FIXME should be a semaphore
+ */
+static inline int window_lock(zbar_window_t * w)
+{
+	int rc = 0;
+	if((rc = _zbar_mutex_lock(&w->imglock))) {
+		err_capture(w, SEV_FATAL, ZBAR_ERR_LOCKING, __FUNCTION__, "unable to acquire lock");
+		w->err.errnum = rc;
+		return -1;
+	}
+	return 0;
+}
+
+static inline int window_unlock(zbar_window_t * w)
+{
+	int rc = 0;
+	if((rc = _zbar_mutex_unlock(&w->imglock))) {
+		err_capture(w, SEV_FATAL, ZBAR_ERR_LOCKING, __FUNCTION__, "unable to release lock");
+		w->err.errnum = rc;
+		return -1;
+	}
+	return 0;
+}
+
+static inline int _zbar_window_add_format(zbar_window_t * w, uint32 fmt)
+{
+	int i;
+	for(i = 0; w->formats && w->formats[i]; i++)
+		if(w->formats[i] == fmt)
+			return (i);
+	w->formats = static_cast<uint32 *>(SAlloc::R(w->formats, (i + 2) * sizeof(uint32)));
+	w->formats[i] = fmt;
+	w->formats[i + 1] = 0;
+	return (i);
+}
+
+static inline point_t window_scale_pt(zbar_window_t * w, point_t p)
+{
+	p.x = ((long)p.x * w->scale_num + w->scale_den - 1) / w->scale_den;
+	p.y = ((long)p.y * w->scale_num + w->scale_den - 1) / w->scale_den;
+	return (p);
+}
+
+/* PAL interface */
+extern int _zbar_window_attach(zbar_window_t*, void*, ulong);
+extern int _zbar_window_expose(zbar_window_t*, int, int, int, int);
+extern int _zbar_window_resize(zbar_window_t*);
+extern int _zbar_window_clear(zbar_window_t*);
+extern int _zbar_window_begin(zbar_window_t*);
+extern int _zbar_window_end(zbar_window_t*);
+extern int _zbar_window_draw_marker(zbar_window_t*, uint32, point_t);
+extern int _zbar_window_draw_polygon(zbar_window_t*, uint32, const point_t*, int);
+extern int _zbar_window_draw_text(zbar_window_t*, uint32, point_t, const char*);
+extern int _zbar_window_fill_rect(zbar_window_t*, uint32, point_t, point_t);
+extern int _zbar_window_draw_logo(zbar_window_t*);
+//
+#ifdef _WIN32
+	//#include "window/win.h"
+	struct window_state_s {
+		HDC hdc;
+		void* hdd;
+		BITMAPINFOHEADER bih;
+		/* pre-calculated logo geometries */
+		int logo_scale;
+		HRGN logo_zbars;
+		HPEN logo_zpen, logo_zbpen;
+		POINT logo_z[4];
+		int font_height;
+	};
+
+	extern int _zbar_window_bih_init(zbar_window_t * w, zbar_image_t * img);
+#endif
+//
 #endif

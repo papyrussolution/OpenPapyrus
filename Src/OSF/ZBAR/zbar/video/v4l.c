@@ -23,19 +23,9 @@
 
 #include <zbar.h>
 #pragma hdrstop
-//#include "error.h"
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
-//#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-//#endif
-//#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 
 extern int _zbar_v4l1_probe(zbar_video_t*);
 extern int _zbar_v4l2_probe(zbar_video_t*);
@@ -44,7 +34,7 @@ int _zbar_video_open(zbar_video_t * vdo, const char * dev)
 {
 	vdo->fd = _open(dev, O_RDWR);
 	if(vdo->fd < 0)
-		return (err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__, "opening video device '%s'", dev));
+		return (err_capture_str(vdo, SEV_ERROR, ZBAR_ERR_SYSTEM, __FUNCTION__, "opening video device '%s'", dev));
 	zprintf(1, "opened camera device %s (fd=%d)\n", dev, vdo->fd);
 	int rc = -1;
 #ifdef HAVE_LINUX_VIDEODEV2_H

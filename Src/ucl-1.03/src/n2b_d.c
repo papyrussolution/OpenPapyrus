@@ -10,11 +10,11 @@
 
 #define SAFE // @v9.1.1
 
- #ifdef SAFE
-  #define fail(x, r)   if(x) { *dst_len = olen; return r; }
- #else
-  #define fail(x, r)
- #endif
+#ifdef SAFE
+	#define fail(x, r)   if(x) { *dst_len = olen; return r; }
+#else
+	#define fail(x, r)
+#endif
 {
 	ucl_uint32 bb = 0;
  #ifdef TEST_OVERLAP
@@ -124,7 +124,3 @@ UCL_PUBLIC(int) ucl_nrv2b_decompress_le32(const ucl_bytep src, ucl_uint src_len,
 }
 
 #endif /* !getbit */
-/*
-   vi:ts=4:et
- */
-

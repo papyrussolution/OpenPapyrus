@@ -419,9 +419,7 @@ static int events_socket(struct Curl_easy * easy,      /* easy handle */
 	if(!m) {
 		if(what == CURL_POLL_REMOVE) {
 			/* this happens a bit too often, libcurl fix perhaps? */
-			/* fprintf(stderr,
-			   "%s: socket %d asked to be REMOVED but not present!\n",
-			           __func__, s); */
+			/* fprintf(stderr, "%s: socket %d asked to be REMOVED but not present!\n", __func__, s); */
 		}
 		else {
 			m = SAlloc::M(sizeof(struct socketmonitor));

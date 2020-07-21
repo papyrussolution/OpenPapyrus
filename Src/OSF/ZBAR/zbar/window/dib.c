@@ -23,8 +23,8 @@
 
 #include <zbar.h>
 #pragma hdrstop
-#include "window.h"
-#include "win.h"
+//#include "window.h"
+//#include "win.h"
 
 static int dib_cleanup(zbar_window_t * w)
 {

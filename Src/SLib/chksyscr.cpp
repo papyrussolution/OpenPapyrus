@@ -333,7 +333,7 @@ int SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 {
 	int    ok = 0;
 	LDATETIME dtm = ZERODATETIME;
-	size_t sn_len = pServerName ? strlen(pServerName) : 0;
+	size_t sn_len = sstrlen(pServerName);
 	if(sn_len) {
 		typedef NET_API_STATUS (WINAPI * NETREMOTETOD)(LPCWSTR UncServerName, LPBYTE* BufferPtr);
 		typedef NET_API_STATUS (WINAPI * NETAPIBUFFERFREE)(LPVOID Buffer);
@@ -343,10 +343,12 @@ int SLAPI SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 			NETAPIBUFFERFREE proc_NetApiBufferFree = (NETAPIBUFFERFREE)lib_netapi.GetProcAddr("NetApiBufferFree");
 			if(proc_NetRemoteTOD && proc_NetApiBufferFree) {
 				LPTIME_OF_DAY_INFO p_server_dtm = NULL;
-				WCHAR  tm_serv[MAXPATH];
-				memzero(tm_serv, sizeof(tm_serv));
-				MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, (int)SIZEOFARRAY(tm_serv));
-				int    oserr = proc_NetRemoteTOD(tm_serv, (LPBYTE*)&p_server_dtm);
+				SStringU tm_serv_name; // @v10.8.2 
+				// @v10.8.2 WCHAR  tm_serv[MAXPATH];
+				// @v10.8.2 memzero(tm_serv, sizeof(tm_serv));
+				// @v10.8.2 MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, (int)SIZEOFARRAY(tm_serv));
+				tm_serv_name.CopyFromMb_OUTER(pServerName, sn_len); // @v10.8.2
+				int    oserr = proc_NetRemoteTOD(tm_serv_name, reinterpret_cast<LPBYTE *>(&p_server_dtm));
 				if(oserr == NERR_Success && p_server_dtm) {
 					dtm.d.encode(p_server_dtm->tod_day, p_server_dtm->tod_month, p_server_dtm->tod_year);
 					dtm.t = encodetime(p_server_dtm->tod_hours, p_server_dtm->tod_mins, p_server_dtm->tod_secs, 0);

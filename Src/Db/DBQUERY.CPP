@@ -260,7 +260,7 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 		}
 		SAlloc::F(p_best_trace);
 		t.tbl->setIndex(t.tbl->GetIndices()[t.key.P_h->keyNum].getKeyNumber());
-		t.keyBuf = new char[MAXKEYLEN];
+		t.keyBuf = new char[BTRMAXKEYLEN];
 		if(t.keyBuf == 0)
 			return 0;
 	}

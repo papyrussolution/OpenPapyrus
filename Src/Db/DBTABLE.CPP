@@ -183,7 +183,7 @@ int DBTable::Btr_ProcessLobOnReading()
 				const  size_t fixed_header_size = 24;
 				const  long chunk_size = static_cast<long>(temp_buf.GetSize() - fixed_header_size);
 				do {
-					char   k[MAXKEYLEN];
+					char   k[BTRMAXKEYLEN];
 					size_t temp_buf_offs = 0;
 					*static_cast<RECORDNUMBER *>(temp_buf.vptr()) = pos;
 					temp_buf_offs += sizeof(RECORDNUMBER);
@@ -243,7 +243,7 @@ int DBTable::Btr_Implement_Search(int idx, void * pKey, int srchMode, long sf)
 	if(idx >= 0)
 		index = (int16)idx;
 	int    op = -1;
-	char   temp_buf[MAXKEYLEN];
+	char   temp_buf[BTRMAXKEYLEN];
 	char * p_buf = static_cast<char *>(P_DBuf);
 	retBufLen = bufLen;
 	if(sf & sfDirect) {

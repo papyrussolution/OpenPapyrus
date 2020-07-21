@@ -2376,8 +2376,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			PPID   prev_loc_id = 0;
 			PPViewGoodsRest gr_view;
 			GoodsRestViewItem gr_item;
-			if(P_Cache)
-				P_Cache->freeAll();
+			CALLPTRMEMB(P_Cache, freeAll());
 			p_prev_temp_tbl = P_TempTbl;
 			THROW(P_TempTbl = CreateTempFile());
 			THROW(InitGoodsRestView(&gr_view));
@@ -2418,8 +2417,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			IterCounter c;
 			PPViewGoodsRest gr_view;
 			LAssocArray goods_list; // Список пар {товар, склад}, присутсвующих в текущем отчете. Необходим
-				// для идентификации товаров, по которым есть остаток, но которые в то же время отсутствуют
-				// в текущем отчете.
+				// для идентификации товаров, по которым есть остаток, но которые в то же время отсутствуют в текущем отчете.
 			THROW(InitGoodsRestView(&gr_view));
 			MEMSZERO(k3);
 			PPInitIterCounter(c, P_TempTbl);
@@ -2463,7 +2461,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 								P_TempTbl->data.OldPrice = stat.GetAverage(PSSV_QTTY);
 								do_update = 1;
 							}
-							pUfpFactors[0] += 1.5; // @v8.1.12
+							pUfpFactors[0] += 1.5;
 						}
 						if(Filt.Flags & GoodsOpAnalyzeFilt::fCalcOrder) {
 							GoodsRestParam ord_p;
@@ -2471,7 +2469,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 								P_TempTbl->data.OldCost = ord_p.Total.Rest;
 								do_update = 1;
 							}
-							pUfpFactors[0] += 1.3; // @v8.1.12
+							pUfpFactors[0] += 1.3;
 						}
 					}
 					if(do_update)
@@ -2481,8 +2479,7 @@ int SLAPI PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			} while(P_TempTbl->searchForUpdate(3, &k3, spNext));
 			if(!(Filt.Flags & GoodsOpAnalyzeFilt::fBadSellingGoods) && (Filt.Flags & GoodsOpAnalyzeFilt::fAddNzRestItems)) {
 				GoodsRestViewItem gr_item;
-				if(P_Cache)
-					P_Cache->freeAll();
+				CALLPTRMEMB(P_Cache, freeAll());
 				for(gr_view.InitIteration(); gr_view.NextIteration(&gr_item) > 0;) {
 					if(!goods_list.SearchPair(gr_item.GoodsID, gr_item.LocID, 0)) {
 						GoaAddingBlock blk;

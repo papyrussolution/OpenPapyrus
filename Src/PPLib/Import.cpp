@@ -4907,12 +4907,13 @@ int FiasImporter::Import(int inpObject)
 int FiasImporter::EditParam(Param & rP)
 {
     class FiasImpParamDialog : public TDialog {
+		DECL_DIALOG_DATA(FiasImporter::Param);
 	public:
 		FiasImpParamDialog() : TDialog(DLG_FIASIMP)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_FIASIMP_PATH, CTL_FIASIMP_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		}
-		int    setDTS(const FiasImporter::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
@@ -4924,7 +4925,7 @@ int FiasImporter::EditParam(Param & rP)
 			SetClusterData(CTL_FIASIMP_FLAGS, Data.Flags);
 			return ok;
 		}
-		int    getDTS(FiasImporter::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -4935,8 +4936,6 @@ int FiasImporter::EditParam(Param & rP)
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		FiasImporter::Param Data;
     };
     DIALOG_PROC_BODY(FiasImpParamDialog, &rP);
 }

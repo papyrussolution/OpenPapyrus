@@ -527,8 +527,7 @@ static SScEditorStyleSet * _GetGlobalSScEditorStyleSetInstance()
 				r = p_ss->ParseStylesXml(file_name);
 			}
 			if(!r) {
-				p_ss->Destroy(); // ”казатель оставл€ем не нулевым дабы в течении 
-					// сеанса каждый раз не пытатьс€ создавать его заново.
+				p_ss->Destroy(); // ”казатель оставл€ем не нулевым дабы в течении сеанса каждый раз не пытатьс€ создавать его заново.
 			}
 		}
 	}
@@ -596,13 +595,14 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 //
 //
 class SearchReplaceDialog : public TDialog {
+	DECL_DIALOG_DATA(SSearchReplaceParam);
 public:
 	SearchReplaceDialog() : TDialog(DLG_SCISEARCH)
 	{
 	}
-	int    setDTS(SSearchReplaceParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		setCtrlString(CTL_SCISEARCH_PATTERN, Data.Pattern);
 		AddClusterAssoc(CTL_SCISEARCH_RF, 0, SSearchReplaceParam::fReplace);
@@ -620,7 +620,7 @@ public:
 		SetClusterData(CTL_SCISEARCH_FLAGS, Data.Flags);
 		return ok;
 	}
-	int    getDTS(SSearchReplaceParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		getCtrlString(CTL_SCISEARCH_PATTERN, Data.Pattern);
@@ -642,7 +642,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	SSearchReplaceParam Data;
 };
 
 int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData) { DIALOG_PROC_BODY(SearchReplaceDialog, pData); }
@@ -1441,7 +1440,7 @@ int STextBrowser::WMHCreate()
 	CallFunc(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED); // @v9.8.2 SC_EFF_QUALITY_ANTIALIASED-->SC_EFF_QUALITY_LCD_OPTIMIZED
 	// CallFunc(SCI_SETTECHNOLOGY, /*SC_TECHNOLOGY_DIRECTWRITERETAIN*/SC_TECHNOLOGY_DIRECTWRITEDC, 0); // @v9.8.2
 	//
-	CallFunc(SCI_SETMOUSEDWELLTIME, 500); // @v9.2.0
+	CallFunc(SCI_SETMOUSEDWELLTIME, 500);
 	//
 	{
 		KeyAccel.clear();
@@ -1709,6 +1708,9 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 					}
 					else if(oneof3(ff, ff.C, ff.CPP, ff.H)) {
 						SetLexer("cpp");
+					}
+					else if(ff == ff.Gravity) {
+
 					}
 				}
 				CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);

@@ -6,7 +6,7 @@
 */
 #include <zbar.h>
 #pragma hdrstop
-#include "util.h"
+//#include "util.h"
 
 void cdecl dbprintf(int level, const char * pFormat, ...)
 {

@@ -738,7 +738,7 @@ int ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d)
 		}
 		indx[j] = imax;
 		if(a.get(j, j) == 0)
-			a.set(j, j, MINDOUBLE);
+			a.set(j, j, SMathConst::Min);
 		if(j != n - 1) {
 			dum = one / a.get(j, j);
 			for(i = j + 1; i < n; i++)

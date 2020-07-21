@@ -1,39 +1,40 @@
 // FRONTOL.H
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2020
+// @codepage UTF-8
 //
-// Определения, используемые кассовыми модулями, работающими с интерфейсом аналогичным ФРОНТОЛ
+// РћРїСЂРµРґРµР»РµРЅРёСЏ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РєР°СЃСЃРѕРІС‹РјРё РјРѕРґСѓР»СЏРјРё, СЂР°Р±РѕС‚Р°СЋС‰РёРјРё СЃ РёРЅС‚РµСЂС„РµР№СЃРѕРј Р°РЅР°Р»РѕРіРёС‡РЅС‹Рј Р¤Р РћРќРўРћР›
 //
-//
-//   Интерфейс для работы с ATOL_CARD
+//   РРЅС‚РµСЂС„РµР№СЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ ATOL_CARD
 //
 #define AC_MAX_OPER_COUNT   250
-
 //
-//   Интерфейс к драйверу "Фронтол"
+//   РРЅС‚РµСЂС„РµР№СЃ Рє РґСЂР°Р№РІРµСЂСѓ "Р¤СЂРѕРЅС‚РѕР»"
 //
-
-//   Схемы в ATOL для PAPYRUS
+//   РЎС…РµРјС‹ РІ ATOL РґР»СЏ PAPYRUS
 #define ATOL_INNER_SCHEME           1
 #define ATOL_OUTER_SCHEME        1001
-#define AC_BIAS_CARD_CAT_CODE   10000 //   BIAS для кода категории карт в ATOL-CARD
-#define AC_DEF_CARD_CODE_LEN       40 //   Длина поля кода карты
-//   Тип чека
-#define FRONTOL_CHK_SALE            0   // Продажа
-#define FRONTOL_CHK_RETURN          1   // Возврат
-//   Тип оплаты
-#define FRONTOL_PAYMENT_CASH        1   // Наличными
-//   Тип операции (транзакции) с чеком
-#define FRONTOL_OPTYPE_CHKLINEFREE  1   // Строка чека по свободной цене
-#define FRONTOL_OPTYPE_STORNOFREE   2   // Сторно строки чека по свободной цене
-#define FRONTOL_OPTYPE_CHKLINE     11   // Строка чека
-#define FRONTOL_OPTYPE_STORNO      12   // Сторно строки
-#define FRONTOL_OPTYPE_PAYM1       40   // Оплата с вводом суммы клиента
-#define FRONTOL_OPTYPE_PAYM2       41   // Оплата без ввода суммы клиента
-#define FRONTOL_OPTYPE_CHKCLOSED   55   // Закрытие чека
-#define FRONTOL_OPTYPE_CANCEL      56   // Отмена чека
-#define FRONTOL_OPTYPE_ZREPORT     61   // Z-отчет
+#define AC_BIAS_CARD_CAT_CODE   10000 //   BIAS РґР»СЏ РєРѕРґР° РєР°С‚РµРіРѕСЂРёРё РєР°СЂС‚ РІ ATOL-CARD
+#define AC_DEF_CARD_CODE_LEN       40 //   Р”Р»РёРЅР° РїРѕР»СЏ РєРѕРґР° РєР°СЂС‚С‹
+//   РўРёРї С‡РµРєР°
+#define FRONTOL_CHK_SALE            0   // РџСЂРѕРґР°Р¶Р°
+#define FRONTOL_CHK_RETURN          1   // Р’РѕР·РІСЂР°С‚
+//   РўРёРї РѕРїР»Р°С‚С‹
+#define FRONTOL_PAYMENT_CASH        1   // РќР°Р»РёС‡РЅС‹РјРё
+//   РўРёРї РѕРїРµСЂР°С†РёРё (С‚СЂР°РЅР·Р°РєС†РёРё) СЃ С‡РµРєРѕРј
+#define FRONTOL_OPTYPE_CHKLINEFREE  1   // РЎС‚СЂРѕРєР° С‡РµРєР° РїРѕ СЃРІРѕР±РѕРґРЅРѕР№ С†РµРЅРµ
+#define FRONTOL_OPTYPE_STORNOFREE   2   // РЎС‚РѕСЂРЅРѕ СЃС‚СЂРѕРєРё С‡РµРєР° РїРѕ СЃРІРѕР±РѕРґРЅРѕР№ С†РµРЅРµ
+#define FRONTOL_OPTYPE_CHKLINE     11   // РЎС‚СЂРѕРєР° С‡РµРєР°
+#define FRONTOL_OPTYPE_STORNO      12   // РЎС‚РѕСЂРЅРѕ СЃС‚СЂРѕРєРё
+#define FRONTOL_OPTYPE_PAYM1       40   // РћРїР»Р°С‚Р° СЃ РІРІРѕРґРѕРј СЃСѓРјРјС‹ РєР»РёРµРЅС‚Р°
+#define FRONTOL_OPTYPE_PAYM2       41   // РћРїР»Р°С‚Р° Р±РµР· РІРІРѕРґР° СЃСѓРјРјС‹ РєР»РёРµРЅС‚Р°
+#define FRONTOL_OPTYPE_CHKCLOSED   55   // Р—Р°РєСЂС‹С‚РёРµ С‡РµРєР°
+#define FRONTOL_OPTYPE_CANCEL      56   // РћС‚РјРµРЅР° С‡РµРєР°
+#define FRONTOL_OPTYPE_ZREPORT     61   // Z-РѕС‚С‡РµС‚
 
 struct _FrontolZRepEntry {
+	_FrontolZRepEntry(long posN, long zrepN, long sessID) : PosN(posN), ZRepN(zrepN), SessID(sessID) // @v10.8.2 
+	{
+	}
 	long   PosN;
 	long   ZRepN;
 	long   SessID;
@@ -46,10 +47,10 @@ public:
 	}
 	int    Search(long posN, long zRepN, uint * pPos) const
 	{
-		_FrontolZRepEntry key;
-		MEMSZERO(key);
-		key.PosN = posN;
-		key.ZRepN = zRepN;
+		const _FrontolZRepEntry key(posN, zRepN, 0);
+		// @v10.8.2 MEMSZERO(key);
+		// @v10.8.2 key.PosN = posN;
+		// @v10.8.2 key.ZRepN = zRepN;
 		return lsearch(&key, pPos, PTR_CMPFUNC(_2long));
 	}
 	int    Search(long sessID, uint * pPos) const
@@ -59,6 +60,9 @@ public:
 };
 
 struct AtolGoodsDiscountEntry {
+	AtolGoodsDiscountEntry(PPID goodsID, PPID qkID, double absDiscount) : GoodsID(goodsID), QuotKindID(qkID), AbsDiscount(absDiscount)
+	{
+	}
 	long   GetSchemeID() const
 	{
 		return (GoodsID + 10000);
@@ -69,9 +73,9 @@ struct AtolGoodsDiscountEntry {
 };
 
 struct FrontolCcPayment {
-	FrontolCcPayment()
+	FrontolCcPayment() : Amount(0.0), CashAmt(0.0), BankAmt(0.0)
 	{
-		Reset();
+		// Reset();
 	}
 	void Reset()
 	{

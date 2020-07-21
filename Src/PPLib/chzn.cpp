@@ -120,7 +120,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 	return product_type_bytes ? STokenRecognizer::EncodeChZn1162(product_type_bytes, pGTIN, pSerial, pResultBuf, resultBufSize) : 0;
 }
 
-/*static*/int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS)
+/*static*/int SLAPI PPChZnPrcssr::ParseChZnCode(const char * pCode, GtinStruc & rS, long flags)
 {
 	int    ok = 0;
 	rS.Z();
@@ -134,6 +134,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 	rS.AddOnlyToken(GtinStruc::fldInner2);
 	rS.AddOnlyToken(GtinStruc::fldSscc18);
 	rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+	rS.AddOnlyToken(GtinStruc::fldManufDate); // @v10.8.2
 	rS.AddOnlyToken(GtinStruc::fldVariant);
 	//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 	//rS.AddOnlyToken(GtinStruc::fldPrice);
@@ -164,6 +165,12 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 			if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 				rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
 				pr = rS.Parse(pCode);
+				// @v10.8.2 {
+				/*if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
+					pr = rS.Parse(temp_buf);
+				}*/
+				// } @v10.8.2 
 			}
 		}
 		if(pr == 1) {
@@ -179,6 +186,17 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 			}
 		}
 	}
+	// @v10.8.2 {
+	if(!ok && flags & pchzncfPretendEverythingIsOk) {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		SNaturalTokenStat nts;
+		uint tokn = 0;
+		tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
+		if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 29)
+			ok = 100000;
+	}
+	// } @v10.8.2
 	return ok;
 }
 
@@ -316,7 +334,7 @@ int SLAPI PPChZnPrcssr::InputMark(SString & rMark)
     while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlString(CTL_CHZNMARK_INPUT, temp_buf);
 		GtinStruc gts;
-		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+		const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 		if(pczcr) {
 			gts.GetToken(GtinStruc::fldOriginalText, &rMark);
 			ok = 1;
@@ -943,7 +961,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 									SString mark_buf;
 									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 										GtinStruc gts;
-										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 										if(pczcr > 0) {
 										//if(PPChZnPrcssr::IsChZnCode(temp_buf) == SNTOK_CHZN_SIGN_SGTIN) {
 											mark_buf.Z();
@@ -978,7 +996,7 @@ int SLAPI ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::In
 					wd.PutInnerSkipEmpty("subject_id", subj_ident);
 					//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
 					GtinStruc gts;
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0);
 					if(pczcr > 0) {
 						wd.PutInner("sgtin", p_bp->Code);
 					}
@@ -1804,6 +1822,8 @@ int SLAPI ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInte
 							}
 							else {
 								wininet_err = GetLastError();
+								SLS.SetError(SLERR_WINDOWS);
+								PPSetErrorSLib();
 							}
 						}
 					}
@@ -2540,7 +2560,7 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 									for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
 										if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
 											GtinStruc gts;
-											const int pczcr = PPChZnPrcssr::ParseChZnCode(msentry.Num, gts);
+											const int pczcr = PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0);
 											//if(PPChZnPrcssr::IsChZnCode(msentry.Num))
 											if(pczcr > 0)
 												suited = 1;

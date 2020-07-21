@@ -1162,8 +1162,6 @@ int SLAPI SFloat::fromstr(void * d, long, const char * buf) const
 void SLAPI SFloat::tobase(const void * d, void * baseData) const { *static_cast<double *>(baseData) = __toldbl(d, S); }
 int  SLAPI SFloat::baseto(void * d, const void * baseData) const { return (__ldblto(*static_cast<const double *>(baseData), d, S), 1); }
 
-//static const double min_dbl = MINDOUBLE;
-//static const float min_flt = MINFLOAT;
 static const float max_flt = (float)MAXFLOAT;
 
 void SLAPI SFloat::minval(void * d) const

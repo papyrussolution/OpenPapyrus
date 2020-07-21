@@ -1,42 +1,31 @@
 // DBENTSET.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018 
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020
+// @codepage UTF-8
 // @Kernel
-// @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
 
-static int FASTCALL GetAveragePath(const char * name, SString & rBuf)
+static void FASTCALL GetAveragePath(const char * pName, SString & rBuf)
 {
-	char   drv[MAXDRIVE], dir[MAXDIR], fil[MAXFILE], ext[MAXEXT];
-	char   buf[512];
-	fnsplit(SLS.GetExePath(), drv, dir, fil, ext);
-	fil[0] = ext[0] = 0;
-	size_t p = sstrlen(dir);
+	SPathStruc ps(SLS.GetExePath());
+	size_t p = ps.Dir.Len();
 	if(p) {
 		p--;
-		if(dir[p] == '\\')
+		if(oneof2(ps.Dir.C(p), '\\', '/'))
 			p--;
-		while(p > 0 && dir[p] != '\\')
+		while(p > 0 && !oneof2(ps.Dir.C(p), '\\', '/'))
 			p--;
 	}
-	if(dir[p] != '\\')
-		dir[p] = '\\';
-	p++;
-	p += sstrlen(strcpy(dir + p, name));
-	dir[p++] = '\\';
-	dir[p] = 0;
-	fnmerge(buf, drv, dir, fil, ext);
-	rBuf = buf;
-	return 1;
+	ps.Dir.Trim(p).SetLastSlash().Cat(pName).SetLastSlash();
+	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rBuf);
 }
 //
 //
 //
-static const char * P_DefaultSymb = "$default$"; // @attention Используется так же в качестве ключа шифровки пароля //
+static const char * P_DefaultSymb = "$default$"; // @attention РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚Р°Рє Р¶Рµ РІ РєР°С‡РµСЃС‚РІРµ РєР»СЋС‡Р° С€РёС„СЂРѕРІРєРё РїР°СЂРѕР»СЏ //
 static const char * P_DbNameSect = "dbname";
-#define PWCRYPTBUFSIZE 128 // Длина шифруемого буфера, в котором содержится пароль
+#define PWCRYPTBUFSIZE 128 // Р”Р»РёРЅР° С€РёС„СЂСѓРµРјРѕРіРѕ Р±СѓС„РµСЂР°, РІ РєРѕС‚РѕСЂРѕРј СЃРѕРґРµСЂР¶РёС‚СЃСЏ РїР°СЂРѕР»СЊ
 
 PPDbEntrySet2::PPDbEntrySet2() : DbLoginBlockArray()
 {
@@ -188,9 +177,9 @@ int SLAPI PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnl
 				if(existsPathOnly) {
 					//
 					// @construction ps.Split(temp_buf);
-					// @todo Здесь необходимо идентифицировать доступность
-					// компьютера, на который ссылается каталог и, если он не доступен,
-					// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
+					// @todo Р—РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ
+					// РєРѕРјРїСЊСЋС‚РµСЂР°, РЅР° РєРѕС‚РѕСЂС‹Р№ СЃСЃС‹Р»Р°РµС‚СЃСЏ РєР°С‚Р°Р»РѕРі Рё, РµСЃР»Рё РѕРЅ РЅРµ РґРѕСЃС‚СѓРїРµРЅ,
+					// Р·Р°РїРѕРјРЅРёС‚СЊ РґР°Р±С‹ РґР»СЏ СЃР»РµРґСѓСЋС‰РёС… РєР°С‚Р°Р»РѕРіРѕРІ РЅРµ РїСЂРѕРІРµСЂСЏС‚СЊ РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ (РёР±Рѕ РѕС‡РµРЅСЊ РґРѕР»РіРѕ).
 					//
 					if(IsDirectory(temp_buf))
 						THROW_SL(Add(0, &blk, 1));

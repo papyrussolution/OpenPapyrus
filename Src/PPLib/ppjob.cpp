@@ -995,11 +995,12 @@ public:
 	int SLAPI Read(SBuffer & rBuf, long)
 	{
 		int    ok = -1;
-		if(rBuf.GetAvailableSize())
+		if(rBuf.GetAvailableSize()) {
 			if(rBuf.Read(DBSymb) && rBuf.Read(&BuScen, sizeof(BuScen)))
 				ok = 1;
 			else
 				ok = PPSetErrorSLib();
+		}
 		return ok;
 	}
 	int SLAPI Write(SBuffer & rBuf, long)
@@ -1186,7 +1187,7 @@ public:
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1, r = 0;
-		AsyncCashNPrepParam param;
+		AsyncPosPrepParam param;
 		MEMSZERO(param);
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
@@ -1202,12 +1203,12 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
-		AsyncCashNPrepParam param;
+		AsyncPosPrepParam param;
 		PPCashMachine * p_cm = 0;
 		THROW(ReadParam(*pParam, &param, sizeof(param)));
 		THROW(!PPObjCashNode::IsLocked(param.CashNodeID));
 		THROW(p_cm = PPCashMachine::CreateInstance(param.CashNodeID));
-		THROW(p_cm->AsyncOpenSession(BIN(param.Flags & AsyncCashNPrepParam::fUpdateOnly), 0));
+		THROW(p_cm->AsyncOpenSession(BIN(param.Flags & AsyncPosPrepParam::fUpdateOnly), 0));
 		CATCHZOK
 		delete p_cm;
 		return ok;

@@ -5,9 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-//
-//
-//
+
+SLAPI GoodsRestViewItem::GoodsRestViewItem()
+{
+	THISZERO();
+}
+
 IMPLEMENT_PPFILT_FACTORY(GoodsRest); SLAPI GoodsRestFilt::GoodsRestFilt() : PPBaseFilt(PPFILT_GOODSREST, 0, 0)
 {
 	SetFlatChunk(offsetof(GoodsRestFilt, ReserveStart),
@@ -3905,7 +3908,6 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 			case PPVCMD_PUTTOBASKET:
 				{
 					GetEditIds(pHdr, &hdr.LocID, &hdr.GoodsID, (pBrw) ? pBrw->GetCurColumn() : 0);
-					// @v9.8.4 {
 					double price_to_basket = 0.0;
 					GoodsRestViewItem item;
 					if(GetItem(hdr.__ID, &item) > 0) {
@@ -3914,7 +3916,6 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
                         else if(Filt.AmtType == 2)
 							price_to_basket = item.Price;
 					}
-					// } @v9.8.4
 					ok = AddGoodsToBasket(hdr.GoodsID, LocList.GetSingle(), 0.0, price_to_basket);
 				}
 				break;
@@ -4062,10 +4063,10 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 			double Cost;
 		};
 		GoodsRestViewItem item;
-		SVector suppl_cost_ary(sizeof(_E)); // @v9.9.1 SArray-->SVector
+		SVector suppl_cost_ary(sizeof(_E));
 		PPIDArray locs_ary;
 		PPWait(1);
-		MEMSZERO(item);
+		// @v10.8.2 @ctr MEMSZERO(item);
 		if(LocList.GetCount())
 			locs_ary.copy(LocList.Get());
 		else

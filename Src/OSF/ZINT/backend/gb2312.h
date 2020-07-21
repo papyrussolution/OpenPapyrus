@@ -28,7 +28,6 @@
     OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
     SUCH DAMAGE.
  */
-
 static const /*ulong*/uint16 gb2312_lookup[] = { // @sobolev ulong-->uint16
     0x00A4, 0xA1E8,
     0x00A7, 0xA1EC,

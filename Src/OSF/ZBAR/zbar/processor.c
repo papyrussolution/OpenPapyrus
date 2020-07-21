@@ -24,7 +24,7 @@
 #include <zbar.h>
 #pragma hdrstop
 #include "processor.h"
-#include "window.h"
+//#include "window.h"
 
 static inline int proc_enter(zbar_processor_t * proc)
 {
@@ -124,7 +124,7 @@ int _zbar_process_image(zbar_processor_t * proc, zbar_image_t * img)
 		zbar_image_destroy(img);
 	return (rc);
 error:
-	return err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "unknown image format");
+	return err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __FUNCTION__, "unknown image format");
 }
 
 int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
@@ -134,7 +134,7 @@ int _zbar_processor_handle_input(zbar_processor_t * proc, int input)
 		case -1:
 		    event |= EVENT_CANCELED;
 		    _zbar_processor_set_visible(proc, 0);
-		    err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __func__, "user closed display window");
+		    err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __FUNCTION__, "user closed display window");
 		    break;
 		case 'd':
 		    proc->dumping = 1;
@@ -296,19 +296,18 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 		proc->video = NULL;
 	}
 	if(!dev && !enable_display)
-		/* nothing to do */
-		goto done;
+		goto done; /* nothing to do */
 	if(enable_display) {
 		proc->window = zbar_window_create();
 		if(!proc->window) {
-			rc = err_capture(proc, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "allocating window resources");
+			rc = err_capture(proc, SEV_FATAL, ZBAR_ERR_NOMEM, __FUNCTION__, "allocating window resources");
 			goto done;
 		}
 	}
 	if(dev) {
 		proc->video = zbar_video_create();
 		if(!proc->video) {
-			rc = err_capture(proc, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "allocating video resources");
+			rc = err_capture(proc, SEV_FATAL, ZBAR_ERR_NOMEM, __FUNCTION__, "allocating video resources");
 			goto done;
 		}
 		if(proc->req_width || proc->req_height)
@@ -323,13 +322,13 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 	/* spawn blocking video thread */
 	int video_threaded = (proc->threaded && proc->video && zbar_video_get_fd(proc->video) < 0);
 	if(video_threaded && _zbar_thread_start(&proc->video_thread, proc_video_thread, proc, &proc->mutex)) {
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__, "spawning video thread");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_SYSTEM, __FUNCTION__, "spawning video thread");
 		goto done;
 	}
 	/* spawn input monitor thread */
 	int input_threaded = (proc->threaded && (proc->window || (proc->video && !video_threaded)));
 	if(input_threaded && _zbar_thread_start(&proc->input_thread, proc_input_thread, proc, &proc->mutex)) {
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_SYSTEM, __func__, "spawning input thread");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_SYSTEM, __FUNCTION__, "spawning input thread");
 		goto done;
 	}
 	if(proc->window && !input_threaded && (rc = proc_open(proc)))
@@ -349,7 +348,7 @@ int zbar_processor_init(zbar_processor_t * proc, const char * dev, int enable_di
 			retry = zbar_negotiate_format(proc->video, 0);
 		if(retry) {
 			zprintf(1, "ERROR: no compatible %s format\n", (proc->video) ? "video input" : "window output");
-			rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "no compatible image format");
+			rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __FUNCTION__, "no compatible image format");
 		}
 	}
 done:
@@ -449,7 +448,7 @@ int zbar_processor_set_visible(zbar_processor_t * proc, int visible)
 			proc->visible = (visible != 0);
 	}
 	else if(visible)
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "processor display window not initialized");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "processor display window not initialized");
 	_zbar_mutex_lock(&proc->mutex);
 	proc_leave(proc);
 	return (rc);
@@ -476,7 +475,7 @@ int zbar_processor_user_wait(zbar_processor_t * proc, int timeout)
 		rc = _zbar_processor_wait(proc, EVENT_INPUT, _zbar_timer_init(&timer, timeout));
 	}
 	if(!proc->visible)
-		rc = err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __func__, "display window not available for input");
+		rc = err_capture(proc, SEV_WARNING, ZBAR_ERR_CLOSED, __FUNCTION__, "display window not available for input");
 	if(rc > 0)
 		rc = proc->input;
 	_zbar_mutex_lock(&proc->mutex);
@@ -489,7 +488,7 @@ int zbar_processor_set_active(zbar_processor_t * proc, int active)
 	proc_enter(proc);
 	int rc;
 	if(!proc->video) {
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video input not initialized");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "video input not initialized");
 		goto done;
 	}
 	_zbar_mutex_unlock(&proc->mutex);
@@ -525,7 +524,7 @@ int zbar_process_one(zbar_processor_t * proc, int timeout)
 	_zbar_mutex_unlock(&proc->mutex);
 	int rc = 0;
 	if(!proc->video) {
-		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video input not initialized");
+		rc = err_capture(proc, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "video input not initialized");
 		goto done;
 	}
 	if(!streaming) {

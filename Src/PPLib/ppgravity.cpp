@@ -178,8 +178,7 @@ static void CbUnitTest(void * pVm, GravityErrorType errorType, const char * pDes
 
 void SLAPI PPGravityModule::LogToOuterLogger(const char * pMsg) // @temporary
 {
-	if(P_OuterLogger)
-		P_OuterLogger->Log(pMsg);
+	CALLPTRMEMB(P_OuterLogger, Log(pMsg));
 }
 
 int SLAPI PPGravityModule::RunBuffer(const char * pText, PPLogger * pOuterLogger, GravityValue * pResult)

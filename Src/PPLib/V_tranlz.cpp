@@ -517,8 +517,7 @@ int SLAPI PPViewTrfrAnlz::SerializeState(int dir, SBuffer & rBuf, SSerializeCont
 	THROW_SL(pCtx->Serialize(dir, InRest, rBuf));
 	THROW_SL(pCtx->Serialize(dir, MKSTYPE(S_INT, sizeof(CurViewOrd)), &CurViewOrd, 0, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &LocList, rBuf));
-	// @v9.1.8 THROW_SL(pCtx->Serialize(dir, &GctRestList, rBuf)); // @v9.1.7
-	THROW(GctRestList.Serialize(dir, rBuf, pCtx)); // @v9.1.8
+	THROW(GctRestList.Serialize(dir, rBuf, pCtx));
 	THROW(Gsl.Serialize(dir, rBuf, pCtx));
 	THROW(SerializeDbTableByFileName <TempTrfrAnlzTbl> (dir, &P_TrAnlzTbl, rBuf, pCtx));
 	THROW(SerializeDbTableByFileName <TempTrfrGrpngTbl> (dir, &P_TrGrpngTbl, rBuf, pCtx));
@@ -610,7 +609,7 @@ int SLAPI PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 		if(Filt.CtKind && Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0)
 			Filt.Flags |= TrfrAnlzFilt::fInitLocCount;
 		Total.destroy();
-		GctRestList.freeAll(); // @v9.1.3
+		GctRestList.freeAll();
 		ZDELETE(P_TrAnlzTbl);
 		ZDELETE(P_TrGrpngTbl);
 		ZDELETE(P_OrderTbl);

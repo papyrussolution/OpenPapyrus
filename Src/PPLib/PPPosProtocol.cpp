@@ -5,9 +5,54 @@
 #include <pp.h>
 #pragma hdrstop
 
+// #ftp[:inetaccsymb][/path]
+// ftp://domain.zzz
+// #mqb[:domain]
+static const char * P_FtpPrefix = "#ftp";
+static const char * P_MqbPrefix = "#mqb";
+
 static SString & FASTCALL MakeMsgByCheck(const LDATETIME & rDT, long cashCode, long chkNumber, SString & rBuf)
 {
 	return rBuf.Z().Cat(rDT, DATF_DMY, TIMF_HMS|TIMF_MSEC).CatDiv(':', 1).Cat(cashCode).CatDiv(':', 1).Cat(chkNumber);
+}
+
+static int GetInetAccByPosNodeID(PPID cnID, PPInternetAccount * pInaRec)
+{
+	int    ok = -1;
+	if(cnID) {
+		PPObjInternetAccount ina_obj;
+		ObjTagList tag_list;
+		PPRef->Ot.GetList(PPOBJ_CASHNODE, cnID, &tag_list);
+		for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
+			const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
+			if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_INTERNETACCOUNT) {
+				PPID   temp_id = 0;
+				if(p_tag_item->GetInt(&temp_id) && temp_id) {
+					PPInternetAccount ina_rec;
+					if(ina_obj.Get(temp_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
+						ASSIGN_PTR(pInaRec, ina_rec);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+static int GetInetAccBySymb(const char * pSymb, PPInternetAccount * pInaRec)
+{
+	int    ok = -1;
+	PPObjInternetAccount ina_obj;
+	PPInternetAccount ina_rec;
+	PPID   ina_id = 0;
+	if(ina_obj.SearchBySymb(pSymb, &ina_id, 0) > 0) {
+		if(ina_obj.Get(ina_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
+			ASSIGN_PTR(pInaRec, ina_rec);
+			ok = 1;
+		}
+	}
+	return ok;
 }
 /*
 
@@ -339,7 +384,7 @@ int SLAPI PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlo
 int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlock & rQ)
 {
 	int    ok = 1;
-	StringSet ss_out_files;
+	//StringSet ss_out_files;
 	SString out_file_name;
 	SString temp_buf;
 	PPAsyncCashNode acn_pack;
@@ -348,84 +393,89 @@ int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlo
 	if(!posNodeID || CnObj.GetAsync(posNodeID, &acn_pack) <= 0) {
 		acn_pack.ID = 0;
 	}
-	THROW(SelectOutFileName(acn_pack.ID, "query", ss_out_files));
-	for(uint ssp = 0; ss_out_files.get(&ssp, out_file_name);) {
-		PPPosProtocol::WriteBlock wb;
-		THROW(StartWriting(out_file_name, wb));
+	//THROW(SelectOutFileName(acn_pack.ID, "query", ss_out_files));
+	//for(uint ssp = 0; ss_out_files.get(&ssp, out_file_name);) {
+	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
+	{
 		{
-			PPPosProtocol::RouteBlock rb_src;
-			InitSrcRootInfo(posNodeID, rb_src);
-			THROW(WriteRouteInfo(wb, "source", rb_src));
-			//THROW(WriteSourceRoute(wb));
-			/*
+			PPPosProtocol::WriteBlock wb;
+			THROW(StartWriting(out_file_name, wb));
 			{
-				PPPosProtocol::RouteBlock rb_dest;
-				THROW(WriteRouteInfo(wb, "destination", rb_dest));
-			}
-			*/
-			{
-				PPPosProtocol::RouteBlock rb_dest;
-				int    dest_list_written = 0;
-				if(acn_pack.ID) {
-					for(uint i = 0; i < acn_pack.ApnCorrList.getCount(); i++) {
-						const PPGenCashNode::PosIdentEntry * p_dest_entry = acn_pack.ApnCorrList.at(i);
-						if(p_dest_entry && p_dest_entry->N > 0) {
-							rb_dest.Destroy();
-							rb_dest.Code.Cat(p_dest_entry->N);
-							rb_dest.Uuid = p_dest_entry->Uuid;
-							THROW(WriteRouteInfo(wb, "destination", rb_dest));
-							dest_list_written = 1;
-						}
-					}
-					if(!dest_list_written) {
-						LongArray n_list;
-						acn_pack.GetLogNumList(n_list);
-						for(uint i = 0; i < n_list.getCount(); i++) {
-							const long n_item = n_list.get(i);
-							if(n_item > 0) {
+				PPPosProtocol::RouteBlock rb_src;
+				InitSrcRootInfo(posNodeID, rb_src);
+				THROW(WriteRouteInfo(wb, "source", rb_src));
+				//THROW(WriteSourceRoute(wb));
+				/*
+				{
+					PPPosProtocol::RouteBlock rb_dest;
+					THROW(WriteRouteInfo(wb, "destination", rb_dest));
+				}
+				*/
+				{
+					PPPosProtocol::RouteBlock rb_dest;
+					int    dest_list_written = 0;
+					if(acn_pack.ID) {
+						for(uint i = 0; i < acn_pack.ApnCorrList.getCount(); i++) {
+							const PPGenCashNode::PosIdentEntry * p_dest_entry = acn_pack.ApnCorrList.at(i);
+							if(p_dest_entry && p_dest_entry->N > 0) {
 								rb_dest.Destroy();
-								rb_dest.Code.Cat(n_item);
+								rb_dest.Code.Cat(p_dest_entry->N);
+								rb_dest.Uuid = p_dest_entry->Uuid;
 								THROW(WriteRouteInfo(wb, "destination", rb_dest));
-								dest_list_written = 2;
+								dest_list_written = 1;
 							}
 						}
+						if(!dest_list_written) {
+							LongArray n_list;
+							acn_pack.GetLogNumList(n_list);
+							for(uint i = 0; i < n_list.getCount(); i++) {
+								const long n_item = n_list.get(i);
+								if(n_item > 0) {
+									rb_dest.Destroy();
+									rb_dest.Code.Cat(n_item);
+									THROW(WriteRouteInfo(wb, "destination", rb_dest));
+									dest_list_written = 2;
+								}
+							}
+						}
+						// THROW(dest_list_written); // @todo error
 					}
-					// THROW(dest_list_written); // @todo error
 				}
 			}
+			{
+				if(rQ.Q == QueryBlock::qCSession) {
+					SXml::WNode w_s(wb.P_Xw, "query-csession");
+					if(rQ.Flags & QueryBlock::fCSessCurrent) {
+						w_s.PutInner("current", 0);
+					}
+					else if(rQ.Flags & QueryBlock::fCSessLast) {
+						w_s.PutInner("last", 0);
+					}
+					else if(!rQ.Period.IsZero()) {
+						THROW(checkdate(rQ.Period.low, 1) && checkdate(rQ.Period.upp, 1));
+						temp_buf.Z();
+						if(rQ.Period.low)
+							temp_buf.Cat(rQ.Period.low, DATF_ISO8601|DATF_CENTURY);
+						temp_buf.Dot().Dot();
+						if(rQ.Period.upp)
+							temp_buf.Cat(rQ.Period.upp, DATF_ISO8601|DATF_CENTURY);
+						w_s.PutInner("period", temp_buf);
+					}
+					else if(rQ.CSess) {
+						temp_buf.Z().Cat(rQ.CSess);
+						w_s.PutInner((rQ.Flags & QueryBlock::fCSessN) ? "code" : "id", temp_buf);
+					}
+				}
+				else if(rQ.Q == QueryBlock::qRefs) {
+					SXml::WNode(wb.P_Xw, "query-refs");
+				}
+				else if(rQ.Q == QueryBlock::qTest) {
+					SXml::WNode(wb.P_Xw, "query-test");
+				}
+			}
+			FinishWriting(wb);
 		}
-		{
-			if(rQ.Q == QueryBlock::qCSession) {
-				SXml::WNode w_s(wb.P_Xw, "query-csession");
-				if(rQ.Flags & QueryBlock::fCSessCurrent) {
-					w_s.PutInner("current", 0);
-				}
-				else if(rQ.Flags & QueryBlock::fCSessLast) {
-					w_s.PutInner("last", 0);
-				}
-				else if(!rQ.Period.IsZero()) {
-					THROW(checkdate(rQ.Period.low, 1) && checkdate(rQ.Period.upp, 1));
-					temp_buf.Z();
-					if(rQ.Period.low)
-						temp_buf.Cat(rQ.Period.low, DATF_ISO8601|DATF_CENTURY);
-					temp_buf.Dot().Dot();
-					if(rQ.Period.upp)
-						temp_buf.Cat(rQ.Period.upp, DATF_ISO8601|DATF_CENTURY);
-					w_s.PutInner("period", temp_buf);
-				}
-				else if(rQ.CSess) {
-					temp_buf.Z().Cat(rQ.CSess);
-					w_s.PutInner((rQ.Flags & QueryBlock::fCSessN) ? "code" : "id", temp_buf);
-				}
-			}
-			else if(rQ.Q == QueryBlock::qRefs) {
-				SXml::WNode(wb.P_Xw, "query-refs");
-			}
-			else if(rQ.Q == QueryBlock::qTest) {
-				SXml::WNode(wb.P_Xw, "query-test");
-			}
-		}
-		FinishWriting(wb);
+		THROW(TransportFileOut(out_file_name, posNodeID, "query"));
 	}
 	CATCHZOK
 	return ok;
@@ -445,9 +495,9 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 	PPObjGoods goods_obj;
 	PPAsyncCashNode cn_data;
 	THROW(CnObj.GetAsync(nodeID, &cn_data) > 0);
-	wb.LocID = cn_data.LocID; // @v9.6.7
+	wb.LocID = cn_data.LocID;
 	PPWait(1);
-	PPMakeTempFileName("pppp", /*"xml"*/"ppyp", 0, out_file_name);
+	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
 	{
 		DeviceLoadingStat dls;
 		PPID   stat_id = 0;
@@ -696,23 +746,175 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 	return ok;
 }
 
+int SLAPI PPPosProtocol::PreprocessFtpDescriptor(const SString & rDescriptor, PPID posNodeID, PPInternetAccount & rInaRec, SString & rFtpExtPath)
+{
+	rInaRec.Init();
+	rFtpExtPath.Z();
+	int    ok = -1;
+	if(rDescriptor.HasPrefixIAscii(P_FtpPrefix)) {
+		SString inet_acc_symb;
+		PPID  inet_acc_id = 0;
+		size_t prefix_len = sstrlen(P_FtpPrefix);
+		if(rDescriptor.C(prefix_len) == ':') {
+			prefix_len++;
+			while(rDescriptor.C(prefix_len) != 0 && rDescriptor.C(prefix_len) != '/') {
+				inet_acc_symb.CatChar(rDescriptor.C(prefix_len));
+				prefix_len++;
+			}
+			if(rDescriptor.C(prefix_len) == '/') {
+				prefix_len++;
+				while(rDescriptor.C(prefix_len)) {
+					rFtpExtPath.CatChar(rDescriptor.C(prefix_len));
+					prefix_len++;
+				} 
+			}
+			if(GetInetAccBySymb(inet_acc_symb, &rInaRec) > 0) {
+				ok = 1;
+			}
+			else {
+				; // @error
+				ok = 0;
+			}
+		}
+		else {
+			if(GetInetAccByPosNodeID(posNodeID, &rInaRec) > 0) {
+				ok = 1;
+			}
+			else {
+				; // @error
+				ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
 int SLAPI PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix)
 {
 	int   ok = 1;
 	THROW_SL(fileExists(rOutFileName));
 	{
-		StringSet ss_out_files;
-		THROW(SelectOutFileName(srcPosNodeID, pInfix, ss_out_files));
+		int   copy_result = 0;
+		//StringSet ss_out_files;
+		//THROW(SelectOutFileName(srcPosNodeID, pInfix, ss_out_files));
+		//int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
 		{
-			int   copy_result = 0;
+			enum {
+				desttypeUnkn = 0,
+				desttypeFile,
+				desttypeFtp,
+				desttypeMqb
+			};
+			int    desttype = desttypeUnkn;
+
+			//rResultSs.clear();
+			//int    ok = -1;
+			const char * p_base_name = "pppp";
 			SString temp_buf;
-			for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
-				if(SCopyFile(rOutFileName, temp_buf, 0, FILE_SHARE_READ, 0))
-					copy_result = 1;
+			SString temp_result_buf;
+			SString path;
+			StringSet ss_paths(";");
+			{
+				int    path_done = 0;
+				PPCashNode cn_rec;
+				if(srcPosNodeID && CnObj.Search(srcPosNodeID, &cn_rec) > 0) {
+					if(cn_rec.Flags & CASHF_ASYNC) {
+						PPAsyncCashNode acn_pack;
+						if(CnObj.GetAsync(srcPosNodeID, &acn_pack) > 0) {
+							if(acn_pack.ExpPaths.NotEmpty()) {
+								ss_paths.setBuf(acn_pack.ExpPaths);
+								path_done = 1;
+							}
+						}
+					}
+					else if(cn_rec.Flags & CASHF_SYNC) {
+						PPSyncCashNode scn_pack;
+						if(CnObj.GetSync(srcPosNodeID, &scn_pack) > 0) {
+							if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+								ss_paths.setBuf(temp_buf);
+								path_done = 1;
+							}
+						}
+					}
+				}
+				if(!path_done) {
+					THROW(PPGetPath(PPPATH_OUT, temp_buf));
+					ss_paths.setBuf(temp_buf);
+				}
 			}
-			if(copy_result)
-				SFile::Remove(rOutFileName);
+			for(uint ssp = 0; ss_paths.get(&ssp, path);) {
+				PPInternetAccount ina_rec;
+				SString ftp_ext_path;
+				const int ppftpdr = PreprocessFtpDescriptor(path, srcPosNodeID, ina_rec, ftp_ext_path);
+				if(ppftpdr > 0) {
+					ScURL c;
+					SString url_buf;
+					ina_rec.GetExtField(FTPAEXSTR_HOST, temp_buf);
+					url_buf.Cat(temp_buf);
+					if(ftp_ext_path.NotEmpty()) {
+						url_buf.SetLastDSlash().Cat(ftp_ext_path);
+					}
+					InetUrl url(url_buf);
+					url.SetProtocol(InetUrl::protFtp);
+					if(ina_rec.GetExtField(FTPAEXSTR_PORT, temp_buf) && temp_buf.ToLong())
+						url.SetPort_(temp_buf.ToLong());
+					if(ina_rec.GetExtField(FTPAEXSTR_USER, temp_buf))
+						url.SetComponent(InetUrl::cUserName, temp_buf);
+					{
+						char    pw[128];
+						if(ina_rec.GetPassword(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
+							url.SetComponent(InetUrl::cPassword, pw);
+					}
+					//url.Composite(InetUrl::stAll, url_buf);
+					{
+						SFileEntryPool sfp;
+						c.FtpList(url, ScURL::mfVerbose, sfp);
+						long   _seq = 0;
+						do {
+							temp_buf = p_base_name;
+							if(!isempty(pInfix))
+								temp_buf.CatChar('-').Cat(pInfix);
+							if(_seq)
+								temp_buf.CatChar('-').Cat(_seq);
+							temp_buf.Dot().Cat("ppyp");
+							_seq++;
+						} while(sfp.SearchName(temp_buf, 0));
+						//c.FtpDelete(url, ScURL::mfVerbose);
+						if(c.FtpPut(url, ScURL::mfVerbose, rOutFileName, temp_buf, 0)) {
+							copy_result = 1;
+						}
+					}
+				}
+				else if(ppftpdr < 0) {
+					if(path.HasPrefixIAscii(P_MqbPrefix)) {
+					}
+					else {
+						path.RmvLastSlash();
+						if(IsDirectory(path) || createDir(path)) {
+							long   _seq = 0;
+							do {
+								temp_buf = p_base_name;
+								if(!isempty(pInfix))
+									temp_buf.CatChar('-').Cat(pInfix);
+								if(_seq)
+									temp_buf.CatChar('-').Cat(_seq);
+								temp_buf.Dot().Cat("ppyp");
+								(temp_result_buf = path).SetLastSlash().Cat(temp_buf);
+								_seq++;
+							} while(::fileExists(temp_result_buf));
+							if(SCopyFile(rOutFileName, temp_result_buf, 0, FILE_SHARE_READ, 0))
+								copy_result = 1;
+							ok = 1;
+						}
+						else {
+							// @todo log message
+						}
+					}
+				}
+			}
 		}
+		if(copy_result)
+			SFile::Remove(rOutFileName);
 	}
 	CATCHZOK
 	return ok;
@@ -4855,50 +5057,8 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 	return ok;
 }
 
-static int GetInetAccByPosNodeID(PPID cnID, PPInternetAccount * pInaRec)
+int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs, StrAssocArray & rRemoteAssocList)
 {
-	int    ok = -1;
-	if(cnID) {
-		PPObjInternetAccount ina_obj;
-		ObjTagList tag_list;
-		PPRef->Ot.GetList(PPOBJ_CASHNODE, cnID, &tag_list);
-		for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
-			const ObjTagItem * p_tag_item = tag_list.GetItemByPos(tagidx);
-			if(p_tag_item && p_tag_item->TagDataType == OTTYP_OBJLINK && p_tag_item->TagEnumID == PPOBJ_INTERNETACCOUNT) {
-				PPID   temp_id = 0;
-				if(p_tag_item->GetInt(&temp_id) && temp_id) {
-					PPInternetAccount ina_rec;
-					if(ina_obj.Get(temp_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
-						ASSIGN_PTR(pInaRec, ina_rec);
-						ok = 1;
-					}
-				}
-			}
-		}
-	}
-	return ok;
-}
-
-static int GetInetAccBySymb(const char * pSymb, PPInternetAccount * pInaRec)
-{
-	int    ok = -1;
-	PPObjInternetAccount ina_obj;
-	PPInternetAccount ina_rec;
-	PPID   ina_id = 0;
-	if(ina_obj.SearchBySymb(pSymb, &ina_id, 0) > 0) {
-		if(ina_obj.Get(ina_id, &ina_rec) > 0 && ina_rec.Flags & PPInternetAccount::fFtpAccount) {
-			ASSIGN_PTR(pInaRec, ina_rec);
-			ok = 1;
-		}
-	}
-	return ok;
-}
-
-int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs)
-{
-	// #ftp[:inetaccsymb][/path]
-	// ftp://domain.zzz
-	// #mqb[:domain]
 	enum {
 		srctypeUnkn = 0,
 		srctypeFile,
@@ -4906,8 +5066,6 @@ int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, Str
 		srctypeMqb
 	};
 	int    srctype = srctypeUnkn;
-	const char * p_ftp_prefix = "#ftp";
-	const char * p_mqb_prefix = "#mqb";
 	int    ok = -1;
 	PPInternetAccount ina_rec;
 	SString src_buf = pSrc;
@@ -4915,57 +5073,30 @@ int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, Str
 	SString url_buf;
 	SString temp_buf;
 	src_buf.Strip();
-	if(src_buf.HasPrefixIAscii(p_ftp_prefix)) {
-		SString inet_acc_symb;
-		PPID  inet_acc_id = 0;
-		size_t prefix_len = sstrlen(p_ftp_prefix);
-		if(src_buf.C(prefix_len) == ':') {
-			prefix_len++;
-			while(src_buf.C(prefix_len) != 0 && src_buf.C(prefix_len) != '/') {
-				inet_acc_symb.CatChar(src_buf.C(prefix_len));
-				prefix_len++;
-			}
-			if(src_buf.C(prefix_len) == '/') {
-				prefix_len++;
-				while(src_buf.C(prefix_len)) {
-					ftp_ext_path.CatChar(src_buf.C(prefix_len));
-					prefix_len++;
-				} 
-			}
-			if(GetInetAccBySymb(inet_acc_symb, &ina_rec) > 0) {
-				srctype = srctypeFtp;
-			}
-			else {
-				; // @error
-			}
+	const int ppftpdr = PreprocessFtpDescriptor(src_buf, cnID, ina_rec, ftp_ext_path);
+	if(ppftpdr > 0) {
+		srctype = srctypeFtp;
+	}
+	else if(ppftpdr < 0) {
+		if(src_buf.HasPrefixIAscii(P_MqbPrefix)) {
+			srctype = srctypeMqb;
 		}
 		else {
-			if(GetInetAccByPosNodeID(cnID, &ina_rec) > 0) {
-				srctype = srctypeFtp;
+			InetUrl _url(src_buf.Strip());
+			const int _url_prot = _url.GetProtocol();
+			if(_url_prot == InetUrl::protFile) {
+				if(IsDirectory(src_buf.RmvLastSlash())) {
+					rSs.add(src_buf);
+					srctype = srctypeFile;
+					ok = 1;
+				}
 			}
-			else {
-				; // @error
-			}
-		}
-	}
-	else if(src_buf.HasPrefixIAscii("#mqb")) {
-		srctype = srctypeMqb;
-	}
-	else {
-		InetUrl _url(src_buf.Strip());
-		const int _url_prot = _url.GetProtocol();
-		if(_url_prot == InetUrl::protFile) {
-			if(IsDirectory(src_buf.RmvLastSlash())) {
-				rSs.add(src_buf);
-				srctype = srctypeFile;
-				ok = 1;
-			}
-		}
-		else if(_url_prot == InetUrl::protFtp) {
-			if(GetInetAccByPosNodeID(cnID, &ina_rec) > 0)
-				srctype = srctypeFtp;
-			else {
-				; // @error
+			else if(_url_prot == InetUrl::protFtp) {
+				if(GetInetAccByPosNodeID(cnID, &ina_rec) > 0)
+					srctype = srctypeFtp;
+				else {
+					; // @error
+				}
 			}
 		}
 	}
@@ -4980,7 +5111,9 @@ int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, Str
 		if(ftp_ext_path.NotEmpty()) {
 			url_buf.SetLastDSlash().Cat(ftp_ext_path);
 		}
+		SString recieved_file_url;
 		InetUrl url(url_buf);
+		InetUrl single_file_url;
 		url.SetProtocol(InetUrl::protFtp);
 		if(ina_rec.GetExtField(FTPAEXSTR_PORT, temp_buf) && temp_buf.ToLong())
 			url.SetPort_(temp_buf.ToLong());
@@ -4994,13 +5127,45 @@ int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, Str
 		url.Composite(InetUrl::stAll, url_buf);
 		if(c.FtpList(url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose, ftp_file_list)) {
 			SPathStruc ps;
+			SString dest_file_name;
 			SString filt_filename;
-			(filt_filename = "%").Dot().Cat("ppyp");
+			(filt_filename = "*").Dot().Cat("ppyp");
 			for(uint ffidx = 0; ffidx < ftp_file_list.GetCount(); ffidx++) {
 				SFileEntryPool::Entry fe;
 				if(ftp_file_list.Get(ffidx, &fe, 0)) {
 					if(fe.Size > 0 && SFile::WildcardMatch(filt_filename, fe.Name)) {
-						//c.FtpGet()
+						single_file_url = url;
+						single_file_url.GetComponent(InetUrl::cPath, 0, temp_buf);
+						temp_buf.SetLastDSlash().Cat(fe.Name);
+						single_file_url.SetComponent(InetUrl::cPath, temp_buf);
+						single_file_url.Composite(InetUrl::stAll, recieved_file_url);
+						PPGetFilePath(PPPATH_IN, fe.Name, dest_file_name);
+						//
+						// Если файл с таким именем уже существует, то приклеиваем к наименованию цифровой суффикс
+						if(fileExists(dest_file_name)) {
+							SPathStruc ps(dest_file_name);
+							const SString org_ps_nam = ps.Nam;
+							long  fsn = 0;
+							do {
+								(ps.Nam = org_ps_nam).CatChar('-').CatLongZ(++fsn, 4);
+								ps.Merge(dest_file_name);
+							} while(fileExists(dest_file_name));
+						}
+						{
+							if(c.FtpGet(single_file_url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose, dest_file_name, &temp_buf, 0)) {
+								SFileUtil::Stat dest_file_stat;
+								if(SFileUtil::GetStat(dest_file_name, &dest_file_stat)) {
+									if(dest_file_stat.Size == fe.Size) {
+										//c.FtpChangeDir(url, ScURL::mfVerbose);
+										//c.FtpDelete(single_file_url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose);
+										uint   ss_pos = 0;
+										if(rSs.add(dest_file_name, &ss_pos)) {
+											rRemoteAssocList.AddFast(static_cast<long>(ss_pos), recieved_file_url);
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -5019,6 +5184,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 	SString temp_buf;
 	SString in_path;
 	StringSet to_remove_file_list;
+	StringSet to_remove_url_list;
 	if(!(rPib.Flags & rPib.fSilent))
 		PPWait(1);
 	{
@@ -5026,6 +5192,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		TSVector <PosNodeUuidEntry> pos_node_uuid_list;
 		TSVector <PosNodeISymbEntry> pos_node_isymb_list;
 		StringSet ss_paths;
+		StrAssocArray remote_url_assoc;
 		TSVector <PosProtocolFileProcessedEntry> processed_file_list;
 		{
 			PPCashNode cn_rec;
@@ -5038,13 +5205,16 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					if(acn_pack.ImpFiles.NotEmptyS()) {
 						StringSet ss_row_paths(';', acn_pack.ImpFiles);
 						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
-							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths);
+							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths, remote_url_assoc);
 						}
 					}
 				}
 				else if(cn_rec.Flags & CASHF_SYNC && CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
-					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf)) {
-						PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths);
+					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) && temp_buf.NotEmptyS()) {
+						StringSet ss_row_paths(';', temp_buf);
+						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
+							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths, remote_url_assoc);
+						}
 					}
 				}
 			}
@@ -5061,17 +5231,27 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		{
 			SDirEntry de;
 			SString done_plus_xml_suffix;
-			(done_plus_xml_suffix = p_done_suffix).Dot().Cat(/*"xml"*/"ppyp");
-			for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
+			(done_plus_xml_suffix = p_done_suffix).Dot().Cat("ppyp");
+			uint   prev_ssp_pos = 0;
+			for(uint ssp_pos = prev_ssp_pos; ss_paths.get(&ssp_pos, in_path); prev_ssp_pos = ssp_pos) {
 				// @v10.0.07 @01 ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
-				(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat(/*"*.xml"*/"*.ppyp");
-				for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
-					if(de.IsFile()) {
-						const size_t fnl = sstrlen(de.FileName);
-						if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
-							if(rPib.CheckFileForProcessedFileList(de) <= 0)
-								THROW_SL(fep.Add(in_path, de));
+				if(IsDirectory(in_path)) {
+					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').Dot().Cat("ppyp");
+					for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
+						if(de.IsFile()) {
+							const size_t fnl = sstrlen(de.FileName);
+							if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
+								if(rPib.CheckFileForProcessedFileList(de) <= 0)
+									fep.Add(in_path, de);
+							}
 						}
+					}
+				}
+				else if(SDirec::GetSingle(in_path, &de) > 0) {
+					if(rPib.CheckFileForProcessedFileList(de) <= 0) {
+						uint   remote_url_assoc_pos = 0;
+						const char * p_remote_url = remote_url_assoc.Search(prev_ssp_pos, &remote_url_assoc_pos) ? remote_url_assoc.Get(remote_url_assoc_pos).Txt : 0;
+						fep.Add(in_path, p_remote_url);
 					}
 				}
 			}
@@ -5099,7 +5279,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				if(fep.Get(i, &fep_entry, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 6000)) { // @v10.0.02 60000-->6000
 					DestroyReadBlock();
 					PPID   my_cn_id = 0;
-					S_GUID  my_pos_node_uuid;
+					S_GUID my_pos_node_uuid;
 					int    pr = SaxParseFile(in_file_name, 1 /* preprocess */, BIN(rPib.Flags & rPib.fSilent));
 					THROW(pr);
 					if(pr > 0) {
@@ -5262,8 +5442,12 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									if(all_receipients_processed_file) {
 										// @v10.7.5 int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
 										int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? PPBackupOperationFile(in_file_name, "pppp-backup", 0) : 1; // @v10.7.5
-										if(do_remove_file && backup_ok)
+										if(do_remove_file && backup_ok) {
 											to_remove_file_list.add(in_file_name);
+											if(fep_entry.RemoteUrl.NotEmpty()) {
+												to_remove_url_list.add(fep_entry.RemoteUrl);
+											}
+										}
 									}
 								}
 								DestroyReadBlock();
@@ -5369,13 +5553,39 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		ok = 0;
 	ENDCATCH
 	DestroyReadBlock();
-	for(uint ssp = 0; to_remove_file_list.get(&ssp, temp_buf);)
-		SFile::Remove(temp_buf);
+	{
+		{
+			for(uint ssp = 0; to_remove_file_list.get(&ssp, temp_buf);)
+				SFile::Remove(temp_buf);
+		}
+		{
+			ScURL c;
+			for(uint ssp = 0; to_remove_url_list.get(&ssp, temp_buf);) {
+				InetUrl url(temp_buf);
+				if(oneof2(url.GetProtocol(), InetUrl::protFtp, InetUrl::protFtps)) {
+					InetUrl url_base;
+					url_base = url;
+					url_base.GetComponent(InetUrl::cPath, 0, temp_buf);
+					url_base.SetComponent(InetUrl::cPath, 0);
+					c.FtpChangeDir(url_base, ScURL::mfVerbose);
+					c.FtpDelete(url, ScURL::mfVerbose);
+				}
+			}
+		}
+	}
 	return ok;
 }
 
-int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
+/*int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs)
 {
+	enum {
+		desttypeUnkn = 0,
+		desttypeFile,
+		desttypeFtp,
+		desttypeMqb
+	};
+	int    desttype = desttypeUnkn;
+
 	rResultSs.clear();
 
 	int    ok = -1;
@@ -5413,29 +5623,68 @@ int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfi
 		}
 	}
 	for(uint ssp = 0; ss_paths.get(&ssp, path);) {
-		path.RmvLastSlash();
-		if(IsDirectory(path) || createDir(path)) {
-			long   _seq = 0;
-			do {
-				temp_buf = p_base_name;
-				if(!isempty(pInfix))
-					temp_buf.CatChar('-').Cat(pInfix);
-				if(_seq)
-					temp_buf.CatChar('-').Cat(_seq);
-				temp_buf.Dot().Cat(/*"xml"*/"ppyp");
-				(temp_result_buf = path).SetLastSlash().Cat(temp_buf);
-				_seq++;
-			} while(::fileExists(temp_result_buf));
-			rResultSs.add(temp_result_buf);
-			ok = 1;
+		if(path.HasPrefixIAscii(P_FtpPrefix)) {
+			PPInternetAccount ina_rec;
+			SString ftp_ext_path;
+			SString inet_acc_symb;
+			PPID  inet_acc_id = 0;
+			size_t prefix_len = sstrlen(P_FtpPrefix);
+			if(path.C(prefix_len) == ':') {
+				prefix_len++;
+				while(path.C(prefix_len) != 0 && path.C(prefix_len) != '/') {
+					inet_acc_symb.CatChar(path.C(prefix_len));
+					prefix_len++;
+				}
+				if(path.C(prefix_len) == '/') {
+					prefix_len++;
+					while(path.C(prefix_len)) {
+						ftp_ext_path.CatChar(path.C(prefix_len));
+						prefix_len++;
+					} 
+				}
+				if(GetInetAccBySymb(inet_acc_symb, &ina_rec) > 0) {
+					desttype = desttypeFtp;
+				}
+				else {
+					; // @error
+				}
+			}
+			else {
+				if(GetInetAccByPosNodeID(srcPosNodeID, &ina_rec) > 0) {
+					desttype = desttypeFtp;
+				}
+				else {
+					; // @error
+				}
+			}
+		}
+		else if(path.HasPrefixIAscii(P_MqbPrefix)) {
 		}
 		else {
-			// @todo log message
+			path.RmvLastSlash();
+			if(IsDirectory(path) || createDir(path)) {
+				long   _seq = 0;
+				do {
+					temp_buf = p_base_name;
+					if(!isempty(pInfix))
+						temp_buf.CatChar('-').Cat(pInfix);
+					if(_seq)
+						temp_buf.CatChar('-').Cat(_seq);
+					temp_buf.Dot().Cat("ppyp");
+					(temp_result_buf = path).SetLastSlash().Cat(temp_buf);
+					_seq++;
+				} while(::fileExists(temp_result_buf));
+				rResultSs.add(temp_result_buf);
+				ok = 1;
+			}
+			else {
+				// @todo log message
+			}
 		}
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNodeID, const PPPosProtocol::RouteBlock * pSrc, const PPPosProtocol::RouteBlock * pDestination)
 {
@@ -5443,7 +5692,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	SString out_file_name;
 	SString temp_buf;
 	PPPosProtocol::WriteBlock wb;
-	PPMakeTempFileName("pppp", /*"xml"*/"ppyp", 0, out_file_name);
+	PPMakeTempFileName("pppp", "ppyp", 0, out_file_name);
 	{
 		THROW(StartWriting(out_file_name, wb));
 		{

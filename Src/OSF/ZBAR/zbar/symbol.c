@@ -23,7 +23,6 @@
 
 #include <zbar.h>
 #pragma hdrstop
-#include "symbol.h"
 
 void FASTCALL sym_add_point(zbar_symbol_t * sym, int x, int y)
 {

@@ -47,34 +47,13 @@
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\codabar.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\code39.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\code93.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\code128.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\include\config.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\databar.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\debug.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\Decoder.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\ean.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\error.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\zbar\event.h">
@@ -86,22 +65,13 @@
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\i25.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\image.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\Image.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\ImageScanner.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\img_scanner.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\isaac.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\mutex.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\zbar\decoder\pdf417.h">
@@ -117,12 +87,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\Processor.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\decoder\qr_finder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\qrcode.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\zbar\qrcode\qrdec.h">
@@ -146,9 +110,6 @@
     <ClInclude Include="..\Osf\Zbar\zbar\svg.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\symbol.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\Symbol.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -158,19 +119,7 @@
     <ClInclude Include="..\Osf\Zbar\zbar\timer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\qrcode\util.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\video.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\Video.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\window\win.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\Zbar\zbar\window.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Zbar\include\zbar\Window.h">

@@ -895,9 +895,9 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 						const double _org_delta = _aa.GetDelta();
 						const double _org_vat_delta = _aa.GetVatDelta();
 						TSCollection <UlongArray> enum_list;
-						double _min_delta = MAXDOUBLE;
-						double _min_vat_delta = MAXDOUBLE;
-						double _best_from_bad_min_vat_delta = MAXDOUBLE;
+						double _min_delta = SMathConst::Max;
+						double _min_vat_delta = SMathConst::Max;
+						double _best_from_bad_min_vat_delta = SMathConst::Max;
 						UlongArray appropriate_pos_list;
 						uint   _optimal_zero_delta_pos = 0;
 						uint   _best_from_bad_pos = 0;

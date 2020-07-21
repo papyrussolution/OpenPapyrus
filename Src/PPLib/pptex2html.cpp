@@ -217,9 +217,8 @@ PPTex2HtmlPrcssr::StateBlock::OutPart::OutPart() : ChapterNo(0), WbID(0)
 {
 }
 
-PPTex2HtmlPrcssr::StateBlock::PictItem::PictItem()
+PPTex2HtmlPrcssr::StateBlock::PictItem::PictItem() : WbID(0)
 {
-	WbID = 0;
 }
 
 PPTex2HtmlPrcssr::StateBlock::StateBlock() : ChapterNo(0), LineNo(0), InputSize(0)
@@ -293,9 +292,9 @@ int PPTex2HtmlPrcssr::SetParam(const Param * pParam)
 int PPTex2HtmlPrcssr::WriteText(SFile & rF, const SString & rLineBuf)
 {
     if(P.Flags & Param::fUtf8Codepage) {
-		SString temp_buf = rLineBuf;
-    	temp_buf.ToUtf8();
-		return rF.WriteLine(temp_buf) ? 1 : PPSetErrorSLib();
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		(r_temp_buf = rLineBuf).ToUtf8();
+		return rF.WriteLine(r_temp_buf) ? 1 : PPSetErrorSLib();
     }
 	else
 		return rF.WriteLine(rLineBuf) ? 1 : PPSetErrorSLib();
@@ -601,6 +600,7 @@ PPTex2HtmlPrcssr::_TexToHtmlEntry PPTex2HtmlPrcssr::__TexToHtmlList[] = {
 	{ PPTex2HtmlPrcssr::_texEnv, "description", "dl", 0 },
 	{ PPTex2HtmlPrcssr::_texEnv, "enumerate",   "ol", 0 },
 	{ PPTex2HtmlPrcssr::_texEnv, "Verbatim",    "pre", 0 },
+	{ PPTex2HtmlPrcssr::_texEnv, "lstlisting",  "pre", 0 }, // @v10.8.2
 
 	{ PPTex2HtmlPrcssr::_texCmd, "__default", "p", 0 },
 	{ PPTex2HtmlPrcssr::_texCmd, "chapter", "h1", _thfSuppressPara|_thfEndPara },
@@ -626,15 +626,15 @@ int PPTex2HtmlPrcssr::Paragraph(SFile * pOut, int & rPara)
 	int    ok = 1;
 	if(rPara) {
 		if(pOut) {
-			SString line_buf;
-			WriteText(*pOut, line_buf.CatTagBrace("p", 1).CR());
+			SString & r_line_buf = SLS.AcquireRvlStr();
+			WriteText(*pOut, r_line_buf.CatTagBrace("p", 1).CR());
 		}
 		rPara = 0;
 	}
 	else {
 		if(pOut) {
-			SString line_buf;
-			WriteText(*pOut, line_buf.CatTagBrace("p", 0).CR());
+			SString & r_line_buf = SLS.AcquireRvlStr();
+			WriteText(*pOut, r_line_buf.CatTagBrace("p", 0).CR());
 		}
 		rPara = 1;
 	}
@@ -1615,6 +1615,7 @@ int PPTex2HtmlPrcssr::Run()
 }
 
 class Tex2HtmlParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PPTex2HtmlPrcssr::Param);
 public:
 	enum {
 		grpInput = 1,
@@ -1629,9 +1630,9 @@ public:
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_TEX2HTM_OUTPATH, CTL_TEX2HTM_OUTPATH, grpOutput, 0, 0, FileBrowseCtrlGroup::fbcgfAllowNExists|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_TEX2HTM_PICPATH, CTL_TEX2HTM_PICPATH, grpOutputPic, 0, 0, FileBrowseCtrlGroup::fbcgfAllowNExists|FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 	}
-	int    setDTS(const PPTex2HtmlPrcssr::Param * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		SString temp_buf;
 		Data.GetExtStrData(Data.exsInputFileName,  temp_buf); setCtrlString(CTL_TEX2HTM_INFILE, temp_buf);
@@ -1653,7 +1654,7 @@ public:
 			CTLSEL_TEX2HTM_PARWB, CTLSEL_TEX2HTM_PARPICWB, CTL_TEX2HTM_WBREFTMPL, CTL_TEX2HTM_WBPICREFTMPL, 0);
 		return ok;
 	}
-	int    getDTS(PPTex2HtmlPrcssr::Param * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -1683,7 +1684,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	PPTex2HtmlPrcssr::Param Data;
 };
 
 //static
@@ -1895,8 +1895,8 @@ private:
 
 IMPL_CMPFUNC(PPVer2HtmlPrcssr_VersionEntry, i1, i2)
 {
-    const LDATE d1 = ((PPVer2HtmlPrcssr::VersionEntry *)i1)->Dt;
-    const LDATE d2 = ((PPVer2HtmlPrcssr::VersionEntry *)i2)->Dt;
+    const LDATE d1 = static_cast<const PPVer2HtmlPrcssr::VersionEntry *>(i1)->Dt;
+    const LDATE d2 = static_cast<const PPVer2HtmlPrcssr::VersionEntry *>(i2)->Dt;
     return CMPSIGN(d2, d1); // Обратный порядок потому d2 идет перед d1
 }
 //
@@ -1919,6 +1919,7 @@ int SLAPI PPVer2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) cons
 int SLAPI PPVer2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 class Ver2HtmlParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PPVer2HtmlPrcssr::Param);
 public:
 	enum {
 		grpInput = 1,
@@ -1933,9 +1934,9 @@ public:
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_VER2HTM_OUTPATH, CTL_VER2HTM_OUTPATH, grpOutput, 0, 0, FileBrowseCtrlGroup::fbcgfAllowNExists|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_VER2HTM_PICPATH, CTL_VER2HTM_PICPATH, grpOutputPic, 0, 0, FileBrowseCtrlGroup::fbcgfAllowNExists|FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 	}
-	int    setDTS(const PPVer2HtmlPrcssr::Param * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		SString temp_buf;
 		Data.GetExtStrData(Data.exsInputFileName,  temp_buf); setCtrlString(CTL_VER2HTM_INFILE, temp_buf);
@@ -1952,7 +1953,7 @@ public:
 		disableCtrls(!(Data.Flags & PPVer2HtmlPrcssr::Param::fAttachToWorkbook), CTLSEL_VER2HTM_PARWB, 0);
 		return ok;
 	}
-	int    getDTS(PPVer2HtmlPrcssr::Param * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
@@ -1977,7 +1978,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	PPVer2HtmlPrcssr::Param Data;
 };
 
 //static

@@ -26,7 +26,6 @@
 #ifdef DEBUG_PDF417
 	#define DEBUG_LEVEL (DEBUG_PDF417)
 #endif
-#include "decoder.h"
 #include "pdf417_hash.h"
 
 #define PDF417_STOP 0xbff

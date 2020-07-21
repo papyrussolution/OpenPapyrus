@@ -1263,6 +1263,7 @@ int main(int argc, char * argv[])
 		msg_buf.CatChar('\t').Cat("/d").CatDiv('-', 1).Cat("debug mode").CR();
 		msg_buf.CatChar('\t').Cat("/sql").CatDiv('-', 1).Cat("generate sql-script for creating database structure").CR();
 		msg_buf.CatChar('\t').Cat("/oracle").CatDiv('-', 1).Cat("generate oracle specific sql-script for creating database structure").CR();
+		msg_buf.CatChar('\t').Cat("/gravity").CatDiv('-', 1).Cat("generate gravity interfaces insted of COM").CR(); // @v10.8.2
 		msg_buf.CatChar('\t').Cat("/dict:path").CatDiv('-', 1).Cat("path to database dictionary (btrieve)").CR();
 		msg_buf.CatChar('\t').Cat("/data:path").CatDiv('-', 1).Cat("path to database directory (btrieve)").CR();
 		printf(msg_buf.cptr());
@@ -1287,6 +1288,10 @@ int main(int argc, char * argv[])
 				cflags |= DlContext::cfSQL;
 			else if(arg.CmpNC("/oracle") == 0 || arg.CmpNC("/ora") == 0)
 				cflags |= DlContext::cfOracle;
+			// @v10.8.2 {
+			else if(arg.CmpNC("/gravity") == 0)
+				cflags |= DlContext::cfGravity;
+			// } @v10.8.2 
 			else if(arg.CmpPrefix("/dict", 1) == 0) {
 				if(arg.Divide(':', left, right) > 0) {
 					dict_path = right;

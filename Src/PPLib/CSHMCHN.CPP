@@ -1425,17 +1425,17 @@ IMPL_HANDLE_EVENT(CSPanel)
 	}
 }
 
-int SLAPI AsyncCashnPrepDialog(AsyncCashNPrepParam * pParam)
+int SLAPI AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
 {
 	int    ok = -1, valid_data = 0;
 	PPObjCashNode::SelFilt f;
-	AsyncCashNPrepParam param;
+	AsyncPosPrepParam param;
 	if(!RVALUEPTR(param, pParam))
 		MEMSZERO(param);
 	TDialog * dlg = new TDialog(DLG_CASHNPAR);
 	THROW_MEM(dlg);
 	THROW(CheckDialogPtr(&dlg));
-	dlg->AddClusterAssoc(CTL_CASHNPAR_FLAGS, 0, AsyncCashNPrepParam::fUpdateOnly);
+	dlg->AddClusterAssoc(CTL_CASHNPAR_FLAGS, 0, AsyncPosPrepParam::fUpdateOnly);
 	dlg->SetClusterData(CTL_CASHNPAR_FLAGS, param.Flags);
 	f.LocID = 0;
 	f.SyncGroup = 2; // only async nodes

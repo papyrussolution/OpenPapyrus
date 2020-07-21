@@ -41,7 +41,7 @@
 
 /* Used bit depth, may be changed for bigger pallet in future */
 #define DESTINATION_IMAGE_BITS 1
-#include <stdlib.h>
+//#include <stdlib.h>
 
 typedef struct s_statestruct {
 	uchar * pOut;
@@ -84,8 +84,7 @@ static char AddCodeToBuffer(statestruct * pState, ushort CodeIn, uchar CodeBits)
 {
 	/* Check, if we may fill up the current byte completely */
 	if(CodeBits >= pState->OutBitsFree) {
-		(pState->pOut)[pState->OutPosCur] |= (uchar)
-		    (CodeIn << (8 - pState->OutBitsFree));
+		(pState->pOut)[pState->OutPosCur] |= (uchar)(CodeIn << (8 - pState->OutBitsFree));
 		if(BufferNextByte(pState))
 			return -1;
 		CodeIn = (ushort)(CodeIn >> pState->OutBitsFree);
@@ -255,13 +254,11 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 #ifdef _MSC_VER
 	char * lzwoutbuf;
 #endif
-
 #ifndef _MSC_VER
 	char lzwoutbuf[symbol->bitmap_height * symbol->bitmap_width];
 #else
 	lzwoutbuf = static_cast<char *>(_alloca((symbol->bitmap_height * symbol->bitmap_width) * sizeof(char)));
 #endif /* _MSC_VER */
-
 	/* Open output file in binary mode */
 	if((symbol->output_options & BARCODE_STDOUT) != 0) {
 #ifdef _MSC_VER
@@ -285,7 +282,6 @@ int gif_pixel_plot(struct ZintSymbol * symbol, char * pixelbuf)
 	   rotated_bitmap[2] = 0;
 	   rotated_bitmap[3] = 0;
 	 */
-
 	/* GIF signature (6) */
 	memcpy(outbuf, "GIF87a", 6);
 	if(TRANSPARENT_INDEX != -1)

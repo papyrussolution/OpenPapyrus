@@ -26,7 +26,6 @@
 #ifdef DEBUG_DATABAR
 	#define DEBUG_LEVEL (DEBUG_DATABAR)
 #endif
-#include "decoder.h"
 //
 // reset DataBar segment decode state 
 //

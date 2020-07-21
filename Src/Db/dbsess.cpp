@@ -122,7 +122,7 @@ int FASTCALL DbThreadLocalArea::FreeTableEntry(int handle)
 DBTable * SLAPI DbThreadLocalArea::GetCloneEntry(BTBLID tblID) const
 {
 	for(int i = 1; i <= DbTableReg.GetMaxEntries(); i++) {
-		DBTable * p_tbl = (DBTable *)DbTableReg.GetPtr(i);
+		DBTable * p_tbl = static_cast<DBTable *>(DbTableReg.GetPtr(i));
 		if(p_tbl && p_tbl->GetTableID() == tblID)
 			return p_tbl;
 	}

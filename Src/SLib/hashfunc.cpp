@@ -1380,7 +1380,7 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	return h1;
 }
 
-/*static*/void FASTCALL SlHash::Murmur3_128x32(const void * pData, size_t len, uint32 seed, void * pResult)
+/*static*/binary128 FASTCALL SlHash::Murmur3_128x32(const void * pData, size_t len, uint32 seed)
 {
 	const uint8 * p_data = (const uint8 *)pData;
 	const int nblocks = len / 16;
@@ -1453,13 +1453,15 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	h2 += h1; 
 	h3 += h1; 
 	h4 += h1;
-	static_cast<uint32 *>(pResult)[0] = h1;
-	static_cast<uint32 *>(pResult)[1] = h2;
-	static_cast<uint32 *>(pResult)[2] = h3;
-	static_cast<uint32 *>(pResult)[3] = h4;
+	binary128 result;
+	reinterpret_cast<uint32 *>(result.D)[0] = h1;
+	reinterpret_cast<uint32 *>(result.D)[1] = h2;
+	reinterpret_cast<uint32 *>(result.D)[2] = h3;
+	reinterpret_cast<uint32 *>(result.D)[3] = h4;
+	return result;
 }
 
-/*static*/void FASTCALL SlHash::Murmur3_128x64(const void * pData, size_t len, uint32 seed, void * pResult)
+/*static*/binary128 FASTCALL SlHash::Murmur3_128x64(const void * pData, size_t len, uint32 seed)
 {
 	const uint8 * p_data = (const uint8 *)pData;
 	const int nblocks = len / 16;
@@ -1510,8 +1512,10 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	h2 = fmix64(h2);
 	h1 += h2;
 	h2 += h1;
-	static_cast<uint64 *>(pResult)[0] = h1;
-	static_cast<uint64 *>(pResult)[1] = h2;
+	binary128 result;
+	reinterpret_cast<uint64 *>(result.D)[0] = h1;
+	reinterpret_cast<uint64 *>(result.D)[1] = h2;
+	return result;
 }
 
 SLAPI SlHash::State::State() : Flags(fEmpty)
@@ -2239,14 +2243,14 @@ SLAPI SCRC32::~SCRC32()
 	return p;
 }
 
-/*static*/int FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
+/*static*/binary160 FASTCALL SlHash::Sha1(State * pS, const void * pData, size_t dataLen)
 {
-	int    ok = 1;
+	binary160 result;
 	if(!pS) {
 		State st;
-		ok = Sha1(&st, pData, dataLen, pResult, resultBufLen);
+		result = Sha1(&st, pData, dataLen);
 		if(pData && dataLen)
-			ok = Sha1(&st, 0, 0, pResult, resultBufLen);
+			result = Sha1(&st, 0, 0);
 	}
 	else {
 		State::ShaCtx & r_ctx = pS->Result.Sha;
@@ -2309,47 +2313,47 @@ SLAPI SCRC32::~SCRC32()
 				{
 					Sha1_Body(&r_ctx, PTR8(r_ctx.Data), 64);
 				}
-				PTR8(pResult)[0]  = static_cast<uchar>(r_ctx.H[0] >> 24);
-				PTR8(pResult)[1]  = static_cast<uchar>(r_ctx.H[0] >> 16);
-				PTR8(pResult)[2]  = static_cast<uchar>(r_ctx.H[0] >> 8);
-				PTR8(pResult)[3]  = static_cast<uchar>(r_ctx.H[0]);
-				PTR8(pResult)[4]  = static_cast<uchar>(r_ctx.H[1] >> 24);
-				PTR8(pResult)[5]  = static_cast<uchar>(r_ctx.H[1] >> 16);
-				PTR8(pResult)[6]  = static_cast<uchar>(r_ctx.H[1] >> 8);
-				PTR8(pResult)[7]  = static_cast<uchar>(r_ctx.H[1]);
-				PTR8(pResult)[8]  = static_cast<uchar>(r_ctx.H[2] >> 24);
-				PTR8(pResult)[9]  = static_cast<uchar>(r_ctx.H[2] >> 16);
-				PTR8(pResult)[10] = static_cast<uchar>(r_ctx.H[2] >> 8);
-				PTR8(pResult)[11] = static_cast<uchar>(r_ctx.H[2]);
-				PTR8(pResult)[12] = static_cast<uchar>(r_ctx.H[3] >> 24);
-				PTR8(pResult)[13] = static_cast<uchar>(r_ctx.H[3] >> 16);
-				PTR8(pResult)[14] = static_cast<uchar>(r_ctx.H[3] >> 8);
-				PTR8(pResult)[15] = static_cast<uchar>(r_ctx.H[3]);
-				PTR8(pResult)[16] = static_cast<uchar>(r_ctx.H[4] >> 24);
-				PTR8(pResult)[17] = static_cast<uchar>(r_ctx.H[4] >> 16);
-				PTR8(pResult)[18] = static_cast<uchar>(r_ctx.H[4] >> 8);
-				PTR8(pResult)[19] = static_cast<uchar>(r_ctx.H[4]);
+				result.D[0]  = static_cast<uchar>(r_ctx.H[0] >> 24);
+				result.D[1]  = static_cast<uchar>(r_ctx.H[0] >> 16);
+				result.D[2]  = static_cast<uchar>(r_ctx.H[0] >> 8);
+				result.D[3]  = static_cast<uchar>(r_ctx.H[0]);
+				result.D[4]  = static_cast<uchar>(r_ctx.H[1] >> 24);
+				result.D[5]  = static_cast<uchar>(r_ctx.H[1] >> 16);
+				result.D[6]  = static_cast<uchar>(r_ctx.H[1] >> 8);
+				result.D[7]  = static_cast<uchar>(r_ctx.H[1]);
+				result.D[8]  = static_cast<uchar>(r_ctx.H[2] >> 24);
+				result.D[9]  = static_cast<uchar>(r_ctx.H[2] >> 16);
+				result.D[10] = static_cast<uchar>(r_ctx.H[2] >> 8);
+				result.D[11] = static_cast<uchar>(r_ctx.H[2]);
+				result.D[12] = static_cast<uchar>(r_ctx.H[3] >> 24);
+				result.D[13] = static_cast<uchar>(r_ctx.H[3] >> 16);
+				result.D[14] = static_cast<uchar>(r_ctx.H[3] >> 8);
+				result.D[15] = static_cast<uchar>(r_ctx.H[3]);
+				result.D[16] = static_cast<uchar>(r_ctx.H[4] >> 24);
+				result.D[17] = static_cast<uchar>(r_ctx.H[4] >> 16);
+				result.D[18] = static_cast<uchar>(r_ctx.H[4] >> 8);
+				result.D[19] = static_cast<uchar>(r_ctx.H[4]);
 				r_ctx.Z();
 			}
 		}
 	}
-	return ok;
+	return result;
 }
 
-/*static*/int FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen, void * pResult, size_t resultBufLen)
+/*static*/binary256 FASTCALL SlHash::Sha256(State * pS, const void * pData, size_t dataLen)
 {
-	int    ok = 0;
+	binary256 result;
 	if(!pS) {
 		State st;
-		Sha256(&st, pData, dataLen, pResult, resultBufLen);
-		ok = Sha256(&st, 0, 0, pResult, resultBufLen);
+		Sha256(&st, pData, dataLen);
+		result = Sha256(&st, 0, 0);
 	}
 	else {
 		if(pS->Flags & pS->fEmpty) {
 			pS->Flags &= ~pS->fEmpty;
 		}
 	}
-	return ok;
+	return result;
 }
 
 static int TestCrypto(const SString & rInFileName, const char * pSetName, int alg, int kbl, int algmod)
@@ -2522,22 +2526,22 @@ void TestCRC()
 			const BdtTestItem * p_item = data_set.at(i);
 			const size_t src_size = p_item->In.GetLen();
 			const void * p_src_buf = p_item->In.GetBufC();
-			uint8 result_buf[128];
+			//uint8 result_buf[128];
 			const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 			{
-				SlHash::Sha1(0, p_src_buf, src_size, result_buf, sizeof(result_buf));
-				assert(memcmp(result_buf, p_pattern_buf, 20) == 0);
+				binary160 s1 = SlHash::Sha1(0, p_src_buf, src_size);
+				assert(memcmp(&s1, p_pattern_buf, 20) == 0);
 			}
 			if(src_size > 10) {
 				SlHash::State st;
 				size_t total_sz = 0;
 				uint32 r = 0;
 				for(size_t ps = 1; total_sz < src_size; ps++) {
-					SlHash::Sha1(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)), result_buf, sizeof(result_buf));
+					SlHash::Sha1(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
 					total_sz += ps;
 				}
-				SlHash::Sha1(&st, 0, 0, result_buf, sizeof(result_buf)); // finalize
-				assert(memcmp(result_buf, p_pattern_buf, 20) == 0);
+				binary160 s1 = SlHash::Sha1(&st, 0, 0); // finalize
+				assert(memcmp(&s1, p_pattern_buf, 20) == 0);
 			}
 		}
 	}
@@ -3619,19 +3623,19 @@ SLTEST_R(BDT)
 				uint8 result_buf[128];
 				const uint8 * p_pattern_buf = static_cast<const uint8 *>(p_item->Out.GetBufC());
 				{
-					SlHash::Sha1(0, p_src_buf, src_size, result_buf, sizeof(result_buf));
-					SLTEST_CHECK_Z(memcmp(result_buf, p_pattern_buf, 20));
+					binary160 s1 = SlHash::Sha1(0, p_src_buf, src_size);
+					SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, 20));
 				}
 				if(src_size > 10) {
 					SlHash::State st;
 					size_t total_sz = 0;
 					uint32 r = 0;
 					for(size_t ps = 1; total_sz < src_size; ps++) {
-						SlHash::Sha1(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)), result_buf, sizeof(result_buf));
+						SlHash::Sha1(&st, PTR8C(p_src_buf)+total_sz, MIN(ps, (src_size - total_sz)));
 						total_sz += ps;
 					}
-					SlHash::Sha1(&st, 0, 0, result_buf, sizeof(result_buf)); // finalize
-					SLTEST_CHECK_Z(memcmp(result_buf, p_pattern_buf, 20));
+					binary160 s1 = SlHash::Sha1(&st, 0, 0); // finalize
+					SLTEST_CHECK_Z(memcmp(&s1, p_pattern_buf, 20));
 				}
 			}
 		}
@@ -4524,54 +4528,55 @@ SLTEST_R(HashFunction)
 		SLTEST_CHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234)), 0x0f2cc00bUL);
 		SLTEST_CHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
 		//
-		uint32 h128[4];
+		//uint32 h128[4];
+		binary128 _h128;
 		p_data = "Hello, world!";
-		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123, h128);
-		SLTEST_CHECK_EQ(h128[0], 0x61c9129eUL);
-		SLTEST_CHECK_EQ(h128[1], 0x5a1aacd7UL);
-		SLTEST_CHECK_EQ(h128[2], 0xa4162162UL);
-		SLTEST_CHECK_EQ(h128[3], 0x9e37c886UL);
-		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 321, h128);
-		SLTEST_CHECK_EQ(h128[0], 0xd5fbdcb3UL);
-		SLTEST_CHECK_EQ(h128[1], 0xc26c4193UL);
-		SLTEST_CHECK_EQ(h128[2], 0x045880c5UL);
-		SLTEST_CHECK_EQ(h128[3], 0xa7170f0fUL);
+		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x61c9129eUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x5a1aacd7UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xa4162162UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x9e37c886UL);
+		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 321);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xd5fbdcb3UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xc26c4193UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x045880c5UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xa7170f0fUL);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123, h128);
-		SLTEST_CHECK_EQ(h128[0], 0x5e40bab2UL);
-		SLTEST_CHECK_EQ(h128[1], 0x78825a16UL);
-		SLTEST_CHECK_EQ(h128[2], 0x4cf929d3UL);
-		SLTEST_CHECK_EQ(h128[3], 0x1fec6047UL);
+		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x5e40bab2UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x78825a16UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x4cf929d3UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x1fec6047UL);
 		p_data = "";
-		SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123, h128);
-		SLTEST_CHECK_EQ(h128[0], 0xfedc5245UL);
-		SLTEST_CHECK_EQ(h128[1], 0x26f3e799UL);
-		SLTEST_CHECK_EQ(h128[2], 0x26f3e799UL);
-		SLTEST_CHECK_EQ(h128[3], 0x26f3e799UL);
+		_h128 = SlHash::Murmur3_128x32(p_data, sstrlen(p_data), 123);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xfedc5245UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x26f3e799UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x26f3e799UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x26f3e799UL);
 
 		p_data = "Hello, world!";
-		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123, h128);
-		SLTEST_CHECK_EQ(h128[0], 0x8743acadUL);
-		SLTEST_CHECK_EQ(h128[1], 0x421c8c73UL);
-		SLTEST_CHECK_EQ(h128[2], 0xd373c3f5UL);
-		SLTEST_CHECK_EQ(h128[3], 0xf19732fdUL);
-		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 321, h128);
-		SLTEST_CHECK_EQ(h128[0], 0xf86d4004UL);
-		SLTEST_CHECK_EQ(h128[1], 0xca47f42bUL);
-		SLTEST_CHECK_EQ(h128[2], 0xb9546c79UL);
-		SLTEST_CHECK_EQ(h128[3], 0x79200aeeUL);
+		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x8743acadUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x421c8c73UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xd373c3f5UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf19732fdUL);
+		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 321);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xf86d4004UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xca47f42bUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xb9546c79UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x79200aeeUL);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123, h128);
-		SLTEST_CHECK_EQ(h128[0], 0xbecf7e04UL);
-		SLTEST_CHECK_EQ(h128[1], 0xdbcf7463UL);
-		SLTEST_CHECK_EQ(h128[2], 0x7751664eUL);
-		SLTEST_CHECK_EQ(h128[3], 0xf66e73e0UL);
+		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0xbecf7e04UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0xdbcf7463UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0x7751664eUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0xf66e73e0UL);
 		p_data = "";
-		SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123, h128);
-		SLTEST_CHECK_EQ(h128[0], 0x4cd95970UL);
-		SLTEST_CHECK_EQ(h128[1], 0x81679d1aUL);
-		SLTEST_CHECK_EQ(h128[2], 0xbd92f878UL);
-		SLTEST_CHECK_EQ(h128[3], 0x4bace33dUL);
+		_h128 = SlHash::Murmur3_128x64(p_data, sstrlen(p_data), 123);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[0], 0x4cd95970UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[1], 0x81679d1aUL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[2], 0xbd92f878UL);
+		SLTEST_CHECK_EQ(PTR32C(_h128.D)[3], 0x4bace33dUL);
 	}
 	CATCH
 		CurrentStatus = 0;

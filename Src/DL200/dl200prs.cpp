@@ -1,5 +1,6 @@
 // DL200PRS.CPP
 // Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -57,9 +58,7 @@ public:
 			LocList.Set(0);
 			THROW(ResolveWarehouseList_(rS.LocListID, LocList));
 		}
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		return ok;
 	}
 	virtual DL2_CI * Resolve(const DL2_Score & rS)
@@ -239,7 +238,7 @@ public:
 			GgList.Set(0);
 			THROW(ResolveGoodsGroupList(rS.GoodsGrpListID, GgList));
 		}
-		Flags &= ~fResolved; // @v7.5.0
+		Flags &= ~fResolved;
 		CATCHZOK
 		return ok;
 	}
@@ -355,9 +354,6 @@ public:
 
 	DateRange Period;
 	PPID   AccSheetID;
-	//
-	//
-	//
 	DebtTrnovrTotal Total;
 };
 
@@ -426,7 +422,6 @@ public:
 };
 
 #if 0 // {
-
 class DL2SPD_PersonEvent : public DL2_Resolver::SPD {
 public:
 	DL2SPD_PersonEvent(DL2_Resolver * pR) : DL2_Resolver::SPD(DL2_Score::kPersonEvent, pR)
@@ -450,7 +445,6 @@ public:
 	PPIDArray EvIdList;
 	StringSet EvStrList;
 };
-
 #endif // } 0
 //
 //
@@ -571,27 +565,27 @@ DL2_CI * SLAPI DL2_Resolver::ResolveScore(const DL2_Score & rSc)
 	switch(rSc.Kind) {
 		case DL2_Score::kBill:
 			THROW_MEM(p_spd = new DL2SPD_Bill(this));
-			// BizScore: создан контекст Bill
+			// BizScore: СЃРѕР·РґР°РЅ РєРѕРЅС‚РµРєСЃС‚ Bill
 			break;
 		case DL2_Score::kPaym:
 			THROW_MEM(p_spd = new DL2SPD_Paym(this));
-			// BizScore: создан контекст Paym
+			// BizScore: СЃРѕР·РґР°РЅ РєРѕРЅС‚РµРєСЃС‚ Paym
 			break;
 		case DL2_Score::kCCheck:
 			THROW_MEM(p_spd = new DL2SPD_CCheck(this));
-			// BizScore: создан контекст CCheck
+			// BizScore: СЃРѕР·РґР°РЅ РєРѕРЅС‚РµРєСЃС‚ CCheck
 			break;
 		case DL2_Score::kGoodsRest:
 			THROW_MEM(p_spd = new DL2SPD_GoodsRest(this));
-			// BizScore: создан контекст GoodsRest
+			// BizScore: СЃРѕР·РґР°РЅ РєРѕРЅС‚РµРєСЃС‚ GoodsRest
 			break;
 		case DL2_Score::kDebt:
 			THROW_MEM(p_spd = new DL2SPD_Debt(this));
-			// BizScore: создан контекст Debt
+			// BizScore: СЃРѕР·РґР°РЅ РєРѕРЅС‚РµРєСЃС‚ Debt
 			break;
 		case DL2_Score::kBizScore:
 			THROW_MEM(p_spd = new DL2SPD_BizScore(this));
-			// BizScore: создан контекст BizScore
+			// BizScore: СЃРѕР·РґР°РЅ РєРѕРЅС‚РµРєСЃС‚ BizScore
 			break;
 		// case DL2_Score::kPersonEvent: p_spd = new DL2SPD_PersonEvent(this); break;
 	}
@@ -681,7 +675,7 @@ DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_C
 				THROW(AtObj.P_Tbl->AcctIDToRel(&acctid, &acc_id));
 			if(dl2ac.Flags & DL2_Acc::fTurnover && dl2ac.CorrAcc.ac) {
 				//
-				// Обороты в корреспонденции с заданным счетом
+				// РћР±РѕСЂРѕС‚С‹ РІ РєРѕСЂСЂРµСЃРїРѕРЅРґРµРЅС†РёРё СЃ Р·Р°РґР°РЅРЅС‹Рј СЃС‡РµС‚РѕРј
 				//
 				AccAnlzFilt flt;
 				flt.Period = period;
@@ -705,10 +699,10 @@ DL2_CI * SLAPI DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_C
 			}
 			else if(dl2ac.Flags & (DL2_Acc::fRest | DL2_Acc::fInRest) || is_net_trnovr) {
 				//
-				// Развернутый остаток.
-				// Рассчитывается тогда, когда запрашивается входящий либо исходящий остаток
-				// конкретно по дебету либо по кредиту счета (субсчета). В остальных случаях
-				// опция fSpread игнорируется.
+				// Р Р°Р·РІРµСЂРЅСѓС‚С‹Р№ РѕСЃС‚Р°С‚РѕРє.
+				// Р Р°СЃСЃС‡РёС‚С‹РІР°РµС‚СЃСЏ С‚РѕРіРґР°, РєРѕРіРґР° Р·Р°РїСЂР°С€РёРІР°РµС‚СЃСЏ РІС…РѕРґСЏС‰РёР№ Р»РёР±Рѕ РёСЃС…РѕРґСЏС‰РёР№ РѕСЃС‚Р°С‚РѕРє
+				// РєРѕРЅРєСЂРµС‚РЅРѕ РїРѕ РґРµР±РµС‚Сѓ Р»РёР±Рѕ РїРѕ РєСЂРµРґРёС‚Сѓ СЃС‡РµС‚Р° (СЃСѓР±СЃС‡РµС‚Р°). Р’ РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС…
+				// РѕРїС†РёСЏ fSpread РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
 				//
 				if((dl2ac.Flags & DL2_Acc::fSpread) && (dl2ac.Flags & (DL2_Acc::fDebit | DL2_Acc::fCredit)) &&
 					oneof2(aco, ACO_1, ACO_2)) {
@@ -1215,7 +1209,6 @@ private:
 	int    setupFileCombo();
 	int    setupFormCombo();
 	int    getSelectedFileName(char * pBuf, size_t bufLen);
-
 	char   DdPath[MAXPATH];
 };
 

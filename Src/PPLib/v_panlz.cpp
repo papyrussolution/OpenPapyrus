@@ -256,12 +256,12 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					_E * p_e, * p_e2;
 					if(Filt.CostAlg == PriceAnlzFilt::caByMinLoc) {
 						for(i = 0; i < suppl_list.getCount(); i++) {
-							double extr = MAXDOUBLE;
+							double extr = SMathConst::Max;
 							const PPID suppl_id = suppl_list.get(i);
 							for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);)
 								if(p_e->SupplID == suppl_id && p_e->Cost > 0.0 && p_e->Cost < extr)
 									extr = p_e->Cost;
-							if(extr > 0.0 && extr < MAXDOUBLE) {
+							if(extr > 0.0 && extr < SMathConst::Max) {
 								for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);)
 									if(p_e->SupplID == suppl_id)
 										p_e->Cost = extr;

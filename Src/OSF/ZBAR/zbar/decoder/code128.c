@@ -26,7 +26,6 @@
 #ifdef DEBUG_CODE128
 	#define DEBUG_LEVEL (DEBUG_CODE128)
 #endif
-#include "decoder.h"
 
 #define NUM_CHARS 108           /* total number of character codes */
 

@@ -518,8 +518,7 @@ static int xz_decomp(xz_statep state)
 			state->zstrm.next_out = (Bytef *)state->strm.next_out;
 			ret = inflate(&state->zstrm, Z_NO_FLUSH);
 			if(ret == Z_STREAM_ERROR || ret == Z_NEED_DICT) {
-				xz_error(state, Z_STREAM_ERROR,
-				    "internal error: inflate stream corrupt");
+				xz_error(state, Z_STREAM_ERROR, "internal error: inflate stream corrupt");
 				return -1;
 			}
 			if(ret == Z_MEM_ERROR)

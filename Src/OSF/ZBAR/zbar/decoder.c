@@ -29,7 +29,6 @@
 	defined(DEBUG_QR_FINDER) || (defined(DEBUG_PDF417) && (DEBUG_PDF417 >= 4))
 	#define DEBUG_LEVEL 1
 #endif
-#include "decoder.h"
 
 zbar_decoder_t * zbar_decoder_create()
 {

@@ -901,7 +901,7 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			long   job_info_id = 0;
 			long   logmsg_flags = LOGMSGF_TIME|LOGMSGF_THREADID|LOGMSGF_THREADINFO;
 			if(p_job->Flags & PPJob::fNotifyByMail) {
-				PPMakeTempFileName("JSL", "TMP", 0, tmp_log_fpath);
+				PPMakeTempFileName("jsl", "tmp", 0, tmp_log_fpath);
 				DS.SetTempLogFileName(tmp_log_fpath);
 				if(p_job->Flags & PPJob::fSkipEmptyNotification)
 					logmsg_flags |= LOGMSGF_NODUPFORJOB;

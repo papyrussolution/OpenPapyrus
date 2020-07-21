@@ -6,8 +6,6 @@
 #pragma hdrstop
 #include <shlobj.h> // SHGetFolderPath and constants
 
-// #define MAX_PATH MAXPATH // still defined at windef.h (sobolev 2/06/99)
-
 SLAPI SDataMoveProgressInfo::SDataMoveProgressInfo()
 {
 	THISZERO();
@@ -129,7 +127,7 @@ SString & SLAPI getExecPath(SString & rBuf)
 int SLAPI driveValid(const char * pPath)
 {
 	int    ok = 0;
-	char   dname[4]="X:\\";
+	char   dname[4] = "X:\\";
 	dname[0] = *pPath;
 	uint t = GetDriveType(SUcSwitch(dname));
 	if(t != DRIVE_UNKNOWN && t != DRIVE_NO_ROOT_DIR)
@@ -210,7 +208,7 @@ static char * SLAPI squeeze(char * path)
 }
 #endif // } __WIN32__
 
-static char * SLAPI fexpand(char * rpath)
+/* @v10.8.2 (unused) static char * SLAPI fexpand(char * rpath)
 {
 #ifdef __WIN32__
 	TCHAR * fn = 0;
@@ -233,7 +231,7 @@ static char * SLAPI fexpand(char * rpath)
 	}
 	else
 		drive[0] = toupper(drive[0]);
-	if((flags & FNF_DIRECTORY) == 0 || (dir[0] != '\\' && dir[0] != '/')) {
+	if(!(flags & FNF_DIRECTORY) || (dir[0] != '\\' && dir[0] != '/')) {
 		getcurdir(drive[0] - 'A' + 1, curdir);
 		strcat(curdir, dir);
 		if(*curdir != '\\' && *curdir != '/') {
@@ -248,21 +246,24 @@ static char * SLAPI fexpand(char * rpath)
 	fnmerge(path, drive, squeeze(dir), file, ext);
 	return strcpy(rpath, strupr(path));
 #endif
-}
+}*/
 
 int SLAPI pathValid(const char * pPath, int existOnly)
 {
-	char   exp_path[512];
-	int    len = sstrlen(fexpand(strcpy(exp_path, pPath)));
-	if(len <= 3)
-		return driveValid(exp_path);
-	return (existOnly ? IsDirectory(rmvLastSlash(exp_path)) : 1);
+	SString exp_path = pPath;
+	{
+		TCHAR * fn = 0;
+		TCHAR  fpn_buf[MAXPATH];
+		::GetFullPathName(SUcSwitch(exp_path), SIZEOFARRAY(fpn_buf), fpn_buf, &fn);
+		exp_path = SUcSwitch(fpn_buf);
+	}
+	return (exp_path.Len() <= 3) ? driveValid(exp_path) : (existOnly ? IsDirectory(exp_path.RmvLastSlash()) : 1);
 }
 
-static const char * illegalChars = ";,=+<>|\"[] \\";
-
+/* @v10.8.2 (unused)
 int SLAPI validFileName(const char * pFileName)
 {
+	static const char * illegalChars = ";,=+<>|\"[] \\";
 	char   path[MAXPATH];
 	char   dir[MAXDIR];
 	char   name[MAXFILE];
@@ -270,7 +271,7 @@ int SLAPI validFileName(const char * pFileName)
 	fnsplit(pFileName, path, dir, name, ext);
 	return ((*dir && !pathValid(strcat(path, dir), 1)) || strpbrk(name, illegalChars) ||
 		strpbrk(ext + 1, illegalChars) || sstrchr(ext + 1, '.')) ? 0 : 1;
-}
+}*/
 
 SString & FASTCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
@@ -481,7 +482,7 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	}
 	//SLS.SetAddedMsgString(pDestFileName);
 	//THROW_V(desthdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
-	flen = GetFileSize(srchdl, 0);
+	flen = ::GetFileSize(srchdl, 0);
 
 	scfd.P_Src   = pSrcFileName;
 	scfd.P_Dest  = pDestFileName;

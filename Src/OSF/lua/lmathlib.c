@@ -161,19 +161,22 @@ static int math_modf(lua_State * L)
 	return 2;
 }
 
-static int math_sqrt(lua_State * L) {
+static int math_sqrt(lua_State * L) 
+{
 	lua_pushnumber(L, l_mathop(sqrt)(luaL_checknumber(L, 1)));
 	return 1;
 }
 
-static int math_ult(lua_State * L) {
+static int math_ult(lua_State * L) 
+{
 	lua_Integer a = luaL_checkinteger(L, 1);
 	lua_Integer b = luaL_checkinteger(L, 2);
 	lua_pushboolean(L, (lua_Unsigned)a < (lua_Unsigned)b);
 	return 1;
 }
 
-static int math_log(lua_State * L) {
+static int math_log(lua_State * L) 
+{
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number res;
 	if(lua_isnoneornil(L, 2))
@@ -193,17 +196,20 @@ static int math_log(lua_State * L) {
 	return 1;
 }
 
-static int math_exp(lua_State * L) {
+static int math_exp(lua_State * L) 
+{
 	lua_pushnumber(L, l_mathop(exp)(luaL_checknumber(L, 1)));
 	return 1;
 }
 
-static int math_deg(lua_State * L) {
+static int math_deg(lua_State * L) 
+{
 	lua_pushnumber(L, luaL_checknumber(L, 1) * (l_mathop(180.0) / PI));
 	return 1;
 }
 
-static int math_rad(lua_State * L) {
+static int math_rad(lua_State * L) 
+{
 	lua_pushnumber(L, luaL_checknumber(L, 1) * (PI / l_mathop(180.0)));
 	return 1;
 }

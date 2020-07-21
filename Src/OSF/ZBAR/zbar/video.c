@@ -36,7 +36,7 @@ int video_lock(zbar_video_t * vdo)
 {
 	const int rc = _zbar_mutex_lock(&vdo->qlock);
 	if(rc) {
-		err_capture(vdo, SEV_FATAL, ZBAR_ERR_LOCKING, __func__, "unable to acquire lock");
+		err_capture(vdo, SEV_FATAL, ZBAR_ERR_LOCKING, __FUNCTION__, "unable to acquire lock");
 		vdo->err.errnum = rc;
 		return -1;
 	}
@@ -48,7 +48,7 @@ int video_unlock(zbar_video_t * vdo)
 {
 	const int rc = _zbar_mutex_unlock(&vdo->qlock);
 	if(rc) {
-		err_capture(vdo, SEV_FATAL, ZBAR_ERR_LOCKING, __func__, "unable to release lock");
+		err_capture(vdo, SEV_FATAL, ZBAR_ERR_LOCKING, __FUNCTION__, "unable to release lock");
 		vdo->err.errnum = rc;
 		return -1;
 	}
@@ -202,9 +202,9 @@ int zbar_video_open(zbar_video_t * vdo, const char * dev)
 int zbar_video_get_fd(const zbar_video_t * vdo)
 {
 	if(vdo->intf == VIDEO_INVALID)
-		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video device not opened");
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "video device not opened");
 	if(vdo->intf != VIDEO_V4L2)
-		return err_capture(vdo, SEV_WARNING, ZBAR_ERR_UNSUPPORTED, __func__, "video driver does not support polling");
+		return err_capture(vdo, SEV_WARNING, ZBAR_ERR_UNSUPPORTED, __FUNCTION__, "video driver does not support polling");
 	return vdo->fd;
 }
 
@@ -212,7 +212,7 @@ int zbar_video_request_size(zbar_video_t * vdo, uint width, uint height)
 {
 	if(vdo->initialized)
 		/* FIXME re-init different format? */
-		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "already initialized, unable to resize");
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "already initialized, unable to resize");
 	vdo->width = width;
 	vdo->height = height;
 	zprintf(1, "request size: %d x %d\n", width, height);
@@ -222,7 +222,7 @@ int zbar_video_request_size(zbar_video_t * vdo, uint width, uint height)
 int zbar_video_request_interface(zbar_video_t * vdo, int ver)
 {
 	if(vdo->intf != VIDEO_INVALID)
-		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "device already opened, unable to change interface");
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "device already opened, unable to change interface");
 	vdo->intf = (video_interface_t)ver;
 	zprintf(1, "request interface version %d\n", vdo->intf);
 	return 0;
@@ -231,9 +231,9 @@ int zbar_video_request_interface(zbar_video_t * vdo, int ver)
 int zbar_video_request_iomode(zbar_video_t * vdo, int iomode)
 {
 	if(vdo->intf != VIDEO_INVALID)
-		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "device already opened, unable to change iomode");
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "device already opened, unable to change iomode");
 	if(iomode < 0 || iomode > VIDEO_USERPTR)
-		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "invalid iomode requested");
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "invalid iomode requested");
 	vdo->iomode = (video_iomode_t)iomode;
 	return 0;
 }
@@ -262,7 +262,7 @@ static inline int video_init_images(zbar_video_t * vdo)
 		vdo->buflen = vdo->num_images * vdo->datalen;
 		vdo->buf = SAlloc::C(1, vdo->buflen);
 		if(!vdo->buf)
-			return err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __func__, "unable to allocate image buffers");
+			return err_capture(vdo, SEV_FATAL, ZBAR_ERR_NOMEM, __FUNCTION__, "unable to allocate image buffers");
 		zprintf(1, "pre-allocated %d %s buffers size=0x%lx\n", vdo->num_images, (vdo->iomode == VIDEO_READWRITE) ? "READ" : "USERPTR", vdo->buflen);
 	}
 	for(i = 0; i < vdo->num_images; i++) {
@@ -287,7 +287,7 @@ int zbar_video_init(zbar_video_t * vdo,
 #endif
 	if(vdo->initialized)
 		/* FIXME re-init different format? */
-		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "already initialized, re-init unimplemented");
+		return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "already initialized, re-init unimplemented");
 	if(vdo->init(vdo, fmt))
 		return -1;
 	vdo->format = fmt;
@@ -320,7 +320,7 @@ int zbar_video_enable(zbar_video_t * vdo, int enable)
 		return 0;
 	if(enable) {
 		if(vdo->intf == VIDEO_INVALID)
-			return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __func__, "video device not opened");
+			return err_capture(vdo, SEV_ERROR, ZBAR_ERR_INVALID, __FUNCTION__, "video device not opened");
 		if(!vdo->initialized && zbar_negotiate_format(vdo, NULL))
 			return -1;
 	}

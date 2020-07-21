@@ -2326,20 +2326,20 @@ void SLAPI BhtProtocol::ParseHeadingText(const char * pBuf, char * pFileName, ui
 int SLAPI BhtProtocol::SendPrgmFile(const char * pFileName)
 {
 	int    ok = 1;
-	const  size_t line_size = 256;
 	const  size_t blk_size  = 128;
-	char   line_buf[line_size];
+	char   line_buf[256];
 	uint   numrecs = 0, recno = 0;
-	char   fname[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	FILE * stream = 0;
-
 	THROW_PP_S(stream = fopen(pFileName, "r"), PPERR_CANTOPENFILE, pFileName);
 	while(fgets(line_buf, sizeof(line_buf), stream))
 		numrecs++;
    	THROW(SetConnection());
-	fnsplit(pFileName, 0, 0, nam, ext);
-	fnmerge(fname, 0, 0, nam, ext);
-	THROW(SendPrgmHeadingText(strupr(fname), numrecs) > 0);
+	{
+		SString fname_;
+		SPathStruc ps(pFileName);
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fname_);
+		THROW(SendPrgmHeadingText(fname_.ToUpper(), numrecs) > 0);
+	}
 	rewind(stream);
 	while(fgets(line_buf, sizeof(line_buf), stream)) {
 		size_t l = sstrlen(chomp(line_buf));
@@ -2358,22 +2358,22 @@ int SLAPI BhtProtocol::SendPrgmFile(const char * pFileName)
 int SLAPI BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
 {
 	int    ok = 1;
-	const  size_t line_size = 256;
-	char   line_buf[line_size];
+	char   line_buf[256];
 	uint   numrecs = 0, recno = 0;
-	char   fname[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	FILE * stream = 0;
 	BhtRecord * p_rec = 0;
-
 	THROW_PP_S(stream = fopen(pFileName, "r"), PPERR_CANTOPENFILE, pFileName);
 	THROW_MEM(p_rec = new BhtRecord(*pStruc));
 	while(fgets(line_buf, sizeof(line_buf), stream))
 		numrecs++;
 	THROW_PP(numrecs <= MAXBHTRECS - 1, PPERR_BHTMAXRECSREACHED);
 	THROW(SetConnection());
-	fnsplit(pFileName, 0, 0, nam, ext);
-	fnmerge(fname, 0, 0, nam, ext);
-	THROW(SendDataHeadingText(strupr(fname), numrecs, pStruc) > 0);
+	{
+		SString fname_;
+		SPathStruc ps(pFileName);
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fname_);
+		THROW(SendDataHeadingText(fname_.ToUpper(), numrecs, pStruc) > 0);
+	}
 	rewind(stream);
 	while(fgets(line_buf, sizeof(line_buf), stream)) {
 		recno++;
@@ -2492,10 +2492,8 @@ int SLAPI CipherProtocol::SendDataHeadingText(const char * pFileName, uint numRe
 int SLAPI CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord * pStruc)
 {
 	int    ok = 1;
-	const  size_t line_size = 256;
-	char   line_buf[line_size];
+	char   line_buf[256];
 	uint   numrecs = 0, recno = 0;
-	char   fname[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	FILE * stream = 0;
 	BhtRecord * p_rec = 0;
 	THROW_PP_S(stream = fopen(pFileName, "r"), PPERR_CANTOPENFILE, pFileName);
@@ -2503,9 +2501,12 @@ int SLAPI CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord *
 	while(fgets(line_buf, sizeof(line_buf), stream))
 		numrecs++;
    	THROW(SetConnection());
-	fnsplit(pFileName, 0, 0, nam, ext);
-	fnmerge(fname, 0, 0, nam, ext);
-	THROW(SendDataHeadingText(strupr(fname), numrecs, pStruc) > 0);
+	{
+		SString fname_;
+		SPathStruc ps(pFileName);
+		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, fname_);
+		THROW(SendDataHeadingText(fname_.ToUpper(), numrecs, pStruc) > 0);
+	}
 	rewind(stream);
 	while(fgets(line_buf, sizeof(line_buf), stream)) {
 		recno++;
@@ -3237,8 +3238,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 			//
 			{
 				PPImpExpParam ie_param_bill;
-				// @v9.4.11 PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SAMPLEBILLS, h_path);
-				PPMakeTempFileName("bht", "dbf", 0, h_path); // @v9.4.11
+				PPMakeTempFileName("bht", "dbf", 0, h_path);
 				THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILL, &ie_param_bill, h_path, 1));
 				THROW_MEM(p_ie_bill = new PPImpExp(&ie_param_bill, 0));
 				THROW(p_ie_bill->OpenFileForWriting(0, 1));
@@ -3248,8 +3248,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 			//
 			{
 				PPImpExpParam ie_param_brow;
-				// @v9.4.11 PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SAMPLEBROWS, r_path);
-				PPMakeTempFileName("bht", "dbf", 0, r_path); // @v9.4.11
+				PPMakeTempFileName("bht", "dbf", 0, r_path);
 				THROW(InitImpExpDbfParam(PPREC_SBIISAMPLEBILLROW, &ie_param_brow, r_path, 1));
 				THROW_MEM(p_ie_brow = new PPImpExp(&ie_param_brow, 0));
 				THROW(p_ie_brow->OpenFileForWriting(0, 1));

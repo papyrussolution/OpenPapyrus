@@ -1600,6 +1600,30 @@ void SLAPI PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArra
 		ASSIGN_PTR(pBuf, 0);
 }
 
+int SLAPI PPView::Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void * pItem1, const void * pItem2)
+{
+	int    sn = 0;
+	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+	if(p_def) {
+		uint8  dest_data1[1024];
+		uint8  dest_data2[1024];
+		for(uint i = 0; !sn && i < pBrw->GetSettledOrderList().getCount(); i++) {
+			int    col = pBrw->GetSettledOrderList().get(i);
+			TYPEID typ1 = 0;
+			TYPEID typ2 = 0;
+			if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+				assert(typ1 == typ2);
+				if(typ1 == typ2) {
+					sn = stcomp(typ1, dest_data1, dest_data2);
+					if(sn && col < 0)
+						sn = -sn;
+				}
+			}
+		}
+	}
+	return sn;
+}
+
 int SLAPI PPView::Print(const void *)
 {
 	return DefReportId ? Helper_Print(DefReportId, 0) : -1;
@@ -2034,6 +2058,14 @@ int PPViewBrowser::SetTempGoodsGrp(PPID grpID)
 		ok = 1;
 	}
 	return ok;
+}
+
+void PPViewBrowser::Helper_SetAllColumnsSortable()
+{
+	BrowserDef * p_def = getDef();
+	if(p_def)
+		for(uint cidx = 0; cidx < p_def->getCount(); cidx++)
+			p_def->at(cidx).Options |= BCO_SORTABLE;
 }
 
 int PPViewBrowser::getCurHdr(void * pHdr)

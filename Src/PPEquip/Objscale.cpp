@@ -4972,8 +4972,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 					RetailExtrItem  rtl_ext_item;
 					ScalePLU plu;
 					plu.GoodsID = gr_item.GoodsID;
-					// @v9.2.2 grv->GetGoodsNumByAlterGroup(gr_item.GoodsID, scale.AltGoodsGrp, &plu.GoodsNo);
-					goods_obj.P_Tbl->GetGoodsCodeInAltGrp(gr_item.GoodsID, pack.Rec.AltGoodsGrp, &plu.GoodsNo); // @v9.2.2
+					goods_obj.P_Tbl->GetGoodsCodeInAltGrp(gr_item.GoodsID, pack.Rec.AltGoodsGrp, &plu.GoodsNo);
 					plu.GrpCode = pack.Rec.AltGoodsGrp;
 					if(barcode_kind == 2 && (r2 = goods_obj.GenerateScaleBarcode(gr_item.GoodsID, pack.Rec.ID, bc_buf)) > 0) {
 						bc_buf.CopyTo(barcode, sizeof(barcode));

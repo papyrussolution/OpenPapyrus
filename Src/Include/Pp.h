@@ -13,6 +13,8 @@
 //   Курилову Андрею (Andrew)
 //   Кретову Алексею
 //   Ванаг Светлане
+//   Родькиной Алене
+//   Поценковскоей Элине
 //   Соболеву Эрику
 //   Егорову Геннадию Николаевичу [rip]
 //
@@ -469,9 +471,9 @@ public:
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
 	const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
-	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС УТМ
-	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от ЕГАИС
-	const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибки поступившего от честного знака
+	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
+	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
+	const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
 	const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
 	const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
 	const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
@@ -1637,7 +1639,7 @@ private:
 //
 // Backing up
 //
-struct PPBackupScen { // @flat
+struct PPBackupScen { // @flat // @persistent
 	SLAPI  PPBackupScen();
 	PPBackupScen & SLAPI Z();
 	int    SLAPI ToStr(SString & rBuf) const;
@@ -1647,7 +1649,20 @@ struct PPBackupScen { // @flat
 	long   NumCopies;  // Max number of copies
 	char   Name[64];
 	char   DBName[64];
+	char   BackupPath[261]; // @v10.8.2 MAXPATH-->261 (из-за @persistent)
+	/*
+struct PPBackupScen {
+	SLAPI  PPBackupScen();
+	int    SLAPI ToStr(SString & rBuf) const;
+	long   ID;
+	char   Name[64];
+	char   DBName[64];
 	char   BackupPath[MAXPATH];
+	long   Period;     // Backup period (days)
+	long   Flags;      // Reserved
+	long   numCopies;  // Max number of copies
+};
+	*/
 };
 
 //void TestMonitor();
@@ -5615,7 +5630,7 @@ public:
 		htGeneric = 0,
 		htGenericText,
 		htStrAssocArray,
-		htFile           // @v7.1.7 Файл (с предваряющим заголовком TransmitFileBlock)
+		htFile           // Файл (с предваряющим заголовком TransmitFileBlock)
 	};
 	//
 	// Descr: Флаги заголовка реплики.
@@ -6476,7 +6491,7 @@ public:
 		stMainOrgInit = 0x0002,
 		stAuth        = 0x0004  // Поток авторизован в базе данных Papyrus
 	};
-	int    State;                // @Muxa @v7.3.8 Флаги
+	int    State;                // @Muxa Флаги
 	SysJournal * P_SysJ;
 	ObjSyncCore * P_ObjSync;     // Откроем таблицу при входе в сеанс что бы не приходилось ее открывать при каждом удалении объекта (в транзакции)
 	GtaJournalCore * P_GtaJ;     //
@@ -6504,7 +6519,7 @@ public:
 	PPPaths Paths;               // Текущие пути доступа к файлам  //
 	SString PrintDevice;         //
 	SString UserName;            // @*PPSession::Login @.Имя текущего пользователя //
-	SString GlobAccName;         // @Muxa @v7.3.8 Имя глобальной учетной записи
+	SString GlobAccName;         // @Muxa Имя глобальной учетной записи
 	SString AddedMsgString;
 	SString AddedMsgStrNoRights; // Дополнительная строка контекста сообщения PPERR_NORIGHTS
 	SString TempLogFile;         // Имя временного файла журнала, в котором дублируются все записи в журналы.
@@ -9445,7 +9460,7 @@ private:
 // изменить признак Closed лота и установить (снять) флаг LOTF_CLOSEDORDER
 //
 #define PPTFR_CLOSEDORDER  0x00000010L
-#define PPTFR_LOTSYNC      0x00000020L // @v7.6.1 Строка документа, принятого из другого раздела и синхронизированная с ним по LotID
+#define PPTFR_LOTSYNC      0x00000020L // Строка документа, принятого из другого раздела и синхронизированная с ним по LotID
 #define PPTFR_REVAL        0x00000040L // Признак переоценки
 //
 // Флаг PPTFR_ONORDER проставляется в строке товарного документа на продажу товара если эта строка покрывает
@@ -9714,7 +9729,7 @@ public:
 	int16  RByBill;
 	int16  SrcIltiPos; // Номер позиции в пакете ILBillPacket, из которого была создана данная строка.
 		// Необходим для трансляции идентификаторов лотов при синхронизации между разделами.
-	PPID   CurID;      // ->Ref(PPOBJ_CURRENCY).ID Валюта @v7.6.1 int16-->PPID
+	PPID   CurID;      // ->Ref(PPOBJ_CURRENCY).ID Валюта 
 	PPID   LocID;      // ->Location.ID Для складских операций - ИД ячейки
 	PPID   GoodsID;
 	PPID   LotID;
@@ -9838,8 +9853,8 @@ struct ILTI { // @persistent(DBX) @size=80
 
 	PPID   BillID;      // ->Bill.ID   Ссылка на заголок документа
 	PPID   GoodsID;     // ->Goods2.ID ИД товара
-	PPID   LotSyncID;   // @v7.6.1 @synclot
-	PPID   LotMirrID;   // @v7.6.1 @synclot Лот зеркальной записи для внутренней передачи
+	PPID   LotSyncID;   // @synclot
+	PPID   LotMirrID;   // @synclot Лот зеркальной записи для внутренней передачи
 	double UnitPerPack; // Количество в упаковке
 	double Quantity;    // Количество
 	double Rest;        // Непроведенный остаток [0..Quantity]
@@ -9902,28 +9917,28 @@ struct ILTI { // @persistent(DBX) @size=80
 //
 //
 //
-#define BILLF2_BHT           0x00000001L // @v7.2.0 Документ создан с BHT-терминала
-#define BILLF2_FULLSYNC      0x00000002L // @v8.0.3 Признак того, что документ был принят из другого раздела с полным соответствием.
+#define BILLF2_BHT           0x00000001L // Документ создан с BHT-терминала
+#define BILLF2_FULLSYNC      0x00000002L // Признак того, что документ был принят из другого раздела с полным соответствием.
 	// В результате такой документ потенциально сможет принять изменения исходного документа в последующем.
 	// Важно: наличие данного флага является необходимым, но не достаточным условием для того, чтобы раздел
 	// мог бы акцептировать изменение документа из другого раздела.
-#define BILLF2_TSESSPAYM     0x00000004L // @v8.0.3 Документа платежа по технологической сессии
-#define BILLF2_DONTCLOSDRAFT 0x00000008L // @v8.3.2 @transient Специализированный флаг, уведомляющий функцию PPObjBill::ProcessLink
+#define BILLF2_TSESSPAYM     0x00000004L // Документа платежа по технологической сессии
+#define BILLF2_DONTCLOSDRAFT 0x00000008L // @transient Специализированный флаг, уведомляющий функцию PPObjBill::ProcessLink
 	// о том, что не следует закрывать связанный драфт-документ.
-#define BILLF2_DECLINED      0x00000010L // @v8.3.3 Документ (драфт), принятый нами по EDI-каналу нами же полностью отклонен
-#define BILLF2_ACKPENDING    0x00000020L // @v8.8.0 Документ находится в состоянии ожидания завершения процедуры подтверждения //
+#define BILLF2_DECLINED      0x00000010L // Документ (драфт), принятый нами по EDI-каналу нами же полностью отклонен
+#define BILLF2_ACKPENDING    0x00000020L // Документ находится в состоянии ожидания завершения процедуры подтверждения //
 	// То есть, отправлен запрос на подтверждение, но ответ еще не получен. У документа при этом может быть установлен
 	// тег типа PPTAG_BILL_EDIACK. Если BILLF2_ACKPENDING установлен и в документе есть такой тег, то это означает,
 	// что подтверждение уведомления об еще не было подтверждено со стороны сервиса EDI.
-#define BILLF2_RECADV_ACCP   0x00000040L // @v8.8.6 На документ отправленный через EDI-канал получено подтверждение о получении покупателем
-#define BILLF2_RECADV_DECL   0x00000080L // @v8.8.6 Документ отправленный через EDI-канал получено уведомление об отказе в приеме
+#define BILLF2_RECADV_ACCP   0x00000040L // На документ отправленный через EDI-канал получено подтверждение о получении покупателем
+#define BILLF2_RECADV_DECL   0x00000080L // Документ отправленный через EDI-канал получено уведомление об отказе в приеме
 	// Если установлены оба флага BILLF2_RECADV_ACCF и BILLF2_RECADV_DECL, то к документу привязывается драфт-документ приемки покупателем
-#define BILLF2_EDIAR_AGR     0x00000100L // @v8.8.8 Ответ на подтверждение нашей отгрузки покупателем (согласны)
-#define BILLF2_EDIAR_DISAGR  0x00000200L // @v8.8.8 Ответ на подтверждение нашей отгрузки покупателем (не согласны)
-#define BILLF2_EDIREPEALREQ  0x00000400L // @v9.2.8 Для документа получен запрос на отмену в проведении на сервере EDI
+#define BILLF2_EDIAR_AGR     0x00000100L // Ответ на подтверждение нашей отгрузки покупателем (согласны)
+#define BILLF2_EDIAR_DISAGR  0x00000200L // Ответ на подтверждение нашей отгрузки покупателем (не согласны)
+#define BILLF2_EDIREPEALREQ  0x00000400L // Для документа получен запрос на отмену в проведении на сервере EDI
 	// Если этот флаг установлен, то смысл флагов BILLF2_EDIAR_AGR и BILLF2_EDIAR_DISAGR переключается на реакцию на
 	// запрос об отмене проведения.
-#define BILLF2_ROWLINKBYRBB  0x00000800L // @v9.4.3 @internal
+#define BILLF2_ROWLINKBYRBB  0x00000800L // @internal
 #define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имею отрицательную номинальную сумму оплачивает ее модулем другой документ
 //
 // Value added record for PPOBJ_BILL
@@ -12031,9 +12046,9 @@ public:
 	};
 	uint   CalcMethod;
 	uint   Flags_;
-	uint32 DiffParam;      // @v8.1.0 Флаги дифференциации записей (GoodsRestParam::_diffXXX)
+	uint32 DiffParam;      // Флаги дифференциации записей (GoodsRestParam::_diffXXX)
 	LDATE  Date;
-	long   OprNo;          // @v7.6.2 Если Dt != 0 и OprNo > 0, то остаток по лотам брать до {Date, OprNo}
+	long   OprNo;          // Если Dt != 0 и OprNo > 0, то остаток по лотам брать до {Date, OprNo}
 	PPID   LocID;
 	PPID   GoodsID;
 	PPID   SupplID;
@@ -12099,37 +12114,33 @@ struct PPLotFault { // @flat
 		Rest,                 // !
 		CloseTag,             // !
 		CloseDate,            // !
-
 		OrdReserveFlag,       // Неверно установлен либо не установлен флаг "Резервирующий заказ"
 		CyclicLink,           // Циклическая ссылка в лотах
 		LinkNotFound,         // Лот ссылается на несуществующий родительский лот
-
 		WtRest,               // Неправильный текущий остаток по лоту в физ единицах
 		OpWtRest,             // Неправильный остаток после операции в физ единицах
-
 		NoPack,               // Отсутствует емкость упаковки
 		PrevLotGoods,         // Товар в лоте не соответствует товару в лоте-предшественнике
 		PrevLotLoc,           // Склад в лоте тот же, что и в лоте предшественнике
 		PrevLotFlagsCWoVat,   // Не эквивалентная установка флага LOTF_COSTWOVAT с лотом-предшественником
-
 		LcrInvRest,           // Неверный остаток в записи таблицы остатков по лотам
 		LcrAbsence,           // Отсутствует запись в таблице остатков по лотам
 		LcrWaste,             // Лишняя запись в таблице остатков по лотам
 		LcrDb,                // Ошибка извлечения записи из таблицы остатков по лотам
-		RevalOldCost,         // @v7.1.8 Неверная старая цена поступления в переоценке
-		RevalOldPrice,        // @v7.1.8 Неверная старая цена поступления в переоценке
-		NonUniqSerial,        // @v7.3.0 Неуникальный в пределах товара серийный номер лота
-		OrdOpOnSimpleLot,     // @v7.5.3 Операия заказа привязана к обыкновенному лоту
-		NegativeRest,         // @v8.0.9 Отрицательный текущий остаток по лоту
-		InadqIndepPhFlagOn,   // @v8.3.9 В строке Transfer установлен флаг PPTFR_INDEPPHQTTY в то время как товара не имеет флага GF_USEINDEPWT
-		InadqIndepPhFlagOff,  // @v8.3.9 В строке Transfer не установлен флаг PPTFR_INDEPPHQTTY в то время как товара имеет флаг GF_USEINDEPWT
-		NonSingleRcptOp,      // @v8.5.7 К лоту привязано более одной строки, имеющей флаг PPTFR_RECEIPT
-		PackDifferentGSE,     // @v8.8.1 Емкость упаковки лота отличается от ненулевой емкости упаковки поставки товара
-		InadqLotWoTaxFlagOn,  // @v8.9.0 В лоте установлен флаг LOTF_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
-		InadqTrfrWoTaxFlagOn, // @v8.9.0 В строке Transfer устанолен флаг PPTFR_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
-		EgaisCodeAlone,       // @v9.3.1 Лот содержит тег кода продукции ЕГАИС, но ни один товар не имеет такого кода
-		NoEgaisCode,          // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит такой код
-		NoEgaisCodeAmbig,     // @v9.7.8 Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
+		RevalOldCost,         // Неверная старая цена поступления в переоценке
+		RevalOldPrice,        // Неверная старая цена поступления в переоценке
+		NonUniqSerial,        // Неуникальный в пределах товара серийный номер лота
+		OrdOpOnSimpleLot,     // Операия заказа привязана к обыкновенному лоту
+		NegativeRest,         // Отрицательный текущий остаток по лоту
+		InadqIndepPhFlagOn,   // В строке Transfer установлен флаг PPTFR_INDEPPHQTTY в то время как товара не имеет флага GF_USEINDEPWT
+		InadqIndepPhFlagOff,  // В строке Transfer не установлен флаг PPTFR_INDEPPHQTTY в то время как товара имеет флаг GF_USEINDEPWT
+		NonSingleRcptOp,      // К лоту привязано более одной строки, имеющей флаг PPTFR_RECEIPT
+		PackDifferentGSE,     // Емкость упаковки лота отличается от ненулевой емкости упаковки поставки товара
+		InadqLotWoTaxFlagOn,  // В лоте установлен флаг LOTF_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
+		InadqTrfrWoTaxFlagOn, // В строке Transfer устанолен флаг PPTFR_PRICEWOTAXES в то время как товар не имеет флага GF_PRICEWOTAXES
+		EgaisCodeAlone,       // Лот содержит тег кода продукции ЕГАИС, но ни один товар не имеет такого кода
+		NoEgaisCode,          // Лот не содержит тега кода алкогольной продукции в то время как товар содержит такой код
+		NoEgaisCodeAmbig,     // Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
 		ThereIsQCert          // @v10.4.10 У лота нет сертификата в то время как можно унаследовать сертификат от предыдущей партии
 	};
 	int    Fault;
@@ -12501,16 +12512,16 @@ public:
 #define TLRF_REPAIRCOST        0x0004 // Исправлять цены поступления //
 #define TLRF_REPAIRPRICE       0x0008 // Исправлять цены реализации  //
 #define TLRF_RMVLOST           0x0010 // Удалять лоты, не имеющие ни одной операции
-#define TLRF_CHECKUNIQSERIAL   0x0020 // @v7.3.0 Проверять серийные номера на уникальность в пределах товара
-#define TLRF_ADJUNUQSERIAL     0x0040 // @v7.3.0 Исправлять неуникальные в пределах товара серийные номера
+#define TLRF_CHECKUNIQSERIAL   0x0020 // Проверять серийные номера на уникальность в пределах товара
+#define TLRF_ADJUNUQSERIAL     0x0040 // Исправлять неуникальные в пределах товара серийные номера
 	// (доступно только если в конфигурации документов определен суффикс уникальности серий).
-#define TLRF_INDEPHQTTY        0x0080 // @v8.3.9 Корректировать флаг PPTFR_INDEPPHQTTY в записях Transfer в соответствии
+#define TLRF_INDEPHQTTY        0x0080 // Корректировать флаг PPTFR_INDEPPHQTTY в записях Transfer в соответствии
 	// с флагом GF_USEINDEPWT установленным в товаре
-#define TLRF_REPAIRPACKUNCOND  0x0100 // @v8.8.1 Безусловно корректировать емкости упаковок в лотав по значению, заданному в карточке товара
-#define TLRF_REPAIRWOTAXFLAGS  0x0200 // @v8.9.0
-#define TLRF_SETALCCODETOGOODS 0x0400 // @v9.3.1 Если лот содержит тег PPTAG_LOT_FSRARLOTGOODSCODE то добавлять такой код
+#define TLRF_REPAIRPACKUNCOND  0x0100 // Безусловно корректировать емкости упаковок в лотав по значению, заданному в карточке товара
+#define TLRF_REPAIRWOTAXFLAGS  0x0200 // 
+#define TLRF_SETALCCODETOGOODS 0x0400 // Если лот содержит тег PPTAG_LOT_FSRARLOTGOODSCODE то добавлять такой код
 	// в список кодов товара, если ни один из товаров не содержит такой код
-#define TLRF_SETALCCODETOLOTS  0x0800 // @v9.7.8 Если товар содержит код алкогольной продукции, а лот - нет, то в тег лота
+#define TLRF_SETALCCODETOLOTS  0x0800 // Если товар содержит код алкогольной продукции, а лот - нет, то в тег лота
 	// PPTAG_LOT_FSRARLOTGOODSCODE переносить этот код.
 #define TLRF_SETINHQCERT       0x1000 // @v10.4.10 Устанавливать на лоты, у которых нет сертификатов, унаследованные от
 	// предыдущих приходов сертификаты.
@@ -13518,8 +13529,8 @@ private:
 		double Qtty;
 		double Amt;
 	};
-	const  PPID  CoeffQkID;            // @v7.8.12
-	const  PPQuotArray * P_CoeffQList; // @notowned @v7.8.12
+	const  PPID  CoeffQkID;            // 
+	const  PPQuotArray * P_CoeffQList; // @notowned 
 	SVector * P_List; // @v9.9.4 SArray-->SVector
 };
 
@@ -13840,11 +13851,11 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fIgnoreNoDisGoodsTag       = 0x00000800, // В кассовой панели игнорировать признак товара "Без скидки"
 		fRestrictQttyByUnitRnd     = 0x00001000, // В кассовой панели ограничивать ввод количества
 			// признаком целочисленности единицы измерения и ее параметром точности округления //
-		fDisableManualSCardInput   = 0x00002000, // @v7.0.10 Запрет ввода номера дисконтной карты в ручную
-		fUncondAsyncBasePrice      = 0x00004000, // @v7.1.3  Безусловная базовая цена для асинхронных узлов
-		fDisableAdjWrOffAmount     = 0x00008000, // @v8.6.6  Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
-		fUnifiedPaymentCfmBank     = 0x00010000, // @v8.6.6  Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
-		fAutosaveSyncChecks        = 0x00020000, // @v8.7.7  Автоматически сохранять синхронные чеки при каждом изменении
+		fDisableManualSCardInput   = 0x00002000, // Запрет ввода номера дисконтной карты в ручную
+		fUncondAsyncBasePrice      = 0x00004000, // Безусловная базовая цена для асинхронных узлов
+		fDisableAdjWrOffAmount     = 0x00008000, // Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
+		fUnifiedPaymentCfmBank     = 0x00010000, // Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
+		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
 		fWrOffPartStrucs           = 0x00040000, // @v9.8.12 При списании кассовых сессий досписывать частичные структуры
 		fSkipPrintingZeroPrice     = 0x00080000, // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой
 	};
@@ -14017,7 +14028,7 @@ public:
 		PPID   SCardID;       // Ид кредитной карты, на которую начисляется сумма предоплаты
 		double PrepayAmount;  // Сумма предоплаты
 		STimeChunk Chunk;     // Период начала и завершения заказанного посещения.
-		SString Memo;         // @v7.1.3 @memo
+		SString Memo;         // @memo
 	};
 	struct Param { // @persistent
 		Param();
@@ -14086,7 +14097,7 @@ enum {
 	cifPriceBySerial = 0x0080, // Цена на строку установлена по серийному номеру.
 	cifGiftDiscount  = 0x0100, // Строка предоставляет подарочную суммовую скидку (по котировке PPQUOTK_GIFT).
 		// При формировании окончательного чека сумма по этой строке полностью обнуляется а скидка разносится на весь чек.
-	cifMainGiftItem  = 0x0200, // @#{!cifMainGiftItem || cifUsedByGift} @v7.0.6 Строка соответствует основному
+	cifMainGiftItem  = 0x0200, // @#{!cifMainGiftItem || cifUsedByGift} Строка соответствует основному
 		// компоненту подарочной структуры
 	cifModifier      = 0x0400,  // Элемент является модификатором предшествующего элемента, не имеющего
 		// такого признака (элемент может иметь несколько модификаторов, следующих один за другим).
@@ -14398,7 +14409,7 @@ public:
 			// отмечается информация об ошибке в чеке.
 		ufSkipUhtt       = 0x0002  // Функция CCheckCore::TurnCheck не проводит операции по картам через сервер Universe-HTT
 	};
-	long   UpdFlags;       // @transient @v7.0.0 Флаги, определяющие правила изменения пакета
+	long   UpdFlags;       // @transient Флаги, определяющие правила изменения пакета
 	int    PctDis;         // @transient if !0 - then Discount in percent
 	double Discount;       // @transient
 	double _Cash;          // @transient Сумма, уплаченная наличными
@@ -14439,18 +14450,18 @@ private:
 #define CCHKF_ADDINCORPCRD 0x00000008L // В оплату чека включена дополнительная кредитная карта.
 	// ИД этой карты хранится в поле CCheckExtTbl::AddCrdCardID, а сумма, списываемая с нее - в поле CCheckExtTbl::AddCrdCardPaym.
 	// Доп кредитная карта никогда не применяется для начисления на нее денег.
-#define CCHKF_DELIVERY     0x00000010L // @v7.0.7 Чек с опцией доставки (в расширении может быть введен адрес и указано время доставки)
-#define CCHKF_BONUSCARD    0x00000020L // @v7.4.3 Чек проведен по бонусной карте. Этот флаг (кроме всего прочего) влияет на интерпретацию сумм оплаты.
-#define CCHKF_PAYMLIST     0x00000040L // @v7.6.1 Чек имеет список оплат.
+#define CCHKF_DELIVERY     0x00000010L // Чек с опцией доставки (в расширении может быть введен адрес и указано время доставки)
+#define CCHKF_BONUSCARD    0x00000020L // Чек проведен по бонусной карте. Этот флаг (кроме всего прочего) влияет на интерпретацию сумм оплаты.
+#define CCHKF_PAYMLIST     0x00000040L // Чек имеет список оплат.
 	// Если этот флаг установлен, флаги CCHKF_BANKING, CCHKF_ADDPAYM, CCHKF_ADDINCORPCRD и поля CCheckExt::AddPaym, CCheckExt::AddCrdCardID, CCheckExt::AddCrdCardPaym
 	// утрачивают смысл (не принимаются в рассмотрение).
-#define CCHKF_TEMPREPLACE  0x00000080L // @v7.7.11 Пометка временного чека, который должен заместить чек с таким же номером в кассовой сессии
-#define CCHKF_IMPORTED     0x00000100L // @v8.4.8 Обозначает синхронный чек, импортированный из внешней системы
-#define CCHKF_FIXEDPRICE   0x00000200L // @v8.7.7 Цены по строкам чека зафиксированы. Если этот флаг не установлен,
+#define CCHKF_TEMPREPLACE  0x00000080L // Пометка временного чека, который должен заместить чек с таким же номером в кассовой сессии
+#define CCHKF_IMPORTED     0x00000100L // Обозначает синхронный чек, импортированный из внешней системы
+#define CCHKF_FIXEDPRICE   0x00000200L // Цены по строкам чека зафиксированы. Если этот флаг не установлен,
 	// то строка чека все равно может иметь зафиксированную цену, если в ней установлен флаг CCheckPacket::LineExt::fFixedPrice
-#define CCHKF_ABSTRACTSALE 0x00000400L // @v9.5.10 Абстрактный товар (продажа по цене)
-#define CCHKF_ALTREG       0x00000800L // @v9.6.11 Чек отпечатан на альтернативном регистраторе
-// @v9.7.5 #define CCHKF_NOTICE       0x00001000L // @v9.0.1 Специальный вид чека, используемый только для пометки некоторого события с одним или
+#define CCHKF_ABSTRACTSALE 0x00000400L // Абстрактный товар (продажа по цене)
+#define CCHKF_ALTREG       0x00000800L // Чек отпечатан на альтернативном регистраторе
+// @v9.7.5 #define CCHKF_NOTICE       0x00001000L // Специальный вид чека, используемый только для пометки некоторого события с одним или
 	// несколькими товарами. Чек с таким флагом автоматически получает флаги CCHKF_SKIP, CCHKF_SUSPENDED
 #define CCHKF_SPFINISHED   0x00001000L // @v9.7.5 Специальный признак окончательного финиширования чека. Применяется, например,
 	// для пометки факта доставки и(или) окончательной оплаты по чеку со стороны покупателя.
@@ -14653,7 +14664,7 @@ public:
 	enum {
 		gglfUpdChecks           = 0x0001, // Снять признак CCHKF_NOTUSED после группировки
 		gglfSkipUnprintedChecks = 0x0002, // Пропускать чеки без флага CCHKF_PRINTED
-		gglfUseFullCcPackets    = 0x0004  // @v7.5.8
+		gglfUseFullCcPackets    = 0x0004  // 
 	};
 	int    SLAPI GetSessTotal(PPID sessID, long flags, CSessTotal *, BVATAccmArray * pVatList);
 	int    SLAPI GroupingToGoodsLines(PPID sessID, CSessTotal *, CCheckGoodsArray *, long flags, int use_ta);
@@ -15126,6 +15137,7 @@ protected:
 	int    SLAPI UpdateTimeBrowser(const STimeChunkGrid * pGrid, const char * pTitle, int destroy);
 	int    SLAPI GetLastUpdatedObjects(long extId, LongArray & rList) const;
 	void   SLAPI Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen);
+	int    SLAPI Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void * pItem1, const void * pItem2);
 
 	IterCounter Counter;
 	BExtQuery * P_IterQuery;
@@ -15461,11 +15473,11 @@ public:
 		fV579                  = 0x0001,
 		fNotifyByMail          = 0x0002, //
 		fDisable               = 0x0004, // Задача не должна запускаться //
-		fOnStartUp             = 0x0008, // @v7.9.6 Задачу запускать при запуске сервера
-		fPermanent             = 0x0010, // @v7.9.6 Перманентая задача (запускается один раз и постоянно работает)
-		fUnSheduled            = 0x0020, // @v8.2.5 Непланируемая по времени задача. Такая задача исполняется либо при запуске,
+		fOnStartUp             = 0x0008, // Задачу запускать при запуске сервера
+		fPermanent             = 0x0010, // Перманентая задача (запускается один раз и постоянно работает)
+		fUnSheduled            = 0x0020, // Непланируемая по времени задача. Такая задача исполняется либо при запуске,
 			// либо после другой задачи, либо вообще не исполняется.
-		fSkipEmptyNotification = 0x0040  // @v9.2.11 Не отсылать уведомления, если журналы пустые
+		fSkipEmptyNotification = 0x0040  // Не отсылать уведомления, если журналы пустые
 	};
 	enum {
 		extssEMailAddrList  = 1, // Список e-mail адресов для отсылки почтовых извещений о состоянии выполнения задачи
@@ -15547,7 +15559,7 @@ private:
 	};
 	long   Flags;
 	SString DbSymb; // база данных, к которой относятся задачи пула
-	PPJobMngr * P_Mngr; // @notowned @v7.7.9
+	PPJobMngr * P_Mngr; // @notowned 
 };
 //
 // Descr: Управляет ресурсами задач и пулами задач
@@ -15814,14 +15826,11 @@ private:
 #define OLW_CANEDIT       0x0004
 #define OLW_SORTBYTEXT    0x0008
 #define OLW_CANSELUPLEVEL 0x0010 // Позволяет выбирать элемент, имеющий подуровни
-#define OLW_SHOWPASSIVE   0x0020 // Показывать пассивные объекты
-	// (работает только для объектов, поддерживающих признак пассивности)
-#define OLW_SETUPSINGLE   0x0040 // Если в списке всего один элемент, и вызывающая функция //
-	// не указала явно, какой элемент устанавливать в комбо-бокс, то устанавливается единственный.
+#define OLW_SHOWPASSIVE   0x0020 // Показывать пассивные объекты (работает только для объектов, поддерживающих признак пассивности)
+#define OLW_SETUPSINGLE   0x0040 // Если в списке всего один элемент, и вызывающая функция не указала явно, какой элемент устанавливать в комбо-бокс, то устанавливается единственный.
 #define OLW_LOADDEFONOPEN 0x0080 // Загружает данные для списка при первом открытии
-#define OLW_WORDSELECTOR  0x0100 // @v7.5.1 При поиске отображать список строк, удовлетворяющих строке поиска
-#define OWL_OUTERLIST     0x0200 // @v9.0.1 Данные для списка были приложены к PPObjListWindow
-	// при создании экземпляра - не следует перестраивать список при изменении элемента.
+#define OLW_WORDSELECTOR  0x0100 // При поиске отображать список строк, удовлетворяющих строке поиска
+#define OWL_OUTERLIST     0x0200 // Данные для списка были приложены к PPObjListWindow при создании экземпляра - не следует перестраивать список при изменении элемента.
 //
 // Строки соответствующие SubstGrpPersonEvent: PPTXT_SUBSTPSNEVLIST
 //
@@ -16696,7 +16705,8 @@ public:
 		uint8  AdoptSlShiftDn;
 		uint8  AdoptSlShiftUp;
 		uint8  AdoptTpFinishShiftUp;
-		uint8  Reserve[57];
+		uint8  AdoptTpFixed; // @v10.8.1
+		uint8  Reserve[56];
 	};
 	Extension E;
 	LongArray MainFrameSizeList;    // Список дистанций магистрального тренда
@@ -16964,7 +16974,7 @@ public:
 		};
 		const  SString Symb;     // Символ временной серии
 		long   ActionFlags;      // @flags
-		uint   Reserve4[4];      // 
+		uint   Reserve4[4];      //
 	};
 	struct StrategyResultEntry : public Strategy { // @flat
 		SLAPI  StrategyResultEntry();
@@ -16980,9 +16990,9 @@ public:
 		char   Symb[32];
 		uint   LastResultIdx; // Последний индекс в тестируемом ряду, по которому еще можно получить адекватный результат
 			// (далее ряд обрывается раньше, чем можно оценить результат ставки).
-		double SumPeak;          // 
-		double SumBottom;        // 
-		double MaxPeak;          // 
+		double SumPeak;          //
+		double SumBottom;        //
+		double MaxPeak;          //
 		uint64 TotalSec;         // Общее время теста (для симуляции контейнеров стратегий)
 	};
 	struct TrendEntry {
@@ -17458,13 +17468,16 @@ private:
 	// @v10.7.2 int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    SLAPI FindStrategies(void * pBlk) const;
+	int    SLAPI SimulateStrategyResultEntries(void * pBlk, const TSVector <PPObjTimeSeries::StrategyResultEntry> & rList, 
+		uint firstIdx, uint lastIdx, uint maxDuckQuant, uint targetQuant, PPObjTimeSeries::StrategyResultEntry & rResult, 
+		TSVector <PPObjTimeSeries::StrategyResultValueEx> * pDetailList);
 	int    SLAPI FindStrategiesLoop(void * pBlk);
 	struct ResonanceCombination {
 		uint   MaxDuckQuant;
 		uint   TargetQuant;
 		uint   FrameSize;
 	};
-	int    SLAPI FindResonanceCombination(void * pBlk, const LongArray & rFrameSizeList, const LAssocArray & rStakeBoundList, uint mainFrameRangeIdx, 
+	int    SLAPI FindResonanceCombination(void * pBlk, const LongArray & rFrameSizeList, const LAssocArray & rStakeBoundList, uint mainFrameRangeIdx,
 		const TsMainFrameRange * pMainFrameRange, int stakeSide, ResonanceCombination & rResult);
 	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
@@ -18118,8 +18131,7 @@ struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 #define ROXF_AUTODEBT        0x0010L // Автоматически зачитывать долговые док-ты
 #define ROXF_CFM_DEBT        0x0020L // Подтверждать зачет долгового документа
 #define ROXF_THISLOCONLY     0x0040L // Зачитывать документы только по тому же складу
-#define ROXF_BYEXTOBJ        0x0080L // Reckon by BillTbl::Object2
-	// (forward reckoning only) if Object2 == 0, then use Object
+#define ROXF_BYEXTOBJ        0x0080L // Reckon by BillTbl::Object2 (forward reckoning only) if Object2 == 0, then use Object
 #define ROXF_REQALTOBJ       0x0100L // If !automat then request user for alternate object for reckoning
 #define ROXF_THISALTOBJONLY  0x0200L // Зачитывать документы только по той же дополнительной статье документа
 	// Если доп статья нулевая, то зачитывать только на нулевые доп статьи
@@ -18152,10 +18164,8 @@ struct PPReckonOpEx {
 #define DROXF_CREMPTYBILL      0x0001L // Вместо списания создавать пустой документ
 #define DROXF_USEPARTSTRUC     0x0002L // Списывать частичные структуры в документах списания //
 #define DROXF_WROFFCURDATE     0x0004L // Документ списания формировать текущей системной датой
-#define DROXF_DONTINHEXPIRY    0x0008L // При списании драфт-документа в приходный документ
-	// не наследовать срок годности из строк драфт-документа.
-#define DROXF_MULTWROFF        0x0010L // Документ допускает множественное списание (то есть, к одному
-	// драфт-документу может быть привязано несколько документов списания).
+#define DROXF_DONTINHEXPIRY    0x0008L // При списании драфт-документа в приходный документ не наследовать срок годности из строк драфт-документа.
+#define DROXF_MULTWROFF        0x0010L // Документ допускает множественное списание (то есть, к одному драфт-документу может быть привязано несколько документов списания).
 #define DROXF_MULTDRFTWROFF    0x0020L // @v8.8.11 Списание драфт-прихода в модификацию осуществляется таким образом, что
 	// на каждую строку исходного документа генерируется отдельный документ модификации
 #define DROXF_SELSUPPLONCOMPL  0x0040L // @v9.1.12 При компенсации дефицита запрашивать поставщиков приходуемого товара
@@ -18634,8 +18644,8 @@ public:
 		};
 		uint32 Ver;
 		PPID   FtpAcctID;
-		uint8  Reserve[24]; // @reserve @v7.8.2 [28]-->[24]
-		PPID   BzsID;       // @v7.8.2 Идентификатор единственного показателя, который следует рассчитать
+		uint8  Reserve[24]; // @reserve
+		PPID   BzsID;       // Идентификатор единственного показателя, который следует рассчитать
 		DateRange Period;
 		long   Flags;
 		long   Reserve2;    // @reserve
@@ -19666,7 +19676,7 @@ public:
 	//   2. Если syncGroup == 1, то выбираются только синхронные узлы
 	//   3. Если syncGroup == 2, то выбираются только асинхронные узлы
 	//   4. Если syncGroup == 0, то выбор узла не зависит от признака синхронности
-	//   5. Узлы, имеющие признак CASHFX_PASSIVE пропускаются // @v7.6.9
+	//   5. Узлы, имеющие признак CASHFX_PASSIVE пропускаются //
 	//   Если существует только один кассовый узел, соответствующий заданным критериям,
 	//   то он возвращается без отображения списка выбора. При этом, если параметр
 	//   pSingle != 0, то по этому указателю присваивается 1.
@@ -19790,7 +19800,7 @@ private:
 //
 typedef PPCashMachine * (SLAPI * RegCashMachineFunc)(PPID cashID);
 
-struct AsyncCashNPrepParam {
+struct AsyncPosPrepParam {
 	enum {
 		fUpdateOnly = 0x00000001L
 	};
@@ -25710,7 +25720,6 @@ private:
 	int    SLAPI FetchData(PPID id);
 
 	TSArray <BrwEntry> Data;
-
 	StaffListFilt Filt;
 	PPObjStaffList::Filt TempExtra;
 	PPObjStaffList SlObj;
@@ -26541,7 +26550,7 @@ struct PersonEventFilt : public PPBaseFilt {
 		fWithoutPair = 0x0001
 	};
 	char   ReserveStart[28];  // @anchor
-	long   Flags;             // @v7.9.12
+	long   Flags;             // 
 	DateRange Period;         // Период обзора
 	TimeRange TmPeriod;       // Период по времени
 	int16  DayOfWeek;         // День недели
@@ -26725,14 +26734,14 @@ struct PersonFilt : public PPBaseFilt {
 		fExtEdit        = 0x0002, // @unused Отдельный диалог редактирования главной организации
 		fVatFree        = 0x0004, // Свободен от НДС
 		fTagsCrsstab    = 0x0008, // Показывать броузер персоналий, как кросстаб с тегами
-		fHasImages      = 0x0010, // @v7.3.x Только с картинками
-		fShowNewCli     = 0x0020, // @v8.3.0 Идентифицировать новых клиентов (требуется NewCliPeriod)
-		fPrecName       = 0x0040, // @v8.3.5 SrchStr содержит точное имя персоналии (не чувствительно к регистру)
-		fShowHangedAddr = 0x0080, // @v8.3.12 При использовании атрибута PPPSNATTR_ALLADDR отображать адреса, не
+		fHasImages      = 0x0010, // Только с картинками
+		fShowNewCli     = 0x0020, // Идентифицировать новых клиентов (требуется NewCliPeriod)
+		fPrecName       = 0x0040, // SrchStr содержит точное имя персоналии (не чувствительно к регистру)
+		fShowHangedAddr = 0x0080, // При использовании атрибута PPPSNATTR_ALLADDR отображать адреса, не
 			// привязанные ни к одной из персоналий (но не являющиеся автономными)
-		fLocTagF        = 0x0100, // @v8.6.2 Субфильтр P_TagF применяется к локациям, а не к персоналиям
-		fShowFiasRcgn   = 0x0200, // @v8.6.12 Показывать результаты распознавания адресов и сопоставления с ФИАС
-		fNewClientsOnly = 0x0400  // @v9.4.5 Только новые клиенты (действует при не пустом NewCliPeriod)
+		fLocTagF        = 0x0100, // Субфильтр P_TagF применяется к локациям, а не к персоналиям
+		fShowFiasRcgn   = 0x0200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
+		fNewClientsOnly = 0x0400  // Только новые клиенты (действует при не пустом NewCliPeriod)
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке SrchStr_
@@ -26919,7 +26928,7 @@ public:
 // Специфические флаги доступа к аналитическим статьям
 //
 #define ARTRT_CLIAGT   0x0100 // Добавление и модификация соглашений с клиентами
-#define ARTRT_MULTUPD  0x0200 // @v7.4.3 Право на массовое изменение или удаление
+#define ARTRT_MULTUPD  0x0200 // Право на массовое изменение или удаление
 
 // ArticleTbl::Rec::Flags   ARTRF_XXX
 #define ARTRF_GROUP    0x0001L // Группирующая статья аналитического учета
@@ -27566,7 +27575,7 @@ private:
 	const  void * SLAPI ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt & rList);
 	int    SLAPI ReadFromProp_Before8604(PPID obj, PPID id, PPID prop);
 
-	ObjIdListFilt ResultBrandList; // @transient @*GoodsFilt::Setup @v7.7.9 Результирующий список бр'ндов, агрегирующий BrandList и BrandOwnerList
+	ObjIdListFilt ResultBrandList; // @transient @*GoodsFilt::Setup Результирующий список брэндов, агрегирующий BrandList и BrandOwnerList
 };
 //
 // Descr: Информация о товаре, специфичная для розничной торговли.
@@ -27956,8 +27965,8 @@ public:
 	GoodsLotExtData * P_Gled; // Только для переноса параметров лотов из одного раздела в другой
 	GoodsFilt * P_Filt;       // Используется в пакете альтернативной группы
 	ObjLinkFiles LinkFiles;   // @transient
-	ObjTagList   TagL;        // @v7.0.11  Список тегов
-	ObjIdListFilt GenericList; // @v7.7.12  Список товаров, ассоциированный с данным обобщенным товаром.
+	ObjTagList   TagL;        // Список тегов
+	ObjIdListFilt GenericList; // Список товаров, ассоциированный с данным обобщенным товаром.
 		// Используется только для передачи содержимого обобщенного товара между разделами БД.
 		// Функция PPObjGoods::GetPacket не загружает данный список.
 };
@@ -28036,7 +28045,7 @@ struct GoodsCodeSrchBlock {
 #define GOCFIF_BCLEN  0x0002 // Не проверять длины штрихкодов
 #define GOCFIF_ARCODE 0x0004 // Не проверять наличие кода по статье GoodsFilt::CodeArID
 #define GOCFIF_SYSJ   0x0008 // Не проверять условия фильтра по системному журналу
-#define GOCFIF_TAG    0x0010 // @v7.7.7 Не проверять на соответствие фильтру по т'гам
+#define GOCFIF_TAG    0x0010 // Не проверять на соответствие фильтру по т'гам
 //
 // Флаг подстановки товара. Если идент товара содержит этот флаг, то этот идент в действительности
 // ссылается на какой-то иной объект данных, определенный типом подстановки.
@@ -28927,7 +28936,7 @@ private:
 #define GGRTYP_SEL_ALT       0x01000000L // Только альтернативные группы и группы верхнего уровня //
 #define GGRTYP_SEL_ASSET     0x04000000L // Только группы основных фондов (имеют тип товара с признаком GTF_ASSETS)
 #define GGRTYP_SEL_EXCLASSET 0x08000000L // Исключить группы основных фондов
-#define GGRTYP_SEL_FOLDER    0x10000000L // @v7.2.4 Показывать только группы-папки
+#define GGRTYP_SEL_FOLDER    0x10000000L // Показывать только группы-папки
 //
 // Descr: Параметр функции PPObjGoodsGroup::Recover
 //
@@ -29175,7 +29184,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	PPID   OwnerID;        // ->Person.ID (PPPRK_SHIPOWNER) Владелец транспорта (Stored as Goods2.ManufID)
 	PPID   CountryID;      // ->Country.ID (Stored as Goods2.DefBCodeStrucID)
 	PPID   CaptainID;      // ->Person.ID (PPPRK_CAPTAIN) Командир транспорта (Stored as Goods2.RspnsPersonID)
-	long   Capacity;       // @v7.2.7 Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
+	long   Capacity;       // Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
 	int16  VanType;        // @v10.2.0 PPTransport::vantypXXX Тип фургона
 	int16  Flags;          // @v10.2.4 (вместо Reserve) @flags
 };
@@ -29874,15 +29883,15 @@ private:
 // @ModuleDecl(PPViewGoods)
 //
 struct GoodsViewItem : public Goods2Tbl::Rec {
-	char   Barcode[24];    // @v8.8.0 [16]-->[24]
-	long   Brutto;
-	PPDimention PckgDim;
-	PPDimention RtlDim;    // @v7.2.7 Габаритные размеры торговой единицы, мм
-	int16  ExpiryPeriod;   // @v7.4.5 Срок годности товара (дней).
-	int16  GseFlags;       // @v7.4.5
+	char   Barcode[24];    // 
+	long   Brutto;         //
+	PPDimention PckgDim;   //
+	PPDimention RtlDim;    // Габаритные размеры торговой единицы, мм
+	int16  ExpiryPeriod;   // Срок годности товара (дней).
+	int16  GseFlags;       // 
 	double MinStock;
 	double Package;
-	double MinShippmQtty;  // @v7.2.7 Минимальное количество, которое можно отгрузить в одном документе
+	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
 	char   StrucType[16];
 };
 
@@ -31360,7 +31369,7 @@ struct ReckonOpArItem {
 	PPID   PaymentArID;
 	PPID   PayableOpID;
 	PPID   PayableArID;
-	PPID   PayableAccSheetID; // @v7.0.1
+	PPID   PayableAccSheetID;
 	PPIDArray * P_BillIDList;
 };
 
@@ -31726,7 +31735,7 @@ public:
 		pfNalogR_SCHFDOPPR         = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
 		pfExport_Marks             = 4, // @v10.7.12
 		pfNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
-		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками 
+		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
 	};
 	PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
@@ -33796,7 +33805,7 @@ private:
 		PPID  ID;             // Const=PPCFG_MAIN
 		PPID  Prop;           // PPPRP_VATBSCFG || PPPRP_VATBBCFG || PPPRP_SMPLLEDGCFG
 		char  Reserve1[44];
-		SVerT Ver;           // @v7.6.1 Версия формата (совпадает с версией системы, начиная с которой действует формат).
+		SVerT Ver;            // Версия формата (совпадает с версией системы, начиная с которой действует формат).
 		LDATE BegDt;          //
 		LDATE EndDt;          //
 		long  Flags;          //
@@ -35276,9 +35285,9 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 #define TSESF_PLAN_PHUNIT  0x0010L // Производственный план в физических единицах
 	// Если этот флаг установлен, то новая строка по умолчанию получает признак TSESLF_PLAN_PHUNIT.
 	// Пользоватлеь может переопределить этот признак для строки.
-#define TSESF_SUBSESS      0x0020L // @v7.5.7
-#define TSESF_HASIMAGES    0x0040L // @v8.7.6 Сессия имеет по крайней мере одно прикрепленное изображение
-#define TSESF_CIPREGLOCKED 0x0080L // @v8.8.2 Резервирование персональных регистраций блокировано
+#define TSESF_SUBSESS      0x0020L // 
+#define TSESF_HASIMAGES    0x0040L // Сессия имеет по крайней мере одно прикрепленное изображение
+#define TSESF_CIPREGLOCKED 0x0080L // Резервирование персональных регистраций блокировано
 //
 // Флаги строк технологических сессий
 //
@@ -35894,8 +35903,7 @@ struct TSessionFilt : public PPBaseFilt {
 			// является суперсессией, то показываются все подчиненные ей сессии, в противном случае показывается //
 			// только эта сессия //
 		fManufPlan     = 0x0004, // Показывать сессии производственных планов @#{fManufPlan^(fSuperSessOnly|fCurrent)}
-		fSubSess       = 0x0008  // @v7.5.8 Если флаг установлен и SuperSessID != 0, то показываются субсессии
-			// для сессии SuperSessID.
+		fSubSess       = 0x0008  // Если флаг установлен и SuperSessID != 0, то показываются субсессии для сессии SuperSessID.
 	};
 	char   ReserveStart[20]; // @anchor
 	PPID   QuotKindID;   // @v8.7.6 Вид котировки, испольуземый для извлечения цен
@@ -37153,7 +37161,7 @@ private:
     CurrentBillBlock Cbb;
 	GCT_BillCache * BCache;
 	PPIDArray BillList;
-	PPIDArray SupplAgentBillList; // @v7.0.11 Список документов, сопоставленных с агентом поставщика (Filt.SupplAgentID)
+	PPIDArray SupplAgentBillList; // Список документов, сопоставленных с агентом поставщика (Filt.SupplAgentID)
 	PPIDArray GoodsArray;
 	ObjIdListFilt OpList;  // @!GCTIterator::GCTIterator
 	ObjIdListFilt ArList;  // Список контрагентов, выбранных по группирующему отношению к Person(Filt.ArID)
@@ -38837,7 +38845,6 @@ public:
 	enum { // @persistent
 		extssOpSymbol   = 1,
 		extssParam      = 2,
-
 		extssAddScheme  = 3, // compatibility with SupplExpFilt::AddScheme
 		extssEncodeStr  = 4, // compatibility with SupplExpFilt::EncodeStr
 		extssClientCode = 5, // compatibility with SupplExpFilt::ClientCode
@@ -39077,13 +39084,14 @@ public:
 };
 
 struct GoodsRestViewItem { // @transient
+	SLAPI  GoodsRestViewItem();
 	PPID   GoodsID;
 	PPID   GoodsGrpID;
 	PPID   LocID;
 	PPID   LotID;          //
 	char   GoodsName[128]; //
 	char   GoodsGrpName[128]; //
-	char   UnitName[48];   // Наименование единицы измерения // @v7.2.6 [32]-->[48]
+	char   UnitName[48];   // Наименование единицы измерения // 
 	char   Serial[24];     //
 	int16  IsPredictTrust; // Прогноз продаж удовлетворяет требованиям надежности
 	int16  Reserve;        // @alignment
@@ -39939,11 +39947,11 @@ public:
 	// Следующие два списка, если не пустые, то имеют приоритет над остальными условиями
 	// фильтрации. Фактически, они применяются для детализации отчета.
 	//
-	ObjIdListFilt BillList;     // @v7.0.2 Список документов, по которым следует построить отчет
-	ObjIdListFilt RcknBillList; // @v7.0.2 Список зачетных документов, по которым следует построить отчет
-	ObjIdListFilt DebtDimList;  // @v9.1.4 Список долговых размерностей, которыми следут ограничить построение отчета
+	ObjIdListFilt BillList;     // Список документов, по которым следует построить отчет
+	ObjIdListFilt RcknBillList; // Список зачетных документов, по которым следует построить отчет
+	ObjIdListFilt DebtDimList;  // Список долговых размерностей, которыми следут ограничить построение отчета
 private:
-	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver); // @v9.1.4
+	virtual int SLAPI ReadPreviosVer(SBuffer & rBuf, int ver);
 };
 
 struct DebtTrnovrViewItem { // @transient
@@ -40393,10 +40401,10 @@ public:
 			fGatherPaymDelayStat   = 0x0008, // Собирать статистику по дебиторам
 			fProcessAgents         = 0x0010, // Собирать статистику по агентам
 			fSetupLimit            = 0x0020, // Устанавливать кредитный лимит в соглашения //
-			fUpdateLimitDebtDim    = 0x0040, // @v7.0.4 Изменять кредитный лимит дифференцированный по долговым размерностям
-			fCreateLimitDebtDim    = 0x0080, // @v7.0.4 Создавать кредитный лимит дифференцированный по долговым размерностям
-			fUpdateStopDebtDim     = 0x0100, // @v7.1.2 Изменять признаки STOP по долговым размерностям
-			fProjCommStopToDebtDim = 0x0200  // @v7.1.2 Проецировать общий STOP на размерность, если по ней частный STOP не зафиксирован
+			fUpdateLimitDebtDim    = 0x0040, // Изменять кредитный лимит дифференцированный по долговым размерностям
+			fCreateLimitDebtDim    = 0x0080, // Создавать кредитный лимит дифференцированный по долговым размерностям
+			fUpdateStopDebtDim     = 0x0100, // Изменять признаки STOP по долговым размерностям
+			fProjCommStopToDebtDim = 0x0200  // Проецировать общий STOP на размерность, если по ней частный STOP не зафиксирован
 		};
 		/*
 			Матрица перехода для частного STOP'а
@@ -41690,7 +41698,7 @@ public:
 	ObjIdListFilt NodeList;  // Список узлов.
 	ObjIdListFilt CorrGoodsList; // Список кореллирующих товаров
 	ObjIdListFilt CtValList;     // CCheckFilt::ctvXXX Показатель, вычисляемый в кросстаб-отчете
-	ObjIdListFilt ScsList;       // @v7.9.11 Список серий карт, по которым следует извлекать выборку чеков
+	ObjIdListFilt ScsList;       // Список серий карт, по которым следует извлекать выборку чеков
 };
 
 struct CCheckTotal {
@@ -42752,17 +42760,17 @@ struct SCardSelPrcssrParam { // @persistent
 	//    Если в поле Ver стоит номер версии, меньший, чем 7.6.12, то считавыем это поле как Flags и пропускаем AutoGoodsID.
 	//    Здесь приходится закладываться на то, что Flags мог иметь значение либо 0 либо 1.
 	//
-	SVerT Ver;         // @v7.6.12
+	SVerT  Ver;         // 
 	int32  Flags;
 	LDATE  DtEnd;
 	int32  NewSerID;
-	int32  AutoGoodsID; // @v7.6.12
+	int32  AutoGoodsID; //
 	//
-	int32  FlagsSet;    // @v7.7.2 Флаги, которые следует установить
-	int32  FlagsReset;  // @v7.7.2 Фдаги, которые следует снять
-	int16  PeriodTerm;  // @v7.7.2 Тип периода длительности срока действия //
-	int16  PeriodCount; // @v7.7.2 Количество периодов длительности срока действия //
-	double Discount;    // @v7.7.2 Процент скидки //
+	int32  FlagsSet;    // Флаги, которые следует установить
+	int32  FlagsReset;  // Флаги, которые следует снять
+	int16  PeriodTerm;  // Тип периода длительности срока действия //
+	int16  PeriodCount; // Количество периодов длительности срока действия //
+	double Discount;    // Процент скидки //
 	//
 	SCardFilt SelFilt;
 };
@@ -42797,7 +42805,7 @@ public:
 	int    SLAPI ReplaceCardInChecks(PPID destCardID);
 	int    SLAPI ChangeFlags();
 	int    SLAPI RenameDup(PPIDArray * pIdList);
-	int    SLAPI PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/); // @v7.3.12
+	int    SLAPI PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/);
 	int    SLAPI ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *);
 	const  StrAssocArray & GetList() const
 	{
@@ -42968,7 +42976,7 @@ private:
 //
 typedef ArticleTbl::Rec ArticleViewItem;
 
-#define DEBTDIM_BRW_SHOWCOUNT 15 // @v7.1.5 6-->16
+#define DEBTDIM_BRW_SHOWCOUNT 15 
 
 class PPViewArticle : public PPView {
 public:
@@ -43526,18 +43534,24 @@ public:
 	int    SLAPI ViewLinkOps(PPID opID);
 	int    SLAPI ViewBills(PPID opID);
 	int    SLAPI Transmit(PPID id);
+	int    SLAPI CmpSortIndexItems(PPViewBrowser * pBrw, const OprKindBrwItem * pItem1, const OprKindBrwItem * pItem2);
 private:
 	int    SLAPI InnerIteration(OprKindViewItem * pItem);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry);
+	int    SLAPI MakeList(PPViewBrowser * pBrw);
 
+	SArray * P_DsList;
 	uint   OpListIdx;
 	uint   TmplsIdx;
-	SArray * P_OpList;
+	//SArray * P_OpList;
 	PPAccTurnTemplArray ATTmpls;
 	OprKindFilt  Filt;
 	PPObjOprKind OpkObj;
+	PPObjAccSheet AcsObj;
 };
 //
 // @ModuleDecl(PPObjMrpTab)
@@ -46335,8 +46349,7 @@ private:
 	int    SLAPI CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID);
 	int    SLAPI CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder, PPID * pID);
 	int    SLAPI InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & rInfo);
-
-	int    SLAPI SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs);
+	//int    SLAPI SelectOutFileName(PPID srcPosNodeID, const char * pInfix, StringSet & rResultSs);
 	int    SLAPI StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB);
 	int    SLAPI FinishWriting(WriteBlock & rB);
 	int    SLAPI WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList);
@@ -46349,7 +46362,8 @@ private:
 	int    SLAPI WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo);
 	int    SLAPI WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
 	int    SLAPI TransportFileOut(const SString & rOutFileName, PPID srcPosNodeID, const char * pInfix);
-	int    SLAPI PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs);
+	int    SLAPI PreprocessInputSource(PPID cnID, const char * pSrc, StringSet & rSs, StrAssocArray & rRemoteAssocList);
+	int    SLAPI PreprocessFtpDescriptor(const SString & rDescriptor, PPID posNodeID, PPInternetAccount & rInaRec, SString & rFtpExtPath);
 
 	SString EncBuf;
 	PPObjPerson PsnObj;
@@ -46833,7 +46847,10 @@ public:
 		ptMedicine = GTCHZNPT_MEDICINE //
 	};
 	static int FASTCALL IsChZnCode(const char * pCode);
-	static int SLAPI ParseChZnCode(const char * pCode, GtinStruc & rS);
+	enum {
+		pchzncfPretendEverythingIsOk = 0x0001
+	};
+	static int SLAPI ParseChZnCode(const char * pCode, GtinStruc & rS, long flags);
 	static int SLAPI Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
 	static int SLAPI InputMark(SString & rMark);
 	explicit SLAPI PPChZnPrcssr(PPLogger * pOuterLogger);
@@ -47591,7 +47608,7 @@ public:
 	int    FASTCALL Log(const char * pMsg);
 	int    SLAPI ReverseFormula(const char * pFormula, SString & rResult);
 
-	DL2_ObjList Oc; // @v7.4.12 DL2_LocList Lc --> DL2_ObjList Oc
+	DL2_ObjList Oc; // 
 protected:
 	DL2_CI * SLAPI Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pCi);
 
@@ -49102,6 +49119,12 @@ public:
 	//   Деструктор класса должен удалить все такие группы.
 	//
 	int    SetTempGoodsGrp(PPID grpID);
+	//
+	// Descr: Утилитная функция, объявляющая все колонки таблицы сортируемыми.
+	//   Используется только из тех контроллеров данных, которые реализуют механизм сортировки по выбранным колонкам.
+	//   Прямое использование не допустимо.
+	//
+	void   Helper_SetAllColumnsSortable();
 	PPView * P_View;
 protected:
 	DECL_HANDLE_EVENT;
@@ -50053,7 +50076,7 @@ private:
 	void   printLabel();
 
 	int    ModifyOnlyExtRec;
-	long   ZeroFlags;         // @v7.7.2 Поле для установки признаков обнуления числовых классификаторов при массовом изменении.
+	long   ZeroFlags;         // Поле для установки признаков обнуления числовых классификаторов при массовом изменении.
 	PPGoodsPacket Data;
 	PPGoodsPacket Org;
 	PPGdsClsPacket GcPack;
@@ -53247,7 +53270,7 @@ int    SLAPI EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly);
 int    SLAPI ViewQCertDialog(PPID);
 int    SLAPI ExecCSPanel(const CashNodePaneFilt *);
 int    SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo);
-int    SLAPI AsyncCashnPrepDialog(AsyncCashNPrepParam * pParam);
+int    SLAPI AsyncCashnPrepDialog(AsyncPosPrepParam * pParam);
 int    FASTCALL ListToListDialog(ListToListData *);
 int    FASTCALL ListToListAryDialog(ListToListAryData *);
 int    SLAPI UISettingsDialog();

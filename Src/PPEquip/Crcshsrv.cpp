@@ -578,7 +578,6 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 	SString iter_msg;
 	SString grp_code;
 	AsyncCashGoodsInfo prev_gds_info;
-	PPUnit    unit_rec;
 	PPObjUnit unit_obj;
 	PPGoodsConfig gds_cfg;
 	PPObjGoods gobj;
@@ -637,8 +636,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 		if(iter_end <= 0)
 			last_goods_export = 1;
 		if(last_goods_export || rGoodsInfo.ID != prev_goods_id && prev_goods_id) {
-			// @v9.0.9 const  int is_spirit    = BIN(alc_cls_id && alc_cls_id == prev_gds_info.GdsClsID);
-			const  int is_spirit    = BIN(pGoodsIter->GetAlcoGoodsExtension(prev_gds_info.ID, 0, agi) > 0); // @v9.0.9
+			const  int is_spirit    = BIN(pGoodsIter->GetAlcoGoodsExtension(prev_gds_info.ID, 0, agi) > 0);
 			const  int is_tobacco   = BIN(tobacco_cls_id && tobacco_cls_id == prev_gds_info.GdsClsID);
 			const  int is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == prev_gds_info.GdsClsID);
 			int    do_process_lookbackprices = 0;
@@ -784,12 +782,15 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 						}
 						p_writer->EndElement(); // </group>
 					}
-					MEMSZERO(unit_rec);
-					unit_obj.Fetch(prev_gds_info.UnitID, &unit_rec);
-					p_writer->StartElement("measure-type");
-					p_writer->AddAttrib("id", unit_rec.ID);
-					p_writer->PutElement("name", unit_rec.Name);
-					p_writer->EndElement();
+					{
+						PPUnit2 unit_rec;
+						// @v10.8.2 @ctr MEMSZERO(unit_rec);
+						unit_obj.Fetch(prev_gds_info.UnitID, &unit_rec);
+						p_writer->StartElement("measure-type");
+						p_writer->AddAttrib("id", unit_rec.ID);
+						p_writer->PutElement("name", unit_rec.Name);
+						p_writer->EndElement();
+					}
 					{
 						if(country_id) {
 							p_writer->StartElement("country", "id", temp_buf.Z().Cat(country_id));
@@ -856,7 +857,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
 					if(do_process_lookbackprices) {
 						RealArray price_list;
-						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(prev_gds_info.ID, prev_gds_info.Price, price_list) > 0) {
+						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(prev_gds_info.ID, prev_gds_info.Price, price_list) > 0 || (ModuleSubVer >= 2)) { // @v10.8.2 (ModuleSubVer >= 2)
 							assert(price_list.getCount());
 							p_writer->StartElement("plugin-property", "key", "mrc");
 							for(uint pi = 0; pi < price_list.getCount(); pi++) {

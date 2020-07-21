@@ -1305,7 +1305,7 @@ int SLAPI DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	TestGtinStruc();
-	TestGravity();
+	//TestGravity();
 	//PPChZnPrcssr::Test();
 	//TestConfigDatabase_StringHistory();
 	//TestConfigDatabase_StringHistory_Interactive();

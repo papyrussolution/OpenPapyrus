@@ -23,18 +23,14 @@
 
 #include <zbar.h>
 #pragma hdrstop
-#include "error.h"
+//#include "error.h"
 
 int _zbar_verbosity = 0;
 
-static const char * const sev_str[] = {
-	"FATAL ERROR", "ERROR", "OK", "WARNING", "NOTE"
-};
+static const char * const sev_str[] = { "FATAL ERROR", "ERROR", "OK", "WARNING", "NOTE" };
 #define SEV_MAX (strlen(sev_str[0]))
 
-static const char * const mod_str[] = {
-	"processor", "video", "window", "image scanner", "<unknown>"
-};
+static const char * const mod_str[] = { "processor", "video", "window", "image scanner", "<unknown>" };
 #define MOD_MAX (strlen(mod_str[ZBAR_MOD_IMAGE_SCANNER]))
 
 static const char * const err_str[] = {

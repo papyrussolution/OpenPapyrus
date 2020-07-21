@@ -789,9 +789,8 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 	GoodsRestViewItem item;
 	PPViewGoodsRest gr_view;
 	PPIniFile ini_file(0, 0, 0, 1);
-
 	PPGetFilePath(PPPATH_OUT, "sprestp.xml", path);
-	MEMSZERO(item);
+	// @v10.8.2 @ctr MEMSZERO(item);
 	filt.GoodsGrpID = Ep.GoodsGrpID;
 	filt.Date       = P.ExpPeriod.upp ? P.ExpPeriod.upp : LConfig.OperDate;
 	//
@@ -965,7 +964,7 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 	//se_filt = Filt;
 	//se_filt.MaxFileSizeKB = 0;
 	PPGetFilePath(PPPATH_OUT, "sprest.xml", path);
-	MEMSZERO(item);
+	// @v10.8.2 @ctr MEMSZERO(item);
 	filt.GoodsGrpID = /*se_filt.*/Ep.GoodsGrpID;
 	filt.Date       = NZOR(/*se_filt.Period.*/P.ExpPeriod.upp, LConfig.OperDate);
 	if(P.LocList.IsEmpty()) {
@@ -1132,7 +1131,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 	PPViewGoodsRest   v;
 	//se_filt = Filt;
 	//se_filt.MaxFileSizeKB = 0;
-	MEMSZERO(item);
+	// @v10.8.2 @ctr MEMSZERO(item);
 	filt.GoodsGrpID = /*se_filt.*/Ep.GoodsGrpID;
 	filt.Date       = NZOR(/*se_filt.Period.*/P.ExpPeriod.upp, LConfig.OperDate);
 	filt.Flags      = GoodsRestFilt::fNullRest;
@@ -1336,7 +1335,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 		"CRMDespatchParam", "CRMDespatch", "CRMDespatchParts", "CRMDiscount", "CRMDespatchEx"));
 	soap_e.SetMaxTransmitSize(P.MaxTransmitSize);
 	//
-	MEMSZERO(head_rec);
+	// @v10.8.2 @ctr MEMSZERO(head_rec);
 	head_rec.WorkDate = P.ExpPeriod.low;
 	head_rec.SkipDelete = (P.Flags & P.fDeleteRecentBills) ? 0 : 1;
 	head_rec.IsSupplyConvertClients = 1;
@@ -1550,7 +1549,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 							double qtty_val = fabs(trfr_item.Qtty());
 							double _price = 0.0;
 							if(oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp)) {
-								MEMSZERO(line_rec.WareHouseId);
+								PTR32(line_rec.WareHouseId)[0] = 0;
 								ltoa(loc_id, line_rec.WareHouseId, 10);
 							}
 							{
@@ -1706,7 +1705,7 @@ int SLAPI PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, c
 					rLogger.Log(log_msg);
 					if(add_link_op) {
 						STRNSCPY(line_rec.DocumentTypeId, add_link_op_str);
-						MEMSZERO(line_rec.WareHouseId);
+						PTR32(line_rec.WareHouseId)[0] = 0;
 						ltoa(loc2_id, line_rec.WareHouseId, 10);
 						if(from_consig_loc) {
 							consig_parent_code.CopyTo(line_rec.CRMOrderNumber, sizeof(line_rec.CRMOrderNumber));
@@ -1856,9 +1855,6 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
     SdRecord rd_saldo_aggr;
     SdRecord rd_saldo_doc;
     SdRecord rd_saldo_ware;
-    Sdr_BaltikaSaldoAggregate sdr_saldo_aggr;
-    Sdr_BaltikaSaldoDoc sdr_saldo_doc;
-    Sdr_BaltikaSaldoWare sdr_saldo_ware;
 	PPGetFilePath(PPPATH_OUT, "spsaldo.xml", out_file_name);
     xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
     THROW(p_x);
@@ -1910,8 +1906,9 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 								PPID   person_id = 0;
 								if(LocObj.Search(loc_id, &loc_rec) > 0 && PsnObj.Search(loc_rec.OwnerID, &psn_rec) > 0) {
 									PPID   ar_id = 0;
+									Sdr_BaltikaSaldoAggregate sdr_saldo_aggr;
 									ArObj.P_Tbl->PersonToArticle(psn_rec.ID, acs_id, &ar_id);
-									MEMSZERO(sdr_saldo_aggr);
+									// @v10.8.2 @ctr MEMSZERO(sdr_saldo_aggr);
 									sdr_saldo_aggr.SaldoDate = _curdt; //           date                "Дата, за которую экспортируются данные"; // @v9.1.4
 									temp_buf.Z().Cat(psn_rec.ID);
 									STRNSCPY(sdr_saldo_aggr.CompanyId, temp_buf);
@@ -1955,7 +1952,8 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 										const PPID bill_id = bill_list.get(i);
 										BillTbl::Rec bill_rec;
 										if(P_BObj->Search(bill_id, &bill_rec) > 0) {
-											MEMSZERO(sdr_saldo_doc);
+											Sdr_BaltikaSaldoDoc sdr_saldo_doc;
+											// @v10.8.2 @ctr MEMSZERO(sdr_saldo_doc);
 											temp_buf.Z().Cat(psn_rec.ID);
 											STRNSCPY(sdr_saldo_doc.CompanyId, temp_buf);
 											temp_buf.Z().Cat(loc_id);
@@ -2009,7 +2007,8 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 										for(uint j = 0; j < goods_count; j++) {
 											const PPID goods_id = goods_list.at(j);
 											double bc_pack = 1.0;
-											MEMSZERO(sdr_saldo_ware);
+											Sdr_BaltikaSaldoWare sdr_saldo_ware;
+											// @v10.8.2 @ctr MEMSZERO(sdr_saldo_ware);
 											if(GetBarcode(goods_id, sdr_saldo_ware.WareId, sizeof(sdr_saldo_ware.WareId), 0, 0, &bc_pack) > 0) {
 												//sdr_saldo_ware.Date = (Filt.Period.upp && Filt.Period.upp < _curdt) ? Filt.Period.upp : _curdt;
 												sdr_saldo_ware.Date = (P.ExpPeriod.upp && P.ExpPeriod.upp < _curdt) ? P.ExpPeriod.upp : _curdt;
@@ -2764,6 +2763,11 @@ int SLAPI iSalesPepsi::LogErrors(const TSCollection <iSalesPepsi::ResultItem> & 
 }
 
 struct iSalesGoodsStorageHeader {
+	SLAPI  iSalesGoodsStorageHeader() : CRC(0)
+	{
+		memcpy(Signature, "ISGS", 4);
+		MEMSZERO(Reserve);
+	}
     char   Signature[4]; // "ISGS"
     uint32 CRC;
     uint8  Reserve[24];
@@ -2784,8 +2788,8 @@ int SLAPI iSalesPepsi::StoreGoods(TSCollection <iSalesGoodsPacket> & rList)
     {
     	const  size_t bsize = buffer.GetAvailableSize();
     	iSalesGoodsStorageHeader hdr;
-        MEMSZERO(hdr);
-        memcpy(hdr.Signature, "ISGS", 4);
+        // @v10.8.2 @ctr MEMSZERO(hdr);
+        // @v10.8.2 @ctr memcpy(hdr.Signature, "ISGS", 4);
         SCRC32 cc;
         hdr.CRC = cc.Calc(0, buffer.GetBuf(0), bsize);
         //
@@ -4929,10 +4933,9 @@ int SLAPI SapEfes::SendStocks()
 		GoodsRestFilt gr_filt;
 		GoodsRestViewItem gr_item;
 		SString ar_code;
-		//LocationTbl::Rec loc_rec;
 		gr_filt.Date = NZOR(P.ExpPeriod.upp, _curdate);
 		gr_filt.GoodsGrpID = Ep.GoodsGrpID;
-		gr_filt.LocList = P.LocList; // @v9.3.0
+		gr_filt.LocList = P.LocList;
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
 		THROW(gr_view.Init_(&gr_filt));
 		for(gr_view.InitIteration(PPViewGoodsRest::OrdByDefault); gr_view.NextIteration(&gr_item) > 0;) {

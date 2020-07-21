@@ -878,7 +878,13 @@ public:
 	int    HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHdr, const StrStrAssocArray * pFields, SFile * pReplyStream);
 	int    HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHdr, const char * pBody, SFile * pReplyStream);
 	int    FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool);
-	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDataMoveProgressInfo * pProgress);
+	//
+	// Descr: Отправляет локальный файл pLocalFile на ftp-сервер по url заданному параметром rUrl.
+	//   rUrl не должен содержать имени файла: конечное имя файла, с которым локальный файл будет скопирован на ftp
+	//   определяется либо параметром pDestFileName, либо, если pDestFileName пустой, именем локального файла pLocalFile.
+	//   pDestFileName, если задан, то должен быть в кодировке utf-8.
+	//
+	int    FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, const char * pDestFileNameUtf8, SDataMoveProgressInfo * pProgress);
 	int    FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SString * pResultFileName, SDataMoveProgressInfo * pProgress);
 	int    FtpDelete(const InetUrl & rUrl, int mflags);
 	int    FtpChangeDir(const InetUrl & rUrl, int mflags);

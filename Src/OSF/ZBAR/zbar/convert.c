@@ -24,8 +24,8 @@
 #include <zbar.h>
 #pragma hdrstop
 //#include "image.h"
-#include "video.h"
-#include "window.h"
+//#include "video.h"
+//#include "window.h"
 
 /* pack bit size and location offset of a component into one byte
  */
@@ -1027,12 +1027,12 @@ int zbar_negotiate_format(zbar_video_t * vdo, zbar_window_t * win)
 	if(verify_format_sort()) {
 		if(win)
 			(void)window_unlock(win);
-		return err_capture(errdst, SEV_FATAL, ZBAR_ERR_INTERNAL, __func__, "image format list is not sorted!?");
+		return err_capture(errdst, SEV_FATAL, ZBAR_ERR_INTERNAL, __FUNCTION__, "image format list is not sorted!?");
 	}
 	if((vdo && !vdo->formats) || (win && !win->formats)) {
 		if(win)
 			(void)window_unlock(win);
-		return err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "no input or output formats available");
+		return err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __FUNCTION__, "no input or output formats available");
 	}
 	srcs = (vdo) ? vdo->formats : y800;
 	dsts = (win) ? win->formats : y800;
@@ -1058,7 +1058,7 @@ int zbar_negotiate_format(zbar_video_t * vdo, zbar_window_t * win)
 	if(win)
 		(void)window_unlock(win);
 	if(!min_fmt)
-		return err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __func__, "no supported image formats available");
+		return err_capture(errdst, SEV_ERROR, ZBAR_ERR_UNSUPPORTED, __FUNCTION__, "no supported image formats available");
 	if(!vdo)
 		return 0;
 	zprintf(2, "setting best format %.4s(%08" PRIx32 ") (%d)\n", (char *)&min_fmt, min_fmt, min_cost);

@@ -1049,13 +1049,13 @@ struct _RightNKeyPosEntry { // @persistent @size=8
 	long   KeyPos;
 };
 
-#define WKEYRTCOUNT 14 // @v7.0.5 [9]-->[11] // @v8.5.5 [11]-->[13] // @v9.8.11 @fix 13-->14
+// @v10.8.2 #define WKEYRTCOUNT 14 // @v7.0.5 [9]-->[11] // @v8.5.5 [11]-->[13] // @v9.8.11 @fix 13-->14
 
 struct _PPKeybordWKeyCfg { // @persistent @store(PropertyTbl) @size=84
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_KEYBWKEYCFG
-	_RightNKeyPosEntry OperRights[WKEYRTCOUNT]; // Соответствие операционных прав положениям ключа
+	_RightNKeyPosEntry OperRights[14/*WKEYRTCOUNT*/]; // Соответствие операционных прав положениям ключа // @v10.8.2 WKEYRTCOUNT-->14
 	// @v7.0.5 char   Reserve[16];    // @reserve
 };
 
@@ -1066,7 +1066,7 @@ int SLAPI GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
 		_PPKeybordWKeyCfg  kwk_cfg;
 		pOperRightsAry->freeAll();
 		if(keyPos > 0 && PPRef->GetPropMainConfig(PPPRP_KEYBWKEYCFG, &kwk_cfg, sizeof(kwk_cfg)) > 0) {
-			for(int i = 0; i < WKEYRTCOUNT; i++) {
+			for(int i = 0; i < SIZEOFARRAY(kwk_cfg.OperRights); i++) {
 				BitArray  key_pos_ary;
 				key_pos_ary.Init(&kwk_cfg.OperRights[i].KeyPos, 32);
 				if(key_pos_ary.get(keyPos - 1) > 0) {
@@ -1083,20 +1083,21 @@ int SLAPI GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
 int SLAPI EditDueToKeyboardRights()
 {
 	class KeybWKeyCfgDlg : public TDialog {
+		DECL_DIALOG_DATA(_PPKeybordWKeyCfg);
 	public:
 		KeybWKeyCfgDlg() : TDialog(DLG_CFGKBDWKEY)
 		{
 		}
-		int    setDTS(const _PPKeybordWKeyCfg * pCfg)
+		DECL_DIALOG_SETDTS()
 		{
-			if(!RVALUEPTR(KWKCfg, pCfg))
-				MEMSZERO(KWKCfg);
+			if(!RVALUEPTR(Data, pData))
+				MEMSZERO(Data);
 			SString  key_pos;
 			SString temp_buf;
-			for(int i = 0; i < WKEYRTCOUNT; i++) {
+			for(int i = 0; i < SIZEOFARRAY(Data.OperRights); i++) {
 				StringSet key_pos_str(',', 0);
 				BitArray  key_pos_ary;
-				key_pos_ary.Init(&KWKCfg.OperRights[i].KeyPos, 32);
+				key_pos_ary.Init(&Data.OperRights[i].KeyPos, 32);
 				for(size_t pos = 0; pos < 32; pos++)
 					if(key_pos_ary.get(pos))
 						key_pos_str.add(key_pos.Z().Cat((long)(pos + 1)));
@@ -1105,11 +1106,11 @@ int SLAPI EditDueToKeyboardRights()
 			}
 			return 1;
 		}
-		int    getDTS(_PPKeybordWKeyCfg * pCfg)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
-			for(int i = 0; i < WKEYRTCOUNT; i++) {
+			for(int i = 0; i < SIZEOFARRAY(Data.OperRights); i++) {
 				long   l_init = 0;
 				char   buf[64];
 				SString  key_pos;
@@ -1122,27 +1123,26 @@ int SLAPI EditDueToKeyboardRights()
 					THROW_PP((l_key_pos = key_pos.ToLong()) > 0 && l_key_pos < 33, PPERR_USERINPUT);
 					key_pos_ary.set((size_t)(l_key_pos - 1), 1);
 				}
-				key_pos_ary.getBuf(&KWKCfg.OperRights[i].KeyPos, sizeof(long));
+				key_pos_ary.getBuf(&Data.OperRights[i].KeyPos, sizeof(long));
 			}
-			KWKCfg.OperRights[0].OperRightFlag = CSESSOPRT_RETCHECK;
-			KWKCfg.OperRights[1].OperRightFlag = CSESSOPRT_ESCCLINE;
-			KWKCfg.OperRights[2].OperRightFlag = CSESSOPRT_BANKING;
-			KWKCfg.OperRights[3].OperRightFlag = CSESSRT_CLOSE;
-			KWKCfg.OperRights[4].OperRightFlag = CSESSRT_ESCCHECK;
-			KWKCfg.OperRights[5].OperRightFlag = CSESSOPRT_COPYCHECK;
-			KWKCfg.OperRights[6].OperRightFlag = CSESSOPRT_COPYZREPT;
-			KWKCfg.OperRights[7].OperRightFlag = CSESSOPRT_ROWDISCOUNT;
-			KWKCfg.OperRights[8].OperRightFlag = (CSESSOPRT_XREP << 16);   // CSESSOPRT_XREP пересекается с CSESSRT_CLOSE
-			KWKCfg.OperRights[9].OperRightFlag = CSESSOPRT_SPLITCHK;
-			KWKCfg.OperRights[10].OperRightFlag = CSESSOPRT_MERGECHK;
-			KWKCfg.OperRights[11].OperRightFlag = CSESSOPRT_CHGPRINTEDCHK;
-			KWKCfg.OperRights[12].OperRightFlag = CSESSOPRT_CHGCCAGENT;
-			KWKCfg.OperRights[13].OperRightFlag = CSESSOPRT_ESCCLINEBORD;
-			ASSIGN_PTR(pCfg, KWKCfg);
+			Data.OperRights[0].OperRightFlag = CSESSOPRT_RETCHECK;
+			Data.OperRights[1].OperRightFlag = CSESSOPRT_ESCCLINE;
+			Data.OperRights[2].OperRightFlag = CSESSOPRT_BANKING;
+			Data.OperRights[3].OperRightFlag = CSESSRT_CLOSE;
+			Data.OperRights[4].OperRightFlag = CSESSRT_ESCCHECK;
+			Data.OperRights[5].OperRightFlag = CSESSOPRT_COPYCHECK;
+			Data.OperRights[6].OperRightFlag = CSESSOPRT_COPYZREPT;
+			Data.OperRights[7].OperRightFlag = CSESSOPRT_ROWDISCOUNT;
+			Data.OperRights[8].OperRightFlag = (CSESSOPRT_XREP << 16);   // CSESSOPRT_XREP пересекается с CSESSRT_CLOSE
+			Data.OperRights[9].OperRightFlag = CSESSOPRT_SPLITCHK;
+			Data.OperRights[10].OperRightFlag = CSESSOPRT_MERGECHK;
+			Data.OperRights[11].OperRightFlag = CSESSOPRT_CHGPRINTEDCHK;
+			Data.OperRights[12].OperRightFlag = CSESSOPRT_CHGCCAGENT;
+			Data.OperRights[13].OperRightFlag = CSESSOPRT_ESCCLINEBORD;
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-		_PPKeybordWKeyCfg  KWKCfg;
 	};
 	int    ok = -1, valid_data = 0;
 	_PPKeybordWKeyCfg  kwk_cfg;
@@ -1155,7 +1155,7 @@ int SLAPI EditDueToKeyboardRights()
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&kwk_cfg)) {
 			int  is_key_pos = 0;
-			for(int i = 0; i < WKEYRTCOUNT; i++)
+			for(int i = 0; i < SIZEOFARRAY(kwk_cfg.OperRights); i++)
 				if(kwk_cfg.OperRights[i].KeyPos) {
 					is_key_pos = 1;
 					break;

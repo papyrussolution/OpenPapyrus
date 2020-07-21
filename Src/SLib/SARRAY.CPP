@@ -1714,7 +1714,7 @@ int SLAPI RAssocArray::GetList(LongArray & rList, int unique) const
 int SLAPI RAssocArray::SearchMaxVal(uint * pPos) const
 {
 	int    ok = 0;
-	double max_val = -MAXDOUBLE;
+	double max_val = -SMathConst::Max;
 	uint   max_val_pos = 0;
 	for(uint i = 0; i < getCount(); i++) {
 		const RAssoc & r_item = at(i);

@@ -227,9 +227,15 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 				// @v10.8.1 ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len());
 				ValidCode = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
 			}
+			else if(Data.RegTypeID == PPREGT_KPP) { // @v10.8.2
+				ValidCode = (nta.Has(SNTOK_RU_KPP) > 0.0f);
+			}
 			else if(Data.RegTypeID == PPREGT_OKPO) {
 				// @v10.8.1 ValidCode = CheckOKPO(temp_buf);
 				ValidCode = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+			}
+			else if(Data.RegTypeID == PPREGT_BIC) { // @v10.8.2
+				ValidCode = (nta.Has(SNTOK_RU_BIC) > 0.0f); 
 			}
 			else if(Data.RegTypeID == PPREGT_BNKCORRACC) {
 				SString bic;

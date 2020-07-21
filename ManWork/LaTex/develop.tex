@@ -195,6 +195,28 @@ Visual Studio версий 7.10 (Visual Studio 2003), 14.0 (Visual Studio 2015) и 15.0
 
 \section{Общие правила}
 
+\subsection{Директивы препроцессора C/C++}
+
+Отступы в директивах препроцессора должны предшествовать символу \#, но не разделять этот символ с директивой.
+
+\begin{lstlisting}
+	// Правильные отступы
+	#if defined(A)
+		#define B
+	#else
+		#define C
+	#endif
+\end{lstlisting}
+
+\begin{lstlisting}
+	// Неправильные отступы
+	#if defined(A)
+	#	define B
+	#else
+	#	define C
+	#endif
+\end{lstlisting}
+
 \subsection{Примеры кода}
 
 \subsubsection{Декларация класса}

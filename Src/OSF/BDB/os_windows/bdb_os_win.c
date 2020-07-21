@@ -1784,7 +1784,6 @@ int __os_seek(ENV * env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize, off_t relat
 //
 int __os_get_cluster_size(const char * path, uint32 * psize)
 {
-
 #if(WINVER < 0x500) || defined(DB_WINCE)
 	/*
 	 * WinCE and versions of Windows earlier than Windows NT don't have
@@ -1807,7 +1806,6 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	}
 	name_size = MAX_PATH+1;
 	*psize = 0;
-
 	TO_TSTRING(NULL, path, env_path, ret);
 	if(ret != 0)
 		return ret;
@@ -1818,47 +1816,36 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	}
 	FREE_STRING(NULL, env_path);
 	/* Get the volume GUID name from the root path. */
-	if(!GetVolumeNameForVolumeMountPoint(
-		   root_path, name_buffer, name_size))
+	if(!GetVolumeNameForVolumeMountPoint(root_path, name_buffer, name_size))
 		return __os_posix_err(__os_get_syserr());
 	/* Delete the last trail "\" in the GUID name. */
 	name_len = _tcsclen(name_buffer);
 	if(name_len > 0)
 		name_buffer[name_len-1] = _T('\0');
 	/* Create a handle to the volume. */
-	vhandle = CreateFile(name_buffer, FILE_READ_ATTRIBUTES|FILE_READ_DATA,
-		FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL, 0);
+	vhandle = CreateFile(name_buffer, FILE_READ_ATTRIBUTES|FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	/* If open failed, return error */
 	if(vhandle == INVALID_HANDLE_VALUE)
 		return __os_posix_err(__os_get_syserr());
 	/* Get the volume information through the root path. */
-	if(!GetVolumeInformation(root_path, NULL, name_size, NULL, &mcl,
-		   &flags, name_buffer, name_size)) {
+	if(!GetVolumeInformation(root_path, NULL, name_size, NULL, &mcl, &flags, name_buffer, name_size)) {
 		ret = __os_posix_err(__os_get_syserr());
 		CloseHandle(vhandle);
 		return ret;
 	}
 	ret = 0;
-	if(_tcscmp(name_buffer, _T("NTFS")) == 0) {
+	if(sstreqi_ascii(name_buffer, _T("NTFS"))) {
 		/*
 		 * If this is NTFS file system, use FSCTL_GET_NTFS_VOLUME_DATA
 		 * to get the cluster size.
 		 */
-		if(DeviceIoControl(
-			   vhandle,             /* volume handle */
-			   FSCTL_GET_NTFS_VOLUME_DATA, /* Control Code */
-			   NULL,                /* not use */
-			   0,                   /* not use */
-			   &ntfsinfo,           /* output buffer */
-			   sizeof(NTFS_VOLUME_DATA_BUFFER), /* output buffer length */
-			   &infolen,            /* number of returned bytes */
-			   NULL))               /* ignore here */
+		if(DeviceIoControl(vhandle/* volume handle */, FSCTL_GET_NTFS_VOLUME_DATA/* Control Code */, NULL/* not use */, 0/* not use */,
+			&ntfsinfo/* output buffer */, sizeof(NTFS_VOLUME_DATA_BUFFER)/* output buffer length */, &infolen/* number of returned bytes */, NULL/* ignore here */))
 			*psize = ntfsinfo.BytesPerCluster;
 		else
 			ret = __os_posix_err(__os_get_syserr());
 	}
-	else if(_tcscmp(name_buffer, _T("exFAT")) == 0) {
+	else if(sstreqi_ascii(name_buffer, _T("exFAT"))) {
 		/*
 		 * If this is exFAT file system, read the information of sector
 		 * and cluster from the BPB on sector 0
@@ -1874,7 +1861,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 		else
 			ret = __os_posix_err(__os_get_syserr());
 	}
-	else if(_tcscmp(name_buffer, _T("FAT")) == 0 || _tcscmp(name_buffer, _T("FAT32")) == 0) {
+	else if(sstreqi_ascii(name_buffer, _T("FAT")) || sstreqi_ascii(name_buffer, _T("FAT32"))) {
 		/*
 		 * If this is FAT or FAT32 file system, read the information of
 		 * sector and cluster from the BPB on sector 0.

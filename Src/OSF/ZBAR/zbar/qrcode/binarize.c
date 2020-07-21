@@ -5,7 +5,7 @@
    version.*/
 #include <zbar.h>
 #pragma hdrstop
-#include "util.h"
+//#include "util.h"
 #include "binarize.h"
 
 #if 0

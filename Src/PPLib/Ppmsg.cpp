@@ -343,8 +343,10 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 								group = PPSTR_DBENGINE; // @v9.6.5 PPERR_DBENGINE-->PPSTR_DBENGINE
 								msgcode = BtrError;
 							}
-							else
+							else {
+								group = PPSTR_DBLIB; // @v10.8.2
 								msgcode = _db_err_code;
+							}
 						}
 					}
 					break;
@@ -390,7 +392,7 @@ int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int 
 		SString base_msg_buf;
 		temp_buf.Z();
 		if(!pAddInfo) {
-			if(oneof2(group, PPSTR_DBENGINE, PPERR_DBLIB))
+			if(oneof3(group, PPSTR_DBENGINE, PPERR_DBLIB, PPSTR_DBLIB)) // @v10.8.2 PPSTR_DBLIB
 				pAddInfo = DBS.GetConstTLA().AddedMsgString;
 			else if(group == PPSTR_SLIBERR)
 				pAddInfo = SLS.GetConstTLA().AddedMsgString;

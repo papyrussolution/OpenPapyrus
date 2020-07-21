@@ -367,6 +367,12 @@
     <ClInclude Include="..\Include\Report.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Rsrc\Str\ppstr2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\frontol.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />

@@ -4367,6 +4367,7 @@ int SLAPI PPBillImporter::Run()
 									msg_buf.Space().CatEq("INN", p_seller->INN);
 							}
 							PPSetError(PPTXT_CANTIDENTIMPBILLAR, msg_buf);
+							Logger.LogLastError(); // @v10.8.2
 							skip = 1;
 						}
 						if(!skip) {
@@ -4401,7 +4402,7 @@ int SLAPI PPBillImporter::Run()
 								if(!goods_id) {
 									GtinStruc gts;
 									for(uint markssp = 0; p_item->MarkList.get(&markssp, temp_buf);) {
-										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+										const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0);
 										if(pczcr > 0 && gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											if(GObj.SearchByBarcode(temp_buf, &bc_rec, &goods_rec, 1) > 0) {
 												goods_id = goods_rec.ID;
@@ -4451,6 +4452,19 @@ int SLAPI PPBillImporter::Run()
 									ti.Quantity_ = p_item->Qtty;
 									if(p_item->Price > 0.0)
 										ti.Cost = p_item->Price;
+									// @v10.8.2 {
+									else if(p_item->PriceSum > 0.0) {
+										ti.Cost = R5(fabs(p_item->PriceSum / p_item->Qtty));
+									}
+									else if(p_item->PriceSumWoVat > 0.0) {
+										GTaxVect vect;
+										PPGoodsTaxEntry gtx;
+										if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
+											vect.Calc_(&gtx, p_item->PriceSumWoVat, fabs(p_item->Qtty), GTAXVF_AFTERTAXES, 0);
+											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT) / fabs(p_item->Qtty);
+										}
+									}
+									// } @v10.8.2 
 									else if(p_item->PriceWoVat > 0.0) {
 										GTaxVect vect;
 										PPGoodsTaxEntry gtx;
@@ -5960,13 +5974,18 @@ int SLAPI DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 	SString temp_buf;
 	RegisterTbl::Rec reg_rec;
 	PPPersonPacket psn_pack;
+	PPLocationPacket loc_pack;
 	THROW(PsnObj.GetPacket(personID, &psn_pack, PGETPCKF_USEINHERITENCE) > 0);
+	if(addrLocID)
+		PsnObj.LocObj.GetPacket(addrLocID, &loc_pack);
 	if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0) {
 		(inn = reg_rec.Num).Strip();
 		inn.Sub(0, 2, temp_buf.Z());
 		region_code = temp_buf.ToLong();
 	}
-	if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
+	if(loc_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
+		(kpp = reg_rec.Num).Strip();
+	else if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
 		(kpp = reg_rec.Num).Strip();
 	if(inn.Len() == 12) {
 		j_status = 2;
@@ -5994,8 +6013,9 @@ int SLAPI DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 		}
 		{
 			// @v10.1.5 поменял местами MainLoc и RLoc (приоритет у MainLoc)
-			PPLocationPacket loc_pack;
-			if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
+			if(loc_pack.ID && loc_pack.ID == addrLocID)
+				WriteAddress(loc_pack, region_code);
+			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
 				WriteAddress(loc_pack, region_code);
 			}
 			else if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
@@ -6337,8 +6357,15 @@ int WriteBill_NalogRu2_InvoiceWithMarks(const PPBillPacket & rBp, const SString 
 						}
 					}
 				}
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0);
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
+				// @v10.8.2 {
+				{
+					SXml::WNode n_1(g.P_X, g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO2));
+					g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0); 
+				}
+				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO), buyer_psn_id, consignee_loc_id, rBp.Rec.Dt, 0); 
+				// } @v10.8.2
 			}
 			g.WriteInvoiceItems(_hi, rBp);
 			{
@@ -6677,7 +6704,6 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 	CATCHZOK
 	return ok;
 }
-
 
 int WriteBill_ExportMarks(const PPBillPacket & rBp, const SString & rFileName)
 {

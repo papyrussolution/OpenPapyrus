@@ -860,17 +860,17 @@ int SLAPI MqbEventResponder::ParseCommand(const char * pCmdText, Command & rCmd)
 												login = gua_pack.Rec.Name;
 										}
 										if(login.NotEmpty() &&password.NotEmpty()){
-											char hash[128];
+											//char hash[128];
 											char cmd_hash[128];
 											size_t hash_len = 0;
-											PTR32(hash)[0] = 0;
+											//PTR32(hash)[0] = 0;
 											PTR32(cmd_hash)[0] = 0;
 											temp_buf.Z().Cat(login).CatChar(':').Cat(password);
-											SlHash::Sha1(0, temp_buf, temp_buf.Len(), hash, hash_len);
+											binary160 hash = SlHash::Sha1(0, temp_buf, temp_buf.Len());
 											temp_buf.Z().Cat(cmd.Hash);
 											hash_len = 0;
 											decode64(temp_buf, temp_buf.Len(), cmd_hash, &hash_len);
-											if(!memcmp(cmd_hash, hash, hash_len)){												
+											if(!memcmp(cmd_hash, &hash, hash_len)){												
 												temp_buf.Z();
 												if(gua_pack.TagL.GetItemStr(PPTAG_GUA_GUID, temp_buf)>0) {
 													result_buf = temp_buf;

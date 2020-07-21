@@ -30,11 +30,9 @@
 */
 #ifndef __UCL_CONF_H
 #define __UCL_CONF_H
-
-/***********************************************************************
 //
-************************************************************************/
-
+//
+//
 #if defined(__UCLCONF_H_INCLUDED)
 	#error "include this file first"
 #endif
@@ -47,28 +45,24 @@
 #include "acc/acc.h"
 
 #if (ACC_CC_MSC && (_MSC_VER >= 1300))
-   /* avoid `-Wall' warnings in system header files */
-	#pragma warning(disable: 4820)
-   /* avoid warnings about inlining */
-	#pragma warning(disable: 4710 4711)
+	#pragma warning(disable: 4820) // avoid `-Wall' warnings in system header files 
+	#pragma warning(disable: 4710 4711) // avoid warnings about inlining 
 #endif
-
 #if defined(__UCL_MMODEL_HUGE) && (!ACC_HAVE_MM_HUGE_PTR)
 	#error "this should not happen - check defines for __huge"
 #endif
 #if !defined(__UCL_MMODEL_HUGE) && defined(HAVE_MEMCMP)
-#  define ucl_memcmp(a,b,c)     memcmp(a,b,c)
+	#define ucl_memcmp(a,b,c)     memcmp(a,b,c)
 #endif
 #if !defined(__UCL_MMODEL_HUGE) && defined(HAVE_MEMCPY)
-#  define ucl_memcpy(a,b,c)     memcpy(a,b,c)
+	#define ucl_memcpy(a,b,c)     memcpy(a,b,c)
 #endif
 #if !defined(__UCL_MMODEL_HUGE) && defined(HAVE_MEMMOVE)
-#  define ucl_memmove(a,b,c)    memmove(a,b,c)
+	#define ucl_memmove(a,b,c)    memmove(a,b,c)
 #endif
 #if !defined(__UCL_MMODEL_HUGE) && defined(HAVE_MEMSET)
-#  define ucl_memset(a,b,c)     memset(a,b,c)
+	#define ucl_memset(a,b,c)     memset(a,b,c)
 #endif
-
 #if (ACC_OS_DOS16 + 0 != UCL_OS_DOS16 + 0)
 	#error "DOS16"
 #endif
@@ -90,124 +84,155 @@
 #if (ACC_OS_WIN64 + 0 != UCL_OS_WIN64 + 0)
 	#error "WIN64"
 #endif
-
-
 #include "acc/acc_incd.h"
 #if (ACC_OS_DOS16 || ACC_OS_OS216 || ACC_OS_WIN16)
-#  include "acc/acc_ince.h"
-#  include "acc/acc_inci.h"
+	#include "acc/acc_ince.h"
+	#include "acc/acc_inci.h"
 #endif
-
 #undef NDEBUG
 #if !defined(UCL_DEBUG)
-#  define NDEBUG 1
+	#define NDEBUG 1
 #endif
 #include <assert.h>
-
-
 #if (ACC_OS_DOS16 || ACC_OS_OS216 || ACC_OS_WIN16) && (ACC_CC_BORLANDC)
-#  if (__BORLANDC__ >= 0x0450)  /* v4.00 */
-#    pragma option -h           /* enable fast huge pointers */
-#  else
-#    pragma option -h-          /* disable fast huge pointers - compiler bug */
-#  endif
+	#if (__BORLANDC__ >= 0x0450)  /* v4.00 */
+		#pragma option -h           /* enable fast huge pointers */
+	#else
+		#pragma option -h-          /* disable fast huge pointers - compiler bug */
+	#endif
 #endif
-
-
-/***********************************************************************
 //
-************************************************************************/
-
+//
+//
 #if 1
-	#define UCL_BYTE(x)       ((unsigned char) (x))
+	#define UCL_BYTE(x)       ((unsigned char)(x))
 #else
-	#define UCL_BYTE(x)       ((unsigned char) ((x) & 0xff))
+	#define UCL_BYTE(x)       ((unsigned char)((x) & 0xff))
 #endif
 #if 0
-	#define UCL_USHORT(x)     ((unsigned short) (x))
+	#define UCL_USHORT(x)     ((unsigned short)(x))
 #else
-	#define UCL_USHORT(x)     ((unsigned short) ((x) & 0xffff))
+	#define UCL_USHORT(x)     ((unsigned short)((x) & 0xffff))
 #endif
-
 #define UCL_MAX(a,b)        ((a) >= (b) ? (a) : (b))
 #define UCL_MIN(a,b)        ((a) <= (b) ? (a) : (b))
 #define UCL_MAX3(a,b,c)     ((a) >= (b) ? UCL_MAX(a,c) : UCL_MAX(b,c))
 #define UCL_MIN3(a,b,c)     ((a) <= (b) ? UCL_MIN(a,c) : UCL_MIN(b,c))
-
 #define ucl_sizeof(type)    ((ucl_uint) (sizeof(type)))
-
 #define UCL_HIGH(array)     ((ucl_uint) (sizeof(array)/sizeof(*(array))))
-
-/* this always fits into 16 bits */
+// this always fits into 16 bits 
 #define UCL_SIZE(bits)      (1u << (bits))
 #define UCL_MASK(bits)      (UCL_SIZE(bits) - 1)
-
 #define UCL_LSIZE(bits)     (1ul << (bits))
 #define UCL_LMASK(bits)     (UCL_LSIZE(bits) - 1)
-
 #define UCL_USIZE(bits)     ((ucl_uint) 1 << (bits))
 #define UCL_UMASK(bits)     (UCL_USIZE(bits) - 1)
-
-/* Maximum value of a signed/unsigned type.
-   Do not use casts, avoid overflows ! */
+//
+// Maximum value of a signed/unsigned type.
+// Do not use casts, avoid overflows !
 #define UCL_STYPE_MAX(b)    (((1l  << (8*(b)-2)) - 1l)  + (1l  << (8*(b)-2)))
 #define UCL_UTYPE_MAX(b)    (((1ul << (8*(b)-1)) - 1ul) + (1ul << (8*(b)-1)))
-
-
-/***********************************************************************
+//
 // compiler and architecture specific stuff
-************************************************************************/
-
-/* Some defines that indicate if memory can be accessed at unaligned
- * memory addresses. You should also test that this is actually faster
- * even if it is allowed by your system.
- */
-
+//
+// Some defines that indicate if memory can be accessed at unaligned
+// memory addresses. You should also test that this is actually faster even if it is allowed by your system.
+// 
 #undef UA_GET2
 #undef UA_SET2
 #undef UA_GET4
 #undef UA_SET4
 #if 1 && (ACC_ARCH_AMD64 || ACC_ARCH_IA32)
-#  define UA_GET2(p)    (* (const ucl_ushortp) (p))
-#  define UA_SET2(p)    (* (ucl_ushortp) (p))
-#  define UA_GET4(p)    (* (const acc_uint32e_t *) (p))
-#  define UA_SET4(p)    (* (acc_uint32e_t *) (p))
+	#define UA_GET2(p)    (* (const ucl_ushortp) (p))
+	#define UA_SET2(p)    (* (ucl_ushortp) (p))
+	#define UA_GET4(p)    (* (const acc_uint32e_t *) (p))
+	#define UA_SET4(p)    (* (acc_uint32e_t *) (p))
 #elif 0 && (ACC_ARCH_M68K) && (ACC_CC_GNUC >= 0x020900ul)
-   typedef struct { unsigned short v; } __ucl_ua2_t __attribute__((__aligned__(1)));
-   typedef struct { unsigned long v; }  __ucl_ua4_t __attribute__((__aligned__(1)));
-#  define UA_GET2(p)    (((const __ucl_ua2_t *)(p))->v)
-#  define UA_SET2(p)    (((__ucl_ua2_t *)(p))->v)
-#  define UA_GET4(p)    (((const __ucl_ua4_t *)(p))->v)
-#  define UA_SET4(p)    (((__ucl_ua4_t *)(p))->v)
+	typedef struct { unsigned short v; } __ucl_ua2_t __attribute__((__aligned__(1)));
+	typedef struct { unsigned long v; }  __ucl_ua4_t __attribute__((__aligned__(1)));
+	#define UA_GET2(p)    (((const __ucl_ua2_t *)(p))->v)
+	#define UA_SET2(p)    (((__ucl_ua2_t *)(p))->v)
+	#define UA_GET4(p)    (((const __ucl_ua4_t *)(p))->v)
+	#define UA_SET4(p)    (((__ucl_ua4_t *)(p))->v)
 #endif
-
-
-/***********************************************************************
+//
 // some globals
-************************************************************************/
-
+//
 __UCL_EXTERN_C int __ucl_init_done;
 UCL_EXTERN(const ucl_bytep) ucl_copyright(void);
-
-
-/***********************************************************************
+//
 // ANSI C preprocessor macros
-************************************************************************/
-
+//
 #define _UCL_STRINGIZE(x)           #x
 #define _UCL_MEXPAND(x)             _UCL_STRINGIZE(x)
 
-
-/***********************************************************************
+//#include "ucl_ptr.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 //
-************************************************************************/
+// Integral types
+//
+#if !defined(ucl_uintptr_t)
+	#define ucl_uintptr_t     acc_uintptr_t
+#endif
+//
+// Always use the safe (=integral) version for pointer-comparisions.
+// The compiler should optimize away the additional casts anyway.
+// 
+// Note that this only works if the representation and ordering
+// of the pointer and the integral is the same (at bit level).
+// 
+// Most 16-bit compilers have their own view about pointers -
+// fortunately they don't care about comparing pointers that are pointing to Nirvana.
+// 
+#if (ACC_OS_DOS16 || ACC_OS_OS216 || ACC_OS_WIN16)
+	#define PTR(a)              ((ucl_bytep) (a))
+	/* only need the low bits of the pointer -> offset is ok */
+	#define PTR_ALIGNED_4(a)    ((ACC_FP_OFF(a) & 3) == 0)
+	#define PTR_ALIGNED2_4(a,b) (((ACC_FP_OFF(a) | ACC_FP_OFF(b)) & 3) == 0)
+#else
+	#define PTR(a)              ((ucl_uintptr_t) (a))
+	#define PTR_LINEAR(a)       PTR(a)
+	#define PTR_ALIGNED_4(a)    ((PTR_LINEAR(a) & 3) == 0)
+	#define PTR_ALIGNED_8(a)    ((PTR_LINEAR(a) & 7) == 0)
+	#define PTR_ALIGNED2_4(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 3) == 0)
+	#define PTR_ALIGNED2_8(a,b) (((PTR_LINEAR(a) | PTR_LINEAR(b)) & 7) == 0)
+#endif
+#define PTR_LT(a,b)         (PTR(a) < PTR(b))
+#define PTR_GE(a,b)         (PTR(a) >= PTR(b))
 
-#include "ucl_ptr.h"
+UCL_EXTERN(ucl_uintptr_t) __ucl_ptr_linear(const ucl_voidp ptr);
 
+typedef union {
+	char            a_char;
+	unsigned char   a_uchar;
+	short           a_short;
+	unsigned short  a_ushort;
+	int             a_int;
+	unsigned int    a_uint;
+	long            a_long;
+	unsigned long   a_ulong;
+	ucl_int         a_ucl_int;
+	ucl_uint        a_ucl_uint;
+	ucl_int32       a_ucl_int32;
+	ucl_uint32      a_ucl_uint32;
+	ptrdiff_t       a_ptrdiff_t;
+	ucl_uintptr_t   a_ucl_uintptr_t;
+	ucl_voidp       a_ucl_voidp;
+	void *          a_void_p;
+	ucl_bytep       a_ucl_bytep;
+	ucl_bytepp      a_ucl_bytepp;
+	ucl_uintp       a_ucl_uintp;
+	ucl_uint *      a_ucl_uint_p;
+	ucl_uint32p     a_ucl_uint32p;
+	ucl_uint32 *    a_ucl_uint32_p;
+	unsigned char * a_uchar_p;
+	char *          a_char_p;
+} ucl_align_t;
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+//
 #endif /* already included */
-
-/*
-vi:ts=4:et
-*/
-

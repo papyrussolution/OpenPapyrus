@@ -531,7 +531,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		}
 		else {
 			GtinStruc gts;
-			if(PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts) > 0) {
+			if(PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts, 0) > 0) {
 				SString temp_buf;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);

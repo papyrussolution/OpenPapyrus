@@ -343,19 +343,21 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 			PPID   prev_type = (securType == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
 			THROW(p_ref->GetItem(securType, securID) > 0);
 			THROW(temp.Get(prev_type, reinterpret_cast<const PPSecur *>(&p_ref->data)->ParentID)); // @recursion
-			uint prev_s = UINT_MAX;
-			for(s = 0; s < temp.P->TailSize; s += p->Size) {
-				//
-				// Защита от бесконечного цикла {
-				//
-				if(s == prev_s)
-					break;
-				else
-					prev_s = s;
-				// }
-				p = reinterpret_cast<PathItem *>(PTR8(temp.P + 1) + s);
-				if(p->Path())
-					THROW(SetPath(p->ID, p->Path(), p->Flags | PATHF_INHERITED, 0));
+			if(temp.P) {
+				uint prev_s = UINT_MAX;
+				for(s = 0; s < temp.P->TailSize; s += p->Size) {
+					//
+					// Защита от бесконечного цикла {
+					//
+					if(s == prev_s)
+						break;
+					else
+						prev_s = s;
+					// }
+					p = reinterpret_cast<PathItem *>(PTR8(temp.P + 1) + s);
+					if(p->Path())
+						THROW(SetPath(p->ID, p->Path(), p->Flags | PATHF_INHERITED, 0));
+				}
 			}
 		}
 		THROW(Resize(Size()));

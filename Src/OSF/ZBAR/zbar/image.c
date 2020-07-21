@@ -23,8 +23,6 @@
 
 #include <zbar.h>
 #pragma hdrstop
-#include "error.h"
-#include "symbol.h"
 
 void FASTCALL _zbar_image_refcnt(zbar_image_t * img, int delta)
 {

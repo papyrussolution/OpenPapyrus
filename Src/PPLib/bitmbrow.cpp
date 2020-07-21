@@ -2703,7 +2703,7 @@ private:
 			else {
 				GtinStruc gts;
 				const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-				const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+				const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
 				if(pczcr)
 					gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 				if(!iemr && !pczcr) {
@@ -2767,7 +2767,7 @@ private:
 					SString mark_buf;
 					GtinStruc gts;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
 					if(pczcr)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && !pczcr) {
@@ -2975,7 +2975,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 					SString mark_buf;
 					GtinStruc gts;
 					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+					const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
 					if(pczcr)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && !pczcr) {
@@ -3057,7 +3057,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 						SString mark_buf;
 						GtinStruc gts;
 						const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts);
+						const int pczcr = PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk);
 						if(pczcr)
 							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 						if(!iemr && !pczcr) {

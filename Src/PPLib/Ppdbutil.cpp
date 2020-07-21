@@ -4,9 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.3 #include <idea.h>
-// @v9.6.3 #include <dos.h>
-//#include <sys\stat.h>
 //
 // Формат записи параметров резервной копии в файле pp.ini
 //
@@ -167,9 +164,9 @@ PPBackupScen::PPBackupScen() : ID(0), Period(1), Flags(0), NumCopies(1)
 PPBackupScen & SLAPI PPBackupScen::Z()
 {
 	ID = 0;
-	Name[0] = 0;
-	DBName[0] = 0;
-	BackupPath[0] = 0;
+	PTR32(Name)[0] = 0;
+	PTR32(DBName)[0] = 0;
+	PTR32(BackupPath)[0] = 0;
 	Period = 1;
 	Flags = 0;
 	NumCopies = 1;
@@ -186,10 +183,10 @@ int SLAPI PPBackupScen::ToStr(SString & rBuf) const
 int CallbackCompress(long a, long b, const char * c, int stop)
 {
 	PPWaitPercent(a, b, c);
-	return (!stop || PPCheckUserBreak()) ? 1 : 0;
+	return BIN(!stop || PPCheckUserBreak());
 }
 
-static int CallbackBuLog(int event, const char * pInfo, long initParam)
+static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // BackupLogFunc
 {
 	int    ok = 1;
 	int    msg_code = 0;

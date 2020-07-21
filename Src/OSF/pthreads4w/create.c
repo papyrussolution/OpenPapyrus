@@ -169,9 +169,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	 * __ptw32_threadStart will set state to PThreadStateRunning.
 	 */
 	tp->state = PThreadStateSuspended;
-
 	tp->keys = NULL;
-
 	/*
 	 * Threads must be started in suspended mode and resumed if necessary
 	 * after _beginthreadex returns us the handle. Otherwise we set up a
@@ -180,51 +178,29 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	 * by us in case thread.p->threadH gets NULLed later but before we've
 	 * finished with it here.
 	 */
-
 #if !defined (__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
-
-	tp->threadH =
-	    threadH =
-		(HANDLE)_beginthreadex((void*)NULL,     /* No security info             */
-		    stackSize,          /* default stack size   */
-		    __ptw32_threadStart,
-		    parms,
-		    (unsigned)
-		    CREATE_SUSPENDED,
-		    (unsigned*)&(tp->thread));
-
+	tp->threadH = threadH = (HANDLE)_beginthreadex((void*)NULL/* No security info */,
+		    stackSize/* default stack size */, __ptw32_threadStart, parms, (unsigned)CREATE_SUSPENDED, (unsigned*)&(tp->thread));
 	if(threadH != 0) {
 		if(a != NULL) {
 			(void)__ptw32_setthreadpriority(thread, SCHED_OTHER, priority);
 		}
-
 #if defined(HAVE_CPU_AFFINITY)
-
 		SetThreadAffinityMask(tp->threadH, tp->cpuset);
-
 #endif
-
 		if(run) {
 			ResumeThread(threadH);
 		}
 	}
-
 #else
-
 	{
 		__ptw32_mcs_local_node_t stateLock;
-
 		/*
 		 * This lock will force pthread_threadStart() to wait until we have
 		 * the thread handle and have set the priority.
 		 */
 		__ptw32_mcs_lock_acquire(&tp->stateLock, &stateLock);
-
-		tp->threadH =
-		    threadH =
-			(HANDLE)_beginthread(__ptw32_threadStart, stackSize, /* default stack size   */
-			    parms);
-
+		tp->threadH = threadH = (HANDLE)_beginthread(__ptw32_threadStart, stackSize, /* default stack size */ parms);
 		/*
 		 * Make the return code match _beginthreadex's.
 		 */
@@ -240,22 +216,16 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 				 */
 				SuspendThread(threadH);
 			}
-
 			if(a != NULL) {
 				(void)__ptw32_setthreadpriority(thread, SCHED_OTHER, priority);
 			}
-
 #if defined(HAVE_CPU_AFFINITY)
-
 			SetThreadAffinityMask(tp->threadH, tp->cpuset);
-
 #endif
 		}
-
 		__ptw32_mcs_lock_release(&stateLock);
 	}
 #endif
-
 	result = (threadH != 0) ? 0 : EAGAIN;
 	/*
 	 * Fall Through Intentionally

@@ -15,15 +15,15 @@ IMPLEMENT_PPFILT_FACTORY(OprKind); SLAPI OprKindFilt::OprKindFilt() : PPBaseFilt
 	// Flags |= OPKF_USERANK;
 }
 
-SLAPI PPViewOprKind::PPViewOprKind() : PPView(&OpkObj, &Filt, PPVIEW_OPRKIND), OpListIdx(0), TmplsIdx(0), P_OpList(0)
+SLAPI PPViewOprKind::PPViewOprKind() : PPView(&OpkObj, &Filt, PPVIEW_OPRKIND), OpListIdx(0), TmplsIdx(0), P_DsList(0)
 {
 	DefReportId = REPORT_OPRKINDLIST;
-	ImplementFlags |= (implBrowseArray|implOnAddSetupPos); // @v10.0.06 @fix (|implOnAddSetupPos)
+	ImplementFlags |= (implBrowseArray/*@v10.8.2 |implOnAddSetupPos*/); // @v10.0.06 @fix (|implOnAddSetupPos)
 }
 
 SLAPI PPViewOprKind::~PPViewOprKind()
 {
-	ZDELETE(P_OpList);
+	ZDELETE(P_DsList);
 }
 
 int SLAPI PPViewOprKind::Init_(const PPBaseFilt * pBaseFilt)
@@ -75,8 +75,8 @@ int SLAPI PPViewOprKind::InnerIteration(OprKindViewItem * pItem)
 int FASTCALL PPViewOprKind::NextIteration(OprKindViewItem * pItem)
 {
 	int    ok = -1;
-	if(pItem && OpListIdx < P_OpList->getCount()) {
-		OprKindBrwItem * p_item = (OprKindBrwItem*)P_OpList->at(OpListIdx);
+	if(pItem && OpListIdx < P_DsList->getCount()) {
+		const OprKindBrwItem * p_item = static_cast<OprKindBrwItem *>(P_DsList->at(OpListIdx));
 		pItem->ID = p_item->ID;
 		STRNSCPY(pItem->Name, p_item->Name);
 		STRNSCPY(pItem->AccSheet, p_item->AccSheet);
@@ -292,9 +292,13 @@ int SLAPI PPViewOprKind::OnExecBrowser(PPViewBrowser * pBrw)
 int SLAPI PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	PPID   id = 0;
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+		id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
+			case PPVCMD_USERSORT:
+				ok = 1; // The rest will be done below
+				break;
 			case PPVCMD_ADDBYSAMPLE:
 				if(id && AddBySample(id) > 0)
 					ok = 1;
@@ -327,59 +331,143 @@ int SLAPI PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 				break;
 		}
 	}
+	if(ok > 0 && oneof6(ppvCmd, PPVCMD_USERSORT, PPVCMD_ADDITEM, PPVCMD_ADDBYSAMPLE, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_REFRESH)) {
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+		if(p_def) {
+			if(MakeList(pBrw)) {
+				LongArray last_upd_obj_list;
+				SArray * p_array = new SArray(*P_DsList);
+				long   c = p_def->_curItem();
+				p_def->setArray(p_array, 0, 1);
+				if(ppvCmd == PPVCMD_USERSORT && id) {
+					pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+				}
+				else if(!oneof2(ppvCmd, PPVCMD_DELETEITEM, PPVCMD_REFRESH) && GetLastUpdatedObjects(0, last_upd_obj_list) > 0) {
+					assert(last_upd_obj_list.getCount());
+					last_upd_obj_list.sortAndUndup();
+					pBrw->search2(&last_upd_obj_list.at(0), CMPF_LONG, srchFirst, 0);
+				}
+				else
+					pBrw->go(c);
+			}
+		}
+		ok = 1;
+	}
 	return ok;
+}
+
+int SLAPI PPViewOprKind::MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry)
+{
+	int    ok = -1;
+	int    accept_op = 0;
+	MEMSZERO(rEntry);
+	accept_op = (!Filt.LinkOpID || Filt.LinkOpID == rOpRec.LinkOpID);
+	accept_op = (accept_op && (!Filt.AccSheetID || Filt.AccSheetID == rOpRec.AccSheetID));
+	if(Filt.Flags & OPKF_PASSIVE)
+		accept_op = (accept_op && (rOpRec.Flags & OPKF_PASSIVE));
+	if(Filt.Flags & OPKF_PROFITABLE)
+		accept_op = (accept_op &&  (rOpRec.Flags & OPKF_PROFITABLE));
+	if(Filt.Flags & OPKF_NEEDPAYMENT)
+		accept_op = (accept_op && (rOpRec.Flags & OPKF_NEEDPAYMENT));
+	if(Filt.Flags & OPKF_RECKON)
+		accept_op = (accept_op && (rOpRec.Flags & OPKF_RECKON));
+	if(accept_op) {
+		PPAccSheet acs_rec;
+		rEntry.ID = rOpRec.ID;
+		STRNSCPY(rEntry.Name, rOpRec.Name);
+		STRNSCPY(rEntry.Symb, rOpRec.Symb);
+		if(AcsObj.Fetch(rOpRec.AccSheetID, &acs_rec) > 0)
+			STRNSCPY(rEntry.AccSheet, acs_rec.Name);
+		GetObjectName(PPOBJ_OPRTYPE, rOpRec.OpTypeID, rEntry.OpType, sizeof(rEntry.OpType));
+		CreateFlagsMnemonics(&rOpRec, rEntry.FlagsMnems, sizeof(rEntry.FlagsMnems));
+		rEntry.Rank = rOpRec.Rank;
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI PPViewOprKind::CmpSortIndexItems(PPViewBrowser * pBrw, const OprKindBrwItem * pItem1, const OprKindBrwItem * pItem2)
+{
+	return Implement_CmpSortIndexItems_OnArray(pBrw, pItem1, pItem2);
+}
+
+static IMPL_CMPFUNC(PPViewOprKindBrwItem, i1, i2)
+{
+	int    si = 0;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(pExtraData);
+	if(p_brw) {
+		PPViewOprKind * p_view = static_cast<PPViewOprKind *>(p_brw->P_View);
+		if(p_view) {
+			const OprKindBrwItem * p_item1 = static_cast<const OprKindBrwItem *>(i1);
+			const OprKindBrwItem * p_item2 = static_cast<const OprKindBrwItem *>(i2);
+			si = p_view->CmpSortIndexItems(p_brw, p_item1, p_item2);
+		}
+	}
+	return si;
+}
+
+int SLAPI PPViewOprKind::MakeList(PPViewBrowser * pBrw)
+{
+	int    ok = 1;
+	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount());
+	PPID   op_id = 0;
+	PPOprKind op_data;
+	OprKindBrwItem _e;
+	if(P_DsList)
+		P_DsList->clear();
+	else {
+		THROW_MEM(P_DsList = new SArray(sizeof(OprKindBrwItem)));
+	}
+	for(SEnum en = OpkObj.Enum(0); en.Next(&op_data) > 0;) {
+		if(MakeEntry(op_data, _e) > 0) {
+			THROW_SL(P_DsList->insert(&_e));
+		}
+	}
+	{
+		int    sorting_done = 0;
+		if(pBrw) {
+			pBrw->Helper_SetAllColumnsSortable();
+			if(is_sorting_needed) {
+				P_DsList->sort(PTR_CMPFUNC(PPViewOprKindBrwItem), pBrw);
+				sorting_done = 1;
+			}
+		}
+		if(!sorting_done) {
+			if(Filt.Flags & OPKF_USERANK) {
+				if(Filt.SortOrd == OprKindFilt::sortByTypeName)
+					P_DsList->sort(PTR_CMPFUNC(OprKindBrwItemTypeNameRank));
+				else
+					P_DsList->sort(PTR_CMPFUNC(OprKindBrwItemNameRank));
+			}
+			else if(Filt.SortOrd == OprKindFilt::sortByTypeName)
+				P_DsList->sort(PTR_CMPFUNC(OprKindBrwItemTypeName));
+			else
+				P_DsList->sort(PTR_CMPFUNC(OprKindBrwItemName));
+		}
+	}
+	CATCH
+		ZDELETE(P_DsList);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+void SLAPI PPViewOprKind::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->Helper_SetAllColumnsSortable();
+	}
 }
 
 SArray * SLAPI PPViewOprKind::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = BROWSER_OPRKIND;
-	PPID   op_id = 0;
-	PPOprKind op_data;
 	SArray * p_array = 0;
-	OprKindBrwItem _e;
-	if(P_OpList)
-		P_OpList->clear();
-	else {
-		THROW_MEM(P_OpList = new SArray(sizeof(OprKindBrwItem)));
-	}
+	THROW(MakeList(0));
 	THROW_MEM(p_array = new SArray(sizeof(OprKindBrwItem)));
-	while(EnumOperations(Filt.OpTypeID, &op_id, &op_data) > 0) {
-		int    accept_op = 0;
-		MEMSZERO(_e);
-		accept_op = (!Filt.LinkOpID || Filt.LinkOpID == op_data.LinkOpID);
-		accept_op = (accept_op && (!Filt.AccSheetID || Filt.AccSheetID == op_data.AccSheetID));
-		if(Filt.Flags & OPKF_PASSIVE)
-			accept_op = (accept_op && (op_data.Flags & OPKF_PASSIVE));
-		if(Filt.Flags & OPKF_PROFITABLE)
-			accept_op = (accept_op &&  (op_data.Flags & OPKF_PROFITABLE));
-		if(Filt.Flags & OPKF_NEEDPAYMENT)
-			accept_op = (accept_op && (op_data.Flags & OPKF_NEEDPAYMENT));
-		if(Filt.Flags & OPKF_RECKON)
-			accept_op = (accept_op && (op_data.Flags & OPKF_RECKON));
-		if(accept_op) {
-			_e.ID = op_id;
-			STRNSCPY(_e.Name, op_data.Name);
-			STRNSCPY(_e.Symb, op_data.Symb);
-			GetObjectName(PPOBJ_OPRTYPE, GetOpType(_e.ID), _e.OpType, sizeof(_e.OpType));
-			GetObjectName(PPOBJ_ACCSHEET, op_data.AccSheetID, _e.AccSheet, sizeof(_e.AccSheet) - 1);
-			CreateFlagsMnemonics(&op_data, _e.FlagsMnems, sizeof(_e.FlagsMnems));
-			_e.Rank = op_data.Rank;
-			THROW_SL(p_array->insert(&_e));
-		}
-	}
-	if(Filt.Flags & OPKF_USERANK) {
-		if(Filt.SortOrd == OprKindFilt::sortByTypeName)
-			p_array->sort(PTR_CMPFUNC(OprKindBrwItemTypeNameRank));
-		else
-			p_array->sort(PTR_CMPFUNC(OprKindBrwItemNameRank));
-	}
-	else if(Filt.SortOrd == OprKindFilt::sortByTypeName)
-		p_array->sort(PTR_CMPFUNC(OprKindBrwItemTypeName));
-	else
-		p_array->sort(PTR_CMPFUNC(OprKindBrwItemName));
-	P_OpList->copy(*p_array);
+	*p_array = *P_DsList;
 	CATCH
-		ZDELETE(P_OpList);
+		ZDELETE(P_DsList);
 		ZDELETE(p_array);
 	ENDCATCH
 	ASSIGN_PTR(pBrwId, brw_id);
@@ -403,9 +491,6 @@ int SLAPI PPViewOprKind::ViewBills(PPID opID)
 {
 	if(opID) {
 		BillFilt flt;
-		//flt.LocID = LConfig.Location;
-		// @v9.7.10 flt.OpID = opID;
-		// @v9.7.10 {
 		switch(GetOpType(opID)) {
 			case PPOPT_DRAFTEXPEND:
 			case PPOPT_DRAFTRECEIPT:
@@ -422,8 +507,6 @@ int SLAPI PPViewOprKind::ViewBills(PPID opID)
 			BillFilt::FiltExtraParam p(0, flt.Bbt);
 			PPView::Execute(PPVIEW_BILL, &flt, GetModelessStatus(), &p);
 		}
-		// } @v9.7.10
-		// @v9.7.10 ::ViewGoodsBills(&flt, 1);
 	}
 	return -1;
 }
@@ -472,4 +555,3 @@ void PPALDD_OprKindList::Destroy()
 {
 	DESTROY_PPVIEW_ALDD(OprKind);
 }
-

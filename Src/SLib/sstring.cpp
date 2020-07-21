@@ -97,12 +97,11 @@ SStrScan::~SStrScan()
 {
 }
 
-int FASTCALL SStrScan::Push(uint * pPrevPos)
+void FASTCALL SStrScan::Push(uint * pPrevPos)
 {
 	uint   prev_pos = Stk.getPointer();
 	Stk.push(Offs);
 	ASSIGN_PTR(pPrevPos, prev_pos);
-	return 1;
 }
 
 int FASTCALL SStrScan::Pop()
@@ -7073,6 +7072,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 							if(pToken[0] == '0' && pToken[1] == '4') {
 								rResultList.Add(SNTOK_RU_BIC, 0.6f);
 							}
+							rResultList.Add(SNTOK_RU_KPP, 0.1f); // @v10.8.2
 						}
 						break;
 					case 10:
@@ -7155,8 +7155,22 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			if(h & SNTOKSEQ_DECLAT) {
 				if(stat.Len == 68)
 					rResultList.Add(SNTOK_EGAISMARKCODE, 1.0f);
-				else
+				else {
 					rResultList.Add(SNTOK_DIGLAT, 1.0f);
+					// @v10.8.2 {
+					if(stat.Len == 9) {
+						int   is_ru_kpp = 1;
+						for(i = 0; is_ru_kpp && i < stat.Len; i++) {
+							if(!isdec(pToken[i])) {
+								if(!(oneof2(i, 4, 5) && checkirange(pToken[i], 'A', 'Z'))) // 5, 6 знаки в КПП могут быть прописной латинской буквой
+									is_ru_kpp = 0;
+							}
+						}
+						if(is_ru_kpp)
+							rResultList.Add(SNTOK_RU_KPP, 0.1f); 
+					}
+					// } @v10.8.2 
+				}
 			}
 			if(h & SNTOKSEQ_HEXHYPHEN) {
 				if(stat.Len == 36) {

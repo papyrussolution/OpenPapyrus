@@ -2463,11 +2463,12 @@ public:
 	}
 private:
 	DECL_HANDLE_EVENT;
-	int    editDiffCounters(LAssocArray *);
+	int    editDiffCounters(LAssocArray * pData)
+	{
+		DIALOG_PROC_BODY(DiffByLocCntrDlg, pData);
+	}
 	PPObjOpCounter OpcObj;
 };
-
-int OpCntrDialog::editDiffCounters(LAssocArray * pData) { DIALOG_PROC_BODY(DiffByLocCntrDlg, pData); }
 
 IMPL_HANDLE_EVENT(OpCntrDialog)
 {

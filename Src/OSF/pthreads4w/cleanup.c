@@ -38,7 +38,6 @@
  * are implemented here for applications written in C with no
  * SEH or C++ destructor support.
  */
-__ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -63,9 +62,9 @@ __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
  *
  * ------------------------------------------------------
  */
+__ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
 {
-	__ptw32_cleanup_t * cleanup;
-	cleanup = (__ptw32_cleanup_t*)pthread_getspecific(__ptw32_cleanupKey);
+	__ptw32_cleanup_t * cleanup = (__ptw32_cleanup_t*)pthread_getspecific(__ptw32_cleanupKey);
 	if(cleanup != NULL) {
 		if(execute && (cleanup->routine != NULL)) {
 			(*cleanup->routine)(cleanup->arg);
@@ -73,9 +72,7 @@ __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
 		pthread_setspecific(__ptw32_cleanupKey, (void*)cleanup->prev);
 	}
 	return (cleanup);
-}                               /* __ptw32_pop_cleanup */
-
-void __ptw32_push_cleanup(__ptw32_cleanup_t * cleanup, __ptw32_cleanup_callback_t routine, void * arg)
+}
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -115,11 +112,10 @@ void __ptw32_push_cleanup(__ptw32_cleanup_t * cleanup, __ptw32_cleanup_callback_
  *
  * ------------------------------------------------------
  */
+void __ptw32_push_cleanup(__ptw32_cleanup_t * cleanup, __ptw32_cleanup_callback_t routine, void * arg)
 {
 	cleanup->routine = routine;
 	cleanup->arg = arg;
-
 	cleanup->prev = (__ptw32_cleanup_t*)pthread_getspecific(__ptw32_cleanupKey);
-
 	pthread_setspecific(__ptw32_cleanupKey, (void*)cleanup);
-}                               /* __ptw32_push_cleanup */
+}
