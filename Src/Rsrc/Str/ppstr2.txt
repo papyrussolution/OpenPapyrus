@@ -6944,6 +6944,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //
 // Опции товарных ограничений на статью в документе.
 //
+@gvrbar                             "Товарное ограничение по статье документа"
 @gvrbar_mainaronly                  "Только для выбранного контрагента"
 @gvrbar_mainardisable               "Запрет для выбранного контрагента"
 @gvrbar_extaronly                   "Только для выбранной дополнительной статьи"
@@ -10358,6 +10359,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @selectnewrectype                         "Выберите тип новой записи" // generic Используется в нескольких диалогах
 @selectnewwhtyp                           "Выберите тип новой записи склада"
 @selectnewwhzonetyp                       "Выберите тип новой записи складской зоны"
+@selectacctype                            "Выберите тип бухгалтерского счета"
+@selectguestcount                         "Выберите количество гостей за столом"
+@selectimpexpcfgworkbook                  "Выберите конфигурацию экспорта/импорта рабочих книг"
+@selectimpexpcfgphonelist                 "Выберите конфигурацию экспорта/импорта списка телефонов"
+@selectimpexpcfgperson                    "Выберите конфигурацию экспорта/импорта персоналий"
+@selectposnodetype                        "Выберите тип кассового узла"
+@selectinetacctype                        "Выберите тип Internet-аккаунта"
+@selecttransporttype                      "Выберите вид транспорта"
 
 @location_city                            "@{city}"
 @location_code                            "@{code}"

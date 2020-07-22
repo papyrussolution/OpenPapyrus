@@ -2980,7 +2980,7 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && !pczcr) {
 						if(P_LotXcT) {
-							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
+							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0) // @v10.8.2 
 								ok = 1;
 							else
 								PPErrorByDialog(dlg, sel);

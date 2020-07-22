@@ -1287,12 +1287,12 @@ int SLAPI PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int us
 				if(Filt.AttribType == PPPSNATTR_DUPDLVRADDR) {
 					i = rec_list.getCount();
 					if(i) do {
-						const PsnAttrViewItem & r_item = *(const PsnAttrViewItem *)rec_list.at(--i);
+						const PsnAttrViewItem & r_item = *static_cast<const PsnAttrViewItem *>(rec_list.at(--i));
 						if(i == (rec_list.getCount()-1)) {
 							int dup = 0;
 							StrPool.GetS(r_item.AddressP, buf);
 							for(uint j = 0; j < i; j++) {
-								const PsnAttrViewItem & r_item2 = *(const PsnAttrViewItem *)rec_list.at(j);
+								const PsnAttrViewItem & r_item2 = *static_cast<const PsnAttrViewItem *>(rec_list.at(j));
 								StrPool.GetS(r_item2.AddressP, buf2);
 								//if(stricmp(r_item.Address, r_item2.Address) == 0) {
 								if(buf.CmpNC(buf2) == 0) {

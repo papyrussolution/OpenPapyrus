@@ -7283,7 +7283,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
 					}
 				}
-				else if(oneof3(stat.Len, 52, 35, 41)) {
+				else if(oneof4(stat.Len, 25, 52, 35, 41)) {
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
 						int    is_chzn_cigblock = 1;
@@ -7292,8 +7292,12 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 								is_chzn_cigblock = 0;
 							_offs++;
 						}
-						if(is_chzn_cigblock && strstr(PTRCHRC_(pToken), "8005")) // код сигаретного блока содержит тег цены с префиксом 80005
-							rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
+						if(is_chzn_cigblock) {
+							if(strstr(PTRCHRC_(pToken), "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
+								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
+							else if(stat.Len == 25)
+								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.5f);
+						}
 					}
 				}
 			}

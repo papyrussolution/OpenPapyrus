@@ -10,14 +10,14 @@ SLAPI PPCashNode2::PPCashNode2()
 	THISZERO();
 }
 
-SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry() : N(0)
+SLAPI PPGenCashNode::PosIdentEntry::PosIdentEntry() : N_(0)
 {
 }
 
 int SLAPI PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
     int    ok = 1;
-    THROW(pSCtx->Serialize(dir, N, rBuf));
+    THROW(pSCtx->Serialize(dir, N_, rBuf));
     THROW(pSCtx->Serialize(dir, Uuid, rBuf));
     THROW(pSCtx->Serialize(dir, Name, rBuf));
     CATCHZOK
@@ -2076,7 +2076,7 @@ private:
 				PPGenCashNode::PosIdentEntry * p_entry = Data.ApnCorrList.at(i);
 				if(p_entry) {
 					ss.clear();
-					ss.add(buf.Z().Cat(p_entry->N));
+					ss.add(buf.Z().Cat(p_entry->N_));
 					ss.add(p_entry->Name);
 					p_entry->Uuid.ToStr(S_GUID::fmtIDL, buf);
 					ss.add(buf);
@@ -2145,7 +2145,7 @@ private:
 		for(uint i = 0; i < Data.ApnCorrList.getCount(); i++) {
 			const PPGenCashNode::PosIdentEntry * p_test_entry = Data.ApnCorrList.at(i);
 			if(i != pos) {
-				THROW_PP(!p_test_entry || p_test_entry->N != rEntry.N, PPERR_APNCORR_N_DUP);
+				THROW_PP(!p_test_entry || p_test_entry->N_ != rEntry.N_, PPERR_APNCORR_N_DUP);
 				THROW_PP(rEntry.Uuid.IsZero() || rEntry.Uuid != p_test_entry->Uuid, PPERR_APNCORR_UUID_DUP);
 			}
 		}
@@ -2160,13 +2160,13 @@ private:
 		SString temp_buf;
         TDialog * dlg = new TDialog(DLG_APNCORITEM);
         if(CheckDialogPtrErr(&dlg)) {
-            dlg->setCtrlLong(CTL_APNCORITEM_N, rEntry.N);
+            dlg->setCtrlLong(CTL_APNCORITEM_N, rEntry.N_);
             dlg->setCtrlString(CTL_APNCORITEM_NAME, rEntry.Name);
 			rEntry.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
             dlg->setCtrlString(CTL_APNCORITEM_UUID, temp_buf);
             while(ok < 0 && ExecView(dlg) == cmOK) {
-                rEntry.N = dlg->getCtrlLong(CTL_APNCORITEM_N);
-				if(rEntry.N > 0) {
+                rEntry.N_ = dlg->getCtrlLong(CTL_APNCORITEM_N);
+				if(rEntry.N_ > 0) {
 					dlg->getCtrlString(CTL_APNCORITEM_NAME, rEntry.Name);
 					rEntry.Name.Strip();
 					dlg->getCtrlString(CTL_APNCORITEM_UUID, temp_buf);

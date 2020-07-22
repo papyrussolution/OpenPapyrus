@@ -193,7 +193,7 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 		SNaturalTokenStat nts;
 		uint tokn = 0;
 		tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
-		if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 29)
+		if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25)
 			ok = 100000;
 	}
 	// } @v10.8.2

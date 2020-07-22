@@ -19538,7 +19538,7 @@ public:
 		SLAPI  PosIdentEntry();
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
-        long   N;
+        long   N_;
         S_GUID Uuid;
         SString Name;
 	};
@@ -46313,7 +46313,6 @@ private:
 	int    EndElement(const char * pName);
 	int    Characters(const char * pS, size_t len);
 	void   SaxStop();
-
 	//
 	// Descr: Разбирает входящий документ из файла pFileName и складывает данные в объект RdB.
 	//   После разбора данные в RdB могут быть импортированы.

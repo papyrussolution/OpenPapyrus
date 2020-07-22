@@ -26,19 +26,19 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resrc1.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""ppw_ver.rc""\r\n"
     "#include ""ppbrow-embed.rc""\r\n"
@@ -497,7 +497,7 @@ END
 
 DLG_SELGUESTCOUNT DIALOGEX 46, 8, 202, 130
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите количество гостей за столом"
+CAPTION "@selectguestcount"
 FONT 12, "MS Sans Serif", 700, 0, 0xCC
 BEGIN
     PUSHBUTTON      "1",CTL_SELGUESTCOUNT_01,5,5,30,20
@@ -4490,7 +4490,7 @@ END
 
 DLG_IEWORKBOOK DIALOGEX 88, 56, 252, 61
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите конфигурацию экспорта/импорта рабочих книг"
+CAPTION "@selectimpexpcfgworkbook"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_IEWORKBOOK_CFG,10,20,220,13,ES_AUTOHSCROLL | ES_READONLY
@@ -23138,7 +23138,7 @@ END
 
 DLG_SELCASHNS DIALOGEX 78, 56, 235, 102
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите тип кассового узла"
+CAPTION "@selectposnodetype"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     LTEXT           "Тип кассы",4001,25,10,160,8
@@ -23267,7 +23267,7 @@ END
 
 DLG_SELIACC DIALOGEX 88, 56, 239, 77
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите тип Internet-аккаунта"
+CAPTION "@selectinetacctype"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_SELIACC_WHAT,15,10,200,40,WS_GROUP
@@ -25820,7 +25820,7 @@ END
 
 DLG_TRSEL DIALOGEX 83, 64, 241, 67
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите вид транспорта"
+CAPTION "@selecttransporttype"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_TRSEL_WHAT,10,10,225,25,WS_GROUP
@@ -28097,7 +28097,7 @@ END
 
 DLG_SELACTYP DIALOGEX 67, 56, 187, 76
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите тип бухгалтерского счета"
+CAPTION "@selectacctype"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     GROUPBOX        "",CTL_SELACTYP_TYP,10,10,100,53,WS_GROUP
@@ -28173,7 +28173,7 @@ END
 
 DLG_GVRBAR DIALOGEX 72, 16, 247, 141
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Товарное ограничение по статье документа"
+CAPTION "@gvrbar"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_GVRBAR_ACS,10,20,215,13,ES_AUTOHSCROLL | ES_READONLY
@@ -28282,7 +28282,7 @@ END
 
 DLG_IEPHONE DIALOGEX 88, 48, 302, 90
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите конфигурацию экспорта/импорта списка телефонов"
+CAPTION "@selectimpexpcfgphonelist"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_IEPHONE_CFG,45,20,195,13,ES_AUTOHSCROLL | ES_READONLY
@@ -28297,7 +28297,7 @@ END
 
 DLG_IEPERSON DIALOGEX 88, 56, 247, 90
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Выберите конфигурацию экспорта/импорта персоналий"
+CAPTION "@selectimpexpcfgperson"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     EDITTEXT        CTL_IEPERSON_CFG,20,20,200,13,ES_AUTOHSCROLL | ES_READONLY

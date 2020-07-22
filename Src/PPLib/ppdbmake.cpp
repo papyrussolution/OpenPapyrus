@@ -599,14 +599,14 @@ int SLAPI MakeDatabase()
 								for(uint i = 0; i < cn_pack.ApnCorrList.getCount(); i++) {
 									const PPGenCashNode::PosIdentEntry * p_entry = cn_pack.ApnCorrList.at(i);
 									if(p_entry) {
-										SETMAX(max_child_no, p_entry->N);
+										SETMAX(max_child_no, p_entry->N_);
 									}
 								}
 								PPGenCashNode::PosIdentEntry * p_child_pos_entry = cn_pack.ApnCorrList.CreateNewItem();
 								if(p_child_pos_entry) {
 									p_child_pos_entry->Uuid = sess_param.NewPosNodeGuid;
-									p_child_pos_entry->N = max_child_no+1;
-									sess_param.NewPosNodeN = p_child_pos_entry->N;
+									p_child_pos_entry->N_ = max_child_no+1;
+									sess_param.NewPosNodeN = p_child_pos_entry->N_;
 									PPID  temp_cn_id = param.AutoPosNodeHostID;
 									THROW(cn_obj.Put(&temp_cn_id, &cn_pack, 1));
 								}
@@ -670,14 +670,14 @@ int SLAPI MakeDatabase()
 								for(uint i = 0; i < cn_pack.ApnCorrList.getCount(); i++) {
 									const PPGenCashNode::PosIdentEntry * p_entry = cn_pack.ApnCorrList.at(i);
 									if(p_entry) {
-										SETMAX(max_child_no, p_entry->N);
+										SETMAX(max_child_no, p_entry->N_);
 									}
 								}
 								PPGenCashNode::PosIdentEntry * p_child_pos_entry = cn_pack.ApnCorrList.CreateNewItem();
 								if(p_child_pos_entry) {
 									p_child_pos_entry->Uuid = sess_param.NewPosNodeGuid;
-									p_child_pos_entry->N = max_child_no+1;
-									sess_param.NewPosNodeN = p_child_pos_entry->N;
+									p_child_pos_entry->N_ = max_child_no+1;
+									sess_param.NewPosNodeN = p_child_pos_entry->N_;
 									PPID  temp_cn_id = param.AutoPosNodeHostID;
 									THROW(cn_obj.Put(&temp_cn_id, &cn_pack, 1));
 								}

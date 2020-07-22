@@ -173,7 +173,7 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 						THROW(type == PPPosProtocol::obSource);
 						if(p_src_route_blk) {
 							const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByGUID(p_src_route_blk->Uuid);
-							pos_no = p_pie ? p_pie->N : 0;
+							pos_no = p_pie ? p_pie->N_ : 0;
 						}
 					}
 					else if(r_ref.Type == PPPosProtocol::obCSession) {
@@ -193,8 +193,8 @@ int SLAPI ACS_PAPYRUS_APN::ImportSession(int sessN)
 								if(p_pnb) {
 									assert(type == PPPosProtocol::obPosNode);
 									p_ib->GetS(p_pnb->CodeP, temp_buf);
-									const PPGenCashNode::PosIdentEntry * p_pie = Acn.SearchPosIdentEntryByName(temp_buf);
-									local_pos_no = p_pie ? p_pie->N : 0;
+									const PPGenCashNode::PosIdentEntry * p_pie_by_code = Acn.SearchPosIdentEntryByName(temp_buf);
+									local_pos_no = p_pie_by_code ? p_pie_by_code->N_ : 0;
 								}
 							}
 							SETIFZ(local_pos_no, pos_no);
@@ -417,9 +417,9 @@ int SLAPI PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlo
 					if(acn_pack.ID) {
 						for(uint i = 0; i < acn_pack.ApnCorrList.getCount(); i++) {
 							const PPGenCashNode::PosIdentEntry * p_dest_entry = acn_pack.ApnCorrList.at(i);
-							if(p_dest_entry && p_dest_entry->N > 0) {
+							if(p_dest_entry && p_dest_entry->N_ > 0) {
 								rb_dest.Destroy();
-								rb_dest.Code.Cat(p_dest_entry->N);
+								rb_dest.Code.Cat(p_dest_entry->N_);
 								rb_dest.Uuid = p_dest_entry->Uuid;
 								THROW(WriteRouteInfo(wb, "destination", rb_dest));
 								dest_list_written = 1;
@@ -523,9 +523,9 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 			{
 				for(uint i = 0; i < cn_data.ApnCorrList.getCount(); i++) {
 					const PPGenCashNode::PosIdentEntry * p_dest_entry = cn_data.ApnCorrList.at(i);
-					if(p_dest_entry && p_dest_entry->N > 0) {
+					if(p_dest_entry && p_dest_entry->N_ > 0) {
 						rb.Destroy();
-						rb.Code.Cat(p_dest_entry->N);
+						rb.Code.Cat(p_dest_entry->N_);
 						rb.Uuid = p_dest_entry->Uuid;
 						THROW(WriteRouteInfo(wb, "destination", rb));
 						dest_list_written = 1;
@@ -1472,6 +1472,18 @@ int SLAPI PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
         w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
+		// @v10.8.2 {
+		/* (не надо было этого делать) {
+			ObjTagItem tag_item;
+			if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, rInfo.ID, PPTAG_POSNODE_UUID, &tag_item) > 0) {
+				S_GUID cn_uuid;
+				if(tag_item.GetGuid(&cn_uuid) && !cn_uuid.IsZero()) {
+					cn_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+					w_s.PutInner("uuid", EncText(temp_buf));
+				}
+			}
+		}*/
+		// } @v10.8.2 
         w_s.PutInnerSkipEmpty("code", CorrectAndEncText(rInfo.Symb));
         w_s.PutInnerSkipEmpty("name", CorrectAndEncText(rInfo.Name));
 	}
@@ -2499,21 +2511,17 @@ int PPPosProtocol::EndElement(const char * pName)
 				}
 				break;
 			case PPHS_UUID:
-				{
+				if(RdB.TagValue.NotEmptyS()) {
 					const int prev_tok = RdB.TokPath.peek();
 					if(prev_tok == PPHS_FILE) {
-						if(RdB.TagValue.NotEmptyS()) {
-							THROW_SL(RdB.SrcFileUUID.FromStr(RdB.TagValue));
-						}
+						THROW_SL(RdB.SrcFileUUID.FromStr(RdB.TagValue));
 					}
 					else {
 						p_item = PeekRefItem(&ref_pos, &type);
 						if(oneof2(type, obSource, obDestination)) {
-							if(RdB.TagValue.NotEmptyS()) {
-								S_GUID uuid;
-								THROW_SL(uuid.FromStr(RdB.TagValue));
-								static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
-							}
+							S_GUID uuid;
+							THROW_SL(uuid.FromStr(RdB.TagValue));
+							static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
 						}
 					}
 				}
@@ -2542,28 +2550,35 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_UUID:
 				{
 					const int prev_tok = RdB.TokPath.peek();
-					if(prev_tok == PPHS_FILE) {
-						if(RdB.TagValue.NotEmptyS()) {
-							THROW_SL(RdB.SrcFileUUID.FromStr(RdB.TagValue));
-						}
-					}
-					else {
-						p_item = PeekRefItem(&ref_pos, &type);
-						if(oneof2(type, obSource, obDestination)) {
-							if(RdB.TagValue.NotEmptyS()) {
-								S_GUID uuid;
-								THROW_SL(uuid.FromStr(RdB.TagValue));
-								static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
+					S_GUID uuid;
+					if(RdB.TagValue.NotEmptyS()) {
+						if(uuid.FromStr(RdB.TagValue)) {
+							if(prev_tok == PPHS_FILE) {
+								RdB.SrcFileUUID = uuid;
+							}
+							else {
+								p_item = PeekRefItem(&ref_pos, &type);
+								if(oneof2(type, obSource, obDestination)) {
+									static_cast<RouteObjectBlock *>(p_item)->Uuid = uuid;
+								}
+								// @v10.7.5 {
+								else if(type == obAddress) {
+									AddressBlock * p_blk = static_cast<AddressBlock *>(p_item);
+									p_blk->Uuid = uuid;
+								}
+								// } @v10.7.5 
+								// @v10.8.2 {
+								else if(type == obPosNode) {
+									PosNodeBlock * p_blk = static_cast<PosNodeBlock *>(p_item);
+									p_blk->Uuid = uuid;
+								}
+								// } @v10.8.2 
 							}
 						}
-						// @v10.7.5 {
-						else if(type == obAddress) {
-							if(RdB.TagValue.NotEmptyS()) {
-								AddressBlock * p_blk = static_cast<AddressBlock *>(p_item);
-								THROW_SL(p_blk->Uuid.FromStr(RdB.TagValue));
-							}
+						else {
+							PPSetErrorSLib();
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
 						}
-						// } @v10.7.5 
 					}
 				}
 				break;

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147492595
+LastSignatureCode=2147492604
 LastAutoCodeList=1,11985;102,10172;103,10072;110,10000;111,11979;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10126;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10171
 
 [SignatureList]
@@ -1504,6 +1504,7 @@ strnfound=2147484903
 productoutofstock=2147484904
 create=2147484905
 update=2147484906
+gvrbar=2147492596
 gvrbar_mainaronly=2147484907
 gvrbar_mainardisable=2147484908
 gvrbar_extaronly=2147484909
@@ -4736,6 +4737,14 @@ loctyp_whcellautogen=2147487854
 selectnewrectype=2147487855
 selectnewwhtyp=2147487856
 selectnewwhzonetyp=2147487857
+selectacctype=2147492597
+selectguestcount=2147492598
+selectimpexpcfgworkbook=2147492599
+selectimpexpcfgphonelist=2147492600
+selectimpexpcfgperson=2147492601
+selectposnodetype=2147492602
+selectinetacctype=2147492603
+selecttransporttype=2147492604
 location_city=2147487858
 location_code=2147487859
 location_counter=2147487860

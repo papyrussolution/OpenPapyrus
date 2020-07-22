@@ -1005,7 +1005,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					}
 					break;
 				case 'S': // 4, SVG_PATH_CMD_SMOOTH_CURVE_TO
-					while(scan.Skip().IsDotPrefixedNumber()) { // @v8.9.9
+					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
