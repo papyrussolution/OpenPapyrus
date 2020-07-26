@@ -1003,10 +1003,7 @@ DbfTable * FASTCALL CreateDbfTable(uint rezID, const char * fName, int forceRepl
 	return p_tbl;
 }
 
-int FASTCALL CheckFiltID(PPID flt, PPID id)
-{
-	return (!flt || flt == id);
-}
+int FASTCALL CheckFiltID(PPID flt, PPID id) { return (!flt || flt == id); }
 
 char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noabs)
 {

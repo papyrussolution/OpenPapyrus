@@ -3805,7 +3805,7 @@ public:
 	explicit TToolbar(HWND hw, DWORD style = 0);
 	~TToolbar();
 	void   DestroyHWND();
-	BOOL   Valid() const;
+	BOOL   IsValid() const;
 	int    GetCurrPos() const;
 	HWND   H() const;
 	HWND   GetToolbarHWND() const;

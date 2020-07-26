@@ -399,7 +399,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          "Печать нулевого чека\tAlt-Minus"
-	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden, "Печать всех документов\tCtrl-S"
+	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden,     "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 
 	separator
@@ -462,7 +462,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
-	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "Печать всех документов\tCtrl-S"
+	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
@@ -523,7 +523,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
-	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "Печать всех документов\tCtrl-S"
+	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
@@ -567,7 +567,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
-	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden, "Печать всех документов\tCtrl-S"
+	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden, "@{printeachdoc}\tCtrl-S"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,           "@{totals}\tF9"
 	separator
@@ -623,7 +623,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "Печать информации о выборке документов\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "Печать чека на POS-принтер\tCtrl-Z"
 	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "Печать нулевого чека\tAlt-Minus"
-	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "Печать всех документов\tCtrl-S"
+	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,                      "@{printeachdoc}\tCtrl-S"
 	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
@@ -798,7 +798,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbF8,      "@{dogetfrombasket}\tF8",                TBBM_ADDTISFROMBASKET
 	kbCtrlF8,  "@{doputtobasket}\tCtrl-F8",             TBBM_ADDTISTOBASKET
 	separator
-	kbCtrlL,   "Печать этикетки\tCtrl-L",               TBBM_BARLABEL
+	kbCtrlL,   "@{printlabel}\tCtrl-L",               TBBM_BARLABEL
 	kbCtrlS,   "Генерировать серийные номера\tCtrl-S",  TBBM_SERIALGEN
 	separator
 	kbShiftF5, "Добавить пакет\tShift-F5",              TBBM_PCKGNEW
@@ -841,7 +841,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	VIEWTSESS      : kbCtrlS,     TBBM_TSESS,             "Сессии процессора\tCtrl-S"
 	separator
 	SORT           : kbCtrlO,     TBBM_SORT,              "@{sorting}\tCtrl-O"
-	PRINT          : kbF7,        PPDV_PRINTER01,         "Печать списка\tF7"
+	PRINT          : kbF7,        PPDV_PRINTER01,         "@{printlist}\tF7"
 	POSPRINT       : kbCtrlF7,    TBBM_POSPRINT,          "Печать ценника\tCtrl-F7"
 	PRINTLABEL     : kbCtrlL,     TBBM_PRNLABELS,         "Печать этикеток\tCtrl-L"
 	EXPORT         : kbCtrlE,     PPDV_EXPORT01,          "@{export}\tCtrl-E"
@@ -1415,7 +1415,7 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 		EDITGOODS       : kbF2,      TBBM_GOODS,       "@{ware}\tF2"
 		EDITITEMGOODS   : kbShiftF2, TBBM_GOODS,       "@{component}\tShift-F2"
 		VIEWGOODSOPANLZ : kbF4,      TBBM_GOODSANLZ,   "Товарный отчет по товару-владельцу\tF4"
-		PRINT           : kbF7,      PPDV_PRINTER01,   "Печать списка\tF7"
+		PRINT           : kbF7,      PPDV_PRINTER01,   "@{printlist}\tF7"
 		separator
 		CHANGEFILT      : kbCtrlV,   PPDV_FILTER01,    "@{filter}\tCtrl-V"
 		separator
@@ -1437,14 +1437,14 @@ browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 //	"@qtty",               5, notype, ALIGN_RIGHT, 10
 //	"@type",               6, notype, 0, 10
 //	toolbar TB_FIRST_TOOLBAR {
-//		EDITITEM       : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
-//		EDITGOODS      : kbF2,      TBBM_GOODS,  "@{ware}\tF2"
-//		EDITITEMGOODS  : kbShiftF2, TBBM_GOODS,  "@{component}\tShift-F2"
-//		PRINT          : kbF7,      PPDV_PRINTER01,  "Печать списка\tF7"
+//		EDITITEM       : kbEnter,   PPDV_EDITFILE02, "@{edit}\tEnter"
+//		EDITGOODS      : kbF2,      TBBM_GOODS,      "@{ware}\tF2"
+//		EDITITEMGOODS  : kbShiftF2, TBBM_GOODS,      "@{component}\tShift-F2"
+//		PRINT          : kbF7,      PPDV_PRINTER01,  "@{printlist}\tF7"
 //		separator
-//		CHANGEFILT : kbCtrlV,   PPDV_FILTER01, "@{filter}\tCtrl-V"
+//		CHANGEFILT : kbCtrlV,   PPDV_FILTER01,       "@{filter}\tCtrl-V"
 //		separator
-//		TOTAL      : kbF9,      PPDV_SIGMA02,   "@{totals}\tF9"
+//		TOTAL      : kbF9,      PPDV_SIGMA02,        "@{totals}\tF9"
 //	}
 //}
 
@@ -4791,7 +4791,7 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		PRINTBILL         : kbCtrlB,   PPDV_NOICON,    "@{printcurrentdocument}\tCtrl-B"
 		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST, "@{printselectionofdocuments}\tAlt-F7"
 		PRINTBILLINFOLIST : kbShiftF7, PPDV_NOICON,    "Печать информации о выборке документов\tShift-F7"
-		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,    "Печать всех документов\tCtrl-S"
+		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,    "@{printeachdoc}\tCtrl-S"
 		// @v10.0.0 PRINTCHECK        : kbCtrlF7,  PPDV_NOICON,    "@{printcheck}\tCtrl-F7"
 		separator
 		REPLACEMENT       : kbCtrlF9,  TBBM_REPLACE,   "@{doupdateall}\tCtrl-F9"
@@ -4832,7 +4832,7 @@ browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 		PRINTBILL         : kbCtrlB,   PPDV_NOICON,       "@{printcurrentdocument}\tCtrl-B"
 		PRINTBILLLIST     : kbAltF7,   TBBM_PRINTLIST,    "@{printselectionofdocuments}\tAlt-F7"
 		PRINTBILLINFOLIST : kbShiftF7, PPDV_NOICON,       "Печать информации о выборке документов\tShift-F7"
-		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,       "Печать всех документов\tCtrl-S"
+		PRINTALLBILLS     : kbCtrlS,   PPDV_NOICON,       "@{printeachdoc}\tCtrl-S"
 		// @v10.0.0 PRINTCHECK        : kbCtrlF7,  PPDV_NOICON,    "@{printcheck}\tCtrl-F7"
 		separator
 		REPLACEMENT       : kbCtrlF9,  TBBM_REPLACE,      "@{doupdateall}\tCtrl-F9"
@@ -5432,7 +5432,7 @@ browser TSESSLINE north(100), 3, 1, "Строки технологической сессии {%s}", OWNER|
 		COMPLETE        : kbCtrlF8, TBBM_COMPLETECSESS, "Рассчитать автоматическое списание\tCtrl-F8"
 		VIEWLOTS        : kbF3,     PPDV_LOTS,          "@{lots}\tF3"
 		separator
-		PRINTLABEL      : kbCtrlL,  TBBM_PRNLABELS,     "Печать этикеток по строке\tCtrl-L"
+		PRINTLABEL      : kbCtrlL,  TBBM_PRNLABELS,     "@{printlabelsbyitem}\tCtrl-L"
 		PRINT           : kbF7,     PPDV_PRINTER01,     "@{print}\tF7"
 		TOTAL           : kbF9,     PPDV_SIGMA02,       "@{totals}\tF9"
 	}
@@ -5459,7 +5459,7 @@ browser TSESSLINEGOODS north(100), 3, 1, "Строки технологических сессий по товар
 		VIEWLOTS        : kbF3,    PPDV_LOTS,         "@{lots}\tF3"
 		EDITTSESS       : kbF4,    TBBM_TSESS,        "@{session}\tF4"
 		separator
-		PRINTLABEL      : kbCtrlL, TBBM_PRNLABELS,    "Печать этикеток по строке\tCtrl-L"
+		PRINTLABEL      : kbCtrlL, TBBM_PRNLABELS,    "@{printlabelsbyitem}\tCtrl-L"
 		PRINT           : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL           : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
 	}
@@ -5478,7 +5478,7 @@ browser TSESSLINEREST north(100), 3, 1, "Остатки после технологической сессии {%
 		DELETEITEM : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
 		EXTADDGOODSITEM : kbF2, TBBM_EXTADDTI,   "@{dochooseware}\tF2"
 		separator
-		PRINTLABEL : kbCtrlL, TBBM_PRNLABELS,    "Печать этикеток по строке\tCtrl-L"
+		PRINTLABEL : kbCtrlL, TBBM_PRNLABELS,    "@{printlabelsbyitem}\tCtrl-L"
 		PRINT      : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL      : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
 	}
@@ -6319,7 +6319,7 @@ browser SUPRWARE north(100), 3, 0, "Базовые товары и компоненты", OWNER|GRID, 0
 browser USERPROFILE north(100), 1, 0, "Профайлер пользовательских функций", OWNER|GRID, 0
 {
 	"@database",          8, notype, 0,           15
-	"Ид сессии",          7, notype, 0,           30
+	"@sessionid",         7, notype, 0,           30
 	"Ид потока",          3, notype, 0,            8
 	"@function",         10, notype, 0,           30
 	"Версия Papyrus",    11, notype, 0,           10
@@ -6327,9 +6327,9 @@ browser USERPROFILE north(100), 1, 0, "Профайлер пользовательских функций", OWNE
 	"@date",              4, notype, DATF_GERMAN,  8
 	"@time",              5, notype, TIMF_HMS,     8
 	"@duration",          6, notype, 0,           12
-	"Фактор 1",          12, notype, 0,            8
-	"Фактор 2",          13, notype, 0,            8
-	"Фактор 3",          14, notype, 0,            8
+	"@{factor} 1",       12, notype, 0,            8
+	"@{factor} 2",       13, notype, 0,            8
+	"@{factor} 3",       14, notype, 0,            8
 	toolbar TB_FIRST_TOOLBAR {
 		UPDATEITEMS  : kbF5,     PPDV_EDITFILE02,  "@{refresh}\tkbF5"
 		DELETEALL    : kbCtrlF8, PPDV_DELETEALL02, "Очистить статус загрузки\tCtrl-F8"
@@ -7308,7 +7308,7 @@ record CSessComplex {
 	PosNodeID    long         format(8)    "Ид кассового узла";
 	PosN         long         format(8)    "@{posnodeno}";
 	SessN        long         format(8)    "@{sessionno}";
-	SessID       long         format(8)    "Ид сессии";
+	SessID       long         format(8)    "@{sessionid}";
 	SessDate     date         "Дата закрытия сессии";
 	SessTime     time         "Время закрытия сессии";
 	SessAmt      double       format(13.2) "Сумма чеков без скидки";
@@ -8155,7 +8155,7 @@ record CPosGoods {
 }
 
 record CPosGoodsGroup {
-	Id         long        "Ид группы";
+	Id         long        "@{groupid}";
 	ParentId   long        "Ид группы верхнего уровня";
 	Name       zstring(64) "@{appellation}";
 	Code       long        "@{code}";
@@ -8431,7 +8431,7 @@ reportstub GTaxAnlz			{ dl600data=GoodsTaxAnlz,		"Налоговый анализ товарооборота
 reportstub GTaxAnlzTotal	{ dl600data=GTaxAnlzTotal,		"Итоги налогового анализа товарооборота"}
 reportstub GoodsStrucList	{ dl600data=GoodsStrucList,		"@{view_goodsstruc}"}
 reportstub GoodsRest		{ dl600data=GoodsRest,			"Остатки товаров"}
-reportstub GoodsRestTotal	{ dl600data=GoodsRestTotal,		"Итоги товарных остатков"}
+reportstub GoodsRestTotal	{ dl600data=GoodsRestTotal,		"@{goodsresttotal}"}
 reportstub GoodsRestPrgn	{ dl600data=GoodsRest,			"Остатки товаров с прогнозом продаж"}
 reportstub GoodsRestEL_Sgg	{ dl600data=GoodsRest,			"ОСТАТКИ ТОВАРОВ ПО ВСЕМ СКЛАДАМ"}
 reportstub GoodsRestELD		{ dl600data=GoodsRest,			"ОСТАТКИ ТОВАРОВ С БУДУЩИМИ ПРОДАЖАМИ ПО ВСЕМ СКЛАДАМ"}

@@ -50,7 +50,7 @@ PPJobHandler * SLAPI PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pD
 
 int PPJobMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 {
-	int ok = 1;
+	int    ok = 1;
 	THROW(PPGetFilePath(PPPATH_WORKSPACE, "srvjobpool", rXmlPoolPath));  // получаем путь к workspace
 	THROW(::createDir(rXmlPoolPath));
 	CATCHZOK
@@ -134,11 +134,8 @@ int SLAPI PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 	if(P_Rez) {
 		THROW_PP(P_Rez->findResource((uint)jobID, PP_RCDECLJOB), PPERR_RESFAULT);
 		P_Rez->getString(pJob->Symb, 2);
-		// @v9.2.1 P_Rez->getString(pJob->Text, 2);
-		// @v9.2.1 {
 		P_Rez->getString(pJob->Text = 0, 2);
 		SLS.ExpandString(pJob->Text, CTRANSF_UTF8_TO_INNER);
-		// } @v9.2.1
 		pJob->Flags = static_cast<long>(P_Rez->getUINT());
 	}
 	CATCHZOK
@@ -243,7 +240,7 @@ int SLAPI PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readO
 			THROW_SL(p_file->Read(buf.Z()));
 			THROW(job.Read(buf));
 			id = job.ID;
-			THROW(pPool->PutJob(&id, &job));
+			THROW(pPool->PutJobItem(&id, &job));
 		}
 	}
 	LastLoading = getcurdatetime_();
@@ -303,7 +300,7 @@ int SLAPI PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int read
 						PPJob  job;
 						THROW(job.Read2(p_node));
 						id = job.ID;
-						THROW(pPool->PutJob(&id, &job));
+						THROW(pPool->PutJobItem(&id, &job));
 					}
 				}
 			}
@@ -737,7 +734,26 @@ const SString & SLAPI PPJobPool::GetDbSymb() const
 
 int FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
 {
-	return (DbSymb.Empty() || DbSymb.CmpNC(pJob->DbSymb) == 0) ? 1 : PPSetError(PPERR_JOBSTRNGFORPOOL);
+	// @v10.8.3 return (DbSymb.Empty() || DbSymb.CmpNC(pJob->DbSymb) == 0) ? 1 : PPSetError(PPERR_JOBSTRNGFORPOOL);
+	// @v10.8.3 {
+	int    ok = 0;
+	if(DbSymb.Empty())
+		ok = 1;
+	else if(DbSymb.CmpNC(pJob->DbSymb) == 0)
+		ok = 1;
+	else {
+		ok = PPSetError(PPERR_JOBSTRNGFORPOOL); // Задачи, которые относятся к другой базе данных в общем случае менять нельзя, но возможны исключения:
+		if(pJob->EmailAccID == 0) { // Аккаунт точно ссылается на запись в базе данных - ничего не поделать - задача не наша
+			if(pJob->Descr.CmdID == PPJOB_BACKUP) // Резерваное копирование не оперирует данными внутри базы данных - с ней можно работать
+				ok = 1;
+			else if(pJob->Descr.Flags & PPJobDescr::fNoLogin) // Задача не требует авторизации
+				ok = 1;
+			else if(pJob->Param.GetAvailableSize() == 0) // Параметры задачи пустые - значит она не ссылается на данные внутри чужой базы данных
+				ok = 1;
+		}
+	}
+	return ok;
+	// } @v10.8.3 
 }
 
 uint SLAPI PPJobPool::GetCount() const
@@ -781,11 +797,11 @@ int SLAPI PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
 	return 0;
 }
 
-const PPJob * SLAPI PPJobPool::GetJob(PPID id, int ignoreDbSymb) const
+const PPJob * SLAPI PPJobPool::GetJobItem(PPID id, int ignoreDbSymb) const
 {
 	if(id) {
 		for(uint i = 0; i < getCount(); i++) {
-			PPJob * p_job = at(i);
+			const PPJob * p_job = at(i);
 			if(p_job->ID == id)
 				return (ignoreDbSymb || IsJobSuited(p_job)) ? p_job : 0;
 		}
@@ -794,7 +810,7 @@ const PPJob * SLAPI PPJobPool::GetJob(PPID id, int ignoreDbSymb) const
 	return 0;
 }
 
-int SLAPI PPJobPool::PutJob(PPID * pID, const PPJob * pJob)
+int SLAPI PPJobPool::PutJobItem(PPID * pID, const PPJob * pJob)
 {
 	int    ok = -1;
 	uint   i = 0;

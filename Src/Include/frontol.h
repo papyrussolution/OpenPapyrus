@@ -30,6 +30,7 @@
 #define FRONTOL_OPTYPE_CHKCLOSED   55   // Закрытие чека
 #define FRONTOL_OPTYPE_CANCEL      56   // Отмена чека
 #define FRONTOL_OPTYPE_ZREPORT     61   // Z-отчет
+#define FRONTOL_OPTYPE_ZREPORT_2   63   // @v10.8.3 Отчет с гашением
 
 struct _FrontolZRepEntry {
 	_FrontolZRepEntry(long posN, long zrepN, long sessID) : PosN(posN), ZRepN(zrepN), SessID(sessID) // @v10.8.2 
@@ -75,14 +76,14 @@ struct AtolGoodsDiscountEntry {
 struct FrontolCcPayment {
 	FrontolCcPayment() : Amount(0.0), CashAmt(0.0), BankAmt(0.0)
 	{
-		// Reset();
 	}
-	void Reset()
+	FrontolCcPayment & Z()
 	{
 		Amount = 0.0;
 		CashAmt = 0.0;
 		BankAmt = 0.0;
-		CrdSCardList.freeAll();
+		CrdSCardList.clear();
+		return *this;
 	}
 	double Amount;
 	double CashAmt;

@@ -136,15 +136,8 @@ SGeoPosLL::SGeoPosLL(double lat, double lon) : Lat(lat), Lon(lon)
 {
 }
 
-int FASTCALL SGeoPosLL::operator == (const SGeoPosLL & s) const
-{
-	return BIN(Cmp(s) == 0);
-}
-
-int FASTCALL SGeoPosLL::operator != (const SGeoPosLL & s) const
-{
-	return BIN(Cmp(s) != 0);
-}
+int FASTCALL SGeoPosLL::operator == (const SGeoPosLL & s) const { return BIN(Cmp(s) == 0); }
+int FASTCALL SGeoPosLL::operator != (const SGeoPosLL & s) const { return BIN(Cmp(s) != 0); }
 
 int FASTCALL SGeoPosLL::Cmp(const SGeoPosLL & s) const
 {
@@ -168,20 +161,9 @@ int FASTCALL SGeoPosLL::Cmp(const SGeoPosLL & s) const
 	}
 }
 
-int SGeoPosLL::Valid() const
-{
-	return IsGeoPosValid(Lat, Lon);
-}
-
-SString & FASTCALL SGeoPosLL::ToStr(SString & rBuf) const
-{
-	return GeoPosToStr(Lat, Lon, rBuf);
-}
-
-int FASTCALL SGeoPosLL::FromStr(const char * pStr)
-{
-	return GeoPosFromStr(pStr, Lat, Lon);
-}
+int SGeoPosLL::IsValid() const { return IsGeoPosValid(Lat, Lon); }
+SString & FASTCALL SGeoPosLL::ToStr(SString & rBuf) const { return GeoPosToStr(Lat, Lon, rBuf); }
+int FASTCALL SGeoPosLL::FromStr(const char * pStr) { return GeoPosFromStr(pStr, Lat, Lon); }
 //
 //
 //
@@ -289,25 +271,18 @@ int SGeoPosLL_Int::Set(double lat, double lon)
 {
     Lat = R0i(lat * IntGeoCoordScale);
     Lon = R0i(lon * IntGeoCoordScale);
-	return Valid();
+	return IsValid();
 }
 
 int SGeoPosLL_Int::SetInt(long lat, long lon)
 {
 	Lat = lat;
 	Lon = lon;
-	return Valid();
+	return IsValid();
 }
 
-int SGeoPosLL_Int::Valid() const
-{
-	return IsGeoPosValid(GetLat(), GetLon());
-}
-
-SString & FASTCALL SGeoPosLL_Int::ToStr(SString & rBuf) const
-{
-	return GeoPosToStr(GetLat(), GetLon(), rBuf);
-}
+int SGeoPosLL_Int::IsValid() const { return IsGeoPosValid(GetLat(), GetLon()); }
+SString & FASTCALL SGeoPosLL_Int::ToStr(SString & rBuf) const { return GeoPosToStr(GetLat(), GetLon(), rBuf); }
 
 int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)
 {

@@ -2476,7 +2476,7 @@ private:
 	int    SLAPI MakeCopyPath(BCopyData * data, SString & rDestPath);
 	int    SLAPI CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
 	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
-	int    SLAPI DoCopy(DBBackup::CopyParams *, long, BackupLogFunc, void * extraPtr);
+	int    SLAPI DoCopy(DBBackup::CopyParams *, /* @v10.8.3 long useCompression,*/ BackupLogFunc, void * extraPtr);
 	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr);
 	int    SLAPI RemoveDatabase(int safe);
 	int    SLAPI RestoreRemovedDB(int restoreFiles);
@@ -2636,7 +2636,7 @@ private:
 		OH() : H(0), T(0)
 		{
 		}
-		int    Valid() const { return (T != 0); }
+		int    IsValid() const { return (T != 0); }
 		int    operator !() const { return (T == 0); }
 		void   Clear()
 		{

@@ -28,21 +28,63 @@ SLAPI PPViewStaffCal::~PPViewStaffCal()
 //
 //
 //
-#define GRP_STAFFCALLIST 1
-
 class StaffCalFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(StaffCalFilt);
+	enum {
+		ctlgroupStaffCalList = 1
+	};
 public:
 	StaffCalFiltDialog() : TDialog(DLG_STAFFCALFLT)
 	{
 		SetupCalPeriod(CTLCAL_STAFFCALFLT_PERIOD, CTL_STAFFCALFLT_PERIOD);
-		addGroup(GRP_STAFFCALLIST, new StaffCalCtrlGroup(CTLSEL_STAFFCALFLT_CAL, cmStaffCalFiltCalList));
+		addGroup(ctlgroupStaffCalList, new StaffCalCtrlGroup(CTLSEL_STAFFCALFLT_CAL, cmStaffCalFiltCalList));
 	}
-	int    setDTS(const StaffCalFilt *);
-	int    getDTS(StaffCalFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SetPeriodInput(this, CTL_STAFFCALFLT_PERIOD, &Data.Period);
+		PPIDArray obj_type_list;
+		obj_type_list.addzlist(PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST, 0L);
+		SetupObjListCombo(this, CTLSEL_STAFFCALFLT_OT, Data.LinkObjType, &obj_type_list);
+		SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_PK, PPOBJ_PRSNKIND, Data.LinkPersonKind, 0, 0);
+		SetupSubstDateCombo(this, CTLSEL_STAFFCALFLT_GRP, Data.Sgd);
+		StaffCalCtrlGroup::Rec sc_rec(&Data.CalList);
+		setGroupData(ctlgroupStaffCalList, &sc_rec);
+		//
+		SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_PROJC, PPOBJ_STAFFCAL, Data.ProjCalID, 0, 0);
+		AddClusterAssoc(CTL_STAFFCALFLT_FLAGS, 0, StaffCalFilt::fInverseProj);
+		SetClusterData(CTL_STAFFCALFLT_FLAGS, Data.Flags);
+		//
+		AddClusterAssocDef(CTL_STAFFCALFLT_ORDER,  0, PPViewStaffCal::ordByDate);
+		AddClusterAssoc(CTL_STAFFCALFLT_ORDER,  1, PPViewStaffCal::ordByObject);
+		SetClusterData(CTL_STAFFCALFLT_ORDER, Data.Order);
+		OnObjectSelection();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		StaffCalCtrlGroup::Rec sc_rec;
+		THROW(GetPeriodInput(this, CTL_STAFFCALFLT_PERIOD, &Data.Period));
+		getCtrlData(CTLSEL_STAFFCALFLT_OT, &Data.LinkObjType);
+		if(Data.LinkObjType == PPOBJ_PERSON) {
+			Data.LinkPersonKind = NZOR(getCtrlLong(CTLSEL_STAFFCALFLT_PK), PPPRK_EMPL);
+		}
+		else
+			Data.LinkPersonKind = 0;
+		getGroupData(ctlgroupStaffCalList, &sc_rec);
+		Data.CalList = sc_rec.List;
+		Data.ProjCalID = getCtrlLong(CTLSEL_STAFFCALFLT_PROJC);
+		GetClusterData(CTL_STAFFCALFLT_FLAGS, &Data.Flags);
+		GetClusterData(CTL_STAFFCALFLT_ORDER, &Data.Order);
+		getCtrlData(CTLSEL_STAFFCALFLT_GRP, &Data.Sgd);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   OnObjectSelection();
-	StaffCalFilt Data;
 };
 
 IMPL_HANDLE_EVENT(StaffCalFiltDialog)
@@ -104,53 +146,6 @@ void StaffCalFiltDialog::OnObjectSelection()
 	disableCtrl(CTLSEL_STAFFCALFLT_PK,  dsbl_kind);
 	enableCommand(cmStaffCalFiltObjList, !disbl);
 }
-
-int StaffCalFiltDialog::setDTS(const StaffCalFilt * pData)
-{
-	Data = *pData;
-	SetPeriodInput(this, CTL_STAFFCALFLT_PERIOD, &Data.Period);
-	PPIDArray obj_type_list;
-	obj_type_list.addzlist(PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST, 0L);
-	SetupObjListCombo(this, CTLSEL_STAFFCALFLT_OT, Data.LinkObjType, &obj_type_list);
-	SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_PK, PPOBJ_PRSNKIND, Data.LinkPersonKind, 0, 0);
-	SetupSubstDateCombo(this, CTLSEL_STAFFCALFLT_GRP, Data.Sgd);
-	StaffCalCtrlGroup::Rec sc_rec(&Data.CalList);
-	setGroupData(GRP_STAFFCALLIST, &sc_rec);
-	//
-	SetupPPObjCombo(this, CTLSEL_STAFFCALFLT_PROJC, PPOBJ_STAFFCAL, Data.ProjCalID, 0, 0);
-	AddClusterAssoc(CTL_STAFFCALFLT_FLAGS, 0, StaffCalFilt::fInverseProj);
-	SetClusterData(CTL_STAFFCALFLT_FLAGS, Data.Flags);
-	//
-	AddClusterAssocDef(CTL_STAFFCALFLT_ORDER,  0, PPViewStaffCal::ordByDate);
-	AddClusterAssoc(CTL_STAFFCALFLT_ORDER,  1, PPViewStaffCal::ordByObject);
-	SetClusterData(CTL_STAFFCALFLT_ORDER, Data.Order);
-	OnObjectSelection();
-	return 1;
-}
-
-int StaffCalFiltDialog::getDTS(StaffCalFilt * pData)
-{
-	int    ok = 1;
-	StaffCalCtrlGroup::Rec sc_rec;
-	THROW(GetPeriodInput(this, CTL_STAFFCALFLT_PERIOD, &Data.Period));
-	getCtrlData(CTLSEL_STAFFCALFLT_OT, &Data.LinkObjType);
-	if(Data.LinkObjType == PPOBJ_PERSON) {
-		Data.LinkPersonKind = NZOR(getCtrlLong(CTLSEL_STAFFCALFLT_PK), PPPRK_EMPL);
-	}
-	else
-		Data.LinkPersonKind = 0;
-	getGroupData(GRP_STAFFCALLIST, &sc_rec);
-	Data.CalList = sc_rec.List;
-	Data.ProjCalID = getCtrlLong(CTLSEL_STAFFCALFLT_PROJC);
-	GetClusterData(CTL_STAFFCALFLT_FLAGS, &Data.Flags);
-	GetClusterData(CTL_STAFFCALFLT_ORDER, &Data.Order);
-	getCtrlData(CTLSEL_STAFFCALFLT_GRP, &Data.Sgd);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERR
-	return ok;
-}
-
-#undef GRP_STAFFCALLIST
 
 int SLAPI PPViewStaffCal::EditBaseFilt(PPBaseFilt * pFilt)
 {

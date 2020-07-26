@@ -9,7 +9,7 @@
 // Специальное смещение для значений номеров строк, с помощью которого
 // решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значение большие чем RowIdentDivider)
 //
-static const int16 RowIdentDivider = 27277; // @v9.8.9 10000-->27277
+// @v10.8.3 (moved to PPConstParam::EgaisInRowIdentDivider) static const int16 RowIdentDivider = 27277; // @v9.8.9 10000-->27277
 
 /*
 #define BEDIUS_DESADV_OUT_SENDED            1 // Документ отправлен получателю в виде DESADV
@@ -51,7 +51,7 @@ BILL_EDI_USER_STATE
 	-- отказ                             brown       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_REJECT
 */
 static const char * P_TempOutputDirName = "temp-query";
-static const char * P_IntrExpndNotePrefix = "$INTREXPND";
+// @v10.8.3 (replaced with _PPConst.P_BillNotePrefix_IntrExpnd) static const char * P_IntrExpndNotePrefix = "$INTREXPND";
 
 PPEgaisProcessor::Ack::Ack() : Ver(0), SignSize(0), Status(0)
 {
@@ -2220,7 +2220,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 								{
 									temp_buf.Z();
 									if(is_intrexpend)
-										temp_buf.CatEq(P_IntrExpndNotePrefix, p_bp->Rec.ID);
+										temp_buf.CatEq(_PPConst.P_BillNotePrefix_IntrExpnd, p_bp->Rec.ID);
 									// @v8.9.10 (Поставщики не хотят передавать свои примечания в ЕГАИС) if(p_bp->Rec.Memo[0]) temp_buf.CatDiv('-', 1, 1).Cat(p_bp->Rec.Memo);
 									n_h.PutInnerSkipEmpty(SXml::nst("wb", "Note"), EncText(temp_buf)); // Примечание
 								}
@@ -4082,7 +4082,7 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
         }
 		else {
 			if(SXml::IsName(p_n, "Content")) {
-				int    surrogate_line_ident = RowIdentDivider;
+				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
                     InformBItem item;
 					if(SXml::IsName(p_c, "Position")) {
@@ -4092,9 +4092,9 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
 								STRNSCPY(item.OrgRowIdent, temp_buf);
 								if(temp_buf.IsDigit()) {
 									if(temp_buf == "0")
-										item.P = RowIdentDivider;
+										item.P = _PPConst.EgaisInRowIdentDivider;
 									else
-										item.P = (temp_buf.ToLong() % RowIdentDivider);
+										item.P = (temp_buf.ToLong() % _PPConst.EgaisInRowIdentDivider);
 								}
 								else {
 									item.P = ++surrogate_line_ident;
@@ -4410,8 +4410,8 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					memo_base.Transf(CTRANSF_UTF8_TO_INNER);
                 else if(SXml::GetContentByName(p_h, "Note", memo_note)) {
                 	memo_note.Transf(CTRANSF_UTF8_TO_INNER);
-                	if(memo_note.HasPrefixNC(P_IntrExpndNotePrefix)) {
-						(temp_buf = memo_note).ShiftLeft(sstrlen(P_IntrExpndNotePrefix)).Strip().ShiftLeftChr('=').Strip();
+                	if(memo_note.HasPrefixNC(_PPConst.P_BillNotePrefix_IntrExpnd)) {
+						(temp_buf = memo_note).ShiftLeft(sstrlen(_PPConst.P_BillNotePrefix_IntrExpnd)).Strip().ShiftLeftChr('=').Strip();
 						intr_expend_bill_id = temp_buf.ToLong();
 						SETIFZ(intr_expend_bill_id, -1);
                 	}
@@ -4474,15 +4474,13 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						STRNSCPY(p_bp->Rec.Memo, memo_base);
 					//
 					// @v9.5.11 Изменен приоритет применения контрагента в качестве поставщика.
-					// Ранее у psn_suppl был приоритет, однако выяснилось что некоторые поставщики
+					// Ранее приоритет был у psn_suppl, однако выяснилось что некоторые поставщики
 					// гонят в этом теге бредовые значения (типа собственного поставщика).
 					// {
-					if(psn_shipper.Rec.ID) {
+					if(psn_shipper.Rec.ID)
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
-					}
-					else if(psn_suppl.Rec.ID) {
+					else if(psn_suppl.Rec.ID)
 						ArObj.P_Tbl->PersonToArticle(psn_suppl.Rec.ID, op_rec.AccSheetID, &ar_id);
-					}
 					// } @v9.5.11
 					if(ar_id)
 						p_bp->SetupObject(ar_id, sob);
@@ -4546,7 +4544,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 				SString serial;
 				SString box_number;
 				//PPLotExtCodeContainer::MarkSet ext_codes_set;
-				int    surrogate_line_ident = RowIdentDivider;
+				int    surrogate_line_ident = _PPConst.EgaisInRowIdentDivider;
 				SString org_line_ident;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
@@ -4569,11 +4567,11 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 								if(temp_buf.IsDigit()) {
 									const long dec_id = temp_buf.ToLong();
 									if(temp_buf == "0") {
-										ti.RByBill = RowIdentDivider;
+										ti.RByBill = _PPConst.EgaisInRowIdentDivider;
 										org_line_ident = temp_buf;
 									}
 									else {
-										ti.RByBill = static_cast<int16>(dec_id % RowIdentDivider);
+										ti.RByBill = static_cast<int16>(dec_id % _PPConst.EgaisInRowIdentDivider);
 										if(dec_id != ti.RByBill)
 											org_line_ident = temp_buf;
 									}

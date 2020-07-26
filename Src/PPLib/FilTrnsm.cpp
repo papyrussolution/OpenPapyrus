@@ -1012,7 +1012,7 @@ int SLAPI PackTransmitFile(const char * pFileName, int pack, PercentFunc callbac
 		dest_file = pFileName;
 		SPathStruc::ReplaceExt(dest_file, "__", 1);
 		rmv_temp_file = 1;
-		THROW_SL(DoCompress(pFileName, dest_file, 0, pack, callbackProc));
+		THROW_SL(DoCompress(pFileName, dest_file, 0, pack, callbackProc)); // @todo Переделать на нормальное сжатие (libzip)
 		THROW_SL(SFile::Remove(pFileName));
 		THROW_SL(SFile::Rename(dest_file, pFileName));
 		rmv_temp_file = 0;

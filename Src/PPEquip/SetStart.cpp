@@ -1398,7 +1398,7 @@ int SLAPI ACS_SETSTART::ConvertWareList(const char * pImpPath)
 					}
 					closed_check_list.Add((ulong)chk_id);
 				}
-				cc_payment.Reset();
+				cc_payment.Z();
 			}
 			PPWaitPercent(cntr.Increment(), wait_msg);
 		}

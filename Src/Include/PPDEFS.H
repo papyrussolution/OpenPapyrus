@@ -710,10 +710,11 @@
 	#define PPACN_TSSTRATEGYUPD    86L // @v10.3.3 Изменена стратегия временной серии
 	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
 	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
-		#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
-
+	#define PPACN_BILLUNLINK       89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             88L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST             89L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+
+	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
 	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
 	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
@@ -4373,6 +4374,9 @@
 	#define cmPsnEvntRegister         101
 	#define cmPsnEvntLocation         102
 	#define cmVkApiPost               103
+	#define cmPostPhotoMsg            104
+	#define cmAddPhotoToAlbum         105
+	#define cmAddGoodToMarket         106
 	#define CTL_PSNEVNT_PRMR             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNEVNT_PRMR          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_SCND             (3 + WINDOWS_ID_BIAS)
@@ -8828,6 +8832,7 @@
 #define DLG_BUSPARAMS            1053
 	#define CTL_BUSPARAMS_TEXT            (1 + WINDOWS_ID_BIAS)
 #define DLG_GLOBUSERACC          1054 // GLOBUACC Запись объекта PPOBJ_GLOBALUSERACC
+	#define cmGlobalServiceSetting        101
 	#define CTL_GLOBUSERACC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_NAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_SYMB          (3 + WINDOWS_ID_BIAS)
@@ -8839,6 +8844,7 @@
 	#define CTL_GLOBUSERACC_SVC           (9 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GLOBUSERACC_SVC        (10 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_FLAGS         (11 + WINDOWS_ID_BIAS)
+	#define CTL_GS_SETTING                (13 + WINDOWS_ID_BIAS)
 #define DLG_NEWACCT              1055 //
 	#define cmPassword                    110
 	#define CTL_NEWACCT_USER              (1 + WINDOWS_ID_BIAS)
@@ -9813,6 +9819,7 @@
 #define DLG_GRESTUHTTEXP          1218 // Выбор опций экспорта остатков товаров в Universe-HTT
 	#define CTL_GRESTUHTTEXP_F         (1  + IMPEXP_CTL_BIAS)
 	#define CTL_GRESTUHTTEXP_FLAGS     (2  + IMPEXP_CTL_BIAS)
+	#define CTL_GRESTUHTTEXP_CH        (3  + IMPEXP_CTL_BIAS) //@erik v10.7.13
 #define DLG_UHTTGRLIST            1219
 	#define CTL_UHTTGRLIST_LIST        (1  + WINDOWS_ID_BIAS)
 	#define CTL_UHTTGRLIST_ST_GOODS    (2  + WINDOWS_ID_BIAS)
@@ -10121,6 +10128,7 @@
 	#define CTL_UHTTEXPGOODS_CO        (3  + IMPEXP_CTL_BIAS)
 	#define CTL_UHTTEXPGOODS_COT       (4  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_UHTTEXPGOODS_COT    (5  + IMPEXP_CTL_BIAS)
+	#define CTL_UHTTEXPGOODS_CH        (6  + IMPEXP_CTL_BIAS) //@erik
 #define DLG_GUART                 1265 // Права доступа глобальной учетной записи
 	#define CTL_GUART_FLAGS            (1 + WINDOWS_ID_BIAS)
 #define DLG_TEX2HTM               1266
@@ -10889,6 +10897,7 @@
 	#define CTL_TSSMODEL_CQAMATCH     (30  + IMPEXP_CTL_BIAS) //
 	#define CTL_TSSMODEL_MINSIMIL     (31  + IMPEXP_CTL_BIAS) //
 	#define CTL_TSSMODEL_ADOPTSLTS    (32  + IMPEXP_CTL_BIAS) //
+	#define CTL_TSSMODEL_MAXSTCTVAR   (33  + IMPEXP_CTL_BIAS) //
 #define DLG_TSSMODELVIEW          1381
 
 #define DLG_TSOELGRAPH            1382
@@ -10902,22 +10911,28 @@
 	#define CTL_RTDYNOBJ_SFLAGS      (11 + IMPEXP_CTL_BIAS) //
 #define DLG_BRANDTOTAL            1384 // Итоги по выборке брэндов
 	#define CTL_BRANDTOTAL_COUNT     (1 + WINDOWS_ID_BIAS)
-#define DLG_VK_API                1385
-	#define cmVkTestGTA               101
-	#define cmOpenDlgSendMsg          102
-	#define cmOpenDlgPost             103
-	#define CTL_TESTVK_TOKEN          (1 + IMPEXP_CTL_BIAS)
-	#define CTL_TESTVK_MSG            (2 + IMPEXP_CTL_BIAS)
-    #define CTL_VK_FRIENDS_LIST      (3 + IMPEXP_CTL_BIAS)
-#define DLG_VK_SENDMSG            1386
+#define DLG_VK_SENDMSG            1385
 	#define cmSendVkMsg               101
 	#define CTL_VK_MSG                (1 + IMPEXP_CTL_BIAS)
-#define DLG_VK_POST               1387
+	#define CTL_VK_FRIENDS_LIST       (2 + IMPEXP_CTL_BIAS)
+#define DLG_VK_POST               1386
     #define cmSendVkPost              101
     #define CTL_VK_POST_TEXT          (1 + IMPEXP_CTL_BIAS)//
+	#define CTL_VKPOST_IMAGE          (2 + IMPEXP_CTL_BIAS)
+#define DLG_VKPOSTGOOD               1387
+	#define CTL_VK_GOODS_NAME         (1 + IMPEXP_CTL_BIAS)//
+	#define CTL_VK_GOODS_CAT          (2 + IMPEXP_CTL_BIAS)//
+	#define CTL_VK_GOODS_URL          (3 + IMPEXP_CTL_BIAS)//
+	#define CTL_VK_GOODS_DESCR        (4 + IMPEXP_CTL_BIAS)//
 #define DLG_EDITTEXTPARAM         1388
 	#define CTL_EDITTEXTPARAM_PATH    (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_EDITTEXTPARAM_PAT  (2 + WINDOWS_ID_BIAS)
+#define DLG_VKGUACFG              1389
+	#define cmGetTokenVk              101
+	#define CTL_VKGUACFG_LOGIN_REQ    (1 + IMPEXP_CTL_BIAS)//
+	#define CTL_VKGUACFG_LOGIN_URL    (2 + IMPEXP_CTL_BIAS)//
+	#define CTL_VKGUACFG_GROUP_ID     (3 + IMPEXP_CTL_BIAS)//
+
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

@@ -230,7 +230,7 @@ int LogListWindowSCI::WMHCreate()
 	P_Toolbar = new TToolbar(HW, TBS_NOMOVE);
 	if(P_Toolbar && LoadToolbar(toolbar_id) > 0) {
 		P_Toolbar->Init(toolbar_id, &Toolbar);
-		if(P_Toolbar->Valid()) {
+		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);
 			ToolBarWidth = tbr.bottom - tbr.top;
@@ -1418,9 +1418,9 @@ int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options
 		if(options & LOGMSGF_THREADINFO) {
 			SetThreadNotification(PPSession::stntMessage, item.Text);
 		}
-		if(!(options & LOGMSGF_NODUPFORJOB)) // @v9.2.11
+		if(!(options & LOGMSGF_NODUPFORJOB))
 			item.DupFileName = GetConstTLA().TempLogFile;
-		if(P_LogQueue && !(options & LOGMSGF_DIRECTOUTP)) { // @v9.2.0 LOGMSGF_DIRECTOUTP
+		if(P_LogQueue && !(options & LOGMSGF_DIRECTOUTP)) {
 			ok = PushLogMsgToQueue(item);
 		}
 		else {

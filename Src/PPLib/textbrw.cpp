@@ -1422,7 +1422,7 @@ int STextBrowser::WMHCreate()
 	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
 	if(P_Toolbar && LoadToolbar(ToolbarId) > 0) {
 		P_Toolbar->Init(ToolbarID, &Toolbar);
-		if(P_Toolbar->Valid()) {
+		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);
 			ToolBarWidth = tbr.bottom - tbr.top;

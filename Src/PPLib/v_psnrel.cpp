@@ -118,11 +118,9 @@ int SLAPI PPViewPersonRel::CheckForFilt(const PersonCore::RelationRecord * pRec)
 	int    r = 0;
 	if(pRec) {
 		int    apply_flt_toscnd = BIN(Filt.Flags & PersonRelFilt::fApplyPsnFiltToScnd);
-		if((!Filt.PrmrPersonID || Filt.PrmrPersonID == pRec->PrmrObjID) &&
-			(!Filt.ScndPersonID || Filt.ScndPersonID == (pRec->ScndObjID & ~0xff000000)) &&
-			(!Filt.RelTypeID || Filt.RelTypeID == pRec->RelTypeID) &&
-			(!PersonList.IsExists() ||
-			PersonList.Search(apply_flt_toscnd ? (pRec->ScndObjID & ~0xff000000): pRec->PrmrObjID, 0, 1) > 0))
+		if(CheckFiltID(Filt.PrmrPersonID, pRec->PrmrObjID) && CheckFiltID(Filt.ScndPersonID, (pRec->ScndObjID & ~0xff000000)) &&
+			CheckFiltID(Filt.RelTypeID, pRec->RelTypeID) && (!PersonList.IsExists() ||
+			PersonList.Search(apply_flt_toscnd ? (pRec->ScndObjID & ~0xff000000) : pRec->PrmrObjID, 0, 1) > 0))
 			r = 1;
 	}
 	return r;

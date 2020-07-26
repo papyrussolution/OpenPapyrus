@@ -130,7 +130,7 @@ void FASTCALL PPViewAccount::MakeListEntry(const PPAccount & rSrc, PPViewAccount
 
 int FASTCALL PPViewAccount::CheckForFilt(const PPAccount & rItem) const
 {
-	return BIN(rItem.CurID == 0 && (!Filt.Type || rItem.Type == Filt.Type) && ObjRts.CheckAccID(rItem.ID, PPR_READ));
+	return BIN(rItem.CurID == 0 && CheckFiltID(Filt.Type, rItem.Type) && ObjRts.CheckAccID(rItem.ID, PPR_READ));
 }
 
 IMPL_CMPCFUNC(PPViewAccount_BrwEntry_A, p1, p2) { RET_CMPCASCADE2(static_cast<const PPViewAccount::BrwEntry *>(p1), static_cast<const PPViewAccount::BrwEntry *>(p2), A.Ac, A.Sb); }

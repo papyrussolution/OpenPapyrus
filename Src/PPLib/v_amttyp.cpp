@@ -38,9 +38,9 @@ int SLAPI PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
 {
 	if(pPack) {
 		long flags = pPack->Rec.Flags;
-		if(Filt.TaxID && (Filt.Flags & PPAmountType::fTax) && Filt.TaxID != pPack->Rec.Tax)
+		if((Filt.Flags & PPAmountType::fTax) && !CheckFiltID(Filt.TaxID, pPack->Rec.Tax))
 			return 0;
-		if(Filt.RefAmtTypeID && (Filt.Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)) && Filt.RefAmtTypeID != pPack->Rec.RefAmtTypeID)
+		if((Filt.Flags & (PPAmountType::fInAmount|PPAmountType::fOutAmount)) && !CheckFiltID(Filt.RefAmtTypeID, pPack->Rec.RefAmtTypeID))
 			return 0;
 		if((Filt.Flags & flags) != Filt.Flags)
 			return 0;

@@ -3631,22 +3631,158 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_FLAGS, 0, 0x0001);
 			dlg->SetClusterData(CTL_GRESTUHTTEXP_FLAGS, _f);
+			//@erik v10.7.13 {
 
+			dlg->showCtrl(CTL_GRESTUHTTEXP_CH, 0);
+			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 0, PPViewGoodsRest::expDirUhtt);
+			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 1, PPViewGoodsRest::expDirVkMarket);
+			dlg->SetClusterData(CTL_GRESTUHTTEXP_CH, PPViewGoodsRest::expDirUhtt);
+			// } @erik v10.7.13
 			if(ExecView(dlg) == cmOK) {
-				_s = dlg->GetClusterData(CTL_GRESTUHTTEXP_F);
-				exp_options = 0;
-				if(_s == 1)
-					exp_options |= GoodsRestFilt::uefRest;
-				else if(_s == 2)
-					exp_options |= GoodsRestFilt::uefPrice;
-				else if(_s == 3)
-					exp_options |= (GoodsRestFilt::uefPrice|GoodsRestFilt::uefRest);
-				else
-					exp_options |= GoodsRestFilt::uefRest;
+				//@erik v10.7.13 {
+				long exp_direction;
+				dlg->GetClusterData(CTL_GRESTUHTTEXP_CH, &exp_direction); // @erik v10.7.13
+				if(exp_direction==PPViewGoodsRest::expDirVkMarket) {
+					TSVector<BrwHdr> uniq_id_and_loc_id_list;
+					PPVkClient vk_client;
+					SString img_path;
+					ObjLinkFiles lf(PPOBJ_GOODS);
+					PPWait(1);
+					{
+						GoodsRestViewItem item;
+						for(InitIteration(OrdByDefault); NextIteration(&item)>0;){
+							BrwHdr goods_rest_item_header = {0, item.GoodsID, item.LocID};
+							if(!uniq_id_and_loc_id_list.lsearch(&goods_rest_item_header, 0, PTR_CMPFUNC(_2long), sizeof(PPID)))
+								uniq_id_and_loc_id_list.insert(&goods_rest_item_header);
+						}	
+					}
+					if(uniq_id_and_loc_id_list.getCount()) {
+						VkStruct vk_struct;
+						PPObjGlobalUserAcc gua_obj;
+						PPGlobalUserAcc gua_rec;
+						PPGlobalUserAccPacket gua_pack;
+						Reference ref;
+						PPObjTag obj_tag;
+						PPID vk_grp_tag_id, vk_page_tag_id, tag_vk_goods_id;
+						obj_tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
+						obj_tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
+						obj_tag.FetchBySymb("VK_GOODS_ID", &tag_vk_goods_id);
+						gua_obj.SearchBySymb("vk_acc", 0, &gua_rec);
+						if(gua_obj.GetPacket(gua_rec.ID, &gua_pack)>0) {
+							if(gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, vk_struct.Token)>0) {
+								if(gua_pack.TagL.GetItemStr(vk_page_tag_id, vk_struct.PageId)>0) {
+									if(gua_pack.TagL.GetItemStr(vk_grp_tag_id, vk_struct.GroupId)>0) {
+										BrwHdr goods_rest_item_hdr;
+										Goods2Tbl::Rec goods_rec; 
+										GoodsRestViewItem rest_item;
+										PPGoodsPacket pack;
+										ObjTagItem stored_obj_tag_item;
+										LongArray stored_vk_goods_id_list;
+										vk_client.Market_Get(vk_struct, temp_buf);
+										vk_client.ParceGoodsItemList(temp_buf, stored_vk_goods_id_list);
+										for(uint i = 0; i<uniq_id_and_loc_id_list.getCount(); i++) {
+											goods_rest_item_hdr = uniq_id_and_loc_id_list.at(i);
+											if(GObj.Search(goods_rest_item_hdr.GoodsID, &goods_rec) > 0) {
+												GetItem(goods_rest_item_hdr.GoodsID, goods_rest_item_hdr.LocID, &rest_item);
+												ref.Ot.GetTag(PPOBJ_GOODS, goods_rest_item_hdr.GoodsID, tag_vk_goods_id, &stored_obj_tag_item);
+												lf.Load(goods_rest_item_hdr.GoodsID, 0L);
+												lf.At(0, img_path.Z());
+												if(img_path.NotEmptyS()) {
+													vk_struct.LinkFilePath = img_path;
+													vk_struct.LinkFileType = 1;
+												}
+												else {
+													logger.Log(PPFormatT(PPTXT_LOG_UHTT_GOODSNOIMG, &msg_buf, goods_rest_item_hdr.GoodsID)); // PPTXT_LOG_UHTT_GOODSNOIMG "Для товара @goods нет изображения"
+													img_path = vk_struct.LinkFilePath = "D:\\Papyrus\\ppy\\DD\\nophoto.png";
+													vk_struct.LinkFileType = 1;
+													if(!fileExists(img_path)) {
+														logger.Log(PPFormatT(PPTXT_LOG_VK_NODEFIMG, &msg_buf, goods_rest_item_hdr.GoodsID)); // "Изображение по-умолчанию не найдено!"
+														continue;
+													}
+												}
 
-				_f = dlg->GetClusterData(CTL_GRESTUHTTEXP_FLAGS);
-				if(_f & 0x0001)
-					exp_options |= GoodsRestFilt::uefZeroAbsPrices;
+												pack.Rec.ID = goods_rest_item_hdr.GoodsID; // @trick
+												pack.Rec.Flags |= GF_EXTPROP; // @trick
+												if(GObj.GetValueAddedData(goods_rest_item_hdr.GoodsID, &pack)>0) {
+													if(pack.GetExtStrData(GDSEXSTR_A, temp_buf)>0)
+														msg_buf.Z().Cat(temp_buf);
+													else {
+														logger.Log(PPFormatT(PPTXT_LOG_VK_NODESCRFORGOODS, &msg_buf, goods_rest_item_hdr.GoodsID)); // "Изображение по-умолчанию не найдено!"
+														continue;
+													}
+												}
+												else {
+													logger.Log(PPFormatT(PPTXT_LOG_VK_ADDFIELDSFORGOODSPROBLEM, &msg_buf, goods_rest_item_hdr.GoodsID)); // "Изображение по-умолчанию не найдено!"
+													continue;
+												}
+
+												PPID vk_goods_id = 0;
+												stored_obj_tag_item.GetInt(&vk_goods_id);
+												if(stored_vk_goods_id_list.lsearch(vk_goods_id) <= 0) {
+													vk_goods_id = 0;
+												}
+												vk_client.AddGoodToMarket(vk_struct, goods_rec, msg_buf, rest_item.Price, 0.0, vk_goods_id, temp_buf.Z());
+												json_t * p_json_doc = 0;
+												THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr())==JSON_OK);
+												for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+													if(p_cur->Type==json_t::tOBJECT) {
+														for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+															if(p_obj->Text.IsEqiAscii("response")) {
+																const json_t *p_response_node = p_obj->P_Child;
+																if(p_response_node->P_Child) {
+																	for(const json_t * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
+																		if(p_response_item->Text.IsEqiAscii("market_item_id")) {
+																			temp_buf = p_response_item->P_Child->Text.Unescape();
+																			ObjTagItem new_obj_tag_item;
+																			new_obj_tag_item.SetStr(tag_vk_goods_id, temp_buf);
+																			if(new_obj_tag_item!=stored_obj_tag_item)
+																				ref.Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+												ZDELETE(p_json_doc);
+												PPWaitPercent(i, uniq_id_and_loc_id_list.getCount());
+											}
+										}
+									}
+									else {
+										logger.Log(PPFormatT(PPTXT_LOG_VK_NOGROUPIDINGUA, &msg_buf));
+									}
+								}
+								else {
+									logger.Log(PPFormatT(PPTXT_LOG_VK_NOPAGEIDINGUA, &msg_buf));
+								}
+							}
+							else {
+								logger.Log(PPFormatT(PPTXT_LOG_VK_NOTOKENINGUA, &msg_buf));
+							}
+						}
+						else {
+							logger.Log(PPFormatT(PPTXT_LOG_VK_NOGUA, &msg_buf));
+						}
+						PPWait(0);
+					}
+				}
+				else {   // } @erik v10.7.13
+					_s = dlg->GetClusterData(CTL_GRESTUHTTEXP_F);
+					exp_options = 0;
+					if(_s==1)
+						exp_options |= GoodsRestFilt::uefRest;
+					else if(_s==2)
+						exp_options |= GoodsRestFilt::uefPrice;
+					else if(_s==3)
+						exp_options |= (GoodsRestFilt::uefPrice|GoodsRestFilt::uefRest);
+					else
+						exp_options |= GoodsRestFilt::uefRest;
+
+					_f = dlg->GetClusterData(CTL_GRESTUHTTEXP_FLAGS);
+					if(_f&0x0001)
+						exp_options |= GoodsRestFilt::uefZeroAbsPrices;
+				}
 			}
 			else
 				exp_options = 0;

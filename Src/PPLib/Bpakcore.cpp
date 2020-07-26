@@ -256,11 +256,11 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 		ok = 0;
 	else if(!rFilt.ArrvlPeriod.CheckDate(ArrivalDate))
 		ok = 0;
-	else if(rFilt.ShipID && ShipID != rFilt.ShipID)
+	else if(!CheckFiltID(rFilt.ShipID, ShipID))
 		ok = 0;
-	else if(rFilt.CaptainID && CaptainID != rFilt.CaptainID)
+	else if(!CheckFiltID(rFilt.CaptainID, CaptainID))
 		ok = 0;
-	else if(rFilt.DlvrLocID && DlvrAddrID != rFilt.DlvrLocID) // @v10.5.0
+	else if(!CheckFiltID(rFilt.DlvrLocID, DlvrAddrID)) // @v10.5.0
 		ok = 0;
 	else if(rFilt.PortID || rFilt.PortOfLoading) {
 		const int strict = BIN(rFilt.Flags & FreightFilt::fStrictPort);

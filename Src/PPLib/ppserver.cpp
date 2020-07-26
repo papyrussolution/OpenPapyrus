@@ -870,7 +870,7 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			if(recur_list.addUnique(p_job->ID) > 0) {
 				const PPID next_job_id = p_job->NextJobID;
 				if(next_job_id && P_Pool) {
-					const PPJob * p_temp_job = P_Pool->GetJob(next_job_id);
+					const PPJob * p_temp_job = P_Pool->GetJobItem(next_job_id);
 					if(p_temp_job) {
 						inner_job = *p_temp_job;
 						p_job = &inner_job;
@@ -928,7 +928,7 @@ int SLAPI PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 				if(next_job_id) {
 					if(ok) {
 						if(P_Pool) {
-							const PPJob * p_temp_job = P_Pool->GetJob(next_job_id);
+							const PPJob * p_temp_job = P_Pool->GetJobItem(next_job_id);
 							THROW_PP_S(p_temp_job, PPERR_JOBNEXTHANGED, p_job->Name);
 							{
 								msg_buf.Printf(PPLoadTextS(PPTXT_JOBNEXTLAUNCH, fmt_buf), p_temp_job->Name.cptr());
@@ -1189,7 +1189,7 @@ void SLAPI PPJobServer::Run()
 	if(on_startup_list.getCount()) {
 		for(uint i = 0; i < on_startup_list.getCount(); i++) {
 			const  PPID   job_id = on_startup_list.get(i);
-			const  PPJob * p_job = pool.GetJob(job_id);
+			const  PPJob * p_job = pool.GetJobItem(job_id);
 			if(p_job) {
 				if(!(p_job->Flags & PPJob::fDisable)) { // @paranoic
 					PPJob job = *p_job;
@@ -1230,7 +1230,7 @@ void SLAPI PPJobServer::Run()
 			else {
 				do {
 					PPID   job_id = plan.at(cur_plan_pos++).Val;
-					const  PPJob * p_job = pool.GetJob(job_id);
+					const  PPJob * p_job = pool.GetJobItem(job_id);
 					if(p_job) {
 						if(!(p_job->Flags & PPJob::fDisable)) { // @paranoic
 							int    skip = 0;

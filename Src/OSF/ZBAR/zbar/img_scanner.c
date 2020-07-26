@@ -41,8 +41,8 @@
 #define CACHE_HYSTERESIS  2000 // time that a result must *not* be detected before it will be reported again, ms
 #define CACHE_TIMEOUT     (CACHE_HYSTERESIS * 2) // time after which cache entries are invalidated, ms
 #define NUM_SCN_CFGS (ZBAR_CFG_Y_DENSITY - ZBAR_CFG_X_DENSITY + 1)
-#define CFG(iscn, cfg) ((iscn)->configs[(cfg) - ZBAR_CFG_X_DENSITY])
-#define TEST_CFG(iscn, cfg) (((iscn)->config >> ((cfg) - ZBAR_CFG_POSITION)) & 1)
+#define SCANNER_CFG(iscn, cfg) ((iscn)->configs[(cfg) - ZBAR_CFG_X_DENSITY])
+#define SCANNER_TEST_CFG(iscn, cfg) (((iscn)->config >> ((cfg) - ZBAR_CFG_POSITION)) & 1)
 #ifndef NO_STATS
 	#define STAT(x) iscn->stat_ ## x++
 #else
@@ -347,7 +347,7 @@ static void symbol_handler(zbar_decoder_t * dcode)
 #else
 	assert(type != ZBAR_QRCODE);
 #endif
-	if(TEST_CFG(iscn, ZBAR_CFG_POSITION)) {
+	if(SCANNER_TEST_CFG(iscn, ZBAR_CFG_POSITION)) {
 		/* tmp position fixup */
 		const int w = zbar_scanner_get_width(iscn->scn);
 		const int u = iscn->umin + iscn->du * zbar_scanner_get_edge(iscn->scn, w, 0);
@@ -372,7 +372,7 @@ static void symbol_handler(zbar_decoder_t * dcode)
 			if(sym->type == type && sym->datalen == datalen && !memcmp(sym->P_Data_, data, datalen)) {
 				sym->quality++;
 				zprintf(224, "dup symbol @(%d,%d): dup %s: %.20s\n", x, y, zbar_get_symbol_name(type), data);
-				if(TEST_CFG(iscn, ZBAR_CFG_POSITION)) {
+				if(SCANNER_TEST_CFG(iscn, ZBAR_CFG_POSITION)) {
 					// add new point to existing set 
 					// FIXME should be polygon 
 					sym_add_point(sym, x, y);
@@ -386,7 +386,7 @@ static void symbol_handler(zbar_decoder_t * dcode)
 		// FIXME grab decoder buffer 
 		memcpy(sym->P_Data_, data, datalen + 1);
 		// initialize first point 
-		if(TEST_CFG(iscn, ZBAR_CFG_POSITION)) {
+		if(SCANNER_TEST_CFG(iscn, ZBAR_CFG_POSITION)) {
 			zprintf(192, "new symbol @(%d,%d): %s: %.20s\n", x, y, zbar_get_symbol_name(type), data);
 			sym_add_point(sym, x, y);
 		}
@@ -414,8 +414,8 @@ zbar_image_scanner_t * zbar_image_scanner_create()
 			iscn->qr = _zbar_qr_create();
 #endif
 			/* apply default configuration */
-			CFG(iscn, ZBAR_CFG_X_DENSITY) = 1;
-			CFG(iscn, ZBAR_CFG_Y_DENSITY) = 1;
+			SCANNER_CFG(iscn, ZBAR_CFG_X_DENSITY) = 1;
+			SCANNER_CFG(iscn, ZBAR_CFG_Y_DENSITY) = 1;
 			zbar_image_scanner_set_config(iscn, ZBAR_NONE, ZBAR_CFG_POSITION, 1);
 			zbar_image_scanner_set_config(iscn, ZBAR_NONE, ZBAR_CFG_UNCERTAINTY, 2);
 			zbar_image_scanner_set_config(iscn, ZBAR_QRCODE, ZBAR_CFG_UNCERTAINTY, 0);
@@ -512,7 +512,7 @@ int zbar_image_scanner_set_config(zbar_image_scanner_t * iscn, zbar_symbol_type_
 	else if(sym > ZBAR_PARTIAL)
 		return 1;
 	else if(cfg >= ZBAR_CFG_X_DENSITY && cfg <= ZBAR_CFG_Y_DENSITY) {
-		CFG(iscn, cfg) = val;
+		SCANNER_CFG(iscn, cfg) = val;
 		return 0;
 	}
 	else if(cfg > ZBAR_CFG_POSITION)
@@ -596,7 +596,7 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 	svg_open("debug.svg", 0, 0, w, h);
 	svg_image("debug.png", w, h);
 	zbar_scanner_new_scan(scn);
-	density = CFG(iscn, ZBAR_CFG_Y_DENSITY);
+	density = SCANNER_CFG(iscn, ZBAR_CFG_Y_DENSITY);
 	if(density > 0) {
 		const uint8 * p = data;
 		int x = 0, y = 0;
@@ -640,15 +640,13 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 			ASSERT_POS;
 			quiet_border(iscn);
 			svg_path_end();
-
 			movedelta(1, density);
 			iscn->v = y;
 		}
 		svg_group_end();
 	}
 	iscn->dx = 0;
-
-	density = CFG(iscn, ZBAR_CFG_X_DENSITY);
+	density = SCANNER_CFG(iscn, ZBAR_CFG_X_DENSITY);
 	if(density > 0) {
 		const uint8 * p = data;
 		int x = 0, y = 0;
@@ -690,7 +688,6 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 			ASSERT_POS;
 			quiet_border(iscn);
 			svg_path_end();
-
 			movedelta(density, 1);
 			iscn->v = x;
 		}
@@ -698,14 +695,12 @@ int zbar_scan_image(zbar_image_scanner_t * iscn, zbar_image_t * img)
 	}
 	iscn->dy = 0;
 	iscn->img = NULL;
-
 #ifdef ENABLE_QRCODE
 	_zbar_qr_decode(iscn->qr, iscn, img);
 #endif
-
 	/* FIXME tmp hack to filter bad EAN results */
 	/* FIXME tmp hack to merge simple case EAN add-ons */
-	char filter = (!iscn->enable_cache && (density == 1 || CFG(iscn, ZBAR_CFG_Y_DENSITY) == 1));
+	char filter = (!iscn->enable_cache && (density == 1 || SCANNER_CFG(iscn, ZBAR_CFG_Y_DENSITY) == 1));
 	int nean = 0, naddon = 0;
 	if(syms->nsyms) {
 		zbar_symbol_t ** symp;

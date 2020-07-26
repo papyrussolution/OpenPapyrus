@@ -688,8 +688,8 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			// } @v10.0.02
 			else if(Filt.HourBefore) {
-				LTIME  hour_low = encodetime(Filt.HourBefore-1, 0, 0, 0);
-				LTIME  hour_upp = encodetime(Filt.HourBefore,   0, 0, 0);
+				const LTIME hour_low = encodetime(Filt.HourBefore-1, 0, 0, 0);
+				const LTIME hour_upp = encodetime(Filt.HourBefore,   0, 0, 0);
 				if(pRec->Tm < hour_low || pRec->Tm >= hour_upp)
 					return 0;
 			}
@@ -715,19 +715,19 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(Filt.HasExtFiltering() || (ff_ & CCheckFilt::fCTableStatus)) {
 				if(pRec->Flags & CCHKF_EXT && pExtRec) {
-					if(Filt.AgentID && pExtRec->SalerID != Filt.AgentID)
+					if(!CheckFiltID(Filt.AgentID, pExtRec->SalerID))
 						return 0;
-					if(Filt.CreationUserID && pExtRec->CreationUserID != Filt.CreationUserID) // @v10.7.3
+					if(!CheckFiltID(Filt.CreationUserID, pExtRec->CreationUserID)) // @v10.7.3
 						return 0;
-					else if(Filt.TableCode && pExtRec->TableNo != Filt.TableCode)
+					else if(!CheckFiltID(Filt.TableCode, pExtRec->TableNo))
 						return 0;
-					else if(Filt.GuestCount && pExtRec->GuestCount != Filt.GuestCount)
+					else if(!CheckFiltID(Filt.GuestCount, pExtRec->GuestCount))
 						return 0;
 					else if(ff_ & CCheckFilt::fCTableStatus && pExtRec->TableNo == 0)
 						return 0;
 					else if(ff_ & CCheckFilt::fZeroDlvrAddr && pExtRec->AddrID)
 						return 0;
-					else if(Filt.DlvrAddrID && pExtRec->AddrID != Filt.DlvrAddrID)
+					else if(!CheckFiltID(Filt.DlvrAddrID, pExtRec->AddrID))
 						return 0;
 					else if(ff_ & CCheckFilt::fStartOrderPeriod && !Filt.Period.CheckDate(pExtRec->CreationDtm.d))
 						return 0;

@@ -1191,7 +1191,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	int    r = 0;
-	size_t sz = 2048; // @v8.9.1 1024-->2048
+	size_t sz = 2048;
 	THROW(Resize(sz));
 	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_RTCOMM, P_Rt, sz));
 	if(r > 0) {
@@ -1227,7 +1227,7 @@ int SLAPI PPRights::ReadRights(PPID securType, PPID securID, int ignoreCheckSum)
 						p_temp->ObjType = p_temp_pre855->ObjType;
 						p_temp->Size = sizeof(ObjRights);
 						p_temp->Flags = p_temp_pre855->Flags;
-						p_temp->OprFlags = (uint32)p_temp_pre855->OprFlags;
+						p_temp->OprFlags = static_cast<uint32>(p_temp_pre855->OprFlags);
 					}
 					else {
 						assert(o->Size <= sizeof(temp_buffer));

@@ -473,6 +473,32 @@ static int FASTCALL Base80ToTobaccoPrice(const SString & rS, SString & rBuf)
 	return ok;
 }
 
+static int FASTCALL Base36ToTobaccoPrice(const SString & rS, SString & rBuf)
+{
+	int    ok = 1;
+	rBuf.Z();
+	uint64 result = 0;
+	const uint len = rS.Len();
+	for(uint i = 0; ok && i < len; i++) {
+		const  char c = toupper(rS.C(i));
+		uint64 v = 0;
+		if(c >= '0' && c <= '9')
+			v = c - '0';
+		else if(c >= 'A' && c <= 'Z')
+			v = c - 'A' + 10;
+		else
+			ok = 0;
+		const uint64 m = ui64pow(36, len-i-1);
+		result += v * m;
+	}
+	if(ok) {
+		rBuf.Cat(result);
+		if(rBuf.Len() < 19)
+			rBuf.PadLeft(19-rBuf.Len(), '0');
+	}
+	return ok;
+}
+
 int SLAPI GtinStruc::Parse(const char * pCode)
 {
 	int    ok = 1;
@@ -500,6 +526,7 @@ int SLAPI GtinStruc::Parse(const char * pCode)
 			{
 				//SString price_buf;
 				//Base80ToTobaccoPrice(temp_buf, price_buf);
+				//Base36ToTobaccoPrice(temp_buf, price_buf);
 				StrAssocArray::Add(fldControlRuTobacco, temp_buf);
 			}
 			SpecialNaturalToken = SNTOK_CHZN_CIGITEM;

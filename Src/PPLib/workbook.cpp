@@ -1174,7 +1174,7 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 		}
 		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 0, PPObjWorkbook::SelectLinkBlock::ltImage);
 			AddClusterAssoc(CTL_SELWBLINK_TYPE, 1, PPObjWorkbook::SelectLinkBlock::ltRef);
 			AddClusterAssocDef(CTL_SELWBLINK_TYPE, 2, PPObjWorkbook::SelectLinkBlock::ltLink);

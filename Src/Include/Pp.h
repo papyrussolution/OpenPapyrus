@@ -434,9 +434,12 @@ public:
 		Signature_SysMaintenanceEventResponder(0x35079E8D),
 		Signature_LaunchAppParam(0x4c484150L), // 'LHAP'
 		Signature_Quotation2_DumpHeader(0x7654321098fedcbaULL),
+		EgaisInRowIdentDivider(27277), // @v10.8.3
+		ReserveU16(0), // @v10.8.3
 		P_SubjectDbDiv("$PpyDbDivTransmission$"),
 		P_SubjectOrder("$PpyOrderTransmission$"),
 		P_SubjectCharry("$PpyCharryTransmission$"),
+		P_BillNotePrefix_IntrExpnd("$INTREXPND"),
 		P_ObjMemoDelim("=^%"),
 		P_ObjMemo_UtmRejPfx("UTM Rej"),
 		P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
@@ -467,9 +470,13 @@ public:
 	const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
 	const long   Signature_LaunchAppParam;               //
 	const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
+	const int16  EgaisInRowIdentDivider;     // @v9.8.9 10000-->27277 // Специальное смещение для значений номеров строк, с помощью которого
+		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
+	const uint16 ReserveU16;                 // @alignment @v10.8.3
 	const char * P_SubjectDbDiv;
 	const char * P_SubjectOrder;
 	const char * P_SubjectCharry;
+	const char * P_BillNotePrefix_IntrExpnd; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
 	const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
 	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
 	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
@@ -7827,6 +7834,13 @@ double SLAPI Round(double v, double prec, int dir);
 // Descr: округляет значение цены p в соответствии с параметрами, заданными в конфигурации
 //
 double SLAPI RoundUpPrice(double p);
+//
+// Descr: return (!flt || flt == id)
+// Note: Провел небольшое исследование насчет inline-варианта этой функции. 
+//   Вывод такой: суммарный код с учетом вызовов становится чуть больше.
+//     Выигрыш в производительности точно будет за inline-вариантом, но с моей точки зрения он не дотягивает
+//     по весу что бы делать эту функцию инлайновой (fastcall'а достаточно).
+//
 int    FASTCALL CheckFiltID(PPID flt, PPID id);
 
 class PPExtStringStorage {
@@ -15551,8 +15565,8 @@ public:
 	//      *pID и удловлеворяющего необходимым критериям.
 	//
 	int    SLAPI Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb = 0) const;
-	const  PPJob * SLAPI GetJob(PPID id, int ignoreDbSymb = 0) const;
-	int    SLAPI PutJob(PPID * pID, const PPJob * pJob);
+	const  PPJob * SLAPI GetJobItem(PPID id, int ignoreDbSymb = 0) const; // @v10.8.3 GetJob-->GetJobItem с целью исключить совпадение по имени с функцией WinAPI GetJob
+	int    SLAPI PutJobItem(PPID * pID, const PPJob * pJob);
 private:
 	enum {
 		fReadOnly = 0x0001 // пул только для чтения //
@@ -16706,7 +16720,8 @@ public:
 		uint8  AdoptSlShiftUp;
 		uint8  AdoptTpFinishShiftUp;
 		uint8  AdoptTpFixed; // @v10.8.1
-		uint8  Reserve[56];
+		double MaxStakeCountVariation; // @v10.8.3 Максимальный коэфф вариации по количеству ставок для пула сессий.
+		uint8  Reserve[56]; // @v10.8.3 [56]-->[48]
 	};
 	Extension E;
 	LongArray MainFrameSizeList;    // Список дистанций магистрального тренда
@@ -17148,7 +17163,7 @@ public:
 		int    SLAPI SelectS2(SelectBlock & rBlk) const;
 	private:
 		int    SLAPI AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
-		int    SLAPI MakeConfidenceEliminationIndex(const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
+		int    SLAPI MakeConfidenceEliminationIndex(const PPTssModelPacket & rTssPacket, const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
@@ -17470,7 +17485,7 @@ private:
 	int    SLAPI FindStrategies(void * pBlk) const;
 	int    SLAPI SimulateStrategyResultEntries(void * pBlk, const TSVector <PPObjTimeSeries::StrategyResultEntry> & rList, 
 		uint firstIdx, uint lastIdx, uint maxDuckQuant, uint targetQuant, PPObjTimeSeries::StrategyResultEntry & rResult, 
-		TSVector <PPObjTimeSeries::StrategyResultValueEx> * pDetailList);
+		TSVector <PPObjTimeSeries::StrategyResultValueEx> * pDetailList) const;
 	int    SLAPI FindStrategiesLoop(void * pBlk);
 	struct ResonanceCombination {
 		uint   MaxDuckQuant;
@@ -39144,6 +39159,13 @@ public:
 		OrdByBarCode,
 		OrdByGrp_BarCode
 	};
+	//@erik v10.7.13 {
+	enum{
+		expDirUhtt = 1,
+		expDirVkMarket
+	};
+	// } @erik v10.7.13
+
 	SLAPI  PPViewGoodsRest();
 	SLAPI ~PPViewGoodsRest();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
@@ -42370,7 +42392,6 @@ public:
 	int    SLAPI EditParam(PPBillAutoCreateParam *);
 	int    SLAPI Init(const PPBillAutoCreateParam *);
 	int    SLAPI Run();
-
 	int    SLAPI CreateDraftByTrfrAnlz();
 	static int SLAPI CreateDraftByCSessRule(const CSessCrDraftParam * pParam);
 	static int SLAPI CreateDraftBySupplOrders(const SStatFilt * pFilt);
@@ -45090,7 +45111,7 @@ private:
 //
 //
 //
-class PalmFilt : public PPBaseFilt {
+class PalmFilt : public PPBaseFilt { // @styloagentfilt
 public:
 	enum {
 		devtAll        = 0,
@@ -51038,7 +51059,7 @@ private:
 	int    setupPair();
 	int    Print();
 	int    GetReportID();
-	void postVKApi(); //@erikTEMP VK API
+	void postVK(); //@erikTEMP VK API
 
 	PPObjTag TagObj;
 	Param  P;
@@ -53546,23 +53567,33 @@ int    SLAPI PPEditTextFile(const EditTextFileParam * pParam);
 int    SLAPI DoDbDump(PPDbEntrySet2 * pDbes);
 int    SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode, int checkCodeInputOnly);
 
-//@erikTEMP v10.7.7 {
-void GotoVK(PPPsnEventPacket &rPack);
-
-class SocialMediaViewObject {
-
+//@erik {
+class VkStruct{
+public:
+	SString Token;
+	SString GroupId;
+	SString PageId;
+	SString TxtMsg;
+	SString LinkFilePath;
+	long LinkFileType;
 };
 
 class PPVkClient {
 public:
-	int LogIn();
-	int LogOut();
-	void GetVKAccessToken(long& rScope);
-	int SetAuthToken(const char *pToken);
-	int DelAuthToken();
-	int TakeToken();
-	int CreateURLRequest(const char * pMethod, StringSet &rParams, SString & rResult);
-	int SendRequest(const char & pRequest);
+	static void GetVKAccessToken();
+	int AddGoodToMarket(const VkStruct &rVkStruct, const Goods2Tbl::Rec &rGoodsRes, const SString &rDescr, const double price, const double oldPrice, const PPID vkMarketItemID, SString &rOutput);
+	int WallPost(VkStruct &rVkStruct, SString &rOutput);
+	int Market_Add(const VkStruct &rVkStruct, double goodsPrice, const SString &rGoodsName, const SString &rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput);
+	int Market_Edit(const VkStruct &rVkStruct, PPID goods_id, double goodsPrice, const SString &rGoodsName, const SString &rMainPhotoId, ulong catId, const SString &rDescr, SString &rOutput); //edit goods from market
+	int Market_Get(const VkStruct &rVkStruct, SString &rOutput); // get all goods from VK market
+	int Photos_SaveMarketPhoto(const VkStruct &rVkStruct, const SString &rPhoto, const SString &rServer, const SString &rHash, const SString &rCropData, const SString &rCropHash, SString &rOutput);
+	int Photos_SaveWallPhoto(const VkStruct &rVkStruct, const SString &rPhoto, const SString &rServer, const SString &rHash, SString &rOutput);
+	int Wall_Post(const VkStruct &rVkStruct, const SString &rVkPhotoName, SString &rOutput);
+	int PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
+	int ParseUploadServer(SString &rJson, SString &rUploadOut);
+	int Photos_GetMarketUploadServer(const VkStruct &rVkStruct, const uint mainPhotoFlag, SString &rOutput);
+	int Photos_GetWallUploadServer(const VkStruct &rVkStruct, SString &rOutput);
+	int ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
 
 	enum {
 		usrScopeNotify   = 0x00000001,
@@ -53600,12 +53631,10 @@ public:
 		commScopeManage    = 0x00040000,
 	};
 
-	long UserScope;
-	long CommunityScope;
-	SString Token;
-
+private:
+	int GetRequest(const SString &rUrl, SString &rOutput, int mflags);
 };
-// } @erikTEMP
+// } @erik
 
 struct ResolveGoodsItem {
 	explicit SLAPI ResolveGoodsItem(PPID goodsID = 0);

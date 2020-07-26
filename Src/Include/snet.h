@@ -163,7 +163,7 @@ public:
 	void   FASTCALL Copy(const InetUrl & rS);
 	InetUrl & Z();
 	long   GetState() const { return State; }
-	int    Valid() const;
+	int    IsValid() const;
 	int    IsEmpty() const;
 	int    Parse(const char * pUrl);
 	int    GetComponent(int c, int urlDecode, SString & rBuf) const;
@@ -895,11 +895,12 @@ public:
 	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg, SDataMoveProgressInfo * pProgress);  // RETR
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
 	int    SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg);
+	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
 private:
 	static int    ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount);
 	static void * ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields);
 	static size_t CbRead(char * pBuffer, size_t size, size_t nitems, void * pExtra);
-	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
+	//@erikTEMp/*static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);*/
 	static int    CbProgress(void * extraPtr, int64 dltotal, int64 dlnow, int64 ultotal, int64 ulnow);
 	static int _GlobalInitDone;
 	int    FASTCALL SetError(int errCode);

@@ -3292,6 +3292,7 @@ int SLAPI PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 	BillTbl::Rec bill_rec;
 	if(P_BObj->Search(billID, &bill_rec) > 0) {
 		uint   msg_id = 0;
+		SString temp_buf;
 		if(bill_rec.LinkBillID)
 			msg_id = PPTXT_BILLALREADYHASLINK;
 		else if(!bill_rec.Object)
@@ -3306,40 +3307,81 @@ int SLAPI PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			period.low = plusdate(bill_rec.Dt, -180);
 			PPIDArray op_list;
 			LAssocArray doe_flags_list;
+			// @v10.8.3 {
+			const  int is_intrrcpt = (IsIntrOp(bill_rec.OpID) == INTRRCPT);
+			PPID   egais_rcpt_op_id = 0;
+			if(is_intrrcpt) {
+				PPAlbatrossConfig acfg;
+				PPObjGlobalUserAcc gua_obj;
+				if(gua_obj.FetchAlbatossConfig(&acfg) > 0)
+					egais_rcpt_op_id = acfg.Hdr.EgaisRcptOpID;
+			}
+			// } @v10.8.3 
 			for(PPID id = 0; (r = EnumOperations(0, &id, &op_rec)) > 0;) {
-				if(IsDraftOp(id) && op_rec.AccSheetID == acc_sheet_id) {
+				if(IsDraftOp(id)) {
 					PPDraftOpEx doe;
-					if(op_obj.GetDraftExData(id, &doe) > 0 && doe.WrOffOpID == bill_rec.OpID) {
+					if(op_rec.AccSheetID == acc_sheet_id && op_obj.GetDraftExData(id, &doe) > 0 && doe.WrOffOpID == bill_rec.OpID) {
 						if(op_list.addUnique(id) > 0) {
 							doe_flags_list.Add(id, doe.Flags, 0);
 						}
 					}
+					// @v10.8.3 { Специальный случай - привязка драфт-прихода егаис
+					else if(id == egais_rcpt_op_id) {
+						if(op_list.addUnique(id) > 0) {
+							doe_flags_list.Add(id, 0, 0); // Множественное списание точно нельзя допустить
+						}
+					}
+					// } @v10.8.3 
 				}
 			}
 			if(op_list.getCount()) {
 				PPIDArray bill_list;
 				DBQ * dbq = 0;
-				BillTbl::Key3 k3;
+				union {;
+					BillTbl::Key1 k1;
+					BillTbl::Key3 k3;
+				} k;
 				BillTbl * t = P_BObj->P_Tbl;
-				BExtQuery q(t, 3);
-				q.select(t->ID, t->Dt, t->OpID, t->Object, t->Object2, t->StatusID, t->Flags, t->CurID, t->Amount, 0L);
-				dbq = & (t->Object == bill_rec.Object && daterange(t->Dt, &period));
+				BExtQuery q(t, egais_rcpt_op_id ? 1 : 3);
+				q.select(t->ID, t->Dt, t->OpID, t->Object, t->Object2, t->StatusID, t->Flags, t->CurID, t->Amount, t->EdiOp, 0L);
+				if(egais_rcpt_op_id) {
+					dbq = & (daterange(t->Dt, &period));
+					k.k1.Dt = period.low;
+					k.k1.BillNo = 0;
+				}
+				else {
+					dbq = & (t->Object == bill_rec.Object && daterange(t->Dt, &period));
+					k.k3.Object = bill_rec.Object;
+					k.k3.Dt = period.low;
+					k.k3.BillNo = 0;
+				}
 				q.where(*dbq);
-				k3.Object = bill_rec.Object;
-				k3.Dt = period.low;
-				k3.BillNo = 0;
 				BillTbl::Rec draft_bill_rec;
-				for(q.initIteration(0, &k3, spGe); q.nextIteration() > 0;) {
+				for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 					t->copyBufTo(&draft_bill_rec);
-					if(op_list.lsearch(draft_bill_rec.OpID)) {
+					if(op_list.lsearch(draft_bill_rec.OpID) && (egais_rcpt_op_id == draft_bill_rec.OpID || draft_bill_rec.Object == bill_rec.Object)) {
 						int   suited = 0;
 						if(draft_bill_rec.Flags & BILLF_WRITEDOFF) {
 							long doe_flags = 0;
 							if(doe_flags_list.Search(draft_bill_rec.OpID, &doe_flags, 0) && doe_flags & DROXF_MULTWROFF)
 								suited = 1;
 						}
-						else
-							suited = 1;
+						else {
+							// @v10.8.3 {
+							if(draft_bill_rec.OpID == egais_rcpt_op_id) {
+								suited = 0;
+								if(oneof3(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
+									BillTbl::Rec temp_bill_rec; // В итерационном запросе примечания нет - здесь получим полную запись
+									if(P_BObj->Search(draft_bill_rec.ID, &temp_bill_rec) > 0) {
+										temp_buf = temp_bill_rec.Memo;
+										if(temp_buf.HasPrefixIAscii(_PPConst.P_BillNotePrefix_IntrExpnd))
+											suited = 1;
+									}
+								}
+							}
+							else // } @v10.8.3 
+								suited = 1;
+						}
 						if(suited)
 							bill_list.add(draft_bill_rec.ID);
 					}
@@ -3380,8 +3422,8 @@ int SLAPI PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			if(PPLoadText(msg_id, fmt_buf)) {
 				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
 				msg_buf.Printf(fmt_buf, bill_text.cptr());
-				PPTooltipMessage(msg_buf, 0, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-					SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				PPTooltipMessage(msg_buf, 0, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor/*|SMessageWindow::fCloseOnMouseLeave*/|
+					SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow); // @v10.8.3 -SMessageWindow::fCloseOnMouseLeave
 			}
 		}
 	}

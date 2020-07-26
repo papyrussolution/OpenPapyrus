@@ -683,6 +683,10 @@ int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 				DS.LogAction(PPACN_SCARDBINDUPD, PPOBJ_BILL, *pID, org_rec.SCardID, 0);
 			if(pRec->Object != org_rec.Object)
 				DS.LogAction(PPACN_UPDBILLOBJECT, PPOBJ_BILL, *pID, org_rec.Object, 0);
+			// @v10.8.3 {
+			if(!pRec->LinkBillID && org_rec.LinkBillID != 0)
+				DS.LogAction(PPACN_BILLUNLINK, PPOBJ_BILL, *pID, org_rec.LinkBillID, 0);
+			// } @v10.8.3 
 		}
 		else {
 			int    r = 0;

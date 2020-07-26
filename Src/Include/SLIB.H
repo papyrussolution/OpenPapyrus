@@ -3530,7 +3530,7 @@ public:
 	//
 	// Descr: Специализированное преобразование, сделанное главным образом ради (xmlChar *).
 	// Note:
-	//   Здесь нелья создавать дополнительный перегруженный оператор operator const uchar * ()
+	//   Здесь нельзя создавать дополнительный перегруженный оператор operator const uchar * ()
 	//   из-за того, что существующие использования класса столкнутся с неоднозначностью
 	//   преобразования.
 	//
@@ -14209,7 +14209,7 @@ struct SGeoPosLL { // @persistent
 	int    FASTCALL operator == (const SGeoPosLL & rS) const;
 	int    FASTCALL operator != (const SGeoPosLL & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
-	int    Valid() const;
+	int    IsValid() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
 
@@ -14235,7 +14235,7 @@ public:
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
 	int    Set(double lat, double lon);
 	int    SetInt(long lat, long lon);
-	int    Valid() const;
+	int    IsValid() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
 private:

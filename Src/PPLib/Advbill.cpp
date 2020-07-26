@@ -1,6 +1,6 @@
 // ADVBILL.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,7 +13,10 @@ SLAPI PPObjAdvBillKind::PPObjAdvBillKind(void * extraPtr) : PPObjReference(PPOBJ
 
 int SLAPI PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0, r = cmCancel, is_new = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
+	int    r = cmCancel;
+	int    is_new = 0;
 	PPAdvBillKind rec;
 	PPIDArray op_type_list;
 	TDialog * dlg = new TDialog(DLG_ADVBILLKIND);
@@ -52,7 +55,7 @@ int SLAPI PPObjAdvBillKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 {
 	if(p && p->Data) {
 		PPAdvBillKind * p_rec = static_cast<PPAdvBillKind *>(p->Data);
-		return ProcessObjRefInArray(PPOBJ_OPRKIND, &p_rec->LinkOpID, ary, replace) ? 1 : 0;
+		return BIN(ProcessObjRefInArray(PPOBJ_OPRKIND, &p_rec->LinkOpID, ary, replace));
 	}
 	else
 		return -1;
@@ -101,7 +104,7 @@ int FASTCALL PPAdvBillItemList::IsEqual(const PPAdvBillItemList & rS) const
 		eq = 0;
 	else if(c) {
 		//
-		// Перестановка элементов считается отличием
+		// РџРµСЂРµСЃС‚Р°РЅРѕРІРєР° СЌР»РµРјРµРЅС‚РѕРІ СЃС‡РёС‚Р°РµС‚СЃСЏ РѕС‚Р»РёС‡РёРµРј
 		//
 		for(uint i = 0; eq && i < c; i++) {
 			const Item & r_rec = Get(i);
@@ -337,8 +340,8 @@ void AdvBillItemDialog::editLink()
 							int r = -1;
 							bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
 							//
-							// Проверка на то, чтобы на выбранный документ не было
-							// ссылок в этом или других авансовых отчетах
+							// РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚РѕР±С‹ РЅР° РІС‹Р±СЂР°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РЅРµ Р±С‹Р»Рѕ
+							// СЃСЃС‹Р»РѕРє РІ СЌС‚РѕРј РёР»Рё РґСЂСѓРіРёС… Р°РІР°РЅСЃРѕРІС‹С… РѕС‚С‡РµС‚Р°С…
 							//
 							if(bill_id) {
 								if(P_Pack) {
@@ -494,7 +497,7 @@ private:
 	int    IsWarrant;
 };
 
-enum { // Параметр функции AdvBillItemBrowser::update
+enum { // РџР°СЂР°РјРµС‚СЂ С„СѓРЅРєС†РёРё AdvBillItemBrowser::update
 	pos_top    = -1,
 	pos_cur    = -2,
 	pos_bottom = -3
@@ -593,11 +596,11 @@ int AdvBillItemBrowser::update(int pos)
 		THROW_SL(p_list->insert(&total));
 		p_def->setArray(p_list, 0, 0);
 		view->setRange(p_list->getCount());
-		if(pos == pos_cur && c >= 0 && c < (int)p_list->getCount())
+		if(pos == pos_cur && c >= 0 && c < p_list->getCountI())
 			view->go(c);
 		else if(pos == pos_bottom && p_list->getCount() >= 2)
 			view->go(p_list->getCount() - 2);
-		else if(pos >= 0 && pos < (int)p_list->getCount())
+		else if(pos >= 0 && pos < p_list->getCountI())
 			view->go(pos);
 		else
 			p_def->top();

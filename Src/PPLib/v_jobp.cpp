@@ -189,7 +189,7 @@ int JobItemDialog::CheckRecursion(const PPJob * pData)
 		do {
 			THROW_PP(job_list.lsearch(p_job->ID) <= 0, PPERR_JOBITEMLOOP);
 			THROW_SL(job_list.add(p_job->ID));
-			p_job = p_job->NextJobID ? P_JobPool->GetJob(p_job->NextJobID) : 0;
+			p_job = p_job->NextJobID ? P_JobPool->GetJobItem(p_job->NextJobID) : 0;
 		} while(p_job);
 	}
 	CATCHZOK
@@ -244,7 +244,7 @@ int JobPoolDialog::setupList()
 		(ss += job.Name) += job.Descr.Symb;
 		ss += job.Dtr.Format(0, buf);
 		if(job.NextJobID) {
-			const PPJob * p_job = P_Data->GetJob(job.NextJobID, ForAllDb);
+			const PPJob * p_job = P_Data->GetJobItem(job.NextJobID, ForAllDb);
 			if(p_job)
 				buf.CopyFrom(p_job->Name);
 		}
@@ -265,7 +265,7 @@ int JobPoolDialog::addItem(long * pPos, long * pID)
 	job.DbSymb = P_Data->GetDbSymb();
 	if(EditJobItem(P_Mngr, P_Data, &job) > 0) {
 		PPID   id = 0;
-		THROW(P_Data->PutJob(&id, &job));
+		THROW(P_Data->PutJobItem(&id, &job));
 		ASSIGN_PTR(pID, id);
 		ok = 1;
 	}
@@ -277,11 +277,11 @@ int JobPoolDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
-		const PPJob * p_job = P_Data->GetJob(id, ForAllDb);
+		const PPJob * p_job = P_Data->GetJobItem(id, ForAllDb);
 		if(p_job) {
 			PPJob job = *p_job;
 			if(EditJobItem(P_Mngr, P_Data, &job) > 0)
-				ok = P_Data->PutJob(&id, &job);
+				ok = P_Data->PutJobItem(&id, &job);
 			if(!ok)
 				PPError();
 		}
@@ -293,7 +293,7 @@ int JobPoolDialog::editItem(long pos, long id)
 
 int JobPoolDialog::delItem(long pos, long id)
 {
-	int    ok = CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_DEL, 0) > 0 ? P_Data->PutJob(&id, 0) : 0;
+	int    ok = CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_DEL, 0) > 0 ? P_Data->PutJobItem(&id, 0) : 0;
 	if(!ok)
 		PPError();
 	return ok;
@@ -520,7 +520,7 @@ int SLAPI PPViewJob::AddItem(PPID * pID)
 		job.DbSymb = P_Pool->GetDbSymb();
 		if(EditJobItem(&Mngr, P_Pool, &job) > 0) {
 			PPID   id = 0;
-			THROW(P_Pool->PutJob(&id, &job));
+			THROW(P_Pool->PutJobItem(&id, &job));
 			ASSIGN_PTR(pID, id);
 			IsChanged = 1;
 			ok = 1;
@@ -534,11 +534,11 @@ int SLAPI PPViewJob::EditItem(PPID id)
 {
 	int    ok = -1;
 	if(P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
-		const PPJob * p_job = P_Pool->GetJob(id, (Filt.Flags & JobFilt::fForAllDb));
+		const PPJob * p_job = P_Pool->GetJobItem(id, (Filt.Flags & JobFilt::fForAllDb));
 		if(p_job) {
 			PPJob job = *p_job;
 			if(EditJobItem(&Mngr, P_Pool, &job) > 0)
-				ok = P_Pool->PutJob(&id, &job);
+				ok = P_Pool->PutJobItem(&id, &job);
 			if(ok > 0)
 				IsChanged = 1;
 			else if(!ok)
@@ -552,7 +552,7 @@ int SLAPI PPViewJob::EditItem(PPID id)
 
 int SLAPI PPViewJob::DeleteItem(PPID id)
 {
-	int    ok = (P_Pool) ? (CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_DEL, 0) > 0 ? P_Pool->PutJob(&id, 0) : 0) : -1;
+	int    ok = (P_Pool) ? (CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_DEL, 0) > 0 ? P_Pool->PutJobItem(&id, 0) : 0) : -1;
 	if(ok > 0)
 		IsChanged = 1;
 	else if(!ok)
@@ -615,7 +615,7 @@ void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 			case PPVCMD_ADDBYSAMPLE: // @v10.4.3
 				ok = -1;
 				if(job_id && P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
-					const PPJob * p_job = P_Pool->GetJob(job_id, (Filt.Flags & JobFilt::fForAllDb));
+					const PPJob * p_job = P_Pool->GetJobItem(job_id, (Filt.Flags & JobFilt::fForAllDb));
 					if(p_job) {
 						PPJob  new_job = *p_job;
 						PPID   new_id = 0;
@@ -633,7 +633,7 @@ void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 						} while(is_there_dup_name);
 						int    local_ok = 1;
 						if(EditJobItem(&Mngr, P_Pool, &new_job) > 0) {
-							local_ok = P_Pool->PutJob(&new_id, &new_job);
+							local_ok = P_Pool->PutJobItem(&new_id, &new_job);
 						}
 						if(local_ok > 0) {
 							update_id = job_id;
@@ -735,7 +735,7 @@ int SLAPI PPViewJob::MakeList()
 				item.LastRunningTime = job.LastRunningTime;
 				item.Ver = job.Ver;
 				if(job.NextJobID) {
-					const PPJob * p_job = P_Pool->GetJob(job.NextJobID, Filt.Flags & JobFilt::fForAllDb);
+					const PPJob * p_job = P_Pool->GetJobItem(job.NextJobID, Filt.Flags & JobFilt::fForAllDb);
 					if(p_job)
 						p_job->Name.CopyTo(item.NextJob, sizeof(item.NextJob));
 				}

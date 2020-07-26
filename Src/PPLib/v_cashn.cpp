@@ -53,9 +53,9 @@ SLAPI PPViewCashNode::~PPViewCashNode()
 int SLAPI PPViewCashNode::CheckForFilt(const PPCashNode * pRec) const
 {
 	if(pRec) {
-		if(Filt.CashTypeID && Filt.CashTypeID != pRec->CashType)
+		if(!CheckFiltID(Filt.CashTypeID, pRec->CashType))
 			return 0;
-		if(Filt.LocID && Filt.LocID != pRec->LocID)
+		if(!CheckFiltID(Filt.LocID, pRec->LocID))
 			return 0;
 		if((Filt.SyncType == CashNodeFilt::sOnlySync && (pRec->Flags & CASHF_ASYNC)) || (Filt.SyncType == CashNodeFilt::sOnlyASync && (pRec->Flags & CASHF_SYNC)))
 			return 0;

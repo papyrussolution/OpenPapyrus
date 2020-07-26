@@ -361,7 +361,7 @@ int SLAPI DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, B
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	int    use_compression = BIN(pData && (pData->Flags & BCOPYDF_USECOMPRESS));
+	const  int use_compression = BIN(pData && (pData->Flags & BCOPYDF_USECOMPRESS));
 	BTBLID i = 0;
 	SString path, spart;
 	DbTableStat ts;
@@ -413,8 +413,8 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraP
 	// DbProvider Implement_Open
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	int    use_compression    = BIN(pData->Flags & BCOPYDF_USECOMPRESS);
-	int    use_copycontinouos = BIN(pData->Flags & BCOPYDF_USECOPYCONT);
+	const  int use_compression    = 0; //BIN(pData->Flags & BCOPYDF_USECOMPRESS); // @v10.8.3 unconditionally 0
+	const  int use_copycontinouos = BIN(pData->Flags & BCOPYDF_USECOPYCONT);
 	int    do_release_cont = BIN(pData->Flags & BCOPYDF_RELEASECONT);
 	const  LDATETIME cur_dtm = getcurdatetime_();
 	DbTableStat ts;
@@ -506,7 +506,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraP
 			pData->SrcSize = cp.TotalSize;
 			if(use_copycontinouos)
 				THROW_V(Btrieve::AddContinuous(copycont_filelist.getBuf()), SDBERR_BTRIEVE); // @!
-			ok = DoCopy(&cp, use_compression, fnLog, extraPtr);
+			ok = DoCopy(&cp, /* @v10.8.3 use_compression,*/ fnLog, extraPtr);
 			if(use_copycontinouos)
 				THROW_V(Btrieve::RemoveContinuous(copycont_filelist.getBuf()), SDBERR_BTRIEVE);
 			THROW(ok);
@@ -706,7 +706,7 @@ int SLAPI DBBackup::Restore(const BCopyData * pData, BackupLogFunc fnLog, void *
 	if(CheckAvailableDiskSpace(cp.Path, cp.TotalSize) && CheckCopy(pData, cp, fnLog, extraPtr) > 0) {
 		SString copy_path;
 		THROW(RemoveDatabase(1));
-		THROW(DoCopy(&cp, -BIN(pData->SrcSize != pData->DestSize), fnLog, extraPtr));
+		THROW(DoCopy(&cp, /* @v10.8.3 -BIN(pData->SrcSize != pData->DestSize),*/ fnLog, extraPtr));
 		THROW(CopyByRedirect(cp.Path, fnLog, extraPtr));
 		(copy_path = pData->CopyPath).Strip().SetLastSlash().Cat(pData->SubDir).Strip();
 		THROW(CopyLinkFiles(copy_path, cp.Path, fnLog, extraPtr));
@@ -778,7 +778,7 @@ int DBBackup::CopyProgressProc(const SDataMoveProgressInfo * scfd)
 	return dbb->CBP_CopyProcess(scfd->P_Src, scfd->P_Dest, dbb->TotalCopySize, scfd->SizeTotal, dbb->TotalCopyReady + scfd->SizeDone, scfd->SizeDone);
 }
 
-int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogFunc fnLog, void * extraPtr)
+int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, /* @v10.8.3 long compr,*/ BackupLogFunc fnLog, void * extraPtr)
 {
 	EXCEPTVAR(DBErrCode);
 #ifndef __CONFIG__
@@ -794,11 +794,11 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 	SPathStruc ps, ps_inner;
 	StringSet temp_ss_files;
 	LogMessage(fnLog, BACKUPLOG_BEGIN, pParam->Path, extraPtr);
-	if(compr > 0 && pParam->TempPath.NotEmptyS() && fileExists(pParam->TempPath)) {
+	/* @v10.8.3 if(compr > 0 && pParam->TempPath.NotEmptyS() && fileExists(pParam->TempPath)) {
 		use_temp_path = 1;
 		dest = pParam->TempPath;
 	}
-	else
+	else*/
 		dest = pParam->Path;
 	ps.Split(dest.SetLastSlash());
 	TotalCopySize  = pParam->TotalSize;
@@ -810,7 +810,7 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 		ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);
 		if(!SFileUtil::GetStat(src_file_name, &stat))
 			LogMessage(fnLog, BACKUPLOG_ERR_GETFILEPARAM, src_file_name, extraPtr);
-		else if(compr) {
+		/* @v10.8.3 else if(compr) {
 			SPathStruc::ReplaceExt(dest_file, (compr > 0) ? "bt_" : "btr", 1);
 			if(use_temp_path) {
 				temp_ss_files.add(dest_file);
@@ -823,16 +823,16 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 				LogMessage(fnLog, rec_id, src_file_name, extraPtr);
 			}
 		}
-		else {
+		else*/ {
 			sz = stat.Size;
 			if(SCopyFile(src_file_name, dest_file, DBBackup::CopyProgressProc, FILE_SHARE_READ, this) <= 0)
 				LogMessage(fnLog, BACKUPLOG_ERR_COPY, src_file_name, extraPtr);
 		}
-		if(compr >= 0) {
+		/* @v10.8.3 if(compr >= 0) {
 			if(!use_temp_path)
 				LogMessage(fnLog, BACKUPLOG_SUC_COPY, src_file_name, extraPtr);
 		}
-		else
+		else */
 			LogMessage(fnLog, BACKUPLOG_SUC_RESTORE, dest_file, extraPtr);
 		TotalCopyReady += sz;
 	}
@@ -844,9 +844,9 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 			ps_inner.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, dest_file);
 			THROW_V(SCopyFile(src_file_name, dest_file, DBBackup::CopyProgressProc, FILE_SHARE_READ, this) > 0, SDBERR_SLIB);
 			SFile::Remove(src_file_name);
-			if(compr > 0)
+			/* @v10.8.3 if(compr > 0)
 				LogMessage(fnLog, BACKUPLOG_SUC_COPY, src_file_name, extraPtr);
-			else
+			else */
 				LogMessage(fnLog, BACKUPLOG_SUC_RESTORE, dest_file, extraPtr);
 		}
 	}
@@ -854,7 +854,7 @@ int SLAPI DBBackup::DoCopy(DBBackup::CopyParams * pParam, long compr, BackupLogF
 	LogMessage(fnLog, BACKUPLOG_END, pParam->Path, extraPtr);
 	CATCH
 		ok = 0;
-		LogMessage(fnLog, (compr > 0) ? BACKUPLOG_ERR_COPY : BACKUPLOG_ERR_RESTORE, src_file_name, extraPtr);
+		LogMessage(fnLog, /* @v10.8.3 (compr > 0) ? BACKUPLOG_ERR_COPY :*/ BACKUPLOG_ERR_RESTORE, src_file_name, extraPtr);
 	ENDCATCH
 	return ok;
 }

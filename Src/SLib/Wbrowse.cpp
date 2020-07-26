@@ -1202,7 +1202,7 @@ void BrowserWindow::WMHCreate(LPCREATESTRUCT)
 	if(Toolbar.getItemsCount()) {
 		P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
 		P_Toolbar->Init(ToolbarID, &Toolbar);
-		if(P_Toolbar->Valid()) {
+		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);
 			ToolBarWidth = tbr.bottom - tbr.top;

@@ -420,6 +420,8 @@ Section -PPALDD SEC_PPALDD
 	File "${SRC_ROOT}\SRC\RSRC\DATA\replacer-rule-goods.sr" ; @v9.7.5
 	File "${SRC_ROOT}\SRC\RSRC\DATA\editorlangmodel.xml" ; @v9.8.2
 	File "${SRC_ROOT}\SRC\RSRC\DATA\editorstyles.xml"    ; @v9.8.2
+	; @v10.8.3 Изображения
+	File "${SRC_ROOT}\SRC\RSRC\BITMAP\nophoto.png"       ; @v10.8.3
 	;
 	; @v6.7.1
 	; WTM-файлы

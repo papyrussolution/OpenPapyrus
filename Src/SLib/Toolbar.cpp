@@ -591,35 +591,12 @@ int TToolbar::Init(const ToolbarList * pList)
 	return ok;
 }
 
-BOOL TToolbar::Valid() const
-{
-	return (H_Wnd && H_Toolbar);
-}
-
-int TToolbar::GetCurrPos() const
-{
-	return CurrPos;
-}
-
-HWND TToolbar::H() const
-{
-	return H_Wnd;
-}
-
-HWND TToolbar::GetToolbarHWND() const
-{
-	return H_Toolbar;
-}
-
-uint TToolbar::getItemsCount() const
-{
-	return Items.getItemsCount();
-}
-
-const ToolbarItem & TToolbar::getItem(uint idx/* 0.. */) const
-{
-	return Items.getItem(idx);
-}
+BOOL  TToolbar::IsValid() const { return (H_Wnd && H_Toolbar); }
+int   TToolbar::GetCurrPos() const { return CurrPos; }
+HWND  TToolbar::H() const { return H_Wnd; }
+HWND  TToolbar::GetToolbarHWND() const { return H_Toolbar; }
+uint  TToolbar::getItemsCount() const { return Items.getItemsCount(); }
+const ToolbarItem & TToolbar::getItem(uint idx/* 0.. */) const { return Items.getItem(idx); }
 
 int TToolbar::SelectMode()
 {
@@ -638,7 +615,7 @@ int TToolbar::SelectMode()
 int TToolbar::Show()
 {
 	int    ok = 0;
-	if(Valid()) {
+	if(IsValid()) {
 		ShowWindow(H_Wnd, SW_SHOW);
 		RECT rc;
 		GetClientRect(H_Wnd, &rc);

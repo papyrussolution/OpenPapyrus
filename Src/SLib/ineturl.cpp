@@ -293,7 +293,7 @@ void FASTCALL InetUrl::Copy(const InetUrl & rS)
 	State = rS.State;
 }
 
-int InetUrl::Valid() const { return BIN(!(State & stError)); }
+int InetUrl::IsValid() const { return BIN(!(State & stError)); }
 int InetUrl::IsEmpty() const { return BIN(State & stEmpty); }
 
 InetUrl & InetUrl::Z()

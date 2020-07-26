@@ -344,21 +344,21 @@ PPBaseFilt * SLAPI PPViewLocTransf::CreateFilt(void * extraPtr) const
 }
 
 class LocTransfFiltDialog : public TDialog {
-public:
+	DECL_DIALOG_DATA(LocTransfFilt);
 	enum {
 		grpLoc = 1,
 		grpGoods
 	};
+public:
 	LocTransfFiltDialog() : TDialog(DLG_LOCTRFILT)
 	{
  		addGroup(grpLoc, new LocationCtrlGroup(CTLSEL_LOCTRFILT_LOC, 0, 0, 0, 0, LocationCtrlGroup::fWarehouseCell|LocationCtrlGroup::fEnableSelUpLevel, 0));
  		addGroup(grpGoods, new GoodsCtrlGroup(CTLSEL_LOCTRFILT_GGRP, CTLSEL_LOCTRFILT_GOODS));
 	}
-	int    setDTS(const LocTransfFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
-
+		RVALUEPTR(Data, pData);
 		LocationCtrlGroup::Rec loccg_rec(&Data.LocList, 0);
 		setGroupData(grpLoc, &loccg_rec);
 		GoodsCtrlGroup::Rec goodscg_rec(Data.GoodsGrpID, Data.GoodsID, 0, 0);
@@ -375,7 +375,7 @@ public:
 		SetClusterData(CTL_LOCTRFILT_MODE, Data.Mode);
 		return ok;
 	}
-	int    getDTS(LocTransfFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		LocationCtrlGroup::Rec loccg_rec;
@@ -394,20 +394,17 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_LOCTRFILT_MODE)) {
-			long   prev_mode = Data.Mode;
+			const long prev_mode = Data.Mode;
 			GetClusterData(CTL_LOCTRFILT_MODE, &Data.Mode);
 			if(Data.Mode != prev_mode) {
 				LocationCtrlGroup * p_loc_grp = static_cast<LocationCtrlGroup *>(getGroup(grpLoc));
-				if(p_loc_grp)
-					p_loc_grp->SetWarehouseCellMode(this, (Data.Mode == LocTransfFilt::modeDisposition) ? 0 : 1);
+				CALLPTRMEMB(p_loc_grp, SetWarehouseCellMode(this, (Data.Mode == LocTransfFilt::modeDisposition) ? 0 : 1));
 			}
 			clearEvent(event);
 		}
 		else
 			return;
 	}
-
-	LocTransfFilt Data;
 };
 
 int SLAPI PPViewLocTransf::EditBaseFilt(PPBaseFilt * pBaseFilt)

@@ -4077,7 +4077,7 @@ void SLAPI PPThreadLocalArea::OnLogout()
 int SLAPI PPSession::Logout()
 {
 	PPThreadLocalArea & r_tla = GetTLA();
-	if(r_tla.State & PPThreadLocalArea::stAuth) { // @v9.2.1
+	if(r_tla.State & PPThreadLocalArea::stAuth) {
 		const SString active_user = r_tla.UserName;
 		SString temp_buf;
 		r_tla.ReleaseEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1

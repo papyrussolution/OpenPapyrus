@@ -257,7 +257,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -298,7 +298,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -339,7 +339,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -380,7 +380,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -420,7 +420,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -460,7 +460,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -496,7 +496,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <Optimization>MaxSpeed</Optimization>
@@ -542,7 +543,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <Optimization>MaxSpeed</Optimization>
@@ -588,7 +590,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <Optimization>MaxSpeed</Optimization>
@@ -634,7 +637,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <Optimization>MaxSpeed</Optimization>
@@ -679,7 +683,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <Optimization>MaxSpeed</Optimization>
@@ -724,7 +729,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAsWinRT>false</CompileAsWinRT>
       <Optimization>MaxSpeed</Optimization>

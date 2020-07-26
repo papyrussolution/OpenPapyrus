@@ -211,17 +211,23 @@ int SLAPI PPCalcFuncList::CalcFunc(uint16 funcID, const StringSet * pParams, cha
 
 double SLAPI Round(double v, double prec, int dir)
 {
-	const double __tolerance = 1.0e-10;
+	static const double __tolerance = 1.0e-10;
 	// @todo return round(v, prec, dir);
 	if(prec == 0.0)
 		prec = fpow10i(-2);
 	const double r = v / prec;
 	const double _fl = floor(r);
 	const double _cl = ceil(r);
-	if(dir > 0)
+	/* @v10.8.3 if(dir > 0)
 		return (prec * ((fabs(_fl-r) < __tolerance) ? _fl : _cl));
 	else if(dir < 0)
-		return (prec * ((fabs(_cl-r) < __tolerance) ? _cl : _fl));
+		return (prec * ((fabs(_cl-r) < __tolerance) ? _cl : _fl)); */
+	// @v10.8.3 {
+	if(dir > 0)
+		return (prec * (feqeps(_fl, r, __tolerance) ? _fl : _cl));
+	else if(dir < 0)
+		return (prec * (feqeps(_cl, r, __tolerance) ? _cl : _fl));
+	// } @v10.8.3 
 	else {
 		const double down = prec * _fl;
 		const double up   = prec * _cl;
@@ -582,7 +588,7 @@ int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 {
 	class CalcDialog : public TDialog {
 	public:
-		CalcDialog() : TDialog(DLG_CALC), Err(0)
+		CalcDialog() : TDialog(DLG_CALC), Err(0), Prec(0), Result(0.0)
 		{
 			CFL.Load();
 			enableCommand(cmCalcEq, 1);
@@ -647,7 +653,7 @@ int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 			TInputLine * iil = static_cast<TInputLine *>(getCtrlView(CTL_CALC_INPUT));
 			if(mil && iil) {
 				SString input, mem;
-				size_t pos = iil->getCaret();
+				const size_t pos = iil->getCaret();
 				mil->getText(mem);
 				iil->getText(input);
 				input.Insert(pos, mem.Quot(' ', ' '));
@@ -693,6 +699,9 @@ int SLAPI PPCalculator(void * hParentWnd, const char * pInitData)
 //
 //
 struct CalcTaxPriceParam {
+	CalcTaxPriceParam() : GoodsID(0), Dt(ZERODATE), OpID(0), PriceWoTaxes(0.0), Price(0.0), CalcWotaxByWtax(0)
+	{
+	}
 	PPID   GoodsID;
 	LDATE  Dt;
 	PPID   OpID;
@@ -796,12 +805,12 @@ int SLAPI CalcTaxPrice(PPID goodsID, PPID opID, LDATE dt, double price, int /*= 
 {
 	int    ok = -1;
 	CalcTaxPriceParam param;
-	MEMSZERO(param);
+	// @v10.8.3 @ctr MEMSZERO(param);
 	param.GoodsID = goodsID;
 	param.OpID = opID;
 	param.Dt   = dt;
 	param.PriceWoTaxes = price;
-	param.CalcWotaxByWtax = 0;
+	// @v10.8.3 @ctr param.CalcWotaxByWtax = 0;
 	CalcTaxPriceDialog * dlg = new CalcTaxPriceDialog;
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&param);

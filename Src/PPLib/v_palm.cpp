@@ -39,7 +39,7 @@ int SLAPI PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 		if(Filt.Type != PalmFilt::devtAll && (Filt.Type == PalmFilt::devtOnlyGroups && !(pRec->Flags & PLMF_GENERIC) ||
 			Filt.Type == PalmFilt::devtOnlyDevs && (pRec->Flags & PLMF_GENERIC)))
 			return 0;
-		if(Filt.GroupID && Filt.GroupID != pRec->GroupID)
+		if(!CheckFiltID(Filt.GroupID, pRec->GroupID))
 			return 0;
 		if(pRec->GroupID) {
 			PPStyloPalm rec;
@@ -48,13 +48,13 @@ int SLAPI PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 				ord_op_id = rec.OrderOpID;
 			}
 		}
-		if(Filt.GoodsGrpID && Filt.GoodsGrpID != pRec->GoodsGrpID)
+		if(!CheckFiltID(Filt.GoodsGrpID, pRec->GoodsGrpID))
 			return 0;
-		if(Filt.OrderOpID && Filt.OrderOpID != ord_op_id)
+		if(!CheckFiltID(Filt.OrderOpID, ord_op_id))
 			return 0;
-		if(Filt.AgentID && Filt.AgentID != pRec->AgentID)
+		if(!CheckFiltID(Filt.AgentID, pRec->AgentID))
 			return 0;
-		if(Filt.FTPAcctID && Filt.FTPAcctID != pRec->FTPAcctID)
+		if(!CheckFiltID(Filt.FTPAcctID, pRec->FTPAcctID))
 			return 0;
 		if(Filt.LocList.GetCount()) {
 			int    result = 0;

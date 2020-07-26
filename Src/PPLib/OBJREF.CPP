@@ -2228,7 +2228,82 @@ int SLAPI PPObjGlobalUserAcc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, 
 	return ok;
 }
 
-class GlobalUserAccDialog : public TDialog {
+class VkGuaCfgDialog: public TDialog {
+	DECL_DIALOG_DATA(VkStruct);
+public:
+	VkGuaCfgDialog(): TDialog(DLG_VKGUACFG)
+	{
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		PPGlobalUserAccConfig cfg;
+		GuaObj.FetchConfig(&cfg);
+		RVALUEPTR(Data, pData);
+		// нужно установить поле группа
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		SString temp_buf;
+		//нужно вернуть данные о groupid, ownerid and token
+
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+			return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		SString temp_buf;
+		if(event.isCmd(cmGetTokenVk)) {
+			PPVkClient::GetVKAccessToken();
+		}
+		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_LOGIN_URL)) {
+			
+			static int __lock = 0;
+			if(!__lock) {
+				__lock = 1;
+				getCtrlString(CTL_VKGUACFG_LOGIN_URL, temp_buf.Z());
+				{
+					InetUrl url(temp_buf);
+					url.GetComponent(InetUrl::cRef, 0, temp_buf);
+					StringSet ss('&', temp_buf);
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						SString left;
+						SString right;
+						temp_buf.Divide('=', left, right);
+						if(left.IsEqual("access_token"))
+							Data.Token.Z().Cat(right);
+						else if(left.IsEqual("user_id"))
+							Data.PageId.Z().Cat(right);
+					}
+				}
+				__lock = 0;
+			}
+		}
+		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_GROUP_ID)) {
+			static int __lock = 0;
+			if(!__lock) {
+				__lock = 1;
+				getCtrlString(CTL_VKGUACFG_GROUP_ID, temp_buf.Z());
+				{
+					Data.GroupId.Z().Cat(temp_buf);
+				}
+				__lock = 0;
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	PPObjGlobalUserAcc GuaObj;
+};
+
+
+class GlobalUserAccDialog : public TDialog{
 	DECL_DIALOG_DATA(PPGlobalUserAccPacket);
 public:
 	GlobalUserAccDialog() : TDialog(DLG_GLOBUSERACC)
@@ -2250,6 +2325,11 @@ public:
 		enableCommand(cmOK, GuaObj.CheckRights(PPR_MOD));
 		SetupPPObjCombo(this, CTLSEL_GLOBUSERACC_PSN, PPOBJ_PERSON, Data.Rec.PersonID, 0, reinterpret_cast<void *>(cfg.PersonKindID));
 		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent); // @v10.5.5
+		//@erik {
+		if(!Data.Rec.ServiceIdent) {
+			disableCtrl(CTL_GS_SETTING, 1);
+		}
+		// } @erik
 		AddClusterAssoc(CTL_GLOBUSERACC_FLAGS, 0, PPGlobalUserAcc::fSandBox); // @v10.6.3
 		SetClusterData(CTL_GLOBUSERACC_FLAGS, Data.Rec.Flags); // @v10.6.3
 		return 1;
@@ -2269,7 +2349,7 @@ public:
 		Data.Rec.LocalUserID = getCtrlLong(CTL_GLOBUSERACC_LOCALID);
 		THROW(GuaObj.CheckName(Data.Rec.ID, Data.Rec.Name, 1));
 		getCtrlData(CTLSEL_GLOBUSERACC_PSN, &Data.Rec.PersonID);
-		getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
+		//getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5 =>  To comment @erik @v10.7.13
 		GetClusterData(CTL_GLOBUSERACC_FLAGS, &Data.Rec.Flags); // @v10.6.3
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -2279,6 +2359,10 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
+		SString temp_buf;
+		PPLogger logger;
+		PPObjTag obj_tag;
+		Reference ref;
 		if(event.isCmd(cmCfgPassword)) {
 			//
 				//SString pwd;
@@ -2290,6 +2374,81 @@ private:
 			Data.TagL.ObjType = PPOBJ_GLOBALUSERACC;
 			EditObjTagValList(&Data.TagL, 0);
 		}
+		else if(event.isCmd(cmGlobalServiceSetting)) {
+			PPID service_ident = Data.Rec.ServiceIdent;
+			switch(service_ident){
+			case PPGLS_TWITTER:
+				{
+					
+				}
+				break;
+			case PPGLS_FACEBOOK:
+				{
+					
+				}
+				break;
+			case PPGLS_VK:
+				{			
+					uint change_flag = 0;
+					SString temp_buf;
+					PPLogger logger;
+					VkStruct pack;
+					PPID vk_grp_tag_id, vk_page_tag_id;
+					obj_tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
+					obj_tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
+					VkGuaCfgDialog * dlg = new VkGuaCfgDialog();
+					dlg->setDTS(&pack);
+					if(ExecView(dlg)==cmOK) {
+						if(dlg->getDTS(&pack)) {
+							if(pack.GroupId.Len() > 0) {
+								ObjTagItem new_obj_tag_item;
+								new_obj_tag_item.SetStr(vk_grp_tag_id, pack.GroupId.Unescape());
+								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1)>0)
+									change_flag++;
+							}
+							if(pack.PageId.Len() > 0) {
+								ObjTagItem new_obj_tag_item;
+								new_obj_tag_item.SetStr(vk_page_tag_id, pack.PageId.Unescape());
+								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1)>0);
+									change_flag++;
+							}
+							if(pack.Token.Len()>0) {
+								ObjTagItem new_obj_tag_item;
+								new_obj_tag_item.SetStr(PPTAG_GUA_ACCESSKEY, pack.Token.Unescape());
+								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1)>0)
+									change_flag++;
+							}
+							if(change_flag > 0)
+								ref.Ot.GetList(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &Data.TagL);
+							delete dlg;
+						}
+					}
+				}
+				break;
+			case PPGLS_VETIS:
+				{
+					
+				}
+				break;
+			case PPGLS_CHZN:
+				{
+					
+				}
+				break;
+			default:
+				break;
+			}
+		}
+//@erik @v10.7.13{
+		else if(event.isCbSelected(CTLSEL_GLOBUSERACC_SVC)) {
+			PPID service_ident;
+			getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
+			if(!Data.Rec.ServiceIdent)
+				disableCtrl(CTL_GS_SETTING, 1);
+			else
+				disableCtrl(CTL_GS_SETTING, 0);
+		}
+// } @erik @v10.7.13
 		else
 			return;
 		clearEvent(event);

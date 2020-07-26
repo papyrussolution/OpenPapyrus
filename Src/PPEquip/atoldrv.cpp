@@ -363,9 +363,9 @@ private:
 			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_PORT, temp_buf_u);
 			{
-				temp_buf.Z().Cat(Port);
+				temp_buf.Z().Cat(Port).Strip(); // @v10.8.3 Strip()
 				if(temp_buf.IsDigit())
-					temp_buf.Z().Cat("COM").Cat(Port);
+					temp_buf.Z().Cat("com").Cat(Port); // @v10.8.3 "COM"-->"com"
 				temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 				P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
 			}

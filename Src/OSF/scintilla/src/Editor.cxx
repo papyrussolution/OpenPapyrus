@@ -5110,15 +5110,16 @@ void Editor::StyleToPositionInView(Position pos)
 int Editor::PositionAfterMaxStyling(int posMax, bool scrolling) const
 {
 	if((idleStyling == SC_IDLESTYLING_NONE) || (idleStyling == SC_IDLESTYLING_AFTERVISIBLE)) {
-		// Both states do not limit styling
-		return posMax;
+		return posMax; // Both states do not limit styling
 	}
-	// Try to keep time taken by styling reasonable so interaction remains smooth.
-	// When scrolling, allow less time to ensure responsive
-	const double secondsAllowed = scrolling ? 0.005 : 0.02;
-	const int linesToStyle = sclamp(static_cast<int>(secondsAllowed / pdoc->durationStyleOneLine), 10, 0x10000);
-	const int stylingMaxLine = smin(static_cast<int>(pdoc->LineFromPosition(pdoc->GetEndStyled()) + linesToStyle), pdoc->LinesTotal());
-	return smin(static_cast<int>(pdoc->LineStart(stylingMaxLine)), posMax);
+	else {
+		// Try to keep time taken by styling reasonable so interaction remains smooth.
+		// When scrolling, allow less time to ensure responsive
+		const double secondsAllowed = scrolling ? 0.005 : 0.02;
+		const int linesToStyle = sclamp(static_cast<int>(secondsAllowed / pdoc->durationStyleOneLine), 10, 0x10000);
+		const int stylingMaxLine = smin(static_cast<int>(pdoc->LineFromPosition(pdoc->GetEndStyled()) + linesToStyle), pdoc->LinesTotal());
+		return smin(static_cast<int>(pdoc->LineStart(stylingMaxLine)), posMax);
+	}
 }
 
 void Editor::StartIdleStyling(bool truncatedLastStyling)

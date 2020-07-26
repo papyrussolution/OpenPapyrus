@@ -7283,17 +7283,18 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 							rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f);
 					}
 				}
-				else if(oneof4(stat.Len, 25, 52, 35, 41)) {
+				else if(oneof5(stat.Len, 25, 35, 41, 52, 55)) {
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
 						int    is_chzn_cigblock = 1;
-						while(_offs < 14) {
+						while(_offs < 16) {
 							if(!isdec(pToken[_offs]))
 								is_chzn_cigblock = 0;
 							_offs++;
 						}
 						if(is_chzn_cigblock) {
-							if(strstr(PTRCHRC_(pToken), "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
+							assert(_offs == 16);
+							if(strstr(PTRCHRC_(pToken)+_offs, "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
 								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
 							else if(stat.Len == 25)
 								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.5f);

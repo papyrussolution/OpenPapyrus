@@ -1,8 +1,8 @@
 // V_REGTYP.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018
-// @codepage windows-1251
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020
+// @codepage UTF-8
 //
-// Типы регистрационных документов 
+// РўРёРїС‹ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІВ 
 //
 #include <pp.h>
 #pragma hdrstop
@@ -32,12 +32,12 @@ SLAPI PPViewRegisterType::~PPViewRegisterType()
 int SLAPI PPViewRegisterType::CheckForFilt(const PPRegisterTypePacket * pPack) const
 {
 	if(pPack) {
-		long st = (pPack->Rec.Flags & (REGTF_LEGAL|REGTF_PRIVATE));
-		if(Filt.RegOrgKind && Filt.RegOrgKind != pPack->Rec.RegOrgKind)
+		const long st = (pPack->Rec.Flags & (REGTF_LEGAL|REGTF_PRIVATE));
+		if(!CheckFiltID(Filt.RegOrgKind, pPack->Rec.RegOrgKind))
 			return 0;
-		if(Filt.PersonKindID && Filt.PersonKindID != pPack->Rec.PersonKindID)
+		else if(!CheckFiltID(Filt.PersonKindID, pPack->Rec.PersonKindID))
 			return 0;
-		if(Filt.St && Filt.St != st)
+		else if(!CheckFiltID(Filt.St, st))
 			return 0;
 	}
 	return 1;
@@ -58,25 +58,25 @@ int SLAPI PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		SString temp_buf;
 		const RegTypeViewItem * p_item = static_cast<const RegTypeViewItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
-			case 0: // ИД
+			case 0: // РР”
 				pBlk->Set(p_item->ID);
 				break;
-			case 1: // Наименование
+			case 1: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ
 				GetRegisterTypeName(p_item->ID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 2: // Вид регистрирующей организации
+			case 2: // Р’РёРґ СЂРµРіРёСЃС‚СЂРёСЂСѓСЋС‰РµР№ РѕСЂРіР°РЅРёР·Р°С†РёРё
 				GetObjectName(PPOBJ_PRSNKIND, p_item->RegOrgKind, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 3: // Вид разрешенной персоналии
+			case 3: // Р’РёРґ СЂР°Р·СЂРµС€РµРЅРЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё
 				GetObjectName(PPOBJ_PRSNKIND, p_item->PersonKindID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
-			case 4: // Период действия в днях
+			case 4: // РџРµСЂРёРѕРґ РґРµР№СЃС‚РІРёСЏ РІ РґРЅСЏС…
 				pBlk->Set((int32)p_item->ExpiryPrd);
 				break;
-			case 5: // Формат
+			case 5: // Р¤РѕСЂРјР°С‚
 				pBlk->Set(p_item->Format);
 				break;
 		}
@@ -103,13 +103,14 @@ int SLAPI PPViewRegisterType::MakeListEntry(const PPRegisterTypePacket * pPack, 
 int SLAPI PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	class RegTypeFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(RegisterTypeFilt);
 	public:
 		RegTypeFiltDialog() : TDialog(DLG_FLTREGT)
 		{
 		}
-		int    setDTS(const RegisterTypeFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssocDef(CTL_FLTREGT_ST,  0, 0);
 			AddClusterAssoc(CTL_FLTREGT_ST,  1, REGTF_PRIVATE);
 			AddClusterAssoc(CTL_FLTREGT_ST,  2, REGTF_LEGAL);
@@ -118,17 +119,16 @@ int SLAPI PPViewRegisterType::EditBaseFilt(PPBaseFilt * pFilt)
 			SetupPPObjCombo(this, CTLSEL_FLTREGT_PKIND, PPOBJ_PRSNKIND, Data.PersonKindID, 0, 0);
 			return 1;
 		}
-		int    getDTS(RegisterTypeFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
-			int ok = 1, sel = 0;
+			int    ok = 1;
+			uint   sel = 0;
 			GetClusterData(CTL_FLTREGT_ST, &Data.St);
 			getCtrlData(CTLSEL_FLTREGT_REGPKIND,  &Data.RegOrgKind);
 			getCtrlData(CTLSEL_FLTREGT_PKIND, &Data.PersonKindID);
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
-	private:
-		RegisterTypeFilt Data;
 	};
 	int    ok = -1;
 	RegisterTypeFilt filt;
@@ -167,7 +167,7 @@ int FASTCALL PPViewRegisterType::NextIteration(RegTypeViewItem * pItem)
 {
 	int    ok = -1;
 	if(pItem && Counter < Data.getCount()) {
-		ASSIGN_PTR(pItem, *((RegTypeViewItem*)Data.at(Counter)));
+		ASSIGN_PTR(pItem, *static_cast<const RegTypeViewItem *>(Data.at(Counter)));
 		Counter.Increment();
 		ok = 1;
 	}

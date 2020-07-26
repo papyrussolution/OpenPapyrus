@@ -259,7 +259,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -300,7 +300,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -341,7 +341,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -382,7 +382,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -422,7 +422,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -462,7 +462,7 @@
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <SDLCheck>
       </SDLCheck>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableModules>false</EnableModules>
     </ClCompile>
@@ -501,7 +501,8 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -547,7 +548,8 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -593,7 +595,8 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -639,7 +642,8 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -684,7 +688,8 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -729,7 +734,8 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <OpenMPSupport>false</OpenMPSupport>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
       <CompileAsWinRT>false</CompileAsWinRT>

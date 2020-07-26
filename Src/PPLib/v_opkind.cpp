@@ -75,7 +75,7 @@ int SLAPI PPViewOprKind::InnerIteration(OprKindViewItem * pItem)
 int FASTCALL PPViewOprKind::NextIteration(OprKindViewItem * pItem)
 {
 	int    ok = -1;
-	if(pItem && OpListIdx < P_DsList->getCount()) {
+	if(pItem && OpListIdx < SVectorBase::GetCount(P_DsList)) {
 		const OprKindBrwItem * p_item = static_cast<OprKindBrwItem *>(P_DsList->at(OpListIdx));
 		pItem->ID = p_item->ID;
 		STRNSCPY(pItem->Name, p_item->Name);
@@ -361,7 +361,7 @@ int SLAPI PPViewOprKind::MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rE
 	int    ok = -1;
 	int    accept_op = 0;
 	MEMSZERO(rEntry);
-	accept_op = (!Filt.LinkOpID || Filt.LinkOpID == rOpRec.LinkOpID);
+	accept_op = (CheckFiltID(Filt.OpTypeID, rOpRec.OpTypeID) && CheckFiltID(Filt.LinkOpID, rOpRec.LinkOpID));
 	accept_op = (accept_op && (!Filt.AccSheetID || Filt.AccSheetID == rOpRec.AccSheetID));
 	if(Filt.Flags & OPKF_PASSIVE)
 		accept_op = (accept_op && (rOpRec.Flags & OPKF_PASSIVE));

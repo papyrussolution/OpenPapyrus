@@ -1045,11 +1045,13 @@ int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRep
 	SString path, buf;
 	_FrontolZRepArray zrep_list;
 	uint   pos = 0;
-	long   op_type = 0, nsmena = 0, cash_no = 0;
+	long   op_type = 0;
+	long   nsmena = 0;
+	long   cash_no = 0;
 	LAssocArray zrep_ary; // Пара {номер_файла; номер_смены}
+	SString fld_buf_alt[2]; // @v10.8.3 Буферы для альтернативных вариантов значения (такое возможно)
 	SString imp_file_name = pPath;
 	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
-
 	PPSetAddedMsgString(imp_file_name);
 	THROW_SL(imp_file.IsValid());
 	for(pos = 0; pos < 3; pos++)
@@ -1063,23 +1065,40 @@ int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRep
 	while(imp_file.ReadLine(buf) > 0) {
 		LDATETIME dtm;
 		StringSet ss(';', 0);
-
 		ss.clear();
 		ss.add(buf);
-		ss.get(&(pos = 0), buf);     // Код транзакции (не используем)
-		ss.get(&pos, buf);           // Дата транзакции
+		ss.get(&(pos = 0), buf);     // #1 Код транзакции (не используем)
+		ss.get(&pos, buf);           // #2 Дата транзакции
 		strtodate(buf.Strip(), DATF_DMY, &dtm.d);
-		ss.get(&pos, buf);           // Время транзакции
+		ss.get(&pos, buf);           // #3 Время транзакции
 		strtotime(buf.Strip(), TIMF_HMS, &dtm.t);
-		ss.get(&pos, buf);           // Тип транзакции (операции)
+		ss.get(&pos, buf);           // #4 Тип транзакции (операции)
 		op_type = buf.ToLong();
 		if(op_type == FRONTOL_OPTYPE_ZREPORT) {
-			ss.get(&pos, buf);       // Номер ККМ
+			ss.get(&pos, buf);       // #5 Номер ККМ
 			cash_no = buf.ToLong();
 			if(LogNumList.lsearch(cash_no)) {
 				PPID   sess_id;
-				for(field_no = 5; field_no < 9 && ss.get(&pos, buf) > 0; field_no++); // Поля 6-8 пропускаем
-				nsmena = buf.ToLong(); // Номер смены
+				ss.get(&pos, buf);       // #6 
+				ss.get(&pos, buf);       // #7 
+				ss.get(&pos, buf);       // #8 // Поля 6-8 пропускаем
+				ss.get(&pos, buf);       // #9 
+				fld_buf_alt[0] = buf; // #9 Номер смены alt[0] // @v10.8.3 
+				// @v10.8.3 nsmena = buf.ToLong(); // #9 Номер смены
+				// @v10.8.3 {
+				ss.get(&pos, buf);       // #10
+				ss.get(&pos, buf);       // #11
+				ss.get(&pos, buf);       // #12
+				ss.get(&pos, buf);       // #13 // Поля 10-13 пропускаем
+				ss.get(&pos, buf);       // #14 Номер смены alt[1]
+				fld_buf_alt[1] = buf;
+				if(fld_buf_alt[0].NotEmptyS())
+					nsmena = fld_buf_alt[0].ToLong();
+				else if(fld_buf_alt[1].NotEmptyS())
+					nsmena = fld_buf_alt[1].ToLong();
+				else
+					nsmena = 0;
+				// } @v10.8.3
 				if(CS.SearchByNumber(&sess_id, NodeID, cash_no, nsmena, dtm) > 0) {
 					if(CS.data.Temporary)
 						THROW(CS.ResetTempSessTag(sess_id, 0));
@@ -1113,8 +1132,9 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 	PPIDArray   new_goods;
 	//LAssocArray zrep_ary; // Пара {номер_кассы; номер_смены}
 	LDATETIME dtm;
-	SString   buf, card_code, wait_msg;
-	SString   barcode, goods_name, arcode;
+	SString buf, card_code, wait_msg;
+	SString barcode, goods_name, arcode;
+	SString fld_buf_alt[2]; // @v10.8.3 Буферы для альтернативных вариантов значения (такое возможно)
 	StringSet ss(';', 0);
 	IterCounter   cntr;
 	PPObjSCard sc_obj;
@@ -1129,7 +1149,6 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 	SString   imp_file_name = PathRpt;
 	// SPathStruc::ReplacePath(imp_file_name, pImpPath, 1);
 	SFile     imp_file(pImpPath, SFile::mRead); // PathRpt-->imp_file_name
-
 	PPObjGoods::ReadConfig(&goods_cfg);
 	const PPID def_goods_id = (goods_cfg.DefGoodsID && goods_obj.Fetch(goods_cfg.DefGoodsID, 0) > 0) ? goods_cfg.DefGoodsID : 0;
 	THROW(imp_file.IsValid());
@@ -1217,7 +1236,24 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 					const  uint preserve_pos = pos;
 					ss.get(&pos, buf);   // #08 skip
 					ss.get(&pos, buf);   // #09 Номер смены
-					nsmena = buf.ToLong();
+					fld_buf_alt[0] = buf; // alt[0] // @v10.8.3 
+					// @v10.8.3 nsmena = buf.ToLong();
+					{
+						// @v10.8.3 {
+						ss.get(&pos, buf);   // #10
+						ss.get(&pos, buf);   // #11
+						ss.get(&pos, buf);   // #12
+						ss.get(&pos, buf);   // #13 // Поля 10-13 пропускаем
+						ss.get(&pos, buf);   // #14 // Номер смены в новом варианте протокола frontol (alt[1])
+						fld_buf_alt[1] = buf;
+						if(fld_buf_alt[0].NotEmptyS())
+							nsmena = fld_buf_alt[0].ToLong();
+						else if(fld_buf_alt[1].NotEmptyS())
+							nsmena = fld_buf_alt[1].ToLong();
+						else
+							nsmena = 0;
+						// } @v10.8.3
+					}
 					pos = preserve_pos;
 					uint zrep_pos = 0;
 					if(ZRepList.Search(cash_no, nsmena, &zrep_pos)) {
@@ -1417,7 +1453,7 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 					}
 					closed_check_list.Add((ulong)chk_id);
 				}
-				cc_payment.Reset();
+				cc_payment.Z();
 			}
 			PPWaitPercent(cntr.Increment(), wait_msg);
 		}

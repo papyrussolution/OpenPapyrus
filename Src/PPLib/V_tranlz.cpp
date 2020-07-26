@@ -3843,7 +3843,6 @@ int SLAPI PrcssrAlcReport::Config::Serialize(int dir, SBuffer & rBuf, SSerialize
 	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(E), &E, rBuf, 0));
 	THROW_SL(pSCtx->Serialize(dir, &StorageLocList, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, &LotManufTagList, rBuf));
-	// @v9.4.0 {
 	if(dir > 0) {
 		if(!Ver.IsLt(9, 4, 0)) {
 			THROW(PPView::WriteFiltPtr(rBuf, P_CcFilt));
@@ -3857,7 +3856,6 @@ int SLAPI PrcssrAlcReport::Config::Serialize(int dir, SBuffer & rBuf, SSerialize
 			THROW(PPView::ReadFiltPtr(rBuf, reinterpret_cast<PPBaseFilt **>(&P_CcFilt)));
 		}
 	}
-	// } @v9.4.0
 	CATCHZOK
 	return ok;
 }
@@ -3882,7 +3880,7 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Z()
 	Proof = 0.0;
 	BottlingDate = ZERODATE;
 	CountryCode = 0;
-	OuterUnpackedTag = 0; // @v9.5.10
+	OuterUnpackedTag = 0;
 	UnpackedVolume = 0.0;
 	CategoryCodePos = 0;
 	CategoryCode.Z();

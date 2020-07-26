@@ -755,11 +755,11 @@ int SLAPI PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const
 		return (pRec->ParentID != pFilt->SuperSessID) ? 0 : 1;
 	}
 	else {
-		if(pFilt->TechID && pRec->TechID != pFilt->TechID)
+		if(!CheckFiltID(pFilt->TechID, pRec->TechID))
 			return 0;
-		if(pFilt->ArID && pRec->ArID != pFilt->ArID)
+		if(!CheckFiltID(pFilt->ArID, pRec->ArID))
 			return 0;
-		if(pFilt->Ar2ID && pRec->Ar2ID != pFilt->Ar2ID)
+		if(!CheckFiltID(pFilt->Ar2ID, pRec->Ar2ID))
 			return 0;
 		if(!pFilt->StPeriod.CheckDate(pRec->StDt))
 			return 0;
@@ -785,13 +785,11 @@ int SLAPI PPObjTSession::CheckForFilt(const TSessionFilt * pFilt, PPID id, const
 			if(pRec->Flags & TSESF_PLAN)
 				return 0;
 		}
-		if(pFilt->PrcID) {
-			if(pRec->PrcID != pFilt->PrcID) {
-				PPIDArray parent_list;
-				PrcObj.GetParentsList(pRec->PrcID, &parent_list);
-				if(!parent_list.lsearch(pFilt->PrcID))
-					return 0;
-			}
+		if(!CheckFiltID(pFilt->PrcID, pRec->PrcID)) {
+			PPIDArray parent_list;
+			PrcObj.GetParentsList(pRec->PrcID, &parent_list);
+			if(!parent_list.lsearch(pFilt->PrcID))
+				return 0;
 		}
 	}
 	return 1;

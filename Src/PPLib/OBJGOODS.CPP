@@ -2675,15 +2675,15 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		if(result_brand_list.GetCount() && !result_brand_list.CheckID(rec.BrandID))
 			CFF_RET;
 	}
-	if(pFilt->UnitID && pFilt->UnitID != rec.UnitID)
+	if(!CheckFiltID(pFilt->UnitID, rec.UnitID))
 		CFF_RET;
-	if(pFilt->PhUnitID && pFilt->PhUnitID != rec.PhUnitID)
+	if(!CheckFiltID(pFilt->PhUnitID, rec.PhUnitID))
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fUndefType) {
 		if(rec.GoodsTypeID)
 			CFF_RET;
 	}
-	else if(pFilt->GoodsTypeID && pFilt->GoodsTypeID != rec.GoodsTypeID)
+	else if(!CheckFiltID(pFilt->GoodsTypeID, rec.GoodsTypeID))
 		CFF_RET;
 	if(pFilt->VatRate) {
 		PPGoodsTaxEntry gtx;
@@ -2694,7 +2694,7 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		else
 			CFF_RET;
 	}
-	else if(pFilt->TaxGrpID && pFilt->TaxGrpID != rec.TaxGrpID)
+	else if(!CheckFiltID(pFilt->TaxGrpID, rec.TaxGrpID))
 		CFF_RET;
 	else if(pFilt->Flags & GoodsFilt::fWoTaxGrp) {
 		if(rec.TaxGrpID)
@@ -2757,12 +2757,12 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 		else if(pFilt->GrpID && !BelongToGroup(id, pFilt->GrpID, 0))
 			CFF_RET;
 	}
-	if(pFilt->Ep.GdsClsID && rec.GdsClsID == pFilt->Ep.GdsClsID) {
+	if(CheckFiltID(pFilt->Ep.GdsClsID, rec.GdsClsID)) {
 		if(pFilt->Ep.HasAttrRestrictions()) {
 			PPObjGoodsClass gc_obj;
 			PPGdsClsPacket gc_pack;
 			GoodsExtTbl::Rec ext_rec;
-			MEMSZERO(ext_rec);
+			// @v10.8.3 @ctr MEMSZERO(ext_rec);
 			if(P_Tbl->GetExt(rec.ID, &ext_rec) > 0 && gc_obj.Fetch(ext_rec.GoodsClsID, &gc_pack) > 0) {
 				if(!pFilt->Ep.KindList.CheckID(ext_rec.KindID))
 					CFF_RET;

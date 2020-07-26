@@ -971,15 +971,15 @@ int SLAPI PPViewPerson::Transmit(PPID id, int transmitKind)
 int FASTCALL PPViewPerson::CheckForFilt(const PersonTbl::Rec * pRec)
 {
 	int    ok = 1;
-	if(Filt.Status && pRec->Status != Filt.Status)
+	if(!CheckFiltID(Filt.Status, pRec->Status))
 		ok = 0;
 	else if((Filt.Flags & PersonFilt::fVatFree) && !(pRec->Flags & PSNF_NOVATAX))
 		ok = 0;
 	else if((Filt.Flags & PersonFilt::fHasImages) && !(pRec->Flags & PSNF_HASIMAGES))
 		ok = 0;
-	else if(Filt.Category && Filt.Category != pRec->CatID)
+	else if(!CheckFiltID(Filt.Category, pRec->CatID))
 		ok = 0;
-	else if(Filt.PersonID && Filt.PersonID != pRec->ID)
+	else if(!CheckFiltID(Filt.PersonID, pRec->ID))
 		ok = 0;
 	else {
 		SString srch_buf;

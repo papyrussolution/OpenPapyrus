@@ -1112,22 +1112,23 @@ int SLAPI PPObjMrpTab::Browse(void * extraPtr)
 int SLAPI PPObjMrpTab::CheckForFilt(const MrpTabFilt * pFilt, PPID id, MrpTabTbl::Rec * pRec)
 {
 	MrpTabTbl::Rec rec;
-	if(pRec == 0)
+	if(pRec == 0) {
 		if(Search(id, &rec) > 0)
 			pRec = &rec;
 		else
 			return 0;
+	}
 	if(!pFilt)
 		return 1;
-	if(pFilt->ParentID)
-		return (pRec->ParentID != pFilt->ParentID) ? 0 : 1;
+	// @v10.8.3 @fix if(pFilt->ParentID) return (pRec->ParentID != pFilt->ParentID) ? 0 : 1;
+	if(!CheckFiltID(pFilt->ParentID, pRec->ParentID)) return 0; // @v10.8.3 @fix
 	if(pFilt->LinkObjType) {
 		if(pRec->LinkObjType != pFilt->LinkObjType)
 			return 0;
 		else if(pFilt->LinkObjID && pRec->LinkObjID != pFilt->LinkObjID)
 			return 0;
 	}
-	if(pFilt->LocID && pRec->LocID != pFilt->LocID)
+	if(!CheckFiltID(pFilt->LocID, pRec->LocID))
 		return 0;
 	else if(!pFilt->Period.CheckDate(pRec->Dt))
 		return 0;

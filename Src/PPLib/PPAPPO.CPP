@@ -487,7 +487,7 @@ int PPApp::processCommand(uint cmd)
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break;
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break;
-		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3
+		//case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3
 		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break; // @v10.7.4
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
@@ -638,8 +638,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPrjTask_ByReminder:   ViewPrjTask_ByReminder();        break;
 		case cmMaintainPrjTask:      MaintainPrjTask();               break;
 		case cmGotoSite:             TProgram::GotoSite();            break;
-		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7
-		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
+		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7 		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
 		case cmViewNewVersionList:   PPUhttClient::ViewNewVerList(1); break;
 		case cmViewQuots:            ViewQuot(0);                     break;
 		case cmTech:                 ViewTech(0);                     break;
@@ -1517,7 +1516,7 @@ int PPBackupSystemFiles_Arc()
 	//@erik v10.6.13 {
 					PPGetPath(PPPATH_WORKSPACE, path);
 					arc.AddEntries(path, SArchive::aefRecursive);
-	// } @erik
+	// } @erik 
 					// @v10.7.5 {
 					{
 						//

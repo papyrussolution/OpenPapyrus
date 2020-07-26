@@ -1,7 +1,7 @@
 // ACS_1.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2007, 2008, 2009, 2010, 2016, 2017
-//
-// Поддержка кассовых аппаратов Електроника-92-Аквариус и ЭКР-4110
+// Copyright (c) A.Sobolev 1997-2001, 2007, 2008, 2009, 2010, 2016, 2017, 2020
+// @codepage UTF-8
+// РџРѕРґРґРµСЂР¶РєР° РєР°СЃСЃРѕРІС‹С… Р°РїРїР°СЂР°С‚РѕРІ Р•Р»РµРєС‚СЂРѕРЅРёРєР°-92-РђРєРІР°СЂРёСѓСЃ Рё Р­РљР -4110
 //
 #include <pp.h>
 #pragma hdrstop
@@ -37,7 +37,7 @@ int SLAPI CS_1::GetFileSet(char *, uint filesPerSet)
 				uint   j = 0;
 				StringSet ss2(',', temp_buf);
 				++NumEntries;
-				THROW_MEM(P_Entries = (InFiles *)SAlloc::R(P_Entries, NumEntries * sizeof(InFiles)));
+				THROW_MEM(P_Entries = static_cast<InFiles *>(SAlloc::R(P_Entries, NumEntries * sizeof(InFiles))));
 				for(uint k = 0; ss2.get(&k, temp_buf);) {
 					THROW_PP(temp_buf.NotEmptyS(), PPERR_INVFILESET);
 					ps.Split(temp_buf);

@@ -20,17 +20,10 @@ SLAPI PayableBillList::PayableBillList(AmtList * pAmt, AmtList * pPaym) : P_Amt(
 int SLAPI PayableBillList::AddPayableItem(const PayableBillListItem * pItem, long tabID, double paym, int useExtCoef)
 {
 	int    ok = 1;
-	if(P_Amt) {
-		double amt = pItem->Amount;
-		if(useExtCoef)
-			amt = pItem->MultExtCoef(amt, 0);
-		P_Amt->Add(tabID, pItem->CurID, amt);
-	}
-	if(P_Paym) {
-		if(useExtCoef)
-			paym = pItem->MultExtCoef(paym, 1);
-		P_Paym->Add(tabID, pItem->CurID, paym);
-	}
+	if(P_Amt)
+		P_Amt->Add(tabID, pItem->CurID, useExtCoef ? pItem->MultExtCoef(pItem->Amount, 0) : pItem->Amount);
+	if(P_Paym)
+		P_Paym->Add(tabID, pItem->CurID, useExtCoef ? pItem->MultExtCoef(paym, 1) : paym);
 	THROW_SL(insert(pItem));
 	CATCHZOK
 	return ok;
