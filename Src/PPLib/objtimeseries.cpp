@@ -6780,7 +6780,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 				if(j) {
 					int   is_first_iter = 1;
 					do {
-						const uint _pos = is_first_iter ? MAXUINT : range_list_by_stakecount.at(--j).Idx-1;
+						const uint _pos = is_first_iter ? UINT_MAX : range_list_by_stakecount.at(--j).Idx-1;
 						temp_sc.clear();
 						for(i = 0; i < p_blk->P_SContainer->getCount(); i++) {
 							if(i != _pos && !pos_to_remove.lsearch(static_cast<long>(i)))
