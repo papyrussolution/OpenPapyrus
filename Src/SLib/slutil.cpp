@@ -54,6 +54,7 @@ int FASTCALL checkirange(long nmb, long low, long upp)
 	}
 }
 
+int    FASTCALL inrangeordefault(int val, int low, int upp, int def) { return (val >= low && val <= upp) ? val : def; }
 long   FASTCALL inrangeordefault(long val, long low, long upp, long def) { return (val >= low && val <= upp) ? val : def; }
 uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def) { return (val >= low && val <= upp) ? val : def; }
 double FASTCALL inrangeordefault(double val, double low, double upp, double def) { return (val >= low && val <= upp) ? val : def; }

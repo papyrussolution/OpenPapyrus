@@ -122,7 +122,6 @@ typedef uint64_t  uint_fast64_t;
 typedef int64_t   intmax_t;
 typedef uint64_t  uintmax_t;
 
-
 // 7.18.2 Limits of specified-width integer types
 
 #if !defined(__cplusplus) || defined(__STDC_LIMIT_MACROS) // [   See footnote 220 at page 257 and footnote 221 at page 259

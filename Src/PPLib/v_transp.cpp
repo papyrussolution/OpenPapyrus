@@ -1,11 +1,11 @@
 // V_TRANSP.CPP
 // Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 //
-// Ôèëüòð ïî òðàíñïîðòó
+// Ð¤Ð¸Ð»ÑŒÑ‚Ñ€ Ð¿Ð¾ Ñ‚Ñ€Ð°Ð½ÑÐ¿Ð¾Ñ€Ñ‚Ñƒ
 //
 int SLAPI TransportFilt::InitInstance()
 {
@@ -249,13 +249,13 @@ int SLAPI PPViewTransport::CheckForFilt(TransportFilt * pFilt, PPID transpID, PP
 		rec = *pRec;
 	else if(transpID)
 		TObj.Get(transpID, &rec);
-	if(pFilt->ModelID && pFilt->ModelID != rec.TrModelID)
+	if(!CheckFiltID(pFilt->ModelID, rec.TrModelID))
 		return 0;
-	else if(pFilt->TrType && pFilt->TrType != rec.TrType)
+	else if(!CheckFiltID(pFilt->TrType, rec.TrType))
 		return 0;
-	else if(pFilt->OwnerID && pFilt->OwnerID != rec.OwnerID)
+	else if(!CheckFiltID(pFilt->OwnerID, rec.OwnerID))
 		return 0;
-	else if(pFilt->CaptainID && pFilt->CaptainID != rec.CaptainID)
+	else if(!CheckFiltID(pFilt->CaptainID, rec.CaptainID))
 		return 0;
 	else if(pFilt->TrType == PPTRTYP_CAR) {
 		if(pFilt->Code.NotEmpty() && pFilt->Code.Cmp(rec.Code, 0) != 0)
@@ -332,8 +332,8 @@ int FASTCALL PPViewTransport::NextIteration(TransportViewItem * pItem)
 	int    ok = -1;
 	if(P_IterQuery) {
 		if(P_IterQuery->nextIteration() > 0) {
-		   	PPID transp_id = P_TempTbl->data.ID;
-		   	ok = TObj.Get(transp_id, (PPTransport*)pItem);
+		   	const PPID transp_id = P_TempTbl->data.ID;
+		   	ok = TObj.Get(transp_id, static_cast<PPTransport *>(pItem));
 		   	Counter.Increment();
 		}
 	}
@@ -395,13 +395,13 @@ int SLAPI PPViewTransport::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 		switch(ppvCmd) {
 				break;
 			case PPVCMD_EDITITEM:
-				ok = (TObj.Edit(&id, (void *)Filt.TrType) == cmOK) ? 1 : -1;
+				ok = (TObj.Edit(&id, reinterpret_cast<void *>(Filt.TrType)) == cmOK) ? 1 : -1;
 				if(ok > 0)
 					UpdateTempTable(id, pBrw);
 				break;
 			case PPVCMD_ADDITEM:
 				id = 0;
-				ok = (TObj.Edit(&id, (void *)Filt.TrType) == cmOK) ? 1 : -1;
+				ok = (TObj.Edit(&id, reinterpret_cast<void *>(Filt.TrType)) == cmOK) ? 1 : -1;
 				if(ok > 0)
 					UpdateTempTable(id, pBrw);
 				break;

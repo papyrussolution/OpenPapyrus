@@ -487,7 +487,7 @@ int PPApp::processCommand(uint cmd)
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break;
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break;
-		//case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3
+		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3
 		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break; // @v10.7.4
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
@@ -1316,8 +1316,8 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 					ok = 0;
 				}
 				else if(r > 0) {
-					LDATETIME curdtm = getcurdatetime_();
-					long   diff = diffdatetimesec(dtm, curdtm);
+					const  LDATETIME curdtm = getcurdatetime_();
+					const  long   diff = diffdatetimesec(dtm, curdtm);
 					if(labs(diff) >= 2) {
 						LocalState |= lsLockSettingTimeByServer;
 						if(setcurdatetime(dtm)) {

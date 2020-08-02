@@ -243,14 +243,14 @@ int SLAPI ACS_CRCSHSRV::IsFileExists(uint fileId, const char * pSubDir)
 {
 	SString path;
 	PPGetFilePath(PPPATH_OUT, fileId, path);
-	return BIN(DistributeFile(path, 2, pSubDir) > 0);
+	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
 int SLAPI ACS_CRCSHSRV::IsFileExists(const char * pFile, const char * pSubDir)
 {
 	SString path;
 	PPGetFilePath(PPPATH_OUT, pFile, path);
-	return BIN(DistributeFile(path, 2, pSubDir) > 0);
+	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
 int SLAPI ACS_CRCSHSRV::GetFilesLocal()
@@ -1039,8 +1039,8 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	// } @v10.4.12
 	// @v10.6.3 (moved to Helper_ExportGoods_V10()) rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
 	//const int check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-	THROW(DistributeFile(0, 3, SUBDIR_PRODUCTS));
-	THROW(DistributeFile(0, 3, SUBDIR_CARDS));
+	THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, SUBDIR_PRODUCTS, 0));
+	THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, SUBDIR_CARDS, 0));
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
 	// @v10.6.3 {
@@ -1307,18 +1307,18 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	}
 	PPWait(0);
 	PPWait(1);
-	THROW(DistributeFile(path,  0, SUBDIR_PRODUCTS));
+	THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactCopy, SUBDIR_PRODUCTS, 0));
 	{
 		//ps.Nam.CatChar('-').Cat((mode == 1) ? "attr" : "prices");
 		for(uint ssp = 0; ss_path_goods.get(&ssp, temp_buf);) {
 			if(fileExists(temp_buf)) {
 				SDelay(2000);
-				THROW(DistributeFile(/*path_goods*/temp_buf, 0, SUBDIR_PRODUCTS));
+				THROW(DistributeFile_(/*path_goods*/temp_buf, 0/*pEndFileName*/, dfactCopy, SUBDIR_PRODUCTS, 0));
 			}
 		}
 	}
 	SDelay(2000);
-	THROW(DistributeFile(path_cards, 0, SUBDIR_CARDS));
+	THROW(DistributeFile_(path_cards, 0/*pEndFileName*/, dfactCopy, SUBDIR_CARDS, 0));
 	// SDelay(2000);
 	// THROW(DistributeFile(path_cashiers, 0, SUBDIR_CASHIERS));
 	if(StatID)
@@ -1451,20 +1451,20 @@ public:
 		uint   i;
 		for(i = 0; i < SIZEOFARRAY(List); i++) {
 			if(List[i].T == tCashUpd) {
-				THROW(pSess->DistributeFile(List[i].FileName,  0));
+				THROW(pSess->DistributeFile_(List[i].FileName, 0/*pEndFileName*/, PPAsyncCashSession::dfactCopy, 0, 0));
 				SDelay(2000);
 				break;
 			}
 		}
 		for(i = 0; i < SIZEOFARRAY(List); i++) {
 			if(List[i].T && List[i].T != tCashUpd && fileExists(List[i].FileName)) {
-				THROW(pSess->DistributeFile(List[i].FileName,  0));
+				THROW(pSess->DistributeFile_(List[i].FileName, 0/*pEndFileName*/, PPAsyncCashSession::dfactCopy, 0, 0));
 				SDelay(2000);
 			}
 		}
 		for(i = 0; i < SIZEOFARRAY(List); i++) {
 			if(List[i].T == tCashUpd) {
-				THROW(pSess->DistributeFile(List[i].FileName,  1));
+				THROW(pSess->DistributeFile_(List[i].FileName, 0/*pEndFileName*/, PPAsyncCashSession::dfactDelete, 0, 0));
 				break;
 			}
 		}
@@ -1545,7 +1545,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	if(cn_data.DrvVerMajor > 4 || (cn_data.DrvVerMajor == 4 && cn_data.DrvVerMinor >= 9))
 		use_dscnt_code = 1;
-	THROW(DistributeFile(0, 3));
+	THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, 0, 0));
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
 	THROW(fp.Init(use_dscnt_code, add_time_to_fname));
@@ -1555,7 +1555,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	//
 	// Подготовка списка групп продаж
 	//
-	if(EqCfg.SalesGoodsGrp != 0) {
+	if(EqCfg.SalesGoodsGrp) {
 		SString code;
 		PPIDArray _grp_list;
 		ggobj.P_Tbl->GetGroupTerminalList(EqCfg.SalesGoodsGrp, &_grp_list, 0);
@@ -2096,7 +2096,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 		if(cn_data.DrvVerMajor > 4 || (cn_data.DrvVerMajor == 4 && cn_data.DrvVerMinor >= 9))
 			use_dscnt_code = 1;
-		THROW(DistributeFile(0, 3));
+		THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, 0, 0));
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
 		THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_GOODS_DBF,      path_goods));
@@ -2489,31 +2489,31 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		ZDELETE(p_out_tbl_sggrp);
 		ZDELETE(p_out_tbl_sggrpi);
 
-		THROW(DistributeFile(path,  0));
+		THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
 		if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
-			THROW(DistributeFile(path_group, 0));
+			THROW(DistributeFile_(path_group, 0/*pEndFileName*/, dfactCopy, 0, 0));
 			SDelay(2000);
-			THROW(DistributeFile(path_grpqtty_dscnt, 0));
+			THROW(DistributeFile_(path_grpqtty_dscnt, 0/*pEndFileName*/, dfactCopy, 0, 0));
 			SDelay(2000);
 		}
-		THROW(DistributeFile(path_goods, 0));
+		THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_dscnt, 0));
+		THROW(DistributeFile_(path_dscnt, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_barcode, 0));
+		THROW(DistributeFile_(path_barcode, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_cards, 0));
+		THROW(DistributeFile_(path_cards, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_cashiers, 0));
+		THROW(DistributeFile_(path_cashiers, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_gdsqtty_dscnt, 0));
+		THROW(DistributeFile_(path_gdsqtty_dscnt, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_salesggrp, 0));
+		THROW(DistributeFile_(path_salesggrp, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path_salesggrpi, 0));
+		THROW(DistributeFile_(path_salesggrpi, 0/*pEndFileName*/, dfactCopy, 0, 0));
 		SDelay(2000);
-		THROW(DistributeFile(path,  1));
+		THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactDelete, 0, 0));
 		if(StatID)
 			P_Dls->FinishLoading(StatID, 1, 1);
 	}

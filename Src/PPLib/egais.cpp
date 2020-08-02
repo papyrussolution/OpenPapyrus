@@ -2299,11 +2299,10 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									THROW(WriteProductInfo(_doc, SXml::nst("wb", "Product"), r_ti.GoodsID, r_ti.LotID, wpi_flags, 0))
 									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Pack_ID"), "");
 									{
-										w_p.PutInner(SXml::nst("wb", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt))); // @v9.7.10 qtty_fmt
+										w_p.PutInner(SXml::nst("wb", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										w_p.PutInner(SXml::nst("wb", "Price"), EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
 									}
-									// @v9.8.11 p_bp->SnL.GetNumber(tidx, &temp_buf);
-									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf); // @v9.8.11
+									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf);
 									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Party"), EncText(temp_buf));
 									{
 										WriteInformCode(_doc, "wb", 'A', ref_a, doc_type);

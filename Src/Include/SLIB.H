@@ -2543,7 +2543,9 @@ private:
 #define SLERR_ZIP_OPNOTSUPP                    618  // N Operation not supported
 #define SLERR_ZIP_INUSE                        619  // N Resource still in use
 #define SLERR_ZIP_TELL                         620  // S Tell error
-#define SLERR_ZIP_LASTERROR                    620  // @anchor
+#define SLERR_ZIP_COMPRESSED_DATA              621  // @v10.8.4 N Compressed data invalid
+#define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
+#define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
 
 // LastError
 //
@@ -3159,6 +3161,7 @@ struct TimeRange { // @persistent
 //   Принадлежность включительная (т.е. если число равно одной из границ, то условие выполняется).
 //
 int    FASTCALL checkirange(long nmb, long low, long upp);
+int    FASTCALL inrangeordefault(int val, int low, int upp, int def);
 long   FASTCALL inrangeordefault(long val, long low, long upp, long def);
 uint   FASTCALL inrangeordefault(uint val, uint low, uint upp, uint def);
 double FASTCALL inrangeordefault(double val, double low, double upp, double def);

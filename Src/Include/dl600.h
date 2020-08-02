@@ -136,7 +136,7 @@ struct DlFunc {
 	DLSYMBID GetArgType(uint argN) const;
 	int    GetArgName(uint argN, SString & rArgName) const;
 	int    IsEqual(const DlFunc & rPat) const;
-	int    AddArg(uint typeId, const char * pName, uint argFlags = 0);
+	void   AddArg(uint typeId, const char * pName, uint argFlags = 0);
 
 	enum {
 		fImplByID  = 0x0001, // Функция реализована через идентификатор реализации
@@ -165,7 +165,7 @@ public:
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL IsEqual(const DlFuncPool & rPat) const;
-	int    FASTCALL Add(const DlFunc * pF);
+	void   FASTCALL Add(const DlFunc * pF);
 	uint   GetCount() const { return Items.getCount(); }
 	int    GetByPos(uint pos, DlFunc * pF) const;
 	int    EnumByName(const char * pName, uint * pPos, DlFunc * pFunc) const;
@@ -196,7 +196,7 @@ private:
 // Descr: Константа.
 //   Используется в формулах и при хранении сецифических параметров областей видимости (DlScope)
 //
-struct CtmExprConst {
+struct CtmExprConst { // @flat
 	CtmExprConst & Init();
 	int    operator !() const;
 
@@ -365,6 +365,8 @@ public:
 		cuifLayoutType    // int8 @construction
 	};
 	struct IfaceBase {
+		bool   FASTCALL IsEqual(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
+		bool   FASTCALL operator == (const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
 		enum {
 			fDefault    = 0x0001,
 			fSource     = 0x0002,
@@ -454,7 +456,7 @@ public:
 	int    SLAPI LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
 	int    FASTCALL SetRecord(const DlScope * pRec);
 	int    FASTCALL SetRecList(const DlScopeList * pList);
-	int    FASTCALL AddFunc(const DlFunc *);
+	void   FASTCALL AddFunc(const DlFunc *);
 	int    SLAPI GetFuncListByName(const char * pName, LongArray * pList) const;
 	uint   SLAPI GetFuncCount() const;
 	int    SLAPI GetFuncByPos(uint pos, DlFunc * pFunc) const;
@@ -462,7 +464,6 @@ public:
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL IsEqual(const DlScope & rPat) const;
-
 	void   SLAPI SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
 	void * FASTCALL GetFixDataPtr(size_t offs) const;
 	//
@@ -502,10 +503,9 @@ public:
 #ifdef DL600C // {
 	int    SLAPI AddTempFldConst(COption id, const CtmExprConst & rConst);
 	int    SLAPI AcceptTempFldConstList(uint fldID);
-	int    SLAPI InitLocalIdCounter(DLSYMBID initVal)
+	void   SLAPI InitLocalIdCounter(DLSYMBID initVal)
 	{
 		LastLocalId = initVal;
-		return 1;
 	}
 	DLSYMBID SLAPI GetLocalId()
 	{
@@ -523,11 +523,11 @@ private:
 	const  DlScope * P_Base;   // @transient Область, наследуемая данной областью
 	DlScopeList ChildList;
 	DlFuncPool FuncPool;
-	SVector * P_IfaceBaseList;    // Список интерфейсов, поддерживаемых объектом (только для kIClass) // @v9.8.4 SArray-->SVector
+	TSVector <IfaceBase> * P_IfaceBaseList;    // Список интерфейсов, поддерживаемых объектом (только для kIClass)
 	//
 	// Descr: Константа, хранящая опцию
 	//
-	struct CItem {
+	struct CItem { // @flat
 		int32  I;
 		CtmExprConst C;
 	};
@@ -543,12 +543,11 @@ private:
 	TSVector <CfItem> CfList;    // Список констант, ассоциированных с полями // @v9.8.4 TSArray-->TSVector
 	LongArray * P_DbIdxSegFlags; // Список флагов сегментов индекса таблицы базы данных (только для kDbIndex)
 	SBaseBuffer FixDataBuf;      // @transient Буфер записи для фиксированных полей (не формул)
-		// Экземпляр класса DlScope не владеет указателем FixDataBuf.P_Buf, по-этому деструктор
-		// не вызывает FixDataBuf.Destroy()
-#ifdef DL600C // {
+		// Экземпляр класса DlScope не владеет указателем FixDataBuf.P_Buf, по-этому деструктор не вызывает FixDataBuf.Destroy()
+// @v10.8.4 #ifdef DL600C // {
 	TSVector <CfItem> TempCfList; // @v9.8.4 TSArray-->TSVector
 	DLSYMBID LastLocalId;
-#endif
+// @v10.8.4 #endif
 };
 //
 //
@@ -584,7 +583,13 @@ struct CtmVar {
 	uint   Pos; // @#[0..] Позиция поля в области видимости
 };
 
-struct CtmFunc {
+struct CtmFunc { // @noctr
+	CtmFunc & Z()
+	{
+		ScopeID = 0;
+		Pos = 0;
+		return *this;
+	}
 	DLSYMBID ScopeID;
 	uint   Pos; // @#[0..] Позиция функции в области видимости
 };
@@ -616,8 +621,8 @@ public:
 	void   InitBinaryOp(uint op, const CtmExpr & a1, const CtmExpr & a2);
 	void   InitTypeConversion(const CtmExpr & a, DLSYMBID toType);
 	void   InitRefOp(DLSYMBID type, const CtmExpr & a1);
-	int    FASTCALL InitVar(const char * pName);
-	int    FASTCALL InitVar(const CtmVar &);
+	void   FASTCALL InitVar(const char * pName);
+	void   FASTCALL InitVar(const CtmVar &);
 	void   InitFuncCall(const char * pFuncName, const CtmExpr & a);
 	void   Destroy();
 	int    FASTCALL IsResolved(int inDepth) const;
@@ -961,9 +966,9 @@ public:
 	int    SLAPI GetDbTableSpecList(StrAssocArray * pList) const;
 	int    SLAPI Test_ReWr_Code(const DlContext & rPattern);
 	int    SLAPI GetDialogList(StrAssocArray * pList) const;
-#ifdef DL600C // {
+// @v10.8.4 #ifdef DL600C // {
 	UUIDAssocArray TempUuidList; // @transient Временный список GUID'ов используемый при компиляции
-#endif
+// @v10.8.4 #endif
 	int    SLAPI Test();
 private:
 	DlScope * SLAPI Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const;
@@ -980,7 +985,7 @@ private:
 	int    SLAPI GetFuncName(int, const CtmExpr * pExpr, SString & rBuf);
 	int    SLAPI SearchVarInChildList(const DlScope * pScope, uint childKind, const char * pSymb, CtmVar * pVar);
 	int    SLAPI ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList);
-	int    SLAPI InitFileNames(const char * pInFileName);
+	void   SLAPI InitFileNames(const char * pInFileName);
 	int    SLAPI Helper_LoadDbTableSpec(const DlScope *, DBTable * pTbl, int format) const;
 	//
 	// Compile-time {

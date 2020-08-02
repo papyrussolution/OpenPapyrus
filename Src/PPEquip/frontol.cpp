@@ -6,7 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <frontol.h>
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter & msgCounter)
 {
@@ -225,11 +224,9 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	LAssocArray  grp_n_level_ary;
 	SString   f_str, tail, temp_buf, email_subj;
 	SString   path_goods, path_flag;
-	//
 	PPID      gc_alc_id = 0;
 	SString   gc_alc_code; // Код класса товаров, относящихся к алкоголю
 	PPIDArray alc_goods_list;
-	//
 	PPUnit    unit_rec;
 	PPObjUnit unit_obj;
 	PPObjQuotKind qk_obj;
@@ -244,7 +241,6 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	PPIniFile ini_file;
 	FILE * p_file = 0;
 	const  int check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
-
 	THROW(GetNodeData(&cn_data) > 0);
 	const int is_xpos = IsXPos(cn_data);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
@@ -275,8 +271,10 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
 	PPWait(1);
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_TXT,  path_goods));
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_FLAG, path_flag));
+	// @v10.8.4 THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_TXT,  path_goods));
+	// @v10.8.4 THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_FLAG, path_flag));
+	THROW(PPMakeTempFileName("frol", "txt", 0, path_goods)); // @v10.8.4 
+	THROW(PPMakeTempFileName("frol", "flg", 0, path_flag)); // @v10.8.4 
 	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
 	SFile::ZClose(&p_file);
 	THROW_PP_S(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE, path_goods);
@@ -775,8 +773,10 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 	PPWait(0);
 	PPWait(1);
 	(email_subj = SUBJECTFRONTOL).Cat("001"); // Пока только для кассы с номером 1
-	THROW(DistributeFile(path_goods, 0, 0, email_subj));
-	THROW(DistributeFile(path_flag,  0));
+	THROW(PPGetFileName(PPFILNAM_ATOL_IMP_TXT,  temp_buf)); // @v10.8.4 
+	THROW(DistributeFile_(path_goods, temp_buf/*pEndFileName*/, dfactCopy, 0, email_subj));
+	THROW(PPGetFileName(PPFILNAM_ATOL_IMP_FLAG, temp_buf)); // @v10.8.4 
+	THROW(DistributeFile_(path_flag, temp_buf/*pEndFileName*/, dfactCopy, 0, 0));
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
 	CATCH

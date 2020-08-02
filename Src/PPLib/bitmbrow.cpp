@@ -37,7 +37,9 @@ public:
 		}
 		enum {
 			fHasIndepPhQtty = 0x0001, // По крайней мере одна строка имеет признак PPTFR_INDEPPHQTTY
-			fHasVetisGuid   = 0x0002  // @v10.1.8 По крайней мере одна строка имеет сертификат ВЕТИС
+			fHasVetisGuid   = 0x0002, // @v10.1.8 По крайней мере одна строка имеет сертификат ВЕТИС
+			fHasEgaisRefB   = 0x0004, // @v10.8.4 По крайней мере одна строка имеет справку Б ЕГАИС
+			fHasEgaisCode   = 0x0008  // @v10.8.4 По крайней мере одна строка имеет код товара ЕГАИС
 		};
 
 		SString Text;
@@ -58,7 +60,7 @@ public:
 		double OldPrice;
 		double ExtCost;
 		double PckgCount;
-		double OrderQtty; // @v9.1.1 Заказанное количество, соответсвтующее данному документу отгрузки
+		double OrderQtty; // Заказанное количество, соответсвтующее данному документу отгрузки
 	};
 	BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket *, PPBillPacket * pMainPack, int pckgPos, int asSelector, int editMode);
 	~BillItemBrowser();
@@ -447,6 +449,8 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 					case 31: rBlk.OrdQttyPos = static_cast<long>(i); break;
 					case 19: rBlk.ShippedQttyPos = static_cast<long>(i); break;
 					case 32: rBlk.VetisCertPos = static_cast<long>(i); break; // @v10.5.11
+					//case 33: rBlk.VetisCertPos = static_cast<long>(i); break; // @v10.84
+					//case 34: rBlk.VetisCertPos = static_cast<long>(i); break; // @v10.84
 				}
 			}
 			ok = rBlk.IsEmpty() ? -1 : 1;
@@ -984,7 +988,6 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			Total.Discount += (p_ti->Discount * qtty);
 			if(p_ti->CurID)
 				Total.CurAmount += p_ti->CurPrice * sqtty;
-			// @v9.1.1 {
 			if(p_ti->Flags & PPTFR_ONORDER) {
 				uint sh_lot_pos = 0;
 				if(p_pack->SearchShLot(p_ti->OrdLotID, &sh_lot_pos)) {
@@ -996,7 +999,6 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 					Total.OrderQtty += ord_qtty;
 				}
 			}
-			// } @v9.1.1
 		}
 		Total.Amount += p_ti->CurID ? p_ti->CalcCurAmount() : p_ti->CalcAmount(!(State & stAccsCost));
 		if(P_LinkPack)
@@ -1029,8 +1031,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		item.Pos = i-1;
 		item.RByBill = p_ti->RByBill;
 		if(check_spoil) {
-			// @v9.8.11 p_pack->SnL.GetNumber(item.Pos, &temp_buf);
-			p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf); // @v9.8.11
+			p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf);
 			if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				SpecSeries2Tbl::Rec spc_rec;
@@ -1053,6 +1054,18 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 				Total.Flags |= Total.fHasVetisGuid;
 		}
 		// } @v10.1.8
+		// @v10.8.4 {
+		if(!(Total.Flags & Total.fHasEgaisRefB)) {
+			p_pack->LTagL.GetNumber(PPTAG_LOT_FSRARINFB, item.Pos, temp_buf);
+			if(temp_buf.NotEmpty())
+				Total.Flags |= Total.fHasEgaisRefB;
+		}
+		if(!(Total.Flags & Total.fHasEgaisCode)) {
+			p_pack->LTagL.GetNumber(PPTAG_LOT_FSRARLOTGOODSCODE, item.Pos, temp_buf);
+			if(temp_buf.NotEmpty())
+				Total.Flags |= Total.fHasEgaisCode;
+		}
+		// } @v10.8.4
 		if(AlcoGoodsClsID && goods_rec.GdsClsID == AlcoGoodsClsID) {
 			int    has_egais_code = 0;
 			GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
@@ -1159,6 +1172,8 @@ int SLAPI BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const
 // 30 - Информация об установленной котировке @v8.2.0
 // 31 - Заказанное количество (для документов отгрузки) @v9.1.1
 // 32 - GUID сертификата VETIS @v10.1.8
+// 33 - ЕГАИС RefB         @v10.8.4
+// 34 - ЕГАИС Код товара   @v10.8.4
 //
 int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
@@ -1319,8 +1334,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							}
 						}
 						else {
-							// @v9.8.11 P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
-							P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11
+							P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf);
 							pBlk->Set(temp_buf);
 						}
 					}
@@ -1408,8 +1422,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->SetZero();
 					else {
-						// @v9.8.11 P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
-						P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11
+						P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -1449,7 +1462,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(Total.OrderQtty);
 					}
 					else {
-						double ord_qtty = (p_ti->Flags & PPTFR_ONORDER) ? OrdQttyList.Get(p_ti->OrdLotID, 0) : 0.0;
+						const double ord_qtty = (p_ti->Flags & PPTFR_ONORDER) ? OrdQttyList.Get(p_ti->OrdLotID, 0) : 0.0;
 						pBlk->Set(ord_qtty);
 					}
 					break;
@@ -1487,6 +1500,22 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							}
 						}
 						// } @v10.5.11
+						pBlk->Set(temp_buf);
+					}
+					break;
+				case 33: // @v10.8.4 ЕГАИС RefB         
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						P_Pack->LTagL.GetNumber(PPTAG_LOT_FSRARINFB, p_item->Pos, temp_buf);
+						pBlk->Set(temp_buf);
+					}
+					break;
+				case 34: // @v10.8.4 ЕГАИС Код товара   
+					if(is_total)
+						pBlk->SetZero();
+					else {
+						P_Pack->LTagL.GetNumber(PPTAG_LOT_FSRARLOTGOODSCODE, p_item->Pos, temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -1603,6 +1632,8 @@ void BillItemBrowser::update(int pos)
 				int    upp_col = -1;
 				int    ordqtty_col = -1;
 				int    vetis_uuid_col = -1;
+				int    egais_refb_col = -1; // @v10.8.4
+				int    egais_code_col = -1; // @v10.8.4
 				for(uint i = 0; i < p_def->getCount(); i++) {
 					const BroColumn & r_col = p_def->at(i);
 					switch(r_col.Offs) {
@@ -1614,6 +1645,8 @@ void BillItemBrowser::update(int pos)
 						case 30: setup_quot_info_col = static_cast<int>(i); break;
 						case 31: ordqtty_col = static_cast<int>(i); break;
 						case 32: vetis_uuid_col = static_cast<int>(i); break;
+						case 33: egais_refb_col = static_cast<int>(i); break; // @v10.8.4
+						case 34: egais_code_col = static_cast<int>(i); break; // @v10.8.4
 					}
 				}
 				if(Total.ExtCost != 0.0) {
@@ -1634,7 +1667,6 @@ void BillItemBrowser::update(int pos)
 					if(phqtty_col < 0 && Total.Flags & Total.fHasIndepPhQtty)
 						view->insertColumn(++qtty_col, "@phqtty", 7, T_DOUBLE, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), BCO_USERPROC|BCO_CAPRIGHT);
 				}
-				// @v9.1.1 {
 				if(Total.OrderQtty != 0.0) {
 					if(ordqtty_col < 0) {
 						int   prev_col = (upp_col >= 0) ? upp_col : ((qtty_col >= 0) ? qtty_col : -1);
@@ -1648,7 +1680,6 @@ void BillItemBrowser::update(int pos)
 						view->removeColumn(ordqtty_col);
 					}*/
 				}
-				// } @v9.1.1
 				if(P_Pack->P_QuotSetupInfoList) {
 					if(setup_quot_info_col < 0) {
 						view->insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);
@@ -1664,6 +1695,12 @@ void BillItemBrowser::update(int pos)
 				if(Total.Flags & Total.fHasVetisGuid && vetis_uuid_col < 0)
 					view->insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				// } @v10.1.8
+				// @v10.8.4 {
+				if(Total.Flags & Total.fHasEgaisRefB && egais_refb_col < 0)
+					view->insertColumn(-1, "RefB", 33, MKSTYPE(S_ZSTRING, 20), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+				if(Total.Flags & Total.fHasEgaisCode && egais_code_col < 0)
+					view->insertColumn(-1, "EGAIS-Code", 34, MKSTYPE(S_ZSTRING, 24), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+				// } @v10.8.4 
 			}
 			// @v10.6.3 {
 			{
@@ -1781,7 +1818,6 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 		}
 		new_ti = r_ti;
 		THROW(new_ti.Init(&P_Pack->Rec, 0 /*!zeroRByBill*/));
-		// @v9.4.3 {
 		if(new_ti.IsCorrectionExp()) {
 			PPIDArray chain_list;
 			if(P_BObj->GetCorrectionBackChain(P_Pack->Rec, chain_list) > 0) {
@@ -1798,7 +1834,6 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 			// @v9.5.9 new_ti.TFlags |= PPTransferItem::tfForceNew;
 		}
 		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // Так как в вызове PPTransferItem::Init парам zeroRByBill == 0, данный флаг должен быть безусловно
-		// } @v9.4.3
 		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &lot_rec) > 0 && P_T->GetLotPrices(&lot_rec, P_Pack->Rec.Dt)) {
 			new_ti.Cost = R5(lot_rec.Cost);
 			new_ti.Discount = R5(lot_rec.Price) - ((price != 0.0) ? price : new_ti.NetPrice());
@@ -3412,13 +3447,11 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								PPTransferItem * p_ti = 0;
 								int    upd = 0;
 								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
-									// @v9.8.11 if(P_Pack->SnL.GetNumber(i-1, &temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
-									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) { // @v9.8.11
+									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
 										templt = (GObj.IsAsset(p_ti->GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
 											if(temp_buf.NotEmptyS()) {
-												// @v9.8.11 P_Pack->SnL.AddNumber(i-1, temp_buf);
-												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11
+												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf);
 												upd = 1;
 											}
 										}
@@ -4158,8 +4191,7 @@ int SLAPI PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
 				ReceiptTbl::Rec lot_rec;
 				SString title_buf;
 				if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-					// @v9.5.5 GetGoodsName(lot_rec.GoodsID, title_buf);
-					GObj.FetchNameR(lot_rec.GoodsID, title_buf); // @v9.5.5
+					GObj.FetchNameR(lot_rec.GoodsID, title_buf);
 					GetObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDivIfNotEmpty(':', 1), 1);
 					title_buf.CatDivIfNotEmpty(':', 1).Cat(lot_rec.Dt);
 				}
@@ -4213,7 +4245,7 @@ int PPALDD_Complete::NextIteration(PPIterID iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	CompleteBrowser * p_cb = static_cast<CompleteBrowser *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
-	CompleteItem      item;
+	CompleteItem item;
 	if(p_cb->NextIteration(&item) > 0) {
 		I.GoodsID = item.GoodsID;
 		I.LotID   = item.LotID;

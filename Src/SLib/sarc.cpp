@@ -513,7 +513,6 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 		else {
 			SPathStruc::NormalizePath(pName, SPathStruc::npfSlash, temp_buf);
 		}
-
 	}
 	CATCH
 		if(Type == tZip && p_zsrc) {
@@ -659,14 +658,14 @@ void SLAPI TestSArchive()
 {
 	int    ok = 1;
 	SString temp_buf;
-	{
+	/*{
 		SCompressor c(SCompressor::tZLib);
 		TestCompressor(c);
 	}
 	{
 		SCompressor c(SCompressor::tLz4);
 		TestCompressor(c);
-	}
+	}*/
 	//const  char * p_root = "d:/papyrus/src/pptest";
 	SArchive arc;
 	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\Test Directory Level 2\Directory With Many Files"
@@ -682,7 +681,9 @@ void SLAPI TestSArchive()
 			//(temp_buf = src_dir).SetLastSlash().Cat("*.*");
 			SString src_dir;
 			SLS.QueryPath("testroot", src_dir);
-			(temp_buf = src_dir).SetLastSlash().Cat("data").SetLastSlash().Cat("*.*");
+			//(temp_buf = src_dir).SetLastSlash().Cat("data").SetLastSlash().Cat("*.*");
+			(temp_buf = src_dir).SetLastSlash().Cat("data").SetLastSlash().Cat("Test Directory").SetLastSlash().Cat("TDR").SetLastSlash().Cat("*.*");
+			//"D:\Papyrus\Src\PPTEST\DATA\Test Directory\TDR"
 			THROW(arc.AddEntries(temp_buf, SArchive::aefRecursive));
 			/*
 			for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {

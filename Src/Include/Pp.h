@@ -3344,8 +3344,7 @@ public:
 	enum {
 		fCheckedIn = 0x0001, // Подтвержденная регистрация (CheckIn)
 		fCanceled  = 0x0002, // Явно отмененная регистрация //
-		fAnonym    = 0x0004  // Запись с анонимной персоналией. Если флаг установлен, то поле PersonID
-			// получает специальное значение.
+		fAnonym    = 0x0004  // Запись с анонимной персоналией. Если флаг установлен, то поле PersonID получает специальное значение.
 	};
 	SLAPI  PPCheckInPersonItem();
 	PPCheckInPersonItem & SLAPI Z();
@@ -3354,7 +3353,7 @@ public:
 	int    FASTCALL SetPerson(PPID personID);
 	PPID   SLAPI GetPerson() const;
 	int    SLAPI GetPersonName(SString & rBuf) const;
-	int    SLAPI SetAnonym();
+	void   SLAPI SetAnonym();
 	int    SLAPI IsAnonym() const;
 	//
 	// Descr: Опции функции PPCheckInPersonItem::IsEqual
@@ -10750,7 +10749,8 @@ public:
 //
 //
 //
-struct CompleteItem {
+struct CompleteItem { // @flat
+	SLAPI  CompleteItem();
 	enum {
 		fExclude = 0x0001, // Этот лот исключен операцией рекомплектации
 		fBranch  = 0x0002, // @v9.0.4 Лот, произведенный из исходного лота (выход)
@@ -16726,8 +16726,8 @@ public:
 	Extension E;
 	LongArray MainFrameSizeList;    // Список дистанций магистрального тренда
 	LongArray InputFrameSizeList;   // Список дистанций рабочих трендов (не включает период магистрального тренда)
-	LongArray MaxDuckQuantList;     // Список допустимых величин MaxDuck в квантах
-	LongArray TargetQuantList;      // Список допустимых величин Target в квантах
+	LongArray MaxDuckQuantList_Obsolete; // Список допустимых величин MaxDuck в квантах // @v10.8.4 Не используется (оставлен из-за персистентности)
+	LongArray TargetQuantList_Obsolete;  // Список допустимых величин Target в квантах  // @v10.8.4 Не используется (оставлен из-за персистентности)
 	LAssocArray StakeBoundList;     // @v10.7.3 Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList.
 		// То есть, если StakeBoundList не пустой, то MaxDuckQuantList, TargetQuantList не используются
 };
@@ -17161,9 +17161,9 @@ public:
 			LongArray AllSuitedPosList;   // OUT
 		};
 		int    SLAPI SelectS2(SelectBlock & rBlk) const;
-	private:
 		int    SLAPI AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
 		int    SLAPI MakeConfidenceEliminationIndex(const PPTssModelPacket & rTssPacket, const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
+	private:
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
@@ -17426,8 +17426,8 @@ public:
 		long   Flags;
 		long   OptTargetCriterion;      // @v10.4.6
 		LongArray InputFrameSizeList;   // Список не включает период магистрального тренда
-		LongArray MaxDuckQuantList;
-		LongArray TargetQuantList;      // @v10.4.3
+		LongArray MaxDuckQuantList_Obsolete; // @v10.8.4 Не используется (оставлен из-за персистентности)
+		LongArray TargetQuantList_Obsolete;  // @v10.4.3 // @v10.8.4 Не используется (оставлен из-за персистентности)
 		LAssocArray StakeBoundList;     // @v10.7.3 Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList.
 			// То есть, если StakeBoundList не пустой, то MaxDuckQuantList, TargetQuantList не используются
 		LongArray MainFrameSizeList;    // @v10.5.0
@@ -17492,8 +17492,6 @@ private:
 		uint   TargetQuant;
 		uint   FrameSize;
 	};
-	int    SLAPI FindResonanceCombination(void * pBlk, const LongArray & rFrameSizeList, const LAssocArray & rStakeBoundList, uint mainFrameRangeIdx,
-		const TsMainFrameRange * pMainFrameRange, int stakeSide, ResonanceCombination & rResult);
 	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	uint   SLAPI CalcStakeDistanceMedian(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
@@ -20755,24 +20753,30 @@ public:
 	int    SLAPI OpenSession(int updOnly, PPID sinceDlsID);
 	int    SLAPI CloseSession(int asTempSess = 0, DateRange * pPrd = 0);
 	PPID   SLAPI GetLocation();
+	enum {
+		dfactCopy           = 0, // скопировать файл pFileName в каждый из каталогов экспорта
+		dfactDelete         = 1, // удалить файлы с именем, заданным параметром pFileName
+		dfactCheckExistence = 2, // проверить наличие файла с именем, заданным параметром pFileName
+		dfactCheckDestPaths = 3  // проверить доступность каталогов назначения на запись
+	};
 	//
 	// Descr: производит действие, определяемое параметром action над файлом, определенным параметром //
 	//   pFileName относительно набора каталогов экспорта, заданного полем PPAsyncCashNode::P_ExpPaths.
 	//   Возможные действия (action):
-	//     0 - скопировать файл pFileName в каждый из каталогов экспорта
+	//     dfactCopy - скопировать файл pFileName в каждый из каталогов экспорта
+	//         Если аргумент pEndFileName не пустой, то имя файла заменяется на значение этого аргумента
 	//         @!Код возвращаемый функцией копирования не проверяется.
-	//     1 - удалить файлы с именем, заданным параметром pFileName (путь, входящий в эту строку
+	//     dfactDelete - удалить файлы с именем, заданным параметром pFileName (путь, входящий в эту строку
 	//         игнорируется) в каталогах экспорта
 	//         @!Успешность удаления не проверяется.
-	//     2 - проверить наличие файла с именем, заданным параметром pFileName (путь, входящий в эту строку
+	//     dfactCheckExistence - проверить наличие файла с именем, заданным параметром pFileName (путь, входящий в эту строку
 	//         игнорируется) в каталогах экспорта.
-	//     3 - проверить доступность каталогов назначения на запись (параметр pFileName игнорируется).
+	//     dfactCheckDestPaths - проверить доступность каталогов назначения на запись (параметр pFileName игнорируется).
 	//         Функция пытается создать временный файл в каждом из каталогов назначения. Если попытка прошла
 	//         успешно, то файл сразу удаляется.
 	//
 	//     pSubDir    - Вместо папки назначения будет использован следующий путь: диск назначения:\pSubDir
 	//     pEmailSubj - Тема письма для отправки файла через email, если путь указан как почтовый адрес
-	//
 	//
 	// Returns:
 	//   0 - неверный параметр action или не удалось получить значение каталогов экспорта из
@@ -20792,7 +20796,7 @@ public:
 	//     1 - все каталоги доступны для записи
 	//     0 - как минимум один из каталогов не доступен для записи
 	//
-	int    SLAPI DistributeFile(const char * pFileName, int action, const char * pSubDir = 0, const char * pEmailSubj = 0);
+	int    SLAPI DistributeFile_(const char * pFileName, const char * pEndFileName, int action, const char * pSubDir /*= 0*/, const char * pEmailSubj /*= 0*/);
 	//
 	// Descr: Если поддерживаются запросы к кассовому узлу, то эта функция
 	//   должна отправить серверу узла запрос (возможно в интерактивном режиме).
@@ -20963,10 +20967,10 @@ protected:
 // Макросы для регистрации кассового аппарата
 //
 #define REGISTER_CMT(nm,sync,async) \
-static PPCashMachine * SLAPI Create_##nm(PPID cashID) { return /*(PPCashMachine*)*/new CM_##nm(cashID); } \
-struct Registrar_##nm { Registrar_##nm(); }; \
-void _Register_##nm() { PPCashMachine::RegisterMachine(PPCMT_##nm, Create_##nm, sync, async); } \
-Registrar_##nm::Registrar_##nm() { _Register_##nm(); }
+	static PPCashMachine * SLAPI Create_##nm(PPID cashID) { return /*(PPCashMachine*)*/new CM_##nm(cashID); } \
+	struct Registrar_##nm { Registrar_##nm(); }; \
+	void _Register_##nm() { PPCashMachine::RegisterMachine(PPCMT_##nm, Create_##nm, sync, async); } \
+	Registrar_##nm::Registrar_##nm() { _Register_##nm(); }
 //
 // @ModuleDecl(PPObjBarcodePrinter)
 // Принтеры штрихкодов
@@ -37347,7 +37351,7 @@ public:
 		dliDueDate,                   // Дата исполнения документа
 		dliAgentName,                 // Наименование агента по документу
 		dliAlcoLic,                   // Регистр алкогольной лицензии, ассоциированный (прямо или косвенно) с документом
-		dliDlvrAddr                   // @v8.7.9 Адрес доставки
+		dliDlvrAddr                   // Адрес доставки
 	};
 	char   ReserveStart[32]; // @anchor
 	long   Tag;            // @#0 reserved
@@ -37596,13 +37600,14 @@ public:
 	enum {
 		//PPTXT_LINKBILLVIEWKINDS                "1,Оплаты по документу;2,Начисления ренты по документу;3,Зачеты по документу;4,Зачитывающие документы;6,Документы списания драфт-документа"
 		// @v10.3.0 Значения (кроме 100) увеличены на 1 для того, чтобы нулевое значение стало сигнализировать неопределенность
-		lkPayments   =   1,  // Оплаты по документу
-		lkCharge     =   2,  // Начисления ренты по документу
-		lkReckon     =   3,  // Зачеты по документу
-		lkByReckon   =   4,  // Зачитывающие документы
-		lkWrOffDraft =   6,  // Документы списания драфт-документа
-		lkCorrection =   7,  // @v10.3.1 Документы корректировки
-		lkSelection  = 100   // Режим выбора просмотра связанных документов при котором программа
+		lkPayments       =   1,  // Оплаты по документу
+		lkCharge         =   2,  // Начисления ренты по документу
+		lkReckon         =   3,  // Зачеты по документу
+		lkByReckon       =   4,  // Зачитывающие документы
+		lkWrOffDraft     =   6,  // Документы списания драфт-документа
+		lkCorrection     =   7,  // @v10.3.1 Документы корректировки
+		lkOrdersByLading =   8,  // @v10.8.4 Документы заказа, к которым привязана данная отгрузка
+		lkSelection      = 100   // Режим выбора просмотра связанных документов при котором программа
 			// самостоятельно пытается выбрать существующие связанные документы и при неоднозначности предоставляет выбор пользователю
 	};
 	uint8  ReserveStart[32]; // @anchor
@@ -41512,6 +41517,7 @@ private:
 };
 //
 // PPViewCSessExc
+// Дефицит по кассовым сессиям
 //
 class CSessExcFilt : public PPBaseFilt {
 public:

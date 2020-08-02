@@ -259,15 +259,15 @@ int SLAPI ACS_SMUKM30::ExportData(int updOnly)
 	}
 	ZDELETE(p_out_tbl_barcode);
 	ZDELETE(p_out_tbl_goods);
-	THROW(DistributeFile(path_goods, 0));
-	THROW(DistributeFile(path_barcode, 0));
-	THROW(DistributeFile(path,  0));
+	THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, 0));
+	THROW(DistributeFile_(path_barcode, 0/*pEndFileName*/, dfactCopy, 0, 0));
+	THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactCopy, 0, 0));
 	if(cn_data.DrvVerMajor == 2 && cn_data.DrvVerMinor == 420)
 		tag_fname_id = updOnly ? PPFILNAM_CASH_UPD : PPFILNAM_CASH_CNG;
 	else
 		tag_fname_id = updOnly ? PPFILNAM_CASH_CNG : PPFILNAM_CASH_UPD;
 	THROW(PPGetFilePath(PPPATH_OUT, tag_fname_id, path));
-	THROW(DistributeFile(path,  1));
+	THROW(DistributeFile_(path, 0/*pEndFileName*/, dfactDelete, 0, 0));
 	PPWait(0);
 	CATCHZOK
 	delete p_out_tbl_barcode;

@@ -62,7 +62,7 @@
     <ProjectGuid>{45586DBF-6009-49EA-8FFA-B9330F6A9488}</ProjectGuid>
     <RootNamespace>papyrus</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'" Label="Configuration">
@@ -1152,7 +1152,6 @@
     <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
-    <ClCompile Include="..\PPLib\BNKACCT.CPP" />
     <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\calendar.cpp" />
@@ -1170,7 +1169,6 @@
     <ClCompile Include="..\PPLib\Cshmchn.cpp" />
     <ClCompile Include="..\PPLib\Cshses.cpp" />
     <ClCompile Include="..\PPLib\Ctrandlg.cpp" />
-    <ClCompile Include="..\PPLib\CURRATE.CPP" />
     <ClCompile Include="..\PPLib\Cutting.cpp" />
     <ClCompile Include="..\PPLib\C_aturn.cpp" />
     <ClCompile Include="..\PPLib\C_bill.cpp" />
@@ -2039,7 +2037,6 @@
     </ProjectReference>
     <ProjectReference Include="libzip.vcxproj">
       <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="lualib.vcxproj">
       <Project>{86b30cd8-8c99-4cff-804e-16eb5891a1d8}</Project>

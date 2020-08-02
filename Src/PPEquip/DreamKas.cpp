@@ -332,11 +332,24 @@ int SLAPI ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID
 			else {
 			}
 			{
+				int    is_wght = 0; // @v10.8.4 Признак весового товара
 				json_t * p_iter_obj = new json_t(json_t::tOBJECT);
 				THROW_SL(p_iter_obj);
 				THROW_SL(p_iter_obj->InsertString("id", temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL)));
 				THROW_SL(p_iter_obj->InsertString("name", temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8)));
-				THROW_SL(p_iter_obj->InsertString("type", "COUNTABLE"));
+				// @v10.8.4 {
+				{
+					const PPGoodsConfig & gcfg = GetGoodsCfg();
+					if(gds_info.P_CodeList) {
+						for(uint i = 0; !is_wght && i < gds_info.P_CodeList->getCount(); i++) {
+							const BarcodeTbl::Rec & r_bc_item = gds_info.P_CodeList->at(i);
+							if(strlen(r_bc_item.Code) > 3 && gcfg.IsWghtPrefix(r_bc_item.Code))
+								is_wght = 1;
+						}
+					}
+				}
+				// } @v10.8.4 
+				THROW_SL(p_iter_obj->InsertString("type", is_wght ? "SCALABLE" : "COUNTABLE"));
 				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new json_t(json_t::tNULL)));
 				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
 				THROW_SL(p_iter_obj->Insert("price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));

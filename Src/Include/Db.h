@@ -382,7 +382,7 @@ private:
 	SVector Items;           // @persistent // @v9.8.4 SArray-->SVector
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
-	mutable SString TempBuf; // @transient @allocreuse
+	// @v10.8.4 mutable SString TempBuf; // @transient @allocreuse
 	void * P_DataBuf;        // @transient
 	size_t OuterDataBufSize; // @transient
 	int    IsDataBufOwner;   // @transient Если !0, то экземпляр является владельцем буфера данных

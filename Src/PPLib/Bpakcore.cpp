@@ -4464,6 +4464,11 @@ int SLAPI PPBillPacket::GetMainOrgID_(PPID * pID) const
 //
 //
 //
+SLAPI CompleteItem::CompleteItem()
+{
+	THISZERO();
+}
+
 SLAPI CompleteArray::CompleteArray() : TSVector <CompleteItem> (), LotID(0), BillID(0) // @v9.8.4 TSArray-->TSVector
 {
 }
@@ -4533,7 +4538,6 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 	int    ok = -1;
 	uint   pos = 0;
 	if(SearchLot(lotID, &pos)) {
-		CompleteItem item;
 		const PPTransferItem & r_lead_ti = ConstTI(pos);
 		PPTransferItem * p_ti = 0;
 		if(r_lead_ti.Flags & PPTFR_PLUS || r_lead_ti.IsRecomplete()) {
@@ -4541,7 +4545,8 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 			for(uint p = 0; EnumTItems(&p, &p_ti);) {
 				if(p_ti->Flags & PPTFR_MINUS) {
 					if(!pList->IsExcludedLot(p_ti->LotID)) {
-						MEMSZERO(item);
+						CompleteItem item;
+						// @v10.8.4 @ctr MEMSZERO(item);
 						item.LotID   = p_ti->LotID;
 						item.BillID  = p_ti->BillID;
 						item.GoodsID = p_ti->GoodsID;
@@ -4551,16 +4556,16 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 						item.Qtty    = fabs(p_ti->Quantity_);
 						item.Cost    = p_ti->Cost;
 						item.Price   = p_ti->Price;
-						item.Flags  |= CompleteItem::fSource; // @v9.0.4
-						// @v9.8.11 SnL.GetNumber(p-1, &serial);
-						LTagL.GetTagStr(p-1, PPTAG_LOT_SN, serial); // @v9.8.12
+						item.Flags  |= CompleteItem::fSource;
+						LTagL.GetTagStr(p-1, PPTAG_LOT_SN, serial);
 						serial.CopyTo(item.Serial, sizeof(item.Serial));
 						THROW_SL(pList->insert(&item));
 						ok = 1;
 					}
 				}
 				else if(p_ti->Flags & PPTFR_PLUS && !(p_ti->Flags & PPTFR_RECEIPT) && p_ti->LotID) {
-					MEMSZERO(item);
+					CompleteItem item;
+					// @v10.8.4 @ctr MEMSZERO(item);
 					item.LotID   = p_ti->LotID;
 					item.GoodsID = p_ti->GoodsID;
 					item.Dt      = p_ti->Date;
@@ -4569,8 +4574,7 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 					item.Qtty    = fabs(p_ti->Quantity_);
 					item.Cost    = p_ti->Cost;
 					item.Price   = p_ti->Price;
-					// @v9.8.11 SnL.GetNumber(p-1, &serial);
-					LTagL.GetTagStr(p-1, PPTAG_LOT_SN, serial); // @v9.8.12
+					LTagL.GetTagStr(p-1, PPTAG_LOT_SN, serial);
 					serial.CopyTo(item.Serial, sizeof(item.Serial));
 					item.Flags  |= CompleteItem::fExclude;
 					THROW_SL(pList->insert(&item));

@@ -51,7 +51,7 @@ DLSYMBID DlFunc::GetArgType(uint argN) const
 	return (argN < ArgList.getCount()) ? static_cast<const Arg *>(ArgList.at(argN))->TypID : 0;
 }
 
-int DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
+void DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
 {
 	Arg arg;
 	arg.TypID = typeId;
@@ -60,7 +60,6 @@ int DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
 	if(pName && pName[0])
 		ArgNamList.add(pName, &arg.NamePos);
 	ArgList.insert(&arg);
-	return 1;
 }
 
 int DlFunc::GetArgName(uint argN, SString & rArgName) const
@@ -189,7 +188,7 @@ int DlFuncPool::SearchNamePos(uint namePos, uint * pPos) const
 		return 0;
 }
 
-int FASTCALL DlFuncPool::Add(const DlFunc * pF)
+void FASTCALL DlFuncPool::Add(const DlFunc * pF)
 {
 	F  f;
 	MEMSZERO(f);
@@ -218,7 +217,6 @@ int FASTCALL DlFuncPool::Add(const DlFunc * pF)
 	else
 		f.Impl = pF->Impl;
 	Items.insert(&f);
-	return 1;
 }
 
 int DlFuncPool::GetByPos(uint pos, DlFunc * pF) const
@@ -458,18 +456,16 @@ void CtmExpr::InitTypeConversion(const CtmExpr & a, DLSYMBID toType)
 	AddArg(a);
 }
 
-int FASTCALL CtmExpr::InitVar(const char * pVarName)
+void FASTCALL CtmExpr::InitVar(const char * pVarName)
 {
 	Init(kVarName);
 	U.S = newStr(pVarName);
-	return 1;
 }
 
-int FASTCALL CtmExpr::InitVar(const CtmVar & rVar)
+void FASTCALL CtmExpr::InitVar(const CtmVar & rVar)
 {
 	Init(kVar);
 	U.V = rVar;
-	return 1;
 }
 
 void CtmExpr::InitFuncCall(const char * pFuncName, const CtmExpr & a)
@@ -709,7 +705,7 @@ int FASTCALL CtmExpr::Append(const CtmExpr & a)
 	while(p_last->P_Next)
 		p_last = p_last->P_Next;
 	p_last->P_Next = new CtmExpr(a);
-	return p_last->P_Next ? 1 : 0;
+	return BIN(p_last->P_Next);
 }
 
 int FASTCALL CtmExpr::AddArg(const CtmExpr & a)
@@ -761,7 +757,7 @@ int CtmExpr::SetResolvedVar(const CtmVar & rVar, DLSYMBID typeID)
 
 int FASTCALL CtmExpr::SetResolvedFunc(const CtmFunc & rFunc)
 {
-	if(Kind == kFuncName || Kind == kOp) {
+	if(oneof2(Kind, kFuncName, kOp)) {
 		/* @v10.2.11 Kind = kFunc;
 		if(Kind == kFuncName)
 			ZDELETE(U.S); */
@@ -1494,8 +1490,8 @@ _skip_switch:
 SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
 	LastSymbId(0), UniqCntr(0), CurScopeID(0), Flags(0), P_M(0)
 {
-	MEMSZERO(F_Dot);
-	MEMSZERO(F_Ref); // @v7.1.10
+	F_Dot.Z();
+	F_Ref.Z();
 	getExecPath(LogFileName).SetLastSlash().Cat("dl600.log");
 	if(toCompile) {
 		Flags |= fCompile;
@@ -1653,20 +1649,18 @@ int DlContext::ResolveVar(DLSYMBID scopeID, int exactScope, const char * pSymb, 
 }
 
 #ifndef DL600C // {
-
-int FASTCALL DlContext::InitSpecial(int ispc)
-{
-	int    ok = 1;
-	SString file_name;
-	if(ispc == ispcExpData)
-		PPGetFilePath(PPPATH_BIN, "ppexp.bin", file_name);
-	else if(ispc == ispcInterface)
-		PPGetFilePath(PPPATH_BIN, "ppifc.bin", file_name);
-	else
-		ok = 0;
-	return ok ? Init(file_name) : 0;
-}
-
+	int FASTCALL DlContext::InitSpecial(int ispc)
+	{
+		int    ok = 1;
+		SString file_name;
+		if(ispc == ispcExpData)
+			PPGetFilePath(PPPATH_BIN, "ppexp.bin", file_name);
+		else if(ispc == ispcInterface)
+			PPGetFilePath(PPPATH_BIN, "ppifc.bin", file_name);
+		else
+			ok = 0;
+		return ok ? Init(file_name) : 0;
+	}
 #endif // }
 
 int FASTCALL DlContext::Init(const char * pInFileName)
@@ -1677,13 +1671,13 @@ int FASTCALL DlContext::Init(const char * pInFileName)
 		Sc.SetupTitle(DlScope::kGlobal, "global");
 		Sc.ID = GetNewSymbID();
 		CurScopeID = Sc.GetId();
-		THROW(InitFileNames(pInFileName));
+		InitFileNames(pInFileName);
 		LastError = 0;
 		THROW(RestoreUuidList());
 #endif // } DL600C
 	}
 	else {
-		THROW(InitFileNames(pInFileName));
+		InitFileNames(pInFileName);
 		THROW(Read_Code());
 		THROW(S.Init(64*1024));
 	}
@@ -1691,7 +1685,7 @@ int FASTCALL DlContext::Init(const char * pInFileName)
 	return ok;
 }
 
-int SLAPI DlContext::InitFileNames(const char * pInFileName)
+void SLAPI DlContext::InitFileNames(const char * pInFileName)
 {
 	if(Flags & fCompile) {
 		InFileName = pInFileName;
@@ -1705,7 +1699,6 @@ int SLAPI DlContext::InitFileNames(const char * pInFileName)
 	}
 	else
 		BinFileName = pInFileName;
-	return 1;
 }
 
 const char * SLAPI DlContext::GetInputFileName() const
@@ -2354,7 +2347,7 @@ int SLAPI DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const 
 		f.Flags |= DlFunc::fImplByID;
 		f.ImplID = implID;
 		if(ok)
-			ok = Sc.AddFunc(&f);
+			Sc.AddFunc(&f);
 	}
 	else
 		ok = 0;
@@ -2799,77 +2792,75 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 //
 //
 #ifndef DL600C // {
-
-int SLAPI DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
-{
-	int    ok = 1;
-	uint   i;
-	SString temp_buf;
-	SString tbl_name = pTbl->GetTableName();
-	DLSYMBID scope_id = CreateSymb(tbl_name, '$', DlContext::crsymfErrorOnDup);
-	DlScope * p_scope = new DlScope(scope_id, DlScope::kDbTable, tbl_name, 0);
-	SdbField fld;
-	for(i = 0; i < pTbl->GetFields().getCount(); i++) {
-		const BNField & r_fld = pTbl->GetFields()[i];
-		uint   fld_id = 0;
-		fld.Init();
-		fld.T.Typ = r_fld.T;
-		fld.Name = r_fld.Name;
-		p_scope->AddField(&fld_id, &fld);
-	}
-	for(i = 0; i < pTbl->GetIndices().getNumKeys(); i++) {
-		uint   ci = 0, cc = 0;
-		DlScope * p_child = 0;
-		const char * p_idx_name = 0;
-		for(ci = 0; p_scope->EnumChilds(&ci, &p_child) > 0;) {
-			if(p_child->IsKind(DlScope::kDbIndex)) {
-				if(!isempty(p_idx_name)) {
-					THROW_PP_S(p_child->GetName().CmpNC(p_idx_name) != 0, PPERR_DL6_DUPDBIDXNAME, p_idx_name);
-				}
-				++cc;
-			}
+	int SLAPI DlContext::CreateNewDbTableSpec(const DBTable * pTbl)
+	{
+		int    ok = 1;
+		uint   i;
+		SString temp_buf;
+		SString tbl_name = pTbl->GetTableName();
+		DLSYMBID scope_id = CreateSymb(tbl_name, '$', DlContext::crsymfErrorOnDup);
+		DlScope * p_scope = new DlScope(scope_id, DlScope::kDbTable, tbl_name, 0);
+		SdbField fld;
+		for(i = 0; i < pTbl->GetFields().getCount(); i++) {
+			const BNField & r_fld = pTbl->GetFields()[i];
+			uint   fld_id = 0;
+			fld.Init();
+			fld.T.Typ = r_fld.T;
+			fld.Name = r_fld.Name;
+			p_scope->AddField(&fld_id, &fld);
 		}
-		if(!isempty(p_idx_name))
-			temp_buf = p_idx_name;
-		else
-			(temp_buf = "Key").Cat(cc);
-		{
-			const BNKey key = pTbl->GetIndices().getKey(i);
-			DLSYMBID idx_id = GetNewSymbID();
-			THROW_MEM(p_child = new DlScope(idx_id, DlScope::kDbIndex, temp_buf, 0));
+		for(i = 0; i < pTbl->GetIndices().getNumKeys(); i++) {
+			uint   ci = 0, cc = 0;
+			DlScope * p_child = 0;
+			const char * p_idx_name = 0;
+			for(ci = 0; p_scope->EnumChilds(&ci, &p_child) > 0;) {
+				if(p_child->IsKind(DlScope::kDbIndex)) {
+					if(!isempty(p_idx_name)) {
+						THROW_PP_S(p_child->GetName().CmpNC(p_idx_name) != 0, PPERR_DL6_DUPDBIDXNAME, p_idx_name);
+					}
+					++cc;
+				}
+			}
+			if(!isempty(p_idx_name))
+				temp_buf = p_idx_name;
+			else
+				(temp_buf = "Key").Cat(cc);
 			{
-				const int f = key.getFlags();
-				DlScope::Attr attr;
-				MEMSZERO(attr);
-				if(f & XIF_DUP) {
-					attr.A = DlScope::sfDbiDup;
-					p_child->SetAttrib(attr);
+				const BNKey key = pTbl->GetIndices().getKey(i);
+				DLSYMBID idx_id = GetNewSymbID();
+				THROW_MEM(p_child = new DlScope(idx_id, DlScope::kDbIndex, temp_buf, 0));
+				{
+					const int f = key.getFlags();
+					DlScope::Attr attr;
+					MEMSZERO(attr);
+					if(f & XIF_DUP) {
+						attr.A = DlScope::sfDbiDup;
+						p_child->SetAttrib(attr);
+					}
+					if(f & XIF_MOD) {
+						attr.A = DlScope::sfDbiMod;
+						p_child->SetAttrib(attr);
+					}
+					if(f & XIF_ALLSEGNULL) {
+						attr.A = DlScope::sfDbiAllSegNull;
+						p_child->SetAttrib(attr);
+					}
+					if(f & XIF_ANYSEGNULL) {
+						attr.A = DlScope::sfDbiAnySegNull;
+						p_child->SetAttrib(attr);
+					}
 				}
-				if(f & XIF_MOD) {
-					attr.A = DlScope::sfDbiMod;
-					p_child->SetAttrib(attr);
+				p_scope->Add(p_child);
+				for(uint j = 0; j < (uint)key.getNumSeg(); j++) {
+					const BNField & r_fld = pTbl->GetIndices().field(i, j);
+					THROW(p_child->AddDbIndexSegment(r_fld.Name, key.getFlags(j)));
 				}
-				if(f & XIF_ALLSEGNULL) {
-					attr.A = DlScope::sfDbiAllSegNull;
-					p_child->SetAttrib(attr);
-				}
-				if(f & XIF_ANYSEGNULL) {
-					attr.A = DlScope::sfDbiAnySegNull;
-					p_child->SetAttrib(attr);
-				}
-			}
-			p_scope->Add(p_child);
-			for(uint j = 0; j < (uint)key.getNumSeg(); j++) {
-				const BNField & r_fld = pTbl->GetIndices().field(i, j);
-				THROW(p_child->AddDbIndexSegment(r_fld.Name, key.getFlags(j)));
 			}
 		}
+		THROW(Sc.Add(p_scope));
+		CATCHZOK
+		return ok;
 	}
-	THROW(Sc.Add(p_scope));
-	CATCHZOK
-	return ok;
-}
-
 #endif // } !DL600C
 
 int SLAPI DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pTbl, int format) const

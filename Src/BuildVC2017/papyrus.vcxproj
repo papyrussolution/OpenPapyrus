@@ -1244,7 +1244,6 @@
     <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
-    <ClCompile Include="..\PPLib\BNKACCT.CPP" />
     <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\calendar.cpp" />
@@ -1262,7 +1261,6 @@
     <ClCompile Include="..\PPLib\Cshmchn.cpp" />
     <ClCompile Include="..\PPLib\Cshses.cpp" />
     <ClCompile Include="..\PPLib\Ctrandlg.cpp" />
-    <ClCompile Include="..\PPLib\CURRATE.CPP" />
     <ClCompile Include="..\PPLib\Cutting.cpp" />
     <ClCompile Include="..\PPLib\C_aturn.cpp" />
     <ClCompile Include="..\PPLib\C_bill.cpp" />
@@ -2131,10 +2129,6 @@
     </ProjectReference>
     <ProjectReference Include="libzint.vcxproj">
       <Project>{f0604a96-528f-40e6-8800-c696f03307a1}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="libzip.vcxproj">
-      <Project>{1ee9ab8f-f42f-481e-963f-5854bfdb8ec1}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="lualib.vcxproj">

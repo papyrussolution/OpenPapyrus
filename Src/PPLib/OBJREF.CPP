@@ -2248,10 +2248,9 @@ public:
 		uint   sel = 0;
 		SString temp_buf;
 		//нужно вернуть данные о groupid, ownerid and token
-
 		ASSIGN_PTR(pData, Data);
-		CATCHZOKPPERRBYDLG
-			return ok;
+		//CATCHZOKPPERRBYDLG
+		return ok;
 	}
 private:
 	DECL_HANDLE_EVENT
@@ -2403,19 +2402,19 @@ private:
 							if(pack.GroupId.Len() > 0) {
 								ObjTagItem new_obj_tag_item;
 								new_obj_tag_item.SetStr(vk_grp_tag_id, pack.GroupId.Unescape());
-								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1)>0)
+								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
 									change_flag++;
 							}
 							if(pack.PageId.Len() > 0) {
 								ObjTagItem new_obj_tag_item;
 								new_obj_tag_item.SetStr(vk_page_tag_id, pack.PageId.Unescape());
-								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1)>0);
+								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0) // @v10.8.3 @fix (remove ';')
 									change_flag++;
 							}
 							if(pack.Token.Len()>0) {
 								ObjTagItem new_obj_tag_item;
 								new_obj_tag_item.SetStr(PPTAG_GUA_ACCESSKEY, pack.Token.Unescape());
-								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1)>0)
+								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
 									change_flag++;
 							}
 							if(change_flag > 0)
@@ -2441,7 +2440,7 @@ private:
 		}
 //@erik @v10.7.13{
 		else if(event.isCbSelected(CTLSEL_GLOBUSERACC_SVC)) {
-			PPID service_ident;
+			//PPID service_ident;
 			getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
 			if(!Data.Rec.ServiceIdent)
 				disableCtrl(CTL_GS_SETTING, 1);

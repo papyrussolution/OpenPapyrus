@@ -3587,7 +3587,7 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 				for(uint p = 0; pack.EnumTItems(&p, &p_ti);) {
 					if(p_ti->Flags & PPTFR_PLUS) {
 						CompleteItem item;
-						MEMSZERO(item);
+						// @v10.8.4 @ctr MEMSZERO(item);
 						item.Flags  |= CompleteItem::fBranch;
 						item.LotID   = p_ti->LotID;
 						item.GoodsID = p_ti->GoodsID;
@@ -3597,8 +3597,7 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 						item.Qtty    = fabs(p_ti->Quantity_);
 						item.Cost    = p_ti->Cost;
 						item.Price   = p_ti->Price;
-						// @v9.8.11 pack.SnL.GetNumber(p-1, &serial);
-						pack.LTagL.GetNumber(PPTAG_LOT_SN, p-1, serial); // @v9.8.11
+						pack.LTagL.GetNumber(PPTAG_LOT_SN, p-1, serial);
 						STRNSCPY(item.Serial, serial);
 						THROW_SL(pList->insert(&item));
 						if(p_ti->Flags & PPTFR_RECEIPT && p_ti->LotID) {
@@ -7314,11 +7313,9 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				for(i = 0; pPack->EnumTItems(&i, &pti);) {
 					pPack->ErrLine = i-1;
 					CpTrfrExt cte;
-					// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
-					pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
+					pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
 					STRNSCPY(cte.Clb, clb);
-					// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
+					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
 					STRNSCPY(cte.PartNo, clb);
 					// @v10.5.8 {
 					cte.LinkBillID = pti->Lbr.ID; 
@@ -7579,11 +7576,8 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		else {
 			THROW(CheckRights(PPR_MOD)); // @v10.2.3
 		}
-		// @v9.4.3 {
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
-		// } @v9.4.3
-		// @v9.5.2 {
 		if(CcFlags & CCFLG_DEBUG) {
 			if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
 				P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &_debug_org_ord_bill_list);
@@ -7595,7 +7589,6 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				}
 			}
 		}
-		// } @v9.5.2
 	}
 	if(pPack->ProcessFlags & PPBillPacket::pfViewPercentOnTurn)
 		PPLoadText(PPTXT_WAIT_TURNBILLTRFR, wait_msg);
@@ -7681,11 +7674,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							pPack->ErrLine = i-1;
 							found = 1;
 							if(p_ti->IsEqual(ti)) {
-								// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
-								pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
+								pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
 								if(clb.Strip().CmpNC(strip(cte.Clb)) == 0) {
-									// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
-									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
+									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
 									if(clb.Strip().CmpNC(strip(cte.PartNo)) == 0) {
 										if(cte.LinkBillID == p_ti->Lbr.ID && cte.LinkRbb == p_ti->Lbr.RByBill) // @v10.5.8
 											not_changed_lines.add(i);
@@ -7713,11 +7704,9 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							p_ti->TFlags |= PPTransferItem::tfDirty;
 						}
 						CpTrfrExt cte;
-						// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
-						pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
+						pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
 						STRNSCPY(cte.Clb, clb);
-						// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
-						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
+						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
 						STRNSCPY(cte.PartNo, clb);
 						// @v10.5.8 {
 						cte.LinkBillID = p_ti->Lbr.ID; 

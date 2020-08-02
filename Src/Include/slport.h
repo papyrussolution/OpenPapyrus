@@ -1,6 +1,8 @@
 // SLPORT.H
 // Copyright (c) A.Sobolev 2020
 //
+#ifndef __SLPORT_H // {
+#define __SLPORT_H
 #if defined(_WIN32) || defined(_WIN64)
 	//typedef long pid_t;
 	#define	getpid GetCurrentProcessId
@@ -21,3 +23,4 @@
 	#define strcasecmp  _stricmp
 	#define strncasecmp _strnicmp
 #endif
+#endif // } __SLPORT_H

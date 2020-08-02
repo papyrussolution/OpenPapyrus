@@ -428,7 +428,7 @@ int FASTCALL SdRecord::Copy(const SdRecord & rSrc)
 	THROW(Items.copy(rSrc.Items));
 	StringPool = rSrc.StringPool;
 	RecSize = rSrc.RecSize;
-	TempBuf = rSrc.TempBuf;
+	// @v10.8.4 TempBuf = rSrc.TempBuf;
 	if(rSrc.IsDataBufOwner) {
 		if(rSrc.P_DataBuf) {
 			THROW(AllocDataBuf());
@@ -635,9 +635,9 @@ int SdRecord::SetupOffsets()
 int SdRecord::SetText(uint * pPos, const char * pText)
 {
 	int    ok = -1;
-	TempBuf = pText;
-	if(TempBuf.NotEmptyS()) {
-		StringPool.add(TempBuf, pPos);
+	SString temp_buf = pText;
+	if(temp_buf.NotEmptyS()) {
+		StringPool.add(temp_buf, pPos);
 		ok = 1;
 	}
 	else {
@@ -686,24 +686,26 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 				f.ID = p_item->ID;
 		f.ID++;
 	}
-	TempBuf = pFld->Name;
-	if(Flags & fNamesToUpper)
-		TempBuf.ToUpper();
-	if(SearchName(TempBuf, 0) && !(Flags & fAllowDupName)) {
-		SLS.SetAddedMsgString(TempBuf.Transf(CTRANSF_OUTER_TO_INNER)); // @v10.1.11 .Transf(CTRANSF_OUTER_TO_INNER)
-		CALLEXCEPTV(SLERR_SDREC_DUPFLDNAME);
-	}
-	else {
-		StringPool.add(TempBuf, &f.NamePos);
-		TempBuf = pFld->Descr;
-		if(TempBuf.NotEmptyS())
-			StringPool.add(TempBuf, &f.DescrPos);
-		TempBuf = pFld->Formula;
-		if(TempBuf.NotEmptyS())
-			StringPool.add(TempBuf, &f.FormulaPos);
-		THROW(Items.insert(&f));
-		SetupOffsets();
-		ASSIGN_PTR(pID, f.ID);
+	{
+		SString temp_buf = pFld->Name;
+		if(Flags & fNamesToUpper)
+			temp_buf.ToUpper();
+		if(SearchName(temp_buf, 0) && !(Flags & fAllowDupName)) {
+			SLS.SetAddedMsgString(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)); // @v10.1.11 .Transf(CTRANSF_OUTER_TO_INNER)
+			CALLEXCEPTV(SLERR_SDREC_DUPFLDNAME);
+		}
+		else {
+			StringPool.add(temp_buf, &f.NamePos);
+			temp_buf = pFld->Descr;
+			if(temp_buf.NotEmptyS())
+				StringPool.add(temp_buf, &f.DescrPos);
+			temp_buf = pFld->Formula;
+			if(temp_buf.NotEmptyS())
+				StringPool.add(temp_buf, &f.FormulaPos);
+			THROW(Items.insert(&f));
+			SetupOffsets();
+			ASSIGN_PTR(pID, f.ID);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -725,35 +727,37 @@ int SdRecord::UpdateField(uint pos, const SdbField * pFld)
 	F    * p_item = 0;
 	THROW(checkupper(pos, GetCount()));
 	p_item = Get(pos);
-	TempBuf = pFld->Name;
-	if(Flags & fNamesToUpper)
-		TempBuf.ToUpper();
-	if(!(Flags & fAllowDupID) || !(Flags & fAllowDupName)) {
-		SString name_buf;
-		for(uint i = 0; i < Items.getCount(); i++) {
-			F * p_f = Get(i);
-			if(pos != i) {
-				StringPool.get(p_f->NamePos, name_buf);
-				if(pFld->ID != 0 || !(pFld->T.Flags & STypEx::fZeroID)) { // @v7.4.1
-					THROW_S_S((p_f->ID != pFld->ID || Flags & fAllowDupID), SLERR_SDREC_DUPFLDID, (TempBuf = name_buf).ToOem());
-				}
-				if(!(Flags & fAllowDupName)) {
-					THROW_S(name_buf.CmpNC(TempBuf), SLERR_SDREC_DUPFLDNAME);
+	{
+		SString temp_buf = pFld->Name;
+		if(Flags & fNamesToUpper)
+			temp_buf.ToUpper();
+		if(!(Flags & fAllowDupID) || !(Flags & fAllowDupName)) {
+			SString name_buf;
+			for(uint i = 0; i < Items.getCount(); i++) {
+				F * p_f = Get(i);
+				if(pos != i) {
+					StringPool.get(p_f->NamePos, name_buf);
+					if(pFld->ID != 0 || !(pFld->T.Flags & STypEx::fZeroID)) {
+						THROW_S_S((p_f->ID != pFld->ID || Flags & fAllowDupID), SLERR_SDREC_DUPFLDID, (temp_buf = name_buf).ToOem());
+					}
+					if(!(Flags & fAllowDupName)) {
+						THROW_S(name_buf.CmpNC(temp_buf), SLERR_SDREC_DUPFLDNAME);
+					}
 				}
 			}
 		}
+		StringPool.add(temp_buf, &p_item->NamePos);
+		temp_buf = pFld->Descr;
+		if(temp_buf.NotEmptyS())
+			StringPool.add(temp_buf, &p_item->DescrPos);
+		temp_buf = pFld->Formula;
+		if(temp_buf.NotEmptyS())
+			StringPool.add(temp_buf, &p_item->FormulaPos);
+		p_item->ID  = pFld->ID;
+		p_item->T.Typ = pFld->T.Typ;
+		p_item->T.Flags = pFld->T.Flags;
+		p_item->OuterFormat = pFld->OuterFormat;
 	}
-	StringPool.add(TempBuf, &p_item->NamePos);
-	TempBuf = pFld->Descr;
-	if(TempBuf.NotEmptyS())
-		StringPool.add(TempBuf, &p_item->DescrPos);
-	TempBuf = pFld->Formula;
-	if(TempBuf.NotEmptyS())
-		StringPool.add(TempBuf, &p_item->FormulaPos);
-	p_item->ID  = pFld->ID;
-	p_item->T.Typ = pFld->T.Typ;
-	p_item->T.Flags = pFld->T.Flags;
-	p_item->OuterFormat = pFld->OuterFormat;
 	SetupOffsets();
 	CATCHZOK
 	return ok;
@@ -834,17 +838,17 @@ int SdRecord::GetFieldByID(uint id, uint * pPos, SdbField * pFld) const
 int SdRecord::GetFieldByName(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
-	TempBuf = pName;
+	// @v10.8.4 TempBuf = pName;
 	CALLPTRMEMB(pFld, Init());
-	return (SearchName(TempBuf, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0;
+	return (SearchName(pName, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0; // @v10.8.4 SearchName(TempBuf-->pName
 }
 
 int SdRecord::GetFieldByName_Fast(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
-	TempBuf = pName;
+	// @v10.8.4 TempBuf = pName;
 	CALLPTRMEMB(pFld, Init());
-	return (SearchName(TempBuf, &pos) > 0) ? GetFieldByPos_Fast(pos, pFld) : 0;
+	return (SearchName(pName, &pos) > 0) ? GetFieldByPos_Fast(pos, pFld) : 0; // @v10.8.4 SearchName(TempBuf-->pName
 }
 
 TYPEID SdRecord::GetFieldType(uint pos /* 0.. */) const { return (pos < Items.getCount()) ? Get(pos)->T.Typ : 0; }

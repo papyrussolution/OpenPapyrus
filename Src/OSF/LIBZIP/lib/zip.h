@@ -278,7 +278,7 @@ ZIP_EXTERN void zip_error_clear(zip_t *);
 ZIP_EXTERN int zip_error_code_zip(const zip_error_t *);
 ZIP_EXTERN int zip_error_code_system(const zip_error_t *);
 ZIP_EXTERN void zip_error_fini(zip_error_t *);
-ZIP_EXTERN void zip_error_init(zip_error_t *);
+ZIP_EXTERN void FASTCALL zip_error_init(zip_error_t *);
 //ZIP_EXTERN void zip_error_init_with_code(zip_error_t *, int);
 //
 // Descr: Устанавливает состояние ошибки в контекст pErr
@@ -334,7 +334,7 @@ ZIP_EXTERN zip_source_t *zip_source_file(zip_t *, const char *, uint64, int64);
 ZIP_EXTERN zip_source_t *zip_source_file_create(const char *, uint64, int64, zip_error_t *);
 ZIP_EXTERN zip_source_t *zip_source_filep(zip_t *, FILE *, uint64, int64);
 ZIP_EXTERN zip_source_t *zip_source_filep_create(FILE *, uint64, int64, zip_error_t *);
-ZIP_EXTERN void zip_source_free(zip_source_t *);
+ZIP_EXTERN void FASTCALL zip_source_free(zip_source_t *);
 ZIP_EXTERN zip_source_t *zip_source_function(zip_t *, zip_source_callback, void *);
 ZIP_EXTERN zip_source_t *zip_source_function_create(zip_source_callback, void *, zip_error_t *);
 ZIP_EXTERN int zip_source_is_deleted(zip_source_t *);
@@ -359,12 +359,12 @@ ZIP_EXTERN int zip_unchange(zip_t *, uint64);
 ZIP_EXTERN int zip_unchange_all(zip_t *);
 ZIP_EXTERN int zip_unchange_archive(zip_t *);
 #ifdef _WIN32
-	ZIP_EXTERN zip_source_t *zip_source_win32a(zip_t *, const char *, uint64, int64);
-	ZIP_EXTERN zip_source_t *zip_source_win32a_create(const char *, uint64, int64, zip_error_t *);
-	ZIP_EXTERN zip_source_t *zip_source_win32handle(zip_t *, void *, uint64, int64);
-	ZIP_EXTERN zip_source_t *zip_source_win32handle_create(void *, uint64, int64, zip_error_t *);
-	ZIP_EXTERN zip_source_t *zip_source_win32w(zip_t *, const wchar_t *, uint64, int64);
-	ZIP_EXTERN zip_source_t *zip_source_win32w_create(const wchar_t *, uint64, int64, zip_error_t *);
+	ZIP_EXTERN zip_source_t * zip_source_win32a(zip_t *, const char *, uint64, int64);
+	ZIP_EXTERN zip_source_t * zip_source_win32a_create(const char *, uint64, int64, zip_error_t *);
+	ZIP_EXTERN zip_source_t * zip_source_win32handle(zip_t *, void *, uint64, int64);
+	ZIP_EXTERN zip_source_t * zip_source_win32handle_create(void *, uint64, int64, zip_error_t *);
+	ZIP_EXTERN zip_source_t * zip_source_win32w(zip_t *, const wchar_t *, uint64, int64);
+	ZIP_EXTERN zip_source_t * zip_source_win32w_create(const wchar_t *, uint64, int64, zip_error_t *);
 #endif
 #ifndef ZIP_DISABLE_DEPRECATED
 	ZIP_EXTERN int64 zip_add(zip_t *, const char *, zip_source_t *); /* use zip_file_add */

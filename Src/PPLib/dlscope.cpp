@@ -19,7 +19,7 @@ static long FASTCALL MakeSdRecFlags(uint kind)
 
 SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind)),
 	ScFlags(0), Kind(kind), DvFlags(0), BaseId(0), ParentId(0), Version(0), P_Parent(0),
-	P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
+	P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0), LastLocalId(0)
 {
 	ID = id;
 	Name = pName;
@@ -27,7 +27,7 @@ SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype
 		ScFlags |= sfPrototype;
 	FixDataBuf.Init();
 #ifdef DL600C // {
-	LastLocalId = 0;
+	// @v10.8.4 LastLocalId = 0;
 #endif
 }
 
@@ -63,10 +63,8 @@ int SLAPI DlScope::Copy(const DlScope & s, int withoutChilds)
 	//
 	ZDELETE(P_IfaceBaseList);
 	if(s.P_IfaceBaseList)
-		P_IfaceBaseList = new SVector(*s.P_IfaceBaseList); // @v9.8.4 SArray-->SVector
-	//
+		P_IfaceBaseList = new TSVector <IfaceBase> (*s.P_IfaceBaseList);
 	CList = s.CList;
-	//
 	ZDELETE(P_DbIdxSegFlags);
 	if(s.P_DbIdxSegFlags)
 		P_DbIdxSegFlags = new LongArray(*s.P_DbIdxSegFlags);
@@ -98,7 +96,7 @@ int FASTCALL DlScope::IsEqual(const DlScope & rPat) const
 		c = P_IfaceBaseList->getCount();
 		if(c) do {
 			--c;
-			THROW(memcmp(P_IfaceBaseList->at(c), rPat.P_IfaceBaseList->at(c), sizeof(IfaceBase)) == 0);
+			THROW(P_IfaceBaseList->at(c) == rPat.P_IfaceBaseList->at(c));
 		} while(c);
 	}
 	else {
@@ -162,11 +160,11 @@ int FASTCALL DlScope::Read(SBuffer & rBuf)
 	THROW(rBuf.Read(&ParentId, sizeof(ParentId)));
 	THROW(rBuf.Read(&Version, sizeof(Version)));
 	{
-		SVector temp_list(sizeof(IfaceBase)); // @v9.8.4 SArray-->SVector
+		TSVector <IfaceBase> temp_list;
 		THROW(rBuf.Read(&temp_list, 0));
 		ZDELETE(P_IfaceBaseList);
 		if(temp_list.getCount())
-			P_IfaceBaseList = new SVector(temp_list); // @v9.8.4 SArray-->SVector
+			P_IfaceBaseList = new TSVector <IfaceBase> (temp_list);
 	}
 	THROW(rBuf.Read(&CList, 0));
 	THROW(rBuf.Read(&CfList, 0));
@@ -529,40 +527,38 @@ int FASTCALL DlScope::InitInheritance(const DlScope * pTopScope)
 }
 
 #ifdef DL600C // {
-
-int SLAPI DlScope::SetInheritance(const DlScope * pBase, DlContext * pCtx)
-{
-	int    ok = 1;
-	ResetPrototypeFlag();
-	if(pBase) {
-		BaseId = pBase->GetId();
-		P_Base = pBase;
-		const DlScopeList & r_list = pBase->GetChildList();
-		for(uint i = 0; i < r_list.getCount(); i++) {
-			const DlScope * p_base_child = r_list.at(i);
-			if(oneof2(p_base_child->Kind, kExpDataHdr, kExpDataIter)) {
-				DlScope * p_child = 0;
-				DLSYMBID new_scope_id = EnterScope(ID, pCtx->GetNewSymbID(), p_base_child->Kind, p_base_child->Name);
-				THROW(new_scope_id);
-				p_child = SearchByID(new_scope_id, 0);
-				THROW(p_child->SetInheritance(p_base_child, pCtx)); // @recursion
-				THROW(LeaveScope(new_scope_id, 0));
+	int SLAPI DlScope::SetInheritance(const DlScope * pBase, DlContext * pCtx)
+	{
+		int    ok = 1;
+		ResetPrototypeFlag();
+		if(pBase) {
+			BaseId = pBase->GetId();
+			P_Base = pBase;
+			const DlScopeList & r_list = pBase->GetChildList();
+			for(uint i = 0; i < r_list.getCount(); i++) {
+				const DlScope * p_base_child = r_list.at(i);
+				if(oneof2(p_base_child->Kind, kExpDataHdr, kExpDataIter)) {
+					DlScope * p_child = 0;
+					DLSYMBID new_scope_id = EnterScope(ID, pCtx->GetNewSymbID(), p_base_child->Kind, p_base_child->Name);
+					THROW(new_scope_id);
+					p_child = SearchByID(new_scope_id, 0);
+					THROW(p_child->SetInheritance(p_base_child, pCtx)); // @recursion
+					THROW(LeaveScope(new_scope_id, 0));
+				}
 			}
 		}
+		else {
+			BaseId = 0;
+			pBase  = 0;
+		}
+		CATCHZOK
+		return ok;
 	}
-	else {
-		BaseId = 0;
-		pBase  = 0;
-	}
-	CATCHZOK
-	return ok;
-}
-
 #endif // } DL600C
 
-int FASTCALL DlScope::AddFunc(const DlFunc * pF)
+void FASTCALL DlScope::AddFunc(const DlFunc * pF)
 {
-	return FuncPool.Add(pF);
+	FuncPool.Add(pF);
 }
 
 int SLAPI DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) const
@@ -598,8 +594,7 @@ int SLAPI DlScope::EnumFunctions(uint * pI, DlFunc * pFunc) const
 
 int SLAPI DlScope::AddIfaceBase(const IfaceBase * pEntry)
 {
-	if(!P_IfaceBaseList)
-		P_IfaceBaseList = new SVector(sizeof(IfaceBase)); // @v9.8.4 SArray-->SVector
+	SETIFZ(P_IfaceBaseList, new TSVector <IfaceBase>());
 #ifdef DL600C
 	return BIN(P_IfaceBaseList && P_IfaceBaseList->insert(pEntry));
 #else
@@ -619,7 +614,7 @@ int SLAPI DlScope::GetIfaceBase(uint pos, IfaceBase * pEntry) const
 {
 	int    ok = 1;
 	if(pos < GetIfaceBaseCount()) {
-		ASSIGN_PTR(pEntry, *(IfaceBase *)P_IfaceBaseList->at(pos));
+		ASSIGN_PTR(pEntry, P_IfaceBaseList->at(pos));
 	}
 	else
 		ok = 0;
@@ -805,55 +800,53 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 }
 
 #ifdef DL600C // {
-
-int SLAPI DlScope::AddTempFldConst(COption id, const CtmExprConst & rConst)
-{
-	int    ok = 1;
-	uint   pos = 0;
-	CfItem key;
-	key.FldID = 0;
-	key.I = id;
-	if(TempCfList.lsearch(&key, &pos, PTR_CMPFUNC(_2long))) {
-		TempCfList.at(pos).C = rConst;
-	}
-	else {
-		CfItem item;
-		item.FldID = 0;
-		item.I = id;
-		item.C = rConst;
-		if(!TempCfList.insert(&item))
-			ok = 0;
-	}
-	return ok;
-}
-
-int SLAPI DlScope::AcceptTempFldConstList(uint fldID)
-{
-	if(fldID == 0) {
-		//
-		// Специальный случай: свойства диалога. Временные константы "свалены" в родительскую
-		// область. Нам надо их от туда забрать и обработать как свои (см. описание синтаксиса в DL600C.Y).
-		//
-		if(P_Parent) {
-			TempCfList = P_Parent->TempCfList;
-			((DlScope *)P_Parent)->TempCfList.clear(); // @badcast
-		}
-	}
-	for(uint i = 0; i < TempCfList.getCount(); i++) {
-		CfItem item;
-		item = TempCfList.at(i);
-		if(fldID) {
-			item.FldID = fldID;
-			CfList.insert(&item);
+	int SLAPI DlScope::AddTempFldConst(COption id, const CtmExprConst & rConst)
+	{
+		int    ok = 1;
+		uint   pos = 0;
+		CfItem key;
+		key.FldID = 0;
+		key.I = id;
+		if(TempCfList.lsearch(&key, &pos, PTR_CMPFUNC(_2long))) {
+			TempCfList.at(pos).C = rConst;
 		}
 		else {
-			AddConst((COption)item.I, item.C, 1);
+			CfItem item;
+			item.FldID = 0;
+			item.I = id;
+			item.C = rConst;
+			if(!TempCfList.insert(&item))
+				ok = 0;
 		}
+		return ok;
 	}
-	TempCfList.clear();
-	return 1;
-}
 
+	int SLAPI DlScope::AcceptTempFldConstList(uint fldID)
+	{
+		if(fldID == 0) {
+			//
+			// Специальный случай: свойства диалога. Временные константы "свалены" в родительскую
+			// область. Нам надо их от туда забрать и обработать как свои (см. описание синтаксиса в DL600C.Y).
+			//
+			if(P_Parent) {
+				TempCfList = P_Parent->TempCfList;
+				((DlScope *)P_Parent)->TempCfList.clear(); // @badcast
+			}
+		}
+		for(uint i = 0; i < TempCfList.getCount(); i++) {
+			CfItem item;
+			item = TempCfList.at(i);
+			if(fldID) {
+				item.FldID = fldID;
+				CfList.insert(&item);
+			}
+			else {
+				AddConst((COption)item.I, item.C, 1);
+			}
+		}
+		TempCfList.clear();
+		return 1;
+	}
 #endif
 
 int SLAPI DlScope::AddDbIndexSegment(const char * pFieldName, long options)

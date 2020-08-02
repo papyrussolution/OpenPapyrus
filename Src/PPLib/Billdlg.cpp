@@ -423,7 +423,6 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (pData->Ft_STax > 0) ? 1 : ((pData->Ft_STax < 0) ? 2 : 0));
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL,  (pData->Ft_Declined > 0) ? 1 : ((pData->Ft_Declined < 0) ? 2 : 0));
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST, (pData->Ft_CheckPrintStatus>0) ? 1 : ((pData->Ft_CheckPrintStatus<0) ? 2 : 0)); //@erik v10.6.13
-			// @v9.1.6 {
             {
                 dlg->AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 1, PPEDI_RECADV_STATUS_ACCEPT);
@@ -439,7 +438,6 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
                 dlg->AddClusterAssoc(CTL_BILLEXTFLT_RECADVCFM, 3, -1);
                 dlg->SetClusterData(CTL_BILLEXTFLT_RECADVCFM, pData->EdiRecadvConfStatus);
             }
-			// } @v9.1.6
 			dlg->disableCtrl(CTLSEL_BILLEXT_CREATOR, own_bill_restr);
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, pData->CreatorID, OLW_CANSELUPLEVEL);
 			dlg->SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
@@ -495,10 +493,8 @@ int SLAPI BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagL
 					pData->Ft_CheckPrintStatus = (v==1) ? 1 : ((v==2) ? -1 : 0);
 				}
 // } @erik
-				// @v9.1.6 {
 				pData->EdiRecadvStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADV));
 				pData->EdiRecadvConfStatus = static_cast<int16>(dlg->GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
-				// } @v9.1.6
 				dlg->getCtrlData(CTLSEL_BILLEXT_CREATOR, &pData->CreatorID);
 				if(!GetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod)) {
 					PPErrorByDialog(dlg, CTL_BILLEXT_DUEPERIOD);

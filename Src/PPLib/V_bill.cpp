@@ -1636,14 +1636,14 @@ int SLAPI PPViewBill::CreateTempTable(IterOrder ord, int * pIsOrdTbl)
 		THROW_MEM(param.bei = new BExtInsert(btbl));
 	}
 	param.BV = this;
-	param.Saldo = 0;
+	param.Saldo = 0.0;
 	{
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		THROW(Enumerator(IterProc_CrTmpTbl, &param));
 		THROW_DB(param.bei->flash());
 		if(btbl && (Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments)) {
-			param.Saldo = 0;
+			param.Saldo = 0.0;
 			THROW(CalcDebtCardInSaldo(&param.Saldo));
 			TempBillTbl::Key1 k;
 			MEMSZERO(k);
@@ -2511,7 +2511,6 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CLOSEDORDER, Filt.Ft_ClosedOrder);
 			dbq = ppcheckflag(dbq, bll->Flags2, BILLF2_DECLINED, Filt.Ft_Declined);
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, Filt.Ft_CheckPrintStatus); // @v10.7.0
-			// @v9.1.6 {
 			{
 				DBE * p_dbe_1 = 0;
 				DBE * p_dbe_2 = 0;
@@ -2537,7 +2536,6 @@ DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				delete p_dbe_1;
 				delete p_dbe_2;
 			}
-			// } @v9.1.6
 			if(Filt.CreatorID & PPObjSecur::maskUserGroup) {
 				dbe_chkusr.init();
 				dbe_chkusr.push(bll->UserID);
@@ -4577,7 +4575,6 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 							PPSupplAgreement suppl_agt;
 							//
 							// Получаем соглашение поставщика
-							// @v8.1.8 (конструктор PPSupplAgreement инициализирует объект) MEMSZERO(suppl_agr);
 							//
 							PPObjArticle::GetSupplAgreement(pack.Rec.Object, &suppl_agt, 1);
 							suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, edi_prvdr_symb);
@@ -4811,7 +4808,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 			}
 		}
-		logger.LogLastError(); // @v9.2.10
+		logger.LogLastError();
 		ok = PPErrorZ();
 	ENDCATCH
 	for(uint i = 0; i < exp_dll_coll.getCount(); i++) {
@@ -5442,13 +5439,11 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 				{
 					PPID   new_bill_id = 0;
 					if(options & OLW_CANINSERT && (ok = AddItemBySample(&new_bill_id, hdr.ID)) > 0) {
-						// @v9.0.11 {
 						if(CheckIDForFilt(new_bill_id, 0)) {
 							// Если вновь созданный документ попадает в выборку, то
 							// следующее присвоение обеспечит перевод курсора на этот документ.
 							id = new_bill_id;
 						}
-						// } @v9.0.11
 						update = 1;
 					}
 				}

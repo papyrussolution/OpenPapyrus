@@ -111,7 +111,7 @@ ZIP_EXTERN int zip_error_code_system(const zip_error_t * error) { return error->
 ZIP_EXTERN int zip_error_code_zip(const zip_error_t * error) { return error->zip_err; }
 ZIP_EXTERN void zip_error_fini(zip_error_t * err) { ZFREE(err->str); }
 
-ZIP_EXTERN void zip_error_init(zip_error_t * err)
+ZIP_EXTERN void FASTCALL zip_error_init(zip_error_t * err)
 {
 	err->zip_err = SLERR_SUCCESS;
 	err->sys_err = 0;
@@ -172,10 +172,7 @@ ZIP_EXTERN int zip_error_system_type(const zip_error_t * error)
 	return error ? GetZipErrType(error->zip_err) : ZIP_ET_NONE;
 }
 
-/*ZIP_EXTERN int zip_error_get_sys_type(int ze)
-{
-	return (ze >= 0 && ze < SIZEOFARRAY(_zip_err_str)) ? _zip_err_type[ze] : 0;
-}*/
+// ZIP_EXTERN int zip_error_get_sys_type(int ze) { return (ze >= 0 && ze < SIZEOFARRAY(_zip_err_str)) ? _zip_err_type[ze] : 0; }
 
 static void FASTCALL _zip_error_clear(zip_error_t * err)
 {
@@ -1649,7 +1646,7 @@ static int64 read_data(void * state, void * data, uint64 len, zip_source_cmd_t c
 		    if(len < sizeof(zip_stat_t))
 			    return zip_error_set(&ctx->error, SLERR_ZIP_INVAL, 0);
 			else {
-				zip_stat_t * st = (zip_stat_t*)data;
+				zip_stat_t * st = (zip_stat_t *)data;
 				zip_stat_init(st);
 				st->mtime = ctx->mtime;
 				st->size = ctx->in->size;
@@ -1790,7 +1787,7 @@ int zip_source_close(zip_source_t * src)
 	return 0;
 }
 
-ZIP_EXTERN void zip_source_free(zip_source_t * src)
+ZIP_EXTERN void FASTCALL zip_source_free(zip_source_t * src)
 {
 	if(src) {
 		if(src->refcount > 0) {
@@ -2545,15 +2542,9 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 	return s;
 }
 
-int _zip_string_write(zip_t * za, const zip_string_t * s)
-{
-	return s ? _zip_write(za, s->raw, s->length) : 0;
-}
+int _zip_string_write(zip_t * za, const zip_string_t * s) { return s ? _zip_write(za, s->raw, s->length) : 0; }
 
-/*ZIP_EXTERN const char * zip_strerror(zip_t *za)
-{
-    return zip_error_strerror(&za->error);
-}*/
+// ZIP_EXTERN const char * zip_strerror(zip_t *za) { return zip_error_strerror(&za->error); }
 //
 // UNCHANGE
 //

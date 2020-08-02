@@ -443,42 +443,35 @@ void SelQCertDialog::delItem()
 
 IMPL_HANDLE_EVENT(SelQCertDialog)
 {
-	if(TVCOMMAND)
-		if(TVCMD == cmOK || TVCMD == cmLBDblClk) {
+	if(TVCOMMAND) {
+		if(oneof2(TVCMD, cmOK, cmLBDblClk)) {
 			PPID id = 0;
 			if(!P_List || !P_List->getCurID(&id) || !id)
 				clearEvent(event);
 			else if(TVCMD == cmLBDblClk && event.isCtlEvent(CTL_SELQCERT_LIST))
 				event.message.command = cmOK;
 		}
+	}
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
-		if(TVCMD == cmaInsert)
-			addItem();
-		else if(TVCMD == cmAddBySample)
-			addBySample();
-		else if(TVCMD == cmaDelete)
-			delItem();
-		else if(TVCMD == cmaEdit)
-			editItem();
-		else if(TVCMD == cmSelQCertByGoods)
-			selByGoods();
-		else
-			return;
+		switch(TVCMD) {
+			case cmaInsert: addItem(); break;
+			case cmAddBySample: addBySample(); break;
+			case cmaDelete: delItem(); break;
+			case cmaEdit: editItem(); break;
+			case cmSelQCertByGoods: selByGoods(); break;
+			default: return;
+		}
 	}
 	else if(TVKEYDOWN) {
-		if(TVKEY == kbIns)
-			addItem();
-		else if(TVKEY == kbAltF2)
-			addBySample();
-		else if(TVKEY == kbDel)
-			delItem();
-		else if(TVKEY == kbF3)
-			editItem();
-		else if(TVKEY == kbF2)
-			selByGoods();
-		else
-			return;
+		switch(TVKEY) {
+			case kbIns: addItem(); break;
+			case kbAltF2: addBySample(); break;
+			case kbDel: delItem(); break;
+			case kbF3: editItem(); break;
+			case kbF2: selByGoods(); break;
+			default: return;
+		}
 	}
 	else
 		return;

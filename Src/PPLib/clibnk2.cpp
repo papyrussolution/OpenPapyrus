@@ -361,75 +361,67 @@ public:
 	ResolveAssocCollisionDialog() : TDialog(DLG_ASC_RESOLVE), P_A(0)
 	{
 	}
-	int    setDTS(const SArray * pA);
-	int    getDTS(SArray * pA);
+	int    setDTS(const SArray * pA)
+	{
+		P_A = pA;
+		PPIDArray op_list;
+		const uint _c = SVectorBase::GetCount(P_A);
+		PPID   op_id = 0;
+		if(_c) {
+			for(uint i = 0; i < pA->getCount(); i++) {
+				op_list.add(static_cast<const Assoc *>(pA->at(i))->P_Item->OpID);
+			}
+			op_id = static_cast<Assoc *>(pA->at(0))->P_Item->OpID;
+		}
+		SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, op_id, 0, &op_list, OPKLF_OPLIST);
+		SetupPersonsListByOprKind(op_id);
+		return 1;
+	}
+	int    getDTS(SArray * pA)
+	{
+		int    ok = 1;
+		Assoc  a(0, 0, 0);
+		PPID   op_id = 0;
+		getCtrlData(CTLSEL_ASCRES_OPRKIND, &op_id);
+		getCtrlData(CTLSEL_ASCRES_PERSON, &a.PersonID);
+		for(uint i = 0; i < pA->getCount(); i++) {
+			const Assoc * p_assoc = static_cast<const Assoc *>(pA->at(i));
+			if(p_assoc->P_Item->OpID == op_id && p_assoc->PersonID == a.PersonID)
+				a = *p_assoc;
+		}
+		if(a.P_Item) {
+			pA->freeAll();
+			pA->insert(&a);
+		}
+		else
+			ok = 0;
+		return ok;
+	}
 private:
-	DECL_HANDLE_EVENT;
-	void   SetupPersonsListByOprKind(PPID oprKind);
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_ASCRES_OPRKIND)) {
+			SetupPersonsListByOprKind(getCtrlLong(CTLSEL_ASCRES_OPRKIND));
+			clearEvent(event);
+		}
+	}
+	void SetupPersonsListByOprKind(PPID opID)
+	{
+		Assoc * p_a;
+		StrAssocArray persons;
+		PPObjPerson psn_obj;
+		PersonTbl::Rec r;
+		for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);) {
+			if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) { // @v10.3.12 Search-->Fetch
+				persons.Add(p_a->PersonID, r.Name);
+			}
+		}
+		PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
+		SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, &persons, s, 0);
+	}
 	const  SArray * P_A;
 };
-
-void ResolveAssocCollisionDialog::SetupPersonsListByOprKind(PPID opID)
-{
-	Assoc * p_a;
-	StrAssocArray persons;
-	PPObjPerson psn_obj;
-	PersonTbl::Rec r;
-	for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);) {
-		if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) { // @v10.3.12 Search-->Fetch
-			persons.Add(p_a->PersonID, r.Name);
-		}
-	}
-	PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
-	SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, &persons, s, 0);
-}
-
-IMPL_HANDLE_EVENT(ResolveAssocCollisionDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_ASCRES_OPRKIND)) {
-		SetupPersonsListByOprKind(getCtrlLong(CTLSEL_ASCRES_OPRKIND));
-		clearEvent(event);
-	}
-}
-
-int ResolveAssocCollisionDialog::setDTS(const SArray * pA)
-{
-	P_A = pA;
-	PPIDArray op_list;
-	const uint _c = SVectorBase::GetCount(P_A);
-	PPID   op_id = 0;
-	if(_c) {
-		for(uint i = 0; i < pA->getCount(); i++) {
-			op_list.add(static_cast<const Assoc *>(pA->at(i))->P_Item->OpID);
-		}
-		op_id = static_cast<Assoc *>(pA->at(0))->P_Item->OpID;
-	}
-	SetupOprKindCombo(this, CTLSEL_ASCRES_OPRKIND, op_id, 0, &op_list, OPKLF_OPLIST);
-	SetupPersonsListByOprKind(op_id);
-	return 1;
-}
-
-int ResolveAssocCollisionDialog::getDTS(SArray * pA)
-{
-	int    ok = 1;
-	Assoc  a(0, 0, 0);
-	PPID   op_id = 0;
-	getCtrlData(CTLSEL_ASCRES_OPRKIND, &op_id);
-	getCtrlData(CTLSEL_ASCRES_PERSON, &a.PersonID);
-	for(uint i = 0; i < pA->getCount(); i++) {
-		const Assoc * p_assoc = static_cast<const Assoc *>(pA->at(i));
-		if(p_assoc->P_Item->OpID == op_id && p_assoc->PersonID == a.PersonID)
-			a = *p_assoc;
-	}
-	if(a.P_Item) {
-		pA->freeAll();
-		pA->insert(&a);
-	}
-	else
-		ok = 0;
-	return ok;
-}
 
 static int ResolveAssocCollision(SArray *pA, const BankStmntItem * pItem)
 {
@@ -815,119 +807,122 @@ static SString & FASTCALL _EncodeStr(const char * pStr, SString & rBuf)
 int SLAPI Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
 {
 	int    ok = -1;
-	PPObjLocation loc_obj;
-	BankStmntItem data_buf;
-	BnkAcctData payer_ba, rcvr_ba;
-	PersonReq payer_req, rcvr_req;
-	int    r1 = PsnObj.GetBnkAcctData(pPack->P_PaymOrder->PayerBnkAccID, static_cast<const PPBankAccount *>(0), &payer_ba);
-	int    r2 = PsnObj.GetBnkAcctData(pPack->P_PaymOrder->RcvrBnkAccID, static_cast<const PPBankAccount *>(0), &rcvr_ba);
-	SString buf, temp_buf;
-	if(r1 <= 0 || r2 <= 0) {
-		if(pLogger) {
-			uint msg_code = 0;
-			SString str_fmt, msg, buf, str_dt;
-			if(r1 <= 0)
-				msg_code = pPack->P_PaymOrder->PayerBnkAccID ? PPERR_PAYERBNKACCNOTFOUND : PPERR_PAYERBNKACCEMPTY;
-			else
-				msg_code = pPack->P_PaymOrder->RcvrBnkAccID ? PPERR_RCVRBNKACCNOTFOUND : PPERR_RCVRBNKACCEMPTY;
-			PPLoadString(PPMSG_ERROR, PPERR_EXPORTBNKORDER, str_fmt);
-			PPLoadString(PPMSG_ERROR, msg_code, buf);
-			str_dt.Cat(pPack->Rec.Dt);
-			msg.Printf(str_fmt, pPack->Rec.Code, str_dt.cptr(), buf.cptr());
-			pLogger->Log(msg);
+	const  PPBankingOrder * p_order = pPack ? pPack->P_PaymOrder : 0;
+	if(p_order) {
+		PPObjLocation loc_obj;
+		BankStmntItem data_buf;
+		BnkAcctData payer_ba, rcvr_ba;
+		PersonReq payer_req, rcvr_req;
+		int    r1 = PsnObj.GetBnkAcctData(p_order->PayerBnkAccID, static_cast<const PPBankAccount *>(0), &payer_ba);
+		int    r2 = PsnObj.GetBnkAcctData(p_order->RcvrBnkAccID, static_cast<const PPBankAccount *>(0), &rcvr_ba);
+		SString buf, temp_buf;
+		if(r1 <= 0 || r2 <= 0) {
+			if(pLogger) {
+				uint msg_code = 0;
+				SString str_fmt, msg, buf, str_dt;
+				if(r1 <= 0)
+					msg_code = p_order->PayerBnkAccID ? PPERR_PAYERBNKACCNOTFOUND : PPERR_PAYERBNKACCEMPTY;
+				else
+					msg_code = p_order->RcvrBnkAccID ? PPERR_RCVRBNKACCNOTFOUND : PPERR_RCVRBNKACCEMPTY;
+				PPLoadString(PPMSG_ERROR, PPERR_EXPORTBNKORDER, str_fmt);
+				PPLoadString(PPMSG_ERROR, msg_code, buf);
+				str_dt.Cat(pPack->Rec.Dt);
+				msg.Printf(str_fmt, pPack->Rec.Code, str_dt.cptr(), buf.cptr());
+				pLogger->Log(msg);
+			}
+			RejectedCount++;
+			return -1;
 		}
-		RejectedCount++;
-		return -1;
-	}
-	THROW(P_ImEx);
-	PsnObj.GetPersonReq(pPack->P_PaymOrder->PayerID, &payer_req);
-	PsnObj.GetPersonReq(pPack->P_PaymOrder->RcvrID,  &rcvr_req);
-	{
-		data_buf.BillID           = pPack->Rec.ID;
-		data_buf.Date             = pPack->Rec.Dt;
-		data_buf.Amount           = pPack->GetAmount();
-		data_buf.PayerPersonID    = pPack->P_PaymOrder->PayerID;
-		data_buf.ReceiverPersonID = pPack->P_PaymOrder->RcvrID;
-		data_buf.Sequence         = pPack->P_PaymOrder->BnkQueueing;
-		data_buf.VatSum           = pPack->P_PaymOrder->VATSum;
-		STRNSCPY(data_buf.Code, _EncodeStr(pPack->Rec.Code, temp_buf));
-		STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->Rec.Memo, temp_buf));
-		(buf = pPack->Rec.Memo).Space().Cat(MakeVatText(pPack, temp_buf)).Transf(CTRANSF_INNER_TO_OUTER).
-			CopyTo(data_buf.PurposePlusVat, sizeof(data_buf.PurposePlusVat));
+		THROW(P_ImEx);
+		PsnObj.GetPersonReq(p_order->PayerID, &payer_req);
+		PsnObj.GetPersonReq(p_order->RcvrID,  &rcvr_req);
 		{
-			long   paym_method = 0;
-			StringSet ss(';', P.PaymMethodTransl);
-			for(uint i = 0; ss.get(&i, buf) > 0;) {
-				uint j = 0;
-				StringSet ss1(',', buf);
-				ss1.get(&j, temp_buf);
-				if(temp_buf.ToLong() == pPack->P_PaymOrder->BnkPaymMethod) {
+			data_buf.BillID           = pPack->Rec.ID;
+			data_buf.Date             = pPack->Rec.Dt;
+			data_buf.Amount           = pPack->GetAmount();
+			data_buf.PayerPersonID    = p_order->PayerID;
+			data_buf.ReceiverPersonID = p_order->RcvrID;
+			data_buf.Sequence         = p_order->BnkQueueing;
+			data_buf.VatSum           = p_order->VATSum;
+			STRNSCPY(data_buf.Code, _EncodeStr(pPack->Rec.Code, temp_buf));
+			STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->Rec.Memo, temp_buf));
+			(buf = pPack->Rec.Memo).Space().Cat(MakeVatText(pPack, temp_buf)).Transf(CTRANSF_INNER_TO_OUTER).
+				CopyTo(data_buf.PurposePlusVat, sizeof(data_buf.PurposePlusVat));
+			{
+				long   paym_method = 0;
+				StringSet ss(';', P.PaymMethodTransl);
+				for(uint i = 0; ss.get(&i, buf) > 0;) {
+					uint j = 0;
+					StringSet ss1(',', buf);
 					ss1.get(&j, temp_buf);
-					paym_method = temp_buf.ToLong();
+					if(temp_buf.ToLong() == p_order->BnkPaymMethod) {
+						ss1.get(&j, temp_buf);
+						paym_method = temp_buf.ToLong();
+					}
+				}
+				data_buf.PaymMethod = static_cast<int16>(paym_method);
+			}
+			STRNSCPY(data_buf.PayerName,     _EncodeStr(payer_req.ExtName[0] ? payer_req.ExtName : payer_req.Name, temp_buf));
+			STRNSCPY(data_buf.PayerINN,      _EncodeStr(payer_req.TPID, temp_buf));
+			STRNSCPY(data_buf.PayerKPP,      _EncodeStr(payer_req.KPP, temp_buf));
+			STRNSCPY(data_buf.PayerBankAcc,  _EncodeStr(payer_ba.Acct, temp_buf));
+			STRNSCPY(data_buf.PayerBankName, _EncodeStr(payer_ba.Bnk.ExtName[0] ? payer_ba.Bnk.ExtName : payer_ba.Bnk.Name, temp_buf));
+			STRNSCPY(data_buf.PayerBankCode, _EncodeStr(payer_ba.Bnk.BIC, temp_buf));
+			STRNSCPY(data_buf.PayerBankCorr, _EncodeStr(payer_ba.Bnk.CorrAcc, temp_buf));
+			STRNSCPY(data_buf.ReceiverName,     _EncodeStr(rcvr_req.ExtName[0] ? rcvr_req.ExtName : rcvr_req.Name, temp_buf));
+			STRNSCPY(data_buf.ReceiverINN,      _EncodeStr(rcvr_req.TPID, temp_buf));
+			STRNSCPY(data_buf.ReceiverKPP,      _EncodeStr(rcvr_req.KPP, temp_buf));
+			STRNSCPY(data_buf.ReceiverBankAcc,  _EncodeStr(rcvr_ba.Acct, temp_buf));
+			STRNSCPY(data_buf.ReceiverBankName, _EncodeStr(rcvr_ba.Bnk.ExtName[0] ? rcvr_ba.Bnk.ExtName : rcvr_ba.Bnk.Name, temp_buf));
+			STRNSCPY(data_buf.ReceiverBankCode, _EncodeStr(rcvr_ba.Bnk.BIC, temp_buf));
+			STRNSCPY(data_buf.ReceiverBankCorr, _EncodeStr(rcvr_ba.Bnk.CorrAcc, temp_buf));
+			if(pPack->Rec.Object2) {
+				PersonReq req2;
+				GetArticleName(pPack->Rec.Object2, temp_buf);
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(data_buf.Obj2Name, sizeof(data_buf.Obj2Name));
+				if(PsnObj.GetPersonReq(pPack->Rec.Object2, &req2) > 0)
+					STRNSCPY(data_buf.Obj2INN, _EncodeStr(req2.TPID, temp_buf));
+			}
+			{
+				LocationTbl::Rec loc_rec;
+				RegisterTbl::Rec reg_rec;
+				if(loc_obj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
+					STRNSCPY(data_buf.LocSymb, _EncodeStr(loc_rec.Code, temp_buf));
+					if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0 && reg_rec.Num[0])
+						STRNSCPY(data_buf.WhKPP, reg_rec.Num);
 				}
 			}
-			data_buf.PaymMethod = static_cast<int16>(paym_method);
-		}
-		STRNSCPY(data_buf.PayerName,     _EncodeStr(payer_req.ExtName[0] ? payer_req.ExtName : payer_req.Name, temp_buf));
-		STRNSCPY(data_buf.PayerINN,      _EncodeStr(payer_req.TPID, temp_buf));
-		STRNSCPY(data_buf.PayerKPP,      _EncodeStr(payer_req.KPP, temp_buf));
-		STRNSCPY(data_buf.PayerBankAcc,  _EncodeStr(payer_ba.Acct, temp_buf));
-		STRNSCPY(data_buf.PayerBankName, _EncodeStr(payer_ba.Bnk.ExtName[0] ? payer_ba.Bnk.ExtName : payer_ba.Bnk.Name, temp_buf));
-		STRNSCPY(data_buf.PayerBankCode, _EncodeStr(payer_ba.Bnk.BIC, temp_buf));
-		STRNSCPY(data_buf.PayerBankCorr, _EncodeStr(payer_ba.Bnk.CorrAcc, temp_buf));
-		STRNSCPY(data_buf.ReceiverName,     _EncodeStr(rcvr_req.ExtName[0] ? rcvr_req.ExtName : rcvr_req.Name, temp_buf));
-		STRNSCPY(data_buf.ReceiverINN,      _EncodeStr(rcvr_req.TPID, temp_buf));
-		STRNSCPY(data_buf.ReceiverKPP,      _EncodeStr(rcvr_req.KPP, temp_buf));
-		STRNSCPY(data_buf.ReceiverBankAcc,  _EncodeStr(rcvr_ba.Acct, temp_buf));
-		STRNSCPY(data_buf.ReceiverBankName, _EncodeStr(rcvr_ba.Bnk.ExtName[0] ? rcvr_ba.Bnk.ExtName : rcvr_ba.Bnk.Name, temp_buf));
-		STRNSCPY(data_buf.ReceiverBankCode, _EncodeStr(rcvr_ba.Bnk.BIC, temp_buf));
-		STRNSCPY(data_buf.ReceiverBankCorr, _EncodeStr(rcvr_ba.Bnk.CorrAcc, temp_buf));
-		if(pPack->Rec.Object2) {
-			PersonReq req2;
-			GetArticleName(pPack->Rec.Object2, temp_buf);
-			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(data_buf.Obj2Name, sizeof(data_buf.Obj2Name));
-			if(PsnObj.GetPersonReq(pPack->Rec.Object2, &req2) > 0)
-				STRNSCPY(data_buf.Obj2INN, _EncodeStr(req2.TPID, temp_buf));
+			STRNSCPY(data_buf.TaxPayerKPP, _EncodeStr(payer_req.KPP, temp_buf));
+			STRNSCPY(data_buf.TaxReceiverKPP, _EncodeStr(rcvr_req.KPP, temp_buf));
+			buf.Z();
+			if(p_order->PayerStatus)
+				buf.CatLongZ(p_order->PayerStatus, 2);
+			STRNSCPY(data_buf.TaxPayerStatus, _EncodeStr(buf, temp_buf));
+			STRNSCPY(data_buf.TaxClass,       _EncodeStr(p_order->Txm.TaxClass2, temp_buf));
+			STRNSCPY(data_buf.OKATO,          _EncodeStr(p_order->Txm.OKATO, temp_buf));
+			STRNSCPY(data_buf.TaxReason,      _EncodeStr(p_order->Txm.Reason, temp_buf));
+			STRNSCPY(data_buf.TaxPeriod,      _EncodeStr(p_order->Txm.Period.Format(buf), temp_buf));
+			STRNSCPY(data_buf.TaxDocNumber,   _EncodeStr(p_order->Txm.DocNumber, temp_buf));
+			STRNSCPY(data_buf.UIN,            _EncodeStr(p_order->Txm.UIN, temp_buf));
+			buf.Z().Cat(p_order->Txm.DocDate, MKSFMT(0, DATF_GERMAN/*|DATF_CENTURY*/)).
+				CopyTo(data_buf.TaxDocDate, sizeof(data_buf.TaxDocDate));
+			STRNSCPY(data_buf.TaxPaymType,    _EncodeStr(p_order->Txm.PaymType, temp_buf));
 		}
 		{
-			LocationTbl::Rec loc_rec;
-			RegisterTbl::Rec reg_rec;
-			if(loc_obj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
-				STRNSCPY(data_buf.LocSymb, _EncodeStr(loc_rec.Code, temp_buf));
-				if(loc_obj.GetRegister(pPack->Rec.LocID, PPREGT_KPP, pPack->Rec.Dt, 0, &reg_rec) > 0 && reg_rec.Num[0])
-					STRNSCPY(data_buf.WhKPP, reg_rec.Num);
+			BillTbl::Rec debt_rec;
+			if(debtBillID && BillObj->Search(debtBillID, &debt_rec) > 0) {
+				data_buf.DebtBillID = debt_rec.ID;
+				data_buf.DebtBillDate = debt_rec.Dt;
+				STRNSCPY(data_buf.DebtBillCode, debt_rec.Code);
 			}
 		}
-		STRNSCPY(data_buf.TaxPayerKPP, _EncodeStr(payer_req.KPP, temp_buf));
-		STRNSCPY(data_buf.TaxReceiverKPP, _EncodeStr(rcvr_req.KPP, temp_buf));
-		buf.Z();
-		if(pPack->P_PaymOrder->PayerStatus)
-			buf.CatLongZ(pPack->P_PaymOrder->PayerStatus, 2);
-		STRNSCPY(data_buf.TaxPayerStatus, _EncodeStr(buf, temp_buf));
-		STRNSCPY(data_buf.TaxClass,       _EncodeStr(pPack->P_PaymOrder->Txm.TaxClass2, temp_buf));
-		STRNSCPY(data_buf.OKATO,          _EncodeStr(pPack->P_PaymOrder->Txm.OKATO, temp_buf));
-		STRNSCPY(data_buf.TaxReason,      _EncodeStr(pPack->P_PaymOrder->Txm.Reason, temp_buf));
-		STRNSCPY(data_buf.TaxPeriod,      _EncodeStr(pPack->P_PaymOrder->Txm.Period.Format(buf), temp_buf));
-		STRNSCPY(data_buf.TaxDocNumber,   _EncodeStr(pPack->P_PaymOrder->Txm.DocNumber, temp_buf));
-		STRNSCPY(data_buf.UIN,            _EncodeStr(pPack->P_PaymOrder->Txm.UIN, temp_buf));
-		buf.Z().Cat(pPack->P_PaymOrder->Txm.DocDate, MKSFMT(0, DATF_GERMAN/*|DATF_CENTURY*/)).
-			CopyTo(data_buf.TaxDocDate, sizeof(data_buf.TaxDocDate));
-		STRNSCPY(data_buf.TaxPaymType,    _EncodeStr(pPack->P_PaymOrder->Txm.PaymType, temp_buf));
+		data_buf.FormalPurpose = p_order->FormalPurpose; // @v10.7.11
+		PPSetAddedMsgString(P.FileName);
+		THROW(P_ImEx->AppendRecord(&data_buf, sizeof(data_buf)));
+		AcceptedCount++;
+		AcceptedAmount += pPack->GetAmount();
+		ok = 1;
 	}
-	{
-		BillTbl::Rec debt_rec;
-		if(debtBillID && BillObj->Search(debtBillID, &debt_rec) > 0) {
-			data_buf.DebtBillID = debt_rec.ID;
-			data_buf.DebtBillDate = debt_rec.Dt;
-			STRNSCPY(data_buf.DebtBillCode, debt_rec.Code);
-		}
-	}
-	data_buf.FormalPurpose = pPack->P_PaymOrder->FormalPurpose; // @v10.7.11
-	PPSetAddedMsgString(P.FileName);
-	THROW(P_ImEx->AppendRecord(&data_buf, sizeof(data_buf)));
-	AcceptedCount++;
-	AcceptedAmount += pPack->GetAmount();
-	ok = 1;
 	CATCHZOK
 	return ok;
 }

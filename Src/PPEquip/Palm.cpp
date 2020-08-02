@@ -1709,8 +1709,7 @@ static SString & SLAPI MakeBillCode(const PPStyloPalm & rDvcRec, int orderCodeFo
 	return rBuf;
 }
 
-int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID,
-	/*int orderCodeFormatType*/const PPStyloPalmConfig & rCfg, PPID * pResultID, PPLogger * pLogger, int use_ta)
+int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID, const PPStyloPalmConfig & rCfg, PPID * pResultID, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -1718,17 +1717,14 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	PPID   result_id = 0;
 	PPBillPacket pack;
 	const  PPID palm_id = pSrcPack->Hdr.PalmID;
-	//PPObjStyloPalm palm_obj;
 	PPStyloPalm palm_rec;
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	SString fmt_buf, msg_buf, temp_buf;
-
 	PPID   analog_bill_id = 0;
 	BillTbl::Rec analog_bill_rec;
-
 	THROW(Search(palm_id, &palm_rec) > 0);
 	THROW(pack.CreateBlank_WithoutCode(opID, 0L, pSrcPack->Hdr.LocID, use_ta));
 	if(pSrcPack->Hdr.AgentID)
@@ -1746,7 +1742,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 	MakeBillCode(palm_rec, rCfg.OrderCodeFormatType, pSrcPack->Hdr.Code, temp_buf);
 	STRNSCPY(pack.Rec.Code, temp_buf);
 	STRNSCPY(pack.Rec.Memo, pSrcPack->Hdr.Memo);
-	pack.Rec.EdiOp = PPEDIOP_SALESORDER; // @v9.2.11
+	pack.Rec.EdiOp = PPEDIOP_SALESORDER;
 	if(ar_obj.Fetch(pSrcPack->Hdr.ClientID, &ar_rec) > 0) {
 		PPOprKind op_rec;
 		if(GetOpData(opID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
@@ -1772,13 +1768,11 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		if(pSrcPack->Hdr.LatitudeEnd != 0.0 || pSrcPack->Hdr.LongitudeEnd != 0.0) {
 			pack.BTagL.PutItemStr(PPTAG_BILL_GPSCOORDEND, temp_buf.Z().Cat(pSrcPack->Hdr.LatitudeEnd).CatChar(',').Cat(pSrcPack->Hdr.LongitudeEnd));
 		}
-		// @v9.2.11 {
 		pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "STYLOAGENT");
 		if(rCfg.InhBillTagID && palm_rec.InhBillTagVal) {
 			if(tag.SetInt(rCfg.InhBillTagID, palm_rec.InhBillTagVal))
 				pack.BTagL.PutItem(rCfg.InhBillTagID, &tag);
 		}
-		// } @v9.2.11
 		for(uint i = 0; r && pSrcPack->EnumItems(&i, &item) > 0;) {
 			if(GetOpType(opID) == PPOPT_GOODSORDER) {
 				PPTransferItem ti;
@@ -1811,8 +1805,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 				uint   fl = 0;
 				ilti.Setup(item.GoodsID, -1, item.Qtty, 0, item.Price);
 				r = p_bobj->ConvertILTI(&ilti, &pack, &rows, fl, 0);
-				// @v9.4.9 if(r > 0 && ilti.Rest != 0) {
-				if(r > 0 && ilti.HasDeficit()) { // @v9.4.9
+				if(r > 0 && ilti.HasDeficit()) {
 					int   r2 = ProcessUnsuffisientGoods(item.GoodsID, pugpNoBalance);
 					if(r2 == PCUG_EXCLUDE)
 						pack.RemoveRows(&rows);
@@ -1839,6 +1832,33 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		}
 	}
 	else { // выведем подробную информацию о том, что такой документ уже существует
+		// @v10.8.3 {
+		// Аварийный блок для восстановления потерянных адресов доставки и агентов по заказу
+		if(pSrcPack->Hdr.DlvrAddrID) {
+			PPFreight ex_freight;
+			if(p_bobj->P_Tbl->GetFreight(analog_bill_rec.ID, &ex_freight) <= 0) {
+				PPFreight freight;
+				freight.DlvrAddrID = pSrcPack->Hdr.DlvrAddrID;
+				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &freight, use_ta);
+			}
+			else if(ex_freight.DlvrAddrID == 0) {
+				ex_freight.DlvrAddrID = pSrcPack->Hdr.DlvrAddrID;
+				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &ex_freight, use_ta);
+			}
+		}
+		if(pSrcPack->Hdr.AgentID) {
+			PPBillExt ex_ext;
+			if(p_bobj->P_Tbl->GetExtraData(analog_bill_rec.ID, &ex_ext) <= 0) {
+				PPBillExt ext;
+				ext.AgentID = pSrcPack->Hdr.AgentID;
+				p_bobj->P_Tbl->PutExtraData(analog_bill_rec.ID, &ext, use_ta);
+			}
+			else if(ex_ext.AgentID == 0) {
+				ex_ext.AgentID = pSrcPack->Hdr.AgentID;
+				p_bobj->P_Tbl->PutExtraData(analog_bill_rec.ID, &ex_ext, use_ta);
+			}
+		}
+		// } @v10.8.3
 		if(pLogger) {
 			PPLoadString("date", temp_buf);
 			PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, pack.Rec.Code, 1, msg_buf);
@@ -2406,7 +2426,7 @@ int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * 
 	THROW(GetPacket(id, &palm_pack) > 0);
 	THROW(GetChildList(id, palm_id_list));
 	for(i = 0; i < palm_id_list.getCount(); i++) {
-		PPID child_id = palm_id_list.at(i);
+		const PPID child_id = palm_id_list.at(i);
 		if(ReadInput(child_id, &input_param, 0, pLogger, &ord_count) == 0)
 			r = 0;
 	}
@@ -2420,7 +2440,7 @@ int SLAPI PPObjStyloPalm::ImportData(PPID id, PPID opID, PPID locID, PPLogger * 
 			for(i = 0; i < gtc; i++) {
 				PPGeoTrackItem & r_item = gt_list.at(i);
 				if(r_item.ExtOid.Obj == PPOBJ_BILL) {
-					PPID   inner_id = bill_queue.GetInnerIdByOuter(r_item.Oid.Id, r_item.ExtOid.Id);
+					const PPID inner_id = bill_queue.GetInnerIdByOuter(r_item.Oid.Id, r_item.ExtOid.Id);
                     r_item.ExtOid.Id = inner_id;
 				}
 			}

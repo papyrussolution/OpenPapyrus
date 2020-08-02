@@ -845,17 +845,11 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ExecFRPrintOper(FNOperation));
 							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
 								int    marking_type = 0;
-								if(sl_param.ChZnProductType == GTCHZNPT_FUR) {
-									marking_type = 2;
-								}
-								else if(sl_param.ChZnProductType == GTCHZNPT_TOBACCO) {
-									marking_type = 5;
-								}
-								else if(sl_param.ChZnProductType == GTCHZNPT_SHOE) {
-									marking_type = 5408;
-								}
-								else if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
-									marking_type = 3;
+								switch(sl_param.ChZnProductType) {
+									case GTCHZNPT_FUR: marking_type = 2; break;
+									case GTCHZNPT_TOBACCO: marking_type = 5; break;
+									case GTCHZNPT_SHOE: marking_type = 5408; break;
+									case GTCHZNPT_MEDICINE: marking_type = 3; break;
 								}
 								if(marking_type) {
 									THROW(SetFR(MarkingType, 1));
@@ -1019,7 +1013,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double __amt_ccrd = amt_ccrd;
 			const double __amt_cash = sum - __amt_bnk - __amt_ccrd;
 			// @v10.6.2 {
-			const int ccrd_entry_n = inrangeordefault(static_cast<long>(SCardPaymEntryN), 1, 16, (ExtMethodsFlags & extmethfCloseCheckEx) ? 14 : 2);
+			const int ccrd_entry_n = inrangeordefault(SCardPaymEntryN, 1, 16, (ExtMethodsFlags & extmethfCloseCheckEx) ? 14 : 2);
 			PPID  ccrd_entry_id = 0;
 			switch(ccrd_entry_n) {
 				case  1: ccrd_entry_id =  Summ1; break;
@@ -2089,7 +2083,7 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 		PPIniFile ini_file;
 		int    temp_int = 0;
 		Flags &= ~sfUseFnMethods; // @v10.7.2
-		SCardPaymEntryN = ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRSCARDPAYMENTRY, &temp_int) ? inrangeordefault(static_cast<long>(temp_int), 1, 16, 0) : 0; // @v10.6.2
+		SCardPaymEntryN = ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRSCARDPAYMENTRY, &temp_int) ? inrangeordefault(temp_int, 1, 16, 0) : 0; // @v10.6.2
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
 		buf.Divide(',', buf1, AdmName);
 		CashierPassword = AdmPassword = buf1.ToLong();

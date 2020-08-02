@@ -1304,7 +1304,8 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestGtinStruc();
+	TestSArchive();
+	//TestGtinStruc();
 	//TestGravity();
 	//PPChZnPrcssr::Test();
 	//TestConfigDatabase_StringHistory();
@@ -1315,7 +1316,6 @@ int SLAPI DoConstructionTest()
 	//TestUhttClient();
 	//TestCRC();
 	//Test_MailMsg_ReadFromFile();
-	//TestSArchive();
 	//LuaTest();
 	//TestFann2();
 	//Test_MakeEmailMessage();

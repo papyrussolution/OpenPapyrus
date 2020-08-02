@@ -45,7 +45,6 @@
     <ClCompile Include="..\PPLib\billhist.cpp" />
     <ClCompile Include="..\PPLib\bilvatax.cpp" />
     <ClCompile Include="..\PPLib\bitmbrow.cpp" />
-    <ClCompile Include="..\PPLib\BNKACCT.CPP" />
     <ClCompile Include="..\PPLib\Bnkodlg.cpp" />
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\calendar.cpp" />
@@ -62,7 +61,6 @@
     <ClCompile Include="..\PPLib\Cshmchn.cpp" />
     <ClCompile Include="..\PPLib\Cshses.cpp" />
     <ClCompile Include="..\PPLib\Ctrandlg.cpp" />
-    <ClCompile Include="..\PPLib\CURRATE.CPP" />
     <ClCompile Include="..\PPLib\Cutting.cpp" />
     <ClCompile Include="..\PPLib\C_aturn.cpp" />
     <ClCompile Include="..\PPLib\C_bill.cpp" />

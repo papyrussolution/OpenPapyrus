@@ -2943,8 +2943,7 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 			double qtty = 0.0;
 			Sdr_SBIIBillRowWithCells sdr_brow;
 			// @v10.7.9 @ctr MEMSZERO(sdr_brow);
-			// @v9.8.11 pack.SnL.GetNumber(i, &serial);
-			pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v9.8.11 
+			pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial);
 			sdr_brow.BillID   = billID;
 			sdr_brow.GoodsID  = ti.GoodsID;
 			serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));
@@ -2952,13 +2951,12 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PP
 			sdr_brow.Cost     = ti.Cost;
 			sdr_brow.RByBill  = (long)ti.RByBill;
 			GetObjectName(PPOBJ_GOODS, ti.GoodsID, sdr_brow.Name, sizeof(sdr_brow.Name));
-			// @v9.4.11 SOemToChar(sdr_brow.Name);
-			(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
+			(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER);
 			STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
 			qtty = sdr_brow.Qtty;
 			{
 				LocTransfCore loct_tbl;
-				TSVector <LocTransfTbl::Rec> cell_list; // @v9.8.4 TSArray-->TSVector
+				TSVector <LocTransfTbl::Rec> cell_list;
 				if(IsExpendOp(pack.Rec.OpID)) {
 					RAssocArray list;
 					SString name;
@@ -3303,8 +3301,7 @@ int SLAPI PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArra
 						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 							Sdr_SBIISampleBillRow sdr_brow;
 							// @v10.7.9 @ctr MEMSZERO(sdr_brow);
-							// @v9.8.11 pack.SnL.GetNumber(i, &serial);
-							pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v9.8.11 
+							pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial);
 							sdr_brow.BillID  = item.ID;
 							sdr_brow.GoodsID = ti.GoodsID;
 							serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));

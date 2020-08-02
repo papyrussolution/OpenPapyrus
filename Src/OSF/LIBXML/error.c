@@ -14,14 +14,13 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
 
 #define XML_GET_VAR_STR(msg, str) {				\
 		int    prev_size = -1;			      \
-		int    chars;					      \
 		va_list ap;						  \
 		str = static_cast<char *>(SAlloc::M(150)); \
 		if(str) {					   \
 			int size = 150;						    \
 			while(size < 64000) {					   \
 				va_start(ap, msg);					\
-				chars = vsnprintf(str, size, msg, ap);			\
+				int    chars = vsnprintf(str, size, msg, ap);			\
 				va_end(ap);						\
 				if((chars > -1) && (chars < size)) {		       \
 					if(prev_size == chars)			   \

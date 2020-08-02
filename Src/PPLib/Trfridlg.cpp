@@ -189,9 +189,7 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 					item.Price    = pItem->Price;
 					THROW(P_Pack->BoundsByLot(item.LotID, &item, -1, &item.Rest_, 0));
 					THROW(P_Pack->InsertRow(&item, 0, 0));
-					P_Pack->LTagL.ReplacePosition(-1, P_Pack->GetTCount() - 1); // @v9.8.11
-					// @v9.8.11 P_Pack->ClbL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
-					// @v9.8.11 P_Pack->SnL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
+					P_Pack->LTagL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
 				}
 			}
 		}
@@ -692,8 +690,7 @@ void TrfrItemDialog::editQCertData()
 				lqcd.Expiry  = Item.Expiry;
 				lqcd.IsInheritedClb = 1;
 				P_BObj->GetClbNumberByLot(Item.LotID, 0, org_clb);
-				// @v9.8.11 P_Pack->SnL.GetNumber(ItemNo, &serial);
-				P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, serial); // @v9.8.11
+				P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, serial);
 				org_clb.Strip().CopyTo(lqcd.CLB, sizeof(lqcd.CLB));
 				serial.Strip().CopyTo(lqcd.Serial, sizeof(lqcd.Serial));
 				dlg->setDTS(&lqcd);
@@ -702,8 +699,7 @@ void TrfrItemDialog::editQCertData()
 						valid_data = 1;
 						Item.QCert = lqcd.QCertID;
 						Item.Expiry = lqcd.Expiry;
-						// @v9.8.11 P_Pack->SnL.AddNumber(ItemNo, lqcd.Serial);
-						P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, lqcd.Serial); // @v9.8.11
+						P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, lqcd.Serial);
 						setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
 					}
 			}
@@ -1433,8 +1429,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			Item.LotID = lot_id;
 			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf.Z(), 0));
 			if(ret > 0) {
-				// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, temp_buf));
-				THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, temp_buf)); // @v9.8.11
+				THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, temp_buf));
 			}
 		}
 		else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, -lid, sd, &lot_rec) > 0) {
@@ -2352,15 +2347,12 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
 			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Item.Flags);
 			getCtrlString(CTL_LOT_CLB, clb_number.Z());
-			// @v9.8.11 THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
-			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11
+			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number));
 			getCtrlData(CTLSEL_LOT_INTAXGRP, &Item.LotTaxGrpID);
 		}
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number);
-		// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11
-		// @v9.3.6 {
+		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number));
 		if(IsSourceSerialUsed()) {
 			getCtrlString(CTL_LOT_SOURCESERIAL, temp_buf);
 			ObjTagList tag_list;
@@ -2372,7 +2364,6 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 				P_Pack->LTagL.Set(ItemNo, &tag_list);
 			}
 		}
-		// } @v9.3.6
 		if(InheritedLotTagList.GetCount()) {
 			ObjTagList tag_list;
 			const ObjTagList * p_list = P_Pack->LTagL.Get(ItemNo);
@@ -2388,11 +2379,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
-		// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11
+		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number));
 		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0) {
-			// @v9.8.11 THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
-			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11
+			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number));
 		}
 	}
 	// @v10.5.8 {

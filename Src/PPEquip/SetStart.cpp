@@ -713,8 +713,8 @@ int SLAPI ACS_SETSTART::ExportData(int updOnly)
 	PPWait(0);
 	PPWait(1);
 	(email_subj = SUBJECTFRONTOL).Cat("001"); // Пока только для кассы с номером 1
-	THROW(DistributeFile(path_goods, 0, 0, email_subj));
-	THROW(DistributeFile(path_flag,  0));
+	THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, email_subj)); 
+	THROW(DistributeFile_(path_flag, 0/*pEndFileName*/, dfactCopy, 0, 0));
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
 	CATCH

@@ -68,7 +68,10 @@ public:
 		SString OKPO;
 		SString INN;
 		SString KPP;
-		SString Name;
+		SString Appellation;
+		SString Name_;
+		SString Surname;
+		SString Patronymic;
 		Address Addr;
 		BankAccount BA;
 	};
@@ -443,12 +446,30 @@ private:
 				for(xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_JURINFO))) {
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAMEOFORG), temp_buf))
-							rResult.Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							rResult.Appellation = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNJUR), temp_buf))
 							rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
 							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					}
+					// @v10.8.4 {
+					else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_PRIVEINFO))) {
+						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INNPHS), temp_buf))
+							rResult.INN = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_KPP), temp_buf))
+							rResult.KPP = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);							
+						for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+							if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_FIO))) {
+								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_SURNAME), temp_buf))
+									rResult.Surname = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_NAME), temp_buf))
+									rResult.Name_ = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_PATRONYMIC), temp_buf))
+									rResult.Patronymic = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							}
+						}
+					}
+					// } @v10.8.4 
 				}
 			}
 			else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDRESS))) {

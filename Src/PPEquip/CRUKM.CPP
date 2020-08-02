@@ -429,7 +429,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 	THROW(ExportSCard(p_out_tbl, p_sccrd_tbl, &log_num_list, updOnly));
 	if(!distrib_path) {
 		ZDELETE(p_out_tbl);
-		THROW(DistributeFile(path_goods, 0));
+		THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, 0));
 	}
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);

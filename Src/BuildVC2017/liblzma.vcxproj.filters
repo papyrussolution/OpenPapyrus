@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{49b0499f-1025-4210-8e79-a718c04025f2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\liblzma\include\alone_decoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\block_buffer_encoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\block_decoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\block_encoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\check-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\crc32_table_be.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\crc32_table_le.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\crc64_table_be.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\crc64_table_le.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\delta_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\easy_preset.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\fastpos.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\filter_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\index-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\lz_encoder_hash_table.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\lzma_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\lzma_encoder_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\memcmplen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\mythread.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\outqueue.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\range_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\range_decoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\range_encoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\simple_coder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\simple_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\stream_decoder.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\stream_flags_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\sysdefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_cpucores.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_exit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_gettext.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_integer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_mbstr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_open_stdxxx.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_physmem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\tuklib_progname.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\api\lzma.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\lzma2-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\liblzma\include\lz-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\liblzma\src\arm.c" />
+    <ClCompile Include="..\OSF\liblzma\src\armthumb.c" />
+    <ClCompile Include="..\OSF\liblzma\src\auto_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\check.c" />
+    <ClCompile Include="..\OSF\liblzma\src\common.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc32_fast.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc32_small.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc32_table.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc64_fast.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc64_small.c" />
+    <ClCompile Include="..\OSF\liblzma\src\crc64_table.c" />
+    <ClCompile Include="..\OSF\liblzma\src\delta_common.c" />
+    <ClCompile Include="..\OSF\liblzma\src\fastpos_table.c" />
+    <ClCompile Include="..\OSF\liblzma\src\file_info.c" />
+    <ClCompile Include="..\OSF\liblzma\src\filter_common.c" />
+    <ClCompile Include="..\OSF\liblzma\src\hardware_cputhreads.c" />
+    <ClCompile Include="..\OSF\liblzma\src\hardware_physmem.c" />
+    <ClCompile Include="..\OSF\liblzma\src\ia64.c" />
+    <ClCompile Include="..\OSF\liblzma\src\index.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma2_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma2_encoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma_encoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma_encoder_optimum_fast.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma_encoder_optimum_normal.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lzma_encoder_presets.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lz_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lz_encoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\lz_encoder_mf.c" />
+    <ClCompile Include="..\OSF\liblzma\src\outqueue.c" />
+    <ClCompile Include="..\OSF\liblzma\src\powerpc.c" />
+    <ClCompile Include="..\OSF\liblzma\src\price_table.c" />
+    <ClCompile Include="..\OSF\liblzma\src\sha256.c" />
+    <ClCompile Include="..\OSF\liblzma\src\simple_coder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\sparc.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_buffer_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_buffer_encoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_encoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_encoder_mt.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_flags_common.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_flags_decoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\stream_flags_encoder.c" />
+    <ClCompile Include="..\OSF\liblzma\src\x86.c" />
+    <ClCompile Include="..\OSF\liblzma\src\easy.c" />
+    <ClCompile Include="..\OSF\liblzma\src\liblzma-pch.cpp" />
+    <ClCompile Include="..\OSF\liblzma\src\block.c" />
+    <ClCompile Include="..\OSF\liblzma\src\vli.c" />
+    <ClCompile Include="..\OSF\liblzma\src\alone.c" />
+  </ItemGroup>
+</Project>

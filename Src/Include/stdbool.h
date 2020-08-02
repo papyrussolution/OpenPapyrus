@@ -1,6 +1,5 @@
 #ifndef STDBOOL_H_
 #define STDBOOL_H_
- 
 /**
  * stdbool.h - ISO C99 Boolean type
  * Author    - Bill Chatfield
@@ -19,7 +18,6 @@
  *
  * See http://predef.sourceforge.net/precomp.html for compile macros.
  */
- 
 /**
  * Borland C++ 5.5.1 does not define _Bool.
  */
@@ -45,5 +43,4 @@
 	#define __bool_true_false_are_defined 1
 #endif
 */
- 
 #endif /*STDBOOL_H_*/

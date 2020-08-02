@@ -999,8 +999,7 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				if(id) {
 					int    r = 1;
 					TSessAnlzFilt flt;
-					if(P_LastAnlzFilt)
-						flt = *P_LastAnlzFilt;
+					RVALUEPTR(flt, P_LastAnlzFilt);
 					PPViewTSessAnlz v_tsa;
 					if(Filt.Flags & TSessionFilt::fManufPlan)
 						flt.PlanSessID = id;
@@ -1035,9 +1034,6 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					}
 				}
 				break;
-			case PPVCMD_WROFFSESS:
-				ok = WriteOff(id);
-				break;
 			case PPVCMD_WROFFBILLS:
 				ok = -1;
 				ViewBillsByPool(PPASS_TSESSBILLPOOL, id);
@@ -1057,16 +1053,10 @@ int SLAPI PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				ok = -1;
 				PrintList(0);
 				break;
-			case PPVCMD_TRANSMIT:
-				ok = Transmit(0);
-				break;
-			// @vmiller
-			case PPVCMD_SENDSMS:
-				ok = SendAutoSms();
-				break;
-			case PPVCMD_EXPORTUHTT:
-				ok = ExportUhtt();
-				break;
+			case PPVCMD_WROFFSESS: ok = WriteOff(id); break;
+			case PPVCMD_TRANSMIT: ok = Transmit(0); break;
+			case PPVCMD_SENDSMS: ok = SendAutoSms(); break; // @vmiller
+			case PPVCMD_EXPORTUHTT: ok = ExportUhtt(); break;
 		}
 	}
 	return ok;

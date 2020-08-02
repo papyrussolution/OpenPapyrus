@@ -1,13 +1,10 @@
 // CSHSES.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
-//
 // Интерфейс с асинхронными кассовыми устройствами
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
-//#include <fcntl.h>
 //
 // PPSyncCashSession
 //
@@ -965,7 +962,7 @@ int SLAPI PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 			SString path;
 			PPGetFilePath(PPPATH_OUT, PPFILNAM_SIG_ACSOPENED, path);
 			createEmptyFile(path);
-			DistributeFile(path, 0);
+			DistributeFile_(path, 0/*pEndFileName*/, dfactCopy, 0, 0);
 			PPLogMessage(PPFILNAM_INFO_LOG, msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ACNEXP_FINISH, fmt), acn_rec.Name), lmf);
 		}
 	}
@@ -1141,7 +1138,7 @@ int FASTCALL PPAsyncCashSession::CheckCnExtFlag(long f)
 int SLAPI PPAsyncCashSession::GetNodeData(PPAsyncCashNode * pData)
 {
 	PPObjCashNode cnobj;
-	int    r = cnobj.GetAsync(NodeID, pData);
+	const int r = cnobj.GetAsync(NodeID, pData);
 	if(r > 0) {
 		CnFlags = pData->Flags;
 		CnExtFlags = pData->ExtFlags;
@@ -1157,7 +1154,7 @@ void FASTCALL PPAsyncCashSession::AdjustSCardCode(char * pCode)
 
 int FASTCALL PPAsyncCashSession::AddCheckDigToBarcode(char * pCode)
 {
-	size_t len = sstrlen(pCode);
+	const size_t len = sstrlen(pCode);
 	const PPGoodsConfig & gcfg = GetGoodsCfg();
 	if(len > 3 && CheckCnFlag(CASHF_EXPCHECKD) && !(gcfg.Flags & GCF_BCCHKDIG) && !gcfg.IsWghtPrefix(pCode)) {
 		AddBarcodeCheckDigit(pCode);
@@ -1167,29 +1164,38 @@ int FASTCALL PPAsyncCashSession::AddCheckDigToBarcode(char * pCode)
 		return -1;
 }
 
-int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action, const char * pSubDir /*=0*/, const char * pEmailSubj /*=0*/)
+int SLAPI PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEndFileName, int action, const char * pSubDir /*=0*/, const char * pEmailSubj /*=0*/)
 {
 	const char * p_ftp_flag = "ftp:";
 	StringSet ss(';', 0);
 	int    ok = GetExpPathSet(&ss);
 	if(ok > 0) {
 		int    ftp_connected = 0;
-		char   buf[MAXPATH];
+		SString dest_file_name = pFileName;
+		SString dest_nam; // @v10.8.4 Если !Empty то имя конечного файла заменяется на это
+		SString dest_ext; // @v10.8.4 Если !Empty то расширение конечного файла заменяется на это
 		SString path, temp_file_name;
-		PPInternetAccount acct, mac_rec;
+		PPInternetAccount acct;
+		PPInternetAccount mac_rec;
 		PPObjInternetAccount obj_acct;
 		WinInetFTP ftp;
+		// @v10.8.4 {
+		if(!isempty(pEndFileName)) {
+			SPathStruc efn_ps(pEndFileName);
+			dest_nam = efn_ps.Nam;
+			dest_ext = efn_ps.Ext;
+		}
+		// } @v10.8.4 
 		if(EqCfg.FtpAcctID) {
 			THROW(obj_acct.Get(EqCfg.FtpAcctID, &acct));
 		}
 		{
 			PPAlbatrossConfig alb_cfg;
-			MEMSZERO(mac_rec);
+			// @v10.8.4 @ctr MEMSZERO(mac_rec);
 			if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID)
 				THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 		}
 		ok = -1;
-		STRNSCPY(buf, pFileName);
 		for(uint i = 0; ss.get(&i, path) > 0;) {
 			if(!isempty(pSubDir)) {
 				SPathStruc sp(path);
@@ -1199,6 +1205,12 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 				sp.Dir.Cat(pSubDir);
 				sp.Merge(path);
 			}
+			/*
+				dfactCopy           = 0, // скопировать файл pFileName в каждый из каталогов экспорта
+				dfactDelete         = 1, // удалить файлы с именем, заданным параметром pFileName
+				dfactCheckExistence = 2, // проверить наличие файла с именем, заданным параметром pFileName
+				dfactCheckDestPaths = 3  // проверить доступность каталогов назначения на запись
+			*/
 			if(path.CmpPrefix(p_ftp_flag, 1) == 0) {
 				SString ftp_path, file_name;
 				SPathStruc sp;
@@ -1212,7 +1224,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 				}
 				sp.Split(pFileName);
 				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
-				if(action == 3) {
+				if(action == dfactCheckDestPaths) {
 					SString local_path;
 					PPGetPath(PPPATH_OUT, local_path);
 					FILE * f_temp = fopen(MakeTempFileName(local_path, 0, 0, 0, temp_file_name), "w");
@@ -1239,29 +1251,29 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 				else {
 					ftp_path.SetLastSlash().Cat(file_name);
 					if(ftp.Exists(ftp_path)) {
-						if(action == 1) { // Remove file
+						if(action == dfactDelete) { // Remove file
 							ftp.SafeDelete(ftp_path, 0);
 							ok = 1;
 						}
-						else if(action == 2) // Check existence
+						else if(action == dfactCheckExistence) // Check existence
 							ok = 1;
 					}
-					else if(action == 1)
+					else if(action == dfactDelete)
 						ok = 1; // Если файл не найден, то полагаем, что результат удаления положительный
-					if(action == 0) { // Copy file
+					if(action == dfactCopy) { // Copy file
 						THROW(ftp.SafePut(pFileName, ftp_path, 0, 0, 0));
 						ok = 1;
 					}
 				}
 			}
 			else if(path.HasChr('@')) {
-				if(action == 0 && pEmailSubj)
+				if(action == dfactCopy && pEmailSubj)
 					ok = SendMailWithAttach(pEmailSubj, pFileName, 0, path, mac_rec.ID);
 				else
 					ok = 1;
 			}
 			else {
-				if(action == 3) {
+				if(action == dfactCheckDestPaths) {
 					//
 					// Проверка на возможность создания файла в заданном каталоге
 					//
@@ -1279,26 +1291,33 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 				else {
 					// @v10.5.6 replacePath(buf, path, 1);
 					// @v10.5.6 {
-					SPathStruc sp(buf);
+					SPathStruc sp(dest_file_name);
 					SPathStruc sp_path(path);
 					SETFLAGBYSAMPLE(sp.Flags, sp.fUNC, sp_path.Flags); // @v10.5.7
 					sp.Drv = sp_path.Drv;
 					sp.Dir = sp_path.Dir;
+					// @v10.8.4 {
+					if(dest_nam.NotEmpty())
+						sp.Nam = dest_nam;
+					if(dest_ext.NotEmpty())
+						sp.Ext = dest_ext;
+					// } @v10.8.4 
 					sp.Merge(temp_file_name);
-					STRNSCPY(buf, temp_file_name);
+					//STRNSCPY(buf, temp_file_name);
+					dest_file_name = temp_file_name;
 					// } @v10.5.6 
-					if(fileExists(buf)) {
-						if(action == 1) { // Remove file
-							SFile::Remove(buf);
+					if(fileExists(dest_file_name)) {
+						if(action == dfactDelete) { // Remove file
+							SFile::Remove(dest_file_name);
 							ok = 1;
 						}
-						else if(action == 2) // Check existence
+						else if(action == dfactCheckExistence) // Check existence
 							ok = 1;
 					}
-					else if(action == 1)
+					else if(action == dfactDelete)
 						ok = 1; // Если файл не найден, то полагаем, что результат удаления положительный
-					if(action == 0) { // Copy file
-						copyFileByName(pFileName, buf);
+					if(action == dfactCopy) { // Copy file
+						copyFileByName(pFileName, dest_file_name);
 						ok = 1;
 					}
 				}
@@ -2500,7 +2519,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 		QuotByQttyList.freeAll();
 		THROW(GObj.P_Tbl->FetchQuotList(info.ID, 0, AcnPack.LocID, quot_list));
 		for(i = 0; i < quot_list.getCount(); i++) {
-			PPQuot  quot = quot_list.at(i);
+			const PPQuot quot = quot_list.at(i);
 			if(quot.MinQtty)
 				THROW_SL(QuotByQttyList.insert(&quot));
 		}

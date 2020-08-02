@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -157,11 +157,10 @@ int SLAPI PPCheckInPersonItem::GetPersonName(SString & rBuf) const
 	return ok;
 }
 
-int SLAPI PPCheckInPersonItem::SetAnonym()
+void SLAPI PPCheckInPersonItem::SetAnonym()
 {
 	PersonID = 0;
 	Flags |= fAnonym;
-	return 1;
 }
 
 int SLAPI PPCheckInPersonItem::IsAnonym() const
@@ -540,15 +539,8 @@ int SLAPI PPCheckInPersonArray::CalcAmount(const PPCheckInPersonConfig * pCfg, d
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::SearchByID(PPID id, uint * pPos) const
-{
-	return lsearch(&id, pPos, CMPF_LONG);
-}
-
-int SLAPI PPCheckInPersonArray::SearchByNum(long num, uint * pPos) const
-{
-	return lsearch(&num, pPos, CMPF_LONG, offsetof(PPCheckInPersonItem, Num));
-}
+int SLAPI PPCheckInPersonArray::SearchByID(PPID id, uint * pPos) const { return lsearch(&id, pPos, CMPF_LONG); }
+int SLAPI PPCheckInPersonArray::SearchByNum(long num, uint * pPos) const { return lsearch(&num, pPos, CMPF_LONG, offsetof(PPCheckInPersonItem, Num)); }
 
 int SLAPI PPCheckInPersonArray::SearchItem(const PPCheckInPersonItem & rItem, uint * pPos) const
 {

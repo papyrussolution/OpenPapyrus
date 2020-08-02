@@ -1274,7 +1274,7 @@ int DlContext::AddFuncDeclare(const CtmDclr & rSymb, const CtmDclrList & rArgLis
 			func.AddArg(full_type_id, p_dclr->Tok.U.S, p_dclr->IfaceArgDirMod);
 		}
 	}
-	THROW(p_scope->AddFunc(&func));
+	p_scope->AddFunc(&func);
 	CATCHZOK
 	return ok;
 
@@ -1298,7 +1298,7 @@ int SLAPI DlContext::AddBFunc(const char * pFuncName, uint implID, const char * 
 		f.Flags |= DlFunc::fImplByID;
 		f.ImplID = implID;
 		if(ok)
-			ok = Sc.AddFunc(&f);
+			Sc.AddFunc(&f);
 	}
 	else
 		ok = 0;
@@ -3696,7 +3696,6 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 			if(Sc.GetFirstChildByKind(DlScope::kUiDialog, 1)) {
 				SString symb;
 				DLSYMBID ss_id = 0;
-				//
 				scope_id_list.freeAll();
 				Sc.GetChildList(DlScope::kUiDialog, 1, &scope_id_list);
 				gen.Wr_Comment(symb = 0);
@@ -3710,7 +3709,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 						CtmExprConst c_ss;
 						if(p_scope->GetConst(DlScope::cuifSymbSeries, &c_ss)) {
 							char   s_buf[256];
-							s_buf[0] = 0;
+							PTR32(s_buf)[0] = 0;
 							GetConstData(c_ss, s_buf, sizeof(s_buf));
 							temp_buf.Space().Cat("//").Space().Cat(s_buf);
 						}

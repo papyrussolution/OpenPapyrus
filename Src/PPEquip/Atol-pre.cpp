@@ -701,8 +701,8 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 	fclose(p_file);
 	PPWait(0);
 	PPWait(1);
-	THROW(DistributeFile(path_goods, 0));
-	THROW(DistributeFile(path_flag,  0));
+	THROW(DistributeFile_(path_goods, 0/*pEndFileName*/, dfactCopy, 0, 0));
+	THROW(DistributeFile_(path_flag,  0/*pEndFileName*/, dfactCopy, 0, 0));
 	if(stat_id)
 		P_Dls->FinishLoading(stat_id, 1, 1);
 	CATCH

@@ -1215,14 +1215,10 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
 									const uint dest_pos = p_pack->GetTCount()-1;
-									// @v9.8.11 blk.SrcDraftPack.ClbL.GetNumber(i, &clb_buf);
-									// @v9.8.11 blk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
-									// @v9.8.11 THROW(p_pack->ClbL.AddNumber(dest_pos, clb_buf));
-									// @v9.8.11 THROW(p_pack->SnL.AddNumber(dest_pos, serial_buf));
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf); // @v9.8.11
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf)); // @v9.8.11
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf)); // @v9.8.11
+									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf);
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf));
+									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf));
 									{
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
