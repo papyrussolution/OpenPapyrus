@@ -286,7 +286,7 @@ int PrcPaneDialog::setupProcessor(PPID prcID, int init)
 		}
 	}
 	TgsList.Destroy();
-	setCtrlString(CTL_PRCPAN_PRCNAME, H.PrcRec.Name);
+	setCtrlString(CTL_PRCPAN_PRCNAME, SString(H.PrcRec.Name));
 	updateStatus(1);
 	setupHint();
 	CATCHZOK
@@ -523,7 +523,7 @@ void PrcPaneDialog::ProcessEnter()
 {
 	int    prev_state = State;
 	SString temp_buf;
-	setCtrlString(CTL_PRCPAN_INFO, static_cast<const char *>(0));
+	setCtrlString(CTL_PRCPAN_INFO, temp_buf.Z());
 	if(State == sIDLE) {
 		if(CONFIRM(PPCFM_PRCIDLECANCEL))
 			setIdleMode(0);
@@ -727,7 +727,8 @@ void PrcPaneDialog::clearPanel()
 
 void PrcPaneDialog::selectGoods(int mode)
 {
-	setCtrlString(CTL_PRCPAN_INFO, static_cast<const char *>(0));
+	SString temp_buf;
+	setCtrlString(CTL_PRCPAN_INFO, temp_buf.Z());
 	if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
 		if(mode == 0) {
 			long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
@@ -758,16 +759,16 @@ void PrcPaneDialog::selectGoods(int mode)
 		}
 		else if(mode == 2) {
 			int    r = -1, err_code = PPERR_BARCODEORSERNFOUND;
-			SString code = Input;
+			temp_buf = Input;
 			BarcodeTbl::Rec bc_rec;
-			if(GObj.SearchByBarcode(code, &bc_rec, 0, 1) > 0) {
+			if(GObj.SearchByBarcode(temp_buf, &bc_rec, 0, 1) > 0) {
 				setupGoods(bc_rec.GoodsID);
 				if(bc_rec.Qtty > 1)
 					setupQtty(bc_rec.Qtty, 0);
 				r = 1;
 			}
 			else {
-				PPObjTSession::SelectBySerialParam ssp(H.SessID, code);
+				PPObjTSession::SelectBySerialParam ssp(H.SessID, temp_buf);
 				int    r2 = TSesObj.SelectBySerial(&ssp);
 				if(r2 == 1 || (r2 == 2 && isRestState())) {
 					setupGoods(ssp.GoodsID);
@@ -804,7 +805,7 @@ void PrcPaneDialog::selectGoods(int mode)
 					ProcessEnter();
 			}
 			else {
-				showMessage(mfError, err_code, code);
+				showMessage(mfError, err_code, temp_buf);
 				clearPanel();
 			}
 		}
@@ -916,7 +917,7 @@ void PrcPaneDialog::setupGoods(PPID goodsID)
 		else
 			State = H.SessID ? sEMPTY_SESS : sEMPTY_NOSESS;
 	}
-	setCtrlString(CTL_PRCPAN_GOODSNAME, E.GoodsName);
+	setCtrlString(CTL_PRCPAN_GOODSNAME, SString(E.GoodsName));
 	setCtrlData(CTL_PRCPAN_PACK, &E.Pack);
 	setCtrlData(CTL_PRCPAN_SERIAL, E.Serial);
 	setupQtty(qtty, qtty_in_pack);
@@ -931,19 +932,18 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 		if(forceUpdate || dif > 3) {
 			const PPID prev_sess_id = H.SessID;
 			TSessionTbl::Rec ses_rec;
+			SString temp_buf;
 			H.SessID = 0;
 			if(TSesObj.IsProcessorInProcess(H.PrcID, 0, &ses_rec) > 0) {
 				H.SessID = ses_rec.ID;
 				H.LinkBillID = ses_rec.LinkBillID;
 			}
 			if(forceUpdate || H.SessID != prev_sess_id) {
-				SString temp_buf;
 				H.SessText[0] = 0;
 				H.MainGoodsID = 0;
 				H.MainGoodsName[0] = 0;
 				TgsList.Destroy();
 				if(H.SessID) {
-					//SString ses_buf;
 					TSesObj.MakeName(&ses_rec, temp_buf);
 					temp_buf.CopyTo(H.SessText, sizeof(H.SessText));
 					if(ses_rec.TechID) {
@@ -979,9 +979,9 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 				else {
 					PPGetSubStr(PPTXT_LAB_PRCPAN_MAINGOODS, 0, main_goods_label_buf);
 					setLabelText(CTL_PRCPAN_MAINGOODS, main_goods_label_buf);
-					setCtrlString(CTL_PRCPAN_MAINGOODS, H.MainGoodsName);
+					setCtrlString(CTL_PRCPAN_MAINGOODS, temp_buf = H.MainGoodsName);
 				}
-				setCtrlString(CTL_PRCPAN_CURSESS, H.SessText);
+				setCtrlString(CTL_PRCPAN_CURSESS, temp_buf = H.SessText);
 			}
 			{
 				double num_pack = 0;
@@ -1005,7 +1005,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 					idle_start.Set(ses_rec.StDt, ses_rec.StTm);
 					LTIME  idle_cont_tm;
 					idle_cont_tm.settotalsec(diffdatetimesec(curdtm, idle_start));
-					SString temp_buf = IdleContText;
+					temp_buf = IdleContText;
 					temp_buf.Cat(idle_cont_tm);
 					setCtrlString(CTL_PRCPAN_INFO, temp_buf);
 				}

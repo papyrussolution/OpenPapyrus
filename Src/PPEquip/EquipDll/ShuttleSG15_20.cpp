@@ -708,7 +708,7 @@ int main()
 	int    ok = 1;
 	char c = 0;
 	PriceChecker price_chkr;
-	SString cmd = "";
+	SString cmd("");
 	PriceChecker::StGoodInfo info;
 
 	THROW(price_chkr.IsIniParamValid());

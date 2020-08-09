@@ -142,7 +142,6 @@ int BnkOrdTaxMarkersDialog::translateCode(int dir, uint strID, char * pCode, lon
 int BnkOrdTaxMarkersDialog::setDTS(const PPBankingOrder * pData)
 {
 	Data = *pData;
-
 	long   id = 0;
 	SString buf;
 	setCtrlData(CTL_TXM_TAXCLASS, Data.Txm.TaxClass2);

@@ -579,29 +579,28 @@
   #endif
   #include <ctype.h>
   #include <limits.h>
- #endif
- #ifdef WITH_NTLM
-  #include <ntlm.h>
- #endif
- #ifdef HAVE_POLL
-  #include <poll.h>
- #endif
- #if defined(__cplusplus) && !defined(WITH_LEAN) && !defined(WITH_COMPAT)
-  #include <string>
-  #include <iostream>
- #endif
- #ifdef WITH_NOHTTP
-  #ifndef WITH_NOIO
-   #define WITH_NOIO
-   #undef WITH_COOKIES
-  #endif
- #endif
-
-/* Suggestion when SOAP_FD_EXCEEDED error occurs:
-   Some systems allow increasing FD_SETSIZE before including sys/types.h:
-   #define FD_SETSIZE (2048)
- */
-
+#endif
+#ifdef WITH_NTLM
+	#include <ntlm.h>
+#endif
+#ifdef HAVE_POLL
+	#include <poll.h>
+#endif
+#if defined(__cplusplus) && !defined(WITH_LEAN) && !defined(WITH_COMPAT)
+	#include <string>
+	#include <iostream>
+#endif
+#ifdef WITH_NOHTTP
+	#ifndef WITH_NOIO
+		#define WITH_NOIO
+		#undef WITH_COOKIES
+	#endif
+#endif
+// 
+// Suggestion when SOAP_FD_EXCEEDED error occurs:
+// Some systems allow increasing FD_SETSIZE before including sys/types.h:
+// #define FD_SETSIZE (2048)
+// 
  #ifndef UNDER_CE
   #ifndef PALM
    #ifndef WITH_NOIO

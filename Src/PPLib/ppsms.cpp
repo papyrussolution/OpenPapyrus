@@ -690,7 +690,7 @@ int SendSmsDialog::GetSmsCount(const char * pMsg)
 {
 	size_t max_msg_len = 0;
 	size_t msg_len = 0;
-	SString msg_str = pMsg;
+	SString msg_str(pMsg);
 	// Если длинное сообщение разбиваем на короткие, то длина каждого сообщения для латиницы 160 символов, для криллицы - 70.
 	if(SplitMsg) {
 		if(PPObjSmsAccount::VerifyString(msg_str, 0))
@@ -2003,7 +2003,7 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
 	int    cmd_status = NO_STATUS;
 	size_t max_length = 0;
     SString message;
-    SString sms_text = pText;
+    SString sms_text(pText);
 	ResendErrLenMsg = 0;
 	ReSendQueueMsgTryNums = 0;
 	GetString(pFrom, MAX_ADDR_LEN - 1, "", SMParams.SourceAddress);
@@ -2420,7 +2420,7 @@ int SLAPI SmsClient::SendingSms_(PPID personID, const char * pPhone, const char 
 			}
 		}
 		if(!skip) {
-			const SString org_phone = pPhone;
+			const SString org_phone(pPhone);
 			int    connected = 0;
 			Tddo   t;
 			SBuffer buf;
@@ -2696,7 +2696,7 @@ int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, u
 			SString result;
 			SString new_phone;
 			SString err_msg;
-			SString from = "CHECK PHONE";
+			SString from("CHECK PHONE");
 			SString message;
 			PPAlbatrossConfig  albtr_cfg;
 			SmsClient client(0);

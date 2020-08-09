@@ -622,7 +622,7 @@ int SLAPI PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
-		SString temp_buf = pPack->Rec.Name;
+		SString temp_buf(pPack->Rec.Name);
 		THROW_PP(temp_buf.NotEmptyS(), PPERR_NAMENEEDED);
 		if(pPack->Rec.Kind == PPGDSK_GOODS) {
 			temp_buf = pPack->Rec.Abbr;
@@ -980,7 +980,7 @@ int SLAPI PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 int SLAPI PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 {
 	int    ok = -1;
-	SString new_name = pNewName;
+	SString new_name(pNewName);
 	THROW(CheckRights(PPR_MOD));
 	if(new_name.NotEmptyS()) {
 		Goods2Tbl::Rec rec;
@@ -3194,7 +3194,7 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 int SLAPI PPObjGoods::Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	int    ok = -1;
-	const  SString org_bc = pCode;
+	const  SString org_bc(pCode);
 	const size_t init_len = org_bc.Len();
 	SString temp_buf;
 	if(init_len == 0)

@@ -29,17 +29,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- * Graydon Hoare <graydon@redhat.com>
- * Owen Taylor <otaylor@redhat.com>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Graydon Hoare <graydon@redhat.com> Owen Taylor <otaylor@redhat.com>
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
 /**
  * SECTION:cairo-font-face
  * @Title: cairo_font_face_t

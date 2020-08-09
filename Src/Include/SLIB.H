@@ -3379,8 +3379,6 @@ struct CompareTerm {
 //   Символ '&' в списке исключений игнорируется (он присутствует в представлении сущностей, потому не может не замещаться).
 //
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb);
-//int  FASTCALL XMLReplaceSpecSymb(char * pBuf, int onlyStandart = 0);
-//int  FASTCALL XMLReplaceSpecSymb(SString & rBuf, int onlyStandart = 0);
 int  SLAPI XMLWriteSpecSymbEntities(FILE * pStream);
 int  SLAPI XMLWriteSpecSymbEntities(void * pWriter);
 //
@@ -3487,7 +3485,7 @@ public:
 	DECL_INVARIANT_C();
 	SLAPI  SString();
 	explicit SLAPI SString(size_t initSize);
-	SLAPI  SString(const char *);
+	explicit SLAPI SString(const char *);
 	SLAPI  SString(const SString &);
 	SLAPI ~SString();
 	void   SLAPI Destroy();
@@ -4390,6 +4388,8 @@ uchar * FASTCALL sstrdup(const uchar * pStr);
 //
 int    FASTCALL sstreq(const char * pS1, const char * pS2);
 int    FASTCALL sstreq(const uchar * pS1, const uchar * pS2);
+int    FASTCALL sstrneq(const char * pS1, const char * pS2, uint len);
+int    FASTCALL sstrneq(const uchar * pS1, const uchar * pS2, uint len);
 //
 // Descr: Специальный вариант для libxml - сравнение переменной типа xmlChar * с константой "xxx".
 //
@@ -8350,7 +8350,7 @@ private:
 
 	UintHashTable SvcFreeList;
 	UintHashTable DatFreeList;
-	TSVector <Item_> TreeList; // @v9.8.4 TSArray-->TSVector
+	TSVector <Item_> TreeList;
 };
 
 template <class T> class TSTree : public STree {
@@ -8873,6 +8873,7 @@ public:
 	//
 	int    SLAPI ReadV(void * pBuf, size_t size);
 	int    FASTCALL WriteLine(const char *);
+	int    SLAPI WriteBlancLine();
 	int    FASTCALL ReadLine(SString &);
 	//
 	// Descr: Высокоуровневая функция записи буфера rBuf в поток.

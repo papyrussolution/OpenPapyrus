@@ -896,8 +896,8 @@ int BizScTemplDialog::setDTS(const PPBizScTemplPacket * pData)
 		Data.Init();
 	disableCtrl(CTL_BIZSCT_ID, 1);
 	setCtrlData(CTL_BIZSCT_ID, &Data.Rec.ID);
-	setCtrlString(CTL_BIZSCT_NAME, Data.Rec.Name);
-	setCtrlString(CTL_BIZSCT_SYMB, Data.Rec.Symb);
+	setCtrlString(CTL_BIZSCT_NAME, SString(Data.Rec.Name));
+	setCtrlString(CTL_BIZSCT_SYMB, SString(Data.Rec.Symb));
 	updateList(-1);
 	UpdateList(CTL_BIZSCT_ROWS);
 	return 1;

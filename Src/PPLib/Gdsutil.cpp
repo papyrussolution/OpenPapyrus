@@ -228,7 +228,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 				if(PPObjGoods::ReadConfig(&goods_cfg) > 0 && goods_cfg.IsWghtPrefix(code)) {
 					code_type = ean13;
 					calc_check_dig = 1;
-					SString temp_buf = code;
+					SString temp_buf(code);
 					STRNSCPY(code, temp_buf.CatCharN('0', 5));
 				}
 				else {
@@ -663,7 +663,7 @@ int SLAPI PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2
 int SLAPI PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
 	int    r = -1;
-	SString code = DS.GetTLA().Lid.Barcode;
+	SString code(DS.GetTLA().Lid.Barcode);
 	if((r = BarcodeInputDialog(initChar, code)) > 0) {
 		r = GetGoodsByBarcode(code, arID, pRec, pQtty, pRetCode);
 		if(r <= 0)
@@ -950,7 +950,7 @@ int FASTCALL PPGoodsConfig::IsWghtPrefix(const char * pCode) const
 int SLAPI PPGoodsConfig::GetCodeLenList(PPIDArray * pList, int * pAllowEmpty) const
 {
 	int    allow_empty = 1;
-	SString len_str = BarCodeLen;
+	SString len_str(BarCodeLen);
 	SString item_buf;
 	StringSet ss(',', len_str.Strip());
 	CALLPTRMEMB(pList, freeAll());
@@ -1052,7 +1052,7 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 		ot_filt.Flags |= ObjTagFilt::fOnlyTags;
 		SetupObjTagCombo(this, CTLSEL_GDSCFG_BCPGUATAG, Data.BcPrefixGuaTagID, 0, &ot_filt);
 	}
-	setCtrlString(CTL_GDSCFG_OWNACTMPL, rOwnAcCntr.Head.CodeTemplate);
+	setCtrlString(CTL_GDSCFG_OWNACTMPL, SString(rOwnAcCntr.Head.CodeTemplate));
 	setCtrlLong(CTL_GDSCFG_OWNACCNTR, rOwnAcCntr.Head.Counter);
 	disableCtrl(CTL_GDSCFG_OWNACCNTR, 1);
 	return 1;
@@ -1162,7 +1162,7 @@ int SLAPI PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const 
 	const  PPID loc_id = NZOR(locID, LConfig.Location);
 	Goods2Tbl::Rec goods_rec;
 	SString temp_buf;
-	SString src_code = (flags & rgifUseInBarcode) ? pInfo->BarCode : 0;
+	SString src_code((flags & rgifUseInBarcode) ? pInfo->BarCode : 0);
 	const double code_qtty = pInfo->Qtty;
 	const double outer_price = pInfo->OuterPrice;
 	pInfo->Init();
@@ -3013,9 +3013,8 @@ int FASTCALL PPBarcode::GetStdName(int bcstd, SString & rBuf)
 int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 {
 	int    bcstd = 0;
-    SString text = pText;
+    SString text(pText);
     if(text.NotEmptyS()) {
-		// @v9.8.11 {
 		const SymbHashTable * p_sht = PPGetStringHash(PPSTR_HASHTOKEN);
 		if(p_sht) {
 			text.ToLower();
@@ -3063,48 +3062,6 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 				}
 			}
 		}
-		// } @v9.8.11
-#if 0 // @v9.8.11 {
-		text.ToLower();
-		if(oneof3(text, "code11", "code-11", "code 11"))
-			bcstd = BARCSTD_CODE11;
-		if(oneof3(text, "code39", "code-39", "code 39"))
-			bcstd = BARCSTD_CODE39;
-		if(oneof3(text, "code49", "code-49", "code 49"))
-			bcstd = BARCSTD_CODE49;
-		if(oneof3(text, "code93", "code-93", "code 93"))
-			bcstd = BARCSTD_CODE93;
-		if(oneof3(text, "code128", "code-128", "code 128"))
-			bcstd = BARCSTD_CODE128;
-		if(oneof4(text, "pdf417", "pdf-417", "pdf 417", "pdf"))
-			bcstd = BARCSTD_PDF417;
-		else if(oneof3(text, "ean13", "ean-13", "ean 13"))
-			bcstd = BARCSTD_EAN13;
-		else if(oneof3(text, "ean8", "ean-8", "ean 8"))
-			bcstd = BARCSTD_EAN8;
-		else if(oneof3(text, "upca", "upc-a", "upc a"))
-			bcstd = BARCSTD_UPCA;
-		else if(oneof3(text, "upce", "upc-e", "upc e"))
-			bcstd = BARCSTD_UPCE;
-		else if(oneof4(text, "qr", "qr-code", "qr code", "qrcode"))
-			bcstd = BARCSTD_QR;
-		else if(text == "interleaved2of5")
-			bcstd = BARCSTD_INTRLVD2OF5;
-		else if(text == "industial2of5")
-			bcstd = BARCSTD_IND2OF5;
-		else if(text == "standard2of5")
-			bcstd = BARCSTD_STD2OF5;
-		else if(text == "codabar")
-			bcstd = BARCSTD_ANSI;
-		else if(text == "msi")
-			bcstd = BARCSTD_MSI;
-		else if(text == "plessey")
-			bcstd = BARCSTD_PLESSEY;
-		else if(text == "postnet")
-			bcstd = BARCSTD_POSTNET;
-		else if(text == "logmars")
-			bcstd = BARCSTD_LOGMARS;
-#endif // } @v9.8.11
     }
     if(!bcstd) {
 		PPSetError(PPERR_INVBARCODESTDSYMB, pText);

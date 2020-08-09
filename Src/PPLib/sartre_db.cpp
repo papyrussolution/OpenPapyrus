@@ -1463,7 +1463,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	//
 	Close();
 	{
-		SString db_path = pDbPath;
+		SString db_path(pDbPath);
 		if(db_path.Empty()) {
 			PPGetPath(PPPATH_SARTREDB, db_path);
 		}

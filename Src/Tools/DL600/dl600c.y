@@ -1,5 +1,5 @@
 // DL600C.Y
-// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016
+// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020
 //
 
 // debug cmdline: /dict:$(SolutionDir)..\..\BASE\INIT_DL6 /data:$(SolutionDir)..\..\BASE\INIT_DL6 /oracle $(SolutionDir)..\rsrc\dl600\ppdbs.dl6
@@ -505,7 +505,7 @@ declaration_struct_field : type actual_declarator ';' { DCtx.AddDeclaration($1, 
 decl_iclass : T_ICLASS T_IDENT library_attr_list ':' iclass_interface_list T_LBR
 	{
 		uint   i;
-		SString name = $2.U.S;
+		SString name($2.U.S);
 		DLSYMBID symb_id = 0;
 		if(!DCtx.SearchSymb(name, '@', &symb_id)) {
 			symb_id = DCtx.CreateSymb(name, '@', /*DlContext::crsymfCatCurScope*/0);
@@ -990,8 +990,8 @@ uidescr :
 
 decl_dialog : T_DIALOG T_IDENT T_CONST_STR uirectopt uictrl_properties T_LBR
 	{
-		SString name = $2.U.S;
-		SString text = $3.U.S;
+		SString name($2.U.S);
+		SString text($3.U.S);
 		DLSYMBID symb_id = 0;
 		if(!DCtx.SearchSymb(name, '@', &symb_id)) {
 			symb_id = DCtx.CreateSymb(name, '@', 0);
@@ -1193,8 +1193,7 @@ listbox_column_list_inner : listbox_column
 	$$ = $1;
 } | listbox_column_list_inner listbox_column
 {
-	SString column_descr;
-	column_descr = $1.U.S;
+	SString column_descr($1.U.S);
 	if(column_descr.NotEmptyS())
 		column_descr.Semicol().Cat($2.U.S);
 	CtmToken temp_token;
@@ -1208,7 +1207,6 @@ listbox_column : T_CONST_STR T_CONST_INT h_alignment ';'
 {
 	SString column_descr;
 	(column_descr = $1.U.S).Comma().Cat($3.U.S).Comma().Cat($2.U.I);
-
 	CtmToken temp_token;
 	temp_token.Create(0, column_descr);
 	$$ = temp_token;
@@ -1217,7 +1215,6 @@ listbox_column : T_CONST_STR T_CONST_INT h_alignment ';'
 {
 	SString column_descr;
 	(column_descr = $1.U.S).Comma().CatChar('L').Comma().Cat(10);
-
 	CtmToken temp_token;
 	temp_token.Create(0, column_descr);
 	$$ = temp_token;

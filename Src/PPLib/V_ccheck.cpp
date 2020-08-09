@@ -2930,7 +2930,7 @@ int SLAPI PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
 	if(pHdr) {
 		const  TempCCheckGdsCorrTbl::Rec * p_gc_rec = static_cast<const TempCCheckGdsCorrTbl::Rec *>(pHdr);
 		PPID   goods_id   = (goodsNo == 1) ? p_gc_rec->Goods1ID : p_gc_rec->Goods2ID;
-		SString goods_name = (goodsNo == 1) ? p_gc_rec->GoodsName1 : p_gc_rec->GoodsName2;
+		SString goods_name((goodsNo == 1) ? p_gc_rec->GoodsName1 : p_gc_rec->GoodsName2);
 		if(GdsObj.Edit(&goods_id, 0) == cmOK) {
 			Goods2Tbl::Rec  gds_rec;
 			if(GdsObj.Fetch(goods_id, &gds_rec) > 0 && goods_name.Cmp(gds_rec.Name, 0)) {

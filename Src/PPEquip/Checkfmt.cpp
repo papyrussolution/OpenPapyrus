@@ -2531,7 +2531,7 @@ SLTEST_R(PPSlipFormatLexer)
 	int    ok = 1;
 	int    token;
 	SString result, out_buf;
-	SString in_file_name = MakeInputFilePath("slip.fmt");
+	SString in_file_name(MakeInputFilePath("slip.fmt"));
 	PPSlipFormat fmt;
 	SFile f_out(MakeOutputFilePath("slip.lex"), SFile::mWrite);
 	THROW(SLTEST_CHECK_NZ(f_out.IsValid()));
@@ -2662,7 +2662,7 @@ SLTEST_R(PPSlipFormatOutput)
 //
 PPSlipFormatter::PPSlipFormatter(const char * pFmtFileName)
 {
-	SString file_name = pFmtFileName;
+	SString file_name(pFmtFileName);
 	if(file_name.NotEmptyS() && fileExists(file_name))
 		SlipFmtPath = file_name;
 	else

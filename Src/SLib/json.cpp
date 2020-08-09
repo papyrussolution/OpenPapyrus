@@ -2279,7 +2279,7 @@ SLTEST_R(JSON)
 		{ "USStates.json", 1 },
 	};
 	for(uint i = 0; i < SIZEOFARRAY(inp_entries); i++) {
-		SString in_file_name = MakeInputFilePath(inp_entries[i].P_InFileName);
+		SString in_file_name(MakeInputFilePath(inp_entries[i].P_InFileName));
 		THROW(fileExists(in_file_name));
 		{
 			SString json_buf;
@@ -2302,7 +2302,7 @@ SLTEST_R(JSON)
 					ps.Drv.Z();
 					ps.Dir.Z();
 					ps.Merge(temp_buf);
-					SString out_file_name = MakeOutputFilePath(temp_buf);
+					SString out_file_name(MakeOutputFilePath(temp_buf));
 					SFile f_out(out_file_name, SFile::mWrite);
 					THROW(f_out.IsValid());
 					f_out.WriteLine(xml_buf);

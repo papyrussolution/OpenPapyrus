@@ -30,24 +30,16 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Kristian Høgsberg <krh@redhat.com>
- *	Carl Worth <cworth@cworth.org>
- *	Adrian Johnson <ajohnson@redneon.com>
+ * Contributor(s): Kristian Høgsberg <krh@redhat.com> Carl Worth <cworth@cworth.org> Adrian Johnson <ajohnson@redneon.com>
  */
-
 #ifndef CAIRO_PDF_SURFACE_PRIVATE_H
 #define CAIRO_PDF_SURFACE_PRIVATE_H
 
 #include "cairo-pdf.h"
-
 #include "cairo-surface-private.h"
-//#include "cairo-surface-clipper-private.h"
 #include "cairo-pdf-operators-private.h"
-//#include "cairo-path-fixed-private.h"
 #include "cairo-tag-attributes-private.h"
 #include "cairo-tag-stack-private.h"
 

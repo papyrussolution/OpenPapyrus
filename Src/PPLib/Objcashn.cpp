@@ -138,7 +138,7 @@ int SLAPI PPGenCashNode::DrvVerFromStr(const char * pS)
 		DrvVerMinor = 0;
 	}
 	else {
-		SString temp_buf = pS;
+		SString temp_buf(pS);
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
 		tr.Run(temp_buf.Strip().ucptr(), -1, nta, 0);

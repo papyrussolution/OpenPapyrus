@@ -2376,7 +2376,7 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 			}
 		}
 		{
-			const SString test_src_1251_file_name = "D:/Papyrus/Src/PPTEST/DATA/rustext.txt";
+			const SString test_src_1251_file_name("D:/Papyrus/Src/PPTEST/DATA/rustext.txt");
 			SString test_dest_file_name;
 			SPathStruc ps;
 			{

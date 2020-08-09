@@ -3141,7 +3141,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 		PPWaitMsg(msg_buf);
 	}
 	if(p_result->getCount()) {
-		SString srcloc_attr_pattern = "ORD_GROUPCODE1";
+		const SString srcloc_attr_pattern("ORD_GROUPCODE1");
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;

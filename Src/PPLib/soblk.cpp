@@ -3121,7 +3121,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					{
 						TSessionPacket pack;
 						uint   cip_pos = 0;
-						SString crit_place_code = P_SetBlk->U.TS.PlaceCode;
+						SString crit_place_code(P_SetBlk->U.TS.PlaceCode);
 						SString place_code;
 						ProcessorPlaceCodeTemplate::NormalizeCode(crit_place_code);
 						PPObjUhttStore store_obj;

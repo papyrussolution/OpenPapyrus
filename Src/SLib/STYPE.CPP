@@ -335,7 +335,7 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 		{T_BOOL,                "boolean,bool,logical", "Логический"}
 	};
 	rScan.Skip();
-	SString text = rScan;
+	const SString text(rScan);
 	SString temp_buf;
 	for(uint i = 0; i < SIZEOFARRAY(TypeNameList); i++) {
 		StringSet ss(',', TypeNameList[i].P_Names);

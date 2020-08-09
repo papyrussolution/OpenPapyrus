@@ -1490,7 +1490,7 @@ int SLAPI PPObjPerson::GetListByKind(PPID psnKindID, PPIDArray * pList, StrAssoc
 
 int SLAPI PPObjPerson::GetListBySubstring(const char * pSubstr, PPID kindID, StrAssocArray * pList, int /*fromBegStr*/)
 {
-	SString pattern = pSubstr;
+	const SString pattern(pSubstr);
 	PPIDArray list_by_kind;
 	PersonTbl * t = P_Tbl;
 	PersonTbl::Key1 k1;
@@ -1645,8 +1645,8 @@ int SLAPI PPObjPerson::GetRegNumber(PPID personID, PPID regType, LDATE actualDat
 int SLAPI PPObjPerson::ResolveGLN(const char * pGLN, PPID * pID)
 {
 	int    ok = -1;
-	SString code = pGLN;
 	assert(pGLN);
+	SString code(pGLN);
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
 		const PPID reg_type_id = PPREGT_GLN;
@@ -1664,8 +1664,8 @@ int SLAPI PPObjPerson::ResolveGLN(const char * pGLN, PPID * pID)
 int SLAPI PPObjPerson::ResolveGLN_Article(const char * pGLN, PPID accSheetID, PPID * pArID)
 {
 	int    ok = -1;
-	SString code = pGLN;
 	assert(pGLN);
+	SString code(pGLN);
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
 		const PPID reg_type_id = PPREGT_GLN;
@@ -4353,7 +4353,7 @@ void SLAPI PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 int SLAPI PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 {
 	int    ok = -1;
-	SString name = pName;
+	SString name(pName);
 	SString temp_buf;
 	if(name.Len()) {
 		PPObjPersonKind pk_obj;
@@ -5870,7 +5870,7 @@ int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * 
 	Reference * p_ref = PPRef;
 	PPIDArray result_psn_list;
 	PPIDArray result_loc_list;
-	SString email = pEmail;
+	SString email(pEmail);
 	email.Strip().ToLower();
 	if(email.NotEmpty()) {
 		SString temp_buf;

@@ -1571,6 +1571,11 @@ int SLAPI SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 	return ok;
 }
 
+int SLAPI SFile::WriteBlancLine()
+{
+	return WriteLine(0);
+}
+
 int FASTCALL SFile::WriteLine(const char * pBuf)
 {
 	assert(InvariantC(0));
@@ -2007,7 +2012,7 @@ int FileFormatRegBase::SearchEntryByID(int id, LongArray & rPosList) const
 int FileFormatRegBase::SearchEntryByExt(const char * pExt, LongArray & rPosList) const
 {
 	int    ok = -1;
-	SString ext = pExt;
+	SString ext(pExt);
 	SString temp_buf;
 	ext.Strip().ShiftLeftChr('.').Strip();
 	for(uint i = 0; i < getCount(); i++) {

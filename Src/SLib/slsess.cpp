@@ -823,7 +823,7 @@ int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong
 	int    ok = 1;
 	long   current_size = 0;
 	FILE * f = 0;
-	SString file_name = pFileName;
+	SString file_name(pFileName);
 	{
 		SPathStruc ps;
 		if(file_name.NotEmptyS())
@@ -982,7 +982,7 @@ int SLAPI SlSession::SubstString(const char * pSrcStr, int ansiCoding, SString &
 {
 	int    ok = -1;
 	if(pSrcStr && pSrcStr[0] == '@' && !sstrchr(pSrcStr, ' ')) {
-		SString _text = pSrcStr;
+		SString _text(pSrcStr);
 		if(LoadString_(_text.ShiftLeft(1), rBuf) > 0) {
 			if(ansiCoding)
 				rBuf.Transf(CTRANSF_INNER_TO_OUTER);

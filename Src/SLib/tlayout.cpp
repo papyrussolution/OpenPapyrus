@@ -363,7 +363,7 @@ SString & TLayout::EntryBlock::SizeToString(SString & rBuf) const
 int TLayout::EntryBlock::SizeFromString(const char * pBuf)
 {
 	int    ok = 1;
-	SString temp_buf = pBuf;
+	SString temp_buf(pBuf);
 	temp_buf.Strip();
 	StringSet ss;
 	temp_buf.Tokenize(",;", ss);
@@ -422,7 +422,7 @@ SString & TLayout::EntryBlock::MarginsToString(SString & rBuf) const
 int TLayout::EntryBlock::MarginsFromString(const char * pBuf)
 {
 	int    ok = 1;
-	SString temp_buf = pBuf;
+	SString temp_buf(pBuf);
 	temp_buf.Strip();
 	StringSet ss;
 	temp_buf.Tokenize(",;", ss);

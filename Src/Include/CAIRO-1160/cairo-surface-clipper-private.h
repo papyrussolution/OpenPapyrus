@@ -27,18 +27,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.u>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.u>
  */
-
 #ifndef CAIRO_SURFACE_CLIPPER_PRIVATE_H
 #define CAIRO_SURFACE_CLIPPER_PRIVATE_H
-
-//#include "cairo-types-private.h"
-//#include "cairo-clip-private.h"
 
 CAIRO_BEGIN_DECLS
 	typedef struct _cairo_surface_clipper cairo_surface_clipper_t;

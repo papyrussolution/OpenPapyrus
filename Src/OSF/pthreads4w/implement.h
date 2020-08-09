@@ -91,13 +91,13 @@
 #include "semaphore.h"
 #include "sched.h"
 
-/* MSVC 7.1 doesn't like complex #if expressions */
+// MSVC 7.1 doesn't like complex #if expressions 
 #define INLINE
 #if defined (__PTW32_BUILD_INLINED)
-#  if defined(HAVE_C_INLINE) || defined(__cplusplus)
-#    undef INLINE
-#    define INLINE inline
-#  endif
+	#if defined(HAVE_C_INLINE) || defined(__cplusplus)
+		#undef INLINE
+		#define INLINE inline
+	#endif
 #endif
 #if defined (__PTW32_CONFIG_MSVC6)
 	#define  __PTW32_INTERLOCKED_VOLATILE
@@ -119,13 +119,13 @@
  * Don't allow the linker to optimize away dll.obj (dll.o) in static builds.
  */
 #if defined (__PTW32_STATIC_LIB) && defined (__PTW32_BUILD) && !defined (__PTW32_TEST_SNEAK_PEEK)
-__PTW32_BEGIN_C_DECLS
-void __ptw32_autostatic_anchor(void);
-# if defined(__GNUC__)
-__attribute__((unused, used))
-# endif
-static void (*local_autostatic_anchor)(void) = __ptw32_autostatic_anchor;
-__PTW32_END_C_DECLS
+	__PTW32_BEGIN_C_DECLS
+	void __ptw32_autostatic_anchor(void);
+	#if defined(__GNUC__)
+		__attribute__((unused, used))
+	#endif
+	static void (*local_autostatic_anchor)(void) = __ptw32_autostatic_anchor;
+	__PTW32_END_C_DECLS
 #endif
 
 typedef enum {

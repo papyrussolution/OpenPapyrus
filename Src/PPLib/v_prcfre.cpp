@@ -984,7 +984,7 @@ int SLAPI PPViewPrcBusy::UpdateTimeBrowser(int destroy)
 {
 	SString temp_buf;
 	ProcessorTbl::Rec prc_rec;
-	SString title_buf = GetDescr();
+	SString title_buf(GetDescr());
 	if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
 		title_buf = prc_rec.Name;
 	else
@@ -1065,7 +1065,7 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 	p_brw->SetResID(static_cast<PPApp *>(APPL)->LastCmd);
 	{
 		SString temp_buf;
-		SString title_buf = GetDescr();
+		SString title_buf(GetDescr());
 		ProcessorTbl::Rec prc_rec;
 		if(Filt.PrcID && TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0)
 			(title_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);

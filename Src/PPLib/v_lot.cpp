@@ -1512,22 +1512,19 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 							PPIDArray local_list;
 							const LDATE rest_date = NZOR(Filt.Period.upp, _curdate);
 							for(uint i = 0; i < lot_list.getCount(); i++) {
-								// @v9.2.11 local_list.clear();
 								local_list.add(lot_list.get(i));
-								// @v9.2.11 THROW(ep.CreateActChargeOnBill(0, loc_id, rest_date, local_list, 1));
 							}
 							{
 								PPID   new_bill_id = 0;
 								BillTbl::Rec new_bill_rec;
 								const int cbr = ep.CreateActChargeOnBill(&new_bill_id, selection, loc_id, rest_date, local_list, 1);
-								THROW(cbr); // @v9.2.11
+								THROW(cbr);
 								if(cbr > 0 && P_BObj->Search(new_bill_id, &new_bill_rec) > 0) {
 									PPObjBill::MakeCodeString(&new_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
 									PPMessage(mfInfo, PPINF_ACTCHARGEONCR, temp_buf);
 								}
-								else {
+								else
 									PPMessage(mfInfo, PPINF_ACTCHARGEONDONTCR);
-								}
 							}
 						}
 						PPWait(0);

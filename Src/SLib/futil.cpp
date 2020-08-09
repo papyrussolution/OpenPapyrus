@@ -250,7 +250,7 @@ static char * SLAPI squeeze(char * path)
 
 int SLAPI pathValid(const char * pPath, int existOnly)
 {
-	SString exp_path = pPath;
+	SString exp_path(pPath);
 	{
 		TCHAR * fn = 0;
 		TCHAR  fpn_buf[MAXPATH];

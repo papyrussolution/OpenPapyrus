@@ -1008,7 +1008,8 @@ int FASTCALL PPGdsClsFormula::PutToBuffer(SString & rBuf) const
 
 int FASTCALL PPGdsClsFormula::GetFromBuffer(const char * pBuf)
 {
-	SString temp_buf, line_buf = pBuf;
+	SString temp_buf;
+	const SString line_buf(pBuf);
 	Clear();
 	PPGetExtStrData(GDSCLS_EXTSTR_FROM_NAME, line_buf, Name);
 	PPGetExtStrData(GDSCLS_EXTSTR_FROM_FORM, line_buf, Formula);

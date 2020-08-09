@@ -267,7 +267,7 @@ protected:
 						{
 							int    ok = 1;
 							uint   sel = 0;
-							const SString preserve_symb = pData ? pData->ContainerIdent : 0;
+							const SString preserve_symb(pData ? pData->ContainerIdent.cptr() : 0);
 							TLayout::EntryBlock lb = Data.GetLayoutBlock();
 							getCtrlString(sel = CTL_WOLAYOUT_SYMB, Data.ContainerIdent);
 							if(pData) {
@@ -645,7 +645,7 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 		case cmdSetupByTool:
 			ok = WhatmanObjectDrawFigure::HandleCommand(cmd, pExt);
 			if(ok) {
-				SString text = "Новый текст\nЭто - новая строка!\nА вот и третья строка";
+				SString text("Новый текст\nЭто - новая строка!\nА вот и третья строка");
 				Tlo.SetOptions(Tlo.fWrap);
 				Tlo.SetText(text.ToOem());
 			}
@@ -2584,7 +2584,7 @@ int PPWhatmanWindow::Edit(const char * pWtmFileName, const char * pWtaFileName)
 		}
 	}
 	{
-		SString file_name = pWtaFileName;
+		SString file_name(pWtaFileName);
 		if(file_name.Empty()) {
 			PPGetFilePath(PPPATH_WTM, "cafetable.wta", file_name);
 		}

@@ -669,7 +669,7 @@ static int __Execute(const char * pCmdLine, HANDLE hIn, HANDLE hOut, uint * pExi
 		si.dwFlags |= STARTF_USESTDHANDLES;
 	}
 	MEMSZERO(pi);
-	SString temp_buf = pCmdLine;
+	SString temp_buf(pCmdLine);
 	STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
 	strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
 	int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, /*FALSE*/TRUE, 0, 0, 0, &si, &pi);

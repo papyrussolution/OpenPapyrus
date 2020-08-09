@@ -30,24 +30,15 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-private.h"
 #include "cairo-arc-private.h"
 #include "cairo-backend-private.h"
-//#include "cairo-clip-inline.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-freed-pool-private.h"
 #include "cairo-path-private.h"
-//#include "cairo-pattern-private.h"
 
 #define CAIRO_TOLERANCE_MINIMUM _cairo_fixed_to_double(1)
 
@@ -68,7 +59,6 @@ void _cairo_default_context_fini(cairo_default_context_t * cr)
 		if(_cairo_gstate_restore(&cr->gstate, &cr->gstate_freelist))
 			break;
 	}
-
 	_cairo_gstate_fini(cr->gstate);
 	cr->gstate_freelist = cr->gstate_freelist->next; /* skip over tail[1] */
 	while(cr->gstate_freelist != NULL) {
@@ -76,9 +66,7 @@ void _cairo_default_context_fini(cairo_default_context_t * cr)
 		cr->gstate_freelist = gstate->next;
 		SAlloc::F(gstate);
 	}
-
 	_cairo_path_fixed_fini(cr->path);
-
 	_cairo_fini(&cr->base);
 }
 

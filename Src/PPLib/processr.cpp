@@ -175,7 +175,7 @@ SString & FASTCALL ProcessorPlaceCodeTemplate::NormalizeCode(SString & rCode)
 int ProcessorPlaceCodeTemplate::HasCode(const char * pCode) const
 {
 	int    ok = 1;
-	SString code = pCode;
+	SString code(pCode);
 	SString sub;
 	NormalizeCode(code);
 	if(code.Len() == 0)

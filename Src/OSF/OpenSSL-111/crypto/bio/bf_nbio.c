@@ -173,7 +173,6 @@ static long nbiof_ctrl(BIO * b, int cmd, long num, void * ptr)
 static long nbiof_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret = 1;
-
 	if(b->next_bio == NULL)
 		return 0;
 	switch(cmd) {

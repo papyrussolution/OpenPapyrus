@@ -229,7 +229,7 @@ void SLAPI DlMacro::Add(const char * pSymb, const char * pResult)
 
 int SLAPI DlMacro::Subst(const char * pSymb, SString & rResult) const
 {
-	SString pat = pSymb;
+	SString pat(pSymb);
 	pat.Comma();
 	for(uint pos = 0; S.get(&pos, rResult) > 0;)
 		if(rResult.CmpPrefix(pat, 0) == 0) {
@@ -307,7 +307,8 @@ int SLAPI DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint td
 	SdbField fld;
 	DLSYMBID new_type_id = 0;
 	TypeEntry te, new_te;
-	DlScope * p_cur_scope = 0, * p_scope = 0;
+	DlScope * p_cur_scope = 0;
+	DlScope * p_scope = 0;
 	THROW(p_cur_scope = GetScope(CurScopeID));
 	p_scope = p_cur_scope->SearchByName(DlScope::kTypedefPool, "typedef", 0);
 	if(p_scope == 0) {
@@ -319,7 +320,7 @@ int SLAPI DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint td
 	fld.T = te.T;
 	fld.Name = rSymb.U.S;
 	if(p_scope->SearchName(fld.Name, &(pos = 0), 0)) {
-		AddedMsgString = 0;
+		AddedMsgString.Z();
 		Sc.GetQualif(CurScopeID, "::", 0, AddedMsgString);
 		if(AddedMsgString.NotEmpty())
 			AddedMsgString.Cat("::");
@@ -510,7 +511,7 @@ int SLAPI DlContext::GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSY
 	int    ok = 0;
 	DLSYMBID symb_id = 0;
 	SString pfx, ser, sfx;
-	SString symb = pSymb;
+	SString symb(pSymb);
 	if(symb.NotEmptyS()) {
 		if(symb.CmpPrefix("DLG_", 0) == 0) {
 			ser = "UIDIALOG";
@@ -552,7 +553,7 @@ uint SLAPI DlContext::AddUiListbox(const CtmToken & rSymb, const CtmToken & rTex
 	THROW(fld_id);
 	THROW(p_scope = GetCurScope());
 	{
-		SString columns_buf = rColumns.U.S;
+		SString columns_buf(rColumns.U.S);
 		if(columns_buf.NotEmptyS()) {
 			CtmExprConst c;
 			THROW(AddConst(columns_buf, &c));
@@ -572,7 +573,8 @@ uint SLAPI DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText
 	THROW(fld_id);
 	THROW(p_scope = GetCurScope());
 	{
-		SString symb_ser, cmd_buf = rCmdSymb.U.S;
+		SString symb_ser;
+		SString cmd_buf(rCmdSymb.U.S);
 		if(cmd_buf.NotEmptyS()) {
 			CtmExprConst c;
 			THROW(AddConst(cmd_buf, &c));
@@ -626,7 +628,7 @@ uint SLAPI DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken
 		ss_r = GetUiSymbSeries(rSymb.U.S, symb_ser, &ss_id);
 		if(p_dlg_scope->GetConst(DlScope::cuifSymbSeries, &c_ss)) {
 			char   s_buf[256];
-			s_buf[0] = 0;
+			PTR32(s_buf)[0] = 0;
 			GetConstData(c_ss, s_buf, sizeof(s_buf));
 			dlg_symb_ser = s_buf;
 			THROW(dlg_ss_id = CreateSymb(symb_ser, '$', 0));
@@ -663,7 +665,7 @@ uint SLAPI DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken
 	}
 	fld.ID = fld_id;
 	if(p_scope->SearchName(fld.Name, &(pos = 0), 0)) {
-		AddedMsgString = 0;
+		AddedMsgString.Z();
 		Sc.GetQualif(CurScopeID, "::", 0, AddedMsgString);
 		if(AddedMsgString.NotEmpty())
 			AddedMsgString.Cat("::");
@@ -794,7 +796,7 @@ int SLAPI DlContext::Format_C_Type(DLSYMBID typeID, STypEx & rTyp, const char * 
 			THROW(GetSymb(td.T.Link, name_buf, '@') || GetSymb(td.T.Link, name_buf, '!'));
 			if(flags & fctfSourceOutput)
 				comment.CatCharN('/', 2).Space().CatChar('-').CatChar('>').Cat(name_buf);
-			name_buf = 0;
+			name_buf.Z();
 		}
 	}
 	else {
@@ -966,7 +968,7 @@ void SLAPI DlContext::Write_DebugListing()
 	out_file.WriteLine((line = "// Type").CR());
 	out_file.WriteLine((line = "//").CR());
 	for(uint i = 0; i < TypeList.getCount(); i++) {
-		Format_TypeEntry(TypeList.at(i), line = 0);
+		Format_TypeEntry(TypeList.at(i), line.Z());
 		out_file.WriteLine(line.CR());
 	}
 }
@@ -1081,7 +1083,7 @@ int SLAPI DlContext::Write_DialogReverse()
 								rect.Reset();
 								if(GetConstData(p_inner_scope->GetFldConst(ctrl_item.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
 									rect = *reinterpret_cast<const UiRelRect *>(c_buf);
-								text_buf = 0;
+								text_buf.Z();
 								if(GetConstData(p_inner_scope->GetFldConst(ctrl_item.ID, DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 									text_buf = reinterpret_cast<const char *>(c_buf);
 								line_buf.CatQStr(text_buf);
@@ -1334,7 +1336,7 @@ int DlContext::AddEnumItem(const CtmToken & rSymb, int useExplVal, uint val)
 		else
 			fld.EnumVal = 0;
 		if(p_scope->SearchName(fld.Name, &(fld_pos = 0), 0)) {
-			AddedMsgString = 0;
+			AddedMsgString.Z();
 			Sc.GetQualif(CurScopeID, "::", 0, AddedMsgString);
 			if(AddedMsgString.NotEmpty())
 				AddedMsgString.Cat("::");
@@ -1414,15 +1416,13 @@ int DlContext::AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * 
 				is_dup = 1;
 			}
 			else {
-				// @v9.2.8 {
 				for(const DlScope * p_base = p_scope->GetBase(); !is_dup && p_base != 0; p_base = p_base->GetBase()) {
 					if(p_base->SearchName(fld.Name, &(fld_pos = 0), 0))
 						is_dup = 1;
 				}
-				// } @v9.2.8 
 			}
 			if(is_dup) {
-				AddedMsgString = 0;
+				AddedMsgString.Z();
 				Sc.GetQualif(CurScopeID, "::", 0, AddedMsgString);
 				if(AddedMsgString.NotEmpty())
 					AddedMsgString.Cat("::");
@@ -1851,7 +1851,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 							THROW(AddCvtFuncToArgList(func, pExpr, cvt_al[i]));
 							long proc_addr = 0;
 							if(AdjRetTypeProcList.Search(func.ImplID, &proc_addr, 0)) {
-								AdjRetTypeProc proc = (AdjRetTypeProc)proc_addr;
+								AdjRetTypeProc proc = reinterpret_cast<AdjRetTypeProc>(proc_addr);
 								DLSYMBID ret_type_id = proc(this, pExpr);
 								THROW(ret_type_id);
 								pExpr->SetType(ret_type_id);
@@ -2052,7 +2052,7 @@ int DlContext::StoreUuidList()
 			SString line_buf, uuid_buf;
 			UUIDAssoc * p_item;
 			for(uint i = 0; UuidList.enumItems(&i, (void **)&p_item);) {
-				DlScope * p_scope = GetScope(p_item->Key, 0);
+				const DlScope * p_scope = GetScope(p_item->Key, 0);
 				if(p_scope) {
 					p_item->Val.ToStr(S_GUID::fmtIDL, uuid_buf);
 					(line_buf = 0).Cat(p_scope->Name).Semicol().Cat(uuid_buf).CR();
@@ -2212,11 +2212,11 @@ int DlContext::PushScope()
 
 int DlContext::PopScope()
 {
-	DLSYMBID scope_id = *(DLSYMBID *)ScopeStack.pop();
+	DLSYMBID scope_id = *static_cast<const DLSYMBID *>(ScopeStack.pop());
 	if(scope_id) {
 		scope_id = Sc.EnterScope(CurScopeID, scope_id, 0, 0);
 		if(scope_id == 0) {
-			(AddedMsgString = 0).Cat(CurScopeID);
+			AddedMsgString.Z().Cat(CurScopeID);
 			Error(PPERR_DL6_SCOPEIDNFOUND, 0, erfExit);
 		}
 		else
@@ -2248,40 +2248,39 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 	int    ok = 1;
 	const  int idl_type = oneof4(format, ffIDL, ffH_Iface, ffCPP_Iface, ffCPP_VTbl) ? 1 : 0;
 	uint   c;
-	SString temp_buf, arg_name, arg_buf;
+	SString temp_buf;
+	SString arg_name;
+	SString arg_buf;
 	TypeEntry ret_te, te;
 	TypeDetail td;
 	THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
 	rFunc.GetName(0, temp_buf);
 	if(format == ffIDL) {
-		arg_buf = 0;
+		arg_buf.Z();
 		if(rFunc.Flags & DlFunc::fPropGet)
 			arg_buf = "propget";
 		else if(rFunc.Flags & DlFunc::fPropPut)
 			arg_buf = "propput";
 		if(arg_buf.NotEmpty())
-			THROW(gen.WriteLine(gen.CatIndent(arg_name = 0).CatChar('[').Cat(arg_buf).CatChar(']').CR()));
+			THROW(gen.WriteLine(gen.CatIndent(arg_name.Z()).CatChar('[').Cat(arg_buf).CatChar(']').CR()));
 	}
 	else if(!oneof4(format, ffCPP_VTbl, ffCPP_Iface, ffCPP_CallImp, ffCPP_Imp)) {
 		arg_buf.Z();
-		if(rFunc.Flags & DlFunc::fPropGet) {
+		if(rFunc.Flags & DlFunc::fPropGet)
 			(arg_buf = "get").CatChar('_').Cat(temp_buf);
-		}
-		else if(rFunc.Flags & DlFunc::fPropPut) {
+		else if(rFunc.Flags & DlFunc::fPropPut)
 			(arg_buf = "put").CatChar('_').Cat(temp_buf);
-		}
 		if(arg_buf.NotEmpty())
 			temp_buf = arg_buf;
 	}
 	if(format == ffCPP_CallImp) {
-		gen.CatIndent(arg_name = 0);
+		gen.CatIndent(arg_name.Z());
 		if(pForward)
 			arg_name.Cat(pForward);
 		gen.WriteLine(arg_name.Cat(temp_buf).CatChar('('));
 	}
 	else if(idl_type) {
-		THROW(gen.Wr_StartDeclFunc(0, 0, "HRESULT", temp_buf,
-			(format == ffCPP_VTbl) ? Generator_CPP::fcmDefault : Generator_CPP::fcmStdCall));
+		THROW(gen.Wr_StartDeclFunc(0, 0, "HRESULT", temp_buf, (format == ffCPP_VTbl) ? Generator_CPP::fcmDefault : Generator_CPP::fcmStdCall));
 	}
 	else {
 		Format_C_Type(rFunc.TypID, ret_te.T, 0, fctfIfaceImpl, arg_buf);
@@ -2329,8 +2328,7 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 					if(IsInterfaceTypeConversionNeeded(te.T) > 0)
 						arg_name.CatChar('_');
 				}
-				Format_C_Type(arg.TypID, te.T, (format == ffCPP_VTbl) ? 0 : (const char *)arg_name,
-					idl_type ? fctfIDL : fctfIfaceImpl, arg_buf);
+				Format_C_Type(arg.TypID, te.T, (format == ffCPP_VTbl) ? 0 : arg_name.cptr(), idl_type ? fctfIDL : fctfIfaceImpl, arg_buf);
 				temp_buf.Cat(arg_buf);
 			}
 		}
@@ -2342,7 +2340,7 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 			THROW(ptr_typ);
 			THROW(SearchTypeID(ptr_typ, 0, &ret_te_mod));
 			if(format == ffCPP_VTbl)
-				arg_name = 0;
+				arg_name.Z();
 			else {
 				arg_name = "pRet";
 				if(format == ffCPP_Iface) {
@@ -2371,13 +2369,13 @@ int DlContext::Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope)
 	int    next = 0;
 	S_GUID uuid;
 	DlScope::Attr attr;
-	gen.WriteLine(gen.CatIndent(line_buf = 0).CatChar('[').CR());
+	gen.WriteLine(gen.CatIndent(line_buf.Z()).CatChar('[').CR());
 	gen.IndentInc();
 	if(UuidList.Search(rScope.ID, &uuid, 0))
 		uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 	else
 		temp_buf = "UUID not defined";
-	line_buf = 0;
+	line_buf.Z();
 	if(rScope.IsKind(DlScope::kInterface)) {
 		gen.CatIndent(line_buf).Cat("object");
 		next = 1;
@@ -2408,7 +2406,7 @@ int DlContext::Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope)
 	line_buf.CR();
 	gen.WriteLine(line_buf);
 	gen.IndentDec();
-	gen.WriteLine(gen.CatIndent(line_buf = 0).CatChar(']').CR());
+	gen.WriteLine(gen.CatIndent(line_buf.Z()).CatChar(']').CR());
 	return 1;
 }
 
@@ -2427,7 +2425,7 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 		}
 		else if(p_ds->IsKind(DlScope::kTypedefPool)) {
 			for(j = 0; j < p_ds->GetCount(); j++) {
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				if(p_ds->GetFieldByPos(j, &fld)) {
 					Format_C_Type(0, fld.T, fld.Name, fctfIDL, temp_buf);
 					line_buf.Cat("typedef").Space().Cat(temp_buf).Semicol().CR();
@@ -2436,15 +2434,15 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 					line_buf.Cat("Error opening field");
 				gen.WriteLine(line_buf.CR());
 			}
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kStruct)) {
-			gen.CatIndent(line_buf = 0).Cat("typedef").Space().Cat("struct").Space().
+			gen.CatIndent(line_buf.Z()).Cat("typedef").Space().Cat("struct").Space().
 				/*Cat("tag").*/Cat(p_ds->Name).Space().CatChar('{').CR();
 			gen.WriteLine(line_buf);
 			gen.IndentInc();
 			for(j = 0; j < p_ds->GetCount(); j++) {
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				if(p_ds->GetFieldByPos(j, &fld)) {
 					Format_C_Type(0, fld.T, fld.Name, fctfIDL, temp_buf);
 					line_buf.Cat(temp_buf).Semicol();
@@ -2455,16 +2453,16 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 			}
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1, p_ds->Name);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kEnum)) {
-			gen.CatIndent(line_buf = 0).Cat("typedef").Space().Cat("[v1_enum]").Space().
+			gen.CatIndent(line_buf.Z()).Cat("typedef").Space().Cat("[v1_enum]").Space().
 				Cat("enum").Space().CatChar('_').Cat(p_ds->Name).Space().CatChar('{').CR();
 			gen.WriteLine(line_buf);
 			gen.IndentInc();
 			uint c = p_ds->GetCount();
 			for(j = 0; j < c; j++) {
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				if(p_ds->GetFieldByPos(j, &fld)) {
 					line_buf.Cat(fld.Name).CatDiv('=', 1).Cat(fld.EnumVal);
 					if(j < (c-1))
@@ -2476,7 +2474,7 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 			}
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1, p_ds->Name);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kInterface)) {
 			Write_IDL_Attr(gen, *p_ds);
@@ -2497,7 +2495,7 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 				if(p_ds->GetIfaceBase(j, &ifbase)) {
 					DlScope * p_iface = GetScope(ifbase.ID);
 					if(p_iface) {
-						line_buf = 0;
+						line_buf.Z();
 						if(ifbase.Flags & DlScope::IfaceBase::fDefault)
 							line_buf.CatChar('[').Cat("default").CatChar(']').Space();
 						line_buf.Cat("interface").Space().Cat(p_iface->Name).Semicol().CR();
@@ -2508,7 +2506,7 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 			//
 			// ISupportErrorInfo {
 			//
-			(line_buf = 0).Cat("interface").Space().Cat("ISupportErrorInfo").Semicol().CR();
+			line_buf.Z().Cat("interface").Space().Cat("ISupportErrorInfo").Semicol().CR();
 			gen.Wr_Indent();
 			gen.WriteLine(line_buf);
 			//
@@ -2519,21 +2517,21 @@ int DlContext::Write_IDL_File(Generator_CPP & gen, const DlScope & rScope)
 		else if(p_ds->IsKind(DlScope::kLibrary)) {
 			Write_IDL_Attr(gen, *p_ds);
 			gen.Wr_Indent();
-			gen.WriteLine((line_buf = 0).Cat("library").Space().Cat(p_ds->Name).Space().CatChar('{').CR());
+			gen.WriteLine(line_buf.Z().Cat("library").Space().Cat(p_ds->Name).Space().CatChar('{').CR());
 			gen.IndentInc();
-			gen.CatIndent(line_buf = 0).Cat("importlib(\"STDOLE2.TLB\");").CR();
+			gen.CatIndent(line_buf.Z()).Cat("importlib(\"STDOLE2.TLB\")").Semicol().CR();
 			gen.WriteLine(line_buf);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 			Write_IDL_File(gen, *p_ds); // @recursion
 			do_write_end = 1;
 		}
 		else {
-			THROW(Write_IDL_File(gen, *p_ds));
+			THROW(Write_IDL_File(gen, *p_ds)); // @recursion
 		}
 		if(do_write_end) {
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1, 0);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 	}
 	CATCHZOK
@@ -2555,7 +2553,7 @@ void SLAPI DlContext::Write_C_FileHeader(Generator_CPP & gen, const char * pFile
 int SLAPI DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const
 {
 	int    ok = 1;
-	rBuf = 0;
+	rBuf.Z();
 	SString left, right;
 	if(pRec->IsKind(DlScope::kExpDataHdr))
 		rBuf = instanceName ? "H" : "Head";
@@ -2582,34 +2580,34 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 	for(i = 0; rScope.EnumChilds(&i, &p_ds);) {
 		if(p_ds->IsKind(DlScope::kTypedefPool)) {
 			for(j = 0; p_ds->EnumFields(&j, &fld);) {
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				Format_C_Type(0, fld.T, fld.Name, fctfIDL|fctfSourceOutput, fld_buf);
 				gen.WriteLine(line_buf.Cat("typedef").Space().Cat(fld_buf).CR());
 			}
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kStruct)) {
 			MakeClassName(p_ds, clsnfCPP, cls_name);
-			gen.WriteLine((fld_buf = 0).Cat("#pragma pack(push)").CR());
-			gen.WriteLine((fld_buf = 0).Cat("#pragma pack(8)").CR());
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR());
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR());
 			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic);
 			gen.IndentInc();
 			for(j = 0; p_ds->EnumFields(&j, &fld);) {
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				Format_C_Type(0, fld.T, fld.Name, fctfIDL|fctfSourceOutput, fld_buf);
 				gen.WriteLine(line_buf.Cat(fld_buf).CR());
 			}
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1);
-			gen.WriteLine((fld_buf = 0).Cat("#pragma pack(pop)").CR());
-			gen.WriteLine(0);
+			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(pop)").CR());
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kEnum)) {
 			MakeClassName(p_ds, clsnfCPP, cls_name);
 			gen.Wr_StartClassDecl(Generator_CPP::clsEnum, cls_name, 0);
 			gen.IndentInc();
 			for(j = 0; p_ds->EnumFields(&j, &fld);) {
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				line_buf.Cat(fld.Name).CatDiv('=', 1).Cat(fld.EnumVal);
 				if(j < p_ds->GetCount())
 					line_buf.Comma();
@@ -2617,7 +2615,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			}
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kIClass)) {
 			DlScope::IfaceBase ifb;
@@ -2626,7 +2624,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "SCoClass");
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 			gen.IndentInc();
-			gen.CatIndent(line_buf = 0).Cat("DL6_IC_CONSTRUCTION_DECL").CatParStr(p_ds->Name).Semicol().CR();
+			gen.CatIndent(line_buf.Z()).Cat("DL6_IC_CONSTRUCTION_DECL").CatParStr(p_ds->Name).Semicol().CR();
 			gen.WriteLine(line_buf);
 			for(j = 0; (r = EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs)) >= 0;)
 				if(r == 0) {
@@ -2662,7 +2660,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			//
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kExpData) && !p_ds->GetBase()) {
 			MakeClassName(p_ds, clsnfCPP, cls_name);
@@ -2725,7 +2723,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 					gen.Wr_VarDecl("RtmStack &",  "rS", 0, 0);
 					gen.Wr_EndDeclFunc(1, 1);
 				}
-				gen.WriteLine(0);
+				gen.WriteBlancLine();
 				//
 				for(j = 0; p_ds->EnumChilds(&j, &p_rec);) {
 					if(p_rec->IsKind(DlScope::kExpDataHdr) || p_rec->IsKind(DlScope::kExpDataIter)) {
@@ -2747,7 +2745,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 				gen.IndentDec();
 				gen.Wr_CloseBrace(1);
 			}
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kDbTable)) {
 			MakeClassName(p_ds, clsnfCPP, cls_name);
@@ -2761,7 +2759,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.Wr_VarDecl("const char *", "pFileName", "0", 0); // @v9.6.4 ','-->0
 			// @v9.6.4 gen.Wr_VarDecl("int", "openMode", "omNormal", 0);
 			gen.Wr_EndDeclFunc(1, 1);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 			//
 			// Структура записи
 			//
@@ -2828,7 +2826,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			//
 			gen.IndentDec();
 			gen.Wr_CloseBrace(1);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 		}
 		else {
 			THROW(Write_C_DeclFile(gen, *p_ds)); // @recursion
@@ -2941,7 +2939,7 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 		is_ret = 1;
 	}
 	(rFunc.Name = 0).Cat("IMCI").CatParStr(mod_func_name); // ICMD(func)
-	Write_Func(gen, rFunc, ffCPP_CallImp, is_ret ? (const char *)temp_buf : 0);
+	Write_Func(gen, rFunc, ffCPP_CallImp, is_ret ? temp_buf.cptr() : 0);
 	//
 	// Конвертация (если необходимо) типов исходящих параметров
 	//
@@ -2959,7 +2957,7 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 				STypEx t_stripped = td.T;
 				if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
 					t_stripped.Mod = 0;
-				gen.CatIndent(line_buf = 0);
+				gen.CatIndent(line_buf.Z());
 				if(st == S_DATE) {
 					temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
 					gen.WriteLine(line_buf.Cat(temp_buf).CR());
@@ -2989,7 +2987,7 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 	// Конвертация возвращаемого значения //
 	//
 	if(is_ret) {
-		gen.CatIndent(line_buf = 0);
+		gen.CatIndent(line_buf.Z());
 		THROW(UnrollType(rFunc.TypID, ret_te.T, &td));
 		if(td.IsInterfaceTypeConversionNeeded() > 0) {
 			const TYPEID st = GETSTYPE(td.T.Typ);
@@ -2997,17 +2995,17 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 			if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
 				t_stripped.Mod = 0;
 			if(st == S_DATE) {
-				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, ret.GetOleDate());").CR());
+				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, ret.GetOleDate())").Semicol().CR());
 			}
 			else if(st == S_TIME) {
 			}
 			else if(st == S_DATETIME) {
-				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, (OleDate)ret);").CR());
+				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, (OleDate)ret)").Semicol().CR());
 			}
 			else if(st == S_CHAR) {
 			}
 			else if(st == S_ZSTRING) {
-				gen.WriteLine(line_buf.Cat("ret.CopyToOleStr(pRet_);").CR());
+				gen.WriteLine(line_buf.Cat("ret.CopyToOleStr(pRet_)").Semicol().CR());
 			}
 			else if(st == S_LSTRING) {
 			}
@@ -3015,13 +3013,13 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 			}
 		}
 		else {
-			gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet, ret);").CR());
+			gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet, ret)").Semicol().CR());
 		}
 	}
-	gen.WriteLine(gen.CatIndent(line_buf = 0).Cat("IFACE_METHOD_EPILOG;").CR());
+	gen.WriteLine(gen.CatIndent(line_buf.Z()).Cat("IFACE_METHOD_EPILOG").Semicol().CR());
 	gen.IndentDec();
 	gen.Wr_CloseBrace(0, 0);
-	gen.WriteLine(0);
+	gen.WriteBlancLine();
 	CATCHZOK
 	return ok;
 }
@@ -3031,11 +3029,14 @@ static SString & SLAPI Make_USEIMPL_DefSymb(const char * pClsName, SString & rBu
 	return (rBuf = "USE_IMPL_").Cat(pClsName);
 }
 
-int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs)
+int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags)
 {
 	int    ok = 1, r;
 	uint   i, j, k;
-	SString cls_name, fld_buf, func_name, vtab_name;
+	SString cls_name;
+	SString fld_buf;
+	SString func_name;
+	SString vtab_name;
 	SdbField fld;
 	DlFunc func;
 	DlScope * p_ds = 0;
@@ -3062,11 +3063,12 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			//
 			// Тест целостности списка интерфейсов
 			//
-			for(j = 0; (r = EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs)) >= 0;)
+			for(j = 0; (r = EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs)) >= 0;) {
 				if(r == 0) {
 					fld_buf.Printf("Error extracting interface %s::%u", cls_name.cptr(), j-1);
 					gen.WriteLine(fld_buf.CR());
 				}
+			}
 			MakeClassName(p_ds, clsnfCPP, cls_name);
 
 			gen.Wr_Comment(0);
@@ -3090,8 +3092,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 				gen.Wr_Comment(0);
 				gen.Wr_Comment((fld_buf = "Interface").Space().Cat(p_ifs->Name));
 				gen.Wr_Comment(0);
-				gen.CatIndent(func_name = 0).Cat("IUNKN_METHOD_PTRS").
-					CatChar('(').CatLongZ(j-1, 2).CatChar(')').Semicol().CR();
+				gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS").CatChar('(').CatLongZ(j-1, 2).CatChar(')').Semicol().CR();
 				gen.WriteLine(func_name);
 				for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
 					(func.Name = "MFP").
@@ -3105,9 +3106,9 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			gen.Wr_Comment(0);
 			gen.Wr_Comment((fld_buf = "Interface").Space().Cat("ISupportErrorInfo"));
 			gen.Wr_Comment(0);
-			gen.CatIndent(func_name = 0).Cat("IUNKN_METHOD_PTRS").CatParStr("SEI").Semicol().CR();
+			gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS").CatParStr("SEI").Semicol().CR();
 			gen.WriteLine(func_name);
-			gen.CatIndent(func_name = 0).Cat("ISUPERRINFO_METHOD_PTRS").CatParStr("SEI").Semicol().CR();
+			gen.CatIndent(func_name.Z()).Cat("ISUPERRINFO_METHOD_PTRS").CatParStr("SEI").Semicol().CR();
 			gen.WriteLine(func_name);
 			//
 			// }
@@ -3121,11 +3122,11 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			gen.Wr_OpenBrace();
 			gen.IndentInc();
 			for(j = 0; EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs) > 0;) {
-				gen.CatIndent(func_name = 0).Cat("IUNKN_METHOD_PTRS_ASSIGN").
+				gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS_ASSIGN").
 					CatChar('(').CatLongZ(j-1, 2).CatChar(')').Semicol().CR();
 				gen.WriteLine(func_name);
 				for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
-					gen.CatIndent(fld_buf = 0);
+					gen.CatIndent(fld_buf.Z());
 					fld_buf.CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatDiv('=', 1).CatChar('&');
 					if(func.Flags & DlFunc::fPropGet) {
 						(func_name = "get").CatChar('_').Cat(func.Name);
@@ -3143,9 +3144,9 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			//
 			// ISupportErrorInfo {
 			//
-			gen.CatIndent(func_name = 0).Cat("IUNKN_METHOD_PTRS_ASSIGN").CatParStr("SEI").Semicol().CR();
+			gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS_ASSIGN").CatParStr("SEI").Semicol().CR();
 			gen.WriteLine(func_name);
-			gen.CatIndent(func_name = 0).Cat("ISUPERRINFO_METHOD_PTRS_ASSIGN").CatParStr("SEI").Semicol().CR();
+			gen.CatIndent(func_name.Z()).Cat("ISUPERRINFO_METHOD_PTRS_ASSIGN").CatParStr("SEI").Semicol().CR();
 			gen.WriteLine(func_name);
 			//
 			// }
@@ -3167,7 +3168,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			gen.Wr_EndIf(Make_USEIMPL_DefSymb(cls_name, fld_buf));
 		}
 		else
-			THROW(Write_C_AutoImplFile(gen, *p_ds, rSs)); // @recursion
+			THROW(Write_C_AutoImplFile(gen, *p_ds, rSs, cflags)); // @recursion
 	}
 	CATCHZOK
 	return ok;
@@ -3202,7 +3203,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 	int    ok = 1;
 	uint   j, k;
 	SString cls_name, inst_name, fld_buf, func_name, vtab_name, mod_func_name;
-	SString base_name = "DlRtm";
+	SString base_name("DlRtm");
 	SdbField fld;
 	DlFunc func;
 	DlScope * p_ds = 0;
@@ -3223,16 +3224,16 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 			*/
 			MakeClassName(p_ds, clsnfCPP, cls_name);
 			(vtab_name = cls_name).CatChar('_').Cat("VTab");
-			gen.WriteLine(0);
-			gen.CatIndent(fld_buf = 0).Cat("DL6_IC_CONSTRUCTOR").CatChar('(').
+			gen.WriteBlancLine();
+			gen.CatIndent(fld_buf.Z()).Cat("DL6_IC_CONSTRUCTOR").CatChar('(').
 				Cat(p_ds->Name).Comma().Space().Cat(vtab_name).CatChar(')').CR();
 			gen.WriteLine(fld_buf);
 			gen.Wr_OpenBrace();
 			Wr_YourCodeHere(gen);
 			gen.Wr_CloseBrace(0, 0);
 
-			gen.WriteLine(0);
-			gen.CatIndent(fld_buf = 0).Cat("DL6_IC_DESTRUCTOR").CatParStr(p_ds->Name).CR();
+			gen.WriteBlancLine();
+			gen.CatIndent(fld_buf.Z()).Cat("DL6_IC_DESTRUCTOR").CatParStr(p_ds->Name).CR();
 			gen.WriteLine(fld_buf);
 			gen.Wr_OpenBrace();
 			Wr_YourCodeHere(gen);
@@ -3249,7 +3250,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 						//
 						//  Property name modification
 						//
-						fld_buf = 0;
+						fld_buf.Z();
 						if(func.Flags & DlFunc::fPropGet)
 							fld_buf = "get";
 						else if(func.Flags & DlFunc::fPropPut)
@@ -3264,7 +3265,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					gen.Wr_OpenBrace();
 					Wr_YourCodeHere(gen);
 					gen.Wr_CloseBrace(0, 0);
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 				}
 			}
 			ok = 2;
@@ -3316,7 +3317,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 				gen.IndentDec();
 				// } ...code
 				gen.Wr_CloseBrace(0, 0);
-				gen.WriteLine(0);
+				gen.WriteBlancLine();
 				//
 				// destructor
 				//
@@ -3334,7 +3335,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 				gen.IndentDec();
 				// } ...code
 				gen.Wr_CloseBrace(0, 0);
-				gen.WriteLine(0);
+				gen.WriteBlancLine();
 				/*
 				int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 				{
@@ -3359,7 +3360,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 				// } ...code
 				gen.Wr_CloseBrace(0, 0);
 				if(is_iter) {
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 					/*
 					int PPALDD_GoodsBillBase::InitIteration(PPIterID iterId, int sortId, long rsrv)
 					{
@@ -3377,13 +3378,13 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					// code... {
 					gen.IndentInc();
 					{
-						gen.WriteLine(gen.CatIndent(fld_buf = 0).Cat("IterProlog(iterId, 1);").CR());
+						gen.WriteLine(gen.CatIndent(fld_buf.Z()).Cat("IterProlog(iterId, 1)").Semicol().CR());
 						gen.Wr_Return("-1");
 					}
 					gen.IndentDec();
 					// } ...code
 					gen.Wr_CloseBrace(0, 0);
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 					/*
 					int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId, long rsrv)
 					{
@@ -3400,7 +3401,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					// code... {
 					gen.IndentInc();
 					{
-						gen.WriteLine(gen.CatIndent(fld_buf = 0).Cat("IterProlog(iterId, 0);").CR());
+						gen.WriteLine(gen.CatIndent(fld_buf.Z()).Cat("IterProlog(iterId, 0)").Semicol().CR());
 						gen.Wr_Indent();
 						fld_buf = "return DlRtm::NextIteration(iterId, rsrv";
 						gen.WriteLine(fld_buf);
@@ -3411,7 +3412,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					gen.Wr_CloseBrace(0, 0);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfSet)) {
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 					gen.MakeClsfName(cls_name, "Set", fld_buf);
 					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, 0, "int", fld_buf);
 					gen.Wr_VarDecl("long", "iterId", 0, ',');
@@ -3428,7 +3429,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 					gen.Wr_CloseBrace(0, 0);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfDestroy)) {
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 					gen.MakeClsfName(cls_name, "Destroy", fld_buf);
 					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, 0, "int", fld_buf); // @v9.6.4 "int"-->"void"
 					gen.Wr_EndDeclFunc(0, 1);
@@ -3590,13 +3591,13 @@ int SLAPI DlContext::CreateDbDictionary(const char * pDictPath, const char * pDa
 		THROW(LoadDbTableSpec(scope_id_list.at(i), &tbl, 0));
 		if(CurDict) {
 			if(!CurDict->CreateTableSpec(&tbl)) {
-				(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", (long)BtrError);
+				(msg_buf = tbl.GetTableName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
 				SetError(PPERR_DL6_DDFENTRYCRFAULT, msg_buf);
 				CALLEXCEPT();
 			}
 			if(!(tbl.GetFlags() & XTF_TEMP) && !(tbl.GetFlags() & XTF_DICT)) {
 				if(!CurDict->CreateDataFile(&tbl, 0, crmTTSReplace, GetRusNCaseACS(acs))) {
-					(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", (long)BtrError);
+					(msg_buf = tbl.GetName()).CatDiv(':', 1).CatEq("BtrError", static_cast<long>(BtrError));
 					SetError(PPERR_DL6_BTRFILECRFAULT, msg_buf);
 					CALLEXCEPT();
 				}
@@ -3624,7 +3625,7 @@ int SLAPI DlContext::CreateDbDictionary(const char * pDictPath, const char * pDa
 			{
 				SFile f_sql(sql_file_name, SFile::mWrite);
 				if(f_sql.IsValid()) {
-					f_sql.WriteLine((SString &)*p_sqlgen);
+					f_sql.WriteLine(static_cast<SString &>(*p_sqlgen));
 				}
 			}
 		}
@@ -3685,22 +3686,22 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 			{
 				SPathStruc ps;
 				ps.Split(CDeclFileName);
-				(h_once_macro = 0).CatCharN('_', 2).Cat(ps.Nam).CatChar('_').Cat(ps.Ext).ToUpper();
+				h_once_macro.Z().CatCharN('_', 2).Cat(ps.Nam).CatChar('_').Cat(ps.Ext).ToUpper();
 			}
 			gen.Open(CDeclFileName);
 			Write_C_FileHeader(gen, CDeclFileName);
 
 			gen.Wr_IfDef(h_once_macro, 1);
 			gen.Wr_Define(h_once_macro, 0);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 			if(Sc.GetFirstChildByKind(DlScope::kUiDialog, 1)) {
 				SString symb;
 				DLSYMBID ss_id = 0;
 				scope_id_list.freeAll();
 				Sc.GetChildList(DlScope::kUiDialog, 1, &scope_id_list);
-				gen.Wr_Comment(symb = 0);
+				gen.Wr_Comment(symb.Z());
 				gen.Wr_Comment("Dialogs");
-				gen.Wr_Comment(symb = 0);
+				gen.Wr_Comment(symb.Z());
 				for(i = 0; i < scope_id_list.getCount(); i++) {
 					const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
 					if(p_scope) {
@@ -3730,10 +3731,10 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 					for(i = 0; i < sc; i++) {
 						const LAssoc & r_assc = UiSymbAssoc.at(i);
 						if(ss_id != r_assc.Key) {
-							gen.Wr_Comment(symb = 0);
+							gen.Wr_Comment(symb.Z());
 							GetSymb(r_assc.Key, symb, '$');
 							gen.Wr_Comment(symb);
-							gen.Wr_Comment(symb = 0);
+							gen.Wr_Comment(symb.Z());
 						}
 						if(GetSymb(r_assc.Val, symb, '$')) {
 							temp_buf.Z().Cat(r_assc.Val).Align(max_len - symb.Len(), ADJ_RIGHT);
@@ -3746,37 +3747,111 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 			if(Sc.GetFirstChildByKind(DlScope::kDbTable, 1)) {
 				gen.Wr_Include("db.h", 0);
 				gen.Wr_Include("dl600.h", 0);
-				gen.WriteLine(0);
+				gen.WriteBlancLine();
 			}
 			if(Sc.GetFirstChildByKind(DlScope::kExpData, 1)) {
 				gen.Wr_Define("Head_data", "H");
 				gen.Wr_Define("IT_default_data", "I");
-				gen.WriteLine(0);
+				gen.WriteBlancLine();
 			}
 			//
 			// Прототипы интерфейсов {
 			//
 			if(Sc.GetFirstChildByKind(DlScope::kInterface, 1) || Sc.GetFirstChildByKind(DlScope::kIClass, 1)) {
-				gen.Wr_ClassPrototype(Generator_CPP::clsStruct, "IUnknown");
-				scope_id_list.freeAll();
-				Sc.GetChildList(DlScope::kInterface, 1, &scope_id_list);
-				for(i = 0; i < scope_id_list.getCount(); i++) {
-					const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
-					if(p_scope)
-						gen.Wr_ClassPrototype(Generator_CPP::clsStruct, p_scope->Name);
+				if(cflags & cfGravity) {
+					// @construction {
+					/*
+					class GravityClassImplementation_Math : public GravityClassImplementation {
+					private:
+						static bool _Callee_Func(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+					};
+					*/
+					scope_id_list.clear();
+					Sc.GetChildList(DlScope::kIClass, 1, &scope_id_list);
+					for(i = 0; i < scope_id_list.getCount(); i++) {
+						const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
+						if(p_scope) {
+							temp_buf.Z().Cat("GCI").CatChar('_').Cat(p_scope->Name);
+							//int    Wr_StartDeclFunc(int funcKind, int funcMod, const char * pRetType, const char * pFuncName, int funcCallMod = 0);
+							//int    Wr_EndDeclFunc(int semicol, int newLine);
+							gen.Wr_StartClassDecl(Generator_CPP::clsClass, temp_buf, "GravityClassImplementation", Generator_CPP::acsPublic, 0/*declAlignment*/);
+							gen.Wr_ClassAcsZone(Generator_CPP::acsPrivate);
+							{
+								DlScope::IfaceBase ifb;
+								const DlScope * p_ifs;
+								{
+									for(uint j = 0; EnumInterfacesByICls(p_scope, &j, &ifb, &p_ifs) > 0;) {
+										DlFunc func;
+										gen.IndentInc();
+										temp_buf.Z().Cat("Interface").Space().Cat(p_ifs->Name).Space().Cat("implementation");
+										gen.Wr_Comment(0);
+										gen.Wr_Comment(temp_buf);
+										gen.Wr_Comment(0);
+										for(uint k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
+											temp_buf.Z().Cat("_Callee_").Cat(func.Name);
+											//(func.Name = "MFP").CatChar('(').CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatChar(')');
+											//Write_Func(gen, func, ffCPP_VTbl);
+											gen.Wr_StartDeclFunc(gen.fkOrdinary, gen.fmStatic, "bool", temp_buf, gen.fcmCDecl);
+											gen.Wr_VarDecl("gravity_vm *", "vm", 0, ',');
+											gen.Wr_VarDecl("GravityValue *", "args", 0, ',');
+											gen.Wr_VarDecl("uint16", "nargs", 0, ',');
+											gen.Wr_VarDecl("uint32", "rindex", 0, 0);
+											gen.Wr_EndDeclFunc(1, 1);
+										}
+										gen.IndentDec();
+									}
+								}
+								{
+									for(uint j = 0; EnumInterfacesByICls(p_scope, &j, &ifb, &p_ifs) > 0;) {
+										DlFunc func;
+										gen.IndentInc();
+										temp_buf.Z().Cat("Interface").Space().Cat(p_ifs->Name).Space().Cat("implementation");
+										gen.Wr_Comment(0);
+										gen.Wr_Comment(temp_buf);
+										gen.Wr_Comment(0);
+										for(uint k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
+											temp_buf.Z().Cat(func.Name);
+											//(func.Name = "MFP").CatChar('(').CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatChar(')');
+											//Write_Func(gen, func, ffCPP_VTbl);
+											gen.Wr_StartDeclFunc(gen.fkOrdinary, 0, "bool", temp_buf, gen.fcmCDecl);
+											gen.Wr_VarDecl("gravity_vm *", "vm", 0, ',');
+											gen.Wr_VarDecl("GravityValue *", "args", 0, ',');
+											gen.Wr_VarDecl("uint16", "nargs", 0, ',');
+											gen.Wr_VarDecl("uint32", "rindex", 0, 0);
+											gen.Wr_EndDeclFunc(1, 1);
+										}
+										gen.IndentDec();
+									}
+								}
+							}
+							gen.Wr_CloseBrace(1, 0);
+							gen.WriteBlancLine();
+						}
+					}
+					// } @construction
 				}
-				gen.WriteLine(0);
+				else {
+					gen.Wr_ClassPrototype(Generator_CPP::clsStruct, "IUnknown");
+					scope_id_list.clear();
+					Sc.GetChildList(DlScope::kInterface, 1, &scope_id_list);
+					for(i = 0; i < scope_id_list.getCount(); i++) {
+						const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
+						if(p_scope)
+							gen.Wr_ClassPrototype(Generator_CPP::clsStruct, p_scope->Name);
+					}
+					gen.WriteBlancLine();
+				}
 			}
 			//
 			// }
 			//
 			if(cflags & cfDebug)
-				gen.WriteLine((line_buf = 0).Cat("#pragma pack(show)").CR().CR());
+				gen.WriteLine(line_buf.Z().Cat("#pragma pack(show)").CR().CR());
 			if(!Write_C_DeclFile(gen, Sc))
 				Error(LastError, 0, 0);
 			if(cflags & cfDebug)
-				gen.WriteLine((line_buf = 0).CR().Cat("#pragma pack(show)").CR());
-			gen.WriteLine(0);
+				gen.WriteLine(line_buf.Z().CR().Cat("#pragma pack(show)").CR());
+			gen.WriteBlancLine();
 			gen.Wr_EndIf(h_once_macro);
 			//
 			// Writing CPP-files
@@ -3798,7 +3873,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 					//
 					gen.Open(impl_filename);
 					Write_C_FileHeader(gen, impl_filename);
-					if(!Write_C_AutoImplFile(gen, Sc, ss))
+					if(!Write_C_AutoImplFile(gen, Sc, ss, cflags))
 						Error(LastError, 0, 0);
 				}
 				{
@@ -3807,11 +3882,11 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 					//
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);)
 						gen.Wr_Define(temp_buf, 0);
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 					ps.Ext = "h";
 					ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, impl_filename);
 					gen.Wr_Include(impl_filename, 1);
-					gen.WriteLine(0);
+					gen.WriteBlancLine();
 					//
 					if(!Write_C_ImplFile(gen, Sc))
 						Error(LastError, 0, 0);
@@ -3824,12 +3899,12 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 			gen.Open(file_name);
 			Write_C_FileHeader(gen, file_name);
 			temp_buf = "unknwn.idl";
-			(line_buf = 0).Cat("import").Space().Cat(temp_buf.Quot('\"', '\"')).Semicol().CR();
+			line_buf.Z().Cat("import").Space().Cat(temp_buf.Quot('\"', '\"')).Semicol().CR();
 			gen.WriteLine(line_buf);
 			temp_buf = "oaidl.idl";
-			(line_buf = 0).Cat("import").Space().Cat(temp_buf.Quot('\"', '\"')).Semicol().CR();
+			line_buf.Z().Cat("import").Space().Cat(temp_buf.Quot('\"', '\"')).Semicol().CR();
 			gen.WriteLine(line_buf);
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 			//
 			// Прототипы интерфейсов {
 			//
@@ -3840,7 +3915,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 				if(p_scope)
 					gen.Wr_ClassPrototype(Generator_CPP::clsInterface, p_scope->Name);
 			}
-			gen.WriteLine(0);
+			gen.WriteBlancLine();
 			//
 			// }
 			//
@@ -3867,7 +3942,6 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 				assert(test.Test_ReWr_Code(*this));
 				assert(Test());
 				assert(test.Test());
-
 				Write_DialogReverse();
 			}
 		}

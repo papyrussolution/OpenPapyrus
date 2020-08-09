@@ -27,17 +27,13 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_TEE_SURFACE_PRIVATE_H
 #define CAIRO_TEE_SURFACE_PRIVATE_H
 
-//#include "cairoint.h"
 cairo_private cairo_surface_t * _cairo_tee_surface_find_match(void * abstract_surface, const cairo_surface_backend_t * backend, cairo_content_t content);
 
 #endif /* CAIRO_TEE_SURFACE_PRIVATE_H */

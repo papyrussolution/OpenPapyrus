@@ -703,7 +703,7 @@ void PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 int PPDesktop::DrawText(TCanvas & rC, TPoint coord, COLORREF color, const char * pText)
 {
 	long   text_h = 0;
-	SString text = pText;
+	SString text(pText);
 	RECT   text_rect;
 	HFONT  old_font = 0;
 	HFONT  curs_over_txt_font = 0;

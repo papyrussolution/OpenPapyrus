@@ -2980,7 +2980,7 @@ int SLAPI StrStrAssocArray::Search(const char * pKey, SString * pVal, uint * pPo
 {
 	int    ok = 0;
 	if(!isempty(pKey)) {
-		SString pattern_buf = pKey;
+		const SString pattern_buf(pKey);
 		SString temp_buf;
 		for(uint i = 0; !ok && i < L.getCount(); i++) {
 			const LAssoc & r_item = L.at(i);

@@ -290,7 +290,7 @@ static CURLcode smtp_perform_ehlo(struct connectdata * conn)
 	smtpc->sasl.authused = SASL_AUTH_NONE; // Clear the authentication mechanism used for esmtp connections 
 	smtpc->tls_supported = FALSE; // Clear the TLS capability 
 	smtpc->auth_supported = FALSE; // Clear the AUTH capability 
-	SString _domain = smtpc->domain;
+	SString _domain(smtpc->domain);
 	if(!_domain.NotEmptyS() || !sisascii(_domain, _domain.Len()))
 		_domain = "papyrus-smtp-client";
 	result = Curl_pp_sendf(&smtpc->pp, "EHLO %s", /*smtpc->domain*/_domain.cptr()); // Send the EHLO command 
@@ -306,7 +306,7 @@ static CURLcode smtp_perform_helo(struct connectdata * conn)
 	CURLcode result = CURLE_OK;
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 	smtpc->sasl.authused = SASL_AUTH_NONE; // No authentication mechanism used in smtp connections
-	SString _domain = smtpc->domain;
+	SString _domain(smtpc->domain);
 	if(!_domain.NotEmptyS() || !sisascii(_domain, _domain.Len()))
 		_domain = "papyrus-smtp-client";
 	result = Curl_pp_sendf(&smtpc->pp, "HELO %s", /*smtpc->domain*/_domain.cptr()); // Send the HELO command 

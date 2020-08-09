@@ -187,7 +187,7 @@ int SLAPI PPTableConversion::Convert()
 		SPathStruc path_struc;
 		THROW(DS.GetSync().LockDB());
 		db_locked = 1;
-		SString tbl_name = p_tbl->GetTableName();
+		SString tbl_name(p_tbl->GetTableName());
 		const SString file_name = p_tbl->GetName();
 		DestroyTable(p_tbl);
 		p_tbl = 0;

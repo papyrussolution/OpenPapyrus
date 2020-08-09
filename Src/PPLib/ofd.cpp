@@ -229,7 +229,7 @@ int SLAPI OfdBuffer::PutTagString(int tag, size_t maxLen, const char * pV)
 int SLAPI OfdBuffer::PutTagStringFix(int tag, size_t maxLen, const char * pV)
 {
     int    ok = 1;
-    SString temp_buf = pV;
+    SString temp_buf(pV);
     temp_buf.Strip().Trim(maxLen).Align(maxLen, ADJ_LEFT);
     assert(temp_buf.Len() == maxLen);
     int16  _t = tag;

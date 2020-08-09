@@ -347,7 +347,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -419,7 +420,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -494,7 +496,8 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <GenerateMapFile>false</GenerateMapFile>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -565,7 +568,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -632,7 +636,8 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -700,7 +705,8 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <SwapRunFromNET>true</SwapRunFromNET>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -767,7 +773,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -835,7 +842,8 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
       <SwapRunFromNET>true</SwapRunFromNET>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -902,7 +910,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -969,7 +978,8 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
       <SwapRunFromNET>true</SwapRunFromNET>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -1038,7 +1048,8 @@
       <TurnOffAssemblyGeneration>false</TurnOffAssemblyGeneration>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -1107,7 +1118,8 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <FixedBaseAddress>false</FixedBaseAddress>
       <SwapRunFromNET>true</SwapRunFromNET>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
@@ -1154,7 +1166,8 @@
       <TerminalServerAware>true</TerminalServerAware>
       <LargeAddressAware>false</LargeAddressAware>
       <OptimizeReferences>true</OptimizeReferences>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
@@ -1195,7 +1208,8 @@
       <SwapRunFromNET>true</SwapRunFromNET>
       <LargeAddressAware>false</LargeAddressAware>
       <OptimizeReferences>true</OptimizeReferences>
-      <LinkStatus>true</LinkStatus>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -1234,7 +1248,6 @@
     <ClCompile Include="..\PPLib\Advbill.cpp" />
     <ClCompile Include="..\PPLib\albatros.cpp" />
     <ClCompile Include="..\PPLib\Amtdlg.cpp" />
-    <ClCompile Include="..\PPLib\AMTLIST.CPP" />
     <ClCompile Include="..\PPLib\Asstwrof.cpp" />
     <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
     <ClCompile Include="..\PPLib\Autocmpl.cpp" />

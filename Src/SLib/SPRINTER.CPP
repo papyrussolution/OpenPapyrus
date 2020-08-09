@@ -50,7 +50,7 @@ SPrinting::~SPrinting()
 int SPrinting::Init(const char * pPort)
 {
 	int    ok = 1;
-	SString port = pPort;
+	SString port(pPort);
 	if(!port.NotEmpty()) {
 		TSVector <SPrinting::PrnInfo> prn_list; // @v9.8.4 TSArray-->TSVector
 		SPrinting::GetListOfPrinters(&prn_list);

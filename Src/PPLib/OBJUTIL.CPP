@@ -1658,7 +1658,7 @@ uint SLAPI ObjLinkFiles::GetCount() const { return Files.getCount(); }
 
 int SLAPI ObjLinkFiles::CheckFile(uint pos, const char * pPath)
 {
-	SString path = pPath;
+	SString path(pPath);
 	const char * p_exist_file = (pos < Files.getCount()) ? Files.at(pos) : 0;
 	const int    is_store_path = BIN(!(State & stIgnoreCheckStorageDir) && path.HasPrefixNC(StoreDir));
 	if(p_exist_file && is_store_path && path.CmpNC(p_exist_file) == 0)
@@ -1743,7 +1743,7 @@ int SLAPI ObjLinkFiles::Remove(uint i)
 
 int SLAPI ObjLinkFiles::MakeFilePath(PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
 {
-	SString added_buf = pAddedStr;
+	SString added_buf(pAddedStr);
 	if(added_buf.NotEmptyS()) {
 		(rPath = StoreDir).Cat(ObjType).CatChar('@').Cat(objID).CatChar('@').Cat(added_buf).CatChar('@');
 	}
@@ -1892,7 +1892,7 @@ int SLAPI ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx
 	THROW(idx < Files.getCount());
 	{
 		uint   num = 0;
-		const SString orig_path = Files.at(idx);
+		const SString orig_path(Files.at(idx));
 		THROW(CheckFile(idx, orig_path) > 0);
 		THROW(GetFreeNum(&num) > 0);
 		{
@@ -2110,7 +2110,7 @@ PPGlobalAccRights::PPGlobalAccRights(const int tagID)
 			Recs.insert(&perm_rec);
 		}
 		else if(PPRef->Ot.GetTag(PPOBJ_GLOBALUSERACC, glob_acc_id, tagID, &tag) > 0)
-			Parse(tag.Val.PStr);
+			Parse(SString(tag.Val.PStr));
 	}
 }
 

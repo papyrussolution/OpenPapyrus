@@ -838,7 +838,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		ScURL::HttpForm hf;
 		{
-			SFileFormat::GetMime(SFileFormat::Xml, temp_buf); // @v9.6.4
+			SFileFormat::GetMime(SFileFormat::Xml, temp_buf);
 			hf.AddContentFile(file_name, temp_buf, "xml_file");
 		}
 		THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
@@ -1507,9 +1507,9 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 	// woifDontSendWithoutFSRARID
 	int   ok = 1;
 	SString temp_buf;
-	SString inn = rRefcItem.INN;
-	SString kpp = rRefcItem.KPP;
-	SString rar_id = rRefcItem.RarIdent;
+	SString inn(rRefcItem.INN);
+	SString kpp(rRefcItem.KPP);
+	SString rar_id(rRefcItem.RarIdent);
 	int   j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не ТС), 4 - иностранец (таможенный союз)
 	const char * p_j_scope = 0;
 	if(flags & woifStrict) {
@@ -2104,7 +2104,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										(temp_buf = bill_text).Space().Cat("-->").Space().Cat(ar_name).Space().CatChar('[').Cat(loc_name).CatChar(']');
 										LogTextWithAddendum(PPTXT_EGAIS_DEBUG_INTREXPND, temp_buf);
 									}
-									// } @v10.7.6 
+									// } @v10.7.6
 								}
 								else {
 									consignee_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);
@@ -4355,7 +4355,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
     SString temp_buf;
     BillTbl::Rec bhdr;
     // @v10.6.4 MEMSZERO(bhdr);
-	TSVector <EgaisWayBillRowTags> row_tags; // @v9.8.4 TSArray-->TSVector
+	TSVector <EgaisWayBillRowTags> row_tags;
 	const PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
 	TSCollection <ExtCodeSetEntry> ext_code_set_list;
 	if(pPack)
@@ -4876,7 +4876,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
 					const PPID ex_bill_id = ex_bill_id_list.get(i);
 					BillTbl::Rec ex_bill_rec;
 					if(P_BObj->Fetch(ex_bill_id, &ex_bill_rec) > 0 && ex_bill_rec.OpID == p_bp->Rec.OpID) {
-						if(!use_dt_in_bill_analog || ex_bill_rec.Dt == p_bp->Rec.Dt) { // @v9.1.9
+						if(!use_dt_in_bill_analog || ex_bill_rec.Dt == p_bp->Rec.Dt) {
 							BillCore::GetCode(temp_buf = ex_bill_rec.Code);
 							if(temp_buf.CmpNC(p_bp->Rec.Code) == 0 && Helper_AreArticlesEq(ex_bill_rec.Object, p_bp->Rec.Object)) {
 								do_skip = 1;
@@ -4887,10 +4887,8 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSColl
 								PPLoadText(PPTXT_EGAIS_BILLTOOACCEPTED, fmt_buf);
 								Log(msg_buf.Printf(fmt_buf, (const char *)bill_text));
 								*/
-								// @v9.0.0 {
 								if(diffdate(getcurdate_(), ex_bill_rec.Dt) > 14)
 									pPack->Flags |= Packet::fDoDelete;
-								// } @v9.0.0
 								//
 								// @v10.3.4 {
 								// Аварийный блок, восстанавливающий марки в принятом ранее документе если они не были сохранены
@@ -7034,12 +7032,10 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 					temp_buf.Cat(doc_type);
 				LogTextWithAddendum(PPTXT_EGAIS_GOTUNPROCESSEDDOC, temp_buf);
 			}
-			PPWaitPercent(i+1, reply_count); // @v9.4.0
+			PPWaitPercent(i+1, reply_count);
 		}
-		// @v9.0.4 {
 		if(!P_RefC->Store(1))
 			LogLastError();
-		// } @v9.0.4
 	}
 	{
 		PPIDArray bill_id_list;
@@ -7413,19 +7409,16 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 								skip = 1;
 						}
 						if(!skip) {
-							// @v9.3.3 {
 							if(ediOp == PPEDIOP_EGAIS_ACTCHARGEON) {
 								P_BObj->trfr->GetRest(lot_id, pack.Rec.Dt, MAXLONG, &rest);
 							}
 							else if(ediOp == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
-								P_BObj->trfr->GetRest(lot_id, pack.Rec.Dt, encodedate(30, 9, 2016), &rest); // @v9.3.9
-								// @v9.3.9 rest = lot_rec.Rest;
+								P_BObj->trfr->GetRest(lot_id, pack.Rec.Dt, encodedate(30, 9, 2016), &rest);
 								if(agi.UnpackedVolume > 0.0) {
 									const double mult = agi.UnpackedVolume / 10.0;
 									rest = (rest * mult); // Неупакованная продукция передается в декалитрах
 								}
 							}
-							// } @v9.3.3
 							if(rest > 0.0) {
 								THROW(ti.Init(&pack.Rec));
 								THROW(ti.SetupGoods(goods_id));
@@ -7439,7 +7432,7 @@ int SLAPI PPEgaisProcessor::CreateActChargeOnBill(PPID * pBillID, int ediOp, PPI
 								}
 								else if(ediOp == PPEDIOP_EGAIS_ACTCHARGEONSHOP) {
 									ti.Quantity_ = rest;
-									ti.OrdLotID = lot_id; // @v9.3.1
+									ti.OrdLotID = lot_id;
 								}
 								{
 									const uint tipos = pack.GetTCount();

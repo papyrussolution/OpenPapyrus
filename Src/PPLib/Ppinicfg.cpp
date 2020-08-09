@@ -573,7 +573,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Add(const char * pTextUtf8)
 {
 	int   ok = 0;
 	LongArray pos_list;
-	SString text_buf = pTextUtf8;
+	SString text_buf(pTextUtf8);
 	text_buf.Strip();
 	if(text_buf.Len()) {
 		if(SearchEntries(text_buf, sefFullString, pos_list)) {
@@ -721,7 +721,7 @@ int SLAPI PPConfigDatabase::StringHistoryPool::Get(const char * pSubUtf8, long f
 	int   ok = 0;
 	rList.clear();
 	LongArray pos_list;
-	SString text_buf = pSubUtf8;
+	SString text_buf(pSubUtf8);
 	text_buf.Strip();
 	if(text_buf.Len()) {
 		if(SearchEntries(text_buf, flags, pos_list)) {

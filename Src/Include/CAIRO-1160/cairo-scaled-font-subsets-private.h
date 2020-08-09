@@ -27,17 +27,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_SCALED_FONT_SUBSETS_PRIVATE_H
 #define CAIRO_SCALED_FONT_SUBSETS_PRIVATE_H
-
-//#include "cairoint.h"
 
 #if CAIRO_HAS_FONT_SUBSET
 

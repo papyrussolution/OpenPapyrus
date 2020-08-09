@@ -80,11 +80,11 @@ static uint32_t radial_compute_color(double a, double b, double c, double inva, 
 		t = pixman_fixed_1 / 2 * c / b;
 		if(repeat == PIXMAN_REPEAT_NONE) {
 			if(0 <= t && t <= pixman_fixed_1)
-				return _pixman_gradient_walker_pixel(walker, t);
+				return _pixman_gradient_walker_pixel(walker, static_cast<pixman_fixed_48_16_t>(t));
 		}
 		else {
 			if(t * dr >= mindr)
-				return _pixman_gradient_walker_pixel(walker, t);
+				return _pixman_gradient_walker_pixel(walker, static_cast<pixman_fixed_48_16_t>(t));
 		}
 		return 0;
 	}
@@ -107,15 +107,15 @@ static uint32_t radial_compute_color(double a, double b, double c, double inva, 
 		 */
 		if(repeat == PIXMAN_REPEAT_NONE) {
 			if(0 <= t0 && t0 <= pixman_fixed_1)
-				return _pixman_gradient_walker_pixel(walker, t0);
+				return _pixman_gradient_walker_pixel(walker, static_cast<pixman_fixed_48_16_t>(t0));
 			else if(0 <= t1 && t1 <= pixman_fixed_1)
-				return _pixman_gradient_walker_pixel(walker, t1);
+				return _pixman_gradient_walker_pixel(walker, static_cast<pixman_fixed_48_16_t>(t1));
 		}
 		else {
 			if(t0 * dr >= mindr)
-				return _pixman_gradient_walker_pixel(walker, t0);
+				return _pixman_gradient_walker_pixel(walker, static_cast<pixman_fixed_48_16_t>(t0));
 			else if(t1 * dr >= mindr)
-				return _pixman_gradient_walker_pixel(walker, t1);
+				return _pixman_gradient_walker_pixel(walker, static_cast<pixman_fixed_48_16_t>(t1));
 		}
 	}
 	return 0;
@@ -275,7 +275,8 @@ static uint32_t * radial_get_scanline_narrow(pixman_iter_t * iter, const uint32_
 		ddc = 2 * dot(unit.vector[0], unit.vector[1], 0, unit.vector[0], unit.vector[1], 0);
 		while(buffer < end) {
 			if(!mask || *mask++) {
-				*buffer = radial_compute_color(radial->a, b, c, radial->inva, radial->delta.radius, radial->mindr, &walker, image->common.repeat);
+				*buffer = radial_compute_color(radial->a, static_cast<double>(b), static_cast<double>(c), 
+					radial->inva, radial->delta.radius, radial->mindr, &walker, image->common.repeat);
 			}
 			b += db;
 			c += dc;
@@ -333,37 +334,25 @@ void _pixman_radial_gradient_iter_init(pixman_image_t * image, pixman_iter_t * i
 		iter->get_scanline = radial_get_scanline_wide;
 }
 
-PIXMAN_EXPORT pixman_image_t * pixman_image_create_radial_gradient(const pixman_point_fixed_t *  inner,
-    const pixman_point_fixed_t *  outer,
-    pixman_fixed_t inner_radius,
-    pixman_fixed_t outer_radius,
-    const pixman_gradient_stop_t * stops,
-    int n_stops)
+PIXMAN_EXPORT pixman_image_t * pixman_image_create_radial_gradient(const pixman_point_fixed_t *  inner, const pixman_point_fixed_t *  outer,
+    pixman_fixed_t inner_radius, pixman_fixed_t outer_radius, const pixman_gradient_stop_t * stops, int n_stops)
 {
-	pixman_image_t * image;
 	radial_gradient_t * radial;
-
-	image = _pixman_image_allocate();
-
+	pixman_image_t * image = _pixman_image_allocate();
 	if(!image)
 		return NULL;
-
 	radial = &image->radial;
-
 	if(!_pixman_init_gradient(&radial->common, stops, n_stops)) {
 		SAlloc::F(image);
 		return NULL;
 	}
-
 	image->type = RADIAL;
-
 	radial->c1.x = inner->x;
 	radial->c1.y = inner->y;
 	radial->c1.radius = inner_radius;
 	radial->c2.x = outer->x;
 	radial->c2.y = outer->y;
 	radial->c2.radius = outer_radius;
-
 	/* warning: this computations may overflow */
 	radial->delta.x = radial->c2.x - radial->c1.x;
 	radial->delta.y = radial->c2.y - radial->c1.y;

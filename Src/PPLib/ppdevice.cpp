@@ -106,8 +106,8 @@ int SLAPI PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 			RVALUEPTR(Data, pData);
 			SString temp_buf;
 			setCtrlLong(CTL_ADEVICE_ID, Data.Rec.ID);
-			setCtrlString(CTL_ADEVICE_NAME, Data.Rec.Name);
-			setCtrlString(CTL_ADEVICE_SYMB, Data.Rec.Symb);
+			setCtrlString(CTL_ADEVICE_NAME, temp_buf = Data.Rec.Name);
+			setCtrlString(CTL_ADEVICE_SYMB, temp_buf = Data.Rec.Symb);
 			SetupStringCombo(this, CTLSEL_ADEVICE_CLS, PPTXT_ABSTRACTDEVICETYPENAMES, Data.Rec.DeviceClass);
 			AddClusterAssoc(CTL_ADEVICE_FLAGS, 0, PPCommObjEntry::fPassive);
 			SetClusterData(CTL_ADEVICE_FLAGS, Data.Rec.Flags);
@@ -298,7 +298,7 @@ int SLAPI GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, 
 	int    drv_impl = 0;
 	const char * p_eq = sstrchr(pLine, '=');
 	size_t eq_pos = 0;
-	SString temp_buf = pLine;
+	SString temp_buf(pLine);
 	if(temp_buf.SearchChar('=', &eq_pos)) {
 		rSymbol = temp_buf.Trim(eq_pos).Strip();
 		r = 1;
@@ -331,7 +331,7 @@ int PPAbstractDevice::GetDllName(int dvcClass, long devTypeId, SString & rDllPat
 
 	int    ok = 1;
 	//int    idx = 0;
-	SString line_buf = ""; // А то ошибка может быть // @vmiller
+	SString line_buf(""); // А то ошибка может быть // @vmiller
 	int    rts_id = 0;
 	int    sect_id = GetDrvIniSectByDvcClass(dvcClass, &rts_id, 0);
 	SString path;

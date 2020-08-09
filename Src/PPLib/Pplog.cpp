@@ -176,7 +176,7 @@ void LogListWindowSCI::Append()
 		if(vc > 0) {
 			const char * p_buf = static_cast<const char *>(P_MsgLog->GetRow(vc-1));
 			if(p_buf) {
-				SString temp_buf = p_buf+sizeof(long);
+				SString temp_buf(p_buf+sizeof(long));
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8).CRB();
 				CallFunc(SCI_SETREADONLY);
 				CallFunc(SCI_APPENDTEXT, (int)temp_buf.Len(), (int)temp_buf.cptr());
@@ -930,7 +930,7 @@ int FASTCALL PPLogger::Log(const char * pMsg)
 {
 	int    ok = 1;
 	if(!(Flags & fDisableOutput)) {
-		SString buf = pMsg;
+		SString buf(pMsg);
 		if(!P_Log) {
 			THROW_MEM(P_Log = new TVMsgLog);
 			P_Log->Init();

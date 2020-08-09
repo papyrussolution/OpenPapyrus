@@ -549,7 +549,7 @@ static const char * xmlXPathErrorMessages[] = {
  */
 static void FASTCALL xmlXPathErrMemory(xmlXPathContext * ctxt, const char * extra)
 {
-	SString msg_buf = "Memory allocation failed";
+	SString msg_buf("Memory allocation failed");
 	if(extra)
 		msg_buf.CatDiv(':', 1).Cat(extra);
 	msg_buf.CR();

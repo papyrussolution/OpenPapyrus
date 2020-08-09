@@ -4,13 +4,13 @@
 #include <pp.h>
 #pragma hdrstop
 
-static SString P_VKUrlBase = "https://api.vk.com";
-static SString P_VKMethodUrlBase = "https://api.vk.com/method";
-static SString P_VKAppId = "7402217";
+static SString P_VKUrlBase("https://api.vk.com");
+static SString P_VKMethodUrlBase("https://api.vk.com/method");
+static SString P_VKAppId("7402217");
 
 void PPVkClient::GetVKAccessToken()
 {
-	SString url = "https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/";
+	SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
 	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 }
 
@@ -135,10 +135,10 @@ int  PPVkClient::AddGoodToMarket(const VkStruct &rVkStruct, const Goods2Tbl::Rec
 	}
 	ZDELETE(p_json_doc);
 	if(vkMarketItemID > 0) {
-		Market_Edit(rVkStruct, vkMarketItemID, price, rGoodsRes.Name, photo_id, 1100, rDescr, temp_buf.Z());
+		Market_Edit(rVkStruct, vkMarketItemID, price, SString(rGoodsRes.Name), photo_id, 1100, rDescr, temp_buf.Z());
 	}
 	else {
-		THROW(Market_Add(rVkStruct, price, rGoodsRes.Name, photo_id, 1100, rDescr, temp_buf.Z()));
+		THROW(Market_Add(rVkStruct, price, SString(rGoodsRes.Name), photo_id, 1100, rDescr, temp_buf.Z()));
 	}
 	rOutput.Z().Cat(temp_buf);
 	CATCHZOK;

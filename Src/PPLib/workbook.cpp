@@ -598,8 +598,8 @@ public:
 		SString temp_buf;
 		setCtrlLong(CTL_WORKBOOK_ID, Data.Rec.ID);
 		disableCtrl(CTL_WORKBOOK_ID, 1);
-		setCtrlString(CTL_WORKBOOK_NAME, Data.Rec.Name);
-		setCtrlString(CTL_WORKBOOK_CODE, Data.Rec.Symb);
+		setCtrlString(CTL_WORKBOOK_NAME, temp_buf = Data.Rec.Name);
+		setCtrlString(CTL_WORKBOOK_CODE, temp_buf = Data.Rec.Symb);
 		setCtrlLong(CTL_WORKBOOK_RANK, Data.Rec.Rank);
 		AddClusterAssoc(CTL_WORKBOOK_TYPE, 0, PPWBTYP_SITE);
 		AddClusterAssocDef(CTL_WORKBOOK_TYPE, 1, PPWBTYP_PAGE);

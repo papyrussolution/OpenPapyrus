@@ -78,13 +78,13 @@ public:
 		StringSet ids_set(',', 0);
 		for(pos = 0; pos < Data.ObjIDList.getCount(); pos++)
 			ids_set.add(buf.Z().Cat(Data.ObjIDList.at(pos)));
-		setCtrlString(CTL_SYNCFILT_OBJIDS, ids_set.getBuf());
+		setCtrlString(CTL_SYNCFILT_OBJIDS, buf = ids_set.getBuf());
 		ids_set.clear();
 		for(pos = 0; pos < Data.CommIDList.getCount(); pos++) {
 			LAssoc  comm_id = Data.CommIDList.at(pos);
 			ids_set.add(buf.Z().Cat(comm_id.Key).CatDiv('-', 0).Cat(comm_id.Val));
 		}
-		setCtrlString(CTL_SYNCFILT_COMMIDS, ids_set.getBuf());
+		setCtrlString(CTL_SYNCFILT_COMMIDS, buf = ids_set.getBuf());
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()

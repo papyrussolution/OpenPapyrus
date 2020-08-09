@@ -158,9 +158,9 @@ class ImportCls;
 
 int ErrorCode = 0;
 int WebServcErrorCode = 0;
-SString StrError = "";
-SString LogName = "";
-SString SysLogName = "";
+SString StrError("");
+SString LogName("");
+SString SysLogName("");
 static ExportCls * P_ExportCls = 0;
 static ImportCls * P_ImportCls = 0;
 

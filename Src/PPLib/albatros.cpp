@@ -366,7 +366,7 @@ int SLAPI PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 	int    ok = -1;
 	xmlParserCtxt * p_ctx = 0;
 	xmlDoc * p_doc = 0;
-	SString src_buf = pBuf;
+	SString src_buf(pBuf);
 	STempBuffer cbuf(1024);
 	SString temp_buf;
 	SlCrypto cryp(SlCrypto::algAes, SlCrypto::kbl128, SlCrypto::algmodEcb);

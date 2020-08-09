@@ -93,8 +93,9 @@ int SLAPI SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 				//
 				// Не будем считать ошибкой отсутствие документа при попытке его удалить
 				//
-				if(org_rec.GenBillID && BillObj->Search(org_rec.GenBillID, 0) > 0)
-					THROW(BillObj->RemovePacket(org_rec.GenBillID, 0));
+				PPObjBill * p_bobj = BillObj;
+				if(org_rec.GenBillID && p_bobj->Search(org_rec.GenBillID, 0) > 0)
+					THROW(p_bobj->RemovePacket(org_rec.GenBillID, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
 		}
@@ -301,8 +302,10 @@ int SLAPI PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 }
 
 class SalaryDialog : public TDialog {
-#define GRP_DIV 1
 	DECL_DIALOG_DATA(SalaryTbl::Rec);
+	enum {
+		ctlgroupDiv = 1
+	};
 public:
 	SalaryDialog() : TDialog(DLG_SALARY), OrgID(0), DivID(0), StaffID(0)
 	{
@@ -323,9 +326,9 @@ public:
 			}
 		}
 		SetupCalPeriod(CTLCAL_SALARY_PERIOD, CTL_SALARY_PERIOD);
-		addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_SALARY_ORG, CTLSEL_SALARY_DIV, CTLSEL_SALARY_STAFF, 0));
+		addGroup(ctlgroupDiv, new DivisionCtrlGroup(CTLSEL_SALARY_ORG, CTLSEL_SALARY_DIV, CTLSEL_SALARY_STAFF, 0));
 		DivisionCtrlGroup::Rec grp_rec(OrgID, DivID, StaffID);
-		setGroupData(GRP_DIV, &grp_rec);
+		setGroupData(ctlgroupDiv, &grp_rec);
 		SetPeriodInput(this, CTL_SALARY_PERIOD, &period);
 		SetupPPObjCombo(this, CTLSEL_SALARY_CHARGE, PPOBJ_SALCHARGE, Data.SalChargeID, 0, (void *)-10000);
 		PPObjStaffList::SetupPostCombo(this, CTLSEL_SALARY_POST, Data.PostID, 0, OrgID, DivID, StaffID);
@@ -338,7 +341,7 @@ public:
 		uint   sel = 0;
 		DateRange period;
 		DivisionCtrlGroup::Rec grp_rec;
-		THROW(getGroupData(GRP_DIV, &grp_rec));
+		THROW(getGroupData(ctlgroupDiv, &grp_rec));
 		THROW(GetPeriodInput(this, sel = CTL_SALARY_PERIOD, &period));
 		Data.Beg = period.low;
 		Data.End = period.upp;
@@ -359,7 +362,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_SALARY_STAFF)) {
 			DivisionCtrlGroup::Rec grp_rec;
-			getGroupData(GRP_DIV, &grp_rec);
+			getGroupData(ctlgroupDiv, &grp_rec);
 			OrgID   = grp_rec.OrgID;
 			DivID   = grp_rec.DivID;
 			StaffID = grp_rec.StaffID;
@@ -372,7 +375,6 @@ private:
 	PPID   OrgID;
 	PPID   DivID;
 	PPID   StaffID;
-#undef GRP_DIV
 };
 
 int SLAPI PPViewSalary::EditItemDialog(SalaryTbl::Rec * pRec) { DIALOG_PROC_BODY(SalaryDialog, pRec); }

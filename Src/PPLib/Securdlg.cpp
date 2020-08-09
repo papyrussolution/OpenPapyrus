@@ -206,7 +206,7 @@ static int SLAPI ValidateSecurData(TDialog * dlg, PPID objType, const void * pDa
 	int    ok = 1;
 	PPID   temp_id = 0;
 	PPID   rec_id = reinterpret_cast<const PPSecur *>(pData)->ID;
-	SString name_buf = reinterpret_cast<const PPSecur *>(pData)->Name;
+	SString name_buf(reinterpret_cast<const PPSecur *>(pData)->Name);
 	if(!name_buf.NotEmptyS())
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_SECURNAMENEEDED);
 	else if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ParentID == 0)

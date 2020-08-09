@@ -52,8 +52,6 @@
  * they must re-test their condition upon wakeup and wait again if
  * the condition is not satisfied.
  */
-
-void * pthread_timechange_handler_np(void * arg)
 /*
  * ------------------------------------------------------
  * DOCPUBLIC
@@ -78,21 +76,17 @@ void * pthread_timechange_handler_np(void * arg)
  *
  * ------------------------------------------------------
  */
+void * pthread_timechange_handler_np(void * arg)
 {
 	int result = 0;
 	pthread_cond_t cv;
 	__ptw32_mcs_local_node_t node;
-
 	__ptw32_mcs_lock_acquire(&__ptw32_cond_list_lock, &node);
-
 	cv = __ptw32_cond_list_head;
-
 	while(cv != NULL && 0 == result) {
 		result = pthread_cond_broadcast(&cv);
 		cv = cv->next;
 	}
-
 	__ptw32_mcs_lock_release(&node);
-
 	return (void*)(size_t)(result != 0 ? EAGAIN : 0);
 }

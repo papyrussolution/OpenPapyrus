@@ -1061,7 +1061,8 @@ void SLAPI DlRtm::FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, co
 {
 	StringSet ss_dtd(',', 0);
 	FillXmlBuf(pScope, pWriter, &ss_dtd, SCodepageIdent(cpANSI));
-	SString buf, huge_buf = ss_dtd.getBuf();
+	SString buf;
+	SString huge_buf(ss_dtd.getBuf());
 	huge_buf.Quot('(', ')');
 	xmlTextWriterWriteDTDElement(pWriter, (const xmlChar *)pElemName, huge_buf.ucptr());
 	for(uint p = 0; ss_dtd.get(&p, buf) > 0;)

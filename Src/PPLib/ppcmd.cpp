@@ -219,8 +219,18 @@ SLAPI PPCommandItem::PPCommandItem(int kind) : Kind(kind), Flags(0), ID(0)
 {
 }
 
+SLAPI PPCommandItem::PPCommandItem(const PPCommandItem & rS) : Kind(rS.Kind), Flags(rS.Flags), ID(rS.ID), Name(rS.Name), Icon(rS.Icon)
+{
+}
+
 SLAPI PPCommandItem::~PPCommandItem()
 {
+}
+
+PPCommandItem & FASTCALL PPCommandItem::operator = (const PPCommandItem & rS)
+{
+	Copy(rS);
+	return *this;
 }
 
 int FASTCALL PPCommandItem::Copy(const PPCommandItem & s)
@@ -325,7 +335,7 @@ int SLAPI PPCommandItem::Read2(void * pHandler, const long rwFlag) //@erik v10.6
 	SString temp_buf;
 	assert(pHandler);
 	THROW(pHandler);
-	if(rwFlag==PPCommandMngr::fRWByXml) {
+	if(rwFlag == PPCommandMngr::fRWByXml) {
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandItem")){
 			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
@@ -533,6 +543,17 @@ SLAPI PPCommandFolder::PPCommandFolder() : PPCommandItem(kFolder)
 {
 }
 
+SLAPI PPCommandFolder::PPCommandFolder(const PPCommandFolder & rS) : PPCommandItem(rS)
+{
+	Copy(rS);
+}
+
+PPCommandFolder & FASTCALL PPCommandFolder::operator = (const PPCommandFolder & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
 static int _GetIdList(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	if(pItem)
@@ -671,10 +692,11 @@ int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 	PPCommandItem * p_command_item = 0;
 	assert(pHandler);
 	THROW(pHandler);
-	if(rwFlag == PPCommandMngr::fRWByXml){
+	THROW(rwFlag == PPCommandMngr::fRWByXml);
+	{
 		xmlNode * p_parent_node = static_cast<xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandFolder")) {
-			for(xmlNode *p_node = p_parent_node->children; p_node; p_node = p_node->next) {
+			for(xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::IsName(p_node, "CommandItem")) {
 					p_command_item = new PPCommandItem;
 					THROW(p_command_item->Read2(p_node, rwFlag));
@@ -712,9 +734,6 @@ int SLAPI PPCommandFolder::Read2(void * pHandler, const long rwFlag)
 			}
 		}
 	}
-	else {
-		ok = 0;
-	}
 	CATCHZOK
 	return ok;
 }
@@ -748,12 +767,6 @@ int SLAPI PPCommandFolder::IsEqual(const void * pCommand) const  //@erik v10.6.1
 }
 // } @erik
 
-PPCommandFolder & FASTCALL PPCommandFolder::operator = (const PPCommandFolder & s)
-{
-	Copy(s);
-	return *this;
-}
-
 PPCommandItem * SLAPI PPCommandFolder::Dup() const
 {
 	PPCommandFolder * p_item = new PPCommandFolder;
@@ -761,15 +774,8 @@ PPCommandItem * SLAPI PPCommandFolder::Dup() const
 	return p_item;
 }
 
-uint SLAPI PPCommandFolder::GetCount() const
-{
-	return List.getCount();
-}
-
-const PPCommandItem * SLAPI PPCommandFolder::Get(uint pos) const
-{
-	return (pos < GetCount()) ? List.at(pos) : 0;
-}
+uint SLAPI PPCommandFolder::GetCount() const { return List.getCount(); }
+const PPCommandItem * SLAPI PPCommandFolder::Get(uint pos) const { return (pos < GetCount()) ? List.at(pos) : 0; }
 
 int SLAPI PPCommandFolder::Update(uint pos, const PPCommandItem * pItem)
 {
@@ -822,7 +828,7 @@ int SLAPI PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 	{
 		PPCommandItem * p_item = pItem->Dup();
 		THROW_MEM(p_item);
-		if(pos < 0 || pos >= (int)c)
+		if(pos < 0 || pos >= static_cast<int>(c))
 			List.insert(p_item);
 		else
 			List.atInsert(pos, p_item);
@@ -1157,6 +1163,17 @@ SLAPI PPCommandGroup::PPCommandGroup() : PPCommandFolder()
 	Kind = kGroup;
 }
 
+SLAPI PPCommandGroup::PPCommandGroup(const PPCommandGroup & rS)
+{
+	Copy(rS);
+}
+
+PPCommandGroup & FASTCALL PPCommandGroup::operator = (const PPCommandGroup & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
 const SString & PPCommandGroup::GetLogo() const
 {
 	return Logo_;
@@ -1438,12 +1455,6 @@ PPCommandGroup * FASTCALL PPCommandGroup::GetDesktop(long id)
 	uint   pos = 0;
 	const PPCommandItem * p_item = SearchByID(id, &pos);
 	return (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(List.at(pos)) : 0;
-}
-
-PPCommandGroup & FASTCALL PPCommandGroup::operator = (const PPCommandGroup & rSrc)
-{
-	Copy(rSrc);
-	return *this;
 }
 
 int SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
@@ -4518,7 +4529,7 @@ public:
 			else
 				PPEditTextFile(0);
 		}
-		CATCHZOK
+		//CATCHZOK
 		return ok;
 	}
 };

@@ -28,17 +28,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_SURFACE_INLINE_H
 #define CAIRO_SURFACE_INLINE_H
-
-//#include "cairo-surface-private.h"
 
 static inline cairo_status_t __cairo_surface_flush(cairo_surface_t * surface, unsigned flags)
 {

@@ -692,7 +692,7 @@ int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 	SString value;
 	PPDrvInputParamBlock pb(pInputData);
 	if(rCmd == "INIT") {
-		SString dll_path = (pb.Get("DLLPATH", value) > 0) ? value : "";
+		SString dll_path(pb.Get("DLLPATH", value) > 0 ? value.cptr() : "");
 		THROW(Init(dll_path));
 	}
 	else if(rCmd == "RELEASE") {

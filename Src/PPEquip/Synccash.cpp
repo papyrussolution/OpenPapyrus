@@ -175,12 +175,12 @@ public:
 
 PPSyncCashSession * SLAPI CM_SYNCCASH::SyncInterface()
 {
-	PPSyncCashSession * cs = 0;
+	PPSyncCashSession * p_cs = 0;
 	if(IsValid()) {
-		cs = new SCS_SYNCCASH(NodeID, NodeRec.Name, NodeRec.Port);
-		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
+		p_cs = new SCS_SYNCCASH(NodeID, NodeRec.Name, NodeRec.Port);
+		CALLPTRMEMB(p_cs, Init(NodeRec.Name, NodeRec.Port));
 	}
-	return cs;
+	return p_cs;
 }
 
 REGISTER_CMT(SYNCCASH,1,0);
@@ -343,6 +343,7 @@ int SLAPI SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 			int     logical_number = 1; // Логический номер кассы
 			SString param_name;
 			SString param_val;
+			SString operator_name; // @v10.8.5 Name of cashier
 			//
 			// Получаем пароль кассира
 			//
@@ -379,15 +380,20 @@ int SLAPI SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 					temp_buf.Divide(',', left, right);
 					THROW(ArrAdd(Arr_In, DVCPARAM_ADMINPASSWORD, left));
 				}
-				// Определяем имя кассира
-				if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
-					PPObjSecur sec_obj(PPOBJ_USR, 0);
-					PPSecur sec_rec;
-					if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
-						temp_buf = sec_rec.Name;
+				{
+					// Определяем имя кассира
+					operator_name.Z();
+					if(PPObjPerson::GetCurUserPerson(0, &operator_name) > 0) {
+					}
+					else {
+						PPObjSecur sec_obj(PPOBJ_USR, 0);
+						PPSecur sec_rec;
+						if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+							operator_name = sec_rec.Name;
+					}
+					THROW(ArrAdd(Arr_In, DVCPARAM_CSHRNAME, operator_name));
 				}
-				THROW(ArrAdd(Arr_In, DVCPARAM_CSHRNAME, temp_buf));
-				THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : temp_buf)); // Имя администратора
+				THROW(ArrAdd(Arr_In, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : operator_name)); // Имя администратора
 				THROW(ArrAdd(Arr_In, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
 			}
 			THROW(ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out));
@@ -1340,7 +1346,8 @@ int SLAPI SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 	THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf, format_name = "ZReportCopy";
+		SString  line_buf;
+		const SString format_name("ZReportCopy");
 		SlipDocCommonParam  sdc_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {

@@ -301,13 +301,8 @@ static inline int decoder_set_config_bool(zbar_decoder_t * dcode, zbar_symbol_ty
 
 #ifdef ENABLE_EAN
 	dcode->ean.enable = TEST_CFG(dcode->ean.ean13_config |
-	    dcode->ean.ean2_config |
-	    dcode->ean.ean5_config |
-	    dcode->ean.ean8_config |
-	    dcode->ean.upca_config |
-	    dcode->ean.upce_config |
-	    dcode->ean.isbn10_config |
-	    dcode->ean.isbn13_config,
+	    dcode->ean.ean2_config | dcode->ean.ean5_config | dcode->ean.ean8_config | dcode->ean.upca_config | dcode->ean.upce_config |
+	    dcode->ean.isbn10_config | dcode->ean.isbn13_config,
 	    ZBAR_CFG_ENABLE);
 #endif
 

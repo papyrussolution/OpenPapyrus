@@ -10,7 +10,6 @@ int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
 //
 //
 //
-//#define GRP_FBG 1
 #define USEDEFICON         0x01L
 #define DEFAULT_MENUS_OFFS 100000L
 //
@@ -180,7 +179,7 @@ int SLAPI EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDeks
 class CommandsDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPCommandGroup); // @v10.7.6 PPCommandFolder-->PPCommandGroup
 public:
-	CommandsDialog(PPCommandGroup * pMenus, int isDesktop) : PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST), P_Menus_(pMenus), IsDesktop(isDesktop)
+	explicit CommandsDialog(/*PPCommandGroup * pMenus,*/int isDesktop) : PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST), /*P_Menus_(pMenus),*/ IsDesktop(isDesktop)
 	{
 		SString title;
 		setTitle(PPLoadTextS(PPTXT_EDITCMDLIST, title));
@@ -226,7 +225,7 @@ private:
 	PPCommandItem * GetItem(long id, long * pPos, PPCommandFolder ** pFolder);
 
 	const int IsDesktop;
-	const PPCommandGroup * P_Menus_;
+	//const PPCommandGroup * P_Menus_;
 };
 
 int CommandsDialog::addItem(long * pPos, long * pID)
@@ -257,7 +256,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 		p_dlg->GetClusterData(CTL_ADDCMD_WHAT, &v);
 		p_dlg->getCtrlData(CTLSEL_ADDCMD_PARENT, &parent_id);
 		if(v == 1) {
-			if(EditCmdItem(P_Menus_, &new_cmd, IsDesktop) > 0)
+			if(EditCmdItem(/*P_Menus_*/&Data, &new_cmd, IsDesktop) > 0) // @v10.8.5 P_Menus_-->&Data
 				p_item = static_cast<PPCommandItem *>(&new_cmd);
 		}
 		else if(v == 2) {
@@ -269,10 +268,11 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 			new_sep.Kind = PPCommandItem::kSeparator;
 			p_item = &new_sep;
 		}
-		if(p_item && P_Menus_) {
+		if(p_item/*&& P_Menus_*/) {
 			uint p = 0;
-			const PPCommandItem * p_menu = P_Menus_->SearchByID(Data.ID, &p);
-			P_Menus_->GetUniqueID(&p_item->ID);
+			//@v10.8.5 const PPCommandItem * p_menu = P_Menus_->SearchByID(Data.ID, &p);
+			//@v10.8.5 P_Menus_->GetUniqueID(&p_item->ID);
+			Data.GetUniqueID(&p_item->ID); // @v10.8.5
 			if(parent_id) {
 				PPCommandItem * p_fi = Data.SearchByIDRecursive(parent_id, 0);
 				PPCommandFolder * p_folder = (p_fi && p_fi->Kind == PPCommandItem::kFolder) ? static_cast<PPCommandFolder *>(p_fi) : 0;
@@ -305,7 +305,7 @@ int CommandsDialog::editItem(long pos, long id)
 	PPCommandItem * p_item = Data.SearchByIDRecursive(id, 0);
 	if(p_item) {
 		if(p_item->Kind == PPCommandItem::kCommand)
-			ok = EditCmdItem(P_Menus_, static_cast<PPCommand *>(p_item), IsDesktop);
+			ok = EditCmdItem(/*P_Menus_*/&Data, static_cast<PPCommand *>(p_item), IsDesktop); // @v10.8.5 P_Menus_-->&Data
 		else if(oneof2(p_item->Kind, PPCommandItem::kFolder, PPCommandItem::kGroup)) // @v10.7.6 PPCommandItem::kGroup
 			ok = EditName(p_item->Name);
 	}
@@ -393,7 +393,7 @@ int CommandsDialog::moveItem(long curPos, long id, int up)
 				if(p_citem) {
 					PPCommandItem * p_nbitem = p_citem->Dup();
 					if(p_nbitem) {
-						const  PPCommandItem * p_menu = P_Menus_->SearchByID(Data.ID, &(p = 0));
+						// @v10.8.5 const  PPCommandItem * p_menu = P_Menus_->SearchByID(Data.ID, &(p = 0));
 						p_folder->Remove((uint)pos > nb_pos ? (uint)pos : nb_pos);
 						p_folder->Remove((uint)pos > nb_pos ? nb_pos : (uint)pos);
 						id           = p_item->ID;
@@ -957,7 +957,7 @@ int EditMenusDlg::EditMenu(long id)
 	}
 	if(p_edited_group) {
 		p_menus = static_cast<PPCommandGroup *>(Data.Dup());
-		THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(p_menus, IsDesktop))));
+		THROW(CheckDialogPtr(&(p_dlg = new CommandsDialog(/*p_menus,*/IsDesktop))));
 		p_dlg->setDTS(p_edited_group);
 		if(ExecView(p_dlg) == cmOK) {
 			if(p_dlg->getDTS(p_edited_group)) {

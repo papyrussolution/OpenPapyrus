@@ -496,13 +496,11 @@ int BudgetDialog::setDTS(const PPBudgetPacket * pData)
 	}
 	cycle_rec.C.Cycle = Data.Rec.Cycle;
 	setGroupData(GRP_CYCLE, &cycle_rec);
-
-	setCtrlString(CTL_BUDGET_CODE, Data.Rec.Code);
-	setCtrlString(CTL_BUDGET_NAME, Data.Rec.Name);
+	setCtrlString(CTL_BUDGET_CODE, SString(Data.Rec.Code));
+	setCtrlString(CTL_BUDGET_NAME, SString(Data.Rec.Name));
 	setCtrlData(CTL_BUDGET_ID, &Data.Rec.ID);
 	period.Set(Data.Rec.LowDt, Data.Rec.UppDt);
 	SetPeriodInput(this, CTL_BUDGET_PERIOD, &period);
-
 	disableCtrl(CTLCAL_BUDGET_PERIOD, BIN(Data.Rec.ID));
 	disableCtrls(BIN(Data.EnumItems(&idx, 0) > 0), CTL_BUDGET_PERIOD, CTLSEL_BUDGET_CYCLE, 0L);
 	return 1;
@@ -777,7 +775,7 @@ IMPL_HANDLE_EVENT(BudgetItemsDialog)
 		TDialog * p_dlg = new TDialog(DLG_BUDGICYCLEPAR);
 		if(CheckDialogPtrErr(&p_dlg) > 0) {
 			double amount = Data.at(pos).Amount;
-			SString memo = Data.at(pos).Memo;
+			SString memo(Data.at(pos).Memo);
 			p_dlg->setCtrlData(CTL_BUDGICYCLEPAR_AMT,    &amount);
 			p_dlg->setCtrlString(CTL_BUDGICYCLEPAR_MEMO, memo);
 			if(ExecView(p_dlg) == cmOK) {

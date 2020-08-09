@@ -27,17 +27,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_REFRENCE_COUNT_PRIVATE_H
 #define CAIRO_REFRENCE_COUNT_PRIVATE_H
-
-//#include "cairo-atomic-private.h"
 //
 // Encapsulate operations on the object's reference count 
 //

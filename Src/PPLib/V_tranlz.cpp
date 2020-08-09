@@ -4273,7 +4273,7 @@ int SLAPI PrcssrAlcReport::GetCategoryNameByCode(const char * pCode, SString & r
 {
 	int    ok = 0;
 	rBuf.Z();
-	SString code = pCode;
+	SString code(pCode);
 	if(code.NotEmptyS()) {
 		long  ncode = code.ToLong();
 		if(ncode > 0 && ncode < 100) {
@@ -4497,7 +4497,7 @@ int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::E
 	int    ok = 0;
 	EgaisMarkBlock mb;
 	SString temp_buf;
-	SString mark = pMark;
+	SString mark(pMark);
 	mark.Strip();
 	THROW(PrcssrAlcReport::IsEgaisMark(mark, 0));
 	ok = 1;

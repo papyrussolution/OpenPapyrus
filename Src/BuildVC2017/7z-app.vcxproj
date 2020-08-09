@@ -296,6 +296,8 @@
       <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -349,6 +351,8 @@
       <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -403,6 +407,8 @@
       <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -456,6 +462,8 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Console</SubSystem>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -509,6 +517,8 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Console</SubSystem>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -562,6 +572,8 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Console</SubSystem>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Debug/Alone.tlb</TypeLibraryName>
@@ -625,6 +637,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -689,6 +703,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -754,6 +770,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -818,6 +836,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -882,6 +902,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -946,6 +968,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>

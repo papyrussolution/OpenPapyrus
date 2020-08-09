@@ -831,7 +831,7 @@ int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & r
 
 int SLAPI SMailMessage::SetField(int fldId, const char * pVal)
 {
-	SString temp_buf = pVal;
+	SString temp_buf(pVal);
 	switch(fldId) {
 		case fldFrom: AddS(temp_buf.Strip(), &HFP.FromP); break;
 		case fldTo: AddS(temp_buf.Strip(), &HFP.ToP); break;
@@ -2291,7 +2291,7 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	rResult.Type = authtUnkn;
 	rResult.Login.Z();
 	rResult.Password.Z();
-	SString temp_buf = pAuthParam;
+	SString temp_buf(pAuthParam);
 	if(temp_buf.NotEmptyS()) {
 		const char * p_basic_prefix = "Basic";
 		if(temp_buf.HasPrefixIAscii(p_basic_prefix)) {
@@ -2487,8 +2487,8 @@ int ScURL::HttpForm::Add(int tagId, void * pData)
 int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pContentType, const char * pContentName)
 {
 	int    ok = 1;
-    SString ctype = pContentType;
-    SString cname = pContentName;
+    SString ctype(pContentType);
+    SString cname(pContentName);
     if(fileExists(pFileName)) {
 		if(!cname.NotEmptyS()) {
             S_GUID u;
@@ -3268,7 +3268,7 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 {
 	int    ok = 1;
 	SString temp_buf;
-	SString local_file_path = pLocalFile;
+	SString local_file_path(pLocalFile);
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH); // @v10.8.2
@@ -3983,7 +3983,7 @@ void SLAPI Test_MailMsg_ReadFromFile()
 	};
 
 	SString temp_buf;
-	const SString test_mailmsg_path = "d:/papyrus/src/pptest/data/email/";
+	const SString test_mailmsg_path("d:/papyrus/src/pptest/data/email/");
 	for(uint i = 0; i < SIZEOFARRAY(src_file_name_list); i++) {
 		(temp_buf = test_mailmsg_path).SetLastDSlash().Cat(src_file_name_list[i]);
 		SFile f_in(temp_buf, SFile::mRead);
@@ -4254,7 +4254,7 @@ SLTEST_R(ScURL_Ftp)
 	}
 	{
 		ScURL curl;
-		THROW(SLTEST_CHECK_NZ(curl.FtpPut(url, ScURL::mfVerbose, MakeInputFilePath("binfile"), 0)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpPut(url, ScURL::mfVerbose, 0, MakeInputFilePath("binfile"), 0)));
 	}
 	{
 		ScURL curl;

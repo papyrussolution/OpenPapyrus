@@ -3642,7 +3642,7 @@ SLTEST_R(BDT)
 	}
 	{
 		// CRC32
-		SString in_file_name = MakeInputFilePath("crc32.vec");
+		SString in_file_name(MakeInputFilePath("crc32.vec"));
 		TSCollection <BdtTestItem> data_set;
 		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "CRC32", data_set)));
 		{
@@ -3691,7 +3691,7 @@ SLTEST_R(BDT)
 	}
 	{
 		// ADLER32
-		SString in_file_name = MakeInputFilePath("adler32.vec");
+		SString in_file_name(MakeInputFilePath("adler32.vec"));
 		TSCollection <BdtTestItem> data_set;
 		THROW(SLTEST_CHECK_NZ(ReadBdtTestData(in_file_name, "Adler32", data_set)));
 		{
@@ -3793,7 +3793,7 @@ SLTEST_R(BDT)
 SLTEST_R(CalcCheckDigit)
 {
 	int    ok = 1;
-	SString in_file_name = MakeInputFilePath("CalcCheckDigit.txt");
+	SString in_file_name(MakeInputFilePath("CalcCheckDigit.txt"));
 	SString line_buf, left, right;
 	SFile f_inp;
 	THROW(SLTEST_CHECK_NZ(f_inp.Open(in_file_name, SFile::mRead)));
@@ -4289,7 +4289,7 @@ static uint32 SlEqualityTest_gravity_murmur3_32(const char * key, uint32 len, ui
 SLTEST_R(HashFunction)
 {
 	{
-		SString in_file_name = MakeInputFilePath("botan-validate.dat");
+		SString in_file_name(MakeInputFilePath("botan-validate.dat"));
 		STestDataArray td;
 		SString key_buf, val_buf;
 		STempBuffer bin_buf(0);

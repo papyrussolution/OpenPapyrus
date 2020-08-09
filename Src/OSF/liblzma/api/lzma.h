@@ -61,12 +61,8 @@
  * break C89 and C++ programs on many systems. sizeof(bool) in C99 isn't
  * necessarily the same as sizeof(bool) in C++.
  */
-
 #ifndef LZMA_MANUAL_HEADERS
-	/*
-	 * I suppose this works portably also in C++. Note that in C++,
-	 * we need to get size_t into the global namespace.
-	 */
+// I suppose this works portably also in C++. Note that in C++, we need to get size_t into the global namespace.
 #include <stddef.h>
 	/*
 	 * Skip inttypes.h if we already have all the required macros. If we
@@ -87,13 +83,13 @@
 		 *     the few rarely-needed liblzma functions that allocate
 		 *     memory and expect the caller to free it using free().
 		 */
-#		if defined(_WIN32) && defined(_MSC_VER) && _MSC_VER < 1800
+		#if defined(_WIN32) && defined(_MSC_VER) && _MSC_VER < 1800
 			typedef unsigned __int8 uint8_t;
 			typedef unsigned __int32 uint32_t;
 			typedef unsigned __int64 uint64_t;
-#		else
+		#else
 			/* Use the standard inttypes.h. */
-#			ifdef __cplusplus
+			#ifdef __cplusplus
 				/*
 				 * C99 sections 7.18.2 and 7.18.4 specify
 				 * that C++ implementations define the limit
@@ -105,17 +101,15 @@
 				 * inttypes.h with __STDC_FORMAT_MACROS
 				 * defined doesn't necessarily work.
 				 */
-#				ifndef __STDC_LIMIT_MACROS
-#					define __STDC_LIMIT_MACROS 1
-#				endif
-#				ifndef __STDC_CONSTANT_MACROS
-#					define __STDC_CONSTANT_MACROS 1
-#				endif
-#			endif
-
-#			include <inttypes.h>
-#		endif
-
+				#ifndef __STDC_LIMIT_MACROS
+					#define __STDC_LIMIT_MACROS 1
+				#endif
+				#ifndef __STDC_CONSTANT_MACROS
+					#define __STDC_CONSTANT_MACROS 1
+				#endif
+			#endif
+			#include <inttypes.h>
+		#endif
 		/*
 		 * Some old systems have only the typedefs in inttypes.h, and
 		 * lack all the macros. For those systems, we need a few more
@@ -124,36 +118,33 @@
 		 * enough, the application has to setup the types manually
 		 * before including lzma.h.
 		 */
-#		ifndef UINT32_C
-#			if defined(_WIN32) && defined(_MSC_VER)
-#				define UINT32_C(n) n ## UI32
-#			else
-#				define UINT32_C(n) n ## U
-#			endif
-#		endif
-
-#		ifndef UINT64_C
-#			if defined(_WIN32) && defined(_MSC_VER)
-#				define UINT64_C(n) n ## UI64
-#			else
-				/* Get ULONG_MAX. */
-#				include <limits.h>
-#				if ULONG_MAX == 4294967295UL
-#					define UINT64_C(n) n ## ULL
-#				else
-#					define UINT64_C(n) n ## UL
-#				endif
-#			endif
-#		endif
-
-#		ifndef UINT32_MAX
-#			define UINT32_MAX (UINT32_C(4294967295))
-#		endif
-
-#		ifndef UINT64_MAX
-#			define UINT64_MAX (UINT64_C(18446744073709551615))
-#		endif
-#	endif
+		#ifndef UINT32_C
+			#if defined(_WIN32) && defined(_MSC_VER)
+				#define UINT32_C(n) n ## UI32
+			#else
+				#define UINT32_C(n) n ## U
+			#endif
+		#endif
+		#ifndef UINT64_C
+			#if defined(_WIN32) && defined(_MSC_VER)
+				#define UINT64_C(n) n ## UI64
+			#else
+				// Get ULONG_MAX. 
+				#include <limits.h>
+				#if ULONG_MAX == 4294967295UL
+					#define UINT64_C(n) n ## ULL
+				#else
+					#define UINT64_C(n) n ## UL
+				#endif
+			#endif
+		#endif
+		#ifndef UINT32_MAX
+			#define UINT32_MAX (UINT32_C(4294967295))
+		#endif
+		#ifndef UINT64_MAX
+			#define UINT64_MAX (UINT64_C(18446744073709551615))
+		#endif
+	#endif
 #endif /* ifdef LZMA_MANUAL_HEADERS */
 // 
 // LZMA_API macro
@@ -980,22 +971,10 @@ lzma_ret lzma_memlimit_set(lzma_stream *strm, uint64_t memlimit);
  * thus the vli argument must be less than or equal to UINT64_MAX / 2. You
  * should use LZMA_VLI_MAX for clarity.
  */
-/**
- * \brief       Maximum supported value of a variable-length integer
- */
-#define LZMA_VLI_MAX (UINT64_MAX / 2)
-/**
- * \brief       VLI value to denote that the value is unknown
- */
-#define LZMA_VLI_UNKNOWN UINT64_MAX
-/**
- * \brief       Maximum supported encoded length of variable length integers
- */
-#define LZMA_VLI_BYTES_MAX 9
-/**
- * \brief       VLI constant suffix
- */
-#define LZMA_VLI_C(n) UINT64_C(n)
+#define LZMA_VLI_MAX       (UINT64_MAX / 2) // Maximum supported value of a variable-length integer
+#define LZMA_VLI_UNKNOWN   UINT64_MAX       // VLI value to denote that the value is unknown
+#define LZMA_VLI_BYTES_MAX 9                // Maximum supported encoded length of variable length integers
+#define LZMA_VLI_C(n)      UINT64_C(n)      // VLI constant suffix
 /**
  * \brief       Variable-length integer type
  *
@@ -1245,8 +1224,7 @@ typedef struct {
 	 * different filters. In an array of lzma_filter structures, use
 	 * LZMA_VLI_UNKNOWN to indicate end of filters.
 	 *
-	 * \note        This is not an enum, because on some systems enums
-	 *              cannot be 64-bit.
+	 * \note This is not an enum, because on some systems enums cannot be 64-bit.
 	 */
 	lzma_vli id;
 	/**
@@ -1345,8 +1323,7 @@ uint64_t lzma_raw_decoder_memusage(const lzma_filter *filters) lzma_attr_pure;
  * \param       filters Array of lzma_filter structures. The end of the
  *                      array must be marked with .id = LZMA_VLI_UNKNOWN.
  *
- * The `action' with lzma_code() can be LZMA_RUN, LZMA_SYNC_FLUSH (if the
- * filter chain supports it), or LZMA_FINISH.
+ * The `action' with lzma_code() can be LZMA_RUN, LZMA_SYNC_FLUSH (if the filter chain supports it), or LZMA_FINISH.
  *
  * \return      - LZMA_OK
  *              - LZMA_MEM_ERROR
@@ -1568,36 +1545,12 @@ lzma_ret lzma_filter_flags_decode(lzma_filter *filter, const lzma_allocator *all
  * \brief       Branch/Call/Jump conversion filters
  */
 /* Filter IDs for lzma_filter.id */
-#define LZMA_FILTER_X86         LZMA_VLI_C(0x04)
-/**<
- * Filter for x86 binaries
- */
-
-#define LZMA_FILTER_POWERPC     LZMA_VLI_C(0x05)
-/**<
- * Filter for Big endian PowerPC binaries
- */
-
-#define LZMA_FILTER_IA64        LZMA_VLI_C(0x06)
-/**<
- * Filter for IA-64 (Itanium) binaries.
- */
-
-#define LZMA_FILTER_ARM         LZMA_VLI_C(0x07)
-/**<
- * Filter for ARM binaries.
- */
-
-#define LZMA_FILTER_ARMTHUMB    LZMA_VLI_C(0x08)
-/**<
- * Filter for ARM-Thumb binaries.
- */
-
-#define LZMA_FILTER_SPARC       LZMA_VLI_C(0x09)
-/**<
- * Filter for SPARC binaries.
- */
-
+#define LZMA_FILTER_X86         LZMA_VLI_C(0x04) // Filter for x86 binaries
+#define LZMA_FILTER_POWERPC     LZMA_VLI_C(0x05) // Filter for Big endian PowerPC binaries
+#define LZMA_FILTER_IA64        LZMA_VLI_C(0x06) // Filter for IA-64 (Itanium) binaries.
+#define LZMA_FILTER_ARM         LZMA_VLI_C(0x07) // Filter for ARM binaries.
+#define LZMA_FILTER_ARMTHUMB    LZMA_VLI_C(0x08) // Filter for ARM-Thumb binaries.
+#define LZMA_FILTER_SPARC       LZMA_VLI_C(0x09) // Filter for SPARC binaries.
 /**
  * \brief       Options for BCJ filters
  *
@@ -3364,20 +3317,8 @@ typedef struct {
 		const void * reserved_ptr1;
 		const void * reserved_ptr2;
 		const void * reserved_ptr3;
-		/**
-		 * \brief       Stream number in the lzma_index
-		 *
-		 * The first Stream is 1.
-		 */
-		lzma_vli number;
-		/**
-		 * \brief       Number of Blocks in the Stream
-		 *
-		 * If this is zero, the block structure below has
-		 * undefined values.
-		 */
-		lzma_vli block_count;
-
+		lzma_vli number; // [1..] Stream number in the lzma_index
+		lzma_vli block_count; // Number of Blocks in the Stream. If this is zero, the block structure below has undefined values.
 		/**
 		 * \brief       Compressed start offset of this Stream
 		 *
@@ -3399,10 +3340,7 @@ typedef struct {
 		 * Stream Padding after this Stream.
 		 */
 		lzma_vli compressed_size;
-		/**
-		 * \brief       Uncompressed size of this Stream
-		 */
-		lzma_vli uncompressed_size;
+		lzma_vli uncompressed_size; // Uncompressed size of this Stream
 		/**
 		 * \brief       Size of Stream Padding after this Stream
 		 *
@@ -3417,12 +3355,7 @@ typedef struct {
 		lzma_vli reserved_vli4;
 	} stream;
 	struct {
-		/**
-		 * \brief       Block number in the file
-		 *
-		 * The first Block is 1.
-		 */
-		lzma_vli number_in_file;
+		lzma_vli number_in_file; // [1..] Block number in the file
 		/**
 		 * \brief       Compressed start offset of this Block
 		 *
@@ -3432,7 +3365,6 @@ typedef struct {
 		 * to start decompressing this Block.
 		 */
 		lzma_vli compressed_file_offset;
-
 		/**
 		 * \brief       Uncompressed start offset of this Block
 		 *
@@ -3447,14 +3379,7 @@ typedef struct {
 		 * before reaching the target offset.
 		 */
 		lzma_vli uncompressed_file_offset;
-
-		/**
-		 * \brief       Block number in this Stream
-		 *
-		 * The first Block is 1.
-		 */
-		lzma_vli number_in_stream;
-
+		lzma_vli number_in_stream; // [1..] Block number in this Stream
 		/**
 		 * \brief       Compressed start offset of this Block
 		 *
@@ -3462,7 +3387,6 @@ typedef struct {
 		 * containing this Block.
 		 */
 		lzma_vli compressed_stream_offset;
-
 		/**
 		 * \brief       Uncompressed start offset of this Block
 		 *
@@ -3470,7 +3394,6 @@ typedef struct {
 		 * containing this Block.
 		 */
 		lzma_vli uncompressed_stream_offset;
-
 		/**
 		 * \brief       Uncompressed size of this Block
 		 *

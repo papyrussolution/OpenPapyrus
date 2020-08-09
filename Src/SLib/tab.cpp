@@ -486,7 +486,7 @@ int SLAPI STabFile::WriteTab(const char * pTabName, const STab * pTab)
 			}
 			if(!found && pTab) {
 				if(!last_line_empty)
-					THROW(temp_file.WriteLine(0)); // new line
+					THROW(temp_file.WriteBlancLine()); // new line
 				THROW(Helper_WriteTab(pTabName, pTab, temp_file));
 				ok = 1;
 			}
@@ -527,7 +527,7 @@ SLTEST_R(STab)
 	STab::Row tab_row;
 	SString tab_name, temp_buf;
 	StringSet tab_list;
-	SString in_file_name = MakeInputFilePath("pptabtest.tab");
+	SString in_file_name(MakeInputFilePath("pptabtest.tab"));
 	SString copy_file_name;
 	(copy_file_name = in_file_name).Cat("-copy");
 	THROW(SLTEST_CHECK_NZ(copyFileByName(in_file_name, copy_file_name)));

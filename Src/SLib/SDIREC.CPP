@@ -286,7 +286,7 @@ int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long 
 	Z();
 	if(!isempty(pPath)) {
 		SDirEntry fb;
-		SString srch_path = pPath;
+		SString srch_path(pPath);
 		if(pWildcard) {
 			srch_path.SetLastSlash();
 			SetInitPath(srch_path);

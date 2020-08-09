@@ -230,12 +230,12 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_RENT_FROMTO, &Data.Period);
 			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle);
-			ushort v = BIN(Data.Flags & RENTF_PERCENT);
+			ushort v = BIN(Data.Flags & PPRentCondition::fPercent);
 			setCtrlData(CTL_RENT_ISPERCENT, &v);
 			setCtrlData(CTL_RENT_PERCENT, &Data.Percent);
 			setCtrlData(CTL_RENT_SUMPRD,  &Data.PartAmount);
-			disableCtrl(CTL_RENT_PERCENT, (Data.Flags & RENTF_PERCENT) ? 0 : 1);
-			disableCtrl(CTL_RENT_SUMPRD,  (Data.Flags & RENTF_PERCENT) ? 1 : 0);
+			disableCtrl(CTL_RENT_PERCENT, (Data.Flags & PPRentCondition::fPercent) ? 0 : 1);
+			disableCtrl(CTL_RENT_SUMPRD,  (Data.Flags & PPRentCondition::fPercent) ? 1 : 0);
 			setCtrlData(CTL_RENT_ACMDATE, &Data.ChargeDayOffs);
 			return 1;
 		}
@@ -246,7 +246,7 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 			int16  c = 0;
 			ushort v = getCtrlUInt16(CTL_RENT_ISPERCENT);
 			THROW(GetPeriodInput(this, sel = CTL_RENT_FROMTO, &Data.Period));
-			SETFLAG(Data.Flags, RENTF_PERCENT, v);
+			SETFLAG(Data.Flags, PPRentCondition::fPercent, v);
 			getCtrlData(sel = CTLSEL_RENT_PERIOD, &c);
 			THROW_PP(c > 0, PPERR_NOCYCLES);
 			Data.Cycle = c;
@@ -990,7 +990,7 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 	Flags = 0;
 	Ext.Z();
 	Path.Z();
-	Description = 0;
+	Description.Z();
 	if(pPath && sstrlen(pPath)) {
 		pathToUNC(pPath, Path);
 		SPathStruc ps(Path);
@@ -2464,7 +2464,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		enableCommand(cmLinkedBill, BIN(P_Pack->Rec.LinkBillID));
 	enableCommand(cmReckonBill, BIN(P_Pack->PaymBillID));
 	{
-		const int sqs = oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ? -1 : 0; // @v9.3.1
+		const int sqs = oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) ? -1 : 0;
 		P_Pack->SetQuantitySign(sqs);
 	}
 	setCtrlData(CTL_BILL_DOC,  P_Pack->Rec.Code);
@@ -2615,7 +2615,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		AddClusterAssoc(CTL_BILL_DECLINE, 0, BILLF2_DECLINED);
 		SetClusterData(CTL_BILL_DECLINE, P_Pack->Rec.Flags2);
 		showCtrl(CTL_BILL_DECLINE, 1);
-		disableCtrl(CTL_BILL_DECLINE, !P_BObj->CheckRights(BILLOPRT_REJECT, 1)); // @v9.0.1
+		disableCtrl(CTL_BILL_DECLINE, !P_BObj->CheckRights(BILLOPRT_REJECT, 1));
 	}
 	else
 		showCtrl(CTL_BILL_DECLINE, 0);
@@ -2683,8 +2683,7 @@ int BillDialog::calcAmounts(double * pAmount)
 			P_Pack->Rec.Flags &= ~BILLF_TOTALDISCOUNT;
 		}
 	}
-	// @v9.4.3 if(!(P_Pack->Rec.Flags & BILLF_GOODS) && !P_Pack->IsDraft() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
-	if(!P_Pack->IsGoodsDetail() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) { // @v9.4.3
+	if(!P_Pack->IsGoodsDetail() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
 		if(getCtrlData(CTL_BILL_AMOUNT, &amt))
 			al.Put(PPAMT_MAIN, P_Pack->Rec.CurID, amt, 0, 0);
 	}
@@ -2792,7 +2791,7 @@ int BillDialog::checkCreditOverflow(double amt)
 		if(period.SetPeriod(P_Pack->Rec.Dt, CliAgt.RetLimPrd)) {
 			double shipment = 0.0, ret = 0.0;
 			P_BObj->CalcReturnPart(CliAgt.ClientID, period, &shipment, &ret);
-			if(shipment == 0.0 || (((ret+amt) / shipment) * 10000.0) > (double)CliAgt.RetLimPart)
+			if(shipment == 0.0 || (((ret+amt) / shipment) * 10000.0) > static_cast<double>(CliAgt.RetLimPart))
 				ok = PPSetError(PPERR_CLIRETLIMOVERFLOW);
 		}
 	}

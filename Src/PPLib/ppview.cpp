@@ -1303,8 +1303,8 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	PPBaseFilt * p_filt = 0;
 	DlRtm  * p_rtm = 0;
 	SString db_symb;
-	SString filt_symb = pNamedFiltSymb;
-	SString dl600_name = pDl600Name;
+	SString filt_symb(pNamedFiltSymb);
+	SString dl600_name(pDl600Name);
 	THROW_PP(CurDict->GetDbSymb(db_symb) > 0, PPERR_DBSYMBUNDEF);
 	{
 		PPNamedFiltMngr mgr;

@@ -1171,7 +1171,7 @@ int SLAPI PPAsyncCashSession::DistributeFile_(const char * pFileName, const char
 	int    ok = GetExpPathSet(&ss);
 	if(ok > 0) {
 		int    ftp_connected = 0;
-		SString dest_file_name = pFileName;
+		SString dest_file_name(pFileName);
 		SString dest_nam; // @v10.8.4 Если !Empty то имя конечного файла заменяется на это
 		SString dest_ext; // @v10.8.4 Если !Empty то расширение конечного файла заменяется на это
 		SString path, temp_file_name;

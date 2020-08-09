@@ -907,7 +907,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 	const  StateBlock::PictItem * p_result = 0;
 	WorkbookTbl::Rec wb_rec;
 	SString in_pic_path, out_pic_path, out_file_name, temp_buf, anchor_prefix;
-	SString org_symb = pOrgSymb;
+	SString org_symb(pOrgSymb);
 	org_symb.Strip().ToLower();
 	if(org_symb.NotEmpty()) {
 		P.GetExtStrData(Param::exsInputPictPath, in_pic_path);

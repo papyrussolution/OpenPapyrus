@@ -1091,7 +1091,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 		}
 	}
 	if(!(flags & cfTranslateOnly)) {
-		SString file_name = pFileName;
+		SString file_name(pFileName);
 		SString test_file_name;
 		for(uint i = 0; i < StrList.getCount(); i++) {
 			LangStrCollItem * p_item = StrList.at(i);
@@ -1706,7 +1706,7 @@ int SLAPI StringStore2::GenerateRcFile(const char * pFileName, const char * pSrc
 		ps.Ext = "h";
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 		gen.Wr_Include(temp_buf.ToLower(), 1);
-		gen.WriteLine(0);
+		gen.WriteBlancLine();
 		//
 		//
 		//

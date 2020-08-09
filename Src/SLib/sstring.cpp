@@ -3562,9 +3562,8 @@ int SLAPI SString::DecodeUrl(SString & rBuf) const
 SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int decode)
 {
 	SString buf, pattern, replacer;
-	// @v9.2.1 TaggedStringArray list;
-	StrAssocArray list; // @v9.2.1
-	SString src = pSrc;
+	StrAssocArray list;
+	SString src(pSrc);
 	StringSet ss(';', pEncodeStr);
 	uint   p;
 	for(p = 0; ss.get(&p, buf) > 0;)
@@ -4537,7 +4536,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 	Ext.Z();
 	if(pPath) {
 		int    fname_as_dir_part = 0;
-		SString temp_buf = pPath;
+		SString temp_buf(pPath);
 		temp_buf.Strip();
 		SStrScan scan(temp_buf);
 		const  char * p = 0;
@@ -4682,7 +4681,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rPath);
 		}
 		else {
-			SString new_path = pNewPath;
+			SString new_path(pNewPath);
 			SPathStruc ps2(new_path.SetLastSlash());
 			ps2.Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, rPath);
 		}
@@ -6633,7 +6632,7 @@ int SLAPI SNaturalTokenArray::Add(uint32 tok, float prob)
 	size_t _bp = 0;
 	PTR8(_buf)[_bp++] = PTR8C(&productTypeBytes)[1];
 	PTR8(_buf)[_bp++] = PTR8C(&productTypeBytes)[0];
-	SString temp_buf = pGTIN;
+	SString temp_buf(pGTIN);
 	if(temp_buf.Len() == 14 && temp_buf.IsDigit()) {
 		int64 n = temp_buf.ToInt64();
 		PTR8(_buf)[_bp++] = PTR8C(&n)[5];
@@ -7439,7 +7438,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		//
 		{
 			SString prefix;
-			SString text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+			SString text("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
 			SLTEST_CHECK_NZ(text.HasPrefix("A"));
 			SLTEST_CHECK_NZ(text.HasPrefix("ABC"));
 			SLTEST_CHECK_NZ(text.HasPrefix("ABCD"));

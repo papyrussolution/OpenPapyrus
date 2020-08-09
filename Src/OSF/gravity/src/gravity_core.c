@@ -107,9 +107,12 @@ static GravityValue convert_string2number(gravity_string_t * string, number_form
 		bool isHexBinOct = oneof3(c, 'B', 'O', 'X');
 		if(isHexBinOct) {
 			int64_t n = 0;
-			if(c == 'B') n = number_from_bin(&s[2], len-2);
-			else if(c == 'O') n = number_from_oct(&s[2], len-2);
-			else if(c == 'X') n = number_from_hex(s, len);
+			if(c == 'B') 
+				n = number_from_bin(&s[2], len-2);
+			else if(c == 'O') 
+				n = number_from_oct(&s[2], len-2);
+			else if(c == 'X') 
+				n = number_from_hex(s, len);
 			if(sign == -1) 
 				n = -n;
 			return (number_format == number_format_float) ? GravityValue::from_float((gravity_float_t)n) : GravityValue::from_int((gravity_int_t)n);

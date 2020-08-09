@@ -460,37 +460,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Osf\liblzma\src\lz_decoder.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\liblzma\src\lz_encoder.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						CompileAs="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\Osf\liblzma\src\lz_encoder_mf.c">
+				RelativePath="..\Osf\liblzma\src\lz.c">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool

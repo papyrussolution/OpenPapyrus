@@ -78,7 +78,7 @@ struct StyloBhtIIConfig { // @persistent size=872
 	//
 	enum {
 		foprCostAsPrice = 0x0001L,
-		foprUseDueDate  = 0x0002L   // @v8.3.3
+		foprUseDueDate  = 0x0002L
 	};
 	uint32 Size;           // Размер структуры
 	uint32 Ver;            // 1 // Номер версии структуры. Начинается с 1.

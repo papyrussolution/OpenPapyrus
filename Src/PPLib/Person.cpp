@@ -542,7 +542,7 @@ int FASTCALL PPELinkArray::IsEqual(const PPELinkArray & rS) const
 int SLAPI PPELinkArray::SearchByText(const char * pText, uint * pPos) const
 {
 	int    ok = 0;
-	SString key = pText;
+	SString key(pText);
 	if(key.NotEmptyS()) {
 		for(uint i = 0; !ok && i < getCount(); i++) {
 			const PPELink & r_item = at(i);

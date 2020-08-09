@@ -30,21 +30,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Kristian Høgsberg <krh@redhat.com>
- *	Carl Worth <cworth@cworth.org>
- *	Adrian Johnson <ajohnson@redneon.com>
+ * Contributor(s): Kristian Høgsberg <krh@redhat.com> Carl Worth <cworth@cworth.org> Adrian Johnson <ajohnson@redneon.com>
  */
-
 #ifndef CAIRO_PDF_OPERATORS_H
 #define CAIRO_PDF_OPERATORS_H
-
-//#include "cairo-compiler-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-types-private.h"
 
 /* The glyph buffer size is based on the expected maximum glyphs in a
  * line so that an entire line can be emitted in as one string. If the

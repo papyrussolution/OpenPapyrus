@@ -321,7 +321,7 @@ int SLAPI ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 	else if(TagDataType == OTTYP_ENUM) {
 		Reference * p_ref = PPRef;
 		PPID   _id = 0;
-		SString text = pStrVal;
+		SString text(pStrVal);
 		if(text.NotEmptyS()) {
 			if(TagEnumID) {
 				ReferenceTbl::Rec rec;
@@ -672,7 +672,7 @@ int SLAPI ObjTagItem::Write__(SBuffer & rBuf) const
 	if(TagDataType == OTTYP_NUMBER)
 		rBuf.Write(Val.RealVal);
 	else if(TagDataType == OTTYP_IMAGE) {
-		SString temp_buf = Val.PStr;
+		SString temp_buf(Val.PStr);
 		/*
 		ObjLinkFiles link_files(PPOBJ_TAG);
 		link_files.Load(TagID, rRec.ObjID);
@@ -682,7 +682,7 @@ int SLAPI ObjTagItem::Write__(SBuffer & rBuf) const
 		rBuf.Write(temp_buf);
 	}
 	else if(oneof2(TagDataType, OTTYP_STRING, OTTYP_GUID)) {
-		SString temp_buf = Val.PStr;
+		SString temp_buf(Val.PStr);
 		rBuf.Write(temp_buf);
 	}
 	else if(TagDataType == OTTYP_DATE)

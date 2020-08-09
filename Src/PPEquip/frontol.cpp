@@ -1050,7 +1050,7 @@ int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRep
 	long   cash_no = 0;
 	LAssocArray zrep_ary; // Пара {номер_файла; номер_смены}
 	SString fld_buf_alt[2]; // @v10.8.3 Буферы для альтернативных вариантов значения (такое возможно)
-	SString imp_file_name = pPath;
+	SString imp_file_name(pPath);
 	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	PPSetAddedMsgString(imp_file_name);
 	THROW_SL(imp_file.IsValid());
@@ -1124,16 +1124,22 @@ int SLAPI ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRep
 
 int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 {
-	int    ok = 1, field_no;
+	int    ok = 1;
+	int    field_no;
 	uint   pos;
-	long   op_type, nsmena, cash_no, chk_no;
+	long   op_type;
+	long   nsmena;
+	long   cash_no;
+	long   chk_no;
 	long   count = 0;
-	PPID   grp_id = 0, goods_id = 0;
-	PPIDArray   new_goods;
-	//LAssocArray zrep_ary; // Пара {номер_кассы; номер_смены}
+	PPID   grp_id = 0;
+	PPID   goods_id = 0;
+	PPIDArray new_goods;
 	LDATETIME dtm;
 	SString buf, card_code, wait_msg;
-	SString barcode, goods_name, arcode;
+	SString barcode;
+	SString goods_name;
+	SString arcode;
 	SString fld_buf_alt[2]; // @v10.8.3 Буферы для альтернативных вариантов значения (такое возможно)
 	StringSet ss(';', 0);
 	IterCounter   cntr;
@@ -1214,7 +1220,9 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 		//
 		for(uint cur_zrep_list_pos = 0; imp_file.ReadLine(buf) > 0;) {
 			int    r;
-			long   op_type, cash_no, chk_no;
+			long   op_type = 0;
+			long   cash_no = 0;
+			long   chk_no = 0;
 			const  long cur_zrep_n = (cur_zrep_list_pos < ZRepList.getCount()) ? ZRepList.at(cur_zrep_list_pos).ZRepN : 0;
 			ss.clear();
 			ss.add(buf);
@@ -1267,19 +1275,57 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 				}
 			}
 			else if(oneof4(op_type, FRONTOL_OPTYPE_CHKLINE, FRONTOL_OPTYPE_STORNO, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE)) { // Строка чека или сторно строки
-				double qtty = 0.0;
 				double price = 0.0;
-				double dscnt_price = 0.0;
-				double dscnt = 0.0;
-				int    div = 0; // Номер отдела
 				const  int is_free_price = oneof2(op_type, FRONTOL_OPTYPE_CHKLINEFREE, FRONTOL_OPTYPE_STORNOFREE);
+				barcode.Z();
+				ss.get(&pos, buf);          // #08 ID товара   
+				goods_id = buf.ToLong();    
+				ss.get(&pos, buf);          // #09 Коды значений разрезов
+				ss.get(&pos, buf);          // #10 Цена
+				price = buf.ToReal();
 				ss.get(&pos, buf);
+				const double src_qtty = buf.ToReal();        // #11 Количество
+				ss.get(&pos, buf.Z());      // #12 Сумма товара + сумма округления //
+				ss.get(&pos, buf.Z());      // #13 Операция //
+				ss.get(&pos, buf.Z());      // #14 Номер смены
+				ss.get(&pos, buf);          // #15 Цена  со скидками
+				const double src_dscnt_price = buf.ToReal(); 
+				ss.get(&pos, buf);          // #16 Сумма со скидками
+				const double src_dscnt = buf.ToReal();       
+				ss.get(&pos, buf.Z());      // #17
+				ss.get(&pos, buf.Z());      // #18
+				ss.get(&pos, barcode.Z());  // #19 barcode
+				ss.get(&pos, buf.Z());      // #20 
+				ss.get(&pos, buf.Z());      // #21 Номер отдела
+				const int div = buf.ToLong();
 				if(is_free_price)
 					goods_id = def_goods_id;
 				else {
-					goods_id = buf.ToLong(); // #08 ID товара
-					if(UseAltImport) {
-						Goods2Tbl::Rec goods_rec;
+					Goods2Tbl::Rec goods_rec;
+					// @v10.8.5 {
+					if(!UseAltImport) {
+						if(goods_obj.Search(goods_id, &goods_rec) > 0) {
+							;
+						}
+						else {
+							if(barcode.NotEmptyS() && goods_obj.SearchByBarcode(barcode, 0, &goods_rec, 0) > 0) {
+								goods_id = goods_rec.ID;
+							}
+							else {
+								SysJournal * p_sj = DS.GetTLA().P_SysJ;
+								Goods2Tbl::Rec ex_goods_rec;
+								PPID   pretend_id = 0;
+								do {
+									if(goods_obj.Fetch(goods_id, &ex_goods_rec) > 0)
+										pretend_id = ex_goods_rec.ID;
+								} while(!pretend_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, goods_id, &goods_id, 0) > 0);
+								if(pretend_id)
+									goods_id = pretend_id;
+							}
+						}
+					}
+					// } @v10.8.5
+					else { // UseAltImport
 						buf.Divide('|', arcode, goods_name);
 						if(!goods_name.NotEmptyS())
 							goods_name.Z().CatEq("ID", goods_id);
@@ -1312,53 +1358,39 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 						}
 					}
 				}
-				ss.get(&pos, buf);          // #09 Коды значений разрезов
-				ss.get(&pos, buf);          // #10 Цена
-				price = buf.ToReal();
-				ss.get(&pos, buf);
-				qtty = buf.ToReal();        // #11 Количество
-				for(field_no = 11; field_no < 15 && ss.get(&pos, buf) > 0; field_no++); // #12-14 пропускаем
-											// #12 Сумма товара + сумма округления //
-											// #13 Операция //
-											// #14 Номер смены
-				dscnt_price = buf.ToReal(); // #15 Цена  со скидками
-				ss.get(&pos, buf);
-				dscnt = buf.ToReal();       // #16 Сумма со скидками
-				for(field_no = 17; field_no <= 20 && ss.get(&pos, buf) > 0; field_no++); // #17-20 пропускаем
-				ss.get(&pos, buf.Z());      // #21 Номер отдела
-				div = buf.ToLong();
 				THROW(r = SearchTempCheckByCode(cash_no, chk_no, cur_zrep_n));
 				if(r > 0) {
 					double line_amount;
 					PPID   chk_id = P_TmpCcTbl->data.ID;
 					if(!closed_check_list.Has((ulong)chk_id)) {
-						qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
+						double qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(src_qtty) : fabs(src_qtty);
 						if(op_type == FRONTOL_OPTYPE_STORNO) {
 							TempCCheckLineTbl::Key2 k2;
 							k2.CheckID = chk_id;
 							BExtQuery cclq(P_TmpCclTbl, 2);
 							cclq.selectAll().where(P_TmpCclTbl->CheckID == chk_id);
-							for(cclq.initIteration(0, &k2, spGe); cclq.nextIteration() > 0;)
+							for(cclq.initIteration(0, &k2, spGe); cclq.nextIteration() > 0;) {
 								if(P_TmpCclTbl->data.GoodsID == goods_id && P_TmpCclTbl->data.Quantity == qtty) {
 									THROW_DB(P_TmpCclTbl->deleteRec());
 									break;
 								}
+							}
 							qtty = -qtty;
 						}
 						else {
 							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
-							const double ln_price = is_free_price ? dscnt_price : price;
-							const double ln_discount = is_free_price ? 0.0 : (price - dscnt_price);
+							const double ln_price = is_free_price ? src_dscnt_price : price;
+							const double ln_discount = is_free_price ? 0.0 : (price - src_dscnt_price);
 							// @v10.7.3 SetTempCcLineValues(0, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/);
 							// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
 							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/)); // @v10.7.3
 						}
+						double dscnt = 0.0;
 						if(is_free_price) {
-							line_amount = R2(qtty * dscnt_price);
-							dscnt       = 0.0;
+							line_amount = R2(qtty * src_dscnt_price);
 						}
 						else {
-							line_amount = R2(qtty * dscnt_price);
+							line_amount = R2(qtty * src_dscnt_price);
 							dscnt       = R2(qtty * price - dscnt);
 						}
 						THROW(AddTempCheckAmounts(chk_id, line_amount, dscnt));
@@ -1467,7 +1499,8 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 {
 	int    ok = 1, notify_timeout = NZOR(ImpExpTimeout, 5000);
 	const  int is_xpos = IsXPos(Acn); // @v10.8.2
-	SString imp_path = pImpPath, exp_path;
+	SString imp_path(pImpPath);
+	SString exp_path;
 	SString path_rpt;
 	SString path_flag;
 	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;
@@ -1498,7 +1531,7 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 				SString tmp_name = path_flag;
 				SPathStruc::ReplaceExt(tmp_name, "tmp", 1);
 				SFile  query_file(tmp_name, SFile::mWrite);
-				SString buf = is_xpos ? "$$$TRANSACTIONSBYDATERANGE" : "$$$TRANSACTIONSBYDATETIMERANGE"; // @v10.8.2 (is_xpos ? "$$$TRANSACTIONSBYDATERANGE")
+				SString buf(is_xpos ? "$$$TRANSACTIONSBYDATERANGE" : "$$$TRANSACTIONSBYDATETIMERANGE"); // @v10.8.2 (is_xpos ? "$$$TRANSACTIONSBYDATERANGE")
 				query_file.WriteLine(buf.CR());
 				// @v10.8.2 decodedate(&d, &m, &y, &first_date);
 				// @v10.8.2 buf.Z().Printf(date_mask, d, m, y).Semicol();

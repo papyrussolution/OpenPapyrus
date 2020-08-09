@@ -599,7 +599,7 @@ int XmlDbFile::WriteField(const char * pFieldName, const char * pFieldValue, int
 			ok = 1;
 		}
 		else if(pFieldValue) {
-			SString sbuf = pFieldValue;
+			SString sbuf(pFieldValue);
 			if(IsUtf8())
 				sbuf.ToUtf8();
 			// @v7.9.6 if(St.GetParam().Flags & XmlDbFile::Param::fUseDTD)

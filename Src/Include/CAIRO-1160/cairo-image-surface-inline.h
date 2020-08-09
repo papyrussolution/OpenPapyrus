@@ -28,18 +28,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_IMAGE_SURFACE_INLINE_H
 #define CAIRO_IMAGE_SURFACE_INLINE_H
-
-//#include "cairo-surface-private.h"
-////#include "cairo-image-surface-private.h"
 
 CAIRO_BEGIN_DECLS
 

@@ -31,7 +31,6 @@ static bool gravity_env_get(gravity_vm * vm, GravityValue * args, uint16 nargs, 
 		return vm->ReturnValue(rt, rindex);
 	}
 }
-
 /**
  * @brief  Wraps putenv() into a Gravity callable function
  * @param  vm The Gravity Virtual Maschine this function is associated with.

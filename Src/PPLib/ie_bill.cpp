@@ -2435,7 +2435,7 @@ int SLAPI PPBillImporter::AddBillToList(Sdr_Bill * pBill, long extraBillId)
 			ok = -1;
 	}
 	if(ok > 0) {
-		SString bid = pBill->ID;
+		SString bid(pBill->ID);
 		if(!bid.NotEmptyS() && pBill->Code[0] != 0)
 			(bid = pBill->Code).Strip();
 		else if(pBill->Code[0] == 0 && bid.NotEmptyS()) {
@@ -3538,7 +3538,7 @@ int SLAPI PPBillImporter::ResolveINN(const char * pINN, PPID dlvrLocID, const ch
 	int    ok = -1;
 	PPID   ar_id = 0;
 	PPID   reg_type_id = PPREGT_TPID;
-	SString code = pINN;
+	SString code(pINN);
 	if(!code.NotEmptyS()) {
 		if(PPObjArticle::GetSearchingRegTypeID(accSheetID, 0, 1, &reg_type_id) > 0)
 			code = BillParam.Object1SrchCode;
@@ -5869,7 +5869,7 @@ int SLAPI DocNalogRu_Generator::WriteFIO(const char * pName)
 	int    ok = 0;
 	SString temp_buf;
 	SString first_name, sername, patronimic;
-	SString fullname_buf = pName;
+	SString fullname_buf(pName);
 	fullname_buf.Strip().ReplaceStr(",", " ", 0).ReplaceStr(";", " ", 0).ReplaceStr("  ", " ", 0);
 	{
 		StringSet ss;

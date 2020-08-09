@@ -238,15 +238,15 @@ SOAP_FMAC1 struct SOAP_ENV__Fault * SOAP_FMAC2 soap_instantiate_SOAP_ENV__Fault(
 	struct soap_clist *cp = soap_link(soap, NULL, SOAP_TYPE_SOAP_ENV__Fault, n, uhttGoods_fdelete);
 	if(!cp)
 		return NULL;
-	if(n < 0)
-	{	cp->ptr = (void *)SOAP_NEW(struct SOAP_ENV__Fault);
+	if(n < 0) {	
+		cp->ptr = (void *)SOAP_NEW(struct SOAP_ENV__Fault);
 		if(size)
 			*size = sizeof(struct SOAP_ENV__Fault);
 	}
-	else
-	{	cp->ptr = (void *)SOAP_NEW(struct SOAP_ENV__Fault[n]);
-		if(!cp->ptr)
-		{	soap->error = SOAP_EOM;
+	else {
+		cp->ptr = (void *)SOAP_NEW(struct SOAP_ENV__Fault[n]);
+		if(!cp->ptr) {
+			soap->error = SOAP_EOM;
 			return NULL;
 		}
 		if(size)

@@ -1254,7 +1254,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 						rel_person_id = ar_rec.ObjID;
 				}
 				else {
-					rec.Name[0] = static_cast<char>(250);
+					rec.Name[0] = '\xFA'; /*250*/
 					ideqvalstr(r_acr_rec.ArticleID, rec.Name+1, sizeof(rec.Name)-1);
 				}
 				if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl) {

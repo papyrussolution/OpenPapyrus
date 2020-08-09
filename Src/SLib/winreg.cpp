@@ -64,7 +64,7 @@ FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuf
 	FARPROC proc = 0;
 	if(H) {
 		if(unicodeSuffix) {
-			SString temp_buf = pProcName;
+			SString temp_buf(pProcName);
 #ifdef UNICODE
 			temp_buf.CatChar('W');
 #else

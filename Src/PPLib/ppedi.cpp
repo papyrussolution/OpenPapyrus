@@ -502,7 +502,7 @@ static int FASTCALL Base36ToTobaccoPrice(const SString & rS, SString & rBuf)
 int SLAPI GtinStruc::Parse(const char * pCode)
 {
 	int    ok = 1;
-	SString code_buf = pCode;
+	SString code_buf(pCode);
 	Z();
 	if(code_buf.NotEmptyS()) {
 		SString temp_buf;
@@ -2010,7 +2010,7 @@ int SLAPI PPEanComDocument::Write_QTY(SXml::WDoc & rDoc, PPID goodsID, int qtyQ,
 	{
 		SXml::WNode n_i(rDoc, "C186");
 		n_i.PutInner("E6063", temp_buf.Z().Cat(qtyQ)); // Квалификатор количества
-		SString unit_buf = "PCE";
+		SString unit_buf("PCE");
 		double unit_scale = 1.0;
 		Goods2Tbl::Rec goods_rec;
 		if(goodsID && P_Pi->GObj.Fetch(goodsID, &goods_rec) > 0) {

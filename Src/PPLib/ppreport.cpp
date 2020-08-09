@@ -267,7 +267,7 @@ int SLAPI SReport::createDataFiles(const char * pDataName, const char * pRptPath
 	int    ok = -1;
 	DlRtm * p_rtm = 0;
 	if(!isempty(pDataName)) {
-		SString path = pRptPath;
+		SString path(pRptPath);
 		path.SetLastSlash().Cat(pDataName);
 		DlContext ctx;
 		DlRtm::ExportParam ep;
@@ -723,7 +723,7 @@ SLAPI ReportDescrEntry::ReportDescrEntry() : Flags(0)
 int FASTCALL ReportDescrEntry::GetIniToken(const char * pLine, SString * pFileName)
 {
 	int   tok = tUnkn;
-	SString buf = pLine;
+	SString buf(pLine);
 	buf.Strip().ToLower();
 	const char c_first = buf.C(0);
 	const char c_second = buf.C(1);
@@ -772,7 +772,7 @@ int SLAPI ReportDescrEntry::ParseIniString(const char * pLine, const ReportDescr
 int SLAPI ReportDescrEntry::SetReportFileName(const char * pFileName)
 {
 	int    ok = -1;
-	SString file_name = pFileName;
+	SString file_name(pFileName);
 	const uint16 cr_eng_ver = PEGetVersion(PE_GV_ENGINE);
 	if(HiByte(cr_eng_ver) >= 10) {
 		SPathStruc ps(file_name);
@@ -1647,7 +1647,7 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA *pDevMode)
 {
 	int    ok = 1;
-	SString print_device = isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter;
+	SString print_device(isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter);
 	RemoveCompName(print_device);
 	DEVMODEA * p_dm = 0, dm;
 	char   device_name[128];
@@ -2175,7 +2175,7 @@ int SLAPI SReport::getFieldName(int i, char * buf, size_t buflen)
 //
 //	@Vadim 13.09.02
 //
-struct SvdtStrDlgAns {
+struct SvdtStrDlgAns { // @{savereportdata}
 	int   SvDt;
 	int   EdRep;
 	// @v10.8.2 char  SvDtPath[MAXPATH];

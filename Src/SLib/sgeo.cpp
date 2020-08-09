@@ -2199,7 +2199,7 @@ struct GeodTestRecord {
 
 SLTEST_R(SGeo)
 {
-	SString in_file_name = MakeInputFilePath("GeodTest.dat");
+	SString in_file_name(MakeInputFilePath("GeodTest.dat"));
 	SGeo   sg;
 	uint   line_no = 0;
 	SString line_buf;

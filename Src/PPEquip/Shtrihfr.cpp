@@ -729,7 +729,7 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(P_SlipFmt) {
 			int      prn_total_sale = 1, r = 0;
 			SString  line_buf;
-			const SString format_name = "CCheck";
+			const SString format_name("CCheck");
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
@@ -1397,7 +1397,8 @@ int SLAPI SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * p
 	}
 	if(DeviceType == devtypeCombo && P_SlipFmt) {
 		int   r = 1;
-		SString   line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : "SlipDocument";
+		SString line_buf;
+		const SString format_name((pFormatName && pFormatName[0]) ? pFormatName : "SlipDocument");
 		StringSet head_lines(reinterpret_cast<const char *>(&r));
 		SlipDocCommonParam  sdc_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
@@ -1473,7 +1474,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 	THROW(SetFR(DocumentNumber, pPack->Rec.Code));
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
+		SString  line_buf;
+		const SString format_name(isempty(pFormatName) ? ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy") : pFormatName);
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
@@ -1613,7 +1615,8 @@ int SLAPI SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 	THROW(SetFR(DocumentNumber, pInfo->Rec.SessNumber));
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf, format_name = "ZReportCopy";
+		SString line_buf;
+		const SString format_name("ZReportCopy");
 		SlipDocCommonParam  sdc_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {

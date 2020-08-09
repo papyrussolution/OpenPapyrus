@@ -1846,7 +1846,6 @@ int SLAPI GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 int SLAPI PPObjWorld::Convert()
 {
 	const char * p_spec_name = "special";
-
 	int    ok = -1;
 	BExtQuery * p_q = 0;
 	int    is_need_conversion = 0;
@@ -1858,7 +1857,7 @@ int SLAPI PPObjWorld::Convert()
 		THROW_MEM(p_tbl = new WorldTbl);
 		p_tbl->getNumKeys(&num_keys);
 		if(num_keys < 4) {
-			SString file_name = p_tbl->GetFileName();
+			const SString file_name(p_tbl->GetFileName());
 			ZDELETE(p_tbl);
 			SFile::Remove(file_name);
 			THROW_MEM(p_tbl = new WorldTbl);

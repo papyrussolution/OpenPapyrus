@@ -30,7 +30,7 @@ int BDbDatabase::SplitFileName(const char * pFileName, SString & rFile, SString 
 	int    ok = 0;
 	rFile.Z();
 	rTbl.Z();
-	SString file_name = pFileName;
+	SString file_name(pFileName);
 	size_t pos = 0;
 	if(file_name.Strip().Search("->", 0, 0, &pos)) {
 		file_name.Sub(0, pos, rFile);
@@ -205,7 +205,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : S
 {
 	int    r = 0;
 	StrPool.add("$"); // zero index - is empty string
-	SString temp_buf = pHomeDir;
+	SString temp_buf(pHomeDir);
 	if(temp_buf.NotEmptyS())
 		StrPool.add(temp_buf, &HomePathPos);
 	THROW(ProcessError(db_env_create(&E, 0), 0, pHomeDir));

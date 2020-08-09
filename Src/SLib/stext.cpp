@@ -2002,6 +2002,82 @@ int FASTCALL sstreq(const uchar * pS1, const char * pS2)
 		return 1;
 }
 
+// @construction
+int FASTCALL sstrneq(const char * pS1, const char * pS2, uint len)
+{
+	if(len == 0)
+		return 1;
+	else if(pS1 != pS2) {
+		if(pS1 && pS2) {
+			switch(len) {
+				case 1: return BIN(*pS1 == *pS2);
+				//
+				// Строго говоря, следующие 3 case'а - опасные: если строки pS1 или pS2 заканчиваются раньше чем соответствующий
+				// байт будет достигнут и плюс к тому данные по указателям обрываются на границе сегмента то мы
+				// рискуем получить исключение по доступу на чтение к недоступной области памяти.
+				// Однако, я думаю что вероятность такого события может быть проигнорирована.
+				// Тем не менее, следует сделать тест на предмет такого развития событий.
+				//
+				case 2: return BIN(*PTR16C(pS1) == *PTR16C(pS2));
+				case 4: return BIN(*PTR32C(pS1) == *PTR32C(pS2));
+				case 8: return BIN(*PTR64C(pS1) == *PTR64C(pS2));
+				default: 
+					{
+						uint x = 0;
+						if(len >= 4) {
+							for(; x < len-4; x+=4) {
+								pS1 += 4;
+								pS2 += 4;
+								uint8 c1 = *(pS1-4);
+								if(c1 != *(pS2-4))
+									return 0;
+								else if(c1 == 0)
+									return 1;
+								else {
+									c1 = *(pS1-3);
+									if(c1 != *(pS2-3))
+										return 0;
+									else if(c1 == 0)
+										return 1;
+									else {
+										c1 = *(pS1-2);
+										if(c1 != *(pS2-2))
+											return 0;
+										else if(c1 == 0)
+											return 1;
+										else {
+											c1 = *(pS1-1);
+											if(c1 != *(pS2-1))
+												return 0;
+											else if(c1 == 0)
+												return 1;
+										}
+									}
+								}
+							}
+						}
+						for(; x < len; x++) {
+							if(*pS1 != *pS2)
+								return 0;
+							else if(*pS1 == 0)
+								return 1;
+							else {
+								pS1++;
+								pS2++;
+							}
+						}
+						return 0;
+					}
+					break;
+			}
+		}
+		else
+			return 0;
+	}
+	else
+		return 1;
+}
+
 static bool __forceinline chreqi_ascii(int c1, int c2)
 {
 	if(c1 != c2) {
@@ -3249,8 +3325,8 @@ static int Make_STextEncodingStat_FilePool(const SString & rPath, SFileEntryPool
 
 SLTEST_R(STextEncodingStat)
 {
-	SString test_data_path = MakeInputFilePath("uchardet");
-	SString out_file_name = MakeOutputFilePath("uchardet-out.txt");
+	SString test_data_path(MakeInputFilePath("uchardet"));
+	SString out_file_name(MakeOutputFilePath("uchardet-out.txt"));
 	SString in_file_name;
 	SString temp_buf;
 	SFileEntryPool fep;

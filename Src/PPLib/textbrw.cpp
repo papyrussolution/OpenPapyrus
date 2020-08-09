@@ -1808,7 +1808,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 int STextBrowser::FileSave(const char * pFileName, long flags)
 {
 	int    ok = -1, skip = 0;
-	SString path = isempty(pFileName) ? Doc.FileName : pFileName;
+	SString path(isempty(pFileName) ? Doc.FileName.cptr() : pFileName);
 	if((flags & ofInteractiveSaveAs) || !path.NotEmptyS()) {
 		if(PPOpenFile(PPTXT_TEXTBROWSER_FILETYPES, path, ofilfNExist, H()) > 0) {
 			;

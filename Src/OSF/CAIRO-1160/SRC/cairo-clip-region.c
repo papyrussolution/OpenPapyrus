@@ -30,24 +30,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Kristian Høgsberg <krh@redhat.com>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Kristian Høgsberg <krh@redhat.com> Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-clip-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-freed-pool-private.h"
-//#include "cairo-gstate-private.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-region-private.h"
 
 static void FASTCALL _cairo_clip_extract_region(cairo_clip_t * clip)
 {

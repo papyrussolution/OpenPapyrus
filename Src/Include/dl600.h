@@ -997,7 +997,7 @@ private:
 	void   SLAPI Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
 	int    SLAPI Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion
 	int    SLAPI Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion
-	int    SLAPI Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs); // @recursion
+	int    SLAPI Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags); // @recursion
 	int    SLAPI Write_WSDL_File(const char * pFileName, const DlScope & rScope);
 	int    SLAPI Write_DialogReverse();
 	//

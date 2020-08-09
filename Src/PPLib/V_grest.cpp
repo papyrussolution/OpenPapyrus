@@ -352,7 +352,7 @@ int SLAPI PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLot
 	if(pHdr || GetItem(__id, &item) > 0) {
 		const PPID goods_id = pHdr ? pHdr->GoodsID : item.GoodsID;
 		const PPID loc_id = pHdr ? pHdr->LocID : item.LocID;
-		SString serial = pHdr ? 0 : item.Serial;
+		SString serial(pHdr ? 0 : item.Serial);
 		serial.Strip();
 		GoodsRestFilt filt = Filt;
 		if(Filt.Sgg == sggLocation) {
@@ -3632,8 +3632,6 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_FLAGS, 0, 0x0001);
 			dlg->SetClusterData(CTL_GRESTUHTTEXP_FLAGS, _f);
 			//@erik v10.7.13 {
-
-			dlg->showCtrl(CTL_GRESTUHTTEXP_CH, 0);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 0, PPViewGoodsRest::expDirUhtt);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 1, PPViewGoodsRest::expDirVkMarket);
 			dlg->SetClusterData(CTL_GRESTUHTTEXP_CH, PPViewGoodsRest::expDirUhtt);
@@ -3678,8 +3676,8 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 										PPGoodsPacket pack;
 										ObjTagItem stored_obj_tag_item;
 										LongArray stored_vk_goods_id_list;
-										vk_client.Market_Get(vk_struct, temp_buf);
-										vk_client.ParceGoodsItemList(temp_buf, stored_vk_goods_id_list);
+										THROW(vk_client.Market_Get(vk_struct, temp_buf));
+										THROW_SL(vk_client.ParceGoodsItemList(temp_buf, stored_vk_goods_id_list));
 										for(uint i = 0; i<uniq_id_and_loc_id_list.getCount(); i++) {
 											goods_rest_item_hdr = uniq_id_and_loc_id_list.at(i);
 											if(GObj.Search(goods_rest_item_hdr.GoodsID, &goods_rec) > 0) {
@@ -3721,30 +3719,31 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 												if(stored_vk_goods_id_list.lsearch(vk_goods_id) <= 0) {
 													vk_goods_id = 0;
 												}
-												vk_client.AddGoodToMarket(vk_struct, goods_rec, msg_buf, rest_item.Price, 0.0, vk_goods_id, temp_buf.Z());
-												json_t * p_json_doc = 0;
-												THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr())==JSON_OK);
-												for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-													if(p_cur->Type==json_t::tOBJECT) {
-														for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-															if(p_obj->Text.IsEqiAscii("response")) {
-																const json_t *p_response_node = p_obj->P_Child;
-																if(p_response_node->P_Child) {
-																	for(const json_t * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
-																		if(p_response_item->Text.IsEqiAscii("market_item_id")) {
-																			temp_buf = p_response_item->P_Child->Text.Unescape();
-																			ObjTagItem new_obj_tag_item;
-																			new_obj_tag_item.SetStr(tag_vk_goods_id, temp_buf);
-																			if(new_obj_tag_item!=stored_obj_tag_item)
-																				ref.Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
+												if(vk_client.AddGoodToMarket(vk_struct, goods_rec, msg_buf, rest_item.Price, 0.0, vk_goods_id, temp_buf.Z()) > 0) {
+													json_t * p_json_doc = 0;
+													THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr())==JSON_OK);
+													for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+														if(p_cur->Type==json_t::tOBJECT) {
+															for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+																if(p_obj->Text.IsEqiAscii("response")) {
+																	const json_t *p_response_node = p_obj->P_Child;
+																	if(p_response_node->P_Child) {
+																		for(const json_t * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
+																			if(p_response_item->Text.IsEqiAscii("market_item_id")) {
+																				temp_buf = p_response_item->P_Child->Text.Unescape();
+																				ObjTagItem new_obj_tag_item;
+																				new_obj_tag_item.SetStr(tag_vk_goods_id, temp_buf);
+																				if(new_obj_tag_item!=stored_obj_tag_item)
+																					ref.Ot.PutTag(PPOBJ_GOODS, goods_rec.ID, &new_obj_tag_item, 0);
+																			}
 																		}
 																	}
 																}
 															}
 														}
 													}
+													ZDELETE(p_json_doc);
 												}
-												ZDELETE(p_json_doc);
 												PPWaitPercent(i, uniq_id_and_loc_id_list.getCount());
 											}
 										}

@@ -411,7 +411,7 @@ static const char * P_WeekDays = {
 int FASTCALL GetDayOfWeekByText(const char * pText)
 {
 	SString temp_buf;
-	SString pattern = pText;
+	SString pattern(pText);
 	pattern.Transf(CTRANSF_INNER_TO_UTF8); // @v10.4.5
 	StringSet ss(';', P_WeekDays);
 	int    dow = 0;

@@ -411,7 +411,7 @@ int TextDbFile::AppendRecord(const SdRecord & rRec, const void * pDataBuf)
 		// и (если необходимо) запись, содержащую наименования полей.
 		//
 		for(i = 0; i < static_cast<uint>(P.HdrLinesCount); i++)
-			THROW(F.WriteLine(0));
+			THROW(F.WriteBlancLine());
 		if(P.Flags & fFldNameRec) {
 			line.Z();
 			for(i = 0; i < rRec.GetCount(); i++) {
@@ -486,8 +486,8 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 		// Если файл пустой, то добавляем специфицированное количество пустых строк
 		// и (если необходимо) запись, содержащую наименования полей.
 		//
-		for(i = 0; i < (uint)P.HdrLinesCount; i++)
-			THROW(F.WriteLine(0));
+		for(i = 0; i < static_cast<uint>(P.HdrLinesCount); i++)
+			THROW(F.WriteBlancLine());
 		if(P.Flags & fFldNameRec) {
 			line = 0;
 			for(i = 0; i < rRec.GetCount(); i++) {

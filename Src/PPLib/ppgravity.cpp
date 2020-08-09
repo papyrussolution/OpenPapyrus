@@ -332,7 +332,7 @@ void SLAPI TestGravity()
 			gm.RunFile(temp_buf, &logger, &result);
 		}
 	}
-	CATCHZOK
+	//CATCHZOK
 }
 
 #endif // } 0

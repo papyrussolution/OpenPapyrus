@@ -211,7 +211,7 @@ void error_tag(char error_string[], int error_number)
 
 void FASTCALL ZintMakeErrText_InvCharInData(const char * pAddSymb, char * pBuf, size_t bufLen)
 {
-	SString temp_buf = "Invalid characters in data";
+	SString temp_buf("Invalid characters in data");
 	if(pAddSymb)
 		temp_buf.Space().CatParStr(pAddSymb);
 	strnzcpy(pBuf, temp_buf, bufLen);
@@ -219,7 +219,7 @@ void FASTCALL ZintMakeErrText_InvCharInData(const char * pAddSymb, char * pBuf, 
 
 void FASTCALL ZintMakeErrText_InvCheckDigit(const char * pAddSymb, char * pBuf, size_t bufLen)
 {
-	SString temp_buf = "Invalid check digit";
+	SString temp_buf("Invalid check digit");
 	if(pAddSymb)
 		temp_buf.Space().CatParStr(pAddSymb);
 	strnzcpy(pBuf, temp_buf, bufLen);

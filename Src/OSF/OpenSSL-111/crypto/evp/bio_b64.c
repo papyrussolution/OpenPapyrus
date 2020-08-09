@@ -526,7 +526,6 @@ static long b64_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-
 	if(next == NULL)
 		return 0;
 	switch(cmd) {

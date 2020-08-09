@@ -376,7 +376,7 @@ static void FASTCALL StrAssocItemToSTaggedString(const StrAssocArray::Item & rSr
 	if(pDest) {
 		pDest->Id = rSrc.Id;
 		pDest->ParentId = rSrc.ParentId;
-		SString temp_buf = rSrc.Txt;
+		SString temp_buf(rSrc.Txt);
 		temp_buf.CopyToOleStr(&pDest->Text);
 	}
 }

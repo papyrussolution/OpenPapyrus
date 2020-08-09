@@ -4826,7 +4826,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, PPLogger & rLogger)
 {
 	int    ok = -1;
-	SString section = pSection;
+	SString section(pSection);
 	if(section.NotEmptyS()) {
 		SString str_fmt, msg, str_dt;
 		BillViewItem item;
@@ -6960,8 +6960,8 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 				H.RcStart  = rent.Period.low;
 				H.RcFinish = rent.Period.upp;
 				H.RcFlags  = rent.Flags;
-				H.fRcPctCharge = BIN(rent.Flags & RENTF_PERCENT);
-				H.fRcClosed    = BIN(rent.Flags & RENTF_CLOSED);
+				H.fRcPctCharge = BIN(rent.Flags & PPRentCondition::fPercent);
+				H.fRcClosed    = BIN(rent.Flags & PPRentCondition::fClosed);
 				H.RcCycle      = rent.Cycle;
 				H.RcDayOffs    = static_cast<int16>(rent.ChargeDayOffs);
 				H.RcPercent    = rent.Percent;

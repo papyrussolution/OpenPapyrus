@@ -1450,9 +1450,8 @@ int GoodsDialog::getDTS(PPGoodsPacket * pPack)
 	GetClusterData(CTL_GOODS_ASSETFLAGS, &Data.Rec.Flags);
 	GetClusterData(CTL_GOODS_DYNAMIC,    &Data.Rec.Flags);
 	if(GObj.IsAssetType(Data.Rec.GoodsTypeID) > 0) {
-		char  okof_buf[64];
-		okof_buf[0] = 0;
-		getCtrlData(CTL_GOODS_OKOF, okof_buf);
+		SString okof_buf;
+		getCtrlString(CTL_GOODS_OKOF, okof_buf);
 		Data.PutExtStrData(GDSEXSTR_OKOF, okof_buf);
 	}
 	sel = CTL_GOODS_BARCODE;

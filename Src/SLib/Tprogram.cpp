@@ -2542,7 +2542,7 @@ int TProgram::CloseAllBrowsers()
 
 void TProgram::GotoSite()
 {
-	SString url = "http://www.petroglif.ru/";
+	SString url("http://www.petroglif.ru/");
 	ShellExecute(0, _T("open"), SUcSwitch(url), NULL, NULL, SW_SHOWNORMAL);
 }
 

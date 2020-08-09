@@ -95,7 +95,7 @@
 	rText.Z();
 	if(cryptMethod == crymRef2) {
 		size_t bin_pw_size = 0;
-		SString temp_buf = pBuf;
+		SString temp_buf(pBuf);
 		if(temp_buf.DecodeMime64(pw_buf, sizeof(pw_buf), &bin_pw_size) > 0) {
 			IdeaDecrypt(/*0*/pEncPw, pw_buf, bin_pw_size);
 			rText = pw_buf;
@@ -182,7 +182,7 @@
 	int    ok = -1;
 	rBuf.Z();
 	if(fldId == PCFGEXSTR_DESKTOPNAME) {
-		SString temp_buf = pRec->Tail;
+		SString temp_buf(pRec->Tail);
 		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
 	}
 	return ok;
@@ -192,7 +192,7 @@
 {
 	int    ok = -1;
 	if(fldId == PCFGEXSTR_DESKTOPNAME) {
-		SString temp_buf = pRec->Tail;
+		SString temp_buf(pRec->Tail);
 		ok = PPPutExtStrData(fldId, temp_buf, pBuf);
 		temp_buf.CopyTo(pRec->Tail, sizeof(pRec->Tail));
 	}

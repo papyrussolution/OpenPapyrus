@@ -1434,7 +1434,7 @@ private:
 	}
 	void   SetupSCard(PPID cardID, const char * pScCode)
 	{
-		SString scard_no = pScCode;
+		SString scard_no(pScCode);
 		SString msg_buf, temp_buf;
 		SCardTbl::Rec scard_rec;
 		double rest = 0.0;

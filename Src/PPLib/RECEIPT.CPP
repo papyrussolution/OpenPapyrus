@@ -70,7 +70,7 @@ SString & FASTCALL ReceiptCore::LotDimensions::ToString(SString & rBuf) const
 int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 {
 	int   ok = 1;
-	SString src_buf = pBuf;
+	SString src_buf(pBuf);
 	Clear();
 	if(src_buf.NotEmptyS()) {
 		SString key_buf;

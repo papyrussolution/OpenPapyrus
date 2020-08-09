@@ -894,7 +894,7 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 			SlipDocCommonParam sdc_param;
 			int    prn_total_sale = 1, r = 0;
 			SString line_buf, serial;
-			SString format_name = "CCheck";
+			const SString format_name("CCheck");
 			SString out_buf;
 			SlipLineParam sl_param;
 			double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));

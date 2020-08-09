@@ -413,6 +413,8 @@ struct PPNotifyEvent;
 struct CCheckItem;
 struct TimeSeries_OptEntryList_Graph_Param;
 class  UhttTagItem;
+struct GravityValue;
+struct GravityErrorDescription;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -7835,7 +7837,7 @@ double SLAPI Round(double v, double prec, int dir);
 double SLAPI RoundUpPrice(double p);
 //
 // Descr: return (!flt || flt == id)
-// Note: Провел небольшое исследование насчет inline-варианта этой функции. 
+// Note: Провел небольшое исследование насчет inline-варианта этой функции.
 //   Вывод такой: суммарный код с учетом вызовов становится чуть больше.
 //     Выигрыш в производительности точно будет за inline-вариантом, но с моей точки зрения он не дотягивает
 //     по весу что бы делать эту функцию инлайновой (fastcall'а достаточно).
@@ -9742,7 +9744,7 @@ public:
 	int16  RByBill;
 	int16  SrcIltiPos; // Номер позиции в пакете ILBillPacket, из которого была создана данная строка.
 		// Необходим для трансляции идентификаторов лотов при синхронизации между разделами.
-	PPID   CurID;      // ->Ref(PPOBJ_CURRENCY).ID Валюта 
+	PPID   CurID;      // ->Ref(PPOBJ_CURRENCY).ID Валюта
 	PPID   LocID;      // ->Location.ID Для складских операций - ИД ячейки
 	PPID   GoodsID;
 	PPID   LotID;
@@ -9952,7 +9954,7 @@ struct ILTI { // @persistent(DBX) @size=80
 	// Если этот флаг установлен, то смысл флагов BILLF2_EDIAR_AGR и BILLF2_EDIAR_DISAGR переключается на реакцию на
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @internal
-#define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имею отрицательную номинальную сумму оплачивает ее модулем другой документ
+#define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имеет отрицательную номинальную сумму оплачивает ее модулем другой документ
 //
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_EXTRA)
@@ -10014,8 +10016,8 @@ protected:
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_RENT)
 //
-#define RENTF_CLOSED    0x0001L // Закрытый договор
-#define RENTF_PERCENT   0x0010L // Процентные начисления по ренте.
+// @v10.8.5 (replaced with PPRentCondition::fClosed)  #define RENTF_CLOSED    0x0001L // Закрытый договор
+// @v10.8.5 (replaced with PPRentCondition::fPercent) #define RENTF_PERCENT   0x0010L // Процентные начисления по ренте.
 
 struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL, @id, BILLPRP_RENT])
 	int    SLAPI IsEmpty() const;
@@ -10029,7 +10031,10 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 	//   Результат возвращается по указателю pAmount.
 	//
 	int    SLAPI CalcPercent(LDATE begDt, LDATE chargeDt, const PctChargeArray * pCreditList, double * pAmount) const;
-
+	enum {
+		fClosed  = 0x0001, // Закрытый договор
+		fPercent = 0x0010  // Процентные начисления по ренте
+	};
 	DateRange Period;      // Период действия ренты
 	int16  Cycle;          // Период цикла начисления PRD_XXX (SLIB.H)
 	int16  Reserve;        // @reserve
@@ -12532,7 +12537,7 @@ public:
 #define TLRF_INDEPHQTTY        0x0080 // Корректировать флаг PPTFR_INDEPPHQTTY в записях Transfer в соответствии
 	// с флагом GF_USEINDEPWT установленным в товаре
 #define TLRF_REPAIRPACKUNCOND  0x0100 // Безусловно корректировать емкости упаковок в лотав по значению, заданному в карточке товара
-#define TLRF_REPAIRWOTAXFLAGS  0x0200 // 
+#define TLRF_REPAIRWOTAXFLAGS  0x0200 //
 #define TLRF_SETALCCODETOGOODS 0x0400 // Если лот содержит тег PPTAG_LOT_FSRARLOTGOODSCODE то добавлять такой код
 	// в список кодов товара, если ни один из товаров не содержит такой код
 #define TLRF_SETALCCODETOLOTS  0x0800 // Если товар содержит код алкогольной продукции, а лот - нет, то в тег лота
@@ -13543,8 +13548,8 @@ private:
 		double Qtty;
 		double Amt;
 	};
-	const  PPID  CoeffQkID;            // 
-	const  PPQuotArray * P_CoeffQList; // @notowned 
+	const  PPID  CoeffQkID;            //
+	const  PPQuotArray * P_CoeffQList; // @notowned
 	SVector * P_List; // @v9.9.4 SArray-->SVector
 };
 
@@ -14678,7 +14683,7 @@ public:
 	enum {
 		gglfUpdChecks           = 0x0001, // Снять признак CCHKF_NOTUSED после группировки
 		gglfSkipUnprintedChecks = 0x0002, // Пропускать чеки без флага CCHKF_PRINTED
-		gglfUseFullCcPackets    = 0x0004  // 
+		gglfUseFullCcPackets    = 0x0004  //
 	};
 	int    SLAPI GetSessTotal(PPID sessID, long flags, CSessTotal *, BVATAccmArray * pVatList);
 	int    SLAPI GroupingToGoodsLines(PPID sessID, CSessTotal *, CCheckGoodsArray *, long flags, int use_ta);
@@ -15265,6 +15270,8 @@ public:
 		fBkgndImageLoaded = 0x0010  // @transient Признак того, что при загрузке из хранилища объект содержал изображение. Только для kGroup //
 	};
 	explicit SLAPI  PPCommandItem(int kind = kUndef);
+	SLAPI  PPCommandItem(const PPCommandItem & rS);
+	PPCommandItem & FASTCALL operator = (const PPCommandItem & rS);
 	virtual SLAPI ~PPCommandItem();
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
@@ -15311,6 +15318,8 @@ public:
 		nextRight
 	};
 	SLAPI  PPCommandFolder();
+	SLAPI  PPCommandFolder(const PPCommandFolder & rS);
+	PPCommandFolder & FASTCALL operator = (const PPCommandFolder & rS);
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
 	virtual int SLAPI Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
@@ -15319,7 +15328,6 @@ public:
 	virtual const PPCommandItem * SLAPI Next(uint * pPos) const;
 	virtual PPCommandItem * SLAPI Dup() const;
 	int    FASTCALL Copy(const PPCommandFolder &);
-	PPCommandFolder & FASTCALL operator = (const PPCommandFolder &);
 	uint   SLAPI GetCount() const;
 	const  PPCommandItem * SLAPI Get(uint pos) const;
 	const  PPCommandItem * SLAPI SearchByID(long id, uint * pPos) const;
@@ -15353,6 +15361,8 @@ public:
 	};
 
 	SLAPI  PPCommandGroup();
+	SLAPI  PPCommandGroup(const PPCommandGroup &);
+	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
 	virtual int SLAPI Write(SBuffer &, long) const;
 	virtual int SLAPI Read(SBuffer &, long);
 	virtual int SLAPI Write2(void * pHandler, const long rwFlag) const;	 //@erik v10.6.1
@@ -15369,7 +15379,6 @@ public:
 	const  SString & GetLogo() const;
 	int    FASTCALL Copy(const PPCommandGroup &);
 	PPCommandGroup * FASTCALL GetDesktop(long id);
-	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
 	int    SLAPI InitDefaultDesktop(const char * pName);
 	int    SLAPI LoadLogo();
 	int    SLAPI StoreLogo();
@@ -15573,7 +15582,7 @@ private:
 	};
 	long   Flags;
 	SString DbSymb; // база данных, к которой относятся задачи пула
-	PPJobMngr * P_Mngr; // @notowned 
+	PPJobMngr * P_Mngr; // @notowned
 };
 //
 // Descr: Управляет ресурсами задач и пулами задач
@@ -17162,7 +17171,7 @@ public:
 		};
 		int    SLAPI SelectS2(SelectBlock & rBlk) const;
 		int    SLAPI AddStrategyToOrderIndex(uint pos, long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
-		int    SLAPI MakeConfidenceEliminationIndex(const PPTssModelPacket & rTssPacket, const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
+		int    SLAPI MakeConfidenceEliminationIndex(const PPTssModelPacket & rTssPacket, uint maxCount, const LongArray * pSrcIdxList, LongArray & rToRemoveIdxList) const;
 	private:
 		uint32 Ver;
 		LDATETIME StorageTm;
@@ -17483,8 +17492,8 @@ private:
 	// @v10.7.2 int    SLAPI GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
 	int    SLAPI GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    SLAPI FindStrategies(void * pBlk) const;
-	int    SLAPI SimulateStrategyResultEntries(void * pBlk, const TSVector <PPObjTimeSeries::StrategyResultEntry> & rList, 
-		uint firstIdx, uint lastIdx, uint maxDuckQuant, uint targetQuant, PPObjTimeSeries::StrategyResultEntry & rResult, 
+	int    SLAPI SimulateStrategyResultEntries(void * pBlk, const TSVector <PPObjTimeSeries::StrategyResultEntry> & rList,
+		uint firstIdx, uint lastIdx, uint maxDuckQuant, uint targetQuant, PPObjTimeSeries::StrategyResultEntry & rResult,
 		TSVector <PPObjTimeSeries::StrategyResultValueEx> * pDetailList) const;
 	int    SLAPI FindStrategiesLoop(void * pBlk);
 	struct ResonanceCombination {
@@ -26569,7 +26578,7 @@ struct PersonEventFilt : public PPBaseFilt {
 		fWithoutPair = 0x0001
 	};
 	char   ReserveStart[28];  // @anchor
-	long   Flags;             // 
+	long   Flags;             //
 	DateRange Period;         // Период обзора
 	TimeRange TmPeriod;       // Период по времени
 	int16  DayOfWeek;         // День недели
@@ -27874,7 +27883,7 @@ enum GoodsGroupTag {
 #define GF_TEMPALTGROUP      (GF_ALTGROUP|GF_TEMPALTGRP_) // Временная альтернативная группа
 #define GF_DB_FLAGS_GROUP    (GF_ALTGROUP|GF_FOLDER|GF_EXCLALTFOLD)
 #define GF_DB_FLAGS_GOODS    (GF_GENERIC|GF_TAXFACTOR|GF_PRICEWOTAXES|GF_EXTPROP|GF_PASSIV|GF_NODISCOUNT|\
-	GF_WROFFBYPRICE|GF_VOLUMEVAL|GF_USEINDEPWT|GF_HASIMAGES)
+	GF_WROFFBYPRICE|GF_VOLUMEVAL|GF_USEINDEPWT|GF_HASIMAGES|GF_WANTVETISCERT) // @v10.8.5 @fix GF_WANTVETISCERT
 #define GF_DB_FLAGS_PCKGTYPE (GF_UNIQPCKGCODE|GF_DFLTPCKGTYPE|GF_PCKG_AROWS|GF_PCKG_ANEWROW)
 #define GF_DYNAMICALTGRP     (GF_ALTGROUP|GF_DYNAMIC) // Динамическая альтернативная группа
 #define GF_DYNAMICTEMPALTGRP (GF_ALTGROUP|GF_DYNAMIC|GF_TEMPALTGRP_)
@@ -29902,12 +29911,12 @@ private:
 // @ModuleDecl(PPViewGoods)
 //
 struct GoodsViewItem : public Goods2Tbl::Rec {
-	char   Barcode[24];    // 
+	char   Barcode[24];    //
 	long   Brutto;         //
 	PPDimention PckgDim;   //
 	PPDimention RtlDim;    // Габаритные размеры торговой единицы, мм
 	int16  ExpiryPeriod;   // Срок годности товара (дней).
-	int16  GseFlags;       // 
+	int16  GseFlags;       //
 	double MinStock;
 	double Package;
 	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
@@ -30988,7 +30997,7 @@ struct PPBhtTerminal2 {    // @persistent @store(Reference2Tbl+)
 	PPID   ExpendOpID;     // Expend Operation Kind ID (PPOPT_GOODSEXPEND || PPOPT_DRAFTEXPEND)
 };
 
-struct SBIIOpInfo { // @persistent @size=24 @flat
+struct SBIIOpInfo { // @persistent @size=24 @flat @{stylobhtiiopcfg}
 	long   OpID;
 	long   ToBhtOpID;
 	long   ToHostOpID;
@@ -31516,6 +31525,10 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 //
 //
 struct RentChrgFilt {
+	SLAPI  RentChrgFilt() : CntrgntID(0)
+	{
+		Period.Z();
+	}
 	DateRange Period;
 	PPID   CntrgntID;
 };
@@ -35304,7 +35317,7 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 #define TSESF_PLAN_PHUNIT  0x0010L // Производственный план в физических единицах
 	// Если этот флаг установлен, то новая строка по умолчанию получает признак TSESLF_PLAN_PHUNIT.
 	// Пользоватлеь может переопределить этот признак для строки.
-#define TSESF_SUBSESS      0x0020L // 
+#define TSESF_SUBSESS      0x0020L //
 #define TSESF_HASIMAGES    0x0040L // Сессия имеет по крайней мере одно прикрепленное изображение
 #define TSESF_CIPREGLOCKED 0x0080L // Резервирование персональных регистраций блокировано
 //
@@ -39111,7 +39124,7 @@ struct GoodsRestViewItem { // @transient
 	PPID   LotID;          //
 	char   GoodsName[128]; //
 	char   GoodsGrpName[128]; //
-	char   UnitName[48];   // Наименование единицы измерения // 
+	char   UnitName[48];   // Наименование единицы измерения //
 	char   Serial[24];     //
 	int16  IsPredictTrust; // Прогноз продаж удовлетворяет требованиям надежности
 	int16  Reserve;        // @alignment
@@ -42787,7 +42800,7 @@ struct SCardSelPrcssrParam { // @persistent
 	//    Если в поле Ver стоит номер версии, меньший, чем 7.6.12, то считавыем это поле как Flags и пропускаем AutoGoodsID.
 	//    Здесь приходится закладываться на то, что Flags мог иметь значение либо 0 либо 1.
 	//
-	SVerT  Ver;         // 
+	SVerT  Ver;         //
 	int32  Flags;
 	LDATE  DtEnd;
 	int32  NewSerID;
@@ -43003,7 +43016,7 @@ private:
 //
 typedef ArticleTbl::Rec ArticleViewItem;
 
-#define DEBTDIM_BRW_SHOWCOUNT 15 
+#define DEBTDIM_BRW_SHOWCOUNT 15
 
 class PPViewArticle : public PPView {
 public:
@@ -47634,7 +47647,7 @@ public:
 	int    FASTCALL Log(const char * pMsg);
 	int    SLAPI ReverseFormula(const char * pFormula, SString & rResult);
 
-	DL2_ObjList Oc; // 
+	DL2_ObjList Oc; //
 protected:
 	DL2_CI * SLAPI Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pCi);
 
@@ -47996,9 +48009,6 @@ private:
 //
 //
 //
-struct GravityValue;
-struct GravityErrorDescription;
-
 class PPGravityModule {
 public:
 	SLAPI  PPGravityModule();
@@ -48833,7 +48843,6 @@ public:
 	int    SLAPI BuildHashAssoc();
 	int    SLAPI LoadGeoGrid();
 	const  SGeoGridTab & SLAPI GetGrid() const { return Grid; }
-	//
 	int    SLAPI OpenDatabase(const char * pDbPath);
 	SrDatabase * SLAPI GetDb();
 	static int FASTCALL SetNodeClusterStat(NodeCluster & rCluster, TSVector <NodeClusterStatEntry> & rStat);
@@ -48842,7 +48851,6 @@ public:
 	static int FASTCALL SetProcessedWayStat(uint refCount, uint qtty, TSVector <WayStatEntry> & rStat);
 private:
 	SrDatabase * P_SrDb;
-	//
 	long   Status;
 	uint   LastSymbID;
 	SymbHashTable Ht;
@@ -49322,7 +49330,7 @@ struct ListToListAryData : public ListToListUIData {
 
 class Lst2LstAryDialog : public Lst2LstDialogUI {
 public:
-	Lst2LstAryDialog(uint rezID, ListToListUIData *, SArray * left, SArray * right);
+	Lst2LstAryDialog(uint rezID, ListToListUIData * pData, SArray * pLeft, SArray * pRight);
 	int    getDTS(SArray * /*LstItem array*/);
 protected:
 	int    setupLeftList();
@@ -53298,7 +53306,7 @@ int    SLAPI ExecCSPanel(const CashNodePaneFilt *);
 int    SLAPI SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo);
 int    SLAPI AsyncCashnPrepDialog(AsyncPosPrepParam * pParam);
 int    FASTCALL ListToListDialog(ListToListData *);
-int    FASTCALL ListToListAryDialog(ListToListAryData *);
+// @v10.8.5 (unused) int    FASTCALL ListToListAryDialog(ListToListAryData *);
 int    SLAPI UISettingsDialog();
 int    SLAPI GoodsFilterDialog(GoodsFilt *);
 int    SLAPI GoodsFilterAdvDialog(GoodsFilt *, int disableLocSel);

@@ -244,9 +244,9 @@ class ImportCls;
 
 int ErrorCode = 0;
 int WebServcErrorCode = 0;
-SString StrError = "";
-SString LogName = "";
-SString SysLogName = "";
+SString StrError("");
+SString LogName("");
+SString SysLogName("");
 static ExportCls * P_ExportCls = 0;
 static ImportCls * P_ImportCls = 0;
 
@@ -389,7 +389,7 @@ void SysLogMessage(const char * pMsg)
 
 void GetErrorMsg(SString & rMsg)
 {
-	SString str = "";
+	SString str("");
 	for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(ErrMsg[i].Id == ErrorCode) {
 			str.Cat(ErrMsg[i].P_Msg);

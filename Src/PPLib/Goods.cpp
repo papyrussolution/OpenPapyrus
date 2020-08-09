@@ -1756,7 +1756,7 @@ int SLAPI GoodsCore::SearchBarcodeSubstr(const char * substr, BarcodeArray * cod
 int SLAPI GoodsCore::SearchBarcodeSubstrExt(const char * pText, BarcodeArray * pCodes)
 {
 	int    ok = -1;
-	SString text_buf = pText;
+	SString text_buf(pText);
 	text_buf.Strip();
 	if(text_buf[0] == '*') {
 		text_buf.ShiftLeft(1).Strip();

@@ -797,7 +797,7 @@ int SLAPI DL200_Context::IsFunc(const char * pSymb, int * pFuncId)
 	DL2_Score sc;
 	int    ok = sc.GetFromStr(pSymb, 0);
 	if(ok > 0) {
-		SString symb = pSymb;
+		SString symb(pSymb);
 		symb.Strip();
 		uint   pos = 0;
 		if(FuncList.SearchByText(symb, 1, &pos)) {
@@ -884,7 +884,7 @@ double SLAPI DL2_Resolver::Resolve(const char * pExpression)
 int SLAPI DL2_Resolver::ReverseFormula(const char * pFormula, SString & rResult)
 {
 	int    ok = 1;
-	SString inp_buf = pFormula;
+	SString inp_buf(pFormula);
 	DL2_Score sc;
 	sc.Init(this);
 	sc.GetFromStr(inp_buf.Strip(), 0);

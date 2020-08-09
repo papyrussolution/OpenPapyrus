@@ -506,7 +506,7 @@ static TSessStatusSymb TSessStatusSymbList[] = {
 int  FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
 {
 	int    status = 0;
-	SString temp_buf = pSymbol;
+	SString temp_buf(pSymbol);
 	if(temp_buf.NotEmptyS()) {
 		temp_buf.ToLower();
 		for(uint i = 0; !status && i < SIZEOFARRAY(TSessStatusSymbList); i++) {
@@ -4359,7 +4359,7 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 			PPID   sess_id = P_BhtCurSess->GetLastUsedSessID();
 			if(sess_id && pRec->Barcode[0]) {
 				int    r = -1, err_code = PPERR_BARCODEORSERNFOUND;
-				SString code = pRec->Barcode;
+				const SString code(pRec->Barcode);
 				TSessLineTbl::Rec line_rec;
 				if(P_Tbl->SearchLineByTime(sess_id, pRec->Dtm, &line_rec) > 0) {
 					;

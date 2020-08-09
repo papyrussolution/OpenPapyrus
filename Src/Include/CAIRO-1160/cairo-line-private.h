@@ -27,25 +27,14 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
  */
-
 #ifndef CAIRO_LINE_PRIVATE_H
 #define CAIRO_LINE_PRIVATE_H
 
-//#include "cairo-types-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-compiler-private.h"
-
 CAIRO_BEGIN_DECLS
-
-cairo_private int
-cairo_lines_compare_at_y(const cairo_line_t *a,
-			 const cairo_line_t *b,
-			 int y);
-
+	cairo_private int cairo_lines_compare_at_y(const cairo_line_t *a, const cairo_line_t *b, int y);
 CAIRO_END_DECLS
 
 #endif /* CAIRO_LINE_PRIVATE_H */

@@ -2816,8 +2816,7 @@ int SLAPI PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw
 		ok = PPErrorZ();
 	ENDCATCH
 	if(*ppDlgPtr == 0) {
-		delete dlg;
-		dlg = 0;
+		ZDELETE(dlg);
 	}
 	return ok;
 }
@@ -2879,7 +2878,8 @@ struct GoodsRecoverParam {
 	}
 	enum {
 		fCorrect          = 0x0001, // Исправлять ошибки
-		fCheckAlcoAttribs = 0x0002  // @v9.3.5 Проверять алкогольные атрибут
+		fCheckAlcoAttribs = 0x0002, // Проверять алкогольные атрибуты
+		fBarcode          = 0x0004  // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру 
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	long   Flags;
@@ -2892,8 +2892,9 @@ static int SLAPI EditGoodsRecoverParam(GoodsRecoverParam * pData)
 	if(CheckDialogPtrErr(&dlg)) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_RCVRGOODS_LOG, CTL_RCVRGOODS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		dlg->setCtrlString(CTL_RCVRGOODS_LOG, pData->LogFileName);
-		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 0, GoodsRecoverParam::fCheckAlcoAttribs);
-		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 1, GoodsRecoverParam::fCorrect);
+		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 0, GoodsRecoverParam::fCorrect);
+		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 1, GoodsRecoverParam::fCheckAlcoAttribs);
+		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 2, GoodsRecoverParam::fBarcode);
 		dlg->SetClusterData(CTL_RCVRGOODS_FLAGS, pData->Flags);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_RCVRGOODS_LOG, pData->LogFileName);
@@ -3012,26 +3013,38 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 						pack.Rec.Flags &= ~GF_VOLUMEVAL;
 						to_turn_packet = 1;
 					}
-					// @v9.5.5 {
-					{
+					if(param.Flags & GoodsRecoverParam::fBarcode) {
 						for(uint i = 0; i < pack.Codes.getCount(); i++) {
 							temp_buf = pack.Codes.at(i).Code;
 							if(temp_buf.NotEmptyS()) {
-								if(!oneof2(temp_buf.Len(), 3, 19)) {
+								if(!oneof2(temp_buf.Len(), 3, 19) && !GObj.GetConfig().IsWghtPrefix(temp_buf)) {
 									int    diag = 0, std = 0;
 									int    r = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &valid_code);
-									if(r == 0) {
+									if(r <= 0) { // @v10.8.5 (r == 0)-->(r <= 0)
 										PPObjGoods::GetBarcodeDiagText(diag, fmt_buf);
 										PPBarcode::GetStdName(std, temp_buf);
 										(msg_buf = pack.Rec.Name).CatDiv(':', 2).Cat(temp_buf).
-											Cat(pack.Codes.at(i).Code)./*CatChar('/').Cat(valid_code).*/CatDiv('-', 1).Cat(fmt_buf);
+											Cat(pack.Codes.at(i).Code).Space().Cat("->").Space().Cat(valid_code).CatDiv('-', 1).Cat(fmt_buf);
 										logger.Log(msg_buf);
+										// @v10.8.5 {
+										if(param.Flags & GoodsRecoverParam::fCorrect) {
+											if(diag == PPObjGoods::cddInvCheckDigEan13) {
+												STRNSCPY(pack.Codes.at(i).Code, valid_code);
+												to_turn_packet = 1;
+											}
+											else if(GObj.GetConfig().Flags & GCF_BCCHKDIG) {
+												if(diag == PPObjGoods::cdd_Ean13WoCheckDig) {
+													STRNSCPY(pack.Codes.at(i).Code, valid_code);
+													to_turn_packet = 1;
+												}
+											}
+										}
+										// } @v10.8.5 
 									}
 								}
 							}
 						}
 					}
-					// } @v9.5.5
 					if(p_eg_prc) {
 						const int agr = p_eg_prc->IsAlcGoods(pack.Rec.ID);
 						// 402
@@ -3893,7 +3906,6 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				{
 					PPObjGoods::ExtUniteBlock eub;
 					eub.ResultID = id;
-					// @v9.8.6 {
 					if(Filt.Flags & GoodsFilt::fGenGoods && Filt.GrpID) {
 						Goods2Tbl::Rec gen_rec;
 						if(GObj.Fetch(Filt.GrpID, &gen_rec) > 0 && gen_rec.Flags & GF_GENERIC && gen_rec.Kind == PPGDSK_GOODS) {
@@ -3905,7 +3917,6 @@ int SLAPI PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 							}
 						}
 					}
-					// } @v9.8.6
 					ok = GObj.ReplaceGoods(eub);
 					if(ok > 0)
 						UpdateTempTable(0, pBrw);

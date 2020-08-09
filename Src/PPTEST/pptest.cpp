@@ -294,7 +294,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			// В результате мы должны получить файл, содержащий ровно столько же строк, что и входящий файл.
 			//
 			{
-				SString fn = pInputFileName;
+				SString fn(pInputFileName);
 				//replaceExt(fn, "OUT", 1);
 				SPathStruc::ReplaceExt(fn, "out", 1);
 				SFile out_file(fn, SFile::mWrite);

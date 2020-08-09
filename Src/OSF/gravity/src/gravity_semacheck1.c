@@ -7,13 +7,6 @@
 #include <gravity_.h>
 #pragma hdrstop
 
-#define REPORT_ERROR(node, ...)          { report_error(self, reinterpret_cast<const gnode_t *>(node), __VA_ARGS__); return; }
-
-#define DECLARE_SYMTABLE()              symboltable_t * symtable = (symboltable_t *)self->data
-#define SAVE_SYMTABLE()                 symboltable_t * saved = symtable
-#define CREATE_SYMTABLE(tag)            INC_IDENT; SAVE_SYMTABLE(); self->data = (void*)symboltable_create(tag);
-#define RESTORE_SYMTABLE()              DEC_IDENT; node->symtable = ((symboltable_t*)self->data); self->data = (void*)saved
-
 #if GRAVITY_SYMTABLE_DEBUG
 	static int ident = 0;
 	#define INC_IDENT        ++ident
@@ -22,6 +15,11 @@
 	#define INC_IDENT
 	#define DEC_IDENT
 #endif
+#define REPORT_ERROR(node, ...)         { report_error(self, reinterpret_cast<const gnode_t *>(node), __VA_ARGS__); return; }
+#define DECLARE_SYMTABLE()              symboltable_t * symtable = static_cast<symboltable_t *>(self->data)
+//#define SAVE_SYMTABLE()                 symboltable_t * saved = symtable
+#define CREATE_SYMTABLE(tag)            INC_IDENT; symboltable_t * saved = symtable; self->data = symboltable_create(tag);
+#define RESTORE_SYMTABLE()              DEC_IDENT; node->symtable = static_cast<symboltable_t *>(self->data); self->data = saved
 
 // MARK: -
 

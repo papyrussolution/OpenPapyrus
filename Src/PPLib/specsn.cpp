@@ -1,5 +1,5 @@
 // SPECSN.CPP
-// Copyright (c) A.Starodub 2004, 2005, 2006, 2007, 2008, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2004, 2005, 2006, 2007, 2008, 2012, 2013, 2015, 2016, 2017, 2020
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -22,7 +22,7 @@ int SLAPI SpecSeriesCore::GetExField(const SpecSeries2Tbl::Rec * pRec, int fldId
 	int    ok = -1;
 	rBuf.Z();
 	if(IsValidSpcSeriesExStrID(fldId)) {
-		SString temp_buf = pRec->Tail;
+		SString temp_buf(pRec->Tail);
 		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
 	}
 	return ok;
@@ -33,7 +33,7 @@ int SLAPI SpecSeriesCore::SetExField(SpecSeries2Tbl::Rec * pRec, int fldId, cons
 {
 	int    ok = -1;
 	if(IsValidSpcSeriesExStrID(fldId)) {
-		SString temp_buf = pRec->Tail;
+		SString temp_buf(pRec->Tail);
 		ok = PPPutExtStrData(fldId, temp_buf, pBuf);
 		temp_buf.CopyTo(pRec->Tail, sizeof(pRec->Tail));
 	}

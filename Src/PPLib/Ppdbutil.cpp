@@ -192,7 +192,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 	int    msg_code = 0;
 	long   log_options = LOGMSGF_TIME;
 	SString inv_addinfo, err_msg_buf;
-	const  char * p_addinfo = isempty(pInfo) ? PPLoadTextS(PPTXT_BACKUPLOG_INVADVOPT, inv_addinfo) : pInfo;
+	const  char * p_addinfo = isempty(pInfo) ? PPLoadTextS(PPTXT_BACKUPLOG_INVADVOPT, inv_addinfo).cptr() : pInfo;
 	switch(event) {
 		case BACKUPLOG_BEGIN:            msg_code = PPTXT_BACKUPLOG_BEGIN;            break;
 		case BACKUPLOG_END:              msg_code = PPTXT_BACKUPLOG_END;              break;
@@ -478,7 +478,22 @@ public:
 		delete P_ScenList;
 	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(TVCOMMAND) {
+			switch(TVCMD) {
+				case cmLBDblClk:
+				case cmaEdit: updateEntry(); break;
+				case cmaInsert: addEntry(); break;
+				case cmaDelete: deleteEntry(); break;
+				default: return;
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	int    editEntry(int isNewEntry, PPBackupScen *);
 	int    updateList();
 	int    addEntry();
@@ -642,21 +657,6 @@ int ConfigBackupDialog::deleteEntry()
 		}
 	}
 	return ok;
-}
-
-IMPL_HANDLE_EVENT(ConfigBackupDialog)
-{
-	TDialog::handleEvent(event);
-	if(TVCOMMAND) {
-		if(TVCMD == cmaInsert)
-			addEntry();
-		else if(TVCMD == cmaEdit)
-			updateEntry();
-		else if(TVCMD == cmaDelete)
-			deleteEntry();
-		else
-			return;
-	}
 }
 
 int ConfigBackup()

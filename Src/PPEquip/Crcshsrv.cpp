@@ -2848,7 +2848,7 @@ int SLAPI ACS_CRCSHSRV::SearchCardCode(SCardCore * pSc, const char * pCode, SCar
 	if(pSc->SearchCode(0, pCode, pRec) > 0)
 		return 1;
 	else {
-		SString code = pCode;
+		SString code(pCode);
 		if(code.Len() == 13 && CheckCnFlag(CASHF_EXPCHECKD)) {
 			code.TrimRight();
 			if(pSc->SearchCode(0, code, pRec) > 0)
@@ -2860,7 +2860,8 @@ int SLAPI ACS_CRCSHSRV::SearchCardCode(SCardCore * pSc, const char * pCode, SCar
 
 static void FASTCALL ReplaceFilePath(SString & destFileName, const SString & srcFileName)
 {
-	SString   file_path, slash = "\\/";
+	SString file_path;
+	SString slash("\\/");
 	(file_path = srcFileName).TrimToDiv(srcFileName.Len() - 1, slash);
 	SPathStruc::ReplacePath(destFileName, file_path, 1);
 }
@@ -2976,7 +2977,7 @@ static int SLAPI GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME 
 	size_t pos = 0;
 	LDATE  dt;
 	LTIME  tm;
-	SString  dttm_buf = pDttmBuf;
+	SString  dttm_buf(pDttmBuf);
 	strtodate(dttm_buf.Strip(), DATF_DMY, &dt);
 	//
 	// Для времени 00:00:00 кассовый сервер возвращает пустую строку,
@@ -4417,7 +4418,7 @@ void SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 	const long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
 	SString backup_dir, dest_path;
-	SString prefix = pPrefix;
+	SString prefix(pPrefix);
 	prefix.Strip().Trim(4);
 	SPathStruc sp(pPath);
 	SString ext = sp.Ext;

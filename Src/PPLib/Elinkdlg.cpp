@@ -385,7 +385,7 @@ int SLAPI EditELinks(const char * pInfo, PPELinkArray * pList)
 	int    r = -1;
 	ELinkDialog * dlg = new ELinkDialog(pList);
 	if(CheckDialogPtrErr(&dlg)) {
-		SString temp_buf = pInfo;
+		SString temp_buf(pInfo);
 		dlg->setCtrlString(CTL_ELNKSET_INFO, temp_buf);
 		while(r < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pList))

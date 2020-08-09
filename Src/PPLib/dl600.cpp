@@ -518,12 +518,13 @@ int CtmExpr::Pack(SBuffer * pBuf, size_t * pOffs) const
 	pBuf->Write(&TypID, sizeof(TypID));
 	pBuf->Write(&ToTypStdCvt, sizeof(ToTypStdCvt));
 	if(oneof2(Kind, kFuncName, kVarName)) {
-		SString temp_buf = U.S;
+		SString temp_buf(U.S);
 		pBuf->Write(temp_buf);
 	}
 	else
 		pBuf->Write(&U, sizeof(U));
-	size_t next_offs = 0, arg_offs = 0;
+	size_t next_offs = 0;
+	size_t arg_offs = 0;
 	if(P_Next) {
 		THROW(P_Next->Pack(pBuf, &next_offs)); // @recursion
 	}
@@ -2797,7 +2798,7 @@ int SLAPI DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 		int    ok = 1;
 		uint   i;
 		SString temp_buf;
-		SString tbl_name = pTbl->GetTableName();
+		SString tbl_name(pTbl->GetTableName());
 		DLSYMBID scope_id = CreateSymb(tbl_name, '$', DlContext::crsymfErrorOnDup);
 		DlScope * p_scope = new DlScope(scope_id, DlScope::kDbTable, tbl_name, 0);
 		SdbField fld;
@@ -3142,7 +3143,7 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 		if(msg_list[i].Id == errCode)
 			p_msg = msg_list[i].P_Msg;
 	SString msg_buf, temp_buf;
-	SString added_info = NZOR(pAddedInfo, AddedMsgString);
+	SString added_info(NZOR(pAddedInfo, AddedMsgString.cptr()));
 	if(added_info.Empty())
 		added_info.Space() = 0;
 	if(p_msg == 0)

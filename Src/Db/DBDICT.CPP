@@ -206,7 +206,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new
 			}
 		}
 	}
-	SString b = NZOR(pFileName, pTbl->fileName);
+	SString b(NZOR(pFileName, pTbl->fileName.cptr()));
 	MakeFileName_(pTbl->tableName, b);
 	if(!Btrieve::CreateTable(b, *p_h, RESET_CRM_TEMP(createMode), pAltCode))
 		ok = 0;

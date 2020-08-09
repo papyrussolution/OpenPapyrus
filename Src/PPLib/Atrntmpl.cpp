@@ -1090,7 +1090,7 @@ void ATurnTmplDialog::symbToFormula(const char * pSymb)
 {
 	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_ATRNTMPL_AMOUNT));
 	if(p_il) {
-		SString symb = pSymb;
+		SString symb(pSymb);
 		SString input;
 		p_il->getText(input);
 		size_t pos = p_il->getCaret();

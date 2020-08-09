@@ -3542,6 +3542,7 @@
 	#define CTL_LST2LST_ALLFW            (4 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_BW               (5 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_ALLBW            (6 + WINDOWS_ID_BIAS) // Button
+	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // @v10.8.5 Количество элементов в правом списке
 #define DLG_GDSLST                262 // Список товаров для добавления в группу
 	#define cmAutoFill                101
 	#define CTL_GDSLST_GGRP              (1 + WINDOWS_ID_BIAS)

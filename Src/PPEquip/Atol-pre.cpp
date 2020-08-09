@@ -1119,7 +1119,8 @@ int SLAPI ACS_ATOL::ImportSession(int)
 			THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 			if(ok > 0) {
 				int     y, m, d;
-				SString buf, tmp_buf, tmp_name, date_mask = "%02d.%02d.%04d";
+				SString buf, tmp_buf, tmp_name;
+				SString date_mask("%02d.%02d.%04d");
 				SFile::Remove(path_rpt);
 				tmp_name = path_flag;
 				SPathStruc::ReplaceExt(tmp_name, "tmp", 1);

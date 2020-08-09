@@ -551,8 +551,8 @@ int SLAPI SIniFile::SearchParam(const char * pSect, const char * pParam, SString
 		ok = (P_IniBuf->GetParam(pSect, pParam, rVal) > 0) ? 1 : -1;
 	else {
 		int    this_sect = 0;
-		SString sect = pSect;
-		SString key = pParam;
+		SString sect(pSect);
+		SString key(pParam);
 		SString line_buf, temp_buf, val;
 		const int opnr = Open(FileName);
 		THROW(opnr);
@@ -681,8 +681,8 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 			ok = P_IniBuf->RemoveParam(pSect, pParam);
 	}
 	else {
-		SString sect  = pSect;
-		SString param = pParam;
+		SString sect(pSect);
+		SString param(pParam);
 		SString line_buf, temp_buf, temp_key, temp_val;
 		SFile  out_file;
 		SPathStruc ps;
@@ -754,7 +754,7 @@ int SLAPI SIniFile::SetParam(const char * pSect, const char * pParam, const char
 
 int SLAPI SIniFile::AppendParam(const char * pSect, const char * pParam, const char * pVal, int overwrite)
 {
-	SString val = pVal;
+	SString val(pVal);
 	if(val.cptr() == 0)
 		val.Space().Z();
 	return SetParam(pSect, pParam, val, BIN(overwrite));
@@ -762,7 +762,7 @@ int SLAPI SIniFile::AppendParam(const char * pSect, const char * pParam, const c
 
 int SLAPI SIniFile::RemoveParam(const char * pSect, const char * pParam)
 {
-	SString param = pParam;
+	SString param(pParam);
 	if(param.cptr() == 0)
 		param.Space().Z();
 	return SetParam(pSect, pParam, 0, 1);

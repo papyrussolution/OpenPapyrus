@@ -165,7 +165,7 @@ static void patch_token_node(gnode_t * node, gtoken_s token)
 		gnode_postfix_expr_t * expr = reinterpret_cast<gnode_postfix_expr_t *>(node);
 		if(expr->id) 
 			expr->id->Token = token;
-		size_t count = gnode_array_size(expr->list);
+		const size_t count = gnode_array_size(expr->list);
 		for(size_t i = 0; i < count; ++i) {
 			gnode_t * subnode = gnode_array_get(expr->list, i);
 			if(subnode) 
@@ -266,15 +266,16 @@ static bool FASTCALL parse_required(gravity_parser_t * parser, gtoken_t token)
 
 static bool FASTCALL parse_semicolon(gravity_parser_t * parser) 
 {
-    #if SEMICOLON_IS_OPTIONAL
+#if SEMICOLON_IS_OPTIONAL
 	gravity_lexer_t * lexer = parser->GetCurrentLexerAndDebug();
 	if(gravity_lexer_peek(lexer) == TOK_OP_SEMICOLON) {
-		gravity_lexer_next(lexer); return true;
+		gravity_lexer_next(lexer); 
+		return true;
 	}
 	return false;
-    #else
+#else
 	return parse_required(parser, TOK_OP_SEMICOLON);
-    #endif
+#endif
 }
 
 gnode_t * parse_function(gravity_parser_t * parser, bool is_declaration, gtoken_t access_specifier, gtoken_t storage_specifier) 
@@ -294,7 +295,6 @@ gnode_t * parse_function(gravity_parser_t * parser, bool is_declaration, gtoken_
 			return NULL;
 		}
 	}
-
 	// parse IDENTIFIER
 	const char * identifier = NULL;
 	if(is_declaration) {
@@ -302,31 +302,21 @@ gnode_t * parse_function(gravity_parser_t * parser, bool is_declaration, gtoken_
 		identifier = (token_isoperator(peek)) ? sstrdup(token_name(gravity_lexer_next(lexer))) : parse_identifier(parser);
 		DEBUG_PARSER("parse_function_declaration %s", identifier);
 	}
-
 	// create func declaration node
-	gnode_function_decl_t * func = (gnode_function_decl_t*)gnode_function_decl_create(token,
-		identifier,
-		access_specifier,
-		storage_specifier,
-		NULL,
-		NULL,
-		LAST_DECLARATION());
-
+	gnode_function_decl_t * func = (gnode_function_decl_t*)gnode_function_decl_create(token, identifier, access_specifier, storage_specifier, NULL, NULL, LAST_DECLARATION());
 	// check and consume TOK_OP_OPEN_PARENTHESIS
-	if(!is_implicit) parse_required(parser, TOK_OP_OPEN_PARENTHESIS);
-
+	if(!is_implicit) 
+		parse_required(parser, TOK_OP_OPEN_PARENTHESIS);
 	// parse optional parameter declaration clause
 	bool has_default_values = false;
 	GravityArray <gnode_t *> * params = parse_optional_parameter_declaration(parser, is_implicit, &has_default_values);
-
 	// check and consume TOK_OP_CLOSED_PARENTHESIS
-	if(!is_implicit) parse_required(parser, TOK_OP_CLOSED_PARENTHESIS);
-
+	if(!is_implicit) 
+		parse_required(parser, TOK_OP_CLOSED_PARENTHESIS);
 	// parse compound statement
 	PUSH_DECLARATION(func);
-	gnode_compound_stmt_t * compound = (gnode_compound_stmt_t*)parse_compound_statement(parser);
+	gnode_compound_stmt_t * compound = static_cast<gnode_compound_stmt_t *>(parse_compound_statement(parser));
 	POP_DECLARATION();
-
 	// if func is declarared inside a variable declaration node then the semicolon check must be
 	// performed once at variable declaration node level ad not inside the func node
 	bool is_inside_var_declaration = ((parser->vdecl.getCount() > 0) && (parser->vdecl.getLast() == 1));

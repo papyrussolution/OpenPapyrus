@@ -302,7 +302,7 @@ SLTEST_R(TestMd5)
 	STab tab_obj;
 	STab::Row row_obj;
 	STabFile file_obj;
-	SString in_file_name = MakeInputFilePath("hash.tab");
+	SString in_file_name(MakeInputFilePath("hash.tab"));
 	SString in_buf, out_buf;
 	STempBuffer input(2048);
 	STempBuffer output(2048);

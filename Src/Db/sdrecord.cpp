@@ -569,7 +569,7 @@ int SdRecord::ScanName(SStrScan & rScan, uint * pPos, uint excludePos) const
 {
 	F * p_item;
 	SString temp_buf;
-	SString scan_buf = rScan;
+	SString scan_buf(rScan);
 	rScan.Len = 0;
 	for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
 		if((i-1) != excludePos) {
@@ -635,7 +635,7 @@ int SdRecord::SetupOffsets()
 int SdRecord::SetText(uint * pPos, const char * pText)
 {
 	int    ok = -1;
-	SString temp_buf = pText;
+	SString temp_buf(pText);
 	if(temp_buf.NotEmptyS()) {
 		StringPool.add(temp_buf, pPos);
 		ok = 1;

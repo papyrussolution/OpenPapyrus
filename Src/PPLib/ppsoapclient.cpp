@@ -365,7 +365,7 @@ UhttGoodsPacket & FASTCALL UhttGoodsPacket::Copy(const UhttGoodsPacket & rS)
 
 void FASTCALL UhttGoodsPacket::SetName(const char * pName)
 {
-	SString temp_buf = pName;
+	SString temp_buf(pName);
 	temp_buf.Strip();
 	temp_buf.ReplaceChar('\x07', ' ');
 	temp_buf.ReplaceStrR("  ", " ", 0);
@@ -375,7 +375,7 @@ void FASTCALL UhttGoodsPacket::SetName(const char * pName)
 void FASTCALL UhttGoodsPacket::SetExt(int extFldId, const char * pText)
 {
 	if(oneof5(extFldId, GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E)) {
-		SString temp_buf = pText;
+		SString temp_buf(pText);
 		if(temp_buf.NotEmptyS()) {
 			temp_buf.ReplaceChar('\x07', ' ');
 			temp_buf.ReplaceStrR("  ", " ", 0);

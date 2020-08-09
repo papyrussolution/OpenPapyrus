@@ -1073,7 +1073,7 @@ int SLAPI PPObjLocation::ResolveGLN(PPID locTyp, const char * pGLN, PPIDArray & 
 {
 	rList.clear();
 	int    ok = -1;
-	SString code = pGLN;
+	SString code(pGLN);
 	assert(pGLN);
 	THROW_INVARG(pGLN);
 	if(code.NotEmptyS()) {
@@ -1208,7 +1208,7 @@ int SLAPI PPObjLocation::SearchName(PPID locTyp, PPID parentID, const char * pNa
 {
 	int    ok = -1;
 	PPID   id = 0;
-	SString name_buf = pName;
+	SString name_buf(pName);
 	if(name_buf.NotEmptyS()) {
 		LocationTbl::Key2 k2;
 		MEMSZERO(k2);
@@ -4684,7 +4684,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 	Z();
 	if(pText) {
 		PPIDArray fao_list;
-		SString text = pText;
+		SString text(pText);
 		SString temp_buf, temp_buf2, temp_buf3;
 		text.Strip();
 		if(text.CmpPrefix(p_enforcefias_prefix, 1) == 0) {
@@ -6310,12 +6310,12 @@ int SLAPI PPFiasReference::SearchObjByText(const char * pText, long flags, PPID 
 	int    do_post_process = 0;
     SStringU pattern;
     SString temp_buf;
-    SString pattern_mb = pText;
+    SString pattern_mb(pText);
     if(!(flags & stfAnsiInput))
 		pattern_mb.Transf(CTRANSF_INNER_TO_OUTER);
     pattern_mb.ToLower1251();
     pattern.CopyFromUtf8((temp_buf = pattern_mb).ToUtf8());
-	TSVector <TextRefIdent> text_ref_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <TextRefIdent> text_ref_list;
 	int   sr = 0;
 	if(flags & stfPrefix)
 		sr = p_ref->TrT.SearchSelfRefTextByPrefix(pattern, &text_ref_list);

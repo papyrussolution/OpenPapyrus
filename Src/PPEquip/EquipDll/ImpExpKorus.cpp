@@ -227,9 +227,9 @@ class ImportCls;
 
 int    ErrorCode = 0;
 int    WebServcErrorCode = 0;
-SString StrError = "";
-SString LogName = "";
-SString SysLogName = "";
+SString StrError("");
+SString LogName("");
+SString SysLogName("");
 static ExportCls * P_ExportCls = 0;
 static ImportCls * P_ImportCls = 0;
 
@@ -375,7 +375,7 @@ void SysLogMessage(const char * pMsg)
 
 void GetErrorMsg(SString & rMsg)
 {
-	SString str = "";
+	SString str("");
 	for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(ErrMsg[i].Id == ErrorCode) {
 			str.Cat(ErrMsg[i].P_Msg);
@@ -1807,7 +1807,7 @@ EXPORT int GetImportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	THROWERR(P_ImportCls->ObjType == objBill, IEERR_ONLYBILLS);
 	{
 		int    message_type = 0;
-		SString message_type_symb = pMsgType_ ? pMsgType_ : P_ImportCls->Header.EdiDocType;
+		SString message_type_symb(pMsgType_ ? pMsgType_ : P_ImportCls->Header.EdiDocType);
 		//
 		// Смотрим тип сообщения
 		//
@@ -2150,7 +2150,7 @@ int ImportCls::ListMessageBox(uint messageType)
 			if(proxy.ListMBEx(&param, &resp) == SOAP_OK) {
 				if(atoi(resp.ListMBExResult->Res) == 0) {
 					if(strcmp(resp.ListMBExResult->Cnt, EMPTY_LISTMB_RESP) != 0) {
-						SString xml_input = resp.ListMBExResult->Cnt;
+						SString xml_input(resp.ListMBExResult->Cnt);
 						SString str, cname;
 						p_input = xmlParserInputBufferCreateMem(xml_input, xml_input.Len(), XML_CHAR_ENCODING_NONE);
 						THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);

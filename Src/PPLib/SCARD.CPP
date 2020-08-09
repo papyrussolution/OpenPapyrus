@@ -452,7 +452,7 @@ struct SCardCodeTemplate {
 	int    Parse(const char * pPattern)
 	{
 		int    ok = 1;
-		SString templ = pPattern;
+		SString templ(pPattern);
 		SString temp_buf;
 		uint    check_dig_start_pos = 0;
 		double low = 0.0, upp = 0.0;

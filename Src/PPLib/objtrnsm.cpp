@@ -1984,7 +1984,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 		CALLPTRMEMB(Ctx.P_Logger, LogString(PPTXT_LOG_OBJSYNC_TRANSMFILE, file_name)); // @v10.4.0 diag
 		ThisDbDivPack.Rec.Uuid = src_div_uuid;
 		{
-			SString ext = "tmp";
+			SString ext("tmp");
 			temp_file_name = file_name;
 			SPathStruc::ReplaceExt(temp_file_name, ext, 1);
 			for(long cnt = 0; fileExists(temp_file_name); cnt++) {
@@ -2650,7 +2650,6 @@ int ObjTranDialog::addItem(int dbDivList)
 		SString obj_title;
 		PPIDArray obj_type_list;
 		const PPIDArray & rary = Data.ObjList.Get();
-		// @v9.2.1 {
 		StrAssocArray src_list;
 		PPIDArray dest_list = rary;
 		PPGetObjTypeList(&obj_type_list, 0);
@@ -2664,29 +2663,6 @@ int ObjTranDialog::addItem(int dbDivList)
 		if(ListToListDialog(&ll_data) > 0) {
 			Data.ObjList.Set(&dest_list);
 		}
-		// } @v9.2.1
-		/* @v9.2.1
-		TaggedStringArray r_list, l_list;
-		ListToListAryData  lla_data(0, 0, 0);
-		PPGetObjTypeList(&obj_type_list, 0);
-		for(i = 0; i < obj_type_list.getCount(); i++) {
-			const PPID obj_type = obj_type_list.get(i);
-			l_list.Add(obj_type, GetObjectTitle(obj_type, obj_title));
-		}
-		l_list.SortByText();
-		for(i = 0; i < rary.getCount(); i++) {
-			const PPID obj_type = rary.get(i);
-			r_list.Add(rary.at(i), GetObjectTitle(obj_type, obj_title));
-		}
-		lla_data.TitleStrID = PPTXT_SELECTOBJECT;
-		lla_data.P_LList = (SArray*)&l_list;
-		lla_data.P_RList = (SArray*)&r_list;
-		THROW(ListToListAryDialog(&lla_data));
-		Data.ObjList.FreeAll();
-		r_list.SortByText();
-		for(i = 0; i < r_list.getCount(); i++)
-			THROW(Data.ObjList.Add(r_list.at(i).Id));
-		*/
 	}
 	THROW(updateList(dbDivList));
 	CATCHZOK

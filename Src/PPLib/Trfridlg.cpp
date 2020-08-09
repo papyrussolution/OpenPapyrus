@@ -152,7 +152,7 @@ int SLAPI ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText
 	PPListDialog * dlg = new PPListDialog(DLG_SPOILLIST, CTL_SPOILLIST_LIST);
 	if(CheckDialogPtrErr(&dlg)) {
 		StrAssocArray name_list;
-		dlg->setCtrlString(CTL_SPOILLIST_SERIAL, pSerial);
+		dlg->setCtrlString(CTL_SPOILLIST_SERIAL, SString(pSerial));
 		pTbl->GetListBySerial(SPCSERIK_SPOILAGE, pSerial, &name_list);
 		for(uint i = 0; i < name_list.getCount(); i++)
 			dlg->addStringToList(i+1, name_list.Get(i).Txt);
@@ -717,7 +717,7 @@ void TrfrItemDialog::editQCertData()
 void TrfrItemDialog::GenerateSerial()
 {
 	if(IsTaggedItem()) {
-		const SString templt = (GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
+		const SString templt((GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
 		SString serial;
 		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->LTagL/*SnL*/, templt, serial) > 0)
 			setCtrlString(CTL_LOT_SERIAL, serial);

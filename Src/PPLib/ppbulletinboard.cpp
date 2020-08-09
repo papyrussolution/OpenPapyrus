@@ -531,7 +531,7 @@ int SLAPI TimeSeriesCache::SetTimeSeries(STimeSeries & rTs)
 	int    ok = -1;
 	STimeSeries::AppendStat apst;
 	OpL.Lock();
-	SString temp_buf = rTs.GetSymb();
+	SString temp_buf(rTs.GetSymb());
 	if(temp_buf.NotEmpty()) {
 		TimeSeriesBlock * p_fblk = SearchBlockBySymb(temp_buf, 0);
 		if(!p_fblk) {
@@ -1395,7 +1395,7 @@ double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool se
 	double cost = 0.0;
 	double last_value = 0.0;
 	if(!isempty(rBlk.PPTS.Rec.CurrencySymb) && rBlk.GetLastValue(&last_value)) {
-		const SString org_symb = rBlk.T_.GetSymb();
+		const SString org_symb(rBlk.T_.GetSymb());
 		SString symb;
 		size_t dot_pos = 0;
 		if(org_symb.SearchChar('.', &dot_pos) && dot_pos > 0)

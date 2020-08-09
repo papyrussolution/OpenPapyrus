@@ -595,51 +595,6 @@
 				RelativePath="..\PPLib\Amtdlg.cpp">
 			</File>
 			<File
-				RelativePath="..\PPLib\Amtlist.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Universe-HTT|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\PPLib\Asstwrof.cpp">
 			</File>
 			<File
@@ -3944,10 +3899,10 @@
 				RelativePath="..\Rsrc\Bitmap\banking.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
+				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\barcodeprinter.bmp">
@@ -4574,10 +4529,10 @@
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\mark.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\membership.bmp">

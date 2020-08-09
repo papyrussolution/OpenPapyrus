@@ -103,7 +103,7 @@ int InetAddr::FromStr(const char * pStr)
 {
 	int    ok = 1;
 	if(pStr) {
-		SString buf = pStr;
+		SString buf(pStr);
 		SString addr_buf, port_buf;
 		buf.Divide(':', addr_buf, port_buf);
 		if(addr_buf.NotEmptyS())
@@ -371,7 +371,7 @@ int InetUrl::Parse(const char * pUrl)
 	// Divisors: :, :/, ://, :\, :\\, /, \, ?, #, @
 
 	int    ok = 1;
-	SString _url = pUrl;
+	SString _url(pUrl);
 	Z();
 	_url.Strip();
 	while(oneof2(_url.C(0), ' ', '\t'))

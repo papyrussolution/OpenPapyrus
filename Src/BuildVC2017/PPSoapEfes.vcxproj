@@ -270,6 +270,8 @@
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -312,6 +314,8 @@
       <SubSystem>Console</SubSystem>
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -359,6 +363,8 @@
       <ProgramDatabaseFile>..\..\ppy\bin\$(ProjectName).pdb</ProgramDatabaseFile>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -406,6 +412,8 @@
       <ProgramDatabaseFile>..\..\ppy\bin\$(ProjectName).pdb</ProgramDatabaseFile>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">
@@ -447,6 +455,8 @@
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">
@@ -489,6 +499,8 @@
       <SubSystem>Console</SubSystem>
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">
@@ -536,6 +548,8 @@
       <ProgramDatabaseFile>..\..\ppy\bin\$(ProjectName).pdb</ProgramDatabaseFile>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">
@@ -583,6 +597,8 @@
       <ProgramDatabaseFile>..\..\ppy\bin\$(ProjectName).pdb</ProgramDatabaseFile>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -624,6 +640,8 @@
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -666,6 +684,8 @@
       <SubSystem>Console</SubSystem>
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <SwapRunFromNET>true</SwapRunFromNET>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">
@@ -711,6 +731,8 @@
       <TargetMachine>MachineX86</TargetMachine>
       <SwapRunFromNET>true</SwapRunFromNET>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
@@ -756,6 +778,8 @@
       <ImportLibrary>$(OutDir)PPSoapEfes.lib</ImportLibrary>
       <SwapRunFromNET>true</SwapRunFromNET>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>
+      </LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

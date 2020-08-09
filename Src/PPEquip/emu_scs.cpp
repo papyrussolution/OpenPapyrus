@@ -331,7 +331,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			if(P_SlipFmt) {
 				int      r = 0;
 				SString  line_buf;
-				const SString  format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
+				const SString  format_name((flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck");
 				SlipLineParam sl_param;
 				THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 				if(r > 0) {
@@ -419,7 +419,8 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 		THROW_INVARG(pPack);
 		if(P_SlipFmt) {
 			int   r = 0;
-			SString  line_buf, format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
+			SString  line_buf;
+			const SString format_name(isempty(pFormatName) ? ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy") : pFormatName);
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
@@ -451,7 +452,8 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	SlipDocCommonParam  sdc_param;
 	if(PrinterPort.Len() && pSessInfo && P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf, format_name = "XReport";
+		SString  line_buf;
+		const SString format_name("XReport");
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
@@ -484,7 +486,8 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 		THROW_INVARG(pSessInfo);
 		if(P_SlipFmt) {
 			int   r = 0;
-			SString  line_buf, format_name = "ZReportCopy";
+			SString  line_buf;
+			const SString format_name("ZReportCopy");
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {

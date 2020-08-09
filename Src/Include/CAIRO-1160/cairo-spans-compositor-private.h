@@ -28,19 +28,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_SPANS_COMPOSITOR_PRIVATE_H
 #define CAIRO_SPANS_COMPOSITOR_PRIVATE_H
-
-//#include "cairo-compositor-private.h"
-//#include "cairo-types-private.h"
-//#include "cairo-spans-private.h"
 
 CAIRO_BEGIN_DECLS
 

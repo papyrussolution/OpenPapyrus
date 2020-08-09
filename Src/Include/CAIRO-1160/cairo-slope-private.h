@@ -28,18 +28,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef _CAIRO_SLOPE_PRIVATE_H
 #define _CAIRO_SLOPE_PRIVATE_H
-
-//#include "cairo-types-private.h"
-//#include "cairo-fixed-private.h"
 
 static inline void _cairo_slope_init(cairo_slope_t * slope, const cairo_point_t * a, const cairo_point_t * b)
 {

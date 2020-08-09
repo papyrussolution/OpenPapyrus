@@ -29,19 +29,13 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Mathias Hasselmann <mathias.hasselmann@gmx.de>
- *	Behdad Esfahbod <behdad@behdad.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Mathias Hasselmann <mathias.hasselmann@gmx.de> Behdad Esfahbod <behdad@behdad.org>
  */
-
 #ifndef CAIRO_MUTEX_IMPL_PRIVATE_H
 #define CAIRO_MUTEX_IMPL_PRIVATE_H
 
-//#include "cairo.h"
 #if HAVE_CONFIG_H
 	#include "config.h"
 #endif

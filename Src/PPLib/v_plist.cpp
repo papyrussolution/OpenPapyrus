@@ -2199,7 +2199,7 @@ static int FASTCALL WriteHelper(FILE * pOut, const char * pFieldName, char * pFi
 
 static char * FASTCALL XmlConvertStr(const char * pStr, int cvtOem, char * pBuf, size_t bufLen)
 {
-	SString temp_buf = pStr;
+	SString temp_buf(pStr);
 	if(cvtOem)
 		temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 	XMLReplaceSpecSymb(temp_buf, 0);

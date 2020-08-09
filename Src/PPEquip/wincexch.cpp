@@ -481,7 +481,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 		STRNSCPY(sbii_grec.Name, goods_rec.Name);
 		SOemToChar(sbii_grec.Name);
 		if(sstrlen(sbii_grec.Barcode) < 7) {
-			SString temp_buf = sbii_grec.Barcode;
+			SString temp_buf(sbii_grec.Barcode);
 			temp_buf.PadLeft(12-temp_buf.Len(), '0');
 			if(GObj.GetConfig().Flags & GCF_BCCHKDIG)
 				AddBarcodeCheckDigit(temp_buf);

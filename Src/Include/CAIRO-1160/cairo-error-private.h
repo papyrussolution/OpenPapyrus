@@ -28,13 +28,10 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef _CAIRO_ERROR_PRIVATE_H_
 #define _CAIRO_ERROR_PRIVATE_H_
 
@@ -49,7 +46,6 @@ CAIRO_BEGIN_DECLS
 //
 enum _cairo_int_status {
 	CAIRO_INT_STATUS_SUCCESS = 0,
-
 	CAIRO_INT_STATUS_NO_MEMORY,
 	CAIRO_INT_STATUS_INVALID_RESTORE,
 	CAIRO_INT_STATUS_INVALID_POP_GROUP,

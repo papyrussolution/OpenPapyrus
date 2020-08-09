@@ -550,7 +550,7 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 	HINTERNET ftp_dir = NULL;
 	SString file_name;
 	{
-		SString temp_buf = pFTPPath;
+		SString temp_buf(pFTPPath);
 		temp_buf.Strip().ReplaceChar('\\', '/');
 		if(temp_buf.CmpPrefix("//", 0) == 0) {
 			temp_buf.ShiftLeft(1);

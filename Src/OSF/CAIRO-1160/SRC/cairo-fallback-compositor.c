@@ -30,24 +30,16 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- * Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Joonas Pihlaja <jpihlaja@cc.helsinki.fi> Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-compositor-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-surface-offset-private.h"
 
 /* high-level compositor interface */
 
-static cairo_int_status_t _cairo_fallback_compositor_paint(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents)
+static cairo_int_status_t _cairo_fallback_compositor_paint(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents)
 {
 	cairo_image_surface_t * image;
 	cairo_int_status_t status;

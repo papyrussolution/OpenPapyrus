@@ -1100,8 +1100,8 @@ static int SLAPI GetPrcIDByName(PPID * pID, const char * pName)
 	if(pName) {
 		PPObjProcessor prc_obj;
 		if(prc_obj.SearchByName(PPPRCK_PROCESSOR, pName, &id, 0) <= 0) {
-			SString oem_name = pName;
-			oem_name.ToOem();
+			SString oem_name(pName);
+			oem_name.Transf(CTRANSF_OUTER_TO_INNER);
 			if(prc_obj.SearchByName(PPPRCK_PROCESSOR, oem_name, &id, 0) <= 0) {
 				id = atol(pName);
 				if(prc_obj.Search(id, 0) <= 0) {

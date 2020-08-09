@@ -1100,15 +1100,60 @@ void BhtDialog::editGoodsFilt()
 //
 // StyloBhtIIOpInfoDlg
 //
+#define ACTION_CONFIRM 1L
+#define ACTION_CANCEL  2L
+#define ACTION_IGNORE  3L
+
 class StyloBhtIIOpInfoDlg : public PPListDialog {
+	DECL_DIALOG_DATA(SBIIOpInfo);
 public:
 	StyloBhtIIOpInfoDlg() : PPListDialog(DLG_SBIIRESTR, CTL_SBIIRESTR_ERRLIST), PrevID(0)
 	{
 		setSmartListBoxOption(CTL_SBIIRESTR_ERRLIST, lbtSelNotify);
 		PPLoadText(PPTXT_SBIIERRORS, ErrList);
 	}
-	int setDTS(const SBIIOpInfo *);
-	int getDTS(SBIIOpInfo *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		SetupOprKindCombo(this, CTLSEL_SBIIRESTR_HOSTOP, Data.ToHostOpID, OLW_CANEDIT, 0, 0);
+		AddClusterAssocDef(CTL_SBIIRESTR_ACTION,  0, ACTION_CONFIRM);
+		AddClusterAssoc(CTL_SBIIRESTR_ACTION,  1, ACTION_CANCEL);
+		AddClusterAssoc(CTL_SBIIRESTR_ACTION,  2, ACTION_IGNORE);
+		//
+		AddClusterAssoc(CTL_SBIIRESTR_BHTOP, 0, StyloBhtIIConfig::oprkExpend);
+		AddClusterAssoc(CTL_SBIIRESTR_BHTOP, 1, StyloBhtIIConfig::oprkReceipt);
+		AddClusterAssoc(CTL_SBIIRESTR_BHTOP, 2, StyloBhtIIConfig::oprkTransfer);
+		SetClusterData(CTL_SBIIRESTR_BHTOP, Data.ToBhtOpID);
+		//
+		AddClusterAssoc(CTL_SBIIRESTR_FLAGS, 0, StyloBhtIIConfig::foprCostAsPrice);
+		AddClusterAssoc(CTL_SBIIRESTR_FLAGS, 1, StyloBhtIIConfig::foprUseDueDate);
+		SetClusterData(CTL_SBIIRESTR_FLAGS, Data.Flags);
+		disableCtrls(Data.OpID < 0, CTL_SBIIRESTR_ACTION, CTL_SBIIRESTR_ERRLIST, CTL_SBIIRESTR_BHTOP, 0L);
+		updateList(-1);
+		{
+			SString buf;
+			StringSet(';', ErrList).get(0U, buf);
+			StringSet(',', buf).get(0U, buf);
+			SetupCtrls(buf.ToLong());
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTLSEL_SBIIRESTR_HOSTOP, &Data.ToHostOpID);
+		THROW_PP(Data.ToHostOpID, PPERR_INVOP);
+		GetClusterData(CTL_SBIIRESTR_BHTOP,  &Data.ToBhtOpID);
+		GetClusterData(CTL_SBIIRESTR_FLAGS,  &Data.Flags);
+		SetupCtrls(0);
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			ok = (selectCtrl(sel), 0);
+		ENDCATCH
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -1125,12 +1170,7 @@ private:
 
 	SString ErrList;
 	long PrevID;
-	SBIIOpInfo Data;
 };
-
-#define ACTION_CONFIRM 1L
-#define ACTION_CANCEL  2L
-#define ACTION_IGNORE  3L
 
 void StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 {
@@ -1168,50 +1208,6 @@ void StyloBhtIIOpInfoDlg::SetupCtrls(long newID)
 		THROW(addStringToList(id, buf.cptr()));
 	}
 	CATCHZOKPPERR
-	return ok;
-}
-
-int StyloBhtIIOpInfoDlg::setDTS(const SBIIOpInfo * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	SetupOprKindCombo(this, CTLSEL_SBIIRESTR_HOSTOP, Data.ToHostOpID, OLW_CANEDIT, 0, 0);
-	AddClusterAssocDef(CTL_SBIIRESTR_ACTION,  0, ACTION_CONFIRM);
-	AddClusterAssoc(CTL_SBIIRESTR_ACTION,  1, ACTION_CANCEL);
-	AddClusterAssoc(CTL_SBIIRESTR_ACTION,  2, ACTION_IGNORE);
-	//
-	AddClusterAssoc(CTL_SBIIRESTR_BHTOP, 0, StyloBhtIIConfig::oprkExpend);
-	AddClusterAssoc(CTL_SBIIRESTR_BHTOP, 1, StyloBhtIIConfig::oprkReceipt);
-	AddClusterAssoc(CTL_SBIIRESTR_BHTOP, 2, StyloBhtIIConfig::oprkTransfer);
-	SetClusterData(CTL_SBIIRESTR_BHTOP, Data.ToBhtOpID);
-	//
-	AddClusterAssoc(CTL_SBIIRESTR_FLAGS, 0, StyloBhtIIConfig::foprCostAsPrice);
-	AddClusterAssoc(CTL_SBIIRESTR_FLAGS, 1, StyloBhtIIConfig::foprUseDueDate);
-	SetClusterData(CTL_SBIIRESTR_FLAGS, Data.Flags);
-	disableCtrls(Data.OpID < 0, CTL_SBIIRESTR_ACTION, CTL_SBIIRESTR_ERRLIST, CTL_SBIIRESTR_BHTOP, 0L);
-	updateList(-1);
-	{
-		SString buf;
-		StringSet(';', ErrList).get(0U, buf);
-		StringSet(',', buf).get(0U, buf);
-		SetupCtrls(buf.ToLong());
-	}
-	return 1;
-}
-
-int StyloBhtIIOpInfoDlg::getDTS(SBIIOpInfo * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTLSEL_SBIIRESTR_HOSTOP, &Data.ToHostOpID);
-	THROW_PP(Data.ToHostOpID, PPERR_INVOP);
-	GetClusterData(CTL_SBIIRESTR_BHTOP,  &Data.ToBhtOpID);
-	GetClusterData(CTL_SBIIRESTR_FLAGS,  &Data.Flags);
-	SetupCtrls(0);
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		ok = (selectCtrl(sel), 0);
-	ENDCATCH
 	return ok;
 }
 //
@@ -3976,7 +3972,7 @@ int SLAPI PPObjBHT::AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl:
 	int    ok = -1;
 	THROW_PP(opID, PPERR_INVOPNOTDEF);
 	if(pRec) {
-		SString bill_code = pRec->Code;
+		SString bill_code(pRec->Code);
 		LDATE  inv_dt = pRec->Dt;
 		PPID   bid = pRec->ID;
 		PPID   inv_id = 0;

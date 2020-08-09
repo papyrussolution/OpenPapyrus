@@ -441,7 +441,7 @@ SLAPI SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8
 	//const  int use_mt = BIN(max_thread > 1);
 	Evnt * p_ev_finish = 0;
 	uint64 line_count = 0;
-	const  SString src_file_name = pSrcFileName_;
+	const  SString src_file_name(pSrcFileName_);
 	SString line_buf;
 	SString temp_buf;
 	SPathStruc ps;
@@ -639,7 +639,7 @@ SLTEST_R(FileSort)
 {
 	int    ok = 1;
 	const uint64 max_src_file_size = 57ULL*1024ULL*1024ULL/* *1024ULL */;
-	SString test_file_name = MakeOutputFilePath("sfilesort_test.txt");
+	SString test_file_name(MakeOutputFilePath("sfilesort_test.txt"));
 	SString temp_buf;
 	SString line_buf;
 	uint64 src_file_size = 0;

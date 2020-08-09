@@ -650,8 +650,8 @@ const SString & TWindow::getTitle() const
 
 void FASTCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 {
-	if(!isempty(pBuf)) { // @v8.8.4
-		SString temp_title = pBuf;
+	if(!isempty(pBuf)) {
+		SString temp_title(pBuf);
 		HWND   title_wnd = GetDlgItem(HW, SPEC_TITLEWND_ID);
 		Title = temp_title;
 		if(setOrgTitle)

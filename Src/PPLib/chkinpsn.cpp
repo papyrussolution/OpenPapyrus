@@ -381,7 +381,7 @@ int SLAPI PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const
         //THROW_PP_S(!pCipCfg->Capacity || (reg_count + _reg_count) <= (uint)pCipCfg->Capacity, PPERR_CHKINP_CAPACITYEXCESS, (long)pCipCfg->Capacity);
 		THROW_PP_S(!pCipCfg->Capacity || (rcount.RegCount + _rcount.RegCount) <= (uint)pCipCfg->Capacity, PPERR_CHKINP_CAPACITYEXCESS, (long)pCipCfg->Capacity);
         if(rItem.PlaceCode[0]) {
-			SString place_code = rItem.PlaceCode;
+			SString place_code(rItem.PlaceCode);
 			SString temp_buf;
 			ProcessorPlaceCodeTemplate::NormalizeCode(place_code);
             for(uint i = 0; i < getCount(); i++) {

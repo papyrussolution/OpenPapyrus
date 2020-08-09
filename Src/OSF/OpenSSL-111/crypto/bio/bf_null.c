@@ -12,7 +12,6 @@
 /*
  * BIO_put and BIO_get both add to the digest, BIO_gets returns the digest
  */
-
 static int nullf_write(BIO * h, const char * buf, int num);
 static int nullf_read(BIO * h, char * buf, int size);
 static int nullf_puts(BIO * h, const char * str);
@@ -57,7 +56,6 @@ static int nullf_read(BIO * b, char * out, int outl)
 static int nullf_write(BIO * b, const char * in, int inl)
 {
 	int ret = 0;
-
 	if((in == NULL) || (inl <= 0))
 		return 0;
 	if(b->next_bio == NULL)
@@ -71,7 +69,6 @@ static int nullf_write(BIO * b, const char * in, int inl)
 static long nullf_ctrl(BIO * b, int cmd, long num, void * ptr)
 {
 	long ret;
-
 	if(b->next_bio == NULL)
 		return 0;
 	switch(cmd) {
@@ -92,7 +89,6 @@ static long nullf_ctrl(BIO * b, int cmd, long num, void * ptr)
 static long nullf_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret = 1;
-
 	if(b->next_bio == NULL)
 		return 0;
 	switch(cmd) {
@@ -105,14 +101,10 @@ static long nullf_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 
 static int nullf_gets(BIO * bp, char * buf, int size)
 {
-	if(bp->next_bio == NULL)
-		return 0;
-	return BIO_gets(bp->next_bio, buf, size);
+	return (bp->next_bio == NULL) ? 0 : BIO_gets(bp->next_bio, buf, size);
 }
 
 static int nullf_puts(BIO * bp, const char * str)
 {
-	if(bp->next_bio == NULL)
-		return 0;
-	return BIO_puts(bp->next_bio, str);
+	return (bp->next_bio == NULL) ? 0 : BIO_puts(bp->next_bio, str);
 }

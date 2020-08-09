@@ -442,7 +442,7 @@ int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 /*static*/int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
 {
 	int    ok = 1;
-	SString symb = pSymb;
+	SString symb(pSymb);
 	rBodyBuf.Z();
 	if(symb.HasPrefixIAscii("DLGW_"))
 		symb.Sub(5, symb.Len()-5, rBodyBuf);

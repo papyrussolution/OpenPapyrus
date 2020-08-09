@@ -1335,7 +1335,7 @@ reg.txt
 int SLAPI ConvertRbcBnk(const char * pPath)
 {
 	int    ok = 1, r;
-	SString path = pPath;
+	SString path(pPath);
 	SString file_name, dbf_file_name;
 	SString line_buf;
 	{

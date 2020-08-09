@@ -575,7 +575,7 @@ int SLAPI PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent
 		if(pMsg || pImgPath) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
-				SString buf = pMsg;
+				SString buf(pMsg);
 				buf.ReplaceChar('\003', ' ').Strip();
 				ok = p_win->Open(buf, pImgPath, parent, 0, timer, color, flags, 0);
 			}

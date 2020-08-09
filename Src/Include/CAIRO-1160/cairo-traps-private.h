@@ -28,19 +28,12 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_TRAPS_PRIVATE_H
 #define CAIRO_TRAPS_PRIVATE_H
-
-//#include "cairo-compiler-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-types-private.h"
 
 CAIRO_BEGIN_DECLS
 

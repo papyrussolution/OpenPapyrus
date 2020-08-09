@@ -2476,7 +2476,8 @@ private:
 	int    SLAPI MakeCopyPath(BCopyData * data, SString & rDestPath);
 	int    SLAPI CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
 	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
-	int    SLAPI DoCopy(DBBackup::CopyParams *, /* @v10.8.3 long useCompression,*/ BackupLogFunc, void * extraPtr);
+	int    SLAPI DoCopy(DBBackup::CopyParams *, BackupLogFunc, void * extraPtr);
+	int    SLAPI DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr);
 	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr);
 	int    SLAPI RemoveDatabase(int safe);
 	int    SLAPI RestoreRemovedDB(int restoreFiles);

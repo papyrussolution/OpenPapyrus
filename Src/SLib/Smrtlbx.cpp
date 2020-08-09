@@ -208,7 +208,7 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 	ColumnDescr item;
 	MEMSZERO(item);
 	SString temp_buf;
-	SString title = pTitle;
+	SString title(pTitle);
 	if(!title.NotEmptyS()) {
 		title.Space();
 	}
@@ -272,7 +272,7 @@ int SmartListBox::GetOrgColumnsDescr(SString & rBuf) const
 int SmartListBox::SetupColumns(const char * pColsBuf)
 {
 	RemoveColumns();
-	SString columns_buf = pColsBuf;
+	SString columns_buf(pColsBuf);
 	if(columns_buf.NotEmptyS()) {
 		SString cstr, citem, left, right, title_buf;
 		if(columns_buf.Strip().C(0) == '@' && SLS.LoadString_(columns_buf.ShiftLeft(), cstr) > 0)

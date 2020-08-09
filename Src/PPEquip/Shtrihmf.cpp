@@ -723,8 +723,7 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 	SCardCore     sc_core;
 	PPGoodsPacket gds_pack;
 	PPObjGoods    goods_obj;
-
-	SString   imp_file_name = pImpPath;
+	SString   imp_file_name(pImpPath);
 	SFile     imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	PPSetAddedMsgString(imp_file_name);
 	THROW_SL(imp_file.IsValid());

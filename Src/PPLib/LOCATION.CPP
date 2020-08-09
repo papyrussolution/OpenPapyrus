@@ -138,7 +138,7 @@ int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, 
 	rBuf.Z();
 	if(pRec && pRec->Tail[0]) {
 		if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
-			const SString temp_buf = pRec->Tail;
+			const SString temp_buf(pRec->Tail);
 			ok = PPGetExtStrData(fldId, temp_buf, rBuf);
 		}
 	}
@@ -157,7 +157,7 @@ int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const 
 {
 	int    ok = -1;
 	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
-		SString temp_buf = pRec->Tail;
+		SString temp_buf(pRec->Tail);
 		ok = PPPutExtStrData(fldId, temp_buf, pBuf);
 		temp_buf.CopyTo(pRec->Tail, sizeof(pRec->Tail));
 	}

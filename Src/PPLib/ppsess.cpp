@@ -1188,7 +1188,7 @@ int SLAPI PPThreadLocalArea::InitMainOrgData(int reset)
 int SLAPI PPThreadLocalArea::SetIfcConfigParam(const char * pParam, const char * pValue)
 {
 	int    ok = 1;
-	SString param_buf = pParam;
+	SString param_buf(pParam);
 	if(param_buf.NotEmptyS()) {
 		if(pValue) {
 			SString val_buf;
@@ -2477,7 +2477,7 @@ int SLAPI PPSession::GetUsedLicCount(int32 * pUsedLicCount)
 static int _dbOpenException(const char * pFileName, int btrErr)
 {
 	BtrError = NZOR(btrErr, BE_FILNOPEN);
-	SString temp_buf = pFileName;
+	SString temp_buf(pFileName);
 	PPError(PPERR_DBENGINE, temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
 	CALLPTRMEMB(APPL, CloseAllBrowsers());
 	DS.Logout();
@@ -2673,7 +2673,7 @@ int SLAPI PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
 	if(::GetUserName(domain_user, &duser_len)) { // @unicodeproblem
 		PPID   user_id = 0;
 		Reference ref;
-		SString user_name_buf = SUcSwitch(domain_user);
+		SString user_name_buf(SUcSwitch(domain_user));
 		if(ref.SearchName(PPOBJ_USR, &user_id, user_name_buf) > 0) {
 			char   pw[32];
 			SString domain;
@@ -4746,7 +4746,7 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 	if(!P_ObjIdentBlk)
 		DO_CRITICAL(SETIFZ(P_ObjIdentBlk, new ObjIdentBlock));
 	if(P_ObjIdentBlk && P_ObjIdentBlk->P_ShT) {
-		SString symb = pSymb;
+		SString symb(pSymb);
 		uint   val = 0;
 		uint   hs_id = 0;
 		if(P_ObjIdentBlk->P_ShT->Search(symb.ToLower(), &hs_id, 0)) {

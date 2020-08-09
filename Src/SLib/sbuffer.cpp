@@ -1319,8 +1319,8 @@ SLTEST_R(SBufferPipe)
 	static const char p_eot_string[] = "end of transmission!";
 	int    ok = 1;
 	SFile file;
-	SString in_file_name = MakeInputFilePath("binfile");
-	SString out_file_name = MakeOutputFilePath("bufferpipe-result");
+	SString in_file_name(MakeInputFilePath("binfile"));
+	SString out_file_name(MakeOutputFilePath("bufferpipe-result"));
 	SBufferPipe pipe;
 
 	class ThreadReader : public SlThread {

@@ -83,7 +83,7 @@ const char * P_ListTagValRestrict = "#LIST";
 int SLAPI TagFilt::MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf)
 {
 	rItemBuf.Z();
-	SString temp_buf = pRestrictionString;
+	SString temp_buf(pRestrictionString);
 	if(temp_buf.NotEmptyS())
 		rItemBuf.Cat(temp_buf);
 	temp_buf = pColorString;
@@ -1917,7 +1917,7 @@ private:
 	}
 	int    SetupRestrict(int tagType, const char * pTxt, long extra)
 	{
-		SString restrict = pTxt;
+		SString restrict(pTxt);
 		int    option = 0;
 		if(restrict.CmpNC(P_EmptyTagValRestrict) == 0)
 			option = 1;

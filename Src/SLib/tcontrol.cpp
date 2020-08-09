@@ -1302,7 +1302,7 @@ int TCluster::setText(int pos, const char * pText)
 {
 	int    ok = 0;
 	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {
-		SString temp_buf = pText;
+		SString temp_buf(pText);
 		TView::SSetWindowText(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, pos+1)), temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 		deleteItem(pos);
 		addItem(pos, pText);

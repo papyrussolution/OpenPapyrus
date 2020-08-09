@@ -105,7 +105,7 @@
 class ExportCls;
 
 int ErrorCode = 0;
-SString StrError = "";
+SString StrError("");
 static ExportCls * P_ExportCls = 0;
 
 int GetObjTypeBySymb(const char * pSymb, uint & rType);
@@ -539,10 +539,10 @@ int ExportCls::SaveInfo(TSCollection <GoodInfoSt> * pArr, xmlTextWriter * pXmlPt
 	SString str, fmt;
 	LDATE  date = ZERODATE;
 	TSCollection <GoodInfoSt> one_grp;
-	SString org_name = "", inn = "", kpp = "";
-
+	SString org_name("");
+	SString inn("");
+	SString kpp("");
 	THROW(pXmlPtr);
-
 	xmlTextWriterStartElement(pXmlPtr, (const xmlChar *)ELEMENT_NAME_FILE);
 		xmlTextWriterStartAttribute(pXmlPtr, (const xmlChar *)ATRIBUTE_NAME_DATEDOC);
 			getcurdate(&date);
@@ -1067,7 +1067,7 @@ EXPORT int FinishImpExp()
 
 EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 {
-	SString str = "";
+	SString str("");
 	/* @v10.4.12 for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(ErrMsg[i].Id == ErrorCode) {
 			str.Cat(ErrMsg[i].P_Msg);

@@ -148,7 +148,7 @@ int SLAPI StringSet::Write(SFile & rFile, long) const
 	THROW(rFile.IsValid());
 	{
 		SBuffer buf;
-		SString temp_buf = Delim;
+		const  SString temp_buf(Delim);
 		const  uint32 data_len = DataLen; // sizeof(data_len) == 4
 		THROW(buf.Write(temp_buf));
 		THROW(buf.Write(&data_len, sizeof(data_len)));
@@ -166,12 +166,11 @@ int SLAPI StringSet::Read(SFile & rFile, long)
 	THROW(rFile.IsValid());
 	{
 		SBuffer buf;
-		SString delim = Delim;
+		SString delim(Delim);
 		uint32 data_len = 0;
 		THROW(rFile.Read(buf));
 		buf.Read(delim);
 		buf.Read(&data_len, sizeof(data_len));
-
 		clear();
 		THROW(Init(delim, data_len));
 		if(data_len)

@@ -2589,7 +2589,7 @@ int SLAPI PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, lon
 #endif
 	rObjIdScoreList.clear();
 	int    ok = -1;
-	SString text = pText;
+	SString text(pText);
 	SString msg_buf, name_buf;
 	if(text.NotEmptyS()) {
 		SString temp_buf, src_word_buf;
@@ -3763,7 +3763,7 @@ int SLAPI PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SS
 	SString temp_buf;
 	SString result_str;
 	StrStrAssocArray http_header;
-	SString url = "http://api.microsofttranslator.com/v2/Http.svc/Translate?";
+	SString url("http://api.microsofttranslator.com/v2/Http.svc/Translate?");
 	SString log_buf;
 	if(Token.NotEmpty() && !!AuthTime && ExpirySec > 0) {
 		//
@@ -3861,7 +3861,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 	SString temp_buf, dest_path;
 	SString item_buf;
 	SString file_type_symb;
-	SString src_path = pPath;
+	SString src_path(pPath);
 	SLldAlphabetAnalyzer aa;
 	RAssocArray freq_list;
 	SPathStruc ps;

@@ -1425,7 +1425,7 @@ int SLAPI BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrint
 	{
 		if(PrnPack.PrinterType == PPBCPT_WINDOWS) {
 			uint   rpt_id = REPORT_BARCODELABELLIST;
-			SString loc_prn_port = PrnPack.PortEx.NotEmptyS() ? PrnPack.PortEx.cptr() : 0;
+			SString loc_prn_port(PrnPack.PortEx.NotEmptyS() ? PrnPack.PortEx.cptr() : static_cast<const char *>(0));
 			loc_prn_port.Strip();
 			PView  pv(&rList);
 			PPReportEnv env;
@@ -2151,11 +2151,9 @@ int SLAPI ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		PutInt(pEntry->BarcodeHeight, 0);
 	}
 	{
-		SString text = pEntry->Text;
-		// @v9.2.7 {
+		SString text(pEntry->Text);
 		if(PrnPack.Cp != cpOEM)
 			text.Transf(CTRANSF_INNER_TO_OUTER);
-		// } @v9.2.7
 		PutCtrl(ZPL_FD);
 		PutStr(text/*, maxlen*/);
 		PutCtrl(ZPL_FS);

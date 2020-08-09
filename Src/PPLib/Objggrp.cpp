@@ -2474,7 +2474,7 @@ int SLAPI PPObjSuprWare::MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl
 	pRawRec->Flags = pRec->Flags;
 	if(pBcList) {
 		pBcList->freeAll();
-		SString temp_buf = pRec->Code;
+		SString temp_buf(pRec->Code);
 		if(temp_buf.NotEmptyS()) {
 			BarcodeTbl::Rec bc_rec;
 			// @v10.7.2 @ctr MEMSZERO(bc_rec);

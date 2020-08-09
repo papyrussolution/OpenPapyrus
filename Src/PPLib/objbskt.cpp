@@ -1545,7 +1545,7 @@ public:
 	{
 		int    ok = 0;
 		if(Flags & gbdfEditNameNFlags) {
-			SString  buf = R_Data.Pack.Head.Name;
+			SString buf(R_Data.Pack.Head.Name);
 			setCtrlString(CTL_GBTRUC_BASKET, buf);
 			buf.Z();
 			if(R_Data.Pack.Head.ID)

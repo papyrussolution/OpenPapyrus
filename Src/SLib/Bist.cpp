@@ -1538,9 +1538,11 @@ void SLAPI SDateTime::minval(void * d) const
 
 void SLAPI SDateTime::maxval(void * d) const
 {
-	LDATETIME * ldt = static_cast<LDATETIME *>(d);
-	ldt->d.encode(1, 1, 3000);
-	ldt->t = MAXTIME;
+	LDATETIME * p_ldt = static_cast<LDATETIME *>(d);
+	if(p_ldt) {
+		p_ldt->d.encode(1, 1, 3000);
+		p_ldt->t = MAXTIME;
+	}
 }
 
 int SLAPI SDateTime::comp(const void * i1, const void * i2) const
@@ -1608,7 +1610,7 @@ char * SLAPI SRaw::tostr(const void * pData, long, char * pStr) const
 
 int SLAPI SRaw::fromstr(void * pData, long, const char * pStr) const
 {
-	SString temp_buf = pStr;
+	SString temp_buf(pStr);
 	size_t real_len = S;
 	return temp_buf.DecodeMime64(pData, S, &real_len);
 }

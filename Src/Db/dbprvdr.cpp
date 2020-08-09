@@ -1,5 +1,5 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -445,7 +445,7 @@ int SLAPI DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
 	DBTable * p_tbl = *ppTblSpec;
 	DBTable * p_new_tbl = 0;
 	SString file_name;
-	SString tbl_name = p_tbl->GetTableName();
+	SString tbl_name(p_tbl->GetTableName());
 	DbTableStat ts;
 	P_Dict->DropTableSpec(p_tbl->GetTableName(), &ts);
 	THROW(P_Dict->CreateTableSpec(p_tbl));
@@ -484,7 +484,7 @@ int SLAPI DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAl
 	int    ok = 1;
 	char   acst[512];
 	SString tbl_fname = rTbl.GetName();
-	SString tbl_name = rTbl.GetTableName();
+	SString tbl_name(rTbl.GetTableName());
 	rTbl.close();
 	THROW(DropFile(tbl_fname));
 	THROW(LoadTableSpec(&rTbl, tbl_name, tbl_fname, 0));

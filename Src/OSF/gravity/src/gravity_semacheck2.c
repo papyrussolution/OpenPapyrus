@@ -211,7 +211,6 @@ static gnode_t * lookup_identifier(gvisitor_t * self, const char * identifier, g
 				gnode_function_decl_t * f = ((gnode_function_decl_t*)base_node);
 				uint16 n = nf - 1;
 				gupvalue_t * upvalue = gnode_function_add_upvalue(f, var, n);
-
 				// add upvalue to all enclosing functions
 				// base_node has index = len - 1 so from (len - 2) up to n-1 levels
 				uint16 idx = (uint16)(len - 2);
@@ -224,7 +223,6 @@ static gnode_t * lookup_identifier(gvisitor_t * self, const char * identifier, g
 					gnode_function_add_upvalue((gnode_function_decl_t*)enc_node, var, --n);
 					--idx;
 				}
-
 				var->upvalue = true;
 				node->upvalue = upvalue;
 				SET_NODE_LOCATION(node, LOCATION_UPVALUE, index, nf);
@@ -234,18 +232,13 @@ static gnode_t * lookup_identifier(gvisitor_t * self, const char * identifier, g
 				SET_NODE_LOCATION(node, LOCATION_LOCAL, index, nf);
 			}
 			DEBUG_LOOKUP("Identifier %s found in FUNCTION %s (nf: %d index: %d)",
-			    identifier,
-			    ((gnode_function_decl_t*)target)->identifier,
-			    nf-1,
-			    index);
+			    identifier, ((gnode_function_decl_t*)target)->identifier, nf-1, index);
 		}
 		else if(target_is_class) {
 			// Symbol found in a class
 			SET_NODE_LOCATION(node, (nc == 1) ? LOCATION_CLASS_IVAR_SAME : LOCATION_CLASS_IVAR_OUTER, index, nc-1);
 			DEBUG_LOOKUP("Identifier %s found in CLASS %s (up to %d outer levels)",
-			    identifier,
-			    ((gnode_class_decl_t *)target)->identifier,
-			    nc-1);
+			    identifier, ((gnode_class_decl_t *)target)->identifier, nc-1);
 		}
 		else if(target_is_module) {
 			// Symbol found in a module
@@ -255,24 +248,21 @@ static gnode_t * lookup_identifier(gvisitor_t * self, const char * identifier, g
 			// Should never reach this point
 			assert(0);
 		}
-
 		node->symbol = symbol;
 		return symbol;
 	}
-
 	DEBUG_LOOKUP("Identifier %s NOT FOUND\n", identifier);
 	return NULL;
 }
 
-static gnode_t * lookup_symtable_id(gvisitor_t * self, gnode_identifier_expr_t * id, bool isclass) {
+static gnode_t * lookup_symtable_id(gvisitor_t * self, gnode_identifier_expr_t * id, bool isclass) 
+	{
 	gnode_t * target = NULL;
-
 	gnode_t * target1 = lookup_identifier(self, id->value, id);
 	if(!target1) {
 		REPORT_ERROR(id, "%s %s not found.", (isclass) ? "Class" : "Protocol", id->value); return NULL;
 	}
 	target = target1;
-
 	if(id->value2) {
 		gnode_t * target2 = lookup_node(target1, id->value2);
 		if(!target2) {
@@ -281,7 +271,6 @@ static gnode_t * lookup_symtable_id(gvisitor_t * self, gnode_identifier_expr_t *
 		}
 		target = target2;
 	}
-
 	return target;
 }
 
@@ -313,7 +302,7 @@ static bool FASTCALL is_expression_range(const gnode_t * node)
 	gnode_n tag = node->GetTag();
 	if(tag == NODE_BINARY_EXPR) {
 		const gnode_binary_expr_t * expr = reinterpret_cast<const gnode_binary_expr_t *>(node);
-		return ((expr->op == TOK_OP_RANGE_INCLUDED) || (expr->op == TOK_OP_RANGE_EXCLUDED));
+		return oneof2(expr->op, TOK_OP_RANGE_INCLUDED, TOK_OP_RANGE_EXCLUDED);
 	}
 	else
 		return false;
@@ -813,23 +802,24 @@ static void visit_function_decl(gvisitor_t * self, gnode_function_decl_t * node)
 
 static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node) 
 {
-	gnode_t         * top = TOP_DECLARATION();
-	symboltable_t   * symtable = symtable_from_node(top);
-	size_t count = gnode_array_size(node->decls);
+	gnode_t * top = TOP_DECLARATION();
+	symboltable_t * symtable = symtable_from_node(top);
+	const size_t count = gnode_array_size(node->decls);
 	gnode_n env = top->GetTag();
-	bool env_is_function = (env == NODE_FUNCTION_DECL);
+	const bool env_is_function = (env == NODE_FUNCTION_DECL);
 	// check if optional access and storage specifiers make sense in current context
 	check_access_storage_specifiers(self, node, env, node->access, node->storage);
 	// loop to check each individual declaration
-	for(size_t i = 0; i<count; ++i) {
-		gnode_var_t * p = (gnode_var_t *)gnode_array_get(node->decls, i);
+	for(size_t i = 0; i < count; ++i) {
+		gnode_var_t * p = static_cast<gnode_var_t *>(gnode_array_get(node->decls, i));
 		DEBUG_SEMA2("visit_variable_decl %s", p->identifier);
 		// set enclosing environment
 		p->env = top;
 		// visit expression first in order to prevent var a = a
 		// variable with a initial value (or with a getter/setter)
 		gvisit(self, p->expr);
-		if(gnode_t::IsA(p->expr, NODE_ENUM_DECL)) continue;
+		if(gnode_t::IsA(p->expr, NODE_ENUM_DECL)) 
+			continue;
 
 //        // check for manifest type
 //        if (p->annotation_type) {
@@ -863,18 +853,19 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 			gnode_class_decl_t * c = (gnode_class_decl_t *)top;
 			// compute new ivar index
 			(node->storage == TOK_KEY_STATIC) ? ++c->nsvar : ++c->nivar;
-			// super class is a static information so I can solve the fragile class problem at compilation
-			// time
+			// super class is a static information so I can solve the fragile class problem at compilation time
 			const gnode_class_decl_t * super = static_cast<const gnode_class_decl_t *>(c->superclass);
 			if(super && !gnode_t::IsA(super, NODE_CLASS_DECL)) 
 				return;
-			uint32 n2 = 0;
-			while(super) {
-				n2 += (node->storage == TOK_KEY_STATIC) ? super->nsvar : super->nivar;
-				super = (gnode_class_decl_t *)super->superclass;
+			else {
+				uint32 n2 = 0;
+				while(super) {
+					n2 += (node->storage == TOK_KEY_STATIC) ? super->nsvar : super->nivar;
+					super = static_cast<gnode_class_decl_t *>(super->superclass);
+				}
+				p->index += n2;
+				DEBUG_SEMA2("Class: %s property:%s index:%d (static %d)", c->identifier, p->identifier, p->index, (node->storage == TOK_KEY_STATIC));
 			}
-			p->index += n2;
-			DEBUG_SEMA2("Class: %s property:%s index:%d (static %d)", c->identifier, p->identifier, p->index, (node->storage == TOK_KEY_STATIC));
 		}
 	}
 }

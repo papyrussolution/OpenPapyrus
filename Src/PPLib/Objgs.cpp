@@ -708,7 +708,7 @@ int SLAPI PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * p
 	int    ok = 1;
 	double v = 0.0;
 	memzero(Formula__, sizeof(Formula__));
-	SString temp_buf = pStr;
+	SString temp_buf(pStr);
 	if(temp_buf.NotEmptyS()) {
 		GdsClsCalcExprContext ctx(pStruc);
 		if(PPCalcExpression(temp_buf, &v, &ctx))
@@ -729,7 +729,7 @@ int SLAPI PPGoodsStrucItem::SetEstimationString(const char * pStr)
 	Denom  = 1.0;
 	if(PPGoodsStruc::IsSimpleQttyString(pStr)) {
 		double v;
-		SString temp_buf = pStr;
+		SString temp_buf(pStr);
 		SString s1, s2;
 		temp_buf.Divide('/', s1, s2);
 		strtodoub(s1, &v);

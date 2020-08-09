@@ -87,6 +87,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\OSF\liblzma\src\lz.c" />
     <ClCompile Include="..\OSF\liblzma\src\lzma2_decoder.c" />
     <ClCompile Include="..\OSF\liblzma\src\lzma2_encoder.c" />
     <ClCompile Include="..\OSF\liblzma\src\lzma_decoder.c" />
@@ -94,9 +95,6 @@
     <ClCompile Include="..\OSF\liblzma\src\lzma_encoder_optimum_fast.c" />
     <ClCompile Include="..\OSF\liblzma\src\lzma_encoder_optimum_normal.c" />
     <ClCompile Include="..\OSF\liblzma\src\lzma_encoder_presets.c" />
-    <ClCompile Include="..\OSF\liblzma\src\lz_decoder.c" />
-    <ClCompile Include="..\OSF\liblzma\src\lz_encoder.c" />
-    <ClCompile Include="..\OSF\liblzma\src\lz_encoder_mf.c" />
     <ClCompile Include="..\OSF\liblzma\src\outqueue.c" />
     <ClCompile Include="..\OSF\liblzma\src\powerpc.c" />
     <ClCompile Include="..\OSF\liblzma\src\price_table.c" />

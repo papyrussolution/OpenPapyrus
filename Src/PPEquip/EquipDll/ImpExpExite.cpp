@@ -233,9 +233,9 @@ class ImportCls;
 
 int ErrorCode = 0;
 int WebServcErrorCode = 0;
-SString StrError = "";
-SString LogName = "";
-SString SysLogName = "";
+SString StrError("");
+SString LogName("");
+SString SysLogName("");
 static ExportCls * P_ExportCls = 0;
 static ImportCls * P_ImportCls = 0;
 
@@ -367,7 +367,7 @@ void SysLogMessage(const char * pMsg)
 
 void GetErrorMsg(SString & rMsg)
 {
-	SString str = "";
+	SString str("");
 	for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(ErrMsg[i].Id == ErrorCode) {
 			str.Cat(ErrMsg[i].P_Msg);
@@ -1667,7 +1667,7 @@ int ImportCls::ReceiveDoc()
 
 	// Теперь читаем конкретный файл
 	if(InboxReadIndex < InboxFiles.getCount()) {
-		SString name = InboxFiles.Get(InboxReadIndex).Txt;
+		SString name(InboxFiles.Get(InboxReadIndex).Txt);
 		if(ftp_client.GetFile(InboxFiles.Get(InboxReadIndex).Txt, ImpFileName)) {
 			SFile file(ImpFileName, SFile::mRead);
 			SString file_buf;
@@ -2502,7 +2502,7 @@ EXPORT int FinishImpExp()
 
 EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 {
-	SString str = "";
+	SString str("");
 	GetErrorMsg(str.Z());
 	memzero(pMsg, bufLen);
 	if(str.NotEmpty() && pMsg)

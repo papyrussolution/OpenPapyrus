@@ -1,7 +1,6 @@
 // IMPORT.CPP
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
 // @codepage windows-1251
-//
 // Функции импорта справочников
 //
 #include <pp.h>
@@ -1099,7 +1098,8 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 					int    is_found = 0;
 					PPID   goods_id = 0, parent_id = 0;
 					char   added_code[32];
-					char   temp_buf[256];
+					// @v10.8.5 char   temp_buf[256];
+					SString temp_buf; // @v10.8.5 
 					char   goods_name[128];
 					char   barcode[32];
 					char   subc[32];
@@ -1118,13 +1118,13 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 						if(hier_list.IsThereChildOf(obj_code) || gg_obj.SearchCode(obj_code, &barcode_rec) > 0)
 							skip = 1;
 					}
-					if(!skip && *strip(temp_buf)) {
+					if(!skip && temp_buf.NotEmptyS()) {
 						STRNSCPY(goods_name, temp_buf);
 						memzero(barcode, sizeof(barcode));
 						added_code[0] = 0;
 						subc[0] = 0;
 						if(rec.get(fldn_code, temp_buf, 1)) {
-							STRNSCPY(barcode, strupr(temp_buf));
+							STRNSCPY(barcode, temp_buf.ToUpper());
 							if(subcode.Key >= 0 && subcode.Val > 1) {
 								size_t bclen = sstrlen(barcode);
 								if((size_t)subcode.Key < bclen) {
@@ -1135,7 +1135,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 							}
 						}
 						if(rec.get(fldn_addedcode, temp_buf, 1))
-							STRNSCPY(added_code, strupr(temp_buf));
+							STRNSCPY(added_code, temp_buf.ToUpper());
 						if(rec.get(fldn_addedcodeqtty, added_code_qtty)) {
 							if(added_code_qtty <= 0.0)
 								added_code_qtty = 1.0;
@@ -1187,10 +1187,10 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 						else if(matrix_action < 1000) {
 							if(is_hier || fldn_grpcode) {
 								if(is_hier)
-									STRNSCPY(temp_buf, parent_code);
+									temp_buf = parent_code;
 								else
 									rec.get(fldn_grpcode, temp_buf);
-								if(*strip(temp_buf) && gg_obj.SearchCode(temp_buf, &barcode_rec) > 0)
+								if(temp_buf.NotEmptyS() && gg_obj.SearchCode(temp_buf, &barcode_rec) > 0)
 									parent_id = barcode_rec.GoodsID;
 							}
 							else if(rec.get(fldn_grpname, temp_buf, 1)) {
@@ -1268,7 +1268,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 								}
 							}
 							rec.get(fldn_country, temp_buf);
-							if(*strip(temp_buf)) {
+							if(temp_buf.NotEmptyS()) {
 								THROW(psn_obj.AddSimple(&pack.Rec.ManufID, temp_buf, PPPRK_MANUF, PPPRS_COUNTRY, 0));
 							}
 							else if(rec.get(fldn_countrycode, temp_buf, 1)) {
@@ -1339,17 +1339,17 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 						if(added_code[0] && P_Tbl->SearchBarcode(added_code, 0) < 0)
 							THROW(P_Tbl->AddBarcode(goods_id, added_code, added_code_qtty, 0));
 						rec.get(fldn_qc_number, temp_buf);
-						if(*strip(temp_buf) && qc_obj.SearchByCode(temp_buf, &qcert_id, 0) <= 0) {
+						if(temp_buf.NotEmptyS() && qc_obj.SearchByCode(temp_buf, &qcert_id, 0) <= 0) {
 							QualityCertTbl::Rec qc_rec;
 							// @v10.6.4 MEMSZERO(qc_rec);
 							STRNSCPY(qc_rec.Code, temp_buf);
 							rec.get(fldn_qc_blank, temp_buf);
-							STRNSCPY(qc_rec.BlankCode, strip(temp_buf));
+							STRNSCPY(qc_rec.BlankCode, temp_buf.Strip());
 							rec.get(fldn_qc_date, qc_rec.InitDate);
 							rec.get(fldn_qc_expiry, qc_rec.Expiry);
 							rec.get(fldn_qc_manuf, temp_buf);
 							// Журавлев STRNSCPY(qc_rec.Manuf, strip(temp_buf));
-							STRNSCPY(qc_rec.GoodsName, strip(temp_buf)); // Журавлев
+							STRNSCPY(qc_rec.GoodsName, temp_buf.Strip()); // Журавлев
 							// Журавлев {
 							{
 								int fld_no = 0;
@@ -1358,9 +1358,9 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 							}
 							// } Журавлев
 							rec.get(fldn_qc_etc, temp_buf);
-							STRNSCPY(qc_rec.Etc, strip(temp_buf));
+							STRNSCPY(qc_rec.Etc, temp_buf.Strip());
 							rec.get(fldn_qc_manufdate, temp_buf);
-							STRNSCPY(qc_rec.SPrDate, strip(temp_buf));
+							STRNSCPY(qc_rec.SPrDate, temp_buf.Strip());
 							if(rec.get(fldn_qc_org, temp_buf, 1))
 								THROW(psn_obj.AddSimple(&qc_rec.RegOrgan, temp_buf, PPPRK_BUSADMIN, PPPRS_LEGAL, 0));
 							THROW(qc_obj.PutPacket(&(qcert_id = 0), &qc_rec, 0));
@@ -2034,15 +2034,16 @@ int SLAPI PrcssrPhoneListImport::InitParam(Param * pParam)
 int PrcssrPhoneListImport::EditParam(Param * pParam)
 {
 	class PhoneListImportDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrPhoneListImport::Param);
 	public:
 		PhoneListImportDialog() : TDialog(DLG_IEPHONE)
 		{
 			PPPhoneListImpExpParam param;
 			GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PHONELIST, &param, &CfgList, 2 /* import */);
 		}
-		int    setDTS(const PrcssrPhoneListImport::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			int    ok = 1;
 			long   cfg_id = 0;
 			if(CfgList.getCount() == 1)
@@ -2051,7 +2052,7 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 			SetupPPObjCombo(this, CTLSEL_IEPHONE_DEFCITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 			return ok;
 		}
-		int    getDTS(PrcssrPhoneListImport::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -2065,7 +2066,6 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 			return ok;
 		}
 	private:
-		PrcssrPhoneListImport::Param Data;
 		StrAssocArray CfgList;
 	};
 	DIALOG_PROC_BODY(PhoneListImportDialog, pParam);
@@ -2290,7 +2290,7 @@ int SLAPI ImportBanks()
 			srch_region = p_dlg->getCtrlLong(CTLSEL_REGIONSEL_REGION);
 			const long pos = p_dlg->getCtrlLong(CTLSEL_REGIONSEL_CITY);
 			if(pos > 0) {
-				const char * p_buf = (const char *)city_sc.at(pos-1);
+				const char * p_buf = static_cast<const char *>(city_sc.at(pos-1));
 				STRNSCPY(srch_city, p_buf);
 			}
 			import = 1;

@@ -1381,7 +1381,7 @@ int SLAPI PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2T
 	};
 	int    ok = -1;
 	double qtty = pQtty ? *pQtty : 1.0;
-	SString code = DS.GetTLA().Lid.Barcode;
+	SString code(DS.GetTLA().Lid.Barcode);
 	QuickSearchDialog * dlg = new QuickSearchDialog;
 	if(CheckDialogPtrErr(&dlg)) {
 		if(isalnum(initChar))

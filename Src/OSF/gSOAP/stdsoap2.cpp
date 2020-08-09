@@ -6416,8 +6416,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_set_embedded(const struct soap * pSoap, struct s
 
  #endif
 #endif
-
-/******************************************************************************/
+//
 #ifndef WITH_LEANER
  #ifndef PALM_1
 SOAP_FMAC1 int SOAP_FMAC2 soap_attachment(struct soap * soap, const char * tag, int id, const void * p, const struct soap_array * a,
@@ -6428,9 +6427,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_attachment(struct soap * soap, const char * tag, 
 	int i;
 	if(!p || !a->__ptr || (!aid && !atype))
 		return soap_element_id(soap, tag, id, p, a, n, type, t);
-	DBGLOG(TEST,
-		    SOAP_MESSAGE(fdebug, "Attachment tag='%s' id='%s' (%d) type='%s'\n", tag, aid ? aid : SOAP_STR_EOS, id,
-			    atype ? atype : SOAP_STR_EOS));
+	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Attachment tag='%s' id='%s' (%d) type='%s'\n", tag, aid ? aid : SOAP_STR_EOS, id, atype ? atype : SOAP_STR_EOS));
 	i = soap_array_pointer_lookup(soap, p, a, n, t, &pp);
 	if(!i) {
 		i = soap_pointer_enter(soap, p, a, n, t, &pp);
@@ -6448,8 +6445,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_attachment(struct soap * soap, const char * tag, 
 	/* Add MTOM xop:Include element when necessary */
 	/* @todo this code to be obsoleted with new import/xop.h conventions */
 	if((soap->mode&SOAP_ENC_MTOM) && strcmp(tag, "xop:Include")) {
-		if(soap_element_begin_out(soap, tag, 0, type) ||
-			    soap_element_href(soap, "xop:Include", 0, "xmlns:xop=\"http://www.w3.org/2004/08/xop/include\" href", aid) ||
+		if(soap_element_begin_out(soap, tag, 0, type) || soap_element_href(soap, "xop:Include", 0, "xmlns:xop=\"http://www.w3.org/2004/08/xop/include\" href", aid) ||
 			    soap_element_end_out(soap, tag))
 			return soap->error;
 	}
@@ -10069,10 +10065,9 @@ end:
 }
 
 #endif
-
-/******************************************************************************/
+// 
 #ifndef WITH_LEANER
- #ifndef PALM_2
+	#ifndef PALM_2
 SOAP_FMAC1 int SOAP_FMAC2 soap_wstring_out(struct soap * soap, const wchar_t * s, int flag)
 {
 	const char * t;
@@ -10092,21 +10087,13 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_wstring_out(struct soap * soap, const wchar_t * s
   #endif
 	while((c = *s++)) {
 		switch(c) {
-			case 0x09:
-			    t = flag ? "&#x9;" : "\t";
-			    break;
-			case 0x0A:
-			    t = (flag || !(soap->mode&SOAP_XML_CANONICAL)) ? "&#xA;" : "\n";
-			    break;
+			case 0x09: t = flag ? "&#x9;" : "\t"; break;
+			case 0x0A: t = (flag || !(soap->mode&SOAP_XML_CANONICAL)) ? "&#xA;" : "\n"; break;
 			case 0x0D: t = "&#xD;"; break;
 			case '&': t = "&amp;"; break;
 			case '<': t = "&lt;"; break;
-			case '>': 
-				t = flag ? ">" : "&gt;";
-			    break;
-			case '"':
-			    t = flag ? "&quot;" : "\"";
-			    break;
+			case '>': t = flag ? ">" : "&gt;"; break;
+			case '"': t = flag ? "&quot;" : "\""; break;
 			default:
 			    if(c >= 0x20 && c < 0x80) {
 				    tmp = (char)c;
@@ -10205,15 +10192,9 @@ SOAP_FMAC1 wchar_t * SOAP_FMAC2 soap_wstring_in(struct soap * soap, int flag, lo
 				    n++;
 				    *s++ = '<';
 				    break;
-				case SOAP_GT:
-				    *s++ = '>';
-				    break;
-				case SOAP_QT:
-				    *s++ = '"';
-				    break;
-				case SOAP_AP:
-				    *s++ = '\'';
-				    break;
+				case SOAP_GT: *s++ = '>'; break;
+				case SOAP_QT: *s++ = '"'; break;
+				case SOAP_AP: *s++ = '\''; break;
 				case '/':
 				    if(n > 0) {
 					    c = soap_getutf8(soap);
@@ -10226,20 +10207,26 @@ SOAP_FMAC1 wchar_t * SOAP_FMAC2 soap_wstring_in(struct soap * soap, int flag, lo
 				case '<':
 				    if(flag)
 					    *s++ = (soap_wchar)'<';
-				    else {*s++ = (soap_wchar)'&';
-					  t = (char *)"lt;"; }
+				    else {
+						*s++ = (soap_wchar)'&';
+						t = (char *)"lt;"; 
+					}
 				    break;
 				case '>':
 				    if(flag)
 					    *s++ = (soap_wchar)'>';
-				    else {*s++ = (soap_wchar)'&';
-					  t = (char *)"gt;"; }
+				    else {
+						*s++ = (soap_wchar)'&';
+						t = (char *)"gt;"; 
+					}
 				    break;
 				case '"':
 				    if(flag)
 					    *s++ = (soap_wchar)'"';
-				    else {*s++ = (soap_wchar)'&';
-					  t = (char *)"quot;"; }
+				    else {
+						*s++ = (soap_wchar)'&';
+						t = (char *)"quot;"; 
+					}
 				    break;
 				default:
 				    if((int)c == EOF)

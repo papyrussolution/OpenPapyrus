@@ -35,7 +35,6 @@
     <ClCompile Include="..\PPLib\Advbill.cpp" />
     <ClCompile Include="..\PPLib\albatros.cpp" />
     <ClCompile Include="..\PPLib\Amtdlg.cpp" />
-    <ClCompile Include="..\PPLib\AMTLIST.CPP" />
     <ClCompile Include="..\PPLib\Asstwrof.cpp" />
     <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
     <ClCompile Include="..\PPLib\Autocmpl.cpp" />

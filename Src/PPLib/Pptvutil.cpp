@@ -1064,6 +1064,7 @@ int Lst2LstAryDialog::removeAll()
 	return setupRightList() ? 1 : PPErrorZ();
 }
 
+#if 0 // @v10.8.5 (unused) {
 int FASTCALL ListToListAryDialog(ListToListAryData * pData)
 {
 	if(pData) {
@@ -1082,6 +1083,7 @@ int FASTCALL ListToListAryDialog(ListToListAryData * pData)
 	}
 	return 0;
 }
+#endif // } 0 @v10.8.5 (unused)
 //
 // Lst2LstObjDialog
 //
@@ -1166,19 +1168,20 @@ int Lst2LstObjDialog::setupRightList()
 	int    ok = 1;
 	StrAssocListBoxDef * p_def = 0; // @v10.7.9 StdListBoxDef-->StrAssocListBoxDef
 	StrAssocArray * p_ary = 0; // @v10.7.9 TaggedStringArray-->StrAssocArray
+	setCtrlLong(CTL_LST2LST_CT2, Data.P_List ? Data.P_List->getCountI() : 0); // @v10.8.5
 	if(Data.Flags & ListToListData::fIsTreeList) {
 		return setupRightTList();
 	}
 	else {
 		SmartListBox * p_lb = GetRightList();
 		if(p_lb) {
-			PPID * p_id;
 			SString name_buf;
 			const long pos = p_lb->def ? p_lb->def->_curItem() : 0L;
 			THROW_MEM(p_ary = new StrAssocArray);
-			for(uint i = 0; Data.P_List->enumItems(&i, (void **)&p_id);) {
-				GetItemText(*p_id, name_buf);
-				THROW_SL(p_ary->Add(*p_id, name_buf));
+			for(uint i = 0; i < Data.P_List->getCount(); i++) {
+				const PPID id = Data.P_List->get(i);
+				GetItemText(id, name_buf);
+				THROW_SL(p_ary->Add(id, name_buf));
 			}
 			p_ary->SortByText();
 			// @v10.7.9 THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
@@ -2356,7 +2359,7 @@ int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWait
 //
 //
 //
-SLAPI ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? *pBuf : 0)
+SLAPI ImageBrowseCtrlGroup::Rec::Rec(const SString * pBuf) : Flags(0), Path(pBuf ? pBuf->cptr() : 0)
 {
 }
 
@@ -3538,7 +3541,7 @@ PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_Ext
 StrAssocArray * PersonSelExtra::GetList(const char * pText)
 {
 	StrAssocArray * p_list = 0;
-	SString pattern = pText;
+	SString pattern(pText);
 	if(pattern.Len()) {
 		//
 		// сначала обычный поиск по имени (поиск неточный)
@@ -3563,7 +3566,6 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 			SETIFZ(p_list, new StrAssocArray());
 			PPIDArray psn_list;
 			StrAssocArray phone_list;
-
 			PPIDArray reg_list;
 			// сначала поиск по поисковому регистру
 			RegisterFilt reg_flt;
@@ -3626,7 +3628,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 				const  uint _c = psn_list.getCount();
 				SString name, temp_name;
 				for(uint i = 0; i < _c; i++) {
-					PPID   id     = 0;
+					PPID   id = 0;
 					const  PPID psn_id = psn_list.at(i);
 					if(AccSheetID)
 						ArObj.GetByPerson(AccSheetID, psn_id, &id);
@@ -3684,7 +3686,7 @@ PhoneSelExtra::PhoneSelExtra(long localFlags) : WordSel_ExtraBlock(0, 0, 0, 0, 4
 StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 {
 	StrAssocArray * p_list = 0;
-	SString pattern = pText;
+	SString pattern(pText);
 	if(pattern.NotEmptyS()) {
 		SString phone_buf;
 		const int srch_substr = BIN(pattern.C(0) == '*');
@@ -3916,7 +3918,6 @@ void PersonCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 #if 0 // {
-
 PersonListCtrlGroup::Rec::Rec(PPID psnKindID, const PPIDArray * pPersonList)
 {
 	Init(psnKindID, pPersonList);
@@ -4181,7 +4182,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			PPID   id = pDlg->getCtrlLong(Ctlsel);
 			if(id)
 				result_list.addUnique(id);
-			ListToListData data(PPOBJ_PERSON, (void *)Data.PsnKindID, &result_list);
+			ListToListData data(PPOBJ_PERSON, reinterpret_cast<void *>(Data.PsnKindID), &result_list);
 			data.TitleStrID = PPTXT_SELPERSONLIST;
 			if(ListToListDialog(&data) > 0) {
 				Data.List = result_list;
@@ -4324,7 +4325,7 @@ StrAssocArray * FiasSelExtra::GetList(const char * pText)
 {
 	StrAssocArray * p_list = 0;
 	if(P_Fr) {
-		SString pattern = pText;
+		SString pattern(pText);
 		if(pattern.Len()) {
 			size_t len = pattern.Len();
 			PPIDArray id_list;
@@ -5302,7 +5303,7 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 	if(id >= 0 && id < (long)Data.getCount()) {
 		PPGoodsPacket pack;
 		const ResolveGoodsItem & r_item = Data.at(id);
-		SString name = r_item.GoodsName;
+		const SString name(r_item.GoodsName);
 		THROW(GObj.InitPacket(&pack, gpkndGoods, 0, 0, Data.at(id).Barcode));
 		pack.Rec.UnitID   = GoodsCfg.DefUnitID;
 		pack.Rec.ParentID = goodsGrpID;
@@ -6195,7 +6196,7 @@ int EmailListDlg::editItem(long pos, long id)
 	int    ok = -1;
 	if(pos >= 0 && pos < static_cast<long>(Data.getCount())) {
 		SString title;
-		SString addr = Data.Get(pos).Txt;
+		SString addr(Data.Get(pos).Txt);
 		PPLoadString("email", title);
 		if(InputStringDialog(title, title, 0, 0, addr) > 0 && IsEmailAddr(addr)) {
 			Data.Add(id, addr);
@@ -6357,7 +6358,7 @@ int SendMailDialog::setupList()
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < Data.FilesList.getCountI()) {
-		SString path = Data.FilesList.at(pos);
+		SString path(Data.FilesList.at(pos));
 		if(PPOpenFile(PPTXT_FILPAT_ALL, path,  0, 0) > 0) {
 			uint p = 0;
 			if(Data.FilesList.lsearch(path.cptr(), &p, PTR_CMPFUNC(PcharNoCase)) > 0 && p != pos)

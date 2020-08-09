@@ -145,7 +145,7 @@ int Rc2Data::AddDrawVector(const char * pSymbol, SColor replacedColor, SString &
 {
 	int    ok = 1;
 	const  SColor dummy_replaced_color(0, 0, 0, 0);
-	SString symbol = pSymbol;
+	SString symbol(pSymbol);
 	if(symbol.NotEmptyS()) {
 		DrawVectorGroup * p_group = 0;
 		Rc2DrawVectorItem item;
@@ -196,7 +196,7 @@ int Rc2Data::SetupBitmapGroup(const char * pPath)
 int Rc2Data::AddBitmap(const char * pSymbol, SString & rErrMsg)
 {
 	int    ok = 1;
-	SString symbol = pSymbol;
+	SString symbol(pSymbol);
 	if(symbol.NotEmptyS()) {
 		BitmapGroup * p_group = 0;
 		Rc2BitmapItem item;

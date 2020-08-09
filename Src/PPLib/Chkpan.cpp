@@ -525,7 +525,7 @@ int CPosProcessor::MsgToDisp_Add(const char * pMsg)
 	if(!isempty(pMsg)) {
 		int    dup = 0;
 		SString temp_buf;
-		SString msg_buf = pMsg;
+		SString msg_buf(pMsg);
 		msg_buf.Chomp().Strip();
 		for(uint sp = 0; !dup && MsgToDisp.get(&sp, temp_buf);) {
 			if(temp_buf.CmpNC(msg_buf) == 0)
@@ -3764,7 +3764,7 @@ int CPosProcessor::SearchSCardByCode(const char * pCode, PPIDArray & rScList)
 	rScList.clear();
 	int    ok = -1;
 	SCardTbl::Rec sc_rec;
-	SString temp_buf = pCode;
+	SString temp_buf(pCode);
 	if(PPObjSCard::PreprocessSCardCode(temp_buf) > 0 && ScObj.SearchCode(0, temp_buf, &sc_rec) > 0) {
 		rScList.add(sc_rec.ID);
 		ok = 1;
@@ -10604,7 +10604,7 @@ void CheckPaneDialog::ClearInput(int selectOnly)
 void CheckPaneDialog::SetSCard(const char * pStr)
 {
 	Flags |= fWaitOnSCard;
-	SString temp_buf = pStr;
+	SString temp_buf(pStr);
 	setCtrlString(CTL_CHKPAN_INPUT, temp_buf);
 	UiFlags |= uifAutoInput; // @trick AcceptSCard(1, ) может отклонить номер карты из-за отсутствия данного флага.
 	AcceptSCard(1, 0);
@@ -11369,7 +11369,7 @@ int CheckPaneDialog::PrintCheckCopy()
 {
 	int     ok = -1;
 	PPID    chk_id = 0;
-	SString format_name = "CCheckCopy";
+	SString format_name("CCheckCopy");
 	THROW_PP(OperRightsFlags & orfCopyCheck, PPERR_NORIGHTS);
 	if(IsState(sEMPTYLIST_EMPTYBUF) && SelectCheck(&chk_id, &format_name, scfThisNodeOnly|scfAllowReturns /*0, 1*/ /* thisNodeOnly */) > 0) {
 		CCheckPacket   pack, ext_pack;
@@ -11463,7 +11463,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 	}
 	else {
 		uint   rpt_id = rptId ? rptId : (pLocPrn ? REPORT_CCHECKDETAILVIEWLOC : REPORT_CCHECKDETAILVIEW);
-		SString loc_prn_port = pLocPrn ? pLocPrn->Port : 0;
+		SString loc_prn_port(pLocPrn ? pLocPrn->Port : 0);
 		loc_prn_port.Strip();
 		PView  pv(this);
 		CCheckItemArray saved_items(P);

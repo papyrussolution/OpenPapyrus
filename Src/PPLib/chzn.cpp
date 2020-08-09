@@ -471,6 +471,96 @@ public:
 		codetypeSgtin = 1,
 		codetypeSscc  = 2
 	};*/
+
+	enum {
+		doctypUnkn = 0,
+		doctOstDescription,
+		doctAggregation,
+		doctDisaggregation,
+		doctReaggregation,
+		doctLpIntroduceGoods,
+		doctLkIndiCommissioning,
+		doctLpGoodsImport,
+		doctCrossborder,
+		doctLpIntroduceGoodsCrossborderCSD,
+		doctIntroduceOST,
+		doctLkContractCommissioning,
+		doctLpReturn,
+		doctLpShipGoods,
+		doctLpShipReceipt,
+		doctLpCancelShipment,
+		doctLpAcceptGoods,
+		doctLkReceipt,
+		doctLkRemark,
+		doctKmCancellation,
+		doctAppliedKmCancellation
+	};
+
+	struct Packet;
+	//
+	// Descr: Статус документа
+	//
+	enum {
+		docstUnkn = 0,
+		docstInProgress, // IN_PROGRESS – Проверяется
+		docstCheckedOk,  // CHECKED_OK – Обработан
+		docstCheckedNoOk, // CHECKED_NOT_OK – Обработан с ошибками
+		docstProcessingError, // PROCESSING_ERROR – Техническая ошибка
+		docstUndefined, // UNDEFINED – не определен
+		docstCancelled, // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
+		docstAccepted, // ACCEPTED – Принят. Только для документа 'Отгрузка'
+		docstWaitAcceptance, // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
+		docstParticipantRegistration // WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
+	};
+	class Document {
+	public:
+		SLAPI  Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
+			Format(SFileFormat::Unkn), Status(docstUnkn), DownloadStatus(0), Flags(0)
+		{
+		}
+		SLAPI  Document(const Document & rS)
+		{
+			Copy(rS);
+		}
+		Document & FASTCALL operator = (const Document & rS)
+		{
+			return Copy(rS);
+		}
+		int    SLAPI Parse(const char * pBuffer);
+		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
+		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
+		Document & FASTCALL Copy(const Document & rS)
+		{
+			Uuid = rS.Uuid;
+			Dtm = rS.Dtm;
+			ReceivedDtm = rS.ReceivedDtm;
+			Type = rS.Type;
+			Format = rS.Format;
+			Status = rS.Status;
+			DownloadStatus = rS.DownloadStatus;
+			Flags = rS.Flags;
+			SenderName = rS.SenderName;
+			ReceiverName = rS.ReceiverName;
+			Body = rS.Body;
+			Content = rS.Content;
+			return *this;
+		}
+		enum {
+			fInput = 0x0001 // Входящий документ. Иначе - исходящий
+		};
+		S_GUID Uuid;
+		LDATETIME Dtm;
+		LDATETIME ReceivedDtm;
+		int  Type;
+		int  Format; // SFileFormat::xxx
+		int  Status;
+		int  DownloadStatus;
+		int  Flags;
+		SString SenderName;
+		SString ReceiverName;
+		SString Body;
+		SString Content;
+	};
 	//
 	// Для идентификации типов кодов используются константы, определенные в slib.h
 	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
@@ -529,70 +619,7 @@ public:
 		long   Flags;
 		void * P_Data;
 	};
-	enum {
-		doctypUnkn = 0,
-		doctOstDescription,
-		doctAggregation,
-		doctDisaggregation,
-		doctReaggregation,
-		doctLpIntroduceGoods,
-		doctLkIndiCommissioning,
-		doctLpGoodsImport,
-		doctCrossborder,
-		doctLpIntroduceGoodsCrossborderCSD,
-		doctIntroduceOST,
-		doctLkContractCommissioning,
-		doctLpReturn,
-		doctLpShipGoods,
-		doctLpShipReceipt,
-		doctLpCancelShipment,
-		doctLpAcceptGoods,
-		doctLkReceipt,
-		doctLkRemark,
-		doctKmCancellation,
-		doctAppliedKmCancellation
-	};
-	//
-	// Descr: Статус документа
-	//
-	enum {
-		docstUnkn = 0,
-		docstInProgress, // IN_PROGRESS – Проверяется
-		docstCheckedOk,  // CHECKED_OK – Обработан
-		docstCheckedNoOk, // CHECKED_NOT_OK – Обработан с ошибками
-		docstProcessingError, // PROCESSING_ERROR – Техническая ошибка
-		docstUndefined, // UNDEFINED – не определен
-		docstCancelled, // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
-		docstAccepted, // ACCEPTED – Принят. Только для документа 'Отгрузка'
-		docstWaitAcceptance, // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
-		docstParticipantRegistration // WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
-	};
-	class Document {
-	public:
-		SLAPI  Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
-			Format(SFileFormat::Unkn), Status(docstUnkn), DownloadStatus(0), Flags(0)
-		{
-		}
-		int    SLAPI Parse();
-		int    SLAPI GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
-		int    SLAPI Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
-
-		enum {
-			fInput = 0x0001 // Входящий документ. Иначе - исходящий
-		};
-		S_GUID Uuid;
-		LDATETIME Dtm;
-		LDATETIME ReceivedDtm;
-		int  Type;
-		int  Format; // SFileFormat::xxx
-		int  Status;
-		int  DownloadStatus;
-		int  Flags;
-		SString SenderName;
-		SString ReceiverName;
-		SString Body;
-		SString Content;
-	};
+	
 	int    SLAPI ParseDocument(const json_t * pJsonObj, Document & rItem);
 	int    SLAPI ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
 	int    SLAPI SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
@@ -734,7 +761,7 @@ static int ChZnDocStatusFromStr(const char * pText)
 
 static int ChZnDocTypeFromStr(const char * pText, int * pType, int * pFormat)
 {
-	SString temp_buf = pText;
+	SString temp_buf(pText);
 	int    format = 0;
 	if(temp_buf.CmpSuffix("_CSV", 1) == 0) {
 		format = SFileFormat::Csv;
@@ -852,9 +879,21 @@ int  SLAPI ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollectio
 	return ok;
 }
 
-int SLAPI ChZnInterface::Document::Parse()
+int SLAPI ChZnInterface::Document::Parse(const char * pBuffer)
 {
 	int    ok = 0;
+	if(!isempty(pBuffer)) {
+		const char * p_src = pBuffer;
+		while(oneof2(*p_src, ' ', '\t'))
+			p_src++;
+		if(sstrneq(p_src, "<xml", 4)) { // xml
+
+		}
+		else if(sstrneq(p_src, "{", 1)) { // json
+		}
+	}
+	else
+		ok = -1;
 	return ok;
 }
 
@@ -1505,13 +1544,8 @@ int SLAPI ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * p
 						url.Parse(link_buf);
 						Document reply_doc;
 						GetDocument(rIb, 0, &url, reply_doc);
-						//THROW_SL(c.HttpGet(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, &wr_stream));
-						//p_ack_buf = static_cast<SBuffer *>(wr_stream);
-						/*if(p_ack_buf) {
-							rTicket.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-							LogTalking("rep", rTicket);
-							ok = 1;
-						}*/
+						rTicket = reply_doc.Content;
+						ok = 1;
 					}
 				}
 				else {
@@ -1680,9 +1714,6 @@ int SLAPI ChZnInterface::ParseTicket(const char * pTicket, Packet ** ppP)
 
 int SLAPI ChZnInterface::CommitTicket(const char * pPath, const char * pIdent, const char * pTicket)
 {
-	//const char * p_utm_rej_pfx = "UTM Rej";
-	//const char * p_egais_rej_pfx = "EGAIS Rej";
-	//const  char * p_chzn_rej_pfx = "ChZn Rej";
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
@@ -2037,6 +2068,7 @@ int SLAPI ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid
 					uint  wi_code = GetLastWinInternetResponse(wi_msg);
 					ReadReply(h_req, reply_buf);
 					LogTalking("rep", 0, reply_buf);
+					rDoc.Content = reply_buf;
 				}
 				else {
 					wininet_err = GetLastError();
@@ -2553,17 +2585,19 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 						if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
 							suited = 0;
 							THROW_SL(p_pack = new ChZnInterface::Packet(ChZnInterface::doctypReceiveOrder));
-							if(p_bobj->ExtractPacket(bill_rec.ID, static_cast<PPBillPacket *>(p_pack->P_Data)) > 0) {
-								for(uint tidx = 0; !suited && tidx < static_cast<PPBillPacket *>(p_pack->P_Data)->GetTCount(); tidx++) {
-									const PPTransferItem & r_ti = static_cast<PPBillPacket *>(p_pack->P_Data)->ConstTI(tidx);
-									static_cast<PPBillPacket *>(p_pack->P_Data)->XcL.Get(tidx+1, 0, lotxcode_set);
-									for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
-										if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
-											GtinStruc gts;
-											const int pczcr = PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0);
-											//if(PPChZnPrcssr::IsChZnCode(msentry.Num))
-											if(pczcr > 0)
-												suited = 1;
+							{
+								PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
+								if(p_bobj->ExtractPacket(bill_rec.ID, p_bp) > 0) {
+									for(uint tidx = 0; !suited && tidx < p_bp->GetTCount(); tidx++) {
+										const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
+										p_bp->XcL.Get(tidx+1, 0, lotxcode_set);
+										for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
+											if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
+												GtinStruc gts;
+												const int pczcr = PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0);
+												if(pczcr > 0)
+													suited = 1;
+											}
 										}
 									}
 								}
@@ -2587,6 +2621,7 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 				SString pending_ident;
 				SString ticket_buf;
 				SString path;
+				PPIDArray bill_id_list;
 				ifc.GetDebugPath(*p_ib, path);
 				for(uint ssp = 0; pending_list.get(&ssp, pending_ident);) {
 					if(ifc.GetDocumentTicket(*p_ib, pending_ident, ticket_buf) > 0) {
@@ -2600,9 +2635,11 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 				int tdr = ifc.TransmitDocument2(*p_ib, *p_inner_pack, result_doc_ident);
 				if(tdr > 0) {
 					if(result_doc_ident.NotEmpty()) {
+						PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_inner_pack->P_Data);
 						ObjTagItem tag_item;
 						if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, result_doc_ident)) {
-							if(!p_ref->Ot.PutTag(PPOBJ_BILL, static_cast<PPBillPacket *>(p_inner_pack->P_Data)->Rec.ID, &tag_item, 1))
+							// @v10.8.5 @construction p_bobj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 1);
+							if(!p_ref->Ot.PutTag(PPOBJ_BILL, p_bp->Rec.ID, &tag_item, 1))
 								LogLastError();
 						}
 					}

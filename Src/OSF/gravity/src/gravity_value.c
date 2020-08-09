@@ -25,7 +25,8 @@ static void gravity_hash_serialize(gravity_hash_t * table, GravityValue key, Gra
 		value = GravityValue::from_object(reinterpret_cast<gravity_class_t *>(VALUE_AS_CLOSURE(value)->f));
 	if(value.IsFunction()) {
 		gravity_function_t * f = VALUE_AS_FUNCTION(value);
-		if(f->tag == EXEC_TYPE_SPECIAL) gravity_function_special_serialize(f, key.GetZString(), json);
+		if(f->tag == EXEC_TYPE_SPECIAL) 
+			gravity_function_special_serialize(f, key.GetZString(), json);
 		else {
 			// there was an issue here due to the fact that when a subclass needs to use a $init from a
 			// superclass
@@ -37,7 +38,8 @@ static void gravity_hash_serialize(gravity_hash_t * table, GravityValue key, Gra
 			if(is_super_function) 
 				f->identifier = s->cptr();
 			gravity_function_serialize(f, json);
-			if(is_super_function) f->identifier = saved;
+			if(is_super_function) 
+				f->identifier = saved;
 		}
 	}
 	else if(value.IsClass()) {
@@ -159,13 +161,15 @@ gravity_class_t * gravity_class_getsuper(gravity_class_t * c) { return c->superc
 bool gravity_class_grow(gravity_class_t * c, uint32 n) 
 {
 	mem_free(c->ivars);
-	if(c->nivars + n >= MAX_IVARS) 
+	if((c->nivars + n) >= MAX_IVARS) 
 		return false;
-	c->nivars += n;
-	c->ivars = static_cast<GravityValue *>(mem_alloc(NULL, c->nivars * sizeof(GravityValue)));
-	for(uint32 i = 0; i<c->nivars; ++i) 
-		c->ivars[i] = GravityValue::from_null();
-	return true;
+	else {
+		c->nivars += n;
+		c->ivars = static_cast<GravityValue *>(mem_alloc(NULL, c->nivars * sizeof(GravityValue)));
+		for(uint32 i = 0; i < c->nivars; ++i) 
+			c->ivars[i] = GravityValue::from_null();
+		return true;
+	}
 }
 
 bool gravity_class_setsuper(gravity_class_t * baseclass, gravity_class_t * superclass) 

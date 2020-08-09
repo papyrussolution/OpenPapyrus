@@ -30,8 +30,7 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
  * Contributor(s):
  *	Carl D. Worth <cworth@cworth.org>
@@ -39,10 +38,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-error-private.h"
-//#include <stdio.h>
-//#include <errno.h>
-//#include <locale.h>
 #ifdef HAVE_XLOCALE_H
 	#include <xlocale.h>
 #endif

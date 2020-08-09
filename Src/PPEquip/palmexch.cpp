@@ -318,7 +318,7 @@ void SyncTable::LogMessage(const char * pFileName, const char * pMsg)
 {
 	int    r = 1;
 	FILE * f = 0;
-	SString file_name = pFileName;
+	SString file_name(pFileName);
 	if(file_name.Len()) {
 		f = fopen(file_name, "r");
 		if(!f) {
@@ -333,7 +333,7 @@ void SyncTable::LogMessage(const char * pFileName, const char * pMsg)
 	if(r) {
 		f = fopen(file_name, "a+");
 		if(f) {
-			SString msg = pMsg;
+			SString msg(pMsg);
 			SString s_dtm;
 			SYSTEMTIME sys_dtm;
 			GetLocalTime(&sys_dtm);

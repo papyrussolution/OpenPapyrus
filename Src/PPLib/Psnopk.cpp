@@ -746,7 +746,7 @@ int SLAPI PoClause_::GetFromPropBuf(const STempBuffer & rBuf, long exValSrc)
 		Flags  = p_sbuf->Flags;
 		CmdText = 0;
 		if(sz > sizeof(*p_sbuf)) {
-			SString ext_string = reinterpret_cast<const char *>(p_sbuf+1);
+			SString ext_string(reinterpret_cast<const char *>(p_sbuf+1));
 			PPGetExtStrData(_POKClause::extstrCmdText, ext_string, CmdText);
 		}
 	}

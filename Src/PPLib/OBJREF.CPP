@@ -397,8 +397,8 @@ int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 			dlg_id = DLG_COMMOBJ;
 		PPID   _id = pEntry->ID;
 		SString obj_title;
-		SString name = pEntry->Name;
-		SString symb = pEntry->Symb;
+		SString name(pEntry->Name);
+		SString symb(pEntry->Symb);
 		// @v10.2.4 @fix p_dlg = new TDialog(DLG_COMMOBJ);
 		THROW(CheckDialogPtr(&(p_dlg = new TDialog(dlg_id))));
 		THROW(p_obj = static_cast<PPObjReference *>(GetPPObject(pEntry->ObjType, 0)));
@@ -455,7 +455,7 @@ int SLAPI PPObjReference::EditCommObjItem(PPCommObjEntry * pEntry)
 int SLAPI PPObjReference::CheckName(PPID id, const char * pName, int silent)
 {
 	int    ok = 1;
-	SString temp_buf = pName;
+	SString temp_buf(pName);
 	THROW_PP(temp_buf.NotEmptyS(), PPERR_NAMENEEDED);
 	THROW(CheckDupName(id, temp_buf));
 	CATCH
@@ -2261,7 +2261,6 @@ private:
 			PPVkClient::GetVKAccessToken();
 		}
 		else if(event.isCmd(cmInputUpdated)&&event.isCtlEvent(CTL_VKGUACFG_LOGIN_URL)) {
-			
 			static int __lock = 0;
 			if(!__lock) {
 				__lock = 1;
@@ -2269,10 +2268,10 @@ private:
 				{
 					InetUrl url(temp_buf);
 					url.GetComponent(InetUrl::cRef, 0, temp_buf);
+					SString left;
+					SString right;
 					StringSet ss('&', temp_buf);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						SString left;
-						SString right;
 						temp_buf.Divide('=', left, right);
 						if(left.IsEqual("access_token"))
 							Data.Token.Z().Cat(right);
@@ -2288,9 +2287,7 @@ private:
 			if(!__lock) {
 				__lock = 1;
 				getCtrlString(CTL_VKGUACFG_GROUP_ID, temp_buf.Z());
-				{
-					Data.GroupId.Z().Cat(temp_buf);
-				}
+				Data.GroupId.Z().Cat(temp_buf);
 				__lock = 0;
 			}
 		}
@@ -2300,7 +2297,6 @@ private:
 	}
 	PPObjGlobalUserAcc GuaObj;
 };
-
 
 class GlobalUserAccDialog : public TDialog{
 	DECL_DIALOG_DATA(PPGlobalUserAccPacket);

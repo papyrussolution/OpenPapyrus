@@ -942,7 +942,7 @@ toolbar export TEXTBROWSER TB_FIRST_TOOLBAR {
 	OPEN        : kbCtrlO,   PPDV_OPEN03,        "@{fileopen}...\tCtlr-O"
 	SAVE        : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
 	SAVEAS      : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
-	SELCODEPAGE : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
+	SELCODEPAGE : kbShiftF8, TBBM_CODING,        "@{selectcodepage}\tShift-F8"
 	CVTCODEPAGE : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
 	SEARCH      : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
 }
@@ -951,7 +951,7 @@ toolbar export TEXTBROWSER_WB_HTML TB_FIRST_TOOLBAR {
 	OPEN         : kbCtrlO,   PPDV_OPEN03,        "@{fileopen}...\tCtlr-O"
 	SAVE         : kbCtrlS,   PPDV_SAVE03,        "@{save}\tCtlr-S"
 	SAVEAS       : kbCtrlA,   PPDV_SAVEAS03,      "@{saveas}...\tCtlr-S"
-	SELCODEPAGE  : kbShiftF8, TBBM_CODING,        "Выберите кодировку\tShift-F8"
+	SELCODEPAGE  : kbShiftF8, TBBM_CODING,        "@{selectcodepage}\tShift-F8"
 	CVTCODEPAGE  : kbShiftF9, PPDV_NOICON,        "Перекодировать...\tShift-F9"
 	SEARCH       : kbCtrlF,   TBBM_SEARCHREPLACE, "@{dosearchandreplace}...\tCtrl-F"
 	PROCESSTEXT  : kbCtrlF6,  PPDV_NOICON,        "Форматирование HTML\tCtrl-F6"
@@ -3508,7 +3508,7 @@ browser QCERT north(100), 2, 1, "@{qcert}", OWNER|GRID, 0
 	"Срок действия",       4, notype, DATF_DMY, 8
 	"Орган",               5, notype, 0, 14
 	"@ware",               6, notype, 0, 20
-	"Другое",              7, notype, 0, 20
+	"@etc_neut",           7, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM     : kbEnter,   PPDV_EDITFILE02,   "@{edit}\tEnter"
 		ADDITEM      : kbIns,     PPDV_ADDFILE02,    "@{add}\tInsert"

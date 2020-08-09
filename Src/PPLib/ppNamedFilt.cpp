@@ -695,7 +695,7 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 			SString name;
 			getCtrlString(CTL_FILTITEM_NAME, name);
 			if(!name.NotEmptyS()) {
-				setCtrlString(CTL_FILTITEM_NAME, CmdTextList.Get(pos).Txt);
+				setCtrlString(CTL_FILTITEM_NAME, name = CmdTextList.Get(pos).Txt);
 			}
 			Data.Param.Z(); // Поменялся PPView, фильтр устарел
 			enableCommand(cmCmdParam, 1);

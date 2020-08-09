@@ -358,7 +358,7 @@ int SLAPI Crosstab::CreateTable()
 	CurDict->GetUniqueTableName("CT", P_RTbl);
 	{
 		DbProvider * p_dict = CurDict;
-		SString table_name = P_RTbl->GetTableName();
+		SString table_name(P_RTbl->GetTableName());
 		SString file_name;
 		THROW_DB(p_dict->CreateTableSpec(P_RTbl));
 		THROW_DB(p_dict->CreateTempFile(table_name, file_name, 0));
@@ -937,7 +937,7 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 			THROW_MEM(P_RTbl = new DBTable);
 			THROW(P_RTbl->SerializeSpec(-1, rBuf, pCtx));
 			{
-				SString table_name = P_RTbl->GetTableName();
+				SString table_name(P_RTbl->GetTableName());
 				SString file_name = P_RTbl->GetName();
 				THROW_DB(CurDict->CreateTableSpec(P_RTbl));
 				ZDELETE(P_RTbl);

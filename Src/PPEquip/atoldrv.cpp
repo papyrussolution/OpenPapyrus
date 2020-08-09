@@ -1263,7 +1263,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			int    r = 0;
 			SString line_buf;
 			// @v10.3.9 const SString format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
-			const SString format_name = "CCheck"; // @v10.3.9 
+			const SString format_name("CCheck"); // @v10.3.9 
 			SlipLineParam sl_param;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
@@ -1715,7 +1715,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	if(P_SlipFmt) {
 		int   r = 0;
 		SString  line_buf;
-		const SString format_name = (pFormatName && pFormatName[0]) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy");
+		const SString format_name((!isempty(pFormatName)) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy"));
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {
@@ -1757,12 +1757,25 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 	// Закрыть сессию можно только под паролем администратора
 	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
-	if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
+	/* @v10.8.5 if(PPObjPerson::GetCurUserPerson(0, &temp_buf) < 0) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		PPSecur sec_rec;
 		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
 			(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+	}*/
+	// @v10.8.5 {
+	{
+		if(PPObjPerson::GetCurUserPerson(0, &temp_buf) > 0) {
+			(operator_name = temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
+		}
+		else {
+			PPObjSecur sec_obj(PPOBJ_USR, 0);
+			PPSecur sec_rec;
+			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+				(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+		}
 	}
+	// } @v10.8.5
 	//
 	Flags |= sfOpenCheck;
 	if(P_Fptr10) {
@@ -1826,7 +1839,8 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 	}
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf, format_name = "ZReportCopy";
+		SString line_buf;
+		SString format_name("ZReportCopy");
 		SlipDocCommonParam sdc_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 		if(r > 0) {

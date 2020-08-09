@@ -1029,7 +1029,7 @@ static IMPL_DBE_PROC(dbqf_yeswordbyflag_i)
 		long flag  = params[1].lval;
 		char * p_out_symb = params[2].sptr;
 		if(flags & flag) {
-			SString temp_buf = p_out_symb;
+			SString temp_buf(p_out_symb);
 			if(temp_buf.Len() == 0)
 				PPLoadString("yes", temp_buf);
 			temp_buf.CopyTo(buf, sizeof(buf));

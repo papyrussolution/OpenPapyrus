@@ -424,7 +424,7 @@ int main(int argc, char ** argv)
 SLTEST_R(CreatePapyrusLic)
 {
 	int    ok = 1;
-	SString out_file_name = MakeOutputFilePath("test_lic");
+	SString out_file_name(MakeOutputFilePath("test_lic"));
 	SString temp_buf;
 	SFile in_file(MakeInputFilePath("shortstrings"), SFile::mRead);
 	SString line_buf;

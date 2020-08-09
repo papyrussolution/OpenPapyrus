@@ -248,7 +248,7 @@ void SLAPI LssLin::Solve(uint count, const double * pX, const double * pY)
 
 double SLAPI LssLin::Estimation(double x, double * pYErr) const
 {
-	double y = A + B * x;
+	const double y = A + B * x;
 	if(pYErr)
 		*pYErr = sqrt(Cov00 + x * (2 * Cov01 + Cov11 * x));
 	return y;

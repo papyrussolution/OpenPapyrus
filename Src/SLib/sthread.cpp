@@ -952,8 +952,8 @@ SLTEST_R(Evnt)
 	int    ok = 1;
 	static volatile int signal_var = 0;
 	static volatile int result = 0;
-	SString evnt_name_start = "TestEvnt_Start";
-	SString evnt_name_finish = "TestEvnt_Finish";
+	SString evnt_name_start("TestEvnt_Start");
+	SString evnt_name_finish("TestEvnt_Finish");
 	Evnt ev_start(evnt_name_start, Evnt::modeCreate);
 	SLTEST_CHECK_NZ((HANDLE)ev_start);
 	{

@@ -433,7 +433,7 @@ int SLAPI SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pSc
 			{
 				json_t * p_array = new json_t(json_t::tARRAY);
 				THROW_SL(p_array);
-				p_array->AssignText("orders");
+				p_array->AssignText(temp_buf = "orders");
 				for(uint i = 0; i < rDL.getCount(); i++) {
 					barcode.Z();
 					DiscountBlock & r_line = rDL.at(i);

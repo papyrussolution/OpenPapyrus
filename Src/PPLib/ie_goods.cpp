@@ -1664,7 +1664,7 @@ int SLAPI PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PP
 {
 	int    ok = 1;
 	if(pPack) {
-		SString temp_buf = rRec.UnitName;
+		SString temp_buf(rRec.UnitName);
 		if(temp_buf.NotEmptyS()) {
 			THROW(UnitObj.AddSimple(&pPack->Rec.UnitID, temp_buf, 0, 0));
 		}
@@ -1715,7 +1715,7 @@ int SLAPI PPGoodsImporter::Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID)
 {
 	int    ok = 1;
 	PPID   parent_id = 0;
-	SString grpcode = rRec.GrpCode;
+	SString grpcode(rRec.GrpCode);
 	SString temp_buf;
 	if(IsHier || grpcode.NotEmptyS()) {
 		BarcodeTbl::Rec barcode_rec;
@@ -1726,7 +1726,7 @@ int SLAPI PPGoodsImporter::Resolve_Group(const Sdr_Goods2 & rRec, PPID * pGrpID)
 	temp_buf = rRec.GrpName;
 	if(!parent_id && temp_buf.NotEmptyS()) {
 		PPID   folder_id = 0;
-		SString folder_name = rRec.FolderGrpName;
+		SString folder_name(rRec.FolderGrpName);
 		if(folder_name.NotEmptyS())
 			THROW(GGObj.AddSimple(&folder_id, gpkndFolderGroup, 0, folder_name, 0, 0, 0));
 		THROW(GGObj.AddSimple(&parent_id, gpkndOrdinaryGroup, folder_id, temp_buf /*grpname*/, rRec.GrpCode, Param.DefUnitID, 0));
@@ -1746,7 +1746,7 @@ int SLAPI PPGoodsImporter::Resolve_Manuf(const Sdr_Goods2 & rRec, PPID * pManufI
 {
 	int    ok = 1;
 	PPID   manuf_id = 0;
-	SString temp_buf = rRec.ManufName;
+	SString temp_buf(rRec.ManufName);
 	if(temp_buf.NotEmptyS()) {
 		THROW(PsnObj.AddSimple(&manuf_id, temp_buf, PPPRK_MANUF, PPPRS_LEGAL, 0));
 	}
@@ -2929,9 +2929,7 @@ int SLAPI ExportUhttForGitHub()
     GoodsIterator giter(&goods_filt, GoodsIterator::ordByName);
     Goods2Tbl::Rec goods_rec;
     BarcodeArray codes;
-
-	const SString title_line = "ID\tUPCEAN\tName\tCategoryID\tCategoryName\tBrandID\tBrandName\n";
-
+	const SString title_line("ID\tUPCEAN\tName\tCategoryID\tCategoryName\tBrandID\tBrandName\n");
 	long   file_no = 1;
 	(temp_buf = "uhtt_barcode_ref").CatChar('_').CatLongZ(file_no, 4).Dot().Cat("csv");
     PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);

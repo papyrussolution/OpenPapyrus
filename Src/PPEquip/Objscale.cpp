@@ -531,7 +531,7 @@ int SLAPI PPScaleDevice::DistributeFile(const char * pFileName, int rmv)
 	SString temp_buf;
 	Data.GetExtStrData(Data.extssPaths, temp_buf);
 	if(temp_buf.NotEmptyS()) {
-		SString buf = pFileName;
+		SString buf(pFileName);
 		StringSet ss(';', temp_buf);
 		for(uint i = 0; ss.get(&i, temp_buf);) {
 			SPathStruc::ReplacePath(buf, temp_buf, 1);
@@ -3525,7 +3525,7 @@ int SLAPI Bizerba::SendPLUByDriver(const ScalePLU * pScalePLU)
 			const size_t max_len = 200;
 			StringSet ss("\n");
 			GetAddedMsgLines(pScalePLU, NZOR(Data.Rec.MaxAddedLn, 50), max_len, amlfMaxText, ss);
-			SString added_msg = ss.getBuf();
+			SString added_msg(ss.getBuf());
 			if(added_msg.Len()) {
 				added_msg.Trim(max_len).Transf(CTRANSF_INNER_TO_OUTER);
 				msg_no = AddInfoFieldId;

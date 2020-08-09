@@ -492,7 +492,7 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 					SPathStruc::NormalizePath(pName, SPathStruc::npfSlash, temp_buf);
 				}
 				{
-					SString src_file_name = pSrcFileName;
+					SString src_file_name(pSrcFileName);
 					src_file_name.Transf(CTRANSF_OUTER_TO_UTF8);
 					THROW(p_zsrc = zip_source_file(static_cast<zip_t *>(H), src_file_name, 0, -1));
 					new_entry_idx = zip_file_add(static_cast<zip_t *>(H), temp_buf.Transf(CTRANSF_OUTER_TO_UTF8), p_zsrc, ZIP_FL_OVERWRITE);

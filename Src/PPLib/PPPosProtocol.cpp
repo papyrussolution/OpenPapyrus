@@ -5083,7 +5083,7 @@ int SLAPI PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, Str
 	int    srctype = srctypeUnkn;
 	int    ok = -1;
 	PPInternetAccount ina_rec;
-	SString src_buf = pSrc;
+	SString src_buf(pSrc);
 	SString ftp_ext_path;
 	SString url_buf;
 	SString temp_buf;

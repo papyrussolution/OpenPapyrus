@@ -979,7 +979,7 @@ DbfTable * FASTCALL CreateDbfTable(uint rezID, const char * fName, int forceRepl
 	int    exists = 0;
 	DbfTable * p_tbl  = 0;
 	DBFCreateFld * p_flds = 0;
-	SString file_name = fName;
+	SString file_name(fName);
 	if(::fileExists(file_name)) {
 		if(forceReplace) {
 			SPathStruc::ReplaceExt(file_name, "DBK", 1);
@@ -2355,7 +2355,7 @@ int SLAPI WaitForExists(const char * pPath, int whileExists /* = 1 */, int notif
 		int exists = fileExists(pPath) ? 1 : 0;
 		if((exists && whileExists) || (!exists && !whileExists)) {
 			DirChangeNotification * p_dc_notify = 0;
-			SString    path = pPath;
+			SString path(pPath);
 			SPathStruc paths(path);
 			if(paths.Nam.Len() == 0) {
 				path.RmvLastSlash().Dot();

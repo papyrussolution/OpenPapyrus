@@ -992,9 +992,8 @@ int SLAPI ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRe
 	uint   pos = 0;
 	long   op_type = 0, nsmena = 0, cash_no = 0;
 	LAssocArray zrep_ary; // Пара {номер_файла; номер_смены}
-	SString imp_file_name = pPath;
+	SString imp_file_name(pPath);
 	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
-
 	PPSetAddedMsgString(imp_file_name);
 	THROW_SL(imp_file.IsValid());
 	for(pos = 0; pos < 3; pos++)
@@ -1413,7 +1412,8 @@ int SLAPI ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 	const  int  notify_timeout = NZOR(ImpExpTimeout, 5000);
 
 	int    ok = 1;
-	SString imp_path = pImpPath, exp_path;
+	SString imp_path(pImpPath);
+	SString exp_path;
 	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;
 	SETIFZ(last_date, plusdate(LConfig.OperDate, 2));
 	first_date = plusdate(first_date, -1);
@@ -1438,7 +1438,7 @@ int SLAPI ACS_SETSTART::QueryFile(uint setNo, const char * pImpPath)
 				if(ok > 0) {
 					int     y, m, d;
 					SString buf, tmp_buf, tmp_name;
-					SString date_mask = "%02d.%02d.%04d";
+					const SString date_mask("%02d.%02d.%04d");
 					SFile::Remove(path_rpt);
 					tmp_name = path_flag;
 					SPathStruc::ReplaceExt(tmp_name, "tmp", 1);
