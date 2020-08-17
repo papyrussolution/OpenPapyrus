@@ -1025,7 +1025,7 @@ CPosProcessor::~CPosProcessor()
 {
 	delete P_CM;
 	delete P_CM_EXT;
-	delete P_CM_ALT; // @v9.6.11
+	delete P_CM_ALT;
 	delete P_GTOA;
 	delete P_DivGrpList;
 	delete P_TSesObj;
@@ -8572,13 +8572,11 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
 								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark)) > 0) {
-									int    dup_mark = 0;
+									int    dup_mark = chzn_mark.IsEqual(P.GetCur().ChZnMark);
 									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 										if(chzn_mark.IsEqual(P.at(i).ChZnMark))
 											dup_mark = 1;
 									}
-									if(!dup_mark && chzn_mark.IsEqual(P.GetCur().ChZnMark))
-										dup_mark = 1;
 									if(!dup_mark) {
 										if(!disable_chzn_mark_backtest && CnExtFlags & CASHFX_CHECKEGAISMUNIQ) { // @v10.8.1 !disable_chzn_mark_backtest
 											PPIDArray cc_list;

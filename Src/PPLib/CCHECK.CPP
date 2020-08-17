@@ -979,11 +979,6 @@ int SLAPI CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const cha
 int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
 // } @v9.0.9
 
-#if 0 // @v9.0.9 {
-int SLAPI CCheckPacket::SetSerial(int pos /* 1.. */, const char * pSerial) { return LnTextList.Add(pos, pSerial, 1); }
-int SLAPI CCheckPacket::GetSerial(int pos /* 1.. */, SString & rBuf) const { return LnTextList.Get(pos, rBuf); }
-#endif // } @v9.0.9
-
 int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 {
 	int    ok = -1, found = 0;
@@ -1020,6 +1015,16 @@ int SLAPI CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SLAPI CCheckPacket::_SetLineGoodsID(uint lineIdx/*0..*/, PPID goodsID)
+{
+	if(lineIdx < Items_.getCount()) {
+		Items_.at(lineIdx).GoodsID = goodsID;
+		return 1;
+	}
+	else
+		return -1;
 }
 
 int SLAPI CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
@@ -1753,7 +1758,7 @@ int SLAPI CCheckCore::GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rL
 	return ok;
 }
 
-int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
+int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & rLogger)
 {
 	int    ok = 1;
 	CCheckPacket cc_pack;
@@ -1762,30 +1767,59 @@ int CCheckCore::ValidateCheck(PPID id, double tolerance, PPLogger & rLogger)
 		double amt = 0.0, dscnt = 0.0;
 		CCheckCore::MakeCodeString(&cc_pack.Rec, chk_text.Z());
 		cc_pack.CalcAmount(&amt, &dscnt);
-		double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
-		double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
-		if(fabs(amt - rec_amt) > tolerance) {
+		const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
+		const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
+		if(!feqeps(amt, rec_amt, rParam.Tolerance)) {
+			rParam.ErrorFlags |= ValidateCheckParam::efInvAmount;
 			// #error Сумма чека не совпадает с суммой по строкам
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), chk_text.cptr(), rec_amt - amt));
 			ok = 0;
 		}
-		if(fabs(dscnt - rec_dscnt) > tolerance) {
+		if(!feqeps(dscnt, rec_dscnt, rParam.Tolerance)) {
+			rParam.ErrorFlags |= ValidateCheckParam::efInvDiscount;
 			// #error Сумма скидки чека не совпадает с суммой скидки по строкам
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), chk_text.cptr(), rec_dscnt - dscnt));
 			ok = 0;
 		}
+		// @v10.8.6 {
+		{
+			PPObjGoods goods_obj;
+			for(uint i = 0; i < cc_pack.Items_.getCount(); i++) {
+				const CCheckLineTbl::Rec & r_cc_item = cc_pack.Items_.at(i);
+				if(goods_obj.Fetch(r_cc_item.GoodsID, 0) > 0) {
+					; // ok
+				}
+				else {
+					rParam.CcListWithUnresolvedGoods.add(cc_pack.Rec.ID);
+					if(r_cc_item.GoodsID) {
+						rParam.ErrorFlags |= ValidateCheckParam::efHandgedGoods;
+						rParam.HangedGoodsList.addnz(r_cc_item.GoodsID);
+					}
+					else
+						rParam.ErrorFlags |= ValidateCheckParam::efZeroGoods;
+					PPLoadTextS(PPTXT_CCHKERR_INVGOODSID, msg_buf);
+					msg_buf.CatDiv(':', 2).Cat(chk_text).Space().CatChar('#').Cat(r_cc_item.GoodsID);
+					rLogger.Log(msg_buf);
+					ok = 0;
+				}
+			}
+		}
+		// } @v10.8.6 
 		{
 			const int amt_sign = fsign(rec_amt);
 			const CcAmountList & r_al = cc_pack.AL_Const();
 			for(uint i = 0; i < r_al.getCount(); i++) {
 				const CcAmountEntry & r_al_entry = r_al.at(i);
 				if((amt_sign < 0 && r_al_entry.Amount > 0.0) || (amt_sign > 0 && r_al_entry.Amount < 0.0)) {
+					rParam.ErrorFlags |= ValidateCheckParam::efInvAmtEntrySign;
 					rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVALENTRYSIGN, fmt_buf), chk_text.cptr(), r_al_entry.Amount));
 					ok = 0;
 				}
 			}
 		}
 		if(cc_pack.Rec.SCardID && Cards.Search(cc_pack.Rec.SCardID, 0) <= 0) {
+			rParam.ErrorFlags |= ValidateCheckParam::efHandedSCard;
+			rParam.HangedSCardList.add(cc_pack.Rec.SCardID);
 			// #error Висячая ссылка на карту в чеке
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVSCARDID, fmt_buf), chk_text.cptr()));
 			ok = 0;

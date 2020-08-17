@@ -332,10 +332,10 @@
 #ifndef LSEEK_ERROR
 	#define LSEEK_ERROR (off_t)-1
 #endif
-/*
- * Default sizeof(off_t) in case it hasn't been defined in config file.
- */
-#ifndef SIZEOF_OFF_T
+// 
+// Default sizeof(off_t) in case it hasn't been defined in config file.
+// 
+/* @v10.8.6 (slport.h) #ifndef SIZEOF_OFF_T
 	#if defined(__VMS) && !defined(__VAX)
 		#if defined(_LARGEFILE)
 			#define SIZEOF_OFF_T 8
@@ -356,7 +356,7 @@
 	#ifndef SIZEOF_OFF_T
 		#define SIZEOF_OFF_T 4
 	#endif
-#endif
+#endif*/
 /*
  * Arg 2 type for gethostname in case it hasn't been defined in config file.
  */

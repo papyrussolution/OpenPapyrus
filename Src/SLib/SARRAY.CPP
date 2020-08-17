@@ -3554,11 +3554,9 @@ int SLAPI STimeChunkArray::Add(const STimeChunk * pEntry, int checkForFree)
 {
 	int    ok = 0;
 	assert(pEntry);
-	if(pEntry)
-		if(!checkForFree || IsFreeEntry(*pEntry, 0))
-			ok = insert(pEntry) ? 1 : 0;
-		else
-			ok = -1;
+	if(pEntry) {
+		ok = (!checkForFree || IsFreeEntry(*pEntry, 0)) ? insert(pEntry) : -1;
+	}
 	return ok;
 }
 

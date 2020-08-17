@@ -14420,6 +14420,10 @@ public:
 	static int SLAPI ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult);
 	CcAmountList & AL() { return CcAl; }
 	const CcAmountList & AL_Const() const { return CcAl; }
+	//
+	// Descr: Специальный метод, обходящий приватность строк с целью корректировки идентификатора товара в записи строки.
+	//
+	int    SLAPI _SetLineGoodsID(uint lineIdx/*0..*/, PPID goodsID);
 
 	enum {
 		ufCheckInvariant = 0x0001, // Функция CCheckCore::TurnCheck не допускает проведение пакета,
@@ -14442,10 +14446,9 @@ private:
 	// @v10.3.9 int    SLAPI PackLineTextExt(SString & rResult) const;
 	// @v10.3.9 int    SLAPI UnpackLineTextExt(const SString & rBuf);
 	int    SLAPI UnpackTextExt(const SString & rBuf);
-	// @v9.0.11 int    SLAPI PrepareForWriting(PPID ccheckID, int16 lastRbc);
 
 	CCheckLineArray Items_; //
-	TSVector <LineExt> ExtList; // @v9.8.4 TSArray-->TSVector
+	TSVector <LineExt> ExtList; 
 	CcAmountList CcAl;      // Список оплат по чеку. Используется только, если по чеку было более
 		// одного типа оплаты. Например: безналичная оплата + доплата наличными.
 	//
@@ -14603,6 +14606,26 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList);
+	
+	struct ValidateCheckParam {
+		SLAPI  ValidateCheckParam(double tolerance) : Tolerance(tolerance), ErrorFlags(0)
+		{
+		}
+		enum {
+			efInvAmount       = 0x0001,
+			efInvDiscount     = 0x0002,
+			efHandgedGoods    = 0x0004,
+			efZeroGoods       = 0x0008,
+			efInvAmtEntrySign = 0x0010,
+			efHandedSCard     = 0x0020
+		};
+		const  double Tolerance; // Максимальное допустимое различие между суммой чека и суммами по строкам
+			// (суммой скидки и суммами скидки по строкам), при превышении которого функция рапортует об ошибке.
+		long   ErrorFlags;
+		PPIDArray HangedGoodsList;
+		PPIDArray HangedSCardList;
+		PPIDArray CcListWithUnresolvedGoods;
+	};
 	//
 	// Descr: Проверяет правильность чека.
 	// ARG(id        IN): Идентификатор чека
@@ -14613,7 +14636,7 @@ public:
 	//   !0 - ошибок в чеке не обнаружено.
 	//    0 - чек содержит по крайней мере одну ошибку.
 	//
-	int    ValidateCheck(PPID id, double tolerance, PPLogger & rLogger);
+	int    ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & rLogger);
 	//
 	// Descr: Возвращает ИД кассового узла, которому принадлежит чек checkID.
 	//   Так как непосредственно чек на кассовый узел (в общем случае) не ссылается,
@@ -14648,8 +14671,7 @@ public:
 	int    SLAPI GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec);
 	int    SLAPI Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta);
 	//
-	// Descr: Кассовые чеки нельзя править. Их можно только добавлять
-	//   или, в крайнем случае, удалять.
+	// Descr: Кассовые чеки нельзя править. Их можно только добавлять или, в крайнем случае, удалять.
 	//
 	int    SLAPI TurnCheck(CCheckPacket * pPack, int use_ta);
 	int    SLAPI UpdateCheck(CCheckPacket * pPack, int use_ta);
@@ -16651,8 +16673,11 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 		fOptRangeMulti             = 0x0004, // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
 		fOptRangeStepAsMkPart_     = 0x0008, // Параметр OptRangeStep задан в миллионных долях от мощности выборки
 		fTrendErrLimitAsMedianPart = 0x0010, // Параметр InitTrendErrLimit задан в медианных долях
-		fRemoveLowProfitStrategies = 0x0020  // @v10.7.5 Перед селекцией контейнера стратегий убирать тех кандидатов, чья доходность меньше лимита.
+		fRemoveLowProfitStrategies = 0x0020, // @v10.7.5 Перед селекцией контейнера стратегий убирать тех кандидатов, чья доходность меньше лимита.
 			// Методика вычисления лимита (предварительно) такая: среднее значение доходности всех кандидатов минус 3 дисперсии.
+		fSeparateInpFrameSizes     = 0x0040  // @v10.8.6 Каждый элемент PPTssModelPacket::InputFrameSizeList расчитывается полным
+			// циклом с последующим сравнением результатов и выбором лучшего набора стратегий.
+			// При вводе такой список обрамляется скобками []. Например [240, 300, 360]
 	};
 	enum {
 		tcAmount     = 0, // Абсолютный объем выигрыша
@@ -16702,8 +16727,9 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
 	uint8  OptRangeStep_Measure;    // @v10.7.6 orsXXX
 	uint8  StrategyPoolSortOrder;   // @v10.7.7 Порядок сортировки пула стратегий перед селекцией
-	uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными,
+	// @v10.8.6 uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными,
 		// что является поводом для удаления из пула стратегий самых малодоходных из них перед селекцией. Если 0, то не проверять на соответствие этому фактору.
+	uint8  Reserve4;                // @v10.8.6 
 	uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
 	long   Flags;
 	long   Reserve1;
@@ -16894,8 +16920,12 @@ public:
 	struct StrategyResultValueEx : public StrategyResultValue { // @transient
 		SLAPI  StrategyResultValueEx();
 		StrategyResultValueEx & SLAPI Z();
+		double SlVal;           // @v10.8.5 Абсолютное значение stop-limit
+		double TpVal;           // @v10.8.5 Абсолютное значение take-profit 
 		double Peak;            // Максимальное значение, которого достигла котировка в течении сессии
 		double Bottom;          // Минимальное значение, которого достигла котировка в течении сессии
+		double Clearance;       // @v10.8.5 Минимальный зазор в течении сессии (квантов). При выигрыше это минимальная разница между sl и ближайшей точкой хода,
+			// при проигрыше - минимальная разница между tp и ближайшей точкой хода
 		uint   StartPoint;      // @10.7.9 Точка ряда, на которой алгоритм TsCalcStrategyResult2 начал работу
 		uint   LastPoint;       // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
 		STimeChunk TmR;         // @v10.4.11
@@ -16935,6 +16965,8 @@ public:
 		double SLAPI CalcTP(double stakeBase, double averageSpreadForAdjustment) const;
 		double SLAPI CalcTP(double stakeBase, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI GetWinCountRate() const;
+		double SLAPI GetAngleDensity() const;
+		double SLAPI GetStakeDensity() const;
 		double SLAPI CalcConfidenceFactor() const;
 		//
 		// Descr: Возвращает средний катет (OptDeltaRange*InputFrameSize) / SpikeQuant
@@ -17018,6 +17050,8 @@ public:
 		double SumBottom;        //
 		double MaxPeak;          //
 		uint64 TotalSec;         // Общее время теста (для симуляции контейнеров стратегий)
+		uint   FactorRangeLo;    // @v10.8.6
+		uint   FactorRangeUp;    // @v10.8.6
 	};
 	struct TrendEntry {
 		SLAPI  TrendEntry(uint stride, uint nominalCount);
@@ -17059,6 +17093,7 @@ public:
 		SLAPI  StrategyContainer(const StrategyContainer & rS);
 		StrategyContainer & FASTCALL operator = (const StrategyContainer & rS);
 		int    FASTCALL Copy(const StrategyContainer & rS);
+		StrategyContainer & SLAPI Z();
 		int    SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel);
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		void   SLAPI SetUseDataForStrategiesTill(LDATE dt);
@@ -17069,16 +17104,18 @@ public:
 		uint32 SLAPI GetVersion() const { return Ver; }
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		void   SLAPI Simulate(const DateTimeArray & rTmList, const RealArray & rValList, const TSCollection <TrendEntry> & rTrendList,
-			const Config & rCfg, StrategyResultEntry & rSre, TSVector <StrategyResultValueEx> * pDetailsList) const;
+			const Config & rCfg, uint insurSlDelta, uint insurTpDelta, StrategyResultEntry & rSre, TSVector <StrategyResultValueEx> * pDetailsList) const;
+		void   SLAPI StrategyContainer::AccumulateFactors(StrategyResultEntry & rSre) const;
+		int    SLAPI FindIntersectionByAngle(const Strategy & rS, uint * pPos) const;
 
 		enum {
-			scoreResult = 1,          // Сумма результата
-			scoreEvStakeCountMean,    // Среднее по количеству ставок на этапе вычисления стратегий
+			scoreResult = 1,            // Сумма результата
+			scoreEvStakeCountMean,      // Среднее по количеству ставок на этапе вычисления стратегий
 			scoreEvStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе вычисления стратегий
 			scoreEvStakeCountVarCoeff,  // Коэффициент вариации по количеству ставок на этапе вычисления стратегий
 			scoreSeStakeCountMean,      // Среднее по количеству ставок на этапе отбора стратегий
 			scoreSeStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе отбора стратегий
-			scoreSeStakeCountVarCoeff   // Коэффициент вариации по количеству ставок на этапе отбора стратегий
+			scoreSeStakeCountVarCoeff,  // Коэффициент вариации по количеству ставок на этапе отбора стратегий
 		};
 		//
 		// Descr: Рассчитывает значение показателя контейнера стратегий.
@@ -17115,7 +17152,7 @@ public:
 			gbsfTrendFollowing     = 0x0200, // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
 			gbsfCritTotalResult    = 0x0400, // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
 			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
-			gbsfEliminateCQADups   = 0x1000, // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
+			// @v10.8.6 gbsfEliminateCQADups   = 0x1000, // @v10.7.4 При нахождении похожих по критерию CQA стратегий оставлять только ту, которая имеет наилучший критерий
 			gbsfShuffle            = 0x2000, // @v10.7.7 Перед селекцией хаотизировать список стратегий
 			gbsfEliminate100prob   = 0x4000, // @v10.7.9 Не включать в пул стратегии с вероятность выигрыша 100% (подозреваю, что они мешают)
 			gbsfCritStakeCount     = 0x8000  // @v10.7.9 В качестве критерия сортировки применять количество ставок стратегии.
@@ -17176,15 +17213,17 @@ public:
 		uint32 Ver;
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
+	public:
 		struct FlatBlock { // @v10.6.12 @flat
 			SLAPI  FlatBlock();
 			double MainTrendErrAvg;   // Среднее значение ошибки регрессии для магистрального тренда
 			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
 			LDATE  UseDataForStrategiesTill; // @v10.7.3
 			uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
-			uint8  Reserve[42];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42]
+			double StakeDistrAvg;     // @v10.8.6 Среднее распределения ставок при последнем тестовом прогоне
+			double StakeDistrStdDev;  // @v10.8.6 Стандартное отклонение распределения ставок при последнем тестовом прогоне
+			uint8  Reserve[26];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42] // @v10.8.6 [42]-->[26]
 		} Fb;
-		long   State; // @transient
 	};
 	static int SLAPI EditConfig(const PPObjTimeSeries::Config * pCfg);
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
@@ -17414,6 +17453,8 @@ public:
 	ObjIdListFilt TsList;    // @anchor
 };
 
+class TryStrategyContainerResultCollection;
+
 class PrcssrTsStrategyAnalyze {
 public:
 	struct ModelParam {
@@ -17470,6 +17511,8 @@ public:
 	int    SLAPI GetTssModel(const PPTimeSeries * pTsRec, PPTssModelPacket * pTssModel);
 	int    SLAPI Run();
 	int    SLAPI TryStrategyContainers(const PPIDArray & rTsList);
+	int    SLAPI TryStrategyContainer(const PPObjTimeSeries::Config & rCfg, PPID tsID, const PPObjTimeSeries::StrategyContainer * pSc, TryStrategyContainerResultCollection & rResultCollection);
+	int    SLAPI OutputTryStrategyContainerResult(TryStrategyContainerResultCollection & rRc);
 	int    SLAPI AnalyzeRegression(PPID tsID);
 	//
 	// Descr: Флаги функции FindOptimalMaxDuck
@@ -17505,6 +17548,7 @@ private:
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	uint   SLAPI CalcStakeDistanceMedian(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcFailDistribution(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx, const DateTimeArray & rTsTmList, uint partitionCount) const;
+	int    SLAPI CalcStakeDistibutionAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, double * pAvg, double * pStdDev);
 	enum {
 		mavfDontSqrtErrList = 0x0001
 	};
@@ -17520,6 +17564,10 @@ private:
 		const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
 		const PPObjTimeSeries::StrategyContainer & rSrcSc,
 		PPObjTimeSeries::StrategyContainer & rScSelection, SFile * pFOut);
+	enum {
+		esfDontFinish = 0x0001 // Не сохранять стратегии
+	};
+	int    SLAPI EvaluateStrategies(void * pBlk, long flags, SFile & rFOutTotal, PPObjTimeSeries::StrategyResultEntry * pResult);
 	PrcssrTsStrategyAnalyzeFilt P;
 	PPObjTimeSeries TsObj;
 	mutable ACount LastStrategyId;
@@ -17788,14 +17836,12 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 		fUseDimX        = 0x0008,
 		fUseDimY        = 0x0010,
 		fUseDimZ        = 0x0020,
-		fStdEditDlg     = 0x0100, // Используется стандартный, а не редуцированный диалог
-			// редактирования товаров, относящихся к классу
-		fDupCombine     = 0x0200, // Комбинации {PropKind, PropGrade, DimX, DimY, DimZ}
-			// могут дублироваться //
+		fStdEditDlg     = 0x0100, // Используется стандартный, а не редуцированный диалог редактирования товаров, относящихся к классу
+		fDupCombine     = 0x0200, // Комбинации {PropKind, PropGrade, DimX, DimY, DimZ} могут дублироваться //
 		fDisableFreeDim = 0x0400, // Запрет на ввод размерностей не перечисленных в списке
 		fUseDimW        = 0x0800, // Использует размерность W
 		fUsePropAdd2    = 0x1000, // Использует свойство Add2
-		fPrintDiffLots  = 0x2000  // @v8.7.9 При печати разделять строки, относящиеся к разным лотам
+		fPrintDiffLots  = 0x2000  // При печати разделять строки, относящиеся к разным лотам
 	};
 
 	long   Tag;            // Const=PPOBJ_GOODSCLASS
@@ -21398,11 +21444,11 @@ private:
         TSVector <BrandEntry> * P_BrandList; // @v9.8.7 TSArray-->TSVector
         TSVector <WhEntry> * P_WhList; // @v9.8.7 TSArray-->TSVector
         TSVector <GoodsGrpEntry> * P_GgList; // @v9.8.7 TSArray-->TSVector
-        StrAssocArray QkList;
+        // @v10.8.6 StrAssocArray QkList;
 	};
 	virtual int  SLAPI HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
-	int    SLAPI CreateQkList(ExportBlock & rBlk);
+	// @v10.8.6 int    SLAPI CreateQkList(ExportBlock & rBlk);
 	int    SLAPI CreateBrandList(ExportBlock & rBlk);
 	int    SLAPI CreateWhList(ExportBlock & rBlk);
 	int    SLAPI CreateGoodsGrpList(ExportBlock & rBlk);

@@ -75,43 +75,41 @@
 	#include <sys/endian.h>
 #elif defined(HAVE_SYS_BYTEORDER_H)
 // Solaris
-#       include <sys/byteorder.h>
-#       ifdef BSWAP_16
-#               define bswap16(num) BSWAP_16(num)
-#       endif
-#       ifdef BSWAP_32
-#               define bswap32(num) BSWAP_32(num)
-#       endif
-#       ifdef BSWAP_64
-#               define bswap64(num) BSWAP_64(num)
-#       endif
-#       ifdef BE_16
-#               define conv16be(num) BE_16(num)
-#       endif
-#       ifdef BE_32
-#               define conv32be(num) BE_32(num)
-#       endif
-#       ifdef BE_64
-#               define conv64be(num) BE_64(num)
-#       endif
-#       ifdef LE_16
-#               define conv16le(num) LE_16(num)
-#       endif
-#       ifdef LE_32
-#               define conv32le(num) LE_32(num)
-#       endif
-#       ifdef LE_64
-#               define conv64le(num) LE_64(num)
-#       endif
+	#include <sys/byteorder.h>
+	#ifdef BSWAP_16
+		#define bswap16(num) BSWAP_16(num)
+	#endif
+	#ifdef BSWAP_32
+		#define bswap32(num) BSWAP_32(num)
+	#endif
+	#ifdef BSWAP_64
+		#define bswap64(num) BSWAP_64(num)
+	#endif
+	#ifdef BE_16
+		#define conv16be(num) BE_16(num)
+	#endif
+	#ifdef BE_32
+		#define conv32be(num) BE_32(num)
+	#endif
+	#ifdef BE_64
+		#define conv64be(num) BE_64(num)
+	#endif
+	#ifdef LE_16
+		#define conv16le(num) LE_16(num)
+	#endif
+	#ifdef LE_32
+		#define conv32le(num) LE_32(num)
+	#endif
+	#ifdef LE_64
+		#define conv64le(num) LE_64(num)
+	#endif
 #endif
-
 #ifndef bswap16
 	#define bswap16(n) (uint16_t)((((n) & 0x00FFU) << 8) | (((n) & 0xFF00U) >> 8) )
 #endif
 #ifndef bswap32
 	#define bswap32(n) (uint32_t)((((n) & 0x000000FFU) << 24) | (((n) & 0x0000FF00U) << 8) | (((n) & 0x00FF0000U) >> 8) | (((n) & 0xFF000000U) >> 24))
 #endif
-
 #ifndef bswap64
 #define bswap64(n) (uint64_t)( \
 		(((n) & 0x00000000000000FFULL) << 56) \
@@ -127,21 +125,21 @@
 
 // Define conversion macros using the basic byte swapping macros.
 #ifdef WORDS_BIGENDIAN
-#       ifndef conv16be
-#               define conv16be(num) ((uint16_t)(num))
-#       endif
-#       ifndef conv32be
-#               define conv32be(num) ((uint32_t)(num))
-#       endif
-#       ifndef conv64be
-#               define conv64be(num) ((uint64_t)(num))
-#       endif
-#       ifndef conv16le
-#               define conv16le(num) bswap16(num)
-#       endif
-#       ifndef conv32le
-#               define conv32le(num) bswap32(num)
-#       endif
+	#ifndef conv16be
+		#define conv16be(num) ((uint16_t)(num))
+	#endif
+	#ifndef conv32be
+		#define conv32be(num) ((uint32_t)(num))
+	#endif
+	#ifndef conv64be
+		#define conv64be(num) ((uint64_t)(num))
+	#endif
+	#ifndef conv16le
+		#define conv16le(num) bswap16(num)
+	#endif
+	#ifndef conv32le
+		#define conv32le(num) bswap32(num)
+	#endif
 #       ifndef conv64le
 #               define conv64le(num) bswap64(num)
 #       endif

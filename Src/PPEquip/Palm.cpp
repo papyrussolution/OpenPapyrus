@@ -5,10 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <stylopalm.h>
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
-//
-//
-//
+
 SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), aryPtrContainer)
 {
 }
@@ -259,7 +256,7 @@ PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPac
 	if(s.P_FTPPath)
 		P_FTPPath = newStr(s.P_FTPPath);
 	LocList = s.LocList;
-	QkList = s.QkList; // @v9.5.5
+	QkList = s.QkList;
 	return *this;
 }
 
@@ -621,18 +618,15 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
 		setGroupData(GRP_LOC, &l_rec);
 	}
-	// @v9.5.5 {
 	{
 		QuotKindCtrlGroup::Rec qk_rec(&Data.QkList);
 		setGroupData(GRP_QUOTKIND, &qk_rec);
 	}
-	// } @v9.5.5
 	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
 	PPIDArray op_type_list;
 	op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
 	SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);
-	// @v9.2.11 {
 	if(getCtrlView(CTLSEL_PALM_INHBTAGVAL)) {
 		int    disable_inhtagval = 1;
 		if(SpCfg.InhBillTagID) {
@@ -644,11 +638,10 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 		}
 		disableCtrl(CTLSEL_PALM_INHBTAGVAL, disable_inhtagval);
 	}
-	// } @v9.2.11
 	setCtrlString(CTL_PALM_PATH, temp_buf = Data.P_Path);
 	setCtrlString(CTL_PALM_FTPPATH, temp_buf = Data.P_FTPPath);
 	setCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
-	setCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo); // @v9.2.2
+	setCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
 	AddClusterAssoc(CTL_PALM_FLAGS, 0, PLMF_INHFLAGS);
 	AddClusterAssoc(CTL_PALM_FLAGS, 1, PLMF_IMPASCHECKS);
 	AddClusterAssoc(CTL_PALM_FLAGS, 2, PLMF_EXPCLIDEBT);
@@ -657,11 +650,9 @@ int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
 	AddClusterAssoc(CTL_PALM_FLAGS, 5, PLMF_EXPLOC);
 	AddClusterAssoc(CTL_PALM_FLAGS, 6, PLMF_EXPSTOPFLAG);
 	AddClusterAssoc(CTL_PALM_FLAGS, 7, PLMF_DISABLCEDISCOUNT);
-	// @v9.4.7 {
 	if(!(Data.Rec.Flags & PLMF_GENERIC)) {
 		AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_BLOCKED);
 	}
-	// } @v9.4.7
 	SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
 	{
 		temp_buf.Z();
@@ -711,26 +702,22 @@ int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
 		getGroupData(GRP_LOC, &l_rec);
 		Data.LocList = l_rec.LocList;
 	}
-	// @v9.5.5 {
 	{
 		QuotKindCtrlGroup::Rec qk_rec;
 		getGroupData(GRP_QUOTKIND, &qk_rec);
 		Data.QkList = qk_rec.List;
 	}
-	// } @v9.5.5
 	getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
 	getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
-	// @v9.2.11 {
 	if(getCtrlView(CTLSEL_PALM_INHBTAGVAL) && SpCfg.InhBillTagID) {
 		PPObjectTag tag_rec;
 		if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM))
 			Data.Rec.InhBillTagVal = getCtrlLong(CTLSEL_PALM_INHBTAGVAL);
 	}
-	// } @v9.2.11
 	getCtrlData(CTLSEL_PALM_FTPACCT, &Data.Rec.FTPAcctID);
 	getCtrlString(CTL_PALM_PATH,     path);
 	getCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
-	getCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo); // @v9.2.2
+	getCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
 	ZDELETE(Data.P_Path);
 	if(path.NotEmptyS()) {
 		THROW_MEM(Data.P_Path = newStr(path));
@@ -835,7 +822,7 @@ int SLAPI PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int u
 			THROW(ref->PutPropVlrString(Obj, *pID, PLMPRP_PATH, pPack ? pPack->P_Path : 0));
 			THROW(ref->PutPropVlrString(Obj, *pID, PLMPRP_FTPPATH, pPack ? pPack->P_FTPPath : 0));
 			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_LOCLIST, pPack ? &pPack->LocList.Get() : 0, 0));
-			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList.Get() : 0, 0)); // @v9.5.5
+			THROW(ref->PutPropArray(Obj, *pID, PLMPRP_QUOTKINDLIST, pPack ? &pPack->QkList.Get() : 0, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -870,7 +857,7 @@ int SLAPI PPObjStyloPalm::Helper_GetPacket(PPID id, PPStyloPalmPacket * pPack, P
 		SString path;
 		THROW(ref->GetPropVlrString(Obj, id, PLMPRP_PATH, path));
 		THROW(GetLocList(id, pPack->LocList));
-		THROW(GetQuotKindList(id, pPack->QkList)); // @v9.5.5
+		THROW(GetQuotKindList(id, pPack->QkList));
 		THROW_MEM(pPack->P_Path = newStr(path));
 		THROW(ref->GetPropVlrString(Obj, id, PLMPRP_FTPPATH, path));
 		THROW_MEM(pPack->P_FTPPath = newStr(path));
@@ -2343,14 +2330,14 @@ int SLAPI PPObjStyloPalm::IsPacketEq(const PPStyloPalmPacket & rS1, const PPStyl
 	CMP_MEMB(Flags);
 	CMP_MEMB(GroupID);
 	CMP_MEMB(AgentID);
-	CMP_MEMB(MaxUnsentOrders); // @v9.2.2
-	CMP_MEMB(TransfDaysAgo);   // @v9.2.2
-	CMP_MEMB(InhBillTagVal);   // @v9.2.11
+	CMP_MEMB(MaxUnsentOrders);
+	CMP_MEMB(TransfDaysAgo);
+	CMP_MEMB(InhBillTagVal);
 #undef CMP_MEMBS
 #undef CMP_MEMB
 	if(!rS1.LocList.IsEqual(rS2.LocList))
 		return 0;
-	else if(!rS1.QkList.IsEqual(rS2.QkList)) // @v9.5.5
+	else if(!rS1.QkList.IsEqual(rS2.QkList))
 		return 0;
 	else {
 		SString temp_buf1, temp_buf2;
@@ -3303,7 +3290,7 @@ int SLAPI PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
     return ok;
 }
 
-int SLAPI PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
+/* @v10.8.6 int SLAPI PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
 {
 	int    ok = 1;
 	rBlk.QkList.Z();
@@ -3314,7 +3301,7 @@ int SLAPI PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
 	THROW(qk_obj.MakeList(&qk_filt, &rBlk.QkList));
 	CATCHZOK
 	return ok;
-}
+}*/
 
 struct StyloPalmGoodsEntry {
 	StyloPalmGoodsEntry(PPID goodsID) : GoodsID(goodsID), Rest(0.0), Cost(0.0), Price(0.0), UnitPerPack(0.0)
@@ -3337,6 +3324,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 	PPImpExp * p_ie_brand = 0;
 	PPImpExp * p_ie_loc   = 0;
 	PPImpExp * p_ie_quots = 0;
+	PPObjQuotKind qk_obj;
 	Goods2Tbl::Rec goods_rec;
 	TSVector <StyloPalmGoodsEntry> goods_list;
 	PPIDArray temp_loc_list;
@@ -3357,14 +3345,17 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 		const PPID single_loc_id = pPack->LocList.GetSingle();
 		{
 			PPSetAddedMsgString(p_qk_tbl->getName());
-			for(i = 0; i < rBlk.QkList.getCount(); i++) {
-				StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
-				DbfRecord drec_qk(p_qk_tbl);
-				drec_qk.empty();
-				drec_qk.put(1, r_item.Id);
-				drec_qk.put(2, static_cast<long>(i+1));
-				drec_qk.put(3, r_item.Txt);
-				THROW_PP(p_qk_tbl->appendRec(&drec_qk), PPERR_DBFWRFAULT);
+			for(i = 0; i < pPack->QkList.GetCount(); i++) {
+				const PPID qk_id = pPack->QkList.Get(i);
+				PPQuotKind qk_rec;
+				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+					DbfRecord drec_qk(p_qk_tbl);
+					drec_qk.empty();
+					drec_qk.put(1, qk_rec.ID);
+					drec_qk.put(2, static_cast<long>(i+1));
+					drec_qk.put(3, qk_rec.Name);
+					THROW_PP(p_qk_tbl->appendRec(&drec_qk), PPERR_DBFWRFAULT);
+				}
 			}
 		}
 		{
@@ -3489,17 +3480,17 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 					}
 					{
 						const LDATE now_date = getcurdate_();
-						for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
-							const StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
+						for(i = 0; i < PALM_MAX_QUOT && i < pPack->QkList.GetCount(); i++) {
+							const PPID qk_id = pPack->QkList.Get(i);
 							double quot = 0.0;
-							QuotIdent qi(QIDATE(now_date), single_loc_id, r_item.Id);
+							QuotIdent qi(QIDATE(now_date), single_loc_id, qk_id);
 							if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
 								drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
 								{
 									Sdr_PalmQuot quot_rec;
 									// @v10.7.9 @ctr MEMSZERO(quot_rec);
 									quot_rec.GoodsID    = r_goods_entry.GoodsID;
-									quot_rec.QuotKindID = r_item.Id;
+									quot_rec.QuotKindID = qk_id;
 									quot_rec.ClientID   = 0;
 									quot_rec.Price      = quot;
 									THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
@@ -3522,14 +3513,14 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 								}
 								{
 									const PPID target_loc_id = temp_loc_list.getCount() ? temp_loc_list.get(0) : pPack->LocList.Get(0);
-									QuotIdent qi(QIDATE(now_date), target_loc_id, r_item.Id);
+									QuotIdent qi(QIDATE(now_date), target_loc_id, qk_id);
 									if(rBlk.P_GObj->GetQuotExt(r_goods_entry.GoodsID, qi, r_goods_entry.Cost, r_goods_entry.Price, &quot, 1) > 0) {
 										drec_goods.put(PALM_FIRST_QUOTFLD+i, quot);
 										{
 											Sdr_PalmQuot quot_rec;
 											// @v10.7.9 @ctr MEMSZERO(quot_rec);
 											quot_rec.GoodsID    = r_goods_entry.GoodsID;
-											quot_rec.QuotKindID = r_item.Id;
+											quot_rec.QuotKindID = qk_id;
 											quot_rec.ClientID   = 0;
 											quot_rec.Price      = quot;
 											THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
@@ -3613,11 +3604,13 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 			if(rBlk.P_WhList) {
 				for(uint i = 0; i < rBlk.P_WhList->getCount(); i++) {
 					const ExportBlock::WhEntry & r_entry = rBlk.P_WhList->at(i);
-					Sdr_SPIILoc out_loc_rec;
-					// @v10.7.9 @ctr MEMSZERO(out_loc_rec);
-					out_loc_rec.ID = r_entry.WhID;
-					STRNSCPY(out_loc_rec.Name, r_entry.WhName);
-					THROW(p_ie_loc->AppendRecord(&out_loc_rec, sizeof(out_loc_rec)));
+					if(pPack->LocList.CheckID(r_entry.WhID)) { // @v10.8.6
+						Sdr_SPIILoc out_loc_rec;
+						// @v10.7.9 @ctr MEMSZERO(out_loc_rec);
+						out_loc_rec.ID = r_entry.WhID;
+						STRNSCPY(out_loc_rec.Name, r_entry.WhName);
+						THROW(p_ie_loc->AppendRecord(&out_loc_rec, sizeof(out_loc_rec)));
+					}
 				}
 			}
 		}
@@ -3691,10 +3684,8 @@ int SLAPI PPObjStyloPalm::RegisterDevice(PPID id, RegisterDeviceBlock * pBlk, in
 }
 
 struct PalmExpStruc {
-	PalmExpStruc()
+	PalmExpStruc(PPID goodsGrpID, long flags) : GoodsGrpID(goodsGrpID), Flags(flags)
 	{
-		GoodsGrpID = 0;
-		Flags = 0;
 	}
 	int    IsAnalog(const PalmExpStruc * pItem) const
 	{
@@ -3709,14 +3700,15 @@ struct PalmExpStruc {
 			else if(pItem->GoodsGrpID == GoodsGrpID && (pItem->Flags & PLMF_EXPBRAND) == (Flags & PLMF_EXPBRAND) &&
 				(pItem->Flags & PLMF_EXPCLIDEBT) == (Flags & PLMF_EXPCLIDEBT) &&
 				(pItem->Flags & PLMF_EXPLOC) == (Flags & PLMF_EXPLOC) &&
-				LocList.IsEqual(&pItem->LocList))
+				LocList.IsEqual(&pItem->LocList) && QkList.IsEqual(&pItem->QkList))
 				yes = 1;
 		}
 		return yes;
 	}
-	PPID   GoodsGrpID;
+	const PPID   GoodsGrpID;
 	long   Flags;
 	PPIDArray LocList;
+	PPIDArray QkList; // @v10.8.6
 	PPIDArray PalmList;
 };
 
@@ -3965,7 +3957,7 @@ int SLAPI PPObjStyloPalm::UpdateLicense()
 int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 {
 	int    ok = 1;
-	const  int dont_prepare_debt_data = BIN(rParam.Flags & PalmPaneData::fExclExpDebts); // @v9.0.0
+	const  int dont_prepare_debt_data = BIN(rParam.Flags & PalmPaneData::fExclExpDebts);
 	uint   i, j;
 	SString temp_buf;
 	DbfTable * p_dbf_tbl = 0;
@@ -3977,14 +3969,15 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 	AndroidDevs andr_devs;
 	PPViewPrjTask v_todo;
 	PPObjPrjTask todo_obj; // @v10.7.2
+	PPObjQuotKind qk_obj;
 	ExportBlock _blk;
 	THROW(ReadConfig(&sp_cfg));
 	PPGetPath(PPPATH_OUT, out_path);
-	THROW(CreateQkList(_blk));
+	// @v10.8.6 THROW(CreateQkList(_blk));
 	THROW(CreateGoodsGrpList(_blk));
 	{
 		//
-		// Создаем искусственные списки групп устройств, разделенных по признакам списков складов и товарных групп.
+		// Создаем искусственные списки групп устройств, разделенных по признакам списков складов, товарных групп, видов котировок
 		//
 		PPStyloPalmPacket palm_pack;
 		PPIDArray palm_list;
@@ -4001,12 +3994,25 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 				palm_pack.MakeOutputPath(p_cfg_item__->Path);
 				cfg_list.insert(p_cfg_item__);
 				{
-					PalmExpStruc * p_item = new PalmExpStruc;
+					PalmExpStruc * p_item = new PalmExpStruc(palm_pack.Rec.GoodsGrpID, (dvc_flags & (PLMF_INHMASK|PLMF_BLOCKED)));
 					THROW_MEM(p_item);
-					p_item->GoodsGrpID = palm_pack.Rec.GoodsGrpID;
-					p_item->Flags      = (dvc_flags & (PLMF_INHMASK|PLMF_BLOCKED));
-					if(palm_pack.LocList.IsExists())
+					if(palm_pack.LocList.IsExists()) {
 						p_item->LocList = palm_pack.LocList.Get();
+						p_item->LocList.sortAndUndup();
+					}
+					if(palm_pack.QkList.IsExists()) {
+						p_item->QkList = palm_pack.QkList.Get();
+						p_item->QkList.sortAndUndup();
+					}
+					else {
+						QuotKindFilt qk_filt;
+						StrAssocArray temp_qk_list;
+						qk_filt.Flags = (QuotKindFilt::fExclNotForBill|QuotKindFilt::fSortByRankName);
+						qk_filt.MaxItems = PALM_MAX_QUOT;
+						qk_obj.MakeList(&qk_filt, &temp_qk_list);
+						temp_qk_list.GetIdList(p_item->QkList);
+						p_item->QkList.sortAndUndup();
+					}
 					p_item->PalmList.addUnique(palm_pack.Rec.ID);
 					//
 					// Если в списке уже есть аналог нового элемента, то просто изменим в ней
@@ -4087,6 +4093,8 @@ int SLAPI PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 					} while(lc);
 				}
 			}
+			palm_pack.QkList.Set(&p_item->QkList); // @v10.8.6
+			// } @v10.8.6
 			THROW(ExportGoods(&palm_pack, _blk));
 			for(j = 0; j < p_item->PalmList.getCount(); j++) {
 				PalmCfgItem * p_cfg_item = GetPalmConfigItem(cfg_list, p_item->PalmList.get(j));

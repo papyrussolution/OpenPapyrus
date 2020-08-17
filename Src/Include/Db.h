@@ -2362,6 +2362,7 @@ public:
 #define BACKUPLOG_SUC_REMOVE        10 // Удаление резервной копии
 #define BACKUPLOG_ERROR             11 // Общая ошибка
 #define BACKUPLOG_ERR_DECOMPRESSCRC 12 // Ошибка распаковки файла (неверный CRC)
+#define BACKUPLOG_ERR_REMOVE        13 // @v10.8.6 Ошибка удаления резервной копии 
 //
 // callback function ptr
 //
@@ -2426,6 +2427,16 @@ private:
 //
 class DBBackup {
 public:
+	struct CopyParams {
+		SLAPI  CopyParams() : TotalSize(0), CheckSum(0)
+		{
+		}
+		SString Path;
+		SString TempPath;
+		StringSet SsFiles;
+		int64  TotalSize;
+		ulong  CheckSum;
+	};
 	SLAPI  DBBackup();
 	SLAPI ~DBBackup();
 	int    SLAPI SetDictionary(DbProvider * pDb);
@@ -2436,6 +2447,7 @@ public:
 	int    SLAPI GetCopyData(long copyID, BCopyData *);
 	uint   SLAPI GetSpaceSafetyFactor();
 	void   SLAPI SetSpaceSafetyFactor(uint);
+	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
 protected:
 	//
 	// Function CBP_CopyProgress must return one of SPRGRS_XXX value
@@ -2463,19 +2475,11 @@ private:
 		char   FileName[MAXPATH];
 		FILE * Stream;
 	};
-	struct CopyParams {
-		SString Path;
-		SString TempPath;
-		StringSet SsFiles;
-		int64  TotalSize;
-		ulong  CheckSum;
-	};
-private:
+
 	int    SLAPI WriteCopyData(FILE *, BCopyData *);
 	int    SLAPI ReadCopyData(FILE *, BCopyData *);
 	int    SLAPI MakeCopyPath(BCopyData * data, SString & rDestPath);
 	int    SLAPI CheckAvailableDiskSpace(const char *, int64 sizeNeeded);
-	int    SLAPI GetCopyParams(const BCopyData *, DBBackup::CopyParams *);
 	int    SLAPI DoCopy(DBBackup::CopyParams *, BackupLogFunc, void * extraPtr);
 	int    SLAPI DoRestore(DBBackup::CopyParams * pParam, BackupLogFunc fnLog, void * extraPtr);
 	int    SLAPI CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * extraPtr);

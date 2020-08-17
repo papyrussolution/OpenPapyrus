@@ -753,8 +753,8 @@ static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  7, TLRF_ADJUNUQSERIAL);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  8, TLRF_INDEPHQTTY);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  9, TLRF_REPAIRWOTAXFLAGS);
-		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 10, TLRF_SETALCCODETOGOODS); // @v9.3.1
-		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 11, TLRF_SETALCCODETOLOTS); // @v9.7.8
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 10, TLRF_SETALCCODETOGOODS);
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 11, TLRF_SETALCCODETOLOTS);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 12, TLRF_SETINHQCERT); // @v10.4.10
 		if(!(LConfig.Flags & CFGFLG_USEPACKAGE)) {
 			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 1, 1);
@@ -762,8 +762,8 @@ static int SLAPI RecoverLotsDialog(LotRecoverParam & rParam)
 		}
 		dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 6, BIN(PPObjBill::VerifyUniqSerialSfx(BillObj->GetConfig().UniqSerialSfx) <= 0));
 		if(!PPMaster) {
-			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 2, 1);
-			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 3, 1);
+			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 3, 1); // @v10.8.6 @fix 2-->3
+			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 4, 1); // @v10.8.6 @fix 3-->4
 			rParam.Flags &= ~(TLRF_REPAIRCOST | TLRF_REPAIRPRICE);
 		}
 		dlg->SetClusterData(CTL_CORLOTS_FLAGS, rParam.Flags);
@@ -810,7 +810,6 @@ int SLAPI PPViewLot::RecoverLots()
 					THROW(neg_rest_pack.CreateBlank2(param.MinusCompensOpID, getcurdate_(), /*Filt.LocID*/LocList.getSingle(), 0));
 				}
 			}
-			// @v9.9.0 {
 			PPIDArray lot_id_list;
 			{
 				LotViewItem  lv_item;
@@ -818,9 +817,7 @@ int SLAPI PPViewLot::RecoverLots()
 					lot_id_list.add(lv_item.ID);
 				}
 			}
-			// } @v9.9.0
-			// @v9.9.0 for(InitIteration(); NextIteration(&lv_item) > 0;) {
-			for(uint ididx = 0; ididx < lot_id_list.getCount(); ididx++) { // @v9.9.0
+			for(uint ididx = 0; ididx < lot_id_list.getCount(); ididx++) {
 				const PPID _lot_id = lot_id_list.get(ididx);
 				ReceiptTbl::Rec lot_rec;
 				if(p_trfr->Rcpt.Search(_lot_id, &lot_rec) > 0) {
@@ -849,7 +846,7 @@ int SLAPI PPViewLot::RecoverLots()
 							}
 						}
 					}
-					goods_list.Add((ulong)labs(lot_rec.GoodsID));
+					goods_list.Add(static_cast<ulong>(labs(lot_rec.GoodsID)));
 					loc_list.addUnique(lot_rec.LocID);
 				}
 				PPWaitPercent(ididx+1, lot_id_list.getCount());
@@ -868,9 +865,9 @@ int SLAPI PPViewLot::RecoverLots()
 			// по этому, этот блок вынесен за пределы общей транзакции
 			//
 			IterCounter cntr;
-			cntr.Init((long)goods_list.GetCount());
+			cntr.Init(static_cast<long>(goods_list.GetCount()));
 			for(ulong goods_id = 0; goods_list.Enum(&goods_id);) {
-				if(!P_BObj->trfr->CorrectCurRest((PPID)goods_id, &loc_list, &logger, BIN(param.Flags & TLRF_REPAIR)))
+				if(!P_BObj->trfr->CorrectCurRest(static_cast<PPID>(goods_id), &loc_list, &logger, BIN(param.Flags & TLRF_REPAIR)))
 					logger.LogLastError();
 				PPWaitPercent(cntr.Increment());
 			}

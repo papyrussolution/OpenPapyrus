@@ -256,7 +256,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 		p_dlg->GetClusterData(CTL_ADDCMD_WHAT, &v);
 		p_dlg->getCtrlData(CTLSEL_ADDCMD_PARENT, &parent_id);
 		if(v == 1) {
-			if(EditCmdItem(/*P_Menus_*/&Data, &new_cmd, IsDesktop) > 0) // @v10.8.5 P_Menus_-->&Data
+			if(EditCmdItem(&Data, &new_cmd, IsDesktop) > 0) // @v10.8.5 P_Menus_-->&Data
 				p_item = static_cast<PPCommandItem *>(&new_cmd);
 		}
 		else if(v == 2) {
@@ -268,7 +268,7 @@ int CommandsDialog::addItem(long * pPos, long * pID)
 			new_sep.Kind = PPCommandItem::kSeparator;
 			p_item = &new_sep;
 		}
-		if(p_item/*&& P_Menus_*/) {
+		if(p_item) {
 			uint p = 0;
 			//@v10.8.5 const PPCommandItem * p_menu = P_Menus_->SearchByID(Data.ID, &p);
 			//@v10.8.5 P_Menus_->GetUniqueID(&p_item->ID);
@@ -900,7 +900,8 @@ int EditMenusDlg::delItem(long pos, long id)
 	if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
 		const PPCommandItem * p_item = Data.SearchByID(id, &ipos);
 		if(p_item) {
-			if(IsDesktop ? CONFIRM(PPCFM_DELDESKTOP) : CONFIRM(PPCFM_DELMENU)) {
+			const int is_confirmed = IsDesktop ? CONFIRM(PPCFM_DELDESKTOP) : CONFIRM(PPCFM_DELMENU);
+			if(is_confirmed) {
 				if(IsMenuUsed(PPOBJ_USR, id, IsDesktop) || IsMenuUsed(PPOBJ_USRGRP, id, IsDesktop)) {
 					ok = 0;
 					PPErrCode = IsDesktop ? PPERR_DESKTOPBLOCKED : PPERR_MENUBLOCKED;
@@ -909,12 +910,10 @@ int EditMenusDlg::delItem(long pos, long id)
 					//@erik v10.7.3 {
 					// 
 					const PPCommandGroup * p_cgroup = Data.GetDesktop(id);
-					if(p_cgroup > 0) {
-						if(p_cgroup->GetGuid().ToStr(S_GUID::fmtIDL, str_guid)>0) {
-							PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
-							if(p_mgr->DeleteDesktopByGUID(str_guid, PPCommandMngr::fRWByXml))
-								ok = Data.Remove(ipos);
-						}
+					if(p_cgroup && p_cgroup->GetGuid().ToStr(S_GUID::fmtIDL, str_guid)) {
+						PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);
+						if(p_mgr->DeleteDesktopByGUID(str_guid, PPCommandMngr::fRWByXml))
+							ok = Data.Remove(ipos);
 					}
 					// } @erik 
 				}

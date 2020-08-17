@@ -9,6 +9,7 @@
 	#include <slconfig.h>
 #endif
 #ifndef RC_INVOKED
+	#include <slport.h>
 	#ifndef __STDIO_H
 		#include <stdio.h>
 	#endif
@@ -24,8 +25,8 @@
 	#include <float.h>
 	#include <time.h>
 	#include <errno.h>
-	#include <fcntl.h> // @v9.8.2
-	#include <sys\stat.h> // @v9.8.2
+	#include <fcntl.h>
+	#include <sys\stat.h>
 	#include <tchar.h>
 	#include <wchar.h>
 	#include <stdint.h> // @v10.8.1
@@ -3068,6 +3069,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//
 	RealRange & SLAPI SetMiddle(double middle, double delta);
 	double SLAPI GetMiddle() const;
+	int    FASTCALL Intersect(const RealRange & rTest, RealRange * pResult) const;
 
 	double low;
 	double upp;
@@ -5322,6 +5324,14 @@ uint16 FASTCALL swapw(uint16);
 //
 uint32 FASTCALL swapdw(uint32 dw);
 //
+//
+//
+inline uint16 FASTCALL sbswap16(uint16 n) { return static_cast<uint16>(((n & 0x00FFU) << 8) | ((n & 0xFF00U) >> 8)); }
+inline uint32 FASTCALL sbswap32(uint32 n) { return static_cast<uint32>(((n & 0x000000FFU) << 24) | ((n & 0x0000FF00U) << 8) | ((n & 0x00FF0000U) >> 8) | ((n & 0xFF000000U) >> 24)); }
+inline uint64 FASTCALL sbswap64(uint64 n) { return static_cast<uint64>(((n & 0x00000000000000FFULL) << 56) | ((n & 0x000000000000FF00ULL) << 40) | 
+	((n & 0x0000000000FF0000ULL) << 24) | ((n & 0x00000000FF000000ULL) << 8)  | ((n & 0x000000FF00000000ULL) >> 8) | 
+	((n & 0x0000FF0000000000ULL) >> 24) | ((n & 0x00FF000000000000ULL) >> 40) | ((n & 0xFF00000000000000ULL) >> 56)); }
+//
 // Descr: Находит самый старший установленный бит (MSB) в x.
 // Returns:
 //   Если x == 0, то 0, в противном случае единственный установленный
@@ -5769,6 +5779,7 @@ public:
 				THISZERO();
 				return *this;
 			}
+			void   Sha256_Process(State * pS, const void * pData);
 			uint32 H[8];
 			uint64 Count;
 			uint32 Data[16];

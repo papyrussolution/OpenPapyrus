@@ -1004,13 +1004,17 @@ private:
 	// } Compile-time
 	//
 	enum {
-		ffIDL = 1,    // Для IDL-файла
-		ffH_Iface,    // Прототип интерфейса в H-файле
-		ffH_Imp,      // Прототип реализации интерфейса в H-файле
-		ffCPP_Iface,  // Реализация интерфейса в CPP-файле
-		ffCPP_Imp,    // Реализация в CPP-файле
-		ffCPP_VTbl,   // Элемент таблицы виртуальных функций в CPP-файле
-		ffCPP_CallImp // Вызов реализации из интерфейсной функции
+		ffIDL = 1,     // Для IDL-файла
+		ffH_Iface,     // Прототип интерфейса в H-файле
+		ffH_Imp,       // Прототип реализации интерфейса в H-файле
+		ffCPP_Iface,   // Реализация интерфейса в CPP-файле
+		ffCPP_Imp,     // Реализация в CPP-файле
+		ffCPP_VTbl,    // Элемент таблицы виртуальных функций в CPP-файле
+		ffCPP_CallImp, // Вызов реализации из интерфейсной функции
+		ffH_GravityIface,   // @v10.8.6 Прототип интерфейса Gravity в H-файле
+		ffH_GravityImp,     // @v10.8.6 Прототип реализации интерфейса Gravity в H-файле
+		ffCPP_GravityIface, // @v10.8.6 Реализация интефейса Gravity в CPP-файле
+		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
 	};
 	int    SLAPI Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format, const char * pForward = 0);
 	int    SLAPI Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc);

@@ -4245,32 +4245,32 @@ toolbar export CSESS TB_FIRST_TOOLBAR {
 
 browser CSESS north(100), 3, 1, "@{csession_pl} {%s}", OWNER|GRID, 0
 {
-	"@id",                0, notype, 0, 4
-	"@date",              1, notype, 0, 8
-	"Номер\nсмены",       2, notype, 0, 6
-	"@posnode",          10, notype, 0, 8
-	"@posnodeno",         3, notype, NMBF_NOZERO, 6
-	"Завершенность",      4, notype, 0, 9
-	"Сумма\nчеков",       5, notype, NMBF_NOZERO, 10.2
+	"@id",                  0, notype, 0, 4
+	"@date",                1, notype, 0, 8
+	"Номер\nсмены",         2, notype, 0, 6
+	"@posnode",            10, notype, 0, 8
+	"@posnodeno",           3, notype, NMBF_NOZERO, 6
+	"@csession_incomplete", 4, notype, 0, 9
+	"Сумма\nчеков",         5, notype, NMBF_NOZERO, 10.2
 	group "В том числе" {
 		"@cashlesspayment",      9, notype, NMBF_NOZERO, 10.2
 		"@crdcard_pl",          11, notype, NMBF_NOZERO, 10.2
 	}
-	"@discount",             6, notype, NMBF_NOZERO, 10.2
-	"Списанная\nсумма",   7, notype, NMBF_NOZERO, 10.2
-	"@sumdeficit",        8, notype, NMBF_NOZERO, 10.2
+	"@discount",            6, notype, NMBF_NOZERO, 10.2
+	"Списанная\nсумма",     7, notype, NMBF_NOZERO, 10.2
+	"@sumdeficit",          8, notype, NMBF_NOZERO, 10.2
 	toolbar CSESS
 }
 
 browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWNER|GRID, 0
 {
-	"@id",                 0, notype, 0, 4
-	"@date",               1, notype, 0, 8
-	"Номер\nсмены",        2, notype, 0, 6
-	"@posnode",           16, notype, 0, 8
-	"@posnodeno",          3, notype, 0, 6
-	"Завершенность",       4, notype, 0, 9
-	"@poscheckcount",     12, notype, 0, 6
+	"@id",                  0, notype, 0, 4
+	"@date",                1, notype, 0, 8
+	"Номер\nсмены",         2, notype, 0, 6
+	"@posnode",            16, notype, 0, 8
+	"@posnodeno",           3, notype, 0, 6
+	"@csession_incomplete", 4, notype, 0, 9
+	"@poscheckcount",      12, notype, 0, 6
 	group "Суммы чеков" {
 		"@sales",     13, notype, NMBF_NOZERO, 10.2
 		"Возвраты",   14, notype, NMBF_NOZERO, 10.2
@@ -4349,7 +4349,7 @@ browser OBJSYNCQUEUE north(100), 1, 1, "Очередь синхронизации", OWNER|GRID, 0
 	"@objid",                3, notype, 0,           10
 	"@objsyncentry_commid", 12, notype, ALIGN_RIGHT, 10
 	"@dbdiv_s",              1, notype, 0,            9
-	"Наименование объекта", 11, notype, 0,           20
+	"@objectappellation",   11, notype, 0,           20
 	"@flags",               10, notype, NMBF_NOZERO,  4
 	toolbar TB_FIRST_TOOLBAR {
 		RECEIVE    :  kbF8,       PPDV_NOICON,          "Принять данные (фиксировать транзакцию)\tF8"
@@ -4397,7 +4397,7 @@ browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
 	"@turnover",           5, notype, NMBF_NOZERO, 10.2
 	"@phone",             12, notype, 0, 10 // @v9.6.1
 	"@owner",              7, notype, 0, 30
-	"Товар автосписания", 11, notype, 0, 20
+	"@scard_autogoods",   11, notype, 0, 20
 	"@memo",              13, notype, 0, 30 // @v9.6.1
 	toolbar SCARD
 }
@@ -4414,7 +4414,7 @@ browser SCARDCRD north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 	"@rest",               8, notype, NMBF_NOZERO, 10.2
 	"@phone",             12, notype, 0, 10 // @v9.6.1
 	"@owner",              7, notype, 0, 30
-	"Товар автосписания", 11, notype, 0, 20
+	"@scard_autogoods",   11, notype, 0, 20
 	"@memo",              13, notype, 0, 30 // @v9.6.1
 	toolbar SCARD
 }
@@ -4433,7 +4433,7 @@ browser SCARDCRD_TRNOVR north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 	"@rest",               8, notype, NMBF_NOZERO, 10.2
 	"@phone",             12, notype, 0, 10 // @v9.6.1
 	"@owner",              7, notype, 0, 30
-	"Товар автосписания", 11, notype, 0, 20
+	"@scard_autogoods",   11, notype, 0, 20
 	"@memo",              13, notype, 0, 30 // @v9.6.1
 	toolbar SCARD
 }
@@ -4849,12 +4849,12 @@ browser PROJECT north(100), 2, 1, "@{project_pl}", OWNER|GRID, 0
 	"@appellation",           1, notype, 0, 20
 	"@code",                  2, notype, 0, 8
 	"@date",                  3, notype, DATF_DMY, 8
-	"Дата начала работ",      4, notype, DATF_DMY, 8
+	"@project_begindt",       4, notype, DATF_DMY, 8
 	"Дата завершения",        5, notype, DATF_DMY, 8
 	"Факт дата завершения",   6, notype, DATF_DMY, 8
 	"@status",                7, notype, 0, 6
 	"@client",                8, notype, 0, 30
-	"Координатор",            9, notype, 0, 30
+	"@project_mngr",          9, notype, 0, 30
 	"@description",          10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM    : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -4883,7 +4883,7 @@ browser PRJPHASE north(100), 2, 1, "Фазы проекта '%s'", OWNER|GRID, 0
 	"Факт дата завершения",  6, notype, DATF_DMY, 8
 	"@status",               7, notype, 0, 6
 	"@client",               8, notype, 0, 30
-	"Координатор",           9, notype, 0, 30
+	"@project_mngr",         9, notype, 0, 30
 	"@description",         10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM    : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -4905,13 +4905,13 @@ browser PRJTASK north(100), 2, 1, "@{prjtask_pl} {%s}", OWNER|GRID, 0
 {
 	"@code",                 1, notype, 0, 8
 	"@date",                 2, notype, DATF_DMY, 8
-	"Дата начала работ",     3, notype, DATF_DMY, 8
+	"@prjtask_startdt",      3, notype, DATF_DMY, 8
 	"Дата завершения",       4, notype, DATF_DMY, 8
 	"Факт дата завершения",  5, notype, DATF_DMY, 8
 	"@prjtask_priority",     6, notype, 0, 6
 	"@status",               7, notype, 0, 6
 	"@client",               8, notype, 0, 30
-	"Ответственный",         9, notype, 0, 30
+	"@prjtask_employer",     9, notype, 0, 30
 	"@description",         10, notype, 0, 60 //, BCO_RESIZEABLE
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM    : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -5022,7 +5022,7 @@ browser PRJTASKTEMPL north(100), 2, 1, "Шаблоны задач {%s}", OWNER|GRID, 0
 	"@prjtask_priority",     6, notype, 0, 6
 	"@status",               7, notype, 0, 6
 	"@client",               8, notype, 0, 30
-	"Ответственный",         9, notype, 0, 30
+	"@prjtask_employer",     9, notype, 0, 30
 	"@description",         10, notype, 0, 60
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM    : kbEnter,  PPDV_EDITFILE02,   "@{edit}\tEnter"
@@ -5581,8 +5581,8 @@ browser PRICEANLZ north(100), 3, 1, "Анализ сравнения цен {%s}", OWNER|GRID, 0
 {
  	"@appellation", 3, notype, 0, 20
 	crosstab "@baseprice",     notype, NMBF_NOZERO, 10.2
-	crosstab "Фактическая цена", notype, NMBF_NOZERO, 10.2
-	crosstab "@difference",      notype, NMBF_NOZERO, 10.2
+	crosstab "@factprice",     notype, NMBF_NOZERO, 10.2
+	crosstab "@difference",    notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS         : kbF2,    TBBM_GOODS,      "@{ware}\tF2"
 		VIEWLOTS          : kbF3,    PPDV_LOTS,       "@{lots}\tF3"
@@ -5619,14 +5619,14 @@ browser REPORT north(100), 1, 1, "Настройка отчетов", GRID, 0
 //
 browser PRCBUSY north(100), 3, 1, "@{view_prcbusy} {%s}", OWNER|GRID, 0
 {
- 	"@processor",     1, notype, 0, 20
-	"@daterange",     2, notype, 0, 20
-	"@duration",      3, notype, 0, 12
-	"@session",       4, notype, 0, 10
-	"@contractor",    8, notype, 0, 20
-	"@amount",        5, notype, NMBF_NOZERO, 8.2
-	"@status",        6, notype, 0,  5
-	"Завершенность",  7, notype, 0,  4
+ 	"@processor",            1, notype, 0, 20
+	"@daterange",            2, notype, 0, 20
+	"@duration",             3, notype, 0, 12
+	"@session",              4, notype, 0, 10
+	"@contractor",           8, notype, 0, 20
+	"@amount",               5, notype, NMBF_NOZERO, 8.2
+	"@status",               6, notype, 0,  5
+	"@tsession_incomplete",  7, notype, 0,  4
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL         : kbEnter,   PPDV_EDITFILE02,    "@{session}\tEnter"
 		ADDITEM        : kbIns,     PPDV_ADDFILE02,     "Добавить сессию\tInsert"

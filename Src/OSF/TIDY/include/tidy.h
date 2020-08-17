@@ -126,14 +126,14 @@ extern "C" {
 		#undef SUPPORT_GETPWNAM
 	#endif
 	#elif defined(__APPLE__) && defined(__MACH__)
-		/* Mac OS X (client) 10.x (or server 1.x/10.x) - gcc or Metrowerks MachO compilers */
+		// Mac OS X (client) 10.x (or server 1.x/10.x) - gcc or Metrowerks MachO compilers 
 		#define MAC_OS_X
 		#ifndef PLATFORM_NAME
 			#define PLATFORM_NAME "Mac OS X"
 		#endif
 	#endif
 	#if defined(MAC_OS_CLASSIC) || defined(MAC_OS_X)
-		/* Any OS on Mac platform */
+		// Any OS on Mac platform 
 		#define MAC_OS
 		#define FILENAMES_CASE_SENSITIVE 0
 		#define strcasecmp strcmp
@@ -184,7 +184,7 @@ extern "C" {
 		#define PLATFORM_NAME "Windows"
 	#endif
 	#if defined(__MWERKS__) || defined(__MSL__)
-	/* not available with Metrowerks Standard Library */
+	// not available with Metrowerks Standard Library 
 		#ifdef SUPPORT_GETPWNAM
 			#undef SUPPORT_GETPWNAM
 		#endif
@@ -463,7 +463,7 @@ extern "C" {
 		#define setmode _setmode
 	#endif
 	#define access _access
-	#define strcasecmp _stricmp
+	// @v10.8.5 slport.h #define strcasecmp _stricmp
 	#if _MSC_VER > 1000
 		#pragma warning( disable : 4189 ) /* local variable is initialized but not referenced */
 		#pragma warning( disable : 4100 ) /* unreferenced formal parameter */

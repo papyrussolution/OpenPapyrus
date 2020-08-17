@@ -854,6 +854,20 @@ static int GetSvgPathNumber(SStrScan & rScan, SString & rTempBuf, float & rF)
 	return ok;
 }
 
+static int GetSvgPathBinaryFlag(SStrScan & rScan, SString & rTempBuf, int & rF)
+{
+	int    ok = 1;
+	rScan.Skip();
+	int    c = rScan[0];
+	if(c == '0' || c == '1') {
+		rScan.Incr(1);
+		rF = (c == '1') ? 1 : 0;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 static int GetSvgPathPoint(SStrScan & rScan, SString & rTempBuf, FPoint & rP)
 {
 	int    ok = 1;
@@ -1093,38 +1107,42 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'A': // 7, SVG_PATH_CMD_ARC_TO
 					{
 						float x_axis_rotation = 0.0f;
-						float large_arc_flag = 0.0f;
-						float sweep_flag = 0.0f;
+						int   large_arc_flag = 0;
+						int   sweep_flag = 0;
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0])); // radius
 						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, x_axis_rotation));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
+						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, large_arc_flag)); // @v10.8.6 
 						scan.Skip().IncrChr(','); // @v10.7.8
-						THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
+						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, sweep_flag)); // @v10.8.6 
 						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
 						scan.Skip().IncrChr(','); // @v10.7.8
-						ArcSvg(pa[0], x_axis_rotation, (int)large_arc_flag, (int)sweep_flag, pa[1]);
+						ArcSvg(pa[0], x_axis_rotation, large_arc_flag, sweep_flag, pa[1]);
 					}
 					break;
 				case 'a': // 7, SVG_PATH_CMD_REL_ARC_TO
 					while(scan.Skip().IsDotPrefixedNumber()) { // @v10.7.8
 						float x_axis_rotation = 0.0f;
-						float large_arc_flag = 0.0f;
-						float sweep_flag = 0.0f;
+						int   large_arc_flag = 0;
+						int   sweep_flag = 0;
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0])); // radius
 						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathNumber(scan, temp_buf, x_axis_rotation));
 						scan.Skip().IncrChr(','); // @v10.7.8
-						THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
+						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, large_arc_flag)); // @v10.8.6 
 						scan.Skip().IncrChr(','); // @v10.7.8
-						THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
+						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, sweep_flag)); // @v10.8.6 
 						scan.Skip().IncrChr(','); // @v10.7.8
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
 						scan.Skip().IncrChr(','); // @v10.7.8
 						const FPoint cur = GetCurrent();
-						ArcSvg(pa[0], x_axis_rotation, (int)large_arc_flag, (int)sweep_flag, cur + pa[1]);
+						ArcSvg(pa[0], x_axis_rotation, large_arc_flag, sweep_flag, cur + pa[1]);
 					}
 					break;
 				case 'Z': // 0, SVG_PATH_CMD_CLOSE_PATH

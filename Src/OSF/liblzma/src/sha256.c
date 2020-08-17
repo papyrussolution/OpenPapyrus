@@ -20,12 +20,8 @@
 #pragma hdrstop
 //#include "check-internal.h"
 
-// Rotate a uint32_t. GCC can optimize this to a rotate instruction
-// at least on x86.
-static inline uint32_t rotr_32(uint32_t num, unsigned amount)
-{
-	return (num >> amount) | (num << (32 - amount));
-}
+// Rotate a uint32_t. GCC can optimize this to a rotate instruction at least on x86.
+static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> amount) | (num << (32 - amount)); }
 
 #define blk0(i) (W[i] = conv32be(data[i]))
 #define blk2(i) (W[i & 15] += s1(W[(i - 2) & 15]) + W[(i - 7) & 15] + s0(W[(i - 15) & 15]))
@@ -42,10 +38,7 @@ static inline uint32_t rotr_32(uint32_t num, unsigned amount)
 #define g(i) T[(6 - i) & 7]
 #define h(i) T[(7 - i) & 7]
 
-#define R(i, j, blk) \
-	h(i) += S1(e(i)) + Ch(e(i), f(i), g(i)) + SHA256_K[i + j] + blk; \
-	d(i) += h(i); \
-	h(i) += S0(a(i)) + Maj(a(i), b(i), c(i))
+#define R(i, j, blk) h(i) += S1(e(i)) + Ch(e(i), f(i), g(i)) + SHA256_K[i + j] + blk; d(i) += h(i); h(i) += S0(a(i)) + Maj(a(i), b(i), c(i))
 #define R0(i) R(i, 0, blk0(i))
 #define R2(i) R(i, j, blk2(i))
 
@@ -77,16 +70,13 @@ static void transform(uint32_t state[8], const uint32_t data[16])
 {
 	uint32_t W[16];
 	uint32_t T[8];
-
 	// Copy state[] to working vars.
 	memcpy(T, state, sizeof(T));
-
 	// The first 16 operations unrolled
 	R0(0); R0(1); R0(2); R0(3);
 	R0(4); R0(5); R0(6); R0(7);
 	R0(8); R0(9); R0(10); R0(11);
 	R0(12); R0(13); R0(14); R0(15);
-
 	// The remaining 48 operations partially unrolled
 	for(unsigned int j = 16; j < 64; j += 16) {
 		R2(0); R2(1); R2(2); R2(3);
@@ -94,7 +84,6 @@ static void transform(uint32_t state[8], const uint32_t data[16])
 		R2(8); R2(9); R2(10); R2(11);
 		R2(12); R2(13); R2(14); R2(15);
 	}
-
 	// Add the working vars back into state[].
 	state[0] += a(0);
 	state[1] += b(0);
@@ -113,10 +102,7 @@ static void process(lzma_check_state * check)
 
 extern void lzma_sha256_init(lzma_check_state * check)
 {
-	static const uint32_t s[8] = {
-		0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
-		0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19,
-	};
+	static const uint32_t s[8] = { 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19, };
 	memcpy(check->state.sha256.state, s, sizeof(s));
 	check->state.sha256.size = 0;
 }

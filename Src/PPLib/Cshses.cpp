@@ -1045,7 +1045,7 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 			THROW(tra);
 			THROW(GroupingSessList(NodeID, &sess_list, &super_sess_list, &temp_sess_list, 0));
 			LOG_DEBUG(GroupingSessList);
-			for(i = 0; i < (int)super_sess_list.getCount(); i++)
+			for(i = 0; i < super_sess_list.getCountI(); i++)
 				DS.LogAction(PPACN_CSESSCLOSED, PPOBJ_CSESSION, super_sess_list.at(i), 0, 0);
 			if(!(EqCfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 				THROW(ConvertSessListToBills(&super_sess_list, loc_id, 0));
@@ -1071,14 +1071,15 @@ int SLAPI PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0
 		if(EqCfg.Flags & PPEquipConfig::fValidateChecksOnSessClose && sess_list.getCount()) {
 			ObjIdListFilt _ses_list;
 			ObjIdListFilt _chk_list;
+			CCheckCore::ValidateCheckParam vcp(0.02);
 			_ses_list.Set(&sess_list);
 			PPLoadText(PPTXT_ACSCLS_TESTCHECKS, msg_buf);
 			PPWaitMsg(msg_buf);
 			if(CC.LoadChecksByList(&_ses_list, 0, &_chk_list, 0) > 0 && _chk_list.IsExists()) {
 				const PPIDArray & r_chk_list = _chk_list.Get();
 				PPLogger logger;
-				for(i = 0; i < (int)r_chk_list.getCount(); i++) {
-					CC.ValidateCheck(r_chk_list.get(i), 0.02, logger);
+				for(i = 0; i < r_chk_list.getCountI(); i++) {
+					CC.ValidateCheck(r_chk_list.get(i), vcp, logger);
 					PPWaitPercent(i+1, r_chk_list.getCount(), msg_buf);
 				}
 				logger.Save(PPFILNAM_ERR_LOG, 0);
@@ -2504,7 +2505,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 			long   default_div = 1;
 			int    use_default_div = 1;
 			PPGenCashNode::DivGrpAssc * p_dg_item;
-			for(i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);)
+			for(i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);) {
 				if(p_dg_item->GrpID == 0)
 					default_div = p_dg_item->DivN;
 				else if(info.ID == p_dg_item->GrpID) {
@@ -2512,6 +2513,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 					use_default_div = 0;
 					break;
 				}
+			}
 			if(use_default_div)
 				info.DivN = default_div;
 		}
@@ -2523,7 +2525,7 @@ int SLAPI AsyncCashGoodsGroupIterator::Next(AsyncCashGoodsGroupInfo * pInfo)
 			if(quot.MinQtty)
 				THROW_SL(QuotByQttyList.insert(&quot));
 		}
-		if(QuotByQttyList.getCount() > 0)
+		if(QuotByQttyList.getCount())
 			info.P_QuotByQttyList = &QuotByQttyList;
 		ASSIGN_PTR(pInfo, info);
 		ok = 1;

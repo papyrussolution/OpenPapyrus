@@ -73,7 +73,10 @@ SLAPI PPObjAssetWrOffGrp::PPObjAssetWrOffGrp(void * extraPtr) : PPObjReference(P
 
 int SLAPI PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	ushort v;
 	PPAssetWrOffGrp rec;
 	TDialog * dlg = 0;

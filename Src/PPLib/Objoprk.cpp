@@ -1864,13 +1864,13 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_OPKMORE_FLAGS,  &(v = 0));
 			for(i = 0; i < options.getCount(); i++) {
-				o = (ulong)options.at(i);
+				o = static_cast<ulong>(options.at(i));
 				SETFLAG(f, o, v & (1 << i));
 			}
 			f &= ~(OPKF_BUYING | OPKF_SELLING);
 			dlg->getCtrlData(CTL_OPKMORE_EXTFLAGS,  &(v = 0));
 			for(i = 0; i < ext_options.getCount(); i++) {
-				ext_o = (ulong)ext_options.at(i);
+				ext_o = static_cast<ulong>(ext_options.at(i));
 				if(oneof2(ext_o, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH)) {
 					continue;
 				}

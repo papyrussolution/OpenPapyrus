@@ -4472,15 +4472,14 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 					else if(memo_base.NotEmptyS())
 						STRNSCPY(p_bp->Rec.Memo, memo_base);
 					//
-					// @v9.5.11 Изменен приоритет применения контрагента в качестве поставщика.
-					// Ранее приоритет был у psn_suppl, однако выяснилось что некоторые поставщики
+					// Приоритет применения контрагента в качестве поставщика:
+					// ранее приоритет был у psn_suppl, однако выяснилось что некоторые поставщики
 					// гонят в этом теге бредовые значения (типа собственного поставщика).
-					// {
+					//
 					if(psn_shipper.Rec.ID)
 						ArObj.P_Tbl->PersonToArticle(psn_shipper.Rec.ID, op_rec.AccSheetID, &ar_id);
 					else if(psn_suppl.Rec.ID)
 						ArObj.P_Tbl->PersonToArticle(psn_suppl.Rec.ID, op_rec.AccSheetID, &ar_id);
-					// } @v9.5.11
 					if(ar_id)
 						p_bp->SetupObject(ar_id, sob);
 					if(P_UtmEntry && P_UtmEntry->MainOrgID && AcsObj.IsLinkedToMainOrg(op_rec.AccSheet2ID)) {

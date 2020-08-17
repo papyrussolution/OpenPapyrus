@@ -2246,7 +2246,7 @@ int SLAPI DlContext::SetInheritance(DLSYMBID scopeID, DLSYMBID baseID)
 int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format, const char * pForward)
 {
 	int    ok = 1;
-	const  int idl_type = oneof4(format, ffIDL, ffH_Iface, ffCPP_Iface, ffCPP_VTbl) ? 1 : 0;
+	const  int idl_type = BIN(oneof4(format, ffIDL, ffH_Iface, ffCPP_Iface, ffCPP_VTbl));
 	uint   c;
 	SString temp_buf;
 	SString arg_name;
@@ -2255,109 +2255,148 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 	TypeDetail td;
 	THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
 	rFunc.GetName(0, temp_buf);
-	if(format == ffIDL) {
-		arg_buf.Z();
-		if(rFunc.Flags & DlFunc::fPropGet)
-			arg_buf = "propget";
-		else if(rFunc.Flags & DlFunc::fPropPut)
-			arg_buf = "propput";
-		if(arg_buf.NotEmpty())
-			THROW(gen.WriteLine(gen.CatIndent(arg_name.Z()).CatChar('[').Cat(arg_buf).CatChar(']').CR()));
+	/*
+		ffH_GravityIface,   // @v10.8.6 Прототип интерфейса Gravity в H-файле
+		ffH_GravityImp,     // @v10.8.6 Прототип реализации интерфейса Gravity в H-файле
+		ffCPP_GravityIface, // @v10.8.6 Реализация интефейса Gravity в CPP-файле
+		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
+	*/
+	if(format == ffH_GravityIface) {
+		arg_buf.Z().Cat("_Callee_").Cat(temp_buf);
+		gen.Wr_StartDeclFunc(gen.fkOrdinary, gen.fmStatic, "bool", arg_buf, gen.fcmCDecl);
+		gen.Wr_VarDecl("gravity_vm *", "vm", 0, ',');
+		gen.Wr_VarDecl("GravityValue *", "args", 0, ',');
+		gen.Wr_VarDecl("uint16", "nargs", 0, ',');
+		gen.Wr_VarDecl("uint32", "rindex", 0, 0);
+		gen.Wr_EndDeclFunc(1, 1);
 	}
-	else if(!oneof4(format, ffCPP_VTbl, ffCPP_Iface, ffCPP_CallImp, ffCPP_Imp)) {
-		arg_buf.Z();
-		if(rFunc.Flags & DlFunc::fPropGet)
-			(arg_buf = "get").CatChar('_').Cat(temp_buf);
-		else if(rFunc.Flags & DlFunc::fPropPut)
-			(arg_buf = "put").CatChar('_').Cat(temp_buf);
-		if(arg_buf.NotEmpty())
-			temp_buf = arg_buf;
-	}
-	if(format == ffCPP_CallImp) {
-		gen.CatIndent(arg_name.Z());
-		if(pForward)
-			arg_name.Cat(pForward);
-		gen.WriteLine(arg_name.Cat(temp_buf).CatChar('('));
-	}
-	else if(idl_type) {
-		THROW(gen.Wr_StartDeclFunc(0, 0, "HRESULT", temp_buf, (format == ffCPP_VTbl) ? Generator_CPP::fcmDefault : Generator_CPP::fcmStdCall));
+	else if(format == ffH_GravityImp) {
+		Format_C_Type(rFunc.TypID, ret_te.T, 0, fctfIfaceImpl, arg_buf);
+		gen.Wr_StartDeclFunc(gen.fkOrdinary, 0, arg_buf, temp_buf, gen.fcmDefault);
+		c = rFunc.GetArgCount();
+		temp_buf.Z();
+		if(c) {
+			for(uint i = 0; i < c; i++) {
+				DlFunc::Arg arg;
+				rFunc.GetArgName(i, arg_name);
+				if(i)
+					temp_buf.Comma().Space();
+				THROW(rFunc.GetArg(i, &arg));
+				THROW(SearchTypeID(arg.TypID, 0, &te));
+				if(IsInterfaceTypeConversionNeeded(te.T) > 0)
+					arg_name.CatChar('_');
+				Format_C_Type(arg.TypID, te.T, arg_name.cptr(), idl_type ? fctfIDL : fctfIfaceImpl, arg_buf);
+				temp_buf.Cat(arg_buf);
+			}
+			gen.WriteLine(temp_buf);
+		}
+		gen.Wr_EndDeclFunc(1, 1);
 	}
 	else {
-		Format_C_Type(rFunc.TypID, ret_te.T, 0, fctfIfaceImpl, arg_buf);
-		THROW(gen.Wr_StartDeclFunc(0, 0, arg_buf, temp_buf, Generator_CPP::fcmDefault));
-	}
-	c = rFunc.GetArgCount();
-	temp_buf.Z();
-	if(c) {
-		for(uint i = 0; i < c; i++) {
-			DlFunc::Arg arg;
-			rFunc.GetArgName(i, arg_name);
-			if(i)
-				temp_buf.Comma().Space();
-			if(format == ffCPP_CallImp) {
-				THROW(rFunc.GetArg(i, &arg));
-				THROW(SearchTypeID(arg.TypID, 0, &te));
-				THROW(UnrollType(arg.TypID, te.T, &td));
-				const TYPEID st = GETSTYPE(td.T.Typ);
-				if(st == S_ZSTRING) {
-					if(td.T.Mod == STypEx::modPtr)
-						temp_buf.CatChar('&');
+		if(format == ffIDL) {
+			arg_buf.Z();
+			if(rFunc.Flags & DlFunc::fPropGet)
+				arg_buf = "propget";
+			else if(rFunc.Flags & DlFunc::fPropPut)
+				arg_buf = "propput";
+			if(arg_buf.NotEmpty())
+				THROW(gen.WriteLine(gen.CatIndent(arg_name.Z()).CatChar('[').Cat(arg_buf).CatChar(']').CR()));
+		}
+		else if(!oneof4(format, ffCPP_VTbl, ffCPP_Iface, ffCPP_CallImp, ffCPP_Imp)) {
+			arg_buf.Z();
+			if(rFunc.Flags & DlFunc::fPropGet)
+				(arg_buf = "get").CatChar('_').Cat(temp_buf);
+			else if(rFunc.Flags & DlFunc::fPropPut)
+				(arg_buf = "put").CatChar('_').Cat(temp_buf);
+			if(arg_buf.NotEmpty())
+				temp_buf = arg_buf;
+		}
+		if(format == ffCPP_CallImp) {
+			gen.CatIndent(arg_name.Z());
+			if(pForward)
+				arg_name.Cat(pForward);
+			gen.WriteLine(arg_name.Cat(temp_buf).CatChar('('));
+		}
+		else if(idl_type) {
+			THROW(gen.Wr_StartDeclFunc(0, 0, "HRESULT", temp_buf, (format == ffCPP_VTbl) ? Generator_CPP::fcmDefault : Generator_CPP::fcmStdCall));
+		}
+		else {
+			Format_C_Type(rFunc.TypID, ret_te.T, 0, fctfIfaceImpl, arg_buf);
+			THROW(gen.Wr_StartDeclFunc(0, 0, arg_buf, temp_buf, Generator_CPP::fcmDefault));
+		}
+		c = rFunc.GetArgCount();
+		temp_buf.Z();
+		if(c) {
+			for(uint i = 0; i < c; i++) {
+				DlFunc::Arg arg;
+				rFunc.GetArgName(i, arg_name);
+				if(i)
+					temp_buf.Comma().Space();
+				if(format == ffCPP_CallImp) {
+					THROW(rFunc.GetArg(i, &arg));
+					THROW(SearchTypeID(arg.TypID, 0, &te));
+					THROW(UnrollType(arg.TypID, te.T, &td));
+					const TYPEID st = GETSTYPE(td.T.Typ);
+					if(st == S_ZSTRING) {
+						if(td.T.Mod == STypEx::modPtr)
+							temp_buf.CatChar('&');
+					}
+					temp_buf.Cat(arg_name);
 				}
-				temp_buf.Cat(arg_name);
+				else {
+					THROW(rFunc.GetArg(i, &arg));
+					THROW(SearchTypeID(arg.TypID, 0, &te));
+					if(format == ffIDL) {
+						if(arg.Flags & (DlFunc::fArgIn | DlFunc::fArgOut)) {
+							int    comma = 0;
+							temp_buf.CatChar('[');
+							if(arg.Flags & DlFunc::fArgIn) {
+								temp_buf.Cat("in");
+								comma = 1;
+							}
+							if(arg.Flags & DlFunc::fArgOut) {
+								if(comma)
+									temp_buf.Comma();
+								temp_buf.Cat("out");
+							}
+							temp_buf.CatChar(']').Space();
+						}
+					}
+					else if(format == ffCPP_Iface) {
+						if(IsInterfaceTypeConversionNeeded(te.T) > 0)
+							arg_name.CatChar('_');
+					}
+					Format_C_Type(arg.TypID, te.T, (format == ffCPP_VTbl) ? 0 : arg_name.cptr(), idl_type ? fctfIDL : fctfIfaceImpl, arg_buf);
+					temp_buf.Cat(arg_buf);
+				}
 			}
-			else {
-				THROW(rFunc.GetArg(i, &arg));
-				THROW(SearchTypeID(arg.TypID, 0, &te));
-				if(format == ffIDL) {
-					if(arg.Flags & (DlFunc::fArgIn | DlFunc::fArgOut)) {
-						int    comma = 0;
-						temp_buf.CatChar('[');
-						if(arg.Flags & DlFunc::fArgIn) {
-							temp_buf.Cat("in");
-							comma = 1;
-						}
-						if(arg.Flags & DlFunc::fArgOut) {
-							if(comma)
-								temp_buf.Comma();
-							temp_buf.Cat("out");
-						}
-						temp_buf.CatChar(']').Space();
+		}
+		if(idl_type) {
+			if(ret_te.MangleC != 'X') { // other than "void"
+				TypeEntry ret_te_mod;
+				DLSYMBID ptr_typ = SetDeclTypeMod(rFunc.TypID, STypEx::modPtr);
+				THROW(ptr_typ);
+				THROW(SearchTypeID(ptr_typ, 0, &ret_te_mod));
+				if(format == ffCPP_VTbl)
+					arg_name.Z();
+				else {
+					arg_name = "pRet";
+					if(format == ffCPP_Iface) {
+						if(IsInterfaceTypeConversionNeeded(ret_te_mod.T) > 0)
+							arg_name.CatChar('_');
 					}
 				}
-				else if(format == ffCPP_Iface) {
-					if(IsInterfaceTypeConversionNeeded(te.T) > 0)
-						arg_name.CatChar('_');
-				}
-				Format_C_Type(arg.TypID, te.T, (format == ffCPP_VTbl) ? 0 : arg_name.cptr(), idl_type ? fctfIDL : fctfIfaceImpl, arg_buf);
+				Format_C_Type(ptr_typ, ret_te_mod.T, arg_name, fctfIDL, arg_buf);
+				if(c)
+					temp_buf.CatDiv(',', 2);
+				if(format == ffIDL)
+					temp_buf.CatChar('[').Cat("out").Comma().Cat("retval").CatChar(']').Space();
 				temp_buf.Cat(arg_buf);
 			}
 		}
+		gen.WriteLine(temp_buf);
+		gen.Wr_EndDeclFunc(oneof2(format, ffCPP_Iface, ffCPP_Imp) ? 0 : 1, 1);
 	}
-	if(idl_type) {
-		if(ret_te.MangleC != 'X') { // other than "void"
-			TypeEntry ret_te_mod;
-			DLSYMBID ptr_typ = SetDeclTypeMod(rFunc.TypID, STypEx::modPtr);
-			THROW(ptr_typ);
-			THROW(SearchTypeID(ptr_typ, 0, &ret_te_mod));
-			if(format == ffCPP_VTbl)
-				arg_name.Z();
-			else {
-				arg_name = "pRet";
-				if(format == ffCPP_Iface) {
-					if(IsInterfaceTypeConversionNeeded(ret_te_mod.T) > 0)
-						arg_name.CatChar('_');
-				}
-			}
-			Format_C_Type(ptr_typ, ret_te_mod.T, arg_name, fctfIDL, arg_buf);
-			if(c)
-				temp_buf.CatDiv(',', 2);
-			if(format == ffIDL)
-				temp_buf.CatChar('[').Cat("out").Comma().Cat("retval").CatChar(']').Space();
-			temp_buf.Cat(arg_buf);
-		}
-	}
-	gen.WriteLine(temp_buf);
-	gen.Wr_EndDeclFunc(oneof2(format, ffCPP_Iface, ffCPP_Imp) ? 0 : 1, 1);
 	CATCHZOK
 	return ok;
 }
@@ -2669,7 +2708,6 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			}
 			else {
 				DlScope * p_rec = 0;
-
 				gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DlRtm");
 				gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 				gen.IndentInc();
@@ -2756,8 +2794,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			// Конструктор
 			//
 			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, cls_name);
-			gen.Wr_VarDecl("const char *", "pFileName", "0", 0); // @v9.6.4 ','-->0
-			// @v9.6.4 gen.Wr_VarDecl("int", "openMode", "omNormal", 0);
+			gen.Wr_VarDecl("const char *", "pFileName", "0", 0);
 			gen.Wr_EndDeclFunc(1, 1);
 			gen.WriteBlancLine();
 			//
@@ -3788,15 +3825,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 										gen.Wr_Comment(temp_buf);
 										gen.Wr_Comment(0);
 										for(uint k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
-											temp_buf.Z().Cat("_Callee_").Cat(func.Name);
-											//(func.Name = "MFP").CatChar('(').CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatChar(')');
-											//Write_Func(gen, func, ffCPP_VTbl);
-											gen.Wr_StartDeclFunc(gen.fkOrdinary, gen.fmStatic, "bool", temp_buf, gen.fcmCDecl);
-											gen.Wr_VarDecl("gravity_vm *", "vm", 0, ',');
-											gen.Wr_VarDecl("GravityValue *", "args", 0, ',');
-											gen.Wr_VarDecl("uint16", "nargs", 0, ',');
-											gen.Wr_VarDecl("uint32", "rindex", 0, 0);
-											gen.Wr_EndDeclFunc(1, 1);
+											Write_Func(gen, func, ffH_GravityIface);
 										}
 										gen.IndentDec();
 									}
@@ -3810,15 +3839,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 										gen.Wr_Comment(temp_buf);
 										gen.Wr_Comment(0);
 										for(uint k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
-											temp_buf.Z().Cat(func.Name);
-											//(func.Name = "MFP").CatChar('(').CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatChar(')');
-											//Write_Func(gen, func, ffCPP_VTbl);
-											gen.Wr_StartDeclFunc(gen.fkOrdinary, 0, "bool", temp_buf, gen.fcmCDecl);
-											gen.Wr_VarDecl("gravity_vm *", "vm", 0, ',');
-											gen.Wr_VarDecl("GravityValue *", "args", 0, ',');
-											gen.Wr_VarDecl("uint16", "nargs", 0, ',');
-											gen.Wr_VarDecl("uint32", "rindex", 0, 0);
-											gen.Wr_EndDeclFunc(1, 1);
+											Write_Func(gen, func, ffH_GravityImp);
 										}
 										gen.IndentDec();
 									}

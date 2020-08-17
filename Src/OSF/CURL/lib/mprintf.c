@@ -49,7 +49,7 @@
  */
 
 #ifndef SIZEOF_SIZE_T
-	#define SIZEOF_SIZE_T CURL_SIZEOF_LONG
+	// @v10.8.6 (slport.h) #define SIZEOF_SIZE_T CURL_SIZEOF_LONG
 #endif
 #ifdef HAVE_LONGLONG
 	#define LONG_LONG_TYPE long long

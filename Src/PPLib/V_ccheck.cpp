@@ -3228,9 +3228,10 @@ int SLAPI PPViewCCheck::Recover()
 		}
 		if(!do_cancel) {
 			SString fmt_buf, msg_buf, cc_buf;
+			CCheckCore::ValidateCheckParam vcp(0.001);
 			PPWait(1);
 			for(InitIteration(0); PPCheckUserBreak() && NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
-				P_CC->ValidateCheck(item.ID, 0.001, logger);
+				P_CC->ValidateCheck(item.ID, vcp, logger);
 				CcDupEntry dup_entry;
 				dup_entry.ID = item.ID;
 				dup_entry.Code = item.Code;
@@ -3238,14 +3239,13 @@ int SLAPI PPViewCCheck::Recover()
 				dup_entry.Dtm.Set(item.Dt, item.Tm);
 				dup_entry.Amount = MONEYTOLDBL(item.Amount);
 				full_list.insert(&dup_entry);
-				if(item.SessID == 0 && csess_id_for_zsess_cc_assignment) {
+				if(!item.SessID && csess_id_for_zsess_cc_assignment) {
 					unassigned_list.add(item.ID);
 				}
 			}
 			DetectCcDups(full_list, dup_list);
 			if(dup_list.getCount()) {
 				PPIDArray list_to_remove;
-				//PPTXT_CCHKERR_DUP            "Обнаружены дублированные чеки: %s"
 				PPLoadText(PPTXT_CCHKERR_DUP, fmt_buf);
 				for(uint i = 0; i < dup_list.getCount(); i++) {
 					const CcDupEntry & r_entry = dup_list.at(i);
@@ -3272,7 +3272,6 @@ int SLAPI PPViewCCheck::Recover()
 				}
 				if(list_to_remove.getCount()) {
 					list_to_remove.sortAndUndup();
-					//PPTXT_CCHKERR_DUPTOTAL       "Всего обнаружено %ld дубликитов чеков, которые следует удалить"
 					PPLoadText(PPTXT_CCHKERR_DUPTOTAL, fmt_buf);
 					logger.Log(msg_buf.Printf(fmt_buf, (long)list_to_remove.getCount()));
 					if(flags & 0x01) { // Исправлять ошибки
@@ -3280,30 +3279,80 @@ int SLAPI PPViewCCheck::Recover()
 						THROW(tra);
 						for(uint tridx = 0; tridx < list_to_remove.getCount(); tridx++) {
 							const PPID id_to_remove = list_to_remove.get(tridx);
-							THROW(P_CC->RemovePacket(id_to_remove, 0));
+							if(!P_CC->RemovePacket(id_to_remove, 0))
+								logger.LogLastError();
 						}
 						THROW(tra.Commit());
 					}
 				}
 			}
-			if(flags & 0x01 && csess_id_for_zsess_cc_assignment && unassigned_list.getCount()) {
-				PPTransaction tra(1);
-				THROW(tra);
-				unassigned_list.sortAndUndup();
-				for(uint i = 0; i < unassigned_list.getCount(); i++) {
-					const PPID cc_id = unassigned_list.get(i);
-					CCheckTbl::Rec cc_rec;
-					if(P_CC->Search(cc_id, &cc_rec) > 0 && cc_rec.SessID == 0) {
-						cc_rec.SessID = csess_id_for_zsess_cc_assignment;
-						THROW(P_CC->UpdateRec(cc_id, &cc_rec, 0));
+			if(flags & 0x01) {
+				if(csess_id_for_zsess_cc_assignment && unassigned_list.getCount()) {
+					PPTransaction tra(1);
+					THROW(tra);
+					unassigned_list.sortAndUndup();
+					for(uint i = 0; i < unassigned_list.getCount(); i++) {
+						const PPID cc_id = unassigned_list.get(i);
+						CCheckTbl::Rec cc_rec;
+						if(P_CC->Search(cc_id, &cc_rec) > 0 && cc_rec.SessID == 0) {
+							cc_rec.SessID = csess_id_for_zsess_cc_assignment;
+							if(!P_CC->UpdateRec(cc_id, &cc_rec, 0)) {
+								logger.LogLastError();
+							}
+						}
+					}
+					THROW(tra.Commit());
+					{
+						PPLoadText(PPTXT_CCHKERR_ZSCCASSIGNED, fmt_buf);
+						PPObjCSession::MakeCodeString(&cses_rec, cc_buf);
+						logger.Log(msg_buf.Printf(fmt_buf, cc_buf.cptr()));
 					}
 				}
-				THROW(tra.Commit());
-				{
-					//PPTXT_CCHKERR_ZSCCASSIGNED   "'Висячие' чеки были привязаны к кассовой сессии %s. Возможно, следует пересчитать эту сессию. Проконсультируйтесь у специалиста."
-					PPLoadText(PPTXT_CCHKERR_ZSCCASSIGNED, fmt_buf);
-					PPObjCSession::MakeCodeString(&cses_rec, cc_buf);
-					logger.Log(msg_buf.Printf(fmt_buf, cc_buf.cptr()));
+				if(vcp.ErrorFlags & vcp.efHandgedGoods && vcp.HangedGoodsList.getCount()) {
+					SysJournal * p_sj = DS.GetTLA().P_SysJ;
+					Goods2Tbl::Rec ex_goods_rec;
+
+					vcp.HangedGoodsList.sortAndUndup();
+					LAssocArray hanged_goods_replace_list;
+					for(uint i = 0; i < vcp.HangedGoodsList.getCount(); i++) {
+						const PPID h_goods_id = vcp.HangedGoodsList.get(i);
+						//
+						PPID   replace_id = 0;
+						{
+							PPID temp_id = h_goods_id;
+							do {
+								if(GdsObj.Fetch(temp_id, &ex_goods_rec) > 0)
+									replace_id = ex_goods_rec.ID;
+							} while(!replace_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, temp_id, &temp_id, 0) > 0);
+						}
+						if(replace_id) {
+							hanged_goods_replace_list.Add(h_goods_id, replace_id);
+						}
+					}
+					if(hanged_goods_replace_list.getCount()) {
+						if(vcp.CcListWithUnresolvedGoods.getCount()) {
+							CCheckPacket cc_pack;
+							for(uint ccidx = 0; ccidx < vcp.CcListWithUnresolvedGoods.getCount(); ccidx++) {
+								const PPID cc_id = vcp.CcListWithUnresolvedGoods.get(ccidx);
+								SString fmt_buf, chk_text, msg_buf;
+								if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
+									int   do_update = 0;
+									for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
+										const CCheckLineTbl::Rec & r_cc_item = cc_pack.GetLine(clidx);
+										PPID   replace_id = 0;
+										if(hanged_goods_replace_list.Search(r_cc_item.GoodsID, &replace_id, 0)) {
+											cc_pack._SetLineGoodsID(clidx, replace_id);
+											do_update = 1;
+										}
+									}
+									if(do_update) {
+										if(!P_CC->UpdateCheck(&cc_pack, 1))
+											logger.LogLastError();
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 			PPWait(0);

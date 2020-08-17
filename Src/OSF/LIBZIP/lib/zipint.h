@@ -85,12 +85,13 @@
 		#define _setmode	setmode
 	#endif
 #endif
+/* @v10.8.5 slport.h 
 #ifndef HAVE_FSEEKO
-	#define fseeko(s, o, w)	(fseek((s), static_cast<long>(o), (w)))
+	#define fseeko(s, o, w) fseek((s), static_cast<long>(o), (w)))
 #endif
 #ifndef HAVE_FTELLO
 	#define ftello(s)	(static_cast<long>(ftell((s))))
-#endif
+#endif */
 #ifndef HAVE_MKSTEMP
 	// @sobolev int _zip_mkstemp(char *);
 	// @sobolev #define mkstemp _zip_mkstemp
@@ -102,8 +103,8 @@
 		#define strcasecmp	stricmp
 	#endif
 #endif
-#define SIZEOF_OFF_T  4
-#define SIZEOF_SIZE_T 4
+// @v10.8.6 (slport.h) #define SIZEOF_OFF_T  4
+// @v10.8.6 (slport.h) #define SIZEOF_SIZE_T 4
 #if SIZEOF_OFF_T == 8
 	#define ZIP_OFF_MAX ZIP_INT64_MAX
 	#define ZIP_OFF_MIN ZIP_INT64_MIN

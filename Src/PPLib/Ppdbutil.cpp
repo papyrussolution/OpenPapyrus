@@ -204,6 +204,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 		case BACKUPLOG_ERR_COMPRESS:     msg_code = PPTXT_BACKUPLOG_ERR_COMPRESS;     break;
 		case BACKUPLOG_ERR_DECOMPRESS:   msg_code = PPTXT_BACKUPLOG_ERR_DECOMPRESS;   break;
 		case BACKUPLOG_SUC_REMOVE:       msg_code = PPTXT_BACKUPLOG_SUC_REMOVE;       break;
+		case BACKUPLOG_ERR_REMOVE:       msg_code = PPTXT_BACKUPLOG_ERR_REMOVE;       break; // @v10.8.6
 		case BACKUPLOG_ERROR:
 			{
 				PPGetLastErrorMessage(1, err_msg_buf);
@@ -1899,13 +1900,27 @@ int SLAPI DoServerBackup(SString & rDBSymb, PPBackupScen * pScen)
 		SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, use_copy_continouos);
 		THROW_PP(p_bu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 		p_bu->GetCopySet(&bcset);
+		{
+			SString temp_buf;
+			for(i = 0; i < bcset.getCount(); i++) {
+				const BCopyData * p_bcd = bcset.at(i);
+				if(p_bcd) {
+					temp_buf.Z().Cat("backup-entry").CatDiv(':', 2).Cat(p_bcd->ID).Space().Cat(p_bcd->CopyPath).SetLastDSlash().Cat(p_bcd->SubDir).Space().Cat(p_bcd->Dtm, DATF_ISO8601, 0);
+					PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+				}
+			}
+		}
 		bcset.Sort(BCopySet::ordByDate);
 		count = bcset.getCount();
 		{
-			BCopyData * p_bcd = 0;
-			for(i = 0; count > (uint)pScen->NumCopies; count--)
-				if(bcset.enumItems(&i, (void **)&p_bcd) > 0)
-					THROW_PP(p_bu->RemoveCopy(p_bcd, CallbackBuLog, 0), PPERR_DBLIB);
+			for(i = 0; count > static_cast<uint>(pScen->NumCopies); count--) {
+				const BCopyData * p_bcd = bcset.at(i++); // !increment i
+				if(p_bcd) {
+					if(!p_bu->RemoveCopy(p_bcd, CallbackBuLog, 0)) {
+						CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+					}
+				}
+			}
 			ok = 1;
 		}
 	}

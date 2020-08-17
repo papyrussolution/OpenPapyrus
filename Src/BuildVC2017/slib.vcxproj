@@ -3634,6 +3634,7 @@
     <ClInclude Include="..\Include\layout-2d.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\Slib.h" />
+    <ClInclude Include="..\Include\slport.h" />
     <ClInclude Include="..\Include\snet.h" />
     <ClInclude Include="..\Include\StyloConduit.h" />
     <ClInclude Include="..\Include\sxml.h" />

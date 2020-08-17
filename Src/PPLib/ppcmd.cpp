@@ -908,14 +908,12 @@ int _GetIdParentList(const PPCommandItem * pItem, long parentID, void * extraPtr
 		StrAssocArray * p_list = static_cast<_ParentList *>(extraPtr)->P_List;
 		if(p_list) {
 			if(!only_folders || pItem->Kind == PPCommandItem::kFolder) {
-				// @v9.2.8 {
 				SString cmd_buf = pItem->Name;
 				if(cmd_buf.C(0) == '@') {
 					SString temp_buf;
 					if(PPLoadString(cmd_buf.ShiftLeft(), temp_buf) > 0)
 						cmd_buf = temp_buf;
 				}
-				// } @v9.2.8
 				p_list->Add(pItem->ID, parentID, cmd_buf.Strip(), 0);
 			}
 			ok = 1;
@@ -935,8 +933,9 @@ int SLAPI PPCommandFolder::GetCommandList(StrAssocArray * pList, int onlyFolders
 		_list.OnlyFolders = onlyFolders;
 		ID = 0;
 		ok = Enumerate(_GetIdParentList, 0, &_list);
-		if(_list.P_List->getCount())
-			_list.P_List->AtFree(0);
+		if(!onlyFolders && _list.P_List->getCount()) { 
+			_list.P_List->AtFree(0); // Первым элементом будет дескриптор меню
+		}
 		_list.P_List->SortByID();
 		ID = id;
 	}

@@ -22,7 +22,7 @@
 	#include <sys/stat.h>
 	#ifdef _WIN32
 		#define stat    _stat
-		#define strcasecmp _stricmp
+		// @v10.8.5 slport.h #define strcasecmp _stricmp
 	#endif
 #endif
 #ifndef S_ISDIR
@@ -44,11 +44,9 @@ static char * scan_quote(CONF * conf, char * p);
 static char * scan_dquote(CONF * conf, char * p);
 #define scan_esc(conf, p)        (((IS_EOF((conf), (p)[1])) ? ((p)+1) : ((p)+2)))
 #ifndef OPENSSL_NO_POSIX_IO
-static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx,
-    char ** dirpath);
-static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx);
+	static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx, char ** dirpath);
+	static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx);
 #endif
-
 static CONF * def_create(CONF_METHOD * meth);
 static int def_init_default(CONF * conf);
 static int def_init_WIN32(CONF * conf);

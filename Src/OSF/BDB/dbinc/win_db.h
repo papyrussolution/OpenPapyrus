@@ -46,24 +46,20 @@
 #include <ws2tcpip.h>
 #include <wspiapi.h>
 #endif
-
 /*
  * Microsoft's C runtime library has fsync, getcwd, getpid, snprintf and
  * vsnprintf, but under different names.
  */
 #define	fsync			_commit
-
 #ifndef DB_WINCE
-#define	getcwd(buf, size)	_getcwd(buf, size)
+	#define	getcwd(buf, size)	_getcwd(buf, size)
 #endif
-#define	getpid			GetCurrentProcessId
+// @v10.8.5 slport.h #define	getpid			GetCurrentProcessId
 #define	snprintf		_snprintf
-#define	strcasecmp		_stricmp
-#define	strncasecmp		_strnicmp
+// @v10.8.5 slport.h #define	strcasecmp		_stricmp
+// @v10.8.5 slport.h #define	strncasecmp		_strnicmp
 #define	vsnprintf		_vsnprintf
-
 #define	h_errno			WSAGetLastError()
-
 /*
  * Win32 does not have getopt.
  *

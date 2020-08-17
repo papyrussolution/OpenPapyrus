@@ -277,6 +277,23 @@ double SLAPI RealRange::GetMiddle() const { return (low+upp) / 2.0; }
 double SLAPI RealRange::GetDistance() const { return (upp-low); }
 double SLAPI RealRange::GetActualLow() const { return MIN(low, upp); }
 double SLAPI RealRange::GetActualUpp() const { return MAX(low, upp); }
+
+int FASTCALL RealRange::Intersect(const RealRange & rTest, RealRange * pResult) const
+{
+	int    is = 0;
+	double st, fn;
+	if(low > rTest.upp || upp < rTest.low) {
+		st = 0.0;
+		fn = 0.0;
+	}
+	else {
+		st = (low > rTest.low) ? low : rTest.low;
+		fn = (upp < rTest.upp) ? upp : rTest.upp;
+		is = 1;
+	}
+	CALLPTRMEMB(pResult, Set(st, fn));
+	return is;
+}
 //
 //
 //

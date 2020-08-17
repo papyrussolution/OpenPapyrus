@@ -725,18 +725,26 @@ int SLAPI DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, voi
 	int    ok = 1;
 	CopyParams cp;
 	SString src_file_name;
+	SString backup_path;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
-	GetCopyParams(pData, &cp);
-	for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
-		SFile::Remove(src_file_name);
-		if(pData->DestSize != pData->SrcSize) {
-			SPathStruc::ReplaceExt(src_file_name, "BT_", 1);
+	(backup_path = pData->CopyPath).Strip().SetLastSlash().Cat(pData->SubDir).Strip();
+	if(GetCopyParams(pData, &cp)) {
+		for(uint ssp = 0; cp.SsFiles.get(&ssp, src_file_name);) {
 			SFile::Remove(src_file_name);
+			if(pData->DestSize != pData->SrcSize) {
+				SPathStruc::ReplaceExt(src_file_name, "BT_", 1);
+				SFile::Remove(src_file_name);
+			}
 		}
+		RemoveDir(cp.Path);
+		THROW(InfoF->RemoveRecord(pData->Set, pData->ID));
+		LogMessage(fnLog, BACKUPLOG_SUC_REMOVE, /*pData->CopyPath*/backup_path, extraPtr);
 	}
-	RemoveDir(cp.Path);
-	THROW(InfoF->RemoveRecord(pData->Set, pData->ID));
-	LogMessage(fnLog, BACKUPLOG_SUC_REMOVE, pData->CopyPath, extraPtr);
+	else {
+		InfoF->RemoveRecord(pData->Set, pData->ID);
+		LogMessage(fnLog, BACKUPLOG_ERR_REMOVE, backup_path, extraPtr);
+		ok = 0;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -744,7 +752,6 @@ int SLAPI DBBackup::RemoveCopy(const BCopyData * pData, BackupLogFunc fnLog, voi
 int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 {
 	int    ok = 1;
-	long   count = 1;
 	SString path, subdir;
 	rDestPath.Z();
 	(path = data->CopyPath).RmvLastSlash();
@@ -754,11 +761,12 @@ int SLAPI DBBackup::MakeCopyPath(BCopyData * data, SString & rDestPath)
 	}
 	if(ok) {
 		ulong  set_sum = 0;
+		long   count = 0;
 		for(int n = 0; n < sizeof(data->Set) && data->Set[n] != 0; n++)
 			set_sum += static_cast<ulong>(data->Set[n]);
 		set_sum %= 10000L;
 		do {
-			subdir.Z().CatLongZ((long)set_sum, 4).CatLongZ(count++, 4);
+			subdir.Z().Cat(getcurdate_(), DATF_YMD|DATF_CENTURY|DATF_NODIV).CatLongZ(++count, 4);
 			(path = data->CopyPath).SetLastSlash().Cat(subdir);
 		} while(::access(path, 0) == 0);
 		path.SetLastSlash();

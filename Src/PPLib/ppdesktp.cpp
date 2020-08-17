@@ -199,9 +199,8 @@ int PPDesktopAssocCmdPool::SetItem(uint pos, const PPDesktopAssocCmd * pCmd)
 			MakeItem(*pCmd, item);
 			L.at(pos) = item;
 		}
-		else {
+		else
 			L.atFree(pos);
-		}
 	}
 	else if(pos == L.getCount()) {
 		assert(pCmd);

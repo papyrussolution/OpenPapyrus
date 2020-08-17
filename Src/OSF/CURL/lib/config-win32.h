@@ -174,14 +174,14 @@
 
 /* Define if ssize_t is not an available 'typedefed' type. */
 #ifndef _SSIZE_T_DEFINED
-#  if (defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__) || defined(__MINGW32__)
-#  elif defined(_WIN64)
-#    define _SSIZE_T_DEFINED
-#    define ssize_t __int64
-#  else
-#    define _SSIZE_T_DEFINED
-#    define ssize_t int
-#  endif
+	#if (defined(__WATCOMC__) && (__WATCOMC__ >= 1240)) || defined(__POCC__) || defined(__MINGW32__)
+	#elif defined(_WIN64)
+		#define _SSIZE_T_DEFINED
+		#define ssize_t __int64
+	#else
+		#define _SSIZE_T_DEFINED
+		#define ssize_t int
+	#endif
 #endif
 
 /* ---------------------------------------------------------------- */
@@ -192,13 +192,12 @@
 #define SIZEOF_LONG_DOUBLE 16 /* Define to the size of `long double', as computed by sizeof. */
 /* #define SIZEOF_LONG_LONG 8 */ /* Define to the size of `long long', as computed by sizeof. */
 #define SIZEOF_SHORT 2 /* Define to the size of `short', as computed by sizeof. */
-/* Define to the size of `size_t', as computed by sizeof. */
-#if defined(_WIN64)
+// Define to the size of `size_t', as computed by sizeof. 
+/* @v10.8.6 (slport.h) #if defined(_WIN64)
 	#define SIZEOF_SIZE_T 8
 #else
 	#define SIZEOF_SIZE_T 4
-#endif
-
+#endif*/
 /* ---------------------------------------------------------------- */
 /*               BSD-style lwIP TCP/IP stack SPECIFIC               */
 /* ---------------------------------------------------------------- */

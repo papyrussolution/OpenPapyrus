@@ -3215,7 +3215,7 @@ int SLAPI PPViewGoods::ReplaceNames()
 			for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
 				goods_list.add(item.ID);
 			}
-			goods_list.sortAndUndup(); // @v8.8.12
+			goods_list.sortAndUndup();
 			for(uint i = 0; i < goods_list.getCount(); i++) {
 				PPID goods_id = goods_list.get(i);
 				PPGoodsPacket pack;

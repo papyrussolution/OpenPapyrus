@@ -212,15 +212,12 @@ typedef enum {
 	#define XXH_rotl32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
 	#define XXH_rotl64(x, r) (((x) << (r)) | ((x) >> (64 - (r))))
 #endif
-#if defined(_MSC_VER)     /* Visual Studio */
+#if defined(_MSC_VER) // Visual Studio 
 	#define XXH_swap32 _byteswap_ulong
 #elif XXH_GCC_VERSION >= 403
 	#define XXH_swap32 __builtin_bswap32
 #else
-	static uint32 XXH_swap32(uint32 x)
-	{
-		return ((x << 24) & 0xff000000 ) | ((x <<  8) & 0x00ff0000 ) | ((x >>  8) & 0x0000ff00 ) | ((x >> 24) & 0x000000ff );
-	}
+	static uint32 XXH_swap32(uint32 x) { return ((x << 24) & 0xff000000) | ((x <<  8) & 0x00ff0000) | ((x >> 8) & 0x0000ff00) | ((x >> 24) & 0x000000ff); }
 #endif
 //
 // Memory reads

@@ -596,7 +596,7 @@ IMPL_HANDLE_EVENT(TDialog)
 				::SetForegroundWindow(H());
 				::SetActiveWindow(H());
 				::EnableWindow(PrevInStack, 0);
-				if(P_Next && P_Next->IsConsistent() && P_Next->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog*)P_Next)->resourceID == -1) {
+				if(P_Next && P_Next->IsConsistent() && P_Next->IsSubSign(TV_SUBSIGN_DIALOG) && static_cast<TDialog *>(P_Next)->resourceID == -1) {
 					is_list_win = TRUE;
 					::EnableWindow(GetParent(PrevInStack), 0);
 				}
