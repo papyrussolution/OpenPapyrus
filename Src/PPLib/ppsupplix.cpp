@@ -2843,26 +2843,24 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 	SString strg_file_name;
 	GetGoodsStoreFileName(strg_file_name);
 	int     storage_exists = 0;
-	DateRange goods_query_period; // @v9.6.3
-	goods_query_period.Z(); // @v9.6.3
+	DateRange goods_query_period;
+	goods_query_period.Z();
 	if(useStorage && fileExists(strg_file_name)) {
 		storage_exists = 1;
 		LDATETIME mt;
         if(SFile::GetTime(strg_file_name, 0, 0, &mt) && diffdate(getcurdate_(), mt.d) <= 2) {
 			if(RestoreGoods(GoodsMapping)) {
-				goods_query_period.low = mt.d; // @v9.6.3
+				goods_query_period.low = mt.d;
 				State |= stGoodsMappingInited;
 				ok = 2;
 			}
         }
 	}
-	if(ok < 0 || forceSettings) { // @v9.7.6 (|| forceSettings)
+	if(ok < 0 || forceSettings) {
 		SString tech_buf;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 		{
-			//PPTXT_LOG_SUPPLIX_IMPGOODS_S  "Импорт товаров поставщика @zstr '@article'"
 			PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
-			//R_Logger.Log(msg_buf);
 			PPWaitMsg(msg_buf);
 		}
 		THROW(State & stInited);
@@ -2870,10 +2868,8 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 		THROW(P_Lib);
 		THROW_SL(func = reinterpret_cast<ISALESGETGOODSLIST_PROC>(P_Lib->GetProcAddr("iSalesGetGoodsList")));
 		sess.Setup(SvcUrl);
-		// @v9.7.7 {
 		if(forceSettings && P.ExpPeriod.low)
 			goods_query_period = P.ExpPeriod;
-		// } @v9.7.7
 		{
 			DateRange * p_qp = 0;
 			if(goods_query_period.low) {
@@ -2884,8 +2880,6 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 		}
 		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		{
-			// @v9.6.3 THROW_SL(TSCollection_Copy(GoodsMapping, *p_result));
-			// @v9.6.3 {
 			for(uint nidx = 0; nidx < p_result->getCount(); nidx++) {
 				const iSalesGoodsPacket * p_np = p_result->at(nidx);
 				int _found = 0;
@@ -2902,16 +2896,13 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 					*p_new_item = *p_np;
 				}
 			}
-			// } @v9.6.3
 			State |= stGoodsMappingInited;
 			ok = 1;
 			if(useStorage) {
 				StoreGoods(GoodsMapping);
 			}
 			{
-				//PPTXT_LOG_SUPPLIX_IMPGOODS_E  "Импортировано @int товаров поставщика @zstr '@article'"
 				PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_E, &msg_buf, (long)p_result->getCount(), tech_buf.cptr(), P.SupplID);
-				//R_Logger.Log(msg_buf);
 				PPWaitMsg(msg_buf);
 			}
 		}
@@ -2940,7 +2931,6 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 								(temp_buf = p_item->OuterCode).Transf(CTRANSF_UTF8_TO_INNER);
 								if(ar_code != temp_buf) {
 									THROW(GObj.P_Tbl->SetArCode(native_id, P.SupplID, temp_buf, 1));
-									// PPTXT_LOG_SUPPLIX_SETARCODE   "Для товара '@goods' установлен код по статье '@article' =@zstr"
 									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_SETARCODE, &msg_buf, native_id, P.SupplID, temp_buf.cptr()));
 								}
 							}
@@ -3079,7 +3069,6 @@ int SLAPI iSalesPepsi::ReceiveReceipts()
 						}
 						pack.InitAmounts();
 						THROW(P_BObj->TurnPacket(&pack, 1));
-						// @v9.3.1 R_Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 						{
 							iSalesTransferStatus * p_new_status = status_list.CreateNewItem();
 							THROW_SL(p_new_status);
@@ -3103,7 +3092,7 @@ void SLAPI iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
 {
 	rPeriod = P.ExpPeriod;
 	if(!checkdate(rPeriod.low))
-		rPeriod.low = encodedate(1, 1, 2016);
+		rPeriod.low = encodedate(1, 1, 2020); // @v10.8.7 2016-->2020
 	if(!checkdate(rPeriod.upp))
 		rPeriod.upp = encodedate(31, 12, 2030);
 }
@@ -3159,15 +3148,14 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 					const  PPID   _src_loc_id = p_src_pack->SrcLocCode.ToLong();
 					//
 					temp_buf = p_src_pack->PayerCode;
-					temp_buf.ShiftLeftChr('W'); // @v9.2.8
-					temp_buf.ShiftLeftChr('w'); // @v9.2.8
+					temp_buf.ShiftLeftChr('W');
+					temp_buf.ShiftLeftChr('w');
 					const  PPID   _src_psn_id = temp_buf.ToLong();
 					//
 					const  PPID   _src_dlvrloc_id = p_src_pack->ShipTo.ToLong();
 					const  PPID   _src_agent_id = p_src_pack->AgentCode.ToLong();
 					PPID   ar_id = 0;
 					PPID   loc_id = 0;
-					// @v9.3.1 {
 					{
 						for(uint aidx = 0; aidx < p_src_pack->Attrs.getCount(); aidx++) {
 							const iSalesExtAttr * p_attr = p_src_pack->Attrs.at(aidx);
@@ -3181,13 +3169,12 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 							}
 						}
 					}
-					// } @v9.3.1
 					if(!loc_id && _src_loc_id && LocObj.Fetch(_src_loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE)
 						loc_id = loc_rec.ID;
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, loc_id, 1));
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
-					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d) ? p_src_pack->IncDtm.d : ZERODATE; // @v9.2.6
+					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d) ? p_src_pack->IncDtm.d : ZERODATE;
 					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					if(_src_psn_id && ArObj.P_Tbl->PersonToArticle(_src_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
 						if(!pack.SetupObject(ar_id, sob)) {
@@ -3199,15 +3186,11 @@ int SLAPI iSalesPepsi::ReceiveOrders()
                             freight.DlvrAddrID = _src_dlvrloc_id;
                             pack.SetFreight(&freight);
 						}
-						else {
-							//PPTXT_LOG_SUPPLIX_DLVRLOCNID   "Не удалость идентифицировать адрес доставки документа '@zstr' по идентификатору @int"
+						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, (const char *)pack.Rec.Code, _src_dlvrloc_id));
-						}
 					}
-					else {
-						//PPTXT_LOG_SUPPLIX_CLINID    "Не удалость идентифицировать контрагента документа '@zstr' по идентификатору @int"
+					else
 						R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINID, &msg_buf, (const char *)pack.Rec.Code, _src_psn_id));
-					}
 					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &(ar_id = 0)) > 0) {
 						pack.Ext.AgentID = ar_id;
 					}
@@ -3332,13 +3315,10 @@ int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 	TSCollection <iSalesRoutePacket> * p_result = 0;
 	ISALESGETROUTELIST_PROC func = 0;
 	DateRange period;
-	// @v9.9.0 period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
-	// @v9.9.0 {
 	if(P.ExpPeriod.low && P.ExpPeriod.upp)
 		period = P.ExpPeriod;
 	else
 		period.SetDate(getcurdate_());
-	// } @v9.9.0
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
@@ -3661,10 +3641,9 @@ int SLAPI iSalesPepsi::SendStocks()
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-
     gr_filt.Date = ZERODATE;
     gr_filt.GoodsGrpID = Ep.GoodsGrpID;
-	gr_filt.LocList = P.LocList; // @v9.3.0
+	gr_filt.LocList = P.LocList;
     gr_filt.Flags |= GoodsRestFilt::fEachLocation;
     THROW(gr_view.Init_(&gr_filt));
     for(gr_view.InitIteration(PPViewGoodsRest::OrdByDefault); gr_view.NextIteration(&gr_item) > 0;) {
@@ -3710,7 +3689,7 @@ int SLAPI iSalesPepsi::SendStocks()
 			}
 		}
     }
-    {
+	if(outp_packet.getCount()) { // @v10.8.7
 		SString * p_result = 0;
 		ISALESPUTSTOCKCOUNTING_PROC func = 0;
 		THROW_SL(func = reinterpret_cast<ISALESPUTSTOCKCOUNTING_PROC>(P_Lib->GetProcAddr("iSalesPutStockCounting")));

@@ -2270,6 +2270,16 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 		gen.Wr_VarDecl("uint32", "rindex", 0, 0);
 		gen.Wr_EndDeclFunc(1, 1);
 	}
+	else if(format == ffCPP_GravityIface) {
+		gen.Wr_StartDeclFunc(gen.fkOrdinary, 0, "bool", temp_buf, gen.fcmCDecl);
+		gen.Wr_VarDecl("gravity_vm *", "vm", 0, ',');
+		gen.Wr_VarDecl("GravityValue *", "args", 0, ',');
+		gen.Wr_VarDecl("uint16", "nargs", 0, ',');
+		gen.Wr_VarDecl("uint32", "rindex", 0, 0);
+		gen.Wr_EndDeclFunc(0, 1);
+		gen.Wr_OpenBrace();
+		gen.Wr_CloseBrace(0, 0);
+	}
 	else if(format == ffH_GravityImp) {
 		Format_C_Type(rFunc.TypID, ret_te.T, 0, fctfIfaceImpl, arg_buf);
 		gen.Wr_StartDeclFunc(gen.fkOrdinary, 0, arg_buf, temp_buf, gen.fcmDefault);
@@ -2608,7 +2618,7 @@ int SLAPI DlContext::MakeDlRecName(const DlScope * pRec, int instanceName, SStri
 	return ok;
 }
 
-int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope)
+int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
 {
 	int    ok = 1, r;
 	uint   i, j, k;
@@ -2626,7 +2636,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kStruct)) {
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(push)").CR());
 			gen.WriteLine(fld_buf.Z().Cat("#pragma pack(8)").CR());
 			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic);
@@ -2642,7 +2652,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kEnum)) {
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			gen.Wr_StartClassDecl(Generator_CPP::clsEnum, cls_name, 0);
 			gen.IndentInc();
 			for(j = 0; p_ds->EnumFields(&j, &fld);) {
@@ -2659,7 +2669,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 		else if(p_ds->IsKind(DlScope::kIClass)) {
 			DlScope::IfaceBase ifb;
 			const DlScope * p_ifs;
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "SCoClass");
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 			gen.IndentInc();
@@ -2702,7 +2712,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kExpData) && !p_ds->GetBase()) {
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			if(p_ds->IsPrototype()) {
 				gen.Wr_ClassPrototype(Generator_CPP::clsClass, cls_name);
 			}
@@ -2786,7 +2796,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.WriteBlancLine();
 		}
 		else if(p_ds->IsKind(DlScope::kDbTable)) {
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			gen.Wr_StartClassDecl(Generator_CPP::clsClass, cls_name, "DBTable");
 			gen.Wr_ClassAcsZone(Generator_CPP::acsPublic);
 			gen.IndentInc();
@@ -2812,12 +2822,10 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 					int _t = GETSTYPE(fld.T.Typ);
 					SString comment_type;
 					if(_t == S_DEC) {
-						comment_type = "decimal";
-						comment_type.CatChar('[').Cat(GETSSIZED(fld.T.Typ)).Dot().Cat(GETSPRECD(fld.T.Typ)).CatChar(']');
+						(comment_type = "decimal").CatChar('[').Cat(GETSSIZED(fld.T.Typ)).Dot().Cat(GETSPRECD(fld.T.Typ)).CatChar(']');
 					}
 					else if(_t == S_MONEY) {
-						comment_type = "money";
-						comment_type.CatChar('[').Cat(GETSSIZED(fld.T.Typ)).Dot().Cat(GETSPRECD(fld.T.Typ)).CatChar(']');
+						(comment_type = "money").CatChar('[').Cat(GETSSIZED(fld.T.Typ)).Dot().Cat(GETSPRECD(fld.T.Typ)).CatChar(']');
 					}
 					else if(_t == S_NOTE)
 						comment_type = "note";
@@ -2840,7 +2848,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			DlScope * p_index = 0;
 			for(j = 0; p_ds->EnumChilds(&j, &p_index);) {
 				if(p_index->IsKind(DlScope::kDbIndex)) {
-					MakeClassName(p_index, clsnfCPP, cls_name);
+					MakeClassName(p_index, clsnfCPP, cflags, cls_name);
 					gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0);
 					gen.IndentInc();
 					for(k = 0; p_index->EnumFields(&k, &fld);) {
@@ -2866,7 +2874,7 @@ int SLAPI DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScop
 			gen.WriteBlancLine();
 		}
 		else {
-			THROW(Write_C_DeclFile(gen, *p_ds)); // @recursion
+			THROW(Write_C_DeclFile(gen, *p_ds, cflags)); // @recursion
 		}
 	}
 	CATCHZOK
@@ -2880,7 +2888,7 @@ static void SLAPI Wr_YourCodeHere(Generator_CPP & gen)
 	gen.IndentDec();
 }
 
-int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc)
+int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags)
 {
 	int    ok = 1, is_ret = 0;
 	const  uint arg_count = rFunc.GetArgCount();
@@ -2895,168 +2903,178 @@ int SLAPI DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SStrin
 	//
 	SString save_func_name = rFunc.Name;
 	SString mod_func_name;
-	{
-		//
-		//  Property name modification
-		//
-		temp_buf.Z();
-		if(rFunc.Flags & DlFunc::fPropGet)
-			temp_buf = "get";
-		else if(rFunc.Flags & DlFunc::fPropPut)
-			temp_buf = "put";
-		if(temp_buf.NotEmpty())
-			mod_func_name = temp_buf.CatChar('_').Cat(rFunc.Name);
-		else
-			mod_func_name = rFunc.Name;
+	if(cflags & cfGravity) {
+		(mod_func_name = "_Callee_").Cat(rFunc.Name);
+		rFunc.Name = gen.MakeClsfName(rClsName, mod_func_name, func_name);
+		Write_Func(gen, rFunc, ffCPP_GravityIface);
 	}
-	rFunc.Name = gen.MakeClsfName(rClsName, mod_func_name, func_name).CatChar('_');
-	Write_Func(gen, rFunc, ffCPP_Iface);
-	gen.Wr_OpenBrace();
-	gen.IndentInc();
-	gen.WriteLine(gen.CatIndent(line_buf = 0).Cat("IFACE_METHOD_PROLOG").CatParStr(rClsName).Semicol().CR());
-	//
-	// Конвертация (если необходимо) типов параметров
-	//
-	for(k = 0; k < arg_count; k++) {
-		rFunc.GetArgName(k, arg_name);
-		THROW(rFunc.GetArg(k, &arg));
-		THROW(SearchTypeID(arg.TypID, 0, &te));
-		THROW(UnrollType(arg.TypID, te.T, &td));
-		if(td.IsInterfaceTypeConversionNeeded() > 0) {
-			int   do_assign = 0;
-			const TYPEID st = GETSTYPE(td.T.Typ);
-			STypEx t_stripped = td.T;
-			if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
-				t_stripped.Mod = 0;
-			Format_C_Type(td.TerminalTypeID, t_stripped, arg_name, fctfInstance | fctfIfaceImpl, temp_buf);
-			if(st == S_DATE) {
-				temp_buf.CatDiv(';', 2);
-				do_assign = 1;
-			}
-			else if(st == S_TIME) {
-				temp_buf.CatDiv(';', 2);
-				do_assign = 1;
-			}
-			else if(st == S_DATETIME) {
-				temp_buf.CatDiv(';', 2);
-				do_assign = 1;
-			}
-			else if(st == S_CHAR) {
-			}
-			else if(st == S_ZSTRING) {
-				temp_buf.CatDiv(';', 2).Cat(arg_name).Dot().Cat("CopyFromOleStr");
-				temp_buf.CatChar('(');
-				//
-				if(td.T.Mod == STypEx::modPtr)
-					temp_buf.CatChar('*');
-				temp_buf.CatCharN('*', td.PtrList.GetCount());
-				//
-				temp_buf.Cat(arg_name).CatChar('_');
-				temp_buf.CatChar(')');
-			}
-			else if(st == S_LSTRING) {
-			}
-			else if(st == S_NOTE) {
-			}
-			if(do_assign) {
-				temp_buf.Cat(arg_name).CatDiv('=', 1);
-				if(td.T.Mod == STypEx::modPtr)
-					temp_buf.CatChar('*');
-				temp_buf.CatCharN('*', td.PtrList.GetCount());
-				temp_buf.Cat(arg_name).CatChar('_');
-			}
-			temp_buf.Semicol().CR();
-			gen.WriteLine(gen.CatIndent(line_buf = 0).Cat(temp_buf));
+	else {
+		{
+			//
+			//  Property name modification
+			//
+			temp_buf.Z();
+			if(rFunc.Flags & DlFunc::fPropGet)
+				temp_buf = "get";
+			else if(rFunc.Flags & DlFunc::fPropPut)
+				temp_buf = "put";
+			if(temp_buf.NotEmpty())
+				mod_func_name = temp_buf.CatChar('_').Cat(rFunc.Name);
+			else
+				mod_func_name = rFunc.Name;
 		}
-	}
-	THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
-	if(ret_te.MangleC != 'X') { // other than "void"
-		Format_C_Type(rFunc.TypID, ret_te.T, "ret", fctfInstance | fctfIfaceImpl, temp_buf);
-		temp_buf.CatDiv('=', 1);
-		is_ret = 1;
-	}
-	(rFunc.Name = 0).Cat("IMCI").CatParStr(mod_func_name); // ICMD(func)
-	Write_Func(gen, rFunc, ffCPP_CallImp, is_ret ? temp_buf.cptr() : 0);
-	//
-	// Конвертация (если необходимо) типов исходящих параметров
-	//
-	for(k = 0; k < arg_count; k++) {
-		THROW(rFunc.GetArg(k, &arg));
+		rFunc.Name = gen.MakeClsfName(rClsName, mod_func_name, func_name).CatChar('_');
+		Write_Func(gen, rFunc, ffCPP_Iface);
+		gen.Wr_OpenBrace();
+		gen.IndentInc();
+		gen.WriteLine(gen.CatIndent(line_buf = 0).Cat("IFACE_METHOD_PROLOG").CatParStr(rClsName).Semicol().CR());
 		//
-		// Обратную конвертацию делаем только для OUT-аргументов
+		// Конвертация (если необходимо) типов параметров
 		//
-		if(arg.Flags & DlFunc::fArgOut) {
+		for(k = 0; k < arg_count; k++) {
 			rFunc.GetArgName(k, arg_name);
+			THROW(rFunc.GetArg(k, &arg));
 			THROW(SearchTypeID(arg.TypID, 0, &te));
 			THROW(UnrollType(arg.TypID, te.T, &td));
+			if(td.IsInterfaceTypeConversionNeeded() > 0) {
+				int   do_assign = 0;
+				const TYPEID st = GETSTYPE(td.T.Typ);
+				STypEx t_stripped = td.T;
+				if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
+					t_stripped.Mod = 0;
+				Format_C_Type(td.TerminalTypeID, t_stripped, arg_name, fctfInstance | fctfIfaceImpl, temp_buf);
+				if(st == S_DATE) {
+					temp_buf.CatDiv(';', 2);
+					do_assign = 1;
+				}
+				else if(st == S_TIME) {
+					temp_buf.CatDiv(';', 2);
+					do_assign = 1;
+				}
+				else if(st == S_DATETIME) {
+					temp_buf.CatDiv(';', 2);
+					do_assign = 1;
+				}
+				else if(st == S_CHAR) {
+				}
+				else if(st == S_ZSTRING) {
+					temp_buf.CatDiv(';', 2).Cat(arg_name).Dot().Cat("CopyFromOleStr");
+					temp_buf.CatChar('(');
+					//
+					if(td.T.Mod == STypEx::modPtr)
+						temp_buf.CatChar('*');
+					temp_buf.CatCharN('*', td.PtrList.GetCount());
+					//
+					temp_buf.Cat(arg_name).CatChar('_');
+					temp_buf.CatChar(')');
+				}
+				else if(st == S_LSTRING) {
+				}
+				else if(st == S_NOTE) {
+				}
+				if(do_assign) {
+					temp_buf.Cat(arg_name).CatDiv('=', 1);
+					if(td.T.Mod == STypEx::modPtr)
+						temp_buf.CatChar('*');
+					temp_buf.CatCharN('*', td.PtrList.GetCount());
+					temp_buf.Cat(arg_name).CatChar('_');
+				}
+				temp_buf.Semicol().CR();
+				gen.WriteLine(gen.CatIndent(line_buf = 0).Cat(temp_buf));
+			}
+		}
+		THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
+		if(ret_te.MangleC != 'X') { // other than "void"
+			Format_C_Type(rFunc.TypID, ret_te.T, "ret", fctfInstance | fctfIfaceImpl, temp_buf);
+			temp_buf.CatDiv('=', 1);
+			is_ret = 1;
+		}
+		(rFunc.Name = 0).Cat("IMCI").CatParStr(mod_func_name); // ICMD(func)
+		Write_Func(gen, rFunc, ffCPP_CallImp, is_ret ? temp_buf.cptr() : 0);
+		//
+		// Конвертация (если необходимо) типов исходящих параметров
+		//
+		for(k = 0; k < arg_count; k++) {
+			THROW(rFunc.GetArg(k, &arg));
+			//
+			// Обратную конвертацию делаем только для OUT-аргументов
+			//
+			if(arg.Flags & DlFunc::fArgOut) {
+				rFunc.GetArgName(k, arg_name);
+				THROW(SearchTypeID(arg.TypID, 0, &te));
+				THROW(UnrollType(arg.TypID, te.T, &td));
+				if(td.IsInterfaceTypeConversionNeeded() > 0) {
+					const TYPEID st = GETSTYPE(td.T.Typ);
+					STypEx t_stripped = td.T;
+					if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
+						t_stripped.Mod = 0;
+					gen.CatIndent(line_buf.Z());
+					if(st == S_DATE) {
+						// @v10.8.7 temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
+						temp_buf.Z().Cat("ASSIGN_PTR").CatChar('(').Cat(arg_name).CatChar('_').CatDiv(',', 2).Cat(arg_name).CatChar(')').Semicol(); // @v10.8.7 
+						gen.WriteLine(line_buf.Cat(temp_buf).CR());
+					}
+					else if(st == S_TIME) {
+					}
+					else if(st == S_DATETIME) {
+						// @v10.8.7 temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
+						temp_buf.Z().Cat("ASSIGN_PTR").CatChar('(').Cat(arg_name).CatChar('_').CatDiv(',', 2).Cat(arg_name).CatChar(')').Semicol(); // @v10.8.7 
+						gen.WriteLine(line_buf.Cat(temp_buf).CR());
+					}
+					else if(st == S_CHAR) {
+					}
+					else if(st == S_ZSTRING) {
+						// @v10.8.7 temp_buf.Printf("%s.CopyToOleStr(", arg_name.cptr());
+						temp_buf.Z().Cat(arg_name).Dot().Cat("CopyToOleStr").CatChar('('); // @v10.8.7 
+						temp_buf.CatCharN('*', td.PtrList.GetCount());
+						temp_buf.Cat(arg_name).CatChar('_').CatChar(')').Semicol();
+						gen.WriteLine(line_buf.Cat(temp_buf).CR());
+					}
+					else if(st == S_LSTRING) {
+					}
+					else if(st == S_NOTE) {
+					}
+				}
+			}
+		}
+		//
+		// Конвертация возвращаемого значения //
+		//
+		if(is_ret) {
+			gen.CatIndent(line_buf.Z());
+			THROW(UnrollType(rFunc.TypID, ret_te.T, &td));
 			if(td.IsInterfaceTypeConversionNeeded() > 0) {
 				const TYPEID st = GETSTYPE(td.T.Typ);
 				STypEx t_stripped = td.T;
 				if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
 					t_stripped.Mod = 0;
-				gen.CatIndent(line_buf.Z());
 				if(st == S_DATE) {
-					temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
-					gen.WriteLine(line_buf.Cat(temp_buf).CR());
+					gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, ret.GetOleDate())").Semicol().CR());
 				}
 				else if(st == S_TIME) {
 				}
 				else if(st == S_DATETIME) {
-					temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
-					gen.WriteLine(line_buf.Cat(temp_buf).CR());
+					gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, (OleDate)ret)").Semicol().CR());
 				}
 				else if(st == S_CHAR) {
 				}
 				else if(st == S_ZSTRING) {
-					temp_buf.Printf("%s.CopyToOleStr(", arg_name.cptr());
-					temp_buf.CatCharN('*', td.PtrList.GetCount());
-					temp_buf.Cat(arg_name).CatChar('_').CatChar(')').Semicol();
-					gen.WriteLine(line_buf.Cat(temp_buf).CR());
+					gen.WriteLine(line_buf.Cat("ret.CopyToOleStr(pRet_)").Semicol().CR());
 				}
 				else if(st == S_LSTRING) {
 				}
 				else if(st == S_NOTE) {
 				}
 			}
+			else {
+				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet, ret)").Semicol().CR());
+			}
 		}
+		gen.WriteLine(gen.CatIndent(line_buf.Z()).Cat("IFACE_METHOD_EPILOG").Semicol().CR());
+		gen.IndentDec();
+		gen.Wr_CloseBrace(0, 0);
+		gen.WriteBlancLine();
 	}
-	//
-	// Конвертация возвращаемого значения //
-	//
-	if(is_ret) {
-		gen.CatIndent(line_buf.Z());
-		THROW(UnrollType(rFunc.TypID, ret_te.T, &td));
-		if(td.IsInterfaceTypeConversionNeeded() > 0) {
-			const TYPEID st = GETSTYPE(td.T.Typ);
-			STypEx t_stripped = td.T;
-			if(oneof2(t_stripped.Mod, STypEx::modPtr, STypEx::modRef))
-				t_stripped.Mod = 0;
-			if(st == S_DATE) {
-				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, ret.GetOleDate())").Semicol().CR());
-			}
-			else if(st == S_TIME) {
-			}
-			else if(st == S_DATETIME) {
-				gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet_, (OleDate)ret)").Semicol().CR());
-			}
-			else if(st == S_CHAR) {
-			}
-			else if(st == S_ZSTRING) {
-				gen.WriteLine(line_buf.Cat("ret.CopyToOleStr(pRet_)").Semicol().CR());
-			}
-			else if(st == S_LSTRING) {
-			}
-			else if(st == S_NOTE) {
-			}
-		}
-		else {
-			gen.WriteLine(line_buf.Cat("ASSIGN_PTR(pRet, ret)").Semicol().CR());
-		}
-	}
-	gen.WriteLine(gen.CatIndent(line_buf.Z()).Cat("IFACE_METHOD_EPILOG").Semicol().CR());
-	gen.IndentDec();
-	gen.Wr_CloseBrace(0, 0);
-	gen.WriteBlancLine();
 	CATCHZOK
 	return ok;
 }
@@ -3106,7 +3124,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 					gen.WriteLine(fld_buf.CR());
 				}
 			}
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 
 			gen.Wr_Comment(0);
 			gen.Wr_Comment(fld_buf.Printf("Implementation of interface %s", cls_name.cptr()));
@@ -3132,8 +3150,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 				gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS").CatChar('(').CatLongZ(j-1, 2).CatChar(')').Semicol().CR();
 				gen.WriteLine(func_name);
 				for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
-					(func.Name = "MFP").
-						CatChar('(').CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatChar(')');
+					(func.Name = "MFP").CatChar('(').CatChar('f').CatLongZ(k-1, 3).CatLongZ(j-1, 2).CatChar(')');
 					Write_Func(gen, func, ffCPP_VTbl);
 				}
 			}
@@ -3159,8 +3176,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 			gen.Wr_OpenBrace();
 			gen.IndentInc();
 			for(j = 0; EnumInterfacesByICls(p_ds, &j, &ifb, &p_ifs) > 0;) {
-				gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS_ASSIGN").
-					CatChar('(').CatLongZ(j-1, 2).CatChar(')').Semicol().CR();
+				gen.CatIndent(func_name.Z()).Cat("IUNKN_METHOD_PTRS_ASSIGN").CatChar('(').CatLongZ(j-1, 2).CatChar(')').Semicol().CR();
 				gen.WriteLine(func_name);
 				for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;) {
 					gen.CatIndent(fld_buf.Z());
@@ -3200,7 +3216,7 @@ int SLAPI DlContext::Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & r
 				gen.Wr_Comment((fld_buf = "Interface").Space().Cat(p_ifs->Name));
 				gen.Wr_Comment(0);
 				for(k = 0; p_ifs->EnumFunctions(&k, &func) > 0;)
-					Write_C_ImplInterfaceFunc(gen, cls_name, func);
+					Write_C_ImplInterfaceFunc(gen, cls_name, func, cflags);
 			}
 			gen.Wr_EndIf(Make_USEIMPL_DefSymb(cls_name, fld_buf));
 		}
@@ -3235,7 +3251,7 @@ int SLAPI DlContext::Write_WSDL_File(const char * pFileName, const DlScope & rSc
 	return ok;
 }
 
-int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope)
+int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, long cflags)
 {
 	int    ok = 1;
 	uint   j, k;
@@ -3259,7 +3275,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 				{
 				}
 			*/
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			(vtab_name = cls_name).CatChar('_').Cat("VTab");
 			gen.WriteBlancLine();
 			gen.CatIndent(fld_buf.Z()).Cat("DL6_IC_CONSTRUCTOR").CatChar('(').
@@ -3308,7 +3324,7 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 			ok = 2;
 		}
 		else if(p_ds->IsKind(DlScope::kExpData) && !p_ds->GetBase()) {
-			MakeClassName(p_ds, clsnfCPP, cls_name);
+			MakeClassName(p_ds, clsnfCPP, cflags, cls_name);
 			if(p_ds->IsPrototype()) {
 				gen.Wr_ClassPrototype(Generator_CPP::clsClass, cls_name);
 			}
@@ -3373,12 +3389,10 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 				// } ...code
 				gen.Wr_CloseBrace(0, 0);
 				gen.WriteBlancLine();
-				/*
-				int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
+				/*int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 				{
 					return DlRtm::InitData(rFilt, rsrv);
-				}
-				*/
+				}*/
 				gen.MakeClsfName(cls_name, "InitData", fld_buf);
 				gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, 0, "int", fld_buf);
 				gen.Wr_VarDecl("PPFilt &", "rFilt", 0, ',');
@@ -3498,8 +3512,9 @@ int SLAPI DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScop
 				CatDiv(',', 2).Cat(fld_buf).CatChar(')').CR();
 			gen.WriteLine(func_name);
 		}
-		else
-			THROW(ok = Write_C_ImplFile(gen, *p_ds)); // @recursion
+		else {
+			THROW(ok = Write_C_ImplFile(gen, *p_ds, cflags)); // @recursion
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -3868,7 +3883,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 			//
 			if(cflags & cfDebug)
 				gen.WriteLine(line_buf.Z().Cat("#pragma pack(show)").CR().CR());
-			if(!Write_C_DeclFile(gen, Sc))
+			if(!Write_C_DeclFile(gen, Sc, cflags))
 				Error(LastError, 0, 0);
 			if(cflags & cfDebug)
 				gen.WriteLine(line_buf.Z().CR().Cat("#pragma pack(show)").CR());
@@ -3909,7 +3924,7 @@ int SLAPI DlContext::Compile(const char * pInFileName, const char * pDictPath, c
 					gen.Wr_Include(impl_filename, 1);
 					gen.WriteBlancLine();
 					//
-					if(!Write_C_ImplFile(gen, Sc))
+					if(!Write_C_ImplFile(gen, Sc, cflags))
 						Error(LastError, 0, 0);
 				}
 			}

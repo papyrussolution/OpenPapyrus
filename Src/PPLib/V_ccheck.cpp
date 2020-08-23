@@ -3331,10 +3331,10 @@ int SLAPI PPViewCCheck::Recover()
 					}
 					if(hanged_goods_replace_list.getCount()) {
 						if(vcp.CcListWithUnresolvedGoods.getCount()) {
-							CCheckPacket cc_pack;
 							for(uint ccidx = 0; ccidx < vcp.CcListWithUnresolvedGoods.getCount(); ccidx++) {
 								const PPID cc_id = vcp.CcListWithUnresolvedGoods.get(ccidx);
 								SString fmt_buf, chk_text, msg_buf;
+								CCheckPacket cc_pack;
 								if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 									int   do_update = 0;
 									for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {

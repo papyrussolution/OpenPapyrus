@@ -5217,7 +5217,7 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 	"@structure",                4, notype, 0, 10
 	"@valuesign_s",              5, notype, 0,  6
 	"@productivity",             6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	"Количество по\nумолчанию",  9, notype, NMBF_NOZERO, 8.1
+	"@tech_initqtty",            9, notype, NMBF_NOZERO, 8.1
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM   : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
 		ADDITEM    : kbIns,   PPDV_ADDFILE02, "@{add}\tInsert"
@@ -8046,7 +8046,7 @@ record Workbook {
 	TypeText      zstring(48)         "Символ типа";
 	Order         long                "Порядковый номер";
 	Flags         long                "@{flags}";
-	KeywordCount  long                "Количество ключевых слов";
+	KeywordCount  long                "@{workbook_keywordcount}";
 	KeywordDilute long                "Параметр разжижения ключевых слов";
 	ParentID      long                "ИД родительского элемента";
 	ParentName    zstring(128)        "Наименование родительского элемента";

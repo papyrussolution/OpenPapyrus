@@ -3265,7 +3265,7 @@ public:
 	{
 		int    ok = -1;
 		if(!P_Cls) {
-			P_Cls = gravity_class_new_pair(NULL, GRAVITY_CLASS_ENV_NAME, NULL, 0, 0);
+			P_Cls = gravity_class_new_pair(NULL, P_Name, NULL, 0, 0);
 			gravity_class_t * p_meta = gravity_class_get_meta(P_Cls);
 			{
 				Bind(p_meta); //create_optional_class();
@@ -3306,5 +3306,15 @@ public:
 	const  long   Flags;
 	gravity_class_t * P_Cls;
 	uint32 RefCount;
+protected:
+	static bool CreateInstance(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex) 
+	{
+		gravity_class_t * c = static_cast<gravity_class_t *>(args[0].Ptr);
+		gravity_instance_t * p_instance = gravity_instance_new(vm, c);
+		//Rectangle * r = new Rectangle();
+		void * p_cls_imp = 0; // new Cls;
+		gravity_instance_setxdata(p_instance, p_cls_imp);
+		return vm->ReturnValue(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(p_instance)), rindex);
+	}
 };
 // } @construction 

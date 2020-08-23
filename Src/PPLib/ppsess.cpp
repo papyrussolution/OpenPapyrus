@@ -4,7 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <private\_ppo.h>
-// @v9.6.3 #include <idea.h>
 #include <float.h>
 #include <signal.h>
 #include <ppsoapclient.h>
@@ -3234,7 +3233,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						r_cc._InvcMergeTaxCalcAlg2Since = dt;
 				}
 				// @v10.7.9 {
-				r_cc.StringHistoryUsage = -1;
+				r_cc.StringHistoryUsage = 0; // @v10.8.7 -1-->0
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_STRINGHISTORYUSAGE, &(iv = 0)) > 0) {
 					if(iv > 0)
 						r_cc.StringHistoryUsage = 1;

@@ -772,19 +772,6 @@ public:
 	int    SLAPI GetField(const CtmVar & rV, SdbField * pFld);
 	int    SLAPI GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const;
 	//
-	// Descr: Форматы вывода наименований классов
-	//
-	enum {
-		clsnfCPP = 0,           // Для CPP-файлов
-		clsnfRegister,          // Для регистрации в системном реестре
-		clsnfRegisterNoVersion, // Для регистрации в системном реестре без номера версии
-		clsnfFriendly           // Дружественное имя для регистрации в системном реестре
-	};
-	//
-	// Descr: Выводит имя области видимости как имя класса в соответствии с форматом clsnf
-	//
-	int    SLAPI MakeClassName(const DlScope * pStruc, int clsnf, SString & rBuf) const;
-	//
 	// Descr: Значения, возвращаемые функцией TypeCast
 	//
 	enum {
@@ -988,6 +975,23 @@ private:
 	void   SLAPI InitFileNames(const char * pInFileName);
 	int    SLAPI Helper_LoadDbTableSpec(const DlScope *, DBTable * pTbl, int format) const;
 	//
+	// Descr: Форматы вывода наименований классов
+	//
+	enum {
+		clsnfCPP = 0,           // Для CPP-файлов
+		clsnfRegister,          // Для регистрации в системном реестре
+		clsnfRegisterNoVersion, // Для регистрации в системном реестре без номера версии
+		clsnfFriendly           // Дружественное имя для регистрации в системном реестре
+	};
+	//
+	// Descr: Выводит имя области видимости как имя класса в соответствии с форматом clsnf
+	// ARG(pStruc IN): Структура, определяющая класс
+	// ARG(clsnf  IN): Формат вывода наименования класса.
+	// ARG(cflags IN): Флаги компиляции. Могут влиять на имя класса.
+	// ARG(rBuf  OUT): Буфер, в котором возвращается сформированное наименование класса.
+	//
+	void   SLAPI MakeClassName(const DlScope * pStruc, int clsnf, long cflags, SString & rBuf) const;
+	//
 	// Compile-time {
 	//
 	int    SLAPI AddCvtFuncToArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList) const;
@@ -995,8 +999,8 @@ private:
 	int    SLAPI IsFuncSuited(const DlFunc & rFunc, CtmExpr * pExpr, LongArray * pCvtArgList);
 	int    SLAPI MakeDlRecName(const DlScope * pRec, int instanceName, SString & rBuf) const;
 	void   SLAPI Write_C_FileHeader(Generator_CPP & gen, const char * pFileName);
-	int    SLAPI Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion
-	int    SLAPI Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope);  // @recursion
+	int    SLAPI Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, long cflags);  // @recursion
+	int    SLAPI Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, long cflags);  // @recursion
 	int    SLAPI Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags); // @recursion
 	int    SLAPI Write_WSDL_File(const char * pFileName, const DlScope & rScope);
 	int    SLAPI Write_DialogReverse();
@@ -1017,7 +1021,7 @@ private:
 		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
 	};
 	int    SLAPI Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format, const char * pForward = 0);
-	int    SLAPI Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc);
+	int    SLAPI Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags);
 	int    SLAPI Write_IDL_Attr(Generator_CPP & gen, const DlScope & rScope);
 	int    SLAPI Write_IDL_File(Generator_CPP & gen, const DlScope & rScope); // @recursion
 	void   SLAPI Write_DebugListing();

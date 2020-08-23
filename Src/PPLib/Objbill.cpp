@@ -872,7 +872,7 @@ int SLAPI PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 	if(oneof2(Rec.OpID, GetCashOp(), GetCashRetOp()) && Rec.Flags & BILLF_CASH) {
 		double amount   = 0.0;
 		double discount = 0.0;
-		pCheckPack->Init();
+		pCheckPack->Z();
 		if(Rec.Flags & BILLF_CHECK)
 			pCheckPack->Rec.Flags |= CCHKF_PRINTED;
 		pCheckPack->Rec.UserID = Rec.UserID;
@@ -1074,7 +1074,7 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 					double cc_amount = 0.0;
 					double dscnt = 0.0;
 					CCheckPacket cp;
-					cp.Init();
+					// @v10.8.7 @ctr cp.Z();
 					if(pack.Rec.Memo[0])
 						STRNSCPY(cp.Ext.Memo, pack.Rec.Memo);
 					PPWait(1);

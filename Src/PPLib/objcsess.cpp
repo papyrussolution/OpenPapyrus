@@ -1563,7 +1563,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	THROW_INVARG(pPack && pCcPack);
 	THROW(P_CnObj->Search(pPack->PosNodeID, &cn_rec) > 0);
 	THROW_PP_S(cn_rec.CurSessID, PPERR_CSESSNOPENED, cn_rec.Name);
-	pCcPack->Init();
+	pCcPack->Z();
 	pCcPack->Rec.Flags |= CCHKF_ORDER;
 	pCcPack->Rec.CashID = pPack->PosNodeID;
 	pCcPack->Rec.SessID = cn_rec.CurSessID;

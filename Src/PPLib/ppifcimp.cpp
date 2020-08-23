@@ -10555,7 +10555,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPCCheckPacket, DL6ICLS_PPCCheckPacket_VTab, CCheckPac
 int32 DL6ICLS_PPCCheckPacket::Init()
 {
 	CCheckPacket * p_pack = static_cast<CCheckPacket *>(ExtraPtr);
-	return p_pack ? (p_pack->Init(), 1) : 0;
+	return p_pack ? (p_pack->Z(), 1) : 0;
 }
 
 int32 DL6ICLS_PPCCheckPacket::GetHeader(SPpyO_CCheck* pHeader)
@@ -10574,7 +10574,7 @@ int32 DL6ICLS_PPCCheckPacket::GetItemsCount()
 	int    _c = 0;
 	CCheckPacket * p_pack = static_cast<CCheckPacket *>(ExtraPtr);
 	if(p_pack)
-		_c = (int)p_pack->GetCount();
+		_c = static_cast<int>(p_pack->GetCount());
 	else
 		SetAppError(0);
 	return _c;
@@ -10585,7 +10585,7 @@ int32 DL6ICLS_PPCCheckPacket::GetItem(int32 position, SPpyO_CCheckLine* pItem)
 	int    ok = 0;
 	CCheckPacket * p_pack = static_cast<CCheckPacket *>(ExtraPtr);
 	if(p_pack && position >= 0 && position < (int32)p_pack->GetCount()) {
-		uint   _pos = (uint)position;
+		uint   _pos = static_cast<uint>(position);
 		CCheckItem item;
 		if(p_pack->EnumLines(&_pos, &item)) {
 			FillCCheckItemRec(&item, pItem);
@@ -10601,11 +10601,11 @@ int32 DL6ICLS_PPCCheckPacket::EnumItems(int32* pIdx, SPpyO_CCheckLine* pItem)
 	int    ok = 0;
 	CCheckPacket * p_pack = static_cast<CCheckPacket *>(ExtraPtr);
 	if(p_pack) {
-		uint   _pos = pIdx ? (uint)*pIdx : 0;
+		uint   _pos = pIdx ? static_cast<uint>(*pIdx) : 0;
 		CCheckItem item;
 		if(p_pack->EnumLines(&_pos, &item)) {
 			FillCCheckItemRec(&item, pItem);
-			ASSIGN_PTR(pIdx, (int32)_pos);
+			ASSIGN_PTR(pIdx, static_cast<int32>(_pos));
 			ok = 1;
 		}
 		else
@@ -10621,7 +10621,7 @@ int32 DL6ICLS_PPCCheckPacket::GetPaymItemsCount()
 	CCheckPacket * p_pack = static_cast<CCheckPacket *>(ExtraPtr);
 	if(p_pack) {
 		const CcAmountList & r_al = p_pack->AL_Const();
-		_c = (int)r_al.getCount();
+		_c = r_al.getCountI();
 	}
 	else
 		SetAppError(0);
@@ -10896,8 +10896,8 @@ int32 DL6ICLS_PPObjSCard::PutPacket(int32* pID, SPpyO_SCard* pPack, int32 useTa)
 		inner_pack.Rec.Rest = pPack->Rest;
 		inner_pack.Rec.UsageTmStart = pPack->UsageTmStart;
 		inner_pack.Rec.UsageTmEnd = pPack->UsageTmEnd;
-		inner_pack.Rec.PeriodTerm = (int16)pPack->PeriodTerm;
-		inner_pack.Rec.PeriodCount = (int16)pPack->PeriodCount;
+		inner_pack.Rec.PeriodTerm  = static_cast<int16>(pPack->PeriodTerm);
+		inner_pack.Rec.PeriodCount = static_cast<int16>(pPack->PeriodCount);
 		temp_buf.CopyFromOleStr(pPack->Code).CopyTo(inner_pack.Rec.Code, sizeof(inner_pack.Rec.Code));
 		temp_buf.CopyFromOleStr(pPack->Password);
 		inner_pack.PutExtStrData(inner_pack.extssPassword, temp_buf);

@@ -6273,7 +6273,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							p_line   = &chk_line;
 						}
 					}
-					P_ChkPack->Init();
+					P_ChkPack->Z();
 					if(p_line) {
 						if(!P_ChkPack->InsertItem(p_line->GoodsID, p_line->Quantity, intmnytodbl(p_line->Price), p_line->Dscnt))
 							PPErrorZ();

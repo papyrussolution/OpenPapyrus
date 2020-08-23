@@ -14354,7 +14354,7 @@ public:
 
 	SLAPI  CCheckPacket();
 	SLAPI ~CCheckPacket();
-	void   SLAPI Init();
+	CCheckPacket & SLAPI Z();
 	int    SLAPI IsEqual(const CCheckPacket & rS, long options) const;
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
@@ -16787,7 +16787,8 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	enum {
 		tUnkn   = 0,
 		tForex  = 1,
-		tStocks = 2
+		tStocks = 2,
+		tCrypto = 3 // @v10.8.7
 	};
 	int    FASTCALL IsEqual(const PPTimeSeries & rS) const;
 	PPID   Tag;            // Const=PPOBJ_TIMESERIES
@@ -17000,10 +17001,11 @@ public:
 		double Margin;           // Маржа
 		double SpikeQuant_s;     // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
-		uint32 StakeDistMedian;  // @v10.7.9 Медианное растояние между ставками. Предположительно важный фактор для оценки адекватности стратегии.
+		// @v10.8.7 uint32 StakeDistMedian;  // @v10.7.9 Медианное растояние между ставками. Предположительно важный фактор для оценки адекватности стратегии.
 			// Соображение лежащее в основе предположения следующее: если этот фактор мал, то выигрыши лежат в плотной области и не
 			// могут быть спроецированы на будущее, если же значителен, то выигрыши достаточно равномерно распределены по области наблюдения
 			// и стратегия может рассматриваться для адекватной проекции на будущее.
+		float  StakeDistrFactor; // @v10.8.7 Фактор равномерности распределения расчетных ставок по временной серии
 		uint32 GenPtCount;       // @v10.7.11 Общее количество точек, по которым рассчитывалась стратегия. Может оказаться важным
 			// для оценки статистической значимости стратегии.
 		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
@@ -17105,7 +17107,7 @@ public:
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
 		void   SLAPI Simulate(const DateTimeArray & rTmList, const RealArray & rValList, const TSCollection <TrendEntry> & rTrendList,
 			const Config & rCfg, uint insurSlDelta, uint insurTpDelta, StrategyResultEntry & rSre, TSVector <StrategyResultValueEx> * pDetailsList) const;
-		void   SLAPI StrategyContainer::AccumulateFactors(StrategyResultEntry & rSre) const;
+		void   SLAPI AccumulateFactors(StrategyResultEntry & rSre) const;
 		int    SLAPI FindIntersectionByAngle(const Strategy & rS, uint * pPos) const;
 
 		enum {
@@ -17220,9 +17222,9 @@ public:
 			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
 			LDATE  UseDataForStrategiesTill; // @v10.7.3
 			uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
-			double StakeDistrAvg;     // @v10.8.6 Среднее распределения ставок при последнем тестовом прогоне
-			double StakeDistrStdDev;  // @v10.8.6 Стандартное отклонение распределения ставок при последнем тестовом прогоне
-			uint8  Reserve[26];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42] // @v10.8.6 [42]-->[26]
+			double StakeDistrFactor;  // @v10.8.6 Фактор равномерности распределения ставок при последнем тестовом прогоне
+			double ExperimentalFactor; // @20200819 Экспериментальный фактор, рассчитываемый по ситуации (с целью нахождения устойчивых контейнеров)
+			uint8  Reserve[26];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42] // @v10.8.6 [42]-->[34] // @20200819 [34]-->[26]
 		} Fb;
 	};
 	static int SLAPI EditConfig(const PPObjTimeSeries::Config * pCfg);
@@ -17547,8 +17549,6 @@ private:
 	uint   SLAPI CalcStakeCountAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	double SLAPI CalcStakeResult(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
 	uint   SLAPI CalcStakeDistanceMedian(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx) const;
-	double SLAPI CalcFailDistribution(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, uint scIdx, const DateTimeArray & rTsTmList, uint partitionCount) const;
-	int    SLAPI CalcStakeDistibutionAtFinalSimulation(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rSreEx, double * pAvg, double * pStdDev);
 	enum {
 		mavfDontSqrtErrList = 0x0001
 	};

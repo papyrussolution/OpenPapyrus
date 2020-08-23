@@ -1795,10 +1795,10 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 				(key_buf = "CLSID").CatChar('\\').Cat(clsid_buf);
 				reg.Delete(HKEY_CLASSES_ROOT, key_buf);
 
-				MakeClassName(pCls, clsnfRegisterNoVersion, key_buf);
+				MakeClassName(pCls, clsnfRegisterNoVersion, 0, key_buf);
 				reg.Delete(HKEY_CLASSES_ROOT, key_buf);
 
-				MakeClassName(pCls, clsnfRegister, key_buf);
+				MakeClassName(pCls, clsnfRegister, 0, key_buf);
 				reg.Delete(HKEY_CLASSES_ROOT, key_buf);
 			}
 			else {
@@ -1810,7 +1810,7 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 				(root_buf = "CLSID").CatChar('\\').Cat(clsid_buf);
 
 				reg.Open(HKEY_CLASSES_ROOT, root_buf, 0, 0);
-				MakeClassName(pCls, clsnfFriendly, name_buf);
+				MakeClassName(pCls, clsnfFriendly, 0, name_buf);
 				reg.PutString(0, name_buf);
 
 				reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("InprocServer32"), 0, 0);
@@ -1818,12 +1818,12 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 				reg.PutString("ThreadingModel", "Apartment");
 
 				reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("ProgID"), 0, 0);
-				MakeClassName(pCls, clsnfRegister, name_buf);
+				MakeClassName(pCls, clsnfRegister, 0, name_buf);
 				reg.PutString(0, name_buf);
 
 				if(pCls->GetVersion()) {
 					reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("VersionIndependentProgID"), 0, 0);
-					MakeClassName(pCls, clsnfRegisterNoVersion, name_buf);
+					MakeClassName(pCls, clsnfRegisterNoVersion, 0, name_buf);
 					reg.PutString(0, name_buf);
 				}
 
@@ -1842,9 +1842,9 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 				//
 				// HKEY_CLASSES_ROOT\\class_name (no version)
 				//
-				MakeClassName(pCls, clsnfRegisterNoVersion, root_buf);
+				MakeClassName(pCls, clsnfRegisterNoVersion, 0, root_buf);
 				reg.Open(HKEY_CLASSES_ROOT, key_buf = root_buf, 0, 0);
-				MakeClassName(pCls, clsnfFriendly, name_buf);
+				MakeClassName(pCls, clsnfFriendly, 0, name_buf);
 				reg.PutString(0, name_buf);
 
 				reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("CLSID"), 0, 0);
@@ -1852,16 +1852,16 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 				reg.PutString(0, clsid_buf);
 				if(pCls->GetVersion()) {
 					reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("CurVer"), 0, 0);
-					MakeClassName(pCls, clsnfRegister, name_buf);
+					MakeClassName(pCls, clsnfRegister, 0, name_buf);
 					reg.PutString(0, name_buf);
 				}
 				//
 				// HKEY_CLASSES_ROOT\\class_name (version)
 				//
 				if(pCls->GetVersion()) {
-					MakeClassName(pCls, clsnfRegister, root_buf);
+					MakeClassName(pCls, clsnfRegister, 0, root_buf);
 					reg.Open(HKEY_CLASSES_ROOT, key_buf = root_buf, 0, 0);
-					MakeClassName(pCls, clsnfFriendly, name_buf);
+					MakeClassName(pCls, clsnfFriendly, 0, name_buf);
 					reg.PutString(0, name_buf);
 
 					reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("CLSID"), 0, 0);
@@ -2541,11 +2541,15 @@ DLSYMBID SLAPI DlContext::SetDeclType(DLSYMBID typeID)
 	return SearchTypeID(typeID, 0, 0) ? typeID : 0;
 }
 
-int SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, SString & rBuf) const
+void SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, long cflags, SString & rBuf) const
 {
 	if(fmt == clsnfCPP) {
-		if(pStruc->IsKind(DlScope::kIClass))
-			(rBuf = "DL6ICLS").CatChar('_');
+		if(pStruc->IsKind(DlScope::kIClass)) {
+			if(cflags & cfGravity) 
+				(rBuf = "GCI").CatChar('_');
+			else
+				(rBuf = "DL6ICLS").CatChar('_');
+		}
 		else if(pStruc->IsKind(DlScope::kExpData))
 			(rBuf = "PPALDD").CatChar('_');
 		else
@@ -2557,19 +2561,15 @@ int SLAPI DlContext::MakeClassName(const DlScope * pStruc, int fmt, SString & rB
 	else if(fmt == clsnfRegister) {
 		(rBuf = "Papyrus").Dot().Cat(pStruc->GetName());
 		uint32 ver = pStruc->GetVersion();
-		if(ver) {
+		if(ver)
 			rBuf.Dot().Cat(LoWord(ver)).Dot().Cat(HiWord(ver));
-		}
 	}
-	else if(fmt == clsnfRegisterNoVersion) {
+	else if(fmt == clsnfRegisterNoVersion)
 		(rBuf = "Papyrus").Dot().Cat(pStruc->GetName());
-	}
-	else if(fmt == clsnfFriendly) { // (clsnfRegisterNoVersion->clsnfFriendly) @v5.4.5 AHTOXA
+	else if(fmt == clsnfFriendly) // (clsnfRegisterNoVersion->clsnfFriendly) @v5.4.5 AHTOXA
 		rBuf = pStruc->GetName();
-	}
 	else
 		rBuf.Z();
-	return 1;
 }
 
 DLSYMBID SLAPI DlContext::SearchSTypEx(const STypEx & rTyp, TypeEntry * pEntry) const

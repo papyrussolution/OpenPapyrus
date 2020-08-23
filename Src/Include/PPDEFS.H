@@ -3227,6 +3227,8 @@
 	#define CTL_PRNGBILL_SPIN13          (31 + WINDOWS_ID_BIAS)
 
 	#define CTL_PRNGBILL_ONLYPRCHNG      (40 + WINDOWS_ID_BIAS)
+	#define CTL_PRNGBILL_EXPFMT          (41 + WINDOWS_ID_BIAS) // @v10.8.7
+	#define CTLSEL_PRNGBILL_EXPFMT       (42 + WINDOWS_ID_BIAS) // @v10.8.7
 
 #define DLG_BILLAMT               205 // Сумма документа
 #define DLG_BILLAMTCUR            425 // Сумма документа с валютным курсом

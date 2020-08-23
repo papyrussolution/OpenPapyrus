@@ -2842,7 +2842,7 @@ static int RecoverGoodsExtPropRef(PPID goodsID, PPID * pRefID, int isCls, const 
 	int    ok = 1;
 	uint   msg_id = 0;
 	if(*pRefID) {
-		if(isCls > 0)
+		if(isCls > 0) {
 			if(rProp.ItemsListID) {
 				PPObject * p_obj = GetPPObject(rProp.ItemsListID, 0);
 				if(!p_obj || p_obj->Search(*pRefID, 0) < 0) {
@@ -2855,6 +2855,7 @@ static int RecoverGoodsExtPropRef(PPID goodsID, PPID * pRefID, int isCls, const 
 				msg_id = PPTXT_LOG_GOODSEXTUNDEFPROP;
 				ok = 0;
 			}
+		}
 		else {
 			msg_id = PPTXT_LOG_GOODSEXTUNCLSPROP;
 			ok = 0;

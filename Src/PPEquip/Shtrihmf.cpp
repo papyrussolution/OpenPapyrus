@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 //
 //   Интерфейс к драйверу "Штрих-М-ФР-К"
 //
@@ -771,7 +770,8 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 			BExtInsert bei(P_TmpCclTbl);
 			imp_file.Seek(prev_smena_pos);
 			while(imp_file.ReadLine(buf) > 0) {
-				long   chk_no = 0, cash_no = 0;
+				long   chk_no = 0;
+				long   cash_no = 0;
 				long   line_no = 0; // @debug
 				ss.clear();
 				ss.add(buf);
@@ -863,7 +863,8 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 				}
 				else if(op_type == OPTYPE_CHKCLOSED) {
 					if(LogNumList.lsearch(cash_no)) {
-						int    hour = 0, min = 0;
+						int    hour = 0;
+						int    min = 0;
 						PPID   id = 0;
 						LDATETIME  dttm;
 						CCheckLineTbl::Rec cchkl_rec;
@@ -914,12 +915,12 @@ int SLAPI ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							*/
 						}
 					}
-					check_pack.Init();
+					check_pack.Z();
 					chk_type = 0;
 					total_amount = total_discount = 0.0;
 				}
 				else if(op_type == OPTYPE_CANCEL) { // Отмена чека
-					check_pack.Init();
+					check_pack.Z();
 					chk_type = 0;
 					total_amount = total_discount = 0.0;
 				}

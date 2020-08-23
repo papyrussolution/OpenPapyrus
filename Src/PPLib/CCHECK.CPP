@@ -644,9 +644,8 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI CCheckPacket::CCheckPacket() : P_DlvrAddr(0)
+SLAPI CCheckPacket::CCheckPacket() : UpdFlags(0), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0)
 {
-	Init();
 }
 
 SLAPI CCheckPacket::~CCheckPacket()
@@ -654,7 +653,7 @@ SLAPI CCheckPacket::~CCheckPacket()
 	ZDELETE(P_DlvrAddr);
 }
 
-void SLAPI CCheckPacket::Init()
+CCheckPacket & SLAPI CCheckPacket::Z()
 {
 	UpdFlags = 0;
 	PctDis   = 0;
@@ -669,6 +668,7 @@ void SLAPI CCheckPacket::Init()
 	LnTextList.Z();
 	ZDELETE(P_DlvrAddr);
 	CcAl.clear();
+	return *this;
 }
 
 int SLAPI CCheckPacket::IsEqual(const CCheckPacket & rS, long options) const
@@ -2112,6 +2112,7 @@ int SLAPI CCheckCore::GetPaymList(PPID id, CcAmountList & rList)
 int SLAPI CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 {
 	int    ok = -1;
+	pPack->Z(); // @v10.8.7
 	if(Search(id, &pPack->Rec) > 0) {
 		ok = 1;
 		MEMSZERO(pPack->Ext);
@@ -2879,7 +2880,7 @@ int SLAPI CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal,
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 		if(!(data.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (data.Flags & CCHKF_PRINTED))) { // @v7.1.12
 			if(flags & gglfUseFullCcPackets) {
-				pack.Init();
+				// @v10.8.7 (LoadPacket) pack.Z();
 				if(LoadPacket(data.ID, 0, &pack) > 0) {
 					double fiscal = 0.0, nonfiscal = 0.0;
 					AddRecToSessTotal(&pack.Rec, pTotal);
@@ -5608,7 +5609,7 @@ int SLAPI CCheckCore::CorrectCCLineProblem01()
 			if(search(0, &k0, spFirst)) do {
 				DBRowId c_pos;
 				const PPID cc_id = data.ID;
-				cc_pack.Init();
+				// @v10.8.7 (LoadPacket) cc_pack.Z();
 				THROW_DB(getPosition(&c_pos));
 				if(LoadPacket(cc_id, 0, &cc_pack) > 0) {
 					double amt = 0.0, dscnt = 0.0;

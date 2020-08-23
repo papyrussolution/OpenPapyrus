@@ -1292,6 +1292,7 @@ int  SLAPI TestGtinStruc();
 int  SLAPI TestConfigDatabase_StringHistory();
 int  SLAPI TestConfigDatabase_StringHistory_Interactive();
 void SLAPI TestGravity();
+int  TestAddressRecognition(); 
 
 /*static int SLAPI TestWorkspacePath()
 {
@@ -1304,7 +1305,8 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestSArchive();
+	TestAddressRecognition();
+	//TestSArchive();
 	//TestGtinStruc();
 	//TestGravity();
 	//PPChZnPrcssr::Test();

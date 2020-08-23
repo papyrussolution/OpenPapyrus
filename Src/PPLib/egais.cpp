@@ -5438,7 +5438,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBi
 							cc_list.sortAndUndup();
 							for(uint ccidx = 0; ccidx < cc_list.getCount(); ccidx++) {
 								const PPID cc_id = cc_list.get(ccidx);
-								cc_pack.Init();
+								// @v10.8.7 (LoadPacket) cc_pack.Z();
 								p_cc->LoadPacket(cc_id, 0, &cc_pack);
 								for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
 									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLine(clidx);

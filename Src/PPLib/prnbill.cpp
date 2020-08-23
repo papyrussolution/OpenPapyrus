@@ -1,6 +1,6 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -30,8 +30,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 				}
 			}
 		}
-
-		const PPID   OprType;
+		const PPID OprType;
 	};
 	class MultiPrintDialog : public TDialog {
 	public:
@@ -55,7 +54,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 					int    i = 0;
 					uint   c;
 					for(c = 0; c < BILL_FORM_COUNT; c++)
-						if(((uint16)w >> c) & 0x0001)
+						if((static_cast<uint16>(w) >> c) & 0x0001)
 							i++;
 					if(p_clu) {
 						for(c = 0; c < BILL_FORM_COUNT; c++) {
@@ -66,7 +65,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 								SendDlgItemMessage(H(), CTL_PRNGBILL_SPIN + c, UDM_SETPOS, 0, MAKELONG(1, 0));
 							EnableWindow(w_nc, /* @v8.1.3 i > 1 &&*/ checked);
 							EnableWindow(w_spin, /* @v8.1.3 i > 1 &&*/ checked);
-							if(c == 7) // @v6.4.8 AHTOXA Ценник
+							if(c == 7) // @v6.4.8 AHTOXA Р¦РµРЅРЅРёРє
 								disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(OprType != PPOPT_GOODSRECEIPT || !checked));
 						}
 					}
@@ -77,12 +76,13 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 			}
 			else if(event.isCmd(cmSave)) {
 				if(p_clu) {
-					int    div_copies = 0, only_price_chng = 0;
+					int    div_copies = 0;
+					int    only_price_chng = 0;
 					SString prn_cfg;
 					getCtrlData(CTL_PRNGBILL_FDIVCOPIES, &div_copies);
 					getCtrlData(CTL_PRNGBILL_ONLYPRCHNG, &only_price_chng);
 					for(uint c = 0; c < BILL_FORM_COUNT; c++) {
-						int checked = p_clu->mark(c);
+						const int checked = p_clu->mark(c);
 						if(c != 0)
 							prn_cfg.Semicol();
 						prn_cfg.Cat(c + 1).Comma().Cat(BIN(checked)).Comma().Cat(GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c));
@@ -106,7 +106,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 	SString temp_buf;
 	TDialog * dlg;
 	if(pAmtTypes == 0) {
-		// @v10.3.0 Теперь используется (с приоритетом) интерфейсная настройка для разрешения/запрета множественной печати
+		// @v10.3.0 РўРµРїРµСЂСЊ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ (СЃ РїСЂРёРѕСЂРёС‚РµС‚РѕРј) РёРЅС‚РµСЂС„РµР№СЃРЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° РґР»СЏ СЂР°Р·СЂРµС€РµРЅРёСЏ/Р·Р°РїСЂРµС‚Р° РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕР№ РїРµС‡Р°С‚Рё
 		int    allow_mult_print = 0;
 		UserInterfaceSettings uis;
 		const int uis_r = uis.Restore();
@@ -133,20 +133,20 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		return 0;
 	TCluster * clu = static_cast<TCluster *>(dlg->getCtrlView(CTL_PRNGBILL_WHAT));
 	//
-	// Порядок пунктов в диалоге:
-	//    0. Накладная //
-	//    1. Сертификаты
-	//    2. Счет-фактура
-	//    3. Кассовый ордер
-	//    4. Товарно-транспортная накладна
-	//    5. Товарно-транспортная накладная (транспортный раздел)
-	//    6. Акт выполненных работ
-	//    7. Ценник
-	//    8. План платежей
-	//    9. Сальдо по отгруженной таре
-	//    10. Наряд на складскую сборку // @v7.1.12
-	//    11. Изображения из тегов лотов
-	//    12. Универсальный передаточный документ // @v8.1.3
+	// РџРѕСЂСЏРґРѕРє РїСѓРЅРєС‚РѕРІ РІ РґРёР°Р»РѕРіРµ:
+	//    0. РќР°РєР»Р°РґРЅР°СЏ //
+	//    1. РЎРµСЂС‚РёС„РёРєР°С‚С‹
+	//    2. РЎС‡РµС‚-С„Р°РєС‚СѓСЂР°
+	//    3. РљР°СЃСЃРѕРІС‹Р№ РѕСЂРґРµСЂ
+	//    4. РўРѕРІР°СЂРЅРѕ-С‚СЂР°РЅСЃРїРѕСЂС‚РЅР°СЏ РЅР°РєР»Р°РґРЅР°
+	//    5. РўРѕРІР°СЂРЅРѕ-С‚СЂР°РЅСЃРїРѕСЂС‚РЅР°СЏ РЅР°РєР»Р°РґРЅР°СЏ (С‚СЂР°РЅСЃРїРѕСЂС‚РЅС‹Р№ СЂР°Р·РґРµР»)
+	//    6. РђРєС‚ РІС‹РїРѕР»РЅРµРЅРЅС‹С… СЂР°Р±РѕС‚
+	//    7. Р¦РµРЅРЅРёРє
+	//    8. РџР»Р°РЅ РїР»Р°С‚РµР¶РµР№
+	//    9. РЎР°Р»СЊРґРѕ РїРѕ РѕС‚РіСЂСѓР¶РµРЅРЅРѕР№ С‚Р°СЂРµ
+	//    10. РќР°СЂСЏРґ РЅР° СЃРєР»Р°РґСЃРєСѓСЋ СЃР±РѕСЂРєСѓ
+	//    11. РР·РѕР±СЂР°Р¶РµРЅРёСЏ РёР· С‚РµРіРѕРІ Р»РѕС‚РѕРІ
+	//    12. РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РїРµСЂРµРґР°С‚РѕС‡РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
 	//
 	if(f & OPKF_PRT_EXTFORMFLAGS) {
 		#define DELETE_CLUSTER_ITEM(c,i) (c)->disableItem(i, 1)
@@ -256,22 +256,23 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 		dlg->getCtrlData(CTL_PRNGBILL_FDIVCOPIES, &div_copies);
 		dlg->getCtrlData(CTL_PRNGBILL_ONLYPRCHNG, &only_price_chng);
 		ASSIGN_PTR(pAmtTypes, p+1);
-		if(clu)
+		if(clu) {
 			if(res_id == DLG_PRNGBILLM) {
 				if(v == 0)
 					ok = -1;
 				else {
 					for(uint c = 0; c < BILL_FORM_COUNT; c++)
-						if(((uint16)v >> c) & 0x0001)
+						if((static_cast<uint16>(v) >> c) & 0x0001)
 							rSelAry.Add(static_cast<PPID>(c+1), static_cast<MultiPrintDialog *>(dlg)->GetNumCopies(CTL_PRNGBILL_NUMCOPIES + c), 0);
 				}
 			}
 			else {
 				v++;
-				rSelAry.Add((PPID)v, 1, 0);
+				rSelAry.Add(static_cast<PPID>(v), 1, 0);
 			}
+		}
 		else
-			rSelAry.Add((PPID)0, 1, 0);
+			rSelAry.Add(0L, 1, 0);
 		ASSIGN_PTR(pDivCopiesFlag, div_copies);
 		ASSIGN_PTR(pOnlyPriceChangedFlag, only_price_chng);
 	}
@@ -299,10 +300,10 @@ static int SLAPI PrintInvoice(PPBillPacket * pPack, int prnflags)
 
 static int SLAPI IsPriceChanged(const PPTransferItem * pTi, long procFlags)
 {
-	int price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
+	int price_chng = 1; // Р¦РµРЅР° РёР·РјРµРЅРёР»Р°СЃСЊ РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє РїСЂРµРґС‹РґСѓС‰РµРјСѓ Р»РѕС‚Сѓ. Р•СЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі pfPrintChangedPriceOnly, С‚Рѕ РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
 	if(procFlags & PPBillPacket::pfPrintChangedPriceOnly) {
 		//
-		// Будем печатать только те товары, цены на которые изменились.
+		// Р‘СѓРґРµРј РїРµС‡Р°С‚Р°С‚СЊ С‚РѕР»СЊРєРѕ С‚Рµ С‚РѕРІР°СЂС‹, С†РµРЅС‹ РЅР° РєРѕС‚РѕСЂС‹Рµ РёР·РјРµРЅРёР»РёСЃСЊ.
 		//
 		PPObjBill * p_bobj = BillObj;
 		ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
@@ -452,8 +453,8 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 		}
 	}
 	else {
-		TSVector <RptSel> rpt_ids; // @v9.8.6 TSArray-->TSVector
-		TSVector <RptSel> copy_rpt_ids; // @v9.8.6 TSArray-->TSVector
+		TSVector <RptSel> rpt_ids;
+		TSVector <RptSel> copy_rpt_ids;
 		if(prn_no_ask)
 			rpt_ids.copy(**ppAry);
 		if(pPack->Rec.CurID && !prn_no_ask) {
@@ -523,20 +524,20 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 								pPack->ProcessFlags |= PPBillPacket::pfPrintPLabel;
 								SETFLAG(pPack->ProcessFlags, PPBillPacket::pfPrintChangedPriceOnly, BIN(only_price_changed_flag));
 								break;
-							case 9: // План платежей
+							case 9: // РџР»Р°РЅ РїР»Р°С‚РµР¶РµР№
 								break;
 							case 10:
 								temp_rs.RptID = REPORT_BILLTARESALDO;
 								temp_rs.OrBppFlags = PPBillPacket::pfPrintTareSaldo;
 								pPack->ProcessFlags |= PPBillPacket::pfPrintTareSaldo;
 								break;
-							case 11: // Наряд на складскую сборку
+							case 11: // РќР°СЂСЏРґ РЅР° СЃРєР»Р°РґСЃРєСѓСЋ СЃР±РѕСЂРєСѓ
 								temp_rs.RptID = REPORT_GOODSBILLLOCDISP;
 								break;
-							case 12: // Изображения из тегов лотов
+							case 12: // РР·РѕР±СЂР°Р¶РµРЅРёСЏ РёР· С‚РµРіРѕРІ Р»РѕС‚РѕРІ
 								temp_rs.RptID = 0;
 								break;
-							case 13: // Универсальный передаточный документ // @v8.1.3
+							case 13: // РЈРЅРёРІРµСЂСЃР°Р»СЊРЅС‹Р№ РїРµСЂРµРґР°С‚РѕС‡РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
 								temp_rs.RptID = REPORT_UNIBILL;
 								break;
 							default:
@@ -575,9 +576,10 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 			if(LConfig.Flags & CFGFLG_NEJPBILL && !(env.PrnFlags & SReport::PrintingNoAsk) && rpt_ids.at(0).RptID)
 				env.PrnFlags |= SReport::NoEjectAfter;
 			*/
-			if(div_copies_flag)
-				for(uint i = 0; i < rpt_ids.getCount(); i++)
-					num_div_copies = MAX((long)rpt_ids.at(i).NumCopies, num_div_copies);
+			if(div_copies_flag) {
+				// @v10.8.7 for(uint i = 0; i < rpt_ids.getCount(); i++) { SETMAX(num_div_copies, static_cast<long>(rpt_ids.at(i).NumCopies)); }
+				SForEachVectorItem(rpt_ids, i) { SETMAX(num_div_copies, static_cast<long>(rpt_ids.at(i).NumCopies)); } // @v10.8.7 
+			}
 			copy_rpt_ids = rpt_ids;
 			for(i = 0; i < num_div_copies; i++) {
 				for(c = 0; ok > 0 && c < copy_rpt_ids.getCount(); c++) {
@@ -593,7 +595,7 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 							ok = PrintInvoice(pPack, env.PrnFlags); // @v7.1.7 pPack-->&temp_pack
 						else if(r_rs.SelID == 4)
 							ok = PrintCashOrderByGoodsBill(pPack, env.PrnFlags); // @v7.1.7 pPack-->&temp_pack
-						else if(r_rs.SelID == 12) // Печать изображений из тегов лотов
+						else if(r_rs.SelID == 12) // РџРµС‡Р°С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёР№ РёР· С‚РµРіРѕРІ Р»РѕС‚РѕРІ
 							ok = PrintBillImages(pPack, env.PrnFlags);
 						else
 							ok = PPAlddPrint(r_rs.RptID, &pf, &env);
@@ -603,7 +605,7 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 				THROW(ok);
 			}
 			if(ppAry && !*ppAry && printingNoAsk) {
-				THROW_MEM(*ppAry = new SVector(sizeof(RptSel))); // @v9.8.6 SArray-->SVector
+				THROW_MEM(*ppAry = new SVector(sizeof(RptSel)));
 				(*ppAry)->copy(rpt_ids);
 			}
 		}

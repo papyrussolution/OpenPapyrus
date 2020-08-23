@@ -118,15 +118,16 @@ static bool math_floor(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 	if(value.IsNull()) {
 		return vm->ReturnValue(GravityValue::from_int(0), rindex);
 	}
-	if(value.IsInt()) {
+	else if(value.IsInt()) {
 		gravity_float_t computed_value = (gravity_float_t)FLOOR((gravity_float_t)value.n);
 		return vm->ReturnValue(GravityValue::from_float(computed_value), rindex);
 	}
-	if(value.IsFloat()) {
+	else if(value.IsFloat()) {
 		gravity_float_t computed_value = (gravity_float_t)FLOOR((gravity_float_t)value.f);
 		return vm->ReturnValue(GravityValue::from_float(computed_value), rindex);
 	}
-	return vm->ReturnUndefined(rindex); // should be NaN
+	else
+		return vm->ReturnUndefined(rindex); // should be NaN
 }
 
 static int gcf(int x, int y) 
@@ -169,15 +170,17 @@ static bool math_lcm(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 
 {
 	if(nargs < 3) 
 		return vm->ReturnError(rindex, "2 or more arguments expected");
-	for(int i = 1; i < nargs; ++i) {
-		if(!args[i].IsInt()) 
-			return vm->ReturnUndefined(rindex);
+	else {
+		for(int i = 1; i < nargs; ++i) {
+			if(!args[i].IsInt()) 
+				return vm->ReturnUndefined(rindex);
+		}
+		int lcm_value = (int)args[1].n;
+		for(int i = 1; i < nargs-1; ++i) {
+			lcm_value = lcm(lcm_value, (int)args[i+1].n);
+		}
+		return vm->ReturnValue(GravityValue::from_int(lcm_value), rindex);
 	}
-	int lcm_value = (int)args[1].n;
-	for(int i = 1; i < nargs-1; ++i) {
-		lcm_value = lcm(lcm_value, (int)args[i+1].n);
-	}
-	return vm->ReturnValue(GravityValue::from_int(lcm_value), rindex);
 }
 
 // returns the linear interpolation from a to b of value t

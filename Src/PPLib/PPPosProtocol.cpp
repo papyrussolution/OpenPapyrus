@@ -1527,7 +1527,7 @@ int SLAPI PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTa
                 THROW(p_cc->GetListBySess(rInfo.ID, glbs_flags, cc_list)); // @v10.1.5 glbs_flags
 				for(uint i = 0; i < cc_list.getCount(); i++) {
 					const PPID cc_id = cc_list.get(i);
-					cc_pack.Init();
+					// @v10.8.7 (LoadPacket) cc_pack.Z();
 					if(p_cc->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 						const double cc_amount = MONEYTOLDBL(cc_pack.Rec.Amount);
 						const double cc_discount = MONEYTOLDBL(cc_pack.Rec.Discount);

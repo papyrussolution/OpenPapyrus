@@ -610,12 +610,10 @@ extern "C" __declspec(dllexport) SString * iSalesPutStockCounting(PPSoapClientSe
 	gSoapClientInit(&proxi, 0, 0);
 	_ns1__StockCountingTransfer param;
 	_ns1__StockCountingTransferResponse resp;
-
 	TSCollection <ns1__WAR> arg_war_list;
 	TSCollection <ns1__ArrayOfPROD> arg_prodlh_list;
 	TSCollection <ns1__PROD> arg_prod_list;
 	ns1__ArrayOfWAR scl;
-
 	if(pItems && pItems->getCount()) {
 		param.username = arg_name;
 		param.password = arg_pw;
@@ -671,7 +669,8 @@ extern "C" __declspec(dllexport) SString * iSalesPutStockCounting(PPSoapClientSe
 			ZFREE(p_item->PRODS->PROD);
 		}
 	}
-	ZFREE(param.stockCountingList->WAR);
+	if(param.stockCountingList) // @v10.8.7
+		ZFREE(param.stockCountingList->WAR);
 	return p_result;
 }
 

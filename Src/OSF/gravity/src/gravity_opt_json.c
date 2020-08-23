@@ -55,8 +55,8 @@ static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, u
 	#endif
 		v = vbuffer;
 	}
-	if(v) return vm->ReturnValue(gravity_zstring_to_value(vm, v), rindex);
-
+	if(v) 
+		return vm->ReturnValue(gravity_zstring_to_value(vm, v), rindex);
 	// more complex object case (list, map, class, closure, instance/object)
 	GravityJson * json = json_new();
 	json_set_option(json, json_opt_no_maptype);

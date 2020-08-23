@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <crpe.h>
 #include <crpe2.h>
-#include <shlwapi.h> // Vadim 03.09.02 - надо подключить shlwapi.lib
+// @v10.8.7 #include <shlwapi.h> // Vadim 03.09.02 - надо подключить shlwapi.lib
 //
 // Закомментировать, если немодальный предварительный просмотр печати будет сбоить
 //
@@ -2553,7 +2553,6 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					ep.DestPath = pans.PrepareDataPath;
 				}
 				else {
-					// @v9.8.9 {
 					{
 						//
 						// Для Crystal Reports 10 и выше удаляем каталог подготовки данных (если существует)
@@ -2568,7 +2567,6 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 								RemoveDir(temp_buf);
 						}
 					}
-					// } @v9.8.9
 					ep.Flags &= ~DlRtm::ExportParam::fForceDDF;
 				}
 				THROW(p_rtm->Export(ep));

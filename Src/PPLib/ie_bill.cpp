@@ -303,30 +303,22 @@ public:
 								for(xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 									if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_WAREINFO))) {
 										GoodsItem * p_item = p_new_doc->GoodsItemList.CreateNewItem();
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_LINENUMBER), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_LINENUMBER), temp_buf))
 											p_item->RowN = temp_buf.ToLong();
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WARENAME), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WARENAME), temp_buf))
 											p_item->GoodsName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREOKEI), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREOKEI), temp_buf))
 											p_item->OKEI = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREQTTY), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREQTTY), temp_buf))
 											p_item->Qtty = temp_buf.ToReal();
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREPRICE), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREPRICE), temp_buf))
 											p_item->PriceWoVat = temp_buf.ToReal();
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMTWOVAT), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMTWOVAT), temp_buf))
 											p_item->PriceSumWoVat = temp_buf.ToReal();
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_TAXRATE), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_TAXRATE), temp_buf))
 											p_item->VatRate = temp_buf.ToReal();
-										}
-										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMT), temp_buf)) {
+										if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_WAREAMT), temp_buf))
 											p_item->PriceSum = temp_buf.ToReal();
-										}
 										for(xmlNode * p_n4 = p_n3->children; p_n4; p_n4 = p_n4->next) {
 											if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXCISE))) {
 											}
@@ -342,6 +334,9 @@ public:
 													if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) {
 														for(xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
 															if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
+																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+															}
+															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) { // @v10.8.7
 																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 															}
 														}
@@ -1889,7 +1884,7 @@ int SLAPI PPBillImporter::RunUhttImport()
 						PPCashNode cn_rec;
 						if(cn_obj.Search(PosNodeID, &cn_rec) > 0) {
 							CCheckPacket cc_pack;
-							cc_pack.Init();
+							// @v10.8.7 @ctr cc_pack.Init();
 							cc_pack.Rec.CashID = PosNodeID;
 							// @v8.4.7 @fix (отложенный чек не должен быть привязан к сессии) cc_pack.Rec.SessID = cn_rec.CurSessID;
 							cc_pack.Rec.Dt = p_uhtt_pack->Dtm;
@@ -6001,13 +5996,19 @@ int SLAPI DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 		PsnObj.LocObj.GetPacket(addrLocID, &loc_pack);
 	if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0) {
 		(inn = reg_rec.Num).Strip();
-		inn.Sub(0, 2, temp_buf.Z());
-		region_code = temp_buf.ToLong();
 	}
 	if(loc_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
 		(kpp = reg_rec.Num).Strip();
 	else if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
 		(kpp = reg_rec.Num).Strip();
+	if(kpp.NotEmpty()) {
+		kpp.Sub(0, 2, temp_buf.Z());
+		region_code = temp_buf.ToLong();
+	}
+	else if(inn.NotEmpty()) {
+		inn.Sub(0, 2, temp_buf.Z());
+		region_code = temp_buf.ToLong();
+	}
 	if(inn.Len() == 12) {
 		j_status = 2;
 	}
@@ -6036,12 +6037,10 @@ int SLAPI DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID per
 			// @v10.1.5 поменял местами MainLoc и RLoc (приоритет у MainLoc)
 			if(loc_pack.ID && loc_pack.ID == addrLocID)
 				WriteAddress(loc_pack, region_code);
-			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0) {
+			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0)
 				WriteAddress(loc_pack, region_code);
-			}
-			else if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0) {
+			else if(psn_pack.Rec.RLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0)
 				WriteAddress(loc_pack, region_code);
-			}
 		}
 	}
 	CATCHZOK
@@ -6516,7 +6515,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 						}
 					}
 				}
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
 			}
 			g.WriteInvoiceItems(_hi, rBp);
@@ -6641,7 +6640,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName)
 						}
 					}
 				}
-				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, shipper_loc_id, rBp.Rec.Dt, 0);
+				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, rBp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
 				g.WriteOrgInfo(g.GetToken_Ansi(PPHSC_RU_BUYERINFO), buyer_psn_id, 0, rBp.Rec.Dt, 0);
 				{
 					SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENTEX1));

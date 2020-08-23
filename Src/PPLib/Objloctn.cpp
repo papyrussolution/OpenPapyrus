@@ -5467,9 +5467,9 @@ int TestAddressRecognition()
 	SString path;
 	SString file_name;
 	PPGetPath(PPPATH_TESTROOT, path);
-	(file_name = path).SetLastSlash().Cat("data").SetLastSlash().Cat("address-land.csv");
+	(file_name = path).SetLastSlash().Cat("data").SetLastSlash().Cat("address.txt");
 	SFile in_file(file_name, SFile::mRead);
-	(file_name = path).SetLastSlash().Cat("data").SetLastSlash().Cat("address-land.out");
+	(file_name = path).SetLastSlash().Cat("data").SetLastSlash().Cat("address.out");
 	SFile out_file(file_name, SFile::mWrite);
 	if(in_file.IsValid()) {
 		if(DS.GetConstTLA().IsAuth()) {

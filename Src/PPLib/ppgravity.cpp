@@ -27,6 +27,39 @@ struct PPGravityUnitTestData {
 	int32 ExpectedCol;
 };
 
+class GravityTestCls01 : public GravityClassImplementation {
+	int    IVal;
+	double RVal;
+	SString StrVal;
+	//
+	// Interface ITest implementation
+	//
+	static bool __cdecl _Callee_Get_ValInt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex)
+	{
+
+	}
+	static bool __cdecl _Callee_Set_ValInt(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+	static bool __cdecl _Callee_Get_ValReal(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+	static bool __cdecl _Callee_Set_ValReal(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+	static bool __cdecl _Callee_Get_ValString(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+	static bool __cdecl _Callee_Set_ValString(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+	static bool __cdecl _Callee_CalcSomething(gravity_vm * vm, GravityValue * args, uint16 nargs, uint32 rindex);
+	//
+	// Interface ITest implementation
+	//
+	int32 Get_ValInt();
+	int32 Set_ValInt(int32 val);
+	double Get_ValReal();
+	int32 Set_ValReal(double val);
+	SString & Get_ValString();
+	int32 Set_ValString(SString & val_);
+	double CalcSomething(double a, double b, double c);
+public:
+	GravityTestCls01() : GravityClassImplementation("TestCls01", 0), IVal(0), RVal(0.0)
+	{
+	}
+};
+
 PPGravityUnitTestData::PPGravityUnitTestData() : Processed(false), IsFuzzy(false), NCount(0), NSuccess(0), NFailure(0), ExpectedErr(GRAVITY_ERROR_NONE),
 	ExpectedRow(0), ExpectedCol(0)
 {

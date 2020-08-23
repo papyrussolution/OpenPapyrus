@@ -1927,7 +1927,6 @@ void PPApp::login(int processCmdLine)
 					} */
 					// } @v5.6.7 @temp
 				}
-				//TestAddressRecognition(); // @debug
 				TestLogin();
 				if(is_batch)
 					TView::messageCommand(this, cmQuit);

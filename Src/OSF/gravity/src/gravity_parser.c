@@ -1303,30 +1303,22 @@ static gnode_t * parse_variable_declaration(gravity_parser_t * parser, bool isst
 		return NULL;
 	}
 	token = gravity_lexer_token(lexer);
-
 	// create node variable declaration
-	gnode_variable_decl_t * node = (gnode_variable_decl_t*)gnode_variable_decl_create(token,
-		type,
-		access_specifier,
-		storage_specifier,
-		NULL,
-		LAST_DECLARATION());
-
+	gnode_variable_decl_t * node = (gnode_variable_decl_t*)gnode_variable_decl_create(token, type,
+		access_specifier, storage_specifier, NULL, LAST_DECLARATION());
 	// initialize node array
 	decls = gnode_array_create();
-
 loop:
 	identifier = parse_identifier(parser);
-	if(!identifier) return NULL;
+	if(!identifier) 
+		return NULL;
 	token2 = gravity_lexer_token(lexer);
-
 	// type annotation is optional so it can be NULL
 	type_annotation = parse_optional_type_annotation(parser);
 	DEBUG_PARSER("IDENTIFIER: %s %s", identifier, (type_annotation) ? type_annotation : "");
 	if(type_annotation && parser->delegate && parser->delegate->type_callback) {
 		parser->delegate->type_callback(&token2, type_annotation, parser->delegate->xdata);
 	}
-
 	// check for optional assignment or getter/setter declaration (ONLY = is ALLOWED here!)
 	expr = NULL;
 	bool is_computed = false;
@@ -1762,26 +1754,23 @@ static GravityArray <gnode_t *> * parse_optional_parameter_declaration(gravity_p
 loop:
 	// initialize variables
 	type_annotation = NULL;
-
 	// parse identifier
 	identifier = parse_identifier(parser);
 	token = gravity_lexer_token(lexer);
-
 	// parse optional type annotation
 	type_annotation = parse_optional_type_annotation(parser);
 	if(type_annotation && parser->delegate && parser->delegate->type_callback) {
 		parser->delegate->type_callback(&token, type_annotation, parser->delegate->xdata);
 	}
-
 	// parse optional default LITERAL value
 	default_value = parse_optional_default_value(parser);
-	if(default_value && has_default_values) *has_default_values = true;
-
+	if(default_value && has_default_values) 
+		*has_default_values = true;
 	// fill parameters array with the new node
 	node = gnode_variable_create(token, identifier, type_annotation, default_value, LAST_DECLARATION(), NULL);
-	if(node) gnode_array_push(params, node);
+	if(node) 
+		gnode_array_push(params, node);
 	DEBUG_PARSER("PARAMETER: %s %s", identifier, (type_annotation) ? type_annotation : "");
-
 	// check for optional comma in order to decide
 	// if the loop should continue or not
 	peek = gravity_lexer_peek(lexer);
@@ -1789,7 +1778,6 @@ loop:
 		gravity_lexer_next(lexer); // consume TOK_OP_COMMA
 		goto loop;
 	}
-
 	return params;
 }
 

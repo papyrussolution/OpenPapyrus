@@ -171,24 +171,20 @@ static inline GravityValue convert_map2string(gravity_vm * vm, gravity_map_t * m
 		}
 		gravity_string_t * key_string = (key.IsString()) ? static_cast<gravity_string_t *>(key) : 0;
 		// value conversion
-		if(value.IsMap() && (VALUE_AS_MAP(value) == map)) {
-			// to avoid infinite loop
-			value = GravityValue::from_null();
-		}
+		if(value.IsMap() && (VALUE_AS_MAP(value) == map))
+			value = GravityValue::from_null(); // to avoid infinite loop
 		if(!value.IsString()) {
 			value = convert_value2string(vm, value);
 		}
 		gravity_string_t * value_string = value.IsString() ? static_cast<gravity_string_t *>(value) : 0;
 		// KEY
 		const char * s1 = (key_string) ? key_string->cptr() : "N/A";
-		uint32 len1 = (key_string) ? key_string->len : 3;
-
+		const uint32 len1 = (key_string) ? key_string->len : 3;
 		// VALUE
 		const char * s2 = (value_string) ? value_string->cptr() : "N/A";
-		uint32 len2 = (value_string) ? value_string->len : 3;
-
+		const uint32 len2 = (value_string) ? value_string->len : 3;
 		// check if buffer needs to be reallocated
-		if(len1 + len2 + pos + 4 > len) {
+		if((len1 + len2 + pos + 4) > len) {
 			len = (len1 + len2 + pos + 4) + len;
 			buffer = static_cast<char *>(mem_realloc(NULL, buffer, len));
 		}
@@ -207,11 +203,9 @@ static inline GravityValue convert_map2string(gravity_vm * vm, gravity_map_t * m
 			pos += 1;
 		}
 	}
-
 	// Write latest ] character
 	memcpy(buffer+pos, "]", 1);
 	buffer[++pos] = 0;
-
 	GravityValue result = VALUE_FROM_STRING(vm, buffer, pos);
 	mem_free(buffer);
 	return result;
@@ -511,7 +505,6 @@ static void collect_introspection_extended(gravity_hash_t * hashtable, GravityVa
 	// type?
 	// index
 	// value?
-
 	gravity_map_insert(vm, info, gravity_zstring_to_value(vm, "name"), gravity_zstring_to_value(vm, static_cast<gravity_string_t *>(key)->cptr()));
 	gravity_map_insert(vm, info, gravity_zstring_to_value(vm, "isvar"), GravityValue::from_bool(is_var));
 	if(is_var) {
@@ -524,7 +517,6 @@ static void collect_introspection_extended(gravity_hash_t * hashtable, GravityVa
 		if(params) 
 			gravity_map_insert(vm, info, gravity_zstring_to_value(vm, "params"), GravityValue::from_object(reinterpret_cast<gravity_class_t *>(params)));
 	}
-
 	if((mask == introspection_info_all) || ((mask == introspection_info_variables) && (is_var)) || ((mask == introspection_info_methods) && (!is_var))) {
 		gravity_map_insert(vm, map, key, GravityValue::from_object(reinterpret_cast<gravity_class_t *>(info)));
 	}
@@ -1622,16 +1614,13 @@ static bool class_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 	if(c->superclass->xdata && delegate->bridge_initinstance) {
 		delegate->bridge_initinstance(vm, c->superclass->xdata, GravityValue::from_null(), instance, NULL, 1);
 	}
-
 	// if is inner class then ivar 0 is reserved for a reference to its outer class
 	if(c->Flags & GravityObjectBase::fHasOuter/*c->has_outer*/) 
 		gravity_instance_setivar(instance, 0, gravity_vm_getslot(vm, 0));
 	// check for constructor function (-1 because self implicit parameter does not count)
 	gravity_closure_t * closure = (gravity_closure_t *)gravity_class_lookup_constructor(c, nargs-1);
-
 	// replace first parameter (self) to newly allocated instance
 	args[0] = GravityValue::from_object(reinterpret_cast<gravity_class_t *>(instance));
-
 	// if constructor found in this class then executes it
 	if(closure) {
 		// as with func call even in constructor if less arguments are passed then fill the holes with UNDEFINED
@@ -1646,7 +1635,6 @@ static bool class_exec(gravity_vm * vm, GravityValue * args, uint16 nargs, uint3
 		gravity_gc_setenabled(vm, true);
 		return vm->ReturnClosure(GravityValue::from_object(reinterpret_cast<gravity_class_t *>(closure)), rindex);
 	}
-
 	// no closure found (means no constructor found in this class)
 	if(c->xdata && delegate->bridge_initinstance) {
 		// even if no closure is found try to execute the default bridge init instance (if class is bridged)

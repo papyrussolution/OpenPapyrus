@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020
 //
 #include <pp.h>
 #pragma hdrstop
@@ -512,7 +512,7 @@ int PPALDD_GoodsBillCmp::InitData(PPFilt & rFilt, long rsrv)
 		H.LhBillID = p_filt->LhBillList.get(0);
 	if(p_filt->RhBillList.getCount())
 		H.RhBillID = p_filt->RhBillList.get(0);
-	H.fOnlyDiffQtty = (p_filt->Flags & GoodsBillCmpFilt::fDiffQttyOnly) ? 1 : 0;
+	H.fOnlyDiffQtty = BIN(p_filt->Flags & GoodsBillCmpFilt::fDiffQttyOnly);
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

@@ -1021,14 +1021,11 @@ typedef uint64_t lzma_vli;
  *
  *              Single-call (vli_pos == NULL):
  *              - LZMA_OK: Integer successfully encoded.
- *              - LZMA_PROG_ERROR: Arguments are not sane. This can be due
- *                to too little output space; single-call mode doesn't use
- *                LZMA_BUF_ERROR, since the application should have checked
- *                the encoded size with lzma_vli_size().
+ *              - LZMA_PROG_ERROR: Arguments are not sane. This can be due to too little output space; single-call mode doesn't use
+ *                LZMA_BUF_ERROR, since the application should have checked the encoded size with lzma_vli_size().
  *
  *              Multi-call (vli_pos != NULL):
- *              - LZMA_OK: So far all OK, but the integer is not
- *                completely written out yet.
+ *              - LZMA_OK: So far all OK, but the integer is not completely written out yet.
  *              - LZMA_STREAM_END: Integer successfully encoded.
  *              - LZMA_BUF_ERROR: No output space was provided.
  *              - LZMA_PROG_ERROR: Arguments are not sane.
@@ -1091,30 +1088,10 @@ uint32_t lzma_vli_size(lzma_vli vli) lzma_attr_pure;
  * detect errors.
  */
 typedef enum {
-	LZMA_CHECK_NONE     = 0,
-	/**<
-	 * No Check is calculated.
-	 *
-	 * Size of the Check field: 0 bytes
-	 */
-	LZMA_CHECK_CRC32    = 1,
-	/**<
-	 * CRC32 using the polynomial from the IEEE 802.3 standard
-	 *
-	 * Size of the Check field: 4 bytes
-	 */
-	LZMA_CHECK_CRC64    = 4,
-	/**<
-	 * CRC64 using the polynomial from the ECMA-182 standard
-	 *
-	 * Size of the Check field: 8 bytes
-	 */
-	LZMA_CHECK_SHA256   = 10
-	    /**<
-	     * SHA-256
-	     *
-	     * Size of the Check field: 32 bytes
-	     */
+	LZMA_CHECK_NONE     = 0, // No Check is calculated. Size of the Check field: 0 bytes
+	LZMA_CHECK_CRC32    = 1, // CRC32 using the polynomial from the IEEE 802.3 standard. Size of the Check field: 4 bytes
+	LZMA_CHECK_CRC64    = 4, // CRC64 using the polynomial from the ECMA-182 standard. Size of the Check field: 8 bytes
+	LZMA_CHECK_SHA256   = 10 // SHA-256. Size of the Check field: 32 bytes
 } lzma_check;
 /**
  * \brief       Maximum valid Check ID

@@ -7742,15 +7742,12 @@ int SLAPI PPVetisInterface::InitOutgoingEntry(PPID docEntityID, OutcomingList & 
 	THROW(PeC.Get(vd_rec.OrgDocEntityID, org_doc_entity) > 0);
 	{
 		const VetisGoodsDate & r_expiry = org_doc_entity.CertifiedConsignment.Batch.ExpiryDate;
-		//SUniTime ut;
 		LDATE final_expiry_date = ZERODATE;
 		LDATETIME expiry_dtm = ZERODATETIME;
-		if(!!r_expiry.SecondDate && r_expiry.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d)) {
+		if(!!r_expiry.SecondDate && r_expiry.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
 			final_expiry_date = expiry_dtm.d;
-		}
-		else if(!!r_expiry.FirstDate && r_expiry.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d)) {
+		else if(!!r_expiry.FirstDate && r_expiry.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
 			final_expiry_date = expiry_dtm.d;
-		}
 		if(final_expiry_date) {
 			temp_buf.Z().Cat(final_expiry_date, DATF_MDY).Space().Cat(msg_buf);
 			THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
@@ -7994,10 +7991,7 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry,
 				else if(freight.TrType == PPTRTYP_SHIP) {
 					app_data.Transp.TransportType = VetisTransportInfo::ttShip;
 					if(freight.ShipID && tr_obj.Get(freight.ShipID, &tr_rec) > 0) {
-						if(tr_rec.Code[0])
-							app_data.Transp.TransportNumber.ShipName = tr_rec.Code;
-						else
-							app_data.Transp.TransportNumber.ShipName = tr_rec.Name;
+						app_data.Transp.TransportNumber.ShipName = tr_rec.Code[0] ? tr_rec.Code : tr_rec.Name;
 					}
 				}
 			}
@@ -8042,15 +8036,12 @@ int SLAPI PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, TSVecto
 	THROW(PeC.Get(app_data.VdRec.OrgDocEntityID, org_doc_entity) > 0);
 	{
 		const VetisGoodsDate & r_expiry = org_doc_entity.CertifiedConsignment.Batch.ExpiryDate;
-		//SUniTime ut;
 		LDATE final_expiry_date = ZERODATE;
 		LDATETIME expiry_dtm = ZERODATETIME;
-		if(!!r_expiry.SecondDate && r_expiry.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d)) {
+		if(!!r_expiry.SecondDate && r_expiry.SecondDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
 			final_expiry_date = expiry_dtm.d;
-		}
-		else if(!!r_expiry.FirstDate && r_expiry.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d)) {
+		else if(!!r_expiry.FirstDate && r_expiry.FirstDate.Get(expiry_dtm) && checkdate(expiry_dtm.d))
 			final_expiry_date = expiry_dtm.d;
-		}
 		if(final_expiry_date) {
 			temp_buf.Z().Cat(final_expiry_date, DATF_MDY).Space().Cat(msg_buf);
 			THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
@@ -11024,15 +11015,13 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	for(InitIteration(); NextIteration(&vi) > 0;) {
 		if(vi.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 			if(vi.Flags & VetisVetDocument::fManufExpense) {
-				if(vi.DepDocEntityID) {
+				if(vi.DepDocEntityID)
 					manuf_assoc_list.Add(vi.DepDocEntityID, vi.EntityID);
-				}
 			}
 			else {
 				entity_id_list.add(vi.EntityID);
-				if(vi.Flags & VetisVetDocument::fManufIncome) {
+				if(vi.Flags & VetisVetDocument::fManufIncome)
 					manuf_id_list.add(vi.EntityID);
-				}
 			}
 		}
 	}
@@ -11076,8 +11065,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 					}
 					else {
 						if(oneof2(use_alg2, 1, 100)) {
-							int ioer = ifc.InitOutgoingEntry(entity_id, work_list);
-							if(!ioer)
+							if(!ifc.InitOutgoingEntry(entity_id, work_list))
 								logger.LogLastError();
 						}
 						else {
@@ -11130,8 +11118,7 @@ int SLAPI PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 						for(uint wlidx = 0; wlidx < work_list.getCount(); wlidx++) {
 							PPVetisInterface::OutcomingEntry & r_entry = work_list.at(wlidx);
 							if(r_entry.QueueN == qn && r_entry.AppId.IsZero()) {
-								int cr = ifc.PrepareOutgoingConsignment2(r_entry, &ure_list, reply);
-								if(!cr)
+								if(!ifc.PrepareOutgoingConsignment2(r_entry, &ure_list, reply))
 									logger.LogLastError();
 							}
 							PPWaitPercent(wlidx+1, work_list.getCount(), (temp_buf = wait_msg).Space().Cat(qn).CatChar('/').Cat(work_list.GetLastQueue()));
