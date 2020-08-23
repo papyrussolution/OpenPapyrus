@@ -7831,6 +7831,14 @@ int SLAPI TryStrategyContainerResultCollection::MakeIndex()
 	return ok;
 }
 
+struct ForwardResultEntry : public TryStrategyContainerResultCollection::AfterTillDateResult {
+	ForwardResultEntry(uint idx, const TryStrategyContainerResultCollection::AfterTillDateResult & rR) : 
+		TryStrategyContainerResultCollection::AfterTillDateResult(rR), Idx(idx)
+	{
+	}
+	const uint Idx;
+};
+
 int SLAPI PrcssrTsStrategyAnalyze::Run()
 {
 	const int force_fixed_maxduck_values = 1;
@@ -7983,13 +7991,6 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 									TSCollection <PPObjTimeSeries::StrategyContainer> container_list;
 									double best_result = 0.0;
 									uint   best_result_idx = 0; // [1..container_list.getCount()]
-									struct ForwardResultEntry : public TryStrategyContainerResultCollection::AfterTillDateResult {
-										ForwardResultEntry(uint idx, const TryStrategyContainerResultCollection::AfterTillDateResult & rR) : 
-											TryStrategyContainerResultCollection::AfterTillDateResult(rR), Idx(idx)
-										{
-										}
-										const uint Idx;
-									};
 									TSVector <ForwardResultEntry> forward_result_list;
 									for(uint ifsidx = 0; ifsidx < tss_model.InputFrameSizeList.getCount(); ifsidx++) {
 										PPObjTimeSeries::StrategyContainer * p_scontainer = container_list.CreateNewItem();
