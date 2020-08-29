@@ -248,11 +248,7 @@ public:
 		return s;
 	}
 private:
-	virtual int getObjName(PPID objID, long, SString & rBuf)
-	{
-		GetOpName(objID, rBuf);
-		return 1;
-	}
+	virtual void   getObjName(PPID objID, long, SString & rBuf) { GetOpName(objID, rBuf); }
 	virtual void   getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
 		const long comm = (objFlags & 0x80000000) ? 0 : 1;
@@ -408,7 +404,7 @@ public:
 		return s;
 	}
 private:
-	//virtual int  getObjName(PPID objID, long objFlags, SString &);
+	//virtual void getObjName(PPID objID, long objFlags, SString &);
 	//virtual void getExtText(long objFlags, SString &);
 	virtual int editItemDialog(ObjRestrictItem * pItem)
 	{
@@ -676,23 +672,17 @@ private:
 		ZDELETE(p_acc_list);
 		return ok;
 	}
-	virtual int getObjName(PPID objID, long objFlags, SString & rBuf)
+	virtual void getObjName(PPID objID, long objFlags, SString & rBuf)
 	{
-		int    ok = -1;
 		if(objID == 0)
 			PPGetWord(PPWORD_OTHERS, 0, rBuf);
 		else {
 			PPAccount acc_rec;
-			if(AcctObj.Search(objID, &acc_rec) > 0) {
+			if(AcctObj.Search(objID, &acc_rec) > 0)
 				(rBuf = acc_rec.Code).Strip().CatDiv('-', 1).Cat(acc_rec.Name);
-				ok = 1;
-			}
-			else {
+			else
 				ideqvalstr(objID, rBuf);
-				ok = -1;
-			}
 		}
-		return ok;
 	}
 	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
@@ -812,23 +802,17 @@ private:
 		ZDELETE(p_list);
 		return ok;
 	}
-	virtual int getObjName(PPID objID, long objFlags, SString & rBuf)
+	virtual void getObjName(PPID objID, long objFlags, SString & rBuf)
 	{
-		int    ok = -1;
 		if(objID == 0)
 			PPGetWord(PPWORD_OTHERS, 0, rBuf);
 		else {
 			PPCashNode rec;
-			if(CnObj.Search(objID, &rec) > 0) {
+			if(CnObj.Search(objID, &rec) > 0)
 				rBuf = rec.Name;
-				ok = 1;
-			}
-			else {
+			else
 				ideqvalstr(objID, rBuf);
-				ok = -1;
-			}
 		}
-		return ok;
 	}
 	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
@@ -950,23 +934,17 @@ private:
 		ZDELETE(p_list);
 		return ok;
 	}
-	virtual int getObjName(PPID objID, long objFlags, SString & rBuf)
+	virtual void getObjName(PPID objID, long objFlags, SString & rBuf)
 	{
-		int    ok = -1;
 		if(objID == 0)
 			PPGetWord(PPWORD_OTHERS, 0, rBuf);
 		else {
 			PPCashNode rec;
-			if(QkObj.Search(objID, &rec) > 0) {
+			if(QkObj.Search(objID, &rec) > 0)
 				rBuf = rec.Name;
-				ok = 1;
-			}
-			else {
+			else
 				ideqvalstr(objID, rBuf);
-				ok = -1;
-			}
 		}
-		return ok;
 	}
 	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{

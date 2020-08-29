@@ -1248,7 +1248,7 @@ int SLAPI SetupCliBnkAssoc()
 	ok = (ExecView(dlg) == cmOK) ? 1 : -1;
 	if(ok > 0) {
 		THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_MOD, 0));
-		DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_CLIBNKAS, 0, 0, 1); // @v6.3.7 use_ta=1
+		DS.LogAction(PPACN_CONFIGUPDATED, PPCFGOBJ_CLIBNKAS, 0, 0, 1/*use_ta*/);
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -1336,7 +1336,8 @@ int SLAPI ConvertRbcBnk(const char * pPath)
 {
 	int    ok = 1, r;
 	SString path(pPath);
-	SString file_name, dbf_file_name;
+	SString file_name;
+	SString dbf_file_name;
 	SString line_buf;
 	{
 		PPImpExpParam in_par, out_par;

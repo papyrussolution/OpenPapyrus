@@ -1387,7 +1387,7 @@ public:
 		p_data->Overdraft = p_old_data->Overdraft;
 		p_data->FRRL_Date = p_old_data->FRRL_Date;
 		STRNSCPY(p_data->Name, p_old_data->Name);
-		AccountCore::GenerateCode(p_data);
+		AccountCore::GenerateCode(*p_data);
 		return 1;
 	}
 };

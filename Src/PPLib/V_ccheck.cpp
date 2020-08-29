@@ -152,7 +152,7 @@ SLAPI CCheckViewItem::CCheckViewItem() : CCheckTbl::Rec(), TableCode(0), Div(0),
 //
 //
 //
-int SLAPI PPViewCCheck::Helper_Construct()
+void SLAPI PPViewCCheck::Helper_Construct()
 {
 	ImplementFlags |= (implDontSetupCtColumnsOnChgFilt|implUseServer);
 	P_CC = 0;
@@ -163,7 +163,6 @@ int SLAPI PPViewCCheck::Helper_Construct()
 	State = 0;
 	P_InOutVATList = 0;
 	P_InnerIterItem = 0; // @v10.2.6
-	return 1;
 }
 
 SLAPI PPViewCCheck::PPViewCCheck() : PPView(0, &Filt, PPVIEW_CCHECK)
@@ -200,10 +199,8 @@ int SLAPI PPViewCCheck::AllocInnerIterItem()
 	return P_InnerIterItem ? 1 : PPSetErrorNoMem();
 }
 
-const CCheckViewItem * PPViewCCheck::GetInnerIterItem() const
-{
-	return P_InnerIterItem;
-}
+const CCheckViewItem * PPViewCCheck::GetInnerIterItem() const { return P_InnerIterItem; }
+const LAssocArray & PPViewCCheck::GetProblems() const { return Problems; }
 
 class CCheckCrosstab : public Crosstab {
 public:
@@ -1119,7 +1116,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	PPObjSCardSeries sc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
-	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, 0)); // @v9.3.0
+	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, 0));
 	ZDELETE(P_TmpGrpTbl);
 	ZDELETE(P_InnerIterItem); // @v10.2.6
 	CcIdList.Set(0);
@@ -1127,7 +1124,8 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	SessIdList.Set(0);
 	NodeIdList.Set(0);
 	GoodsList.Clear();
-	State &= ~(stUseGoodsList|stSkipUnprinted); // @v9.7.11 stSkipUnprinted
+	Problems.clear(); // @v10.8.8
+	State &= ~(stUseGoodsList|stSkipUnprinted);
 	Gsl.Init(1, 0);
 	ZDELETE(P_InOutVATList);
 	THROW_MEM(P_InOutVATList = new BVATAccmArray(BVATF_SUMZEROVAT));
@@ -1167,16 +1165,14 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			//
 			if(temp_list.getCount()) {
 				SessIdList.Set(&temp_list);
+				CSessionTbl::Rec cs_rec;
 				for(uint i = 0; i < temp_list.getCount(); i++) {
 					const PPID sess_id = temp_list.get(i);
-					CSessionTbl::Rec cs_rec;
-					if(CsObj.Search(sess_id, &cs_rec) > 0) {
+					if(CsObj.Search(sess_id, &cs_rec) > 0)
                         node_id_list.add(cs_rec.CashNodeID);
-					}
 				}
 			}
 		}
-		// @v9.7.11 {
 		if(node_id_list.getCount()) {
 			//
 			// Теперь, имея исчерпывающий список кассовых узлов можно
@@ -1193,7 +1189,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					State &= ~stSkipUnprinted;
 			}
 		}
-		// } @v9.7.11
 	}
 	if(Filt.SCardID)
 		SCardList.Add(Filt.SCardID);
@@ -1222,20 +1217,20 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		}
 	}
 	if(Filt.GoodsID) {
-		GoodsList.Add((uint)Filt.GoodsID);
+		GoodsList.Add(static_cast<uint>(Filt.GoodsID));
 		State |= stUseGoodsList;
 	}
 	else if(Filt.GoodsGrpID) {
 		temp_list.clear();
 		GoodsIterator::GetListByGroup(Filt.GoodsGrpID, &temp_list);
 		for(uint i = 0; i < temp_list.getCount(); i++)
-			GoodsList.Add((uint)temp_list.get(i));
+			GoodsList.Add(static_cast<uint>(temp_list.get(i)));
 		State |= stUseGoodsList;
 	}
 	if(!Filt.CorrGoodsList.IsEmpty()) {
 		const PPIDArray & r_goods_corr_list = Filt.CorrGoodsList.Get();
 		for(uint i = 0; i < r_goods_corr_list.getCount(); i++)
-			GoodsList.Add((uint)r_goods_corr_list.get(i));
+			GoodsList.Add(static_cast<uint>(r_goods_corr_list.get(i)));
 		State |= stUseGoodsList;
 	}
 	if(Filt.Grp) {
@@ -1330,7 +1325,7 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								ccgitem.Dt = item.Dt;
 								STRNSCPY(ccgitem.Serial, item.Serial);
 								break;
-							case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
+							case CCheckFilt::gAgentGoodsSCSer:
 								ccgitem.CashID = item.AgentID;
 								ccgitem.SCardID = (item.SCardID && ScObj.Fetch(item.SCardID, &sc_rec) > 0) ? sc_rec.SeriesID : 0;
 								break;
@@ -1472,12 +1467,11 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
 							else {
-								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
-								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
+								GdsObj.FetchNameR(rec.GoodsID, goods_name);
 							}
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
 							break;
-						case CCheckFilt::gAgentGoodsSCSer: // @v9.6.6
+						case CCheckFilt::gAgentGoodsSCSer:
 							if(rec.CashID)
 								GetArticleName(rec.CashID, temp_buf);
 							else
@@ -1535,10 +1529,8 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								THROW(GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name));
 							}
-							else {
-								// @v9.5.5 GetGoodsName(rec.GoodsID, goods_name);
-								GdsObj.FetchNameR(rec.GoodsID, goods_name); // @v9.5.5
-							}
+							else
+								GdsObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						// @erik v10.5.2{
@@ -1829,7 +1821,7 @@ int SLAPI PPViewCCheck::InitIteration(int order)
 		}
 		else {
 			CCheckCore * p_cct = P_CC;
-			if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элементы может быть 0
+			if(SessIdList.GetCount() == 1) { // Здесь нельзя использовать GetSingle ибо единственный элемент может быть 0
 				idx = 3;
 				sp = spGe;
 				MEMSZERO(k);
@@ -1900,19 +1892,15 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				pItem->G_Discount = rec.Discount;
 				pItem->G_PctPart  = rec.PctPart;
 				pItem->G_Qtty     = rec.Qtty;
-				// @v9.3.0 {
 				if(Filt.Grp == CCheckFilt::gAgents)
 					pItem->AgentID = rec.CashID;
 				else if(Filt.Grp == CCheckFilt::gAgentsNGoods)
 					pItem->AgentID = rec.CashID;
 				else if(Filt.Grp == CCheckFilt::gAgentsNHour)
 					pItem->AgentID = rec.CashID;
-				// } @v9.3.0
-				// @v9.6.6 {
 				else if(Filt.Grp == CCheckFilt::gAgentGoodsSCSer) {
 					pItem->AgentID = rec.CashID;
 				}
-				// } @v9.6.6
 				ok = 1;
 			}
 			else if(P_TmpTbl) {
@@ -2525,6 +2513,16 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					ok = 1;
 				}
+				// @v10.8.8 {
+				{
+					PPViewCCheck * p_view = static_cast<PPViewCCheck *>(p_brw->P_View);
+					if(p_view && p_view->GetProblems().getCount()) {
+						long problems_val = 0;
+						if(p_view->GetProblems().Search(p_row->ID, &problems_val, 0))
+							pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					}
+				}
+				// } @v10.8.8 
 			}
 		}
 	}
@@ -3188,6 +3186,7 @@ int SLAPI PPViewCCheck::Recover()
 {
 	int    ok = -1;
 	if(Filt.Grp == Filt.gNone) { // @v10.0.04
+		Problems.clear(); // @v10.8.8
 		PPLogger logger;
 		SString log_fname;
 		long   flags = 0;
@@ -3197,6 +3196,7 @@ int SLAPI PPViewCCheck::Recover()
 		TSVector <CcDupEntry> full_list;
 		TSVector <CcDupEntry> dup_list;
 		PPIDArray unassigned_list; // Список идентификаторов чеков, не привязанных ни к какой сессии
+		PPIDArray inv_amtordis_list; // Список идентификаторов чеков с ошибками суммы либо скидки
 		int   do_cancel = 1;
 		{
 			TDialog * dlg = new TDialog(DLG_CORCC);
@@ -3231,7 +3231,17 @@ int SLAPI PPViewCCheck::Recover()
 			CCheckCore::ValidateCheckParam vcp(0.001);
 			PPWait(1);
 			for(InitIteration(0); PPCheckUserBreak() && NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
+				long   problem_flags = 0;
+				const  long preserve_vcp_flags = vcp.ErrorFlags;
+				vcp.ErrorFlags = 0;
 				P_CC->ValidateCheck(item.ID, vcp, logger);
+				if(vcp.ErrorFlags) {
+					problem_flags = vcp.ErrorFlags;
+					if(problem_flags & (CCheckCore::ValidateCheckParam::efInvAmount | CCheckCore::ValidateCheckParam::efInvDiscount)) {
+						inv_amtordis_list.add(item.ID);
+					}
+				}
+				vcp.ErrorFlags |= preserve_vcp_flags;
 				CcDupEntry dup_entry;
 				dup_entry.ID = item.ID;
 				dup_entry.Code = item.Code;
@@ -3240,8 +3250,11 @@ int SLAPI PPViewCCheck::Recover()
 				dup_entry.Amount = MONEYTOLDBL(item.Amount);
 				full_list.insert(&dup_entry);
 				if(!item.SessID && csess_id_for_zsess_cc_assignment) {
+					problem_flags |= CCheckCore::ValidateCheckParam::efUnassignedCSess;
 					unassigned_list.add(item.ID);
 				}
+				if(problem_flags)
+					Problems.Add(item.ID, problem_flags);
 			}
 			DetectCcDups(full_list, dup_list);
 			if(dup_list.getCount()) {
@@ -3296,9 +3309,8 @@ int SLAPI PPViewCCheck::Recover()
 						CCheckTbl::Rec cc_rec;
 						if(P_CC->Search(cc_id, &cc_rec) > 0 && cc_rec.SessID == 0) {
 							cc_rec.SessID = csess_id_for_zsess_cc_assignment;
-							if(!P_CC->UpdateRec(cc_id, &cc_rec, 0)) {
+							if(!P_CC->UpdateRec(cc_id, &cc_rec, 0))
 								logger.LogLastError();
-							}
 						}
 					}
 					THROW(tra.Commit());
@@ -3308,10 +3320,20 @@ int SLAPI PPViewCCheck::Recover()
 						logger.Log(msg_buf.Printf(fmt_buf, cc_buf.cptr()));
 					}
 				}
+				if(inv_amtordis_list.getCount()) {
+					for(uint i = 0; i < inv_amtordis_list.getCount(); i++) {
+						const PPID cc_id = inv_amtordis_list.get(i);
+						CCheckPacket cc_pack;
+						if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
+							cc_pack.SetupAmount(0, 0);
+							if(!P_CC->UpdateCheck(&cc_pack, 1))
+								logger.LogLastError();
+						}
+					}
+				}
 				if(vcp.ErrorFlags & vcp.efHandgedGoods && vcp.HangedGoodsList.getCount()) {
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
 					Goods2Tbl::Rec ex_goods_rec;
-
 					vcp.HangedGoodsList.sortAndUndup();
 					LAssocArray hanged_goods_replace_list;
 					for(uint i = 0; i < vcp.HangedGoodsList.getCount(); i++) {

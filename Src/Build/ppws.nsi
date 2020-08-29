@@ -1,5 +1,5 @@
 ; PPWS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2017
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2017, 2020
 ; —крипт создани€ инсталл€ции сервера задач системы Papyrus
 ;
 !define PRODUCT_PUBLISHER "A.Fokin, A.Sobolev"
@@ -176,7 +176,7 @@ FunctionEnd
 ;
 ; Welcome page
 ;
-!define MUI_WELCOMEPAGE_TITLE "¬ас приветствеут мастер установки ${PRODUCT_NAME}"
+!define MUI_WELCOMEPAGE_TITLE "¬ас приветствует мастер установки ${PRODUCT_NAME}"
 !define MUI_WELCOMEFINISHPAGE_BITMAP   "${SRC_ROOT}\Src\Rsrc\Bitmap\nsis-welcome-02.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "${SRC_ROOT}\Src\Rsrc\Bitmap\nsis-welcome-02.bmp"
 !insertmacro MUI_PAGE_WELCOME

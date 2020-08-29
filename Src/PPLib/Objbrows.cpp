@@ -545,17 +545,11 @@ IMPL_HANDLE_EVENT(ObjRestrictListDialog)
 	clearEvent(event);
 }
 
-int ObjRestrictListDialog::getObjName(PPID objID, long, SString & rBuf)
+void ObjRestrictListDialog::getObjName(PPID objID, long, SString & rBuf)
 {
-	if(ObjType) {
-		if(!GetObjectName(ObjType, objID, rBuf))
-			rBuf.Cat(objID);
-		return 1;
-	}
-	else {
-		rBuf.Z();
-		return -1;
-	}
+	rBuf.Z();
+	if(ObjType && !GetObjectName(ObjType, objID, rBuf))
+		rBuf.Cat(objID);
 }
 
 void ObjRestrictListDialog::getExtText(PPID, long /*objFlags*/, SString & rBuf)

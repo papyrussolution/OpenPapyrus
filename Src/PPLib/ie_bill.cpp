@@ -4433,31 +4433,42 @@ int SLAPI PPBillImporter::Run()
 									}
 								}
 								if(!goods_id) {
-									if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
-										PPGoodsPacket new_goods_pack;
-										GObj.InitPacket(&new_goods_pack, gpkndGoods, r_gcfg.DefGroupID, 0, barcode);
-										if(p_item->GoodsName.NotEmpty())
-											STRNSCPY(new_goods_pack.Rec.Name, p_item->GoodsName);
-										//if(barcode.NotEmpty())
-											//new_goods_pack.Codes.Add(barcode, 0, 1.0);
-										//new_goods_pack.Rec.ParentID = r_gcfg.DefGroupID;
-										new_goods_pack.Rec.UnitID = r_gcfg.DefUnitID;
-										if(p_item->VatRate > 0.0 && p_item->VatRate <= 40.0) {
-											PPID   tax_grp_id = 0;
-											if(GObj.GTxObj.GetByScheme(&tax_grp_id, p_item->VatRate, 0.0, 0.0, 0, 1/*use_ta*/) > 0)
-												new_goods_pack.Rec.TaxGrpID = tax_grp_id;
-										}
-										if(GObj.PutPacket(&goods_id, &new_goods_pack, 1)) {
-											goods_rec = new_goods_pack.Rec;
-										}
-										else {
-											Logger.LogLastError();
+									// @v10.8.8 {
+									if(p_item->GoodsName.NotEmpty() && GObj.SearchByName(p_item->GoodsName, &goods_id, &goods_rec) > 0) {
+										assert(goods_id == goods_rec.ID);
+										if(barcode.NotEmpty()) {
+											if(!GObj.P_Tbl->AddBarcode(goods_rec.ID, barcode, 1.0, 1))
+												Logger.LogLastError();
 										}
 									}
 									else {
-										// Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
-										PPLoadText(PPTXT_TOCREATEWARECFGOPTNEEDED, msg_buf);
-										Logger.Log(msg_buf);
+										assert(goods_id == 0); // } @v10.8.8 
+										if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
+											PPGoodsPacket new_goods_pack;
+											GObj.InitPacket(&new_goods_pack, gpkndGoods, r_gcfg.DefGroupID, 0, barcode);
+											if(p_item->GoodsName.NotEmpty())
+												STRNSCPY(new_goods_pack.Rec.Name, p_item->GoodsName);
+											//if(barcode.NotEmpty())
+												//new_goods_pack.Codes.Add(barcode, 0, 1.0);
+											//new_goods_pack.Rec.ParentID = r_gcfg.DefGroupID;
+											new_goods_pack.Rec.UnitID = r_gcfg.DefUnitID;
+											if(p_item->VatRate > 0.0 && p_item->VatRate <= 40.0) {
+												PPID   tax_grp_id = 0;
+												if(GObj.GTxObj.GetByScheme(&tax_grp_id, p_item->VatRate, 0.0, 0.0, 0, 1/*use_ta*/) > 0)
+													new_goods_pack.Rec.TaxGrpID = tax_grp_id;
+											}
+											if(GObj.PutPacket(&goods_id, &new_goods_pack, 1)) {
+												goods_rec = new_goods_pack.Rec;
+											}
+											else {
+												Logger.LogLastError();
+											}
+										}
+										else {
+											// Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
+											PPLoadText(PPTXT_TOCREATEWARECFGOPTNEEDED, msg_buf);
+											Logger.Log(msg_buf);
+										}
 									}
 								}
 								if(goods_id) {

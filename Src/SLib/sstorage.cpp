@@ -1,5 +1,5 @@
 // SSTORAGE.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2019
+// Copyright (c) A.Sobolev 2015, 2016, 2019, 2020
 //
 #include <slib.h>
 #include <tv.h>
@@ -66,7 +66,7 @@ private:
 			return 1;
 		}
 	private:
-		int    Helper_Construct(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex);
+		void   Helper_Construct(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex);
 		void   MakeAddress(uint32 offs, SStorage::Address & rA) const;
 		int    Realloc(uint reqSize);
 		int    GetFreeEntry(uint reqSize, uint * pFreeEntryPos);
@@ -147,7 +147,7 @@ int SStorage::Page::Get(const Address & rS, void * pData, uint * pSize)
 	return 0;
 }
 
-int SStorage::Page::Helper_Construct(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex)
+void SStorage::Page::Helper_Construct(uint32 pgSize, uint32 rcSize, uint flags, uint pgIndex)
 {
 	Init();
 	MapAddress = 0;
@@ -166,7 +166,6 @@ int SStorage::Page::Helper_Construct(uint32 pgSize, uint32 rcSize, uint flags, u
 		P_E->insert(&free_entry);
 	}
 	Realloc(RcSize);
-	return 1;
 }
 
 void SStorage::Page::MakeAddress(uint32 offs, SStorage::Address & rA) const

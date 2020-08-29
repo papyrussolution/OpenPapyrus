@@ -124,7 +124,7 @@ PUGL & FASTCALL PUGL::operator = (const PUGL & rS)
 {
 	OPcug = rS.OPcug;
 	LocID = rS.LocID;
-	SupplAccSheetForSubstID = rS.SupplAccSheetForSubstID; // @v9.2.1
+	SupplAccSheetForSubstID = rS.SupplAccSheetForSubstID;
 	Dt    = rS.Dt;
 	ActionsCount = rS.ActionsCount;
 	memcpy(Actions, rS.Actions, sizeof(Actions));
@@ -187,9 +187,8 @@ int SLAPI PUGL::Add(const PUGI * pItem, LDATE dt)
 		item.Price      = pItem->Price;
 		if(dt && (Dt == 0 || Dt > dt))
 			Dt = dt;
-		ok = insert(&item) ? 1 : PPSetErrorSLib(); // @v9.7.10 @fix
+		ok = insert(&item) ? 1 : PPSetErrorSLib();
 	}
-	// @v9.7.10 @fix ok = insert(&item) ? 1 : PPSetErrorSLib();
 	return ok;
 }
 
@@ -266,7 +265,7 @@ int SLAPI PUGL::AddAction(int16 a)
 
 void SLAPI PUGL::Clear()
 {
-	SupplAccSheetForSubstID = 0; // @v9.2.1
+	SupplAccSheetForSubstID = 0;
 	CostByCalc  = 0;
 	CalcCostPct = 0;
     freeAll();
@@ -673,17 +672,14 @@ int SLAPI PPGoodsStruc::InitCompleteData(PPID goodsID, double needQty, const PPB
 	return ok;
 }
 
-// @v9.4.0
 int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplBlock & rData)
 {
 	int    ok = 1;
-	const double need_qtty = needQty; //rTi.Quantity_;
-	// @v9.4.0 {
+	const double need_qtty = needQty;
 	PPComplBlock temp_blk;
 	THROW(InitCompleteData(goodsID, needQty, /*(const PPBillPacket *)*/0, temp_blk));
 	for(uint j = 0; j < temp_blk.getCount(); j++) {
 		const ComplItem & r_src_item = temp_blk.at(j);
-
 		uint   pos = 0;
 		ComplItem s;
 		s.GoodsID = r_src_item.GoodsID;
@@ -706,35 +702,6 @@ int SLAPI PPGoodsStruc::InitCompleteData2(PPID goodsID, double needQty, PPComplB
 			THROW_SL(rData.insert(&s));
 		}
 	}
-	// } @v9.4.0
-#if 0 // @v9.4.0 {
-	{
-		PPObjGoods goods_obj;
-		PPGoodsStrucItem gsi;
-		int    r = 0;
-		double qtty = 0.0;
-		for(uint i = 0; (r = EnumItemsExt(&i, &gsi, labs(/*rTi.GoodsID*/goodsID), need_qtty, &qtty)) > 0;) {
-			uint   pos = 0;
-			ComplItem s;
-			s.GoodsID = gsi.GoodsID;
-			s.GsiFlags = gsi.Flags; // @v9.0.4
-			if(rData.lsearch(&s, &pos, CMPF_LONG)) {
-				ComplItem & r_item = rData.at(pos);
-				r_item.NeedQty += (need_qtty * r_item.PartQty);
-			}
-			else {
-				Goods2Tbl::Rec goods_rec;
-				s.GoodsFlags = (goods_obj.Fetch(s.GoodsID, &goods_rec) > 0) ? goods_rec.Flags : 0;
-				s.NeedQty    = qtty;
-				s.PartQty    = fdivnz(qtty, need_qtty);
-				s.FreeQty    = 0.0;
-				// @v9.4.0 s.Cost       = 0.0;
-				THROW_SL(rData.insert(&s));
-			}
-		}
-		THROW(r);
-	}
-#endif // } 0 @v9.4.0
 	CATCHZOK
 	return ok;
 }
@@ -770,17 +737,16 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 		double limq = SMathConst::Max;
 		PPComplBlock ary;
 		SString serial;
-		SString src_serial; // @v9.1.4 Серийный номер, который используем для формирования серии новой позиции
+		SString src_serial; // Серийный номер, который используем для формирования серии новой позиции
 		PUGL   deficit_list;
 		PUGL * p_deficit_list = NZOR(pDfctList, &deficit_list);
-		//ComplItem S, * ps;
 		ComplItem * ps;
 		THROW(pGS->InitCompleteData(p_ti->GoodsID, need_qty, this, /*&S,*/ ary));
 		for(i = 0; ary.enumItems(&i, (void **)&ps);) {
 			if(ps->PartQty != 0.0 && ps->NeedQty != 0.0) {
 				ILTI   ilti;
 				long   convert_ilti_flags = CILTIF_OPTMZLOTS|CILTIF_USESUBST;
-				serial = 0;
+				serial.Z();
 				double out_quot  = 0.0;
 				double out_price = 0.0;
 				ilti.GoodsID = ps->GoodsID;
@@ -886,18 +852,14 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 				;
 			*/
 		}
-		// @v9.1.4 {
 		if(ok > 0 && src_serial.NotEmpty()) {
-			// @v9.8.11 SnL.GetNumber(pos, &serial);
-			LTagL.GetNumber(PPTAG_LOT_SN, pos, serial); // @v9.8.11 
+			LTagL.GetNumber(PPTAG_LOT_SN, pos, serial);
 			if(serial.Empty()) {
 				// @todo Следует формировать новую серию по какому-либо шаблону
 				(serial = src_serial).CatChar('-').Cat("???");
-				// @v9.8.11 SnL.AddNumber(pos, serial);
-				LTagL.AddNumber(PPTAG_LOT_SN, pos, serial); // @v9.8.11 
+				LTagL.AddNumber(PPTAG_LOT_SN, pos, serial);
 			}
 		}
-		// } @v9.1.4
 	}
 	CATCH
 		ok = user_cancel ? -1 : 0;
@@ -917,8 +879,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 		RAssocArray psr_array;
 		RAssocArray cost_array; // Список себестоимостей отдельных позиций
 		RAssocArray sub_list;
-		RAssocArray sum_array;  // В этом массиве собираются суммы по тем компонентам, которые
-			// рассчитываются по правилу "количество - 1, цена - процент" (GSIF_QTTYASPRICE)
+		RAssocArray sum_array;  // В этом массиве собираются суммы по тем компонентам, которые рассчитываются по правилу "количество - 1, цена - процент" (GSIF_QTTYASPRICE)
 		LongArray positions, local_pos_list;
 		const  int sign = (oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) ? 1 : -1;
 		PPObjGoods goods_obj;
@@ -1021,8 +982,7 @@ int SLAPI PPBillPacket::InsertPartitialStruc()
 					ilti.SetQtty(qtty, 0, (sign > 0) ? (PPTFR_RECEIPT|PPTFR_PLUS) : PPTFR_MINUS);
 					THROW(P_BObj->ConvertILTI(&ilti, this, &pos_list, CILTIF_OPTMZLOTS | CILTIF_ABSQTTY, 0));
 					ok = 1;
-					// @v9.4.9 if(ilti.Rest != 0.0) {
-					if(ilti.HasDeficit()) { // @v9.4.9
+					if(ilti.HasDeficit()) {
 						const int reply = ProcessUnsuffisientGoods(ilti.GoodsID, pugpNoBalance);
 						if(reply == PCUG_EXCLUDE)
 							RemoveRows(&pos_list, last_pos);

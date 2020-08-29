@@ -82,16 +82,15 @@ PPAccountPacket & SLAPI PPAccountPacket::Z()
 #if 0 // @v9.0.4 {
 
 // static
-int SLAPI AccountCore::GenerateCode(PPAccount * pRec)
+void SLAPI AccountCore::GenerateCode(PPAccount & rRec)
 {
 	char   buf[48];
 	Acct   acct;
-	acct.ac = pRec->Ac;
-	acct.sb = pRec->Sb;
+	acct.ac = rRec.Ac;
+	acct.sb = rRec.Sb;
 	acct.ar = 0;
 	AccToStr(&acct, ACCF_DEFAULT, buf);
-	STRNSCPY(pRec->Code, buf);
-	return 1;
+	STRNSCPY(rRec.Code, buf);
 }
 
 SLAPI AccountCore::AccountCore() : AccountTbl()
@@ -235,7 +234,7 @@ int SLAPI AccountCore::PutPacket(PPID * pID, PPAccountPacket * pAccPack, int use
 	if(pAccPack) {
 		THROW_PP(pAccPack->Rec.CurID == 0, PPERR_WACCSCURACC);
 		if(*strip(pAccPack->Rec.Code) == 0 || pAccPack->Rec.Type == ACY_BAL)
-			AccountCore::GenerateCode(&pAccPack->Rec);
+			AccountCore::GenerateCode(pAccPack->Rec);
 	}
 	{
 		PPTransaction tra(use_ta);

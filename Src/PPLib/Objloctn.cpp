@@ -4250,9 +4250,8 @@ SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_
 {
 }
 
-int SLAPI PPLocAddrStruc::Helper_Construct()
+void SLAPI PPLocAddrStruc::Helper_Construct()
 {
-	int    ok = 1;
 	State = 0;
 	P_Fr = 0;
 	Style = 0;
@@ -4264,13 +4263,11 @@ int SLAPI PPLocAddrStruc::Helper_Construct()
 	FiasCityID = 0;
 	FiasStreetID = 0;
 	FiasHouseID = 0;
-
 	ReZip = 0;
 	ReNum_Hyp_Num = 0;
 	ReNum_Sl_Num = 0;
 	ReNumA_Hyp_Num = 0;
 	ReNumA_Sl_Num = 0;
-
 	P_AmbigMatchEntry = 0;
 	P_AmbigMatchList = 0;
 
@@ -4281,7 +4278,6 @@ int SLAPI PPLocAddrStruc::Helper_Construct()
 	Scan.RegisterRe("^[0-9]+[ \t]*\\/[ \t]*[0-9]+", &ReNum_Sl_Num);
 	Scan.RegisterRe("^[0-9]+[Р-пр-џA-Za-z][ \t]*\\-[ \t]*[0-9]+", &ReNumA_Hyp_Num);
 	Scan.RegisterRe("^[0-9]+[Р-пр-џA-Za-z][ \t]*\\/[ \t]*[0-9]+", &ReNumA_Sl_Num);
-	return ok;
 }
 
 SLAPI PPLocAddrStruc::PPLocAddrStruc(const char * pText, PPFiasReference * pFr) : StrAssocArray()

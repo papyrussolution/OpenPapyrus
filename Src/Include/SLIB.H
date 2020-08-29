@@ -9756,7 +9756,7 @@ public:
 	//
 	int    FASTCALL GetFreqListOrdered(RAssocArray & rList) const;
 private:
-	TSVector <Entry> Alphabet; // @v9.8.4 TSArray-->TSVector
+	TSVector <Entry> Alphabet;
 	uint64 Count;
 	long   Status;
 };

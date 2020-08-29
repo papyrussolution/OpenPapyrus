@@ -14617,7 +14617,9 @@ public:
 			efHandgedGoods    = 0x0004,
 			efZeroGoods       = 0x0008,
 			efInvAmtEntrySign = 0x0010,
-			efHandedSCard     = 0x0020
+			efHandedSCard     = 0x0020,
+			efLoadingFault    = 0x0040,
+			efUnassignedCSess = 0x0080
 		};
 		const  double Tolerance; // Максимальное допустимое различие между суммой чека и суммами по строкам
 			// (суммой скидки и суммами скидки по строкам), при превышении которого функция рапортует об ошибке.
@@ -16680,10 +16682,10 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 			// При вводе такой список обрамляется скобками []. Например [240, 300, 360]
 	};
 	enum {
-		tcAmount     = 0, // Абсолютный объем выигрыша
-		tcVelocity   = 1, // Скорость выигрыша
-		tcWinRatio   = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
-		tcAngleRatio = 3  // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
+		tcAmount       = 0, // Абсолютный объем выигрыша
+		tcVelocity     = 1, // Скорость выигрыша
+		tcWinRatio     = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
+		tcAngularRatio = 3, // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
 	};
 	//
 	// @v10.7.6
@@ -16966,7 +16968,11 @@ public:
 		double SLAPI CalcTP(double stakeBase, double averageSpreadForAdjustment) const;
 		double SLAPI CalcTP(double stakeBase, double externalSpikeQuant, double averageSpreadForAdjustment) const;
 		double SLAPI GetWinCountRate() const;
-		double SLAPI GetAngleDensity() const;
+		//
+		// Descr: Возвращает угловую величину сегмента OptDeltaRange в радианах
+		//
+		double SLAPI GetAngularRange() const;
+		double SLAPI GetAngularDensity() const;
 		double SLAPI GetStakeDensity() const;
 		double SLAPI CalcConfidenceFactor() const;
 		//
@@ -17118,6 +17124,10 @@ public:
 			scoreSeStakeCountMean,      // Среднее по количеству ставок на этапе отбора стратегий
 			scoreSeStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе отбора стратегий
 			scoreSeStakeCountVarCoeff,  // Коэффициент вариации по количеству ставок на этапе отбора стратегий
+			scoreEvAngularStakeDensity, // @v10.8.8 Угловая плотность ставок на этапе вычисления стратегий
+			scoreSeAngularStakeDensity, // @v10.8.8 Угловая плотность ставок на этапе отбора стратегий
+			scoreEvAngularWinRate,      // @v10.8.8 Угловой коэффициент выигрышей
+			scoreTotalAngle             // @v10.8.8 Суммарная величина угла по всем стратегиям контейнера
 		};
 		//
 		// Descr: Рассчитывает значение показателя контейнера стратегий.
@@ -17470,10 +17480,10 @@ public:
 		// Descr: Целевая функция при нахождении оптимальных секторов
 		//
 		enum {
-			tcAmount     = 0, // Абсолютный объем выигрыша
-			tcVelocity   = 1, // Скорость выигрыша
-			tcWinRatio   = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
-			tcAngleRatio = 3  // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
+			tcAmount       = 0, // Абсолютный объем выигрыша
+			tcVelocity     = 1, // Скорость выигрыша
+			tcWinRatio     = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
+			tcAngularRatio = 3  // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
 		};
 		long   Flags;
 		long   OptTargetCriterion;      // @v10.4.6
@@ -20253,7 +20263,7 @@ public:
 	//
 	// Descr: Генерирует код счета в формате Ac.Sb
 	//
-	static int SLAPI GenerateCode(PPAccount *);
+	static void SLAPI GenerateCode(PPAccount &);
 
 	SLAPI  AccountCore();
 	//
@@ -20302,8 +20312,8 @@ private:
 class PPObjAccount : public PPObjReference {
 public:
 	static Reference2Tbl::Key2 & MakeAcctKey(int ac, int sb, Reference2Tbl::Key2 & rKey);
-	static int CheckRecursion(PPID id, PPID parentID);
-	static int SLAPI GenerateCode(PPAccount * pRec);
+	static int  CheckRecursion(PPID id, PPID parentID);
+	static void SLAPI GenerateCode(PPAccount & rRec);
 	explicit SLAPI  PPObjAccount(void * extraPtr = 0);
 	SLAPI ~PPObjAccount();
 	virtual int  SLAPI Edit(PPID *, void * extraPtr);
@@ -24765,7 +24775,7 @@ private:
 		SString RecognizedText;
 		LongArray FiasCandidList;
 	};
-	int    SLAPI Helper_Construct();
+	void   SLAPI Helper_Construct();
 	int    SLAPI GetTok(AddrTok & rTok);
 	int    SLAPI ProcessDescr(const AddrItemDescr & rDescr, DescrSelector & rSel);
 	int    SLAPI DetectCityName(DetectBlock & rDb);
@@ -26409,7 +26419,7 @@ private:
 
 struct PPPsnEventPacket {
 	SLAPI  PPPsnEventPacket();
-	int    FASTCALL Init(PPID op);
+	void   FASTCALL Init(PPID op);
 	void   SLAPI Destroy();
 	int    FASTCALL Copy(const PPPsnEventPacket &);
 	PPPsnEventPacket & FASTCALL operator = (const PPPsnEventPacket &);
@@ -41871,8 +41881,9 @@ public:
 	CCheckCore * SLAPI GetCc();
 	int    SLAPI AllocInnerIterItem();
 	const  CCheckViewItem * GetInnerIterItem() const;
+	const  LAssocArray & GetProblems() const;
 private:
-	int    SLAPI Helper_Construct();
+	void   SLAPI Helper_Construct();
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -41917,7 +41928,7 @@ private:
 		stUseGoodsList  = 0x0002,
 		stIterLines     = 0x0004, //
 		stOuterCc       = 0x0008, //
-		stSkipUnprinted = 0x0010  // @v9.7.11 Если в фильтре заданы конкретные кассовые узлы
+		stSkipUnprinted = 0x0010  // Если в фильтре заданы конкретные кассовые узлы
 			// и все они имеют установленный флаг CASHF_SKIPUNPRINTEDCHECKS, то чеки, не имеющие
 			// флага CCHKF_PRINTF считаются неучитываемым (как будто имеют флаг CCHKF_SKIP).
 	};
@@ -41930,10 +41941,10 @@ private:
 	ObjIdListFilt SessIdList;  // @*Init_
 	ObjIdListFilt SCardList;   // @*Init_
 	UintHashTable GoodsList;   // @*Init_ Список товаров, по которым следует фильтровать строки чеков
-	LAssocArray SessCnList;    // Список ассоциация Кассовая сессия - Кассовый узел.
-		// Используется для быстрой идентификации принадлежности чека кассовому узлу.
+	LAssocArray SessCnList;    // Список ассоциация Кассовая сессия - Кассовый узел. Используется для быстрой идентификации принадлежности чека кассовому узлу.
 	BVATAccmArray * P_InOutVATList; //
 	GoodsSubstList Gsl;        //
+	LAssocArray Problems;      // @v10.8.8 Список чеков, ассоциированных с ошибками, обнаруженными функцией корректировки
 };
 //
 // @ModuleDecl(PPViewObjSync)
@@ -50693,7 +50704,7 @@ protected:
 	virtual int  addItem(long * pPos, long * pID);
 	virtual int  editItem(long pos, long id);
 	virtual int  delItem(long pos, long id);
-	virtual int  getObjName(PPID objID, long objFlags, SString & rBuf);
+	virtual void getObjName(PPID objID, long objFlags, SString & rBuf);
 	virtual void getExtText(PPID objID, long objFlags, SString & rBuf);
 	virtual int  editItemDialog(ObjRestrictItem *) { return -1; }
 
@@ -50811,7 +50822,7 @@ private:
 	PPObjPsnOpKind Obj;
 };
 //
-// Диалог отправки эл. письма
+// Диалог отправки электронного письма
 //
 class SendMailDialog : public PPListDialog {
 public:

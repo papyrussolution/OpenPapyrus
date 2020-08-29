@@ -23,16 +23,15 @@ Reference2Tbl::Key2 & PPObjAccount::MakeAcctKey(int ac, int sb, Reference2Tbl::K
 }
 
 // static
-int SLAPI PPObjAccount::GenerateCode(PPAccount * pRec)
+void SLAPI PPObjAccount::GenerateCode(PPAccount & rRec)
 {
 	char   buf[48];
 	Acct   acct;
-	acct.ac = pRec->A.Ac;
-	acct.sb = pRec->A.Sb;
+	acct.ac = rRec.A.Ac;
+	acct.sb = rRec.A.Sb;
 	acct.ar = 0;
 	acct.ToStr(ACCF_DEFAULT, buf);
-	STRNSCPY(pRec->Code, buf);
-	return 1;
+	STRNSCPY(rRec.Code, buf);
 }
 
 int SLAPI PPObjAccount::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
@@ -90,7 +89,7 @@ int SLAPI PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_t
 	if(pPack) {
 		THROW_PP(pPack->Rec.CurID == 0, PPERR_WACCSCURACC);
 		if(*strip(pPack->Rec.Code) == 0 || pPack->Rec.Type == ACY_BAL)
-			PPObjAccount::GenerateCode(&pPack->Rec);
+			PPObjAccount::GenerateCode(pPack->Rec);
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -598,7 +597,7 @@ public:
 	}
 private:
 	DECL_HANDLE_EVENT;
-	virtual int  getObjName(PPID objID, long objFlags, SString &);
+	virtual void getObjName(PPID objID, long objFlags, SString &);
 	virtual void getExtText(PPID objID, long objFlags, SString &);
 	virtual int  editItemDialog(ObjRestrictItem *);
 	virtual int  addItem(long * pPos, long * pID);
@@ -645,7 +644,7 @@ int GenAccountDialog::delItem(long pos, long id)
 	return r;
 }
 
-int GenAccountDialog::getObjName(PPID objID, long objFlags, SString & rBuf)
+void GenAccountDialog::getObjName(PPID objID, long objFlags, SString & rBuf)
 {
 	rBuf.Z();
 	SString temp_buf;
@@ -674,7 +673,6 @@ int GenAccountDialog::getObjName(PPID objID, long objFlags, SString & rBuf)
 	}
 	else
 		ideqvalstr(objID, rBuf);
-	return 1;
 }
 
 void GenAccountDialog::getExtText(PPID, long objFlags, SString & rBuf)
@@ -700,8 +698,7 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 		ushort v = 0;
 		getCtrlData(CTLSEL_ACCAGGR_ACCSHEET, &acc_sheet_id);
 		AcctCtrlGroup::Rec ag_rec;
-		AcctCtrlGroup * p_grp = new AcctCtrlGroup(CTL_ACCAGGRI_ACC, CTL_ACCAGGRI_ART,
-			CTLSEL_ACCAGGRI_ACCNAME, CTLSEL_ACCAGGRI_ARTNAME);
+		AcctCtrlGroup * p_grp = new AcctCtrlGroup(CTL_ACCAGGRI_ACC, CTL_ACCAGGRI_ART, CTLSEL_ACCAGGRI_ACCNAME, CTLSEL_ACCAGGRI_ARTNAME);
 		dlg->addGroup(ACCT_GROUP, p_grp);
 		// @v10.7.3 @ctr MEMSZERO(ag_rec);
 		if(oneof2(aco, ACO_1, ACO_2))

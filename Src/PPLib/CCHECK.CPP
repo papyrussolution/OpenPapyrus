@@ -1773,12 +1773,14 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 			rParam.ErrorFlags |= ValidateCheckParam::efInvAmount;
 			// #error Сумма чека не совпадает с суммой по строкам
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), chk_text.cptr(), rec_amt - amt));
+			rParam.ErrorFlags |= ValidateCheckParam::efInvAmount;
 			ok = 0;
 		}
 		if(!feqeps(dscnt, rec_dscnt, rParam.Tolerance)) {
 			rParam.ErrorFlags |= ValidateCheckParam::efInvDiscount;
 			// #error Сумма скидки чека не совпадает с суммой скидки по строкам
 			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), chk_text.cptr(), rec_dscnt - dscnt));
+			rParam.ErrorFlags |= ValidateCheckParam::efInvDiscount;
 			ok = 0;
 		}
 		// @v10.8.6 {
@@ -1844,6 +1846,7 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 		}
 	}
 	else {
+		rParam.ErrorFlags |= ValidateCheckParam::efLoadingFault;
 		// #error Ошибка загрузки чека %ld
 		rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_UNABLELOAD, fmt_buf), id));
 		ok = 0;

@@ -153,7 +153,7 @@ SLAPI PPPsnEventPacket::PPPsnEventPacket()
 {
 	// @v10.6.4 MEMSZERO(Rec);
 	// @v10.6.4 MEMSZERO(Reg);
-	Otb.Z();
+	// @v10.8.8 @ctr Otb.Z();
 }
 
 void SLAPI PPPsnEventPacket::Destroy()
@@ -165,7 +165,7 @@ void SLAPI PPPsnEventPacket::Destroy()
 	Otb.Z();
 }
 
-int  FASTCALL PPPsnEventPacket::Init(PPID op)
+void FASTCALL PPPsnEventPacket::Init(PPID op)
 {
 	Destroy();
 	TagL.ObjType = PPOBJ_PERSONEVENT;
@@ -173,7 +173,6 @@ int  FASTCALL PPPsnEventPacket::Init(PPID op)
 	Rec.OpID = op;
 	getcurdatetime(&Rec.Dt, &Rec.Tm);
 	LinkFiles.Clear();
-	return 1;
 }
 
 int FASTCALL PPPsnEventPacket::Copy(const PPPsnEventPacket & src)
@@ -395,7 +394,7 @@ int SLAPI PPObjPersonEvent::InitPacket(PPPsnEventPacket * pPack, const AddPerson
 	else if(interactive)
 		op_id = PPObjPsnOpKind::Select();
 	THROW_PP(op_id, PPERR_UNDEFPEOP);
-	THROW(pPack->Init(op_id));
+	pPack->Init(op_id);
 	THROW(pop_obj.GetPacket(op_id, &pop_pack) > 0);
 	{
 		if(rFilt.PrmrSCardID) {
@@ -479,7 +478,7 @@ int SLAPI PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 	int    ok = 1;
 	RegisterArray regary;
 	THROW_INVARG(pPack);
-	THROW(pPack->Init(0));
+	pPack->Init(0);
 	THROW(Search(id, &pPack->Rec) > 0);
 	THROW(RegObj.P_Tbl->GetByEvent(id, &regary));
 	if(regary.getCount())
@@ -1733,7 +1732,8 @@ int PsnEventDialog::setupPair()
 int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 {
 	int    ok = 1;
-	int    disable_taglist = 0, disable_post = 0;
+	int    disable_taglist = 0;
+	int    disable_post = 0;
 	PPObjPsnOpKind pok_obj;
 	THROW_INVARG(p);
 	THROW_PP(p->Rec.OpID, PPERR_UNDEFPEOP);
@@ -1789,11 +1789,9 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 			}
 		}
 	}
-	// @v8.0.3 {
 	AddClusterAssoc(CTL_PSNEVNT_FLAGS, 0, PSNEVF_FORCEPAIR);
 	SetClusterData(CTL_PSNEVNT_FLAGS, Pack.Rec.Flags);
 	DisableClusterItem(CTL_PSNEVNT_FLAGS, 0, !P_PeObj->CheckRights(PSNEVRT_SETFORCEPAIR) || !oneof2(PokPack.Rec.PairType, POKPT_OPEN, POKPT_CLOSE));
-	// } @v8.0.3
 	setupPair();
 	updateList(-1);
 	CATCHZOK
@@ -1920,7 +1918,7 @@ int SLAPI PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 	else {
 		op = PPObjPsnOpKind::Select(0);
 		if(op > 0) {
-			THROW(pack.Init(op));
+			pack.Init(op);
 			pack.Rec.PersonID = extra_prmr_id;
 		}
 		else

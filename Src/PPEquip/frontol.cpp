@@ -1362,20 +1362,24 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 				if(r > 0) {
 					double line_amount;
 					PPID   chk_id = P_TmpCcTbl->data.ID;
-					if(!closed_check_list.Has((ulong)chk_id)) {
+					if(!closed_check_list.Has(static_cast<ulong>(chk_id))) {
 						double qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(src_qtty) : fabs(src_qtty);
 						if(op_type == FRONTOL_OPTYPE_STORNO) {
 							TempCCheckLineTbl::Key2 k2;
 							k2.CheckID = chk_id;
 							BExtQuery cclq(P_TmpCclTbl, 2);
 							cclq.selectAll().where(P_TmpCclTbl->CheckID == chk_id);
+							qtty = -qtty;
 							for(cclq.initIteration(0, &k2, spGe); cclq.nextIteration() > 0;) {
-								if(P_TmpCclTbl->data.GoodsID == goods_id && P_TmpCclTbl->data.Quantity == qtty) {
+								const TempCCheckLineTbl::Rec & r_tccl_rec = P_TmpCclTbl->data;
+								if(r_tccl_rec.GoodsID == goods_id && feqeps(fabs(r_tccl_rec.Quantity), fabs(qtty), 1E-7)) {
+									double storno_amount = (intmnytodbl(r_tccl_rec.Price) - r_tccl_rec.Dscnt) * r_tccl_rec.Quantity;
+									double storno_discount = r_tccl_rec.Dscnt * r_tccl_rec.Quantity;
+									THROW(AddTempCheckAmounts(chk_id, -storno_amount, -storno_discount));
 									THROW_DB(P_TmpCclTbl->deleteRec());
 									break;
 								}
 							}
-							qtty = -qtty;
 						}
 						else {
 							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
@@ -1384,16 +1388,17 @@ int SLAPI ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 							// @v10.7.3 SetTempCcLineValues(0, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/);
 							// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
 							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/)); // @v10.7.3
+							{
+								double dscnt = 0.0;
+								if(is_free_price)
+									line_amount = R2(qtty * src_dscnt_price);
+								else {
+									line_amount = R2(qtty * src_dscnt_price);
+									dscnt       = R2(qtty * (price - src_dscnt_price)); // @v10.8.8 @fix (qtty * price - dscnt)-->(qtty * (price - dscnt))
+								}
+								THROW(AddTempCheckAmounts(chk_id, line_amount, dscnt));
+							}
 						}
-						double dscnt = 0.0;
-						if(is_free_price) {
-							line_amount = R2(qtty * src_dscnt_price);
-						}
-						else {
-							line_amount = R2(qtty * src_dscnt_price);
-							dscnt       = R2(qtty * price - dscnt);
-						}
-						THROW(AddTempCheckAmounts(chk_id, line_amount, dscnt));
 					}
 				}
 			}

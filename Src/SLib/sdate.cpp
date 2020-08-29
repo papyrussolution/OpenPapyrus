@@ -946,16 +946,14 @@ long SLAPI diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
 {
 	long dif_days = 0;
 	long ds = diffdatetime(d1, t1, d2, t2, 3, &dif_days);
-	ds += dif_days * 3600 * 24;
-	return ds;
+	return (ds + dif_days * 3600 * 24);
 }
 
 long FASTCALL diffdatetimesec(const LDATETIME & dtm1, const LDATETIME & dtm2)
 {
 	long   dif_days = 0;
 	long   ds = diffdatetime(dtm1, dtm2, 3, &dif_days);
-	ds += dif_days * 3600 * 24;
-	return ds;
+	return (ds + dif_days * 3600 * 24);
 }
 
 LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)

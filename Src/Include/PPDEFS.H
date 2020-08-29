@@ -1469,7 +1469,7 @@
 #define PPEDIOP_RECADV                         5 // Подтверждение получения товара от поставщика
 #define PPEDIOP_DECLINEORDER                   6 // Отклонение заказа ранее высланного поставщику после получения подтверждения //
 #define PPEDIOP_ALCODESADV                     7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
-#define PPEDIOP_SALESORDER                     8 // @v9.2.1 Заказ от покупателя
+#define PPEDIOP_SALESORDER                     8 // Заказ от покупателя
 #define PPEDIOP_PARTIN                         9 // @v10.0.02
 #define PPEDIOP_INVOIC                        10 // @v10.0.06
 //
@@ -1501,25 +1501,25 @@
 #define PPEDIOP_EGAIS_REPLYFORMB              44
 #define PPEDIOP_EGAIS_ACTCHARGEON             45
 #define PPEDIOP_EGAIS_ACTWRITEOFF             46
-#define PPEDIOP_EGAIS_REQUESTREPEALWB         47 // @v9.2.8
-#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48 // @v9.2.8
-#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49 // @v9.2.8
-#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50 // @v9.2.8
-#define PPEDIOP_EGAIS_QUERYBARCODE            51 // @v9.2.8
-#define PPEDIOP_EGAIS_REPLYBARCODE            52 // @v9.2.8
-#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53 // @v9.2.11
-#define PPEDIOP_EGAIS_ACTCHARGEONSHOP         54 // @v9.2.11 // ActChargeOnShop_v2
-#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55 // @v9.3.10
-#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56 // @v9.3.12
-#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57 // @v9.3.12
-#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58 // @v9.4.0
-#define PPEDIOP_EGAIS_WAYBILL_V2              59 // @v9.5.5
-#define PPEDIOP_EGAIS_TTNINFORMF2REG          60 // @v9.5.5 version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
-#define PPEDIOP_EGAIS_WAYBILLACT_V2           61 // @v9.5.8 version 2 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // @v9.7.2 Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
-#define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // @v9.7.5 Запрос остатков version 2
-#define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // @v9.7.5 Ответ на запрос остатков version 2
-#define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // @v9.7.12 version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
+#define PPEDIOP_EGAIS_REQUESTREPEALWB         47 // 
+#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48 // 
+#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49 // 
+#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50 // 
+#define PPEDIOP_EGAIS_QUERYBARCODE            51 // 
+#define PPEDIOP_EGAIS_REPLYBARCODE            52 // 
+#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53 // 
+#define PPEDIOP_EGAIS_ACTCHARGEONSHOP         54 // ActChargeOnShop_v2
+#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55 // 
+#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56 // 
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57 // 
+#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58 // 
+#define PPEDIOP_EGAIS_WAYBILL_V2              59 // 
+#define PPEDIOP_EGAIS_TTNINFORMF2REG          60 // version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
+#define PPEDIOP_EGAIS_WAYBILLACT_V2           61 // version 2 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
+#define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // Запрос остатков version 2
+#define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // Ответ на запрос остатков version 2
+#define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILL_V3              66 // @v9.9.5
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // @v9.9.5 version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 // @v9.9.5
@@ -7155,9 +7155,9 @@
 	#define CTL_UICFG_ST_LISTFONT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_SPCINPDRV          (9 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_MULTBILLPRINT      (10 + WINDOWS_ID_BIAS)
-#define DLG_GRPSDSCNT             726
-	#define CTL_GRPSDSCNT_DISCOUNT       (1 + WINDOWS_ID_BIAS)
-	#define CTL_GRPSDSCNT_GRPLST         (2 + WINDOWS_ID_BIAS)
+// @v10.8.8 #define DLG_GRPSDSCNT             726
+	// @v10.8.8 #define CTL_GRPSDSCNT_DISCOUNT       (1 + WINDOWS_ID_BIAS)
+	// @v10.8.8 #define CTL_GRPSDSCNT_GRPLST         (2 + WINDOWS_ID_BIAS)
 #define DLG_SMPLLEDG              727
 	#define CTL_SMPLLEDG_DT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SMPLLEDG_CODE             (2 + WINDOWS_ID_BIAS)
@@ -12751,17 +12751,6 @@
 // 	#define TRANSTYPE_PRSNOP            0
 // 	#define TRANSTYPE_DOCOP             1
 // LastText
-//
-// PPSTR_SYMB
-//
-/* @v9.0.3 Перенесено в ppstr2.txt
-#define PPSSYM_SYMB                 1 // Символы выражений
-#define PPSSYM_ACCSIDE              2 // Мнемоника сторон баланса (Дб|Кр)
-#define PPSSYM_CMDLINEOP            3 // Опции командной строки
-#define PPSSYM_IMPEXPPAR            4 // Наименования параметров импорта/экспорта
-#define PPSSYM_IMPEXPFORMULA        5 // Метасимволы формул полей SdbField
-#define PPSSYM_FORMAT               6 // Метасимволы форматированного вывода (PPFormat)
-*/
 //
 // Intrinsic calculator functions
 //

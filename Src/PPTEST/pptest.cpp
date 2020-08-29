@@ -1305,9 +1305,9 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
-	TestAddressRecognition();
+	//TestAddressRecognition();
 	//TestSArchive();
-	//TestGtinStruc();
+	TestGtinStruc();
 	//TestGravity();
 	//PPChZnPrcssr::Test();
 	//TestConfigDatabase_StringHistory();

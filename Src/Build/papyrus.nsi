@@ -87,6 +87,13 @@ BrandingText " "
 !include "MUI2.nsh"
 !include "Library.nsh"
 
+; Languages
+!insertmacro MUI_LANGUAGE "English" ; The first language is the default language
+!insertmacro MUI_LANGUAGE "Russian" 
+!insertmacro MUI_LANGUAGE "German"
+!insertmacro MUI_LANGUAGE "Dutch"
+!insertmacro MUI_LANGUAGE "Portuguese"
+
 ;MUI Settings
 !define MUI_ABORTWARNING
 !define MUI_ICON   "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
@@ -180,7 +187,7 @@ FunctionEnd
 ;
 ; Welcome page
 ;
-!define MUI_WELCOMEPAGE_TITLE "Вас приветствует мастер установки ${PRODUCT_NAME}"
+!define MUI_WELCOMEPAGE_TITLE          "Вас приветствует мастер установки ${PRODUCT_NAME}"
 !define MUI_WELCOMEFINISHPAGE_BITMAP   "${SRC_ROOT}\Src\Rsrc\Bitmap\nsis-welcome-02.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "${SRC_ROOT}\Src\Rsrc\Bitmap\nsis-welcome-02.bmp"
 !insertmacro MUI_PAGE_WELCOME

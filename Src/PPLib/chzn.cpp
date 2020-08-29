@@ -2570,7 +2570,8 @@ int SLAPI PPChZnPrcssr::Run(const Param & rP)
 	StringSet pending_list;
 	PrcssrAlcReport::Config alcr_cfg;
 	PrcssrAlcReport::ReadConfig(&alcr_cfg);
-	base_op_list.add(alcr_cfg.RcptOpID);
+	base_op_list.addnz(alcr_cfg.RcptOpID);
+	base_op_list.addnz(alcr_cfg.IntrExpndOpID);
 	TSCollection <ChZnInterface::Packet> pack_list;
 	ChZnInterface ifc;
 	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);

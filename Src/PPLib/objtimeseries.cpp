@@ -181,7 +181,7 @@ int SLAPI PPTssModelPacket::Output(SString & rBuf) const
 			rBuf.Cat("winratio");
 		else if(Rec.OptTargetCriterion == PPTssModel::tcVelocity)
 			rBuf.Cat("velocity");
-		else if(Rec.OptTargetCriterion == PPTssModel::tcAngleRatio) // @v10.7.9
+		else if(Rec.OptTargetCriterion == PPTssModel::tcAngularRatio) // @v10.7.9
 			rBuf.Cat("angleratio");
 		else
 			rBuf.Cat("amount");
@@ -391,7 +391,7 @@ public:
 		AddClusterAssocDef(CTL_TSSMODEL_OPTCRIT, 0, PPTssModel::tcAmount);
 		AddClusterAssoc(CTL_TSSMODEL_OPTCRIT, 1, PPTssModel::tcVelocity);
 		AddClusterAssoc(CTL_TSSMODEL_OPTCRIT, 2, PPTssModel::tcWinRatio);
-		AddClusterAssoc(CTL_TSSMODEL_OPTCRIT, 3, PPTssModel::tcAngleRatio); // @v10.7.9
+		AddClusterAssoc(CTL_TSSMODEL_OPTCRIT, 3, PPTssModel::tcAngularRatio); // @v10.7.9
 		SetClusterData(CTL_TSSMODEL_OPTCRIT, Data.Rec.OptTargetCriterion);
 		AddClusterAssoc(CTL_TSSMODEL_BSUBSCHNK,    0, 0); // @v10.7.10
 		AddClusterAssoc(CTL_TSSMODEL_BSUBSCHNK,    1, 1);
@@ -4168,21 +4168,57 @@ int SLAPI PPObjTimeSeries::StrategyContainer::MakeConfidenceEliminationIndex(con
 			}
 		}*/
 		// }
+		/*{
+			double angle_density_threshold = 0.0;
+			{
+				StatBase sb;
+				RealArray dens_list;
+				for(uint i = 0; i < _c; i++) {
+					const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(i)) : i;
+					const Strategy & r_item = at(idx);
+					const double d = r_item.GetAngularDensity();
+					dens_list.add(d);
+					sb.Step(d);
+				}
+				sb.Finish();
+				if(dens_list.getCount()) {
+					dens_list.Sort();
+					angle_density_threshold = dens_list.at(static_cast<uint>(R0i(static_cast<double>(dens_list.getCount()) * 0.8)));
+				}
+				//angle_density_threshold = sb.GetExp() * 0.4;
+			}
+			{
+				for(uint i = 0; i < _c; i++) {
+					const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(i)) : i;
+					if(!rToRemoveIdxList.lsearch(idx)) {
+						const Strategy & r_item = at(idx);
+						const double d = r_item.GetAngularDensity();
+						if(d < angle_density_threshold) {
+							rToRemoveIdxList.add(static_cast<long>(idx));
+						}
+					}
+				}
+			}
+		}*/
 		while((_c - rToRemoveIdxList.getCount()) > maxCount) {
-			uint min_stake_count = UINT_MAX;
-			uint min_stake_count_pos = 0;
+			//uint min_stake_count = UINT_MAX;
+			double extremum_factor = 0.0;
+			//uint min_stake_count_pos = 0;
+			int    to_remove_idx = -1;
 			for(uint _i_ = 0; _i_ < _c; _i_++) {
 				const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
 				if(!rToRemoveIdxList.lsearch(idx)) {
 					const Strategy & r_item = at(idx);
-					if(min_stake_count > r_item.StakeCount) {
-						min_stake_count = r_item.StakeCount;
-						min_stake_count_pos = idx;
+					//const double local_extremum_factor = pow(static_cast<double>(r_item.StakeCount), 2.0) / r_item.GetAngularRange();
+					const double local_extremum_factor = static_cast<double>(r_item.StakeCount);
+					if(to_remove_idx < 0 || extremum_factor > local_extremum_factor) {
+						extremum_factor = local_extremum_factor;
+						to_remove_idx = static_cast<int>(idx);
 					}
 				}
 			}
-			if(min_stake_count < UINT_MAX)
-				rToRemoveIdxList.add(static_cast<long>(min_stake_count_pos));
+			if(to_remove_idx >= 0)
+				rToRemoveIdxList.add(to_remove_idx);
 			else
 				break;
 		}
@@ -4393,11 +4429,19 @@ const PPObjTimeSeries::Strategy * FASTCALL PPObjTimeSeries::StrategyContainer::S
 double SLAPI PPObjTimeSeries::StrategyContainer::EvaluateScore(int scoreId, const LongArray * pOnlyIndices, const LongArray * pExceptIndices) const
 {
 	double score = 0.0;
+	double total_angle = 0.0;
+	uint   total_stake_ev = 0;
+	uint   total_stake_se = 0;
+	uint   total_win_ev = 0;
 	StatBase sb;
 	for(uint i = 0; i < getCount(); i++) {
 		if((!pExceptIndices || !pExceptIndices->lsearch(i)) && (!pOnlyIndices || pOnlyIndices->lsearch(i))) {
 			const Strategy & r_s = at(i);
 			// @20200306 score += (r_s.GetWinCountRate() * r_s.V.GetResultPerDay());
+			total_angle += r_s.GetAngularRange();
+			total_stake_ev += r_s.StakeCount;
+			total_stake_se += r_s.StakeCountAtFinalSimulation;
+			total_win_ev += r_s.WinCount;
 			if(scoreId == scoreResult) {
 				score += r_s.V.Result; // @20200306 
 			}
@@ -4422,6 +4466,18 @@ double SLAPI PPObjTimeSeries::StrategyContainer::EvaluateScore(int scoreId, cons
 		score = sb.GetStdDev();
 	else if(scoreId == scoreSeStakeCountVarCoeff)
 		score = fdivnz(sb.GetStdDev(), sb.GetExp());
+	else if(scoreId == scoreEvAngularStakeDensity) { // @v10.8.8 Угловая плотность ставок на этапе вычисления стратегий
+		score = static_cast<double>(total_stake_ev) / total_angle;
+	}
+	else if(scoreId == scoreSeAngularStakeDensity) { // @v10.8.8 Угловая плотность ставок на этапе отбора стратегий
+		score = static_cast<double>(total_stake_se) / total_angle;
+	}
+	else if(scoreId == scoreEvAngularWinRate) { // @v10.8.8 Угловой коэффициент выигрышей
+		score = static_cast<double>(total_win_ev) / total_angle;
+	}
+	else if(scoreId == scoreTotalAngle) { // @v10.8.8 
+		score = total_angle;
+	}
 	return score;
 }
 
@@ -4567,11 +4623,16 @@ SString & SLAPI PPObjTimeSeries::TrainNnParam::MakeFileName(SString & rBuf) cons
 
 double SLAPI PPObjTimeSeries::Strategy::GetWinCountRate() const { return fdivnz((double)WinCount, (double)StakeCount); }
 
-double SLAPI PPObjTimeSeries::Strategy::GetAngleDensity() const
+double SLAPI PPObjTimeSeries::Strategy::GetAngularRange() const
 {
 	double rad_lo = atan(OptDeltaRange.low);
 	double rad_up = atan(OptDeltaRange.upp);
-	return static_cast<double>(GenPtCount) / (rad_up - rad_lo);
+	return (rad_up - rad_lo);
+}
+
+double SLAPI PPObjTimeSeries::Strategy::GetAngularDensity() const
+{
+	return static_cast<double>(GenPtCount) / GetAngularRange();
 }
 
 double SLAPI PPObjTimeSeries::Strategy::GetStakeDensity() const
@@ -4870,9 +4931,9 @@ SString & SLAPI PPObjTimeSeries::StrategyToString(const PPObjTimeSeries::Strateg
 					rBuf.CatChar('?').CatChar('|');
 				rBuf.Cat(rS.OptDeltaRange, trange_fmt);
 				// @v10.8.6 rBuf.CatChar('|').Cat(rS.GetOptDeltaRangeCQA(), MKSFMTD(0, 2, 0));
-				//rBuf.CatChar('|').Cat(rS.GetAngleDensity() / 1000000.0, MKSFMTD(0, 0, 0)); // @v10.8.6
+				rBuf.CatChar('|').Cat(log10(rS.GetAngularDensity()), MKSFMTD(0, 3, 0)); // @v10.8.6 // @20200824 (rS.GetAngularDensity() / 1000000.0)-->log(rS.GetAngularDensity())
 				//rBuf.CatChar('|').Cat(rS.GetStakeDensity(), MKSFMTD(0, 6, 0)); // @v10.8.6
-				rBuf.CatChar('|').Cat(rS.StakeDistrFactor, MKSFMTD(0, 4, 0)); // @v10.8.7
+				//rBuf.CatChar('|').Cat(rS.StakeDistrFactor, MKSFMTD(0, 4, 0)); // @v10.8.7
 			}
 			else if(rS.StakeMode == 2)
 				rBuf.Cat(*pOptFactor, trange_fmt).CatChar('|').Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
@@ -4886,9 +4947,9 @@ SString & SLAPI PPObjTimeSeries::StrategyToString(const PPObjTimeSeries::Strateg
 			if(rS.StakeMode == 1) {
 				rBuf.Cat(rS.OptDeltaRange, trange_fmt);
 				// @v10.8.6 rBuf.CatChar('|').Cat(rS.GetOptDeltaRangeCQA(), MKSFMTD(0, 2, 0));
-				//rBuf.CatChar('|').Cat(rS.GetAngleDensity() / 1000000.0, MKSFMTD(0, 0, 0)); // @v10.8.6
+				rBuf.CatChar('|').Cat(log10(rS.GetAngularDensity()), MKSFMTD(0, 3, 0)); // @v10.8.6 // @20200824 (rS.GetAngularDensity() / 1000000.0)-->log(rS.GetAngularDensity())
 				//rBuf.CatChar('|').Cat(rS.GetStakeDensity(), MKSFMTD(0, 6, 0)); // @v10.8.6
-				rBuf.CatChar('|').Cat(rS.StakeDistrFactor, MKSFMTD(0, 4, 0)); // @v10.8.7
+				//rBuf.CatChar('|').Cat(rS.StakeDistrFactor, MKSFMTD(0, 4, 0)); // @v10.8.7
 			}
 			else if(rS.StakeMode == 2)
 				rBuf.Cat(rS.OptDelta2Stride).CatChar('/').Cat(rS.OptDelta2Range, trange_fmt);
@@ -5050,7 +5111,7 @@ int SLAPI PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 			else if(temp_buf.IsEqiAscii("winratio")) // @v10.4.6
 				rMp.OptTargetCriterion = rMp.tcWinRatio;
 			else if(temp_buf.IsEqiAscii("angleratio")) // @v10.7.9
-				rMp.OptTargetCriterion = rMp.tcAngleRatio;
+				rMp.OptTargetCriterion = rMp.tcAngularRatio;
 			else if(temp_buf.IsEqiAscii("amount")) // @v10.7.3
 				rMp.OptTargetCriterion = rMp.tcAmount;
 			else
@@ -5631,7 +5692,7 @@ struct TsFindStrategiesBlock {
 			cfrrFunc = CalcFactorRangeResult2_R1DivR2;
 		else if(r_tssm.OptTargetCriterion == PPTssModel::tcWinRatio)
 			cfrrFunc = CalcFactorRangeResult2_R2DivC;
-		else if(r_tssm.OptTargetCriterion == PPTssModel::tcAngleRatio) // @v10.7.9
+		else if(r_tssm.OptTargetCriterion == PPTssModel::tcAngularRatio) // @v10.7.9
 			cfrrFunc = CalcFactorRangeResult2_R2DivAngle;
 		assert(cfrrFunc != 0);
 		CALLPTRMEMB(pRc, clear());
@@ -6103,7 +6164,7 @@ struct TsFindStrategiesBlock {
 									do_reckon = 1;
 								}
 							}
-							else if(oneof2(r_tssm.OptTargetCriterion, PPTssModel::tcWinRatio, PPTssModel::tcAngleRatio)) { // @v10.7.9 PPTssModel::tcAngleRatio
+							else if(oneof2(r_tssm.OptTargetCriterion, PPTssModel::tcWinRatio, PPTssModel::tcAngularRatio)) { // @v10.7.9 PPTssModel::tcAngleRatio
 								total_max_result = _sfd_extr_entry.Result;
 								do_reckon = 1;
 							}
@@ -6172,7 +6233,7 @@ struct TsFindStrategiesBlock {
 					ResultList.add(rRvEx.Result); // @optvector
 					if(criterion == PPTssModel::tcVelocity)
 						ResultAddendumList.add(static_cast<double>(rRvEx.TmSec));
-					else // @v10.7.6 if(oneof2(criterion, PPTssModel::tcWinRatio, PPTssModel::tcAngleRatio))
+					else // @v10.7.6 if(oneof2(criterion, PPTssModel::tcWinRatio, PPTssModel::tcAngularRatio))
 						ResultAddendumList.add((rRvEx.Result > 0.0) ? 1.0 : 0.0);
 				}
 				void FASTCALL AddZero()
@@ -6273,9 +6334,9 @@ struct TsFindStrategiesBlock {
 								const double trend_err = rTe.ErrL.at(i);
 								if(trend_err_limit <= 0.0 || (trend_err > 0.0 && trend_err <= trend_err_limit)) {
 									const double local_factor = rTe.TL.at(i);
-									if(oneof3(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcVelocity, PPTssModel::tcWinRatio, PPTssModel::tcAngleRatio)) {
+									if(oneof3(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcVelocity, PPTssModel::tcWinRatio, PPTssModel::tcAngularRatio)) {
 										const double local_addendum = result_block.ResultAddendumList.at(i);
-										if(oneof2(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcWinRatio, PPTssModel::tcAngleRatio) || local_addendum > 0.0) {
+										if(oneof2(R_TssModel.Rec.OptTargetCriterion, PPTssModel::tcWinRatio, PPTssModel::tcAngularRatio) || local_addendum > 0.0) {
 											StrategyOptEntry entry(local_factor, local_result, local_addendum);
 											THROW_SL(so_list.insert(&entry));
 										}
@@ -6375,20 +6436,39 @@ static double SLAPI EvaluateStakeDistributionFactor(uint ptCount, const TSVector
 	return result;
 }
 
-static double SLAPI EvaluateExperimentalFactor(const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rDetailList)
+static double SLAPI EvaluateExperimentalFactor(const PPObjTimeSeries::StrategyContainer & rSc, const TSVector <PPObjTimeSeries::StrategyResultValueEx> & rDetailList)
 {
 	// @v20200819 Экспериментальная величина - среднее значение клиранса при выигрыше
 	double result = 0.0;
-	const  uint dlc = rDetailList.getCount();
-	StatBase sb;
-	for(uint i = 0; i < dlc; i++) {
-		const PPObjTimeSeries::StrategyResultValueEx & r_entry = rDetailList.at(i);
-		if(r_entry.Result > 0.0) {
-			sb.Step(r_entry.Clearance);
+	// @20200822 {
+	{
+		//
+		// Рассчитываем агрегатную величину оценки разброса углов стратегий. Предварительно будем использовать станд отклонение от среднего угла
+		//
+		StatBase sb;
+		for(uint j = 0; j < rSc.getCount(); j++) {
+			const PPObjTimeSeries::Strategy & r_s = rSc.at(j);
+			// @20200823 double m = r_s.OptDeltaRange.GetMiddle();
+			double m = log10(r_s.GetAngularDensity()); // @20200823 // @20200824 log
+			sb.Step(m);
 		}
+		sb.Finish();
+		// @20200823 result = sb.GetStdDev();
+		result = sb.GetExp(); // @20200823 
 	}
-	sb.Finish();
-	result = sb.GetExp();
+	// } @20200822 
+	/* @20200822 {
+		const  uint dlc = rDetailList.getCount();
+		StatBase sb;
+		for(uint i = 0; i < dlc; i++) {
+			const PPObjTimeSeries::StrategyResultValueEx & r_entry = rDetailList.at(i);
+			if(r_entry.Result > 0.0) {
+				sb.Step(r_entry.Clearance);
+			}
+		}
+		sb.Finish();
+		result = sb.GetExp();
+	}*/
 	return result;
 }
 
@@ -6948,18 +7028,14 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 									Cat(p_tsrr->InputFrameSize).CatChar('-').Cat(p_tsrr->MaxDuckQuant).CatChar('-').Cat(p_tsrr->TargetQuant).CatChar('-').Cat(p_tsrr->GetStakeDirText());
 								f_ol.WriteLine(msg_buf.CR());
 								//
-								msg_buf.Z().Cat("FactorRange").Eq().Cat(p_tsrr->FactorR.low, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Dot().Dot().Cat(p_tsrr->FactorR.upp, MKSFMTD(0, 8, NMBF_NOTRAILZ));
-								f_ol.WriteLine(msg_buf.CR());
-								msg_buf.Z().CatEq("NegFactorCount", p_tsrr->NegFactorCount).Space().CatEq("PosFactorCount", p_tsrr->PosFactorCount).Space().
-									CatEq("NegFactorCount/PosFactorCount", fdivui(p_tsrr->NegFactorCount, p_tsrr->PosFactorCount), MKSFMTD(0, 8, NMBF_NOTRAILZ));
+								msg_buf.Z().Cat("FactorRange").Eq().Cat(p_tsrr->FactorR.low, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Dot().Dot().Cat(p_tsrr->FactorR.upp, MKSFMTD(0, 8, NMBF_NOTRAILZ)).Space().
+									Cat("NegFactorCount/PosFactorCount").CatDiv(':', 2).Cat(p_tsrr->NegFactorCount).CatChar('/').Cat(p_tsrr->PosFactorCount).Eq().
+									Cat(fdivui(p_tsrr->NegFactorCount, p_tsrr->PosFactorCount), MKSFMTD(0, 8, NMBF_NOTRAILZ));
 								f_ol.WriteLine(msg_buf.CR());
 								//
-								msg_buf.Z().CatEq("OptRangeStepAbs", p_tsrr->OptRangeStepAbs).Space().CatEq("OptRangeStepMkPart", p_tsrr->OptRangeStepMkPart);
-								f_ol.WriteLine(msg_buf.CR());
-								msg_buf.Z().CatEq("OptRangeCount", p_tsrr->OptRangeCount).Space().
-									Cat("OptRangeEffResultRange").Eq().
-										Cat(p_tsrr->OptRangeMinEffResult, MKSFMTD(0, 4, NMBF_NOTRAILZ)).Dot().Dot().
-										Cat(p_tsrr->OptRangeMaxEffResult, MKSFMTD(0, 4, NMBF_NOTRAILZ));
+								msg_buf.Z().Cat("OptRangeStep Abs|MkPart").CatDiv(':', 2).Cat(p_tsrr->OptRangeStepAbs).CatChar('|').Cat(p_tsrr->OptRangeStepMkPart).Space().
+									CatEq("OptRangeCount", p_tsrr->OptRangeCount).Space().Cat("OptRangeEffResultRange").Eq().
+									Cat(p_tsrr->OptRangeMinEffResult, MKSFMTD(0, 4, NMBF_NOTRAILZ)).Dot().Dot().Cat(p_tsrr->OptRangeMaxEffResult, MKSFMTD(0, 4, NMBF_NOTRAILZ));
 								f_ol.WriteLine(msg_buf.CR());
 								f_ol.WriteBlancLine();
 							}
@@ -7598,7 +7674,7 @@ int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, long flags, S
 				sc_selection.Fb.StakeDistrFactor = sdf;
 			}
 			// } @v10.8.6 
-			sc_selection.Fb.ExperimentalFactor = EvaluateExperimentalFactor(sr_detail_list); // @20200819
+			sc_selection.Fb.ExperimentalFactor = EvaluateExperimentalFactor(sc_selection, sr_detail_list); // @20200819
 			for(uint ssi = 0; ssi < sc_selection.getCount(); ssi++) {
 				uint stake_count_at_final_simulation = CalcStakeCountAtFinalSimulation(sr_detail_list, ssi);
 				PPObjTimeSeries::Strategy & r_s = sc_selection.at(ssi);
@@ -7648,16 +7724,43 @@ int SLAPI PrcssrTsStrategyAnalyze::EvaluateStrategies(void * pBlk, long flags, S
 			SForEachVectorItem(sc_selection, si) { rFOutTotal.WriteLine(PPObjTimeSeries::StrategyToString(sc_selection.at(si), 0, 0, msg_buf).CR()); }
 			OutputStategyResultEntry(sre, msg_buf);
 			rFOutTotal.WriteLine(msg_buf.CR());
+			{
+
+			}
 			// @v10.8.6 {
 			{
 				msg_buf.Z().Cat("StakeDistribution").CatDiv(':', 2).Cat(sc_selection.Fb.StakeDistrFactor, MKSFMTD(0, 4, 0));
 				rFOutTotal.WriteLine(msg_buf.CR());
 			}
 			{
-				msg_buf.Z().Cat("AvgClearance").CatDiv(':', 2).Cat(sc_selection.Fb.ExperimentalFactor, MKSFMTD(0, 1, 0));
+				// @20200822 msg_buf.Z().Cat("AvgClearance").CatDiv(':', 2).Cat(sc_selection.Fb.ExperimentalFactor, MKSFMTD(0, 1, 0));
+				// @20200823 msg_buf.Z().Cat("OptRangeAngleStdDeviation").CatDiv(':', 2).Cat(sc_selection.Fb.ExperimentalFactor, MKSFMTD(0, 8, 0)); // @20200822 
+				msg_buf.Z().Cat("OptRangeAngleDensityAvg").CatDiv(':', 2).Cat(sc_selection.Fb.ExperimentalFactor, MKSFMTD(0, 3, 0)); // @20200823 // @20200824 log
+				msg_buf.CatDiv('|', 1).Cat(sc_selection.Fb.ExperimentalFactor / static_cast<double>(sre.StakeCount), MKSFMTD(0, 4, 0)); // @20200827
 				rFOutTotal.WriteLine(msg_buf.CR());
 			}
 			// } @v10.8.6 
+			{
+				double vc = sc_selection.EvaluateScore(sc_selection.scoreTotalAngle, 0, 0);
+				msg_buf.Z().Cat("scoreTotalAngle").CatDiv(':', 2).Cat(vc, MKSFMTD(0, 10, 0));
+				rFOutTotal.WriteLine(msg_buf.CR());
+			}
+			{
+				double vc = sc_selection.EvaluateScore(sc_selection.scoreEvAngularStakeDensity, 0, 0);
+				msg_buf.Z().Cat("scoreEvAngularStakeDensity").CatDiv(':', 2).Cat(log10(vc), MKSFMTD(0, 3, 0));
+				rFOutTotal.WriteLine(msg_buf.CR());
+			}
+			{
+				double vc = sc_selection.EvaluateScore(sc_selection.scoreSeAngularStakeDensity, 0, 0);
+				msg_buf.Z().Cat("scoreSeAngularStakeDensity").CatDiv(':', 2).Cat(log10(vc), MKSFMTD(0, 3, 0));
+				rFOutTotal.WriteLine(msg_buf.CR());
+			}
+			{
+				double vc = sc_selection.EvaluateScore(sc_selection.scoreEvAngularWinRate, 0, 0);
+				msg_buf.Z().Cat("scoreEvAngularWinRate").CatDiv(':', 2).Cat(log10(vc), MKSFMTD(0, 3, 0));
+				rFOutTotal.WriteLine(msg_buf.CR());
+			}
+			//
 			{
 				double vc = sc_selection.EvaluateScore(sc_selection.scoreEvStakeCountVarCoeff, 0, 0);
 				msg_buf.Z().Cat("scoreEvStakeCountVarCoeff").CatDiv(':', 2).Cat(vc, MKSFMTD(0, 5, 0));

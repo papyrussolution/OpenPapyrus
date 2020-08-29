@@ -317,20 +317,24 @@ public:
 	{
 		TimeSeriesCache * p_this = static_cast<TimeSeriesCache *>(procExtPtr);
 		if(p_this && pEv->ObjType == PPCFGOBJ_TIMESERIES) {
-			p_this->OpL.Lock();
-			p_this->LoadConfig(1);
-			p_this->OpL.Unlock();
+			if(!pEv->IsFinish()) {
+				p_this->OpL.Lock();
+				p_this->LoadConfig(1);
+				p_this->OpL.Unlock();
+			}
 		}
 		return 1;
 	}
 	static int OnStrategyUpdated(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	{
 		TimeSeriesCache * p_this = static_cast<TimeSeriesCache *>(procExtPtr);
-		if(p_this && pEv->ObjType == PPCFGOBJ_TIMESERIES && pEv->ObjID) {
-			PPObjTimeSeries ts_obj;
-			p_this->OpL.Lock();
-			p_this->LoadStrategies(ts_obj, pEv->ObjID);
-			p_this->OpL.Unlock();
+		if(p_this && pEv->ObjType == PPOBJ_TIMESERIES && pEv->ObjID) {
+			if(!pEv->IsFinish()) {
+				PPObjTimeSeries ts_obj;
+				p_this->OpL.Lock();
+				p_this->LoadStrategies(ts_obj, pEv->ObjID);
+				p_this->OpL.Unlock();
+			}
 		}
 		return 1;
 	}
@@ -356,26 +360,45 @@ private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    SLAPI LoadConfig(int force);
+	int    SLAPI Helper_LoadStrategies(PPObjTimeSeries & rTsObj, PPID tsID, TimeSeriesBlock * pBlk)
+	{
+		int    ok = 1;
+		if(pBlk) {
+			assert(tsID == pBlk->PPTS.Rec.ID);
+			THROW(tsID == pBlk->PPTS.Rec.ID)
+			THROW(rTsObj.GetStrategies(tsID, PPObjTimeSeries::sstSelection, pBlk->Strategies));
+			pBlk->Strategies.CreateIndex1(pBlk->StratIndex);
+			pBlk->TrendList.freeAll();
+			THROW(EvaluateTrends(pBlk, 0, 0/*onActualTicks*/));
+			{
+				SString log_buf;
+				log_buf.Cat("Strategis for").Space().Cat(pBlk->PPTS.GetSymb()).Space().Cat("have been loaded");
+				log_buf.CatDiv(':', 2).CatEq("Ver", pBlk->Strategies.GetVersion());
+				log_buf.Space().CatEq("Count", pBlk->Strategies.getCount());
+				if(!!pBlk->Strategies.GetStorageTm())
+					log_buf.Space().CatEq("storage-time", pBlk->Strategies.GetStorageTm(), DATF_ISO8601|DATF_CENTURY, 0);
+				if(!!pBlk->Strategies.GetLastValTm())
+					log_buf.Space().CatEq("last-val-time", pBlk->Strategies.GetLastValTm(), DATF_ISO8601|DATF_CENTURY, 0);
+				if(!!pBlk->Strategies.GetUseDataForStrategiesTill())
+					log_buf.Space().CatEq("use-data-for-strategies-till", pBlk->Strategies.GetUseDataForStrategiesTill(), DATF_ISO8601|DATF_CENTURY);
+				PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+			}
+		}
+		else
+			ok = -1;
+		CATCHZOK
+		return ok;
+	}
 	int    SLAPI LoadStrategies(PPObjTimeSeries & rTsObj, PPID tsID)
 	{
 		int    ok = -1;
-		TimeSeriesBlock * p_blk = 0;
-		for(uint i = 0; !p_blk && i < TsC.getCount(); i++) {
+		for(uint i = 0; ok < 0 && i < TsC.getCount(); i++) {
 			TimeSeriesBlock * p_local_blk = TsC.at(i);
-			if(p_local_blk && p_local_blk->PPTS.Rec.ID == tsID)
-				p_blk = p_local_blk;
-		}
-		if(p_blk) {
-			THROW(rTsObj.GetStrategies(tsID, PPObjTimeSeries::sstSelection, p_blk->Strategies));
-			p_blk->Strategies.CreateIndex1(p_blk->StratIndex);
-			p_blk->TrendList.freeAll();
-			THROW(EvaluateTrends(p_blk, 0, 0/*onActualTicks*/));
-			{
-				SString log_buf;
-				log_buf.Cat("Strategis for").Space().Cat(p_blk->PPTS.GetSymb()).Space().Cat("loaded");
-				PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+			if(p_local_blk && p_local_blk->PPTS.Rec.ID == tsID) {
+				THROW(Helper_LoadStrategies(rTsObj, tsID, p_local_blk));
+				ok = 1;
+				break;
 			}
-			ok = 1;
 		}
 		CATCHZOK
 		return ok;
@@ -415,14 +438,12 @@ void SLAPI TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 	SString comment_buf;
 	PPGetFilePath(PPPATH_LOG, "TsStakeEnvironment.log", file_name);
 	SFile f_out(file_name, SFile::mAppend);
-	line_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0);
-	f_out.WriteLine(line_buf.CR());
 	const double evaluated_used_margin = EvaluateUsedMargin();
-	line_buf.Z().Cat("Account").CatDiv(':', 2).Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+	line_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().Cat("Account").CatDiv(':', 2)/*.Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0)*/.Space().
 		Cat(rEnv.Acc.ID).Space().
 		CatEq("Balance", rEnv.Acc.Balance, MKSFMTD(0, 2, 0)).Space().
 		CatEq("MarginFree", rEnv.Acc.MarginFree, MKSFMTD(0, 2, 0)).Space().
-		CatEq("EvaluatedUsedMargin", evaluated_used_margin, MKSFMTD(0, 2, 0)).Space().
+		CatEq("EvaluatedUsedMargin", evaluated_used_margin, MKSFMTD(0, 5, 0)).Space().
 		CatEq("Profit", rEnv.Acc.Profit, MKSFMTD(0, 2, 0));
 	f_out.WriteLine(line_buf.CR());
 	{
@@ -438,7 +459,7 @@ void SLAPI TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 				Cat(r_stk.Type).Space().
 				Cat(r_stk.Ticket).Space().
 				Cat(r_stk.SetupDtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
-				Cat(r_stk.VolumeInit,   MKSFMTD(10, 0, 0)).Space().
+				Cat(r_stk.VolumeInit,   MKSFMTD(10, 3, 0)).Space().
 				Cat(r_stk.PriceOpen,    MKSFMTD(10, 5, 0)).Space().
 				Cat(r_stk.SL, MKSFMTD(10, 5, 0)).Space().
 				Cat(r_stk.TP, MKSFMTD(10, 5, 0)).Space().
@@ -514,7 +535,7 @@ TimeSeriesCache::TimeSeriesCache() : ObjCache(PPOBJ_TIMESERIES, sizeof(Data)), L
 		// @v10.6.4 MEMSZERO(adv_blk);
 		adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
 		adv_blk.DbPathID = DBS.GetDbPathID();
-		adv_blk.ObjType = PPCFGOBJ_TIMESERIES;
+		adv_blk.ObjType = 0; // @v10.8.8 @fix PPCFGOBJ_TIMESERIES-->0
 		adv_blk.Action = PPACN_TSSTRATEGYUPD;
 		adv_blk.Proc = TimeSeriesCache::OnStrategyUpdated;
 		adv_blk.ProcExtPtr = this;
@@ -1234,7 +1255,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 		else if(max_balance_part > 0.0 && max_balance_part <= 1.0)
 			insurance_balance = StkEnv.Acc.Balance * (1.0 - max_balance_part);
 		// @v10.3.5 const double margin_available = (StkEnv.Acc.Margin + StkEnv.Acc.MarginFree - insurance_balance) / max_stake;
-		const double margin_available = max_stake ? ((StkEnv.Acc.Balance - evaluatedUsedMargin - insurance_balance) / max_stake) : 0.0; // @v10.3.5
+		const double margin_available = max_stake ? ((StkEnv.Acc.Balance - evaluatedUsedMargin - insurance_balance) / cfg_max_stake) : 0.0; // @v10.3.5 // @v10.8.8 max_stake-->cfg_max_stake
 		const bool there_is_enough_margin = (margin_available > 0.0 && margin_available < StkEnv.Acc.MarginFree);
 		/*
 		{
@@ -1355,10 +1376,7 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					const uint si = static_cast<uint>(scsb.AllSuitedPosList.get(mslidx));
 					if(si < r_blk.Strategies.getCount()) {
 						const PPObjTimeSeries::Strategy & r_ms = r_blk.Strategies.at(si);
-						if(r_ms.BaseFlags & r_ms.bfShort)
-							msl_buf.CatChar('-');
-						else
-							msl_buf.CatChar('+');
+						msl_buf.CatChar((r_ms.BaseFlags & r_ms.bfShort) ? '-' : '+');
 					}
 				}
 				msl_buf.CatChar('}');
@@ -1404,7 +1422,7 @@ double SLAPI TimeSeriesCache::EvaluateCost(const TimeSeriesBlock & rBlk, bool se
 			symb = org_symb;
 		double temp_margin = rBlk.PPTS.GetMargin(sell);
 		// @v10.4.10 {
-		if(flags & ecfTrickChf && symb.Len() == 6 && (symb.CmpPrefix("CHF", 1) == 0 || symb.CmpSuffix("CHF", 1) == 0)) {
+		if(flags & ecfTrickChf && symb.Len() == 6 && (symb.HasPrefixIAscii("CHF") || symb.CmpSuffix("CHF", 1) == 0)) {
 			if(temp_margin > 0.005)
 				temp_margin = 0.005;
 		}
@@ -1910,9 +1928,10 @@ TimeSeriesCache::TimeSeriesBlock * SLAPI TimeSeriesCache::InitBlock(PPObjTimeSer
 				}
 			}
 		}
-		rTsObj.GetStrategies(id, PPObjTimeSeries::sstSelection, p_fblk->Strategies);
-		p_fblk->Strategies.CreateIndex1(p_fblk->StratIndex);
-		THROW(EvaluateTrends(p_fblk, 0, 0/*onActualTicks*/));
+		// @v10.8.8 rTsObj.GetStrategies(id, PPObjTimeSeries::sstSelection, p_fblk->Strategies);
+		// @v10.8.8 p_fblk->Strategies.CreateIndex1(p_fblk->StratIndex);
+		// @v10.8.8 THROW(EvaluateTrends(p_fblk, 0, 0/*onActualTicks*/));
+		THROW(Helper_LoadStrategies(rTsObj, id, p_fblk)); // @v10.8.8 
 	}
 	else {
 		uint   vecidx_close = 0;
