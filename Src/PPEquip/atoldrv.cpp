@@ -709,15 +709,13 @@ public:
 	SLAPI CM_ATOLDRV(PPID cashID) : PPCashMachine(cashID) 
 	{
 	}
-	PPSyncCashSession * SLAPI SyncInterface();
+	virtual PPSyncCashSession * SLAPI SyncInterface()
+	{
+		PPSyncCashSession * cs = IsValid() ? new SCS_ATOLDRV(NodeID, NodeRec.Name, NodeRec.Port) : 0;
+		CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
+		return cs;
+	}
 };
-
-PPSyncCashSession * SLAPI CM_ATOLDRV::SyncInterface()
-{
-	PPSyncCashSession * cs = IsValid() ? new SCS_ATOLDRV(NodeID, NodeRec.Name, NodeRec.Port) : 0;
-	CALLPTRMEMB(cs, Init(NodeRec.Name, NodeRec.Port));
-	return cs;
-}
 
 REGISTER_CMT(ATOLDRV,1,0);
 

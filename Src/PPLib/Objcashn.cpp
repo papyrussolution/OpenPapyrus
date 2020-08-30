@@ -1832,7 +1832,7 @@ int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
 		SETFLAG(Data.ExtFlags, CASHFX_KEEPORGCCUSER,     ef & 0x0080);
 		SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD,  ef & 0x0100);
 		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200);
-		SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400); // @v9.5.10
+		SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400);
 		SETFLAG(Data.ExtFlags, CASHFX_NOTIFYEQPTIMEMISM, ef & 0x0800); // @v10.8.1
 	}
 	GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags);
@@ -1854,7 +1854,7 @@ int SyncCashNodeCfgDialog::EditCashParam()
 	int    ok = -1;
 	if(Data.ID) {
 		PPCashMachine * p_cm = PPCashMachine::CreateInstance(Data.ID);
-		PPSyncCashSession * p_si = (p_cm) ? p_cm->SyncInterface() : 0;
+		PPSyncCashSession * p_si = p_cm ? p_cm->SyncInterface() : 0;
 		ZDELETE(p_cm);
 		if(p_si) {
 			getCtrlData(CTL_CASHN_PORT, Data.Port);
@@ -2048,18 +2048,19 @@ int SLAPI PPObjCashNode::EditDistrib(PPGenCashNode * pData)
 //
 //
 class ApnCorrListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPAsyncCashNode);
 public:
 	ApnCorrListDialog() : PPListDialog(DLG_APNCORLIST, CTL_APNCORLIST_LIST)
 	{
 	}
-	int    setDTS(const PPAsyncCashNode * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
 		updateList(-1);
 		return ok;
 	}
-	int    getDTS(PPAsyncCashNode * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		ASSIGN_PTR(pData, Data);
@@ -2183,7 +2184,6 @@ private:
         delete dlg;
         return ok;
 	}
-	PPAsyncCashNode Data;
 };
 
 class AsyncCashNodeDialog : public TDialog {
@@ -2223,7 +2223,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 		EditApnCorrList();
 	}
 	else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CASHN_DEVICE)) {
-		PPID  cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
+		const PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
 		showCtrl(CTL_CASHN_IMPPARAM, BIN(cash_type == PPCMT_CRCSHSRV && UseAltImport));
 	}
 	else if(event.isCmd(cmImpParam)) {
@@ -2312,7 +2312,9 @@ int SLAPI PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 
 int SLAPI PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 {
-	int    ok = -1, r = cmCancel, valid_data = 0;
+	int    ok = -1;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPIDArray test_log_num_list;
 	SString temp_buf;
 	PPObjLocation loc_obj;
@@ -2794,15 +2796,14 @@ int EquipConfigDialog::EditExtParams()
 				RealRange subst_range;
 				GetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &subst_range);
 				if(!subst_range.IsZero()) {
-					if(subst_range.low == subst_range.upp) {
-						subst_range.low = -fabs(subst_range.low);
-						subst_range.upp = +fabs(subst_range.upp);
-					}
+					const double _srl = subst_range.low;
+					if(_srl == subst_range.upp)
+						subst_range.Set(-fabs(_srl), +fabs(_srl));
 					subst_range.Scale(10.0);
-					Data.DeficitSubstPriceDevRange.Set((int)subst_range.low, (int)subst_range.upp);
+					Data.DeficitSubstPriceDevRange.Set(static_cast<int>(subst_range.low), static_cast<int>(subst_range.upp));
 				}
 				else
-					Data.DeficitSubstPriceDevRange = 0;
+					Data.DeficitSubstPriceDevRange.Set(0);
 			}
 			{
 				double rng_lim = 0.0;
@@ -2902,7 +2903,7 @@ int EquipConfigDialog::getDTS(PPEquipConfig * pData)
 	getCtrlData(CTLSEL_EQCFG_OPDOTHRLOC,  &Data.OpOnDfctOthrLoc);
 	getCtrlData(CTLSEL_EQCFG_TEMPSESSOP,  &Data.OpOnTempSess);
 	getCtrlData(CTLSEL_EQCFG_QUOT,        &Data.QuotKindID);
-	getCtrlData(CTLSEL_EQCFG_PHNSVC,      &Data.PhnSvcID); // @v9.8.11
+	getCtrlData(CTLSEL_EQCFG_PHNSVC,      &Data.PhnSvcID);
 	//getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
 	//getCtrlData(CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
 	//getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
@@ -2960,7 +2961,7 @@ void EquipConfigDialog::SetupCtrls()
 	const PPID quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
 	DisableClusterItem(CTL_EQCFG_FLAGS, 6, quotk);
 	if(quotk) {
-		long flags = GetClusterData(CTL_EQCFG_FLAGS);
+		const long flags = GetClusterData(CTL_EQCFG_FLAGS);
 		SetClusterData(CTL_EQCFG_FLAGS, (flags & ~PPEquipConfig::fIntrPriceByRetailRules));
 	}
 }
@@ -2979,7 +2980,8 @@ IMPL_HANDLE_EVENT(EquipConfigDialog)
 
 int SLAPI EditEquipConfig()
 {
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	EquipConfigDialog * dlg = 0;
 	PPEquipConfig  eq_cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_EQUIP, PPR_READ, 0));
@@ -3079,20 +3081,52 @@ int SLAPI PPObjTouchScreen::PutPacket(PPID * pID, PPTouchScreenPacket * pPack, i
 	return ok;
 }
 //
-//   TouchScreenDlg
+// TouchScreenDlg
 //
 class TouchScreenDlg : public TDialog {
+	DECL_DIALOG_DATA(PPTouchScreenPacket);
 public:
 	TouchScreenDlg() : TDialog(DLG_TCHSCR)
 	{
 	}
-	int    getDTS(PPTouchScreenPacket * pPack);
-	int    setDTS(const PPTouchScreenPacket * pPack);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlData(CTL_TCHSCR_NAME, Data.Rec.Name);
+		setCtrlData(CTL_TCHSCR_ID,  &Data.Rec.ID);
+		SetupStringCombo(this, CTLSEL_TCHSCR_TYPE, PPTXT_TOUCHSCREEN, Data.Rec.TouchScreenType);
+		SetupPPObjCombo(this, CTLSEL_TCHSCR_GDSGRP, PPOBJ_GOODSGROUP, Data.Rec.AltGdsGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
+		setCtrlData(CTL_TCHSCR_GOODSLISTGAP, &Data.Rec.GdsListEntryGap);
+		AddClusterAssoc(CTL_TCHSCR_FLAGS, 0, TSF_PRINTSLIPDOC);
+		AddClusterAssoc(CTL_TCHSCR_FLAGS, 1, TSF_TXTSTYLEBTN);
+		SetClusterData(CTL_TCHSCR_FLAGS, Data.Rec.Flags);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		getCtrlData(CTL_TCHSCR_NAME, Data.Rec.Name);
+		getCtrlData(CTL_TCHSCR_ID,  &Data.Rec.ID);
+		getCtrlData(CTLSEL_TCHSCR_TYPE,   &Data.Rec.TouchScreenType);
+		getCtrlData(CTLSEL_TCHSCR_GDSGRP, &Data.Rec.AltGdsGrpID);
+		getCtrlData(CTL_TCHSCR_GOODSLISTGAP, &Data.Rec.GdsListEntryGap);
+		GetClusterData(CTL_TCHSCR_FLAGS,  &Data.Rec.Flags);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmSelFont))
+			SelGdsFont();
+		else if(event.isCmd(cmSelGrpList))
+			SelGrpList();
+		else
+			return;
+		clearEvent(event);
+	}
 	int    SelGdsFont();
 	int    SelGrpList();
-	DECL_HANDLE_EVENT;
-	PPTouchScreenPacket Data;
 };
 
 int TouchScreenDlg::SelGdsFont()
@@ -3124,44 +3158,6 @@ int TouchScreenDlg::SelGrpList()
 	ll_data.Flags |= ListToListData::fIsTreeList;
 	ll_data.TitleStrID = PPTXT_SELGOODSGRPS;
 	return ListToListDialog(&ll_data) ? 1 : PPErrorZ();
-}
-
-IMPL_HANDLE_EVENT(TouchScreenDlg)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmSelFont))
-		SelGdsFont();
-	else if(event.isCmd(cmSelGrpList))
-		SelGrpList();
-	else
-		return;
-	clearEvent(event);
-}
-
-int TouchScreenDlg::setDTS(const PPTouchScreenPacket * pData)
-{
-	Data = *pData;
-	setCtrlData(CTL_TCHSCR_NAME, Data.Rec.Name);
-	setCtrlData(CTL_TCHSCR_ID,  &Data.Rec.ID);
-	SetupStringCombo(this, CTLSEL_TCHSCR_TYPE, PPTXT_TOUCHSCREEN, Data.Rec.TouchScreenType);
-	SetupPPObjCombo(this, CTLSEL_TCHSCR_GDSGRP, PPOBJ_GOODSGROUP, Data.Rec.AltGdsGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
-	setCtrlData(CTL_TCHSCR_GOODSLISTGAP, &Data.Rec.GdsListEntryGap);
-	AddClusterAssoc(CTL_TCHSCR_FLAGS, 0, TSF_PRINTSLIPDOC);
-	AddClusterAssoc(CTL_TCHSCR_FLAGS, 1, TSF_TXTSTYLEBTN);
-	SetClusterData(CTL_TCHSCR_FLAGS, Data.Rec.Flags);
-	return 1;
-}
-
-int TouchScreenDlg::getDTS(PPTouchScreenPacket * pData)
-{
-	getCtrlData(CTL_TCHSCR_NAME, Data.Rec.Name);
-	getCtrlData(CTL_TCHSCR_ID,  &Data.Rec.ID);
-	getCtrlData(CTLSEL_TCHSCR_TYPE,   &Data.Rec.TouchScreenType);
-	getCtrlData(CTLSEL_TCHSCR_GDSGRP, &Data.Rec.AltGdsGrpID);
-	getCtrlData(CTL_TCHSCR_GOODSLISTGAP, &Data.Rec.GdsListEntryGap);
-	GetClusterData(CTL_TCHSCR_FLAGS,  &Data.Rec.Flags);
-	ASSIGN_PTR(pData, Data);
-	return 1;
 }
 
 int SLAPI PPObjTouchScreen::Edit(PPID * pID, void * extraPtr)
@@ -3339,8 +3335,7 @@ int PPALDD_LocPrnTest::NextIteration(PPIterID iterId)
 	if(I.IterNo < TEST_ITERCOUNT) {
 		SString buf;
 		I.IterNo++;
-		// @v9.8.12 PPGetWord(PPWORD_TEST, 0, buf);
-		PPLoadString("test", buf); // @v9.8.12
+		PPLoadString("test", buf);
 		buf.Cat(I.IterNo);
 		buf.CopyTo(I.TestIterText, sizeof(I.TestIterText));
 	}

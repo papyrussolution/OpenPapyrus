@@ -4616,10 +4616,10 @@
 	#define CTL_MKRPTFLS_RPTNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_MKRPTFLS_RPTPATH         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_MKRPTFLS_RPTPATH      (3 + WINDOWS_ID_BIAS)
-#define DLG_ACSCLOSE              394 // Закрытие асинхронной кассовой сессии за период
-	#define CTL_ACSCLOSE_PERIOD          (1 + WINDOWS_ID_BIAS)
-	#define CTL_ACSCLOSE_FLAGS           (2 + WINDOWS_ID_BIAS)
-	#define CTLCAL_ACSCLOSE_PERIOD       (3 + WINDOWS_ID_BIAS) // @alena
+// @v10.8.8 #define DLG_ACSCLOSE              394 // Закрытие асинхронной кассовой сессии за период
+	// @v10.8.8 #define CTL_ACSCLOSE_PERIOD          (1 + WINDOWS_ID_BIAS)
+	// @v10.8.8 #define CTL_ACSCLOSE_FLAGS           (2 + WINDOWS_ID_BIAS)
+	// @v10.8.8 #define CTLCAL_ACSCLOSE_PERIOD       (3 + WINDOWS_ID_BIAS) // @alena
 //  395, 396, 397, 398, 399, 400, 401 // Occupied
 #define DLG_GDSTAX                402 // Налоговая группа товаров
 	#define cmGoodsTaxList               101

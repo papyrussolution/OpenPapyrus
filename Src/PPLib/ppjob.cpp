@@ -8,7 +8,6 @@
 #include <process.h>
 #include <comdef.h>		// COM для WMI
 #include <wbemidl.h>	// WMI для удаленного запуска процессов
-// @v9.6.3 #include <idea.h>		// шифрование пароля доступа WMI
 #include <charry.h>
 
 #define JOB_FACTORY_PRFX JFF_
@@ -1110,14 +1109,14 @@ public:
 	}
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
 		SCardChargeRule param;
 		const size_t sav_offs = pParam->GetRdOffs();
-		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
+		int    r = ReadParam(*pParam, &param, sizeof(param));
+		if(r) {
 			ok = PPObjSCardSeries::SelectRule(&param);
-			if(ok > 0) {
+			if(ok > 0)
 				WriteParam(pParam->Z(), &param, sizeof(param));
-			}
 			else if(r > 0)
 				pParam->SetRdOffs(sav_offs);
 		}
@@ -4250,3 +4249,41 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(VETISINTERCHANGE);
+//
+//
+//
+class JOB_HDL_CLS(TIMESERIESSA) : public PPJobHandler {
+public:
+	SLAPI JOB_HDL_CLS(TIMESERIESSA)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrTsStrategyAnalyze prc;
+			PrcssrTsStrategyAnalyzeFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = -1;
+		PrcssrTsStrategyAnalyze prc;
+		PrcssrTsStrategyAnalyzeFilt filt;
+		THROW(pParam && filt.Read(*pParam, 0));
+		THROW(prc.Init(&filt));
+		THROW(prc.Run());
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(TIMESERIESSA);

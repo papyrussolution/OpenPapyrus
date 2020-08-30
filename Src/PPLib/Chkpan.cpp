@@ -4164,6 +4164,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
 											PPSyncCashSession * p_ifc = P_CM->SyncInterface();
 											CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
+											ZDELETE(p_ifc); // @v10.8.8 @fix
 										}
 									}
 									else
@@ -4203,6 +4204,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 													else if(temp_buf.NotEmpty() && InitCashMachine() && P_CM) {
 														PPSyncCashSession * p_ifc = P_CM->SyncInterface();
 														CALLPTRMEMB(p_ifc, PrintBnkTermReport(temp_buf));
+														ZDELETE(p_ifc); // @v10.8.8 @fix
 													}
 													break;
 												}
@@ -6192,6 +6194,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
 						}
 					}
+					ZDELETE(p_ifc); // @v10.8.8 @fix
 				}
 			}
 		}

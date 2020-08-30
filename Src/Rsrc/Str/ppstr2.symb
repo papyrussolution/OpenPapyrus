@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147492939
+LastSignatureCode=2147492960
 LastAutoCodeList=1,11985;102,10172;103,10072;110,10000;111,11988;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10126;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -1114,6 +1114,22 @@ cert=2147484514
 cert_pl=2147484515
 qcert=2147484516
 advancerep=2147484517
+advancerep_bill=2147492945
+advancerep_prop=2147492946
+advancerep_inrest=2147492947
+advancerep_total=2147492948
+advancerep_rcpamount=2147492949
+advancerep_expamount=2147492950
+advancerep_outrest=2147492951
+advancerep_appendix=2147492952
+advancerep_numaddedbills=2147492953
+advancerep_numaddedsheets=2147492954
+advancerep_rcpt=2147492955
+advancerep_rcpt_text=2147492956
+advancerep_rcpt_bill=2147492957
+advancerep_rcpt_object=2147492958
+advancerep_rcpt_dt=2147492959
+advancerep_rcpt_amount=2147492960
 accrual=2147484518
 rentaccrual=2147484519
 salaryaccrual=2147484520
@@ -4432,12 +4448,6 @@ eventtoken_symb=2147487462
 formula_id=2147487463
 formula_name=2147487464
 formula_symb=2147487465
-genericdevice_deviceclass=2147487466
-genericdevice_flags=2147487467
-genericdevice_id=2147487468
-genericdevice_name=2147487469
-genericdevice_symb=2147487470
-genericdevice_tag=2147487471
 globaluseracc_flags=2147487472
 globaluseracc_fsandbox=2147491436
 globaluseracc_id=2147487473
@@ -9268,6 +9278,17 @@ sendmailparam_addrlist=2147492925
 sendmailparam_filelist=2147492926
 newclienttransaction=2147492938
 newclienttransactionlist=2147492939
+genericdevice=2147492940
+genericdevice_tag=2147487471
+genericdevice_id=2147487468
+genericdevice_name=2147487469
+genericdevice_symb=2147487470
+genericdevice_flags=2147487467
+genericdevice_fpassive=2147492941
+genericdevice_deviceclass=2147487466
+genericdevice_entry=2147492942
+genericdevice_port=2147492943
+genericdevice_initstr=2147492944
 
 [GrpSymbList]
 .N.=124

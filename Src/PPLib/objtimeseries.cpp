@@ -8001,11 +8001,17 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 		TSCollection <PPObjTimeSeries::TrendEntry> trend_list_set;
 		SString out_file_name;
 		SString out_total_file_name;
+		//SString out_factors_file_name; // @v10.8.8
 		PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2.txt", out_file_name);
 		PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total.txt", out_total_file_name);
+		//PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-factors.csv", out_factors_file_name); // @v10.8.8
 		const int is_out_file_exists = fileExists(out_file_name);
 		SFile f_out(out_file_name, SFile::mAppend);
 		SFile f_out_total(out_total_file_name, SFile::mAppend);
+		//SFile f_out_factors(out_factors_file_name, SFile::mAppend); // @v10.8.8
+		/* factors:
+		symbol;start-data-time;end-data-time;end-forward-time;formula;strategy-count;gen-stake-count;ev-stake-count;ev-win-count;ev-result;ev-angle;forward-stake-count;forward-win-count
+		*/
 		f_out.WriteLine(msg_buf.Z().CatCharN('-', 20).CR());
 		{
 			msg_buf.Z().CatCharN('=', 8).Space().Cat(getcurdatetime_(), DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);

@@ -4412,14 +4412,16 @@ public:
 	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
+		PrcssrTsStrategyAnalyze prc;
 		PrcssrTsStrategyAnalyzeFilt filt;
 		if(pParam && filt.Read(*pParam, 0)) {
-			PrcssrTsStrategyAnalyze prc;
-			if(!prc.Init(&filt) || !prc.Run())
-				ok = PPErrorZ();
+			ok = (prc.Init(&filt) && prc.Run()) ? 1 : PPErrorZ();
 		}
-		else
-			ok = DoProcessOsm(0);
+		else {
+			if(prc.EditParam(&filt) > 0) {
+				ok = (prc.Init(&filt) && prc.Run()) ? 1 : PPErrorZ();
+			}
+		}
 		return ok;
 	}
 };
@@ -4534,3 +4536,38 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(OPENTEXTFILE);
+//
+//
+class CMD_HDL_CLS(SETSCARDBYRULE) : public PPCommandHandler { // @v10.8.8 
+public:
+	SLAPI  CMD_HDL_CLS(SETSCARDBYRULE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int SLAPI EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			SCardChargeRule param;
+			ReadParam(*pParam, &param, sizeof(param));
+			ok = PPObjSCardSeries::SelectRule(&param);
+			if(ok > 0)
+				WriteParam(pParam->Z(), &param, sizeof(param));
+		}
+		return ok;
+	}
+	virtual int SLAPI Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = 1;
+		SCardChargeRule param;
+		if(pParam && ReadParam(*pParam, &param, sizeof(param))) {
+			THROW(PPObjSCardSeries::SetSCardsByRule(&param));
+		}
+		else {
+			THROW(ok = PPObjSCardSeries::SetSCardsByRule(0));
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(SETSCARDBYRULE);

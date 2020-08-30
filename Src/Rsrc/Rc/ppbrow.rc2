@@ -6851,6 +6851,7 @@ job ProcessTSession      { "@{job_processtsession}" } // @v8.8.0
 job QueryEGAIS           { "@{job_queryegais}" } // @v9.3.2
 job VetisInterchange     { "@{job_vetisinterchange}" } // @v10.1.2
 job SendNotifiesByRecentScOps { "@{job_sendnotifiesbyrecentscops}" } // @v10.2.3
+job TimeSeriesSA         { "@{cmd_tsstrategyanalyze}" } // @v10.8.8
 //
 // -------------- Описания объектов данных PPObject
 //

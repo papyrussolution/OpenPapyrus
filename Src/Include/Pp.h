@@ -10182,7 +10182,7 @@ struct PPAdvanceRep {      // @persistent @store(PropertyTbl)
 	Rcpt   Rcp[2];         // Информация о полученных суммах // @todo Увеличить количество элементов //
 };
 
-class PayPlanArray : public TSVector <PayPlanTbl::Rec> { // @v9.8.4 TSArray-->TSVector
+class PayPlanArray : public TSVector <PayPlanTbl::Rec> {
 public:
 	PayPlanArray();
 	int    FASTCALL IsEqual(const PayPlanArray & rS) const;
