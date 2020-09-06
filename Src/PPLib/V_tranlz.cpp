@@ -1042,15 +1042,12 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 	double discount;
 	double pvat = 0.0;
 	double brutto = 0.0;
-	// @v9.5.8 {
 	int    skip = 0;
 	if(Filt.Flags & TrfrAnlzFilt::fCmpWrOff && Filt.Flags & TrfrAnlzFilt::fCmpWrOff_DiffOnly && pExt) {
 		if(feqeps(fabs(pExt->LinkQtty), fabs(qtty), 1.0E-7))
 			skip = 1;
 	}
 	if(!skip) {
-	// } @v9.5.8
-		// @v9.3.4 {
 		double ext_val1 = 0.0;
 		{
 			const long ext_val_param = Filt.ExtValueParam[0];
@@ -1083,17 +1080,13 @@ int SLAPI PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec
 					}
 				}
 			}
-			// @v9.5.0 {
 			else if(ext_val_param > Filt.extvQuotBias) {
 				const QuotIdent qi(pTrfrRec->Dt, pTrfrRec->LocID, ext_val_param-Filt.extvQuotBias, pTrfrRec->CurID, pBillRec->Object); // @v9.5.3 pTrfrRec->Dt
 				double _ext_quot = 0.0;
-				if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0) {
+				if(GObj.GetQuotExt(goods_id, qi, pTrfrRec->Cost, pTrfrRec->Price, &_ext_quot, 1) > 0)
 					ext_val1 = _ext_quot * qtty * sign;
-				}
 			}
-			// } @v9.5.0
 		}
-		// } @v9.3.4
 		// @v10.3.4 {
 		if(Filt.Flags & TrfrAnlzFilt::fShowCargo) {
 			GoodsStockExt gse;

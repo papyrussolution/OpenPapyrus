@@ -789,8 +789,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 	THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(actual_size + 32))); // +32 - страховка
 	ReadPropBuf(pm, actual_size, &test_actual_size);
 	assert(actual_size == test_actual_size);
-	// @v9.1.11 if(actual_size == test_actual_size && actual_size == (pm->Size+sizeof(*pm))) {
-	if(actual_size == test_actual_size && actual_size == MAX((pm->Size+sizeof(*pm)), PROPRECFIXSIZE)) { // @v9.1.11
+	if(actual_size == test_actual_size && actual_size == MAX((pm->Size+sizeof(*pm)), PROPRECFIXSIZE)) {
 		THROW_SL(rBuf.Write((const void *)(pm + 1), pm->Size));
 	}
 	else {

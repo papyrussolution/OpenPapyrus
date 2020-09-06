@@ -1008,6 +1008,7 @@
 	#define TAXSYSK_SIMPLIFIED_PROFIT  6L // RU: УСН — упрощенная система налогообложения (доход-расход)
 #define PPOBJ_TSSMODEL           81L // @v10.7.4 Параметры модели расчета стратегий на временных сериях
 	#define TSSMODELPRP_EXTENSION      1L
+#define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 Подписка на события //
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1101,7 +1102,6 @@
 	#define SLPPRP_AMTLIST     1L // список сумм для штатного расписани
 #define PPOBJ_LOT           1022L  // Лоты
 #define PPOBJ_CSESSION      1023L  // Кассовые сессии
-
 #define PPOBJ_ACCTREL       1024L  // !PPObject Бухгалтерские связки
 #define PPOBJ_OBJASSOC      1025L  // !PPObject Ассоциации объектов
 #define PPOBJ_PACKAGE       1026L  // !PPObject Товарные пакеты
@@ -1179,7 +1179,11 @@
 #define PPOBJ_VETISENTITY   1074L  // @v10.0.09 Специализированный объект, хранящий данные о сущностях системы VETIS
 #define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject Специализированный объект для представления гео-треков.
 	// Значение фактически применяется только для идентификации запроса к JobServer'у.
-#define PPOBJ_DBCONVERT     1100L  // @v6.4.6 Специальный объект, используемый для формирования записей
+#define PPOBJ_EVENT         1076L  // @v10.8.9 События   
+	#define PPEVENTTYPE_OBJCREATED     1L // Создан новый объект 
+	#define PPEVENTTYPE_OUTER          2L // Внешнее по отношению к системе событие. Например, уведомление от какого-либо сервиса
+	#define PPEVENTTYPE_SPCBILLCHANGE  3L // Изменение документа каким-либо специфическим образом
+#define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
 	// Например, после выполнения конвертации 6.4.06 появится запись с ИД 0x060406

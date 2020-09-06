@@ -2248,6 +2248,9 @@
 				RelativePath="..\PPLib\ppeds.cpp">
 			</File>
 			<File
+				RelativePath="..\PPLib\ppevent.cpp">
+			</File>
+			<File
 				RelativePath="..\PPLib\Ppexport.cpp">
 			</File>
 			<File

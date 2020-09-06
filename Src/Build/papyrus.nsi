@@ -88,11 +88,11 @@ BrandingText " "
 !include "Library.nsh"
 
 ; Languages
-!insertmacro MUI_LANGUAGE "English" ; The first language is the default language
-!insertmacro MUI_LANGUAGE "Russian" 
-!insertmacro MUI_LANGUAGE "German"
-!insertmacro MUI_LANGUAGE "Dutch"
-!insertmacro MUI_LANGUAGE "Portuguese"
+;!insertmacro MUI_LANGUAGE "English" ; The first language is the default language
+;!insertmacro MUI_LANGUAGE "Russian" 
+;!insertmacro MUI_LANGUAGE "German"
+;!insertmacro MUI_LANGUAGE "Dutch"
+;!insertmacro MUI_LANGUAGE "Portuguese"
 
 ;MUI Settings
 !define MUI_ABORTWARNING

@@ -1505,13 +1505,13 @@ browser ATURNLIST north(100), 1, 0, "Опись проводок {%s}", OWNER|GRID, 0
 	"@amount",  6, notype, NMBF_DELCOMMA, 12.2
 	"@memo",    7, notype, 0, 32
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM                : kbEnter, PPDV_EDITFILE02,         "@{edit}\tEnter"
-		ADDITEM                 : kbIns,   PPDV_ADDFILE02,       "@{add}\tInsert"
+		EDITITEM                : kbEnter, PPDV_EDITFILE02,        "@{edit}\tEnter"
+		ADDITEM                 : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE             : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,       "@{delete}\tDelete"
-		PRINT                   : kbF7,    PPDV_PRINTER01,        "Печать ордера\tF7"
-		ALTPRINT                : kbAltF7, TBBM_PRINTLIST,    "Печать описи\tAlt-F7"
-		TOTAL                   : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
+		DELETEITEM              : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
+		PRINT                   : kbF7,    PPDV_PRINTER01,         "Печать ордера\tF7"
+		ALTPRINT                : kbAltF7, TBBM_PRINTLIST,         "Печать описи\tAlt-F7"
+		TOTAL                   : kbF9,    PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
 		CVTGENATURNTOEXTACCBILL : kbCtrlC,  PPDV_NOICON,      "Конвертация общих проводок в расширенные\tCtrl-C"
 		EDITBILLINFO            : kbCtrlF3, PPDV_NOICON,      "Редактирование информации о документе\tCtrl-F3"
@@ -1531,11 +1531,11 @@ browser ATURNGRPNG north(100), 2, 0, "Группировка проводок {%s}", OWNER|GRID, 0
 	"@accnamedbt",          11, notype, 0, 20
 	"@accnamecrd",          12, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL : kbEnter, PPDV_EDITFILE02,         "@{detail}\tEnter"
-		PRINT  : kbF7,    PPDV_PRINTER01,        "@{print}\tF7"
+		DETAIL : kbEnter, PPDV_EDITFILE02,      "@{detail}\tEnter"
+		PRINT  : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
 		TOTAL  : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
 		separator
-		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		CHANGEFILT : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
 	}
 }
 
@@ -1550,8 +1550,8 @@ browser ATURNGRPNG_CYCLE north(100), 2, 0, "Группировка проводок по периодам {%s
 	"@accnamedbt",            11, notype, 0, 20
 	"@accnamecrd",            12, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
-		DETAIL : kbEnter, PPDV_EDITFILE02,         "@{detail}\tEnter"
-		PRINT  : kbF7,    PPDV_PRINTER01,        "@{print}\tF7"
+		DETAIL : kbEnter, PPDV_EDITFILE02,      "@{detail}\tEnter"
+		PRINT  : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
 		TOTAL  : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
 		separator
 		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
@@ -1586,7 +1586,7 @@ browser BALANCE north(100), 3, 1, "Баланс (%s)", OWNER|GRID, 0
 toolbar export DEBTTRNOVR TB_FIRST_TOOLBAR {
 	DETAIL     : kbEnter, PPDV_LINS01,        "@{detail}\tEnter"
 	VIEWBILLS  : kbF5,    PPDV_DOCUMENT_PL02, "Долговые документы\tF5"
-	EDITARTICLE: kbF2,    PPDV_LINS02,        "Аналитическая статья\tF2"
+	EDITARTICLE: kbF2,    PPDV_LINS02,        "@{analyticalarticle}\tF2"
 	EDITPERSON : kbF4,    TBBM_PERSONS,       "@{person}\tF4"
 	DEBTCARD   : kbF3,    TBBM_DEBTCARD,      "Долговая карточка клиента\tF3"
 	RECKONBILLS: kbF6,    TBBM_RECKONBILLS,   "Зачетные документы\tF6"
@@ -2928,7 +2928,7 @@ browser GOODSTAXANLZ north(100), 2, 1, "@{view_goodstaxanalyze}", OWNER|GRID, 0
 	"@income",                5, notype, NMBF_NOZERO, 9.2
 	"@vatamount",             6, notype, NMBF_NOZERO, 9.2
 	"@sumexcise",             7, notype, NMBF_NOZERO, 9.2
-	"Сумма\nНП",              8, notype, NMBF_NOZERO, 9.2
+	"Сумма НП",               8, notype, NMBF_NOZERO, 9.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,  PPDV_LINS01,     "@{detail}\tEnter"
 		EDITGOODS   : kbF2,     TBBM_GOODS,      "@{ware}/@{group}\tF2"
@@ -3505,7 +3505,7 @@ browser QCERT north(100), 2, 1, "@{qcert}", OWNER|GRID, 0
 	"Номер сертификата",   1, notype, 0, 14
 	"Номер бланка",        2, notype, 0, 8
 	"Дата выдачи",         3, notype, DATF_DMY, 8
-	"Срок действия",       4, notype, DATF_DMY, 8
+	"@validitydate",       4, notype, DATF_DMY, 8
 	"Орган",               5, notype, 0, 14
 	"@ware",               6, notype, 0, 20
 	"@etc_neut",           7, notype, 0, 20
@@ -4391,7 +4391,7 @@ browser SCARD north(100), 1, 1, "@{scard_pl} {%s}", OWNER|GRID, 0
 	"@code",               1, notype, 0, 20
 	"@series",            10, notype, 0, 10
 	"@releasedate",        9, notype, 0, 5
-	"Срок",                2, notype, 0, 5
+	"@validitydate",       2, notype, 0, 5
 	"@{discount}, %",      3, notype, NMBF_NOZERO, 8.2
 	"Макс кредит",         4, notype, NMBF_NOZERO, 10.2
 	"@turnover",           5, notype, NMBF_NOZERO, 10.2
@@ -4408,7 +4408,7 @@ browser SCARDCRD north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 	"@code",               1, notype, 0, 20
 	"@series",            10, notype, 0, 10
 	"@releasedate",        9, notype, 0, 5
-	"Срок",                2, notype, 0, 5
+	"@validitydate",       2, notype, 0, 5
 	"@{discount}, %",      3, notype, NMBF_NOZERO, 8.2
 	"Макс кредит",         4, notype, NMBF_NOZERO, 10.2
 	"@rest",               8, notype, NMBF_NOZERO, 10.2
@@ -4425,7 +4425,7 @@ browser SCARDCRD_TRNOVR north(100), 1, 1, "@{crdcard_pl} {%s}", OWNER|GRID, 0
 	"@code",               1, notype, 0, 20
 	"@series",            10, notype, 0, 10
 	"@releasedate",        9, notype, 0, 5
-	"Срок",                2, notype, 0, 5
+	"@validitydate",       2, notype, 0, 5
 	"@{discount}, %",      3, notype, NMBF_NOZERO, 8.2
 	"Макс кредит",         4, notype, NMBF_NOZERO, 10.2
 	"@debit",              6, notype, NMBF_NOZERO, 10.2
@@ -4447,7 +4447,7 @@ browser PAYMPLAN north(100), 1, 1, "@{paymplan}", OWNER|GRID, 0
 	"Ожидаемый платеж", 6, notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,   PPDV_LINS01,    "@{detail}\tEnter"
-		//EDITARTICLE : kbF2,      PPDV_LINS02,  "Аналитическая статья\tF2"
+		//EDITARTICLE : kbF2,      PPDV_LINS02,  "@{analyticalarticle}\tF2"
 		//EDITPERSON  : kbF4,      TBBM_PERSONS, "@{person}\tF4"
 		separator
 		PRINT       : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
@@ -4465,7 +4465,7 @@ browser PAYMPLAN_CROSSTAB north(100), 3, 1, "@{paymplan}", OWNER|GRID, 0
 	crosstab "Ожидаемый платеж", notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL      : kbEnter,   PPDV_LINS01,    "@{detail}\tEnter"
-		//EDITARTICLE : kbF2,      PPDV_LINS02,  "Аналитическая статья\tF2"
+		//EDITARTICLE : kbF2,      PPDV_LINS02,  "@{analyticalarticle}\tF2"
 		//EDITPERSON  : kbF4,      TBBM_PERSONS, "@{person}\tF4"
 		separator
 		PRINT       : kbF7,      PPDV_PRINTER01, "@{print}\tF7"
@@ -5798,7 +5798,7 @@ browser DEBTORSTAT north(100), 3, 1, "Статистика по дебиторам", OWNER|GRID, 0
 	"Расчетный лимит",            8, notype, NMBF_NOZERO | NMBF_DELSPACE, 8.2
 	"Стоимость кредита",          9, notype, NMBF_NOZERO, 8.6
 	toolbar TB_FIRST_TOOLBAR {
-		EDITARTICLE   : kbF2,     PPDV_LINS02,    "Аналитическая статья\tF2"
+		EDITARTICLE   : kbF2,     PPDV_LINS02,    "@{analyticalarticle}\tF2"
 		EDITPERSON    : kbF4,     TBBM_PERSONS,   "@{person}\tF4"
 		GRAPH         : kbCtrlN,  PPDV_PLOT01,    "@{plot}\tCtrl-N"
 		CONFIG        : kbF8,     PPDV_GEAR01,    "Изменить конфигурацию и пересчитать\tF8"
@@ -5807,7 +5807,7 @@ browser DEBTORSTAT north(100), 3, 1, "Статистика по дебиторам", OWNER|GRID, 0
 	}
 }
 
-browser LOCTRANSF north(100), 3, 1, "Складские операции {%s}", OWNER|GRID, 0
+browser LOCTRANSF north(100), 3, 1, "@{view_loctransf} {%s}", OWNER|GRID, 0
 {
 	"@whcell",        10, notype, 0, 20
 	"@ware",          11, notype, 0, 30
@@ -5931,7 +5931,7 @@ browser BBOARD north(100), 1, 1, "Задачи запущенные на сервере", OWNER|GRID, 0
 	}
 }
 
-browser SERVERSTAT north(100), 1, 1, "Статистика сервера %s", OWNER|GRID, 0
+browser SERVERSTAT north(100), 1, 1, "@{view_serverstat} %s", OWNER|GRID, 0
 {
 	"ИД потока",           0, int32,        0,   6, BCO_USERPROC
 	"Вид потока",          1, zstring(64),  0,  20, BCO_USERPROC
@@ -5970,7 +5970,7 @@ browser AMOUNTTYPE north(100), 1, 1, "@{view_amounttype}", OWNER|GRID, 0
 	}
 }
 
-browser REGISTERTYPE north(100), 1, 1, "Типы регистрационных документов", OWNER|GRID, 0
+browser REGISTERTYPE north(100), 1, 1, "@{view_registertype}", OWNER|GRID, 0
 {
 	"@id",                        0, int32,        0,  6, BCO_USERPROC
 	"@appellation",               1, zstring(48),  0, 30, BCO_USERPROC
@@ -6154,7 +6154,7 @@ browser STOCKOPT_RESULT north(100), 2, 1, "Результат оптимизации товарных запасо
 	}
 }
 
-browser DIALOG north(100), 1, 1, "Диалоги", OWNER|GRID, 0
+browser DIALOG north(100), 1, 1, "@{view_dialog}", OWNER|GRID, 0
 {
 	"@id",                  -1, int32,        0,  8
 	"@symbol",              -1, zstring(64),  0, 25
@@ -6288,6 +6288,16 @@ browser TIMSERSTRATEGIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 	}
 }
 
+browser EVENT north(100), 1, 1, "Events", OWNER|GRID, 0
+{
+	"ID",           0, int32,        0, 10, BCO_USERPROC
+	"Time",         1, zstring(20),  0, 12, BCO_USERPROC
+	"Type",         2, int32,        0, 10, BCO_USERPROC
+	"Status",       3, int32,        0, 10, BCO_USERPROC
+	"Object",       4, zstring(128), 0, 10, BCO_USERPROC
+	"Text",         5, zstring(128), 0, 10, BCO_USERPROC
+}
+
 browser DBMONITOR north(100), 2, 1, "Монитор базы данных", OWNER|GRID, 0
 {
 	"@filename",             0, zstring(256), 0, 25, BCO_USERPROC
@@ -6299,7 +6309,7 @@ browser DBMONITOR north(100), 2, 1, "Монитор базы данных", OWNER|GRID, 0
 	}
 }
 
-browser SUPRWARE north(100), 3, 0, "Базовые товары и компоненты", OWNER|GRID, 0
+browser SUPRWARE north(100), 3, 0, "@{view_suprware}", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT, 6
 	"@appellation",  1, notype, 0, 30
@@ -6316,7 +6326,7 @@ browser SUPRWARE north(100), 3, 0, "Базовые товары и компоненты", OWNER|GRID, 0
 	}
 }
 
-browser USERPROFILE north(100), 1, 0, "Профайлер пользовательских функций", OWNER|GRID, 0
+browser USERPROFILE north(100), 1, 0, "@{view_userprofile}", OWNER|GRID, 0
 {
 	"@database",          8, notype, 0,           15
 	"@sessionid",         7, notype, 0,           30
@@ -6740,7 +6750,7 @@ cmd StockOpt              { "Оптимизация запасов (construction)"           none 
 cmd StockOptCfg           { "@{cmd_stockoptcfg}"                           none                  none cmStockOptCfg }
 cmd RFIDDevice            { "@{cmd_rfiddevice}"                            none                  none cmRFIDDevice }
 cmd ReplacePersonCat      { "@{cmd_replacepersoncat}"                      none                  none cmReplacePersonCat }
-cmd ViewDialog            { "Диалоги"                                      ICON_UI_DIALOG        none cmViewDialog view = Dialog }
+cmd ViewDialog            { "@{view_dialog}"                               ICON_UI_DIALOG        none cmViewDialog view = Dialog }
 cmd DebtDim               { "@{cmd_debtdim}"                               none                  none cmDebtDim }
 cmd GoodsTag              { "@{cmd_goodstag}"                              PPDV_TAGS01           none cmGoodsTag }
 cmd LotTag                { "@{cmd_lottag}"                                PPDV_TAGS01           none cmLotTag }
@@ -6806,6 +6816,7 @@ cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none 
 cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj } // @v10.6.1
 cmd QueryCHZN             { "@{cmd_querychzn}"                             none                   none cmQueryCHZN }
 cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  } // @v10.7.4
+cmd Events                { "@{cmd_events}"                                none                   none cmEvents } // @v10.8.9
 //
 // -------------- Описания серверных задач
 //
@@ -6985,6 +6996,7 @@ view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
 //view   VetisDocument           {"@{view_vetisdocument}"} // @v10.5.8 @erik
 view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" } // @v10.7.8
 filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
+view   Event                   { "" } // @v10.8.9
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

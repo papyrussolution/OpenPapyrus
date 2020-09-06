@@ -1650,7 +1650,7 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 				if(ffrac(NumPacks) == 0.0)
 					Item.Quantity_ = Item.UnitPerPack * NumPacks;
 			}
-			else if(master == 0 || master == CTL_LOT_QUANTITY)
+			else if(!master || master == CTL_LOT_QUANTITY)
 				NumPacks = Item.Quantity_ / Item.UnitPerPack;
 		}
 		else
@@ -1661,7 +1661,6 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 			setCtrlReal(CTL_LOT_PACKS,       NumPacks);
 		if(master != CTL_LOT_QUANTITY) // @v10.2.4
 			setCtrlReal(CTL_LOT_QUANTITY,    Item.Quantity_);
-		// @v9.4.3 {
 		if(Item.IsCorrectionExp()) {
 			const double eff_qtty = Item.GetEffCorrectionExpQtty();
 			Rest -= (prev_qtty - eff_qtty);
@@ -1670,7 +1669,7 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 				if(P_OrderItem && P_OrderItem->TFlags & PPTransferItem::tfOrdReserve)
 					OrdReserved -= (prev_qtty - eff_qtty);
 			}
-		} // } // @v9.4.3
+		}
 		else if(Item.Flags & PPTFR_ORDER) {
 			OrdRest -= (prev_qtty - Item.Quantity_);
 			if(Item.TFlags & PPTransferItem::tfOrdReserve)

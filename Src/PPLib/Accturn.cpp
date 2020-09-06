@@ -1380,7 +1380,7 @@ int SLAPI AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int
 	MEMSZERO(k2);
 	getNumRecs(&numrecs);
 	BExtQuery q(this, 2);
-	q.selectAll().where(this->Reverse == (long)reverse);
+	q.selectAll().where(this->Reverse == static_cast<long>(reverse));
 	for(q.initIteration(0, &k2, spFirst); q.nextIteration() > 0;) {
 		int    msg_code = 0;
 		AccTurnTbl::Key0 k0;

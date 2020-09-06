@@ -530,5 +530,6 @@
 #define cmTssModel                     636 // @v10.7.4 Модели построения стратегий на временных сериях
 #define cmGotoVK                       637 // @v10.7.7  Перейти на сайт VK.com в форму авторизации  //@erikTEMP v10.7.7
 #define cmCorrectWorldObjNIA           638 // @v10.8.0 Корректировка географических объектов (не интерактивная)
+#define cmEvents                       639 // @v10.8.9 События
 
 #endif /* __PPMENU_H */

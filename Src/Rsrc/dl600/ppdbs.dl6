@@ -3618,6 +3618,34 @@ file:
 	acstable = "rusncase.alt";
 }
 //
+// @v10.8.9 События. Специальные объекты, информирующие о тех или иных ситуациях.
+// Текстовое содержание извещения хранится в таблице UnxTextRef
+//
+table Event {
+	autolong ID;
+	date   Dt;
+	time   Tm;
+	long   TypeID;
+	long   Status;
+	long   UserID;         // 0 - for all
+	long   GlobalUserID;   // 0 - for all
+	long   ObjType;        // Тип связанного с событием объекта
+	long   ObjID;          // Ид связанного с событием объекта
+	long   Flags;
+	raw    Reserve[32];
+	blob   VT[2048];
+index:
+	ID (unique);
+	Dt, Tm (unique mod);
+	TypeID, Dt, Tm (unique mod);
+	UserID, Dt, Tm (unique mod);
+	GlobalUserID, Dt, Tm (unique mod);
+	ObjType, Dt, Tm (unique mod);
+file:
+	"event.btr";
+	vlr;
+}
+//
 // @v10.7.7 @construction
 //
 table TsTaJournal {

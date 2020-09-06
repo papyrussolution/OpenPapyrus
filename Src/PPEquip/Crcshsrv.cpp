@@ -819,7 +819,7 @@ int SLAPI ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, const SString & r
 							p_writer->EndElement();
 						}
 					}
-					p_writer->PutPlugin("precision", prev_gds_info.Precision); // @v9.1.3
+					p_writer->PutPlugin("precision", prev_gds_info.Precision);
 					if(is_spirit) {
 						if(agi.Proof != 0.0) {
 							temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0));

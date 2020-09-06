@@ -1417,6 +1417,7 @@
     <ClCompile Include="..\PPLib\ppedi-base.cpp" />
     <ClCompile Include="..\PPLib\ppedi.cpp" />
     <ClCompile Include="..\PPLib\ppeds.cpp" />
+    <ClCompile Include="..\PPLib\ppevent.cpp" />
     <ClCompile Include="..\PPLib\Ppexport.cpp" />
     <ClCompile Include="..\PPLib\PPEXPR.CPP" />
     <ClCompile Include="..\PPLib\ppgeo.cpp" />

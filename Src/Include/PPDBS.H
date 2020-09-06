@@ -6235,6 +6235,66 @@ public:
 	DBField Reserve;
 };
 
+class EventTbl : public DBTable {
+public:
+	EventTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		int32  ID;
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  TypeID;
+		int32  Status;
+		int32  UserID;
+		int32  GlobalUserID;
+		int32  ObjType;
+		int32  ObjID;
+		int32  Flags;
+		uint8  Reserve[32]; // raw
+		TSLob <2048> VT;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	struct Key2 {
+		int32  TypeID;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	struct Key3 {
+		int32  UserID;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	struct Key4 {
+		int32  GlobalUserID;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	struct Key5 {
+		int32  ObjType;
+		LDATE  Dt;
+		LTIME  Tm;
+	};
+	DBField ID;
+	DBField Dt;
+	DBField Tm;
+	DBField TypeID;
+	DBField Status;
+	DBField UserID;
+	DBField GlobalUserID;
+	DBField ObjType;
+	DBField ObjID;
+	DBField Flags;
+	DBField Reserve;
+	DBField VT;
+};
+
 class TsTaJournalTbl : public DBTable {
 public:
 	TsTaJournalTbl(const char * pFileName = 0);

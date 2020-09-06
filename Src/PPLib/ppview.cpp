@@ -176,6 +176,7 @@ int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** 
 			case PPVIEW_TIMSERDETAIL:    p_v = new PPViewTimSerDetail();  break; // @v10.5.4
 			case PPVIEW_BRAND:           p_v = new PPViewBrand();         break; // @v10.4.7
 			case PPVIEW_QUOTEREQANALYZE: p_v = new PPViewQuoteReqAnalyze(); break; // @v10.5.7
+			case PPVIEW_EVENT:           p_v = new PPViewEvent(); break; // @v10.8.9
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {

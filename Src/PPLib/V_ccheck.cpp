@@ -2519,7 +2519,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 					if(p_view && p_view->GetProblems().getCount()) {
 						long problems_val = 0;
 						if(p_view->GetProblems().Search(p_row->ID, &problems_val, 0))
-							pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+							ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}
 				// } @v10.8.8 

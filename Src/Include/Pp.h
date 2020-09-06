@@ -15709,7 +15709,6 @@ public:
 	// Descr: Прочитать из буфера данные и спроецировать на класс
 	//
 	int    SLAPI Read(SBuffer & rBuf, long);
-
 	int    SLAPI Write2(xmlTextWriter * pXmlWriter);//@erik v10.7.5
 	int    SLAPI Read2(xmlNode * pParentNode);//@erik v10.7.5
 	int    SLAPI XmlWriteGuaList(xmlTextWriter * pXmlWriter); //@erik v10.7.5
@@ -15722,7 +15721,7 @@ public:
 	PPID   ID;          // Уникальный идентификатор фильтра внутри пула
 	long   Ver;         // Номер версии хранимой копии именованного фильтра
     long   ViewID;      // Идентификатор обьекта PPView, по которому строится фильтр
-    long   Flags;       // @v8.4.2
+    long   Flags;       // @flags
 	char   Reserve[28]; // @reserve
 	SString Name;       // Уникальная строка описания именованного фильтра
 	SString DbSymb;     // Символ базы данных, относительно которой определен именованный фильтр
@@ -15732,7 +15731,6 @@ public:
 	ViewDefinition VD;  // @v10.5.0
 	ObjIdListFilt DestGuaList; // @v10.5.3 Список идентификаторов глобальных учетных записей, которым следует отправлять отчеты
 };
-
 //
 // Descr: Пул именованных фильтров. Хранит фильтры, конкретизированные относительно базы данных
 //
@@ -15847,12 +15845,10 @@ public:
 	//  0  - ошибка
 	//
 	int    SLAPI SavePool(const PPNamedFiltPool *) const;
-
 	int    SLAPI LoadPool2(const char * pDbSymb, PPNamedFiltPool *, int readOnly); //@erik v10.7.5
 	int    SLAPI SavePool2(const PPNamedFiltPool *) const;  //@erik v10.7.5
 	int    SLAPI ConvertBinToXml(); //@erik v10.7.5
 	int    SLAPI GetXmlPoolDir(SString &rXmlPoolPath); //@erik v10.7.4
-
 private:
 	TVRez  * P_Rez;
 	// Путь к файлу, в котором хранится пул фильтров. Мы сохраняем этот
@@ -16132,6 +16128,94 @@ private:
 	virtual const char * SLAPI GetNamePtr();
 
 	SString NameBuf; // Returns by GetNamePtr
+};
+//
+//
+//
+class PPEventCore : public EventTbl {
+public:
+	enum {
+		statusUndef    = 0,
+		statusActual   = 1,
+		statusViewed   = 2,
+		statusArchived = 3
+	};
+	struct Packet {
+		SLAPI  Packet();
+		Packet & Z();
+		PPID   ID;
+		LDATETIME Dtm;
+		long   TypeID;
+		long   Status;
+		PPID   UserID;
+		PPID   GlobalUserID;
+		PPObjID Oid;
+		long   Flags;
+		SString Text;
+		SBuffer ExtData;
+	};
+	SLAPI  PPEventCore();
+	int    SLAPI Put(PPID * pID, const Packet * pPack, int use_ta);
+	int    SLAPI Get(PPID id, Packet * pPack);
+private:
+	void   SLAPI PacketToRec(const Packet & rPack, EventTbl::Rec & rRec) const;
+	void   SLAPI RecToPacket(const EventTbl::Rec & rRec, Packet & rPack) const;
+};
+
+struct EventFilt : public PPBaseFilt {
+	SLAPI  EventFilt();
+
+	uint8  ReserveStart[128]; // @anchor
+	DateRange Period;
+	long   TypeID;
+	PPID   UserID;
+	PPID   GlobalUserID;
+	PPID   ObjType;
+	long   StatusFlags;
+	long   Flags;
+	long   SortOrd;
+	long   Reserve;          // @anchor
+};
+
+struct EventViewItem { // @flat
+	PPID   ID;
+	LDATETIME Dtm;
+	long   TimeUniqCntr;
+	long   TypeID;
+	long   Status;
+	long   UserID;         // 0 - for all
+	long   GlobalUserID;   // 0 - for all
+	PPObjID Oid;
+	long   Flags;
+};
+
+class PPViewEvent : public PPView {
+public:
+	struct BrwItem : public EventViewItem { // @flat
+		uint   TextP;
+	};
+	SLAPI  PPViewEvent();
+	SLAPI ~PPViewEvent();
+	virtual int SLAPI Init_(const PPBaseFilt * pBaseFilt);
+	virtual int SLAPI EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    SLAPI InitIteration();
+	int    FASTCALL NextIteration(EventViewItem *);
+	int    SLAPI CheckForFilt(const EventFilt * pFilt, EventTbl::Rec * pRec);
+	int    SLAPI CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewEvent::BrwItem * pItem1, const PPViewEvent::BrwItem * pItem2);
+	static int SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI MakeList(PPViewBrowser * pBrw);
+
+	PPEventCore T;
+	SArray * P_DsList;
+	SStrGroup StrPool;
+	EventFilt Filt;
 };
 //
 // Descr: Объект данных, представляющий типы системных событий.

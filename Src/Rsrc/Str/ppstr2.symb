@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147492960
+LastSignatureCode=2147492974
 LastAutoCodeList=1,11985;102,10172;103,10072;110,10000;111,11988;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10126;120,10005;1001,10000;121,10000;122,10000;123,10304;124,10172
 
 [SignatureList]
@@ -909,6 +909,7 @@ grouping=2147484376
 opgrouping=2147484377
 article=2147484378
 article_pl=2147484379
+analyticalarticle=2147492972
 groupingarticle=2147484380
 addarticle=2147484381
 codebyar=2147484382
@@ -1306,6 +1307,7 @@ duetime=2147484621
 outport=2147484622
 queue=2147484623
 event=2147484624
+event_pl=2147492973
 personevent=2147484625
 personevent_pl=2147484626
 port=2147484627
@@ -2467,6 +2469,7 @@ cmd_taxsystemkind=2147491304
 cmd_unifindobj=2147491360
 cmd_tssmodel=2147491696
 cmd_gotovktest=2147492089
+cmd_events=2147492974
 cmdpu_admin=2147485677
 cmdpu_salesanalyze=2147485678
 cmdpu_accounting=2147485679
@@ -5176,6 +5179,12 @@ oprkind_invop_afmall=2147488123
 oprkind_invop_afmprev=2147488124
 oprkind_invop_afmbycurlotrest=2147488125
 oprkind_invop_onwroffstatus=2147488126
+oprkind_dinvop_wrdn=2147492961
+oprkind_dinvop_wrup=2147492962
+oprkind_dinvop_wrdnop=2147492963
+oprkind_dinvop_wrupop=2147492964
+oprkind_dinvop_wrdngoods=2147492965
+oprkind_dinvop_wrupgoods=2147492966
 oprkind_wrdnop=2147488127
 oprkind_wrupop=2147488128
 oprkind_optype=2147488129
@@ -9289,6 +9298,11 @@ genericdevice_deviceclass=2147487466
 genericdevice_entry=2147492942
 genericdevice_port=2147492943
 genericdevice_initstr=2147492944
+dbsecure=2147492967
+dbsecure_database=2147492968
+dbsecure_set=2147492969
+dbsecure_reset=2147492970
+dbsecure_password=2147492971
 
 [GrpSymbList]
 .N.=124

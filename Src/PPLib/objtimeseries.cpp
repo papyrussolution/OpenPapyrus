@@ -2026,8 +2026,7 @@ int FASTCALL PPViewTimeSeries::NextIteration(TimeSeriesViewItem * pItem)
 	return ok;
 }
 
-//static
-int FASTCALL PPViewTimeSeries::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewTimeSeries::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewTimeSeries * p_v = static_cast<PPViewTimeSeries *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;

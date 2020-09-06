@@ -2773,8 +2773,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										const double mult = agi.UnpackedVolume / 10.0;
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 										// @v10.1.7 Округление до целых (в последнее время ЕГАИС почему-то отказывается принимать дробные значения) {
-										if(qtty > 1.0)
-											qtty = floor(qtty);
+										// @v10.8.9 if(qtty > 1.0) qtty = floor(qtty);
 										// } @v10.1.7
 										qtty_fmt = MKSFMTD(0, 3, 0);
 									}
