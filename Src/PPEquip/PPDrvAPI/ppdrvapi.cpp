@@ -2,10 +2,42 @@
 // Copyright (c) A.Sobolev 2013, 2017, 2018, 2019, 2020
 // @codepage UTF-8
 //
+#pragma hdrstop
 #include <ppdrvapi.h>
+
+/*static*/SString & PPDrvInputParamBlock::EncodeText(SString & rBuf)
+{
+	// ';' encoded as &{smcol}
+	// '=' encoded as &{equal}
+	return rBuf.ReplaceStr(";", "&{smcol}", 0).ReplaceStr("=", "&{equal}", 0);
+}
+
+/*static*/SString & PPDrvInputParamBlock::DecodeText(SString & rBuf)
+{
+	return rBuf.ReplaceStr("&{smcol}", ";", 0).ReplaceStr("&{equal}", "=", 0);
+}
 
 PPDrvInputParamBlock::PPDrvInputParamBlock(const char * pInputText) : Ss(';', pInputText)
 {
+}
+
+int PPDrvInputParamBlock::Add(const char * pParam, const char * pValue)
+{
+	int    ok = 1;
+	if(!isempty(pParam) && !isempty(pValue)) {
+		TempBuf.Z().Cat(pParam).Strip();
+		TempBuf.CatChar('=').Cat(EncodeText(ValBuf.Z().Cat(pValue).Strip()));
+		Ss.add(TempBuf);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+SString & PPDrvInputParamBlock::GetRawBuf(SString & rBuf) const
+{
+	rBuf = Ss.getBuf();
+	return rBuf;
 }
 
 int PPDrvInputParamBlock::Get(const char * pParam, SString & rValue)
@@ -13,8 +45,8 @@ int PPDrvInputParamBlock::Get(const char * pParam, SString & rValue)
 	rValue.Z();
 	for(uint i = 0; Ss.get(&i, TempBuf);) {
 		TempBuf.Divide('=', KeyBuf, ValBuf);
-		if(KeyBuf.Strip().CmpNC(pParam) == 0) {
-			rValue = ValBuf.Strip();
+		if(KeyBuf.Strip().IsEqiAscii(pParam)) {
+			rValue = DecodeText(ValBuf.Strip());
 			return rValue.NotEmpty() ? 1 : -1;
 		}
 	}

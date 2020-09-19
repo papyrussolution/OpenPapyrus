@@ -314,7 +314,7 @@ int SLAPI PPViewDebtTrnovr::CheckBillRec(const BillTbl::Rec * pRec, const PPIDAr
 
 int SLAPI PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID curID, PayableBillList * pList)
 {
-	const LDATE current_date = NZOR(Filt.PaymPeriod.upp, LConfig.OperDate);
+	const LDATE current_date = NZOR(Filt.PaymPeriod.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	int    ok = 1;
 	int    skip = 0;
 	if(Filt.CityID) {
@@ -827,10 +827,8 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 			THROW(P_Ct->Create(use_ta));
 			ufp_factor *= 1.1;
 		}
-		// @v9.5.1 {
 		if(Filt.GoodsGrpID)
 			ufp_factor *= 1.2;
-		// } @v9.5.1
 		ufp.SetFactor(0, ufp_factor);
 		ufp.Commit();
 	}
@@ -843,7 +841,7 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 }
 
 PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSCollection <DebtEntry> (), R_F(rF), P_Q(0),
-	CurrentDate(NZOR(rF.PaymPeriod.upp, getcurdate_())), // @v9.1.8 LConfig.OperDate-->getcurdate_()
+	CurrentDate(NZOR(rF.PaymPeriod.upp, getcurdate_())),
 	DoCheckAddr(BIN(rF.CityID)),
 	ByLinks(BIN(rF.Flags & DebtTrnovrFilt::fNoForwardPaym || !rF.PaymPeriod.IsZero())),
 	ByCost(BIN(rF.Flags & DebtTrnovrFilt::fByCost)),

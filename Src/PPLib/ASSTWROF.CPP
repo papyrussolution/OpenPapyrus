@@ -350,7 +350,7 @@ int SLAPI RevalAssets()
 	prcssr.InitParam(&param);
 
 	const PPConfig & r_cfg = LConfig;
-	param.Dt    = r_cfg.OperDate;
+	param.Dt    = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	param.LocID = r_cfg.Location;
 	PPID op_id  = GetSingleOp(PPOPT_GOODSREVAL);
 	if(op_id) {

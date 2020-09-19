@@ -410,7 +410,7 @@ static int SLAPI EditSaveBalanceDialog(LDATE * pDt, char * pFileName)
 int SLAPI SaveBalance()
 {
 	int    ok = -1;
-	LDATE  dt = LConfig.OperDate;
+	LDATE  dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	char   fname[MAXPATH];
 	memzero(fname, sizeof(fname));
 	if(EditSaveBalanceDialog(&dt, fname) > 0) {
@@ -427,7 +427,7 @@ int SLAPI SaveBalance()
 int SLAPI RestoreBalance()
 {
 	int    ok = -1;
-	LDATE  dt = LConfig.OperDate;
+	LDATE  dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	char   fname[MAXPATH];
 	memzero(fname, sizeof(fname));
 	if(EditSaveBalanceDialog(&dt, fname) > 0) {

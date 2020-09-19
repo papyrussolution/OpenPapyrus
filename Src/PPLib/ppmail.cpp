@@ -1736,7 +1736,6 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 	int    ok = 1, conn = 0;
 	SString ok_msg, buf, from_addr, mail_addr;
 	IterCounter msg_counter;
-
 	THROW_INVARG(pSubj && pMailList && pMailList->getCount());
 	PPLoadText(PPTXT_MAIL_SENDOK, ok_msg);
 	msg_counter.Init(1);
@@ -1747,15 +1746,13 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 		mail_msg.SetField(SMailMessage::fldSubj,     pSubj);
 		mail_msg.SetField(SMailMessage::fldFrom,     from_addr.cptr());
 		mail_msg.SetField(SMailMessage::fldTo,       mail_addr.cptr());
-		//mail_msg.SetField(SMailMessage::fldText,     NZOR(pLetter, ""));
 		THROW_SL(mail_msg.AttachContent(0, SFileFormat::Txt, cpUTF8, pLetter, sstrlen(pLetter)));
 		if(pFilesList) {
 			char * p_path = 0;
 			for(uint i = 0; pFilesList->enumItems(&i, (void **)&p_path);)
 				mail_msg.AttachFile(0, SFileFormat::Unkn, p_path);
 		}
-		// @v9.8.11 THROW(PPMailSmtp::Send(*pAccount, mail_msg, SendMailCallback, msg_counter));
-		THROW(PPSendEmail(*pAccount, mail_msg, SendMailCallback, msg_counter)); // @v9.8.11
+		THROW(PPSendEmail(*pAccount, mail_msg, SendMailCallback, msg_counter));
 		buf.Printf(ok_msg.cptr(), mail_addr.cptr());
 		CALLPTRMEMB(pLogger, Log(buf));
 	}

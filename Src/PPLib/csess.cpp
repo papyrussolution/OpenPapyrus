@@ -397,7 +397,7 @@ int SLAPI CSessionCore::GetActiveSessList(PPID locID, ObjIdListFilt * pActiveSes
 		DateRange prd;
 		PPObjCashNode cn_obj;
 		PPCashNode cn_rec;
-		prd.SetDate(LConfig.OperDate);
+		prd.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		plusdate(&prd.low, -ASYNCSESS_BYLASTDAYS, 0);
 		PPIDArray async_sess_list;
 		for(SEnum en = cn_obj.ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {

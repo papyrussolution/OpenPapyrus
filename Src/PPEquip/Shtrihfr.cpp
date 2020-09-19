@@ -407,7 +407,7 @@ private:
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfOldShtrih     = 0x0008, // старая версия драйвера Штрих-ФР
 		sfPrintSlip     = 0x0010, // печать подкладного документа
-		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
+		sfDontUseCutter  = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
 		sfUseFnMethods  = 0x0080  // @v10.7.2 Разрешение на использование fn-методов (параметр pp.ini [config] ShtrihFRUseFnMethods)
 	};
@@ -460,7 +460,7 @@ SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCas
 	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0)
 {
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
-		Flags |= sfNotUseCutter;
+		Flags |= sfDontUseCutter;
 	RefToIntrf++;
 	SETIFZ(P_DrvFRIntrf, InitDriver());
 }
@@ -634,13 +634,13 @@ int SLAPI SCS_SHTRIHFRF::Cut(int withCleaning)
 {
 	int    ok = 1;
 	if(DeviceType == devtypeShtrih) {
-		if(!(Flags & sfNotUseCutter))
+		if(!(Flags & sfDontUseCutter))
 			THROW(ExecFRPrintOper(CutCheck));
 		if(withCleaning) {
 			THROW(LineFeed(DEF_LINEFEED_NUMBER, FALSE, TRUE));
 		}
 	}
-	else if(oneof2(DeviceType, devtypeCombo, devtypeMini) && !(Flags & sfNotUseCutter)) {
+	else if(oneof2(DeviceType, devtypeCombo, devtypeMini) && !(Flags & sfDontUseCutter)) {
 		THROW(ExecFRPrintOper(CutCheck));
 	}
 	CATCHZOK
@@ -1501,16 +1501,14 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 		if(DeviceType == devtypeShtrih)
 			THROW(SetFR(UseJournalRibbon, FALSE));
 		{
-			// @v9.7.1 temp_buf = "КОПИЯ ЧЕКА"; // @cstr #9
-			PPLoadText(PPTXT_CCFMT_CHKCOPY, temp_buf); // @v9.7.1
-			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			PPLoadText(PPTXT_CCFMT_CHKCOPY, temp_buf);
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(SetFR(DocumentName, temp_buf));
 		}
 		THROW(ExecFRPrintOper(PrintDocumentTitle));
 		{
-			// @v9.7.1 temp_buf = (flags & PRNCHK_RETURN) ? "ВОЗВРАТ ПРОДАЖИ" : "ПРОДАЖА"; // @cstr #10 #11
-			PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, temp_buf); // @v9.7.1
-			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+			PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, temp_buf);
+			temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(SetFR(StringForPrinting, temp_buf));
 		}
 		THROW(ExecFRPrintOper(PrintString));
@@ -1534,9 +1532,8 @@ int SLAPI SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char *
 		THROW(SetFR(StringForPrinting, prn_str.Z().CatCharN('=', CheckStrLen)));
 		THROW(ExecFRPrintOper(PrintString));
 		temp_buf.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
-		// @v9.7.1 prn_str = "ИТОГ"; // @cstr #12
-		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str); // @v9.7.1
-		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+		PPLoadText(PPTXT_CCFMT_TOTAL, prn_str);
+		prn_str.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		THROW(SetFR(StringForPrinting, prn_str));
 		THROW(ExecFRPrintOper(PrintWideString));
@@ -1879,7 +1876,7 @@ int SLAPI SCS_SHTRIHFRF::AnnulateCheck()
 		cut = 1;
 		ok = 1;
 	}
-	if(cut && oneof3(DeviceType, devtypeShtrih, devtypeCombo, devtypeMini) && !(Flags & sfNotUseCutter))
+	if(cut && oneof3(DeviceType, devtypeShtrih, devtypeCombo, devtypeMini) && !(Flags & sfDontUseCutter))
 		THROW(ExecFRPrintOper(CutCheck));
 	CATCHZOK
 	return ok;
@@ -1968,7 +1965,7 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	if(PPObjPerson::GetCurUserPerson(0, &temp_buf) == -1) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		PPSecur sec_rec;
-		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+		if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 			temp_buf = sec_rec.Name;
 	}
 	// @v9.2.1 PPGetWord(PPWORD_CASHIER, 0, cshr_str);
@@ -2162,23 +2159,14 @@ int SLAPI SCS_SHTRIHFRF::ConnectFR()
 	return ok;
 }
 
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, int iVal)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, long lVal)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, double dVal)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
-int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
-
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
-int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen)
-	{ return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
+int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, int iVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, iVal) > 0); }
+int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, long lVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, lVal) > 0); }
+int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, double dVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, dVal) > 0); }
+int SLAPI SCS_SHTRIHFRF::SetFR(PPID id, const char * pStrVal) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->SetProperty(id, pStrVal) > 0); }
+int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, int * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, long * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, double * pBuf) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf) > 0); }
+int SLAPI SCS_SHTRIHFRF::GetFR(PPID id, char * pBuf, size_t bufLen) { return BIN(P_DrvFRIntrf && P_DrvFRIntrf->GetProperty(id, pBuf, bufLen) > 0); }
 
 int SLAPI SCS_SHTRIHFRF::ExecFR(PPID id)
 {
@@ -2359,9 +2347,8 @@ void SLAPI SCS_SHTRIHFRF::SetErrorMessage()
 			memzero(mode_descr, sizeof(mode_descr));
 			if(GetFR(ECRModeDescription, mode_descr, sizeof(mode_descr) - 1) > 0) {
 				SString temp_buf;
-				// @v9.7.1 temp_buf = "Режим"; // @cstr
-				PPLoadText(PPTXT_CCFMT_MODE, temp_buf); // @v9.7.1
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+				PPLoadText(PPTXT_CCFMT_MODE, temp_buf);
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				err_msg.CR().CatChar('\003').Cat(temp_buf).CatDiv(':', 2).Cat(mode_descr);
 			}
 		}
@@ -2376,8 +2363,6 @@ int SLAPI SCS_SHTRIHFRF::PrintBnkTermReport(const char * pZCheck)
 	int     ok = 1;
 	StringSet str_set('\n', pZCheck);
 	SString line_buf;
-	// @v9.7.10 SlipDocCommonParam sdc_param;
-	// @v9.7.10 THROW(P_SlipFmt->Init("CCheck", &sdc_param));
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW(ConnectFR());

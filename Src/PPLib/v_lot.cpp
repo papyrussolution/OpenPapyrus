@@ -340,7 +340,7 @@ PPBaseFilt * PPViewLot::CreateFilt(void * extraPtr) const
 	if(p_filt) {
 		if(reinterpret_cast<long>(extraPtr) == 1)
 			p_filt->Flags |= LotFilt::fOrders;
-		p_filt->Period.upp = LConfig.OperDate;
+		p_filt->Period.upp = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	}
 	return p_filt;
 }

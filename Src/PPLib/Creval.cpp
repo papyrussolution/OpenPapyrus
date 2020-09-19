@@ -316,7 +316,7 @@ int SLAPI CurReval()
 	int    ok = -1;
 	CurRevalParam param;
 	GetCurRevalConfig(&param);
-	param.Dt = LConfig.OperDate;
+	param.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	param.LocID = LConfig.Location;
 	while(ok <= 0 && EditCRevalParam(&param) > 0) {
 		PutCurRevalConfig(&param, 1);

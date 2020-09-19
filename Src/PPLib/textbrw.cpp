@@ -1192,7 +1192,7 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 int STextBrowser::UpdateIndicators()
 {
 	int    ok = -1;
-	const  size_t len = (size_t)CallFunc(SCI_GETLENGTH);
+	const  size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
 	if(len && SpcMode == spcmSartrTest) {
 		SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();									
 		if(p_srdb) {
@@ -1623,7 +1623,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 		case PPVCMD_PROCESSTEXT:
 			{
 				uint8 * p_buf = reinterpret_cast<uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0));
-				const size_t len = (size_t)CallFunc(SCI_GETLENGTH);
+				const size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
 				TidyProcessBlock blk;
 				blk.InputBuffer.Set(p_buf, len);
 				blk.TidyOptions.Add(TidyInCharEncoding, "utf8");
@@ -1684,7 +1684,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 			const uint64 bufsize_req = _fsize + MIN(1<<20, _fsize/6);
 			THROW(bufsize_req <= 1024*1024*1025);
 			{
-				Doc.SciDoc = (SScEditorBase::SciDocument)CallFunc(SCI_CREATEDOCUMENT, 0, 0);
+				Doc.SciDoc = reinterpret_cast<SScEditorBase::SciDocument>(CallFunc(SCI_CREATEDOCUMENT, 0, 0));
 				//Setup scratchtilla for new filedata
 				CallFunc(SCI_SETSTATUS, SC_STATUS_OK, 0); // reset error status
 				CallFunc(SCI_SETDOCPOINTER, 0, (int)Doc.SciDoc);
@@ -1818,7 +1818,7 @@ int STextBrowser::FileSave(const char * pFileName, long flags)
 	}
 	if(!skip) {
 		const  uint8 * p_buf = reinterpret_cast<const uint8 *>(CallFunc(SCI_GETCHARACTERPOINTER, 0, 0)); // to get characters directly from Scintilla buffer;
-		const  size_t len = (size_t)CallFunc(SCI_GETLENGTH);
+		const  size_t len = static_cast<size_t>(CallFunc(SCI_GETLENGTH));
 		SFile file;
 		THROW_SL(file.Open(path, SFile::mWrite|SFile::mBinary));
 		if(Doc.OrgCp == Doc.Cp) {

@@ -2697,47 +2697,48 @@ int SLAPI CipherProtocol::GetChrEx()
 	return c;
 }
 
-//static
-int SLAPI PPObjBHT::TransmitProgram()
+/*static*/int SLAPI PPObjBHT::TransmitProgram()
 {
-	int    ok = 1, valid_data = 0;
-	SString path;
+	int    ok = 1;
 	PPID   bht_id = 0;
 	PPObjBHT bht_obj;
-
-	if(bht_obj.EnumItems(&bht_id, 0) <= 0)
-		return -1;
-
-	TDialog * dlg = new TDialog(DLG_BHTPROGUPLOAD);
-	THROW(CheckDialogPtr(&dlg));
-	PPGetFilePath(PPPATH_IN, "STYLOBHT.PD3", path);
-	bht_id = bht_obj.GetSingle();
-	SetupPPObjCombo(dlg, CTLSEL_BHTSEND_BHT, PPOBJ_BHT, bht_id, 0);
-	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_BHTSEND_FILENAME, CTL_BHTSEND_FILENAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
-	dlg->setCtrlString(CTL_BHTSEND_FILENAME, path);
-	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-		PPBhtTerminal bht_rec;
-		dlg->getCtrlData(CTLSEL_BHTSEND_BHT, &bht_id);
-		dlg->getCtrlString(CTL_BHTSEND_FILENAME, path);
-		if(bht_obj.Search(bht_id, &bht_rec) > 0) {
-			if(bht_rec.BhtTypeID != PPObjBHT::btDenso)
-				PPError(PPERR_BHTLDPGMNOTSUPPR, 0);
-			else if(!fileExists(path))
-				PPError(PPERR_NOSRCFILE, path);
+	TDialog * dlg = 0;
+	if(bht_obj.EnumItems(&bht_id, 0) > 0) {
+		int    valid_data = 0;
+		SString path;
+		dlg = new TDialog(DLG_BHTPROGUPLOAD);
+		THROW(CheckDialogPtr(&dlg));
+		PPGetFilePath(PPPATH_IN, "STYLOBHT.PD3", path);
+		bht_id = bht_obj.GetSingle();
+		SetupPPObjCombo(dlg, CTLSEL_BHTSEND_BHT, PPOBJ_BHT, bht_id, 0);
+		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_BHTSEND_FILENAME, CTL_BHTSEND_FILENAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
+		dlg->setCtrlString(CTL_BHTSEND_FILENAME, path);
+		for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+			PPBhtTerminal bht_rec;
+			dlg->getCtrlData(CTLSEL_BHTSEND_BHT, &bht_id);
+			dlg->getCtrlString(CTL_BHTSEND_FILENAME, path);
+			if(bht_obj.Search(bht_id, &bht_rec) > 0) {
+				if(bht_rec.BhtTypeID != PPObjBHT::btDenso)
+					PPError(PPERR_BHTLDPGMNOTSUPPR, 0);
+				else if(!fileExists(path))
+					PPError(PPERR_NOSRCFILE, path);
+				else
+					valid_data = 1;
+			}
 			else
-				valid_data = 1;
+				PPError();
 		}
-		else
-			PPError();
-	}
-	ZDELETE(dlg);
-	if(valid_data) {
-		BhtProtocol bp;
-		THROW(bht_obj.InitProtocol(bht_id, &bp));
-		PPWait(1);
-		THROW(bp.SendPrgmFile(path));
-		PPWait(0);
-	}
+		ZDELETE(dlg);
+		if(valid_data) {
+			BhtProtocol bp;
+			THROW(bht_obj.InitProtocol(bht_id, &bp));
+			PPWait(1);
+			THROW(bp.SendPrgmFile(path));
+			PPWait(0);
+		}
+	}	
+	else
+		ok = -1;
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;

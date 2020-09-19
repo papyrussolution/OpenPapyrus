@@ -759,7 +759,7 @@ int FiltItemDialog::ChangeBaseFilter()
 //
 int FiltPoolDialog::addItem(long * pPos, long * pID)
 {
-	int ok = -1;
+	int    ok = -1;
 	PPNamedFilt  nfilt;
 	nfilt.DbSymb = P_Data->GetDbSymb();
 	if(EditFiltItem(P_Mngr, P_Data, &nfilt) > 0) {
@@ -769,7 +769,7 @@ int FiltPoolDialog::addItem(long * pPos, long * pID)
 		ok = 1;
 	}
 	CATCHZOKPPERR
-		return ok;
+	return ok;
 }
 //
 // Descr: Обрабатывает редактирование именованного фильтра

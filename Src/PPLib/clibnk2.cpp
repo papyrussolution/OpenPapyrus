@@ -252,7 +252,7 @@ public:
 	{
 		return P_ImEx ? P_ImEx->OpenFileForReading(0) : 0;
 	}
-	int    SLAPI CreateOutputFile()
+	int    SLAPI CreateOutputFile(StringSet * pResultFileList)
 	{
 		int    ok = 1;
 		if(P_ImEx) {
@@ -265,7 +265,7 @@ public:
 			}
 			else
 				P_ImEx->SetHeaderData(0);
-			P_ImEx->OpenFileForWriting(0, 1);
+			P_ImEx->OpenFileForWriting(0, 1, pResultFileList);
 		}
 		else
 			ok = 0;
@@ -770,8 +770,8 @@ PPImpExpParam & SLAPI ClientBankExportDef::GetParam() const
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
 int SLAPI ClientBankExportDef::ReadDefinition(const char * pIniSection)
 	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
-int SLAPI ClientBankExportDef::CreateOutputFile()
-	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->CreateOutputFile(); }
+int SLAPI ClientBankExportDef::CreateOutputFile(StringSet * pResultFileList)
+	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->CreateOutputFile(pResultFileList); }
 int SLAPI ClientBankExportDef::CloseOutputFile()
 	{ return 1; }
 int SLAPI ClientBankExportDef::PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger)
@@ -1532,7 +1532,7 @@ int SLAPI GenerateCliBnkImpData()
 		}
 		THROW(p_bobj->CreateBankingOrders(in_paym_list, PPObjBill::cboIn, order_list));
 		THROW(p_bobj->CreateBankingOrders(out_paym_list, 0, order_list));
-		THROW(cbed.CreateOutputFile());
+		THROW(cbed.CreateOutputFile(0/*pResultFileList*/));
 		THROW(cbed.PutHeader());
 		for(uint i = 0; i < order_list.getCount(); i++) {
 			PPGPaymentOrder * p_order = order_list.at(i);
@@ -1552,7 +1552,7 @@ int SLAPI GenerateCliBnkImpData()
 					BillTbl::Rec bill_rec;
 					if(p_bobj->Search(p_order->LinkBillList.get(j), &bill_rec) > 0) {
 						if(temp_buf.Empty())
-							(temp_buf = "Payment by bill:").Space();
+							temp_buf.Z().Cat("Payment by bill").CatDiv(':', 2);
 						else
 							temp_buf.CatDiv(',', 2);
 						temp_buf.Cat(bill_rec.Code).Space().Cat(bill_rec.Dt);

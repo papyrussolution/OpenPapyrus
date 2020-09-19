@@ -2966,13 +2966,13 @@ int SLAPI PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int
 	ErrLine  = 0;
 	TiErrList.clear();
 	Rec.OpID = opID;
-	Rec.Dt   = r_cfg.OperDate;
+	Rec.Dt   = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	if(r_cfg.Cash && oneof2(opID, GetCashOp(), GetCashRetOp())) {
 		Rec.UserID = r_cfg.Cash;
 		Rec.Flags |= (BILLF_CASH | BILLF_NOATURN);
 	}
 	else
-		Rec.UserID = r_cfg.User;
+		Rec.UserID = r_cfg.UserID;
 	Rec.LocID = NZOR(locID, r_cfg.Location);
 	Rec.CurID = 0L;
 	Rec.LinkBillID = linkBillID;

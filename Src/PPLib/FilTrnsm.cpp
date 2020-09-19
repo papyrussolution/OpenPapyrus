@@ -362,47 +362,6 @@ int SLAPI PutFilesToEmail(const SFileEntryPool * pFileList, PPID mailAccID, cons
 	return PutFilesToEmail2((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
 }
 
-#if 0 // @v9.8.11 {
-int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
-{
-	int    ok = 1;
-	SString file_path, temp_buf;
-	PPObjInternetAccount mac_obj;
-	PPInternetAccount mac_rec;
-	IterCounter msg_counter;
-	PPID   mail_acc_id = mailAccID;
-	SMailMessage msg;
-	msg_counter.Init(1);
-	PPWait(1);
-	if(mail_acc_id == 0) {
-		PPAlbatrossConfig cfg;
-		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
-		mail_acc_id = cfg.Hdr.MailAccID;
-	}
-	THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
-	THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
-	msg.SetField(SMailMessage::fldSubj, pSubj);
-	mac_rec.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
-	msg.SetField(SMailMessage::fldFrom, temp_buf.Strip());
-	msg.SetField(SMailMessage::fldTo,   pDestAddr);
-	if(pFileList) {
-        for(uint i = 0; pFileList->get(&i, file_path);) {
-			THROW(!::fileExists(file_path) || msg.AttachFile(file_path));
-        }
-	}
-	mac_rec.GetExtField(MAEXSTR_SENDSERVER, temp_buf);
-	PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, temp_buf);
-	THROW(PPMailSmtp::Send(mac_rec, msg, SendMailCallback, msg_counter));
-	PPWait(0);
-	if(trnsmFlags & TRNSMF_DELINFILES && pFileList) {
-	    for(uint i = 0; pFileList->get(&i, file_path);)
-			SFile::Remove(file_path);
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v9.8.11
-
 //int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 int SLAPI PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
 {
@@ -424,11 +383,11 @@ int SLAPI PPSendEmail(const PPInternetAccount & rAcc, const SMailMessage & rMsg,
 		{
 			char pw[128];
 			rAcc.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
-			enc_buf.EncodeUrl(temp_buf = pw, 0); // @v9.8.12
+			enc_buf.EncodeUrl(temp_buf = pw, 0);
 			url.SetComponent(url.cPassword, enc_buf);
 			memzero(pw, sizeof(pw));
-			enc_buf.Obfuscate(); // @v9.8.12
-			temp_buf.Obfuscate(); // @v9.8.12
+			enc_buf.Obfuscate();
+			temp_buf.Obfuscate();
 		}
 		THROW_SL(curl.SmtpSend(url, curl.mfVerbose|ScURL::mfDontVerifySslPeer, rMsg));
 	}
@@ -476,16 +435,16 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 					if(port)
 						url.SetPort_(port);
 					mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
-					enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
+					enc_buf.EncodeUrl(temp_buf, 0);
 					url.SetComponent(url.cUserName, enc_buf);
 					{
 						char pw[128];
 						mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
-						enc_buf.EncodeUrl(temp_buf = pw, 0); // @v9.8.12
+						enc_buf.EncodeUrl(temp_buf = pw, 0);
 						url.SetComponent(url.cPassword, enc_buf);
 						memzero(pw, sizeof(pw));
-						enc_buf.Obfuscate(); // @v9.8.12
-						temp_buf.Obfuscate(); // @v9.8.12
+						enc_buf.Obfuscate();
+						temp_buf.Obfuscate();
 					}
 					THROW_SL(curl.SmtpSend(url, curl.mfVerbose|ScURL::mfDontVerifySslPeer, msg));
 					if(trnsmFlags & TRNSMF_DELINFILES && pFileList) {

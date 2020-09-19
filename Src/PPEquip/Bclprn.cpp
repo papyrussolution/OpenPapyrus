@@ -693,7 +693,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					d = stpcpy(d, timefmt(curtime, TIMF_HM, temp));
 					break;
 				case bcvsUser:
-					if(SearchObject(PPOBJ_USR, LConfig.User, &secur) > 0)
+					if(SearchObject(PPOBJ_USR, LConfig.UserID, &secur) > 0)
 						if(GetPersonName(secur.PersonID, temp_str) > 0)
 							d = stpcpy(d, temp_str);
 						else

@@ -704,7 +704,6 @@ struct SMailMessage : SStrGroup {
 	//     pBuf - on success, 0 - on error
 	//
 	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
-
 	int    SLAPI AttachFile(const char * pFilePath);
 	//
 	// Descr: Вставляет в письмо inline-содержание. Содержание вставляется как внутренняя область

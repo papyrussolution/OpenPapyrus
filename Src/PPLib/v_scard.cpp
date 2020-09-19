@@ -1385,7 +1385,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 	if(oneof2(scst, scstCredit, scstBonus)) {
 		SCardChrgCrdParam param;
 		MEMSZERO(param);
-		param.Dt = LConfig.OperDate;
+		param.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		THROW(SCObj.CheckRights(SCRDRT_ADDOPS));
 		if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
 			PPLogger logger;
@@ -1414,7 +1414,7 @@ int SLAPI PPViewSCard::ChargeCredit()
 					getcurtime(&scop_rec.Tm);
 					scop_rec.Tm.v += inc;
 					inc += 200;
-					scop_rec.UserID = LConfig.User;
+					scop_rec.UserID = LConfig.UserID;
 					if(param.Action == SCardChrgCrdParam::actionUhttSync) {
 						if(uhtt_sync && p_uhtt_cli) {
 							double uhtt_rest = 0.0;

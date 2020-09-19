@@ -798,7 +798,7 @@ int SLAPI PPTblEnumList::RegisterIterHandler(BExtQuery * pQ, long * pHandle)
 int SLAPI PPTblEnumList::DestroyIterHandler(long handle)
 {
 	int    ok = -1;
-	uint   pos = (uint)handle;
+	uint   pos = static_cast<uint>(handle);
 	if(pos < Tab.getCount()) {
 		BExtQuery * p_q = static_cast<BExtQuery *>(Tab.at(pos));
 		if(p_q) {
@@ -815,7 +815,7 @@ int SLAPI PPTblEnumList::DestroyIterHandler(long handle)
 int FASTCALL PPTblEnumList::NextIter(long handle)
 {
 	int    ok = 0;
-	uint   pos = (uint)handle;
+	uint   pos = static_cast<uint>(handle);
 	if(pos < Tab.getCount()) {
 		BExtQuery * p_q = static_cast<BExtQuery *>(Tab.at(pos));
 		if(p_q)

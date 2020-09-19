@@ -281,7 +281,7 @@ int SLAPI PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 			PPViewLot lot_view;
 			LotFilt lot_filt;
 			LotViewItem lot_item;
-			const LDATE upp_date = NZOR(Filt.Period.upp, LConfig.OperDate);
+			const LDATE upp_date = NZOR(Filt.Period.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 			lot_filt.Period.Set(ZERODATE, upp_date);
 			lot_filt.LocList.Add(Filt.LocID);
 			lot_filt.GoodsGrpID = Filt.GoodsGrpID;

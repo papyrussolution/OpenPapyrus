@@ -746,8 +746,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 			}
 		}
 		THROW(cn_obj.GetSync(NodeID, &scn) > 0);
-		// @v9.6.9 ext_cash_node_id = NZOR(scn.PapyrusNodeID, scn.ExtCashNodeID);
-		ext_cash_node_id = scn.ExtCashNodeID; // @v9.6.9
+		ext_cash_node_id = scn.ExtCashNodeID;
 		if(ext_cash_node_id) {
 			PPCashNode cn_ext;
 			THROW(p_cm_ext = PPCashMachine::CreateInstance(ext_cash_node_id));

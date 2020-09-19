@@ -711,8 +711,9 @@
 	#define PPACN_SCARDEXPRYUPD    87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
 	#define PPACN_SYSMAINTENANCE   88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
 	#define PPACN_BILLUNLINK       89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
+	#define PPACN_EVENTDETECTION   90L // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST             89L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_LAST             90L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
 	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
@@ -997,6 +998,7 @@
 	#define TIMSERPRP_STAKEMODEL_ALL   2L // @v10.4.3
 	#define TIMSERPRP_STAKEMODEL_SELTF 3L // @v10.4.3
 	#define TIMSERPRP_EXTENSION       10L // @v10.5.4
+	#define TIMSERPRP_DENSITYMAP      11L // @v10.8.9
 
 #define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
 #define PPOBJ_TAXSYSTEMKIND      80L // @v10.6.0 Вид системы налогообложения //
@@ -1009,6 +1011,7 @@
 #define PPOBJ_TSSMODEL           81L // @v10.7.4 Параметры модели расчета стратегий на временных сериях
 	#define TSSMODELPRP_EXTENSION      1L
 #define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 Подписка на события //
+	#define EVNTSUBSCRPRP_EXTENSION    1L
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1179,10 +1182,12 @@
 #define PPOBJ_VETISENTITY   1074L  // @v10.0.09 Специализированный объект, хранящий данные о сущностях системы VETIS
 #define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject Специализированный объект для представления гео-треков.
 	// Значение фактически применяется только для идентификации запроса к JobServer'у.
-#define PPOBJ_EVENT         1076L  // @v10.8.9 События   
-	#define PPEVENTTYPE_OBJCREATED     1L // Создан новый объект 
+#define PPOBJ_EVENT         1076L  // @v10.8.9 События
+	#define PPEVENTTYPE_OBJCREATED     1L // Создан новый объект
 	#define PPEVENTTYPE_OUTER          2L // Внешнее по отношению к системе событие. Например, уведомление от какого-либо сервиса
 	#define PPEVENTTYPE_SPCBILLCHANGE  3L // Изменение документа каким-либо специфическим образом
+	#define PPEVENTTYPE_SYSJOURNAL     4L // Событие в системном журнале по фильтру
+	#define PPEVENTTYPE_LOTEXPIRATION  5L // Истечение срока годности лота
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
@@ -1505,19 +1510,19 @@
 #define PPEDIOP_EGAIS_REPLYFORMB              44
 #define PPEDIOP_EGAIS_ACTCHARGEON             45
 #define PPEDIOP_EGAIS_ACTWRITEOFF             46
-#define PPEDIOP_EGAIS_REQUESTREPEALWB         47 // 
-#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48 // 
-#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49 // 
-#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50 // 
-#define PPEDIOP_EGAIS_QUERYBARCODE            51 // 
-#define PPEDIOP_EGAIS_REPLYBARCODE            52 // 
-#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53 // 
+#define PPEDIOP_EGAIS_REQUESTREPEALWB         47 //
+#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48 //
+#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49 //
+#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50 //
+#define PPEDIOP_EGAIS_QUERYBARCODE            51 //
+#define PPEDIOP_EGAIS_REPLYBARCODE            52 //
+#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53 //
 #define PPEDIOP_EGAIS_ACTCHARGEONSHOP         54 // ActChargeOnShop_v2
-#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55 // 
-#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56 // 
-#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57 // 
-#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58 // 
-#define PPEDIOP_EGAIS_WAYBILL_V2              59 // 
+#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55 //
+#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56 //
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57 //
+#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58 //
+#define PPEDIOP_EGAIS_WAYBILL_V2              59 //
 #define PPEDIOP_EGAIS_TTNINFORMF2REG          60 // version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILLACT_V2           61 // version 2 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
@@ -1827,6 +1832,7 @@
 #define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики
 #define cmTsList                 1174 // Кнопка списка временных серий
 #define cmPersonList             1175 // Кнопка списка персоналий
+#define cmGuaList                1176 // @v10.5.3 // @v10.8.9 made-global
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -9583,7 +9589,6 @@
 #define DLG_FILTITEM              1174
 	#define cmFiltParam                102
 	#define cmOutFields                103
-	#define cmGuaList                  104 // @v10.5.3
 	#define CTL_FILTITEM_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_FILTITEM_NAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_FILTITEM_CMD           (3 + WINDOWS_ID_BIAS)
@@ -10710,6 +10715,8 @@
 	#define CTL_TSSA_CLOSEMODE        (4 + WINDOWS_ID_BIAS)
 	#define CTL_TSSA_SBTDT            (5 + WINDOWS_ID_BIAS) // strategy build till date
 	#define CTLCAL_TSSA_SBTDT         (6 + WINDOWS_ID_BIAS) // strategy build till date
+	#define CTL_TSSA_SBTDT2           (7 + WINDOWS_ID_BIAS) // strategy build till date (phase2)
+	#define CTLCAL_TSSA_SBTDT2        (8 + WINDOWS_ID_BIAS) // strategy build till date (phase2)
 #define DLG_LOTXCCKLIST           1354
 	#define CTL_LOTXCCKLIST_LIST      (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCCKLIST_INFO      (2 + WINDOWS_ID_BIAS)
@@ -10939,6 +10946,17 @@
 	#define CTL_VKGUACFG_LOGIN_REQ    (1 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_LOGIN_URL    (2 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_GROUP_ID     (3 + IMPEXP_CTL_BIAS)//
+#define DLG_EVNTSUBSCR            1390
+	#define cmUserList                101
+	// cmFilter, cmGuaList
+	#define CTL_EVNTSUBSCR_ID         (1 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_NAME       (2 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_SYMB       (3 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_TYPE       (4 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_EVNTSUBSCR_TYPE    (5 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_FLAGS      (6 + IMPEXP_CTL_BIAS)
+	#define CTL_EVNTSUBSCR_OBJ        (7 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_EVNTSUBSCR_OBJ     (8 + IMPEXP_CTL_BIAS)
 
 // Win32 Dialog Identifiers
 //

@@ -1388,17 +1388,17 @@ int SLAPI TimeSeriesCache::FindOptimalStrategyForStake(const double evaluatedUse
 					// @v10.7.1 {
 					CatChar('[').
 						Cat(scsb.TrendErrRel, MKSFMTD(0, 4, 0)).Space().
-						Cat(scsb.MainTrendErrRel, MKSFMTD(0, 4, 0)).Space().
-						Cat(scsb.LocalDeviation, MKSFMTD(0, 4, 0)).Space().
-						Cat(scsb.LocalDeviation2, MKSFMTD(0, 4, 0)).
+						Cat(scsb.MainTrendErrRel, MKSFMTD(0, 4, 0)).// @v10.8.9 Space().
+						// @v10.8.9 Cat(scsb.LocalDeviation, MKSFMTD(0, 4, 0)).Space().
+						// @v10.8.9 Cat(scsb.LocalDeviation2, MKSFMTD(0, 4, 0)).
 					CatChar(']').Space().
 					// } @v10.7.1 
-					Cat(PPObjTimeSeries::StrategyToString(r_s, &scsb.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
+					Cat(PPObjTimeSeries::StrategyToString(r_s, &r_blk.Strategies, &scsb.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
 				PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 				if(scsb_reverse.MaxResultIdx >= 0) {
 					const PPObjTimeSeries::Strategy & r_s_reverse = r_blk.Strategies.at(scsb_reverse.MaxResultIdx);
 					log_msg.Z().Cat("Best-Reverse").CatDiv(':', 2).Cat(r_blk.PPTS.GetSymb()).Space().Cat(
-						PPObjTimeSeries::StrategyToString(r_s_reverse, &scsb_reverse.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
+						PPObjTimeSeries::StrategyToString(r_s_reverse, &r_blk.Strategies, &scsb_reverse.TvForMaxResult, &scsb.Tv2ForMaxResult, temp_buf));
 					PPLogMessage(PPFILNAM_TSSTAKEPOTENTIAL_LOG, log_msg, LOGMSGF_TIME|LOGMSGF_DBINFO);
 				}
 			}
@@ -1651,7 +1651,7 @@ int SLAPI TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock 
 							Cat(sl, MKSFMTD(0, 7, NMBF_NOTRAILZ)).CatChar('/').
 							Cat(tp, MKSFMTD(0, 7, NMBF_NOTRAILZ));
 						log_msg.Space().Cat("SP").CatChar('<').Cat(spike_quant, MKSFMTD(0, 9, 0)).CatChar('/').Cat(r_s.SpikeQuant_s, MKSFMTD(0, 9, 0)).CatChar('>'); // @v10.4.10
-						log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(r_s, &r_pse.Tv, &r_pse.Tv2, temp_buf));
+						log_msg.Space().Cat(PPObjTimeSeries::StrategyToString(r_s, &r_pse.R_Blk.Strategies, &r_pse.Tv, &r_pse.Tv2, temp_buf));
 						{
 							//temp_buf.Z().Cat("PPAT").Comma().Cat(r_s.MaxDuckQuant).Comma().Cat(r_s.TargetQuant).Comma().Cat(r_s.SpikeQuant, MKSFMTD(0, 9, 0));
 							StakeCommentBlock scb;

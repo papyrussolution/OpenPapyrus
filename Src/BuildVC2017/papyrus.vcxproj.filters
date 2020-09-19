@@ -330,6 +330,7 @@
     <ClCompile Include="..\PPLib\Glblsrvs.cpp" />
     <ClCompile Include="..\PPLib\ppgravity.cpp" />
     <ClCompile Include="..\PPLib\ppevent.cpp" />
+    <ClCompile Include="..\PPEquip\PPDrvAPI\ppdrvapi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

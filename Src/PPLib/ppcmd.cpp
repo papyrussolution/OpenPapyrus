@@ -1456,13 +1456,11 @@ PPCommandGroup * FASTCALL PPCommandGroup::GetDesktop(long id)
 	return (p_item && p_item->Kind == PPCommandItem::kGroup) ? static_cast<PPCommandGroup *>(List.at(pos)) : 0;
 }
 
-int SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
+void SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
 {
-	int    ok = 1;
 	Name = pName;
 	CurDict->GetDbSymb(DbSymb);
 	Flags = PPCommandItem::fBkgndGradient;
-	return ok;
 }
 //
 //
@@ -1472,16 +1470,11 @@ int SLAPI PPCommandGroup::InitDefaultDesktop(const char * pName)
 PPCommandMngr * SLAPI GetCommandMngr(int readOnly, int isDesktop, const char * pPath /*=0*/)
 {
 	PPCommandMngr * p_mgr = 0;
-	SString path, path2;
-	if(pPath)
+	SString path;
+	if(isempty(pPath))
+		PPGetFilePath(PPPATH_BIN, isDesktop ? PPFILNAM_PPDESK_BIN : PPFILNAM_PPCMD_BIN, path);
+	else
 		path = pPath;
-	else if(isDesktop) {
-		PPGetFilePath(PPPATH_BIN, PPFILNAM_PPDESK_BIN, path);
-	}
-	else {
-		PPGetFilePath(PPPATH_BIN, PPFILNAM_PPCMD_BIN, path);
-	}
-	
 	if(path.Empty())
 		PPSetError(PPERR_UNDEFCMDFILENAME);
 	else
@@ -1523,7 +1516,6 @@ SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly, int isD
 		else
 			SDelay(100);
 	}
-
 	if(isDesktop) {
 		PPCommandMngr::GetDesksDir(XmlDirPath);
 	}
@@ -1749,7 +1741,7 @@ int SLAPI PPCommandMngr::Load__2(PPCommandGroup *pCmdGrp, const long rwFlag)
 
 int SLAPI PPCommandMngr::SaveFromAllTo(const long rwFlag)
 {
-	int ok = 1;
+	int    ok = 1;
 	PPCommandGroup cg_from_xml, cg_from_bin, cg_final;
 	const PPCommandItem * p_item = 0;
 	THROW(Load__(&cg_from_bin));
@@ -1771,7 +1763,7 @@ int SLAPI PPCommandMngr::SaveFromAllTo(const long rwFlag)
 
 int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 {
-	int ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	if(F.IsValid()>0) {
 		int64  fsz = 0;
@@ -1795,7 +1787,7 @@ int SLAPI PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 
 int SLAPI PPCommandMngr::DeleteDesktopByGUID(const SString &guid, const long rwFlag)
 {
-	int ok;
+	int    ok = -1; // @v10.8.9 @fix ok;-->ok=-1;
 	SString path, temp_buf;
 	SFile file;
 	if(guid) {

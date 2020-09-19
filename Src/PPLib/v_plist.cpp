@@ -818,7 +818,7 @@ int SLAPI PPViewPriceList::AddPriceList(PPID * pListID, PriceListTbl::Rec * pRec
 int SLAPI PPViewPriceList::SearchListByFilt(PriceListFilt * pFilt, PPID * pID, PriceListTbl::Rec * pRec)
 {
 	PPID   quot_kind_id = (pFilt->Flags & PLISTF_BYQUOT) ? pFilt->QuotKindID : -1L;
-	PPID   user_id = (pFilt->Flags & PLISTF_USECOMMON) ? -1L : LConfig.User;
+	PPID   user_id = (pFilt->Flags & PLISTF_USECOMMON) ? -1L : LConfig.UserID;
 	PriceListTbl::Key1 k;
 	k.SupplID = pFilt->ArticleID;
 	k.UserID  = user_id;
@@ -1648,7 +1648,7 @@ int PListFiltDialog::getDTS(PriceListFilt * pFilt)
 	getCtrlData(CTLSEL_PLIST_SUBST, &Data.Sgg);
 	GetClusterData(CTL_PLIST_FLAGS, &Data.Flags);
 	GetClusterData(CTL_PLIST_IGNZEROQUOT, &Data.Flags);
-	Data.UserID = (Data.Flags & PLISTF_USECOMMON) ? -1 : LConfig.User;
+	Data.UserID = (Data.Flags & PLISTF_USECOMMON) ? -1 : LConfig.UserID;
 	getCtrlData(CTLSEL_PLIST_ARTICLE, &Data.ArticleID);
 	{
 		GoodsFiltCtrlGroup::Rec gf_rec;

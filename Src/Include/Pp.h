@@ -2786,6 +2786,12 @@ public:
 	enum {
 		cFlat = 0x0001 // Фильтр является "плоским" (то есть не содержит указателей и прочих отростков)
 	};
+	//
+	// Descr: Служебная функция, создающая копию фильтра pSrcFilt по указателю **ppDestFilt.
+	//   Тип фильтра определяется аргументом filtId.
+	//   Если pSrcFilt == 0, то *ppDestFilt разрушается (если не нулевой) и обнуляется.
+	//
+	static int SLAPI CopyBaseFiltPtr(int filtId, const PPBaseFilt * pSrcFilt, PPBaseFilt ** ppDestFilt);
 	DECL_INVARIANT_C();
 	SLAPI  PPBaseFilt(long signature, long capability, int32 ver);
 	virtual SLAPI ~PPBaseFilt();
@@ -2815,13 +2821,6 @@ public:
 	PPBaseFilt & FASTCALL operator = (const PPBaseFilt &);
 	int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 protected:
-	//
-	// Descr: Служебная функция, создающая копию фильтра pSrcFilt по указателю **ppDestFilt.
-	//   Тип фильтра определяется аргументом filtId.
-	//   Если pSrcFilt == 0, то *ppDestFilt разрушается (если не нулевой) и обнуляется.
-	//
-	static int SLAPI CopyBaseFiltPtr(int filtId, const PPBaseFilt * pSrcFilt, PPBaseFilt ** ppDestFilt);
-
 	static const int RpvInvSignValue = 0xECA5B7F9;
 	//
 	// Descr: Если функция PPBaseFilt::Read встретила несоответствие считываемой версии
@@ -2852,7 +2851,7 @@ protected:
 	//
 	virtual int SLAPI ReadText(const char * pText, long); // @<<PPBaseFilt::Read
 	//
-	// Descr: Устанавилвает "плоский" участок фильтра. Такой участок фильтра базовый класс
+	// Descr: Устанавливает "плоский" участок фильтра. Такой участок фильтра базовый класс
 	//   обрабатывает самостоятельно. Это касается методов Init, Write, Read, Copy, IsEqual.
 	//
 	void   SLAPI SetFlatChunk(size_t offs, size_t len);
@@ -3031,7 +3030,7 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   BaseCurID;      // 30  Базовая валюта (PPOBJ_CONFIG only)
 	short  RealizeOrder;   // 32  Порядок использования лотов при расходе товара
 	short  Menu;           // 34  Номер меню, используемого этой конфигурацией
-	PPID   User;           // 38
+	PPID   UserID;         // 38  @v10.8.9 User-->UserID
 	PPID   LocAccSheetID;  // 42  Таблица аналитических статей, ссылающихся на склады
 	PPID   Location;       // 46  Склад по умолчанию
 	long   Flags;          // 50  Флаги CFGFLG_XXX
@@ -6366,7 +6365,7 @@ public:
 	void   SLAPI PushErrContext();
 	void   SLAPI PopErrContext();
 	int    SLAPI IsConsistent() const;
-	long   SLAPI GetId() const {return Id;}
+	long   SLAPI GetId() const { return Id; }
 	//
 	// Descr: Возвращает !0 если поток авторизован в базе данных Papyrus
 	//
@@ -14448,7 +14447,7 @@ private:
 	int    SLAPI UnpackTextExt(const SString & rBuf);
 
 	CCheckLineArray Items_; //
-	TSVector <LineExt> ExtList; 
+	TSVector <LineExt> ExtList;
 	CcAmountList CcAl;      // Список оплат по чеку. Используется только, если по чеку было более
 		// одного типа оплаты. Например: безналичная оплата + доплата наличными.
 	//
@@ -14606,7 +14605,7 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI GetOrderServersCheckList(PPID orderCheckID, PPIDArray & rList);
-	
+
 	struct ValidateCheckParam {
 		SLAPI  ValidateCheckParam(double tolerance) : Tolerance(tolerance), ErrorFlags(0)
 		{
@@ -15403,7 +15402,7 @@ public:
 	const  SString & GetLogo() const;
 	int    FASTCALL Copy(const PPCommandGroup &);
 	PPCommandGroup * FASTCALL GetDesktop(long id);
-	int    SLAPI InitDefaultDesktop(const char * pName);
+	void   SLAPI InitDefaultDesktop(const char * pName);
 	int    SLAPI LoadLogo();
 	int    SLAPI StoreLogo();
 
@@ -16132,6 +16131,52 @@ private:
 //
 //
 //
+struct PPEventSubscription {
+	SLAPI  PPEventSubscription();
+	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
+	long   Tag;            // Const=PPOBJ_EVENTSUBSCRIPTION
+	long   ID;             // @id
+	char   Name[48];       // @name @!refname
+	char   Symb[20];       // 
+	long   Flags;          //
+	PPID   ObjType;        // Тип объекта, ассоциированный с событием (для некоторых типов событий) 
+	char   Reserve[56];    // @reserve
+	PPID   EventType;      //
+	PPID   Reserve2;       // 
+};
+
+class PPEventSubscriptionPacket : public PPExtStrContainer {
+public:
+	enum {
+		extssMessage          = 1,
+	};
+	SLAPI  PPEventSubscriptionPacket();
+	SLAPI  PPEventSubscriptionPacket(const PPEventSubscriptionPacket & rS);
+	SLAPI ~PPEventSubscriptionPacket();
+	PPEventSubscriptionPacket & FASTCALL operator = (const PPEventSubscriptionPacket & rS);
+	int    FASTCALL Copy(const PPEventSubscriptionPacket & rS);
+	int    FASTCALL IsEqual(const PPEventSubscriptionPacket & rS) const;
+	PPEventSubscription Rec;
+	PPBaseFilt * P_Filt;
+	ObjIdListFilt GuaList;
+	ObjIdListFilt UserList;
+};
+
+class PPObjEventSubcription : public PPObjReference { // PPOBJ_EVENTSUBSCRIPTION
+public:
+	explicit SLAPI PPObjEventSubcription(void * extraPtr);
+	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
+	int    SLAPI EditDialog(PPEventSubscriptionPacket * pPack);
+	int    SLAPI SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta);
+	int    SLAPI GetPacket(PPID id, PPEventSubscriptionPacket * pPack);
+	int    SLAPI Detect(PPID id);
+private:
+	int    SLAPI SerializePacket_WithoutRec(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+};
+//
+//
+//
 class PPEventCore : public EventTbl {
 public:
 	enum {
@@ -16798,7 +16843,8 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	uint16 BestSubsetMaxPhonyIters;
 	uint8  BestSubsetOptChunk;      // 0 || 1 || 3 || 7 || 15
 	uint8  MainFrameRangeCount;     // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
-	uint16 DefTargetQuant;          // @v10.4.2
+	// @v10.8.9 uint16 DefTargetQuant;          // @v10.4.2
+	uint16 Reserve5;                // @v10.8.9   
 	uint16 OptRangeStep_;           // @v10.4.7
 	uint16 OptRangeMultiLimit;      // @v10.4.7
 	uint16 OptRangeStepCount;       // @v10.7.5
@@ -16815,8 +16861,8 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 	uint8  StrategyPoolSortOrder;   // @v10.7.7 Порядок сортировки пула стратегий перед селекцией
 	// @v10.8.6 uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными,
 		// что является поводом для удаления из пула стратегий самых малодоходных из них перед селекцией. Если 0, то не проверять на соответствие этому фактору.
-	uint8  Reserve4;                // @v10.8.6 
-	uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
+	uint8  Reserve4[2];             // @v10.8.6 // @v10.8.9 [1]-->[2]
+	// @v10.8.9 uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
 	long   Flags;
 	long   Reserve1;
 	long   Reserve2;
@@ -16993,6 +17039,32 @@ public:
 		long   ExtraCount; // @v10.4.9 Дополнительное количество значение, затребованное сервером (главным образом, для тестирования)
 		LDATETIME LastValTime;
 	};
+	struct TrendEntry {
+		SLAPI  TrendEntry(uint stride, uint nominalCount);
+		//
+		// Descr: Замещает каждое значение ErrL величиной sqrt(ErrL.at(i))
+		//   В общем случае, это - нормальное состояние вектора ErrL, но
+		//   в некоторых случаях может пондобиться иметь оригинальный вектор ошибок.
+		//
+		void   SqrtErrList(StatBase * pS);
+		int    Analyze(const PPTssModelPacket & rTssModel, SString & rOutBuf) const;
+
+		const  uint Stride;
+		const  uint NominalCount;
+		double ErrAvg;        // @v10.3.12 Средняя ошибка регрессии
+		double SpikeQuant_r;  // @v10.4.10 Квант расчета для периода NominalCount
+		double ErrLimitByPel; // @v10.7.4 Локальный предел ошибки рассчитанный на основе частичного предела ошибки.
+		RealArray TL;
+		RealArray ErrL;       // @v10.3.12 Ошибки регрессии
+	};
+	struct CommonTsParamBlock {
+		CommonTsParamBlock()
+		{
+		}
+		DateTimeArray TmList;
+		RealArray ValList;
+		TSCollection <TrendEntry> TrendList;
+	};
 	struct StrategyResultValue { // @flat @persistent
 		SLAPI  StrategyResultValue();
 		StrategyResultValue & SLAPI Z();
@@ -17008,7 +17080,7 @@ public:
 		SLAPI  StrategyResultValueEx();
 		StrategyResultValueEx & SLAPI Z();
 		double SlVal;           // @v10.8.5 Абсолютное значение stop-limit
-		double TpVal;           // @v10.8.5 Абсолютное значение take-profit 
+		double TpVal;           // @v10.8.5 Абсолютное значение take-profit
 		double Peak;            // Максимальное значение, которого достигла котировка в течении сессии
 		double Bottom;          // Минимальное значение, которого достигла котировка в течении сессии
 		double Clearance;       // @v10.8.5 Минимальный зазор в течении сессии (квантов). При выигрыше это минимальная разница между sl и ближайшей точкой хода,
@@ -17023,14 +17095,18 @@ public:
 		double TrendErrRel;     // @v10.4.11
 		double MainTrendErr;    // @v10.6.12
 		double MainTrendErrRel; // @v10.6.12
-		double LocalDeviation;  // @v10.7.1
-		double LocalDeviation2; // @v10.7.1
+		// @v10.8.9 double LocalDeviation;  // @v10.7.1
+		// @v10.8.9 double LocalDeviation2; // @v10.7.1
+		uint8  Reserve[16]; // @v10.8.9 
 	};
 	struct OptimalFactorRange : public RealRange { // @persistent @flat
 		OptimalFactorRange();
 		OptimalFactorRange & Z();
+		double GetAngularRange() const;
 		uint32 Count;      // Количество элементов исходного ряда, входящих в диапазон при тестировании
-		uint   Opt2Stride; // @v10.4.7
+		// @v10.8.9 uint   Opt2Stride; // @v10.4.7
+		//float  TrendErrLowLim; // @v10.8.9 @experimental Если >0.0 то это - нижняя граница ошибки регрессии (очень спорно)
+		uint32 Reserve;
 		double Result;
 	};
 	struct OptimalFactorRange_WithPositions : public OptimalFactorRange { // @transient @flat
@@ -17041,7 +17117,67 @@ public:
 		uint   GenSeq; // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
 		uint   GenPtCount; // @v10.7.11 Количество точек в выборке, по которой генерируются диапазоны
 	};
+	struct TsDensityMapEntry { // @persistent
+		SLAPI  TsDensityMapEntry();
+		uint   FASTCALL GetFactorVector(double * pVec) const;
+		enum {
+			factorADF         = 1,
+			factorTrendErrRel = 2,
+			factorUEF         = 3,
+			factorGenCount    = 4,
+			factorGenTEA      = 5,
+			factorGenTED      = 6
+		};
+		enum {
+			fShort = 0x0001
+		};
+		PPID   TsID;
+		uint16 Flags;
+		uint16 InputFrameSize;
+		uint16 GenCount;
+		uint16 StakeCount;
+		uint16 WinCount;
+		uint16 LossCount;
+		double ADF;
+		double UEF;
+		double GenTEA;
+		double GenTED;
+		//double TrendErr;
+		double TrendErrRel;
+	};
+	class TsDensityMap : public TSVector <TsDensityMapEntry> {
+	public:
+		struct ResultEntry {
+			SLAPI  ResultEntry();
+			RealRange FactorR;
+			uint   Sc;
+			uint   Wc;
+			double Prob;
+		};
+		SLAPI  TsDensityMap();
+		int    SLAPI EntryToStr(const TsDensityMapEntry * pEntry, const char * pSymb, SString & rBuf) const;
+		int    SLAPI Import(const char * pFileName);
+		// ARG(edge IN): 0 - from low edge, 1 - from upp edge, <0 - no matter
+		int    SLAPI SearchBestRange(PPID tsID, int side, int edge, int factor, double minProb, ResultEntry & rResult) const;
+		enum {
+			knnfSameTS   = 0x0001,
+			knnfSameSide = 0x0002
+		};
+		int    SLAPI SearchKNN(uint idx, uint K, long flags, RAssocArray & rResult) const;
+
+		SVerT  Ver;
+		LDATETIME TmFirstEvEntry;
+		LDATETIME TmLastEvEntry;
+		LDATETIME TmLastSimEntry;
+		uint32 EvEntryCount;
+		uint32 SimEntryCount;
+		uint8  Reserve[64];
+	private:
+		int    SLAPI GetNextChunk(int factor, double minProb, uint firstIdx, uint * pLastIdx, ResultEntry * pResult) const;
+		int    SLAPI CalcProb(uint firstIdx, uint lastIdx, ResultEntry & rResult) const;
+	};
 	struct Strategy { // @flat @persistent // @v10.6.12 модифицирована структура; для обратной совместимости используется Ts_Strategy_Before10612
+		// @v10.8.10 модифицирована структура; для обратной совместимости используется Ts_Strategy_Before10810
 		static double SLAPI CalcSL_withExternalFactors(double peak, bool isShort, int prec, uint maxDuckQuant, double spikeQuant, double averageSpreadForAdjustment);
 		static double SLAPI CalcTP_withExternalFactors(double stakeBase, bool isShort, int prec, uint targetQuant, double spikeQuant, double averageSpreadForAdjustment);
 		static double SLAPI CalcSlTpAdjustment(int prec, double averageSpreadForAdjustment);
@@ -17063,51 +17199,53 @@ public:
 		// Descr: Возвращает средний катет (OptDeltaRange*InputFrameSize) / SpikeQuant
 		//
 		double SLAPI GetOptDeltaRangeCQA() const;
-		int    SLAPI CalcResult2(const DateTimeArray & rTmList, const RealArray & rValList, uint valueIdx, PPObjTimeSeries::StrategyResultValueEx & rV) const;
+		int    SLAPI CalcResult2(/*const DateTimeArray & rTmList, const RealArray & rValList*/const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint valueIdx, PPObjTimeSeries::StrategyResultValueEx & rV) const;
 		enum {
 			bfShort      = 0x0001, // Стратегия для short-торговли
 			// @v10.4.5 bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
+			bfBrokenRow  = 0x0002  // @v10.8.9 Флаг означающий, что при расчете последний результат стратегии оказался неопределенным из-за обрыва ряда
 		};
 		enum {
 			clsmodFullMaxDuck = 0, //
 			clsmodAdjustLoss  = 1  //
 		};
 		uint32 ID;
-		uint32 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
-		uint32 MainFrameSize;    // Длина периода магистрального тренда
+		uint16 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз // @v10.8.10 uint32-->uint16
+		uint16 MainFrameSize;    // Длина периода магистрального тренда // @v10.8.10 uint32-->uint16
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
 		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
 		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
 		uint16 OptDelta2Stride;  // Оптимальный шаг назад при расчете изменения тренда
 		int16  StakeMode;        // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда, 3 - по значению и изменению тренда
 		uint16 StakeCloseMode;   // clsmodXXX Режим закрытия
+		uint16 BaseFlags;        // @flags // @v10.8.10 uint32-->uint16
 		uint16 PeakAvgQuant;
 		uint16 BottomAvgQuant;
 		uint16 PeakMaxQuant;
-		uint16 GenSeq;           // @v10.6.12 @alignment // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
-		uint32 BaseFlags;        // @flags
-		uint32 StakeCount;       // Количество ставок при тестировании
-		uint32 WinCount;         // Количество выигрышей в результате тестирования
+		uint16 GenSeq;           // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
+		uint16 GenPtCount;       // @v10.7.11 Общее количество точек, по которым рассчитывалась стратегия // @v10.8.10 uint32-->uint16
+		uint32 StakeCount;       // Количество ставок при тестировании 
+		uint32 WinCount;         // Количество выигрышей в результате тестирования 
+		uint32 StakeCountAtFinalSimulation; // 
 		double Margin;           // Маржа
 		double SpikeQuant_s;     // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
-		// @v10.8.7 uint32 StakeDistMedian;  // @v10.7.9 Медианное растояние между ставками. Предположительно важный фактор для оценки адекватности стратегии.
-			// Соображение лежащее в основе предположения следующее: если этот фактор мал, то выигрыши лежат в плотной области и не
-			// могут быть спроецированы на будущее, если же значителен, то выигрыши достаточно равномерно распределены по области наблюдения
-			// и стратегия может рассматриваться для адекватной проекции на будущее.
-		float  StakeDistrFactor; // @v10.8.7 Фактор равномерности распределения расчетных ставок по временной серии
-		uint32 GenPtCount;       // @v10.7.11 Общее количество точек, по которым рассчитывалась стратегия. Может оказаться важным
-			// для оценки статистической значимости стратегии.
-		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии
-		double TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
+		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии по всему множеству расчетных точек 
+		float  TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
 			// [0..]. 0 - не использовать ограничение, 1.0 - ограничение равно TrendErrAvg, 1.05 - (1.05 * TrendErrAvg)
+			// @v10.8.10 double-->float
+		float  TrendErrLowLim;   // @v10.8.10 @experimental Если >0.0 то это - нижняя граница ошибки регрессии (очень спорно)
 		double MainTrendErrAvg;  // @v10.6.12 Среднее значение ошибки регрессии для магистрального тренда
+		float  MainTrendErrLim;  // Ограничение для ошибки регрессии магистрального тренда // @v10.8.10 double-->float
+		float  ADF;              // @v10.8.9 @experimental Adjusent-Density-Factor фактор плотности смежных зон
+		float  UEF;              // @v10.8.10 Unevenness-Factor фактор неравномерности распределения точек в зоне OpeDeltaRange
+		float  GenTEA;           // @v10.8.10 Trend-Err-Average at generating phase
+		float  GenTED;           // @v10.8.10 Trend-Err-Deviation at generating phase
+		uint8  Reserve[24];      // @v10.8.10  
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
-		double MainTrendErrLim;  // Ограничение для ошибки регрессии магистрального тренда
-		uint   StakeCountAtFinalSimulation;
 	};
 	struct TrainNnParam : public Strategy {
 		SLAPI  TrainNnParam(const char * pSymb, long flags);
@@ -17145,24 +17283,6 @@ public:
 		uint   FactorRangeLo;    // @v10.8.6
 		uint   FactorRangeUp;    // @v10.8.6
 	};
-	struct TrendEntry {
-		SLAPI  TrendEntry(uint stride, uint nominalCount);
-		//
-		// Descr: Замещает каждое значение ErrL величиной sqrt(ErrL.at(i))
-		//   В общем случае, это - нормальное состояние вектора ErrL, но
-		//   в некоторых случаях может пондобиться иметь оригинальный вектор ошибок.
-		//
-		void   SqrtErrList(StatBase * pS);
-		int    Analyze(const PPTssModelPacket & rTssModel, SString & rOutBuf) const;
-
-		const  uint Stride;
-		const  uint NominalCount;
-		double ErrAvg;        // @v10.3.12 Средняя ошибка регрессии
-		double SpikeQuant_r;  // @v10.4.10 Квант расчета для периода NominalCount
-		double ErrLimitByPel; // @v10.7.4 Локальный предел ошибки рассчитанный на основе частичного предела ошибки.
-		RealArray TL;
-		RealArray ErrL;       // @v10.3.12 Ошибки регрессии
-	};
 	struct BestStrategyBlock {
 		SLAPI  BestStrategyBlock();
 		BestStrategyBlock & SLAPI Z();
@@ -17176,9 +17296,11 @@ public:
 		double TrendErrRel;     // @v10.4.11
 		double MainTrendErr;    // @v10.6.12
 		double MainTrendErrRel; // @v10.6.12
-		double LocalDeviation;  // @v10.7.1
-		double LocalDeviation2; // @v10.7.1
+		// @v10.8.9 double LocalDeviation;  // @v10.7.1
+		// @v10.8.9 double LocalDeviation2; // @v10.7.1
+		uint8  Reserve[16]; // @v10.8.9 
 	};
+
 	class StrategyContainer : public TSVector <Strategy> {
 	public:
 		SLAPI  StrategyContainer();
@@ -17186,7 +17308,7 @@ public:
 		StrategyContainer & FASTCALL operator = (const StrategyContainer & rS);
 		int    FASTCALL Copy(const StrategyContainer & rS);
 		StrategyContainer & SLAPI Z();
-		int    SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel);
+		void   SLAPI SetupByTsPacket(const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket * pModel);
 		void   SLAPI SetLastValTm(LDATETIME dtm);
 		void   SLAPI SetUseDataForStrategiesTill(LDATE dt);
 		void   SLAPI TrimByVariance(double bound);
@@ -17195,8 +17317,7 @@ public:
 		LDATE  SLAPI GetUseDataForStrategiesTill() const { return Fb.UseDataForStrategiesTill; }
 		uint32 SLAPI GetVersion() const { return Ver; }
 		int    SLAPI GetInputFramSizeList(LongArray & rList, uint * pMaxOptDelta2Stride) const;
-		void   SLAPI Simulate(const DateTimeArray & rTmList, const RealArray & rValList, const TSCollection <TrendEntry> & rTrendList,
-			const Config & rCfg, uint insurSlDelta, uint insurTpDelta, StrategyResultEntry & rSre, TSVector <StrategyResultValueEx> * pDetailsList) const;
+		int    SLAPI Simulate(const CommonTsParamBlock & rCtspb, const Config & rCfg, uint insurSlDelta, uint insurTpDelta, StrategyResultEntry & rSre, TSVector <StrategyResultValueEx> * pDetailsList) const;
 		void   SLAPI AccumulateFactors(StrategyResultEntry & rSre) const;
 		int    SLAPI FindIntersectionByAngle(const Strategy & rS, uint * pPos) const;
 
@@ -17274,9 +17395,10 @@ public:
 		// Descr: Критерии подбора стратегии
 		//
 		enum {
-			selcritVelocity = 1, // По скорости выигрыша
-			selcritWinRatio = 2, // По отношению числа выигрышей к ставкам
-			selcritResult   = 3, // @v10.7.3 По абсолютной величине выигрыша
+			selcritVelocity   = 1, // По скорости выигрыша
+			selcritWinRatio   = 2, // По отношению числа выигрышей к ставкам
+			selcritResult     = 3, // @v10.7.3 По абсолютной величине выигрыша
+			selcritStakeCount = 4, // @v10.8.9 По количеству ставок стратегии
 			selcritfSkipAmbiguous   = 0x0100, // Флаг, блокирующий выбор стратегии, если существует хотя бы одна иная стратегия с противоположным направлением
 			selcritfSkipShort       = 0x0200, // Флаг, блокирующий выбор коротких стратегий
 			selcritfSkipLong        = 0x0400, // Флаг, блокирующий выбор длинных стратегий
@@ -17292,9 +17414,7 @@ public:
 			const  STimeSeries * P_Ts;    // IN
 			const  RealArray   * P_VList; // IN Если P_VList !0 то локальное отклонение отсчитывается по нему, в противном случае - по P_Ts (если P_Ts != 0)
 			int    LastTrendIdx;          // IN
-			// int    MinSimilItems;         // IN @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
 			long   Criterion;             // IN
-			//@v10.7.10 long   ChaosFactor;           // IN
 			long   Reserve;               // @v10.7.10
 			long   DevPtCount;            // IN Количество точек P_Ts, по которым отсчитывать разброс (для анализа неустойчивости ряда)
 			long   LDMT_Factor;           // IN
@@ -17310,22 +17430,34 @@ public:
 		LDATETIME StorageTm;
 		LDATETIME LastValTm;
 	public:
-		struct FlatBlock { // @v10.6.12 @flat
+		struct CriterionRange { // @persistent @flat
+			SLAPI CriterionRange() : Crit(0), Side(-1), low(0.0f), upp(0.0f)
+			{
+			}
+			uint8 Crit; // 0 - nothing, 1 - ADF, 2 - TrendErrRel
+			int8  Side; // -1 - any, 0 - buy only, 1 - sell only
+			float low;
+			float upp;
+		};
+		struct FlatBlock { // @v10.6.12 @flat @persistent
 			SLAPI  FlatBlock();
 			double MainTrendErrAvg;   // Среднее значение ошибки регрессии для магистрального тренда
 			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
 			LDATE  UseDataForStrategiesTill; // @v10.7.3
-			uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
-			double StakeDistrFactor;  // @v10.8.6 Фактор равномерности распределения ставок при последнем тестовом прогоне
+			// @v10.8.9 uint16 MinSimilItems;     // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
+			// @v10.8.9 double StakeDistrFactor;  // @v10.8.6 Фактор равномерности распределения ставок при последнем тестовом прогоне
+			uint8  Reserve2[10];       // @v10.8.9 
 			double ExperimentalFactor; // @20200819 Экспериментальный фактор, рассчитываемый по ситуации (с целью нахождения устойчивых контейнеров)
-			uint8  Reserve[26];       // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42] // @v10.8.6 [42]-->[34] // @20200819 [34]-->[26]
+			CriterionRange Cr[2];      // @v10.8.9 
+			uint8  Reserve[6];         // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42] // @v10.8.6 [42]-->[34] // @20200819 [34]-->[26] // @v10.8.9 [26]-->[6]
 		} Fb;
 	};
 	static int SLAPI EditConfig(const PPObjTimeSeries::Config * pCfg);
 	static int SLAPI WriteConfig(PPObjTimeSeries::Config * pCfg, int use_ta);
 	static int SLAPI ReadConfig(PPObjTimeSeries::Config * pCfg);
 	static SString & SLAPI StrategyOutput(const char * pSymb, const PPObjTimeSeries::Strategy * pSre, SString & rBuf);
-	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const double * pOptFactor, const double * pOptFactor2, SString & rBuf);
+	static SString & SLAPI StrategyToString(const PPObjTimeSeries::Strategy & rS, const PPObjTimeSeries::StrategyContainer * pSc, const double * pOptFactor, const double * pOptFactor2, SString & rBuf);
+	static SString & SLAPI StrategyToString(const PPObjTimeSeries::StrategyContainer & rSc, uint sidx, const double * pOptFactor, const double * pOptFactor2, SString & rBuf);
 	static int SLAPI TryStrategies(PPID id);
 	static int SLAPI EvaluateOptimalMaxDuck(PPID id);
 
@@ -17368,7 +17500,7 @@ public:
 	// ARG(what IN): 0 - maxduck, 1 - peak
 	// ARG(entireRange IN): !0 - прогонять расчет для каждого шага не зависимо от результата, в проитвном случае - остановиться когда обнаружен перегиб, указывающий на экстремум.
 	//
-	int    SLAPI FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, int what,
+	int    SLAPI FindOptimalFactor(/*const DateTimeArray & rTmList, const RealArray & rValList*/const CommonTsParamBlock & rCtspb, const TrainNnParam & rS, int what,
 		const IntRange & rMdRange, int mdStep, int entireRange, TSVector <FactorToResultRelation> & rSet, FactorToResultRelation & rResult);
 	//static int SLAPI Helper_FindOptimalFactor(const DateTimeArray & rTmList, const RealArray & rValList, const TrainNnParam & rS, double & rResult, uint & rPeakQuant);
 	static const TrendEntry * FASTCALL SearchTrendEntry(const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendList, uint stride);
@@ -17544,8 +17676,9 @@ public:
 	uint8  ReserveStart[32]; // @anchor
 	long   Flags;            // @flags
 	long   CloseMode;        // PPObjTimeSeries::Strategy::clsmodXXX
-	LDATE  UseDataForStrategiesTill; // @v10.7.2
-	uint8  ReserveEnd[56];   // @reserve // @v10.7.2 [60]-->[56]
+	LDATE  UseDataForStrategiesTill;  // @v10.7.2
+	LDATE  UseDataForStrategiesTill2; // @v10.8.9
+	uint8  ReserveEnd[52];   // @reserve // @v10.7.2 [60]-->[56] // @v10.8.9 [56]-->[52]
 	ObjIdListFilt TsList;    // @anchor
 };
 
@@ -17591,7 +17724,8 @@ public:
 		uint   OptRangeMaxExtProbe;     // @v10.7.3 @default=1 Максимальное количество попыток расширения оптимального интервала значений регрессии
 		LDATE  UseDataSince;            // Модель строить по данным, начиная с указанной даты включительно (если checkdate(UseDataSince))
 		LDATE  UseDataTill;             // @v10.7.0 Модель строить по данным для указанной даты включительно (если checkdate(UseDataTill))
-		uint   DefTargetQuant;          // @v10.4.2
+		// @v10.8.9 uint   DefTargetQuant;          // @v10.4.2
+		uint8  Reserve2[4];             // @v10.8.9
 		uint   MainFrameRangeCount;     // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
 		double MinWinRate;              // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
 		double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
@@ -17607,7 +17741,11 @@ public:
 	int    SLAPI GetTssModel(const PPTimeSeries * pTsRec, PPTssModelPacket * pTssModel);
 	int    SLAPI Run();
 	int    SLAPI TryStrategyContainers(const PPIDArray & rTsList);
-	int    SLAPI TryStrategyContainer(const PPObjTimeSeries::Config & rCfg, PPID tsID, const PPObjTimeSeries::StrategyContainer * pSc, TryStrategyContainerResultCollection & rResultCollection);
+	enum {
+		tscfSkipOutput = 0x0001
+	};
+	int    SLAPI TryStrategyContainer(const PPObjTimeSeries::Config & rCfg, PPID tsID,
+		const STimeSeries * pTs, const PPObjTimeSeries::StrategyContainer * pSc, long flags, TryStrategyContainerResultCollection & rResultCollection);
 	int    SLAPI OutputTryStrategyContainerResult(TryStrategyContainerResultCollection & rRc);
 	int    SLAPI AnalyzeRegression(PPID tsID);
 	//
@@ -17618,7 +17756,8 @@ public:
 		fomdfStoreResult = 0x0002, // При успешном завершении сохранить результат в базе данных (PPTimeSeriesPacket::Rec.OptMaxDuck_S или PPTimeSeriesPacket::Rec.OptMaxDuck)
 		fomdfEntireRange = 0x0004  // Рассчитывать результаты для всего диапазона значений (медленно, но покажет все результаты)
 	};
-	int    SLAPI FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack, const DateTimeArray & rTsTmList, const RealArray & rTsValList, uint flags, uint * pResult);
+	int    SLAPI FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack,
+		/*const DateTimeArray & rTsTmList, const RealArray & rTsValList,*/const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint flags, uint * pResult);
 	//
 	// Descr: Увеличивает внутренний счетчик идентификаторов и возвращает новое значение идентификатора для очередной стратегии.
 	//
@@ -17649,13 +17788,13 @@ private:
 	int    SLAPI MakeArVectors(const STimeSeries & rTs, const LongArray & rFrameSizeList, uint flags, double partitialTrendErrLimit, TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet);
 	int    SLAPI MakeTrendEntry(const RealArray & rValueList, uint flags, PPObjTimeSeries::TrendEntry * pEntry, RealArray * pTempCov00List);
 	int    SLAPI Helper_StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
-		const DateTimeArray & rTsTmList, const RealArray & rTsValList,
-		const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
+		//const DateTimeArray & rTsTmList, const RealArray & rTsValList, const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
+		const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
 		const PPObjTimeSeries::StrategyContainer & rSrcSc,
 		PPObjTimeSeries::StrategyContainer & rScSelection, PPObjTimeSeries::StrategyResultEntry * pSre, SFile * pFOut);
 	int    SLAPI StrategyContainerDressing(const PPObjTimeSeries::Config & rConfig, const PPTimeSeriesPacket & rTsPack, const PPTssModelPacket & rTssModel,
-		const DateTimeArray & rTsTmList, const RealArray & rTsValList,
-		const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
+		//const DateTimeArray & rTsTmList, const RealArray & rTsValList, const TSCollection <PPObjTimeSeries::TrendEntry> & rTrendListSet,
+		const PPObjTimeSeries::CommonTsParamBlock & rCtspb,
 		const PPObjTimeSeries::StrategyContainer & rSrcSc,
 		PPObjTimeSeries::StrategyContainer & rScSelection, SFile * pFOut);
 	enum {
@@ -18928,6 +19067,8 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_VK            3 //
 #define PPGLS_VETIS         4 //
 #define PPGLS_CHZN          5 // @v10.6.1 честный знак
+#define PPGLS_INSTAGRAM     6 // @v10.8.9
+#define PPGLS_UDS           7 // @v10.8.9 Сервис UDS (бонусная система, интернет-магазин)
 
 struct PPGlobalUserAcc {
 	SLAPI  PPGlobalUserAcc();
@@ -27318,7 +27459,7 @@ public:
 		PPID   Id;
 		double Extra;
 		PPID   Action;
-		LDATETIME Dtm; // @v9.8.11
+		LDATETIME Dtm;
 	};
 	struct EvVerEntry : public PPObjID {
 		enum {
@@ -27361,15 +27502,14 @@ private:
 	SysJournal * P_Tbl;
 	SysJournalTbl * P_TmpTbl;
 	TempSysJournalTbl * P_SubstTbl;
-	// @v9.9.0 TempDoubleIDTbl * P_NamesTbl;
 	ObjCollection * P_ObjColl;
 	PPObjPerson PsnObj; // @fastreuse
 	int    LockUpByNotify; // Семафор, блокирующий обновление данных по системному событию
 	LDATETIME LastRefreshDtm; // Время последнего обновления выборки. Используется для определения времени,
 		// начиная с которого следует извлекать события из журнала для последующего обновления.
-	SStrGroup StrPool; // @v9.9.0 Пул строковых полей, на который ссылаются поля в TempSysJournalTbl
-	TSVector <PPObjNamePEntry> ObjNameList; // @v9.9.0
-	TSVector <EvVerEntry> EvVerList; // @v9.9.2
+	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempSysJournalTbl
+	TSVector <PPObjNamePEntry> ObjNameList;
+	TSVector <EvVerEntry> EvVerList;
 };
 //
 //
@@ -27394,8 +27534,6 @@ struct GtaJournalFilt : public PPBaseFilt {
 };
 
 struct GtaJournalViewItem : public GtaJournalTbl::Rec {
-	void   Clear();
-
 	long   ID;
 	SString ObjName;
 };
@@ -34651,6 +34789,7 @@ public:
 //
 #define SCRDSSPCTRT_DEFAULT    0 // default
 #define SCRDSSPCTRT_AZ         1 // AstraZeneca
+#define SCRDSSPCTRT_UDS        2 // UDS @v10.8.9
 //
 // Descr: Базовый класс для реализации функционала специальной трактовки серий персональных карт
 //
@@ -37585,7 +37724,7 @@ public:
 	SLAPI ~ClientBankExportDef();
 	PPImpExpParam & SLAPI GetParam() const;
 	int    SLAPI ReadDefinition(const char * pIniSection);
-	int    SLAPI CreateOutputFile();
+	int    SLAPI CreateOutputFile(StringSet * pResultFileList);
 	int    SLAPI CloseOutputFile();
 	int    SLAPI PutRecord(const PPBillPacket *, PPID debtBillID, PPLogger * pLogger);
 	int    SLAPI GetStat(long * pAcceptedCount, long * pRejectedCount, double * pAmount);
@@ -37715,7 +37854,7 @@ private:
 	int    SLAPI UniteReceiptBills(); // @<<PPViewBill::UniteBills
 	int    SLAPI UniteSellBills();    // @<<PPViewBill::UniteBills
 	int    SLAPI UniteInventory();    // @<<PPViewBill::UniteBills
-	int    SLAPI Helper_ExportBnkOrder(const char * pSection, PPLogger & rLogger);
+	int    SLAPI Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger);
 
 	BillFilt Filt;
 	PPIDArray UpdateBillList; // для обновления измененнных документов в броузере

@@ -24,7 +24,7 @@ int SLAPI CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const 
 		PPTransaction tra(useTa);
 		THROW(tra);
 		// @v10.6.4 MEMSZERO(log_rec);
-		log_rec.UserID    = LConfig.User;
+		log_rec.UserID    = LConfig.UserID;
 		log_rec.Action    = action + 1;
 		getcurdatetime(&log_rec.Dt, &log_rec.Tm);
 		log_rec.CheckNum  = pPack->Rec.Code;

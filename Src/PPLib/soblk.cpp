@@ -545,7 +545,7 @@ int SLAPI SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHd
 		{
 			PPSecur sec_rec;
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+			if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 				cc_rec.UserID = sec_rec.PersonID;
 		}
 		if(!rHdr.Dtm.d) {

@@ -2610,7 +2610,7 @@ int SLAPI PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 	if(r <= 0 || tmp.Tag == PPOBJ_CONFIG || p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &global, sizeof(global)) <= 0)
 		global = tmp;
 	tmp.OperDate = GetTLA().Lc.OperDate;
-	tmp.User  = (obj == PPOBJ_USR) ? objID : 0;
+	tmp.UserID = (obj == PPOBJ_USR) ? objID : 0;
 	tmp.State = 0;
 	if(obj == PPOBJ_USR && objID == PPUSR_MASTER)
 		tmp.State |= CFGST_MASTER;
@@ -2942,13 +2942,13 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				THROW_PP(r == 0, PPERR_INVUSERORPASSW);
 				// @v9.4.8 is_service_login = 1;
 			}
-			THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.User, user_name));
+			THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.UserID, user_name));
 			if(r < 0) {
 				id = 0;
 				THROW(r = p_ref->EnumItems(PPOBJ_USR, &id));
 				THROW_PP(r < 0, PPERR_INVUSERORPASSW);
 				empty_secur_base = 1;
-				r_lc.User = 0;
+				r_lc.UserID = 0;
 				pw[0] = 0;
 			}
 			else {
@@ -2956,7 +2956,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				THROW(Reference::VerifySecur(&usr_rec, 0));
 				Reference::GetPassword(&usr_rec, pw, sizeof(pw));
 			}
-			THROW(FetchConfig(PPOBJ_USR, r_lc.User, &r_lc));
+			THROW(FetchConfig(PPOBJ_USR, r_lc.UserID, &r_lc));
 			// @v9.1.1 r_lc.Flags &= ~CCFLG_USELARGEDIALOG; // @v7.6.2 Введено после непонятного инцидента с крупными списками выбора
 			SLS.SetUiFlag(sluifUseLargeDialogs, 0); // @v9.1.1
 			if(!oneof2(logmode, logmService, logmEmptyBaseCreation)) {
@@ -2995,7 +2995,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					// }
 					{
 						PPObjSecur sec_obj(PPOBJ_USR, 0);
-						sec_obj.GetPrivateDesktop(r_lc.User, &r_lc.DesktopID);
+						sec_obj.GetPrivateDesktop(r_lc.UserID, &r_lc.DesktopID);
 					}
 				}
 			}
@@ -3010,7 +3010,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP);
 			}
 			if(!empty_secur_base)
-				THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.User));
+				THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.UserID));
 			SetPath(PPPATH_DAT, data_path, 0, 1);
 			SetPath(PPPATH_SYS, dict_path, 0, 1);
 			r_tla.UserName = user_name;
@@ -3018,9 +3018,9 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				r_lc.Menu = MENU_SYSTEM;
 			else if(logmode == logmService)
 				r_lc.Menu = -1;
-			if(r_lc.User && r_lc.User != PPUSR_MASTER) {
+			if(r_lc.UserID && r_lc.UserID != PPUSR_MASTER) {
 				PPAccessRestriction accsr;
-				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User, 0/*ignoreCheckSum*/));
+				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.UserID, 0/*ignoreCheckSum*/));
 				r_tla.Rights.GetAccessRestriction(accsr);
 				r_tla.Rights.ExtentOpRights();
 				getcurdatetime(&cdt, &ctm);
@@ -3042,7 +3042,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				}
 				LogTerminalSessInfo(cur_process_id, term_sess_id, p_func_name);
 			}
-			GetSync().LoginUser(r_lc.User, user_name, &r_lc.SessionID, &machine_id, term_sess_id);
+			GetSync().LoginUser(r_lc.UserID, user_name, &r_lc.SessionID, &machine_id, term_sess_id);
 			r_lc.State |= CFGST_INITIATE;
 			if(empty_secur_base)
 				r_lc.State |= CFGST_EMPTYBASE;
@@ -3181,17 +3181,15 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						r_tla.SCardPatterns.CopyFrom(sv);
 				}
 				{
-					r_tla.DL600XMLEntityParam = 0;
+					r_tla.DL600XMLEntityParam.Z();
 					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLENTITY, sv) && sv.NotEmptyS())
 						r_tla.DL600XMLEntityParam = sv;
 				}
-				// @v9.4.6 {
 				{
 					r_tla.DL600XmlCp = cpANSI; // Правильно было бы UTF-8, но для обратной совместимости придется по умолчанию использовать ANSI
 					if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_DL600XMLCP, sv) && sv.NotEmptyS())
 						r_tla.DL600XmlCp.FromStr(sv);
 				}
-				// } @v9.4.6
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ADJCPANCCLINETRANS, &(iv = 0)) > 0 && iv != 0)
 					r_cc.Flags2 |= CCFLG2_ADJCPANCCLINETRANS;
 				else
@@ -3719,12 +3717,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							if(PPMqbClient::SetupInitParam(mqb_init_param, &mqb_domain)) {
 								int   use_mqb_for_dbx = 0;
 								PPMqbClient::RoutingParamEntry rpe;
-								if(r_lc.DBDiv && r_lc.User) {
-									if(r_lc.User == PPUSR_MASTER)
+								if(r_lc.DBDiv && r_lc.UserID) {
+									if(r_lc.UserID == PPUSR_MASTER)
 										use_mqb_for_dbx = 1;
 									else {
 										PPAccessRestriction accsr;
-										THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.User, 0/*ignoreCheckSum*/));
+										THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.UserID, 0/*ignoreCheckSum*/));
 										r_tla.Rights.GetAccessRestriction(accsr);
 										if(accsr.CFlags & accsr.cfAllowDbxReceive)
 											use_mqb_for_dbx = 1;
@@ -4866,7 +4864,7 @@ PPJobSrvClient * SLAPI PPSession::GetClientSession(int dontReconnect)
 					char   pw[128];
 					SString user_name, db_symb;
 					CurDict->GetDbSymb(db_symb);
-					if(PPRef->GetItem(PPOBJ_USR, LConfig.User, &usr_rec) > 0) {
+					if(PPRef->GetItem(PPOBJ_USR, LConfig.UserID, &usr_rec) > 0) {
 						Reference::GetPassword(&usr_rec, pw, sizeof(pw));
 						if(p_cli->Login(db_symb, usr_rec.Name, pw))
 							r = 1;

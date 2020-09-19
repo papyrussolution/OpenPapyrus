@@ -551,7 +551,7 @@ void SLAPI PPObjectTransmit::SetupHeader(uint type, PPID destDBID, PPObjectTrans
 	pHdr->DBID       = r_cfg.DBDiv;
 	pHdr->DestDBID   = destDBID;
 	pHdr->ExtraData  = 0;
-	pHdr->UserID     = r_cfg.User;
+	pHdr->UserID     = r_cfg.UserID;
 	if(type == PPOT_OBJ) {
 		if(Ctx.Cfg.Flags & DBDXF_IGNOREACK)
 			pHdr->Flags |= PPOTF_IGNACK;

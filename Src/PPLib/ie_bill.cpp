@@ -1402,19 +1402,15 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						v = 0;
 				}
 				else {
-					// @v9.2.10 {
 					DisableClusterItem(CTL_IEBILLSEL_TECH, 1, BIN(P_Data->DisabledOptions & PPBillImpExpBaseProcessBlock::fEdiImpExp));
 					DisableClusterItem(CTL_IEBILLSEL_TECH, 2, BIN(P_Data->DisabledOptions & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 					DisableClusterItem(CTL_IEBILLSEL_TECH, 3, BIN(P_Data->DisabledOptions & PPBillImpExpBaseProcessBlock::fPaymOrdersExp));
-					// } @v9.2.10
 					if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp)
 						v = 1;
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)
 						v = 2;
-					// @v9.2.10 {
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp && !(P_Data->DisabledOptions & PPBillImpExpBaseProcessBlock::fPaymOrdersExp))
 						v = 3;
-					// } @v9.2.10
 					else
 						v = 0;
 				}
@@ -1481,7 +1477,6 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 }
 
 #if 0 // @v9.1.1 @unused {
-
 class UnknownGoodsSubstDialog : public PPListDialog {
 public:
 	UnknownGoodsSubstDialog() : PPListDialog(DLG_LBXSEL, CTL_LBXSEL_LIST)
@@ -1495,8 +1490,28 @@ public:
 		showCtrl(CTL_LBXSEL_DOWNBTN, 0);
 		updateList(-1);
 	}
-	int    setDTS(SdrBillRowArray * pData);
-	int    getDTS(SdrBillRowArray * pRowsAry, PPIDArray * pSubsGoodsList);
+	int setDTS(SdrBillRowArray * pData)
+	{
+		int    ok = 1;
+		if(pData)
+			Data.copy(*pData);
+		updateList(-1);
+		return ok;
+	}
+	int getDTS(SdrBillRowArray * pData, PPIDArray * pSubstGoodsList)
+	{
+		int    ok = 1;
+		THROW_INVARG(pData && pSubstGoodsList);
+		pData->freeAll();
+		pSubstGoodsList->freeAll();
+		for(uint i = 0; i < SubstGoodsList.getCount(); i++) {
+			const  LAssoc & r_item = SubstGoodsList.at(i);
+			THROW_SL(pSubstGoodsList->add(r_item.Val /* goods_id */));
+			THROW_SL(pData->insert(&Data.at(r_item.Key - 1)));
+		}
+		CATCHZOK
+		return ok;
+	}
 private:
 	virtual int editItem(long pos, long id);
 	virtual int setupList();
@@ -1521,30 +1536,6 @@ int UnknownGoodsSubstDialog::setupList()
 	return ok;
 }
 
-int UnknownGoodsSubstDialog::setDTS(SdrBillRowArray * pData)
-{
-	int    ok = 1;
-	if(pData)
-		Data.copy(*pData);
-	updateList(-1);
-	return ok;
-}
-
-int UnknownGoodsSubstDialog::getDTS(SdrBillRowArray * pData, PPIDArray * pSubstGoodsList)
-{
-	int    ok = 1;
-	THROW_INVARG(pData && pSubstGoodsList);
-	pData->freeAll();
-	pSubstGoodsList->freeAll();
-	for(uint i = 0; i < SubstGoodsList.getCount(); i++) {
-		const  LAssoc & r_item = SubstGoodsList.at(i);
-		THROW_SL(pSubstGoodsList->add(r_item.Val /* goods_id */));
-		THROW_SL(pData->insert(&Data.at(r_item.Key - 1)));
-	}
-	CATCHZOK
-	return ok;
-}
-
 int UnknownGoodsSubstDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
@@ -1561,7 +1552,6 @@ int UnknownGoodsSubstDialog::editItem(long pos, long id)
 	}
 	return ok;
 }
-
 #endif // } 0 @v9.1.1 @unused
 //
 //
@@ -1898,9 +1888,8 @@ int SLAPI PPBillImporter::RunUhttImport()
 								if(P_Cc->GetLastCheckByCode(PosNodeID, &last_chk_rec) > 0)
 									cc_pack.Rec.Code = last_chk_rec.Code + 1;
 							}
-							if(dlvr_loc_id) {
+							if(dlvr_loc_id)
 								cc_pack.Ext.AddrID = dlvr_loc_id;
-							}
 							{
 								temp_buf = "UHTT";
 								if(pack.Rec.Memo[0])
@@ -4684,14 +4673,11 @@ void SLAPI PPBillExporter::Destroy()
 		ZDELETE(P_IEBRow);
 }
 
-int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam,
-	const PPBillPacket * pFirstPack, StringSet * pResultFileList)
+int SLAPI PPBillExporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, const PPBillPacket * pFirstPack, StringSet * pResultFileList)
 {
 	Destroy();
-
 	int    ok = 1;
 	SString temp_buf;
-	// Init();
 	PPBillImpExpBaseProcessBlock::Z();
 	RVALUEPTR(BillParam, pBillParam);
 	RVALUEPTR(BRowParam, pBRowParam);
@@ -4886,7 +4872,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 						const  ObjTagItem * p_manuf_tag = org_lot_tag_list.GetItem(BillParam.ImpExpParamDll.ManufTagID);
 						if(p_manuf_tag) {
 							long   manuf_id = 0;
-							int r = 0;
+							int    r = 0;
 							p_manuf_tag->GetInt(&manuf_id);
 							if(PsnObj.Search(manuf_id, &pers_rec) > 0)
 								(temp_buf = pers_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.LotManuf, sizeof(brow.LotManuf));
@@ -4983,21 +4969,17 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				// Если в точке #1 не удалось идентифицировать вид товарной продукции, то определяем ее из классификатора товара
 				//
 				if(!brow.GoodKindCode) {
-					if(BillParam.ImpExpParamDll.GoodsKindSymb.NotEmpty()) {
-						SString goods_kind_symb = BillParam.ImpExpParamDll.GoodsKindSymb;
-						if(goods_kind_symb.NotEmpty()) {
-							GoodsExtTbl::Rec goods_ext_rec;
-							if(GObj.P_Tbl->GetExt(goods_rec.ID, &goods_ext_rec)) {
-								if(goods_kind_symb.IsEqiAscii("X"))
-									brow.GoodKindCode = goods_ext_rec.X;
-								else if(goods_kind_symb.IsEqiAscii("Y"))
-									brow.GoodKindCode = goods_ext_rec.Y;
-								else if(goods_kind_symb.IsEqiAscii("Z"))
-									brow.GoodKindCode = goods_ext_rec.Z;
-								else if(goods_kind_symb.IsEqiAscii("W"))
-									brow.GoodKindCode = goods_ext_rec.W;
-							}
-						}
+					const SString goods_kind_symb = BillParam.ImpExpParamDll.GoodsKindSymb;
+					GoodsExtTbl::Rec goods_ext_rec;
+					if(goods_kind_symb.NotEmpty() && GObj.P_Tbl->GetExt(goods_rec.ID, &goods_ext_rec)) {
+						if(goods_kind_symb.IsEqiAscii("X"))
+							brow.GoodKindCode = goods_ext_rec.X;
+						else if(goods_kind_symb.IsEqiAscii("Y"))
+							brow.GoodKindCode = goods_ext_rec.Y;
+						else if(goods_kind_symb.IsEqiAscii("Z"))
+							brow.GoodKindCode = goods_ext_rec.Z;
+						else if(goods_kind_symb.IsEqiAscii("W"))
+							brow.GoodKindCode = goods_ext_rec.W;
 					}
 				}
 				//
@@ -5582,8 +5564,7 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 	}
 }
 
-DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo) :
-	N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_DOCUMENT))
+DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo) : N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_DOCUMENT))
 {
 	SString temp_buf;
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_KND), rInfo.KND); // Код по Классификатору налоговой документации

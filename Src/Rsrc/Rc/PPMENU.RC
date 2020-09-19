@@ -235,6 +235,7 @@
 			MENUITEM "@cmd_ediprovider",				cmEdiProvider
 			MENUITEM "@cmd_namedobjassoc",				cmNamedObjAssoc
 			MENUITEM "@cmd_eventtoken",					cmEventToken
+			MENUITEM "@cmd_eventsubscription",          cmEventSubscription // @v10.8.9
 			MENUITEM "@cmd_globaluseracc",				cmGlobalUserAcc
 			MENUITEM "@cmd_uhttstore",					cmUhttStore
 			MENUITEM "@cmd_workbook",                   cmWorkbook
@@ -360,7 +361,7 @@
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_bhttransmit"							cmBhtTransmit
 		MENUITEM "@cmd_bhtreceive"							cmBhtReceive
-		MENUITEM "@cmd_bhttransmitprogram"					cmBhtTransmitProgram
+		// @v10.8.9 MENUITEM "@cmd_bhttransmitprogram"					cmBhtTransmitProgram
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_stylopalmimpexp"						cmStyloPalmImpExp
 		MENUITEM "@cmd_viewgeotracking"                     cmViewGeoTracking

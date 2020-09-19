@@ -4,44 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-struct PPEventSubscription {
-	SLAPI  PPEventSubscription();
-	int    FASTCALL IsEqual(const PPEventSubscription & rS) const;
-	long   Tag;            // Const=PPOBJ_EVENTSUBSCRIPTION
-	long   ID;             // @id
-	char   Name[48];       // @name @!refname
-	char   Symb[20];       // 
-	long   Flags;          //
-	char   Reserve[60];    // @reserve
-	PPID   EventType;      //
-	PPID   UserID;         // ->Ref(PPOBJ_USER)
-};
-
-class PPEventSubscriptionPacket {
-public:
-	SLAPI  PPEventSubscriptionPacket();
-	SLAPI ~PPEventSubscriptionPacket();
-	int    FASTCALL IsEqual(const PPEventSubscriptionPacket & rS) const;
-	PPEventSubscription Rec;
-	struct FlatBlock {
-		SLAPI  FlatBlock();
-		int    SLAPI IsEmpty() const;
-		int    FASTCALL IsEqual(const FlatBlock & rS) const;
-		uint   Reserve[64];
-	} Fb;
-	PPBaseFilt * P_Filt;
-};
-
-class PPObjEventSuscription : public PPObjReference { // PPOBJ_EVENTSUBSCRIPTION
-public:
-	SLAPI  PPObjEventSuscription();
-	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
-	int    SLAPI PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta);
-	int    SLAPI GetPacket(PPID id, PPEventSubscriptionPacket * pPack);
-};
-
-
-SLAPI PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), UserID(0)
+SLAPI PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), ObjType(0), Reserve2(0)
 {
 	PTR32(Name)[0] = 0;
 	PTR32(Symb)[0] = 0;
@@ -59,30 +22,18 @@ int FASTCALL PPEventSubscription::IsEqual(const PPEventSubscription & rS) const
 		eq = 0;
 	else if(EventType != rS.EventType)
 		eq = 0;
-	else if(UserID != rS.UserID)
+	else if(ObjType != rS.ObjType)
 		eq = 0;
-	return eq;
-}
-
-SLAPI PPEventSubscriptionPacket::FlatBlock::FlatBlock()
-{
-	MEMSZERO(Reserve);
-}
-
-int SLAPI PPEventSubscriptionPacket::FlatBlock::IsEmpty() const
-{
-	return 1;
-}
-
-int FASTCALL PPEventSubscriptionPacket::FlatBlock::IsEqual(const PPEventSubscriptionPacket::FlatBlock & rS) const
-{
-	int    eq = 1;
 	return eq;
 }
 
 SLAPI PPEventSubscriptionPacket::PPEventSubscriptionPacket() : P_Filt(0)
 {
-	MEMSZERO(Fb);
+}
+
+SLAPI PPEventSubscriptionPacket::PPEventSubscriptionPacket(const PPEventSubscriptionPacket & rS) : P_Filt(0)
+{
+	Copy(rS);
 }
 
 SLAPI PPEventSubscriptionPacket::~PPEventSubscriptionPacket()
@@ -90,12 +41,34 @@ SLAPI PPEventSubscriptionPacket::~PPEventSubscriptionPacket()
 	ZDELETE(P_Filt);
 }
 
+PPEventSubscriptionPacket & FASTCALL PPEventSubscriptionPacket::operator = (const PPEventSubscriptionPacket & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+int FASTCALL PPEventSubscriptionPacket::Copy(const PPEventSubscriptionPacket & rS)
+{
+	int    ok = 1;
+	PPExtStrContainer::operator = (rS);
+	Rec = rS.Rec;
+	GuaList = rS.GuaList;
+	UserList = rS.UserList;
+	ZDELETE(P_Filt);
+	if(rS.P_Filt) {
+		PPBaseFilt::CopyBaseFiltPtr(rS.P_Filt->GetSignature(), rS.P_Filt, &P_Filt);
+	}
+	return ok;
+}
+
 int FASTCALL PPEventSubscriptionPacket::IsEqual(const PPEventSubscriptionPacket & rS) const
 {
 	int    eq = 1;
 	if(!Rec.IsEqual(rS.Rec))
 		eq = 0;
-	else if(!Fb.IsEqual(rS.Fb))
+	else if(!GuaList.IsEqual(rS.GuaList))
+		eq = 0;
+	else if(!UserList.IsEqual(rS.UserList))
 		eq = 0;
 	else if(P_Filt && rS.P_Filt) {
 		if(!P_Filt->IsEqual(rS.P_Filt, 0))
@@ -108,18 +81,44 @@ int FASTCALL PPEventSubscriptionPacket::IsEqual(const PPEventSubscriptionPacket 
 	return eq;
 }
 
-SLAPI PPObjEventSuscription::PPObjEventSuscription() : PPObjReference(PPOBJ_EVENTSUBSCRIPTION, 0)
+SLAPI PPObjEventSubcription::PPObjEventSubcription(void * extraPtr) : PPObjReference(PPOBJ_EVENTSUBSCRIPTION, extraPtr)
 {
 }
 
-int SLAPI PPObjEventSuscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta)
+int SLAPI PPObjEventSubcription::SerializePacket_WithoutRec(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pPack->SerializeB(dir, rBuf, pSCtx));
+	THROW(pPack->UserList.Serialize(dir, rBuf, pSCtx));
+	THROW(pPack->GuaList.Serialize(dir, rBuf, pSCtx));
+	if(dir > 0) {
+		THROW(PPView::WriteFiltPtr(rBuf, pPack->P_Filt));
+	}
+	else if(dir < 0) {
+		THROW(PPView::ReadFiltPtr(rBuf, &pPack->P_Filt));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjEventSubcription::SerializePacket(int dir, PPEventSubscriptionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
+	THROW(SerializePacket_WithoutRec(dir, pPack, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjEventSubcription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
 	const  int is_new = (_id == 0);
 	const  int is_removing = BIN(*pID != 0 && pPack == 0);
 	PPID   hid = 0;
-	SBuffer ext_buf;
+	SBuffer sbuf;
+	SSerializeContext sctx;
 	PPEventSubscriptionPacket org_pack;
 	{
 		PPTransaction tra(use_ta);
@@ -129,7 +128,6 @@ int SLAPI PPObjEventSuscription::PutPacket(PPID * pID, PPEventSubscriptionPacket
 		}
 		if(pPack == 0) {
 			if(*pID) {
-				TextRefIdent tri(Obj, _id, PPTRPROP_TIMESERIES);
 				THROW(CheckRights(PPR_DEL));
 				THROW(ref->RemoveItem(Obj, _id, 0));
 				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
@@ -143,13 +141,17 @@ int SLAPI PPObjEventSuscription::PutPacket(PPID * pID, PPEventSubscriptionPacket
 				if(pPack->IsEqual(org_pack))
 					ok = -1;
 				else {
+					THROW(SerializePacket_WithoutRec(+1, pPack, sbuf, &sctx));
 					THROW(ref->UpdateItem(Obj, _id, &pPack->Rec, 1, 0));
+					THROW(ref->PutPropSBuffer(Obj, _id, EVNTSUBSCRPRP_EXTENSION, sbuf, 0));
 					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
 				}
 			}
 			else {
+				THROW(SerializePacket_WithoutRec(+1, pPack, sbuf, &sctx));
 				THROW(ref->AddItem(Obj, &_id, &pPack->Rec, 0));
 				pPack->Rec.ID = _id;
+				THROW(ref->PutPropSBuffer(Obj, _id, EVNTSUBSCRPRP_EXTENSION, sbuf, 0));
 				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
 				ASSIGN_PTR(pID, _id);
 			}
@@ -167,15 +169,251 @@ int SLAPI PPObjEventSuscription::PutPacket(PPID * pID, PPEventSubscriptionPacket
 	return ok;
 }
 
-int SLAPI PPObjEventSuscription::GetPacket(PPID id, PPEventSubscriptionPacket * pPack)
+int SLAPI PPObjEventSubcription::GetPacket(PPID id, PPEventSubscriptionPacket * pPack)
 {
-	int    ok = -1;
+	int    ok = Search(id, &pPack->Rec);
+	if(ok > 0) {
+		SBuffer sbuf;
+		SSerializeContext sctx;
+		THROW(ref->GetPropSBuffer(Obj, id, EVNTSUBSCRPRP_EXTENSION, sbuf));
+		THROW(SerializePacket_WithoutRec(-1, pPack, sbuf, &sctx));
+	}
+	CATCHZOK
 	return ok;
 }
 
-/*virtual*/int SLAPI PPObjEventSuscription::Edit(PPID * pID, void * extraPtr)
+int SLAPI PPObjEventSubcription::EditDialog(PPEventSubscriptionPacket * pPack)
 {
+	class EventSubscriptionDialog : public TDialog {
+		DECL_DIALOG_DATA(PPEventSubscriptionPacket);
+	public:
+		EventSubscriptionDialog() : TDialog(DLG_EVNTSUBSCR)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			RVALUEPTR(Data, pData);
+			setCtrlData(CTL_EVNTSUBSCR_NAME, Data.Rec.Name);
+			setCtrlData(CTL_EVNTSUBSCR_SYMB, Data.Rec.Symb);
+			setCtrlLong(CTL_EVNTSUBSCR_ID, Data.Rec.ID);
+			{
+				StrAssocArray type_list;
+				type_list.Add(PPEVENTTYPE_OBJCREATED, PPLoadStringS("eventtype_objcreated", temp_buf));
+				type_list.Add(PPEVENTTYPE_OUTER, PPLoadStringS("eventtype_outer", temp_buf));
+				type_list.Add(PPEVENTTYPE_SPCBILLCHANGE, PPLoadStringS("eventtype_spcbillchange", temp_buf));
+				type_list.Add(PPEVENTTYPE_SYSJOURNAL, PPLoadStringS("eventtype_sysjournal", temp_buf));
+				type_list.Add(PPEVENTTYPE_LOTEXPIRATION, PPLoadStringS("eventtype_lotexpiration", temp_buf));
+				SetupStrAssocCombo(this, CTLSEL_EVNTSUBSCR_TYPE, &type_list, Data.Rec.EventType, 0);
+			}
+			SetupObjListCombo(this, CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType, 0);
+			SetupType();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTL_EVNTSUBSCR_NAME, Data.Rec.Name);
+			getCtrlData(CTL_EVNTSUBSCR_SYMB, Data.Rec.Symb);
+			getCtrlData(CTLSEL_EVNTSUBSCR_TYPE, &Data.Rec.EventType);
+			getCtrlData(CTLSEL_EVNTSUBSCR_OBJ, &Data.Rec.ObjType);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_EVNTSUBSCR_TYPE)) {
+				SetupType();
+			}
+			else if(event.isCmd(cmGuaList)) {
+				PPIDArray id_list;
+				Data.GuaList.Get(id_list);
+				ListToListData ltld(PPOBJ_GLOBALUSERACC, 0, &id_list);
+				ltld.TitleStrID = 0; // PPTXT_XXX;
+				if(ListToListDialog(&ltld) > 0)
+					Data.GuaList.Set(&id_list);
+			}
+			else if(event.isCmd(cmUserList)) {
+				PPIDArray id_list;
+				Data.UserList.Get(id_list);
+				ListToListData ltld(PPOBJ_USR, 0, &id_list);
+				ltld.Flags |= ListToListData::fIsTreeList;
+				ltld.TitleStrID = 0; // PPTXT_XXX;
+				if(ListToListDialog(&ltld) > 0)
+					Data.UserList.Set(&id_list);
+			}
+			else if(event.isCmd(cmFilter)) {
+				int    filt_id = 0;
+				int    view_id = 0;
+				getCtrlData(CTLSEL_EVNTSUBSCR_TYPE, &Data.Rec.EventType);
+				switch(Data.Rec.EventType) {
+					case PPEVENTTYPE_OBJCREATED:
+						getCtrlData(CTLSEL_EVNTSUBSCR_OBJ, &Data.Rec.ObjType);
+						switch(Data.Rec.ObjType) {
+							case PPOBJ_OPRKIND: 
+								filt_id = PPFILT_OPRKIND; 
+								view_id = PPVIEW_OPRKIND;
+								break;
+							case PPOBJ_BILL: 
+								filt_id = PPFILT_BILL; 
+								view_id = PPVIEW_BILL;
+								break;
+							case PPOBJ_PERSON: 
+								filt_id = PPFILT_PERSON; 
+								view_id = PPVIEW_PERSON;
+								break;
+							case PPOBJ_GOODS: 
+								filt_id = PPFILT_GOODS; 
+								view_id = PPVIEW_GOODS;
+								break;
+							case PPOBJ_PRJTASK: 
+								filt_id = PPFILT_PRJTASK; 
+								view_id = PPVIEW_PRJTASK;
+								break;
+							case PPOBJ_PROJECT: 
+								filt_id = PPFILT_PROJECT; 
+								view_id = PPVIEW_PROJECT;
+								break;
+							case PPOBJ_PERSONEVENT: 
+								filt_id = PPFILT_PERSONEVENT; 
+								view_id = PPVIEW_PERSONEVENT;
+								break;
+							case PPOBJ_CSESSION: 
+								filt_id = PPFILT_CSESS; 
+								view_id = PPVIEW_CSESS;
+								break;
+							case PPOBJ_TSESSION: 
+								filt_id = PPFILT_TSESSION; 
+								view_id = PPVIEW_TSESSION;
+								break;
+						}
+						break;
+					case PPEVENTTYPE_OUTER:
+						break;
+					case PPEVENTTYPE_SPCBILLCHANGE:
+						filt_id = PPFILT_BILL;
+						view_id = PPVIEW_BILL;
+						break;
+					case PPEVENTTYPE_SYSJOURNAL:
+						filt_id = PPFILT_SYSJOURNAL;
+						view_id = PPVIEW_SYSJOURNAL;
+						break;
+					case PPEVENTTYPE_LOTEXPIRATION:
+						filt_id = PPFILT_LOT;
+						view_id = PPVIEW_LOT;
+						break;
+				}
+				if(filt_id && view_id) {
+					if(Data.P_Filt && Data.P_Filt->GetSignature() != filt_id) {
+					}
+					else {
+						PPBaseFilt * p_filt = 0;
+						if(Data.P_Filt)
+							p_filt = Data.P_Filt;
+						else if(PPView::CreateFiltInstance(filt_id, &p_filt)) {
+							;
+						}
+						if(p_filt) {
+							PPView * p_view = 0;
+							if(PPView::CreateInstance(view_id, &p_view)) {
+								if(p_view->EditBaseFilt(p_filt) > 0) {
+									if(!Data.P_Filt) {
+										Data.P_Filt = p_filt;
+										p_filt = 0;
+									}
+								}
+								else {
+									if(!Data.P_Filt)
+										ZDELETE(p_filt);
+								}
+							}
+							else {
+								if(!Data.P_Filt)
+									ZDELETE(p_filt);
+							}
+						}
+					}
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void SetupType()
+		{
+			getCtrlData(CTLSEL_EVNTSUBSCR_TYPE, &Data.Rec.EventType);
+			switch(Data.Rec.EventType) {
+				case PPEVENTTYPE_OBJCREATED:
+					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, 0);
+					enableCommand(cmFilter, 1);
+					break;
+				case PPEVENTTYPE_OUTER:
+					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, 1);
+					enableCommand(cmFilter, 0);
+					break;
+				case PPEVENTTYPE_SPCBILLCHANGE:
+					Data.Rec.ObjType = PPOBJ_BILL;
+					setCtrlLong(CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType);
+					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, 1);
+					enableCommand(cmFilter, 1);
+					break;
+				case PPEVENTTYPE_SYSJOURNAL:
+					Data.Rec.ObjType = 0;
+					setCtrlLong(CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType);
+					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, 1);
+					enableCommand(cmFilter, 1);
+					break;
+				case PPEVENTTYPE_LOTEXPIRATION:
+					Data.Rec.ObjType = 0;
+					setCtrlLong(CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType);
+					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, 1);
+					enableCommand(cmFilter, 1);
+					break;
+			}
+		}
+	};
 	int    ok = -1;
+	EventSubscriptionDialog * p_dlg = 0;
+	if(pPack) {
+		SString obj_title;
+		THROW(CheckDialogPtr(&(p_dlg = new EventSubscriptionDialog())));
+		THROW(EditPrereq(&pPack->Rec.ID, p_dlg, 0));
+		p_dlg->setTitle(GetObjectTitle(Obj, obj_title));
+		p_dlg->setDTS(pPack);
+		while(ok < 0 && ExecView(p_dlg) == cmOK) {
+			if(p_dlg->getDTS(pPack)) {
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	delete p_dlg;
+	return ok;
+}
+
+/*virtual*/int SLAPI PPObjEventSubcription::Edit(PPID * pID, void * extraPtr)
+{
+	int    ok = cmCancel;
+	int    is_new = 0;
+	PPEventSubscriptionPacket pack;
+	THROW(EditPrereq(pID, 0, &is_new));
+	if(!is_new) {
+		THROW(GetPacket(*pID, &pack) > 0);
+	}
+	{
+		THROW(ok = EditDialog(&pack));
+		if(ok > 0) {
+			THROW(is_new || CheckRights(PPR_MOD));
+			if(*pID)
+				*pID = pack.Rec.ID;
+			THROW(PutPacket(pID, &pack, 1));
+			ok = cmOK;
+		}
+	}
+	CATCHZOKPPERR
 	return ok;
 }
 //
@@ -568,5 +806,47 @@ int SLAPI PPViewEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 {
 	int   ok = -1;
 	ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	return ok;
+}
+
+int SLAPI PPObjEventSubcription::Detect(PPID id)
+{
+	int    ok = -1;
+	PPEventSubscriptionPacket pack;
+	if(GetPacket(id, &pack) > 0) {
+		SysJournal * p_sj = DS.GetTLA().P_SysJ;
+		if(p_sj) {
+			LDATETIME last_det_dtm = ZERODATETIME;
+			SysJournalTbl::Rec sj_rec;
+			if(p_sj->GetLastEvent(PPACN_EVENTDETECTION, id, &last_det_dtm, 0, &sj_rec) > 0) {
+			}
+			else {
+				int    creation = 0;
+				if(p_sj->GetLastObjModifEvent(Obj, id, &last_det_dtm, &creation, &sj_rec) > 0) {
+				}
+			}
+			if(!last_det_dtm)
+				last_det_dtm.Set(getcurdate_(), ZEROTIME);
+			//
+			if(pack.Rec.EventType == PPEVENTTYPE_OBJCREATED) {
+				PPIDArray acn_list;
+				acn_list.addzlist(PPACN_OBJADD, PPACN_TURNBILL, 0);
+				PPIDArray obj_id_list;
+				if(p_sj->GetObjListByEventSince(pack.Rec.ObjType, &acn_list, last_det_dtm, obj_id_list) > 0) {
+
+				}
+			}
+			else if(pack.Rec.EventType == PPEVENTTYPE_SPCBILLCHANGE) {
+			}
+			else if(pack.Rec.EventType == PPEVENTTYPE_SYSJOURNAL) {
+				if(pack.P_Filt) {
+				}
+			}
+			else if(pack.Rec.EventType == PPEVENTTYPE_LOTEXPIRATION) {
+			}
+			else if(pack.Rec.EventType == PPEVENTTYPE_OUTER) {
+			}
+		}
+	}
 	return ok;
 }

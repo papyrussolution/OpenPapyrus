@@ -462,7 +462,6 @@ private:
 		if(F.IsValid()) {
 			if(LinesRecCount)
 				F.WriteLine("</d>");
-			//if(!(Filt.Flags & SupplExpFilt::expFlatStruc)) {
 			if(!FlatStruc) {
 				F.WriteLine("</r>");
 				F.WriteLine("</d>");
@@ -955,14 +954,11 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 	PPID   weakalc_locid = 0, weakalc_ggrpid = 0, wotarebeer_locid = 0, wotarebeer_ggrpid = 0, tare_ggrpid = 0;
 	PPIDArray   loc_list, spoilage_loc_list;
 	RAssocArray weakalcrest_list, wotarebeerrest_list;
-	//SupplExpFilt  se_filt;
 	GoodsRestFilt filt;
 	SoapExporter  soap_e;
 	GoodsRestViewItem item;
 	PPViewGoodsRest   v;
 	PPIniFile ini_file(0, 0, 0, 1);
-	//se_filt = Filt;
-	//se_filt.MaxFileSizeKB = 0;
 	PPGetFilePath(PPPATH_OUT, "sprest.xml", path);
 	// @v10.8.2 @ctr MEMSZERO(item);
 	filt.GoodsGrpID = /*se_filt.*/Ep.GoodsGrpID;
@@ -2582,7 +2578,7 @@ public:
 	};
 	SLAPI  iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	SLAPI ~iSalesPepsi();
-	int    SLAPI Init(/*PPID arID*/);
+	int    SLAPI Init();
 	int    SLAPI ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const;
 	int    SLAPI ReceiveGoods(int forceSettings, int useStorage);
 	int    SLAPI ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult);
@@ -2648,7 +2644,6 @@ private:
 	PPLogger & R_Logger;
 };
 
-
 SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) :
 	PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), State(0), P_DestroyFunc(0)
 {
@@ -2671,7 +2666,7 @@ SLAPI iSalesPepsi::~iSalesPepsi()
 	delete P_Lib;
 }
 
-int SLAPI iSalesPepsi::Init(/*PPID arID*/)
+int SLAPI iSalesPepsi::Init()
 {
 	State = 0;
 	SvcUrl.Z();
@@ -2839,7 +2834,6 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 	SString out_file_name;
 	TSCollection <iSalesGoodsPacket> * p_result = 0;
 	ISALESGETGOODSLIST_PROC func = 0;
-
 	SString strg_file_name;
 	GetGoodsStoreFileName(strg_file_name);
 	int     storage_exists = 0;
@@ -3126,7 +3120,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	}
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
-		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_E, &msg_buf, (long)p_result->getCount(), tech_buf.cptr());
+		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_E, &msg_buf, p_result->getCountI(), tech_buf.cptr());
 		PPWaitMsg(msg_buf);
 	}
 	if(p_result->getCount()) {
@@ -3188,14 +3182,14 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 							pack.SetFreight(&freight);
 						}
 						else
-							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, (const char *)pack.Rec.Code, _src_dlvrloc_id));
+							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
 						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
 							if(!pack.SetupObject(ar_id, sob)) {
 								R_Logger.LogLastError();
 							}
 						}
 						else
-							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINID, &msg_buf, (const char *)pack.Rec.Code, _src_psn_id));
+							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_psn_id));
 					}
 					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &(ar_id = 0)) > 0) {
 						pack.Ext.AgentID = ar_id;
@@ -3233,7 +3227,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 									}
 									else {
 										//PPTXT_LOG_SUPPLIX_GOODSNID     "Не удалость идентифицировать товар для документа '@zstr' по идентификатору @int"
-										R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNID, &msg_buf, (const char *)pack.Rec.Code, _src_goods_id));
+										R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_goods_id));
 									}
 								}
 							}
@@ -4365,7 +4359,6 @@ int SLAPI iSalesPepsi::SendInvoices()
 		SString tech_buf;
 		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 		{
-			//PPTXT_LOG_SUPPLIX_EXPBILL_S   "Экспорт документов поставщику @zstr '@article'"
 			PPFormatT(PPTXT_LOG_SUPPLIX_EXPBILL_S, &msg_buf, tech_buf.cptr(), P.SupplID);
 			//R_Logger.Log(msg_buf);
 			PPWaitMsg(msg_buf);
@@ -5618,7 +5611,7 @@ SLAPI SfaHeineken::SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLog
 			ZDELETE(P_Lib);
 		}
 		if(P_Lib)
-			P_DestroyFunc = (void *)P_Lib->GetProcAddr("SfaHeinekenDestroyResult");
+			P_DestroyFunc = static_cast<void *>(P_Lib->GetProcAddr("SfaHeinekenDestroyResult"));
 	}
 }
 
@@ -6584,7 +6577,7 @@ int SLAPI PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 	ArticleTbl::Rec ar_rec;
 	PPSupplAgreement suppl_agt;
 	SupplInterchangeFilt temp_filt;
-	State &= ~stInited; // @v10.0.03 @fix stInited-->~stInited
+	State &= ~stInited;
 	ZDELETE(P_Eb);
 	THROW(temp_filt.IsA(pBaseFilt));
 	temp_filt = *static_cast<const SupplInterchangeFilt *>(pBaseFilt);
@@ -6599,7 +6592,7 @@ int SLAPI PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 		P_Eb->P = temp_filt;
 		P_Eb->P.ExpPeriod.Actualize(ZERODATE);
 		P_Eb->P.ImpPeriod.Actualize(ZERODATE);
-		P_Eb->ArName = ar_rec.Name; // @v9.4.4
+		P_Eb->ArName = ar_rec.Name;
 	}
 	State |= stInited;
 	CATCHZOK
@@ -6620,7 +6613,7 @@ int SLAPI SupplGoodsImport()
 			THROW(six_prc.InitExecuteBlock(&six_filt, eb));
 			{
 				PPSupplExchange_Baltika s_e(eb);
-				THROW(s_e.Init(/*&filt*/));
+				THROW(s_e.Init());
 				THROW(s_e.Import(path));
 				ok = 1;
 			}
@@ -6670,11 +6663,11 @@ int SLAPI PrcssrSupplInterchange::Run()
 				ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SPECENCODESYMBS, temp_buf.Z());
 				r_eb.P.PutExtStrData(SupplInterchangeFilt::extssEncodeStr, temp_buf);
 			}
-			r_eb.P.MaxTransmitSize = (size_t)max_size_kb;
+			r_eb.P.MaxTransmitSize = static_cast<size_t>(max_size_kb);
 			{
 				PPSupplExchange_Baltika s_e(r_eb);
 				PPWait(1);
-				THROW(s_e.Init(/*&filt*/));
+				THROW(s_e.Init());
 				if(r_eb.P.Actions & SupplInterchangeFilt::opImportGoods) {
 					PPGetFilePath(PPPATH_OUT, "monolit-baltica.xml", temp_buf.Z());
 					//
@@ -6694,7 +6687,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 			iSalesPepsi cli(r_eb, logger);
 			TSCollection <iSalesRoutePacket> routs;
 			PPWait(1);
-			THROW(cli.Init(/*p_eb->P.SupplID*/)); // ООО "ПепсиКо Холдингс"
+			THROW(cli.Init()); // ООО "ПепсиКо Холдингс"
 			if(r_eb.P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|
 				SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opImportDesadv|SupplInterchangeFilt::opImportOrders))
 				r_eb.P.Actions |= SupplInterchangeFilt::opImportGoods;
@@ -6767,7 +6760,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 			cli.GetLogFileName(log_file_name);
 			PPWait(0);
 		}
-		else if(temp_buf.IsEqiAscii("SFA-HEINEKEN")) { // @construction
+		else if(temp_buf.IsEqiAscii("SFA-HEINEKEN")) {
 			SfaHeineken cli(r_eb, logger);
 			PPWait(1);
 			cli.Init();
@@ -6808,7 +6801,7 @@ int SLAPI PrcssrSupplInterchange::Run()
 	CATCH
 		logger.LogLastError();
 	ENDCATCH
-	PPWait(0); // @v9.7.6
+	PPWait(0);
 	if(log_file_name.NotEmpty())
 		logger.Save(log_file_name, LOGMSGF_DIRECTOUTP|LOGMSGF_TIME|LOGMSGF_USER);
 	return ok;

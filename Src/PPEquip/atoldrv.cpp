@@ -685,7 +685,7 @@ private:
 		sfOpenCheck     = 0x0002,     // чек открыт
 		sfCancelled     = 0x0004,     // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0008,     // печать подкладного документа
-		sfNotUseCutter  = 0x0010,     // не использовать отрезчик чеков
+		sfDontUseCutter  = 0x0010,     // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0020      // использовать весовой датчик
 	};
 
@@ -778,7 +778,7 @@ SLAPI SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 		}
 	}
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
-		Flags |= sfNotUseCutter;
+		Flags |= sfDontUseCutter;
 }
 
 SLAPI SCS_ATOLDRV::~SCS_ATOLDRV()
@@ -1240,7 +1240,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		else {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+			if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 				(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 		}
 		if(P_Disp) {
@@ -1660,7 +1660,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		Flags &= ~sfOpenCheck;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-		if(!(Flags & sfNotUseCutter)) {
+		if(!(Flags & sfDontUseCutter)) {
 			CutPaper(0);
 		}
 		ErrCode = SYNCPRN_NO_ERROR;
@@ -1723,7 +1723,7 @@ int SLAPI SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(P_Disp) {
 				THROW(ExecOper(PrintHeader));
 			}
-			if(!(Flags & sfNotUseCutter)) {
+			if(!(Flags & sfDontUseCutter)) {
 				CutPaper(0);
 			}
 		}
@@ -1769,7 +1769,7 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 		else {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
-			if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+			if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 				(operator_name = sec_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 		}
 	}
@@ -1802,7 +1802,7 @@ int SLAPI SCS_ATOLDRV::PrintReport(int withCleaning)
 		THROW(SetProp(ReportType, (withCleaning) ? REPORT_TYPE_Z : REPORT_TYPE_X));
 		THROW(ExecOper(Report));
 	}
-	if(!(Flags & sfNotUseCutter)) {
+	if(!(Flags & sfDontUseCutter)) {
 		CutPaper(0);
 	}
 	CATCH
@@ -1852,7 +1852,7 @@ int SLAPI SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 				THROW(ExecOper(PrintHeader));
 			}
 			// THROW(Exec(EndDocument)); // Закончить и напечатать документ
-			if(!(Flags & sfNotUseCutter)) {
+			if(!(Flags & sfDontUseCutter)) {
 				CutPaper(0);
 			}
 		}
@@ -1900,7 +1900,7 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		THROW(SetProp(Summ, sum));
 		THROW(ExecOper(isIncome ? CashIncome : CashOutcome));
 	}
-	if(!(Flags & sfNotUseCutter)) {
+	if(!(Flags & sfDontUseCutter)) {
 		CutPaper(0);
 	}
 	CATCH
@@ -1951,8 +1951,10 @@ int SLAPI SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 				THROW(PrintText(str, ptfWrap, 0));
 				SDelay(10); // @v10.4.11 Иногда не удается распечатать слип. Гипотеза: драйвер не успевает обрабатывать быструю последовательность строк.
 			}
-			if(!(Flags & sfNotUseCutter))
+			if(!(Flags & sfDontUseCutter))
 				CutPaper(0);
+			else
+				SDelay(1000); // @v10.8.9
 		}
 	}
 	CATCH

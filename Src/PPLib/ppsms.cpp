@@ -937,7 +937,9 @@ int SLAPI PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 		}
 		PPSmsAccPacket Data;
 	};
-	int    r = cmCancel, ok = 1, valid_data = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPSmsAccPacket pack;
 	SmsAcctDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));

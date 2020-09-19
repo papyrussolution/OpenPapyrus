@@ -429,7 +429,7 @@ int SLAPI PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
 	if(pP) {
 		PPObjLocation loc_obj;
 		pP->Init(1, 0);
-		pP->Period.SetDate(LConfig.OperDate);
+		pP->Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		pP->DwoID = DwoObj.GetSingle();
 		pP->PoolLocID = loc_obj.GetSingleWarehouse();
 	}

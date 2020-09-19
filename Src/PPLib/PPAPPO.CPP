@@ -483,6 +483,7 @@ int PPApp::processCommand(uint cmd)
 		case cmRFIDDevice:           ShowObjects(PPOBJ_RFIDDEVICE, 0);        break;
 		case cmDebtDim:              ShowObjects(PPOBJ_DEBTDIM, 0);           break;
 		case cmEventToken:           ShowObjects(PPOBJ_EVENTTOKEN, 0);        break;
+		case cmEventSubscription:    ShowObjects(PPOBJ_EVENTSUBSCRIPTION, 0); break; // @v10.8.9
 		case cmPhoneService:         ShowObjects(PPOBJ_PHONESERVICE, 0);      break;
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break;
@@ -562,7 +563,7 @@ int PPApp::processCommand(uint cmd)
 		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
 		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break; // @v10.5.7
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2
-		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break; // @v10.8.9  
+		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break; // @v10.8.9
 		case cmTimeSeriesSA: // @construction
 			break;
 		case cmCTblOrdTimeGraph:
@@ -1517,7 +1518,7 @@ int PPBackupSystemFiles_Arc()
 	//@erik v10.6.13 {
 					PPGetPath(PPPATH_WORKSPACE, path);
 					arc.AddEntries(path, SArchive::aefRecursive);
-	// } @erik 
+	// } @erik
 					// @v10.7.5 {
 					{
 						//

@@ -142,7 +142,7 @@ private:
 		sfOpenCheck     = 0x0002, // чек открыт
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0010, // печать подкладного документа
-		sfNotUseCutter  = 0x0020, // не использовать отрезчик чеков
+		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
 		sfKeepAlive     = 0x0080, // @v10.0.12 Держать установленное соединение с аппаратом
 		sfSkipAfVerif   = 0x0100  // @v10.8.0 (skip after func verification) Пропускать проверку аппарата после исполнения функций при печати чеков 
@@ -213,7 +213,7 @@ SLAPI SCS_SYNCCASH::SCS_SYNCCASH(PPID n, char * name, char * port) : PPSyncCashS
 	RibbonParam(0), Inited(0), IsSetLogo(0), PrintLogo(0), DeviceType(0)
 {
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
-		Flags |= sfNotUseCutter;
+		Flags |= sfDontUseCutter;
 	RefToIntrf++;
 	P_AbstrDvc = new PPAbstractDevice(0);
 	P_AbstrDvc->PCpb.Cls = DVCCLS_SYNCPOS;
@@ -388,7 +388,7 @@ int SLAPI SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 					else {
 						PPObjSecur sec_obj(PPOBJ_USR, 0);
 						PPSecur sec_rec;
-						if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
+						if(sec_obj.Fetch(LConfig.UserID, &sec_rec) > 0)
 							operator_name = sec_rec.Name;
 					}
 					THROW(ArrAdd(Arr_In, DVCPARAM_CSHRNAME, operator_name));
@@ -1601,7 +1601,7 @@ int SLAPI SCS_SYNCCASH::ExecOper(int cmd, const StrAssocArray & rIn, StrAssocArr
 		ResCode = r_buf.ToLong();
 		ok = 0;
 	}
-	else if((ok == 1) && (ResCode == RESCODE_NO_CONNECTION)) { // При подборе скорости обмена порта в прошлый раз мог вернуться этот код ошибки и
+	else if(ok == 1 && ResCode == RESCODE_NO_CONNECTION) { // При подборе скорости обмена порта в прошлый раз мог вернуться этот код ошибки и
 		// он сохранялся, даже когда соединения успешно устанавливалось
 		// Теперь же сокрость подобрана и соединение установлено, а значит и нет теперь ошибки
 		ResCode = RESCODE_NO_ERROR;
@@ -1683,7 +1683,11 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 				// ~0xDA^^
 				// ~0xDE^^
 				if(str.CmpPrefix("0xDF^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
-					THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					if(!(Flags & sfDontUseCutter)) {
+						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					}
+					else
+						SDelay(1000); // @v10.8.9
 					//str.Z().CatCharN('-', 8);
 					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
@@ -1691,7 +1695,11 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
 				else if(str.CmpPrefix("~0xDA^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
-					THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					if(!(Flags & sfDontUseCutter)) {
+						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					}
+					else
+						SDelay(1000); // @v10.8.9
 					//str.Z().CatCharN('-', 8);
 					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
@@ -1699,7 +1707,11 @@ int SLAPI SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
 				else if(str.CmpPrefix("~0xDE^^", 1) == 0) { // @v10.7.8 @fix (!=0)-->(== 0)
-					THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					if(!(Flags & sfDontUseCutter)) {
+						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
+					}
+					else
+						SDelay(1000); // @v10.8.9
 					//str.Z().CatCharN('-', 8);
 					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));

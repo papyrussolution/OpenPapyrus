@@ -462,15 +462,15 @@ void BillFiltDialog::extraFilt()
 		if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
 			GetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
 		}
-		const PPID cur_user_id = LConfig.User;
+		const PPID cur_user_id = LConfig.UserID;
 		PPBillExt ext;
 		ext.PayerID = Data.PayerID;
 		ext.AgentID = Data.AgentID;
 		ext.Ft_STax = Data.Ft_STax;
 		ext.Ft_Declined = Data.Ft_Declined;
 		ext.Ft_CheckPrintStatus = Data.Ft_CheckPrintStatus; // @v10.7.0
-		ext.EdiRecadvStatus = Data.EdiRecadvStatus; // @v9.1.6
-		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus; // @v9.1.6
+		ext.EdiRecadvStatus = Data.EdiRecadvStatus;
+		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus;
 		ext.DuePeriod = Data.DuePeriod;
 		ushort v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
 		PPAccessRestriction accsr;
@@ -564,7 +564,7 @@ void BillFiltDialog::SetupLocationCombo()
 int BillFiltDialog::setDTS(const BillFilt * pFilt)
 {
 	if(!Data.IsEqual(pFilt, 0)) {
-		const  PPID cur_user_id = LConfig.User;
+		const  PPID cur_user_id = LConfig.UserID;
 		ushort v;
 		PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
 		int    is_op_kind_list = 0;
@@ -697,9 +697,9 @@ int BillFiltDialog::getDTS(BillFilt * pFilt)
 	getCtrlData(CTL_BILLFLT_FLAGS, &(v = 0));
 	SETFLAG(Data.Flags, BillFilt::fSetupNewBill, v & 0x01);
 	if(v & 0x02) {
-		SETIFZ(Data.CreatorID, r_cfg.User);
+		SETIFZ(Data.CreatorID, r_cfg.UserID);
 	}
-	else if(Data.CreatorID == r_cfg.User)
+	else if(Data.CreatorID == r_cfg.UserID)
 		Data.CreatorID = 0;
 	SETFLAG(Data.Flags, BillFilt::fShowWoAgent, v & 0x04);
 	SETFLAG(Data.Flags, BillFilt::fLabelOnly, getWL());
@@ -954,11 +954,11 @@ int SLAPI PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 		PPAccessRestriction accsr;
 		const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 		if(own_bill_restr == 1)
-			p_filt->CreatorID = r_cfg.User;
+			p_filt->CreatorID = r_cfg.UserID;
 		else if(own_bill_restr == 2) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
 			PPSecur sec_rec;
-			if(sec_obj.Fetch(r_cfg.User, &sec_rec) > 0)
+			if(sec_obj.Fetch(r_cfg.UserID, &sec_rec) > 0)
 				p_filt->CreatorID = (sec_rec.ParentID | PPObjSecur::maskUserGroup);
 		}
 	}
@@ -4441,8 +4441,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 	PPID   single_loc_id = -1;
 	int    is_there_bnkpaym = 0;
 	for(InitIteration(OrdByDefault); NextIteration(&view_item) > 0;) {
-		// @v9.4.3 if(view_item.Flags & BILLF_GOODS || IsDraftOp(view_item.OpID) || view_item.Flags & BILLF_BANKING) {
-		if(IsGoodsDetailOp(view_item.OpID) || view_item.Flags & BILLF_BANKING) { // @v9.4.3
+		if(IsGoodsDetailOp(view_item.OpID) || view_item.Flags & BILLF_BANKING) {
 			bill_id_list.add(view_item.ID);
 			if(view_item.LocID) {
 				if(single_loc_id < 0)
@@ -4465,6 +4464,20 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 			b_e.DisabledOptions |= PPBillImpExpBaseProcessBlock::fPaymOrdersExp;
 		THROW(r = b_e.Init(pBillParam, pBRowParam, &pack, &result_file_list));
 		if(r > 0) {
+			//
+			const PPID inet_acc_id = b_e.Tp.InetAccID;
+			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
+			int   use_mail_addr_by_context = 0;
+			SString mail_subj = b_e.Tp.Subject;
+			mail_subj.SetIfEmpty("No Subject").Transf(CTRANSF_INNER_TO_UTF8);
+			if(inet_acc_id && inet_addr_list.getCount()) {
+				for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
+					temp_buf = inet_addr_list.Get(ai).Txt;
+					if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@")
+						use_mail_addr_by_context = 1;
+				}
+			}
+			//
 			PPBillImpExpParam bill_param;
 			PPBillImpExpParam brow_param;
 			bill_param = b_e.BillParam;
@@ -4482,26 +4495,19 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						int    err = 0;
 						if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 							int    r = 0;
-							THROW(r = b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
-							if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_Invoice) {
-								r = WriteBill_NalogRu2_Invoice(pack, b_e.BillParam.FileName);
+							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
+							{
+								const SString result_file_name = b_e.BillParam.FileName;
+								switch(b_e.BillParam.PredefFormat) {
+									case PPBillImpExpParam::pfNalogR_Invoice:  r = WriteBill_NalogRu2_Invoice(pack, result_file_name); break;
+									case PPBillImpExpParam::pfNalogR_REZRUISP: r = WriteBill_NalogRu2_DP_REZRUISP(pack, result_file_name); break;
+									case PPBillImpExpParam::pfNalogR_SCHFDOPPR: r = WriteBill_NalogRu2_UPD(pack, result_file_name); break;
+									case PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_InvoiceWithMarks(pack, result_file_name); break;
+									case PPBillImpExpParam::pfExport_Marks: r = WriteBill_ExportMarks(pack, result_file_name); break; // @erik 
+								}
+								if(r > 0)
+									result_file_list.add(result_file_name);
 							}
-							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_REZRUISP) {
-								r = WriteBill_NalogRu2_DP_REZRUISP(pack, b_e.BillParam.FileName);
-							}
-							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_SCHFDOPPR) {
-								r = WriteBill_NalogRu2_UPD(pack, b_e.BillParam.FileName);
-							}
-							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfNalogR_ON_NSCHFDOPPRMARK) {
-								r = WriteBill_NalogRu2_InvoiceWithMarks(pack, b_e.BillParam.FileName);
-							}
-							//@erik {
-							else if(b_e.BillParam.PredefFormat == PPBillImpExpParam::pfExport_Marks) {
-								r = WriteBill_ExportMarks(pack, b_e.BillParam.FileName);
-							}
-							// } @erik
-							if(r > 0)
-								result_file_list.add(b_e.BillParam.FileName);
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
 					}
@@ -4509,7 +4515,38 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				}
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
-				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, logger));
+				StringSet local_result_file_list;
+				SString email_buf;
+				PPObjSecur sec_obj(PPOBJ_USR, 0);
+				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, &local_result_file_list, logger));
+				if(inet_acc_id && inet_addr_list.getCount() && local_result_file_list.getCount()) {
+					temp_buf.Z();
+					for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
+						(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
+						if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@") {
+							const PPID user_id = LConfig.UserID;
+							PPSecur sec_rec;
+							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
+								StringSet ss_elink;
+								PPObjPerson psn_obj;
+								PPELinkArray elink_list;
+								psn_obj.P_Tbl->GetELinks(sec_rec.PersonID, &elink_list);
+								if(elink_list.GetListByType(ELNKRT_EMAIL, ss_elink) > 0) {
+									for(uint sselp = 0; ss_elink.get(&sselp, temp_buf);) {
+										if(temp_buf.NotEmptyS()) {
+											email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
+											break;
+										}
+									}
+								}
+							}
+						}
+						else
+							email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
+					}
+					if(email_buf.NotEmptyS() && !PutFilesToEmail2(&local_result_file_list, inet_acc_id, email_buf, mail_subj, 0))
+						logger.LogLastError();
+				}
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
 				long   cflags = (b_e.Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
@@ -4522,12 +4559,12 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					PPBillIterchangeFilt sbp;
 					sbp.IdList = bill_id_list;
 					sbp.LocID = (single_loc_id > 0) ? single_loc_id : Filt.LocList.GetSingle();
-					TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
+					TSVector <PPEgaisProcessor::UtmEntry> utm_list;
 					THROW(ep.GetUtmList(sbp.LocID, utm_list));
 					for(uint i = 0; i < utm_list.getCount(); i++) {
 						ep.SetUtmEntry(sbp.LocID, &utm_list.at(i), &sbp.Period);
 						ep.SendBillActs(sbp);
-						ep.SendBillRepeals(sbp); // @v9.2.8
+						ep.SendBillRepeals(sbp);
 						ep.SendBills(sbp);
 						ep.SetUtmEntry(0, 0, 0);
 					}
@@ -4705,18 +4742,6 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					ok = 1;
 				}
 				else {
-					const PPID inet_acc_id = b_e.Tp.InetAccID;
-					const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
-					int   use_mail_addr_by_context = 0;
-					SString mail_subj = b_e.Tp.Subject;
-					mail_subj.SetIfEmpty("No Subject").Transf(CTRANSF_INNER_TO_UTF8);
-					if(inet_acc_id && inet_addr_list.getCount()) {
-						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
-							temp_buf = inet_addr_list.Get(ai).Txt;
-							if(temp_buf.IsEqiAscii("@bycontext") || temp_buf == "@@")
-								use_mail_addr_by_context = 1;
-						}
-					}
 					if(b_e.BillParam.Flags & PPBillImpExpParam::fExpOneByOne) {
 						StringSet local_result_file_list;
 						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
@@ -4823,17 +4848,18 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 	return ok;
 }
 
-int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, PPLogger & rLogger)
+int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger)
 {
 	int    ok = -1;
 	SString section(pSection);
 	if(section.NotEmptyS()) {
-		SString str_fmt, msg, str_dt;
+		SString temp_buf;
+		SString fmt_buf;
+		SString msg_buf;
 		BillViewItem item;
 		PPIDArray id_list;
 		DateRange period;
-		period.low = MAXDATE;
-		period.upp = encodedate(1, 1, 1900);
+		period.Set(MAXDATE, encodedate(1, 1, 1900));
 		PPWait(1);
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			if(item.Flags & BILLF_BANKING) {
@@ -4841,26 +4867,32 @@ int SLAPI PPViewBill::Helper_ExportBnkOrder(const char * pSection, PPLogger & rL
 				period.AdjustToDate(item.Dt);
 			}
 			else {
-				str_dt.Z().Cat(item.Dt);
-				msg.Printf(PPLoadTextS(PPTXT_BILLNOTBANKING, str_fmt), item.Code, str_dt.cptr());
-				rLogger.Log(msg);
+				temp_buf.Z().Cat(item.Dt);
+				msg_buf.Printf(PPLoadTextS(PPTXT_BILLNOTBANKING, fmt_buf), item.Code, temp_buf.cptr());
+				rLogger.Log(msg_buf);
 			}
 		}
 		const uint cnt = id_list.getCount();
 		if(cnt) {
+			StringSet local_result_file_list;
 			ClientBankExportDef cbed(&period);
 			THROW(cbed.ReadDefinition(section));
-			THROW(cbed.CreateOutputFile());
+			THROW(cbed.CreateOutputFile(&local_result_file_list));
 			THROW(cbed.PutHeader());
-			ok = 1;
 			for(uint i = 0; i < cnt; i++) {
 				PPBillPacket pack;
 				const PPID id = id_list.get(i);
-				THROW(P_BObj->ExtractPacket(id, &pack) > 0 && cbed.PutRecord(&pack, 0, &rLogger));
+				THROW(P_BObj->ExtractPacket(id, &pack) > 0);
+				THROW(cbed.PutRecord(&pack, 0, &rLogger));
 				PPWaitPercent(i+1, cnt);
 			}
 			THROW(cbed.PutEnd());
-			THROW(ok);
+			if(pResultFileList) {
+				for(uint sp = 0; local_result_file_list.get(&sp, temp_buf);) {
+					pResultFileList->add(temp_buf);
+				}
+			}
+			ok = 1;
 		}
 	}
 	CATCHZOK
@@ -4874,7 +4906,7 @@ int SLAPI PPViewBill::ExportBnkOrder()
 	SString section;
 	PPLogger logger;
 	if(CliBnkSelectCfgDialog(1, section) > 0) {
-		ok = Helper_ExportBnkOrder(section, logger);
+		ok = Helper_ExportBnkOrder(section, 0, logger);
 	}
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
 	return ok;

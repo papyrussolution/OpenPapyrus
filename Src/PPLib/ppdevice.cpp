@@ -3,6 +3,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <ppdrvapi.h> // @v10.8.10
 //
 //
 //
@@ -203,7 +204,7 @@ int PPAbstractDevice::IdentBlock::Set(SDynLibrary * pLib, int setOwnership)
 	if(pLib) {
 		P_Lib = pLib;
 		IsLibOwner = BIN(setOwnership);
-		Func = (ProcDevDll)P_Lib->GetProcAddr("RunCommand");
+		Func = reinterpret_cast<ProcDevDll>(P_Lib->GetProcAddr("RunCommand"));
 		if(Func) {
 			ok = 1;
 		}
@@ -478,7 +479,7 @@ int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, 
 	SString s_arr;
 	SString temp_buf;
 	StringSet ss(";");
-	const   size_t buf_size_quant = 4096; // @v9.7.6 1024-->4096
+	const   size_t buf_size_quant = 4096;
 	if(RetBuf.GetSize() < buf_size_quant)
 		RetBuf.Alloc(buf_size_quant);
 	THROW_SL(RetBuf.IsValid());
@@ -524,17 +525,28 @@ int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, 
 int PPAbstractDevice::RunCmd__(int cmdID, const StrAssocArray & rIn, StrAssocArray & rOut)
 {
 	int    ok = 1;
-	SString s_cmd, input, str;
-	THROW(PPLoadString(PPSTR_ABDVCCMD, cmdID, s_cmd)); // @todo @err
-	for(uint i = 0; i < rIn.getCount(); i++) {
+	SString temp_buf;
+	SString input;//, str;
+	// @v10.8.10 {
+	PPDrvInputParamBlock pb(0);
+	{
+		for(uint i = 0; i < rIn.getCount(); i++) {
+			StrAssocArray::Item item = rIn.Get(i);
+			THROW(PPLoadString(PPSTR_ABDVCCMD, item.Id, temp_buf)); // @todo @err
+			pb.Add(temp_buf, item.Txt);
+		}
+	}
+	// } @v10.8.10 
+	/* @v10.8.10 for(uint i = 0; i < rIn.getCount(); i++) {
 		StrAssocArray::Item item = rIn.Get(i);
 		THROW(PPLoadString(PPSTR_ABDVCCMD, item.Id, str)); // @todo @err
 		if(input.NotEmpty())
 			input.Semicol();
-		input.CatEq(str, item.Txt);
-	}
-	//THROW(Helper_RunCmd(s_cmd, input, rOut)); // @vmiller comment
-	ok = Helper_RunCmd(s_cmd, input, rOut);
+		temp_buf = item.Txt;
+		input.CatEq(str, temp_buf);
+	}*/
+	THROW(PPLoadString(PPSTR_ABDVCCMD, cmdID, temp_buf)); // @todo @err
+	ok = Helper_RunCmd(temp_buf, /*input*/pb.GetRawBuf(input), rOut);
 	CATCHZOK;
 	return ok;
 }

@@ -3033,7 +3033,7 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 	{
 		SString path;
 		PPSecurPacket secur_pack;
-		PPRef->LoadSecur(PPOBJ_USR, DS.GetTLA().Lc.User, &secur_pack);
+		PPRef->LoadSecur(PPOBJ_USR, DS.GetTLA().Lc.UserID, &secur_pack);
 		Reference::GetPassword(&secur_pack.Secur, rec.Password, sizeof(rec.Password));
 		(temp_buf = rec.Password).Transf(CTRANSF_INNER_TO_UTF8);
 		temp_buf.CopyTo(rec.Password, sizeof(rec.Password));
@@ -3487,7 +3487,7 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 		const char * p_end = "...";
 		size_t end_len = sstrlen(p_end);
 		PPIDArray suppl_list;
-		if(BillObj->trfr->Rcpt.GetSupplList(rFilt.ID, 0, LConfig.OperDate, &suppl_list) > 0) {
+		if(BillObj->trfr->Rcpt.GetSupplList(rFilt.ID, 0, getcurdate_(), &suppl_list) > 0) { // @v10.8.10 LConfig.OperDate-->getcurdate_()
 			size_t suppl_names_size = sizeof(H.SupplNames);
 			SString suppl_name, buf;
 			for(uint i = 0; i < suppl_list.getCount(); i++) {

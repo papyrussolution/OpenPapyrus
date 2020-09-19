@@ -26,7 +26,7 @@ PPBaseFilt * SLAPI PPViewCurRate::CreateFilt(void * extraPtr) const
 		const PPConfig & r_cfg = LConfig;
 		CurRateFilt * p_filt = static_cast<CurRateFilt *>(p_base_filt);
 		p_filt->CurID = reinterpret_cast<long>(extraPtr);
-		p_filt->Period.upp = r_cfg.OperDate;
+		p_filt->Period.upp = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		p_filt->BaseCurID  = r_cfg.BaseCurID;
 		p_filt->RateTypeID = r_cfg.BaseRateTypeID;
 	}
@@ -132,7 +132,7 @@ int SLAPI PPViewCurRate::AddItem(CurRateIdent * pIdent)
 	int    ok = -1;
 	CurrencyRateTbl::Rec rec;
 	// @v10.6.4 MEMSZERO(rec);
-	rec.Dt = LConfig.OperDate;
+	rec.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	rec.CurID = Filt.CurID;
 	rec.RelCurID = Filt.BaseCurID;
 	rec.RateTypeID = Filt.RateTypeID;

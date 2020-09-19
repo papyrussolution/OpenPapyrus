@@ -673,15 +673,8 @@ int FASTCALL PPBaseFilt::IsA(const PPBaseFilt * pS) const
 	return (pS && pS->Signature == Signature) ? 1 : PPSetError(PPERR_FILTNEQTYPE);
 }
 
-long SLAPI PPBaseFilt::GetSignature() const
-{
-	return Signature;
-}
-
-int32 SLAPI PPBaseFilt::GetVer() const
-{
-	return Ver;
-}
+long  SLAPI PPBaseFilt::GetSignature() const { return Signature; }
+int32 SLAPI PPBaseFilt::GetVer() const { return Ver; }
 
 int SLAPI PPBaseFilt::Init(int fullyDestroy, long extraData)
 {
@@ -940,8 +933,7 @@ int SLAPI PPBaseFilt::ReadText(const char * pText, long)
 	return -1;
 }
 
-// static
-int SLAPI PPBaseFilt::CopyBaseFiltPtr(int filtId, const PPBaseFilt * pSrcFilt, PPBaseFilt ** ppDestFilt)
+/*static*/int SLAPI PPBaseFilt::CopyBaseFiltPtr(int filtId, const PPBaseFilt * pSrcFilt, PPBaseFilt ** ppDestFilt)
 {
 	int    ok = 1;
 	if(pSrcFilt) {

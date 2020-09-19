@@ -738,7 +738,7 @@ IMPL_HANDLE_EVENT(GoodsRestWPrgnFltDlg)
 	TDialog::handleEvent(event);
 	if(event.isKeyDown(kbF2)) {
 		LDATE  dt = getCtrlDate(CTL_GRWPRGNFLT_DATE);
-		SETIFZ(dt, LConfig.OperDate);
+		SETIFZ(dt, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_GRWPRGNFLT_PRGNPRD));
 		int    num_days = p_il ? atoi(p_il->getText()) : 0;
 		if(num_days > 0 && dt) {
@@ -1066,16 +1066,14 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 					}
 				}
 				if(Flags & fScalePrefixAltGroup && GObj.GenerateScaleBarcode(rec.GoodsID, ScalePrefixID, temp_buf) > 0) {
-					// @v9.8.3 temp_buf.CopyTo(rec.BarCode, sizeof(rec.BarCode));
-					StrPool.AddS(temp_buf, &rec.BarcodeSP); // @v9.8.3
+					StrPool.AddS(temp_buf, &rec.BarcodeSP);
 				}
 				else {
 					GObj.FetchSingleBarcode(rec.GoodsID, temp_buf.Z());
-					// @v9.8.3 temp_buf.CopyTo(rec.BarCode, sizeof(rec.BarCode));
-					StrPool.AddS(temp_buf, &rec.BarcodeSP); // @v9.8.3
+					StrPool.AddS(temp_buf, &rec.BarcodeSP);
 				}
 				rec.UnitPerPack = rItem.UnitPerPack;
-				rec.Expiry = rItem.Expiry; // @v9.7.11
+				rec.Expiry = rItem.Expiry;
 			}
 			rec.Quantity    = rItem.Rest;
 			rec.PhQtty      = rItem.PhRest;
@@ -1092,16 +1090,13 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 				rec.PctAddedVal = 0.0f; */
 			rec.SumCVat     = (Flags & fAccsCost) ? rItem.SumCVat : 0.0;
 			rec.SumPVat     = rItem.SumPVat;
-			// @v9.7.11 {
 			if(Filt.DiffParam & GoodsRestParam::_diffLotTag && Filt.DiffLotTagID) {
 				CacheBuf.GetCacheItemLotTag(rItem, temp_buf);
-				// @v9.8.3 STRNSCPY(rec.Serial, temp_buf);
-				StrPool.AddS(temp_buf, &rec.SerialSP); // @v9.8.3
+				StrPool.AddS(temp_buf, &rec.SerialSP);
 			}
-			else { // } @v9.7.11
+			else {
 				CacheBuf.GetCacheItemSerial(rItem, temp_buf);
-				// @v9.8.3 STRNSCPY(rec.Serial, temp_buf);
-				StrPool.AddS(temp_buf, &rec.SerialSP); // @v9.8.3
+				StrPool.AddS(temp_buf, &rec.SerialSP);
 			}
 			if((Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) || Filt.Flags & GoodsRestFilt::fCalcSStatSales || Filt.PrgnTerm > 0) { // @v9.5.8 CalcPrognosis-->Flags2
 				int    can_trust = 0;
@@ -1115,7 +1110,7 @@ int SLAPI PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRes
 					rec.RestInDays = (long)roundnev(rec.Quantity * stat.GetTrnovr(PSSV_QTTY), 0);
 					if(Filt.ExhaustTerm) {
 						if(rec.Quantity <= 0.0) {
-							LDATE  this_date = NZOR(Filt.Date, LConfig.OperDate);
+							LDATE  this_date = NZOR(Filt.Date, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 							LDATE  last_date = ZERODATE;
 							TransferTbl::Rec trfr_rec;
 							LDATE before_dt = this_date;
@@ -1477,7 +1472,7 @@ int SLAPI PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, 
 int SLAPI PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec & rRec)
 {
 	MEMSZERO(rRec);
-	int    ok = GetLastLot_p(goodsID, locID, Filt.SupplID, LConfig.OperDate, &rRec);
+	int    ok = GetLastLot_p(goodsID, locID, Filt.SupplID, getcurdate_(), &rRec); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	const  int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
 	if(oneof2(quot_usage, 1, 2)) {
 		const QuotIdent qi(NZOR(locID, Filt.LocList.GetSingle()), Filt.QuotKindID);
@@ -2503,7 +2498,7 @@ int SLAPI PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 			prf_measure_coeff *= 1.05;
 			period = Filt.DraftRcptPrd;
 			if(period.IsZero())
-				period.Set(LConfig.OperDate, ZERODATE);
+				period.Set(getcurdate_(), ZERODATE); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 			THROW(P_BObj->GetDraftRcptList(&period, (loc_list_empty ? 0 : &LocList.Get()), &DraftRcptList));
 		}
 	}
@@ -3132,8 +3127,10 @@ int SLAPI PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 {
 	DateRange prd = Filt.PrgnPeriod;
 	if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && DateRangeDialog(0, 0, &prd) > 0) { // @v9.5.8 CalcPrognosis-->Flags2
-		if(prd.IsZero())
-			prd.Set(LConfig.OperDate, plusdate(LConfig.OperDate, 6));
+		if(prd.IsZero()) {
+			const LDATE now_date = getcurdate_();
+			prd.Set(now_date, plusdate(now_date, 6)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		}
 		Filt.PrgnPeriod = prd;
 		double predict = 0.0;
 		if(GetEstimatedSales(&LocList, goodsID, &prd, &predict) > 0) {

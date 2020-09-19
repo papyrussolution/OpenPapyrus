@@ -38,7 +38,12 @@ public:
 //
 class PPDrvInputParamBlock {
 public:
-	PPDrvInputParamBlock(const char * pInputText);
+	static SString & EncodeText(SString & rBuf);
+	static SString & DecodeText(SString & rBuf);
+
+	explicit PPDrvInputParamBlock(const char * pInputText);
+	int    Add(const char * pParam, const char * pValue);
+	SString & GetRawBuf(SString & rBuf) const;
 	int    Get(const char * pParam, SString & rValue);
 private:
 	StringSet Ss;

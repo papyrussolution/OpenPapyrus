@@ -217,7 +217,7 @@ static int SLAPI RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 	if(CheckDialogPtr(&(dlg = new TDialog(rezID)))) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_BILLFLT_LOGFILE, CTL_BILLFLT_LOGFILE, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		dlg->SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
-		pFilt->Period.SetDate(LConfig.OperDate);
+		pFilt->Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		SetPeriodInput(dlg, CTL_BILLFLT_PERIOD, &pFilt->Period);
 		dlg->setCtrlString(CTL_BILLFLT_LOGFILE, pFilt->LogFileName);
 		types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER,
@@ -253,7 +253,7 @@ int SLAPI RecalcBillTurns(int checkAmounts)
 	int    frrl_tag = 0, r;
 	PPLogger logger;
 	BillRecalcParam flt;
-	flt.Period.SetDate(LConfig.OperDate);
+	flt.Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	THROW(r = RecalcBillDialog((checkAmounts ? DLG_CHKBAMT : DLG_RECLCTRN), &flt));
 	if(r == cmOK) {
 		DateIter diter(&flt.Period);

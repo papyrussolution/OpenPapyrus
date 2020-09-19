@@ -1149,7 +1149,7 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 	getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
 	getCtrlData(CTLSEL_TODOFILT_CROSSTAB, &Data.TabType);
 	if(Data.StartPeriod.IsZero() && Data.TabType != PrjTaskFilt::crstNone) {
-		const LDATE oper_date = LConfig.OperDate;
+		const LDATE oper_date = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		if(oneof2(Data.TabType, PrjTaskFilt::crstDateHour, PrjTaskFilt::crstEmployerHour))
 			Data.StartPeriod.low = Data.StartPeriod.upp = oper_date;
 		else {

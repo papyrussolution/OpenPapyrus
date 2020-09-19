@@ -4222,7 +4222,7 @@ public:
 		SSerializeContext sctx;
 		const size_t sav_offs = pParam->GetRdOffs();
 		THROW_INVARG(pParam);
-		if(pParam->GetAvailableSize() != 0)
+		if(pParam->GetAvailableSize())
 			THROW(filt.Serialize(-1, *pParam, &sctx));
 		if(PPViewVetisDocument::EditInterchangeParam(&filt) > 0) {
 			THROW(filt.Serialize(+1, pParam->Z(), &sctx));

@@ -1218,7 +1218,7 @@ browser PERSONATTR_TAG north(100), 1, 0, "Теги персоналий {%s}", OWNER|GRID, 0
 	toolbar PERSON
 }
 
-browser PERSONREL north(100), 1, 0, "Отношения персоналий", OWNER|GRID, 0
+browser PERSONREL north(100), 1, 0, "@{personrelation_pl}", OWNER|GRID, 0
 {
 	"@person",              4, notype, 0, 30
 	"Связанная персоналия", 5, notype, 0, 10
@@ -3452,7 +3452,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,       "@{doeditrow}\tEnter"
 		ADDITEM          : kbIns,      PPDV_ADDFILE02,        "@{doaddrow}\tInsert"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,     "@{doremoverow}\tDelete"
-		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,      "Удаление все строки\tCtrl-F8"
+		DELETEALL        : kbCtrlF8,   PPDV_DELETEALL02,      "Удалить все строки\tCtrl-F8"
 		EDITGOODS        : kbF2,       TBBM_GOODS,            "@{ware}\tF2"
 		VIEWLOTS         : kbF3,       PPDV_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
@@ -3598,7 +3598,7 @@ browser QUOT north(100), 2, 1, "@{view_quot}", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,           "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{view_lot}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "Вид котировки (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (выберите соответствующую ячейку)\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,          "Динамика\tCtrl-T"
 		separator
@@ -3624,7 +3624,7 @@ browser QUOT_AR north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,           "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{lots}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "Вид котировки (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (выберите соответствующую ячейку)\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,          "Динамика\tCtrl-T"
 		separator
@@ -3650,7 +3650,7 @@ browser QUOT_LOC north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02, "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,        "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,         "@{lots}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,    "Вид котировки (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,    "@{quotkind} (выберите соответствующую ячейку)\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,     "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,       "Динамика\tCtrl-T"
 		separator
@@ -3675,7 +3675,7 @@ browser QUOT_CROSSTAB north(100), 2, 1, "@{view_quot} - %s", OWNER|GRID, 0
 		DELETEITEM      : kbDel,       PPDV_DELETEFILE02,    "@{dormvallquotsbyware}\tDelete"
 		EDITGOODS       : kbF2,        TBBM_GOODS,           "@{ware}\tF2"
 		VIEWLOTS        : kbF3,        PPDV_LOTS,            "@{lots}\tF3"
-		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "Вид котировки (выберите соответствующую ячейку)\tF4"
+		EDITQUOTKIND    : kbF4,        TBBM_QUOTATION,       "@{quotkind} (выберите соответствующую ячейку)\tF4"
 		VIEWMTXBYGGRP   : kbF6,        PPDV_MATRIX01,        "Товарная матрица по группе\tF6"
 		VIEWSERIES      : kbCtrlT,     PPDV_NOICON,          "Динамика\tCtrl-T"
 		separator
@@ -4292,7 +4292,7 @@ browser CSESS_EXT north(100), 3, 1, "Расширенная ведомость кассовых сессий", OWN
 //
 // }
 //
-browser CSESSEXC north(100), 3, 1, "Дефицит по кассовым сессиям", OWNER|GRID, 0
+browser CSESSEXC north(100), 3, 1, "@{view_csessexc}", OWNER|GRID, 0
 {
 	"@valuesign_s", 1, notype, 0,  4
 	"@ware",        2, notype, 0, 40
@@ -4340,7 +4340,7 @@ browser OBJSYNC north(100), 1, 1, "@{view_objsync} {%s}", OWNER|GRID, 0
 	}
 }
 
-browser OBJSYNCQUEUE north(100), 1, 1, "Очередь синхронизации", OWNER|GRID, 0
+browser OBJSYNCQUEUE north(100), 1, 1, "@{view_objsyncqueue}", OWNER|GRID, 0
 {
 	"@priority",             9, notype, 0,            8
 	"@modifdate",            7, notype, 0,            8
@@ -5974,8 +5974,8 @@ browser REGISTERTYPE north(100), 1, 1, "@{view_registertype}", OWNER|GRID, 0
 {
 	"@id",                        0, int32,        0,  6, BCO_USERPROC
 	"@appellation",               1, zstring(48),  0, 30, BCO_USERPROC
-	"Вид рег. органа",            2, zstring(48),  0, 20, BCO_USERPROC
-	"Допустимый вид персоналии",  3, zstring(48),  0, 20, BCO_USERPROC
+	"@registertype_regorgkind",   2, zstring(48),  0, 20, BCO_USERPROC
+	"@registertype_personkind",   3, zstring(48),  0, 20, BCO_USERPROC
 	"@registertype_expiryperiod", 4, int32,        NMBF_NOZERO, 10, BCO_USERPROC
 	"@format",                    5, zstring(256), 0, 30, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
@@ -6784,8 +6784,8 @@ cmd LocationTag           { "@{cmd_locationtag}"                           PPDV_
 cmd ConvertVersionToHtml  { "Конвертация version.txt (только для внутреннего использования)" none none cmConvertVersionToHtml }
 cmd ObjTagAllObjects      { "@{cmd_objtagallobj}"                          PPDV_TAGS01            none cmObjTagAllObj }
 cmd ImportFias            { "@{cmd_importfias}"                            none                   none cmImportFias }
-cmd ExportDbTblTransfer   { "Экспорт таблицы Transfer"                     none                   none cmExportDbTblTransfer }
-cmd ExportDbTblBill       { "Экспорт таблицы Bill"                         none                   none cmExportDbTblBill }
+cmd ExportDbTblTransfer   { "@{cmd_exportdbtbltransfer}"                   none                   none cmExportDbTblTransfer }
+cmd ExportDbTblBill       { "@{cmd_exportdbtblbill}"                       none                   none cmExportDbTblBill }
 cmd TestFias              { "@{cmd_testfias}"                              none                   none cmTestFias }
 cmd ViewGeoTracking       { "@{cmd_viewgeotracking}"                       none                   none cmViewGeoTracking }
 cmd ImportTSessUHTT       { "@{cmd_importtsessuhtt}"                       none                   none cmImportTSessUHTT }
@@ -6817,6 +6817,7 @@ cmd UniFindObj            { "@{cmd_unifindobj}"                            none 
 cmd QueryCHZN             { "@{cmd_querychzn}"                             none                   none cmQueryCHZN }
 cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  } // @v10.7.4
 cmd Events                { "@{cmd_events}"                                none                   none cmEvents } // @v10.8.9
+cmd EventSubscription     { "@{cmd_eventsubscription}"                     none                   none cmEventSubscription } // @v10.8.9
 //
 // -------------- Описания серверных задач
 //
@@ -7072,7 +7073,7 @@ record CliBnkData {
 record SpecSeries {
 	Serial            zstring(64)   "@{serial}";
 	GoodsName         zstring(128)  "@{goodsname}";
-	ManufName         zstring(128)  "Наименование производителя";
+	ManufName         zstring(128)  "@{manufacturername}";
 	InfoDate          date          "Дата последнего обновления информации";
 	InfoIdent         zstring(24)   "Дополнительная идентификационная строка";
 	LabName           zstring(160)  "Наименование лаборатории";
@@ -7444,7 +7445,7 @@ record CS_Chkhd {
 	CheckNumber  long         format(10)   "@{checkno}";
 	CashNumber   long         format(10)   "@{posnodeno}";
 	SessNumber   long         format(10)   "@{sessionno}";
-	CashierNo    long         format(10)   "Номер кассира";
+	CashierNo    long         format(10)   "@{cashierno}";
 	OperDate     zstring(20)  "Дата/время чека";
 	Operation    zstring(1)   "Продажа/возврат";
 }
@@ -7454,7 +7455,7 @@ record CS_ChkLn {
 	CheckNumber  long         format(10)   "@{checkno}";
 	CashNumber   long         format(10)   "@{posnodeno}";
 	SessNumber   long         format(10)   "@{sessionno}";
-	Division     long         format(4)    "Номер отдела";
+	Division     long         format(4)    "@{departmentno}";
 	Article      long         format(20)   "@{goodsarcode}";
 	Quantity     double       format(10.3) "@{qtty}";
 	Price        double       format(12.2) "@{price}";
@@ -7600,7 +7601,7 @@ record WorldObjStatus {
 
 record WorldObj {
 	Name       zstring(48) "Наименование географического объекта";
-	Abbr       zstring(20) "Сокращенное наименование";
+	Abbr       zstring(20) "@{shortappellation}";
 	StatusText zstring(32) "Статус (полный идентификатор)";
 	StatusAbbr zstring(32) "Статус (сокращенный идентификатор)";
 	Code       zstring(20) "Составной код объекта (ССРРРГГГППП[УУУУ]АА)";
@@ -7703,7 +7704,6 @@ record SBIIBill {
 	OpID     long                  "@{op_pl}";
 	Code     zstring(16)           "@{billno}";
 	Guid     zstring(38)           "GUID документа";
-
 }
 
 record SBIIBillRow {
@@ -7747,7 +7747,7 @@ record Goods2 {
 	GrpName        zstring(128)        "@{groupname}";
 	FolderGrpName  zstring(128)        "Наименование группы верхнего уровня";
 	Name           zstring(4096)       "@{appellation}";             // @v8.0.12 (128)-->(40196)
-	Abbr           zstring(128)        "Сокращенное наименование";
+	Abbr           zstring(128)        "@{shortappellation}";
 	UnitName       zstring(48)         "@{munitname}";
 	UnitCode       zstring(20)         "@{munitcode}"; // @v8.1.1
 	PhUnitName     zstring(48)         "Наименование физической единицы измерения";
@@ -7782,7 +7782,7 @@ record Goods2 {
 	MinShippmQtty  double              "Минимальное отгружаемое количество";
 	MultMinShippm  long                "MinShippmQtty одновременно определяет кратность отгужаемого количества";
 	ManufID        long                "ИД производителя";
-	ManufName      zstring(128)        "Наименование производителя";
+	ManufName      zstring(128)        "@{manufacturername}";
 	Brand          zstring(128)        "@{brand}";
 	ExtA           zstring(4096)       "Доп инфо по товару A";
 	ExtB           zstring(4096)       "Доп инфо по товару B";
@@ -7795,10 +7795,10 @@ record Goods2 {
 	AltGrpPLU      long                "PLU для альтернативной группы";
 	HierObjCode    zstring(32)         "Код иерархического объекта";
 	HierParentCode zstring(32)         "Код родительского иерархического объекта";
-	BillSupplID    long                "@{document}: ид поставщика";
-	BillSupplCode  zstring(32)         "@{document}: код поставщика";
-	BillCode       zstring(32)         "@{document}: номер документа";
-	BillDate       date                "@{document}: дата документа";
+	BillSupplID    long                "@{document}: @{supplierid}";
+	BillSupplCode  zstring(32)         "@{document}: @{suppliercode}";
+	BillCode       zstring(32)         "@{document}: @{billno}";
+	BillDate       date                "@{document}: @{billdate}";
 	ClsCode        zstring(20)         "Код класса товара";
 	DimX           double              "@{classifier} X";
 	DimY           double              "@{classifier} Y";
@@ -7819,7 +7819,7 @@ record Goods2 {
 }
 
 record Person {
-	Code               zstring(20)     "Код персоналии";
+	Code               zstring(20)     "@{personcode}";
 	DblGisCode         long            "Код 2GIS";
 	Name               zstring(128)    "@{appellation}";
 	ExtName            zstring(256)    "@{person_extname}";
@@ -7859,7 +7859,7 @@ record Person {
 	BankName           zstring(128)    "@{bankname}";
 	BankAcc            zstring(48)     "Номер расчетного счета";
 	VatFree            long            "Признак освобождения от НДС";
-	DOB                date            "Дата рождения"; // @v9.8.0
+	DOB                date            "@{dateofbirth}"; // @v9.8.0
 	Memo               zstring(128)    "@{memo}";
 }
 
@@ -7900,12 +7900,12 @@ record CSess_Front {
 
 record CCheck_Front {
 	CheckNumber  long         format(10)   "@{checkno}";
-	CashierNo    long         format(10)   "Номер кассира";
+	CashierNo    long         format(10)   "@{cashierno}";
 	OperDate     date         "@{checkdate}";
 	OperTime     zstring(10)  "Время чека";
 	Operation    zstring(1)   "Продажа/возврат";
 	CheckLineID  long         format(10)   "ИД строки чека";
-	Division     long         format(4)    "Номер отдела";
+	Division     long         format(4)    "@{departmentno}";
 	Article      long         format(20)   "@{goodsarcode}";
 	Quantity     double       format(10.3) "@{qtty}";
 	Price        double       format(12.2) "@{price}";
@@ -7935,7 +7935,7 @@ record PalmGoods {
 	Pack         double       format(13.2) "@{cargopckg}";
 	Price        double       format(13.2) "@{price}";
 	Rest         double       format(13.2) "@{rest}";
-	ParentID     long         format(10)   "Родительская группа";
+	ParentID     long         format(10)   "@{parentgroup}";
 	Expiry       date         "@{expirationdate}";
 	BrandID      long         format(10)   "@{brand}";
 	BrandOwnerID long         format(10)   "@{brandowner}";
@@ -7945,7 +7945,7 @@ record PalmGoods {
 
 record PalmGoodsGrp {
 	ID          long          format(10) "@{id}";
-	ParentID    long          format(10) "Родительская группа";
+	ParentID    long          format(10) "@{parentgroup}";
 	Name        zstring(64)   "@{appellation}";
 }
 
@@ -7980,8 +7980,8 @@ record PalmBrand {
 record PalmWarehouse {
 	ID             long          format(10) "@{id}";
 	Name           zstring(64)   "@{appellation}";
-	Latitude       double        format(13.2) "Широта";
-	Longitude      double        format(13.2) "Долгота";
+	Latitude       double        format(13.2) "@{latitude}";
+	Longitude      double        format(13.2) "@{longitude}";
 	AddrString     zstring(256)  "@{address}";
 }
 
@@ -8032,7 +8032,7 @@ record Lot {
 	Price         double format(10.2) "@{termprice}";
 	Rest          double format(10.3) "@{currentrest}";
 	PrevLotID     long                "Ид родительского лота";
-	SupplID       long                "Ид поставщика";
+	SupplID       long                "@{supplierid}";
 	CloseDate     date                "@{lot_closedate}";
 	Expiry        date                "Дата истечения срока годности";
 	InTaxGrpID    long                "Ид налоговой группы прихода";
@@ -8194,7 +8194,7 @@ record CPosCheckRow {
 }
 
 record Baltika_RestPart {
-	SkipDelete  int32 "Удаление заруженных ранее данных";
+	SkipDelete  int32 "Удаление загруженных ранее данных";
 }
 
 record Baltika_RestPartLine {
@@ -8400,10 +8400,10 @@ reportstub RptInfo			{ dl600data=RptInfo,			"Сведения об отчетах Сравнительный а
 reportstub QuotList			{ dl600data=QuotView,			"Список котировок"}
 reportstub QuotList_Loc		{ dl600data=QuotView,			"Список котировок (в выбранным складом)"}
 reportstub QuotList_Obj		{ dl600data=QuotView,			"Список котировок (в выбранным клиентом	)"}
-reportstub PsnRelList		{ dl600data=PsnRelList,			"Персональные отношения"}
+reportstub PsnRelList		{ dl600data=PsnRelList,			"@{personrelation_pl}"}
 reportstub PersonEventSubst2 { dl600data=PersonEvent,		"Персональные операции с 2 подстановками"}
 reportstub PersonEventSubst	{ dl600data=PersonEvent,		"Персональные операции с подстановкой"}
-reportstub PersonEvent		{ dl600data=PersonEvent,		"Персональные операции"}
+reportstub PersonEvent		{ dl600data=PersonEvent,		"@{personevent_pl}"}
 reportstub PriceListPack	{ dl600data=PriceListData,		"@{pricelist}"}
 reportstub PriceList		{ dl600data=PriceListData,		"@{pricelist}"}
 reportstub PriceListPackM	{ dl600data=PriceListData,		"Прайс-лист с колонкой производителя и емкостью упаковки"}
@@ -8422,7 +8422,7 @@ reportstub PsnAttrTag		{ dl600data=PersonList,			"Список персоналий с атрибутом 
 reportstub PersonList		{ dl600data=PersonList,			"Список персоналий"}
 reportstub PaymPlan			{ dl600data=PaymPlan,			"@{paymplan}"}
 reportstub PriceAnlz		{ dl600data=PriceAnlz,			"Сравнительный анализ цен"}
-reportstub OprKindList		{ dl600data=OprKindList,		"Список операций"}
+reportstub OprKindList		{ dl600data=OprKindList,		"@{oprkindlist}"}
 reportstub OpGrpngBList		{ dl600data=OpGrouping,			"Группировка операций c реестром документов"}
 reportstub OpGrpng			{ dl600data=OpGrouping,			"@{opgrouping}"}
 reportstub BillOpGrpngExt	{ dl600data=OpGrouping,			"Группировка операций по документам с дополнительным типом товаров"}

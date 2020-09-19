@@ -25,7 +25,7 @@ int SLAPI PPConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW_SL(pSCtx->Serialize(dir, BaseCurID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, RealizeOrder, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Menu, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, User, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UserID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, LocAccSheetID, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Location, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
@@ -49,7 +49,7 @@ PPObjSecur::Exclusion::Exclusion(int exclrt) : State(0)
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		PPSecur secur;
-		if(sec_obj.Fetch(r_tla.Lc.User, &secur) > 0 && secur.UerID) {
+		if(sec_obj.Fetch(r_tla.Lc.UserID, &secur) > 0 && secur.UerID) {
 			PPObjSecur uer_obj(PPOBJ_USREXCLRIGHTS, 0);
 			PPSecur uer;
 			if(uer_obj.Fetch(secur.UerID, &uer) > 0 && (uer.UerFlags & exclrt)) {
@@ -238,9 +238,11 @@ int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 		Reference::GetExField(&cfgp_rec, PCFGEXSTR_DESKTOPNAME, desk_name);
 		dt_id = 0;
 		if(desk_name.Len()) {
-			SString def_desk_name, db_symb;
+			SString def_desk_name;
+			SString db_symb;
 			const PPCommandItem * p_item = 0;
-			PPCommandGroup desktop_list, desktop_list_from_bin;
+			PPCommandGroup desktop_list;
+			PPCommandGroup desktop_list_from_bin;
 			//PPCommandMngr * p_mgr = PPDesktop::LoadDeskList(1, &desk_list); // @erik v10.6.7
 			PPCommandMngr * p_mgr = GetCommandMngr(1, 1, 0);// @erik v10.6.7
 			if(p_mgr) {
@@ -253,7 +255,7 @@ int SLAPI PPObjSecur::GetPrivateDesktop(PPID userID, PPID * pDesktopID)
 					p_item = desktop_list_from_bin.SearchByName(desk_name, db_symb, 0);
 				}
 // } @erik
-				if((p_item) && p_item->Kind == PPCommandItem::kGroup)
+				if(p_item && p_item->Kind == PPCommandItem::kGroup)
 					dt_id = p_item->ID;
 				ZDELETE(p_mgr);
 			}

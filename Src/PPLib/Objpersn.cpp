@@ -118,7 +118,7 @@ int FASTCALL PPObjPerson::GetCurUserPerson(PPID * pID, SString * pBuf)
 	PPSecur secur;
 	ASSIGN_PTR(pID, 0);
 	ASSIGN_PTR(pBuf, 0);
-	if(sec_obj.Fetch(LConfig.User, &secur) > 0) {
+	if(sec_obj.Fetch(LConfig.UserID, &secur) > 0) {
 		if(secur.PersonID) {
 			ASSIGN_PTR(pID, secur.PersonID);
 			if(pBuf) {
@@ -1833,7 +1833,7 @@ int SLAPI PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	PPID   usr_id = (userID >= 0) ? userID : LConfig.User;
+	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID) > 0)
 		ok = -1;
 	else {
@@ -1861,7 +1861,7 @@ int SLAPI PPObjPerson::RemoveFromAddrBook(PPID personID, PPID userID, int use_ta
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	PPID   usr_id = (userID >= 0) ? userID : LConfig.User;
+	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	ObjAssocTbl::Rec rec;
 	if(p_ref->Assc.Search(PPASS_ADDRESSBOOK, usr_id, personID, &rec) > 0) {
 		if(!p_ref->Assc.Remove(rec.ID, use_ta))
@@ -1874,13 +1874,13 @@ int SLAPI PPObjPerson::RemoveFromAddrBook(PPID personID, PPID userID, int use_ta
 
 int SLAPI PPObjPerson::EnumAddrBookItems(PPID userID, PPID * pPersonID, ObjAssocTbl::Rec * b)
 {
-	PPID   usr_id = (userID >= 0) ? userID : LConfig.User;
+	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	return PPRef->Assc.EnumByPrmr(PPASS_ADDRESSBOOK, usr_id, pPersonID, b);
 }
 
 int SLAPI PPObjPerson::GetAddrBookIDList(PPID userID, PPIDArray * pList)
 {
-	PPID   usr_id = (userID >= 0) ? userID : LConfig.User;
+	PPID   usr_id = (userID >= 0) ? userID : LConfig.UserID;
 	return PPRef->Assc.GetListByPrmr(PPASS_ADDRESSBOOK, usr_id, pList);
 }
 

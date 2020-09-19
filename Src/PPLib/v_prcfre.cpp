@@ -31,7 +31,7 @@ PPBaseFilt * PPViewPrcBusy::CreateFilt(void * extraPtr) const
 	PrcBusyFilt * p_filt = new PrcBusyFilt;
 	if(p_filt) {
 		p_filt->Flags |= PrcBusyFilt::fFree;
-		p_filt->Period.Start.d = LConfig.OperDate;
+		p_filt->Period.Start.d = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	}
 	return p_filt;
 }

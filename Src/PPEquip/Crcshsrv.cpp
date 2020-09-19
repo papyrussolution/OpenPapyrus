@@ -2785,7 +2785,7 @@ int SLAPI ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, D
 		dlg = new TDialog(DLG_SELSESSRNG);
 		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
-			const LDATE oper_date = LConfig.OperDate;
+			const LDATE oper_date = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 			ChkRepPeriod.SetDate(oper_date);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
@@ -4287,7 +4287,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 	int    ok = -1, r = 1;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
 	SString query_buf;
-	SETIFZ(end, plusdate(LConfig.OperDate, 2));
+	SETIFZ(end, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	DbfTable * p_dbftz  = 0;
 	PPImpExp * p_ie_csz = 0;
 	ZRep   zrep;
@@ -4449,9 +4449,8 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 	SString wait_msg_tmpl, wait_msg;
 	SString query_buf;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
-	SVector zrep_list(sizeof(ZRep)); // @v9.8.8 SArray-->SVector
-
-	SETIFZ(end, plusdate(LConfig.OperDate, 2));
+	SVector zrep_list(sizeof(ZRep));
+	SETIFZ(end, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);
 	THROW(CreateTables());
 	//

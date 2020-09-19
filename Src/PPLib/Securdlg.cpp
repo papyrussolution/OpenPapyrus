@@ -13,14 +13,15 @@ int SLAPI UpdatePassword()
 	PPSecurPacket spack;
 	PPAccessRestriction accsr;
 	Reference * p_ref = PPRef;
-	THROW(p_ref->LoadSecur(PPOBJ_USR, LConfig.User, &spack));
+	const PPID user_id = LConfig.UserID;
+	THROW(p_ref->LoadSecur(PPOBJ_USR, user_id, &spack));
 	if(spack.Rights.IsEmpty())
 		ObjRts.GetAccessRestriction(accsr);
 	else
 		spack.Rights.GetAccessRestriction(accsr);
 	if(PasswordDialog(0, password, sizeof(password), accsr.PwMinLen) > 0) {
 		memcpy(spack.Secur.Password, password, sizeof(spack.Secur.Password));
-		THROW(p_ref->EditSecur(PPOBJ_USR, LConfig.User, &spack, 0, 1));
+		THROW(p_ref->EditSecur(PPOBJ_USR, user_id, &spack, 0, 1));
 		PPMessage(mfInfo|mfOK, PPINF_PASSWORDUPDATED, 0);
 	}
 	else

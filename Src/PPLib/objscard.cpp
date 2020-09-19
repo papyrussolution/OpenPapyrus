@@ -4031,7 +4031,7 @@ int SLAPI PPObjSCard::SerializePacket(int dir, SCardTransmitPacket * pPack, SBuf
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->P.Rec, rBuf, pSCtx));
-	THROW(pPack->P.SerializeB(dir, rBuf, pSCtx)); // @v9.4.0
+	THROW(pPack->P.SerializeB(dir, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, pPack->Since, rBuf));
 	THROW_SL(P_CcTbl->SerializeArrayOfRecords(dir, &pPack->CheckList, rBuf, pSCtx));
 	THROW_SL(P_Tbl->ScOp.SerializeArrayOfRecords(dir, &pPack->ScOpList, rBuf, pSCtx));

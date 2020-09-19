@@ -901,7 +901,7 @@ int SLAPI GoodsImportBillIdent::Get(Sdr_Goods2 * pRec, PPID supplID)
 	if(*strip(pRec->BillCode) == 0)
 		BillCode = "@INIT";
 	BillDate = pRec->BillDate;
-	SETIFZ(BillDate, LConfig.OperDate);
+	SETIFZ(BillDate, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	SupplID = NZOR(supplID, DefSupplID);
 	/*
 	CATCHZOK

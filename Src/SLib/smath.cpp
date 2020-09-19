@@ -185,6 +185,183 @@ double FASTCALL ffrac(double v)
 double fgetwsign(double val, int sign) { return (sign > 0) ? val : ((sign < 0) ? -val : 0.0); }
 double faddwsign(double val, double addendum, int sign) { return (sign > 0) ? (val + addendum) : ((sign < 0) ? (val - addendum) : val); }
 
+float  fdotproduct(uint count, const float * pV1, const float * pV2)
+{
+	float result = 0.0f;
+	for(uint i = 0; i < count; i++) {
+		result += (pV1[i] * pV2[i]);
+	}
+	return result;
+}
+
+double fdotproduct(uint count, const double * pV1, const double * pV2)
+{
+	double result = 0.0;
+	const  uint org_count = count;
+	while(count) {
+		uint p = org_count - count;
+		switch(count) {
+			case 1:
+				result += (pV1[p] * pV2[p]);
+				count--;
+				break;
+			case 2:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]);
+				count -= 2;
+				break;
+			case 3:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]) + (pV1[p+2] * pV2[p+2]);
+				count -= 3;
+				break;
+			case 4:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]) + (pV1[p+2] * pV2[p+2]) + (pV1[p+3] * pV2[p+3]);
+				count -= 4;
+				break;
+			case 5:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]) + (pV1[p+2] * pV2[p+2]) + (pV1[p+3] * pV2[p+3]) + 
+					(pV1[p+4] * pV2[p+4]);
+				count -= 5;
+				break;
+			case 6:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]) + (pV1[p+2] * pV2[p+2]) + (pV1[p+3] * pV2[p+3]) + 
+					(pV1[p+4] * pV2[p+4]) + (pV1[p+5] * pV2[p+5]);
+				count -= 6;
+				break;
+			case 7:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]) + (pV1[p+2] * pV2[p+2]) + (pV1[p+3] * pV2[p+3]) + 
+					(pV1[p+4] * pV2[p+4]) + (pV1[p+5] * pV2[p+5]) + (pV1[p+6] * pV2[p+6]);
+				count -= 7;
+				break;
+			default:
+				result += (pV1[p] * pV2[p]) + (pV1[p+1] * pV2[p+1]) + (pV1[p+2] * pV2[p+2]) + (pV1[p+3] * pV2[p+3]) 
+					+ (pV1[p+4] * pV2[p+4]) + (pV1[p+5] * pV2[p+5]) + (pV1[p+6] * pV2[p+6]) + (pV1[p+7] * pV2[p+7]);
+				count -= 8;
+				break;
+		}
+	}
+	/*for(uint i = 0; i < count; i++) {
+		result += (pV1[i] * pV2[i]);
+	}*/
+	return result;
+}
+
+float  feuclideannorm(uint count, const float * pV)
+{
+	float result = 0.0f;
+	for(uint i = 0; i < count; i++) {
+		result += (pV[i] * pV[i]);
+	}
+	result = sqrtf(result);
+	return result;
+}
+
+double feuclideannorm(uint count, const double * pV)
+{
+	double result = 0.0;
+	for(uint i = 0; i < count; i++) {
+		result += (pV[i] * pV[i]);
+	}
+	result = sqrt(result);
+	return result;
+}
+
+float  feuclideandistance(uint count, const float * pV1, const float * pV2)
+{
+	float result = 0.0f;
+	for(uint i = 0; i < count; i++) {
+		float d = (pV1[i] - pV2[i]);
+		result += (d * d);
+	}
+	result = sqrtf(result);
+	return result;
+}
+
+double feuclideandistance(uint count, const double * pV1, const double * pV2)
+{
+	double result = 0.0;
+	const  uint org_count = count;
+	while(count) {
+		uint p = org_count - count;
+		double d[8];
+		switch(count) {
+			case 1:
+				d[0] = pV1[p] - pV2[p];
+				result += (d[0] * d[0]);
+				count -= 1;
+				break;
+			case 2:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				result += (d[0] * d[0]) + (d[1] * d[1]);
+				count -= 2;
+				break;
+			case 3:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				d[2] = pV1[p+2] - pV2[p+2];
+				result += (d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]);
+				count -= 3;
+				break;
+			case 4:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				d[2] = pV1[p+2] - pV2[p+2];
+				d[3] = pV1[p+3] - pV2[p+3];
+				result += (d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]) + (d[3] * d[3]);
+				count -= 4;
+				break;
+			case 5:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				d[2] = pV1[p+2] - pV2[p+2];
+				d[3] = pV1[p+3] - pV2[p+3];
+				d[4] = pV1[p+4] - pV2[p+4];
+				result += (d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]) + (d[3] * d[3]) + (d[4] * d[4]);
+				count -= 5;
+				break;
+			case 6:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				d[2] = pV1[p+2] - pV2[p+2];
+				d[3] = pV1[p+3] - pV2[p+3];
+				d[4] = pV1[p+4] - pV2[p+4];
+				d[5] = pV1[p+5] - pV2[p+5];
+				result += (d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]) + (d[3] * d[3]) + (d[4] * d[4]) + (d[5] * d[5]);
+				count -= 6;
+				break;
+			case 7:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				d[2] = pV1[p+2] - pV2[p+2];
+				d[3] = pV1[p+3] - pV2[p+3];
+				d[4] = pV1[p+4] - pV2[p+4];
+				d[5] = pV1[p+5] - pV2[p+5];
+				d[6] = pV1[p+6] - pV2[p+6];
+				result += (d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]) + (d[3] * d[3]) + (d[4] * d[4]) + (d[5] * d[5]) + (d[6] * d[6]);
+				count -= 7;
+				break;
+			default:
+				d[0] = pV1[p] - pV2[p];
+				d[1] = pV1[p+1] - pV2[p+1];
+				d[2] = pV1[p+2] - pV2[p+2];
+				d[3] = pV1[p+3] - pV2[p+3];
+				d[4] = pV1[p+4] - pV2[p+4];
+				d[5] = pV1[p+5] - pV2[p+5];
+				d[6] = pV1[p+6] - pV2[p+6];
+				d[7] = pV1[p+7] - pV2[p+7];
+				result += (d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]) + (d[3] * d[3]) + (d[4] * d[4]) + (d[5] * d[5]) + (d[6] * d[6]) + (d[7] * d[7]);
+				count -= 8;
+				break;
+		}
+	}
+	/*for(uint i = 0; i < count; i++) {
+		double d = pV1[i] - pV2[i];
+		result += (d * d);
+	}*/
+	result = sqrt(result);
+	return result;
+}
+
 uint64 SLAPI ui64pow(uint64 x, uint n)
 {
 	uint64 result = 1;

@@ -1585,7 +1585,7 @@ int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta
 			add_acc_pack = acc_pack;
 			add_acc_pack.Rec.ID = 0L;
 			add_acc_pack.Rec.A.Sb = 0;
-			add_acc_pack.Rec.OpenDate = LConfig.OperDate;
+			add_acc_pack.Rec.OpenDate = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 			add_acc_pack.Rec.Type     = acc_pack.Rec.Type;
 			vadd = 1;
 		}

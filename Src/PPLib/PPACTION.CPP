@@ -20,7 +20,7 @@ int SLAPI SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int
 {
 	int    ok = -1;
 	const LDATETIME dtm = getcurdatetime_();
-	const PPID user_id = LConfig.User;
+	const PPID user_id = LConfig.UserID;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -238,7 +238,7 @@ int SLAPI SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME *
 				cr = 0;
 				ok = 1;
 			}
-			else if(oneof2(data.Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2) && objType == PPOBJ_GOODS) { // @v7.3.3 PPACN_QUOTUPD2
+			else if(oneof2(data.Action, PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2) && objType == PPOBJ_GOODS) {
 				cr = 0;
 				ok = 1;
 			}

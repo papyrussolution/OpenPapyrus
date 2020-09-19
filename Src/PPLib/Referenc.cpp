@@ -1908,7 +1908,7 @@ int SLAPI PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	}
 	if(obj == 0 && id == 0) {
 		obj = PPOBJ_USR;
-		id  = LConfig.User;
+		id  = LConfig.UserID;
 	}
 	if(PPRef->GetConfig(obj, id, PPPRP_PRINTER, pCfg, sizeof(*pCfg)) > 0) {
 		ok = 1;
@@ -1933,7 +1933,7 @@ int SLAPI PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	}
 	if(obj == 0 && id == 0) {
 		obj = PPOBJ_USR;
-		id  = LConfig.User;
+		id  = LConfig.UserID;
 	}
 	return PPRef->SetConfig(obj, id, PPPRP_PRINTER, pCfg, sizeof(*pCfg));
 }

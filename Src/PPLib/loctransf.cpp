@@ -279,7 +279,7 @@ int SLAPI LocTransfCore::PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec *
 		pRec->RByBill = rbybill+1;
 	}
 	*/
-	pRec->UserID = LConfig.User;
+	pRec->UserID = LConfig.UserID;
 	getcurdatetime(&pRec->Dt, &pRec->Tm);
 	CATCHZOK
 	return ok;
@@ -320,7 +320,7 @@ int SLAPI LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 int SLAPI LocTransfCore::UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, double addendum)
 {
 	int    ok = 1, r;
-	const  PPID user_id = LConfig.User;
+	const  PPID user_id = LConfig.UserID;
 	LocTransfTbl::Rec rec;
 	if(lotID) {
 		r = SearchRestByLot(lotID, locID, 0, &rec);

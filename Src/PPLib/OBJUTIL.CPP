@@ -119,7 +119,8 @@ static const ushort _Objects[] = {
 	PPOBJ_FREIGHTPACKAGETYPE, // @v10.4.1
 	PPOBJ_TAXSYSTEMKIND,      // @v10.6.0
 	PPOBJ_TIMESERIES,         // @v10.7.4
-	PPOBJ_TSSMODEL            // @v10.7.4
+	PPOBJ_TSSMODEL,           // @v10.7.4
+	PPOBJ_EVENTSUBSCRIPTION   // @v10.8.9
 };
 
 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -218,25 +219,26 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_WORLD       : p = new PPObjWorld(extraPtr); break;
 		case PPOBJ_GOODSINFO   : p = new PPObjGoodsInfo(extraPtr); break;
 		case PPOBJ_SALCHARGE   : p = new PPObjSalCharge(extraPtr); break;
-		case PPOBJ_STAFFCAL    : p = new PPObjStaffCal(extraPtr); break;
-		case PPOBJ_NAMEDOBJASSOC: p = new PPObjNamedObjAssoc(extraPtr); break;
-		case PPOBJ_BIZSCORE    : p = new PPObjBizScore(extraPtr); break;
-		case PPOBJ_GLOBALUSERACC : p = new PPObjGlobalUserAcc(extraPtr); break;
-		case PPOBJ_GOODSVALRESTR : p = new PPObjGoodsValRestr(extraPtr); break;
-		case PPOBJ_BUDGET      : p = new PPObjBudget(extraPtr); break;
-		case PPOBJ_BIZSCTEMPL  : p = new PPObjBizScTempl(extraPtr); break;
-		case PPOBJ_RFIDDEVICE  : p = new PPObjRFIDDevice(extraPtr); break;
-		case PPOBJ_DEBTDIM     : p = new PPObjDebtDim(); break;
-		case PPOBJ_SMSPRVACCOUNT : p = new PPObjSmsAccount(extraPtr); break; // @vmiller
-		case PPOBJ_UHTTSTORE   : p = new PPObjUhttStore(extraPtr); break; // @v7.6.1 @Muxa
-		case PPOBJ_GENERICDEVICE: p = new PPObjGenericDevice(extraPtr); break; // @v7.8.0
-		case PPOBJ_WORKBOOK    :  p = new PPObjWorkbook(extraPtr); break; // @Muxa
-		case PPOBJ_EDIPROVIDER :  p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
-		case PPOBJ_TIMESERIES  :  p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3
+		case PPOBJ_STAFFCAL:           p = new PPObjStaffCal(extraPtr); break;
+		case PPOBJ_NAMEDOBJASSOC:      p = new PPObjNamedObjAssoc(extraPtr); break;
+		case PPOBJ_BIZSCORE:           p = new PPObjBizScore(extraPtr); break;
+		case PPOBJ_GLOBALUSERACC:      p = new PPObjGlobalUserAcc(extraPtr); break;
+		case PPOBJ_GOODSVALRESTR:      p = new PPObjGoodsValRestr(extraPtr); break;
+		case PPOBJ_BUDGET:             p = new PPObjBudget(extraPtr); break;
+		case PPOBJ_BIZSCTEMPL:         p = new PPObjBizScTempl(extraPtr); break;
+		case PPOBJ_RFIDDEVICE:         p = new PPObjRFIDDevice(extraPtr); break;
+		case PPOBJ_DEBTDIM:            p = new PPObjDebtDim(); break;
+		case PPOBJ_SMSPRVACCOUNT:      p = new PPObjSmsAccount(extraPtr); break; // @vmiller
+		case PPOBJ_UHTTSTORE:          p = new PPObjUhttStore(extraPtr); break; // @v7.6.1 @Muxa
+		case PPOBJ_GENERICDEVICE:      p = new PPObjGenericDevice(extraPtr); break; // @v7.8.0
+		case PPOBJ_WORKBOOK:           p = new PPObjWorkbook(extraPtr); break; // @Muxa
+		case PPOBJ_EDIPROVIDER:        p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
+		case PPOBJ_TIMESERIES:         p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3
 		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break; // @v10.4.1
-		case PPOBJ_TAXSYSTEMKIND: p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
-		case PPOBJ_TSSMODEL: p = new PPObjTssModel(extraPtr); break; // @v10.7.4
-		default                :
+		case PPOBJ_TAXSYSTEMKIND:      p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
+		case PPOBJ_TSSMODEL:           p = new PPObjTssModel(extraPtr); break; // @v10.7.4
+		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubcription(extraPtr); break; // @v10.8.9
+		default:
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);
 			else {

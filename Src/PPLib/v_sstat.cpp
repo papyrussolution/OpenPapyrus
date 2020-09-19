@@ -908,7 +908,7 @@ int SLAPI PPViewSStat::CreateTempTable(int use_ta)
 							//
 							min_stock_qtty = 0.0;
 						}
-						period.low = NZOR(Filt.RestDate, r_cfg.OperDate);
+						period.low = NZOR(Filt.RestDate, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 						period.upp = plusdate(period.low, add_days);
 						ep.Set(&Filt.LocList, item.GoodsID, period);
 						ep.LoadUpDate = Filt.Period.upp;

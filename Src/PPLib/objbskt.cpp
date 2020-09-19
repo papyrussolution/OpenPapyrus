@@ -99,7 +99,7 @@ void SLAPI PPBasketPacket::Init()
 {
 	Head.ID  = Head.Num = Head.Flags = 0;
 	Head.Tag = PPOBJ_GOODSBASKET;
-	Head.User = LConfig.User;
+	Head.User = LConfig.UserID;
 	Head.Name[0] = 0;
 	Head.SupplID = 0;
 	GoodsID = 0;

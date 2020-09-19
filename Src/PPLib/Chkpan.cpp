@@ -1265,7 +1265,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 double CPosProcessor::CalcCurrentRest(PPID goodsID, int checkInputBuffer)
 {
 	double rest = 0.0;
-	if(GetCc().CalcGoodsRest(goodsID, LConfig.OperDate, GetCnLocID(goodsID), &rest)) {
+	if(GetCc().CalcGoodsRest(goodsID, getcurdate_(), GetCnLocID(goodsID), &rest)) { // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG) > 0; pos++)
 			rest -= P.at(pos).Quantity;
 		if(checkInputBuffer && P.HasCur()) {
@@ -6181,13 +6181,18 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 		else if(TVCMD == cmModalPostCreate) {
 			if(!(Flags & fNoEdit) && CnExtFlags & CASHFX_NOTIFYEQPTIMEMISM) {
 				if(InitCashMachine() && P_CM) {
+					SString fmt_buf;
+					SString msg_buf;
 					PPSyncCashSession * p_ifc = P_CM->SyncInterface();
 					LDATETIME device_dtm = ZERODATETIME;
-					if(p_ifc->GetDeviceTime(&device_dtm) > 0) {
+					const int gdtr = p_ifc->GetDeviceTime(&device_dtm);
+					// @v10.8.9 @debug {
+					(msg_buf = "GetDeviceTime").CatDiv(':', 2).Cat(gdtr).Space().Cat(device_dtm, DATF_ISO8601|DATF_CENTURY, 0);
+					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					// } @v10.8.9 @debug 
+					if(gdtr > 0) {
 						const LDATETIME now_dtm = getcurdatetime_();							
 						if(checkdate(device_dtm.d) && labs(diffdatetimesec(now_dtm, device_dtm)) >= 60) {
-							SString fmt_buf;
-							SString msg_buf;
 							PPLoadText(PPTXT_DEVICETIMEDIFFROMSYS, fmt_buf);
 							PPFormat(fmt_buf, &msg_buf, device_dtm);
 							PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrTomato),
@@ -8304,7 +8309,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	const  SelLotBrowser::Entry * p_sel = 0;
 	int    r, found = 0;
 	uint   s = 0;
-	const  LDATE curdt = LConfig.OperDate;
+	const  LDATE curdt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	double total_exp = 0.0; // Общий расход товара goodsID активными сессиями
 	SString serial;
 	DateIter diter;
@@ -11109,7 +11114,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 			}
 			if(!SuspCheckID) {
 				SETIFZ(P.Eccd.InitDtm, getcurdatetime_());
-				SETIFZ(P.Eccd.InitUserID, LConfig.User); // @v10.6.8
+				SETIFZ(P.Eccd.InitUserID, LConfig.UserID); // @v10.6.8
 			}
 			if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF))
 				SetupDiscount(0);
@@ -11518,7 +11523,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 					char   out_buf[64];
 					const char * p = KitchenBellCmd;
 					while(p[0] && p[1]) {
-						uint8 byte = (hex(p[0]) << 4) | hex(p[1]);
+						const uint8 byte = (hex(p[0]) << 4) | hex(p[1]);
 						out_buf[out_size++] = byte;
 						p += 2;
 					}
@@ -11793,7 +11798,6 @@ int CheckPaneDialog::PrintCashReports()
 						Flags &= ~fOnlyReports;
 					break;
 				case cmCSClose:
-					// @v9.7.6 {
 					if(P_BNKTERM) {
 						SString zcheck;
 						if(P_BNKTERM->GetSessReport(zcheck))
@@ -11801,7 +11805,6 @@ int CheckPaneDialog::PrintCashReports()
 						else
 							PPError();
 					}
-					// } @v9.7.6
 					r = P_CM->SyncCloseSession();
 					if(P_CM_EXT) {
 						if(P_CM_EXT->GetNodeData().CashType == PPCMT_PAPYRUS) {
@@ -12644,7 +12647,8 @@ int InfoKioskDialog::SetupLots(PPID goodsID)
 				long   lots = 0;
 				long   oprno = MAXLONG;
 				ReceiptTbl::Rec lot;
-				for(LDATE dt = LConfig.OperDate; i < (uint)lots_count && BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot) > 0; i++) {
+				// @v10.8.10 LConfig.OperDate-->getcurdate_()
+				for(LDATE dt = getcurdate_(); i < (uint)lots_count && BillObj->trfr->Rcpt.EnumLastLots(goodsID, Rec.LocID, &dt, &oprno, &lot) > 0; i++) {
 					char sub[64];
 					QualityCertTbl::Rec qc_rec;
 					StringSet ss(SLBColumnDelim);

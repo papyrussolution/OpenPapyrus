@@ -195,7 +195,7 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	dt = f.Period.low;
 	if(!dt)
 		THROW(BillObj->P_Tbl->GetFirstDate(0, &dt) > 0);
-	SETIFZ(f.Period.upp, LConfig.OperDate);
+	SETIFZ(f.Period.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	MEMSZERO(total);
 	if(Filt.Flags & OPG_DONTSHOWPRGRSBAR)
 		PPLoadText(PPTXT_CALCOPGRPNG, wait_msg);
@@ -487,10 +487,10 @@ int SLAPI ViewGoodsTurnover(long)
 	if(p_prev_win)
 		flt = *static_cast<const GoodsTrnovrBrowser *>(p_prev_win)->P_View->GetFilt();
 	else
-		flt.Period.SetDate(LConfig.OperDate);
+		flt.Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	while(p_v->EditFilt(&flt) > 0) {
 		PPWait(1);
-		flt.Flags |= (uint)OPG_IGNOREZERO;
+		flt.Flags |= static_cast<uint>(OPG_IGNOREZERO);
 		flt.Flags |= OPG_DONTSHOWPRGRSBAR;
 		THROW(p_v->Init(&flt));
 		PPCloseBrowser(p_prev_win);

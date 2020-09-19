@@ -1719,7 +1719,7 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 	for(uint ssp = 0; ss_to.get(&ssp, temp_buf);) {
 		size_t ang_pos = 0;
 		nta.clear();
-		tr.Run(temp_buf.ucptr(), -1, nta, 0);
+		tr.Run(temp_buf.Strip().ucptr(), -1, nta, 0); // @v10.8.9 Strip()
 		if(nta.Has(SNTOK_EMAIL) > 0.0f) {
 			rResult.CatDivIfNotEmpty(',', 0);
 			if(rResult.Len() > 70)

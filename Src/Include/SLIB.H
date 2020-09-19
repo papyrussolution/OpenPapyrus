@@ -6550,7 +6550,7 @@ public:
 	//
 	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включительно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
-	//   Если lowPos == uppPod, то вызов эквивалентен freeItem(lowPos)
+	//   Если lowPos == uppPos, то вызов эквивалентен freeItem(lowPos)
 	//   Если lowPos < getCount(), то удаляет все элементы от позиции lowPos до MIN(uppPos, getCount()-1)
 	// Note: Главное назначение функции - ускорить массовое удаление за счет сокращения издержек
 	//   на перемещение участков памяти при серии единичных удалений.
@@ -11154,6 +11154,12 @@ double faddwsign(double val, double addendum, int sign);
 //
 double fgetwsign(double val, int sign);
 //double fhepote
+float  fdotproduct(uint count, const float * pV1, const float * pV2);
+double fdotproduct(uint count, const double * pV1, const double * pV2);
+float  feuclideannorm(uint count, const float * pV);
+double feuclideannorm(uint count, const double * pV);
+float  feuclideandistance(uint count, const float * pV1, const float * pV2);
+double feuclideandistance(uint count, const double * pV1, const double * pV2);
 
 #define SQ(x) ((x)*(x))
 

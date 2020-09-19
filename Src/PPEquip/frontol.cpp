@@ -808,7 +808,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 
 	PPGetPath(PPPATH_IN, dir_in);
 	ImportedFiles = 0;
-	SETIFZ(last_date, plusdate(LConfig.OperDate, 2));
+	SETIFZ(last_date, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
 	if(EqCfg.FtpAcctID)
@@ -942,7 +942,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 int SLAPI ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {
 	int    ok = -1;
-	const  LDATE _cur_date = LConfig.OperDate;
+	const  LDATE _cur_date = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	TDialog * dlg = 0;
 	if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
@@ -1509,7 +1509,7 @@ int SLAPI ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 	SString path_rpt;
 	SString path_flag;
 	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;
-	SETIFZ(last_date, plusdate(LConfig.OperDate, 2));
+	SETIFZ(last_date, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
 	THROW(CreateTables());

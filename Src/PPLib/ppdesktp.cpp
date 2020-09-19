@@ -392,7 +392,7 @@ PPBizScoreWindow::~PPBizScoreWindow()
 
 int PPBizScoreWindow::LoadData()
 {
-	const  PPID cur_user_id = LConfig.User;
+	const  PPID cur_user_id = LConfig.UserID;
 	const  LDATE _curdate = getcurdate_();
 	uint   _scount = 0; // @debug
 	BizScoreTbl::Key0 k0;
@@ -667,7 +667,7 @@ int PPDesktop::Destroy(int dontAssignToDb)
 		if(r_cfg.DesktopID)
 			PPDesktop::GetDeskName(r_cfg.DesktopID, desk_name);
 		if(desk_name.Len()) {
-			THROW(sec_obj.AssignPrivateDesktop(r_cfg.User, r_cfg.DesktopID, desk_name, 1));
+			THROW(sec_obj.AssignPrivateDesktop(r_cfg.UserID, r_cfg.DesktopID, desk_name, 1));
 			THROW(SaveDesktop(0, 0));
 		}
 	}

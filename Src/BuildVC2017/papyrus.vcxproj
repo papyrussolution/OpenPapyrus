@@ -1235,6 +1235,7 @@
     <ClCompile Include="..\PPEquip\Objscale.cpp" />
     <ClCompile Include="..\PPEquip\Palm.cpp" />
     <ClCompile Include="..\PPEquip\palmexch.cpp" />
+    <ClCompile Include="..\PPEquip\PPDrvAPI\ppdrvapi.cpp" />
     <ClCompile Include="..\PPEquip\SetStart.cpp" />
     <ClCompile Include="..\PPEquip\Shtrihfr.cpp" />
     <ClCompile Include="..\PPEquip\Shtrihmf.cpp" />

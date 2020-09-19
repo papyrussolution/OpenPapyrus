@@ -16,7 +16,7 @@ IMPLEMENT_PPFILT_FACTORY(ShipmAnalyze); SLAPI ShipmAnalyzeFilt::ShipmAnalyzeFilt
 /*virtual*/int SLAPI ShipmAnalyzeFilt::Init(int fullyDestroy, long extraData)
 {
 	int   ok = PPBaseFilt::Init(1, 0);
-	Period.SetDate(LConfig.OperDate);
+	Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	return ok;
 }
 

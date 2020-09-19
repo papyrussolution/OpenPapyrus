@@ -1100,7 +1100,7 @@ int SLAPI CreateBizScGlblUserAcct()
 		buf.Cat(data.Password).CR();
 		data.Password = 0;
 		buf.Cat(sguid).CR();
-		buf.Cat(LConfig.User).CR();
+		buf.Cat(LConfig.UserID).CR();
 
 		IdeaEncrypt(0, (void *)buf.cptr(), buf.Len());
 		out_buf.EncodeMime64(buf, buf.Len());

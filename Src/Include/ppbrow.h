@@ -55,7 +55,7 @@
 	#define HELP_BROWSER_PERSONATTR_STDALNADDR                    8
 #define BROWSER_PERSONATTR_TAG                           9 // Теги персоналий {%s}
 	#define HELP_BROWSER_PERSONATTR_TAG                           9
-#define BROWSER_PERSONREL                               10 // Отношения персоналий
+#define BROWSER_PERSONREL                               10 // @{personrelation_pl}
 	#define HELP_BROWSER_PERSONREL                               10
 #define BROWSER_ARTICLE                                 11 // @{view_article} {%s}
 	#define HELP_BROWSER_ARTICLE                                 11
@@ -410,11 +410,11 @@
 	#define HELP_BROWSER_CSESS                                  183
 #define BROWSER_CSESS_EXT                              184 // Расширенная ведомость кассовых сессий
 	#define HELP_BROWSER_CSESS_EXT                              184
-#define BROWSER_CSESSEXC                               185 // Дефицит по кассовым сессиям
+#define BROWSER_CSESSEXC                               185 // @{view_csessexc}
 	#define HELP_BROWSER_CSESSEXC                               185
 #define BROWSER_OBJSYNC                                186 // @{view_objsync} {%s}
 	#define HELP_BROWSER_OBJSYNC                                186
-#define BROWSER_OBJSYNCQUEUE                           187 // Очередь синхронизации
+#define BROWSER_OBJSYNCQUEUE                           187 // @{view_objsyncqueue}
 	#define HELP_BROWSER_OBJSYNCQUEUE                           187
 #define TOOLBAR_SCARD                         41
 #define BROWSER_SCARD                                  188 // @{scard_pl} {%s}
@@ -1476,6 +1476,7 @@
 #define PPCMD_QUERYCHZN                             1343
 #define PPCMD_TSSMODEL                              1344
 #define PPCMD_EVENTS                                1345
+#define PPCMD_EVENTSUBSCRIPTION                     1346
 //
 // PPJOB definitions
 //

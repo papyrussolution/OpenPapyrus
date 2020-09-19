@@ -2525,7 +2525,7 @@ int SLAPI PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
 			if(CsObj.Search(last_sess_id, &csess_rec) > 0)
 				dt = csess_rec.Dt;
 		}
-		dt = NZOR(dt, LConfig.OperDate);
+		dt = NZOR(dt, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 		ReceiptTbl::Rec lot_rec;
 		if(BillObj->trfr->Rcpt.GetLastLot(goodsID, GetCommonLoc(), dt, &lot_rec) > 0)
 			price = R5(lot_rec.Price);

@@ -311,7 +311,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 {
 	int    ok = -1;
 	SString text_buf;
-	TView::SGetWindowText(hwnd, text_buf); // @v9.1.5
+	TView::SGetWindowText(hwnd, text_buf);
 	if(text_buf.Len() > 1) {
 		SString temp_buf = text_buf;
 		int   do_replace = 0;
@@ -572,13 +572,6 @@ void FASTCALL TView::enableCommand(ushort cmd, int isEnable)
 	}
 }
 
-/* @v9.6.2 replaced by Draw_()
-void TView::drawView()
-{
-	Draw_();
-}
-*/
-
 void TView::getCommands(TCommandSet & commands) const
 {
 	if(!RVALUEPTR(commands, P_CmdSet))
@@ -603,13 +596,6 @@ void TView::ResetOwnerCurrent()
 		P_Owner->SetCurrentView(0, TGroup::normalSelect);
 }
 
-/* @v9.0.1
-TRect TView::getExtent() const
-{
-	return TRect(0, 0, size.x, size.y);
-}
-*/
-
 TView & TView::SetId(uint id)
 {
 	Id = id;
@@ -617,8 +603,8 @@ TView & TView::SetId(uint id)
 }
 
 void   TView::select() { CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect)); }
-uint   TView::GetId() const { return (this && IsConsistent()) ? (uint)Id : 0; }
-int    FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() && id && id == (uint)Id); }
+uint   TView::GetId() const { return (this && IsConsistent()) ? static_cast<uint>(Id) : 0; }
+int    FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() && id && id == static_cast<uint>(Id)); }
 int    FASTCALL TView::IsInState(uint s) const { return ((Sf & s) == s); }
 void * FASTCALL TView::MessageCommandToOwner(uint command) { return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
 HWND   TView::getHandle() const { return GetDlgItem(Parent, Id); }
@@ -724,13 +710,11 @@ void TView::SetWordSelBlock(WordSel_ExtraBlock * pBlk)
 //
 //
 //
-/*
-SLAPI KeyDownCommand::KeyDownCommand()
+/*SLAPI KeyDownCommand::KeyDownCommand()
 {
 	State = 0;
 	KeyCode = 0;
-}
-*/
+}*/
 
 void SLAPI KeyDownCommand::Clear()
 {
@@ -763,7 +747,7 @@ int SLAPI KeyDownCommand::GetKeyName(SString & rBuf, int onlySpecKeys) const
 
 void FASTCALL KeyDownCommand::SetWinMsgCode(uint32 wParam)
 {
-	Code = (uint16)wParam;
+	Code = static_cast<uint16>(wParam);
 	State = 0;
 	if(GetKeyState(VK_CONTROL) & 0x8000)
 		State |= stateCtrl;
@@ -1116,13 +1100,15 @@ uint SLAPI KeyDownCommand::GetChar() const
 {
 	uint   c = 0;
 	switch(Code) {
-		case VK_OEM_PLUS:   c = '+'; break;
+		// @v10.8.10 case VK_OEM_PLUS:   c = '+'; break;
+		case VK_OEM_PLUS:   c = (State & stateShift) ? '+' : '='; break; // @v10.8.10
 		case VK_OEM_COMMA:  c = (State & stateShift) ? '<' : ','; break;
 		case VK_OEM_MINUS:  c = '-'; break;
 		case VK_OEM_PERIOD: c = (State & stateShift) ? '>' : '.'; break;
 		case VK_MULTIPLY:   c = '*'; break;
 		case VK_ADD:        c = '+'; break;
-		case VK_SUBTRACT:   c = '-'; break;
+		// @v10.8.10 case VK_SUBTRACT:   c = '-'; break;
+		case VK_SUBTRACT:   c = (State & stateShift) ? '_' : '-'; break; // @v10.8.10
 		case VK_DECIMAL:    c = '.'; break;
 		case VK_DIVIDE:     c = '/'; break;
 		case VK_RETURN:     c = '\x0D'; break;
@@ -1150,9 +1136,8 @@ uint SLAPI KeyDownCommand::GetChar() const
 				else
 					c = Code;
 			}
-			else if(Code >= 'A' && Code <= 'Z') {
+			else if(Code >= 'A' && Code <= 'Z')
 				c = (State & stateShift) ? Code : (Code + ('a'-'A'));
-			}
 			else if(Code >= VK_NUMPAD0 && Code <= VK_NUMPAD9)
 				c = (Code - VK_NUMPAD0) + '0';
 	}
@@ -1168,7 +1153,6 @@ int SLAPI KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 	else {
 		uint16 state = 0;
 		uint16 key_code = 0;
-
 		SString temp_buf, key_buf;
 		SStrScan scan(pStr);
 		const size_t org_offs = scan.Offs;
@@ -1231,7 +1215,7 @@ TEvent::TEvent()
 TEvent & TEvent::setCmd(uint cmd, TView * pInfoView)
 {
 	what = evCommand;
-	message.command = (ushort)cmd;
+	message.command = static_cast<ushort>(cmd);
 	message.infoPtr = pInfoView;
 	return *this;
 }
@@ -1269,7 +1253,6 @@ int SLAPI TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
 //
 SLAPI TGroup::TGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
 {
-	// @v9.0.1 Phase_ = phFocused;
 	ViewOptions |= ofSelectable;
 }
 
@@ -1287,27 +1270,6 @@ SLAPI TGroup::~TGroup()
 	} while(P_Last);
 	P_Current = 0;
 }
-
-/* @v9.4.8 TView * FASTCALL TGroup::at(short index) const
-{
-	TView * p_temp = P_Last;
-	while(index-- > 0)
-		p_temp = p_temp->next;
-	return p_temp;
-}*/
-
-/* @v9.0.1
-TView * TGroup::firstThat(Boolean (*func)(TView *, void *), void *args)
-{
-	TView * p_term = P_Last;
-	TView * p_temp = P_Last;
-	if(p_temp) do {
-		if(func(p_temp = p_temp->next, args) == True)
-			return p_temp;
-	} while(p_temp != p_term);
-	return 0;
-}
-*/
 
 void TGroup::forEach(void (*func)(TView*, void *), void *args)
 {
@@ -1338,7 +1300,7 @@ void TGroup::removeView(TView *p)
 
 static void addSubviewDataSize(TView * p, void * pSize)
 {
-	*((int *)pSize) += static_cast<TGroup *>(p)->TransmitData(0, 0);
+	*static_cast<int *>(pSize) += static_cast<TGroup *>(p)->TransmitData(0, 0);
 }
 
 int TGroup::TransmitData(int dir, void * pData)
@@ -1363,13 +1325,6 @@ void TGroup::remove(TView * p)
 	p->P_Owner = 0;
 	p->P_Next = 0;
 }
-
-/* @v9.6.2
-void TGroup::draw()
-{
-	redraw();
-}
-*/
 
 ushort TGroup::execView(TWindow * p)
 {
@@ -1559,17 +1514,8 @@ void TGroup::setState(uint aState, bool enable)
 		P_Current->setState(sfFocused, enable);
 }
 
-/* @v9.4.8 static bool isInvalid(TView * p, void * cmd)
-{
-	return p->valid((ushort)cmd) ? false : true; // @valid
-}*/
-
 int FASTCALL TGroup::valid(ushort command)
 {
-	// @v9.0.1 ushort cmd = command;
-	// @v9.0.1 return BIN(firstThat(isInvalid, (void *)cmd) == 0);
-	// @v9.0.1 {
-	//TView * TGroup::firstThat(Boolean (*func)(TView *, void *), void *args)
 	{
 		int    ok = 1;
 		TView * p_term = P_Last;
@@ -1582,11 +1528,7 @@ int FASTCALL TGroup::valid(ushort command)
 		} while(ok && p_temp != p_term);
 		return ok;
 	}
-	// } @v9.0.1
 }
-
-// @v9.8.12 void TGroup::lock() {}
-// @v9.8.12 void TGroup::unlock() {}
 
 uint TGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
 int FASTCALL TGroup::IsCurrentView(const TView * pV) const { return BIN(pV && P_Current == pV); }

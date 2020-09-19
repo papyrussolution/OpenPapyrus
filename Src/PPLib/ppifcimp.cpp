@@ -1968,7 +1968,7 @@ int32 DL6ICLS_PPSession::GetStatusInfo(SPpySessionInfo* pInfo)
 			temp_buf.CopyToOleStr(&pInfo->DbPath);
 		}
 		pInfo->DbDivID = DS.LCfg().DBDiv;
-		pInfo->UserID  = DS.LCfg().User;
+		pInfo->UserID  = DS.LCfg().UserID;
 		GetMainOrgID(&pInfo->MainOrgID);
 		{
 			r_tla.InitMainOrgData(0);

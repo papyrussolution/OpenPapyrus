@@ -18,7 +18,7 @@ struct SpcSymbEntry {
 //     ,   .   /   \
 // "\x2c\x2e\x2f\x5c"
 
-SpcSymbEntry SpcSymbTab[] = {
+static const SpcSymbEntry SpcSymbTab[] = {
 	{ '\x26', 1, "amp"    },  // & @anchor Обязательно на первом месте (замещающие строки содержат &)
 	{ '\x21', 0, "exclam" },  // !
 	{ '\x23', 0, "sharp"  },  // #
@@ -33,7 +33,8 @@ SpcSymbEntry SpcSymbTab[] = {
 	{ '\x3f', 0, "ques"   },  // ?
 	{ '\x5b', 0, "lsq"    },  // [
 	{ '\x5c', 0, "bksl"   },  // \ +-@v7.6.4 @Muxa
-	{ '\x5d', 0, "rsq"    }   // ]
+	{ '\x5d', 0, "rsq"    },  // ]
+	{ '\x59', 0, "#59"    },  // ; @v10.8.10
 };
 
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
@@ -97,7 +98,7 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 			if(SpcSymbTab[i].Amp)
 				subst.CatChar('#').Cat(0x26).Semicol();
 			subst.CatChar('#').Cat(SpcSymbTab[i].chr).Semicol();
-			xmlTextWriterWriteDTDEntity((xmlTextWriter *)pWriter, 0, reinterpret_cast<const xmlChar *>(SpcSymbTab[i].str), 0, 0, 0, subst.ucptr());
+			xmlTextWriterWriteDTDEntity(static_cast<xmlTextWriter *>(pWriter), 0, reinterpret_cast<const xmlChar *>(SpcSymbTab[i].str), 0, 0, 0, subst.ucptr());
 		}
 	}
 	else
@@ -560,7 +561,7 @@ public:
 protected:
 	virtual void FASTCALL freeItem(void * pItem)
 	{
-		delete ((XmlEntry *)pItem);
+		delete static_cast<XmlEntry *>(pItem);
 	}
 };
 

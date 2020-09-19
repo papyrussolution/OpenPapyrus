@@ -2665,7 +2665,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				else
 					bp.Rec.LinkBillID = 0;
 				if(!skip) {
-					bp.Rec.UserID = r_cfg.User;
+					bp.Rec.UserID = r_cfg.UserID;
 					err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);
@@ -2747,7 +2747,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				PPTransaction tra(1);
 				THROW(tra);
 				if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT) || IsDraftOp(p_pack->Rec.OpID)) {
-					bp.Rec.UserID = r_cfg.User;
+					bp.Rec.UserID = r_cfg.UserID;
 					err_code = PPTXT_ERRACCEPTBILL_CONVERT;
 					err_id = p_pack->Rec.ID;
 					PPObjBill::MakeCodeString(&p_pack->Rec, 0, err_bill_code);

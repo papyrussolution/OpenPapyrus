@@ -266,7 +266,7 @@ int SLAPI PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * 
 					k0.ActualDate = period.upp;
 					k0.ScoreID    = score_id;
 					k0.ObjID      = MAXLONG;
-					q.select(pBizScTbl->ScoreID, pBizScTbl->Val, pBizScTbl->Dt, pBizScTbl->Tm, pBizScTbl->ActualDate, pBizScTbl->Str, 0L).where(pBizScTbl->UserID == LConfig.User && pBizScTbl->ScoreID == score_id);
+					q.select(pBizScTbl->ScoreID, pBizScTbl->Val, pBizScTbl->Dt, pBizScTbl->Tm, pBizScTbl->ActualDate, pBizScTbl->Str, 0L).where(pBizScTbl->UserID == LConfig.UserID && pBizScTbl->ScoreID == score_id);
 					for(q.initIteration(0, &k0, spLe); q.nextIteration() > 0;) {
 						if(period.CheckDate(pBizScTbl->data.ActualDate) > 0) {
 							BizScoreTbl::Rec rec;

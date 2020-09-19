@@ -1739,7 +1739,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 					err_lot = 1;
 				}
 				if(R6(lot_rec.WtRest - ph_rest) != 0) {
-					lot_rec.WtRest = (float)R6(ph_rest);
+					lot_rec.WtRest = static_cast<float>(R6(ph_rest));
 					err_lot = 1;
 				}
 				if(rest == 0.0) {
@@ -1816,7 +1816,7 @@ int SLAPI Transfer::RecalcLcr()
 				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
 					THROW(Helper_RecalcLotCRest2(Rcpt.data.ID, &bei, 0));
 					PPWaitPercent(cntr.Increment());
-					if((((uint)cntr) % 10000) == 0) {
+					if((static_cast<uint>(cntr) % 10000) == 0) {
 						THROW_DB(bei.flash());
 						THROW(tra.Commit());
 						THROW(tra.Start(1));
@@ -1849,7 +1849,7 @@ int SLAPI Transfer::RecalcLcr()
 				for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
 					THROW(Helper_RecalcLotCRest(Rcpt.data.ID, &bei, 0));
 					PPWaitPercent(cntr.Increment());
-					if((((uint)cntr) % 10000) == 0) {
+					if((static_cast<uint>(cntr) % 10000) == 0) {
 						THROW_DB(bei.flash());
 						THROW(tra.Commit());
 						THROW(tra.Start(1));
@@ -1968,7 +1968,6 @@ int SLAPI CorrectIntrReverse(PPID billID)
 #endif // 0 }
 
 #if 0 // @v5.1.9 {
-
 int SLAPI ShrinkLots()
 {
 	int    ok = 1, ta = 0;
@@ -2006,7 +2005,6 @@ int SLAPI ShrinkLots()
 	ENDCATCH
 	return ok;
 }
-
 #endif // } @v5.1.9
 
 class PrcssrAbsentGoods {

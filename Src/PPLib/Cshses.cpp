@@ -1587,7 +1587,7 @@ int SLAPI AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDl
 				k1.Dt = moment.d;
 				k1.Tm = MAXTIME;
 				BExtQuery q(&SJ, 1);
-				q.selectAll().where(SJ.ObjType == PPOBJ_CASHNODE && SJ.ObjID == CashNodeID && SJ.UserID == LConfig.User);
+				q.selectAll().where(SJ.ObjType == PPOBJ_CASHNODE && SJ.ObjID == CashNodeID && SJ.UserID == LConfig.UserID);
 				for(q.initIteration(1, &k1, spLt); q.nextIteration() > 0;) {
 					if(cmp(moment, SJ.data.Dt, SJ.data.Tm) > 0) {
 						moment.Set(SJ.data.Dt, SJ.data.Tm);
@@ -1853,7 +1853,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							STRNSCPY(Rec.LocPrnSymb, lp_rec.Symb);
 					}
 				}
-				if(c == GPRET_CLOSEDLOTS && LotThreshold > 0 && diffdate(LConfig.OperDate, rtl_ext_item.CurLotDate) > LotThreshold) {
+				if(c == GPRET_CLOSEDLOTS && LotThreshold > 0 && diffdate(_now.d, rtl_ext_item.CurLotDate) > LotThreshold) { // @v10.8.10 LConfig.OperDate-->_now.d
 					updated = 0;
 				}
 				else if(Flags & ACGIF_UPDATEDONLY) {
@@ -2247,7 +2247,7 @@ int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 						else if(PsnObj.Fetch(pInfo->Rec.PersonID, &psn_rec) > 0)
 							pInfo->PsnName = psn_rec.Name;
 					}
-					pInfo->IsClosed = BIN((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, LConfig.OperDate) < 0));
+					pInfo->IsClosed = BIN((Rec.Flags & SCRDF_CLOSED) || (Rec.Expiry && diffdate(Rec.Expiry, getcurdate_()) < 0)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 					{
 						int    scst = ScsPack.Rec.GetType();
 						if(oneof2(scst, scstCredit, scstBonus)) {
@@ -2345,7 +2345,7 @@ int SLAPI AsyncCashiersIterator::Next(AsyncCashierInfo * pInfo)
 							if(reg_rec.Expiry == ZERODATE || diffdate(Since.d, reg_rec.Expiry) <= 0) {
 								PPID  tab_num;
 								strtolong(reg_rec.Num, &tab_num);
-								if(reg_rec.Expiry != ZERODATE && diffdate(LConfig.OperDate, reg_rec.Expiry) > 0)
+								if(reg_rec.Expiry != ZERODATE && diffdate(getcurdate_(), reg_rec.Expiry) > 0) // @v10.8.10 LConfig.OperDate-->getcurdate_()
 									Unworked.addUnique(tab_num);
 								else if(Iterated.addUnique(tab_num) > 0) {
 									pInfo->TabNum   = tab_num;
@@ -2422,7 +2422,7 @@ int SLAPI AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, 
 				STRNSCPY(info.Name, goods_rec.Name);
 				info.ParentID = item.ParentId;
 				info.UnitID  = goods_rec.UnitID;
-				if(GObj.FetchTax(goods_rec.ID, LConfig.OperDate, 0L, &gtx) > 0)
+				if(GObj.FetchTax(goods_rec.ID, getcurdate_(), 0L, &gtx) > 0) // @v10.8.10 LConfig.OperDate-->getcurdate_()
 					info.VatRate = gtx.GetVatRate();
 				GObj.GetSingleBarcode(goods_rec.ID, info.Code, sizeof(info.Code));
 				if(info.Code[0] == '@')

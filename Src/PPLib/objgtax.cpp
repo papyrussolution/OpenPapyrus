@@ -823,7 +823,7 @@ int SLAPI PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 int SLAPI PPObjGoodsTax::SerializePacket(int dir, PPGoodsTaxPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	int32  c = (int32)pPack->GetCount(); // @persistent
+	int32  c = static_cast<int32>(pPack->GetCount()); // @persistent
 	THROW_SL(ref->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int i = 0; i < c; i++) {

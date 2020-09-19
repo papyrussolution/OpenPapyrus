@@ -890,7 +890,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 			rec.LinkObjType = PPOBJ_BILL;
 			rec.LinkObjID = billID;
 			rec.Dt = dt;
-			rec.UserID = LConfig.User;
+			rec.UserID = LConfig.UserID;
 		}
 		rec.SCardID = scardID;
 		rec.Amount = amount;
@@ -907,7 +907,7 @@ int SLAPI SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amo
 int SLAPI SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
 {
 	int    ok = 1;
-	const  PPID user_id = LConfig.User;
+	const  PPID user_id = LConfig.UserID;
 	TSVector <OpBlock> ex_link_op_list; // @v9.8.4 TSArray-->TSVector
 	PPTransaction tra(use_ta);
 	THROW(tra);

@@ -2423,7 +2423,7 @@ int SLAPI PPObjTSession::InitLinePacket(TSessLineTbl::Rec * pRec, PPID sessID)
 	TSessionTbl::Rec tses_rec;
 	if(Search(sessID, &tses_rec) > 0) {
 		rec.TSessID = sessID;
-		rec.UserID  = LConfig.User;
+		rec.UserID  = LConfig.UserID;
 		getcurdatetime(&rec.Dt, &rec.Tm);
 		P_Tbl->AdjustLineTime(&rec);
 		if(tses_rec.Flags & TSESF_PLAN && tses_rec.Flags & TSESF_PLAN_PHUNIT)
@@ -4367,7 +4367,7 @@ int SLAPI PPObjTSession::ProcessBhtRec(int signal, const BhtTSessRec * pRec, PPL
 				else {
 					MEMSZERO(line_rec);
 					line_rec.TSessID = sess_id;
-					line_rec.UserID  = LConfig.User;
+					line_rec.UserID  = LConfig.UserID;
 					line_rec.Dt = pRec->Dtm.d;
 					line_rec.Tm = pRec->Dtm.t;
 					line_rec.Sign = -1;
