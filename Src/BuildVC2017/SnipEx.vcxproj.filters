@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\SnipEx\SnipEx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\SnipEx\ButtonDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\SnipEx\GdiPlusInterop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\SnipEx\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\SnipEx\SnipEx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\SnipEx\SnipEx.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32Black.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32Blue.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32Disabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32Green.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32Red.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32White.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Arrow32x32Yellow.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\BlackBox32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\BlueBox32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Box32x32Disabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Clipboard32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Clipboard32x32Disabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Clock32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Floppy32x32Disabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Floppy32x32Enabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\GreenBox32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\GreenHilighter32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Hilighter32x32Disabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\OrangeHilighter32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\PinkHilighter32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Redact32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Redact32x32Disabled.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\RedBox32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Scissors32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Scissors256x256Color.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Scissors256x256Color.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\SnipEx.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\SnipEx48-2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Text32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\Text32x32D.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\UAC_8bpp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\WhiteBox32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\YellowBox32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\OSF\SnipEx\Assets\YellowHilighter32x32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\SnipEx\Assets\BlackBoxCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\BlueBoxCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\GreenBoxCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\GreenHilighterCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\OrangeHilighterCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\PinkHilighterCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\RedactCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\RedBoxCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\TextCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\WhiteBoxCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\YellowBoxCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\OSF\SnipEx\Assets\YellowHilighterCursor.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
