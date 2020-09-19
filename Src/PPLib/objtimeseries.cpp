@@ -4514,11 +4514,10 @@ int SLAPI PPObjTimeSeries::StrategyContainer::MakeConfidenceEliminationIndex(con
 				const uint idx = pSrcIdxList ? static_cast<uint>(pSrcIdxList->get(_i_)) : _i_;
 				if(!rToRemoveIdxList.lsearch(idx)) {
 					const Strategy & r_item = at(idx);
-					const double angular_density_delta = log10(r_item.GetAngularDensity()) - r_item.ADF;
+					//const double angular_density_delta = log10(r_item.GetAngularDensity()) - r_item.ADF;
 					/*if(angular_density_delta > 0.0) { rToRemoveIdxList.add(idx); } else*/ {
-						//const double local_extremum_factor = pow(static_cast<double>(r_item.StakeCount), 2) * angular_density_delta;
 						const double local_extremum_factor = static_cast<double>(r_item.StakeCount);
-						//const double local_extremum_factor = log(sqrt(static_cast<double>(r_item.StakeCount))) - angular_density_delta;
+						//const double local_extremum_factor = -r_item.ADF;
 						if(to_remove_idx < 0 || extremum_factor > local_extremum_factor) {
 							extremum_factor = local_extremum_factor;
 							to_remove_idx = static_cast<int>(idx);
@@ -8557,7 +8556,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 										}
 									}
 #endif // } 0
-#if 1
+#if 0
 									{
 										//
 										// Построение агрегированного контейнера стратегий, ограниченного диапазонами относительной ошибки регрессии
@@ -8610,13 +8609,13 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 										}
 									}
 #endif
-									{
+									/*{
 										TryStrategyContainerResultCollection result_collection;
 										if(TryStrategyContainer(config, ts_pack.Rec.ID, 0, &aggregated_container, 0, result_collection)) {
 											OutputTryStrategyContainerResult(result_collection);
 											p_best_container = &aggregated_container; // ! Здесь инициализируем p_best_container - сигнал для следующего ниже условия //
 										}
-									}
+									}*/
 								}
 								if(!p_best_container && forward_result_list.getCount()) {
 									//
