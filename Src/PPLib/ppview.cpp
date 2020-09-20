@@ -2349,38 +2349,49 @@ int PPViewBrowser::SetupToolbarStringCombo(uint strId, PPID id)
 IMPL_HANDLE_EVENT(PPViewBrowser)
 {
 	if(this && this->IsConsistent()) { // @v10.3.9
-		int    c, r;
+		int    r;
 		int    skip_inherited_processing = 0;
 		if(TVKEYDOWN) {
-			int    is_rus = 0;
-			char   b[4];
-			b[0] = TVCHR;
-			b[1] = 0;
-			SCharToOem(b);
-			is_rus = IsLetter866(b[0]);
-			SOemToChar(b);
-			if(isalnum(c = TVCHR) || is_rus || c == '*') {
-				if((VbState & vbsKbF10) && (b[0] == 'x' || b[0] == 'X' || (is_rus && (b[0] == '÷' || b[0] == '×')))) {
-					Export();
-					clearEvent(event);
-				}
-				else if(P_View && !is_rus) {
-					char   temp_buf[32];
-					temp_buf[0] = c;
-					temp_buf[1] = 0;
-					r = P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this);
-					if(r != -2) {
-						if(r > 0)
-							updateView();
-						clearEvent(event);
-					}
-				}
-				VbState &= ~vbsKbF10;
-			}
-			else if(oneof3(TVKEY, kbEnter, kbIns, kbDel))
+			if(oneof3(TVKEY, kbEnter, kbIns, kbDel))
 				skip_inherited_processing = 1;
 			else if(TVKEY == kbF10)
 				VbState |= vbsKbF10;
+			else {
+				const  int c = TVCHR;
+				if(c) {
+					if(isalnum(c) || c == '*') {
+						if(VbState & vbsKbF10 && oneof2(c, 'x', 'X')) {
+							Export();
+							clearEvent(event);
+						}
+						else if(P_View) {
+							char   temp_buf[32];
+							temp_buf[0] = c;
+							temp_buf[1] = 0;
+							r = P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this);
+							if(r != -2) {
+								if(r > 0)
+									updateView();
+								clearEvent(event);
+							}
+						}
+					}
+					else {
+						KeyDownCommand kd;
+						char   b[4];
+						b[0] = c;
+						b[1] = 0;
+						SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+						r_temp_buf_u.CopyFromMb_OUTER(b, 1);
+						uint   tc = kd.SetCharU(r_temp_buf_u.C(0)) ? kd.GetChar() : 0; 
+						if(VbState & vbsKbF10 && oneof2(tc, 'x', 'X')) {
+							Export();
+							clearEvent(event);
+						}
+					}
+					VbState &= ~vbsKbF10;
+				}
+			}
 		}
 		if(!skip_inherited_processing) {
 			/* @v10.3.1
@@ -2480,7 +2491,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 				char   temp_buf[32];
 				temp_buf[0] = static_cast<char>(TVKEY);
 				temp_buf[1] = 0;
-				if(P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0)
+				if(temp_buf[0] && P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0) // @v10.8.10 @fix (temp_buf[0] &&)
 					updateView();
 			}
 		}

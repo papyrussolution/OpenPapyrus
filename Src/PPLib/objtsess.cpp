@@ -1453,8 +1453,7 @@ int SLAPI PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 				}
 			}
 			else {
-				THROW(P_Tbl->InitLineEnum(sessID, &hdl_ln_enum));
-				while(P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0) {
+				for(P_Tbl->InitLineEnum(sessID, &hdl_ln_enum); P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0;) {
 					if(line_rec.Flags & TSESLF_AUTOCOMPL)
 						lines_to_remove.add(line_rec.OprNo);
 					else {
@@ -2242,8 +2241,7 @@ int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
 				line_rec.Flags |= TSESLF_AUTOMAIN;
 				line_rec.Qtty = qtty;
 				{
-					THROW(P_Tbl->InitLineEnum(pPack->ID, &hdl_ln_enum));
-					while(P_Tbl->NextLineEnum(hdl_ln_enum, &ex_line_rec) > 0)
+					for(P_Tbl->InitLineEnum(pPack->ID, &hdl_ln_enum); P_Tbl->NextLineEnum(hdl_ln_enum, &ex_line_rec) > 0;)
 						if(ex_line_rec.Flags & TSESLF_AUTOMAIN)
 							THROW(PutLine(pPack->ID, &ex_line_rec.OprNo, 0, 0));
 				}
@@ -3487,12 +3485,10 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 			MEMSZERO(tec_rec);
 
 		PPIDArray goods_id_list;
-		long   oprno = 0;
 		TSessLineTbl::Rec line_rec;
 		PPBillPacket bill_pack;
 		LDATE  wr_off_dt = ZERODATE;
 		RecomplItem recompl_item(tec_rec.Flags & TECF_RECOMPLMAINGOODS && op_type_id == PPOPT_GOODSMODIF);
-
 		THROW_PP(tses_rec.Status == TSESST_CLOSED, PPERR_WROFFUNCLOSEDTSESS);
 		{
 			PPTransaction tra(use_ta);
@@ -3530,8 +3526,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 				sess_id_list.addUnique(sessID);
 				for(uint sc = 0; sc < sess_id_list.getCount(); sc++) {
 					const PPID sess_id = sess_id_list.get(sc);
-					THROW(P_Tbl->InitLineEnum(sess_id, &hdl_ln_enum));
-					for(oprno = 0; P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0;) {
+					long   oprno = 0;
+					for(P_Tbl->InitLineEnum(sess_id, &hdl_ln_enum); P_Tbl->NextLineEnum(hdl_ln_enum, &line_rec) > 0;) {
 						LongArray rows;
 						ILTI   ilti;
 						int    is_last_lot = 0;
@@ -3636,9 +3632,8 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 								ilti.UnitPerPack = lot_rec.UnitPerPack;
 						}
 						THROW(p_bobj->ConvertILTI(&ilti, &bill_pack, &rows, CILTIF_USESUBST|CILTIF_SUBSTSERIAL, strip(line_rec.Serial)));
-						// @v9.4.9 if(R6(ilti.Rest) != 0) {
-						if(ilti.HasDeficit()) { // @v9.4.9
-  							THROW(local_pugl.Add(&ilti, bill_pack.Rec.LocID, (uint)oprno, bill_pack.Rec.Dt));
+						if(ilti.HasDeficit()) {
+  							THROW(local_pugl.Add(&ilti, bill_pack.Rec.LocID, static_cast<uint>(oprno), bill_pack.Rec.Dt));
   							incomplete = 1;
 						}
 						else if(rows.getCount() && line_rec.Flags & TSESLF_INDEPPHQTTY) {
@@ -3687,8 +3682,7 @@ int SLAPI PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger
 						ilti.GoodsID = gs_item.GoodsID;
 						ilti.SetQtty(qtty, 0, (qtty > 0) ? (PPTFR_PLUS | PPTFR_RECEIPT) : PPTFR_MINUS);
 						THROW(p_bobj->ConvertILTI(&ilti, &bill_pack, &rows, CILTIF_USESUBST, 0));
-						// @v9.4.9 if(R6(ilti.Rest) != 0) {
-						if(ilti.HasDeficit()) { // @v9.4.9
+						if(ilti.HasDeficit()) {
 							THROW(local_pugl.Add(&ilti, bill_pack.Rec.LocID, 0, bill_pack.Rec.Dt));
 							incomplete = 1;
 						}

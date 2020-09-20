@@ -1728,17 +1728,10 @@ int SLAPI RAssocArray::SearchMaxVal(uint * pPos) const
 	return ok;
 }
 
-#define OPTIMIZE_LOOP
-
 void SLAPI RAssocArray::Scale(double rate)
 {
-#ifdef OPTIMIZE_LOOP
-	uint   i = getCount();
-	if(i) do { at(--i).Val *= rate; } while(i);
-#else
 	for(uint i = 0; i < getCount(); i++)
 		at(i).Val *= rate;
-#endif
 }
 
 int SLAPI SLAPI RAssocArray::Distribute(double amount, long flags, int prec, RAssocArray & rResult) const
@@ -1778,13 +1771,8 @@ int SLAPI SLAPI RAssocArray::Distribute(double amount, long flags, int prec, RAs
 double SLAPI RAssocArray::GetTotal() const
 {
 	double total = 0.0;
-#ifdef OPTIMIZE_LOOP
-	uint   i = getCount();
-	if(i) do { total += at(--i).Val; } while(i);
-#else
 	for(uint i = 0; i < getCount(); i++)
 		total += at(i).Val;
-#endif
 	return total;
 }
 

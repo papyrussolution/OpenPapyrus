@@ -1726,7 +1726,7 @@ int SLAPI PPViewTSessLine::AddItemByCode(const char * pInitStr)
 				if(TSesObj.EditLine(sess_id, &(oprno = 0), tidi.GoodsID, 0, qtty) > 0)
 					ok = 1;
 			}
-			else {
+			else if(code.NotEmptyS()) { // @v10.8.10 @fix if(code.NotEmptyS())
 				PPObjTSession::SelectBySerialParam ssp(sess_id, code);
 				int    r2 = TSesObj.SelectBySerial(&ssp);
 				if(r2 == 1) {
@@ -1738,6 +1738,50 @@ int SLAPI PPViewTSessLine::AddItemByCode(const char * pInitStr)
 			}
 		}
 	}
+	return ok;
+}
+
+int SLAPI PPViewTSessLine::AddCompletion(PPID sessID)
+{
+	int    ok = -1;
+	long   h_lnenum = -1;
+	PPID   tec_goods_id = 0;
+	PPID   tec_struc_id = 0;
+	TSessionTbl::Rec tses_rec;
+	if(TSesObj.Search(sessID, &tses_rec) > 0) {
+		int    add_tec_goods_before_complete = 0;
+		TSessLineTbl::Rec line_rec;
+		ProcessorTbl::Rec prc_rec;
+		TechTbl::Rec tec_rec;
+		THROW_PP(!(tses_rec.Flags & TSESF_WRITEDOFF), PPERR_TSESSWRITEDOFF);
+		THROW_PP(!(tses_rec.Flags & TSESF_SUPERSESS), PPERR_INVOPONTSUPERSESS);
+		THROW(TSesObj.PrcObj.GetRecWithInheritance(tses_rec.PrcID, &prc_rec) > 0);
+		if(TSesObj.TecObj.Fetch(tses_rec.TechID, &tec_rec) > 0) {
+			tec_goods_id = tec_rec.GoodsID;
+			tec_struc_id = tec_rec.GStrucID;
+			uint   ln_count = 0;
+			for(TSesObj.P_Tbl->InitLineEnum(sessID, &h_lnenum); TSesObj.P_Tbl->NextLineEnum(h_lnenum, &line_rec) > 0;) {
+				ln_count++;
+				break;
+			}
+			if(!ln_count && tec_goods_id && tec_struc_id) {
+				add_tec_goods_before_complete = 1;
+			}
+		}
+		if(add_tec_goods_before_complete) {
+			long   oprno = 0;
+			if(TSesObj.EditLine(sessID, &oprno, tec_goods_id, 0, 0.0) > 0) {
+				THROW(TSesObj.CompleteSession(sessID, 1));
+				ok = 1;
+			}
+		}
+		else {
+			THROW(TSesObj.CompleteSession(sessID, 1));
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	TSesObj.P_Tbl->DestroyIter(h_lnenum);
 	return ok;
 }
 
@@ -1785,9 +1829,10 @@ int SLAPI PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				{
 					const PPID tses_id = (TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID) ? hdr.TSesID : Filt.TSesList.GetSingle();
 					if(tses_id) {
-						ok = TSesObj.CompleteSession(tses_id, 1);
+						ok = AddCompletion(tses_id); // @v10.8.10
+						/* @v10.8.10 ok = TSesObj.CompleteSession(tses_id, 1);
 						if(!ok)
-							PPError();
+							PPError();*/
 					}
 				}
 				break;

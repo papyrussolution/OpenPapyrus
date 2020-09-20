@@ -1495,6 +1495,7 @@
     <ClCompile Include="..\PPLib\tsess.cpp" />
     <ClCompile Include="..\PPLib\tsessdlg.cpp" />
     <ClCompile Include="..\PPLib\txtanlz.cpp" />
+    <ClCompile Include="..\PPLib\uds.cpp" />
     <ClCompile Include="..\PPLib\uniprice.cpp" />
     <ClCompile Include="..\PPLib\vetis.cpp" />
     <ClCompile Include="..\PPLib\V_acanlz.cpp" />

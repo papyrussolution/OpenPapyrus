@@ -1460,6 +1460,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 #define GRP_GOODS 1
 
 class TSessLineDialog : public TDialog {
+	DECL_DIALOG_DATA(TSessLineTbl::Rec);
 public:
 	explicit TSessLineDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSLN*/), PctDis(0.0)
 	{
@@ -1475,15 +1476,95 @@ public:
 		PPSetupCtrlMenu(this, CTL_TSESSLN_QTTY, CTLMNU_TSESSLN_QTTY, CTRLMENU_TSESSLINEQTTY);
 		PPSetupCtrlMenu(this, CTL_TSESSLN_INDEPPHQTTY, CTLMNU_TSESSLN_PHQTTY, CTRLMENU_TSESSLINEPHQTTY);
 	}
-	int    setDTS(const TSessLineTbl::Rec *);
-	int    getDTS(TSessLineTbl::Rec *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		TSessLocID = 0;
+		int    ok = 1;
+		TSessionTbl::Rec tses_rec;
+		ProcessorTbl::Rec prc_rec;
+		SString sess_title;
+		// @v10.6.4 MEMSZERO(prc_rec);
+		THROW(TSesObj.Search(Data.TSessID, &tses_rec) > 0);
+		if(!Data.OprNo && !(tses_rec.Flags & TSESF_PLAN) && !(TSesObj.GetConfig().Flags & PPTSessConfig::fAllowLinesInPendingSessions))
+			THROW_PP(oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED), PPERR_ADDTOINACTSESS);
+		sess_title.Cat(tses_rec.Num);
+		{
+			SCardTbl::Rec sc_rec;
+			if(SearchObject(PPOBJ_SCARD, tses_rec.SCardID, &sc_rec) > 0)
+				PctDis = fdiv100i(sc_rec.PDis);
+		}
+		if(PrcObj.Search(tses_rec.PrcID, &prc_rec) > 0) {
+			sess_title.Space().CatChar('-').Space().Cat(prc_rec.Name);
+			TSessLocID = prc_rec.LocID;
+		}
+		setStaticText(CTL_TSESSLN_SESSTITLE, sess_title);
+		{
+			GoodsCtrlGroup::Rec gcg_rec(0, Data.GoodsID, prc_rec.LocID,
+				GoodsCtrlGroup::disableEmptyGoods|GoodsCtrlGroup::activateGoodsListOnGroupSelection|GoodsCtrlGroup::enableInsertGoods);
+			setGroupData(GRP_GOODS, &gcg_rec);
+		}
+		setCtrlLong(CTL_TSESSLN_SESSID, Data.TSessID);
+		setCtrlLong(CTL_TSESSLN_OPRNO,  Data.OprNo);
+		AddClusterAssocDef(CTL_TSESSLN_SIGN, 0, -1);
+		AddClusterAssoc(CTL_TSESSLN_SIGN, 1, +1);
+		AddClusterAssoc(CTL_TSESSLN_SIGN, 2,  0);
+		SetClusterData(CTL_TSESSLN_SIGN, Data.Sign);
+		AddClusterAssoc(CTL_TSESSLN_FLAG_REST, 0, TSESLF_REST);
+		SetClusterData(CTL_TSESSLN_FLAG_REST, Data.Flags);
+		AddClusterAssoc(CTL_TSESSLN_PLANFLAGS, 0, TSESLF_PLAN_PHUNIT);
+		SetClusterData(CTL_TSESSLN_PLANFLAGS, Data.Flags);
+		setCtrlData(CTL_TSESSLN_DT, &Data.Dt);
+		setCtrlData(CTL_TSESSLN_TM, &Data.Tm);
+		setCtrlReal(CTL_TSESSLN_QTTY,        Data.Qtty);
+		setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, Data.WtQtty);
+		setupPricing(0);
+		setCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
+		disableCtrl(CTL_TSESSLN_SERIAL, 1);
+		disableCtrl(CTL_TSESSLN_SIGN, Data.OprNo != 0);
+		disableCtrl(CTL_TSESSLN_FLAG_REST, Data.OprNo != 0);
+		if(Data.GoodsID)
+			selectCtrl(CTL_TSESSLN_QTTY);
+		disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
+		enableCommand(cmSelSerial, BIN(Data.Sign < 0));
+		setupCtrlsOnGoodsSelection();
+		CATCHZOKPPERR
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		long   temp_long = 0;
+		GoodsCtrlGroup::Rec gcg_rec;
+		THROW(getGroupData(GRP_GOODS, &gcg_rec));
+		Data.GoodsID = gcg_rec.GoodsID;
+		if(GetClusterData(CTL_TSESSLN_SIGN, &temp_long))
+			Data.Sign = static_cast<int16>(temp_long);
+		GetClusterData(CTL_TSESSLN_FLAG_REST, &Data.Flags);
+		GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
+		getCtrlData(sel = CTL_TSESSLN_QTTY, &Data.Qtty);
+		THROW_PP(Data.Qtty > 0, PPERR_INVQTTY);
+		if(Data.Flags & TSESLF_INDEPPHQTTY)
+			getCtrlData(sel = CTL_TSESSLN_INDEPPHQTTY, &Data.WtQtty); // float WtQtty
+		else
+			Data.WtQtty = 0.0;
+		Data.Price    = getCtrlReal(CTL_TSESSLN_PRICE);
+		Data.Discount = getCtrlReal(CTL_TSESSLN_DSCNT);
+		getCtrlData(sel = CTL_TSESSLN_DT, &Data.Dt);
+		THROW_SL(checkdate(Data.Dt));
+		getCtrlData(CTL_TSESSLN_TM, &Data.Tm);
+		getCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupCtrlsOnGoodsSelection();
 	void   setupQtty(int readFromField, double qtty);
 	void   setupPricing(int recalcDiscount);
 
-	TSessLineTbl::Rec Data;
 	PPObjTSession TSesObj;
 	PPObjProcessor PrcObj;
 	PPObjGoods GObj;
@@ -1652,91 +1733,6 @@ void TSessLineDialog::setupPricing(int recalcDiscount)
 		Data.Discount = Data.Price * fdiv100r(PctDis);
 	setCtrlReal(CTL_TSESSLN_DSCNT, Data.Discount);
 	setCtrlReal(CTL_TSESSLN_NETPRICE, Data.Price - Data.Discount);
-}
-
-int TSessLineDialog::setDTS(const TSessLineTbl::Rec * pData)
-{
-	Data = *pData;
-	TSessLocID = 0;
-	int    ok = 1;
-	TSessionTbl::Rec tses_rec;
-	ProcessorTbl::Rec prc_rec;
-	SString sess_title;
-	// @v10.6.4 MEMSZERO(prc_rec);
-	THROW(TSesObj.Search(Data.TSessID, &tses_rec) > 0);
-	if(!Data.OprNo && !(tses_rec.Flags & TSESF_PLAN) && !(TSesObj.GetConfig().Flags & PPTSessConfig::fAllowLinesInPendingSessions))
-		THROW_PP(oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED), PPERR_ADDTOINACTSESS);
-	sess_title.Cat(tses_rec.Num);
-	{
-		SCardTbl::Rec sc_rec;
-		if(SearchObject(PPOBJ_SCARD, tses_rec.SCardID, &sc_rec) > 0)
-			PctDis = fdiv100i(sc_rec.PDis);
-	}
-	if(PrcObj.Search(tses_rec.PrcID, &prc_rec) > 0) {
-		sess_title.Space().CatChar('-').Space().Cat(prc_rec.Name);
-		TSessLocID = prc_rec.LocID;
-	}
-	setStaticText(CTL_TSESSLN_SESSTITLE, sess_title);
-	{
-		GoodsCtrlGroup::Rec gcg_rec(0, Data.GoodsID, prc_rec.LocID,
-			GoodsCtrlGroup::disableEmptyGoods|GoodsCtrlGroup::activateGoodsListOnGroupSelection|GoodsCtrlGroup::enableInsertGoods);
-		setGroupData(GRP_GOODS, &gcg_rec);
-	}
-	setCtrlLong(CTL_TSESSLN_SESSID, Data.TSessID);
-	setCtrlLong(CTL_TSESSLN_OPRNO,  Data.OprNo);
-	AddClusterAssocDef(CTL_TSESSLN_SIGN, 0, -1);
-	AddClusterAssoc(CTL_TSESSLN_SIGN, 1, +1);
-	AddClusterAssoc(CTL_TSESSLN_SIGN, 2,  0);
-	SetClusterData(CTL_TSESSLN_SIGN, Data.Sign);
-	AddClusterAssoc(CTL_TSESSLN_FLAG_REST, 0, TSESLF_REST);
-	SetClusterData(CTL_TSESSLN_FLAG_REST, Data.Flags);
-	AddClusterAssoc(CTL_TSESSLN_PLANFLAGS, 0, TSESLF_PLAN_PHUNIT);
-	SetClusterData(CTL_TSESSLN_PLANFLAGS, Data.Flags);
-	setCtrlData(CTL_TSESSLN_DT, &Data.Dt);
-	setCtrlData(CTL_TSESSLN_TM, &Data.Tm);
-	setCtrlReal(CTL_TSESSLN_QTTY,        Data.Qtty);
-	setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, Data.WtQtty);
-	setupPricing(0);
-	setCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
-	disableCtrl(CTL_TSESSLN_SERIAL, 1);
-	disableCtrl(CTL_TSESSLN_SIGN, Data.OprNo != 0);
-	disableCtrl(CTL_TSESSLN_FLAG_REST, Data.OprNo != 0);
-	if(Data.GoodsID)
-		selectCtrl(CTL_TSESSLN_QTTY);
-	disableCtrl(CTL_TSESSLN_SERIAL, BIN(Data.Sign < 0));
-	enableCommand(cmSelSerial, BIN(Data.Sign < 0));
-	setupCtrlsOnGoodsSelection();
-	CATCHZOKPPERR
-	return ok;
-}
-
-int TSessLineDialog::getDTS(TSessLineTbl::Rec * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	long   temp_long = 0;
-	GoodsCtrlGroup::Rec gcg_rec;
-	THROW(getGroupData(GRP_GOODS, &gcg_rec));
-	Data.GoodsID = gcg_rec.GoodsID;
-	if(GetClusterData(CTL_TSESSLN_SIGN, &temp_long))
-		Data.Sign = (int16)temp_long;
-	GetClusterData(CTL_TSESSLN_FLAG_REST, &Data.Flags);
-	GetClusterData(CTL_TSESSLN_PLANFLAGS, &Data.Flags);
-	getCtrlData(sel = CTL_TSESSLN_QTTY, &Data.Qtty);
-	THROW_PP(Data.Qtty > 0, PPERR_INVQTTY);
-	if(Data.Flags & TSESLF_INDEPPHQTTY)
-		getCtrlData(sel = CTL_TSESSLN_INDEPPHQTTY, &Data.WtQtty); // float WtQtty
-	else
-		Data.WtQtty = 0;
-	Data.Price    = getCtrlReal(CTL_TSESSLN_PRICE);
-	Data.Discount = getCtrlReal(CTL_TSESSLN_DSCNT);
-	getCtrlData(sel = CTL_TSESSLN_DT, &Data.Dt);
-	THROW_SL(checkdate(Data.Dt));
-	getCtrlData(CTL_TSESSLN_TM, &Data.Tm);
-	getCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 //
 //

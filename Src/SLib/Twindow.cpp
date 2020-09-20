@@ -555,11 +555,9 @@ int FASTCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 			s.CopyTo(temp_buf, sizeof(temp_buf));
 			ok = setCtrlData(ctlID, temp_buf);
 		}
-		// @v9.4.5 {
 		else if(ctrl_subsign == TV_SUBSIGN_STATIC) {
 			static_cast<TStaticText *>(p_v)->setText(s);
 		}
-		// } @v9.4.5 
 	}
 	if(is_temp_allocated)
 		ZFREE(p_temp);
@@ -700,7 +698,7 @@ int SLAPI TWindow::translateKeyCode(ushort keyCode, uint * pCmd) const
 	if(Toolbar.searchKeyCode(keyCode, &idx)) {
 		const ToolbarItem & r_item = Toolbar.getItem(idx);
 		if(r_item.Cmd) {
-			ASSIGN_PTR(pCmd, (uint)r_item.Cmd);
+			ASSIGN_PTR(pCmd, static_cast<uint>(r_item.Cmd));
 			ok = 1;
 		}
 	}
@@ -715,11 +713,10 @@ void TWindow::setupToolbar(const ToolbarList * pToolbar)
 
 HWND TWindow::showToolbar()
 {
-	HWND   h_tool_bar = CreateWindowEx(0, TOOLBARCLASSNAME, 0, WS_CHILD|TBSTYLE_TOOLTIPS|CCS_TOP|WS_CLIPSIBLINGS,
-	   0, 0, 0, 0, H(), (HMENU)1, TProgram::GetInst(), 0);
+	HWND   h_tool_bar = CreateWindowEx(0, TOOLBARCLASSNAME, 0, WS_CHILD|TBSTYLE_TOOLTIPS|CCS_TOP|WS_CLIPSIBLINGS, 
+		0, 0, 0, 0, H(), reinterpret_cast<HMENU>(1), TProgram::GetInst(), 0);
 	/*
 	SendMessage(h_tool_bar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
-
 	TBADDBITMAP tbab;
 	tbab.hInst  = HINST_COMMCTRL;
 	tbab.nID    = IDB_STD_SMALL_COLOR;
@@ -728,7 +725,6 @@ HWND TWindow::showToolbar()
 	tbab.nID    = Toolbar.getBitmap();
 	user_images = SendMessage(h_tool_bar, TB_ADDBITMAP, 100, (WPARAM)&tbab);
 	*/
-
 	HIMAGELIST himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 16, 64);
  	::SendMessage(h_tool_bar, CCM_SETVERSION, 5, 0);
 	ToolbarItem item;
@@ -740,7 +736,7 @@ HWND TWindow::showToolbar()
 			btns.dwData  = 0;
 			btns.iString = 0;
 			*/
-			if(item.ToolTipText[0] != 0) {
+			if(!isempty(item.ToolTipText)) {
 				long image_idx = -1;
 				if((image_idx = ImageList_Add(himl, APPL->FetchBitmap(item.BitmapIndex), (HBITMAP)0)) >= 0)
 					btns.iBitmap = MAKELONG(1, image_idx);
@@ -767,7 +763,7 @@ IMPL_HANDLE_EVENT(TWindow)
 {
 	TGroup::handleEvent(event);
 	if(event.isCmd(cmClose)) {
-		if(!TVINFOPTR || TVINFOPTR == this || TVINFOVIEW->P_Owner == this) { // @v9.8.12 (|| TVINFOVIEW->owner == this)
+		if(!TVINFOPTR || TVINFOPTR == this || TVINFOVIEW->P_Owner == this) {
 			if(IsInState(sfModal))
 				TView::messageCommand(this, cmCancel, this);
 			else
@@ -859,8 +855,8 @@ int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
 //
 void SRectLayout::Dim::Set(int v, int f)
 {
-	Val = (int16)v;
-	Flags = (int16)f;
+	Val = static_cast<int16>(v);
+	Flags = static_cast<int16>(f);
 }
 
 SRectLayout::Item::Item()
@@ -982,8 +978,8 @@ int SRectLayout::InsertWindow(long itemId, TView * pView, int minWidth, int minH
 		MEMSZERO(witem);
 		witem.ItemId = itemId;
 		witem.P_View = pView;
-		witem.MinWidth = (int16)minWidth;
-		witem.MinHeight = (int16)minHeight;
+		witem.MinWidth  = static_cast<int16>(minWidth);
+		witem.MinHeight = static_cast<int16>(minHeight);
 		WinList.insert(&witem);
 	}
 	else
@@ -998,16 +994,10 @@ int SRectLayout::CalcCoord(Dim dim, int containerLow, int containerUpp, int grav
 		p = gravitySide ? containerUpp : containerLow;
 	else if(dim.Flags & dfRel) {
 		int    z = ((containerUpp - containerLow) * dim.Val) / 10000;
-		if(dim.Flags & dfOpp)
-			p = containerLow + ((containerUpp - containerLow) - z);
-		else
-			p = containerLow + z;
+		p = (dim.Flags & dfOpp) ? (containerLow + ((containerUpp - containerLow) - z)) : (containerLow + z);
 	}
 	else {
-		if(dim.Flags & dfOpp)
-			p = containerUpp - dim.Val;
-		else
-			p = containerLow + dim.Val;
+		p = (dim.Flags & dfOpp) ? (containerUpp - dim.Val) : (containerLow + dim.Val);
 	}
 	return p;
 }

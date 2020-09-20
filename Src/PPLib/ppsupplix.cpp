@@ -3132,7 +3132,7 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 			LocationTbl::Rec loc_rec;
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesBillPacket * p_src_pack = p_result->at(i);
-				if(p_src_pack && p_src_pack->Status == 0) { // @v9.3.2 (&& p_src_pack->Status == 0) отмененные заказы не проводить
+				if(p_src_pack && p_src_pack->Status == 0) { // (p_src_pack->Status == 0) отмененные заказы не проводить
 					BillTbl::Rec ex_bill_rec;
 					PPID   ex_bill_id = 0;
 					PPBillPacket pack;
@@ -3140,12 +3140,9 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 					PPBillPacket::SetupObjectBlock sob;
 					src_order_code = p_src_pack->Code;
 					const  PPID   _src_loc_id = p_src_pack->SrcLocCode.ToLong();
-					//
 					temp_buf = p_src_pack->PayerCode;
-					temp_buf.ShiftLeftChr('W');
-					temp_buf.ShiftLeftChr('w');
+					temp_buf.ShiftLeftChr('W').ShiftLeftChr('w');
 					const  PPID   _src_psn_id = temp_buf.ToLong();
-					//
 					const  PPID   _src_dlvrloc_id = p_src_pack->ShipTo.ToLong();
 					const  PPID   _src_agent_id = p_src_pack->AgentCode.ToLong();
 					PPID   ar_id = 0;

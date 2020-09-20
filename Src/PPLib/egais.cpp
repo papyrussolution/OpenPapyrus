@@ -2548,7 +2548,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									else if(is_uncond_accept) {
 										LogTextWithAddendum(PPTXT_EGAIS_BILLUNCNDACCEPTED, bill_text);
 										cmp_result = 0;
-										recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
+										// @v10.8.10 recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
+										recadv_status = PPEDI_RECADV_STATUS_UNDEF; // @v10.8.10 (экспериментально оставляем статус UNDEF - есть вероятность, что так правильнее) 
 									}
 									else if(all_absent) {
 										LogTextWithAddendum(PPTXT_EGAIS_BILLFULLYREJECTED, bill_text);

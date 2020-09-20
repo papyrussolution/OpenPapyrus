@@ -1567,38 +1567,39 @@ int SLAPI AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
 int SLAPI AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta)
 {
 	int    ok = 1;
-	int    vadd = 0; // Признак того, что необходимо добавить искусственный счет 1-го порядка
-	PPID   id;
-	int16  old_ac, old_sb;
 	PPAccountPacket acc_pack, add_acc_pack;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(AccObj.GetPacket(accID, &acc_pack) > 0);
-		old_ac = acc_pack.Rec.A.Ac;
-		old_sb = acc_pack.Rec.A.Sb;
-		if(acc_pack.Rec.A.Sb == 0) {
+		{
+			const int16 old_ac = acc_pack.Rec.A.Ac;
+			const int16 old_sb = acc_pack.Rec.A.Sb;
+			int   vadd = 0; // Признак того, что необходимо добавить искусственный счет 1-го порядка
+			if(acc_pack.Rec.A.Sb == 0) {
+				//
+				// Если изменяемый счет был одновременно счетом первого порядка, то придется искусственно добавить
+				// вместо него новый счет первого порядка, дабы субсчета этого счета не подвисли.
+				//
+				add_acc_pack = acc_pack;
+				add_acc_pack.Rec.ID = 0L;
+				add_acc_pack.Rec.A.Sb = 0;
+				add_acc_pack.Rec.OpenDate = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+				add_acc_pack.Rec.Type     = acc_pack.Rec.Type;
+				vadd = 1;
+			}
+			acc_pack.Rec.A.Ac = newAc;
+			acc_pack.Rec.A.Sb = newSb;
+			THROW(AccObj.PutPacket(&accID, &acc_pack, 0));
+			if(vadd && AccObj.SearchNum(add_acc_pack.Rec.A.Ac, add_acc_pack.Rec.A.Sb, 0, 0) < 0) { // Искусственно создаем счет только в случае, если не было других дубликатов
+				PPID   id = 0;
+				THROW(AccObj.PutPacket(&id, &add_acc_pack, 0));
+			}
 			//
-			// Если изменяемый счет был одновременно счетом первого порядка, то придется искусственно добавить
-			// вместо него новый счет первого порядка, дабы субсчета этого счета не подвисли.
+			// Теперь необходимо изменить все ссылки AcctRel.Ac и AcctRel.Sb на этот счет.
 			//
-			add_acc_pack = acc_pack;
-			add_acc_pack.Rec.ID = 0L;
-			add_acc_pack.Rec.A.Sb = 0;
-			add_acc_pack.Rec.OpenDate = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
-			add_acc_pack.Rec.Type     = acc_pack.Rec.Type;
-			vadd = 1;
+			THROW(AccRel.ReplaceAcct(old_ac, old_sb, newAc, newSb));
 		}
-		acc_pack.Rec.A.Ac = newAc;
-		acc_pack.Rec.A.Sb = newSb;
-		THROW(AccObj.PutPacket(&accID, &acc_pack, 0));
-		if(vadd && AccObj.SearchNum(add_acc_pack.Rec.A.Ac, add_acc_pack.Rec.A.Sb, 0, 0) < 0) { // @v9.2.11 Искусственно создаем счет только в случае, если не было других дубликатов
-			THROW(AccObj.PutPacket(&(id = 0), &add_acc_pack, 0));
-		}
-		//
-		// Теперь необходимо изменить все ссылки AcctRel.Ac и AcctRel.Sb на этот счет.
-		//
-		THROW(AccRel.ReplaceAcct(old_ac, old_sb, newAc, newSb));
 		THROW(tra.Commit());
 	}
 	CATCHZOK

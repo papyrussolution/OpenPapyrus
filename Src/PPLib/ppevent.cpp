@@ -812,10 +812,10 @@ int SLAPI PPViewEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 int SLAPI PPObjEventSubcription::Detect(PPID id)
 {
 	int    ok = -1;
-	PPEventSubscriptionPacket pack;
-	if(GetPacket(id, &pack) > 0) {
-		SysJournal * p_sj = DS.GetTLA().P_SysJ;
-		if(p_sj) {
+	SysJournal * p_sj = DS.GetTLA().P_SysJ;
+	if(p_sj) {
+		PPEventSubscriptionPacket pack;
+		if(GetPacket(id, &pack) > 0) {
 			LDATETIME last_det_dtm = ZERODATETIME;
 			SysJournalTbl::Rec sj_rec;
 			if(p_sj->GetLastEvent(PPACN_EVENTDETECTION, id, &last_det_dtm, 0, &sj_rec) > 0) {

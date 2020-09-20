@@ -145,7 +145,6 @@ int SLAPI ChZnCodeStruc::Parse(const char * pRawCode)
 			if(!temp_buf.IsAscii()) {
 				// Попытка транслировать латинский символ из локальной раскладки клавиатуры
 				SStringU temp_buf_u;
-				//temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				temp_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
 				for(size_t i = 0; i < temp_buf_u.Len(); i++) {
 					const wchar_t c = temp_buf_u.C(i);

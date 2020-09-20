@@ -693,8 +693,7 @@ int SLAPI PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PP
 				//
 				if(Filt.Flags & TSessAnlzFilt::fShowRest && !Filt.DiffPrc)
 					if(TSesObj.GetPrc(sess_rec.PrcID, &prc_rec, 0, 1) > 0 && prc_rec.Flags & PRCF_STOREGOODSREST) {
-						THROW(TSesObj.P_Tbl->InitLineEnum(sessID, &enum_handle));
-						while(TSesObj.P_Tbl->NextLineEnum(enum_handle, &line_rec) > 0)
+						for(TSesObj.P_Tbl->InitLineEnum(sessID, &enum_handle); TSesObj.P_Tbl->NextLineEnum(enum_handle, &line_rec) > 0;)
 							if(line_rec.Flags & TSESLF_OUTREST)
 								THROW(pResult->SetRest(ZERODATE, 0, line_rec.GoodsID, line_rec.Qtty));
 						TSesObj.P_Tbl->DestroyIter(enum_handle);
@@ -767,7 +766,7 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		PhTagPlanList.freeAll();
 		ArTimesList.freeAll();
 		uint   i;
-		TSessAnlzEntry * p_entry = 0; // @nonallocated
+		TSessAnlzEntry * p_entry = 0; // @notallocated
 		PPObjGoods goods_obj;
 		Gsl.Clear();
 		Gsl.SaveAssoc = 1;
@@ -788,13 +787,8 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			long   h = -1;
 			TSessionTbl::Rec sess_rec;
 			TSessLineTbl::Rec line_rec;
-			THROW(TSesObj.P_Tbl->InitLineEnum(Filt.PlanSessID, &h));
-			while(TSesObj.P_Tbl->NextLineEnum(h, &line_rec) > 0) {
-				double qtty = 0.0;
-				if(line_rec.Sign > 0)
-					qtty = line_rec.Qtty;
-				else if(line_rec.Sign < 0)
-					qtty = -line_rec.Qtty;
+			for(TSesObj.P_Tbl->InitLineEnum(Filt.PlanSessID, &h); TSesObj.P_Tbl->NextLineEnum(h, &line_rec) > 0;) {
+				const double qtty = (line_rec.Sign > 0) ? line_rec.Qtty : ((line_rec.Sign < 0) ? -line_rec.Qtty : 0.0);
 				PlanList.Add(line_rec.GoodsID, qtty);
 				if(line_rec.Flags & TSESLF_PLAN_PHUNIT)
 					PhTagPlanList.addUnique(line_rec.GoodsID);
@@ -804,12 +798,13 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			if(TSesObj.Search(Filt.PlanSessID, &sess_rec) > 0) {
 				long   plan_hours = 0; // Количество часов в плановом периоде
 				long   fact_hours = 0; // Количество уже отработанных часов
-				if(Filt.Flags & TSessAnlzFilt::fExtrapolToPeriod)
+				if(Filt.Flags & TSessAnlzFilt::fExtrapolToPeriod) {
 					if(sess_rec.StDt && sess_rec.FinDt && sess_rec.FinDt >= sess_rec.StDt) {
 						plan_hours  = diffdate(sess_rec.FinDt, sess_rec.StDt) * 24;
 						plan_hours -= sess_rec.StTm.hour();
 						plan_hours += sess_rec.FinTm ? sess_rec.FinTm.hour() : 24;
 					}
+				}
 				if(Filt.Flags & TSessAnlzFilt::fInterpolPlanToAr) {
 					PPDutySchedPacket ds_pack;
 					if(GetDutySchedPacket(sess_rec.PrcID, &ds_pack) > 0) {
@@ -846,9 +841,9 @@ int SLAPI PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					fact_hours  = diffdate(max_dtm.d, sess_rec.StDt) * 24;
 					fact_hours -= sess_rec.StTm.hour();
 					fact_hours += sess_rec.FinTm ? sess_rec.FinTm.hour() : 24;
-					const double part = ((double)fact_hours) / ((double)plan_hours);
-					for(i = 0; i < PlanList.getCount(); i++)
-						PlanList.at(i).Val *= part;
+					const double part = fdivi(fact_hours, plan_hours);
+					PlanList.Scale(part); // @v10.8.10
+					/* @v10.8.10 for(i = 0; i < PlanList.getCount(); i++) PlanList.at(i).Val *= part; */
 				}
 			}
 		}

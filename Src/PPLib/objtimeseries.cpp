@@ -6106,7 +6106,7 @@ struct TsFindStrategiesBlock {
 				const  uint max_range_count = (r_tssm.OptRangeMultiLimit > 0) ? r_tssm.OptRangeMultiLimit : PPTssModel::Default_OptRangeMultiLimit;
 				const  int single_scan_algorithm = 1; // @v10.8.9 0-->1 1-->0 
 				if(single_scan_algorithm) {
-					double angular_step_avg = 0.0;
+					/*double angular_step_avg = 0.0;
 					double angular_step_stddev = 0.0;
 					{
 						StatBase sb;
@@ -6117,8 +6117,8 @@ struct TsFindStrategiesBlock {
 						sb.Finish();
 						angular_step_avg = sb.GetExp();
 						angular_step_stddev = sb.GetStdDev();
-					}
-					const uint min_win_count = 10; // 5-->20
+					}*/
+					const uint min_win_count = 20; 
 					for(uint sfidx = _first_idx; sfidx < _last_idx; sfidx++) {
 						if(rList.at(sfidx).Result1 > 0.0) {
 							FindOptimalFactorRangeEntry _cur_entry;
@@ -7275,6 +7275,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 				for(uint i = 0; i < p_blk->P_TsrrList->getCount(); i++) {
 					TestStrategyRawResult * p_tsrr = p_blk->P_TsrrList->at(i);
 					if(p_tsrr) {
+#if 0 // @v10.8.10 {
 						{
 							SString opt_entry_stat_list_fn;
 							opt_entry_stat_list_fn.Cat("optentrystatlist").CatChar('-').Cat(p_blk->R_TsPack.Rec.Symb);
@@ -7302,6 +7303,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 								f_ol.WriteBlancLine();
 							}
 						}
+#endif // } 0 @v10.8.10
 #if 0 // @v10.8.5 {
 						{
 							SString opt_entry_stat_list_fn;
@@ -7372,6 +7374,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 						}
 #endif // } 0 @v10.8.5
 						if(p_tsrr->SoList.getCount()) {
+#if 0 // @v10.8.10 {
 							SString opt_entry_list_fn;
 							opt_entry_list_fn.Cat("optentrylist").CatChar('-').Cat(p_blk->R_TsPack.Rec.Symb).CatChar('-');
 							if(p_tsrr->MainFrameSize)
@@ -7390,6 +7393,7 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 									f_ol.WriteLine(msg_buf.CR());
 								}
 							}
+#endif // } 0 @v10.8.10
 							p_tsrr->SoList.freeAll();
 						}
 					}
@@ -8402,6 +8406,7 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 																		dmap_entry.GenTEA = r_s.GenTEA;
 																		dmap_entry.GenTED = r_s.GenTED;
 																		dmap_entry.TrendErrRel = r_dli.TrendErrRel;
+																		dmap_entry.AngleR.Set(atan(r_s.OptDeltaRange.low), atan(r_s.OptDeltaRange.upp)); // @v10.8.10
 																		dmap_entry.StakeCount = 1;
 																		if(r_dli.Result > 0.0)
 																			dmap_entry.WinCount = 1;
@@ -9639,10 +9644,11 @@ int SLAPI PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pE
 	int    ok = 1;
 	rBuf.Z();
 	if(!pEntry) {
-		//symb;side;frame;count;ADF;ErrRel;stake;win;loss
+		//symb;side;frame;count;ADF;UEF;GenTEA;GenTED;ErrRel;Angle.lo;Angle.up;stake;win;loss
 		rBuf.Cat("symb").Semicol().Cat("side").Semicol().Cat("frame").Semicol().Cat("count").Semicol().
-			Cat("ADF").Semicol().Cat("UEF").Semicol().Cat("GenTEA").Semicol().Cat("GenTED").Semicol().
-			Cat("ErrRel").Semicol().Cat("stake").Semicol().Cat("win").Semicol().Cat("loss");
+			Cat("ADF").Semicol().Cat("UEF").Semicol().Cat("GenTEA").Semicol().Cat("GenTED").Semicol().Cat("ErrRel").Semicol().
+			Cat("Angle.lo").Semicol().Cat("Angle.up").Semicol().
+			Cat("stake").Semicol().Cat("win").Semicol().Cat("loss");
 	}
 	else {
 		if(pSymb)
@@ -9658,8 +9664,9 @@ int SLAPI PPObjTimeSeries::TsDensityMap::EntryToStr(const TsDensityMapEntry * pE
 		rBuf.Semicol().Cat((pEntry->Flags & TsDensityMapEntry::fShort) ? "S" : "B").Semicol().
 			Cat(pEntry->InputFrameSize).Semicol().Cat(pEntry->GenCount).Semicol().
 			Cat(pEntry->ADF, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->UEF, MKSFMTD(0, 5, 0)).Semicol().
-			Cat(pEntry->GenTEA, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->GenTED, MKSFMTD(0, 5, 0)).Semicol().
-			Cat(pEntry->TrendErrRel, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->StakeCount).Semicol().Cat(pEntry->WinCount).Semicol().Cat(pEntry->LossCount);
+			Cat(pEntry->GenTEA, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->GenTED, MKSFMTD(0, 5, 0)).Semicol().Cat(pEntry->TrendErrRel, MKSFMTD(0, 5, 0)).Semicol().
+			Cat(pEntry->AngleR.low, MKSFMTD(0, 12, 0)).Semicol().Cat(pEntry->AngleR.upp, MKSFMTD(0, 12, 0)).Semicol().
+			Cat(pEntry->StakeCount).Semicol().Cat(pEntry->WinCount).Semicol().Cat(pEntry->LossCount);
 	}
 	return ok;
 }
@@ -9682,6 +9689,8 @@ int SLAPI PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 		fldGenTEA,
 		fldGenTED,
 		fldErrRel,
+		fldAngleLo,
+		fldAngleUp,
 		fldStake,
 		fldWin,
 		fldLoss
@@ -9722,6 +9731,10 @@ int SLAPI PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 					fld_assoc_list.Add(fld_no, fldGenTED);
 				else if(temp_buf.IsEqiAscii("ErrRel"))
 					fld_assoc_list.Add(fld_no, fldErrRel);
+				else if(temp_buf.IsEqiAscii("Angle.lo"))
+					fld_assoc_list.Add(fld_no, fldAngleLo);
+				else if(temp_buf.IsEqiAscii("Angle.up"))
+					fld_assoc_list.Add(fld_no, fldAngleUp);
 				else if(temp_buf.IsEqiAscii("Stake"))
 					fld_assoc_list.Add(fld_no, fldStake);
 				else if(temp_buf.IsEqiAscii("Win"))
@@ -9763,6 +9776,8 @@ int SLAPI PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 						case fldGenTEA: entry.GenTEA = temp_buf.ToReal(); break;
 						case fldGenTED: entry.GenTED = temp_buf.ToReal(); break;
 						case fldErrRel: entry.TrendErrRel = temp_buf.ToReal(); break;
+						case fldAngleLo: entry.AngleR.low = temp_buf.ToReal(); break;
+						case fldAngleUp: entry.AngleR.upp = temp_buf.ToReal(); break;
 						case fldStake:
 							temp_long_val = temp_buf.ToLong();
 							entry.StakeCount = static_cast<uint16>(temp_long_val);

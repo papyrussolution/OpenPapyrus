@@ -17126,7 +17126,9 @@ public:
 			factorUEF         = 3,
 			factorGenCount    = 4,
 			factorGenTEA      = 5,
-			factorGenTED      = 6
+			factorGenTED      = 6,
+			factorAngleMid    = 7, // Среднее значение углового диапазона AngleR
+			factorAngular     = 8  // Угловая дуга диапазона AngleR
 		};
 		enum {
 			fShort = 0x0001
@@ -17142,8 +17144,8 @@ public:
 		double UEF;
 		double GenTEA;
 		double GenTED;
-		//double TrendErr;
 		double TrendErrRel;
+		RealRange AngleR; // @v10.8.10
 	};
 	class TsDensityMap : public TSVector <TsDensityMapEntry> {
 	public:
@@ -29705,13 +29707,13 @@ private:
 //
 //
 #define ALBATROSEXSTR_UHTTURN_unused   1 // @v10.5.12 ALBATROSEXSTR_UHTTURN-->ALBATROSEXSTR_UHTTURN_unused
-#define ALBATROSEXSTR_UHTTURLPFX       2
-#define ALBATROSEXSTR_UHTTACC          3
-#define ALBATROSEXSTR_UHTTPASSW        4
-#define ALBATROSEXSTR_EGAISSRVURL      5 // @v8.8.0 URL сервера обмена данными с системой ЕГАИС
-#define ALBATROSEXSTR_VETISUSER        6 // @v9.8.9
-#define ALBATROSEXSTR_VETISPASSW       7 // @v9.8.9
-#define ALBATROSEXSTR_VETISAPIKEY      8 // @v9.8.9
+#define ALBATROSEXSTR_UHTTURLPFX       2 //
+#define ALBATROSEXSTR_UHTTACC          3 //
+#define ALBATROSEXSTR_UHTTPASSW        4 //
+#define ALBATROSEXSTR_EGAISSRVURL      5 // URL сервера обмена данными с системой ЕГАИС
+#define ALBATROSEXSTR_VETISUSER        6 // 
+#define ALBATROSEXSTR_VETISPASSW       7 // 
+#define ALBATROSEXSTR_VETISAPIKEY      8 // 
 #define ALBATROSEXSTR_VETISDOCTUSER    9 // @v10.1.0
 #define ALBATROSEXSTR_VETISDOCTPASSW  10 // @v10.1.0
 #define ALBATROSEXSTR_MQC_HOST        11 // @v10.5.2 Адрес сервера брокера сообщений
@@ -29727,9 +29729,9 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 		fRecadvEvalByCorrBill        = 0x0002, // Идентификация расхождения драфт-прихода и учетного документа списания
 			// осуществляется не прямым сравнением этих документов, а извлченеием данных из корректирующих
 			// накладных, привязанных к учетному документу прихода (если таких нет, то считается, что совпадение полное).
-		fUncondAcceptEdiIntrMov      = 0x0004, // @v9.0.0 Безусловный акцепт внутренних перемещений, продублированных по каналу EDI
-		fUseOwnEgaisObjects          = 0x0008, // @v9.0.2 Использовать собственную базу данных объектов ЕГАИС
-		fUseDateInBillAnalog         = 0x0010, // @v9.1.9 Использовать критерий даты при поиске аналога документа
+		fUncondAcceptEdiIntrMov      = 0x0004, // Безусловный акцепт внутренних перемещений, продублированных по каналу EDI
+		fUseOwnEgaisObjects          = 0x0008, // Использовать собственную базу данных объектов ЕГАИС
+		fUseDateInBillAnalog         = 0x0010, // Использовать критерий даты при поиске аналога документа
 		fStrictExpGtinCheck          = 0x0020, // @v10.0.04 Строгая проверка передаваемых кодов товара на принадлежность EAN/UPC
 		fVetisTestContour            = 0x0040  // @v10.5.1 Используется тестовый контур ВЕТИС
 	};
@@ -36506,6 +36508,7 @@ private:
 	int    SLAPI TranslateBrwHdr(const void *, BrwHdr *);
 	int    SLAPI AddItemExt(PPID tsesID, PPViewBrowser *);
 	int    SLAPI AddItemByCode(const char * pInitStr);
+	int    SLAPI AddCompletion(PPID sessID);
 
 	TSessLineFilt Filt;
 	PPObjTSession TSesObj;

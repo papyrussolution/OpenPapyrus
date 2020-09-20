@@ -129,8 +129,7 @@ TCommandSet operator & (const TCommandSet & tc1, const TCommandSet & tc2)
 
 TCommandSet operator | (const TCommandSet& tc1, const TCommandSet& tc2)
 {
-	TCommandSet temp(tc1);
-	return (temp |= tc2);
+	return (TCommandSet(tc1) |= tc2);
 }
 
 int TCommandSet::IsEmpty() const
