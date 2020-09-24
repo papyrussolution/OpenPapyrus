@@ -4517,6 +4517,7 @@ int SLAPI PPObjTimeSeries::StrategyContainer::MakeConfidenceEliminationIndex(con
 					//const double angular_density_delta = log10(r_item.GetAngularDensity()) - r_item.ADF;
 					/*if(angular_density_delta > 0.0) { rToRemoveIdxList.add(idx); } else*/ {
 						const double local_extremum_factor = static_cast<double>(r_item.StakeCount);
+						//const double local_extremum_factor = static_cast<double>(r_item.GenTEA);
 						//const double local_extremum_factor = -r_item.ADF;
 						if(to_remove_idx < 0 || extremum_factor > local_extremum_factor) {
 							extremum_factor = local_extremum_factor;
@@ -6118,7 +6119,8 @@ struct TsFindStrategiesBlock {
 						angular_step_avg = sb.GetExp();
 						angular_step_stddev = sb.GetStdDev();
 					}*/
-					const uint min_win_count = 20; 
+					//const uint min_win_count = 20;
+					const uint min_win_count = (r_tssm.OptRangeStep_ > 0) ? r_tssm.OptRangeStep_ : 10;
 					for(uint sfidx = _first_idx; sfidx < _last_idx; sfidx++) {
 						if(rList.at(sfidx).Result1 > 0.0) {
 							FindOptimalFactorRangeEntry _cur_entry;
@@ -6757,8 +6759,8 @@ int SLAPI PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 			PPObjTimeSeries::StrategyResultEntry last_suited_sre;
 			uint   last_srridx_up = srridx_lo; 
 			uint   empty_adjusent_try_count = 0;
-			for(uint srridx_up = srridx_lo; srridx_up < sr_raw_list.getCount(); srridx_up++) {
-			//{ uint srridx_up = srridx_lo;
+			//for(uint srridx_up = srridx_lo; srridx_up < sr_raw_list.getCount(); srridx_up++) {
+			{ uint srridx_up = srridx_lo;
 				if(adopt_sltp) {
 					const uint   maxduck_lo = sre_test.MaxDuckQuant - p_blk->R_TssModel.E.AdoptSlShiftDn;
 					const uint   maxduck_up = sre_test.MaxDuckQuant + p_blk->R_TssModel.E.AdoptSlShiftUp;
@@ -8478,17 +8480,24 @@ int SLAPI PrcssrTsStrategyAnalyze::Run()
 											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
 											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
 											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
-											{ -1,  0, PPObjTimeSeries::TsDensityMapEntry::factorUEF },
 											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
 											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
 											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorTrendErrRel },
 											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
 											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
 											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenCount },
+											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+											{  0,  1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+											{  1,  1, PPObjTimeSeries::TsDensityMapEntry::factorGenTEA },
+											{ -1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
+											{  0, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
+											{  1, -1, PPObjTimeSeries::TsDensityMapEntry::factorGenTED },
 										};
 										for(uint cpidx = 0; cpidx < SIZEOFARRAY(cplist); cpidx++) {
 											PPObjTimeSeries::TsDensityMap::ResultEntry re;
-											if(dmap.SearchBestRange(ts_pack.Rec.ID, cplist[cpidx].Side, cplist[cpidx].Edge, cplist[cpidx].Factor, 1.0, re) > 0) {
+											if(dmap.SearchBestRange(ts_pack.Rec.ID, cplist[cpidx].Side, cplist[cpidx].Edge, cplist[cpidx].Factor, 0.8, re) > 0) {
 												if(factor_to_use == PPObjTimeSeries::TsDensityMapEntry::factorADF) {
 													if(cplist[cpidx].Factor == PPObjTimeSeries::TsDensityMapEntry::factorADF) {
 														if(cplist[cpidx].Side == 0)
