@@ -457,6 +457,9 @@
 			<File
 				RelativePath="..\PPEquip\EquipDll\Pirit.cpp">
 			</File>
+			<File
+				RelativePath="..\PPEquip\PPDrvAPI\ppdrvapi.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

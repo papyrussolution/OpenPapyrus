@@ -668,8 +668,8 @@ IMPL_HANDLE_EVENT(BizScTemplDialog)
 	else if(TVBROADCAST && TVCMD == cmReceivedFocus) {
 		uint ctl = TVINFOVIEW->GetId();
 		if(oneof2(ctl, CTL_BIZSCT_LIST, CTL_BIZSCT_ROWS)) {
-			ctlList = ctl;
-			P_Box = static_cast<SmartListBox *>(getCtrlView(ctlList));
+			CtlList = ctl;
+			P_Box = static_cast<SmartListBox *>(getCtrlView(CtlList));
 		}
 	}
 	else

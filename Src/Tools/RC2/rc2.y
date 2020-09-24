@@ -773,7 +773,10 @@ ctrlmenu_item_list : ctrlmenu_item | ctrlmenu_item ctrlmenu_item_list
 
 ctrlmenu_item : '(' T_STR T_IDENT ')'
 {
-	Rc2.AddCtrlMenuItem($2, $3);
+	Rc2.AddCtrlMenuItem($2, $3, 0);
+} | '(' T_STR T_IDENT T_IDENT ')'
+{
+	Rc2.AddCtrlMenuItem($2, $3, $4);
 }
 //
 // FILE definition

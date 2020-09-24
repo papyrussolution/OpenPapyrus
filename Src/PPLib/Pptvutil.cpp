@@ -332,12 +332,51 @@ int FASTCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 {
 	SString temp_buf;
 	if(dlg->getCtrlString(ctl, temp_buf)) {
-		// @v9.6.0 strtoirng(temp_buf, (long *)&pR->low, (long *)&pR->upp);
-		temp_buf.ToIntRange(*pR, SString::torfAny); // @v9.6.0
+		temp_buf.ToIntRange(*pR, SString::torfAny);
 		return 1;
 	}
 	else
 		return 0;
+}
+
+int SLAPI PPExecuteContextMenu(TView * pView, uint menuID)
+{
+	int    ok = -1;
+	if(pView && pView->P_Owner) {
+		TVRez * p_rez = P_SlRez;
+		if(p_rez) {
+			uint   cmd = 0;
+			uint   key = 0;
+			{
+				uint   cnt = 0;
+				SString descr;
+				TMenuPopup menu;
+				THROW_PP(p_rez->findResource(menuID, PP_RCDECLCTRLMENU), PPERR_RESFAULT);
+				cnt = p_rez->getUINT();
+				for(uint i = 0; i < cnt; i++) {
+					p_rez->getString(descr, 2);
+					SLS.ExpandString(descr, CTRANSF_UTF8_TO_INNER);
+					const uint key_code = static_cast<long>(p_rez->getUINT());
+					const uint cmd_code = static_cast<long>(p_rez->getUINT()); // @v10.8.11
+					menu.Add(descr.Transf(CTRANSF_INNER_TO_OUTER), cmd_code, key_code);
+				}
+				menu.Execute(pView->getHandle(), TMenuPopup::efRet, &cmd, &key);
+			}
+			if(cmd) {
+				TView::messageCommand(pView->P_Owner, cmd);
+				ok = 1;
+			}
+			else if(key) {
+				TEvent event;
+				event.what = TEvent::evKeyDown;
+				event.keyDown.keyCode = cmd;
+				pView->P_Owner->handleEvent(event);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID)
@@ -351,13 +390,15 @@ int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrl
 			if(p_rez) {
 				uint   cnt = 0;
 				long   key_code = 0;
+				long   cmd_code = 0;
 				SString descr;
 				THROW_PP(p_rez->findResource(ctrlMenuID, PP_RCDECLCTRLMENU), PPERR_RESFAULT);
 				cnt = p_rez->getUINT();
 				for(uint i = 0; i < cnt; i++) {
 					p_rez->getString(descr, 2);
-					SLS.ExpandString(descr, CTRANSF_UTF8_TO_INNER); // @v9.2.1
+					SLS.ExpandString(descr, CTRANSF_UTF8_TO_INNER);
 					key_code = static_cast<long>(p_rez->getUINT());
+					cmd_code = static_cast<long>(p_rez->getUINT()); // @v10.8.11
 					pDlg->AddLocalMenuItem(ctl, ctlButton, key_code, descr.Transf(CTRANSF_INNER_TO_OUTER));
 				}
 			}

@@ -534,7 +534,8 @@ INT_PTR CALLBACK PPBizScoreWindow::Proc(HWND hWnd, UINT message, WPARAM wParam, 
 				TMenuPopup menu;
 				PPLoadStringS("close", menu_text).Transf(CTRANSF_INNER_TO_OUTER);
 				menu.Add(menu_text, cmaDelete);
-				if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete)
+				uint   cmd = 0;
+				if(menu.Execute(hWnd, TMenuPopup::efRet, &cmd, 0) && cmd == cmaDelete)
 					::DestroyWindow(hWnd);
 			}
 			break;
@@ -1788,8 +1789,8 @@ LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wPara
 							if(ui_cfg.Flags & UserInterfaceSettings::fShowBizScoreOnDesktop)
 								menu.AddSubstr(temp_buf, 6, cmShowBizScoreOnDesktop); // Показать бизнес-показатели
 						}
-						int    cmd = menu.Execute(hWnd, TMenuPopup::efRet);
-						if(cmd > 0)
+						uint    cmd = 0;
+						if(menu.Execute(hWnd, TMenuPopup::efRet, &cmd, 0) && cmd)
 							TView::messageCommand(p_desk, cmd, &coord);
 					}
 				}

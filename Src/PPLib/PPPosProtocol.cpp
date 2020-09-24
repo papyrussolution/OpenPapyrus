@@ -5931,7 +5931,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 			SString msg_buf, temp_buf;
 			STimer timer;
 			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-			THROW(DS.Login(IB.DbSymb, IB.UserName, IB.Password));
+			THROW(DS.Login(IB.DbSymb, IB.UserName, IB.Password, PPSession::loginfSkipLicChecking));
 			IB.Password.Obfuscate();
 			{
         		//

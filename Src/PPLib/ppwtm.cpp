@@ -1942,22 +1942,24 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 			menu.Add("@edit",   cmaEdit);
 			menu.Add("@delete", cmaDelete);
 		}
-		int cmd = menu.Execute(H(), TMenuPopup::efRet);
-		switch(LoWord(cmd)) {
-			case cmaMore:
-				//EditParams();
-				break;
-			case cmaInsert:
-				{
-					SString obj_symb;
-					if(TWhatmanObject::GetRegSymbById(HiWord(cmd), obj_symb))
-						ok = AddTool(obj_symb);
-				}
-				break;
-			case cmaEdit: ok = EditTool(objIdx); break;
-			case cmaDelete: ok = DeleteTool(objIdx); break;
-			case cmFileOpen: ok = FileOpen(); break;
-			case cmFileSave: ok = FileSave(); break;
+		uint cmd = 0;
+		if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0)) {
+			switch(LoWord(cmd)) {
+				case cmaMore:
+					//EditParams();
+					break;
+				case cmaInsert:
+					{
+						SString obj_symb;
+						if(TWhatmanObject::GetRegSymbById(HiWord(cmd), obj_symb))
+							ok = AddTool(obj_symb);
+					}
+					break;
+				case cmaEdit: ok = EditTool(objIdx); break;
+				case cmaDelete: ok = DeleteTool(objIdx); break;
+				case cmFileOpen: ok = FileOpen(); break;
+				case cmFileSave: ok = FileSave(); break;
+			}
 		}
 	}
 	else if(oneof2(St.Mode, modeEdit, modeView)) {
@@ -1978,35 +1980,37 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 				menu.Add("@properties", cmProperties);
 			}
 		}
-		int cmd = menu.Execute(H(), TMenuPopup::efRet);
-		int do_redraw = 0;
-		switch(LoWord(cmd)) {
-			case cmFileOpen: ok = FileOpen(); break;
-			case cmFileSave: ok = FileSave(); break;
-			case cmaEdit:
-				if(W.EditObject(objIdx) > 0)
-					do_redraw = 1;
-				break;
-			case cmaDelete:
-				if(W.RemoveObject(objIdx) > 0)
-					do_redraw = 1;
-				break;
-			case cmBringToFront:
-				if(W.BringObjToFront(objIdx) > 0)
-					do_redraw = 1;
-				break;
-			case cmSendToBack:
-				if(W.SendObjToBack(objIdx) > 0)
-					do_redraw = 1;
-				break;
-			case cmProperties:
-				if(EditParam() > 0)
-					do_redraw = 1;
-				break;
-		}
-		if(do_redraw) {
-			invalidateAll(0);
-			::UpdateWindow(H());
+		uint cmd = 0;
+		if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0)) {
+			int do_redraw = 0;
+			switch(LoWord(cmd)) {
+				case cmFileOpen: ok = FileOpen(); break;
+				case cmFileSave: ok = FileSave(); break;
+				case cmaEdit:
+					if(W.EditObject(objIdx) > 0)
+						do_redraw = 1;
+					break;
+				case cmaDelete:
+					if(W.RemoveObject(objIdx) > 0)
+						do_redraw = 1;
+					break;
+				case cmBringToFront:
+					if(W.BringObjToFront(objIdx) > 0)
+						do_redraw = 1;
+					break;
+				case cmSendToBack:
+					if(W.SendObjToBack(objIdx) > 0)
+						do_redraw = 1;
+					break;
+				case cmProperties:
+					if(EditParam() > 0)
+						do_redraw = 1;
+					break;
+			}
+			if(do_redraw) {
+				invalidateAll(0);
+				::UpdateWindow(H());
+			}
 		}
 	}
 	return ok;

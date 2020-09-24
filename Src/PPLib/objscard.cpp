@@ -3468,7 +3468,9 @@ int SLAPI PPObjSCard::FindDiscountBorrowingCard(PPID ownerID, SCardTbl::Rec * pR
 int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 {
 	int    ok = -1;
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	int    is_new = 0;
 	long   prev_pdis = 0;
 	PPSCardPacket pack;
 	PPObjSCardSeries ser_obj;
@@ -3489,20 +3491,18 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 		if(pParam) {
 			pack.Rec.SeriesID = pParam->SerID;
 			pack.Rec.PersonID = pParam->OwnerID;
-			// @v9.4.5 {
 			if(!pack.Rec.PersonID)
 				pack.Rec.LocID = pParam->LocID;
-			// } @v9.4.5
 			pParam->Code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
 			pack.PutExtStrData(pack.extssPhone, pParam->Phone); // @v10.5.6
 		}
 		if(pack.Rec.SeriesID && ser_obj.GetPacket(pack.Rec.SeriesID, &scs_pack) > 0) {
-			if(pack.Rec.Code[0] == 0 && scs_pack.Eb.CodeTempl) { // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
+			if(pack.Rec.Code[0] == 0 && scs_pack.Eb.CodeTempl) {
 				SString new_code;
 				if(P_Tbl->MakeCodeByTemplate(scs_pack.Rec.ID, scs_pack.Eb.CodeTempl, new_code) > 0) // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
 					STRNSCPY(pack.Rec.Code, new_code);
 			}
-			if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) { // @v9.2.8
+			if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) {
 				pack.Rec.Flags |= SCRDF_INHERITED;
 				THROW(SetInheritance(&scs_pack, &pack.Rec));
 			}

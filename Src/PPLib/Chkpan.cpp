@@ -157,7 +157,7 @@ void SaComplex::SetQuantity(double qtty)
 		const uint c = getCount();
 		if(c) {
 			if(Qtty > 0.0) {
-				double rel = qtty / Qtty;
+				const double rel = qtty / Qtty;
 				for(uint i = 0; i < c; i++)
 					at(i).Qtty *= rel;
 			}
@@ -974,7 +974,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	CnSpeciality = static_cast<long>(cn_rec.Speciality);
 	CnLocID = cn_rec.LocID;
 	{
-		SVector temp_list(sizeof(PPGenCashNode::DivGrpAssc)); // @v9.8.9 SArray-->SVector
+		SVector temp_list(sizeof(PPGenCashNode::DivGrpAssc));
 		if(PPRef->GetPropArray(PPOBJ_CASHNODE, CashNodeID, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
 			P_DivGrpList = new SArray(temp_list);
 	}
@@ -1036,14 +1036,9 @@ CPosProcessor::~CPosProcessor()
 int CPosProcessor::InitCashMachine()
 {
 	int    ok = 1;
-	/*return BIN(
-		(P_CM || (P_CM = PPCashMachine::CreateInstance(CashNodeID)) != 0) &&
-		(!ExtCashNodeID || P_CM_EXT || (P_CM_EXT = PPCashMachine::CreateInstance(ExtCashNodeID)) != 0)
-	);*/
 	THROW(P_CM || (P_CM = PPCashMachine::CreateInstance(CashNodeID)) != 0);
 	THROW(!ExtCashNodeID || P_CM_EXT || (P_CM_EXT = PPCashMachine::CreateInstance(ExtCashNodeID)) != 0);
-	// @v9.7.10 THROW(ExtCashNodeID || !AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0); // @v9.6.11
-	THROW(!AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0); // @v9.7.10
+	THROW(!AltRegisterID || P_CM_ALT || (P_CM_ALT = PPCashMachine::CreateInstance(AltRegisterID)) != 0);
 	CATCHZOK
 	return ok;
 }
@@ -1105,20 +1100,6 @@ int CPosProcessor::GetCheckInfo(CCheckPacket * pPack)
 	}
 	if(pPack->Rec.SCardID) {
 		SCardOpTbl::Rec scop_rec;
-		/* @v9.4.11
-		if(pPack->Ext.LinkCheckID) {
-			if(ScObj.P_Tbl->SearchOpByCheck(pPack->Ext.LinkCheckID, &scop_rec) > 0) {
-				if(scop_rec.Amount > 0.0)
-					pPack->_OrdPrepay = scop_rec.Amount;
-			}
-		}
-		else if(pPack->Rec.Flags & CCHKF_ORDER) {
-			if(ScObj.P_Tbl->SearchOpByCheck(pPack->Rec.ID, &scop_rec) > 0) {
-				if(scop_rec.Amount > 0.0)
-					pPack->_OrdPrepay = scop_rec.Amount;
-			}
-		}
-		*/
 		const PPID prepay_cc_id = NZOR(pPack->Ext.LinkCheckID, ((pPack->Rec.Flags & CCHKF_ORDER) ? pPack->Rec.ID : 0));
 		if(prepay_cc_id && ScObj.P_Tbl->SearchOpByCheck(prepay_cc_id, &scop_rec) > 0 && scop_rec.Amount > 0.0)
 			pPack->_OrdPrepay = scop_rec.Amount;
@@ -1814,15 +1795,15 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			const double org_p = R2(p_item->Price);
 			const double p    = R2(sdb.IsRounding ? p_item->NetPrice() : p_item->Price); // @R2
 			double d = (discount - part_dis) / qtty;
-			if(!sdb.IsRounding) // @v9.5.2
+			if(!sdb.IsRounding)
 				d = this->RoundDis(d);
 			if(finish_addendum) {
-				if((p_item->Discount + d) > org_p)  // @v9.0.2 p-->org_p
-					d = org_p;                      // @v9.0.2 p-->org_p
-				p_item->Discount = sdb.IsRounding ? (p_item->Discount + d) : this->RoundDis(p_item->Discount + d); // @v9.5.2 (is_rounding ? (p_item->Discount + d) :)
+				if((p_item->Discount + d) > org_p)
+					d = org_p;
+				p_item->Discount = sdb.IsRounding ? (p_item->Discount + d) : this->RoundDis(p_item->Discount + d);
 			}
 			else {
-				SETMIN(d, org_p); // Гарантируем то, что скидка не превысит цену // @v9.0.2 p-->org_p
+				SETMIN(d, org_p); // Гарантируем то, что скидка не превысит цену
 				p_item->Discount = d;
 			}
 			part_dis    += (d * qtty); // @debug
@@ -1839,8 +1820,7 @@ void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
 	CalcTotal(&amt, &dis);
 	double new_amt = (R.AmtRoundPrec != 0.0) ? Round(amt, R.AmtRoundPrec, R.AmtRoundDir) : R2(amt);
 	double diff = R2(amt - new_amt);
-	// @v9.5.2 if(diff != 0.0) {
-	if(!feqeps(diff, 0.0, 1E-6)) { // @v9.5.2
+	if(!feqeps(diff, 0.0, 1E-6)) {
 		Helper_SetupDiscount(diff, 0);
 		/*
 		CalcTotal(&amt, &dis);
@@ -2605,27 +2585,14 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 						SETIFZ(P.Eccd.Addr_.Type, LOCTYP_ADDRESS);
 						THROW(PsnObj.LocObj.PutRecord(&P.Eccd.Addr_.ID, &P.Eccd.Addr_, 0));
 					}
-					/* @v9.4.11
-					// @v9.4.5 {
-					if(P.Eccd.Addr_.ID && P.Eccd.SCardID_) {
-						PPSCardPacket sc_pack;
-						if(ScObj.GetPacket(P.Eccd.SCardID_, &sc_pack) > 0) {
-							if(sc_pack.Rec.LocID == 0 && sc_pack.Rec.PersonID == 0) {
-								sc_pack.Rec.LocID = P.Eccd.Addr_.ID;
-								THROW(ScObj.PutPacket(&P.Eccd.SCardID_, &sc_pack, 0));
-							}
-						}
-					}
-					// } @v9.4.5
-					*/
 					pPack->Ext.AddrID = P.Eccd.Addr_.ID;
 				}
 			}
 			SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, P.Eccd.Flags & P.Eccd.fFixedPrice);
-			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished); // @v9.7.7
+			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished);
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
 			pPack->Ext.CreationUserID = P.Eccd.InitUserID; // @v10.6.8
-			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt()); // @v9.4.5
+			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt());
 			SETIFZ(pPack->Rec.Dt, dtm.d);
 			SETIFZ(pPack->Rec.Tm, dtm.t);
 			{
@@ -2970,10 +2937,10 @@ int CheckPaneDialog::MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID
 				is_opened = BIN(GroupList.at(pos).Flags & GrpListItem::fOpened);
 				GroupList.atFree(pos);
 			}
-			MEMSZERO(gli);
+			// @v10.8.11 @ctr MEMSZERO(gli);
 			gli.ID = item.Id;
 			gli.ParentID = item.ParentId;
-			gli.Level = (uint16)level;
+			gli.Level = static_cast<uint16>(level);
 			pos = GroupList.getCount();
 			GroupList.insert(&gli);
 			if(MakeGroupEntryList(pTreeList, item.Id, level + 1) > 0) { // @recursion
@@ -3026,6 +2993,10 @@ IMPLEMENT_PPFILT_FACTORY(CashNodePane); CashNodePaneFilt::CashNodePaneFilt(): PP
 	SetFlatChunk(offsetof(CashNodePaneFilt, ReserveStart),
 		offsetof(CashNodePaneFilt, ReserveEnd) - offsetof(CashNodePaneFilt, ReserveStart));
 	Init(1, 0);
+}
+
+SLAPI CheckPaneDialog::GrpListItem::GrpListItem() : ID(0), ParentID(0), Flags(0), Level(0)
+{
 }
 
 CheckPaneDialog::GroupArray::GroupArray() : TSVector <CheckPaneDialog::GrpListItem> (), TopID(0) // @v9.8.5 TSArray-->TSVector
@@ -6864,16 +6835,16 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 				}
 				else if(pDrawItem->ItemID != 0xffffffff) {
 					GrpListItem gli;
-					MEMSZERO(gli);
+					// @v10.8.11 @ctr MEMSZERO(gli);
 					if(p_lbx && p_lbx->def) {
 						uint   pos = 0;
-						const  void * p_row_data = p_lbx->def->getRow_((long)pDrawItem->ItemData);
+						const  void * p_row_data = p_lbx->def->getRow_(static_cast<long>(pDrawItem->ItemData));
 						PPID   grp_id = p_row_data ? *static_cast<const long *>(p_row_data) : 0;
 						if(GroupList.Get(grp_id, &pos))
 							gli = GroupList.at(pos);
 					}
 					h_fnt_def = static_cast<HFONT>(SelectObject(h_dc, Ptb.Get(fontGoodsList)));
-					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
+					p_lbx->getText(static_cast<long>(pDrawItem->ItemData), temp_buf);
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					if(pDrawItem->ItemState & (ODS_FOCUS | ODS_SELECTED)) {
 						clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
@@ -6896,7 +6867,7 @@ void CheckPaneDialog::DrawListItem(TDrawItemData * pDrawItem)
 							FillRect(h_dc, &rc, static_cast<HBRUSH>(Ptb.Get((gli.Flags & GrpListItem::fFolder) ? brGrpParent : brGrp)));
 					}
 					rc.left += gli.Level * 24 + ((UiFlags & uifTSGGroupsAsButtons) ? 4 : 0);
-					::DrawText(h_dc, SUcSwitch(temp_buf), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
+					::DrawText(h_dc, SUcSwitch(temp_buf), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE);
 				}
 			}
 			if(h_fnt_def)
@@ -7029,13 +7000,10 @@ int CheckPaneDialog::SetDlgResizeParams()
 			SetCtrlResizeParam(CTL_CHKPAN_RETCHECK,    -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_CASH,     0, crfLinkRight|crfLinkTop|crfResizeable);
 			SetCtrlResizeParam(CTL_CHKPAN_SUSPCHECK,   -1, CTL_CHKPAN_GRPBOX2, CTL_CHKPAN_RETCHECK, 0, crfLinkRight|crfLinkTop|crfResizeable);
 
-
 			SetCtrlResizeParam(CTL_CHKPAN_GRPBOX4,     0,                    -1, 0, 0, crfResizeable);
 
 			SetCtrlResizeParam(CTL_CHKPAN_BIGHINT,    CTL_CHKPAN_SETQTTY, CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_BIGHINT_KB, 0, crfLinkLeft|crfLinkTop|crfLinkRight|crfResizeable);
 			SetCtrlResizeParam(CTL_CHKPAN_BIGHINT_KB, CTL_CHKPAN_INFO,    CTL_CHKPAN_GRPBOX5, CTL_CHKPAN_SCARD, 0, crfLinkLeft|crfLinkTop|crfLinkRight|crfResizeable);
-
-
 			/*
 			LinkCtrlsToDlgBorders(CRF_LINK_LEFTBOTTOM, CTL_CHKPAN_HINT1, CTL_CHKPAN_KBHINT1,
 				CTL_CHKPAN_HINT2, CTL_CHKPAN_KBHINT2, CTL_CHKPAN_HINT3, CTL_CHKPAN_KBHINT3,

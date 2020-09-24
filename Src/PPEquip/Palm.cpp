@@ -168,7 +168,11 @@ int SLAPI PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 //
 //
 //
-SLAPI PalmBillPacket::PalmBillPacket() : SVector(sizeof(PalmBillItem)) // @v9.8.9 SArray-->SVector
+SLAPI PalmBillItem::PalmBillItem() : GoodsID(0), Qtty(0.0), Price(0.0)
+{
+}
+
+SLAPI PalmBillPacket::PalmBillPacket() : SVector(sizeof(PalmBillItem))
 {
 	Init();
 }
@@ -528,42 +532,174 @@ static int SLAPI EditGeoTrackingMode(PPGeoTrackingMode * pData)
 #define GRP_QUOTKIND 2
 
 class StyloPalmDialog : public TDialog {
+	DECL_DIALOG_DATA(PPStyloPalmPacket);
 public:
 	StyloPalmDialog(uint dlgID) : TDialog(dlgID)
 	{
-		PPObjStyloPalm::ReadConfig(&SpCfg); // @v9.2.11
+		PPObjStyloPalm::ReadConfig(&SpCfg);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PALM_PATH, CTL_PALM_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PALM_LOC, 0, 0, cmLocList, 0, 0, 0));
-		addGroup(GRP_QUOTKIND, new QuotKindCtrlGroup(CTLSEL_PALM_QUOTKIND, cmQuotKindList)); // @v9.5.5
+		addGroup(GRP_QUOTKIND, new QuotKindCtrlGroup(CTLSEL_PALM_QUOTKIND, cmQuotKindList));
 	}
-	int    setDTS(const PPStyloPalmPacket *);
-	int    getDTS(PPStyloPalmPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString temp_buf;
+		PPID   agent_accsheet_id = GetAgentAccSheet();
+		setCtrlData(CTL_PALM_NAME, Data.Rec.Name);
+		setCtrlData(CTL_PALM_SYMB, Data.Rec.Symb);
+		setCtrlData(CTL_PALM_ID,   &Data.Rec.ID);
+		disableCtrl(CTL_PALM_ID, (!PPMaster || Data.Rec.ID));
+		{
+			long   dvc_type = (Data.Rec.Flags & PLMF_ANDROID) ? 2 : 1;
+			AddClusterAssoc(CTL_PALM_DVCTYPE, 0,  1);
+			AddClusterAssocDef(CTL_PALM_DVCTYPE, 1,  2);
+			SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
+		}
+		SetupPPObjCombo(this, CTLSEL_PALM_GROUP, PPOBJ_STYLOPALM, Data.Rec.GroupID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PLMF_GENERIC));
+		SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_accsheet_id, sacfDisableIfZeroSheet);
+		{
+			LocationCtrlGroup::Rec l_rec(&Data.LocList);
+			setGroupData(GRP_LOC, &l_rec);
+		}
+		{
+			QuotKindCtrlGroup::Rec qk_rec(&Data.QkList);
+			setGroupData(GRP_QUOTKIND, &qk_rec);
+		}
+		SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
+		SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
+		PPIDArray op_type_list;
+		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
+		SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);
+		if(getCtrlView(CTLSEL_PALM_INHBTAGVAL)) {
+			int    disable_inhtagval = 1;
+			if(SpCfg.InhBillTagID) {
+				PPObjectTag tag_rec;
+				if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM)) {
+					SetupPPObjCombo(this, CTLSEL_PALM_INHBTAGVAL, tag_rec.TagEnumID, Data.Rec.InhBillTagVal, OLW_CANINSERT, reinterpret_cast<void *>(tag_rec.LinkObjGrp));
+					disable_inhtagval = 0;
+				}
+			}
+			disableCtrl(CTLSEL_PALM_INHBTAGVAL, disable_inhtagval);
+		}
+		setCtrlString(CTL_PALM_PATH, temp_buf = Data.P_Path);
+		setCtrlString(CTL_PALM_FTPPATH, temp_buf = Data.P_FTPPath);
+		setCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
+		setCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
+		AddClusterAssoc(CTL_PALM_FLAGS, 0, PLMF_INHFLAGS);
+		AddClusterAssoc(CTL_PALM_FLAGS, 1, PLMF_IMPASCHECKS);
+		AddClusterAssoc(CTL_PALM_FLAGS, 2, PLMF_EXPCLIDEBT);
+		AddClusterAssoc(CTL_PALM_FLAGS, 3, PLMF_EXPSELL);
+		AddClusterAssoc(CTL_PALM_FLAGS, 4, PLMF_EXPBRAND);
+		AddClusterAssoc(CTL_PALM_FLAGS, 5, PLMF_EXPLOC);
+		AddClusterAssoc(CTL_PALM_FLAGS, 6, PLMF_EXPSTOPFLAG);
+		AddClusterAssoc(CTL_PALM_FLAGS, 7, PLMF_DISABLCEDISCOUNT);
+		AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_TREATDUEDATEASDATE); // @v10.8.11
+		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
+			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_BLOCKED);
+		}
+		SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
+		{
+			temp_buf.Z();
+			if(!(Data.Rec.Flags & PLMF_GENERIC)) {
+				temp_buf.Cat(Data.Rec.RegisterTime, DATF_DMY|DATF_CENTURY, TIMF_HMS);
+				setCtrlString(CTL_PALM_REGINFO, temp_buf);
+				AddClusterAssoc(CTL_PALM_REGISTERED, 0, PLMF_REGISTERED);
+				SetClusterData(CTL_PALM_REGISTERED, Data.Rec.Flags);
+			}
+		}
+		SetupInheritance();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		int    sel = 0;
+		SString path;
+		PPStyloPalm sp_rec;
+		{
+			long   dvc_type = 0;
+			GetClusterData(CTL_PALM_DVCTYPE, &dvc_type);
+			SETFLAG(Data.Rec.Flags, PLMF_ANDROID, dvc_type == 2);
+		}
+		getCtrlData(sel = CTL_PALM_NAME, Data.Rec.Name);
+		THROW(SpObj.CheckName(Data.Rec.ID, strip(Data.Rec.Name), 1));
+		getCtrlData(sel = CTL_PALM_SYMB, Data.Rec.Symb);
+		THROW(PPRef->CheckUniqueSymb(PPOBJ_STYLOPALM, Data.Rec.ID, strip(Data.Rec.Symb), offsetof(ReferenceTbl::Rec, Symb)));
+		getCtrlData(CTL_PALM_ID,  &Data.Rec.ID);
+		getCtrlData(sel = CTLSEL_PALM_GROUP, &Data.Rec.GroupID);
+		if(Data.Rec.GroupID) {
+			PPIDArray inner_stack;
+			THROW(SpObj.Search(Data.Rec.GroupID, &sp_rec) > 0);
+			THROW_PP_S(sp_rec.Flags & PLMF_GENERIC, PPERR_STYLOPALMPARENTNOTGENERIC, sp_rec.Name);
+			THROW_PP(Data.Rec.GroupID != Data.Rec.ID, PPERR_STYLOPALMLOOP);
+			inner_stack.add(Data.Rec.ID);
+			inner_stack.add(sp_rec.ID);
+			while(sp_rec.GroupID && SpObj.Search(sp_rec.GroupID, &sp_rec) > 0) {
+				int r = inner_stack.addUnique(sp_rec.ID);
+				THROW_SL(r);
+				THROW_PP_S(r > 0, PPERR_STYLOPALMCYCLE, Data.Rec.Name);
+			}
+		}
+		getCtrlData(CTLSEL_PALM_AGENT, &Data.Rec.AgentID);
+		{
+			LocationCtrlGroup::Rec l_rec;
+			getGroupData(GRP_LOC, &l_rec);
+			Data.LocList = l_rec.LocList;
+		}
+		{
+			QuotKindCtrlGroup::Rec qk_rec;
+			getGroupData(GRP_QUOTKIND, &qk_rec);
+			Data.QkList = qk_rec.List;
+		}
+		getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
+		getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
+		if(getCtrlView(CTLSEL_PALM_INHBTAGVAL) && SpCfg.InhBillTagID) {
+			PPObjectTag tag_rec;
+			if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM))
+				Data.Rec.InhBillTagVal = getCtrlLong(CTLSEL_PALM_INHBTAGVAL);
+		}
+		getCtrlData(CTLSEL_PALM_FTPACCT, &Data.Rec.FTPAcctID);
+		getCtrlString(CTL_PALM_PATH,     path);
+		getCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
+		getCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
+		ZDELETE(Data.P_Path);
+		if(path.NotEmptyS()) {
+			THROW_MEM(Data.P_Path = newStr(path));
+		}
+		getCtrlString(CTL_PALM_FTPPATH,  path);
+		ZDELETE(Data.P_FTPPath);
+		if(path.NotEmptyS()) {
+			THROW_MEM(Data.P_FTPPath = newStr(path));
+		}
+		GetClusterData(CTL_PALM_FLAGS, &Data.Rec.Flags);
+		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
+			GetClusterData(CTL_PALM_REGISTERED, &Data.Rec.Flags);
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_PALM_GROUP))
+			SetupInheritance();
+		else if(event.isClusterClk(CTL_PALM_FLAGS))
+			SetupInheritance();
+		else if(event.isCmd(cmGeoTracking))
+			EditGeoTrackingMode(&Data.Rec.Gtm);
+		else
+			return;
+		clearEvent(event);
+	}
 	void   SetupInheritance();
 
 	PPObjStyloPalm SpObj;
-	PPObjTag TagObj; // @v9.2.11
-	PPStyloPalmConfig SpCfg; // @v9.2.11
-	PPStyloPalmPacket Data;
+	PPObjTag TagObj;
+	PPStyloPalmConfig SpCfg;
 };
-
-IMPL_HANDLE_EVENT(StyloPalmDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_PALM_GROUP)) {
-		SetupInheritance();
-	}
-	else if(event.isClusterClk(CTL_PALM_FLAGS)) {
-		SetupInheritance();
-	}
-	else if(event.isCmd(cmGeoTracking)) {
-		EditGeoTrackingMode(&Data.Rec.Gtm);
-	}
-	else
-		return;
-	clearEvent(event);
-}
 
 void StyloPalmDialog::SetupInheritance()
 {
@@ -594,146 +730,6 @@ void StyloPalmDialog::SetupInheritance()
 	DisableClusterItem(CTL_PALM_FLAGS, 5, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 6, dsbl_flags);
 	DisableClusterItem(CTL_PALM_FLAGS, 7, dsbl_flags);
-}
-
-int StyloPalmDialog::setDTS(const PPStyloPalmPacket * pData)
-{
-	Data = *pData;
-
-	SString temp_buf;
-	PPID   agent_accsheet_id = GetAgentAccSheet();
-	setCtrlData(CTL_PALM_NAME, Data.Rec.Name);
-	setCtrlData(CTL_PALM_SYMB, Data.Rec.Symb);
-	setCtrlData(CTL_PALM_ID,   &Data.Rec.ID);
-	disableCtrl(CTL_PALM_ID, (!PPMaster || Data.Rec.ID));
-	{
-		long   dvc_type = (Data.Rec.Flags & PLMF_ANDROID) ? 2 : 1;
-		AddClusterAssoc(CTL_PALM_DVCTYPE, 0,  1);
-		AddClusterAssocDef(CTL_PALM_DVCTYPE, 1,  2);
-		SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
-	}
-	SetupPPObjCombo(this, CTLSEL_PALM_GROUP, PPOBJ_STYLOPALM, Data.Rec.GroupID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PLMF_GENERIC));
-	SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_accsheet_id, sacfDisableIfZeroSheet);
-	{
-		LocationCtrlGroup::Rec l_rec(&Data.LocList);
-		setGroupData(GRP_LOC, &l_rec);
-	}
-	{
-		QuotKindCtrlGroup::Rec qk_rec(&Data.QkList);
-		setGroupData(GRP_QUOTKIND, &qk_rec);
-	}
-	SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
-	SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
-	PPIDArray op_type_list;
-	op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
-	SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);
-	if(getCtrlView(CTLSEL_PALM_INHBTAGVAL)) {
-		int    disable_inhtagval = 1;
-		if(SpCfg.InhBillTagID) {
-            PPObjectTag tag_rec;
-			if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM)) {
-				SetupPPObjCombo(this, CTLSEL_PALM_INHBTAGVAL, tag_rec.TagEnumID, Data.Rec.InhBillTagVal, OLW_CANINSERT, reinterpret_cast<void *>(tag_rec.LinkObjGrp));
-				disable_inhtagval = 0;
-			}
-		}
-		disableCtrl(CTLSEL_PALM_INHBTAGVAL, disable_inhtagval);
-	}
-	setCtrlString(CTL_PALM_PATH, temp_buf = Data.P_Path);
-	setCtrlString(CTL_PALM_FTPPATH, temp_buf = Data.P_FTPPath);
-	setCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
-	setCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
-	AddClusterAssoc(CTL_PALM_FLAGS, 0, PLMF_INHFLAGS);
-	AddClusterAssoc(CTL_PALM_FLAGS, 1, PLMF_IMPASCHECKS);
-	AddClusterAssoc(CTL_PALM_FLAGS, 2, PLMF_EXPCLIDEBT);
-	AddClusterAssoc(CTL_PALM_FLAGS, 3, PLMF_EXPSELL);
-	AddClusterAssoc(CTL_PALM_FLAGS, 4, PLMF_EXPBRAND);
-	AddClusterAssoc(CTL_PALM_FLAGS, 5, PLMF_EXPLOC);
-	AddClusterAssoc(CTL_PALM_FLAGS, 6, PLMF_EXPSTOPFLAG);
-	AddClusterAssoc(CTL_PALM_FLAGS, 7, PLMF_DISABLCEDISCOUNT);
-	if(!(Data.Rec.Flags & PLMF_GENERIC)) {
-		AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_BLOCKED);
-	}
-	SetClusterData(CTL_PALM_FLAGS, Data.Rec.Flags);
-	{
-		temp_buf.Z();
-		if(!(Data.Rec.Flags & PLMF_GENERIC)) {
-			temp_buf.Cat(Data.Rec.RegisterTime, DATF_DMY|DATF_CENTURY, TIMF_HMS);
-			setCtrlString(CTL_PALM_REGINFO, temp_buf);
-			AddClusterAssoc(CTL_PALM_REGISTERED, 0, PLMF_REGISTERED);
-			SetClusterData(CTL_PALM_REGISTERED, Data.Rec.Flags);
-		}
-	}
-	SetupInheritance();
-	return 1;
-}
-
-int StyloPalmDialog::getDTS(PPStyloPalmPacket * pData)
-{
-	int    ok = 1, sel = 0;
-	SString path;
-	PPStyloPalm sp_rec;
-	{
-		long   dvc_type = 0;
-		GetClusterData(CTL_PALM_DVCTYPE, &dvc_type);
-		SETFLAG(Data.Rec.Flags, PLMF_ANDROID, dvc_type == 2);
-	}
-	getCtrlData(sel = CTL_PALM_NAME, Data.Rec.Name);
-	THROW(SpObj.CheckName(Data.Rec.ID, strip(Data.Rec.Name), 1));
-	getCtrlData(sel = CTL_PALM_SYMB, Data.Rec.Symb);
-	THROW(PPRef->CheckUniqueSymb(PPOBJ_STYLOPALM, Data.Rec.ID, strip(Data.Rec.Symb), offsetof(ReferenceTbl::Rec, Symb)));
-	getCtrlData(CTL_PALM_ID,  &Data.Rec.ID);
-	getCtrlData(sel = CTLSEL_PALM_GROUP, &Data.Rec.GroupID);
-	if(Data.Rec.GroupID) {
-		PPIDArray inner_stack;
-		THROW(SpObj.Search(Data.Rec.GroupID, &sp_rec) > 0);
-		THROW_PP_S(sp_rec.Flags & PLMF_GENERIC, PPERR_STYLOPALMPARENTNOTGENERIC, sp_rec.Name);
-		THROW_PP(Data.Rec.GroupID != Data.Rec.ID, PPERR_STYLOPALMLOOP);
-		inner_stack.add(Data.Rec.ID);
-		inner_stack.add(sp_rec.ID);
-		while(sp_rec.GroupID && SpObj.Search(sp_rec.GroupID, &sp_rec) > 0) {
-			int r = inner_stack.addUnique(sp_rec.ID);
-			THROW_SL(r);
-			THROW_PP_S(r > 0, PPERR_STYLOPALMCYCLE, Data.Rec.Name);
-		}
-	}
-	getCtrlData(CTLSEL_PALM_AGENT, &Data.Rec.AgentID);
-	{
-		LocationCtrlGroup::Rec l_rec;
-		getGroupData(GRP_LOC, &l_rec);
-		Data.LocList = l_rec.LocList;
-	}
-	{
-		QuotKindCtrlGroup::Rec qk_rec;
-		getGroupData(GRP_QUOTKIND, &qk_rec);
-		Data.QkList = qk_rec.List;
-	}
-	getCtrlData(CTLSEL_PALM_GGRP,  &Data.Rec.GoodsGrpID);
-	getCtrlData(CTLSEL_PALM_OP,    &Data.Rec.OrderOpID);
-	if(getCtrlView(CTLSEL_PALM_INHBTAGVAL) && SpCfg.InhBillTagID) {
-		PPObjectTag tag_rec;
-		if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM))
-			Data.Rec.InhBillTagVal = getCtrlLong(CTLSEL_PALM_INHBTAGVAL);
-	}
-	getCtrlData(CTLSEL_PALM_FTPACCT, &Data.Rec.FTPAcctID);
-	getCtrlString(CTL_PALM_PATH,     path);
-	getCtrlData(CTL_PALM_MAXNOTSENTORD, &Data.Rec.MaxUnsentOrders);
-	getCtrlData(CTL_PALM_MAXSENTDAYS, &Data.Rec.TransfDaysAgo);
-	ZDELETE(Data.P_Path);
-	if(path.NotEmptyS()) {
-		THROW_MEM(Data.P_Path = newStr(path));
-	}
-	getCtrlString(CTL_PALM_FTPPATH,  path);
-	ZDELETE(Data.P_FTPPath);
-	if(path.NotEmptyS()) {
-		THROW_MEM(Data.P_FTPPath = newStr(path));
-	}
-	GetClusterData(CTL_PALM_FLAGS, &Data.Rec.Flags);
-	if(!(Data.Rec.Flags & PLMF_GENERIC)) {
-		GetClusterData(CTL_PALM_REGISTERED, &Data.Rec.Flags);
-	}
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 #undef GRP_LOC
@@ -1317,7 +1313,7 @@ int SLAPI AndroidReader::ReadBills(PalmInputParam * pParam, long billIdBias, lon
 						p_fld = p_row_node->children;
 						if(p_fld) {
 							PalmBillItem item;
-							MEMSZERO(item);
+							// @v10.8.11 @ctr MEMSZERO(item);
 							for(; p_fld; p_fld = p_fld->next) {
 								if(p_fld->children && p_fld->children->content) {
 									int idx = 0;
@@ -1517,8 +1513,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 						THROW(p_line_tbl->getRec(&line_rec));
 						line_rec.get(fldn_billid, line_order_id);
 						line_order_id += bill_id_bias;
-
-						MEMSZERO(item);
+						// @v10.8.11 @ctr MEMSZERO(item);
 						line_rec.get(fldn_goodsid, item.GoodsID);
 						line_rec.get(fldn_qtty,    item.Qtty);
 						line_rec.get(fldn_price,   item.Price);
@@ -1616,7 +1611,7 @@ int SLAPI PPObjStyloPalm::ReadInputInv(PPStyloPalm * pRec, const char * pPath, P
 							line_rec.get(fldn_billid, line_order_id);
 							if(line_order_id == p_pack->Hdr.ID) {
 								PalmBillItem item;
-								MEMSZERO(item);
+								// @v10.8.11 @ctr MEMSZERO(item);
 								line_rec.get(fldn_goodsid, item.GoodsID);
 								line_rec.get(fldn_qtty,    item.Qtty);
 								THROW(p_pack->AddItem(&item));

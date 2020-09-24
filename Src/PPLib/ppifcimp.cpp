@@ -1819,7 +1819,10 @@ int32 DL6ICLS_PPSession::GetDatabaseInfo(int32 id, SPpyDatabaseInfo* pInfo)
 	return !AppError;
 }
 
-int32  DL6ICLS_PPSession::Login(SString & dbName, SString & userName, SString & password) { return DS.Login(dbName, userName, password) ? 1 : RaiseAppError(); }
+int32  DL6ICLS_PPSession::Login(SString & dbName, SString & userName, SString & password) 
+{ 
+	return DS.Login(dbName, userName, password, PPSession::loginfSkipLicChecking) ? 1 : RaiseAppError(); 
+}
 int32  DL6ICLS_PPSession::Logout() { return DS.Logout() ? 1 : RaiseAppError(); }
 SString & DL6ICLS_PPSession::GetObjectTitle(PpyObjectIdent objType) { return ::GetObjectTitle(objType, RetStrBuf); }
 

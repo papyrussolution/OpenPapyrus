@@ -122,13 +122,12 @@ static int _warc_options(struct archive_write * a, const char * key, const char 
 {
 	struct warc_s * w = (struct warc_s *)a->format_data;
 	if(sstreq(key, "omit-warcinfo")) {
-		if(val == NULL || sstreq(val, "true")) {
+		if(!val || sstreq(val, "true")) {
 			/* great */
 			w->omit_warcinfo = 1U;
 			return ARCHIVE_OK;
 		}
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -140,7 +139,6 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 	struct warc_s * w = (struct warc_s *)a->format_data;
 	struct archive_string hdr;
 #define MAX_HDR_SIZE 512
-
 	/* check whether warcinfo record needs outputting */
 	if(!w->omit_warcinfo) {
 		ssize_t r;
@@ -155,17 +153,14 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 		};
 		wi.rtime = w->now;
 		wi.mtime = w->now;
-
 		archive_string_init(&hdr);
 		r = _popul_ehdr(&hdr, MAX_HDR_SIZE, wi);
 		if(r >= 0) {
 			/* jackpot! */
 			/* now also use HDR buffer for the actual warcinfo */
 			archive_strncat(&hdr, warcinfo, sizeof(warcinfo) -1);
-
 			/* append end-of-record indicator */
 			archive_strncat(&hdr, "\r\n\r\n", 4);
-
 			/* write to output stream */
 			__archive_write_output(a, hdr.s, archive_strlen(&hdr));
 		}
@@ -173,13 +168,10 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 		w->omit_warcinfo = 1U;
 		archive_string_free(&hdr);
 	}
-
 	if(archive_entry_pathname(entry) == NULL) {
-		archive_set_error(&a->archive, EINVAL,
-		    "Invalid filename");
+		archive_set_error(&a->archive, EINVAL, "Invalid filename");
 		return (ARCHIVE_WARN);
 	}
-
 	w->typ = archive_entry_filetype(entry);
 	w->populz = 0U;
 	if(w->typ == AE_IFREG) {
@@ -202,10 +194,7 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 		r = _popul_ehdr(&hdr, MAX_HDR_SIZE, rh);
 		if(r < 0) {
 			/* don't bother */
-			archive_set_error(
-				&a->archive,
-				ARCHIVE_ERRNO_FILE_FORMAT,
-				"cannot archive file");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "cannot archive file");
 			return (ARCHIVE_WARN);
 		}
 		/* otherwise append to output stream */
@@ -216,10 +205,7 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 		return ARCHIVE_OK;
 	}
 	/* just resort to erroring as per Tim's advice */
-	archive_set_error(
-		&a->archive,
-		ARCHIVE_ERRNO_FILE_FORMAT,
-		"WARC can only process regular files");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "WARC can only process regular files");
 	return ARCHIVE_FAILED;
 }
 

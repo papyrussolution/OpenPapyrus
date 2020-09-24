@@ -78,6 +78,13 @@ struct json_t {
 		tFALSE,
 		tNULL
 	};
+	static bool FASTCALL IsObject(const json_t * pN) { return (pN && pN->Type == json_t::tOBJECT); }
+	static bool FASTCALL IsArray(const json_t * pN) { return (pN && pN->Type == json_t::tARRAY); }
+	static bool FASTCALL IsString(const json_t * pN) { return (pN && pN->Type == json_t::tSTRING); }
+	static bool FASTCALL IsNumber(const json_t * pN) { return (pN && pN->Type == json_t::tNUMBER); }
+	static bool FASTCALL IsNull(const json_t * pN) { return (pN && pN->Type == json_t::tNULL); }
+	static bool FASTCALL IsTrue(const json_t * pN) { return (pN && pN->Type == json_t::tTRUE); }
+	static bool FASTCALL IsFalse(const json_t * pN) { return (pN && pN->Type == json_t::tFALSE); }
 	explicit json_t(int aType);
 	~json_t();
 	void   FASTCALL AssignText(const SString & rT);

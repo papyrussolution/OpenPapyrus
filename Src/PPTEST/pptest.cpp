@@ -1294,6 +1294,7 @@ int  SLAPI TestConfigDatabase_StringHistory_Interactive();
 void SLAPI TestGravity();
 int  TestAddressRecognition(); 
 int  TestTsDensityMap(); // @debug
+int  SLAPI TestUdsInterface();
 
 /*static int SLAPI TestWorkspacePath()
 {
@@ -1306,8 +1307,9 @@ int SLAPI DoConstructionTest()
 {
 	int    ok = -1;
 #ifndef NDEBUG
+	TestUdsInterface();
 	//TestGtinStruc();
-	TestTsDensityMap();
+	//TestTsDensityMap();
 	//TestAddressRecognition();
 	//TestSArchive();
 	//TestGravity();

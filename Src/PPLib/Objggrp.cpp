@@ -691,6 +691,7 @@ static long FASTCALL GetSelBias(long p)
 //
 GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVIEW, CTL_GGVIEW_LIST), CurIterID(0), P_Iter(0)
 {
+	ContextMenuID = CTRLMENU_GOODSGROUPLIST; // @v10.8.11
 	setupList();
 	setupButtons();
 	Draw_();
@@ -820,59 +821,60 @@ void GoodsGroupView::updateList(PPID id)
 	}
 }
 
+void GoodsGroupView::ViewTotal()
+{
+	GoodsGroupTotal total;
+	GGObj.CalcTotal(&total);
+	TDialog * dlg = new TDialog(DLG_GGRPTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setCtrlLong(CTL_GGRPTOTAL_COUNT, total.Count);
+		dlg->setCtrlLong(CTL_GGRPTOTAL_MAXLEVEL, total.MaxLevel);
+		dlg->setCtrlLong(CTL_GGRPTOTAL_ALTCOUNT, total.AltCount);
+		dlg->setCtrlLong(CTL_GGRPTOTAL_FOLDCOUNT, total.FoldCount);
+		dlg->setCtrlLong(CTL_GGRPTOTAL_GRPCOUNT, total.GrpCount);
+		ExecViewAndDestroy(dlg);
+	}
+}
+
 IMPL_HANDLE_EVENT(GoodsGroupView)
 {
 	PPListDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		PPID   id = getCurrID();
-		if(TVCMD == cmLBItemFocused)
-			setupButtons();
-		else if(event.isClusterClk(CTL_GGVIEW_GGRPTYPE)) {
+		if(event.isClusterClk(CTL_GGVIEW_GGRPTYPE)) {
 			updateList(id);
 			P_Box->def->top();
 			setupButtons();
 		}
-		else if(TVCMD == cmTransmit) {
+		else if(TVCMD == cmLBItemFocused)
+			setupButtons();
+		else if(TVCMD == cmTransmit)
 			GGObj.Transmit();
-		}
 		else if(TVCMD == cmPrint)
 			Print();
+		else if(TVCMD == cmTotal)
+			ViewTotal();
 		else if(id) {
 			if(TVCMD == cmSysJournalByObj) {
 				ViewSysJournal(PPOBJ_GOODSGROUP, id, 1);
 			}
 			else {
-				if(TVCMD == cmaMore)
-					ViewGoodsByGroup(id);
-				else if(TVCMD == cmQuot)
-					editQuotations(id, PPQuot::clsGeneral);
-				else if(TVCMD == cmSupplCost)
-					editQuotations(id, PPQuot::clsSupplDeal);
-				else if(TVCMD == cmGoodsMatrix)
-					editQuotations(id, PPQuot::clsMtx);
-				else if(TVCMD == cmGoodsMatrixRestrict)
-					editQuotations(id, PPQuot::clsMtxRestr);
-				else
-					return;
+				switch(TVCMD) {
+					case cmaMore: ViewGoodsByGroup(id); break;
+					case cmQuot: editQuotations(id, PPQuot::clsGeneral); break;
+					case cmSupplCost: editQuotations(id, PPQuot::clsSupplDeal); break;
+					case cmGoodsMatrix: editQuotations(id, PPQuot::clsMtx); break;
+					case cmGoodsMatrixRestrict: editQuotations(id, PPQuot::clsMtxRestr); break;
+					default: return;
+				}
 				setupButtons();
 			}
 		}
 		else
 			return;
 	}
-	else if(event.isKeyDown(kbF9)) {
-		GoodsGroupTotal total;
-		GGObj.CalcTotal(&total);
-		TDialog * dlg = new TDialog(DLG_GGRPTOTAL);
-		if(CheckDialogPtrErr(&dlg)) {
-			dlg->setCtrlLong(CTL_GGRPTOTAL_COUNT, total.Count);
-			dlg->setCtrlLong(CTL_GGRPTOTAL_MAXLEVEL, total.MaxLevel);
-			dlg->setCtrlLong(CTL_GGRPTOTAL_ALTCOUNT, total.AltCount);
-			dlg->setCtrlLong(CTL_GGRPTOTAL_FOLDCOUNT, total.FoldCount);
-			dlg->setCtrlLong(CTL_GGRPTOTAL_GRPCOUNT, total.GrpCount);
-			ExecViewAndDestroy(dlg);
-		}
-	}
+	else if(event.isKeyDown(kbF9))
+		ViewTotal();
 	else
 		return;
 	clearEvent(event);
@@ -925,13 +927,20 @@ int GoodsGroupView::Print()
 //
 int SLAPI PPObjGoodsGroup::Browse(void * extraPtr)
 {
+	int    ok = -1;
 	ExtraPtr = 0;
-	GoodsGroupView * p_dlg = 0;
-	if(CheckRights(PPR_READ) && CheckDialogPtr(&(p_dlg = new GoodsGroupView(this)))) {
-		ExecViewAndDestroy(p_dlg);
-		return 1;
+	if(CheckRights(PPR_READ)) {
+		GoodsGroupView * p_dlg = new GoodsGroupView(this);
+		if(CheckDialogPtrErr(&p_dlg)) {
+			ExecViewAndDestroy(p_dlg);
+			ok = 1;
+		}
+		else
+			ok = 0;
 	}
-	return PPErrorZ();
+	else
+		ok = PPErrorZ();
+	return ok;
 }
 
 int SLAPI PPObjGoodsGroup::ReadGoodsFilt(PPID id, GoodsFilt * flt)

@@ -1696,14 +1696,29 @@ int PiritEquip::RunCheck(int opertype)
 					}
 					// } @v10.4.6 
 				}
+				/*
+					(Целое число) Флаг отрезки
+					(Строка) Адрес покупателя
+					(Число) Разные флаги
+					(Строка) Зарезервировано
+					(Строка) Зарезервировано
+					(Строка) Зарезервировано
+					(Строка) Название дополнительного реквизита пользователя
+					(Строка) Значение дополнительного реквизита пользователя
+					(Строка)[0..128] Покупатель
+					(Строка)[0..12] ИНН покупателя
+				*/
 				in_data.Z();
 				if(Cfg.Flags & 0x08000000L)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
-				// @v10.2.10 CreateStr("", in_data); // @v10.1.9 Адрес покупателя
-				// @v10.2.10 CreateStr(1, in_data); // @v10.1.9 (число) Система налогообложения
-				// @v10.2.10 CreateStr((int)0, in_data); // @v10.1.9 (число) Разные флаги
+				//CreateStr("", in_data); // @v10.1.9 Адрес покупателя
+				//CreateStr(1, in_data); // @v10.1.9 (число) Система налогообложения
+				//CreateStr(static_cast<int>(0), in_data); // @v10.1.9 (число) Разные флаги
+				//CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				//CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				//CreateStr("", in_data); // @v10.8.11 Зарезервировано
 				THROW(ExecCmd("31", in_data, out_data, r_error));
 				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug 
 			}
@@ -1814,14 +1829,18 @@ int PiritEquip::RunCheck(int opertype)
 				in_data.Z();
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
-				if(Check.ChZnProdType == 1) // GTCHZNPT_FUR
-					product_type_bytes = 0x0002;
-				else if(Check.ChZnProdType == 2) // GTCHZNPT_TOBACCO
-					product_type_bytes = 0x0005;
-				else if(Check.ChZnProdType == 3) // GTCHZNPT_SHOE
-					product_type_bytes = 0x1520;
-				else if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
-					product_type_bytes = 0x444D; // @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
+				if(Check.ChZnProdType == 1) { // GTCHZNPT_FUR
+					product_type_bytes = 0x5246; // @v10.8.11 0x0002-->0x5246
+				}
+				else if(Check.ChZnProdType == 2) { // GTCHZNPT_TOBACCO
+					product_type_bytes = 0x444D; // @v10.8.11 0x0005-->0x444D
+				}
+				else if(Check.ChZnProdType == 3) { // GTCHZNPT_SHOE
+					product_type_bytes = 0x444D; // @v10.8.11 0x1520-->0x444D
+				}
+				else if(Check.ChZnProdType == 4) { // GTCHZNPT_MEDICINE
+					product_type_bytes = 0x444D; // @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D 
+				}
 				//const char * p_serial = Check.ChZnPartN.NotEmpty() ? Check.ChZnPartN.cptr() : Check.ChZnSerial.cptr(); // @v10.7.8
 				const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
 				int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
@@ -1837,9 +1856,10 @@ int PiritEquip::RunCheck(int opertype)
 					//str.Trim(32);
 					//(str = Check.ChZnCode).Trim(32); // [1..32]
 					CreateStr(str, in_data); // Код товарной номенклатуры
-					/*if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
-						CreateStr("mdlp", in_data); */
-					CreateStr("[M]", in_data); 
+					if(Check.ChZnProdType == 4) // GTCHZNPT_MEDICINE
+						CreateStr("mdlp", in_data); 
+					else
+						CreateStr("[M]", in_data); 
 					{
 						const int do_check_ret = 1;
 						OpLogBlock __oplb(LogFileName, "24", str);

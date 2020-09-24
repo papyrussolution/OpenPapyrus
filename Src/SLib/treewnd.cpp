@@ -47,9 +47,10 @@ TreeWindow::ShortcutsWindow::~ShortcutsWindow()
 					POINT  p;
 					GetCursorPos(&p);
 					TMenuPopup menu;
+					uint   cmd = 0;
 					SLS.LoadString_("close", menu_text);
 					menu.Add(menu_text.Transf(CTRANSF_INNER_TO_OUTER), cmaDelete);
-					if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete) {
+					if(menu.Execute(hWnd, TMenuPopup::efRet, &cmd, 0) && cmd == cmaDelete) {
 						int    idx = 0;
 						HWND   tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS);
 						TCITEM tci;

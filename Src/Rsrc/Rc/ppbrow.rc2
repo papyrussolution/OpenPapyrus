@@ -7634,8 +7634,8 @@ record BizScoreVal {
 	ActualDate date                "Расчетная дата";
 	Dt         date                "Дата расчета";
 	Tm         zstring(12)         "Время расчета";
-	DbUuid     zstring(40)         "Глобальный идентификатор базы данных";
-	UserID     long                "ИД пользователя";
+	DbUuid     zstring(40)         "@{dbguid}";
+	UserID     long                "@{userid}";
 	UserName   zstring(48)         "@{username}";
 	ScoreID    long                "ИД показателя";
 	ScoreName  zstring(48)         "Наименование показателя";
@@ -8213,7 +8213,7 @@ record CPosAuth {
 	AgentID    long         "@{agentid}";
 	AgentName  zstring(64)  "@{agentname}";
 	DbSymb     zstring(64)  "@{dbsymb}";
-	DbUUID     zstring(40)  "GUID базы данных";
+	DbUUID     zstring(40)  "@{dbguid}";
 	UserName   zstring(64)  "@{username}";
 	Password   zstring(128) "@{password}";
 }
@@ -8595,19 +8595,36 @@ ctrlmenu BillNumber  { ("Изменение счетчика операций\tF2" kbF2) } // ("Печать до
 ctrlmenu BillPayDate { ("Расчет даты оплаты\tF2"          kbF2) } // ("Печать документа\tF7" kbF7) }
 ctrlmenu BillMemo    { ("Подстановка примечания\tF2"      kbF2) } // ("Печать документа\tF7" kbF7) }
 ctrlmenu RestDate    { ("@{currentdate}\tF3" kbF3) ("@{daterange_begin}\tF4" kbF4) ("@{daterange_end}\tF5" kbF5) }
+
+ctrlmenu GoodsGroupList { // @v10.8.11 @experimental
+	("@{edit}\tEnter" kbEnter cmaEdit)
+	("@{add}\tInsert" kbIns cmaInsert)
+	("@{delete}\tDelete" kbDel cmaDelete)
+	("@{cmd_goods}\tF11" kbF11 cmaMore)
+	("@{quotes}\tCtrl-Q" kbCtrlQ cmQuot)
+	("@{qkcls_suppldeal}\tCtrl-S" kbCtrlS cmSupplCost)
+	("@{matrix}\tCtrl-M" kbCtrlM cmGoodsMatrix)
+	("@{qkcls_goodsmatrixrestr}\tCtrl-E" kbCtrlE cmGoodsMatrixRestrict)
+	("@{dotransmit_short}\tCtrl-H" kbCtrlH cmTransmit)
+	("@{event_pl}\tCtrl-J" kbCtrlJ cmSysJournalByObj)
+	("@{print}\tCtrl-F7" kbF7 cmPrint)
+	("@{totals}\tF9" kbF9 cmTotal)
+	("@{close}\tEscape" kbEsc cmClose)
+}
+
 ctrlmenu GoodsOpAnlzAddPeriod {
-	("Предыдущий месяц\tF6" kbF6)
-	("Предыдущий год\tF8" kbF8)
-	("Предыдущий примыкающий период\tF10" kbF10)
+	("@{previousmonth}\tF6" kbF6)
+	("@{previousyear}\tF8" kbF8)
+	("@{previouscontiguousperiod}\tF10" kbF10)
 }
 ctrlmenu TSessLineQtty   {
 	("В упаковках\tF2" kbF2)
 	("@{munit_in_ph}\tF4" kbF4)
 	("В физических единицах основного элемента структуры\tShift-F6" kbShiftF6)
-	("Специализированный калькулятор\tF9" kbF9)
+	("@{spccalculator}\tF9" kbF9)
 }
 ctrlmenu TSessLinePhQtty {
-	("Специализированный калькулятор\tF9" kbF9)
+	("@{spccalculator}\tF9" kbF9)
 }
 ctrlmenu TI_Goods {
 	("@{searchbybarcode}\tF2" kbF2)
@@ -8627,7 +8644,7 @@ ctrlmenu TI_Quantity {
 	("@{docancelquote}\tShift-F3" kbShiftF3)
 	("Расчет количества по физическим единицам\tF4" kbF4)
 	("Расчет количества по упаковке поставки\tF5" kbF5)
-	("Специализированный калькулятор\tF9" kbF9)
+	("@{spccalculator}\tF9" kbF9)
 }
 ctrlmenu TI_Cost {
 	("Расчет цены\tF2" kbF2)
@@ -8635,7 +8652,7 @@ ctrlmenu TI_Cost {
 	("@{docancelquote}\tShift-F3" kbShiftF3)
 	("Расчет цены по физическим единицам\tF4" kbF4)
 	("Расчет цены по количеству\tF6" kbF6)
-	("Специализированный калькулятор\tF9" kbF9)
+	("@{spccalculator}\tF9" kbF9)
 }
 ctrlmenu TI_Price {
 	("Расчет цены\tF2" kbF2)
@@ -8644,7 +8661,7 @@ ctrlmenu TI_Price {
 	("Расчет цены по физическим единицам\tF4" kbF4)
 	("Расчет цены с налогами\tF5" kbF5)
 	("Расчет цены по количеству\tF6" kbF6)
-	("Специализированный калькулятор\tF9" kbF9)
+	("@{spccalculator}\tF9" kbF9)
 }
 ctrlmenu TI_CurPrice {
 	("@{dosetupquote}\tF3" kbF3)
@@ -8652,7 +8669,7 @@ ctrlmenu TI_CurPrice {
 	("Расчет цены по физическим единицам\tF4" kbF4)
 	("Расчет цены с налогами\tF5" kbF5)
 	("Расчет цены по количеству\tF6" kbF6)
-	("Специализированный калькулятор\tF9" kbF9)
+	("@{spccalculator}\tF9" kbF9)
 }
 ctrlmenu TI_Serial {
 	("Генерация серийного номера\tF2" kbF2)

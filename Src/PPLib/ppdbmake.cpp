@@ -504,7 +504,7 @@ int SLAPI MakeDatabase()
 						SString temp_buf;
 						PPVersionInfo vi = DS.GetVersionInfo();
 						THROW(vi.GetSecret(secret, sizeof(secret)));
-						THROW(DS.Login(P.DbSymb, PPSession::P_EmptyBaseCreationLogin, secret));
+						THROW(DS.Login(P.DbSymb, PPSession::P_EmptyBaseCreationLogin, secret, PPSession::loginfSkipLicChecking));
 						if(P.Action == P.acnCreatePosNode) {
 							PPID   cn_id = 0;
 							PPObjCashNode cn_obj;

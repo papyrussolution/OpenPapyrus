@@ -2593,14 +2593,15 @@ public:
 private:
 	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
-	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <iSalesBillPacket> & rList);
-	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <iSalesBillPacket> & rList);
+	int    SLAPI Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
+	int    SLAPI Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList);
 	void   SLAPI Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const;
 	void   SLAPI Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const;
 	void   SLAPI SetupLocalPeriod(DateRange & rPeriod) const;
 	int    SLAPI GetGoodsStoreFileName(SString & rBuf) const;
 	int    SLAPI StoreGoods(TSCollection <iSalesGoodsPacket> & rList);
 	int    SLAPI RestoreGoods(TSCollection <iSalesGoodsPacket> & rList);
+	int    SLAPI SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta);
 	int    SLAPI LogErrors(const TSCollection <iSalesPepsi::ResultItem> & rResultList, const SString * pMsg);
 	const iSalesGoodsPacket * SearchGoodsMappingEntry(const char * pOuterCode) const
 	{
@@ -2633,6 +2634,7 @@ private:
 		stGoodsMappingInited = 0x0004
 	};
 	long   State;
+	long   UnknAgentID; // @v10.8.11 Специальный идентификатор агента, не закрепленного за поставщиком 
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
 	SString SvcUrl;
@@ -2645,7 +2647,7 @@ private:
 };
 
 SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) :
-	PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), State(0), P_DestroyFunc(0)
+	PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), State(0), P_DestroyFunc(0), UnknAgentID(0)
 {
 	PPGetFilePath(PPPATH_LOG, "isalespepsi.log", LogFileName);
  	{
@@ -2669,6 +2671,7 @@ SLAPI iSalesPepsi::~iSalesPepsi()
 int SLAPI iSalesPepsi::Init()
 {
 	State = 0;
+	UnknAgentID = 0; // @v10.8.11
 	SvcUrl.Z();
 	UserName.Z();
 	Password.Z();
@@ -2680,6 +2683,27 @@ int SLAPI iSalesPepsi::Init()
 		State |= stEpDefined;
 	}
 	InitGoodsList(0);
+	// @v10.8.11 {
+	if(P.SupplID) {
+		PPID suppl_psn_id = ObjectToPerson(P.SupplID, 0);
+		if(suppl_psn_id) {
+			Reference * p_ref = PPRef;
+			if(p_ref) {
+				PPObjTag tag_obj;
+				PPID   tag_id = 0;
+				PPObjectTag2 tag_rec;
+				if(tag_obj.SearchBySymb("UNKNAGENTCODE", &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_PERSON) {
+					ObjTagItem tag_item;
+					if(p_ref->Ot.GetTag(PPOBJ_PERSON, suppl_psn_id, tag_id, &tag_item) > 0) {
+						long   v = 0;
+						if(tag_item.GetInt(&v) && v > 0)
+							UnknAgentID = v;
+					}
+				}
+			}
+		}
+	}
+	// } @v10.8.11
 	State |= stInited;
 	return ok;
 }
@@ -2823,6 +2847,44 @@ int SLAPI iSalesPepsi::RestoreGoods(TSCollection <iSalesGoodsPacket> & rList)
     return ok;
 }
 
+int SLAPI iSalesPepsi::SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta)
+{
+	int    ok = -1;
+	Goods2Tbl::Rec goods_rec;
+	if(goodsID && GObj.Search(goodsID, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC)) {
+		int32  arcode_pack = 0;
+		SString new_ar_code;
+		SString msg_buf;
+		SString ex_ar_code;
+		GObj.P_Tbl->GetArCode(P.SupplID, goodsID, ex_ar_code, &arcode_pack);
+		(new_ar_code = pArCode).Transf(CTRANSF_UTF8_TO_INNER);
+		if(ex_ar_code != new_ar_code) {
+			ArGoodsCodeTbl::Rec ex_ac_rec;
+			Goods2Tbl::Rec ex_goods_rec;
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			if(GObj.P_Tbl->SearchByArCode(P.SupplID, new_ar_code, &ex_ac_rec, &ex_goods_rec) > 0) {
+				assert(ex_goods_rec.ID == ex_ac_rec.GoodsID);
+				assert(ex_goods_rec.ID != goodsID);
+				THROW(GObj.P_Tbl->SetArCode(ex_goods_rec.ID, P.SupplID, 0, 0, 0));
+				//PPTXT_LOG_SUPPLIX_RESETARCODE "Для товара '@goods' снят код по статье '@article' =@zstr поскольку должен быть перенесен на другой товар '@goods'"
+				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_RESETARCODE, &msg_buf, ex_goods_rec.ID, P.SupplID, new_ar_code.cptr(), goodsID));
+				ok = 2;
+			}
+			else
+				ok = 1;
+			THROW(GObj.P_Tbl->SetArCode(goodsID, P.SupplID, new_ar_code, 0));
+			THROW(tra.Commit());
+			R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_SETARCODE, &msg_buf, goodsID, P.SupplID, new_ar_code.cptr()));
+		}
+	}
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 {
 	int    ok = -1;
@@ -2917,17 +2979,7 @@ int SLAPI iSalesPepsi::ReceiveGoods(int forceSettings, int useStorage)
 					const iSalesGoodsPacket * p_item = p_result->at(i);
 					if(p_item) {
 						if(forceSettings) {
-							long native_id = p_item->NativeCode.ToLong();
-							Goods2Tbl::Rec goods_rec;
-							if(native_id && GObj.Search(native_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS && !(goods_rec.Flags & GF_GENERIC)) {
-								int32  arcode_pack = 0;
-								GObj.P_Tbl->GetArCode(P.SupplID, native_id, ar_code, &arcode_pack);
-								(temp_buf = p_item->OuterCode).Transf(CTRANSF_UTF8_TO_INNER);
-								if(ar_code != temp_buf) {
-									THROW(GObj.P_Tbl->SetArCode(native_id, P.SupplID, temp_buf, 1));
-									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_SETARCODE, &msg_buf, native_id, P.SupplID, temp_buf.cptr()));
-								}
-							}
+							SetGoodsArCode(p_item->NativeCode.ToLong(), p_item->OuterCode, 1);
 						}
 						line_buf.Z().Cat(p_item->OuterCode).Tab().Cat(p_item->NativeCode).Tab().
 							Cat(p_item->TypeOfProduct).Tab().Cat(p_item->UnitCode).Tab().
@@ -3094,6 +3146,7 @@ void SLAPI iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
 int SLAPI iSalesPepsi::ReceiveOrders()
 {
     int    ok = -1;
+	int    treat_duedate_as_maindate = 0; // @v10.8.11
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
@@ -3105,6 +3158,14 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 	SString tech_buf;
 	SetupLocalPeriod(period);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+	// @v10.8.11 {
+	if(Ep.Fb.StyloPalmID) {
+		PPObjStyloPalm sp_obj;
+		PPStyloPalmPacket sp_pack;
+		if(sp_obj.GetPacket(Ep.Fb.StyloPalmID, &sp_pack) > 0 && sp_pack.Rec.Flags & PLMF_TREATDUEDATEASDATE)
+			treat_duedate_as_maindate = 1;
+	}
+	// } @v10.8.11 
 	{
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_S, &msg_buf, tech_buf.cptr());
 		PPWaitMsg(msg_buf);
@@ -3166,6 +3227,10 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
 					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
 					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d) ? p_src_pack->IncDtm.d : ZERODATE;
+					// @v10.8.11 {
+					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
+						pack.Rec.Dt = pack.Rec.DueDate;
+					// } @v10.8.11 
 					STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					{
 						PPID   local_psn_id = _src_psn_id;
@@ -3444,7 +3509,6 @@ int SLAPI iSalesPepsi::SendDebts()
 			sess.Setup(SvcUrl);
 			p_result = func(sess, UserName, Password, &current_debt_list);
 			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-			// @v9.3.1 {
 			{
 				long   err_item_count = 0;
 				SString tech_buf;
@@ -3466,7 +3530,6 @@ int SLAPI iSalesPepsi::SendDebts()
 				if(err_item_count)
 					LogErrors(result_list, &msg_buf);
 			}
-			// } @v9.3.1
 			// @v9.3.1 DS.Log(LogFileName, *p_result, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_NODUPFORJOB);
 			DestroyResult(reinterpret_cast<void **>(&p_result));
 		}
@@ -3681,39 +3744,80 @@ int SLAPI iSalesPepsi::SendStocks()
 			}
 		}
     }
-	if(outp_packet.getCount()) { // @v10.8.7
-		SString * p_result = 0;
-		ISALESPUTSTOCKCOUNTING_PROC func = 0;
-		THROW_SL(func = reinterpret_cast<ISALESPUTSTOCKCOUNTING_PROC>(P_Lib->GetProcAddr("iSalesPutStockCounting")));
-		sess.Setup(SvcUrl);
-		p_result = func(sess, UserName, Password, &outp_packet);
-		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-        DS.Log(LogFileName, *p_result, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_NODUPFORJOB);
+	{
 		{
-			long   err_item_count = 0;
-			TSCollection <iSalesPepsi::ResultItem> result_list;
-			ParseResultString(*p_result, result_list, &err_item_count); // @v9.5.1 &err_item_count
-			{
-				SString tech_buf;
-				Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
-				/* @v9.5.1
-				{
-					for(uint i = 0; i < result_list.getCount(); i++) {
-						const ResultItem * p_result_item = result_list.at(i);
-						if(p_result_item && p_result_item->Status == 0)
-							err_item_count++;
+			SString check_file_name;
+			SString line_buf;
+			temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("stock").Dot().Cat("csv");
+			PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
+			SFile f_check(check_file_name, SFile::mWrite);
+			//№ п/п	Наименование поля	Комментарии
+			//1	Код дистрибьютора iSales	константа = 118
+			//2	Дата и время формирования выгрузки	значение на момент формирования выгрузки(выполнение запроса)
+			//3	Код склада дистрибьютора 1С	
+			//4	Код продукта 1С	
+			//5	Код продукта iSales	
+			//6	Наименование продукта 1С	
+			//7	Тип остатка	брак/не брак
+			//8	Кол-во продукта на остатке в шуках	значение >0
+			SString own_code;
+			Ep.GetExtStrData(Ep.extssClientCode, own_code);
+			for(uint i = 0; i < outp_packet.getCount(); i++) {
+				const iSalesStockCountingWhPacket * p_loc_item = outp_packet.at(i);
+				if(p_loc_item) {
+					for(uint j = 0; j < p_loc_item->Items.getCount(); j++) {
+						const iSalesStockCountingItem * p_item = p_loc_item->Items.at(j);
+						if(p_item) {
+							const iSalesGoodsPacket * p_gp = SearchGoodsMappingEntry(p_item->OuterCode);
+							if(p_gp) {
+								(temp_buf = own_code).Transf(CTRANSF_INNER_TO_OUTER);
+								line_buf.Z().Cat(temp_buf).Tab().Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().
+									Cat(p_loc_item->WhID).Tab().Cat(p_gp->NativeCode).Tab().Cat(p_item->OuterCode).Tab();
+								Goods2Tbl::Rec goods_rec;
+								if(GObj.Fetch(p_gp->NativeCode.ToLong(), &goods_rec) > 0)
+									temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+								else
+									temp_buf.Z().CatChar('#').Cat(p_gp->NativeCode);
+								line_buf.Cat(temp_buf).Tab().Cat(0L).Tab().Cat(p_item->Qtty, MKSFMTD(0, 3, 0));
+								f_check.WriteLine(line_buf.CR());
+							}
+						}
 					}
 				}
-				*/
-				//PPTXT_LOG_SUPPLIX_EXPSTOCK_E   "Экспортированы остатки поставщику @zstr '@article'. Количество элементов с ошибками: @int"
-				PPFormatT(PPTXT_LOG_SUPPLIX_EXPSTOCK_E, &msg_buf, tech_buf.cptr(), P.SupplID, err_item_count);
-				PPWaitMsg(msg_buf);
-				if(err_item_count)
-					LogErrors(result_list, &msg_buf);
 			}
 		}
-		DestroyResult(reinterpret_cast<void **>(&p_result));
-    }
+		if(outp_packet.getCount()) { // @v10.8.7
+			SString * p_result = 0;
+			ISALESPUTSTOCKCOUNTING_PROC func = 0;
+			THROW_SL(func = reinterpret_cast<ISALESPUTSTOCKCOUNTING_PROC>(P_Lib->GetProcAddr("iSalesPutStockCounting")));
+			sess.Setup(SvcUrl);
+			p_result = func(sess, UserName, Password, &outp_packet);
+			THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+			DS.Log(LogFileName, *p_result, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_NODUPFORJOB);
+			{
+				long   err_item_count = 0;
+				TSCollection <iSalesPepsi::ResultItem> result_list;
+				ParseResultString(*p_result, result_list, &err_item_count); // @v9.5.1 &err_item_count
+				{
+					SString tech_buf;
+					Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+					/* @v9.5.1 {
+						for(uint i = 0; i < result_list.getCount(); i++) {
+							const ResultItem * p_result_item = result_list.at(i);
+							if(p_result_item && p_result_item->Status == 0)
+								err_item_count++;
+						}
+					}*/
+					//PPTXT_LOG_SUPPLIX_EXPSTOCK_E   "Экспортированы остатки поставщику @zstr '@article'. Количество элементов с ошибками: @int"
+					PPFormatT(PPTXT_LOG_SUPPLIX_EXPSTOCK_E, &msg_buf, tech_buf.cptr(), P.SupplID, err_item_count);
+					PPWaitMsg(msg_buf);
+					if(err_item_count)
+						LogErrors(result_list, &msg_buf);
+				}
+			}
+			DestroyResult(reinterpret_cast<void **>(&p_result));
+		}
+	}
     CATCHZOK
 	return ok;
 }
@@ -3745,7 +3849,7 @@ void SLAPI iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString
 //
 // Если outerDocType < 0, то это - отмена документа
 //
-int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollection <iSalesBillPacket> & rList)
+int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = 1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
@@ -3838,7 +3942,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			}
 			p_new_pack->DocType = outerDocType;
 			p_new_pack->ExtDocType = 0;
-			p_new_pack->ExtCode = 0;
+			p_new_pack->ExtCode.Z();
 			p_new_pack->ExtDtm.Z();
 			//
 			BillCore::GetCode(p_new_pack->Code = pack.Rec.Code);
@@ -3949,9 +4053,14 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 				}
 			}
 			if(pack.Ext.AgentID) {
-				const PPID agent_psn_id = ObjectToPerson(pack.Ext.AgentID, 0);
-				if(agent_psn_id)
+				PPID agent_psn_id = ObjectToPerson(pack.Ext.AgentID, 0);
+				// @v10.8.11 {
+				if(UnknAgentID && pRegisteredAgentList && !pRegisteredAgentList->lsearch(agent_psn_id))
+					agent_psn_id = UnknAgentID;
+				// } @v10.8.11 
+				if(agent_psn_id) {
 					p_new_pack->AgentCode.Cat(agent_psn_id);
+				}
 			}
 			if(p_sj && p_sj->GetObjCreationEvent(PPOBJ_BILL, pack.Rec.ID, &sj_rec) > 0)
 				p_new_pack->CreationDtm.Set(sj_rec.Dt, sj_rec.Tm);
@@ -4054,9 +4163,6 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 							double vat_sum_in_nominal_price = 0.0;
 							double vat_sum_in_full_price = 0.0;
 							double vat_sum_in_discount = 0.0;
-							// @v9.5.5 const double full_price = (outerDocType == 6) ? ti.Cost : ((ord_part_dis >= 1.0) ? 0.0 : net_price);
-							// @v9.5.5 const double nominal_price = (outerDocType == 6) ? ti.Cost : ((ord_part_dis >= 1.0) ? net_price : (net_price / (1.0 - ord_part_dis)));
-							// @v9.5.5 {
 							double full_price = 0.0;
 							double nominal_price = 0.0;
 							if(outerDocType == 6) {
@@ -4071,14 +4177,10 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 								full_price = ((ord_part_dis >= 1.0) ? 0.0 : net_price);
 								nominal_price = ((ord_part_dis >= 1.0) ? net_price : (net_price / (1.0 - ord_part_dis)));
 							}
-							// } @v9.5.5
 							const double discount = nominal_price - full_price;
-							// @v9.5.9 (Установлена точность округления 6) {
-							// @v9.5.11 (Установлена точность округления 12) {
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 16); // @v9.7.6 12-->16
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 16); // @v9.7.6 12-->16
-							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 16); // @v9.7.6 12-->16
-							// } @v9.5.9
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, full_price,    &vat_sum_in_full_price, 0, 0, 16);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, nominal_price, &vat_sum_in_nominal_price, 0, 0, 16);
+							GObj.CalcCostVat(0, goods_rec.TaxGrpID, pack.Rec.Dt, 1.0, discount,      &vat_sum_in_discount, 0, 0, 16);
 							{
 								iSalesBillAmountEntry * p_amt_entry = p_new_item->Amounts.CreateNewItem();
 								THROW_SL(p_amt_entry);
@@ -4143,7 +4245,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 	return ok;
 }
 
-int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <iSalesBillPacket> & rList)
+int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
 {
 	int    ok = -1;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
@@ -4189,7 +4291,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 						if(P_BObj->ExtractPacket(upd_bill_id, &pack) > 0) {
 							Helper_Make_iSalesIdent(bill_rec, outerDocType, isales_code);
 							if(pack.GetTCount() == 0) {
-								Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);
+								Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
 								force_bill_list.add(upd_bill_id);
 							}
 							else {
@@ -4210,7 +4312,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 								}
 								if(is_my_goods) {
 									if(isales_code != org_isales_code) {
-										Helper_MakeBillEntry(upd_bill_id, -outerDocType, rList);
+										Helper_MakeBillEntry(upd_bill_id, -outerDocType, pRegisteredAgentList, rList);
 									}
 									force_bill_list.add(upd_bill_id);
 								}
@@ -4230,7 +4332,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 				else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf))
 					dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
 				if(!dont_send)
-					Helper_MakeBillEntry(view_item.ID, outerDocType, rList);
+					Helper_MakeBillEntry(view_item.ID, outerDocType, pRegisteredAgentList, rList);
 			}
 		}
 		{
@@ -4241,7 +4343,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, TSCollec
 						// Статус не позволяет отправку
 					}
 					else {
-						Helper_MakeBillEntry(bill_rec.ID, outerDocType, rList);
+						Helper_MakeBillEntry(bill_rec.ID, outerDocType, pRegisteredAgentList, rList);
 					}
 				}
 			}
@@ -4264,12 +4366,28 @@ int SLAPI iSalesPepsi::SendInvoices()
 	PPObjOprKind op_obj; // @v10.8.9
 	SString temp_buf;
 	SString msg_buf;
+	PPIDArray registered_agent_list; // @v10.8.11
 	TSCollection <iSalesBillPacket> outp_packet;
 	//BillExportPeriod.Set(encodedate(1, 6, 2016), encodedate(30, 6, 2016));
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	THROW(Helper_MakeBillList(Ep.ExpendOp, 1, outp_packet));
+	// @v10.8.11 {
+	{
+		TSCollection <iSalesRoutePacket> routs; 
+		THROW(ReceiveRouts(routs));
+		for(uint i = 0; i < routs.getCount(); i++) {
+			const iSalesRoutePacket * p_rout = routs.at(i);
+			if(p_rout) {
+				const PPID native_agent_id = p_rout->NativeAgentCode.ToLong();
+				if(native_agent_id)
+					registered_agent_list.add(native_agent_id);
+			}
+		}
+		registered_agent_list.sortAndUndup();
+	}
+	// } @v10.8.11 
+	THROW(Helper_MakeBillList(Ep.ExpendOp, 1, &registered_agent_list, outp_packet));
 	// @v10.8.9 {
 	{
 		PPIDArray correction_op_list;
@@ -4283,13 +4401,13 @@ int SLAPI iSalesPepsi::SendInvoices()
 		if(correction_op_list.getCount()) {
 			correction_op_list.sortAndUndup();
 			for(uint i = 0; i < correction_op_list.getCount(); i++) {
-				PPID   op_id = correction_op_list.get(i);
-				THROW(Helper_MakeBillList(op_id, 5, outp_packet));
+				const PPID op_id = correction_op_list.get(i);
+				THROW(Helper_MakeBillList(op_id, 5, &registered_agent_list, outp_packet));
 			}
 		}
 	}
 	// } @v10.8.9 
-	THROW(Helper_MakeBillList(Ep.RetOp, 5, outp_packet));
+	THROW(Helper_MakeBillList(Ep.RetOp, 5, &registered_agent_list, outp_packet));
     {
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
@@ -4299,11 +4417,11 @@ int SLAPI iSalesPepsi::SendInvoices()
 				PPObjOprKind op_obj;
 				PPDraftOpEx doe;
 				if(op_obj.GetDraftExData(op_rec.ID, &doe) > 0 && doe.WrOffOpID) {
-					THROW(Helper_MakeBillList(doe.WrOffOpID, 6, outp_packet));
+					THROW(Helper_MakeBillList(doe.WrOffOpID, 6, &registered_agent_list, outp_packet));
 				}
 			}
             else if(op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
-				THROW(Helper_MakeBillList(acfg.Hdr.EdiDesadvOpID, 6, outp_packet));
+				THROW(Helper_MakeBillList(acfg.Hdr.EdiDesadvOpID, 6, &registered_agent_list, outp_packet));
             }
 		}
     }
@@ -4345,6 +4463,142 @@ int SLAPI iSalesPepsi::SendInvoices()
 						CatEq("ErrMsg", p_pack->ErrMsg).Semicol();
 					//PPLogMessage(LogFileName, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 					f_out_log.WriteLine(msg_buf.CR());
+				}
+			}
+		}
+	}
+	{
+		/*
+			№ п/п	Наименование поля	Комментарии
+			1	Код дистрибьютора iSales	константа = id dealer
+			2	Дата и время формирования выгрузки	значение на момент формирования выгрузки (выполнение запроса)
+			3	Тип документа	возможные значения: 1- расходная накладная, 5 - возврат, 4 – приход
+			4	Номер документа в 1С	
+			5	Дата документа 1С	
+			6	Номер заказа iSales	заполняется для расходных накладных
+			7	Код контрагента в 1С	не заполняется для приходного документа
+			8	Код торговой точки 1С	не заполняется для приходного документа
+			9	Наименование клиента 1С	не заполняется для приходного документа
+			10	Код агента 1С	не заполняется для приходного документа
+			11	ФИО агента 1С	не заполняется для приходного документа
+			12	Код продукта 1С	
+			13	Код продукта iSales	может быть пустым, если продукт не замапплен
+			14	Наименование продукта 1С	
+			15	Кол-во продукта по документу в штуках	
+			16	Сумма в руб с НДС по продукту в документе	
+			17	Сумма в руб без НДС по продукту в документе	
+			18	Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+			19	Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+			20	Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
+			21	Номер заказа SAP для приходного документа	номер заказа (SAP#) приходного документа, полученного из iSales, заполняется только для приходных документов
+			22	Номер расходного документа SAP (iDoc) для приходного документа	номер SAP для приходного документа, полученного из iSales, заполняется только для приходных документов
+			23	Код поставщика 1С	заполняется только для приходных документов
+			24	Наименование поставщика 1С	заполняется только для приходных документов
+		*/
+		SString check_file_name;
+		SString line_buf;
+		temp_buf.Z().Cat("isales").CatChar('-').Cat(P.SupplID).CatChar('-').Cat("invoices").Dot().Cat("csv");
+		PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
+		SFile f_check(check_file_name, SFile::mWrite);
+		SString own_code;
+		Ep.GetExtStrData(Ep.extssClientCode, own_code);
+		for(uint i = 0; i < outp_packet.getCount(); i++) {
+			const iSalesBillPacket * p_bill_item = outp_packet.at(i);
+			if(p_bill_item) {
+				for(uint j = 0; j < p_bill_item->Items.getCount(); j++) {
+					const iSalesBillItem * p_item = p_bill_item->Items.at(j);
+					if(p_item) {
+						//const iSalesGoodsPacket * p_gp = SearchGoodsMappingEntry(p_item->OuterCode);
+						(temp_buf = own_code).Transf(CTRANSF_INNER_TO_OUTER);
+						line_buf.Z().Cat(temp_buf).Tab().Cat(getcurdatetime_(), DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().
+							Cat(p_bill_item->DocType).Tab().
+							Cat((temp_buf = p_bill_item->Code).Transf(CTRANSF_UTF8_TO_OUTER)).Tab().
+							Cat(p_bill_item->Dtm.d, DATF_GERMAN|DATF_CENTURY).Tab();
+						{
+							for(uint ri = 0; ri < p_bill_item->Refs.getCount(); ri++) {
+								const iSalesBillRef * p_ref = p_bill_item->Refs.at(ri);
+								if(p_ref && p_ref->DocType == 13) {
+									(temp_buf = p_ref->Code).Transf(CTRANSF_UTF8_TO_OUTER);
+									line_buf.Cat(temp_buf);
+									break;
+								}
+							}
+							line_buf.Tab();
+						}
+						{
+							LocationTbl::Rec loc_rec;
+							if(p_bill_item->DocType == 1) {
+								line_buf.Cat(p_bill_item->PayerCode).Tab(); 
+								line_buf.Cat(p_bill_item->ShipTo).Tab();
+								const PPID addr_id = p_bill_item->ShipTo.ToLong();
+								if(LocObj.Search(addr_id, &loc_rec) > 0 && loc_rec.OwnerID)
+									GetPersonName(loc_rec.OwnerID, temp_buf);
+								else
+									temp_buf.Z();
+								line_buf.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).Tab();
+							}
+							else if(p_bill_item->DocType == 5) {
+								line_buf.Cat(p_bill_item->SellerCode).Tab(); 
+								line_buf.Cat(p_bill_item->ShipFrom).Tab();
+								const PPID addr_id = p_bill_item->ShipFrom.ToLong();
+								if(LocObj.Search(addr_id, &loc_rec) > 0 && loc_rec.OwnerID)
+									GetPersonName(loc_rec.OwnerID, temp_buf);
+								else
+									temp_buf.Z();
+								line_buf.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).Tab();
+							}
+							else {
+								line_buf.Tab(3);
+							}
+						}
+						line_buf.Cat(p_bill_item->AgentCode).Tab(); // 10	Код агента 1С	не заполняется для приходного документа
+						{
+							const PPID agent_id = p_bill_item->AgentCode.ToLong();
+							if(agent_id) {
+								GetPersonName(agent_id, temp_buf);
+							}
+							else
+								temp_buf.Z();
+							line_buf.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).Tab(); // 11	ФИО агента 1С	не заполняется для приходного документа
+						}
+						line_buf.Cat(p_item->NativeGoodsCode).Tab();
+						line_buf.Cat(p_item->OuterGoodsCode).Tab();
+						{
+							Goods2Tbl::Rec goods_rec;
+							if(GObj.Fetch(p_item->NativeGoodsCode.ToLong(), &goods_rec) > 0)
+								temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+							else
+								temp_buf.Z().CatChar('#').Cat(p_item->NativeGoodsCode);
+							line_buf.Cat(temp_buf).Tab();
+						}
+						line_buf.Cat(p_item->Qtty, MKSFMTD(0, 3, 0));
+						{
+							int amt_entry_found = 0;
+							for(uint si = 0; si < p_item->Amounts.getCount(); si++) {
+								iSalesBillAmountEntry * p_amt_entry = p_item->Amounts.at(si);
+								if(p_amt_entry && p_amt_entry->SetType == 0) {
+									line_buf.Cat(p_amt_entry->GrossSum, MKSFMTD(0, 2, 0)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
+									line_buf.Cat(p_amt_entry->NetSum, MKSFMTD(0, 2, 0)).Tab();   // 17	Сумма в руб без НДС по продукту в документе	
+									amt_entry_found = 1;
+									break;
+								}
+							}
+							if(!amt_entry_found) {
+								line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
+								line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 17	Сумма в руб без НДС по продукту в документе	
+							}
+							line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 18	Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 19	Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							line_buf.Cat(0.0, MKSFMTD(0, 2, 0)).Tab(); // 20	Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
+						}
+						{
+							line_buf.Tab(); // 21	Номер заказа SAP для приходного документа	номер заказа (SAP#) приходного документа, полученного из iSales, заполняется только для приходных документов
+							line_buf.Tab(); // 22	Номер расходного документа SAP (iDoc) для приходного документа	номер SAP для приходного документа, полученного из iSales, заполняется только для приходных документов
+							line_buf.Tab(); // 23	Код поставщика 1С	заполняется только для приходных документов
+							line_buf.Tab(); // 24	Наименование поставщика 1С	заполняется только для приходных документов
+						}
+						f_check.WriteLine(line_buf.CR());
+					}
 				}
 			}
 		}
@@ -4406,8 +4660,8 @@ int SLAPI iSalesPepsi::SendInvoices()
 								(temp_buf = p_item->Code).Transf(CTRANSF_UTF8_TO_INNER);
 								if(temp_buf.CmpNC(p_result_item->ItemDescr) == 0) {
 									if(p_item->NativeID && p_item->iSalesId.NotEmpty() && P_BObj->Search(p_item->NativeID, &bill_rec) > 0) {
-										if(bill_ack_tag_id) { // @v9.5.7
-											if(p_item->Status == 1) { // @v9.7.6
+										if(bill_ack_tag_id) {
+											if(p_item->Status == 1) {
 												THROW(p_ref->Ot.RemoveTag(PPOBJ_BILL, p_item->NativeID, bill_ack_tag_id, 1));
 											}
 											else {

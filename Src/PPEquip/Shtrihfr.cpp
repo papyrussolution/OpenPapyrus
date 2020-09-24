@@ -846,15 +846,24 @@ int SLAPI SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
 								int    marking_type = 0;
 								switch(sl_param.ChZnProductType) {
+									/* @v10.8.11 
 									case GTCHZNPT_FUR: marking_type = 2; break;
 									case GTCHZNPT_TOBACCO: marking_type = 5; break;
 									case GTCHZNPT_SHOE: marking_type = 5408; break;
 									case GTCHZNPT_MEDICINE: marking_type = 3; break;
+									*/
+									// @v10.8.11 {
+									case GTCHZNPT_FUR: marking_type = 0x5246; break;
+									case GTCHZNPT_TOBACCO: marking_type = 0x444D; break;
+									case GTCHZNPT_SHOE: marking_type = 0x444D; break;
+									case GTCHZNPT_MEDICINE: marking_type = 0x444D; break;
+									// } @v10.8.11
 								}
 								if(marking_type) {
-									THROW(SetFR(MarkingType, 1));
+									THROW(SetFR(MarkingType, marking_type));
 									THROW(SetFR(GTIN, sl_param.ChZnGTIN));
-									THROW(SetFR(SerialNumber, sl_param.ChZnSerial));
+									(temp_buf = sl_param.ChZnSerial).Align(13, ADJ_LEFT);
+									THROW(SetFR(SerialNumber, temp_buf));
 									THROW(ExecFRPrintOper(FNSendItemCodeData));
 								}
 							}

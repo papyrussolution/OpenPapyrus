@@ -2527,7 +2527,7 @@ private:
 			TDrawItemData * p_draw_item = static_cast<TDrawItemData *>(TVINFOPTR);
 			if(p_draw_item && p_draw_item->P_View) {
 				PPID   list_ctrl_id = p_draw_item->P_View->GetId();
-				if(list_ctrl_id == ctlList) {
+				if(list_ctrl_id == CtlList) {
 					SmartListBox * p_lbx = static_cast<SmartListBox *>(p_draw_item->P_View);
 					const FRect  rect_elem = p_draw_item->ItemRect;
 					SPaintToolBox & r_tb = APPL->GetUiToolBox();

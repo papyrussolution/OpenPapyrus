@@ -298,7 +298,7 @@ int PPObjListWindow::Transmit(PPID)
 //
 // PPListDialog
 //
-SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID), ctlList(aCtlList), Options(0)
+SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID), CtlList(aCtlList), ContextMenuID(0), Options(0)
 {
 	if(flags & fOnDblClkOk)
 		Options |= oOnDblClkOk;
@@ -306,7 +306,7 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 		Options |= oHasOkButton;
 	if(getCtrlView(STDCTL_EDITBUTTON))
 		Options |= oHasEditButton;
-	P_Box = static_cast<SmartListBox *>(getCtrlView(ctlList));
+	P_Box = static_cast<SmartListBox *>(getCtrlView(CtlList));
 	if(!SetupStrListBox(P_Box))
 		PPError();
 	else {
@@ -317,7 +317,7 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 			P_Box->SetOwnerDrawState();
 		// } @v10.3.0 
 	}
-	if(isCurrCtlID(ctlList) && (Options & oHasOkButton) && (Options & oHasEditButton)) {
+	if(isCurrCtlID(CtlList) && (Options & oHasOkButton) && (Options & oHasEditButton)) {
 		SetDefaultButton(STDCTL_OKBUTTON,   0);
 	   	SetDefaultButton(STDCTL_EDITBUTTON, 1);
 	}
@@ -349,8 +349,8 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				break;
 			case cmaEdit:
 				if(getCurItem(&p, &i) && editItem(p, i) > 0) {
-					int is_tree_list = BIN(p_box && p_box->isTreeList());
-					long id = (is_tree_list) ? i : p;
+					const int  is_tree_list = BIN(p_box && p_box->isTreeList());
+					const long id = is_tree_list ? i : p;
 					updateList(id, !BIN(is_tree_list));
 				}
 				break;
@@ -361,14 +361,15 @@ IMPL_HANDLE_EVENT(PPListDialog)
 			case cmDown:
 			case cmUp:
 				if(getCurItem(&p, &i)) {
-					int    up = (TVCMD == cmUp) ? 1 : 0;
+					const int up = BIN(TVCMD == cmUp);
 					if(moveItem(p, i, up) > 0)
 						updateList(up ? p-1 : p+1);
 				}
 				break;
 			case cmLBDblClk:
 				if(p_box && p_box->def) {
-					int    edit = 1, is_tree_list = 0;
+					int    edit = 1;
+					int    is_tree_list = 0;
 					PPID   cur_id = 0;
 					p_box->def->getCurID(&cur_id);
 					if(p_box->isTreeList()) {
@@ -376,12 +377,12 @@ IMPL_HANDLE_EVENT(PPListDialog)
 						if(static_cast<const StdTreeListBoxDef *>(p_box->def)->HasChild(cur_id))
 							edit = 0;
 					}
-					if(event.isCtlEvent(ctlList)) {
+					if(event.isCtlEvent(CtlList)) {
 						if(cur_id && Options & oOnDblClkOk) {
 							TView::messageCommand(this, cmOK);
 						}
 						else if(edit && getCurItem(&p, &i) && editItem(p, i) > 0) {
-							long id = is_tree_list ? i : p;
+							const long id = is_tree_list ? i : p;
 							updateList(id, !BIN(is_tree_list));
 						}
 						else
@@ -398,15 +399,20 @@ IMPL_HANDLE_EVENT(PPListDialog)
 					SString temp_buf;
 					if(PPLoadTextWin(PPTXT_MENU_LISTBOX, temp_buf)) {
 						getCurItem(&p, &i);
-						TMenuPopup menu;
-						menu.AddSubstr(temp_buf, 0, cmaInsert);     // Добавить
-						menu.AddSubstr(temp_buf, 1, cmaEdit);       // Редактировать
-						menu.AddSubstr(temp_buf, 2, cmaDelete);     // Удалить
-						if(p_box && p_box->def && (p_box->def->Options & lbtExtMenu))
-							menu.AddSubstr(temp_buf, 3, cmaSendByMail); // Послать по эл. почте
-						int    cmd = menu.Execute(H(), TMenuPopup::efRet);
-						if(cmd > 0)
-							TView::messageCommand(this, cmd);
+						if(ContextMenuID) {
+							PPExecuteContextMenu(p_box, ContextMenuID);
+						}
+						else {
+							TMenuPopup menu;
+							menu.AddSubstr(temp_buf, 0, cmaInsert);     // Добавить
+							menu.AddSubstr(temp_buf, 1, cmaEdit);       // Редактировать
+							menu.AddSubstr(temp_buf, 2, cmaDelete);     // Удалить
+							if(p_box && p_box->def && (p_box->def->Options & lbtExtMenu))
+								menu.AddSubstr(temp_buf, 3, cmaSendByMail); // Послать по эл. почте
+							uint   cmd = 0;
+							if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0) && cmd)
+								TView::messageCommand(this, cmd);
+						}
 					}
 				}
 				break;
@@ -415,12 +421,12 @@ IMPL_HANDLE_EVENT(PPListDialog)
 		}
 	}
 	else if(TVBROADCAST) {
-		if((Options & oHasOkButton) && (Options & oHasEditButton) && ctlList) {
-			if(TVCMD == cmReceivedFocus && event.isCtlEvent(ctlList)) {
+		if((Options & oHasOkButton) && (Options & oHasEditButton) && CtlList) {
+			if(TVCMD == cmReceivedFocus && event.isCtlEvent(CtlList)) {
 				SetDefaultButton(STDCTL_OKBUTTON,   0);
 				SetDefaultButton(STDCTL_EDITBUTTON, 1);
 			}
-			else if(TVCMD == cmReleasedFocus && event.isCtlEvent(ctlList)) {
+			else if(TVCMD == cmReleasedFocus && event.isCtlEvent(CtlList)) {
 				SetDefaultButton(STDCTL_OKBUTTON,   1);
 				SetDefaultButton(STDCTL_EDITBUTTON, 0);
 			}

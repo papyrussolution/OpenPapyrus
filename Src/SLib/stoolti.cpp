@@ -461,17 +461,18 @@ int SMessageWindow::DoCommand(TPoint p)
 			if(p_win) {
 				TPoint p;
 				p_win->DoCommand(p.setwparam(static_cast<uint32>(lParam)));
-				DestroyWindow(hWnd);
+				::DestroyWindow(hWnd);
 			}
 			break;
 		case WM_RBUTTONDOWN:
 			if(p_win) {
 				SString menu_text;
 				TMenuPopup menu;
+				uint   cmd = 0;
 				SLS.LoadString_("close", menu_text);
 				menu.Add(menu_text.Transf(CTRANSF_INNER_TO_OUTER), cmaDelete);
-				if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete)
-					DestroyWindow(hWnd);
+				if(menu.Execute(hWnd, TMenuPopup::efRet, &cmd, 0) && cmd == cmaDelete)
+					::DestroyWindow(hWnd);
 			}
 			break;
 		case WM_CTLCOLORSTATIC:
@@ -482,7 +483,7 @@ int SMessageWindow::DoCommand(TPoint p)
 				COLORREF text_color = (labs(p_win->Color - SClrBlack) > labs(p_win->Color - SClrWhite)) ? SClrBlack : SClrWhite;
 				canv.SetTextColor(text_color);
 				SetBkMode(hdc, TRANSPARENT);
-				return (INT_PTR)p_win->Brush;
+				return reinterpret_cast<INT_PTR>(p_win->Brush);
 			}
 			break;
 		case WM_USER_MAINWND_MOVE_SIZE:

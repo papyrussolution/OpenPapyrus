@@ -10,7 +10,7 @@
 #define MPST_ERROR         0x0001
 #define MPST_PREVSEPARATOR 0x0002
 
-TMenuPopup::TMenuPopup() : State(0), Count(0), H(::CreatePopupMenu())
+TMenuPopup::TMenuPopup() : State(0), H(::CreatePopupMenu())
 {
 }
 
@@ -24,10 +24,15 @@ TMenuPopup::~TMenuPopup()
 
 uint TMenuPopup::GetCount() const
 {
-	return Count;
+	return L.getCount();
 }
 
 int TMenuPopup::Add(const char * pText, int cmd)
+{
+	return Add(pText, cmd, 0);
+}
+
+int TMenuPopup::Add(const char * pText, int cmd, int keyCode)
 {
 	int    ok = 0;
 	assert(pText);
@@ -40,11 +45,16 @@ int TMenuPopup::Add(const char * pText, int cmd)
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			pText = temp_buf;
 		}
+		Item new_item;
+		new_item.Cmd = cmd;
+		new_item.KeyCode = keyCode;
+		uint new_item_id = L.getCount()+1;
 		UINT flags = MF_STRING|MF_ENABLED;
 		SETFLAG(flags, MF_SEPARATOR, BIN(cmd == TV_MENUSEPARATOR));
-		ok = BIN(::AppendMenu(static_cast<HMENU>(H), flags, (cmd == TV_MENUSEPARATOR) ? 0 : cmd, SUcSwitch(pText)));
-		if(ok)
-			Count++;
+		ok = BIN(::AppendMenu(static_cast<HMENU>(H), flags, (cmd == TV_MENUSEPARATOR) ? 0 : /*cmd*/new_item_id, SUcSwitch(pText)));
+		if(ok) {
+			L.insert(&new_item);
+		}
 		State &= ~MPST_PREVSEPARATOR;
 	}
 	return ok;
@@ -70,18 +80,23 @@ int TMenuPopup::AddSeparator()
 	return ok;
 }
 
-int TMenuPopup::Execute(HWND hWnd, long flags)
+int TMenuPopup::Execute(HWND hWnd, long flags, uint * pCmd, uint * pKeyCode)
 {
-	int    cmd = 0;
+	int    ok = 0;
 	if(H) {
 		POINT p;
 		::GetCursorPos(&p);
 		uint f = TPM_LEFTALIGN|TPM_LEFTBUTTON;
 		if(flags & efRet)
 			f |= TPM_RETURNCMD;
-		cmd = ::TrackPopupMenu(static_cast<HMENU>(H), f, p.x, p.y, 0, hWnd, 0);
+		uint item_id = ::TrackPopupMenu(static_cast<HMENU>(H), f, p.x, p.y, 0, hWnd, 0);
+		if(item_id > 0 && item_id <= L.getCount()) {
+			ASSIGN_PTR(pCmd, L.at(item_id-1).Cmd);
+			ASSIGN_PTR(pKeyCode, L.at(item_id-1).KeyCode);
+			ok = 1;
+		}
 	}
-	return cmd;
+	return ok;
 }
 //
 //
@@ -152,14 +167,27 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 				}
 				if(ok > 0) {
 					StrPool.get(p_item->StrPos, text);
-					menu.Add(text, p_item->KeyCode);
+					menu.Add(text, 0, p_item->KeyCode);
 					SETIFZ(sel, p_item->CtrlId);
 				}
 			}
 		}
-		if(ok > 0) {
-			menu.Execute(P_Win->H());
-			P_Win->selectCtrl(sel);
+		if(ok > 0 && sel) {
+			uint   cmd = 0;
+			uint   key = 0;
+			if(menu.Execute(P_Win->H(), menu.efRet, &cmd, &key)) {
+				if(cmd) {
+					P_Win->selectCtrl(sel);
+					TView::messageCommand(P_Win, cmd);
+				}
+				else if(key) {
+					P_Win->selectCtrl(sel);
+					TEvent event;
+					event.what = TEvent::evKeyDown;
+					event.keyDown.keyCode = key;
+					P_Win->handleEvent(event);
+				}
+			}
 		}
 	}
 	return ok;
@@ -687,7 +715,9 @@ void TWindow::showLocalMenu()
 			else if(i < Toolbar.getItemsCount()) // Последний разделитель не заносим
 				menu.AddSeparator();
 		}
-		menu.Execute(HW);
+		uint   cmd = 0;
+		uint   key = 0;
+		menu.Execute(HW, 0, &cmd, &key);
 	}
 }
 

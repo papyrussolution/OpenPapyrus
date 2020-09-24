@@ -97,11 +97,11 @@
 // Имена элементов xml-ответов web-сервиса
 //
 #define ELEMENT_NAME_RELATION		"relation"
-#define ELEMENT_NAME_PARTNER_ILN	"partner-iln"		// Идентификатор партнера
+//#define ELEMENT_NAME_PARTNER_ILN	"partner-iln"		// Идентификатор партнера
 //
 // Значения элементов-идентификатров xml-ответов и запросов web-сервиса
 //
-#define ELEMENT_CODE_DIRECTION_IN	"IN"		// Входящий документ
+//#define ELEMENT_CODE_DIRECTION_IN	"IN"		// Входящий документ
 #define ELEMENT_CODE_DIRECTION_OUT	"OUT"		// Исходящий документ
 #define ELEMENT_CODE_TYPE_ORDRSP	"ORDRSP"	// Подтверждение заказа
 #define ELEMENT_CODE_TYPE_APERAK	"APERAK"	// Статус документа
@@ -135,12 +135,12 @@
 // Значения элементов-идентифиаторов
 //
 #define ELEMENT_CODE_E2005_17		"17"		// Дата/время доставки (ORDRSP/DESADV)	(возможны оба квалификатора)
-#define ELEMENT_CODE_E2005_358		"358"		// Дата/время доставки (DESADV)	(возможны оба квалификатора)
-#define ELEMENT_CODE_E2005_137		"137"		// Дата/время документа/сообщения
+//#define ELEMENT_CODE_E2005_358		"358"		// Дата/время доставки (DESADV)	(возможны оба квалификатора)
+//#define ELEMENT_CODE_E2005_137		"137"		// Дата/время документа/сообщения
 #define ELEMENT_CODE_E6345_RUB		"RUB"		// Рубли
 #define ELEMENT_CODE_E7077_F		"F"			// Код формата описания товара - текст
 //#define ELEMENT_CODE_E6063_21		"21"		// Идентификатор заказанного количества
-#define ELEMENT_CODE_E6063_194		"194"		// Идентификатор принятого количества
+//#define ELEMENT_CODE_E6063_194		"194"		// Идентификатор принятого количества
 //#define ELEMENT_CODE_E6063_59		"59"		// Идентификатор количества товара в упаковке
 //#define ELEMENT_CODE_E6063_113		"113"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
 //#define ELEMENT_CODE_E6063_170		"170"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
@@ -149,7 +149,7 @@
 #define ELEMENT_CODE_E6411_KGM		"KGM"		// Единицы измерения - Килограммы
 #define ELEMENT_CODE_E5025_XB5		"XB5"		// Идентификатор цены товара с НДС (DESADV)
 #define ELEMENT_CODE_E4451_AAO		"AAO"		// Идентификатор кода описания статуса
-#define ELEMENT_CODE_E2005_171		"171"		// Идентификатор даты документа (в APERAK)
+//#define ELEMENT_CODE_E2005_171		"171"		// Идентификатор даты документа (в APERAK)
 #define ELEMENT_CODE_E1153_CT		"CT"		// Идентификатор номера договара на поставку
 //
 // Коды ошибок и сообщений
@@ -257,12 +257,12 @@ struct StRlnConfig {
 	void Clear()
 	{
 		EdiDocType = 0;
-		SuppGLN = 0;
-		Direction = 0;
+		SuppGLN.Z();
+		Direction.Z();
 		//DocType = 0;
-		DocVersion = 0;
-		DocStandard = 0;
-		DocTest = 0;
+		DocVersion.Z();
+		DocStandard.Z();
+		DocTest.Z();
 	}
 	int    EdiDocType;
 	SString SuppGLN;		// GLN поставщика, к которому относятся данные настройки
@@ -470,18 +470,9 @@ void FormatLoginToLogin(const char * login, SString & rStr)
 
 class Iterator {
 public:
-	void Init()
-	{
-		Count = 0;
-	}
-	uint GetCount() const
-	{
-		return Count;
-	}
-	void Next()
-	{
-		Count++;
-	}
+	void   Init() { Count = 0; }
+	uint   GetCount() const { return Count; }
+	void   Next() { Count++; }
 private:
 	uint   Count;
 };
@@ -533,7 +524,7 @@ int ImportExportCls::Relationships()
 	EDIWebServiceSoapProxy proxy(SOAP_XML_INDENT);
 	gSoapClientInit(&proxy, 0, 0);
 	FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
-	param.Name = (char *)login.cptr(); // @badcast
+	param.Name = const_cast<char *>(login.cptr()); // @badcast
 	//param.Name = Header.EdiLogin;			// ИД пользователя
 	param.Password = Header.EdiPassword;	// Пароль
 	param.Timeout = 5000;					// Таймаут на выполнение вызова метода (мс)
@@ -567,7 +558,6 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 	StRlnConfig * p_rln_cfg = 0;
 	xmlTextReader * p_xml_ptr;
 	xmlParserInputBuffer * p_input = 0;
-	xmlNode * p_node;
 	RlnCfgList.freeAll();
 	if(pResp) {
 		p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
@@ -578,7 +568,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 		//
 		THROWERR(xmlTextReaderSetup(p_xml_ptr, p_input, NULL, NULL, XML_PARSE_SAX1) == 0, IEERR_NULLREADXMLPTR);
 		while(xmlTextReaderRead(p_xml_ptr)) {
-			p_node = xmlTextReaderCurrentNode(p_xml_ptr);
+			xmlNode * p_node = xmlTextReaderCurrentNode(p_xml_ptr);
 			if(p_node && p_node->children) {
 				const char * p_nn = PTRCHRC_(p_node->name);
 				if(strcmp(p_nn, ELEMENT_NAME_RELATION) == 0) {
@@ -586,7 +576,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 					p_rln_cfg->Clear();
 				}
 				else if(p_rln_cfg) {
-					if(strcmp(p_nn, ELEMENT_NAME_PARTNER_ILN) == 0) {
+					if(strcmp(p_nn, "partner-iln") == 0) {
 						p_rln_cfg->SuppGLN.Set(p_node->children->content);
 					}
 					else if(sstreq(p_nn, "direction")) { // Входящий или исходящий документ
@@ -785,7 +775,7 @@ int ExportCls::OrderHeader()
 			SegNum++;
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C507");
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E2005"); // Квалификатор функции даты-времени
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E2005_137); // Дата/время документа/сообщения
+					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"137"); // Дата/время документа/сообщения
 				xmlTextWriterEndElement(P_XmlWriter); //E2005
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E2380"); // Дата или время, или период
 					xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV).ucptr());
@@ -879,7 +869,7 @@ int ExportCls::RecadvHeader()
 				SegNum++;
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"C507");
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E2005"); // Квалификатор функции даты-времени
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E2005_137); // Дата/время документа/сообщения
+						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"137"); // Дата/время документа/сообщения
 					xmlTextWriterEndElement(P_XmlWriter); //E2005
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)"E2380"); // Дата или время, или период
 						xmlTextWriterWriteString(P_XmlWriter, str.Z().Cat(Bill.Date, DATF_YMD|DATF_CENTURY|DATF_NODIV).ucptr());
@@ -1184,7 +1174,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 				if(MessageType == PPEDIOP_ORDER)
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"21"); // Заказанное количество товара
 				else if(MessageType == PPEDIOP_RECADV)
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)ELEMENT_CODE_E6063_194); // Принятое количество товара
+					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar *)"194"); // Принятое количество товара
 			xmlTextWriterEndElement(P_XmlWriter); //E6063
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar *)ELEMENT_NAME_E6060); // Количество
 				str.Z().Cat(pBRow->Quantity);
@@ -1982,7 +1972,7 @@ int ImportCls::ReceiveDoc(uint messageType)
 			uint  pos_ = 0;
 			for(uint i = 0; !pos_ && i < rcl_c; i++) {
 				const StRlnConfig & r_item = RlnCfgList.at(i);
-				if(!r_item.SuppGLN.CmpNC(partner_iln) && r_item.EdiDocType == messageType && !r_item.Direction.CmpNC(ELEMENT_CODE_DIRECTION_IN)) {
+				if(!r_item.SuppGLN.CmpNC(partner_iln) && r_item.EdiDocType == messageType && !r_item.Direction.CmpNC("IN")) {
 					pos_ = i+1;
 				}
 			}
@@ -2116,17 +2106,17 @@ int ImportCls::ListMessageBox(uint messageType)
 	THROWERR(RlnCfgList.getCount(), IEERR_NOCONFIG);
 	for(pos = 0; pos < RlnCfgList.getCount(); pos ++) {
 		const StRlnConfig & r_item = RlnCfgList.at(pos);
-		if(r_item.Direction.CmpNC(ELEMENT_CODE_DIRECTION_IN) == 0 && r_item.EdiDocType == messageType) {
+		if(r_item.Direction.CmpNC("IN") == 0 && r_item.EdiDocType == messageType) {
 			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
-			param.Name = (char *)login.cptr(); // @badcast
+			param.Name = const_cast<char *>(login.cptr()); // @badcast
 			//param.Name = Header.EdiLogin;			// ИД пользователя
 			param.Password = Header.EdiPassword;	// Пароль пользователя
-			param.PartnerIln = (char *)(const char *)r_item.SuppGLN;           // ИД партнера, от которого был получен документ
+			param.PartnerIln = const_cast<char *>(r_item.SuppGLN.cptr()); // ИД партнера, от которого был получен документ
 			GetMsgTypeSymb(r_item.EdiDocType, edi_doc_type_symb);
-			param.DocumentType = (char *)(const char *)edi_doc_type_symb;      // Тип документа
-			param.DocumentVersion = (char *)(const char *)r_item.DocVersion;   // Версия спецификации
-			param.DocumentStandard = (char *)(const char *)r_item.DocStandard; // Стандарт документа
-			param.DocumentTest = (char *)(const char *)r_item.DocTest;         // Статус документа
+			param.DocumentType = const_cast<char *>(edi_doc_type_symb.cptr());      // Тип документа
+			param.DocumentVersion = const_cast<char *>(r_item.DocVersion.cptr());   // Версия спецификации
+			param.DocumentStandard = const_cast<char *>(r_item.DocStandard.cptr()); // Стандарт документа
+			param.DocumentTest = const_cast<char *>(r_item.DocTest.cptr());         // Статус документа
 			param.DocumentStatus = "N";	// Статус выбираемых документов (подтверждений, статусов) (только новые) (N - только новые, A - все)
 			param.Timeout = 10000;		// Таймаут на выполнение вызова метода (мс) (число взято из описания методов web-сервиса)
 			if((Header.PeriodLow != ZERODATE) && (Header.PeriodUpp != ZERODATE)) {
@@ -2144,8 +2134,8 @@ int ImportCls::ListMessageBox(uint messageType)
 				if(fmt.Z().Cat(Header.PeriodUpp.day()).Len() == 1)
 					fmt.PadLeft(1, '0');
 				upp.CatChar('-').Cat(fmt);
-				param.DateFrom = (char *)(const char *)low;
-				param.DateTo = (char *)(const char *)upp;
+				param.DateFrom = const_cast<char *>(low.cptr());
+				param.DateTo = const_cast<char *>(upp.cptr());
 			}
 			if(proxy.ListMBEx(&param, &resp) == SOAP_OK) {
 				if(atoi(resp.ListMBExResult->Res) == 0) {
@@ -2162,38 +2152,38 @@ int ImportCls::ListMessageBox(uint messageType)
 								for(xmlNode * p_doc_child = p_node->children; p_doc_child != 0; p_doc_child = p_doc_child->next) {
 									if(p_doc_child->children) {
 										cname.Set(p_doc_child->name);
-										if(cname.CmpNC("tracking-id") == 0) { // ИД документа в системе
+										if(cname.IsEqiAscii("tracking-id")) { // ИД документа в системе
 											//p_info_blk->TrackingUUID.FromStr((const char *)p_doc_child->children->content);
 											eme.Uuid.FromStr((const char *)p_doc_child->children->content);
 										}
-										else if(cname.CmpNC(ELEMENT_NAME_PARTNER_ILN) == 0) {
+										else if(cname.IsEqiAscii("partner-iln")) {
 											//p_info_blk->PartnerILN.Set(p_doc_child->children->content);
-											STRNSCPY(eme.SenderCode, (const char *)p_doc_child->children->content);
+											STRNSCPY(eme.SenderCode, p_doc_child->children->content);
 										}
-										else if(cname.CmpNC("document-type") == 0) {
+										else if(cname.IsEqiAscii("document-type")) {
 											GetMsgTypeBySymb((const char *)p_doc_child->children->content, eme.EdiOp);
 										}
-										else if(cname.CmpNC("document-version") == 0) {
+										else if(cname.IsEqiAscii("document-version")) {
 											//p_info_blk->DocVer.Set(p_doc_child->children->content);
 										}
-										else if(cname.CmpNC("document-standard") == 0) {
+										else if(cname.IsEqiAscii("document-standard")) {
 											//p_info_blk->DocStd.Set(p_doc_child->children->content);
 										}
-										else if(cname.CmpNC("document-status") == 0) {
+										else if(cname.IsEqiAscii("document-status")) {
 											//p_info_blk->DocStatus.Set(p_doc_child->children->content);
 										}
-										else if(cname.CmpNC("document-number") == 0) {
+										else if(cname.IsEqiAscii("document-number")) {
 											//p_info_blk->DocNumber.Set(p_doc_child->children->content);
 											STRNSCPY(eme.Code, p_doc_child->children->content);
 										}
-										else if(cname.CmpNC("document-date") == 0) {
+										else if(cname.IsEqiAscii("document-date")) {
 											//strtodate((const char *)p_doc_child->children->content, DATF_YMD|DATF_CENTURY, &p_info_blk->DocDate);
 											strtodate((const char *)p_doc_child->children->content, DATF_YMD|DATF_CENTURY, &eme.Dtm.d);
 										}
-										else if(cname.CmpNC("receive-date") == 0) {
+										else if(cname.IsEqiAscii("receive-date")) {
 											//strtodate((const char *)p_doc_child->children->content, DATF_YMD|DATF_CENTURY, &p_info_blk->ReceiveDate);
 										}
-										else if(cname.CmpNC("document-control-number") == 0) {
+										else if(cname.IsEqiAscii("document-control-number")) {
 											//p_info_blk->CheckNumber = strtoul((const char *)p_doc_child->children->content, 0, 10);
 										}
 									}
@@ -2312,17 +2302,17 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 							//   Из-за этого предварительно обрезаем строку даты до 8 символов (функция strtodate корректно извлекает
 							//   дату без разделителей только при фиксированном размере строки в 8 символов).
 							//
-							if(str.CmpNC(ELEMENT_CODE_E2005_137) == 0) {
+							if(str == "137") {
 								temp_buf.Set(p_node->children->content).Trim(8); // Дата документа
 								strtodate(temp_buf, DATF_YMD|DATF_CENTURY, &pBill->Date);
 								ok = 1;
 							}
-							else if((str.CmpNC(ELEMENT_CODE_E2005_17) == 0) || (str.CmpNC("2") == 0) || (str.CmpNC(ELEMENT_CODE_E2005_358) == 0)) {
+							else if((str.CmpNC(ELEMENT_CODE_E2005_17) == 0) || (str == "2") || (str == "358")) {
 								temp_buf.Set(p_node->children->content).Trim(8); // Дата доставки (дата исполнения документа)
 								strtodate(temp_buf, DATF_YMD|DATF_CENTURY, &pBill->DueDate);
 								ok = 1;
 							}
-							else if(str.CmpNC(ELEMENT_CODE_E2005_171) == 0) {
+							else if(str == "171") {
 								temp_buf.Set(p_node->children->content).Trim(8); // Дата заказа
 								strtodate(temp_buf, DATF_YMD|DATF_CENTURY, &pBill->OrderDate);
 								ok = 1;
@@ -2338,20 +2328,20 @@ int ImportCls::ParseForDocData(uint messageType, Sdr_Bill * pBill)
 					if(SXml::IsName(p_node, "C082") && p_node->children) {
 						p_node = p_node->children; // <E3039>
 						if(SXml::IsName(p_node, ELEMENT_NAME_E3039) && p_node->children) {
-							if(str.CmpNC("BY") == 0) { // GLN покупателя
+							if(str.IsEqiAscii("BY")) { // GLN покупателя
 								STRNSCPY(pBill->MainGLN, PTRCHRC_(p_node->children->content));
 								STRNSCPY(pBill->AgentGLN, PTRCHRC_(p_node->children->content));
 								ok = 1;
 							}
-							else if(str.CmpNC("SU") == 0) { // GLN поставщика
+							else if(str.IsEqiAscii("SU")) { // GLN поставщика
 								STRNSCPY(pBill->GLN, p_node->children->content);
 								ok = 1;
 							}
-							else if(str.CmpNC("DP") == 0) { // GLN адреса доставки
+							else if(str.IsEqiAscii("DP")) { // GLN адреса доставки
 								STRNSCPY(pBill->DlvrAddrCode, p_node->children->content);
 								ok = 1;
 							}
-							else if(str.CmpNC("IV") == 0) { // GLN плательщика
+							else if(str.IsEqiAscii("IV")) { // GLN плательщика
 								STRNSCPY(pBill->Obj2GLN, p_node->children->content);
 								ok = 1;
 							}
@@ -2574,9 +2564,9 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 										if(p_node->next) {
 											p_node = p_node->next; // <E5118>
 											if(SXml::IsName(p_node, "E5118") && p_node->children) {
-												if(str.CmpNC("AAA") == 0)
+												if(str.IsEqiAscii("AAA"))
 													str.Set(p_node->children->content); // @vmiller // Цена товара без НДС
-												else if(str.CmpNC("AAE") == 0)
+												else if(str.IsEqiAscii("AAE"))
 													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // Цена товара с НДС // @v10.7.9 atof-->satof
 											}
 										}
@@ -2636,7 +2626,7 @@ int ImportCls::ParseAperakResp(const char * pResp)
 					}
 				}
 				else if(p_node && SXml::IsName(p_node, "E2005") && p_node->children) {
-					if(SXml::IsContent(p_node->children, ELEMENT_CODE_E2005_171)) { // Дата документа заказа
+					if(SXml::IsContent(p_node->children, "171")) { // Дата документа заказа
 						if(p_node->next) {
 							if(SXml::IsName(p_node->next, "E2380") && p_node->next->children) {
 								strtodate((const char *)p_node->next->children->content, DATF_YMD|DATF_CENTURY, &AperakInfo.DocDate);
@@ -2650,11 +2640,11 @@ int ImportCls::ParseAperakResp(const char * pResp)
 						p_node = p_node->next;
 						if(SXml::IsName(p_node, "C082") && p_node->children) {
 							if(SXml::IsName(p_node->children, ELEMENT_NAME_E3039)) {
-								if(str.CmpNC("BY") == 0)
+								if(str.IsEqiAscii("BY"))
 									AperakInfo.BuyerGLN = (const char *)p_node->children->children->content; // GLN покупателя
-								else if(str.CmpNC("SU") == 0)
+								else if(str.IsEqiAscii("SU"))
 									AperakInfo.SupplGLN = (const char *)p_node->children->children->content; // GLN поставщика
-								else if(str.CmpNC("DP") == 0)
+								else if(str.IsEqiAscii("DP"))
 									AperakInfo.AddrGLN = (const char *)p_node->children->children->content; // GLN адреса доставки
 							}
 						}

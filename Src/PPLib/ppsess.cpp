@@ -2346,7 +2346,7 @@ int SLAPI PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 			PPSetAddedMsgString(fname);
 			THROW_PP(f = fopen(fname, "r"), PPERR_CANTOPENFILE);
 			fread(buf, sizeof(signature), 1, f);
-			if(*(long *)buf == signature) {
+			if(*reinterpret_cast<const long *>(buf) == signature) {
 				LTIME t = getcurtime_();
 				if(!forceUpdate || (t % 17) != 1) {
 					fread(&machine_id, sizeof(machine_id), 1, f);
@@ -2704,7 +2704,7 @@ int SLAPI PPSession::SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, ui
 	return ok;
 }
 
-int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
+int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	enum {
         logmOrdinary          = 0,
@@ -3030,12 +3030,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			}
 			else
 				r_lc.AccessLevel   = 0;
-			THROW_PP(CheckLicense(&machine_id, &is_demo) > 0, PPERR_MAX_SESSION_DEST);
+			if(!(flags & loginfSkipLicChecking)) { // @v10.8.11
+				THROW_PP(CheckLicense(&machine_id, &is_demo) > 0, PPERR_MAX_SESSION_DEST);
+			}
 			SETFLAG(r_lc.State, CFGST_DEMOMODE, is_demo);
 			if(!CMng.HasDbEntry(db_path_id)) {
 				const ulong cur_process_id = GetCurrentProcessId();
 				const char * p_func_name = "Login";
-				if(!ProcessIdToSessionId(cur_process_id, &term_sess_id)) {
+				if(!::ProcessIdToSessionId(cur_process_id, &term_sess_id)) {
 					PPGetMessage(mfError, PPERR_SLIB, 0, 0, msg_buf.Z());
 					msg_buf.Space().CatEq("Function", p_func_name);
 					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
@@ -3274,7 +3276,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						char   secret[64];
 						PPVersionInfo vi = DS.GetVersionInfo();
 						THROW(vi.GetSecret(secret, sizeof(secret)));
-						THROW(DS.Login(DbSymb, PPSession::P_JobLogin, secret));
+						THROW(DS.Login(DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 						memzero(secret, sizeof(secret));
 						{
 							PPLoadText(PPTXT_LOG_DISPTHRCROK, msg_buf);

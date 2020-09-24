@@ -597,9 +597,10 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 					POINT  p;
 					GetCursorPos(&p);
 					TMenuPopup menu;
+					uint   cmd = 0;
 					SLS.LoadString_("close", menu_text);
 					menu.Add(menu_text.Transf(CTRANSF_INNER_TO_OUTER), cmaDelete);
-					if(menu.Execute(hWnd, TMenuPopup::efRet) == cmaDelete) {
+					if(menu.Execute(hWnd, TMenuPopup::efRet, &cmd, 0) && cmd == cmaDelete) {
 						int    idx = 0;
 						HWND   tab_hwnd = GetDlgItem(hWnd, CTL_SHORTCUTS_ITEMS);
 						TCITEM tci;
@@ -612,7 +613,7 @@ INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 						tci.mask = TCIF_PARAM;
 						idx = TabCtrl_HitTest(tab_hwnd, &ti);
 						if(TabCtrl_GetItem(tab_hwnd, idx, &tci))
-							DestroyWindow(reinterpret_cast<BrowserWindow *>(tci.lParam)->H());
+							::DestroyWindow(reinterpret_cast<BrowserWindow *>(tci.lParam)->H());
 					}
 					break;
 				}

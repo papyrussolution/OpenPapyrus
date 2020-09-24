@@ -1833,7 +1833,7 @@ void PPApp::login(int processCmdLine)
 			if(db_id && dbes.GetByID(db_id, &dlb)) {
 				PPWait(1);
 				dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb);
-				if(DS.Login(db_symb, usr_, pw) && InitMenuBar()) {
+				if(DS.Login(db_symb, usr_, pw, 0) && InitMenuBar()) {
 					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && oper_date != getcurdate_()) {
 						DS.Logout();
 						PPSetError(PPERR_OPERDATEDIFSYSDATE);

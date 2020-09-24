@@ -1235,7 +1235,7 @@ struct _PPSupplAgt {       // @persistent @store(PropertyTbl)
 // static
 int FASTCALL PPObjArticle::PropToSupplAgt(const PropertyTbl::Rec & rPropRec, PPSupplAgreement * pAgt)
 {
-	const _PPSupplAgt & r_agt = *(const _PPSupplAgt *)&rPropRec;
+	const _PPSupplAgt & r_agt = *reinterpret_cast<const _PPSupplAgt *>(&rPropRec);
 	pAgt->SupplID         = r_agt.ArtID;
 	pAgt->Flags           = (r_agt.Flags | AGTF_LOADED);
 	pAgt->BegDt           = r_agt.BegDt;
@@ -1299,7 +1299,6 @@ int FASTCALL PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, i
 				ok = 1;
 			}
 			else {
-				// @v8.2.2 {
 				if(id && useInheritance) {
 					PPObjPersonRelType rt_obj;
 					PPPersonRelTypePacket rt_pack;
@@ -1317,7 +1316,6 @@ int FASTCALL PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, i
 						}
 					}
 				}
-				// } @v8.2.2
 				if(r < 0)
 					pAgt->Flags |= AGTF_LOADED;
 			}

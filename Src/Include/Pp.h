@@ -7321,7 +7321,10 @@ public:
 	int    SLAPI GetDriveMapping(int drive, SString & rMapping) const;
 	int    SLAPI ConvertPathToUnc(SString & rPath) const;
 	int    SLAPI CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur);
-	int    SLAPI Login(const char * pDbSymb, const char * pUserName, const char * pPassword);
+	enum {
+		loginfSkipLicChecking = 0x0001
+	};
+	int    SLAPI Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
 	int    SLAPI Logout();
 	//
 	// Descr: Флаги функции OpenDictionary2
@@ -9229,7 +9232,7 @@ public:
 	int    SLAPI SearchOrderParamEntry(const PPSupplAgreement::OrderParamEntry & rKey, int thisPos, uint * pFoundPos) const;
 	int    SLAPI SetOrderParamEntry(int pos, PPSupplAgreement::OrderParamEntry & rEntry, uint * pResultPos);
 
-	SVerT  Ver;             // @v8.5.0 Версия системы, создавшей экземпляр
+	SVerT  Ver;             // Версия системы, создавшей экземпляр
 	PPID   SupplID;
 	long   Flags;
 	LDATE  BegDt;
@@ -9238,9 +9241,8 @@ public:
 	int16  InvPriceAction;   // Действие при неверной цене
 	int16  DefDlvrTerm;      // Срок доставки товара в днях, начиная с даты документа закупки
 	int16  PctRet;           // Максимальный объем возврата товара по накладной в процентах от суммы накладной //
-	// @v8.5.2 int16  OrdPrdDays;       // Период для расчета заказа поставщику при автоматическом формировании документов заказа поставщику (дней)
-	int16  Reserve_opd;      // @v8.5.2 @reserve Чтобы не ломать формат сериализации заменим устаревший OrdPrdDays на Reserve_opd
-	int16  Reserve;          // @alignment
+	int16  Reserve_opd;      //  
+	int16  Reserve;          // 
 	PPID   DefAgentID;       // Агент, закрепленный за поставщиком
 	PPID   CostQuotKindID;   // ! Вид котировки, управляющей контрактными ценами поставщиков
 	PPID   PurchaseOpID;     // ! Вид операции закупки (драфт-приход)
@@ -9249,9 +9251,6 @@ public:
 	PPID   MngrRelID;        // ! Тип отношения, определяющий привязку поставщиков к менеджерам
 	//PPSupplExchangeCfg ExchCfg; // Конфигурация обмена данными для данного поставщика @obsolete since @v8.5.0
 	DateRepeating Dr;        // @v8.5.0
-	// @v8.5.0 int16  OrdDrPrd;         // Календарь для автоматического создания документов
-	// @v8.5.0 int16  OrdDrKind;        // заказа поставщику
-	// @v8.5.0 int32  OrdDrDtl;         //
 	struct FlatBlock {
 		uint8  FbReserve[32]; // @reserve
 	} Fb;                    // @v8.5.0
@@ -19096,6 +19095,7 @@ class PPGlobalUserAccPacket {
 public:
 	SLAPI  PPGlobalUserAccPacket();
 	int    FASTCALL IsEqual(const PPGlobalUserAccPacket & rS) const;
+	PPGlobalUserAccPacket & Z();
 
 	PPGlobalUserAcc Rec;
 	ObjTagList TagL;        // Список тегов
@@ -21364,23 +21364,24 @@ private:
 //
 // @ModuleDecl(PPObjStyloPalm)
 //
-#define PLMF_IMPASCHECKS      0x0001 // Документы с устройства можно импортировать как чеки.
+#define PLMF_IMPASCHECKS        0x0001 // Документы с устройства можно импортировать как чеки.
 	// Этот флаг не исключает возможности принимать документы с устройства и как обычные документы.
-#define PLMF_GENERIC          0x0002 // Обобщенная запись, определяющая конфигурацию для нескольких устройств
-#define PLMF_EXPCLIDEBT       0x0004 // Экспортировать долги по клиентам
-#define PLMF_EXPSELL          0x0008 // Экспортировать продажи
-#define PLMF_EXPBRAND         0x0010 // Экспортировать бренды и владельцев брендов
-#define PLMF_INHFLAGS         0x0020 // Все флаги (кроме этого, конечно) наследуются от родительской группы
-#define PLMF_EXPLOC           0x0040 // Экспортировать склады
-#define PLMF_EXPSTOPFLAG      0x0080 // Экспортировать признак 'стоп' для клиентов
-#define PLMF_ANDROID          0x0100 // КПК на базе google android. Экспорт/импорт в виде xml файла
-#define PLMF_EXPIMAGES        0x0200 // Экспортировать картинки
-#define PLMF_PALMLINKED       0x0400 // Данная учетная запись связана с КПК (только для Андроид)
-#define PLMF_DISABLCEDISCOUNT 0x0800 // @v8.6.10 Запрет на установку общей скидки по заказу
-#define PLMF_REGISTERED       0x1000 // @v8.7.0 Признак состоявшейся централизованной регистрации устройса. Если установлен, то последующая регистрация не возможна
-#define PLMF_BLOCKED          0x2000 // @v9.4.7 Признак блокированного (украденного) устройства
-#define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT)
-#define PLMF_TRANSMITMASK     (PLMF_DISABLCEDISCOUNT) // @v8.6.10 Флаги, которые передаются на устройство полем StyloFlags
+#define PLMF_GENERIC            0x0002 // Обобщенная запись, определяющая конфигурацию для нескольких устройств
+#define PLMF_EXPCLIDEBT         0x0004 // Экспортировать долги по клиентам
+#define PLMF_EXPSELL            0x0008 // Экспортировать продажи
+#define PLMF_EXPBRAND           0x0010 // Экспортировать бренды и владельцев брендов
+#define PLMF_INHFLAGS           0x0020 // Все флаги (кроме этого, конечно) наследуются от родительской группы
+#define PLMF_EXPLOC             0x0040 // Экспортировать склады
+#define PLMF_EXPSTOPFLAG        0x0080 // Экспортировать признак 'стоп' для клиентов
+#define PLMF_ANDROID            0x0100 // КПК на базе google android. Экспорт/импорт в виде xml файла
+#define PLMF_EXPIMAGES          0x0200 // Экспортировать картинки
+#define PLMF_PALMLINKED         0x0400 // Данная учетная запись связана с КПК (только для Андроид)
+#define PLMF_DISABLCEDISCOUNT   0x0800 // Запрет на установку общей скидки по заказу
+#define PLMF_REGISTERED         0x1000 // Признак состоявшейся централизованной регистрации устройса. Если установлен, то последующая регистрация не возможна
+#define PLMF_BLOCKED            0x2000 // Признак блокированного (украденного) устройства
+#define PLMF_TREATDUEDATEASDATE 0x4000 // @v10.8.11 При импорте заказов трактовать дату исполнения заказа как основную дату документа
+#define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT|PLMF_TREATDUEDATEASDATE)
+#define PLMF_TRANSMITMASK     (PLMF_DISABLCEDISCOUNT) // Флаги, которые передаются на устройство полем StyloFlags
 //
 // Descr: Флаги режима отслеживания гео-позиции устройства
 //
@@ -21405,14 +21406,14 @@ struct PPStyloPalm2 {          // @persistent @store(Reference2Tbl+)
 	char   Name[48];           // @name @!refname
 	char   Symb[20];           //
 	int32  MaxUnsentOrders;  // Максимальное кол-во неотправленных заявок. При достижении этого числа, блокируется создание новой заявки.
-	LDATETIME RegisterTime;    // @v8.7.0 Время регистрации (для централизованной регистрации устройств)
-	LDATETIME LastExchgTime;   // @v8.7.0 Время последнего обмена данными
-	uint32 DeviceVer;          // @v8.7.0 Версия системы на устройсве, считанная при последнем обмене
-  	int16  TransfDaysAgo;      // @v9.2.2 Количество дней назад, начиная с которого надо отправлять документы с устройства. 0 - все, что есть
-  	char   Reserve1[6];        // @reserve // @v9.2.2 [12]-->[10]
-  	int32  InhBillTagVal;      // @v9.2.10 Значение тега документа, наследуемое принимаемыми заказами от устройства
+	LDATETIME RegisterTime;    // Время регистрации (для централизованной регистрации устройств)
+	LDATETIME LastExchgTime;   // Время последнего обмена данными
+	uint32 DeviceVer;          // Версия системы на устройсве, считанная при последнем обмене
+  	int16  TransfDaysAgo;      // Количество дней назад, начиная с которого надо отправлять документы с устройства. 0 - все, что есть
+  	char   Reserve1[6];        // @reserve 
+  	int32  InhBillTagVal;      // Значение тега документа, наследуемое принимаемыми заказами от устройства
 		// Сам тег определяется в конфигурации StyloPalm
-	PPGeoTrackingMode Gtm;     // @v8.6.8 Режим отслеживания положения устройства
+	PPGeoTrackingMode Gtm;     // Режим отслеживания положения устройства
 	PPID   ObsoleteLocID;      // ->Location.ID // @v8.6.8 LocID-->ObsoleteLocID поле более не используется - только список складов PPStyloPalmPacket::LocList
 	PPID   GoodsGrpID;         //
 	PPID   OrderOpID;          // ->Ref(PPOBJ_OPRKIND)
@@ -21453,12 +21454,13 @@ public:
 //
 //
 struct PalmBillItem {
+	SLAPI  PalmBillItem();
 	PPID   GoodsID;
 	double Qtty;
 	double Price;
 };
 
-class PalmBillPacket : private SVector { // @v9.8.9 SArray-->SVector
+class PalmBillPacket : private SVector {
 public:
 	SLAPI  PalmBillPacket();
 	void   SLAPI Init();
@@ -34531,7 +34533,8 @@ public:
 	enum { // @persistent
 		extssMemo     = 1,
 		extssPassword = 2,
-		extssPhone    = 3  // @v9.4.6
+		extssPhone    = 3, // @v9.4.6
+		extssOuterId  = 4  // @v10.8.11 Если эмитентом карты является сторонняя организация, то здесь может быть указан ид карты, заданный эмитентом (guid, например)
 	};
 	SCardTbl::Rec Rec;
 };
@@ -50910,7 +50913,8 @@ protected:
 	int    SLAPI getCurString(SString & rBuf) const;
 	int    SLAPI getText(long itemN /* 0.. */, SString & rBuf);
 
-	uint   ctlList;
+	uint   CtlList;
+	uint   ContextMenuID; // @v10.8.11
 	enum {
 		oHasOkButton   = 0x0001,
 		oHasEditButton = 0x0002,
@@ -51018,6 +51022,7 @@ private:
 	void   setupButtons();
 	void   updateList(long);
 	int    Print();
+	void   ViewTotal();
 
 	PPID   CurIterID;
 	GoodsGroupIterator * P_Iter;
@@ -51997,10 +52002,10 @@ protected:
 	};
 	const  PPID CashNodeID;  // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ExtCashNodeID;    // @*CheckPaneDialog::CheckPaneDialog
-	PPID   AltRegisterID;    // @v9.6.9 @*CheckPaneDialog::CheckPaneDialog
+	PPID   AltRegisterID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   TouchScreenID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ScaleID;          // @*CheckPaneDialog::CheckPaneDialog
-	PPID   CnPhnSvcID;       // @v9.9.10 PPObjCashNode(CashNodeID).PhSvcID
+	PPID   CnPhnSvcID;       // PPObjCashNode(CashNodeID).PhSvcID
 	long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))
 	long   CnExtFlags;       // @*CheckPaneDialog::CheckPaneDialog PPObjCashNode(CashNodeID).ExtFlags
 	long   CnSpeciality;     // PPObjCashNode(CashNodeID).Speciality
@@ -52010,7 +52015,7 @@ protected:
 	long   UiFlags;          // CheckPaneDialog::uifXXX Флаги пользовательского интерфейса
 	int    State_p;          // CheckPaneDialog::sXXX
 	long   OperRightsFlags;  // CheckPaneDialog::orfXXX
-	int    EgaisMode;        // @v9.0.9 Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим).
+	int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим).
 		// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
 		// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
 	double BonusMaxPart;     // @*CPosProcessor::CPosProcessor()
@@ -52051,13 +52056,13 @@ protected:
 	CardState CSt;
 	PPCashMachine    * P_CM;
 	PPCashMachine    * P_CM_EXT;
-	PPCashMachine    * P_CM_ALT; // @v9.6.11
+	PPCashMachine    * P_CM_ALT;
 	GoodsToObjAssoc  * P_GTOA;
 	PPObjTSession    * P_TSesObj;
 	SArray * P_DivGrpList;
 	CCheckPacket * P_ChkPack;
 	PPViewCCheck * P_CcView;
-	PPEgaisProcessor * P_EgPrc; // @v9.0.9
+	PPEgaisProcessor * P_EgPrc;
 	S_GUID SessUUID;
 };
 
@@ -52100,8 +52105,8 @@ private:
 		sgmModifier,
 		sgmRandom,
 		sgmInnerGoodsList,
-		sgmAbstractSale, // @v9.5.10
-		sgmAllByName     // @v9.6.3 Все товары по наименованию (режим применяется в случае,
+		sgmAbstractSale, // 
+		sgmAllByName     // Все товары по наименованию (режим применяется в случае,
 			// если необходимо отобразить все товары, содержащие строку, и не зависимо от остатка,
 			// но опции кассового узла предписывают показывать только то, что есть на остатке).
 	};
@@ -52177,6 +52182,7 @@ private:
 	SCycleTimer UhttImportTimer;
 
 	struct GrpListItem { // @flat
+		SLAPI  GrpListItem();
 		enum {
 			fFolder = 0x0001,
 			fOpened = 0x0002,
@@ -53343,6 +53349,7 @@ int    FASTCALL GetRealRangeInput(TDialog *, uint ctl, RealRange *);
 int    FASTCALL SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
 int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
 int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
+int    SLAPI PPExecuteContextMenu(TView * pView, uint menuID);
 int    SLAPI ViewGoodsTurnover(long);
 int    SLAPI PrintDialog(SPrinter *);
 int    SLAPI FastEditRightsDialog();

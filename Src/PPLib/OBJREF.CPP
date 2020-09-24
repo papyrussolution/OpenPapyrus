@@ -1988,6 +1988,13 @@ SLAPI PPGlobalUserAccPacket::PPGlobalUserAccPacket()
 	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
+PPGlobalUserAccPacket & PPGlobalUserAccPacket::Z()
+{
+	MEMSZERO(Rec);
+	TagL.Destroy();
+	return *this;
+}
+
 int FASTCALL PPGlobalUserAccPacket::IsEqual(const PPGlobalUserAccPacket & rS) const
 {
 #define NRECFLD(f) Rec.f != rS.Rec.f

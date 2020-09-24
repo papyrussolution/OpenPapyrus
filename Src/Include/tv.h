@@ -1690,8 +1690,7 @@ public:
 	TMenuPopup();
 	~TMenuPopup();
 	//
-	// Descr: Возвращает количество элементов меню, учпешно добавленных
-	//   функцией Add или AddSubst.
+	// Descr: Возвращает количество элементов меню, успешно добавленных функцией Add или AddSubst.
 	//
 	uint   GetCount() const;
 	//
@@ -1702,6 +1701,7 @@ public:
 	// Note: строка pText должна быть в ANSI-кодировке.
 	//
 	int    Add(const char * pText, int cmd);
+	int    Add(const char * pText, int cmd, int keyCode); // @v10.8.11
 	int    AddSubstr(const char * pText, int idx, int cmd);
 	int    AddSeparator();
 	//
@@ -1709,14 +1709,19 @@ public:
 	//
 	enum {
 		efRet        = 0x0001, // Возвращать результат выбора. Если этот флаг установлен, то
-			// то функция вернет номер выбранного элемента.
+			// функция вернет номер выбранного элемента.
 			// При установке флага меню не отсылает извещение окну hWnd.
 	};
-	int    Execute(HWND hWnd, long flags = 0);
+	int    Execute(HWND hWnd, long flags, uint * pCmd, uint * pKeyCode);
 private:
 	void * H;
 	long   State;
-	uint   Count; // Количество "живых" элементов (не сепараторов). Изменяется функциям Add и AddSubstr
+	//uint   Count; // Количество "живых" элементов (не сепараторов). Изменяется функциям Add и AddSubstr
+	struct Item {
+		uint   Cmd;
+		uint   KeyCode;
+	};
+	TSVector <Item> L;
 };
 
 class TWindow : public TGroup {
@@ -1816,7 +1821,7 @@ private:
 
 	class LocalMenuPool {
 	public:
-		LocalMenuPool(TWindow * pWin);
+		explicit LocalMenuPool(TWindow * pWin);
 		int    AddItem(uint ctrlId, uint buttonId, long keyCode, const char * pText);
 		int    GetCtrlIdByButtonId(uint buttonId, uint * pCtrlId) const;
 		int    GetButtonIdByCtrlId(uint ctrlId, uint * pButtonId) const;
@@ -1828,7 +1833,7 @@ private:
 			long   KeyCode;
 			uint   StrPos;
 		};
-		SVector List; // @v9.8.4 SArray-->SVector
+		SVector List; 
 		StringSet StrPool;
 		TWindow * P_Win; // @notowned
 	};

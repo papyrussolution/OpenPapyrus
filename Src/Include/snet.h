@@ -566,29 +566,31 @@ public:
 		//   act as request modifiers, with semantics equivalent to the parameters on a
 		//   programming language method invocation (see RFC2616).
 		//
-		hdrAccept,         // "Accept"
-		hdrAcceptCharset,  // "Accept-Charset"
-		hdrAcceptEnc,      // "Accept-Encoding"
-		hdrAcceptLang,     // "Accept-Language"
-		hdrAuthorization,  // "Authorization"
-		hdrExpect,         // "Expect"
-		hdrFrom,           // "From"
-		hdrHost,           // "Host"
-		hdrIfMatch,        // "If-Match"
-		hdrIfModifSince,   // "If-Modified-Since"
-		hdrIfNonMatch,     // "If-None-Match"
-		hdrIfRange,        // "If-Range"
-		hdrIfUnmodifSince, // "If-Unmodified-Since"
-		hdrMaxForwards,    // "Max-Forwards"
-		hdrProxiAuth,      // "Proxy-Authorization"
-		hdrRange,          // "Range"
-		hdrReferer,        // "Referer"
-		hdrTransferExt,    // "TE"
-		hdrUserAgent,      // "User-Agent"
+		hdrAccept,           // "Accept"
+		hdrAcceptCharset,    // "Accept-Charset"
+		hdrAcceptEnc,        // "Accept-Encoding"
+		hdrAcceptLang,       // "Accept-Language"
+		hdrAuthorization,    // "Authorization"
+		hdrExpect,           // "Expect"
+		hdrFrom,             // "From"
+		hdrHost,             // "Host"
+		hdrIfMatch,          // "If-Match"
+		hdrIfModifSince,     // "If-Modified-Since"
+		hdrIfNonMatch,       // "If-None-Match"
+		hdrIfRange,          // "If-Range"
+		hdrIfUnmodifSince,   // "If-Unmodified-Since"
+		hdrMaxForwards,      // "Max-Forwards"
+		hdrProxiAuth,        // "Proxy-Authorization"
+		hdrRange,            // "Range"
+		hdrReferer,          // "Referer"
+		hdrTransferExt,      // "TE"
+		hdrUserAgent,        // "User-Agent"
 		//
-		hdrSoapAction,     // "SoapAction"
-		hdrAuthToken,      // authorization-token
-		hdrAuthSecret,     // authorization-secret
+		hdrSoapAction,       // "SoapAction"
+		hdrAuthToken,        // authorization-token
+		hdrAuthSecret,       // authorization-secret
+		hdrXOriginRequestId, // X-Origin-Request-Id
+		hdrXTimestamp        // X-Timestamp
 	};
 	enum AuthType {
 		authtUnkn = 0,

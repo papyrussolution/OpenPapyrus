@@ -295,12 +295,13 @@ int SLAPI Rc2Data::InitCurCtrlMenu(const char * pName)
 	return 1;
 }
 
-int SLAPI Rc2Data::AddCtrlMenuItem(const char * pDescr, const char * pKeyCode)
+int SLAPI Rc2Data::AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode) // @v10.8.11 pCmdCode
 {
 	if(P_CurCtrlMenuDef) {
 		CtrlMenuItem item;
 		STRNSCPY(item.Descr, pDescr);
 		STRNSCPY(item.KeyCode, pKeyCode);
+		STRNSCPY(item.CmdCode, pCmdCode); // @v10.8.11
 		P_CurCtrlMenuDef->insert(&item);
 		return 1;
 	}
@@ -876,8 +877,8 @@ int SLAPI Rc2Data::GenerateCtrlMenuDefinitions()
 {
 	//
 	// PPCTRLMENU_XXX PP_RCDECLCTRLMENU { items_count,
-	//	"Text\0", keyCode,
-	//	"Text\0", keyCode,
+	//	"Text\0", keyCode, cmdCode
+	//	"Text\0", keyCode, cmdCode
 	// }
 	//
 	SString temp_buf, symb;
@@ -890,6 +891,13 @@ int SLAPI Rc2Data::GenerateCtrlMenuDefinitions()
 		for(uint j = 0; j < p_def->getCount(); j++) {
 			const CtrlMenuItem & r_item = p_def->at(j);
 			temp_buf.CatChar('\t').CatChar('\"').Cat(r_item.Descr).Cat("\\0\"").CatDiv(',', 2).Cat(r_item.KeyCode);
+			// @v10.8.11 {
+			if(!isempty(r_item.CmdCode)) {
+				temp_buf.CatDiv(',', 2).Cat(r_item.CmdCode);
+			}
+			else
+				temp_buf.CatDiv(',', 2).Cat("0");
+			// } @v10.8.11 
 			if(j < (p_def->getCount()-1))
 				temp_buf.Comma();
 			temp_buf.CR();

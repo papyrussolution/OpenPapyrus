@@ -1125,7 +1125,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 	ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BIZSCORE_DBSYMB, db_symb);
 	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BIZSCORES_PATH, bizsc_path);
 	THROW(vi.GetSecret(secret, sizeof(secret)));
-	THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret));
+	THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 	memzero(secret, sizeof(secret));
 	{
 		GlobalBizScoreArray bizsc_list;

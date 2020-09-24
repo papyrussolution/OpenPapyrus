@@ -3720,10 +3720,10 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 													json_t * p_json_doc = 0;
 													THROW_SL(json_parse_document(&p_json_doc, temp_buf.cptr())==JSON_OK);
 													for(json_t * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-														if(p_cur->Type==json_t::tOBJECT) {
+														if(p_cur->Type == json_t::tOBJECT) {
 															for(const json_t * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
 																if(p_obj->Text.IsEqiAscii("response")) {
-																	const json_t *p_response_node = p_obj->P_Child;
+																	const json_t * p_response_node = p_obj->P_Child;
 																	if(p_response_node->P_Child) {
 																		for(const json_t * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
 																			if(p_response_item->Text.IsEqiAscii("market_item_id")) {

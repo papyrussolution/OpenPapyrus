@@ -196,11 +196,11 @@ IMPL_HANDLE_EVENT(ListWindow)
 					if(LoadToolbar(P_SlRez, TV_EXPTOOLBAR, TbId, &tb_items)) {
 						ToolbarItem tb_item;
 						for(uint i = 0; tb_items.enumItems(&i, &tb_item) > 0;)
-							menu.Add(tb_item.ToolTipText, (tb_item.Cmd) ? tb_item.Cmd : tb_item.KeyCode);
+							menu.Add(tb_item.ToolTipText, NZOR(tb_item.Cmd, tb_item.KeyCode));
 					}
 				}
-				int    cmd = menu.Execute(H(), TMenuPopup::efRet);
-				if(cmd > 0)
+				uint   cmd = 0;
+				if(menu.Execute(H(), TMenuPopup::efRet, &cmd, 0) && cmd)
 					TView::messageCommand(this, cmd);
 				else
 					return;

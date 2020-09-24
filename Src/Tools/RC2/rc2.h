@@ -185,6 +185,7 @@ struct CmdDefinition {
 struct CtrlMenuItem {
 	char   Descr[128];
 	char   KeyCode[32];
+	char   CmdCode[64]; // @v10.8.11
 };
 
 class CtrlMenuDefinition : public TSArray <CtrlMenuItem> {
@@ -304,7 +305,7 @@ public:
 	int    SLAPI AddView(const ViewDefinition *, SString & rErrMsg);
 	int    SLAPI AddReportStub(const ReportStubDefinition *, SString & rErrMsg);
 	int    SLAPI InitCurCtrlMenu(const char * pName);
-	int    SLAPI AddCtrlMenuItem(const char * pDescr, const char * pKeyCode);
+	int    SLAPI AddCtrlMenuItem(const char * pDescr, const char * pKeyCode, const char * pCmdCode); // @v10.8.11 pCmdCode
 	int    SLAPI AcceptCtrlMenu();
 	int    SetFieldDefinition(const char * pName, TYPEID typ, long fmt, const char * pDescr, SString & rErrMsg);
 	int    AddRecord(const char * pName, SString & rErrMsg); // @>>AddSymb

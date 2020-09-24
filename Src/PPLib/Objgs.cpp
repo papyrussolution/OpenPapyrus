@@ -1263,7 +1263,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 	else if(event.isCmd(cmPrint))
 		GsObj.Print(&Data);
 	else if(event.isCmd(cmLBItemFocused)) {
-		if(event.isCtlEvent(ctlList) && !enableEditRecurStruc())
+		if(event.isCtlEvent(CtlList) && !enableEditRecurStruc())
 			PPError();
 	}
 	else if(event.isKeyDown(KB_CTRLENTER)) {

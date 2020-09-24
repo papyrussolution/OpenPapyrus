@@ -455,13 +455,11 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	}
 	else
 		PPSetupCtrlMenu(this, CTL_LOT_COST, CTLMNU_LOT_COST, CTRLMENU_TI_COST);
-	// @v9.4.3 {
 	{
 		SString temp_buf;
 		if(GetOpName(opID, temp_buf) > 0)
 			setTitle(temp_buf);
 	}
-	// } @v9.4.3
 	// @v10.2.4 {
 	{
 		TInputLine * p_pk_inp = static_cast<TInputLine *>(getCtrlView(CTL_LOT_PACKS));

@@ -1833,6 +1833,7 @@
 #define cmTsList                 1174 // Кнопка списка временных серий
 #define cmPersonList             1175 // Кнопка списка персоналий
 #define cmGuaList                1176 // @v10.5.3 // @v10.8.9 made-global
+#define cmTotal                  1177 // @v10.8.11
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)

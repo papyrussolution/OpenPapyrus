@@ -741,7 +741,7 @@ void SLAPI PPJobSession::Run()
 		debug_r = 1;
 		THROW(vi.GetSecret(secret, sizeof(secret)));
 		debug_r = 2;
-		THROW(DS.Login(Job.DbSymb, PPSession::P_JobLogin, secret));
+		THROW(DS.Login(Job.DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 		memzero(secret, sizeof(secret));
 		is_logged_in = 1;
 	}
@@ -2387,7 +2387,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			{
 				SString pwd;
 				Reference::Decrypt(Reference::crymRef2, temp_buf, temp_buf.Len(), pwd);
-				int   lr = DS.Login(db_symb, name, pwd);
+				int   lr = DS.Login(db_symb, name, pwd, PPSession::loginfSkipLicChecking);
 				pwd.Obfuscate();
 				if(!lr) {
 					rReply.SetString(temp_buf.Z().CatChar('0'));
@@ -2445,7 +2445,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 			pEv->GetParam(1, db_symb); // PPGetExtStrData(1, pEv->Params, db_symb);
 			pEv->GetParam(2, name); // PPGetExtStrData(2, pEv->Params, name);
 			pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
-			THROW(DS.Login(db_symb, name, temp_buf) > 0);
+			THROW(DS.Login(db_symb, name, temp_buf, PPSession::loginfSkipLicChecking) > 0);
 			State |= stLoggedIn;
 			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
 			{
